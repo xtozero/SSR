@@ -16,6 +16,9 @@
     <Filter Include="Direct11">
       <UniqueIdentifier>{760371a0-97b4-45ae-9f7c-514816113782}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Direct11\Shader">
+      <UniqueIdentifier>{2261c28c-7442-4035-b441-319f10df8e67}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -45,6 +48,15 @@
     <ClInclude Include="D3D11IndexBuffer.h">
       <Filter>Direct11</Filter>
     </ClInclude>
+    <ClInclude Include="IShader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D11VertexShader.h">
+      <Filter>Direct11\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D11PixelShader.h">
+      <Filter>Direct11\Shader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -64,6 +76,12 @@
     </ClCompile>
     <ClCompile Include="D3D11IndexBuffer.cpp">
       <Filter>Direct11</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D11VertexShader.cpp">
+      <Filter>Direct11\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D11PixelShader.cpp">
+      <Filter>Direct11\Shader</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

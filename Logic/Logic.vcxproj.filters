@@ -14,7 +14,7 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="헤더 파일\RenderCore">
-      <UniqueIdentifier>{87af320b-493a-432c-8c79-48a16f9e9527}</UniqueIdentifier>
+      <UniqueIdentifier>{6910d836-959a-4c11-8a8a-13bbb99f0d19}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -30,12 +30,6 @@
     <ClInclude Include="GameLogic.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="..\RenderCore\Direct3D11.h">
-      <Filter>헤더 파일\RenderCore</Filter>
-    </ClInclude>
-    <ClInclude Include="..\RenderCore\IRenderer.h">
-      <Filter>헤더 파일\RenderCore</Filter>
-    </ClInclude>
     <ClInclude Include="Timer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -44,6 +38,12 @@
     </ClInclude>
     <ClInclude Include="DebugConsole.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\RenderCore\Direct3D11.h">
+      <Filter>헤더 파일\RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\RenderCore\IRenderer.h">
+      <Filter>헤더 파일\RenderCore</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

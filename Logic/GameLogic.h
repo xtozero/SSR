@@ -10,9 +10,10 @@ private:
 	void EndLogic ( void );
 
 public:
+	bool Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight );
+	void UpdateLogic ( void );
+
 	CGameLogic ();
 	~CGameLogic ();
-
-	void UpdateLogic ( void );
 };
 

@@ -2,6 +2,15 @@
 #include "common.h"
 #include "Direct3D11.h"
 
+namespace
+{
+	IRenderer* CreateDirect3D11Renderer ()
+	{
+		static CDirect3D11 direct3D11;
+		return &direct3D11;
+	}
+};
+
 bool CDirect3D11::InitializeRenderer ( HWND hWind, UINT nWndWidth, UINT nWndHeight )
 {
 	ON_FAIL_RETURN ( CreateD3D11Device ( hWind, nWndWidth, nWndHeight ) );
@@ -191,4 +200,5 @@ m_pd3d11PrimeDSView ( NULL )
 
 CDirect3D11::~CDirect3D11 ()
 {
+	ShutDownRenderer ();
 }

@@ -8,12 +8,10 @@
 
 #define MAX_LOADSTRING 100
 
-#pragma comment( lib, "../bin/RenderCore.lib" )
 #pragma comment( lib, "../bin/Logic.lib")
 
 namespace
 {
-	CDirect3D11 gRenderer;
 	CGameLogic gGameLogic;
 }
 
@@ -69,8 +67,6 @@ int APIENTRY _tWinMain ( _In_ HINSTANCE hInstance,
 		else
 		{
 			gGameLogic.UpdateLogic ();
-			gRenderer.ClearRenderTargetView ();
-			gRenderer.Present ();
 		}
 	}
 
@@ -132,7 +128,7 @@ BOOL InitInstance ( HINSTANCE hInstance, int nCmdShow )
 	RECT wndRect;
 	::GetWindowRect ( hWnd, &wndRect );
 
-	if ( !gRenderer.InitializeRenderer ( hWnd, wndRect.right, wndRect.bottom ) )
+	if ( !gGameLogic.Initialize( hWnd, wndRect.right, wndRect.bottom ) )
 	{
 		return false;
 	}
@@ -183,7 +179,6 @@ LRESULT CALLBACK WndProc ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 		EndPaint ( hWnd, &ps );
 		break;
 	case WM_DESTROY:
-		gRenderer.ShutDownRenderer ();
 		PostQuitMessage ( 0 );
 		break;
 	default:

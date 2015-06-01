@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "common.h"
 #include "D3D11IndexBuffer.h"
 
 bool D3D11IndexBuffer::CreateBuffer ( const D3D11_CREATE_IB_TRAIT& trait )
@@ -8,12 +9,12 @@ bool D3D11IndexBuffer::CreateBuffer ( const D3D11_CREATE_IB_TRAIT& trait )
 		&m_pIndexBuffer ) );
 }
 
-D3D11IndexBuffer::D3D11IndexBuffer ()
+D3D11IndexBuffer::D3D11IndexBuffer ( ) : m_pIndexBuffer ( NULL )
 {
 }
 
 
 D3D11IndexBuffer::~D3D11IndexBuffer ()
 {
-	m_pIndexBuffer->Release ();
+	SAFE_RELEASE ( m_pIndexBuffer );
 }

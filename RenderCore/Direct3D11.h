@@ -6,6 +6,11 @@
 #include <D3DX11.h>
 #include <DXGI.h>
 
+namespace
+{
+	RENDERCORE_FUNC_DLL IRenderer* CreateDirect3D11Renderer ( );
+};
+
 class RENDERCORE_DLL CDirect3D11 : public IRenderer
 {
 public:

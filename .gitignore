@@ -12,3 +12,5 @@
 *.res
 *.dll
 *.lib
+*.suo
+*.ipch
