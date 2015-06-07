@@ -95,23 +95,33 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="D3D11BaseBuffer.h" />
     <ClInclude Include="common.h" />
+    <ClInclude Include="D3D11BaseShader.h" />
+    <ClInclude Include="D3D11ConstantBuffer.h" />
     <ClInclude Include="D3D11IndexBuffer.h" />
     <ClInclude Include="D3D11PixelShader.h" />
     <ClInclude Include="D3D11VertexBuffer.h" />
     <ClInclude Include="D3D11VertexShader.h" />
+    <ClInclude Include="DebugMesh.h" />
     <ClInclude Include="Direct3D11.h" />
     <ClInclude Include="IBuffer.h" />
     <ClInclude Include="IRenderer.h" />
     <ClInclude Include="IShader.h" />
+    <ClInclude Include="BaseMesh.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="D3D11BaseBuffer.cpp" />
+    <ClCompile Include="D3D11BaseShader.cpp" />
+    <ClCompile Include="D3D11ConstantBuffer.cpp" />
     <ClCompile Include="D3D11IndexBuffer.cpp" />
     <ClCompile Include="D3D11PixelShader.cpp" />
     <ClCompile Include="D3D11VertexBuffer.cpp" />
     <ClCompile Include="D3D11VertexShader.cpp" />
+    <ClCompile Include="DebugMesh.cpp" />
     <ClCompile Include="Direct3D11.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
@@ -121,11 +131,28 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="BaseMesh.cpp" />
+    <ClCompile Include="Material.cpp" />
     <ClCompile Include="RenderCore.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="util_rendercore.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Shader\psTutorial.fx">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="..\Shader\vsTutorial.fx">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

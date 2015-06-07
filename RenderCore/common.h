@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #ifdef RENDERCORE_EXPORTS
 #define RENDERCORE_DLL __declspec(dllexport)
 #else
@@ -10,6 +12,12 @@
 #define RENDERCORE_FUNC_DLL extern "C" __declspec(dllexport)
 #else
 #define RENDERCORE_FUNC_DLL extern "C" __declspec(dllimport)
+#endif
+
+#ifndef UNICODE  
+typedef std::string String;
+#else
+typedef std::wstring String;
 #endif
 
 #define SAFE_RELEASE( x ) { \
@@ -27,3 +35,21 @@ if ( !x ) \
 if ( x ) \
 	return true; \
 }
+
+#define SAFE_DELETE( x ) { \
+if ( x ) \
+	delete x; \
+	x = NULL; \
+}
+
+#define SAFE_ARRAY_DELETE( x ) { \
+if ( x ) \
+	delete []x; \
+	x = NULL; \
+}
+
+#define FOR_EACH_VEC( x, i ) \
+for ( auto i = x.begin( ); i != x.end( ); ++i )
+
+#define FOR_EACH_MAP( x, i ) \
+for ( auto i = x.begin( ); i != x.end( ); ++i )

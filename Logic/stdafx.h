@@ -5,6 +5,8 @@
 
 #pragma once
 
+#pragma warning( disable:4005 )
+
 #include "targetver.h"
 
 #pragma comment( lib, "../bin/RenderCore.lib")

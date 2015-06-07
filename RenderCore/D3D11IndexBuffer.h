@@ -1,22 +1,16 @@
 #pragma once
 
-#include <D3D11.h>
-#include "IBuffer.h"
+#include "D3D11BaseBuffer.h"
 
-class D3D11_CREATE_IB_TRAIT : public IBufferTrait
-{
-public:
-	ID3D11Device* m_pDevice;
-	D3D11_BUFFER_DESC m_ibDesc;
-};
-
-class D3D11IndexBuffer :
-	public IBuffer
+class D3D11IndexBuffer : public D3D11BaseBuffer
 {
 private:
 	ID3D11Buffer* m_pIndexBuffer;
+	UINT m_stride;
+	UINT m_numOfElement;
+
 public:
-	virtual bool CreateBuffer ( const D3D11_CREATE_IB_TRAIT& trait );
+	bool CreateBuffer( ID3D11Device* m_pDevice, UINT stride, UINT numOfElement, const void* srcData );
 
 	D3D11IndexBuffer ();
 	~D3D11IndexBuffer ();

@@ -3,40 +3,34 @@
 #include "common.h"
 #include "D3D11PixelShader.h"
 
-bool D3D11PixelShader::CreateShader ( const D3D11_CREATE_PS_TRAIT& trait )
+bool D3D11PixelShader::CreateShader ( ID3D11Device* pDevice, const TCHAR* pFilePath, const char* pProfile )
 {
-	HRESULT hr;
-
-	D3DX11CompileFromFile ( trait.m_pFilePath,
-		NULL,
-		NULL,
-		"main",
-		trait.m_pProfile,
-		0,
-		0,
-		NULL,
-		&m_shaderBlob,
-		NULL,
-		&hr );
-
-	if ( SUCCEEDED ( hr ) )
+	if ( pDevice )
 	{
-		if ( SUCCEEDED ( trait.m_pDevice->CreatePixelShader (
-			m_shaderBlob->GetBufferPointer ( ),
-			m_shaderBlob->GetBufferSize ( ),
-			NULL,
-			&m_pPixelShader ) ) )
+		ID3D10Blob* shaderBlob = GetShaderBlob ( pFilePath, pProfile );
+
+		if ( shaderBlob )
 		{
-			return true;
+			bool result = SUCCEEDED ( pDevice->CreatePixelShader (
+				shaderBlob->GetBufferPointer ( ),
+				shaderBlob->GetBufferSize ( ),
+				NULL,
+				&m_pPixelShader ) );
+
+			SAFE_RELEASE ( shaderBlob );
+			return result;
 		}
 	}
 
 	return false;
 }
 
-void D3D11PixelShader::SetShader ( const D3D11_SET_PS_TRAIT& trait )
+void D3D11PixelShader::SetShader ( ID3D11DeviceContext* pDeviceContext )
 {
-	trait.m_pDeviceContext->PSSetShader ( m_pPixelShader, NULL, 0 );
+	if ( pDeviceContext )
+	{
+		pDeviceContext->PSSetShader ( m_pPixelShader, NULL, 0 );
+	}
 }
 
 D3D11PixelShader::D3D11PixelShader ()

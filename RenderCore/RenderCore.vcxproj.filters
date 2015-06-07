@@ -19,6 +19,15 @@
     <Filter Include="Direct11\Shader">
       <UniqueIdentifier>{2261c28c-7442-4035-b441-319f10df8e67}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Mesh">
+      <UniqueIdentifier>{eb737ec2-51ab-4957-8359-4f0074db787b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Direct11\Buffer">
+      <UniqueIdentifier>{33a2abaa-e4a4-4df5-988f-08233263cccb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="fx">
+      <UniqueIdentifier>{f6246641-54f6-4e9d-af0f-2a8948500840}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -39,23 +48,41 @@
     <ClInclude Include="Direct3D11.h">
       <Filter>Direct11</Filter>
     </ClInclude>
-    <ClInclude Include="IBuffer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="D3D11VertexBuffer.h">
-      <Filter>Direct11</Filter>
-    </ClInclude>
-    <ClInclude Include="D3D11IndexBuffer.h">
-      <Filter>Direct11</Filter>
-    </ClInclude>
-    <ClInclude Include="IShader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="D3D11VertexShader.h">
       <Filter>Direct11\Shader</Filter>
     </ClInclude>
     <ClInclude Include="D3D11PixelShader.h">
       <Filter>Direct11\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D11IndexBuffer.h">
+      <Filter>Direct11\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D11VertexBuffer.h">
+      <Filter>Direct11\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D11ConstantBuffer.h">
+      <Filter>Direct11\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="IBuffer.h">
+      <Filter>Direct11\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D11BaseShader.h">
+      <Filter>Direct11\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="IShader.h">
+      <Filter>Direct11\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D11BaseBuffer.h">
+      <Filter>Direct11\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseMesh.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugMesh.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -71,17 +98,46 @@
     <ClCompile Include="Direct3D11.cpp">
       <Filter>Direct11</Filter>
     </ClCompile>
-    <ClCompile Include="D3D11VertexBuffer.cpp">
-      <Filter>Direct11</Filter>
-    </ClCompile>
-    <ClCompile Include="D3D11IndexBuffer.cpp">
-      <Filter>Direct11</Filter>
-    </ClCompile>
     <ClCompile Include="D3D11VertexShader.cpp">
       <Filter>Direct11\Shader</Filter>
     </ClCompile>
     <ClCompile Include="D3D11PixelShader.cpp">
       <Filter>Direct11\Shader</Filter>
     </ClCompile>
+    <ClCompile Include="D3D11IndexBuffer.cpp">
+      <Filter>Direct11\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D11VertexBuffer.cpp">
+      <Filter>Direct11\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D11ConstantBuffer.cpp">
+      <Filter>Direct11\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D11BaseShader.cpp">
+      <Filter>Direct11\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D11BaseBuffer.cpp">
+      <Filter>Direct11\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseMesh.cpp">
+      <Filter>Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugMesh.cpp">
+      <Filter>Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="util_rendercore.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Shader\psTutorial.fx">
+      <Filter>fx</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shader\vsTutorial.fx">
+      <Filter>fx</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

@@ -14,3 +14,5 @@
 *.lib
 *.suo
 *.ipch
+*.dll
+*.lib

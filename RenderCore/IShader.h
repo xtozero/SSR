@@ -1,30 +1,18 @@
 #pragma once
 
+#include <D3D11.h>
+#include <D3DX11.h>
 #include "common.h"
-
-class IShaderTrait
-{
-protected:
-	IShaderTrait () {}
-
-public:
-	virtual ~IShaderTrait () {}
-};
 
 class IShader
 {
 public:
-	virtual bool CreateShader ( const IShaderTrait& trait ) = 0;
-	virtual void SetShader ( const IShaderTrait& trait ) = 0;
+	virtual bool CreateShader ( ID3D11Device* pDevice, const TCHAR* pFilePath, const char* pProfile ) = 0;
+	virtual void SetShader ( ID3D11DeviceContext* pDeviceContext ) = 0;
 
 protected:
-	ID3D10Blob* m_shaderBlob;
-
 	IShader () {}
 
 public:
-	virtual ~IShader ()
-	{
-		SAFE_RELEASE ( m_shaderBlob );
-	}
+	virtual ~IShader () {}
 };

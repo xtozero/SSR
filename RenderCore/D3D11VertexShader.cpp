@@ -3,47 +3,67 @@
 #include "common.h"
 #include "D3D11VertexShader.h"
 
-bool D3D11VertexShader::CreateShader ( const D3D11_CREATE_VS_TRAIT& trait )
+bool D3D11VertexShader::CreateShader ( ID3D11Device* pDevice, const TCHAR* pFilePath, const char* pProfile )
 {
-	HRESULT hr;
-
-	D3DX11CompileFromFile ( trait.m_pFilePath,
-		NULL,
-		NULL,
-		"main",
-		trait.m_pProfile,
-		0,
-		0,
-		NULL,
-		&m_shaderBlob,
-		NULL,
-		&hr );
-
-	if ( SUCCEEDED ( hr ) )
+	if ( pDevice && m_pInputElementDesc )
 	{
-		if ( SUCCEEDED ( trait.m_pDevice->CreateVertexShader (
-			m_shaderBlob->GetBufferPointer ( ),
-			m_shaderBlob->GetBufferSize ( ),
-			NULL,
-			&m_pVertexShader ) ) )
+		ID3D10Blob* shaderBlob = GetShaderBlob( pFilePath, pProfile ) ;
+
+		if ( shaderBlob )
 		{
-			return true;
+			bool result = SUCCEEDED ( pDevice->CreateInputLayout ( m_pInputElementDesc,
+				m_numInputElement,
+				shaderBlob->GetBufferPointer ( ),
+				shaderBlob->GetBufferSize ( ),
+				&m_pInputLayout ) );
+
+			if ( result )
+			{
+				result = SUCCEEDED ( pDevice->CreateVertexShader (
+					shaderBlob->GetBufferPointer ( ),
+					shaderBlob->GetBufferSize ( ),
+					NULL,
+					&m_pVertexShader ) );
+			}
+
+			SAFE_RELEASE ( shaderBlob );
+			return result;
 		}
 	}
 
 	return false;
 }
 
-void D3D11VertexShader::SetShader ( const D3D11_SET_VS_TRAIT& trait )
+void D3D11VertexShader::SetShader ( ID3D11DeviceContext* pDeviceContext )
 {
-	trait.m_pDeviceContext->VSSetShader ( m_pVertexShader, NULL, 0 );
+	if ( pDeviceContext )
+	{
+		pDeviceContext->VSSetShader ( m_pVertexShader, NULL, 0 );
+		pDeviceContext->IASetInputLayout ( m_pInputLayout );
+	}
 }
 
-D3D11VertexShader::D3D11VertexShader ( ) : m_pVertexShader ( NULL )
+D3D11_INPUT_ELEMENT_DESC* D3D11VertexShader::CreateInputElementDesc ( const UINT num )
+{
+	m_numInputElement = num;
+
+	SAFE_ARRAY_DELETE ( m_pInputElementDesc );
+
+	m_pInputElementDesc = new D3D11_INPUT_ELEMENT_DESC[m_numInputElement];
+
+	return m_pInputElementDesc;
+}
+
+D3D11VertexShader::D3D11VertexShader ( ) : m_pVertexShader ( NULL ),
+m_pInputElementDesc ( NULL ),
+m_numInputElement ( 0 ),
+m_pInputLayout ( NULL )
 {
 }
 
 D3D11VertexShader::~D3D11VertexShader ()
 {
 	SAFE_RELEASE ( m_pVertexShader );
+	SAFE_ARRAY_DELETE ( m_pInputElementDesc );
+	SAFE_RELEASE ( m_pInputLayout );
 }
