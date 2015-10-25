@@ -21,9 +21,9 @@ void CGameLogic::ProcessLogic ( void )
 
 void CGameLogic::EndLogic ( void )
 {
-	gRenderer->ClearRenderTargetView ( 1.0f, 1.0f, 1.0f, 1.0f );
-	gRenderer->Present ();
 	//게임 로직 수행 후처리
+	m_mainCamera.UpdateToRenderer( gRenderer );
+	RenderModel( );
 }
 
 bool CGameLogic::InitShaders( void )
@@ -40,20 +40,33 @@ bool CGameLogic::InitShaders( void )
 
 bool CGameLogic::InitModel( void )
 {
-	TriangleMesh mesh;
+	return gRenderer->InitModel( );
+}
 
-	mesh.Load( );
-
-	return true;
+void CGameLogic::RenderModel( void )
+{
+	gRenderer->Render( );
 }
 
 bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
 {
 	ON_FAIL_RETURN( gRenderer->InitializeRenderer( hwnd, wndWidth, wndHeight ) );
 	ON_FAIL_RETURN( InitShaders( ) );
+	ON_FAIL_RETURN( gRenderer->InitMaterial( ) );
 	ON_FAIL_RETURN( InitModel( ) );
-	gRenderer->PushViewPort( 0, 0, wndWidth, wndHeight );
+	gRenderer->PushViewPort( 0.0f, 0.0f, static_cast<float>( wndWidth ), static_cast<float>( wndHeight ) );
 	
+	IRenderView* view = gRenderer->GetCurrentRenderView( );
+	
+	if ( view )
+	{
+		view->CreatePerspectiveFovLHMatrix( D3DXToRadian( 60 ),
+											static_cast<float>( wndWidth ) / wndHeight,
+											1.f,
+											1500.f );
+	}
+
+
 	return true;
 }
 
@@ -67,6 +80,54 @@ void CGameLogic::UpdateLogic ( void )
 	EndLogic ();
 }
 
+bool CGameLogic::HandleWindowMessage( const MSG& msg )
+{
+	switch ( msg.message )
+	{
+	case WM_KEYDOWN:
+	case WM_KEYUP:
+		HandleWIndowKeyInput( msg.message, msg.wParam, msg.lParam );
+		return true;
+		break;
+	default:
+		//Message UnHandled;
+		return false;
+		break;
+	}
+}
+
+void CGameLogic::HandleWIndowKeyInput( const int message, const WPARAM wParam, const LPARAM lParam )
+{
+	switch ( message )
+	{
+	case WM_KEYDOWN:
+		{
+					 TCHAR keyName[256] = { 0, };
+					 GetKeyNameText( lParam, keyName, 256 );
+					 DebugMsg( "%s\n", keyName );
+					 switch ( wParam )
+					 {
+					 case VK_UP:
+						 m_mainCamera.Move( 0.f, 0.f, 10.f );
+						 break;
+					 case VK_DOWN:
+						 m_mainCamera.Move( 0.f, 0.f, -10.f );
+						 break;
+					 case VK_RIGHT:
+						 m_mainCamera.Move( 10.f, 0.f, 0.f );
+						 break;
+					 case VK_LEFT:
+						 m_mainCamera.Move( -10.f, 0.f, 0.f );
+						 break;
+					 default:
+						 break;
+					 }
+		}
+	default:
+		break;
+	}
+}
+
 CGameLogic::CGameLogic ( )
 {
 	ShowDebugConsole ( );
@@ -75,5 +136,4 @@ CGameLogic::CGameLogic ( )
 
 CGameLogic::~CGameLogic ( )
 {
-
 }

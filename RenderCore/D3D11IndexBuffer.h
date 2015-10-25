@@ -10,7 +10,9 @@ private:
 	UINT m_numOfElement;
 
 public:
-	bool CreateBuffer( ID3D11Device* m_pDevice, UINT stride, UINT numOfElement, const void* srcData );
+	virtual void SetIABuffer( ID3D11DeviceContext* pDeviceContext, const UINT* offset );
+
+	bool CreateBuffer( ID3D11Device* pDevice, UINT stride, UINT numOfElement, const void* srcData );
 
 	D3D11IndexBuffer ();
 	~D3D11IndexBuffer ();

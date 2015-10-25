@@ -3,14 +3,22 @@
 #include "common.h"
 #include "D3D11VertexBuffer.h"
 
-bool D3D11VertexBuffer::CreateBuffer( ID3D11Device* m_pDevice, UINT stride, UINT numOfElement, const void* srcData )
+void D3D11VertexBuffer::SetIABuffer( ID3D11DeviceContext* pDeviceContext, const UINT* offset )
+{
+	if ( pDeviceContext )
+	{
+		pDeviceContext->IASetVertexBuffers( 0, 1, &m_pVertexBuffer, &m_stride, offset );
+	}
+}
+
+bool D3D11VertexBuffer::CreateBuffer( ID3D11Device* pDevice, UINT stride, UINT numOfElement, const void* srcData )
 {
 	if ( stride <= 0 || numOfElement <= 0 )
 	{
 		return false;
 	}
 
-	if ( m_pDevice )
+	if ( pDevice )
 	{
 		m_stride = stride;
 		m_numOfElement = numOfElement;
@@ -25,14 +33,21 @@ bool D3D11VertexBuffer::CreateBuffer( ID3D11Device* m_pDevice, UINT stride, UINT
 		bufferDesc.StructureByteStride = 0;
 		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 
-		D3D11_SUBRESOURCE_DATA initData;
-		::ZeroMemory( &initData, sizeof( D3D11_SUBRESOURCE_DATA ) );
+		D3D11_SUBRESOURCE_DATA* pInitData = NULL;
 
-		initData.pSysMem = srcData;
-		initData.SysMemPitch = 0;
-		initData.SysMemSlicePitch = 0;
+		if ( srcData )
+		{
+			D3D11_SUBRESOURCE_DATA initData;
+			::ZeroMemory( &initData, sizeof( D3D11_SUBRESOURCE_DATA ) );
 
-		m_pVertexBuffer = D3D11BaseBuffer::CreateBuffer( m_pDevice, &bufferDesc, &initData );
+			initData.pSysMem = srcData;
+			initData.SysMemPitch = 0;
+			initData.SysMemSlicePitch = 0;
+
+			pInitData = &initData;
+		}
+
+		m_pVertexBuffer = D3D11BaseBuffer::CreateBuffer( pDevice, &bufferDesc, pInitData );
 
 		return m_pVertexBuffer ? true : false;
 	}

@@ -45,6 +45,12 @@
     <ClInclude Include="..\RenderCore\IRenderer.h">
       <Filter>헤더 파일\RenderCore</Filter>
     </ClInclude>
+    <ClInclude Include="..\RenderCore\IRenderView.h">
+      <Filter>헤더 파일\RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -65,5 +71,12 @@
     <ClCompile Include="DebugConsole.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\model\object.ply" />
+    <None Include="..\model\cube.ply" />
   </ItemGroup>
 </Project>

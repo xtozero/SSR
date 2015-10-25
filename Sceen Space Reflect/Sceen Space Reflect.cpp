@@ -60,8 +60,15 @@ int APIENTRY _tWinMain ( _In_ HINSTANCE hInstance,
 				break;
 			if ( !TranslateAccelerator ( msg.hwnd, hAccelTable, &msg ) )
 			{
-				TranslateMessage ( &msg );
-				DispatchMessage ( &msg );
+				if ( gGameLogic.HandleWindowMessage( msg ) )
+				{
+					//Do Nothing
+				}
+				else
+				{
+					TranslateMessage( &msg );
+					DispatchMessage( &msg );
+				}
 			}
 		}
 		else

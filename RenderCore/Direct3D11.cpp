@@ -1,12 +1,20 @@
 #include "stdafx.h"
 #include "common.h"
 
+#include "BaseMesh.h"
+
 #include "D3D11IndexBuffer.h"
 #include "D3D11PixelShader.h"
 #include "D3D11VertexBuffer.h"
 #include "D3D11VertexShader.h"
 
+#include "DebugMesh.h"
+
 #include "Direct3D11.h"
+
+#include "MaterialSystem.h"
+
+#include "TutorialMaterial.h"
 
 #include <string>
 
@@ -33,6 +41,7 @@ bool CDirect3D11::InitializeRenderer ( HWND hWind, UINT nWndWidth, UINT nWndHeig
 	ON_FAIL_RETURN ( CreatePrimeRenderTargetVIew () );
 	ON_FAIL_RETURN ( CreatePrimeDepthBuffer ( nWndWidth, nWndHeight ) );
 	ON_FAIL_RETURN ( SetRenderTargetAndDepthBuffer () );
+	ON_FAIL_RETURN ( m_view.initialize( m_pd3d11Device ) );
 
 	return true;
 }
@@ -50,6 +59,12 @@ void CDirect3D11::ShutDownRenderer ( )
 		SAFE_DELETE( j._Ptr );
 	}
 	m_bufferList.clear( );
+
+	FOR_EACH_VEC( m_models, k )
+	{
+		SAFE_DELETE( k._Ptr );
+	}
+	m_models.clear( );
 
 	SAFE_RELEASE ( m_pd3d11DeviceContext );
 	SAFE_RELEASE ( m_pd3d11Device );
@@ -85,7 +100,15 @@ void CDirect3D11::Render ( )
 {
 	ClearDepthStencilView ();
 	ClearRenderTargetView ();
+	m_view.UpdataView( m_pd3d11DeviceContext );
+
 	// TO DO SOMETHING DRAW
+
+	FOR_EACH_VEC( m_models, model )
+	{
+		( *model )->Draw( m_pd3d11DeviceContext );
+	}
+
 	Present ();
 }
 
@@ -99,7 +122,7 @@ IShader* CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pP
 	inputDesc[0].SemanticIndex = 0;
 	inputDesc[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	inputDesc[0].InputSlot = 0;
-	inputDesc[0].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	inputDesc[0].AlignedByteOffset = 0;
 	inputDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	inputDesc[0].InstanceDataStepRate = 0;
 
@@ -152,9 +175,14 @@ IBuffer* CDirect3D11::CreateIndexBuffer( const UINT stride, const UINT numOfElem
 	return NULL;
 }
 
-IShader* CDirect3D11::SearchShaderByName( const TCHAR* name )
+IShader* CDirect3D11::SearchShaderByName( const TCHAR* pName )
 {
-	std::map<String, IShader*>::iterator finded = m_shaderList.find( ( name ) );
+	if ( !pName )
+	{
+		return NULL;
+	}
+
+	std::map<String, IShader*>::iterator finded = m_shaderList.find( pName );
 
 	if ( finded != m_shaderList.end( ) )
 	{
@@ -164,21 +192,40 @@ IShader* CDirect3D11::SearchShaderByName( const TCHAR* name )
 	return NULL;
 }
 
+bool CDirect3D11::InitMaterial( )
+{
+	REGISTER_MATERIAL( TutorialMaterial, tutorial );
+
+	return true;
+}
+
+bool CDirect3D11::InitModel( )
+{
+	m_models.emplace_back( new TriangleMesh );
+
+	FOR_EACH_VEC( m_models, model )
+	{
+		( *model )->Load( );
+	}
+
+	return true;
+}
+
 void CDirect3D11::PushViewPort( const float topLeftX, const float topLeftY, const float width, const float height, const float minDepth, const float maxDepth )
 {
-	D3D11_VIEWPORT viewport = { topLeftX, topLeftY, width, height, minDepth, maxDepth };
-
-	m_viewportList.push_back( viewport );
-	SetViewPort( );
+	m_view.PushViewPort( topLeftX, topLeftY, width, height, minDepth, maxDepth );
+	m_view.SetViewPort( m_pd3d11DeviceContext );
 }
 
 void CDirect3D11::PopViewPort( )
 {
-	if ( m_viewportList.size( ) > 0 )
-	{
-		m_viewportList.pop_back( );
-		SetViewPort( );
-	}
+	m_view.PopViewPort( );
+	m_view.SetViewPort( m_pd3d11DeviceContext );
+}
+
+IRenderView* CDirect3D11::GetCurrentRenderView( )
+{
+	return &m_view;
 }
 
 bool CDirect3D11::CreateD3D11Device ( HWND hWind, UINT nWndWidth, UINT nWndHeight )
@@ -306,11 +353,6 @@ bool CDirect3D11::SetRenderTargetAndDepthBuffer ( )
 	{
 		return false;
 	}
-}
-
-void CDirect3D11::SetViewPort( )
-{
-	m_pd3d11DeviceContext->RSSetViewports( m_viewportList.size( ), m_viewportList.begin( )._Ptr );
 }
 
 CDirect3D11::CDirect3D11 ( ) : m_pd3d11Device ( NULL ),

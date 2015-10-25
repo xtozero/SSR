@@ -28,6 +28,9 @@
     <Filter Include="fx">
       <UniqueIdentifier>{f6246641-54f6-4e9d-af0f-2a8948500840}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Direct11\Material">
+      <UniqueIdentifier>{c0580400-df12-4357-a7c5-5c1a689acf87}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -82,6 +85,30 @@
       <Filter>Mesh</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
+      <Filter>Direct11\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="TutorialMaterial.h">
+      <Filter>Direct11\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialSystem.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="IMaterial.h">
+      <Filter>Direct11\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderView.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="IRenderView.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="IRenderState.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshLoader.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="PlyMesh.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -125,10 +152,25 @@
     <ClCompile Include="DebugMesh.cpp">
       <Filter>Mesh</Filter>
     </ClCompile>
-    <ClCompile Include="Material.cpp">
+    <ClCompile Include="util_rendercore.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="util_rendercore.cpp">
+    <ClCompile Include="Material.cpp">
+      <Filter>Direct11\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="TutorialMaterial.cpp">
+      <Filter>Direct11\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialSystem.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderView.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshLoader.cpp">
+      <Filter>Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="PlyMesh.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

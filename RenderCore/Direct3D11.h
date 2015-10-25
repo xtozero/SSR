@@ -3,6 +3,7 @@
 #include "common.h"
 #include "IBuffer.h"
 #include "IRenderer.h"
+#include "RenderView.h"
 #include <D3D11.h>
 #include <D3DX11.h>
 #include <DXGI.h>
@@ -13,6 +14,8 @@ namespace
 {
 	RENDERCORE_FUNC_DLL IRenderer* CreateDirect3D11Renderer ( );
 };
+
+class BaseMesh;
 
 class RENDERCORE_DLL CDirect3D11 : public IRenderer
 {
@@ -31,17 +34,20 @@ public:
 	virtual IBuffer* CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData );
 	virtual IBuffer* CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData );
 
-	virtual IShader* SearchShaderByName( const TCHAR* name );
+	virtual IShader* SearchShaderByName( const TCHAR* pName );
+
+	virtual bool InitMaterial( );
+	virtual bool InitModel( );
 
 	virtual void PushViewPort( const float topLeftX, const float topLeftY, const float width, const float height, const float minDepth = 0.0f, const float maxDepth = 1.0f );
 	virtual void PopViewPort( );
+
+	virtual IRenderView* GetCurrentRenderView( );
 private:
 	bool CreateD3D11Device ( HWND hWind, UINT nWndWidth, UINT nWndHeight );
 	bool CreatePrimeRenderTargetVIew ( );
 	bool CreatePrimeDepthBuffer ( UINT nWndWidth, UINT nWndHeight );
 	bool SetRenderTargetAndDepthBuffer ( );
-
-	void SetViewPort( );
 
 private:
 	ID3D11Device*			m_pd3d11Device;
@@ -51,12 +57,14 @@ private:
 	ID3D11RenderTargetView*	m_pd3d11PrimeRTView;
 
 	ID3D11Texture2D*		m_pd3d11PrimeDSBuffer;
-	ID3D11DepthStencilView* m_pd3d11PrimeDSView;
+	ID3D11DepthStencilView*	m_pd3d11PrimeDSView;
 
 	std::map<String, IShader*> m_shaderList;
-	std::vector<IBuffer*> m_bufferList;
+	std::vector<IBuffer*>	m_bufferList;
 
-	std::vector<D3D11_VIEWPORT> m_viewportList;
+	std::vector<BaseMesh*>	m_models;
+
+	RenderView				m_view;
 public:
 	CDirect3D11 ( );
 	virtual ~CDirect3D11 ( );
