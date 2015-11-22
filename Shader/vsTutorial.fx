@@ -1,4 +1,9 @@
-cbuffer VEIW_PROJECTION : register( b0 )
+cbuffer WORLD : register( b0 )
+{
+	matrix g_worldMatrix : packoffset( c0 );
+}
+
+cbuffer VEIW_PROJECTION : register( b1 )
 {
 	matrix g_viewMatrix : packoffset( c0 );
 	matrix g_projectionMatrix : packoffset( c4 );
@@ -18,9 +23,10 @@ VS_OUTPUT main( VS_INPUT input )
 {
 	VS_OUTPUT output = (VS_OUTPUT)0;
 
-	matrix viewPorjection = mul( g_viewMatrix, g_projectionMatrix );
+	matrix worldViewPorjection = mul( g_worldMatrix, g_viewMatrix );
+	worldViewPorjection = mul( worldViewPorjection, g_projectionMatrix );
 
-	output.position = mul( float4( input.position, 1.0f ), viewPorjection );
+	output.position = mul( float4( input.position, 1.0f ), worldViewPorjection );
 
 	return output;
 }

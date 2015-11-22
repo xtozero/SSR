@@ -23,7 +23,7 @@ typedef std::wstring String;
 #define SAFE_RELEASE( x ) { \
 if ( x ) \
 	x->Release ( ); \
-	x = NULL; \
+	x = nullptr; \
 }
 
 #define ON_FAIL_RETURN( x ){ \
@@ -39,13 +39,13 @@ if ( x ) \
 #define SAFE_DELETE( x ) { \
 if ( x ) \
 	delete x; \
-	x = NULL; \
+	x = nullptr; \
 }
 
 #define SAFE_ARRAY_DELETE( x ) { \
 if ( x ) \
 	delete []x; \
-	x = NULL; \
+	x = nullptr; \
 }
 
 #define FOR_EACH_VEC( x, i ) \

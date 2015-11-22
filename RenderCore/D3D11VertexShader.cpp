@@ -22,7 +22,7 @@ bool D3D11VertexShader::CreateShader ( ID3D11Device* pDevice, const TCHAR* pFile
 				result = SUCCEEDED ( pDevice->CreateVertexShader (
 					shaderBlob->GetBufferPointer ( ),
 					shaderBlob->GetBufferSize ( ),
-					NULL,
+					nullptr,
 					&m_pVertexShader ) );
 			}
 
@@ -38,7 +38,7 @@ void D3D11VertexShader::SetShader ( ID3D11DeviceContext* pDeviceContext )
 {
 	if ( pDeviceContext )
 	{
-		pDeviceContext->VSSetShader ( m_pVertexShader, NULL, 0 );
+		pDeviceContext->VSSetShader( m_pVertexShader, nullptr, 0 );
 		pDeviceContext->IASetInputLayout ( m_pInputLayout );
 	}
 }
@@ -54,10 +54,10 @@ D3D11_INPUT_ELEMENT_DESC* D3D11VertexShader::CreateInputElementDesc ( const UINT
 	return m_pInputElementDesc;
 }
 
-D3D11VertexShader::D3D11VertexShader ( ) : m_pVertexShader ( NULL ),
-m_pInputElementDesc ( NULL ),
+D3D11VertexShader::D3D11VertexShader( ) : m_pVertexShader( nullptr ),
+m_pInputElementDesc( nullptr ),
 m_numInputElement ( 0 ),
-m_pInputLayout ( NULL )
+m_pInputLayout( nullptr )
 {
 }
 

@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "RenderView.h"
+#include "VSConstantBufferDefine.h"
 
 namespace
 {
@@ -10,7 +11,7 @@ namespace
 
 bool RenderView::initialize( ID3D11Device* pDevice )
 {
-	ON_FAIL_RETURN( m_viewConstantBuffer.CreateBuffer( pDevice, sizeof( D3DXMATRIX ), CB_ELEMENT_NUMBER, NULL ) );
+	ON_FAIL_RETURN( m_viewConstantBuffer.CreateBuffer( pDevice, sizeof( D3DXMATRIX ), CB_ELEMENT_NUMBER, nullptr ) );
 
 	return true;
 }
@@ -59,7 +60,7 @@ void RenderView::UpdataView( ID3D11DeviceContext* pDeviceContext )
 		CopyMemory( &pData->m_projection, &transposProjection, sizeof( D3DXMATRIX ) );
 
 		m_viewConstantBuffer.UnLockBuffer( pDeviceContext );
-		m_viewConstantBuffer.SetVSBuffer( pDeviceContext, 0 );
+		m_viewConstantBuffer.SetVSBuffer( pDeviceContext, static_cast<int>( VS_CONSTANT_BUFFER::VIEW_PROJECTION ) );
 	}
 }
 

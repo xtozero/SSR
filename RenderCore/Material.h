@@ -35,8 +35,8 @@ public:
 	virtual void Init( );
 	virtual void SetShader( ID3D11DeviceContext* pDeviceContext );
 
-	void Draw( ID3D11DeviceContext* pDeviceContext, const UINT vertexCount, const UINT vertexOffset = 0 );
-	void DrawIndexed( ID3D11DeviceContext* pDeviceContext, const UINT indexCount, const UINT indexOffset = 0, const UINT vertexOffset = 0 );
+	virtual void Draw( ID3D11DeviceContext* pDeviceContext, const UINT vertexCount, const UINT vertexOffset = 0 );
+	virtual void DrawIndexed( ID3D11DeviceContext* pDeviceContext, const UINT indexCount, const UINT indexOffset = 0, const UINT vertexOffset = 0 );
 	void DrawInstanced( ID3D11DeviceContext* pDeviceContext, const UINT vertexCount, const UINT instanceCount, const UINT vertexOffset = 0, const UINT instanceOffset = 0 );
 	void DrawInstancedInstanced( ID3D11DeviceContext* pDeviceContext, const UINT indexCount, const UINT instanceCount, const UINT indexOffset = 0, const UINT vertexOffset = 0, const UINT instanceOffset = 0 );
 	void DrawAuto( ID3D11DeviceContext* pDeviceContext );
@@ -127,7 +127,7 @@ Material<T>::Material( )
 {
 	for ( int i = 0; i < MAX_SHADER; ++i )
 	{
-		m_pShaders[i] = NULL;
+		m_pShaders[i] = nullptr;
 	}
 }
 

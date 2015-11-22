@@ -7,13 +7,29 @@
 #include "PlyMesh.h"
 #include <vector>
 
+namespace
+{
+	const int PLY_FILE_READ_INDEX_STEP = 3;
+}
+
 bool CMeshLoader::LoadMeshFromFile( const TCHAR* pfileName )
 {
+	auto iter = m_meshList.find( pfileName );
+
+	if ( iter != m_meshList.end( ) )
+	{
+		return true;
+	}
+
 	std::ifstream meshfile( pfileName, 0 );
 
 	UINT nVerties = 0;
-	UINT index = 0;
-	D3DXVECTOR3* vertices;
+	UINT nIndices = 0;
+	D3DXVECTOR3* vertices = nullptr;
+	WORD* indices = nullptr;
+
+	UINT vextexIdx = 0;
+	UINT indexIdx = 0;
 
 	if ( meshfile.is_open( ) )
 	{
@@ -25,7 +41,7 @@ bool CMeshLoader::LoadMeshFromFile( const TCHAR* pfileName )
 			int symbollen = sizeof( "#$" ) - 1;
 			if ( strncmp( token, "#$", symbollen ) == 0 )
 			{
-				if ( strncmp( token + symbollen, "Vertices", sizeof( "Vertices" ) ) == 0 )
+				if ( strncmp( token + symbollen, "Vertices", strlen( "Vertices" ) ) == 0 )
 				{
 					meshfile >> nVerties;
 
@@ -36,18 +52,43 @@ bool CMeshLoader::LoadMeshFromFile( const TCHAR* pfileName )
 
 					vertices = new D3DXVECTOR3[nVerties];
 				}
+				else if ( strncmp( token + symbollen, "Faces", strlen( "Faces" ) ) == 0 )
+				{
+					meshfile >> nIndices;
+
+					if ( nIndices > 0 )
+					{
+						nIndices *= PLY_FILE_READ_INDEX_STEP;
+						indices = new WORD[nIndices];
+					}
+				}
 			}
 			else
 			{
-				if ( strncmp( token, "Vertex", sizeof( "Vertex" ) ) == 0 )
+				if ( strncmp( token, "Vertex", strlen( "Vertex" ) ) == 0 )
 				{
-					assert( index < nVerties );
+					assert( vextexIdx < nVerties );
 
 					meshfile >> token;
-					D3DXVECTOR3& vertex = vertices[index];
+					D3DXVECTOR3& vertex = vertices[vextexIdx];
 
-					meshfile >> vertex.x >> vertex.x >> vertex.z;
-					++index;
+					meshfile >> vertex.x >> vertex.y >> vertex.z;
+					++vextexIdx;
+				}
+				else if ( strncmp( token, "Face", strlen( "Face" ) ) == 0 )
+				{
+					assert( indexIdx + PLY_FILE_READ_INDEX_STEP <= nIndices );
+
+					meshfile >> token;
+					int index;
+
+					for ( UINT i = indexIdx; i < indexIdx + 3; ++i )
+					{
+						meshfile >> index;
+						indices[i] = static_cast<WORD>( index - 1 );
+					}
+
+					indexIdx += PLY_FILE_READ_INDEX_STEP;
 				}
 			}
 		}
@@ -56,9 +97,10 @@ bool CMeshLoader::LoadMeshFromFile( const TCHAR* pfileName )
 		
 		try
 		{
-			std::shared_ptr<BaseMesh> newMesh = m_meshList.at( pfileName );
+			std::shared_ptr<IMesh> newMesh = m_meshList.at( pfileName );
 
 			newMesh->SetModelData( vertices, nVerties );
+			newMesh->SetIndexData( indices, nIndices );
 			newMesh->Load( );
 		}
 		catch ( std::out_of_range e )
@@ -71,6 +113,20 @@ bool CMeshLoader::LoadMeshFromFile( const TCHAR* pfileName )
 	else
 	{
 		return false;
+	}
+}
+
+std::shared_ptr<IMesh> CMeshLoader::GetMesh( const TCHAR* pfileName )
+{
+	auto iter = m_meshList.find( pfileName );
+
+	if ( iter != m_meshList.end( ) )
+	{
+		return iter->second;
+	}
+	else
+	{
+		return nullptr;
 	}
 }
 

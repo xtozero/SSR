@@ -64,7 +64,8 @@
       <AdditionalDependencies>d3dx9.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\bin\$(ProjectName).lib"</Command>
+      <Command>copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\bin\$(ProjectName).lib"
+copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -86,20 +87,26 @@
       <AdditionalDependencies>d3dx9.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\bin\$(ProjectName).lib"</Command>
+      <Command>copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\bin\$(ProjectName).lib"
+copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Engine\KeyValueReader.h" />
     <ClInclude Include="..\RenderCore\Direct3D11.h" />
+    <ClInclude Include="..\RenderCore\IBuffer.h" />
+    <ClInclude Include="..\RenderCore\IMesh.h" />
     <ClInclude Include="..\RenderCore\IRenderer.h" />
     <ClInclude Include="..\RenderCore\IRenderView.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="DebugConsole.h" />
     <ClInclude Include="GameLogic.h" />
+    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="SceneLoader.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Timer.h" />
@@ -116,7 +123,9 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="GameLogic.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Logic.cpp" />
+    <ClCompile Include="SceneLoader.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

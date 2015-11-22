@@ -14,6 +14,7 @@ CTimer& CTimer::GetInstance ( )
 
 void CTimer::Tick ( )
 {
+	++m_frame;
 	m_lastTime = m_currentTime;
 
 	if ( m_isPerformanceCounter )
@@ -31,7 +32,10 @@ void CTimer::Tick ( )
 //	DebugMsg ( "Elapsted Time - %f\n", m_elapsedTime );
 }
 
-CTimer::CTimer ( ) : m_currentTime ( 0.0f ), m_lastTime ( 0.0f ), m_elapsedTime ( 0.0f )
+CTimer::CTimer ( ) : m_currentTime ( 0.0f ), 
+m_lastTime ( 0.0f ), 
+m_elapsedTime ( 0.0f ),
+m_frame( 0 )
 {
 	::QueryPerformanceCounter ( &m_timeCouter );
 

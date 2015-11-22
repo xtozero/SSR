@@ -2,6 +2,7 @@
 #include <tchar.h>
 #include "DebugConsole.h"
 #include "GameLogic.h"
+#include "GameObject.h"
 #include "../RenderCore/Direct3D11.h"
 #include "../RenderCore/BaseMesh.h"
 #include "../RenderCore/DebugMesh.h"
@@ -17,13 +18,19 @@ void CGameLogic::StartLogic ( void )
 void CGameLogic::ProcessLogic ( void )
 {
 	//게임 로직 수행
+	FOR_EACH_VEC( m_gameObjects, iter )
+	{
+		( *iter )->Think( );
+	}
 }
 
 void CGameLogic::EndLogic ( void )
 {
 	//게임 로직 수행 후처리
 	m_mainCamera.UpdateToRenderer( gRenderer );
-	RenderModel( );
+	SceneBegin( );
+	DrawScene( );
+	SceneEnd( );
 }
 
 bool CGameLogic::InitShaders( void )
@@ -40,12 +47,42 @@ bool CGameLogic::InitShaders( void )
 
 bool CGameLogic::InitModel( void )
 {
-	return gRenderer->InitModel( );
+	m_gameObjects.push_back( std::make_shared<CGameObject>( ) );
+
+	auto iter = m_gameObjects.end( ) - 1;
+	if ( iter != m_gameObjects.end( ) )
+	{
+		( *iter )->LoadModelMesh( _T( "../model/object.ply" ) );
+	}
+
+	return true;
 }
 
-void CGameLogic::RenderModel( void )
+void CGameLogic::SceneBegin( void )
 {
-	gRenderer->Render( );
+	gRenderer->SceneBegin( );
+}
+
+void CGameLogic::DrawScene( void )
+{
+	FOR_EACH_VEC( m_gameObjects, object )
+	{
+		UpdateWorldMatrix( object->get( ) );
+		( *object )->Render( );
+	}
+}
+
+void CGameLogic::SceneEnd( void )
+{
+	gRenderer->SceneEnd( );
+}
+
+void CGameLogic::UpdateWorldMatrix( const CGameObject* object )
+{
+	if ( object )
+	{
+		gRenderer->UpdateWorldMatrix( object->GetTransformMatrix( ) );
+	}
 }
 
 bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
@@ -65,7 +102,12 @@ bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
 											1.f,
 											1500.f );
 	}
+	else
+	{
+		return false;
+	}
 
+	m_sceneLoader.LoadSceneFromFile( _T( "../Script/TestScene.txt" ) );
 
 	return true;
 }
@@ -128,11 +170,10 @@ void CGameLogic::HandleWIndowKeyInput( const int message, const WPARAM wParam, c
 	}
 }
 
-CGameLogic::CGameLogic ( )
+CGameLogic::CGameLogic( )
 {
-	ShowDebugConsole ( );
+	ShowDebugConsole( );
 }
-
 
 CGameLogic::~CGameLogic ( )
 {

@@ -3,23 +3,23 @@
 
 ID3D10Blob* D3D11BaseShader::GetShaderBlob ( const TCHAR* pFilePath, const char* pProfile )
 {
-	ID3D10Blob* shaderBlob = NULL;
+	ID3D10Blob* shaderBlob = nullptr;
 
 	HRESULT hr;
 
 	D3DX11CompileFromFile ( pFilePath,
-		NULL,
-		NULL,
+		nullptr,
+		nullptr,
 		"main",
 		pProfile,
 		0,
 		0,
-		NULL,
+		nullptr,
 		&shaderBlob,
-		NULL,
+		nullptr,
 		&hr );
 
-	return SUCCEEDED ( hr ) ? shaderBlob : NULL;
+	return SUCCEEDED( hr ) ? shaderBlob : nullptr;
 }
 
 D3D11BaseShader::D3D11BaseShader ()

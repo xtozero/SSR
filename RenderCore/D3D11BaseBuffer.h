@@ -13,6 +13,9 @@ public:
 	virtual void SetVSBuffer( ID3D11DeviceContext* pDeviceContext, const UINT startSlot );
 	virtual void SetPSBuffer( ID3D11DeviceContext* pDeviceContext, const UINT startSlot );
 
+	virtual void* LockBuffer( ID3D11DeviceContext* pDeviceContext );
+	virtual void UnLockBuffer( ID3D11DeviceContext* pDeviceContext );
+
 	D3D11BaseBuffer ( );
 	virtual ~D3D11BaseBuffer ( );
 };

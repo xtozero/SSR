@@ -29,7 +29,7 @@ void* D3D11ConstantBuffer::LockBuffer( ID3D11DeviceContext* pDeviceContext )
 		return subResource.pData;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void D3D11ConstantBuffer::UnLockBuffer( ID3D11DeviceContext* pDeviceContext )
@@ -59,7 +59,7 @@ bool D3D11ConstantBuffer::CreateBuffer( ID3D11Device* pDevice, UINT stride, UINT
 		bufferDesc.StructureByteStride = 0;
 		bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 
-		D3D11_SUBRESOURCE_DATA* pInitData = NULL;
+		D3D11_SUBRESOURCE_DATA* pInitData = nullptr;
 
 		if ( srcData )
 		{

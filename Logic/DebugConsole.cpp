@@ -32,7 +32,7 @@ CDebugConsole* CDebugConsole::GetInstance ()
 
 CDebugConsole::CDebugConsole ( ) : m_isAlive ( true )
 {
-	HANDLE m_thread = (HANDLE)_beginthreadex ( NULL, 0, asyncInputFunc, &m_isAlive, 0, NULL );
+	HANDLE m_thread = (HANDLE)_beginthreadex( nullptr, 0, asyncInputFunc, &m_isAlive, 0, nullptr );
 
 	AllocConsole ();
 	::freopen_s ( &m_pConOut, "CONOUT$", "wt", stdout );

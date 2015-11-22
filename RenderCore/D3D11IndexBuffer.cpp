@@ -12,7 +12,7 @@ void D3D11IndexBuffer::SetIABuffer( ID3D11DeviceContext* pDeviceContext, const U
 
 bool D3D11IndexBuffer::CreateBuffer( ID3D11Device* pDevice, UINT stride, UINT numOfElement, const void* srcData )
 {
-	if ( stride != sizeof( WORD ) || stride != sizeof( DWORD ) || numOfElement <= 0 )
+	if ( stride != sizeof( WORD ) && stride != sizeof( DWORD ) || numOfElement <= 0 )
 	{
 		return false;
 	}
@@ -32,7 +32,7 @@ bool D3D11IndexBuffer::CreateBuffer( ID3D11Device* pDevice, UINT stride, UINT nu
 		bufferDesc.StructureByteStride = 0;
 		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 
-		D3D11_SUBRESOURCE_DATA* pInitData = NULL;
+		D3D11_SUBRESOURCE_DATA* pInitData = nullptr;
 
 		if ( srcData )
 		{
@@ -54,7 +54,7 @@ bool D3D11IndexBuffer::CreateBuffer( ID3D11Device* pDevice, UINT stride, UINT nu
 	return false;
 }
 
-D3D11IndexBuffer::D3D11IndexBuffer( ) : m_pIndexBuffer( NULL ),
+D3D11IndexBuffer::D3D11IndexBuffer( ) : m_pIndexBuffer( nullptr ),
 m_stride( 0 ),
 m_numOfElement( 0 )
 {

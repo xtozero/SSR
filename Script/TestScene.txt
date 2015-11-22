@@ -1,0 +1,13 @@
+"Scene"
+{
+	"Test"
+	{
+		"file"	"1234"
+	}
+	
+	"Test2"
+	{
+		"file" "4321"
+		"position" "01000"
+	}
+}

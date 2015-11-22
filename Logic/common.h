@@ -10,6 +10,12 @@
 #define LOGIC_DLL __declspec(dllimport)
 #endif
 
+#ifndef UNICODE  
+typedef std::string String;
+#else
+typedef std::wstring String;
+#endif
+
 namespace
 {
 	void DebugMsgImplment ( const char* msg, ... )

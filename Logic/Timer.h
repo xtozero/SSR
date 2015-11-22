@@ -11,6 +11,8 @@ private:
 	LARGE_INTEGER m_timeCouter;
 
 	bool m_isPerformanceCounter;
+
+	int m_frame;
 public:
 	static CTimer& GetInstance ();
 

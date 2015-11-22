@@ -25,7 +25,7 @@ IMaterial* MaterialSystem::SearchMaterialByName( const TCHAR* pName )
 {
 	if ( !pName )
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	std::map<String, IMaterial*>::iterator finded = m_materials.find( pName );
@@ -35,7 +35,7 @@ IMaterial* MaterialSystem::SearchMaterialByName( const TCHAR* pName )
 		return finded->second;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 MaterialSystem::MaterialSystem( )

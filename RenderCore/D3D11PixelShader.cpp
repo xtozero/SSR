@@ -14,7 +14,7 @@ bool D3D11PixelShader::CreateShader ( ID3D11Device* pDevice, const TCHAR* pFileP
 			bool result = SUCCEEDED ( pDevice->CreatePixelShader (
 				shaderBlob->GetBufferPointer ( ),
 				shaderBlob->GetBufferSize ( ),
-				NULL,
+				nullptr,
 				&m_pPixelShader ) );
 
 			SAFE_RELEASE ( shaderBlob );
@@ -29,7 +29,7 @@ void D3D11PixelShader::SetShader ( ID3D11DeviceContext* pDeviceContext )
 {
 	if ( pDeviceContext )
 	{
-		pDeviceContext->PSSetShader ( m_pPixelShader, NULL, 0 );
+		pDeviceContext->PSSetShader( m_pPixelShader, nullptr, 0 );
 	}
 }
 

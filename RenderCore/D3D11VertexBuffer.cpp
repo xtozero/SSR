@@ -33,7 +33,7 @@ bool D3D11VertexBuffer::CreateBuffer( ID3D11Device* pDevice, UINT stride, UINT n
 		bufferDesc.StructureByteStride = 0;
 		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 
-		D3D11_SUBRESOURCE_DATA* pInitData = NULL;
+		D3D11_SUBRESOURCE_DATA* pInitData = nullptr;
 
 		if ( srcData )
 		{
@@ -55,7 +55,7 @@ bool D3D11VertexBuffer::CreateBuffer( ID3D11Device* pDevice, UINT stride, UINT n
 	return false;
 }
 
-D3D11VertexBuffer::D3D11VertexBuffer( ) : m_pVertexBuffer( NULL ),
+D3D11VertexBuffer::D3D11VertexBuffer( ) : m_pVertexBuffer( nullptr ),
 m_stride( 0 ),
 m_numOfElement( 0 )
 {
