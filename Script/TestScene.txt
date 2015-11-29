@@ -1,13 +1,16 @@
 "Scene"
 {
-	"Test"
+	//오브젝트 정의 시작
+	"Object"
 	{
-		"file"	"1234"
+		"Model"		"../model/object.ply" //모델명
+		"Position"	"1 0 10" //x y z
+		"Scale"		"5 5 5" //xScale yScale zScale
 	}
 	
-	"Test2"
+	"Object"
 	{
-		"file" "4321"
-		"position" "01000"
+		"Model"		"../model/object.ply" //모델명
+		"Position"	"-1 1 10" //x y z
 	}
 }

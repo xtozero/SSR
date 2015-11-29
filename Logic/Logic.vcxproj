@@ -101,6 +101,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="..\RenderCore\IMesh.h" />
     <ClInclude Include="..\RenderCore\IRenderer.h" />
     <ClInclude Include="..\RenderCore\IRenderView.h" />
+    <ClInclude Include="..\Shared\Util.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="DebugConsole.h" />
@@ -112,6 +113,9 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="Timer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Shared\Util.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DebugConsole.cpp" />
     <ClCompile Include="dllmain.cpp">

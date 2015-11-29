@@ -19,6 +19,9 @@
     <Filter Include="헤더 파일\Engine">
       <UniqueIdentifier>{44e26859-6048-4f86-bac7-66a3c1c66226}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shared">
+      <UniqueIdentifier>{9cb62874-b432-4130-9aa1-29ca50ad8f14}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -69,6 +72,9 @@
     <ClInclude Include="..\Engine\KeyValueReader.h">
       <Filter>헤더 파일\Engine</Filter>
     </ClInclude>
+    <ClInclude Include="..\Shared\Util.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -97,6 +103,9 @@
     </ClCompile>
     <ClCompile Include="SceneLoader.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\Util.cpp">
+      <Filter>Shared</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

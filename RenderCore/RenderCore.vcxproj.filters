@@ -108,14 +108,14 @@
     <ClInclude Include="MeshLoader.h">
       <Filter>Mesh</Filter>
     </ClInclude>
-    <ClInclude Include="PlyMesh.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="IMesh.h">
       <Filter>Mesh</Filter>
     </ClInclude>
     <ClInclude Include="VSConstantBufferDefine.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="PlyMesh.h">
+      <Filter>Mesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -177,7 +177,7 @@
       <Filter>Mesh</Filter>
     </ClCompile>
     <ClCompile Include="PlyMesh.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Mesh</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

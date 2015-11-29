@@ -8,8 +8,8 @@
 class CGameObject
 {
 public:
-	inline void SetPosition( const float x, const float y, const float z );
-	inline void SetScale( const float xScale, const float yScale, const float zScale );
+	void SetPosition( const float x, const float y, const float z );
+	void SetScale( const float xScale, const float yScale, const float zScale );
 	inline void SetRotate( const float pitch, const float yaw, const float roll );
 
 	inline const D3DXVECTOR3& GetPosition( );

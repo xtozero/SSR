@@ -5,13 +5,13 @@
 
 extern IRenderer* gRenderer;
 
-inline void CGameObject::SetPosition( const float x, const float y, const float z )
+void CGameObject::SetPosition( const float x, const float y, const float z )
 {
 	m_vecPos = D3DXVECTOR3( x, y, z );
 	m_needRebuildTransform = true;
 }
 
-inline void CGameObject::SetScale( const float xScale, const float yScale, const float zScale )
+void CGameObject::SetScale( const float xScale, const float yScale, const float zScale )
 {
 	m_vecScale = D3DXVECTOR3( xScale, yScale, zScale );
 	m_needRebuildTransform = true;

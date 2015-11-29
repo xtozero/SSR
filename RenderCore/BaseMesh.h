@@ -7,7 +7,7 @@
 
 class IMaterial;
 
-class RENDERCORE_DLL BaseMesh : public IMesh
+class BaseMesh : public IMesh
 {
 protected:
 	void* m_pModelData;
@@ -25,9 +25,12 @@ protected:
 
 	UINT m_nIndices;
 	UINT m_nIndexOffset;
+
+	D3DXVECTOR3 m_color;
 public:
 	virtual void SetModelData( void* pOrignal, UINT vertexCount );
 	virtual void SetIndexData( void* pOrignal, UINT indexCount );
+	virtual void SetColor( const D3DXVECTOR3& color );
 	virtual bool Load( );
 
 	virtual void Draw( ID3D11DeviceContext* pDeviceContext );

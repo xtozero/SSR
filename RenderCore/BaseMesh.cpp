@@ -20,6 +20,11 @@ void BaseMesh::SetIndexData( void* pOrignal, UINT indexCount )
 	m_nIndices = indexCount;
 }
 
+void BaseMesh::SetColor( const D3DXVECTOR3& color )
+{
+	m_color = color;
+}
+
 bool BaseMesh::Load( )
 {
 	return true;

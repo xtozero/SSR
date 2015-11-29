@@ -18,7 +18,7 @@ private:
 	void EndLogic ( void );
 
 	bool InitShaders( void );
-	bool InitModel( void );
+	bool LoadScene( void );
 
 	void SceneBegin( void );
 	void DrawScene( void );

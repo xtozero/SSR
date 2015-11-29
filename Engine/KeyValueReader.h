@@ -2,6 +2,8 @@
 
 #include "common.h"
 #include <memory>
+#include <vector>
+#include <stack>
 
 class KeyValue
 {
@@ -50,20 +52,42 @@ private:
 	String m_value;
 };
 
+class ENGINE_DLL CKeyValueIterator
+{
+public:
+	explicit CKeyValueIterator( std::shared_ptr<KeyValue> keyValue );
+
+	KeyValue* operator->( ) const;
+	CKeyValueIterator& operator++( );
+	CKeyValueIterator operator++( int );
+
+	bool operator==( const void* const rhs ) const;
+	bool operator!=( const void* const rhs ) const;
+
+	friend ENGINE_DLL bool operator==( const void* const lhs, const CKeyValueIterator& rhs );
+	friend ENGINE_DLL bool operator!=( const void* const lhs, const CKeyValueIterator& rhs );
+private:
+	KeyValue* m_current;
+	std::stack<KeyValue*> m_openList;
+};
+
+ENGINE_DLL bool operator==( const void* const lhs, const CKeyValueIterator& rhs );
+ENGINE_DLL bool operator!=( const void* const lhs, const CKeyValueIterator& rhs );
+
 class KeyValueGroup
 {
 public:
-	virtual std::shared_ptr<KeyValue> FindKeyValue( const String& key ) = 0;
+	virtual CKeyValueIterator FindKeyValue( const String& key ) = 0;
 };
 
 class KeyValueGroupImpl : public KeyValueGroup
 {
 public:
-	virtual std::shared_ptr<KeyValue> FindKeyValue( const String& key );
+	virtual CKeyValueIterator FindKeyValue( const String& key );
 
 	KeyValueGroupImpl( std::shared_ptr<KeyValue>& root );
 private:
-	std::shared_ptr<KeyValue> FindKeyValueInternal( const String& key, std::shared_ptr<KeyValue> keyValue );
+	CKeyValueIterator FindKeyValueInternal( const String& key, std::shared_ptr<KeyValue> keyValue );
 
 	std::shared_ptr<KeyValue> m_pRoot;
 };

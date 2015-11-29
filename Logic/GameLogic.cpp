@@ -3,6 +3,7 @@
 #include "DebugConsole.h"
 #include "GameLogic.h"
 #include "GameObject.h"
+#include "../Shared/Util.h"
 #include "../RenderCore/Direct3D11.h"
 #include "../RenderCore/BaseMesh.h"
 #include "../RenderCore/DebugMesh.h"
@@ -45,14 +46,13 @@ bool CGameLogic::InitShaders( void )
 	return true;
 }
 
-bool CGameLogic::InitModel( void )
+bool CGameLogic::LoadScene( void )
 {
-	m_gameObjects.push_back( std::make_shared<CGameObject>( ) );
+	auto keyValue = m_sceneLoader.LoadSceneFromFile( _T( "../Script/TestScene.txt" ), m_gameObjects );
 
-	auto iter = m_gameObjects.end( ) - 1;
-	if ( iter != m_gameObjects.end( ) )
+	if ( !keyValue )
 	{
-		( *iter )->LoadModelMesh( _T( "../model/object.ply" ) );
+		return false;
 	}
 
 	return true;
@@ -90,7 +90,7 @@ bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
 	ON_FAIL_RETURN( gRenderer->InitializeRenderer( hwnd, wndWidth, wndHeight ) );
 	ON_FAIL_RETURN( InitShaders( ) );
 	ON_FAIL_RETURN( gRenderer->InitMaterial( ) );
-	ON_FAIL_RETURN( InitModel( ) );
+	ON_FAIL_RETURN( LoadScene( ) );
 	gRenderer->PushViewPort( 0.0f, 0.0f, static_cast<float>( wndWidth ), static_cast<float>( wndHeight ) );
 	
 	IRenderView* view = gRenderer->GetCurrentRenderView( );
@@ -106,8 +106,6 @@ bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
 	{
 		return false;
 	}
-
-	m_sceneLoader.LoadSceneFromFile( _T( "../Script/TestScene.txt" ) );
 
 	return true;
 }

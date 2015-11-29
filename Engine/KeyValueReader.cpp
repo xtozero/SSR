@@ -2,6 +2,7 @@
 #include "KeyValueReader.h"
 
 #include <cctype>
+#include "../Shared/Util.h"
 #include <fstream>
 #include <iostream>
 #include <tchar.h>
@@ -68,21 +69,21 @@ m_pChild( nullptr  )
 
 }
 
-std::shared_ptr<KeyValue> KeyValueGroupImpl::FindKeyValue( const String& key )
+CKeyValueIterator KeyValueGroupImpl::FindKeyValue( const String& key )
 {
 	return FindKeyValueInternal( key, m_pRoot );
 }
 
-std::shared_ptr<KeyValue> KeyValueGroupImpl::FindKeyValueInternal( const String& key, std::shared_ptr<KeyValue> keyValue )
+CKeyValueIterator KeyValueGroupImpl::FindKeyValueInternal( const String& key, std::shared_ptr<KeyValue> keyValue )
 {
 	if ( keyValue )
 	{
 		//Search Sibling
-		for ( auto pKey = keyValue; pKey->GetNext( ) != nullptr; pKey = pKey->GetNext( ) )
+		for ( auto pKey = keyValue; pKey != nullptr; pKey = pKey->GetNext( ) )
 		{
 			if ( pKey->GetKey( ) == key )
 			{
-				return pKey;
+				return CKeyValueIterator( pKey );
 			}
 		}
 
@@ -93,7 +94,73 @@ std::shared_ptr<KeyValue> KeyValueGroupImpl::FindKeyValueInternal( const String&
 		}
 	}
 
-	return nullptr;
+	return CKeyValueIterator( nullptr );
+}
+
+CKeyValueIterator::CKeyValueIterator( std::shared_ptr<KeyValue> keyValue ) :
+m_current( keyValue.get() )
+{
+}
+
+KeyValue* CKeyValueIterator::operator->( ) const
+{
+	return m_current;
+}
+
+CKeyValueIterator& CKeyValueIterator::operator++( )
+{
+	if ( m_current != nullptr )
+	{
+		if ( m_current->GetNext( ) != nullptr )
+		{
+			m_openList.push( m_current->GetNext( ).get() );
+		}
+
+		if ( m_current->GetChild( ) != nullptr )
+		{
+			m_openList.push( m_current->GetChild( ).get() );
+		}
+
+		if ( m_openList.empty( ) )
+		{
+			m_current = nullptr;
+		}
+		else
+		{
+			m_current = m_openList.top( );
+			m_openList.pop( );
+		}
+	}
+
+	return *this;
+}
+
+CKeyValueIterator CKeyValueIterator::operator++( int )
+{
+	CKeyValueIterator temp = *this;
+
+	++( *this );
+	return temp;
+}
+
+bool CKeyValueIterator::operator==( const void* const rhs ) const
+{
+	return m_current == rhs;
+}
+
+bool CKeyValueIterator::operator!=( const void* const rhs ) const
+{
+	return m_current != rhs;
+}
+
+bool operator==( const void* const lhs, const CKeyValueIterator& rhs )
+{
+	return rhs == lhs;
+}
+
+bool operator!=( const void* const lhs, const CKeyValueIterator& rhs )
+{
+	return rhs != lhs;
 }
 
 KeyValueGroupImpl::KeyValueGroupImpl( std::shared_ptr<KeyValue>& root ) :
@@ -122,55 +189,75 @@ std::shared_ptr<KeyValueGroup> CKeyValueReader::LoadKeyValueFromFile( String fil
 
 void CKeyValueReader::LoadKeyValueFromFileInternal( Ifstream& file, std::shared_ptr<KeyValue> keyValue )
 {
-	bool readValue = false;
-	bool alreadyReadValue = false;
 	std::shared_ptr<KeyValue> pKeyValue = keyValue;
+
+	bool alreadyReadValue = false;
 
 	while ( file.good( ) )
 	{
-		_TCHAR buffer[MAX_STRING_LEN];
+		String buffer;
 
-		file >> buffer;
+		std::getline( file, buffer );
 
-		if ( buffer[0] == '{' )
-		{
-			readValue = false;
-			alreadyReadValue = true;
-			pKeyValue->SetChild( std::make_shared<KeyValueImpl>( ) );
-			LoadKeyValueFromFileInternal( file, pKeyValue->GetChild( ) );
-		}
-		else if ( buffer[0] == '}' )
-		{
-			return;
-		}
-		else if ( buffer[0] == '"' )
-		{
-			int length = _tcslen( buffer );
+		int curIdx = 0;
+		int len = buffer.length( );
 
-			if ( length > 2 )
+		while ( curIdx < len )
+		{
+			if ( buffer[curIdx] == '{' )
 			{
-				if ( alreadyReadValue )
+				alreadyReadValue = true;
+				pKeyValue->SetChild( std::make_shared<KeyValueImpl>( ) );
+				LoadKeyValueFromFileInternal( file, pKeyValue->GetChild( ) );
+				++curIdx;
+			}
+			else if ( buffer[curIdx] == '}' )
+			{
+				return;
+			}
+			else if ( buffer[curIdx] == '"' )
+			{
+				std::vector<String> params;
+
+				UTIL::SplitByBracket( &buffer[curIdx], params, _T('"'), _T('"') );
+
+				for ( auto i = params.begin( ); i != params.end( ); ++i )
 				{
-					pKeyValue->SetNext( std::make_shared<KeyValueImpl>( ) );
-					pKeyValue = pKeyValue->GetNext( );
-					alreadyReadValue = false;
+					if ( alreadyReadValue )
+					{
+						pKeyValue->SetNext( std::make_shared<KeyValueImpl>( ) );
+						pKeyValue = pKeyValue->GetNext( );
+						alreadyReadValue = false;
+					}
+
+					pKeyValue->SetKey( *i );
+
+					if ( ++i != params.end() )
+					{
+						pKeyValue->SetValue( *i );
+						alreadyReadValue = true;
+					}
+					else
+					{
+						break;
+					}
 				}
 
-				String str;
-				str.append( buffer, 1, length - 2 );
-
-				if ( readValue )
+				++curIdx;
+				if ( params.size( ) > 0 )
 				{
-					pKeyValue->SetValue( str );
-					alreadyReadValue = true;
-				}
-				else
-				{
-					pKeyValue->SetKey( str );
+					auto end = _tcsrchr( &buffer[curIdx], '"' );
+					curIdx += end - &buffer[curIdx];
 				}
 			}
-			
-			readValue = !readValue;
+			else if ( _tcsncmp( &buffer[curIdx], _T( "//" ), len - curIdx ) == 0 )
+			{
+				return;
+			}
+			else
+			{
+				++curIdx;
+			}
 		}
 	}
 }
