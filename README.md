@@ -1,1 +1,1 @@
-![alt tag](https://github.com/xtozero/SSR/tree/master/Current_State.jpg)
+![alt text](https://raw.githubusercontent.com/xtozero/SSR/master/Current_State.jpg)
