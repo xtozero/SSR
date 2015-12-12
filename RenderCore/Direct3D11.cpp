@@ -15,7 +15,9 @@
 #include "MaterialSystem.h"
 
 #include "TutorialMaterial.h"
+#include "WireFrame.h"
 
+#include <tuple>
 #include <string>
 
 #include "VSConstantBufferDefine.h"
@@ -208,8 +210,14 @@ IShader* CDirect3D11::SearchShaderByName( const TCHAR* pName )
 bool CDirect3D11::InitMaterial( )
 {
 	REGISTER_MATERIAL( TutorialMaterial, tutorial );
+	REGISTER_MATERIAL( WireFrame, wireframe );
 
 	return true;
+}
+
+std::shared_ptr<IMaterial> CDirect3D11::GetMaterialPtr( const TCHAR* pMaterialName )
+{
+	return MaterialSystem::GetInstance( )->SearchMaterialByName( pMaterialName );
 }
 
 std::shared_ptr<IMesh> CDirect3D11::GetModelPtr( const TCHAR* pModelName )
@@ -262,6 +270,23 @@ void CDirect3D11::UpdateWorldMatrix( const D3DXMATRIX& worldMatrix )
 
 	m_worldMatrixBuffer->UnLockBuffer( m_pd3d11DeviceContext );
 	m_worldMatrixBuffer->SetVSBuffer( m_pd3d11DeviceContext, static_cast<int>( VS_CONSTANT_BUFFER::WORLD ) );
+}
+
+ID3D11RasterizerState* CDirect3D11::CreateRenderState( bool isWireFrame, bool isAntialiasedLine )
+{
+	ID3D11RasterizerState* rsState = nullptr;
+	D3D11_RASTERIZER_DESC desc;
+	::ZeroMemory( &desc, sizeof( D3D11_RASTERIZER_DESC ) );
+
+	desc.FillMode = isWireFrame ? D3D11_FILL_WIREFRAME : D3D11_FILL_SOLID;
+	desc.AntialiasedLineEnable = isAntialiasedLine ? true : false;
+	desc.CullMode = D3D11_CULL_BACK;
+	desc.DepthClipEnable = true;
+
+
+	m_pd3d11Device->CreateRasterizerState( &desc, &rsState );
+
+	return rsState;
 }
 
 bool CDirect3D11::CreateD3D11Device ( HWND hWind, UINT nWndWidth, UINT nWndHeight )

@@ -4,6 +4,58 @@
 #include "../RenderCore/IRenderer.h"
 #include "../RenderCore/IRenderView.h"
 
+void CCamera::OnLButtonDown( const int x, const int y )
+{
+	m_prevMouseEventPos.x = x;
+	m_prevMouseEventPos.y = y;
+
+	m_mouseRotateEnable = true;
+}
+
+void CCamera::OnLButtonUp( const int x, const int y )
+{
+	m_mouseRotateEnable = false;
+}
+
+void CCamera::OnRButtonDown( const int x, const int y )
+{
+	m_prevMouseEventPos.x = x;
+	m_prevMouseEventPos.y = y;
+
+	m_mouseTranslateEnable = true;
+}
+
+void CCamera::OnRButtonUp( const int x, const int y )
+{
+	m_mouseTranslateEnable = false;
+}
+
+void CCamera::OnMouseMove( const int x, const int y )
+{
+	float dx = static_cast<float>( x - m_prevMouseEventPos.x );
+	float dy = static_cast<float>( y - m_prevMouseEventPos.y );
+
+	dx *= m_mouseSensitivity;
+	dy *= m_mouseSensitivity;
+
+	if ( m_mouseRotateEnable )
+	{
+		Rotate( dy, dx, 0 );
+	}
+	else if ( m_mouseTranslateEnable )
+	{
+		Move( dx, dy, 0 );
+	}
+
+	m_prevMouseEventPos.x = x;
+	m_prevMouseEventPos.y = y;
+}
+
+void CCamera::OnWheelMove( const int zDelta )
+{
+	Move( 0, 0, static_cast<float>( zDelta ) );
+}
+
 const D3DXMATRIX& CCamera::GetViewMatrix( )
 {
 	if ( m_isNeedReclac )
@@ -78,7 +130,9 @@ void CCamera::ReCalcViewMatrix( )
 	m_viewMatrix._11 = m_rightVector.x;	m_viewMatrix._12 = m_upVector.x;	m_viewMatrix._13 = m_lookVector.x;
 	m_viewMatrix._21 = m_rightVector.y;	m_viewMatrix._22 = m_upVector.y;	m_viewMatrix._23 = m_lookVector.y;
 	m_viewMatrix._31 = m_rightVector.z;	m_viewMatrix._32 = m_upVector.z;	m_viewMatrix._33 = m_lookVector.z;
-	m_viewMatrix._41 = -m_origin.x;	m_viewMatrix._42 = -m_origin.y;	m_viewMatrix._43 = -m_origin.z;
+	m_viewMatrix._41 = -D3DXVec3Dot( &m_origin, &m_rightVector );
+	m_viewMatrix._42 = -D3DXVec3Dot( &m_origin, &m_upVector );
+	m_viewMatrix._43 = -D3DXVec3Dot( &m_origin, &m_lookVector );
 	
 	m_isNeedReclac = false;
 }
@@ -89,7 +143,10 @@ m_lookVector( 0.f, 0.f, 1.f ),
 m_upVector( 0.f, 1.f, 0.f ),
 m_rightVector( 1.f, 0.f, 0.f ),
 m_isNeedReclac( false ),
-m_isNeedUpdateRenderer( true )
+m_isNeedUpdateRenderer( true ),
+m_mouseRotateEnable( false ),
+m_mouseTranslateEnable( false ),
+m_mouseSensitivity( 0.01 )
 {
 	D3DXMatrixIdentity( &m_viewMatrix );
 }

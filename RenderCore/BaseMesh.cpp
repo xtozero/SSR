@@ -35,11 +35,9 @@ void BaseMesh::Draw( ID3D11DeviceContext* pDeviceContext )
 
 }
 
-bool BaseMesh::LoadMaterial( const TCHAR* pMaterialName )
+void BaseMesh::SetMaterial( const std::shared_ptr<IMaterial> pMaterial )
 {
-	m_pMaterial = MaterialSystem::GetInstance()->SearchMaterialByName( pMaterialName );
-
-	return m_pMaterial ? true : false;
+	m_pMaterial = pMaterial;
 }
 
 BaseMesh::BaseMesh( ) : m_pModelData( nullptr ),

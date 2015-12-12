@@ -41,15 +41,21 @@ void CSceneLoader::SetSceneObjectProperty( std::shared_ptr<KeyValueGroup> keyVal
 	{
 		if ( findedKey->GetKey( ) == String( _T( "Object" ) ) )
 		{
-			objectList.push_back( std::make_shared<CGameObject>( ) );
+			if ( curObject != objectList.end() &&
+				curObject->get( ) &&
+				curObject->get( )->NeedInitialize( ) )
+			{
+				curObject->get( )->Initialize( );
+			}
 
+			objectList.push_back( std::make_shared<CGameObject>( ) );
 			curObject = ( objectList.end( ) - 1 );
 		}
 		else if ( findedKey->GetKey( ) == String( _T( "Model" ) ) )
 		{
 			CHECK_VALID_ITERATOR( curObject, objectList );
 
-			curObject->get( )->LoadModelMesh( findedKey->GetString( ).c_str( ) );
+			curObject->get( )->SetModelMeshName( findedKey->GetString( ).c_str( ) );
 		}
 		else if ( findedKey->GetKey( ) == String( _T( "Position" ) ) )
 		{
@@ -85,5 +91,18 @@ void CSceneLoader::SetSceneObjectProperty( std::shared_ptr<KeyValueGroup> keyVal
 				curObject->get( )->SetScale( x, y, z );
 			}
 		}
+		else if ( findedKey->GetKey( ) == String( _T( "Material" ) ) )
+		{
+			CHECK_VALID_ITERATOR( curObject, objectList );
+
+			curObject->get( )->SetMaterialName( findedKey->GetString().c_str( ) );
+		}
+	}
+
+	if ( curObject != objectList.end( ) &&
+		curObject->get( ) &&
+		curObject->get( )->NeedInitialize( ) )
+	{
+		curObject->get( )->Initialize( );
 	}
 }

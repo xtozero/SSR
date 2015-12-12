@@ -1,16 +1,21 @@
 "Scene"
 {
+	//카메라 위치
+	"Camera Pos" "0 0 -10"
+	
 	//오브젝트 정의 시작
 	"Object"
 	{
 		"Model"		"../model/object.ply" //모델명
-		"Position"	"1 0 10" //x y z
-		"Scale"		"5 5 5" //xScale yScale zScale
+		"Material"	"wireframe" //재질명
+		"Position"	"1 0 0" //x y z
+		"Scale"		"10 10 10" //xScale yScale zScale
 	}
 	
 	"Object"
 	{
 		"Model"		"../model/object.ply" //모델명
-		"Position"	"-1 1 10" //x y z
+		"Material"	"tutorial" //재질명
+		"Position"	"-1 1 0" //x y z
 	}
 }

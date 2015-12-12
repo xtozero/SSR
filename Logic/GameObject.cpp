@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "GameObject.h"
 #include "../RenderCore/Direct3D11.h"
+#include <tchar.h>
 #include "Timer.h"
 
 extern IRenderer* gRenderer;
@@ -43,13 +44,6 @@ const D3DXMATRIX& CGameObject::GetTransformMatrix( ) const
 	return m_matTransform;
 }
 
-void CGameObject::LoadModelMesh( const TCHAR* pModelName )
-{
-	m_meshName = pModelName;
-
-	m_pModel = gRenderer->GetModelPtr( pModelName );
-}
-
 void CGameObject::Render( )
 {
 	if ( ShouldDraw() && m_pModel )
@@ -59,6 +53,7 @@ void CGameObject::Render( )
 			RebuildTransform( );
 		}
 
+		m_pModel->SetMaterial( m_pMaterial );
 		gRenderer->DrawModel( m_pModel );
 	}
 }
@@ -72,18 +67,70 @@ void CGameObject::Think( )
 	SetRotate( 0.f, curRotate.y + D3DXToRadian( 90.f ) * fDeltaTime, 0.f );
 }
 
+void CGameObject::SetMaterialName( const TCHAR* pMaterialName )
+{
+	m_materialName = pMaterialName;
+}
+
+void CGameObject::SetModelMeshName( const TCHAR* pModelName )
+{
+	m_meshName = pModelName;
+}
+
+bool CGameObject::Initialize( )
+{
+	ON_FAIL_RETURN( LoadModelMesh( ) );
+	ON_FAIL_RETURN( LoadMaterial( ) );
+
+	m_needInitialize = false;
+	return true;
+}
+
 CGameObject::CGameObject( ) :
 m_vecPos( 0.f, 0.f, 0.f ),
 m_vecScale( 1.f, 1.f, 1.f ),
 m_vecRotate( 0.f, 0.f, 0.f ),
 m_pModel( nullptr ),
-m_needRebuildTransform( false )
+m_needRebuildTransform( false ),
+m_needInitialize( true )
 {
 	D3DXMatrixIdentity( &m_matTransform );
 }
 
 CGameObject::~CGameObject( )
 {
+}
+
+bool CGameObject::LoadModelMesh( )
+{
+	if ( m_pModel != nullptr )
+	{
+		return false;
+	}
+
+	if ( m_meshName.length( ) > 0 )
+	{
+		ON_SUCCESS_RETURE( m_pModel = gRenderer->GetModelPtr( m_meshName.c_str( ) ) );
+	}
+
+	return false;
+}
+
+bool CGameObject::LoadMaterial( )
+{
+	if ( m_pModel )
+	{
+		if ( m_materialName.length( ) > 0 )
+		{
+			m_pMaterial = gRenderer->GetMaterialPtr( m_materialName.c_str( ) );
+		}
+		else
+		{
+			m_pMaterial = gRenderer->GetMaterialPtr( _T( "WireFrame" ) );
+		}
+	}
+
+	return m_pMaterial ? true : false;
 }
 
 void CGameObject::RebuildTransform( )

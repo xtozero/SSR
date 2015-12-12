@@ -35,7 +35,7 @@ bool TriangleMesh::Load( )
 		return false;
 	}
 
-	ON_FAIL_RETURN( LoadMaterial( _T( "tutorial" ) ) );
+	SetMaterial( g_pRenderer->GetMaterialPtr( _T( "tutorial" ) ) );
 	
 	return true;
 }

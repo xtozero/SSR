@@ -18,13 +18,21 @@ public:
 	
 	const D3DXMATRIX& GetTransformMatrix( ) const;
 
-	void LoadModelMesh( const TCHAR* modelName );
 	void Render( );
 	
 	void Think( );
 
+	void SetMaterialName( const TCHAR* pMaterialName );
+	void SetModelMeshName( const TCHAR* pModelName );
+	
+	bool Initialize( );
+	bool NeedInitialize( ) { return m_needInitialize; }
+
 	CGameObject( );
 	~CGameObject( );
+protected:
+	bool LoadModelMesh( );
+	bool LoadMaterial( );
 private:
 	virtual bool ShouldDraw( ) { return true; }
 	void RebuildTransform( );
@@ -37,9 +45,12 @@ private:
 	D3DXMATRIX m_matTransform;
 
 	std::shared_ptr<IMesh> m_pModel;
+	std::shared_ptr<IMaterial> m_pMaterial;
 
+	String m_materialName;
 	String m_meshName;
 
 	bool m_needRebuildTransform;
+	bool m_needInitialize;
 };
 

@@ -48,12 +48,15 @@ bool CGameLogic::InitShaders( void )
 
 bool CGameLogic::LoadScene( void )
 {
+	m_gameObjects.erase( m_gameObjects.begin( ), m_gameObjects.end( ) );
 	auto keyValue = m_sceneLoader.LoadSceneFromFile( _T( "../Script/TestScene.txt" ), m_gameObjects );
 
 	if ( !keyValue )
 	{
 		return false;
 	}
+
+	InitCameraProperty( keyValue );
 
 	return true;
 }
@@ -85,6 +88,24 @@ void CGameLogic::UpdateWorldMatrix( const CGameObject* object )
 	}
 }
 
+void CGameLogic::InitCameraProperty( std::shared_ptr<KeyValueGroup> keyValue )
+{
+	CKeyValueIterator finded = keyValue->FindKeyValue( _T( "Camera Pos" ) );
+
+	if ( finded != nullptr )
+	{
+		std::vector<String> param;
+		UTIL::Split( finded->GetString( ), param, ' ' );
+
+		if ( param.size( ) == 3 )
+		{
+			m_mainCamera.SetOrigin( D3DXVECTOR3( _ttof( param[0].c_str( ) ),
+				_ttof( param[1].c_str( ) ),
+				_ttof( param[2].c_str( ) ) ) );
+		}
+	}
+}
+
 bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
 {
 	ON_FAIL_RETURN( gRenderer->InitializeRenderer( hwnd, wndWidth, wndHeight ) );
@@ -106,6 +127,8 @@ bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
 	{
 		return false;
 	}
+
+	m_mouseController.AddListener( &m_mainCamera );
 
 	return true;
 }
@@ -129,6 +152,17 @@ bool CGameLogic::HandleWindowMessage( const MSG& msg )
 		HandleWIndowKeyInput( msg.message, msg.wParam, msg.lParam );
 		return true;
 		break;
+	case WM_LBUTTONDOWN:
+	case WM_LBUTTONUP:
+	case WM_RBUTTONDOWN:
+	case WM_RBUTTONUP:
+	case WM_MBUTTONDOWN:
+	case WM_MBUTTONUP:
+	case WM_MOUSEMOVE:
+	case WM_MOUSEWHEEL:
+		HandleWIndowMouseInput( msg.message, msg.wParam, msg.lParam );
+		return true;
+		break;
 	default:
 		//Message UnHandled;
 		return false;
@@ -148,16 +182,12 @@ void CGameLogic::HandleWIndowKeyInput( const int message, const WPARAM wParam, c
 					 switch ( wParam )
 					 {
 					 case VK_UP:
-						 m_mainCamera.Move( 0.f, 0.f, 10.f );
 						 break;
 					 case VK_DOWN:
-						 m_mainCamera.Move( 0.f, 0.f, -10.f );
 						 break;
 					 case VK_RIGHT:
-						 m_mainCamera.Move( 10.f, 0.f, 0.f );
 						 break;
 					 case VK_LEFT:
-						 m_mainCamera.Move( -10.f, 0.f, 0.f );
 						 break;
 					 default:
 						 break;
@@ -166,6 +196,14 @@ void CGameLogic::HandleWIndowKeyInput( const int message, const WPARAM wParam, c
 	default:
 		break;
 	}
+}
+
+void CGameLogic::HandleWIndowMouseInput( const int message, const WPARAM wParam, const LPARAM lParam )
+{
+	CWinProcMouseInputTranslator translator;
+	MOUSE_INPUT_INFO& input = translator.TranslateInput( message, wParam, lParam );
+
+	m_mouseController.ProcessInput( input );
 }
 
 CGameLogic::CGameLogic( )

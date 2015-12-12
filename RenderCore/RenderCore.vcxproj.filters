@@ -117,6 +117,9 @@
     <ClInclude Include="PlyMesh.h">
       <Filter>Mesh</Filter>
     </ClInclude>
+    <ClInclude Include="WireFrame.h">
+      <Filter>Direct11\Material</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -178,6 +181,9 @@
     </ClCompile>
     <ClCompile Include="PlyMesh.cpp">
       <Filter>Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="WireFrame.cpp">
+      <Filter>Direct11\Material</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

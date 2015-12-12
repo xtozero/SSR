@@ -3,6 +3,7 @@
 #include "common.h"
 #include "IBuffer.h"
 #include "IRenderer.h"
+#include "IMaterial.h"
 #include "IMesh.h"
 #include "MeshLoader.h"
 #include "RenderView.h"
@@ -40,6 +41,7 @@ public:
 	virtual IShader* SearchShaderByName( const TCHAR* pName );
 
 	virtual bool InitMaterial( );
+	virtual std::shared_ptr<IMaterial> GetMaterialPtr( const TCHAR* pMaterialName );
 	virtual std::shared_ptr<IMesh> GetModelPtr( const TCHAR* pModelName );
 	virtual void DrawModel( std::shared_ptr<IMesh> pModel );
 
@@ -49,6 +51,7 @@ public:
 	virtual IRenderView* GetCurrentRenderView( );
 
 	virtual void UpdateWorldMatrix( const D3DXMATRIX& worldMatrix );
+	virtual ID3D11RasterizerState* CreateRenderState( bool isWireFrame, bool isAntialiasedLine );
 private:
 	bool CreateD3D11Device ( HWND hWind, UINT nWndWidth, UINT nWndHeight );
 	bool CreatePrimeRenderTargetVIew ( );

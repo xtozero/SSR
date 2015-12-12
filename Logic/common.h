@@ -36,3 +36,6 @@ namespace
 #else
 #define DebugMsg __noop
 #endif
+
+#define FOR_EACH_VEC( x, i ) \
+for ( auto i = x.begin( ); i != x.end( ); ++i )

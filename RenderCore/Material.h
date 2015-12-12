@@ -30,6 +30,7 @@ class Material : public IMaterial
 {
 protected:
 	IShader* m_pShaders[MAX_SHADER];
+	ID3D11RasterizerState* m_pRenderState;
 
 public:
 	virtual void Init( );
@@ -65,6 +66,8 @@ void Material<T>::SetShader( ID3D11DeviceContext* pDeviceContext )
 				m_pShaders[i]->SetShader( pDeviceContext );
 			}
 		}
+
+		pDeviceContext->RSSetState( m_pRenderState );
 	}
 }
 
@@ -123,7 +126,8 @@ void Material<T>::SetPrimitiveTopology( ID3D11DeviceContext* pDeviceContext, D3D
 }
 
 template< typename T >
-Material<T>::Material( )
+Material<T>::Material( ) :
+m_pRenderState( nullptr )
 {
 	for ( int i = 0; i < MAX_SHADER; ++i )
 	{
@@ -135,4 +139,5 @@ template< typename T >
 Material<T>::~Material( )
 {
 	//Do not delete m_pShader's pointer variable in here
+	SAFE_RELEASE( m_pRenderState );
 }

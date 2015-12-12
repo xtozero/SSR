@@ -75,6 +75,12 @@
     <ClInclude Include="..\Shared\Util.h">
       <Filter>Shared</Filter>
     </ClInclude>
+    <ClInclude Include="MouseController.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="IListener.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -106,6 +112,9 @@
     </ClCompile>
     <ClCompile Include="..\Shared\Util.cpp">
       <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="MouseController.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

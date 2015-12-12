@@ -27,9 +27,6 @@ bool CPlyMesh::Load( )
 		m_pIndexBuffer = g_pRenderer->CreateIndexBuffer( sizeof( WORD ), m_nIndices, m_pIndexData );
 	}
 
-	//temp... will be change
-	ON_FAIL_RETURN( LoadMaterial( _T( "tutorial" ) ) );
-
 	return true;
 }
 

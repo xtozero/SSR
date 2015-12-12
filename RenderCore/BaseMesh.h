@@ -4,6 +4,7 @@
 #include <d3d11.h>
 #include "IBuffer.h"
 #include "IMesh.h"
+#include <memory>
 
 class IMaterial;
 
@@ -18,7 +19,7 @@ protected:
 
 	D3D11_PRIMITIVE_TOPOLOGY m_primitiveTopology;
 
-	IMaterial* m_pMaterial;
+	std::shared_ptr<IMaterial> m_pMaterial;
 
 	UINT m_nVertices;
 	UINT m_nOffset;
@@ -35,9 +36,9 @@ public:
 
 	virtual void Draw( ID3D11DeviceContext* pDeviceContext );
 
-protected:
-	bool LoadMaterial( const TCHAR* pMaterialName );
+	virtual void SetMaterial( const std::shared_ptr<IMaterial> pMaterial );
 
+protected:
 	BaseMesh( );
 
 public:

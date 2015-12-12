@@ -7,7 +7,9 @@
 class IShader;
 class IBuffer;
 class IRenderView;
+class IMaterial;
 class IMesh;
+struct ID3D11RasterizerState;
 
 class RENDERCORE_DLL IRenderer
 {
@@ -30,6 +32,7 @@ public:
 	virtual IShader* SearchShaderByName( const TCHAR* name ) = 0;
 
 	virtual bool InitMaterial( ) = 0;
+	virtual std::shared_ptr<IMaterial> GetMaterialPtr( const TCHAR* pMaterialName ) = 0;
 	virtual std::shared_ptr<IMesh> GetModelPtr( const TCHAR* pModelName ) = 0;
 	virtual void DrawModel( std::shared_ptr<IMesh> pModel ) = 0;
 
@@ -39,6 +42,8 @@ public:
 	virtual IRenderView* GetCurrentRenderView( ) = 0;
 
 	virtual void UpdateWorldMatrix( const D3DXMATRIX& worldMatrix ) = 0;
+
+	virtual ID3D11RasterizerState* CreateRenderState( bool isWireFrame, bool isAntialiasedLine ) = 0;
 protected:
 	IRenderer ( ) {}
 public:

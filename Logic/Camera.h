@@ -1,12 +1,21 @@
 #pragma once
 
 #include <D3DX9math.h>
+#include "IListener.h"
 
 class IRenderer;
 
-class CCamera
+class CCamera : public IListener
 {
 public:
+	//IListener
+	virtual void OnLButtonDown( const int x, const int y ) override;
+	virtual void OnLButtonUp( const int x, const int y ) override;
+	virtual void OnRButtonDown( const int x, const int y ) override;
+	virtual void OnRButtonUp( const int x, const int y ) override;
+	virtual void OnMouseMove( const int x, const int y ) override;
+	virtual void OnWheelMove( const int zDelta ) override;
+
 	const D3DXMATRIX& CCamera::GetViewMatrix();
 	
 	void SetOrigin( const D3DXVECTOR3& origin );
@@ -30,7 +39,7 @@ public:
 
 private:
 	D3DXMATRIX m_viewMatrix;
-
+	
 	D3DXVECTOR3 m_origin;
 	D3DXVECTOR3 m_lookVector;
 	D3DXVECTOR3 m_upVector;
@@ -38,5 +47,11 @@ private:
 
 	bool m_isNeedReclac;
 	bool m_isNeedUpdateRenderer;
+
+	bool m_mouseRotateEnable;
+	D3DXVECTOR2 m_prevMouseEventPos;
+	
+	bool m_mouseTranslateEnable;
+	float m_mouseSensitivity;
 };
 
