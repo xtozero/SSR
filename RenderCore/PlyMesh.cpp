@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "common.h"
+#include "CommonMeshDefine.h"
 #include "Direct3D11.h"
 
 #include "MaterialSystem.h"
@@ -13,7 +14,7 @@ bool CPlyMesh::Load( )
 {
 	m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
-	UINT stride = sizeof( D3DXVECTOR3 );
+	UINT stride = VERTEX_STRIDE;
 
 	m_pVertexBuffer = g_pRenderer->CreateVertexBuffer( stride, m_nVertices, m_pModelData );
 

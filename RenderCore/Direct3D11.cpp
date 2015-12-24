@@ -117,7 +117,7 @@ IShader* CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pP
 {
 	D3D11VertexShader* vs = new D3D11VertexShader( );
 	
-	D3D11_INPUT_ELEMENT_DESC* inputDesc = vs->CreateInputElementDesc( 1 );
+	D3D11_INPUT_ELEMENT_DESC* inputDesc = vs->CreateInputElementDesc( 4 );
 
 	inputDesc[0].SemanticName = "POSITION";
 	inputDesc[0].SemanticIndex = 0;
@@ -126,6 +126,30 @@ IShader* CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pP
 	inputDesc[0].AlignedByteOffset = 0;
 	inputDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	inputDesc[0].InstanceDataStepRate = 0;
+
+	inputDesc[1].SemanticName = "NORMAL";
+	inputDesc[1].SemanticIndex = 0;
+	inputDesc[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	inputDesc[1].InputSlot = 0;
+	inputDesc[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	inputDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	inputDesc[1].InstanceDataStepRate = 0;
+
+	inputDesc[2].SemanticName = "COLOR";
+	inputDesc[2].SemanticIndex = 0;
+	inputDesc[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	inputDesc[2].InputSlot = 0;
+	inputDesc[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	inputDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	inputDesc[2].InstanceDataStepRate = 0;
+
+	inputDesc[3].SemanticName = "TEXCOORD";
+	inputDesc[3].SemanticIndex = 0;
+	inputDesc[3].Format = DXGI_FORMAT_R32G32_FLOAT;
+	inputDesc[3].InputSlot = 0;
+	inputDesc[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	inputDesc[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	inputDesc[3].InstanceDataStepRate = 0;
 
 	if ( vs->CreateShader( m_pd3d11Device, pFilePath, pProfile ) )
 	{

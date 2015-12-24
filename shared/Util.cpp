@@ -39,4 +39,11 @@ namespace UTIL
 			}
 		}
 	}
+
+	const String FileNameExtension( const String& pFileName )
+	{
+		auto found = pFileName.find_last_of( _T( "." ) );
+
+		return pFileName.substr( found + 1 );
+	}
 }

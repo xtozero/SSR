@@ -7,6 +7,7 @@
 #include "../RenderCore/Direct3D11.h"
 #include "../RenderCore/BaseMesh.h"
 #include "../RenderCore/DebugMesh.h"
+#include <ctime>
 #include "Timer.h"
 
 IRenderer* gRenderer = CreateDirect3D11Renderer ();
@@ -108,6 +109,8 @@ void CGameLogic::InitCameraProperty( std::shared_ptr<KeyValueGroup> keyValue )
 
 bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
 {
+	srand( time( NULL ) );
+
 	ON_FAIL_RETURN( gRenderer->InitializeRenderer( hwnd, wndWidth, wndHeight ) );
 	ON_FAIL_RETURN( InitShaders( ) );
 	ON_FAIL_RETURN( gRenderer->InitMaterial( ) );

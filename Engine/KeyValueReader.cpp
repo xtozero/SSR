@@ -250,9 +250,9 @@ void CKeyValueReader::LoadKeyValueFromFileInternal( Ifstream& file, std::shared_
 					curIdx += end - &buffer[curIdx];
 				}
 			}
-			else if ( _tcsncmp( &buffer[curIdx], _T( "//" ), len - curIdx ) == 0 )
+			else if ( _tcsncmp( &buffer[curIdx], _T( "//" ), _tcslen( _T( "//" ) ) ) == 0 )
 			{
-				return;
+				break;
 			}
 			else
 			{

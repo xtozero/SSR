@@ -31,6 +31,9 @@
     <Filter Include="Direct11\Material">
       <UniqueIdentifier>{c0580400-df12-4357-a7c5-5c1a689acf87}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shared">
+      <UniqueIdentifier>{c0305b5f-d5c8-4805-be40-0bb03273cfeb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -120,6 +123,18 @@
     <ClInclude Include="WireFrame.h">
       <Filter>Direct11\Material</Filter>
     </ClInclude>
+    <ClInclude Include="..\Shared\Util.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="PlyMeshLoader.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjMeshLoader.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonMeshDefine.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -184,6 +199,15 @@
     </ClCompile>
     <ClCompile Include="WireFrame.cpp">
       <Filter>Direct11\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\Util.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="PlyMeshLoader.cpp">
+      <Filter>Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjMeshLoader.cpp">
+      <Filter>Mesh</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

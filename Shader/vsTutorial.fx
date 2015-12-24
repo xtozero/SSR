@@ -12,11 +12,17 @@ cbuffer VEIW_PROJECTION : register( b1 )
 struct VS_INPUT
 {
 	float3 position : POSITION;
+	float3 normal : NORMAL;
+	float3 color : COLOR;
+	float2 texcoord : TEXCOORD;
 };
 
 struct VS_OUTPUT
 {
 	float4 position : SV_POSITION;
+	float3 normal : NORMAL;
+	float3 color : COLOR;
+	float2 texcoord : TEXCOORD;
 };
 
 VS_OUTPUT main( VS_INPUT input )
@@ -27,6 +33,8 @@ VS_OUTPUT main( VS_INPUT input )
 	worldViewPorjection = mul( worldViewPorjection, g_projectionMatrix );
 
 	output.position = mul( float4( input.position, 1.0f ), worldViewPorjection );
+	output.texcoord = input.texcoord;
+	output.color = input.color;
 
 	return output;
 }

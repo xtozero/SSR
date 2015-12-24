@@ -7,6 +7,7 @@
 #include <memory>
 
 class IMaterial;
+struct MeshVertex;
 
 class BaseMesh : public IMesh
 {
@@ -29,7 +30,7 @@ protected:
 
 	D3DXVECTOR3 m_color;
 public:
-	virtual void SetModelData( void* pOrignal, UINT vertexCount );
+	virtual void SetModelData( MeshVertex* pOrignal, UINT vertexCount );
 	virtual void SetIndexData( void* pOrignal, UINT indexCount );
 	virtual void SetColor( const D3DXVECTOR3& color );
 	virtual bool Load( );

@@ -17,4 +17,5 @@ namespace UTIL
 {
 	void Split( const String& string, std::vector<String>& params, const TCHAR token );
 	void SplitByBracket( const String& string, std::vector<String>& params, const TCHAR startToken, const TCHAR endToken );
+	const String FileNameExtension( const String& pFileName );
 }

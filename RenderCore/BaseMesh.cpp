@@ -8,7 +8,7 @@
 
 extern IRenderer* g_pRenderer;
 
-void BaseMesh::SetModelData( void* pOrignal, UINT vertexCount )
+void BaseMesh::SetModelData( MeshVertex* pOrignal, UINT vertexCount )
 {
 	m_pModelData = pOrignal;
 	m_nVertices = vertexCount;
