@@ -4,7 +4,7 @@
 class WireFrame : public Material<WireFrame>
 {
 public:
-	virtual void Init( );
+	virtual void Init( ) override;
 
 	WireFrame( );
 	virtual ~WireFrame( );

@@ -17,16 +17,16 @@ class RenderView : public IRenderView
 public:
 	bool initialize( ID3D11Device* pDevice );
 
-	virtual void PushViewPort( const float topLeftX, const float topLeftY, const float width, const float height, const float minDepth = 0.0f, const float maxDepth = 1.0f );
-	virtual void PopViewPort( );
+	virtual void PushViewPort( const float topLeftX, const float topLeftY, const float width, const float height, const float minDepth = 0.0f, const float maxDepth = 1.0f ) override;
+	virtual void PopViewPort( ) override;
 	void SetViewPort( ID3D11DeviceContext* pDeviceContext );
 
-	virtual void CreatePerspectiveFovLHMatrix( float fov, float aspect, float zNear, float zFar );
-	virtual void CreatePerspectiveFovRHMatrix( float fov, float aspect, float zNear, float zFar );
+	virtual void CreatePerspectiveFovLHMatrix( float fov, float aspect, float zNear, float zFar ) override;
+	virtual void CreatePerspectiveFovRHMatrix( float fov, float aspect, float zNear, float zFar ) override;
 
 	void UpdataView( ID3D11DeviceContext* pDeviceContext );
 
-	virtual void SetViewMatrix( const D3DXMATRIX& viewMat ) { m_viewMatrix = viewMat; }
+	virtual void SetViewMatrix( const D3DXMATRIX& viewMat ) override { m_viewMatrix = viewMat; }
 private:
 	std::vector<D3D11_VIEWPORT> m_viewportList;
 

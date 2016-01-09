@@ -1,11 +1,13 @@
 #pragma once
-#include "IMesh.h"
+#include "IMeshLoader.h"
 #include <memory>
 
-class CPlyMeshLoader
+class IMesh;
+
+class CPlyMeshLoader : public IMeshLoader
 {
 public:
-	static std::shared_ptr<IMesh> LoadMeshFromFile( const TCHAR* pFileName );
+	virtual std::shared_ptr<IMesh> LoadMeshFromFile( const TCHAR* pFileName ) override;
 
 	CPlyMeshLoader( );
 	~CPlyMeshLoader( );

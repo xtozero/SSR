@@ -73,7 +73,7 @@ bool D3D11ConstantBuffer::CreateBuffer( ID3D11Device* pDevice, UINT stride, UINT
 			pInitData = &initData;
 		}
 
-		m_pConstantBuffer = D3D11BaseBuffer::CreateBuffer( pDevice, &bufferDesc, pInitData );
+		m_pConstantBuffer = UTIL_BUFFER::CreateBuffer( pDevice, &bufferDesc, pInitData );
 
 		return m_pConstantBuffer ? true : false;
 	}

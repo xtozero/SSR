@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "BaseMesh.h"
 #include "common.h"
+#include "CommonMeshDefine.h"
 #include <D3Dx10.h>
 #include "Direct3D11.h"
 
@@ -27,10 +28,26 @@ void BaseMesh::SetColor( const D3DXVECTOR3& color )
 
 bool BaseMesh::Load( )
 {
+	m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+	UINT stride = VERTEX_STRIDE;
+
+	m_pVertexBuffer = g_pRenderer->CreateVertexBuffer( stride, m_nVertices, m_pModelData );
+
+	if ( !m_pVertexBuffer )
+	{
+		return false;
+	}
+
+	if ( m_pIndexData )
+	{
+		m_pIndexBuffer = g_pRenderer->CreateIndexBuffer( sizeof( WORD ), m_nIndices, m_pIndexData );
+	}
+
 	return true;
 }
 
-void BaseMesh::Draw( ID3D11DeviceContext* pDeviceContext )
+void BaseMesh::Draw( ID3D11DeviceContext* )
 {
 
 }

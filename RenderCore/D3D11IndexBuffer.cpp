@@ -2,6 +2,8 @@
 #include "common.h"
 #include "D3D11IndexBuffer.h"
 
+#include "util_rendercore.h"
+
 void D3D11IndexBuffer::SetIABuffer( ID3D11DeviceContext* pDeviceContext, const UINT* offset )
 {
 	if ( pDeviceContext )
@@ -46,7 +48,11 @@ bool D3D11IndexBuffer::CreateBuffer( ID3D11Device* pDevice, UINT stride, UINT nu
 			pInitData = &initData;
 		}
 
-		m_pIndexBuffer = D3D11BaseBuffer::CreateBuffer( pDevice, &bufferDesc, pInitData );
+		m_pIndexBuffer = UTIL_BUFFER::CreateBuffer( pDevice, &bufferDesc, pInitData );
+
+#ifdef _DEBUG
+		SetDebugName( m_pIndexBuffer, "Index Shader" );
+#endif
 
 		return m_pIndexBuffer ? true : false;
 	}

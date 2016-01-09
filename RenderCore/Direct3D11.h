@@ -7,6 +7,7 @@
 #include "IMesh.h"
 #include "MeshLoader.h"
 #include "RenderView.h"
+#include "TextureManager.h"
 #include <D3D11.h>
 #include <D3DX11.h>
 #include <DXGI.h>
@@ -23,40 +24,44 @@ class BaseMesh;
 class CDirect3D11 : public IRenderer
 {
 public:
-	virtual bool InitializeRenderer ( HWND hWind, UINT nWndWidth, UINT nWndHeight );
-	virtual void ShutDownRenderer ( );
-	virtual void ClearRenderTargetView ( );
-	virtual void ClearRenderTargetView ( float r, float g, float b, float a );
-	virtual void ClearDepthStencilView ( );
-	virtual void SceneBegin( );
-	virtual void SceneEnd( );
+	virtual bool InitializeRenderer ( HWND hWind, UINT nWndWidth, UINT nWndHeight ) override;
+	virtual void ShutDownRenderer( ) override;
+	virtual void ClearRenderTargetView( ) override;
+	virtual void ClearRenderTargetView( float r, float g, float b, float a ) override;
+	virtual void ClearDepthStencilView( ) override;
+	virtual void SceneBegin( ) override;
+	virtual void SceneEnd( ) override;
 
-	virtual IShader* CreateVertexShader( const TCHAR* pFilePath, const char* pProfile );
-	virtual IShader* CreatePixelShader( const TCHAR* pFilePath, const char* pProfile );
+	virtual IShader* CreateVertexShader( const TCHAR* pFilePath, const char* pProfile ) override;
+	virtual IShader* CreatePixelShader( const TCHAR* pFilePath, const char* pProfile ) override;
 
-	virtual IBuffer* CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData );
-	virtual IBuffer* CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData );
-	virtual IBuffer* CreateConstantBuffer( const UINT stride, const UINT numOfElement, const void* srcData );
+	virtual IBuffer* CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) override;
+	virtual IBuffer* CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) override;
+	virtual IBuffer* CreateConstantBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) override;
 
-	virtual IShader* SearchShaderByName( const TCHAR* pName );
+	virtual IShader* SearchShaderByName( const TCHAR* pName ) override;
 
-	virtual bool InitMaterial( );
-	virtual std::shared_ptr<IMaterial> GetMaterialPtr( const TCHAR* pMaterialName );
-	virtual std::shared_ptr<IMesh> GetModelPtr( const TCHAR* pModelName );
-	virtual void DrawModel( std::shared_ptr<IMesh> pModel );
+	virtual bool InitMaterial( ) override;
+	virtual std::shared_ptr<IMaterial> GetMaterialPtr( const TCHAR* pMaterialName ) override;
+	virtual std::shared_ptr<IMesh> GetModelPtr( const TCHAR* pModelName ) override;
+	virtual void DrawModel( std::shared_ptr<IMesh> pModel ) override;
 
-	virtual void PushViewPort( const float topLeftX, const float topLeftY, const float width, const float height, const float minDepth = 0.0f, const float maxDepth = 1.0f );
-	virtual void PopViewPort( );
+	virtual void PushViewPort( const float topLeftX, const float topLeftY, const float width, const float height, const float minDepth = 0.0f, const float maxDepth = 1.0f ) override;
+	virtual void PopViewPort( ) override;
 
-	virtual IRenderView* GetCurrentRenderView( );
+	virtual IRenderView* GetCurrentRenderView( ) override;
 
-	virtual void UpdateWorldMatrix( const D3DXMATRIX& worldMatrix );
-	virtual ID3D11RasterizerState* CreateRenderState( bool isWireFrame, bool isAntialiasedLine );
+	virtual void UpdateWorldMatrix( const D3DXMATRIX& worldMatrix ) override;
+	virtual ID3D11RasterizerState* CreateRenderState( bool isWireFrame, bool isAntialiasedLine ) override;
+
+	virtual std::shared_ptr<ITexture> GetTextureFromFile( const String& fileName ) override;
+	virtual ID3D11SamplerState* CreateSampler( ) override;
 private:
 	bool CreateD3D11Device ( HWND hWind, UINT nWndWidth, UINT nWndHeight );
 	bool CreatePrimeRenderTargetVIew ( );
 	bool CreatePrimeDepthBuffer ( UINT nWndWidth, UINT nWndHeight );
 	bool SetRenderTargetAndDepthBuffer ( );
+	void ReportLiveDevice( );
 
 private:
 	ID3D11Device*			m_pd3d11Device;
@@ -71,12 +76,12 @@ private:
 	std::map<String, IShader*> m_shaderList;
 	std::vector<IBuffer*>	m_bufferList;
 
-	std::vector<std::shared_ptr<IMesh>>	m_models;
-
-	RenderView				m_view;
+	std::unique_ptr<RenderView>	m_pView;
 	CMeshLoader				m_meshLoader;
 
 	IBuffer*				m_worldMatrixBuffer;
+
+	CTextureManager			m_textureManager;
 public:
 	CDirect3D11 ( );
 	virtual ~CDirect3D11 ( );

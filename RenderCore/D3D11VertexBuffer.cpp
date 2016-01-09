@@ -1,7 +1,9 @@
 #include "stdafx.h"
 
 #include "common.h"
+#include <d3dcommon.h>
 #include "D3D11VertexBuffer.h"
+#include "util_rendercore.h"
 
 void D3D11VertexBuffer::SetIABuffer( ID3D11DeviceContext* pDeviceContext, const UINT* offset )
 {
@@ -47,7 +49,11 @@ bool D3D11VertexBuffer::CreateBuffer( ID3D11Device* pDevice, UINT stride, UINT n
 			pInitData = &initData;
 		}
 
-		m_pVertexBuffer = D3D11BaseBuffer::CreateBuffer( pDevice, &bufferDesc, pInitData );
+		m_pVertexBuffer = UTIL_BUFFER::CreateBuffer( pDevice, &bufferDesc, pInitData );
+
+#ifdef _DEBUG
+		SetDebugName( m_pVertexBuffer, "Vertex Buffer" );
+#endif
 
 		return m_pVertexBuffer ? true : false;
 	}

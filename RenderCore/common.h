@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <d3d11.h>
 
 #ifdef RENDERCORE_EXPORTS
 #define RENDERCORE_DLL __declspec(dllexport)

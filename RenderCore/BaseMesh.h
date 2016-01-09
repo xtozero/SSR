@@ -30,14 +30,14 @@ protected:
 
 	D3DXVECTOR3 m_color;
 public:
-	virtual void SetModelData( MeshVertex* pOrignal, UINT vertexCount );
-	virtual void SetIndexData( void* pOrignal, UINT indexCount );
-	virtual void SetColor( const D3DXVECTOR3& color );
-	virtual bool Load( );
+	virtual void SetModelData( MeshVertex* pOrignal, UINT vertexCount ) override;
+	virtual void SetIndexData( void* pOrignal, UINT indexCount ) override;
+	virtual void SetColor( const D3DXVECTOR3& color ) override;
+	virtual bool Load( ) override;
 
-	virtual void Draw( ID3D11DeviceContext* pDeviceContext );
+	virtual void Draw( ID3D11DeviceContext* pDeviceContext ) override;
 
-	virtual void SetMaterial( const std::shared_ptr<IMaterial> pMaterial );
+	virtual void SetMaterial( const std::shared_ptr<IMaterial> pMaterial ) override;
 
 protected:
 	BaseMesh( );

@@ -41,6 +41,8 @@ bool CGameLogic::InitShaders( void )
 
 	ON_FAIL_RETURN( gRenderer->CreateVertexShader( _T( "../Shader/vsTutorial.fx" ), "vs_4_0" ) );
 	ON_FAIL_RETURN( gRenderer->CreatePixelShader( _T( "../Shader/psTutorial.fx" ), "ps_4_0" ) );
+	ON_FAIL_RETURN( gRenderer->CreateVertexShader( _T( "../Shader/vsTexture.fx" ), "vs_4_0" ) );
+	ON_FAIL_RETURN( gRenderer->CreatePixelShader( _T( "../Shader/psTexture.fx" ), "ps_4_0" ) );
 
 	DebugMsg( "Complete Initialize Shaders\n" );
 
@@ -109,7 +111,7 @@ void CGameLogic::InitCameraProperty( std::shared_ptr<KeyValueGroup> keyValue )
 
 bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
 {
-	srand( time( NULL ) );
+	srand( static_cast<UINT>( time( NULL ) ) );
 
 	ON_FAIL_RETURN( gRenderer->InitializeRenderer( hwnd, wndWidth, wndHeight ) );
 	ON_FAIL_RETURN( InitShaders( ) );

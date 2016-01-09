@@ -27,20 +27,20 @@ public:
 class KeyValueImpl : public KeyValue
 {
 public:
-	virtual const String& GetString( ) const;
-	virtual int GetInt( ) const;
-	virtual float GetFloat( ) const;
+	virtual const String& GetString( ) const override;
+	virtual int GetInt( ) const override;
+	virtual float GetFloat( ) const override;
 
-	virtual const String& GetKey( ) const;
+	virtual const String& GetKey( ) const override;
 
-	virtual void SetNext( std::shared_ptr<KeyValue> pNext );
-	virtual void SetChild( std::shared_ptr<KeyValue> pChild );
+	virtual void SetNext( std::shared_ptr<KeyValue> pNext ) override;
+	virtual void SetChild( std::shared_ptr<KeyValue> pChild ) override;
 
-	virtual std::shared_ptr<KeyValue>& GetNext( );
-	virtual std::shared_ptr<KeyValue>& GetChild( );
+	virtual std::shared_ptr<KeyValue>& GetNext( ) override;
+	virtual std::shared_ptr<KeyValue>& GetChild( ) override;
 
-	virtual void SetKey( const String& key );
-	virtual void SetValue( const String& value );
+	virtual void SetKey( const String& key ) override;
+	virtual void SetValue( const String& value ) override;
 
 	KeyValueImpl( );
 
@@ -83,7 +83,7 @@ public:
 class KeyValueGroupImpl : public KeyValueGroup
 {
 public:
-	virtual CKeyValueIterator FindKeyValue( const String& key );
+	virtual CKeyValueIterator FindKeyValue( const String& key ) override;
 
 	KeyValueGroupImpl( std::shared_ptr<KeyValue>& root );
 private:

@@ -4,7 +4,6 @@
 #include "DebugConsole.h"
 #include <process.h>
 
-
 namespace
 {
 	unsigned int __stdcall asyncInputFunc ( void * arg )

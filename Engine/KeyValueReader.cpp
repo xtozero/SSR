@@ -181,6 +181,7 @@ std::shared_ptr<KeyValueGroup> CKeyValueReader::LoadKeyValueFromFile( String fil
 		LoadKeyValueFromFileInternal( file, root );
 		PrintKeyValueInternal( root );
 		
+		file.close( );
 		return std::make_shared<KeyValueGroupImpl>( root );
 	}
 

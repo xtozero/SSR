@@ -93,9 +93,6 @@
     <ClInclude Include="TutorialMaterial.h">
       <Filter>Direct11\Material</Filter>
     </ClInclude>
-    <ClInclude Include="MaterialSystem.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="IMaterial.h">
       <Filter>Direct11\Material</Filter>
     </ClInclude>
@@ -134,6 +131,30 @@
     </ClInclude>
     <ClInclude Include="CommonMeshDefine.h">
       <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="IMeshLoader.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="util_rendercore.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjMesh.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialSystem.h">
+      <Filter>Direct11\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Direct11\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="ITexture.h">
+      <Filter>Direct11\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureMaterial.h">
+      <Filter>Direct11\Material</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -185,9 +206,6 @@
     <ClCompile Include="TutorialMaterial.cpp">
       <Filter>Direct11\Material</Filter>
     </ClCompile>
-    <ClCompile Include="MaterialSystem.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="RenderView.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -209,12 +227,33 @@
     <ClCompile Include="ObjMeshLoader.cpp">
       <Filter>Mesh</Filter>
     </ClCompile>
+    <ClCompile Include="ObjMesh.cpp">
+      <Filter>Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialSystem.cpp">
+      <Filter>Direct11\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Direct11\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureMaterial.cpp">
+      <Filter>Direct11\Material</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Shader\psTutorial.fx">
       <Filter>fx</Filter>
     </FxCompile>
     <FxCompile Include="..\Shader\vsTutorial.fx">
+      <Filter>fx</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shader\vsTexture.fx">
+      <Filter>fx</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shader\psTexture.fx">
       <Filter>fx</Filter>
     </FxCompile>
   </ItemGroup>

@@ -14,6 +14,7 @@
 
 #include "MaterialSystem.h"
 
+#include "TextureMaterial.h"
 #include "TutorialMaterial.h"
 #include "WireFrame.h"
 
@@ -21,21 +22,16 @@
 #include <string>
 
 #include "VSConstantBufferDefine.h"
+#include "util_rendercore.h"
+
+#include "../shared/Util.h"
 
 namespace
 {
-	IRenderer* CreateDirect3D11Renderer ( )
+	IRenderer* CreateDirect3D11Renderer( )
 	{
 		static CDirect3D11 direct3D11;
 		return &direct3D11;
-	}
-
-	String GetFileName( const TCHAR* pFilePath )
-	{
-		const TCHAR* start = _tcsrchr( pFilePath, _T('/') );
-		const TCHAR* end = _tcsrchr( pFilePath, _T( '.' ) );
-
-		return String( start + 1, end );
 	}
 };
 
@@ -45,7 +41,9 @@ bool CDirect3D11::InitializeRenderer ( HWND hWind, UINT nWndWidth, UINT nWndHeig
 	ON_FAIL_RETURN ( CreatePrimeRenderTargetVIew () );
 	ON_FAIL_RETURN ( CreatePrimeDepthBuffer ( nWndWidth, nWndHeight ) );
 	ON_FAIL_RETURN ( SetRenderTargetAndDepthBuffer () );
-	ON_FAIL_RETURN ( m_view.initialize( m_pd3d11Device ) );
+	m_pView = std::make_unique<RenderView>( );
+	ON_FAIL_RETURN( m_pView->initialize( m_pd3d11Device ) );
+	ON_FAIL_RETURN( m_meshLoader.Initialize( ) );
 	m_worldMatrixBuffer = CreateConstantBuffer( sizeof( D3DXMATRIX ), 1, NULL );
 
 	if ( !m_worldMatrixBuffer )
@@ -58,6 +56,8 @@ bool CDirect3D11::InitializeRenderer ( HWND hWind, UINT nWndWidth, UINT nWndHeig
 
 void CDirect3D11::ShutDownRenderer ( )
 {
+	m_pView = std::move( nullptr );
+
 	FOR_EACH_MAP ( m_shaderList, i )
 	{
 		SAFE_DELETE ( i->second );
@@ -66,22 +66,21 @@ void CDirect3D11::ShutDownRenderer ( )
 
 	FOR_EACH_VEC ( m_bufferList, j )
 	{
-		SAFE_DELETE( j._Ptr );
+		SAFE_DELETE( *j );
 	}
 	m_bufferList.clear( );
 
-	FOR_EACH_VEC( m_models, k )
-	{
-		SAFE_DELETE( k._Ptr );
-	}
-	m_models.clear( );
-
 	SAFE_RELEASE ( m_pd3d11DeviceContext );
-	SAFE_RELEASE ( m_pd3d11Device );
 	SAFE_RELEASE ( m_pdxgiSwapChain );
 	SAFE_RELEASE ( m_pd3d11PrimeRTView );
 	SAFE_RELEASE ( m_pd3d11PrimeDSBuffer );
 	SAFE_RELEASE ( m_pd3d11PrimeDSView );
+
+#ifdef _DEBUG
+	ReportLiveDevice( );
+#endif
+
+	SAFE_RELEASE( m_pd3d11Device );
 }
 
 void CDirect3D11::ClearRenderTargetView ( )
@@ -105,7 +104,10 @@ void CDirect3D11::SceneBegin( )
 {
 	ClearDepthStencilView( );
 	ClearRenderTargetView( );
-	m_view.UpdataView( m_pd3d11DeviceContext );
+	if ( m_pView )
+	{
+		m_pView->UpdataView( m_pd3d11DeviceContext );
+	}
 }
 
 void CDirect3D11::SceneEnd( )
@@ -153,7 +155,7 @@ IShader* CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pP
 
 	if ( vs->CreateShader( m_pd3d11Device, pFilePath, pProfile ) )
 	{
-		m_shaderList.emplace( GetFileName(pFilePath), vs );
+		m_shaderList.emplace( UTIL::GetFileName( pFilePath ), vs );
 		return vs;
 	}
 
@@ -166,7 +168,7 @@ IShader* CDirect3D11::CreatePixelShader( const TCHAR* pFilePath, const char* pPr
 	D3D11PixelShader* ps = new D3D11PixelShader( );
 	if ( ps->CreateShader( m_pd3d11Device, pFilePath, pProfile ) )
 	{
-		m_shaderList.insert( std::pair<String, IShader*>( GetFileName( pFilePath ), ps ) );
+		m_shaderList.insert( std::pair<String, IShader*>( UTIL::GetFileName( pFilePath ), ps ) );
 		return ps;
 	}
 
@@ -235,6 +237,7 @@ bool CDirect3D11::InitMaterial( )
 {
 	REGISTER_MATERIAL( TutorialMaterial, tutorial );
 	REGISTER_MATERIAL( WireFrame, wireframe );
+	REGISTER_MATERIAL( TextureMaterial, texture );
 
 	return true;
 }
@@ -264,19 +267,25 @@ void CDirect3D11::DrawModel( std::shared_ptr<IMesh> pModel )
 
 void CDirect3D11::PushViewPort( const float topLeftX, const float topLeftY, const float width, const float height, const float minDepth, const float maxDepth )
 {
-	m_view.PushViewPort( topLeftX, topLeftY, width, height, minDepth, maxDepth );
-	m_view.SetViewPort( m_pd3d11DeviceContext );
+	if ( m_pView )
+	{
+		m_pView->PushViewPort( topLeftX, topLeftY, width, height, minDepth, maxDepth );
+		m_pView->SetViewPort( m_pd3d11DeviceContext );
+	}
 }
 
 void CDirect3D11::PopViewPort( )
 {
-	m_view.PopViewPort( );
-	m_view.SetViewPort( m_pd3d11DeviceContext );
+	if ( m_pView )
+	{
+		m_pView->PopViewPort( );
+		m_pView->SetViewPort( m_pd3d11DeviceContext );
+	}
 }
 
 IRenderView* CDirect3D11::GetCurrentRenderView( )
 {
-	return &m_view;
+	return m_pView.get();
 }
 
 void CDirect3D11::UpdateWorldMatrix( const D3DXMATRIX& worldMatrix )
@@ -311,6 +320,37 @@ ID3D11RasterizerState* CDirect3D11::CreateRenderState( bool isWireFrame, bool is
 	m_pd3d11Device->CreateRasterizerState( &desc, &rsState );
 
 	return rsState;
+}
+
+std::shared_ptr<ITexture> CDirect3D11::GetTextureFromFile( const String& fileName )
+{
+	m_textureManager.LoadTextureFromFile( m_pd3d11Device, fileName );
+	return m_textureManager.GetTexture( fileName );
+}
+
+ID3D11SamplerState* CDirect3D11::CreateSampler( )
+{
+	ID3D11SamplerState* pSampler;
+
+	D3D11_SAMPLER_DESC desc;
+	::ZeroMemory( &desc, sizeof( D3D11_SAMPLER_DESC ) );
+
+	desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	desc.BorderColor[0] = 1.f;
+	desc.BorderColor[1] = 1.f;
+	desc.BorderColor[2] = 1.f;
+	desc.BorderColor[3] = 1.f;
+	desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	desc.MaxAnisotropy = 1;
+	desc.MaxLOD = FLT_MAX;
+	desc.MinLOD = -FLT_MAX;
+
+	m_pd3d11Device->CreateSamplerState( &desc, &pSampler );
+
+	return pSampler;
 }
 
 bool CDirect3D11::CreateD3D11Device ( HWND hWind, UINT nWndWidth, UINT nWndHeight )
@@ -368,6 +408,10 @@ bool CDirect3D11::CreateD3D11Device ( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 			&m_pd3d11DeviceContext
 			) ) )
 		{
+#ifdef _DEBUG
+			SetDebugName( m_pd3d11DeviceContext, "Device Context" );
+#endif
+
 			return true;
 		}
 	}
@@ -437,6 +481,25 @@ bool CDirect3D11::SetRenderTargetAndDepthBuffer ( )
 	else
 	{
 		return false;
+	}
+}
+
+void CDirect3D11::ReportLiveDevice( )
+{
+	if ( m_pd3d11Device == nullptr )
+	{
+		return;
+	}
+
+	HRESULT hr;
+	ID3D11Debug* pD3dDebug;
+
+	hr = m_pd3d11Device->QueryInterface( IID_PPV_ARGS( &pD3dDebug ) );
+
+	if ( SUCCEEDED( hr ) )
+	{
+		pD3dDebug->ReportLiveDeviceObjects( D3D11_RLDO_SUMMARY | D3D11_RLDO_DETAIL );
+		SAFE_RELEASE( pD3dDebug );
 	}
 }
 

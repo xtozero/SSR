@@ -117,8 +117,4 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\model\object.ply" />
-    <None Include="..\model\cube.ply" />
-  </ItemGroup>
 </Project>

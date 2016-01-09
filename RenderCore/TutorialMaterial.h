@@ -5,7 +5,7 @@
 class TutorialMaterial : public Material<TutorialMaterial>
 {
 public:
-	virtual void Init( );
+	virtual void Init( ) override;
 
 	TutorialMaterial( );
 	virtual ~TutorialMaterial( );

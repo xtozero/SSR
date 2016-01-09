@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "D3D11VertexShader.h"
+#include "util_rendercore.h"
 
 bool D3D11VertexShader::CreateShader ( ID3D11Device* pDevice, const TCHAR* pFilePath, const char* pProfile )
 {
@@ -26,6 +27,10 @@ bool D3D11VertexShader::CreateShader ( ID3D11Device* pDevice, const TCHAR* pFile
 					&m_pVertexShader ) );
 			}
 
+#ifdef _DEBUG
+			SetDebugName( m_pVertexShader, "Vertex Shader" );
+#endif
+
 			SAFE_RELEASE ( shaderBlob );
 			return result;
 		}
@@ -40,6 +45,14 @@ void D3D11VertexShader::SetShader ( ID3D11DeviceContext* pDeviceContext )
 	{
 		pDeviceContext->VSSetShader( m_pVertexShader, nullptr, 0 );
 		pDeviceContext->IASetInputLayout ( m_pInputLayout );
+	}
+}
+
+void D3D11VertexShader::SetShaderResource( ID3D11DeviceContext* pDeviceContext, UINT slot, ID3D11ShaderResourceView* pResource )
+{
+	if ( pDeviceContext )
+	{
+		pDeviceContext->VSSetShaderResources( slot, 1, &pResource );
 	}
 }
 

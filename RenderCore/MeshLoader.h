@@ -7,9 +7,12 @@
 #include <memory>
 #include <string>
 
+class IMeshLoader;
+
 class CMeshLoader
 {
 public:
+	bool Initialize( );
 	bool LoadMeshFromFile( const TCHAR* pfileName );
 	std::shared_ptr<IMesh> GetMesh( const TCHAR* pfileName );
 
@@ -18,5 +21,6 @@ public:
 
 private:
 	std::map<String, std::shared_ptr<IMesh>> m_meshList;
+	std::map<String, std::unique_ptr<IMeshLoader>> m_meshLoaders;
 };
 

@@ -10,13 +10,22 @@ namespace UTIL
 		auto i = 0;
 		auto pos = string.find( token );
 		while ( pos != String::npos ) {
-			params.push_back( string.substr( i, pos - i ) );
+			const auto& subString = string.substr( i, pos - i );
+			if ( subString.length( ) > 0 && subString.find_first_of( token ) == String::npos )
+			{
+				params.push_back( subString );
+			}
 			i = ++pos;
 			pos = string.find( token, pos );
+		}
 
-			if ( pos == String::npos )
+		if ( pos == String::npos )
+		{
+			const auto& subString = string.substr( i, string.length( ) - i );
+
+			if ( subString.length( ) > 0 && subString.find_first_of( token ) == String::npos )
 			{
-				params.push_back( string.substr( i, string.length( ) - i ) );
+				params.push_back( subString );
 			}
 		}
 	}
@@ -45,5 +54,13 @@ namespace UTIL
 		auto found = pFileName.find_last_of( _T( "." ) );
 
 		return pFileName.substr( found + 1 );
+	}
+
+	String GetFileName( const TCHAR* pFilePath )
+	{
+		const TCHAR* start = _tcsrchr( pFilePath, _T( '/' ) );
+		const TCHAR* end = _tcsrchr( pFilePath, _T( '.' ) );
+
+		return String( start + 1, end );
 	}
 }

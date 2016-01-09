@@ -33,6 +33,14 @@ void D3D11PixelShader::SetShader ( ID3D11DeviceContext* pDeviceContext )
 	}
 }
 
+void D3D11PixelShader::SetShaderResource( ID3D11DeviceContext* pDeviceContext, UINT slot, ID3D11ShaderResourceView* pResource )
+{
+	if ( pDeviceContext )
+	{
+		pDeviceContext->PSSetShaderResources( slot, 1, &pResource );
+	}
+}
+
 D3D11PixelShader::D3D11PixelShader ()
 {
 }

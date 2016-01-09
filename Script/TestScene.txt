@@ -6,7 +6,7 @@
 	//오브젝트 정의 시작
 	"Object"
 	{
-		"Model"		"../model/ply/object.ply" //모델명
+		"Model"		"object.ply" //모델명
 		"Material"	"wireframe" //재질명
 		"Position"	"0 10 0" //x y z
 		"Scale"		"10 10 10" //xScale yScale zScale
@@ -14,7 +14,7 @@
 	
 	"Object"
 	{
-		"Model"		"../model/ply/object.ply" //모델명
+		"Model"		"object.ply" //모델명
 		"Material"	"tutorial" //재질명
 		"Position"	"0 -10 0" //x y z
 		"Scale"		"10 10 10" //xScale yScale zScale
@@ -22,15 +22,16 @@
 	
 	"Object"
 	{
-		"Model"		"../model/obj/statue.obj" //모델명
-		"Material"	"tutorial" //재질명
-		"Position"	"-10 0 -10" //x y z
+		"Model"		"spaceship.obj" //모델명
+		"Material"	"texture" //재질명
+		"Position"	"-10 0 100" //x y z
 	}
 	
 	"Object"
 	{
-		"Model"		"../model/obj/statue.obj" //모델명
-		"Material"	"tutorial" //재질명
-		"Position"	"10 0 -10" //x y z
+		"Model"		"statue.obj" //모델명
+		"Material"	"texture" //재질명
+		"Scale"		"3 3 3" //xScale yScale zScale
+		"Position"	"10 -10 -10" //x y z
 	}
 }

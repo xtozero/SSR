@@ -9,6 +9,7 @@ class IBuffer;
 class IRenderView;
 class IMaterial;
 class IMesh;
+class ITexture;
 struct ID3D11RasterizerState;
 
 class RENDERCORE_DLL IRenderer
@@ -44,6 +45,9 @@ public:
 	virtual void UpdateWorldMatrix( const D3DXMATRIX& worldMatrix ) = 0;
 
 	virtual ID3D11RasterizerState* CreateRenderState( bool isWireFrame, bool isAntialiasedLine ) = 0;
+	virtual std::shared_ptr<ITexture> GetTextureFromFile( const String& fileName ) = 0;
+
+	virtual ID3D11SamplerState* CreateSampler( ) = 0;
 protected:
 	IRenderer ( ) {}
 public:

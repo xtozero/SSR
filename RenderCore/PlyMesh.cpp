@@ -10,27 +10,6 @@
 
 extern IRenderer* g_pRenderer;
 
-bool CPlyMesh::Load( )
-{
-	m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-
-	UINT stride = VERTEX_STRIDE;
-
-	m_pVertexBuffer = g_pRenderer->CreateVertexBuffer( stride, m_nVertices, m_pModelData );
-
-	if ( !m_pVertexBuffer )
-	{
-		return false;
-	}
-
-	if ( m_pIndexData )
-	{
-		m_pIndexBuffer = g_pRenderer->CreateIndexBuffer( sizeof( WORD ), m_nIndices, m_pIndexData );
-	}
-
-	return true;
-}
-
 void CPlyMesh::Draw( ID3D11DeviceContext* pDeviceContext )
 {
 	if ( !pDeviceContext )

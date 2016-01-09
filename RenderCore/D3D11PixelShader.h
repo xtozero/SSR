@@ -8,8 +8,9 @@ private:
 	ID3D11PixelShader* m_pPixelShader;
 
 public:
-	virtual bool CreateShader ( ID3D11Device* pDevice, const TCHAR* pFilePath, const char* pProfile );
-	virtual void SetShader ( ID3D11DeviceContext* pDeviceContext );
+	virtual bool CreateShader( ID3D11Device* pDevice, const TCHAR* pFilePath, const char* pProfile ) override;
+	virtual void SetShader( ID3D11DeviceContext* pDeviceContext ) override;
+	virtual void SetShaderResource( ID3D11DeviceContext* pDeviceContext, UINT slot, ID3D11ShaderResourceView* pResource ) override;
 
 	D3D11PixelShader ();
 	virtual ~D3D11PixelShader ();

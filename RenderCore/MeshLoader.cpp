@@ -3,11 +3,27 @@
 #include "BaseMesh.h"
 #include <D3DX9math.h>
 #include <fstream>
+#include "IMeshLoader.h"
 #include "MeshLoader.h"
 #include "ObjMeshLoader.h"
 #include "PlyMeshLoader.h"
 #include "../shared/Util.h"
 #include <vector>
+
+bool CMeshLoader::Initialize( )
+{
+	try
+	{
+		m_meshLoaders.emplace( String( _T( "ply" ) ), std::make_unique<CPlyMeshLoader>( ) );
+		m_meshLoaders.emplace( String( _T( "obj" ) ), std::make_unique<CObjMeshLoader>( ) );
+	}
+	catch ( std::exception e )
+	{
+		return false;
+	}
+
+	return true;
+}
 
 bool CMeshLoader::LoadMeshFromFile( const TCHAR* pfileName )
 {
@@ -21,20 +37,17 @@ bool CMeshLoader::LoadMeshFromFile( const TCHAR* pfileName )
 	String exten = UTIL::FileNameExtension( pfileName );
 	std::shared_ptr<IMesh> newMesh = nullptr;
 
-	if ( exten == String( _T( "ply" ) ) )
-	{
-		newMesh = CPlyMeshLoader::LoadMeshFromFile( pfileName );
-	}
-	else if ( exten == String( _T( "obj" ) ) )
-	{
-		newMesh = CObjMeshLoader::LoadMeshFromFile( pfileName );
-	}
+	auto found = m_meshLoaders.find( exten );
 
-
-	if ( newMesh != nullptr )
+	if ( found != m_meshLoaders.end() )
 	{
-		m_meshList.emplace( String( pfileName ), newMesh );
-		return true;
+		newMesh = found->second->LoadMeshFromFile( pfileName );
+
+		if ( newMesh != nullptr )
+		{
+			m_meshList.emplace( String( pfileName ), newMesh );
+			return true;
+		}
 	}
 
 	return false;

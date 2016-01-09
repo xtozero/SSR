@@ -5,14 +5,9 @@
 class CPlyMesh : public BaseMesh
 {
 public:
-	virtual bool Load( );
-
-	virtual void Draw( ID3D11DeviceContext* pDeviceContext );
+	virtual void Draw( ID3D11DeviceContext* pDeviceContext ) override;
 
 	CPlyMesh( );
 	virtual ~CPlyMesh( );
-
-private:
-
 };
 

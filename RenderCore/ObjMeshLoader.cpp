@@ -4,10 +4,9 @@
 #include <D3DX9math.h>
 #include <fstream>
 #include <iostream>
-#include "PlyMesh.h"
+#include "ObjMesh.h"
 #include "ObjMeshLoader.h"
 #include "../shared/Util.h"
-#include <vector>
 
 namespace
 {
@@ -17,27 +16,23 @@ namespace
 		TEXTURE,
 		NORMAL,
 	};
+
+	const TCHAR* OBJ_FILE_DIR = _T( "../model/obj/" );
 }
 
 std::shared_ptr<IMesh> CObjMeshLoader::LoadMeshFromFile( const TCHAR* pFileName )
 {
-	std::wifstream meshFile( pFileName, 0 );
+	Initialize( );
+	TCHAR pPath[MAX_PATH];
+	::GetCurrentDirectory( MAX_PATH, pPath );
+	::SetCurrentDirectory( OBJ_FILE_DIR );
 
-	std::vector<D3DXVECTOR3> positions;
-	std::vector<D3DXVECTOR3> normals;
-	std::vector<D3DXVECTOR2> texCoords;
-
-	std::vector<int> facePositionInfo;
-	std::vector<int> faceTexInfo;
-	std::vector<int> faceNormalnfo;
-
-	std::vector<MeshVertex> vertices;
-	std::vector<WORD> indices;
-
-	int nFaces = 0;
+	Ifstream meshFile;
+	meshFile.open( pFileName, 0 );
 
 	if ( !meshFile.is_open( ) )
 	{
+		::SetCurrentDirectory( pPath );
 		return nullptr;
 	}
 	
@@ -46,52 +41,47 @@ std::shared_ptr<IMesh> CObjMeshLoader::LoadMeshFromFile( const TCHAR* pFileName 
 	{
 		std::getline( meshFile, token );
 
+		std::vector<String> params;
+		UTIL::Split( token, params, _T( ' ' ) );
+
+		UINT count = static_cast<UINT>( params.size( ) );
+
 		if ( token.compare( 0, 1, _T( "#" ) ) == 0 )
 		{
 			//Do Nothing
 		}
-		else if ( token.compare( 0, 2, _T( "vn" ) ) == 0 )
+		else if ( token.find( _T( "vn" ) ) != String::npos )
 		{
-			std::vector<String> params;
-			UTIL::Split( token, params, _T( ' ' ) );
+			assert( count == 4 );
 
-			assert( params.size( ) == 4 );
-
-			normals.emplace_back( _ttof( params[1].c_str( ) ), _ttof( params[2].c_str( ) ), _ttof( params[3].c_str( ) ) );
+			m_normals.emplace_back( _ttof( params[1].c_str( ) ), _ttof( params[2].c_str( ) ), _ttof( params[3].c_str( ) ) );
 		}
-		else if ( token.compare( 0, 2, _T( "vt" ) ) == 0 )
+		else if ( token.find( _T( "vt" ) ) != String::npos )
 		{
-			std::vector<String> params;
-			UTIL::Split( token, params, _T( ' ' ) );
+			assert( count == 3 );
 
-			assert( params.size( ) == 3 );
-
-			texCoords.emplace_back( _ttof( params[1].c_str( ) ), _ttof( params[2].c_str( ) ) );
+			m_texCoords.emplace_back( _ttof( params[1].c_str( ) ), 1.0f - _ttof( params[2].c_str( ) ) );
 		}
-		else if ( token.compare( 0, 2, _T( "v " ) ) == 0 )
+		else if ( token.find( _T( "v " ) ) != String::npos )
 		{
-			std::vector<String> params;
-			UTIL::Split( token, params, _T( ' ' ) );
+			assert( count == 4 );
 
-			assert( params.size( ) == 4 );
-
-			positions.emplace_back( _ttof( params[1].c_str( ) ), _ttof( params[2].c_str( ) ), _ttof( params[3].c_str( ) ) );
+			m_positions.emplace_back( _ttof( params[1].c_str( ) ), _ttof( params[2].c_str( ) ), _ttof( params[3].c_str( ) ) );
 		}
-		else if ( token.compare( 0, 2, _T( "f " ) ) == 0 )
+		else if ( token.find( _T( "f " ) ) != String::npos )
 		{
-			++nFaces;
-			std::vector<String> params;
-			UTIL::Split( token, params, _T( ' ' ) );
+			assert( count == 4 );
 
-			assert( params.size( ) == 4 );
-
-			for ( int i = 1; i < params.size( ); ++i )
+			for ( UINT i = 1; i < count; ++i )
 			{
 				std::vector<String> face;
 
 				UTIL::Split( params[i], face, _T( '/' ) );
+				int pos = -1;
+				int tex = -1;
+				int normal = -1;
 
-				for ( auto iter = face.begin( ); iter != face.end( ); ++iter )
+				FOR_EACH_VEC( face, iter )
 				{
 					int idx = _ttoi( iter->c_str( ) ) - 1;
 
@@ -100,20 +90,45 @@ std::shared_ptr<IMesh> CObjMeshLoader::LoadMeshFromFile( const TCHAR* pFileName 
 						switch ( std::distance( face.begin( ), iter ) )
 						{
 						case OBJ_FACE_ELEMENT::VERTEX:
-							facePositionInfo.push_back( idx );
+							pos = idx;
 							break;
 						case OBJ_FACE_ELEMENT::TEXTURE:
-							faceTexInfo.push_back( idx );
+							tex = idx;
 							break;
 						case OBJ_FACE_ELEMENT::NORMAL:
-							faceNormalnfo.push_back( idx );
+							normal = idx;
 							break;
 						}
 					}
 				}
+
+				m_faceInfo.emplace_back( pos, tex, normal );
+			}
+
+			auto iter = m_faceMtlGroup.rbegin( );
+			if ( iter != m_faceMtlGroup.rend( ) )
+			{
+				iter->m_endFaceIndex = max( m_faceInfo.size( ) - 1, 0 );
+			}
+		}
+		else if ( token.find( _T( "mtllib" ) ) != String::npos )
+		{
+			if ( count > 1 )
+			{
+				LoadMaterialFile( params[1].c_str() );
+			}
+		}
+		else if ( token.find( _T( "usemtl" ) ) != String::npos )
+		{
+			if ( count > 1 )
+			{
+				m_faceMtlGroup.emplace_back( 0, params[1] );
 			}
 		}
 	}
+
+	::SetCurrentDirectory( pPath );
+	meshFile.close();
 
 #ifdef TEST_CODE
 	for ( auto iter = vertices.begin( ); iter != vertices.end( ); ++iter )
@@ -146,64 +161,155 @@ std::shared_ptr<IMesh> CObjMeshLoader::LoadMeshFromFile( const TCHAR* pFileName 
 	}
 #endif
 
-	//Test Code without optimizing Will be Changed
-	MeshVertex curVertex;
-	D3DXVECTOR3 randColor( static_cast<float>( rand( ) ) / RAND_MAX, 
-							static_cast<float>( rand( ) ) / RAND_MAX,
-							static_cast<float>( rand( ) ) / RAND_MAX );
-
-	for ( int i = 0; i < nFaces * 3; ++i )
-	{
-		::ZeroMemory( &curVertex, VERTEX_STRIDE );
-		if ( i < facePositionInfo.size( ) )
-		{
-			curVertex.m_position = positions[facePositionInfo[i]];
-		}
-
-		if ( i < faceNormalnfo.size( ) )
-		{
-			curVertex.m_normal = normals[faceNormalnfo[i]];
-		}
-
-		if ( i < faceTexInfo.size( ) )
-		{
-			curVertex.m_texcoord = texCoords[faceTexInfo[i]];
-		}
-		
-		curVertex.m_color = randColor;
-
-		vertices.push_back( curVertex );
-	}
+	std::vector<MeshVertex>& buildedVertices = BuildVertices( );
+	std::vector<WORD> buildedindices;
 	
-	for ( auto iter = vertices.begin( ); iter != vertices.end( ); ++iter )
+	FOR_EACH_VEC( buildedVertices, iter )
 	{
-		indices.push_back( std::distance( vertices.begin( ), iter ) );
+		buildedindices.push_back( std::distance( buildedVertices.begin( ), iter ) );
 	}
-	//
 
-	auto newMesh = std::make_shared<CPlyMesh>( );
+	int vertexCount = buildedVertices.size( );
+	int indexCount = buildedindices.size( );
 
-	try
+	MeshVertex* vertices = new MeshVertex[vertexCount];
+	WORD* indices = new WORD[indexCount];
+
+	::memcpy_s( vertices, sizeof(MeshVertex)* vertexCount, &buildedVertices[0], sizeof(MeshVertex)* vertexCount );
+	::memcpy_s( indices, sizeof(WORD)* indexCount, &buildedindices[0], sizeof(WORD)* indexCount );
+
+	auto newMesh = std::make_shared<CObjMesh>( );
+
+	FOR_EACH_VEC( m_mtlGroup, i )
 	{
-		newMesh->SetModelData( &vertices[0], vertices.size( ) );
-		newMesh->SetIndexData( &indices[0], indices.size( ) );
-		newMesh->Load( );
+		ObjMaterialTrait trait;
 
+		trait.m_indexOffset = i->m_startIndex;
+		trait.m_indexCount = i->m_endIndex - i->m_startIndex + 1;
+
+		auto found = m_rawMtlInfo.find( i->m_materialName );
+		if ( found != m_rawMtlInfo.end( ) )
+		{
+			trait.m_textureName = found->second.m_textureName;
+		}
+
+		newMesh->AddMaterialGroup( trait );
+	}
+	newMesh->SetModelData( &vertices[0], vertexCount );
+	newMesh->SetIndexData( &indices[0], indexCount );
+	
+	if ( newMesh->Load( ) )
+	{
 		return newMesh;
 	}
-	catch ( std::out_of_range e )
+	else
 	{
 		return nullptr;
 	}
-
-	return nullptr;
 }
 
-CObjMeshLoader::CObjMeshLoader( )
+void CObjMeshLoader::Initialize( )
 {
+	m_positions.clear();
+	m_normals.clear( );
+	m_texCoords.clear( );
+
+	m_faceInfo.clear( );
+
+	m_faceMtlGroup.clear( );
+	m_mtlGroup.clear( );
+	m_rawMtlInfo.clear( );
 }
 
-
-CObjMeshLoader::~CObjMeshLoader( )
+std::vector<MeshVertex> CObjMeshLoader::BuildVertices( )
 {
+	std::vector<MeshVertex> vertices;
+
+	MeshVertex curVertex;
+	D3DXVECTOR3 randColor( static_cast<float>( rand( ) ) / RAND_MAX,
+		static_cast<float>( rand( ) ) / RAND_MAX,
+		static_cast<float>( rand( ) ) / RAND_MAX );
+
+	int count = m_faceInfo.size( );
+
+	UINT startGroupIdx = 0;
+	auto iter = m_faceMtlGroup.begin( );
+
+	for ( int i = 0; i < count; ++i )
+	{
+		::ZeroMemory( &curVertex, VERTEX_STRIDE );
+
+		const ObjFaceInfo &info = m_faceInfo[i];
+
+		if ( info.m_position != -1 )
+		{
+			curVertex.m_position = m_positions[info.m_position];
+		}
+
+		if ( info.m_normal != -1 )
+		{
+			curVertex.m_normal = m_normals[info.m_normal];
+		}
+
+		if ( info.m_texCoord != -1 )
+		{
+			curVertex.m_texcoord = m_texCoords[info.m_texCoord];
+		}
+
+		curVertex.m_color = randColor;
+
+		vertices.push_back( curVertex );
+
+		if ( iter != m_faceMtlGroup.end() && i == iter->m_endFaceIndex )
+		{
+			m_mtlGroup.emplace_back( startGroupIdx, i, iter->m_materialName );
+			startGroupIdx = i + 1;
+			++iter;
+		}
+	}
+
+	return vertices;
+}
+
+void CObjMeshLoader::LoadMaterialFile( const TCHAR* pFileName )
+{
+	Ifstream materialFile( pFileName, 0 );
+
+	if ( !materialFile.is_open( ) )
+	{
+		return;
+	}
+
+	String token;
+	auto curMtl = m_rawMtlInfo.begin( );
+
+	while ( materialFile.good( ) )
+	{
+		std::getline( materialFile, token );
+
+		std::vector<String> params;
+		UTIL::Split( token, params, _T( ' ' ) );
+
+		UINT count = params.size( );
+
+		if ( token.compare( 0, 1, _T( "#" ) ) == 0 )
+		{
+			//Do Nothing
+		}
+		else if ( count > 1 && token.find( _T( "newmtl" ) ) != String::npos )
+		{
+			ObjRawMtlInfo newMtl;
+			m_rawMtlInfo.emplace( params[1], newMtl );
+			curMtl = m_rawMtlInfo.find( params[1] );
+		}
+		else if ( count > 1 && token.find( _T( "map_Kd" ) ) != String::npos )
+		{
+			if ( curMtl != m_rawMtlInfo.end( ) )
+			{
+				curMtl->second.m_textureName = params[1];
+			}
+		}
+	}
+
+	materialFile.close( );
 }
