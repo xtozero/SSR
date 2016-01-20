@@ -21,12 +21,6 @@ typedef std::string String;
 typedef std::wstring String;
 #endif
 
-#define SAFE_RELEASE( x ) { \
-if ( x ) \
-	x->Release ( ); \
-	x = nullptr; \
-}
-
 #define ON_FAIL_RETURN( x ){ \
 if ( !x ) \
 	return false; \

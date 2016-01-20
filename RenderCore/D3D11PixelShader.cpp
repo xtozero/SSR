@@ -7,7 +7,7 @@ bool D3D11PixelShader::CreateShader ( ID3D11Device* pDevice, const TCHAR* pFileP
 {
 	if ( pDevice )
 	{
-		ID3D10Blob* shaderBlob = GetShaderBlob ( pFilePath, pProfile );
+		Microsoft::WRL::ComPtr<ID3D10Blob> shaderBlob = GetShaderBlob( pFilePath, pProfile );
 
 		if ( shaderBlob )
 		{
@@ -17,7 +17,6 @@ bool D3D11PixelShader::CreateShader ( ID3D11Device* pDevice, const TCHAR* pFileP
 				nullptr,
 				&m_pPixelShader ) );
 
-			SAFE_RELEASE ( shaderBlob );
 			return result;
 		}
 	}
@@ -29,7 +28,7 @@ void D3D11PixelShader::SetShader ( ID3D11DeviceContext* pDeviceContext )
 {
 	if ( pDeviceContext )
 	{
-		pDeviceContext->PSSetShader( m_pPixelShader, nullptr, 0 );
+		pDeviceContext->PSSetShader( m_pPixelShader.Get( ), nullptr, 0 );
 	}
 }
 
@@ -47,5 +46,4 @@ D3D11PixelShader::D3D11PixelShader ()
 
 D3D11PixelShader::~D3D11PixelShader ()
 {
-	SAFE_RELEASE ( m_pPixelShader );
 }

@@ -8,7 +8,7 @@ void D3D11IndexBuffer::SetIABuffer( ID3D11DeviceContext* pDeviceContext, const U
 {
 	if ( pDeviceContext )
 	{
-		pDeviceContext->IASetIndexBuffer( m_pIndexBuffer, sizeof( WORD ) == m_stride ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, *offset );
+		pDeviceContext->IASetIndexBuffer( m_pIndexBuffer.Get( ), sizeof( WORD ) == m_stride ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, *offset );
 	}
 }
 
@@ -51,7 +51,7 @@ bool D3D11IndexBuffer::CreateBuffer( ID3D11Device* pDevice, UINT stride, UINT nu
 		m_pIndexBuffer = UTIL_BUFFER::CreateBuffer( pDevice, &bufferDesc, pInitData );
 
 #ifdef _DEBUG
-		SetDebugName( m_pIndexBuffer, "Index Shader" );
+		SetDebugName( m_pIndexBuffer.Get( ), "Index Shader" );
 #endif
 
 		return m_pIndexBuffer ? true : false;
@@ -69,5 +69,4 @@ m_numOfElement( 0 )
 
 D3D11IndexBuffer::~D3D11IndexBuffer ()
 {
-	SAFE_RELEASE ( m_pIndexBuffer );
 }

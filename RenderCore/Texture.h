@@ -12,6 +12,6 @@ public:
 	~CTexture( );
 
 private:
-	ID3D11ShaderResourceView* m_pTextureView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_pTextureView;
 };
 

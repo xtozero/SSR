@@ -7,7 +7,7 @@ void D3D11ConstantBuffer::SetVSBuffer( ID3D11DeviceContext* pDeviceContext, cons
 {
 	if ( pDeviceContext )
 	{
-		pDeviceContext->VSSetConstantBuffers( startSlot, 1, &m_pConstantBuffer );
+		pDeviceContext->VSSetConstantBuffers( startSlot, 1, m_pConstantBuffer.GetAddressOf( ) );
 	}
 }
 
@@ -15,7 +15,7 @@ void D3D11ConstantBuffer::SetPSBuffer( ID3D11DeviceContext* pDeviceContext, cons
 {
 	if ( pDeviceContext )
 	{
-		pDeviceContext->PSSetConstantBuffers( startSlot, 1, &m_pConstantBuffer );
+		pDeviceContext->PSSetConstantBuffers( startSlot, 1, m_pConstantBuffer.GetAddressOf( ) );
 	}
 }
 
@@ -24,7 +24,7 @@ void* D3D11ConstantBuffer::LockBuffer( ID3D11DeviceContext* pDeviceContext )
 	D3D11_MAPPED_SUBRESOURCE subResource;
 	::ZeroMemory( &subResource, sizeof( D3D11_MAPPED_SUBRESOURCE ) );
 
-	if ( SUCCEEDED( pDeviceContext->Map( m_pConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &subResource ) ) )
+	if ( SUCCEEDED( pDeviceContext->Map( m_pConstantBuffer.Get( ), 0, D3D11_MAP_WRITE_DISCARD, 0, &subResource ) ) )
 	{
 		return subResource.pData;
 	}
@@ -34,7 +34,7 @@ void* D3D11ConstantBuffer::LockBuffer( ID3D11DeviceContext* pDeviceContext )
 
 void D3D11ConstantBuffer::UnLockBuffer( ID3D11DeviceContext* pDeviceContext )
 {
-	pDeviceContext->Unmap( m_pConstantBuffer, 0 );
+	pDeviceContext->Unmap( m_pConstantBuffer.Get( ), 0 );
 }
 
 bool D3D11ConstantBuffer::CreateBuffer( ID3D11Device* pDevice, UINT stride, UINT numOfElement, const void* srcData )
@@ -88,5 +88,4 @@ D3D11ConstantBuffer::D3D11ConstantBuffer ()
 
 D3D11ConstantBuffer::~D3D11ConstantBuffer ()
 {
-	SAFE_RELEASE ( m_pConstantBuffer );
 }

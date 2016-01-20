@@ -35,14 +35,14 @@ namespace
 	}
 };
 
-bool CDirect3D11::InitializeRenderer ( HWND hWind, UINT nWndWidth, UINT nWndHeight )
+bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeight )
 {
-	ON_FAIL_RETURN ( CreateD3D11Device ( hWind, nWndWidth, nWndHeight ) );
-	ON_FAIL_RETURN ( CreatePrimeRenderTargetVIew () );
-	ON_FAIL_RETURN ( CreatePrimeDepthBuffer ( nWndWidth, nWndHeight ) );
-	ON_FAIL_RETURN ( SetRenderTargetAndDepthBuffer () );
+	ON_FAIL_RETURN( CreateD3D11Device( hWind, nWndWidth, nWndHeight ) );
+	ON_FAIL_RETURN( CreatePrimeRenderTargetVIew( ) );
+	ON_FAIL_RETURN( CreatePrimeDepthBuffer( nWndWidth, nWndHeight ) );
+	ON_FAIL_RETURN( SetRenderTargetAndDepthBuffer( ) );
 	m_pView = std::make_unique<RenderView>( );
-	ON_FAIL_RETURN( m_pView->initialize( m_pd3d11Device ) );
+	ON_FAIL_RETURN( m_pView->initialize( m_pd3d11Device.Get( ) ) );
 	ON_FAIL_RETURN( m_meshLoader.Initialize( ) );
 	m_worldMatrixBuffer = CreateConstantBuffer( sizeof( D3DXMATRIX ), 1, NULL );
 
@@ -54,50 +54,42 @@ bool CDirect3D11::InitializeRenderer ( HWND hWind, UINT nWndWidth, UINT nWndHeig
 	return true;
 }
 
-void CDirect3D11::ShutDownRenderer ( )
+void CDirect3D11::ShutDownRenderer( )
 {
 	m_pView = std::move( nullptr );
 
-	FOR_EACH_MAP ( m_shaderList, i )
+	FOR_EACH_MAP( m_shaderList, i )
 	{
-		SAFE_DELETE ( i->second );
+		SAFE_DELETE( i->second );
 	}
-	m_shaderList.clear();
+	m_shaderList.clear( );
 
-	FOR_EACH_VEC ( m_bufferList, j )
+	FOR_EACH_VEC( m_bufferList, j )
 	{
 		SAFE_DELETE( *j );
 	}
 	m_bufferList.clear( );
 
-	SAFE_RELEASE ( m_pd3d11DeviceContext );
-	SAFE_RELEASE ( m_pdxgiSwapChain );
-	SAFE_RELEASE ( m_pd3d11PrimeRTView );
-	SAFE_RELEASE ( m_pd3d11PrimeDSBuffer );
-	SAFE_RELEASE ( m_pd3d11PrimeDSView );
-
 #ifdef _DEBUG
 	ReportLiveDevice( );
 #endif
-
-	SAFE_RELEASE( m_pd3d11Device );
 }
 
-void CDirect3D11::ClearRenderTargetView ( )
+void CDirect3D11::ClearRenderTargetView( )
 {
-	ClearRenderTargetView ( 1.0f, 1.0f, 1.0f, 1.0f );
+	ClearRenderTargetView( 1.0f, 1.0f, 1.0f, 1.0f );
 }
 
-void CDirect3D11::ClearRenderTargetView ( float r, float g, float b, float a )
+void CDirect3D11::ClearRenderTargetView( float r, float g, float b, float a )
 {
 	const float clearColor[4] = { r, g, b, a };
 
-	m_pd3d11DeviceContext->ClearRenderTargetView ( m_pd3d11PrimeRTView, clearColor );
+	m_pd3d11DeviceContext->ClearRenderTargetView( m_pd3d11PrimeRTView.Get( ), clearColor );
 }
 
-void CDirect3D11::ClearDepthStencilView ( )
+void CDirect3D11::ClearDepthStencilView( )
 {
-	m_pd3d11DeviceContext->ClearDepthStencilView ( m_pd3d11PrimeDSView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
+	m_pd3d11DeviceContext->ClearDepthStencilView( m_pd3d11PrimeDSView.Get( ), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
 }
 
 void CDirect3D11::SceneBegin( )
@@ -106,19 +98,19 @@ void CDirect3D11::SceneBegin( )
 	ClearRenderTargetView( );
 	if ( m_pView )
 	{
-		m_pView->UpdataView( m_pd3d11DeviceContext );
+		m_pView->UpdataView( m_pd3d11DeviceContext.Get( ) );
 	}
 }
 
 void CDirect3D11::SceneEnd( )
 {
-	m_pdxgiSwapChain->Present ( 0, 0 );
+	m_pdxgiSwapChain->Present( 0, 0 );
 }
 
 IShader* CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pProfile )
 {
 	D3D11VertexShader* vs = new D3D11VertexShader( );
-	
+
 	D3D11_INPUT_ELEMENT_DESC* inputDesc = vs->CreateInputElementDesc( 4 );
 
 	inputDesc[0].SemanticName = "POSITION";
@@ -153,7 +145,7 @@ IShader* CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pP
 	inputDesc[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	inputDesc[3].InstanceDataStepRate = 0;
 
-	if ( vs->CreateShader( m_pd3d11Device, pFilePath, pProfile ) )
+	if ( vs->CreateShader( m_pd3d11Device.Get( ), pFilePath, pProfile ) )
 	{
 		m_shaderList.emplace( UTIL::GetFileName( pFilePath ), vs );
 		return vs;
@@ -166,7 +158,7 @@ IShader* CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pP
 IShader* CDirect3D11::CreatePixelShader( const TCHAR* pFilePath, const char* pProfile )
 {
 	D3D11PixelShader* ps = new D3D11PixelShader( );
-	if ( ps->CreateShader( m_pd3d11Device, pFilePath, pProfile ) )
+	if ( ps->CreateShader( m_pd3d11Device.Get( ), pFilePath, pProfile ) )
 	{
 		m_shaderList.insert( std::pair<String, IShader*>( UTIL::GetFileName( pFilePath ), ps ) );
 		return ps;
@@ -179,7 +171,7 @@ IShader* CDirect3D11::CreatePixelShader( const TCHAR* pFilePath, const char* pPr
 IBuffer* CDirect3D11::CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData )
 {
 	D3D11VertexBuffer* vb = new D3D11VertexBuffer( );
-	if ( vb->CreateBuffer( m_pd3d11Device, stride, numOfElement, srcData ) )
+	if ( vb->CreateBuffer( m_pd3d11Device.Get( ), stride, numOfElement, srcData ) )
 	{
 		m_bufferList.emplace_back( vb );
 		return vb;
@@ -192,7 +184,7 @@ IBuffer* CDirect3D11::CreateVertexBuffer( const UINT stride, const UINT numOfEle
 IBuffer* CDirect3D11::CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData )
 {
 	D3D11IndexBuffer* ib = new D3D11IndexBuffer( );
-	if ( ib->CreateBuffer( m_pd3d11Device, stride, numOfElement, srcData ) )
+	if ( ib->CreateBuffer( m_pd3d11Device.Get( ), stride, numOfElement, srcData ) )
 	{
 		m_bufferList.emplace_back( ib );
 		return ib;
@@ -205,7 +197,7 @@ IBuffer* CDirect3D11::CreateIndexBuffer( const UINT stride, const UINT numOfElem
 IBuffer* CDirect3D11::CreateConstantBuffer( const UINT stride, const UINT numOfElement, const void* srcData )
 {
 	D3D11ConstantBuffer* cb = new D3D11ConstantBuffer( );
-	if ( cb->CreateBuffer( m_pd3d11Device, stride, numOfElement, srcData ) )
+	if ( cb->CreateBuffer( m_pd3d11Device.Get( ), stride, numOfElement, srcData ) )
 	{
 		m_bufferList.emplace_back( cb );
 		return cb;
@@ -261,7 +253,7 @@ void CDirect3D11::DrawModel( std::shared_ptr<IMesh> pModel )
 {
 	if ( pModel )
 	{
-		pModel->Draw( m_pd3d11DeviceContext );
+		pModel->Draw( m_pd3d11DeviceContext.Get( ) );
 	}
 }
 
@@ -270,7 +262,7 @@ void CDirect3D11::PushViewPort( const float topLeftX, const float topLeftY, cons
 	if ( m_pView )
 	{
 		m_pView->PushViewPort( topLeftX, topLeftY, width, height, minDepth, maxDepth );
-		m_pView->SetViewPort( m_pd3d11DeviceContext );
+		m_pView->SetViewPort( m_pd3d11DeviceContext.Get( ) );
 	}
 }
 
@@ -279,18 +271,18 @@ void CDirect3D11::PopViewPort( )
 	if ( m_pView )
 	{
 		m_pView->PopViewPort( );
-		m_pView->SetViewPort( m_pd3d11DeviceContext );
+		m_pView->SetViewPort( m_pd3d11DeviceContext.Get( ) );
 	}
 }
 
 IRenderView* CDirect3D11::GetCurrentRenderView( )
 {
-	return m_pView.get();
+	return m_pView.get( );
 }
 
 void CDirect3D11::UpdateWorldMatrix( const D3DXMATRIX& worldMatrix )
 {
-	D3DXMATRIX* pWorld = static_cast<D3DXMATRIX*>( m_worldMatrixBuffer->LockBuffer( m_pd3d11DeviceContext ) );
+	D3DXMATRIX* pWorld = static_cast<D3DXMATRIX*>( m_worldMatrixBuffer->LockBuffer( m_pd3d11DeviceContext.Get( ) ) );
 
 	if ( pWorld )
 	{
@@ -301,8 +293,8 @@ void CDirect3D11::UpdateWorldMatrix( const D3DXMATRIX& worldMatrix )
 		CopyMemory( pWorld, &transposWorld, sizeof( D3DXMATRIX ) );
 	}
 
-	m_worldMatrixBuffer->UnLockBuffer( m_pd3d11DeviceContext );
-	m_worldMatrixBuffer->SetVSBuffer( m_pd3d11DeviceContext, static_cast<int>( VS_CONSTANT_BUFFER::WORLD ) );
+	m_worldMatrixBuffer->UnLockBuffer( m_pd3d11DeviceContext.Get( ) );
+	m_worldMatrixBuffer->SetVSBuffer( m_pd3d11DeviceContext.Get( ), static_cast<int>( VS_CONSTANT_BUFFER::WORLD ) );
 }
 
 ID3D11RasterizerState* CDirect3D11::CreateRenderState( bool isWireFrame, bool isAntialiasedLine )
@@ -324,7 +316,7 @@ ID3D11RasterizerState* CDirect3D11::CreateRenderState( bool isWireFrame, bool is
 
 std::shared_ptr<ITexture> CDirect3D11::GetTextureFromFile( const String& fileName )
 {
-	m_textureManager.LoadTextureFromFile( m_pd3d11Device, fileName );
+	m_textureManager.LoadTextureFromFile( m_pd3d11Device.Get( ), fileName );
 	return m_textureManager.GetTexture( fileName );
 }
 
@@ -353,7 +345,7 @@ ID3D11SamplerState* CDirect3D11::CreateSampler( )
 	return pSampler;
 }
 
-bool CDirect3D11::CreateD3D11Device ( HWND hWind, UINT nWndWidth, UINT nWndHeight )
+bool CDirect3D11::CreateD3D11Device( HWND hWind, UINT nWndWidth, UINT nWndHeight )
 {
 	D3D_DRIVER_TYPE d3dDriverTypes[] = {
 		D3D_DRIVER_TYPE_HARDWARE,
@@ -373,7 +365,7 @@ bool CDirect3D11::CreateD3D11Device ( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 #endif
 
 	DXGI_SWAP_CHAIN_DESC dxgiSwapchainDesc;
-	::ZeroMemory ( &dxgiSwapchainDesc, sizeof(dxgiSwapchainDesc) );
+	::ZeroMemory( &dxgiSwapchainDesc, sizeof( dxgiSwapchainDesc ) );
 
 	dxgiSwapchainDesc.BufferCount = 1;
 	dxgiSwapchainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -392,14 +384,14 @@ bool CDirect3D11::CreateD3D11Device ( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 
 	HRESULT hr;
 
-	for ( int i = 0; i < _countof ( d3dDriverTypes ); ++i )
+	for ( int i = 0; i < _countof( d3dDriverTypes ); ++i )
 	{
 		if ( SUCCEEDED( hr = D3D11CreateDeviceAndSwapChain( nullptr,
 			d3dDriverTypes[i],
 			nullptr,
 			flag,
 			d3dFeatureLevel,
-			_countof ( d3dFeatureLevel ),
+			_countof( d3dFeatureLevel ),
 			D3D11_SDK_VERSION,
 			&dxgiSwapchainDesc,
 			&m_pdxgiSwapChain,
@@ -409,7 +401,7 @@ bool CDirect3D11::CreateD3D11Device ( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 			) ) )
 		{
 #ifdef _DEBUG
-			SetDebugName( m_pd3d11DeviceContext, "Device Context" );
+			SetDebugName( m_pd3d11DeviceContext.Get( ), "Device Context" );
 #endif
 
 			return true;
@@ -419,17 +411,15 @@ bool CDirect3D11::CreateD3D11Device ( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 	return false;
 }
 
-bool CDirect3D11::CreatePrimeRenderTargetVIew ( )
+bool CDirect3D11::CreatePrimeRenderTargetVIew( )
 {
-	ID3D11Texture2D* pd3d11BackBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> pd3d11BackBuffer;
 
-	if ( SUCCEEDED ( m_pdxgiSwapChain->GetBuffer ( 0, __uuidof(ID3D11Texture2D), (LPVOID*)&pd3d11BackBuffer ) ) )
+	if ( SUCCEEDED( m_pdxgiSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (LPVOID*)&pd3d11BackBuffer ) ) )
 	{
-		HRESULT hr = m_pd3d11Device->CreateRenderTargetView( pd3d11BackBuffer, nullptr, &m_pd3d11PrimeRTView );
+		HRESULT hr = m_pd3d11Device->CreateRenderTargetView( pd3d11BackBuffer.Get( ), nullptr, &m_pd3d11PrimeRTView );
 
-		SAFE_RELEASE ( pd3d11BackBuffer );
-
-		if ( SUCCEEDED ( hr ) )
+		if ( SUCCEEDED( hr ) )
 		{
 			return true;
 		}
@@ -438,10 +428,10 @@ bool CDirect3D11::CreatePrimeRenderTargetVIew ( )
 	return false;
 }
 
-bool CDirect3D11::CreatePrimeDepthBuffer ( UINT nWndWidth, UINT nWndHeight )
+bool CDirect3D11::CreatePrimeDepthBuffer( UINT nWndWidth, UINT nWndHeight )
 {
 	D3D11_TEXTURE2D_DESC d3d11Texture2DDesc;
-	::ZeroMemory ( &d3d11Texture2DDesc, sizeof(d3d11Texture2DDesc) );
+	::ZeroMemory( &d3d11Texture2DDesc, sizeof( d3d11Texture2DDesc ) );
 
 	d3d11Texture2DDesc.ArraySize = 1;
 	d3d11Texture2DDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
@@ -456,13 +446,13 @@ bool CDirect3D11::CreatePrimeDepthBuffer ( UINT nWndWidth, UINT nWndHeight )
 	if ( SUCCEEDED( m_pd3d11Device->CreateTexture2D( &d3d11Texture2DDesc, nullptr, &m_pd3d11PrimeDSBuffer ) ) )
 	{
 		D3D11_DEPTH_STENCIL_VIEW_DESC d3d11DSDesc;
-		::ZeroMemory ( &d3d11DSDesc, sizeof(d3d11DSDesc) );
+		::ZeroMemory( &d3d11DSDesc, sizeof( d3d11DSDesc ) );
 
 		d3d11DSDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 		d3d11DSDesc.Texture2D.MipSlice = 0;
 		d3d11DSDesc.Format = d3d11Texture2DDesc.Format;
 
-		if ( SUCCEEDED ( m_pd3d11Device->CreateDepthStencilView ( m_pd3d11PrimeDSBuffer, &d3d11DSDesc, &m_pd3d11PrimeDSView ) ) )
+		if ( SUCCEEDED( m_pd3d11Device->CreateDepthStencilView( m_pd3d11PrimeDSBuffer.Get( ), &d3d11DSDesc, &m_pd3d11PrimeDSView ) ) )
 		{
 			return true;
 		}
@@ -471,11 +461,11 @@ bool CDirect3D11::CreatePrimeDepthBuffer ( UINT nWndWidth, UINT nWndHeight )
 	return false;
 }
 
-bool CDirect3D11::SetRenderTargetAndDepthBuffer ( )
+bool CDirect3D11::SetRenderTargetAndDepthBuffer( )
 {
 	if ( m_pd3d11PrimeRTView && m_pd3d11PrimeDSView )
 	{
-		m_pd3d11DeviceContext->OMSetRenderTargets ( 1, &m_pd3d11PrimeRTView, m_pd3d11PrimeDSView );
+		m_pd3d11DeviceContext->OMSetRenderTargets( 1, m_pd3d11PrimeRTView.GetAddressOf( ), m_pd3d11PrimeDSView.Get( ) );
 		return true;
 	}
 	else
@@ -492,14 +482,13 @@ void CDirect3D11::ReportLiveDevice( )
 	}
 
 	HRESULT hr;
-	ID3D11Debug* pD3dDebug;
+	Microsoft::WRL::ComPtr<ID3D11Debug> pD3dDebug;
 
-	hr = m_pd3d11Device->QueryInterface( IID_PPV_ARGS( &pD3dDebug ) );
+	hr = m_pd3d11Device.Get( )->QueryInterface( IID_PPV_ARGS( &pD3dDebug ) );
 
 	if ( SUCCEEDED( hr ) )
 	{
 		pD3dDebug->ReportLiveDeviceObjects( D3D11_RLDO_SUMMARY | D3D11_RLDO_DETAIL );
-		SAFE_RELEASE( pD3dDebug );
 	}
 }
 
@@ -514,7 +503,7 @@ m_worldMatrixBuffer( nullptr )
 }
 
 
-CDirect3D11::~CDirect3D11 ( )
+CDirect3D11::~CDirect3D11( )
 {
-	ShutDownRenderer ();
+	ShutDownRenderer( );
 }

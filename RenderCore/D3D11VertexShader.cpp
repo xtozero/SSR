@@ -8,7 +8,7 @@ bool D3D11VertexShader::CreateShader ( ID3D11Device* pDevice, const TCHAR* pFile
 {
 	if ( pDevice && m_pInputElementDesc )
 	{
-		ID3D10Blob* shaderBlob = GetShaderBlob( pFilePath, pProfile ) ;
+		Microsoft::WRL::ComPtr<ID3D10Blob> shaderBlob = GetShaderBlob( pFilePath, pProfile );
 
 		if ( shaderBlob )
 		{
@@ -28,10 +28,9 @@ bool D3D11VertexShader::CreateShader ( ID3D11Device* pDevice, const TCHAR* pFile
 			}
 
 #ifdef _DEBUG
-			SetDebugName( m_pVertexShader, "Vertex Shader" );
+			SetDebugName( m_pVertexShader.Get( ), "Vertex Shader" );
 #endif
 
-			SAFE_RELEASE ( shaderBlob );
 			return result;
 		}
 	}
@@ -43,8 +42,8 @@ void D3D11VertexShader::SetShader ( ID3D11DeviceContext* pDeviceContext )
 {
 	if ( pDeviceContext )
 	{
-		pDeviceContext->VSSetShader( m_pVertexShader, nullptr, 0 );
-		pDeviceContext->IASetInputLayout ( m_pInputLayout );
+		pDeviceContext->VSSetShader( m_pVertexShader.Get( ), nullptr, 0 );
+		pDeviceContext->IASetInputLayout( m_pInputLayout.Get( ) );
 	}
 }
 
@@ -76,7 +75,5 @@ m_pInputLayout( nullptr )
 
 D3D11VertexShader::~D3D11VertexShader ()
 {
-	SAFE_RELEASE ( m_pVertexShader );
 	SAFE_ARRAY_DELETE ( m_pInputElementDesc );
-	SAFE_RELEASE ( m_pInputLayout );
 }

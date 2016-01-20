@@ -3,9 +3,9 @@
 
 namespace UTIL_BUFFER
 {
-	ID3D11Buffer* CreateBuffer( ID3D11Device* pDevice, const D3D11_BUFFER_DESC* bufferDesc, const D3D11_SUBRESOURCE_DATA* initData )
+	Microsoft::WRL::ComPtr<ID3D11Buffer> CreateBuffer( ID3D11Device* pDevice, const D3D11_BUFFER_DESC* bufferDesc, const D3D11_SUBRESOURCE_DATA* initData )
 	{
-		ID3D11Buffer* pBuffer;
+		Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer( nullptr );
 
 		HRESULT hr = pDevice->CreateBuffer( bufferDesc, initData, &pBuffer );
 

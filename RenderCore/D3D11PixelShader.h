@@ -5,7 +5,7 @@
 class D3D11PixelShader : public D3D11BaseShader
 {
 private:
-	ID3D11PixelShader* m_pPixelShader;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> m_pPixelShader;
 
 public:
 	virtual bool CreateShader( ID3D11Device* pDevice, const TCHAR* pFilePath, const char* pProfile ) override;

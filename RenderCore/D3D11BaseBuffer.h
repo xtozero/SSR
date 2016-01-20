@@ -1,11 +1,12 @@
 #pragma once
 
+#include <wrl/client.h>
 #include <D3D11.h>
 #include "IBuffer.h"
 
 namespace UTIL_BUFFER
 {
-	ID3D11Buffer* CreateBuffer( ID3D11Device* pDevice, const D3D11_BUFFER_DESC* bufferDesc, const D3D11_SUBRESOURCE_DATA* initData );
+	Microsoft::WRL::ComPtr<ID3D11Buffer> CreateBuffer( ID3D11Device* pDevice, const D3D11_BUFFER_DESC* bufferDesc, const D3D11_SUBRESOURCE_DATA* initData );
 }
 
 class D3D11BaseBuffer : public IBuffer

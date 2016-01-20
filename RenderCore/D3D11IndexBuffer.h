@@ -5,7 +5,7 @@
 class D3D11IndexBuffer : public D3D11BaseBuffer
 {
 private:
-	ID3D11Buffer* m_pIndexBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_pIndexBuffer;
 	UINT m_stride;
 	UINT m_numOfElement;
 

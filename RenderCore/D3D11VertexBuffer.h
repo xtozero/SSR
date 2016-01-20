@@ -5,7 +5,7 @@
 class D3D11VertexBuffer : public D3D11BaseBuffer
 {
 private:
-	ID3D11Buffer* m_pVertexBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_pVertexBuffer;
 	UINT m_stride;
 	UINT m_numOfElement;
 

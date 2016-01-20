@@ -9,7 +9,7 @@ void D3D11VertexBuffer::SetIABuffer( ID3D11DeviceContext* pDeviceContext, const 
 {
 	if ( pDeviceContext )
 	{
-		pDeviceContext->IASetVertexBuffers( 0, 1, &m_pVertexBuffer, &m_stride, offset );
+		pDeviceContext->IASetVertexBuffers( 0, 1, m_pVertexBuffer.GetAddressOf( ), &m_stride, offset );
 	}
 }
 
@@ -52,7 +52,7 @@ bool D3D11VertexBuffer::CreateBuffer( ID3D11Device* pDevice, UINT stride, UINT n
 		m_pVertexBuffer = UTIL_BUFFER::CreateBuffer( pDevice, &bufferDesc, pInitData );
 
 #ifdef _DEBUG
-		SetDebugName( m_pVertexBuffer, "Vertex Buffer" );
+		SetDebugName( m_pVertexBuffer.Get( ), "Vertex Buffer" );
 #endif
 
 		return m_pVertexBuffer ? true : false;
@@ -69,5 +69,4 @@ m_numOfElement( 0 )
 
 D3D11VertexBuffer::~D3D11VertexBuffer( )
 {
-	SAFE_RELEASE( m_pVertexBuffer );
 }

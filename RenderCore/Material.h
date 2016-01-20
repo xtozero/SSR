@@ -28,8 +28,8 @@ class Material : public IMaterial
 {
 protected:
 	IShader* m_pShaders[SHADER_TYPE::MAX_SHADER];
-	ID3D11RasterizerState* m_pRenderState;
-	ID3D11SamplerState* m_pSamplerState[SHADER_TYPE::MAX_SHADER];
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_pRenderState;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_pSamplerState[SHADER_TYPE::MAX_SHADER];
 
 public:
 	virtual void Init( ) override;
@@ -67,7 +67,7 @@ void Material<T>::SetShader( ID3D11DeviceContext* pDeviceContext )
 			}
 		}
 
-		pDeviceContext->RSSetState( m_pRenderState );
+		pDeviceContext->RSSetState( m_pRenderState.Get( ) );
 	}
 }
 
@@ -159,10 +159,4 @@ m_pRenderState( nullptr )
 template< typename T >
 Material<T>::~Material( )
 {
-	//Do not delete m_pShader's pointer variable in here
-	SAFE_RELEASE( m_pRenderState );
-	for ( int i = 0; i < MAX_SHADER; ++i )
-	{
-		SAFE_RELEASE( m_pSamplerState[i] );
-	}
 }

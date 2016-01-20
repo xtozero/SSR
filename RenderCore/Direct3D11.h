@@ -8,6 +8,7 @@
 #include "MeshLoader.h"
 #include "RenderView.h"
 #include "TextureManager.h"
+#include <wrl/client.h>
 #include <D3D11.h>
 #include <D3DX11.h>
 #include <DXGI.h>
@@ -64,14 +65,14 @@ private:
 	void ReportLiveDevice( );
 
 private:
-	ID3D11Device*			m_pd3d11Device;
-	ID3D11DeviceContext*	m_pd3d11DeviceContext;
-	IDXGISwapChain*			m_pdxgiSwapChain;
+	Microsoft::WRL::ComPtr<ID3D11Device>			m_pd3d11Device;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext>		m_pd3d11DeviceContext;
+	Microsoft::WRL::ComPtr<IDXGISwapChain>			m_pdxgiSwapChain;
 
-	ID3D11RenderTargetView*	m_pd3d11PrimeRTView;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>	m_pd3d11PrimeRTView;
 
-	ID3D11Texture2D*		m_pd3d11PrimeDSBuffer;
-	ID3D11DepthStencilView*	m_pd3d11PrimeDSView;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D>			m_pd3d11PrimeDSBuffer;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView>	m_pd3d11PrimeDSView;
 
 	std::map<String, IShader*> m_shaderList;
 	std::vector<IBuffer*>	m_bufferList;

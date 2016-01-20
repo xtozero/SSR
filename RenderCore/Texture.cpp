@@ -18,7 +18,7 @@ bool CTexture::LoadTexture( ID3D11Device* pDevice, const String& fileName )
 
 ID3D11ShaderResourceView* CTexture::GetResource( )
 {
-	return m_pTextureView;
+	return m_pTextureView.Get( );
 }
 
 CTexture::CTexture( ) : m_pTextureView( nullptr )
@@ -28,5 +28,4 @@ CTexture::CTexture( ) : m_pTextureView( nullptr )
 
 CTexture::~CTexture( )
 {
-	SAFE_RELEASE( m_pTextureView );
 }
