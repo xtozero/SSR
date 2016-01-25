@@ -2,6 +2,7 @@
 #include "common.h"
 #include "IListener.h"
 #include "MouseController.h"
+#include "../shared/Util.h"
 #include <windowsx.h>
 
 MOUSE_INPUT_INFO CWinProcMouseInputTranslator::TranslateInput( const int message, const WPARAM wParam, const LPARAM lParam )
@@ -100,11 +101,11 @@ void CMouseController::ProcessInput( const MOUSE_INPUT_INFO& input )
 		break;
 	default:
 	case MOUSE_INPUT_TYPE::UNKNOWN:
-		DebugMsg( "UNKNOWN MOUSE INPUT TYPE\n" );
+		DebugWarning( _T( "UNKNOWN MOUSE INPUT TYPE\n" ) );
 		return;
 	}
 
-	DebugMsg( "Mouse pos - ( %d, %d )\n", input.m_x, input.m_y );
+	DebugMsg( _T( "Mouse pos - ( %d, %d )\n" ), input.m_x, input.m_y );
 }
 
 void CMouseController::AddListener( IListener* listener )

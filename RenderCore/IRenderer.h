@@ -23,16 +23,15 @@ public:
 	virtual void SceneBegin( ) = 0;
 	virtual void SceneEnd( ) = 0;
 
-	virtual IShader* CreateVertexShader( const TCHAR* pFilePath, const char* pProfile ) = 0;
-	virtual IShader* CreatePixelShader( const TCHAR* pFilePath, const char* pProfile ) = 0;
+	virtual std::shared_ptr<IShader> CreateVertexShader( const TCHAR* pFilePath, const char* pProfile ) = 0;
+	virtual std::shared_ptr<IShader> CreatePixelShader( const TCHAR* pFilePath, const char* pProfile ) = 0;
 
-	virtual IBuffer* CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) = 0;
-	virtual IBuffer* CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) = 0;
-	virtual IBuffer* CreateConstantBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) = 0;
+	virtual std::shared_ptr<IBuffer> CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) = 0;
+	virtual std::shared_ptr<IBuffer> CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) = 0;
+	virtual std::shared_ptr<IBuffer> CreateConstantBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) = 0;
 
-	virtual IShader* SearchShaderByName( const TCHAR* name ) = 0;
+	virtual std::shared_ptr<IShader> SearchShaderByName( const TCHAR* name ) = 0;
 
-	virtual bool InitMaterial( ) = 0;
 	virtual std::shared_ptr<IMaterial> GetMaterialPtr( const TCHAR* pMaterialName ) = 0;
 	virtual std::shared_ptr<IMesh> GetModelPtr( const TCHAR* pModelName ) = 0;
 	virtual void DrawModel( std::shared_ptr<IMesh> pModel ) = 0;

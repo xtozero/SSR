@@ -43,10 +43,12 @@ bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 	ON_FAIL_RETURN( SetRenderTargetAndDepthBuffer( ) );
 	m_pView = std::make_unique<RenderView>( );
 	ON_FAIL_RETURN( m_pView->initialize( m_pd3d11Device.Get( ) ) );
+	ON_FAIL_RETURN( InitializeShaders( ) );
+	ON_FAIL_RETURN( InitializeMaterial( ) );
 	ON_FAIL_RETURN( m_meshLoader.Initialize( ) );
-	m_worldMatrixBuffer = CreateConstantBuffer( sizeof( D3DXMATRIX ), 1, NULL );
+	m_pWorldMatrixBuffer = CreateConstantBuffer( sizeof( D3DXMATRIX ), 1, NULL );
 
-	if ( !m_worldMatrixBuffer )
+	if ( m_pWorldMatrixBuffer == nullptr )
 	{
 		return false;
 	}
@@ -57,17 +59,8 @@ bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 void CDirect3D11::ShutDownRenderer( )
 {
 	m_pView = std::move( nullptr );
-
-	FOR_EACH_MAP( m_shaderList, i )
-	{
-		SAFE_DELETE( i->second );
-	}
+	
 	m_shaderList.clear( );
-
-	FOR_EACH_VEC( m_bufferList, j )
-	{
-		SAFE_DELETE( *j );
-	}
 	m_bufferList.clear( );
 
 #ifdef _DEBUG
@@ -107,9 +100,9 @@ void CDirect3D11::SceneEnd( )
 	m_pdxgiSwapChain->Present( 0, 0 );
 }
 
-IShader* CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pProfile )
+std::shared_ptr<IShader> CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pProfile )
 {
-	D3D11VertexShader* vs = new D3D11VertexShader( );
+	std::shared_ptr<D3D11VertexShader> vs = std::make_shared<D3D11VertexShader>( );
 
 	D3D11_INPUT_ELEMENT_DESC* inputDesc = vs->CreateInputElementDesc( 4 );
 
@@ -151,71 +144,66 @@ IShader* CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pP
 		return vs;
 	}
 
-	SAFE_DELETE( vs );
 	return nullptr;
 }
 
-IShader* CDirect3D11::CreatePixelShader( const TCHAR* pFilePath, const char* pProfile )
+std::shared_ptr<IShader> CDirect3D11::CreatePixelShader( const TCHAR* pFilePath, const char* pProfile )
 {
-	D3D11PixelShader* ps = new D3D11PixelShader( );
+	std::shared_ptr<D3D11PixelShader> ps = std::make_shared<D3D11PixelShader>( );
 	if ( ps->CreateShader( m_pd3d11Device.Get( ), pFilePath, pProfile ) )
 	{
-		m_shaderList.insert( std::pair<String, IShader*>( UTIL::GetFileName( pFilePath ), ps ) );
+		m_shaderList.emplace( UTIL::GetFileName( pFilePath ), ps );
 		return ps;
 	}
 
-	SAFE_DELETE( ps );
 	return nullptr;
 }
 
-IBuffer* CDirect3D11::CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData )
+std::shared_ptr<IBuffer> CDirect3D11::CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData )
 {
-	D3D11VertexBuffer* vb = new D3D11VertexBuffer( );
+	std::shared_ptr<D3D11VertexBuffer> vb = std::make_shared<D3D11VertexBuffer>( );
 	if ( vb->CreateBuffer( m_pd3d11Device.Get( ), stride, numOfElement, srcData ) )
 	{
 		m_bufferList.emplace_back( vb );
 		return vb;
 	}
 
-	SAFE_DELETE( vb );
 	return nullptr;
 }
 
-IBuffer* CDirect3D11::CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData )
+std::shared_ptr<IBuffer> CDirect3D11::CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData )
 {
-	D3D11IndexBuffer* ib = new D3D11IndexBuffer( );
+	std::shared_ptr<D3D11IndexBuffer> ib = std::make_shared<D3D11IndexBuffer>( );
 	if ( ib->CreateBuffer( m_pd3d11Device.Get( ), stride, numOfElement, srcData ) )
 	{
 		m_bufferList.emplace_back( ib );
 		return ib;
 	}
 
-	SAFE_DELETE( ib );
 	return nullptr;
 }
 
-IBuffer* CDirect3D11::CreateConstantBuffer( const UINT stride, const UINT numOfElement, const void* srcData )
+std::shared_ptr<IBuffer> CDirect3D11::CreateConstantBuffer( const UINT stride, const UINT numOfElement, const void* srcData )
 {
-	D3D11ConstantBuffer* cb = new D3D11ConstantBuffer( );
+	std::shared_ptr<D3D11ConstantBuffer> cb = std::make_shared<D3D11ConstantBuffer>( );
 	if ( cb->CreateBuffer( m_pd3d11Device.Get( ), stride, numOfElement, srcData ) )
 	{
 		m_bufferList.emplace_back( cb );
 		return cb;
 	}
 
-	SAFE_DELETE( cb );
 	return nullptr;
 }
 
 
-IShader* CDirect3D11::SearchShaderByName( const TCHAR* pName )
+std::shared_ptr<IShader> CDirect3D11::SearchShaderByName( const TCHAR* pName )
 {
 	if ( !pName )
 	{
 		return nullptr;
 	}
 
-	std::map<String, IShader*>::iterator finded = m_shaderList.find( pName );
+	auto finded = m_shaderList.find( pName );
 
 	if ( finded != m_shaderList.end( ) )
 	{
@@ -225,7 +213,7 @@ IShader* CDirect3D11::SearchShaderByName( const TCHAR* pName )
 	return nullptr;
 }
 
-bool CDirect3D11::InitMaterial( )
+bool CDirect3D11::InitializeMaterial( )
 {
 	REGISTER_MATERIAL( TutorialMaterial, tutorial );
 	REGISTER_MATERIAL( WireFrame, wireframe );
@@ -282,7 +270,13 @@ IRenderView* CDirect3D11::GetCurrentRenderView( )
 
 void CDirect3D11::UpdateWorldMatrix( const D3DXMATRIX& worldMatrix )
 {
-	D3DXMATRIX* pWorld = static_cast<D3DXMATRIX*>( m_worldMatrixBuffer->LockBuffer( m_pd3d11DeviceContext.Get( ) ) );
+	if ( m_pWorldMatrixBuffer == nullptr )
+	{
+		DebugWarning( _T( "m_pWorldMatrixBuffer is nullptr\n" ) );
+		return;
+	}
+
+	D3DXMATRIX* pWorld = static_cast<D3DXMATRIX*>( m_pWorldMatrixBuffer->LockBuffer( m_pd3d11DeviceContext.Get( ) ) );
 
 	if ( pWorld )
 	{
@@ -293,8 +287,8 @@ void CDirect3D11::UpdateWorldMatrix( const D3DXMATRIX& worldMatrix )
 		CopyMemory( pWorld, &transposWorld, sizeof( D3DXMATRIX ) );
 	}
 
-	m_worldMatrixBuffer->UnLockBuffer( m_pd3d11DeviceContext.Get( ) );
-	m_worldMatrixBuffer->SetVSBuffer( m_pd3d11DeviceContext.Get( ), static_cast<int>( VS_CONSTANT_BUFFER::WORLD ) );
+	m_pWorldMatrixBuffer->UnLockBuffer( m_pd3d11DeviceContext.Get( ) );
+	m_pWorldMatrixBuffer->SetVSBuffer( m_pd3d11DeviceContext.Get( ), static_cast<int>( VS_CONSTANT_BUFFER::WORLD ) );
 }
 
 ID3D11RasterizerState* CDirect3D11::CreateRenderState( bool isWireFrame, bool isAntialiasedLine )
@@ -492,13 +486,18 @@ void CDirect3D11::ReportLiveDevice( )
 	}
 }
 
+bool CDirect3D11::InitializeShaders( )
+{
+	return m_shaderLoader.LoadShadersFromScript( this );
+}
+
 CDirect3D11::CDirect3D11( ) : m_pd3d11Device( nullptr ),
 m_pd3d11DeviceContext( nullptr ),
 m_pdxgiSwapChain( nullptr ),
 m_pd3d11PrimeRTView( nullptr ),
 m_pd3d11PrimeDSBuffer( nullptr ),
 m_pd3d11PrimeDSView( nullptr ),
-m_worldMatrixBuffer( nullptr )
+m_pWorldMatrixBuffer( nullptr )
 {
 }
 

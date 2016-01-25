@@ -7,8 +7,8 @@
 
 #pragma warning( disable:4005 )
 
-#pragma comment( lib, "../bin/RenderCore.lib" )
-#pragma comment( lib, "../bin/Engine.lib" )
+#pragma comment( lib, "../lib/RenderCore.lib" )
+#pragma comment( lib, "../lib/Engine.lib" )
 
 #include "targetver.h"
 

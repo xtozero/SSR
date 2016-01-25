@@ -1,0 +1,7 @@
+"ShaderList"
+{
+	"../Shader/vsTutorial.fx"	"vs_4_0"
+	"../Shader/psTutorial.fx"	"ps_4_0"
+	"../Shader/vsTexture.fx"	"vs_4_0"
+	"../Shader/psTexture.fx"	"ps_4_0"
+}

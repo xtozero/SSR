@@ -156,6 +156,9 @@
     <ClInclude Include="TextureMaterial.h">
       <Filter>Direct11\Material</Filter>
     </ClInclude>
+    <ClInclude Include="ShaderListScriptLoader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -241,6 +244,9 @@
     </ClCompile>
     <ClCompile Include="TextureMaterial.cpp">
       <Filter>Direct11\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderListScriptLoader.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

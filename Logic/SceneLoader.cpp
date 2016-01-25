@@ -6,7 +6,7 @@
 #define CHECK_VALID_ITERATOR( iter, container ) \
 		if ( iter == container.end() ) \
 		{ \
-			DebugMsg( "SceneLoad - SetModel Fail!!!!!" ); \
+			DebugWarning( _T( "SceneLoad - SetModel Fail!!!!!" ) ); \
 			return; \
 		} \
 
@@ -20,7 +20,7 @@ std::shared_ptr<KeyValueGroup> CSceneLoader::LoadSceneFromFile( const String& fi
 	{
 		for ( auto findedKey = pKeyValue->FindKeyValue( _T( "Scene" ) ); findedKey != nullptr; ++findedKey )
 		{
-			DebugMsg( "%ls, %ls\n", findedKey->GetKey( ).c_str( ), findedKey->GetString( ).c_str( ) );
+			DebugMsg( _T( "%s, %s\n" ), findedKey->GetKey( ).c_str( ), findedKey->GetString( ).c_str( ) );
 		}
 
 		SetSceneObjectProperty( pKeyValue, objectList );

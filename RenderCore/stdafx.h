@@ -6,6 +6,7 @@
 #pragma once
 
 #pragma warning( disable:4005 )
+#pragma comment( lib, "../lib/Engine.lib" )
 
 #include "targetver.h"
 

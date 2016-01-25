@@ -8,7 +8,7 @@
 
 #define MAX_LOADSTRING 100
 
-#pragma comment( lib, "../bin/Logic.lib")
+#pragma comment( lib, "../lib/Logic.lib")
 
 namespace
 {

@@ -41,9 +41,18 @@ bool CMeshLoader::LoadMeshFromFile( const TCHAR* pfileName )
 
 	if ( found != m_meshLoaders.end() )
 	{
+		if ( found->second == nullptr )
+		{
+			return false;
+		}
+
 		newMesh = found->second->LoadMeshFromFile( pfileName );
 
-		if ( newMesh != nullptr )
+		if ( newMesh == nullptr )
+		{
+			//Do Nothing
+		}
+		else
 		{
 			m_meshList.emplace( String( pfileName ), newMesh );
 			return true;

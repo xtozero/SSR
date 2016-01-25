@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "common.h"
 #include "Timer.h"
+#include "../shared/Util.h"
 #include <windows.h>
 
 #pragma comment( lib, "winmm.lib" )
@@ -28,8 +29,6 @@ void CTimer::Tick ( )
 	}
 
 	m_elapsedTime = m_currentTime - m_lastTime;
-
-//	DebugMsg ( "Elapsted Time - %f\n", m_elapsedTime );
 }
 
 CTimer::CTimer ( ) : m_currentTime ( 0.0f ), 

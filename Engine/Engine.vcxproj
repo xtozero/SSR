@@ -58,7 +58,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\bin\$(ProjectName).lib"
+      <Command>copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\lib\$(ProjectName).lib"
 copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -79,7 +79,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\bin\$(ProjectName).lib"
+      <Command>copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\lib\$(ProjectName).lib"
 copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -88,6 +88,10 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Shared\Util.h" />
+    <ClInclude Include="ConCommand.h" />
+    <ClInclude Include="ConsoleMessageExecutor.h" />
+    <ClInclude Include="ConVar.h" />
+    <ClInclude Include="IConsoleMessage.h" />
     <ClInclude Include="KeyValueReader.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -97,6 +101,9 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClCompile Include="..\Shared\Util.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="ConCommand.cpp" />
+    <ClCompile Include="ConsoleMessageExecutor.cpp" />
+    <ClCompile Include="ConVar.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

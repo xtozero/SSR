@@ -5,18 +5,21 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sceen Space Reflect", "Sceen Space Reflect\Sceen Space Reflect.vcxproj", "{EE2F8EA4-34FF-4B5E-BA59-E02E5D97D091}"
 	ProjectSection(ProjectDependencies) = postProject
-		{83C131BE-C7FF-4192-AFDF-9A0ED4476448} = {83C131BE-C7FF-4192-AFDF-9A0ED4476448}
 		{68CBE1E1-1423-481A-9A0A-D184BD91FFAC} = {68CBE1E1-1423-481A-9A0A-D184BD91FFAC}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RenderCore", "RenderCore\RenderCore.vcxproj", "{83C131BE-C7FF-4192-AFDF-9A0ED4476448}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E6CE39DA-1DA7-4359-913D-F138B6415463} = {E6CE39DA-1DA7-4359-913D-F138B6415463}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "Engine\Engine.vcxproj", "{E6CE39DA-1DA7-4359-913D-F138B6415463}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Logic", "Logic\Logic.vcxproj", "{68CBE1E1-1423-481A-9A0A-D184BD91FFAC}"
 	ProjectSection(ProjectDependencies) = postProject
 		{83C131BE-C7FF-4192-AFDF-9A0ED4476448} = {83C131BE-C7FF-4192-AFDF-9A0ED4476448}
+		{E6CE39DA-1DA7-4359-913D-F138B6415463} = {E6CE39DA-1DA7-4359-913D-F138B6415463}
 	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "Engine\Engine.vcxproj", "{E6CE39DA-1DA7-4359-913D-F138B6415463}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,14 +35,14 @@ Global
 		{83C131BE-C7FF-4192-AFDF-9A0ED4476448}.Debug|Win32.Build.0 = Debug|Win32
 		{83C131BE-C7FF-4192-AFDF-9A0ED4476448}.Release|Win32.ActiveCfg = Release|Win32
 		{83C131BE-C7FF-4192-AFDF-9A0ED4476448}.Release|Win32.Build.0 = Release|Win32
-		{68CBE1E1-1423-481A-9A0A-D184BD91FFAC}.Debug|Win32.ActiveCfg = Debug|Win32
-		{68CBE1E1-1423-481A-9A0A-D184BD91FFAC}.Debug|Win32.Build.0 = Debug|Win32
-		{68CBE1E1-1423-481A-9A0A-D184BD91FFAC}.Release|Win32.ActiveCfg = Release|Win32
-		{68CBE1E1-1423-481A-9A0A-D184BD91FFAC}.Release|Win32.Build.0 = Release|Win32
 		{E6CE39DA-1DA7-4359-913D-F138B6415463}.Debug|Win32.ActiveCfg = Debug|Win32
 		{E6CE39DA-1DA7-4359-913D-F138B6415463}.Debug|Win32.Build.0 = Debug|Win32
 		{E6CE39DA-1DA7-4359-913D-F138B6415463}.Release|Win32.ActiveCfg = Release|Win32
 		{E6CE39DA-1DA7-4359-913D-F138B6415463}.Release|Win32.Build.0 = Release|Win32
+		{68CBE1E1-1423-481A-9A0A-D184BD91FFAC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{68CBE1E1-1423-481A-9A0A-D184BD91FFAC}.Debug|Win32.Build.0 = Debug|Win32
+		{68CBE1E1-1423-481A-9A0A-D184BD91FFAC}.Release|Win32.ActiveCfg = Release|Win32
+		{68CBE1E1-1423-481A-9A0A-D184BD91FFAC}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -7,6 +7,7 @@
 #include "IMesh.h"
 #include "MeshLoader.h"
 #include "RenderView.h"
+#include "ShaderListScriptLoader.h"
 #include "TextureManager.h"
 #include <wrl/client.h>
 #include <D3D11.h>
@@ -33,16 +34,15 @@ public:
 	virtual void SceneBegin( ) override;
 	virtual void SceneEnd( ) override;
 
-	virtual IShader* CreateVertexShader( const TCHAR* pFilePath, const char* pProfile ) override;
-	virtual IShader* CreatePixelShader( const TCHAR* pFilePath, const char* pProfile ) override;
+	virtual std::shared_ptr<IShader> CreateVertexShader( const TCHAR* pFilePath, const char* pProfile ) override;
+	virtual std::shared_ptr<IShader> CreatePixelShader( const TCHAR* pFilePath, const char* pProfile ) override;
 
-	virtual IBuffer* CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) override;
-	virtual IBuffer* CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) override;
-	virtual IBuffer* CreateConstantBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) override;
+	virtual std::shared_ptr<IBuffer> CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) override;
+	virtual std::shared_ptr<IBuffer> CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) override;
+	virtual std::shared_ptr<IBuffer> CreateConstantBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) override;
 
-	virtual IShader* SearchShaderByName( const TCHAR* pName ) override;
+	virtual std::shared_ptr<IShader> SearchShaderByName( const TCHAR* pName ) override;
 
-	virtual bool InitMaterial( ) override;
 	virtual std::shared_ptr<IMaterial> GetMaterialPtr( const TCHAR* pMaterialName ) override;
 	virtual std::shared_ptr<IMesh> GetModelPtr( const TCHAR* pModelName ) override;
 	virtual void DrawModel( std::shared_ptr<IMesh> pModel ) override;
@@ -63,6 +63,8 @@ private:
 	bool CreatePrimeDepthBuffer ( UINT nWndWidth, UINT nWndHeight );
 	bool SetRenderTargetAndDepthBuffer ( );
 	void ReportLiveDevice( );
+	bool InitializeShaders( );
+	bool InitializeMaterial( );
 
 private:
 	Microsoft::WRL::ComPtr<ID3D11Device>			m_pd3d11Device;
@@ -74,15 +76,16 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Texture2D>			m_pd3d11PrimeDSBuffer;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView>	m_pd3d11PrimeDSView;
 
-	std::map<String, IShader*> m_shaderList;
-	std::vector<IBuffer*>	m_bufferList;
+	std::map<String, std::shared_ptr<IShader>>		m_shaderList;
+	std::vector<std::shared_ptr<IBuffer>>			m_bufferList;
 
-	std::unique_ptr<RenderView>	m_pView;
-	CMeshLoader				m_meshLoader;
+	std::unique_ptr<RenderView>						m_pView;
+	CMeshLoader										m_meshLoader;
 
-	IBuffer*				m_worldMatrixBuffer;
+	std::shared_ptr<IBuffer>						m_pWorldMatrixBuffer;
 
-	CTextureManager			m_textureManager;
+	CTextureManager									m_textureManager;
+	CShaderListScriptLoader							m_shaderLoader;
 public:
 	CDirect3D11 ( );
 	virtual ~CDirect3D11 ( );

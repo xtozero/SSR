@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "../RenderCore/IRenderer.h"
 #include "../RenderCore/IRenderView.h"
+#include "../shared/Util.h"
 
 void CCamera::OnLButtonDown( const int x, const int y )
 {
@@ -113,7 +114,7 @@ void CCamera::UpdateToRenderer( IRenderer* pRenderer )
 		IRenderView* view = pRenderer->GetCurrentRenderView( );
 		view->SetViewMatrix( GetViewMatrix() );
 		m_isNeedUpdateRenderer = false;
-		DebugMsg( "%s\n", "Camera Matrix Updated To Renderer" );
+		DebugMsg( _T( "%s\n" ), _T( "Camera Matrix Updated To Renderer" ) );
 	}
 }
 

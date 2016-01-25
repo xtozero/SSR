@@ -64,7 +64,7 @@
       <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\bin\$(ProjectName).lib"
+      <Command>copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\lib\$(ProjectName).lib"
 copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -87,7 +87,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
       <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\bin\$(ProjectName).lib"
+      <Command>copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\lib\$(ProjectName).lib"
 copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -96,6 +96,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Shared\Util.h" />
+    <ClInclude Include="ShaderListScriptLoader.h" />
     <ClInclude Include="TextureMaterial.h" />
     <ClInclude Include="CommonMeshDefine.h" />
     <ClInclude Include="D3D11BaseBuffer.h" />
@@ -137,6 +138,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Shared\Util.cpp" />
+    <ClCompile Include="ShaderListScriptLoader.cpp" />
     <ClCompile Include="TextureMaterial.cpp" />
     <ClCompile Include="D3D11BaseBuffer.cpp" />
     <ClCompile Include="D3D11BaseShader.cpp" />

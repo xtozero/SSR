@@ -4,7 +4,6 @@
 #include "common.h"
 #include <memory>
 #include "MouseController.h"
-#include "..\RenderCore\IBuffer.h"
 #include "SceneLoader.h"
 #include "Timer.h"
 #include <vector>

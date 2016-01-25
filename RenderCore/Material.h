@@ -27,7 +27,7 @@ template< typename T >
 class Material : public IMaterial
 {
 protected:
-	IShader* m_pShaders[SHADER_TYPE::MAX_SHADER];
+	std::shared_ptr<IShader> m_pShaders[SHADER_TYPE::MAX_SHADER];
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_pRenderState;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_pSamplerState[SHADER_TYPE::MAX_SHADER];
 
@@ -76,7 +76,7 @@ void Material<T>::SetTexture( ID3D11DeviceContext* pDeviceContext, UINT shaderTy
 {
 	if ( pDeviceContext && shaderType < SHADER_TYPE::MAX_SHADER )
 	{
-		IShader* tagetShader = m_pShaders[shaderType];
+		IShader* tagetShader = m_pShaders[shaderType].get();
 		ID3D11ShaderResourceView* pResourceView = nullptr;
 
 		if ( pTexture )

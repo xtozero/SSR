@@ -64,7 +64,7 @@
       <AdditionalDependencies>d3dx9.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\bin\$(ProjectName).lib"
+      <Command>copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\lib\$(ProjectName).lib"
 copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -87,7 +87,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
       <AdditionalDependencies>d3dx9.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\bin\$(ProjectName).lib"
+      <Command>copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\lib\$(ProjectName).lib"
 copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -95,12 +95,6 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Engine\KeyValueReader.h" />
-    <ClInclude Include="..\RenderCore\Direct3D11.h" />
-    <ClInclude Include="..\RenderCore\IBuffer.h" />
-    <ClInclude Include="..\RenderCore\IMesh.h" />
-    <ClInclude Include="..\RenderCore\IRenderer.h" />
-    <ClInclude Include="..\RenderCore\IRenderView.h" />
     <ClInclude Include="..\Shared\Util.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="common.h" />

@@ -35,20 +35,6 @@ void CGameLogic::EndLogic ( void )
 	SceneEnd( );
 }
 
-bool CGameLogic::InitShaders( void )
-{
-	DebugMsg( "Start Initialize Shaders\n" );
-
-	ON_FAIL_RETURN( gRenderer->CreateVertexShader( _T( "../Shader/vsTutorial.fx" ), "vs_4_0" ) );
-	ON_FAIL_RETURN( gRenderer->CreatePixelShader( _T( "../Shader/psTutorial.fx" ), "ps_4_0" ) );
-	ON_FAIL_RETURN( gRenderer->CreateVertexShader( _T( "../Shader/vsTexture.fx" ), "vs_4_0" ) );
-	ON_FAIL_RETURN( gRenderer->CreatePixelShader( _T( "../Shader/psTexture.fx" ), "ps_4_0" ) );
-
-	DebugMsg( "Complete Initialize Shaders\n" );
-
-	return true;
-}
-
 bool CGameLogic::LoadScene( void )
 {
 	m_gameObjects.erase( m_gameObjects.begin( ), m_gameObjects.end( ) );
@@ -114,8 +100,6 @@ bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
 	srand( static_cast<UINT>( time( NULL ) ) );
 
 	ON_FAIL_RETURN( gRenderer->InitializeRenderer( hwnd, wndWidth, wndHeight ) );
-	ON_FAIL_RETURN( InitShaders( ) );
-	ON_FAIL_RETURN( gRenderer->InitMaterial( ) );
 	ON_FAIL_RETURN( LoadScene( ) );
 	gRenderer->PushViewPort( 0.0f, 0.0f, static_cast<float>( wndWidth ), static_cast<float>( wndHeight ) );
 	
@@ -183,7 +167,7 @@ void CGameLogic::HandleWIndowKeyInput( const int message, const WPARAM wParam, c
 		{
 					 TCHAR keyName[256] = { 0, };
 					 GetKeyNameText( lParam, keyName, 256 );
-					 DebugMsg( "%s\n", keyName );
+					 DebugMsg( _T( "%s\n" ), keyName );
 					 switch ( wParam )
 					 {
 					 case VK_UP:

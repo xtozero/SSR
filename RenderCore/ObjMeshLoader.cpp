@@ -131,33 +131,14 @@ std::shared_ptr<IMesh> CObjMeshLoader::LoadMeshFromFile( const TCHAR* pFileName 
 	meshFile.close();
 
 #ifdef TEST_CODE
-	for ( auto iter = vertices.begin( ); iter != vertices.end( ); ++iter )
+	for ( auto iter = m_vertices.begin( ); iter != m_vertices.end( ); ++iter )
 	{
-		std::cout << "v:" << iter->x << ", "
-			<< iter->y << ", "
-			<< iter->z << std::endl;
+		DebugMsg( _T( "v: %f, %f, %f\n" ), iter->x, iter->y, iter->z );
 	}
 
-	for ( auto iter = normals.begin( ); iter != normals.end( ); ++iter )
+	for ( auto iter = m_normals.begin( ); iter != m_normals.end( ); ++iter )
 	{
-		std::cout << "n:" << iter->x << ", "
-			<< iter->y << ", "
-			<< iter->z << std::endl;
-	}
-
-	for ( auto iter = facePositionInfo.begin( ); iter != facePositionInfo.end( ); ++iter )
-	{
-		std::cout << "fv:" << *iter << std::endl;
-	}
-
-	for ( auto iter = faceTexInfo.begin( ); iter != faceTexInfo.end( ); ++iter )
-	{
-		std::cout << "ft:" << *iter << std::endl;
-	}
-
-	for ( auto iter = faceNormalnfo.begin( ); iter != faceNormalnfo.end( ); ++iter )
-	{
-		std::cout << "fn:" << *iter << std::endl;
+		DebugMsg( _T( "n: %f, %f, %f\n" ), iter->x, iter->y, iter->z );
 	}
 #endif
 
