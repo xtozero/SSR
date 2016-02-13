@@ -20,6 +20,9 @@ public:
 
 	virtual void SetMaterial( const std::shared_ptr<IMaterial> pMaterial ) = 0;
 
+	virtual void* GetMeshData( ) = 0;
+	virtual int GetVerticesCount( ) = 0;
+
 public:
 	virtual ~IMesh( ) {};
 };

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include <assert.h>
 #include "CommonMeshDefine.h"
-#include <D3DX9math.h>
+#include <d3dx9math.h>
 #include <fstream>
 #include <iostream>
 #include "ObjMesh.h"
@@ -142,12 +142,12 @@ std::shared_ptr<IMesh> CObjMeshLoader::LoadMeshFromFile( const TCHAR* pFileName 
 	}
 #endif
 
-	std::vector<MeshVertex>& buildedVertices = BuildVertices( );
+	const std::vector<MeshVertex>& buildedVertices = BuildVertices( );
 	std::vector<WORD> buildedindices;
 	
 	FOR_EACH_VEC( buildedVertices, iter )
 	{
-		buildedindices.push_back( std::distance( buildedVertices.begin( ), iter ) );
+		buildedindices.push_back( static_cast<WORD>( std::distance( buildedVertices.begin( ), iter ) ) );
 	}
 
 	int vertexCount = buildedVertices.size( );
@@ -156,8 +156,8 @@ std::shared_ptr<IMesh> CObjMeshLoader::LoadMeshFromFile( const TCHAR* pFileName 
 	MeshVertex* vertices = new MeshVertex[vertexCount];
 	WORD* indices = new WORD[indexCount];
 
-	::memcpy_s( vertices, sizeof(MeshVertex)* vertexCount, &buildedVertices[0], sizeof(MeshVertex)* vertexCount );
-	::memcpy_s( indices, sizeof(WORD)* indexCount, &buildedindices[0], sizeof(WORD)* indexCount );
+	::memcpy_s( vertices, sizeof(MeshVertex) * vertexCount, &buildedVertices[0], sizeof(MeshVertex)* vertexCount );
+	::memcpy_s( indices, sizeof(WORD) * indexCount, &buildedindices[0], sizeof(WORD)* indexCount );
 
 	auto newMesh = std::make_shared<CObjMesh>( );
 
@@ -211,12 +211,12 @@ std::vector<MeshVertex> CObjMeshLoader::BuildVertices( )
 		static_cast<float>( rand( ) ) / RAND_MAX,
 		static_cast<float>( rand( ) ) / RAND_MAX );
 
-	int count = m_faceInfo.size( );
+	UINT count = m_faceInfo.size( );
 
 	UINT startGroupIdx = 0;
 	auto iter = m_faceMtlGroup.begin( );
 
-	for ( int i = 0; i < count; ++i )
+	for ( UINT i = 0; i < count; ++i )
 	{
 		::ZeroMemory( &curVertex, VERTEX_STRIDE );
 

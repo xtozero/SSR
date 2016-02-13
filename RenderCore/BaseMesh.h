@@ -39,6 +39,9 @@ public:
 
 	virtual void SetMaterial( const std::shared_ptr<IMaterial> pMaterial ) override;
 
+	virtual void* GetMeshData( ) override { return m_pModelData; }
+	virtual int GetVerticesCount( ) override { return m_nVertices; }
+
 protected:
 	BaseMesh( );
 

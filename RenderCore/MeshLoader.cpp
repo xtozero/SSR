@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include <assert.h>
 #include "BaseMesh.h"
-#include <D3DX9math.h>
+#include <d3dx9math.h>
 #include <fstream>
 #include "IMeshLoader.h"
 #include "MeshLoader.h"

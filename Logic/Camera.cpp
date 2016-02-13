@@ -7,9 +7,6 @@
 
 void CCamera::OnLButtonDown( const int x, const int y )
 {
-	m_prevMouseEventPos.x = x;
-	m_prevMouseEventPos.y = y;
-
 	m_mouseRotateEnable = true;
 }
 
@@ -20,9 +17,6 @@ void CCamera::OnLButtonUp( const int x, const int y )
 
 void CCamera::OnRButtonDown( const int x, const int y )
 {
-	m_prevMouseEventPos.x = x;
-	m_prevMouseEventPos.y = y;
-
 	m_mouseTranslateEnable = true;
 }
 
@@ -33,8 +27,10 @@ void CCamera::OnRButtonUp( const int x, const int y )
 
 void CCamera::OnMouseMove( const int x, const int y )
 {
-	float dx = static_cast<float>( x - m_prevMouseEventPos.x );
-	float dy = static_cast<float>( y - m_prevMouseEventPos.y );
+	float xPos = static_cast<float>( x );
+	float yPos = static_cast<float>( y );
+	float dx = xPos - m_prevMouseEventPos.x;
+	float dy = yPos - m_prevMouseEventPos.y;
 
 	dx *= m_mouseSensitivity;
 	dy *= m_mouseSensitivity;
@@ -48,8 +44,8 @@ void CCamera::OnMouseMove( const int x, const int y )
 		Move( dx, dy, 0 );
 	}
 
-	m_prevMouseEventPos.x = x;
-	m_prevMouseEventPos.y = y;
+	m_prevMouseEventPos.x = xPos;
+	m_prevMouseEventPos.y = yPos;
 }
 
 void CCamera::OnWheelMove( const int zDelta )
@@ -95,6 +91,15 @@ void CCamera::Move( const float right, const float up, const float look )
 
 void CCamera::Rotate( const float pitch, const float yaw, const float roll )
 {
+	if ( m_enableRotate )
+	{
+		
+	}
+	else
+	{
+		return;
+	}
+
 	if ( pitch != 0.f || yaw != 0.f || roll != 0.f )
 	{
 		CameraChanged( );
@@ -114,7 +119,7 @@ void CCamera::UpdateToRenderer( IRenderer* pRenderer )
 		IRenderView* view = pRenderer->GetCurrentRenderView( );
 		view->SetViewMatrix( GetViewMatrix() );
 		m_isNeedUpdateRenderer = false;
-		DebugMsg( _T( "%s\n" ), _T( "Camera Matrix Updated To Renderer" ) );
+		//DebugMsg( _T( "%s\n" ), _T( "Camera Matrix Updated To Renderer" ) );
 	}
 }
 
@@ -134,7 +139,9 @@ void CCamera::ReCalcViewMatrix( )
 	m_viewMatrix._41 = -D3DXVec3Dot( &m_origin, &m_rightVector );
 	m_viewMatrix._42 = -D3DXVec3Dot( &m_origin, &m_upVector );
 	m_viewMatrix._43 = -D3DXVec3Dot( &m_origin, &m_lookVector );
-	
+
+	D3DXMatrixInverse( &m_invViewMatrix, NULL, &m_viewMatrix );
+
 	m_isNeedReclac = false;
 }
 
@@ -147,9 +154,11 @@ m_isNeedReclac( false ),
 m_isNeedUpdateRenderer( true ),
 m_mouseRotateEnable( false ),
 m_mouseTranslateEnable( false ),
-m_mouseSensitivity( 0.01 )
+m_mouseSensitivity( 0.01f ),
+m_enableRotate( true )
 {
 	D3DXMatrixIdentity( &m_viewMatrix );
+	D3DXMatrixIdentity( &m_invViewMatrix );
 }
 
 

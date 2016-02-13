@@ -20,7 +20,7 @@ void CGameLogic::StartLogic ( void )
 void CGameLogic::ProcessLogic ( void )
 {
 	//게임 로직 수행
-	FOR_EACH_VEC( m_gameObjects, iter )
+	FOR_EACH_VEC( g_gameObjects, iter )
 	{
 		( *iter )->Think( );
 	}
@@ -37,8 +37,8 @@ void CGameLogic::EndLogic ( void )
 
 bool CGameLogic::LoadScene( void )
 {
-	m_gameObjects.erase( m_gameObjects.begin( ), m_gameObjects.end( ) );
-	auto keyValue = m_sceneLoader.LoadSceneFromFile( _T( "../Script/TestScene.txt" ), m_gameObjects );
+	g_gameObjects.erase( g_gameObjects.begin( ), g_gameObjects.end( ) );
+	auto keyValue = m_sceneLoader.LoadSceneFromFile( _T( "../Script/TestScene.txt" ), g_gameObjects );
 
 	if ( !keyValue )
 	{
@@ -57,7 +57,7 @@ void CGameLogic::SceneBegin( void )
 
 void CGameLogic::DrawScene( void )
 {
-	FOR_EACH_VEC( m_gameObjects, object )
+	FOR_EACH_VEC( g_gameObjects, object )
 	{
 		UpdateWorldMatrix( object->get( ) );
 		( *object )->Render( );
@@ -101,13 +101,19 @@ bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
 
 	ON_FAIL_RETURN( gRenderer->InitializeRenderer( hwnd, wndWidth, wndHeight ) );
 	ON_FAIL_RETURN( LoadScene( ) );
-	gRenderer->PushViewPort( 0.0f, 0.0f, static_cast<float>( wndWidth ), static_cast<float>( wndHeight ) );
 	
+	gRenderer->PushViewPort( 0.0f, 0.0f, static_cast<float>( wndWidth ), static_cast<float>( wndHeight ) );
+	m_pickingManager.PushViewport( 0.0f, 0.0f, static_cast<float>( wndWidth ), static_cast<float>( wndHeight ) );
+
 	IRenderView* view = gRenderer->GetCurrentRenderView( );
 	
 	if ( view )
 	{
 		view->CreatePerspectiveFovLHMatrix( D3DXToRadian( 60 ),
+											static_cast<float>( wndWidth ) / wndHeight,
+											1.f,
+											1500.f );
+		m_pickingManager.PushInvProjection( D3DXToRadian( 60 ),
 											static_cast<float>( wndWidth ) / wndHeight,
 											1.f,
 											1500.f );
@@ -117,6 +123,8 @@ bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
 		return false;
 	}
 
+	m_pickingManager.PushCamera( &m_mainCamera );
+	m_mouseController.AddListener( &m_pickingManager );
 	m_mouseController.AddListener( &m_mainCamera );
 
 	return true;

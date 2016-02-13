@@ -2,7 +2,7 @@
 
 #include "IConsoleMessage.h"
 
-class CConVar : public IConsoleMessage
+class ENGINE_DLL CConVar : public IConsoleMessage
 {
 public:
 	virtual bool IsValue( ) override { return true; }
@@ -18,6 +18,7 @@ public:
 	const String& GetString( ) { return m_value; }
 	int GetInteger( ) { return m_iValue; }
 	float GetFloat( ) { return m_fValue; }
+	bool GetBool( ) { return m_iValue > 0; }
 
 private:
 	String m_name;
@@ -29,4 +30,4 @@ private:
 };
 
 #define ConVar( name, initValue, description ) \
-	CConVar convar_##name( _T( #name ), _T( initValue ), _T( description ) )
+	static CConVar name( _T( #name ), _T( initValue ), _T( description ) )

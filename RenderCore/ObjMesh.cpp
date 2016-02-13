@@ -52,10 +52,18 @@ void CObjMesh::Draw( ID3D11DeviceContext* pDeviceContext )
 	if ( m_pIndexBuffer )
 	{
 		m_pIndexBuffer->SetIABuffer( pDeviceContext, &m_nIndexOffset );
-		FOR_EACH_VEC( m_mtlGroup, i )
+
+		if ( m_mtlGroup.size( ) == 0 )
 		{
-			m_pMaterial->SetTexture( pDeviceContext, SHADER_TYPE::PS, 0, i->m_pTexture );
-			m_pMaterial->DrawIndexed( pDeviceContext, i->m_indexCount, i->m_indexOffset, m_nOffset );
+			m_pMaterial->DrawIndexed( pDeviceContext, m_nIndices, m_nIndexOffset, m_nOffset );
+		}
+		else
+		{
+			FOR_EACH_VEC( m_mtlGroup, i )
+			{
+				m_pMaterial->SetTexture( pDeviceContext, SHADER_TYPE::PS, 0, i->m_pTexture );
+				m_pMaterial->DrawIndexed( pDeviceContext, i->m_indexCount, i->m_indexOffset, m_nOffset );
+			}
 		}
 	}
 	else

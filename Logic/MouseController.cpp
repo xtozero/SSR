@@ -104,8 +104,6 @@ void CMouseController::ProcessInput( const MOUSE_INPUT_INFO& input )
 		DebugWarning( _T( "UNKNOWN MOUSE INPUT TYPE\n" ) );
 		return;
 	}
-
-	DebugMsg( _T( "Mouse pos - ( %d, %d )\n" ), input.m_x, input.m_y );
 }
 
 void CMouseController::AddListener( IListener* listener )

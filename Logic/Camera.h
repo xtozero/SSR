@@ -1,6 +1,6 @@
 #pragma once
 
-#include <D3DX9math.h>
+#include <d3dx9math.h>
 #include "IListener.h"
 
 class IRenderer;
@@ -25,6 +25,8 @@ public:
 	void Rotate( const float pitch, const float yaw, const float roll );
  
  	void UpdateToRenderer( IRenderer* pRenderer );
+	const D3DXMATRIX& GetInvViewMatrix( ) const { return m_invViewMatrix; }
+	void SetEnableRotate( bool isEnable ) { m_enableRotate = isEnable; }
 private:
 	void ReCalcViewMatrix( );
 	void CameraChanged( )
@@ -39,6 +41,7 @@ public:
 
 private:
 	D3DXMATRIX m_viewMatrix;
+	D3DXMATRIX m_invViewMatrix;
 	
 	D3DXVECTOR3 m_origin;
 	D3DXVECTOR3 m_lookVector;
@@ -53,5 +56,7 @@ private:
 	
 	bool m_mouseTranslateEnable;
 	float m_mouseSensitivity;
+
+	bool m_enableRotate;
 };
 

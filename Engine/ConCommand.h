@@ -21,3 +21,7 @@ private:
 	std::function<void( )> m_func;
 };
 
+#define CON_COMMAND( name, description ) \
+	static void confunc_##name( ); \
+	static CConCommand command_##name( _T( #name ), _T( description ), confunc_##name ); \
+	static void confunc_##name( )

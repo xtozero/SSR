@@ -46,8 +46,3 @@ private:
 };
 
 ENGINE_FUNC_DLL IConsoleMessageExecutor* GetConsoleMessageExecutor( );
-
-#define CON_COMMAND( name, description ) \
-	void confunc_##name(); \
-	CConCommand command_##name( _T( #name ), _T( description ), confunc_##name ); \
-	void confunc_##name()

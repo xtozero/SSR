@@ -2,13 +2,16 @@
 
 #include "Camera.h"
 #include "common.h"
-#include <memory>
 #include "MouseController.h"
+#include "PickingManager.h"
 #include "SceneLoader.h"
 #include "Timer.h"
+
+#include <memory>
 #include <vector>
 
 class CGameObject;
+std::vector<std::shared_ptr<CGameObject>> g_gameObjects;
 
 class LOGIC_DLL CGameLogic
 {
@@ -39,7 +42,7 @@ public:
 private:
 	CCamera m_mainCamera;
 	CSceneLoader m_sceneLoader;
-	std::vector<std::shared_ptr<CGameObject>> m_gameObjects;
 	CMouseController m_mouseController;
+	CPickingManager m_pickingManager;
 };
 

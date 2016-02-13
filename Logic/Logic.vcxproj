@@ -96,12 +96,19 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Shared\Util.h" />
+    <ClInclude Include="Aaboundingbox.h" />
+    <ClInclude Include="BoundingSphere.h" />
+    <ClInclude Include="CollisionUtil.h" />
+    <ClInclude Include="PickingManager.h" />
+    <ClInclude Include="Ray.h" />
+    <ClInclude Include="RigidBodyManager.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="DebugConsole.h" />
     <ClInclude Include="GameLogic.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="IListener.h" />
+    <ClInclude Include="IRigidBody.h" />
     <ClInclude Include="MouseController.h" />
     <ClInclude Include="SceneLoader.h" />
     <ClInclude Include="stdafx.h" />
@@ -112,6 +119,12 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClCompile Include="..\Shared\Util.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Aaboundingbox.cpp" />
+    <ClCompile Include="BoundingSphere.cpp" />
+    <ClCompile Include="CollisionUtil.cpp" />
+    <ClCompile Include="PickingManager.cpp" />
+    <ClCompile Include="Ray.cpp" />
+    <ClCompile Include="RigidBodyManager.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DebugConsole.cpp" />
     <ClCompile Include="dllmain.cpp">

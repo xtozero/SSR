@@ -8,6 +8,9 @@
 
 #define MAX_LOADSTRING 100
 
+#define FRAME_BUFFER_WIDTH			1024
+#define FRAME_BUFFER_HEIGHT			768
+
 #pragma comment( lib, "../lib/Logic.lib")
 
 namespace
@@ -124,18 +127,19 @@ BOOL InitInstance ( HINSTANCE hInstance, int nCmdShow )
 
 	hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
-	hWnd = CreateWindow ( szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL );
+	RECT rc = { 0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT };
+	DWORD dwStyle = WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER;
+	AdjustWindowRect( &rc, dwStyle, true );
+
+	hWnd = CreateWindow( szWindowClass, szTitle, dwStyle,
+		CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, NULL, NULL, hInstance, NULL );
 
 	if ( !hWnd )
 	{
 		return FALSE;
 	}
 
-	RECT wndRect;
-	::GetWindowRect ( hWnd, &wndRect );
-
-	if ( !gGameLogic.Initialize( hWnd, wndRect.right, wndRect.bottom ) )
+	if ( !gGameLogic.Initialize( hWnd, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT ) )
 	{
 		return false;
 	}

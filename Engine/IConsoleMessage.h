@@ -2,7 +2,7 @@
 
 #include "common.h"
 
-class IConsoleMessage
+class ENGINE_DLL IConsoleMessage
 {
 public:
 	virtual bool IsValue( ) = 0;

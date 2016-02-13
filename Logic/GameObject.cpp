@@ -8,7 +8,12 @@ extern IRenderer* gRenderer;
 
 void CGameObject::SetPosition( const float x, const float y, const float z )
 {
-	m_vecPos = D3DXVECTOR3( x, y, z );
+	SetPosition( D3DXVECTOR3( x, y, z ) );
+}
+
+void CGameObject::SetPosition( const D3DXVECTOR3& pos )
+{
+	m_vecPos = pos;
 	m_needRebuildTransform = true;
 }
 
@@ -18,23 +23,23 @@ void CGameObject::SetScale( const float xScale, const float yScale, const float 
 	m_needRebuildTransform = true;
 }
 
-inline void CGameObject::SetRotate( const float pitch, const float yaw, const float roll )
+void CGameObject::SetRotate( const float pitch, const float yaw, const float roll )
 {
 	m_vecRotate = D3DXVECTOR3( pitch, yaw, roll );
 	m_needRebuildTransform = true;
 }
 
-inline const D3DXVECTOR3& CGameObject::GetPosition( )
+const D3DXVECTOR3& CGameObject::GetPosition( )
 {
 	return m_vecPos;
 }
 
-inline const D3DXVECTOR3& CGameObject::GetScale( )
+const D3DXVECTOR3& CGameObject::GetScale( )
 {
 	return m_vecScale;
 }
 
-inline const D3DXVECTOR3& CGameObject::GetRotate( )
+const D3DXVECTOR3& CGameObject::GetRotate( )
 {
 	return m_vecRotate;
 }
@@ -61,10 +66,17 @@ void CGameObject::Render( )
 void CGameObject::Think( )
 {
 	//Test Code
-	float fDeltaTime = CTimer::GetInstance( ).GetElapsedTIme( );
-	const D3DXVECTOR3& curRotate = GetRotate( );
+	if ( m_isPicked )
+	{
 
-	SetRotate( 0.f, curRotate.y + D3DXToRadian( 90.f ) * fDeltaTime, 0.f );
+	}
+	else
+	{
+		float fDeltaTime = CTimer::GetInstance( ).GetElapsedTIme( );
+		const D3DXVECTOR3& curRotate = GetRotate( );
+
+		SetRotate( curRotate.x, curRotate.y + D3DXToRadian( 45.f ) * fDeltaTime, 0.f );
+	}
 }
 
 void CGameObject::SetMaterialName( const TCHAR* pMaterialName )
@@ -91,10 +103,18 @@ m_vecPos( 0.f, 0.f, 0.f ),
 m_vecScale( 1.f, 1.f, 1.f ),
 m_vecRotate( 0.f, 0.f, 0.f ),
 m_pModel( nullptr ),
+m_pMaterial( nullptr ),
 m_needRebuildTransform( false ),
-m_needInitialize( true )
+m_needInitialize( true ),
+m_isPicked( false )
 {
 	D3DXMatrixIdentity( &m_matTransform );
+
+	for ( int i = 0; i < RIGID_BODY_TYPE::Count; ++i )
+	{
+		m_originRigidBodies[i] = nullptr;
+		m_rigideBodies[i] = nullptr;
+	}
 }
 
 CGameObject::~CGameObject( )
@@ -110,7 +130,14 @@ bool CGameObject::LoadModelMesh( )
 
 	if ( m_meshName.length( ) > 0 )
 	{
-		ON_SUCCESS_RETURE( m_pModel = gRenderer->GetModelPtr( m_meshName.c_str( ) ) );
+		m_pModel = gRenderer->GetModelPtr( m_meshName.c_str( ) );
+
+		for ( int i = 0; i < RIGID_BODY_TYPE::Count; ++i )
+		{
+			m_originRigidBodies[i] = CRigidBodyManager::GetInstance( ).GetRigidBody( m_meshName, static_cast<RIGID_BODY_TYPE>( i ) );
+		}
+
+		return m_pModel ? true : false;
 	}
 
 	return false;
@@ -148,5 +175,30 @@ void CGameObject::RebuildTransform( )
 	m_matTransform._42 = m_vecPos.y;
 	m_matTransform._43 = m_vecPos.z;
 
+	UpdateRigidBodyAll( );
 	m_needRebuildTransform = false;
+}
+
+void CGameObject::UpdateRigidBody( RIGID_BODY_TYPE type )
+{
+	if ( m_originRigidBodies[type].get( ) )
+	{
+		if ( m_rigideBodies[type].get( ) == nullptr )
+		{
+			m_rigideBodies[type] = CRigidBodyManager::GetInstance( ).MakeRigidBody( type );
+		}
+
+		m_rigideBodies[type]->Update( m_matTransform, m_originRigidBodies[type] );
+	}
+}
+
+void CGameObject::UpdateRigidBodyAll( )
+{
+	for ( int i = 0; i < RIGID_BODY_TYPE::Count; ++i )
+	{
+		if ( m_originRigidBodies[i].get( ) )
+		{
+			UpdateRigidBody( static_cast<RIGID_BODY_TYPE>( i ) );
+		}
+	}
 }

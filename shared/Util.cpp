@@ -11,7 +11,7 @@ namespace UTIL
 		auto pos = string.find( token );
 		while ( pos != String::npos ) {
 			const auto& subString = string.substr( i, pos - i );
-			if ( subString.length( ) > 0 && subString.find_first_of( token ) == String::npos )
+			if ( subString.find_first_of( token ) == String::npos )
 			{
 				params.push_back( subString );
 			}

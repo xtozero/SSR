@@ -50,6 +50,7 @@ void CSceneLoader::SetSceneObjectProperty( std::shared_ptr<KeyValueGroup> keyVal
 
 			objectList.push_back( std::make_shared<CGameObject>( ) );
 			curObject = ( objectList.end( ) - 1 );
+			curObject->get( )->SetName( findedKey->GetString( ) );
 		}
 		else if ( findedKey->GetKey( ) == String( _T( "Model" ) ) )
 		{
