@@ -1,10 +1,15 @@
 #include "stdafx.h"
-#include "GameObject.h"
-#include "../RenderCore/Direct3D11.h"
+
 #include <tchar.h>
+
+#include "GameObject.h"
+#include "GameObjectFactory.h"
+#include "../RenderCore/Direct3D11.h"
 #include "Timer.h"
 
 extern IRenderer* gRenderer;
+
+DECLARE_GAME_OBJECT( base, CGameObject );
 
 void CGameObject::SetPosition( const float x, const float y, const float z )
 {
@@ -153,7 +158,7 @@ bool CGameObject::LoadMaterial( )
 		}
 		else
 		{
-			m_pMaterial = gRenderer->GetMaterialPtr( _T( "WireFrame" ) );
+			m_pMaterial = gRenderer->GetMaterialPtr( _T( "wireframe" ) );
 		}
 	}
 

@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "Direct3D11.h"
-#include <d3d11.h>
 #include "util_rendercore.h"
+
+#include <D3D11.h>
 
 IRenderer* g_pRenderer = CreateDirect3D11Renderer( );
 

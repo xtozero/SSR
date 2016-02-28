@@ -2,6 +2,8 @@
 
 #include "IShader.h"
 
+struct ID3D10Blob;
+
 class D3D11BaseShader : public IShader
 {
 protected:

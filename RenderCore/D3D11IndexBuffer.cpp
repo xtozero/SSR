@@ -4,6 +4,8 @@
 
 #include "util_rendercore.h"
 
+#include <D3D11.h>
+
 void D3D11IndexBuffer::SetIABuffer( ID3D11DeviceContext* pDeviceContext, const UINT* offset )
 {
 	if ( pDeviceContext )

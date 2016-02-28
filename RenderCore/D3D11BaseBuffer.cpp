@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "D3D11BaseBuffer.h"
 
+#include <D3D11.h>
+
 namespace UTIL_BUFFER
 {
 	Microsoft::WRL::ComPtr<ID3D11Buffer> CreateBuffer( ID3D11Device* pDevice, const D3D11_BUFFER_DESC* bufferDesc, const D3D11_SUBRESOURCE_DATA* initData )

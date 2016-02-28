@@ -1,10 +1,9 @@
 #pragma once
 
-#include "common.h"
-#include <d3dx9math.h>
+#include <memory>
+
 #include "../RenderCore/IMesh.h"
 #include "RigidBodyManager.h"
-#include <memory>
 
 class IRigidBody;
 
@@ -19,30 +18,36 @@ public:
 	const D3DXVECTOR3& GetPosition( );
 	const D3DXVECTOR3& GetScale( );
 	const D3DXVECTOR3& GetRotate( );
-	
+
 	const D3DXMATRIX& GetTransformMatrix( ) const;
 
-	void Render( );
-	
-	void Think( );
+	virtual void Render( );
+
+	virtual void Think( );
 
 	void SetName( const String& name ) { m_name = name; }
 	const String& GetName( ) const { return m_name; }
 	void SetMaterialName( const TCHAR* pMaterialName );
 	void SetModelMeshName( const TCHAR* pModelName );
 	const String& GetMeshName( ) const { return m_meshName; }
-	
+
 	bool Initialize( );
 	bool NeedInitialize( ) { return m_needInitialize; }
-	const IRigidBody* GetRigidBody( int type ) const { return m_rigideBodies[type].get(); }
+	const IRigidBody* GetRigidBody( int type ) const { return m_rigideBodies[type].get( ); }
 
 	void SetPicked( bool isPicked ) { m_isPicked = isPicked; }
+
+	std::shared_ptr<IMesh> GetModel( ) { return m_pModel; }
+	void SetModel( const std::shared_ptr<IMesh> pModel ) { m_pModel = pModel; }
+
+	std::shared_ptr<IMaterial> GetMaterial( ) { return m_pMaterial; }
+	void SetMaterial( const std::shared_ptr<IMaterial> pMaterial ) { m_pMaterial = pMaterial; }
 
 	CGameObject( );
 	~CGameObject( );
 protected:
-	bool LoadModelMesh( );
-	bool LoadMaterial( );
+	virtual bool LoadModelMesh( );
+	virtual bool LoadMaterial( );
 private:
 	virtual bool ShouldDraw( ) { return true; }
 	void RebuildTransform( );
@@ -70,4 +75,3 @@ private:
 	std::shared_ptr<IRigidBody> m_originRigidBodies[RIGID_BODY_TYPE::Count];
 	std::unique_ptr<IRigidBody>	m_rigideBodies[RIGID_BODY_TYPE::Count];
 };
-

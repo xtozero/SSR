@@ -53,7 +53,7 @@ void ConsoleMessageExecutor::PrintConsoleMessages( )
 			return;
 		}
 		
-		DebugMsg( _T( "%s - %s\n" ), i->first.c_str( ), i->second->GetDescription( ).c_str( ) );
+		DebugMsg( "%s - %s\n", i->first.c_str( ), i->second->GetDescription( ).c_str( ) );
 	}
 }
 

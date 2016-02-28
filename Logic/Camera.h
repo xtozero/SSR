@@ -1,6 +1,6 @@
 #pragma once
 
-#include <d3dx9math.h>
+#include <d3dX9math.h>
 #include "IListener.h"
 
 class IRenderer;

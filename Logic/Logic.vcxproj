@@ -98,7 +98,9 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="..\Shared\Util.h" />
     <ClInclude Include="Aaboundingbox.h" />
     <ClInclude Include="BoundingSphere.h" />
+    <ClInclude Include="CameraManager.h" />
     <ClInclude Include="CollisionUtil.h" />
+    <ClInclude Include="GameObjectFactory.h" />
     <ClInclude Include="PickingManager.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="RigidBodyManager.h" />
@@ -111,6 +113,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="IRigidBody.h" />
     <ClInclude Include="MouseController.h" />
     <ClInclude Include="SceneLoader.h" />
+    <ClInclude Include="SkyBox.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Timer.h" />
@@ -121,7 +124,9 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     </ClCompile>
     <ClCompile Include="Aaboundingbox.cpp" />
     <ClCompile Include="BoundingSphere.cpp" />
+    <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="CollisionUtil.cpp" />
+    <ClCompile Include="GameObjectFactory.cpp" />
     <ClCompile Include="PickingManager.cpp" />
     <ClCompile Include="Ray.cpp" />
     <ClCompile Include="RigidBodyManager.cpp" />
@@ -140,6 +145,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClCompile Include="Logic.cpp" />
     <ClCompile Include="MouseController.cpp" />
     <ClCompile Include="SceneLoader.cpp" />
+    <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

@@ -4,6 +4,8 @@
 #include "D3D11VertexShader.h"
 #include "util_rendercore.h"
 
+#include <D3D11.h>
+
 bool D3D11VertexShader::CreateShader ( ID3D11Device* pDevice, const TCHAR* pFilePath, const char* pProfile )
 {
 	if ( pDevice && m_pInputElementDesc )

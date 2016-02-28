@@ -74,10 +74,8 @@ int APIENTRY _tWinMain ( _In_ HINSTANCE hInstance,
 				}
 			}
 		}
-		else
-		{
-			gGameLogic.UpdateLogic ();
-		}
+		
+		gGameLogic.UpdateLogic( );
 	}
 
 	return (int)msg.wParam;

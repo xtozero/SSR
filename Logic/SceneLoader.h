@@ -2,8 +2,9 @@
 
 #include "common.h"
 #include "GameObject.h"
-#include <memory.h>
 #include "..\Engine\KeyValueReader.h"
+
+#include <memory.h>
 #include <vector>
 
 class CSceneLoader

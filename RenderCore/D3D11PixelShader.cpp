@@ -3,6 +3,8 @@
 #include "common.h"
 #include "D3D11PixelShader.h"
 
+#include <D3D11.h>
+
 bool D3D11PixelShader::CreateShader ( ID3D11Device* pDevice, const TCHAR* pFilePath, const char* pProfile )
 {
 	if ( pDevice )

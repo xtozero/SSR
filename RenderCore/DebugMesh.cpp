@@ -1,17 +1,17 @@
 #include "stdafx.h"
 #include "common.h"
 #include "DebugMesh.h"
-#include <D3Dx10.h>
 #include "Direct3D11.h"
 
 #include "Material.h"
-#include "MaterialSystem.h"
+
+#include <d3dX9math.h>
 
 extern IRenderer* g_pRenderer;
 
-bool TriangleMesh::Load( )
+bool TriangleMesh::Load( D3D_PRIMITIVE_TOPOLOGY topology )
 {
-	m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	m_primitiveTopology = topology;
 
 	m_pModelData = new D3DXVECTOR3[3];
 

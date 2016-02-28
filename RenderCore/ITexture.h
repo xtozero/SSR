@@ -1,7 +1,7 @@
 #pragma once
 
 #include <wrl/client.h>
-#include "../shared/Util.h"
+#include "common.h"
 
 struct ID3D11Device;
 struct ID3D11ShaderResourceView;

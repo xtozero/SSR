@@ -9,12 +9,3 @@ void WireFrame::Init( )
 
 	m_pRenderState = g_pRenderer->CreateRenderState( true, false );
 }
-
-WireFrame::WireFrame( )
-{
-}
-
-
-WireFrame::~WireFrame( )
-{
-}

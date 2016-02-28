@@ -134,7 +134,7 @@ bool CPickingManager::PickingObject( float x, float y, std::vector<std::shared_p
 				continue;
 			}
 
-			float hitDist = COLLISION_UTIL::IntersectWithRay( *object, ray );
+			float hitDist = COLLISION_UTIL::IntersectWithRay( *object, ray, RIGID_BODY_TYPE::AABB );
 
 			if ( hitDist >= 0 && m_closestHitDist > hitDist )
 			{
@@ -147,7 +147,7 @@ bool CPickingManager::PickingObject( float x, float y, std::vector<std::shared_p
 		{
 			if ( picked_object_name.GetBool( ) )
 			{
-				DebugMsg( _T( "Object Selected - %s\n" ), m_curSelectedObject->GetName( ).c_str( ) );
+				DebugMsg( "Object Selected - %s\n", m_curSelectedObject->GetName( ).c_str( ) );
 			}
 			return true;
 		}
@@ -244,7 +244,7 @@ void CPickingManager::OnMouseMove( const int x, const int y )
 			D3DXVec3Normalize( &rayDir, &rayDir );
 
 			CRay pickingRay( curCamera->GetOrigin(), rayDir );
-			float hitDist = COLLISION_UTIL::IntersectWithRay( *m_curSelectedObject, pickingRay );
+			float hitDist = COLLISION_UTIL::IntersectWithRay( *m_curSelectedObject, pickingRay, RIGID_BODY_TYPE::AABB );
 
 			if ( hitDist >= 0.f )
 			{

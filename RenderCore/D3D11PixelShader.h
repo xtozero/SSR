@@ -2,6 +2,8 @@
 
 #include "D3D11BaseShader.h"
 
+struct ID3D11PixelShader;
+
 class D3D11PixelShader : public D3D11BaseShader
 {
 private:

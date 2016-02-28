@@ -6,7 +6,6 @@
 #include "IRenderer.h"
 #include "IShader.h"
 #include "ITexture.h"
-#include "MaterialSystem.h"
 
 extern IRenderer* g_pRenderer;
 
@@ -30,6 +29,7 @@ protected:
 	std::shared_ptr<IShader> m_pShaders[SHADER_TYPE::MAX_SHADER];
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_pRenderState;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_pSamplerState[SHADER_TYPE::MAX_SHADER];
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_pDepthStencilState;
 
 public:
 	virtual void Init( ) override;
@@ -42,7 +42,7 @@ public:
 	void DrawInstancedInstanced( ID3D11DeviceContext* pDeviceContext, const UINT indexCount, const UINT instanceCount, const UINT indexOffset = 0, const UINT vertexOffset = 0, const UINT instanceOffset = 0 );
 	void DrawAuto( ID3D11DeviceContext* pDeviceContext );
 
-	void SetPrimitiveTopology( ID3D11DeviceContext* pDeviceContext, D3D11_PRIMITIVE_TOPOLOGY primtopology );
+	virtual void SetPrimitiveTopology( ID3D11DeviceContext* pDeviceContext, D3D_PRIMITIVE_TOPOLOGY primtopology ) override;
 
 	Material( );
 	virtual ~Material( );
@@ -68,6 +68,8 @@ void Material<T>::SetShader( ID3D11DeviceContext* pDeviceContext )
 		}
 
 		pDeviceContext->RSSetState( m_pRenderState.Get( ) );
+
+		pDeviceContext->OMSetDepthStencilState( m_pDepthStencilState.Get( ), 1 );
 	}
 }
 
@@ -137,7 +139,7 @@ void Material<T>::DrawAuto( ID3D11DeviceContext* pDeviceContext )
 }
 
 template< typename T >
-void Material<T>::SetPrimitiveTopology( ID3D11DeviceContext* pDeviceContext, D3D11_PRIMITIVE_TOPOLOGY primtopology )
+void Material<T>::SetPrimitiveTopology( ID3D11DeviceContext* pDeviceContext, D3D_PRIMITIVE_TOPOLOGY primtopology )
 {
 	if ( pDeviceContext )
 	{
@@ -147,7 +149,8 @@ void Material<T>::SetPrimitiveTopology( ID3D11DeviceContext* pDeviceContext, D3D
 
 template< typename T >
 Material<T>::Material( ) :
-m_pRenderState( nullptr )
+m_pRenderState( nullptr ),
+m_pDepthStencilState( nullptr )
 {
 	for ( int i = 0; i < MAX_SHADER; ++i )
 	{

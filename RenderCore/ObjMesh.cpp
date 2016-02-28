@@ -2,12 +2,15 @@
 #include "ObjMesh.h"
 
 #include "Material.h"
+#include "../Shared/Util.h"
+
+#include <d3dX9math.h>
 
 extern IRenderer* g_pRenderer;
 
-bool CObjMesh::Load( )
+bool CObjMesh::Load( D3D_PRIMITIVE_TOPOLOGY topology )
 {
-	bool loadSuccess = BaseMesh::Load( );
+	bool loadSuccess = BaseMesh::Load( topology );
 
 	FOR_EACH_VEC( m_mtlGroup, i )
 	{

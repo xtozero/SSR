@@ -24,7 +24,7 @@ namespace
 
 			if ( converted == _countof( convertedMessage ) )
 			{
-				DebugWarning( _T( "Console Message Buffer Overflowed!!!\n" ) );
+				DebugWarning( "Console Message Buffer Overflowed!!!\n" );
 				continue;
 			}
 

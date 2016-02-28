@@ -1,9 +1,10 @@
 #include "stdafx.h"
 
 #include "common.h"
-#include <d3dcommon.h>
 #include "D3D11VertexBuffer.h"
 #include "util_rendercore.h"
+
+#include <D3D11.h>
 
 void D3D11VertexBuffer::SetIABuffer( ID3D11DeviceContext* pDeviceContext, const UINT* offset )
 {

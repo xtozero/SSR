@@ -2,10 +2,7 @@
 #include "BaseMesh.h"
 #include "common.h"
 #include "CommonMeshDefine.h"
-#include <D3Dx10.h>
 #include "Direct3D11.h"
-
-#include "MaterialSystem.h"
 
 extern IRenderer* g_pRenderer;
 
@@ -26,9 +23,9 @@ void BaseMesh::SetColor( const D3DXVECTOR3& color )
 	m_color = color;
 }
 
-bool BaseMesh::Load( )
+bool BaseMesh::Load( D3D_PRIMITIVE_TOPOLOGY topology )
 {
-	m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	m_primitiveTopology = topology;
 
 	UINT stride = VERTEX_STRIDE;
 

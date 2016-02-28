@@ -3,10 +3,11 @@
 #include "CommonMeshDefine.h"
 #include "Direct3D11.h"
 
-#include "MaterialSystem.h"
 #include "Material.h"
 
 #include "PlyMesh.h"
+
+#include <d3dX9math.h>
 
 extern IRenderer* g_pRenderer;
 

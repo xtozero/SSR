@@ -3,6 +3,8 @@
 #include "common.h"
 #include "D3D11ConstantBuffer.h"
 
+#include <D3D11.h>
+
 void D3D11ConstantBuffer::SetVSBuffer( ID3D11DeviceContext* pDeviceContext, const UINT startSlot )
 {
 	if ( pDeviceContext )

@@ -27,10 +27,10 @@ void CAaboundingbox::CreateRigideBody( std::shared_ptr<IMesh> pMesh )
 	}
 
 #ifdef TEST_CODE
-	DebugMsg( _T( "-------------------AABB-------------------\n" ) );
-	DebugMsg( _T( "max %f, %f, %f\n" ), m_max.x, m_max.y, m_max.z );
-	DebugMsg( _T( "min %f, %f, %f\n" ), m_min.x, m_min.y, m_min.z );
-	DebugMsg( _T( "------------------------------------------\n" ) );
+	DebugMsg( "-------------------AABB-------------------\n" );
+	DebugMsg( "max %f, %f, %f\n", m_max.x, m_max.y, m_max.z );
+	DebugMsg( "min %f, %f, %f\n", m_min.x, m_min.y, m_min.z );
+	DebugMsg( "------------------------------------------\n" );
 #endif
 }
 

@@ -2,6 +2,11 @@
 
 #include "D3D11BaseShader.h"
 
+struct ID3D11VertexShader;
+struct D3D11_INPUT_ELEMENT_DESC;
+struct ID3D11InputLayout;
+
+
 class D3D11VertexShader : public D3D11BaseShader
 {
 private: 

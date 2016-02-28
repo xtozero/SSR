@@ -1,24 +1,23 @@
 #pragma once
 
-#include "common.h"
+#include "DepthStencilStateFactory.h"
 #include "IBuffer.h"
 #include "IRenderer.h"
 #include "IMaterial.h"
 #include "IMesh.h"
+#include "IMeshBuilder.h"
 #include "MeshLoader.h"
 #include "RenderView.h"
 #include "ShaderListScriptLoader.h"
 #include "TextureManager.h"
-#include <wrl/client.h>
-#include <D3D11.h>
-#include <D3DX11.h>
-#include <DXGI.h>
+
 #include <vector>
 #include <map>
 
 namespace
 {
 	RENDERCORE_FUNC_DLL IRenderer* CreateDirect3D11Renderer ( );
+	RENDERCORE_FUNC_DLL IMeshBuilder* GetMeshBuilder( );
 };
 
 class BaseMesh;
@@ -53,10 +52,12 @@ public:
 	virtual IRenderView* GetCurrentRenderView( ) override;
 
 	virtual void UpdateWorldMatrix( const D3DXMATRIX& worldMatrix ) override;
-	virtual ID3D11RasterizerState* CreateRenderState( bool isWireFrame, bool isAntialiasedLine ) override;
+	virtual Microsoft::WRL::ComPtr<ID3D11RasterizerState> CreateRenderState( bool isWireFrame, bool isAntialiasedLine ) override;
 
 	virtual std::shared_ptr<ITexture> GetTextureFromFile( const String& fileName ) override;
-	virtual ID3D11SamplerState* CreateSampler( ) override;
+	virtual Microsoft::WRL::ComPtr<ID3D11SamplerState> CreateSampler( ) override;
+
+	virtual  Microsoft::WRL::ComPtr<ID3D11DepthStencilState> CreateDepthStencilState( const String& stateName ) override;
 private:
 	bool CreateD3D11Device ( HWND hWind, UINT nWndWidth, UINT nWndHeight );
 	bool CreatePrimeRenderTargetVIew ( );
@@ -86,6 +87,8 @@ private:
 
 	CTextureManager									m_textureManager;
 	CShaderListScriptLoader							m_shaderLoader;
+
+	std::unique_ptr<IDepthStencilStateFactory>		m_pDepthStencilFactory;
 public:
 	CDirect3D11 ( );
 	virtual ~CDirect3D11 ( );

@@ -272,10 +272,10 @@ void CKeyValueReader::PrintKeyValueInternal( std::shared_ptr<KeyValue> keyValue,
 
 	for ( int i = 0; i < depth; ++i )
 	{
-		DebugMsg( _T( "\t" ) );
+		DebugMsg( "\t" );
 	}
 
-	DebugMsg( _T( "[ %s, %s ]\n" ), keyValue->GetKey( ).c_str( ), keyValue->GetString( ).c_str( ) );
+	DebugMsg( "[ %s, %s ]\n", keyValue->GetKey( ).c_str( ), keyValue->GetString( ).c_str( ) );
 
 	if ( keyValue->GetChild( ) != nullptr )
 	{

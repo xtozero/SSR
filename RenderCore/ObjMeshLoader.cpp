@@ -1,12 +1,14 @@
 #include "stdafx.h"
-#include <assert.h>
+
 #include "CommonMeshDefine.h"
-#include <d3dx9math.h>
-#include <fstream>
-#include <iostream>
 #include "ObjMesh.h"
 #include "ObjMeshLoader.h"
 #include "../shared/Util.h"
+
+#include <assert.h>
+#include <d3dX9math.h>
+#include <fstream>
+#include <iostream>
 
 namespace
 {
@@ -133,12 +135,12 @@ std::shared_ptr<IMesh> CObjMeshLoader::LoadMeshFromFile( const TCHAR* pFileName 
 #ifdef TEST_CODE
 	for ( auto iter = m_vertices.begin( ); iter != m_vertices.end( ); ++iter )
 	{
-		DebugMsg( _T( "v: %f, %f, %f\n" ), iter->x, iter->y, iter->z );
+		DebugMsg( "v: %f, %f, %f\n", iter->x, iter->y, iter->z );
 	}
 
 	for ( auto iter = m_normals.begin( ); iter != m_normals.end( ); ++iter )
 	{
-		DebugMsg( _T( "n: %f, %f, %f\n" ), iter->x, iter->y, iter->z );
+		DebugMsg( "n: %f, %f, %f\n", iter->x, iter->y, iter->z );
 	}
 #endif
 
@@ -176,8 +178,8 @@ std::shared_ptr<IMesh> CObjMeshLoader::LoadMeshFromFile( const TCHAR* pFileName 
 
 		newMesh->AddMaterialGroup( trait );
 	}
-	newMesh->SetModelData( &vertices[0], vertexCount );
-	newMesh->SetIndexData( &indices[0], indexCount );
+	newMesh->SetModelData( vertices, vertexCount );
+	newMesh->SetIndexData( indices, indexCount );
 	
 	if ( newMesh->Load( ) )
 	{

@@ -101,7 +101,7 @@ void CMouseController::ProcessInput( const MOUSE_INPUT_INFO& input )
 		break;
 	default:
 	case MOUSE_INPUT_TYPE::UNKNOWN:
-		DebugWarning( _T( "UNKNOWN MOUSE INPUT TYPE\n" ) );
+		DebugWarning( "UNKNOWN MOUSE INPUT TYPE\n" );
 		return;
 	}
 }

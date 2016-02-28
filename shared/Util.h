@@ -58,11 +58,11 @@ namespace
 }
 
 #ifdef _DEBUG
-#define DebugMsg DebugMsgImplment
-#define DebugWarning DebugWarningImplment
+#define DebugMsg( x, ... ) DebugMsgImplment( _T( x ), ##__VA_ARGS__ )
+#define DebugWarning( x, ... ) DebugWarningImplment( _T( x ), ##__VA_ARGS__ )
 #else
-#define DebugMsg __noop
-#define DebugWarning __noop
+#define DebugMsg( x ) __noop
+#define DebugWarning( x ) __noop
 #endif
 
 #define FOR_EACH_VEC( x, i ) \

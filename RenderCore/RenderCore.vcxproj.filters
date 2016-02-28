@@ -150,13 +150,25 @@
     <ClInclude Include="ITexture.h">
       <Filter>Direct11\Material</Filter>
     </ClInclude>
-    <ClInclude Include="TextureManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="TextureMaterial.h">
       <Filter>Direct11\Material</Filter>
     </ClInclude>
     <ClInclude Include="ShaderListScriptLoader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshBuilder.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="IMeshBuilder.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureManager.h">
+      <Filter>Direct11\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="SkyBoxMaterial.h">
+      <Filter>Direct11\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="DepthStencilStateFactory.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -239,13 +251,22 @@
     <ClCompile Include="Texture.cpp">
       <Filter>Direct11\Material</Filter>
     </ClCompile>
-    <ClCompile Include="TextureManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="TextureMaterial.cpp">
       <Filter>Direct11\Material</Filter>
     </ClCompile>
     <ClCompile Include="ShaderListScriptLoader.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshBuilder.cpp">
+      <Filter>Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureManager.cpp">
+      <Filter>Direct11\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="SkyBoxMaterial.cpp">
+      <Filter>Direct11\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="DepthStencilStateFactory.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -260,6 +281,12 @@
       <Filter>fx</Filter>
     </FxCompile>
     <FxCompile Include="..\Shader\psTexture.fx">
+      <Filter>fx</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shader\psSkybox.fx">
+      <Filter>fx</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shader\vsSkybox.fx">
       <Filter>fx</Filter>
     </FxCompile>
   </ItemGroup>

@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "D3D11BaseShader.h"
 
+#include <D3DX11.h>
+
 Microsoft::WRL::ComPtr<ID3D10Blob>D3D11BaseShader::GetShaderBlob( const TCHAR* pFilePath, const char* pProfile )
 {
 	Microsoft::WRL::ComPtr<ID3D10Blob> shaderBlob( nullptr );

@@ -11,7 +11,7 @@ void CConVar::Execute( )
 
 	if ( argC == 1 )
 	{
-		DebugMsg( _T( "%s - %s\n" ), m_name.c_str( ), m_value.c_str( ) );
+		DebugMsg( "%s - %s\n", m_name.c_str( ), m_value.c_str( ) );
 	}
 	else
 	{

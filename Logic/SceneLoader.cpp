@@ -1,13 +1,16 @@
 #include "stdafx.h"
-#include "SceneLoader.h"
+
 #include <tchar.h>
+
+#include "SceneLoader.h"
 #include "../Shared/Util.h"
+#include "GameObjectFactory.h"
 
 #define CHECK_VALID_ITERATOR( iter, container ) \
-		if ( iter == container.end() ) \
+if ( iter == container.end( ) ) \
 		{ \
-			DebugWarning( _T( "SceneLoad - SetModel Fail!!!!!" ) ); \
-			return; \
+		DebugWarning( "> SceneLoader - SetModel Fail!!!!!" ); \
+		return; \
 		} \
 
 std::shared_ptr<KeyValueGroup> CSceneLoader::LoadSceneFromFile( const String& fileName, std::vector<std::shared_ptr<CGameObject>>& objectList )
@@ -20,7 +23,7 @@ std::shared_ptr<KeyValueGroup> CSceneLoader::LoadSceneFromFile( const String& fi
 	{
 		for ( auto findedKey = pKeyValue->FindKeyValue( _T( "Scene" ) ); findedKey != nullptr; ++findedKey )
 		{
-			DebugMsg( _T( "%s, %s\n" ), findedKey->GetKey( ).c_str( ), findedKey->GetString( ).c_str( ) );
+			DebugMsg( "%s, %s\n", findedKey->GetKey( ).c_str( ), findedKey->GetString( ).c_str( ) );
 		}
 
 		SetSceneObjectProperty( pKeyValue, objectList );
@@ -35,21 +38,34 @@ std::shared_ptr<KeyValueGroup> CSceneLoader::LoadSceneFromFile( const String& fi
 
 void CSceneLoader::SetSceneObjectProperty( std::shared_ptr<KeyValueGroup> keyValue, std::vector<std::shared_ptr<CGameObject>>& objectList )
 {
-	auto curObject = objectList.begin();
+	auto curObject = objectList.begin( );
 
 	for ( auto findedKey = keyValue->FindKeyValue( _T( "Scene" ) ); findedKey != nullptr; ++findedKey )
 	{
 		if ( findedKey->GetKey( ) == String( _T( "Object" ) ) )
 		{
-			if ( curObject != objectList.end() &&
+			if ( curObject != objectList.end( ) &&
 				curObject->get( ) &&
 				curObject->get( )->NeedInitialize( ) )
 			{
 				curObject->get( )->Initialize( );
 			}
 
-			objectList.push_back( std::make_shared<CGameObject>( ) );
-			curObject = ( objectList.end( ) - 1 );
+			auto newObject = CGameObjectFactory::GetInstance( )->CreateGameObjectByClassName( findedKey->GetString( ) );
+
+			if ( newObject == nullptr )
+			{
+			}
+			else
+			{
+				objectList.push_back( newObject );
+				curObject = ( objectList.end( ) - 1 );
+			}
+		}
+		else if ( findedKey->GetKey( ) == String( _T( "Name" ) ) )
+		{
+			CHECK_VALID_ITERATOR( curObject, objectList );
+
 			curObject->get( )->SetName( findedKey->GetString( ) );
 		}
 		else if ( findedKey->GetKey( ) == String( _T( "Model" ) ) )
@@ -61,7 +77,7 @@ void CSceneLoader::SetSceneObjectProperty( std::shared_ptr<KeyValueGroup> keyVal
 		else if ( findedKey->GetKey( ) == String( _T( "Position" ) ) )
 		{
 			CHECK_VALID_ITERATOR( curObject, objectList );
-			
+
 			std::vector<String> params;
 
 			UTIL::Split( findedKey->GetString( ), params, _T( ' ' ) );
@@ -96,7 +112,7 @@ void CSceneLoader::SetSceneObjectProperty( std::shared_ptr<KeyValueGroup> keyVal
 		{
 			CHECK_VALID_ITERATOR( curObject, objectList );
 
-			curObject->get( )->SetMaterialName( findedKey->GetString().c_str( ) );
+			curObject->get( )->SetMaterialName( findedKey->GetString( ).c_str( ) );
 		}
 	}
 

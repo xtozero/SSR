@@ -13,7 +13,9 @@
 #include "Direct3D11.h"
 
 #include "MaterialSystem.h"
+#include "MeshBuilder.h"
 
+#include "SkyBoxMaterial.h"
 #include "TextureMaterial.h"
 #include "TutorialMaterial.h"
 #include "WireFrame.h"
@@ -26,12 +28,22 @@
 
 #include "../shared/Util.h"
 
+#include <D3D11.h>
+#include <D3DX11.h>
+#include <DXGI.h>
+
 namespace
 {
 	IRenderer* CreateDirect3D11Renderer( )
 	{
 		static CDirect3D11 direct3D11;
 		return &direct3D11;
+	}
+
+	IMeshBuilder* GetMeshBuilder( )
+	{
+		static CMeshBuilder meshBuilder;
+		return &meshBuilder;
 	}
 };
 
@@ -41,8 +53,14 @@ bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 	ON_FAIL_RETURN( CreatePrimeRenderTargetVIew( ) );
 	ON_FAIL_RETURN( CreatePrimeDepthBuffer( nWndWidth, nWndHeight ) );
 	ON_FAIL_RETURN( SetRenderTargetAndDepthBuffer( ) );
+
 	m_pView = std::make_unique<RenderView>( );
 	ON_FAIL_RETURN( m_pView->initialize( m_pd3d11Device.Get( ) ) );
+
+	m_pDepthStencilFactory = CreateDepthStencailStateFactory( );
+	ON_FAIL_RETURN( m_pDepthStencilFactory );
+	m_pDepthStencilFactory->LoadDesc( );
+
 	ON_FAIL_RETURN( InitializeShaders( ) );
 	ON_FAIL_RETURN( InitializeMaterial( ) );
 	ON_FAIL_RETURN( m_meshLoader.Initialize( ) );
@@ -59,7 +77,7 @@ bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 void CDirect3D11::ShutDownRenderer( )
 {
 	m_pView = std::move( nullptr );
-	
+
 	m_shaderList.clear( );
 	m_bufferList.clear( );
 
@@ -218,6 +236,7 @@ bool CDirect3D11::InitializeMaterial( )
 	REGISTER_MATERIAL( TutorialMaterial, tutorial );
 	REGISTER_MATERIAL( WireFrame, wireframe );
 	REGISTER_MATERIAL( TextureMaterial, texture );
+	REGISTER_MATERIAL( SkyBoxMaterial, skybox );
 
 	return true;
 }
@@ -272,7 +291,7 @@ void CDirect3D11::UpdateWorldMatrix( const D3DXMATRIX& worldMatrix )
 {
 	if ( m_pWorldMatrixBuffer == nullptr )
 	{
-		DebugWarning( _T( "m_pWorldMatrixBuffer is nullptr\n" ) );
+		DebugWarning( "m_pWorldMatrixBuffer is nullptr\n" );
 		return;
 	}
 
@@ -291,9 +310,9 @@ void CDirect3D11::UpdateWorldMatrix( const D3DXMATRIX& worldMatrix )
 	m_pWorldMatrixBuffer->SetVSBuffer( m_pd3d11DeviceContext.Get( ), static_cast<int>( VS_CONSTANT_BUFFER::WORLD ) );
 }
 
-ID3D11RasterizerState* CDirect3D11::CreateRenderState( bool isWireFrame, bool isAntialiasedLine )
+Microsoft::WRL::ComPtr<ID3D11RasterizerState> CDirect3D11::CreateRenderState( bool isWireFrame, bool isAntialiasedLine )
 {
-	ID3D11RasterizerState* rsState = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rsState = nullptr;
 	D3D11_RASTERIZER_DESC desc;
 	::ZeroMemory( &desc, sizeof( D3D11_RASTERIZER_DESC ) );
 
@@ -301,7 +320,6 @@ ID3D11RasterizerState* CDirect3D11::CreateRenderState( bool isWireFrame, bool is
 	desc.AntialiasedLineEnable = isAntialiasedLine ? true : false;
 	desc.CullMode = D3D11_CULL_BACK;
 	desc.DepthClipEnable = true;
-
 
 	m_pd3d11Device->CreateRasterizerState( &desc, &rsState );
 
@@ -314,9 +332,9 @@ std::shared_ptr<ITexture> CDirect3D11::GetTextureFromFile( const String& fileNam
 	return m_textureManager.GetTexture( fileName );
 }
 
-ID3D11SamplerState* CDirect3D11::CreateSampler( )
+Microsoft::WRL::ComPtr<ID3D11SamplerState> CDirect3D11::CreateSampler( )
 {
-	ID3D11SamplerState* pSampler;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> pSampler = nullptr;
 
 	D3D11_SAMPLER_DESC desc;
 	::ZeroMemory( &desc, sizeof( D3D11_SAMPLER_DESC ) );
@@ -337,6 +355,17 @@ ID3D11SamplerState* CDirect3D11::CreateSampler( )
 	m_pd3d11Device->CreateSamplerState( &desc, &pSampler );
 
 	return pSampler;
+}
+
+Microsoft::WRL::ComPtr<ID3D11DepthStencilState> CDirect3D11::CreateDepthStencilState( const String& stateName )
+{
+	if ( m_pDepthStencilFactory == nullptr )
+	{
+		DebugWarning( "DepthStencilFactory is nullptr" );
+		return nullptr;
+	}
+
+	return m_pDepthStencilFactory->GetDepthStencilState( m_pd3d11Device.Get( ), stateName );
 }
 
 bool CDirect3D11::CreateD3D11Device( HWND hWind, UINT nWndWidth, UINT nWndHeight )
@@ -497,7 +526,8 @@ m_pdxgiSwapChain( nullptr ),
 m_pd3d11PrimeRTView( nullptr ),
 m_pd3d11PrimeDSBuffer( nullptr ),
 m_pd3d11PrimeDSView( nullptr ),
-m_pWorldMatrixBuffer( nullptr )
+m_pWorldMatrixBuffer( nullptr ),
+m_pDepthStencilFactory( nullptr )
 {
 }
 

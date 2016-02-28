@@ -119,7 +119,6 @@ void CCamera::UpdateToRenderer( IRenderer* pRenderer )
 		IRenderView* view = pRenderer->GetCurrentRenderView( );
 		view->SetViewMatrix( GetViewMatrix() );
 		m_isNeedUpdateRenderer = false;
-		//DebugMsg( _T( "%s\n" ), _T( "Camera Matrix Updated To Renderer" ) );
 	}
 }
 

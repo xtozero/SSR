@@ -1,10 +1,15 @@
-"Scene"
+﻿"Scene"
 {
 	//카메라 위치
 	"Camera Pos" "0 0 -30"
 	
 	//오브젝트 정의 시작
-	"Object"
+	"Object" "skybox"
+	{
+		
+	}
+	
+	"Object" "base"
 	{
 		"Model"		"object.ply" //모델명
 		"Material"	"wireframe" //재질명
@@ -12,7 +17,7 @@
 		"Scale"		"10 10 10" //xScale yScale zScale
 	}
 	
-	"Object"
+	"Object" "base"
 	{
 		"Model"		"object.ply" //모델명
 		"Material"	"tutorial" //재질명
@@ -20,14 +25,14 @@
 		"Scale"		"10 10 10" //xScale yScale zScale
 	}
 	
-	"Object"
+	"Object" "base"
 	{
 		"Model"		"spaceship.obj" //모델명
 		"Material"	"texture" //재질명
 		"Position"	"-10 0 100" //x y z
 	}
 	
-	"Object"
+	"Object" "base"
 	{
 		"Model"		"statue.obj" //모델명
 		"Material"	"texture" //재질명

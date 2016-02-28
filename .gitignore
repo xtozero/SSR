@@ -10,9 +10,9 @@
 *.pdb
 *.sdf
 *.res
-*.dll
 *.lib
 *.suo
 *.ipch
-*.dll
 *.lib
+*.cso
+*.dll

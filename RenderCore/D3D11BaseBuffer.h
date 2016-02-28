@@ -1,8 +1,13 @@
 #pragma once
 
 #include <wrl/client.h>
-#include <D3D11.h>
 #include "IBuffer.h"
+
+struct ID3D11Buffer;
+struct ID3D11Device;
+struct D3D11_BUFFER_DESC;
+struct D3D11_SUBRESOURCE_DATA;
+struct ID3D11DeviceContext;
 
 namespace UTIL_BUFFER
 {

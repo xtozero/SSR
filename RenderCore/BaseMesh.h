@@ -1,13 +1,11 @@
 #pragma once
 
 #include "common.h"
-#include <d3d11.h>
 #include "IBuffer.h"
 #include "IMesh.h"
-#include <memory>
 
-class IMaterial;
-struct MeshVertex;
+#include <memory>
+#include <d3dX9math.h>
 
 class BaseMesh : public IMesh
 {
@@ -18,7 +16,7 @@ protected:
 	std::shared_ptr<IBuffer> m_pVertexBuffer;
 	std::shared_ptr<IBuffer> m_pIndexBuffer;
 
-	D3D11_PRIMITIVE_TOPOLOGY m_primitiveTopology;
+	D3D_PRIMITIVE_TOPOLOGY m_primitiveTopology;
 
 	std::shared_ptr<IMaterial> m_pMaterial;
 
@@ -33,7 +31,7 @@ public:
 	virtual void SetModelData( MeshVertex* pOrignal, UINT vertexCount ) override;
 	virtual void SetIndexData( void* pOrignal, UINT indexCount ) override;
 	virtual void SetColor( const D3DXVECTOR3& color ) override;
-	virtual bool Load( ) override;
+	virtual bool Load( D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST ) override;
 
 	virtual void Draw( ID3D11DeviceContext* pDeviceContext ) override;
 

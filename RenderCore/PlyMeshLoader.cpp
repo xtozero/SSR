@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include <assert.h>
 #include "CommonMeshDefine.h"
-#include <D3DX9math.h>
+#include <d3dX9math.h>
 #include <fstream>
 #include "PlyMesh.h"
 #include "PlyMeshLoader.h"
@@ -22,8 +22,8 @@ std::shared_ptr<IMesh> CPlyMeshLoader::LoadMeshFromFile( const TCHAR* pFileName 
 
 	std::ifstream meshfile( pFileName, 0 );
 
-	UINT nVerties = 0;
-	UINT nIndices = 0;
+	UINT vertexCount = 0;
+	UINT indexCount = 0;
 	MeshVertex* vertices = nullptr;
 	WORD* indices = nullptr;
 
@@ -50,23 +50,23 @@ std::shared_ptr<IMesh> CPlyMeshLoader::LoadMeshFromFile( const TCHAR* pFileName 
 		{
 			if ( strncmp( token + symbollen, "Vertices", strlen( "Vertices" ) ) == 0 )
 			{
-				meshfile >> nVerties;
+				meshfile >> vertexCount;
 
-				if ( nVerties <= 0 )
+				if ( vertexCount <= 0 )
 				{
 					return false;
 				}
 
-				vertices = new MeshVertex[nVerties];
+				vertices = new MeshVertex[vertexCount];
 			}
 			else if ( strncmp( token + symbollen, "Faces", strlen( "Faces" ) ) == 0 )
 			{
-				meshfile >> nIndices;
+				meshfile >> indexCount;
 
-				if ( nIndices > 0 )
+				if ( indexCount > 0 )
 				{
-					nIndices *= PLY_FILE_READ_INDEX_STEP;
-					indices = new WORD[nIndices];
+					indexCount *= PLY_FILE_READ_INDEX_STEP;
+					indices = new WORD[indexCount];
 				}
 			}
 		}
@@ -74,7 +74,7 @@ std::shared_ptr<IMesh> CPlyMeshLoader::LoadMeshFromFile( const TCHAR* pFileName 
 		{
 			if ( strncmp( token, "Vertex", strlen( "Vertex" ) ) == 0 )
 			{
-				assert( vertexIdx < nVerties );
+				assert( vertexIdx < vertexCount );
 
 				meshfile >> token;
 				D3DXVECTOR3& vertex = vertices[vertexIdx].m_position;
@@ -85,7 +85,7 @@ std::shared_ptr<IMesh> CPlyMeshLoader::LoadMeshFromFile( const TCHAR* pFileName 
 			}
 			else if ( strncmp( token, "Face", strlen( "Face" ) ) == 0 )
 			{
-				assert( indexIdx + PLY_FILE_READ_INDEX_STEP <= nIndices );
+				assert( indexIdx + PLY_FILE_READ_INDEX_STEP <= indexCount );
 
 				meshfile >> token;
 				int index;
@@ -106,8 +106,8 @@ std::shared_ptr<IMesh> CPlyMeshLoader::LoadMeshFromFile( const TCHAR* pFileName 
 
 	auto newMesh = std::make_shared<CPlyMesh>( );
 
-	newMesh->SetModelData( vertices, nVerties );
-	newMesh->SetIndexData( indices, nIndices );
+	newMesh->SetModelData( vertices, vertexCount );
+	newMesh->SetIndexData( indices, indexCount );
 	
 	if ( newMesh->Load( ) )
 	{

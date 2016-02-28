@@ -19,11 +19,3 @@ void TextureMaterial::SetShader( ID3D11DeviceContext* pDeviceContext )
 		pDeviceContext->PSSetSamplers( 0, 1, m_pSamplerState[SHADER_TYPE::PS].GetAddressOf() );
 	}
 }
-
-TextureMaterial::TextureMaterial( )
-{
-}
-
-TextureMaterial::~TextureMaterial( )
-{
-}

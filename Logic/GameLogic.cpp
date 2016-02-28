@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include <tchar.h>
+#include "CameraManager.h"
 #include "DebugConsole.h"
 #include "GameLogic.h"
 #include "GameObject.h"
@@ -7,10 +7,14 @@
 #include "../RenderCore/Direct3D11.h"
 #include "../RenderCore/BaseMesh.h"
 #include "../RenderCore/DebugMesh.h"
-#include <ctime>
+#include "../RenderCore/IMeshBuilder.h"
 #include "Timer.h"
 
+#include <ctime>
+#include <tchar.h>
+
 IRenderer* gRenderer = CreateDirect3D11Renderer ();
+IMeshBuilder* g_meshBuilder = GetMeshBuilder( );
 
 void CGameLogic::StartLogic ( void )
 {
@@ -127,13 +131,15 @@ bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
 	m_mouseController.AddListener( &m_pickingManager );
 	m_mouseController.AddListener( &m_mainCamera );
 
+	CCameraManager::GetInstance( )->SetCurrentCamera( &m_mainCamera );
+
 	return true;
 }
 
 void CGameLogic::UpdateLogic ( void )
 {
 	// 한 프레임의 시작 ElapsedTime 갱신
-	CTimer::GetInstance ().Tick ();
+	CTimer::GetInstance().Tick();
 
 	StartLogic ();
 	ProcessLogic ();
@@ -175,7 +181,7 @@ void CGameLogic::HandleWIndowKeyInput( const int message, const WPARAM wParam, c
 		{
 					 TCHAR keyName[256] = { 0, };
 					 GetKeyNameText( lParam, keyName, 256 );
-					 DebugMsg( _T( "%s\n" ), keyName );
+					 DebugMsg( "%s\n", keyName );
 					 switch ( wParam )
 					 {
 					 case VK_UP:

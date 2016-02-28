@@ -24,5 +24,5 @@ m_func( function )
 
 CON_COMMAND( test, "Test Console Command" )
 {
-	DebugMsg( _T( "test concommand executed!!\n" ) );
+	DebugMsg( "test concommand executed!!\n" );
 }
