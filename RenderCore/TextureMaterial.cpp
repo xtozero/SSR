@@ -7,7 +7,7 @@ void TextureMaterial::Init( )
 
 	m_pShaders[SHADER_TYPE::PS] = g_pRenderer->SearchShaderByName( _T( "psTexture" ) );
 
-	m_pSamplerState[SHADER_TYPE::PS] = g_pRenderer->CreateSampler( );
+	m_pSamplerState[SHADER_TYPE::PS] = g_pRenderer->CreateSamplerState( _T( "default" ) );
 }
 
 void TextureMaterial::SetShader( ID3D11DeviceContext* pDeviceContext )

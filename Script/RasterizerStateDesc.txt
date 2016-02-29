@@ -1,0 +1,21 @@
+"Desc"
+{
+	"default"
+	{
+	
+	}
+	
+	"wireFrame"
+	{
+		"FillMode"						"D3D11_FILL_WIREFRAME"
+		"CullMode"						"D3D11_CULL_BACK"
+		"FrontCounterClockwise"			"0"
+		"DepthBias"						"0"		//D3D11_DEFAULT_DEPTH_BIAS
+		"DepthBiasClamp"				"0.f"	//D3D11_DEFAULT_DEPTH_BIAS_CLAMP
+		"SlopeScaledDepthBias"			"0.f"	//D3D11_DEFAULT_SLOPE_SCALED_DEPTH_BIAS
+		"DepthClipEnable"				"1"
+		"ScissorEnable"					"0"
+		"MultisampleEnable"				"0"
+		"AntialiasedLineEnable"			"0"
+	}
+}

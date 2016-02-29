@@ -46,10 +46,10 @@ public:
 
 	virtual void UpdateWorldMatrix( const D3DXMATRIX& worldMatrix ) = 0;
 
-	virtual Microsoft::WRL::ComPtr<ID3D11RasterizerState> CreateRenderState( bool isWireFrame, bool isAntialiasedLine ) = 0;
+	virtual Microsoft::WRL::ComPtr<ID3D11RasterizerState> CreateRenderState( const String& stateName ) = 0;
 	virtual std::shared_ptr<ITexture> GetTextureFromFile( const String& fileName ) = 0;
 
-	virtual Microsoft::WRL::ComPtr<ID3D11SamplerState> CreateSampler( ) = 0;
+	virtual Microsoft::WRL::ComPtr<ID3D11SamplerState> CreateSamplerState( const String& stateName ) = 0;
 	virtual Microsoft::WRL::ComPtr<ID3D11DepthStencilState> CreateDepthStencilState( const String& stateName ) = 0;
 protected:
 	IRenderer ( ) {}

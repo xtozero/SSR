@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "DepthStencilStateFactory.h"
 
+#include "StateFactoryHelpUtil.h"
+
 #include "../Shared/Util.h"
 #include "../Engine/KeyValueReader.h"
 
@@ -10,95 +12,6 @@
 namespace
 {
 	const TCHAR* DEPTH_STENCIL_DESC_FILE_NAME = _T( "../Script/DepthStencilDesc.txt" );
-
-	D3D11_COMPARISON_FUNC TranslateComparisonFunc( const String& key )
-	{
-		if ( key == _T( "D3D11_COMPARISON_NEVER" ) )
-		{
-			return D3D11_COMPARISON_NEVER;
-		}
-		else if ( key == _T( "D3D11_COMPARISON_LESS" ) )
-		{
-			return D3D11_COMPARISON_LESS;
-		}
-		else if ( key == _T( "D3D11_COMPARISON_EQUAL" ) )
-		{
-			return D3D11_COMPARISON_EQUAL;
-		}
-		else if ( key == _T( "D3D11_COMPARISON_LESS_EQUAL" ) )
-		{
-			return D3D11_COMPARISON_LESS_EQUAL;
-		}
-		else if ( key == _T( "D3D11_COMPARISON_GREATER" ) )
-		{
-			return D3D11_COMPARISON_GREATER;
-		}
-		else if ( key == _T( "D3D11_COMPARISON_NOT_EQUAL" ) )
-		{
-			return D3D11_COMPARISON_NOT_EQUAL;
-		}
-		else if ( key == _T( "D3D11_COMPARISON_GREATER_EQUAL" ) )
-		{
-			return D3D11_COMPARISON_GREATER_EQUAL;
-		}
-		else if ( key == _T( "D3D11_COMPARISON_ALWAYS" ) )
-		{
-			return D3D11_COMPARISON_ALWAYS;
-		}
-
-		return D3D11_COMPARISON_LESS;
-	}
-
-	D3D11_DEPTH_WRITE_MASK TranslateDepthWriteMask( const String& key )
-	{
-		if ( key == _T( "D3D11_DEPTH_WRITE_MASK_ZERO" ) )
-		{
-			return D3D11_DEPTH_WRITE_MASK_ZERO;
-		}
-		else if ( key == _T( "D3D11_DEPTH_WRITE_MASK_ALL" ) )
-		{
-			return D3D11_DEPTH_WRITE_MASK_ALL;
-		}
-
-		return D3D11_DEPTH_WRITE_MASK_ALL;
-	}
-
-	D3D11_STENCIL_OP TranslateStencilOP( const String& key )
-	{
-		if ( key == _T( "D3D11_STENCIL_OP_KEEP" ) )
-		{
-			return D3D11_STENCIL_OP_KEEP;
-		}
-		else if ( key == _T( "D3D11_STENCIL_OP_ZERO" ) )
-		{
-			return D3D11_STENCIL_OP_ZERO;
-		}
-		else if ( key == _T( "D3D11_STENCIL_OP_REPLACE" ) )
-		{
-			return D3D11_STENCIL_OP_REPLACE;
-		}
-		else if ( key == _T( "D3D11_STENCIL_OP_INCR_SAT" ) )
-		{
-			return D3D11_STENCIL_OP_INCR_SAT;
-		}
-		else if ( key == _T( "D3D11_STENCIL_OP_DECR_SAT" ) )
-		{
-			return D3D11_STENCIL_OP_DECR_SAT;
-		}
-		else if ( key == _T( "D3D11_STENCIL_OP_INVERT" ) )
-		{
-			return D3D11_STENCIL_OP_INVERT;
-		}
-		else if ( key == _T( "D3D11_STENCIL_OP_INCR" ) )
-		{
-			return D3D11_STENCIL_OP_INCR;
-		}
-		else if ( key == _T( "D3D11_STENCIL_OP_DECR" ) )
-		{
-			return D3D11_STENCIL_OP_DECR;
-		}
-		return D3D11_STENCIL_OP_KEEP;
-	}
 }
 
 class CDepthStencilStateFactory : public IDepthStencilStateFactory
@@ -157,6 +70,11 @@ Microsoft::WRL::ComPtr<ID3D11DepthStencilState> CDepthStencilStateFactory::GetDe
 
 void CDepthStencilStateFactory::LoadDepthStencilDesc( std::shared_ptr<KeyValueGroup> pKeyValues )
 {
+	if ( pKeyValues == nullptr )
+	{
+		return;
+	}
+
 	auto keyValue = pKeyValues->FindKeyValue( _T( "Desc" ) );
 
 	if ( keyValue == nullptr )

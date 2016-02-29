@@ -7,5 +7,5 @@ void WireFrame::Init( )
 
 	m_pShaders[SHADER_TYPE::PS] = g_pRenderer->SearchShaderByName( _T( "psTutorial" ) );
 
-	m_pRenderState = g_pRenderer->CreateRenderState( true, false );
+	m_pRenderState = g_pRenderer->CreateRenderState( _T("wireFrame") );
 }

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "DepthStencilStateFactory.h"
 #include "IBuffer.h"
 #include "IRenderer.h"
 #include "IMaterial.h"
@@ -21,6 +20,9 @@ namespace
 };
 
 class BaseMesh;
+class IDepthStencilStateFactory;
+class IRasterizerStateFactory;
+class ISamplerStateFactory;
 
 class CDirect3D11 : public IRenderer
 {
@@ -52,10 +54,10 @@ public:
 	virtual IRenderView* GetCurrentRenderView( ) override;
 
 	virtual void UpdateWorldMatrix( const D3DXMATRIX& worldMatrix ) override;
-	virtual Microsoft::WRL::ComPtr<ID3D11RasterizerState> CreateRenderState( bool isWireFrame, bool isAntialiasedLine ) override;
+	virtual Microsoft::WRL::ComPtr<ID3D11RasterizerState> CreateRenderState( const String& stateName ) override;
 
 	virtual std::shared_ptr<ITexture> GetTextureFromFile( const String& fileName ) override;
-	virtual Microsoft::WRL::ComPtr<ID3D11SamplerState> CreateSampler( ) override;
+	virtual Microsoft::WRL::ComPtr<ID3D11SamplerState> CreateSamplerState( const String& stateName ) override;
 
 	virtual  Microsoft::WRL::ComPtr<ID3D11DepthStencilState> CreateDepthStencilState( const String& stateName ) override;
 private:
@@ -89,6 +91,8 @@ private:
 	CShaderListScriptLoader							m_shaderLoader;
 
 	std::unique_ptr<IDepthStencilStateFactory>		m_pDepthStencilFactory;
+	std::unique_ptr<IRasterizerStateFactory>		m_pRasterizerFactory;
+	std::unique_ptr<ISamplerStateFactory>			m_pSamplerFactory;
 public:
 	CDirect3D11 ( );
 	virtual ~CDirect3D11 ( );

@@ -99,8 +99,11 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="DepthStencilStateFactory.h" />
     <ClInclude Include="IMeshBuilder.h" />
     <ClInclude Include="MeshBuilder.h" />
+    <ClInclude Include="RasterizerStateFactory.h" />
+    <ClInclude Include="SamplerStateFactory.h" />
     <ClInclude Include="ShaderListScriptLoader.h" />
     <ClInclude Include="SkyBoxMaterial.h" />
+    <ClInclude Include="StateFactoryHelpUtil.h" />
     <ClInclude Include="TextureMaterial.h" />
     <ClInclude Include="CommonMeshDefine.h" />
     <ClInclude Include="D3D11BaseBuffer.h" />
@@ -144,8 +147,11 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClCompile Include="..\Shared\Util.cpp" />
     <ClCompile Include="DepthStencilStateFactory.cpp" />
     <ClCompile Include="MeshBuilder.cpp" />
+    <ClCompile Include="RasterizerStateFactory.cpp" />
+    <ClCompile Include="SamplerStateFactory.cpp" />
     <ClCompile Include="ShaderListScriptLoader.cpp" />
     <ClCompile Include="SkyBoxMaterial.cpp" />
+    <ClCompile Include="StateFactoryHelpUtil.cpp" />
     <ClCompile Include="TextureMaterial.cpp" />
     <ClCompile Include="D3D11BaseBuffer.cpp" />
     <ClCompile Include="D3D11BaseShader.cpp" />

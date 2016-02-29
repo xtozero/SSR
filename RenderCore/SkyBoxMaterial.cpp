@@ -7,7 +7,7 @@ void SkyBoxMaterial::Init( )
 
 	m_pShaders[SHADER_TYPE::PS] = g_pRenderer->SearchShaderByName( _T( "psSkybox" ) );
 
-	m_pSamplerState[SHADER_TYPE::PS] = g_pRenderer->CreateSampler( );
+	m_pSamplerState[SHADER_TYPE::PS] = g_pRenderer->CreateSamplerState( _T( "default" ) );
 
 	m_pDepthStencilState = g_pRenderer->CreateDepthStencilState( _T( "depthWriteOff" ) );
 }

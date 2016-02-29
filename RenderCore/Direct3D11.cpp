@@ -9,12 +9,15 @@
 #include "D3D11VertexShader.h"
 
 #include "DebugMesh.h"
+#include "DepthStencilStateFactory.h"
 
 #include "Direct3D11.h"
 
 #include "MaterialSystem.h"
 #include "MeshBuilder.h"
 
+#include "RasterizerStateFactory.h"
+#include "SamplerStateFactory.h"
 #include "SkyBoxMaterial.h"
 #include "TextureMaterial.h"
 #include "TutorialMaterial.h"
@@ -60,6 +63,14 @@ bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 	m_pDepthStencilFactory = CreateDepthStencailStateFactory( );
 	ON_FAIL_RETURN( m_pDepthStencilFactory );
 	m_pDepthStencilFactory->LoadDesc( );
+
+	m_pRasterizerFactory = CreateRasterizerStateFactory( );
+	ON_FAIL_RETURN( m_pRasterizerFactory );
+	m_pRasterizerFactory->LoadDesc( );
+
+	m_pSamplerFactory = CreateSamplerStateFactory( );
+	ON_FAIL_RETURN( m_pSamplerFactory );
+	m_pSamplerFactory->LoadDesc( );
 
 	ON_FAIL_RETURN( InitializeShaders( ) );
 	ON_FAIL_RETURN( InitializeMaterial( ) );
@@ -310,20 +321,15 @@ void CDirect3D11::UpdateWorldMatrix( const D3DXMATRIX& worldMatrix )
 	m_pWorldMatrixBuffer->SetVSBuffer( m_pd3d11DeviceContext.Get( ), static_cast<int>( VS_CONSTANT_BUFFER::WORLD ) );
 }
 
-Microsoft::WRL::ComPtr<ID3D11RasterizerState> CDirect3D11::CreateRenderState( bool isWireFrame, bool isAntialiasedLine )
+Microsoft::WRL::ComPtr<ID3D11RasterizerState> CDirect3D11::CreateRenderState( const String& stateName )
 {
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rsState = nullptr;
-	D3D11_RASTERIZER_DESC desc;
-	::ZeroMemory( &desc, sizeof( D3D11_RASTERIZER_DESC ) );
+	if ( m_pRasterizerFactory == nullptr )
+	{
+		DebugWarning( "RasterizerFactory is nullptr" );
+		return nullptr;
+	}
 
-	desc.FillMode = isWireFrame ? D3D11_FILL_WIREFRAME : D3D11_FILL_SOLID;
-	desc.AntialiasedLineEnable = isAntialiasedLine ? true : false;
-	desc.CullMode = D3D11_CULL_BACK;
-	desc.DepthClipEnable = true;
-
-	m_pd3d11Device->CreateRasterizerState( &desc, &rsState );
-
-	return rsState;
+	return m_pRasterizerFactory->GetRasterizerState( m_pd3d11Device.Get( ), stateName );
 }
 
 std::shared_ptr<ITexture> CDirect3D11::GetTextureFromFile( const String& fileName )
@@ -332,29 +338,15 @@ std::shared_ptr<ITexture> CDirect3D11::GetTextureFromFile( const String& fileNam
 	return m_textureManager.GetTexture( fileName );
 }
 
-Microsoft::WRL::ComPtr<ID3D11SamplerState> CDirect3D11::CreateSampler( )
+Microsoft::WRL::ComPtr<ID3D11SamplerState> CDirect3D11::CreateSamplerState( const String& stateName )
 {
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> pSampler = nullptr;
+	if ( m_pSamplerFactory == nullptr )
+	{
+		DebugWarning( "SamplerFactory is nullptr" );
+		return nullptr;
+	}
 
-	D3D11_SAMPLER_DESC desc;
-	::ZeroMemory( &desc, sizeof( D3D11_SAMPLER_DESC ) );
-
-	desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	desc.BorderColor[0] = 1.f;
-	desc.BorderColor[1] = 1.f;
-	desc.BorderColor[2] = 1.f;
-	desc.BorderColor[3] = 1.f;
-	desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	desc.MaxAnisotropy = 1;
-	desc.MaxLOD = FLT_MAX;
-	desc.MinLOD = -FLT_MAX;
-
-	m_pd3d11Device->CreateSamplerState( &desc, &pSampler );
-
-	return pSampler;
+	return m_pSamplerFactory->GetSamplerState( m_pd3d11Device.Get( ), stateName );
 }
 
 Microsoft::WRL::ComPtr<ID3D11DepthStencilState> CDirect3D11::CreateDepthStencilState( const String& stateName )
@@ -527,7 +519,9 @@ m_pd3d11PrimeRTView( nullptr ),
 m_pd3d11PrimeDSBuffer( nullptr ),
 m_pd3d11PrimeDSView( nullptr ),
 m_pWorldMatrixBuffer( nullptr ),
-m_pDepthStencilFactory( nullptr )
+m_pDepthStencilFactory( nullptr ),
+m_pRasterizerFactory( nullptr ),
+m_pSamplerFactory( nullptr )
 {
 }
 

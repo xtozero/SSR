@@ -153,9 +153,6 @@
     <ClInclude Include="TextureMaterial.h">
       <Filter>Direct11\Material</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderListScriptLoader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="MeshBuilder.h">
       <Filter>Mesh</Filter>
     </ClInclude>
@@ -169,7 +166,19 @@
       <Filter>Direct11\Material</Filter>
     </ClInclude>
     <ClInclude Include="DepthStencilStateFactory.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Direct11</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderListScriptLoader.h">
+      <Filter>Direct11\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="RasterizerStateFactory.h">
+      <Filter>Direct11</Filter>
+    </ClInclude>
+    <ClInclude Include="SamplerStateFactory.h">
+      <Filter>Direct11</Filter>
+    </ClInclude>
+    <ClInclude Include="StateFactoryHelpUtil.h">
+      <Filter>Direct11</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -254,9 +263,6 @@
     <ClCompile Include="TextureMaterial.cpp">
       <Filter>Direct11\Material</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderListScriptLoader.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="MeshBuilder.cpp">
       <Filter>Mesh</Filter>
     </ClCompile>
@@ -267,7 +273,19 @@
       <Filter>Direct11\Material</Filter>
     </ClCompile>
     <ClCompile Include="DepthStencilStateFactory.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Direct11</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderListScriptLoader.cpp">
+      <Filter>Direct11\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="RasterizerStateFactory.cpp">
+      <Filter>Direct11</Filter>
+    </ClCompile>
+    <ClCompile Include="SamplerStateFactory.cpp">
+      <Filter>Direct11</Filter>
+    </ClCompile>
+    <ClCompile Include="StateFactoryHelpUtil.cpp">
+      <Filter>Direct11</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
