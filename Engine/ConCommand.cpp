@@ -6,12 +6,10 @@
 
 void CConCommand::Execute( )
 {
-	if ( m_func._Empty() )
+	if ( m_func )
 	{
-		return;
+		m_func();
 	}
-
-	m_func( );
 }
 
 CConCommand::CConCommand( const String& name, const String& description, std::function<void( )> function ) :
