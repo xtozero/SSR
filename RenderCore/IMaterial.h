@@ -4,6 +4,7 @@ class ITexture;
 struct ID3D11DeviceContext;
 
 #include <D3Dcommon.h>
+#include <memory>
 
 class IMaterial
 {
@@ -15,4 +16,9 @@ public:
 	virtual void DrawIndexed( ID3D11DeviceContext* pDeviceContext, const UINT indexCount, const UINT indexOffset = 0, const UINT vertexOffset = 0 ) = 0;
 
 	virtual void SetPrimitiveTopology( ID3D11DeviceContext* pDeviceContext, D3D_PRIMITIVE_TOPOLOGY primtopology ) = 0;
+
+	virtual ~IMaterial( ) = default;
+
+protected:
+	IMaterial( ) = default;
 };

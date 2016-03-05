@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ObjMesh.h"
 
+#include "IRenderer.h"
 #include "Material.h"
 #include "../Shared/Util.h"
 

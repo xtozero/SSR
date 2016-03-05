@@ -24,8 +24,3 @@ ID3D11ShaderResourceView* CTexture::GetResource( )
 CTexture::CTexture( ) : m_pTextureView( nullptr )
 {
 }
-
-
-CTexture::~CTexture( )
-{
-}

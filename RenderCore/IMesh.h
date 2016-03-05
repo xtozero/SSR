@@ -24,8 +24,9 @@ public:
 
 	virtual void* GetMeshData( ) = 0;
 	virtual int GetVerticesCount( ) = 0;
+	virtual ~IMesh( ) = default;
 
-public:
-	virtual ~IMesh( ) {};
+protected:
+	IMesh( ) = default;
 };
 

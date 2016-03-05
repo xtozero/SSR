@@ -18,4 +18,7 @@ public:
 	virtual void Clear( ) = 0;
 
 	virtual ~IMeshBuilder( ) = default;
+
+protected:
+	IMeshBuilder( ) = default;
 };

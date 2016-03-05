@@ -2,7 +2,7 @@
 
 #include "Material.h"
 
-class SkyBoxMaterial : public Material<SkyBoxMaterial>
+class SkyBoxMaterial : public Material
 {
 public:
 	virtual void Init( ) override;

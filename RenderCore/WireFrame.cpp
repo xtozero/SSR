@@ -1,5 +1,8 @@
 #include "stdafx.h"
+#include "IRenderer.h"
 #include "WireFrame.h"
+
+extern IRenderer* g_pRenderer;
 
 void WireFrame::Init( )
 {

@@ -9,7 +9,6 @@ public:
 	virtual ID3D11ShaderResourceView* GetResource( ) override;
 
 	CTexture( );
-	~CTexture( );
 
 private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_pTextureView;

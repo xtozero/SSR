@@ -1,5 +1,9 @@
 #include "stdafx.h"
+#include "IRenderer.h"
+
 #include "TutorialMaterial.h"
+
+extern IRenderer* g_pRenderer;
 
 void TutorialMaterial::Init( )
 {

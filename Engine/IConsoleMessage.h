@@ -11,5 +11,8 @@ public:
 	virtual void Execute( ) = 0;
 	virtual String GetDescription( ) = 0;
 
-	virtual ~IConsoleMessage( ) {}
+	virtual ~IConsoleMessage( ) = default;
+
+protected:
+	IConsoleMessage( ) = default;
 };

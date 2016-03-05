@@ -51,9 +51,10 @@ public:
 
 	virtual Microsoft::WRL::ComPtr<ID3D11SamplerState> CreateSamplerState( const String& stateName ) = 0;
 	virtual Microsoft::WRL::ComPtr<ID3D11DepthStencilState> CreateDepthStencilState( const String& stateName ) = 0;
+
 protected:
-	IRenderer ( ) {}
+	IRenderer( ) = default;
 public:
-	virtual ~IRenderer ( ) {}
+	virtual ~IRenderer( ) = default;
 };
 

@@ -5,7 +5,7 @@ struct ID3D11DeviceContext;
 class IBuffer
 {
 protected:
-	IBuffer () {}
+	IBuffer( ) = default;
 
 public:
 	virtual void SetIABuffer( ID3D11DeviceContext* pDeviceContext, const UINT* offset ) = 0;
@@ -15,5 +15,5 @@ public:
 	virtual void* LockBuffer( ID3D11DeviceContext* pDeviceContext ) = 0;
 	virtual void UnLockBuffer( ID3D11DeviceContext* pDeviceContext ) = 0;
 
-	virtual ~IBuffer () {}
+	virtual ~IBuffer( ) = default;
 };

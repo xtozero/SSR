@@ -2,7 +2,7 @@
 #include "BaseMesh.h"
 #include "common.h"
 #include "CommonMeshDefine.h"
-#include "Direct3D11.h"
+#include "IRenderer.h"
 
 extern IRenderer* g_pRenderer;
 

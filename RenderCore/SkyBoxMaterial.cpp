@@ -1,5 +1,8 @@
 #include "stdafx.h"
+#include "IRenderer.h"
 #include "SkyBoxMaterial.h"
+
+extern IRenderer* g_pRenderer;
 
 void SkyBoxMaterial::Init( )
 {
@@ -14,7 +17,7 @@ void SkyBoxMaterial::Init( )
 
 void SkyBoxMaterial::SetShader( ID3D11DeviceContext* pDeviceContext )
 {
-	Material<SkyBoxMaterial>::SetShader( pDeviceContext );
+	Material::SetShader( pDeviceContext );
 
 	if ( m_pSamplerState[SHADER_TYPE::PS] )
 	{

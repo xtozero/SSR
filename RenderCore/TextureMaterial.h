@@ -2,7 +2,7 @@
 
 #include "Material.h"
 
-class TextureMaterial : public Material<TextureMaterial>
+class TextureMaterial : public Material
 {
 public:
 	virtual void Init( ) override;

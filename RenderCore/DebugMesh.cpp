@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "common.h"
 #include "DebugMesh.h"
-#include "Direct3D11.h"
+#include "IRenderer.h"
 
 #include "Material.h"
 

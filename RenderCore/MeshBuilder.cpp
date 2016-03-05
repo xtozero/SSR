@@ -1,11 +1,14 @@
 #include "stdafx.h"
 #include "BaseMesh.h"
 #include "IMesh.h"
+#include "IRenderer.h"
 #include "Material.h"
 
 #include "MeshBuilder.h"
 
 #include "../Shared/Util.h"
+
+extern IRenderer* g_pRenderer;
 
 class CMeshBuilderMesh : public BaseMesh
 {

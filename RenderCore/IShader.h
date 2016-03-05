@@ -17,8 +17,8 @@ public:
 	virtual void SetShaderResource( ID3D11DeviceContext* pDeviceContext, UINT slot, ID3D11ShaderResourceView* pResource ) = 0;
 
 protected:
-	IShader () {}
+	IShader () = default;
 
 public:
-	virtual ~IShader () {}
+	virtual ~IShader( ) = default;
 };
