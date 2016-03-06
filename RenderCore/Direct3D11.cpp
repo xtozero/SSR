@@ -14,6 +14,7 @@
 #include "Direct3D11.h"
 
 #include "MaterialSystem.h"
+#include "MaterialLoader.h"
 #include "MeshBuilder.h"
 
 #include "RasterizerStateFactory.h"
@@ -249,7 +250,14 @@ bool CDirect3D11::InitializeMaterial( )
 	REGISTER_MATERIAL( TextureMaterial, texture );
 	REGISTER_MATERIAL( SkyBoxMaterial, skybox );
 
-	return true;
+	m_pMaterialLoader = CreateMaterialLoader( );
+
+	if ( m_pMaterialLoader )
+	{
+		return m_pMaterialLoader->LoadMaterials( );
+	}
+
+	return false;
 }
 
 std::shared_ptr<IMaterial> CDirect3D11::GetMaterialPtr( const TCHAR* pMaterialName )
@@ -521,7 +529,8 @@ m_pd3d11PrimeDSView( nullptr ),
 m_pWorldMatrixBuffer( nullptr ),
 m_pDepthStencilFactory( nullptr ),
 m_pRasterizerFactory( nullptr ),
-m_pSamplerFactory( nullptr )
+m_pSamplerFactory( nullptr ),
+m_pMaterialLoader( nullptr )
 {
 }
 

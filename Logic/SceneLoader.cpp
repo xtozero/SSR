@@ -21,11 +21,6 @@ std::shared_ptr<KeyValueGroup> CSceneLoader::LoadSceneFromFile( const String& fi
 
 	if ( pKeyValue )
 	{
-		for ( auto findedKey = pKeyValue->FindKeyValue( _T( "Scene" ) ); findedKey != nullptr; ++findedKey )
-		{
-			DebugMsg( "%s, %s\n", findedKey->GetKey( ).c_str( ), findedKey->GetString( ).c_str( ) );
-		}
-
 		SetSceneObjectProperty( pKeyValue, objectList );
 
 		return pKeyValue;

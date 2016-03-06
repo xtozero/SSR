@@ -23,6 +23,7 @@ class BaseMesh;
 class IDepthStencilStateFactory;
 class IRasterizerStateFactory;
 class ISamplerStateFactory;
+class CMaterialLoader;
 
 class CDirect3D11 : public IRenderer
 {
@@ -93,6 +94,7 @@ private:
 	std::unique_ptr<IDepthStencilStateFactory>		m_pDepthStencilFactory;
 	std::unique_ptr<IRasterizerStateFactory>		m_pRasterizerFactory;
 	std::unique_ptr<ISamplerStateFactory>			m_pSamplerFactory;
+	std::unique_ptr<CMaterialLoader>				m_pMaterialLoader;
 public:
 	CDirect3D11 ( );
 	virtual ~CDirect3D11 ( );

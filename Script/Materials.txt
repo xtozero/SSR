@@ -1,0 +1,19 @@
+"Materials"
+{
+	"TestScriptedShader"
+	{
+		"Shader"
+		{
+			"VS"	"vsTutorial"
+			"PS"	"psTutorial"
+		}
+		
+		"RS_State"	"default"
+		"DS_State"	"default"
+		
+		"Sampler"
+		{
+			"PS"	"default"
+		}
+	}
+}

@@ -98,6 +98,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="..\Shared\Util.h" />
     <ClInclude Include="DepthStencilStateFactory.h" />
     <ClInclude Include="IMeshBuilder.h" />
+    <ClInclude Include="MaterialLoader.h" />
     <ClInclude Include="MeshBuilder.h" />
     <ClInclude Include="RasterizerStateFactory.h" />
     <ClInclude Include="SamplerStateFactory.h" />
@@ -146,6 +147,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
   <ItemGroup>
     <ClCompile Include="..\Shared\Util.cpp" />
     <ClCompile Include="DepthStencilStateFactory.cpp" />
+    <ClCompile Include="MaterialLoader.cpp" />
     <ClCompile Include="MeshBuilder.cpp" />
     <ClCompile Include="RasterizerStateFactory.cpp" />
     <ClCompile Include="SamplerStateFactory.cpp" />
