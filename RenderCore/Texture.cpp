@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "common.h"
-#include <D3DX11.h>
 #include "Texture.h"
+
+#include <D3DX11.h>
+#include <wrl/client.h>
 
 bool CTexture::LoadTexture( ID3D11Device* pDevice, const String& fileName )
 {

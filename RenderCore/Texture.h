@@ -2,6 +2,8 @@
 
 #include "ITexture.h"
 
+#include <wrl/client.h>
+
 class CTexture : public ITexture
 {
 public:

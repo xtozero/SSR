@@ -26,6 +26,14 @@ void Material::SetShader( ID3D11DeviceContext* pDeviceContext )
 		pDeviceContext->RSSetState( m_pRenderState.Get( ) );
 
 		pDeviceContext->OMSetDepthStencilState( m_pDepthStencilState.Get( ), 1 );
+
+		for ( int i = 0; i < SHADER_TYPE::MAX_SHADER; ++i )
+		{
+			if ( m_pSamplerState[i] )
+			{
+				m_pSamplerState[i]->SetSampler( pDeviceContext, static_cast<SHADER_TYPE>( i ) );
+			}
+		}
 	}
 }
 

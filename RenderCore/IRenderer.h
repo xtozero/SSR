@@ -2,7 +2,6 @@
 
 #include "common.h"
 #include <memory>
-#include <wrl/client.h>
 
 class IShader;
 class IBuffer;
@@ -10,10 +9,19 @@ class IRenderView;
 class IMaterial;
 class IMesh;
 class ITexture;
+class ISampler;
 struct ID3D11RasterizerState;
 struct ID3D11SamplerState;
 struct ID3D11DepthStencilState;
 struct D3DXMATRIX;
+
+namespace Microsoft
+{
+	namespace WRL
+	{
+		template <typename T> class ComPtr;
+	}
+}
 
 class RENDERCORE_DLL IRenderer
 {
@@ -48,8 +56,8 @@ public:
 
 	virtual Microsoft::WRL::ComPtr<ID3D11RasterizerState> CreateRenderState( const String& stateName ) = 0;
 	virtual std::shared_ptr<ITexture> GetTextureFromFile( const String& fileName ) = 0;
+	virtual std::shared_ptr<ISampler> CreateSamplerState( const String& stateName ) = 0;
 
-	virtual Microsoft::WRL::ComPtr<ID3D11SamplerState> CreateSamplerState( const String& stateName ) = 0;
 	virtual Microsoft::WRL::ComPtr<ID3D11DepthStencilState> CreateDepthStencilState( const String& stateName ) = 0;
 
 protected:

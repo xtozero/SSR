@@ -2,11 +2,17 @@
 
 #include "common.h"
 
-#include <wrl/client.h>
 #include <memory>
 
 struct ID3D11SamplerState;
 struct ID3D11Device;
+namespace Microsoft
+{
+	namespace WRL
+	{
+		template <typename T> class ComPtr;
+	}
+}
 
 class ISamplerStateFactory
 {

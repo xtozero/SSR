@@ -13,6 +13,8 @@
 
 #include "Direct3D11.h"
 
+#include "ISampler.h"
+
 #include "MaterialSystem.h"
 #include "MaterialLoader.h"
 #include "MeshBuilder.h"
@@ -346,7 +348,7 @@ std::shared_ptr<ITexture> CDirect3D11::GetTextureFromFile( const String& fileNam
 	return m_textureManager.GetTexture( fileName );
 }
 
-Microsoft::WRL::ComPtr<ID3D11SamplerState> CDirect3D11::CreateSamplerState( const String& stateName )
+std::shared_ptr<ISampler> CDirect3D11::CreateSamplerState( const String& stateName )
 {
 	if ( m_pSamplerFactory == nullptr )
 	{
@@ -354,7 +356,7 @@ Microsoft::WRL::ComPtr<ID3D11SamplerState> CDirect3D11::CreateSamplerState( cons
 		return nullptr;
 	}
 
-	return m_pSamplerFactory->GetSamplerState( m_pd3d11Device.Get( ), stateName );
+	return CreateSampler( m_pSamplerFactory->GetSamplerState( m_pd3d11Device.Get( ), stateName ) );
 }
 
 Microsoft::WRL::ComPtr<ID3D11DepthStencilState> CDirect3D11::CreateDepthStencilState( const String& stateName )

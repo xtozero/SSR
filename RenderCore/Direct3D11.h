@@ -58,7 +58,7 @@ public:
 	virtual Microsoft::WRL::ComPtr<ID3D11RasterizerState> CreateRenderState( const String& stateName ) override;
 
 	virtual std::shared_ptr<ITexture> GetTextureFromFile( const String& fileName ) override;
-	virtual Microsoft::WRL::ComPtr<ID3D11SamplerState> CreateSamplerState( const String& stateName ) override;
+	virtual std::shared_ptr<ISampler> CreateSamplerState( const String& stateName ) override;
 
 	virtual  Microsoft::WRL::ComPtr<ID3D11DepthStencilState> CreateDepthStencilState( const String& stateName ) override;
 private:

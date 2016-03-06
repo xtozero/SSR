@@ -8,6 +8,7 @@
 
 #include <d3d11.h>
 #include <map>
+#include <wrl/client.h>
 
 namespace
 {

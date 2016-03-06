@@ -183,6 +183,9 @@
     <ClInclude Include="MaterialLoader.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ISampler.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -291,6 +294,9 @@
       <Filter>Direct11</Filter>
     </ClCompile>
     <ClCompile Include="MaterialLoader.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ISampler.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

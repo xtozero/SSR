@@ -1,29 +1,19 @@
 #pragma once
 
 #include "IMaterial.h"
+#include "ISampler.h"
 
 #include <D3D11.h>
 #include <wrl/client.h>
 
 class IShader;
 
-enum SHADER_TYPE
-{
-	VS = 0,
-	HS,
-	DS,
-	GS,
-	PS,
-	CS,
-	MAX_SHADER
-};
-
 class Material : public IMaterial
 {
 protected:
 	std::shared_ptr<IShader> m_pShaders[SHADER_TYPE::MAX_SHADER];
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_pRenderState;
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_pSamplerState[SHADER_TYPE::MAX_SHADER];
+	std::shared_ptr<ISampler> m_pSamplerState[SHADER_TYPE::MAX_SHADER];
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_pDepthStencilState;
 
 public:

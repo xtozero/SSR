@@ -3,10 +3,16 @@
 #include "common.h"
 
 #include <memory>
-#include <wrl/client.h>
 
 struct ID3D11DepthStencilState;
 struct ID3D11Device;
+namespace Microsoft
+{
+	namespace WRL
+	{
+		template <typename T> class ComPtr;
+	}
+}
 
 class IDepthStencilStateFactory
 {

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <wrl/client.h>
 #include "common.h"
 
 struct ID3D11Device;

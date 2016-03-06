@@ -1,10 +1,21 @@
 #pragma once
 
+#include <D3Dcommon.h>
+#include <memory>
+
 class ITexture;
 struct ID3D11DeviceContext;
 
-#include <D3Dcommon.h>
-#include <memory>
+enum SHADER_TYPE
+{
+	VS = 0,
+	HS,
+	DS,
+	GS,
+	PS,
+	CS,
+	MAX_SHADER
+};
 
 class IMaterial
 {

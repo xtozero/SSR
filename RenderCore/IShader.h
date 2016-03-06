@@ -2,7 +2,6 @@
 
 #include "common.h"
 
-#include <wrl/client.h>
 #include <memory>
 
 struct ID3D11Device;
