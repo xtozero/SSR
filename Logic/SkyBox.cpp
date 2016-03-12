@@ -72,17 +72,6 @@ bool CSkyBox::LoadModelMesh( )
 	return GetModel() ? true : false;
 }
 
-bool CSkyBox::LoadMaterial( )
-{
-	if ( GetModel( ) )
-	{
-		SetMaterial( gRenderer->GetMaterialPtr( _T( "skybox" ) ) );
-	}
-
-	return GetMaterial() ? true : false;
-}
-
-
 CSkyBox::CSkyBox( )
 {
 }

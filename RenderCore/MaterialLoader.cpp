@@ -127,7 +127,7 @@ bool CMaterialLoader::CreateScriptedMaterial( std::shared_ptr<KeyValue> pMateria
 	}
 
 	std::shared_ptr<CScriptedMaterial> newMaterial = std::make_shared<CScriptedMaterial>( );
-	MaterialSystem::GetInstance( )->RegisterMaterial( pMaterial->GetString( ).c_str(), newMaterial );
+	MaterialSystem::GetInstance( )->RegisterMaterial( pMaterial->GetKey( ).c_str(), newMaterial );
 
 	for ( auto property = pMaterial->GetChild( ); property != nullptr; property = property->GetNext( ) )
 	{

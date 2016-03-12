@@ -10,7 +10,6 @@ public:
 
 protected:
 	virtual bool LoadModelMesh( ) override;
-	virtual bool LoadMaterial( ) override;
 
 public:
 	CSkyBox( );

@@ -6,7 +6,7 @@
 	//오브젝트 정의 시작
 	"Object" "skybox"
 	{
-		
+		"Material"	"mat_skyBox" //재질명	
 	}
 	
 	"Object" "base"

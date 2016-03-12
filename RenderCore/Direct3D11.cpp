@@ -459,13 +459,12 @@ bool CDirect3D11::CreatePrimeDepthBuffer( UINT nWndWidth, UINT nWndHeight )
 	::ZeroMemory( &d3d11Texture2DDesc, sizeof( d3d11Texture2DDesc ) );
 
 	d3d11Texture2DDesc.ArraySize = 1;
-	d3d11Texture2DDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	d3d11Texture2DDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	d3d11Texture2DDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+	d3d11Texture2DDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
 	d3d11Texture2DDesc.Height = nWndHeight;
 	d3d11Texture2DDesc.Width = nWndWidth;
 	d3d11Texture2DDesc.MipLevels = 1;
 	d3d11Texture2DDesc.SampleDesc.Count = 1;
-	d3d11Texture2DDesc.SampleDesc.Quality = 0;
 	d3d11Texture2DDesc.Usage = D3D11_USAGE_DEFAULT;
 
 	if ( SUCCEEDED( m_pd3d11Device->CreateTexture2D( &d3d11Texture2DDesc, nullptr, &m_pd3d11PrimeDSBuffer ) ) )
@@ -475,12 +474,21 @@ bool CDirect3D11::CreatePrimeDepthBuffer( UINT nWndWidth, UINT nWndHeight )
 
 		d3d11DSDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 		d3d11DSDesc.Texture2D.MipSlice = 0;
-		d3d11DSDesc.Format = d3d11Texture2DDesc.Format;
+		d3d11DSDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
-		if ( SUCCEEDED( m_pd3d11Device->CreateDepthStencilView( m_pd3d11PrimeDSBuffer.Get( ), &d3d11DSDesc, &m_pd3d11PrimeDSView ) ) )
-		{
-			return true;
-		}
+		ON_FAIL_RETURN( SUCCEEDED( m_pd3d11Device->CreateDepthStencilView( m_pd3d11PrimeDSBuffer.Get( ), &d3d11DSDesc, &m_pd3d11PrimeDSView ) ) );
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC d3d11srvDesc;
+		::ZeroMemory( &d3d11srvDesc, sizeof( d3d11srvDesc ) );
+
+		d3d11srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		d3d11srvDesc.Texture2D.MipLevels = 1;
+		d3d11srvDesc.Texture2D.MostDetailedMip = 0;
+		d3d11srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+
+		ON_FAIL_RETURN( SUCCEEDED( m_pd3d11Device->CreateShaderResourceView( m_pd3d11PrimeDSBuffer.Get( ), &d3d11srvDesc, &m_pd3d11PrimeDSSrView ) ) );
+
+		return true;
 	}
 
 	return false;
@@ -528,6 +536,7 @@ m_pdxgiSwapChain( nullptr ),
 m_pd3d11PrimeRTView( nullptr ),
 m_pd3d11PrimeDSBuffer( nullptr ),
 m_pd3d11PrimeDSView( nullptr ),
+m_pd3d11PrimeDSSrView( nullptr ),
 m_pWorldMatrixBuffer( nullptr ),
 m_pDepthStencilFactory( nullptr ),
 m_pRasterizerFactory( nullptr ),

@@ -87,7 +87,8 @@ void CSamplerStateFactory::LoadSamplerDesc( std::shared_ptr<KeyValueGroup> pKeyV
 
 	for ( auto desc = keyValue->GetChild( ); desc != nullptr; desc = desc->GetNext( ) )
 	{
-		CD3D11_SAMPLER_DESC newDesc;
+		CD3D11_DEFAULT default;
+		CD3D11_SAMPLER_DESC newDesc( default );
 
 		for ( auto property = desc->GetChild( ); property != nullptr; property = property->GetNext( ) )
 		{

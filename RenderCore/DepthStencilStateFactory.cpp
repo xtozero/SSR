@@ -86,7 +86,8 @@ void CDepthStencilStateFactory::LoadDepthStencilDesc( std::shared_ptr<KeyValueGr
 
 	for ( auto desc = keyValue->GetChild( ); desc != nullptr; desc = desc->GetNext( ) )
 	{
-		CD3D11_DEPTH_STENCIL_DESC newDesc;
+		CD3D11_DEFAULT default;
+		CD3D11_DEPTH_STENCIL_DESC newDesc( default );
 
 		for ( auto property = desc->GetChild( ); property != nullptr; property = property->GetNext( ) )
 		{

@@ -79,6 +79,7 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D>			m_pd3d11PrimeDSBuffer;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView>	m_pd3d11PrimeDSView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_pd3d11PrimeDSSrView;
 
 	std::map<String, std::shared_ptr<IShader>>		m_shaderList;
 	std::vector<std::shared_ptr<IBuffer>>			m_bufferList;

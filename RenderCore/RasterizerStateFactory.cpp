@@ -87,7 +87,8 @@ void CRasterizerStateFactory::LoadRasterizerDesc( std::shared_ptr<KeyValueGroup>
 
 	for ( auto desc = keyValue->GetChild( ); desc != nullptr; desc = desc->GetNext( ) )
 	{
-		CD3D11_RASTERIZER_DESC newDesc;
+		CD3D11_DEFAULT default;
+		CD3D11_RASTERIZER_DESC newDesc( default );
 
 		for ( auto property = desc->GetChild( ); property != nullptr; property = property->GetNext( ) )
 		{

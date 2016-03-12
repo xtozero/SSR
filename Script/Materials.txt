@@ -1,6 +1,6 @@
 "Materials"
 {
-	"TestScriptedShader"
+	"mat_testScripted"
 	{
 		"Shader"
 		{
@@ -10,6 +10,23 @@
 		
 		"RS_State"	"default"
 		"DS_State"	"default"
+		
+		"Sampler"
+		{
+			"PS"	"default"
+		}
+	}
+	
+	"mat_skyBox"
+	{
+		"Shader"
+		{
+			"VS"	"vsSkybox"
+			"PS"	"psSkybox"
+		}
+		
+		"RS_State"	"default"
+		"DS_State"	"depthWriteOff"
 		
 		"Sampler"
 		{
