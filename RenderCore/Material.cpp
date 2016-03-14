@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "common.h"
 #include "IShader.h"
-#include "ITexture.h"
+#include "IShaderResource.h"
 #include "Material.h"
 
 #include <d3d11.h>
@@ -37,21 +37,24 @@ void Material::SetShader( ID3D11DeviceContext* pDeviceContext )
 	}
 }
 
-void Material::SetTexture( ID3D11DeviceContext* pDeviceContext, UINT shaderType, UINT slot, std::shared_ptr<ITexture> pTexture )
+void Material::SetTexture( ID3D11DeviceContext* pDeviceContext, UINT shaderType, UINT slot, std::shared_ptr<IShaderResource> pTexture )
 {
 	if ( pDeviceContext && shaderType < SHADER_TYPE::MAX_SHADER )
 	{
 		IShader* tagetShader = m_pShaders[shaderType].get( );
-		ID3D11ShaderResourceView* pResourceView = nullptr;
-
-		if ( pTexture )
-		{
-			pResourceView = pTexture->GetResource( );
-		}
 
 		if ( tagetShader )
 		{
-			tagetShader->SetShaderResource( pDeviceContext, slot, pResourceView );
+			if ( pTexture && !pTexture->IsTexture( ) )
+			{
+				//여기서 뷰의 원본이 깊이 버퍼 혹은 랜더 타겟이면 해당 뷰는 빼도록 수정 필요
+				_asm
+				{
+					nop;
+				}
+			}
+
+			tagetShader->SetShaderResource( pDeviceContext, slot, pTexture );
 		}
 	}
 }

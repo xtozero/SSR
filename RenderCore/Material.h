@@ -19,7 +19,7 @@ protected:
 public:
 	virtual void Init( ) override;
 	virtual void SetShader( ID3D11DeviceContext* pDeviceContext ) override;
-	virtual void SetTexture( ID3D11DeviceContext* pDeviceContext, UINT shaderType, UINT slot, std::shared_ptr<ITexture> pTexture ) override;
+	virtual void SetTexture( ID3D11DeviceContext* pDeviceContext, UINT shaderType, UINT slot, std::shared_ptr<IShaderResource> pTexture ) override;
 
 	virtual void Draw( ID3D11DeviceContext* pDeviceContext, const UINT vertexCount, const UINT vertexOffset = 0 ) override;
 	virtual void DrawIndexed( ID3D11DeviceContext* pDeviceContext, const UINT indexCount, const UINT indexOffset = 0, const UINT vertexOffset = 0 ) override;

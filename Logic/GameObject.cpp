@@ -4,7 +4,9 @@
 
 #include "GameObject.h"
 #include "GameObjectFactory.h"
+#include "../Engine/KeyValueReader.h"
 #include "../RenderCore/Direct3D11.h"
+#include "../RenderCore/IMesh.h"
 #include "Timer.h"
 
 extern IRenderer* gRenderer;
@@ -84,12 +86,12 @@ void CGameObject::Think( )
 	}
 }
 
-void CGameObject::SetMaterialName( const TCHAR* pMaterialName )
+void CGameObject::SetMaterialName( const String& pMaterialName )
 {
 	m_materialName = pMaterialName;
 }
 
-void CGameObject::SetModelMeshName( const TCHAR* pModelName )
+void CGameObject::SetModelMeshName( const String& pModelName )
 {
 	m_meshName = pModelName;
 }
@@ -101,6 +103,59 @@ bool CGameObject::Initialize( )
 
 	m_needInitialize = false;
 	return true;
+}
+
+bool CGameObject::LoadPropertyFromScript( const CKeyValueIterator& pKeyValue )
+{
+	if ( pKeyValue->GetKey( ) == String( _T( "Name" ) ) )
+	{
+		SetName( pKeyValue->GetString( ) );
+		return true;
+	}
+	else if ( pKeyValue->GetKey( ) == String( _T( "Model" ) ) )
+	{
+		SetModelMeshName( pKeyValue->GetString( ).c_str( ) );
+		return true;
+	}
+	else if ( pKeyValue->GetKey( ) == String( _T( "Position" ) ) )
+	{
+		std::vector<String> params;
+
+		UTIL::Split( pKeyValue->GetString( ), params, _T( ' ' ) );
+
+		if ( params.size( ) == 3 )
+		{
+			float x = static_cast<float>(_ttof( params[0].c_str( ) ));
+			float y = static_cast<float>(_ttof( params[1].c_str( ) ));
+			float z = static_cast<float>(_ttof( params[2].c_str( ) ));
+
+			SetPosition( x, y, z );
+			return true;
+		}
+	}
+	else if ( pKeyValue->GetKey( ) == String( _T( "Scale" ) ) )
+	{
+		std::vector<String> params;
+
+		UTIL::Split( pKeyValue->GetString( ), params, _T( ' ' ) );
+
+		if ( params.size( ) == 3 )
+		{
+			float x = static_cast<float>(_ttof( params[0].c_str( ) ));
+			float y = static_cast<float>(_ttof( params[1].c_str( ) ));
+			float z = static_cast<float>(_ttof( params[2].c_str( ) ));
+
+			SetScale( x, y, z );
+			return true;
+		}
+	}
+	else if ( pKeyValue->GetKey( ) == String( _T( "Material" ) ) )
+	{
+		SetMaterialName( pKeyValue->GetString( ) );
+		return true;
+	}
+
+	return false;
 }
 
 CGameObject::CGameObject( ) :
@@ -137,10 +192,7 @@ bool CGameObject::LoadModelMesh( )
 	{
 		m_pModel = gRenderer->GetModelPtr( m_meshName.c_str( ) );
 
-		for ( int i = 0; i < RIGID_BODY_TYPE::Count; ++i )
-		{
-			m_originRigidBodies[i] = CRigidBodyManager::GetInstance( ).GetRigidBody( m_meshName, static_cast<RIGID_BODY_TYPE>( i ) );
-		}
+		LoadRigidBody( );
 
 		return m_pModel ? true : false;
 	}
@@ -163,6 +215,14 @@ bool CGameObject::LoadMaterial( )
 	}
 
 	return m_pMaterial ? true : false;
+}
+
+void CGameObject::LoadRigidBody( )
+{
+	for ( int i = 0; i < RIGID_BODY_TYPE::Count; ++i )
+	{
+		m_originRigidBodies[i] = CRigidBodyManager::GetInstance( ).GetRigidBody( m_meshName, static_cast<RIGID_BODY_TYPE>(i) );
+	}
 }
 
 void CGameObject::RebuildTransform( )

@@ -6,11 +6,13 @@
 	//오브젝트 정의 시작
 	"Object" "skybox"
 	{
+		"Name"		"skybox"
 		"Material"	"mat_skyBox" //재질명	
 	}
 	
 	"Object" "base"
 	{
+		"Name"		"cow1"
 		"Model"		"object.ply" //모델명
 		"Material"	"wireframe" //재질명
 		"Position"	"0 10 0" //x y z
@@ -19,6 +21,7 @@
 	
 	"Object" "base"
 	{
+		"Name"		"cow2"
 		"Model"		"object.ply" //모델명
 		"Material"	"tutorial" //재질명
 		"Position"	"0 -10 0" //x y z
@@ -27,6 +30,7 @@
 	
 	"Object" "base"
 	{
+		"Name"		"spaceship"
 		"Model"		"spaceship.obj" //모델명
 		"Material"	"texture" //재질명
 		"Position"	"-10 0 100" //x y z
@@ -34,9 +38,20 @@
 	
 	"Object" "base"
 	{
+		"Name"		"statue"
 		"Model"		"statue.obj" //모델명
 		"Material"	"texture" //재질명
 		"Scale"		"3 3 3" //xScale yScale zScale
 		"Position"	"10 -10 -10" //x y z
+	}
+	
+	"Object" "displaySRVHelper"
+	{
+		"Name"		"depthStencilViewer"
+		"Material"	"mat_display_depth"
+		"Position"	"150 115 0"
+		"TextureName"	"DefaultDepthStencil"
+		"Width"		"300"
+		"Height"	"230"
 	}
 }

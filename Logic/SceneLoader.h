@@ -1,11 +1,12 @@
 #pragma once
 
 #include "common.h"
-#include "GameObject.h"
-#include "..\Engine\KeyValueReader.h"
 
 #include <memory.h>
 #include <vector>
+
+class CGameObject;
+class KeyValueGroup;
 
 class CSceneLoader
 {

@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "D3D11VertexShader.h"
+#include "IShaderResource.h"
 #include "util_rendercore.h"
 
 #include <D3D11.h>
@@ -49,11 +50,18 @@ void D3D11VertexShader::SetShader ( ID3D11DeviceContext* pDeviceContext )
 	}
 }
 
-void D3D11VertexShader::SetShaderResource( ID3D11DeviceContext* pDeviceContext, UINT slot, ID3D11ShaderResourceView* pResource )
+void D3D11VertexShader::SetShaderResource( ID3D11DeviceContext* pDeviceContext, UINT slot, std::shared_ptr<IShaderResource>& pResource )
 {
 	if ( pDeviceContext )
 	{
-		pDeviceContext->VSSetShaderResources( slot, 1, &pResource );
+		ID3D11ShaderResourceView* srv = nullptr;
+
+		if ( pResource.get( ) && pResource->Get( ) )
+		{
+			srv = pResource->Get( );
+		}
+
+		pDeviceContext->VSSetShaderResources( slot, 1, &srv );
 	}
 }
 

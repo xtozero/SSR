@@ -15,6 +15,7 @@ public:
 	bool Initialize( );
 	bool LoadMeshFromFile( const TCHAR* pfileName );
 	std::shared_ptr<IMesh> GetMesh( const TCHAR* pfileName );
+	void RegisterMesh( const String& pMeshName, const std::shared_ptr<IMesh>& pMesh );
 
 	CMeshLoader( );
 	virtual ~CMeshLoader( );

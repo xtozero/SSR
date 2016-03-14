@@ -9,17 +9,20 @@
 #include "D3D11VertexShader.h"
 
 #include "DebugMesh.h"
+#include "DepthStencil.h"
 #include "DepthStencilStateFactory.h"
 
 #include "Direct3D11.h"
 
 #include "ISampler.h"
+#include "IShaderResource.h"
 
 #include "MaterialSystem.h"
 #include "MaterialLoader.h"
 #include "MeshBuilder.h"
 
 #include "RasterizerStateFactory.h"
+#include "RenderTarget.h"
 #include "SamplerStateFactory.h"
 #include "SkyBoxMaterial.h"
 #include "TextureMaterial.h"
@@ -58,7 +61,7 @@ bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 	ON_FAIL_RETURN( CreateD3D11Device( hWind, nWndWidth, nWndHeight ) );
 	ON_FAIL_RETURN( CreatePrimeRenderTargetVIew( ) );
 	ON_FAIL_RETURN( CreatePrimeDepthBuffer( nWndWidth, nWndHeight ) );
-	ON_FAIL_RETURN( SetRenderTargetAndDepthBuffer( ) );
+	ON_FAIL_RETURN( SetRenderTargetDepthStencilView( ) );
 
 	m_pView = std::make_unique<RenderView>( );
 	ON_FAIL_RETURN( m_pView->initialize( m_pd3d11Device.Get( ) ) );
@@ -109,12 +112,18 @@ void CDirect3D11::ClearRenderTargetView( float r, float g, float b, float a )
 {
 	const float clearColor[4] = { r, g, b, a };
 
-	m_pd3d11DeviceContext->ClearRenderTargetView( m_pd3d11PrimeRTView.Get( ), clearColor );
+	if ( m_pd3d11DefaultRT )
+	{
+		m_pd3d11DefaultRT->Clear( m_pd3d11DeviceContext.Get(), clearColor );
+	}
 }
 
 void CDirect3D11::ClearDepthStencilView( )
 {
-	m_pd3d11DeviceContext->ClearDepthStencilView( m_pd3d11PrimeDSView.Get( ), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
+	if ( m_pd3d11DefaultDS )
+	{
+		m_pd3d11DefaultDS->Clear( m_pd3d11DeviceContext.Get( ), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
+	}
 }
 
 void CDirect3D11::SceneBegin( )
@@ -262,6 +271,38 @@ bool CDirect3D11::InitializeMaterial( )
 	return false;
 }
 
+std::shared_ptr<IRenderTarget> CDirect3D11::TranslateRenderTargetViewFlag( const RENDERTARGET_FLAG rtFlag ) const
+{
+	switch ( rtFlag )
+	{
+	case RENDERTARGET_FLAG::NONE:
+		return nullptr;
+		break;
+	case RENDERTARGET_FLAG::DEFALUT:
+		return m_pd3d11DefaultRT;
+		break;
+	default:
+		return nullptr;
+		break;
+	}
+}
+
+std::shared_ptr<IDepthStencil>  CDirect3D11::TranslateDepthStencilViewFlag( const DEPTHSTENCIL_FLAG dsFlag ) const
+{
+	switch ( dsFlag )
+	{
+	case DEPTHSTENCIL_FLAG::NONE:
+		return nullptr;
+		break;
+	case DEPTHSTENCIL_FLAG::DEFALUT:
+		return m_pd3d11DefaultDS;
+		break;
+	default:
+		return nullptr;
+		break;
+	}
+}
+
 std::shared_ptr<IMaterial> CDirect3D11::GetMaterialPtr( const TCHAR* pMaterialName )
 {
 	return MaterialSystem::GetInstance( )->SearchMaterialByName( pMaterialName );
@@ -275,6 +316,14 @@ std::shared_ptr<IMesh> CDirect3D11::GetModelPtr( const TCHAR* pModelName )
 	}
 
 	return nullptr;
+}
+
+void CDirect3D11::SetModelPtr( const String& modelName, const std::shared_ptr<IMesh>& pModel )
+{
+	if ( pModel )
+	{
+		m_meshLoader.RegisterMesh( modelName, pModel );
+	}
 }
 
 void CDirect3D11::DrawModel( std::shared_ptr<IMesh> pModel )
@@ -342,10 +391,10 @@ Microsoft::WRL::ComPtr<ID3D11RasterizerState> CDirect3D11::CreateRenderState( co
 	return m_pRasterizerFactory->GetRasterizerState( m_pd3d11Device.Get( ), stateName );
 }
 
-std::shared_ptr<ITexture> CDirect3D11::GetTextureFromFile( const String& fileName )
+std::shared_ptr<IShaderResource> CDirect3D11::GetShaderResourceFromFile( const String& fileName )
 {
-	m_textureManager.LoadTextureFromFile( m_pd3d11Device.Get( ), fileName );
-	return m_textureManager.GetTexture( fileName );
+	m_shaderResourceManager.LoadShaderResourceFromFile( m_pd3d11Device.Get( ), fileName );
+	return m_shaderResourceManager.GetShaderResource( fileName );
 }
 
 std::shared_ptr<ISampler> CDirect3D11::CreateSamplerState( const String& stateName )
@@ -368,6 +417,20 @@ Microsoft::WRL::ComPtr<ID3D11DepthStencilState> CDirect3D11::CreateDepthStencilS
 	}
 
 	return m_pDepthStencilFactory->GetDepthStencilState( m_pd3d11Device.Get( ), stateName );
+}
+
+bool CDirect3D11::SetRenderTargetDepthStencilView( RENDERTARGET_FLAG rtFlag, DEPTHSTENCIL_FLAG dsFlag )
+{
+	m_renderTargetManager.SetRenderTarget( m_pd3d11DeviceContext.Get(), TranslateRenderTargetViewFlag( rtFlag ), TranslateDepthStencilViewFlag( dsFlag ) );
+	return true;
+}
+
+void CDirect3D11::ResetResource( const std::shared_ptr<IMesh>& pMesh, const SHADER_TYPE type )
+{
+	if ( m_pd3d11DeviceContext && pMesh )
+	{
+		pMesh->ResetResource( m_pd3d11DeviceContext.Get( ), type );
+	}
 }
 
 bool CDirect3D11::CreateD3D11Device( HWND hWind, UINT nWndWidth, UINT nWndHeight )
@@ -442,10 +505,9 @@ bool CDirect3D11::CreatePrimeRenderTargetVIew( )
 
 	if ( SUCCEEDED( m_pdxgiSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (LPVOID*)&pd3d11BackBuffer ) ) )
 	{
-		HRESULT hr = m_pd3d11Device->CreateRenderTargetView( pd3d11BackBuffer.Get( ), nullptr, &m_pd3d11PrimeRTView );
-
-		if ( SUCCEEDED( hr ) )
+		if ( m_renderTargetManager.CreateRenderTarget( m_pd3d11Device.Get( ), pd3d11BackBuffer.Get( ), nullptr, _T( "DefaultRenderTarget" ) ) )
 		{
+			m_pd3d11DefaultRT = m_renderTargetManager.GetRenderTarget( _T( "DefaultRenderTarget" ) );
 			return true;
 		}
 	}
@@ -476,7 +538,8 @@ bool CDirect3D11::CreatePrimeDepthBuffer( UINT nWndWidth, UINT nWndHeight )
 		d3d11DSDesc.Texture2D.MipSlice = 0;
 		d3d11DSDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
-		ON_FAIL_RETURN( SUCCEEDED( m_pd3d11Device->CreateDepthStencilView( m_pd3d11PrimeDSBuffer.Get( ), &d3d11DSDesc, &m_pd3d11PrimeDSView ) ) );
+		ON_FAIL_RETURN( m_renderTargetManager.CreateDepthStencil( m_pd3d11Device.Get(), m_pd3d11PrimeDSBuffer.Get( ), &d3d11DSDesc, _T( "DefaultDepthStencil" ) ) );
+		m_pd3d11DefaultDS = m_renderTargetManager.GetDepthStencil( _T( "DefaultDepthStencil" ) );
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC d3d11srvDesc;
 		::ZeroMemory( &d3d11srvDesc, sizeof( d3d11srvDesc ) );
@@ -486,25 +549,17 @@ bool CDirect3D11::CreatePrimeDepthBuffer( UINT nWndWidth, UINT nWndHeight )
 		d3d11srvDesc.Texture2D.MostDetailedMip = 0;
 		d3d11srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 
-		ON_FAIL_RETURN( SUCCEEDED( m_pd3d11Device->CreateShaderResourceView( m_pd3d11PrimeDSBuffer.Get( ), &d3d11srvDesc, &m_pd3d11PrimeDSSrView ) ) );
+		ON_FAIL_RETURN( m_shaderResourceManager.CreateShaderResource( 
+			m_pd3d11Device.Get(), 
+			m_pd3d11PrimeDSBuffer.Get(), 
+			d3d11srvDesc, 
+			_T( "DefaultDepthStencil" ),
+			SOURCE_RESOURCE_FLAG::DEPTH_STENCIL ) );
 
 		return true;
 	}
 
 	return false;
-}
-
-bool CDirect3D11::SetRenderTargetAndDepthBuffer( )
-{
-	if ( m_pd3d11PrimeRTView && m_pd3d11PrimeDSView )
-	{
-		m_pd3d11DeviceContext->OMSetRenderTargets( 1, m_pd3d11PrimeRTView.GetAddressOf( ), m_pd3d11PrimeDSView.Get( ) );
-		return true;
-	}
-	else
-	{
-		return false;
-	}
 }
 
 void CDirect3D11::ReportLiveDevice( )
@@ -533,10 +588,9 @@ bool CDirect3D11::InitializeShaders( )
 CDirect3D11::CDirect3D11( ) : m_pd3d11Device( nullptr ),
 m_pd3d11DeviceContext( nullptr ),
 m_pdxgiSwapChain( nullptr ),
-m_pd3d11PrimeRTView( nullptr ),
 m_pd3d11PrimeDSBuffer( nullptr ),
-m_pd3d11PrimeDSView( nullptr ),
-m_pd3d11PrimeDSSrView( nullptr ),
+m_pd3d11DefaultRT( nullptr ),
+m_pd3d11DefaultDS( nullptr ),
 m_pWorldMatrixBuffer( nullptr ),
 m_pDepthStencilFactory( nullptr ),
 m_pRasterizerFactory( nullptr ),

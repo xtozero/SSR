@@ -17,7 +17,7 @@ bool CObjMesh::Load( D3D_PRIMITIVE_TOPOLOGY topology )
 	{
 		if ( i->m_textureName.size( ) > 0 )
 		{
-			auto texture = g_pRenderer->GetTextureFromFile( i->m_textureName );
+			auto texture = g_pRenderer->GetShaderResourceFromFile( i->m_textureName );
 
 			if ( texture.get( ) )
 			{

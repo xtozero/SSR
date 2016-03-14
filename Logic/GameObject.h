@@ -2,18 +2,20 @@
 
 #include <memory>
 
-#include "../RenderCore/IMesh.h"
 #include "RigidBodyManager.h"
 
 class IRigidBody;
+class IMaterial;
+class IMesh;
+class CKeyValueIterator;
 
 class CGameObject
 {
 public:
-	void SetPosition( const float x, const float y, const float z );
-	void SetPosition( const D3DXVECTOR3& pos );
-	void SetScale( const float xScale, const float yScale, const float zScale );
-	void SetRotate( const float pitch, const float yaw, const float roll );
+	virtual void SetPosition( const float x, const float y, const float z );
+	virtual void SetPosition( const D3DXVECTOR3& pos );
+	virtual void SetScale( const float xScale, const float yScale, const float zScale );
+	virtual void SetRotate( const float pitch, const float yaw, const float roll );
 
 	const D3DXVECTOR3& GetPosition( );
 	const D3DXVECTOR3& GetScale( );
@@ -27,8 +29,8 @@ public:
 
 	void SetName( const String& name ) { m_name = name; }
 	const String& GetName( ) const { return m_name; }
-	void SetMaterialName( const TCHAR* pMaterialName );
-	void SetModelMeshName( const TCHAR* pModelName );
+	void SetMaterialName( const String& pMaterialName );
+	void SetModelMeshName( const String& pModelName );
 	const String& GetMeshName( ) const { return m_meshName; }
 
 	bool Initialize( );
@@ -43,13 +45,18 @@ public:
 	std::shared_ptr<IMaterial> GetMaterial( ) { return m_pMaterial; }
 	void SetMaterial( const std::shared_ptr<IMaterial> pMaterial ) { m_pMaterial = pMaterial; }
 
+	virtual bool LoadPropertyFromScript( const CKeyValueIterator& pKeyValue );
+
+	virtual bool IgnorePicking( ) const { return false; }
+
 	CGameObject( );
 	~CGameObject( );
 protected:
 	virtual bool LoadModelMesh( );
 	virtual bool LoadMaterial( );
+	void LoadRigidBody( );
 private:
-	virtual bool ShouldDraw( ) { return true; }
+	virtual bool ShouldDraw( ) const { return true; }
 	void RebuildTransform( );
 	void UpdateRigidBody( RIGID_BODY_TYPE type );
 	void UpdateRigidBodyAll( );

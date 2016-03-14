@@ -2,6 +2,7 @@
 #include "BaseMesh.h"
 #include "common.h"
 #include "CommonMeshDefine.h"
+#include "IMaterial.h"
 #include "IRenderer.h"
 
 extern IRenderer* g_pRenderer;
@@ -52,6 +53,14 @@ void BaseMesh::Draw( ID3D11DeviceContext* )
 void BaseMesh::SetMaterial( const std::shared_ptr<IMaterial> pMaterial )
 {
 	m_pMaterial = pMaterial;
+}
+
+void BaseMesh::ResetResource( ID3D11DeviceContext* pDeviceContext, const SHADER_TYPE type )
+{
+	if ( m_pMaterial )
+	{
+		m_pMaterial->SetTexture( pDeviceContext, type, 0, nullptr );
+	}
 }
 
 BaseMesh::BaseMesh( ) : m_pModelData( nullptr ),

@@ -19,7 +19,7 @@ public:
 	void SetTextureName( const String& textureName ) { m_textureName = textureName; }
 
 private:
-	std::shared_ptr<ITexture> m_pTexture;
+	std::shared_ptr<IShaderResource> m_pTexture;
 	String m_textureName;
 };
 
@@ -29,7 +29,7 @@ bool CMeshBuilderMesh::Load( D3D_PRIMITIVE_TOPOLOGY topology )
 
 	if ( m_textureName.size( ) > 0 )
 	{
-		auto texture = g_pRenderer->GetTextureFromFile( m_textureName );
+		auto texture = g_pRenderer->GetShaderResourceFromFile( m_textureName );
 
 		if ( texture.get( ) )
 		{
@@ -37,6 +37,7 @@ bool CMeshBuilderMesh::Load( D3D_PRIMITIVE_TOPOLOGY topology )
 		}
 		else
 		{
+			DebugWarning( "Invalid Texture Name - %s\n", m_textureName.c_str() );
 			return false;
 		}
 	}
@@ -91,7 +92,7 @@ void CMeshBuilder::AppendTextureName( const String& textureName )
 	m_textureName = textureName;
 }
 
-std::shared_ptr<IMesh> CMeshBuilder::Build( D3D_PRIMITIVE_TOPOLOGY topology ) const
+std::shared_ptr<IMesh> CMeshBuilder::Build( const String& meshName, D3D_PRIMITIVE_TOPOLOGY topology ) const
 {
 	if ( m_vertices.size( ) == 0 )
 	{
@@ -128,10 +129,12 @@ std::shared_ptr<IMesh> CMeshBuilder::Build( D3D_PRIMITIVE_TOPOLOGY topology ) co
 
 	if ( newMesh->Load( topology ) )
 	{
+		g_pRenderer->SetModelPtr( meshName, newMesh );
 		return newMesh;
 	}
 	else
 	{
+		DebugWarning( "CMeshBuilder Build Fail - %s\n", meshName.c_str() );
 		return nullptr;
 	}
 }

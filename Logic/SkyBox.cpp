@@ -28,11 +28,6 @@ void CSkyBox::Think( )
 	}
 }
 
-void CSkyBox::Render( )
-{
-	CGameObject::Render( );
-}
-
 bool CSkyBox::LoadModelMesh( )
 {
 	if ( GetModel( ) != nullptr || g_meshBuilder == nullptr )
@@ -67,16 +62,8 @@ bool CSkyBox::LoadModelMesh( )
 
 	g_meshBuilder->AppendTextureName( _T( "SkyboxSet/TropicalSunnyDay/TropicalSunnyDay.dds" ) );
 	
-	SetModel( g_meshBuilder->Build( ) );
+	SetModelMeshName( GetName( ) );
+	SetModel( g_meshBuilder->Build( GetMeshName() ) );
 
 	return GetModel() ? true : false;
-}
-
-CSkyBox::CSkyBox( )
-{
-}
-
-
-CSkyBox::~CSkyBox( )
-{
 }

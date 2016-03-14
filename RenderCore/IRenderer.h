@@ -8,12 +8,13 @@ class IBuffer;
 class IRenderView;
 class IMaterial;
 class IMesh;
-class ITexture;
+class IShaderResource;
 class ISampler;
 struct ID3D11RasterizerState;
 struct ID3D11SamplerState;
 struct ID3D11DepthStencilState;
 struct D3DXMATRIX;
+enum SHADER_TYPE;
 
 namespace Microsoft
 {
@@ -22,6 +23,18 @@ namespace Microsoft
 		template <typename T> class ComPtr;
 	}
 }
+
+enum class RENDERTARGET_FLAG
+{
+	NONE = 0,
+	DEFALUT,
+};
+
+enum class DEPTHSTENCIL_FLAG
+{
+	NONE = 0,
+	DEFALUT
+};
 
 class RENDERCORE_DLL IRenderer
 {
@@ -45,6 +58,7 @@ public:
 
 	virtual std::shared_ptr<IMaterial> GetMaterialPtr( const TCHAR* pMaterialName ) = 0;
 	virtual std::shared_ptr<IMesh> GetModelPtr( const TCHAR* pModelName ) = 0;
+	virtual void SetModelPtr( const String& modelName, const std::shared_ptr<IMesh>& pModel ) = 0;
 	virtual void DrawModel( std::shared_ptr<IMesh> pModel ) = 0;
 
 	virtual void PushViewPort( const float topLeftX, const float topLeftY, const float width, const float height, const float minDepth = 0.0f, const float maxDepth = 1.0f ) = 0;
@@ -55,11 +69,14 @@ public:
 	virtual void UpdateWorldMatrix( const D3DXMATRIX& worldMatrix ) = 0;
 
 	virtual Microsoft::WRL::ComPtr<ID3D11RasterizerState> CreateRenderState( const String& stateName ) = 0;
-	virtual std::shared_ptr<ITexture> GetTextureFromFile( const String& fileName ) = 0;
+	virtual std::shared_ptr<IShaderResource> GetShaderResourceFromFile( const String& fileName ) = 0;
 	virtual std::shared_ptr<ISampler> CreateSamplerState( const String& stateName ) = 0;
 
 	virtual Microsoft::WRL::ComPtr<ID3D11DepthStencilState> CreateDepthStencilState( const String& stateName ) = 0;
 
+	virtual bool SetRenderTargetDepthStencilView( RENDERTARGET_FLAG rtFlag = RENDERTARGET_FLAG::DEFALUT, DEPTHSTENCIL_FLAG dsFlag = DEPTHSTENCIL_FLAG::DEFALUT ) = 0;
+
+	virtual void ResetResource( const std::shared_ptr<IMesh>& pMesh, const SHADER_TYPE type ) = 0;
 protected:
 	IRenderer( ) = default;
 public:

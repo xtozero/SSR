@@ -98,15 +98,15 @@ void CSamplerStateFactory::LoadSamplerDesc( std::shared_ptr<KeyValueGroup> pKeyV
 			}
 			else if ( property->GetKey( ) == _T( "AddressU" ) )
 			{
-				newDesc.AddressU = TranslateTextrueAddressMode( property->GetString( ) );
+				newDesc.AddressU = TranslateTextureAddressMode( property->GetString( ) );
 			}
 			else if ( property->GetKey( ) == _T( "AddressV" ) )
 			{
-				newDesc.AddressV = TranslateTextrueAddressMode( property->GetString( ) );
+				newDesc.AddressV = TranslateTextureAddressMode( property->GetString( ) );
 			}
 			else if ( property->GetKey( ) == _T( "AddressW" ) )
 			{
-				newDesc.AddressW = TranslateTextrueAddressMode( property->GetString( ) );
+				newDesc.AddressW = TranslateTextureAddressMode( property->GetString( ) );
 			}
 			else if ( property->GetKey( ) == _T( "MipLODBias" ) )
 			{

@@ -117,6 +117,8 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="DisplayShaderResourceHelper.h" />
+    <ClInclude Include="UtilWindowInfo.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Shared\Util.cpp">
@@ -151,6 +153,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="DisplayShaderResourceHelper.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

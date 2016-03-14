@@ -38,6 +38,12 @@ struct MeshVertex
 		m_normal( normal ),
 		m_color( color ),
 		m_texcoord( texcoord ) {}
+
+	MeshVertex( const D3DXVECTOR3& position, const D3DXVECTOR2& texcoord ) :
+		m_position( position ),
+		m_normal( D3DXVECTOR3( 0.f, 0.f, 0.f ) ),
+		m_color( D3DXVECTOR3( 0.f, 0.f, 0.f ) ),
+		m_texcoord( texcoord ) {}
 };
 
 const int VERTEX_STRIDE = sizeof( MeshVertex );

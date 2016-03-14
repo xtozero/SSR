@@ -129,7 +129,7 @@ bool CPickingManager::PickingObject( float x, float y, std::vector<std::shared_p
 		{
 			const CGameObject* object = i->get( );
 
-			if ( object == nullptr )
+			if ( object == nullptr || object->IgnorePicking() )
 			{
 				continue;
 			}
@@ -208,11 +208,6 @@ void CPickingManager::OnMouseMove( const int x, const int y )
 
 	if ( m_curSelectedObject && m_curSelectedIdx > -1 )
 	{
-//		Test Code
-// 		const D3DXVECTOR3& curRotate = m_curSelectedObject->GetRotate( );	 
-// 		m_curSelectedObject->SetRotate( curRotate.x + D3DXToRadian( delta.y ), curRotate.y + D3DXToRadian( delta.x ), 0.f );
-		
-
 		VIEWPORT& curViewport = m_viewports.at( m_curSelectedIdx );
 
 		if ( !curViewport.IsContain( static_cast<float>( x ), static_cast<float>( y ) ) )

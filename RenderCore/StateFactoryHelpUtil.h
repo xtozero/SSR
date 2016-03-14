@@ -16,4 +16,4 @@ D3D11_COMPARISON_FUNC TranslateComparisonFunc( const String& key );
 D3D11_DEPTH_WRITE_MASK TranslateDepthWriteMask( const String& key );
 D3D11_STENCIL_OP TranslateStencilOP( const String& key );
 D3D11_FILTER TranslateFilter( const String& key );
-D3D11_TEXTURE_ADDRESS_MODE  TranslateTextrueAddressMode( const String& key );
+D3D11_TEXTURE_ADDRESS_MODE  TranslateTextureAddressMode( const String& key );

@@ -6,9 +6,10 @@
 #include "IMesh.h"
 #include "IMeshBuilder.h"
 #include "MeshLoader.h"
+#include "RenderTargetManager.h"
 #include "RenderView.h"
 #include "ShaderListScriptLoader.h"
-#include "TextureManager.h"
+#include "ShaderResourceManager.h"
 
 #include <vector>
 #include <map>
@@ -47,6 +48,7 @@ public:
 
 	virtual std::shared_ptr<IMaterial> GetMaterialPtr( const TCHAR* pMaterialName ) override;
 	virtual std::shared_ptr<IMesh> GetModelPtr( const TCHAR* pModelName ) override;
+	virtual void SetModelPtr( const String& modelName, const std::shared_ptr<IMesh>& pModel ) override;
 	virtual void DrawModel( std::shared_ptr<IMesh> pModel ) override;
 
 	virtual void PushViewPort( const float topLeftX, const float topLeftY, const float width, const float height, const float minDepth = 0.0f, const float maxDepth = 1.0f ) override;
@@ -57,29 +59,33 @@ public:
 	virtual void UpdateWorldMatrix( const D3DXMATRIX& worldMatrix ) override;
 	virtual Microsoft::WRL::ComPtr<ID3D11RasterizerState> CreateRenderState( const String& stateName ) override;
 
-	virtual std::shared_ptr<ITexture> GetTextureFromFile( const String& fileName ) override;
+	virtual std::shared_ptr<IShaderResource> GetShaderResourceFromFile( const String& fileName ) override;
 	virtual std::shared_ptr<ISampler> CreateSamplerState( const String& stateName ) override;
 
 	virtual  Microsoft::WRL::ComPtr<ID3D11DepthStencilState> CreateDepthStencilState( const String& stateName ) override;
+
+	virtual bool SetRenderTargetDepthStencilView( RENDERTARGET_FLAG rtFlag = RENDERTARGET_FLAG::DEFALUT, DEPTHSTENCIL_FLAG dsFlag = DEPTHSTENCIL_FLAG::DEFALUT ) override;
+
+	virtual void ResetResource( const std::shared_ptr<IMesh>& pMesh, const SHADER_TYPE type ) override;
 private:
 	bool CreateD3D11Device ( HWND hWind, UINT nWndWidth, UINT nWndHeight );
 	bool CreatePrimeRenderTargetVIew ( );
 	bool CreatePrimeDepthBuffer ( UINT nWndWidth, UINT nWndHeight );
-	bool SetRenderTargetAndDepthBuffer ( );
 	void ReportLiveDevice( );
 	bool InitializeShaders( );
 	bool InitializeMaterial( );
 
+	std::shared_ptr<IRenderTarget> TranslateRenderTargetViewFlag( const RENDERTARGET_FLAG rtFlag ) const;
+	std::shared_ptr<IDepthStencil> TranslateDepthStencilViewFlag( const DEPTHSTENCIL_FLAG dsFlag ) const;
 private:
 	Microsoft::WRL::ComPtr<ID3D11Device>			m_pd3d11Device;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext>		m_pd3d11DeviceContext;
 	Microsoft::WRL::ComPtr<IDXGISwapChain>			m_pdxgiSwapChain;
 
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>	m_pd3d11PrimeRTView;
-
 	Microsoft::WRL::ComPtr<ID3D11Texture2D>			m_pd3d11PrimeDSBuffer;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView>	m_pd3d11PrimeDSView;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_pd3d11PrimeDSSrView;
+
+	std::shared_ptr<IRenderTarget>					m_pd3d11DefaultRT;
+	std::shared_ptr<IDepthStencil>					m_pd3d11DefaultDS;
 
 	std::map<String, std::shared_ptr<IShader>>		m_shaderList;
 	std::vector<std::shared_ptr<IBuffer>>			m_bufferList;
@@ -89,7 +95,8 @@ private:
 
 	std::shared_ptr<IBuffer>						m_pWorldMatrixBuffer;
 
-	CTextureManager									m_textureManager;
+	CShaderResourceManager							m_shaderResourceManager;
+	CRenderTargetManager							m_renderTargetManager;
 	CShaderListScriptLoader							m_shaderLoader;
 
 	std::unique_ptr<IDepthStencilStateFactory>		m_pDepthStencilFactory;

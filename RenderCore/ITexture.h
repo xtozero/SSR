@@ -3,16 +3,16 @@
 #include "common.h"
 
 struct ID3D11Device;
-struct ID3D11ShaderResourceView;
+struct ID3D11Resource;
+namespace Microsoft
+{
+	namespace WRL
+	{
+		template <typename T> class ComPtr;
+	}
+}
 
 class ITexture
 {
-public:
-	virtual bool LoadTexture( ID3D11Device* pDevice, const String& fileName ) = 0;
-	virtual ID3D11ShaderResourceView* GetResource( ) = 0;
-	
-	virtual ~ITexture( ) = default;
 
-protected:
-	ITexture( ) = default;
 };

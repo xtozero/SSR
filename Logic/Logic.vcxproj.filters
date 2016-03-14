@@ -16,6 +16,9 @@
     <Filter Include="Shared">
       <UniqueIdentifier>{9cb62874-b432-4130-9aa1-29ca50ad8f14}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameObject">
+      <UniqueIdentifier>{3328af24-85b7-434a-bfd5-c46a4ec8852a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -40,9 +43,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GameObject.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="SceneLoader.h">
@@ -78,13 +78,22 @@
     <ClInclude Include="Aaboundingbox.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="SkyBox.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="CameraManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>GameObject</Filter>
+    </ClInclude>
     <ClInclude Include="GameObjectFactory.h">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="SkyBox.h">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="DisplayShaderResourceHelper.h">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="UtilWindowInfo.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -108,9 +117,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="GameObject.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="SceneLoader.cpp">
@@ -140,14 +146,20 @@
     <ClCompile Include="Aaboundingbox.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="SkyBox.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="CameraManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
     <ClCompile Include="GameObjectFactory.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="SkyBox.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="DisplayShaderResourceHelper.cpp">
+      <Filter>GameObject</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

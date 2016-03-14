@@ -1,17 +1,18 @@
 #pragma once
 
-class CGameObject;
+#include "GameObject.h"
 
 class CSkyBox : public CGameObject
 {
 public:
 	virtual void Think( ) override;
-	virtual void Render( ) override;
+
+	virtual bool IgnorePicking( ) const override { return true; }
 
 protected:
 	virtual bool LoadModelMesh( ) override;
 
 public:
-	CSkyBox( );
-	~CSkyBox( );
+	CSkyBox( ) = default;
+	~CSkyBox( ) = default;
 };

@@ -33,4 +33,21 @@
 			"PS"	"default"
 		}
 	}
+	
+	"mat_display_depth"
+	{
+		"Shader"
+		{
+			"VS"	"vsDepthStencil"
+			"PS"	"psDepthStencil"
+		}
+		
+		"RS_State"	"default"
+		"DS_State"	"default"
+		
+		"Sampler"
+		{
+			"PS"	"default"
+		}
+	}
 }

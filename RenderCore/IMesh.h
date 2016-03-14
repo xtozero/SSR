@@ -9,6 +9,7 @@ class IMaterial;
 struct MeshVertex;
 struct D3DXVECTOR3;
 struct ID3D11DeviceContext;
+enum SHADER_TYPE;
 
 class RENDERCORE_DLL IMesh
 {
@@ -24,8 +25,10 @@ public:
 
 	virtual void* GetMeshData( ) = 0;
 	virtual int GetVerticesCount( ) = 0;
-	virtual ~IMesh( ) = default;
 
+	virtual void ResetResource( ID3D11DeviceContext* pDeviceContext,  const SHADER_TYPE type ) = 0;
+
+	virtual ~IMesh( ) = default;
 protected:
 	IMesh( ) = default;
 };

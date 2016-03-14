@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "D3D11PixelShader.h"
+#include "IShaderResource.h"
 
 #include <D3D11.h>
 
@@ -34,11 +35,18 @@ void D3D11PixelShader::SetShader ( ID3D11DeviceContext* pDeviceContext )
 	}
 }
 
-void D3D11PixelShader::SetShaderResource( ID3D11DeviceContext* pDeviceContext, UINT slot, ID3D11ShaderResourceView* pResource )
+void D3D11PixelShader::SetShaderResource( ID3D11DeviceContext* pDeviceContext, UINT slot, std::shared_ptr<IShaderResource>& pResource )
 {
 	if ( pDeviceContext )
 	{
-		pDeviceContext->PSSetShaderResources( slot, 1, &pResource );
+		ID3D11ShaderResourceView* srv = nullptr;
+
+		if ( pResource.get() && pResource->Get( ) )
+		{
+			srv = pResource->Get( );
+		}
+
+		pDeviceContext->PSSetShaderResources( slot, 1, &srv );
 	}
 }
 

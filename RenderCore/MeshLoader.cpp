@@ -76,6 +76,14 @@ std::shared_ptr<IMesh> CMeshLoader::GetMesh( const TCHAR* pfileName )
 	}
 }
 
+void CMeshLoader::RegisterMesh( const String& pMeshName, const std::shared_ptr<IMesh>& pMesh )
+{
+	if ( pMesh )
+	{
+		m_meshList.emplace( pMeshName, pMesh );
+	}
+}
+
 CMeshLoader::CMeshLoader( )
 {
 }

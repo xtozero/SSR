@@ -34,6 +34,12 @@
     <Filter Include="Shared">
       <UniqueIdentifier>{c0305b5f-d5c8-4805-be40-0bb03273cfeb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Direct11\RenderResource">
+      <UniqueIdentifier>{f60d9116-edaa-47e6-8811-3c9154c879b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Direct11\RenderState">
+      <UniqueIdentifier>{573f0faf-025d-47c7-b263-31f5a138ea16}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -102,9 +108,6 @@
     <ClInclude Include="IRenderView.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="IRenderState.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="MeshLoader.h">
       <Filter>Mesh</Filter>
     </ClInclude>
@@ -144,12 +147,6 @@
     <ClInclude Include="MaterialSystem.h">
       <Filter>Direct11\Material</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>Direct11\Material</Filter>
-    </ClInclude>
-    <ClInclude Include="ITexture.h">
-      <Filter>Direct11\Material</Filter>
-    </ClInclude>
     <ClInclude Include="TextureMaterial.h">
       <Filter>Direct11\Material</Filter>
     </ClInclude>
@@ -159,32 +156,65 @@
     <ClInclude Include="IMeshBuilder.h">
       <Filter>Mesh</Filter>
     </ClInclude>
-    <ClInclude Include="TextureManager.h">
-      <Filter>Direct11\Material</Filter>
-    </ClInclude>
     <ClInclude Include="SkyBoxMaterial.h">
       <Filter>Direct11\Material</Filter>
-    </ClInclude>
-    <ClInclude Include="DepthStencilStateFactory.h">
-      <Filter>Direct11</Filter>
     </ClInclude>
     <ClInclude Include="ShaderListScriptLoader.h">
       <Filter>Direct11\Shader</Filter>
     </ClInclude>
-    <ClInclude Include="RasterizerStateFactory.h">
-      <Filter>Direct11</Filter>
+    <ClInclude Include="ShaderResourceManager.h">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderResource.h">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClInclude>
+    <ClInclude Include="IShaderResource.h">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClInclude>
+    <ClInclude Include="IRenderTarget.h">
+      <Filter>Direct11\RenderResource</Filter>
     </ClInclude>
     <ClInclude Include="SamplerStateFactory.h">
-      <Filter>Direct11</Filter>
+      <Filter>Direct11\RenderState</Filter>
+    </ClInclude>
+    <ClInclude Include="RasterizerStateFactory.h">
+      <Filter>Direct11\RenderState</Filter>
+    </ClInclude>
+    <ClInclude Include="DepthStencilStateFactory.h">
+      <Filter>Direct11\RenderState</Filter>
     </ClInclude>
     <ClInclude Include="StateFactoryHelpUtil.h">
-      <Filter>Direct11</Filter>
+      <Filter>Direct11\RenderState</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTarget.h">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClInclude>
+    <ClInclude Include="ITexture.h">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTargetManager.h">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureManager.h">
+      <Filter>Direct11\RenderResource</Filter>
     </ClInclude>
     <ClInclude Include="MaterialLoader.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Direct11\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="IRenderState.h">
+      <Filter>Direct11\RenderState</Filter>
     </ClInclude>
     <ClInclude Include="ISampler.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Direct11\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="IDepthStencil.h">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClInclude>
+    <ClInclude Include="DepthStencil.h">
+      <Filter>Direct11\RenderResource</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -263,41 +293,56 @@
     <ClCompile Include="MaterialSystem.cpp">
       <Filter>Direct11\Material</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Direct11\Material</Filter>
-    </ClCompile>
     <ClCompile Include="TextureMaterial.cpp">
       <Filter>Direct11\Material</Filter>
     </ClCompile>
     <ClCompile Include="MeshBuilder.cpp">
       <Filter>Mesh</Filter>
     </ClCompile>
-    <ClCompile Include="TextureManager.cpp">
-      <Filter>Direct11\Material</Filter>
-    </ClCompile>
     <ClCompile Include="SkyBoxMaterial.cpp">
       <Filter>Direct11\Material</Filter>
-    </ClCompile>
-    <ClCompile Include="DepthStencilStateFactory.cpp">
-      <Filter>Direct11</Filter>
     </ClCompile>
     <ClCompile Include="ShaderListScriptLoader.cpp">
       <Filter>Direct11\Shader</Filter>
     </ClCompile>
+    <ClCompile Include="ShaderResourceManager.cpp">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderResource.cpp">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClCompile>
     <ClCompile Include="RasterizerStateFactory.cpp">
-      <Filter>Direct11</Filter>
+      <Filter>Direct11\RenderState</Filter>
     </ClCompile>
     <ClCompile Include="SamplerStateFactory.cpp">
-      <Filter>Direct11</Filter>
+      <Filter>Direct11\RenderState</Filter>
+    </ClCompile>
+    <ClCompile Include="DepthStencilStateFactory.cpp">
+      <Filter>Direct11\RenderState</Filter>
     </ClCompile>
     <ClCompile Include="StateFactoryHelpUtil.cpp">
-      <Filter>Direct11</Filter>
+      <Filter>Direct11\RenderState</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTarget.cpp">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTargetManager.cpp">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureManager.cpp">
+      <Filter>Direct11\RenderResource</Filter>
     </ClCompile>
     <ClCompile Include="MaterialLoader.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Direct11\Material</Filter>
     </ClCompile>
     <ClCompile Include="ISampler.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Direct11\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="DepthStencil.cpp">
+      <Filter>Direct11\RenderResource</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -317,6 +362,12 @@
       <Filter>fx</Filter>
     </FxCompile>
     <FxCompile Include="..\Shader\vsSkybox.fx">
+      <Filter>fx</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shader\vsDepthStencil.fx">
+      <Filter>fx</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shader\psDepthStencil.fx">
       <Filter>fx</Filter>
     </FxCompile>
   </ItemGroup>

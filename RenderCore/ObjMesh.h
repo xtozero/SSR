@@ -3,14 +3,14 @@
 #include "BaseMesh.h"
 #include <vector>
 
-class ITexture;
+class IShaderResource;
 
 struct ObjMaterialTrait
 {
 	UINT m_indexOffset;
 	UINT m_indexCount;
 	String m_textureName;
-	std::shared_ptr<ITexture> m_pTexture;
+	std::shared_ptr<IShaderResource> m_pTexture;
 };
 
 class CObjMesh : public BaseMesh

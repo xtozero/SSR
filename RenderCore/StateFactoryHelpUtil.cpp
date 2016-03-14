@@ -202,7 +202,7 @@ D3D11_FILTER TranslateFilter( const String& key )
 	return D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 }
 
-D3D11_TEXTURE_ADDRESS_MODE  TranslateTextrueAddressMode( const String& key )
+D3D11_TEXTURE_ADDRESS_MODE  TranslateTextureAddressMode( const String& key )
 {
 	if ( key == _T( "D3D11_TEXTURE_ADDRESS_WRAP" ) )
 	{

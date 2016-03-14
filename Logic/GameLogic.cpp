@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "CameraManager.h"
 #include "DebugConsole.h"
+#include "../Engine/KeyValueReader.h"
 #include "GameLogic.h"
 #include "GameObject.h"
 #include "../Shared/Util.h"
@@ -9,6 +10,7 @@
 #include "../RenderCore/DebugMesh.h"
 #include "../RenderCore/IMeshBuilder.h"
 #include "Timer.h"
+#include "UtilWindowInfo.h"
 
 #include <ctime>
 #include <tchar.h>
@@ -92,9 +94,10 @@ void CGameLogic::InitCameraProperty( std::shared_ptr<KeyValueGroup> keyValue )
 
 		if ( param.size( ) == 3 )
 		{
-			m_mainCamera.SetOrigin( D3DXVECTOR3( _ttof( param[0].c_str( ) ),
-				_ttof( param[1].c_str( ) ),
-				_ttof( param[2].c_str( ) ) ) );
+			m_mainCamera.SetOrigin( D3DXVECTOR3( 
+				static_cast<float>( _ttof( param[0].c_str( ) ) ),
+				static_cast<float>( _ttof( param[1].c_str( ) ) ),
+				static_cast<float>( _ttof( param[2].c_str( ) ) ) ) );
 		}
 	}
 }
@@ -102,9 +105,9 @@ void CGameLogic::InitCameraProperty( std::shared_ptr<KeyValueGroup> keyValue )
 bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
 {
 	srand( static_cast<UINT>( time( NULL ) ) );
+	CUtilWindowInfo::GetInstance( ).SetRect( wndWidth, wndHeight );
 
 	ON_FAIL_RETURN( gRenderer->InitializeRenderer( hwnd, wndWidth, wndHeight ) );
-	ON_FAIL_RETURN( LoadScene( ) );
 	
 	gRenderer->PushViewPort( 0.0f, 0.0f, static_cast<float>( wndWidth ), static_cast<float>( wndHeight ) );
 	m_pickingManager.PushViewport( 0.0f, 0.0f, static_cast<float>( wndWidth ), static_cast<float>( wndHeight ) );
@@ -132,6 +135,8 @@ bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
 	m_mouseController.AddListener( &m_mainCamera );
 
 	CCameraManager::GetInstance( )->SetCurrentCamera( &m_mainCamera );
+
+	ON_FAIL_RETURN( LoadScene( ) );
 
 	return true;
 }
