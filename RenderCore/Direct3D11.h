@@ -10,6 +10,8 @@
 #include "RenderView.h"
 #include "ShaderListScriptLoader.h"
 #include "ShaderResourceManager.h"
+#include "SnapShotManager.h"
+#include "TextureManager.h"
 
 #include <vector>
 #include <map>
@@ -82,8 +84,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext>		m_pd3d11DeviceContext;
 	Microsoft::WRL::ComPtr<IDXGISwapChain>			m_pdxgiSwapChain;
 
-	Microsoft::WRL::ComPtr<ID3D11Texture2D>			m_pd3d11PrimeDSBuffer;
-
 	std::shared_ptr<IRenderTarget>					m_pd3d11DefaultRT;
 	std::shared_ptr<IDepthStencil>					m_pd3d11DefaultDS;
 
@@ -95,8 +95,11 @@ private:
 
 	std::shared_ptr<IBuffer>						m_pWorldMatrixBuffer;
 
+	CTextureManager									m_textureManager;
 	CShaderResourceManager							m_shaderResourceManager;
 	CRenderTargetManager							m_renderTargetManager;
+	CSnapshotManager								m_snapshotManager;
+
 	CShaderListScriptLoader							m_shaderLoader;
 
 	std::unique_ptr<IDepthStencilStateFactory>		m_pDepthStencilFactory;

@@ -30,16 +30,15 @@ void CDisplayShaderResourceHelper::SetPosition( const D3DXVECTOR3& pos )
 
 void CDisplayShaderResourceHelper::Render( )
 {
-	// 범용적이지 못한 구조 수정이 필요함.
 	if ( ShouldDraw( ) )
 	{
-		gRenderer->SetRenderTargetDepthStencilView( RENDERTARGET_FLAG::DEFALUT, DEPTHSTENCIL_FLAG::NONE );
+		// 스냅샷으로 만들어지는 텍스쳐의 경우 로드시에는 없기때문에 렌더때 텍스쳐가 없으면 세팅을 시도합니다.
+		if ( GetModel( ) && GetModel( )->GetTexture() == nullptr )
+		{
+			GetModel( )->SetTexture( gRenderer->GetShaderResourceFromFile( m_textureName ) );
+		}
 
 		CGameObject::Render( );
-
-		gRenderer->ResetResource( GetModel( ), SHADER_TYPE::PS );
-
-		gRenderer->SetRenderTargetDepthStencilView( RENDERTARGET_FLAG::DEFALUT, DEPTHSTENCIL_FLAG::DEFALUT );
 	}
 }
 

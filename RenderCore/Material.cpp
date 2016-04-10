@@ -45,15 +45,6 @@ void Material::SetTexture( ID3D11DeviceContext* pDeviceContext, UINT shaderType,
 
 		if ( tagetShader )
 		{
-			if ( pTexture && !pTexture->IsTexture( ) )
-			{
-				//여기서 뷰의 원본이 깊이 버퍼 혹은 랜더 타겟이면 해당 뷰는 빼도록 수정 필요
-				_asm
-				{
-					nop;
-				}
-			}
-
 			tagetShader->SetShaderResource( pDeviceContext, slot, pTexture );
 		}
 	}

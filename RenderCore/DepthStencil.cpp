@@ -1,13 +1,14 @@
 #include "stdafx.h"
 #include "DepthStencil.h"
+#include "ITexture.h"
 
 #include <d3d11.h>
 
-bool CDepthStencil::CreateDepthStencil( ID3D11Device* pDevice, ID3D11Resource* pResource, const D3D11_DEPTH_STENCIL_VIEW_DESC* dsvDesc )
+bool CDepthStencil::CreateDepthStencil( ID3D11Device* pDevice, std::shared_ptr<ITexture>& pTexture, const D3D11_DEPTH_STENCIL_VIEW_DESC* dsvDesc )
 {
-	if ( pDevice && pResource )
+	if ( pDevice && pTexture )
 	{
-		if ( SUCCEEDED( pDevice->CreateDepthStencilView( pResource, dsvDesc, &m_pDepthStencilVeiw ) ) )
+		if ( SUCCEEDED( pDevice->CreateDepthStencilView( pTexture->Get(), dsvDesc, &m_pDepthStencilVeiw ) ) )
 		{
 			return true;
 		}
@@ -32,4 +33,9 @@ void CDepthStencil::Clear( ID3D11DeviceContext* pDeviceContext, unsigned int cle
 	{
 		pDeviceContext->ClearDepthStencilView( m_pDepthStencilVeiw.Get( ), clearFlag, depth, stencil );
 	}
+}
+
+CDepthStencil::CDepthStencil( ) : m_pDepthStencilVeiw( nullptr )
+{
+
 }

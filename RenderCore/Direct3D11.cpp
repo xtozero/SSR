@@ -25,6 +25,7 @@
 #include "RenderTarget.h"
 #include "SamplerStateFactory.h"
 #include "SkyBoxMaterial.h"
+#include "SnapShotManager.h"
 #include "TextureMaterial.h"
 #include "TutorialMaterial.h"
 #include "WireFrame.h"
@@ -139,6 +140,8 @@ void CDirect3D11::SceneBegin( )
 void CDirect3D11::SceneEnd( )
 {
 	m_pdxgiSwapChain->Present( 0, 0 );
+
+	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get(), m_pd3d11DeviceContext.Get( ), _T( "DefaultDepthStencil" ), _T( "DebugDepthStencil" ) );
 }
 
 std::shared_ptr<IShader> CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pProfile )
@@ -394,7 +397,7 @@ Microsoft::WRL::ComPtr<ID3D11RasterizerState> CDirect3D11::CreateRenderState( co
 std::shared_ptr<IShaderResource> CDirect3D11::GetShaderResourceFromFile( const String& fileName )
 {
 	m_shaderResourceManager.LoadShaderResourceFromFile( m_pd3d11Device.Get( ), fileName );
-	return m_shaderResourceManager.GetShaderResource( fileName );
+	return m_shaderResourceManager.FindShaderResource( fileName );
 }
 
 std::shared_ptr<ISampler> CDirect3D11::CreateSamplerState( const String& stateName )
@@ -507,7 +510,7 @@ bool CDirect3D11::CreatePrimeRenderTargetVIew( )
 	{
 		if ( m_renderTargetManager.CreateRenderTarget( m_pd3d11Device.Get( ), pd3d11BackBuffer.Get( ), nullptr, _T( "DefaultRenderTarget" ) ) )
 		{
-			m_pd3d11DefaultRT = m_renderTargetManager.GetRenderTarget( _T( "DefaultRenderTarget" ) );
+			m_pd3d11DefaultRT = m_renderTargetManager.FindRenderTarget( _T( "DefaultRenderTarget" ) );
 			return true;
 		}
 	}
@@ -529,34 +532,24 @@ bool CDirect3D11::CreatePrimeDepthBuffer( UINT nWndWidth, UINT nWndHeight )
 	d3d11Texture2DDesc.SampleDesc.Count = 1;
 	d3d11Texture2DDesc.Usage = D3D11_USAGE_DEFAULT;
 
-	if ( SUCCEEDED( m_pd3d11Device->CreateTexture2D( &d3d11Texture2DDesc, nullptr, &m_pd3d11PrimeDSBuffer ) ) )
+	if ( m_textureManager.CreateTexture2D( m_pd3d11Device.Get( ), d3d11Texture2DDesc, _T( "DefaultDepthStencil" ) ) )
 	{
-		D3D11_DEPTH_STENCIL_VIEW_DESC d3d11DSDesc;
-		::ZeroMemory( &d3d11DSDesc, sizeof( d3d11DSDesc ) );
+		std::shared_ptr<ITexture> depthStencilTexture = m_textureManager.FindTexture( _T( "DefaultDepthStencil" ) );
 
-		d3d11DSDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-		d3d11DSDesc.Texture2D.MipSlice = 0;
-		d3d11DSDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		if ( depthStencilTexture )
+		{
+			D3D11_DEPTH_STENCIL_VIEW_DESC d3d11DSDesc;
+			::ZeroMemory( &d3d11DSDesc, sizeof( d3d11DSDesc ) );
 
-		ON_FAIL_RETURN( m_renderTargetManager.CreateDepthStencil( m_pd3d11Device.Get(), m_pd3d11PrimeDSBuffer.Get( ), &d3d11DSDesc, _T( "DefaultDepthStencil" ) ) );
-		m_pd3d11DefaultDS = m_renderTargetManager.GetDepthStencil( _T( "DefaultDepthStencil" ) );
+			d3d11DSDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+			d3d11DSDesc.Texture2D.MipSlice = 0;
+			d3d11DSDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
-		D3D11_SHADER_RESOURCE_VIEW_DESC d3d11srvDesc;
-		::ZeroMemory( &d3d11srvDesc, sizeof( d3d11srvDesc ) );
+			ON_FAIL_RETURN( m_renderTargetManager.CreateDepthStencil( m_pd3d11Device.Get( ), depthStencilTexture, &d3d11DSDesc, _T( "DefaultDepthStencil" ) ) );
+			m_pd3d11DefaultDS = m_renderTargetManager.FindDepthStencil( _T( "DefaultDepthStencil" ) );
 
-		d3d11srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		d3d11srvDesc.Texture2D.MipLevels = 1;
-		d3d11srvDesc.Texture2D.MostDetailedMip = 0;
-		d3d11srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-
-		ON_FAIL_RETURN( m_shaderResourceManager.CreateShaderResource( 
-			m_pd3d11Device.Get(), 
-			m_pd3d11PrimeDSBuffer.Get(), 
-			d3d11srvDesc, 
-			_T( "DefaultDepthStencil" ),
-			SOURCE_RESOURCE_FLAG::DEPTH_STENCIL ) );
-
-		return true;
+			return true;
+		}
 	}
 
 	return false;
@@ -588,10 +581,10 @@ bool CDirect3D11::InitializeShaders( )
 CDirect3D11::CDirect3D11( ) : m_pd3d11Device( nullptr ),
 m_pd3d11DeviceContext( nullptr ),
 m_pdxgiSwapChain( nullptr ),
-m_pd3d11PrimeDSBuffer( nullptr ),
 m_pd3d11DefaultRT( nullptr ),
 m_pd3d11DefaultDS( nullptr ),
 m_pWorldMatrixBuffer( nullptr ),
+m_snapshotManager( &m_textureManager, &m_shaderResourceManager ),
 m_pDepthStencilFactory( nullptr ),
 m_pRasterizerFactory( nullptr ),
 m_pSamplerFactory( nullptr ),

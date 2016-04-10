@@ -2,8 +2,10 @@
 #include <d3d11.h>
 #include <fstream>
 #include "IShaderResource.h"
+#include "ITexture.h"
 #include "ShaderResource.h"
 #include "ShaderResourceManager.h"
+#include "Texture2D.h"
 #include "../shared/Util.h"
 
 namespace
@@ -13,6 +15,11 @@ namespace
 
 void CShaderResourceManager::LoadShaderResourceFromFile( ID3D11Device* pDevice, const String& fileName )
 {
+	if ( pDevice == nullptr )
+	{
+		return;
+	}
+
 	TCHAR pPath[MAX_PATH];
 	::GetCurrentDirectory( MAX_PATH, pPath );
 	::SetCurrentDirectory( DEFAULT_TEXTURE_FILE_PATH );
@@ -37,7 +44,7 @@ void CShaderResourceManager::LoadShaderResourceFromFile( ID3D11Device* pDevice, 
 	::SetCurrentDirectory( pPath );
 }
 
-std::shared_ptr<IShaderResource> CShaderResourceManager::GetShaderResource( const String& fileName )
+std::shared_ptr<IShaderResource> CShaderResourceManager::FindShaderResource( const String& fileName ) const
 {
 	auto found = m_shaderResources.find( fileName );
 
@@ -53,6 +60,12 @@ std::shared_ptr<IShaderResource> CShaderResourceManager::GetShaderResource( cons
 
 void CShaderResourceManager::RegisterShaderResource( const String& resourceName, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& srView, int srcFlag )
 {
+	if ( FindShaderResource( resourceName ) )
+	{
+		DebugWarning( "ShaderResourceManager Error - Try Regist Exist ShaderResource Name\n" );
+		return;
+	}
+
 	std::shared_ptr<IShaderResource> newShaderResource = std::make_shared<CShaderResource>( srcFlag );
 	
 	if ( newShaderResource )
@@ -63,15 +76,21 @@ void CShaderResourceManager::RegisterShaderResource( const String& resourceName,
 	m_shaderResources.emplace( resourceName, newShaderResource );
 }
 
-bool CShaderResourceManager::CreateShaderResource( ID3D11Device* pDevice, ID3D11Resource* pResource, const D3D11_SHADER_RESOURCE_VIEW_DESC& desc, const String& resourceName, int srcFlag )
+bool CShaderResourceManager::CreateShaderResource( ID3D11Device* pDevice, std::shared_ptr<ITexture>& pTexture, const D3D11_SHADER_RESOURCE_VIEW_DESC& desc, const String& resourceName, int srcFlag )
 {
-	if ( pDevice && pResource )
+	if ( FindShaderResource( resourceName ) )
 	{
-		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> newSrView = nullptr;
+		DebugWarning( "ShaderResourceManager Error - Try Create Exist ShaderResource Name\n" );
+		return false;
+	}
 
-		if ( SUCCEEDED( pDevice->CreateShaderResourceView( pResource, &desc, &newSrView ) ) )
+	if ( pDevice && pTexture )
+	{
+		std::shared_ptr<IShaderResource> newShaderResource = std::make_shared<CShaderResource>( srcFlag );
+
+		if ( newShaderResource->CreateShaderResource( pDevice, pTexture, desc ) )
 		{
-			RegisterShaderResource( resourceName, newSrView, srcFlag );
+			m_shaderResources.emplace( resourceName, newShaderResource );
 			return true;
 		}
 	}

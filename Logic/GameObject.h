@@ -39,7 +39,7 @@ public:
 
 	void SetPicked( bool isPicked ) { m_isPicked = isPicked; }
 
-	std::shared_ptr<IMesh> GetModel( ) { return m_pModel; }
+	std::shared_ptr<IMesh> GetModel( ) const { return m_pModel; }
 	void SetModel( const std::shared_ptr<IMesh> pModel ) { m_pModel = pModel; }
 
 	std::shared_ptr<IMaterial> GetMaterial( ) { return m_pMaterial; }

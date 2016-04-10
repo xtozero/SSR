@@ -189,9 +189,6 @@
     <ClInclude Include="RenderTarget.h">
       <Filter>Direct11\RenderResource</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>Direct11\RenderResource</Filter>
-    </ClInclude>
     <ClInclude Include="ITexture.h">
       <Filter>Direct11\RenderResource</Filter>
     </ClInclude>
@@ -214,6 +211,12 @@
       <Filter>Direct11\RenderResource</Filter>
     </ClInclude>
     <ClInclude Include="DepthStencil.h">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClInclude>
+    <ClInclude Include="SnapShotManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2D.h">
       <Filter>Direct11\RenderResource</Filter>
     </ClInclude>
   </ItemGroup>
@@ -326,9 +329,6 @@
     <ClCompile Include="RenderTarget.cpp">
       <Filter>Direct11\RenderResource</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Direct11\RenderResource</Filter>
-    </ClCompile>
     <ClCompile Include="RenderTargetManager.cpp">
       <Filter>Direct11\RenderResource</Filter>
     </ClCompile>
@@ -342,6 +342,12 @@
       <Filter>Direct11\Material</Filter>
     </ClCompile>
     <ClCompile Include="DepthStencil.cpp">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClCompile>
+    <ClCompile Include="SnapShotManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture2D.cpp">
       <Filter>Direct11\RenderResource</Filter>
     </ClCompile>
   </ItemGroup>

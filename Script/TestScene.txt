@@ -50,7 +50,7 @@
 		"Name"		"depthStencilViewer"
 		"Material"	"mat_display_depth"
 		"Position"	"150 115 0"
-		"TextureName"	"DefaultDepthStencil"
+		"TextureName"	"DebugDepthStencil"
 		"Width"		"300"
 		"Height"	"230"
 	}

@@ -33,3 +33,8 @@ void CRenderTarget::Clear( ID3D11DeviceContext* pDeviceContext, const float clea
 		pDeviceContext->ClearRenderTargetView( m_pRenderTargetView.Get( ), clearColor );
 	}
 }
+
+CRenderTarget::CRenderTarget( ) : m_pRenderTargetView( nullptr )
+{
+
+}
