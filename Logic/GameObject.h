@@ -21,7 +21,7 @@ public:
 	const D3DXVECTOR3& GetScale( );
 	const D3DXVECTOR3& GetRotate( );
 
-	const D3DXMATRIX& GetTransformMatrix( ) const;
+	const D3DXMATRIX& GetTransformMatrix( );
 
 	virtual void Render( );
 

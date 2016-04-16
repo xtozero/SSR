@@ -51,8 +51,13 @@ const D3DXVECTOR3& CGameObject::GetRotate( )
 	return m_vecRotate;
 }
 
-const D3DXMATRIX& CGameObject::GetTransformMatrix( ) const
+const D3DXMATRIX& CGameObject::GetTransformMatrix( )
 {
+	if ( m_needRebuildTransform )
+	{
+		RebuildTransform( );
+	}
+
 	return m_matTransform;
 }
 
@@ -60,11 +65,6 @@ void CGameObject::Render( )
 {
 	if ( ShouldDraw() && m_pModel )
 	{
-		if ( m_needRebuildTransform )
-		{
-			RebuildTransform( );
-		}
-
 		m_pModel->SetMaterial( m_pMaterial );
 		gRenderer->DrawModel( m_pModel );
 	}

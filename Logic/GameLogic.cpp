@@ -56,12 +56,12 @@ bool CGameLogic::LoadScene( void )
 	return true;
 }
 
-void CGameLogic::SceneBegin( void )
+void CGameLogic::SceneBegin( void ) const
 {
 	gRenderer->SceneBegin( );
 }
 
-void CGameLogic::DrawScene( void )
+void CGameLogic::DrawScene( void ) const
 {
 	FOR_EACH_VEC( g_gameObjects, object )
 	{
@@ -70,12 +70,12 @@ void CGameLogic::DrawScene( void )
 	}
 }
 
-void CGameLogic::SceneEnd( void )
+void CGameLogic::SceneEnd( void ) const
 {
 	gRenderer->SceneEnd( );
 }
 
-void CGameLogic::UpdateWorldMatrix( const CGameObject* object )
+void CGameLogic::UpdateWorldMatrix( CGameObject* object ) const
 {
 	if ( object )
 	{
@@ -217,8 +217,4 @@ void CGameLogic::HandleWIndowMouseInput( const int message, const WPARAM wParam,
 CGameLogic::CGameLogic( )
 {
 	ShowDebugConsole( );
-}
-
-CGameLogic::~CGameLogic ( )
-{
 }

@@ -23,11 +23,11 @@ private:
 	bool InitShaders( void );
 	bool LoadScene( void );
 
-	void SceneBegin( void );
-	void DrawScene( void );
-	void SceneEnd( void );
+	void SceneBegin( void ) const;
+	void DrawScene( void ) const;
+	void SceneEnd( void ) const;
 
-	void UpdateWorldMatrix( const CGameObject* object );
+	void UpdateWorldMatrix( CGameObject* object ) const;
 	void InitCameraProperty( std::shared_ptr<KeyValueGroup> keyValue );
 public:
 	bool Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight );
@@ -37,7 +37,7 @@ public:
 	void HandleWIndowMouseInput( const int message, const WPARAM wParam, const LPARAM lParam );
 
 	CGameLogic ();
-	~CGameLogic ();
+	~CGameLogic () = default;
 
 private:
 	CCamera m_mainCamera;
