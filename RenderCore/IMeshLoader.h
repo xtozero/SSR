@@ -3,11 +3,12 @@
 #include <memory>
 
 class IMesh;
+class CSurfaceManager;
 
 class IMeshLoader
 {
 public:
-	virtual std::shared_ptr<IMesh> LoadMeshFromFile( const TCHAR* pFileName ) = 0;
+	virtual std::shared_ptr<IMesh> LoadMeshFromFile( const TCHAR* pFileName, CSurfaceManager* pSurfaceManager ) = 0;
 
 	virtual ~IMeshLoader( ) = default;
 

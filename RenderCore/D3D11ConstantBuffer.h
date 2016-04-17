@@ -10,8 +10,8 @@ private:
 	UINT m_numOfElement;
 
 public:
-	virtual void SetVSBuffer( ID3D11DeviceContext* pDeviceContext, const UINT startSlot ) override;
-	virtual void SetPSBuffer( ID3D11DeviceContext* pDeviceContext, const UINT startSlot ) override;
+	virtual void SetVSBuffer( ID3D11DeviceContext* pDeviceContext, const UINT startSlot ) const override;
+	virtual void SetPSBuffer( ID3D11DeviceContext* pDeviceContext, const UINT startSlot ) const override;
 	virtual void*  LockBuffer( ID3D11DeviceContext* pDeviceContext ) override;
 	virtual void UnLockBuffer( ID3D11DeviceContext* pDeviceContext ) override;
 

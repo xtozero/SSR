@@ -92,6 +92,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <Text Include="..\Shader\psTexWithOutLight.fx" />
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -101,9 +102,11 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="IMeshBuilder.h" />
     <ClInclude Include="IRenderTarget.h" />
     <ClInclude Include="ISampler.h" />
+    <ClInclude Include="ISurface.h" />
     <ClInclude Include="ITexture.h" />
     <ClInclude Include="MaterialLoader.h" />
     <ClInclude Include="MeshBuilder.h" />
+    <ClInclude Include="RenderEffect.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="RasterizerStateFactory.h" />
     <ClInclude Include="RenderTargetManager.h" />
@@ -112,7 +115,9 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="SkyBoxMaterial.h" />
     <ClInclude Include="SnapShotManager.h" />
     <ClInclude Include="StateFactoryHelpUtil.h" />
-    <ClInclude Include="Texture2D.h" />
+    <ClInclude Include="Surface.h" />
+    <ClInclude Include="SurfaceManager.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="TextureMaterial.h" />
     <ClInclude Include="CommonMeshDefine.h" />
@@ -150,9 +155,10 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="ShaderResourceManager.h" />
     <ClInclude Include="TutorialMaterial.h" />
     <ClInclude Include="util_rendercore.h" />
-    <ClInclude Include="VSConstantBufferDefine.h" />
+    <ClInclude Include="ConstantBufferDefine.h" />
     <ClInclude Include="WireFrame.h" />
     <ClInclude Include="IDepthStencil.h" />
+    <ClInclude Include="MaterialCommon.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Shared\Util.cpp" />
@@ -161,6 +167,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClCompile Include="ISampler.cpp" />
     <ClCompile Include="MaterialLoader.cpp" />
     <ClCompile Include="MeshBuilder.cpp" />
+    <ClCompile Include="RenderEffect.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="RasterizerStateFactory.cpp" />
     <ClCompile Include="RenderTargetManager.cpp" />
@@ -169,7 +176,9 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClCompile Include="SkyBoxMaterial.cpp" />
     <ClCompile Include="SnapShotManager.cpp" />
     <ClCompile Include="StateFactoryHelpUtil.cpp" />
-    <ClCompile Include="Texture2D.cpp" />
+    <ClCompile Include="Surface.cpp" />
+    <ClCompile Include="SurfaceManager.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="TextureMaterial.cpp" />
     <ClCompile Include="D3D11BaseBuffer.cpp" />
@@ -210,6 +219,14 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClCompile Include="WireFrame.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Shader\lightCommon.fxh" />
+    <None Include="..\Shader\texCommon.fxh">
+      <FileType>Document</FileType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+    </None>
     <FxCompile Include="..\Shader\psDepthStencil.fx">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
@@ -222,6 +239,8 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <FxCompile Include="..\Shader\psTexture.fx">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="..\Shader\psTutorial.fx">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
@@ -241,6 +260,8 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <FxCompile Include="..\Shader\vsTexture.fx">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="..\Shader\vsTutorial.fx">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>

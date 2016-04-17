@@ -36,8 +36,8 @@ public:
 	virtual void Draw( ID3D11DeviceContext* pDeviceContext ) override;
 
 	virtual void SetMaterial( const std::shared_ptr<IMaterial> pMaterial ) override;
-	virtual void SetTexture( const std::shared_ptr<IShaderResource> pTexture ) override {}
-	virtual std::shared_ptr<IShaderResource> GetTexture( ) const override { return nullptr; }
+	virtual void SetTexture( IShaderResource* ) override {}
+	virtual IShaderResource* GetTexture( ) const override { return nullptr; }
 
 	virtual void* GetMeshData( ) override { return m_pModelData; }
 	virtual int GetVerticesCount( ) override { return m_nVertices; }

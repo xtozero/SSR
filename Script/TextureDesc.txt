@@ -1,0 +1,11 @@
+"Desc"
+{
+	"OrenNayarLookUP"
+	{
+		"Size"				"512 512" //Width Height
+		"SubResourceDesc"	"1 1" //MipLevels ArraySize
+		"Format"			"DXGI_FORMAT_R32_FLOAT"
+		"SampleDesc"		"1 0" //Count Quality
+		"Flags"				"D3D11_USAGE_IMMUTABLE D3D11_BIND_SHADER_RESOURCE 0 0" //Usage BindFlags CPUAccessFlags MiscFlags
+	}
+}

@@ -2,8 +2,8 @@
 class CTimer
 {
 private:
-	float m_currentTime;
-	float m_lastTime;
+	long long m_currentTime;
+	long long m_lastTime;
 
 	float m_elapsedTime;
 
@@ -13,13 +13,17 @@ private:
 	bool m_isPerformanceCounter;
 
 	int m_frame;
+	float m_fps;
+	float m_frameCheckInterval;
+	float m_timeScale;
 public:
-	static CTimer& GetInstance ();
+	static CTimer& GetInstance( );
 
 	void Tick ();
-	inline float GetElapsedTIme () { return m_elapsedTime; }
+	inline float GetElapsedTIme( ) const { return m_elapsedTime; }
+	inline float GetFps( ) const { return m_fps; }
 
-	CTimer ( );
-	~CTimer ( );
+	CTimer( );
+	~CTimer( );
 };
 

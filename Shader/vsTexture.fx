@@ -1,6 +1,7 @@
 cbuffer WORLD : register( b0 )
 {
 	matrix g_worldMatrix : packoffset( c0 );
+	matrix g_invWorldMatrix : packoffset(c4);
 }
 
 cbuffer VEIW_PROJECTION : register( b1 )
@@ -20,6 +21,7 @@ struct VS_INPUT
 struct VS_OUTPUT
 {
 	float4 position : SV_POSITION;
+	float3 worldPos : POSITION0;
 	float3 normal : NORMAL;
 	float3 color : COLOR;
 	float2 texcoord : TEXCOORD;
@@ -29,10 +31,11 @@ VS_OUTPUT main( VS_INPUT input )
 {
 	VS_OUTPUT output = (VS_OUTPUT)0;
 
-	matrix worldViewPorjection = mul( g_worldMatrix, g_viewMatrix );
-	worldViewPorjection = mul( worldViewPorjection, g_projectionMatrix );
+	matrix viewPorjection = mul( g_viewMatrix, g_projectionMatrix );
 
-	output.position = mul( float4( input.position, 1.0f ), worldViewPorjection );
+	output.worldPos = mul( float4( input.position, 1.0f ), g_worldMatrix ).xyz;
+	output.position = mul( float4( output.worldPos, 1.0f ), viewPorjection );
+	output.normal = mul( float4( input.normal, 0.f ), transpose( g_invWorldMatrix ) ).xyz;
 	output.texcoord = input.texcoord;
 	output.color = input.color;
 

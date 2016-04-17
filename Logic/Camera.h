@@ -19,7 +19,7 @@ public:
 	const D3DXMATRIX& CCamera::GetViewMatrix();
 	
 	void SetOrigin( const D3DXVECTOR3& origin );
-	const D3DXVECTOR3& GetOrigin( ) { return m_origin; }
+	const D3DXVECTOR3& GetOrigin( ) const { return m_origin; }
 
 	void Move( const float right, const float up, const float look );
 	void Rotate( const float pitch, const float yaw, const float roll );

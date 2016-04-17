@@ -2,7 +2,9 @@
 #include "ObjMesh.h"
 
 #include "IRenderer.h"
+#include "ISurface.h"
 #include "Material.h"
+#include "ConstantBufferDefine.h"
 #include "../Shared/Util.h"
 
 #include <d3dX9math.h>
@@ -15,13 +17,14 @@ bool CObjMesh::Load( D3D_PRIMITIVE_TOPOLOGY topology )
 
 	FOR_EACH_VEC( m_mtlGroup, i )
 	{
-		if ( i->m_textureName.size( ) > 0 )
+		const String& textureName = i->m_pSurface->GetTextureName( );
+		if ( textureName.size() > 0 )
 		{
-			auto texture = g_pRenderer->GetShaderResourceFromFile( i->m_textureName );
+			auto texture = g_pRenderer->GetShaderResourceFromFile( textureName );
 
 			if ( texture.get( ) )
 			{
-				i->m_pTexture = texture;
+				i->m_pTexture = texture.get();
 			}
 			else
 			{
@@ -66,6 +69,7 @@ void CObjMesh::Draw( ID3D11DeviceContext* pDeviceContext )
 			FOR_EACH_VEC( m_mtlGroup, i )
 			{
 				m_pMaterial->SetTexture( pDeviceContext, SHADER_TYPE::PS, 0, i->m_pTexture );
+				m_pMaterial->SetSurface( pDeviceContext, SHADER_TYPE::PS, static_cast<UINT>( PS_CONSTANT_BUFFER::SURFACE ), i->m_pSurface );
 				m_pMaterial->DrawIndexed( pDeviceContext, i->m_indexCount, i->m_indexOffset, m_nOffset );
 			}
 		}
@@ -76,7 +80,7 @@ void CObjMesh::Draw( ID3D11DeviceContext* pDeviceContext )
 	}
 }
 
-void CObjMesh::AddMaterialGroup( const ObjMaterialTrait& trait )
+void CObjMesh::AddMaterialGroup( const ObjSurfaceTrait& trait )
 {
 	m_mtlGroup.emplace_back( trait );
 }

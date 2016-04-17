@@ -40,9 +40,15 @@
     <Filter Include="Direct11\RenderState">
       <UniqueIdentifier>{573f0faf-025d-47c7-b263-31f5a138ea16}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Direct11\Surface">
+      <UniqueIdentifier>{f5d720cf-3c71-4145-874c-19a091be9b1d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
+    <Text Include="..\Shader\psTexWithOutLight.fx">
+      <Filter>fx</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -113,9 +119,6 @@
     </ClInclude>
     <ClInclude Include="IMesh.h">
       <Filter>Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="VSConstantBufferDefine.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="PlyMesh.h">
       <Filter>Mesh</Filter>
@@ -216,8 +219,26 @@
     <ClInclude Include="SnapShotManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Texture2D.h">
+    <ClInclude Include="Surface.h">
+      <Filter>Direct11\Surface</Filter>
+    </ClInclude>
+    <ClInclude Include="ISurface.h">
+      <Filter>Direct11\Surface</Filter>
+    </ClInclude>
+    <ClInclude Include="SurfaceManager.h">
+      <Filter>Direct11\Surface</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialCommon.h">
+      <Filter>Direct11\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantBufferDefine.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
       <Filter>Direct11\RenderResource</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderEffect.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -323,9 +344,6 @@
     <ClCompile Include="DepthStencilStateFactory.cpp">
       <Filter>Direct11\RenderState</Filter>
     </ClCompile>
-    <ClCompile Include="StateFactoryHelpUtil.cpp">
-      <Filter>Direct11\RenderState</Filter>
-    </ClCompile>
     <ClCompile Include="RenderTarget.cpp">
       <Filter>Direct11\RenderResource</Filter>
     </ClCompile>
@@ -347,8 +365,20 @@
     <ClCompile Include="SnapShotManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Texture2D.cpp">
+    <ClCompile Include="Surface.cpp">
+      <Filter>Direct11\Surface</Filter>
+    </ClCompile>
+    <ClCompile Include="SurfaceManager.cpp">
+      <Filter>Direct11\Surface</Filter>
+    </ClCompile>
+    <ClCompile Include="StateFactoryHelpUtil.cpp">
+      <Filter>Direct11\RenderState</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
       <Filter>Direct11\RenderResource</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderEffect.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -376,5 +406,13 @@
     <FxCompile Include="..\Shader\psDepthStencil.fx">
       <Filter>fx</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Shader\texCommon.fxh">
+      <Filter>fx</Filter>
+    </None>
+    <None Include="..\Shader\lightCommon.fxh">
+      <Filter>fx</Filter>
+    </None>
   </ItemGroup>
 </Project>

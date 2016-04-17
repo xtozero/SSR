@@ -14,11 +14,12 @@ public:
 	virtual bool LoadPropertyFromScript( const CKeyValueIterator& pKeyValue ) override;
 
 	virtual bool IgnorePicking( ) const override { return ShouldDraw( ); }
+
+	virtual bool ShouldDraw( ) const override;
 protected:
 	virtual bool LoadModelMesh( ) override;
 
 private:
-	virtual bool ShouldDraw( ) const;
 
 	float m_width;
 	float m_height;

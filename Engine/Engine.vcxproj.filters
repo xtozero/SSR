@@ -51,6 +51,12 @@
     <ClInclude Include="ConVar.h">
       <Filter>ConsoleMessage</Filter>
     </ClInclude>
+    <ClInclude Include="EnumStringMap.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptKeyHandler.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -76,6 +82,9 @@
     </ClCompile>
     <ClCompile Include="ConVar.cpp">
       <Filter>ConsoleMessage</Filter>
+    </ClCompile>
+    <ClCompile Include="EnumStringMap.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

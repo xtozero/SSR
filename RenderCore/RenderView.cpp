@@ -2,7 +2,7 @@
 
 #include "common.h"
 #include "RenderView.h"
-#include "VSConstantBufferDefine.h"
+#include "ConstantBufferDefine.h"
 
 namespace
 {

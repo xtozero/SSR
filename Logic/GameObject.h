@@ -22,6 +22,7 @@ public:
 	const D3DXVECTOR3& GetRotate( );
 
 	const D3DXMATRIX& GetTransformMatrix( );
+	const D3DXMATRIX& GetInvTransformMatrix( );
 
 	virtual void Render( );
 
@@ -49,6 +50,8 @@ public:
 
 	virtual bool IgnorePicking( ) const { return false; }
 
+	virtual bool ShouldDraw( ) const { return true; }
+
 	CGameObject( );
 	~CGameObject( );
 protected:
@@ -56,7 +59,6 @@ protected:
 	virtual bool LoadMaterial( );
 	void LoadRigidBody( );
 private:
-	virtual bool ShouldDraw( ) const { return true; }
 	void RebuildTransform( );
 	void UpdateRigidBody( RIGID_BODY_TYPE type );
 	void UpdateRigidBodyAll( );
@@ -67,6 +69,7 @@ private:
 	D3DXVECTOR3 m_vecRotate;
 
 	D3DXMATRIX m_matTransform;
+	D3DXMATRIX m_invMatTransform;
 
 	std::shared_ptr<IMesh> m_pModel;
 	std::shared_ptr<IMaterial> m_pMaterial;
@@ -75,10 +78,12 @@ private:
 	String m_materialName;
 	String m_meshName;
 
-	bool m_needRebuildTransform;
 	bool m_needInitialize;
 	bool m_isPicked;
 
 	std::shared_ptr<IRigidBody> m_originRigidBodies[RIGID_BODY_TYPE::Count];
 	std::unique_ptr<IRigidBody>	m_rigideBodies[RIGID_BODY_TYPE::Count];
+
+protected:
+	bool m_needRebuildTransform;
 };

@@ -16,13 +16,13 @@ public:
 	virtual bool Load( D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST ) override;
 	virtual void Draw( ID3D11DeviceContext* pDeviceContext ) override;
 
-	virtual void SetTexture( const std::shared_ptr<IShaderResource> pTexture ) override;
-	virtual std::shared_ptr<IShaderResource> GetTexture( ) const override { return m_pTexture; };
+	virtual void SetTexture( IShaderResource* pTexture ) override;
+	virtual IShaderResource* GetTexture( ) const override { return m_pTexture; };
 
 	void SetTextureName( const String& textureName ) { m_textureName = textureName; }
 
 private:
-	std::shared_ptr<IShaderResource> m_pTexture;
+	IShaderResource* m_pTexture;
 	String m_textureName;
 };
 
@@ -36,7 +36,7 @@ bool CMeshBuilderMesh::Load( D3D_PRIMITIVE_TOPOLOGY topology )
 
 		if ( texture.get( ) )
 		{
-			m_pTexture = texture;
+			m_pTexture = texture.get( );
 		}
 	}
 
@@ -75,7 +75,7 @@ void CMeshBuilderMesh::Draw( ID3D11DeviceContext* pDeviceContext )
 	}
 }
 
-void CMeshBuilderMesh::SetTexture( const std::shared_ptr<IShaderResource> pTexture )
+void CMeshBuilderMesh::SetTexture( IShaderResource* pTexture )
 {
 	m_pTexture = pTexture;
 }

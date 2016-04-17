@@ -28,7 +28,7 @@ bool CRenderTargetManager::CreateRenderTarget( ID3D11Device* pDevice, ID3D11Reso
 	return false;
 }
 
-bool CRenderTargetManager::CreateDepthStencil( ID3D11Device* pDevice, std::shared_ptr<ITexture>& pTexture, const D3D11_DEPTH_STENCIL_VIEW_DESC* dsvDesc, const String& depthStencilName )
+bool CRenderTargetManager::CreateDepthStencil( ID3D11Device* pDevice, const ITexture* pTexture, const D3D11_DEPTH_STENCIL_VIEW_DESC* dsvDesc, const String& depthStencilName )
 {
 	if ( FindDepthStencil( depthStencilName ) )
 	{
@@ -51,11 +51,11 @@ bool CRenderTargetManager::CreateDepthStencil( ID3D11Device* pDevice, std::share
 
 std::shared_ptr<IRenderTarget> CRenderTargetManager::FindRenderTarget( const String& renderTargetName ) const
 {
-	auto founded = m_renderTargets.find( renderTargetName );
+	auto found = m_renderTargets.find( renderTargetName );
 
-	if ( founded != m_renderTargets.end( ) )
+	if ( found != m_renderTargets.end( ) )
 	{
-		return founded->second;
+		return found->second;
 	}
 
 	return nullptr;
@@ -63,11 +63,11 @@ std::shared_ptr<IRenderTarget> CRenderTargetManager::FindRenderTarget( const Str
 
 std::shared_ptr<IDepthStencil> CRenderTargetManager::FindDepthStencil( const String& depthStencilName ) const
 {
-	auto founded = m_depthStencils.find( depthStencilName );
+	auto found = m_depthStencils.find( depthStencilName );
 
-	if ( founded != m_depthStencils.end( ) )
+	if ( found != m_depthStencils.end( ) )
 	{
-		return founded->second;
+		return found->second;
 	}
 
 	return nullptr;

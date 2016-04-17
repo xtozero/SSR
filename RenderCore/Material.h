@@ -7,6 +7,7 @@
 #include <wrl/client.h>
 
 class IShader;
+class IBuffer;
 
 class Material : public IMaterial
 {
@@ -15,11 +16,13 @@ protected:
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_pRenderState;
 	std::shared_ptr<ISampler> m_pSamplerState[SHADER_TYPE::MAX_SHADER];
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_pDepthStencilState;
+	MatConstantBuffers* m_pConstantBuffers;
 
 public:
 	virtual void Init( ) override;
 	virtual void SetShader( ID3D11DeviceContext* pDeviceContext ) override;
-	virtual void SetTexture( ID3D11DeviceContext* pDeviceContext, UINT shaderType, UINT slot, std::shared_ptr<IShaderResource> pTexture ) override;
+	virtual void SetTexture( ID3D11DeviceContext* pDeviceContext, UINT shaderType, UINT slot, const IShaderResource* pTexture ) override;
+	virtual void SetSurface( ID3D11DeviceContext* pDeviceContext, UINT shaderType, UINT slot, const ISurface* pSurface ) override;
 
 	virtual void Draw( ID3D11DeviceContext* pDeviceContext, const UINT vertexCount, const UINT vertexOffset = 0 ) override;
 	virtual void DrawIndexed( ID3D11DeviceContext* pDeviceContext, const UINT indexCount, const UINT indexOffset = 0, const UINT vertexOffset = 0 ) override;
@@ -28,6 +31,8 @@ public:
 	void DrawAuto( ID3D11DeviceContext* pDeviceContext );
 
 	virtual void SetPrimitiveTopology( ID3D11DeviceContext* pDeviceContext, D3D_PRIMITIVE_TOPOLOGY primtopology ) override;
+	
+	virtual void SetConstantBuffers( MatConstantBuffers* pConstantBuffers ) override { m_pConstantBuffers = pConstantBuffers; }
 
 	Material( );
 };

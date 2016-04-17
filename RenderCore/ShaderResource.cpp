@@ -28,7 +28,7 @@ void CShaderResource::SetShaderResourceView( Microsoft::WRL::ComPtr<ID3D11Shader
 	m_pShaderResourceView = shaderResourceView;
 }
 
-bool CShaderResource::CreateShaderResource( ID3D11Device* pDevice, std::shared_ptr<ITexture>& pTexture, const D3D11_SHADER_RESOURCE_VIEW_DESC& desc )
+bool CShaderResource::CreateShaderResource( ID3D11Device* pDevice, const ITexture* pTexture, const D3D11_SHADER_RESOURCE_VIEW_DESC& desc )
 {
 	if ( pDevice == nullptr || pTexture == nullptr )
 	{

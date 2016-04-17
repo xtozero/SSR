@@ -61,6 +61,18 @@ const D3DXMATRIX& CGameObject::GetTransformMatrix( )
 	return m_matTransform;
 }
 
+const D3DXMATRIX& CGameObject::GetInvTransformMatrix( )
+{
+	if ( m_needRebuildTransform )
+	{
+		RebuildTransform( );
+	}
+
+	D3DXMatrixInverse( &m_invMatTransform, NULL, &m_matTransform );
+
+	return m_invMatTransform;
+}
+
 void CGameObject::Render( )
 {
 	if ( ShouldDraw() && m_pModel )
@@ -82,7 +94,7 @@ void CGameObject::Think( )
 		float fDeltaTime = CTimer::GetInstance( ).GetElapsedTIme( );
 		const D3DXVECTOR3& curRotate = GetRotate( );
 
-		SetRotate( curRotate.x, curRotate.y + D3DXToRadian( 45.f ) * fDeltaTime, 0.f );
+		SetRotate( 0.f, curRotate.y + D3DXToRadian( 45.f ) * fDeltaTime, 0.f );
 	}
 }
 
@@ -164,11 +176,12 @@ m_vecScale( 1.f, 1.f, 1.f ),
 m_vecRotate( 0.f, 0.f, 0.f ),
 m_pModel( nullptr ),
 m_pMaterial( nullptr ),
-m_needRebuildTransform( false ),
 m_needInitialize( true ),
-m_isPicked( false )
+m_isPicked( false ),
+m_needRebuildTransform( false )
 {
 	D3DXMatrixIdentity( &m_matTransform );
+	D3DXMatrixIdentity( &m_invMatTransform );
 
 	for ( int i = 0; i < RIGID_BODY_TYPE::Count; ++i )
 	{

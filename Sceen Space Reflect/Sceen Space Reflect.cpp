@@ -3,8 +3,7 @@
 
 #include "stdafx.h"
 #include "Sceen Space Reflect.h"
-#include "..\RenderCore\Direct3D11.h"
-#include "..\Logic\\GameLogic.h"
+#include "..\Logic\GameLogic.h"
 
 #define MAX_LOADSTRING 100
 

@@ -78,7 +78,6 @@ m_nIndexOffset( 0 )
 
 BaseMesh::~BaseMesh( )
 {
-	//Do Not Delete Bufferes
 	SAFE_ARRAY_DELETE( m_pModelData );
 	SAFE_ARRAY_DELETE( m_pIndexData );
 }

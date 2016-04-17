@@ -38,7 +38,7 @@ bool CShaderListScriptLoader::LoadShader( IRenderer* const pRenderer, const Stri
 		return false;
 	}
 
-	String& shaderType = profile.substr( 0, 2 );
+	const String& shaderType = profile.substr( 0, 2 );
 	char mbsProfile[256];
 	size_t converted;
 	wcstombs_s( &converted, mbsProfile, profile.c_str( ), 256 );

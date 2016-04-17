@@ -17,7 +17,9 @@
 #ifndef UNICODE  
 typedef std::string String;
 typedef std::ifstream Ifstream;
+#define TO_STRING( x ) std::to_string( x )
 #else
 typedef std::wstring String;
 typedef std::wifstream Ifstream;
+#define TO_STRING( x ) std::to_wstring( x )
 #endif

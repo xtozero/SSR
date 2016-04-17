@@ -10,12 +10,12 @@ class IMesh;
 class CObjMeshLoader : public IMeshLoader
 {
 public:
-	virtual std::shared_ptr<IMesh> LoadMeshFromFile( const TCHAR* pFileName ) override;
+	virtual std::shared_ptr<IMesh> LoadMeshFromFile( const TCHAR* pFileName, CSurfaceManager* pSurfaceManager ) override;
 
 private:
 	void Initialize( );
 	std::vector<MeshVertex> BuildVertices( );
-	void LoadMaterialFile( const TCHAR* pFileName );
+	void LoadMaterialFile( const TCHAR* pFileName, CSurfaceManager* pSurfaceManager );
 
 private:
 	struct ObjFaceInfo
@@ -41,7 +41,7 @@ private:
 	{
 		ObjFaceMtlInfo( UINT endFaceIndex, const String& materialName ) :
 		m_endFaceIndex( endFaceIndex ),
-		m_materialName( std::move( materialName ) )
+		m_materialName( materialName )
 		{}
 
 		UINT m_endFaceIndex;
@@ -55,7 +55,7 @@ private:
 		ObjMtlInfo( UINT startIndex, UINT endIndex, const String& textureName ) :
 			m_startIndex( startIndex ),
 			m_endIndex( endIndex ),
-			m_materialName( std::move( textureName ) )
+			m_materialName( textureName )
 		{
 		}
 
@@ -70,7 +70,5 @@ private:
 	{
 		String m_textureName;
 	};
-
-	std::map<String, ObjRawMtlInfo> m_rawMtlInfo;
 };
 

@@ -12,7 +12,8 @@ private:
 public:
 	virtual bool CreateShader( ID3D11Device* pDevice, const TCHAR* pFilePath, const char* pProfile ) override;
 	virtual void SetShader( ID3D11DeviceContext* pDeviceContext ) override;
-	virtual void SetShaderResource( ID3D11DeviceContext* pDeviceContext, UINT slot, std::shared_ptr<IShaderResource>& pResource ) override;
+	virtual void SetShaderResource( ID3D11DeviceContext* pDeviceContext, UINT slot, const IShaderResource* pResource ) override;
+	virtual void SetConstantBuffer( ID3D11DeviceContext* pDeviceContext, UINT slot, const IBuffer* pBuffer ) override;
 
 	D3D11PixelShader ();
 	virtual ~D3D11PixelShader ();

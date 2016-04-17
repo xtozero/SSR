@@ -5,7 +5,7 @@
 
 #include <D3D11.h>
 
-void D3D11ConstantBuffer::SetVSBuffer( ID3D11DeviceContext* pDeviceContext, const UINT startSlot )
+void D3D11ConstantBuffer::SetVSBuffer( ID3D11DeviceContext* pDeviceContext, const UINT startSlot ) const
 {
 	if ( pDeviceContext )
 	{
@@ -13,7 +13,7 @@ void D3D11ConstantBuffer::SetVSBuffer( ID3D11DeviceContext* pDeviceContext, cons
 	}
 }
 
-void D3D11ConstantBuffer::SetPSBuffer( ID3D11DeviceContext* pDeviceContext, const UINT startSlot )
+void D3D11ConstantBuffer::SetPSBuffer( ID3D11DeviceContext* pDeviceContext, const UINT startSlot ) const
 {
 	if ( pDeviceContext )
 	{
@@ -50,6 +50,7 @@ bool D3D11ConstantBuffer::CreateBuffer( ID3D11Device* pDevice, UINT stride, UINT
 	{
 		m_stride = stride;
 		m_numOfElement = numOfElement;
+		m_bufferSize = m_stride * m_numOfElement;
 
 		D3D11_BUFFER_DESC bufferDesc;
 		::ZeroMemory( &bufferDesc, sizeof( D3D11_BUFFER_DESC ) );

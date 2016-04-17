@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "CameraManager.h"
 #include "DebugConsole.h"
+#include "../Engine/ConVar.h"
 #include "../Engine/KeyValueReader.h"
 #include "GameLogic.h"
 #include "GameObject.h"
@@ -14,6 +15,11 @@
 
 #include <ctime>
 #include <tchar.h>
+
+namespace
+{
+	ConVar( showFps, "1", "Show Fps" );
+}
 
 IRenderer* gRenderer = CreateDirect3D11Renderer ();
 IMeshBuilder* g_meshBuilder = GetMeshBuilder( );
@@ -36,6 +42,7 @@ void CGameLogic::EndLogic ( void )
 {
 	//게임 로직 수행 후처리
 	m_mainCamera.UpdateToRenderer( gRenderer );
+	m_lightManager.UpdateToRenderer( m_mainCamera );
 	SceneBegin( );
 	DrawScene( );
 	SceneEnd( );
@@ -65,8 +72,11 @@ void CGameLogic::DrawScene( void ) const
 {
 	FOR_EACH_VEC( g_gameObjects, object )
 	{
-		UpdateWorldMatrix( object->get( ) );
-		( *object )->Render( );
+		if ( object->get( )->ShouldDraw( ) )
+		{
+			UpdateWorldMatrix( object->get( ) );
+			(*object)->Render( );
+		}
 	}
 }
 
@@ -79,18 +89,18 @@ void CGameLogic::UpdateWorldMatrix( CGameObject* object ) const
 {
 	if ( object )
 	{
-		gRenderer->UpdateWorldMatrix( object->GetTransformMatrix( ) );
+		gRenderer->UpdateWorldMatrix( object->GetTransformMatrix( ), object->GetInvTransformMatrix( ) );
 	}
 }
 
 void CGameLogic::InitCameraProperty( std::shared_ptr<KeyValueGroup> keyValue )
 {
-	CKeyValueIterator finded = keyValue->FindKeyValue( _T( "Camera Pos" ) );
+	CKeyValueIterator found = keyValue->FindKeyValue( _T( "Camera Pos" ) );
 
-	if ( finded != nullptr )
+	if ( found != nullptr )
 	{
 		std::vector<String> param;
-		UTIL::Split( finded->GetString( ), param, ' ' );
+		UTIL::Split( found->GetString( ), param, ' ' );
 
 		if ( param.size( ) == 3 )
 		{
@@ -104,6 +114,7 @@ void CGameLogic::InitCameraProperty( std::shared_ptr<KeyValueGroup> keyValue )
 
 bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
 {
+	m_wndHwnd = hwnd;
 	srand( static_cast<UINT>( time( NULL ) ) );
 	CUtilWindowInfo::GetInstance( ).SetRect( wndWidth, wndHeight );
 
@@ -137,6 +148,7 @@ bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
 	CCameraManager::GetInstance( )->SetCurrentCamera( &m_mainCamera );
 
 	ON_FAIL_RETURN( LoadScene( ) );
+	ON_FAIL_RETURN( m_lightManager.Initialize( g_gameObjects ) );
 
 	return true;
 }
@@ -149,6 +161,12 @@ void CGameLogic::UpdateLogic ( void )
 	StartLogic ();
 	ProcessLogic ();
 	EndLogic ();
+
+	if ( showFps.GetBool( ) )
+	{
+		String fps = _T( "FPS : " ) + TO_STRING( CTimer::GetInstance().GetFps() );
+		SetWindowText( m_wndHwnd, fps.c_str( ) );
+	}
 }
 
 bool CGameLogic::HandleWindowMessage( const MSG& msg )
@@ -214,7 +232,8 @@ void CGameLogic::HandleWIndowMouseInput( const int message, const WPARAM wParam,
 	m_mouseController.ProcessInput( input );
 }
 
-CGameLogic::CGameLogic( )
+CGameLogic::CGameLogic( ):
+	m_wndHwnd( nullptr )
 {
 	ShowDebugConsole( );
 }

@@ -4,7 +4,7 @@
 
 #include <d3d11.h>
 
-bool CDepthStencil::CreateDepthStencil( ID3D11Device* pDevice, std::shared_ptr<ITexture>& pTexture, const D3D11_DEPTH_STENCIL_VIEW_DESC* dsvDesc )
+bool CDepthStencil::CreateDepthStencil( ID3D11Device* pDevice, const ITexture* pTexture, const D3D11_DEPTH_STENCIL_VIEW_DESC* dsvDesc )
 {
 	if ( pDevice && pTexture )
 	{

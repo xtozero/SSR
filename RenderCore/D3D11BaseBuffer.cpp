@@ -15,17 +15,17 @@ namespace UTIL_BUFFER
 	}
 }
 
-void D3D11BaseBuffer::SetIABuffer( ID3D11DeviceContext*, const UINT* )
+void D3D11BaseBuffer::SetIABuffer( ID3D11DeviceContext*, const UINT* ) const
 {
 
 }
 
-void D3D11BaseBuffer::SetVSBuffer( ID3D11DeviceContext*, const UINT )
+void D3D11BaseBuffer::SetVSBuffer( ID3D11DeviceContext*, const UINT ) const
 {
 
 }
 
-void D3D11BaseBuffer::SetPSBuffer( ID3D11DeviceContext*, const UINT )
+void D3D11BaseBuffer::SetPSBuffer( ID3D11DeviceContext*, const UINT ) const
 {
 
 }

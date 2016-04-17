@@ -30,7 +30,7 @@ public:
 	virtual bool LoadShaderResource( ID3D11Device* pDevice, const String& fileName ) = 0;
 	virtual ID3D11ShaderResourceView* Get( ) const = 0;
 	virtual void SetShaderResourceView( Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& shaderResourceView ) = 0;
-	virtual bool CreateShaderResource( ID3D11Device* pDevice, std::shared_ptr<ITexture>& pTexture, const D3D11_SHADER_RESOURCE_VIEW_DESC& desc ) = 0;
+	virtual bool CreateShaderResource( ID3D11Device* pDevice, const ITexture* pTexture, const D3D11_SHADER_RESOURCE_VIEW_DESC& desc ) = 0;
 	
 	virtual bool IsDepthStencil( ) const = 0;
 	virtual bool IsRenderTarget( ) const = 0;

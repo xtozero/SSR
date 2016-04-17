@@ -1,15 +1,84 @@
 #include "stdafx.h"
 
-#include "Texture2D.h"
+#include "common.h"
+
+#include "Texture.h"
 #include "TextureManager.h"
 
+#include "../Engine/EnumStringMap.h"
+#include "../Engine/KeyValueReader.h"
 #include "../shared/Util.h"
 
 #include <D3DX11.h>
+#include <DXGI.h>
 
 namespace
 {
 	const TCHAR* DEFAULT_TEXTURE_FILE_PATH = _T( "../Texture/" );
+	const TCHAR* TEXTURE_DESC_SCRIPT_FILE_NAME = _T( "../Script/TextureDesc.txt" );
+
+	D3D11_TEXTURE2D_DESC gTexture2DDesc;
+
+	namespace TEXTURE2D
+	{
+		void SizeHandler( CTextureManager*, const String&, const std::shared_ptr<KeyValue>& keyValue )
+		{
+			if ( keyValue )
+			{
+				Stringstream sStream( keyValue->GetString( ) );
+				sStream >> gTexture2DDesc.Width >> gTexture2DDesc.Height;
+			}
+		}
+
+		void SubResourceHandler( CTextureManager*, const String&, const std::shared_ptr<KeyValue>& keyValue )
+		{
+			if ( keyValue )
+			{
+				Stringstream sStream( keyValue->GetString( ) );
+				sStream >> gTexture2DDesc.MipLevels >> gTexture2DDesc.ArraySize;
+			}
+		}
+		
+		void FormatHandler( CTextureManager*, const String&, const std::shared_ptr<KeyValue>& keyValue )
+		{
+			if ( keyValue )
+			{
+				gTexture2DDesc.Format = static_cast<DXGI_FORMAT>( GetEnumStringMap().GetEnum( keyValue->GetString(), DXGI_FORMAT_UNKNOWN ) );
+			}
+		}
+
+		void SampleDescHandler( CTextureManager*, const String&, const std::shared_ptr<KeyValue>& keyValue )
+		{
+			if ( keyValue )
+			{
+				Stringstream sStream( keyValue->GetString( ) );
+				sStream >> gTexture2DDesc.SampleDesc.Count >> gTexture2DDesc.SampleDesc.Quality;
+			}
+		}
+
+		void FlagsHandler( CTextureManager*, const String&, const std::shared_ptr<KeyValue>& keyValue )
+		{
+			if ( keyValue )
+			{
+				Stringstream sStream( keyValue->GetString( ) );
+				
+				String usage, bindFlag, cpuFlag;
+				UINT miscFlag;
+
+				sStream >> usage >> bindFlag >> cpuFlag >> miscFlag;
+
+				gTexture2DDesc.Usage = static_cast<D3D11_USAGE>( GetEnumStringMap().GetEnum( usage, D3D11_USAGE_DEFAULT ) );
+				gTexture2DDesc.BindFlags = static_cast<UINT>( GetEnumStringMap( ).GetEnum( bindFlag, D3D11_BIND_SHADER_RESOURCE ) );
+				gTexture2DDesc.CPUAccessFlags = static_cast<UINT>( GetEnumStringMap( ).GetEnum( cpuFlag, 0 ) );
+				gTexture2DDesc.MiscFlags = miscFlag;
+			}
+		}
+	}
+}
+
+bool CTextureManager::LoadTexture( ID3D11Device * pDevice )
+{
+	return LoadTextureFromScript( pDevice, TEXTURE_DESC_SCRIPT_FILE_NAME );
 }
 
 bool CTextureManager::LoadTextureFromFile( ID3D11Device* pDevice, const String& fileName )
@@ -54,35 +123,86 @@ bool CTextureManager::LoadTextureFromFile( ID3D11Device* pDevice, const String& 
 	return false;
 }
 
-bool CTextureManager::CreateTexture2D( ID3D11Device* pDevice, const D3D11_TEXTURE2D_DESC& desc, const String& textureName )
+bool CTextureManager::LoadTextureFromScript( ID3D11Device * pDevice, const String & fileName )
+{
+	CKeyValueReader keyValueReader;
+	const std::shared_ptr<KeyValueGroup>& keyValue = keyValueReader.LoadKeyValueFromFile( fileName );
+	
+	if ( LoadTextureFromScriptInternal( pDevice, keyValue ) )
+	{
+		return true;
+	}
+
+	return false;
+}
+
+ITexture* CTextureManager::CreateTexture2D( ID3D11Device* pDevice, const D3D11_TEXTURE2D_DESC& desc, const String& textureName, const D3D11_SUBRESOURCE_DATA* pInitialData )
 {
 	if ( FindTexture( textureName ) )
 	{
 		DebugWarning( "CTextureManager Error - Try Create Exist Texture Name\n" );
-		return false;
+		return nullptr;
 	}
 
 	if ( pDevice )
 	{
 		std::shared_ptr<ITexture> newTexture = std::make_shared<CTexture2D>();
 
-		if ( newTexture && newTexture->Create( pDevice, desc ) )
+		if ( newTexture && newTexture->Create( pDevice, desc, pInitialData ) )
 		{
 			m_pTextures.emplace( textureName, newTexture );
-			return true;
+			return newTexture.get();
 		}
+	}
+
+	return nullptr;
+}
+
+ITexture * CTextureManager::CreateTexture2D( ID3D11Device * pDevice, const String descName, const String & textureName, const D3D11_SUBRESOURCE_DATA * pInitialData )
+{
+	if ( FindTexture( textureName ) )
+	{
+		DebugWarning( "CTextureManager Error - Try Create Exist Texture Name\n" );
+		return nullptr;
+	}
+
+	auto found = m_texture2DDesc.find( descName );
+
+	if ( found != m_texture2DDesc.end( ) )
+	{
+		return CreateTexture2D( pDevice, found->second, textureName, pInitialData );
+	}
+
+	return nullptr;
+}
+
+bool CTextureManager::RegisterTexture2D( const String& textureName, Microsoft::WRL::ComPtr<ID3D11Resource> pTexture )
+{
+	if ( FindTexture( textureName ) )
+	{
+		DebugWarning( "CTextureManager Error - Try Regist Exist Texture Name\n" );
+		return false;
+	}
+
+	std::shared_ptr<ITexture> newTexture = std::make_shared<CTexture2D>( );
+
+	if ( newTexture )
+	{
+		newTexture->SetTexture( pTexture );
+		m_pTextures.emplace( textureName, newTexture );
+		return true;
 	}
 
 	return false;
 }
 
-std::shared_ptr<ITexture> CTextureManager::FindTexture( const String& textureName ) const
+ITexture* CTextureManager::FindTexture( const String& textureName ) const
 {
 	auto found = m_pTextures.find( textureName );
 
 	if ( found != m_pTextures.end( ) )
 	{
-		return found->second;
+		return found->second.get();
 	}
 
 	return nullptr;
@@ -90,9 +210,39 @@ std::shared_ptr<ITexture> CTextureManager::FindTexture( const String& textureNam
 
 CTextureManager::CTextureManager( )
 {
+	//Texture 2D Handler
+	RegisterHandler( _T( "Size" ), TEXTURE2D::SizeHandler );
+	RegisterHandler( _T( "SubResourceDesc" ), TEXTURE2D::SubResourceHandler );
+	RegisterHandler( _T( "Format" ), TEXTURE2D::FormatHandler );
+	RegisterHandler( _T( "SampleDesc" ), TEXTURE2D::SampleDescHandler );
+	RegisterHandler( _T( "Flags" ), TEXTURE2D::FlagsHandler );
 }
 
-
-CTextureManager::~CTextureManager( )
+bool CTextureManager::LoadTextureFromScriptInternal( ID3D11Device * pDevice, const std::shared_ptr<KeyValueGroup>& keyValue )
 {
+	if ( pDevice && keyValue )
+	{
+		auto entryPoint = keyValue->FindKeyValue( _T( "Desc" ) );
+
+		if ( entryPoint == nullptr )
+		{
+			return false;
+		}
+
+		for ( auto texture = entryPoint->GetChild( ); texture != nullptr; texture = texture->GetNext( ) )
+		{
+			::ZeroMemory( &gTexture2DDesc, sizeof( gTexture2DDesc ) );
+
+			for ( auto key = texture->GetChild( ); key != nullptr; key = key->GetNext( ) )
+			{
+				Handle( key->GetKey( ), key );
+			}
+
+			m_texture2DDesc.emplace( texture->GetKey( ), gTexture2DDesc );
+		}
+
+		return true;
+	}
+
+	return false;
 }

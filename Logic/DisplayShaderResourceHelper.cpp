@@ -14,7 +14,7 @@ extern IRenderer* gRenderer;
 
 namespace
 {
-	ConVar( r_debugTexture, "0", "show texture for debug\n0: none\n1: depth" );
+	ConVar( r_debugTexture, "0", "show texture for debug\ndepthStencilViewer : depth\nrenderTargetViewer : backBuffer" );
 }
 
 DECLARE_GAME_OBJECT( displaySRVHelper, CDisplayShaderResourceHelper );
@@ -35,7 +35,7 @@ void CDisplayShaderResourceHelper::Render( )
 		// 스냅샷으로 만들어지는 텍스쳐의 경우 로드시에는 없기때문에 렌더때 텍스쳐가 없으면 세팅을 시도합니다.
 		if ( GetModel( ) && GetModel( )->GetTexture() == nullptr )
 		{
-			GetModel( )->SetTexture( gRenderer->GetShaderResourceFromFile( m_textureName ) );
+			GetModel( )->SetTexture( gRenderer->GetShaderResourceFromFile( m_textureName ).get() );
 		}
 
 		CGameObject::Render( );
@@ -70,6 +70,11 @@ bool CDisplayShaderResourceHelper::LoadPropertyFromScript( const CKeyValueIterat
 	return CGameObject::LoadPropertyFromScript( pKeyValue );
 }
 
+bool CDisplayShaderResourceHelper::ShouldDraw( ) const
+{
+	return r_debugTexture.GetString( ) == GetName( );
+}
+
 bool CDisplayShaderResourceHelper::LoadModelMesh( )
 {
 	if ( GetModel( ) != nullptr || g_meshBuilder == nullptr )
@@ -101,11 +106,6 @@ bool CDisplayShaderResourceHelper::LoadModelMesh( )
 	SetModel( g_meshBuilder->Build( GetMeshName( ), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP ) );
 
 	return GetModel( ) ? true : false;
-}
-
-bool CDisplayShaderResourceHelper::ShouldDraw( ) const
-{
-	return r_debugTexture.GetInteger( ) == 1;
 }
 
 CDisplayShaderResourceHelper::CDisplayShaderResourceHelper( ) :

@@ -54,4 +54,24 @@
 		"Width"		"300"
 		"Height"	"230"
 	}
+	
+	"Object" "displaySRVHelper"
+	{
+		"Name"		"renderTargetViewer"
+		"Material"	"mat_display_renderTarget"
+		"Position"	"150 115 0"
+		"TextureName"	"DebugRenderTarget"
+		"Width"		"300"
+		"Height"	"230"
+	}
+	
+	"Object" "displaySRVHelper"
+	{
+		"Name"		"orenNayarLookupViewer"
+		"Material"	"mat_display_renderTarget"
+		"Position"	"150 115 0"
+		"TextureName"	"DebugOrenNayarLookUP"
+		"Width"		"300"
+		"Height"	"230"
+	}
 }

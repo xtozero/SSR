@@ -52,7 +52,11 @@ public:
 
 	virtual std::shared_ptr<IBuffer> CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) = 0;
 	virtual std::shared_ptr<IBuffer> CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) = 0;
-	virtual std::shared_ptr<IBuffer> CreateConstantBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) = 0;
+	virtual std::shared_ptr<IBuffer> CreateConstantBuffer( const String& bufferName, const UINT stride, const UINT numOfElement, const void* srcData ) = 0;
+
+	virtual void* MapConstantBuffer( const String& bufferName ) = 0;
+	virtual void UnMapConstantBuffer( const String& bufferName ) = 0;
+	virtual void SetConstantBuffer( const String& bufferName, const UINT slot, const SHADER_TYPE type ) = 0;
 
 	virtual std::shared_ptr<IShader> SearchShaderByName( const TCHAR* name ) = 0;
 
@@ -66,7 +70,7 @@ public:
 
 	virtual IRenderView* GetCurrentRenderView( ) = 0;
 
-	virtual void UpdateWorldMatrix( const D3DXMATRIX& worldMatrix ) = 0;
+	virtual void UpdateWorldMatrix( const D3DXMATRIX& worldMatrix, const D3DXMATRIX& invWorldMatrix ) = 0;
 
 	virtual Microsoft::WRL::ComPtr<ID3D11RasterizerState> CreateRenderState( const String& stateName ) = 0;
 	virtual std::shared_ptr<IShaderResource> GetShaderResourceFromFile( const String& fileName ) = 0;

@@ -34,20 +34,20 @@ bool CSnapshotManager::TakeSnapshot2D( ID3D11Device* pDevice, ID3D11DeviceContex
 			return false;
 		}
 
-		std::shared_ptr<ITexture> pSource = m_pTextureMgr->FindTexture( sourceTextureName );
+		ITexture* pSource = m_pTextureMgr->FindTexture( sourceTextureName );
 
-		if ( pSource.get( ) == nullptr )
+		if ( pSource == nullptr )
 		{
 			DebugWarning( "Snapshot Error - Source Texture is nullptr\n" );
 			return false;
 		}
 
-		std::shared_ptr<ITexture> pDest = m_pTextureMgr->FindTexture( destTextureName );
+		ITexture* pDest = m_pTextureMgr->FindTexture( destTextureName );
 
-		if ( pDest.get( ) == nullptr )
+		if ( pDest == nullptr )
 		{
 			pDest = CreateCloneTexture( pDevice, pSource, destTextureName );
-			if ( pDest.get( ) == nullptr )
+			if ( pDest == nullptr )
 			{
 				DebugWarning( "Snapshot Error - Fail Create DestTexture \n" );
 				return false;
@@ -61,9 +61,9 @@ bool CSnapshotManager::TakeSnapshot2D( ID3D11Device* pDevice, ID3D11DeviceContex
 	return false;
 }
 
-std::shared_ptr<ITexture> CSnapshotManager::CreateCloneTexture( ID3D11Device* pDevice, std::shared_ptr<ITexture>& pSourceTexture, const String& textureName )
+ITexture* CSnapshotManager::CreateCloneTexture( ID3D11Device* pDevice, const ITexture* pSourceTexture, const String& textureName )
 {
-	if ( pDevice && pSourceTexture.get( ) )
+	if ( pDevice && pSourceTexture )
 	{
 		switch ( pSourceTexture->GetType() )
 		{
@@ -79,9 +79,12 @@ std::shared_ptr<ITexture> CSnapshotManager::CreateCloneTexture( ID3D11Device* pD
 
 					pTexture2D->GetDesc( &desc );
 
-					if ( m_pTextureMgr->CreateTexture2D( pDevice, desc, textureName ) )
+					// Applications can't specify NULL for pInitialData when creating IMMUTABLE resources
+					desc.Usage = D3D11_USAGE_DEFAULT;
+					desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+					if ( ITexture* pTexture = m_pTextureMgr->CreateTexture2D( pDevice, desc, textureName ) )
 					{
-						std::shared_ptr<ITexture> pTexture = m_pTextureMgr->FindTexture( textureName );
 						TryCreateShaderResource( pDevice, pTexture, desc, textureName );
 						return pTexture;
 					}
@@ -98,9 +101,9 @@ std::shared_ptr<ITexture> CSnapshotManager::CreateCloneTexture( ID3D11Device* pD
 	return nullptr;
 }
 
-bool CSnapshotManager::TryCreateShaderResource( ID3D11Device* pDevice, std::shared_ptr<ITexture>& pTexture, const D3D11_TEXTURE2D_DESC& desc, const String& textureName, int srcFlag )
+bool CSnapshotManager::TryCreateShaderResource( ID3D11Device* pDevice, const ITexture* pTexture, const D3D11_TEXTURE2D_DESC& desc, const String& textureName, int srcFlag )
 {
-	if ( pDevice && pTexture.get( ) )
+	if ( pDevice && pTexture )
 	{
 		switch ( pTexture->GetType( ) )
 		{

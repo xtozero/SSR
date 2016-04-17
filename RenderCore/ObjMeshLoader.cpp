@@ -3,6 +3,8 @@
 #include "CommonMeshDefine.h"
 #include "ObjMesh.h"
 #include "ObjMeshLoader.h"
+#include "Surface.h"
+#include "SurfaceManager.h"
 #include "../shared/Util.h"
 
 #include <assert.h>
@@ -22,8 +24,13 @@ namespace
 	const TCHAR* OBJ_FILE_DIR = _T( "../model/obj/" );
 }
 
-std::shared_ptr<IMesh> CObjMeshLoader::LoadMeshFromFile( const TCHAR* pFileName )
+std::shared_ptr<IMesh> CObjMeshLoader::LoadMeshFromFile( const TCHAR* pFileName, CSurfaceManager* pSurfaceManager )
 {
+	if ( pSurfaceManager == nullptr )
+	{
+		return nullptr;
+	}
+
 	Initialize( );
 	TCHAR pPath[MAX_PATH];
 	::GetCurrentDirectory( MAX_PATH, pPath );
@@ -39,8 +46,13 @@ std::shared_ptr<IMesh> CObjMeshLoader::LoadMeshFromFile( const TCHAR* pFileName 
 	}
 	
 	String token;
+	Stringstream sStream;
+
 	while ( meshFile.good( ) )
 	{
+		sStream.str( _T( "" ) );
+		sStream.clear( );
+
 		std::getline( meshFile, token );
 
 		std::vector<String> params;
@@ -56,19 +68,41 @@ std::shared_ptr<IMesh> CObjMeshLoader::LoadMeshFromFile( const TCHAR* pFileName 
 		{
 			assert( count == 4 );
 
-			m_normals.emplace_back( _ttof( params[1].c_str( ) ), _ttof( params[2].c_str( ) ), _ttof( params[3].c_str( ) ) );
+			sStream << params[1].c_str( ) << ' ' <<
+				params[2].c_str( ) << ' ' <<
+				params[3].c_str( );
+
+			float x = 0.f, y = 0.f, z = 0.f;
+			sStream >> x >> y >> z;
+
+			m_normals.emplace_back( x, y, z );
 		}
 		else if ( token.find( _T( "vt" ) ) != String::npos )
 		{
 			assert( count == 3 );
 
-			m_texCoords.emplace_back( _ttof( params[1].c_str( ) ), 1.0f - _ttof( params[2].c_str( ) ) );
+			sStream << params[1].c_str( ) << ' ' <<
+				params[2].c_str( );
+
+			float u = 0.f, v = 0.f;
+			sStream >> u >> v;
+
+			m_texCoords.emplace_back( u, 1.0f - v );
 		}
 		else if ( token.find( _T( "v " ) ) != String::npos )
 		{
 			assert( count == 4 );
 
-			m_positions.emplace_back( _ttof( params[1].c_str( ) ), _ttof( params[2].c_str( ) ), _ttof( params[3].c_str( ) ) );
+			sStream << params[1].c_str() << ' ' << 
+				params[2].c_str( ) << ' ' <<
+				params[3].c_str( );
+
+			float x = 0.f, y = 0.f, z = 0.f;
+			sStream >> x >> y >> z;
+
+			assert( !sStream.fail( ) && !sStream.bad( ) && sStream.eof( ) );
+
+ 			m_positions.emplace_back( x, y, z );
 		}
 		else if ( token.find( _T( "f " ) ) != String::npos )
 		{
@@ -117,7 +151,7 @@ std::shared_ptr<IMesh> CObjMeshLoader::LoadMeshFromFile( const TCHAR* pFileName 
 		{
 			if ( count > 1 )
 			{
-				LoadMaterialFile( params[1].c_str() );
+				LoadMaterialFile( params[1].c_str(), pSurfaceManager );
 			}
 		}
 		else if ( token.find( _T( "usemtl" ) ) != String::npos )
@@ -165,16 +199,13 @@ std::shared_ptr<IMesh> CObjMeshLoader::LoadMeshFromFile( const TCHAR* pFileName 
 
 	FOR_EACH_VEC( m_mtlGroup, i )
 	{
-		ObjMaterialTrait trait;
+		ObjSurfaceTrait trait;
 
 		trait.m_indexOffset = i->m_startIndex;
 		trait.m_indexCount = i->m_endIndex - i->m_startIndex + 1;
 
-		auto found = m_rawMtlInfo.find( i->m_materialName );
-		if ( found != m_rawMtlInfo.end( ) )
-		{
-			trait.m_textureName = found->second.m_textureName;
-		}
+		ISurface* surface = pSurfaceManager->FindSurface( i->m_materialName );
+		trait.m_pSurface = surface;
 
 		newMesh->AddMaterialGroup( trait );
 	}
@@ -201,7 +232,6 @@ void CObjMeshLoader::Initialize( )
 
 	m_faceMtlGroup.clear( );
 	m_mtlGroup.clear( );
-	m_rawMtlInfo.clear( );
 }
 
 std::vector<MeshVertex> CObjMeshLoader::BuildVertices( )
@@ -254,8 +284,13 @@ std::vector<MeshVertex> CObjMeshLoader::BuildVertices( )
 	return vertices;
 }
 
-void CObjMeshLoader::LoadMaterialFile( const TCHAR* pFileName )
+void CObjMeshLoader::LoadMaterialFile( const TCHAR* pFileName, CSurfaceManager* pSurfaceManager )
 {
+	if ( pSurfaceManager == nullptr )
+	{
+		return;
+	}
+
 	Ifstream materialFile( pFileName, 0 );
 
 	if ( !materialFile.is_open( ) )
@@ -264,10 +299,14 @@ void CObjMeshLoader::LoadMaterialFile( const TCHAR* pFileName )
 	}
 
 	String token;
-	auto curMtl = m_rawMtlInfo.begin( );
+	ISurface* pCurSuface = nullptr;
+	Stringstream sStream;
 
 	while ( materialFile.good( ) )
 	{
+		sStream.str( _T( "" ) );
+		sStream.clear( );
+
 		std::getline( materialFile, token );
 
 		std::vector<String> params;
@@ -281,15 +320,68 @@ void CObjMeshLoader::LoadMaterialFile( const TCHAR* pFileName )
 		}
 		else if ( count > 1 && token.find( _T( "newmtl" ) ) != String::npos )
 		{
-			ObjRawMtlInfo newMtl;
-			m_rawMtlInfo.emplace( params[1], newMtl );
-			curMtl = m_rawMtlInfo.find( params[1] );
+			std::unique_ptr<ISurface> newSurface = std::make_unique<CSurface>( );
+			pCurSuface = pSurfaceManager->RegisterSurface( params[1], newSurface );
 		}
 		else if ( count > 1 && token.find( _T( "map_Kd" ) ) != String::npos )
 		{
-			if ( curMtl != m_rawMtlInfo.end( ) )
+			if ( pCurSuface )
 			{
-				curMtl->second.m_textureName = params[1];
+				pCurSuface->SetTextureName( params[1] );
+			}
+		}
+		else if ( count > 3 && token.find( _T( "Ka" ) ) != String::npos )
+		{
+			if ( pCurSuface )
+			{
+				D3DXCOLOR color;
+				sStream << params[1] << ' ' <<
+					params[2] << ' ' <<
+					params[3];
+				sStream >> color.r >> color.g >> color.b;
+				color.a = 1;
+
+				pCurSuface->SetAmbient( color );
+			}
+		}
+		else if ( count > 3 && token.find( _T( "Kd" ) ) != String::npos )
+		{
+			if ( pCurSuface )
+			{
+				D3DXCOLOR color;
+				sStream << params[1] << ' ' <<
+					params[2] << ' ' <<
+					params[3];
+				sStream >> color.r >> color.g >> color.b;
+				color.a = 1;
+
+				pCurSuface->SetDiffuse( color );
+			}
+		}
+		else if ( count > 3 && token.find( _T( "Ks" ) ) != String::npos )
+		{
+			if ( pCurSuface )
+			{
+				D3DXCOLOR color;
+				sStream << params[1] << ' ' <<
+					params[2] << ' ' <<
+					params[3];
+				sStream >> color.r >> color.g >> color.b;
+				color.a = 1;
+
+				pCurSuface->SetSpecular( color );
+			}
+		}
+		else if ( count > 1 && token.find( _T( "Ns" ) ) != String::npos )
+		{
+			if ( pCurSuface )
+			{
+				sStream << params[1];
+
+				float specularPower = 0.f;
+				sStream >> specularPower;
+
+				pCurSuface->SetSpeculaPower( specularPower );
 			}
 		}
 	}

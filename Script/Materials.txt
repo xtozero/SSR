@@ -50,4 +50,21 @@
 			"PS"	"default"
 		}
 	}
+	
+	"mat_display_renderTarget"
+	{
+		"Shader"
+		{
+			"VS"	"vsDepthStencil"
+			"PS"	"psTexWithOutLight"
+		}
+		
+		"RS_State"	"default"
+		"DS_State"	"depthTestOff"
+		
+		"Sampler"
+		{
+			"PS"	"default"
+		}
+	}
 }

@@ -1,8 +1,9 @@
 #include "stdafx.h"
+#include "ConVar.h"
 #include "KeyValueReader.h"
 
-#include <cctype>
 #include "../Shared/Util.h"
+
 #include <fstream>
 #include <iostream>
 #include <tchar.h>
@@ -10,6 +11,8 @@
 namespace
 {
 	const int MAX_STRING_LEN = 256;
+
+	ConVar( print_debug_keyValue, "0", "print data when keyValue loaded" );
 }
 
 const String& KeyValueImpl::GetString( ) const
@@ -179,7 +182,11 @@ std::shared_ptr<KeyValueGroup> CKeyValueReader::LoadKeyValueFromFile( String fil
 	{
 		std::shared_ptr<KeyValue> root = std::make_shared<KeyValueImpl>( );
 		LoadKeyValueFromFileInternal( file, root );
-		PrintKeyValueInternal( root );
+		
+		if ( print_debug_keyValue.GetBool() )
+		{
+			PrintKeyValueInternal( root );
+		}
 		
 		file.close( );
 		return std::make_shared<KeyValueGroupImpl>( root );
@@ -286,13 +293,4 @@ void CKeyValueReader::PrintKeyValueInternal( std::shared_ptr<KeyValue> keyValue,
 	{
 		PrintKeyValueInternal( keyValue->GetNext( ), depth );
 	}
-}
-
-CKeyValueReader::CKeyValueReader( )
-{
-}
-
-
-CKeyValueReader::~CKeyValueReader( )
-{
 }

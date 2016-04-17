@@ -5,7 +5,7 @@
 #include "ITexture.h"
 #include "ShaderResource.h"
 #include "ShaderResourceManager.h"
-#include "Texture2D.h"
+#include "Texture.h"
 #include "../shared/Util.h"
 
 namespace
@@ -76,7 +76,7 @@ void CShaderResourceManager::RegisterShaderResource( const String& resourceName,
 	m_shaderResources.emplace( resourceName, newShaderResource );
 }
 
-bool CShaderResourceManager::CreateShaderResource( ID3D11Device* pDevice, std::shared_ptr<ITexture>& pTexture, const D3D11_SHADER_RESOURCE_VIEW_DESC& desc, const String& resourceName, int srcFlag )
+bool CShaderResourceManager::CreateShaderResource( ID3D11Device* pDevice, const ITexture* pTexture, const D3D11_SHADER_RESOURCE_VIEW_DESC& desc, const String& resourceName, int srcFlag )
 {
 	if ( FindShaderResource( resourceName ) )
 	{

@@ -101,6 +101,8 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="CameraManager.h" />
     <ClInclude Include="CollisionUtil.h" />
     <ClInclude Include="GameObjectFactory.h" />
+    <ClInclude Include="Light.h" />
+    <ClInclude Include="LightManager.h" />
     <ClInclude Include="PickingManager.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="RigidBodyManager.h" />
@@ -129,6 +131,8 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="CollisionUtil.cpp" />
     <ClCompile Include="GameObjectFactory.cpp" />
+    <ClCompile Include="Light.cpp" />
+    <ClCompile Include="LightManager.cpp" />
     <ClCompile Include="PickingManager.cpp" />
     <ClCompile Include="Ray.cpp" />
     <ClCompile Include="RigidBodyManager.cpp" />

@@ -6,7 +6,7 @@
 
 #include <D3D11.h>
 
-void D3D11IndexBuffer::SetIABuffer( ID3D11DeviceContext* pDeviceContext, const UINT* offset )
+void D3D11IndexBuffer::SetIABuffer( ID3D11DeviceContext* pDeviceContext, const UINT* offset ) const
 {
 	if ( pDeviceContext )
 	{
@@ -25,6 +25,7 @@ bool D3D11IndexBuffer::CreateBuffer( ID3D11Device* pDevice, UINT stride, UINT nu
 	{
 		m_stride = stride;
 		m_numOfElement = numOfElement;
+		m_bufferSize = m_stride * m_numOfElement;
 
 		D3D11_BUFFER_DESC bufferDesc;
 		::ZeroMemory( &bufferDesc, sizeof( D3D11_BUFFER_DESC ) );

@@ -1,6 +1,7 @@
 cbuffer WORLD : register( b0 )
 {
 	matrix g_worldMatrix : packoffset( c0 );
+	matrix g_invWorldMatrix : packoffset(c4);
 }
 
 cbuffer VEIW_PROJECTION : register( b1 )

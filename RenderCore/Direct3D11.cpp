@@ -17,6 +17,7 @@
 #include "ISampler.h"
 #include "IShaderResource.h"
 
+#include "MaterialCommon.h"
 #include "MaterialSystem.h"
 #include "MaterialLoader.h"
 #include "MeshBuilder.h"
@@ -30,12 +31,14 @@
 #include "TutorialMaterial.h"
 #include "WireFrame.h"
 
+#include <array>
 #include <tuple>
 #include <string>
 
-#include "VSConstantBufferDefine.h"
+#include "ConstantBufferDefine.h"
 #include "util_rendercore.h"
 
+#include "../Engine/EnumStringMap.h"
 #include "../shared/Util.h"
 
 #include <D3D11.h>
@@ -55,6 +58,8 @@ namespace
 		static CMeshBuilder meshBuilder;
 		return &meshBuilder;
 	}
+
+	const int WORLD_MATRIX_ELEMENT_SIZE = 2;
 };
 
 bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeight )
@@ -82,7 +87,13 @@ bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 	ON_FAIL_RETURN( InitializeShaders( ) );
 	ON_FAIL_RETURN( InitializeMaterial( ) );
 	ON_FAIL_RETURN( m_meshLoader.Initialize( ) );
-	m_pWorldMatrixBuffer = CreateConstantBuffer( sizeof( D3DXMATRIX ), 1, NULL );
+	
+	ON_FAIL_RETURN( m_textureManager.LoadTexture( m_pd3d11Device.Get() ) );
+
+	ON_FAIL_RETURN( m_renderEffect.Initialize( m_pd3d11Device.Get(), m_pd3d11DeviceContext.Get(), &m_textureManager, &m_shaderResourceManager, &m_renderTargetManager, &m_snapshotManager ) );
+
+	m_pWorldMatrixBuffer = CreateConstantBuffer( _T("WorldMatrix"), sizeof( D3DXMATRIX ), WORLD_MATRIX_ELEMENT_SIZE, NULL );
+	MaterialSystem::GetInstance( )->RegisterConstantBuffer( MAT_CONSTANT_BUFFER::SURFACE, CreateConstantBuffer( _T( "Surface" ), sizeof( SurfaceTrait ), 1, NULL ) );
 
 	if ( m_pWorldMatrixBuffer == nullptr )
 	{
@@ -94,10 +105,21 @@ bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 
 void CDirect3D11::ShutDownRenderer( )
 {
-	m_pView = std::move( nullptr );
+	m_pd3d11DefaultRT = nullptr;
+	m_pd3d11DefaultDS = nullptr;
 
 	m_shaderList.clear( );
 	m_bufferList.clear( );
+	m_constantBufferList.clear( );
+
+	m_pView = std::move( nullptr );
+
+	m_pWorldMatrixBuffer = nullptr;
+
+	m_pDepthStencilFactory = std::move( nullptr );
+	m_pRasterizerFactory = std::move( nullptr );
+	m_pSamplerFactory = std::move( nullptr );
+	m_pMaterialLoader = std::move( nullptr );
 
 #ifdef _DEBUG
 	ReportLiveDevice( );
@@ -135,13 +157,18 @@ void CDirect3D11::SceneBegin( )
 	{
 		m_pView->UpdataView( m_pd3d11DeviceContext.Get( ) );
 	}
+
+	m_renderEffect.SceneBegin( );
 }
 
 void CDirect3D11::SceneEnd( )
 {
 	m_pdxgiSwapChain->Present( 0, 0 );
 
-	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get(), m_pd3d11DeviceContext.Get( ), _T( "DefaultDepthStencil" ), _T( "DebugDepthStencil" ) );
+	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), _T( "DefaultDepthStencil" ), _T( "DebugDepthStencil" ) );
+	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), _T( "DefaultRenderTarget" ), _T( "DebugRenderTarget" ) );
+
+	m_renderEffect.SceneEnd( );
 }
 
 std::shared_ptr<IShader> CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pProfile )
@@ -227,18 +254,57 @@ std::shared_ptr<IBuffer> CDirect3D11::CreateIndexBuffer( const UINT stride, cons
 	return nullptr;
 }
 
-std::shared_ptr<IBuffer> CDirect3D11::CreateConstantBuffer( const UINT stride, const UINT numOfElement, const void* srcData )
+std::shared_ptr<IBuffer> CDirect3D11::CreateConstantBuffer( const String& bufferName, const UINT stride, const UINT numOfElement, const void* srcData )
 {
 	std::shared_ptr<D3D11ConstantBuffer> cb = std::make_shared<D3D11ConstantBuffer>( );
 	if ( cb->CreateBuffer( m_pd3d11Device.Get( ), stride, numOfElement, srcData ) )
 	{
-		m_bufferList.emplace_back( cb );
+		m_constantBufferList.emplace( bufferName, cb );
 		return cb;
 	}
 
 	return nullptr;
 }
 
+void* CDirect3D11::MapConstantBuffer( const String& bufferName )
+{
+	auto found = m_constantBufferList.find( bufferName );
+
+	if ( found != m_constantBufferList.end( ) )
+	{
+		return found->second->LockBuffer( m_pd3d11DeviceContext.Get( ) );
+	}
+
+	return nullptr;
+}
+
+void CDirect3D11::UnMapConstantBuffer( const String& bufferName )
+{
+	auto found = m_constantBufferList.find( bufferName );
+
+	if ( found != m_constantBufferList.end( ) )
+	{
+		found->second->UnLockBuffer( m_pd3d11DeviceContext.Get() );
+	}
+}
+
+void CDirect3D11::SetConstantBuffer( const String & bufferName, const UINT slot, const SHADER_TYPE type )
+{
+	auto found = m_constantBufferList.find( bufferName );
+
+	if ( found != m_constantBufferList.end( ) )
+	{
+		switch ( type )
+		{
+		case SHADER_TYPE::VS:
+			found->second->SetVSBuffer( m_pd3d11DeviceContext.Get( ), slot );
+			break;
+		case SHADER_TYPE::PS:
+			found->second->SetPSBuffer( m_pd3d11DeviceContext.Get( ), slot );
+			break;
+		}
+	}
+}
 
 std::shared_ptr<IShader> CDirect3D11::SearchShaderByName( const TCHAR* pName )
 {
@@ -247,11 +313,11 @@ std::shared_ptr<IShader> CDirect3D11::SearchShaderByName( const TCHAR* pName )
 		return nullptr;
 	}
 
-	auto finded = m_shaderList.find( pName );
+	auto found = m_shaderList.find( pName );
 
-	if ( finded != m_shaderList.end( ) )
+	if ( found != m_shaderList.end( ) )
 	{
-		return finded->second;
+		return found->second;
 	}
 
 	return nullptr;
@@ -272,6 +338,133 @@ bool CDirect3D11::InitializeMaterial( )
 	}
 
 	return false;
+}
+
+void CDirect3D11::RegisterEnumString( )
+{
+	//Register enum string
+	//DXGI_FORMAT
+	REGISTER_ENUM_STRING( DXGI_FORMAT_UNKNOWN );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R32G32B32A32_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R32G32B32A32_FLOAT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R32G32B32A32_UINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R32G32B32A32_SINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R32G32B32_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R32G32B32_FLOAT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R32G32B32_UINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R32G32B32_SINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R16G16B16A16_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R16G16B16A16_FLOAT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R16G16B16A16_UNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R16G16B16A16_UINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R16G16B16A16_SNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R16G16B16A16_SINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R32G32_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R32G32_FLOAT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R32G32_UINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R32G32_SINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R32G8X24_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_D32_FLOAT_S8X24_UINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_X32_TYPELESS_G8X24_UINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R10G10B10A2_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R10G10B10A2_UNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R10G10B10A2_UINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R11G11B10_FLOAT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R8G8B8A8_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R8G8B8A8_UNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R8G8B8A8_UNORM_SRGB );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R8G8B8A8_UINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R8G8B8A8_SNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R8G8B8A8_SINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R16G16_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R16G16_FLOAT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R16G16_UNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R16G16_UINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R16G16_SNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R16G16_SINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R32_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_D32_FLOAT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R32_FLOAT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R32_UINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R32_SINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R24G8_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_D24_UNORM_S8_UINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R24_UNORM_X8_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_X24_TYPELESS_G8_UINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R8G8_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R8G8_UNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R8G8_UINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R8G8_SNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R8G8_SINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R16_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R16_FLOAT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_D16_UNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R16_UNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R16_UINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R16_SNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R16_SINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R8_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R8_UNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R8_UINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R8_SNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R8_SINT );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_A8_UNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R1_UNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R9G9B9E5_SHAREDEXP );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R8G8_B8G8_UNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_G8R8_G8B8_UNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_BC1_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_BC1_UNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_BC1_UNORM_SRGB );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_BC2_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_BC2_UNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_BC2_UNORM_SRGB );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_BC3_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_BC3_UNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_BC3_UNORM_SRGB );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_BC4_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_BC4_UNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_BC4_SNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_BC5_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_BC5_UNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_BC5_SNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_B5G6R5_UNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_B5G5R5A1_UNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_B8G8R8A8_UNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_B8G8R8X8_UNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_B8G8R8A8_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_B8G8R8A8_UNORM_SRGB );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_B8G8R8X8_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_B8G8R8X8_UNORM_SRGB );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_BC6H_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_BC6H_UF16 );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_BC6H_SF16 );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_BC7_TYPELESS );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_BC7_UNORM );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_BC7_UNORM_SRGB );
+	REGISTER_ENUM_STRING( DXGI_FORMAT_FORCE_UINT );
+
+	//USAGE
+	REGISTER_ENUM_STRING( D3D11_USAGE_DEFAULT );
+	REGISTER_ENUM_STRING( D3D11_USAGE_IMMUTABLE );
+	REGISTER_ENUM_STRING( D3D11_USAGE_DYNAMIC );
+	REGISTER_ENUM_STRING( D3D11_USAGE_STAGING );
+
+	//BIND
+	REGISTER_ENUM_STRING( D3D11_BIND_VERTEX_BUFFER );
+	REGISTER_ENUM_STRING( D3D11_BIND_INDEX_BUFFER );
+	REGISTER_ENUM_STRING( D3D11_BIND_CONSTANT_BUFFER );
+	REGISTER_ENUM_STRING( D3D11_BIND_SHADER_RESOURCE );
+	REGISTER_ENUM_STRING( D3D11_BIND_STREAM_OUTPUT );
+	REGISTER_ENUM_STRING( D3D11_BIND_RENDER_TARGET );
+	REGISTER_ENUM_STRING( D3D11_BIND_DEPTH_STENCIL );
+	REGISTER_ENUM_STRING( D3D11_BIND_UNORDERED_ACCESS );
+
+	//CPU
+	REGISTER_ENUM_STRING( D3D11_CPU_ACCESS_WRITE );
+	REGISTER_ENUM_STRING( D3D11_CPU_ACCESS_READ );
 }
 
 std::shared_ptr<IRenderTarget> CDirect3D11::TranslateRenderTargetViewFlag( const RENDERTARGET_FLAG rtFlag ) const
@@ -313,7 +506,7 @@ std::shared_ptr<IMaterial> CDirect3D11::GetMaterialPtr( const TCHAR* pMaterialNa
 
 std::shared_ptr<IMesh> CDirect3D11::GetModelPtr( const TCHAR* pModelName )
 {
-	if ( m_meshLoader.LoadMeshFromFile( pModelName ) )
+	if ( m_meshLoader.LoadMeshFromFile( pModelName, &m_surfaceManager ) )
 	{
 		return m_meshLoader.GetMesh( pModelName );
 	}
@@ -360,7 +553,7 @@ IRenderView* CDirect3D11::GetCurrentRenderView( )
 	return m_pView.get( );
 }
 
-void CDirect3D11::UpdateWorldMatrix( const D3DXMATRIX& worldMatrix )
+void CDirect3D11::UpdateWorldMatrix( const D3DXMATRIX& worldMatrix, const D3DXMATRIX& invWorldMatrix )
 {
 	if ( m_pWorldMatrixBuffer == nullptr )
 	{
@@ -372,11 +565,12 @@ void CDirect3D11::UpdateWorldMatrix( const D3DXMATRIX& worldMatrix )
 
 	if ( pWorld )
 	{
-		D3DXMATRIX transposWorld;
+		std::array<D3DXMATRIX, 2> transposWorld;
 
-		D3DXMatrixTranspose( &transposWorld, &worldMatrix );
+		D3DXMatrixTranspose( &transposWorld[0], &worldMatrix );
+		D3DXMatrixTranspose( &transposWorld[1], &invWorldMatrix );
 
-		CopyMemory( pWorld, &transposWorld, sizeof( D3DXMATRIX ) );
+		CopyMemory( pWorld, transposWorld.data(), sizeof( D3DXMATRIX ) * WORLD_MATRIX_ELEMENT_SIZE );
 	}
 
 	m_pWorldMatrixBuffer->UnLockBuffer( m_pd3d11DeviceContext.Get( ) );
@@ -508,6 +702,13 @@ bool CDirect3D11::CreatePrimeRenderTargetVIew( )
 
 	if ( SUCCEEDED( m_pdxgiSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (LPVOID*)&pd3d11BackBuffer ) ) )
 	{
+		Microsoft::WRL::ComPtr<ID3D11Resource> renderTargetResource;
+
+		if ( SUCCEEDED( pd3d11BackBuffer.Get()->QueryInterface( IID_ID3D11Resource, &renderTargetResource ) ) )
+		{
+			ON_FAIL_RETURN( m_textureManager.RegisterTexture2D( _T( "DefaultRenderTarget" ), renderTargetResource ) );
+		}
+
 		if ( m_renderTargetManager.CreateRenderTarget( m_pd3d11Device.Get( ), pd3d11BackBuffer.Get( ), nullptr, _T( "DefaultRenderTarget" ) ) )
 		{
 			m_pd3d11DefaultRT = m_renderTargetManager.FindRenderTarget( _T( "DefaultRenderTarget" ) );
@@ -532,24 +733,21 @@ bool CDirect3D11::CreatePrimeDepthBuffer( UINT nWndWidth, UINT nWndHeight )
 	d3d11Texture2DDesc.SampleDesc.Count = 1;
 	d3d11Texture2DDesc.Usage = D3D11_USAGE_DEFAULT;
 
-	if ( m_textureManager.CreateTexture2D( m_pd3d11Device.Get( ), d3d11Texture2DDesc, _T( "DefaultDepthStencil" ) ) )
+	const ITexture* depthStencilTexture = m_textureManager.CreateTexture2D( m_pd3d11Device.Get( ), d3d11Texture2DDesc, _T( "DefaultDepthStencil" ) );
+
+	if ( depthStencilTexture )
 	{
-		std::shared_ptr<ITexture> depthStencilTexture = m_textureManager.FindTexture( _T( "DefaultDepthStencil" ) );
+		D3D11_DEPTH_STENCIL_VIEW_DESC d3d11DSDesc;
+		::ZeroMemory( &d3d11DSDesc, sizeof( d3d11DSDesc ) );
 
-		if ( depthStencilTexture )
-		{
-			D3D11_DEPTH_STENCIL_VIEW_DESC d3d11DSDesc;
-			::ZeroMemory( &d3d11DSDesc, sizeof( d3d11DSDesc ) );
+		d3d11DSDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		d3d11DSDesc.Texture2D.MipSlice = 0;
+		d3d11DSDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
-			d3d11DSDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-			d3d11DSDesc.Texture2D.MipSlice = 0;
-			d3d11DSDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		ON_FAIL_RETURN( m_renderTargetManager.CreateDepthStencil( m_pd3d11Device.Get( ), depthStencilTexture, &d3d11DSDesc, _T( "DefaultDepthStencil" ) ) );
+		m_pd3d11DefaultDS = m_renderTargetManager.FindDepthStencil( _T( "DefaultDepthStencil" ) );
 
-			ON_FAIL_RETURN( m_renderTargetManager.CreateDepthStencil( m_pd3d11Device.Get( ), depthStencilTexture, &d3d11DSDesc, _T( "DefaultDepthStencil" ) ) );
-			m_pd3d11DefaultDS = m_renderTargetManager.FindDepthStencil( _T( "DefaultDepthStencil" ) );
-
-			return true;
-		}
+		return true;
 	}
 
 	return false;
@@ -590,6 +788,7 @@ m_pRasterizerFactory( nullptr ),
 m_pSamplerFactory( nullptr ),
 m_pMaterialLoader( nullptr )
 {
+	RegisterEnumString( );
 }
 
 

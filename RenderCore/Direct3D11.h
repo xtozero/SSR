@@ -6,11 +6,13 @@
 #include "IMesh.h"
 #include "IMeshBuilder.h"
 #include "MeshLoader.h"
+#include "RenderEffect.h"
 #include "RenderTargetManager.h"
 #include "RenderView.h"
 #include "ShaderListScriptLoader.h"
 #include "ShaderResourceManager.h"
 #include "SnapShotManager.h"
+#include "SurfaceManager.h"
 #include "TextureManager.h"
 
 #include <vector>
@@ -44,7 +46,11 @@ public:
 
 	virtual std::shared_ptr<IBuffer> CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) override;
 	virtual std::shared_ptr<IBuffer> CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) override;
-	virtual std::shared_ptr<IBuffer> CreateConstantBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) override;
+	virtual std::shared_ptr<IBuffer> CreateConstantBuffer( const String& bufferName, const UINT stride, const UINT numOfElement, const void* srcData ) override;
+
+	virtual void* MapConstantBuffer( const String& bufferName ) override;
+	virtual void UnMapConstantBuffer( const String& bufferName ) override;
+	virtual void SetConstantBuffer( const String& bufferName, const UINT slot, const SHADER_TYPE type ) override;
 
 	virtual std::shared_ptr<IShader> SearchShaderByName( const TCHAR* pName ) override;
 
@@ -58,7 +64,7 @@ public:
 
 	virtual IRenderView* GetCurrentRenderView( ) override;
 
-	virtual void UpdateWorldMatrix( const D3DXMATRIX& worldMatrix ) override;
+	virtual void UpdateWorldMatrix( const D3DXMATRIX& worldMatrix, const D3DXMATRIX& invWorldMatrix ) override;
 	virtual Microsoft::WRL::ComPtr<ID3D11RasterizerState> CreateRenderState( const String& stateName ) override;
 
 	virtual std::shared_ptr<IShaderResource> GetShaderResourceFromFile( const String& fileName ) override;
@@ -76,6 +82,7 @@ private:
 	void ReportLiveDevice( );
 	bool InitializeShaders( );
 	bool InitializeMaterial( );
+	void RegisterEnumString( );
 
 	std::shared_ptr<IRenderTarget> TranslateRenderTargetViewFlag( const RENDERTARGET_FLAG rtFlag ) const;
 	std::shared_ptr<IDepthStencil> TranslateDepthStencilViewFlag( const DEPTHSTENCIL_FLAG dsFlag ) const;
@@ -89,6 +96,7 @@ private:
 
 	std::map<String, std::shared_ptr<IShader>>		m_shaderList;
 	std::vector<std::shared_ptr<IBuffer>>			m_bufferList;
+	std::map<String, std::shared_ptr<IBuffer>>		m_constantBufferList;
 
 	std::unique_ptr<RenderView>						m_pView;
 	CMeshLoader										m_meshLoader;
@@ -106,6 +114,10 @@ private:
 	std::unique_ptr<IRasterizerStateFactory>		m_pRasterizerFactory;
 	std::unique_ptr<ISamplerStateFactory>			m_pSamplerFactory;
 	std::unique_ptr<CMaterialLoader>				m_pMaterialLoader;
+
+	CSurfaceManager									m_surfaceManager;
+
+	CRenderEffect									m_renderEffect;
 public:
 	CDirect3D11 ( );
 	virtual ~CDirect3D11 ( );

@@ -12,12 +12,21 @@ void MaterialSystem::RegisterMaterial( const TCHAR* pName, std::shared_ptr<IMate
 {
 	if ( pName && pMaterial )
 	{
-		auto finded = m_materials.find( pName );
+		auto found = m_materials.find( pName );
 
-		if ( finded == m_materials.end( ) )
+		if ( found == m_materials.end( ) )
 		{
+			pMaterial->SetConstantBuffers( &m_constantBuffers );
 			m_materials.emplace( pName, pMaterial );
 		}
+	}
+}
+
+void MaterialSystem::RegisterConstantBuffer( UINT type, const std::shared_ptr<IBuffer>& pConstantBuffer )
+{
+	if ( m_constantBuffers.size() > type && pConstantBuffer.get( ) )
+	{
+		m_constantBuffers[type] = pConstantBuffer;
 	}
 }
 
@@ -28,11 +37,11 @@ std::shared_ptr<IMaterial> MaterialSystem::SearchMaterialByName( const TCHAR* pN
 		return nullptr;
 	}
 
-	auto finded = m_materials.find( pName );
+	auto found = m_materials.find( pName );
 
-	if ( finded != m_materials.end( ) )
+	if ( found != m_materials.end( ) )
 	{
-		return finded->second;
+		return found->second;
 	}
 
 	return nullptr;

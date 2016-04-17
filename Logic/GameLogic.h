@@ -2,6 +2,7 @@
 
 #include "Camera.h"
 #include "common.h"
+#include "LightManager.h"
 #include "MouseController.h"
 #include "PickingManager.h"
 #include "SceneLoader.h"
@@ -40,9 +41,11 @@ public:
 	~CGameLogic () = default;
 
 private:
+	HWND	m_wndHwnd;
 	CCamera m_mainCamera;
 	CSceneLoader m_sceneLoader;
 	CMouseController m_mouseController;
 	CPickingManager m_pickingManager;
+	CLightManager m_lightManager;
 };
 

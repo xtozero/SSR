@@ -1,10 +1,13 @@
 #include "stdafx.h"
 #include "common.h"
+#include "IBuffer.h"
 #include "IShader.h"
 #include "IShaderResource.h"
+#include "ISurface.h"
 #include "Material.h"
 
 #include <d3d11.h>
+#include <type_traits>
 
 void Material::Init( )
 {
@@ -37,7 +40,7 @@ void Material::SetShader( ID3D11DeviceContext* pDeviceContext )
 	}
 }
 
-void Material::SetTexture( ID3D11DeviceContext* pDeviceContext, UINT shaderType, UINT slot, std::shared_ptr<IShaderResource> pTexture )
+void Material::SetTexture( ID3D11DeviceContext* pDeviceContext, UINT shaderType, UINT slot, const IShaderResource* pTexture )
 {
 	if ( pDeviceContext && shaderType < SHADER_TYPE::MAX_SHADER )
 	{
@@ -49,6 +52,36 @@ void Material::SetTexture( ID3D11DeviceContext* pDeviceContext, UINT shaderType,
 		}
 	}
 }
+
+void Material::SetSurface( ID3D11DeviceContext* pDeviceContext, UINT shaderType, UINT slot, const ISurface* pSurface )
+{
+ 	if ( pDeviceContext && m_pConstantBuffers && pSurface && shaderType < SHADER_TYPE::MAX_SHADER )
+	{
+		IShader* targetShader = m_pShaders[shaderType].get( );
+		IBuffer* pSurfaceBuffer = m_pConstantBuffers->at( MAT_CONSTANT_BUFFER::SURFACE ).get();
+
+		if ( targetShader && pSurfaceBuffer )
+		{
+			const SurfaceTrait* src = pSurface->GetTrait( );
+			static_assert(std::is_trivially_copyable<decltype(src)>::value || std::is_trivial<decltype(src)>::value,
+				"memcpy src class must be standard layout or trivial");
+
+			void* dest = pSurfaceBuffer->LockBuffer( pDeviceContext );
+
+			if ( src && dest )
+			{
+				::memcpy_s( dest, pSurfaceBuffer->Size(), src, sizeof( SurfaceTrait ) );
+				pSurfaceBuffer->UnLockBuffer( pDeviceContext );
+				targetShader->SetConstantBuffer( pDeviceContext, slot, pSurfaceBuffer );
+			}
+			else
+			{
+				pSurfaceBuffer->UnLockBuffer( pDeviceContext );
+			}
+		}
+	}
+}
+
 
 void Material::Draw( ID3D11DeviceContext* pDeviceContext, const UINT vertexCount, const UINT vertexOffset )
 {
@@ -100,7 +133,8 @@ void Material::SetPrimitiveTopology( ID3D11DeviceContext* pDeviceContext, D3D_PR
 
 Material::Material( ) :
 	m_pRenderState( nullptr ),
-	m_pDepthStencilState( nullptr )
+	m_pDepthStencilState( nullptr ),
+	m_pConstantBuffers( nullptr )
 {
 	for ( int i = 0; i < MAX_SHADER; ++i )
 	{

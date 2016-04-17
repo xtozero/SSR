@@ -78,6 +78,8 @@ class KeyValueGroup
 {
 public:
 	virtual CKeyValueIterator FindKeyValue( const String& key ) = 0;
+
+	virtual ~KeyValueGroup( ) = default;
 };
 
 class KeyValueGroupImpl : public KeyValueGroup
@@ -86,6 +88,7 @@ public:
 	virtual CKeyValueIterator FindKeyValue( const String& key ) override;
 
 	KeyValueGroupImpl( std::shared_ptr<KeyValue>& root );
+	~KeyValueGroupImpl( ) = default;
 private:
 	CKeyValueIterator FindKeyValueInternal( const String& key, std::shared_ptr<KeyValue> keyValue );
 
@@ -97,8 +100,8 @@ class ENGINE_DLL CKeyValueReader
 public:
 	std::shared_ptr<KeyValueGroup> LoadKeyValueFromFile( String filename );
 
-	CKeyValueReader( );
-	~CKeyValueReader( );
+	CKeyValueReader( ) = default;
+	~CKeyValueReader( ) = default;
 
 private:
 	void LoadKeyValueFromFileInternal( Ifstream& file, std::shared_ptr<KeyValue> keyValue );

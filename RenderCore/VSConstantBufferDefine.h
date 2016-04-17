@@ -1,5 +1,0 @@
-enum class VS_CONSTANT_BUFFER
-{
-	WORLD = 0,
-	VIEW_PROJECTION,
-};

@@ -12,9 +12,64 @@ namespace
 	const int PLY_FILE_READ_INDEX_STEP = 3;
 
 	const TCHAR* PLY_FILE_DIR = _T( "../model/ply/" );
+
+	void CalcPlyNormal( MeshVertex* vertices, const UINT vertexCount, const WORD* indices, const UINT indexCount )
+	{
+		std::vector<D3DXVECTOR3> normals( vertexCount );
+
+		for ( D3DXVECTOR3& normal : normals )
+		{
+			normal.x = 0.f;
+			normal.y = 0.f;
+			normal.z = 0.f;
+		}
+
+		std::vector<UINT> idxList;
+		idxList.reserve( max( vertexCount, indexCount ) );
+
+		if ( indexCount != 0 )
+		{
+			for ( UINT i = 0; i < indexCount; ++i )
+			{
+				idxList.push_back( indices[i] );
+			}
+		}
+		else
+		{
+			for ( UINT i = 0; i < vertexCount; ++i )
+			{
+				idxList.push_back( i );
+			}
+		}
+
+		for ( UINT i = 0; i < idxList.size(); i += 3 )
+		{
+			const D3DXVECTOR3& p0 = vertices[idxList[i]].m_position;
+			const D3DXVECTOR3& p1 = vertices[idxList[i + 1]].m_position;
+			const D3DXVECTOR3& p2 = vertices[idxList[i + 2]].m_position;
+
+			const D3DXVECTOR3& v0 = p1 - p0;
+			const D3DXVECTOR3& v1 = p2 - p0;
+
+			D3DXVECTOR3 normal;
+
+			D3DXVec3Cross( &normal, &v0, &v1 );
+
+			normals[idxList[i]] += normal;
+			normals[idxList[i + 1]] += normal;
+			normals[idxList[i + 2]] += normal;
+		}
+
+		int idx = 0;
+		for ( D3DXVECTOR3& normal : normals )
+		{
+			D3DXVec3Normalize( &vertices[idx].m_normal, &normal );
+			++idx;
+		}
+	}
 }
 
-std::shared_ptr<IMesh> CPlyMeshLoader::LoadMeshFromFile( const TCHAR* pFileName )
+std::shared_ptr<IMesh> CPlyMeshLoader::LoadMeshFromFile( const TCHAR* pFileName, CSurfaceManager* )
 {
 	TCHAR pPath[MAX_PATH];
 	::GetCurrentDirectory( MAX_PATH, pPath );
@@ -103,6 +158,8 @@ std::shared_ptr<IMesh> CPlyMeshLoader::LoadMeshFromFile( const TCHAR* pFileName 
 
 	::SetCurrentDirectory( pPath );
 	meshfile.close( );
+
+	CalcPlyNormal( vertices, vertexCount, indices, indexCount );
 
 	auto newMesh = std::make_shared<CPlyMesh>( );
 
