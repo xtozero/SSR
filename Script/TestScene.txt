@@ -13,8 +13,8 @@
 	"Object" "base"
 	{
 		"Name"		"cow1"
-		"Model"		"object.ply" //모델명
-		"Material"	"wireframe" //재질명
+		"Model"		"shape_sphere.obj" //모델명
+		"Material"	"tutorial" //재질명
 		"Position"	"0 10 0" //x y z
 		"Scale"		"10 10 10" //xScale yScale zScale
 	}

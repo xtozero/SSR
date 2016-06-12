@@ -1,6 +1,6 @@
 "Desc"
 {
-	"default"
+	"DepthStencilDesc" "default"
 	{
 		"DepthEnable"						"1"
 		"DepthWriteMask"					"D3D11_DEPTH_WRITE_MASK_ALL"
@@ -18,7 +18,7 @@
 		"BackFace.StencilFailOp"			"D3D11_STENCIL_OP_KEEP"
 	}
 	
-	"depthWriteOff"
+	"DepthStencilDesc" "depthWriteOff"
 	{
 		"DepthEnable"						"1"
 		"DepthWriteMask"					"D3D11_DEPTH_WRITE_MASK_ZERO"
@@ -36,7 +36,7 @@
 		"BackFace.StencilFailOp"			"D3D11_STENCIL_OP_KEEP"
 	}
 	
-	"depthTestOff"
+	"DepthStencilDesc" "depthTestOff"
 	{
 		"DepthEnable"						"0"
 		"DepthWriteMask"					"D3D11_DEPTH_WRITE_MASK_ZERO"

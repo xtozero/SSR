@@ -18,10 +18,10 @@ class SurfaceTrait
 {
 public:
 	SurfaceTrait( ) :
-		m_ambient( 0.f, 0.f, 0.f, 1.0f ),
-		m_diffuse( 0.f, 0.f, 0.f, 1.0f ),
-		m_specular( 0.f, 0.f, 0.f, 1.0f ),
-		m_roughness( 0.f ),
+		m_ambient( 1.f, 1.f, 1.f, 1.0f ),
+		m_diffuse( 1.f, 1.f, 1.f, 1.0f ),
+		m_specular( 1.f, 1.f, 1.f, 1.0f ),
+		m_roughness( 0.01f ),
 		m_specularPower( 0.f ),
 		m_pedding{ 0.f, 0.f }
 	{

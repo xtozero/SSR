@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "ObjMesh.h"
 
+#include "ConstantBufferDefine.h"
 #include "IRenderer.h"
 #include "ISurface.h"
 #include "Material.h"
-#include "ConstantBufferDefine.h"
 #include "../Shared/Util.h"
 
 #include <d3dX9math.h>

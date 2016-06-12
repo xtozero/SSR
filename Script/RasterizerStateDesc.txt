@@ -1,11 +1,11 @@
 "Desc"
 {
-	"default"
+	"RasterizerDesc" "default"
 	{
 	
 	}
 	
-	"wireFrame"
+	"RasterizerDesc" "wireFrame"
 	{
 		"FillMode"						"D3D11_FILL_WIREFRAME"
 		"CullMode"						"D3D11_CULL_BACK"

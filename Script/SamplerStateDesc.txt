@@ -1,6 +1,6 @@
 "Desc"
 {
-	"default"
+	"SamplerDesc" "default"
 	{
 		"Filter"				"D3D11_FILTER_MIN_MAG_MIP_LINEAR"
         "AddressU"				"D3D11_TEXTURE_ADDRESS_CLAMP"

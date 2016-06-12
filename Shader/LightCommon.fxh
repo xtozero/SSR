@@ -46,20 +46,27 @@ struct PS_INPUT
 	float2 texcoord : TEXCOORD;
 };
 
+struct LIGHTCOLOR
+{
+	float4 m_diffuse;
+	float4 m_specular;
+};
+
 float4 MoveLinearSpace( float4 color )
 {
-	return float4( pow( color.xyz, 2.2 ), color.a );
+	return float4( pow( saturate( color.xyz ), 2.2 ), color.a );
 }
 
 float4 MoveGammaSapce( float4 color )
 {
-	return float4( pow( color.xyz, 0.45 ), color.a );
+	return float4( pow( saturate( color.xyz ), 0.45 ), color.a );
 }
 
-float4 CalcDirectionalLight( int idx, float3 viewDirection, float3 lightDirection, float3 normal, float4 color )
+float OrenNayarDiffuse( float3 viewDirection, float3 lightDirection, float3 normal )
 {
 	float vdotn = dot( viewDirection, normal );
 	float ldotn = dot( lightDirection, normal );
+
 	float gamma = dot ( viewDirection - normal * vdotn, lightDirection - normal * ldotn );
 
 	float roughnessPwr = g_roughness * g_roughness;
@@ -72,35 +79,82 @@ float4 CalcDirectionalLight( int idx, float3 viewDirection, float3 lightDirectio
 
 	float final = a + b * max( 0.0f, gamma ) * c;
 
-	return max( 0.0f, ldotn ) * final * g_lights[idx].m_diffuse;
+	return max( 0.0f, ldotn ) * final;
+}
+
+float CookTorranceSpecular( float3 viewDirection, float3 lightDirection, float3 normal )
+{
+	float3 half = normalize( viewDirection + lightDirection );
+	float ndoth = dot( normal, half );
+	float ndothPwr = ndoth * ndoth;
+	float roughnessPwr = g_roughness * g_roughness;
+	float exponent = -( ( 1 - ndothPwr ) / ( roughnessPwr * ndothPwr ) );
+	
+	float d = exp( exponent ) / ( 4.f * roughnessPwr * ndothPwr * ndothPwr );
+
+	float vdotn = dot( viewDirection, normal );
+	float ldotn = dot( lightDirection, normal );
+	float vdoth = dot( viewDirection, half );
+	float denominator = ( 2.f * ndoth ) / vdoth;
+	float ga = vdotn * denominator;
+	float gb = ldotn * denominator;
+	
+	float g = min( ga, min ( gb, 1.f ) );
+
+	float f = lerp( pow( 1.f - vdotn, 5.f ), 1.f, 0.85f );
+
+	return ( d * g * f ) / ( 4 * vdotn * ldotn );
+}
+
+LIGHTCOLOR CalcLightProperties( int i, float3 viewDirection, float3 lightDirection, float3 normal )
+{
+	LIGHTCOLOR lightColor = (LIGHTCOLOR)0;
+
+	float diffuseFactor = OrenNayarDiffuse( viewDirection, lightDirection, normal );
+	lightColor.m_diffuse = diffuseFactor * g_lights[i].m_diffuse;
+	if ( diffuseFactor > 0.f )
+	{
+		lightColor.m_specular += CookTorranceSpecular( viewDirection, lightDirection, normal ) * g_lights[i].m_specular;
+	}
+
+	return lightColor;
 }
 
 float4 CalcLight( PS_INPUT input, float4 color )
 {
+	int i;
 	float4 linearColor = MoveLinearSpace( color );
 
 	float3 viewDirection = normalize( g_cameraPos - input.worldPos );
 	float3 normal = normalize( input.normal );
 
-	float4 diffuseFactor = float4( 0.f, 0.f, 0.f, 0.f );
+	LIGHTCOLOR LightColor = (LIGHTCOLOR)0;
+	LIGHTCOLOR cColor = (LIGHTCOLOR)0;
 
-	for ( int i = 0; i < g_curLights; ++i )
+	for ( i = 0; i < g_curLights; ++i )
 	{
 		if ( g_lights[i].m_isOn )
 		{
-			switch( g_lights[i].m_type )
+			float3 lightDirection = { 0.f, 0.f, 0.f };
+			
+			if ( length( g_lights[i].m_direction ) > 0.f )
 			{
-				case 1:
-				float3 lightDirection = g_lights[i].m_position.xyz - input.worldPos;
-				lightDirection = normalize( lightDirection );
-				diffuseFactor += CalcDirectionalLight( i, viewDirection, -g_lights[i].m_direction, normal, linearColor );
-				break;
+				lightDirection = -normalize( g_lights[i].m_direction );
 			}
+			else
+			{
+				lightDirection = normalize( g_lights[i].m_position.xyz - input.worldPos );
+			} 
+
+			LightColor = CalcLightProperties( i, viewDirection, lightDirection, normal );
+			cColor.m_diffuse += LightColor.m_diffuse;
+			cColor.m_specular += LightColor.m_specular;
 		}
 	}
 
 	float4 lightColor = g_globalAmbient * g_ambient;
-	lightColor += diffuseFactor * g_diffuse; 
+	lightColor += cColor.m_diffuse * g_diffuse;
+	lightColor += cColor.m_specular * g_specular; 
 
 	return saturate( MoveGammaSapce( linearColor * lightColor ) );
 }

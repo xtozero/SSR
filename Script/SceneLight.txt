@@ -13,6 +13,6 @@
 		"attenuation"	"0"
 		"position"		"0 0 0"
 		"m_diffuse"		"1 1 1"
-		"m_specular"	"1 1 1"
+		"m_specular"	"1 0 0"
 	}
 }

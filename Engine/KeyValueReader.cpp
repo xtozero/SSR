@@ -217,6 +217,11 @@ void CKeyValueReader::LoadKeyValueFromFileInternal( Ifstream& file, std::shared_
 				alreadyReadValue = true;
 				pKeyValue->SetChild( std::make_shared<KeyValueImpl>( ) );
 				LoadKeyValueFromFileInternal( file, pKeyValue->GetChild( ) );
+				FIX_ME( remove unnecessary new );
+				if ( pKeyValue->GetChild( ) && pKeyValue->GetChild( )->GetKey( ).length() == 0 )
+				{
+					pKeyValue->SetChild( nullptr );
+				}
 				++curIdx;
 			}
 			else if ( buffer[curIdx] == '}' )

@@ -18,6 +18,8 @@ private:
 	void LoadMaterialFile( const TCHAR* pFileName, CSurfaceManager* pSurfaceManager );
 
 private:
+	void CalcObjNormal( );
+
 	struct ObjFaceInfo
 	{
 		ObjFaceInfo( int position, int texCoord, int normal ) :

@@ -95,3 +95,7 @@ for ( auto i = x.begin( ); i != x.end( ); ++i )
 #else
 #define KEYVALUE_VALUE_ASSERT( value, count ) __noop
 #endif
+
+#define _STR(x) #x
+#define STR(x) _STR(x)
+#define FIX_ME(x) __pragma(message("FIX ME: "_STR(x) " :: " __FILE__ "@"STR(__LINE__)))

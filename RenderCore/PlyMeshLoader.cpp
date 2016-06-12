@@ -1,10 +1,13 @@
 #include "stdafx.h"
-#include <assert.h>
 #include "CommonMeshDefine.h"
-#include <d3dX9math.h>
-#include <fstream>
 #include "PlyMesh.h"
 #include "PlyMeshLoader.h"
+#include "Surface.h"
+#include "SurfaceManager.h"
+
+#include <assert.h>
+#include <d3dX9math.h>
+#include <fstream>
 #include <vector>
 
 namespace
@@ -12,6 +15,7 @@ namespace
 	const int PLY_FILE_READ_INDEX_STEP = 3;
 
 	const TCHAR* PLY_FILE_DIR = _T( "../model/ply/" );
+	const TCHAR* PLY_DEFAULT_SURFACE_NAME = _T( "PlyDefaultSurface" );
 
 	void CalcPlyNormal( MeshVertex* vertices, const UINT vertexCount, const WORD* indices, const UINT indexCount )
 	{
@@ -69,7 +73,7 @@ namespace
 	}
 }
 
-std::shared_ptr<IMesh> CPlyMeshLoader::LoadMeshFromFile( const TCHAR* pFileName, CSurfaceManager* )
+std::shared_ptr<IMesh> CPlyMeshLoader::LoadMeshFromFile( const TCHAR* pFileName, CSurfaceManager* pSurfaceManager )
 {
 	TCHAR pPath[MAX_PATH];
 	::GetCurrentDirectory( MAX_PATH, pPath );
@@ -165,6 +169,16 @@ std::shared_ptr<IMesh> CPlyMeshLoader::LoadMeshFromFile( const TCHAR* pFileName,
 
 	newMesh->SetModelData( vertices, vertexCount );
 	newMesh->SetIndexData( indices, indexCount );
+
+	ISurface* defaultSurface = pSurfaceManager->FindSurface( PLY_DEFAULT_SURFACE_NAME );
+
+	if ( defaultSurface == nullptr )
+	{
+		std::unique_ptr<ISurface> newSurface = std::make_unique<CSurface>( );
+		defaultSurface = pSurfaceManager->RegisterSurface( PLY_DEFAULT_SURFACE_NAME, newSurface );
+	}
+	
+	newMesh->SetSurface( defaultSurface );
 	
 	if ( newMesh->Load( ) )
 	{
@@ -174,13 +188,4 @@ std::shared_ptr<IMesh> CPlyMeshLoader::LoadMeshFromFile( const TCHAR* pFileName,
 	{
 		return nullptr;
 	}
-}
-
-CPlyMeshLoader::CPlyMeshLoader( )
-{
-}
-
-
-CPlyMeshLoader::~CPlyMeshLoader( )
-{
 }

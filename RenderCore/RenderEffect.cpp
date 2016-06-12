@@ -6,6 +6,8 @@
 #include "SnapShotManager.h"
 #include "TextureManager.h"
 
+#include "../Shared/Util.h"
+
 #include <array>
 #include <D3D11.h>
 
@@ -77,7 +79,7 @@ void CEffectOrenNayar::SceneBegin( const RenderContext& context )
 				desc.Texture2D.MipLevels = tex2DDesc.MipLevels;
 				desc.Format = tex2DDesc.Format;
 
-				//Fix me
+				FIX_ME( fix CreateShaderResource function return IShaderResource object );
 				context.m_pShaderResourceMgr->CreateShaderResource( context.m_pDevice, pTexture, desc, OREN_NAYAR_TEX_NAME );
 				auto lookupSRV = context.m_pShaderResourceMgr->FindShaderResource( OREN_NAYAR_TEX_NAME );
 

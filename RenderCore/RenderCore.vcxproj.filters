@@ -186,9 +186,6 @@
     <ClInclude Include="DepthStencilStateFactory.h">
       <Filter>Direct11\RenderState</Filter>
     </ClInclude>
-    <ClInclude Include="StateFactoryHelpUtil.h">
-      <Filter>Direct11\RenderState</Filter>
-    </ClInclude>
     <ClInclude Include="RenderTarget.h">
       <Filter>Direct11\RenderResource</Filter>
     </ClInclude>
@@ -370,9 +367,6 @@
     </ClCompile>
     <ClCompile Include="SurfaceManager.cpp">
       <Filter>Direct11\Surface</Filter>
-    </ClCompile>
-    <ClCompile Include="StateFactoryHelpUtil.cpp">
-      <Filter>Direct11\RenderState</Filter>
     </ClCompile>
     <ClCompile Include="Texture.cpp">
       <Filter>Direct11\RenderResource</Filter>

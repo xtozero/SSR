@@ -26,7 +26,6 @@ namespace
 		owner->SetGlobalAmbient( ambientColor );
 	}
 
-	//Fix me
 	void LightHandler( CLightManager* owner, const String&, const std::shared_ptr<KeyValue>& keyValue )
 	{
 		LightTrait trait;
@@ -120,7 +119,6 @@ void CLightManager::UpdateToRenderer( const CCamera& camera )
 
 		if ( lights )
 		{
-			//To Do
 			memcpy( lights, &m_shaderLightProperty, sizeof( ShaderLightTrait ) );
 			gRenderer->UnMapConstantBuffer( CONST_BUFFER_NAME );
 			gRenderer->SetConstantBuffer( CONST_BUFFER_NAME, static_cast<int>(PS_CONSTANT_BUFFER::LIGHT), SHADER_TYPE::PS );

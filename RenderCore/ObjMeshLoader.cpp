@@ -178,6 +178,16 @@ std::shared_ptr<IMesh> CObjMeshLoader::LoadMeshFromFile( const TCHAR* pFileName,
 	}
 #endif
 
+	if ( m_normals.size() == 0 )
+	{
+		CalcObjNormal();
+		
+		for ( auto& face : m_faceInfo )
+		{
+			face.m_normal = face.m_position;
+		}
+	}
+
 	const std::vector<MeshVertex>& buildedVertices = BuildVertices( );
 	std::vector<WORD> buildedindices;
 	
@@ -387,4 +397,57 @@ void CObjMeshLoader::LoadMaterialFile( const TCHAR* pFileName, CSurfaceManager* 
 	}
 
 	materialFile.close( );
+}
+
+void CObjMeshLoader::CalcObjNormal( )
+{
+	m_normals.resize( m_positions.size() );
+
+	for ( D3DXVECTOR3& normal : m_normals )
+	{
+		normal.x = 0.f;
+		normal.y = 0.f;
+		normal.z = 0.f;
+	}
+
+	std::vector<UINT> idxList;
+	idxList.reserve( max( m_positions.size( ), m_faceInfo.size() ) );
+
+	if ( m_faceInfo.size() != 0 )
+	{
+		for ( auto face : m_faceInfo )
+		{
+			idxList.push_back( face.m_position );
+		}
+	}
+	else
+	{
+		for ( UINT i = 0; i < m_positions.size( ); ++i )
+		{
+			idxList.push_back( i );
+		}
+	}
+
+	for ( UINT i = 0; i < idxList.size( ); i += 3 )
+	{
+		const D3DXVECTOR3& p0 = m_positions[idxList[i]];
+		const D3DXVECTOR3& p1 = m_positions[idxList[i + 1]];
+		const D3DXVECTOR3& p2 = m_positions[idxList[i + 2]];
+
+		const D3DXVECTOR3& v0 = p1 - p0;
+		const D3DXVECTOR3& v1 = p2 - p0;
+
+		D3DXVECTOR3 normal;
+
+		D3DXVec3Cross( &normal, &v0, &v1 );
+
+		m_normals[idxList[i]] += normal;
+		m_normals[idxList[i + 1]] += normal;
+		m_normals[idxList[i + 2]] += normal;
+	}
+
+	for ( D3DXVECTOR3& normal : m_normals )
+	{
+		D3DXVec3Normalize( &normal, &normal );
+	}
 }

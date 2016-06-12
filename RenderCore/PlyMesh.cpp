@@ -1,10 +1,12 @@
 #include "stdafx.h"
 #include "common.h"
 #include "CommonMeshDefine.h"
+#include "ConstantBufferDefine.h"
 
 #include "Material.h"
 
 #include "PlyMesh.h"
+#include "ISurface.h"
 
 #include <d3dX9math.h>
 
@@ -28,6 +30,10 @@ void CPlyMesh::Draw( ID3D11DeviceContext* pDeviceContext )
 
 	m_pMaterial->SetShader( pDeviceContext );
 	m_pMaterial->SetPrimitiveTopology( pDeviceContext, m_primitiveTopology );
+	if ( m_pSurface != nullptr )
+	{
+		m_pMaterial->SetSurface( pDeviceContext, SHADER_TYPE::PS, static_cast<UINT>(PS_CONSTANT_BUFFER::SURFACE), m_pSurface );
+	}
 	m_pVertexBuffer->SetIABuffer( pDeviceContext, &m_nOffset );
 	if ( m_pIndexBuffer )
 	{
@@ -40,11 +46,6 @@ void CPlyMesh::Draw( ID3D11DeviceContext* pDeviceContext )
 	}
 }
 
-CPlyMesh::CPlyMesh( )
-{
-}
-
-
-CPlyMesh::~CPlyMesh( )
+CPlyMesh::CPlyMesh( ) : m_pSurface( nullptr )
 {
 }
