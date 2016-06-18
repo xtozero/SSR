@@ -12,8 +12,8 @@
 
 namespace
 {
-	const TCHAR* RASTERIZER_STATE_DESC_FILE_NAME = _T( "../Script/RasterizerStateDesc.txt" );
-	const TCHAR* RASTERIZER_DESC_HANDLER_KEY_NAME = _T( "RasterizerDesc" );
+	constexpr TCHAR* RASTERIZER_STATE_DESC_FILE_NAME = _T( "../Script/RasterizerStateDesc.txt" );
+	constexpr TCHAR* RASTERIZER_DESC_HANDLER_KEY_NAME = _T( "RasterizerDesc" );
 
 	void RasterizerDescHandler( IRasterizerStateFactory* owner, const String&, const std::shared_ptr<KeyValue>& keyValue )
 	{

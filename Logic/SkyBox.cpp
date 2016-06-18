@@ -6,7 +6,7 @@
 #include "SkyBox.h"
 
 #include "../RenderCore/IMeshBuilder.h"
-#include "../RenderCore/Direct3D11.h"
+#include "../RenderCore/IRenderer.h"
 
 extern IMeshBuilder* g_meshBuilder;
 extern IRenderer* gRenderer;
@@ -15,7 +15,7 @@ DECLARE_GAME_OBJECT( skybox, CSkyBox );
 
 namespace
 {
-	const float SKYBOX_LENGTH = 10.f;
+	constexpr float SKYBOX_LENGTH = 10.f;
 }
 
 void CSkyBox::Think( )

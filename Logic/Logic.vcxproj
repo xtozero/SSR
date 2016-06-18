@@ -115,6 +115,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="IRigidBody.h" />
     <ClInclude Include="MouseController.h" />
     <ClInclude Include="SceneLoader.h" />
+    <ClInclude Include="ShadowManager.h" />
     <ClInclude Include="SkyBox.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -151,6 +152,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClCompile Include="Logic.cpp" />
     <ClCompile Include="MouseController.cpp" />
     <ClCompile Include="SceneLoader.cpp" />
+    <ClCompile Include="ShadowManager.cpp" />
     <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

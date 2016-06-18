@@ -9,7 +9,7 @@
 
 namespace
 {
-	const int MAX_LIGHTS = 180;
+	constexpr int MAX_LIGHTS = 180;
 }
 
 struct ShaderLightTrait

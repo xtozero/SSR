@@ -5,7 +5,7 @@
 #include "GameObject.h"
 #include "GameObjectFactory.h"
 #include "../Engine/KeyValueReader.h"
-#include "../RenderCore/Direct3D11.h"
+#include "../RenderCore/IRenderer.h"
 #include "../RenderCore/IMesh.h"
 #include "Timer.h"
 

@@ -7,11 +7,11 @@
 
 #include <d3d11.h>
 
-bool CRenderTargetManager::CreateRenderTarget( ID3D11Device* pDevice, ID3D11Resource* pResource, const D3D11_RENDER_TARGET_VIEW_DESC* rtvDesc, const String& renderTargetName )
+IRenderTarget* CRenderTargetManager::CreateRenderTarget( ID3D11Device* pDevice, ID3D11Resource* pResource, const D3D11_RENDER_TARGET_VIEW_DESC* rtvDesc, const String& renderTargetName )
 {
-	if ( FindRenderTarget( renderTargetName ) )
+	if ( auto renderTarget = FindRenderTarget( renderTargetName ) )
 	{
-		return true;
+		return renderTarget;
 	}
 
 	if ( pDevice && pResource )
@@ -21,18 +21,18 @@ bool CRenderTargetManager::CreateRenderTarget( ID3D11Device* pDevice, ID3D11Reso
 		if ( newRenderTarget && newRenderTarget->CreateRenderTarget( pDevice, pResource, rtvDesc ) )
 		{
 			RegisterRenderTarget( renderTargetName, newRenderTarget );
-			return true;
+			return newRenderTarget.get( );
 		}
 	}
 
-	return false;
+	return nullptr;
 }
 
-bool CRenderTargetManager::CreateDepthStencil( ID3D11Device* pDevice, const ITexture* pTexture, const D3D11_DEPTH_STENCIL_VIEW_DESC* dsvDesc, const String& depthStencilName )
+IDepthStencil* CRenderTargetManager::CreateDepthStencil( ID3D11Device* pDevice, const ITexture* pTexture, const D3D11_DEPTH_STENCIL_VIEW_DESC* dsvDesc, const String& depthStencilName )
 {
-	if ( FindDepthStencil( depthStencilName ) )
+	if ( auto depthStencil = FindDepthStencil( depthStencilName ) )
 	{
-		return true;
+		return depthStencil;
 	}
 
 	if ( pDevice && pTexture )
@@ -42,38 +42,38 @@ bool CRenderTargetManager::CreateDepthStencil( ID3D11Device* pDevice, const ITex
 		if ( newDepthStencil && newDepthStencil->CreateDepthStencil( pDevice, pTexture, dsvDesc ) )
 		{
 			RegisterDepthStencil( depthStencilName, newDepthStencil );
-			return true;
+			return newDepthStencil.get( );
 		}
 	}
 
-	return false;
+	return nullptr;
 }
 
-std::shared_ptr<IRenderTarget> CRenderTargetManager::FindRenderTarget( const String& renderTargetName ) const
+IRenderTarget* CRenderTargetManager::FindRenderTarget( const String& renderTargetName ) const
 {
 	auto found = m_renderTargets.find( renderTargetName );
 
 	if ( found != m_renderTargets.end( ) )
 	{
-		return found->second;
+		return found->second.get( );
 	}
 
 	return nullptr;
 }
 
-std::shared_ptr<IDepthStencil> CRenderTargetManager::FindDepthStencil( const String& depthStencilName ) const
+IDepthStencil* CRenderTargetManager::FindDepthStencil( const String& depthStencilName ) const
 {
 	auto found = m_depthStencils.find( depthStencilName );
 
 	if ( found != m_depthStencils.end( ) )
 	{
-		return found->second;
+		return found->second.get( );
 	}
 
 	return nullptr;
 }
 
-void CRenderTargetManager::SetRenderTarget( ID3D11DeviceContext* pDeviceContext, std::shared_ptr<IRenderTarget> pRenderTarget, std::shared_ptr<IDepthStencil> pDepthStencil )
+void CRenderTargetManager::SetRenderTarget( ID3D11DeviceContext* pDeviceContext, IRenderTarget* pRenderTarget, IDepthStencil* pDepthStencil )
 {
 	if ( pDeviceContext )
 	{

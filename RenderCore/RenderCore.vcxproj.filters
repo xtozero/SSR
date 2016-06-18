@@ -46,9 +46,6 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
-    <Text Include="..\Shader\psTexWithOutLight.fx">
-      <Filter>fx</Filter>
-    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -235,6 +232,9 @@
       <Filter>Direct11\RenderResource</Filter>
     </ClInclude>
     <ClInclude Include="RenderEffect.h">
+      <Filter>Direct11</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCoreDllFunc.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -372,7 +372,7 @@
       <Filter>Direct11\RenderResource</Filter>
     </ClCompile>
     <ClCompile Include="RenderEffect.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Direct11</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -400,6 +400,7 @@
     <FxCompile Include="..\Shader\psDepthStencil.fx">
       <Filter>fx</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shader\psTexWithOutLight.fx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shader\texCommon.fxh">

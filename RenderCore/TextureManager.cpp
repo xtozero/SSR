@@ -14,8 +14,8 @@
 
 namespace
 {
-	const TCHAR* DEFAULT_TEXTURE_FILE_PATH = _T( "../Texture/" );
-	const TCHAR* TEXTURE_DESC_SCRIPT_FILE_NAME = _T( "../Script/TextureDesc.txt" );
+	constexpr TCHAR* DEFAULT_TEXTURE_FILE_PATH = _T( "../Texture/" );
+	constexpr TCHAR* TEXTURE_DESC_SCRIPT_FILE_NAME = _T( "../Script/TextureDesc.txt" );
 
 	D3D11_TEXTURE2D_DESC gTexture2DDesc;
 
@@ -68,7 +68,15 @@ namespace
 				sStream >> usage >> bindFlag >> cpuFlag >> miscFlag;
 
 				gTexture2DDesc.Usage = static_cast<D3D11_USAGE>( GetEnumStringMap().GetEnum( usage, D3D11_USAGE_DEFAULT ) );
-				gTexture2DDesc.BindFlags = static_cast<UINT>( GetEnumStringMap( ).GetEnum( bindFlag, D3D11_BIND_SHADER_RESOURCE ) );
+
+				std::vector<String> bindFlags;
+				UTIL::Split( bindFlag, bindFlags, _T( '|' ) );
+
+				for ( const auto& flag : bindFlags )
+				{
+					gTexture2DDesc.BindFlags |= static_cast<UINT>( GetEnumStringMap( ).GetEnum( flag, D3D11_BIND_SHADER_RESOURCE ) );
+				}
+
 				gTexture2DDesc.CPUAccessFlags = static_cast<UINT>( GetEnumStringMap( ).GetEnum( cpuFlag, 0 ) );
 				gTexture2DDesc.MiscFlags = miscFlag;
 			}

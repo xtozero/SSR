@@ -21,7 +21,7 @@ namespace
 		NORMAL,
 	};
 
-	const TCHAR* OBJ_FILE_DIR = _T( "../model/obj/" );
+	constexpr TCHAR* OBJ_FILE_DIR = _T( "../model/obj/" );
 }
 
 std::shared_ptr<IMesh> CObjMeshLoader::LoadMeshFromFile( const TCHAR* pFileName, CSurfaceManager* pSurfaceManager )

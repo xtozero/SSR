@@ -13,8 +13,8 @@ extern IRenderer* gRenderer;
 
 namespace
 {
-	const String CONST_BUFFER_NAME = _T( "Lights" );
-	const String LIGHT_PROPERTY_FILE_NAME = _T( "../Script/SceneLight.txt" );
+	constexpr TCHAR* CONST_BUFFER_NAME = _T( "Lights" );
+	constexpr TCHAR* LIGHT_PROPERTY_FILE_NAME = _T( "../Script/SceneLight.txt" );
 
 	void AmbientColorHandler( CLightManager* owner, const String&, const std::shared_ptr<KeyValue>& keyValue )
 	{

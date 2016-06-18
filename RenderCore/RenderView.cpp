@@ -6,7 +6,7 @@
 
 namespace
 {
-	const int CB_ELEMENT_NUMBER = 2;
+	constexpr int CB_ELEMENT_NUMBER = 2;
 }
 
 bool RenderView::initialize( ID3D11Device* pDevice )

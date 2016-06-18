@@ -6,8 +6,9 @@
 
 #include "../Engine/ConVar.h"
 #include "../Engine/KeyValueReader.h"
+#include "../RenderCore/IMesh.h"
 #include "../RenderCore/IMeshBuilder.h"
-#include "../RenderCore/Direct3D11.h"
+#include "../RenderCore/IRenderer.h"
 
 extern IMeshBuilder* g_meshBuilder;
 extern IRenderer* gRenderer;
@@ -35,7 +36,7 @@ void CDisplayShaderResourceHelper::Render( )
 		// 스냅샷으로 만들어지는 텍스쳐의 경우 로드시에는 없기때문에 렌더때 텍스쳐가 없으면 세팅을 시도합니다.
 		if ( GetModel( ) && GetModel( )->GetTexture() == nullptr )
 		{
-			GetModel( )->SetTexture( gRenderer->GetShaderResourceFromFile( m_textureName ).get() );
+			GetModel( )->SetTexture( gRenderer->GetShaderResourceFromFile( m_textureName ) );
 		}
 
 		CGameObject::Render( );

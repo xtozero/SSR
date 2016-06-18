@@ -18,12 +18,6 @@
 #include <vector>
 #include <map>
 
-namespace
-{
-	RENDERCORE_FUNC_DLL IRenderer* CreateDirect3D11Renderer ( );
-	RENDERCORE_FUNC_DLL IMeshBuilder* GetMeshBuilder( );
-};
-
 class BaseMesh;
 class IDepthStencilStateFactory;
 class IRasterizerStateFactory;
@@ -67,7 +61,7 @@ public:
 	virtual void UpdateWorldMatrix( const D3DXMATRIX& worldMatrix, const D3DXMATRIX& invWorldMatrix ) override;
 	virtual Microsoft::WRL::ComPtr<ID3D11RasterizerState> CreateRenderState( const String& stateName ) override;
 
-	virtual std::shared_ptr<IShaderResource> GetShaderResourceFromFile( const String& fileName ) override;
+	virtual IShaderResource* GetShaderResourceFromFile( const String& fileName ) override;
 	virtual std::shared_ptr<ISampler> CreateSamplerState( const String& stateName ) override;
 
 	virtual  Microsoft::WRL::ComPtr<ID3D11DepthStencilState> CreateDepthStencilState( const String& stateName ) override;
@@ -84,15 +78,15 @@ private:
 	bool InitializeMaterial( );
 	void RegisterEnumString( );
 
-	std::shared_ptr<IRenderTarget> TranslateRenderTargetViewFlag( const RENDERTARGET_FLAG rtFlag ) const;
-	std::shared_ptr<IDepthStencil> TranslateDepthStencilViewFlag( const DEPTHSTENCIL_FLAG dsFlag ) const;
+	IRenderTarget* TranslateRenderTargetViewFlag( const RENDERTARGET_FLAG rtFlag ) const;
+	IDepthStencil* TranslateDepthStencilViewFlag( const DEPTHSTENCIL_FLAG dsFlag ) const;
 private:
 	Microsoft::WRL::ComPtr<ID3D11Device>			m_pd3d11Device;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext>		m_pd3d11DeviceContext;
 	Microsoft::WRL::ComPtr<IDXGISwapChain>			m_pdxgiSwapChain;
 
-	std::shared_ptr<IRenderTarget>					m_pd3d11DefaultRT;
-	std::shared_ptr<IDepthStencil>					m_pd3d11DefaultDS;
+	IRenderTarget*									m_pd3d11DefaultRT;
+	IDepthStencil*									m_pd3d11DefaultDS;
 
 	std::map<String, std::shared_ptr<IShader>>		m_shaderList;
 	std::vector<std::shared_ptr<IBuffer>>			m_bufferList;

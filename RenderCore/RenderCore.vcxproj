@@ -168,6 +168,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="WireFrame.h" />
     <ClInclude Include="IDepthStencil.h" />
     <ClInclude Include="MaterialCommon.h" />
+    <ClInclude Include="RenderCoreDllFunc.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Shared\Util.cpp" />

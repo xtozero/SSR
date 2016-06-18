@@ -101,7 +101,7 @@ ITexture* CSnapshotManager::CreateCloneTexture( ID3D11Device* pDevice, const ITe
 	return nullptr;
 }
 
-bool CSnapshotManager::TryCreateShaderResource( ID3D11Device* pDevice, const ITexture* pTexture, const D3D11_TEXTURE2D_DESC& desc, const String& textureName, int srcFlag )
+IShaderResource* CSnapshotManager::TryCreateShaderResource( ID3D11Device* pDevice, const ITexture* pTexture, const D3D11_TEXTURE2D_DESC& desc, const String& textureName, int srcFlag )
 {
 	if ( pDevice && pTexture )
 	{
@@ -110,26 +110,26 @@ bool CSnapshotManager::TryCreateShaderResource( ID3D11Device* pDevice, const ITe
 		case TEXTURE_TYPE::TEXTURE_1D:
 			break;
 		case TEXTURE_TYPE::TEXTURE_2D:
-		{
-			ID3D11Texture2D* pTexture2D;
-
-			if ( SUCCEEDED( pTexture->Get( )->QueryInterface( IID_ID3D11Texture2D, (void **)&pTexture2D ) ) )
 			{
-				D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-				::ZeroMemory( &srvDesc, sizeof( D3D11_SHADER_RESOURCE_VIEW_DESC ) );
+				ID3D11Texture2D* pTexture2D;
 
-				srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-				srvDesc.Texture2D.MipLevels = 1;
-				srvDesc.Texture2D.MostDetailedMip = 0;
-				srvDesc.Format = TranslateSRVFormat( desc.Format );
-
-				if ( m_pShaderResourceMgr )
+				if ( SUCCEEDED( pTexture->Get( )->QueryInterface( IID_ID3D11Texture2D, (void **)&pTexture2D ) ) )
 				{
-					return m_pShaderResourceMgr->CreateShaderResource( pDevice, pTexture, srvDesc, textureName, srcFlag );
+					D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+					::ZeroMemory( &srvDesc, sizeof( D3D11_SHADER_RESOURCE_VIEW_DESC ) );
+
+					srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+					srvDesc.Texture2D.MipLevels = 1;
+					srvDesc.Texture2D.MostDetailedMip = 0;
+					srvDesc.Format = TranslateSRVFormat( desc.Format );
+
+					if ( m_pShaderResourceMgr )
+					{
+						return m_pShaderResourceMgr->CreateShaderResource( pDevice, pTexture, srvDesc, textureName, srcFlag );
+					}
 				}
 			}
-		}
-		break;
+			break;
 		case TEXTURE_TYPE::TEXTURE_3D:
 			break;
 		default:
@@ -137,7 +137,7 @@ bool CSnapshotManager::TryCreateShaderResource( ID3D11Device* pDevice, const ITe
 		}
 	}
 
-	return false;
+	return nullptr;
 }
 
 CSnapshotManager::CSnapshotManager( CTextureManager* pTextureManager, CShaderResourceManager* pShaderResourceManager ) :

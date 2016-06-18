@@ -12,10 +12,10 @@
 
 namespace
 {
-	const int PLY_FILE_READ_INDEX_STEP = 3;
+	constexpr int PLY_FILE_READ_INDEX_STEP = 3;
 
-	const TCHAR* PLY_FILE_DIR = _T( "../model/ply/" );
-	const TCHAR* PLY_DEFAULT_SURFACE_NAME = _T( "PlyDefaultSurface" );
+	constexpr TCHAR* PLY_FILE_DIR = _T( "../model/ply/" );
+	constexpr TCHAR* PLY_DEFAULT_SURFACE_NAME = _T( "PlyDefaultSurface" );
 
 	void CalcPlyNormal( MeshVertex* vertices, const UINT vertexCount, const WORD* indices, const UINT indexCount )
 	{

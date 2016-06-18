@@ -34,9 +34,9 @@ bool CMeshBuilderMesh::Load( D3D_PRIMITIVE_TOPOLOGY topology )
 	{
 		auto texture = g_pRenderer->GetShaderResourceFromFile( m_textureName );
 
-		if ( texture.get( ) )
+		if ( texture )
 		{
-			m_pTexture = texture.get( );
+			m_pTexture = texture;
 		}
 	}
 

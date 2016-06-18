@@ -10,7 +10,7 @@
 
 namespace
 {
-	const TCHAR* DEFAULT_TEXTURE_FILE_PATH = _T( "../Texture/" );
+	constexpr TCHAR* DEFAULT_TEXTURE_FILE_PATH = _T( "../Texture/" );
 }
 
 void CShaderResourceManager::LoadShaderResourceFromFile( ID3D11Device* pDevice, const String& fileName )
@@ -44,13 +44,13 @@ void CShaderResourceManager::LoadShaderResourceFromFile( ID3D11Device* pDevice, 
 	::SetCurrentDirectory( pPath );
 }
 
-std::shared_ptr<IShaderResource> CShaderResourceManager::FindShaderResource( const String& fileName ) const
+IShaderResource* CShaderResourceManager::FindShaderResource( const String& fileName ) const
 {
 	auto found = m_shaderResources.find( fileName );
 
 	if ( found != m_shaderResources.end( ) )
 	{
-		return found->second;
+		return found->second.get( );
 	}
 	else
 	{
@@ -76,12 +76,12 @@ void CShaderResourceManager::RegisterShaderResource( const String& resourceName,
 	m_shaderResources.emplace( resourceName, newShaderResource );
 }
 
-bool CShaderResourceManager::CreateShaderResource( ID3D11Device* pDevice, const ITexture* pTexture, const D3D11_SHADER_RESOURCE_VIEW_DESC& desc, const String& resourceName, int srcFlag )
+IShaderResource* CShaderResourceManager::CreateShaderResource( ID3D11Device* pDevice, const ITexture* pTexture, const D3D11_SHADER_RESOURCE_VIEW_DESC& desc, const String& resourceName, int srcFlag )
 {
 	if ( FindShaderResource( resourceName ) )
 	{
 		DebugWarning( "ShaderResourceManager Error - Try Create Exist ShaderResource Name\n" );
-		return false;
+		return nullptr;
 	}
 
 	if ( pDevice && pTexture )
@@ -91,11 +91,11 @@ bool CShaderResourceManager::CreateShaderResource( ID3D11Device* pDevice, const 
 		if ( newShaderResource->CreateShaderResource( pDevice, pTexture, desc ) )
 		{
 			m_shaderResources.emplace( resourceName, newShaderResource );
-			return true;
+			return newShaderResource.get( );
 		}
 	}
 
-	return false;
+	return nullptr;
 }
 
 CShaderResourceManager::CShaderResourceManager( )

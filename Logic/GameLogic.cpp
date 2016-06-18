@@ -6,10 +6,12 @@
 #include "GameLogic.h"
 #include "GameObject.h"
 #include "../Shared/Util.h"
-#include "../RenderCore/Direct3D11.h"
 #include "../RenderCore/BaseMesh.h"
 #include "../RenderCore/DebugMesh.h"
 #include "../RenderCore/IMeshBuilder.h"
+#include "../RenderCore/IRenderer.h"
+#include "../RenderCOre/IRenderView.h"
+#include "../RenderCore/RenderCoreDllFunc.h"
 #include "Timer.h"
 #include "UtilWindowInfo.h"
 

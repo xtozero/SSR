@@ -14,7 +14,7 @@ extern IRenderer* g_pRenderer;
 
 namespace
 {
-	const TCHAR* MATERIAL_SCRIPT_FILE_NAME = _T( "../Script/Materials.txt" );
+	constexpr TCHAR* MATERIAL_SCRIPT_FILE_NAME = _T( "../Script/Materials.txt" );
 
 	SHADER_TYPE TranslateShaderType( const String& shaderType )
 	{

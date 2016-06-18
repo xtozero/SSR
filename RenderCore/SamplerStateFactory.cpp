@@ -12,8 +12,8 @@
 
 namespace
 {
-	const TCHAR* SAMPLER_STATE_DESC_FILE_NAME = _T( "../Script/SamplerStateDesc.txt" );
-	const TCHAR* SMAPLER_DESC_HANDLER_KEY_NAME = _T( "SamplerDesc" );
+	constexpr TCHAR* SAMPLER_STATE_DESC_FILE_NAME = _T( "../Script/SamplerStateDesc.txt" );
+	constexpr TCHAR* SMAPLER_DESC_HANDLER_KEY_NAME = _T( "SamplerDesc" );
 
 	void SamplerDescHandler( ISamplerStateFactory* owner, const String&, const std::shared_ptr<KeyValue>& keyValue )
 	{

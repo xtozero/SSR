@@ -23,10 +23,10 @@ struct RenderContext
 class IRenderEffect
 {
 public:
-	virtual void SceneBegin( const RenderContext& context ) = 0;
-	virtual void SceneEnd( const RenderContext& context ) = 0;
+	virtual void SceneBegin( const RenderContext& context ) {};
+	virtual void SceneEnd( const RenderContext& context ) {};
 
-	virtual ~IRenderEffect( ) {}
+	virtual ~IRenderEffect( ) = default;
 };
 
 class CRenderEffect

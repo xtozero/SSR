@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Direct3D11.h"
+#include "RenderCoreDllFunc.h"
 #include "util_rendercore.h"
 
 #include <D3D11.h>

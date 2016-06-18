@@ -73,7 +73,7 @@ public:
 	virtual void UpdateWorldMatrix( const D3DXMATRIX& worldMatrix, const D3DXMATRIX& invWorldMatrix ) = 0;
 
 	virtual Microsoft::WRL::ComPtr<ID3D11RasterizerState> CreateRenderState( const String& stateName ) = 0;
-	virtual std::shared_ptr<IShaderResource> GetShaderResourceFromFile( const String& fileName ) = 0;
+	virtual IShaderResource* GetShaderResourceFromFile( const String& fileName ) = 0;
 	virtual std::shared_ptr<ISampler> CreateSamplerState( const String& stateName ) = 0;
 
 	virtual Microsoft::WRL::ComPtr<ID3D11DepthStencilState> CreateDepthStencilState( const String& stateName ) = 0;

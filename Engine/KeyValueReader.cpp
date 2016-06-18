@@ -10,7 +10,7 @@
 
 namespace
 {
-	const int MAX_STRING_LEN = 256;
+	constexpr int MAX_STRING_LEN = 256;
 
 	ConVar( print_debug_keyValue, "0", "print data when keyValue loaded" );
 }

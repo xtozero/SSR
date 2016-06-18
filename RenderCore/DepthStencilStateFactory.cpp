@@ -11,8 +11,8 @@
 
 namespace
 {
-	const TCHAR* DEPTH_STENCIL_DESC_FILE_NAME = _T( "../Script/DepthStencilDesc.txt" );
-	const TCHAR* DEPTH_STENCIL_DESC_HANDLER_KEY_NAME = _T( "DepthStencilDesc" );
+	constexpr TCHAR* DEPTH_STENCIL_DESC_FILE_NAME = _T( "../Script/DepthStencilDesc.txt" );
+	constexpr TCHAR* DEPTH_STENCIL_DESC_HANDLER_KEY_NAME = _T( "DepthStencilDesc" );
 
 	void DepthStencilDescHandler( IDepthStencilStateFactory* owner, const String&, const std::shared_ptr<KeyValue>& keyValue )
 	{

@@ -22,9 +22,9 @@ bool CObjMesh::Load( D3D_PRIMITIVE_TOPOLOGY topology )
 		{
 			auto texture = g_pRenderer->GetShaderResourceFromFile( textureName );
 
-			if ( texture.get( ) )
+			if ( texture )
 			{
-				i->m_pTexture = texture.get();
+				i->m_pTexture = texture;
 			}
 			else
 			{

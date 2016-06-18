@@ -7,7 +7,7 @@
 
 namespace
 {
-	const TCHAR* SHADER_LIST_SCRIPT_FILE_NAME = _T( "../Script/ShaderList.txt" );
+	constexpr TCHAR* SHADER_LIST_SCRIPT_FILE_NAME = _T( "../Script/ShaderList.txt" );
 }
 
 bool CShaderListScriptLoader::LoadShadersFromScript( IRenderer* const pRenderer )

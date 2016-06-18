@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Aaboundingbox.h"
 #include "BoundingSphere.h"
-#include "../RenderCore/Direct3D11.h"
+#include "../RenderCore/IRenderer.h"
 #include "../RenderCore/IMesh.h"
 #include "RigidBodyManager.h"
 
