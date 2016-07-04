@@ -48,7 +48,7 @@ public:
 
 	virtual std::shared_ptr<IShader> SearchShaderByName( const TCHAR* pName ) override;
 
-	virtual std::shared_ptr<IMaterial> GetMaterialPtr( const TCHAR* pMaterialName ) override;
+	virtual IMaterial* GetMaterialPtr( const TCHAR* pMaterialName ) override;
 	virtual std::shared_ptr<IMesh> GetModelPtr( const TCHAR* pModelName ) override;
 	virtual void SetModelPtr( const String& modelName, const std::shared_ptr<IMesh>& pModel ) override;
 	virtual void DrawModel( std::shared_ptr<IMesh> pModel ) override;
@@ -69,6 +69,16 @@ public:
 	virtual bool SetRenderTargetDepthStencilView( RENDERTARGET_FLAG rtFlag = RENDERTARGET_FLAG::DEFALUT, DEPTHSTENCIL_FLAG dsFlag = DEPTHSTENCIL_FLAG::DEFALUT ) override;
 
 	virtual void ResetResource( const std::shared_ptr<IMesh>& pMesh, const SHADER_TYPE type ) override;
+
+	virtual void TakeSnapshot2D( const String& sourceTextureName, const String& destTextureName ) override;
+
+	virtual IRendererShadowManager* GetShadowManager( ) override { return m_pShadowManager.get( ); }
+
+	virtual ID3D11Device* GetDevice( ) const override { return m_pd3d11Device.Get( ); }
+	virtual ID3D11DeviceContext* GetDeviceContext( ) const override { return m_pd3d11DeviceContext.Get( ); };
+	virtual CRenderTargetManager* GetRenderTargetManager( ) override { return &m_renderTargetManager; }
+	virtual CTextureManager* GetTextureManager( ) override { return &m_textureManager; }
+	virtual CShaderResourceManager* GetShaderResourceManager( ) override { return &m_shaderResourceManager; }
 private:
 	bool CreateD3D11Device ( HWND hWind, UINT nWndWidth, UINT nWndHeight );
 	bool CreatePrimeRenderTargetVIew ( );
@@ -80,7 +90,7 @@ private:
 
 	IRenderTarget* TranslateRenderTargetViewFlag( const RENDERTARGET_FLAG rtFlag ) const;
 	IDepthStencil* TranslateDepthStencilViewFlag( const DEPTHSTENCIL_FLAG dsFlag ) const;
-private:
+
 	Microsoft::WRL::ComPtr<ID3D11Device>			m_pd3d11Device;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext>		m_pd3d11DeviceContext;
 	Microsoft::WRL::ComPtr<IDXGISwapChain>			m_pdxgiSwapChain;
@@ -112,6 +122,8 @@ private:
 	CSurfaceManager									m_surfaceManager;
 
 	CRenderEffect									m_renderEffect;
+	std::unique_ptr<IRendererShadowManager>			m_pShadowManager;
+
 public:
 	CDirect3D11 ( );
 	virtual ~CDirect3D11 ( );

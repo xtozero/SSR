@@ -52,6 +52,7 @@ public:
 	virtual void Render( ) override;
 
 	virtual bool ShouldDraw( ) const override { return false; }
+	virtual bool ShouldDrawShadow( ) const override { return false; }
 
 	const LIGHT_TYPE GetType( ) const;
 	const bool IsOn( ) const;
@@ -68,9 +69,13 @@ public:
 
 	void RegisterProperty( LightTrait* const property ) { m_property = property; }
 
+	D3DXMATRIX GetViewMatrix( );
+
 	CLight( );
 	virtual ~CLight( ) = default;
 
 private:
 	LightTrait* m_property;
+	bool m_isNeedReclac;
+	D3DXMATRIX m_viewMatrix;
 };

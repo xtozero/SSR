@@ -50,7 +50,7 @@ void BaseMesh::Draw( ID3D11DeviceContext* )
 
 }
 
-void BaseMesh::SetMaterial( const std::shared_ptr<IMaterial> pMaterial )
+void BaseMesh::SetMaterial( IMaterial* pMaterial )
 {
 	m_pMaterial = pMaterial;
 }

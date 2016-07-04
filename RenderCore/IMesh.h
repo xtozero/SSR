@@ -22,7 +22,7 @@ public:
 
 	virtual void Draw( ID3D11DeviceContext* pDeviceContext ) = 0;
 
-	virtual void SetMaterial( const std::shared_ptr<IMaterial> pMaterial ) = 0;
+	virtual void SetMaterial( IMaterial* pMaterial ) = 0;
 	virtual void SetTexture( IShaderResource* pTexture ) = 0;
 	virtual IShaderResource* GetTexture( ) const = 0;
 

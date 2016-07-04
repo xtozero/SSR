@@ -12,19 +12,27 @@
 	
 	"Object" "base"
 	{
-		"Name"		"cow1"
+		"Name"		"ground"
+		"Model"		"plane.obj"
+		"Material"	"tutorial"
+		"Position"	"0 -10 0"
+	}
+	
+	"Object" "base"
+	{
+		"Name"		"sphere"
 		"Model"		"shape_sphere.obj" //모델명
 		"Material"	"tutorial" //재질명
-		"Position"	"0 10 0" //x y z
+		"Position"	"-7.329643 -4.584109 0.000000" //x y z
 		"Scale"		"10 10 10" //xScale yScale zScale
 	}
 	
 	"Object" "base"
 	{
-		"Name"		"cow2"
+		"Name"		"cow"
 		"Model"		"object.ply" //모델명
 		"Material"	"tutorial" //재질명
-		"Position"	"0 -10 0" //x y z
+		"Position"	"6.637395 -6.340924 0.000000" //x y z
 		"Scale"		"10 10 10" //xScale yScale zScale
 	}
 	
@@ -33,7 +41,8 @@
 		"Name"		"spaceship"
 		"Model"		"spaceship.obj" //모델명
 		"Material"	"texture" //재질명
-		"Position"	"-10 0 100" //x y z
+		"Scale"		"0.3 0.3 0.3" //xScale yScale zScale
+		"Position"	"-15.357565 -5.872661 -10.000000" //x y z
 	}
 	
 	"Object" "base"
@@ -42,7 +51,7 @@
 		"Model"		"statue.obj" //모델명
 		"Material"	"texture" //재질명
 		"Scale"		"3 3 3" //xScale yScale zScale
-		"Position"	"10 -10 -10" //x y z
+		"Position"	"10.299509 -9.482673 -10.000000" //x y z
 	}
 	
 	"Object" "displaySRVHelper"
@@ -71,6 +80,16 @@
 		"Material"	"mat_display_renderTarget"
 		"Position"	"150 115 0"
 		"TextureName"	"DebugOrenNayarLookUP"
+		"Width"		"300"
+		"Height"	"230"
+	}
+	
+	"Object" "displaySRVHelper"
+	{
+		"Name"		"shadowmapViewer"
+		"Material"	"mat_display_renderTarget"
+		"Position"	"150 115 0"
+		"TextureName"	"DebugShadowMap"
 		"Width"		"300"
 		"Height"	"230"
 	}

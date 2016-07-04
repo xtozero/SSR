@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Light.h"
 
+#include <cassert>
+
 void CLight::SetPosition( const float x, const float y, const float z )
 {
 	SetPosition( D3DXVECTOR3( x, y, z ) );
@@ -128,7 +130,24 @@ void CLight::SetSpecularColor( const D3DXCOLOR& specularColor )
 	}
 }
 
+D3DXMATRIX CLight::GetViewMatrix( )
+{
+	if ( m_isNeedReclac )
+	{
+		D3DXVECTOR3 eyePos( m_property->m_position.x, m_property->m_position.y, m_property->m_position.z );
+		assert( m_property->m_direction.x != 0.f || m_property->m_direction.y != 0.f || m_property->m_direction.z != 0.f );
+		D3DXVECTOR3 lookAt( eyePos + m_property->m_direction );
+		D3DXVECTOR3 up( 0.f, 1.0f, 0.f );
+
+		D3DXMatrixLookAtLH( &m_viewMatrix, &eyePos, &lookAt, &up );
+		m_isNeedReclac = false;
+	}
+
+	return m_viewMatrix;
+}
+
 CLight::CLight( ) :
-	m_property( nullptr )
+	m_property( nullptr ),
+	m_isNeedReclac( true )
 {
 }

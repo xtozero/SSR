@@ -237,6 +237,12 @@
     <ClInclude Include="RenderCoreDllFunc.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="RendererShadowManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="IRendererShadowManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -374,6 +380,9 @@
     <ClCompile Include="RenderEffect.cpp">
       <Filter>Direct11</Filter>
     </ClCompile>
+    <ClCompile Include="RendererShadowManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Shader\psTutorial.fx">
@@ -401,12 +410,21 @@
       <Filter>fx</Filter>
     </FxCompile>
     <FxCompile Include="..\Shader\psTexWithOutLight.fx" />
+    <FxCompile Include="..\Shader\vsShadowmap.fx">
+      <Filter>fx</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shader\psShadowmap.fx">
+      <Filter>fx</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shader\texCommon.fxh">
       <Filter>fx</Filter>
     </None>
     <None Include="..\Shader\lightCommon.fxh">
+      <Filter>fx</Filter>
+    </None>
+    <None Include="..\Shader\shadowCommon.fxh">
       <Filter>fx</Filter>
     </None>
   </ItemGroup>

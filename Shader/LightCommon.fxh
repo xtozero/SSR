@@ -1,4 +1,4 @@
-#include "texCommon.fxh"
+#include "shadowCommon.fxh"
 
 #define MAX_LIGHTS 180
 
@@ -44,6 +44,7 @@ struct PS_INPUT
 	float3 normal : NORMAL;
 	float3 color : COLOR;
 	float2 texcoord : TEXCOORD;
+	float4 shadowCoord : TEXCOORD1;
 };
 
 struct LIGHTCOLOR
@@ -152,9 +153,25 @@ float4 CalcLight( PS_INPUT input, float4 color )
 		}
 	}
 
+	float bias = 0.000003;
+	float visibility = 1.0f;
+	float2 uv = input.shadowCoord.xy / input.shadowCoord.w;
+	uv.y = -uv.y;
+	uv = uv * 0.5f + 0.5f;
+
+	float curDepth = input.shadowCoord.z / input.shadowCoord.w;
+
+	for ( i = 0; i < 4; ++i )
+	{
+		if ( ( PoissonSampleShadow( uv, i ) ) < curDepth - bias )
+		{
+			visibility -= 0.125f;
+		}
+	}
+
 	float4 lightColor = g_globalAmbient * g_ambient;
-	lightColor += cColor.m_diffuse * g_diffuse;
-	lightColor += cColor.m_specular * g_specular; 
+	lightColor += cColor.m_diffuse * g_diffuse * visibility;
+	lightColor += cColor.m_specular * g_specular * visibility; 
 
 	return saturate( MoveGammaSapce( linearColor * lightColor ) );
 }

@@ -67,4 +67,16 @@
 			"PS"	"default"
 		}
 	}
+	
+	"mat_shadowMap"
+	{
+		"Shader"
+		{
+			"VS"	"vsShadowmap"
+			"PS"	"psShadowmap"
+		}
+		
+		"RS_State"	"default"
+		"DS_State"	"default"
+	}
 }

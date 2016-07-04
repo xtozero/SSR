@@ -1,3 +1,4 @@
+#include "Direct3D11.h"
 #include "stdafx.h"
 #include "common.h"
 
@@ -24,6 +25,7 @@
 
 #include "RasterizerStateFactory.h"
 #include "RenderCoreDllFunc.h"
+#include "RendererShadowManager.h"
 #include "RenderTarget.h"
 #include "SamplerStateFactory.h"
 #include "SkyBoxMaterial.h"
@@ -32,19 +34,18 @@
 #include "TutorialMaterial.h"
 #include "WireFrame.h"
 
-#include <array>
-#include <tuple>
-#include <string>
-
 #include "ConstantBufferDefine.h"
 #include "util_rendercore.h"
 
 #include "../Engine/EnumStringMap.h"
 #include "../shared/Util.h"
 
+#include <array>
 #include <D3D11.h>
 #include <D3DX11.h>
 #include <DXGI.h>
+#include <tuple>
+#include <string>
 
 IRenderer* CreateDirect3D11Renderer( )
 {
@@ -91,7 +92,7 @@ bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 	
 	ON_FAIL_RETURN( m_textureManager.LoadTexture( m_pd3d11Device.Get() ) );
 
-	ON_FAIL_RETURN( m_renderEffect.Initialize( m_pd3d11Device.Get(), m_pd3d11DeviceContext.Get(), &m_textureManager, &m_shaderResourceManager, &m_renderTargetManager, &m_snapshotManager ) );
+	m_pShadowManager = CreateShadowManager();
 
 	m_pWorldMatrixBuffer = CreateConstantBuffer( _T("WorldMatrix"), sizeof( D3DXMATRIX ), WORLD_MATRIX_ELEMENT_SIZE, NULL );
 	MaterialSystem::GetInstance( )->RegisterConstantBuffer( MAT_CONSTANT_BUFFER::SURFACE, CreateConstantBuffer( _T( "Surface" ), sizeof( SurfaceTrait ), 1, NULL ) );
@@ -152,6 +153,7 @@ void CDirect3D11::ClearDepthStencilView( )
 
 void CDirect3D11::SceneBegin( )
 {
+	SetRenderTargetDepthStencilView( );
 	ClearDepthStencilView( );
 	ClearRenderTargetView( );
 	if ( m_pView )
@@ -159,7 +161,7 @@ void CDirect3D11::SceneBegin( )
 		m_pView->UpdataView( m_pd3d11DeviceContext.Get( ) );
 	}
 
-	m_renderEffect.SceneBegin( );
+	m_renderEffect.SceneBegin( this );
 }
 
 void CDirect3D11::SceneEnd( )
@@ -168,8 +170,9 @@ void CDirect3D11::SceneEnd( )
 
 	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), _T( "DefaultDepthStencil" ), _T( "DebugDepthStencil" ) );
 	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), _T( "DefaultRenderTarget" ), _T( "DebugRenderTarget" ) );
+	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), _T( "ShadowMap" ), _T( "DebugShadowMap" ) );
 
-	m_renderEffect.SceneEnd( );
+	m_renderEffect.SceneEnd( this );
 }
 
 std::shared_ptr<IShader> CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pProfile )
@@ -560,9 +563,9 @@ IDepthStencil*  CDirect3D11::TranslateDepthStencilViewFlag( const DEPTHSTENCIL_F
 	}
 }
 
-std::shared_ptr<IMaterial> CDirect3D11::GetMaterialPtr( const TCHAR* pMaterialName )
+IMaterial* CDirect3D11::GetMaterialPtr( const TCHAR* pMaterialName )
 {
-	return MaterialSystem::GetInstance( )->SearchMaterialByName( pMaterialName );
+	return MaterialSystem::GetInstance( )->SearchMaterialByName( pMaterialName ).get();
 }
 
 std::shared_ptr<IMesh> CDirect3D11::GetModelPtr( const TCHAR* pModelName )
@@ -689,6 +692,11 @@ void CDirect3D11::ResetResource( const std::shared_ptr<IMesh>& pMesh, const SHAD
 	{
 		pMesh->ResetResource( m_pd3d11DeviceContext.Get( ), type );
 	}
+}
+
+void CDirect3D11::TakeSnapshot2D( const String & sourceTextureName, const String & destTextureName )
+{
+	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get(), m_pd3d11DeviceContext.Get(), sourceTextureName, destTextureName );
 }
 
 bool CDirect3D11::CreateD3D11Device( HWND hWind, UINT nWndWidth, UINT nWndHeight )
@@ -850,7 +858,8 @@ m_snapshotManager( &m_textureManager, &m_shaderResourceManager ),
 m_pDepthStencilFactory( nullptr ),
 m_pRasterizerFactory( nullptr ),
 m_pSamplerFactory( nullptr ),
-m_pMaterialLoader( nullptr )
+m_pMaterialLoader( nullptr ),
+m_pShadowManager( nullptr )
 {
 	RegisterEnumString( );
 }

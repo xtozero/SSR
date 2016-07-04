@@ -11,7 +11,7 @@
 		"range"			"0"
 		"fallOff"		"0"
 		"attenuation"	"0"
-		"position"		"0 0 0"
+		"position"		"70 70 0"
 		"m_diffuse"		"1 1 1"
 		"m_specular"	"1 0 0"
 	}

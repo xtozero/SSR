@@ -16,7 +16,7 @@ Microsoft::WRL::ComPtr<ID3D10Blob>D3D11BaseShader::GetShaderBlob( const TCHAR* p
 	flag |= D3D10_SHADER_DEBUG;
 #endif
 
-	D3DX11CompileFromFile ( pFilePath,
+	D3DX11CompileFromFile( pFilePath,
 		nullptr,
 		nullptr,
 		"main",

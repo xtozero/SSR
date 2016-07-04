@@ -1,19 +1,21 @@
 #include "stdafx.h"
 #include "CameraManager.h"
 #include "DebugConsole.h"
-#include "../Engine/ConVar.h"
-#include "../Engine/KeyValueReader.h"
 #include "GameLogic.h"
 #include "GameObject.h"
-#include "../Shared/Util.h"
+#include "Timer.h"
+#include "UtilWindowInfo.h"
+
+#include "../Engine/ConVar.h"
+#include "../Engine/KeyValueReader.h"
+#include "../Engine/ConCommand.h"
 #include "../RenderCore/BaseMesh.h"
 #include "../RenderCore/DebugMesh.h"
 #include "../RenderCore/IMeshBuilder.h"
 #include "../RenderCore/IRenderer.h"
 #include "../RenderCOre/IRenderView.h"
 #include "../RenderCore/RenderCoreDllFunc.h"
-#include "Timer.h"
-#include "UtilWindowInfo.h"
+#include "../Shared/Util.h"
 
 #include <ctime>
 #include <tchar.h>
@@ -42,6 +44,9 @@ void CGameLogic::ProcessLogic ( void )
 
 void CGameLogic::EndLogic ( void )
 {
+	//그림자 맵 렌더링
+	m_shadowManager.Process( m_lightManager, *gRenderer, g_gameObjects );
+
 	//게임 로직 수행 후처리
 	m_mainCamera.UpdateToRenderer( gRenderer );
 	m_lightManager.UpdateToRenderer( m_mainCamera );
@@ -67,6 +72,10 @@ bool CGameLogic::LoadScene( void )
 
 void CGameLogic::SceneBegin( void ) const
 {
+	float wndWidth = static_cast<float>( CUtilWindowInfo::GetInstance( ).GetWidth( ) );
+	float wndHeight = static_cast<float>( CUtilWindowInfo::GetInstance( ).GetHeight( ) );
+	gRenderer->PushViewPort( 0.f, 0.f, wndWidth, wndHeight );
+
 	gRenderer->SceneBegin( );
 }
 
@@ -122,7 +131,6 @@ bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
 
 	ON_FAIL_RETURN( gRenderer->InitializeRenderer( hwnd, wndWidth, wndHeight ) );
 	
-	gRenderer->PushViewPort( 0.0f, 0.0f, static_cast<float>( wndWidth ), static_cast<float>( wndHeight ) );
 	m_pickingManager.PushViewport( 0.0f, 0.0f, static_cast<float>( wndWidth ), static_cast<float>( wndHeight ) );
 
 	IRenderView* view = gRenderer->GetCurrentRenderView( );
@@ -151,6 +159,7 @@ bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
 
 	ON_FAIL_RETURN( LoadScene( ) );
 	ON_FAIL_RETURN( m_lightManager.Initialize( g_gameObjects ) );
+	m_shadowManager.Init( *gRenderer );
 
 	return true;
 }
@@ -238,4 +247,16 @@ CGameLogic::CGameLogic( ):
 	m_wndHwnd( nullptr )
 {
 	ShowDebugConsole( );
+}
+
+CON_COMMAND( print_objects_pos, "print all visible object position" )
+{
+	for ( const auto& object : g_gameObjects )
+	{
+		if ( object->ShouldDraw( ) )
+		{
+			DebugMsg( "name - %s\n", object->GetName( ).c_str() );
+			DebugMsg( "pos - %f %f %f\n", object->GetPosition( ).x, object->GetPosition( ).y, object->GetPosition( ).z );
+		}
+	}
 }

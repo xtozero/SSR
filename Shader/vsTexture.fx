@@ -1,13 +1,19 @@
-cbuffer WORLD : register( b0 )
+cbuffer WORLD : register(b0)
 {
-	matrix g_worldMatrix : packoffset( c0 );
+	matrix g_worldMatrix : packoffset(c0);
 	matrix g_invWorldMatrix : packoffset(c4);
 }
 
-cbuffer VEIW_PROJECTION : register( b1 )
+cbuffer VEIW_PROJECTION : register(b1)
 {
-	matrix g_viewMatrix : packoffset( c0 );
-	matrix g_projectionMatrix : packoffset( c4 );
+	matrix g_viewMatrix : packoffset(c0);
+	matrix g_projectionMatrix : packoffset(c4);
+};
+
+cbuffer LIGHT_VEIW_PROJECTION : register(b2)
+{
+	matrix g_lightViewMatrix : packoffset(c0);
+	matrix g_lightProjectionMatrix: packoffset(c4);
 };
 
 struct VS_INPUT
@@ -25,18 +31,24 @@ struct VS_OUTPUT
 	float3 normal : NORMAL;
 	float3 color : COLOR;
 	float2 texcoord : TEXCOORD;
+	float4 shadowCoord : TEXCOORD1;
 };
 
 VS_OUTPUT main( VS_INPUT input )
 {
 	VS_OUTPUT output = (VS_OUTPUT)0;
 
-	matrix viewPorjection = mul( g_viewMatrix, g_projectionMatrix );
+	matrix viewProjection = mul( g_viewMatrix, g_projectionMatrix );
 
-	output.worldPos = mul( float4( input.position, 1.0f ), g_worldMatrix ).xyz;
-	output.position = mul( float4( output.worldPos, 1.0f ), viewPorjection );
-	output.normal = mul( float4( input.normal, 0.f ), transpose( g_invWorldMatrix ) ).xyz;
+	output.worldPos = mul( float4(input.position, 1.0f), g_worldMatrix ).xyz;
+	output.position = mul( float4(output.worldPos, 1.0f), viewProjection );
+	output.normal = mul( float4(input.normal, 0.f), transpose( g_invWorldMatrix ) ).xyz;
 	output.texcoord = input.texcoord;
+
+	matrix lightWorldViewPorjection = mul( g_worldMatrix, g_lightViewMatrix );
+	lightWorldViewPorjection = mul( lightWorldViewPorjection, g_lightProjectionMatrix );
+
+	output.shadowCoord = mul( float4(input.position, 1.0f), lightWorldViewPorjection );
 	output.color = input.color;
 
 	return output;

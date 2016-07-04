@@ -153,8 +153,33 @@ void CLightManager::PushLightTrait( const LightTrait & trait )
 	++m_shaderLightProperty.m_curLights;
 }
 
+D3DXMATRIX CLightManager::GetPrimaryLightViewMatrix( )
+{
+	if ( m_lights.size() > m_primaryLight )
+	{
+		if ( m_lights[m_primaryLight] && m_lights[m_primaryLight]->IsOn( ) )
+		{
+			return m_lights[m_primaryLight]->GetViewMatrix( );
+		}
+	}
+	
+	D3DXMATRIX lightViewMatrix;
+	D3DXMatrixIdentity( &lightViewMatrix );
+
+	return lightViewMatrix;
+}
+
+D3DXMATRIX CLightManager::GerPrimaryLightProjectionMatrix( )
+{
+	D3DXMATRIX lightProjMatrix;
+	D3DXMatrixPerspectiveFovLH( &lightProjMatrix, D3DX_PI / 4.0f, 1.f, 1.f, 1500.f );
+
+	return lightProjMatrix;
+}
+
 CLightManager::CLightManager( ) :
-	m_needUpdateToRenderer( false )
+	m_needUpdateToRenderer( false ),
+	m_primaryLight( 0 )
 {
 	RegisterHandler( _T( "globalAmbient" ), AmbientColorHandler );
 	RegisterHandler( _T( "Light" ), LightHandler );

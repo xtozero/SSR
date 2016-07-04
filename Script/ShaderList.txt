@@ -9,4 +9,6 @@
 	"../Shader/vsDepthStencil.fx"			"vs_4_0"
 	"../Shader/psDepthStencil.fx"			"ps_4_0"
 	"../Shader/psTexWithOutLight.fx"		"ps_4_0"
+	"../Shader/vsShadowmap.fx"				"vs_4_0"
+	"../Shader/psShadowmap.fx"				"ps_4_0"
 }

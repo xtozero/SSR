@@ -6,6 +6,7 @@
 #include "MouseController.h"
 #include "PickingManager.h"
 #include "SceneLoader.h"
+#include "ShadowManager.h"
 #include "Timer.h"
 
 #include <memory>
@@ -47,5 +48,6 @@ private:
 	CMouseController m_mouseController;
 	CPickingManager m_pickingManager;
 	CLightManager m_lightManager;
+	CShadowManager m_shadowManager;
 };
 

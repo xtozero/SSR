@@ -77,25 +77,13 @@ void CGameObject::Render( )
 {
 	if ( ShouldDraw() && m_pModel )
 	{
-		m_pModel->SetMaterial( m_pMaterial );
+		m_pModel->SetMaterial( m_pOverrideMtl ? m_pOverrideMtl : m_pMaterial );
 		gRenderer->DrawModel( m_pModel );
 	}
 }
 
 void CGameObject::Think( )
 {
-	//Test Code
-	if ( m_isPicked )
-	{
-
-	}
-	else
-	{
-		float fDeltaTime = CTimer::GetInstance( ).GetElapsedTIme( );
-		const D3DXVECTOR3& curRotate = GetRotate( );
-
-		SetRotate( 0.f, curRotate.y + D3DXToRadian( 45.f ) * fDeltaTime, 0.f );
-	}
 }
 
 void CGameObject::SetMaterialName( const String& pMaterialName )

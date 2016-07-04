@@ -3,13 +3,19 @@
 #include "common.h"
 #include <memory>
 
-class IShader;
+class CRenderTargetManager;
+class CShaderResourceManager;
+class CTextureManager;
 class IBuffer;
-class IRenderView;
 class IMaterial;
 class IMesh;
-class IShaderResource;
+class IRendererShadowManager;
+class IRenderView;
 class ISampler;
+class IShader;
+class IShaderResource;
+struct ID3D11Device;
+struct ID3D11DeviceContext;
 struct ID3D11RasterizerState;
 struct ID3D11SamplerState;
 struct ID3D11DepthStencilState;
@@ -60,7 +66,7 @@ public:
 
 	virtual std::shared_ptr<IShader> SearchShaderByName( const TCHAR* name ) = 0;
 
-	virtual std::shared_ptr<IMaterial> GetMaterialPtr( const TCHAR* pMaterialName ) = 0;
+	virtual IMaterial* GetMaterialPtr( const TCHAR* pMaterialName ) = 0;
 	virtual std::shared_ptr<IMesh> GetModelPtr( const TCHAR* pModelName ) = 0;
 	virtual void SetModelPtr( const String& modelName, const std::shared_ptr<IMesh>& pModel ) = 0;
 	virtual void DrawModel( std::shared_ptr<IMesh> pModel ) = 0;
@@ -81,8 +87,19 @@ public:
 	virtual bool SetRenderTargetDepthStencilView( RENDERTARGET_FLAG rtFlag = RENDERTARGET_FLAG::DEFALUT, DEPTHSTENCIL_FLAG dsFlag = DEPTHSTENCIL_FLAG::DEFALUT ) = 0;
 
 	virtual void ResetResource( const std::shared_ptr<IMesh>& pMesh, const SHADER_TYPE type ) = 0;
+	
+	virtual void TakeSnapshot2D( const String& sourceTextureName, const String& destTextureName ) = 0;
+	
+	virtual IRendererShadowManager* GetShadowManager( ) = 0;
+
+	virtual ID3D11Device* GetDevice( ) const = 0;
+	virtual ID3D11DeviceContext* GetDeviceContext( ) const = 0;
+	virtual CRenderTargetManager* GetRenderTargetManager( ) = 0;
+	virtual CTextureManager* GetTextureManager( ) = 0;
+	virtual CShaderResourceManager* GetShaderResourceManager( ) = 0;
 protected:
 	IRenderer( ) = default;
+
 public:
 	virtual ~IRenderer( ) = default;
 };

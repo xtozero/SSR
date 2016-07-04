@@ -9,6 +9,8 @@ public:
 
 	virtual bool IgnorePicking( ) const override { return true; }
 
+	virtual bool ShouldDrawShadow( ) const override { return false; }
+
 protected:
 	virtual bool LoadModelMesh( ) override;
 

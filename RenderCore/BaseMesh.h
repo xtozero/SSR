@@ -18,7 +18,7 @@ protected:
 
 	D3D_PRIMITIVE_TOPOLOGY m_primitiveTopology;
 
-	std::shared_ptr<IMaterial> m_pMaterial;
+	IMaterial* m_pMaterial;
 
 	UINT m_nVertices;
 	UINT m_nOffset;
@@ -35,7 +35,7 @@ public:
 
 	virtual void Draw( ID3D11DeviceContext* pDeviceContext ) override;
 
-	virtual void SetMaterial( const std::shared_ptr<IMaterial> pMaterial ) override;
+	virtual void SetMaterial( IMaterial* pMaterial ) override;
 	virtual void SetTexture( IShaderResource* ) override {}
 	virtual IShaderResource* GetTexture( ) const override { return nullptr; }
 

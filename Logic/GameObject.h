@@ -43,14 +43,18 @@ public:
 	std::shared_ptr<IMesh> GetModel( ) const { return m_pModel; }
 	void SetModel( const std::shared_ptr<IMesh> pModel ) { m_pModel = pModel; }
 
-	std::shared_ptr<IMaterial> GetMaterial( ) { return m_pMaterial; }
-	void SetMaterial( const std::shared_ptr<IMaterial> pMaterial ) { m_pMaterial = pMaterial; }
+	IMaterial* GetMaterial( ) { return m_pMaterial; }
+	void SetMaterial( IMaterial* pMaterial ) { m_pMaterial = pMaterial; }
+
+	IMaterial* GetOverrideMaterial( ) { return m_pOverrideMtl; }
+	void SetOverrideMaterial( IMaterial* pMaterial ) { m_pOverrideMtl = pMaterial; }
 
 	virtual bool LoadPropertyFromScript( const CKeyValueIterator& pKeyValue );
 
 	virtual bool IgnorePicking( ) const { return false; }
 
 	virtual bool ShouldDraw( ) const { return true; }
+	virtual bool ShouldDrawShadow( ) const { return true; }
 
 	CGameObject( );
 	~CGameObject( );
@@ -72,7 +76,8 @@ private:
 	D3DXMATRIX m_invMatTransform;
 
 	std::shared_ptr<IMesh> m_pModel;
-	std::shared_ptr<IMaterial> m_pMaterial;
+	IMaterial* m_pMaterial;
+	IMaterial* m_pOverrideMtl;
 
 	String m_name;
 	String m_materialName;

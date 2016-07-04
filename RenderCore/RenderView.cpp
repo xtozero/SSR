@@ -50,14 +50,8 @@ void RenderView::UpdataView( ID3D11DeviceContext* pDeviceContext )
 {
 	if ( VIEW_PROJECTION* pData = static_cast<VIEW_PROJECTION*>( m_viewConstantBuffer.LockBuffer( pDeviceContext ) ) )
 	{
-		D3DXMATRIX transposView;
-		D3DXMATRIX transposProjection;
-
-		D3DXMatrixTranspose( &transposView, &m_viewMatrix );
-		D3DXMatrixTranspose( &transposProjection, &m_projectionMatrix );
-
-		CopyMemory( &pData->m_view, &transposView, sizeof( D3DXMATRIX ) );
-		CopyMemory( &pData->m_projection, &transposProjection, sizeof( D3DXMATRIX ) );
+		D3DXMatrixTranspose( &pData->m_view, &m_viewMatrix );
+		D3DXMatrixTranspose( &pData->m_projection, &m_projectionMatrix );
 
 		m_viewConstantBuffer.UnLockBuffer( pDeviceContext );
 		m_viewConstantBuffer.SetVSBuffer( pDeviceContext, static_cast<int>( VS_CONSTANT_BUFFER::VIEW_PROJECTION ) );

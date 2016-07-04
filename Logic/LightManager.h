@@ -40,6 +40,9 @@ public:
 
 	void PushLightTrait( const LightTrait& trait );
 
+	D3DXMATRIX GetPrimaryLightViewMatrix( );
+	D3DXMATRIX GerPrimaryLightProjectionMatrix( );
+
 	CLightManager( );
 	~CLightManager( ) = default;
 
@@ -51,4 +54,6 @@ private:
 	ShaderLightTrait m_shaderLightProperty;
 
 	bool m_needUpdateToRenderer;
+
+	UINT m_primaryLight;
 };

@@ -1,10 +1,9 @@
 #pragma once
 
-#include "common.h"
 #include "IConsoleMessage.h"
 #include <functional>
 
-class CConCommand : public IConsoleMessage
+class ENGINE_DLL CConCommand : public IConsoleMessage
 {
 public:
 	virtual bool IsValue( ) override { return false; }
