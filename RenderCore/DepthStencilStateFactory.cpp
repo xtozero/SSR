@@ -83,18 +83,56 @@ namespace
 	}
 }
 
+class CDepthStencilState : public IRenderState
+{
+public:
+	virtual void Set( ID3D11DeviceContext* pDeviceContext ) override;
+
+	bool Create( ID3D11Device* pDevice, const D3D11_DEPTH_STENCIL_DESC& dsDesc );
+private:
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_pDsState;
+};
+
+void CDepthStencilState::Set( ID3D11DeviceContext * pDeviceContext )
+{
+	if ( pDeviceContext )
+	{
+		pDeviceContext->OMSetDepthStencilState( m_pDsState.Get( ), 1 );
+	}
+}
+
+bool CDepthStencilState::Create( ID3D11Device * pDevice, const D3D11_DEPTH_STENCIL_DESC & dsDesc )
+{
+	HRESULT hr = pDevice->CreateDepthStencilState( &dsDesc, &m_pDsState);
+	return SUCCEEDED( hr );
+}
+
+class CNullDepthStencilState : public IRenderState
+{
+public:
+	virtual void Set( ID3D11DeviceContext* pDeviceContext ) override;
+};
+
+void CNullDepthStencilState::Set( ID3D11DeviceContext * pDeviceContext )
+{
+	if ( pDeviceContext )
+	{
+		pDeviceContext->OMSetDepthStencilState( NULL, 1 );
+	}
+}
+
 class CDepthStencilStateFactory : public IDepthStencilStateFactory
 {
 public:
 	virtual void LoadDesc( ) override;
-	virtual Microsoft::WRL::ComPtr<ID3D11DepthStencilState> GetDepthStencilState( ID3D11Device* pDevice, const String& stateName ) override;
+	virtual std::shared_ptr<IRenderState> GetDepthStencilState( ID3D11Device* pDevice, const String& stateName ) override;
 	virtual void AddDepthStencilDesc( const String & descName, const D3D11_DEPTH_STENCIL_DESC & newDesc ) override;
 
 	CDepthStencilStateFactory( );
 private:
 	void LoadDepthStencilDesc( std::shared_ptr<KeyValueGroup> pKeyValues );
 
-	std::map<String, Microsoft::WRL::ComPtr<ID3D11DepthStencilState>> m_depthStencilState;
+	std::map<String, std::weak_ptr<IRenderState>> m_depthStencilState;
 	std::map<String, D3D11_DEPTH_STENCIL_DESC> m_depthStencilDesc;
 };
 
@@ -110,13 +148,16 @@ void CDepthStencilStateFactory::LoadDesc( )
 	}
 }
 
-Microsoft::WRL::ComPtr<ID3D11DepthStencilState> CDepthStencilStateFactory::GetDepthStencilState( ID3D11Device* pDevice, const String& stateName )
+std::shared_ptr<IRenderState> CDepthStencilStateFactory::GetDepthStencilState( ID3D11Device* pDevice, const String& stateName )
 {
 	auto foundState = m_depthStencilState.find( stateName );
 
 	if ( foundState != m_depthStencilState.end( ) )
 	{
-		return foundState->second;
+		if ( !foundState->second.expired( ) )
+		{
+			return foundState->second.lock( );
+		}
 	}
 
 	if ( pDevice )
@@ -125,9 +166,9 @@ Microsoft::WRL::ComPtr<ID3D11DepthStencilState> CDepthStencilStateFactory::GetDe
 
 		if ( foundDesc != m_depthStencilDesc.end( ) )
 		{
-			Microsoft::WRL::ComPtr<ID3D11DepthStencilState> newState;
+			std::shared_ptr<CDepthStencilState> newState = std::make_shared<CDepthStencilState>();
 
-			if ( SUCCEEDED( pDevice->CreateDepthStencilState( &foundDesc->second, &newState ) ) )
+			if ( newState->Create( pDevice, foundDesc->second ) )
 			{
 				m_depthStencilState.emplace( stateName, newState );
 				return newState;
@@ -135,7 +176,9 @@ Microsoft::WRL::ComPtr<ID3D11DepthStencilState> CDepthStencilStateFactory::GetDe
 		}
 	}
 	
-	return nullptr;
+	std::shared_ptr<CNullDepthStencilState> nullState = std::make_shared<CNullDepthStencilState>( );
+	m_depthStencilState.emplace( _T( "NULL" ), nullState );
+	return nullState;
 }
 
 void CDepthStencilStateFactory::AddDepthStencilDesc( const String & descName, const D3D11_DEPTH_STENCIL_DESC & newDesc )

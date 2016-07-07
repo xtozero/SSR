@@ -5,7 +5,7 @@
 class TextureMaterial : public Material
 {
 public:
-	virtual void Init( ) override;
+	virtual void Init( IRenderer* pRenderer ) override;
 	virtual void SetShader( ID3D11DeviceContext* pDeviceContext ) override;
 };
 

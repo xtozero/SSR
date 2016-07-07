@@ -24,7 +24,7 @@ public:
 	virtual ~MaterialSystem( );
 };
 
-#define REGISTER_MATERIAL( T, X ) \
+#define REGISTER_MATERIAL( pRenderer, T, X ) \
 	std::shared_ptr<T> X = std::make_shared<T>(); \
-	X->Init( ); \
+	X->Init( pRenderer ); \
 	MaterialSystem::GetInstance( )->RegisterMaterial( _T( #X ), X )

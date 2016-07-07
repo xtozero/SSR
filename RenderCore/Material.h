@@ -8,6 +8,7 @@
 
 class IShader;
 class IBuffer;
+class IRenderState;
 
 class Material : public IMaterial
 {
@@ -15,11 +16,11 @@ protected:
 	std::shared_ptr<IShader> m_pShaders[SHADER_TYPE::MAX_SHADER];
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_pRenderState;
 	std::shared_ptr<ISampler> m_pSamplerState[SHADER_TYPE::MAX_SHADER];
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_pDepthStencilState;
+	std::shared_ptr<IRenderState> m_pDepthStencilState;
 	MatConstantBuffers* m_pConstantBuffers;
 
 public:
-	virtual void Init( ) override;
+	virtual void Init( IRenderer* renderer ) override;
 	virtual void SetShader( ID3D11DeviceContext* pDeviceContext ) override;
 	virtual void SetTexture( ID3D11DeviceContext* pDeviceContext, UINT shaderType, UINT slot, const IShaderResource* pTexture ) override;
 	virtual void SetSurface( ID3D11DeviceContext* pDeviceContext, UINT shaderType, UINT slot, const ISurface* pSurface ) override;

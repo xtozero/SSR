@@ -3,17 +3,20 @@
 #include "ISampler.h"
 #include "SkyBoxMaterial.h"
 
-extern IRenderer* g_pRenderer;
-
-void SkyBoxMaterial::Init( )
+void SkyBoxMaterial::Init( IRenderer* pRenderer )
 {
-	m_pShaders[SHADER_TYPE::VS] = g_pRenderer->SearchShaderByName( _T( "vsSkybox" ) );
+	Material::Init( pRenderer );
 
-	m_pShaders[SHADER_TYPE::PS] = g_pRenderer->SearchShaderByName( _T( "psSkybox" ) );
+	if ( pRenderer )
+	{
+		m_pShaders[SHADER_TYPE::VS] = pRenderer->SearchShaderByName( _T( "vsSkybox" ) );
 
-	m_pSamplerState[SHADER_TYPE::PS] = g_pRenderer->CreateSamplerState( _T( "default" ) );
+		m_pShaders[SHADER_TYPE::PS] = pRenderer->SearchShaderByName( _T( "psSkybox" ) );
 
-	m_pDepthStencilState = g_pRenderer->CreateDepthStencilState( _T( "depthWriteOff" ) );
+		m_pSamplerState[SHADER_TYPE::PS] = pRenderer->CreateSamplerState( _T( "default" ) );
+
+		m_pDepthStencilState = pRenderer->CreateDepthStencilState( _T( "depthWriteOff" ) );
+	}
 }
 
 void SkyBoxMaterial::SetShader( ID3D11DeviceContext* pDeviceContext )

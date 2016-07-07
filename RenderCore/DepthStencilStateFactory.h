@@ -1,6 +1,8 @@
 #pragma once
 
 #include "common.h"
+#include "IRenderState.h"
+
 #include "../Engine/ScriptKeyHandler.h"
 
 #include <memory>
@@ -20,7 +22,7 @@ class IDepthStencilStateFactory : public CScriptKeyHandler<IDepthStencilStateFac
 {
 public:
 	virtual void LoadDesc( ) = 0;
-	virtual Microsoft::WRL::ComPtr<ID3D11DepthStencilState> GetDepthStencilState( ID3D11Device* pDevice, const String& stateName ) = 0;
+	virtual std::shared_ptr<IRenderState> GetDepthStencilState( ID3D11Device* pDevice, const String& stateName ) = 0;
 	virtual void AddDepthStencilDesc( const String& descName, const D3D11_DEPTH_STENCIL_DESC& newDesc ) = 0;
 
 	virtual ~IDepthStencilStateFactory( ) = default;

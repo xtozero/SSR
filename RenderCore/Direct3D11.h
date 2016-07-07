@@ -64,7 +64,7 @@ public:
 	virtual IShaderResource* GetShaderResourceFromFile( const String& fileName ) override;
 	virtual std::shared_ptr<ISampler> CreateSamplerState( const String& stateName ) override;
 
-	virtual  Microsoft::WRL::ComPtr<ID3D11DepthStencilState> CreateDepthStencilState( const String& stateName ) override;
+	virtual std::shared_ptr<IRenderState> CreateDepthStencilState( const String& stateName ) override;
 
 	virtual bool SetRenderTargetDepthStencilView( RENDERTARGET_FLAG rtFlag = RENDERTARGET_FLAG::DEFALUT, DEPTHSTENCIL_FLAG dsFlag = DEPTHSTENCIL_FLAG::DEFALUT ) override;
 

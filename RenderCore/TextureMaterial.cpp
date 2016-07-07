@@ -3,15 +3,18 @@
 #include "ISampler.h"
 #include "TextureMaterial.h"
 
-extern IRenderer* g_pRenderer;
-
-void TextureMaterial::Init( )
+void TextureMaterial::Init( IRenderer* pRenderer )
 {
-	m_pShaders[SHADER_TYPE::VS] = g_pRenderer->SearchShaderByName( _T( "vsTexture" ) );
+	Material::Init( pRenderer );
 
-	m_pShaders[SHADER_TYPE::PS] = g_pRenderer->SearchShaderByName( _T( "psTexture" ) );
+	if ( pRenderer )
+	{
+		m_pShaders[SHADER_TYPE::VS] = pRenderer->SearchShaderByName( _T( "vsTexture" ) );
 
-	m_pSamplerState[SHADER_TYPE::PS] = g_pRenderer->CreateSamplerState( _T( "default" ) );
+		m_pShaders[SHADER_TYPE::PS] = pRenderer->SearchShaderByName( _T( "psTexture" ) );
+
+		m_pSamplerState[SHADER_TYPE::PS] = pRenderer->CreateSamplerState( _T( "default" ) );
+	}
 }
 
 void TextureMaterial::SetShader( ID3D11DeviceContext* pDeviceContext )

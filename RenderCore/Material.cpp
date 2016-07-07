@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "common.h"
 #include "IBuffer.h"
+#include "IRenderer.h"
+#include "IRenderState.h"
 #include "IShader.h"
 #include "IShaderResource.h"
 #include "ISurface.h"
@@ -9,9 +11,9 @@
 #include <d3d11.h>
 #include <type_traits>
 
-void Material::Init( )
+void Material::Init( IRenderer* pRenderer )
 {
-
+	m_pDepthStencilState = pRenderer->CreateDepthStencilState( _T( "NULL" ) );
 }
 
 void Material::SetShader( ID3D11DeviceContext* pDeviceContext )
@@ -27,8 +29,7 @@ void Material::SetShader( ID3D11DeviceContext* pDeviceContext )
 		}
 
 		pDeviceContext->RSSetState( m_pRenderState.Get( ) );
-
-		pDeviceContext->OMSetDepthStencilState( m_pDepthStencilState.Get( ), 1 );
+		m_pDepthStencilState->Set( pDeviceContext );
 
 		for ( int i = 0; i < SHADER_TYPE::MAX_SHADER; ++i )
 		{

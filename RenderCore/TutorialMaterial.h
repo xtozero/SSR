@@ -5,5 +5,5 @@
 class TutorialMaterial : public Material
 {
 public:
-	virtual void Init( ) override;
+	virtual void Init( IRenderer* pRenderer ) override;
 };

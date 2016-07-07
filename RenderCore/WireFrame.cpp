@@ -2,13 +2,16 @@
 #include "IRenderer.h"
 #include "WireFrame.h"
 
-extern IRenderer* g_pRenderer;
-
-void WireFrame::Init( )
+void WireFrame::Init( IRenderer* pRenderer )
 {
-	m_pShaders[SHADER_TYPE::VS] = g_pRenderer->SearchShaderByName( _T( "vsTutorial" ) );
+	Material::Init( pRenderer );
 
-	m_pShaders[SHADER_TYPE::PS] = g_pRenderer->SearchShaderByName( _T( "psTutorial" ) );
+	if ( pRenderer )
+	{
+		m_pShaders[SHADER_TYPE::VS] = pRenderer->SearchShaderByName( _T( "vsTutorial" ) );
 
-	m_pRenderState = g_pRenderer->CreateRenderState( _T("wireFrame") );
+		m_pShaders[SHADER_TYPE::PS] = pRenderer->SearchShaderByName( _T( "psTutorial" ) );
+
+		m_pRenderState = pRenderer->CreateRenderState( _T( "wireFrame" ) );
+	}
 }

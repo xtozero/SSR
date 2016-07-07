@@ -1,5 +1,6 @@
-#include "Direct3D11.h"
 #include "stdafx.h"
+
+#include "Direct3D11.h"
 #include "common.h"
 
 #include "BaseMesh.h"
@@ -329,16 +330,16 @@ std::shared_ptr<IShader> CDirect3D11::SearchShaderByName( const TCHAR* pName )
 
 bool CDirect3D11::InitializeMaterial( )
 {
-	REGISTER_MATERIAL( TutorialMaterial, tutorial );
-	REGISTER_MATERIAL( WireFrame, wireframe );
-	REGISTER_MATERIAL( TextureMaterial, texture );
-	REGISTER_MATERIAL( SkyBoxMaterial, skybox );
+	REGISTER_MATERIAL( this, TutorialMaterial, tutorial );
+	REGISTER_MATERIAL( this, WireFrame, wireframe );
+	REGISTER_MATERIAL( this, TextureMaterial, texture );
+	REGISTER_MATERIAL( this, SkyBoxMaterial, skybox );
 
 	m_pMaterialLoader = CreateMaterialLoader( );
 
 	if ( m_pMaterialLoader )
 	{
-		return m_pMaterialLoader->LoadMaterials( );
+		return m_pMaterialLoader->LoadMaterials( this );
 	}
 
 	return false;
@@ -669,7 +670,7 @@ std::shared_ptr<ISampler> CDirect3D11::CreateSamplerState( const String& stateNa
 	return CreateSampler( m_pSamplerFactory->GetSamplerState( m_pd3d11Device.Get( ), stateName ) );
 }
 
-Microsoft::WRL::ComPtr<ID3D11DepthStencilState> CDirect3D11::CreateDepthStencilState( const String& stateName )
+std::shared_ptr<IRenderState> CDirect3D11::CreateDepthStencilState( const String& stateName )
 {
 	if ( m_pDepthStencilFactory == nullptr )
 	{

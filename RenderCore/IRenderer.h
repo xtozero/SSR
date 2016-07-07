@@ -10,6 +10,7 @@ class IBuffer;
 class IMaterial;
 class IMesh;
 class IRendererShadowManager;
+class IRenderState;
 class IRenderView;
 class ISampler;
 class IShader;
@@ -82,7 +83,7 @@ public:
 	virtual IShaderResource* GetShaderResourceFromFile( const String& fileName ) = 0;
 	virtual std::shared_ptr<ISampler> CreateSamplerState( const String& stateName ) = 0;
 
-	virtual Microsoft::WRL::ComPtr<ID3D11DepthStencilState> CreateDepthStencilState( const String& stateName ) = 0;
+	virtual std::shared_ptr<IRenderState> CreateDepthStencilState( const String& stateName ) = 0;
 
 	virtual bool SetRenderTargetDepthStencilView( RENDERTARGET_FLAG rtFlag = RENDERTARGET_FLAG::DEFALUT, DEPTHSTENCIL_FLAG dsFlag = DEPTHSTENCIL_FLAG::DEFALUT ) = 0;
 
