@@ -59,7 +59,7 @@ public:
 	virtual IRenderView* GetCurrentRenderView( ) override;
 
 	virtual void UpdateWorldMatrix( const D3DXMATRIX& worldMatrix, const D3DXMATRIX& invWorldMatrix ) override;
-	virtual Microsoft::WRL::ComPtr<ID3D11RasterizerState> CreateRenderState( const String& stateName ) override;
+	virtual std::shared_ptr<IRenderState> CreateRenderState( const String& stateName ) override;
 
 	virtual IShaderResource* GetShaderResourceFromFile( const String& fileName ) override;
 	virtual std::shared_ptr<ISampler> CreateSamplerState( const String& stateName ) override;

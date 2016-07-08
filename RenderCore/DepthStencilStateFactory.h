@@ -1,22 +1,14 @@
 #pragma once
 
 #include "common.h"
-#include "IRenderState.h"
 
 #include "../Engine/ScriptKeyHandler.h"
 
 #include <memory>
 
 struct D3D11_DEPTH_STENCIL_DESC;
-struct ID3D11DepthStencilState;
 struct ID3D11Device;
-namespace Microsoft
-{
-	namespace WRL
-	{
-		template <typename T> class ComPtr;
-	}
-}
+class IRenderState;
 
 class IDepthStencilStateFactory : public CScriptKeyHandler<IDepthStencilStateFactory>
 {

@@ -5,15 +5,15 @@
 #include <sstream>
 #include <cassert>
 
-#ifndef UNICODE  
-typedef std::string String;
-typedef std::ifstream Ifstream;
-typedef std::stringstream Stringstream;
+#ifndef UNICODE
+using String = std::string;
+using Ifstream = std::ifstream;
+using Stringstream = std::stringstream;
 #define Cout std::cout
 #else
-typedef std::wstring String;
-typedef std::wifstream Ifstream;
-typedef std::wstringstream Stringstream;
+using String = std::wstring;
+using Ifstream = std::wifstream;
+using Stringstream = std::wstringstream;
 #define Cout std::wcout
 #endif
 

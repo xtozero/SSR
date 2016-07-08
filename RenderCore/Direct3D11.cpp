@@ -95,8 +95,8 @@ bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 
 	m_pShadowManager = CreateShadowManager();
 
-	m_pWorldMatrixBuffer = CreateConstantBuffer( _T("WorldMatrix"), sizeof( D3DXMATRIX ), WORLD_MATRIX_ELEMENT_SIZE, NULL );
-	MaterialSystem::GetInstance( )->RegisterConstantBuffer( MAT_CONSTANT_BUFFER::SURFACE, CreateConstantBuffer( _T( "Surface" ), sizeof( SurfaceTrait ), 1, NULL ) );
+	m_pWorldMatrixBuffer = CreateConstantBuffer( _T("WorldMatrix"), sizeof( D3DXMATRIX ), WORLD_MATRIX_ELEMENT_SIZE, nullptr );
+	MaterialSystem::GetInstance( )->RegisterConstantBuffer( MAT_CONSTANT_BUFFER::SURFACE, CreateConstantBuffer( _T( "Surface" ), sizeof( SurfaceTrait ), 1, nullptr ) );
 
 	if ( m_pWorldMatrixBuffer == nullptr )
 	{
@@ -642,7 +642,7 @@ void CDirect3D11::UpdateWorldMatrix( const D3DXMATRIX& worldMatrix, const D3DXMA
 	m_pWorldMatrixBuffer->SetVSBuffer( m_pd3d11DeviceContext.Get( ), static_cast<int>( VS_CONSTANT_BUFFER::WORLD ) );
 }
 
-Microsoft::WRL::ComPtr<ID3D11RasterizerState> CDirect3D11::CreateRenderState( const String& stateName )
+std::shared_ptr<IRenderState> CDirect3D11::CreateRenderState( const String& stateName )
 {
 	if ( m_pRasterizerFactory == nullptr )
 	{

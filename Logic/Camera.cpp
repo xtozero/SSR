@@ -139,7 +139,7 @@ void CCamera::ReCalcViewMatrix( )
 	m_viewMatrix._42 = -D3DXVec3Dot( &m_origin, &m_upVector );
 	m_viewMatrix._43 = -D3DXVec3Dot( &m_origin, &m_lookVector );
 
-	D3DXMatrixInverse( &m_invViewMatrix, NULL, &m_viewMatrix );
+	D3DXMatrixInverse( &m_invViewMatrix, nullptr, &m_viewMatrix );
 
 	m_isNeedReclac = false;
 }

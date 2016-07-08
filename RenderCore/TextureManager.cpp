@@ -102,7 +102,7 @@ bool CTextureManager::LoadTextureFromFile( ID3D11Device* pDevice, const String& 
 
 	D3DX11_IMAGE_INFO info;
 	HRESULT hr;
-	D3DX11GetImageInfoFromFile( fileName.c_str( ), NULL, &info, &hr );
+	D3DX11GetImageInfoFromFile( fileName.c_str( ), nullptr, &info, &hr );
 
 	std::shared_ptr<ITexture> newTexture = nullptr;
 

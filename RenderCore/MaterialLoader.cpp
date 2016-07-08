@@ -84,8 +84,8 @@ bool CScriptedMaterial::SetDepthStencilState( IRenderer* pRenderer, const String
 
 bool CScriptedMaterial::SetRasterizerState( IRenderer* pRenderer, const String& rsStateName )
 {
-	m_pRenderState = pRenderer->CreateRenderState( rsStateName );
-	return m_pRenderState ? true : false;
+	m_pRasterizerState = pRenderer->CreateRenderState( rsStateName );
+	return m_pRasterizerState ? true : false;
 }
 
 bool CMaterialLoader::LoadMaterials( IRenderer* pRenderer )

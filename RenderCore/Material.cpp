@@ -13,6 +13,7 @@
 
 void Material::Init( IRenderer* pRenderer )
 {
+	m_pRasterizerState = pRenderer->CreateDepthStencilState( _T( "NULL" ) );
 	m_pDepthStencilState = pRenderer->CreateDepthStencilState( _T( "NULL" ) );
 }
 
@@ -28,7 +29,7 @@ void Material::SetShader( ID3D11DeviceContext* pDeviceContext )
 			}
 		}
 
-		pDeviceContext->RSSetState( m_pRenderState.Get( ) );
+		m_pRasterizerState->Set( pDeviceContext );
 		m_pDepthStencilState->Set( pDeviceContext );
 
 		for ( int i = 0; i < SHADER_TYPE::MAX_SHADER; ++i )
@@ -133,7 +134,7 @@ void Material::SetPrimitiveTopology( ID3D11DeviceContext* pDeviceContext, D3D_PR
 }
 
 Material::Material( ) :
-	m_pRenderState( nullptr ),
+	m_pRasterizerState( nullptr ),
 	m_pDepthStencilState( nullptr ),
 	m_pConstantBuffers( nullptr )
 {

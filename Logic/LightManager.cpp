@@ -106,7 +106,7 @@ bool CLightManager::Initialize( std::vector<std::shared_ptr<CGameObject>>& objec
 		CONST_BUFFER_NAME,
 		sizeof( ShaderLightTrait ),
 		1,
-		NULL ) ? true : false;
+		nullptr ) ? true : false;
 }
 
 void CLightManager::UpdateToRenderer( const CCamera& camera )

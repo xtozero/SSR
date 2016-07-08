@@ -12,6 +12,6 @@ void WireFrame::Init( IRenderer* pRenderer )
 
 		m_pShaders[SHADER_TYPE::PS] = pRenderer->SearchShaderByName( _T( "psTutorial" ) );
 
-		m_pRenderState = pRenderer->CreateRenderState( _T( "wireFrame" ) );
+		m_pRasterizerState = pRenderer->CreateRenderState( _T( "wireFrame" ) );
 	}
 }

@@ -12,7 +12,7 @@ class KeyValue;
 template<typename T>
 class CScriptKeyHandler
 {
-	typedef std::function<void( T*, const String&, const std::shared_ptr<KeyValue>& )> KeyHandlerFunc;
+	using KeyHandlerFunc = std::function<void( T*, const String&, const std::shared_ptr<KeyValue>& )>;
 
 public:
 	CScriptKeyHandler( ) = default;

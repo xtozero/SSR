@@ -8,7 +8,7 @@
 bool CShaderResource::LoadShaderResource( ID3D11Device* pDevice, const String& fileName )
 {
 	HRESULT hr;
-	D3DX11CreateShaderResourceViewFromFile( pDevice, fileName.c_str( ), NULL, NULL, &m_pShaderResourceView, &hr );
+	D3DX11CreateShaderResourceViewFromFile( pDevice, fileName.c_str( ), nullptr, nullptr, &m_pShaderResourceView, &hr );
 
 	if ( SUCCEEDED( hr ) )
 	{

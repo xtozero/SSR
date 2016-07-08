@@ -126,7 +126,7 @@ void CGameLogic::InitCameraProperty( std::shared_ptr<KeyValueGroup> keyValue )
 bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
 {
 	m_wndHwnd = hwnd;
-	srand( static_cast<UINT>( time( NULL ) ) );
+	srand( static_cast<UINT>( time( nullptr ) ) );
 	CUtilWindowInfo::GetInstance( ).SetRect( wndWidth, wndHeight );
 
 	ON_FAIL_RETURN( gRenderer->InitializeRenderer( hwnd, wndWidth, wndHeight ) );

@@ -68,7 +68,7 @@ const D3DXMATRIX& CGameObject::GetInvTransformMatrix( )
 		RebuildTransform( );
 	}
 
-	D3DXMatrixInverse( &m_invMatTransform, NULL, &m_matTransform );
+	D3DXMatrixInverse( &m_invMatTransform, nullptr, &m_matTransform );
 
 	return m_invMatTransform;
 }

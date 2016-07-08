@@ -15,9 +15,9 @@
 #endif
 
 #ifndef UNICODE  
-typedef std::string String;
+using String = std::string;
 #else
-typedef std::wstring String;
+using String = std::wstring;
 #endif
 
 #define ON_FAIL_RETURN( x ){ \

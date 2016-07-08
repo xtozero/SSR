@@ -10,8 +10,8 @@
 #define LOGIC_DLL __declspec(dllimport)
 #endif
 
-#ifndef UNICODE  
-typedef std::string String;
+#ifndef UNICODE
+using String = std::string;
 #else
-typedef std::wstring String;
+using String = std::wstring;
 #endif

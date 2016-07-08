@@ -50,7 +50,7 @@ void CPickingManager::PushInvProjection( float fov, float aspect, float zNear, f
 		D3DXMatrixPerspectiveFovRH( &projection, fov, aspect, zNear, zFar );
 	}
 
-	if ( D3DXMatrixInverse( &projection, NULL, &projection ) )
+	if ( D3DXMatrixInverse( &projection, nullptr, &projection ) )
 	{
 		m_InvProjections.push_back( projection );
 	}

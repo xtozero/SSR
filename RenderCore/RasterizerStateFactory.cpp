@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "RasterizerStateFactory.h"
+#include "IRenderState.h"
 
 #include "../Engine/EnumStringMap.h"
 #include "../Engine/KeyValueReader.h"
@@ -68,21 +69,63 @@ namespace
 	}
 }
 
+class CRasterizerState : public IRenderState
+{
+public:
+	virtual void Set( ID3D11DeviceContext* pDeviceContext ) override;
+
+	bool Create( ID3D11Device* pDevice, const D3D11_RASTERIZER_DESC& rasterizerDesc );
+private:
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_pRasterizerState;
+};
+
+void CRasterizerState::Set( ID3D11DeviceContext* pDeviceContext )
+{
+	if ( pDeviceContext )
+	{
+		pDeviceContext->RSSetState( m_pRasterizerState.Get() );
+	}
+}
+
+bool CRasterizerState::Create( ID3D11Device* pDevice, const D3D11_RASTERIZER_DESC& rsDesc )
+{
+	if ( pDevice == nullptr )
+	{
+		return false;
+	}
+
+	HRESULT hr = pDevice->CreateRasterizerState( &rsDesc, &m_pRasterizerState );
+	return SUCCEEDED( hr );
+}
+
+class CNullRasterizerState : public IRenderState
+{
+public:
+	virtual void Set( ID3D11DeviceContext* pDeviceContext ) override;
+};
+
+void CNullRasterizerState::Set( ID3D11DeviceContext* pDeviceContext )
+{
+	if ( pDeviceContext )
+	{
+		pDeviceContext->RSSetState( nullptr );
+	}
+}
+
 class CRasterizerStateFactory : public IRasterizerStateFactory
 {
 public:
 	virtual void LoadDesc( ) override;
-	virtual Microsoft::WRL::ComPtr<ID3D11RasterizerState> GetRasterizerState( ID3D11Device* pDevice, const String& stateName ) override;
+	virtual std::shared_ptr<IRenderState> GetRasterizerState( ID3D11Device* pDevice, const String& stateName ) override;
 	virtual void AddRasterizerDesc( const String& descName, const D3D11_RASTERIZER_DESC& newDesc ) override;
 
 	CRasterizerStateFactory( );
 private:
 	void LoadRasterizerDesc( std::shared_ptr<KeyValueGroup> pKeyValues );
 
-	std::map<String, Microsoft::WRL::ComPtr<ID3D11RasterizerState>> m_rasterizerState;
+	std::map<String, std::weak_ptr<IRenderState>> m_rasterizerState;
 	std::map<String, D3D11_RASTERIZER_DESC> m_rasterizerStateDesc;
 };
-
 
 void CRasterizerStateFactory::LoadDesc( )
 {
@@ -96,13 +139,16 @@ void CRasterizerStateFactory::LoadDesc( )
 	}
 }
 
-Microsoft::WRL::ComPtr<ID3D11RasterizerState> CRasterizerStateFactory::GetRasterizerState( ID3D11Device* pDevice, const String& stateName )
+std::shared_ptr<IRenderState> CRasterizerStateFactory::GetRasterizerState( ID3D11Device* pDevice, const String& stateName )
 {
 	auto foundState = m_rasterizerState.find( stateName );
 
 	if ( foundState != m_rasterizerState.end( ) )
 	{
-		return foundState->second;
+		if ( !foundState->second.expired( ) )
+		{
+			return foundState->second.lock( );
+		}
 	}
 
 	if ( pDevice )
@@ -111,9 +157,9 @@ Microsoft::WRL::ComPtr<ID3D11RasterizerState> CRasterizerStateFactory::GetRaster
 
 		if ( foundDesc != m_rasterizerStateDesc.end( ) )
 		{
-			Microsoft::WRL::ComPtr<ID3D11RasterizerState> newState;
+			std::shared_ptr<CRasterizerState> newState = std::make_shared<CRasterizerState>();
 
-			if ( SUCCEEDED( pDevice->CreateRasterizerState( &foundDesc->second, &newState ) ) )
+			if ( newState->Create( pDevice, foundDesc->second ) )
 			{
 				m_rasterizerState.emplace( stateName, newState );
 				return newState;
@@ -121,7 +167,9 @@ Microsoft::WRL::ComPtr<ID3D11RasterizerState> CRasterizerStateFactory::GetRaster
 		}
 	}
 
-	return nullptr;
+	std::shared_ptr<IRenderState> nullState = std::make_shared<CNullRasterizerState>( );
+	m_rasterizerState.emplace( _T( "NULL" ), nullState );
+	return nullState;
 }
 
 void CRasterizerStateFactory::AddRasterizerDesc( const String & descName, const D3D11_RASTERIZER_DESC & newDesc )

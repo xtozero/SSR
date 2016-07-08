@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "DepthStencilStateFactory.h"
+#include "IRenderState.h"
 
 #include "../Shared/Util.h"
 #include "../Engine/EnumStringMap.h"
@@ -103,6 +104,11 @@ void CDepthStencilState::Set( ID3D11DeviceContext * pDeviceContext )
 
 bool CDepthStencilState::Create( ID3D11Device * pDevice, const D3D11_DEPTH_STENCIL_DESC & dsDesc )
 {
+	if ( pDevice == nullptr )
+	{
+		return false;
+	}
+
 	HRESULT hr = pDevice->CreateDepthStencilState( &dsDesc, &m_pDsState);
 	return SUCCEEDED( hr );
 }
@@ -117,7 +123,7 @@ void CNullDepthStencilState::Set( ID3D11DeviceContext * pDeviceContext )
 {
 	if ( pDeviceContext )
 	{
-		pDeviceContext->OMSetDepthStencilState( NULL, 1 );
+		pDeviceContext->OMSetDepthStencilState( nullptr, 1 );
 	}
 }
 

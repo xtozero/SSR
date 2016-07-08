@@ -14,7 +14,7 @@ class Material : public IMaterial
 {
 protected:
 	std::shared_ptr<IShader> m_pShaders[SHADER_TYPE::MAX_SHADER];
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_pRenderState;
+	std::shared_ptr<IRenderState> m_pRasterizerState;
 	std::shared_ptr<ISampler> m_pSamplerState[SHADER_TYPE::MAX_SHADER];
 	std::shared_ptr<IRenderState> m_pDepthStencilState;
 	MatConstantBuffers* m_pConstantBuffers;
