@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "IRenderer.h"
-#include "ISampler.h"
+#include "IRenderState.h"
 #include "TextureMaterial.h"
 
 void TextureMaterial::Init( IRenderer* pRenderer )
@@ -20,9 +20,5 @@ void TextureMaterial::Init( IRenderer* pRenderer )
 void TextureMaterial::SetShader( ID3D11DeviceContext* pDeviceContext )
 {
 	Material::SetShader( pDeviceContext );
-
-	if ( m_pSamplerState[SHADER_TYPE::PS] )
-	{
-		m_pSamplerState[SHADER_TYPE::PS]->SetSampler( pDeviceContext, SHADER_TYPE::PS );
-	}
+	m_pSamplerState[SHADER_TYPE::PS]->Set( pDeviceContext, SHADER_TYPE::PS );
 }

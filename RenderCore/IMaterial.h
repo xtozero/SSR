@@ -12,7 +12,8 @@ struct ID3D11DeviceContext;
 
 enum SHADER_TYPE
 {
-	VS = 0,
+	NONE = -1,
+	VS,
 	HS,
 	DS,
 	GS,

@@ -201,9 +201,6 @@
     <ClInclude Include="IRenderState.h">
       <Filter>Direct11\RenderState</Filter>
     </ClInclude>
-    <ClInclude Include="ISampler.h">
-      <Filter>Direct11\Material</Filter>
-    </ClInclude>
     <ClInclude Include="IDepthStencil.h">
       <Filter>Direct11\RenderResource</Filter>
     </ClInclude>
@@ -357,9 +354,6 @@
       <Filter>Direct11\RenderResource</Filter>
     </ClCompile>
     <ClCompile Include="MaterialLoader.cpp">
-      <Filter>Direct11\Material</Filter>
-    </ClCompile>
-    <ClCompile Include="ISampler.cpp">
       <Filter>Direct11\Material</Filter>
     </ClCompile>
     <ClCompile Include="DepthStencil.cpp">

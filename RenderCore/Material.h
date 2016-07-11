@@ -1,7 +1,6 @@
 #pragma once
 
 #include "IMaterial.h"
-#include "ISampler.h"
 
 #include <D3D11.h>
 #include <wrl/client.h>
@@ -15,7 +14,7 @@ class Material : public IMaterial
 protected:
 	std::shared_ptr<IShader> m_pShaders[SHADER_TYPE::MAX_SHADER];
 	std::shared_ptr<IRenderState> m_pRasterizerState;
-	std::shared_ptr<ISampler> m_pSamplerState[SHADER_TYPE::MAX_SHADER];
+	std::shared_ptr<IRenderState> m_pSamplerState[SHADER_TYPE::MAX_SHADER];
 	std::shared_ptr<IRenderState> m_pDepthStencilState;
 	MatConstantBuffers* m_pConstantBuffers;
 

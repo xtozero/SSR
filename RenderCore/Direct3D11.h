@@ -62,7 +62,7 @@ public:
 	virtual std::shared_ptr<IRenderState> CreateRenderState( const String& stateName ) override;
 
 	virtual IShaderResource* GetShaderResourceFromFile( const String& fileName ) override;
-	virtual std::shared_ptr<ISampler> CreateSamplerState( const String& stateName ) override;
+	virtual std::shared_ptr<IRenderState> CreateSamplerState( const String& stateName ) override;
 
 	virtual std::shared_ptr<IRenderState> CreateDepthStencilState( const String& stateName ) override;
 

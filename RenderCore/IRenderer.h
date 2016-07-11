@@ -81,7 +81,7 @@ public:
 
 	virtual std::shared_ptr<IRenderState> CreateRenderState( const String& stateName ) = 0;
 	virtual IShaderResource* GetShaderResourceFromFile( const String& fileName ) = 0;
-	virtual std::shared_ptr<ISampler> CreateSamplerState( const String& stateName ) = 0;
+	virtual std::shared_ptr<IRenderState> CreateSamplerState( const String& stateName ) = 0;
 
 	virtual std::shared_ptr<IRenderState> CreateDepthStencilState( const String& stateName ) = 0;
 

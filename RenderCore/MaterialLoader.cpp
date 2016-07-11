@@ -1,7 +1,6 @@
 #include "stdafx.h"
 
 #include "IRenderer.h"
-#include "ISampler.h"
 #include "Material.h"
 #include "MaterialLoader.h"
 #include "MaterialSystem.h"

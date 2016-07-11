@@ -16,7 +16,6 @@
 
 #include "Direct3D11.h"
 
-#include "ISampler.h"
 #include "IShaderResource.h"
 
 #include "MaterialCommon.h"
@@ -659,7 +658,7 @@ IShaderResource* CDirect3D11::GetShaderResourceFromFile( const String& fileName 
 	return m_shaderResourceManager.FindShaderResource( fileName );
 }
 
-std::shared_ptr<ISampler> CDirect3D11::CreateSamplerState( const String& stateName )
+std::shared_ptr<IRenderState> CDirect3D11::CreateSamplerState( const String& stateName )
 {
 	if ( m_pSamplerFactory == nullptr )
 	{
@@ -667,7 +666,7 @@ std::shared_ptr<ISampler> CDirect3D11::CreateSamplerState( const String& stateNa
 		return nullptr;
 	}
 
-	return CreateSampler( m_pSamplerFactory->GetSamplerState( m_pd3d11Device.Get( ), stateName ) );
+	return m_pSamplerFactory->GetSamplerState( m_pd3d11Device.Get( ), stateName );
 }
 
 std::shared_ptr<IRenderState> CDirect3D11::CreateDepthStencilState( const String& stateName )

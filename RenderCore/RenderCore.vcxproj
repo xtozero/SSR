@@ -118,7 +118,6 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="IMeshBuilder.h" />
     <ClInclude Include="IRendererShadowManager.h" />
     <ClInclude Include="IRenderTarget.h" />
-    <ClInclude Include="ISampler.h" />
     <ClInclude Include="ISurface.h" />
     <ClInclude Include="ITexture.h" />
     <ClInclude Include="MaterialLoader.h" />
@@ -182,7 +181,6 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClCompile Include="..\Shared\Util.cpp" />
     <ClCompile Include="DepthStencil.cpp" />
     <ClCompile Include="DepthStencilStateFactory.cpp" />
-    <ClCompile Include="ISampler.cpp" />
     <ClCompile Include="MaterialLoader.cpp" />
     <ClCompile Include="MeshBuilder.cpp" />
     <ClCompile Include="RenderEffect.cpp" />

@@ -72,15 +72,17 @@ namespace
 class CRasterizerState : public IRenderState
 {
 public:
-	virtual void Set( ID3D11DeviceContext* pDeviceContext ) override;
+	virtual void Set( ID3D11DeviceContext* pDeviceContext, const SHADER_TYPE type = SHADER_TYPE::NONE ) override;
 
 	bool Create( ID3D11Device* pDevice, const D3D11_RASTERIZER_DESC& rasterizerDesc );
 private:
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_pRasterizerState;
 };
 
-void CRasterizerState::Set( ID3D11DeviceContext* pDeviceContext )
+void CRasterizerState::Set( ID3D11DeviceContext* pDeviceContext, const SHADER_TYPE type )
 {
+	assert( type == SHADER_TYPE::NONE );
+
 	if ( pDeviceContext )
 	{
 		pDeviceContext->RSSetState( m_pRasterizerState.Get() );
@@ -101,11 +103,13 @@ bool CRasterizerState::Create( ID3D11Device* pDevice, const D3D11_RASTERIZER_DES
 class CNullRasterizerState : public IRenderState
 {
 public:
-	virtual void Set( ID3D11DeviceContext* pDeviceContext ) override;
+	virtual void Set( ID3D11DeviceContext* pDeviceContext, const SHADER_TYPE type = SHADER_TYPE::NONE ) override;
 };
 
-void CNullRasterizerState::Set( ID3D11DeviceContext* pDeviceContext )
+void CNullRasterizerState::Set( ID3D11DeviceContext* pDeviceContext, const SHADER_TYPE type )
 {
+	assert( type == SHADER_TYPE::NONE );
+
 	if ( pDeviceContext )
 	{
 		pDeviceContext->RSSetState( nullptr );

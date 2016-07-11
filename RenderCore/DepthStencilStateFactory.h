@@ -1,7 +1,6 @@
 #pragma once
 
 #include "common.h"
-
 #include "../Engine/ScriptKeyHandler.h"
 
 #include <memory>

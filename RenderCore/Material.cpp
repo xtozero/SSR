@@ -15,6 +15,10 @@ void Material::Init( IRenderer* pRenderer )
 {
 	m_pRasterizerState = pRenderer->CreateDepthStencilState( _T( "NULL" ) );
 	m_pDepthStencilState = pRenderer->CreateDepthStencilState( _T( "NULL" ) );
+	for ( int i = 0; i < SHADER_TYPE::MAX_SHADER; ++i )
+	{
+		m_pSamplerState[i] = pRenderer->CreateSamplerState( _T( "NULL" ) );
+	}
 }
 
 void Material::SetShader( ID3D11DeviceContext* pDeviceContext )
@@ -34,10 +38,7 @@ void Material::SetShader( ID3D11DeviceContext* pDeviceContext )
 
 		for ( int i = 0; i < SHADER_TYPE::MAX_SHADER; ++i )
 		{
-			if ( m_pSamplerState[i] )
-			{
-				m_pSamplerState[i]->SetSampler( pDeviceContext, static_cast<SHADER_TYPE>( i ) );
-			}
+			m_pSamplerState[i]->Set( pDeviceContext, static_cast<SHADER_TYPE>( i ) );
 		}
 	}
 }

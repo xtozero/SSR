@@ -87,15 +87,17 @@ namespace
 class CDepthStencilState : public IRenderState
 {
 public:
-	virtual void Set( ID3D11DeviceContext* pDeviceContext ) override;
+	virtual void Set( ID3D11DeviceContext* pDeviceContext, const SHADER_TYPE type = SHADER_TYPE::NONE ) override;
 
 	bool Create( ID3D11Device* pDevice, const D3D11_DEPTH_STENCIL_DESC& dsDesc );
 private:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_pDsState;
 };
 
-void CDepthStencilState::Set( ID3D11DeviceContext * pDeviceContext )
+void CDepthStencilState::Set( ID3D11DeviceContext * pDeviceContext, const SHADER_TYPE type )
 {
+	assert( type == SHADER_TYPE::NONE );
+
 	if ( pDeviceContext )
 	{
 		pDeviceContext->OMSetDepthStencilState( m_pDsState.Get( ), 1 );
@@ -116,11 +118,13 @@ bool CDepthStencilState::Create( ID3D11Device * pDevice, const D3D11_DEPTH_STENC
 class CNullDepthStencilState : public IRenderState
 {
 public:
-	virtual void Set( ID3D11DeviceContext* pDeviceContext ) override;
+	virtual void Set( ID3D11DeviceContext* pDeviceContext, const SHADER_TYPE type = SHADER_TYPE::NONE ) override;
 };
 
-void CNullDepthStencilState::Set( ID3D11DeviceContext * pDeviceContext )
+void CNullDepthStencilState::Set( ID3D11DeviceContext * pDeviceContext, const SHADER_TYPE type )
 {
+	assert( type == SHADER_TYPE::NONE );
+
 	if ( pDeviceContext )
 	{
 		pDeviceContext->OMSetDepthStencilState( nullptr, 1 );

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "SamplerStateFactory.h"
+#include "IRenderState.h"
 
 #include "../Engine/EnumStringMap.h"
 #include "../Engine/KeyValueReader.h"
@@ -71,21 +72,87 @@ namespace
 	}
 }
 
+class CSamplerState : public IRenderState
+{
+public:
+	virtual void Set( ID3D11DeviceContext* pDeviceContext, const SHADER_TYPE type = SHADER_TYPE::NONE ) override;
+
+	bool Create( ID3D11Device* pDevice, const D3D11_SAMPLER_DESC& samplerDesc );
+private:
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_pSamplerState;
+};
+
+void CSamplerState::Set( ID3D11DeviceContext* pDeviceContext, const SHADER_TYPE type )
+{
+	assert( type != SHADER_TYPE::NONE );
+
+	if ( pDeviceContext == nullptr )
+	{
+		return;
+	}
+
+	switch ( type )
+	{
+	case SHADER_TYPE::VS:
+		pDeviceContext->VSSetSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
+		break;
+	case SHADER_TYPE::HS:
+		pDeviceContext->HSSetSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
+		break;
+	case SHADER_TYPE::DS:
+		pDeviceContext->DSSetSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
+		break;
+	case SHADER_TYPE::GS:
+		pDeviceContext->GSSetSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
+		break;
+	case SHADER_TYPE::PS:
+		pDeviceContext->PSSetSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
+		break;
+	case SHADER_TYPE::CS:
+		pDeviceContext->CSSetSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
+		break;
+	default:
+		DebugWarning( "InValid SamplerState SHADER_TYPE" );
+		break;
+	}
+}
+
+bool CSamplerState::Create( ID3D11Device * pDevice, const D3D11_SAMPLER_DESC & samplerDesc )
+{
+	if ( pDevice == nullptr )
+	{
+		return false;
+	}
+
+	HRESULT hr = pDevice->CreateSamplerState( &samplerDesc, &m_pSamplerState );
+	return SUCCEEDED( hr );
+}
+
+class CNullSamplerState : public IRenderState
+{
+public:
+	virtual void Set( ID3D11DeviceContext* ID3D11DeviceContext, const SHADER_TYPE type = NONE ) override;
+};
+
+void CNullSamplerState::Set( ID3D11DeviceContext* , const SHADER_TYPE  )
+{
+
+}
+
 class CSamplerStateFactory : public ISamplerStateFactory
 {
 public:
 	virtual void LoadDesc( ) override;
-	virtual Microsoft::WRL::ComPtr<ID3D11SamplerState> GetSamplerState( ID3D11Device* pDevice, const String& stateName ) override;
+	virtual std::shared_ptr<IRenderState> GetSamplerState( ID3D11Device* pDevice, const String& stateName ) override;
 	virtual void AddSamplerDesc( const String& descName, const D3D11_SAMPLER_DESC& newDesc ) override;
 
 	CSamplerStateFactory( );
 private:
 	void LoadSamplerDesc( std::shared_ptr<KeyValueGroup> pKeyValues );
 
-	std::map<String, Microsoft::WRL::ComPtr<ID3D11SamplerState>> m_samplerState;
+	std::map<String, std::weak_ptr<IRenderState>> m_samplerState;
 	std::map<String, D3D11_SAMPLER_DESC> m_samplerStateDesc;
 };
-
 
 void CSamplerStateFactory::LoadDesc( )
 {
@@ -99,13 +166,16 @@ void CSamplerStateFactory::LoadDesc( )
 	}
 }
 
-Microsoft::WRL::ComPtr<ID3D11SamplerState> CSamplerStateFactory::GetSamplerState( ID3D11Device* pDevice, const String& stateName )
+std::shared_ptr<IRenderState> CSamplerStateFactory::GetSamplerState( ID3D11Device* pDevice, const String& stateName )
 {
 	auto foundState = m_samplerState.find( stateName );
 
 	if ( foundState != m_samplerState.end( ) )
 	{
-		return foundState->second;
+		if ( !foundState->second.expired( ) )
+		{
+			return foundState->second.lock( );
+		}
 	}
 
 	if ( pDevice )
@@ -114,9 +184,9 @@ Microsoft::WRL::ComPtr<ID3D11SamplerState> CSamplerStateFactory::GetSamplerState
 
 		if ( foundDesc != m_samplerStateDesc.end( ) )
 		{
-			Microsoft::WRL::ComPtr<ID3D11SamplerState> newState;
+			std::shared_ptr<CSamplerState> newState = std::make_shared<CSamplerState>( );
 
-			if ( SUCCEEDED( pDevice->CreateSamplerState( &foundDesc->second, &newState ) ) )
+			if ( newState->Create( pDevice, foundDesc->second ) )
 			{
 				m_samplerState.emplace( stateName, newState );
 				return newState;
@@ -124,7 +194,9 @@ Microsoft::WRL::ComPtr<ID3D11SamplerState> CSamplerStateFactory::GetSamplerState
 		}
 	}
 
-	return nullptr;
+	std::shared_ptr<IRenderState> nullState = std::make_shared<CNullSamplerState>( );
+	m_samplerState.emplace( _T( "NULL" ), nullState );
+	return nullState;
 }
 
 void CSamplerStateFactory::AddSamplerDesc( const String& descName, const D3D11_SAMPLER_DESC& newDesc )
