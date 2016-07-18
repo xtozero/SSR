@@ -8,12 +8,10 @@
 
 #include "../Shared/Util.h"
 
-extern IRenderer* g_pRenderer;
-
 class CMeshBuilderMesh : public BaseMesh
 {
 public:
-	virtual bool Load( D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST ) override;
+	virtual bool Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST ) override;
 	virtual void Draw( ID3D11DeviceContext* pDeviceContext ) override;
 
 	virtual void SetTexture( IShaderResource* pTexture ) override;
@@ -26,13 +24,13 @@ private:
 	String m_textureName;
 };
 
-bool CMeshBuilderMesh::Load( D3D_PRIMITIVE_TOPOLOGY topology )
+bool CMeshBuilderMesh::Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topology )
 {
-	bool loadSuccess = BaseMesh::Load( topology );
+	bool loadSuccess = BaseMesh::Load( renderer, topology );
 
 	if ( m_textureName.size( ) > 0 )
 	{
-		auto texture = g_pRenderer->GetShaderResourceFromFile( m_textureName );
+		auto texture = renderer.GetShaderResourceFromFile( m_textureName );
 
 		if ( texture )
 		{
@@ -95,7 +93,7 @@ void CMeshBuilder::AppendTextureName( const String& textureName )
 	m_textureName = textureName;
 }
 
-std::shared_ptr<IMesh> CMeshBuilder::Build( const String& meshName, D3D_PRIMITIVE_TOPOLOGY topology ) const
+std::shared_ptr<IMesh> CMeshBuilder::Build( IRenderer& renderer, const String& meshName, D3D_PRIMITIVE_TOPOLOGY topology ) const
 {
 	if ( m_vertices.size( ) == 0 )
 	{
@@ -130,9 +128,9 @@ std::shared_ptr<IMesh> CMeshBuilder::Build( const String& meshName, D3D_PRIMITIV
 		newMesh->SetTextureName( m_textureName );
 	}
 
-	if ( newMesh->Load( topology ) )
+	if ( newMesh->Load( renderer, topology ) )
 	{
-		g_pRenderer->SetModelPtr( meshName, newMesh );
+		renderer.SetModelPtr( meshName, newMesh );
 		return newMesh;
 	}
 	else

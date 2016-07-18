@@ -8,13 +8,14 @@
 #include <string>
 
 class IMeshLoader;
+class IRenderer;
 class CSurfaceManager;
 
 class CMeshLoader
 {
 public:
 	bool Initialize( );
-	bool LoadMeshFromFile( const TCHAR* pfileName, CSurfaceManager* pSurfaceManager );
+	bool LoadMeshFromFile( IRenderer& renderer, const TCHAR* pfileName, CSurfaceManager* pSurfaceManager );
 	std::shared_ptr<IMesh> GetMesh( const TCHAR* pfileName );
 	void RegisterMesh( const String& pMeshName, const std::shared_ptr<IMesh>& pMesh );
 

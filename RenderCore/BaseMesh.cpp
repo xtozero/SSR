@@ -5,8 +5,6 @@
 #include "IMaterial.h"
 #include "IRenderer.h"
 
-extern IRenderer* g_pRenderer;
-
 void BaseMesh::SetModelData( MeshVertex* pOrignal, UINT vertexCount )
 {
 	m_pModelData = pOrignal;
@@ -24,13 +22,13 @@ void BaseMesh::SetColor( const D3DXVECTOR3& color )
 	m_color = color;
 }
 
-bool BaseMesh::Load( D3D_PRIMITIVE_TOPOLOGY topology )
+bool BaseMesh::Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topology )
 {
 	m_primitiveTopology = topology;
 
 	UINT stride = VERTEX_STRIDE;
 
-	m_pVertexBuffer = g_pRenderer->CreateVertexBuffer( stride, m_nVertices, m_pModelData );
+	m_pVertexBuffer = renderer.CreateVertexBuffer( stride, m_nVertices, m_pModelData );
 
 	if ( !m_pVertexBuffer )
 	{
@@ -39,7 +37,7 @@ bool BaseMesh::Load( D3D_PRIMITIVE_TOPOLOGY topology )
 
 	if ( m_pIndexData )
 	{
-		m_pIndexBuffer = g_pRenderer->CreateIndexBuffer( sizeof( WORD ), m_nIndices, m_pIndexData );
+		m_pIndexBuffer = renderer.CreateIndexBuffer( sizeof( WORD ), m_nIndices, m_pIndexData );
 	}
 
 	return true;

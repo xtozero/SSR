@@ -8,7 +8,7 @@ class CDisplayShaderResourceHelper : public CGameObject
 {
 public:
 	virtual void SetPosition( const D3DXVECTOR3& pos ) override;
-	virtual void Render( ) override;
+	virtual void Render( IRenderer& renderer ) override;
 	virtual void Think( ) override;
 
 	virtual bool LoadPropertyFromScript( const CKeyValueIterator& pKeyValue ) override;
@@ -17,7 +17,7 @@ public:
 
 	virtual bool ShouldDraw( ) const override;
 protected:
-	virtual bool LoadModelMesh( ) override;
+	virtual bool LoadModelMesh( IRenderer& renderer ) override;
 
 private:
 

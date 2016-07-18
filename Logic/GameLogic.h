@@ -13,6 +13,7 @@
 #include <vector>
 
 class CGameObject;
+class IRenderer;
 std::vector<std::shared_ptr<CGameObject>> g_gameObjects;
 
 class LOGIC_DLL CGameLogic
@@ -49,5 +50,6 @@ private:
 	CPickingManager m_pickingManager;
 	CLightManager m_lightManager;
 	CShadowManager m_shadowManager;
+	IRenderer* m_pRenderer;
 };
 

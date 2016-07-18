@@ -112,11 +112,11 @@ void CCamera::Rotate( const float pitch, const float yaw, const float roll )
 	}
 }
 
-void CCamera::UpdateToRenderer( IRenderer* pRenderer )
+void CCamera::UpdateToRenderer( IRenderer& renderer )
 {
 	if ( m_isNeedUpdateRenderer )
 	{
-		IRenderView* view = pRenderer->GetCurrentRenderView( );
+		IRenderView* view = renderer.GetCurrentRenderView( );
 		view->SetViewMatrix( GetViewMatrix() );
 		m_isNeedUpdateRenderer = false;
 	}

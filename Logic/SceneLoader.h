@@ -6,14 +6,15 @@
 #include <vector>
 
 class CGameObject;
+class IRenderer;
 class KeyValueGroup;
 
 class CSceneLoader
 {
 public:
-	std::shared_ptr<KeyValueGroup> LoadSceneFromFile( const String& fileName, std::vector<std::shared_ptr<CGameObject>>& objectList );
+	std::shared_ptr<KeyValueGroup> LoadSceneFromFile( IRenderer& renderer, std::vector<std::shared_ptr<CGameObject>>& objectList, const String& fileName );
 
 private:
-	void SetSceneObjectProperty( std::shared_ptr<KeyValueGroup> keyValue, std::vector<std::shared_ptr<CGameObject>>& objectList );
+	void SetSceneObjectProperty( IRenderer& renderer, std::shared_ptr<KeyValueGroup> keyValue, std::vector<std::shared_ptr<CGameObject>>& objectList );
 };
 

@@ -53,12 +53,6 @@ IRenderer* CreateDirect3D11Renderer( )
 	return &direct3D11;
 }
 
-IMeshBuilder* GetMeshBuilder( )
-{
-	static CMeshBuilder meshBuilder;
-	return &meshBuilder;
-}
-
 namespace
 {
 	constexpr int WORLD_MATRIX_ELEMENT_SIZE = 2;
@@ -570,7 +564,7 @@ IMaterial* CDirect3D11::GetMaterialPtr( const TCHAR* pMaterialName )
 
 std::shared_ptr<IMesh> CDirect3D11::GetModelPtr( const TCHAR* pModelName )
 {
-	if ( m_meshLoader.LoadMeshFromFile( pModelName, &m_surfaceManager ) )
+	if ( m_meshLoader.LoadMeshFromFile( *this, pModelName, &m_surfaceManager ) )
 	{
 		return m_meshLoader.GetMesh( pModelName );
 	}
@@ -697,6 +691,12 @@ void CDirect3D11::ResetResource( const std::shared_ptr<IMesh>& pMesh, const SHAD
 void CDirect3D11::TakeSnapshot2D( const String & sourceTextureName, const String & destTextureName )
 {
 	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get(), m_pd3d11DeviceContext.Get(), sourceTextureName, destTextureName );
+}
+
+IMeshBuilder* CDirect3D11::GetMeshBuilder( )
+{
+	m_meshBuilder.Clear( );
+	return &m_meshBuilder;
 }
 
 bool CDirect3D11::CreateD3D11Device( HWND hWind, UINT nWndWidth, UINT nWndHeight )

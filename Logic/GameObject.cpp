@@ -9,8 +9,6 @@
 #include "../RenderCore/IMesh.h"
 #include "Timer.h"
 
-extern IRenderer* gRenderer;
-
 DECLARE_GAME_OBJECT( base, CGameObject );
 
 void CGameObject::SetPosition( const float x, const float y, const float z )
@@ -73,12 +71,12 @@ const D3DXMATRIX& CGameObject::GetInvTransformMatrix( )
 	return m_invMatTransform;
 }
 
-void CGameObject::Render( )
+void CGameObject::Render( IRenderer& renderer )
 {
 	if ( ShouldDraw() && m_pModel )
 	{
 		m_pModel->SetMaterial( m_pOverrideMtl ? m_pOverrideMtl : m_pMaterial );
-		gRenderer->DrawModel( m_pModel );
+		renderer.DrawModel( m_pModel );
 	}
 }
 
@@ -96,10 +94,10 @@ void CGameObject::SetModelMeshName( const String& pModelName )
 	m_meshName = pModelName;
 }
 
-bool CGameObject::Initialize( )
+bool CGameObject::Initialize( IRenderer& renderer )
 {
-	ON_FAIL_RETURN( LoadModelMesh( ) );
-	ON_FAIL_RETURN( LoadMaterial( ) );
+	ON_FAIL_RETURN( LoadModelMesh( renderer ) );
+	ON_FAIL_RETURN( LoadMaterial( renderer ) );
 
 	m_needInitialize = false;
 	return true;
@@ -182,7 +180,7 @@ CGameObject::~CGameObject( )
 {
 }
 
-bool CGameObject::LoadModelMesh( )
+bool CGameObject::LoadModelMesh( IRenderer& renderer )
 {
 	if ( m_pModel != nullptr )
 	{
@@ -191,9 +189,9 @@ bool CGameObject::LoadModelMesh( )
 
 	if ( m_meshName.length( ) > 0 )
 	{
-		m_pModel = gRenderer->GetModelPtr( m_meshName.c_str( ) );
+		m_pModel = renderer.GetModelPtr( m_meshName.c_str( ) );
 
-		LoadRigidBody( );
+		LoadRigidBody( renderer );
 
 		return m_pModel ? true : false;
 	}
@@ -201,28 +199,28 @@ bool CGameObject::LoadModelMesh( )
 	return false;
 }
 
-bool CGameObject::LoadMaterial( )
+bool CGameObject::LoadMaterial( IRenderer& renderer )
 {
 	if ( m_pModel )
 	{
 		if ( m_materialName.length( ) > 0 )
 		{
-			m_pMaterial = gRenderer->GetMaterialPtr( m_materialName.c_str( ) );
+			m_pMaterial = renderer.GetMaterialPtr( m_materialName.c_str( ) );
 		}
 		else
 		{
-			m_pMaterial = gRenderer->GetMaterialPtr( _T( "wireframe" ) );
+			m_pMaterial = renderer.GetMaterialPtr( _T( "wireframe" ) );
 		}
 	}
 
 	return m_pMaterial ? true : false;
 }
 
-void CGameObject::LoadRigidBody( )
+void CGameObject::LoadRigidBody( IRenderer& renderer )
 {
 	for ( int i = 0; i < RIGID_BODY_TYPE::Count; ++i )
 	{
-		m_originRigidBodies[i] = CRigidBodyManager::GetInstance( ).GetRigidBody( m_meshName, static_cast<RIGID_BODY_TYPE>(i) );
+		m_originRigidBodies[i] = CRigidBodyManager::GetInstance( ).GetRigidBody( renderer, m_meshName, static_cast<RIGID_BODY_TYPE>(i) );
 	}
 }
 

@@ -7,9 +7,7 @@
 
 #include <memory>
 
-extern IRenderer* gRenderer;
-
-std::shared_ptr<IRigidBody> CRigidBodyManager::GetRigidBody( const String& meshName, RIGID_BODY_TYPE type )
+std::shared_ptr<IRigidBody> CRigidBodyManager::GetRigidBody( IRenderer& renderer, const String& meshName, RIGID_BODY_TYPE type )
 {
 	if ( type < 0 || type >= RIGID_BODY_TYPE::Count )
 	{
@@ -30,15 +28,15 @@ std::shared_ptr<IRigidBody> CRigidBodyManager::GetRigidBody( const String& meshN
 
 	if ( rigidBodyGroup.m_rigidBodies[rigidBodyType].get( ) == nullptr )
 	{
-		rigidBodyGroup.m_rigidBodies[rigidBodyType] = CreateRigidBody( meshName, type );
+		rigidBodyGroup.m_rigidBodies[rigidBodyType] = CreateRigidBody( renderer, meshName, type );
 	}
 
 	return rigidBodyGroup.m_rigidBodies[rigidBodyType];
 }
 
-std::shared_ptr<IRigidBody> CRigidBodyManager::CreateRigidBody( const String& meshName, RIGID_BODY_TYPE type )
+std::shared_ptr<IRigidBody> CRigidBodyManager::CreateRigidBody( IRenderer& renderer, const String& meshName, RIGID_BODY_TYPE type )
 {
-	std::shared_ptr<IMesh> pMesh = gRenderer->GetModelPtr( meshName.c_str( ) );
+	std::shared_ptr<IMesh> pMesh = renderer.GetModelPtr( meshName.c_str( ) );
 
 	if ( pMesh.get( ) == nullptr )
 	{

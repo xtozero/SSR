@@ -25,9 +25,6 @@ namespace
 	ConVar( showFps, "1", "Show Fps" );
 }
 
-IRenderer* gRenderer = CreateDirect3D11Renderer ();
-IMeshBuilder* g_meshBuilder = GetMeshBuilder( );
-
 void CGameLogic::StartLogic ( void )
 {
 	//게임 로직 수행 전처리
@@ -36,20 +33,20 @@ void CGameLogic::StartLogic ( void )
 void CGameLogic::ProcessLogic ( void )
 {
 	//게임 로직 수행
-	FOR_EACH_VEC( g_gameObjects, iter )
+	for ( auto& object : g_gameObjects )
 	{
-		( *iter )->Think( );
+		object->Think( );
 	}
 }
 
 void CGameLogic::EndLogic ( void )
 {
 	//그림자 맵 렌더링
-	m_shadowManager.Process( m_lightManager, *gRenderer, g_gameObjects );
+	m_shadowManager.Process( m_lightManager, *m_pRenderer, g_gameObjects );
 
 	//게임 로직 수행 후처리
-	m_mainCamera.UpdateToRenderer( gRenderer );
-	m_lightManager.UpdateToRenderer( m_mainCamera );
+	m_mainCamera.UpdateToRenderer( *m_pRenderer );
+	m_lightManager.UpdateToRenderer( *m_pRenderer, m_mainCamera );
 	SceneBegin( );
 	DrawScene( );
 	SceneEnd( );
@@ -58,7 +55,7 @@ void CGameLogic::EndLogic ( void )
 bool CGameLogic::LoadScene( void )
 {
 	g_gameObjects.erase( g_gameObjects.begin( ), g_gameObjects.end( ) );
-	auto keyValue = m_sceneLoader.LoadSceneFromFile( _T( "../Script/TestScene.txt" ), g_gameObjects );
+	auto keyValue = m_sceneLoader.LoadSceneFromFile( *m_pRenderer, g_gameObjects, _T( "../Script/TestScene.txt" ) );
 
 	if ( !keyValue )
 	{
@@ -74,33 +71,33 @@ void CGameLogic::SceneBegin( void ) const
 {
 	float wndWidth = static_cast<float>( CUtilWindowInfo::GetInstance( ).GetWidth( ) );
 	float wndHeight = static_cast<float>( CUtilWindowInfo::GetInstance( ).GetHeight( ) );
-	gRenderer->PushViewPort( 0.f, 0.f, wndWidth, wndHeight );
+	m_pRenderer->PushViewPort( 0.f, 0.f, wndWidth, wndHeight );
 
-	gRenderer->SceneBegin( );
+	m_pRenderer->SceneBegin( );
 }
 
 void CGameLogic::DrawScene( void ) const
 {
-	FOR_EACH_VEC( g_gameObjects, object )
+	for ( auto& object : g_gameObjects )
 	{
-		if ( object->get( )->ShouldDraw( ) )
+		if ( object->ShouldDraw( ) )
 		{
-			UpdateWorldMatrix( object->get( ) );
-			(*object)->Render( );
+			UpdateWorldMatrix( object.get( ) );
+			object->Render( *m_pRenderer );
 		}
 	}
 }
 
 void CGameLogic::SceneEnd( void ) const
 {
-	gRenderer->SceneEnd( );
+	m_pRenderer->SceneEnd( );
 }
 
 void CGameLogic::UpdateWorldMatrix( CGameObject* object ) const
 {
 	if ( object )
 	{
-		gRenderer->UpdateWorldMatrix( object->GetTransformMatrix( ), object->GetInvTransformMatrix( ) );
+		m_pRenderer->UpdateWorldMatrix( object->GetTransformMatrix( ), object->GetInvTransformMatrix( ) );
 	}
 }
 
@@ -125,15 +122,22 @@ void CGameLogic::InitCameraProperty( std::shared_ptr<KeyValueGroup> keyValue )
 
 bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
 {
+	m_pRenderer = CreateDirect3D11Renderer( );
+
+	if ( m_pRenderer == nullptr )
+	{
+		return false;
+	}
+
 	m_wndHwnd = hwnd;
 	srand( static_cast<UINT>( time( nullptr ) ) );
 	CUtilWindowInfo::GetInstance( ).SetRect( wndWidth, wndHeight );
 
-	ON_FAIL_RETURN( gRenderer->InitializeRenderer( hwnd, wndWidth, wndHeight ) );
+	ON_FAIL_RETURN( m_pRenderer->InitializeRenderer( hwnd, wndWidth, wndHeight ) );
 	
 	m_pickingManager.PushViewport( 0.0f, 0.0f, static_cast<float>( wndWidth ), static_cast<float>( wndHeight ) );
 
-	IRenderView* view = gRenderer->GetCurrentRenderView( );
+	IRenderView* view = m_pRenderer->GetCurrentRenderView( );
 	
 	if ( view )
 	{
@@ -158,8 +162,8 @@ bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
 	CCameraManager::GetInstance( )->SetCurrentCamera( &m_mainCamera );
 
 	ON_FAIL_RETURN( LoadScene( ) );
-	ON_FAIL_RETURN( m_lightManager.Initialize( g_gameObjects ) );
-	m_shadowManager.Init( *gRenderer );
+	ON_FAIL_RETURN( m_lightManager.Initialize( *m_pRenderer, g_gameObjects ) );
+	m_shadowManager.Init( *m_pRenderer );
 
 	return true;
 }

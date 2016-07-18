@@ -24,7 +24,7 @@ namespace
 	constexpr TCHAR* OBJ_FILE_DIR = _T( "../model/obj/" );
 }
 
-std::shared_ptr<IMesh> CObjMeshLoader::LoadMeshFromFile( const TCHAR* pFileName, CSurfaceManager* pSurfaceManager )
+std::shared_ptr<IMesh> CObjMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pFileName, CSurfaceManager* pSurfaceManager )
 {
 	if ( pSurfaceManager == nullptr )
 	{
@@ -222,7 +222,7 @@ std::shared_ptr<IMesh> CObjMeshLoader::LoadMeshFromFile( const TCHAR* pFileName,
 	newMesh->SetModelData( vertices, vertexCount );
 	newMesh->SetIndexData( indices, indexCount );
 	
-	if ( newMesh->Load( ) )
+	if ( newMesh->Load( renderer ) )
 	{
 		return newMesh;
 	}

@@ -6,6 +6,8 @@
 #include <map>
 #include <memory>
 
+class IRenderer;
+
 enum RIGID_BODY_TYPE
 {
 	Sphere = 0,
@@ -36,8 +38,8 @@ public:
 		return instance;
 	}
 
-	std::shared_ptr<IRigidBody> GetRigidBody( const String& meshName, RIGID_BODY_TYPE type );
-	std::shared_ptr<IRigidBody> CreateRigidBody( const String& meshName, RIGID_BODY_TYPE type );
+	std::shared_ptr<IRigidBody> GetRigidBody( IRenderer& renderer, const String& meshName, RIGID_BODY_TYPE type );
+	std::shared_ptr<IRigidBody> CreateRigidBody( IRenderer& renderer, const String& meshName, RIGID_BODY_TYPE type );
 	std::unique_ptr<IRigidBody> MakeRigidBody( RIGID_BODY_TYPE type );
 
 private:

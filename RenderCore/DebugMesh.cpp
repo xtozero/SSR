@@ -7,9 +7,7 @@
 
 #include <d3dX9math.h>
 
-extern IRenderer* g_pRenderer;
-
-bool TriangleMesh::Load( D3D_PRIMITIVE_TOPOLOGY topology )
+bool TriangleMesh::Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topology )
 {
 	m_primitiveTopology = topology;
 
@@ -28,14 +26,14 @@ bool TriangleMesh::Load( D3D_PRIMITIVE_TOPOLOGY topology )
 	UINT stride = sizeof( D3DXVECTOR3 );
 	m_nVertices = 3;
 
-	m_pVertexBuffer = g_pRenderer->CreateVertexBuffer( stride, m_nVertices, m_pModelData );
+	m_pVertexBuffer = renderer.CreateVertexBuffer( stride, m_nVertices, m_pModelData );
 
 	if ( !m_pVertexBuffer )
 	{
 		return false;
 	}
 
-	SetMaterial( g_pRenderer->GetMaterialPtr( _T( "tutorial" ) ) );
+	SetMaterial( renderer.GetMaterialPtr( _T( "tutorial" ) ) );
 	
 	return true;
 }

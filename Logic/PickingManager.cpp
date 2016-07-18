@@ -74,11 +74,11 @@ bool CPickingManager::CreateWorldSpaceRay( CRay& ray, float x, float y )
 
 	std::vector<VIEWPORT>::iterator curViewport = m_viewports.end();
 
-	FOR_EACH_VEC( m_viewports, i )
+	for ( auto& viewport = m_viewports.begin(); viewport != m_viewports.end(); ++viewport )
 	{
-		if ( i->IsContain( x, y ) )
+		if ( viewport->IsContain( x, y ) )
 		{
-			curViewport = i;
+			curViewport = viewport;
 			break;
 		}
 	}
@@ -125,10 +125,8 @@ bool CPickingManager::PickingObject( float x, float y, std::vector<std::shared_p
 		m_curSelectedObject = nullptr;
 		m_closestHitDist = FLT_MAX;
 
-		FOR_EACH_VEC( objects, i )
+		for ( auto& object : objects )
 		{
-			const CGameObject* object = i->get( );
-
 			if ( object == nullptr || object->IgnorePicking() )
 			{
 				continue;
@@ -139,7 +137,7 @@ bool CPickingManager::PickingObject( float x, float y, std::vector<std::shared_p
 			if ( hitDist >= 0 && m_closestHitDist > hitDist )
 			{
 				m_closestHitDist = hitDist;
-				m_curSelectedObject = i->get( );
+				m_curSelectedObject = object.get();
 			}
 		}
 

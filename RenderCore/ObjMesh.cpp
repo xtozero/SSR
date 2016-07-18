@@ -9,18 +9,16 @@
 
 #include <d3dX9math.h>
 
-extern IRenderer* g_pRenderer;
-
-bool CObjMesh::Load( D3D_PRIMITIVE_TOPOLOGY topology )
+bool CObjMesh::Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topology )
 {
-	bool loadSuccess = BaseMesh::Load( topology );
+	bool loadSuccess = BaseMesh::Load( renderer, topology );
 
 	FOR_EACH_VEC( m_mtlGroup, i )
 	{
 		const String& textureName = i->m_pSurface->GetTextureName( );
 		if ( textureName.size() > 0 )
 		{
-			auto texture = g_pRenderer->GetShaderResourceFromFile( textureName );
+			auto texture = renderer.GetShaderResourceFromFile( textureName );
 
 			if ( texture )
 			{

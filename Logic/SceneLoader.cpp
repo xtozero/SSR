@@ -15,7 +15,7 @@ if ( iter == container.end( ) ) \
 		return; \
 		}
 
-std::shared_ptr<KeyValueGroup> CSceneLoader::LoadSceneFromFile( const String& fileName, std::vector<std::shared_ptr<CGameObject>>& objectList )
+std::shared_ptr<KeyValueGroup> CSceneLoader::LoadSceneFromFile( IRenderer& renderer, std::vector<std::shared_ptr<CGameObject>>& objectList, const String& fileName )
 {
 	CKeyValueReader scene;
 
@@ -23,7 +23,7 @@ std::shared_ptr<KeyValueGroup> CSceneLoader::LoadSceneFromFile( const String& fi
 
 	if ( pKeyValue )
 	{
-		SetSceneObjectProperty( pKeyValue, objectList );
+		SetSceneObjectProperty( renderer, pKeyValue, objectList );
 
 		return pKeyValue;
 	}
@@ -33,7 +33,7 @@ std::shared_ptr<KeyValueGroup> CSceneLoader::LoadSceneFromFile( const String& fi
 	}
 }
 
-void CSceneLoader::SetSceneObjectProperty( std::shared_ptr<KeyValueGroup> keyValue, std::vector<std::shared_ptr<CGameObject>>& objectList )
+void CSceneLoader::SetSceneObjectProperty( IRenderer& renderer, std::shared_ptr<KeyValueGroup> keyValue, std::vector<std::shared_ptr<CGameObject>>& objectList )
 {
 	auto curObject = objectList.begin( );
 
@@ -45,7 +45,7 @@ void CSceneLoader::SetSceneObjectProperty( std::shared_ptr<KeyValueGroup> keyVal
 				curObject->get( ) &&
 				curObject->get( )->NeedInitialize( ) )
 			{
-				curObject->get( )->Initialize( );
+				curObject->get( )->Initialize( renderer );
 			}
 
 			auto newObject = CGameObjectFactory::GetInstance( )->CreateGameObjectByClassName( findedKey->GetString( ) );
@@ -71,6 +71,6 @@ void CSceneLoader::SetSceneObjectProperty( std::shared_ptr<KeyValueGroup> keyVal
 		curObject->get( ) &&
 		curObject->get( )->NeedInitialize( ) )
 	{
-		curObject->get( )->Initialize( );
+		curObject->get( )->Initialize( renderer );
 	}
 }

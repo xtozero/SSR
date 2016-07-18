@@ -9,6 +9,7 @@ class CTextureManager;
 class IBuffer;
 class IMaterial;
 class IMesh;
+class IMeshBuilder;
 class IRendererShadowManager;
 class IRenderState;
 class IRenderView;
@@ -98,6 +99,7 @@ public:
 	virtual CRenderTargetManager* GetRenderTargetManager( ) = 0;
 	virtual CTextureManager* GetTextureManager( ) = 0;
 	virtual CShaderResourceManager* GetShaderResourceManager( ) = 0;
+	virtual IMeshBuilder* GetMeshBuilder( ) = 0;
 protected:
 	IRenderer( ) = default;
 

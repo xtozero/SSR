@@ -73,7 +73,7 @@ namespace
 	}
 }
 
-std::shared_ptr<IMesh> CPlyMeshLoader::LoadMeshFromFile( const TCHAR* pFileName, CSurfaceManager* pSurfaceManager )
+std::shared_ptr<IMesh> CPlyMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pFileName, CSurfaceManager* pSurfaceManager )
 {
 	TCHAR pPath[MAX_PATH];
 	::GetCurrentDirectory( MAX_PATH, pPath );
@@ -180,7 +180,7 @@ std::shared_ptr<IMesh> CPlyMeshLoader::LoadMeshFromFile( const TCHAR* pFileName,
 	
 	newMesh->SetSurface( defaultSurface );
 	
-	if ( newMesh->Load( ) )
+	if ( newMesh->Load( renderer ) )
 	{
 		return newMesh;
 	}

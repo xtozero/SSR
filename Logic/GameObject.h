@@ -4,6 +4,7 @@
 
 #include "RigidBodyManager.h"
 
+class IRenderer;
 class IRigidBody;
 class IMaterial;
 class IMesh;
@@ -24,7 +25,7 @@ public:
 	const D3DXMATRIX& GetTransformMatrix( );
 	const D3DXMATRIX& GetInvTransformMatrix( );
 
-	virtual void Render( );
+	virtual void Render( IRenderer& renderer );
 
 	virtual void Think( );
 
@@ -34,7 +35,7 @@ public:
 	void SetModelMeshName( const String& pModelName );
 	const String& GetMeshName( ) const { return m_meshName; }
 
-	bool Initialize( );
+	bool Initialize( IRenderer& renderer );
 	bool NeedInitialize( ) { return m_needInitialize; }
 	const IRigidBody* GetRigidBody( int type ) const { return m_rigideBodies[type].get( ); }
 
@@ -59,9 +60,9 @@ public:
 	CGameObject( );
 	~CGameObject( );
 protected:
-	virtual bool LoadModelMesh( );
-	virtual bool LoadMaterial( );
-	void LoadRigidBody( );
+	virtual bool LoadModelMesh( IRenderer& renderer );
+	virtual bool LoadMaterial( IRenderer& renderer );
+	void LoadRigidBody( IRenderer& renderer );
 private:
 	void RebuildTransform( );
 	void UpdateRigidBody( RIGID_BODY_TYPE type );

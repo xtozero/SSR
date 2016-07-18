@@ -9,8 +9,6 @@
 #include "../RenderCore/ConstantBufferDefine.h"
 #include "../Shared/Util.h"
 
-extern IRenderer* gRenderer;
-
 namespace
 {
 	constexpr TCHAR* CONST_BUFFER_NAME = _T( "Lights" );
@@ -87,7 +85,7 @@ namespace
 	}
 }
 
-bool CLightManager::Initialize( std::vector<std::shared_ptr<CGameObject>>& objectList )
+bool CLightManager::Initialize( IRenderer& renderer, std::vector<std::shared_ptr<CGameObject>>& objectList )
 {
 	// 속성과 클래스를 연결
 	for ( int i = 0; i < MAX_LIGHTS; ++i )
@@ -102,26 +100,26 @@ bool CLightManager::Initialize( std::vector<std::shared_ptr<CGameObject>>& objec
 
 	LoadPropertyFromScript( );
 
-	return gRenderer->CreateConstantBuffer(
+	return renderer.CreateConstantBuffer(
 		CONST_BUFFER_NAME,
 		sizeof( ShaderLightTrait ),
 		1,
 		nullptr ) ? true : false;
 }
 
-void CLightManager::UpdateToRenderer( const CCamera& camera )
+void CLightManager::UpdateToRenderer( IRenderer& renderer, const CCamera& camera )
 {
 	SetCameraPosition( camera.GetOrigin( ) );
 
 	if ( m_needUpdateToRenderer )
 	{
-		void* lights = gRenderer->MapConstantBuffer( CONST_BUFFER_NAME );
+		void* lights = renderer.MapConstantBuffer( CONST_BUFFER_NAME );
 
 		if ( lights )
 		{
 			memcpy( lights, &m_shaderLightProperty, sizeof( ShaderLightTrait ) );
-			gRenderer->UnMapConstantBuffer( CONST_BUFFER_NAME );
-			gRenderer->SetConstantBuffer( CONST_BUFFER_NAME, static_cast<int>(PS_CONSTANT_BUFFER::LIGHT), SHADER_TYPE::PS );
+			renderer.UnMapConstantBuffer( CONST_BUFFER_NAME );
+			renderer.SetConstantBuffer( CONST_BUFFER_NAME, static_cast<int>(PS_CONSTANT_BUFFER::LIGHT), SHADER_TYPE::PS );
 		}
 
 		m_needUpdateToRenderer = false;

@@ -52,51 +52,51 @@ void CMouseController::ProcessInput( const MOUSE_INPUT_INFO& input )
 	switch ( input.m_type )
 	{
 	case MOUSE_INPUT_TYPE::L_DOWN:
-		FOR_EACH_VEC( m_listeners, iter )
+		for ( auto& listener : m_listeners )
 		{
-			( *iter )->OnLButtonDown( input.m_x, input.m_y );
+			listener->OnLButtonDown( input.m_x, input.m_y );
 		}
 		break;
 	case MOUSE_INPUT_TYPE::L_UP:
-		FOR_EACH_VEC( m_listeners, iter )
+		for ( auto& listener : m_listeners )
 		{
-			( *iter )->OnLButtonUp( input.m_x, input.m_y );
+			listener->OnLButtonUp( input.m_x, input.m_y );
 		}
 		break;
 	case MOUSE_INPUT_TYPE::R_DOWN:
-		FOR_EACH_VEC( m_listeners, iter )
+		for ( auto& listener : m_listeners )
 		{
-			( *iter )->OnRButtonDown( input.m_x, input.m_y );
+			listener->OnRButtonDown( input.m_x, input.m_y );
 		}
 		break;
 	case MOUSE_INPUT_TYPE::R_UP:
-		FOR_EACH_VEC( m_listeners, iter )
+		for ( auto& listener : m_listeners )
 		{
-			( *iter )->OnRButtonUp( input.m_x, input.m_y );
+			listener->OnRButtonUp( input.m_x, input.m_y );
 		}
 		break;
 	case MOUSE_INPUT_TYPE::M_DOWN:
-		FOR_EACH_VEC( m_listeners, iter )
+		for ( auto& listener : m_listeners )
 		{
-			( *iter )->OnMButtonDown( input.m_x, input.m_y );
+			listener->OnMButtonDown( input.m_x, input.m_y );
 		}
 		break;
 	case MOUSE_INPUT_TYPE::M_UP:
-		FOR_EACH_VEC( m_listeners, iter )
+		for ( auto& listener : m_listeners )
 		{
-			( *iter )->OnMButtonUp( input.m_x, input.m_y );
+			listener->OnMButtonUp( input.m_x, input.m_y );
 		}
 		break;
 	case MOUSE_INPUT_TYPE::MOVE:
-		FOR_EACH_VEC( m_listeners, iter )
+		for ( auto& listener : m_listeners )
 		{
-			( *iter )->OnMouseMove( input.m_x, input.m_y );
+			listener->OnMouseMove( input.m_x, input.m_y );
 		}
 		break;
 	case MOUSE_INPUT_TYPE::WHEEL_MOVE:
-		FOR_EACH_VEC( m_listeners, iter )
+		for ( auto& listener : m_listeners )
 		{
-			( *iter )->OnWheelMove( input.m_zDelta );
+			listener->OnWheelMove( input.m_zDelta );
 		}
 		break;
 	default:

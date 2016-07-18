@@ -8,7 +8,7 @@ public:
 	virtual void Append( const MeshVertex& newVertex ) override;
 	virtual void AppendIndex( const WORD index ) override;
 	virtual void AppendTextureName( const String& textureName ) override;
-	virtual std::shared_ptr<IMesh> Build( const String& meshName, D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST ) const override;
+	virtual std::shared_ptr<IMesh> Build( IRenderer& renderer, const String& meshName, D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST ) const override;
 
 	virtual void Clear( ) override;
 

@@ -10,9 +10,6 @@
 #include "../RenderCore/IMeshBuilder.h"
 #include "../RenderCore/IRenderer.h"
 
-extern IMeshBuilder* g_meshBuilder;
-extern IRenderer* gRenderer;
-
 namespace
 {
 	ConVar( r_debugTexture, "0", "show texture for debug\ndepthStencilViewer : depth\nrenderTargetViewer : backBuffer" );
@@ -29,17 +26,17 @@ void CDisplayShaderResourceHelper::SetPosition( const D3DXVECTOR3& pos )
 	CGameObject::SetPosition( projPos );
 }
 
-void CDisplayShaderResourceHelper::Render( )
+void CDisplayShaderResourceHelper::Render( IRenderer& renderer )
 {
 	if ( ShouldDraw( ) )
 	{
 		// 스냅샷으로 만들어지는 텍스쳐의 경우 로드시에는 없기때문에 렌더때 텍스쳐가 없으면 세팅을 시도합니다.
 		if ( GetModel( ) && GetModel( )->GetTexture() == nullptr )
 		{
-			GetModel( )->SetTexture( gRenderer->GetShaderResourceFromFile( m_textureName ) );
+			GetModel( )->SetTexture( renderer.GetShaderResourceFromFile( m_textureName ) );
 		}
 
-		CGameObject::Render( );
+		CGameObject::Render( renderer );
 	}
 }
 
@@ -76,9 +73,11 @@ bool CDisplayShaderResourceHelper::ShouldDraw( ) const
 	return r_debugTexture.GetString( ) == GetName( );
 }
 
-bool CDisplayShaderResourceHelper::LoadModelMesh( )
+bool CDisplayShaderResourceHelper::LoadModelMesh( IRenderer& renderer )
 {
-	if ( GetModel( ) != nullptr || g_meshBuilder == nullptr )
+	IMeshBuilder* pMeshBuilder = renderer.GetMeshBuilder( );
+
+	if ( GetModel( ) != nullptr || pMeshBuilder == nullptr )
 	{
 		return false;
 	}
@@ -89,22 +88,20 @@ bool CDisplayShaderResourceHelper::LoadModelMesh( )
 	float halfWidth = m_width / wndWidth;
 	float halfHeight = m_height / wndHeight;
 
-	g_meshBuilder->Clear( );
+	pMeshBuilder->Append( MeshVertex( D3DXVECTOR3( -halfWidth, -halfHeight, 1.f ), D3DXVECTOR2( 0.f, 1.f ) ) );
+	pMeshBuilder->Append( MeshVertex( D3DXVECTOR3( -halfWidth, halfHeight, 1.f ), D3DXVECTOR2( 0.f, 0.0f ) ) );
+	pMeshBuilder->Append( MeshVertex( D3DXVECTOR3( halfWidth, -halfHeight, 1.f ), D3DXVECTOR2( 1.f, 1.0f ) ) );
+	pMeshBuilder->Append( MeshVertex( D3DXVECTOR3( halfWidth, halfHeight, 1.f ), D3DXVECTOR2( 1.f, 0.f ) ) );
 
-	g_meshBuilder->Append( MeshVertex( D3DXVECTOR3( -halfWidth, -halfHeight, 1.f ), D3DXVECTOR2( 0.f, 1.f ) ) );
-	g_meshBuilder->Append( MeshVertex( D3DXVECTOR3( -halfWidth, halfHeight, 1.f ), D3DXVECTOR2( 0.f, 0.0f ) ) );
-	g_meshBuilder->Append( MeshVertex( D3DXVECTOR3( halfWidth, -halfHeight, 1.f ), D3DXVECTOR2( 1.f, 1.0f ) ) );
-	g_meshBuilder->Append( MeshVertex( D3DXVECTOR3( halfWidth, halfHeight, 1.f ), D3DXVECTOR2( 1.f, 0.f ) ) );
+	pMeshBuilder->AppendIndex( 0 );
+	pMeshBuilder->AppendIndex( 1 );
+	pMeshBuilder->AppendIndex( 2 );
+	pMeshBuilder->AppendIndex( 3 );
 
-	g_meshBuilder->AppendIndex( 0 );
-	g_meshBuilder->AppendIndex( 1 );
-	g_meshBuilder->AppendIndex( 2 );
-	g_meshBuilder->AppendIndex( 3 );
-
-	g_meshBuilder->AppendTextureName( m_textureName );
+	pMeshBuilder->AppendTextureName( m_textureName );
 
 	SetModelMeshName( GetName( ) );
-	SetModel( g_meshBuilder->Build( GetMeshName( ), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP ) );
+	SetModel( pMeshBuilder->Build( renderer, GetMeshName( ), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP ) );
 
 	return GetModel( ) ? true : false;
 }

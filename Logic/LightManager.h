@@ -26,14 +26,15 @@ struct ShaderLightTrait
 	{}
 };
 
-class KeyValueGroup;
 class CCamera;
+class IRenderer;
+class KeyValueGroup;
 
 class CLightManager : public CScriptKeyHandler<CLightManager>
 {
 public:
-	bool Initialize( std::vector<std::shared_ptr<CGameObject>>& objectList );
-	void UpdateToRenderer( const CCamera& camera );
+	bool Initialize( IRenderer& renderer, std::vector<std::shared_ptr<CGameObject>>& objectList );
+	void UpdateToRenderer( IRenderer& renderer, const CCamera& camera );
 
 	void SetCameraPosition( const D3DXVECTOR3& cameraPos );
 	void SetGlobalAmbient( const D3DXCOLOR& globalAmbient );

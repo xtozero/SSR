@@ -29,7 +29,7 @@ void CLight::SetRotate( const float pitch, const float yaw, const float roll )
 	//DO Nothing
 }
 
-void CLight::Render( )
+void CLight::Render( IRenderer& renderer )
 {
 	//Do Nothing Yet
 }

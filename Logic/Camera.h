@@ -24,7 +24,7 @@ public:
 	void Move( const float right, const float up, const float look );
 	void Rotate( const float pitch, const float yaw, const float roll );
  
- 	void UpdateToRenderer( IRenderer* pRenderer );
+ 	void UpdateToRenderer( IRenderer& renderer );
 	const D3DXMATRIX& GetInvViewMatrix( ) const { return m_invViewMatrix; }
 	void SetEnableRotate( bool isEnable ) { m_enableRotate = isEnable; }
 private:

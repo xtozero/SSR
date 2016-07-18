@@ -81,14 +81,14 @@ void CShadowManager::SceneBegin( CLightManager& lightMgr, IRenderer& renderer )
 void CShadowManager::DrawScene( CLightManager& lightMgr, IRenderer& renderer, std::vector<std::shared_ptr<CGameObject>>& gameObjects )
 {
 	//그림자 렌더링 마테리얼로 전체 오브젝트를 랜더링
-	FOR_EACH_VEC( gameObjects, object )
+	for ( auto& object : gameObjects )
 	{
-		if ( object->get( )->ShouldDrawShadow( ) )
+		if ( object.get() && object->ShouldDrawShadow( ) )
 		{
-			object->get( )->SetOverrideMaterial( m_shadowMapMtl );
-			renderer.UpdateWorldMatrix( object->get( )->GetTransformMatrix( ), object->get( )->GetInvTransformMatrix( ) );
-			(*object)->Render( );
-			object->get( )->SetOverrideMaterial( nullptr );
+			object->SetOverrideMaterial( m_shadowMapMtl );
+			renderer.UpdateWorldMatrix( object->GetTransformMatrix( ), object->GetInvTransformMatrix( ) );
+			object->Render( renderer );
+			object->SetOverrideMaterial( nullptr );
 		}
 	}
 }

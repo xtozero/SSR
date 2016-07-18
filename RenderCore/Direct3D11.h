@@ -4,7 +4,7 @@
 #include "IRenderer.h"
 #include "IMaterial.h"
 #include "IMesh.h"
-#include "IMeshBuilder.h"
+#include "MeshBuilder.h"
 #include "MeshLoader.h"
 #include "RenderEffect.h"
 #include "RenderTargetManager.h"
@@ -17,6 +17,7 @@
 
 #include <vector>
 #include <map>
+#include <mutex>
 
 class BaseMesh;
 class IDepthStencilStateFactory;
@@ -79,6 +80,7 @@ public:
 	virtual CRenderTargetManager* GetRenderTargetManager( ) override { return &m_renderTargetManager; }
 	virtual CTextureManager* GetTextureManager( ) override { return &m_textureManager; }
 	virtual CShaderResourceManager* GetShaderResourceManager( ) override { return &m_shaderResourceManager; }
+	virtual IMeshBuilder* GetMeshBuilder( ) override;
 private:
 	bool CreateD3D11Device ( HWND hWind, UINT nWndWidth, UINT nWndHeight );
 	bool CreatePrimeRenderTargetVIew ( );
@@ -124,6 +126,7 @@ private:
 	CRenderEffect									m_renderEffect;
 	std::unique_ptr<IRendererShadowManager>			m_pShadowManager;
 
+	CMeshBuilder									m_meshBuilder;
 public:
 	CDirect3D11 ( );
 	virtual ~CDirect3D11 ( );

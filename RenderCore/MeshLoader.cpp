@@ -25,7 +25,7 @@ bool CMeshLoader::Initialize( )
 	return true;
 }
 
-bool CMeshLoader::LoadMeshFromFile( const TCHAR* pfileName, CSurfaceManager* pSurfaceManager )
+bool CMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pfileName, CSurfaceManager* pSurfaceManager )
 {
 	auto iter = m_meshList.find( pfileName );
 
@@ -46,7 +46,7 @@ bool CMeshLoader::LoadMeshFromFile( const TCHAR* pfileName, CSurfaceManager* pSu
 			return false;
 		}
 
-		newMesh = found->second->LoadMeshFromFile( pfileName, pSurfaceManager );
+		newMesh = found->second->LoadMeshFromFile( renderer, pfileName, pSurfaceManager );
 
 		if ( newMesh == nullptr )
 		{
