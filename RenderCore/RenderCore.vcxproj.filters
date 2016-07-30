@@ -81,9 +81,6 @@
     <ClInclude Include="IBuffer.h">
       <Filter>Direct11\Buffer</Filter>
     </ClInclude>
-    <ClInclude Include="D3D11BaseShader.h">
-      <Filter>Direct11\Shader</Filter>
-    </ClInclude>
     <ClInclude Include="IShader.h">
       <Filter>Direct11\Shader</Filter>
     </ClInclude>
@@ -269,9 +266,6 @@
     <ClCompile Include="D3D11ConstantBuffer.cpp">
       <Filter>Direct11\Buffer</Filter>
     </ClCompile>
-    <ClCompile Include="D3D11BaseShader.cpp">
-      <Filter>Direct11\Shader</Filter>
-    </ClCompile>
     <ClCompile Include="D3D11BaseBuffer.cpp">
       <Filter>Direct11\Buffer</Filter>
     </ClCompile>
@@ -376,6 +370,9 @@
     </ClCompile>
     <ClCompile Include="RendererShadowManager.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="IShader.cpp">
+      <Filter>Direct11\Shader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

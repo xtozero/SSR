@@ -7,27 +7,6 @@
 
 #include <D3D11.h>
 
-bool D3D11PixelShader::CreateShader( ID3D11Device* pDevice, const TCHAR* pFilePath, const char* pProfile )
-{
-	if ( pDevice )
-	{
-		Microsoft::WRL::ComPtr<ID3D10Blob> shaderBlob = GetShaderBlob( pFilePath, pProfile );
-
-		if ( shaderBlob )
-		{
-			bool result = SUCCEEDED ( pDevice->CreatePixelShader (
-				shaderBlob->GetBufferPointer ( ),
-				shaderBlob->GetBufferSize ( ),
-				nullptr,
-				&m_pPixelShader ) );
-
-			return result;
-		}
-	}
-
-	return false;
-}
-
 void D3D11PixelShader::SetShader( ID3D11DeviceContext* pDeviceContext )
 {
 	if ( pDeviceContext )
@@ -65,4 +44,15 @@ D3D11PixelShader::D3D11PixelShader ()
 
 D3D11PixelShader::~D3D11PixelShader ()
 {
+}
+
+bool D3D11PixelShader::CreateShaderInternal( ID3D11Device * pDevice, const void * byteCodePtr, const size_t byteCodeSize )
+{
+	bool result = SUCCEEDED( pDevice->CreatePixelShader(
+		byteCodePtr,
+		byteCodeSize,
+		nullptr,
+		&m_pPixelShader ) );
+
+	return result;
 }

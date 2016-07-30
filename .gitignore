@@ -1,6 +1,5 @@
 *.exp
 *.ilk
-*.exe
 *.log
 *.tlog
 *.obj
@@ -21,4 +20,6 @@
 *.iobj
 *.ipdb
 *.vspx
+Debug/
+Release/
 Gama Correction Difference.png

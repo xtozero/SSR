@@ -8,40 +8,6 @@
 
 #include <D3D11.h>
 
-bool D3D11VertexShader::CreateShader ( ID3D11Device* pDevice, const TCHAR* pFilePath, const char* pProfile )
-{
-	if ( pDevice && m_pInputElementDesc )
-	{
-		Microsoft::WRL::ComPtr<ID3D10Blob> shaderBlob = GetShaderBlob( pFilePath, pProfile );
-
-		if ( shaderBlob )
-		{
-			bool result = SUCCEEDED ( pDevice->CreateInputLayout ( m_pInputElementDesc,
-				m_numInputElement,
-				shaderBlob->GetBufferPointer ( ),
-				shaderBlob->GetBufferSize ( ),
-				&m_pInputLayout ) );
-
-			if ( result )
-			{
-				result = SUCCEEDED ( pDevice->CreateVertexShader (
-					shaderBlob->GetBufferPointer ( ),
-					shaderBlob->GetBufferSize ( ),
-					nullptr,
-					&m_pVertexShader ) );
-			}
-
-#ifdef _DEBUG
-			SetDebugName( m_pVertexShader.Get( ), "Vertex Shader" );
-#endif
-
-			return result;
-		}
-	}
-
-	return false;
-}
-
 void D3D11VertexShader::SetShader ( ID3D11DeviceContext* pDeviceContext )
 {
 	if ( pDeviceContext )
@@ -95,4 +61,33 @@ m_pInputLayout( nullptr )
 D3D11VertexShader::~D3D11VertexShader ()
 {
 	SAFE_ARRAY_DELETE ( m_pInputElementDesc );
+}
+
+bool D3D11VertexShader::CreateShaderInternal( ID3D11Device* pDevice, const void * byteCodePtr, const size_t byteCodeSize )
+{
+	if ( m_pInputElementDesc == nullptr )
+	{
+		return false;
+	}
+
+	bool result = SUCCEEDED( pDevice->CreateInputLayout( m_pInputElementDesc,
+		m_numInputElement,
+		byteCodePtr,
+		byteCodeSize,
+		&m_pInputLayout ) );
+
+	if ( result )
+	{
+		result = SUCCEEDED( pDevice->CreateVertexShader(
+			byteCodePtr,
+			byteCodeSize,
+			nullptr,
+			&m_pVertexShader ) );
+	}
+
+#ifdef _DEBUG
+	SetDebugName( m_pVertexShader.Get( ), "Vertex Shader" );
+#endif
+
+	return result;
 }

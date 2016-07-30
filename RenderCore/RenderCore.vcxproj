@@ -65,7 +65,10 @@
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\lib\$(ProjectName).lib"
-copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"</Command>
+copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
+call "$(SolutionDIr)Shader\make_shader.bat"
+copy /Y "$(SolutionDIr)Shader\*.cso" "$(SolutionDIR)\bin\Shader\*.cso"
+DEL "$(SolutionDIr)Shader\*.cso"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -88,7 +91,10 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\lib\$(ProjectName).lib"
-copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"</Command>
+copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
+call "$(SolutionDIr)Shader\make_shader.bat"
+copy /Y "$(SolutionDIr)Shader\*.cso" "$(SolutionDIR)\bin\Shader\*.cso"
+DEL "$(SolutionDIr)Shader\*.cso"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -139,7 +145,6 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="CommonMeshDefine.h" />
     <ClInclude Include="D3D11BaseBuffer.h" />
     <ClInclude Include="common.h" />
-    <ClInclude Include="D3D11BaseShader.h" />
     <ClInclude Include="D3D11ConstantBuffer.h" />
     <ClInclude Include="D3D11IndexBuffer.h" />
     <ClInclude Include="D3D11PixelShader.h" />
@@ -181,6 +186,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClCompile Include="..\Shared\Util.cpp" />
     <ClCompile Include="DepthStencil.cpp" />
     <ClCompile Include="DepthStencilStateFactory.cpp" />
+    <ClCompile Include="IShader.cpp" />
     <ClCompile Include="MaterialLoader.cpp" />
     <ClCompile Include="MeshBuilder.cpp" />
     <ClCompile Include="RenderEffect.cpp" />
@@ -198,7 +204,6 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="TextureMaterial.cpp" />
     <ClCompile Include="D3D11BaseBuffer.cpp" />
-    <ClCompile Include="D3D11BaseShader.cpp" />
     <ClCompile Include="D3D11ConstantBuffer.cpp" />
     <ClCompile Include="D3D11IndexBuffer.cpp" />
     <ClCompile Include="D3D11PixelShader.cpp" />
