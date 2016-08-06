@@ -7,6 +7,7 @@
 #include "MeshBuilder.h"
 #include "MeshLoader.h"
 #include "RenderEffect.h"
+#include "RenderOutputManager.h"
 #include "RenderTargetManager.h"
 #include "RenderView.h"
 #include "ShaderListScriptLoader.h"
@@ -30,9 +31,6 @@ class CDirect3D11 : public IRenderer
 public:
 	virtual bool InitializeRenderer ( HWND hWind, UINT nWndWidth, UINT nWndHeight ) override;
 	virtual void ShutDownRenderer( ) override;
-	virtual void ClearRenderTargetView( ) override;
-	virtual void ClearRenderTargetView( float r, float g, float b, float a ) override;
-	virtual void ClearDepthStencilView( ) override;
 	virtual void SceneBegin( ) override;
 	virtual void SceneEnd( ) override;
 
@@ -67,8 +65,6 @@ public:
 
 	virtual std::shared_ptr<IRenderState> CreateDepthStencilState( const String& stateName ) override;
 
-	virtual bool SetRenderTargetDepthStencilView( RENDERTARGET_FLAG rtFlag = RENDERTARGET_FLAG::DEFALUT, DEPTHSTENCIL_FLAG dsFlag = DEPTHSTENCIL_FLAG::DEFALUT ) override;
-
 	virtual void ResetResource( const std::shared_ptr<IMesh>& pMesh, const SHADER_TYPE type ) override;
 
 	virtual void TakeSnapshot2D( const String& sourceTextureName, const String& destTextureName ) override;
@@ -76,6 +72,7 @@ public:
 	virtual IRendererShadowManager* GetShadowManager( ) override { return m_pShadowManager.get( ); }
 
 	virtual ID3D11Device* GetDevice( ) const override { return m_pd3d11Device.Get( ); }
+	virtual IDXGISwapChain* GetSwapChain( ) const override { return m_pdxgiSwapChain.Get( ); }
 	virtual ID3D11DeviceContext* GetDeviceContext( ) const override { return m_pd3d11DeviceContext.Get( ); };
 	virtual CRenderTargetManager* GetRenderTargetManager( ) override { return &m_renderTargetManager; }
 	virtual CTextureManager* GetTextureManager( ) override { return &m_textureManager; }
@@ -90,15 +87,9 @@ private:
 	bool InitializeMaterial( );
 	void RegisterEnumString( );
 
-	IRenderTarget* TranslateRenderTargetViewFlag( const RENDERTARGET_FLAG rtFlag ) const;
-	IDepthStencil* TranslateDepthStencilViewFlag( const DEPTHSTENCIL_FLAG dsFlag ) const;
-
 	Microsoft::WRL::ComPtr<ID3D11Device>			m_pd3d11Device;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext>		m_pd3d11DeviceContext;
 	Microsoft::WRL::ComPtr<IDXGISwapChain>			m_pdxgiSwapChain;
-
-	IRenderTarget*									m_pd3d11DefaultRT;
-	IDepthStencil*									m_pd3d11DefaultDS;
 
 	std::map<String, std::shared_ptr<IShader>>		m_shaderList;
 	std::vector<std::shared_ptr<IBuffer>>			m_bufferList;
@@ -113,6 +104,7 @@ private:
 	CShaderResourceManager							m_shaderResourceManager;
 	CRenderTargetManager							m_renderTargetManager;
 	CSnapshotManager								m_snapshotManager;
+	CRenderOutputManager							m_renderOutput;
 
 	CShaderListScriptLoader							m_shaderLoader;
 

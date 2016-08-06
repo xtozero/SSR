@@ -26,9 +26,12 @@ public:
 	bool LoadTextureFromScript( ID3D11Device* pDevice, const String& fileName );
 
 	ITexture* CreateTexture2D( ID3D11Device* pDevice, const D3D11_TEXTURE2D_DESC& desc, const String& textureName, const D3D11_SUBRESOURCE_DATA* pInitialData = nullptr );
-	ITexture* CreateTexture2D( ID3D11Device* pDevice, const String descName, const String& textureName, const D3D11_SUBRESOURCE_DATA* pInitialData = nullptr );
+	ITexture* CreateTexture2D( ID3D11Device* pDevice, const String& descName, const String& textureName, const D3D11_SUBRESOURCE_DATA* pInitialData = nullptr );
 	bool RegisterTexture2D( const String& textureName, Microsoft::WRL::ComPtr<ID3D11Resource> pTexture );
 	ITexture* FindTexture( const String& textureName ) const;
+
+	void SetFrameBufferSize( UINT nWndWidth, UINT nWndHeight );
+	const std::pair<int, int>& GetFrameBufferSize( ) const { return m_frameBufferSize; }
 
 	CTextureManager( );
 	~CTextureManager( ) = default;
@@ -38,4 +41,5 @@ private:
 
 	std::map<String, std::shared_ptr<ITexture>> m_pTextures;
 	std::map<String, D3D11_TEXTURE2D_DESC> m_texture2DDesc;
+	std::pair<int, int>	m_frameBufferSize;
 };

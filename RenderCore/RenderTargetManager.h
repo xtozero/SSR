@@ -6,13 +6,14 @@
 #include <memory>
 
 struct ID3D11Device;
+struct ID3D11DeviceContext;
 struct ID3D11Resource;
 struct D3D11_RENDER_TARGET_VIEW_DESC;
 struct D3D11_DEPTH_STENCIL_VIEW_DESC;
 class IRenderTarget;
 class IDepthStencil;
 class ITexture;
-struct ID3D11DeviceContext;
+class RenderTargetBinder;
 
 class CRenderTargetManager
 {
@@ -23,6 +24,8 @@ public:
 	IDepthStencil* FindDepthStencil( const String& depthStencilName ) const;
 
 	void SetRenderTarget( ID3D11DeviceContext* pDeviceContext, IRenderTarget* pRenderTarget, IDepthStencil* pDepthStencil );
+	void SetRenderTarget( ID3D11DeviceContext* pDeviceContext, RenderTargetBinder& pBinder, IDepthStencil* pDepthStencil );
+
 
 private:
 	void RegisterRenderTarget( const String& renderTargetName, const std::shared_ptr<IRenderTarget>& renderTarget );

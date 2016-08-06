@@ -1,8 +1,10 @@
 #include "lightCommon.fxh"
 
-float4 main( PS_INPUT input ) : SV_Target
+PS_OUTPUT main( PS_INPUT input )
 {
-	float4 color = Sample( input.texcoord );
+	PS_OUTPUT output = (PS_OUTPUT)0;
 
-	return CalcLight( input, color );
+	output.frame = CalcLight( input, Sample( input.texcoord ) );
+	output.normal.xyz = normalize( input.normal );
+	return output;
 }

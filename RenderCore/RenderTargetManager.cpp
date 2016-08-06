@@ -84,6 +84,16 @@ void CRenderTargetManager::SetRenderTarget( ID3D11DeviceContext* pDeviceContext,
 	}
 }
 
+void CRenderTargetManager::SetRenderTarget( ID3D11DeviceContext* pDeviceContext, RenderTargetBinder& binder, IDepthStencil* pDepthStencil )
+{
+	if ( pDeviceContext )
+	{
+		ID3D11DepthStencilView* dsv = pDepthStencil ? pDepthStencil->Get( ) : nullptr;
+
+		pDeviceContext->OMSetRenderTargets( binder.Count(), binder.Get( ), dsv );
+	}
+}
+
 void CRenderTargetManager::RegisterRenderTarget( const String& renderTargetName, const std::shared_ptr<IRenderTarget>& renderTarget )
 {
 	m_renderTargets.emplace( renderTargetName, renderTarget );

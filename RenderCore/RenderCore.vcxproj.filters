@@ -237,6 +237,9 @@
     <ClInclude Include="IRendererShadowManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="RenderOutputManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -373,6 +376,9 @@
     </ClCompile>
     <ClCompile Include="IShader.cpp">
       <Filter>Direct11\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderOutputManager.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -11,7 +11,7 @@ public:
 	virtual ID3D11RenderTargetView* Get( ) const override;
 	virtual void SetRenderTargetView( Microsoft::WRL::ComPtr<ID3D11RenderTargetView>& renderTargetView ) override;
 
-	virtual void Clear( ID3D11DeviceContext* pDeviceContext, const float clearColor[4] );
+	virtual void Clear( ID3D11DeviceContext* pDeviceContext, const float (&clearColor)[4] );
 
 	CRenderTarget( );
 private:

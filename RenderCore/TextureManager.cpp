@@ -16,17 +16,29 @@ namespace
 {
 	constexpr TCHAR* DEFAULT_TEXTURE_FILE_PATH = _T( "../Texture/" );
 	constexpr TCHAR* TEXTURE_DESC_SCRIPT_FILE_NAME = _T( "../Script/TextureDesc.txt" );
+	constexpr TCHAR* FRAME_BUFFER_SIZE_KEYWORD = _T( "FRAME_BUFFER" );
 
 	D3D11_TEXTURE2D_DESC gTexture2DDesc;
 
 	namespace TEXTURE2D
 	{
-		void SizeHandler( CTextureManager*, const String&, const std::shared_ptr<KeyValue>& keyValue )
+		void SizeHandler( CTextureManager* pTextureManager, const String&, const std::shared_ptr<KeyValue>& keyValue )
 		{
 			if ( keyValue )
 			{
-				Stringstream sStream( keyValue->GetString( ) );
-				sStream >> gTexture2DDesc.Width >> gTexture2DDesc.Height;
+				if ( keyValue->GetString() == FRAME_BUFFER_SIZE_KEYWORD )
+				{
+					const std::pair<int, int>& size = pTextureManager->GetFrameBufferSize( );
+					assert( size.first > 0 && size.second > 0 );
+					gTexture2DDesc.Width = size.first;
+					gTexture2DDesc.Height = size.second;
+				}
+				else
+				{
+					Stringstream sStream( keyValue->GetString( ) );
+					sStream >> gTexture2DDesc.Width >> gTexture2DDesc.Height;
+					assert( gTexture2DDesc.Width > 0 && gTexture2DDesc.Height > 0 );
+				}
 			}
 		}
 
@@ -166,7 +178,7 @@ ITexture* CTextureManager::CreateTexture2D( ID3D11Device* pDevice, const D3D11_T
 	return nullptr;
 }
 
-ITexture * CTextureManager::CreateTexture2D( ID3D11Device * pDevice, const String descName, const String & textureName, const D3D11_SUBRESOURCE_DATA * pInitialData )
+ITexture* CTextureManager::CreateTexture2D( ID3D11Device * pDevice, const String& descName, const String & textureName, const D3D11_SUBRESOURCE_DATA * pInitialData )
 {
 	if ( FindTexture( textureName ) )
 	{
@@ -216,7 +228,14 @@ ITexture* CTextureManager::FindTexture( const String& textureName ) const
 	return nullptr;
 }
 
-CTextureManager::CTextureManager( )
+void CTextureManager::SetFrameBufferSize( UINT nWndWidth, UINT nWndHeight )
+{
+	m_frameBufferSize.first = nWndWidth;
+	m_frameBufferSize.second = nWndHeight;
+}
+
+CTextureManager::CTextureManager( ) :
+m_frameBufferSize( 0, 0 )
 {
 	//Texture 2D Handler
 	RegisterHandler( _T( "Size" ), TEXTURE2D::SizeHandler );

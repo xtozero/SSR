@@ -26,7 +26,7 @@ void CRenderTarget::SetRenderTargetView( Microsoft::WRL::ComPtr<ID3D11RenderTarg
 	m_pRenderTargetView = renderTargetView;
 }
 
-void CRenderTarget::Clear( ID3D11DeviceContext* pDeviceContext, const float clearColor[4] )
+void CRenderTarget::Clear( ID3D11DeviceContext* pDeviceContext, const float (&clearColor)[4] )
 {
 	if ( pDeviceContext && m_pRenderTargetView )
 	{

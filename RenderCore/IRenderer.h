@@ -16,6 +16,7 @@ class IRenderView;
 class ISampler;
 class IShader;
 class IShaderResource;
+struct IDXGISwapChain;
 struct ID3D11Device;
 struct ID3D11DeviceContext;
 struct ID3D11RasterizerState;
@@ -32,26 +33,11 @@ namespace Microsoft
 	}
 }
 
-enum class RENDERTARGET_FLAG
-{
-	NONE = 0,
-	DEFALUT,
-};
-
-enum class DEPTHSTENCIL_FLAG
-{
-	NONE = 0,
-	DEFALUT
-};
-
 class RENDERCORE_DLL IRenderer
 {
 public:
 	virtual bool InitializeRenderer ( HWND hWind, UINT nWndWidth, UINT nWndHeight ) = 0;
 	virtual void ShutDownRenderer ( ) = 0;
-	virtual void ClearRenderTargetView ( ) = 0;
-	virtual void ClearRenderTargetView ( float r, float g, float b, float a ) = 0;
-	virtual void ClearDepthStencilView ( ) = 0;
 	virtual void SceneBegin( ) = 0;
 	virtual void SceneEnd( ) = 0;
 
@@ -86,8 +72,6 @@ public:
 
 	virtual std::shared_ptr<IRenderState> CreateDepthStencilState( const String& stateName ) = 0;
 
-	virtual bool SetRenderTargetDepthStencilView( RENDERTARGET_FLAG rtFlag = RENDERTARGET_FLAG::DEFALUT, DEPTHSTENCIL_FLAG dsFlag = DEPTHSTENCIL_FLAG::DEFALUT ) = 0;
-
 	virtual void ResetResource( const std::shared_ptr<IMesh>& pMesh, const SHADER_TYPE type ) = 0;
 	
 	virtual void TakeSnapshot2D( const String& sourceTextureName, const String& destTextureName ) = 0;
@@ -95,6 +79,7 @@ public:
 	virtual IRendererShadowManager* GetShadowManager( ) = 0;
 
 	virtual ID3D11Device* GetDevice( ) const = 0;
+	virtual IDXGISwapChain* GetSwapChain( ) const = 0;
 	virtual ID3D11DeviceContext* GetDeviceContext( ) const = 0;
 	virtual CRenderTargetManager* GetRenderTargetManager( ) = 0;
 	virtual CTextureManager* GetTextureManager( ) = 0;

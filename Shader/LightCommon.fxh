@@ -47,6 +47,12 @@ struct PS_INPUT
 	float4 shadowCoord : TEXCOORD1;
 };
 
+struct PS_OUTPUT
+{
+	float4 frame : SV_TARGET0;
+	float4 normal : SV_TARGET1;
+};
+
 struct LIGHTCOLOR
 {
 	float4 m_diffuse;

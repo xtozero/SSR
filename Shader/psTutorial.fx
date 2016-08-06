@@ -1,6 +1,10 @@
 #include "lightCommon.fxh"
 
-float4 main( PS_INPUT input ) : SV_Target
+PS_OUTPUT main( PS_INPUT input )
 {
-	return CalcLight( input, float4( input.color, 1.0f ) );
+	PS_OUTPUT output = (PS_OUTPUT)0;
+
+	output.frame = CalcLight( input, float4( input.color, 1.0f ) );
+	output.normal.xyz = normalize( input.normal );
+	return output;
 }
