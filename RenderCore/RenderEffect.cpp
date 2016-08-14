@@ -3,9 +3,11 @@
 
 #include "IRenderer.h"
 #include "IShaderResource.h"
+#include "ITexture.h"
 #include "RenderTargetManager.h"
 #include "ShaderResourceManager.h"
 #include "SnapShotManager.h"
+#include "TextureDescription.h"
 #include "TextureManager.h"
 
 #include "../Shared/Util.h"
@@ -82,31 +84,16 @@ void CEffectOrenNayar::SceneBegin( IRenderer* pRenderer )
 			ITexture* pTexture = pTextureMgr->CreateTexture2D( pDevice, OREN_NAYAR_TEX_NAME, OREN_NAYAR_TEX_NAME, &initData );
 			if ( pTexture )
 			{
-				ID3D11Texture2D* pTexture2D;
+				auto lookupSRV = pShaderResourceMgr->CreateShaderResource( pDevice, pTexture, nullptr, OREN_NAYAR_TEX_NAME );
 
-				if ( SUCCEEDED( pTexture->Get( )->QueryInterface( IID_ID3D11Texture2D, (void **)&pTexture2D ) ) )
+				if ( lookupSRV )
 				{
-					D3D11_TEXTURE2D_DESC tex2DDesc;
-					pTexture2D->GetDesc( &tex2DDesc );
-
-					D3D11_SHADER_RESOURCE_VIEW_DESC desc;
-					::ZeroMemory( &desc, sizeof( desc ) );
-
-					desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-					desc.Texture2D.MipLevels = tex2DDesc.MipLevels;
-					desc.Format = tex2DDesc.Format;
-
-					auto lookupSRV = pShaderResourceMgr->CreateShaderResource( pDevice, pTexture, desc, OREN_NAYAR_TEX_NAME );
-
-					if ( lookupSRV )
-					{
-						ID3D11ShaderResourceView* srv = lookupSRV->Get( );
-						pDeviceContext->PSSetShaderResources( 1, 1, &srv );
-					}
-#ifdef _DEBUG
-					pRenderer->TakeSnapshot2D( OREN_NAYAR_TEX_NAME, OREN_NAYAR_SNAPSHOT_NAME );
-#endif
+					ID3D11ShaderResourceView* srv = lookupSRV->Get( );
+					pDeviceContext->PSSetShaderResources( 1, 1, &srv );
 				}
+#ifdef _DEBUG
+				pRenderer->TakeSnapshot2D( OREN_NAYAR_TEX_NAME, OREN_NAYAR_SNAPSHOT_NAME );
+#endif
 			}
 		}
 

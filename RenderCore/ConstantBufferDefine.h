@@ -11,4 +11,5 @@ enum class PS_CONSTANT_BUFFER
 {
 	LIGHT = 0,
 	SURFACE,
+	GBUFFER,
 };

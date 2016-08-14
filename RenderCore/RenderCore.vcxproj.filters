@@ -240,6 +240,9 @@
     <ClInclude Include="RenderOutputManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="TextureDescription.h">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -380,6 +383,9 @@
     <ClCompile Include="RenderOutputManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="TextureDescription.cpp">
+      <Filter>Direct11</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Shader\psTutorial.fx">
@@ -422,6 +428,9 @@
       <Filter>fx</Filter>
     </None>
     <None Include="..\Shader\shadowCommon.fxh">
+      <Filter>fx</Filter>
+    </None>
+    <None Include="..\Shader\normalCompression.fxh">
       <Filter>fx</Filter>
     </None>
   </ItemGroup>

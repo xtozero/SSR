@@ -2,7 +2,6 @@
 
 #include "IMaterial.h"
 
-#include <D3D11.h>
 #include <wrl/client.h>
 
 class IShader;

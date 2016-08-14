@@ -116,20 +116,13 @@ void CRendererShadowManager::CreateShadowMapTexture( IRenderer* pRenderer )
 		return;
 	}
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC desc;
-	::ZeroMemory( &desc, sizeof( desc ) );
-
-	desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	desc.Texture2D.MipLevels = 1;
-	desc.Format = DXGI_FORMAT_R32_FLOAT;
-
 	CShaderResourceManager* pShaderResourceMgr = pRenderer->GetShaderResourceManager( );
 	if ( pShaderResourceMgr == nullptr )
 	{
 		return;
 	}
 
-	m_srvShadowMap = pShaderResourceMgr->CreateShaderResource( pDevice, m_shadowMap, desc, _T( "ShadowMap" ) );
+	m_srvShadowMap = pShaderResourceMgr->CreateShaderResource( pDevice, m_shadowMap, nullptr, _T( "ShadowMap" ) );
 	if ( m_srvShadowMap == nullptr )
 	{
 		return;

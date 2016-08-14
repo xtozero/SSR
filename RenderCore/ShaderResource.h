@@ -10,7 +10,7 @@ public:
 	virtual bool LoadShaderResource( ID3D11Device* pDevice, const String& fileName ) override;
 	virtual ID3D11ShaderResourceView* Get( ) const override;
 	virtual void SetShaderResourceView( Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& shaderResourceView ) override;
-	virtual bool CreateShaderResource( ID3D11Device* pDevice, const ITexture* pTexture, const D3D11_SHADER_RESOURCE_VIEW_DESC& desc ) override;
+	virtual bool CreateShaderResource( ID3D11Device* pDevice, const ITexture* pTexture, const CShaderResourceViewDescription* desc ) override;
 
 	virtual bool IsDepthStencil( ) const override { return m_flag == SOURCE_RESOURCE_FLAG::DEPTH_STENCIL; }
 	virtual bool IsRenderTarget( ) const override { return m_flag == SOURCE_RESOURCE_FLAG::RENDER_TARGET; }

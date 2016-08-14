@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Texture.h"
+#include "TextureDescription.h"
 
+#include <cassert>
 #include <D3D11.h>
 #include <D3DX11.h>
 #include <wrl/client.h>
@@ -44,17 +46,26 @@ bool CTexture2D::SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTexture )
 {
 	if ( SUCCEEDED( pTexture.Get()->QueryInterface( IID_ID3D11Texture2D, (void **)&m_pTexture2D ) ) )
 	{
+		m_textureDesc.SetType( static_cast<int>( TEXTURE_TYPE::TEXTURE_2D ) );
+
+		D3D11_TEXTURE2D_DESC tex2dDesc;
+		m_pTexture2D->GetDesc( &tex2dDesc );
+		m_textureDesc = tex2dDesc;
+
 		return true;
 	}
 
 	return false;
 }
 
-bool CTexture2D::Create( ID3D11Device* pDevice, const D3D11_TEXTURE2D_DESC& desc, const D3D11_SUBRESOURCE_DATA* pInitialData )
+bool CTexture2D::Create( ID3D11Device* pDevice, const TextureDescription& desc, const D3D11_SUBRESOURCE_DATA* pInitialData )
 {
+	assert( desc.GetType() == static_cast<int>( GetType( ) ) );
+
 	if ( pDevice )
 	{
-		if ( SUCCEEDED( pDevice->CreateTexture2D( &desc, pInitialData, &m_pTexture2D ) ) )
+		m_textureDesc = desc;
+		if ( SUCCEEDED( pDevice->CreateTexture2D( m_textureDesc, pInitialData, &m_pTexture2D ) ) )
 		{
 			return true;
 		}

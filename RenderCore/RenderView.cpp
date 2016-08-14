@@ -7,11 +7,24 @@
 namespace
 {
 	constexpr int CB_ELEMENT_NUMBER = 2;
+
+	struct VIEW_PROJECTION
+	{
+		D3DXMATRIX m_view;
+		D3DXMATRIX m_projection;
+	};
+
+	struct GBUFFER_INFO
+	{
+		float m_zFar;
+		float m_padding[3];
+	};
 }
 
 bool RenderView::initialize( ID3D11Device* pDevice )
 {
 	ON_FAIL_RETURN( m_viewConstantBuffer.CreateBuffer( pDevice, sizeof( D3DXMATRIX ), CB_ELEMENT_NUMBER, nullptr ) );
+	ON_FAIL_RETURN( m_gBufferConstantBuffer.CreateBuffer( pDevice, sizeof( GBUFFER_INFO ), 1, nullptr ) );
 
 	return true;
 }
@@ -38,11 +51,13 @@ void RenderView::SetViewPort( ID3D11DeviceContext* pDeviceContext )
 
 void RenderView::CreatePerspectiveFovLHMatrix( float fov, float aspect, float zNear, float zFar )
 {
+	m_zFar = zFar;
 	D3DXMatrixPerspectiveFovLH( &m_projectionMatrix, fov, aspect, zNear, zFar );
 }
 
 void RenderView::CreatePerspectiveFovRHMatrix( float fov, float aspect, float zNear, float zFar )
 {
+	m_zFar = zFar;
 	D3DXMatrixPerspectiveFovRH( &m_projectionMatrix, fov, aspect, zNear, zFar );
 }
 
@@ -56,9 +71,18 @@ void RenderView::UpdataView( ID3D11DeviceContext* pDeviceContext )
 		m_viewConstantBuffer.UnLockBuffer( pDeviceContext );
 		m_viewConstantBuffer.SetVSBuffer( pDeviceContext, static_cast<int>( VS_CONSTANT_BUFFER::VIEW_PROJECTION ) );
 	}
+
+	if ( GBUFFER_INFO* pData = static_cast<GBUFFER_INFO*>( m_gBufferConstantBuffer.LockBuffer( pDeviceContext ) ) )
+	{
+		pData->m_zFar = m_zFar;
+
+		m_gBufferConstantBuffer.UnLockBuffer( pDeviceContext );
+		m_gBufferConstantBuffer.SetPSBuffer( pDeviceContext, static_cast<int>(PS_CONSTANT_BUFFER::GBUFFER) );
+	}
 }
 
-RenderView::RenderView( )
+RenderView::RenderView( ) : 
+	m_zFar( 0.f )
 {
 	D3DXMatrixIdentity( &m_viewMatrix );
 	D3DXMatrixIdentity( &m_projectionMatrix );

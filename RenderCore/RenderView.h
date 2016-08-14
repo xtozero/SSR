@@ -6,12 +6,6 @@
 #include "IRenderView.h"
 #include <vector>
 
-struct VIEW_PROJECTION
-{
-	D3DXMATRIX m_view;
-	D3DXMATRIX m_projection;
-};
-
 class RenderView : public IRenderView
 {
 public:
@@ -34,6 +28,9 @@ private:
 	D3DXMATRIX m_projectionMatrix;
 
 	D3D11ConstantBuffer m_viewConstantBuffer;
+	D3D11ConstantBuffer m_gBufferConstantBuffer;
+
+	float m_zFar;
 public:
 	RenderView( );
 	~RenderView( );

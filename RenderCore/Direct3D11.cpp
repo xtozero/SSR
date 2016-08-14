@@ -137,6 +137,8 @@ void CDirect3D11::SceneEnd( )
 {
 	m_pdxgiSwapChain->Present( 0, 0 );
 
+	m_renderOutput.SceneEnd( m_pd3d11DeviceContext.Get() );
+
 	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), _T( "DefaultDepthStencil" ), _T( "DebugDepthStencil" ) );
 	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), _T( "DefaultRenderTarget" ), _T( "DebugRenderTarget" ) );
 	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), _T( "ShadowMap" ), _T( "DebugShadowMap" ) );
@@ -498,6 +500,17 @@ void CDirect3D11::RegisterEnumString( )
 	REGISTER_ENUM_STRING( D3D11_TEXTURE_ADDRESS_CLAMP );
 	REGISTER_ENUM_STRING( D3D11_TEXTURE_ADDRESS_BORDER );
 	REGISTER_ENUM_STRING( D3D11_TEXTURE_ADDRESS_MIRROR_ONCE );
+
+	//Misc Flag
+	REGISTER_ENUM_STRING( D3D11_RESOURCE_MISC_GENERATE_MIPS );
+	REGISTER_ENUM_STRING( D3D11_RESOURCE_MISC_SHARED );
+	REGISTER_ENUM_STRING( D3D11_RESOURCE_MISC_TEXTURECUBE );
+	REGISTER_ENUM_STRING( D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS );
+	REGISTER_ENUM_STRING( D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS );
+	REGISTER_ENUM_STRING( D3D11_RESOURCE_MISC_BUFFER_STRUCTURED );
+	REGISTER_ENUM_STRING( D3D11_RESOURCE_MISC_RESOURCE_CLAMP );
+	REGISTER_ENUM_STRING( D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX );
+	REGISTER_ENUM_STRING( D3D11_RESOURCE_MISC_GDI_COMPATIBLE );
 }
 
 IMaterial* CDirect3D11::GetMaterialPtr( const TCHAR* pMaterialName )

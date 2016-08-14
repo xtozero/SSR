@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <cassert>
 
 #ifdef RENDERCORE_EXPORTS
 #define RENDERCORE_DLL __declspec(dllexport)
@@ -21,8 +22,11 @@ using String = std::wstring;
 #endif
 
 #define ON_FAIL_RETURN( x ){ \
-if ( !x ) \
-	return false; \
+	if ( !x ) \
+	{\
+		assert( false );\
+		return false; \
+	}\
 }
 
 #define ON_SUCCESS_RETURE( x ){ \

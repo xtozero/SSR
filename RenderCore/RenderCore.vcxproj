@@ -141,6 +141,7 @@ DEL "$(SolutionDIr)Shader\*.cso"</Command>
     <ClInclude Include="Surface.h" />
     <ClInclude Include="SurfaceManager.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="TextureDescription.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="TextureMaterial.h" />
     <ClInclude Include="CommonMeshDefine.h" />
@@ -203,6 +204,7 @@ DEL "$(SolutionDIr)Shader\*.cso"</Command>
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="SurfaceManager.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="TextureDescription.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="TextureMaterial.cpp" />
     <ClCompile Include="D3D11BaseBuffer.cpp" />
@@ -243,6 +245,7 @@ DEL "$(SolutionDIr)Shader\*.cso"</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shader\lightCommon.fxh" />
+    <None Include="..\Shader\normalCompression.fxh" />
     <None Include="..\Shader\shadowCommon.fxh" />
     <None Include="..\Shader\texCommon.fxh">
       <FileType>Document</FileType>

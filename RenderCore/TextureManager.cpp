@@ -74,8 +74,7 @@ namespace
 			{
 				Stringstream sStream( keyValue->GetString( ) );
 				
-				String usage, bindFlag, cpuFlag;
-				UINT miscFlag;
+				String usage, bindFlag, cpuFlag, miscFlag;
 
 				sStream >> usage >> bindFlag >> cpuFlag >> miscFlag;
 
@@ -90,7 +89,14 @@ namespace
 				}
 
 				gTexture2DDesc.CPUAccessFlags = static_cast<UINT>( GetEnumStringMap( ).GetEnum( cpuFlag, 0 ) );
-				gTexture2DDesc.MiscFlags = miscFlag;
+
+				std::vector<String> miscFlags;
+				UTIL::Split( miscFlag, miscFlags, _T( '|' ) );
+
+				for ( const auto& flag : miscFlags )
+				{
+					gTexture2DDesc.MiscFlags |= static_cast<UINT>(GetEnumStringMap( ).GetEnum( flag, 0 ));
+				}
 			}
 		}
 	}
@@ -156,7 +162,7 @@ bool CTextureManager::LoadTextureFromScript( ID3D11Device * pDevice, const Strin
 	return false;
 }
 
-ITexture* CTextureManager::CreateTexture2D( ID3D11Device* pDevice, const D3D11_TEXTURE2D_DESC& desc, const String& textureName, const D3D11_SUBRESOURCE_DATA* pInitialData )
+ITexture * CTextureManager::CreateTexture2D( ID3D11Device * pDevice, const TextureDescription& desc, const String & textureName, const D3D11_SUBRESOURCE_DATA * pInitialData )
 {
 	if ( FindTexture( textureName ) )
 	{
@@ -166,12 +172,11 @@ ITexture* CTextureManager::CreateTexture2D( ID3D11Device* pDevice, const D3D11_T
 
 	if ( pDevice )
 	{
-		std::shared_ptr<ITexture> newTexture = std::make_shared<CTexture2D>();
-
+		std::shared_ptr<ITexture> newTexture = std::make_shared<CTexture2D>( );
 		if ( newTexture && newTexture->Create( pDevice, desc, pInitialData ) )
 		{
 			m_pTextures.emplace( textureName, newTexture );
-			return newTexture.get();
+			return newTexture.get( );
 		}
 	}
 
@@ -265,7 +270,10 @@ bool CTextureManager::LoadTextureFromScriptInternal( ID3D11Device * pDevice, con
 				Handle( key->GetKey( ), key );
 			}
 
-			m_texture2DDesc.emplace( texture->GetKey( ), gTexture2DDesc );
+			TextureDescription newDesc;
+			newDesc.SetType( static_cast<int>( TEXTURE_TYPE::TEXTURE_2D ) );
+			newDesc = gTexture2DDesc;
+			m_texture2DDesc.emplace( texture->GetKey( ), newDesc );
 		}
 
 		return true;

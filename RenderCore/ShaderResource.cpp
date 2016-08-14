@@ -2,6 +2,7 @@
 #include "common.h"
 #include "ITexture.h"
 #include "ShaderResource.h"
+#include "TextureDescription.h"
 
 #include <D3DX11.h>
 
@@ -28,18 +29,19 @@ void CShaderResource::SetShaderResourceView( Microsoft::WRL::ComPtr<ID3D11Shader
 	m_pShaderResourceView = shaderResourceView;
 }
 
-bool CShaderResource::CreateShaderResource( ID3D11Device* pDevice, const ITexture* pTexture, const D3D11_SHADER_RESOURCE_VIEW_DESC& desc )
+bool CShaderResource::CreateShaderResource( ID3D11Device* pDevice, const ITexture* pTexture, const CShaderResourceViewDescription* desc )
 {
 	if ( pDevice == nullptr || pTexture == nullptr )
 	{
 		return false;
 	}
 
-	if ( SUCCEEDED( pDevice->CreateShaderResourceView( pTexture->Get( ), &desc, &m_pShaderResourceView ) ) )
+	
+	const D3D11_SHADER_RESOURCE_VIEW_DESC* srvDesc = desc ? desc->GetDesc() : nullptr;
+	if ( SUCCEEDED( pDevice->CreateShaderResourceView( pTexture->Get( ), srvDesc, &m_pShaderResourceView ) ) )
 	{
 		return true;
 	}
-
 	return false;
 }
 
