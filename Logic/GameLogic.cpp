@@ -33,7 +33,7 @@ void CGameLogic::StartLogic ( void )
 void CGameLogic::ProcessLogic ( void )
 {
 	//게임 로직 수행
-	for ( auto& object : g_gameObjects )
+	for ( auto& object : m_gameObjects )
 	{
 		object->Think( );
 	}
@@ -42,7 +42,7 @@ void CGameLogic::ProcessLogic ( void )
 void CGameLogic::EndLogic ( void )
 {
 	//그림자 맵 렌더링
-	m_shadowManager.Process( m_lightManager, *m_pRenderer, g_gameObjects );
+	m_shadowManager.Process( m_lightManager, *m_pRenderer, m_gameObjects );
 
 	//게임 로직 수행 후처리
 	m_mainCamera.UpdateToRenderer( *m_pRenderer );
@@ -54,8 +54,8 @@ void CGameLogic::EndLogic ( void )
 
 bool CGameLogic::LoadScene( void )
 {
-	g_gameObjects.erase( g_gameObjects.begin( ), g_gameObjects.end( ) );
-	auto keyValue = m_sceneLoader.LoadSceneFromFile( *m_pRenderer, g_gameObjects, _T( "../Script/TestScene.txt" ) );
+	m_gameObjects.erase( m_gameObjects.begin( ), m_gameObjects.end( ) );
+	auto keyValue = m_sceneLoader.LoadSceneFromFile( *m_pRenderer, m_gameObjects, _T( "../Script/TestScene.txt" ) );
 
 	if ( !keyValue )
 	{
@@ -78,14 +78,9 @@ void CGameLogic::SceneBegin( void ) const
 
 void CGameLogic::DrawScene( void ) const
 {
-	for ( auto& object : g_gameObjects )
-	{
-		if ( object->ShouldDraw( ) )
-		{
-			UpdateWorldMatrix( object.get( ) );
-			object->Render( *m_pRenderer );
-		}
-	}
+	DrawOpaqueRenderable( );
+	DrawTransparentRenderable( );
+	DrawReflectRenderable( );
 }
 
 void CGameLogic::SceneEnd( void ) const
@@ -118,6 +113,27 @@ void CGameLogic::InitCameraProperty( std::shared_ptr<KeyValueGroup> keyValue )
 				static_cast<float>( _ttof( param[2].c_str( ) ) ) ) );
 		}
 	}
+}
+
+void CGameLogic::DrawOpaqueRenderable( ) const
+{
+	for ( auto& object : m_gameObjects )
+	{
+		if ( object->ShouldDraw( ) )
+		{
+			UpdateWorldMatrix( object.get( ) );
+			object->Render( *m_pRenderer );
+		}
+	}
+}
+
+void CGameLogic::DrawTransparentRenderable( ) const
+{
+}
+
+void CGameLogic::DrawReflectRenderable( ) const
+{
+
 }
 
 bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
@@ -162,7 +178,7 @@ bool CGameLogic::Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight )
 	CCameraManager::GetInstance( )->SetCurrentCamera( &m_mainCamera );
 
 	ON_FAIL_RETURN( LoadScene( ) );
-	ON_FAIL_RETURN( m_lightManager.Initialize( *m_pRenderer, g_gameObjects ) );
+	ON_FAIL_RETURN( m_lightManager.Initialize( *m_pRenderer, m_gameObjects ) );
 	m_shadowManager.Init( *m_pRenderer );
 
 	return true;
@@ -248,19 +264,8 @@ void CGameLogic::HandleWIndowMouseInput( const int message, const WPARAM wParam,
 }
 
 CGameLogic::CGameLogic( ):
-	m_wndHwnd( nullptr )
+	m_wndHwnd( nullptr ),
+	m_pickingManager( &m_gameObjects )
 {
 	ShowDebugConsole( );
-}
-
-CON_COMMAND( print_objects_pos, "print all visible object position" )
-{
-	for ( const auto& object : g_gameObjects )
-	{
-		if ( object->ShouldDraw( ) )
-		{
-			DebugMsg( "name - %s\n", object->GetName( ).c_str() );
-			DebugMsg( "pos - %f %f %f\n", object->GetPosition( ).x, object->GetPosition( ).y, object->GetPosition( ).z );
-		}
-	}
 }

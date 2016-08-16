@@ -14,7 +14,6 @@
 
 class CGameObject;
 class IRenderer;
-std::vector<std::shared_ptr<CGameObject>> g_gameObjects;
 
 class LOGIC_DLL CGameLogic
 {
@@ -23,7 +22,6 @@ private:
 	void ProcessLogic ( void );
 	void EndLogic ( void );
 
-	bool InitShaders( void );
 	bool LoadScene( void );
 
 	void SceneBegin( void ) const;
@@ -32,6 +30,10 @@ private:
 
 	void UpdateWorldMatrix( CGameObject* object ) const;
 	void InitCameraProperty( std::shared_ptr<KeyValueGroup> keyValue );
+
+	void DrawOpaqueRenderable( ) const;
+	void DrawTransparentRenderable( ) const;
+	void DrawReflectRenderable( ) const;
 public:
 	bool Initialize ( HWND hwnd, UINT wndWidth, UINT wndHeight );
 	void UpdateLogic ( void );
@@ -51,5 +53,6 @@ private:
 	CLightManager m_lightManager;
 	CShadowManager m_shadowManager;
 	IRenderer* m_pRenderer;
+	std::vector<std::shared_ptr<CGameObject>> m_gameObjects;
 };
 

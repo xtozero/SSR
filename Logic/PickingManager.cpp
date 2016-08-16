@@ -7,8 +7,6 @@
 #include "PickingManager.h"
 #include "../Shared/Util.h"
 
-extern std::vector<std::shared_ptr<CGameObject>> g_gameObjects;
-
 namespace
 {
 	void WindowSpace2NDCSpace( D3DXVECTOR3& pos, const VIEWPORT& veiwport )
@@ -117,15 +115,17 @@ bool CPickingManager::CreateWorldSpaceRay( CRay& ray, float x, float y )
 	return false;
 }
 
-bool CPickingManager::PickingObject( float x, float y, std::vector<std::shared_ptr<CGameObject>>& objects )
+bool CPickingManager::PickingObject( float x, float y )
 {
+	assert( m_pGameObjects != nullptr );
+
 	CRay ray;
 	if ( CreateWorldSpaceRay( ray, x, y ) )
 	{
 		m_curSelectedObject = nullptr;
 		m_closestHitDist = FLT_MAX;
 
-		for ( auto& object : objects )
+		for ( auto& object : *m_pGameObjects )
 		{
 			if ( object == nullptr || object->IgnorePicking() )
 			{
@@ -174,7 +174,7 @@ void CPickingManager::ReleasePickingObject( )
 
 void CPickingManager::OnLButtonDown( const int x, const int y )
 {
-	if ( PickingObject( static_cast<float>( x ), static_cast<float>( y ), g_gameObjects ) )
+	if ( PickingObject( static_cast<float>( x ), static_cast<float>( y ) ) )
 	{
 		if ( m_curSelectedObject )
 		{
@@ -257,14 +257,10 @@ void CPickingManager::OnMouseMove( const int x, const int y )
 	m_prevMouseEventPos = curPos;
 }
 
-CPickingManager::CPickingManager( )
-: m_curSelectedObject( nullptr ),
-m_curSelectedIdx( -1 ),
-m_closestHitDist( FLT_MAX )
-{
-}
-
-
-CPickingManager::~CPickingManager( )
+CPickingManager::CPickingManager( const GameObjectsPtr objects ) :
+	m_curSelectedObject( nullptr ),
+	m_curSelectedIdx( -1 ),
+	m_closestHitDist( FLT_MAX ),
+	m_pGameObjects( objects )
 {
 }

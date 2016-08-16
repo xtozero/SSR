@@ -35,15 +35,15 @@ public:
 	void PushCamera( CCamera* camera );
 	void PushInvProjection( float fov, float aspect, float zNear, float zFar, bool isLH = true );
 	bool CreateWorldSpaceRay( CRay& ray, float x, float y );
-	bool PickingObject( float x, float y, std::vector<std::shared_ptr<CGameObject>>& objects );
+	bool PickingObject( float x, float y );
 	void ReleasePickingObject( );
 
 	virtual void OnLButtonDown( const int x, const int y ) override;
 	virtual void OnLButtonUp( const int x, const int y ) override;
 	virtual void OnMouseMove( const int x, const int y ) override;
 
-	CPickingManager( );
-	~CPickingManager( );
+	using GameObjectsPtr = std::vector<std::shared_ptr<CGameObject>>*;
+	explicit CPickingManager( const GameObjectsPtr objects );
 
 private:
 	std::vector<VIEWPORT> m_viewports;
@@ -56,5 +56,7 @@ private:
 	D3DXVECTOR2 m_prevMouseEventPos;
 
 	float m_closestHitDist;
+
+	GameObjectsPtr m_pGameObjects;
 };
 
