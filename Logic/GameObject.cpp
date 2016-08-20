@@ -162,6 +162,7 @@ m_vecScale( 1.f, 1.f, 1.f ),
 m_vecRotate( 0.f, 0.f, 0.f ),
 m_pModel( nullptr ),
 m_pMaterial( nullptr ),
+m_pOverrideMtl( nullptr ),
 m_needInitialize( true ),
 m_isPicked( false ),
 m_needRebuildTransform( false )

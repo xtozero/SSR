@@ -38,10 +38,10 @@ bool D3D11IndexBuffer::CreateBuffer( ID3D11Device* pDevice, UINT stride, UINT nu
 		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 
 		D3D11_SUBRESOURCE_DATA* pInitData = nullptr;
+		D3D11_SUBRESOURCE_DATA initData;
 
 		if ( srcData )
 		{
-			D3D11_SUBRESOURCE_DATA initData;
 			::ZeroMemory( &initData, sizeof( D3D11_SUBRESOURCE_DATA ) );
 
 			initData.pSysMem = srcData;

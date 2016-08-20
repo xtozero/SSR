@@ -100,7 +100,7 @@ CKeyValueIterator KeyValueGroupImpl::FindKeyValueInternal( const String& key, st
 	return CKeyValueIterator( nullptr );
 }
 
-CKeyValueIterator::CKeyValueIterator( std::shared_ptr<KeyValue> keyValue ) :
+CKeyValueIterator::CKeyValueIterator( const std::shared_ptr<KeyValue>& keyValue ) :
 m_current( keyValue.get() )
 {
 }

@@ -55,7 +55,7 @@ private:
 class ENGINE_DLL CKeyValueIterator
 {
 public:
-	explicit CKeyValueIterator( std::shared_ptr<KeyValue> keyValue );
+	explicit CKeyValueIterator( const std::shared_ptr<KeyValue>& keyValue );
 
 	KeyValue* operator->( ) const;
 	CKeyValueIterator& operator++( );
@@ -87,7 +87,7 @@ class KeyValueGroupImpl : public KeyValueGroup
 public:
 	virtual CKeyValueIterator FindKeyValue( const String& key ) override;
 
-	KeyValueGroupImpl( std::shared_ptr<KeyValue>& root );
+	explicit KeyValueGroupImpl( std::shared_ptr<KeyValue>& root );
 	~KeyValueGroupImpl( ) = default;
 private:
 	CKeyValueIterator FindKeyValueInternal( const String& key, std::shared_ptr<KeyValue> keyValue );

@@ -12,7 +12,7 @@ public:
 	virtual void Execute( ) override;
 	virtual String GetDescription( ) override { return m_description; };
 
-	CConCommand( const String& name, const String& description, std::function<void()> function );
+	CConCommand( const String& name, const String& description, const std::function<void()>& function );
 
 private:
 	String m_name;

@@ -265,7 +265,8 @@ void CGameLogic::HandleWIndowMouseInput( const int message, const WPARAM wParam,
 
 CGameLogic::CGameLogic( ):
 	m_wndHwnd( nullptr ),
-	m_pickingManager( &m_gameObjects )
+	m_pickingManager( &m_gameObjects ),
+	m_pRenderer( nullptr )
 {
 	ShowDebugConsole( );
 }

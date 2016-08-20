@@ -17,7 +17,7 @@ bool CMeshLoader::Initialize( )
 		m_meshLoaders.emplace( String( _T( "ply" ) ), std::make_unique<CPlyMeshLoader>( ) );
 		m_meshLoaders.emplace( String( _T( "obj" ) ), std::make_unique<CObjMeshLoader>( ) );
 	}
-	catch ( std::exception e )
+	catch ( std::exception& e )
 	{
 		return false;
 	}

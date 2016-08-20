@@ -15,7 +15,7 @@ struct MeshVertex
 		m_color( D3DXVECTOR3( 0.f, 0.f, 0.f ) ),
 		m_texcoord( D3DXVECTOR2( 0.f, 0.f ) ) {}
 	
-	MeshVertex( const D3DXVECTOR3& position ) :
+	explicit MeshVertex( const D3DXVECTOR3& position ) :
 		m_position( position ),
 		m_normal( D3DXVECTOR3( 0.f, 0.f, 0.f ) ),
 		m_color( D3DXVECTOR3( 0.f, 0.f, 0.f ) ),

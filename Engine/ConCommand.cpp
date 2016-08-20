@@ -12,7 +12,7 @@ void CConCommand::Execute( )
 	}
 }
 
-CConCommand::CConCommand( const String& name, const String& description, std::function<void( )> function ) :
+CConCommand::CConCommand( const String& name, const String& description, const std::function<void( )>& function ) :
 m_name( name ),
 m_description( description ),
 m_func( function )
