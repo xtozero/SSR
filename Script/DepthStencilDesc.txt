@@ -39,6 +39,24 @@
 	"DepthStencilDesc" "depthTestOff"
 	{
 		"DepthEnable"						"0"
+		"DepthWriteMask"					"D3D11_DEPTH_WRITE_MASK_ALL"
+		"DepthFunc"							"D3D11_COMPARISON_LESS"
+		"StencilEnable"						"0"
+		"StencilReadMask"					"255"
+		"StencilWriteMask"					"255"
+		"FrontFace.StencilFunc"				"D3D11_COMPARISON_ALWAYS"
+		"BackFace.StencilFunc"				"D3D11_COMPARISON_ALWAYS"
+		"FrontFace.StencilDepthFailOp"		"D3D11_STENCIL_OP_KEEP" 
+		"BackFace.StencilDepthFailOp"		"D3D11_STENCIL_OP_KEEP"
+		"FrontFace.StencilPassOp"			"D3D11_STENCIL_OP_KEEP"
+		"BackFace.StencilPassOp"			"D3D11_STENCIL_OP_KEEP"
+		"FrontFace.StencilFailOp"			"D3D11_STENCIL_OP_KEEP"
+		"BackFace.StencilFailOp"			"D3D11_STENCIL_OP_KEEP"
+	}
+	
+	"DepthStencilDesc" "depthWriteTestOff"
+	{
+		"DepthEnable"						"0"
 		"DepthWriteMask"					"D3D11_DEPTH_WRITE_MASK_ZERO"
 		"DepthFunc"							"D3D11_COMPARISON_LESS"
 		"StencilEnable"						"0"

@@ -13,7 +13,7 @@
 
 void Material::Init( IRenderer* pRenderer )
 {
-	m_pRasterizerState = pRenderer->CreateDepthStencilState( _T( "NULL" ) );
+	m_pRasterizerState = pRenderer->CreateRenderState( _T( "NULL" ) );
 	m_pDepthStencilState = pRenderer->CreateDepthStencilState( _T( "NULL" ) );
 	for ( int i = 0; i < SHADER_TYPE::MAX_SHADER; ++i )
 	{

@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "GameObjectProperty.h"
 #include "RigidBodyManager.h"
 
 class IRenderer;
@@ -50,6 +51,10 @@ public:
 	IMaterial* GetOverrideMaterial( ) { return m_pOverrideMtl; }
 	void SetOverrideMaterial( IMaterial* pMaterial ) { m_pOverrideMtl = pMaterial; }
 
+	UINT GetProperty( ) const { return m_property; }
+	void AddProperty( const GAMEOBJECT_PROPERTY property ) { m_property |= property; }
+	void RemoveProperty( const GAMEOBJECT_PROPERTY property ) { m_property &= ~property; }
+
 	virtual bool LoadPropertyFromScript( const CKeyValueIterator& pKeyValue );
 
 	virtual bool IgnorePicking( ) const { return false; }
@@ -58,7 +63,7 @@ public:
 	virtual bool ShouldDrawShadow( ) const { return true; }
 
 	CGameObject( );
-	~CGameObject( );
+	~CGameObject( ) = default ;
 protected:
 	virtual bool LoadModelMesh( IRenderer& renderer );
 	virtual bool LoadMaterial( IRenderer& renderer );
@@ -90,6 +95,7 @@ private:
 	std::shared_ptr<IRigidBody> m_originRigidBodies[RIGID_BODY_TYPE::Count];
 	std::unique_ptr<IRigidBody>	m_rigideBodies[RIGID_BODY_TYPE::Count];
 
+	UINT m_property;
 protected:
 	bool m_needRebuildTransform;
 };

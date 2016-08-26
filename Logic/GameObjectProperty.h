@@ -1,0 +1,6 @@
+#pragma once
+
+enum GAMEOBJECT_PROPERTY
+{
+	REFLECTABLE_OBJECT = 0x000000001,
+};

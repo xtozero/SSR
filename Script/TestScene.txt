@@ -16,6 +16,7 @@
 		"Model"		"plane.obj"
 		"Material"	"tutorial"
 		"Position"	"0 -10 0"
+		"Refectable"	"1"
 	}
 	
 	"Object" "base"

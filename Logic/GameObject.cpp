@@ -152,6 +152,11 @@ bool CGameObject::LoadPropertyFromScript( const CKeyValueIterator& pKeyValue )
 		SetMaterialName( pKeyValue->GetString( ) );
 		return true;
 	}
+	else if ( pKeyValue->GetKey( ) == String( _T( "Refectable" ) ) )
+	{
+		AddProperty( REFLECTABLE_OBJECT );
+		return true;
+	}
 
 	return false;
 }
@@ -165,7 +170,8 @@ m_pMaterial( nullptr ),
 m_pOverrideMtl( nullptr ),
 m_needInitialize( true ),
 m_isPicked( false ),
-m_needRebuildTransform( false )
+m_needRebuildTransform( false ),
+m_property( 0 )
 {
 	D3DXMatrixIdentity( &m_matTransform );
 	D3DXMatrixIdentity( &m_invMatTransform );
@@ -175,10 +181,6 @@ m_needRebuildTransform( false )
 		m_originRigidBodies[i] = nullptr;
 		m_rigideBodies[i] = nullptr;
 	}
-}
-
-CGameObject::~CGameObject( )
-{
 }
 
 bool CGameObject::LoadModelMesh( IRenderer& renderer )
