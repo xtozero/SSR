@@ -2,13 +2,11 @@
 #include "RenderEffect.h"
 
 #include "IRenderer.h"
+#include "IRenderResourceManager.h"
 #include "IShaderResource.h"
 #include "ITexture.h"
-#include "RenderTargetManager.h"
-#include "ShaderResourceManager.h"
 #include "SnapShotManager.h"
 #include "TextureDescription.h"
-#include "TextureManager.h"
 
 #include "../Shared/Util.h"
 
@@ -76,8 +74,8 @@ void CEffectOrenNayar::SceneBegin( IRenderer* pRenderer )
 
 		ID3D11Device* pDevice = pRenderer->GetDevice( );
 		ID3D11DeviceContext* pDeviceContext = pRenderer->GetDeviceContext( );
-		CShaderResourceManager* pShaderResourceMgr = pRenderer->GetShaderResourceManager( );
-		CTextureManager* pTextureMgr = pRenderer->GetTextureManager( );
+		IShaderResourceManager* pShaderResourceMgr = pRenderer->GetShaderResourceManager( );
+		ITextureManager* pTextureMgr = pRenderer->GetTextureManager( );
 
 		if ( pDevice && pDeviceContext && pShaderResourceMgr && pTextureMgr )
 		{

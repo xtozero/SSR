@@ -74,9 +74,9 @@ public:
 	virtual ID3D11Device* GetDevice( ) const override { return m_pd3d11Device.Get( ); }
 	virtual IDXGISwapChain* GetSwapChain( ) const override { return m_pdxgiSwapChain.Get( ); }
 	virtual ID3D11DeviceContext* GetDeviceContext( ) const override { return m_pd3d11DeviceContext.Get( ); };
-	virtual CRenderTargetManager* GetRenderTargetManager( ) override { return &m_renderTargetManager; }
-	virtual CTextureManager* GetTextureManager( ) override { return &m_textureManager; }
-	virtual CShaderResourceManager* GetShaderResourceManager( ) override { return &m_shaderResourceManager; }
+	virtual IRenderTargetManager* GetRenderTargetManager( ) override { return &m_renderTargetManager; }
+	virtual ITextureManager* GetTextureManager( ) override { return &m_textureManager; }
+	virtual IShaderResourceManager* GetShaderResourceManager( ) override { return &m_shaderResourceManager; }
 	virtual IMeshBuilder* GetMeshBuilder( ) override;
 private:
 	bool CreateD3D11Device ( HWND hWind, UINT nWndWidth, UINT nWndHeight );

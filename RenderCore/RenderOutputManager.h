@@ -3,9 +3,6 @@
 #include <array>
 #include <tuple>
 
-class CTextureManager;
-class CRenderTargetManager;
-class CShaderResourceManager;
 struct IDXGISwapChain;
 struct ID3D11Device;
 struct ID3D11DeviceContext;
@@ -13,7 +10,10 @@ class IBuffer;
 class IDepthStencil;
 class IRenderer;
 class IRenderTarget;
+class IRenderTargetManager;
 class IShaderResource;
+class IShaderResourceManager;
+class ITextureManager;
 
 enum RENDER_OUPUT_TYPE
 {
@@ -36,10 +36,10 @@ public:
 
 	CRenderOutputManager( );
 private:
-	bool CreateDefaultRenderTaraget( ID3D11Device* pDevice, IDXGISwapChain* pSwapChain, CTextureManager& textureMgr, CRenderTargetManager& renderTargetMgr );
-	bool CreateNormalRenderTarget( ID3D11Device* pDevice, CTextureManager& textureMgr, CRenderTargetManager& renderTargetMgr, CShaderResourceManager& srMgr );
-	bool CreateDepthRenderTarget( ID3D11Device* pDevice, CTextureManager& textureMgr, CRenderTargetManager& renderTargetMgr, CShaderResourceManager& srMgr );
-	bool CreateDefaultDepthStencil( ID3D11Device* pDevice, CTextureManager& textureMgr, CRenderTargetManager& renderTargetMgr, CShaderResourceManager& srMgr );
+	bool CreateDefaultRenderTaraget( ID3D11Device* pDevice, IDXGISwapChain* pSwapChain, ITextureManager& textureMgr, IRenderTargetManager& renderTargetMgr );
+	bool CreateNormalRenderTarget( ID3D11Device* pDevice, ITextureManager& textureMgr, IRenderTargetManager& renderTargetMgr, IShaderResourceManager& srMgr );
+	bool CreateDepthRenderTarget( ID3D11Device* pDevice, ITextureManager& textureMgr, IRenderTargetManager& renderTargetMgr, IShaderResourceManager& srMgr );
+	bool CreateDefaultDepthStencil( ID3D11Device* pDevice, ITextureManager& textureMgr, IRenderTargetManager& renderTargetMgr );
 
 	std::array<IShaderResource*, RENDER_OUPUT_TYPE::COUNT>	m_renderSRVs;
 	std::array<IRenderTarget*, RENDER_OUPUT_TYPE::COUNT>	m_renderOutputs;

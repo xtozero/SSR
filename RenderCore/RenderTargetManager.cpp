@@ -7,25 +7,14 @@
 
 #include <d3d11.h>
 
-IRenderTarget* CRenderTargetManager::CreateRenderTarget( ID3D11Device* pDevice, ID3D11Resource* pResource, const D3D11_RENDER_TARGET_VIEW_DESC* rtvDesc, const String& renderTargetName )
+IRenderTarget* CRenderTargetManager::CreateRenderTarget( ID3D11Device* pDevice, const ITexture* pTexture, const D3D11_RENDER_TARGET_VIEW_DESC* rtvDesc, const String& renderTargetName )
 {
-	if ( auto renderTarget = FindRenderTarget( renderTargetName ) )
+	if ( pTexture == nullptr )
 	{
-		return renderTarget;
+		return nullptr;
 	}
 
-	if ( pDevice && pResource )
-	{
-		std::shared_ptr<IRenderTarget> newRenderTarget = std::make_shared<CRenderTarget>( );
-
-		if ( newRenderTarget && newRenderTarget->CreateRenderTarget( pDevice, pResource, rtvDesc ) )
-		{
-			RegisterRenderTarget( renderTargetName, newRenderTarget );
-			return newRenderTarget.get( );
-		}
-	}
-
-	return nullptr;
+	return CreateRenderTarget( pDevice, pTexture->Get( ), rtvDesc, renderTargetName );
 }
 
 IDepthStencil* CRenderTargetManager::CreateDepthStencil( ID3D11Device* pDevice, const ITexture* pTexture, const D3D11_DEPTH_STENCIL_VIEW_DESC* dsvDesc, const String& depthStencilName )
@@ -92,6 +81,27 @@ void CRenderTargetManager::SetRenderTarget( ID3D11DeviceContext* pDeviceContext,
 
 		pDeviceContext->OMSetRenderTargets( binder.Count(), binder.Get( ), dsv );
 	}
+}
+
+IRenderTarget* CRenderTargetManager::CreateRenderTarget( ID3D11Device* pDevice, ID3D11Resource* pResource, const D3D11_RENDER_TARGET_VIEW_DESC* rtvDesc, const String& renderTargetName )
+{
+	if ( auto renderTarget = FindRenderTarget( renderTargetName ) )
+	{
+		return renderTarget;
+	}
+
+	if ( pDevice && pResource )
+	{
+		std::shared_ptr<IRenderTarget> newRenderTarget = std::make_shared<CRenderTarget>( );
+
+		if ( newRenderTarget && newRenderTarget->CreateRenderTarget( pDevice, pResource, rtvDesc ) )
+		{
+			RegisterRenderTarget( renderTargetName, newRenderTarget );
+			return newRenderTarget.get( );
+		}
+	}
+
+	return nullptr;
 }
 
 void CRenderTargetManager::RegisterRenderTarget( const String& renderTargetName, const std::shared_ptr<IRenderTarget>& renderTarget )

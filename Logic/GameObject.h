@@ -26,6 +26,7 @@ public:
 	const D3DXMATRIX& GetTransformMatrix( );
 	const D3DXMATRIX& GetInvTransformMatrix( );
 
+	void UpdateWorldMatrix( IRenderer& renderer );
 	virtual void Render( IRenderer& renderer );
 
 	virtual void Think( );

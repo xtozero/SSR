@@ -1,8 +1,7 @@
 #include "stdafx.h"
+#include "IRenderResourceManager.h"
 #include "ITexture.h"
-#include "ShaderResourceManager.h"
 #include "SnapshotManager.h"
-#include "TextureManager.h"
 #include "TextureDescription.h"
 #include "../shared/Util.h"
 
@@ -133,7 +132,7 @@ IShaderResource* CSnapshotManager::TryCreateShaderResource( ID3D11Device* pDevic
 	return nullptr;
 }
 
-CSnapshotManager::CSnapshotManager( CTextureManager* pTextureManager, CShaderResourceManager* pShaderResourceManager ) :
+CSnapshotManager::CSnapshotManager( ITextureManager* pTextureManager, IShaderResourceManager* pShaderResourceManager ) :
 	m_pTextureMgr( pTextureManager ),
 	m_pShaderResourceMgr( pShaderResourceManager )
 {

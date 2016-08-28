@@ -71,6 +71,11 @@ const D3DXMATRIX& CGameObject::GetInvTransformMatrix( )
 	return m_invMatTransform;
 }
 
+void CGameObject::UpdateWorldMatrix( IRenderer & renderer )
+{
+	renderer.UpdateWorldMatrix( GetTransformMatrix( ), GetInvTransformMatrix( ) );
+}
+
 void CGameObject::Render( IRenderer& renderer )
 {
 	if ( ShouldDraw() && m_pModel )

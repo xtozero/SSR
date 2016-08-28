@@ -3,19 +3,19 @@
 #include "common.h"
 #include <memory>
 
-class CRenderTargetManager;
-class CShaderResourceManager;
-class CTextureManager;
 class IBuffer;
 class IMaterial;
 class IMesh;
 class IMeshBuilder;
 class IRendererShadowManager;
 class IRenderState;
+class IRenderTargetManager;
 class IRenderView;
 class ISampler;
 class IShader;
 class IShaderResource;
+class IShaderResourceManager;
+class ITextureManager;
 struct IDXGISwapChain;
 struct ID3D11Device;
 struct ID3D11DeviceContext;
@@ -81,9 +81,9 @@ public:
 	virtual ID3D11Device* GetDevice( ) const = 0;
 	virtual IDXGISwapChain* GetSwapChain( ) const = 0;
 	virtual ID3D11DeviceContext* GetDeviceContext( ) const = 0;
-	virtual CRenderTargetManager* GetRenderTargetManager( ) = 0;
-	virtual CTextureManager* GetTextureManager( ) = 0;
-	virtual CShaderResourceManager* GetShaderResourceManager( ) = 0;
+	virtual IRenderTargetManager* GetRenderTargetManager( ) = 0;
+	virtual ITextureManager* GetTextureManager( ) = 0;
+	virtual IShaderResourceManager* GetShaderResourceManager( ) = 0;
 	virtual IMeshBuilder* GetMeshBuilder( ) = 0;
 protected:
 	IRenderer( ) = default;

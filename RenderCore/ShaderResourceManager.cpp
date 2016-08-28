@@ -1,11 +1,13 @@
 #include "stdafx.h"
-#include <d3d11.h>
-#include <fstream>
+
 #include "IShaderResource.h"
 #include "ITexture.h"
 #include "ShaderResource.h"
 #include "ShaderResourceManager.h"
 #include "../shared/Util.h"
+
+#include <d3d11.h>
+#include <fstream>
 
 namespace
 {

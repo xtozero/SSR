@@ -243,6 +243,9 @@
     <ClInclude Include="TextureDescription.h">
       <Filter>Direct11\RenderResource</Filter>
     </ClInclude>
+    <ClInclude Include="IRenderResourceManager.h">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

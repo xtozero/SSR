@@ -4,14 +4,14 @@
 
 #include <memory>
 
-class CShaderResourceManager;
-class CTextureManager;
-class TextureDescription;
 struct ID3D11Device;
 struct ID3D11DeviceContext;
 struct ID3D11Texture2D;
 class IShaderResource;
+class IShaderResourceManager;
 class ITexture;
+class ITextureManager;
+class TextureDescription;
 
 class CSnapshotManager
 {
@@ -20,11 +20,11 @@ public:
 	ITexture* CreateCloneTexture( ID3D11Device* pDevice, const ITexture* pSourceTexture, const String& textureName );
 	IShaderResource* TryCreateShaderResource( ID3D11Device* pDevice, const ITexture* pTexture, const TextureDescription& desc, const String& textureName, int srcFlag = 0 );
 
-	CSnapshotManager( CTextureManager* pTextureManager, CShaderResourceManager* pShaderResourceManager );
+	CSnapshotManager( ITextureManager* pTextureManager, IShaderResourceManager* pShaderResourceManager );
 	~CSnapshotManager( ) = default;
 
 private:
-	CTextureManager* m_pTextureMgr;
-	CShaderResourceManager* m_pShaderResourceMgr;
+	ITextureManager* m_pTextureMgr;
+	IShaderResourceManager* m_pShaderResourceMgr;
 };
 

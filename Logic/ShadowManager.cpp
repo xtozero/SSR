@@ -86,7 +86,7 @@ void CShadowManager::DrawScene( CLightManager& lightMgr, IRenderer& renderer, st
 		if ( object.get() && object->ShouldDrawShadow( ) )
 		{
 			object->SetOverrideMaterial( m_shadowMapMtl );
-			renderer.UpdateWorldMatrix( object->GetTransformMatrix( ), object->GetInvTransformMatrix( ) );
+			object->UpdateWorldMatrix( renderer );
 			object->Render( renderer );
 			object->SetOverrideMaterial( nullptr );
 		}

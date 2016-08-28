@@ -3,12 +3,10 @@
 
 #include "IDepthStencil.h"
 #include "IRenderer.h"
+#include "IRenderResourceManager.h"
 #include "IRenderTarget.h"
 #include "IShaderResource.h"
 #include "ITexture.h"
-#include "RenderTargetManager.h"
-#include "ShaderResourceManager.h"
-#include "TextureManager.h"
 #include "TextureDescription.h"
 
 #include "../Shared/Util.h"
@@ -24,9 +22,9 @@ bool CRenderOutputManager::Initialize( IRenderer* pRenderer )
 	{
 		ID3D11Device* pDevice = pRenderer->GetDevice( );
 		IDXGISwapChain* pDxgiSwapChain = pRenderer->GetSwapChain( );
-		CTextureManager* pTextureMgr = pRenderer->GetTextureManager( );
-		CRenderTargetManager* pRernderTargetMgr = pRenderer->GetRenderTargetManager( );
-		CShaderResourceManager* pSrMgr = pRenderer->GetShaderResourceManager();
+		ITextureManager* pTextureMgr = pRenderer->GetTextureManager( );
+		IRenderTargetManager* pRernderTargetMgr = pRenderer->GetRenderTargetManager( );
+		IShaderResourceManager* pSrMgr = pRenderer->GetShaderResourceManager();
 
 		if ( pTextureMgr == nullptr || pRernderTargetMgr == nullptr || pSrMgr == nullptr )
 		{
@@ -35,7 +33,7 @@ bool CRenderOutputManager::Initialize( IRenderer* pRenderer )
 		}
 
 		ON_FAIL_RETURN( CreateDefaultRenderTaraget( pDevice, pDxgiSwapChain, *pTextureMgr, *pRernderTargetMgr ) );
-		ON_FAIL_RETURN( CreateDefaultDepthStencil( pDevice, *pTextureMgr, *pRernderTargetMgr, *pSrMgr ) );
+		ON_FAIL_RETURN( CreateDefaultDepthStencil( pDevice, *pTextureMgr, *pRernderTargetMgr ) );
 		ON_FAIL_RETURN( CreateNormalRenderTarget( pDevice, *pTextureMgr, *pRernderTargetMgr, *pSrMgr ) );
 		ON_FAIL_RETURN( CreateDepthRenderTarget( pDevice, *pTextureMgr, *pRernderTargetMgr, *pSrMgr ) );
 		
@@ -53,7 +51,7 @@ void CRenderOutputManager::SetRenderTargetDepthStencilView( IRenderer* pRenderer
 		return;
 	}
 
-	CRenderTargetManager* rtManager = pRenderer->GetRenderTargetManager( );
+	IRenderTargetManager* rtManager = pRenderer->GetRenderTargetManager( );
 
 	if ( rtManager == nullptr )
 	{
@@ -112,7 +110,7 @@ CRenderOutputManager::CRenderOutputManager( ) :
 	m_renderSRVs.fill( nullptr );
 }
 
-bool CRenderOutputManager::CreateDefaultRenderTaraget( ID3D11Device * pDevice, IDXGISwapChain* pSwapChain, CTextureManager & textureMgr, CRenderTargetManager & renderTargetMgr )
+bool CRenderOutputManager::CreateDefaultRenderTaraget( ID3D11Device * pDevice, IDXGISwapChain* pSwapChain, ITextureManager& textureMgr, IRenderTargetManager& renderTargetMgr )
 {
 	if ( pDevice == nullptr || pSwapChain == nullptr )
 	{
@@ -131,7 +129,8 @@ bool CRenderOutputManager::CreateDefaultRenderTaraget( ID3D11Device * pDevice, I
 			ON_FAIL_RETURN( textureMgr.RegisterTexture2D( renderTargetTexName, renderTargetResource ) );
 		}
 
-		m_renderOutputs[FRAME_BUFFER] = renderTargetMgr.CreateRenderTarget( pDevice, pd3d11BackBuffer.Get( ), nullptr, renderTargetTexName );
+		ITexture* pBackBufferTex = textureMgr.FindTexture( renderTargetTexName );
+		m_renderOutputs[FRAME_BUFFER] = renderTargetMgr.CreateRenderTarget( pDevice, pBackBufferTex, nullptr, renderTargetTexName );
 		if ( m_renderOutputs[FRAME_BUFFER] == nullptr )
 		{
 			return false;
@@ -141,7 +140,7 @@ bool CRenderOutputManager::CreateDefaultRenderTaraget( ID3D11Device * pDevice, I
 	return true;
 }
 
-bool CRenderOutputManager::CreateNormalRenderTarget( ID3D11Device * pDevice, CTextureManager & textureMgr, CRenderTargetManager & renderTargetMgr, CShaderResourceManager& srMgr )
+bool CRenderOutputManager::CreateNormalRenderTarget( ID3D11Device * pDevice, ITextureManager& textureMgr, IRenderTargetManager& renderTargetMgr, IShaderResourceManager& srMgr )
 {
 	if ( pDevice == nullptr )
 	{
@@ -150,13 +149,7 @@ bool CRenderOutputManager::CreateNormalRenderTarget( ID3D11Device * pDevice, CTe
 
 	String normalTexName( _T( "NormalGBuffer" ) );
 	ITexture* pGBufferNormal = textureMgr.CreateTexture2D( pDevice, normalTexName, normalTexName );
-
-	if ( pGBufferNormal == nullptr )
-	{
-		return false;
-	}
-
-	m_renderOutputs[NORMAL_BUFFER] = renderTargetMgr.CreateRenderTarget( pDevice, pGBufferNormal->Get( ), nullptr, normalTexName );
+	m_renderOutputs[NORMAL_BUFFER] = renderTargetMgr.CreateRenderTarget( pDevice, pGBufferNormal, nullptr, normalTexName );
 
 	if ( m_renderOutputs[NORMAL_BUFFER] == nullptr )
 	{
@@ -168,7 +161,7 @@ bool CRenderOutputManager::CreateNormalRenderTarget( ID3D11Device * pDevice, CTe
 	return true;
 }
 
-bool CRenderOutputManager::CreateDepthRenderTarget( ID3D11Device * pDevice, CTextureManager & textureMgr, CRenderTargetManager & renderTargetMgr, CShaderResourceManager& srMgr )
+bool CRenderOutputManager::CreateDepthRenderTarget( ID3D11Device * pDevice, ITextureManager& textureMgr, IRenderTargetManager& renderTargetMgr, IShaderResourceManager& srMgr )
 {
 	if ( pDevice == nullptr )
 	{
@@ -177,13 +170,7 @@ bool CRenderOutputManager::CreateDepthRenderTarget( ID3D11Device * pDevice, CTex
 
 	String depthTexName( _T( "DepthGBuffer" ) );
 	ITexture* pGBufferDepth = textureMgr.CreateTexture2D( pDevice, depthTexName, depthTexName );
-
-	if ( pGBufferDepth == nullptr )
-	{
-		return false;
-	}
-
-	m_renderOutputs[DEPTH_BUFFER] = renderTargetMgr.CreateRenderTarget( pDevice, pGBufferDepth->Get( ), nullptr, depthTexName );
+	m_renderOutputs[DEPTH_BUFFER] = renderTargetMgr.CreateRenderTarget( pDevice, pGBufferDepth, nullptr, depthTexName );
 	if ( m_renderOutputs[DEPTH_BUFFER] == nullptr )
 	{
 		return false;
@@ -194,7 +181,7 @@ bool CRenderOutputManager::CreateDepthRenderTarget( ID3D11Device * pDevice, CTex
 	return true;
 }
 
-bool CRenderOutputManager::CreateDefaultDepthStencil( ID3D11Device* pDevice,  CTextureManager & textureMgr, CRenderTargetManager & renderTargetMgr, CShaderResourceManager& srMgr )
+bool CRenderOutputManager::CreateDefaultDepthStencil( ID3D11Device* pDevice, ITextureManager& textureMgr, IRenderTargetManager& renderTargetMgr  )
 {
 	if ( pDevice == nullptr )
 	{

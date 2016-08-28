@@ -121,6 +121,7 @@ DEL "$(SolutionDIr)Shader\*.cso"</Command>
     <ClInclude Include="..\Shared\Util.h" />
     <ClInclude Include="DepthStencil.h" />
     <ClInclude Include="DepthStencilStateFactory.h" />
+    <ClInclude Include="IRenderResourceManager.h" />
     <ClInclude Include="RenderOutputManager.h" />
     <ClInclude Include="IMeshBuilder.h" />
     <ClInclude Include="IRendererShadowManager.h" />

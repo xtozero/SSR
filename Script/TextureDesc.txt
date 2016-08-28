@@ -53,4 +53,13 @@
 		"SampleDesc"		"1 0" //Count Quality
 		"Flags"				"D3D11_USAGE_DEFAULT D3D11_BIND_SHADER_RESOURCE|D3D11_BIND_RENDER_TARGET 0 D3D11_RESOURCE_MISC_GENERATE_MIPS" //Usage BindFlags CPUAccessFlags MiscFlags
 	}
+	
+	"ScreenSpaceReflect"
+	{
+		"Size"				"FRAME_BUFFER"
+		"SubResourceDesc"	"1 1" //MipLevels ArraySize
+		"Format"			"DXGI_FORMAT_R8G8B8A8_UNORM"
+		"SampleDesc"		"1 0" //Count Quality
+		"Flags"				"D3D11_USAGE_DEFAULT D3D11_BIND_SHADER_RESOURCE|D3D11_BIND_RENDER_TARGET 0 0" //Usage BindFlags CPUAccessFlags MiscFlags
+	}
 }

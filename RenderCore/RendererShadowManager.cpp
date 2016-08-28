@@ -7,9 +7,7 @@
 #include "IRenderTarget.h"
 
 #include "IRenderer.h"
-#include "RenderTargetManager.h"
-#include "ShaderResourceManager.h"
-#include "TextureManager.h"
+#include "IRenderResourceManager.h"
 
 #include <D3D11.h>
 
@@ -40,7 +38,7 @@ void CRendererShadowManager::SceneBegin( IRenderer* pRenderer )
 	}
 
 	ID3D11DeviceContext* pDeviceContext = pRenderer->GetDeviceContext( );
-	CRenderTargetManager* pRenderTargetMgr = pRenderer->GetRenderTargetManager( );
+	IRenderTargetManager* pRenderTargetMgr = pRenderer->GetRenderTargetManager( );
 
 	if ( pDeviceContext == nullptr || pRenderTargetMgr == nullptr )
 	{
@@ -70,7 +68,7 @@ void CRendererShadowManager::SceneEnd( IRenderer* pRenderer )
 	}
 	
 	ID3D11DeviceContext* pDeviceContext = pRenderer->GetDeviceContext( );
-	CRenderTargetManager* pRenderTargetMgr = pRenderer->GetRenderTargetManager( );
+	IRenderTargetManager* pRenderTargetMgr = pRenderer->GetRenderTargetManager( );
 
 	if ( pDeviceContext == nullptr || pRenderTargetMgr == nullptr )
 	{
@@ -92,7 +90,7 @@ void CRendererShadowManager::CreateShadowMapTexture( IRenderer* pRenderer )
 	}
 
 	ID3D11Device* pDevice = pRenderer->GetDevice( );
-	CTextureManager* pTextureMgr = pRenderer->GetTextureManager( );
+	ITextureManager* pTextureMgr = pRenderer->GetTextureManager( );
 	if ( pDevice == nullptr || pTextureMgr == nullptr )
 	{
 		return;
@@ -104,19 +102,19 @@ void CRendererShadowManager::CreateShadowMapTexture( IRenderer* pRenderer )
 		return;
 	}
 
-	CRenderTargetManager* pRenderTargetMgr = pRenderer->GetRenderTargetManager( );
+	IRenderTargetManager* pRenderTargetMgr = pRenderer->GetRenderTargetManager( );
 	if ( pRenderTargetMgr == nullptr )
 	{
 		return;
 	}
 
-	m_rtvShadowMap = pRenderTargetMgr->CreateRenderTarget( pDevice, m_shadowMap->Get( ), nullptr, _T( "ShadowMap" ) );
+	m_rtvShadowMap = pRenderTargetMgr->CreateRenderTarget( pDevice, m_shadowMap, nullptr, _T( "ShadowMap" ) );
 	if ( m_rtvShadowMap == nullptr )
 	{
 		return;
 	}
 
-	CShaderResourceManager* pShaderResourceMgr = pRenderer->GetShaderResourceManager( );
+	IShaderResourceManager* pShaderResourceMgr = pRenderer->GetShaderResourceManager( );
 	if ( pShaderResourceMgr == nullptr )
 	{
 		return;
