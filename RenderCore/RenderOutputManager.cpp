@@ -22,20 +22,14 @@ bool CRenderOutputManager::Initialize( IRenderer* pRenderer )
 	{
 		ID3D11Device* pDevice = pRenderer->GetDevice( );
 		IDXGISwapChain* pDxgiSwapChain = pRenderer->GetSwapChain( );
-		ITextureManager* pTextureMgr = pRenderer->GetTextureManager( );
-		IRenderTargetManager* pRernderTargetMgr = pRenderer->GetRenderTargetManager( );
-		IShaderResourceManager* pSrMgr = pRenderer->GetShaderResourceManager();
+		ITextureManager& textureMgr = pRenderer->GetTextureManager( );
+		IRenderTargetManager& rernderTargetMgr = pRenderer->GetRenderTargetManager( );
+		IShaderResourceManager& shaderResourceMgr = pRenderer->GetShaderResourceManager();
 
-		if ( pTextureMgr == nullptr || pRernderTargetMgr == nullptr || pSrMgr == nullptr )
-		{
-			assert( pTextureMgr && pRernderTargetMgr );
-			return false;
-		}
-
-		ON_FAIL_RETURN( CreateDefaultRenderTaraget( pDevice, pDxgiSwapChain, *pTextureMgr, *pRernderTargetMgr ) );
-		ON_FAIL_RETURN( CreateDefaultDepthStencil( pDevice, *pTextureMgr, *pRernderTargetMgr ) );
-		ON_FAIL_RETURN( CreateNormalRenderTarget( pDevice, *pTextureMgr, *pRernderTargetMgr, *pSrMgr ) );
-		ON_FAIL_RETURN( CreateDepthRenderTarget( pDevice, *pTextureMgr, *pRernderTargetMgr, *pSrMgr ) );
+		ON_FAIL_RETURN( CreateDefaultRenderTaraget( pDevice, pDxgiSwapChain, textureMgr, rernderTargetMgr ) );
+		ON_FAIL_RETURN( CreateDefaultDepthStencil( pDevice, textureMgr, rernderTargetMgr ) );
+		ON_FAIL_RETURN( CreateNormalRenderTarget( pDevice, textureMgr, rernderTargetMgr, shaderResourceMgr ) );
+		ON_FAIL_RETURN( CreateDepthRenderTarget( pDevice, textureMgr, rernderTargetMgr, shaderResourceMgr ) );
 		
 		return true;
 	}
@@ -51,13 +45,7 @@ void CRenderOutputManager::SetRenderTargetDepthStencilView( IRenderer* pRenderer
 		return;
 	}
 
-	IRenderTargetManager* rtManager = pRenderer->GetRenderTargetManager( );
-
-	if ( rtManager == nullptr )
-	{
-		assert( rtManager );
-		return;
-	}
+	IRenderTargetManager& renderTargetMgr = pRenderer->GetRenderTargetManager( );
 
 	ID3D11DeviceContext* pDeviceContext = pRenderer->GetDeviceContext( );
 	RenderTargetBinder binder;
@@ -65,7 +53,7 @@ void CRenderOutputManager::SetRenderTargetDepthStencilView( IRenderer* pRenderer
 	binder.Bind( 1, m_renderOutputs[NORMAL_BUFFER] ? m_renderOutputs[NORMAL_BUFFER]->Get( ) : nullptr );
 	binder.Bind( 2, m_renderOutputs[DEPTH_BUFFER] ? m_renderOutputs[DEPTH_BUFFER]->Get( ) : nullptr );
 
-	rtManager->SetRenderTarget( pDeviceContext, binder, m_pPrimeDs );
+	renderTargetMgr.SetRenderTarget( pDeviceContext, binder, m_pPrimeDs );
 }
 
 void CRenderOutputManager::ClearDepthStencil( ID3D11DeviceContext* pDeviceContext )

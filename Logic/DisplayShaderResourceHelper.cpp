@@ -75,9 +75,9 @@ bool CDisplayShaderResourceHelper::ShouldDraw( ) const
 
 bool CDisplayShaderResourceHelper::LoadModelMesh( IRenderer& renderer )
 {
-	IMeshBuilder* pMeshBuilder = renderer.GetMeshBuilder( );
+	IMeshBuilder& meshBuilder = renderer.GetMeshBuilder( );
 
-	if ( GetModel( ) != nullptr || pMeshBuilder == nullptr )
+	if ( GetModel( ) != nullptr )
 	{
 		return false;
 	}
@@ -88,20 +88,20 @@ bool CDisplayShaderResourceHelper::LoadModelMesh( IRenderer& renderer )
 	float halfWidth = m_width / wndWidth;
 	float halfHeight = m_height / wndHeight;
 
-	pMeshBuilder->Append( MeshVertex( D3DXVECTOR3( -halfWidth, -halfHeight, 1.f ), D3DXVECTOR2( 0.f, 1.f ) ) );
-	pMeshBuilder->Append( MeshVertex( D3DXVECTOR3( -halfWidth, halfHeight, 1.f ), D3DXVECTOR2( 0.f, 0.0f ) ) );
-	pMeshBuilder->Append( MeshVertex( D3DXVECTOR3( halfWidth, -halfHeight, 1.f ), D3DXVECTOR2( 1.f, 1.0f ) ) );
-	pMeshBuilder->Append( MeshVertex( D3DXVECTOR3( halfWidth, halfHeight, 1.f ), D3DXVECTOR2( 1.f, 0.f ) ) );
+	meshBuilder.Append( MeshVertex( D3DXVECTOR3( -halfWidth, -halfHeight, 1.f ), D3DXVECTOR2( 0.f, 1.f ) ) );
+	meshBuilder.Append( MeshVertex( D3DXVECTOR3( -halfWidth, halfHeight, 1.f ), D3DXVECTOR2( 0.f, 0.0f ) ) );
+	meshBuilder.Append( MeshVertex( D3DXVECTOR3( halfWidth, -halfHeight, 1.f ), D3DXVECTOR2( 1.f, 1.0f ) ) );
+	meshBuilder.Append( MeshVertex( D3DXVECTOR3( halfWidth, halfHeight, 1.f ), D3DXVECTOR2( 1.f, 0.f ) ) );
 
-	pMeshBuilder->AppendIndex( 0 );
-	pMeshBuilder->AppendIndex( 1 );
-	pMeshBuilder->AppendIndex( 2 );
-	pMeshBuilder->AppendIndex( 3 );
+	meshBuilder.AppendIndex( 0 );
+	meshBuilder.AppendIndex( 1 );
+	meshBuilder.AppendIndex( 2 );
+	meshBuilder.AppendIndex( 3 );
 
-	pMeshBuilder->AppendTextureName( m_textureName );
+	meshBuilder.AppendTextureName( m_textureName );
 
 	SetModelMeshName( GetName( ) );
-	SetModel( pMeshBuilder->Build( renderer, GetMeshName( ), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP ) );
+	SetModel( meshBuilder.Build( renderer, GetMeshName( ), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP ) );
 
 	return GetModel( ) ? true : false;
 }

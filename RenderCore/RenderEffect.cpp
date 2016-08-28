@@ -74,15 +74,15 @@ void CEffectOrenNayar::SceneBegin( IRenderer* pRenderer )
 
 		ID3D11Device* pDevice = pRenderer->GetDevice( );
 		ID3D11DeviceContext* pDeviceContext = pRenderer->GetDeviceContext( );
-		IShaderResourceManager* pShaderResourceMgr = pRenderer->GetShaderResourceManager( );
-		ITextureManager* pTextureMgr = pRenderer->GetTextureManager( );
+		IShaderResourceManager& shaderResourceMgr = pRenderer->GetShaderResourceManager( );
+		ITextureManager& textureMgr = pRenderer->GetTextureManager( );
 
-		if ( pDevice && pDeviceContext && pShaderResourceMgr && pTextureMgr )
+		if ( pDevice && pDeviceContext )
 		{
-			ITexture* pTexture = pTextureMgr->CreateTexture2D( pDevice, OREN_NAYAR_TEX_NAME, OREN_NAYAR_TEX_NAME, &initData );
+			ITexture* pTexture = textureMgr.CreateTexture2D( pDevice, OREN_NAYAR_TEX_NAME, OREN_NAYAR_TEX_NAME, &initData );
 			if ( pTexture )
 			{
-				auto lookupSRV = pShaderResourceMgr->CreateShaderResource( pDevice, pTexture, nullptr, OREN_NAYAR_TEX_NAME );
+				auto lookupSRV = shaderResourceMgr.CreateShaderResource( pDevice, pTexture, nullptr, OREN_NAYAR_TEX_NAME );
 
 				if ( lookupSRV )
 				{

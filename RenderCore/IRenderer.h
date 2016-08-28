@@ -36,8 +36,8 @@ namespace Microsoft
 class RENDERCORE_DLL IRenderer
 {
 public:
-	virtual bool InitializeRenderer ( HWND hWind, UINT nWndWidth, UINT nWndHeight ) = 0;
-	virtual void ShutDownRenderer ( ) = 0;
+	virtual bool InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeight ) = 0;
+	virtual void ShutDownRenderer( ) = 0;
 	virtual void SceneBegin( ) = 0;
 	virtual void SceneEnd( ) = 0;
 
@@ -81,10 +81,10 @@ public:
 	virtual ID3D11Device* GetDevice( ) const = 0;
 	virtual IDXGISwapChain* GetSwapChain( ) const = 0;
 	virtual ID3D11DeviceContext* GetDeviceContext( ) const = 0;
-	virtual IRenderTargetManager* GetRenderTargetManager( ) = 0;
-	virtual ITextureManager* GetTextureManager( ) = 0;
-	virtual IShaderResourceManager* GetShaderResourceManager( ) = 0;
-	virtual IMeshBuilder* GetMeshBuilder( ) = 0;
+	virtual IRenderTargetManager& GetRenderTargetManager( ) = 0;
+	virtual ITextureManager& GetTextureManager( ) = 0;
+	virtual IShaderResourceManager& GetShaderResourceManager( ) = 0;
+	virtual IMeshBuilder& GetMeshBuilder( ) = 0;
 protected:
 	IRenderer( ) = default;
 

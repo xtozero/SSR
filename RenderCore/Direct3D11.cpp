@@ -643,10 +643,10 @@ void CDirect3D11::TakeSnapshot2D( const String & sourceTextureName, const String
 	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get(), m_pd3d11DeviceContext.Get(), sourceTextureName, destTextureName );
 }
 
-IMeshBuilder* CDirect3D11::GetMeshBuilder( )
+IMeshBuilder& CDirect3D11::GetMeshBuilder( )
 {
 	m_meshBuilder.Clear( );
-	return &m_meshBuilder;
+	return m_meshBuilder;
 }
 
 bool CDirect3D11::CreateD3D11Device( HWND hWind, UINT nWndWidth, UINT nWndHeight )
