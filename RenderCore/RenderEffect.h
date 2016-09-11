@@ -8,8 +8,8 @@ class IRenderer;
 class IRenderEffect
 {
 public:
-	virtual void SceneBegin( IRenderer* ) {};
-	virtual void SceneEnd( IRenderer* ) {};
+	virtual void SceneBegin( IRenderer& ) {};
+	virtual void SceneEnd( IRenderer& ) {};
 
 	virtual ~IRenderEffect( ) = default;
 };
@@ -17,8 +17,8 @@ public:
 class CRenderEffect
 {
 public:
-	void SceneBegin( IRenderer* pRenderer );
-	void SceneEnd( IRenderer* pRenderer );
+	void SceneBegin( IRenderer& renderer );
+	void SceneEnd( IRenderer& renderer );
 
 	CRenderEffect( );
 private:

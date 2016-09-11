@@ -7,12 +7,12 @@ class IRenderer;
 class CShaderListScriptLoader
 {
 public:
-	bool LoadShadersFromScript( IRenderer* const pRenderer );
+	bool LoadShadersFromScript( IRenderer& renderer );
 
 	CShaderListScriptLoader( );
 	~CShaderListScriptLoader( );
 
 private:
-	bool LoadShader( IRenderer* const pRenderer, const String& filePath, const String& profile );
+	bool LoadShader( IRenderer& renderer, const String& filePath, const String& profile );
 };
 

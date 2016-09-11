@@ -25,7 +25,7 @@ enum SHADER_TYPE
 class IMaterial
 {
 public:
-	virtual void Init( IRenderer* renderer ) = 0;
+	virtual void Init( IRenderer& renderer ) = 0;
 	virtual void SetShader( ID3D11DeviceContext* pDeviceContext ) = 0;
 	virtual void SetTexture( ID3D11DeviceContext* pDeviceContext, UINT shaderType, UINT slot, const IShaderResource* pTexture ) = 0;
 	virtual void SetSurface( ID3D11DeviceContext* pDeviceContext, UINT shaderType, UINT slot, const ISurface* pSurface ) = 0;

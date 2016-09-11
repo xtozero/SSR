@@ -47,47 +47,47 @@ namespace
 class CScriptedMaterial : public Material
 {
 public:
-	bool SetShader( IRenderer* pRenderer, const SHADER_TYPE type, const String& shaderName );
-	bool SetSamplerState( IRenderer* pRenderer, const SHADER_TYPE type, const String& samplerName );
-	bool SetDepthStencilState( IRenderer* pRenderer, const String& dsStateName );
-	bool SetRasterizerState( IRenderer* pRenderer, const String& rsStateName );
+	bool SetShader( IRenderer& renderer, const SHADER_TYPE type, const String& shaderName );
+	bool SetSamplerState( IRenderer& renderer, const SHADER_TYPE type, const String& samplerName );
+	bool SetDepthStencilState( IRenderer& renderer, const String& dsStateName );
+	bool SetRasterizerState( IRenderer& renderer, const String& rsStateName );
 };
 
-bool CScriptedMaterial::SetShader( IRenderer* pRenderer, const SHADER_TYPE type, const String& shaderName )
+bool CScriptedMaterial::SetShader( IRenderer& renderer, const SHADER_TYPE type, const String& shaderName )
 {
 	if ( type >= SHADER_TYPE::MAX_SHADER || type < SHADER_TYPE::VS )
 	{
 		return false;
 	}
 
-	m_pShaders[type] = pRenderer->SearchShaderByName( shaderName.c_str( ) );
+	m_pShaders[type] = renderer.SearchShaderByName( shaderName.c_str( ) );
 	return m_pShaders[type] ? true : false;
 }
 
-bool CScriptedMaterial::SetSamplerState( IRenderer* pRenderer, const SHADER_TYPE type, const String& samplerName )
+bool CScriptedMaterial::SetSamplerState( IRenderer& renderer, const SHADER_TYPE type, const String& samplerName )
 {
 	if ( type >= SHADER_TYPE::MAX_SHADER || type < SHADER_TYPE::VS )
 	{
 		return false;
 	}
 
-	m_pSamplerState[type] = pRenderer->CreateSamplerState( samplerName );
+	m_pSamplerState[type] = renderer.CreateSamplerState( samplerName );
 	return m_pSamplerState[type] ? true : false;
 }
 
-bool CScriptedMaterial::SetDepthStencilState( IRenderer* pRenderer, const String& dsStateName )
+bool CScriptedMaterial::SetDepthStencilState( IRenderer& renderer, const String& dsStateName )
 {
-	m_pDepthStencilState = pRenderer->CreateDepthStencilState( dsStateName );
+	m_pDepthStencilState = renderer.CreateDepthStencilState( dsStateName );
 	return m_pDepthStencilState ? true : false;
 }
 
-bool CScriptedMaterial::SetRasterizerState( IRenderer* pRenderer, const String& rsStateName )
+bool CScriptedMaterial::SetRasterizerState( IRenderer& renderer, const String& rsStateName )
 {
-	m_pRasterizerState = pRenderer->CreateRenderState( rsStateName );
+	m_pRasterizerState = renderer.CreateRenderState( rsStateName );
 	return m_pRasterizerState ? true : false;
 }
 
-bool CMaterialLoader::LoadMaterials( IRenderer* pRenderer )
+bool CMaterialLoader::LoadMaterials( IRenderer& renderer )
 {
 	CKeyValueReader keyValueReader;
 
@@ -109,13 +109,13 @@ bool CMaterialLoader::LoadMaterials( IRenderer* pRenderer )
 
 	for ( auto material = keyValue->GetChild( ); material != nullptr; material = material->GetNext( ) )
 	{
-		CreateScriptedMaterial( pRenderer, material );
+		CreateScriptedMaterial( renderer, material );
 	}
 
 	return true;
 }
 
-bool CMaterialLoader::CreateScriptedMaterial( IRenderer* pRenderer, std::shared_ptr<KeyValue> pMaterial )
+bool CMaterialLoader::CreateScriptedMaterial( IRenderer& renderer, std::shared_ptr<KeyValue> pMaterial )
 {
 	if ( pMaterial == nullptr )
 	{
@@ -123,14 +123,8 @@ bool CMaterialLoader::CreateScriptedMaterial( IRenderer* pRenderer, std::shared_
 		return false;
 	}
 
-	if ( pRenderer == nullptr )
-	{
-		DebugWarning( "CreateScriptedMaterial Fail!!! - pRenderer is nullptr\n" );
-		return false;
-	}
-
 	std::shared_ptr<CScriptedMaterial> newMaterial = std::make_shared<CScriptedMaterial>( );
-	newMaterial->Init( pRenderer );
+	newMaterial->Init( renderer );
 	MaterialSystem::GetInstance( )->RegisterMaterial( pMaterial->GetKey( ).c_str(), newMaterial );
 
 	for ( auto property = pMaterial->GetChild( ); property != nullptr; property = property->GetNext( ) )
@@ -139,22 +133,22 @@ bool CMaterialLoader::CreateScriptedMaterial( IRenderer* pRenderer, std::shared_
 		{
 			for ( auto shader = property->GetChild( ); shader != nullptr; shader = shader->GetNext() )
 			{
-				ON_FAIL_RETURN( newMaterial->SetShader( pRenderer, TranslateShaderType( shader->GetKey() ), shader->GetString() ) );
+				ON_FAIL_RETURN( newMaterial->SetShader( renderer, TranslateShaderType( shader->GetKey() ), shader->GetString() ) );
 			}
 		}
 		else if ( property->GetKey( ) == _T( "RS_State" ) )
 		{
-			ON_FAIL_RETURN( newMaterial->SetRasterizerState( pRenderer, property->GetString( ) ) );
+			ON_FAIL_RETURN( newMaterial->SetRasterizerState( renderer, property->GetString( ) ) );
 		}
 		else if ( property->GetKey( ) == _T( "DS_State" ) )
 		{
-			ON_FAIL_RETURN( newMaterial->SetDepthStencilState( pRenderer, property->GetString( ) ) );
+			ON_FAIL_RETURN( newMaterial->SetDepthStencilState( renderer, property->GetString( ) ) );
 		}
 		else if ( property->GetKey( ) == _T( "Sampler" ) )
 		{
 			for ( auto sampler = property->GetChild( ); sampler != nullptr; sampler = sampler->GetNext( ) )
 			{
-				ON_FAIL_RETURN( newMaterial->SetSamplerState( pRenderer, TranslateShaderType( sampler->GetKey( ) ), sampler->GetString( ) ) );
+				ON_FAIL_RETURN( newMaterial->SetSamplerState( renderer, TranslateShaderType( sampler->GetKey( ) ), sampler->GetString( ) ) );
 			}
 		}
 	}

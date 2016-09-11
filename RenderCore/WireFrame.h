@@ -4,5 +4,5 @@
 class WireFrame : public Material
 {
 public:
-	virtual void Init( IRenderer* pRenderer ) override;
+	virtual void Init( IRenderer& renderer ) override;
 };

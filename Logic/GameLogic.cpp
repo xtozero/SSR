@@ -70,6 +70,8 @@ bool CGameLogic::Initialize( HWND hwnd, UINT wndWidth, UINT wndHeight )
 	ON_FAIL_RETURN( m_lightManager.Initialize( *m_pRenderer, m_gameObjects ) );
 	m_shadowManager.Init( *m_pRenderer );
 
+	ON_FAIL_RETURN( m_ssrManager.Init( *m_pRenderer, m_pRenderer->GetMeshBuilder( ) ) );
+
 	return true;
 }
 
@@ -289,11 +291,7 @@ void CGameLogic::DrawTransparentRenderable( ) const
 
 void CGameLogic::DrawReflectRenderable( ) const
 {
-	for ( auto& object : m_renderableList[REFLECT_RENDERABLE] )
-	{
-		UpdateWorldMatrix( object );
-		object->Render( *m_pRenderer );
-	}
+	m_ssrManager.Process( *m_pRenderer, m_renderableList[REFLECT_RENDERABLE] );
 }
 
 CGameLogic::CGameLogic( ):

@@ -120,6 +120,9 @@
     <ClInclude Include="Ray.h">
       <Filter>Collision</Filter>
     </ClInclude>
+    <ClInclude Include="SSRManager.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -193,6 +196,9 @@
     </ClCompile>
     <ClCompile Include="RigidBodyManager.cpp">
       <Filter>Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="SSRManager.cpp">
+      <Filter>Renderer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

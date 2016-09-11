@@ -3,14 +3,11 @@
 
 #include "TutorialMaterial.h"
 
-void TutorialMaterial::Init( IRenderer* pRenderer )
+void TutorialMaterial::Init( IRenderer& renderer )
 {
-	Material::Init( pRenderer );
+	Material::Init( renderer );
 
-	if ( pRenderer )
-	{
-		m_pShaders[SHADER_TYPE::VS] = pRenderer->SearchShaderByName( _T( "vsTutorial" ) );
+	m_pShaders[SHADER_TYPE::VS] = renderer.SearchShaderByName( _T( "vsTutorial" ) );
 
-		m_pShaders[SHADER_TYPE::PS] = pRenderer->SearchShaderByName( _T( "psTutorial" ) );
-	}
+	m_pShaders[SHADER_TYPE::PS] = renderer.SearchShaderByName( _T( "psTutorial" ) );
 }

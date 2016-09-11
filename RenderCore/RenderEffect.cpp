@@ -27,20 +27,15 @@ namespace
 class CEffectOrenNayar : public IRenderEffect
 {
 public:
-	virtual void SceneBegin( IRenderer* pRenderer ) override;
+	virtual void SceneBegin( IRenderer& renderer ) override;
 
 	CEffectOrenNayar( );
 private:
 	bool lookupTexCreated;
 };
 
-void CEffectOrenNayar::SceneBegin( IRenderer* pRenderer )
+void CEffectOrenNayar::SceneBegin( IRenderer& renderer )
 {
-	if ( pRenderer == nullptr )
-	{
-		return;
-	}
-
 	if ( !lookupTexCreated )
 	{
 		constexpr UINT lookupSize = 512;
@@ -72,10 +67,10 @@ void CEffectOrenNayar::SceneBegin( IRenderer* pRenderer )
 		initData.SysMemPitch = sizeof( float ) * lookupSize;
 		initData.SysMemSlicePitch = 0;
 
-		ID3D11Device* pDevice = pRenderer->GetDevice( );
-		ID3D11DeviceContext* pDeviceContext = pRenderer->GetDeviceContext( );
-		IShaderResourceManager& shaderResourceMgr = pRenderer->GetShaderResourceManager( );
-		ITextureManager& textureMgr = pRenderer->GetTextureManager( );
+		ID3D11Device* pDevice = renderer.GetDevice( );
+		ID3D11DeviceContext* pDeviceContext = renderer.GetDeviceContext( );
+		IShaderResourceManager& shaderResourceMgr = renderer.GetShaderResourceManager( );
+		ITextureManager& textureMgr = renderer.GetTextureManager( );
 
 		if ( pDevice && pDeviceContext )
 		{
@@ -90,7 +85,7 @@ void CEffectOrenNayar::SceneBegin( IRenderer* pRenderer )
 					pDeviceContext->PSSetShaderResources( 1, 1, &srv );
 				}
 #ifdef _DEBUG
-				pRenderer->TakeSnapshot2D( OREN_NAYAR_TEX_NAME, OREN_NAYAR_SNAPSHOT_NAME );
+				renderer.TakeSnapshot2D( OREN_NAYAR_TEX_NAME, OREN_NAYAR_SNAPSHOT_NAME );
 #endif
 			}
 		}
@@ -103,19 +98,19 @@ void CEffectOrenNayar::SceneBegin( IRenderer* pRenderer )
 CEffectOrenNayar::CEffectOrenNayar( ) :
 	lookupTexCreated( false ) {}
 
-void CRenderEffect::SceneBegin( IRenderer* pRenderer )
+void CRenderEffect::SceneBegin( IRenderer& renderer )
 {
 	for ( auto& effect : m_renderEffects )
 	{
-		effect->SceneBegin( pRenderer );
+		effect->SceneBegin( renderer );
 	}
 }
 
-void CRenderEffect::SceneEnd( IRenderer* pRenderer )
+void CRenderEffect::SceneEnd( IRenderer& renderer )
 {
 	for ( auto& effect : m_renderEffects )
 	{
-		effect->SceneEnd( pRenderer );
+		effect->SceneEnd( renderer );
 	}
 }
 

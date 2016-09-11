@@ -78,6 +78,7 @@ public:
 	virtual ITextureManager& GetTextureManager( ) override { return m_textureManager; }
 	virtual IShaderResourceManager& GetShaderResourceManager( ) override { return m_shaderResourceManager; }
 	virtual IMeshBuilder& GetMeshBuilder( ) override;
+	virtual ISnapshotManager& GetSnapshotManager( ) override { return m_snapshotManager; }
 private:
 	bool CreateD3D11Device ( HWND hWind, UINT nWndWidth, UINT nWndHeight );
 	bool CreatePrimeRenderTargetVIew ( );

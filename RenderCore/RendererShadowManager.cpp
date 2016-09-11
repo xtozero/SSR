@@ -25,20 +25,15 @@ CRendererShadowManager::CRendererShadowManager() :
 {
 }
 
-void CRendererShadowManager::SceneBegin( IRenderer* pRenderer )
+void CRendererShadowManager::SceneBegin( IRenderer& renderer )
 {
-	if ( pRenderer == nullptr )
-	{
-		return;
-	}
-
 	if ( m_isEnabled == false )
 	{
 		return;
 	}
 
-	ID3D11DeviceContext* pDeviceContext = pRenderer->GetDeviceContext( );
-	IRenderTargetManager& renderTargetMgr = pRenderer->GetRenderTargetManager( );
+	ID3D11DeviceContext* pDeviceContext = renderer.GetDeviceContext( );
+	IRenderTargetManager& renderTargetMgr = renderer.GetRenderTargetManager( );
 
 	if ( pDeviceContext == nullptr )
 	{
@@ -55,20 +50,15 @@ void CRendererShadowManager::SceneBegin( IRenderer* pRenderer )
 	m_dsvShadowMap->Clear( pDeviceContext, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
 }
 
-void CRendererShadowManager::SceneEnd( IRenderer* pRenderer )
+void CRendererShadowManager::SceneEnd( IRenderer& renderer )
 {
-	if ( pRenderer == nullptr )
-	{
-		return;
-	}
-
 	if ( m_isEnabled == false )
 	{
 		return;
 	}
 	
-	ID3D11DeviceContext* pDeviceContext = pRenderer->GetDeviceContext( );
-	IRenderTargetManager& renderTargetMgr = pRenderer->GetRenderTargetManager( );
+	ID3D11DeviceContext* pDeviceContext = renderer.GetDeviceContext( );
+	IRenderTargetManager& renderTargetMgr = renderer.GetRenderTargetManager( );
 
 	if ( pDeviceContext == nullptr )
 	{
@@ -80,36 +70,31 @@ void CRendererShadowManager::SceneEnd( IRenderer* pRenderer )
 	pDeviceContext->PSSetShaderResources( 2, 1, &srv );
 }
 
-void CRendererShadowManager::CreateShadowMapTexture( IRenderer* pRenderer )
+void CRendererShadowManager::CreateShadowMapTexture( IRenderer& renderer )
 {
 	m_isEnabled = false;
 
-	if ( pRenderer == nullptr )
-	{
-		return;
-	}
-
-	ID3D11Device* pDevice = pRenderer->GetDevice( );
+	ID3D11Device* pDevice = renderer.GetDevice( );
 	if ( pDevice == nullptr )
 	{
 		return;
 	}
 
-	ITextureManager& textureMgr = pRenderer->GetTextureManager( );
+	ITextureManager& textureMgr = renderer.GetTextureManager( );
 	m_shadowMap = textureMgr.CreateTexture2D( pDevice, _T( "ShadowMap" ), _T( "ShadowMap" ) );
 	if ( m_shadowMap == nullptr )
 	{
 		return;
 	}
 
-	IRenderTargetManager& renderTargetMgr = pRenderer->GetRenderTargetManager( );
+	IRenderTargetManager& renderTargetMgr = renderer.GetRenderTargetManager( );
 	m_rtvShadowMap = renderTargetMgr.CreateRenderTarget( pDevice, m_shadowMap, nullptr, _T( "ShadowMap" ) );
 	if ( m_rtvShadowMap == nullptr )
 	{
 		return;
 	}
 
-	IShaderResourceManager& shaderResourceMgr = pRenderer->GetShaderResourceManager( );
+	IShaderResourceManager& shaderResourceMgr = renderer.GetShaderResourceManager( );
 	m_srvShadowMap = shaderResourceMgr.CreateShaderResource( pDevice, m_shadowMap, nullptr, _T( "ShadowMap" ) );
 	if ( m_srvShadowMap == nullptr )
 	{

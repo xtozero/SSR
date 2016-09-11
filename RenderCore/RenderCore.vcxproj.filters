@@ -415,11 +415,22 @@
     <FxCompile Include="..\Shader\psDepthStencil.fx">
       <Filter>fx</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shader\psTexWithOutLight.fx" />
     <FxCompile Include="..\Shader\vsShadowmap.fx">
       <Filter>fx</Filter>
     </FxCompile>
     <FxCompile Include="..\Shader\psShadowmap.fx">
+      <Filter>fx</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shader\vsScreenRect.fx">
+      <Filter>fx</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shader\psSSR.fx">
+      <Filter>fx</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shader\psSSRBlend.fx">
+      <Filter>fx</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shader\psTexWithOutLight.fx">
       <Filter>fx</Filter>
     </FxCompile>
   </ItemGroup>

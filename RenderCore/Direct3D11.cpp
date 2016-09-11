@@ -84,7 +84,7 @@ bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 	m_textureManager.SetFrameBufferSize( nWndWidth, nWndHeight );
 	ON_FAIL_RETURN( m_textureManager.LoadTexture( m_pd3d11Device.Get() ) );
 
-	ON_FAIL_RETURN( m_renderOutput.Initialize( this ) );
+	ON_FAIL_RETURN( m_renderOutput.Initialize( *this ) );
 
 	m_pShadowManager = CreateShadowManager();
 
@@ -121,7 +121,7 @@ void CDirect3D11::ShutDownRenderer( )
 
 void CDirect3D11::SceneBegin( )
 {
-	m_renderOutput.SetRenderTargetDepthStencilView( this );
+	m_renderOutput.SetRenderTargetDepthStencilView( *this );
 	m_renderOutput.ClearDepthStencil( m_pd3d11DeviceContext.Get() );
 	m_renderOutput.ClearRenderTargets( m_pd3d11DeviceContext.Get( ), rtClearColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 
@@ -130,7 +130,7 @@ void CDirect3D11::SceneBegin( )
 		m_pView->UpdataView( m_pd3d11DeviceContext.Get( ) );
 	}
 
-	m_renderEffect.SceneBegin( this );
+	m_renderEffect.SceneBegin( *this );
 }
 
 void CDirect3D11::SceneEnd( )
@@ -140,10 +140,10 @@ void CDirect3D11::SceneEnd( )
 	m_renderOutput.SceneEnd( m_pd3d11DeviceContext.Get() );
 
 	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), _T( "DefaultDepthStencil" ), _T( "DebugDepthStencil" ) );
-	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), _T( "DefaultRenderTarget" ), _T( "DebugRenderTarget" ) );
+	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), _T( "DefaultRenderTarget" ), _T( "DuplicateFrameBuffer" ) );
 	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), _T( "ShadowMap" ), _T( "DebugShadowMap" ) );
 
-	m_renderEffect.SceneEnd( this );
+	m_renderEffect.SceneEnd( *this );
 }
 
 std::shared_ptr<IShader> CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pProfile )
@@ -300,16 +300,16 @@ std::shared_ptr<IShader> CDirect3D11::SearchShaderByName( const TCHAR* pName )
 
 bool CDirect3D11::InitializeMaterial( )
 {
-	REGISTER_MATERIAL( this, TutorialMaterial, tutorial );
-	REGISTER_MATERIAL( this, WireFrame, wireframe );
-	REGISTER_MATERIAL( this, TextureMaterial, texture );
-	REGISTER_MATERIAL( this, SkyBoxMaterial, skybox );
+	REGISTER_MATERIAL( *this, TutorialMaterial, tutorial );
+	REGISTER_MATERIAL( *this, WireFrame, wireframe );
+	REGISTER_MATERIAL( *this, TextureMaterial, texture );
+	REGISTER_MATERIAL( *this, SkyBoxMaterial, skybox );
 
 	m_pMaterialLoader = CreateMaterialLoader( );
 
 	if ( m_pMaterialLoader )
 	{
-		return m_pMaterialLoader->LoadMaterials( this );
+		return m_pMaterialLoader->LoadMaterials( *this );
 	}
 
 	return false;
@@ -735,7 +735,7 @@ void CDirect3D11::ReportLiveDevice( )
 
 bool CDirect3D11::InitializeShaders( )
 {
-	return m_shaderLoader.LoadShadersFromScript( this );
+	return m_shaderLoader.LoadShadersFromScript( *this );
 }
 
 CDirect3D11::CDirect3D11( ) : m_pd3d11Device( nullptr ),

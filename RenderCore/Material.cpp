@@ -11,13 +11,13 @@
 #include <d3d11.h>
 #include <type_traits>
 
-void Material::Init( IRenderer* pRenderer )
+void Material::Init( IRenderer& renderer )
 {
-	m_pRasterizerState = pRenderer->CreateRenderState( _T( "NULL" ) );
-	m_pDepthStencilState = pRenderer->CreateDepthStencilState( _T( "NULL" ) );
+	m_pRasterizerState = renderer.CreateRenderState( _T( "NULL" ) );
+	m_pDepthStencilState = renderer.CreateDepthStencilState( _T( "NULL" ) );
 	for ( int i = 0; i < SHADER_TYPE::MAX_SHADER; ++i )
 	{
-		m_pSamplerState[i] = pRenderer->CreateSamplerState( _T( "NULL" ) );
+		m_pSamplerState[i] = renderer.CreateSamplerState( _T( "NULL" ) );
 	}
 }
 

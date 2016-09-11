@@ -12,6 +12,7 @@ class IRenderState;
 class IRenderTargetManager;
 class IRenderView;
 class ISampler;
+class ISnapshotManager;
 class IShader;
 class IShaderResource;
 class IShaderResourceManager;
@@ -85,6 +86,7 @@ public:
 	virtual ITextureManager& GetTextureManager( ) = 0;
 	virtual IShaderResourceManager& GetShaderResourceManager( ) = 0;
 	virtual IMeshBuilder& GetMeshBuilder( ) = 0;
+	virtual ISnapshotManager& GetSnapshotManager( ) = 0;
 protected:
 	IRenderer( ) = default;
 

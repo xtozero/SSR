@@ -7,6 +7,7 @@
 #include "PickingManager.h"
 #include "SceneLoader.h"
 #include "ShadowManager.h"
+#include "SSRManager.h"
 #include "Timer.h"
 
 #include <list>
@@ -64,6 +65,7 @@ private:
 	CPickingManager m_pickingManager;
 	CLightManager m_lightManager;
 	CShadowManager m_shadowManager;
+	CSSRManager m_ssrManager;
 	IRenderer* m_pRenderer;
 	std::vector<std::shared_ptr<CGameObject>> m_gameObjects;
 

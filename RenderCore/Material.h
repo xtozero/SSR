@@ -18,7 +18,7 @@ protected:
 	MatConstantBuffers* m_pConstantBuffers;
 
 public:
-	virtual void Init( IRenderer* renderer ) override;
+	virtual void Init( IRenderer& renderer ) override;
 	virtual void SetShader( ID3D11DeviceContext* pDeviceContext ) override;
 	virtual void SetTexture( ID3D11DeviceContext* pDeviceContext, UINT shaderType, UINT slot, const IShaderResource* pTexture ) override;
 	virtual void SetSurface( ID3D11DeviceContext* pDeviceContext, UINT shaderType, UINT slot, const ISurface* pSurface ) override;

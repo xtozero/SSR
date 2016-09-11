@@ -79,4 +79,28 @@
 		"RS_State"	"default"
 		"DS_State"	"default"
 	}
+	
+	"mat_screen_space_reflect"
+	{
+		"Shader"
+		{
+			"VS"	"vsTexture"
+			"PS"	"psSSR"
+		}
+		
+		"RS_State"	"default"
+		"DS_State"	"depthWriteTestOff"
+	}
+	
+	"mat_ssr_blend"
+	{
+		"Shader"
+		{
+			"VS"	"vsScreenRect"
+			"PS"	"psSSRBlend"
+		}
+		
+		"RS_State"	"default"
+		"DS_State"	"depthWriteTestOff"
+	}
 }

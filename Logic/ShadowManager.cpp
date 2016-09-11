@@ -37,7 +37,7 @@ void CShadowManager::Init( IRenderer& renderer )
 
 	if ( m_renderShadowMgr )
 	{
-		m_renderShadowMgr->CreateShadowMapTexture( &renderer );
+		m_renderShadowMgr->CreateShadowMapTexture( renderer );
 	}
 	else
 	{
@@ -71,7 +71,7 @@ void CShadowManager::SceneBegin( CLightManager& lightMgr, IRenderer& renderer )
 	}
 
 	//그림자 텍스쳐로 랜더 타겟 변경
-	m_renderShadowMgr->SceneBegin( &renderer );
+	m_renderShadowMgr->SceneBegin( renderer );
 
 	//뷰포트 세팅
 	renderer.PopViewPort( );
@@ -99,7 +99,7 @@ void CShadowManager::SceneEnd( CLightManager& lightMgr, IRenderer& renderer )
 	renderer.PopViewPort( );
 
 	//랜터 타겟 원상 복귀, 그림자 맵 세팅
-	m_renderShadowMgr->SceneEnd( &renderer );
+	m_renderShadowMgr->SceneEnd( renderer );
 }
 
 void CShadowManager::Process( CLightManager& lightMgr, IRenderer& renderer, std::vector<std::shared_ptr<CGameObject>>& gameObjects )

@@ -28,18 +28,18 @@ using rtClearColor = std::tuple<float, float, float, float>;
 class CRenderOutputManager
 {
 public:
-	bool Initialize( IRenderer* pRenderer );
-	void SetRenderTargetDepthStencilView( IRenderer* pRenderer );
+	bool Initialize( IRenderer& renderer );
+	void SetRenderTargetDepthStencilView( IRenderer& renderer );
 	void ClearDepthStencil( ID3D11DeviceContext* pDeviceContext );
 	void ClearRenderTargets( ID3D11DeviceContext* pDeviceContext, const rtClearColor& clearColor );
 	void SceneEnd( ID3D11DeviceContext* pDeviceContext );
 
 	CRenderOutputManager( );
 private:
-	bool CreateDefaultRenderTaraget( ID3D11Device* pDevice, IDXGISwapChain* pSwapChain, ITextureManager& textureMgr, IRenderTargetManager& renderTargetMgr );
-	bool CreateNormalRenderTarget( ID3D11Device* pDevice, ITextureManager& textureMgr, IRenderTargetManager& renderTargetMgr, IShaderResourceManager& srMgr );
-	bool CreateDepthRenderTarget( ID3D11Device* pDevice, ITextureManager& textureMgr, IRenderTargetManager& renderTargetMgr, IShaderResourceManager& srMgr );
-	bool CreateDefaultDepthStencil( ID3D11Device* pDevice, ITextureManager& textureMgr, IRenderTargetManager& renderTargetMgr );
+	bool CreateDefaultRenderTaraget( IRenderer& renderer );
+	bool CreateNormalRenderTarget( IRenderer& renderer );
+	bool CreateDepthRenderTarget( IRenderer& renderer );
+	bool CreateDefaultDepthStencil( IRenderer& renderer );
 
 	std::array<IShaderResource*, RENDER_OUPUT_TYPE::COUNT>	m_renderSRVs;
 	std::array<IRenderTarget*, RENDER_OUPUT_TYPE::COUNT>	m_renderOutputs;

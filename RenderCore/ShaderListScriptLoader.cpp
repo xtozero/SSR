@@ -10,7 +10,7 @@ namespace
 	constexpr TCHAR* SHADER_LIST_SCRIPT_FILE_NAME = _T( "../Script/ShaderList.txt" );
 }
 
-bool CShaderListScriptLoader::LoadShadersFromScript( IRenderer* const pRenderer )
+bool CShaderListScriptLoader::LoadShadersFromScript( IRenderer& renderer )
 {
 	CKeyValueReader scrpitReader;
 	auto pKeyValue = scrpitReader.LoadKeyValueFromFile( SHADER_LIST_SCRIPT_FILE_NAME );
@@ -22,7 +22,7 @@ bool CShaderListScriptLoader::LoadShadersFromScript( IRenderer* const pRenderer 
 
 		for ( ; findedKey != nullptr; ++findedKey )
 		{
-			ON_FAIL_RETURN( LoadShader( pRenderer, findedKey->GetKey( ), findedKey->GetString( ) ) );
+			ON_FAIL_RETURN( LoadShader( renderer, findedKey->GetKey( ), findedKey->GetString( ) ) );
 		}
 
 		return true;
@@ -31,13 +31,8 @@ bool CShaderListScriptLoader::LoadShadersFromScript( IRenderer* const pRenderer 
 	return false;
 }
 
-bool CShaderListScriptLoader::LoadShader( IRenderer* const pRenderer, const String& filePath, const String& profile )
+bool CShaderListScriptLoader::LoadShader( IRenderer& renderer, const String& filePath, const String& profile )
 {
-	if ( pRenderer == nullptr )
-	{
-		return false;
-	}
-
 	const String& shaderType = profile.substr( 0, 2 );
 	char mbsProfile[256];
 	size_t converted;
@@ -45,11 +40,11 @@ bool CShaderListScriptLoader::LoadShader( IRenderer* const pRenderer, const Stri
 
 	if ( shaderType.compare( _T( "vs" ) ) == 0 )
 	{
-		return pRenderer->CreateVertexShader( filePath.c_str( ), mbsProfile ) != nullptr;
+		return renderer.CreateVertexShader( filePath.c_str( ), mbsProfile ) != nullptr;
 	}
 	else if ( shaderType.compare( _T( "ps" ) ) == 0 )
 	{
-		return pRenderer->CreatePixelShader( filePath.c_str( ), mbsProfile ) != nullptr;
+		return renderer.CreatePixelShader( filePath.c_str( ), mbsProfile ) != nullptr;
 	}
 
 	return false;

@@ -13,10 +13,10 @@ class CRendererShadowManager : public IRendererShadowManager
 {
 public:
 	CRendererShadowManager();
-	virtual void SceneBegin( IRenderer* pRenderer ) override;
-	virtual void SceneEnd( IRenderer* pRenderer ) override;
+	virtual void SceneBegin( IRenderer& renderer ) override;
+	virtual void SceneEnd( IRenderer& renderer ) override;
 
-	virtual void CreateShadowMapTexture( IRenderer* pRenderer ) override;
+	virtual void CreateShadowMapTexture( IRenderer& renderer ) override;
 private:
 	ITexture* m_shadowMap;
 	IShaderResource* m_srvShadowMap;
