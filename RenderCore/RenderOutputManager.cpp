@@ -160,6 +160,7 @@ bool CRenderOutputManager::CreateDepthRenderTarget( IRenderer& renderer )
 	ITextureManager& textureMgr = renderer.GetTextureManager( );
 	IRenderTargetManager& renderTargetMgr = renderer.GetRenderTargetManager( );
 	IShaderResourceManager& shaderResourceMgr = renderer.GetShaderResourceManager( );
+	ISnapshotManager& snapshotMgr = renderer.GetSnapshotManager( );
 
 	if ( pDevice == nullptr )
 	{
@@ -174,7 +175,15 @@ bool CRenderOutputManager::CreateDepthRenderTarget( IRenderer& renderer )
 		return false;
 	}
 
-	m_renderSRVs[DEPTH_BUFFER] = shaderResourceMgr.CreateShaderResource( pDevice, pGBufferDepth, nullptr, depthTexName );
+	String duplicateTexName( _T( "DuplicateDepthGBuffer" ) );
+	ITexture* pDuplicateTex = snapshotMgr.CreateCloneTexture( pDevice, pGBufferDepth, duplicateTexName );
+
+	if ( pDuplicateTex == nullptr )
+	{
+		return false;
+	}
+
+	m_renderSRVs[DEPTH_BUFFER] = shaderResourceMgr.FindShaderResource( duplicateTexName );
 
 	return true;
 }

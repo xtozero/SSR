@@ -28,5 +28,6 @@ private:
 	IRenderTarget* m_pDefaultRt;
 	IShaderResource* m_pSsrSrv;
 	IShaderResource* m_pDefaultSrv;
+	IShaderResource* m_pDepthSrv;
 };
 

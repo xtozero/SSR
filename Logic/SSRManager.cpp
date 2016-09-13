@@ -15,7 +15,7 @@
 bool CSSRManager::Init( IRenderer& renderer, IMeshBuilder& meshBuilder )
 {
 	// Create Screen Space Reflect Rendertarget
-	String ssrTextureName( _T("ScreenSpaceReflect") );
+	String ssrTextureName( _T( "ScreenSpaceReflect" ) );
 	ITextureManager& textureMgr = renderer.GetTextureManager( );
 	IRenderTargetManager& rendertargetMgr = renderer.GetRenderTargetManager( );
 	IShaderResourceManager& shaderResourceMgr = renderer.GetShaderResourceManager( );
@@ -25,9 +25,10 @@ bool CSSRManager::Init( IRenderer& renderer, IMeshBuilder& meshBuilder )
 	m_pSsrSrv = shaderResourceMgr.CreateShaderResource( renderer.GetDevice( ), ssrTex, nullptr, ssrTextureName );
 
 	m_pDefaultRt = rendertargetMgr.FindRenderTarget( _T( "DefaultRenderTarget" ) );
-	m_pDefaultSrv = shaderResourceMgr.FindShaderResource( _T("DuplicateFrameBuffer") );
+	m_pDefaultSrv = shaderResourceMgr.FindShaderResource( _T( "DuplicateFrameBuffer" ) );
+	m_pDepthSrv = shaderResourceMgr.FindShaderResource( _T( "DuplicateDepthGBuffer" ) );
 
-	if ( m_pSsrRt == nullptr || m_pSsrSrv == nullptr || m_pDefaultRt == nullptr || m_pDefaultSrv == nullptr )
+	if ( m_pSsrRt == nullptr || m_pSsrSrv == nullptr || m_pDefaultRt == nullptr || m_pDefaultSrv == nullptr || m_pDepthSrv == nullptr )
 	{
 		return false;
 	}
@@ -82,6 +83,7 @@ void CSSRManager::Process( IRenderer& renderer, const std::list<CGameObject*>& r
 
 	// Set DefaultRenderTarget By Texture
 	m_pSsrMaterial->SetTexture( renderer.GetDeviceContext( ), SHADER_TYPE::PS, 1, m_pDefaultSrv );
+	m_pSsrMaterial->SetTexture( renderer.GetDeviceContext( ), SHADER_TYPE::PS, 2, m_pDepthSrv );
 
 	// Render Reflectable GameObject by SSR Material
 	for ( auto& object : reflectableList )
@@ -92,8 +94,7 @@ void CSSRManager::Process( IRenderer& renderer, const std::list<CGameObject*>& r
 		object->SetOverrideMaterial( nullptr );
 	}
 
-	// Reset RenderTarget
-	m_pSsrMaterial->SetTexture( renderer.GetDeviceContext( ), SHADER_TYPE::PS, 1, nullptr );
+	// Set Framebuffer RenderTarget
 	rendertargetMgr.SetRenderTarget( renderer.GetDeviceContext(), m_pDefaultRt, nullptr );
 
 	// Set Reflect Result By Texture
@@ -102,6 +103,8 @@ void CSSRManager::Process( IRenderer& renderer, const std::list<CGameObject*>& r
 	// Blend Result
 	m_pScreenRect->SetMaterial( m_pSsrBlendMaterial );
 	renderer.DrawModel( m_pScreenRect );
+
+	m_pSsrBlendMaterial->SetTexture( renderer.GetDeviceContext( ), SHADER_TYPE::PS, 1, nullptr );
 }
 
 CSSRManager::CSSRManager( ) :
@@ -111,6 +114,7 @@ CSSRManager::CSSRManager( ) :
 	m_pSsrRt( nullptr ),
 	m_pDefaultRt( nullptr ),
 	m_pSsrSrv( nullptr ),
-	m_pDefaultSrv( nullptr )
+	m_pDefaultSrv( nullptr ),
+	m_pDepthSrv( nullptr )
 {
 }

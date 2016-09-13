@@ -77,7 +77,7 @@ ITexture* CSnapshotManager::CreateCloneTexture( ID3D11Device* pDevice, const ITe
 
 				// Applications can't specify NULL for pInitialData when creating IMMUTABLE resources
 				desc.Usage = D3D11_USAGE_DEFAULT;
-				desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+				desc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
 
 				if ( ITexture* pTexture = m_pTextureMgr->CreateTexture2D( pDevice, texDesc, textureName ) )
 				{
@@ -112,7 +112,7 @@ IShaderResource* CSnapshotManager::TryCreateShaderResource( ID3D11Device* pDevic
 				D3D11_SHADER_RESOURCE_VIEW_DESC& dxSrvDesc = static_cast<D3D11_SHADER_RESOURCE_VIEW_DESC&>( srvDesc );
 
 				dxSrvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-				dxSrvDesc.Texture2D.MipLevels = 1;
+				dxSrvDesc.Texture2D.MipLevels = tex2dDesc.MipLevels;
 				dxSrvDesc.Texture2D.MostDetailedMip = 0;
 				dxSrvDesc.Format = TranslateSRVFormat( tex2dDesc.Format );
 
