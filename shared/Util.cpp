@@ -7,26 +7,13 @@ namespace UTIL
 {
 	void Split( const String& string, std::vector<String>& params, const TCHAR token )
 	{
-		auto i = 0;
-		auto pos = string.find( token );
-		while ( pos != String::npos ) {
-			const auto& subString = string.substr( i, pos - i );
-			if ( subString.find_first_of( token ) == String::npos )
-			{
-				params.push_back( subString );
-			}
-			i = ++pos;
-			pos = string.find( token, pos );
-		}
+		Stringstream ss( string );
+		String subString;
+		subString.reserve( string.length( ) );
 
-		if ( pos == String::npos )
+		while ( std::getline( ss, subString, token ) )
 		{
-			const auto& subString = string.substr( i, string.length( ) - i );
-
-			if ( subString.length( ) > 0 && subString.find_first_of( token ) == String::npos )
-			{
-				params.push_back( subString );
-			}
+			params.emplace_back( std::move( subString ) );
 		}
 	}
 
