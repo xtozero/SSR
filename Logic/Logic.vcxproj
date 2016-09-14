@@ -64,7 +64,9 @@
       <AdditionalDependencies>d3dx9.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\lib\$(ProjectName).lib"
+      <Command>md $(SolutionDIR)\lib\
+md $(SolutionDIR)\bin\
+copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\lib\$(ProjectName).lib"
 copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -87,7 +89,9 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
       <AdditionalDependencies>d3dx9.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\lib\$(ProjectName).lib"
+      <Command>md $(SolutionDIR)\lib\
+md $(SolutionDIR)\bin\
+copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\lib\$(ProjectName).lib"
 copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

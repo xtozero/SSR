@@ -64,7 +64,9 @@
       <AdditionalLibraryDirectories>$(DXSDK_DIR)lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\lib\$(ProjectName).lib"
+      <Command>md $(SolutionDIR)\lib\
+md $(SolutionDIR)\bin\
+copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\lib\$(ProjectName).lib"
 copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
 call "$(SolutionDIr)Shader\make_shader.bat"
 copy /Y "$(SolutionDIr)Shader\*.cso" "$(SolutionDIR)\bin\Shader\*.cso"
@@ -90,7 +92,9 @@ DEL "$(SolutionDIr)Shader\*.cso"</Command>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\lib\$(ProjectName).lib"
+      <Command>md $(SolutionDIR)\lib\
+md $(SolutionDIR)\bin\
+copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDIR)\lib\$(ProjectName).lib"
 copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
 call "$(SolutionDIr)Shader\make_shader.bat"
 copy /Y "$(SolutionDIr)Shader\*.cso" "$(SolutionDIR)\bin\Shader\*.cso"
