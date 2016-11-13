@@ -1,3 +1,4 @@
+#include "psCommon.fxh"
 #include "shadowCommon.fxh"
 
 #define MAX_LIGHTS 180
@@ -35,11 +36,6 @@ cbuffer SURFACE : register( b1 )
 	float		g_roughness;
 	float		g_specularPower;
 	float		g_pedding[2];
-};
-
-cbuffer GBUFFER_INFO : register( b2 )
-{
-	float		g_FarPlaneDist;
 };
 
 struct PS_INPUT

@@ -32,6 +32,7 @@ public:
 	virtual bool InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeight ) override;
 	virtual void ShutDownRenderer( ) override;
 	virtual void SceneBegin( ) override;
+	virtual void ForwardRenderEnd( ) override;
 	virtual void SceneEnd( ) override;
 
 	virtual std::shared_ptr<IShader> CreateVertexShader( const TCHAR* pFilePath, const char* pProfile ) override;

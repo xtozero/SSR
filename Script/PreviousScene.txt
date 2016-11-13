@@ -1,7 +1,7 @@
 ﻿"Scene"
 {
 	//카메라 위치
-	"Camera Pos" "0 0 -50"
+	"Camera Pos" "0 0 -30"
 	
 	//오브젝트 정의 시작
 	"Object" "skybox"
@@ -24,44 +24,35 @@
 		"Name"		"sphere"
 		"Model"		"shape_sphere.obj" //모델명
 		"Material"	"tutorial" //재질명
-		"Position"	"-26.409266 -4.787085 0.000000" //x y z
+		"Position"	"-7.329643 -4.584109 0.000000" //x y z
 		"Scale"		"10 10 10" //xScale yScale zScale
 	}
 	
 	"Object" "base"
 	{
-		"Name"		"cone"
-		"Model"		"cone.obj" //모델명
+		"Name"		"cow"
+		"Model"		"object.ply" //모델명
 		"Material"	"tutorial" //재질명
+		"Position"	"6.637395 -6.340924 0.000000" //x y z
 		"Scale"		"10 10 10" //xScale yScale zScale
-		"Position"	"-13.516332 -4.475936 0.000000" //x y z
 	}
 	
 	"Object" "base"
 	{
-		"Name"		"cylinder"
-		"Model"		"cylinder.obj" //모델명
-		"Material"	"tutorial" //재질명
-		"Scale"		"10 10 10" //xScale yScale zScale
-		"Position"	"-1.270190 -4.746570 0.000000" //x y z
+		"Name"		"spaceship"
+		"Model"		"spaceship.obj" //모델명
+		"Material"	"texture" //재질명
+		"Scale"		"0.3 0.3 0.3" //xScale yScale zScale
+		"Position"	"-15.357565 -5.872661 -10.000000" //x y z
 	}
 	
 	"Object" "base"
 	{
-		"Name"		"torus"
-		"Model"		"torus.obj" //모델명
-		"Material"	"tutorial" //재질명
-		"Scale"		"10 10 10" //xScale yScale zScale
-		"Position"	"11.517221 -8.738405 0.000000" //x y z
-	}
-	
-	"Object" "base"
-	{
-		"Name"		"dice"
-		"Model"		"dice.obj" //모델명
-		"Material"	"tutorial" //재질명
-		"Scale"		"10 10 10" //xScale yScale zScale
-		"Position"	"25.928568 -4.814196 0.000000" //x y z
+		"Name"		"statue"
+		"Model"		"statue.obj" //모델명
+		"Material"	"texture" //재질명
+		"Scale"		"3 3 3" //xScale yScale zScale
+		"Position"	"10.299509 -9.482673 -10.000000" //x y z
 	}
 	
 	"Object" "displaySRVHelper"

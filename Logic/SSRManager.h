@@ -4,6 +4,7 @@
 #include <list>
 
 class CGameObject;
+class IBuffer;
 class IMaterial;
 class IMesh;
 class IMeshBuilder;
@@ -29,5 +30,6 @@ private:
 	IShaderResource* m_pSsrSrv;
 	IShaderResource* m_pDefaultSrv;
 	IShaderResource* m_pDepthSrv;
+	std::shared_ptr<IBuffer> m_ssrConstantBuffer;
 };
 

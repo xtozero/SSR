@@ -21,6 +21,8 @@ public:
 	void UpdataView( ID3D11DeviceContext* pDeviceContext );
 
 	virtual void SetViewMatrix( const D3DXMATRIX& viewMat ) override { m_viewMatrix = viewMat; }
+
+	virtual const D3DXMATRIX& GetProjectionMatrix( ) override { return m_projectionMatrix; }
 private:
 	std::vector<D3D11_VIEWPORT> m_viewportList;
 

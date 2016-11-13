@@ -49,11 +49,11 @@ bool CGameLogic::Initialize( HWND hwnd, UINT wndWidth, UINT wndHeight )
 		view->CreatePerspectiveFovLHMatrix( D3DXToRadian( 60 ),
 			static_cast<float>(wndWidth) / wndHeight,
 			1.f,
-			1500.f );
+			100.f );
 		m_pickingManager.PushInvProjection( D3DXToRadian( 60 ),
 			static_cast<float>(wndWidth) / wndHeight,
 			1.f,
-			1500.f );
+			100.f );
 	}
 	else
 	{
@@ -291,6 +291,7 @@ void CGameLogic::DrawTransparentRenderable( ) const
 
 void CGameLogic::DrawReflectRenderable( ) const
 {
+	m_pRenderer->ForwardRenderEnd( );
 	m_ssrManager.Process( *m_pRenderer, m_renderableList[REFLECT_RENDERABLE] );
 }
 

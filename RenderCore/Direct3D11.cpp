@@ -133,14 +133,17 @@ void CDirect3D11::SceneBegin( )
 	m_renderEffect.SceneBegin( *this );
 }
 
+void CDirect3D11::ForwardRenderEnd( )
+{
+	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), _T( "DepthGBuffer" ), _T( "DuplicateDepthGBuffer" ) );
+	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), _T( "DefaultRenderTarget" ), _T( "DuplicateFrameBuffer" ) );
+}
+
 void CDirect3D11::SceneEnd( )
 {
 	m_pdxgiSwapChain->Present( 0, 0 );
 
 	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), _T( "DefaultDepthStencil" ), _T( "DebugDepthStencil" ) );
-	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), _T( "DefaultRenderTarget" ), _T( "DuplicateFrameBuffer" ) );
-	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), _T( "DepthGBuffer" ), _T( "DuplicateDepthGBuffer" ) );
-	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), _T( "DefaultRenderTarget" ), _T( "DuplicateFrameBuffer" ) );
 	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), _T( "ShadowMap" ), _T( "DebugShadowMap" ) );
 
 	m_renderOutput.SceneEnd( m_pd3d11DeviceContext.Get() );

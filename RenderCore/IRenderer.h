@@ -40,6 +40,7 @@ public:
 	virtual bool InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeight ) = 0;
 	virtual void ShutDownRenderer( ) = 0;
 	virtual void SceneBegin( ) = 0;
+	virtual void ForwardRenderEnd( ) = 0;
 	virtual void SceneEnd( ) = 0;
 
 	virtual std::shared_ptr<IShader> CreateVertexShader( const TCHAR* pFilePath, const char* pProfile ) = 0;

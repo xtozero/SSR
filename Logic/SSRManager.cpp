@@ -2,18 +2,28 @@
 #include "GameObject.h"
 #include "SSRManager.h"
 
+#include "../RenderCore/IBuffer.h"
 #include "../RenderCore/IMesh.h"
 #include "../RenderCore/IMeshBuilder.h"
 #include "../RenderCore/IRenderer.h"
 #include "../RenderCore/IRenderResourceManager.h"
 #include "../RenderCore/IRenderState.h"
 #include "../RenderCore/IRenderTarget.h"
+#include "../RenderCore/IRenderView.h"
 #include "../RenderCore/ITexture.h"
 
 #include "../Shared/Util.h"
 
 bool CSSRManager::Init( IRenderer& renderer, IMeshBuilder& meshBuilder )
 {
+	// Create Constant Buffer
+	m_ssrConstantBuffer = renderer.CreateConstantBuffer( _T( "ssrConstantBuffer" ), sizeof( D3DXMATRIX ), 1, nullptr );
+
+	if ( m_ssrConstantBuffer == nullptr )
+	{
+		return false;
+	}
+
 	// Create Screen Space Reflect Rendertarget
 	String ssrTextureName( _T( "ScreenSpaceReflect" ) );
 	ITextureManager& textureMgr = renderer.GetTextureManager( );
@@ -74,6 +84,22 @@ bool CSSRManager::Init( IRenderer& renderer, IMeshBuilder& meshBuilder )
 
 void CSSRManager::Process( IRenderer& renderer, const std::list<CGameObject*>& reflectableList ) const
 {
+	// Set Constant Buffer
+	if ( IRenderView* pView = renderer.GetCurrentRenderView( ) )
+	{
+		D3DXMATRIX* pSsrConstant = static_cast<D3DXMATRIX*>(m_ssrConstantBuffer->LockBuffer( renderer.GetDeviceContext( ) ));
+
+		if ( pSsrConstant )
+		{
+			D3DXMATRIX projectMtx = pView->GetProjectionMatrix();
+
+			D3DXMatrixTranspose( pSsrConstant, &projectMtx );
+
+			m_ssrConstantBuffer->UnLockBuffer( renderer.GetDeviceContext( ) );
+			m_ssrConstantBuffer->SetPSBuffer( renderer.GetDeviceContext( ), 3 );
+		}
+	}
+
 	// Set RenderTarget
 	IRenderTargetManager& rendertargetMgr = renderer.GetRenderTargetManager( );
 	rendertargetMgr.SetRenderTarget( renderer.GetDeviceContext(), m_pSsrRt, nullptr );
@@ -84,6 +110,7 @@ void CSSRManager::Process( IRenderer& renderer, const std::list<CGameObject*>& r
 	// Set DefaultRenderTarget By Texture
 	m_pSsrMaterial->SetTexture( renderer.GetDeviceContext( ), SHADER_TYPE::PS, 1, m_pDefaultSrv );
 	m_pSsrMaterial->SetTexture( renderer.GetDeviceContext( ), SHADER_TYPE::PS, 2, m_pDepthSrv );
+	m_pSsrMaterial->SetShader( renderer.GetDeviceContext( ) );
 
 	// Render Reflectable GameObject by SSR Material
 	for ( auto& object : reflectableList )
@@ -115,6 +142,7 @@ CSSRManager::CSSRManager( ) :
 	m_pDefaultRt( nullptr ),
 	m_pSsrSrv( nullptr ),
 	m_pDefaultSrv( nullptr ),
-	m_pDepthSrv( nullptr )
+	m_pDepthSrv( nullptr ),
+	m_ssrConstantBuffer( nullptr )
 {
 }

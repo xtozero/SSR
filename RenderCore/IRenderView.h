@@ -10,6 +10,8 @@ public:
 	virtual void CreatePerspectiveFovRHMatrix( float fov, float aspect, float zNear, float zFar ) = 0;
 
 	virtual void SetViewMatrix( const D3DXMATRIX& viewMat ) = 0;
+
+	virtual const D3DXMATRIX& GetProjectionMatrix( ) = 0;
 protected:
 	IRenderView( ) {}
 

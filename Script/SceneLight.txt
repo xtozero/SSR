@@ -7,7 +7,7 @@
 		"onOff"			"1"
 		"theta"			"0"
 		"phi"			"0"
-		"direction"		"-1 -1 0"
+		"direction"		"-1 -1 1"
 		"range"			"0"
 		"fallOff"		"0"
 		"attenuation"	"0"

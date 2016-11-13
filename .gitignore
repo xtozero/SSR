@@ -2,7 +2,6 @@
 *.ilk
 *.log
 *.tlog
-*.obj
 *.pch
 *.opensdf
 *.idb

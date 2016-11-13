@@ -84,7 +84,7 @@
 	{
 		"Shader"
 		{
-			"VS"	"vsTexture"
+			"VS"	"vsSSR"
 			"PS"	"psSSR"
 		}
 		

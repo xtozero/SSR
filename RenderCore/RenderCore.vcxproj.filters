@@ -433,6 +433,9 @@
     <FxCompile Include="..\Shader\psTexWithOutLight.fx">
       <Filter>fx</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shader\vsSSR.fx">
+      <Filter>fx</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shader\texCommon.fxh">
@@ -445,6 +448,12 @@
       <Filter>fx</Filter>
     </None>
     <None Include="..\Shader\normalCompression.fxh">
+      <Filter>fx</Filter>
+    </None>
+    <None Include="..\Shader\vsCommon.fxh">
+      <Filter>fx</Filter>
+    </None>
+    <None Include="..\Shader\psCommon.fxh">
       <Filter>fx</Filter>
     </None>
   </ItemGroup>
