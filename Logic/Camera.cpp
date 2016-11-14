@@ -93,22 +93,27 @@ void CCamera::Rotate( const float pitch, const float yaw, const float roll )
 {
 	if ( m_enableRotate )
 	{
-		
-	}
-	else
-	{
-		return;
-	}
+		if ( pitch != 0.f || yaw != 0.f || roll != 0.f )
+		{
+			m_angles += D3DXVECTOR3( pitch, yaw, roll );
 
-	if ( pitch != 0.f || yaw != 0.f || roll != 0.f )
-	{
-		CameraChanged( );
-		D3DXMATRIX rotateMat;
-		D3DXMatrixRotationYawPitchRoll( &rotateMat, yaw, pitch, roll );
+			constexpr float angleLimit = D3DX_PI * 2.f;
+			for ( int i = 0; i < 3; ++i )
+			{
+				if ( m_angles[i] >= angleLimit )
+				{
+					m_angles[i] -= angleLimit;
+				}
+			}
 
-		D3DXVec3TransformNormal( &m_lookVector, &m_lookVector, &rotateMat );
-		D3DXVec3TransformNormal( &m_upVector, &m_upVector, &rotateMat );
-		D3DXVec3TransformNormal( &m_rightVector, &m_rightVector, &rotateMat );
+			CameraChanged( );
+			D3DXMATRIX rotateMat;
+			D3DXMatrixRotationYawPitchRoll( &rotateMat, m_angles.y, m_angles.x, m_angles.z );
+
+			D3DXVec3TransformNormal( &m_lookVector, &D3DXVECTOR3( 0.f, 0.f, 1.0f ), &rotateMat );
+			D3DXVec3TransformNormal( &m_upVector, &D3DXVECTOR3( 0.f, 1.f, 0.0f ), &rotateMat );
+			D3DXVec3TransformNormal( &m_rightVector, &D3DXVECTOR3( 1.f, 0.f, 0.0f ), &rotateMat );
+		}
 	}
 }
 

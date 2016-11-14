@@ -44,6 +44,7 @@ private:
 	D3DXMATRIX m_invViewMatrix;
 	
 	D3DXVECTOR3 m_origin;
+	D3DXVECTOR3 m_angles;
 	D3DXVECTOR3 m_lookVector;
 	D3DXVECTOR3 m_upVector;
 	D3DXVECTOR3 m_rightVector;
