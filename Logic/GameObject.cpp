@@ -157,7 +157,7 @@ bool CGameObject::LoadPropertyFromScript( const CKeyValueIterator& pKeyValue )
 		SetMaterialName( pKeyValue->GetString( ) );
 		return true;
 	}
-	else if ( pKeyValue->GetKey( ) == String( _T( "Refectable" ) ) )
+	else if ( pKeyValue->GetKey( ) == String( _T( "Reflectable" ) ) )
 	{
 		AddProperty( REFLECTABLE_OBJECT );
 		return true;

@@ -35,10 +35,12 @@ bool CSSRManager::Init( IRenderer& renderer, IMeshBuilder& meshBuilder )
 	m_pSsrSrv = shaderResourceMgr.CreateShaderResource( renderer.GetDevice( ), ssrTex, nullptr, ssrTextureName );
 
 	m_pDefaultRt = rendertargetMgr.FindRenderTarget( _T( "DefaultRenderTarget" ) );
+	m_pDefaultDS = rendertargetMgr.FindDepthStencil( _T( "DefaultDepthStencil" ) );
 	m_pDefaultSrv = shaderResourceMgr.FindShaderResource( _T( "DuplicateFrameBuffer" ) );
 	m_pDepthSrv = shaderResourceMgr.FindShaderResource( _T( "DuplicateDepthGBuffer" ) );
 
-	if ( m_pSsrRt == nullptr || m_pSsrSrv == nullptr || m_pDefaultRt == nullptr || m_pDefaultSrv == nullptr || m_pDepthSrv == nullptr )
+	if ( m_pSsrRt == nullptr || m_pSsrSrv == nullptr || m_pDefaultRt == nullptr ||
+		m_pDefaultDS == nullptr || m_pDefaultSrv == nullptr || m_pDepthSrv == nullptr )
 	{
 		return false;
 	}
@@ -102,7 +104,7 @@ void CSSRManager::Process( IRenderer& renderer, const std::list<CGameObject*>& r
 
 	// Set RenderTarget
 	IRenderTargetManager& rendertargetMgr = renderer.GetRenderTargetManager( );
-	rendertargetMgr.SetRenderTarget( renderer.GetDeviceContext(), m_pSsrRt, nullptr );
+	rendertargetMgr.SetRenderTarget( renderer.GetDeviceContext(), m_pSsrRt, m_pDefaultDS );
 
 	// Clear RenderTarget to black
 	m_pSsrRt->Clear( renderer.GetDeviceContext(), { 0.f, 0.f, 0.f, 0.f } );
@@ -140,6 +142,7 @@ CSSRManager::CSSRManager( ) :
 	m_pSsrBlendMaterial( nullptr ),
 	m_pSsrRt( nullptr ),
 	m_pDefaultRt( nullptr ),
+	m_pDefaultDS( nullptr ),
 	m_pSsrSrv( nullptr ),
 	m_pDefaultSrv( nullptr ),
 	m_pDepthSrv( nullptr ),

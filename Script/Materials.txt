@@ -1,6 +1,6 @@
 "Materials"
 {
-	"mat_testScripted"
+	"mat_default"
 	{
 		"Shader"
 		{
@@ -9,7 +9,7 @@
 		}
 		
 		"RS_State"	"default"
-		"DS_State"	"default"
+		"DS_State"	"objectDefault"
 		
 		"Sampler"
 		{
@@ -80,6 +80,18 @@
 		"DS_State"	"default"
 	}
 	
+	"mat_reflectable"
+	{
+		"Shader"
+		{
+			"VS"	"vsTutorial"
+			"PS"	"psTutorial"
+		}
+		
+		"RS_State"	"default"
+		"DS_State"	"reflectable"
+	}
+	
 	"mat_screen_space_reflect"
 	{
 		"Shader"
@@ -89,7 +101,12 @@
 		}
 		
 		"RS_State"	"default"
-		"DS_State"	"depthWriteTestOff"
+		"DS_State"	"ScreenSpaceReflect"
+		
+		"Sampler"
+		{
+			"PS"	"default"
+		}
 	}
 	
 	"mat_ssr_blend"

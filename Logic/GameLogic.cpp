@@ -49,11 +49,11 @@ bool CGameLogic::Initialize( HWND hwnd, UINT wndWidth, UINT wndHeight )
 		view->CreatePerspectiveFovLHMatrix( D3DXToRadian( 60 ),
 			static_cast<float>(wndWidth) / wndHeight,
 			1.f,
-			100.f );
+			1500.0f );
 		m_pickingManager.PushInvProjection( D3DXToRadian( 60 ),
 			static_cast<float>(wndWidth) / wndHeight,
 			1.f,
-			100.f );
+			1500.0f );
 	}
 	else
 	{
@@ -256,7 +256,7 @@ void CGameLogic::BuildRenderableList( )
 	{
 		if ( object )
 		{
-			// Refectable list
+			// Reflectable list
 			if ( object->GetProperty( ) & REFLECTABLE_OBJECT )
 			{
 				m_renderableList[REFLECT_RENDERABLE].push_back( object.get() );

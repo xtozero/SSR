@@ -5,6 +5,7 @@
 
 class CGameObject;
 class IBuffer;
+class IDepthStencil;
 class IMaterial;
 class IMesh;
 class IMeshBuilder;
@@ -27,6 +28,7 @@ private:
 	IMaterial* m_pSsrBlendMaterial;
 	IRenderTarget* m_pSsrRt;
 	IRenderTarget* m_pDefaultRt;
+	IDepthStencil* m_pDefaultDS;
 	IShaderResource* m_pSsrSrv;
 	IShaderResource* m_pDefaultSrv;
 	IShaderResource* m_pDepthSrv;

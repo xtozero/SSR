@@ -4,9 +4,11 @@
 Texture2D framebufferTex : register( t1 );
 Texture2D depthbufferTex : register( t2 );
 
-static const int g_maxBinarySearchStep = 128;
-static const int g_maxRayStep = 128;
+static const int g_maxBinarySearchStep = 32;
+static const int g_maxRayStep = 100;
 static const float g_depthbias = 0.1f;
+static const float g_rayStepScale = 1.f;
+static const float g_maxThickness = 1.5f / g_FarPlaneDist;
 
 cbuffer SSRConstantBuffer : register(b3)
 {
@@ -46,16 +48,16 @@ float4 BinarySearch( float3 dir, float3 viewPos )
 		if ( depthDiff > 0.f )
 		{
 			viewPos += dir;
+			dir *= 0.5f;
 		}
 
-		dir *= 0.5f;
 		viewPos -= dir;
 	}
 
 	texCoord = GetTexCoordXYLinearDepthZ( viewPos );
 	srcdepth = depthbufferTex.SampleLevel( baseSampler, texCoord.xy, 0 ).x;
 	depthDiff = abs( srcdepth - texCoord.z );
-	if ( depthDiff < g_depthbias )
+	if ( texCoord.z < 0.9f && depthDiff < g_depthbias )
 	{
 		return framebufferTex.SampleLevel( baseSampler, texCoord.xy, 0 );
 	}
@@ -70,6 +72,7 @@ float4 main( PS_INPUT input ) : SV_TARGET
 
 	float3 reflectVec = reflect( incidentVec, viewNormal );
 	reflectVec = normalize( reflectVec );
+	reflectVec *= g_rayStepScale;
 
 	float4 reflectColor = float4(0.f, 0.f, 0.f, 0.f);
 	float3 reflectPos = input.viewPos + reflectVec;
@@ -80,7 +83,7 @@ float4 main( PS_INPUT input ) : SV_TARGET
 		float3 texCoord = GetTexCoordXYLinearDepthZ( reflectPos );
 		float srcdepth = depthbufferTex.SampleLevel( baseSampler, texCoord.xy, 0 ).x;
 
-		if ( srcdepth < texCoord.z )
+		if ( texCoord.z - srcdepth > 0 && texCoord.z - srcdepth < g_maxThickness )
 		{
 			reflectColor = BinarySearch( reflectVec, reflectPos );
 			break;

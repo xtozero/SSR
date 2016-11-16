@@ -18,7 +18,7 @@ VS_OUTPUT main( VS_INPUT input )
 	output.position = mul( float4(output.viewPos, 1.f), g_projectionMatrix );
 
 	output.viewNormal = mul( input.normal, (float3x3)transpose( g_invWorldMatrix ) );
-	output.viewNormal = mul( output.viewNormal, (float3x3) g_invWorldMatrix );
+	output.viewNormal = mul( output.viewNormal, (float3x3) g_viewMatrix );
 
 	return output;
 }

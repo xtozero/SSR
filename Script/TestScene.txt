@@ -14,16 +14,16 @@
 	{
 		"Name"		"ground"
 		"Model"		"plane.obj"
-		"Material"	"tutorial"
+		"Material"	"mat_reflectable"
 		"Position"	"0 -10 0"
-		"Refectable"	"1"
+		"Reflectable"	"1"
 	}
 	
 	"Object" "base"
 	{
 		"Name"		"sphere"
 		"Model"		"shape_sphere.obj" //모델명
-		"Material"	"tutorial" //재질명
+		"Material"	"mat_default" //재질명
 		"Position"	"-26.409266 -4.787085 0.000000" //x y z
 		"Scale"		"10 10 10" //xScale yScale zScale
 	}
@@ -32,7 +32,7 @@
 	{
 		"Name"		"cone"
 		"Model"		"cone.obj" //모델명
-		"Material"	"tutorial" //재질명
+		"Material"	"mat_default" //재질명
 		"Scale"		"10 10 10" //xScale yScale zScale
 		"Position"	"-13.516332 -4.475936 0.000000" //x y z
 	}
@@ -41,7 +41,7 @@
 	{
 		"Name"		"cylinder"
 		"Model"		"cylinder.obj" //모델명
-		"Material"	"tutorial" //재질명
+		"Material"	"mat_default" //재질명
 		"Scale"		"10 10 10" //xScale yScale zScale
 		"Position"	"-1.270190 -4.746570 0.000000" //x y z
 	}
@@ -50,7 +50,7 @@
 	{
 		"Name"		"torus"
 		"Model"		"torus.obj" //모델명
-		"Material"	"tutorial" //재질명
+		"Material"	"mat_default" //재질명
 		"Scale"		"10 10 10" //xScale yScale zScale
 		"Position"	"11.517221 -8.738405 0.000000" //x y z
 	}
@@ -59,7 +59,7 @@
 	{
 		"Name"		"dice"
 		"Model"		"dice.obj" //모델명
-		"Material"	"tutorial" //재질명
+		"Material"	"mat_default" //재질명
 		"Scale"		"10 10 10" //xScale yScale zScale
 		"Position"	"25.928568 -4.814196 0.000000" //x y z
 	}
