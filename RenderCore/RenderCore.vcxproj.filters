@@ -60,9 +60,6 @@
     <ClInclude Include="common.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Direct3D11.h">
-      <Filter>Direct11</Filter>
-    </ClInclude>
     <ClInclude Include="D3D11VertexShader.h">
       <Filter>Direct11\Shader</Filter>
     </ClInclude>

@@ -176,7 +176,6 @@ call "$(SolutionDIr)Shader\make_shader.bat"</Command>
     <ClInclude Include="D3D11VertexBuffer.h" />
     <ClInclude Include="D3D11VertexShader.h" />
     <ClInclude Include="DebugMesh.h" />
-    <ClInclude Include="Direct3D11.h" />
     <ClInclude Include="IBuffer.h" />
     <ClInclude Include="IMaterial.h" />
     <ClInclude Include="IMesh.h" />
