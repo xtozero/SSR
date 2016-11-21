@@ -2,47 +2,37 @@
 
 #include "common.h"
 #include <memory>
-#include <vector>
 #include <stack>
+#include <type_traits>
+#include <vector>
 
-class KeyValue
+class ENGINE_DLL KeyValue
 {
 public:
-	virtual const String& GetString( ) const = 0;
-	virtual int GetInt( ) const = 0;
-	virtual float GetFloat( ) const = 0;
+	const String& GetString( ) const;
 
-	virtual const String& GetKey( ) const = 0;
+	template<typename T>
+	const T Get( ) const
+	{
+		static_assert(!std::is_same<T, String>::value, "Use GetString function to get string value");
 
-	virtual void SetNext( std::shared_ptr<KeyValue> pNext ) = 0;
-	virtual void SetChild( std::shared_ptr<KeyValue> pChild ) = 0;
+		Stringstream ss( m_value );
+		T value;
+		ss >> value;
 
-	virtual std::shared_ptr<KeyValue>& GetNext( ) = 0;
-	virtual std::shared_ptr<KeyValue>& GetChild( ) = 0;
+		return value;
+	}
 
-	virtual void SetKey( const String& key ) = 0;
-	virtual void SetValue( const String& value ) = 0;
-};
+	const String& GetKey( ) const;
 
-class KeyValueImpl : public KeyValue
-{
-public:
-	virtual const String& GetString( ) const override;
-	virtual int GetInt( ) const override;
-	virtual float GetFloat( ) const override;
+	void SetNext( std::shared_ptr<KeyValue> pNext );
+	void SetChild( std::shared_ptr<KeyValue> pChild );
 
-	virtual const String& GetKey( ) const override;
+	std::shared_ptr<KeyValue>& GetNext( );
+	std::shared_ptr<KeyValue>& GetChild( );
 
-	virtual void SetNext( std::shared_ptr<KeyValue> pNext ) override;
-	virtual void SetChild( std::shared_ptr<KeyValue> pChild ) override;
-
-	virtual std::shared_ptr<KeyValue>& GetNext( ) override;
-	virtual std::shared_ptr<KeyValue>& GetChild( ) override;
-
-	virtual void SetKey( const String& key ) override;
-	virtual void SetValue( const String& value ) override;
-
-	KeyValueImpl( );
+	void SetKey( const String& key );
+	void SetValue( const String& value );
 
 private:
 	std::shared_ptr<KeyValue> m_pNext;

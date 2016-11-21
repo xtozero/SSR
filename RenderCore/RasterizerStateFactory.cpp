@@ -33,35 +33,35 @@ namespace
 			}
 			else if ( property->GetKey( ) == _T( "FrontCounterClockwise" ) )
 			{
-				newDesc.FrontCounterClockwise = property->GetInt( ) != 0;
+				newDesc.FrontCounterClockwise = property->Get<int>( ) != 0;
 			}
 			else if ( property->GetKey( ) == _T( "DepthBias" ) )
 			{
-				newDesc.DepthBias = property->GetInt( );
+				newDesc.DepthBias = property->Get<int>( );
 			}
 			else if ( property->GetKey( ) == _T( "DepthBiasClamp" ) )
 			{
-				newDesc.DepthBiasClamp = property->GetFloat( );
+				newDesc.DepthBiasClamp = property->Get<float>( );
 			}
 			else if ( property->GetKey( ) == _T( "SlopeScaledDepthBias" ) )
 			{
-				newDesc.SlopeScaledDepthBias = property->GetFloat( );
+				newDesc.SlopeScaledDepthBias = property->Get<float>( );
 			}
 			else if ( property->GetKey( ) == _T( "DepthClipEnable" ) )
 			{
-				newDesc.DepthClipEnable = property->GetInt( ) != 0;
+				newDesc.DepthClipEnable = property->Get<int>( ) != 0;
 			}
 			else if ( property->GetKey( ) == _T( "ScissorEnable" ) )
 			{
-				newDesc.ScissorEnable = property->GetInt( ) != 0;
+				newDesc.ScissorEnable = property->Get<int>( ) != 0;
 			}
 			else if ( property->GetKey( ) == _T( "MultisampleEnable" ) )
 			{
-				newDesc.MultisampleEnable = property->GetInt( ) != 0;
+				newDesc.MultisampleEnable = property->Get<int>( ) != 0;
 			}
 			else if ( property->GetKey( ) == _T( "AntialiasedLineEnable" ) )
 			{
-				newDesc.AntialiasedLineEnable = property->GetInt( ) != 0;
+				newDesc.AntialiasedLineEnable = property->Get<int>( ) != 0;
 			}
 		}
 

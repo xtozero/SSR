@@ -15,61 +15,44 @@ namespace
 	ConVar( print_debug_keyValue, "0", "print data when keyValue loaded" );
 }
 
-const String& KeyValueImpl::GetString( ) const
+const String& KeyValue::GetString( ) const
 {
 	return m_value;
 }
 
-int KeyValueImpl::GetInt( ) const
-{
-	return _tstoi( m_value.c_str( ) );
-}
-
-float KeyValueImpl::GetFloat( ) const
-{
-	return static_cast<float>( _tstof( m_value.c_str( ) ) );
-}
-
-const String& KeyValueImpl::GetKey( ) const
+const String& KeyValue::GetKey( ) const
 {
 	return m_key;
 }
 
-void KeyValueImpl::SetNext( std::shared_ptr<KeyValue> pNext )
+void KeyValue::SetNext( std::shared_ptr<KeyValue> pNext )
 {
 	m_pNext = pNext;
 }
 
-void KeyValueImpl::SetChild( std::shared_ptr<KeyValue> pChild )
+void KeyValue::SetChild( std::shared_ptr<KeyValue> pChild )
 {
 	m_pChild = pChild;
 }
 
-std::shared_ptr<KeyValue>& KeyValueImpl::GetNext( )
+std::shared_ptr<KeyValue>& KeyValue::GetNext( )
 {
 	return m_pNext;
 }
 
-std::shared_ptr<KeyValue>& KeyValueImpl::GetChild( )
+std::shared_ptr<KeyValue>& KeyValue::GetChild( )
 {
 	return m_pChild;
 }
 
-void KeyValueImpl::SetKey( const String& key )
+void KeyValue::SetKey( const String& key )
 {
 	m_key = key;
 }
 
-void KeyValueImpl::SetValue( const String& value )
+void KeyValue::SetValue( const String& value )
 {
 	m_value = value;
-}
-
-KeyValueImpl::KeyValueImpl( ) :
-m_pNext( nullptr ),
-m_pChild( nullptr  )
-{
-
 }
 
 CKeyValueIterator KeyValueGroupImpl::FindKeyValue( const String& key )
@@ -180,7 +163,7 @@ std::shared_ptr<KeyValueGroup> CKeyValueReader::LoadKeyValueFromFile( String fil
 
 	if ( file.is_open( ) )
 	{
-		std::shared_ptr<KeyValue> root = std::make_shared<KeyValueImpl>( );
+		std::shared_ptr<KeyValue> root = std::make_shared<KeyValue>( );
 		LoadKeyValueFromFileInternal( file, root );
 		
 		if ( print_debug_keyValue.GetBool() )
@@ -215,7 +198,7 @@ void CKeyValueReader::LoadKeyValueFromFileInternal( Ifstream& file, std::shared_
 			if ( buffer[curIdx] == '{' )
 			{
 				alreadyReadValue = true;
-				pKeyValue->SetChild( std::make_shared<KeyValueImpl>( ) );
+				pKeyValue->SetChild( std::make_shared<KeyValue>( ) );
 				LoadKeyValueFromFileInternal( file, pKeyValue->GetChild( ) );
 				FIX_ME( remove unnecessary new );
 				if ( pKeyValue->GetChild( ) && pKeyValue->GetChild( )->GetKey( ).length() == 0 )
@@ -238,7 +221,7 @@ void CKeyValueReader::LoadKeyValueFromFileInternal( Ifstream& file, std::shared_
 				{
 					if ( alreadyReadValue )
 					{
-						pKeyValue->SetNext( std::make_shared<KeyValueImpl>( ) );
+						pKeyValue->SetNext( std::make_shared<KeyValue>( ) );
 						pKeyValue = pKeyValue->GetNext( );
 						alreadyReadValue = false;
 					}

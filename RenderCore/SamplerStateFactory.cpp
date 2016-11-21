@@ -41,11 +41,11 @@ namespace
 			}
 			else if ( property->GetKey( ) == _T( "MipLODBias" ) )
 			{
-				newDesc.MipLODBias = property->GetFloat( );
+				newDesc.MipLODBias = property->Get<float>( );
 			}
 			else if ( property->GetKey( ) == _T( "MaxAnisotropy" ) )
 			{
-				newDesc.MaxAnisotropy = static_cast<UINT>(property->GetInt( ));
+				newDesc.MaxAnisotropy = property->Get<UINT>( );
 			}
 			else if ( property->GetKey( ) == _T( "ComparisonFunc" ) )
 			{
@@ -60,11 +60,11 @@ namespace
 			}
 			else if ( property->GetKey( ) == _T( "MinLOD" ) )
 			{
-				newDesc.MinLOD = property->GetFloat( );
+				newDesc.MinLOD = property->Get<float>( );
 			}
 			else if ( property->GetKey( ) == _T( "MaxLOD" ) )
 			{
-				newDesc.MaxLOD = property->GetFloat( );
+				newDesc.MaxLOD = property->Get<float>( );
 			}
 		}
 

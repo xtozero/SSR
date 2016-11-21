@@ -24,7 +24,7 @@ namespace
 		{
 			if ( property->GetKey( ) == _T( "DepthEnable" ) )
 			{
-				newDesc.DepthEnable = property->GetInt( ) != 0;
+				newDesc.DepthEnable = property->Get<int>( ) != 0;
 			}
 			else if ( property->GetKey( ) == _T( "DepthWriteMask" ) )
 			{
@@ -36,15 +36,15 @@ namespace
 			}
 			else if ( property->GetKey( ) == _T( "StencilEnable" ) )
 			{
-				newDesc.StencilEnable = property->GetInt( ) != 0;
+				newDesc.StencilEnable = property->Get<int>( ) != 0;
 			}
 			else if ( property->GetKey( ) == _T( "StencilReadMask" ) )
 			{
-				newDesc.StencilReadMask = static_cast<UINT8>(property->GetInt( ));
+				newDesc.StencilReadMask = static_cast<UINT8>(property->Get<unsigned int>( ));
 			}
 			else if ( property->GetKey( ) == _T( "StencilWriteMask" ) )
 			{
-				newDesc.StencilWriteMask = static_cast<UINT8>(property->GetInt( ));
+				newDesc.StencilWriteMask = static_cast<UINT8>(property->Get<unsigned int>( ));
 			}
 			else if ( property->GetKey( ) == _T( "FrontFace.StencilFunc" ) )
 			{

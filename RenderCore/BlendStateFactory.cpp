@@ -32,15 +32,15 @@ namespace
 		{
 			if ( property->GetKey( ) == _T( "AlphaToCoverageEnable" ) )
 			{
-				blendDesc.AlphaToCoverageEnable = property->GetInt( ) != 0;
+				blendDesc.AlphaToCoverageEnable = property->Get<int>( ) != 0;
 			}
 			else if ( property->GetKey( ) == _T( "IndependentBlendEnable" ) )
 			{
-				blendDesc.IndependentBlendEnable = property->GetInt( ) != 0;
+				blendDesc.IndependentBlendEnable = property->Get<int>( ) != 0;
 			}
 			else if ( property->GetKey( ) == _T( "RenderTarget" ) )
 			{
-				int idx = property->GetInt( );
+				int idx = property->Get<int>( );
 				
 				assert( idx >= 0 && idx < 8 );
 
@@ -49,7 +49,7 @@ namespace
 				{
 					if ( rtProperty->GetKey( ) == _T( "BlendEnable" ) )
 					{
-						rtBlendDesc.BlendEnable = property->GetInt( ) != 0;
+						rtBlendDesc.BlendEnable = property->Get<int>( ) != 0;
 					}
 					else if ( rtProperty->GetKey( ) == _T( "BlendOp" ) )
 					{

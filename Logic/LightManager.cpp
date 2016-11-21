@@ -36,15 +36,15 @@ namespace
 			}
 			else if ( key->GetKey( ) == _T( "onOff" ) )
 			{
-				trait.m_isOn = key->GetInt() == 1;
+				trait.m_isOn = key->Get<int>() == 1;
 			}
 			else if ( key->GetKey( ) == _T( "theta" ) )
 			{
-				trait.m_theta = key->GetFloat();
+				trait.m_theta = key->Get<float>();
 			}
 			else if ( key->GetKey( ) == _T( "phi" ) )
 			{
-				trait.m_phi = key->GetFloat();
+				trait.m_phi = key->Get<float>();
 			}
 			else if ( key->GetKey( ) == _T( "direction" ) )
 			{
@@ -53,11 +53,11 @@ namespace
 			}
 			else if ( key->GetKey( ) == _T( "range" ) )
 			{
-				trait.m_range = key->GetFloat();
+				trait.m_range = key->Get<float>();
 			}
 			else if ( key->GetKey( ) == _T( "fallOff" ) )
 			{
-				trait.m_fallOff = key->GetFloat();
+				trait.m_fallOff = key->Get<float>();
 			}
 			else if ( key->GetKey( ) == _T( "attenuation" ) )
 			{
