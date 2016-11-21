@@ -15,6 +15,7 @@ protected:
 	std::shared_ptr<IRenderState> m_pRasterizerState;
 	std::shared_ptr<IRenderState> m_pSamplerState[SHADER_TYPE::MAX_SHADER];
 	std::shared_ptr<IRenderState> m_pDepthStencilState;
+	std::shared_ptr<IRenderState> m_pBlendState;
 	MatConstantBuffers* m_pConstantBuffers;
 
 public:

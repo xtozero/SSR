@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "BaseMesh.h"
+#include "BlendStateFactory.h"
 
 #include "common.h"
 #include "ConstantBufferDefine.h"
@@ -105,6 +106,8 @@ public:
 
 	virtual std::shared_ptr<IRenderState> CreateDepthStencilState( const String& stateName ) override;
 
+	virtual std::shared_ptr<IRenderState> CreateBlendState( const String& stateName ) override;
+
 	virtual void ResetResource( const std::shared_ptr<IMesh>& pMesh, const SHADER_TYPE type ) override;
 
 	virtual void TakeSnapshot2D( const String& sourceTextureName, const String& destTextureName ) override;
@@ -150,6 +153,7 @@ private:
 	std::unique_ptr<IDepthStencilStateFactory>		m_pDepthStencilFactory;
 	std::unique_ptr<IRasterizerStateFactory>		m_pRasterizerFactory;
 	std::unique_ptr<ISamplerStateFactory>			m_pSamplerFactory;
+	std::unique_ptr<IBlendStateFactory>				m_pBlendFactory;
 	std::unique_ptr<CMaterialLoader>				m_pMaterialLoader;
 
 	CSurfaceManager									m_surfaceManager;
@@ -181,6 +185,10 @@ bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 	m_pSamplerFactory = CreateSamplerStateFactory( );
 	ON_FAIL_RETURN( m_pSamplerFactory );
 	m_pSamplerFactory->LoadDesc( );
+
+	m_pBlendFactory = CreateBlendStateFactory( );
+	ON_FAIL_RETURN( m_pBlendFactory );
+	m_pBlendFactory->LoadDesc( );
 
 	ON_FAIL_RETURN( InitializeShaders( ) );
 	ON_FAIL_RETURN( InitializeMaterial( ) );
@@ -621,6 +629,39 @@ void CDirect3D11::RegisterEnumString( )
 	REGISTER_ENUM_STRING( D3D11_RESOURCE_MISC_RESOURCE_CLAMP );
 	REGISTER_ENUM_STRING( D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX );
 	REGISTER_ENUM_STRING( D3D11_RESOURCE_MISC_GDI_COMPATIBLE );
+
+	//Blend
+	REGISTER_ENUM_STRING( D3D11_BLEND_ZERO );
+	REGISTER_ENUM_STRING( D3D11_BLEND_ONE );
+	REGISTER_ENUM_STRING( D3D11_BLEND_SRC_COLOR );
+	REGISTER_ENUM_STRING( D3D11_BLEND_INV_SRC_COLOR );
+	REGISTER_ENUM_STRING( D3D11_BLEND_SRC_ALPHA );
+	REGISTER_ENUM_STRING( D3D11_BLEND_INV_SRC_ALPHA );
+	REGISTER_ENUM_STRING( D3D11_BLEND_DEST_ALPHA );
+	REGISTER_ENUM_STRING( D3D11_BLEND_INV_DEST_ALPHA );
+	REGISTER_ENUM_STRING( D3D11_BLEND_DEST_COLOR );
+	REGISTER_ENUM_STRING( D3D11_BLEND_INV_DEST_COLOR );
+	REGISTER_ENUM_STRING( D3D11_BLEND_SRC_ALPHA_SAT );
+	REGISTER_ENUM_STRING( D3D11_BLEND_BLEND_FACTOR );
+	REGISTER_ENUM_STRING( D3D11_BLEND_INV_BLEND_FACTOR );
+	REGISTER_ENUM_STRING( D3D11_BLEND_SRC1_COLOR );
+	REGISTER_ENUM_STRING( D3D11_BLEND_INV_SRC1_COLOR );
+	REGISTER_ENUM_STRING( D3D11_BLEND_SRC1_ALPHA );
+	REGISTER_ENUM_STRING( D3D11_BLEND_INV_SRC1_ALPHA );
+
+	//Blend Op
+	REGISTER_ENUM_STRING( D3D11_BLEND_OP_ADD );
+	REGISTER_ENUM_STRING( D3D11_BLEND_OP_SUBTRACT );
+	REGISTER_ENUM_STRING( D3D11_BLEND_OP_REV_SUBTRACT );
+	REGISTER_ENUM_STRING( D3D11_BLEND_OP_MIN );
+	REGISTER_ENUM_STRING( D3D11_BLEND_OP_MAX );
+
+	//Color Write Enable
+	REGISTER_ENUM_STRING( D3D11_COLOR_WRITE_ENABLE_RED );
+	REGISTER_ENUM_STRING( D3D11_COLOR_WRITE_ENABLE_GREEN );
+	REGISTER_ENUM_STRING( D3D11_COLOR_WRITE_ENABLE_BLUE );
+	REGISTER_ENUM_STRING( D3D11_COLOR_WRITE_ENABLE_ALPHA );
+	REGISTER_ENUM_STRING( D3D11_COLOR_WRITE_ENABLE_ALL );
 }
 
 IMaterial* CDirect3D11::GetMaterialPtr( const TCHAR* pMaterialName )
@@ -738,6 +779,17 @@ std::shared_ptr<IRenderState> CDirect3D11::CreateDepthStencilState( const String
 	}
 
 	return m_pDepthStencilFactory->GetDepthStencilState( m_pd3d11Device.Get( ), stateName );
+}
+
+std::shared_ptr<IRenderState> CDirect3D11::CreateBlendState( const String & stateName )
+{
+	if ( m_pBlendFactory == nullptr )
+	{
+		DebugWarning( "BlendStateFactory is nullptr" );
+		return nullptr;
+	}
+
+	return m_pBlendFactory->GetBlendState( m_pd3d11Device.Get( ), stateName );
 }
 
 void CDirect3D11::ResetResource( const std::shared_ptr<IMesh>& pMesh, const SHADER_TYPE type )

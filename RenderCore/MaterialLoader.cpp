@@ -51,6 +51,7 @@ public:
 	bool SetSamplerState( IRenderer& renderer, const SHADER_TYPE type, const String& samplerName );
 	bool SetDepthStencilState( IRenderer& renderer, const String& dsStateName );
 	bool SetRasterizerState( IRenderer& renderer, const String& rsStateName );
+	bool SetBlendState( IRenderer& renderer, const String& blendStateName );
 };
 
 bool CScriptedMaterial::SetShader( IRenderer& renderer, const SHADER_TYPE type, const String& shaderName )
@@ -85,6 +86,12 @@ bool CScriptedMaterial::SetRasterizerState( IRenderer& renderer, const String& r
 {
 	m_pRasterizerState = renderer.CreateRenderState( rsStateName );
 	return m_pRasterizerState ? true : false;
+}
+
+bool CScriptedMaterial::SetBlendState( IRenderer & renderer, const String& blendStateName )
+{
+	m_pBlendState = renderer.CreateBlendState( blendStateName );
+	return m_pBlendState ? true : false;
 }
 
 bool CMaterialLoader::LoadMaterials( IRenderer& renderer )
@@ -150,6 +157,10 @@ bool CMaterialLoader::CreateScriptedMaterial( IRenderer& renderer, std::shared_p
 			{
 				ON_FAIL_RETURN( newMaterial->SetSamplerState( renderer, TranslateShaderType( sampler->GetKey( ) ), sampler->GetString( ) ) );
 			}
+		}
+		else if ( property->GetKey( ) == _T( "Blend" ) )
+		{
+			ON_FAIL_RETURN( newMaterial->SetBlendState( renderer, property->GetString( ) ) )
 		}
 	}
 

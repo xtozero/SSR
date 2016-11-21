@@ -19,6 +19,7 @@ void Material::Init( IRenderer& renderer )
 	{
 		m_pSamplerState[i] = renderer.CreateSamplerState( _T( "NULL" ) );
 	}
+	m_pBlendState = renderer.CreateBlendState( _T( "NULL" ) );
 }
 
 void Material::SetShader( ID3D11DeviceContext* pDeviceContext )
@@ -35,6 +36,7 @@ void Material::SetShader( ID3D11DeviceContext* pDeviceContext )
 
 		m_pRasterizerState->Set( pDeviceContext );
 		m_pDepthStencilState->Set( pDeviceContext );
+		m_pBlendState->Set( pDeviceContext );
 
 		for ( int i = 0; i < SHADER_TYPE::MAX_SHADER; ++i )
 		{
@@ -137,7 +139,8 @@ void Material::SetPrimitiveTopology( ID3D11DeviceContext* pDeviceContext, D3D_PR
 Material::Material( ) :
 	m_pRasterizerState( nullptr ),
 	m_pDepthStencilState( nullptr ),
-	m_pConstantBuffers( nullptr )
+	m_pConstantBuffers( nullptr ),
+	m_pBlendState( nullptr )
 {
 	for ( int i = 0; i < MAX_SHADER; ++i )
 	{

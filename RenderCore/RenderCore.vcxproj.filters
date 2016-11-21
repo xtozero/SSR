@@ -243,6 +243,9 @@
     <ClInclude Include="IRenderResourceManager.h">
       <Filter>Direct11\RenderResource</Filter>
     </ClInclude>
+    <ClInclude Include="BlendStateFactory.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -385,6 +388,9 @@
     </ClCompile>
     <ClCompile Include="TextureDescription.cpp">
       <Filter>Direct11</Filter>
+    </ClCompile>
+    <ClCompile Include="BlendStateFactory.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

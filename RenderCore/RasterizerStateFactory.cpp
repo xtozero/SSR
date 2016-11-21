@@ -74,7 +74,7 @@ class CRasterizerState : public IRenderState
 public:
 	virtual void Set( ID3D11DeviceContext* pDeviceContext, const SHADER_TYPE type = SHADER_TYPE::NONE ) override;
 
-	bool Create( ID3D11Device* pDevice, const D3D11_RASTERIZER_DESC& rasterizerDesc );
+	bool Create( ID3D11Device* pDevice, const D3D11_RASTERIZER_DESC& rsDesc );
 private:
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_pRasterizerState;
 };

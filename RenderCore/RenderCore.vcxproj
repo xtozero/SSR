@@ -141,6 +141,7 @@ call "$(SolutionDIr)Shader\make_shader.bat"</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Shared\Util.h" />
+    <ClInclude Include="BlendStateFactory.h" />
     <ClInclude Include="DepthStencil.h" />
     <ClInclude Include="DepthStencilStateFactory.h" />
     <ClInclude Include="IRenderResourceManager.h" />
@@ -208,6 +209,7 @@ call "$(SolutionDIr)Shader\make_shader.bat"</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Shared\Util.cpp" />
+    <ClCompile Include="BlendStateFactory.cpp" />
     <ClCompile Include="DepthStencil.cpp" />
     <ClCompile Include="DepthStencilStateFactory.cpp" />
     <ClCompile Include="RenderOutputManager.cpp" />

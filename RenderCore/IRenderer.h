@@ -74,6 +74,8 @@ public:
 
 	virtual std::shared_ptr<IRenderState> CreateDepthStencilState( const String& stateName ) = 0;
 
+	virtual std::shared_ptr<IRenderState> CreateBlendState( const String& stateName ) = 0;
+
 	virtual void ResetResource( const std::shared_ptr<IMesh>& pMesh, const SHADER_TYPE type ) = 0;
 	
 	virtual void TakeSnapshot2D( const String& sourceTextureName, const String& destTextureName ) = 0;
