@@ -119,5 +119,6 @@
 		
 		"RS_State"	"default"
 		"DS_State"	"depthWriteTestOff"
+		"Blend"		"ssr"
 	}
 }

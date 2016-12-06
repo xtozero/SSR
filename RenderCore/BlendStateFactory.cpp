@@ -49,35 +49,35 @@ namespace
 				{
 					if ( rtProperty->GetKey( ) == _T( "BlendEnable" ) )
 					{
-						rtBlendDesc.BlendEnable = property->Get<int>( ) != 0;
+						rtBlendDesc.BlendEnable = rtProperty->Get<int>( ) != 0;
 					}
 					else if ( rtProperty->GetKey( ) == _T( "BlendOp" ) )
 					{
-						rtBlendDesc.BlendOp = static_cast<D3D11_BLEND_OP>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_BLEND_OP_ADD ));
+						rtBlendDesc.BlendOp = static_cast<D3D11_BLEND_OP>(GetEnumStringMap( ).GetEnum( rtProperty->GetString( ), D3D11_BLEND_OP_ADD ));
 					}
 					else if ( rtProperty->GetKey( ) == _T( "BlendOpAlpha" ) )
 					{
-						rtBlendDesc.BlendOpAlpha = static_cast<D3D11_BLEND_OP>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_BLEND_OP_ADD ));
+						rtBlendDesc.BlendOpAlpha = static_cast<D3D11_BLEND_OP>(GetEnumStringMap( ).GetEnum( rtProperty->GetString( ), D3D11_BLEND_OP_ADD ));
 					}
 					else if ( rtProperty->GetKey( ) == _T( "DestBlend" ) )
 					{
-						rtBlendDesc.DestBlend = static_cast<D3D11_BLEND>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_BLEND_ZERO ));
+						rtBlendDesc.DestBlend = static_cast<D3D11_BLEND>(GetEnumStringMap( ).GetEnum( rtProperty->GetString( ), D3D11_BLEND_ZERO ));
 					}
 					else if ( rtProperty->GetKey( ) == _T( "DestBlendAlpha" ) )
 					{
-						rtBlendDesc.DestBlendAlpha = static_cast<D3D11_BLEND>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_BLEND_ZERO ));
+						rtBlendDesc.DestBlendAlpha = static_cast<D3D11_BLEND>(GetEnumStringMap( ).GetEnum( rtProperty->GetString( ), D3D11_BLEND_ZERO ));
 					}
 					else if ( rtProperty->GetKey( ) == _T( "SrcBlend" ) )
 					{
-						rtBlendDesc.SrcBlend = static_cast<D3D11_BLEND>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_BLEND_ONE ));
+						rtBlendDesc.SrcBlend = static_cast<D3D11_BLEND>(GetEnumStringMap( ).GetEnum( rtProperty->GetString( ), D3D11_BLEND_ONE ));
 					}
 					else if ( rtProperty->GetKey( ) == _T( "SrcBlendAlpha" ) )
 					{
-						rtBlendDesc.SrcBlendAlpha = static_cast<D3D11_BLEND>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_BLEND_ONE ));
+						rtBlendDesc.SrcBlendAlpha = static_cast<D3D11_BLEND>(GetEnumStringMap( ).GetEnum( rtProperty->GetString( ), D3D11_BLEND_ONE ));
 					}
 					else if ( rtProperty->GetKey( ) == _T( "RenderTargetWriteMask" ) )
 					{
-						rtBlendDesc.RenderTargetWriteMask = static_cast<D3D11_COLOR_WRITE_ENABLE>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_COLOR_WRITE_ENABLE_ALL ));
+						rtBlendDesc.RenderTargetWriteMask = static_cast<D3D11_COLOR_WRITE_ENABLE>(GetEnumStringMap( ).GetEnum( rtProperty->GetString( ), D3D11_COLOR_WRITE_ENABLE_ALL ));
 					};
 				}
 			}

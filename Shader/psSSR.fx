@@ -5,10 +5,11 @@ Texture2D framebufferTex : register( t1 );
 Texture2D depthbufferTex : register( t2 );
 
 static const int g_maxBinarySearchStep = 32;
-static const int g_maxRayStep = 100;
+static const int g_maxRayStep = 70;
 static const float g_depthbias = 0.1f;
 static const float g_rayStepScale = 1.f;
 static const float g_maxThickness = 1.5f / g_FarPlaneDist;
+static const float g_maxRayLength = 20.f;
 
 cbuffer SSRConstantBuffer : register(b3)
 {
@@ -21,6 +22,11 @@ struct PS_INPUT
 	float3 viewNormal : NORMAL;
 	float3 viewPos : POSITION;
 };
+
+float Noise( float2 seed )
+{
+	return frac( sin( dot( seed.xy, float2( 12.9898, 78.233 ) ) ) * 43758.5453 );
+}
 
 float3 GetTexCoordXYLinearDepthZ( float3 viewPos )
 {
@@ -74,7 +80,6 @@ float4 main( PS_INPUT input ) : SV_TARGET
 	reflectVec = normalize( reflectVec );
 	reflectVec *= g_rayStepScale;
 
-	float4 reflectColor = float4(0.f, 0.f, 0.f, 0.f);
 	float3 reflectPos = input.viewPos + reflectVec;
 
 	[loop]
@@ -85,14 +90,17 @@ float4 main( PS_INPUT input ) : SV_TARGET
 
 		if ( texCoord.z - srcdepth > 0 && texCoord.z - srcdepth < g_maxThickness )
 		{
-			reflectColor = BinarySearch( reflectVec, reflectPos );
-			break;
+			float4 reflectColor = BinarySearch( reflectVec, reflectPos );
+
+			float edgeFade = 1.f - pow( length( texCoord.xy - 0.5f ) * 2.f, 2.f );
+			reflectColor.a *= pow( 0.75f, (length( reflectPos - input.viewPos ) / g_maxRayLength) ) * edgeFade;
+			return reflectColor;
 		}
 		else
 		{
-			reflectPos += reflectVec;
+			reflectPos += ( reflectVec * Noise( texCoord.xy ) );
 		}
 	}
 
-	return reflectColor;
+	return float4(0.f, 0.f, 0.f, 0.f);;
 }

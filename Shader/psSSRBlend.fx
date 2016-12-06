@@ -10,13 +10,5 @@ struct PS_INPUT
 
 float4 main( PS_INPUT input ) : SV_TARGET
 {
-	//Test
-	float4 color = ssrTex.Sample( baseSampler, input.texcoord );
-
-	if ( color.a == 0 )
-	{
-		discard;
-	}
-
-	return color;
+	return ssrTex.Sample( baseSampler, input.texcoord );
 }
