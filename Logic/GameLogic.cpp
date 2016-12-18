@@ -202,6 +202,7 @@ void CGameLogic::SceneBegin( void ) const
 	float wndWidth = static_cast<float>( CUtilWindowInfo::GetInstance( ).GetWidth( ) );
 	float wndHeight = static_cast<float>( CUtilWindowInfo::GetInstance( ).GetHeight( ) );
 	m_pRenderer->PushViewPort( 0.f, 0.f, wndWidth, wndHeight );
+	m_pRenderer->PushScissorRect( CUtilWindowInfo::GetInstance( ).GetRect() );
 
 	m_pRenderer->SceneBegin( );
 }

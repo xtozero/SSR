@@ -2,7 +2,11 @@
 {
 	"RasterizerDesc" "default"
 	{
+	}
 	
+	"RasterizerDesc" "scissor_on"
+	{
+		"ScissorEnable"					"1"
 	}
 	
 	"RasterizerDesc" "wireFrame"

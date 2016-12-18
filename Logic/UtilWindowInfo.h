@@ -9,22 +9,18 @@ public:
 		return windowInfo;
 	}
 
-	unsigned int GetWidth( ) { return m_width; }
-	unsigned int GetHeight( ) { return m_height; }
+	unsigned int GetWidth( ) { return m_wndRect.right; }
+	unsigned int GetHeight( ) { return m_wndRect.bottom; }
+	const RECT GetRect( ) { return m_wndRect; }
 
-	void SetRect( unsigned int width, unsigned int height )
+	void SetRect( unsigned int right, unsigned int bottom, unsigned int left = 0, unsigned int top = 0 )
 	{
-		m_width = width;
-		m_height = height;
+		m_wndRect.left = left;
+		m_wndRect.top = top;
+		m_wndRect.right = right;
+		m_wndRect.bottom = bottom;
 	}
 
-	CUtilWindowInfo() : m_width( 0 ),
-		m_height( 0 )
-	{}
-
-	~CUtilWindowInfo( ) = default;
-
 private:
-	unsigned int m_width;
-	unsigned int m_height;
+	RECT m_wndRect = {};
 };

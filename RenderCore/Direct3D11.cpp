@@ -95,6 +95,8 @@ public:
 
 	virtual void PushViewPort( const float topLeftX, const float topLeftY, const float width, const float height, const float minDepth = 0.0f, const float maxDepth = 1.0f ) override;
 	virtual void PopViewPort( ) override;
+	virtual void PushScissorRect( const RECT& rect ) override;
+	virtual void PopScissorRect( ) override;
 
 	virtual IRenderView* GetCurrentRenderView( ) override;
 
@@ -710,6 +712,24 @@ void CDirect3D11::PopViewPort( )
 	{
 		m_pView->PopViewPort( );
 		m_pView->SetViewPort( m_pd3d11DeviceContext.Get( ) );
+	}
+}
+
+void CDirect3D11::PushScissorRect( const RECT& rect )
+{
+	if ( m_pView )
+	{
+		m_pView->PushScissorRect( rect );
+		m_pView->SetScissorRects( m_pd3d11DeviceContext.Get( ) );
+	}
+}
+
+void CDirect3D11::PopScissorRect( )
+{
+	if ( m_pView )
+	{
+		m_pView->PopScissorRect( );
+		m_pView->SetScissorRects( m_pd3d11DeviceContext.Get( ) );
 	}
 }
 

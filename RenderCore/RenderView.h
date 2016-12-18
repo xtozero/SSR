@@ -13,7 +13,11 @@ public:
 
 	virtual void PushViewPort( const float topLeftX, const float topLeftY, const float width, const float height, const float minDepth = 0.0f, const float maxDepth = 1.0f ) override;
 	virtual void PopViewPort( ) override;
+	virtual void PushScissorRect( const RECT& rect ) override;
+	virtual void PopScissorRect( ) override;
+
 	void SetViewPort( ID3D11DeviceContext* pDeviceContext );
+	void SetScissorRects( ID3D11DeviceContext* pDeviceContext );
 
 	virtual void CreatePerspectiveFovLHMatrix( float fov, float aspect, float zNear, float zFar ) override;
 	virtual void CreatePerspectiveFovRHMatrix( float fov, float aspect, float zNear, float zFar ) override;
@@ -25,6 +29,7 @@ public:
 	virtual const D3DXMATRIX& GetProjectionMatrix( ) override { return m_projectionMatrix; }
 private:
 	std::vector<D3D11_VIEWPORT> m_viewportList;
+	std::vector<RECT> m_scissorRectList;
 
 	D3DXMATRIX m_viewMatrix;
 	D3DXMATRIX m_projectionMatrix;

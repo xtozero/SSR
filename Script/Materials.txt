@@ -8,7 +8,7 @@
 			"PS"	"psTutorial"
 		}
 		
-		"RS_State"	"default"
+		"RS_State"	"scissor_on"
 		"DS_State"	"objectDefault"
 		
 		"Sampler"
@@ -25,7 +25,7 @@
 			"PS"	"psSkybox"
 		}
 		
-		"RS_State"	"default"
+		"RS_State"	"scissor_on"
 		"DS_State"	"depthWriteOff"
 		
 		"Sampler"
@@ -42,7 +42,7 @@
 			"PS"	"psDepthStencil"
 		}
 		
-		"RS_State"	"default"
+		"RS_State"	"scissor_on"
 		"DS_State"	"depthTestOff"
 		
 		"Sampler"
@@ -59,7 +59,7 @@
 			"PS"	"psTexWithOutLight"
 		}
 		
-		"RS_State"	"default"
+		"RS_State"	"scissor_on"
 		"DS_State"	"depthTestOff"
 		
 		"Sampler"
@@ -88,7 +88,7 @@
 			"PS"	"psTutorial"
 		}
 		
-		"RS_State"	"default"
+		"RS_State"	"scissor_on"
 		"DS_State"	"reflectable"
 	}
 	
@@ -100,7 +100,7 @@
 			"PS"	"psSSR"
 		}
 		
-		"RS_State"	"default"
+		"RS_State"	"scissor_on"
 		"DS_State"	"ScreenSpaceReflect"
 		
 		"Sampler"
@@ -117,7 +117,7 @@
 			"PS"	"psSSRBlend"
 		}
 		
-		"RS_State"	"default"
+		"RS_State"	"scissor_on"
 		"DS_State"	"depthWriteTestOff"
 		"Blend"		"ssr"
 	}

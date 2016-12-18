@@ -44,9 +44,27 @@ void RenderView::PopViewPort( )
 	}
 }
 
+void RenderView::PushScissorRect( const RECT & rect )
+{
+	m_scissorRectList.push_back( rect );
+}
+
+void RenderView::PopScissorRect( )
+{
+	if ( m_scissorRectList.size( ) > 0 )
+	{
+		m_scissorRectList.pop_back( );
+	}
+}
+
 void RenderView::SetViewPort( ID3D11DeviceContext* pDeviceContext )
 {
-	pDeviceContext->RSSetViewports( m_viewportList.size( ), m_viewportList.begin( )._Ptr );
+	pDeviceContext->RSSetViewports( m_viewportList.size( ), m_viewportList.data( ) );
+}
+
+void RenderView::SetScissorRects( ID3D11DeviceContext * pDeviceContext )
+{
+	pDeviceContext->RSSetScissorRects( m_scissorRectList.size( ), m_scissorRectList.data( ) );
 }
 
 void RenderView::CreatePerspectiveFovLHMatrix( float fov, float aspect, float zNear, float zFar )

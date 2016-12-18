@@ -75,6 +75,7 @@ void CShadowManager::SceneBegin( CLightManager& lightMgr, IRenderer& renderer )
 
 	//뷰포트 세팅
 	renderer.PopViewPort( );
+	renderer.PopScissorRect( );
 	renderer.PushViewPort( 0, 0, 2048, 2048 );
 }
 
