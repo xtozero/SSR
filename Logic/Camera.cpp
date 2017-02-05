@@ -5,6 +5,8 @@
 #include "../RenderCore/IRenderView.h"
 #include "../shared/Util.h"
 
+#include <type_traits>
+
 void CCamera::OnLButtonDown( const int x, const int y )
 {
 	m_mouseRotateEnable = true;
@@ -151,15 +153,11 @@ void CCamera::ReCalcViewMatrix( )
 
 CCamera::CCamera( ) :
 m_origin( 0.f, 0.f, 0.f ),
+m_angles( 0.f, 0.f, 0.f ),
 m_lookVector( 0.f, 0.f, 1.f ),
 m_upVector( 0.f, 1.f, 0.f ),
 m_rightVector( 1.f, 0.f, 0.f ),
-m_isNeedReclac( false ),
-m_isNeedUpdateRenderer( true ),
-m_mouseRotateEnable( false ),
-m_mouseTranslateEnable( false ),
-m_mouseSensitivity( 0.01f ),
-m_enableRotate( true )
+m_prevMouseEventPos( 0.f, 0.f )
 {
 	D3DXMatrixIdentity( &m_viewMatrix );
 	D3DXMatrixIdentity( &m_invViewMatrix );

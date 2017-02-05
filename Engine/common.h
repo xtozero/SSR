@@ -1,16 +1,13 @@
 #pragma once
 
 #include <string>
+#include <tchar.h>
 
 #ifdef ENGINE_EXPORTS
 #define ENGINE_DLL __declspec(dllexport)
-#else
-#define ENGINE_DLL __declspec(dllimport)
-#endif
-
-#ifdef ENGINE_EXPORTS
 #define ENGINE_FUNC_DLL extern "C" __declspec(dllexport)
 #else
+#define ENGINE_DLL __declspec(dllimport)
 #define ENGINE_FUNC_DLL extern "C" __declspec(dllimport)
 #endif
 

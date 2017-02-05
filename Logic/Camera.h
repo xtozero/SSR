@@ -49,15 +49,15 @@ private:
 	D3DXVECTOR3 m_upVector;
 	D3DXVECTOR3 m_rightVector;
 
-	bool m_isNeedReclac;
-	bool m_isNeedUpdateRenderer;
+	bool m_isNeedReclac = false;
+	bool m_isNeedUpdateRenderer = true;
 
-	bool m_mouseRotateEnable;
+	bool m_mouseRotateEnable = false;
 	D3DXVECTOR2 m_prevMouseEventPos;
 	
-	bool m_mouseTranslateEnable;
-	float m_mouseSensitivity;
+	bool m_mouseTranslateEnable = false;
+	float m_mouseSensitivity = 0.01f;
 
-	bool m_enableRotate;
+	bool m_enableRotate = true;
 };
 
