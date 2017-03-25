@@ -1,13 +1,13 @@
 #include "stdafx.h"
-#include <assert.h>
 #include "BaseMesh.h"
-#include <d3dX9math.h>
-#include <fstream>
 #include "IMeshLoader.h"
 #include "MeshLoader.h"
 #include "ObjMeshLoader.h"
 #include "PlyMeshLoader.h"
 #include "../shared/Util.h"
+
+#include <assert.h>
+#include <fstream>
 #include <vector>
 
 bool CMeshLoader::Initialize( )
@@ -17,7 +17,7 @@ bool CMeshLoader::Initialize( )
 		m_meshLoaders.emplace( String( _T( "ply" ) ), std::make_unique<CPlyMeshLoader>( ) );
 		m_meshLoaders.emplace( String( _T( "obj" ) ), std::make_unique<CObjMeshLoader>( ) );
 	}
-	catch ( std::exception& e )
+	catch ( std::exception& )
 	{
 		return false;
 	}

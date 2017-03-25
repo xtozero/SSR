@@ -1,8 +1,7 @@
 #pragma once
 
-#include <d3dX9math.h>
-
 #include "common.h"
+#include "../shared/CDirectXMath.h"
 
 struct ID3D11DeviceContext;
 
@@ -29,9 +28,9 @@ public:
 	}
 	~SurfaceTrait( ) = default;
 
-	D3DXCOLOR	m_ambient;
-	D3DXCOLOR	m_diffuse;
-	D3DXCOLOR	m_specular;
+	CXMFLOAT4	m_ambient;
+	CXMFLOAT4	m_diffuse;
+	CXMFLOAT4	m_specular;
 	float		m_roughness;
 	float		m_specularPower;
 	float		m_pedding[2];
@@ -40,9 +39,9 @@ public:
 class ISurface
 {
 public:
-	virtual void SetAmbient( const D3DXCOLOR& ambient ) = 0;
-	virtual void SetDiffuse( const D3DXCOLOR& diffuse ) = 0;
-	virtual void SetSpecular( const D3DXCOLOR& specular ) = 0;
+	virtual void SetAmbient( const CXMFLOAT4& ambient ) = 0;
+	virtual void SetDiffuse( const CXMFLOAT4& diffuse ) = 0;
+	virtual void SetSpecular( const CXMFLOAT4& specular ) = 0;
 	virtual void SetRoughness( const float roughness ) = 0;
 	virtual void SetSpeculaPower( const float speculaPower ) = 0;
 	virtual void SetTextureName( const String& textureName ) = 0;

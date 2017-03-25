@@ -2,14 +2,17 @@
 
 #include "Camera.h"
 #include "CollisionUtil.h"
-#include "../Engine/ConVar.h"
 #include "GameObject.h"
 #include "PickingManager.h"
+
+#include "../Engine/ConVar.h"
 #include "../Shared/Util.h"
+
+using namespace DirectX;
 
 namespace
 {
-	void WindowSpace2NDCSpace( D3DXVECTOR3& pos, const VIEWPORT& veiwport )
+	void WindowSpace2NDCSpace( CXMFLOAT3& pos, const VIEWPORT& veiwport )
 	{
 		//뷰포트 기준으로 변환
 		pos.x -= veiwport.m_topLeftX;
@@ -37,21 +40,18 @@ void CPickingManager::PushCamera( CCamera* camera )
 
 void CPickingManager::PushInvProjection( float fov, float aspect, float zNear, float zFar, bool isLH )
 {
-	D3DXMATRIX projection;
+	CXMFLOAT4X4 projection;
 
 	if ( isLH )
 	{
-		D3DXMatrixPerspectiveFovLH( &projection, fov, aspect, zNear, zFar );
+		projection = XMMatrixPerspectiveFovLH( fov, aspect, zNear, zFar );
 	}
 	else
 	{
-		D3DXMatrixPerspectiveFovRH( &projection, fov, aspect, zNear, zFar );
+		projection = XMMatrixPerspectiveFovRH( fov, aspect, zNear, zFar );
 	}
 
-	if ( D3DXMatrixInverse( &projection, nullptr, &projection ) )
-	{
-		m_InvProjections.push_back( projection );
-	}
+	m_InvProjections.emplace_back( XMMatrixInverse( nullptr, projection ) );
 }
 
 bool CPickingManager::CreateWorldSpaceRay( CRay& ray, float x, float y )
@@ -89,20 +89,20 @@ bool CPickingManager::CreateWorldSpaceRay( CRay& ray, float x, float y )
 		{
 			if ( CCamera* curSelectedCamera = m_cameras.at( m_curSelectedIdx ) )
 			{
-				const D3DXVECTOR3& origin = curSelectedCamera->GetOrigin( );
-				D3DXVECTOR3 pos( x, y, 1.f );
+				const CXMFLOAT3& origin = curSelectedCamera->GetOrigin( );
+				CXMFLOAT3 pos( x, y, 1.f );
 
 				//NDC공간으로 변환
 				WindowSpace2NDCSpace( pos, *curViewport );
 
 				//카메라 공간으로 변환
-				D3DXMATRIX& curInvProjection = m_InvProjections.at( m_curSelectedIdx );
-				D3DXVec3TransformCoord( &pos, &pos, &curInvProjection );
+				const CXMFLOAT4X4& curInvProjection = m_InvProjections.at( m_curSelectedIdx );
+				pos = XMVector3TransformCoord( pos, curInvProjection );
 				//월드 공간으로 변환
-				D3DXVec3TransformCoord( &pos, &pos, &curSelectedCamera->GetInvViewMatrix( ) );
+				pos = XMVector3TransformCoord( pos, curSelectedCamera->GetInvViewMatrix( ) );
 
-				D3DXVECTOR3& dir = pos - origin;
-				D3DXVec3Normalize( &dir, &dir );
+				XMVECTOR dir = pos - origin;
+				dir = XMVector3Normalize( dir );
 
 				ray.SetOrigin( origin );
 				ray.SetDir( dir );
@@ -201,8 +201,8 @@ void CPickingManager::OnMouseMove( const int x, const int y )
 	float xPos = static_cast<float>( x );
 	float yPos = static_cast<float>( y );
 
-	D3DXVECTOR2 curPos = D3DXVECTOR2( xPos, yPos );
-	D3DXVECTOR2 delta = curPos - m_prevMouseEventPos;
+	CXMFLOAT2 curPos( xPos, yPos );
+	CXMFLOAT2 delta = curPos - m_prevMouseEventPos;
 
 	if ( m_curSelectedObject && m_curSelectedIdx > -1 )
 	{
@@ -215,36 +215,36 @@ void CPickingManager::OnMouseMove( const int x, const int y )
 		}
 		else if ( CCamera* curCamera = m_cameras.at( m_curSelectedIdx ) )
 		{
-			D3DXVECTOR3 curPos( static_cast<float>( x ), static_cast<float>( y ), 1.f );
-			D3DXVECTOR3 prevPos( m_prevMouseEventPos.x, m_prevMouseEventPos.y, 1.f );
+			CXMFLOAT3 curPos( static_cast<float>( x ), static_cast<float>( y ), 1.f );
+			CXMFLOAT3 prevPos( m_prevMouseEventPos.x, m_prevMouseEventPos.y, 1.f );
 
 			//NDC공간으로 변환
 			WindowSpace2NDCSpace( curPos, curViewport );
 			WindowSpace2NDCSpace( prevPos, curViewport );
 
 			//카메라 공간으로 변환
-			D3DXMATRIX& curInvProjection = m_InvProjections.at( m_curSelectedIdx );
-			D3DXVec3TransformCoord( &curPos, &curPos, &curInvProjection );
-			D3DXVec3TransformCoord( &prevPos, &prevPos, &curInvProjection );
+			CXMFLOAT4X4& curInvProjection = m_InvProjections.at( m_curSelectedIdx );
+			curPos = XMVector3TransformCoord( curPos, curInvProjection );
+			prevPos = XMVector3TransformCoord( prevPos, curInvProjection );
 			
 			//월드 공간으로 변환
-			D3DXVec3TransformCoord( &curPos, &curPos, &curCamera->GetInvViewMatrix( ) );
-			D3DXVec3TransformCoord( &prevPos, &prevPos, &curCamera->GetInvViewMatrix( ) );
+			curPos = XMVector3TransformCoord( curPos, curCamera->GetInvViewMatrix( ) );
+			prevPos = XMVector3TransformCoord( prevPos, curCamera->GetInvViewMatrix( ) );
 
 			//삼각형 닮음을 이용한 월드 공간 이동 벡터 계산
-			D3DXVECTOR3& rayDir = prevPos - curCamera->GetOrigin( );
-			float farPlaneRayDist = D3DXVec3Length( &rayDir );
-			D3DXVec3Normalize( &rayDir, &rayDir );
+			const CXMFLOAT3& origin = curCamera->GetOrigin( );
+			XMVECTOR rayDir = prevPos - origin;
+			float farPlaneRayDist = XMVectorGetX( XMVector3Length( rayDir ) );
+			rayDir = XMVector3Normalize( rayDir );
 
-			CRay pickingRay( curCamera->GetOrigin(), rayDir );
+			CRay pickingRay( origin, rayDir );
 			float hitDist = COLLISION_UTIL::IntersectWithRay( *m_curSelectedObject, pickingRay, RIGID_BODY_TYPE::AABB );
 
 			if ( hitDist >= 0.f )
 			{
-				D3DXVECTOR3& dir = curPos - prevPos;
-				D3DXVECTOR3 curPosition = m_curSelectedObject->GetPosition( );
+				XMVECTOR curPosition = m_curSelectedObject->GetPosition( );
 
-				curPosition += ( dir * hitDist ) / farPlaneRayDist;
+				curPosition += ( ( curPos - prevPos ) * hitDist ) / farPlaneRayDist;
 				m_curSelectedObject->SetPosition( curPosition );
 			}
 			else
@@ -258,9 +258,6 @@ void CPickingManager::OnMouseMove( const int x, const int y )
 }
 
 CPickingManager::CPickingManager( const GameObjectsPtr objects ) :
-	m_curSelectedObject( nullptr ),
-	m_curSelectedIdx( -1 ),
-	m_closestHitDist( FLT_MAX ),
 	m_pGameObjects( objects )
 {
 }

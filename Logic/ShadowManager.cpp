@@ -2,13 +2,14 @@
 #include "LightManager.h"
 #include "ShadowManager.h"
 
+#include "../Shared/CDirectXMath.h"
 #include "../Shared/Util.h"
 #include "../RenderCore/ConstantBufferDefine.h"
 #include "../RenderCore/IMaterial.h"
 #include "../RenderCore/IRenderer.h"
 #include "../RenderCore/IRendererShadowManager.h"
 
-#include <d3dx9math.h>
+using namespace DirectX;
 
 namespace
 {
@@ -17,8 +18,8 @@ namespace
 
 	struct LightViewProjection
 	{
-		D3DXMATRIX m_lightView;
-		D3DXMATRIX m_lightProjection;
+		CXMFLOAT4X4 m_lightView;
+		CXMFLOAT4X4 m_lightProjection;
 	};
 }
 
@@ -27,7 +28,7 @@ void CShadowManager::Init( IRenderer& renderer )
 	m_isEnabled = false;
 
 	//그림자용 상수 버퍼 생성
-	if ( renderer.CreateConstantBuffer( SHADOWMAP_CONST_BUFFER_NAME, sizeof( D3DXMATRIX ), 2, nullptr ) == nullptr )
+	if ( renderer.CreateConstantBuffer( SHADOWMAP_CONST_BUFFER_NAME, sizeof( CXMFLOAT4X4 ), 2, nullptr ) == nullptr )
 	{
 		return;
 	}
@@ -57,15 +58,13 @@ void CShadowManager::Init( IRenderer& renderer )
 void CShadowManager::SceneBegin( CLightManager& lightMgr, IRenderer& renderer )
 {
 	//그림자 렌더링에 사용할 조명으로 View 행렬을 만들어 세팅
-	D3DXMATRIX& lightViewMatrix = lightMgr.GetPrimaryLightViewMatrix();
-	D3DXMATRIX& lightProjMatrix = lightMgr.GerPrimaryLightProjectionMatrix();
-
 	LightViewProjection* buffer = static_cast<LightViewProjection*>( renderer.MapConstantBuffer( SHADOWMAP_CONST_BUFFER_NAME ) );
 
 	if ( buffer )
 	{
-		D3DXMatrixTranspose( &buffer->m_lightView, &lightViewMatrix );
-		D3DXMatrixTranspose( &buffer->m_lightProjection, &lightProjMatrix );
+		buffer->m_lightView = XMMatrixTranspose( lightMgr.GetPrimaryLightViewMatrix( ) );
+		buffer->m_lightProjection = XMMatrixTranspose( lightMgr.GerPrimaryLightProjectionMatrix( ) );
+
 		renderer.UnMapConstantBuffer( SHADOWMAP_CONST_BUFFER_NAME );
 		renderer.SetConstantBuffer( SHADOWMAP_CONST_BUFFER_NAME, static_cast<int>(VS_CONSTANT_BUFFER::LIGHT_VIEW_PROJECTION), SHADER_TYPE::VS );
 	}

@@ -1,17 +1,17 @@
 #include "stdafx.h"
 #include "Surface.h"
 
-void CSurface::SetAmbient( const D3DXCOLOR& ambient )
+void CSurface::SetAmbient( const CXMFLOAT4& ambient )
 {
 	m_trait.m_ambient = ambient;
 }
 
-void CSurface::SetDiffuse( const D3DXCOLOR& diffuse )
+void CSurface::SetDiffuse( const CXMFLOAT4& diffuse )
 {
 	m_trait.m_diffuse = diffuse;
 }
 
-void CSurface::SetSpecular( const D3DXCOLOR& specular )
+void CSurface::SetSpecular( const CXMFLOAT4& specular )
 {
 	m_trait.m_specular = specular;
 }

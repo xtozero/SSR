@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <cstdarg>
 #include <iostream>
+#include <DirectXMath.h>
 
 #ifdef LOGIC_EXPORTS
 #define LOGIC_DLL __declspec(dllexport)

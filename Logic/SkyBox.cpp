@@ -34,14 +34,14 @@ bool CSkyBox::LoadModelMesh( IRenderer& renderer )
 		return false;
 	}
 
-	meshBuilder.Append( MeshVertex( D3DXVECTOR3( -SKYBOX_LENGTH, -SKYBOX_LENGTH, -SKYBOX_LENGTH ) ) );
-	meshBuilder.Append( MeshVertex( D3DXVECTOR3( -SKYBOX_LENGTH, -SKYBOX_LENGTH, SKYBOX_LENGTH ) ) );
-	meshBuilder.Append( MeshVertex( D3DXVECTOR3( -SKYBOX_LENGTH, SKYBOX_LENGTH, -SKYBOX_LENGTH ) ) );
-	meshBuilder.Append( MeshVertex( D3DXVECTOR3( -SKYBOX_LENGTH, SKYBOX_LENGTH, SKYBOX_LENGTH ) ) );
-	meshBuilder.Append( MeshVertex( D3DXVECTOR3( SKYBOX_LENGTH, -SKYBOX_LENGTH, -SKYBOX_LENGTH ) ) );
-	meshBuilder.Append( MeshVertex( D3DXVECTOR3( SKYBOX_LENGTH, -SKYBOX_LENGTH, SKYBOX_LENGTH ) ) );
-	meshBuilder.Append( MeshVertex( D3DXVECTOR3( SKYBOX_LENGTH, SKYBOX_LENGTH, -SKYBOX_LENGTH ) ) );
-	meshBuilder.Append( MeshVertex( D3DXVECTOR3( SKYBOX_LENGTH, SKYBOX_LENGTH, SKYBOX_LENGTH ) ) );
+	meshBuilder.Append( MeshVertex( CXMFLOAT3( -SKYBOX_LENGTH, -SKYBOX_LENGTH, -SKYBOX_LENGTH ) ) );
+	meshBuilder.Append( MeshVertex( CXMFLOAT3( -SKYBOX_LENGTH, -SKYBOX_LENGTH, SKYBOX_LENGTH ) ) );
+	meshBuilder.Append( MeshVertex( CXMFLOAT3( -SKYBOX_LENGTH, SKYBOX_LENGTH, -SKYBOX_LENGTH ) ) );
+	meshBuilder.Append( MeshVertex( CXMFLOAT3( -SKYBOX_LENGTH, SKYBOX_LENGTH, SKYBOX_LENGTH ) ) );
+	meshBuilder.Append( MeshVertex( CXMFLOAT3( SKYBOX_LENGTH, -SKYBOX_LENGTH, -SKYBOX_LENGTH ) ) );
+	meshBuilder.Append( MeshVertex( CXMFLOAT3( SKYBOX_LENGTH, -SKYBOX_LENGTH, SKYBOX_LENGTH ) ) );
+	meshBuilder.Append( MeshVertex( CXMFLOAT3( SKYBOX_LENGTH, SKYBOX_LENGTH, -SKYBOX_LENGTH ) ) );
+	meshBuilder.Append( MeshVertex( CXMFLOAT3( SKYBOX_LENGTH, SKYBOX_LENGTH, SKYBOX_LENGTH ) ) );
 
 	//반 시계 방향으로 인덱스를 구성.
 	meshBuilder.AppendIndex( 4 ); meshBuilder.AppendIndex( 6 ); meshBuilder.AppendIndex( 0 );

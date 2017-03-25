@@ -1,48 +1,48 @@
 #pragma once
 
-#include <d3dX9math.h>
+#include "../shared/CDirectXMath.h"
 
 struct MeshVertex
 {
-	D3DXVECTOR3 m_position;
-	D3DXVECTOR3 m_normal;
-	D3DXVECTOR3 m_color;
-	D3DXVECTOR2 m_texcoord;
+	CXMFLOAT3 m_position;
+	CXMFLOAT3 m_normal;
+	CXMFLOAT3 m_color;
+	CXMFLOAT2 m_texcoord;
 
 	MeshVertex( ) :
-		m_position( D3DXVECTOR3( 0.f, 0.f, 0.f ) ),
-		m_normal( D3DXVECTOR3( 0.f, 0.f, 0.f ) ),
-		m_color( D3DXVECTOR3( 0.f, 0.f, 0.f ) ),
-		m_texcoord( D3DXVECTOR2( 0.f, 0.f ) ) {}
+		m_position( CXMFLOAT3( 0.f, 0.f, 0.f ) ),
+		m_normal( CXMFLOAT3( 0.f, 0.f, 0.f ) ),
+		m_color( CXMFLOAT3( 0.f, 0.f, 0.f ) ),
+		m_texcoord( CXMFLOAT2( 0.f, 0.f ) ) {}
 	
-	explicit MeshVertex( const D3DXVECTOR3& position ) :
+	explicit MeshVertex( const CXMFLOAT3& position ) :
 		m_position( position ),
-		m_normal( D3DXVECTOR3( 0.f, 0.f, 0.f ) ),
-		m_color( D3DXVECTOR3( 0.f, 0.f, 0.f ) ),
-		m_texcoord( D3DXVECTOR2( 0.f, 0.f ) ) {}
+		m_normal( CXMFLOAT3( 0.f, 0.f, 0.f ) ),
+		m_color( CXMFLOAT3( 0.f, 0.f, 0.f ) ),
+		m_texcoord( CXMFLOAT2( 0.f, 0.f ) ) {}
 
-	MeshVertex( const D3DXVECTOR3& position, const D3DXVECTOR3& normal ) :
+	MeshVertex( const CXMFLOAT3& position, const CXMFLOAT3& normal ) :
 		m_position( position ),
 		m_normal( normal ),
-		m_color( D3DXVECTOR3( 0.f, 0.f, 0.f ) ),
-		m_texcoord( D3DXVECTOR2( 0.f, 0.f ) ) {}
+		m_color( CXMFLOAT3( 0.f, 0.f, 0.f ) ),
+		m_texcoord( CXMFLOAT2( 0.f, 0.f ) ) {}
 
-	MeshVertex( const D3DXVECTOR3& position, const D3DXVECTOR3& normal, const D3DXVECTOR3& color ) :
+	MeshVertex( const CXMFLOAT3& position, const CXMFLOAT3& normal, const CXMFLOAT3& color ) :
 		m_position( position ),
 		m_normal( normal ),
 		m_color( color ),
-		m_texcoord( D3DXVECTOR2( 0.f, 0.f ) ) {}
+		m_texcoord( CXMFLOAT2( 0.f, 0.f ) ) {}
 
-	MeshVertex( const D3DXVECTOR3& position, const D3DXVECTOR3& normal, const D3DXVECTOR3& color, const D3DXVECTOR2& texcoord ) :
+	MeshVertex( const CXMFLOAT3& position, const CXMFLOAT3& normal, const CXMFLOAT3& color, const CXMFLOAT2& texcoord ) :
 		m_position( position ),
 		m_normal( normal ),
 		m_color( color ),
 		m_texcoord( texcoord ) {}
 
-	MeshVertex( const D3DXVECTOR3& position, const D3DXVECTOR2& texcoord ) :
+	MeshVertex( const CXMFLOAT3& position, const CXMFLOAT2& texcoord ) :
 		m_position( position ),
-		m_normal( D3DXVECTOR3( 0.f, 0.f, 0.f ) ),
-		m_color( D3DXVECTOR3( 0.f, 0.f, 0.f ) ),
+		m_normal( CXMFLOAT3( 0.f, 0.f, 0.f ) ),
+		m_color( CXMFLOAT3( 0.f, 0.f, 0.f ) ),
 		m_texcoord( texcoord ) {}
 };
 

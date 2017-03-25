@@ -99,6 +99,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\shared\CDirectXMath.h" />
     <ClInclude Include="..\Shared\Util.h" />
     <ClInclude Include="Aaboundingbox.h" />
     <ClInclude Include="BoundingSphere.h" />

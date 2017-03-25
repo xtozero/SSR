@@ -9,6 +9,8 @@
 #include "../RenderCore/ConstantBufferDefine.h"
 #include "../Shared/Util.h"
 
+using namespace DirectX;
+
 namespace
 {
 	constexpr TCHAR* CONST_BUFFER_NAME = _T( "Lights" );
@@ -18,9 +20,9 @@ namespace
 	{
 		KEYVALUE_VALUE_ASSERT( keyValue->GetString( ), 4 );
 		Stringstream stream( keyValue->GetString( ) );
-		D3DXCOLOR ambientColor;
+		CXMFLOAT4 ambientColor( 0.f, 0.f, 0.f, 0.f );
 
-		stream >> ambientColor.r >> ambientColor.g >> ambientColor.b >> ambientColor.a;
+		stream >> ambientColor.x >> ambientColor.y >> ambientColor.z >> ambientColor.w;
 		owner->SetGlobalAmbient( ambientColor );
 	}
 
@@ -72,12 +74,12 @@ namespace
 			else if ( key->GetKey( ) == _T( "m_diffuse" ) )
 			{
 				Stringstream stream( key->GetString( ) );
-				stream >> trait.m_diffuse.r >> trait.m_diffuse.g >> trait.m_diffuse.b >> trait.m_diffuse.a;
+				stream >> trait.m_diffuse.x >> trait.m_diffuse.y >> trait.m_diffuse.z >> trait.m_diffuse.w;
 			}
 			else if ( key->GetKey( ) == _T( "m_specular" ) )
 			{
 				Stringstream stream( key->GetString( ) );
-				stream >> trait.m_specular.r >> trait.m_specular.g >> trait.m_specular.b >> trait.m_specular.a;
+				stream >> trait.m_specular.x >> trait.m_specular.y >> trait.m_specular.z >> trait.m_specular.w;
 			}
 		}
 
@@ -126,7 +128,7 @@ void CLightManager::UpdateToRenderer( IRenderer& renderer, const CCamera& camera
 	}
 }
 
-void CLightManager::SetCameraPosition( const D3DXVECTOR3& cameraPos )
+void CLightManager::SetCameraPosition( const CXMFLOAT3& cameraPos )
 {
 	if ( m_shaderLightProperty.m_cameraPos != cameraPos )
 	{
@@ -135,7 +137,7 @@ void CLightManager::SetCameraPosition( const D3DXVECTOR3& cameraPos )
 	}
 }
 
-void CLightManager::SetGlobalAmbient( const D3DXCOLOR& globalAmbient )
+void CLightManager::SetGlobalAmbient( const CXMFLOAT4& globalAmbient )
 {
 	if ( m_shaderLightProperty.m_globalAmbient != globalAmbient )
 	{
@@ -151,7 +153,7 @@ void CLightManager::PushLightTrait( const LightTrait & trait )
 	++m_shaderLightProperty.m_curLights;
 }
 
-D3DXMATRIX CLightManager::GetPrimaryLightViewMatrix( )
+CXMFLOAT4X4 CLightManager::GetPrimaryLightViewMatrix( )
 {
 	if ( m_lights.size() > m_primaryLight )
 	{
@@ -161,18 +163,12 @@ D3DXMATRIX CLightManager::GetPrimaryLightViewMatrix( )
 		}
 	}
 	
-	D3DXMATRIX lightViewMatrix;
-	D3DXMatrixIdentity( &lightViewMatrix );
-
-	return lightViewMatrix;
+	return XMMatrixIdentity( );
 }
 
-D3DXMATRIX CLightManager::GerPrimaryLightProjectionMatrix( )
+CXMFLOAT4X4 CLightManager::GerPrimaryLightProjectionMatrix( )
 {
-	D3DXMATRIX lightProjMatrix;
-	D3DXMatrixPerspectiveFovLH( &lightProjMatrix, D3DX_PI / 4.0f, 1.f, 1.f, 1500.f );
-
-	return lightProjMatrix;
+	return XMMatrixPerspectiveFovLH( XM_PI / 4.0f, 1.f, 1.f, 1500.f );
 }
 
 CLightManager::CLightManager( ) :

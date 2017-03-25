@@ -61,6 +61,8 @@
 #include <string>
 #include <vector>
 
+using namespace DirectX;
+
 namespace
 {
 	constexpr int WORLD_MATRIX_ELEMENT_SIZE = 2;
@@ -100,7 +102,7 @@ public:
 
 	virtual IRenderView* GetCurrentRenderView( ) override;
 
-	virtual void UpdateWorldMatrix( const D3DXMATRIX& worldMatrix, const D3DXMATRIX& invWorldMatrix ) override;
+	virtual void UpdateWorldMatrix( const CXMFLOAT4X4& worldMatrix, const CXMFLOAT4X4& invWorldMatrix ) override;
 	virtual std::shared_ptr<IRenderState> CreateRenderState( const String& stateName ) override;
 
 	virtual IShaderResource* GetShaderResourceFromFile( const String& fileName ) override;
@@ -203,7 +205,7 @@ bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 
 	m_pShadowManager = CreateShadowManager();
 
-	m_pWorldMatrixBuffer = CreateConstantBuffer( _T("WorldMatrix"), sizeof( D3DXMATRIX ), WORLD_MATRIX_ELEMENT_SIZE, nullptr );
+	m_pWorldMatrixBuffer = CreateConstantBuffer( _T("WorldMatrix"), sizeof( CXMFLOAT4X4 ), WORLD_MATRIX_ELEMENT_SIZE, nullptr );
 	MaterialSystem::GetInstance( )->RegisterConstantBuffer( MAT_CONSTANT_BUFFER::SURFACE, CreateConstantBuffer( _T( "Surface" ), sizeof( SurfaceTrait ), 1, nullptr ) );
 
 	if ( m_pWorldMatrixBuffer == nullptr )
@@ -738,7 +740,7 @@ IRenderView* CDirect3D11::GetCurrentRenderView( )
 	return m_pView.get( );
 }
 
-void CDirect3D11::UpdateWorldMatrix( const D3DXMATRIX& worldMatrix, const D3DXMATRIX& invWorldMatrix )
+void CDirect3D11::UpdateWorldMatrix( const CXMFLOAT4X4& worldMatrix, const CXMFLOAT4X4& invWorldMatrix )
 {
 	if ( m_pWorldMatrixBuffer == nullptr )
 	{
@@ -746,16 +748,12 @@ void CDirect3D11::UpdateWorldMatrix( const D3DXMATRIX& worldMatrix, const D3DXMA
 		return;
 	}
 
-	D3DXMATRIX* pWorld = static_cast<D3DXMATRIX*>( m_pWorldMatrixBuffer->LockBuffer( m_pd3d11DeviceContext.Get( ) ) );
+	CXMFLOAT4X4* pWorld = static_cast<CXMFLOAT4X4*>( m_pWorldMatrixBuffer->LockBuffer( m_pd3d11DeviceContext.Get( ) ) );
 
 	if ( pWorld )
 	{
-		std::array<D3DXMATRIX, 2> transposWorld;
-
-		D3DXMatrixTranspose( &transposWorld[0], &worldMatrix );
-		D3DXMatrixTranspose( &transposWorld[1], &invWorldMatrix );
-
-		CopyMemory( pWorld, transposWorld.data(), sizeof( D3DXMATRIX ) * WORLD_MATRIX_ELEMENT_SIZE );
+		pWorld[0] = XMMatrixTranspose( worldMatrix );
+		pWorld[1] = XMMatrixTranspose( invWorldMatrix );
 	}
 
 	m_pWorldMatrixBuffer->UnLockBuffer( m_pd3d11DeviceContext.Get( ) );

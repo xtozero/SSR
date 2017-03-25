@@ -123,6 +123,9 @@
     <ClInclude Include="SSRManager.h">
       <Filter>Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="..\shared\CDirectXMath.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

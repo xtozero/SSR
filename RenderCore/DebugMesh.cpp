@@ -5,25 +5,25 @@
 
 #include "Material.h"
 
-#include <d3dX9math.h>
+#include "../shared/CDirectXMath.h"
 
 bool TriangleMesh::Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topology )
 {
 	m_primitiveTopology = topology;
 
-	m_pModelData = new D3DXVECTOR3[3];
+	m_pModelData = new CXMFLOAT3[3];
 
-	D3DXVECTOR3* vertex = static_cast<D3DXVECTOR3*>( m_pModelData );
+	CXMFLOAT3* vertex = static_cast<CXMFLOAT3*>( m_pModelData );
 
 // 	vertex[0] = D3DXVECTOR3( 0.0f, 0.5f, 0.0f );
 // 	vertex[1] = D3DXVECTOR3( 0.5f, -0.5f, 0.0f );
 // 	vertex[2] = D3DXVECTOR3( -0.5f, -0.5f, 0.0f );
 
-	vertex[0] = D3DXVECTOR3( 0.0f, 200.f, 500.0f );
-	vertex[1] = D3DXVECTOR3( 200.f, -200.f, 500.0f );
-	vertex[2] = D3DXVECTOR3( -200.f, -200.f, 500.0f );
+	vertex[0] = CXMFLOAT3( 0.0f, 200.f, 500.0f );
+	vertex[1] = CXMFLOAT3( 200.f, -200.f, 500.0f );
+	vertex[2] = CXMFLOAT3( -200.f, -200.f, 500.0f );
 
-	UINT stride = sizeof( D3DXVECTOR3 );
+	UINT stride = sizeof( CXMFLOAT3 );
 	m_nVertices = 3;
 
 	m_pVertexBuffer = renderer.CreateVertexBuffer( stride, m_nVertices, m_pModelData );

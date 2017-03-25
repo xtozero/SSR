@@ -4,6 +4,8 @@
 #include "../RenderCore/CommonMeshDefine.h"
 #include "../RenderCore/IMesh.h"
 
+using namespace DirectX;
+
 void BoundingSphere::CreateRigideBody( std::shared_ptr<IMesh> pMesh )
 {
 	int verticesCount = pMesh->GetVerticesCount( );
@@ -12,7 +14,7 @@ void BoundingSphere::CreateRigideBody( std::shared_ptr<IMesh> pMesh )
 	m_radiusSqr = -FLT_MAX;
 	for ( int i = 0; i < verticesCount; ++i )
 	{
-		float radiusSqr = D3DXVec3LengthSq( &pVertices[i].m_position );
+		float radiusSqr = XMVectorGetX( XMVector3LengthSq( pVertices[i].m_position ) );
 
 		if ( radiusSqr > m_radiusSqr )
 		{
@@ -21,11 +23,11 @@ void BoundingSphere::CreateRigideBody( std::shared_ptr<IMesh> pMesh )
 	}
 }
 
-void BoundingSphere::Update( const D3DXMATRIX& matrix, std::shared_ptr<IRigidBody> original )
+void BoundingSphere::Update( const CXMFLOAT4X4& matrix, std::shared_ptr<IRigidBody> original )
 {
 	BoundingSphere* orig = dynamic_cast<BoundingSphere*>( original.get( ) );
 	
-	m_origin = D3DXVECTOR3( matrix._41, matrix._42, matrix._43 );
+	m_origin = CXMFLOAT3( matrix._41, matrix._42, matrix._43 );
 
 	float scale = max( matrix._11, max( matrix._22, max( matrix._33, 1 ) ) );
 	float newRadius = sqrt( orig->m_radiusSqr ) * scale;
@@ -34,10 +36,10 @@ void BoundingSphere::Update( const D3DXMATRIX& matrix, std::shared_ptr<IRigidBod
 
 float BoundingSphere::Intersect( const CRay* ray ) const
 {
-	D3DXVECTOR3& toShpere = m_origin - ray->GetOrigin( );
+	XMVECTOR toShpere = m_origin - ray->GetOrigin( );
 
-	float toShpereSqr = D3DXVec3LengthSq( &toShpere );
-	float tangentSqr = D3DXVec3Dot( &toShpere, &ray->GetDir( ) );
+	float toShpereSqr = XMVectorGetX( XMVector3LengthSq( toShpere ) );
+	float tangentSqr = XMVectorGetX( XMVector3Dot( toShpere, ray->GetDir( ) ) );
 	tangentSqr *= tangentSqr;
 
 	float normalVectorSqr = toShpereSqr - tangentSqr;
@@ -48,10 +50,4 @@ float BoundingSphere::Intersect( const CRay* ray ) const
 	}
 
 	return max( 0.f, std::sqrt( tangentSqr ) - std::sqrt( m_radiusSqr - normalVectorSqr ) );
-}
-
-BoundingSphere::BoundingSphere( ) :
-m_origin( 0.f, 0.f, 0.f ),
-m_radiusSqr( 0.f )
-{
 }

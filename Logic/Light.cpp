@@ -3,19 +3,21 @@
 
 #include <cassert>
 
+using namespace DirectX;
+
 void CLight::SetPosition( const float x, const float y, const float z )
 {
-	SetPosition( D3DXVECTOR3( x, y, z ) );
+	SetPosition( CXMFLOAT3( x, y, z ) );
 }
 
-void CLight::SetPosition( const D3DXVECTOR3& pos )
+void CLight::SetPosition( const CXMFLOAT3& pos )
 {
 	CGameObject::SetPosition( pos );
 	m_needRebuildTransform = false;
 
 	if ( m_property )
 	{
-		m_property->m_position = D3DXVECTOR4( pos, 0.f );
+		m_property->m_position = CXMFLOAT4( pos.x, pos.y, pos.z, 0.f );
 	}
 }
 
@@ -54,14 +56,14 @@ const bool CLight::IsOn( ) const
 	return false;
 }
 
-D3DXVECTOR3 CLight::GetDirection( ) const
+CXMFLOAT3 CLight::GetDirection( ) const
 {
 	if ( m_property )
 	{
 		return m_property->m_direction;
 	}
 
-	D3DXVECTOR3 default = { 0.f, 0.f, 0.f };
+	CXMFLOAT3 default = { 0.f, 0.f, 0.f };
 	return default;
 }
 
@@ -98,7 +100,7 @@ void CLight::SetConeProperty( const float theta, const float phi )
 	}
 }
 
-void CLight::SetDiection( const D3DXVECTOR3& direction )
+void CLight::SetDiection( const CXMFLOAT3& direction )
 {
 	if ( m_property )
 	{
@@ -106,7 +108,7 @@ void CLight::SetDiection( const D3DXVECTOR3& direction )
 	}
 }
 
-void CLight::SetAttenuation( const D3DXVECTOR3& attenuation )
+void CLight::SetAttenuation( const CXMFLOAT3& attenuation )
 {
 	if ( m_property )
 	{
@@ -114,7 +116,7 @@ void CLight::SetAttenuation( const D3DXVECTOR3& attenuation )
 	}
 }
 
-void CLight::SetDiffuseColor( const D3DXCOLOR& diffuseColor )
+void CLight::SetDiffuseColor( const CXMFLOAT4& diffuseColor )
 {
 	if ( m_property )
 	{
@@ -122,7 +124,7 @@ void CLight::SetDiffuseColor( const D3DXCOLOR& diffuseColor )
 	}
 }
 
-void CLight::SetSpecularColor( const D3DXCOLOR& specularColor )
+void CLight::SetSpecularColor( const CXMFLOAT4& specularColor )
 {
 	if ( m_property )
 	{
@@ -130,16 +132,17 @@ void CLight::SetSpecularColor( const D3DXCOLOR& specularColor )
 	}
 }
 
-D3DXMATRIX CLight::GetViewMatrix( )
+CXMFLOAT4X4 CLight::GetViewMatrix( )
 {
 	if ( m_isNeedReclac )
 	{
-		D3DXVECTOR3 eyePos( m_property->m_position.x, m_property->m_position.y, m_property->m_position.z );
+		CXMFLOAT3 eyePos( m_property->m_position.x, m_property->m_position.y, m_property->m_position.z );
 		assert( m_property->m_direction.x != 0.f || m_property->m_direction.y != 0.f || m_property->m_direction.z != 0.f );
-		D3DXVECTOR3 lookAt( eyePos + m_property->m_direction );
-		D3DXVECTOR3 up( 0.f, 1.0f, 0.f );
+		CXMFLOAT3 dir( m_property->m_direction.x, m_property->m_direction.y, m_property->m_direction.z );
+		XMVECTOR lookAt = eyePos + dir;
+		CXMFLOAT3 up( 0.f, 1.0f, 0.f );
 
-		D3DXMatrixLookAtLH( &m_viewMatrix, &eyePos, &lookAt, &up );
+		m_viewMatrix = XMMatrixLookAtLH( eyePos, lookAt, up );
 		m_isNeedReclac = false;
 	}
 

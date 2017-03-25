@@ -23,7 +23,7 @@ struct ID3D11DeviceContext;
 struct ID3D11RasterizerState;
 struct ID3D11SamplerState;
 struct ID3D11DepthStencilState;
-struct D3DXMATRIX;
+struct CXMFLOAT4X4;
 enum SHADER_TYPE;
 
 namespace Microsoft
@@ -68,7 +68,7 @@ public:
 
 	virtual IRenderView* GetCurrentRenderView( ) = 0;
 
-	virtual void UpdateWorldMatrix( const D3DXMATRIX& worldMatrix, const D3DXMATRIX& invWorldMatrix ) = 0;
+	virtual void UpdateWorldMatrix( const CXMFLOAT4X4& worldMatrix, const CXMFLOAT4X4& invWorldMatrix ) = 0;
 
 	virtual std::shared_ptr<IRenderState> CreateRenderState( const String& stateName ) = 0;
 	virtual IShaderResource* GetShaderResourceFromFile( const String& fileName ) = 0;

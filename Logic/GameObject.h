@@ -1,9 +1,11 @@
 #pragma once
 
-#include <memory>
-
 #include "GameObjectProperty.h"
 #include "RigidBodyManager.h"
+
+#include "../shared/CDirectXMath.h"
+
+#include <memory>
 
 class IRenderer;
 class IRigidBody;
@@ -15,16 +17,16 @@ class CGameObject
 {
 public:
 	virtual void SetPosition( const float x, const float y, const float z );
-	virtual void SetPosition( const D3DXVECTOR3& pos );
+	virtual void SetPosition( const CXMFLOAT3& pos );
 	virtual void SetScale( const float xScale, const float yScale, const float zScale );
 	virtual void SetRotate( const float pitch, const float yaw, const float roll );
 
-	const D3DXVECTOR3& GetPosition( );
-	const D3DXVECTOR3& GetScale( );
-	const D3DXVECTOR3& GetRotate( );
+	const CXMFLOAT3& GetPosition( );
+	const CXMFLOAT3& GetScale( );
+	const CXMFLOAT3& GetRotate( );
 
-	const D3DXMATRIX& GetTransformMatrix( );
-	const D3DXMATRIX& GetInvTransformMatrix( );
+	const CXMFLOAT4X4& GetTransformMatrix( );
+	const CXMFLOAT4X4& GetInvTransformMatrix( );
 
 	void UpdateWorldMatrix( IRenderer& renderer );
 	virtual void Render( IRenderer& renderer );
@@ -75,12 +77,12 @@ private:
 	void UpdateRigidBodyAll( );
 
 private:
-	D3DXVECTOR3 m_vecPos;
-	D3DXVECTOR3 m_vecScale;
-	D3DXVECTOR3 m_vecRotate;
+	CXMFLOAT3 m_vecPos;
+	CXMFLOAT3 m_vecScale;
+	CXMFLOAT3 m_vecRotate;
 
-	D3DXMATRIX m_matTransform;
-	D3DXMATRIX m_invMatTransform;
+	CXMFLOAT4X4 m_matTransform;
+	CXMFLOAT4X4 m_invMatTransform;
 
 	std::shared_ptr<IMesh> m_pModel;
 	IMaterial* m_pMaterial;

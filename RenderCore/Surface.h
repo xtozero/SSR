@@ -4,9 +4,9 @@
 class CSurface : public ISurface
 {
 public:
-	virtual void SetAmbient( const D3DXCOLOR& ambient ) override;
-	virtual void SetDiffuse( const D3DXCOLOR& diffuse ) override;
-	virtual void SetSpecular( const D3DXCOLOR& specular ) override;
+	virtual void SetAmbient( const CXMFLOAT4& ambient ) override;
+	virtual void SetDiffuse( const CXMFLOAT4& diffuse ) override;
+	virtual void SetSpecular( const CXMFLOAT4& specular ) override;
 	virtual void SetRoughness( const float roughness ) override;
 	virtual void SetSpeculaPower( const float speculaPower ) override;
 	virtual void SetTextureName( const String& textureName ) override;

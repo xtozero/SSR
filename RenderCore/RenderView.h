@@ -1,9 +1,10 @@
 #pragma once
 
 #include "D3D11ConstantBuffer.h"
-#include <d3d11.h>
-#include <d3dX9math.h>
 #include "IRenderView.h"
+#include "../shared/CDirectXMath.h"
+
+#include <d3d11.h>
 #include <vector>
 
 class RenderView : public IRenderView
@@ -24,15 +25,15 @@ public:
 
 	void UpdataView( ID3D11DeviceContext* pDeviceContext );
 
-	virtual void SetViewMatrix( const D3DXMATRIX& viewMat ) override { m_viewMatrix = viewMat; }
+	virtual void SetViewMatrix( const CXMFLOAT4X4& viewMat ) override { m_viewMatrix = viewMat; }
 
-	virtual const D3DXMATRIX& GetProjectionMatrix( ) override { return m_projectionMatrix; }
+	virtual const CXMFLOAT4X4& GetProjectionMatrix( ) override { return m_projectionMatrix; }
 private:
 	std::vector<D3D11_VIEWPORT> m_viewportList;
 	std::vector<RECT> m_scissorRectList;
 
-	D3DXMATRIX m_viewMatrix;
-	D3DXMATRIX m_projectionMatrix;
+	CXMFLOAT4X4 m_viewMatrix;
+	CXMFLOAT4X4 m_projectionMatrix;
 
 	D3D11ConstantBuffer m_viewConstantBuffer;
 	D3D11ConstantBuffer m_gBufferConstantBuffer;

@@ -17,7 +17,7 @@ void BaseMesh::SetIndexData( void* pOrignal, UINT indexCount )
 	m_nIndices = indexCount;
 }
 
-void BaseMesh::SetColor( const D3DXVECTOR3& color )
+void BaseMesh::SetColor( const CXMFLOAT3& color )
 {
 	m_color = color;
 }

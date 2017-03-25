@@ -27,7 +27,7 @@ void CTimer::Tick ( )
 	}
 	else
 	{
-		m_currentTime = GetTickCount ( );
+		m_currentTime = GetTickCount64( );
 	}
 
 	m_elapsedTime = static_cast<float>( m_currentTime - m_lastTime ) * m_timeScale;

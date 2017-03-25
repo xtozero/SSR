@@ -8,9 +8,6 @@
 #include "PlyMesh.h"
 #include "ISurface.h"
 
-#include <d3dX9math.h>
-
-
 void CPlyMesh::Draw( ID3D11DeviceContext* pDeviceContext )
 {
 	if ( !pDeviceContext )
