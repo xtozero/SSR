@@ -89,7 +89,8 @@ bool CPickingManager::CreateWorldSpaceRay( CRay& ray, float x, float y )
 		{
 			if ( CCamera* curSelectedCamera = m_cameras.at( m_curSelectedIdx ) )
 			{
-				const D3DXVECTOR3& origin = curSelectedCamera->GetOrigin( );
+				const XMFLOAT3& temp = curSelectedCamera->GetOrigin( );
+				D3DXVECTOR3 origin( temp.x, temp.y, temp.z );
 				D3DXVECTOR3 pos( x, y, 1.f );
 
 				//NDC공간으로 변환
@@ -232,19 +233,24 @@ void CPickingManager::OnMouseMove( const int x, const int y )
 			D3DXVec3TransformCoord( &prevPos, &prevPos, &curCamera->GetInvViewMatrix( ) );
 
 			//삼각형 닮음을 이용한 월드 공간 이동 벡터 계산
-			D3DXVECTOR3& rayDir = prevPos - curCamera->GetOrigin( );
+			const XMFLOAT3& temp = curCamera->GetOrigin( );
+			D3DXVECTOR3 origin( temp.x, temp.y, temp.z );
+			D3DXVECTOR3& rayDir = prevPos - origin;
 			float farPlaneRayDist = D3DXVec3Length( &rayDir );
 			D3DXVec3Normalize( &rayDir, &rayDir );
 
-			CRay pickingRay( curCamera->GetOrigin(), rayDir );
+			CRay pickingRay( origin, rayDir );
 			float hitDist = COLLISION_UTIL::IntersectWithRay( *m_curSelectedObject, pickingRay, RIGID_BODY_TYPE::AABB );
 
 			if ( hitDist >= 0.f )
 			{
 				D3DXVECTOR3& dir = curPos - prevPos;
-				D3DXVECTOR3 curPosition = m_curSelectedObject->GetPosition( );
+				XMFLOAT3 curPosition = m_curSelectedObject->GetPosition( );
 
-				curPosition += ( dir * hitDist ) / farPlaneRayDist;
+				D3DXVECTOR3 temp = ( dir * hitDist ) / farPlaneRayDist;
+				curPosition.x += temp.x;
+				curPosition.y += temp.y;
+				curPosition.z += temp.z;
 				m_curSelectedObject->SetPosition( curPosition );
 			}
 			else

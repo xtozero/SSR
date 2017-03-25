@@ -17,12 +17,12 @@ namespace
 
 DECLARE_GAME_OBJECT( displaySRVHelper, CDisplayShaderResourceHelper );
 
-void CDisplayShaderResourceHelper::SetPosition( const D3DXVECTOR3& pos )
+void CDisplayShaderResourceHelper::SetPosition( const XMFLOAT3& pos )
 {
 	float wndWidth = static_cast<float>( CUtilWindowInfo::GetInstance( ).GetWidth( ) );
 	float wndHeight = static_cast<float>( CUtilWindowInfo::GetInstance( ).GetHeight( ) );
 
-	D3DXVECTOR3 projPos( ( ( pos.x / wndWidth) - 0.5f ) * 2.f, ( ( pos.y / wndHeight ) - 0.5f ) * -2.f, 0.f );
+	XMFLOAT3 projPos( ( ( pos.x / wndWidth) - 0.5f ) * 2.f, ( ( pos.y / wndHeight ) - 0.5f ) * -2.f, 0.f );
 	CGameObject::SetPosition( projPos );
 }
 

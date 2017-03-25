@@ -1,9 +1,10 @@
 #pragma once
 
-#include <memory>
-
+#include "common.h"
 #include "GameObjectProperty.h"
 #include "RigidBodyManager.h"
+
+#include <memory>
 
 class IRenderer;
 class IRigidBody;
@@ -15,13 +16,13 @@ class CGameObject
 {
 public:
 	virtual void SetPosition( const float x, const float y, const float z );
-	virtual void SetPosition( const D3DXVECTOR3& pos );
+	virtual void SetPosition( const XMFLOAT3& pos );
 	virtual void SetScale( const float xScale, const float yScale, const float zScale );
 	virtual void SetRotate( const float pitch, const float yaw, const float roll );
 
-	const D3DXVECTOR3& GetPosition( );
-	const D3DXVECTOR3& GetScale( );
-	const D3DXVECTOR3& GetRotate( );
+	const XMFLOAT3& GetPosition( );
+	const XMFLOAT3& GetScale( );
+	const XMFLOAT3& GetRotate( );
 
 	const D3DXMATRIX& GetTransformMatrix( );
 	const D3DXMATRIX& GetInvTransformMatrix( );
@@ -75,9 +76,9 @@ private:
 	void UpdateRigidBodyAll( );
 
 private:
-	D3DXVECTOR3 m_vecPos;
-	D3DXVECTOR3 m_vecScale;
-	D3DXVECTOR3 m_vecRotate;
+	XMFLOAT3 m_vecPos;
+	XMFLOAT3 m_vecScale;
+	XMFLOAT3 m_vecRotate;
 
 	D3DXMATRIX m_matTransform;
 	D3DXMATRIX m_invMatTransform;

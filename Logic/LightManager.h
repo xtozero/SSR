@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common.h"
 #include "Light.h"
 #include "../Engine/ScriptKeyHandler.h"
 
@@ -15,7 +16,7 @@ namespace
 struct ShaderLightTrait
 {
 	int m_curLights;
-	D3DXVECTOR3 m_cameraPos;
+	XMFLOAT3 m_cameraPos;
 	D3DXCOLOR m_globalAmbient;
 	std::array<LightTrait, MAX_LIGHTS> m_properties;
 
@@ -36,7 +37,7 @@ public:
 	bool Initialize( IRenderer& renderer, std::vector<std::shared_ptr<CGameObject>>& objectList );
 	void UpdateToRenderer( IRenderer& renderer, const CCamera& camera );
 
-	void SetCameraPosition( const D3DXVECTOR3& cameraPos );
+	void SetCameraPosition( const XMFLOAT3& cameraPos );
 	void SetGlobalAmbient( const D3DXCOLOR& globalAmbient );
 
 	void PushLightTrait( const LightTrait& trait );

@@ -5,17 +5,17 @@
 
 void CLight::SetPosition( const float x, const float y, const float z )
 {
-	SetPosition( D3DXVECTOR3( x, y, z ) );
+	SetPosition( XMFLOAT3( x, y, z ) );
 }
 
-void CLight::SetPosition( const D3DXVECTOR3& pos )
+void CLight::SetPosition( const XMFLOAT3& pos )
 {
 	CGameObject::SetPosition( pos );
 	m_needRebuildTransform = false;
 
 	if ( m_property )
 	{
-		m_property->m_position = D3DXVECTOR4( pos, 0.f );
+		m_property->m_position = XMFLOAT4( pos.x, pos.y, pos.z, 0.f );
 	}
 }
 
@@ -54,14 +54,14 @@ const bool CLight::IsOn( ) const
 	return false;
 }
 
-D3DXVECTOR3 CLight::GetDirection( ) const
+XMFLOAT3 CLight::GetDirection( ) const
 {
 	if ( m_property )
 	{
 		return m_property->m_direction;
 	}
 
-	D3DXVECTOR3 default = { 0.f, 0.f, 0.f };
+	XMFLOAT3 default = { 0.f, 0.f, 0.f };
 	return default;
 }
 
@@ -98,7 +98,7 @@ void CLight::SetConeProperty( const float theta, const float phi )
 	}
 }
 
-void CLight::SetDiection( const D3DXVECTOR3& direction )
+void CLight::SetDiection( const XMFLOAT3& direction )
 {
 	if ( m_property )
 	{
@@ -106,7 +106,7 @@ void CLight::SetDiection( const D3DXVECTOR3& direction )
 	}
 }
 
-void CLight::SetAttenuation( const D3DXVECTOR3& attenuation )
+void CLight::SetAttenuation( const XMFLOAT3& attenuation )
 {
 	if ( m_property )
 	{
@@ -136,7 +136,8 @@ D3DXMATRIX CLight::GetViewMatrix( )
 	{
 		D3DXVECTOR3 eyePos( m_property->m_position.x, m_property->m_position.y, m_property->m_position.z );
 		assert( m_property->m_direction.x != 0.f || m_property->m_direction.y != 0.f || m_property->m_direction.z != 0.f );
-		D3DXVECTOR3 lookAt( eyePos + m_property->m_direction );
+		D3DXVECTOR3 dir( m_property->m_direction.x, m_property->m_direction.y, m_property->m_direction.z );
+		D3DXVECTOR3 lookAt( eyePos + dir );
 		D3DXVECTOR3 up( 0.f, 1.0f, 0.f );
 
 		D3DXMatrixLookAtLH( &m_viewMatrix, &eyePos, &lookAt, &up );

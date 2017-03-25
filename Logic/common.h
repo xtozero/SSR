@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <cstdarg>
 #include <iostream>
+#include <DirectXMath.h>
 
 #ifdef LOGIC_EXPORTS
 #define LOGIC_DLL __declspec(dllexport)
@@ -15,3 +16,5 @@ using String = std::string;
 #else
 using String = std::wstring;
 #endif
+
+using namespace DirectX;

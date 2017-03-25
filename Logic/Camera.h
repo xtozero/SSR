@@ -1,7 +1,9 @@
 #pragma once
 
-#include <d3dX9math.h>
+#include "common.h"
 #include "IListener.h"
+
+#include <d3dX9math.h>
 
 class IRenderer;
 
@@ -18,8 +20,8 @@ public:
 
 	const D3DXMATRIX& CCamera::GetViewMatrix();
 	
-	void SetOrigin( const D3DXVECTOR3& origin );
-	const D3DXVECTOR3& GetOrigin( ) const { return m_origin; }
+	void SetOrigin( const XMFLOAT3& origin );
+	const XMFLOAT3& GetOrigin( ) const { return m_origin; }
 
 	void Move( const float right, const float up, const float look );
 	void Rotate( const float pitch, const float yaw, const float roll );
@@ -43,11 +45,11 @@ private:
 	D3DXMATRIX m_viewMatrix;
 	D3DXMATRIX m_invViewMatrix;
 	
-	D3DXVECTOR3 m_origin;
-	D3DXVECTOR3 m_angles;
-	D3DXVECTOR3 m_lookVector;
-	D3DXVECTOR3 m_upVector;
-	D3DXVECTOR3 m_rightVector;
+	XMFLOAT3 m_origin;
+	XMFLOAT3 m_angles;
+	XMFLOAT3 m_lookVector;
+	XMFLOAT3 m_upVector;
+	XMFLOAT3 m_rightVector;
 
 	bool m_isNeedReclac = false;
 	bool m_isNeedUpdateRenderer = true;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common.h"
 #include "GameObject.h"
 
 class CKeyValueIterator;
@@ -7,7 +8,7 @@ class CKeyValueIterator;
 class CDisplayShaderResourceHelper : public CGameObject
 {
 public:
-	virtual void SetPosition( const D3DXVECTOR3& pos ) override;
+	virtual void SetPosition( const XMFLOAT3& pos ) override;
 	virtual void Render( IRenderer& renderer ) override;
 	virtual void Think( ) override;
 

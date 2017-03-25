@@ -126,9 +126,11 @@ void CLightManager::UpdateToRenderer( IRenderer& renderer, const CCamera& camera
 	}
 }
 
-void CLightManager::SetCameraPosition( const D3DXVECTOR3& cameraPos )
+void CLightManager::SetCameraPosition( const XMFLOAT3& cameraPos )
 {
-	if ( m_shaderLightProperty.m_cameraPos != cameraPos )
+	if ( m_shaderLightProperty.m_cameraPos.x != cameraPos.x ||
+		m_shaderLightProperty.m_cameraPos.y != cameraPos.y ||
+		m_shaderLightProperty.m_cameraPos.z != cameraPos.z )
 	{
 		m_needUpdateToRenderer = true;
 		m_shaderLightProperty.m_cameraPos = cameraPos;
