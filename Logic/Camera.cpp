@@ -7,6 +7,8 @@
 
 #include <type_traits>
 
+using namespace DirectX;
+
 void CCamera::OnLButtonDown( const int x, const int y )
 {
 	m_mouseRotateEnable = true;
@@ -55,7 +57,7 @@ void CCamera::OnWheelMove( const int zDelta )
 	Move( 0, 0, static_cast<float>( zDelta ) );
 }
 
-const D3DXMATRIX& CCamera::GetViewMatrix( )
+const CXMFLOAT4X4& CCamera::GetViewMatrix( )
 {
 	if ( m_isNeedReclac )
 	{
@@ -65,7 +67,7 @@ const D3DXMATRIX& CCamera::GetViewMatrix( )
 	return m_viewMatrix; 
 }
 
-void CCamera::SetOrigin( const XMFLOAT3& origin )
+void CCamera::SetOrigin( const CXMFLOAT3& origin )
 {
 	CameraChanged( );
 	m_origin = origin;
@@ -75,28 +77,20 @@ void CCamera::Move( const float right, const float up, const float look )
 {
 	CameraChanged( );
 
-	XMVECTOR newOrigin;
-	newOrigin = XMLoadFloat3( &m_origin );
-
-	if ( right != 0 )
+	if ( right != 0.f )
 	{
-		XMVECTOR rightVector = XMLoadFloat3( &m_rightVector );
-		newOrigin += right * rightVector;
+		m_origin += right * m_rightVector;
 	}
 
-	if ( up != 0 )
+	if ( up != 0.f )
 	{
-		XMVECTOR upVector = XMLoadFloat3( &m_upVector );
-		newOrigin += up * upVector;
+		m_origin += up * m_upVector;
 	}
 
-	if ( look != 0 )
+	if ( look != 0.f )
 	{
-		XMVECTOR lookVector = XMLoadFloat3( &m_rightVector );
-		newOrigin += look * lookVector;
+		m_origin += look * m_lookVector;
 	}
-
-	XMStoreFloat3( &m_origin, newOrigin );
 }
 
 void CCamera::Rotate( const float pitch, const float yaw, const float roll )
@@ -105,37 +99,23 @@ void CCamera::Rotate( const float pitch, const float yaw, const float roll )
 	{
 		if ( pitch != 0.f || yaw != 0.f || roll != 0.f )
 		{
-			m_angles.x += pitch;
-			m_angles.y += yaw;
-			m_angles.z += roll;
+			m_angles += CXMFLOAT3( pitch, yaw, roll );
 
 			constexpr float angleLimit = XM_PI * 2.f;
-			if ( m_angles.x >= angleLimit )
+			for ( auto& elem : m_angles )
 			{
-				m_angles.x -= angleLimit;
+				if ( angleLimit >= angleLimit )
+				{
+					elem -= angleLimit;
+				}
 			}
-			
-			if ( m_angles.y >= angleLimit )
-			{
-				m_angles.y -= angleLimit;
-			}
-			
-			if ( m_angles.z >= angleLimit )
-			{
-				m_angles.z -= angleLimit;
-			}
-
 
 			CameraChanged( );
 			XMMATRIX rotateMat = XMMatrixRotationRollPitchYaw( m_angles.x, m_angles.y, m_angles.z );
 
-			XMVECTOR rightVector = XMVector3TransformCoord( g_XMIdentityR0, rotateMat );
-			XMVECTOR upVector = XMVector3TransformCoord( g_XMIdentityR1, rotateMat );
-			XMVECTOR lookVector = XMVector3TransformCoord( g_XMIdentityR2, rotateMat );
-
-			XMStoreFloat3( &m_rightVector, rightVector );
-			XMStoreFloat3( &m_upVector, upVector );
-			XMStoreFloat3( &m_lookVector, lookVector );
+			m_rightVector = XMVector3TransformCoord( g_XMIdentityR0, rotateMat );
+			m_upVector = XMVector3TransformCoord( g_XMIdentityR1, rotateMat );
+			m_lookVector = XMVector3TransformCoord( g_XMIdentityR2, rotateMat );
 		}
 	}
 }
@@ -145,16 +125,29 @@ void CCamera::UpdateToRenderer( IRenderer& renderer )
 	if ( m_isNeedUpdateRenderer )
 	{
 		IRenderView* view = renderer.GetCurrentRenderView( );
-		view->SetViewMatrix( GetViewMatrix() );
+
+		// fix after refactoring render module
+		CXMFLOAT4X4 mat = GetViewMatrix( );
+		D3DXMATRIX temp;
+
+		for ( int i = 0; i < 4; ++i )
+		{
+			for ( int j = 0; j < 4; ++j )
+			{
+				temp( j, i ) = mat( j, i );
+			}
+		}
+
+		view->SetViewMatrix( temp );
 		m_isNeedUpdateRenderer = false;
 	}
 }
 
 void CCamera::ReCalcViewMatrix( )
 {
-	XMVECTOR rightVector = XMLoadFloat3( &m_rightVector );
-	XMVECTOR upVector = XMLoadFloat3( &m_upVector );
-	XMVECTOR lookVector = XMLoadFloat3( &m_lookVector );
+	XMVECTOR rightVector = m_rightVector;
+	XMVECTOR upVector = m_upVector;
+	XMVECTOR lookVector = m_lookVector;
 
 	lookVector = XMVector3Normalize( lookVector );
 	
@@ -164,35 +157,29 @@ void CCamera::ReCalcViewMatrix( )
 	rightVector = XMVector3Cross( upVector, lookVector );
 	rightVector = XMVector3Normalize( rightVector );
 
-	XMStoreFloat3( &m_rightVector, rightVector );
-	XMStoreFloat3( &m_upVector, upVector );
-	XMStoreFloat3( &m_lookVector, lookVector );
+	m_rightVector = rightVector;
+	m_upVector = upVector;
+	m_lookVector = lookVector;
 
 	m_viewMatrix._11 = m_rightVector.x;	m_viewMatrix._12 = m_upVector.x; m_viewMatrix._13 = m_lookVector.x;
 	m_viewMatrix._21 = m_rightVector.y;	m_viewMatrix._22 = m_upVector.y; m_viewMatrix._23 = m_lookVector.y;
 	m_viewMatrix._31 = m_rightVector.z;	m_viewMatrix._32 = m_upVector.z; m_viewMatrix._33 = m_lookVector.z;
 
-	XMVECTOR origin = XMLoadFloat3( &m_origin );
+	XMVECTOR origin = m_origin;
 
 	m_viewMatrix._41 = -XMVectorGetX( XMVector3Dot( origin, rightVector ) );
 	m_viewMatrix._42 = -XMVectorGetX( XMVector3Dot( origin, upVector ) );
 	m_viewMatrix._43 = -XMVectorGetX( XMVector3Dot( origin, lookVector ) );
 
-	D3DXMatrixInverse( &m_invViewMatrix, nullptr, &m_viewMatrix );
+	m_invViewMatrix = XMMatrixInverse( nullptr, m_viewMatrix );
 
 	m_isNeedReclac = false;
 }
 
-CCamera::CCamera( ) :
-m_origin( 0.f, 0.f, 0.f ),
-m_angles( 0.f, 0.f, 0.f ),
-m_lookVector( 0.f, 0.f, 1.f ),
-m_upVector( 0.f, 1.f, 0.f ),
-m_rightVector( 1.f, 0.f, 0.f ),
-m_prevMouseEventPos( 0.f, 0.f )
+CCamera::CCamera( )
 {
-	D3DXMatrixIdentity( &m_viewMatrix );
-	D3DXMatrixIdentity( &m_invViewMatrix );
+	m_viewMatrix = XMMatrixIdentity( );
+	m_invViewMatrix = XMMatrixIdentity( );
 }
 
 

@@ -2,6 +2,8 @@
 
 #include "IRigidBody.h"
 
+#include "../shared/CDirectXMath.h"
+
 class CAaboundingbox : public IRigidBody
 {
 public:
@@ -10,8 +12,8 @@ public:
 	virtual float Intersect( const CRay* ray ) const override;
 
 private:
-	D3DXVECTOR3 m_max;
-	D3DXVECTOR3 m_min;
+	CXMFLOAT3 m_max;
+	CXMFLOAT3 m_min;
 
 public:
 	CAaboundingbox( );

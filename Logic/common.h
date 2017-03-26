@@ -16,5 +16,3 @@ using String = std::string;
 #else
 using String = std::wstring;
 #endif
-
-using namespace DirectX;

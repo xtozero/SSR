@@ -10,8 +10,8 @@
 
 void CAaboundingbox::CreateRigideBody( std::shared_ptr<IMesh> pMesh )
 {
-	m_min = D3DXVECTOR3( FLT_MAX, FLT_MAX, FLT_MAX );
-	m_max = D3DXVECTOR3( -FLT_MAX, -FLT_MAX, -FLT_MAX );
+	m_min = CXMFLOAT3( FLT_MAX, FLT_MAX, FLT_MAX );
+	m_max = CXMFLOAT3( -FLT_MAX, -FLT_MAX, -FLT_MAX );
 
 	int verticesCount = pMesh->GetVerticesCount( );
 	MeshVertex* pVertices = static_cast<MeshVertex*>( pMesh->GetMeshData( ) );
@@ -59,8 +59,8 @@ void CAaboundingbox::Update( const D3DXMATRIX& matrix, std::shared_ptr<IRigidBod
 		D3DXVec3TransformCoord( &v[i], &v[i], &matrix );
 	}
 
-	m_min = D3DXVECTOR3( FLT_MAX, FLT_MAX, FLT_MAX );
-	m_max = D3DXVECTOR3( -FLT_MAX, -FLT_MAX, -FLT_MAX );
+	m_min = CXMFLOAT3( FLT_MAX, FLT_MAX, FLT_MAX );
+	m_max = CXMFLOAT3( -FLT_MAX, -FLT_MAX, -FLT_MAX );
 
 	for ( int i = 0; i < 8; ++i )
 	{

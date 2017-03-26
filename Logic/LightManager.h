@@ -15,16 +15,10 @@ namespace
 
 struct ShaderLightTrait
 {
-	int m_curLights;
-	XMFLOAT3 m_cameraPos;
-	D3DXCOLOR m_globalAmbient;
+	int m_curLights = 0;
+	CXMFLOAT3 m_cameraPos = { 0.f, 0.f, 0.f };
+	CXMFLOAT4 m_globalAmbient = { 0.f, 0.f, 0.f, 0.f };
 	std::array<LightTrait, MAX_LIGHTS> m_properties;
-
-	ShaderLightTrait() :
-		m_curLights( 0 ),
-		m_cameraPos( 0.f, 0.f, 0.f ),
-		m_globalAmbient{ 0.f, 0.f, 0.f, 1.0f }
-	{}
 };
 
 class CCamera;
@@ -37,8 +31,8 @@ public:
 	bool Initialize( IRenderer& renderer, std::vector<std::shared_ptr<CGameObject>>& objectList );
 	void UpdateToRenderer( IRenderer& renderer, const CCamera& camera );
 
-	void SetCameraPosition( const XMFLOAT3& cameraPos );
-	void SetGlobalAmbient( const D3DXCOLOR& globalAmbient );
+	void SetCameraPosition( const CXMFLOAT3& cameraPos );
+	void SetGlobalAmbient( const CXMFLOAT4& globalAmbient );
 
 	void PushLightTrait( const LightTrait& trait );
 

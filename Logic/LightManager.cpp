@@ -18,9 +18,9 @@ namespace
 	{
 		KEYVALUE_VALUE_ASSERT( keyValue->GetString( ), 4 );
 		Stringstream stream( keyValue->GetString( ) );
-		D3DXCOLOR ambientColor;
+		CXMFLOAT4 ambientColor( 0.f, 0.f, 0.f, 0.f );
 
-		stream >> ambientColor.r >> ambientColor.g >> ambientColor.b >> ambientColor.a;
+		stream >> ambientColor.x >> ambientColor.y >> ambientColor.z >> ambientColor.w;
 		owner->SetGlobalAmbient( ambientColor );
 	}
 
@@ -72,12 +72,12 @@ namespace
 			else if ( key->GetKey( ) == _T( "m_diffuse" ) )
 			{
 				Stringstream stream( key->GetString( ) );
-				stream >> trait.m_diffuse.r >> trait.m_diffuse.g >> trait.m_diffuse.b >> trait.m_diffuse.a;
+				stream >> trait.m_diffuse.x >> trait.m_diffuse.y >> trait.m_diffuse.z >> trait.m_diffuse.w;
 			}
 			else if ( key->GetKey( ) == _T( "m_specular" ) )
 			{
 				Stringstream stream( key->GetString( ) );
-				stream >> trait.m_specular.r >> trait.m_specular.g >> trait.m_specular.b >> trait.m_specular.a;
+				stream >> trait.m_specular.x >> trait.m_specular.y >> trait.m_specular.z >> trait.m_specular.w;
 			}
 		}
 
@@ -126,18 +126,16 @@ void CLightManager::UpdateToRenderer( IRenderer& renderer, const CCamera& camera
 	}
 }
 
-void CLightManager::SetCameraPosition( const XMFLOAT3& cameraPos )
+void CLightManager::SetCameraPosition( const CXMFLOAT3& cameraPos )
 {
-	if ( m_shaderLightProperty.m_cameraPos.x != cameraPos.x ||
-		m_shaderLightProperty.m_cameraPos.y != cameraPos.y ||
-		m_shaderLightProperty.m_cameraPos.z != cameraPos.z )
+	if ( m_shaderLightProperty.m_cameraPos != cameraPos )
 	{
 		m_needUpdateToRenderer = true;
 		m_shaderLightProperty.m_cameraPos = cameraPos;
 	}
 }
 
-void CLightManager::SetGlobalAmbient( const D3DXCOLOR& globalAmbient )
+void CLightManager::SetGlobalAmbient( const CXMFLOAT4& globalAmbient )
 {
 	if ( m_shaderLightProperty.m_globalAmbient != globalAmbient )
 	{

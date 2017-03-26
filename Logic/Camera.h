@@ -1,7 +1,8 @@
 #pragma once
 
-#include "common.h"
 #include "IListener.h"
+
+#include "../shared/CDirectXMath.h"
 
 #include <d3dX9math.h>
 
@@ -18,16 +19,16 @@ public:
 	virtual void OnMouseMove( const int x, const int y ) override;
 	virtual void OnWheelMove( const int zDelta ) override;
 
-	const D3DXMATRIX& CCamera::GetViewMatrix();
+	const CXMFLOAT4X4& CCamera::GetViewMatrix();
 	
-	void SetOrigin( const XMFLOAT3& origin );
-	const XMFLOAT3& GetOrigin( ) const { return m_origin; }
+	void SetOrigin( const CXMFLOAT3& origin );
+	const CXMFLOAT3& GetOrigin( ) const { return m_origin; }
 
 	void Move( const float right, const float up, const float look );
 	void Rotate( const float pitch, const float yaw, const float roll );
  
  	void UpdateToRenderer( IRenderer& renderer );
-	const D3DXMATRIX& GetInvViewMatrix( ) const { return m_invViewMatrix; }
+	const CXMFLOAT4X4& GetInvViewMatrix( ) const { return m_invViewMatrix; }
 	void SetEnableRotate( bool isEnable ) { m_enableRotate = isEnable; }
 private:
 	void ReCalcViewMatrix( );
@@ -42,20 +43,20 @@ public:
 	virtual ~CCamera( );
 
 private:
-	D3DXMATRIX m_viewMatrix;
-	D3DXMATRIX m_invViewMatrix;
+	CXMFLOAT4X4 m_viewMatrix;
+	CXMFLOAT4X4 m_invViewMatrix;
 	
-	XMFLOAT3 m_origin;
-	XMFLOAT3 m_angles;
-	XMFLOAT3 m_lookVector;
-	XMFLOAT3 m_upVector;
-	XMFLOAT3 m_rightVector;
+	CXMFLOAT3 m_origin = { 0.f, 0.f, 0.f };
+	CXMFLOAT3 m_angles = { 0.f, 0.f, 0.f };
+	CXMFLOAT3 m_lookVector = { 0.f, 0.f, 1.f };
+	CXMFLOAT3 m_upVector = { 0.f, 1.f, 0.f };
+	CXMFLOAT3 m_rightVector = { 1.f, 0.f, 0.f };
 
 	bool m_isNeedReclac = false;
 	bool m_isNeedUpdateRenderer = true;
 
 	bool m_mouseRotateEnable = false;
-	D3DXVECTOR2 m_prevMouseEventPos;
+	CXMFLOAT2 m_prevMouseEventPos = { 0.f, 0.f };
 	
 	bool m_mouseTranslateEnable = false;
 	float m_mouseSensitivity = 0.01f;

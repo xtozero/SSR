@@ -13,10 +13,10 @@ DECLARE_GAME_OBJECT( base, CGameObject );
 
 void CGameObject::SetPosition( const float x, const float y, const float z )
 {
-	SetPosition( XMFLOAT3( x, y, z ) );
+	SetPosition( CXMFLOAT3( x, y, z ) );
 }
 
-void CGameObject::SetPosition( const XMFLOAT3& pos )
+void CGameObject::SetPosition( const CXMFLOAT3& pos )
 {
 	m_vecPos = pos;
 	m_needRebuildTransform = true;
@@ -24,27 +24,27 @@ void CGameObject::SetPosition( const XMFLOAT3& pos )
 
 void CGameObject::SetScale( const float xScale, const float yScale, const float zScale )
 {
-	m_vecScale = XMFLOAT3( xScale, yScale, zScale );
+	m_vecScale = CXMFLOAT3( xScale, yScale, zScale );
 	m_needRebuildTransform = true;
 }
 
 void CGameObject::SetRotate( const float pitch, const float yaw, const float roll )
 {
-	m_vecRotate = XMFLOAT3( pitch, yaw, roll );
+	m_vecRotate = CXMFLOAT3( pitch, yaw, roll );
 	m_needRebuildTransform = true;
 }
 
-const XMFLOAT3& CGameObject::GetPosition( )
+const CXMFLOAT3& CGameObject::GetPosition( )
 {
 	return m_vecPos;
 }
 
-const XMFLOAT3& CGameObject::GetScale( )
+const CXMFLOAT3& CGameObject::GetScale( )
 {
 	return m_vecScale;
 }
 
-const XMFLOAT3& CGameObject::GetRotate( )
+const CXMFLOAT3& CGameObject::GetRotate( )
 {
 	return m_vecRotate;
 }

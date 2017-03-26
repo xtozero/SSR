@@ -1,22 +1,21 @@
 #pragma once
 
-#include <d3dX9math.h>
+#include "../shared/CDirectXMath.h"
 
 class CRay
 {
 public:
-	const D3DXVECTOR3& GetOrigin( ) const { return m_origin; }
-	const D3DXVECTOR3& GetDir( ) const { return m_dir; }
+	const CXMFLOAT3& GetOrigin( ) const { return m_origin; }
+	const CXMFLOAT3& GetDir( ) const { return m_dir; }
 
-	void SetOrigin( const D3DXVECTOR3& origin ) { m_origin = origin; }
-	void SetDir( const D3DXVECTOR3& dir ) { D3DXVec3Normalize( &m_dir, &dir ); }
+	void SetOrigin( const CXMFLOAT3& origin ) { m_origin = origin; }
+	void SetDir( const CXMFLOAT3& dir ) { m_dir = DirectX::XMVector3Normalize( dir ); }
 
-	CRay( const D3DXVECTOR3& origin, const D3DXVECTOR3& dir );
-	CRay( );
-	~CRay( );
+	CRay( const CXMFLOAT3& origin, const CXMFLOAT3& dir );
+	CRay( ) = default;
 
 private:
-	D3DXVECTOR3 m_origin;
-	D3DXVECTOR3 m_dir;
+	CXMFLOAT3 m_origin = { 0.f, 0.f, 0.f };
+	CXMFLOAT3 m_dir = { 0.f, 0.f, 0.f };
 };
 

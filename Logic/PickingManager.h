@@ -3,6 +3,8 @@
 #include "IListener.h"
 #include "Ray.h"
 
+#include "../shared/CDirectXMath.h"
+
 #include <memory>
 #include <vector>
 
@@ -48,14 +50,14 @@ public:
 private:
 	std::vector<VIEWPORT> m_viewports;
 	std::vector<CCamera*> m_cameras;
-	std::vector<D3DXMATRIX> m_InvProjections;
+	std::vector<CXMFLOAT4X4> m_InvProjections;
 
-	CGameObject* m_curSelectedObject;
-	int m_curSelectedIdx;
+	CGameObject* m_curSelectedObject = nullptr;
+	int m_curSelectedIdx = -1;
 
-	D3DXVECTOR2 m_prevMouseEventPos;
+	CXMFLOAT2 m_prevMouseEventPos = { 0.f, 0.f };
 
-	float m_closestHitDist;
+	float m_closestHitDist = FLT_MAX;
 
 	GameObjectsPtr m_pGameObjects;
 };

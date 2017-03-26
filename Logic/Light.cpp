@@ -5,17 +5,17 @@
 
 void CLight::SetPosition( const float x, const float y, const float z )
 {
-	SetPosition( XMFLOAT3( x, y, z ) );
+	SetPosition( CXMFLOAT3( x, y, z ) );
 }
 
-void CLight::SetPosition( const XMFLOAT3& pos )
+void CLight::SetPosition( const CXMFLOAT3& pos )
 {
 	CGameObject::SetPosition( pos );
 	m_needRebuildTransform = false;
 
 	if ( m_property )
 	{
-		m_property->m_position = XMFLOAT4( pos.x, pos.y, pos.z, 0.f );
+		m_property->m_position = CXMFLOAT4( pos.x, pos.y, pos.z, 0.f );
 	}
 }
 
@@ -54,14 +54,14 @@ const bool CLight::IsOn( ) const
 	return false;
 }
 
-XMFLOAT3 CLight::GetDirection( ) const
+CXMFLOAT3 CLight::GetDirection( ) const
 {
 	if ( m_property )
 	{
 		return m_property->m_direction;
 	}
 
-	XMFLOAT3 default = { 0.f, 0.f, 0.f };
+	CXMFLOAT3 default = { 0.f, 0.f, 0.f };
 	return default;
 }
 
@@ -98,7 +98,7 @@ void CLight::SetConeProperty( const float theta, const float phi )
 	}
 }
 
-void CLight::SetDiection( const XMFLOAT3& direction )
+void CLight::SetDiection( const CXMFLOAT3& direction )
 {
 	if ( m_property )
 	{
@@ -106,7 +106,7 @@ void CLight::SetDiection( const XMFLOAT3& direction )
 	}
 }
 
-void CLight::SetAttenuation( const XMFLOAT3& attenuation )
+void CLight::SetAttenuation( const CXMFLOAT3& attenuation )
 {
 	if ( m_property )
 	{
@@ -114,7 +114,7 @@ void CLight::SetAttenuation( const XMFLOAT3& attenuation )
 	}
 }
 
-void CLight::SetDiffuseColor( const D3DXCOLOR& diffuseColor )
+void CLight::SetDiffuseColor( const CXMFLOAT4& diffuseColor )
 {
 	if ( m_property )
 	{
@@ -122,7 +122,7 @@ void CLight::SetDiffuseColor( const D3DXCOLOR& diffuseColor )
 	}
 }
 
-void CLight::SetSpecularColor( const D3DXCOLOR& specularColor )
+void CLight::SetSpecularColor( const CXMFLOAT4& specularColor )
 {
 	if ( m_property )
 	{
