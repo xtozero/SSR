@@ -1,6 +1,8 @@
 #pragma once
 
 #include "IMeshLoader.h"
+#include "../shared/CDirectXMath.h"
+
 #include <map>
 #include <memory>
 #include <vector>
@@ -33,9 +35,9 @@ private:
 		int m_normal;
 	};
 
-	std::vector<D3DXVECTOR3> m_positions;
-	std::vector<D3DXVECTOR3> m_normals;
-	std::vector<D3DXVECTOR2> m_texCoords;
+	std::vector<CXMFLOAT3> m_positions;
+	std::vector<CXMFLOAT3> m_normals;
+	std::vector<CXMFLOAT2> m_texCoords;
 
 	std::vector<ObjFaceInfo> m_faceInfo;
 

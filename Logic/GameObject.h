@@ -25,8 +25,8 @@ public:
 	const CXMFLOAT3& GetScale( );
 	const CXMFLOAT3& GetRotate( );
 
-	const D3DXMATRIX& GetTransformMatrix( );
-	const D3DXMATRIX& GetInvTransformMatrix( );
+	const CXMFLOAT4X4& GetTransformMatrix( );
+	const CXMFLOAT4X4& GetInvTransformMatrix( );
 
 	void UpdateWorldMatrix( IRenderer& renderer );
 	virtual void Render( IRenderer& renderer );
@@ -81,8 +81,8 @@ private:
 	CXMFLOAT3 m_vecScale;
 	CXMFLOAT3 m_vecRotate;
 
-	D3DXMATRIX m_matTransform;
-	D3DXMATRIX m_invMatTransform;
+	CXMFLOAT4X4 m_matTransform;
+	CXMFLOAT4X4 m_invMatTransform;
 
 	std::shared_ptr<IMesh> m_pModel;
 	IMaterial* m_pMaterial;

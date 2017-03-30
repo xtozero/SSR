@@ -8,9 +8,10 @@
 #include "../shared/Util.h"
 
 #include <assert.h>
-#include <d3dX9math.h>
 #include <fstream>
 #include <iostream>
+
+using namespace DirectX;
 
 namespace
 {
@@ -249,7 +250,7 @@ std::vector<MeshVertex> CObjMeshLoader::BuildVertices( )
 	std::vector<MeshVertex> vertices;
 
 	MeshVertex curVertex;
-	D3DXVECTOR3 randColor( static_cast<float>( rand( ) ) / RAND_MAX,
+	CXMFLOAT3 randColor( static_cast<float>( rand( ) ) / RAND_MAX,
 		static_cast<float>( rand( ) ) / RAND_MAX,
 		static_cast<float>( rand( ) ) / RAND_MAX );
 
@@ -344,12 +345,12 @@ void CObjMeshLoader::LoadMaterialFile( const TCHAR* pFileName, CSurfaceManager* 
 		{
 			if ( pCurSuface )
 			{
-				D3DXCOLOR color;
+				CXMFLOAT4 color;
 				sStream << params[1] << ' ' <<
 					params[2] << ' ' <<
 					params[3];
-				sStream >> color.r >> color.g >> color.b;
-				color.a = 1;
+				sStream >> color.x >> color.y >> color.z;
+				color.w = 1;
 
 				pCurSuface->SetAmbient( color );
 			}
@@ -358,12 +359,12 @@ void CObjMeshLoader::LoadMaterialFile( const TCHAR* pFileName, CSurfaceManager* 
 		{
 			if ( pCurSuface )
 			{
-				D3DXCOLOR color;
+				CXMFLOAT4 color;
 				sStream << params[1] << ' ' <<
 					params[2] << ' ' <<
 					params[3];
-				sStream >> color.r >> color.g >> color.b;
-				color.a = 1;
+				sStream >> color.x >> color.y >> color.z;
+				color.w = 1;
 
 				pCurSuface->SetDiffuse( color );
 			}
@@ -372,12 +373,12 @@ void CObjMeshLoader::LoadMaterialFile( const TCHAR* pFileName, CSurfaceManager* 
 		{
 			if ( pCurSuface )
 			{
-				D3DXCOLOR color;
+				CXMFLOAT4 color;
 				sStream << params[1] << ' ' <<
 					params[2] << ' ' <<
 					params[3];
-				sStream >> color.r >> color.g >> color.b;
-				color.a = 1;
+				sStream >> color.x >> color.y >> color.z;
+				color.w = 1;
 
 				pCurSuface->SetSpecular( color );
 			}
@@ -403,7 +404,7 @@ void CObjMeshLoader::CalcObjNormal( )
 {
 	m_normals.resize( m_positions.size() );
 
-	for ( D3DXVECTOR3& normal : m_normals )
+	for ( CXMFLOAT3& normal : m_normals )
 	{
 		normal.x = 0.f;
 		normal.y = 0.f;
@@ -430,24 +431,22 @@ void CObjMeshLoader::CalcObjNormal( )
 
 	for ( UINT i = 0; i < idxList.size( ); i += 3 )
 	{
-		const D3DXVECTOR3& p0 = m_positions[idxList[i]];
-		const D3DXVECTOR3& p1 = m_positions[idxList[i + 1]];
-		const D3DXVECTOR3& p2 = m_positions[idxList[i + 2]];
+		const CXMFLOAT3& p0 = m_positions[idxList[i]];
+		const CXMFLOAT3& p1 = m_positions[idxList[i + 1]];
+		const CXMFLOAT3& p2 = m_positions[idxList[i + 2]];
 
-		const D3DXVECTOR3& v0 = p1 - p0;
-		const D3DXVECTOR3& v1 = p2 - p0;
+		const CXMFLOAT3& v0 = p1 - p0;
+		const CXMFLOAT3& v1 = p2 - p0;
 
-		D3DXVECTOR3 normal;
-
-		D3DXVec3Cross( &normal, &v0, &v1 );
+		CXMFLOAT3 normal = XMVector3Cross( v0, v1 );
 
 		m_normals[idxList[i]] += normal;
 		m_normals[idxList[i + 1]] += normal;
 		m_normals[idxList[i + 2]] += normal;
 	}
 
-	for ( D3DXVECTOR3& normal : m_normals )
+	for ( CXMFLOAT3& normal : m_normals )
 	{
-		D3DXVec3Normalize( &normal, &normal );
+		normal = XMVector3Normalize( normal );
 	}
 }

@@ -6,9 +6,10 @@
 #include "SurfaceManager.h"
 
 #include <assert.h>
-#include <d3dX9math.h>
 #include <fstream>
 #include <vector>
+
+using namespace DirectX;
 
 namespace
 {
@@ -19,9 +20,9 @@ namespace
 
 	void CalcPlyNormal( MeshVertex* vertices, const UINT vertexCount, const WORD* indices, const UINT indexCount )
 	{
-		std::vector<D3DXVECTOR3> normals( vertexCount );
+		std::vector<CXMFLOAT3> normals( vertexCount );
 
-		for ( D3DXVECTOR3& normal : normals )
+		for ( CXMFLOAT3& normal : normals )
 		{
 			normal.x = 0.f;
 			normal.y = 0.f;
@@ -48,16 +49,16 @@ namespace
 
 		for ( UINT i = 0; i < idxList.size(); i += 3 )
 		{
-			const D3DXVECTOR3& p0 = vertices[idxList[i]].m_position;
-			const D3DXVECTOR3& p1 = vertices[idxList[i + 1]].m_position;
-			const D3DXVECTOR3& p2 = vertices[idxList[i + 2]].m_position;
+			const CXMFLOAT3& p0 = vertices[idxList[i]].m_position;
+			const CXMFLOAT3& p1 = vertices[idxList[i + 1]].m_position;
+			const CXMFLOAT3& p2 = vertices[idxList[i + 2]].m_position;
 
-			const D3DXVECTOR3& v0 = p1 - p0;
-			const D3DXVECTOR3& v1 = p2 - p0;
+			const CXMFLOAT3& v0 = p1 - p0;
+			const CXMFLOAT3& v1 = p2 - p0;
 
-			D3DXVECTOR3 normal;
+			CXMFLOAT3 normal;
 
-			D3DXVec3Cross( &normal, &v0, &v1 );
+			normal = XMVector3Cross( v0, v1 );
 
 			normals[idxList[i]] += normal;
 			normals[idxList[i + 1]] += normal;
@@ -65,9 +66,9 @@ namespace
 		}
 
 		int idx = 0;
-		for ( D3DXVECTOR3& normal : normals )
+		for ( CXMFLOAT3& normal : normals )
 		{
-			D3DXVec3Normalize( &vertices[idx].m_normal, &normal );
+			vertices[idx].m_normal = XMVector3Normalize( normal );
 			++idx;
 		}
 	}
@@ -96,7 +97,7 @@ std::shared_ptr<IMesh> CPlyMeshLoader::LoadMeshFromFile( IRenderer& renderer, co
 	}
 
 	char token[256] = { 0 };
-	D3DXVECTOR3 randColor( static_cast<float>( rand( ) ) / RAND_MAX,
+	CXMFLOAT3 randColor( static_cast<float>( rand( ) ) / RAND_MAX,
 		static_cast<float>( rand( ) ) / RAND_MAX,
 		static_cast<float>( rand( ) ) / RAND_MAX );
 
@@ -136,7 +137,7 @@ std::shared_ptr<IMesh> CPlyMeshLoader::LoadMeshFromFile( IRenderer& renderer, co
 				assert( vertexIdx < vertexCount );
 
 				meshfile >> token;
-				D3DXVECTOR3& vertex = vertices[vertexIdx].m_position;
+				CXMFLOAT3& vertex = vertices[vertexIdx].m_position;
 
 				meshfile >> vertex.x >> vertex.y >> vertex.z;
 				vertices[vertexIdx].m_color = randColor;

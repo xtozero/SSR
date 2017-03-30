@@ -88,10 +88,10 @@ bool CDisplayShaderResourceHelper::LoadModelMesh( IRenderer& renderer )
 	float halfWidth = m_width / wndWidth;
 	float halfHeight = m_height / wndHeight;
 
-	meshBuilder.Append( MeshVertex( D3DXVECTOR3( -halfWidth, -halfHeight, 1.f ), D3DXVECTOR2( 0.f, 1.f ) ) );
-	meshBuilder.Append( MeshVertex( D3DXVECTOR3( -halfWidth, halfHeight, 1.f ), D3DXVECTOR2( 0.f, 0.0f ) ) );
-	meshBuilder.Append( MeshVertex( D3DXVECTOR3( halfWidth, -halfHeight, 1.f ), D3DXVECTOR2( 1.f, 1.0f ) ) );
-	meshBuilder.Append( MeshVertex( D3DXVECTOR3( halfWidth, halfHeight, 1.f ), D3DXVECTOR2( 1.f, 0.f ) ) );
+	meshBuilder.Append( MeshVertex( CXMFLOAT3( -halfWidth, -halfHeight, 1.f ), CXMFLOAT2( 0.f, 1.f ) ) );
+	meshBuilder.Append( MeshVertex( CXMFLOAT3( -halfWidth, halfHeight, 1.f ), CXMFLOAT2( 0.f, 0.0f ) ) );
+	meshBuilder.Append( MeshVertex( CXMFLOAT3( halfWidth, -halfHeight, 1.f ), CXMFLOAT2( 1.f, 1.0f ) ) );
+	meshBuilder.Append( MeshVertex( CXMFLOAT3( halfWidth, halfHeight, 1.f ), CXMFLOAT2( 1.f, 0.f ) ) );
 
 	meshBuilder.AppendIndex( 0 );
 	meshBuilder.AppendIndex( 1 );

@@ -20,6 +20,8 @@
 #include <ctime>
 #include <tchar.h>
 
+using namespace DirectX;
+
 namespace
 {
 	ConVar( showFps, "1", "Show Fps" );
@@ -46,11 +48,11 @@ bool CGameLogic::Initialize( HWND hwnd, UINT wndWidth, UINT wndHeight )
 
 	if ( view )
 	{
-		view->CreatePerspectiveFovLHMatrix( D3DXToRadian( 60 ),
+		view->CreatePerspectiveFovLHMatrix( XMConvertToRadians( 60 ),
 			static_cast<float>(wndWidth) / wndHeight,
 			1.f,
 			1500.0f );
-		m_pickingManager.PushInvProjection( D3DXToRadian( 60 ),
+		m_pickingManager.PushInvProjection( XMConvertToRadians( 60 ),
 			static_cast<float>(wndWidth) / wndHeight,
 			1.f,
 			1500.0f );

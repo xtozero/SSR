@@ -4,8 +4,6 @@
 
 #include "../shared/CDirectXMath.h"
 
-#include <d3dX9math.h>
-
 class IRenderer;
 
 class CCamera : public IListener

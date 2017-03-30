@@ -9,6 +9,8 @@
 #include "../RenderCore/ConstantBufferDefine.h"
 #include "../Shared/Util.h"
 
+using namespace DirectX;
+
 namespace
 {
 	constexpr TCHAR* CONST_BUFFER_NAME = _T( "Lights" );
@@ -151,7 +153,7 @@ void CLightManager::PushLightTrait( const LightTrait & trait )
 	++m_shaderLightProperty.m_curLights;
 }
 
-D3DXMATRIX CLightManager::GetPrimaryLightViewMatrix( )
+CXMFLOAT4X4 CLightManager::GetPrimaryLightViewMatrix( )
 {
 	if ( m_lights.size() > m_primaryLight )
 	{
@@ -161,18 +163,12 @@ D3DXMATRIX CLightManager::GetPrimaryLightViewMatrix( )
 		}
 	}
 	
-	D3DXMATRIX lightViewMatrix;
-	D3DXMatrixIdentity( &lightViewMatrix );
-
-	return lightViewMatrix;
+	return XMMatrixIdentity( );
 }
 
-D3DXMATRIX CLightManager::GerPrimaryLightProjectionMatrix( )
+CXMFLOAT4X4 CLightManager::GerPrimaryLightProjectionMatrix( )
 {
-	D3DXMATRIX lightProjMatrix;
-	D3DXMatrixPerspectiveFovLH( &lightProjMatrix, D3DX_PI / 4.0f, 1.f, 1.f, 1500.f );
-
-	return lightProjMatrix;
+	return XMMatrixPerspectiveFovLH( XM_PI / 4.0f, 1.f, 1.f, 1500.f );
 }
 
 CLightManager::CLightManager( ) :

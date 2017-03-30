@@ -126,19 +126,7 @@ void CCamera::UpdateToRenderer( IRenderer& renderer )
 	{
 		IRenderView* view = renderer.GetCurrentRenderView( );
 
-		// fix after refactoring render module
-		CXMFLOAT4X4 mat = GetViewMatrix( );
-		D3DXMATRIX temp;
-
-		for ( int i = 0; i < 4; ++i )
-		{
-			for ( int j = 0; j < 4; ++j )
-			{
-				temp( j, i ) = mat( j, i );
-			}
-		}
-
-		view->SetViewMatrix( temp );
+		view->SetViewMatrix( GetViewMatrix( ) );
 		m_isNeedUpdateRenderer = false;
 	}
 }

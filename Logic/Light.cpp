@@ -3,6 +3,8 @@
 
 #include <cassert>
 
+using namespace DirectX;
+
 void CLight::SetPosition( const float x, const float y, const float z )
 {
 	SetPosition( CXMFLOAT3( x, y, z ) );
@@ -130,17 +132,17 @@ void CLight::SetSpecularColor( const CXMFLOAT4& specularColor )
 	}
 }
 
-D3DXMATRIX CLight::GetViewMatrix( )
+CXMFLOAT4X4 CLight::GetViewMatrix( )
 {
 	if ( m_isNeedReclac )
 	{
-		D3DXVECTOR3 eyePos( m_property->m_position.x, m_property->m_position.y, m_property->m_position.z );
+		CXMFLOAT3 eyePos( m_property->m_position.x, m_property->m_position.y, m_property->m_position.z );
 		assert( m_property->m_direction.x != 0.f || m_property->m_direction.y != 0.f || m_property->m_direction.z != 0.f );
-		D3DXVECTOR3 dir( m_property->m_direction.x, m_property->m_direction.y, m_property->m_direction.z );
-		D3DXVECTOR3 lookAt( eyePos + dir );
-		D3DXVECTOR3 up( 0.f, 1.0f, 0.f );
+		CXMFLOAT3 dir( m_property->m_direction.x, m_property->m_direction.y, m_property->m_direction.z );
+		XMVECTOR lookAt = eyePos + dir;
+		CXMFLOAT3 up( 0.f, 1.0f, 0.f );
 
-		D3DXMatrixLookAtLH( &m_viewMatrix, &eyePos, &lookAt, &up );
+		m_viewMatrix = XMMatrixLookAtLH( eyePos, lookAt, up );
 		m_isNeedReclac = false;
 	}
 

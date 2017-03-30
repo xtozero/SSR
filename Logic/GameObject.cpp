@@ -9,6 +9,8 @@
 #include "../RenderCore/IMesh.h"
 #include "Timer.h"
 
+using namespace DirectX;
+
 DECLARE_GAME_OBJECT( base, CGameObject );
 
 void CGameObject::SetPosition( const float x, const float y, const float z )
@@ -49,7 +51,7 @@ const CXMFLOAT3& CGameObject::GetRotate( )
 	return m_vecRotate;
 }
 
-const D3DXMATRIX& CGameObject::GetTransformMatrix( )
+const CXMFLOAT4X4& CGameObject::GetTransformMatrix( )
 {
 	if ( m_needRebuildTransform )
 	{
@@ -59,14 +61,14 @@ const D3DXMATRIX& CGameObject::GetTransformMatrix( )
 	return m_matTransform;
 }
 
-const D3DXMATRIX& CGameObject::GetInvTransformMatrix( )
+const CXMFLOAT4X4& CGameObject::GetInvTransformMatrix( )
 {
 	if ( m_needRebuildTransform )
 	{
 		RebuildTransform( );
 	}
 
-	D3DXMatrixInverse( &m_invMatTransform, nullptr, &m_matTransform );
+	m_invMatTransform = XMMatrixInverse( nullptr, m_matTransform );
 
 	return m_invMatTransform;
 }
@@ -178,8 +180,8 @@ m_isPicked( false ),
 m_needRebuildTransform( false ),
 m_property( 0 )
 {
-	D3DXMatrixIdentity( &m_matTransform );
-	D3DXMatrixIdentity( &m_invMatTransform );
+	m_matTransform = XMMatrixIdentity();
+	m_invMatTransform = XMMatrixIdentity( );
 
 	for ( int i = 0; i < RIGID_BODY_TYPE::Count; ++i )
 	{
@@ -235,13 +237,13 @@ void CGameObject::LoadRigidBody( IRenderer& renderer )
 void CGameObject::RebuildTransform( )
 {
 	//STR
-	D3DXMATRIX scale;
-	D3DXMATRIX rotate;
+	XMMATRIX scale;
+	XMMATRIX rotate;
 
-	D3DXMatrixScaling( &scale, m_vecScale.x, m_vecScale.y, m_vecScale.z );
-	D3DXMatrixRotationYawPitchRoll( &rotate, m_vecRotate.y, m_vecRotate.x, m_vecRotate.z );
+	scale = XMMatrixScaling( m_vecScale.x, m_vecScale.y, m_vecScale.z );
+	rotate = XMMatrixRotationRollPitchYaw( m_vecRotate.x, m_vecRotate.y, m_vecRotate.z );
 
-	D3DXMatrixMultiply( &m_matTransform, &scale, &rotate );
+	m_matTransform = scale * rotate;
 
 	m_matTransform._41 = m_vecPos.x;
 	m_matTransform._42 = m_vecPos.y;

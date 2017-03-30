@@ -3,9 +3,9 @@
 #include "common.h"
 #include "IBuffer.h"
 #include "IMesh.h"
+#include "../shared/CDirectXMath.h"
 
 #include <memory>
-#include <d3dX9math.h>
 
 class BaseMesh : public IMesh
 {
@@ -26,11 +26,11 @@ protected:
 	UINT m_nIndices;
 	UINT m_nIndexOffset;
 
-	D3DXVECTOR3 m_color;
+	CXMFLOAT3 m_color;
 public:
 	virtual void SetModelData( MeshVertex* pOrignal, UINT vertexCount ) override;
 	virtual void SetIndexData( void* pOrignal, UINT indexCount ) override;
-	virtual void SetColor( const D3DXVECTOR3& color ) override;
+	virtual void SetColor( const CXMFLOAT3& color ) override;
 	virtual bool Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST ) override;
 
 	virtual void Draw( ID3D11DeviceContext* pDeviceContext ) override;

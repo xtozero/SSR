@@ -14,10 +14,12 @@
 
 #include "../Shared/Util.h"
 
+using namespace DirectX;
+
 bool CSSRManager::Init( IRenderer& renderer, IMeshBuilder& meshBuilder )
 {
 	// Create Constant Buffer
-	m_ssrConstantBuffer = renderer.CreateConstantBuffer( _T( "ssrConstantBuffer" ), sizeof( D3DXMATRIX ), 1, nullptr );
+	m_ssrConstantBuffer = renderer.CreateConstantBuffer( _T( "ssrConstantBuffer" ), sizeof( CXMFLOAT4X4 ), 1, nullptr );
 
 	if ( m_ssrConstantBuffer == nullptr )
 	{
@@ -48,10 +50,10 @@ bool CSSRManager::Init( IRenderer& renderer, IMeshBuilder& meshBuilder )
 	// Create Screen Rect Mesh
 	meshBuilder.Clear( );
 
-	meshBuilder.Append( MeshVertex( D3DXVECTOR3( -1.f, -1.f, 1.f ), D3DXVECTOR2( 0.f, 1.f ) ) );
-	meshBuilder.Append( MeshVertex( D3DXVECTOR3( -1.f, 1.f, 1.f ), D3DXVECTOR2( 0.f, 0.f ) ) );
-	meshBuilder.Append( MeshVertex( D3DXVECTOR3( 1.f, -1.f, 1.f ), D3DXVECTOR2( 1.f, 1.f ) ) );
-	meshBuilder.Append( MeshVertex( D3DXVECTOR3( 1.f, 1.f, 1.f ), D3DXVECTOR2( 1.f, 0.f ) ) );
+	meshBuilder.Append( MeshVertex( CXMFLOAT3( -1.f, -1.f, 1.f ), CXMFLOAT2( 0.f, 1.f ) ) );
+	meshBuilder.Append( MeshVertex( CXMFLOAT3( -1.f, 1.f, 1.f ), CXMFLOAT2( 0.f, 0.f ) ) );
+	meshBuilder.Append( MeshVertex( CXMFLOAT3( 1.f, -1.f, 1.f ), CXMFLOAT2( 1.f, 1.f ) ) );
+	meshBuilder.Append( MeshVertex( CXMFLOAT3( 1.f, 1.f, 1.f ), CXMFLOAT2( 1.f, 0.f ) ) );
 
 	meshBuilder.AppendIndex( 0 );
 	meshBuilder.AppendIndex( 1 );
@@ -89,13 +91,11 @@ void CSSRManager::Process( IRenderer& renderer, const std::list<CGameObject*>& r
 	// Set Constant Buffer
 	if ( IRenderView* pView = renderer.GetCurrentRenderView( ) )
 	{
-		D3DXMATRIX* pSsrConstant = static_cast<D3DXMATRIX*>(m_ssrConstantBuffer->LockBuffer( renderer.GetDeviceContext( ) ));
+		CXMFLOAT4X4* pSsrConstant = static_cast<CXMFLOAT4X4*>(m_ssrConstantBuffer->LockBuffer( renderer.GetDeviceContext( ) ));
 
 		if ( pSsrConstant )
 		{
-			D3DXMATRIX projectMtx = pView->GetProjectionMatrix();
-
-			D3DXMatrixTranspose( pSsrConstant, &projectMtx );
+			*pSsrConstant = XMMatrixTranspose( pView->GetProjectionMatrix( ) );
 
 			m_ssrConstantBuffer->UnLockBuffer( renderer.GetDeviceContext( ) );
 			m_ssrConstantBuffer->SetPSBuffer( renderer.GetDeviceContext( ), 3 );

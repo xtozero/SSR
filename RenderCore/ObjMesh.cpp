@@ -5,9 +5,8 @@
 #include "IRenderer.h"
 #include "ISurface.h"
 #include "Material.h"
-#include "../Shared/Util.h"
 
-#include <d3dX9math.h>
+#include "../shared/Util.h"
 
 bool CObjMesh::Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topology )
 {

@@ -14,7 +14,7 @@ void BoundingSphere::CreateRigideBody( std::shared_ptr<IMesh> pMesh )
 	m_radiusSqr = -FLT_MAX;
 	for ( int i = 0; i < verticesCount; ++i )
 	{
-		float radiusSqr = D3DXVec3LengthSq( &pVertices[i].m_position );
+		float radiusSqr = XMVectorGetX( XMVector3LengthSq( pVertices[i].m_position ) );
 
 		if ( radiusSqr > m_radiusSqr )
 		{
@@ -23,7 +23,7 @@ void BoundingSphere::CreateRigideBody( std::shared_ptr<IMesh> pMesh )
 	}
 }
 
-void BoundingSphere::Update( const D3DXMATRIX& matrix, std::shared_ptr<IRigidBody> original )
+void BoundingSphere::Update( const CXMFLOAT4X4& matrix, std::shared_ptr<IRigidBody> original )
 {
 	BoundingSphere* orig = dynamic_cast<BoundingSphere*>( original.get( ) );
 	
@@ -36,7 +36,7 @@ void BoundingSphere::Update( const D3DXMATRIX& matrix, std::shared_ptr<IRigidBod
 
 float BoundingSphere::Intersect( const CRay* ray ) const
 {
-	CXMFLOAT3& toShpere = m_origin - ray->GetOrigin( );
+	XMVECTOR toShpere = m_origin - ray->GetOrigin( );
 
 	float toShpereSqr = XMVectorGetX( XMVector3LengthSq( toShpere ) );
 	float tangentSqr = XMVectorGetX( XMVector3Dot( toShpere, ray->GetDir( ) ) );

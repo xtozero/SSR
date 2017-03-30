@@ -22,7 +22,7 @@ struct CXMFLOAT2 : public DirectX::XMFLOAT2
 	operator const XMFLOAT2&() { return *this; }
 
 	// binary operators
-	CXMFLOAT2 operator+( const CXMFLOAT2& rhs ) const
+	DirectX::XMVECTOR operator+( const CXMFLOAT2& rhs ) const
 	{
 		using namespace DirectX;
 
@@ -32,7 +32,7 @@ struct CXMFLOAT2 : public DirectX::XMFLOAT2
 		return lVec + rVec;
 	}
 
-	CXMFLOAT2 operator-( const CXMFLOAT2& rhs ) const
+	DirectX::XMVECTOR operator-( const CXMFLOAT2& rhs ) const
 	{
 		using namespace DirectX;
 
@@ -42,7 +42,7 @@ struct CXMFLOAT2 : public DirectX::XMFLOAT2
 		return lVec - rVec;
 	}
 
-	CXMFLOAT2 operator*( float rhs ) const
+	DirectX::XMVECTOR operator*( float rhs ) const
 	{
 		using namespace DirectX;
 
@@ -51,7 +51,7 @@ struct CXMFLOAT2 : public DirectX::XMFLOAT2
 		return lVec * rhs;
 	}
 
-	CXMFLOAT2 operator/( float rhs ) const
+	DirectX::XMVECTOR operator/( float rhs ) const
 	{
 		using namespace DirectX;
 
@@ -96,7 +96,7 @@ struct CXMFLOAT2 : public DirectX::XMFLOAT2
 		return *this * -1.f;
 	}
 
-	friend CXMFLOAT2 operator*( float lhs, CXMFLOAT2 rhs )
+	friend DirectX::XMVECTOR operator*( float lhs, CXMFLOAT2 rhs )
 	{
 		return rhs * lhs;
 	}
@@ -118,7 +118,7 @@ struct CXMFLOAT2 : public DirectX::XMFLOAT2
 
 	float* end( )
 	{
-		return &y + sizeof( float );
+		return &y + 1;
 	}
 };
 
@@ -142,7 +142,7 @@ struct CXMFLOAT3 : public DirectX::XMFLOAT3
 	operator const XMFLOAT3&( ) { return *this; }
 	
 	// binary operators
-	CXMFLOAT3 operator+( const CXMFLOAT3& rhs ) const
+	DirectX::XMVECTOR operator+( const CXMFLOAT3& rhs ) const
 	{
 		using namespace DirectX;
 
@@ -152,7 +152,7 @@ struct CXMFLOAT3 : public DirectX::XMFLOAT3
 		return lVec + rVec;
 	}
 
-	CXMFLOAT3 operator-( const CXMFLOAT3& rhs ) const
+	DirectX::XMVECTOR operator-( const CXMFLOAT3& rhs ) const
 	{
 		using namespace DirectX;
 
@@ -162,7 +162,7 @@ struct CXMFLOAT3 : public DirectX::XMFLOAT3
 		return lVec - rVec;
 	}
 
-	CXMFLOAT3 operator*( float rhs ) const
+	DirectX::XMVECTOR operator*( float rhs ) const
 	{
 		using namespace DirectX;
 
@@ -171,7 +171,7 @@ struct CXMFLOAT3 : public DirectX::XMFLOAT3
 		return lVec * rhs;
 	}
 
-	CXMFLOAT3 operator/( float rhs ) const
+	DirectX::XMVECTOR operator/( float rhs ) const
 	{
 		using namespace DirectX;
 
@@ -216,7 +216,7 @@ struct CXMFLOAT3 : public DirectX::XMFLOAT3
 		return *this * -1.f;
 	}
 
-	friend CXMFLOAT3 operator*( float lhs, CXMFLOAT3 rhs )
+	friend DirectX::XMVECTOR operator*( float lhs, CXMFLOAT3 rhs )
 	{
 		return rhs * lhs;
 	}
@@ -238,7 +238,7 @@ struct CXMFLOAT3 : public DirectX::XMFLOAT3
 
 	float* end( )
 	{
-		return &z + sizeof( float );
+		return &z + 1;
 	}
 };
 
@@ -262,7 +262,7 @@ struct CXMFLOAT4 : public DirectX::XMFLOAT4
 	operator const XMFLOAT4&() { return *this; }
 
 	// binary operators
-	CXMFLOAT4 operator+( const CXMFLOAT4& rhs ) const
+	DirectX::XMVECTOR operator+( const CXMFLOAT4& rhs ) const
 	{
 		using namespace DirectX;
 
@@ -272,7 +272,7 @@ struct CXMFLOAT4 : public DirectX::XMFLOAT4
 		return lVec + rVec;
 	}
 
-	CXMFLOAT4 operator-( const CXMFLOAT4& rhs ) const
+	DirectX::XMVECTOR operator-( const CXMFLOAT4& rhs ) const
 	{
 		using namespace DirectX;
 
@@ -282,7 +282,7 @@ struct CXMFLOAT4 : public DirectX::XMFLOAT4
 		return lVec - rVec;
 	}
 
-	CXMFLOAT4 operator*( float rhs ) const
+	DirectX::XMVECTOR operator*( float rhs ) const
 	{
 		using namespace DirectX;
 
@@ -336,7 +336,7 @@ struct CXMFLOAT4 : public DirectX::XMFLOAT4
 		return *this * -1.f;
 	}
 
-	friend CXMFLOAT4 operator*( float lhs, CXMFLOAT4 rhs )
+	friend DirectX::XMVECTOR operator*( float lhs, CXMFLOAT4 rhs )
 	{
 		return rhs * lhs;
 	}
@@ -358,7 +358,7 @@ struct CXMFLOAT4 : public DirectX::XMFLOAT4
 
 	float* end( )
 	{
-		return &w + sizeof( float );
+		return &w + 1;
 	}
 };
 

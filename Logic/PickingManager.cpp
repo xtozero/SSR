@@ -101,7 +101,7 @@ bool CPickingManager::CreateWorldSpaceRay( CRay& ray, float x, float y )
 				//월드 공간으로 변환
 				pos = XMVector3TransformCoord( pos, curSelectedCamera->GetInvViewMatrix( ) );
 
-				CXMFLOAT3& dir = pos - origin;
+				XMVECTOR dir = pos - origin;
 				dir = XMVector3Normalize( dir );
 
 				ray.SetOrigin( origin );
@@ -233,7 +233,7 @@ void CPickingManager::OnMouseMove( const int x, const int y )
 
 			//삼각형 닮음을 이용한 월드 공간 이동 벡터 계산
 			const CXMFLOAT3& origin = curCamera->GetOrigin( );
-			CXMFLOAT3& rayDir = prevPos - origin;
+			XMVECTOR rayDir = prevPos - origin;
 			float farPlaneRayDist = XMVectorGetX( XMVector3Length( rayDir ) );
 			rayDir = XMVector3Normalize( rayDir );
 
@@ -243,10 +243,8 @@ void CPickingManager::OnMouseMove( const int x, const int y )
 			if ( hitDist >= 0.f )
 			{
 				XMVECTOR curPosition = m_curSelectedObject->GetPosition( );
-				XMVECTOR vCur = curPos;
-				XMVECTOR vPrev = prevPos;
 
-				curPosition += ( (vCur - vPrev) * hitDist ) / farPlaneRayDist;
+				curPosition += ( ( curPos - prevPos ) * hitDist ) / farPlaneRayDist;
 				m_curSelectedObject->SetPosition( curPosition );
 			}
 			else

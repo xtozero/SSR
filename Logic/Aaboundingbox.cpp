@@ -8,6 +8,8 @@
 
 #include <algorithm> 
 
+using namespace DirectX;
+
 void CAaboundingbox::CreateRigideBody( std::shared_ptr<IMesh> pMesh )
 {
 	m_min = CXMFLOAT3( FLT_MAX, FLT_MAX, FLT_MAX );
@@ -34,7 +36,7 @@ void CAaboundingbox::CreateRigideBody( std::shared_ptr<IMesh> pMesh )
 #endif
 }
 
-void CAaboundingbox::Update( const D3DXMATRIX& matrix, std::shared_ptr<IRigidBody> original )
+void CAaboundingbox::Update( const CXMFLOAT4X4& matrix, std::shared_ptr<IRigidBody> original )
 {
 	CAaboundingbox* orig = dynamic_cast<CAaboundingbox*>( original.get( ) );
 
@@ -43,20 +45,20 @@ void CAaboundingbox::Update( const D3DXMATRIX& matrix, std::shared_ptr<IRigidBod
 		return;
 	}
 
-	D3DXVECTOR3 v[8] = {
-		D3DXVECTOR3( orig->m_max.x, orig->m_max.y, orig->m_max.z ),
-		D3DXVECTOR3( orig->m_max.x, orig->m_min.y, orig->m_max.z ),
-		D3DXVECTOR3( orig->m_max.x, orig->m_max.y, orig->m_min.z ),
-		D3DXVECTOR3( orig->m_min.x, orig->m_max.y, orig->m_max.z ),
-		D3DXVECTOR3( orig->m_min.x, orig->m_max.y, orig->m_min.z ),
-		D3DXVECTOR3( orig->m_min.x, orig->m_min.y, orig->m_max.z ),
-		D3DXVECTOR3( orig->m_max.x, orig->m_min.y, orig->m_min.z ),
-		D3DXVECTOR3( orig->m_min.x, orig->m_min.y, orig->m_min.z ),
+	CXMFLOAT3 v[8] = {
+		CXMFLOAT3( orig->m_max.x, orig->m_max.y, orig->m_max.z ),
+		CXMFLOAT3( orig->m_max.x, orig->m_min.y, orig->m_max.z ),
+		CXMFLOAT3( orig->m_max.x, orig->m_max.y, orig->m_min.z ),
+		CXMFLOAT3( orig->m_min.x, orig->m_max.y, orig->m_max.z ),
+		CXMFLOAT3( orig->m_min.x, orig->m_max.y, orig->m_min.z ),
+		CXMFLOAT3( orig->m_min.x, orig->m_min.y, orig->m_max.z ),
+		CXMFLOAT3( orig->m_max.x, orig->m_min.y, orig->m_min.z ),
+		CXMFLOAT3( orig->m_min.x, orig->m_min.y, orig->m_min.z ),
 	};
 
 	for ( int i = 0; i < 8; ++i )
 	{
-		D3DXVec3TransformCoord( &v[i], &v[i], &matrix );
+		v[i] = XMVector3TransformCoord( v[i], matrix );
 	}
 
 	m_min = CXMFLOAT3( FLT_MAX, FLT_MAX, FLT_MAX );

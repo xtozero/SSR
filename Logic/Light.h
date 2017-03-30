@@ -57,7 +57,7 @@ public:
 
 	void RegisterProperty( LightTrait* const property ) { m_property = property; }
 
-	D3DXMATRIX GetViewMatrix( );
+	CXMFLOAT4X4 GetViewMatrix( );
 
 	CLight( );
 	virtual ~CLight( ) = default;
@@ -65,5 +65,5 @@ public:
 private:
 	LightTrait* m_property;
 	bool m_isNeedReclac;
-	D3DXMATRIX m_viewMatrix;
+	CXMFLOAT4X4 m_viewMatrix;
 };

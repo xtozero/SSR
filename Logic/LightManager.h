@@ -3,6 +3,7 @@
 #include "common.h"
 #include "Light.h"
 #include "../Engine/ScriptKeyHandler.h"
+#include "../shared/CDirectXMath.h"
 
 #include <array>
 #include <memory>
@@ -36,8 +37,8 @@ public:
 
 	void PushLightTrait( const LightTrait& trait );
 
-	D3DXMATRIX GetPrimaryLightViewMatrix( );
-	D3DXMATRIX GerPrimaryLightProjectionMatrix( );
+	CXMFLOAT4X4 GetPrimaryLightViewMatrix( );
+	CXMFLOAT4X4 GerPrimaryLightProjectionMatrix( );
 
 	CLightManager( );
 	~CLightManager( ) = default;
