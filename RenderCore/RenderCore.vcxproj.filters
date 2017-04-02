@@ -439,6 +439,12 @@
     <FxCompile Include="..\Shader\vsSSR.fx">
       <Filter>fx</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shader\psGaussianBlurY.fx">
+      <Filter>fx</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shader\psGaussianBlurX.fx">
+      <Filter>fx</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shader\texCommon.fxh">

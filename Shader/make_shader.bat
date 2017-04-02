@@ -7,6 +7,8 @@ fxc /Fo psSSRBlend.cso 				/T ps_4_0 /E main psSSRBlend.fx
 fxc /Fo psTexture.cso 				/T ps_4_0 /E main psTexture.fx
 fxc /Fo psTexWithOutLight.cso			/T ps_4_0 /E main psTexWithOutLight.fx
 fxc /Fo psTutorial.cso 				/T ps_4_0 /E main psTutorial.fx
+fxc /Fo psGaussianBlurX.cso			/T ps_4_0 /E main psGaussianBlurX.fx
+fxc /Fo psGaussianBlurY.cso			/T ps_4_0 /E main psGaussianBlurY.fx
 fxc /Fo vsDepthStencil.cso 			/T vs_4_0 /E main vsDepthStencil.fx
 fxc /Fo vsScreenRect.cso 			/T vs_4_0 /E main vsScreenRect.fx
 fxc /Fo vsSSR.cso 				/T vs_4_0 /E main vsSSR.fx

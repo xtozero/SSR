@@ -15,4 +15,6 @@
 	"../Shader/psSSR.fx"					"ps_4_0"
 	"../Shader/psSSRBlend.fx"				"ps_4_0"
 	"../Shader/vsScreenRect.fx"				"vs_4_0"
+	"../Shader/psGaussianBlurX.fx"			"ps_4_0"
+	"../Shader/psGaussianBlurY.fx"			"ps_4_0"
 }

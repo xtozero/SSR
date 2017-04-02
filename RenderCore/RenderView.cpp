@@ -19,7 +19,9 @@ namespace
 	struct GBUFFER_INFO
 	{
 		float m_zFar;
-		float m_padding[3];
+		float m_targetWidth;
+		float m_targetHeight;
+		float m_padding;
 	};
 }
 
@@ -95,6 +97,13 @@ void RenderView::UpdataView( ID3D11DeviceContext* pDeviceContext )
 	if ( GBUFFER_INFO* pData = static_cast<GBUFFER_INFO*>( m_gBufferConstantBuffer.LockBuffer( pDeviceContext ) ) )
 	{
 		pData->m_zFar = m_zFar;
+
+		auto mainView = m_viewportList.begin( );
+		if ( mainView != m_viewportList.end( ) )
+		{
+			pData->m_targetWidth = mainView->Width;
+			pData->m_targetHeight = mainView->Height;
+		}
 
 		m_gBufferConstantBuffer.UnLockBuffer( pDeviceContext );
 		m_gBufferConstantBuffer.SetPSBuffer( pDeviceContext, static_cast<int>(PS_CONSTANT_BUFFER::GBUFFER) );

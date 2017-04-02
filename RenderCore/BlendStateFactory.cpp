@@ -77,7 +77,7 @@ namespace
 					}
 					else if ( rtProperty->GetKey( ) == _T( "RenderTargetWriteMask" ) )
 					{
-						rtBlendDesc.RenderTargetWriteMask = static_cast<D3D11_COLOR_WRITE_ENABLE>(GetEnumStringMap( ).GetEnum( rtProperty->GetString( ), D3D11_COLOR_WRITE_ENABLE_ALL ));
+						rtBlendDesc.RenderTargetWriteMask = static_cast<UINT8>(GetEnumStringMap( ).GetEnum( rtProperty->GetString( ), D3D11_COLOR_WRITE_ENABLE_ALL ));
 					};
 				}
 			}

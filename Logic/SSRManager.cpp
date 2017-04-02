@@ -83,6 +83,11 @@ bool CSSRManager::Init( IRenderer& renderer, IMeshBuilder& meshBuilder )
 		return false;
 	}
 
+	if ( !m_blur.Init( renderer, meshBuilder ) )
+	{
+		return false;
+	}
+
 	return true;
 }
 
@@ -122,6 +127,8 @@ void CSSRManager::Process( IRenderer& renderer, const std::list<CGameObject*>& r
 		object->Render( renderer );
 		object->SetOverrideMaterial( nullptr );
 	}
+
+	m_blur.Process( renderer, *m_pSsrSrv, *m_pSsrRt );
 
 	// Set Framebuffer RenderTarget
 	rendertargetMgr.SetRenderTarget( renderer.GetDeviceContext(), m_pDefaultRt, nullptr );

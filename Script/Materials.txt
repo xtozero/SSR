@@ -121,4 +121,38 @@
 		"DS_State"	"depthWriteTestOff"
 		"Blend"		"ssr"
 	}
+	
+	"mat_gaussian_blur_x"
+	{
+		"Shader"
+		{
+			"VS"	"vsScreenRect"
+			"PS"	"psGaussianBlurX"
+		}
+		
+		"RS_State"	"scissor_on"
+		"DS_State"	"depthTestOff"
+		
+		"Sampler"
+		{
+			"PS"	"default"
+		}
+	}
+	
+	"mat_gaussian_blur_y"
+	{
+		"Shader"
+		{
+			"VS"	"vsScreenRect"
+			"PS"	"psGaussianBlurY"
+		}
+		
+		"RS_State"	"scissor_on"
+		"DS_State"	"depthTestOff"
+		
+		"Sampler"
+		{
+			"PS"	"default"
+		}
+	}
 }

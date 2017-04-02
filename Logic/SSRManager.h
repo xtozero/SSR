@@ -3,6 +3,8 @@
 #include <memory>
 #include <list>
 
+#include "ScreenBlurManager.h"
+
 class CGameObject;
 class IBuffer;
 class IDepthStencil;
@@ -33,5 +35,7 @@ private:
 	IShaderResource* m_pDefaultSrv;
 	IShaderResource* m_pDepthSrv;
 	std::shared_ptr<IBuffer> m_ssrConstantBuffer;
+
+	ScreenBlurManager m_blur;
 };
 

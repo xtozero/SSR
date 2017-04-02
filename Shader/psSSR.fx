@@ -4,11 +4,11 @@
 Texture2D framebufferTex : register( t1 );
 Texture2D depthbufferTex : register( t2 );
 
-static const int g_maxBinarySearchStep = 32;
+static const int g_maxBinarySearchStep = 40;
 static const int g_maxRayStep = 70;
-static const float g_depthbias = 0.1f;
-static const float g_rayStepScale = 1.f;
-static const float g_maxThickness = 1.5f / g_FarPlaneDist;
+static const float g_depthbias = 0.01f;
+static const float g_rayStepScale = 1.05f;
+static const float g_maxThickness = 1.8f / g_FarPlaneDist;
 static const float g_maxRayLength = 20.f;
 
 cbuffer SSRConstantBuffer : register(b3)
@@ -98,7 +98,7 @@ float4 main( PS_INPUT input ) : SV_TARGET
 		}
 		else
 		{
-			reflectPos += ( reflectVec * Noise( texCoord.xy ) );
+			reflectPos = input.viewPos + ( ( i + Noise( texCoord.xy ) ) * reflectVec );
 		}
 	}
 

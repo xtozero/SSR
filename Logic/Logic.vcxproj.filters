@@ -126,6 +126,9 @@
     <ClInclude Include="..\shared\CDirectXMath.h">
       <Filter>Shared</Filter>
     </ClInclude>
+    <ClInclude Include="ScreenBlurManager.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -201,6 +204,9 @@
       <Filter>Collision</Filter>
     </ClCompile>
     <ClCompile Include="SSRManager.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenBlurManager.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
   </ItemGroup>
