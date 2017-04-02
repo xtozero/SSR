@@ -26,8 +26,8 @@ struct CXMFLOAT2 : public DirectX::XMFLOAT2
 	{
 		using namespace DirectX;
 
-		DirectX::XMVECTOR lVec = *this;
-		DirectX::XMVECTOR rVec = rhs;
+		XMVECTOR lVec = *this;
+		XMVECTOR rVec = rhs;
 
 		return lVec + rVec;
 	}
@@ -36,8 +36,8 @@ struct CXMFLOAT2 : public DirectX::XMFLOAT2
 	{
 		using namespace DirectX;
 
-		DirectX::XMVECTOR lVec = *this;
-		DirectX::XMVECTOR rVec = rhs;
+		XMVECTOR lVec = *this;
+		XMVECTOR rVec = rhs;
 
 		return lVec - rVec;
 	}
@@ -46,7 +46,7 @@ struct CXMFLOAT2 : public DirectX::XMFLOAT2
 	{
 		using namespace DirectX;
 
-		DirectX::XMVECTOR lVec = *this;
+		XMVECTOR lVec = *this;
 
 		return lVec * rhs;
 	}
@@ -55,7 +55,7 @@ struct CXMFLOAT2 : public DirectX::XMFLOAT2
 	{
 		using namespace DirectX;
 
-		DirectX::XMVECTOR lVec = *this;
+		XMVECTOR lVec = *this;
 
 		return lVec / rhs;
 	}
@@ -146,8 +146,8 @@ struct CXMFLOAT3 : public DirectX::XMFLOAT3
 	{
 		using namespace DirectX;
 
-		DirectX::XMVECTOR lVec = *this;
-		DirectX::XMVECTOR rVec = rhs;
+		XMVECTOR lVec = *this;
+		XMVECTOR rVec = rhs;
 
 		return lVec + rVec;
 	}
@@ -156,8 +156,8 @@ struct CXMFLOAT3 : public DirectX::XMFLOAT3
 	{
 		using namespace DirectX;
 
-		DirectX::XMVECTOR lVec = *this;
-		DirectX::XMVECTOR rVec = rhs;
+		XMVECTOR lVec = *this;
+		XMVECTOR rVec = rhs;
 
 		return lVec - rVec;
 	}
@@ -166,7 +166,7 @@ struct CXMFLOAT3 : public DirectX::XMFLOAT3
 	{
 		using namespace DirectX;
 
-		DirectX::XMVECTOR lVec = *this;
+		XMVECTOR lVec = *this;
 
 		return lVec * rhs;
 	}
@@ -175,7 +175,7 @@ struct CXMFLOAT3 : public DirectX::XMFLOAT3
 	{
 		using namespace DirectX;
 
-		DirectX::XMVECTOR lVec = *this;
+		XMVECTOR lVec = *this;
 
 		return lVec / rhs;
 	}
@@ -266,8 +266,8 @@ struct CXMFLOAT4 : public DirectX::XMFLOAT4
 	{
 		using namespace DirectX;
 
-		DirectX::XMVECTOR lVec = *this;
-		DirectX::XMVECTOR rVec = rhs;
+		XMVECTOR lVec = *this;
+		XMVECTOR rVec = rhs;
 
 		return lVec + rVec;
 	}
@@ -276,8 +276,8 @@ struct CXMFLOAT4 : public DirectX::XMFLOAT4
 	{
 		using namespace DirectX;
 
-		DirectX::XMVECTOR lVec = *this;
-		DirectX::XMVECTOR rVec = rhs;
+		XMVECTOR lVec = *this;
+		XMVECTOR rVec = rhs;
 
 		return lVec - rVec;
 	}
@@ -286,7 +286,7 @@ struct CXMFLOAT4 : public DirectX::XMFLOAT4
 	{
 		using namespace DirectX;
 
-		DirectX::XMVECTOR lVec = *this;
+		XMVECTOR lVec = *this;
 
 		return lVec * rhs;
 	}
@@ -295,7 +295,7 @@ struct CXMFLOAT4 : public DirectX::XMFLOAT4
 	{
 		using namespace DirectX;
 
-		DirectX::XMVECTOR lVec = *this;
+		XMVECTOR lVec = *this;
 
 		return lVec / rhs;
 	}
