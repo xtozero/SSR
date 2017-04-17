@@ -5,13 +5,9 @@
 
 #ifdef RENDERCORE_EXPORTS
 #define RENDERCORE_DLL __declspec(dllexport)
-#else
-#define RENDERCORE_DLL __declspec(dllimport)
-#endif
-
-#ifdef RENDERCORE_EXPORTS
 #define RENDERCORE_FUNC_DLL extern "C" __declspec(dllexport)
 #else
+#define RENDERCORE_DLL __declspec(dllimport)
 #define RENDERCORE_FUNC_DLL extern "C" __declspec(dllimport)
 #endif
 

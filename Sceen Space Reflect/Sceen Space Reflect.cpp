@@ -1,14 +1,14 @@
 #include "stdafx.h"
 #include "Sceen Space Reflect.h"
-#include "..\Logic\GameLogic.h"
-#include "..\Engine\Window.h"
+#include "../Engine/IEngine.h"
+#include "Window.h"
+
+#include <memory>
 
 constexpr int FRAME_BUFFER_WIDTH = 1024;
 constexpr int FRAME_BUFFER_HEIGHT = 768;
 
-#pragma comment( lib, "../lib/Logic.lib")
 #pragma comment( lib, "../lib/Engine.lib")
-
 
 LRESULT CALLBACK	WndProc ( HWND, UINT, WPARAM, LPARAM );
 INT_PTR CALLBACK	About ( HWND, UINT, WPARAM, LPARAM );
@@ -20,37 +20,23 @@ int APIENTRY _tWinMain ( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE , _In_ LPT
 
 	if ( !mainWindow.Run( setup, WndProc ) )
 	{
-		return FALSE;	
+		return false;
 	}
 
-	CGameLogic gGameLogic;
-	gGameLogic.Initialize( mainWindow.GetHwnd( ), FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT );
-
-	MSG msg;
-	while ( 1 )
+	std::unique_ptr<IEngine> engine( CreatePlatformEngine( SUPPORT_PLATFORM::Window() ) );
+	if ( engine == nullptr )
 	{
-		if ( PeekMessage ( &msg, NULL, 0, 0, PM_REMOVE ) )
-		{
-			if ( msg.message == WM_QUIT )
-			{
-				break;
-			}
-			
-			if ( gGameLogic.HandleWindowMessage( msg ) )
-			{
-				//Do Nothing
-			}
-			else
-			{
-				TranslateMessage( &msg );
-				DispatchMessage( &msg );
-			}
-		}
-		
-		gGameLogic.UpdateLogic( );
+		return false;
 	}
 
-	return (int)msg.wParam;
+	if ( !engine->BootUp( mainWindow ) )
+	{
+		return false;
+	}
+
+	engine->Run( );
+
+	return 0;
 }
 
 LRESULT CALLBACK WndProc ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )

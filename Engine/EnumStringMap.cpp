@@ -33,7 +33,7 @@ int CEnumStringMap::GetEnum( const String & enumName, const int defaultValue ) c
 	return defaultValue;
 }
 
-ENGINE_FUNC_DLL IEnumStringMap& GetEnumStringMap( )
+IEnumStringMap& GetEnumStringMap( )
 {
 	static CEnumStringMap gEnumStringMap;
 	return gEnumStringMap;

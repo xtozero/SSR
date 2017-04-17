@@ -7,15 +7,16 @@
 #include "UtilWindowInfo.h"
 
 #include "../Engine/ConVar.h"
-#include "../Engine/KeyValueReader.h"
 #include "../Engine/ConCommand.h"
+#include "../Engine/KeyValueReader.h"
 #include "../RenderCore/BaseMesh.h"
 #include "../RenderCore/DebugMesh.h"
 #include "../RenderCore/IMeshBuilder.h"
 #include "../RenderCore/IRenderer.h"
 #include "../RenderCOre/IRenderView.h"
 #include "../RenderCore/RenderCoreDllFunc.h"
-#include "../Shared/Util.h"
+#include "../shared/IPlatform.h"
+#include "../shared/Util.h"
 
 #include <ctime>
 #include <tchar.h>
@@ -27,7 +28,7 @@ namespace
 	ConVar( showFps, "1", "Show Fps" );
 }
 
-bool CGameLogic::Initialize( HWND hwnd, UINT wndWidth, UINT wndHeight )
+bool CGameLogic::Initialize( IPlatform& platform )
 {
 	m_pRenderer = CreateDirect3D11Renderer( );
 
@@ -36,24 +37,26 @@ bool CGameLogic::Initialize( HWND hwnd, UINT wndWidth, UINT wndHeight )
 		return false;
 	}
 
-	m_wndHwnd = hwnd;
+	m_wndHwnd = platform.GetRawHandle<HWND>();
 	srand( static_cast<UINT>(time( nullptr )) );
-	CUtilWindowInfo::GetInstance( ).SetRect( wndWidth, wndHeight );
+	
+	m_wndSize = platform.GetSize( );
+	CUtilWindowInfo::GetInstance( ).SetRect( m_wndSize.first, m_wndSize.second );
 
-	ON_FAIL_RETURN( m_pRenderer->InitializeRenderer( hwnd, wndWidth, wndHeight ) );
+	ON_FAIL_RETURN( m_pRenderer->InitializeRenderer( m_wndHwnd, m_wndSize.first, m_wndSize.second ) );
 
-	m_pickingManager.PushViewport( 0.0f, 0.0f, static_cast<float>(wndWidth), static_cast<float>(wndHeight) );
+	m_pickingManager.PushViewport( 0.0f, 0.0f, static_cast<float>( m_wndSize.first ), static_cast<float>( m_wndSize.second ) );
 
 	IRenderView* view = m_pRenderer->GetCurrentRenderView( );
 
 	if ( view )
 	{
 		view->CreatePerspectiveFovLHMatrix( XMConvertToRadians( 60 ),
-			static_cast<float>(wndWidth) / wndHeight,
+			static_cast<float>( m_wndSize.first ) / m_wndSize.second,
 			1.f,
 			1500.0f );
 		m_pickingManager.PushInvProjection( XMConvertToRadians( 60 ),
-			static_cast<float>(wndWidth) / wndHeight,
+			static_cast<float>( m_wndSize.first ) / m_wndSize.second,
 			1.f,
 			1500.0f );
 	}
@@ -77,7 +80,7 @@ bool CGameLogic::Initialize( HWND hwnd, UINT wndWidth, UINT wndHeight )
 	return true;
 }
 
-void CGameLogic::UpdateLogic( void )
+void CGameLogic::Update( void )
 {
 	// 한 프레임의 시작 ElapsedTime 갱신
 	CTimer::GetInstance( ).Tick( );
@@ -201,8 +204,8 @@ bool CGameLogic::LoadScene( void )
 
 void CGameLogic::SceneBegin( void ) const
 {
-	float wndWidth = static_cast<float>( CUtilWindowInfo::GetInstance( ).GetWidth( ) );
-	float wndHeight = static_cast<float>( CUtilWindowInfo::GetInstance( ).GetHeight( ) );
+	float wndWidth = static_cast<float>( m_wndSize.first );
+	float wndHeight = static_cast<float>( m_wndSize.second );
 	m_pRenderer->PushViewPort( 0.f, 0.f, wndWidth, wndHeight );
 	m_pRenderer->PushScissorRect( CUtilWindowInfo::GetInstance( ).GetRect() );
 
@@ -304,4 +307,9 @@ CGameLogic::CGameLogic( ):
 	m_pRenderer( nullptr )
 {
 	ShowDebugConsole( );
+}
+
+Owner<ILogic*> CreateGameLogic( )
+{
+	return new CGameLogic( );
 }
