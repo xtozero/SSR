@@ -13,11 +13,13 @@ public:
 	virtual bool BootUp( IPlatform& ) = 0;
 	virtual void ShutDown( ) = 0;
 
-	virtual void ProcessInput( ) = 0;
-
 	virtual void Run( ) = 0;
 
 	virtual ~IEngine( ) = default;
+
+protected:
+	virtual void ProcessInput( ) = 0;
+	virtual bool IsAvailable( ) = 0;
 };
 
 namespace SUPPORT_PLATFORM

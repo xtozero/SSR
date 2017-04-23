@@ -239,7 +239,7 @@ void CGameLogic::InitCameraProperty( std::shared_ptr<KeyValueGroup> keyValue )
 	if ( found != nullptr )
 	{
 		std::vector<String> param;
-		UTIL::Split( found->GetString( ), param, ' ' );
+		UTIL::Split( found->GetValue( ), param, ' ' );
 
 		if ( param.size( ) == 3 )
 		{

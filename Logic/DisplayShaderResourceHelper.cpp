@@ -48,19 +48,19 @@ bool CDisplayShaderResourceHelper::LoadPropertyFromScript( const CKeyValueIterat
 {
 	if ( pKeyValue->GetKey( ) == String( _T( "TextureName" ) ) )
 	{
-		m_textureName = pKeyValue->GetString( );
+		m_textureName = pKeyValue->GetValue( );
 
 		return true;
 	}
 	else if ( pKeyValue->GetKey( ) == String( _T( "Width" ) ) )
 	{
-		m_width = pKeyValue->Get<float>( );
+		m_width = pKeyValue->GetValue<float>( );
 
 		return true;
 	}
 	else if ( pKeyValue->GetKey( ) == String( _T( "Height" ) ) )
 	{
-		m_height = pKeyValue->Get<float>( );
+		m_height = pKeyValue->GetValue<float>( );
 
 		return true;
 	}

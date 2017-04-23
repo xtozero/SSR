@@ -15,7 +15,7 @@ namespace
 	ConVar( print_debug_keyValue, "0", "print data when keyValue loaded" );
 }
 
-const String& KeyValue::GetString( ) const
+const String& KeyValue::GetValue( ) const
 {
 	return m_value;
 }
@@ -270,7 +270,7 @@ void CKeyValueReader::PrintKeyValueInternal( std::shared_ptr<KeyValue> keyValue,
 		DebugMsg( "\t" );
 	}
 
-	DebugMsg( "[ %s, %s ]\n", keyValue->GetKey( ).c_str( ), keyValue->GetString( ).c_str( ) );
+	DebugMsg( "[ %s, %s ]\n", keyValue->GetKey( ).c_str( ), keyValue->GetValue( ).c_str( ) );
 
 	if ( keyValue->GetChild( ) != nullptr )
 	{

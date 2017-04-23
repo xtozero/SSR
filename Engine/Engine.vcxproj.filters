@@ -22,6 +22,9 @@
     <Filter Include="Window">
       <UniqueIdentifier>{13f3a296-b250-4ae5-ae0d-20b4e47d8a2e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UserInput">
+      <UniqueIdentifier>{ed8e8dcd-faec-4bcb-bc6a-dbdcffdfffb5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -64,7 +67,16 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="WindowPlatformEngine.h">
+      <Filter>Window</Filter>
+    </ClInclude>
+    <ClInclude Include="UserInputCode.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="UICMap.h">
+      <Filter>UserInput</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowPlatformKeyMap.h">
+      <Filter>Window</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -96,7 +108,7 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="WindowPlatformEngine.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Window</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

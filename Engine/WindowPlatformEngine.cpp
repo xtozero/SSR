@@ -9,51 +9,64 @@
 
 bool WindowPlatformEngine::BootUp( IPlatform& platform )
 {
+	HMODULE logicDll = LoadLibrary( _T( "../bin/Logic.dll" ) );
+
+	if ( logicDll == nullptr )
+	{
+		return false;
+	}
+
+	using CreateGameLogicFunc = Owner<ILogic*> (*)( );
+	CreateGameLogicFunc CreateGameLogic = reinterpret_cast<CreateGameLogicFunc>( GetProcAddress( logicDll, "CreateGameLogic" ) );
+
+	if ( CreateGameLogic == nullptr )
+	{
+		return false;
+	}
+
 	m_logic.reset( CreateGameLogic( ) );
 
 	if ( m_logic )
 	{
-		return m_logic->Initialize( platform );
+		m_isAvailable = m_logic->Initialize( platform );
 	}
 
-	return false;
+	return m_isAvailable;
 }
 
 void WindowPlatformEngine::ShutDown( )
 {
 	m_logic = nullptr;
+	m_isAvailable = false;
+}
+
+void WindowPlatformEngine::Run( )
+{
+	while ( IsAvailable() )
+	{
+		ProcessInput( );
+		m_logic->Update( );
+	}
 }
 
 void WindowPlatformEngine::ProcessInput( )
 {
 	MSG msg;
-	while ( true )
+	if ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
 	{
-		if ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
-		{
-			if ( msg.message == WM_QUIT )
-			{
-				break;
-			}
+		m_isAvailable = msg.message != WM_QUIT;
 
-			FIX_ME( "여기서 입력 처리해야 함." );
-			if ( false )
-			{
-				//Do Nothing
-			}
-			else
-			{
-				TranslateMessage( &msg );
-				DispatchMessage( &msg );
-			}
+		FIX_ME( "여기서 입력 처리해야 함." );
+		if ( false )
+		{
+			//Do Nothing
+		}
+		else
+		{
+			TranslateMessage( &msg );
+			DispatchMessage( &msg );
 		}
 	}
-}
-
-void WindowPlatformEngine::Run( )
-{
-	ProcessInput( );
-	m_logic->Update( );
 }
 
 Owner<IEngine*> CreatePlatformEngine( SUPPORT_PLATFORM::Window ) { return new WindowPlatformEngine( ); }

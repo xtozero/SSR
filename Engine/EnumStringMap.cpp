@@ -8,20 +8,20 @@
 class CEnumStringMap : public IEnumStringMap
 {
 public:
-	virtual void RegisterEnumString( const String & enumString, const int enumValue ) override;
-	virtual int GetEnum( const String & enumName, const int defaultValue ) const override;
+	virtual void RegisterEnumString( const String& enumString, const int enumValue ) override;
+	virtual int GetEnum( const String& enumName, const int defaultValue ) const override;
 
 private:
 	std::map<String, int> m_enumString;
 };
 
 
-void CEnumStringMap::RegisterEnumString( const String & enumString, const int enumValue )
+void CEnumStringMap::RegisterEnumString( const String& enumString, const int enumValue )
 {
 	m_enumString.emplace( enumString, enumValue );
 }
 
-int CEnumStringMap::GetEnum( const String & enumName, const int defaultValue ) const
+int CEnumStringMap::GetEnum( const String& enumName, const int defaultValue ) const
 {
 	auto found = m_enumString.find( enumName );
 

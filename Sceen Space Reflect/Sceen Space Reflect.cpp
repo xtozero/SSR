@@ -8,8 +8,6 @@
 constexpr int FRAME_BUFFER_WIDTH = 1024;
 constexpr int FRAME_BUFFER_HEIGHT = 768;
 
-#pragma comment( lib, "../lib/Engine.lib")
-
 LRESULT CALLBACK	WndProc ( HWND, UINT, WPARAM, LPARAM );
 INT_PTR CALLBACK	About ( HWND, UINT, WPARAM, LPARAM );
 
@@ -19,6 +17,21 @@ int APIENTRY _tWinMain ( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE , _In_ LPT
 	Window mainWindow( _T( "Screen Space Reflection" ) );
 
 	if ( !mainWindow.Run( setup, WndProc ) )
+	{
+		return false;
+	}
+
+	HMODULE engineDll = LoadLibrary( _T( "../bin/Engine.dll" ) );
+
+	if ( engineDll == nullptr )
+	{
+		return false;
+	}
+
+	using CreateEngineFunc = Owner<IEngine*> (*)( SUPPORT_PLATFORM::Window );
+	CreateEngineFunc CreatePlatformEngine = reinterpret_cast<CreateEngineFunc>( GetProcAddress( engineDll, "CreatePlatformEngine" ) );
+
+	if ( CreatePlatformEngine == nullptr )
 	{
 		return false;
 	}
