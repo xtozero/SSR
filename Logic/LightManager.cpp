@@ -18,8 +18,8 @@ namespace
 
 	void AmbientColorHandler( CLightManager* owner, const String&, const std::shared_ptr<KeyValue>& keyValue )
 	{
-		KEYVALUE_VALUE_ASSERT( keyValue->GetString( ), 4 );
-		Stringstream stream( keyValue->GetString( ) );
+		KEYVALUE_VALUE_ASSERT( keyValue->GetValue( ), 4 );
+		Stringstream stream( keyValue->GetValue( ) );
 		CXMFLOAT4 ambientColor( 0.f, 0.f, 0.f, 0.f );
 
 		stream >> ambientColor.x >> ambientColor.y >> ambientColor.z >> ambientColor.w;
@@ -34,51 +34,51 @@ namespace
 		{
 			if ( key->GetKey( ) == _T( "type" ) )
 			{
-				trait.m_type = static_cast<LIGHT_TYPE>( GetEnumStringMap().GetEnum( key->GetString( ), static_cast<int>( LIGHT_TYPE::NONE ) ) );
+				trait.m_type = static_cast<LIGHT_TYPE>( GetEnumStringMap().GetEnum( key->GetValue( ), static_cast<int>( LIGHT_TYPE::NONE ) ) );
 			}
 			else if ( key->GetKey( ) == _T( "onOff" ) )
 			{
-				trait.m_isOn = key->Get<int>() == 1;
+				trait.m_isOn = key->GetValue<int>() == 1;
 			}
 			else if ( key->GetKey( ) == _T( "theta" ) )
 			{
-				trait.m_theta = key->Get<float>();
+				trait.m_theta = key->GetValue<float>();
 			}
 			else if ( key->GetKey( ) == _T( "phi" ) )
 			{
-				trait.m_phi = key->Get<float>();
+				trait.m_phi = key->GetValue<float>();
 			}
 			else if ( key->GetKey( ) == _T( "direction" ) )
 			{
-				Stringstream stream( key->GetString( ) );
+				Stringstream stream( key->GetValue( ) );
 				stream >> trait.m_direction.x >> trait.m_direction.y >> trait.m_direction.z;
 			}
 			else if ( key->GetKey( ) == _T( "range" ) )
 			{
-				trait.m_range = key->Get<float>();
+				trait.m_range = key->GetValue<float>();
 			}
 			else if ( key->GetKey( ) == _T( "fallOff" ) )
 			{
-				trait.m_fallOff = key->Get<float>();
+				trait.m_fallOff = key->GetValue<float>();
 			}
 			else if ( key->GetKey( ) == _T( "attenuation" ) )
 			{
-				Stringstream stream( key->GetString( ) );
+				Stringstream stream( key->GetValue( ) );
 				stream >> trait.m_attenuation.x >> trait.m_attenuation.y >> trait.m_attenuation.z;
 			}
 			else if ( key->GetKey( ) == _T( "position" ) )
 			{
-				Stringstream stream( key->GetString( ) );
+				Stringstream stream( key->GetValue( ) );
 				stream >> trait.m_position.x >> trait.m_position.y >> trait.m_position.z;
 			}
 			else if ( key->GetKey( ) == _T( "m_diffuse" ) )
 			{
-				Stringstream stream( key->GetString( ) );
+				Stringstream stream( key->GetValue( ) );
 				stream >> trait.m_diffuse.x >> trait.m_diffuse.y >> trait.m_diffuse.z >> trait.m_diffuse.w;
 			}
 			else if ( key->GetKey( ) == _T( "m_specular" ) )
 			{
-				Stringstream stream( key->GetString( ) );
+				Stringstream stream( key->GetValue( ) );
 				stream >> trait.m_specular.x >> trait.m_specular.y >> trait.m_specular.z >> trait.m_specular.w;
 			}
 		}

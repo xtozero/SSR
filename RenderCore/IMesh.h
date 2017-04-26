@@ -13,7 +13,7 @@ struct ID3D11DeviceContext;
 class IShaderResource;
 enum SHADER_TYPE;
 
-class RENDERCORE_DLL IMesh
+class IMesh
 {
 public:
 	virtual void SetModelData( MeshVertex* pOrignal, UINT vertexCount ) = 0;

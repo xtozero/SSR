@@ -107,6 +107,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="CollisionUtil.h" />
     <ClInclude Include="GameObjectFactory.h" />
     <ClInclude Include="GameObjectProperty.h" />
+    <ClInclude Include="ILogic.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="LightManager.h" />
     <ClInclude Include="PickingManager.h" />

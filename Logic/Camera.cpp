@@ -3,58 +3,32 @@
 #include "Camera.h"
 #include "../RenderCore/IRenderer.h"
 #include "../RenderCore/IRenderView.h"
+#include "../shared/UserInput.h"
 #include "../shared/Util.h"
 
 #include <type_traits>
 
 using namespace DirectX;
 
-void CCamera::OnLButtonDown( const int x, const int y )
+void CCamera::ProcessInput( const UserInput& input )
 {
-	m_mouseRotateEnable = true;
-}
-
-void CCamera::OnLButtonUp( const int x, const int y )
-{
-	m_mouseRotateEnable = false;
-}
-
-void CCamera::OnRButtonDown( const int x, const int y )
-{
-	m_mouseTranslateEnable = true;
-}
-
-void CCamera::OnRButtonUp( const int x, const int y )
-{
-	m_mouseTranslateEnable = false;
-}
-
-void CCamera::OnMouseMove( const int x, const int y )
-{
-	float xPos = static_cast<float>( x );
-	float yPos = static_cast<float>( y );
-	float dx = xPos - m_prevMouseEventPos.x;
-	float dy = yPos - m_prevMouseEventPos.y;
-
-	dx *= m_mouseSensitivity;
-	dy *= m_mouseSensitivity;
-
-	if ( m_mouseRotateEnable )
+	switch ( input.m_code )
 	{
-		Rotate( dy, dx, 0 );
+	case UIC_MOUSE_MOVE:
+		OnMouseMove( input );
+		break;
+	case UIC_MOUSE_LEFT:
+		OnMouseLButton( input );
+		break;
+	case UIC_MOUSE_RIGHT:
+		OnMouseRButton( input );
+		break;
+	case UIC_MOUSE_WHEELSPIN:
+		OnWheelMove( input );
+		break;
+	default:
+		break;
 	}
-	else if ( m_mouseTranslateEnable )
-	{
-		Move( dx, dy, 0 );
-	}
-
-	m_prevMouseEventPos.x = xPos;
-	m_prevMouseEventPos.y = yPos;
-}
-
-void CCamera::OnWheelMove( const int zDelta )
-{
-	Move( 0, 0, static_cast<float>( zDelta ) );
 }
 
 const CXMFLOAT4X4& CCamera::GetViewMatrix( )
@@ -129,6 +103,39 @@ void CCamera::UpdateToRenderer( IRenderer& renderer )
 		view->SetViewMatrix( GetViewMatrix( ) );
 		m_isNeedUpdateRenderer = false;
 	}
+}
+
+void CCamera::OnMouseLButton( const UserInput& input )
+{
+	m_mouseRotateEnable = input.m_axis[2] < 0;
+}
+
+void CCamera::OnMouseRButton( const UserInput& input )
+{
+	m_mouseTranslateEnable = input.m_axis[2] < 0;
+}
+
+void CCamera::OnMouseMove( const UserInput& input )
+{
+	float dx = input.m_axis[0];
+	float dy = input.m_axis[1];
+
+	dx *= m_mouseSensitivity;
+	dy *= m_mouseSensitivity;
+
+	if ( m_mouseRotateEnable )
+	{
+		Rotate( dy, dx, 0 );
+	}
+	else if ( m_mouseTranslateEnable )
+	{
+		Move( dx, dy, 0 );
+	}
+}
+
+void CCamera::OnWheelMove( const UserInput& input )
+{
+	Move( 0, 0, static_cast<float>( input.m_axis[2] ) );
 }
 
 void CCamera::ReCalcViewMatrix( )

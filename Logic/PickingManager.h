@@ -29,10 +29,13 @@ struct VIEWPORT
 
 class CCamera;
 class CGameObject;
+struct UserInput;
 
 class CPickingManager : public IListener
 {
 public:
+	virtual void ProcessInput( const UserInput& ) override;
+
 	void PushViewport( const float topLeftX, const float topLeftY, const float width, const float height );
 	void PushCamera( CCamera* camera );
 	void PushInvProjection( float fov, float aspect, float zNear, float zFar, bool isLH = true );
@@ -40,14 +43,13 @@ public:
 	bool PickingObject( float x, float y );
 	void ReleasePickingObject( );
 
-	virtual void OnLButtonDown( const int x, const int y ) override;
-	virtual void OnLButtonUp( const int x, const int y ) override;
-	virtual void OnMouseMove( const int x, const int y ) override;
-
 	using GameObjectsPtr = std::vector<std::shared_ptr<CGameObject>>*;
 	explicit CPickingManager( const GameObjectsPtr objects );
 
 private:
+	void OnMouseLButton( const UserInput& input );
+	void OnMouseMove( const UserInput& input );
+
 	std::vector<VIEWPORT> m_viewports;
 	std::vector<CCamera*> m_cameras;
 	std::vector<CXMFLOAT4X4> m_InvProjections;
@@ -55,7 +57,7 @@ private:
 	CGameObject* m_curSelectedObject = nullptr;
 	int m_curSelectedIdx = -1;
 
-	CXMFLOAT2 m_prevMouseEventPos = { 0.f, 0.f };
+	CXMFLOAT2 m_curMousePos = { 0.f, 0.f };
 
 	float m_closestHitDist = FLT_MAX;
 

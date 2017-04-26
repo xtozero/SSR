@@ -24,63 +24,63 @@ namespace
 		{
 			if ( property->GetKey( ) == _T( "DepthEnable" ) )
 			{
-				newDesc.DepthEnable = property->Get<int>( ) != 0;
+				newDesc.DepthEnable = property->GetValue<int>( ) != 0;
 			}
 			else if ( property->GetKey( ) == _T( "DepthWriteMask" ) )
 			{
-				newDesc.DepthWriteMask = static_cast<D3D11_DEPTH_WRITE_MASK>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_DEPTH_WRITE_MASK_ALL ));
+				newDesc.DepthWriteMask = static_cast<D3D11_DEPTH_WRITE_MASK>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_DEPTH_WRITE_MASK_ALL ));
 			}
 			else if ( property->GetKey( ) == _T( "DepthFunc" ) )
 			{
-				newDesc.DepthFunc = static_cast<D3D11_COMPARISON_FUNC>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_COMPARISON_LESS ));
+				newDesc.DepthFunc = static_cast<D3D11_COMPARISON_FUNC>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_COMPARISON_LESS ));
 			}
 			else if ( property->GetKey( ) == _T( "StencilEnable" ) )
 			{
-				newDesc.StencilEnable = property->Get<int>( ) != 0;
+				newDesc.StencilEnable = property->GetValue<int>( ) != 0;
 			}
 			else if ( property->GetKey( ) == _T( "StencilReadMask" ) )
 			{
-				newDesc.StencilReadMask = static_cast<UINT8>(property->Get<unsigned int>( ));
+				newDesc.StencilReadMask = static_cast<UINT8>(property->GetValue<unsigned int>( ));
 			}
 			else if ( property->GetKey( ) == _T( "StencilWriteMask" ) )
 			{
-				newDesc.StencilWriteMask = static_cast<UINT8>(property->Get<unsigned int>( ));
+				newDesc.StencilWriteMask = static_cast<UINT8>(property->GetValue<unsigned int>( ));
 			}
 			else if ( property->GetKey( ) == _T( "FrontFace.StencilFunc" ) )
 			{
-				newDesc.FrontFace.StencilFunc = static_cast<D3D11_COMPARISON_FUNC>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_COMPARISON_ALWAYS ));
+				newDesc.FrontFace.StencilFunc = static_cast<D3D11_COMPARISON_FUNC>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_COMPARISON_ALWAYS ));
 			}
 			else if ( property->GetKey( ) == _T( "BackFace.StencilFunc" ) )
 			{
-				newDesc.BackFace.StencilFunc = static_cast<D3D11_COMPARISON_FUNC>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_COMPARISON_ALWAYS ));
+				newDesc.BackFace.StencilFunc = static_cast<D3D11_COMPARISON_FUNC>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_COMPARISON_ALWAYS ));
 			}
 			else if ( property->GetKey( ) == _T( "FrontFace.StencilDepthFailOp" ) )
 			{
-				newDesc.FrontFace.StencilDepthFailOp = static_cast<D3D11_STENCIL_OP>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_STENCIL_OP_KEEP ));
+				newDesc.FrontFace.StencilDepthFailOp = static_cast<D3D11_STENCIL_OP>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_STENCIL_OP_KEEP ));
 			}
 			else if ( property->GetKey( ) == _T( "BackFace.StencilDepthFailOp" ) )
 			{
-				newDesc.BackFace.StencilDepthFailOp = static_cast<D3D11_STENCIL_OP>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_STENCIL_OP_KEEP ));
+				newDesc.BackFace.StencilDepthFailOp = static_cast<D3D11_STENCIL_OP>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_STENCIL_OP_KEEP ));
 			}
 			else if ( property->GetKey( ) == _T( "FrontFace.StencilPassOp" ) )
 			{
-				newDesc.FrontFace.StencilPassOp = static_cast<D3D11_STENCIL_OP>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_STENCIL_OP_KEEP ));
+				newDesc.FrontFace.StencilPassOp = static_cast<D3D11_STENCIL_OP>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_STENCIL_OP_KEEP ));
 			}
 			else if ( property->GetKey( ) == _T( "BackFace.StencilPassOp" ) )
 			{
-				newDesc.BackFace.StencilPassOp = static_cast<D3D11_STENCIL_OP>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_STENCIL_OP_KEEP ));
+				newDesc.BackFace.StencilPassOp = static_cast<D3D11_STENCIL_OP>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_STENCIL_OP_KEEP ));
 			}
 			else if ( property->GetKey( ) == _T( "FrontFace.StencilFailOp" ) )
 			{
-				newDesc.FrontFace.StencilFailOp = static_cast<D3D11_STENCIL_OP>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_STENCIL_OP_KEEP ));
+				newDesc.FrontFace.StencilFailOp = static_cast<D3D11_STENCIL_OP>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_STENCIL_OP_KEEP ));
 			}
 			else if ( property->GetKey( ) == _T( "BackFace.StencilFailOp" ) )
 			{
-				newDesc.BackFace.StencilFailOp = static_cast<D3D11_STENCIL_OP>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_STENCIL_OP_KEEP ));
+				newDesc.BackFace.StencilFailOp = static_cast<D3D11_STENCIL_OP>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_STENCIL_OP_KEEP ));
 			}
 		}
 
-		owner->AddDepthStencilDesc( keyValue->GetString( ), newDesc );
+		owner->AddDepthStencilDesc( keyValue->GetValue( ), newDesc );
 	}
 }
 

@@ -26,7 +26,7 @@ namespace
 		{
 			if ( keyValue )
 			{
-				if ( keyValue->GetString() == FRAME_BUFFER_SIZE_KEYWORD )
+				if ( keyValue->GetValue() == FRAME_BUFFER_SIZE_KEYWORD )
 				{
 					const std::pair<int, int>& size = pTextureManager->GetFrameBufferSize( );
 					assert( size.first > 0 && size.second > 0 );
@@ -35,7 +35,7 @@ namespace
 				}
 				else
 				{
-					Stringstream sStream( keyValue->GetString( ) );
+					Stringstream sStream( keyValue->GetValue( ) );
 					sStream >> gTexture2DDesc.Width >> gTexture2DDesc.Height;
 					assert( gTexture2DDesc.Width > 0 && gTexture2DDesc.Height > 0 );
 				}
@@ -46,7 +46,7 @@ namespace
 		{
 			if ( keyValue )
 			{
-				Stringstream sStream( keyValue->GetString( ) );
+				Stringstream sStream( keyValue->GetValue( ) );
 				sStream >> gTexture2DDesc.MipLevels >> gTexture2DDesc.ArraySize;
 			}
 		}
@@ -55,7 +55,7 @@ namespace
 		{
 			if ( keyValue )
 			{
-				gTexture2DDesc.Format = static_cast<DXGI_FORMAT>( GetEnumStringMap().GetEnum( keyValue->GetString(), DXGI_FORMAT_UNKNOWN ) );
+				gTexture2DDesc.Format = static_cast<DXGI_FORMAT>( GetEnumStringMap().GetEnum( keyValue->GetValue(), DXGI_FORMAT_UNKNOWN ) );
 			}
 		}
 
@@ -63,7 +63,7 @@ namespace
 		{
 			if ( keyValue )
 			{
-				Stringstream sStream( keyValue->GetString( ) );
+				Stringstream sStream( keyValue->GetValue( ) );
 				sStream >> gTexture2DDesc.SampleDesc.Count >> gTexture2DDesc.SampleDesc.Quality;
 			}
 		}
@@ -72,7 +72,7 @@ namespace
 		{
 			if ( keyValue )
 			{
-				Stringstream sStream( keyValue->GetString( ) );
+				Stringstream sStream( keyValue->GetValue( ) );
 				
 				String usage, bindFlag, cpuFlag, miscFlag;
 

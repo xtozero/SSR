@@ -48,7 +48,7 @@ void CSceneLoader::SetSceneObjectProperty( IRenderer& renderer, std::shared_ptr<
 				curObject->get( )->Initialize( renderer );
 			}
 
-			auto newObject = CGameObjectFactory::GetInstance( )->CreateGameObjectByClassName( findedKey->GetString( ) );
+			auto newObject = CGameObjectFactory::GetInstance( )->CreateGameObjectByClassName( findedKey->GetValue( ) );
 
 			if ( newObject == nullptr )
 			{

@@ -25,50 +25,50 @@ namespace
 		{
 			if ( property->GetKey( ) == _T( "Filter" ) )
 			{
-				newDesc.Filter = static_cast<D3D11_FILTER>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_FILTER_MIN_MAG_MIP_LINEAR ));
+				newDesc.Filter = static_cast<D3D11_FILTER>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_FILTER_MIN_MAG_MIP_LINEAR ));
 			}
 			else if ( property->GetKey( ) == _T( "AddressU" ) )
 			{
-				newDesc.AddressU = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_TEXTURE_ADDRESS_CLAMP ));
+				newDesc.AddressU = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_TEXTURE_ADDRESS_CLAMP ));
 			}
 			else if ( property->GetKey( ) == _T( "AddressV" ) )
 			{
-				newDesc.AddressV = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_TEXTURE_ADDRESS_CLAMP ));
+				newDesc.AddressV = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_TEXTURE_ADDRESS_CLAMP ));
 			}
 			else if ( property->GetKey( ) == _T( "AddressW" ) )
 			{
-				newDesc.AddressW = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_TEXTURE_ADDRESS_CLAMP ));
+				newDesc.AddressW = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_TEXTURE_ADDRESS_CLAMP ));
 			}
 			else if ( property->GetKey( ) == _T( "MipLODBias" ) )
 			{
-				newDesc.MipLODBias = property->Get<float>( );
+				newDesc.MipLODBias = property->GetValue<float>( );
 			}
 			else if ( property->GetKey( ) == _T( "MaxAnisotropy" ) )
 			{
-				newDesc.MaxAnisotropy = property->Get<UINT>( );
+				newDesc.MaxAnisotropy = property->GetValue<UINT>( );
 			}
 			else if ( property->GetKey( ) == _T( "ComparisonFunc" ) )
 			{
-				newDesc.ComparisonFunc = static_cast<D3D11_COMPARISON_FUNC>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_COMPARISON_LESS ));
+				newDesc.ComparisonFunc = static_cast<D3D11_COMPARISON_FUNC>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_COMPARISON_LESS ));
 			}
 			else if ( property->GetKey( ) == _T( "BorderColor" ) )
 			{
 				Stringstream sStream;
-				sStream << property->GetString( );
+				sStream << property->GetValue( );
 
 				sStream >> newDesc.BorderColor[0] >> newDesc.BorderColor[1] >> newDesc.BorderColor[2] >> newDesc.BorderColor[3];
 			}
 			else if ( property->GetKey( ) == _T( "MinLOD" ) )
 			{
-				newDesc.MinLOD = property->Get<float>( );
+				newDesc.MinLOD = property->GetValue<float>( );
 			}
 			else if ( property->GetKey( ) == _T( "MaxLOD" ) )
 			{
-				newDesc.MaxLOD = property->Get<float>( );
+				newDesc.MaxLOD = property->GetValue<float>( );
 			}
 		}
 
-		owner->AddSamplerDesc( keyValue->GetString(), newDesc );
+		owner->AddSamplerDesc( keyValue->GetValue(), newDesc );
 	}
 }
 
