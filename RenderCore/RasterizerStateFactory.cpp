@@ -25,47 +25,47 @@ namespace
 		{
 			if ( property->GetKey( ) == _T( "FillMode" ) )
 			{
-				newDesc.FillMode = static_cast<D3D11_FILL_MODE>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_FILL_SOLID ));
+				newDesc.FillMode = static_cast<D3D11_FILL_MODE>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_FILL_SOLID ));
 			}
 			else if ( property->GetKey( ) == _T( "CullMode" ) )
 			{
-				newDesc.CullMode = static_cast<D3D11_CULL_MODE>(GetEnumStringMap( ).GetEnum( property->GetString( ), D3D11_CULL_BACK ));
+				newDesc.CullMode = static_cast<D3D11_CULL_MODE>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_CULL_BACK ));
 			}
 			else if ( property->GetKey( ) == _T( "FrontCounterClockwise" ) )
 			{
-				newDesc.FrontCounterClockwise = property->Get<int>( ) != 0;
+				newDesc.FrontCounterClockwise = property->GetValue<int>( ) != 0;
 			}
 			else if ( property->GetKey( ) == _T( "DepthBias" ) )
 			{
-				newDesc.DepthBias = property->Get<int>( );
+				newDesc.DepthBias = property->GetValue<int>( );
 			}
 			else if ( property->GetKey( ) == _T( "DepthBiasClamp" ) )
 			{
-				newDesc.DepthBiasClamp = property->Get<float>( );
+				newDesc.DepthBiasClamp = property->GetValue<float>( );
 			}
 			else if ( property->GetKey( ) == _T( "SlopeScaledDepthBias" ) )
 			{
-				newDesc.SlopeScaledDepthBias = property->Get<float>( );
+				newDesc.SlopeScaledDepthBias = property->GetValue<float>( );
 			}
 			else if ( property->GetKey( ) == _T( "DepthClipEnable" ) )
 			{
-				newDesc.DepthClipEnable = property->Get<int>( ) != 0;
+				newDesc.DepthClipEnable = property->GetValue<int>( ) != 0;
 			}
 			else if ( property->GetKey( ) == _T( "ScissorEnable" ) )
 			{
-				newDesc.ScissorEnable = property->Get<int>( ) != 0;
+				newDesc.ScissorEnable = property->GetValue<int>( ) != 0;
 			}
 			else if ( property->GetKey( ) == _T( "MultisampleEnable" ) )
 			{
-				newDesc.MultisampleEnable = property->Get<int>( ) != 0;
+				newDesc.MultisampleEnable = property->GetValue<int>( ) != 0;
 			}
 			else if ( property->GetKey( ) == _T( "AntialiasedLineEnable" ) )
 			{
-				newDesc.AntialiasedLineEnable = property->Get<int>( ) != 0;
+				newDesc.AntialiasedLineEnable = property->GetValue<int>( ) != 0;
 			}
 		}
 
-		owner->AddRasterizerDesc( keyValue->GetString( ), newDesc );
+		owner->AddRasterizerDesc( keyValue->GetValue( ), newDesc );
 	}
 }
 

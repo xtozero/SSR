@@ -50,4 +50,39 @@ namespace UTIL
 
 		return String( start + 1, end );
 	}
+
+	void DebugMsgImplment( const TCHAR* msg, ... )
+	{
+		SetColor_White;
+
+		TCHAR buf[1024] = { 0, };
+		va_list vaList;
+
+		va_start( vaList, msg );
+		_vstprintf_s( buf, _countof( buf ), msg, vaList );
+		va_end( vaList );
+
+		_tprintf_s( _T( "%s" ), buf );
+	}
+
+	void DebugWarningImplment( const TCHAR* msg, ... )
+	{
+		SetColor_Red;
+
+		TCHAR buf[1024] = { 0, };
+		va_list vaList;
+
+		va_start( vaList, msg );
+		_vstprintf_s( buf, _countof( buf ), msg, vaList );
+		va_end( vaList );
+
+		_tprintf_s( _T( "%s" ), buf );
+	}
+
+	void KeyValueAssert( String value, UINT count )
+	{
+		std::vector<String> params;
+		UTIL::Split( value, params, _T( ' ' ) );
+		assert( params.size( ) == count );
+	}
 }

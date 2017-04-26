@@ -114,19 +114,19 @@ bool CGameObject::LoadPropertyFromScript( const CKeyValueIterator& pKeyValue )
 {
 	if ( pKeyValue->GetKey( ) == String( _T( "Name" ) ) )
 	{
-		SetName( pKeyValue->GetString( ) );
+		SetName( pKeyValue->GetValue( ) );
 		return true;
 	}
 	else if ( pKeyValue->GetKey( ) == String( _T( "Model" ) ) )
 	{
-		SetModelMeshName( pKeyValue->GetString( ).c_str( ) );
+		SetModelMeshName( pKeyValue->GetValue( ).c_str( ) );
 		return true;
 	}
 	else if ( pKeyValue->GetKey( ) == String( _T( "Position" ) ) )
 	{
 		std::vector<String> params;
 
-		UTIL::Split( pKeyValue->GetString( ), params, _T( ' ' ) );
+		UTIL::Split( pKeyValue->GetValue( ), params, _T( ' ' ) );
 
 		if ( params.size( ) == 3 )
 		{
@@ -142,7 +142,7 @@ bool CGameObject::LoadPropertyFromScript( const CKeyValueIterator& pKeyValue )
 	{
 		std::vector<String> params;
 
-		UTIL::Split( pKeyValue->GetString( ), params, _T( ' ' ) );
+		UTIL::Split( pKeyValue->GetValue( ), params, _T( ' ' ) );
 
 		if ( params.size( ) == 3 )
 		{
@@ -156,7 +156,7 @@ bool CGameObject::LoadPropertyFromScript( const CKeyValueIterator& pKeyValue )
 	}
 	else if ( pKeyValue->GetKey( ) == String( _T( "Material" ) ) )
 	{
-		SetMaterialName( pKeyValue->GetString( ) );
+		SetMaterialName( pKeyValue->GetValue( ) );
 		return true;
 	}
 	else if ( pKeyValue->GetKey( ) == String( _T( "Reflectable" ) ) )

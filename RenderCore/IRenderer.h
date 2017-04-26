@@ -34,7 +34,7 @@ namespace Microsoft
 	}
 }
 
-class RENDERCORE_DLL IRenderer
+class IRenderer
 {
 public:
 	virtual bool InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeight ) = 0;

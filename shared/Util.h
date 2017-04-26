@@ -36,49 +36,15 @@ namespace UTIL
 	void SplitByBracket( const String& string, std::vector<String>& params, const TCHAR startToken, const TCHAR endToken );
 	const String FileNameExtension( const String& pFileName );
 	String GetFileName( const TCHAR* pFilePath );
-}
 
-namespace
-{
-	void DebugMsgImplment( const TCHAR* msg, ... )
-	{
-		SetColor_White;
-
-		TCHAR buf[1024] = { 0, };
-		va_list vaList;
-
-		va_start( vaList, msg );
-		_vstprintf_s( buf, _countof( buf ), msg, vaList );
-		va_end( vaList );
-
-		_tprintf_s( _T( "%s" ), buf );
-	}
-
-	void DebugWarningImplment( const TCHAR* msg, ... )
-	{
-		SetColor_Red;
-
-		TCHAR buf[1024] = { 0, };
-		va_list vaList;
-
-		va_start( vaList, msg );
-		_vstprintf_s( buf, _countof( buf ), msg, vaList );
-		va_end( vaList );
-
-		_tprintf_s( _T( "%s" ), buf );
-	}
-
-	void KeyValueAssert( String value, UINT count )
-	{
-		std::vector<String> params;
-		UTIL::Split( value, params, _T( ' ' ) );
-		assert( params.size( ) == count );
-	}
+	void DebugMsgImplment( const TCHAR* msg, ... );
+	void DebugWarningImplment( const TCHAR* msg, ... );
+	void KeyValueAssert( String value, UINT count );
 }
 
 #ifdef _DEBUG
-#define DebugMsg( x, ... ) DebugMsgImplment( _T( x ), ##__VA_ARGS__ )
-#define DebugWarning( x, ... ) DebugWarningImplment( _T( x ), ##__VA_ARGS__ )
+#define DebugMsg( x, ... ) UTIL::DebugMsgImplment( _T( x ), ##__VA_ARGS__ )
+#define DebugWarning( x, ... ) UTIL::DebugWarningImplment( _T( x ), ##__VA_ARGS__ )
 #else
 #define DebugMsg( x, ... ) __noop
 #define DebugWarning( x, ... ) __noop
@@ -91,7 +57,7 @@ for ( auto i = x.begin( ); i != x.end( ); ++i )
 for ( auto i = x.begin( ); i != x.end( ); ++i )
 
 #ifdef _DEBUG
-#define KEYVALUE_VALUE_ASSERT( value, count ) KeyValueAssert( value, count )
+#define KEYVALUE_VALUE_ASSERT( value, count ) UTIL::KeyValueAssert( value, count )
 #else
 #define KEYVALUE_VALUE_ASSERT( value, count ) __noop
 #endif
@@ -99,3 +65,6 @@ for ( auto i = x.begin( ); i != x.end( ); ++i )
 #define _STR(x) #x
 #define STR(x) _STR(x)
 #define FIX_ME(x) __pragma(message("FIX ME: "_STR(x) " :: " __FILE__ "@"STR(__LINE__)))
+
+template <typename T>
+using Owner = T;

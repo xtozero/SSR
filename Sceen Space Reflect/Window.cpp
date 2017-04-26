@@ -12,13 +12,16 @@ bool Window::Run( CWindowSetup& setup, WNDPROC wndProc )
 		RECT rc = setup.GetScreenArea( );
 		AdjustWindowRect( &rc, m_style, false );
 
+		m_width = rc.right - rc.left;
+		m_height = rc.bottom - rc.top;
+
 		m_hwnd = CreateWindow( m_wndTitle.c_str( ),
 								m_wndTitle.c_str( ),
 								m_style,
 								CW_USEDEFAULT,
 								CW_USEDEFAULT,
-								rc.right - rc.left,
-								rc.bottom - rc.top,
+								m_width,
+								m_height,
 								nullptr,
 								nullptr,
 								setup.GethInstance( ),

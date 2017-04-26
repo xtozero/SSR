@@ -9,14 +9,26 @@
 class ENGINE_DLL KeyValue
 {
 public:
-	const String& GetString( ) const;
-
 	template<typename T>
-	const T Get( ) const
+	const T GetValue( ) const
 	{
-		static_assert(!std::is_same<T, String>::value, "Use GetString function to get string value");
+		static_assert(!std::is_same<T, String>::value, "Use non-template GetValue function to get string value");
 
 		Stringstream ss( m_value );
+		T value;
+		ss >> value;
+
+		return value;
+	}
+
+	const String& GetValue( ) const;
+
+	template<typename T>
+	const T GetKey( ) const
+	{
+		static_assert( !std::is_same<T, String>::value, "Use non-template GetKey function to get string value" );
+
+		Stringstream ss( m_key );
 		T value;
 		ss >> value;
 

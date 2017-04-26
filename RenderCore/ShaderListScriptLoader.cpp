@@ -22,7 +22,7 @@ bool CShaderListScriptLoader::LoadShadersFromScript( IRenderer& renderer )
 
 		for ( ; findedKey != nullptr; ++findedKey )
 		{
-			ON_FAIL_RETURN( LoadShader( renderer, findedKey->GetKey( ), findedKey->GetString( ) ) );
+			ON_FAIL_RETURN( LoadShader( renderer, findedKey->GetKey( ), findedKey->GetValue( ) ) );
 		}
 
 		return true;

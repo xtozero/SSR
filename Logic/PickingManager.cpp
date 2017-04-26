@@ -6,6 +6,7 @@
 #include "PickingManager.h"
 
 #include "../Engine/ConVar.h"
+#include "../shared/UserInput.h"
 #include "../Shared/Util.h"
 
 using namespace DirectX;
@@ -26,6 +27,21 @@ namespace
 	}
 
 	ConVar( picked_object_name, "0", "flag show picked Object Name : 0 or 1" );
+}
+
+void CPickingManager::ProcessInput( const UserInput& input )
+{
+	switch ( input.m_code )
+	{
+	case UIC_MOUSE_LEFT:
+		OnMouseLButton( input );
+		break;
+	case UIC_MOUSE_MOVE:
+		OnMouseMove( input );
+		break;
+	default:
+		break;
+	}
 }
 
 void CPickingManager::PushViewport( const float topLeftX, const float topLeftY, const float width, const float height )
@@ -172,9 +188,17 @@ void CPickingManager::ReleasePickingObject( )
 	}
 }
 
-void CPickingManager::OnLButtonDown( const int x, const int y )
+CPickingManager::CPickingManager( const GameObjectsPtr objects ) :
+	m_pGameObjects( objects )
 {
-	if ( PickingObject( static_cast<float>( x ), static_cast<float>( y ) ) )
+}
+
+void CPickingManager::OnMouseLButton( const UserInput & input )
+{
+	m_curMousePos = { input.m_axis[UserInput::X_AXIS], input.m_axis[UserInput::Y_AXIS] };
+
+	bool isPressed = input.m_axis[UserInput::Z_AXIS] < 0;
+	if ( isPressed && PickingObject( m_curMousePos.x, m_curMousePos.y ) )
 	{
 		if ( m_curSelectedObject )
 		{
@@ -189,34 +213,30 @@ void CPickingManager::OnLButtonDown( const int x, const int y )
 			}
 		}
 	}
+	else
+	{
+		ReleasePickingObject( );
+	}
 }
 
-void CPickingManager::OnLButtonUp( const int x, const int y )
+void CPickingManager::OnMouseMove( const UserInput& input )
 {
-	ReleasePickingObject( );
-}
-
-void CPickingManager::OnMouseMove( const int x, const int y )
-{
-	float xPos = static_cast<float>( x );
-	float yPos = static_cast<float>( y );
-
-	CXMFLOAT2 curPos( xPos, yPos );
-	CXMFLOAT2 delta = curPos - m_prevMouseEventPos;
+	CXMFLOAT2 prevMousePos = m_curMousePos;
+	m_curMousePos += { input.m_axis[UserInput::X_AXIS], input.m_axis[UserInput::Y_AXIS] };
 
 	if ( m_curSelectedObject && m_curSelectedIdx > -1 )
 	{
 		VIEWPORT& curViewport = m_viewports.at( m_curSelectedIdx );
 
-		if ( !curViewport.IsContain( static_cast<float>( x ), static_cast<float>( y ) ) )
+		if ( !curViewport.IsContain( m_curMousePos.x, m_curMousePos.y ) )
 		{
 			//뷰포트를 벗어 났으면 픽킹 해제
 			ReleasePickingObject( );
 		}
 		else if ( CCamera* curCamera = m_cameras.at( m_curSelectedIdx ) )
 		{
-			CXMFLOAT3 curPos( static_cast<float>( x ), static_cast<float>( y ), 1.f );
-			CXMFLOAT3 prevPos( m_prevMouseEventPos.x, m_prevMouseEventPos.y, 1.f );
+			CXMFLOAT3 curPos( m_curMousePos.x, m_curMousePos.y, 1.f );
+			CXMFLOAT3 prevPos( prevMousePos.x, prevMousePos.y, 1.f );
 
 			//NDC공간으로 변환
 			WindowSpace2NDCSpace( curPos, curViewport );
@@ -226,7 +246,7 @@ void CPickingManager::OnMouseMove( const int x, const int y )
 			CXMFLOAT4X4& curInvProjection = m_InvProjections.at( m_curSelectedIdx );
 			curPos = XMVector3TransformCoord( curPos, curInvProjection );
 			prevPos = XMVector3TransformCoord( prevPos, curInvProjection );
-			
+
 			//월드 공간으로 변환
 			curPos = XMVector3TransformCoord( curPos, curCamera->GetInvViewMatrix( ) );
 			prevPos = XMVector3TransformCoord( prevPos, curCamera->GetInvViewMatrix( ) );
@@ -253,11 +273,4 @@ void CPickingManager::OnMouseMove( const int x, const int y )
 			}
 		}
 	}
-
-	m_prevMouseEventPos = curPos;
-}
-
-CPickingManager::CPickingManager( const GameObjectsPtr objects ) :
-	m_pGameObjects( objects )
-{
 }

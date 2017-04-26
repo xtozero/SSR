@@ -2,6 +2,7 @@
 
 #include "Camera.h"
 #include "common.h"
+#include "ILogic.h"
 #include "LightManager.h"
 #include "MouseController.h"
 #include "PickingManager.h"
@@ -25,14 +26,12 @@ enum RENDERABLE_TYPE
 	RENDERABLE_TYPE_COUNT,
 };
 
-class LOGIC_DLL CGameLogic
+class CGameLogic : public ILogic
 {
 public:
-	bool Initialize( HWND hwnd, UINT wndWidth, UINT wndHeight );
-	void UpdateLogic( void );
-	bool HandleWindowMessage( const MSG& msg );
-	void HandleWIndowKeyInput( const int message, const WPARAM wParam, const LPARAM lParam );
-	void HandleWIndowMouseInput( const int message, const WPARAM wParam, const LPARAM lParam );
+	virtual bool Initialize( IPlatform& platform ) override;
+	virtual void Update() override;
+	virtual void HandleUserInput( const UserInput& input );
 
 private:
 	void StartLogic ( void );
@@ -59,9 +58,11 @@ public:
 
 private:
 	HWND	m_wndHwnd;
+	std::pair<UINT, UINT> m_wndSize;
+
 	CCamera m_mainCamera;
 	CSceneLoader m_sceneLoader;
-	CMouseController m_mouseController;
+	CUserInputBroadCaster m_inputBroadCaster;
 	CPickingManager m_pickingManager;
 	CLightManager m_lightManager;
 	CShadowManager m_shadowManager;
@@ -71,4 +72,3 @@ private:
 
 	std::list<CGameObject*> m_renderableList[RENDERABLE_TYPE_COUNT];
 };
-
