@@ -16,7 +16,7 @@ public:
 	~CDebugConsole ();
 };
 
-#ifdef _DEBUG
+#ifdef DEBUGGING_BY_CONSOLE
 #define ShowDebugConsole CDebugConsole::GetInstance
 #else
 #define ShowDebugConsole __noop

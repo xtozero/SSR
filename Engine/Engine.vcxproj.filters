@@ -69,14 +69,14 @@
     <ClInclude Include="WindowPlatformEngine.h">
       <Filter>Window</Filter>
     </ClInclude>
-    <ClInclude Include="UserInputCode.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="UICMap.h">
       <Filter>UserInput</Filter>
     </ClInclude>
-    <ClInclude Include="WindowPlatformKeyMap.h">
+    <ClInclude Include="WindowPlatformInputConvertor.h">
       <Filter>Window</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\UserInput.h">
+      <Filter>Shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -108,6 +108,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="WindowPlatformEngine.cpp">
+      <Filter>Window</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowPlatformInputConvertor.cpp">
       <Filter>Window</Filter>
     </ClCompile>
   </ItemGroup>

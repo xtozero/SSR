@@ -9,13 +9,8 @@ class IRenderer;
 class CCamera : public IListener
 {
 public:
-	//IListener
-	virtual void OnLButtonDown( const int x, const int y ) override;
-	virtual void OnLButtonUp( const int x, const int y ) override;
-	virtual void OnRButtonDown( const int x, const int y ) override;
-	virtual void OnRButtonUp( const int x, const int y ) override;
-	virtual void OnMouseMove( const int x, const int y ) override;
-	virtual void OnWheelMove( const int zDelta ) override;
+	// IListener
+	virtual void ProcessInput( const UserInput& input );
 
 	const CXMFLOAT4X4& CCamera::GetViewMatrix();
 	
@@ -28,7 +23,13 @@ public:
  	void UpdateToRenderer( IRenderer& renderer );
 	const CXMFLOAT4X4& GetInvViewMatrix( ) const { return m_invViewMatrix; }
 	void SetEnableRotate( bool isEnable ) { m_enableRotate = isEnable; }
+
 private:
+	void OnMouseLButton( const UserInput& input );
+	void OnMouseRButton( const UserInput& input );
+	void OnMouseMove( const UserInput& input );
+	void OnWheelMove( const UserInput& input );
+
 	void ReCalcViewMatrix( );
 	void CameraChanged( )
 	{
@@ -54,8 +55,7 @@ private:
 	bool m_isNeedUpdateRenderer = true;
 
 	bool m_mouseRotateEnable = false;
-	CXMFLOAT2 m_prevMouseEventPos = { 0.f, 0.f };
-	
+
 	bool m_mouseTranslateEnable = false;
 	float m_mouseSensitivity = 0.01f;
 

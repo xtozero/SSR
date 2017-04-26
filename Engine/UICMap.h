@@ -2,7 +2,7 @@
 
 #include "common.h"
 #include "KeyValueReader.h"
-#include "UserInputCode.h"
+#include "../shared/UserInput.h"
 
 #include <algorithm>
 #include <fstream>
@@ -123,11 +123,18 @@ public:
 
 	USER_INPUT_CODE Convert( unsigned long code )
 	{
-		std::lower_bound( m_codeMap.begin(), m_codeMap.end(), code,
+		auto found = std::lower_bound( m_codeMap.begin(), m_codeMap.end(), code,
 							[]( const CodePair& codePair, unsigned long code )
 							{
 								return codePair.first < code;
 							} );
+
+		if ( found != m_codeMap.end( ) && found->first == code )
+		{
+			return found->second;	
+		}
+
+		return UIC_UNKNOWN;
 	}
 
 	bool LoadConfig( const String& fileName )
@@ -157,6 +164,12 @@ private:
 			m_codeMap.emplace_back( static_cast<unsigned long>( GetEnumStringMap( ).GetEnum( keycode->GetKey( ), -1 ) ),
 									static_cast<USER_INPUT_CODE>( GetEnumStringMap( ).GetEnum( keycode->GetValue( ), -1 ) ) );
 		}
+
+		std::sort( m_codeMap.begin( ), m_codeMap.end( ),
+					[]( const CodePair& lhs, const CodePair& rhs )
+					{
+						return lhs.first < rhs.first;
+					} );
 
 		return true;
 	}

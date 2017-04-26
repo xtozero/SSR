@@ -16,6 +16,7 @@
 #include "../RenderCOre/IRenderView.h"
 #include "../RenderCore/RenderCoreDllFunc.h"
 #include "../shared/IPlatform.h"
+#include "../shared/UserInput.h"
 #include "../shared/Util.h"
 
 #include <ctime>
@@ -66,8 +67,8 @@ bool CGameLogic::Initialize( IPlatform& platform )
 	}
 
 	m_pickingManager.PushCamera( &m_mainCamera );
-	m_mouseController.AddListener( &m_pickingManager );
-	m_mouseController.AddListener( &m_mainCamera );
+	m_inputBroadCaster.AddListener( &m_pickingManager );
+	m_inputBroadCaster.AddListener( &m_mainCamera );
 
 	CCameraManager::GetInstance( )->SetCurrentCamera( &m_mainCamera );
 
@@ -96,67 +97,9 @@ void CGameLogic::Update( void )
 	}
 }
 
-bool CGameLogic::HandleWindowMessage( const MSG& msg )
+void CGameLogic::HandleUserInput( const UserInput& input )
 {
-	switch ( msg.message )
-	{
-	case WM_KEYDOWN:
-	case WM_KEYUP:
-		HandleWIndowKeyInput( msg.message, msg.wParam, msg.lParam );
-		return true;
-		break;
-	case WM_LBUTTONDOWN:
-	case WM_LBUTTONUP:
-	case WM_RBUTTONDOWN:
-	case WM_RBUTTONUP:
-	case WM_MBUTTONDOWN:
-	case WM_MBUTTONUP:
-	case WM_MOUSEMOVE:
-	case WM_MOUSEWHEEL:
-		HandleWIndowMouseInput( msg.message, msg.wParam, msg.lParam );
-		return true;
-		break;
-	default:
-		//Message UnHandled;
-		return false;
-		break;
-	}
-}
-
-void CGameLogic::HandleWIndowKeyInput( const int message, const WPARAM wParam, const LPARAM lParam )
-{
-	switch ( message )
-	{
-	case WM_KEYDOWN:
-	{
-		TCHAR keyName[256] = { 0, };
-		GetKeyNameText( lParam, keyName, 256 );
-		DebugMsg( "%s\n", keyName );
-		switch ( wParam )
-		{
-		case VK_UP:
-			break;
-		case VK_DOWN:
-			break;
-		case VK_RIGHT:
-			break;
-		case VK_LEFT:
-			break;
-		default:
-			break;
-		}
-	}
-	default:
-		break;
-	}
-}
-
-void CGameLogic::HandleWIndowMouseInput( const int message, const WPARAM wParam, const LPARAM lParam )
-{
-	CWinProcMouseInputTranslator translator;
-	MOUSE_INPUT_INFO& input = translator.TranslateInput( message, wParam, lParam );
-
-	m_mouseController.ProcessInput( input );
+	m_inputBroadCaster.ProcessInput( input );
 }
 
 void CGameLogic::StartLogic ( void )

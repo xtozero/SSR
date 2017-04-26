@@ -9,6 +9,11 @@
 
 bool WindowPlatformEngine::BootUp( IPlatform& platform )
 {
+	if ( !m_inputConvertor.Initialize( ) )
+	{
+		return false;
+	}
+
 	HMODULE logicDll = LoadLibrary( _T( "../bin/Logic.dll" ) );
 
 	if ( logicDll == nullptr )
@@ -56,8 +61,7 @@ void WindowPlatformEngine::ProcessInput( )
 	{
 		m_isAvailable = msg.message != WM_QUIT;
 
-		FIX_ME( "여기서 입력 처리해야 함." );
-		if ( false )
+		if ( m_inputConvertor.ProcessInput( *m_logic, msg ) )
 		{
 			//Do Nothing
 		}

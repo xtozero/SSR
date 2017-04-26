@@ -1,7 +1,5 @@
 #pragma once
 
-#include "EnumStringMap.h"
-
 enum USER_INPUT_CODE
 {
 	UIC_UNKNOWN = -1,
@@ -129,4 +127,18 @@ enum USER_INPUT_CODE
 	UIC_MOUSE_LEFT,
 	UIC_MOUSE_RIGHT,
 	UIC_MOUSE_MIDDLE,
+};
+
+struct UserInput
+{
+	enum
+	{
+		X_AXIS = 0,
+		Y_AXIS,
+		Z_AXIS,
+		INPUT_AXIS_COUNT
+	};
+
+	USER_INPUT_CODE m_code = UIC_UNKNOWN;
+	float m_axis[INPUT_AXIS_COUNT] = { 0.f, 0.f, 0.f };
 };

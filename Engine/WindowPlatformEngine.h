@@ -1,8 +1,9 @@
 #pragma once
 
-#include <memory>
-
 #include "IEngine.h"
+#include "WindowPlatformInputConvertor.h"
+
+#include <memory>
 
 class ILogic;
 
@@ -19,8 +20,9 @@ protected:
 	virtual bool IsAvailable( ) override { return m_isAvailable; }
 
 private:
+	WindowPlatformInputConvertor m_inputConvertor;
 	std::unique_ptr<ILogic> m_logic = nullptr;
-	
+
 	bool m_isAvailable = false;
 };
 

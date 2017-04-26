@@ -31,9 +31,7 @@ class CGameLogic : public ILogic
 public:
 	virtual bool Initialize( IPlatform& platform ) override;
 	virtual void Update() override;
-	bool HandleWindowMessage( const MSG& msg );
-	void HandleWIndowKeyInput( const int message, const WPARAM wParam, const LPARAM lParam );
-	void HandleWIndowMouseInput( const int message, const WPARAM wParam, const LPARAM lParam );
+	virtual void HandleUserInput( const UserInput& input );
 
 private:
 	void StartLogic ( void );
@@ -64,7 +62,7 @@ private:
 
 	CCamera m_mainCamera;
 	CSceneLoader m_sceneLoader;
-	CMouseController m_mouseController;
+	CUserInputBroadCaster m_inputBroadCaster;
 	CPickingManager m_pickingManager;
 	CLightManager m_lightManager;
 	CShadowManager m_shadowManager;
