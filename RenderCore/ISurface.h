@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common.h"
-#include "../shared/CDirectXMath.h"
+#include "../shared/Math/CXMFloat.h"
 
 struct ID3D11DeviceContext;
 

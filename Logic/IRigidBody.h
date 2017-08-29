@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "../shared/CDirectXMath.h"
+#include "../shared/Math/CXMFloat.h"
 
 class IMesh;
 class CRay;

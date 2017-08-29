@@ -2,7 +2,7 @@
 #include "LightManager.h"
 #include "ShadowManager.h"
 
-#include "../Shared/CDirectXMath.h"
+#include "../shared/Math/CXMFloat.h"
 #include "../Shared/Util.h"
 #include "../RenderCore/ConstantBufferDefine.h"
 #include "../RenderCore/IMaterial.h"

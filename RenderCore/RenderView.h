@@ -2,7 +2,7 @@
 
 #include "D3D11ConstantBuffer.h"
 #include "IRenderView.h"
-#include "../shared/CDirectXMath.h"
+#include "../shared/Math/CXMFloat.h"
 
 #include <d3d11.h>
 #include <vector>

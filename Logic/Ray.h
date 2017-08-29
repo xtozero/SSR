@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../shared/CDirectXMath.h"
+#include "../shared/Math/CXMFloat.h"
 
 class CRay
 {

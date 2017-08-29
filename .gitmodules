@@ -1,0 +1,3 @@
+[submodule "shared/Math"]
+	path = shared/Math
+	url = https://github.com/xtozero/CXMFLOAT

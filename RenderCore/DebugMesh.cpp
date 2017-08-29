@@ -5,7 +5,7 @@
 
 #include "Material.h"
 
-#include "../shared/CDirectXMath.h"
+#include "../shared/Math/CXMFloat.h"
 
 bool TriangleMesh::Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topology )
 {

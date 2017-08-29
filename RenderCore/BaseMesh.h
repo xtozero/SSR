@@ -3,7 +3,7 @@
 #include "common.h"
 #include "IBuffer.h"
 #include "IMesh.h"
-#include "../shared/CDirectXMath.h"
+#include "../shared/Math/CXMFloat.h"
 
 #include <memory>
 

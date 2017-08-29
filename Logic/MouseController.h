@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "../shared/CDirectXMath.h"
+#include "../shared/Math/CXMFloat.h"
 
 class IListener;
 struct UserInput;

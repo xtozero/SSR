@@ -2,7 +2,7 @@
 
 #include "EnumStringMap.h"
 #include "UICMap.h"
-#include "../shared/CDirectXMath.h"
+#include "../shared/Math/CXMFloat.h"
 
 #include <WinUser.h>
 

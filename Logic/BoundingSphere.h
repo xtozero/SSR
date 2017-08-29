@@ -1,7 +1,7 @@
 #pragma once
 #include "IRigidBody.h"
 
-#include "../shared/CDirectXMath.h"
+#include "../shared/Math/CXMFloat.h"
 
 class BoundingSphere : public IRigidBody
 {

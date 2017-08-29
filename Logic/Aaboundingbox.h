@@ -2,7 +2,7 @@
 
 #include "IRigidBody.h"
 
-#include "../shared/CDirectXMath.h"
+#include "../shared/Math/CXMFloat.h"
 
 class CAaboundingbox : public IRigidBody
 {

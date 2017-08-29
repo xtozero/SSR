@@ -3,7 +3,7 @@
 #include "GameObjectProperty.h"
 #include "RigidBodyManager.h"
 
-#include "../shared/CDirectXMath.h"
+#include "../shared/Math/CXMFloat.h"
 
 #include <memory>
 

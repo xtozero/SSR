@@ -3,7 +3,7 @@
 #include "IListener.h"
 #include "Ray.h"
 
-#include "../shared/CDirectXMath.h"
+#include "../shared/Math/CXMFloat.h"
 
 #include <memory>
 #include <vector>

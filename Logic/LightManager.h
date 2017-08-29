@@ -3,7 +3,7 @@
 #include "common.h"
 #include "Light.h"
 #include "../Engine/ScriptKeyHandler.h"
-#include "../shared/CDirectXMath.h"
+#include "../shared/Math/CXMFloat.h"
 
 #include <array>
 #include <memory>

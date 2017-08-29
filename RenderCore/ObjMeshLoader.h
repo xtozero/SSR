@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IMeshLoader.h"
-#include "../shared/CDirectXMath.h"
+#include "../shared/Math/CXMFloat.h"
 
 #include <map>
 #include <memory>
