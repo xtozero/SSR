@@ -16,6 +16,16 @@ namespace
 	constexpr TCHAR* CONST_BUFFER_NAME = _T( "Lights" );
 	constexpr TCHAR* LIGHT_PROPERTY_FILE_NAME = _T( "../Script/SceneLight.txt" );
 
+	void RegisterEnumString()
+	{
+		//Register enum string
+		REGISTER_ENUM_STRING( LIGHT_TYPE::NONE );
+		REGISTER_ENUM_STRING( LIGHT_TYPE::AMBIENT_LIGHT );
+		REGISTER_ENUM_STRING( LIGHT_TYPE::DIRECTINAL_LIGHT );
+		REGISTER_ENUM_STRING( LIGHT_TYPE::POINT_LIGHT );
+		REGISTER_ENUM_STRING( LIGHT_TYPE::SPOT_LIGHT );
+	}
+
 	void AmbientColorHandler( CLightManager* owner, const String&, const std::shared_ptr<KeyValue>& keyValue )
 	{
 		KEYVALUE_VALUE_ASSERT( keyValue->GetValue( ), 4 );
@@ -178,12 +188,7 @@ CLightManager::CLightManager( ) :
 	RegisterHandler( _T( "globalAmbient" ), AmbientColorHandler );
 	RegisterHandler( _T( "Light" ), LightHandler );
 
-	//Register enum string
-	REGISTER_ENUM_STRING( LIGHT_TYPE::NONE );
-	REGISTER_ENUM_STRING( LIGHT_TYPE::AMBIENT_LIGHT );
-	REGISTER_ENUM_STRING( LIGHT_TYPE::DIRECTINAL_LIGHT );
-	REGISTER_ENUM_STRING( LIGHT_TYPE::POINT_LIGHT );
-	REGISTER_ENUM_STRING( LIGHT_TYPE::SPOT_LIGHT );
+	RegisterEnumString( );
 }
 
 void CLightManager::LoadPropertyFromScript( )

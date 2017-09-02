@@ -8,10 +8,9 @@
 #include <fstream>
 #include <vector>
 
-class UICMap
+namespace
 {
-public:
-	void Initialize( )
+	void RegisterUicEnumString()
 	{
 		REGISTER_ENUM_STRING( UIC_A );
 		REGISTER_ENUM_STRING( UIC_B );
@@ -119,6 +118,15 @@ public:
 		REGISTER_ENUM_STRING( UIC_MOUSE_LEFT );
 		REGISTER_ENUM_STRING( UIC_MOUSE_RIGHT );
 		REGISTER_ENUM_STRING( UIC_MOUSE_MIDDLE );
+	}
+}
+
+class UICMap
+{
+public:
+	void Initialize( )
+	{
+		RegisterUicEnumString( );
 	}
 
 	USER_INPUT_CODE Convert( unsigned long code )

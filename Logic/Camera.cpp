@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "common.h"
 #include "Camera.h"
+#include "Timer.h"
 #include "../RenderCore/IRenderer.h"
 #include "../RenderCore/IRenderView.h"
 #include "../shared/UserInput.h"
@@ -25,6 +26,12 @@ void CCamera::ProcessInput( const UserInput& input )
 		break;
 	case UIC_MOUSE_WHEELSPIN:
 		OnWheelMove( input );
+		break;
+	case UIC_RIGHT:
+	case UIC_LEFT:
+	case UIC_UP:
+	case UIC_DOWN:
+		HandleKeyEvent( input );
 		break;
 	default:
 		break;
@@ -136,6 +143,30 @@ void CCamera::OnMouseMove( const UserInput& input )
 void CCamera::OnWheelMove( const UserInput& input )
 {
 	Move( 0, 0, static_cast<float>( input.m_axis[2] ) );
+}
+
+void CCamera::HandleKeyEvent( const UserInput& input )
+{
+	if ( input.m_code == USER_INPUT_CODE::UIC_LEFT )
+	{
+		m_inputDirection[0] = ( input.m_axis[2] < 0 );
+	}
+	else if ( input.m_code == USER_INPUT_CODE::UIC_UP )
+	{
+		m_inputDirection[1] = ( input.m_axis[2] < 0 );
+	}
+	else if ( input.m_code == USER_INPUT_CODE::UIC_RIGHT )
+	{
+		m_inputDirection[2] = ( input.m_axis[2] < 0 );
+	}
+	else if ( input.m_code == USER_INPUT_CODE::UIC_DOWN )
+	{
+		m_inputDirection[3] = ( input.m_axis[2] < 0 );
+	}
+
+	CXMFLOAT2 force( static_cast<float>( m_inputDirection[2] - m_inputDirection[0] ), 
+					static_cast<float>( m_inputDirection[1] - m_inputDirection[3] ) );
+	Move( force.x, 0.f, force.y );
 }
 
 void CCamera::ReCalcViewMatrix( )

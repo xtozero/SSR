@@ -29,6 +29,7 @@ private:
 	void OnMouseRButton( const UserInput& input );
 	void OnMouseMove( const UserInput& input );
 	void OnWheelMove( const UserInput& input );
+	void HandleKeyEvent( const UserInput& input );
 
 	void ReCalcViewMatrix( );
 	void CameraChanged( )
@@ -50,6 +51,8 @@ private:
 	CXMFLOAT3 m_lookVector = { 0.f, 0.f, 1.f };
 	CXMFLOAT3 m_upVector = { 0.f, 1.f, 0.f };
 	CXMFLOAT3 m_rightVector = { 1.f, 0.f, 0.f };
+
+	bool m_inputDirection[4] = { false, false, false, false };
 
 	bool m_isNeedReclac = false;
 	bool m_isNeedUpdateRenderer = true;
