@@ -17,8 +17,8 @@ namespace
 struct ShaderLightTrait
 {
 	int m_curLights = 0;
-	CXMFLOAT3 m_cameraPos = { 0.f, 0.f, 0.f };
-	CXMFLOAT4 m_globalAmbient = { 0.f, 0.f, 0.f, 0.f };
+	CXMFLOAT3 m_cameraPos;
+	CXMFLOAT4 m_globalAmbient;
 	std::array<LightTrait, MAX_LIGHTS> m_properties;
 };
 

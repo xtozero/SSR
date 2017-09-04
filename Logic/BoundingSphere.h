@@ -11,7 +11,7 @@ public:
 	virtual float Intersect( const CRay* ray ) const override;
 
 private:
-	CXMFLOAT3 m_origin = { 0.f, 0.f, 0.f };
+	CXMFLOAT3 m_origin;
 	float m_radiusSqr = 0.f;
 };
 

@@ -1,21 +1,17 @@
 #pragma once
+
+#include <chrono>
+
 class CTimer
 {
 private:
-	long long m_currentTime;
-	long long m_lastTime;
+	float m_elapsedTime = 0.f;
 
-	float m_elapsedTime;
+	std::chrono::time_point<std::chrono::steady_clock> m_lastTime;
 
-	LARGE_INTEGER m_timeFrequency;
-	LARGE_INTEGER m_timeCouter;
-
-	bool m_isPerformanceCounter;
-
-	int m_frame;
-	float m_fps;
-	float m_frameCheckInterval;
-	float m_timeScale;
+	int m_frame = 0;
+	float m_fps = 0.f;
+	float m_frameCheckInterval = 0.f;
 public:
 	static CTimer& GetInstance( );
 
@@ -24,6 +20,5 @@ public:
 	inline float GetFps( ) const { return m_fps; }
 
 	CTimer( );
-	~CTimer( );
 };
 

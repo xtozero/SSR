@@ -2,6 +2,7 @@
 #include "common.h"
 #include "Camera.h"
 #include "Timer.h"
+#include "../Engine/KeyValueReader.h"
 #include "../RenderCore/IRenderer.h"
 #include "../RenderCore/IRenderView.h"
 #include "../shared/UserInput.h"
@@ -36,6 +37,19 @@ void CCamera::ProcessInput( const UserInput& input )
 	default:
 		break;
 	}
+}
+
+void CCamera::Think( )
+{
+	float elapsedTime = CTimer::GetInstance( ).GetElapsedTIme( );
+
+	CXMFLOAT3 force( static_cast<float>( m_inputDirection[2] - m_inputDirection[0] ),
+					0.f,
+					static_cast<float>( m_inputDirection[1] - m_inputDirection[3] ) );
+
+	force *= m_kineticForceScale;
+	m_movement.Update( force, elapsedTime );
+	Move( m_movement.GetDelta( elapsedTime ) );
 }
 
 const CXMFLOAT4X4& CCamera::GetViewMatrix( )
@@ -74,6 +88,11 @@ void CCamera::Move( const float right, const float up, const float look )
 	}
 }
 
+void CCamera::Move( CXMFLOAT3 delta )
+{
+	Move( delta.x, delta.y, delta.z );
+}
+
 void CCamera::Rotate( const float pitch, const float yaw, const float roll )
 {
 	if ( m_enableRotate )
@@ -109,6 +128,53 @@ void CCamera::UpdateToRenderer( IRenderer& renderer )
 
 		view->SetViewMatrix( GetViewMatrix( ) );
 		m_isNeedUpdateRenderer = false;
+	}
+}
+
+void CCamera::LoadProperty( KeyValueGroup* keyValue )
+{
+	CKeyValueIterator found = keyValue->FindKeyValue( _T( "Camera" ) );
+
+	if ( found != nullptr )
+	{
+		std::shared_ptr<KeyValue>& properties = found->GetChild( );
+
+		for ( auto& iter = properties; iter != nullptr; iter = iter->GetNext( ) )
+		{
+			if ( iter->GetKey( ) == _T( "Position" ) )
+			{
+				std::vector<String> param;
+				UTIL::Split( iter->GetValue( ), param, ' ' );
+
+				if ( param.size( ) == 3 )
+				{
+					CXMFLOAT3 origin( static_cast<float>( _ttof( param[0].c_str( ) ) ),
+									static_cast<float>( _ttof( param[1].c_str( ) ) ),
+									static_cast<float>( _ttof( param[2].c_str( ) ) ) );
+					SetOrigin( origin );
+				}
+			}
+			else if ( iter->GetKey( ) == _T( "Max_Force" ) )
+			{
+				m_movement.SetMaxForceMagnitude( static_cast<float>( _ttof( iter->GetValue( ).c_str( ) ) ) );
+			}
+			else if ( iter->GetKey( ) == _T( "Friction" ) )
+			{
+				std::vector<String> param;
+				UTIL::Split( iter->GetValue( ), param, ' ' );
+
+				if ( param.size( ) == 2 )
+				{
+					CXMFLOAT2 friction( static_cast<float>( _ttof( param[0].c_str( ) ) ),
+										static_cast<float>( _ttof( param[1].c_str( ) ) ) );
+					m_movement.SetFriction( friction );
+				}
+			}
+			else if ( iter->GetKey( ) == _T( "Kinetic_Force_Scale" ) )
+			{
+				m_kineticForceScale = iter->GetValue<float>( );
+			}
+		}
 	}
 }
 
@@ -163,10 +229,6 @@ void CCamera::HandleKeyEvent( const UserInput& input )
 	{
 		m_inputDirection[3] = ( input.m_axis[2] < 0 );
 	}
-
-	CXMFLOAT2 force( static_cast<float>( m_inputDirection[2] - m_inputDirection[0] ), 
-					static_cast<float>( m_inputDirection[1] - m_inputDirection[3] ) );
-	Move( force.x, 0.f, force.y );
 }
 
 void CCamera::ReCalcViewMatrix( )
@@ -206,9 +268,4 @@ CCamera::CCamera( )
 {
 	m_viewMatrix = XMMatrixIdentity( );
 	m_invViewMatrix = XMMatrixIdentity( );
-}
-
-
-CCamera::~CCamera( )
-{
 }

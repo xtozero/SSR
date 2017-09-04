@@ -15,7 +15,7 @@ public:
 	CRay( ) = default;
 
 private:
-	CXMFLOAT3 m_origin = { 0.f, 0.f, 0.f };
-	CXMFLOAT3 m_dir = { 0.f, 0.f, 0.f };
+	CXMFLOAT3 m_origin;
+	CXMFLOAT3 m_dir;
 };
 

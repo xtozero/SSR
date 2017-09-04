@@ -7,6 +7,8 @@
 
 #pragma comment( lib, "winmm.lib" )
 
+using namespace std::chrono;
+
 CTimer& CTimer::GetInstance ( )
 {
 	static CTimer timer;
@@ -18,19 +20,10 @@ void CTimer::Tick ( )
 {
 	++m_frame;
 
-	m_lastTime = m_currentTime;
+	time_point<steady_clock> curTime = steady_clock::now( );
 
-	if ( m_isPerformanceCounter )
-	{
-		::QueryPerformanceCounter ( &m_timeCouter );
-		m_currentTime = m_timeCouter.QuadPart;
-	}
-	else
-	{
-		m_currentTime = GetTickCount64( );
-	}
-
-	m_elapsedTime = static_cast<float>( m_currentTime - m_lastTime ) * m_timeScale;
+	m_elapsedTime = duration_cast<duration<float>>( curTime - m_lastTime ).count();
+	m_lastTime = curTime;
 
 	m_frameCheckInterval += m_elapsedTime;
 	
@@ -42,29 +35,7 @@ void CTimer::Tick ( )
 	}
 }
 
-CTimer::CTimer ( ) : m_currentTime ( 0 ), 
-m_lastTime ( 0 ), 
-m_elapsedTime ( 0.f ),
-m_frame( 0 ),
-m_fps( 0.f ),
-m_frameCheckInterval( 0.f )
+CTimer::CTimer ( )
 {
-	::QueryPerformanceCounter( &m_timeCouter );
-
-	m_isPerformanceCounter = m_timeCouter.QuadPart == 0 ? false : true;
-
-	if ( m_isPerformanceCounter )
-	{
-		m_currentTime = m_timeCouter.QuadPart;
-		::QueryPerformanceFrequency ( &m_timeFrequency );
-		m_timeScale = 1.f / m_timeFrequency.QuadPart;
-	}
-	else
-	{
-		m_timeScale = 1.f / 1000.f;
-	}
-}
-
-CTimer::~CTimer ( )
-{
+	m_lastTime = steady_clock::now( );
 }

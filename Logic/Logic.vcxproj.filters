@@ -31,6 +31,9 @@
     <Filter Include="Collision">
       <UniqueIdentifier>{c1aec5de-e5d7-4cc3-815c-2c16a93268fe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{23d8f70d-f5e2-44ac-a9e5-132c02636e96}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -131,6 +134,9 @@
     </ClInclude>
     <ClInclude Include="ILogic.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Movement.h">
+      <Filter>Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

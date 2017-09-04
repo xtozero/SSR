@@ -86,6 +86,8 @@ void CGameLogic::Update( void )
 	// 한 프레임의 시작 ElapsedTime 갱신
 	CTimer::GetInstance( ).Tick( );
 
+	m_mainCamera.Think( );
+
 	StartLogic( );
 	ProcessLogic( );
 	EndLogic( );
@@ -140,7 +142,7 @@ bool CGameLogic::LoadScene( void )
 		return false;
 	}
 
-	InitCameraProperty( keyValue );
+	m_mainCamera.LoadProperty( keyValue.get() );
 
 	return true;
 }
@@ -172,25 +174,6 @@ void CGameLogic::UpdateWorldMatrix( CGameObject* object ) const
 	if ( object )
 	{
 		m_pRenderer->UpdateWorldMatrix( object->GetTransformMatrix( ), object->GetInvTransformMatrix( ) );
-	}
-}
-
-void CGameLogic::InitCameraProperty( std::shared_ptr<KeyValueGroup> keyValue )
-{
-	CKeyValueIterator found = keyValue->FindKeyValue( _T( "Camera Pos" ) );
-
-	if ( found != nullptr )
-	{
-		std::vector<String> param;
-		UTIL::Split( found->GetValue( ), param, ' ' );
-
-		if ( param.size( ) == 3 )
-		{
-			m_mainCamera.SetOrigin( CXMFLOAT3( 
-				static_cast<float>( _ttof( param[0].c_str( ) ) ),
-				static_cast<float>( _ttof( param[1].c_str( ) ) ),
-				static_cast<float>( _ttof( param[2].c_str( ) ) ) ) );
-		}
 	}
 }
 

@@ -20,13 +20,13 @@ struct LightTrait
 	bool					m_isOn = false;
 	float					m_theta = 0.f;
 	float					m_phi = 0.f;
-	CXMFLOAT3				m_direction = { 0.f, 0.f, 0.f };
+	CXMFLOAT3				m_direction;
 	float					m_range = 0.f;
 	float					m_fallOff = 0.f;
-	CXMFLOAT3				m_attenuation = { 0.f, 0.f, 0.f };
-	CXMFLOAT4				m_position = { 0.f, 0.f, 0.f, 0.f };
-	CXMFLOAT4				m_diffuse = { 0.f, 0.f, 0.f, 0.f };
-	CXMFLOAT4				m_specular = { 0.f, 0.f, 0.f, 0.f };
+	CXMFLOAT3				m_attenuation;
+	CXMFLOAT4				m_position;
+	CXMFLOAT4				m_diffuse;
+	CXMFLOAT4				m_specular;
 };
 
 class CLight : public CGameObject

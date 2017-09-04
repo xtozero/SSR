@@ -57,7 +57,7 @@ private:
 	CGameObject* m_curSelectedObject = nullptr;
 	int m_curSelectedIdx = -1;
 
-	CXMFLOAT2 m_curMousePos = { 0.f, 0.f };
+	CXMFLOAT2 m_curMousePos;
 
 	float m_closestHitDist = FLT_MAX;
 

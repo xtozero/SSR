@@ -110,6 +110,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="ILogic.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="LightManager.h" />
+    <ClInclude Include="Movement.h" />
     <ClInclude Include="PickingManager.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="RigidBodyManager.h" />
