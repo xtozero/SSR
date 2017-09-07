@@ -97,16 +97,17 @@ namespace
 	}
 }
 
-bool CLightManager::Initialize( IRenderer& renderer, std::vector<std::shared_ptr<CGameObject>>& objectList )
+bool CLightManager::Initialize( IRenderer& renderer, std::vector<std::unique_ptr<CGameObject>>& objectList )
 {
 	// 속성과 클래스를 연결
 	for ( int i = 0; i < MAX_LIGHTS; ++i )
 	{
-		m_lights[i] = std::make_shared<CLight>( );
-		if ( m_lights[i] )
+		std::unique_ptr<CLight> newLight = std::make_unique<CLight>( );
+		if ( newLight )
 		{
-			m_lights[i]->RegisterProperty( &m_shaderLightProperty.m_properties[i] );
-			objectList.emplace_back( m_lights[i] );
+			newLight->RegisterProperty( &m_shaderLightProperty.m_properties[i] );
+			m_lights[i] = newLight.get( );
+			objectList.emplace_back( std::move( newLight ) );
 		}
 	}
 

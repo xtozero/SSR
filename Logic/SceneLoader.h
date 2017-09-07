@@ -12,9 +12,9 @@ class KeyValueGroup;
 class CSceneLoader
 {
 public:
-	std::shared_ptr<KeyValueGroup> LoadSceneFromFile( IRenderer& renderer, std::vector<std::shared_ptr<CGameObject>>& objectList, const String& fileName );
+	std::shared_ptr<KeyValueGroup> LoadSceneFromFile( IRenderer& renderer, std::vector<std::unique_ptr<CGameObject>>& objectList, const String& fileName );
 
 private:
-	void SetSceneObjectProperty( IRenderer& renderer, std::shared_ptr<KeyValueGroup> keyValue, std::vector<std::shared_ptr<CGameObject>>& objectList );
+	void SetSceneObjectProperty( IRenderer& renderer, std::shared_ptr<KeyValueGroup> keyValue, std::vector<std::unique_ptr<CGameObject>>& objectList );
 };
 

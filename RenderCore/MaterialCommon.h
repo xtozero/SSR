@@ -11,4 +11,4 @@ enum MAT_CONSTANT_BUFFER
 	TOTAL_COUNT
 };
 
-using MatConstantBuffers = std::array<std::shared_ptr<IBuffer>, MAT_CONSTANT_BUFFER::TOTAL_COUNT>;
+using MatConstantBuffers = std::array<IBuffer*, MAT_CONSTANT_BUFFER::TOTAL_COUNT>;

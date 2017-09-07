@@ -34,7 +34,7 @@ private:
 	IShaderResource* m_pSsrSrv;
 	IShaderResource* m_pDefaultSrv;
 	IShaderResource* m_pDepthSrv;
-	std::shared_ptr<IBuffer> m_ssrConstantBuffer;
+	IBuffer* m_ssrConstantBuffer;
 
 	ScreenBlurManager m_blur;
 };

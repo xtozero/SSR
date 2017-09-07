@@ -49,11 +49,9 @@ void Material::SetTexture( ID3D11DeviceContext* pDeviceContext, UINT shaderType,
 {
 	if ( pDeviceContext && shaderType < SHADER_TYPE::MAX_SHADER )
 	{
-		IShader* tagetShader = m_pShaders[shaderType].get( );
-
-		if ( tagetShader )
+		if ( m_pShaders[shaderType] )
 		{
-			tagetShader->SetShaderResource( pDeviceContext, slot, pTexture );
+			m_pShaders[shaderType]->SetShaderResource( pDeviceContext, slot, pTexture );
 		}
 	}
 }
@@ -62,10 +60,9 @@ void Material::SetSurface( ID3D11DeviceContext* pDeviceContext, UINT shaderType,
 {
  	if ( pDeviceContext && m_pConstantBuffers && pSurface && shaderType < SHADER_TYPE::MAX_SHADER )
 	{
-		IShader* targetShader = m_pShaders[shaderType].get( );
-		IBuffer* pSurfaceBuffer = m_pConstantBuffers->at( MAT_CONSTANT_BUFFER::SURFACE ).get();
+		IBuffer* pSurfaceBuffer = (*m_pConstantBuffers)[MAT_CONSTANT_BUFFER::SURFACE];
 
-		if ( targetShader && pSurfaceBuffer )
+		if ( m_pShaders[shaderType] && pSurfaceBuffer )
 		{
 			const SurfaceTrait* src = pSurface->GetTrait( );
 			static_assert(std::is_trivially_copyable<decltype(src)>::value || std::is_trivial<decltype(src)>::value,
@@ -77,7 +74,7 @@ void Material::SetSurface( ID3D11DeviceContext* pDeviceContext, UINT shaderType,
 			{
 				::memcpy_s( dest, pSurfaceBuffer->Size(), src, sizeof( SurfaceTrait ) );
 				pSurfaceBuffer->UnLockBuffer( pDeviceContext );
-				targetShader->SetConstantBuffer( pDeviceContext, slot, pSurfaceBuffer );
+				m_pShaders[shaderType]->SetConstantBuffer( pDeviceContext, slot, pSurfaceBuffer );
 			}
 			else
 			{

@@ -43,7 +43,7 @@ public:
 	bool PickingObject( float x, float y );
 	void ReleasePickingObject( );
 
-	using GameObjectsPtr = std::vector<std::shared_ptr<CGameObject>>*;
+	using GameObjectsPtr = std::vector<std::unique_ptr<CGameObject>>*;
 	explicit CPickingManager( const GameObjectsPtr objects );
 
 private:

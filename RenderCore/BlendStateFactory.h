@@ -14,7 +14,7 @@ class IBlendStateFactory : public CScriptKeyHandler<IBlendStateFactory>
 {
 public:
 	virtual void LoadDesc( ) = 0;
-	virtual std::shared_ptr<IRenderState> GetBlendState( ID3D11Device* pDevice, const String& stateName ) = 0;
+	virtual IRenderState* GetBlendState( ID3D11Device* pDevice, const String& stateName ) = 0;
 	virtual void AddBlendDesc( const String& descName, const CD3D_BLEND_DESC& newDesc ) = 0;
 
 	virtual ~IBlendStateFactory( ) = default;

@@ -162,14 +162,14 @@ class CBlendStateFactory : public IBlendStateFactory
 {
 public:
 	virtual void LoadDesc( ) override;
-	virtual std::shared_ptr<IRenderState> GetBlendState( ID3D11Device* pDevice, const String& stateName ) override;
+	virtual IRenderState* GetBlendState( ID3D11Device* pDevice, const String& stateName ) override;
 	virtual void AddBlendDesc( const String& descName, const CD3D_BLEND_DESC& newDesc ) override;
 
 	CBlendStateFactory( );
 private:
 	void LoadRasterizerDesc( std::shared_ptr<KeyValueGroup> pKeyValues );
 
-	std::map<String, std::weak_ptr<IRenderState>> m_blendState;
+	std::map<String, std::unique_ptr<IRenderState>> m_blendState;
 	std::map<String, CD3D_BLEND_DESC> m_blendStateDesc;
 };
 
@@ -185,16 +185,13 @@ void CBlendStateFactory::LoadDesc( )
 	}
 }
 
-std::shared_ptr<IRenderState> CBlendStateFactory::GetBlendState( ID3D11Device* pDevice, const String& stateName )
+IRenderState* CBlendStateFactory::GetBlendState( ID3D11Device* pDevice, const String& stateName )
 {
 	auto foundState = m_blendState.find( stateName );
 
 	if ( foundState != m_blendState.end( ) )
 	{
-		if ( !foundState->second.expired( ) )
-		{
-			return foundState->second.lock( );
-		}
+		return foundState->second.get( );
 	}
 
 	if ( pDevice )
@@ -203,7 +200,7 @@ std::shared_ptr<IRenderState> CBlendStateFactory::GetBlendState( ID3D11Device* p
 
 		if ( foundDesc != m_blendStateDesc.end( ) )
 		{
-			std::shared_ptr<CBlendState> newState = std::make_shared<CBlendState>( );
+			CBlendState* newState = new CBlendState;
 
 			if ( newState->Create( pDevice, foundDesc->second ) )
 			{
@@ -213,7 +210,7 @@ std::shared_ptr<IRenderState> CBlendStateFactory::GetBlendState( ID3D11Device* p
 		}
 	}
 
-	std::shared_ptr<IRenderState> nullState = std::make_shared<CNullBlendState>( );
+	CNullBlendState* nullState = new CNullBlendState;
 	m_blendState.emplace( _T( "NULL" ), nullState );
 	return nullState;
 }

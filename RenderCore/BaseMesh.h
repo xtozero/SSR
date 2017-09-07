@@ -13,8 +13,8 @@ protected:
 	void* m_pModelData;
 	void* m_pIndexData;
 
-	std::shared_ptr<IBuffer> m_pVertexBuffer;
-	std::shared_ptr<IBuffer> m_pIndexBuffer;
+	IBuffer* m_pVertexBuffer;
+	IBuffer* m_pIndexBuffer;
 
 	D3D_PRIMITIVE_TOPOLOGY m_primitiveTopology;
 

@@ -135,14 +135,14 @@ class CDepthStencilStateFactory : public IDepthStencilStateFactory
 {
 public:
 	virtual void LoadDesc( ) override;
-	virtual std::shared_ptr<IRenderState> GetDepthStencilState( ID3D11Device* pDevice, const String& stateName ) override;
+	virtual IRenderState* GetDepthStencilState( ID3D11Device* pDevice, const String& stateName ) override;
 	virtual void AddDepthStencilDesc( const String & descName, const D3D11_DEPTH_STENCIL_DESC & newDesc ) override;
 
 	CDepthStencilStateFactory( );
 private:
 	void LoadDepthStencilDesc( std::shared_ptr<KeyValueGroup> pKeyValues );
 
-	std::map<String, std::weak_ptr<IRenderState>> m_depthStencilState;
+	std::map<String, std::unique_ptr<IRenderState>> m_depthStencilState;
 	std::map<String, D3D11_DEPTH_STENCIL_DESC> m_depthStencilDesc;
 };
 
@@ -158,16 +158,13 @@ void CDepthStencilStateFactory::LoadDesc( )
 	}
 }
 
-std::shared_ptr<IRenderState> CDepthStencilStateFactory::GetDepthStencilState( ID3D11Device* pDevice, const String& stateName )
+IRenderState* CDepthStencilStateFactory::GetDepthStencilState( ID3D11Device* pDevice, const String& stateName )
 {
 	auto foundState = m_depthStencilState.find( stateName );
 
 	if ( foundState != m_depthStencilState.end( ) )
 	{
-		if ( !foundState->second.expired( ) )
-		{
-			return foundState->second.lock( );
-		}
+		return foundState->second.get( );
 	}
 
 	if ( pDevice )
@@ -176,7 +173,7 @@ std::shared_ptr<IRenderState> CDepthStencilStateFactory::GetDepthStencilState( I
 
 		if ( foundDesc != m_depthStencilDesc.end( ) )
 		{
-			std::shared_ptr<CDepthStencilState> newState = std::make_shared<CDepthStencilState>();
+			CDepthStencilState* newState = new CDepthStencilState;
 
 			if ( newState->Create( pDevice, foundDesc->second ) )
 			{
@@ -186,7 +183,7 @@ std::shared_ptr<IRenderState> CDepthStencilStateFactory::GetDepthStencilState( I
 		}
 	}
 	
-	std::shared_ptr<CNullDepthStencilState> nullState = std::make_shared<CNullDepthStencilState>( );
+	CNullDepthStencilState* nullState = new CNullDepthStencilState;
 	m_depthStencilState.emplace( _T( "NULL" ), nullState );
 	return nullState;
 }

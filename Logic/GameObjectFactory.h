@@ -12,10 +12,10 @@ class CCreateGameObjectHelper;
 class CGameObjectFactory
 {
 public:
-	static CGameObjectFactory* GetInstance( );
+	static CGameObjectFactory& GetInstance( );
 
 	void RegistGameObjectCreateFunc( const String& className, CCreateGameObjectHelper* helper );
-	std::shared_ptr<CGameObject> CreateGameObjectByClassName( const String& className );
+	CGameObject* CreateGameObjectByClassName( const String& className );
 
 	CGameObjectFactory( );
 	~CGameObjectFactory( );
@@ -27,13 +27,13 @@ private:
 class CCreateGameObjectHelper
 {
 public:
-	CCreateGameObjectHelper( const String& className, std::function<std::shared_ptr<CGameObject>( )> createFunc )
+	CCreateGameObjectHelper( const String& className, std::function<CGameObject*( )> createFunc )
 		: m_createFunc( createFunc )
 	{
-		CGameObjectFactory::GetInstance( )->RegistGameObjectCreateFunc( className, this );
+		CGameObjectFactory::GetInstance( ).RegistGameObjectCreateFunc( className, this );
 	}
 
-	std::shared_ptr<CGameObject> Create( )
+	CGameObject* Create( )
 	{
 		if ( m_createFunc )
 		{
@@ -46,12 +46,12 @@ public:
 	}
 
 private:
-	std::function<std::shared_ptr<CGameObject>( )> m_createFunc;
+	std::function<CGameObject*( )> m_createFunc;
 };
 
 #define DECLARE_GAME_OBJECT( name, classType ) \
-	static std::shared_ptr<CGameObject> create_##name( ) \
+	static CGameObject* create_##name( ) \
 	{ \
-		return std::make_shared<classType>( ); \
+		return new classType; \
 	} \
 	static CCreateGameObjectHelper name##_create_heper( _T( #name ), create_##name );

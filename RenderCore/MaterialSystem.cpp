@@ -22,9 +22,9 @@ void MaterialSystem::RegisterMaterial( const TCHAR* pName, std::shared_ptr<IMate
 	}
 }
 
-void MaterialSystem::RegisterConstantBuffer( UINT type, const std::shared_ptr<IBuffer>& pConstantBuffer )
+void MaterialSystem::RegisterConstantBuffer( UINT type, IBuffer* pConstantBuffer )
 {
-	if ( m_constantBuffers.size() > type && pConstantBuffer.get( ) )
+	if ( m_constantBuffers.size() > type && pConstantBuffer )
 	{
 		m_constantBuffers[type] = pConstantBuffer;
 	}

@@ -68,7 +68,7 @@ private:
 	CShadowManager m_shadowManager;
 	CSSRManager m_ssrManager;
 	IRenderer* m_pRenderer;
-	std::vector<std::shared_ptr<CGameObject>> m_gameObjects;
+	std::vector<std::unique_ptr<CGameObject>> m_gameObjects;
 
 	std::list<CGameObject*> m_renderableList[RENDERABLE_TYPE_COUNT];
 };

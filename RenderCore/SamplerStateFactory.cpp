@@ -143,14 +143,14 @@ class CSamplerStateFactory : public ISamplerStateFactory
 {
 public:
 	virtual void LoadDesc( ) override;
-	virtual std::shared_ptr<IRenderState> GetSamplerState( ID3D11Device* pDevice, const String& stateName ) override;
+	virtual IRenderState* GetSamplerState( ID3D11Device* pDevice, const String& stateName ) override;
 	virtual void AddSamplerDesc( const String& descName, const D3D11_SAMPLER_DESC& newDesc ) override;
 
 	CSamplerStateFactory( );
 private:
 	void LoadSamplerDesc( std::shared_ptr<KeyValueGroup> pKeyValues );
 
-	std::map<String, std::weak_ptr<IRenderState>> m_samplerState;
+	std::map<String, std::unique_ptr<IRenderState>> m_samplerState;
 	std::map<String, D3D11_SAMPLER_DESC> m_samplerStateDesc;
 };
 
@@ -166,16 +166,13 @@ void CSamplerStateFactory::LoadDesc( )
 	}
 }
 
-std::shared_ptr<IRenderState> CSamplerStateFactory::GetSamplerState( ID3D11Device* pDevice, const String& stateName )
+IRenderState* CSamplerStateFactory::GetSamplerState( ID3D11Device* pDevice, const String& stateName )
 {
 	auto foundState = m_samplerState.find( stateName );
 
 	if ( foundState != m_samplerState.end( ) )
 	{
-		if ( !foundState->second.expired( ) )
-		{
-			return foundState->second.lock( );
-		}
+		return foundState->second.get( );
 	}
 
 	if ( pDevice )
@@ -184,7 +181,7 @@ std::shared_ptr<IRenderState> CSamplerStateFactory::GetSamplerState( ID3D11Devic
 
 		if ( foundDesc != m_samplerStateDesc.end( ) )
 		{
-			std::shared_ptr<CSamplerState> newState = std::make_shared<CSamplerState>( );
+			CSamplerState* newState = new CSamplerState;
 
 			if ( newState->Create( pDevice, foundDesc->second ) )
 			{
@@ -194,7 +191,7 @@ std::shared_ptr<IRenderState> CSamplerStateFactory::GetSamplerState( ID3D11Devic
 		}
 	}
 
-	std::shared_ptr<IRenderState> nullState = std::make_shared<CNullSamplerState>( );
+	CNullSamplerState* nullState = new CNullSamplerState;
 	m_samplerState.emplace( _T( "NULL" ), nullState );
 	return nullState;
 }

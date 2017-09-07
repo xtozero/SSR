@@ -78,7 +78,7 @@ void CShadowManager::SceneBegin( CLightManager& lightMgr, IRenderer& renderer )
 	renderer.PushViewPort( 0, 0, 2048, 2048 );
 }
 
-void CShadowManager::DrawScene( CLightManager& lightMgr, IRenderer& renderer, std::vector<std::shared_ptr<CGameObject>>& gameObjects )
+void CShadowManager::DrawScene( CLightManager& lightMgr, IRenderer& renderer, std::vector<std::unique_ptr<CGameObject>>& gameObjects )
 {
 	//그림자 렌더링 마테리얼로 전체 오브젝트를 랜더링
 	for ( auto& object : gameObjects )
@@ -102,7 +102,7 @@ void CShadowManager::SceneEnd( CLightManager& lightMgr, IRenderer& renderer )
 	m_renderShadowMgr->SceneEnd( renderer );
 }
 
-void CShadowManager::Process( CLightManager& lightMgr, IRenderer& renderer, std::vector<std::shared_ptr<CGameObject>>& gameObjects )
+void CShadowManager::Process( CLightManager& lightMgr, IRenderer& renderer, std::vector<std::unique_ptr<CGameObject>>& gameObjects )
 {
 	if ( m_isEnabled )
 	{

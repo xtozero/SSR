@@ -46,15 +46,15 @@ public:
 	virtual std::shared_ptr<IShader> CreateVertexShader( const TCHAR* pFilePath, const char* pProfile ) = 0;
 	virtual std::shared_ptr<IShader> CreatePixelShader( const TCHAR* pFilePath, const char* pProfile ) = 0;
 
-	virtual std::shared_ptr<IBuffer> CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) = 0;
-	virtual std::shared_ptr<IBuffer> CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) = 0;
-	virtual std::shared_ptr<IBuffer> CreateConstantBuffer( const String& bufferName, const UINT stride, const UINT numOfElement, const void* srcData ) = 0;
+	virtual IBuffer* CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) = 0;
+	virtual IBuffer* CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) = 0;
+	virtual IBuffer* CreateConstantBuffer( const String& bufferName, const UINT stride, const UINT numOfElement, const void* srcData ) = 0;
 
 	virtual void* MapConstantBuffer( const String& bufferName ) = 0;
 	virtual void UnMapConstantBuffer( const String& bufferName ) = 0;
 	virtual void SetConstantBuffer( const String& bufferName, const UINT slot, const SHADER_TYPE type ) = 0;
 
-	virtual std::shared_ptr<IShader> SearchShaderByName( const TCHAR* name ) = 0;
+	virtual IShader* SearchShaderByName( const TCHAR* name ) = 0;
 
 	virtual IMaterial* GetMaterialPtr( const TCHAR* pMaterialName ) = 0;
 	virtual std::shared_ptr<IMesh> GetModelPtr( const TCHAR* pModelName ) = 0;
@@ -70,13 +70,13 @@ public:
 
 	virtual void UpdateWorldMatrix( const CXMFLOAT4X4& worldMatrix, const CXMFLOAT4X4& invWorldMatrix ) = 0;
 
-	virtual std::shared_ptr<IRenderState> CreateRenderState( const String& stateName ) = 0;
+	virtual IRenderState* CreateRenderState( const String& stateName ) = 0;
 	virtual IShaderResource* GetShaderResourceFromFile( const String& fileName ) = 0;
-	virtual std::shared_ptr<IRenderState> CreateSamplerState( const String& stateName ) = 0;
+	virtual IRenderState* CreateSamplerState( const String& stateName ) = 0;
 
-	virtual std::shared_ptr<IRenderState> CreateDepthStencilState( const String& stateName ) = 0;
+	virtual IRenderState* CreateDepthStencilState( const String& stateName ) = 0;
 
-	virtual std::shared_ptr<IRenderState> CreateBlendState( const String& stateName ) = 0;
+	virtual IRenderState* CreateBlendState( const String& stateName ) = 0;
 
 	virtual void ResetResource( const std::shared_ptr<IMesh>& pMesh, const SHADER_TYPE type ) = 0;
 	

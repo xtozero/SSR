@@ -120,14 +120,14 @@ class CRasterizerStateFactory : public IRasterizerStateFactory
 {
 public:
 	virtual void LoadDesc( ) override;
-	virtual std::shared_ptr<IRenderState> GetRasterizerState( ID3D11Device* pDevice, const String& stateName ) override;
+	virtual IRenderState* GetRasterizerState( ID3D11Device* pDevice, const String& stateName ) override;
 	virtual void AddRasterizerDesc( const String& descName, const D3D11_RASTERIZER_DESC& newDesc ) override;
 
 	CRasterizerStateFactory( );
 private:
 	void LoadRasterizerDesc( std::shared_ptr<KeyValueGroup> pKeyValues );
 
-	std::map<String, std::weak_ptr<IRenderState>> m_rasterizerState;
+	std::map<String, std::unique_ptr<IRenderState>> m_rasterizerState;
 	std::map<String, D3D11_RASTERIZER_DESC> m_rasterizerStateDesc;
 };
 
@@ -143,16 +143,13 @@ void CRasterizerStateFactory::LoadDesc( )
 	}
 }
 
-std::shared_ptr<IRenderState> CRasterizerStateFactory::GetRasterizerState( ID3D11Device* pDevice, const String& stateName )
+IRenderState* CRasterizerStateFactory::GetRasterizerState( ID3D11Device* pDevice, const String& stateName )
 {
 	auto foundState = m_rasterizerState.find( stateName );
 
 	if ( foundState != m_rasterizerState.end( ) )
 	{
-		if ( !foundState->second.expired( ) )
-		{
-			return foundState->second.lock( );
-		}
+		return foundState->second.get();
 	}
 
 	if ( pDevice )
@@ -161,7 +158,7 @@ std::shared_ptr<IRenderState> CRasterizerStateFactory::GetRasterizerState( ID3D1
 
 		if ( foundDesc != m_rasterizerStateDesc.end( ) )
 		{
-			std::shared_ptr<CRasterizerState> newState = std::make_shared<CRasterizerState>();
+			CRasterizerState* newState = new CRasterizerState;
 
 			if ( newState->Create( pDevice, foundDesc->second ) )
 			{
@@ -171,7 +168,7 @@ std::shared_ptr<IRenderState> CRasterizerStateFactory::GetRasterizerState( ID3D1
 		}
 	}
 
-	std::shared_ptr<IRenderState> nullState = std::make_shared<CNullRasterizerState>( );
+	CNullRasterizerState* nullState = new CNullRasterizerState;
 	m_rasterizerState.emplace( _T( "NULL" ), nullState );
 	return nullState;
 }

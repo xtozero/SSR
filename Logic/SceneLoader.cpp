@@ -8,14 +8,7 @@
 #include "../Engine/KeyValueReader.h"
 #include "../Shared/Util.h"
 
-#define CHECK_VALID_ITERATOR( iter, container ) \
-if ( iter == container.end( ) ) \
-		{ \
-		DebugWarning( "> SceneLoader - SetModel Fail!!!!!" ); \
-		return; \
-		}
-
-std::shared_ptr<KeyValueGroup> CSceneLoader::LoadSceneFromFile( IRenderer& renderer, std::vector<std::shared_ptr<CGameObject>>& objectList, const String& fileName )
+std::shared_ptr<KeyValueGroup> CSceneLoader::LoadSceneFromFile( IRenderer& renderer, std::vector<std::unique_ptr<CGameObject>>& objectList, const String& fileName )
 {
 	CKeyValueReader scene;
 
@@ -33,44 +26,30 @@ std::shared_ptr<KeyValueGroup> CSceneLoader::LoadSceneFromFile( IRenderer& rende
 	}
 }
 
-void CSceneLoader::SetSceneObjectProperty( IRenderer& renderer, std::shared_ptr<KeyValueGroup> keyValue, std::vector<std::shared_ptr<CGameObject>>& objectList )
+void CSceneLoader::SetSceneObjectProperty( IRenderer& renderer, std::shared_ptr<KeyValueGroup> keyValue, std::vector<std::unique_ptr<CGameObject>>& objectList )
 {
-	auto curObject = objectList.begin( );
+	CGameObject* curObject = nullptr;
 
 	for ( auto findedKey = keyValue->FindKeyValue( _T( "Scene" ) ); findedKey != nullptr; ++findedKey )
 	{
-		if ( findedKey->GetKey( ) == String( _T( "Object" ) ) )
+		if ( findedKey->GetKey( ) == _T( "Object" ) )
 		{
-			if ( curObject != objectList.end( ) &&
-				curObject->get( ) &&
-				curObject->get( )->NeedInitialize( ) )
-			{
-				curObject->get( )->Initialize( renderer );
-			}
+			auto newObject = CGameObjectFactory::GetInstance().CreateGameObjectByClassName( findedKey->GetValue( ) );
 
-			auto newObject = CGameObjectFactory::GetInstance( )->CreateGameObjectByClassName( findedKey->GetValue( ) );
-
-			if ( newObject == nullptr )
+			if ( newObject )
 			{
-			}
-			else
-			{
-				objectList.push_back( newObject );
-				curObject = ( objectList.end( ) - 1 );
+				objectList.emplace_back( newObject );
+				curObject = objectList.back( ).get( );
 			}
 		}
-		else if ( curObject != objectList.end() )
+		else if ( curObject )
 		{
-			CHECK_VALID_ITERATOR( curObject, objectList );
-
-			curObject->get()->LoadPropertyFromScript( findedKey );
+			curObject->LoadPropertyFromScript( findedKey );
 		}
 	}
 
-	if ( curObject != objectList.end( ) &&
-		curObject->get( ) &&
-		curObject->get( )->NeedInitialize( ) )
+	for ( const auto& object : objectList )
 	{
-		curObject->get( )->Initialize( renderer );
+		object->Initialize( renderer );
 	}
 }

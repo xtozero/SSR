@@ -29,7 +29,7 @@ class KeyValueGroup;
 class CLightManager : public CScriptKeyHandler<CLightManager>
 {
 public:
-	bool Initialize( IRenderer& renderer, std::vector<std::shared_ptr<CGameObject>>& objectList );
+	bool Initialize( IRenderer& renderer, std::vector<std::unique_ptr<CGameObject>>& objectList );
 	void UpdateToRenderer( IRenderer& renderer, const CCamera& camera );
 
 	void SetCameraPosition( const CXMFLOAT3& cameraPos );
@@ -47,7 +47,7 @@ private:
 	void LoadPropertyFromScript( );
 	void LoadLightProperty( const std::shared_ptr<KeyValueGroup>& pKeyValues );
 
-	std::array<std::shared_ptr<CLight>, MAX_LIGHTS > m_lights;
+	std::array<CLight*, MAX_LIGHTS > m_lights;
 	ShaderLightTrait m_shaderLightProperty;
 
 	bool m_needUpdateToRenderer;

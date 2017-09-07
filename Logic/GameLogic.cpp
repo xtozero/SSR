@@ -134,7 +134,7 @@ void CGameLogic::EndLogic ( void )
 
 bool CGameLogic::LoadScene( void )
 {
-	m_gameObjects.erase( m_gameObjects.begin( ), m_gameObjects.end( ) );
+	m_gameObjects.clear( );
 	auto keyValue = m_sceneLoader.LoadSceneFromFile( *m_pRenderer, m_gameObjects, _T( "../Script/TestScene.txt" ) );
 
 	if ( !keyValue )

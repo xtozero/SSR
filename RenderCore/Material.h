@@ -11,11 +11,11 @@ class IRenderState;
 class Material : public IMaterial
 {
 protected:
-	std::shared_ptr<IShader> m_pShaders[SHADER_TYPE::MAX_SHADER];
-	std::shared_ptr<IRenderState> m_pRasterizerState;
-	std::shared_ptr<IRenderState> m_pSamplerState[SHADER_TYPE::MAX_SHADER];
-	std::shared_ptr<IRenderState> m_pDepthStencilState;
-	std::shared_ptr<IRenderState> m_pBlendState;
+	IShader* m_pShaders[SHADER_TYPE::MAX_SHADER];
+	IRenderState* m_pRasterizerState;
+	IRenderState* m_pSamplerState[SHADER_TYPE::MAX_SHADER];
+	IRenderState* m_pDepthStencilState;
+	IRenderState* m_pBlendState;
 	MatConstantBuffers* m_pConstantBuffers;
 
 public:

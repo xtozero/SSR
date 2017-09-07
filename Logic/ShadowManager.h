@@ -11,9 +11,9 @@ class CShadowManager
 public:
 	void Init( IRenderer& renderer );
 	void SceneBegin( CLightManager& lightMgr, IRenderer& renderer );
-	void DrawScene( CLightManager& lightMgr, IRenderer& renderer, std::vector<std::shared_ptr<CGameObject>>& gameObjects );
+	void DrawScene( CLightManager& lightMgr, IRenderer& renderer, std::vector<std::unique_ptr<CGameObject>>& gameObjects );
 	void SceneEnd( CLightManager& lightMgr, IRenderer& renderer );
-	void Process( CLightManager& lightMgr, IRenderer& renderer, std::vector<std::shared_ptr<CGameObject>>& gameObjects );
+	void Process( CLightManager& lightMgr, IRenderer& renderer, std::vector<std::unique_ptr<CGameObject>>& gameObjects );
 
 	CShadowManager( );
 	~CShadowManager( );

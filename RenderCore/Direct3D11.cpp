@@ -311,15 +311,15 @@ public:
 	virtual std::shared_ptr<IShader> CreateVertexShader( const TCHAR* pFilePath, const char* pProfile ) override;
 	virtual std::shared_ptr<IShader> CreatePixelShader( const TCHAR* pFilePath, const char* pProfile ) override;
 
-	virtual std::shared_ptr<IBuffer> CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) override;
-	virtual std::shared_ptr<IBuffer> CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) override;
-	virtual std::shared_ptr<IBuffer> CreateConstantBuffer( const String& bufferName, const UINT stride, const UINT numOfElement, const void* srcData ) override;
+	virtual IBuffer* CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) override;
+	virtual IBuffer* CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) override;
+	virtual IBuffer* CreateConstantBuffer( const String& bufferName, const UINT stride, const UINT numOfElement, const void* srcData ) override;
 
 	virtual void* MapConstantBuffer( const String& bufferName ) override;
 	virtual void UnMapConstantBuffer( const String& bufferName ) override;
 	virtual void SetConstantBuffer( const String& bufferName, const UINT slot, const SHADER_TYPE type ) override;
 
-	virtual std::shared_ptr<IShader> SearchShaderByName( const TCHAR* pName ) override;
+	virtual IShader* SearchShaderByName( const TCHAR* pName ) override;
 
 	virtual IMaterial* GetMaterialPtr( const TCHAR* pMaterialName ) override;
 	virtual std::shared_ptr<IMesh> GetModelPtr( const TCHAR* pModelName ) override;
@@ -334,14 +334,14 @@ public:
 	virtual IRenderView* GetCurrentRenderView( ) override;
 
 	virtual void UpdateWorldMatrix( const CXMFLOAT4X4& worldMatrix, const CXMFLOAT4X4& invWorldMatrix ) override;
-	virtual std::shared_ptr<IRenderState> CreateRenderState( const String& stateName ) override;
+	virtual IRenderState* CreateRenderState( const String& stateName ) override;
 
 	virtual IShaderResource* GetShaderResourceFromFile( const String& fileName ) override;
-	virtual std::shared_ptr<IRenderState> CreateSamplerState( const String& stateName ) override;
+	virtual IRenderState* CreateSamplerState( const String& stateName ) override;
 
-	virtual std::shared_ptr<IRenderState> CreateDepthStencilState( const String& stateName ) override;
+	virtual IRenderState* CreateDepthStencilState( const String& stateName ) override;
 
-	virtual std::shared_ptr<IRenderState> CreateBlendState( const String& stateName ) override;
+	virtual IRenderState* CreateBlendState( const String& stateName ) override;
 
 	virtual void ResetResource( const std::shared_ptr<IMesh>& pMesh, const SHADER_TYPE type ) override;
 
@@ -369,12 +369,12 @@ private:
 
 	std::map<String, std::shared_ptr<IShader>>		m_shaderList;
 	std::vector<std::shared_ptr<IBuffer>>			m_bufferList;
-	std::map<String, std::shared_ptr<IBuffer>>		m_constantBufferList;
+	std::map<String, std::unique_ptr<IBuffer>>		m_constantBufferList;
 
 	std::unique_ptr<RenderView>						m_pView;
 	CMeshLoader										m_meshLoader;
 
-	std::shared_ptr<IBuffer>						m_pWorldMatrixBuffer;
+	IBuffer*										m_pWorldMatrixBuffer;
 
 	CTextureManager									m_textureManager;
 	CShaderResourceManager							m_shaderResourceManager;
@@ -557,9 +557,9 @@ std::shared_ptr<IShader> CDirect3D11::CreatePixelShader( const TCHAR* pFilePath,
 	return nullptr;
 }
 
-std::shared_ptr<IBuffer> CDirect3D11::CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData )
+IBuffer* CDirect3D11::CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData )
 {
-	std::shared_ptr<D3D11VertexBuffer> vb = std::make_shared<D3D11VertexBuffer>( );
+	D3D11VertexBuffer* vb = new D3D11VertexBuffer;
 	if ( vb->CreateBuffer( m_pd3d11Device.Get( ), stride, numOfElement, srcData ) )
 	{
 		m_bufferList.emplace_back( vb );
@@ -569,9 +569,9 @@ std::shared_ptr<IBuffer> CDirect3D11::CreateVertexBuffer( const UINT stride, con
 	return nullptr;
 }
 
-std::shared_ptr<IBuffer> CDirect3D11::CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData )
+IBuffer* CDirect3D11::CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData )
 {
-	std::shared_ptr<D3D11IndexBuffer> ib = std::make_shared<D3D11IndexBuffer>( );
+	D3D11IndexBuffer* ib = new D3D11IndexBuffer;
 	if ( ib->CreateBuffer( m_pd3d11Device.Get( ), stride, numOfElement, srcData ) )
 	{
 		m_bufferList.emplace_back( ib );
@@ -581,9 +581,9 @@ std::shared_ptr<IBuffer> CDirect3D11::CreateIndexBuffer( const UINT stride, cons
 	return nullptr;
 }
 
-std::shared_ptr<IBuffer> CDirect3D11::CreateConstantBuffer( const String& bufferName, const UINT stride, const UINT numOfElement, const void* srcData )
+IBuffer* CDirect3D11::CreateConstantBuffer( const String& bufferName, const UINT stride, const UINT numOfElement, const void* srcData )
 {
-	std::shared_ptr<D3D11ConstantBuffer> cb = std::make_shared<D3D11ConstantBuffer>( );
+	D3D11ConstantBuffer* cb = new D3D11ConstantBuffer;
 	if ( cb->CreateBuffer( m_pd3d11Device.Get( ), stride, numOfElement, srcData ) )
 	{
 		m_constantBufferList.emplace( bufferName, cb );
@@ -633,7 +633,7 @@ void CDirect3D11::SetConstantBuffer( const String & bufferName, const UINT slot,
 	}
 }
 
-std::shared_ptr<IShader> CDirect3D11::SearchShaderByName( const TCHAR* pName )
+IShader* CDirect3D11::SearchShaderByName( const TCHAR* pName )
 {
 	if ( !pName )
 	{
@@ -644,7 +644,7 @@ std::shared_ptr<IShader> CDirect3D11::SearchShaderByName( const TCHAR* pName )
 
 	if ( found != m_shaderList.end( ) )
 	{
-		return found->second;
+		return found->second.get();
 	}
 
 	return nullptr;
@@ -759,7 +759,7 @@ void CDirect3D11::UpdateWorldMatrix( const CXMFLOAT4X4& worldMatrix, const CXMFL
 	m_pWorldMatrixBuffer->SetVSBuffer( m_pd3d11DeviceContext.Get( ), static_cast<int>( VS_CONSTANT_BUFFER::WORLD ) );
 }
 
-std::shared_ptr<IRenderState> CDirect3D11::CreateRenderState( const String& stateName )
+IRenderState* CDirect3D11::CreateRenderState( const String& stateName )
 {
 	if ( m_pRasterizerFactory == nullptr )
 	{
@@ -776,7 +776,7 @@ IShaderResource* CDirect3D11::GetShaderResourceFromFile( const String& fileName 
 	return m_shaderResourceManager.FindShaderResource( fileName );
 }
 
-std::shared_ptr<IRenderState> CDirect3D11::CreateSamplerState( const String& stateName )
+IRenderState* CDirect3D11::CreateSamplerState( const String& stateName )
 {
 	if ( m_pSamplerFactory == nullptr )
 	{
@@ -787,7 +787,7 @@ std::shared_ptr<IRenderState> CDirect3D11::CreateSamplerState( const String& sta
 	return m_pSamplerFactory->GetSamplerState( m_pd3d11Device.Get( ), stateName );
 }
 
-std::shared_ptr<IRenderState> CDirect3D11::CreateDepthStencilState( const String& stateName )
+IRenderState* CDirect3D11::CreateDepthStencilState( const String& stateName )
 {
 	if ( m_pDepthStencilFactory == nullptr )
 	{
@@ -798,7 +798,7 @@ std::shared_ptr<IRenderState> CDirect3D11::CreateDepthStencilState( const String
 	return m_pDepthStencilFactory->GetDepthStencilState( m_pd3d11Device.Get( ), stateName );
 }
 
-std::shared_ptr<IRenderState> CDirect3D11::CreateBlendState( const String & stateName )
+IRenderState* CDirect3D11::CreateBlendState( const String & stateName )
 {
 	if ( m_pBlendFactory == nullptr )
 	{
