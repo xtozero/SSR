@@ -162,19 +162,28 @@ float4 CalcLight( PS_INPUT input, float4 color )
 		}
 	}
 
-	float bias = 0.000003;
+	float bias = 0.0000025;
+	
 	float visibility = 1.0f;
 	float2 uv = input.shadowCoord.xy / input.shadowCoord.w;
 	uv.y = -uv.y;
 	uv = uv * 0.5f + 0.5f;
 
-	float curDepth = input.shadowCoord.z / input.shadowCoord.w;
+	float curDepth = input.shadowCoord.z / input.shadowCoord.w - bias;
+
+	int j;
+
+	float angle = random( input.worldPos ) % 360.f;
+	float2 sin_cos = float2( sin(angle), cos(angle) );
 
 	for ( i = 0; i < 4; ++i )
 	{
-		if ( ( PoissonSampleShadow( uv, i ) ) < curDepth - bias )
+		for ( j = 0; j < 4; ++j )
 		{
-			visibility -= 0.125f;
+			if ( RotatePoissonSample4x4Shadow( uv, sin_cos, i, j ) < curDepth )
+			{
+				visibility -= 0.04f;
+			}
 		}
 	}
 

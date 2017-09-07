@@ -2,19 +2,21 @@
 
 Texture2D shadowTexture : register( t2 );
 
-float2 poissonDisk[4] = {
-	float2( -0.94201624f, -0.39906216f ),
-	float2( 0.94558609f, -0.76890725f ),
-	float2( -0.094184101f, -0.92938870f ),
-	float2( 0.34495938f, 0.29387760f )
-};
-
 float SampleShadow( float2 texcoord )
 {
 	return shadowTexture.Sample( baseSampler, texcoord ).r;
 }
 
-float PoissonSampleShadow( float2 texcoord, int i )
+float PoissonSample4x4Shadow( float2 texcoord, int i, int j )
 {
-	return shadowTexture.Sample( baseSampler, texcoord + poissonDisk[i] / 700.f ).r;
+	float2 offset = PoissonSample4x4( i, j ) * 0.00048828125f;
+
+	return shadowTexture.Sample( baseSampler, texcoord + offset ).r;
+}
+
+float RotatePoissonSample4x4Shadow( float2 texcoord, float2 sin_cos, int i, int j )
+{
+	float2 offset = RotatePoissonSample4x4( sin_cos.x, sin_cos.y, i, j ) * 0.00048828125f;;
+	
+	return shadowTexture.Sample( baseSampler, texcoord + offset ).r;
 }

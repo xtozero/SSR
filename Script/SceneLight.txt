@@ -7,11 +7,11 @@
 		"onOff"			"1"
 		"theta"			"0"
 		"phi"			"0"
-		"direction"		"-1 -1 0.5"
+		"direction"		"-1 -1 0"
 		"range"			"0"
 		"fallOff"		"0"
 		"attenuation"	"0"
-		"position"		"70 70 0"
+		"position"		"500 500 0"
 		"m_diffuse"		"1 1 1"
 		"m_specular"	"1 0 0"
 	}

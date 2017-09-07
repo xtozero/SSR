@@ -178,7 +178,7 @@ CXMFLOAT4X4 CLightManager::GetPrimaryLightViewMatrix( )
 
 CXMFLOAT4X4 CLightManager::GerPrimaryLightProjectionMatrix( )
 {
-	return XMMatrixPerspectiveFovLH( XM_PI / 4.0f, 1.f, 1.f, 1500.f );
+	return XMMatrixPerspectiveFovLH( XM_PI / 4.f, 1.f, 1.f, 1500.f );
 }
 
 CLightManager::CLightManager( ) :

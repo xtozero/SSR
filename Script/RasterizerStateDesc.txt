@@ -22,4 +22,9 @@
 		"MultisampleEnable"				"0"
 		"AntialiasedLineEnable"			"0"
 	}
+	
+	"RasterizerDesc" "cullFront"
+	{
+		"CullMode"						"D3D11_CULL_FRONT"
+	}
 }
