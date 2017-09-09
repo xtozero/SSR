@@ -6,6 +6,8 @@
 #include <type_traits>
 #include <vector>
 
+#include "../shared/Util.h"
+
 class ENGINE_DLL KeyValue
 {
 public:
@@ -37,18 +39,19 @@ public:
 
 	const String& GetKey( ) const;
 
-	void SetNext( std::shared_ptr<KeyValue> pNext );
-	void SetChild( std::shared_ptr<KeyValue> pChild );
+	void SetNext( std::unique_ptr<KeyValue>&& pNext );
+	void SetChild( std::unique_ptr<KeyValue>&& pChild );
+	void SetChild( std::nullptr_t pChild );
 
-	std::shared_ptr<KeyValue>& GetNext( );
-	std::shared_ptr<KeyValue>& GetChild( );
+	KeyValue* GetNext( ) const;
+	KeyValue* GetChild( ) const;
 
 	void SetKey( const String& key );
 	void SetValue( const String& value );
 
 private:
-	std::shared_ptr<KeyValue> m_pNext;
-	std::shared_ptr<KeyValue> m_pChild;
+	std::unique_ptr<KeyValue> m_pNext;
+	std::unique_ptr<KeyValue> m_pChild;
 
 	String m_key;
 	String m_value;
@@ -57,7 +60,7 @@ private:
 class ENGINE_DLL CKeyValueIterator
 {
 public:
-	explicit CKeyValueIterator( const std::shared_ptr<KeyValue>& keyValue );
+	explicit CKeyValueIterator( KeyValue* keyValue );
 
 	KeyValue* operator->( ) const;
 	CKeyValueIterator& operator++( );
@@ -79,7 +82,7 @@ ENGINE_DLL bool operator!=( const void* const lhs, const CKeyValueIterator& rhs 
 class KeyValueGroup
 {
 public:
-	virtual CKeyValueIterator FindKeyValue( const String& key ) = 0;
+	virtual CKeyValueIterator FindKeyValue( const String& key ) const = 0;
 
 	virtual ~KeyValueGroup( ) = default;
 };
@@ -87,25 +90,25 @@ public:
 class KeyValueGroupImpl : public KeyValueGroup
 {
 public:
-	virtual CKeyValueIterator FindKeyValue( const String& key ) override;
+	virtual CKeyValueIterator FindKeyValue( const String& key ) const override;
 
-	explicit KeyValueGroupImpl( std::shared_ptr<KeyValue>& root );
+	explicit KeyValueGroupImpl( std::unique_ptr<KeyValue>&& root );
 	~KeyValueGroupImpl( ) = default;
 private:
-	CKeyValueIterator FindKeyValueInternal( const String& key, std::shared_ptr<KeyValue> keyValue );
+	CKeyValueIterator FindKeyValueInternal( const String& key, KeyValue* keyValue ) const;
 
-	std::shared_ptr<KeyValue> m_pRoot;
+	std::unique_ptr<KeyValue> m_pRoot;
 };
 
 class ENGINE_DLL CKeyValueReader
 {
 public:
-	std::shared_ptr<KeyValueGroup> LoadKeyValueFromFile( String filename );
+	std::unique_ptr<KeyValueGroupImpl> LoadKeyValueFromFile( String filename );
 
 	CKeyValueReader( ) = default;
 	~CKeyValueReader( ) = default;
 
 private:
-	void LoadKeyValueFromFileInternal( Ifstream& file, std::shared_ptr<KeyValue> keyValue );
-	void PrintKeyValueInternal( std::shared_ptr<KeyValue> keyValue, int depth = 0 ) const;
+	void LoadKeyValueFromFileInternal( Ifstream& file, KeyValue* keyValue );
+	void PrintKeyValueInternal( KeyValue* keyValue, int depth = 0 ) const;
 };

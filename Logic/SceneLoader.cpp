@@ -8,17 +8,17 @@
 #include "../Engine/KeyValueReader.h"
 #include "../Shared/Util.h"
 
-std::shared_ptr<KeyValueGroup> CSceneLoader::LoadSceneFromFile( IRenderer& renderer, std::vector<std::unique_ptr<CGameObject>>& objectList, const String& fileName )
+std::unique_ptr<KeyValueGroup> CSceneLoader::LoadSceneFromFile( IRenderer& renderer, std::vector<std::unique_ptr<CGameObject>>& objectList, const String& fileName )
 {
 	CKeyValueReader scene;
 
-	auto pKeyValue = scene.LoadKeyValueFromFile( fileName );
+	std::unique_ptr<KeyValueGroupImpl> pKeyValue = scene.LoadKeyValueFromFile( fileName );
 
 	if ( pKeyValue )
 	{
-		SetSceneObjectProperty( renderer, pKeyValue, objectList );
+		SetSceneObjectProperty( renderer, pKeyValue.get(), objectList );
 
-		return pKeyValue;
+		return std::move( pKeyValue );
 	}
 	else
 	{
@@ -26,7 +26,7 @@ std::shared_ptr<KeyValueGroup> CSceneLoader::LoadSceneFromFile( IRenderer& rende
 	}
 }
 
-void CSceneLoader::SetSceneObjectProperty( IRenderer& renderer, std::shared_ptr<KeyValueGroup> keyValue, std::vector<std::unique_ptr<CGameObject>>& objectList )
+void CSceneLoader::SetSceneObjectProperty( IRenderer& renderer, KeyValueGroup* keyValue, std::vector<std::unique_ptr<CGameObject>>& objectList )
 {
 	CGameObject* curObject = nullptr;
 

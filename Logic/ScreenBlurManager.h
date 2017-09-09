@@ -15,7 +15,7 @@ public:
 	void Process( IRenderer& renderer, IShaderResource& destSRV, IRenderTarget& destRT ) const;
 
 private:
-	std::shared_ptr<IMesh> m_pScreenRect;
+	IMesh* m_pScreenRect = nullptr;
 	IMaterial* m_pBlurMaterial[2] = { nullptr, nullptr };
 	IRenderTarget* m_pBlurRt = nullptr;
 	IShaderResource* m_pBlurSrv = nullptr;

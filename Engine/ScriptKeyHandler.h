@@ -12,7 +12,7 @@ class KeyValue;
 template<typename T>
 class CScriptKeyHandler
 {
-	using KeyHandlerFunc = std::function<void( T*, const String&, const std::shared_ptr<KeyValue>& )>;
+	using KeyHandlerFunc = std::function<void( T*, const String&, const KeyValue* )>;
 
 public:
 	CScriptKeyHandler( ) = default;
@@ -20,7 +20,7 @@ public:
 
 protected:
 	void RegisterHandler( const String& key, KeyHandlerFunc handler );
-	void Handle( const String& key, const std::shared_ptr<KeyValue>& keyValue );
+	void Handle( const String& key, const KeyValue* keyValue );
 
 private:
 	std::map<String, KeyHandlerFunc> m_scriptHandler;
@@ -39,7 +39,7 @@ void CScriptKeyHandler<T>::RegisterHandler( const String& key, KeyHandlerFunc ha
 }
 
 template<typename T>
-void CScriptKeyHandler<T>::Handle( const String& key, const std::shared_ptr<KeyValue>& keyValue )
+void CScriptKeyHandler<T>::Handle( const String& key, const KeyValue* keyValue )
 {
 	auto handler = m_scriptHandler.find( key );
 

@@ -26,12 +26,12 @@ IDepthStencil* CRenderTargetManager::CreateDepthStencil( ID3D11Device* pDevice, 
 
 	if ( pDevice && pTexture )
 	{
-		std::shared_ptr<IDepthStencil> newDepthStencil = std::make_shared<CDepthStencil>( );
+		IDepthStencil* newDepthStencil = new CDepthStencil;
 
 		if ( newDepthStencil && newDepthStencil->CreateDepthStencil( pDevice, pTexture, dsvDesc ) )
 		{
 			RegisterDepthStencil( depthStencilName, newDepthStencil );
-			return newDepthStencil.get( );
+			return newDepthStencil;
 		}
 	}
 
@@ -92,24 +92,24 @@ IRenderTarget* CRenderTargetManager::CreateRenderTarget( ID3D11Device* pDevice, 
 
 	if ( pDevice && pResource )
 	{
-		std::shared_ptr<IRenderTarget> newRenderTarget = std::make_shared<CRenderTarget>( );
+		IRenderTarget* newRenderTarget = new CRenderTarget;
 
 		if ( newRenderTarget && newRenderTarget->CreateRenderTarget( pDevice, pResource, rtvDesc ) )
 		{
 			RegisterRenderTarget( renderTargetName, newRenderTarget );
-			return newRenderTarget.get( );
+			return newRenderTarget;
 		}
 	}
 
 	return nullptr;
 }
 
-void CRenderTargetManager::RegisterRenderTarget( const String& renderTargetName, const std::shared_ptr<IRenderTarget>& renderTarget )
+void CRenderTargetManager::RegisterRenderTarget( const String& renderTargetName, const Owner<IRenderTarget*> renderTarget )
 {
 	m_renderTargets.emplace( renderTargetName, renderTarget );
 }
 
-void CRenderTargetManager::RegisterDepthStencil( const String& depthStencilName, const std::shared_ptr<IDepthStencil>& depthStencil )
+void CRenderTargetManager::RegisterDepthStencil( const String& depthStencilName, const Owner<IDepthStencil*> depthStencil )
 {
 	m_depthStencils.emplace( depthStencilName, depthStencil );
 }

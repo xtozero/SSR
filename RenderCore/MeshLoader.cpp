@@ -35,7 +35,6 @@ bool CMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pfileName,
 	}
 
 	String exten = UTIL::FileNameExtension( pfileName );
-	std::shared_ptr<IMesh> newMesh = nullptr;
 
 	auto found = m_meshLoaders.find( exten );
 
@@ -46,7 +45,7 @@ bool CMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pfileName,
 			return false;
 		}
 
-		newMesh = found->second->LoadMeshFromFile( renderer, pfileName, pSurfaceManager );
+		IMesh* newMesh = found->second->LoadMeshFromFile( renderer, pfileName, pSurfaceManager );
 
 		if ( newMesh == nullptr )
 		{
@@ -62,13 +61,13 @@ bool CMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pfileName,
 	return false;
 }
 
-std::shared_ptr<IMesh> CMeshLoader::GetMesh( const TCHAR* pfileName )
+IMesh* CMeshLoader::GetMesh( const TCHAR* pfileName )
 {
 	auto iter = m_meshList.find( pfileName );
 
 	if ( iter != m_meshList.end( ) )
 	{
-		return iter->second;
+		return iter->second.get();
 	}
 	else
 	{
@@ -76,7 +75,7 @@ std::shared_ptr<IMesh> CMeshLoader::GetMesh( const TCHAR* pfileName )
 	}
 }
 
-void CMeshLoader::RegisterMesh( const String& pMeshName, const std::shared_ptr<IMesh>& pMesh )
+void CMeshLoader::RegisterMesh( const String& pMeshName, Owner<IMesh*> pMesh )
 {
 	if ( pMesh )
 	{

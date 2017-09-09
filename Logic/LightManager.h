@@ -45,7 +45,7 @@ public:
 
 private:
 	void LoadPropertyFromScript( );
-	void LoadLightProperty( const std::shared_ptr<KeyValueGroup>& pKeyValues );
+	void LoadLightProperty( const KeyValueGroup* pKeyValues );
 
 	std::array<CLight*, MAX_LIGHTS > m_lights;
 	ShaderLightTrait m_shaderLightProperty;

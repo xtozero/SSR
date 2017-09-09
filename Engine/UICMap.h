@@ -148,12 +148,12 @@ public:
 	bool LoadConfig( const String& fileName )
 	{
 		CKeyValueReader cfg;
-		auto pKeyValues = cfg.LoadKeyValueFromFile( fileName );
-		return LoadKeyCode( pKeyValues );
+		std::unique_ptr<KeyValueGroupImpl> pKeyValues = cfg.LoadKeyValueFromFile( fileName );
+		return LoadKeyCode( pKeyValues.get() );
 	}
 
 private:
-	bool LoadKeyCode( std::shared_ptr<KeyValueGroup> pKeyValues )
+	bool LoadKeyCode( const KeyValueGroup* pKeyValues )
 	{
 		if ( pKeyValues == nullptr )
 		{

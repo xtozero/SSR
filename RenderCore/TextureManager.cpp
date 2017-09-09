@@ -22,7 +22,7 @@ namespace
 
 	namespace TEXTURE2D
 	{
-		void SizeHandler( CTextureManager* pTextureManager, const String&, const std::shared_ptr<KeyValue>& keyValue )
+		void SizeHandler( CTextureManager* pTextureManager, const String&, const KeyValue* keyValue )
 		{
 			if ( keyValue )
 			{
@@ -42,7 +42,7 @@ namespace
 			}
 		}
 
-		void SubResourceHandler( CTextureManager*, const String&, const std::shared_ptr<KeyValue>& keyValue )
+		void SubResourceHandler( CTextureManager*, const String&, const KeyValue* keyValue )
 		{
 			if ( keyValue )
 			{
@@ -51,7 +51,7 @@ namespace
 			}
 		}
 		
-		void FormatHandler( CTextureManager*, const String&, const std::shared_ptr<KeyValue>& keyValue )
+		void FormatHandler( CTextureManager*, const String&, const KeyValue* keyValue )
 		{
 			if ( keyValue )
 			{
@@ -59,7 +59,7 @@ namespace
 			}
 		}
 
-		void SampleDescHandler( CTextureManager*, const String&, const std::shared_ptr<KeyValue>& keyValue )
+		void SampleDescHandler( CTextureManager*, const String&, const KeyValue* keyValue )
 		{
 			if ( keyValue )
 			{
@@ -68,7 +68,7 @@ namespace
 			}
 		}
 
-		void FlagsHandler( CTextureManager*, const String&, const std::shared_ptr<KeyValue>& keyValue )
+		void FlagsHandler( CTextureManager*, const String&, const KeyValue* keyValue )
 		{
 			if ( keyValue )
 			{
@@ -122,7 +122,7 @@ bool CTextureManager::LoadTextureFromFile( ID3D11Device* pDevice, const String& 
 	HRESULT hr;
 	D3DX11GetImageInfoFromFile( fileName.c_str( ), nullptr, &info, &hr );
 
-	std::shared_ptr<ITexture> newTexture = nullptr;
+	ITexture* newTexture = nullptr;
 
 	if ( SUCCEEDED( hr ) )
 	{
@@ -131,7 +131,7 @@ bool CTextureManager::LoadTextureFromFile( ID3D11Device* pDevice, const String& 
 		case D3D11_RESOURCE_DIMENSION_TEXTURE1D:
 			break;
 		case D3D11_RESOURCE_DIMENSION_TEXTURE2D:
-			newTexture = std::make_shared<CTexture2D>( );
+			newTexture = new CTexture2D( );
 			break;
 		case D3D11_RESOURCE_DIMENSION_TEXTURE3D:
 			break;
@@ -149,12 +149,12 @@ bool CTextureManager::LoadTextureFromFile( ID3D11Device* pDevice, const String& 
 	return false;
 }
 
-bool CTextureManager::LoadTextureFromScript( ID3D11Device * pDevice, const String & fileName )
+bool CTextureManager::LoadTextureFromScript( ID3D11Device * pDevice, const String& fileName )
 {
 	CKeyValueReader keyValueReader;
-	const std::shared_ptr<KeyValueGroup>& keyValue = keyValueReader.LoadKeyValueFromFile( fileName );
+	std::shared_ptr<KeyValueGroup> keyValue = keyValueReader.LoadKeyValueFromFile( fileName );
 	
-	if ( LoadTextureFromScriptInternal( pDevice, keyValue ) )
+	if ( LoadTextureFromScriptInternal( pDevice, keyValue.get() ) )
 	{
 		return true;
 	}
@@ -172,11 +172,11 @@ ITexture * CTextureManager::CreateTexture2D( ID3D11Device * pDevice, const Textu
 
 	if ( pDevice )
 	{
-		std::shared_ptr<ITexture> newTexture = std::make_shared<CTexture2D>( );
+		ITexture* newTexture = new CTexture2D;
 		if ( newTexture && newTexture->Create( pDevice, desc, pInitialData ) )
 		{
 			m_pTextures.emplace( textureName, newTexture );
-			return newTexture.get( );
+			return newTexture;
 		}
 	}
 
@@ -209,7 +209,7 @@ bool CTextureManager::RegisterTexture2D( const String& textureName, Microsoft::W
 		return false;
 	}
 
-	std::shared_ptr<ITexture> newTexture = std::make_shared<CTexture2D>( );
+	ITexture* newTexture = new CTexture2D;
 
 	if ( newTexture )
 	{
@@ -250,7 +250,7 @@ m_frameBufferSize( 0, 0 )
 	RegisterHandler( _T( "Flags" ), TEXTURE2D::FlagsHandler );
 }
 
-bool CTextureManager::LoadTextureFromScriptInternal( ID3D11Device * pDevice, const std::shared_ptr<KeyValueGroup>& keyValue )
+bool CTextureManager::LoadTextureFromScriptInternal( ID3D11Device * pDevice, const KeyValueGroup* keyValue )
 {
 	if ( pDevice && keyValue )
 	{

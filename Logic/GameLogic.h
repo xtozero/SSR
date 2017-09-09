@@ -45,7 +45,6 @@ private:
 	void SceneEnd( void ) const;
 
 	void UpdateWorldMatrix( CGameObject* object ) const;
-	void InitCameraProperty( std::shared_ptr<KeyValueGroup> keyValue );
 
 	void BuildRenderableList( );
 	void DrawOpaqueRenderable( ) const;

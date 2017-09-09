@@ -16,7 +16,7 @@ namespace
 	constexpr TCHAR* RASTERIZER_STATE_DESC_FILE_NAME = _T( "../Script/RasterizerStateDesc.txt" );
 	constexpr TCHAR* RASTERIZER_DESC_HANDLER_KEY_NAME = _T( "RasterizerDesc" );
 
-	void RasterizerDescHandler( IRasterizerStateFactory* owner, const String&, const std::shared_ptr<KeyValue>& keyValue )
+	void RasterizerDescHandler( IRasterizerStateFactory* owner, const String&, const KeyValue* keyValue )
 	{
 		CD3D11_DEFAULT default;
 		CD3D11_RASTERIZER_DESC newDesc( default );
@@ -125,7 +125,7 @@ public:
 
 	CRasterizerStateFactory( );
 private:
-	void LoadRasterizerDesc( std::shared_ptr<KeyValueGroup> pKeyValues );
+	void LoadRasterizerDesc( KeyValueGroup* pKeyValues );
 
 	std::map<String, std::unique_ptr<IRenderState>> m_rasterizerState;
 	std::map<String, D3D11_RASTERIZER_DESC> m_rasterizerStateDesc;
@@ -139,7 +139,7 @@ void CRasterizerStateFactory::LoadDesc( )
 
 	if ( pKeyValues )
 	{
-		LoadRasterizerDesc( pKeyValues );
+		LoadRasterizerDesc( pKeyValues.get() );
 	}
 }
 
@@ -183,7 +183,7 @@ CRasterizerStateFactory::CRasterizerStateFactory( )
 	RegisterHandler( RASTERIZER_DESC_HANDLER_KEY_NAME, RasterizerDescHandler );
 }
 
-void CRasterizerStateFactory::LoadRasterizerDesc( std::shared_ptr<KeyValueGroup> pKeyValues )
+void CRasterizerStateFactory::LoadRasterizerDesc( KeyValueGroup* pKeyValues )
 {
 	if ( pKeyValues == nullptr )
 	{

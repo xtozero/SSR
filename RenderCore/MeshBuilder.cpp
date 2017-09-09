@@ -93,15 +93,20 @@ void CMeshBuilder::AppendTextureName( const String& textureName )
 	m_textureName = textureName;
 }
 
-std::shared_ptr<IMesh> CMeshBuilder::Build( IRenderer& renderer, const String& meshName, D3D_PRIMITIVE_TOPOLOGY topology ) const
+IMesh* CMeshBuilder::Build( IRenderer& renderer, const String& meshName, D3D_PRIMITIVE_TOPOLOGY topology ) const
 {
+	if ( IMesh* found = renderer.GetModelPtr( meshName.c_str( ) ) )
+	{
+		return found;
+	}
+
 	if ( m_vertices.size( ) == 0 )
 	{
 		DebugWarning( "CMeshBuilder Build Mesh From Empty Stream\n" );
 		return nullptr;
 	}
 
-	std::shared_ptr<CMeshBuilderMesh> newMesh = std::make_shared<CMeshBuilderMesh>( );
+	CMeshBuilderMesh* newMesh = new CMeshBuilderMesh;
 
 	UINT vertexCount = m_vertices.size( );
 	MeshVertex* vertices = new MeshVertex[vertexCount];

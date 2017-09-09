@@ -53,14 +53,6 @@ void BaseMesh::SetMaterial( IMaterial* pMaterial )
 	m_pMaterial = pMaterial;
 }
 
-void BaseMesh::ResetResource( ID3D11DeviceContext* pDeviceContext, const SHADER_TYPE type )
-{
-	if ( m_pMaterial )
-	{
-		m_pMaterial->SetTexture( pDeviceContext, type, 0, nullptr );
-	}
-}
-
 BaseMesh::BaseMesh( ) : m_pModelData( nullptr ),
 m_pIndexData( nullptr ),
 m_pVertexBuffer( nullptr ),

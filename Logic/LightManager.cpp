@@ -26,7 +26,7 @@ namespace
 		REGISTER_ENUM_STRING( LIGHT_TYPE::SPOT_LIGHT );
 	}
 
-	void AmbientColorHandler( CLightManager* owner, const String&, const std::shared_ptr<KeyValue>& keyValue )
+	void AmbientColorHandler( CLightManager* owner, const String&, const KeyValue* keyValue )
 	{
 		KEYVALUE_VALUE_ASSERT( keyValue->GetValue( ), 4 );
 		Stringstream stream( keyValue->GetValue( ) );
@@ -36,7 +36,7 @@ namespace
 		owner->SetGlobalAmbient( ambientColor );
 	}
 
-	void LightHandler( CLightManager* owner, const String&, const std::shared_ptr<KeyValue>& keyValue )
+	void LightHandler( CLightManager* owner, const String&, const KeyValue* keyValue )
 	{
 		LightTrait trait;
 
@@ -196,15 +196,15 @@ void CLightManager::LoadPropertyFromScript( )
 {
 	CKeyValueReader keyValueReader;
 
-	auto pKeyValues = keyValueReader.LoadKeyValueFromFile( LIGHT_PROPERTY_FILE_NAME );
+	std::unique_ptr<KeyValueGroupImpl> pKeyValues = keyValueReader.LoadKeyValueFromFile( LIGHT_PROPERTY_FILE_NAME );
 
 	if ( pKeyValues )
 	{
-		LoadLightProperty( pKeyValues );
+		LoadLightProperty( pKeyValues.get() );
 	}
 }
 
-void CLightManager::LoadLightProperty( const std::shared_ptr<KeyValueGroup>& pKeyValues )
+void CLightManager::LoadLightProperty( const KeyValueGroup* pKeyValues )
 {
 	if ( pKeyValues == nullptr )
 	{

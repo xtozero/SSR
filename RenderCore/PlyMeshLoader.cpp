@@ -74,7 +74,7 @@ namespace
 	}
 }
 
-std::shared_ptr<IMesh> CPlyMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pFileName, CSurfaceManager* pSurfaceManager )
+Owner<IMesh*> CPlyMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pFileName, CSurfaceManager* pSurfaceManager )
 {
 	TCHAR pPath[MAX_PATH];
 	::GetCurrentDirectory( MAX_PATH, pPath );
@@ -166,7 +166,7 @@ std::shared_ptr<IMesh> CPlyMeshLoader::LoadMeshFromFile( IRenderer& renderer, co
 
 	CalcPlyNormal( vertices, vertexCount, indices, indexCount );
 
-	auto newMesh = std::make_shared<CPlyMesh>( );
+	CPlyMesh* newMesh = new CPlyMesh;
 
 	newMesh->SetModelData( vertices, vertexCount );
 	newMesh->SetIndexData( indices, indexCount );
@@ -176,7 +176,7 @@ std::shared_ptr<IMesh> CPlyMeshLoader::LoadMeshFromFile( IRenderer& renderer, co
 	if ( defaultSurface == nullptr )
 	{
 		std::unique_ptr<ISurface> newSurface = std::make_unique<CSurface>( );
-		defaultSurface = pSurfaceManager->RegisterSurface( PLY_DEFAULT_SURFACE_NAME, newSurface );
+		defaultSurface = pSurfaceManager->RegisterSurface( PLY_DEFAULT_SURFACE_NAME, std::move( newSurface ) );
 	}
 	
 	newMesh->SetSurface( defaultSurface );

@@ -45,8 +45,8 @@ public:
 
 	void SetPicked( bool isPicked ) { m_isPicked = isPicked; }
 
-	std::shared_ptr<IMesh> GetModel( ) const { return m_pModel; }
-	void SetModel( const std::shared_ptr<IMesh>& pModel ) { m_pModel = pModel; }
+	IMesh* GetModel( ) const { return m_pModel; }
+	void SetModel( IMesh* pModel ) { m_pModel = pModel; }
 
 	IMaterial* GetMaterial( ) { return m_pMaterial; }
 	void SetMaterial( IMaterial* pMaterial ) { m_pMaterial = pMaterial; }
@@ -84,7 +84,7 @@ private:
 	CXMFLOAT4X4 m_matTransform;
 	CXMFLOAT4X4 m_invMatTransform;
 
-	std::shared_ptr<IMesh> m_pModel;
+	IMesh* m_pModel;
 	IMaterial* m_pMaterial;
 	IMaterial* m_pOverrideMtl;
 
@@ -95,7 +95,7 @@ private:
 	bool m_needInitialize;
 	bool m_isPicked;
 
-	std::shared_ptr<IRigidBody> m_originRigidBodies[RIGID_BODY_TYPE::Count];
+	IRigidBody* m_originRigidBodies[RIGID_BODY_TYPE::Count] = { nullptr, };
 	std::unique_ptr<IRigidBody>	m_rigideBodies[RIGID_BODY_TYPE::Count];
 
 	UINT m_property;

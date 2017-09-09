@@ -20,6 +20,7 @@
 #include "IMesh.h"
 #include "IRenderer.h"
 #include "IShaderResource.h"
+#include "ITexture.h"
 
 #include "MaterialCommon.h"
 #include "MaterialSystem.h"
@@ -308,8 +309,8 @@ public:
 	virtual void ForwardRenderEnd( ) override;
 	virtual void SceneEnd( ) override;
 
-	virtual std::shared_ptr<IShader> CreateVertexShader( const TCHAR* pFilePath, const char* pProfile ) override;
-	virtual std::shared_ptr<IShader> CreatePixelShader( const TCHAR* pFilePath, const char* pProfile ) override;
+	virtual IShader* CreateVertexShader( const TCHAR* pFilePath, const char* pProfile ) override;
+	virtual IShader* CreatePixelShader( const TCHAR* pFilePath, const char* pProfile ) override;
 
 	virtual IBuffer* CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) override;
 	virtual IBuffer* CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) override;
@@ -322,9 +323,9 @@ public:
 	virtual IShader* SearchShaderByName( const TCHAR* pName ) override;
 
 	virtual IMaterial* GetMaterialPtr( const TCHAR* pMaterialName ) override;
-	virtual std::shared_ptr<IMesh> GetModelPtr( const TCHAR* pModelName ) override;
-	virtual void SetModelPtr( const String& modelName, const std::shared_ptr<IMesh>& pModel ) override;
-	virtual void DrawModel( std::shared_ptr<IMesh> pModel ) override;
+	virtual IMesh* GetModelPtr( const TCHAR* pModelName ) override;
+	virtual void SetModelPtr( const String& modelName, Owner<IMesh*> pModel ) override;
+	virtual void DrawModel( IMesh* pModel ) override;
 
 	virtual void PushViewPort( const float topLeftX, const float topLeftY, const float width, const float height, const float minDepth = 0.0f, const float maxDepth = 1.0f ) override;
 	virtual void PopViewPort( ) override;
@@ -342,8 +343,6 @@ public:
 	virtual IRenderState* CreateDepthStencilState( const String& stateName ) override;
 
 	virtual IRenderState* CreateBlendState( const String& stateName ) override;
-
-	virtual void ResetResource( const std::shared_ptr<IMesh>& pMesh, const SHADER_TYPE type ) override;
 
 	virtual void TakeSnapshot2D( const String& sourceTextureName, const String& destTextureName ) override;
 
@@ -367,8 +366,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext>		m_pd3d11DeviceContext;
 	Microsoft::WRL::ComPtr<IDXGISwapChain>			m_pdxgiSwapChain;
 
-	std::map<String, std::shared_ptr<IShader>>		m_shaderList;
-	std::vector<std::shared_ptr<IBuffer>>			m_bufferList;
+	std::map<String, std::unique_ptr<IShader>>		m_shaderList;
+	std::vector<std::unique_ptr<IBuffer>>			m_bufferList;
 	std::map<String, std::unique_ptr<IBuffer>>		m_constantBufferList;
 
 	std::unique_ptr<RenderView>						m_pView;
@@ -498,9 +497,9 @@ void CDirect3D11::SceneEnd( )
 	m_renderEffect.SceneEnd( *this );
 }
 
-std::shared_ptr<IShader> CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pProfile )
+IShader* CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pProfile )
 {
-	std::shared_ptr<D3D11VertexShader> vs = std::make_shared<D3D11VertexShader>( );
+	D3D11VertexShader* vs = new D3D11VertexShader;
 
 	D3D11_INPUT_ELEMENT_DESC* inputDesc = vs->CreateInputElementDesc( 4 );
 
@@ -545,9 +544,9 @@ std::shared_ptr<IShader> CDirect3D11::CreateVertexShader( const TCHAR* pFilePath
 	return nullptr;
 }
 
-std::shared_ptr<IShader> CDirect3D11::CreatePixelShader( const TCHAR* pFilePath, const char* pProfile )
+IShader* CDirect3D11::CreatePixelShader( const TCHAR* pFilePath, const char* pProfile )
 {
-	std::shared_ptr<D3D11PixelShader> ps = std::make_shared<D3D11PixelShader>( );
+	D3D11PixelShader* ps = new D3D11PixelShader;
 	if ( ps->CreateShader( m_pd3d11Device.Get( ), pFilePath, pProfile ) )
 	{
 		m_shaderList.emplace( UTIL::GetFileName( pFilePath ), ps );
@@ -669,10 +668,10 @@ bool CDirect3D11::InitializeMaterial( )
 
 IMaterial* CDirect3D11::GetMaterialPtr( const TCHAR* pMaterialName )
 {
-	return MaterialSystem::GetInstance( )->SearchMaterialByName( pMaterialName ).get();
+	return MaterialSystem::GetInstance( )->SearchMaterialByName( pMaterialName );
 }
 
-std::shared_ptr<IMesh> CDirect3D11::GetModelPtr( const TCHAR* pModelName )
+IMesh* CDirect3D11::GetModelPtr( const TCHAR* pModelName )
 {
 	if ( m_meshLoader.LoadMeshFromFile( *this, pModelName, &m_surfaceManager ) )
 	{
@@ -682,7 +681,7 @@ std::shared_ptr<IMesh> CDirect3D11::GetModelPtr( const TCHAR* pModelName )
 	return nullptr;
 }
 
-void CDirect3D11::SetModelPtr( const String& modelName, const std::shared_ptr<IMesh>& pModel )
+void CDirect3D11::SetModelPtr( const String& modelName, Owner<IMesh*> pModel )
 {
 	if ( pModel )
 	{
@@ -690,7 +689,7 @@ void CDirect3D11::SetModelPtr( const String& modelName, const std::shared_ptr<IM
 	}
 }
 
-void CDirect3D11::DrawModel( std::shared_ptr<IMesh> pModel )
+void CDirect3D11::DrawModel( IMesh* pModel )
 {
 	if ( pModel )
 	{
@@ -807,14 +806,6 @@ IRenderState* CDirect3D11::CreateBlendState( const String & stateName )
 	}
 
 	return m_pBlendFactory->GetBlendState( m_pd3d11Device.Get( ), stateName );
-}
-
-void CDirect3D11::ResetResource( const std::shared_ptr<IMesh>& pMesh, const SHADER_TYPE type )
-{
-	if ( m_pd3d11DeviceContext && pMesh )
-	{
-		pMesh->ResetResource( m_pd3d11DeviceContext.Get( ), type );
-	}
 }
 
 void CDirect3D11::TakeSnapshot2D( const String & sourceTextureName, const String & destTextureName )

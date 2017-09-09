@@ -6,7 +6,7 @@
 
 using namespace DirectX;
 
-void BoundingSphere::CreateRigideBody( std::shared_ptr<IMesh> pMesh )
+void BoundingSphere::CreateRigideBody( IMesh* pMesh )
 {
 	int verticesCount = pMesh->GetVerticesCount( );
 	MeshVertex* pVertices = static_cast<MeshVertex*>( pMesh->GetMeshData( ) );
@@ -23,9 +23,9 @@ void BoundingSphere::CreateRigideBody( std::shared_ptr<IMesh> pMesh )
 	}
 }
 
-void BoundingSphere::Update( const CXMFLOAT4X4& matrix, std::shared_ptr<IRigidBody> original )
+void BoundingSphere::Update( const CXMFLOAT4X4& matrix, IRigidBody* original )
 {
-	BoundingSphere* orig = dynamic_cast<BoundingSphere*>( original.get( ) );
+	BoundingSphere* orig = dynamic_cast<BoundingSphere*>( original );
 	
 	m_origin = CXMFLOAT3( matrix._41, matrix._42, matrix._43 );
 

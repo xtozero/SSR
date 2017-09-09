@@ -10,7 +10,7 @@
 
 using namespace DirectX;
 
-void CAaboundingbox::CreateRigideBody( std::shared_ptr<IMesh> pMesh )
+void CAaboundingbox::CreateRigideBody( IMesh* pMesh )
 {
 	m_min = CXMFLOAT3( FLT_MAX, FLT_MAX, FLT_MAX );
 	m_max = CXMFLOAT3( -FLT_MAX, -FLT_MAX, -FLT_MAX );
@@ -36,10 +36,9 @@ void CAaboundingbox::CreateRigideBody( std::shared_ptr<IMesh> pMesh )
 #endif
 }
 
-void CAaboundingbox::Update( const CXMFLOAT4X4& matrix, std::shared_ptr<IRigidBody> original )
+void CAaboundingbox::Update( const CXMFLOAT4X4& matrix, IRigidBody* original )
 {
-	CAaboundingbox* orig = dynamic_cast<CAaboundingbox*>( original.get( ) );
-
+	CAaboundingbox* orig = dynamic_cast<CAaboundingbox*>( original );
 	if ( orig == nullptr )
 	{
 		return;

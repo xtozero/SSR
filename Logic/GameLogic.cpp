@@ -135,7 +135,7 @@ void CGameLogic::EndLogic ( void )
 bool CGameLogic::LoadScene( void )
 {
 	m_gameObjects.clear( );
-	auto keyValue = m_sceneLoader.LoadSceneFromFile( *m_pRenderer, m_gameObjects, _T( "../Script/TestScene.txt" ) );
+	std::unique_ptr<KeyValueGroup> keyValue = m_sceneLoader.LoadSceneFromFile( *m_pRenderer, m_gameObjects, _T( "../Script/TestScene.txt" ) );
 
 	if ( !keyValue )
 	{

@@ -9,7 +9,7 @@
 class CSurfaceManager
 {
 public:
-	ISurface* RegisterSurface( const String& surfaceName, std::unique_ptr<ISurface>& surface );
+	ISurface* RegisterSurface( const String& surfaceName, std::unique_ptr<ISurface>&& surface );
 	ISurface* FindSurface( const String& surfaceName );
 
 	CSurfaceManager( ) = default;

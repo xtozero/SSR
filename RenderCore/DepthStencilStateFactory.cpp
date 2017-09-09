@@ -15,7 +15,7 @@ namespace
 	constexpr TCHAR* DEPTH_STENCIL_DESC_FILE_NAME = _T( "../Script/DepthStencilDesc.txt" );
 	constexpr TCHAR* DEPTH_STENCIL_DESC_HANDLER_KEY_NAME = _T( "DepthStencilDesc" );
 
-	void DepthStencilDescHandler( IDepthStencilStateFactory* owner, const String&, const std::shared_ptr<KeyValue>& keyValue )
+	void DepthStencilDescHandler( IDepthStencilStateFactory* owner, const String&, const KeyValue* keyValue )
 	{
 		CD3D11_DEFAULT default;
 		CD3D11_DEPTH_STENCIL_DESC newDesc( default );
@@ -140,7 +140,7 @@ public:
 
 	CDepthStencilStateFactory( );
 private:
-	void LoadDepthStencilDesc( std::shared_ptr<KeyValueGroup> pKeyValues );
+	void LoadDepthStencilDesc( const KeyValueGroup* pKeyValues );
 
 	std::map<String, std::unique_ptr<IRenderState>> m_depthStencilState;
 	std::map<String, D3D11_DEPTH_STENCIL_DESC> m_depthStencilDesc;
@@ -150,11 +150,11 @@ void CDepthStencilStateFactory::LoadDesc( )
 {
 	CKeyValueReader KeyValueReader;
 
-	auto pKeyValues = KeyValueReader.LoadKeyValueFromFile( DEPTH_STENCIL_DESC_FILE_NAME );
+	std::unique_ptr<KeyValueGroupImpl> pKeyValues = KeyValueReader.LoadKeyValueFromFile( DEPTH_STENCIL_DESC_FILE_NAME );
 
 	if ( pKeyValues )
 	{
-		LoadDepthStencilDesc( pKeyValues );
+		LoadDepthStencilDesc( pKeyValues.get() );
 	}
 }
 
@@ -198,7 +198,7 @@ CDepthStencilStateFactory::CDepthStencilStateFactory( )
 	RegisterHandler( DEPTH_STENCIL_DESC_HANDLER_KEY_NAME, DepthStencilDescHandler );
 }
 
-void CDepthStencilStateFactory::LoadDepthStencilDesc( std::shared_ptr<KeyValueGroup> pKeyValues )
+void CDepthStencilStateFactory::LoadDepthStencilDesc( const KeyValueGroup* pKeyValues )
 {
 	if ( pKeyValues == nullptr )
 	{

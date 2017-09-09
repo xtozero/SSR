@@ -25,24 +25,29 @@ const String& KeyValue::GetKey( ) const
 	return m_key;
 }
 
-void KeyValue::SetNext( std::shared_ptr<KeyValue> pNext )
+void KeyValue::SetNext( std::unique_ptr<KeyValue>&& pNext )
 {
-	m_pNext = pNext;
+	m_pNext = std::move( pNext );
 }
 
-void KeyValue::SetChild( std::shared_ptr<KeyValue> pChild )
+void KeyValue::SetChild( std::unique_ptr<KeyValue>&& pChild )
 {
-	m_pChild = pChild;
+	m_pChild = std::move( pChild );
 }
 
-std::shared_ptr<KeyValue>& KeyValue::GetNext( )
+void KeyValue::SetChild( std::nullptr_t pChild )
 {
-	return m_pNext;
+	m_pChild = nullptr;
 }
 
-std::shared_ptr<KeyValue>& KeyValue::GetChild( )
+KeyValue* KeyValue::GetNext( ) const
 {
-	return m_pChild;
+	return m_pNext.get();
+}
+
+KeyValue* KeyValue::GetChild( ) const
+{
+	return m_pChild.get();
 }
 
 void KeyValue::SetKey( const String& key )
@@ -55,12 +60,12 @@ void KeyValue::SetValue( const String& value )
 	m_value = value;
 }
 
-CKeyValueIterator KeyValueGroupImpl::FindKeyValue( const String& key )
+CKeyValueIterator KeyValueGroupImpl::FindKeyValue( const String& key ) const
 {
-	return FindKeyValueInternal( key, m_pRoot );
+	return FindKeyValueInternal( key, m_pRoot.get() );
 }
 
-CKeyValueIterator KeyValueGroupImpl::FindKeyValueInternal( const String& key, std::shared_ptr<KeyValue> keyValue )
+CKeyValueIterator KeyValueGroupImpl::FindKeyValueInternal( const String& key, KeyValue* keyValue ) const
 {
 	if ( keyValue )
 	{
@@ -83,8 +88,8 @@ CKeyValueIterator KeyValueGroupImpl::FindKeyValueInternal( const String& key, st
 	return CKeyValueIterator( nullptr );
 }
 
-CKeyValueIterator::CKeyValueIterator( const std::shared_ptr<KeyValue>& keyValue ) :
-m_current( keyValue.get() )
+CKeyValueIterator::CKeyValueIterator( KeyValue* keyValue ) :
+m_current( keyValue )
 {
 }
 
@@ -99,12 +104,12 @@ CKeyValueIterator& CKeyValueIterator::operator++( )
 	{
 		if ( m_current->GetNext( ) != nullptr )
 		{
-			m_openList.push( m_current->GetNext( ).get() );
+			m_openList.push( m_current->GetNext( ) );
 		}
 
 		if ( m_current->GetChild( ) != nullptr )
 		{
-			m_openList.push( m_current->GetChild( ).get() );
+			m_openList.push( m_current->GetChild( ) );
 		}
 
 		if ( m_openList.empty( ) )
@@ -149,13 +154,12 @@ bool operator!=( const void* const lhs, const CKeyValueIterator& rhs )
 	return rhs != lhs;
 }
 
-KeyValueGroupImpl::KeyValueGroupImpl( std::shared_ptr<KeyValue>& root ) :
-m_pRoot( root )
+KeyValueGroupImpl::KeyValueGroupImpl( std::unique_ptr<KeyValue>&& root ) :
+m_pRoot( std::move( root ) )
 {
-
 }
 
-std::shared_ptr<KeyValueGroup> CKeyValueReader::LoadKeyValueFromFile( String filename )
+std::unique_ptr<KeyValueGroupImpl> CKeyValueReader::LoadKeyValueFromFile( String filename )
 {
 	Ifstream file;
 
@@ -163,24 +167,24 @@ std::shared_ptr<KeyValueGroup> CKeyValueReader::LoadKeyValueFromFile( String fil
 
 	if ( file.is_open( ) )
 	{
-		std::shared_ptr<KeyValue> root = std::make_shared<KeyValue>( );
-		LoadKeyValueFromFileInternal( file, root );
+		std::unique_ptr<KeyValue> root = std::make_unique<KeyValue>();
+		LoadKeyValueFromFileInternal( file, root.get() );
 		
 		if ( print_debug_keyValue.GetBool() )
 		{
-			PrintKeyValueInternal( root );
+			PrintKeyValueInternal( root.get() );
 		}
 		
 		file.close( );
-		return std::make_shared<KeyValueGroupImpl>( root );
+		return std::make_unique<KeyValueGroupImpl>( std::move( root ) );
 	}
 
 	return nullptr;
 }
 
-void CKeyValueReader::LoadKeyValueFromFileInternal( Ifstream& file, std::shared_ptr<KeyValue> keyValue )
+void CKeyValueReader::LoadKeyValueFromFileInternal( Ifstream& file, KeyValue* keyValue )
 {
-	std::shared_ptr<KeyValue> pKeyValue = keyValue;
+	KeyValue* pKeyValue = keyValue;
 
 	bool alreadyReadValue = false;
 
@@ -198,7 +202,7 @@ void CKeyValueReader::LoadKeyValueFromFileInternal( Ifstream& file, std::shared_
 			if ( buffer[curIdx] == '{' )
 			{
 				alreadyReadValue = true;
-				pKeyValue->SetChild( std::make_shared<KeyValue>( ) );
+				pKeyValue->SetChild( std::make_unique<KeyValue>() );
 				LoadKeyValueFromFileInternal( file, pKeyValue->GetChild( ) );
 				FIX_ME( remove unnecessary new );
 				if ( pKeyValue->GetChild( ) && pKeyValue->GetChild( )->GetKey( ).length() == 0 )
@@ -221,7 +225,7 @@ void CKeyValueReader::LoadKeyValueFromFileInternal( Ifstream& file, std::shared_
 				{
 					if ( alreadyReadValue )
 					{
-						pKeyValue->SetNext( std::make_shared<KeyValue>( ) );
+						pKeyValue->SetNext( std::make_unique<KeyValue>( ) );
 						pKeyValue = pKeyValue->GetNext( );
 						alreadyReadValue = false;
 					}
@@ -258,7 +262,7 @@ void CKeyValueReader::LoadKeyValueFromFileInternal( Ifstream& file, std::shared_
 	}
 }
 
-void CKeyValueReader::PrintKeyValueInternal( std::shared_ptr<KeyValue> keyValue, int depth ) const
+void CKeyValueReader::PrintKeyValueInternal( KeyValue* keyValue, int depth ) const
 {
 	if ( keyValue == nullptr )
 	{

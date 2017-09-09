@@ -1,6 +1,8 @@
 #pragma once
 
 #include "common.h"
+#include "../shared/Util.h"
+
 #include <memory>
 
 class IBuffer;
@@ -43,8 +45,8 @@ public:
 	virtual void ForwardRenderEnd( ) = 0;
 	virtual void SceneEnd( ) = 0;
 
-	virtual std::shared_ptr<IShader> CreateVertexShader( const TCHAR* pFilePath, const char* pProfile ) = 0;
-	virtual std::shared_ptr<IShader> CreatePixelShader( const TCHAR* pFilePath, const char* pProfile ) = 0;
+	virtual IShader* CreateVertexShader( const TCHAR* pFilePath, const char* pProfile ) = 0;
+	virtual IShader* CreatePixelShader( const TCHAR* pFilePath, const char* pProfile ) = 0;
 
 	virtual IBuffer* CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) = 0;
 	virtual IBuffer* CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) = 0;
@@ -57,9 +59,9 @@ public:
 	virtual IShader* SearchShaderByName( const TCHAR* name ) = 0;
 
 	virtual IMaterial* GetMaterialPtr( const TCHAR* pMaterialName ) = 0;
-	virtual std::shared_ptr<IMesh> GetModelPtr( const TCHAR* pModelName ) = 0;
-	virtual void SetModelPtr( const String& modelName, const std::shared_ptr<IMesh>& pModel ) = 0;
-	virtual void DrawModel( std::shared_ptr<IMesh> pModel ) = 0;
+	virtual IMesh* GetModelPtr( const TCHAR* pModelName ) = 0;
+	virtual void SetModelPtr( const String& modelName, Owner<IMesh*> pModel ) = 0;
+	virtual void DrawModel( IMesh* pModel ) = 0;
 
 	virtual void PushViewPort( const float topLeftX, const float topLeftY, const float width, const float height, const float minDepth = 0.0f, const float maxDepth = 1.0f ) = 0;
 	virtual void PopViewPort( ) = 0;
@@ -78,8 +80,6 @@ public:
 
 	virtual IRenderState* CreateBlendState( const String& stateName ) = 0;
 
-	virtual void ResetResource( const std::shared_ptr<IMesh>& pMesh, const SHADER_TYPE type ) = 0;
-	
 	virtual void TakeSnapshot2D( const String& sourceTextureName, const String& destTextureName ) = 0;
 	
 	virtual IRendererShadowManager* GetShadowManager( ) = 0;

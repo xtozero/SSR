@@ -12,7 +12,7 @@ public:
 	bool LoadMaterials( IRenderer& renderer );
 
 private:
-	bool CreateScriptedMaterial( IRenderer& renderer, std::shared_ptr<KeyValue> pMaterial );
+	bool CreateScriptedMaterial( IRenderer& renderer, KeyValue* pMaterial );
 };
 
 std::unique_ptr<CMaterialLoader> CreateMaterialLoader( );

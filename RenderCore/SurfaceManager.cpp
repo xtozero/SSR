@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "SurfaceManager.h"
 
-ISurface* CSurfaceManager::RegisterSurface( const String& surfaceName, std::unique_ptr<ISurface>& surface )
+ISurface* CSurfaceManager::RegisterSurface( const String& surfaceName, std::unique_ptr<ISurface>&& surface )
 {
 	auto found = m_surfaces.find( surfaceName );
 

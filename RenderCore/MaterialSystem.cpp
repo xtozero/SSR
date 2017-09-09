@@ -8,7 +8,7 @@ MaterialSystem* MaterialSystem::GetInstance( )
 	return &materialSystem;
 }
 
-void MaterialSystem::RegisterMaterial( const TCHAR* pName, std::shared_ptr<IMaterial> pMaterial )
+void MaterialSystem::RegisterMaterial( const TCHAR* pName, Owner<IMaterial*> pMaterial )
 {
 	if ( pName && pMaterial )
 	{
@@ -30,7 +30,7 @@ void MaterialSystem::RegisterConstantBuffer( UINT type, IBuffer* pConstantBuffer
 	}
 }
 
-std::shared_ptr<IMaterial> MaterialSystem::SearchMaterialByName( const TCHAR* pName )
+IMaterial* MaterialSystem::SearchMaterialByName( const TCHAR* pName )
 {
 	if ( !pName )
 	{
@@ -41,16 +41,11 @@ std::shared_ptr<IMaterial> MaterialSystem::SearchMaterialByName( const TCHAR* pN
 
 	if ( found != m_materials.end( ) )
 	{
-		return found->second;
+		return found->second.get();
 	}
 
 	return nullptr;
 }
-
-MaterialSystem::MaterialSystem( )
-{
-}
-
 
 MaterialSystem::~MaterialSystem( )
 {

@@ -16,7 +16,7 @@ namespace
 	constexpr TCHAR* SAMPLER_STATE_DESC_FILE_NAME = _T( "../Script/SamplerStateDesc.txt" );
 	constexpr TCHAR* SMAPLER_DESC_HANDLER_KEY_NAME = _T( "SamplerDesc" );
 
-	void SamplerDescHandler( ISamplerStateFactory* owner, const String&, const std::shared_ptr<KeyValue>& keyValue )
+	void SamplerDescHandler( ISamplerStateFactory* owner, const String&, const KeyValue* keyValue )
 	{
 		CD3D11_DEFAULT default;
 		CD3D11_SAMPLER_DESC newDesc( default );
@@ -148,7 +148,7 @@ public:
 
 	CSamplerStateFactory( );
 private:
-	void LoadSamplerDesc( std::shared_ptr<KeyValueGroup> pKeyValues );
+	void LoadSamplerDesc( KeyValueGroup* pKeyValues );
 
 	std::map<String, std::unique_ptr<IRenderState>> m_samplerState;
 	std::map<String, D3D11_SAMPLER_DESC> m_samplerStateDesc;
@@ -158,11 +158,11 @@ void CSamplerStateFactory::LoadDesc( )
 {
 	CKeyValueReader KeyValueReader;
 
-	auto pKeyValues = KeyValueReader.LoadKeyValueFromFile( SAMPLER_STATE_DESC_FILE_NAME );
+	std::unique_ptr<KeyValueGroupImpl> pKeyValues = KeyValueReader.LoadKeyValueFromFile( SAMPLER_STATE_DESC_FILE_NAME );
 
 	if ( pKeyValues )
 	{
-		LoadSamplerDesc( pKeyValues );
+		LoadSamplerDesc( pKeyValues.get() );
 	}
 }
 
@@ -206,7 +206,7 @@ CSamplerStateFactory::CSamplerStateFactory( )
 	RegisterHandler( SMAPLER_DESC_HANDLER_KEY_NAME, SamplerDescHandler );
 }
 
-void CSamplerStateFactory::LoadSamplerDesc( std::shared_ptr<KeyValueGroup> pKeyValues )
+void CSamplerStateFactory::LoadSamplerDesc( KeyValueGroup* pKeyValues )
 {
 	if ( pKeyValues == nullptr )
 	{

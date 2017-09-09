@@ -26,6 +26,6 @@ public:
 	~CShaderResourceManager( );
 
 private:
-	std::map<String, std::shared_ptr<IShaderResource>> m_shaderResources;
+	std::map<String, std::unique_ptr<IShaderResource>> m_shaderResources;
 };
 

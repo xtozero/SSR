@@ -29,9 +29,9 @@ public:
 	~CTextureManager( ) = default;
 
 private:
-	bool LoadTextureFromScriptInternal( ID3D11Device* pDevice, const std::shared_ptr<KeyValueGroup>& keyValue );
+	bool LoadTextureFromScriptInternal( ID3D11Device* pDevice, const KeyValueGroup* keyValue );
 
-	std::map<String, std::shared_ptr<ITexture>> m_pTextures;
+	std::map<String, std::unique_ptr<ITexture>> m_pTextures;
 	std::map<String, TextureDescription> m_texture2DDesc;
 	std::pair<int, int>	m_frameBufferSize;
 };

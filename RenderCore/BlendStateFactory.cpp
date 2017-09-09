@@ -23,7 +23,7 @@ namespace
 	constexpr TCHAR* RASTERIZER_STATE_DESC_FILE_NAME = _T( "../Script/BlendStateDesc.txt" );
 	constexpr TCHAR* RASTERIZER_DESC_HANDLER_KEY_NAME = _T( "BlendDesc" );
 
-	void BlendDescHandler( IBlendStateFactory* owner, const String&, const std::shared_ptr<KeyValue>& keyValue )
+	void BlendDescHandler( IBlendStateFactory* owner, const String&, const KeyValue* keyValue )
 	{
 		CD3D_BLEND_DESC newDesc;
 		CD3D11_BLEND_DESC& blendDesc = newDesc.m_desc;
@@ -167,7 +167,7 @@ public:
 
 	CBlendStateFactory( );
 private:
-	void LoadRasterizerDesc( std::shared_ptr<KeyValueGroup> pKeyValues );
+	void LoadRasterizerDesc( const KeyValueGroup* pKeyValues );
 
 	std::map<String, std::unique_ptr<IRenderState>> m_blendState;
 	std::map<String, CD3D_BLEND_DESC> m_blendStateDesc;
@@ -177,11 +177,11 @@ void CBlendStateFactory::LoadDesc( )
 {
 	CKeyValueReader KeyValueReader;
 
-	auto pKeyValues = KeyValueReader.LoadKeyValueFromFile( RASTERIZER_STATE_DESC_FILE_NAME );
+	std::unique_ptr<KeyValueGroupImpl> pKeyValues = KeyValueReader.LoadKeyValueFromFile( RASTERIZER_STATE_DESC_FILE_NAME );
 
 	if ( pKeyValues )
 	{
-		LoadRasterizerDesc( pKeyValues );
+		LoadRasterizerDesc( pKeyValues.get() );
 	}
 }
 
@@ -225,7 +225,7 @@ CBlendStateFactory::CBlendStateFactory( )
 	RegisterHandler( RASTERIZER_DESC_HANDLER_KEY_NAME, BlendDescHandler );
 }
 
-void CBlendStateFactory::LoadRasterizerDesc( std::shared_ptr<KeyValueGroup> pKeyValues )
+void CBlendStateFactory::LoadRasterizerDesc( const KeyValueGroup* pKeyValues )
 {
 	if ( pKeyValues == nullptr )
 	{

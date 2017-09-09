@@ -42,7 +42,6 @@ public:
 	virtual void* GetMeshData( ) override { return m_pModelData; }
 	virtual int GetVerticesCount( ) override { return m_nVertices; }
 
-	virtual void ResetResource( ID3D11DeviceContext* pDeviceContext, const SHADER_TYPE type ) override;
 protected:
 	BaseMesh( );
 

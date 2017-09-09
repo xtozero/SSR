@@ -142,17 +142,3 @@ void CSSRManager::Process( IRenderer& renderer, const std::list<CGameObject*>& r
 
 	m_pSsrBlendMaterial->SetTexture( renderer.GetDeviceContext( ), SHADER_TYPE::PS, 1, nullptr );
 }
-
-CSSRManager::CSSRManager( ) :
-	m_pScreenRect( nullptr ),
-	m_pSsrMaterial( nullptr ),
-	m_pSsrBlendMaterial( nullptr ),
-	m_pSsrRt( nullptr ),
-	m_pDefaultRt( nullptr ),
-	m_pDefaultDS( nullptr ),
-	m_pSsrSrv( nullptr ),
-	m_pDefaultSrv( nullptr ),
-	m_pDepthSrv( nullptr ),
-	m_ssrConstantBuffer( nullptr )
-{
-}

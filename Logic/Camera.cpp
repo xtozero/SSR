@@ -137,7 +137,7 @@ void CCamera::LoadProperty( KeyValueGroup* keyValue )
 
 	if ( found != nullptr )
 	{
-		std::shared_ptr<KeyValue>& properties = found->GetChild( );
+		KeyValue* properties = found->GetChild( );
 
 		for ( auto& iter = properties; iter != nullptr; iter = iter->GetNext( ) )
 		{

@@ -255,11 +255,11 @@ void CGameObject::RebuildTransform( )
 
 void CGameObject::UpdateRigidBody( RIGID_BODY_TYPE type )
 {
-	if ( m_originRigidBodies[type].get( ) )
+	if ( m_originRigidBodies[type] )
 	{
 		if ( m_rigideBodies[type].get( ) == nullptr )
 		{
-			m_rigideBodies[type] = CRigidBodyManager::GetInstance( ).MakeRigidBody( type );
+			m_rigideBodies[type].reset( CRigidBodyManager::GetInstance( ).MakeRigidBody( type ) );
 		}
 
 		m_rigideBodies[type]->Update( m_matTransform, m_originRigidBodies[type] );
@@ -270,7 +270,7 @@ void CGameObject::UpdateRigidBodyAll( )
 {
 	for ( int i = 0; i < RIGID_BODY_TYPE::Count; ++i )
 	{
-		if ( m_originRigidBodies[i].get( ) )
+		if ( m_originRigidBodies[i] )
 		{
 			UpdateRigidBody( static_cast<RIGID_BODY_TYPE>( i ) );
 		}

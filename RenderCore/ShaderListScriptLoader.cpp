@@ -13,11 +13,11 @@ namespace
 bool CShaderListScriptLoader::LoadShadersFromScript( IRenderer& renderer )
 {
 	CKeyValueReader scrpitReader;
-	auto pKeyValue = scrpitReader.LoadKeyValueFromFile( SHADER_LIST_SCRIPT_FILE_NAME );
+	std::unique_ptr<KeyValueGroupImpl> pKeyValues = scrpitReader.LoadKeyValueFromFile( SHADER_LIST_SCRIPT_FILE_NAME );
 
-	if ( pKeyValue )
+	if ( pKeyValues )
 	{
-		auto findedKey = pKeyValue->FindKeyValue( _T( "ShaderList" ) );
+		auto findedKey = pKeyValues->FindKeyValue( _T( "ShaderList" ) );
 		++findedKey;
 
 		for ( ; findedKey != nullptr; ++findedKey )

@@ -25,7 +25,7 @@ namespace
 	constexpr TCHAR* OBJ_FILE_DIR = _T( "../model/obj/" );
 }
 
-std::shared_ptr<IMesh> CObjMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pFileName, CSurfaceManager* pSurfaceManager )
+Owner<IMesh*> CObjMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pFileName, CSurfaceManager* pSurfaceManager )
 {
 	if ( pSurfaceManager == nullptr )
 	{
@@ -206,7 +206,7 @@ std::shared_ptr<IMesh> CObjMeshLoader::LoadMeshFromFile( IRenderer& renderer, co
 	::memcpy_s( vertices, sizeof(MeshVertex) * vertexCount, &buildedVertices[0], sizeof(MeshVertex)* vertexCount );
 	::memcpy_s( indices, sizeof(WORD) * indexCount, &buildedindices[0], sizeof(WORD)* indexCount );
 
-	auto newMesh = std::make_shared<CObjMesh>( );
+	CObjMesh* newMesh = new CObjMesh;
 
 	FOR_EACH_VEC( m_mtlGroup, i )
 	{
@@ -332,7 +332,7 @@ void CObjMeshLoader::LoadMaterialFile( const TCHAR* pFileName, CSurfaceManager* 
 		else if ( count > 1 && token.find( _T( "newmtl" ) ) != String::npos )
 		{
 			std::unique_ptr<ISurface> newSurface = std::make_unique<CSurface>( );
-			pCurSuface = pSurfaceManager->RegisterSurface( params[1], newSurface );
+			pCurSuface = pSurfaceManager->RegisterSurface( params[1], std::move( newSurface ) );
 		}
 		else if ( count > 1 && token.find( _T( "map_Kd" ) ) != String::npos )
 		{

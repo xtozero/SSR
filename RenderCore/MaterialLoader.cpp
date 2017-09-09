@@ -98,7 +98,7 @@ bool CMaterialLoader::LoadMaterials( IRenderer& renderer )
 {
 	CKeyValueReader keyValueReader;
 
-	std::shared_ptr<KeyValueGroup> pKeyValues = keyValueReader.LoadKeyValueFromFile( MATERIAL_SCRIPT_FILE_NAME );
+	std::unique_ptr<KeyValueGroup> pKeyValues = keyValueReader.LoadKeyValueFromFile( MATERIAL_SCRIPT_FILE_NAME );
 
 	if ( pKeyValues == nullptr )
 	{
@@ -122,7 +122,7 @@ bool CMaterialLoader::LoadMaterials( IRenderer& renderer )
 	return true;
 }
 
-bool CMaterialLoader::CreateScriptedMaterial( IRenderer& renderer, std::shared_ptr<KeyValue> pMaterial )
+bool CMaterialLoader::CreateScriptedMaterial( IRenderer& renderer, KeyValue* pMaterial )
 {
 	if ( pMaterial == nullptr )
 	{
@@ -130,7 +130,7 @@ bool CMaterialLoader::CreateScriptedMaterial( IRenderer& renderer, std::shared_p
 		return false;
 	}
 
-	std::shared_ptr<CScriptedMaterial> newMaterial = std::make_shared<CScriptedMaterial>( );
+	CScriptedMaterial* newMaterial = new CScriptedMaterial;
 	newMaterial->Init( renderer );
 	MaterialSystem::GetInstance( )->RegisterMaterial( pMaterial->GetKey( ).c_str(), newMaterial );
 

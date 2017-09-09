@@ -7,7 +7,7 @@
 
 #include <memory>
 
-std::shared_ptr<IRigidBody> CRigidBodyManager::GetRigidBody( IRenderer& renderer, const String& meshName, RIGID_BODY_TYPE type )
+IRigidBody* CRigidBodyManager::GetRigidBody( IRenderer& renderer, const String& meshName, RIGID_BODY_TYPE type )
 {
 	if ( type < 0 || type >= RIGID_BODY_TYPE::Count )
 	{
@@ -19,7 +19,7 @@ std::shared_ptr<IRigidBody> CRigidBodyManager::GetRigidBody( IRenderer& renderer
 	if ( found == m_rigidBodyList.end( ) )
 	{
 		RigidBodyGroup newRigidBodyGroup;
-		m_rigidBodyList.emplace( meshName, newRigidBodyGroup );
+		m_rigidBodyList.emplace( meshName, std::move( newRigidBodyGroup ) );
 	}
 
 	RigidBodyGroup& rigidBodyGroup = m_rigidBodyList[meshName];
@@ -28,30 +28,30 @@ std::shared_ptr<IRigidBody> CRigidBodyManager::GetRigidBody( IRenderer& renderer
 
 	if ( rigidBodyGroup.m_rigidBodies[rigidBodyType].get( ) == nullptr )
 	{
-		rigidBodyGroup.m_rigidBodies[rigidBodyType] = CreateRigidBody( renderer, meshName, type );
+		rigidBodyGroup.m_rigidBodies[rigidBodyType].reset( CreateRigidBody( renderer, meshName, type ) );
 	}
 
-	return rigidBodyGroup.m_rigidBodies[rigidBodyType];
+	return rigidBodyGroup.m_rigidBodies[rigidBodyType].get();
 }
 
-std::shared_ptr<IRigidBody> CRigidBodyManager::CreateRigidBody( IRenderer& renderer, const String& meshName, RIGID_BODY_TYPE type )
+Owner<IRigidBody*> CRigidBodyManager::CreateRigidBody( IRenderer& renderer, const String& meshName, RIGID_BODY_TYPE type )
 {
-	std::shared_ptr<IMesh> pMesh = renderer.GetModelPtr( meshName.c_str( ) );
+	IMesh* pMesh = renderer.GetModelPtr( meshName.c_str( ) );
 
-	if ( pMesh.get( ) == nullptr )
+	if ( pMesh == nullptr )
 	{
 		return nullptr;
 	}
 
-	std::shared_ptr<IRigidBody> newRigidBody = nullptr;
+	IRigidBody* newRigidBody = nullptr;
 
 	switch ( type )
 	{
 	case RIGID_BODY_TYPE::Sphere:
-		newRigidBody = std::make_shared<BoundingSphere>( );
+		newRigidBody = new BoundingSphere;
 		break;
 	case RIGID_BODY_TYPE::AABB:
-		newRigidBody = std::make_shared<CAaboundingbox>( );
+		newRigidBody = new CAaboundingbox;
 		break;
 	case RIGID_BODY_TYPE::OBB:
 		break;
@@ -67,15 +67,15 @@ std::shared_ptr<IRigidBody> CRigidBodyManager::CreateRigidBody( IRenderer& rende
 	return newRigidBody;
 }
 
-std::unique_ptr<IRigidBody> CRigidBodyManager::MakeRigidBody( RIGID_BODY_TYPE type )
+Owner<IRigidBody*> CRigidBodyManager::MakeRigidBody( RIGID_BODY_TYPE type )
 {
 	switch ( type )
 	{
 	case RIGID_BODY_TYPE::Sphere:
-		return std::make_unique<BoundingSphere>( );
+		return new BoundingSphere;
 		break;
 	case RIGID_BODY_TYPE::AABB:
-		return std::make_unique<CAaboundingbox>( );
+		return new CAaboundingbox;
 		break;
 	case RIGID_BODY_TYPE::OBB:
 		break;
@@ -84,13 +84,4 @@ std::unique_ptr<IRigidBody> CRigidBodyManager::MakeRigidBody( RIGID_BODY_TYPE ty
 	}
 
 	return nullptr;
-}
-
-CRigidBodyManager::CRigidBodyManager( )
-{
-}
-
-
-CRigidBodyManager::~CRigidBodyManager( )
-{
 }
