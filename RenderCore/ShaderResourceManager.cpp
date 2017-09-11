@@ -34,10 +34,10 @@ void CShaderResourceManager::LoadShaderResourceFromFile( ID3D11Device* pDevice, 
 		return;
 	}
 
-	IShaderResource* newShaderResource = new CShaderResource;
+	std::unique_ptr<CShaderResource> newShaderResource = std::make_unique<CShaderResource>();
 	if ( newShaderResource->LoadShaderResource( pDevice, fileName ) )
 	{
-		m_shaderResources.emplace( fileName, newShaderResource );
+		m_shaderResources.emplace( fileName, std::move( newShaderResource ) );
 	}
 
 	textureFile.close( );
@@ -67,14 +67,10 @@ void CShaderResourceManager::RegisterShaderResource( const String& resourceName,
 		return;
 	}
 
-	IShaderResource* newShaderResource = new CShaderResource( srcFlag );
+	std::unique_ptr<CShaderResource> newShaderResource = std::make_unique<CShaderResource>();
 	
-	if ( newShaderResource )
-	{
-		newShaderResource->SetShaderResourceView( srView );
-	}
-
-	m_shaderResources.emplace( resourceName, newShaderResource );
+	newShaderResource->SetShaderResourceView( srView );
+	m_shaderResources.emplace( resourceName, std::move( newShaderResource ) );
 }
 
 IShaderResource* CShaderResourceManager::CreateShaderResource( ID3D11Device* pDevice, const ITexture* pTexture, const CShaderResourceViewDescription* desc, const String& resourceName, int srcFlag )
@@ -87,12 +83,13 @@ IShaderResource* CShaderResourceManager::CreateShaderResource( ID3D11Device* pDe
 
 	if ( pDevice && pTexture )
 	{
-		IShaderResource* newShaderResource = new CShaderResource( srcFlag );
+		std::unique_ptr<CShaderResource> newShaderResource = std::make_unique<CShaderResource>( srcFlag );
 
 		if ( newShaderResource->CreateShaderResource( pDevice, pTexture, desc ) )
 		{
-			m_shaderResources.emplace( resourceName, newShaderResource );
-			return newShaderResource;
+			CShaderResource* ret = newShaderResource.get();
+			m_shaderResources.emplace( resourceName, std::move( newShaderResource ) );
+			return ret;
 		}
 	}
 

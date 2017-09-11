@@ -60,7 +60,7 @@ public:
 
 	virtual IMaterial* GetMaterialPtr( const TCHAR* pMaterialName ) = 0;
 	virtual IMesh* GetModelPtr( const TCHAR* pModelName ) = 0;
-	virtual void SetModelPtr( const String& modelName, Owner<IMesh*> pModel ) = 0;
+	virtual void SetModelPtr( const String& modelName, std::unique_ptr<IMesh> pModel ) = 0;
 	virtual void DrawModel( IMesh* pModel ) = 0;
 
 	virtual void PushViewPort( const float topLeftX, const float topLeftY, const float width, const float height, const float minDepth = 0.0f, const float maxDepth = 1.0f ) = 0;

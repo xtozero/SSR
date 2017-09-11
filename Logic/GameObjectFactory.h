@@ -15,7 +15,7 @@ public:
 	static CGameObjectFactory& GetInstance( );
 
 	void RegistGameObjectCreateFunc( const String& className, CCreateGameObjectHelper* helper );
-	CGameObject* CreateGameObjectByClassName( const String& className );
+	Owner<CGameObject*> CreateGameObjectByClassName( const String& className );
 
 	CGameObjectFactory( );
 	~CGameObjectFactory( );
@@ -33,7 +33,7 @@ public:
 		CGameObjectFactory::GetInstance( ).RegistGameObjectCreateFunc( className, this );
 	}
 
-	CGameObject* Create( )
+	Owner<CGameObject*> Create( )
 	{
 		if ( m_createFunc )
 		{
@@ -46,11 +46,11 @@ public:
 	}
 
 private:
-	std::function<CGameObject*( )> m_createFunc;
+	std::function<Owner<CGameObject*> ( )> m_createFunc;
 };
 
 #define DECLARE_GAME_OBJECT( name, classType ) \
-	static CGameObject* create_##name( ) \
+	static Owner<CGameObject*> create_##name( ) \
 	{ \
 		return new classType; \
 	} \

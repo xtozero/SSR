@@ -23,8 +23,8 @@ public:
 
 private:
 	virtual IRenderTarget* CreateRenderTarget( ID3D11Device* pDevice, ID3D11Resource* pResource, const D3D11_RENDER_TARGET_VIEW_DESC* rtvDesc, const String& renderTargetName );
-	void RegisterRenderTarget( const String& renderTargetName, const Owner<IRenderTarget*> renderTarget );
-	void RegisterDepthStencil( const String& depthStencilName, const Owner<IDepthStencil*> depthStencil );
+	void RegisterRenderTarget( const String& renderTargetName, std::unique_ptr<IRenderTarget> renderTarget );
+	void RegisterDepthStencil( const String& depthStencilName, std::unique_ptr<IDepthStencil> depthStencil );
 
 	std::map<String, std::unique_ptr<IRenderTarget>> m_renderTargets;
 	std::map<String, std::unique_ptr<IDepthStencil>> m_depthStencils;

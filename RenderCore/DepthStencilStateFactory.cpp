@@ -173,22 +173,24 @@ IRenderState* CDepthStencilStateFactory::GetDepthStencilState( ID3D11Device* pDe
 
 		if ( foundDesc != m_depthStencilDesc.end( ) )
 		{
-			CDepthStencilState* newState = new CDepthStencilState;
+			std::unique_ptr<CDepthStencilState> newState = std::make_unique<CDepthStencilState>();
 
 			if ( newState->Create( pDevice, foundDesc->second ) )
 			{
-				m_depthStencilState.emplace( stateName, newState );
-				return newState;
+				CDepthStencilState* ret = newState.get( );
+				m_depthStencilState.emplace( stateName, std::move( newState ) );
+				return ret;
 			}
 		}
 	}
 	
-	CNullDepthStencilState* nullState = new CNullDepthStencilState;
-	m_depthStencilState.emplace( _T( "NULL" ), nullState );
-	return nullState;
+	std::unique_ptr<CNullDepthStencilState> nullState = std::make_unique<CNullDepthStencilState>();
+	CNullDepthStencilState* ret = nullState.get( );
+	m_depthStencilState.emplace( _T( "NULL" ), std::move( nullState ) );
+	return ret;
 }
 
-void CDepthStencilStateFactory::AddDepthStencilDesc( const String & descName, const D3D11_DEPTH_STENCIL_DESC & newDesc )
+void CDepthStencilStateFactory::AddDepthStencilDesc( const String& descName, const D3D11_DEPTH_STENCIL_DESC & newDesc )
 {
 	m_depthStencilDesc.emplace( descName, newDesc );
 }

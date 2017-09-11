@@ -181,19 +181,21 @@ IRenderState* CSamplerStateFactory::GetSamplerState( ID3D11Device* pDevice, cons
 
 		if ( foundDesc != m_samplerStateDesc.end( ) )
 		{
-			CSamplerState* newState = new CSamplerState;
+			std::unique_ptr<CSamplerState> newState = std::make_unique<CSamplerState>();
 
 			if ( newState->Create( pDevice, foundDesc->second ) )
 			{
-				m_samplerState.emplace( stateName, newState );
-				return newState;
+				CSamplerState* ret = newState.get( );
+				m_samplerState.emplace( stateName, std::move( newState ) );
+				return ret;
 			}
 		}
 	}
 
-	CNullSamplerState* nullState = new CNullSamplerState;
-	m_samplerState.emplace( _T( "NULL" ), nullState );
-	return nullState;
+	std::unique_ptr<CNullSamplerState> nullState = std::make_unique<CNullSamplerState>();
+	CNullSamplerState* ret = nullState.get( );
+	m_samplerState.emplace( _T( "NULL" ), std::move( nullState ) );
+	return ret;
 }
 
 void CSamplerStateFactory::AddSamplerDesc( const String& descName, const D3D11_SAMPLER_DESC& newDesc )

@@ -200,19 +200,21 @@ IRenderState* CBlendStateFactory::GetBlendState( ID3D11Device* pDevice, const St
 
 		if ( foundDesc != m_blendStateDesc.end( ) )
 		{
-			CBlendState* newState = new CBlendState;
+			std::unique_ptr<CBlendState> newState = std::make_unique<CBlendState>();
 
 			if ( newState->Create( pDevice, foundDesc->second ) )
 			{
-				m_blendState.emplace( stateName, newState );
-				return newState;
+				CBlendState* ret = newState.get();
+				m_blendState.emplace( stateName, std::move( newState ) );
+				return ret;
 			}
 		}
 	}
 
-	CNullBlendState* nullState = new CNullBlendState;
-	m_blendState.emplace( _T( "NULL" ), nullState );
-	return nullState;
+	std::unique_ptr<CNullBlendState> nullState = std::make_unique<CNullBlendState>();
+	CNullBlendState* ret = nullState.get( );
+	m_blendState.emplace( _T( "NULL" ), std::move( nullState ) );
+	return ret;
 }
 
 void CBlendStateFactory::AddBlendDesc( const String & descName, const CD3D_BLEND_DESC& newDesc )

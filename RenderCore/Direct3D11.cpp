@@ -18,6 +18,7 @@
 #include "IBuffer.h"
 #include "IMaterial.h"
 #include "IMesh.h"
+#include "IMeshLoader.h"
 #include "IRenderer.h"
 #include "IShaderResource.h"
 #include "ITexture.h"
@@ -324,7 +325,7 @@ public:
 
 	virtual IMaterial* GetMaterialPtr( const TCHAR* pMaterialName ) override;
 	virtual IMesh* GetModelPtr( const TCHAR* pModelName ) override;
-	virtual void SetModelPtr( const String& modelName, Owner<IMesh*> pModel ) override;
+	virtual void SetModelPtr( const String& modelName, std::unique_ptr<IMesh> pModel ) override;
 	virtual void DrawModel( IMesh* pModel ) override;
 
 	virtual void PushViewPort( const float topLeftX, const float topLeftY, const float width, const float height, const float minDepth = 0.0f, const float maxDepth = 1.0f ) override;
@@ -499,7 +500,7 @@ void CDirect3D11::SceneEnd( )
 
 IShader* CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pProfile )
 {
-	D3D11VertexShader* vs = new D3D11VertexShader;
+	std::unique_ptr<D3D11VertexShader> vs = std::make_unique<D3D11VertexShader>();
 
 	D3D11_INPUT_ELEMENT_DESC* inputDesc = vs->CreateInputElementDesc( 4 );
 
@@ -537,8 +538,9 @@ IShader* CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pP
 
 	if ( vs->CreateShader( m_pd3d11Device.Get( ), pFilePath, pProfile ) )
 	{
-		m_shaderList.emplace( UTIL::GetFileName( pFilePath ), vs );
-		return vs;
+		D3D11VertexShader* ret = vs.get( );
+		m_shaderList.emplace( UTIL::GetFileName( pFilePath ), std::move( vs ) );
+		return ret;
 	}
 
 	return nullptr;
@@ -546,11 +548,13 @@ IShader* CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pP
 
 IShader* CDirect3D11::CreatePixelShader( const TCHAR* pFilePath, const char* pProfile )
 {
-	D3D11PixelShader* ps = new D3D11PixelShader;
+	std::unique_ptr<D3D11PixelShader> ps = std::make_unique<D3D11PixelShader>();
+	
 	if ( ps->CreateShader( m_pd3d11Device.Get( ), pFilePath, pProfile ) )
 	{
-		m_shaderList.emplace( UTIL::GetFileName( pFilePath ), ps );
-		return ps;
+		D3D11PixelShader* ret = ps.get( );
+		m_shaderList.emplace( UTIL::GetFileName( pFilePath ), std::move( ps ) );
+		return ret;
 	}
 
 	return nullptr;
@@ -558,11 +562,13 @@ IShader* CDirect3D11::CreatePixelShader( const TCHAR* pFilePath, const char* pPr
 
 IBuffer* CDirect3D11::CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData )
 {
-	D3D11VertexBuffer* vb = new D3D11VertexBuffer;
+	std::unique_ptr<D3D11VertexBuffer> vb = std::make_unique<D3D11VertexBuffer>();
+	
 	if ( vb->CreateBuffer( m_pd3d11Device.Get( ), stride, numOfElement, srcData ) )
 	{
-		m_bufferList.emplace_back( vb );
-		return vb;
+		D3D11VertexBuffer* ret = vb.get( );
+		m_bufferList.emplace_back( std::move( vb ) );
+		return ret;
 	}
 
 	return nullptr;
@@ -570,11 +576,13 @@ IBuffer* CDirect3D11::CreateVertexBuffer( const UINT stride, const UINT numOfEle
 
 IBuffer* CDirect3D11::CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData )
 {
-	D3D11IndexBuffer* ib = new D3D11IndexBuffer;
+	std::unique_ptr<D3D11IndexBuffer> ib = std::make_unique<D3D11IndexBuffer>();
+	
 	if ( ib->CreateBuffer( m_pd3d11Device.Get( ), stride, numOfElement, srcData ) )
 	{
-		m_bufferList.emplace_back( ib );
-		return ib;
+		D3D11IndexBuffer* ret = ib.get( );
+		m_bufferList.emplace_back( std::move( ib ) );
+		return ret;
 	}
 
 	return nullptr;
@@ -582,11 +590,13 @@ IBuffer* CDirect3D11::CreateIndexBuffer( const UINT stride, const UINT numOfElem
 
 IBuffer* CDirect3D11::CreateConstantBuffer( const String& bufferName, const UINT stride, const UINT numOfElement, const void* srcData )
 {
-	D3D11ConstantBuffer* cb = new D3D11ConstantBuffer;
+	std::unique_ptr<D3D11ConstantBuffer> cb = std::make_unique<D3D11ConstantBuffer>();
+	
 	if ( cb->CreateBuffer( m_pd3d11Device.Get( ), stride, numOfElement, srcData ) )
 	{
-		m_constantBufferList.emplace( bufferName, cb );
-		return cb;
+		D3D11ConstantBuffer* ret = cb.get( );
+		m_constantBufferList.emplace( bufferName, std::move( cb ) );
+		return ret;
 	}
 
 	return nullptr;
@@ -614,7 +624,7 @@ void CDirect3D11::UnMapConstantBuffer( const String& bufferName )
 	}
 }
 
-void CDirect3D11::SetConstantBuffer( const String & bufferName, const UINT slot, const SHADER_TYPE type )
+void CDirect3D11::SetConstantBuffer( const String& bufferName, const UINT slot, const SHADER_TYPE type )
 {
 	auto found = m_constantBufferList.find( bufferName );
 
@@ -681,11 +691,11 @@ IMesh* CDirect3D11::GetModelPtr( const TCHAR* pModelName )
 	return nullptr;
 }
 
-void CDirect3D11::SetModelPtr( const String& modelName, Owner<IMesh*> pModel )
+void CDirect3D11::SetModelPtr( const String& modelName, std::unique_ptr<IMesh> pModel )
 {
 	if ( pModel )
 	{
-		m_meshLoader.RegisterMesh( modelName, pModel );
+		m_meshLoader.RegisterMesh( modelName, std::move( pModel ) );
 	}
 }
 
@@ -797,7 +807,7 @@ IRenderState* CDirect3D11::CreateDepthStencilState( const String& stateName )
 	return m_pDepthStencilFactory->GetDepthStencilState( m_pd3d11Device.Get( ), stateName );
 }
 
-IRenderState* CDirect3D11::CreateBlendState( const String & stateName )
+IRenderState* CDirect3D11::CreateBlendState( const String& stateName )
 {
 	if ( m_pBlendFactory == nullptr )
 	{
@@ -808,7 +818,7 @@ IRenderState* CDirect3D11::CreateBlendState( const String & stateName )
 	return m_pBlendFactory->GetBlendState( m_pd3d11Device.Get( ), stateName );
 }
 
-void CDirect3D11::TakeSnapshot2D( const String & sourceTextureName, const String & destTextureName )
+void CDirect3D11::TakeSnapshot2D( const String& sourceTextureName, const String & destTextureName )
 {
 	m_snapshotManager.TakeSnapshot2D( m_pd3d11Device.Get(), m_pd3d11DeviceContext.Get(), sourceTextureName, destTextureName );
 }

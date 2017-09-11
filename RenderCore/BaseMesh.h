@@ -4,6 +4,7 @@
 #include "IBuffer.h"
 #include "IMesh.h"
 #include "../shared/Math/CXMFloat.h"
+#include "../shared/Util.h"
 
 #include <memory>
 
@@ -28,8 +29,8 @@ protected:
 
 	CXMFLOAT3 m_color;
 public:
-	virtual void SetModelData( MeshVertex* pOrignal, UINT vertexCount ) override;
-	virtual void SetIndexData( void* pOrignal, UINT indexCount ) override;
+	virtual void SetModelData( Owner<MeshVertex*> pOrignal, UINT vertexCount ) override;
+	virtual void SetIndexData( Owner<void*> pOrignal, UINT indexCount ) override;
 	virtual void SetColor( const CXMFLOAT3& color ) override;
 	virtual bool Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST ) override;
 

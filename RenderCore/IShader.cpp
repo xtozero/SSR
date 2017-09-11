@@ -24,7 +24,7 @@ CShaderByteCode::CShaderByteCode( CShaderByteCode&& byteCode ) :
 	byteCode.m_size = 0;
 }
 
-CShaderByteCode & CShaderByteCode::operator=( CShaderByteCode && byteCode )
+CShaderByteCode & CShaderByteCode::operator=( CShaderByteCode&& byteCode )
 {
 	m_buffer = byteCode.m_buffer;
 	m_size = byteCode.m_size;

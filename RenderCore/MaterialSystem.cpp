@@ -8,7 +8,7 @@ MaterialSystem* MaterialSystem::GetInstance( )
 	return &materialSystem;
 }
 
-void MaterialSystem::RegisterMaterial( const TCHAR* pName, Owner<IMaterial*> pMaterial )
+void MaterialSystem::RegisterMaterial( const TCHAR* pName, std::unique_ptr<IMaterial> pMaterial )
 {
 	if ( pName && pMaterial )
 	{
@@ -17,7 +17,7 @@ void MaterialSystem::RegisterMaterial( const TCHAR* pName, Owner<IMaterial*> pMa
 		if ( found == m_materials.end( ) )
 		{
 			pMaterial->SetConstantBuffers( &m_constantBuffers );
-			m_materials.emplace( pName, pMaterial );
+			m_materials.emplace( pName, std::move( pMaterial ) );
 		}
 	}
 }

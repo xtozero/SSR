@@ -158,22 +158,24 @@ IRenderState* CRasterizerStateFactory::GetRasterizerState( ID3D11Device* pDevice
 
 		if ( foundDesc != m_rasterizerStateDesc.end( ) )
 		{
-			CRasterizerState* newState = new CRasterizerState;
+			std::unique_ptr<CRasterizerState> newState = std::make_unique<CRasterizerState>();
 
 			if ( newState->Create( pDevice, foundDesc->second ) )
 			{
-				m_rasterizerState.emplace( stateName, newState );
-				return newState;
+				CRasterizerState* ret = newState.get( );
+				m_rasterizerState.emplace( stateName, std::move( newState ) );
+				return ret;
 			}
 		}
 	}
 
-	CNullRasterizerState* nullState = new CNullRasterizerState;
-	m_rasterizerState.emplace( _T( "NULL" ), nullState );
-	return nullState;
+	std::unique_ptr<CNullRasterizerState> nullState = std::unique_ptr<CNullRasterizerState>();
+	CNullRasterizerState* ret = nullState.get( );
+	m_rasterizerState.emplace( _T( "NULL" ), std::move( nullState ) );
+	return ret;
 }
 
-void CRasterizerStateFactory::AddRasterizerDesc( const String & descName, const D3D11_RASTERIZER_DESC & newDesc )
+void CRasterizerStateFactory::AddRasterizerDesc( const String& descName, const D3D11_RASTERIZER_DESC & newDesc )
 {
 	m_rasterizerStateDesc.emplace( descName, newDesc );
 }

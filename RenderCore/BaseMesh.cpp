@@ -5,13 +5,13 @@
 #include "IMaterial.h"
 #include "IRenderer.h"
 
-void BaseMesh::SetModelData( MeshVertex* pOrignal, UINT vertexCount )
+void BaseMesh::SetModelData( Owner<MeshVertex*> pOrignal, UINT vertexCount )
 {
 	m_pModelData = pOrignal;
 	m_nVertices = vertexCount;
 }
 
-void BaseMesh::SetIndexData( void* pOrignal, UINT indexCount )
+void BaseMesh::SetIndexData( Owner<void*> pOrignal, UINT indexCount )
 {
 	m_pIndexData = pOrignal;
 	m_nIndices = indexCount;

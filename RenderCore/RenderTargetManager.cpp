@@ -26,12 +26,13 @@ IDepthStencil* CRenderTargetManager::CreateDepthStencil( ID3D11Device* pDevice, 
 
 	if ( pDevice && pTexture )
 	{
-		IDepthStencil* newDepthStencil = new CDepthStencil;
+		std::unique_ptr<CDepthStencil> newDepthStencil = std::make_unique<CDepthStencil>();
 
-		if ( newDepthStencil && newDepthStencil->CreateDepthStencil( pDevice, pTexture, dsvDesc ) )
+		if ( newDepthStencil->CreateDepthStencil( pDevice, pTexture, dsvDesc ) )
 		{
-			RegisterDepthStencil( depthStencilName, newDepthStencil );
-			return newDepthStencil;
+			CDepthStencil* ret = newDepthStencil.get( );
+			RegisterDepthStencil( depthStencilName, std::move( newDepthStencil ) );
+			return ret;
 		}
 	}
 
@@ -92,24 +93,25 @@ IRenderTarget* CRenderTargetManager::CreateRenderTarget( ID3D11Device* pDevice, 
 
 	if ( pDevice && pResource )
 	{
-		IRenderTarget* newRenderTarget = new CRenderTarget;
+		std::unique_ptr<CRenderTarget> newRenderTarget = std::make_unique<CRenderTarget>();
 
-		if ( newRenderTarget && newRenderTarget->CreateRenderTarget( pDevice, pResource, rtvDesc ) )
+		if ( newRenderTarget->CreateRenderTarget( pDevice, pResource, rtvDesc ) )
 		{
-			RegisterRenderTarget( renderTargetName, newRenderTarget );
-			return newRenderTarget;
+			CRenderTarget* ret = newRenderTarget.get( );
+			RegisterRenderTarget( renderTargetName, std::move( newRenderTarget ) );
+			return ret;
 		}
 	}
 
 	return nullptr;
 }
 
-void CRenderTargetManager::RegisterRenderTarget( const String& renderTargetName, const Owner<IRenderTarget*> renderTarget )
+void CRenderTargetManager::RegisterRenderTarget( const String& renderTargetName, std::unique_ptr<IRenderTarget> renderTarget )
 {
-	m_renderTargets.emplace( renderTargetName, renderTarget );
+	m_renderTargets.emplace( renderTargetName, std::move( renderTarget ) );
 }
 
-void CRenderTargetManager::RegisterDepthStencil( const String& depthStencilName, const Owner<IDepthStencil*> depthStencil )
+void CRenderTargetManager::RegisterDepthStencil( const String& depthStencilName, std::unique_ptr<IDepthStencil> depthStencil )
 {
-	m_depthStencils.emplace( depthStencilName, depthStencil );
+	m_depthStencils.emplace( depthStencilName, std::move( depthStencil ) );
 }

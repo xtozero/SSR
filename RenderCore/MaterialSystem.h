@@ -19,7 +19,7 @@ private:
 public:
 	static MaterialSystem* GetInstance( );
 
-	void RegisterMaterial( const TCHAR* pName, Owner<IMaterial*> pMaterial );
+	void RegisterMaterial( const TCHAR* pName, std::unique_ptr<IMaterial> pMaterial );
 	void RegisterConstantBuffer( UINT type, IBuffer* pConstantBuffer );
 	IMaterial* SearchMaterialByName( const TCHAR* pName );
 
@@ -27,6 +27,6 @@ public:
 };
 
 #define REGISTER_MATERIAL( pRenderer, T, X ) \
-	T* X = new T; \
+	std::unique_ptr<T> X = std::make_unique<T>(); \
 	X->Init( pRenderer ); \
-	MaterialSystem::GetInstance( )->RegisterMaterial( _T( #X ), X )
+	MaterialSystem::GetInstance( )->RegisterMaterial( _T( #X ), std::move( X ) )

@@ -12,7 +12,7 @@ void CGameObjectFactory::RegistGameObjectCreateFunc( const String& className, CC
 	m_createHelpers.emplace( className, helper );
 }
 
-CGameObject* CGameObjectFactory::CreateGameObjectByClassName( const String& className )
+Owner<CGameObject*> CGameObjectFactory::CreateGameObjectByClassName( const String& className )
 {
 	auto found = m_createHelpers.find( className );
 

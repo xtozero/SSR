@@ -122,7 +122,7 @@ bool CTextureManager::LoadTextureFromFile( ID3D11Device* pDevice, const String& 
 	HRESULT hr;
 	D3DX11GetImageInfoFromFile( fileName.c_str( ), nullptr, &info, &hr );
 
-	ITexture* newTexture = nullptr;
+	std::unique_ptr<ITexture> newTexture = nullptr;
 
 	if ( SUCCEEDED( hr ) )
 	{
@@ -131,7 +131,7 @@ bool CTextureManager::LoadTextureFromFile( ID3D11Device* pDevice, const String& 
 		case D3D11_RESOURCE_DIMENSION_TEXTURE1D:
 			break;
 		case D3D11_RESOURCE_DIMENSION_TEXTURE2D:
-			newTexture = new CTexture2D( );
+			newTexture = std::make_unique<CTexture2D>( );
 			break;
 		case D3D11_RESOURCE_DIMENSION_TEXTURE3D:
 			break;
@@ -139,7 +139,7 @@ bool CTextureManager::LoadTextureFromFile( ID3D11Device* pDevice, const String& 
 
 		if ( newTexture && newTexture->LoadFromFile( pDevice, fileName ) )
 		{
-			m_pTextures.emplace( fileName, newTexture );
+			m_pTextures.emplace( fileName, std::move( newTexture ) );
 			::SetCurrentDirectory( pPath );
 			return true;
 		}
@@ -172,11 +172,12 @@ ITexture * CTextureManager::CreateTexture2D( ID3D11Device * pDevice, const Textu
 
 	if ( pDevice )
 	{
-		ITexture* newTexture = new CTexture2D;
-		if ( newTexture && newTexture->Create( pDevice, desc, pInitialData ) )
+		std::unique_ptr<CTexture2D> newTexture = std::make_unique<CTexture2D>();
+		if ( newTexture->Create( pDevice, desc, pInitialData ) )
 		{
-			m_pTextures.emplace( textureName, newTexture );
-			return newTexture;
+			CTexture2D* ret = newTexture.get( );
+			m_pTextures.emplace( textureName, std::move( newTexture ) );
+			return ret;
 		}
 	}
 
@@ -209,16 +210,10 @@ bool CTextureManager::RegisterTexture2D( const String& textureName, Microsoft::W
 		return false;
 	}
 
-	ITexture* newTexture = new CTexture2D;
-
-	if ( newTexture )
-	{
-		newTexture->SetTexture( pTexture );
-		m_pTextures.emplace( textureName, newTexture );
-		return true;
-	}
-
-	return false;
+	std::unique_ptr<CTexture2D> newTexture = std::make_unique<CTexture2D>();
+	newTexture->SetTexture( pTexture );
+	m_pTextures.emplace( textureName, std::move( newTexture ) );
+	return true;
 }
 
 ITexture* CTextureManager::FindTexture( const String& textureName ) const

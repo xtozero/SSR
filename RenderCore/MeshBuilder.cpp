@@ -106,7 +106,7 @@ IMesh* CMeshBuilder::Build( IRenderer& renderer, const String& meshName, D3D_PRI
 		return nullptr;
 	}
 
-	CMeshBuilderMesh* newMesh = new CMeshBuilderMesh;
+	std::unique_ptr<CMeshBuilderMesh> newMesh = std::make_unique<CMeshBuilderMesh>();
 
 	UINT vertexCount = m_vertices.size( );
 	MeshVertex* vertices = new MeshVertex[vertexCount];
@@ -135,8 +135,9 @@ IMesh* CMeshBuilder::Build( IRenderer& renderer, const String& meshName, D3D_PRI
 
 	if ( newMesh->Load( renderer, topology ) )
 	{
-		renderer.SetModelPtr( meshName, newMesh );
-		return newMesh;
+		CMeshBuilderMesh* ret = newMesh.get( );
+		renderer.SetModelPtr( meshName, std::move( newMesh ) );
+		return ret;
 	}
 	else
 	{

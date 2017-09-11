@@ -75,19 +75,10 @@ IMesh* CMeshLoader::GetMesh( const TCHAR* pfileName )
 	}
 }
 
-void CMeshLoader::RegisterMesh( const String& pMeshName, Owner<IMesh*> pMesh )
+void CMeshLoader::RegisterMesh( const String& pMeshName, std::unique_ptr<IMesh> pMesh )
 {
 	if ( pMesh )
 	{
-		m_meshList.emplace( pMeshName, pMesh );
+		m_meshList.emplace( pMeshName, std::move( pMesh ) );
 	}
-}
-
-CMeshLoader::CMeshLoader( )
-{
-}
-
-
-CMeshLoader::~CMeshLoader( )
-{
 }

@@ -20,10 +20,9 @@ public:
 	bool Initialize( );
 	bool LoadMeshFromFile( IRenderer& renderer, const TCHAR* pfileName, CSurfaceManager* pSurfaceManager );
 	IMesh* GetMesh( const TCHAR* pfileName );
-	void RegisterMesh( const String& pMeshName, const Owner<IMesh*> pMesh );
+	void RegisterMesh( const String& pMeshName, const std::unique_ptr<IMesh> pMesh );
 
-	CMeshLoader( );
-	virtual ~CMeshLoader( );
+	virtual ~CMeshLoader( ) = default;
 
 private:
 	std::map<String, std::unique_ptr<IMesh>> m_meshList;
