@@ -169,7 +169,7 @@ IRenderState* CRasterizerStateFactory::GetRasterizerState( ID3D11Device* pDevice
 		}
 	}
 
-	std::unique_ptr<CNullRasterizerState> nullState = std::unique_ptr<CNullRasterizerState>();
+	std::unique_ptr<CNullRasterizerState> nullState = std::make_unique<CNullRasterizerState>();
 	CNullRasterizerState* ret = nullState.get( );
 	m_rasterizerState.emplace( _T( "NULL" ), std::move( nullState ) );
 	return ret;
