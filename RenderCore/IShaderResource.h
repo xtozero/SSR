@@ -17,12 +17,15 @@ namespace Microsoft
 	}
 }
 
-enum SOURCE_RESOURCE_FLAG
+namespace SOURCE_RESOURCE_FLAG
 {
-	TEXTURE = 0,
-	RENDER_TARGET,
-	DEPTH_STENCIL,
-};
+	enum TYPE
+	{
+		TEXTURE = 0,
+		RENDER_TARGET,
+		DEPTH_STENCIL,
+	};
+}
 
 class IShaderResource
 {
@@ -31,10 +34,6 @@ public:
 	virtual ID3D11ShaderResourceView* Get( ) const = 0;
 	virtual void SetShaderResourceView( Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& shaderResourceView ) = 0;
 	virtual bool CreateShaderResource( ID3D11Device* pDevice, const ITexture* pTexture, const CShaderResourceViewDescription* desc ) = 0;
-	
-	virtual bool IsDepthStencil( ) const = 0;
-	virtual bool IsRenderTarget( ) const = 0;
-	virtual bool IsTexture( ) const = 0;
 
 	virtual ~IShaderResource( ) = default;
 

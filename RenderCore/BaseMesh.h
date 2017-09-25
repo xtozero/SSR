@@ -22,6 +22,7 @@ protected:
 	IMaterial* m_pMaterial;
 
 	UINT m_nVertices;
+	UINT m_stride;
 	UINT m_nOffset;
 
 	UINT m_nIndices;

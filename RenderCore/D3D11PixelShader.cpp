@@ -1,8 +1,8 @@
 #include "stdafx.h"
 
 #include "common.h"
-#include "D3D11BaseBuffer.h"
 #include "D3D11PixelShader.h"
+#include "IBuffer.h"
 #include "IShaderResource.h"
 
 #include <D3D11.h>
@@ -34,7 +34,7 @@ void D3D11PixelShader::SetConstantBuffer( ID3D11DeviceContext * pDeviceContext, 
 {
 	if ( pDeviceContext && pBuffer )
 	{
-		pBuffer->SetPSBuffer( pDeviceContext, slot );
+		pBuffer->SetPSBuffer( slot );
 	}
 }
 

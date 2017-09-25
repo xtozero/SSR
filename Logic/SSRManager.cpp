@@ -19,7 +19,16 @@ using namespace DirectX;
 bool CSSRManager::Init( IRenderer& renderer, IMeshBuilder& meshBuilder )
 {
 	// Create Constant Buffer
-	m_ssrConstantBuffer = renderer.CreateConstantBuffer( _T( "ssrConstantBuffer" ), sizeof( CXMFLOAT4X4 ), 1, nullptr );
+	BUFFER_TRAIT trait = { sizeof( CXMFLOAT4X4 ), 
+							1,
+							BUFFER_ACCESS_FLAG::GPU_READ | BUFFER_ACCESS_FLAG::CPU_WRITE,
+							BUFFER_TYPE::CONSTANT_BUFFER,
+							0,
+							nullptr,
+							0,
+							0 };
+
+	m_ssrConstantBuffer = renderer.CreateBuffer( trait );
 
 	if ( m_ssrConstantBuffer == nullptr )
 	{
@@ -96,14 +105,14 @@ void CSSRManager::Process( IRenderer& renderer, const std::list<CGameObject*>& r
 	// Set Constant Buffer
 	if ( IRenderView* pView = renderer.GetCurrentRenderView( ) )
 	{
-		CXMFLOAT4X4* pSsrConstant = static_cast<CXMFLOAT4X4*>(m_ssrConstantBuffer->LockBuffer( renderer.GetDeviceContext( ) ));
+		CXMFLOAT4X4* pSsrConstant = static_cast<CXMFLOAT4X4*>(m_ssrConstantBuffer->LockBuffer( ));
 
 		if ( pSsrConstant )
 		{
 			*pSsrConstant = XMMatrixTranspose( pView->GetProjectionMatrix( ) );
 
-			m_ssrConstantBuffer->UnLockBuffer( renderer.GetDeviceContext( ) );
-			m_ssrConstantBuffer->SetPSBuffer( renderer.GetDeviceContext( ), 3 );
+			m_ssrConstantBuffer->UnLockBuffer( );
+			m_ssrConstantBuffer->SetPSBuffer( 3 );
 		}
 	}
 

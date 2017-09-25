@@ -68,17 +68,17 @@ void Material::SetSurface( ID3D11DeviceContext* pDeviceContext, UINT shaderType,
 			static_assert(std::is_trivially_copyable<decltype(src)>::value || std::is_trivial<decltype(src)>::value,
 				"memcpy src class must be standard layout or trivial");
 
-			void* dest = pSurfaceBuffer->LockBuffer( pDeviceContext );
+			void* dest = pSurfaceBuffer->LockBuffer( );
 
 			if ( src && dest )
 			{
-				::memcpy_s( dest, pSurfaceBuffer->Size(), src, sizeof( SurfaceTrait ) );
-				pSurfaceBuffer->UnLockBuffer( pDeviceContext );
+				::memcpy_s( dest, pSurfaceBuffer->Size( ), src, sizeof( SurfaceTrait ) );
+				pSurfaceBuffer->UnLockBuffer( );
 				m_pShaders[shaderType]->SetConstantBuffer( pDeviceContext, slot, pSurfaceBuffer );
 			}
 			else
 			{
-				pSurfaceBuffer->UnLockBuffer( pDeviceContext );
+				pSurfaceBuffer->UnLockBuffer( );
 			}
 		}
 	}

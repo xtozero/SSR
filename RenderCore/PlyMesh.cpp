@@ -31,10 +31,10 @@ void CPlyMesh::Draw( ID3D11DeviceContext* pDeviceContext )
 	{
 		m_pMaterial->SetSurface( pDeviceContext, SHADER_TYPE::PS, static_cast<UINT>(PS_CONSTANT_BUFFER::SURFACE), m_pSurface );
 	}
-	m_pVertexBuffer->SetIABuffer( pDeviceContext, &m_nOffset );
+	m_pVertexBuffer->SetVertexBuffer( &m_stride, &m_nOffset );
 	if ( m_pIndexBuffer )
 	{
-		m_pIndexBuffer->SetIABuffer( pDeviceContext, &m_nIndexOffset );
+		m_pIndexBuffer->SetIndexBuffer( sizeof( WORD ), m_nIndexOffset );
 		m_pMaterial->DrawIndexed( pDeviceContext, m_nIndices, m_nIndexOffset, m_nOffset );
 	}
 	else

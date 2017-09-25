@@ -6,16 +6,15 @@
 #include "common.h"
 #include "ConstantBufferDefine.h"
 
-#include "D3D11IndexBuffer.h"
+#include "D3D11Buffer.h"
 #include "D3D11PixelShader.h"
-#include "D3D11VertexBuffer.h"
+#include "D3D11RenderView.h"
 #include "D3D11VertexShader.h"
 
 #include "DebugMesh.h"
 #include "DepthStencil.h"
 #include "DepthStencilStateFactory.h"
 
-#include "IBuffer.h"
 #include "IMaterial.h"
 #include "IMesh.h"
 #include "IMeshLoader.h"
@@ -36,7 +35,6 @@
 #include "RenderOutputManager.h"
 #include "RenderTarget.h"
 #include "RenderTargetManager.h"
-#include "RenderView.h"
 
 #include "SamplerStateFactory.h"
 #include "ShaderListScriptLoader.h"
@@ -313,13 +311,7 @@ public:
 	virtual IShader* CreateVertexShader( const TCHAR* pFilePath, const char* pProfile ) override;
 	virtual IShader* CreatePixelShader( const TCHAR* pFilePath, const char* pProfile ) override;
 
-	virtual IBuffer* CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) override;
-	virtual IBuffer* CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) override;
-	virtual IBuffer* CreateConstantBuffer( const String& bufferName, const UINT stride, const UINT numOfElement, const void* srcData ) override;
-
-	virtual void* MapConstantBuffer( const String& bufferName ) override;
-	virtual void UnMapConstantBuffer( const String& bufferName ) override;
-	virtual void SetConstantBuffer( const String& bufferName, const UINT slot, const SHADER_TYPE type ) override;
+	virtual IBuffer* CreateBuffer( const BUFFER_TRAIT& trait ) override;
 
 	virtual IShader* SearchShaderByName( const TCHAR* pName ) override;
 
@@ -369,9 +361,8 @@ private:
 
 	std::map<String, std::unique_ptr<IShader>>		m_shaderList;
 	std::vector<std::unique_ptr<IBuffer>>			m_bufferList;
-	std::map<String, std::unique_ptr<IBuffer>>		m_constantBufferList;
 
-	std::unique_ptr<RenderView>						m_pView;
+	std::unique_ptr<D3D11RenderView>				m_pView;
 	CMeshLoader										m_meshLoader;
 
 	IBuffer*										m_pWorldMatrixBuffer;
@@ -405,8 +396,8 @@ bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 {
 	ON_FAIL_RETURN( CreateD3D11Device( hWind, nWndWidth, nWndHeight ) );
 
-	m_pView = std::make_unique<RenderView>( );
-	ON_FAIL_RETURN( m_pView->initialize( m_pd3d11Device.Get( ) ) );
+	m_pView = std::make_unique<D3D11RenderView>( m_pd3d11DeviceContext.Get() );
+	ON_FAIL_RETURN( m_pView->initialize( *this ) );
 
 	m_pDepthStencilFactory = CreateDepthStencailStateFactory( );
 	ON_FAIL_RETURN( m_pDepthStencilFactory );
@@ -435,8 +426,20 @@ bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 
 	m_pShadowManager = CreateShadowManager();
 
-	m_pWorldMatrixBuffer = CreateConstantBuffer( _T("WorldMatrix"), sizeof( CXMFLOAT4X4 ), WORLD_MATRIX_ELEMENT_SIZE, nullptr );
-	MaterialSystem::GetInstance( )->RegisterConstantBuffer( MAT_CONSTANT_BUFFER::SURFACE, CreateConstantBuffer( _T( "Surface" ), sizeof( SurfaceTrait ), 1, nullptr ) );
+	BUFFER_TRAIT trait = { sizeof( CXMFLOAT4X4 ),
+							WORLD_MATRIX_ELEMENT_SIZE, 
+							BUFFER_ACCESS_FLAG::CPU_WRITE | BUFFER_ACCESS_FLAG::GPU_READ,  
+							BUFFER_TYPE::CONSTANT_BUFFER,
+							0,
+							nullptr, 
+							0, 
+							0 };
+
+	m_pWorldMatrixBuffer = CreateBuffer( trait );
+
+	trait.m_stride = sizeof( SurfaceTrait );
+	trait.m_count = 1;
+	MaterialSystem::GetInstance( )->RegisterConstantBuffer( MAT_CONSTANT_BUFFER::SURFACE, CreateBuffer( trait ) );
 
 	if ( m_pWorldMatrixBuffer == nullptr )
 	{
@@ -450,7 +453,6 @@ void CDirect3D11::ShutDownRenderer( )
 {
 	m_shaderList.clear( );
 	m_bufferList.clear( );
-	m_constantBufferList.clear( );
 
 	m_pView = std::move( nullptr );
 
@@ -474,7 +476,7 @@ void CDirect3D11::SceneBegin( )
 
 	if ( m_pView )
 	{
-		m_pView->UpdataView( m_pd3d11DeviceContext.Get( ) );
+		m_pView->UpdataView( );
 	}
 
 	m_renderEffect.SceneBegin( *this );
@@ -560,86 +562,18 @@ IShader* CDirect3D11::CreatePixelShader( const TCHAR* pFilePath, const char* pPr
 	return nullptr;
 }
 
-IBuffer* CDirect3D11::CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData )
+IBuffer* CDirect3D11::CreateBuffer( const BUFFER_TRAIT& trait )
 {
-	std::unique_ptr<D3D11VertexBuffer> vb = std::make_unique<D3D11VertexBuffer>();
+	std::unique_ptr<D3D11Buffer> buffer = std::make_unique<D3D11Buffer>( m_pd3d11DeviceContext.Get() );
 	
-	if ( vb->CreateBuffer( m_pd3d11Device.Get( ), stride, numOfElement, srcData ) )
+	if ( buffer->Create( m_pd3d11Device.Get( ), trait ) )
 	{
-		D3D11VertexBuffer* ret = vb.get( );
-		m_bufferList.emplace_back( std::move( vb ) );
+		D3D11Buffer* ret = buffer.get( );
+		m_bufferList.emplace_back( std::move( buffer ) );
 		return ret;
 	}
 
 	return nullptr;
-}
-
-IBuffer* CDirect3D11::CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData )
-{
-	std::unique_ptr<D3D11IndexBuffer> ib = std::make_unique<D3D11IndexBuffer>();
-	
-	if ( ib->CreateBuffer( m_pd3d11Device.Get( ), stride, numOfElement, srcData ) )
-	{
-		D3D11IndexBuffer* ret = ib.get( );
-		m_bufferList.emplace_back( std::move( ib ) );
-		return ret;
-	}
-
-	return nullptr;
-}
-
-IBuffer* CDirect3D11::CreateConstantBuffer( const String& bufferName, const UINT stride, const UINT numOfElement, const void* srcData )
-{
-	std::unique_ptr<D3D11ConstantBuffer> cb = std::make_unique<D3D11ConstantBuffer>();
-	
-	if ( cb->CreateBuffer( m_pd3d11Device.Get( ), stride, numOfElement, srcData ) )
-	{
-		D3D11ConstantBuffer* ret = cb.get( );
-		m_constantBufferList.emplace( bufferName, std::move( cb ) );
-		return ret;
-	}
-
-	return nullptr;
-}
-
-void* CDirect3D11::MapConstantBuffer( const String& bufferName )
-{
-	auto found = m_constantBufferList.find( bufferName );
-
-	if ( found != m_constantBufferList.end( ) )
-	{
-		return found->second->LockBuffer( m_pd3d11DeviceContext.Get( ) );
-	}
-
-	return nullptr;
-}
-
-void CDirect3D11::UnMapConstantBuffer( const String& bufferName )
-{
-	auto found = m_constantBufferList.find( bufferName );
-
-	if ( found != m_constantBufferList.end( ) )
-	{
-		found->second->UnLockBuffer( m_pd3d11DeviceContext.Get() );
-	}
-}
-
-void CDirect3D11::SetConstantBuffer( const String& bufferName, const UINT slot, const SHADER_TYPE type )
-{
-	auto found = m_constantBufferList.find( bufferName );
-
-	if ( found != m_constantBufferList.end( ) )
-	{
-		switch ( type )
-		{
-		case SHADER_TYPE::VS:
-			found->second->SetVSBuffer( m_pd3d11DeviceContext.Get( ), slot );
-			break;
-		case SHADER_TYPE::PS:
-			found->second->SetPSBuffer( m_pd3d11DeviceContext.Get( ), slot );
-			break;
-		}
-	}
 }
 
 IShader* CDirect3D11::SearchShaderByName( const TCHAR* pName )
@@ -712,7 +646,7 @@ void CDirect3D11::PushViewPort( const float topLeftX, const float topLeftY, cons
 	if ( m_pView )
 	{
 		m_pView->PushViewPort( topLeftX, topLeftY, width, height, minDepth, maxDepth );
-		m_pView->SetViewPort( m_pd3d11DeviceContext.Get( ) );
+		m_pView->SetViewPort( );
 	}
 }
 
@@ -721,7 +655,7 @@ void CDirect3D11::PopViewPort( )
 	if ( m_pView )
 	{
 		m_pView->PopViewPort( );
-		m_pView->SetViewPort( m_pd3d11DeviceContext.Get( ) );
+		m_pView->SetViewPort( );
 	}
 }
 
@@ -730,7 +664,7 @@ void CDirect3D11::PushScissorRect( const RECT& rect )
 	if ( m_pView )
 	{
 		m_pView->PushScissorRect( rect );
-		m_pView->SetScissorRects( m_pd3d11DeviceContext.Get( ) );
+		m_pView->SetScissorRects( );
 	}
 }
 
@@ -739,7 +673,7 @@ void CDirect3D11::PopScissorRect( )
 	if ( m_pView )
 	{
 		m_pView->PopScissorRect( );
-		m_pView->SetScissorRects( m_pd3d11DeviceContext.Get( ) );
+		m_pView->SetScissorRects( );
 	}
 }
 
@@ -756,7 +690,7 @@ void CDirect3D11::UpdateWorldMatrix( const CXMFLOAT4X4& worldMatrix, const CXMFL
 		return;
 	}
 
-	CXMFLOAT4X4* pWorld = static_cast<CXMFLOAT4X4*>( m_pWorldMatrixBuffer->LockBuffer( m_pd3d11DeviceContext.Get( ) ) );
+	CXMFLOAT4X4* pWorld = static_cast<CXMFLOAT4X4*>( m_pWorldMatrixBuffer->LockBuffer( ) );
 
 	if ( pWorld )
 	{
@@ -764,8 +698,8 @@ void CDirect3D11::UpdateWorldMatrix( const CXMFLOAT4X4& worldMatrix, const CXMFL
 		pWorld[1] = XMMatrixTranspose( invWorldMatrix );
 	}
 
-	m_pWorldMatrixBuffer->UnLockBuffer( m_pd3d11DeviceContext.Get( ) );
-	m_pWorldMatrixBuffer->SetVSBuffer( m_pd3d11DeviceContext.Get( ), static_cast<int>( VS_CONSTANT_BUFFER::WORLD ) );
+	m_pWorldMatrixBuffer->UnLockBuffer( );
+	m_pWorldMatrixBuffer->SetVSBuffer( static_cast<int>( VS_CONSTANT_BUFFER::WORLD ) );
 }
 
 IRenderState* CDirect3D11::CreateRenderState( const String& stateName )

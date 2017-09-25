@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "Light.h"
+
 #include "../Engine/ScriptKeyHandler.h"
 #include "../shared/Math/CXMFloat.h"
 
@@ -23,6 +24,7 @@ struct ShaderLightTrait
 };
 
 class CCamera;
+class IBuffer;
 class IRenderer;
 class KeyValueGroup;
 
@@ -53,4 +55,6 @@ private:
 	bool m_needUpdateToRenderer;
 
 	UINT m_primaryLight;
+
+	IBuffer* m_lightBuffer = nullptr;
 };

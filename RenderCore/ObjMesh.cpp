@@ -52,10 +52,10 @@ void CObjMesh::Draw( ID3D11DeviceContext* pDeviceContext )
 
 	m_pMaterial->SetShader( pDeviceContext );
 	m_pMaterial->SetPrimitiveTopology( pDeviceContext, m_primitiveTopology );
-	m_pVertexBuffer->SetIABuffer( pDeviceContext, &m_nOffset );
+	m_pVertexBuffer->SetVertexBuffer( &m_stride, &m_nOffset );
 	if ( m_pIndexBuffer )
 	{
-		m_pIndexBuffer->SetIABuffer( pDeviceContext, &m_nIndexOffset );
+		m_pIndexBuffer->SetIndexBuffer( sizeof( WORD ), m_nIndexOffset );
 
 		if ( m_mtlGroup.size( ) == 0 )
 		{

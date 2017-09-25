@@ -60,11 +60,11 @@ void CMeshBuilderMesh::Draw( ID3D11DeviceContext* pDeviceContext )
 
 	m_pMaterial->SetShader( pDeviceContext );
 	m_pMaterial->SetPrimitiveTopology( pDeviceContext, m_primitiveTopology );
-	m_pVertexBuffer->SetIABuffer( pDeviceContext, &m_nOffset );
+	m_pVertexBuffer->SetVertexBuffer( &m_stride, &m_nOffset );
 	m_pMaterial->SetTexture( pDeviceContext, SHADER_TYPE::PS, 0, m_pTexture );
 	if ( m_pIndexBuffer )
 	{
-		m_pIndexBuffer->SetIABuffer( pDeviceContext, &m_nIndexOffset );
+		m_pIndexBuffer->SetIndexBuffer( sizeof( WORD ), m_nIndexOffset );
 		m_pMaterial->DrawIndexed( pDeviceContext, m_nIndices, m_nIndexOffset, m_nOffset );
 	}
 	else

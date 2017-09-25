@@ -46,13 +46,6 @@ bool CShaderResource::CreateShaderResource( ID3D11Device* pDevice, const ITextur
 }
 
 CShaderResource::CShaderResource( ) : 
-	m_pShaderResourceView( nullptr ),
-	m_flag( SOURCE_RESOURCE_FLAG::TEXTURE )
-{
-}
-
-CShaderResource::CShaderResource( const int srcFlag ) : 
-	m_pShaderResourceView( nullptr ),
-	m_flag( static_cast<SOURCE_RESOURCE_FLAG>( srcFlag ) )
+	m_pShaderResourceView( nullptr )
 {
 }

@@ -212,6 +212,7 @@ call "$(SolutionDIr)Shader\make_shader.bat"</Command>
   <ItemGroup>
     <ClInclude Include="..\Shared\Util.h" />
     <ClInclude Include="BlendStateFactory.h" />
+    <ClInclude Include="D3D11Buffer.h" />
     <ClInclude Include="DepthStencil.h" />
     <ClInclude Include="DepthStencilStateFactory.h" />
     <ClInclude Include="IRenderResourceManager.h" />
@@ -239,12 +240,8 @@ call "$(SolutionDIr)Shader\make_shader.bat"</Command>
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="TextureMaterial.h" />
     <ClInclude Include="CommonMeshDefine.h" />
-    <ClInclude Include="D3D11BaseBuffer.h" />
     <ClInclude Include="common.h" />
-    <ClInclude Include="D3D11ConstantBuffer.h" />
-    <ClInclude Include="D3D11IndexBuffer.h" />
     <ClInclude Include="D3D11PixelShader.h" />
-    <ClInclude Include="D3D11VertexBuffer.h" />
     <ClInclude Include="D3D11VertexShader.h" />
     <ClInclude Include="DebugMesh.h" />
     <ClInclude Include="IBuffer.h" />
@@ -264,7 +261,7 @@ call "$(SolutionDIr)Shader\make_shader.bat"</Command>
     <ClInclude Include="ObjMeshLoader.h" />
     <ClInclude Include="PlyMesh.h" />
     <ClInclude Include="PlyMeshLoader.h" />
-    <ClInclude Include="RenderView.h" />
+    <ClInclude Include="D3D11RenderView.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="ShaderResource.h" />
@@ -280,6 +277,7 @@ call "$(SolutionDIr)Shader\make_shader.bat"</Command>
   <ItemGroup>
     <ClCompile Include="..\Shared\Util.cpp" />
     <ClCompile Include="BlendStateFactory.cpp" />
+    <ClCompile Include="D3D11Buffer.cpp" />
     <ClCompile Include="DepthStencil.cpp" />
     <ClCompile Include="DepthStencilStateFactory.cpp" />
     <ClCompile Include="RenderOutputManager.cpp" />
@@ -301,11 +299,7 @@ call "$(SolutionDIr)Shader\make_shader.bat"</Command>
     <ClCompile Include="TextureDescription.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="TextureMaterial.cpp" />
-    <ClCompile Include="D3D11BaseBuffer.cpp" />
-    <ClCompile Include="D3D11ConstantBuffer.cpp" />
-    <ClCompile Include="D3D11IndexBuffer.cpp" />
     <ClCompile Include="D3D11PixelShader.cpp" />
-    <ClCompile Include="D3D11VertexBuffer.cpp" />
     <ClCompile Include="D3D11VertexShader.cpp" />
     <ClCompile Include="DebugMesh.cpp" />
     <ClCompile Include="Direct3D11.cpp" />
@@ -329,7 +323,7 @@ call "$(SolutionDIr)Shader\make_shader.bat"</Command>
     <ClCompile Include="PlyMesh.cpp" />
     <ClCompile Include="PlyMeshLoader.cpp" />
     <ClCompile Include="RenderCore.cpp" />
-    <ClCompile Include="RenderView.cpp" />
+    <ClCompile Include="D3D11RenderView.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

@@ -5,6 +5,7 @@
 #include "../shared/Math/CXMFloat.h"
 #include "../Shared/Util.h"
 #include "../RenderCore/ConstantBufferDefine.h"
+#include "../RenderCore/IBuffer.h"
 #include "../RenderCore/IMaterial.h"
 #include "../RenderCore/IRenderer.h"
 #include "../RenderCore/IRendererShadowManager.h"
@@ -27,8 +28,20 @@ void CShadowManager::Init( IRenderer& renderer )
 {
 	m_isEnabled = false;
 
+
 	//그림자용 상수 버퍼 생성
-	if ( renderer.CreateConstantBuffer( SHADOWMAP_CONST_BUFFER_NAME, sizeof( CXMFLOAT4X4 ), 2, nullptr ) == nullptr )
+	BUFFER_TRAIT trait = { sizeof( CXMFLOAT4X4 ),
+							2,
+							BUFFER_ACCESS_FLAG::GPU_READ | BUFFER_ACCESS_FLAG::CPU_WRITE,
+							BUFFER_TYPE::CONSTANT_BUFFER,
+							0,
+							nullptr,
+							0,
+							0 };
+
+	m_cbShadow = renderer.CreateBuffer( trait );
+
+	if ( m_cbShadow == nullptr )
 	{
 		return;
 	}
@@ -58,15 +71,15 @@ void CShadowManager::Init( IRenderer& renderer )
 void CShadowManager::SceneBegin( CLightManager& lightMgr, IRenderer& renderer )
 {
 	//그림자 렌더링에 사용할 조명으로 View 행렬을 만들어 세팅
-	LightViewProjection* buffer = static_cast<LightViewProjection*>( renderer.MapConstantBuffer( SHADOWMAP_CONST_BUFFER_NAME ) );
+	LightViewProjection* buffer = static_cast<LightViewProjection*>( m_cbShadow->LockBuffer() );
 
 	if ( buffer )
 	{
 		buffer->m_lightView = XMMatrixTranspose( lightMgr.GetPrimaryLightViewMatrix( ) );
 		buffer->m_lightProjection = XMMatrixTranspose( lightMgr.GerPrimaryLightProjectionMatrix( ) );
 
-		renderer.UnMapConstantBuffer( SHADOWMAP_CONST_BUFFER_NAME );
-		renderer.SetConstantBuffer( SHADOWMAP_CONST_BUFFER_NAME, static_cast<int>(VS_CONSTANT_BUFFER::LIGHT_VIEW_PROJECTION), SHADER_TYPE::VS );
+		m_cbShadow->UnLockBuffer( );
+		m_cbShadow->SetVSBuffer( static_cast<int>( VS_CONSTANT_BUFFER::LIGHT_VIEW_PROJECTION ) );
 	}
 
 	//그림자 텍스쳐로 랜더 타겟 변경

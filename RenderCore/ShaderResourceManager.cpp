@@ -59,7 +59,7 @@ IShaderResource* CShaderResourceManager::FindShaderResource( const String& fileN
 	}
 }
 
-void CShaderResourceManager::RegisterShaderResource( const String& resourceName, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& srView, int srcFlag )
+void CShaderResourceManager::RegisterShaderResource( const String& resourceName, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& srView )
 {
 	if ( FindShaderResource( resourceName ) )
 	{
@@ -73,7 +73,7 @@ void CShaderResourceManager::RegisterShaderResource( const String& resourceName,
 	m_shaderResources.emplace( resourceName, std::move( newShaderResource ) );
 }
 
-IShaderResource* CShaderResourceManager::CreateShaderResource( ID3D11Device* pDevice, const ITexture* pTexture, const CShaderResourceViewDescription* desc, const String& resourceName, int srcFlag )
+IShaderResource* CShaderResourceManager::CreateShaderResource( ID3D11Device* pDevice, const ITexture* pTexture, const CShaderResourceViewDescription* desc, const String& resourceName )
 {
 	if ( FindShaderResource( resourceName ) )
 	{
@@ -83,7 +83,7 @@ IShaderResource* CShaderResourceManager::CreateShaderResource( ID3D11Device* pDe
 
 	if ( pDevice && pTexture )
 	{
-		std::unique_ptr<CShaderResource> newShaderResource = std::make_unique<CShaderResource>( srcFlag );
+		std::unique_ptr<CShaderResource> newShaderResource = std::make_unique<CShaderResource>( );
 
 		if ( newShaderResource->CreateShaderResource( pDevice, pTexture, desc ) )
 		{

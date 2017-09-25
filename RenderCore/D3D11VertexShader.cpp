@@ -36,7 +36,7 @@ void D3D11VertexShader::SetConstantBuffer( ID3D11DeviceContext * pDeviceContext,
 {
 	if ( pDeviceContext && pBuffer )
 	{
-		pBuffer->SetVSBuffer( pDeviceContext, slot );
+		pBuffer->SetVSBuffer( slot );
 	}
 }
 

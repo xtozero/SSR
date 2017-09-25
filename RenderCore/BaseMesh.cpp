@@ -26,9 +26,18 @@ bool BaseMesh::Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topology )
 {
 	m_primitiveTopology = topology;
 
-	UINT stride = VERTEX_STRIDE;
+	m_stride = VERTEX_STRIDE;
 
-	m_pVertexBuffer = renderer.CreateVertexBuffer( stride, m_nVertices, m_pModelData );
+	BUFFER_TRAIT trait = { m_stride,
+							m_nVertices,
+							BUFFER_ACCESS_FLAG::GPU_READ,
+							BUFFER_TYPE::VERTEX_BUFFER,
+							0,
+							m_pModelData,
+							0,
+							0 };
+
+	m_pVertexBuffer = renderer.CreateBuffer( trait );
 
 	if ( !m_pVertexBuffer )
 	{
@@ -37,7 +46,12 @@ bool BaseMesh::Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topology )
 
 	if ( m_pIndexData )
 	{
-		m_pIndexBuffer = renderer.CreateIndexBuffer( sizeof( WORD ), m_nIndices, m_pIndexData );
+		trait.m_stride = sizeof( WORD );
+		trait.m_count = m_nIndices;
+		trait.m_bufferType = BUFFER_TYPE::INDEX_BUFFER;
+		trait.m_srcData = m_pIndexData;
+
+		m_pIndexBuffer = renderer.CreateBuffer( trait );
 	}
 
 	return true;

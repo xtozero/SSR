@@ -66,23 +66,11 @@
     <ClInclude Include="D3D11PixelShader.h">
       <Filter>Direct11\Shader</Filter>
     </ClInclude>
-    <ClInclude Include="D3D11IndexBuffer.h">
-      <Filter>Direct11\Buffer</Filter>
-    </ClInclude>
-    <ClInclude Include="D3D11VertexBuffer.h">
-      <Filter>Direct11\Buffer</Filter>
-    </ClInclude>
-    <ClInclude Include="D3D11ConstantBuffer.h">
-      <Filter>Direct11\Buffer</Filter>
-    </ClInclude>
     <ClInclude Include="IBuffer.h">
       <Filter>Direct11\Buffer</Filter>
     </ClInclude>
     <ClInclude Include="IShader.h">
       <Filter>Direct11\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="D3D11BaseBuffer.h">
-      <Filter>Direct11\Buffer</Filter>
     </ClInclude>
     <ClInclude Include="BaseMesh.h">
       <Filter>Mesh</Filter>
@@ -98,9 +86,6 @@
     </ClInclude>
     <ClInclude Include="IMaterial.h">
       <Filter>Direct11\Material</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderView.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="IRenderView.h">
       <Filter>헤더 파일</Filter>
@@ -246,6 +231,12 @@
     <ClInclude Include="BlendStateFactory.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="D3D11Buffer.h">
+      <Filter>Direct11\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D11RenderView.h">
+      <Filter>Direct11</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -266,18 +257,6 @@
     <ClCompile Include="D3D11PixelShader.cpp">
       <Filter>Direct11\Shader</Filter>
     </ClCompile>
-    <ClCompile Include="D3D11IndexBuffer.cpp">
-      <Filter>Direct11\Buffer</Filter>
-    </ClCompile>
-    <ClCompile Include="D3D11VertexBuffer.cpp">
-      <Filter>Direct11\Buffer</Filter>
-    </ClCompile>
-    <ClCompile Include="D3D11ConstantBuffer.cpp">
-      <Filter>Direct11\Buffer</Filter>
-    </ClCompile>
-    <ClCompile Include="D3D11BaseBuffer.cpp">
-      <Filter>Direct11\Buffer</Filter>
-    </ClCompile>
     <ClCompile Include="BaseMesh.cpp">
       <Filter>Mesh</Filter>
     </ClCompile>
@@ -292,9 +271,6 @@
     </ClCompile>
     <ClCompile Include="TutorialMaterial.cpp">
       <Filter>Direct11\Material</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderView.cpp">
-      <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="MeshLoader.cpp">
       <Filter>Mesh</Filter>
@@ -391,6 +367,12 @@
     </ClCompile>
     <ClCompile Include="BlendStateFactory.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D11Buffer.cpp">
+      <Filter>Direct11\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D11RenderView.cpp">
+      <Filter>Direct11</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

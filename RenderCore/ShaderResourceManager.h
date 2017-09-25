@@ -17,10 +17,10 @@ namespace Microsoft
 class CShaderResourceManager : public IShaderResourceManager
 {
 public:
-	void LoadShaderResourceFromFile( ID3D11Device* pDevice, const String& fileName );
-	IShaderResource* FindShaderResource( const String& fileName ) const;
-	void RegisterShaderResource( const String& resourceName, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& srView, int srcFlag = 0 );
-	virtual IShaderResource* CreateShaderResource( ID3D11Device* pDevice, const ITexture* pTexture, const CShaderResourceViewDescription* desc, const String& resourceName, int srcFlag = 0 );
+	virtual void LoadShaderResourceFromFile( ID3D11Device* pDevice, const String& fileName ) override;
+	virtual IShaderResource* FindShaderResource( const String& fileName ) const override;
+	virtual void RegisterShaderResource( const String& resourceName, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& srView ) override;
+	virtual IShaderResource* CreateShaderResource( ID3D11Device* pDevice, const ITexture* pTexture, const CShaderResourceViewDescription* desc, const String& resourceName ) override;
 
 	CShaderResourceManager( );
 	~CShaderResourceManager( );

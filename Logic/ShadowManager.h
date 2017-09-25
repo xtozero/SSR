@@ -22,5 +22,6 @@ private:
 	bool m_isEnabled;
 	IRendererShadowManager* m_renderShadowMgr;
 	IMaterial* m_shadowMapMtl;
+	IBuffer* m_cbShadow = nullptr;
 };
 

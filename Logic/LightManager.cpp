@@ -4,6 +4,7 @@
 
 #include "../Engine/EnumStringMap.h"
 #include "../Engine/KeyValueReader.h"
+#include "../RenderCore/IBuffer.h"
 #include "../RenderCore/IMaterial.h"
 #include "../RenderCore/IRenderer.h"
 #include "../RenderCore/ConstantBufferDefine.h"
@@ -113,11 +114,17 @@ bool CLightManager::Initialize( IRenderer& renderer, std::vector<std::unique_ptr
 
 	LoadPropertyFromScript( );
 
-	return renderer.CreateConstantBuffer(
-		CONST_BUFFER_NAME,
-		sizeof( ShaderLightTrait ),
-		1,
-		nullptr ) ? true : false;
+	BUFFER_TRAIT trait = { sizeof( ShaderLightTrait ),
+							1,
+							BUFFER_ACCESS_FLAG::GPU_READ | BUFFER_ACCESS_FLAG::CPU_WRITE,
+							BUFFER_TYPE::CONSTANT_BUFFER,
+							0,
+							nullptr,
+							0,
+							0 };
+
+	m_lightBuffer = renderer.CreateBuffer( trait );
+	return m_lightBuffer ? true : false;
 }
 
 void CLightManager::UpdateToRenderer( IRenderer& renderer, const CCamera& camera )
@@ -126,13 +133,13 @@ void CLightManager::UpdateToRenderer( IRenderer& renderer, const CCamera& camera
 
 	if ( m_needUpdateToRenderer )
 	{
-		void* lights = renderer.MapConstantBuffer( CONST_BUFFER_NAME );
+		void* lights = m_lightBuffer->LockBuffer( );
 
 		if ( lights )
 		{
 			memcpy( lights, &m_shaderLightProperty, sizeof( ShaderLightTrait ) );
-			renderer.UnMapConstantBuffer( CONST_BUFFER_NAME );
-			renderer.SetConstantBuffer( CONST_BUFFER_NAME, static_cast<int>(PS_CONSTANT_BUFFER::LIGHT), SHADER_TYPE::PS );
+			m_lightBuffer->UnLockBuffer( );
+			m_lightBuffer->SetPSBuffer( static_cast<int>( PS_CONSTANT_BUFFER::LIGHT ) );
 		}
 
 		m_needUpdateToRenderer = false;

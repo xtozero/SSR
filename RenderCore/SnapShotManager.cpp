@@ -96,7 +96,7 @@ ITexture* CSnapshotManager::CreateCloneTexture( ID3D11Device* pDevice, const ITe
 	return nullptr;
 }
 
-IShaderResource* CSnapshotManager::TryCreateShaderResource( ID3D11Device* pDevice, const ITexture* pTexture, const TextureDescription& desc, const String& textureName, int srcFlag )
+IShaderResource* CSnapshotManager::TryCreateShaderResource( ID3D11Device* pDevice, const ITexture* pTexture, const TextureDescription& desc, const String& textureName )
 {
 	if ( pDevice && pTexture )
 	{
@@ -118,7 +118,7 @@ IShaderResource* CSnapshotManager::TryCreateShaderResource( ID3D11Device* pDevic
 
 				if ( m_pShaderResourceMgr )
 				{
-					return m_pShaderResourceMgr->CreateShaderResource( pDevice, pTexture, &srvDesc, textureName, srcFlag );
+					return m_pShaderResourceMgr->CreateShaderResource( pDevice, pTexture, &srvDesc, textureName );
 				}
 			}
 			break;

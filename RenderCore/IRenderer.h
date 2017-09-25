@@ -19,13 +19,14 @@ class IShader;
 class IShaderResource;
 class IShaderResourceManager;
 class ITextureManager;
+struct BUFFER_TRAIT;
+struct CXMFLOAT4X4;
 struct IDXGISwapChain;
 struct ID3D11Device;
 struct ID3D11DeviceContext;
 struct ID3D11RasterizerState;
 struct ID3D11SamplerState;
 struct ID3D11DepthStencilState;
-struct CXMFLOAT4X4;
 enum SHADER_TYPE;
 
 namespace Microsoft
@@ -48,13 +49,7 @@ public:
 	virtual IShader* CreateVertexShader( const TCHAR* pFilePath, const char* pProfile ) = 0;
 	virtual IShader* CreatePixelShader( const TCHAR* pFilePath, const char* pProfile ) = 0;
 
-	virtual IBuffer* CreateVertexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) = 0;
-	virtual IBuffer* CreateIndexBuffer( const UINT stride, const UINT numOfElement, const void* srcData ) = 0;
-	virtual IBuffer* CreateConstantBuffer( const String& bufferName, const UINT stride, const UINT numOfElement, const void* srcData ) = 0;
-
-	virtual void* MapConstantBuffer( const String& bufferName ) = 0;
-	virtual void UnMapConstantBuffer( const String& bufferName ) = 0;
-	virtual void SetConstantBuffer( const String& bufferName, const UINT slot, const SHADER_TYPE type ) = 0;
+	virtual IBuffer* CreateBuffer( const BUFFER_TRAIT& trait ) = 0;
 
 	virtual IShader* SearchShaderByName( const TCHAR* name ) = 0;
 

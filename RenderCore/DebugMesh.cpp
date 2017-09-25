@@ -23,10 +23,19 @@ bool TriangleMesh::Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topology )
 	vertex[1] = CXMFLOAT3( 200.f, -200.f, 500.0f );
 	vertex[2] = CXMFLOAT3( -200.f, -200.f, 500.0f );
 
-	UINT stride = sizeof( CXMFLOAT3 );
+	m_stride = sizeof( CXMFLOAT3 );
 	m_nVertices = 3;
 
-	m_pVertexBuffer = renderer.CreateVertexBuffer( stride, m_nVertices, m_pModelData );
+	BUFFER_TRAIT trait = { m_stride,
+							m_nVertices,
+							BUFFER_ACCESS_FLAG::GPU_READ,
+							BUFFER_TYPE::VERTEX_BUFFER,
+							0,
+							m_pModelData,
+							0,
+							0 };
+
+	m_pVertexBuffer = renderer.CreateBuffer( trait );
 
 	if ( !m_pVertexBuffer )
 	{
@@ -55,7 +64,7 @@ void TriangleMesh::Draw( ID3D11DeviceContext* pDeviceContext )
 		return;
 	}
 
-	m_pVertexBuffer->SetIABuffer( pDeviceContext, &m_nOffset );
+	m_pVertexBuffer->SetVertexBuffer( &m_stride, &m_nOffset );
 	m_pMaterial->SetShader( pDeviceContext );
 	m_pMaterial->SetPrimitiveTopology( pDeviceContext, m_primitiveTopology );
 	m_pMaterial->Draw( pDeviceContext, m_nVertices, m_nOffset);
