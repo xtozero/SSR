@@ -2,9 +2,10 @@
 
 class CLightManager;
 class IBuffer;
-class IRenderer;
-class IRendererShadowManager;
 class IMaterial;
+class IRenderer;
+class IRenderResource;
+class ITexture;
 
 class CShadowManager
 {
@@ -15,13 +16,15 @@ public:
 	void SceneEnd( CLightManager& lightMgr, IRenderer& renderer );
 	void Process( CLightManager& lightMgr, IRenderer& renderer, std::vector<std::unique_ptr<CGameObject>>& gameObjects );
 
-	CShadowManager( );
-	~CShadowManager( );
-
 private:
-	bool m_isEnabled;
-	IRendererShadowManager* m_renderShadowMgr;
-	IMaterial* m_shadowMapMtl;
+	bool m_isEnabled = false;
+	
+	ITexture* m_shadowMap = nullptr;
+	IRenderResource* m_srvShadowMap = nullptr;
+	IRenderResource* m_rtvShadowMap = nullptr;
+	IRenderResource* m_dsvShadowMap = nullptr;
+
+	IMaterial* m_shadowMapMtl = nullptr;
 	IBuffer* m_cbShadow = nullptr;
 };
 

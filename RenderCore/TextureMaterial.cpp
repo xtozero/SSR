@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "IRenderer.h"
-#include "IRenderState.h"
+#include "CommonRenderer/IRenderer.h"
+#include "CommonRenderer/IRenderState.h"
 #include "TextureMaterial.h"
 
 void TextureMaterial::Init( IRenderer& renderer )
@@ -14,8 +14,8 @@ void TextureMaterial::Init( IRenderer& renderer )
 	m_pSamplerState[SHADER_TYPE::PS] = renderer.CreateSamplerState( _T( "default" ) );
 }
 
-void TextureMaterial::SetShader( ID3D11DeviceContext* pDeviceContext )
+void TextureMaterial::SetShader( )
 {
-	Material::SetShader( pDeviceContext );
-	m_pSamplerState[SHADER_TYPE::PS]->Set( pDeviceContext, SHADER_TYPE::PS );
+	Material::SetShader( );
+	m_pSamplerState[SHADER_TYPE::PS]->Set( SHADER_TYPE::PS );
 }

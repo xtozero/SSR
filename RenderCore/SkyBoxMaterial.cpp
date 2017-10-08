@@ -16,8 +16,8 @@ void SkyBoxMaterial::Init( IRenderer& renderer )
 	m_pDepthStencilState = renderer.CreateDepthStencilState( _T( "depthWriteOff" ) );
 }
 
-void SkyBoxMaterial::SetShader( ID3D11DeviceContext* pDeviceContext )
+void SkyBoxMaterial::SetShader( )
 {
-	Material::SetShader( pDeviceContext );
-	m_pSamplerState[SHADER_TYPE::PS]->Set( pDeviceContext, SHADER_TYPE::PS );
+	Material::SetShader( );
+	m_pSamplerState[SHADER_TYPE::PS]->Set( SHADER_TYPE::PS );
 }

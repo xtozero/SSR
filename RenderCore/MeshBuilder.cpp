@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "BaseMesh.h"
+#include "CommonRenderer/IRenderer.h"
 #include "IMesh.h"
-#include "IRenderer.h"
 #include "Material.h"
 
 #include "MeshBuilder.h"
@@ -11,22 +11,22 @@
 class CMeshBuilderMesh : public BaseMesh
 {
 public:
-	virtual bool Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST ) override;
-	virtual void Draw( ID3D11DeviceContext* pDeviceContext ) override;
+	virtual bool Load( IRenderer& renderer, UINT primitive = RESOURCE_PRIMITIVE::TRIANGLELIST ) override;
+	virtual void Draw( IRenderer& renderer ) override;
 
-	virtual void SetTexture( IShaderResource* pTexture ) override;
-	virtual IShaderResource* GetTexture( ) const override { return m_pTexture; };
+	virtual void SetTexture( IRenderResource* pTexture ) override;
+	virtual IRenderResource* GetTexture( ) const override { return m_pTexture; };
 
 	void SetTextureName( const String& textureName ) { m_textureName = textureName; }
 
 private:
-	IShaderResource* m_pTexture;
+	IRenderResource* m_pTexture;
 	String m_textureName;
 };
 
-bool CMeshBuilderMesh::Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topology )
+bool CMeshBuilderMesh::Load( IRenderer& renderer, UINT primitive )
 {
-	bool loadSuccess = BaseMesh::Load( renderer, topology );
+	bool loadSuccess = BaseMesh::Load( renderer, primitive );
 
 	if ( m_textureName.size( ) > 0 )
 	{
@@ -41,13 +41,8 @@ bool CMeshBuilderMesh::Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topolog
 	return loadSuccess;
 }
 
-void CMeshBuilderMesh::Draw( ID3D11DeviceContext* pDeviceContext )
+void CMeshBuilderMesh::Draw( IRenderer& renderer )
 {
-	if ( !pDeviceContext )
-	{
-		return;
-	}
-
 	if ( !m_pMaterial )
 	{
 		return;
@@ -58,22 +53,21 @@ void CMeshBuilderMesh::Draw( ID3D11DeviceContext* pDeviceContext )
 		return;
 	}
 
-	m_pMaterial->SetShader( pDeviceContext );
-	m_pMaterial->SetPrimitiveTopology( pDeviceContext, m_primitiveTopology );
+	m_pMaterial->SetShader( );
 	m_pVertexBuffer->SetVertexBuffer( &m_stride, &m_nOffset );
-	m_pMaterial->SetTexture( pDeviceContext, SHADER_TYPE::PS, 0, m_pTexture );
+	m_pMaterial->SetTexture( SHADER_TYPE::PS, 0, m_pTexture );
 	if ( m_pIndexBuffer )
 	{
 		m_pIndexBuffer->SetIndexBuffer( sizeof( WORD ), m_nIndexOffset );
-		m_pMaterial->DrawIndexed( pDeviceContext, m_nIndices, m_nIndexOffset, m_nOffset );
+		renderer.DrawIndexed( m_primitiveTopology, m_nIndices, m_nIndexOffset, m_nOffset );
 	}
 	else
 	{
-		m_pMaterial->Draw( pDeviceContext, m_nVertices, m_nOffset );
+		renderer.Draw( m_primitiveTopology, m_nVertices, m_nOffset );
 	}
 }
 
-void CMeshBuilderMesh::SetTexture( IShaderResource* pTexture )
+void CMeshBuilderMesh::SetTexture( IRenderResource* pTexture )
 {
 	m_pTexture = pTexture;
 }
@@ -93,7 +87,7 @@ void CMeshBuilder::AppendTextureName( const String& textureName )
 	m_textureName = textureName;
 }
 
-IMesh* CMeshBuilder::Build( IRenderer& renderer, const String& meshName, D3D_PRIMITIVE_TOPOLOGY topology ) const
+IMesh* CMeshBuilder::Build( IRenderer& renderer, const String& meshName, UINT primitive ) const
 {
 	if ( IMesh* found = renderer.GetModelPtr( meshName.c_str( ) ) )
 	{
@@ -133,7 +127,7 @@ IMesh* CMeshBuilder::Build( IRenderer& renderer, const String& meshName, D3D_PRI
 		newMesh->SetTextureName( m_textureName );
 	}
 
-	if ( newMesh->Load( renderer, topology ) )
+	if ( newMesh->Load( renderer, primitive ) )
 	{
 		CMeshBuilderMesh* ret = newMesh.get( );
 		renderer.SetModelPtr( meshName, std::move( newMesh ) );

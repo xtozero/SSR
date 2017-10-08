@@ -1,16 +1,17 @@
 #include "stdafx.h"
-#include "GameObject.h"
 #include "SSRManager.h"
 
-#include "../RenderCore/IBuffer.h"
+#include "GameObject.h"
+
+#include "../RenderCore/CommonRenderer/IBuffer.h"
+#include "../RenderCore/CommonRenderer/IRenderer.h"
+#include "../RenderCore/CommonRenderer/IRenderResource.h"
+#include "../RenderCore/CommonRenderer/IRenderResourceManager.h"
+#include "../RenderCore/CommonRenderer/IRenderState.h"
+#include "../RenderCore/CommonRenderer/IRenderView.h"
+
 #include "../RenderCore/IMesh.h"
 #include "../RenderCore/IMeshBuilder.h"
-#include "../RenderCore/IRenderer.h"
-#include "../RenderCore/IRenderResourceManager.h"
-#include "../RenderCore/IRenderState.h"
-#include "../RenderCore/IRenderTarget.h"
-#include "../RenderCore/IRenderView.h"
-#include "../RenderCore/ITexture.h"
 
 #include "../Shared/Util.h"
 
@@ -21,8 +22,8 @@ bool CSSRManager::Init( IRenderer& renderer, IMeshBuilder& meshBuilder )
 	// Create Constant Buffer
 	BUFFER_TRAIT trait = { sizeof( CXMFLOAT4X4 ), 
 							1,
-							BUFFER_ACCESS_FLAG::GPU_READ | BUFFER_ACCESS_FLAG::CPU_WRITE,
-							BUFFER_TYPE::CONSTANT_BUFFER,
+							RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
+							RESOURCE_TYPE::CONSTANT_BUFFER,
 							0,
 							nullptr,
 							0,
@@ -37,18 +38,16 @@ bool CSSRManager::Init( IRenderer& renderer, IMeshBuilder& meshBuilder )
 
 	// Create Screen Space Reflect Rendertarget
 	String ssrTextureName( _T( "ScreenSpaceReflect" ) );
-	ITextureManager& textureMgr = renderer.GetTextureManager( );
-	IRenderTargetManager& rendertargetMgr = renderer.GetRenderTargetManager( );
-	IShaderResourceManager& shaderResourceMgr = renderer.GetShaderResourceManager( );
+	IResourceManager& resourceMgr = renderer.GetResourceManager( );
 
-	ITexture* ssrTex = textureMgr.CreateTexture2D( renderer.GetDevice( ), ssrTextureName, ssrTextureName );
-	m_pSsrRt = rendertargetMgr.CreateRenderTarget( renderer.GetDevice( ), ssrTex, nullptr, ssrTextureName );
-	m_pSsrSrv = shaderResourceMgr.CreateShaderResource( renderer.GetDevice( ), ssrTex, nullptr, ssrTextureName );
+	ITexture* ssrTex = resourceMgr.CreateTexture2D( ssrTextureName, ssrTextureName );
+	m_pSsrRt = resourceMgr.CreateRenderTarget( ssrTex, ssrTextureName );
+	m_pSsrSrv = resourceMgr.CreateShaderResource( ssrTex, ssrTextureName );
 
-	m_pDefaultRt = rendertargetMgr.FindRenderTarget( _T( "DefaultRenderTarget" ) );
-	m_pDefaultDS = rendertargetMgr.FindDepthStencil( _T( "DefaultDepthStencil" ) );
-	m_pDefaultSrv = shaderResourceMgr.FindShaderResource( _T( "DuplicateFrameBuffer" ) );
-	m_pDepthSrv = shaderResourceMgr.FindShaderResource( _T( "DuplicateDepthGBuffer" ) );
+	m_pDefaultRt = resourceMgr.FindRenderTarget( _T( "DefaultRenderTarget" ) );
+	m_pDefaultDS = resourceMgr.FindDepthStencil( _T( "DefaultDepthStencil" ) );
+	m_pDefaultSrv = resourceMgr.FindShaderResource( _T( "DuplicateFrameBuffer" ) );
+	m_pDepthSrv = resourceMgr.FindShaderResource( _T( "DuplicateDepthGBuffer" ) );
 
 	if ( m_pSsrRt == nullptr || m_pSsrSrv == nullptr || m_pDefaultRt == nullptr ||
 		m_pDefaultDS == nullptr || m_pDefaultSrv == nullptr || m_pDepthSrv == nullptr )
@@ -117,16 +116,15 @@ void CSSRManager::Process( IRenderer& renderer, const std::list<CGameObject*>& r
 	}
 
 	// Set RenderTarget
-	IRenderTargetManager& rendertargetMgr = renderer.GetRenderTargetManager( );
-	rendertargetMgr.SetRenderTarget( renderer.GetDeviceContext(), m_pSsrRt, m_pDefaultDS );
+	renderer.SetRenderTarget( m_pSsrRt, m_pDefaultDS );
 
 	// Clear RenderTarget to black
-	m_pSsrRt->Clear( renderer.GetDeviceContext(), { 0.f, 0.f, 0.f, 0.f } );
+	renderer.ClearRendertarget( *m_pSsrRt, { 0.f, 0.f, 0.f, 0.f } );
 
 	// Set DefaultRenderTarget By Texture
-	m_pSsrMaterial->SetTexture( renderer.GetDeviceContext( ), SHADER_TYPE::PS, 1, m_pDefaultSrv );
-	m_pSsrMaterial->SetTexture( renderer.GetDeviceContext( ), SHADER_TYPE::PS, 2, m_pDepthSrv );
-	m_pSsrMaterial->SetShader( renderer.GetDeviceContext( ) );
+	renderer.PSSetShaderResource( 1, m_pDefaultSrv );
+	renderer.PSSetShaderResource( 2, m_pDepthSrv );
+	m_pSsrMaterial->SetShader( );
 
 	// Render Reflectable GameObject by SSR Material
 	for ( auto& object : reflectableList )
@@ -140,14 +138,14 @@ void CSSRManager::Process( IRenderer& renderer, const std::list<CGameObject*>& r
 	m_blur.Process( renderer, *m_pSsrSrv, *m_pSsrRt );
 
 	// Set Framebuffer RenderTarget
-	rendertargetMgr.SetRenderTarget( renderer.GetDeviceContext(), m_pDefaultRt, nullptr );
+	renderer.SetRenderTarget( m_pDefaultRt, nullptr );
 
 	// Set Reflect Result By Texture
-	m_pSsrBlendMaterial->SetTexture( renderer.GetDeviceContext( ), SHADER_TYPE::PS, 1, m_pSsrSrv );
+	renderer.PSSetShaderResource( 1, m_pSsrSrv );
 
 	// Blend Result
 	m_pScreenRect->SetMaterial( m_pSsrBlendMaterial );
-	renderer.DrawModel( m_pScreenRect );
+	m_pScreenRect->Draw( renderer );
 
-	m_pSsrBlendMaterial->SetTexture( renderer.GetDeviceContext( ), SHADER_TYPE::PS, 1, nullptr );
+	renderer.PSSetShaderResource( 1, nullptr );
 }

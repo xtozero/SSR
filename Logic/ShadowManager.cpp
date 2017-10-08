@@ -4,11 +4,12 @@
 
 #include "../shared/Math/CXMFloat.h"
 #include "../Shared/Util.h"
-#include "../RenderCore/ConstantBufferDefine.h"
-#include "../RenderCore/IBuffer.h"
-#include "../RenderCore/IMaterial.h"
-#include "../RenderCore/IRenderer.h"
-#include "../RenderCore/IRendererShadowManager.h"
+#include "../RenderCore/CommonRenderer/ConstantBufferDefine.h"
+#include "../RenderCore/CommonRenderer/IBuffer.h"
+#include "../RenderCore/CommonRenderer/IMaterial.h"
+#include "../RenderCore/CommonRenderer/IRenderer.h"
+#include "../RenderCore/CommonRenderer/IRenderResource.h"
+#include "../RenderCore/CommonRenderer/IRenderResourceManager.h"
 
 using namespace DirectX;
 
@@ -30,16 +31,16 @@ void CShadowManager::Init( IRenderer& renderer )
 
 
 	//그림자용 상수 버퍼 생성
-	BUFFER_TRAIT trait = { sizeof( CXMFLOAT4X4 ),
-							2,
-							BUFFER_ACCESS_FLAG::GPU_READ | BUFFER_ACCESS_FLAG::CPU_WRITE,
-							BUFFER_TYPE::CONSTANT_BUFFER,
-							0,
-							nullptr,
-							0,
-							0 };
+	BUFFER_TRAIT buffertrait = { sizeof( CXMFLOAT4X4 ),
+								2,
+								RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
+								RESOURCE_TYPE::CONSTANT_BUFFER,
+								0,
+								nullptr,
+								0,
+								0 };
 
-	m_cbShadow = renderer.CreateBuffer( trait );
+	m_cbShadow = renderer.CreateBuffer( buffertrait );
 
 	if ( m_cbShadow == nullptr )
 	{
@@ -47,13 +48,36 @@ void CShadowManager::Init( IRenderer& renderer )
 	}
 
 	//그림자용 렌더 타겟 생성
-	m_renderShadowMgr = renderer.GetShadowManager( );
-
-	if ( m_renderShadowMgr )
+	IResourceManager& resourceMgr = renderer.GetResourceManager( );
+	m_shadowMap = resourceMgr.CreateTexture2D( _T( "ShadowMap" ), _T( "ShadowMap" ) );
+	if ( m_shadowMap == nullptr )
 	{
-		m_renderShadowMgr->CreateShadowMapTexture( renderer );
+		return;
 	}
-	else
+
+	m_rtvShadowMap = resourceMgr.CreateRenderTarget( m_shadowMap, _T( "ShadowMap" ) );
+	if ( m_rtvShadowMap == nullptr )
+	{
+		return;
+	}
+
+	m_srvShadowMap = resourceMgr.CreateShaderResource( m_shadowMap, _T( "ShadowMap" ) );
+	if ( m_srvShadowMap == nullptr )
+	{
+		return;
+	}
+
+	const ITexture* depthStencilTexture = resourceMgr.CreateTexture2D( _T( "ShadowMapDepthStencil" ), _T( "ShadowMapDepthStencil" ) );
+	if ( depthStencilTexture == nullptr )
+	{
+		return;
+	}
+
+	TEXTURE_TRAIT texTrait = depthStencilTexture->GetTrait( );
+	texTrait.m_format = RESOURCE_FORMAT::D24_UNORM_S8_UINT;
+
+	m_dsvShadowMap = resourceMgr.CreateDepthStencil( depthStencilTexture, _T( "ShadowMapDepthStencil" ), &texTrait );
+	if ( m_dsvShadowMap == nullptr )
 	{
 		return;
 	}
@@ -83,7 +107,13 @@ void CShadowManager::SceneBegin( CLightManager& lightMgr, IRenderer& renderer )
 	}
 
 	//그림자 텍스쳐로 랜더 타겟 변경
-	m_renderShadowMgr->SceneBegin( renderer );
+	renderer.PSSetShaderResource( 2, nullptr );
+	renderer.SetRenderTarget( m_rtvShadowMap, m_dsvShadowMap );
+
+	constexpr float clearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+	renderer.ClearRendertarget( *m_rtvShadowMap, clearColor );
+	renderer.ClearDepthStencil( *m_dsvShadowMap, 1.0f, 0 );
 
 	//뷰포트 세팅
 	renderer.PopViewPort( );
@@ -112,7 +142,8 @@ void CShadowManager::SceneEnd( CLightManager& lightMgr, IRenderer& renderer )
 	renderer.PopViewPort( );
 
 	//랜터 타겟 원상 복귀, 그림자 맵 세팅
-	m_renderShadowMgr->SceneEnd( renderer );
+	renderer.SetRenderTarget( nullptr, nullptr );
+	renderer.PSSetShaderResource( 2, m_srvShadowMap );
 }
 
 void CShadowManager::Process( CLightManager& lightMgr, IRenderer& renderer, std::vector<std::unique_ptr<CGameObject>>& gameObjects )
@@ -123,16 +154,4 @@ void CShadowManager::Process( CLightManager& lightMgr, IRenderer& renderer, std:
 		DrawScene( lightMgr, renderer, gameObjects );
 		SceneEnd( lightMgr, renderer );
 	}
-}
-
-CShadowManager::CShadowManager( ) :
-	m_isEnabled( false ),
-	m_renderShadowMgr( nullptr ),
-	m_shadowMapMtl( nullptr )
-{
-}
-
-
-CShadowManager::~CShadowManager( )
-{
 }

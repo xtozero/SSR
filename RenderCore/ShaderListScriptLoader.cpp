@@ -3,7 +3,7 @@
 
 #include <cstdlib>
 #include "../Engine/KeyValueReader.h"
-#include "IRenderer.h"
+#include "CommonRenderer/IRenderer.h"
 
 namespace
 {

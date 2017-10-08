@@ -46,4 +46,4 @@ struct MeshVertex
 		m_texcoord( texcoord ) {}
 };
 
-const int VERTEX_STRIDE = sizeof( MeshVertex );
+constexpr int VERTEX_STRIDE = sizeof( MeshVertex );

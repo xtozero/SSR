@@ -1,9 +1,10 @@
 #include "stdafx.h"
+#include "RigidBodyManager.h"
+
 #include "Aaboundingbox.h"
 #include "BoundingSphere.h"
-#include "../RenderCore/IRenderer.h"
+#include "../RenderCore/CommonRenderer/IRenderer.h"
 #include "../RenderCore/IMesh.h"
-#include "RigidBodyManager.h"
 
 #include <memory>
 

@@ -1,15 +1,16 @@
 #include "stdafx.h"
-#include "common.h"
 #include "DebugMesh.h"
-#include "IRenderer.h"
+
+#include "common.h"
+#include "CommonRenderer/IRenderer.h"
 
 #include "Material.h"
 
 #include "../shared/Math/CXMFloat.h"
 
-bool TriangleMesh::Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topology )
+bool TriangleMesh::Load( IRenderer& renderer, UINT primitive )
 {
-	m_primitiveTopology = topology;
+	m_primitiveTopology = primitive;
 
 	m_pModelData = new CXMFLOAT3[3];
 
@@ -28,8 +29,8 @@ bool TriangleMesh::Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topology )
 
 	BUFFER_TRAIT trait = { m_stride,
 							m_nVertices,
-							BUFFER_ACCESS_FLAG::GPU_READ,
-							BUFFER_TYPE::VERTEX_BUFFER,
+							RESOURCE_ACCESS_FLAG::GPU_READ,
+							RESOURCE_TYPE::VERTEX_BUFFER,
 							0,
 							m_pModelData,
 							0,
@@ -47,13 +48,8 @@ bool TriangleMesh::Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topology )
 	return true;
 }
 
-void TriangleMesh::Draw( ID3D11DeviceContext* pDeviceContext )
+void TriangleMesh::Draw( IRenderer& renderer )
 {
-	if ( !pDeviceContext )
-	{
-		return;
-	}
-
 	if ( !m_pMaterial )
 	{
 		return;
@@ -65,9 +61,8 @@ void TriangleMesh::Draw( ID3D11DeviceContext* pDeviceContext )
 	}
 
 	m_pVertexBuffer->SetVertexBuffer( &m_stride, &m_nOffset );
-	m_pMaterial->SetShader( pDeviceContext );
-	m_pMaterial->SetPrimitiveTopology( pDeviceContext, m_primitiveTopology );
-	m_pMaterial->Draw( pDeviceContext, m_nVertices, m_nOffset);
+	m_pMaterial->SetShader( );
+	renderer.Draw( m_primitiveTopology, m_nVertices, m_nOffset);
 }
 
 TriangleMesh::TriangleMesh( )

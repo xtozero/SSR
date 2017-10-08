@@ -6,9 +6,9 @@
 
 #include "../Engine/ConVar.h"
 #include "../Engine/KeyValueReader.h"
+#include "../RenderCore/CommonRenderer/IRenderer.h"
 #include "../RenderCore/IMesh.h"
 #include "../RenderCore/IMeshBuilder.h"
-#include "../RenderCore/IRenderer.h"
 
 namespace
 {

@@ -3,8 +3,8 @@
 #include "BaseMesh.h"
 #include <vector>
 
+class IRenderResource;
 class ISurface;
-class IShaderResource;
 
 struct ObjSurfaceTrait
 {
@@ -17,14 +17,14 @@ struct ObjSurfaceTrait
 	UINT m_indexOffset;
 	UINT m_indexCount;
 	ISurface* m_pSurface;
-	IShaderResource* m_pTexture;
+	IRenderResource* m_pTexture;
 };
 
 class CObjMesh : public BaseMesh
 {
 public:
-	virtual bool Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST ) override;
-	virtual void Draw( ID3D11DeviceContext* pDeviceContext ) override;
+	virtual bool Load( IRenderer& renderer, UINT primitive = RESOURCE_PRIMITIVE::TRIANGLELIST ) override;
+	virtual void Draw( IRenderer& renderer ) override;
 
 	void AddMaterialGroup( const ObjSurfaceTrait& trait );
 

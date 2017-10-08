@@ -7,14 +7,12 @@
 
 class CGameObject;
 class IBuffer;
-class IDepthStencil;
 class IMaterial;
 class IMesh;
 class IMeshBuilder;
 class IRenderer;
+class IRenderResource;
 class IRenderState;
-class IRenderTarget;
-class IShaderResource;
 
 class CSSRManager
 {
@@ -26,12 +24,12 @@ private:
 	IMesh* m_pScreenRect = nullptr;
 	IMaterial* m_pSsrMaterial = nullptr;
 	IMaterial* m_pSsrBlendMaterial = nullptr;
-	IRenderTarget* m_pSsrRt = nullptr;
-	IRenderTarget* m_pDefaultRt = nullptr;
-	IDepthStencil* m_pDefaultDS = nullptr;
-	IShaderResource* m_pSsrSrv = nullptr;
-	IShaderResource* m_pDefaultSrv = nullptr;
-	IShaderResource* m_pDepthSrv = nullptr;
+	IRenderResource* m_pSsrRt = nullptr;
+	IRenderResource* m_pDefaultRt = nullptr;
+	IRenderResource* m_pDefaultDS = nullptr;
+	IRenderResource* m_pSsrSrv = nullptr;
+	IRenderResource* m_pDefaultSrv = nullptr;
+	IRenderResource* m_pDepthSrv = nullptr;
 	IBuffer* m_ssrConstantBuffer = nullptr;
 
 	ScreenBlurManager m_blur;

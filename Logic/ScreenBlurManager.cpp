@@ -1,14 +1,14 @@
 #include "stdafx.h"
 #include "ScreenBlurManager.h"
 
+#include "../RenderCore/CommonRenderer/IMaterial.h"
+#include "../RenderCore/CommonRenderer/IRenderer.h"
+#include "../RenderCore/CommonRenderer/IRenderResource.h"
+#include "../RenderCore/CommonRenderer/IRenderResourceManager.h"
+#include "../RenderCore/CommonRenderer/IRenderView.h"
+
 #include "../RenderCore/IMesh.h"
-#include "../RenderCore/IMaterial.h"
 #include "../RenderCore/IMeshBuilder.h"
-#include "../RenderCore/IRenderer.h"
-#include "../RenderCore/IRenderResourceManager.h"
-#include "../RenderCore/IRenderTarget.h"
-#include "../RenderCore/IRenderView.h"
-#include "../RenderCore/ITexture.h"
 
 #include "../Shared/Util.h"
 
@@ -47,23 +47,21 @@ bool ScreenBlurManager::Init( IRenderer& renderer, IMeshBuilder& meshBuilder )
 	}
 
 	String blurTempTextureName( _T( "BlurTempTexture" ) );
-	ITextureManager& textureMgr = renderer.GetTextureManager( );
-	IRenderTargetManager& rendertargetMgr = renderer.GetRenderTargetManager( );
-	IShaderResourceManager& shaderResourceMgr = renderer.GetShaderResourceManager( );
+	IResourceManager& resourceMgr = renderer.GetResourceManager( );
 
-	ITexture* ssrTex = textureMgr.CreateTexture2D( renderer.GetDevice( ), blurTempTextureName, blurTempTextureName );
+	ITexture* ssrTex = resourceMgr.CreateTexture2D( blurTempTextureName, blurTempTextureName );
 	if ( ssrTex == nullptr )
 	{
 		return false;
 	}
 
-	m_pBlurRt = rendertargetMgr.CreateRenderTarget( renderer.GetDevice( ), ssrTex, nullptr, blurTempTextureName );
+	m_pBlurRt = resourceMgr.CreateRenderTarget( ssrTex, blurTempTextureName );
 	if ( m_pBlurRt == nullptr )
 	{
 		return false;
 	}
 
-	m_pBlurSrv = shaderResourceMgr.CreateShaderResource( renderer.GetDevice( ), ssrTex, nullptr, blurTempTextureName );
+	m_pBlurSrv = resourceMgr.CreateShaderResource( ssrTex, blurTempTextureName );
 	if ( m_pBlurSrv == nullptr )
 	{
 		return false;
@@ -72,27 +70,25 @@ bool ScreenBlurManager::Init( IRenderer& renderer, IMeshBuilder& meshBuilder )
 	return true;
 }
 
-void ScreenBlurManager::Process( IRenderer& renderer, IShaderResource& destSRV, IRenderTarget& destRT ) const
+void ScreenBlurManager::Process( IRenderer& renderer, IRenderResource& destSRV, IRenderResource& destRT ) const
 {
-	IRenderTargetManager& rendertargetMgr = renderer.GetRenderTargetManager( );
-
 	// Set RenderTarget
-	rendertargetMgr.SetRenderTarget( renderer.GetDeviceContext( ), m_pBlurRt, nullptr );
+	renderer.SetRenderTarget( m_pBlurRt, nullptr );
 
 	// Set Gaussian_X Shader State
-	m_pBlurMaterial[0]->SetTexture( renderer.GetDeviceContext( ), SHADER_TYPE::PS, 1, &destSRV );
-	m_pBlurMaterial[0]->SetShader( renderer.GetDeviceContext( ) );
+	renderer.PSSetShaderResource( 1, &destSRV );
+	m_pBlurMaterial[0]->SetShader( );
 
 	m_pScreenRect->SetMaterial( m_pBlurMaterial[0] );
-	renderer.DrawModel( m_pScreenRect );
+	m_pScreenRect->Draw( renderer );
 
 	// Set RenderTarget
-	rendertargetMgr.SetRenderTarget( renderer.GetDeviceContext( ), &destRT, nullptr );
+	renderer.SetRenderTarget( &destRT, nullptr );
 
 	// Set Gaussian_Y Shader State
-	m_pBlurMaterial[1]->SetTexture( renderer.GetDeviceContext( ), SHADER_TYPE::PS, 1, m_pBlurSrv );
-	m_pBlurMaterial[1]->SetShader( renderer.GetDeviceContext( ) );
+	renderer.PSSetShaderResource( 1, m_pBlurSrv );
+	m_pBlurMaterial[1]->SetShader( );
 
 	m_pScreenRect->SetMaterial( m_pBlurMaterial[1] );
-	renderer.DrawModel( m_pScreenRect );
+	m_pScreenRect->Draw( renderer );
 }

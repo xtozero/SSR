@@ -4,10 +4,10 @@
 
 #include "../Engine/EnumStringMap.h"
 #include "../Engine/KeyValueReader.h"
-#include "../RenderCore/IBuffer.h"
-#include "../RenderCore/IMaterial.h"
-#include "../RenderCore/IRenderer.h"
-#include "../RenderCore/ConstantBufferDefine.h"
+#include "../RenderCore/CommonRenderer/IBuffer.h"
+#include "../RenderCore/CommonRenderer/IMaterial.h"
+#include "../RenderCore/CommonRenderer/IRenderer.h"
+#include "../RenderCore/CommonRenderer/ConstantBufferDefine.h"
 #include "../Shared/Util.h"
 
 using namespace DirectX;
@@ -116,8 +116,8 @@ bool CLightManager::Initialize( IRenderer& renderer, std::vector<std::unique_ptr
 
 	BUFFER_TRAIT trait = { sizeof( ShaderLightTrait ),
 							1,
-							BUFFER_ACCESS_FLAG::GPU_READ | BUFFER_ACCESS_FLAG::CPU_WRITE,
-							BUFFER_TYPE::CONSTANT_BUFFER,
+							RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
+							RESOURCE_TYPE::CONSTANT_BUFFER,
 							0,
 							nullptr,
 							0,

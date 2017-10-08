@@ -3,72 +3,88 @@
 	"DefaultDepthStencil"
 	{
 		"Size"				"FRAME_BUFFER"
-		"SubResourceDesc"	"1 1" //MipLevels ArraySize
-		"Format"			"DXGI_FORMAT_R24G8_TYPELESS"
-		"SampleDesc"		"1 0" //Count Quality
-		"Flags"				"D3D11_USAGE_DEFAULT D3D11_BIND_DEPTH_STENCIL|D3D11_BIND_SHADER_RESOURCE 0 0" //Usage BindFlags CPUAccessFlags MiscFlags
+		"Sample"			"1 0" //Count Quality
+		"MipLevels"			"1"
+		"Format"			"R24G8_TYPELESS"
+		"Access"			"GPU_READ|GPU_WRITE"
+		"Type"				"DEPTH_STENCIL|SHADER_RESOURCE"
+		"Misc"				"0"
 	}
 	
 	"OrenNayarLookUP"
 	{
-		"Size"				"512 512" //Width Height
-		"SubResourceDesc"	"1 1" //MipLevels ArraySize
-		"Format"			"DXGI_FORMAT_R32_FLOAT"
-		"SampleDesc"		"1 0" //Count Quality
-		"Flags"				"D3D11_USAGE_IMMUTABLE D3D11_BIND_SHADER_RESOURCE 0 0" //Usage BindFlags CPUAccessFlags MiscFlags
+		"Size"				"512 512 1" //Width Height Depth(aka. ArraySize)
+		"Sample"			"1 0" //Count Quality
+		"MipLevels"			"1"
+		"Format"			"R32_FLOAT"
+		"Access"			"GPU_READ"
+		"Type"				"SHADER_RESOURCE"
+		"Misc"				"0"
 	}
 	
 	"ShadowMap"
 	{
-		"Size"				"2048 2048" //Width Height
-		"SubResourceDesc"	"1 1" //MipLevels ArraySize
-		"Format"			"DXGI_FORMAT_R32_FLOAT"
-		"SampleDesc"		"1 0" //Count Quality
-		"Flags"				"D3D11_USAGE_DEFAULT D3D11_BIND_SHADER_RESOURCE|D3D11_BIND_RENDER_TARGET 0 0" //Usage BindFlags CPUAccessFlags MiscFlags
+		"Size"				"2048 2048 1" //Width Height Depth(aka. ArraySize)
+		"Sample"			"1 0" //Count Quality
+		"MipLevels"			"1"
+		"Format"			"R32_FLOAT"
+		"Access"			"GPU_READ|GPU_WRITE"
+		"Type"				"SHADER_RESOURCE|RENDER_TARGET"
+		"Misc"				"0"
 	}
 	
 	"ShadowMapDepthStencil"
 	{
-		"Size"				"2048 2048" //Width Height
-		"SubResourceDesc"	"1 1" //MipLevels ArraySize
-		"Format"			"DXGI_FORMAT_R24G8_TYPELESS"
-		"SampleDesc"		"1 0" //Count Quality
-		"Flags"				"D3D11_USAGE_DEFAULT D3D11_BIND_DEPTH_STENCIL 0 0" //Usage BindFlags CPUAccessFlags MiscFlags
+		"Size"				"2048 2048 1" //Width Height Depth(aka. ArraySize)
+		"Sample"			"1 0" //Count Quality
+		"MipLevels"			"1"
+		"Format"			"R24G8_TYPELESS"
+		"Access"			"GPU_READ|GPU_WRITE"
+		"Type"				"DEPTH_STENCIL"
+		"Misc"				"0"
 	}
 	
 	"NormalGBuffer"
 	{
 		"Size"				"FRAME_BUFFER"
-		"SubResourceDesc"	"1 1" //MipLevels ArraySize
-		"Format"			"DXGI_FORMAT_R16G16_FLOAT"
-		"SampleDesc"		"1 0" //Count Quality
-		"Flags"				"D3D11_USAGE_DEFAULT D3D11_BIND_SHADER_RESOURCE|D3D11_BIND_RENDER_TARGET 0 0" //Usage BindFlags CPUAccessFlags MiscFlags
+		"Sample"			"1 0" //Count Quality
+		"MipLevels"			"1"
+		"Format"			"R16G16_FLOAT"
+		"Access"			"GPU_READ|GPU_WRITE"
+		"Type"				"SHADER_RESOURCE|RENDER_TARGET"
+		"Misc"				"0"
 	}
 	
 	"DepthGBuffer"
 	{
 		"Size"				"FRAME_BUFFER"
-		"SubResourceDesc"	"4 1" //MipLevels ArraySize
-		"Format"			"DXGI_FORMAT_R32_FLOAT"
-		"SampleDesc"		"1 0" //Count Quality
-		"Flags"				"D3D11_USAGE_DEFAULT D3D11_BIND_SHADER_RESOURCE|D3D11_BIND_RENDER_TARGET 0 D3D11_RESOURCE_MISC_GENERATE_MIPS" //Usage BindFlags CPUAccessFlags MiscFlags
+		"Sample"			"1 0" //Count Quality
+		"MipLevels"			"4"
+		"Format"			"R32_FLOAT"
+		"Access"			"GPU_READ|GPU_WRITE"
+		"Type"				"SHADER_RESOURCE|RENDER_TARGET"
+		"Misc"				"GENERATE_MIPS"
 	}
 	
 	"ScreenSpaceReflect"
 	{
 		"Size"				"FRAME_BUFFER"
-		"SubResourceDesc"	"1 1" //MipLevels ArraySize
-		"Format"			"DXGI_FORMAT_R8G8B8A8_UNORM"
-		"SampleDesc"		"1 0" //Count Quality
-		"Flags"				"D3D11_USAGE_DEFAULT D3D11_BIND_SHADER_RESOURCE|D3D11_BIND_RENDER_TARGET 0 0" //Usage BindFlags CPUAccessFlags MiscFlags
+		"Sample"			"1 0" //Count Quality
+		"MipLevels"			"1"
+		"Format"			"R8G8B8A8_UNORM"
+		"Access"			"GPU_READ|GPU_WRITE"
+		"Type"				"SHADER_RESOURCE|RENDER_TARGET"
+		"Misc"				"0"
 	}
 	
 	"BlurTempTexture"
 	{
 		"Size"				"FRAME_BUFFER"
-		"SubResourceDesc"	"1 1" //MipLevels ArraySize
-		"Format"			"DXGI_FORMAT_R8G8B8A8_UNORM"
-		"SampleDesc"		"1 0" //Count Quality
-		"Flags"				"D3D11_USAGE_DEFAULT D3D11_BIND_SHADER_RESOURCE|D3D11_BIND_RENDER_TARGET 0 0" //Usage BindFlags CPUAccessFlags MiscFlags
+		"Sample"			"1 0" //Count Quality
+		"MipLevels"			"1"
+		"Format"			"R8G8B8A8_UNORM"
+		"Access"			"GPU_READ|GPU_WRITE"
+		"Type"				"SHADER_RESOURCE|RENDER_TARGET"
+		"Misc"				"0"
 	}
 }

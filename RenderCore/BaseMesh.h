@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common.h"
-#include "IBuffer.h"
+#include "CommonRenderer/IBuffer.h"
 #include "IMesh.h"
 #include "../shared/Math/CXMFloat.h"
 #include "../shared/Util.h"
@@ -17,7 +17,7 @@ protected:
 	IBuffer* m_pVertexBuffer;
 	IBuffer* m_pIndexBuffer;
 
-	D3D_PRIMITIVE_TOPOLOGY m_primitiveTopology;
+	UINT m_primitiveTopology;
 
 	IMaterial* m_pMaterial;
 
@@ -33,13 +33,13 @@ public:
 	virtual void SetModelData( Owner<MeshVertex*> pOrignal, UINT vertexCount ) override;
 	virtual void SetIndexData( Owner<void*> pOrignal, UINT indexCount ) override;
 	virtual void SetColor( const CXMFLOAT3& color ) override;
-	virtual bool Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST ) override;
+	virtual bool Load( IRenderer& renderer, UINT primitive = RESOURCE_PRIMITIVE::TRIANGLELIST ) override;
 
-	virtual void Draw( ID3D11DeviceContext* pDeviceContext ) override;
+	virtual void Draw( IRenderer& renderer ) override;
 
 	virtual void SetMaterial( IMaterial* pMaterial ) override;
-	virtual void SetTexture( IShaderResource* ) override {}
-	virtual IShaderResource* GetTexture( ) const override { return nullptr; }
+	virtual void SetTexture( IRenderResource* ) override {}
+	virtual IRenderResource* GetTexture( ) const override { return nullptr; }
 
 	virtual void* GetMeshData( ) override { return m_pModelData; }
 	virtual int GetVerticesCount( ) override { return m_nVertices; }

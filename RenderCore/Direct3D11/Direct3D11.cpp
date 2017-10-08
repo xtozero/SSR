@@ -1,0 +1,789 @@
+#include "stdafx.h"
+
+#include "../BaseMesh.h"
+
+#include "../common.h"
+#include "../CommonRenderer/ConstantBufferDefine.h"
+#include "../CommonRenderer/IMaterial.h"
+#include "../CommonRenderer/IRenderer.h"
+#include "../CommonRenderer/IRenderResource.h"
+
+#include "D3D11BlendStateFactory.h"
+#include "D3D11Buffer.h"
+#include "D3D11DepthStencil.h"
+#include "D3D11DepthStencilStateFactory.h"
+#include "D3D11PixelShader.h"
+#include "D3D11RasterizerStateFactory.h"
+#include "D3D11RenderTarget.h"
+#include "D3D11RenderView.h"
+#include "D3D11Resource.h"
+#include "D3D11ResourceManager.h"
+#include "D3D11SamplerStateFactory.h"
+#include "D3D11VertexShader.h"
+
+#include "../DebugMesh.h"
+
+#include "../IMesh.h"
+#include "../IMeshLoader.h"
+
+#include "../MaterialSystem.h"
+#include "../MaterialLoader.h"
+#include "../MeshBuilder.h"
+#include "../MeshLoader.h"
+
+#include "../RenderCoreDllFunc.h"
+#include "../RenderEffect.h"
+#include "../RenderOutputManager.h"
+
+#include "../ShaderListScriptLoader.h"
+#include "../SkyBoxMaterial.h"
+#include "../SurfaceManager.h"
+#include "../TextureMaterial.h"
+#include "../TutorialMaterial.h"
+#include "../WireFrame.h"
+
+#include "../util_rendercore.h"
+
+#include "../../Engine/EnumStringMap.h"
+#include "../../shared/Util.h"
+
+#include <array>
+#include <D3D11.h>
+#include <D3DX11.h>
+#include <DXGI.h>
+#include <map>
+#include <tuple>
+#include <string>
+#include <vector>
+
+using namespace DirectX;
+
+namespace
+{
+	constexpr int WORLD_MATRIX_ELEMENT_SIZE = 2;
+
+	void RegisterGraphicsEnumString()
+	{
+		//Register enum string
+		RegisterResourceEnumString( );
+
+		//Fill Mode
+		REGISTER_ENUM_STRING( D3D11_FILL_SOLID );
+		REGISTER_ENUM_STRING( D3D11_FILL_WIREFRAME );
+
+		//Cull Mode
+		REGISTER_ENUM_STRING( D3D11_CULL_NONE );
+		REGISTER_ENUM_STRING( D3D11_CULL_FRONT );
+		REGISTER_ENUM_STRING( D3D11_CULL_BACK );
+
+		//Comparision Function
+		REGISTER_ENUM_STRING( D3D11_COMPARISON_NEVER );
+		REGISTER_ENUM_STRING( D3D11_COMPARISON_LESS );
+		REGISTER_ENUM_STRING( D3D11_COMPARISON_EQUAL );
+		REGISTER_ENUM_STRING( D3D11_COMPARISON_LESS_EQUAL );
+		REGISTER_ENUM_STRING( D3D11_COMPARISON_GREATER );
+		REGISTER_ENUM_STRING( D3D11_COMPARISON_NOT_EQUAL );
+		REGISTER_ENUM_STRING( D3D11_COMPARISON_GREATER_EQUAL );
+		REGISTER_ENUM_STRING( D3D11_COMPARISON_ALWAYS );
+
+		//Depth Write Mask
+		REGISTER_ENUM_STRING( D3D11_DEPTH_WRITE_MASK_ZERO );
+		REGISTER_ENUM_STRING( D3D11_DEPTH_WRITE_MASK_ALL );
+
+		//Stencil OP
+		REGISTER_ENUM_STRING( D3D11_STENCIL_OP_KEEP );
+		REGISTER_ENUM_STRING( D3D11_STENCIL_OP_ZERO );
+		REGISTER_ENUM_STRING( D3D11_STENCIL_OP_REPLACE );
+		REGISTER_ENUM_STRING( D3D11_STENCIL_OP_INCR_SAT );
+		REGISTER_ENUM_STRING( D3D11_STENCIL_OP_DECR_SAT );
+		REGISTER_ENUM_STRING( D3D11_STENCIL_OP_INVERT );
+		REGISTER_ENUM_STRING( D3D11_STENCIL_OP_INCR );
+		REGISTER_ENUM_STRING( D3D11_STENCIL_OP_DECR );
+
+		//Filter
+		REGISTER_ENUM_STRING( D3D11_FILTER_MIN_MAG_MIP_POINT );
+		REGISTER_ENUM_STRING( D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR );
+		REGISTER_ENUM_STRING( D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT );
+		REGISTER_ENUM_STRING( D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR );
+		REGISTER_ENUM_STRING( D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT );
+		REGISTER_ENUM_STRING( D3D11_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR );
+		REGISTER_ENUM_STRING( D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT );
+		REGISTER_ENUM_STRING( D3D11_FILTER_MIN_MAG_MIP_LINEAR );
+		REGISTER_ENUM_STRING( D3D11_FILTER_ANISOTROPIC );
+		REGISTER_ENUM_STRING( D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT );
+		REGISTER_ENUM_STRING( D3D11_FILTER_COMPARISON_MIN_MAG_POINT_MIP_LINEAR );
+		REGISTER_ENUM_STRING( D3D11_FILTER_COMPARISON_MIN_POINT_MAG_LINEAR_MIP_POINT );
+		REGISTER_ENUM_STRING( D3D11_FILTER_COMPARISON_MIN_POINT_MAG_MIP_LINEAR );
+		REGISTER_ENUM_STRING( D3D11_FILTER_COMPARISON_MIN_LINEAR_MAG_MIP_POINT );
+		REGISTER_ENUM_STRING( D3D11_FILTER_COMPARISON_MIN_LINEAR_MAG_POINT_MIP_LINEAR );
+		REGISTER_ENUM_STRING( D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT );
+		REGISTER_ENUM_STRING( D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR );
+		REGISTER_ENUM_STRING( D3D11_FILTER_COMPARISON_ANISOTROPIC );
+
+		//Texture Address Mode
+		REGISTER_ENUM_STRING( D3D11_TEXTURE_ADDRESS_WRAP );
+		REGISTER_ENUM_STRING( D3D11_TEXTURE_ADDRESS_MIRROR );
+		REGISTER_ENUM_STRING( D3D11_TEXTURE_ADDRESS_CLAMP );
+		REGISTER_ENUM_STRING( D3D11_TEXTURE_ADDRESS_BORDER );
+		REGISTER_ENUM_STRING( D3D11_TEXTURE_ADDRESS_MIRROR_ONCE );
+
+		//Blend
+		REGISTER_ENUM_STRING( D3D11_BLEND_ZERO );
+		REGISTER_ENUM_STRING( D3D11_BLEND_ONE );
+		REGISTER_ENUM_STRING( D3D11_BLEND_SRC_COLOR );
+		REGISTER_ENUM_STRING( D3D11_BLEND_INV_SRC_COLOR );
+		REGISTER_ENUM_STRING( D3D11_BLEND_SRC_ALPHA );
+		REGISTER_ENUM_STRING( D3D11_BLEND_INV_SRC_ALPHA );
+		REGISTER_ENUM_STRING( D3D11_BLEND_DEST_ALPHA );
+		REGISTER_ENUM_STRING( D3D11_BLEND_INV_DEST_ALPHA );
+		REGISTER_ENUM_STRING( D3D11_BLEND_DEST_COLOR );
+		REGISTER_ENUM_STRING( D3D11_BLEND_INV_DEST_COLOR );
+		REGISTER_ENUM_STRING( D3D11_BLEND_SRC_ALPHA_SAT );
+		REGISTER_ENUM_STRING( D3D11_BLEND_BLEND_FACTOR );
+		REGISTER_ENUM_STRING( D3D11_BLEND_INV_BLEND_FACTOR );
+		REGISTER_ENUM_STRING( D3D11_BLEND_SRC1_COLOR );
+		REGISTER_ENUM_STRING( D3D11_BLEND_INV_SRC1_COLOR );
+		REGISTER_ENUM_STRING( D3D11_BLEND_SRC1_ALPHA );
+		REGISTER_ENUM_STRING( D3D11_BLEND_INV_SRC1_ALPHA );
+
+		//Blend Op
+		REGISTER_ENUM_STRING( D3D11_BLEND_OP_ADD );
+		REGISTER_ENUM_STRING( D3D11_BLEND_OP_SUBTRACT );
+		REGISTER_ENUM_STRING( D3D11_BLEND_OP_REV_SUBTRACT );
+		REGISTER_ENUM_STRING( D3D11_BLEND_OP_MIN );
+		REGISTER_ENUM_STRING( D3D11_BLEND_OP_MAX );
+
+		//Color Write Enable
+		REGISTER_ENUM_STRING( D3D11_COLOR_WRITE_ENABLE_RED );
+		REGISTER_ENUM_STRING( D3D11_COLOR_WRITE_ENABLE_GREEN );
+		REGISTER_ENUM_STRING( D3D11_COLOR_WRITE_ENABLE_BLUE );
+		REGISTER_ENUM_STRING( D3D11_COLOR_WRITE_ENABLE_ALPHA );
+		REGISTER_ENUM_STRING( D3D11_COLOR_WRITE_ENABLE_ALL );
+	}
+};
+
+class CDirect3D11 : public IRenderer
+{
+public:
+	virtual bool InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeight ) override;
+	virtual void ShutDownRenderer( ) override;
+	virtual void SceneBegin( ) override;
+	virtual void ForwardRenderEnd( ) override;
+	virtual void SceneEnd( ) override;
+
+	virtual IShader* CreateVertexShader( const TCHAR* pFilePath, const char* pProfile ) override;
+	virtual IShader* CreatePixelShader( const TCHAR* pFilePath, const char* pProfile ) override;
+
+	virtual IBuffer* CreateBuffer( const BUFFER_TRAIT& trait ) override;
+
+	virtual IShader* SearchShaderByName( const TCHAR* pName ) override;
+
+	virtual IMaterial* GetMaterialPtr( const TCHAR* pMaterialName ) override;
+	virtual IMesh* GetModelPtr( const TCHAR* pModelName ) override;
+	virtual void SetModelPtr( const String& modelName, std::unique_ptr<IMesh> pModel ) override;
+
+	virtual void PushViewPort( const float topLeftX, const float topLeftY, const float width, const float height, const float minDepth = 0.0f, const float maxDepth = 1.0f ) override;
+	virtual void PopViewPort( ) override;
+	virtual void PushScissorRect( const RECT& rect ) override;
+	virtual void PopScissorRect( ) override;
+
+	virtual IRenderView* GetCurrentRenderView( ) override;
+
+	virtual void UpdateWorldMatrix( const CXMFLOAT4X4& worldMatrix, const CXMFLOAT4X4& invWorldMatrix ) override;
+	virtual IRenderState* CreateRenderState( const String& stateName ) override;
+
+	virtual IRenderResource* GetShaderResourceFromFile( const String& fileName ) override;
+	virtual IRenderState* CreateSamplerState( const String& stateName ) override;
+
+	virtual IRenderState* CreateDepthStencilState( const String& stateName ) override;
+
+	virtual IRenderState* CreateBlendState( const String& stateName ) override;
+
+	virtual void TakeSnapshot2D( const String& sourceTextureName, const String& destTextureName ) override;
+
+	virtual void PSSetShaderResource( UINT startSlot, IRenderResource* shaderResourceOrNull ) override;
+
+	virtual void ClearRendertarget( IRenderResource& renderTarget, const float( &clearColor )[4] ) override;
+	virtual void ClearDepthStencil( IRenderResource& depthStencil, float depthColor, UINT8 stencilColor ) override;
+
+	virtual void SetRenderTarget( IRenderResource* pRenderTarget, IRenderResource* pDepthStencil ) override;
+	virtual void SetRenderTarget( RenderTargetBinder& binder, IRenderResource* pDepthStencil ) override;
+
+	virtual void Draw( UINT primitive, UINT vertexCount, UINT vertexOffset = 0 ) override;
+	virtual void DrawIndexed( UINT primitive, UINT indexCount, UINT indexOffset = 0, UINT vertexOffset = 0 ) override;
+	virtual void DrawInstanced( UINT primitive, UINT vertexCount, UINT instanceCount, UINT vertexOffset = 0, UINT instanceOffset = 0 ) override;
+	virtual void DrawInstancedInstanced( UINT primitive, UINT indexCount, UINT instanceCount, UINT indexOffset = 0, UINT vertexOffset = 0, UINT instanceOffset = 0 ) override;
+	virtual void DrawAuto( UINT primitive ) override;
+
+	virtual IDXGISwapChain* GetSwapChain( ) const override { return m_pdxgiSwapChain.Get( ); }
+	virtual IMeshBuilder& GetMeshBuilder( ) override;
+	virtual IResourceManager& GetResourceManager( ) override { return *m_resourceManager.get( ); }
+
+	CDirect3D11( );
+	virtual ~CDirect3D11( );
+private:
+	bool CreateD3D11Device( HWND hWind, UINT nWndWidth, UINT nWndHeight );
+	void ReportLiveDevice( );
+	bool InitializeShaders( );
+	bool InitializeMaterial( );
+
+	Microsoft::WRL::ComPtr<ID3D11Device>			m_pd3d11Device;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext>		m_pd3d11DeviceContext;
+	Microsoft::WRL::ComPtr<IDXGISwapChain>			m_pdxgiSwapChain;
+
+	std::map<String, std::unique_ptr<IShader>>		m_shaderList;
+	std::vector<std::unique_ptr<IBuffer>>			m_bufferList;
+
+	std::unique_ptr<D3D11RenderView>				m_pView;
+	CMeshLoader										m_meshLoader;
+
+	IBuffer*										m_pWorldMatrixBuffer = nullptr;
+
+	std::unique_ptr<CD3D11ResourceManager>			m_resourceManager;
+	CRenderOutputManager							m_renderOutput;
+
+	CShaderListScriptLoader							m_shaderLoader;
+
+	std::unique_ptr<CD3D11DepthStencilStateFactory>	m_pDepthStencilFactory;
+	std::unique_ptr<CD3D11RasterizerStateFactory>	m_pRasterizerFactory;
+	std::unique_ptr<CD3D11SamplerStateFactory>		m_pSamplerFactory;
+	std::unique_ptr<CD3D11BlendStateFactory>		m_pBlendFactory;
+	std::unique_ptr<CMaterialLoader>				m_pMaterialLoader;
+
+	CSurfaceManager									m_surfaceManager;
+
+	CRenderEffect									m_renderEffect;
+
+	CMeshBuilder									m_meshBuilder;
+};
+
+bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeight )
+{
+	ON_FAIL_RETURN( CreateD3D11Device( hWind, nWndWidth, nWndHeight ) );
+
+	m_pView = std::make_unique<D3D11RenderView>( m_pd3d11DeviceContext.Get() );
+	ON_FAIL_RETURN( m_pView->initialize( *this ) );
+
+	m_pDepthStencilFactory = std::make_unique<CD3D11DepthStencilStateFactory>( );
+	ON_FAIL_RETURN( m_pDepthStencilFactory );
+	m_pDepthStencilFactory->LoadDesc( );
+
+	m_pRasterizerFactory = std::make_unique<CD3D11RasterizerStateFactory>( );
+	ON_FAIL_RETURN( m_pRasterizerFactory );
+	m_pRasterizerFactory->LoadDesc( );
+
+	m_pSamplerFactory = std::make_unique<CD3D11SamplerStateFactory>( );
+	ON_FAIL_RETURN( m_pSamplerFactory );
+	m_pSamplerFactory->LoadDesc( );
+
+	m_pBlendFactory = std::make_unique<CD3D11BlendStateFactory>( );
+	ON_FAIL_RETURN( m_pBlendFactory );
+	m_pBlendFactory->LoadDesc( );
+
+	ON_FAIL_RETURN( InitializeShaders( ) );
+	ON_FAIL_RETURN( InitializeMaterial( ) );
+	ON_FAIL_RETURN( m_meshLoader.Initialize( ) );
+	
+	m_resourceManager = std::make_unique<CD3D11ResourceManager>( m_pd3d11Device.Get( ) );
+	m_resourceManager->SetFrameBufferSize( nWndWidth, nWndHeight );
+	ON_FAIL_RETURN( m_resourceManager->Bootup( ) );
+
+	ON_FAIL_RETURN( m_renderOutput.Initialize( *this ) );
+
+	BUFFER_TRAIT trait = { sizeof( CXMFLOAT4X4 ),
+							WORLD_MATRIX_ELEMENT_SIZE, 
+							RESOURCE_ACCESS_FLAG::CPU_WRITE | RESOURCE_ACCESS_FLAG::GPU_READ,  
+							RESOURCE_TYPE::CONSTANT_BUFFER,
+							0,
+							nullptr, 
+							0, 
+							0 };
+
+	m_pWorldMatrixBuffer = CreateBuffer( trait );
+
+	trait.m_stride = sizeof( SurfaceTrait );
+	trait.m_count = 1;
+	MaterialSystem::GetInstance( )->RegisterConstantBuffer( MAT_CONSTANT_BUFFER::SURFACE, CreateBuffer( trait ) );
+
+	if ( m_pWorldMatrixBuffer == nullptr )
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void CDirect3D11::ShutDownRenderer( )
+{
+	m_shaderList.clear( );
+	m_bufferList.clear( );
+
+	m_pView = std::move( nullptr );
+
+	m_pWorldMatrixBuffer = nullptr;
+
+	m_pDepthStencilFactory = std::move( nullptr );
+	m_pRasterizerFactory = std::move( nullptr );
+	m_pSamplerFactory = std::move( nullptr );
+	m_pMaterialLoader = std::move( nullptr );
+
+#ifdef _DEBUG
+	ReportLiveDevice( );
+#endif
+}
+
+void CDirect3D11::SceneBegin( )
+{
+	m_renderOutput.SetRenderTargetDepthStencilView( *this );
+	m_renderOutput.ClearDepthStencil( *this );
+	m_renderOutput.ClearRenderTargets( *this, rtClearColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
+
+	if ( m_pView )
+	{
+		m_pView->UpdataView( );
+	}
+
+	m_renderEffect.SceneBegin( *this );
+}
+
+void CDirect3D11::ForwardRenderEnd( )
+{
+	TakeSnapshot2D( _T( "DepthGBuffer" ), _T( "DuplicateDepthGBuffer" ) );
+	TakeSnapshot2D( _T( "DefaultRenderTarget" ), _T( "DuplicateFrameBuffer" ) );
+}
+
+void CDirect3D11::SceneEnd( )
+{
+	m_pdxgiSwapChain->Present( 0, 0 );
+
+	TakeSnapshot2D( _T( "DefaultDepthStencil" ), _T( "DebugDepthStencil" ) );
+	TakeSnapshot2D( _T( "ShadowMap" ), _T( "DebugShadowMap" ) );
+
+	m_renderOutput.SceneEnd( m_pd3d11DeviceContext.Get() );
+
+	m_renderEffect.SceneEnd( *this );
+}
+
+IShader* CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pProfile )
+{
+	std::unique_ptr<D3D11VertexShader> vs = std::make_unique<D3D11VertexShader>( m_pd3d11DeviceContext.Get() );
+
+	D3D11_INPUT_ELEMENT_DESC* inputDesc = vs->CreateInputElementDesc( 4 );
+
+	inputDesc[0].SemanticName = "POSITION";
+	inputDesc[0].SemanticIndex = 0;
+	inputDesc[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	inputDesc[0].InputSlot = 0;
+	inputDesc[0].AlignedByteOffset = 0;
+	inputDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	inputDesc[0].InstanceDataStepRate = 0;
+
+	inputDesc[1].SemanticName = "NORMAL";
+	inputDesc[1].SemanticIndex = 0;
+	inputDesc[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	inputDesc[1].InputSlot = 0;
+	inputDesc[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	inputDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	inputDesc[1].InstanceDataStepRate = 0;
+
+	inputDesc[2].SemanticName = "COLOR";
+	inputDesc[2].SemanticIndex = 0;
+	inputDesc[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	inputDesc[2].InputSlot = 0;
+	inputDesc[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	inputDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	inputDesc[2].InstanceDataStepRate = 0;
+
+	inputDesc[3].SemanticName = "TEXCOORD";
+	inputDesc[3].SemanticIndex = 0;
+	inputDesc[3].Format = DXGI_FORMAT_R32G32_FLOAT;
+	inputDesc[3].InputSlot = 0;
+	inputDesc[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	inputDesc[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	inputDesc[3].InstanceDataStepRate = 0;
+
+	if ( vs->CreateShader( m_pd3d11Device.Get( ), pFilePath, pProfile ) )
+	{
+		D3D11VertexShader* ret = vs.get( );
+		m_shaderList.emplace( UTIL::GetFileName( pFilePath ), std::move( vs ) );
+		return ret;
+	}
+
+	return nullptr;
+}
+
+IShader* CDirect3D11::CreatePixelShader( const TCHAR* pFilePath, const char* pProfile )
+{
+	std::unique_ptr<D3D11PixelShader> ps = std::make_unique<D3D11PixelShader>( m_pd3d11DeviceContext.Get( ) );
+	
+	if ( ps->CreateShader( m_pd3d11Device.Get( ), pFilePath, pProfile ) )
+	{
+		D3D11PixelShader* ret = ps.get( );
+		m_shaderList.emplace( UTIL::GetFileName( pFilePath ), std::move( ps ) );
+		return ret;
+	}
+
+	return nullptr;
+}
+
+IBuffer* CDirect3D11::CreateBuffer( const BUFFER_TRAIT& trait )
+{
+	std::unique_ptr<CD3D11Buffer> buffer = std::make_unique<CD3D11Buffer>( m_pd3d11DeviceContext.Get() );
+	
+	if ( buffer->Create( m_pd3d11Device.Get( ), trait ) )
+	{
+		CD3D11Buffer* ret = buffer.get( );
+		m_bufferList.emplace_back( std::move( buffer ) );
+		return ret;
+	}
+
+	return nullptr;
+}
+
+IShader* CDirect3D11::SearchShaderByName( const TCHAR* pName )
+{
+	if ( !pName )
+	{
+		return nullptr;
+	}
+
+	auto found = m_shaderList.find( pName );
+
+	if ( found != m_shaderList.end( ) )
+	{
+		return found->second.get();
+	}
+
+	return nullptr;
+}
+
+bool CDirect3D11::InitializeMaterial( )
+{
+	REGISTER_MATERIAL( *this, TutorialMaterial, tutorial );
+	REGISTER_MATERIAL( *this, WireFrame, wireframe );
+	REGISTER_MATERIAL( *this, TextureMaterial, texture );
+	REGISTER_MATERIAL( *this, SkyBoxMaterial, skybox );
+
+	m_pMaterialLoader = CreateMaterialLoader( );
+
+	if ( m_pMaterialLoader )
+	{
+		return m_pMaterialLoader->LoadMaterials( *this );
+	}
+
+	return false;
+}
+
+IMaterial* CDirect3D11::GetMaterialPtr( const TCHAR* pMaterialName )
+{
+	return MaterialSystem::GetInstance( )->SearchMaterialByName( pMaterialName );
+}
+
+IMesh* CDirect3D11::GetModelPtr( const TCHAR* pModelName )
+{
+	if ( m_meshLoader.LoadMeshFromFile( *this, pModelName, &m_surfaceManager ) )
+	{
+		return m_meshLoader.GetMesh( pModelName );
+	}
+
+	return nullptr;
+}
+
+void CDirect3D11::SetModelPtr( const String& modelName, std::unique_ptr<IMesh> pModel )
+{
+	if ( pModel )
+	{
+		m_meshLoader.RegisterMesh( modelName, std::move( pModel ) );
+	}
+}
+
+void CDirect3D11::PushViewPort( const float topLeftX, const float topLeftY, const float width, const float height, const float minDepth, const float maxDepth )
+{
+	if ( m_pView )
+	{
+		m_pView->PushViewPort( topLeftX, topLeftY, width, height, minDepth, maxDepth );
+		m_pView->SetViewPort( );
+	}
+}
+
+void CDirect3D11::PopViewPort( )
+{
+	if ( m_pView )
+	{
+		m_pView->PopViewPort( );
+		m_pView->SetViewPort( );
+	}
+}
+
+void CDirect3D11::PushScissorRect( const RECT& rect )
+{
+	if ( m_pView )
+	{
+		m_pView->PushScissorRect( rect );
+		m_pView->SetScissorRects( );
+	}
+}
+
+void CDirect3D11::PopScissorRect( )
+{
+	if ( m_pView )
+	{
+		m_pView->PopScissorRect( );
+		m_pView->SetScissorRects( );
+	}
+}
+
+IRenderView* CDirect3D11::GetCurrentRenderView( )
+{
+	return m_pView.get( );
+}
+
+void CDirect3D11::UpdateWorldMatrix( const CXMFLOAT4X4& worldMatrix, const CXMFLOAT4X4& invWorldMatrix )
+{
+	if ( m_pWorldMatrixBuffer == nullptr )
+	{
+		DebugWarning( "m_pWorldMatrixBuffer is nullptr\n" );
+		return;
+	}
+
+	CXMFLOAT4X4* pWorld = static_cast<CXMFLOAT4X4*>( m_pWorldMatrixBuffer->LockBuffer( ) );
+
+	if ( pWorld )
+	{
+		pWorld[0] = XMMatrixTranspose( worldMatrix );
+		pWorld[1] = XMMatrixTranspose( invWorldMatrix );
+	}
+
+	m_pWorldMatrixBuffer->UnLockBuffer( );
+	m_pWorldMatrixBuffer->SetVSBuffer( static_cast<int>( VS_CONSTANT_BUFFER::WORLD ) );
+}
+
+IRenderState* CDirect3D11::CreateRenderState( const String& stateName )
+{
+	if ( m_pRasterizerFactory == nullptr )
+	{
+		DebugWarning( "RasterizerFactory is nullptr" );
+		return nullptr;
+	}
+
+	return m_pRasterizerFactory->GetRasterizerState( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), stateName );
+}
+
+IRenderResource* CDirect3D11::GetShaderResourceFromFile( const String& fileName )
+{
+	m_resourceManager->LoadShaderResourceFromFile( fileName );
+	return m_resourceManager->FindShaderResource( fileName );
+}
+
+IRenderState* CDirect3D11::CreateSamplerState( const String& stateName )
+{
+	if ( m_pSamplerFactory == nullptr )
+	{
+		DebugWarning( "SamplerFactory is nullptr" );
+		return nullptr;
+	}
+
+	return m_pSamplerFactory->GetSamplerState( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), stateName );
+}
+
+IRenderState* CDirect3D11::CreateDepthStencilState( const String& stateName )
+{
+	if ( m_pDepthStencilFactory == nullptr )
+	{
+		DebugWarning( "DepthStencilFactory is nullptr" );
+		return nullptr;
+	}
+
+	return m_pDepthStencilFactory->GetDepthStencilState( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get(), stateName );
+}
+
+IRenderState* CDirect3D11::CreateBlendState( const String& stateName )
+{
+	if ( m_pBlendFactory == nullptr )
+	{
+		DebugWarning( "BlendStateFactory is nullptr" );
+		return nullptr;
+	}
+
+	return m_pBlendFactory->GetBlendState( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), stateName );
+}
+
+void CDirect3D11::TakeSnapshot2D( const String& sourceTextureName, const String& destTextureName )
+{
+	m_resourceManager->TakeSnapshot( m_pd3d11DeviceContext.Get(), sourceTextureName, destTextureName );
+}
+
+void CDirect3D11::PSSetShaderResource( UINT startSlot, IRenderResource* shaderResourceOrNull )
+{
+	ID3D11ShaderResourceView* srv = static_cast<ID3D11ShaderResourceView*>( shaderResourceOrNull ? shaderResourceOrNull->Get( ) : nullptr );
+	m_pd3d11DeviceContext->PSSetShaderResources( startSlot, 1, &srv );
+}
+
+void CDirect3D11::ClearRendertarget( IRenderResource& renderTarget, const float (&clearColor)[4] )
+{
+	m_pd3d11DeviceContext->ClearRenderTargetView( static_cast<ID3D11RenderTargetView*>( renderTarget.Get( ) ), clearColor );
+}
+
+void CDirect3D11::ClearDepthStencil( IRenderResource& depthStencil, float depthColor, UINT8 stencilColor )
+{
+	m_pd3d11DeviceContext->ClearDepthStencilView( static_cast<ID3D11DepthStencilView*>( depthStencil.Get( ) ), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthColor, stencilColor );
+}
+
+void CDirect3D11::SetRenderTarget( IRenderResource* pRenderTarget, IRenderResource* pDepthStencil )
+{
+	ID3D11RenderTargetView* rtv = pRenderTarget ? static_cast<ID3D11RenderTargetView*>( pRenderTarget->Get( ) ) : nullptr;
+	ID3D11DepthStencilView* dsv = pDepthStencil ? static_cast<ID3D11DepthStencilView*>( pDepthStencil->Get( ) ) : nullptr;
+
+	m_pd3d11DeviceContext->OMSetRenderTargets( 1, &rtv, dsv );
+}
+
+void CDirect3D11::SetRenderTarget( RenderTargetBinder& binder, IRenderResource* pDepthStencil )
+{
+	ID3D11DepthStencilView* dsv = pDepthStencil ? static_cast<ID3D11DepthStencilView*>( pDepthStencil->Get( ) ) : nullptr;
+
+	m_pd3d11DeviceContext->OMSetRenderTargets( binder.Count( ), binder.Get( ), dsv );
+}
+
+void CDirect3D11::Draw( UINT primitive, UINT vertexCount, UINT vertexOffset )
+{
+	D3D_PRIMITIVE_TOPOLOGY d3d11Primitive = ConvertPrimToD3D11Prim( primitive );
+	m_pd3d11DeviceContext->IASetPrimitiveTopology( d3d11Primitive );
+	m_pd3d11DeviceContext->Draw( vertexCount, vertexOffset );
+}
+
+void CDirect3D11::DrawIndexed( UINT primitive, UINT indexCount, UINT indexOffset, UINT vertexOffset )
+{
+	D3D_PRIMITIVE_TOPOLOGY d3d11Primitive = ConvertPrimToD3D11Prim( primitive );
+	m_pd3d11DeviceContext->IASetPrimitiveTopology( d3d11Primitive );
+	m_pd3d11DeviceContext->DrawIndexed( indexCount, indexOffset, vertexOffset );
+}
+
+void CDirect3D11::DrawInstanced( UINT primitive, UINT vertexCount, UINT instanceCount, UINT vertexOffset, UINT instanceOffset )
+{
+	D3D_PRIMITIVE_TOPOLOGY d3d11Primitive = ConvertPrimToD3D11Prim( primitive );
+	m_pd3d11DeviceContext->IASetPrimitiveTopology( d3d11Primitive );
+	m_pd3d11DeviceContext->DrawInstanced( vertexCount, instanceCount, vertexOffset, instanceOffset );
+}
+
+void CDirect3D11::DrawInstancedInstanced( UINT primitive, UINT indexCount, UINT instanceCount, UINT indexOffset, UINT vertexOffset, UINT instanceOffset )
+{
+	D3D_PRIMITIVE_TOPOLOGY d3d11Primitive = ConvertPrimToD3D11Prim( primitive );
+	m_pd3d11DeviceContext->IASetPrimitiveTopology( d3d11Primitive );
+	m_pd3d11DeviceContext->DrawIndexedInstanced( indexCount, instanceCount, indexOffset, vertexOffset, instanceOffset );
+}
+
+void CDirect3D11::DrawAuto( UINT primitive )
+{
+	m_pd3d11DeviceContext->DrawAuto( );
+}
+
+IMeshBuilder& CDirect3D11::GetMeshBuilder( )
+{
+	m_meshBuilder.Clear( );
+	return m_meshBuilder;
+}
+
+CDirect3D11::CDirect3D11( )
+{
+	RegisterGraphicsEnumString( );
+}
+
+CDirect3D11::~CDirect3D11( )
+{
+	ShutDownRenderer( );
+}
+
+bool CDirect3D11::CreateD3D11Device( HWND hWind, UINT nWndWidth, UINT nWndHeight )
+{
+	D3D_DRIVER_TYPE d3dDriverTypes[] = {
+		D3D_DRIVER_TYPE_HARDWARE,
+		D3D_DRIVER_TYPE_WARP,
+		D3D_DRIVER_TYPE_REFERENCE
+	};
+
+	D3D_FEATURE_LEVEL d3dFeatureLevel[] = {
+		D3D_FEATURE_LEVEL_11_0,
+		D3D_FEATURE_LEVEL_10_1,
+		D3D_FEATURE_LEVEL_10_0
+	};
+
+	UINT flag = 0;
+#ifdef _DEBUG
+	flag |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+
+	DXGI_SWAP_CHAIN_DESC dxgiSwapchainDesc;
+	::ZeroMemory( &dxgiSwapchainDesc, sizeof( dxgiSwapchainDesc ) );
+
+	dxgiSwapchainDesc.BufferCount = 1;
+	dxgiSwapchainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	dxgiSwapchainDesc.BufferDesc.Height = nWndHeight;
+	dxgiSwapchainDesc.BufferDesc.Width = nWndWidth;
+	dxgiSwapchainDesc.BufferDesc.RefreshRate.Denominator = 1;
+	dxgiSwapchainDesc.BufferDesc.RefreshRate.Numerator = 60;
+	dxgiSwapchainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	dxgiSwapchainDesc.OutputWindow = hWind;
+	dxgiSwapchainDesc.SampleDesc.Count = 1;
+	dxgiSwapchainDesc.SampleDesc.Quality = 0;
+	dxgiSwapchainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	dxgiSwapchainDesc.Windowed = true;
+
+	D3D_FEATURE_LEVEL selectedFeature = D3D_FEATURE_LEVEL_11_0;
+
+	HRESULT hr;
+
+	for ( int i = 0; i < _countof( d3dDriverTypes ); ++i )
+	{
+		if ( SUCCEEDED( hr = D3D11CreateDeviceAndSwapChain( nullptr,
+			d3dDriverTypes[i],
+			nullptr,
+			flag,
+			d3dFeatureLevel,
+			_countof( d3dFeatureLevel ),
+			D3D11_SDK_VERSION,
+			&dxgiSwapchainDesc,
+			&m_pdxgiSwapChain,
+			&m_pd3d11Device,
+			&selectedFeature,
+			&m_pd3d11DeviceContext
+			) ) )
+		{
+#ifdef _DEBUG
+			SetDebugName( m_pd3d11DeviceContext.Get( ), "Device Context" );
+#endif
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void CDirect3D11::ReportLiveDevice( )
+{
+	if ( m_pd3d11Device == nullptr )
+	{
+		return;
+	}
+
+	HRESULT hr;
+	Microsoft::WRL::ComPtr<ID3D11Debug> pD3dDebug;
+
+	hr = m_pd3d11Device.Get( )->QueryInterface( IID_PPV_ARGS( &pD3dDebug ) );
+
+	if ( SUCCEEDED( hr ) )
+	{
+		pD3dDebug->ReportLiveDeviceObjects( D3D11_RLDO_SUMMARY | D3D11_RLDO_DETAIL );
+	}
+}
+
+bool CDirect3D11::InitializeShaders( )
+{
+	return m_shaderLoader.LoadShadersFromScript( *this );
+}
+
+IRenderer* CreateDirect3D11Renderer( )
+{
+	static CDirect3D11 direct3D11;
+	return &direct3D11;
+}

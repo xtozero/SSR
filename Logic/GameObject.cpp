@@ -83,7 +83,7 @@ void CGameObject::Render( IRenderer& renderer )
 	if ( ShouldDraw() && m_pModel )
 	{
 		m_pModel->SetMaterial( m_pOverrideMtl ? m_pOverrideMtl : m_pMaterial );
-		renderer.DrawModel( m_pModel );
+		m_pModel->Draw( renderer );
 	}
 }
 

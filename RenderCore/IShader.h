@@ -7,10 +7,9 @@
 
 struct ID3D10Blob;
 struct ID3D11Device;
-struct ID3D11DeviceContext;
 struct ID3D11ShaderResourceView;
-class IShaderResource;
 class IBuffer;
+class IRenderResource;
 
 class CShaderByteCode
 {
@@ -34,9 +33,9 @@ class IShader
 public:
 	bool CreateShader( ID3D11Device* pDevice, const TCHAR* pFilePath, const char* pProfile );
 
-	virtual void SetShader ( ID3D11DeviceContext* pDeviceContext ) = 0;
-	virtual void SetShaderResource( ID3D11DeviceContext* pDeviceContext, UINT slot, const IShaderResource* pResource ) = 0;
-	virtual void SetConstantBuffer( ID3D11DeviceContext* pDeviceContext, UINT slot, const IBuffer* pBuffer ) = 0;
+	virtual void SetShader ( ) = 0;
+	virtual void SetShaderResource( UINT slot, const IRenderResource* pResource ) = 0;
+	virtual void SetConstantBuffer( UINT slot, const IBuffer* pBuffer ) = 0;
 
 protected:
 	virtual bool CreateShaderInternal( ID3D11Device* pDevice, const void* byteCodePtr, const size_t byteCodeSize ) = 0;

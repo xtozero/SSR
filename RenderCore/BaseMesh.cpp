@@ -2,8 +2,8 @@
 #include "BaseMesh.h"
 #include "common.h"
 #include "CommonMeshDefine.h"
-#include "IMaterial.h"
-#include "IRenderer.h"
+#include "CommonRenderer/IMaterial.h"
+#include "CommonRenderer/IRenderer.h"
 
 void BaseMesh::SetModelData( Owner<MeshVertex*> pOrignal, UINT vertexCount )
 {
@@ -22,16 +22,16 @@ void BaseMesh::SetColor( const CXMFLOAT3& color )
 	m_color = color;
 }
 
-bool BaseMesh::Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topology )
+bool BaseMesh::Load( IRenderer& renderer, UINT primitive )
 {
-	m_primitiveTopology = topology;
+	m_primitiveTopology = primitive;
 
 	m_stride = VERTEX_STRIDE;
 
 	BUFFER_TRAIT trait = { m_stride,
 							m_nVertices,
-							BUFFER_ACCESS_FLAG::GPU_READ,
-							BUFFER_TYPE::VERTEX_BUFFER,
+							RESOURCE_ACCESS_FLAG::GPU_READ,
+							RESOURCE_TYPE::VERTEX_BUFFER,
 							0,
 							m_pModelData,
 							0,
@@ -48,7 +48,7 @@ bool BaseMesh::Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topology )
 	{
 		trait.m_stride = sizeof( WORD );
 		trait.m_count = m_nIndices;
-		trait.m_bufferType = BUFFER_TYPE::INDEX_BUFFER;
+		trait.m_bufferType = RESOURCE_TYPE::INDEX_BUFFER;
 		trait.m_srcData = m_pIndexData;
 
 		m_pIndexBuffer = renderer.CreateBuffer( trait );
@@ -57,9 +57,8 @@ bool BaseMesh::Load( IRenderer& renderer, D3D_PRIMITIVE_TOPOLOGY topology )
 	return true;
 }
 
-void BaseMesh::Draw( ID3D11DeviceContext* )
+void BaseMesh::Draw( IRenderer& )
 {
-
 }
 
 void BaseMesh::SetMaterial( IMaterial* pMaterial )

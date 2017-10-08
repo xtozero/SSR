@@ -7,7 +7,7 @@ class ISurface;
 class CPlyMesh : public BaseMesh
 {
 public:
-	virtual void Draw( ID3D11DeviceContext* pDeviceContext ) override;
+	virtual void Draw( IRenderer& renderer ) override;
 
 	void SetSurface( ISurface* pSurface ) noexcept { m_pSurface = pSurface; }
 

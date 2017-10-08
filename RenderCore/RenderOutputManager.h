@@ -3,17 +3,10 @@
 #include <array>
 #include <tuple>
 
-struct IDXGISwapChain;
-struct ID3D11Device;
 struct ID3D11DeviceContext;
 class IBuffer;
-class IDepthStencil;
 class IRenderer;
-class IRenderTarget;
-class IRenderTargetManager;
-class IShaderResource;
-class IShaderResourceManager;
-class ITextureManager;
+class IRenderResource;
 
 enum RENDER_OUPUT_TYPE
 {
@@ -30,8 +23,8 @@ class CRenderOutputManager
 public:
 	bool Initialize( IRenderer& renderer );
 	void SetRenderTargetDepthStencilView( IRenderer& renderer );
-	void ClearDepthStencil( ID3D11DeviceContext* pDeviceContext );
-	void ClearRenderTargets( ID3D11DeviceContext* pDeviceContext, const rtClearColor& clearColor );
+	void ClearDepthStencil( IRenderer& renderer );
+	void ClearRenderTargets( IRenderer& renderer, const rtClearColor& clearColor );
 	void SceneEnd( ID3D11DeviceContext* pDeviceContext );
 
 	CRenderOutputManager( );
@@ -41,8 +34,8 @@ private:
 	bool CreateDepthRenderTarget( IRenderer& renderer );
 	bool CreateDefaultDepthStencil( IRenderer& renderer );
 
-	std::array<IShaderResource*, RENDER_OUPUT_TYPE::COUNT>	m_renderSRVs;
-	std::array<IRenderTarget*, RENDER_OUPUT_TYPE::COUNT>	m_renderOutputs;
-	IDepthStencil*											m_pPrimeDs;
+	std::array<IRenderResource*, RENDER_OUPUT_TYPE::COUNT>	m_renderSRVs;
+	std::array<IRenderResource*, RENDER_OUPUT_TYPE::COUNT>	m_renderOutputs;
+	IRenderResource*											m_pPrimeDs;
 };
 

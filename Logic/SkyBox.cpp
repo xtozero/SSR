@@ -5,8 +5,8 @@
 #include "GameObjectFactory.h"
 #include "SkyBox.h"
 
+#include "../RenderCore/CommonRenderer/IRenderer.h"
 #include "../RenderCore/IMeshBuilder.h"
-#include "../RenderCore/IRenderer.h"
 
 DECLARE_GAME_OBJECT( skybox, CSkyBox );
 

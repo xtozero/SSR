@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common.h"
-#include "ISurface.h"
+#include "CommonRenderer/ISurface.h"
 
 #include <map>
 #include <memory>

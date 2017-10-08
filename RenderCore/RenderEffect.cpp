@@ -1,12 +1,9 @@
 #include "stdafx.h"
 #include "RenderEffect.h"
 
-#include "IRenderer.h"
-#include "IRenderResourceManager.h"
-#include "IShaderResource.h"
-#include "ITexture.h"
-#include "SnapShotManager.h"
-#include "TextureDescription.h"
+#include "CommonRenderer/IRenderer.h"
+#include "CommonRenderer/IRenderResource.h"
+#include "CommonRenderer/IRenderResourceManager.h"
 
 #include "../Shared/Util.h"
 
@@ -62,32 +59,18 @@ void CEffectOrenNayar::SceneBegin( IRenderer& renderer )
 			}
 		}
 
-		D3D11_SUBRESOURCE_DATA initData;
-		initData.pSysMem = lookup;
-		initData.SysMemPitch = sizeof( float ) * lookupSize;
-		initData.SysMemSlicePitch = 0;
+		RESOURCE_INIT_DATA initData{ lookup, sizeof( float ) * lookupSize, 0 };
 
-		ID3D11Device* pDevice = renderer.GetDevice( );
-		ID3D11DeviceContext* pDeviceContext = renderer.GetDeviceContext( );
-		IShaderResourceManager& shaderResourceMgr = renderer.GetShaderResourceManager( );
-		ITextureManager& textureMgr = renderer.GetTextureManager( );
+		IResourceManager& resourceMgr = renderer.GetResourceManager( );
 
-		if ( pDevice && pDeviceContext )
+		ITexture* pTexture = resourceMgr.CreateTexture2D( OREN_NAYAR_TEX_NAME, OREN_NAYAR_TEX_NAME, &initData );
+		if ( pTexture )
 		{
-			ITexture* pTexture = textureMgr.CreateTexture2D( pDevice, OREN_NAYAR_TEX_NAME, OREN_NAYAR_TEX_NAME, &initData );
-			if ( pTexture )
-			{
-				auto lookupSRV = shaderResourceMgr.CreateShaderResource( pDevice, pTexture, nullptr, OREN_NAYAR_TEX_NAME );
-
-				if ( lookupSRV )
-				{
-					ID3D11ShaderResourceView* srv = lookupSRV->Get( );
-					pDeviceContext->PSSetShaderResources( 1, 1, &srv );
-				}
+			auto lookupResource = resourceMgr.CreateShaderResource( pTexture, OREN_NAYAR_TEX_NAME );
+			renderer.PSSetShaderResource( 1, lookupResource );
 #ifdef _DEBUG
-				renderer.TakeSnapshot2D( OREN_NAYAR_TEX_NAME, OREN_NAYAR_SNAPSHOT_NAME );
+			renderer.TakeSnapshot2D( OREN_NAYAR_TEX_NAME, OREN_NAYAR_SNAPSHOT_NAME );
 #endif
-			}
 		}
 
 		delete[] lookup;

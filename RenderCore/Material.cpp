@@ -4,7 +4,7 @@
 #include "IRenderer.h"
 #include "IRenderState.h"
 #include "IShader.h"
-#include "IShaderResource.h"
+#include "IRenderResource.h"
 #include "ISurface.h"
 #include "Material.h"
 
@@ -22,114 +22,59 @@ void Material::Init( IRenderer& renderer )
 	m_pBlendState = renderer.CreateBlendState( _T( "NULL" ) );
 }
 
-void Material::SetShader( ID3D11DeviceContext* pDeviceContext )
+void Material::SetShader( )
 {
-	if ( pDeviceContext )
+	for ( int i = 0; i < SHADER_TYPE::MAX_SHADER; ++i )
 	{
-		for ( int i = 0; i < SHADER_TYPE::MAX_SHADER; ++i )
+		if ( m_pShaders[i] )
 		{
-			if ( m_pShaders[i] )
-			{
-				m_pShaders[i]->SetShader( pDeviceContext );
-			}
+			m_pShaders[i]->SetShader( );
 		}
+	}
 
-		m_pRasterizerState->Set( pDeviceContext );
-		m_pDepthStencilState->Set( pDeviceContext );
-		m_pBlendState->Set( pDeviceContext );
+	m_pRasterizerState->Set( );
+	m_pDepthStencilState->Set( );
+	m_pBlendState->Set( );
 
-		for ( int i = 0; i < SHADER_TYPE::MAX_SHADER; ++i )
-		{
-			m_pSamplerState[i]->Set( pDeviceContext, static_cast<SHADER_TYPE>( i ) );
-		}
+	for ( int i = 0; i < SHADER_TYPE::MAX_SHADER; ++i )
+	{
+		m_pSamplerState[i]->Set( static_cast<SHADER_TYPE>( i ) );
 	}
 }
 
-void Material::SetTexture( ID3D11DeviceContext* pDeviceContext, UINT shaderType, UINT slot, const IShaderResource* pTexture )
+void Material::SetTexture( UINT shaderType, UINT slot, const IRenderResource* pTexture )
 {
-	if ( pDeviceContext && shaderType < SHADER_TYPE::MAX_SHADER )
+	if ( shaderType < SHADER_TYPE::MAX_SHADER )
 	{
 		if ( m_pShaders[shaderType] )
 		{
-			m_pShaders[shaderType]->SetShaderResource( pDeviceContext, slot, pTexture );
+			m_pShaders[shaderType]->SetShaderResource( slot, pTexture );
 		}
 	}
 }
 
-void Material::SetSurface( ID3D11DeviceContext* pDeviceContext, UINT shaderType, UINT slot, const ISurface* pSurface )
+void Material::SetSurface( UINT shaderType, UINT slot, const ISurface* pSurface )
 {
- 	if ( pDeviceContext && m_pConstantBuffers && pSurface && shaderType < SHADER_TYPE::MAX_SHADER )
+ 	if ( m_pConstantBuffers && pSurface && shaderType < SHADER_TYPE::MAX_SHADER )
 	{
 		IBuffer* pSurfaceBuffer = (*m_pConstantBuffers)[MAT_CONSTANT_BUFFER::SURFACE];
 
 		if ( m_pShaders[shaderType] && pSurfaceBuffer )
 		{
-			const SurfaceTrait* src = pSurface->GetTrait( );
-			static_assert(std::is_trivially_copyable<decltype(src)>::value || std::is_trivial<decltype(src)>::value,
-				"memcpy src class must be standard layout or trivial");
-
+			const SurfaceTrait& src = pSurface->GetTrait( );
 			void* dest = pSurfaceBuffer->LockBuffer( );
 
-			if ( src && dest )
+			if ( dest )
 			{
-				::memcpy_s( dest, pSurfaceBuffer->Size( ), src, sizeof( SurfaceTrait ) );
+				::memcpy_s( dest, pSurfaceBuffer->Size( ), &src, sizeof( SurfaceTrait ) );
 				pSurfaceBuffer->UnLockBuffer( );
-				m_pShaders[shaderType]->SetConstantBuffer( pDeviceContext, slot, pSurfaceBuffer );
+				m_pShaders[shaderType]->SetConstantBuffer( slot, pSurfaceBuffer );
 			}
 			else
 			{
 				pSurfaceBuffer->UnLockBuffer( );
 			}
 		}
-	}
-}
-
-
-void Material::Draw( ID3D11DeviceContext* pDeviceContext, const UINT vertexCount, const UINT vertexOffset )
-{
-	if ( pDeviceContext )
-	{
-		pDeviceContext->Draw( vertexCount, vertexOffset );
-	}
-}
-
-void Material::DrawIndexed( ID3D11DeviceContext* pDeviceContext, const UINT indexCount, const UINT indexOffset, const UINT vertexOffset )
-{
-	if ( pDeviceContext )
-	{
-		pDeviceContext->DrawIndexed( indexCount, indexOffset, vertexOffset );
-	}
-}
-
-void Material::DrawInstanced( ID3D11DeviceContext* pDeviceContext, const UINT vertexCount, const UINT instanceCount, const UINT vertexOffset, const UINT instanceOffset )
-{
-	if ( pDeviceContext )
-	{
-		pDeviceContext->DrawInstanced( vertexCount, instanceCount, vertexOffset, instanceOffset );
-	}
-}
-
-void Material::DrawInstancedInstanced( ID3D11DeviceContext* pDeviceContext, const UINT indexCount, const UINT instanceCount, const UINT indexOffset, const UINT vertexOffset, const UINT instanceOffset )
-{
-	if ( pDeviceContext )
-	{
-		pDeviceContext->DrawIndexedInstanced( indexCount, instanceCount, indexOffset, vertexOffset, instanceOffset );
-	}
-}
-
-void Material::DrawAuto( ID3D11DeviceContext* pDeviceContext )
-{
-	if ( pDeviceContext )
-	{
-		pDeviceContext->DrawAuto( );
-	}
-}
-
-void Material::SetPrimitiveTopology( ID3D11DeviceContext* pDeviceContext, D3D_PRIMITIVE_TOPOLOGY primtopology )
-{
-	if ( pDeviceContext )
-	{
-		pDeviceContext->IASetPrimitiveTopology( primtopology );
 	}
 }
 

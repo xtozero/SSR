@@ -1,20 +1,17 @@
 #include "stdafx.h"
+#include "PlyMesh.h"
+
 #include "common.h"
 #include "CommonMeshDefine.h"
-#include "ConstantBufferDefine.h"
+#include "CommonRenderer/ConstantBufferDefine.h"
+
+#include "CommonRenderer/ISurface.h"
+#include "CommonRenderer/IRenderer.h"
 
 #include "Material.h"
 
-#include "PlyMesh.h"
-#include "ISurface.h"
-
-void CPlyMesh::Draw( ID3D11DeviceContext* pDeviceContext )
+void CPlyMesh::Draw( IRenderer& renderer )
 {
-	if ( !pDeviceContext )
-	{
-		return;
-	}
-
 	if ( !m_pMaterial )
 	{
 		return;
@@ -25,21 +22,20 @@ void CPlyMesh::Draw( ID3D11DeviceContext* pDeviceContext )
 		return;
 	}
 
-	m_pMaterial->SetShader( pDeviceContext );
-	m_pMaterial->SetPrimitiveTopology( pDeviceContext, m_primitiveTopology );
+	m_pMaterial->SetShader( );
 	if ( m_pSurface != nullptr )
 	{
-		m_pMaterial->SetSurface( pDeviceContext, SHADER_TYPE::PS, static_cast<UINT>(PS_CONSTANT_BUFFER::SURFACE), m_pSurface );
+		m_pMaterial->SetSurface( SHADER_TYPE::PS, static_cast<UINT>(PS_CONSTANT_BUFFER::SURFACE), m_pSurface );
 	}
 	m_pVertexBuffer->SetVertexBuffer( &m_stride, &m_nOffset );
 	if ( m_pIndexBuffer )
 	{
 		m_pIndexBuffer->SetIndexBuffer( sizeof( WORD ), m_nIndexOffset );
-		m_pMaterial->DrawIndexed( pDeviceContext, m_nIndices, m_nIndexOffset, m_nOffset );
+		renderer.DrawIndexed( m_primitiveTopology, m_nIndices, m_nIndexOffset, m_nOffset );
 	}
 	else
 	{
-		m_pMaterial->Draw( pDeviceContext, m_nVertices, m_nOffset );
+		renderer.Draw( m_primitiveTopology, m_nVertices, m_nOffset );
 	}
 }
 
