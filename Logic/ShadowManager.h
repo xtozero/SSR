@@ -1,20 +1,20 @@
 #pragma once
 
+class CGameLogic;
 class CLightManager;
 class IBuffer;
 class IMaterial;
-class IRenderer;
 class IRenderResource;
 class ITexture;
 
 class CShadowManager
 {
 public:
-	void Init( IRenderer& renderer );
-	void SceneBegin( CLightManager& lightMgr, IRenderer& renderer );
-	void DrawScene( CLightManager& lightMgr, IRenderer& renderer, std::vector<std::unique_ptr<CGameObject>>& gameObjects );
-	void SceneEnd( CLightManager& lightMgr, IRenderer& renderer );
-	void Process( CLightManager& lightMgr, IRenderer& renderer, std::vector<std::unique_ptr<CGameObject>>& gameObjects );
+	void Init( CGameLogic& gameLogic );
+	void SceneBegin( CLightManager& lightMgr, CGameLogic& gameLogic );
+	void DrawScene( CLightManager& lightMgr, CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects );
+	void SceneEnd( CLightManager& lightMgr, CGameLogic& gameLogic );
+	void Process( CLightManager& lightMgr, CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects );
 
 private:
 	bool m_isEnabled = false;

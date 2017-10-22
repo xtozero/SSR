@@ -7,11 +7,12 @@
 
 #include <memory>
 
+class CGameLogic;
 class IRenderer;
 class IRigidBody;
 class IMaterial;
 class IMesh;
-class CKeyValueIterator;
+class KeyValue;
 
 class CGameObject
 {
@@ -29,7 +30,7 @@ public:
 	const CXMFLOAT4X4& GetInvTransformMatrix( );
 
 	void UpdateWorldMatrix( IRenderer& renderer );
-	virtual void Render( IRenderer& renderer );
+	virtual void Render( CGameLogic& gameLogic );
 
 	virtual void Think( );
 
@@ -39,7 +40,7 @@ public:
 	void SetModelMeshName( const String& pModelName );
 	const String& GetMeshName( ) const { return m_meshName; }
 
-	bool Initialize( IRenderer& renderer );
+	bool Initialize( CGameLogic& gameLogic );
 	bool NeedInitialize( ) { return m_needInitialize; }
 	const IRigidBody* GetRigidBody( int type ) const { return m_rigideBodies[type].get( ); }
 
@@ -58,7 +59,7 @@ public:
 	void AddProperty( const GAMEOBJECT_PROPERTY property ) { m_property |= property; }
 	void RemoveProperty( const GAMEOBJECT_PROPERTY property ) { m_property &= ~property; }
 
-	virtual bool LoadPropertyFromScript( const CKeyValueIterator& pKeyValue );
+	virtual void LoadPropertyFromScript( const KeyValue& keyValue );
 
 	virtual bool IgnorePicking( ) const { return false; }
 
@@ -68,9 +69,8 @@ public:
 	CGameObject( );
 	~CGameObject( ) = default ;
 protected:
-	virtual bool LoadModelMesh( IRenderer& renderer );
-	virtual bool LoadMaterial( IRenderer& renderer );
-	void LoadRigidBody( IRenderer& renderer );
+	virtual bool LoadModelMesh( CGameLogic& gameLogic );
+	virtual bool LoadMaterial( CGameLogic& gameLogic );
 private:
 	void RebuildTransform( );
 	void UpdateRigidBody( RIGID_BODY_TYPE type );

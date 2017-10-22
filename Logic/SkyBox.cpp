@@ -1,12 +1,14 @@
 #include "stdafx.h"
-#include "Camera.h"
-#include "CameraManager.h"
-#include "GameObject.h"
-#include "GameObjectFactory.h"
 #include "SkyBox.h"
 
+#include "Camera.h"
+#include "CameraManager.h"
+#include "GameLogic.h"
+#include "GameObject.h"
+#include "GameObjectFactory.h"
+#include "Model/IModelBuilder.h"
+
 #include "../RenderCore/CommonRenderer/IRenderer.h"
-#include "../RenderCore/IMeshBuilder.h"
 
 DECLARE_GAME_OBJECT( skybox, CSkyBox );
 
@@ -25,9 +27,9 @@ void CSkyBox::Think( )
 	}
 }
 
-bool CSkyBox::LoadModelMesh( IRenderer& renderer )
+bool CSkyBox::LoadModelMesh( CGameLogic& gameLogic )
 {
-	IMeshBuilder& meshBuilder = renderer.GetMeshBuilder( );
+	IModelBuilder& meshBuilder = gameLogic.GetModelManager( ).GetModelBuilder( );
 
 	if ( GetModel( ) != nullptr )
 	{
@@ -60,7 +62,7 @@ bool CSkyBox::LoadModelMesh( IRenderer& renderer )
 	meshBuilder.AppendTextureName( _T( "SkyboxSet/TropicalSunnyDay/TropicalSunnyDay.dds" ) );
 	
 	SetModelMeshName( GetName( ) );
-	SetModel( meshBuilder.Build( renderer, GetMeshName() ) );
+	SetModel( meshBuilder.Build( gameLogic.GetRenderer(), GetMeshName() ) );
 
 	return GetModel() ? true : false;
 }

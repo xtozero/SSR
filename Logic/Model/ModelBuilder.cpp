@@ -1,18 +1,20 @@
 #include "stdafx.h"
+#include "ModelBuilder.h"
+
 #include "BaseMesh.h"
-#include "CommonRenderer/IRenderer.h"
 #include "IMesh.h"
-#include "Material.h"
+#include "ModelManager.h"
+#include "../GameLogic.h"
+#include "../../RenderCore/CommonRenderer/IMaterial.h"
+#include "../../RenderCore/CommonRenderer/IRenderer.h"
 
-#include "MeshBuilder.h"
-
-#include "../Shared/Util.h"
+#include "../../Shared/Util.h"
 
 class CMeshBuilderMesh : public BaseMesh
 {
 public:
 	virtual bool Load( IRenderer& renderer, UINT primitive = RESOURCE_PRIMITIVE::TRIANGLELIST ) override;
-	virtual void Draw( IRenderer& renderer ) override;
+	virtual void Draw( CGameLogic& gameLogic ) override;
 
 	virtual void SetTexture( IRenderResource* pTexture ) override;
 	virtual IRenderResource* GetTexture( ) const override { return m_pTexture; };
@@ -41,7 +43,7 @@ bool CMeshBuilderMesh::Load( IRenderer& renderer, UINT primitive )
 	return loadSuccess;
 }
 
-void CMeshBuilderMesh::Draw( IRenderer& renderer )
+void CMeshBuilderMesh::Draw( CGameLogic& gameLogic )
 {
 	if ( !m_pMaterial )
 	{
@@ -59,11 +61,11 @@ void CMeshBuilderMesh::Draw( IRenderer& renderer )
 	if ( m_pIndexBuffer )
 	{
 		m_pIndexBuffer->SetIndexBuffer( sizeof( WORD ), m_nIndexOffset );
-		renderer.DrawIndexed( m_primitiveTopology, m_nIndices, m_nIndexOffset, m_nOffset );
+		gameLogic.GetRenderer().DrawIndexed( m_primitiveTopology, m_nIndices, m_nIndexOffset, m_nOffset );
 	}
 	else
 	{
-		renderer.Draw( m_primitiveTopology, m_nVertices, m_nOffset );
+		gameLogic.GetRenderer( ).Draw( m_primitiveTopology, m_nVertices, m_nOffset );
 	}
 }
 
@@ -72,24 +74,24 @@ void CMeshBuilderMesh::SetTexture( IRenderResource* pTexture )
 	m_pTexture = pTexture;
 }
 
-void CMeshBuilder::Append( const MeshVertex& newVertex )
+void CModelBuilder::Append( const MeshVertex& newVertex )
 {
 	m_vertices.emplace_back( newVertex );
 }
 
-void CMeshBuilder::AppendIndex( const WORD index )
+void CModelBuilder::AppendIndex( const WORD index )
 {
 	m_indices.push_back( index );
 }
 
-void CMeshBuilder::AppendTextureName( const String& textureName )
+void CModelBuilder::AppendTextureName( const String& textureName )
 {
 	m_textureName = textureName;
 }
 
-IMesh* CMeshBuilder::Build( IRenderer& renderer, const String& meshName, UINT primitive ) const
+IMesh* CModelBuilder::Build( IRenderer& renderer, const String& meshName, UINT primitive ) const
 {
-	if ( IMesh* found = renderer.GetModelPtr( meshName.c_str( ) ) )
+	if ( IMesh* found = m_modelManager.FindModel( meshName.c_str( ) ) )
 	{
 		return found;
 	}
@@ -130,7 +132,7 @@ IMesh* CMeshBuilder::Build( IRenderer& renderer, const String& meshName, UINT pr
 	if ( newMesh->Load( renderer, primitive ) )
 	{
 		CMeshBuilderMesh* ret = newMesh.get( );
-		renderer.SetModelPtr( meshName, std::move( newMesh ) );
+		m_modelManager.RegisterMesh( meshName, std::move( newMesh ) );
 		return ret;
 	}
 	else
@@ -140,7 +142,7 @@ IMesh* CMeshBuilder::Build( IRenderer& renderer, const String& meshName, UINT pr
 	}
 }
 
-void CMeshBuilder::Clear( )
+void CModelBuilder::Clear( )
 {
 	m_vertices.clear( );
 	m_indices.clear( );

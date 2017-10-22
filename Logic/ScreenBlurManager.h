@@ -1,17 +1,17 @@
 #pragma once
 #include <memory>
 
+class CGameLogic;
 class IMesh;
-class IMeshBuilder;
+class IModelBuilder;
 class IMaterial;
-class IRenderer;
 class IRenderResource;
 
 class ScreenBlurManager
 {
 public:
-	bool Init( IRenderer& renderer, IMeshBuilder& meshBuilder );
-	void Process( IRenderer& renderer, IRenderResource& destSRV, IRenderResource& destRT ) const;
+	bool Init( CGameLogic& gameLogic, IModelBuilder& meshBuilder );
+	void Process( CGameLogic& gameLogic, IRenderResource& destSRV, IRenderResource& destRT ) const;
 
 private:
 	IMesh* m_pScreenRect = nullptr;

@@ -49,6 +49,8 @@ public:
 	void SetKey( const String& key );
 	void SetValue( const String& value );
 
+	const KeyValue* Find( const String& key ) const;
+
 private:
 	std::unique_ptr<KeyValue> m_pNext;
 	std::unique_ptr<KeyValue> m_pChild;
@@ -103,7 +105,7 @@ private:
 class ENGINE_DLL CKeyValueReader
 {
 public:
-	std::unique_ptr<KeyValueGroupImpl> LoadKeyValueFromFile( String filename );
+	std::unique_ptr<KeyValue> LoadKeyValueFromFile( String filename );
 
 	CKeyValueReader( ) = default;
 	~CKeyValueReader( ) = default;

@@ -60,9 +60,6 @@
     <ClInclude Include="EnumStringMap.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ScriptKeyHandler.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="IEngine.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>

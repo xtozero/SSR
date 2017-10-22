@@ -37,7 +37,7 @@ public:
 	virtual void SetScale( const float xScale, const float yScale, const float zScale ) override;
 	virtual void SetRotate( const float pitch, const float yaw, const float roll ) override;
 	
-	virtual void Render( IRenderer& renderer ) override;
+	virtual void Render( CGameLogic& gameLogic ) override;
 
 	virtual bool ShouldDraw( ) const override { return false; }
 	virtual bool ShouldDrawShadow( ) const override { return false; }

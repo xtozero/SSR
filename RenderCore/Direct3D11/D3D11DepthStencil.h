@@ -16,11 +16,10 @@ class CDepthStencil : public IRenderResource
 public:
 	virtual void* Get( ) const override;
 
-	bool CreateDepthStencil( ID3D11Device* pDevice, const ITexture* pResource, const TEXTURE_TRAIT* traitOrNull );
+	bool CreateDepthStencil( ID3D11Device& device, const ITexture& texture, const TEXTURE_TRAIT* traitOrNull );
 	void SetRenderTargetView( Microsoft::WRL::ComPtr<ID3D11DepthStencilView>& depthStencilView );
-	void Clear( ID3D11DeviceContext* pDeviceContext, unsigned int clearFlag, float depth, unsigned char stencil );
+	void Clear( ID3D11DeviceContext& deviceContext, unsigned int clearFlag, float depth, unsigned char stencil );
 
-	CDepthStencil( );
 private:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_pDepthStencilVeiw;
 };

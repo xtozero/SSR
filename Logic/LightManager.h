@@ -3,7 +3,6 @@
 #include "common.h"
 #include "Light.h"
 
-#include "../Engine/ScriptKeyHandler.h"
 #include "../shared/Math/CXMFloat.h"
 
 #include <array>
@@ -26,9 +25,9 @@ struct ShaderLightTrait
 class CCamera;
 class IBuffer;
 class IRenderer;
-class KeyValueGroup;
+class KeyValue;
 
-class CLightManager : public CScriptKeyHandler<CLightManager>
+class CLightManager
 {
 public:
 	bool Initialize( IRenderer& renderer, std::vector<std::unique_ptr<CGameObject>>& objectList );
@@ -47,7 +46,7 @@ public:
 
 private:
 	void LoadPropertyFromScript( );
-	void LoadLightProperty( const KeyValueGroup* pKeyValues );
+	void LoadLightProperty( const KeyValue& keyValue );
 
 	std::array<CLight*, MAX_LIGHTS > m_lights;
 	ShaderLightTrait m_shaderLightProperty;

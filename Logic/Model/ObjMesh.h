@@ -4,7 +4,7 @@
 #include <vector>
 
 class IRenderResource;
-class ISurface;
+struct Surface;
 
 struct ObjSurfaceTrait
 {
@@ -16,7 +16,7 @@ struct ObjSurfaceTrait
 
 	UINT m_indexOffset;
 	UINT m_indexCount;
-	ISurface* m_pSurface;
+	Surface* m_pSurface;
 	IRenderResource* m_pTexture;
 };
 
@@ -24,7 +24,7 @@ class CObjMesh : public BaseMesh
 {
 public:
 	virtual bool Load( IRenderer& renderer, UINT primitive = RESOURCE_PRIMITIVE::TRIANGLELIST ) override;
-	virtual void Draw( IRenderer& renderer ) override;
+	virtual void Draw( CGameLogic& gameLogic ) override;
 
 	void AddMaterialGroup( const ObjSurfaceTrait& trait );
 

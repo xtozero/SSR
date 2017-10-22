@@ -2,22 +2,22 @@
 
 #include "GameObject.h"
 
-class CKeyValueIterator;
+class KeyValue;
 
 class CDisplayShaderResourceHelper : public CGameObject
 {
 public:
 	virtual void SetPosition( const CXMFLOAT3& pos ) override;
-	virtual void Render( IRenderer& renderer ) override;
+	virtual void Render( CGameLogic& gameLogic ) override;
 	virtual void Think( ) override;
 
-	virtual bool LoadPropertyFromScript( const CKeyValueIterator& pKeyValue ) override;
+	virtual void LoadPropertyFromScript( const KeyValue& pKeyValue ) override;
 
 	virtual bool IgnorePicking( ) const override { return ShouldDraw( ); }
 
 	virtual bool ShouldDraw( ) const override;
 protected:
-	virtual bool LoadModelMesh( IRenderer& renderer ) override;
+	virtual bool LoadModelMesh( CGameLogic& gameLogic ) override;
 
 private:
 

@@ -98,7 +98,7 @@ bool CMaterialLoader::LoadMaterials( IRenderer& renderer )
 {
 	CKeyValueReader keyValueReader;
 
-	std::unique_ptr<KeyValueGroup> pKeyValues = keyValueReader.LoadKeyValueFromFile( MATERIAL_SCRIPT_FILE_NAME );
+	std::unique_ptr<KeyValue> pKeyValues = keyValueReader.LoadKeyValueFromFile( MATERIAL_SCRIPT_FILE_NAME );
 
 	if ( pKeyValues == nullptr )
 	{
@@ -106,63 +106,58 @@ bool CMaterialLoader::LoadMaterials( IRenderer& renderer )
 		return false;
 	}
 
-	auto keyValue = pKeyValues->FindKeyValue( _T( "Materials" ) );
+	const KeyValue* material = pKeyValues->GetChild( );
 
-	if ( keyValue == nullptr )
+	if ( material == nullptr )
 	{
 		DebugWarning( "There is No Entering Point!!!\n" );
 		return false;
 	}
 
-	for ( auto material = keyValue->GetChild( ); material != nullptr; material = material->GetNext( ) )
+	for ( ; material != nullptr; material = material->GetNext( ) )
 	{
-		CreateScriptedMaterial( renderer, material );
+		CreateScriptedMaterial( renderer, *material );
 	}
 
 	return true;
 }
 
-bool CMaterialLoader::CreateScriptedMaterial( IRenderer& renderer, const KeyValue* pKeyValue )
+bool CMaterialLoader::CreateScriptedMaterial( IRenderer& renderer, const KeyValue& keyValue )
 {
-	if ( pKeyValue == nullptr )
-	{
-		DebugWarning( "CreateScriptedMaterial Fail!!! - pMaterial is nullptr\n" );
-		return false;
-	}
-
 	std::unique_ptr<CScriptedMaterial> newMaterial = std::make_unique<CScriptedMaterial>();
 	newMaterial->Init( renderer );
 	CScriptedMaterial* pMaterial = newMaterial.get( );
-	MaterialSystem::GetInstance( )->RegisterMaterial( pKeyValue->GetKey( ).c_str(), std::move( newMaterial ) );
+	MaterialSystem::GetInstance( )->RegisterMaterial( keyValue.GetKey( ).c_str(), std::move( newMaterial ) );
 
-	for ( auto property = pKeyValue->GetChild( ); property != nullptr; property = property->GetNext( ) )
+	if ( const KeyValue* pShader = keyValue.Find( _T( "Shader" ) ) )
 	{
-		if ( property->GetKey() == _T( "Shader" ) )
+		for ( auto shader = pShader->GetChild( ); shader != nullptr; shader = shader->GetNext( ) )
 		{
-			for ( auto shader = property->GetChild( ); shader != nullptr; shader = shader->GetNext() )
-			{
-				ON_FAIL_RETURN( pMaterial->SetShader( renderer, TranslateShaderType( shader->GetKey() ), shader->GetValue() ) );
-			}
+			ON_FAIL_RETURN( pMaterial->SetShader( renderer, TranslateShaderType( shader->GetKey( ) ), shader->GetValue( ) ) );
 		}
-		else if ( property->GetKey( ) == _T( "RS_State" ) )
+	}
+
+	if ( const KeyValue* pRsState = keyValue.Find( _T( "RS_State" ) ) )
+	{
+		ON_FAIL_RETURN( pMaterial->SetRasterizerState( renderer, pRsState->GetValue( ) ) );
+	}
+	
+	if ( const KeyValue* pDsState = keyValue.Find( _T( "DS_State" ) ) )
+	{
+		ON_FAIL_RETURN( pMaterial->SetDepthStencilState( renderer, pDsState->GetValue( ) ) );
+	}
+	
+	if ( const KeyValue* pSamplers = keyValue.Find( _T( "Sampler" ) ) )
+	{
+		for ( auto sampler = pSamplers->GetChild( ); sampler != nullptr; sampler = sampler->GetNext( ) )
 		{
-			ON_FAIL_RETURN( pMaterial->SetRasterizerState( renderer, property->GetValue( ) ) );
+			ON_FAIL_RETURN( pMaterial->SetSamplerState( renderer, TranslateShaderType( sampler->GetKey( ) ), sampler->GetValue( ) ) );
 		}
-		else if ( property->GetKey( ) == _T( "DS_State" ) )
-		{
-			ON_FAIL_RETURN( pMaterial->SetDepthStencilState( renderer, property->GetValue( ) ) );
-		}
-		else if ( property->GetKey( ) == _T( "Sampler" ) )
-		{
-			for ( auto sampler = property->GetChild( ); sampler != nullptr; sampler = sampler->GetNext( ) )
-			{
-				ON_FAIL_RETURN( pMaterial->SetSamplerState( renderer, TranslateShaderType( sampler->GetKey( ) ), sampler->GetValue( ) ) );
-			}
-		}
-		else if ( property->GetKey( ) == _T( "Blend" ) )
-		{
-			ON_FAIL_RETURN( pMaterial->SetBlendState( renderer, property->GetValue( ) ) )
-		}
+	}
+	
+	if ( const KeyValue* pBlend = keyValue.Find( _T( "Blend" ) ) )
+	{
+		ON_FAIL_RETURN( pMaterial->SetBlendState( renderer, pBlend->GetValue( ) ) )
 	}
 
 	return true;

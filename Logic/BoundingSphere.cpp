@@ -1,15 +1,16 @@
 #include "stdafx.h"
 #include "BoundingSphere.h"
+
+#include "Model/CommonMeshDefine.h"
+#include "Model/IMesh.h"
 #include "Ray.h"
-#include "../RenderCore/CommonMeshDefine.h"
-#include "../RenderCore/IMesh.h"
 
 using namespace DirectX;
 
-void BoundingSphere::CreateRigideBody( IMesh* pMesh )
+void BoundingSphere::CreateRigideBody( const IMesh& mesh )
 {
-	int verticesCount = pMesh->GetVerticesCount( );
-	MeshVertex* pVertices = static_cast<MeshVertex*>( pMesh->GetMeshData( ) );
+	int verticesCount = mesh.GetVerticesCount( );
+	const MeshVertex* pVertices = static_cast<const MeshVertex*>( mesh.GetMeshData( ) );
 
 	m_radiusSqr = -FLT_MAX;
 	for ( int i = 0; i < verticesCount; ++i )

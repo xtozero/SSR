@@ -32,11 +32,11 @@ public:
 		return instance;
 	}
 
-	IRigidBody* GetRigidBody( IRenderer& renderer, const String& meshName, RIGID_BODY_TYPE type );
+	IRigidBody* GetRigidBody( const IMesh& mesh, RIGID_BODY_TYPE type );
 	Owner<IRigidBody*> MakeRigidBody( RIGID_BODY_TYPE type );
 
 private:
-	Owner<IRigidBody*> CreateRigidBody( IRenderer& renderer, const String& meshName, RIGID_BODY_TYPE type );
+	Owner<IRigidBody*> CreateRigidBody( const IMesh& mesh, RIGID_BODY_TYPE type );
 
 	std::map<String, RigidBodyGroup> m_rigidBodyList;
 };

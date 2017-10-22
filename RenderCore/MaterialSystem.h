@@ -14,13 +14,11 @@ class MaterialSystem
 {
 private:
 	std::map<String, std::unique_ptr<IMaterial>> m_materials;
-	MatConstantBuffers m_constantBuffers;
 
 public:
 	static MaterialSystem* GetInstance( );
 
 	void RegisterMaterial( const TCHAR* pName, std::unique_ptr<IMaterial> pMaterial );
-	void RegisterConstantBuffer( UINT type, IBuffer* pConstantBuffer );
 	IMaterial* SearchMaterialByName( const TCHAR* pName );
 
 	virtual ~MaterialSystem( );

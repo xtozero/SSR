@@ -31,7 +31,7 @@ void CLight::SetRotate( const float pitch, const float yaw, const float roll )
 	//DO Nothing
 }
 
-void CLight::Render( IRenderer& renderer )
+void CLight::Render( CGameLogic& gameLogic )
 {
 	//Do Nothing Yet
 }

@@ -63,7 +63,7 @@ void* CDepthStencil::Get( ) const
 	return m_pDepthStencilVeiw.Get( );
 }
 
-bool CDepthStencil::CreateDepthStencil( ID3D11Device* pDevice, const ITexture* pTexture, const TEXTURE_TRAIT* traitOrNull )
+bool CDepthStencil::CreateDepthStencil( ID3D11Device& device, const ITexture& texture, const TEXTURE_TRAIT* traitOrNull )
 {
 	D3D11_DEPTH_STENCIL_VIEW_DESC* pDsvDesc = nullptr;
 	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
@@ -74,7 +74,14 @@ bool CDepthStencil::CreateDepthStencil( ID3D11Device* pDevice, const ITexture* p
 		pDsvDesc = &dsvDesc;
 	}
 
-	return SUCCEEDED( pDevice->CreateDepthStencilView( static_cast<ID3D11Resource*>( pTexture->Get( ) ), pDsvDesc, m_pDepthStencilVeiw.GetAddressOf( ) ) );
+	ID3D11Resource* pResource = static_cast<ID3D11Resource*>( texture.Get( ) );
+
+	if ( pResource == nullptr )
+	{
+		return false;
+	}
+
+	return SUCCEEDED( device.CreateDepthStencilView( pResource, pDsvDesc, m_pDepthStencilVeiw.GetAddressOf( ) ) );
 }
 
 void CDepthStencil::SetRenderTargetView( Microsoft::WRL::ComPtr<ID3D11DepthStencilView>& depthStencilView )
@@ -82,15 +89,10 @@ void CDepthStencil::SetRenderTargetView( Microsoft::WRL::ComPtr<ID3D11DepthStenc
 	m_pDepthStencilVeiw = depthStencilView;
 }
 
-void CDepthStencil::Clear( ID3D11DeviceContext* pDeviceContext, unsigned int clearFlag, float depth, unsigned char stencil )
+void CDepthStencil::Clear( ID3D11DeviceContext& deviceContext, unsigned int clearFlag, float depth, unsigned char stencil )
 {
-	if ( pDeviceContext && m_pDepthStencilVeiw )
+	if ( m_pDepthStencilVeiw )
 	{
-		pDeviceContext->ClearDepthStencilView( m_pDepthStencilVeiw.Get( ), clearFlag, depth, stencil );
+		deviceContext.ClearDepthStencilView( m_pDepthStencilVeiw.Get( ), clearFlag, depth, stencil );
 	}
-}
-
-CDepthStencil::CDepthStencil( ) : m_pDepthStencilVeiw( nullptr )
-{
-
 }

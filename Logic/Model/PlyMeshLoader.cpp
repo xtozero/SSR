@@ -2,8 +2,6 @@
 #include "CommonMeshDefine.h"
 #include "PlyMesh.h"
 #include "PlyMeshLoader.h"
-#include "Surface.h"
-#include "SurfaceManager.h"
 
 #include <assert.h>
 #include <fstream>
@@ -74,7 +72,7 @@ namespace
 	}
 }
 
-Owner<IMesh*> CPlyMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pFileName, CSurfaceManager* pSurfaceManager )
+Owner<IMesh*> CPlyMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pFileName, SurfaceMap& surface )
 {
 	TCHAR pPath[MAX_PATH];
 	::GetCurrentDirectory( MAX_PATH, pPath );
@@ -170,16 +168,6 @@ Owner<IMesh*> CPlyMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR
 
 	newMesh->SetModelData( vertices, vertexCount );
 	newMesh->SetIndexData( indices, indexCount );
-
-	ISurface* defaultSurface = pSurfaceManager->FindSurface( PLY_DEFAULT_SURFACE_NAME );
-
-	if ( defaultSurface == nullptr )
-	{
-		std::unique_ptr<ISurface> newSurface = std::make_unique<CSurface>( );
-		defaultSurface = pSurfaceManager->RegisterSurface( PLY_DEFAULT_SURFACE_NAME, std::move( newSurface ) );
-	}
-	
-	newMesh->SetSurface( defaultSurface );
 	
 	if ( newMesh->Load( renderer ) )
 	{

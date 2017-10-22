@@ -2,16 +2,15 @@
 
 #include "CommonMeshDefine.h"
 
-#include "CommonRenderer/Resource.h"
+#include "../../RenderCore/CommonRenderer/Resource.h"
 
 #include <memory>
 #include <vector>
-#include <d3dcommon.h>
 
-class IMesh;
 class IRenderer;
+class IMesh;
 
-class IMeshBuilder
+class IModelBuilder
 {
 public:
 	virtual void Append( const MeshVertex& newVertex ) = 0;
@@ -21,8 +20,8 @@ public:
 
 	virtual void Clear( ) = 0;
 
-	virtual ~IMeshBuilder( ) = default;
+	virtual ~IModelBuilder( ) = default;
 
 protected:
-	IMeshBuilder( ) = default;
+	IModelBuilder( ) = default;
 };

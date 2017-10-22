@@ -9,11 +9,8 @@
 #include "../Engine/ConVar.h"
 #include "../Engine/ConCommand.h"
 #include "../Engine/KeyValueReader.h"
-#include "../RenderCore/BaseMesh.h"
-#include "../RenderCore/DebugMesh.h"
 #include "../RenderCore/CommonRenderer/IRenderer.h"
-#include "../RenderCOre/CommonRenderer/IRenderView.h"
-#include "../RenderCore/IMeshBuilder.h"
+#include "../RenderCore/CommonRenderer/IRenderView.h"
 #include "../RenderCore/RenderCoreDllFunc.h"
 #include "../shared/IPlatform.h"
 #include "../shared/UserInput.h"
@@ -74,9 +71,26 @@ bool CGameLogic::Initialize( IPlatform& platform )
 
 	ON_FAIL_RETURN( LoadScene( ) );
 	ON_FAIL_RETURN( m_lightManager.Initialize( *m_pRenderer, m_gameObjects ) );
-	m_shadowManager.Init( *m_pRenderer );
+	m_shadowManager.Init( *this );
 
-	ON_FAIL_RETURN( m_ssrManager.Init( *m_pRenderer, m_pRenderer->GetMeshBuilder( ) ) );
+	ON_FAIL_RETURN( m_ssrManager.Init( *this ) );
+
+	BUFFER_TRAIT trait = {
+		sizeof( SurfaceTrait ),
+		1,
+		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
+		RESOURCE_TYPE::CONSTANT_BUFFER,
+		0,
+		nullptr,
+		0,
+		0,
+	};
+
+	m_commonConstantBuffer[COMMON_CONSTANT_BUFFER::PS_SURFACE] = m_pRenderer->CreateBuffer( trait );
+	if ( m_commonConstantBuffer[COMMON_CONSTANT_BUFFER::PS_SURFACE] == nullptr )
+	{
+		return false;
+	}
 
 	return true;
 }
@@ -121,7 +135,7 @@ void CGameLogic::ProcessLogic ( void )
 void CGameLogic::EndLogic ( void )
 {
 	//그림자 맵 렌더링
-	m_shadowManager.Process( m_lightManager, *m_pRenderer, m_gameObjects );
+	m_shadowManager.Process( m_lightManager, *this, m_gameObjects );
 
 	//게임 로직 수행 후처리
 	m_mainCamera.UpdateToRenderer( *m_pRenderer );
@@ -135,14 +149,16 @@ void CGameLogic::EndLogic ( void )
 bool CGameLogic::LoadScene( void )
 {
 	m_gameObjects.clear( );
-	std::unique_ptr<KeyValueGroup> keyValue = m_sceneLoader.LoadSceneFromFile( *m_pRenderer, m_gameObjects, _T( "../Script/TestScene.txt" ) );
+
+	CSceneLoader sceneLoader;
+	std::unique_ptr<KeyValue> keyValue = sceneLoader.LoadSceneFromFile( *this, m_gameObjects, _T( "../Script/TestScene.txt" ) );
 
 	if ( !keyValue )
 	{
 		return false;
 	}
 
-	m_mainCamera.LoadProperty( keyValue.get() );
+	m_mainCamera.LoadProperty( *keyValue );
 
 	return true;
 }
@@ -157,7 +173,7 @@ void CGameLogic::SceneBegin( void ) const
 	m_pRenderer->SceneBegin( );
 }
 
-void CGameLogic::DrawScene( void ) const
+void CGameLogic::DrawScene( void )
 {
 	DrawOpaqueRenderable( );
 	DrawTransparentRenderable( );
@@ -203,28 +219,28 @@ void CGameLogic::BuildRenderableList( )
 	}
 }
 
-void CGameLogic::DrawOpaqueRenderable( ) const
+void CGameLogic::DrawOpaqueRenderable( )
 {
 	for ( auto& object : m_renderableList[OPAQUE_RENDERABLE] )
 	{
 		UpdateWorldMatrix( object );
-		object->Render( *m_pRenderer );
+		object->Render( *this );
 	}
 }
 
-void CGameLogic::DrawTransparentRenderable( ) const
+void CGameLogic::DrawTransparentRenderable( )
 {
 	for ( auto& object : m_renderableList[TRANSPARENT_RENDERABLE] )
 	{
 		UpdateWorldMatrix( object );
-		object->Render( *m_pRenderer );
+		object->Render( *this );
 	}
 }
 
-void CGameLogic::DrawReflectRenderable( ) const
+void CGameLogic::DrawReflectRenderable( )
 {
 	m_pRenderer->ForwardRenderEnd( );
-	m_ssrManager.Process( *m_pRenderer, m_renderableList[REFLECT_RENDERABLE] );
+	m_ssrManager.Process( *this, m_renderableList[REFLECT_RENDERABLE] );
 }
 
 CGameLogic::CGameLogic( ):

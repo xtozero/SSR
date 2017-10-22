@@ -19,9 +19,6 @@
     <Filter Include="Direct11\Shader">
       <UniqueIdentifier>{2261c28c-7442-4035-b441-319f10df8e67}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Mesh">
-      <UniqueIdentifier>{eb737ec2-51ab-4957-8359-4f0074db787b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Direct11\Buffer">
       <UniqueIdentifier>{33a2abaa-e4a4-4df5-988f-08233263cccb}</UniqueIdentifier>
     </Filter>
@@ -60,26 +57,11 @@
     <ClInclude Include="common.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="BaseMesh.h">
-      <Filter>Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="DebugMesh.h">
-      <Filter>Mesh</Filter>
-    </ClInclude>
     <ClInclude Include="Material.h">
       <Filter>Direct11\Material</Filter>
     </ClInclude>
     <ClInclude Include="TutorialMaterial.h">
       <Filter>Direct11\Material</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshLoader.h">
-      <Filter>Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="IMesh.h">
-      <Filter>Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="PlyMesh.h">
-      <Filter>Mesh</Filter>
     </ClInclude>
     <ClInclude Include="WireFrame.h">
       <Filter>Direct11\Material</Filter>
@@ -87,35 +69,14 @@
     <ClInclude Include="..\Shared\Util.h">
       <Filter>Shared</Filter>
     </ClInclude>
-    <ClInclude Include="PlyMeshLoader.h">
-      <Filter>Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjMeshLoader.h">
-      <Filter>Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="CommonMeshDefine.h">
-      <Filter>Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="IMeshLoader.h">
-      <Filter>Mesh</Filter>
-    </ClInclude>
     <ClInclude Include="util_rendercore.h">
       <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjMesh.h">
-      <Filter>Mesh</Filter>
     </ClInclude>
     <ClInclude Include="MaterialSystem.h">
       <Filter>Direct11\Material</Filter>
     </ClInclude>
     <ClInclude Include="TextureMaterial.h">
       <Filter>Direct11\Material</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshBuilder.h">
-      <Filter>Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="IMeshBuilder.h">
-      <Filter>Mesh</Filter>
     </ClInclude>
     <ClInclude Include="SkyBoxMaterial.h">
       <Filter>Direct11\Material</Filter>
@@ -165,9 +126,6 @@
     <ClInclude Include="Direct3D11\D3D11Resource.h">
       <Filter>Direct11\RenderResource</Filter>
     </ClInclude>
-    <ClInclude Include="IShader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Direct3D11\D3D11SamplerStateFactory.h">
       <Filter>Direct11\RenderState</Filter>
     </ClInclude>
@@ -210,10 +168,13 @@
     <ClInclude Include="CommonRenderer\IRenderView.h">
       <Filter>RenderCommon</Filter>
     </ClInclude>
-    <ClInclude Include="CommonRenderer\ISurface.h">
+    <ClInclude Include="CommonRenderer\Resource.h">
       <Filter>RenderCommon</Filter>
     </ClInclude>
-    <ClInclude Include="CommonRenderer\Resource.h">
+    <ClInclude Include="Direct3D11\D3D11ShaderUtil.h">
+      <Filter>Direct11\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonRenderer\IShader.h">
       <Filter>RenderCommon</Filter>
     </ClInclude>
   </ItemGroup>
@@ -227,12 +188,6 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="BaseMesh.cpp">
-      <Filter>Mesh</Filter>
-    </ClCompile>
-    <ClCompile Include="DebugMesh.cpp">
-      <Filter>Mesh</Filter>
-    </ClCompile>
     <ClCompile Include="util_rendercore.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -242,35 +197,17 @@
     <ClCompile Include="TutorialMaterial.cpp">
       <Filter>Direct11\Material</Filter>
     </ClCompile>
-    <ClCompile Include="MeshLoader.cpp">
-      <Filter>Mesh</Filter>
-    </ClCompile>
-    <ClCompile Include="PlyMesh.cpp">
-      <Filter>Mesh</Filter>
-    </ClCompile>
     <ClCompile Include="WireFrame.cpp">
       <Filter>Direct11\Material</Filter>
     </ClCompile>
     <ClCompile Include="..\Shared\Util.cpp">
       <Filter>Shared</Filter>
     </ClCompile>
-    <ClCompile Include="PlyMeshLoader.cpp">
-      <Filter>Mesh</Filter>
-    </ClCompile>
-    <ClCompile Include="ObjMeshLoader.cpp">
-      <Filter>Mesh</Filter>
-    </ClCompile>
-    <ClCompile Include="ObjMesh.cpp">
-      <Filter>Mesh</Filter>
-    </ClCompile>
     <ClCompile Include="MaterialSystem.cpp">
       <Filter>Direct11\Material</Filter>
     </ClCompile>
     <ClCompile Include="TextureMaterial.cpp">
       <Filter>Direct11\Material</Filter>
-    </ClCompile>
-    <ClCompile Include="MeshBuilder.cpp">
-      <Filter>Mesh</Filter>
     </ClCompile>
     <ClCompile Include="SkyBoxMaterial.cpp">
       <Filter>Direct11\Material</Filter>
@@ -313,9 +250,6 @@
     </ClCompile>
     <ClCompile Include="Direct3D11\D3D11DepthStencil.cpp">
       <Filter>Direct11\RenderResource</Filter>
-    </ClCompile>
-    <ClCompile Include="IShader.cpp">
-      <Filter>헤더 파일</Filter>
     </ClCompile>
     <ClCompile Include="Direct3D11\Direct3D11.cpp">
       <Filter>Direct11</Filter>

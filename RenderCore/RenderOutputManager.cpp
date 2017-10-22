@@ -12,12 +12,12 @@
 #include <D3D11.h>
 #include <wrl\client.h>
 
-bool CRenderOutputManager::Initialize( IRenderer& renderer )
+bool CRenderOutputManager::Initialize( IResourceManager& resourceMgr, IDXGISwapChain& pSwapChain )
 {
-	ON_FAIL_RETURN( CreateDefaultRenderTaraget( renderer ) );
-	ON_FAIL_RETURN( CreateDefaultDepthStencil( renderer ) );
-	ON_FAIL_RETURN( CreateNormalRenderTarget( renderer ) );
-	ON_FAIL_RETURN( CreateDepthRenderTarget( renderer ) );
+	ON_FAIL_RETURN( CreateDefaultRenderTaraget( resourceMgr, pSwapChain ) );
+	ON_FAIL_RETURN( CreateDefaultDepthStencil( resourceMgr ) );
+	ON_FAIL_RETURN( CreateNormalRenderTarget( resourceMgr ) );
+	ON_FAIL_RETURN( CreateDepthRenderTarget( resourceMgr ) );
 
 	return true;
 }
@@ -50,11 +50,11 @@ void CRenderOutputManager::ClearRenderTargets( IRenderer& renderer, const rtClea
 	}
 }
 
-void CRenderOutputManager::SceneEnd( ID3D11DeviceContext* pDeviceContext )
+void CRenderOutputManager::SceneEnd( ID3D11DeviceContext& deviceContext )
 {
-	if ( pDeviceContext && m_renderSRVs[DEPTH_BUFFER] )
+	if ( m_renderSRVs[DEPTH_BUFFER] )
 	{
-		pDeviceContext->GenerateMips( static_cast<ID3D11ShaderResourceView*>( m_renderSRVs[DEPTH_BUFFER]->Get( ) ) );
+		deviceContext.GenerateMips( static_cast<ID3D11ShaderResourceView*>( m_renderSRVs[DEPTH_BUFFER]->Get( ) ) );
 	}
 }
 
@@ -65,32 +65,27 @@ CRenderOutputManager::CRenderOutputManager( ) :
 	m_renderSRVs.fill( nullptr );
 }
 
-bool CRenderOutputManager::CreateDefaultRenderTaraget( IRenderer& renderer )
+bool CRenderOutputManager::CreateDefaultRenderTaraget( IResourceManager& resourceMgr, IDXGISwapChain& pSwapChain )
 {
-	IDXGISwapChain* pSwapChain = renderer.GetSwapChain( );
-	IResourceManager& resourceMgr = renderer.GetResourceManager( );
-
-	if ( pSwapChain == nullptr )
-	{
-		return false;
-	}
-
 	void* pd3d11BackBuffer = nullptr;
-	if ( SUCCEEDED( pSwapChain->GetBuffer( 0, __uuidof(ID3D11Texture2D), &pd3d11BackBuffer ) ) )
+	if ( SUCCEEDED( pSwapChain.GetBuffer( 0, __uuidof(ID3D11Texture2D), &pd3d11BackBuffer ) ) )
 	{
 		String renderTargetTexName( _T( "DefaultRenderTarget" ) );
 
-		resourceMgr.RegisterTexture2D( renderTargetTexName, pd3d11BackBuffer );
+		ITexture* pBackBufferTex = resourceMgr.RegisterTexture2D( renderTargetTexName, pd3d11BackBuffer );
+		if ( pBackBufferTex == nullptr )
+		{
+			return false;
+		}
 
-		ITexture* pBackBufferTex = resourceMgr.FindTexture( renderTargetTexName );
-		m_renderOutputs[FRAME_BUFFER] = resourceMgr.CreateRenderTarget( pBackBufferTex, renderTargetTexName );
+		m_renderOutputs[FRAME_BUFFER] = resourceMgr.CreateRenderTarget( *pBackBufferTex, renderTargetTexName );
 		if ( m_renderOutputs[FRAME_BUFFER] == nullptr )
 		{
 			return false;
 		}
 
 		String duplicateTexName( _T( "DuplicateFrameBuffer" ) );
-		ITexture* pDuplicateTex = resourceMgr.CreateCloneTexture( pBackBufferTex, duplicateTexName );
+		ITexture* pDuplicateTex = resourceMgr.CreateCloneTexture( *pBackBufferTex, duplicateTexName );
 
 		if ( pDuplicateTex == nullptr )
 		{
@@ -103,38 +98,44 @@ bool CRenderOutputManager::CreateDefaultRenderTaraget( IRenderer& renderer )
 	return true;
 }
 
-bool CRenderOutputManager::CreateNormalRenderTarget( IRenderer& renderer )
+bool CRenderOutputManager::CreateNormalRenderTarget( IResourceManager& resourceMgr )
 {
-	IResourceManager& resourceMgr = renderer.GetResourceManager( );
-
 	String normalTexName( _T( "NormalGBuffer" ) );
 	ITexture* pGBufferNormal = resourceMgr.CreateTexture2D( normalTexName, normalTexName );
-	m_renderOutputs[NORMAL_BUFFER] = resourceMgr.CreateRenderTarget( pGBufferNormal, normalTexName );
+	if ( pGBufferNormal == nullptr )
+	{
+		return false;
+	}
+
+	m_renderOutputs[NORMAL_BUFFER] = resourceMgr.CreateRenderTarget( *pGBufferNormal, normalTexName );
 
 	if ( m_renderOutputs[NORMAL_BUFFER] == nullptr )
 	{
 		return false;
 	}
 
-	m_renderSRVs[NORMAL_BUFFER] = resourceMgr.CreateShaderResource( pGBufferNormal, normalTexName );
+	m_renderSRVs[NORMAL_BUFFER] = resourceMgr.CreateShaderResource( *pGBufferNormal, normalTexName );
 
 	return true;
 }
 
-bool CRenderOutputManager::CreateDepthRenderTarget( IRenderer& renderer )
+bool CRenderOutputManager::CreateDepthRenderTarget( IResourceManager& resourceMgr )
 {
-	IResourceManager& resourceMgr = renderer.GetResourceManager( );
-
 	String depthTexName( _T( "DepthGBuffer" ) );
 	ITexture* pGBufferDepth = resourceMgr.CreateTexture2D( depthTexName, depthTexName );
-	m_renderOutputs[DEPTH_BUFFER] = resourceMgr.CreateRenderTarget( pGBufferDepth, depthTexName );
+	if ( pGBufferDepth == nullptr )
+	{
+		return false;
+	}
+
+	m_renderOutputs[DEPTH_BUFFER] = resourceMgr.CreateRenderTarget( *pGBufferDepth, depthTexName );
 	if ( m_renderOutputs[DEPTH_BUFFER] == nullptr )
 	{
 		return false;
 	}
 
 	String duplicateTexName( _T( "DuplicateDepthGBuffer" ) );
-	ITexture* pDuplicateTex = resourceMgr.CreateCloneTexture( pGBufferDepth, duplicateTexName );
+	ITexture* pDuplicateTex = resourceMgr.CreateCloneTexture( *pGBufferDepth, duplicateTexName );
 
 	if ( pDuplicateTex == nullptr )
 	{
@@ -146,10 +147,8 @@ bool CRenderOutputManager::CreateDepthRenderTarget( IRenderer& renderer )
 	return true;
 }
 
-bool CRenderOutputManager::CreateDefaultDepthStencil( IRenderer& renderer )
+bool CRenderOutputManager::CreateDefaultDepthStencil( IResourceManager& resourceMgr )
 {
-	IResourceManager& resourceMgr = renderer.GetResourceManager( );
-
 	String depthStencilTexName( _T( "DefaultDepthStencil" ) );
 	const ITexture* depthStencilTexture = resourceMgr.CreateTexture2D( depthStencilTexName, depthStencilTexName );
 
@@ -161,7 +160,7 @@ bool CRenderOutputManager::CreateDefaultDepthStencil( IRenderer& renderer )
 	TEXTURE_TRAIT trait = depthStencilTexture->GetTrait();
 	trait.m_format = RESOURCE_FORMAT::D24_UNORM_S8_UINT;
 
-	m_pPrimeDs = resourceMgr.CreateDepthStencil( depthStencilTexture, depthStencilTexName, &trait );
+	m_pPrimeDs = resourceMgr.CreateDepthStencil( *depthStencilTexture, depthStencilTexName, &trait );
 
 	if ( m_pPrimeDs == nullptr )
 	{

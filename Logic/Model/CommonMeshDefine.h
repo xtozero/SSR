@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../shared/Math/CXMFloat.h"
+#include "../../shared/Math/CXMFloat.h"
 
 struct MeshVertex
 {

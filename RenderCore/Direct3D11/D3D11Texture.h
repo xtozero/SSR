@@ -14,8 +14,8 @@ class CD3D11Texture1D : public ITexture
 {
 public:
 	bool SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTexture );
-	bool Create( ID3D11Device* pDevice, const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr );
-	bool LoadFromFile( ID3D11Device* pDevice, const TCHAR* filePath );
+	bool Create( ID3D11Device& device, const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr );
+	bool LoadFromFile( ID3D11Device& device, const TCHAR* filePath );
 
 	virtual void* Get( ) const override;
 	virtual TEXTURE_TYPE GetType( ) const override { return TEXTURE_TYPE::TEXTURE_1D; }
@@ -28,8 +28,8 @@ class CD3D11Texture2D : public ITexture
 {
 public:
 	bool SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTexture );
-	bool Create( ID3D11Device* pDevice, const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr );
-	bool LoadFromFile( ID3D11Device* pDevice, const TCHAR* filePath );
+	bool Create( ID3D11Device& device, const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr );
+	bool LoadFromFile( ID3D11Device& device, const TCHAR* filePath );
 
 	virtual void* Get( ) const override;
 	virtual TEXTURE_TYPE GetType( ) const override { return TEXTURE_TYPE::TEXTURE_2D; }
@@ -42,8 +42,8 @@ class CD3D11Texture3D : public ITexture
 {
 public:
 	bool SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTexture );
-	bool Create( ID3D11Device* pDevice, const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr );
-	bool LoadFromFile( ID3D11Device* pDevice, const TCHAR* filePath );
+	bool Create( ID3D11Device& device, const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr );
+	bool LoadFromFile( ID3D11Device& device, const TCHAR* filePath );
 
 	virtual void* Get( ) const override;
 	virtual TEXTURE_TYPE GetType( ) const override { return TEXTURE_TYPE::TEXTURE_3D; }

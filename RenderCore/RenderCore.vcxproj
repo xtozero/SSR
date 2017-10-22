@@ -219,7 +219,7 @@ call "$(SolutionDIr)Shader\make_shader.bat"</Command>
     <ClInclude Include="CommonRenderer\IRenderResourceManager.h" />
     <ClInclude Include="CommonRenderer\IRenderState.h" />
     <ClInclude Include="CommonRenderer\IRenderView.h" />
-    <ClInclude Include="CommonRenderer\ISurface.h" />
+    <ClInclude Include="CommonRenderer\IShader.h" />
     <ClInclude Include="CommonRenderer\Resource.h" />
     <ClInclude Include="Direct3D11\D3D11BlendStateFactory.h" />
     <ClInclude Include="Direct3D11\D3D11Buffer.h" />
@@ -235,30 +235,26 @@ call "$(SolutionDIr)Shader\make_shader.bat"</Command>
     <ClInclude Include="Direct3D11\D3D11ShaderResource.h" />
     <ClInclude Include="Direct3D11\D3D11Texture.h" />
     <ClInclude Include="Direct3D11\D3D11VertexShader.h" />
+    <ClInclude Include="Direct3D11\D3D11ShaderUtil.h" />
     <ClInclude Include="RenderOutputManager.h" />
-    <ClInclude Include="IMeshBuilder.h" />
     <ClInclude Include="MaterialLoader.h" />
-    <ClInclude Include="MeshBuilder.h" />
     <ClInclude Include="RenderEffect.h" />
     <ClInclude Include="ShaderListScriptLoader.h" />
     <ClInclude Include="SkyBoxMaterial.h" />
-    <ClInclude Include="Surface.h" />
-    <ClInclude Include="SurfaceManager.h" />
+    <ClInclude Include="Surface.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="SurfaceManager.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="TextureMaterial.h" />
-    <ClInclude Include="CommonMeshDefine.h" />
     <ClInclude Include="common.h" />
-    <ClInclude Include="DebugMesh.h" />
-    <ClInclude Include="IMesh.h" />
-    <ClInclude Include="IMeshLoader.h" />
-    <ClInclude Include="IShader.h" />
-    <ClInclude Include="BaseMesh.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MaterialSystem.h" />
-    <ClInclude Include="MeshLoader.h" />
-    <ClInclude Include="ObjMesh.h" />
-    <ClInclude Include="ObjMeshLoader.h" />
-    <ClInclude Include="PlyMesh.h" />
-    <ClInclude Include="PlyMeshLoader.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TutorialMaterial.h" />
@@ -283,16 +279,21 @@ call "$(SolutionDIr)Shader\make_shader.bat"</Command>
     <ClCompile Include="Direct3D11\D3D11VertexShader.cpp" />
     <ClCompile Include="Direct3D11\Direct3D11.cpp" />
     <ClCompile Include="RenderOutputManager.cpp" />
-    <ClCompile Include="IShader.cpp" />
     <ClCompile Include="MaterialLoader.cpp" />
-    <ClCompile Include="MeshBuilder.cpp" />
     <ClCompile Include="RenderEffect.cpp" />
     <ClCompile Include="ShaderListScriptLoader.cpp" />
     <ClCompile Include="SkyBoxMaterial.cpp" />
-    <ClCompile Include="Surface.cpp" />
-    <ClCompile Include="SurfaceManager.cpp" />
+    <ClCompile Include="Surface.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="SurfaceManager.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="TextureMaterial.cpp" />
-    <ClCompile Include="DebugMesh.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -304,14 +305,8 @@ call "$(SolutionDIr)Shader\make_shader.bat"</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="BaseMesh.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="MaterialSystem.cpp" />
-    <ClCompile Include="MeshLoader.cpp" />
-    <ClCompile Include="ObjMesh.cpp" />
-    <ClCompile Include="ObjMeshLoader.cpp" />
-    <ClCompile Include="PlyMesh.cpp" />
-    <ClCompile Include="PlyMeshLoader.cpp" />
     <ClCompile Include="RenderCore.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

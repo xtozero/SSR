@@ -2,21 +2,22 @@
 
 #include <tchar.h>
 
+#include "GameLogic.h"
 #include "GameObject.h"
 #include "GameObjectFactory.h"
 #include "SceneLoader.h"
 #include "../Engine/KeyValueReader.h"
 #include "../Shared/Util.h"
 
-std::unique_ptr<KeyValueGroup> CSceneLoader::LoadSceneFromFile( IRenderer& renderer, std::vector<std::unique_ptr<CGameObject>>& objectList, const String& fileName )
+std::unique_ptr<KeyValue> CSceneLoader::LoadSceneFromFile( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& objectList, const String& fileName )
 {
 	CKeyValueReader scene;
 
-	std::unique_ptr<KeyValueGroupImpl> pKeyValue = scene.LoadKeyValueFromFile( fileName );
+	std::unique_ptr<KeyValue> pKeyValue = scene.LoadKeyValueFromFile( fileName );
 
 	if ( pKeyValue )
 	{
-		SetSceneObjectProperty( renderer, pKeyValue.get(), objectList );
+		SetSceneObjectProperty( gameLogic, pKeyValue.get(), objectList );
 
 		return std::move( pKeyValue );
 	}
@@ -26,30 +27,24 @@ std::unique_ptr<KeyValueGroup> CSceneLoader::LoadSceneFromFile( IRenderer& rende
 	}
 }
 
-void CSceneLoader::SetSceneObjectProperty( IRenderer& renderer, KeyValueGroup* keyValue, std::vector<std::unique_ptr<CGameObject>>& objectList )
+void CSceneLoader::SetSceneObjectProperty( CGameLogic& gameLogic, KeyValue* keyValue, std::vector<std::unique_ptr<CGameObject>>& objectList )
 {
-	CGameObject* curObject = nullptr;
-
-	for ( auto findedKey = keyValue->FindKeyValue( _T( "Scene" ) ); findedKey != nullptr; ++findedKey )
+	const KeyValue* object = keyValue->Find( _T( "Object" ) );
+	while ( object )
 	{
-		if ( findedKey->GetKey( ) == _T( "Object" ) )
-		{
-			auto newObject = CGameObjectFactory::GetInstance().CreateGameObjectByClassName( findedKey->GetValue( ) );
+		auto newObject = CGameObjectFactory::GetInstance( ).CreateGameObjectByClassName( object->GetValue( ) );
 
-			if ( newObject )
-			{
-				objectList.emplace_back( newObject );
-				curObject = objectList.back( ).get( );
-			}
-		}
-		else if ( curObject )
+		if ( newObject )
 		{
-			curObject->LoadPropertyFromScript( findedKey );
+			newObject->LoadPropertyFromScript( *object );
+			objectList.emplace_back( newObject );
 		}
+
+		object = object->GetNext( );
 	}
 
 	for ( const auto& object : objectList )
 	{
-		object->Initialize( renderer );
+		object->Initialize( gameLogic );
 	}
 }

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "IRenderer.h"
+#include "CommonRenderer/IRenderer.h"
 #include "WireFrame.h"
 
 void WireFrame::Init( IRenderer& renderer )

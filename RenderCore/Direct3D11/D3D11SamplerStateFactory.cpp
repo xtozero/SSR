@@ -16,61 +16,6 @@ namespace
 {
 	constexpr TCHAR* SAMPLER_STATE_DESC_FILE_NAME = _T( "../Script/SamplerStateDesc.txt" );
 	constexpr TCHAR* SMAPLER_DESC_HANDLER_KEY_NAME = _T( "SamplerDesc" );
-
-	void SamplerDescHandler( CD3D11SamplerStateFactory* owner, const String&, const KeyValue* keyValue )
-	{
-		CD3D11_DEFAULT default;
-		CD3D11_SAMPLER_DESC newDesc( default );
-
-		for ( auto property = keyValue->GetChild( ); property != nullptr; property = property->GetNext( ) )
-		{
-			if ( property->GetKey( ) == _T( "Filter" ) )
-			{
-				newDesc.Filter = static_cast<D3D11_FILTER>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_FILTER_MIN_MAG_MIP_LINEAR ));
-			}
-			else if ( property->GetKey( ) == _T( "AddressU" ) )
-			{
-				newDesc.AddressU = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_TEXTURE_ADDRESS_CLAMP ));
-			}
-			else if ( property->GetKey( ) == _T( "AddressV" ) )
-			{
-				newDesc.AddressV = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_TEXTURE_ADDRESS_CLAMP ));
-			}
-			else if ( property->GetKey( ) == _T( "AddressW" ) )
-			{
-				newDesc.AddressW = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_TEXTURE_ADDRESS_CLAMP ));
-			}
-			else if ( property->GetKey( ) == _T( "MipLODBias" ) )
-			{
-				newDesc.MipLODBias = property->GetValue<float>( );
-			}
-			else if ( property->GetKey( ) == _T( "MaxAnisotropy" ) )
-			{
-				newDesc.MaxAnisotropy = property->GetValue<UINT>( );
-			}
-			else if ( property->GetKey( ) == _T( "ComparisonFunc" ) )
-			{
-				newDesc.ComparisonFunc = static_cast<D3D11_COMPARISON_FUNC>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_COMPARISON_LESS ));
-			}
-			else if ( property->GetKey( ) == _T( "BorderColor" ) )
-			{
-				Stringstream sStream;
-				sStream << property->GetValue( );
-
-				sStream >> newDesc.BorderColor[0] >> newDesc.BorderColor[1] >> newDesc.BorderColor[2] >> newDesc.BorderColor[3];
-			}
-			else if ( property->GetKey( ) == _T( "MinLOD" ) )
-			{
-				newDesc.MinLOD = property->GetValue<float>( );
-			}
-			else if ( property->GetKey( ) == _T( "MaxLOD" ) )
-			{
-				newDesc.MaxLOD = property->GetValue<float>( );
-			}
-		}
-
-		owner->AddSamplerDesc( keyValue->GetValue(), newDesc );
-	}
 }
 
 class CSamplerState : public IRenderState
@@ -78,12 +23,12 @@ class CSamplerState : public IRenderState
 public:
 	virtual void Set( const SHADER_TYPE type = SHADER_TYPE::NONE ) override;
 
-	bool Create( ID3D11Device* pDevice, const D3D11_SAMPLER_DESC& samplerDesc );
+	bool Create( ID3D11Device& device, const D3D11_SAMPLER_DESC& samplerDesc );
 
-	CSamplerState( ID3D11DeviceContext* pDeviceContext ) : m_pDeviceContext( pDeviceContext ) { }
+	CSamplerState( ID3D11DeviceContext& deviceContext ) : m_deviceContext( deviceContext ) { }
 private:
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_pSamplerState;
-	ID3D11DeviceContext* m_pDeviceContext = nullptr;
+	ID3D11DeviceContext& m_deviceContext;
 };
 
 void CSamplerState::Set( const SHADER_TYPE type )
@@ -93,22 +38,22 @@ void CSamplerState::Set( const SHADER_TYPE type )
 	switch ( type )
 	{
 	case SHADER_TYPE::VS:
-		m_pDeviceContext->VSSetSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
+		m_deviceContext.VSSetSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
 		break;
 	case SHADER_TYPE::HS:
-		m_pDeviceContext->HSSetSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
+		m_deviceContext.HSSetSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
 		break;
 	case SHADER_TYPE::DS:
-		m_pDeviceContext->DSSetSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
+		m_deviceContext.DSSetSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
 		break;
 	case SHADER_TYPE::GS:
-		m_pDeviceContext->GSSetSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
+		m_deviceContext.GSSetSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
 		break;
 	case SHADER_TYPE::PS:
-		m_pDeviceContext->PSSetSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
+		m_deviceContext.PSSetSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
 		break;
 	case SHADER_TYPE::CS:
-		m_pDeviceContext->CSSetSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
+		m_deviceContext.CSSetSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
 		break;
 	default:
 		DebugWarning( "InValid SamplerState SHADER_TYPE" );
@@ -116,14 +61,9 @@ void CSamplerState::Set( const SHADER_TYPE type )
 	}
 }
 
-bool CSamplerState::Create( ID3D11Device * pDevice, const D3D11_SAMPLER_DESC & samplerDesc )
+bool CSamplerState::Create( ID3D11Device& device, const D3D11_SAMPLER_DESC & samplerDesc )
 {
-	if ( pDevice == nullptr )
-	{
-		return false;
-	}
-
-	HRESULT hr = pDevice->CreateSamplerState( &samplerDesc, &m_pSamplerState );
+	HRESULT hr = device.CreateSamplerState( &samplerDesc, &m_pSamplerState );
 	return SUCCEEDED( hr );
 }
 
@@ -142,15 +82,15 @@ void CD3D11SamplerStateFactory::LoadDesc( )
 {
 	CKeyValueReader KeyValueReader;
 
-	std::unique_ptr<KeyValueGroupImpl> pKeyValues = KeyValueReader.LoadKeyValueFromFile( SAMPLER_STATE_DESC_FILE_NAME );
+	std::unique_ptr<KeyValue> pKeyValues = KeyValueReader.LoadKeyValueFromFile( SAMPLER_STATE_DESC_FILE_NAME );
 
 	if ( pKeyValues )
 	{
-		LoadSamplerDesc( pKeyValues.get() );
+		LoadSamplerDesc( *pKeyValues );
 	}
 }
 
-IRenderState* CD3D11SamplerStateFactory::GetSamplerState( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const String& stateName )
+IRenderState* CD3D11SamplerStateFactory::GetSamplerState( ID3D11Device& device, ID3D11DeviceContext& deviceContext, const String& stateName )
 {
 	auto foundState = m_samplerState.find( stateName );
 
@@ -159,20 +99,17 @@ IRenderState* CD3D11SamplerStateFactory::GetSamplerState( ID3D11Device* pDevice,
 		return foundState->second.get( );
 	}
 
-	if ( pDevice )
+	auto foundDesc = m_samplerStateDesc.find( stateName );
+
+	if ( foundDesc != m_samplerStateDesc.end( ) )
 	{
-		auto foundDesc = m_samplerStateDesc.find( stateName );
+		std::unique_ptr<CSamplerState> newState = std::make_unique<CSamplerState>( deviceContext );
 
-		if ( foundDesc != m_samplerStateDesc.end( ) )
+		if ( newState->Create( device, foundDesc->second ) )
 		{
-			std::unique_ptr<CSamplerState> newState = std::make_unique<CSamplerState>( pDeviceContext );
-
-			if ( newState->Create( pDevice, foundDesc->second ) )
-			{
-				CSamplerState* ret = newState.get( );
-				m_samplerState.emplace( stateName, std::move( newState ) );
-				return ret;
-			}
+			CSamplerState* ret = newState.get( );
+			m_samplerState.emplace( stateName, std::move( newState ) );
+			return ret;
 		}
 	}
 
@@ -187,28 +124,66 @@ void CD3D11SamplerStateFactory::AddSamplerDesc( const String& descName, const D3
 	m_samplerStateDesc.emplace( descName, newDesc );
 }
 
-CD3D11SamplerStateFactory::CD3D11SamplerStateFactory( )
+void CD3D11SamplerStateFactory::LoadSamplerDesc( const KeyValue& keyValue )
 {
-	RegisterHandler( SMAPLER_DESC_HANDLER_KEY_NAME, SamplerDescHandler );
-}
-
-void CD3D11SamplerStateFactory::LoadSamplerDesc( KeyValueGroup* pKeyValues )
-{
-	if ( pKeyValues == nullptr )
+	for ( auto desc = keyValue.GetChild( ); desc != nullptr; desc = desc->GetNext( ) )
 	{
-		return;
-	}
+		CD3D11_DEFAULT default;
+		CD3D11_SAMPLER_DESC newDesc( default );
 
-	auto keyValue = pKeyValues->FindKeyValue( _T( "Desc" ) );
+		if ( const KeyValue* pFilter = desc->Find( _T( "Filter" ) ) )
+		{
+			newDesc.Filter = static_cast<D3D11_FILTER>( GetEnumStringMap( ).GetEnum( pFilter->GetValue( ), D3D11_FILTER_MIN_MAG_MIP_LINEAR ) );
+		}
+		
+		if ( const KeyValue* pAddressU = desc->Find( _T( "AddressU" ) ) )
+		{
+			newDesc.AddressU = static_cast<D3D11_TEXTURE_ADDRESS_MODE>( GetEnumStringMap( ).GetEnum( pAddressU->GetValue( ), D3D11_TEXTURE_ADDRESS_CLAMP ) );
+		}
+		
+		if ( const KeyValue* pAddressV = desc->Find( _T( "AddressV" ) ) )
+		{
+			newDesc.AddressV = static_cast<D3D11_TEXTURE_ADDRESS_MODE>( GetEnumStringMap( ).GetEnum( pAddressV->GetValue( ), D3D11_TEXTURE_ADDRESS_CLAMP ) );
+		}
+		
+		if ( const KeyValue* pAddressW = desc->Find( _T( "AddressW" ) ) )
+		{
+			newDesc.AddressW = static_cast<D3D11_TEXTURE_ADDRESS_MODE>( GetEnumStringMap( ).GetEnum( pAddressW->GetValue( ), D3D11_TEXTURE_ADDRESS_CLAMP ) );
+		}
+		
+		if ( const KeyValue* pMipLODBias = desc->Find( _T( "MipLODBias" ) ) )
+		{
+			newDesc.MipLODBias = pMipLODBias->GetValue<float>( );
+		}
+		
+		if ( const KeyValue* pMaxAnisotropy = desc->Find( _T( "MaxAnisotropy" ) ) )
+		{
+			newDesc.MaxAnisotropy = pMaxAnisotropy->GetValue<UINT>( );
+		}
+		
+		if ( const KeyValue* pComparisonFunc = desc->Find( _T( "ComparisonFunc" ) ) )
+		{
+			newDesc.ComparisonFunc = static_cast<D3D11_COMPARISON_FUNC>( GetEnumStringMap( ).GetEnum( pComparisonFunc->GetValue( ), D3D11_COMPARISON_LESS ) );
+		}
+		
+		if ( const KeyValue* pBorderColor = desc->Find( _T( "BorderColor" ) ) )
+		{
+			Stringstream sStream;
+			sStream << pBorderColor->GetValue( );
 
-	if ( keyValue == nullptr )
-	{
-		DebugWarning( "Load Depth Stencil Desc Fail!!!\n" );
-		return;
-	}
+			sStream >> newDesc.BorderColor[0] >> newDesc.BorderColor[1] >> newDesc.BorderColor[2] >> newDesc.BorderColor[3];
+		}
+		
+		if ( const KeyValue* pMinLOD = desc->Find( _T( "MinLOD" ) ) )
+		{
+			newDesc.MinLOD = pMinLOD->GetValue<float>( );
+		}
+		
+		if ( const KeyValue* pMaxLOD = desc->Find( _T( "MaxLOD" ) ) )
+		{
+			newDesc.MaxLOD = pMaxLOD->GetValue<float>( );
+		}
 
-	for ( auto desc = keyValue->GetChild( ); desc != nullptr; desc = desc->GetNext( ) )
-	{
-		Handle( desc->GetKey(), desc );
+		AddSamplerDesc( desc->GetValue( ), newDesc );
 	}
 }

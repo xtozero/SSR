@@ -34,6 +34,9 @@
     <Filter Include="Physics">
       <UniqueIdentifier>{23d8f70d-f5e2-44ac-a9e5-132c02636e96}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Model">
+      <UniqueIdentifier>{10216d73-92cc-469d-872e-ec1e237dac0f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -68,9 +71,6 @@
     </ClInclude>
     <ClInclude Include="IListener.h">
       <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="IRigidBody.h">
-      <Filter>소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="PickingManager.h">
       <Filter>헤더 파일</Filter>
@@ -137,6 +137,51 @@
     </ClInclude>
     <ClInclude Include="Movement.h">
       <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="model\CommonMeshDefine.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="model\IMesh.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="model\ObjMesh.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="model\ObjMeshLoader.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="model\PlyMesh.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="model\PlyMeshLoader.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="model\BaseMesh.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="IRigidBody.h">
+      <Filter>Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="model\IModelLoader.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="model\ModelManager.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="model\ModelBuilder.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="model\IModelBuilder.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\DebugMesh.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantBufferDefine.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="model\Surface.h">
+      <Filter>Model</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -217,6 +262,30 @@
     </ClCompile>
     <ClCompile Include="ScreenBlurManager.cpp">
       <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="model\ObjMesh.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="model\ObjMeshLoader.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="model\PlyMesh.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="model\PlyMeshLoader.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="model\BaseMesh.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="model\ModelManager.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="model\ModelBuilder.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Model\DebugMesh.cpp">
+      <Filter>Model</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

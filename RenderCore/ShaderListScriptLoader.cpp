@@ -13,16 +13,13 @@ namespace
 bool CShaderListScriptLoader::LoadShadersFromScript( IRenderer& renderer )
 {
 	CKeyValueReader scrpitReader;
-	std::unique_ptr<KeyValueGroupImpl> pKeyValues = scrpitReader.LoadKeyValueFromFile( SHADER_LIST_SCRIPT_FILE_NAME );
+	std::unique_ptr<KeyValue> pKeyValues = scrpitReader.LoadKeyValueFromFile( SHADER_LIST_SCRIPT_FILE_NAME );
 
 	if ( pKeyValues )
 	{
-		auto findedKey = pKeyValues->FindKeyValue( _T( "ShaderList" ) );
-		++findedKey;
-
-		for ( ; findedKey != nullptr; ++findedKey )
+		for ( const KeyValue* shaderList = pKeyValues->GetChild( ); shaderList != nullptr; shaderList = shaderList->GetNext() )
 		{
-			ON_FAIL_RETURN( LoadShader( renderer, findedKey->GetKey( ), findedKey->GetValue( ) ) );
+			ON_FAIL_RETURN( LoadShader( renderer, shaderList->GetKey( ), shaderList->GetValue( ) ) );
 		}
 
 		return true;

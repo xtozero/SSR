@@ -1,14 +1,16 @@
 #include "stdafx.h"
 #include "DisplayShaderResourceHelper.h"
+
+#include "GameLogic.h"
 #include "GameObject.h"
 #include "GameObjectFactory.h"
+#include "Model/IMesh.h"
+#include "Model/IModelBuilder.h"
 #include "UtilWindowInfo.h"
 
 #include "../Engine/ConVar.h"
 #include "../Engine/KeyValueReader.h"
 #include "../RenderCore/CommonRenderer/IRenderer.h"
-#include "../RenderCore/IMesh.h"
-#include "../RenderCore/IMeshBuilder.h"
 
 namespace
 {
@@ -26,17 +28,17 @@ void CDisplayShaderResourceHelper::SetPosition( const CXMFLOAT3& pos )
 	CGameObject::SetPosition( projPos );
 }
 
-void CDisplayShaderResourceHelper::Render( IRenderer& renderer )
+void CDisplayShaderResourceHelper::Render( CGameLogic& gameLogic )
 {
 	if ( ShouldDraw( ) )
 	{
 		// 스냅샷으로 만들어지는 텍스쳐의 경우 로드시에는 없기때문에 렌더때 텍스쳐가 없으면 세팅을 시도합니다.
 		if ( GetModel( ) && GetModel( )->GetTexture() == nullptr )
 		{
-			GetModel( )->SetTexture( renderer.GetShaderResourceFromFile( m_textureName ) );
+			GetModel( )->SetTexture( gameLogic.GetRenderer().GetShaderResourceFromFile( m_textureName ) );
 		}
 
-		CGameObject::Render( renderer );
+		CGameObject::Render( gameLogic );
 	}
 }
 
@@ -44,28 +46,24 @@ void CDisplayShaderResourceHelper::Think( )
 {
 }
 
-bool CDisplayShaderResourceHelper::LoadPropertyFromScript( const CKeyValueIterator& pKeyValue )
+void CDisplayShaderResourceHelper::LoadPropertyFromScript( const KeyValue& keyValue )
 {
-	if ( pKeyValue->GetKey( ) == String( _T( "TextureName" ) ) )
+	if ( const KeyValue* pTexName = keyValue.Find( _T( "TextureName" ) ) )
 	{
-		m_textureName = pKeyValue->GetValue( );
-
-		return true;
+		m_textureName = pTexName->GetValue( );
 	}
-	else if ( pKeyValue->GetKey( ) == String( _T( "Width" ) ) )
+	
+	if ( const KeyValue* pTexWidth = keyValue.Find( _T( "Width" ) ) )
 	{
-		m_width = pKeyValue->GetValue<float>( );
-
-		return true;
+		m_width = pTexWidth->GetValue<float>( );
 	}
-	else if ( pKeyValue->GetKey( ) == String( _T( "Height" ) ) )
+	
+	if ( const KeyValue* pTexHeight = keyValue.Find( _T( "Height" ) ) )
 	{
-		m_height = pKeyValue->GetValue<float>( );
-
-		return true;
+		m_height = pTexHeight->GetValue<float>( );
 	}
 
-	return CGameObject::LoadPropertyFromScript( pKeyValue );
+	CGameObject::LoadPropertyFromScript( keyValue );
 }
 
 bool CDisplayShaderResourceHelper::ShouldDraw( ) const
@@ -73,9 +71,9 @@ bool CDisplayShaderResourceHelper::ShouldDraw( ) const
 	return r_debugTexture.GetString( ) == GetName( );
 }
 
-bool CDisplayShaderResourceHelper::LoadModelMesh( IRenderer& renderer )
+bool CDisplayShaderResourceHelper::LoadModelMesh( CGameLogic& gameLogic )
 {
-	IMeshBuilder& meshBuilder = renderer.GetMeshBuilder( );
+	IModelBuilder& meshBuilder = gameLogic.GetModelManager( ).GetModelBuilder( );
 
 	if ( GetModel( ) != nullptr )
 	{
@@ -101,7 +99,7 @@ bool CDisplayShaderResourceHelper::LoadModelMesh( IRenderer& renderer )
 	meshBuilder.AppendTextureName( m_textureName );
 
 	SetModelMeshName( GetName( ) );
-	SetModel( meshBuilder.Build( renderer, GetMeshName( ), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP ) );
+	SetModel( meshBuilder.Build( gameLogic.GetRenderer(), GetMeshName( ), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP ) );
 
 	return GetModel( ) ? true : false;
 }

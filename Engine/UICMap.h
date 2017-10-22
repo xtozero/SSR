@@ -148,26 +148,14 @@ public:
 	bool LoadConfig( const String& fileName )
 	{
 		CKeyValueReader cfg;
-		std::unique_ptr<KeyValueGroupImpl> pKeyValues = cfg.LoadKeyValueFromFile( fileName );
-		return LoadKeyCode( pKeyValues.get() );
+		std::unique_ptr<KeyValue> pKeyValues = cfg.LoadKeyValueFromFile( fileName );
+		return LoadKeyCode( *pKeyValues );
 	}
 
 private:
-	bool LoadKeyCode( const KeyValueGroup* pKeyValues )
+	bool LoadKeyCode( const KeyValue& keyValues )
 	{
-		if ( pKeyValues == nullptr )
-		{
-			return false;
-		}
-
-		auto keyValue = pKeyValues->FindKeyValue( _T( "KeyCode" ) );
-
-		if ( keyValue == nullptr )
-		{
-			return false;
-		}
-
-		for ( auto keycode = keyValue->GetChild( ); keycode != nullptr; keycode = keycode->GetNext( ) )
+		for ( KeyValue* keycode = keyValues.GetChild( ); keycode != nullptr; keycode = keycode->GetNext( ) )
 		{
 			m_codeMap.emplace_back( static_cast<unsigned long>( GetEnumStringMap( ).GetEnum( keycode->GetKey( ), -1 ) ),
 									static_cast<USER_INPUT_CODE>( GetEnumStringMap( ).GetEnum( keycode->GetValue( ), -1 ) ) );

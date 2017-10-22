@@ -66,7 +66,7 @@ void CEffectOrenNayar::SceneBegin( IRenderer& renderer )
 		ITexture* pTexture = resourceMgr.CreateTexture2D( OREN_NAYAR_TEX_NAME, OREN_NAYAR_TEX_NAME, &initData );
 		if ( pTexture )
 		{
-			auto lookupResource = resourceMgr.CreateShaderResource( pTexture, OREN_NAYAR_TEX_NAME );
+			auto lookupResource = resourceMgr.CreateShaderResource( *pTexture, OREN_NAYAR_TEX_NAME );
 			renderer.PSSetShaderResource( 1, lookupResource );
 #ifdef _DEBUG
 			renderer.TakeSnapshot2D( OREN_NAYAR_TEX_NAME, OREN_NAYAR_SNAPSHOT_NAME );

@@ -63,7 +63,7 @@ inline D3D11_RENDER_TARGET_VIEW_DESC ConvertTextureTraitToRTV( const TEXTURE_TRA
 	return rtv;
 }
 
-bool CRenderTarget::CreateRenderTarget( ID3D11Device* pDevice, ID3D11Resource* pResource, const TEXTURE_TRAIT* traitOrNull )
+bool CRenderTarget::CreateRenderTarget( ID3D11Device& device, const ITexture& texture, const TEXTURE_TRAIT* traitOrNull )
 {
 	D3D11_RENDER_TARGET_VIEW_DESC* pRtvDesc = nullptr;
 	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = {};
@@ -74,7 +74,14 @@ bool CRenderTarget::CreateRenderTarget( ID3D11Device* pDevice, ID3D11Resource* p
 		pRtvDesc = &rtvDesc;
 	}
 
-	return SUCCEEDED( pDevice->CreateRenderTargetView( pResource, pRtvDesc, &m_pRenderTargetView ) );
+	ID3D11Resource* pResource = static_cast<ID3D11Resource*>( texture.Get( ) );
+
+	if ( pResource == nullptr )
+	{
+		return false;
+	}
+
+	return SUCCEEDED( device.CreateRenderTargetView( pResource, pRtvDesc, &m_pRenderTargetView ) );
 }
 
 void* CRenderTarget::Get( ) const

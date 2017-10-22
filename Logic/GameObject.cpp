@@ -1,13 +1,15 @@
 #include "stdafx.h"
+#include "GameObject.h"
+
+#include "GameLogic.h"
+#include "GameObjectFactory.h"
+#include "Model/IMesh.h"
+#include "Timer.h"
+
+#include "../Engine/KeyValueReader.h"
+#include "../RenderCore/CommonRenderer/IRenderer.h"
 
 #include <tchar.h>
-
-#include "GameObject.h"
-#include "GameObjectFactory.h"
-#include "../Engine/KeyValueReader.h"
-#include "../RenderCore/IRenderer.h"
-#include "../RenderCore/IMesh.h"
-#include "Timer.h"
 
 using namespace DirectX;
 
@@ -78,12 +80,12 @@ void CGameObject::UpdateWorldMatrix( IRenderer & renderer )
 	renderer.UpdateWorldMatrix( GetTransformMatrix( ), GetInvTransformMatrix( ) );
 }
 
-void CGameObject::Render( IRenderer& renderer )
+void CGameObject::Render( CGameLogic& gameLogic )
 {
 	if ( ShouldDraw() && m_pModel )
 	{
 		m_pModel->SetMaterial( m_pOverrideMtl ? m_pOverrideMtl : m_pMaterial );
-		m_pModel->Draw( renderer );
+		m_pModel->Draw( gameLogic );
 	}
 }
 
@@ -101,32 +103,32 @@ void CGameObject::SetModelMeshName( const String& pModelName )
 	m_meshName = pModelName;
 }
 
-bool CGameObject::Initialize( IRenderer& renderer )
+bool CGameObject::Initialize( CGameLogic& gameLogic )
 {
-	ON_FAIL_RETURN( LoadModelMesh( renderer ) );
-	ON_FAIL_RETURN( LoadMaterial( renderer ) );
+	ON_FAIL_RETURN( LoadModelMesh( gameLogic ) );
+	ON_FAIL_RETURN( LoadMaterial( gameLogic ) );
 
 	m_needInitialize = false;
 	return true;
 }
 
-bool CGameObject::LoadPropertyFromScript( const CKeyValueIterator& pKeyValue )
+void CGameObject::LoadPropertyFromScript( const KeyValue& keyValue )
 {
-	if ( pKeyValue->GetKey( ) == String( _T( "Name" ) ) )
+	if ( const KeyValue* pName = keyValue.Find( _T( "Name" ) ) )
 	{
-		SetName( pKeyValue->GetValue( ) );
-		return true;
+		SetName( pName->GetValue( ) );
 	}
-	else if ( pKeyValue->GetKey( ) == String( _T( "Model" ) ) )
+	
+	if ( const KeyValue* pModel = keyValue.Find( _T( "Model" ) ) )
 	{
-		SetModelMeshName( pKeyValue->GetValue( ).c_str( ) );
-		return true;
+		SetModelMeshName( pModel->GetValue( ).c_str( ) );
 	}
-	else if ( pKeyValue->GetKey( ) == String( _T( "Position" ) ) )
+	
+	if ( const KeyValue* pPos = keyValue.Find( _T( "Position" ) ) )
 	{
 		std::vector<String> params;
 
-		UTIL::Split( pKeyValue->GetValue( ), params, _T( ' ' ) );
+		UTIL::Split( pPos->GetValue( ), params, _T( ' ' ) );
 
 		if ( params.size( ) == 3 )
 		{
@@ -135,14 +137,14 @@ bool CGameObject::LoadPropertyFromScript( const CKeyValueIterator& pKeyValue )
 			float z = static_cast<float>(_ttof( params[2].c_str( ) ));
 
 			SetPosition( x, y, z );
-			return true;
 		}
 	}
-	else if ( pKeyValue->GetKey( ) == String( _T( "Scale" ) ) )
+	
+	if ( const KeyValue* pScale = keyValue.Find( _T( "Scale" ) ) )
 	{
 		std::vector<String> params;
 
-		UTIL::Split( pKeyValue->GetValue( ), params, _T( ' ' ) );
+		UTIL::Split( pScale->GetValue( ), params, _T( ' ' ) );
 
 		if ( params.size( ) == 3 )
 		{
@@ -151,21 +153,18 @@ bool CGameObject::LoadPropertyFromScript( const CKeyValueIterator& pKeyValue )
 			float z = static_cast<float>(_ttof( params[2].c_str( ) ));
 
 			SetScale( x, y, z );
-			return true;
 		}
 	}
-	else if ( pKeyValue->GetKey( ) == String( _T( "Material" ) ) )
+	
+	if ( const KeyValue* pMat = keyValue.Find( _T( "Material" ) ) )
 	{
-		SetMaterialName( pKeyValue->GetValue( ) );
-		return true;
+		SetMaterialName( pMat->GetValue( ) );
 	}
-	else if ( pKeyValue->GetKey( ) == String( _T( "Reflectable" ) ) )
+	
+	if ( const KeyValue* pReflectable = keyValue.Find( _T( "Reflectable" ) ) )
 	{
 		AddProperty( REFLECTABLE_OBJECT );
-		return true;
 	}
-
-	return false;
 }
 
 CGameObject::CGameObject( ) :
@@ -190,7 +189,7 @@ m_property( 0 )
 	}
 }
 
-bool CGameObject::LoadModelMesh( IRenderer& renderer )
+bool CGameObject::LoadModelMesh( CGameLogic& gameLogic )
 {
 	if ( m_pModel != nullptr )
 	{
@@ -199,20 +198,34 @@ bool CGameObject::LoadModelMesh( IRenderer& renderer )
 
 	if ( m_meshName.length( ) > 0 )
 	{
-		m_pModel = renderer.GetModelPtr( m_meshName.c_str( ) );
+		CModelManager& modelManager = gameLogic.GetModelManager( );
 
-		LoadRigidBody( renderer );
+		m_pModel = modelManager.LoadMeshFromFile( gameLogic.GetRenderer(), m_meshName.c_str() );
 
-		return m_pModel ? true : false;
+		if ( m_pModel )
+		{
+			for ( int i = 0; i < RIGID_BODY_TYPE::Count; ++i )
+			{
+				m_originRigidBodies[i] = CRigidBodyManager::GetInstance( ).GetRigidBody( *m_pModel, static_cast<RIGID_BODY_TYPE>( i ) );
+			}
+
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	return false;
 }
 
-bool CGameObject::LoadMaterial( IRenderer& renderer )
+bool CGameObject::LoadMaterial( CGameLogic& gameLogic )
 {
 	if ( m_pModel )
 	{
+		IRenderer& renderer = gameLogic.GetRenderer( );
+
 		if ( m_materialName.length( ) > 0 )
 		{
 			m_pMaterial = renderer.GetMaterialPtr( m_materialName.c_str( ) );
@@ -224,14 +237,6 @@ bool CGameObject::LoadMaterial( IRenderer& renderer )
 	}
 
 	return m_pMaterial ? true : false;
-}
-
-void CGameObject::LoadRigidBody( IRenderer& renderer )
-{
-	for ( int i = 0; i < RIGID_BODY_TYPE::Count; ++i )
-	{
-		m_originRigidBodies[i] = CRigidBodyManager::GetInstance( ).GetRigidBody( renderer, m_meshName, static_cast<RIGID_BODY_TYPE>(i) );
-	}
 }
 
 void CGameObject::RebuildTransform( )

@@ -11,7 +11,7 @@ struct ID3D11DeviceContext;
 class CD3D11Buffer : public IBuffer
 {
 public:
-	bool Create( ID3D11Device* pDevice, const BUFFER_TRAIT& trait );
+	bool Create( ID3D11Device& device, const BUFFER_TRAIT& trait );
 
 	virtual void SetVertexBuffer( const UINT* pStride, const UINT* pOffset ) const;
 	virtual void SetIndexBuffer( UINT stride, UINT offset ) const;
@@ -21,10 +21,10 @@ public:
 	virtual void* LockBuffer( UINT subResource = 0 ) override;
 	virtual void UnLockBuffer( UINT subResource = 0 ) override;
 
-	explicit CD3D11Buffer( ID3D11DeviceContext* pDeviceContext );
+	explicit CD3D11Buffer( ID3D11DeviceContext& deviceContext );
 
 private:
-	ID3D11DeviceContext* m_pDeviceContext = nullptr;
+	ID3D11DeviceContext& m_deviceContext;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_buffer;
 };

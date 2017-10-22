@@ -1,22 +1,23 @@
 #include "stdafx.h"
 #include "Aaboundingbox.h"
 
-#include "../RenderCore/CommonMeshDefine.h"
-#include "../RenderCore/IMesh.h"
-#include "../Shared/Util.h"
+#include "Model/CommonMeshDefine.h"
+#include "Model/IMesh.h"
 #include "Ray.h"
+
+#include "../Shared/Util.h"
 
 #include <algorithm> 
 
 using namespace DirectX;
 
-void CAaboundingbox::CreateRigideBody( IMesh* pMesh )
+void CAaboundingbox::CreateRigideBody( const IMesh& mesh )
 {
 	m_min = CXMFLOAT3( FLT_MAX, FLT_MAX, FLT_MAX );
 	m_max = CXMFLOAT3( -FLT_MAX, -FLT_MAX, -FLT_MAX );
 
-	int verticesCount = pMesh->GetVerticesCount( );
-	MeshVertex* pVertices = static_cast<MeshVertex*>( pMesh->GetMeshData( ) );
+	int verticesCount = mesh.GetVerticesCount( );
+	const MeshVertex* pVertices = static_cast<const MeshVertex*>( mesh.GetMeshData( ) );
 
 	for ( int i = 0; i < verticesCount; ++i )
 	{

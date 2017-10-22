@@ -16,17 +16,8 @@ void MaterialSystem::RegisterMaterial( const TCHAR* pName, std::unique_ptr<IMate
 
 		if ( found == m_materials.end( ) )
 		{
-			pMaterial->SetConstantBuffers( &m_constantBuffers );
 			m_materials.emplace( pName, std::move( pMaterial ) );
 		}
-	}
-}
-
-void MaterialSystem::RegisterConstantBuffer( UINT type, IBuffer* pConstantBuffer )
-{
-	if ( m_constantBuffers.size() > type && pConstantBuffer )
-	{
-		m_constantBuffers[type] = pConstantBuffer;
 	}
 }
 
@@ -49,6 +40,5 @@ IMaterial* MaterialSystem::SearchMaterialByName( const TCHAR* pName )
 
 MaterialSystem::~MaterialSystem( )
 {
-	//마테리얼 등록은 무조건 REGISTER_MATERIAL로 할것 안그러면 포인터가 해제되지 않음.
 	m_materials.clear( );
 }

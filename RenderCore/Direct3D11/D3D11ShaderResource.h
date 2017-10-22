@@ -16,8 +16,8 @@ public:
 	virtual void* Get( ) const override;
 	
 	void SetShaderResourceView( Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& shaderResourceView );
-	bool LoadShaderResourceFromFile( ID3D11Device* pDevice, const String& fileName );
-	bool CreateShaderResource( ID3D11Device* pDevice, const ITexture* pTexture, const TEXTURE_TRAIT* traitOrNull );
+	bool LoadShaderResourceFromFile( ID3D11Device& device, const String& fileName );
+	bool CreateShaderResource( ID3D11Device& device, const ITexture& texture, const TEXTURE_TRAIT* traitOrNull );
 
 private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_pShaderResourceView;

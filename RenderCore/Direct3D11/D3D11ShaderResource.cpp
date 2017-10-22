@@ -94,10 +94,10 @@ void CD3D11ShaderResource::SetShaderResourceView( Microsoft::WRL::ComPtr<ID3D11S
 	m_pShaderResourceView = shaderResourceView;
 }
 
-bool CD3D11ShaderResource::LoadShaderResourceFromFile( ID3D11Device* pDevice, const String& fileName )
+bool CD3D11ShaderResource::LoadShaderResourceFromFile( ID3D11Device& device, const String& fileName )
 {
 	HRESULT hr;
-	D3DX11CreateShaderResourceViewFromFile( pDevice, fileName.c_str( ), nullptr, nullptr, &m_pShaderResourceView, &hr );
+	D3DX11CreateShaderResourceViewFromFile( &device, fileName.c_str( ), nullptr, nullptr, &m_pShaderResourceView, &hr );
 
 	if ( SUCCEEDED( hr ) )
 	{
@@ -107,7 +107,7 @@ bool CD3D11ShaderResource::LoadShaderResourceFromFile( ID3D11Device* pDevice, co
 	return false;
 }
 
-bool CD3D11ShaderResource::CreateShaderResource( ID3D11Device* pDevice, const ITexture* pTexture, const TEXTURE_TRAIT* traitOrNull )
+bool CD3D11ShaderResource::CreateShaderResource( ID3D11Device& device, const ITexture& pTexture, const TEXTURE_TRAIT* traitOrNull )
 {
 	const D3D11_SHADER_RESOURCE_VIEW_DESC* pDesc = nullptr;
 	D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
@@ -118,7 +118,9 @@ bool CD3D11ShaderResource::CreateShaderResource( ID3D11Device* pDevice, const IT
 		pDesc = &srv;
 	}
 
-	if ( SUCCEEDED( pDevice->CreateShaderResourceView( static_cast<ID3D11Resource*>(pTexture->Get( )), pDesc, &m_pShaderResourceView ) ) )
+	ID3D11Resource* pResource = static_cast<ID3D11Resource*>( pTexture.Get( ) );
+
+	if ( SUCCEEDED( device.CreateShaderResourceView( pResource, pDesc, &m_pShaderResourceView ) ) )
 	{
 		return true;
 	}

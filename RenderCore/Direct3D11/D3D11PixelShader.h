@@ -1,7 +1,10 @@
 #pragma once
 
-#include "../IShader.h"
+#include "../CommonRenderer/IShader.h"
 
+#include <wrl/client.h>
+
+struct ID3D11Device;
 struct ID3D11DeviceContext;
 struct ID3D11PixelShader;
 
@@ -12,12 +15,12 @@ public:
 	virtual void SetShaderResource( UINT slot, const IRenderResource* pResource ) override;
 	virtual void SetConstantBuffer( UINT slot, const IBuffer* pBuffer ) override;
 
-	D3D11PixelShader( ID3D11DeviceContext* pDeviceContext );
-protected:
-	virtual bool CreateShaderInternal( ID3D11Device* pDevice, const void* byteCodePtr, const size_t byteCodeSize );
+	bool CreateShader( ID3D11Device& device, const void* byteCodePtr, const size_t byteCodeSize );
+
+	D3D11PixelShader( ID3D11DeviceContext& deviceContext );
 
 private:
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> m_pPixelShader;
-	ID3D11DeviceContext* m_pDeviceContext = nullptr;
+	ID3D11DeviceContext& m_deviceContext;
 };
 

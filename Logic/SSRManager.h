@@ -5,20 +5,18 @@
 
 #include "ScreenBlurManager.h"
 
+class CGameLogic;
 class CGameObject;
 class IBuffer;
 class IMaterial;
 class IMesh;
-class IMeshBuilder;
-class IRenderer;
 class IRenderResource;
-class IRenderState;
 
 class CSSRManager
 {
 public:
-	bool Init( IRenderer& renderer, IMeshBuilder& meshBuilder );
-	void Process( IRenderer& renderer, const std::list<CGameObject*>& reflectableList ) const;
+	bool Init( CGameLogic& gameLogic );
+	void Process( CGameLogic& gameLogic, const std::list<CGameObject*>& reflectableList ) const;
 
 private:
 	IMesh* m_pScreenRect = nullptr;

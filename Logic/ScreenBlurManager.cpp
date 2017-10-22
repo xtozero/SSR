@@ -1,19 +1,22 @@
 #include "stdafx.h"
 #include "ScreenBlurManager.h"
 
+#include "GameLogic.h"
+#include "Model/IMesh.h"
+#include "Model/IModelBuilder.h"
+
 #include "../RenderCore/CommonRenderer/IMaterial.h"
 #include "../RenderCore/CommonRenderer/IRenderer.h"
 #include "../RenderCore/CommonRenderer/IRenderResource.h"
 #include "../RenderCore/CommonRenderer/IRenderResourceManager.h"
 #include "../RenderCore/CommonRenderer/IRenderView.h"
 
-#include "../RenderCore/IMesh.h"
-#include "../RenderCore/IMeshBuilder.h"
-
 #include "../Shared/Util.h"
 
-bool ScreenBlurManager::Init( IRenderer& renderer, IMeshBuilder& meshBuilder )
+bool ScreenBlurManager::Init( CGameLogic& gameLogic, IModelBuilder& meshBuilder )
 {
+	IRenderer& renderer = gameLogic.GetRenderer( );
+
 	constexpr TCHAR* BLUR_MATERIAL_NAME[] = { _T( "mat_gaussian_blur_x" ), _T( "mat_gaussian_blur_y" ) };
 
 	for ( int i = 0; i < 2; ++i )
@@ -55,13 +58,13 @@ bool ScreenBlurManager::Init( IRenderer& renderer, IMeshBuilder& meshBuilder )
 		return false;
 	}
 
-	m_pBlurRt = resourceMgr.CreateRenderTarget( ssrTex, blurTempTextureName );
+	m_pBlurRt = resourceMgr.CreateRenderTarget( *ssrTex, blurTempTextureName );
 	if ( m_pBlurRt == nullptr )
 	{
 		return false;
 	}
 
-	m_pBlurSrv = resourceMgr.CreateShaderResource( ssrTex, blurTempTextureName );
+	m_pBlurSrv = resourceMgr.CreateShaderResource( *ssrTex, blurTempTextureName );
 	if ( m_pBlurSrv == nullptr )
 	{
 		return false;
@@ -70,8 +73,10 @@ bool ScreenBlurManager::Init( IRenderer& renderer, IMeshBuilder& meshBuilder )
 	return true;
 }
 
-void ScreenBlurManager::Process( IRenderer& renderer, IRenderResource& destSRV, IRenderResource& destRT ) const
+void ScreenBlurManager::Process( CGameLogic& gameLogic, IRenderResource& destSRV, IRenderResource& destRT ) const
 {
+	IRenderer& renderer = gameLogic.GetRenderer( );
+
 	// Set RenderTarget
 	renderer.SetRenderTarget( m_pBlurRt, nullptr );
 
@@ -80,7 +85,7 @@ void ScreenBlurManager::Process( IRenderer& renderer, IRenderResource& destSRV, 
 	m_pBlurMaterial[0]->SetShader( );
 
 	m_pScreenRect->SetMaterial( m_pBlurMaterial[0] );
-	m_pScreenRect->Draw( renderer );
+	m_pScreenRect->Draw( gameLogic );
 
 	// Set RenderTarget
 	renderer.SetRenderTarget( &destRT, nullptr );
@@ -90,5 +95,5 @@ void ScreenBlurManager::Process( IRenderer& renderer, IRenderResource& destSRV, 
 	m_pBlurMaterial[1]->SetShader( );
 
 	m_pScreenRect->SetMaterial( m_pBlurMaterial[1] );
-	m_pScreenRect->Draw( renderer );
+	m_pScreenRect->Draw( gameLogic );
 }

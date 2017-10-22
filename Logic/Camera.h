@@ -6,7 +6,7 @@
 #include "../shared/Math/CXMFloat.h"
 
 class IRenderer;
-class KeyValueGroup;
+class KeyValue;
 
 class CCamera : public IListener
 {
@@ -29,7 +29,7 @@ public:
 	const CXMFLOAT4X4& GetInvViewMatrix( ) const { return m_invViewMatrix; }
 	void SetEnableRotate( bool isEnable ) { m_enableRotate = isEnable; }
 
-	void LoadProperty( KeyValueGroup* keyValue );
+	void LoadProperty( const KeyValue& keyValue );
 
 private:
 	void OnMouseLButton( const UserInput& input );

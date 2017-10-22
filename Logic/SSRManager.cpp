@@ -1,7 +1,10 @@
 #include "stdafx.h"
 #include "SSRManager.h"
 
+#include "GameLogic.h"
 #include "GameObject.h"
+#include "Model/IMesh.h"
+#include "Model/IModelBuilder.h"
 
 #include "../RenderCore/CommonRenderer/IBuffer.h"
 #include "../RenderCore/CommonRenderer/IRenderer.h"
@@ -10,14 +13,11 @@
 #include "../RenderCore/CommonRenderer/IRenderState.h"
 #include "../RenderCore/CommonRenderer/IRenderView.h"
 
-#include "../RenderCore/IMesh.h"
-#include "../RenderCore/IMeshBuilder.h"
-
 #include "../Shared/Util.h"
 
 using namespace DirectX;
 
-bool CSSRManager::Init( IRenderer& renderer, IMeshBuilder& meshBuilder )
+bool CSSRManager::Init( CGameLogic& gameLogic )
 {
 	// Create Constant Buffer
 	BUFFER_TRAIT trait = { sizeof( CXMFLOAT4X4 ), 
@@ -29,6 +29,7 @@ bool CSSRManager::Init( IRenderer& renderer, IMeshBuilder& meshBuilder )
 							0,
 							0 };
 
+	IRenderer& renderer = gameLogic.GetRenderer( );
 	m_ssrConstantBuffer = renderer.CreateBuffer( trait );
 
 	if ( m_ssrConstantBuffer == nullptr )
@@ -41,8 +42,13 @@ bool CSSRManager::Init( IRenderer& renderer, IMeshBuilder& meshBuilder )
 	IResourceManager& resourceMgr = renderer.GetResourceManager( );
 
 	ITexture* ssrTex = resourceMgr.CreateTexture2D( ssrTextureName, ssrTextureName );
-	m_pSsrRt = resourceMgr.CreateRenderTarget( ssrTex, ssrTextureName );
-	m_pSsrSrv = resourceMgr.CreateShaderResource( ssrTex, ssrTextureName );
+	if ( ssrTex == nullptr )
+	{
+		return false;
+	}
+
+	m_pSsrRt = resourceMgr.CreateRenderTarget( *ssrTex, ssrTextureName );
+	m_pSsrSrv = resourceMgr.CreateShaderResource( *ssrTex, ssrTextureName );
 
 	m_pDefaultRt = resourceMgr.FindRenderTarget( _T( "DefaultRenderTarget" ) );
 	m_pDefaultDS = resourceMgr.FindDepthStencil( _T( "DefaultDepthStencil" ) );
@@ -56,6 +62,7 @@ bool CSSRManager::Init( IRenderer& renderer, IMeshBuilder& meshBuilder )
 	}
 
 	// Create Screen Rect Mesh
+	IModelBuilder& meshBuilder = gameLogic.GetModelManager( ).GetModelBuilder( );
 	meshBuilder.Clear( );
 
 	meshBuilder.Append( MeshVertex( CXMFLOAT3( -1.f, -1.f, 1.f ), CXMFLOAT2( 0.f, 1.f ) ) );
@@ -91,7 +98,7 @@ bool CSSRManager::Init( IRenderer& renderer, IMeshBuilder& meshBuilder )
 		return false;
 	}
 
-	if ( !m_blur.Init( renderer, meshBuilder ) )
+	if ( !m_blur.Init( gameLogic, meshBuilder ) )
 	{
 		return false;
 	}
@@ -99,8 +106,10 @@ bool CSSRManager::Init( IRenderer& renderer, IMeshBuilder& meshBuilder )
 	return true;
 }
 
-void CSSRManager::Process( IRenderer& renderer, const std::list<CGameObject*>& reflectableList ) const
+void CSSRManager::Process( CGameLogic& gameLogic, const std::list<CGameObject*>& reflectableList ) const
 {
+	IRenderer& renderer = gameLogic.GetRenderer( );
+
 	// Set Constant Buffer
 	if ( IRenderView* pView = renderer.GetCurrentRenderView( ) )
 	{
@@ -131,11 +140,11 @@ void CSSRManager::Process( IRenderer& renderer, const std::list<CGameObject*>& r
 	{
 		object->SetOverrideMaterial( m_pSsrMaterial );
 		object->UpdateWorldMatrix( renderer );
-		object->Render( renderer );
+		object->Render( gameLogic );
 		object->SetOverrideMaterial( nullptr );
 	}
 
-	m_blur.Process( renderer, *m_pSsrSrv, *m_pSsrRt );
+	m_blur.Process( gameLogic, *m_pSsrSrv, *m_pSsrRt );
 
 	// Set Framebuffer RenderTarget
 	renderer.SetRenderTarget( m_pDefaultRt, nullptr );
@@ -145,7 +154,7 @@ void CSSRManager::Process( IRenderer& renderer, const std::list<CGameObject*>& r
 
 	// Blend Result
 	m_pScreenRect->SetMaterial( m_pSsrBlendMaterial );
-	m_pScreenRect->Draw( renderer );
+	m_pScreenRect->Draw( gameLogic );
 
 	renderer.PSSetShaderResource( 1, nullptr );
 }

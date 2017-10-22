@@ -1,8 +1,10 @@
 #pragma once
 
-#include "IMeshBuilder.h"
+#include "IModelBuilder.h"
 
-class CMeshBuilder : public IMeshBuilder
+class CModelManager;
+
+class CModelBuilder : public IModelBuilder
 {
 public:
 	virtual void Append( const MeshVertex& newVertex ) override;
@@ -12,9 +14,13 @@ public:
 
 	virtual void Clear( ) override;
 
+	CModelBuilder( CModelManager& modelManager ) : m_modelManager( modelManager ) {}
+
 private:
 	std::vector<MeshVertex> m_vertices;
 	std::vector<WORD> m_indices;
 	String m_textureName;
+
+	CModelManager& m_modelManager;
 };
 

@@ -12,7 +12,7 @@ public:
 	virtual bool ShouldDrawShadow( ) const override { return false; }
 
 protected:
-	virtual bool LoadModelMesh( IRenderer& renderer ) override;
+	virtual bool LoadModelMesh( CGameLogic& gameLogic ) override;
 
 public:
 	CSkyBox( ) = default;

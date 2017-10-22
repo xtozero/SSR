@@ -2,6 +2,7 @@
 #include "LightManager.h"
 #include "ShadowManager.h"
 
+#include "GameLogic.h"
 #include "../shared/Math/CXMFloat.h"
 #include "../Shared/Util.h"
 #include "../RenderCore/CommonRenderer/ConstantBufferDefine.h"
@@ -25,10 +26,10 @@ namespace
 	};
 }
 
-void CShadowManager::Init( IRenderer& renderer )
+void CShadowManager::Init( CGameLogic& gameLogic )
 {
 	m_isEnabled = false;
-
+	IRenderer& renderer = gameLogic.GetRenderer( );
 
 	//그림자용 상수 버퍼 생성
 	BUFFER_TRAIT buffertrait = { sizeof( CXMFLOAT4X4 ),
@@ -55,13 +56,13 @@ void CShadowManager::Init( IRenderer& renderer )
 		return;
 	}
 
-	m_rtvShadowMap = resourceMgr.CreateRenderTarget( m_shadowMap, _T( "ShadowMap" ) );
+	m_rtvShadowMap = resourceMgr.CreateRenderTarget( *m_shadowMap, _T( "ShadowMap" ) );
 	if ( m_rtvShadowMap == nullptr )
 	{
 		return;
 	}
 
-	m_srvShadowMap = resourceMgr.CreateShaderResource( m_shadowMap, _T( "ShadowMap" ) );
+	m_srvShadowMap = resourceMgr.CreateShaderResource( *m_shadowMap, _T( "ShadowMap" ) );
 	if ( m_srvShadowMap == nullptr )
 	{
 		return;
@@ -76,7 +77,7 @@ void CShadowManager::Init( IRenderer& renderer )
 	TEXTURE_TRAIT texTrait = depthStencilTexture->GetTrait( );
 	texTrait.m_format = RESOURCE_FORMAT::D24_UNORM_S8_UINT;
 
-	m_dsvShadowMap = resourceMgr.CreateDepthStencil( depthStencilTexture, _T( "ShadowMapDepthStencil" ), &texTrait );
+	m_dsvShadowMap = resourceMgr.CreateDepthStencil( *depthStencilTexture, _T( "ShadowMapDepthStencil" ), &texTrait );
 	if ( m_dsvShadowMap == nullptr )
 	{
 		return;
@@ -92,8 +93,10 @@ void CShadowManager::Init( IRenderer& renderer )
 	m_isEnabled = true;
 }
 
-void CShadowManager::SceneBegin( CLightManager& lightMgr, IRenderer& renderer )
+void CShadowManager::SceneBegin( CLightManager& lightMgr, CGameLogic& gameLogic )
 {
+	IRenderer& renderer = gameLogic.GetRenderer( );
+
 	//그림자 렌더링에 사용할 조명으로 View 행렬을 만들어 세팅
 	LightViewProjection* buffer = static_cast<LightViewProjection*>( m_cbShadow->LockBuffer() );
 
@@ -121,7 +124,7 @@ void CShadowManager::SceneBegin( CLightManager& lightMgr, IRenderer& renderer )
 	renderer.PushViewPort( 0, 0, 2048, 2048 );
 }
 
-void CShadowManager::DrawScene( CLightManager& lightMgr, IRenderer& renderer, std::vector<std::unique_ptr<CGameObject>>& gameObjects )
+void CShadowManager::DrawScene( CLightManager& lightMgr, CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects )
 {
 	//그림자 렌더링 마테리얼로 전체 오브젝트를 랜더링
 	for ( auto& object : gameObjects )
@@ -129,29 +132,31 @@ void CShadowManager::DrawScene( CLightManager& lightMgr, IRenderer& renderer, st
 		if ( object.get() && object->ShouldDrawShadow( ) )
 		{
 			object->SetOverrideMaterial( m_shadowMapMtl );
-			object->UpdateWorldMatrix( renderer );
-			object->Render( renderer );
+			object->UpdateWorldMatrix( gameLogic.GetRenderer( ) );
+			object->Render( gameLogic );
 			object->SetOverrideMaterial( nullptr );
 		}
 	}
 }
 
-void CShadowManager::SceneEnd( CLightManager& lightMgr, IRenderer& renderer )
+void CShadowManager::SceneEnd( CLightManager& lightMgr, CGameLogic& gameLogic )
 {
+	IRenderer& renderer = gameLogic.GetRenderer( );
+
 	//뷰포트 원상 복귀
-	renderer.PopViewPort( );
+	gameLogic.GetRenderer().PopViewPort( );
 
 	//랜터 타겟 원상 복귀, 그림자 맵 세팅
 	renderer.SetRenderTarget( nullptr, nullptr );
 	renderer.PSSetShaderResource( 2, m_srvShadowMap );
 }
 
-void CShadowManager::Process( CLightManager& lightMgr, IRenderer& renderer, std::vector<std::unique_ptr<CGameObject>>& gameObjects )
+void CShadowManager::Process( CLightManager& lightMgr, CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects )
 {
 	if ( m_isEnabled )
 	{
-		SceneBegin( lightMgr, renderer );
-		DrawScene( lightMgr, renderer, gameObjects );
-		SceneEnd( lightMgr, renderer );
+		SceneBegin( lightMgr, gameLogic );
+		DrawScene( lightMgr, gameLogic, gameObjects );
+		SceneEnd( lightMgr, gameLogic );
 	}
 }

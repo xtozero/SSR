@@ -145,10 +145,8 @@ bool CD3D11Texture1D::SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTextu
 	return false;
 }
 
-bool CD3D11Texture1D::Create( ID3D11Device* pDevice, const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
+bool CD3D11Texture1D::Create( ID3D11Device& device, const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
 {
-	assert( pDevice );
-
 	m_trait = trait;
 	D3D11_TEXTURE1D_DESC desc = ConvertTraitTo1DDesc( trait );
 
@@ -163,14 +161,14 @@ bool CD3D11Texture1D::Create( ID3D11Device* pDevice, const TEXTURE_TRAIT& trait,
 		pSrd = &srd;
 	}
 
-	return SUCCEEDED( pDevice->CreateTexture1D( &desc, pSrd, m_pTexture.GetAddressOf( ) ) );
+	return SUCCEEDED( device.CreateTexture1D( &desc, pSrd, m_pTexture.GetAddressOf( ) ) );
 }
 
-bool CD3D11Texture1D::LoadFromFile( ID3D11Device* pDevice, const TCHAR * filePath )
+bool CD3D11Texture1D::LoadFromFile( ID3D11Device& device, const TCHAR * filePath )
 {
 	HRESULT hr;
 	Microsoft::WRL::ComPtr<ID3D11Resource> resource;
-	D3DX11CreateTextureFromFile( pDevice, filePath, nullptr, nullptr, resource.GetAddressOf( ), &hr );
+	D3DX11CreateTextureFromFile( &device, filePath, nullptr, nullptr, resource.GetAddressOf( ), &hr );
 
 	if ( SUCCEEDED( hr ) == false )
 	{
@@ -200,10 +198,8 @@ bool CD3D11Texture2D::SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTextu
 	return false;
 }
 
-bool CD3D11Texture2D::Create( ID3D11Device* pDevice, const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
+bool CD3D11Texture2D::Create( ID3D11Device& device, const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
 {
-	assert( pDevice );
-
 	m_trait = trait;
 	D3D11_TEXTURE2D_DESC desc = ConvertTraitTo2DDesc( trait );
 
@@ -218,14 +214,14 @@ bool CD3D11Texture2D::Create( ID3D11Device* pDevice, const TEXTURE_TRAIT& trait,
 		pSrd = &srd;
 	}
 
-	return SUCCEEDED( pDevice->CreateTexture2D( &desc, pSrd, m_pTexture.GetAddressOf() ) );
+	return SUCCEEDED( device.CreateTexture2D( &desc, pSrd, m_pTexture.GetAddressOf() ) );
 }
 
-bool CD3D11Texture2D::LoadFromFile( ID3D11Device* pDevice, const TCHAR* filePath )
+bool CD3D11Texture2D::LoadFromFile( ID3D11Device& device, const TCHAR* filePath )
 {
 	HRESULT hr;
 	Microsoft::WRL::ComPtr<ID3D11Resource> resource;
-	D3DX11CreateTextureFromFile( pDevice, filePath, nullptr, nullptr, resource.GetAddressOf(), &hr );
+	D3DX11CreateTextureFromFile( &device, filePath, nullptr, nullptr, resource.GetAddressOf(), &hr );
 
 	if ( SUCCEEDED( hr ) == false )
 	{
@@ -255,10 +251,8 @@ bool CD3D11Texture3D::SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTextu
 	return false;
 }
 
-bool CD3D11Texture3D::Create( ID3D11Device* pDevice, const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
+bool CD3D11Texture3D::Create( ID3D11Device& device, const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
 {
-	assert( pDevice );
-
 	m_trait = trait;
 	D3D11_TEXTURE3D_DESC desc = ConvertTraitTo3DDesc( trait );
 
@@ -273,14 +267,14 @@ bool CD3D11Texture3D::Create( ID3D11Device* pDevice, const TEXTURE_TRAIT& trait,
 		pSrd = &srd;
 	}
 
-	return SUCCEEDED( pDevice->CreateTexture3D( &desc, pSrd, m_pTexture.GetAddressOf( ) ) );
+	return SUCCEEDED( device.CreateTexture3D( &desc, pSrd, m_pTexture.GetAddressOf( ) ) );
 }
 
-bool CD3D11Texture3D::LoadFromFile( ID3D11Device* pDevice, const TCHAR * filePath )
+bool CD3D11Texture3D::LoadFromFile( ID3D11Device& device, const TCHAR * filePath )
 {
 	HRESULT hr;
 	Microsoft::WRL::ComPtr<ID3D11Resource> resource;
-	D3DX11CreateTextureFromFile( pDevice, filePath, nullptr, nullptr, resource.GetAddressOf( ), &hr );
+	D3DX11CreateTextureFromFile( &device, filePath, nullptr, nullptr, resource.GetAddressOf( ), &hr );
 
 	if ( SUCCEEDED( hr ) == false )
 	{

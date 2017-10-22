@@ -3,18 +3,20 @@
 
 #include "Aaboundingbox.h"
 #include "BoundingSphere.h"
+#include "Model/IMesh.h"
+
 #include "../RenderCore/CommonRenderer/IRenderer.h"
-#include "../RenderCore/IMesh.h"
 
 #include <memory>
 
-IRigidBody* CRigidBodyManager::GetRigidBody( IRenderer& renderer, const String& meshName, RIGID_BODY_TYPE type )
+IRigidBody* CRigidBodyManager::GetRigidBody( const IMesh& mesh, RIGID_BODY_TYPE type )
 {
 	if ( type < 0 || type >= RIGID_BODY_TYPE::Count )
 	{
 		return nullptr;
 	}
 
+	const TCHAR* meshName = mesh.GetName( );
 	auto found = m_rigidBodyList.find( meshName );
 
 	if ( found == m_rigidBodyList.end( ) )
@@ -29,21 +31,14 @@ IRigidBody* CRigidBodyManager::GetRigidBody( IRenderer& renderer, const String& 
 
 	if ( rigidBodyGroup.m_rigidBodies[rigidBodyType].get( ) == nullptr )
 	{
-		rigidBodyGroup.m_rigidBodies[rigidBodyType].reset( CreateRigidBody( renderer, meshName, type ) );
+		rigidBodyGroup.m_rigidBodies[rigidBodyType].reset( CreateRigidBody( mesh, type ) );
 	}
 
 	return rigidBodyGroup.m_rigidBodies[rigidBodyType].get();
 }
 
-Owner<IRigidBody*> CRigidBodyManager::CreateRigidBody( IRenderer& renderer, const String& meshName, RIGID_BODY_TYPE type )
+Owner<IRigidBody*> CRigidBodyManager::CreateRigidBody( const IMesh& mesh, RIGID_BODY_TYPE type )
 {
-	IMesh* pMesh = renderer.GetModelPtr( meshName.c_str( ) );
-
-	if ( pMesh == nullptr )
-	{
-		return nullptr;
-	}
-
 	IRigidBody* newRigidBody = nullptr;
 
 	switch ( type )
@@ -62,7 +57,7 @@ Owner<IRigidBody*> CRigidBodyManager::CreateRigidBody( IRenderer& renderer, cons
 
 	if ( newRigidBody )
 	{
-		newRigidBody->CreateRigideBody( pMesh );
+		newRigidBody->CreateRigideBody( mesh );
 	}
 
 	return newRigidBody;

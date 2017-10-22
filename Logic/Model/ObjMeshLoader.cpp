@@ -3,9 +3,7 @@
 #include "CommonMeshDefine.h"
 #include "ObjMesh.h"
 #include "ObjMeshLoader.h"
-#include "Surface.h"
-#include "SurfaceManager.h"
-#include "../shared/Util.h"
+#include "../../shared/Util.h"
 
 #include <assert.h>
 #include <fstream>
@@ -25,13 +23,8 @@ namespace
 	constexpr TCHAR* OBJ_FILE_DIR = _T( "../model/obj/" );
 }
 
-Owner<IMesh*> CObjMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pFileName, CSurfaceManager* pSurfaceManager )
+Owner<IMesh*> CObjMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pFileName, SurfaceMap& surface )
 {
-	if ( pSurfaceManager == nullptr )
-	{
-		return nullptr;
-	}
-
 	Initialize( );
 	TCHAR pPath[MAX_PATH];
 	::GetCurrentDirectory( MAX_PATH, pPath );
@@ -152,7 +145,7 @@ Owner<IMesh*> CObjMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR
 		{
 			if ( count > 1 )
 			{
-				LoadMaterialFile( params[1].c_str(), pSurfaceManager );
+				LoadMaterialFile( params[1].c_str(), surface );
 			}
 		}
 		else if ( token.find( _T( "usemtl" ) ) != String::npos )
@@ -215,8 +208,13 @@ Owner<IMesh*> CObjMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR
 		trait.m_indexOffset = i->m_startIndex;
 		trait.m_indexCount = i->m_endIndex - i->m_startIndex + 1;
 
-		ISurface* surface = pSurfaceManager->FindSurface( i->m_materialName );
-		trait.m_pSurface = surface;
+		Surface* found = FindSurface( surface, i->m_materialName );
+		if ( found == nullptr )
+		{
+			__debugbreak( );
+		}
+
+		trait.m_pSurface = found;
 
 		newMesh->AddMaterialGroup( trait );
 	}
@@ -295,13 +293,8 @@ std::vector<MeshVertex> CObjMeshLoader::BuildVertices( )
 	return vertices;
 }
 
-void CObjMeshLoader::LoadMaterialFile( const TCHAR* pFileName, CSurfaceManager* pSurfaceManager )
+void CObjMeshLoader::LoadMaterialFile( const TCHAR* pFileName, SurfaceMap& surface )
 {
-	if ( pSurfaceManager == nullptr )
-	{
-		return;
-	}
-
 	Ifstream materialFile( pFileName, 0 );
 
 	if ( !materialFile.is_open( ) )
@@ -310,7 +303,7 @@ void CObjMeshLoader::LoadMaterialFile( const TCHAR* pFileName, CSurfaceManager* 
 	}
 
 	String token;
-	ISurface* pCurSuface = nullptr;
+	Surface* pCurSuface = nullptr;
 	Stringstream sStream;
 
 	while ( materialFile.good( ) )
@@ -331,14 +324,14 @@ void CObjMeshLoader::LoadMaterialFile( const TCHAR* pFileName, CSurfaceManager* 
 		}
 		else if ( count > 1 && token.find( _T( "newmtl" ) ) != String::npos )
 		{
-			std::unique_ptr<ISurface> newSurface = std::make_unique<CSurface>( );
-			pCurSuface = pSurfaceManager->RegisterSurface( params[1], std::move( newSurface ) );
+			std::unique_ptr<Surface> newSurface = std::make_unique<Surface>( );
+			pCurSuface = RegisterSurface( surface, params[1], std::move( newSurface ) );
 		}
 		else if ( count > 1 && token.find( _T( "map_Kd" ) ) != String::npos )
 		{
 			if ( pCurSuface )
 			{
-				pCurSuface->SetTextureName( params[1] );
+				pCurSuface->m_diffuseTexName = params[1];
 			}
 		}
 		else if ( count > 3 && token.find( _T( "Ka" ) ) != String::npos )
@@ -352,7 +345,7 @@ void CObjMeshLoader::LoadMaterialFile( const TCHAR* pFileName, CSurfaceManager* 
 				sStream >> color.x >> color.y >> color.z;
 				color.w = 1;
 
-				pCurSuface->SetAmbient( color );
+				pCurSuface->m_trait.m_ambient = color;
 			}
 		}
 		else if ( count > 3 && token.find( _T( "Kd" ) ) != String::npos )
@@ -366,7 +359,7 @@ void CObjMeshLoader::LoadMaterialFile( const TCHAR* pFileName, CSurfaceManager* 
 				sStream >> color.x >> color.y >> color.z;
 				color.w = 1;
 
-				pCurSuface->SetDiffuse( color );
+				pCurSuface->m_trait.m_diffuse = color;
 			}
 		}
 		else if ( count > 3 && token.find( _T( "Ks" ) ) != String::npos )
@@ -380,7 +373,7 @@ void CObjMeshLoader::LoadMaterialFile( const TCHAR* pFileName, CSurfaceManager* 
 				sStream >> color.x >> color.y >> color.z;
 				color.w = 1;
 
-				pCurSuface->SetSpecular( color );
+				pCurSuface->m_trait.m_specular = color;
 			}
 		}
 		else if ( count > 1 && token.find( _T( "Ns" ) ) != String::npos )
@@ -392,7 +385,7 @@ void CObjMeshLoader::LoadMaterialFile( const TCHAR* pFileName, CSurfaceManager* 
 				float specularPower = 0.f;
 				sStream >> specularPower;
 
-				pCurSuface->SetSpeculaPower( specularPower );
+				pCurSuface->m_trait.m_specularPower = specularPower;
 			}
 		}
 	}

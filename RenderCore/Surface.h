@@ -2,7 +2,7 @@
 
 #include "CommonRenderer/ISurface.h"
 
-class CSurface : public ISurface
+class Surface : public ISurface
 {
 public:
 	virtual void SetAmbient( const CXMFLOAT4& ambient ) override;
@@ -14,8 +14,8 @@ public:
 	virtual const String& GetTextureName( ) const override { return m_textureName; };
 	virtual const SurfaceTrait& GetTrait( ) const override { return m_trait; };
 
-	CSurface( ) = default;
-	virtual ~CSurface( ) = default;
+	Surface( ) = default;
+	virtual ~Surface( ) = default;
 
 private:
 	SurfaceTrait m_trait;

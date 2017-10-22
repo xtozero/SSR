@@ -111,56 +111,52 @@ namespace
 bool CD3D11ResourceManager::Bootup( )
 {
 	CKeyValueReader keyValueReader;
-	std::shared_ptr<KeyValueGroup> keyValue = keyValueReader.LoadKeyValueFromFile( TEXTURE_DESC_SCRIPT_FILE_NAME );
+	std::shared_ptr<KeyValue> keyValue = keyValueReader.LoadKeyValueFromFile( TEXTURE_DESC_SCRIPT_FILE_NAME );
 
 	if ( keyValue == nullptr )
 	{
 		return false;
 	}
 
-	auto entryPoint = keyValue->FindKeyValue( _T( "Desc" ) );
-
-	if ( entryPoint == nullptr )
-	{
-		return false;
-	}
-
-	for ( auto texture = entryPoint->GetChild( ); texture != nullptr; texture = texture->GetNext( ) )
+	for ( const KeyValue* texture = keyValue->GetChild( ); texture != nullptr; texture = texture->GetNext( ) )
 	{
 		auto ret = m_textureTraits.emplace( texture->GetKey( ), TEXTURE_TRAIT( ) );
 
 		TEXTURE_TRAIT& newTrait = ret.first->second;
 
-		for ( auto key = texture->GetChild( ); key != nullptr; key = key->GetNext( ) )
+		if ( const KeyValue* pSize = texture->Find( _T( "Size" ) ) )
 		{
-			if ( key->GetKey( ) == _T( "Size" ) )
-			{
-				SizeHandler( key, m_frameBufferSize, newTrait );
-			}
-			else if ( key->GetKey( ) == _T( "Sample" ) )
-			{
-				SampleDescHandler( key, newTrait );
-			}
-			else if ( key->GetKey( ) == _T( "MipLevels" ) )
-			{
-				MipLevelHandler( key, newTrait );
-			}
-			else if ( key->GetKey( ) == _T( "Format" ) )
-			{
-				FormatHandler( key, newTrait );
-			}
-			else if ( key->GetKey( ) == _T( "Access" ) )
-			{
-				AccessHandler( key, newTrait );
-			}
-			else if ( key->GetKey( ) == _T( "Type" ) )
-			{
-				TypeHandler( key, newTrait );
-			}
-			else if ( key->GetKey( ) == _T( "Misc" ) )
-			{
-				MiscHandler( key, newTrait );
-			}
+			SizeHandler( pSize, m_frameBufferSize, newTrait );
+		}
+		
+		if ( const KeyValue* pSample = texture->Find( _T( "Sample" ) ) )
+		{
+			SampleDescHandler( pSample, newTrait );
+		}
+		
+		if ( const KeyValue* pMipLevels = texture->Find( _T( "MipLevels" ) ) )
+		{
+			MipLevelHandler( pMipLevels, newTrait );
+		}
+		
+		if ( const KeyValue* pFormat = texture->Find( _T( "Format" ) ) )
+		{
+			FormatHandler( pFormat, newTrait );
+		}
+		
+		if ( const KeyValue* pAccess = texture->Find( _T( "Access" ) ) )
+		{
+			AccessHandler( pAccess, newTrait );
+		}
+		
+		if ( const KeyValue* pType = texture->Find( _T( "Type" ) ) )
+		{
+			TypeHandler( pType, newTrait );
+		}
+		
+		if ( const KeyValue* pMisc = texture->Find( _T( "Misc" ) ) )
+		{
+			MiscHandler( pMisc, newTrait );
 		}
 	}
 
@@ -184,7 +180,7 @@ bool CD3D11ResourceManager::LoadTextureFromFile( const String& fileName )
 		case D3D11_RESOURCE_DIMENSION_TEXTURE1D:
 		{
 			std::unique_ptr<CD3D11Texture1D> newTexture = std::make_unique<CD3D11Texture1D>( );
-			if ( newTexture && newTexture->LoadFromFile( m_pDevice, fileName.c_str( ) ) )
+			if ( newTexture && newTexture->LoadFromFile( m_device, fileName.c_str( ) ) )
 			{
 				m_pTextures.emplace( fileName, std::move( newTexture ) );
 			}
@@ -193,7 +189,7 @@ bool CD3D11ResourceManager::LoadTextureFromFile( const String& fileName )
 		case D3D11_RESOURCE_DIMENSION_TEXTURE2D:
 		{
 			std::unique_ptr<CD3D11Texture2D> newTexture = std::make_unique<CD3D11Texture2D>( );
-			if ( newTexture && newTexture->LoadFromFile( m_pDevice, fileName.c_str( ) ) )
+			if ( newTexture && newTexture->LoadFromFile( m_device, fileName.c_str( ) ) )
 			{
 				m_pTextures.emplace( fileName, std::move( newTexture ) );
 			}
@@ -202,7 +198,7 @@ bool CD3D11ResourceManager::LoadTextureFromFile( const String& fileName )
 		case D3D11_RESOURCE_DIMENSION_TEXTURE3D:
 		{
 			std::unique_ptr<CD3D11Texture3D> newTexture = std::make_unique<CD3D11Texture3D>( );
-			if ( newTexture && newTexture->LoadFromFile( m_pDevice, fileName.c_str( ) ) )
+			if ( newTexture && newTexture->LoadFromFile( m_device, fileName.c_str( ) ) )
 			{
 				m_pTextures.emplace( fileName, std::move( newTexture ) );
 			}
@@ -224,7 +220,7 @@ ITexture* CD3D11ResourceManager::CreateTexture1D( const TEXTURE_TRAIT& trait, co
 	}
 
 	std::unique_ptr<CD3D11Texture1D> newTexture = std::make_unique<CD3D11Texture1D>( );
-	if ( newTexture->Create( m_pDevice, trait, initData ) )
+	if ( newTexture->Create( m_device, trait, initData ) )
 	{
 		CD3D11Texture1D* ret = newTexture.get( );
 		m_pTextures.emplace( textureName, std::move( newTexture ) );
@@ -260,7 +256,7 @@ ITexture* CD3D11ResourceManager::CreateTexture2D( const TEXTURE_TRAIT& trait, co
 	}
 
 	std::unique_ptr<CD3D11Texture2D> newTexture = std::make_unique<CD3D11Texture2D>( );
-	if ( newTexture->Create( m_pDevice, trait, initData ) )
+	if ( newTexture->Create( m_device, trait, initData ) )
 	{
 		CD3D11Texture2D* ret = newTexture.get( );
 		m_pTextures.emplace( textureName, std::move( newTexture ) );
@@ -287,19 +283,20 @@ ITexture* CD3D11ResourceManager::CreateTexture2D( const String& descName, const 
 	return nullptr;
 }
 
-bool CD3D11ResourceManager::RegisterTexture2D( const String& textureName, void* pTexture )
+ITexture* CD3D11ResourceManager::RegisterTexture2D( const String& textureName, void* pTexture )
 {
 	if ( FindTexture( textureName ) )
 	{
 		DebugWarning( "CTextureManager Error - Try Regist Exist Texture Name\n" );
-		return false;
+		return nullptr;
 	}
 
 	Microsoft::WRL::ComPtr<ID3D11Resource> texture = static_cast<ID3D11Resource*>( pTexture );
 	std::unique_ptr<CD3D11Texture2D> newTexture = std::make_unique<CD3D11Texture2D>( );
 	newTexture->SetTexture( texture );
+	ITexture* ret = newTexture.get( );
 	m_pTextures.emplace( textureName, std::move( newTexture ) );
-	return true;
+	return ret;
 }
 
 ITexture* CD3D11ResourceManager::FindTexture( const String& textureName ) const
@@ -320,20 +317,14 @@ void CD3D11ResourceManager::SetFrameBufferSize( UINT nWndWidth, UINT nWndHeight 
 	m_frameBufferSize.second = nWndHeight;
 }
 
-CD3D11ResourceManager::CD3D11ResourceManager( ID3D11Device* pDevice ) :
-	m_pDevice( pDevice ),
+CD3D11ResourceManager::CD3D11ResourceManager( ID3D11Device& device ) :
+	m_device( device ),
 	m_frameBufferSize( 0, 0 )
 {
-	assert( m_pDevice );
 }
 
-IRenderResource* CD3D11ResourceManager::CreateRenderTarget( const ITexture* pTexture, const String& renderTargetName, const TEXTURE_TRAIT* trait )
+IRenderResource* CD3D11ResourceManager::CreateRenderTarget( const ITexture& texture, const String& renderTargetName, const TEXTURE_TRAIT* trait )
 {
-	if ( pTexture == nullptr )
-	{
-		return nullptr;
-	}
-
 	if ( auto renderTarget = FindRenderTarget( renderTargetName ) )
 	{
 		return renderTarget;
@@ -341,7 +332,7 @@ IRenderResource* CD3D11ResourceManager::CreateRenderTarget( const ITexture* pTex
 
 	std::unique_ptr<CRenderTarget> newRenderTarget = std::make_unique<CRenderTarget>( );
 
-	if ( newRenderTarget->CreateRenderTarget( m_pDevice, static_cast<ID3D11Resource*>( pTexture->Get( ) ), trait ) )
+	if ( newRenderTarget->CreateRenderTarget( m_device, texture, trait ) )
 	{
 		CRenderTarget* ret = newRenderTarget.get( );
 		m_renderTargets.emplace( renderTargetName, std::move( newRenderTarget ) );
@@ -351,23 +342,20 @@ IRenderResource* CD3D11ResourceManager::CreateRenderTarget( const ITexture* pTex
 	return nullptr;
 }
 
-IRenderResource* CD3D11ResourceManager::CreateDepthStencil( const ITexture* pTexture, const String& depthStencilName, const TEXTURE_TRAIT* trait )
+IRenderResource* CD3D11ResourceManager::CreateDepthStencil( const ITexture& texture, const String& depthStencilName, const TEXTURE_TRAIT* trait )
 {
 	if ( auto depthStencil = FindDepthStencil( depthStencilName ) )
 	{
 		return depthStencil;
 	}
 
-	if ( pTexture )
-	{
-		std::unique_ptr<CDepthStencil> newDepthStencil = std::make_unique<CDepthStencil>( );
+	std::unique_ptr<CDepthStencil> newDepthStencil = std::make_unique<CDepthStencil>( );
 
-		if ( newDepthStencil->CreateDepthStencil( m_pDevice, pTexture, trait ) )
-		{
-			CDepthStencil* ret = newDepthStencil.get( );
-			m_depthStencils.emplace( depthStencilName, std::move( newDepthStencil ) );
-			return ret;
-		}
+	if ( newDepthStencil->CreateDepthStencil( m_device, texture, trait ) )
+	{
+		CDepthStencil* ret = newDepthStencil.get( );
+		m_depthStencils.emplace( depthStencilName, std::move( newDepthStencil ) );
+		return ret;
 	}
 
 	return nullptr;
@@ -413,7 +401,7 @@ void CD3D11ResourceManager::LoadShaderResourceFromFile( const String& fileName )
 	}
 
 	std::unique_ptr<CD3D11ShaderResource> newShaderResource = std::make_unique<CD3D11ShaderResource>( );
-	if ( newShaderResource->LoadShaderResourceFromFile( m_pDevice, fileName ) )
+	if ( newShaderResource->LoadShaderResourceFromFile( m_device, fileName ) )
 	{
 		m_shaderResources.emplace( fileName, std::move( newShaderResource ) );
 	}
@@ -451,7 +439,7 @@ void CD3D11ResourceManager::RegisterShaderResource( const String& resourceName, 
 	m_shaderResources.emplace( resourceName, std::move( newShaderResource ) );
 }
 
-IRenderResource* CD3D11ResourceManager::CreateShaderResource( const ITexture* pTexture, const String& resourceName, const TEXTURE_TRAIT* trait )
+IRenderResource* CD3D11ResourceManager::CreateShaderResource( const ITexture& texture, const String& resourceName, const TEXTURE_TRAIT* trait )
 {
 	if ( FindShaderResource( resourceName ) )
 	{
@@ -461,7 +449,7 @@ IRenderResource* CD3D11ResourceManager::CreateShaderResource( const ITexture* pT
 
 	std::unique_ptr<CD3D11ShaderResource> newShaderResource = std::make_unique<CD3D11ShaderResource>( );
 
-	if ( newShaderResource->CreateShaderResource( m_pDevice, pTexture, trait ) )
+	if ( newShaderResource->CreateShaderResource( m_device, texture, trait ) )
 	{
 		CD3D11ShaderResource* ret = newShaderResource.get( );
 		m_shaderResources.emplace( resourceName, std::move( newShaderResource ) );
@@ -471,43 +459,40 @@ IRenderResource* CD3D11ResourceManager::CreateShaderResource( const ITexture* pT
 	return nullptr;
 }
 
-ITexture* CD3D11ResourceManager::CreateCloneTexture( const ITexture* pSourceTexture, const String& textureName )
+ITexture* CD3D11ResourceManager::CreateCloneTexture( const ITexture& src, const String& textureName )
 {
-	if ( pSourceTexture )
+	switch ( src.GetType( ) )
 	{
-		switch ( pSourceTexture->GetType( ) )
-		{
-		case TEXTURE_TYPE::TEXTURE_1D:
-			break;
-		case TEXTURE_TYPE::TEXTURE_2D:
-		{
-			TEXTURE_TRAIT trait = pSourceTexture->GetTrait( );
-
-			// Applications can't specify NULL for pInitialData when creating IMMUTABLE resources
-			trait.m_type |= RESOURCE_TYPE::SHADER_RESOURCE;
-			trait.m_access = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE;
-
-			if ( ITexture* pTexture = CreateTexture2D( trait, textureName ) )
-			{
-				trait.m_format = ( trait.m_format == RESOURCE_FORMAT::R24G8_TYPELESS ) ? RESOURCE_FORMAT::R24_UNORM_X8_TYPELESS : trait.m_format;
-
-				CreateShaderResource( pTexture, textureName, &trait );
-
-				return pTexture;
-			}
-		}
+	case TEXTURE_TYPE::TEXTURE_1D:
 		break;
-		case TEXTURE_TYPE::TEXTURE_3D:
-			break;
-		default:
-			break;
+	case TEXTURE_TYPE::TEXTURE_2D:
+	{
+		TEXTURE_TRAIT trait = src.GetTrait( );
+
+		// Applications can't specify NULL for pInitialData when creating IMMUTABLE resources
+		trait.m_type |= RESOURCE_TYPE::SHADER_RESOURCE;
+		trait.m_access = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE;
+
+		if ( ITexture* pTexture = CreateTexture2D( trait, textureName ) )
+		{
+			trait.m_format = ( trait.m_format == RESOURCE_FORMAT::R24G8_TYPELESS ) ? RESOURCE_FORMAT::R24_UNORM_X8_TYPELESS : trait.m_format;
+
+			CreateShaderResource( *pTexture, textureName, &trait );
+
+			return pTexture;
 		}
+	}
+	break;
+	case TEXTURE_TYPE::TEXTURE_3D:
+		break;
+	default:
+		break;
 	}
 
 	return nullptr;
 }
 
-void CD3D11ResourceManager::TakeSnapshot( ID3D11DeviceContext* pDeviceContext, const String& sourceTextureName, const String& destTextureName )
+void CD3D11ResourceManager::TakeSnapshot( ID3D11DeviceContext& deviceContext, const String& sourceTextureName, const String& destTextureName )
 {
 	ITexture* pSource = FindTexture( sourceTextureName );
 
@@ -520,12 +505,12 @@ void CD3D11ResourceManager::TakeSnapshot( ID3D11DeviceContext* pDeviceContext, c
 
 	if ( pDest == nullptr )
 	{
-		pDest = CreateCloneTexture( pSource, destTextureName );
+		pDest = CreateCloneTexture( *pSource, destTextureName );
 		if ( pDest == nullptr )
 		{
 			DebugWarning( "Snapshot Error - Fail Create DestTexture \n" );
 		}
 	}
 
-	pDeviceContext->CopyResource( reinterpret_cast<ID3D11Resource*>( pDest->Get( ) ), reinterpret_cast<ID3D11Resource*>( pSource->Get( ) ) );
+	deviceContext.CopyResource( reinterpret_cast<ID3D11Resource*>( pDest->Get( ) ), reinterpret_cast<ID3D11Resource*>( pSource->Get( ) ) );
 }

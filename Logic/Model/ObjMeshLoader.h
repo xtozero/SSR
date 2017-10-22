@@ -1,7 +1,7 @@
 #pragma once
 
-#include "IMeshLoader.h"
-#include "../shared/Math/CXMFloat.h"
+#include "IModelLoader.h"
+#include "../../shared/Math/CXMFloat.h"
 
 #include <map>
 #include <memory>
@@ -9,15 +9,15 @@
 
 class IMesh;
 
-class CObjMeshLoader : public IMeshLoader
+class CObjMeshLoader : public IModelLoader
 {
 public:
-	virtual Owner<IMesh*> LoadMeshFromFile( IRenderer& renderer, const TCHAR* pFileName, CSurfaceManager* pSurfaceManager ) override;
+	virtual Owner<IMesh*> LoadMeshFromFile( IRenderer& renderer, const TCHAR* pFileName, SurfaceMap& pSurfaceManager ) override;
 
 private:
 	void Initialize( );
 	std::vector<MeshVertex> BuildVertices( );
-	void LoadMaterialFile( const TCHAR* pFileName, CSurfaceManager* pSurfaceManager );
+	void LoadMaterialFile( const TCHAR* pFileName, SurfaceMap& surface );
 
 private:
 	void CalcObjNormal( );

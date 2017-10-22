@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Camera.h"
+#include "ConstantBufferDefine.h"
 #include "LightManager.h"
 
 #include "../Engine/EnumStringMap.h"
@@ -7,7 +8,6 @@
 #include "../RenderCore/CommonRenderer/IBuffer.h"
 #include "../RenderCore/CommonRenderer/IMaterial.h"
 #include "../RenderCore/CommonRenderer/IRenderer.h"
-#include "../RenderCore/CommonRenderer/ConstantBufferDefine.h"
 #include "../Shared/Util.h"
 
 using namespace DirectX;
@@ -25,76 +25,6 @@ namespace
 		REGISTER_ENUM_STRING( LIGHT_TYPE::DIRECTINAL_LIGHT );
 		REGISTER_ENUM_STRING( LIGHT_TYPE::POINT_LIGHT );
 		REGISTER_ENUM_STRING( LIGHT_TYPE::SPOT_LIGHT );
-	}
-
-	void AmbientColorHandler( CLightManager* owner, const String&, const KeyValue* keyValue )
-	{
-		KEYVALUE_VALUE_ASSERT( keyValue->GetValue( ), 4 );
-		Stringstream stream( keyValue->GetValue( ) );
-		CXMFLOAT4 ambientColor( 0.f, 0.f, 0.f, 0.f );
-
-		stream >> ambientColor.x >> ambientColor.y >> ambientColor.z >> ambientColor.w;
-		owner->SetGlobalAmbient( ambientColor );
-	}
-
-	void LightHandler( CLightManager* owner, const String&, const KeyValue* keyValue )
-	{
-		LightTrait trait;
-
-		for ( auto key = keyValue->GetChild( ); key != nullptr; key = key->GetNext() )
-		{
-			if ( key->GetKey( ) == _T( "type" ) )
-			{
-				trait.m_type = static_cast<LIGHT_TYPE>( GetEnumStringMap().GetEnum( key->GetValue( ), static_cast<int>( LIGHT_TYPE::NONE ) ) );
-			}
-			else if ( key->GetKey( ) == _T( "onOff" ) )
-			{
-				trait.m_isOn = key->GetValue<int>() == 1;
-			}
-			else if ( key->GetKey( ) == _T( "theta" ) )
-			{
-				trait.m_theta = key->GetValue<float>();
-			}
-			else if ( key->GetKey( ) == _T( "phi" ) )
-			{
-				trait.m_phi = key->GetValue<float>();
-			}
-			else if ( key->GetKey( ) == _T( "direction" ) )
-			{
-				Stringstream stream( key->GetValue( ) );
-				stream >> trait.m_direction.x >> trait.m_direction.y >> trait.m_direction.z;
-			}
-			else if ( key->GetKey( ) == _T( "range" ) )
-			{
-				trait.m_range = key->GetValue<float>();
-			}
-			else if ( key->GetKey( ) == _T( "fallOff" ) )
-			{
-				trait.m_fallOff = key->GetValue<float>();
-			}
-			else if ( key->GetKey( ) == _T( "attenuation" ) )
-			{
-				Stringstream stream( key->GetValue( ) );
-				stream >> trait.m_attenuation.x >> trait.m_attenuation.y >> trait.m_attenuation.z;
-			}
-			else if ( key->GetKey( ) == _T( "position" ) )
-			{
-				Stringstream stream( key->GetValue( ) );
-				stream >> trait.m_position.x >> trait.m_position.y >> trait.m_position.z;
-			}
-			else if ( key->GetKey( ) == _T( "m_diffuse" ) )
-			{
-				Stringstream stream( key->GetValue( ) );
-				stream >> trait.m_diffuse.x >> trait.m_diffuse.y >> trait.m_diffuse.z >> trait.m_diffuse.w;
-			}
-			else if ( key->GetKey( ) == _T( "m_specular" ) )
-			{
-				Stringstream stream( key->GetValue( ) );
-				stream >> trait.m_specular.x >> trait.m_specular.y >> trait.m_specular.z >> trait.m_specular.w;
-			}
-		}
-
-		owner->PushLightTrait( trait );
 	}
 }
 
@@ -139,7 +69,7 @@ void CLightManager::UpdateToRenderer( IRenderer& renderer, const CCamera& camera
 		{
 			memcpy( lights, &m_shaderLightProperty, sizeof( ShaderLightTrait ) );
 			m_lightBuffer->UnLockBuffer( );
-			m_lightBuffer->SetPSBuffer( static_cast<int>( PS_CONSTANT_BUFFER::LIGHT ) );
+			m_lightBuffer->SetPSBuffer( PS_CONSTANT_BUFFER::LIGHT );
 		}
 
 		m_needUpdateToRenderer = false;
@@ -193,9 +123,6 @@ CLightManager::CLightManager( ) :
 	m_needUpdateToRenderer( false ),
 	m_primaryLight( 0 )
 {
-	RegisterHandler( _T( "globalAmbient" ), AmbientColorHandler );
-	RegisterHandler( _T( "Light" ), LightHandler );
-
 	RegisterEnumString( );
 }
 
@@ -203,31 +130,90 @@ void CLightManager::LoadPropertyFromScript( )
 {
 	CKeyValueReader keyValueReader;
 
-	std::unique_ptr<KeyValueGroupImpl> pKeyValues = keyValueReader.LoadKeyValueFromFile( LIGHT_PROPERTY_FILE_NAME );
+	std::unique_ptr<KeyValue> pKeyValues = keyValueReader.LoadKeyValueFromFile( LIGHT_PROPERTY_FILE_NAME );
 
 	if ( pKeyValues )
 	{
-		LoadLightProperty( pKeyValues.get() );
+		LoadLightProperty( *pKeyValues.get() );
 	}
 }
 
-void CLightManager::LoadLightProperty( const KeyValueGroup* pKeyValues )
+void CLightManager::LoadLightProperty( const KeyValue& keyValue )
 {
-	if ( pKeyValues == nullptr )
+	if ( const KeyValue* pGlobalAmbient = keyValue.Find( _T( "globalAmbient" ) ) )
 	{
-		return;
+		KEYVALUE_VALUE_ASSERT( pGlobalAmbient->GetValue( ), 4 );
+		Stringstream stream( pGlobalAmbient->GetValue( ) );
+		CXMFLOAT4 ambientColor( 0.f, 0.f, 0.f, 0.f );
+
+		stream >> ambientColor.x >> ambientColor.y >> ambientColor.z >> ambientColor.w;
+		SetGlobalAmbient( ambientColor );
 	}
 
-	auto keyValue = pKeyValues->FindKeyValue( _T( "Lights" ) );
-
-	if ( keyValue == nullptr )
+	for ( auto desc = keyValue.Find( _T( "Light" ) ); desc != nullptr; desc = desc->GetNext( ) )
 	{
-		DebugWarning( "Load Light Property Fail!!!\n" );
-		return;
-	}
+		LightTrait trait;
 
-	for ( auto desc = keyValue->GetChild( ); desc != nullptr; desc = desc->GetNext( ) )
-	{
-		Handle( desc->GetKey( ), desc );
+		if ( const KeyValue* pType = desc->Find( _T( "type" ) ) )
+		{
+			trait.m_type = static_cast<LIGHT_TYPE>( GetEnumStringMap( ).GetEnum( pType->GetValue( ), static_cast<int>( LIGHT_TYPE::NONE ) ) );
+		}
+		
+		if ( const KeyValue* pOnOff = desc->Find( _T( "onOff" ) ) )
+		{
+			trait.m_isOn = pOnOff->GetValue<int>( ) == 1;
+		}
+		
+		if ( const KeyValue* pTheta = desc->Find( _T( "theta" ) ) )
+		{
+			trait.m_theta = pTheta->GetValue<float>( );
+		}
+		
+		if ( const KeyValue* pPhi = desc->Find( _T( "phi" ) ) )
+		{
+			trait.m_phi = pPhi->GetValue<float>( );
+		}
+		
+		if ( const KeyValue* pDirection = desc->Find( _T( "direction" ) ) )
+		{
+			Stringstream stream( pDirection->GetValue( ) );
+			stream >> trait.m_direction.x >> trait.m_direction.y >> trait.m_direction.z;
+		}
+		
+		if ( const KeyValue* pRange = desc->Find( _T( "range" ) ) )
+		{
+			trait.m_range = pRange->GetValue<float>( );
+		}
+		
+		if ( const KeyValue* pFallOff = desc->Find( _T( "fallOff" ) ) )
+		{
+			trait.m_fallOff = pFallOff->GetValue<float>( );
+		}
+		
+		if ( const KeyValue* pAttenuation = desc->Find( _T( "attenuation" ) ) )
+		{
+			Stringstream stream( pAttenuation->GetValue( ) );
+			stream >> trait.m_attenuation.x >> trait.m_attenuation.y >> trait.m_attenuation.z;
+		}
+		
+		if ( const KeyValue* pPosition = desc->Find( _T( "position" ) ) )
+		{
+			Stringstream stream( pPosition->GetValue( ) );
+			stream >> trait.m_position.x >> trait.m_position.y >> trait.m_position.z;
+		}
+		
+		if ( const KeyValue* pDiffuse = desc->Find( _T( "diffuse" ) ) )
+		{
+			Stringstream stream( pDiffuse->GetValue( ) );
+			stream >> trait.m_diffuse.x >> trait.m_diffuse.y >> trait.m_diffuse.z >> trait.m_diffuse.w;
+		}
+		
+		if ( const KeyValue* pSpecular = desc->Find( _T( "specular" ) ) )
+		{
+			Stringstream stream( pSpecular->GetValue( ) );
+			stream >> trait.m_specular.x >> trait.m_specular.y >> trait.m_specular.z >> trait.m_specular.w;
+		}
+
+		PushLightTrait( trait );
 	}
 }

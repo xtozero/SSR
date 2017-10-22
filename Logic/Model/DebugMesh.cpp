@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "DebugMesh.h"
 
-#include "common.h"
-#include "CommonRenderer/IRenderer.h"
+#include "../common.h"
+#include "../GameLogic.h"
+#include "../../RenderCore/CommonRenderer/IMaterial.h"
+#include "../../RenderCore/CommonRenderer/IRenderer.h"
 
-#include "Material.h"
-
-#include "../shared/Math/CXMFloat.h"
+#include "../../shared/Math/CXMFloat.h"
 
 bool TriangleMesh::Load( IRenderer& renderer, UINT primitive )
 {
@@ -48,7 +48,7 @@ bool TriangleMesh::Load( IRenderer& renderer, UINT primitive )
 	return true;
 }
 
-void TriangleMesh::Draw( IRenderer& renderer )
+void TriangleMesh::Draw( CGameLogic& gameLogic )
 {
 	if ( !m_pMaterial )
 	{
@@ -62,7 +62,7 @@ void TriangleMesh::Draw( IRenderer& renderer )
 
 	m_pVertexBuffer->SetVertexBuffer( &m_stride, &m_nOffset );
 	m_pMaterial->SetShader( );
-	renderer.Draw( m_primitiveTopology, m_nVertices, m_nOffset);
+	gameLogic.GetRenderer().Draw( m_primitiveTopology, m_nVertices, m_nOffset);
 }
 
 TriangleMesh::TriangleMesh( )

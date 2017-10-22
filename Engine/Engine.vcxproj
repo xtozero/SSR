@@ -146,7 +146,6 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="IConsoleMessage.h" />
     <ClInclude Include="IEngine.h" />
     <ClInclude Include="KeyValueReader.h" />
-    <ClInclude Include="ScriptKeyHandler.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="common.h" />

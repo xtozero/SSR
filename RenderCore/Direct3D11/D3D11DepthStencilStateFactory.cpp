@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "D3D11DepthStencilStateFactory.h"
-#include "../IRenderState.h"
+#include "../CommonRenderer/IRenderState.h"
 
 #include "../../Shared/Util.h"
 #include "../../Engine/EnumStringMap.h"
@@ -14,74 +14,6 @@ namespace
 {
 	constexpr TCHAR* DEPTH_STENCIL_DESC_FILE_NAME = _T( "../Script/DepthStencilDesc.txt" );
 	constexpr TCHAR* DEPTH_STENCIL_DESC_HANDLER_KEY_NAME = _T( "DepthStencilDesc" );
-
-	void DepthStencilDescHandler( CD3D11DepthStencilStateFactory* owner, const String&, const KeyValue* keyValue )
-	{
-		CD3D11_DEFAULT default;
-		CD3D11_DEPTH_STENCIL_DESC newDesc( default );
-
-		for ( auto property = keyValue->GetChild( ); property != nullptr; property = property->GetNext( ) )
-		{
-			if ( property->GetKey( ) == _T( "DepthEnable" ) )
-			{
-				newDesc.DepthEnable = property->GetValue<int>( ) != 0;
-			}
-			else if ( property->GetKey( ) == _T( "DepthWriteMask" ) )
-			{
-				newDesc.DepthWriteMask = static_cast<D3D11_DEPTH_WRITE_MASK>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_DEPTH_WRITE_MASK_ALL ));
-			}
-			else if ( property->GetKey( ) == _T( "DepthFunc" ) )
-			{
-				newDesc.DepthFunc = static_cast<D3D11_COMPARISON_FUNC>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_COMPARISON_LESS ));
-			}
-			else if ( property->GetKey( ) == _T( "StencilEnable" ) )
-			{
-				newDesc.StencilEnable = property->GetValue<int>( ) != 0;
-			}
-			else if ( property->GetKey( ) == _T( "StencilReadMask" ) )
-			{
-				newDesc.StencilReadMask = static_cast<UINT8>(property->GetValue<unsigned int>( ));
-			}
-			else if ( property->GetKey( ) == _T( "StencilWriteMask" ) )
-			{
-				newDesc.StencilWriteMask = static_cast<UINT8>(property->GetValue<unsigned int>( ));
-			}
-			else if ( property->GetKey( ) == _T( "FrontFace.StencilFunc" ) )
-			{
-				newDesc.FrontFace.StencilFunc = static_cast<D3D11_COMPARISON_FUNC>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_COMPARISON_ALWAYS ));
-			}
-			else if ( property->GetKey( ) == _T( "BackFace.StencilFunc" ) )
-			{
-				newDesc.BackFace.StencilFunc = static_cast<D3D11_COMPARISON_FUNC>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_COMPARISON_ALWAYS ));
-			}
-			else if ( property->GetKey( ) == _T( "FrontFace.StencilDepthFailOp" ) )
-			{
-				newDesc.FrontFace.StencilDepthFailOp = static_cast<D3D11_STENCIL_OP>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_STENCIL_OP_KEEP ));
-			}
-			else if ( property->GetKey( ) == _T( "BackFace.StencilDepthFailOp" ) )
-			{
-				newDesc.BackFace.StencilDepthFailOp = static_cast<D3D11_STENCIL_OP>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_STENCIL_OP_KEEP ));
-			}
-			else if ( property->GetKey( ) == _T( "FrontFace.StencilPassOp" ) )
-			{
-				newDesc.FrontFace.StencilPassOp = static_cast<D3D11_STENCIL_OP>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_STENCIL_OP_KEEP ));
-			}
-			else if ( property->GetKey( ) == _T( "BackFace.StencilPassOp" ) )
-			{
-				newDesc.BackFace.StencilPassOp = static_cast<D3D11_STENCIL_OP>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_STENCIL_OP_KEEP ));
-			}
-			else if ( property->GetKey( ) == _T( "FrontFace.StencilFailOp" ) )
-			{
-				newDesc.FrontFace.StencilFailOp = static_cast<D3D11_STENCIL_OP>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_STENCIL_OP_KEEP ));
-			}
-			else if ( property->GetKey( ) == _T( "BackFace.StencilFailOp" ) )
-			{
-				newDesc.BackFace.StencilFailOp = static_cast<D3D11_STENCIL_OP>(GetEnumStringMap( ).GetEnum( property->GetValue( ), D3D11_STENCIL_OP_KEEP ));
-			}
-		}
-
-		owner->AddDepthStencilDesc( keyValue->GetValue( ), newDesc );
-	}
 }
 
 class CDepthStencilState : public IRenderState
@@ -89,30 +21,24 @@ class CDepthStencilState : public IRenderState
 public:
 	virtual void Set( const SHADER_TYPE type = SHADER_TYPE::NONE ) override;
 
-	bool Create( ID3D11Device* pDevice, const D3D11_DEPTH_STENCIL_DESC& dsDesc );
+	bool Create( ID3D11Device& device, const D3D11_DEPTH_STENCIL_DESC& dsDesc );
 
-	CDepthStencilState( ID3D11DeviceContext* pDeviceContext ) : m_pDeviceContext( pDeviceContext ) { assert( m_pDeviceContext ); }
+	CDepthStencilState( ID3D11DeviceContext& deviceContext ) : m_deviceContext( deviceContext ) { }
 private:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_pDsState;
-	ID3D11DeviceContext* m_pDeviceContext = nullptr;
+	ID3D11DeviceContext& m_deviceContext;
 };
 
 void CDepthStencilState::Set( const SHADER_TYPE type )
 {
 	assert( type == SHADER_TYPE::NONE );
 
-	m_pDeviceContext->OMSetDepthStencilState( m_pDsState.Get( ), 1 );
+	m_deviceContext.OMSetDepthStencilState( m_pDsState.Get( ), 1 );
 }
 
-bool CDepthStencilState::Create( ID3D11Device* pDevice, const D3D11_DEPTH_STENCIL_DESC & dsDesc )
+bool CDepthStencilState::Create( ID3D11Device& device, const D3D11_DEPTH_STENCIL_DESC & dsDesc )
 {
-	if ( pDevice == nullptr )
-	{
-		return false;
-	}
-
-	HRESULT hr = pDevice->CreateDepthStencilState( &dsDesc, &m_pDsState);
-	return SUCCEEDED( hr );
+	return SUCCEEDED( device.CreateDepthStencilState( &dsDesc, &m_pDsState ) );
 }
 
 class CNullDepthStencilState : public IRenderState
@@ -120,32 +46,32 @@ class CNullDepthStencilState : public IRenderState
 public:
 	virtual void Set( const SHADER_TYPE type = SHADER_TYPE::NONE ) override;
 
-	CNullDepthStencilState( ID3D11DeviceContext* pDeviceContext ) : m_pDeviceContext( pDeviceContext ) { assert( m_pDeviceContext ); }
+	CNullDepthStencilState( ID3D11DeviceContext& deviceContext ) : m_deviceContext( deviceContext ) { }
 
 private:
-	ID3D11DeviceContext* m_pDeviceContext = nullptr;
+	ID3D11DeviceContext& m_deviceContext;
 };
 
 void CNullDepthStencilState::Set( const SHADER_TYPE type )
 {
 	assert( type == SHADER_TYPE::NONE );
 
-	m_pDeviceContext->OMSetDepthStencilState( nullptr, 1 );
+	m_deviceContext.OMSetDepthStencilState( nullptr, 1 );
 }
 
 void CD3D11DepthStencilStateFactory::LoadDesc( )
 {
 	CKeyValueReader KeyValueReader;
 
-	std::unique_ptr<KeyValueGroupImpl> pKeyValues = KeyValueReader.LoadKeyValueFromFile( DEPTH_STENCIL_DESC_FILE_NAME );
+	std::unique_ptr<KeyValue> pKeyValues = KeyValueReader.LoadKeyValueFromFile( DEPTH_STENCIL_DESC_FILE_NAME );
 
 	if ( pKeyValues )
 	{
-		LoadDepthStencilDesc( pKeyValues.get() );
+		LoadDepthStencilDesc( *pKeyValues );
 	}
 }
 
-IRenderState* CD3D11DepthStencilStateFactory::GetDepthStencilState( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const String& stateName )
+IRenderState* CD3D11DepthStencilStateFactory::GetDepthStencilState( ID3D11Device& device, ID3D11DeviceContext& deviceContext, const String& stateName )
 {
 	auto foundState = m_depthStencilState.find( stateName );
 
@@ -154,24 +80,21 @@ IRenderState* CD3D11DepthStencilStateFactory::GetDepthStencilState( ID3D11Device
 		return foundState->second.get( );
 	}
 
-	if ( pDevice )
+	auto foundDesc = m_depthStencilDesc.find( stateName );
+
+	if ( foundDesc != m_depthStencilDesc.end( ) )
 	{
-		auto foundDesc = m_depthStencilDesc.find( stateName );
+		std::unique_ptr<CDepthStencilState> newState = std::make_unique<CDepthStencilState>( deviceContext );
 
-		if ( foundDesc != m_depthStencilDesc.end( ) )
+		if ( newState->Create( device, foundDesc->second ) )
 		{
-			std::unique_ptr<CDepthStencilState> newState = std::make_unique<CDepthStencilState>( pDeviceContext );
-
-			if ( newState->Create( pDevice, foundDesc->second ) )
-			{
-				CDepthStencilState* ret = newState.get( );
-				m_depthStencilState.emplace( stateName, std::move( newState ) );
-				return ret;
-			}
+			CDepthStencilState* ret = newState.get( );
+			m_depthStencilState.emplace( stateName, std::move( newState ) );
+			return ret;
 		}
 	}
 	
-	std::unique_ptr<CNullDepthStencilState> nullState = std::make_unique<CNullDepthStencilState>( pDeviceContext );
+	std::unique_ptr<CNullDepthStencilState> nullState = std::make_unique<CNullDepthStencilState>( deviceContext );
 	CNullDepthStencilState* ret = nullState.get( );
 	m_depthStencilState.emplace( _T( "NULL" ), std::move( nullState ) );
 	return ret;
@@ -182,28 +105,83 @@ void CD3D11DepthStencilStateFactory::AddDepthStencilDesc( const String& descName
 	m_depthStencilDesc.emplace( descName, newDesc );
 }
 
-CD3D11DepthStencilStateFactory::CD3D11DepthStencilStateFactory( )
+void CD3D11DepthStencilStateFactory::LoadDepthStencilDesc( const KeyValue& keyValue )
 {
-	RegisterHandler( DEPTH_STENCIL_DESC_HANDLER_KEY_NAME, DepthStencilDescHandler );
-}
-
-void CD3D11DepthStencilStateFactory::LoadDepthStencilDesc( const KeyValueGroup* pKeyValues )
-{
-	if ( pKeyValues == nullptr )
+	for ( auto desc = keyValue.GetChild( ); desc != nullptr; desc = desc->GetNext( ) )
 	{
-		return;
-	}
+		CD3D11_DEFAULT default;
+		CD3D11_DEPTH_STENCIL_DESC newDesc( default );
 
-	auto keyValue = pKeyValues->FindKeyValue( _T( "Desc" ) );
+		if ( const KeyValue* pDepthEnable = desc->Find( _T( "DepthEnable" ) ) )
+		{
+			newDesc.DepthEnable = pDepthEnable->GetValue<int>( ) != 0;
+		}
+		
+		if ( const KeyValue* pDepthWriteMask = desc->Find( _T( "DepthWriteMask" ) ) )
+		{
+			newDesc.DepthWriteMask = static_cast<D3D11_DEPTH_WRITE_MASK>( GetEnumStringMap( ).GetEnum( pDepthWriteMask->GetValue( ), D3D11_DEPTH_WRITE_MASK_ALL ) );
+		}
+		
+		if ( const KeyValue* pDepthFunc = desc->Find( _T( "DepthFunc" ) ) )
+		{
+			newDesc.DepthFunc = static_cast<D3D11_COMPARISON_FUNC>( GetEnumStringMap( ).GetEnum( pDepthFunc->GetValue( ), D3D11_COMPARISON_LESS ) );
+		}
+		
+		if ( const KeyValue* pStencilEnable = desc->Find( _T( "StencilEnable" ) ) )
+		{
+			newDesc.StencilEnable = pStencilEnable->GetValue<int>( ) != 0;
+		}
+		
+		if ( const KeyValue* pStencilReadMask = desc->Find( _T( "StencilReadMask" ) ) )
+		{
+			newDesc.StencilReadMask = static_cast<UINT8>( pStencilReadMask->GetValue<unsigned int>( ) );
+		}
+		
+		if ( const KeyValue* pStencilWriteMask = desc->Find( _T( "StencilWriteMask" ) ) )
+		{
+			newDesc.StencilWriteMask = static_cast<UINT8>( pStencilWriteMask->GetValue<unsigned int>( ) );
+		}
+		
+		if ( const KeyValue* pStencilFunc = desc->Find( _T( "FrontFace.StencilFunc" ) ) )
+		{
+			newDesc.FrontFace.StencilFunc = static_cast<D3D11_COMPARISON_FUNC>( GetEnumStringMap( ).GetEnum( pStencilFunc->GetValue( ), D3D11_COMPARISON_ALWAYS ) );
+		}
+		
+		if ( const KeyValue* pStencilFunc = desc->Find( _T( "BackFace.StencilFunc" ) ) )
+		{
+			newDesc.BackFace.StencilFunc = static_cast<D3D11_COMPARISON_FUNC>( GetEnumStringMap( ).GetEnum( pStencilFunc->GetValue( ), D3D11_COMPARISON_ALWAYS ) );
+		}
+		
+		if ( const KeyValue* pStencilDepthFailOp = desc->Find( _T( "FrontFace.StencilDepthFailOp" ) ) )
+		{
+			newDesc.FrontFace.StencilDepthFailOp = static_cast<D3D11_STENCIL_OP>( GetEnumStringMap( ).GetEnum( pStencilDepthFailOp->GetValue( ), D3D11_STENCIL_OP_KEEP ) );
+		}
+		
+		if ( const KeyValue* pStencilDepthFailOp = desc->Find( _T( "BackFace.StencilDepthFailOp" ) ) )
+		{
+			newDesc.BackFace.StencilDepthFailOp = static_cast<D3D11_STENCIL_OP>( GetEnumStringMap( ).GetEnum( pStencilDepthFailOp->GetValue( ), D3D11_STENCIL_OP_KEEP ) );
+		}
+		
+		if ( const KeyValue* pStencilPassOp = desc->Find( _T( "FrontFace.StencilPassOp" ) ) )
+		{
+			newDesc.FrontFace.StencilPassOp = static_cast<D3D11_STENCIL_OP>( GetEnumStringMap( ).GetEnum( pStencilPassOp->GetValue( ), D3D11_STENCIL_OP_KEEP ) );
+		}
+		
+		if ( const KeyValue* pStencilPassOp = desc->Find( _T( "BackFace.StencilPassOp" ) ) )
+		{
+			newDesc.BackFace.StencilPassOp = static_cast<D3D11_STENCIL_OP>( GetEnumStringMap( ).GetEnum( pStencilPassOp->GetValue( ), D3D11_STENCIL_OP_KEEP ) );
+		}
+		
+		if ( const KeyValue* pStencilFailOp = desc->Find( _T( "FrontFace.StencilFailOp" ) ) )
+		{
+			newDesc.FrontFace.StencilFailOp = static_cast<D3D11_STENCIL_OP>( GetEnumStringMap( ).GetEnum( pStencilFailOp->GetValue( ), D3D11_STENCIL_OP_KEEP ) );
+		}
+		
+		if ( const KeyValue* pStencilFailOp = desc->Find( _T( "BackFace.StencilFailOp" ) ) )
+		{
+			newDesc.BackFace.StencilFailOp = static_cast<D3D11_STENCIL_OP>( GetEnumStringMap( ).GetEnum( pStencilFailOp->GetValue( ), D3D11_STENCIL_OP_KEEP ) );
+		}
 
-	if ( keyValue == nullptr )
-	{
-		DebugWarning( "Load Depth Stencil Desc Fail!!!\n" );
-		return;
-	}
-
-	for ( auto desc = keyValue->GetChild( ); desc != nullptr; desc = desc->GetNext( ) )
-	{
-		Handle( desc->GetKey( ), desc );
+		AddDepthStencilDesc( desc->GetValue( ), newDesc );
 	}
 }

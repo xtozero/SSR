@@ -1,9 +1,14 @@
 #include "stdafx.h"
 #include "BaseMesh.h"
-#include "common.h"
+#include "../common.h"
 #include "CommonMeshDefine.h"
-#include "CommonRenderer/IMaterial.h"
-#include "CommonRenderer/IRenderer.h"
+#include "../../RenderCore/CommonRenderer/IMaterial.h"
+#include "../../RenderCore/CommonRenderer/IRenderer.h"
+
+void BaseMesh::SetName( const TCHAR* name )
+{
+	_tcsncpy_s( m_name, name, MAX_MESH_NAME );
+}
 
 void BaseMesh::SetModelData( Owner<MeshVertex*> pOrignal, UINT vertexCount )
 {
@@ -57,26 +62,13 @@ bool BaseMesh::Load( IRenderer& renderer, UINT primitive )
 	return true;
 }
 
-void BaseMesh::Draw( IRenderer& )
+void BaseMesh::Draw( CGameLogic& )
 {
 }
 
 void BaseMesh::SetMaterial( IMaterial* pMaterial )
 {
 	m_pMaterial = pMaterial;
-}
-
-BaseMesh::BaseMesh( ) : m_pModelData( nullptr ),
-m_pIndexData( nullptr ),
-m_pVertexBuffer( nullptr ),
-m_pIndexBuffer( nullptr ),
-m_primitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED ),
-m_pMaterial( nullptr ),
-m_nVertices( 0 ),
-m_nOffset( 0 ),
-m_nIndices( 0 ),
-m_nIndexOffset( 0 )
-{
 }
 
 BaseMesh::~BaseMesh( )

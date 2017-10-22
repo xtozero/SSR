@@ -60,6 +60,41 @@ void KeyValue::SetValue( const String& value )
 	m_value = value;
 }
 
+const KeyValue* KeyValue::Find( const String& key ) const
+{
+	std::stack<const KeyValue*> m_openList;
+
+	if ( m_pChild )
+	{
+		m_openList.push( m_pChild.get() );
+	}
+
+	const KeyValue* candidate = nullptr;
+
+	while ( m_openList.empty( ) == false )
+	{
+		candidate = m_openList.top( );
+		m_openList.pop( );
+
+		if ( candidate->GetKey( ) == key )
+		{
+			return candidate;
+		}
+
+		if ( candidate->GetChild( ) )
+		{
+			m_openList.push( candidate->GetChild( ) );
+		}
+
+		if ( candidate->GetNext( ) )
+		{
+			m_openList.push( candidate->GetNext( ) );
+		}
+	}
+
+	return nullptr;
+}
+
 CKeyValueIterator KeyValueGroupImpl::FindKeyValue( const String& key ) const
 {
 	return FindKeyValueInternal( key, m_pRoot.get() );
@@ -159,7 +194,7 @@ m_pRoot( std::move( root ) )
 {
 }
 
-std::unique_ptr<KeyValueGroupImpl> CKeyValueReader::LoadKeyValueFromFile( String filename )
+std::unique_ptr<KeyValue> CKeyValueReader::LoadKeyValueFromFile( String filename )
 {
 	Ifstream file;
 
@@ -167,16 +202,16 @@ std::unique_ptr<KeyValueGroupImpl> CKeyValueReader::LoadKeyValueFromFile( String
 
 	if ( file.is_open( ) )
 	{
-		std::unique_ptr<KeyValue> root = std::make_unique<KeyValue>();
-		LoadKeyValueFromFileInternal( file, root.get() );
-		
-		if ( print_debug_keyValue.GetBool() )
+		std::unique_ptr<KeyValue> root = std::make_unique<KeyValue>( );
+		LoadKeyValueFromFileInternal( file, root.get( ) );
+
+		if ( print_debug_keyValue.GetBool( ) )
 		{
-			PrintKeyValueInternal( root.get() );
+			PrintKeyValueInternal( root.get( ) );
 		}
-		
+
 		file.close( );
-		return std::make_unique<KeyValueGroupImpl>( std::move( root ) );
+		return root;
 	}
 
 	return nullptr;

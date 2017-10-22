@@ -3,8 +3,8 @@
 #include "Camera.h"
 #include "Timer.h"
 #include "../Engine/KeyValueReader.h"
-#include "../RenderCore/IRenderer.h"
-#include "../RenderCore/IRenderView.h"
+#include "../RenderCore/CommonRenderer/IRenderer.h"
+#include "../RenderCore/CommonRenderer/IRenderView.h"
 #include "../shared/UserInput.h"
 #include "../shared/Util.h"
 
@@ -131,49 +131,45 @@ void CCamera::UpdateToRenderer( IRenderer& renderer )
 	}
 }
 
-void CCamera::LoadProperty( KeyValueGroup* keyValue )
+void CCamera::LoadProperty( const KeyValue& keyValue )
 {
-	CKeyValueIterator found = keyValue->FindKeyValue( _T( "Camera" ) );
-
-	if ( found != nullptr )
+	if ( const KeyValue* pCamera = keyValue.Find( _T( "Camera" ) ) )
 	{
-		KeyValue* properties = found->GetChild( );
-
-		for ( auto& iter = properties; iter != nullptr; iter = iter->GetNext( ) )
+		if ( const KeyValue* pPos = pCamera->Find( _T( "Position" ) ) )
 		{
-			if ( iter->GetKey( ) == _T( "Position" ) )
-			{
-				std::vector<String> param;
-				UTIL::Split( iter->GetValue( ), param, ' ' );
+			std::vector<String> param;
+			UTIL::Split( pPos->GetValue( ), param, ' ' );
 
-				if ( param.size( ) == 3 )
-				{
-					CXMFLOAT3 origin( static_cast<float>( _ttof( param[0].c_str( ) ) ),
-									static_cast<float>( _ttof( param[1].c_str( ) ) ),
-									static_cast<float>( _ttof( param[2].c_str( ) ) ) );
-					SetOrigin( origin );
-				}
-			}
-			else if ( iter->GetKey( ) == _T( "Max_Force" ) )
+			if ( param.size( ) == 3 )
 			{
-				m_movement.SetMaxForceMagnitude( static_cast<float>( _ttof( iter->GetValue( ).c_str( ) ) ) );
+				CXMFLOAT3 origin( static_cast<float>( _ttof( param[0].c_str( ) ) ),
+					static_cast<float>( _ttof( param[1].c_str( ) ) ),
+					static_cast<float>( _ttof( param[2].c_str( ) ) ) );
+				SetOrigin( origin );
 			}
-			else if ( iter->GetKey( ) == _T( "Friction" ) )
-			{
-				std::vector<String> param;
-				UTIL::Split( iter->GetValue( ), param, ' ' );
+		}
+		
+		if ( const KeyValue* pMaxForce = pCamera->Find( _T( "Max_Force" ) ) )
+		{
+			m_movement.SetMaxForceMagnitude( static_cast<float>( _ttof( pMaxForce->GetValue( ).c_str( ) ) ) );
+		}
+		
+		if ( const KeyValue* pFriction = pCamera->Find( _T( "Friction" ) ) )
+		{
+			std::vector<String> param;
+			UTIL::Split( pFriction->GetValue( ), param, ' ' );
 
-				if ( param.size( ) == 2 )
-				{
-					CXMFLOAT2 friction( static_cast<float>( _ttof( param[0].c_str( ) ) ),
-										static_cast<float>( _ttof( param[1].c_str( ) ) ) );
-					m_movement.SetFriction( friction );
-				}
-			}
-			else if ( iter->GetKey( ) == _T( "Kinetic_Force_Scale" ) )
+			if ( param.size( ) == 2 )
 			{
-				m_kineticForceScale = iter->GetValue<float>( );
+				CXMFLOAT2 friction( static_cast<float>( _ttof( param[0].c_str( ) ) ),
+					static_cast<float>( _ttof( param[1].c_str( ) ) ) );
+				m_movement.SetFriction( friction );
 			}
+		}
+		
+		if ( const KeyValue* pForceScale = pCamera->Find( _T( "Kinetic_Force_Scale" ) ) )
+		{
+			m_kineticForceScale = pForceScale->GetValue<float>( );
 		}
 	}
 }

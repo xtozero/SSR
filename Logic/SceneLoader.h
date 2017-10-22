@@ -6,15 +6,15 @@
 #include <vector>
 
 class CGameObject;
-class IRenderer;
-class KeyValueGroup;
+class CGameLogic;
+class KeyValue;
 
 class CSceneLoader
 {
 public:
-	std::unique_ptr<KeyValueGroup> LoadSceneFromFile( IRenderer& renderer, std::vector<std::unique_ptr<CGameObject>>& objectList, const String& fileName );
+	std::unique_ptr<KeyValue> LoadSceneFromFile( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& objectList, const String& fileName );
 
 private:
-	void SetSceneObjectProperty( IRenderer& renderer, KeyValueGroup* keyValue, std::vector<std::unique_ptr<CGameObject>>& objectList );
+	void SetSceneObjectProperty( CGameLogic& gameLogic, KeyValue* keyValue, std::vector<std::unique_ptr<CGameObject>>& objectList );
 };
 

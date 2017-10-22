@@ -1,12 +1,11 @@
 #include "stdafx.h"
 
-#include "../BaseMesh.h"
-
 #include "../common.h"
 #include "../CommonRenderer/ConstantBufferDefine.h"
 #include "../CommonRenderer/IMaterial.h"
 #include "../CommonRenderer/IRenderer.h"
 #include "../CommonRenderer/IRenderResource.h"
+#include "../CommonRenderer/IRenderState.h"
 
 #include "D3D11BlendStateFactory.h"
 #include "D3D11Buffer.h"
@@ -19,17 +18,11 @@
 #include "D3D11Resource.h"
 #include "D3D11ResourceManager.h"
 #include "D3D11SamplerStateFactory.h"
+#include "D3D11ShaderUtil.h"
 #include "D3D11VertexShader.h"
-
-#include "../DebugMesh.h"
-
-#include "../IMesh.h"
-#include "../IMeshLoader.h"
 
 #include "../MaterialSystem.h"
 #include "../MaterialLoader.h"
-#include "../MeshBuilder.h"
-#include "../MeshLoader.h"
 
 #include "../RenderCoreDllFunc.h"
 #include "../RenderEffect.h"
@@ -37,7 +30,6 @@
 
 #include "../ShaderListScriptLoader.h"
 #include "../SkyBoxMaterial.h"
-#include "../SurfaceManager.h"
 #include "../TextureMaterial.h"
 #include "../TutorialMaterial.h"
 #include "../WireFrame.h"
@@ -179,8 +171,6 @@ public:
 	virtual IShader* SearchShaderByName( const TCHAR* pName ) override;
 
 	virtual IMaterial* GetMaterialPtr( const TCHAR* pMaterialName ) override;
-	virtual IMesh* GetModelPtr( const TCHAR* pModelName ) override;
-	virtual void SetModelPtr( const String& modelName, std::unique_ptr<IMesh> pModel ) override;
 
 	virtual void PushViewPort( const float topLeftX, const float topLeftY, const float width, const float height, const float minDepth = 0.0f, const float maxDepth = 1.0f ) override;
 	virtual void PopViewPort( ) override;
@@ -216,7 +206,6 @@ public:
 	virtual void DrawAuto( UINT primitive ) override;
 
 	virtual IDXGISwapChain* GetSwapChain( ) const override { return m_pdxgiSwapChain.Get( ); }
-	virtual IMeshBuilder& GetMeshBuilder( ) override;
 	virtual IResourceManager& GetResourceManager( ) override { return *m_resourceManager.get( ); }
 
 	CDirect3D11( );
@@ -235,7 +224,6 @@ private:
 	std::vector<std::unique_ptr<IBuffer>>			m_bufferList;
 
 	std::unique_ptr<D3D11RenderView>				m_pView;
-	CMeshLoader										m_meshLoader;
 
 	IBuffer*										m_pWorldMatrixBuffer = nullptr;
 
@@ -250,18 +238,14 @@ private:
 	std::unique_ptr<CD3D11BlendStateFactory>		m_pBlendFactory;
 	std::unique_ptr<CMaterialLoader>				m_pMaterialLoader;
 
-	CSurfaceManager									m_surfaceManager;
-
 	CRenderEffect									m_renderEffect;
-
-	CMeshBuilder									m_meshBuilder;
 };
 
 bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeight )
 {
 	ON_FAIL_RETURN( CreateD3D11Device( hWind, nWndWidth, nWndHeight ) );
 
-	m_pView = std::make_unique<D3D11RenderView>( m_pd3d11DeviceContext.Get() );
+	m_pView = std::make_unique<D3D11RenderView>( *m_pd3d11DeviceContext.Get() );
 	ON_FAIL_RETURN( m_pView->initialize( *this ) );
 
 	m_pDepthStencilFactory = std::make_unique<CD3D11DepthStencilStateFactory>( );
@@ -282,13 +266,12 @@ bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 
 	ON_FAIL_RETURN( InitializeShaders( ) );
 	ON_FAIL_RETURN( InitializeMaterial( ) );
-	ON_FAIL_RETURN( m_meshLoader.Initialize( ) );
 	
-	m_resourceManager = std::make_unique<CD3D11ResourceManager>( m_pd3d11Device.Get( ) );
+	m_resourceManager = std::make_unique<CD3D11ResourceManager>( *m_pd3d11Device.Get( ) );
 	m_resourceManager->SetFrameBufferSize( nWndWidth, nWndHeight );
 	ON_FAIL_RETURN( m_resourceManager->Bootup( ) );
 
-	ON_FAIL_RETURN( m_renderOutput.Initialize( *this ) );
+	ON_FAIL_RETURN( m_renderOutput.Initialize( *m_resourceManager, *m_pdxgiSwapChain.Get() ) );
 
 	BUFFER_TRAIT trait = { sizeof( CXMFLOAT4X4 ),
 							WORLD_MATRIX_ELEMENT_SIZE, 
@@ -300,10 +283,6 @@ bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 							0 };
 
 	m_pWorldMatrixBuffer = CreateBuffer( trait );
-
-	trait.m_stride = sizeof( SurfaceTrait );
-	trait.m_count = 1;
-	MaterialSystem::GetInstance( )->RegisterConstantBuffer( MAT_CONSTANT_BUFFER::SURFACE, CreateBuffer( trait ) );
 
 	if ( m_pWorldMatrixBuffer == nullptr )
 	{
@@ -359,14 +338,14 @@ void CDirect3D11::SceneEnd( )
 	TakeSnapshot2D( _T( "DefaultDepthStencil" ), _T( "DebugDepthStencil" ) );
 	TakeSnapshot2D( _T( "ShadowMap" ), _T( "DebugShadowMap" ) );
 
-	m_renderOutput.SceneEnd( m_pd3d11DeviceContext.Get() );
+	m_renderOutput.SceneEnd( *m_pd3d11DeviceContext.Get() );
 
 	m_renderEffect.SceneEnd( *this );
 }
 
 IShader* CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pProfile )
 {
-	std::unique_ptr<D3D11VertexShader> vs = std::make_unique<D3D11VertexShader>( m_pd3d11DeviceContext.Get() );
+	std::unique_ptr<D3D11VertexShader> vs = std::make_unique<D3D11VertexShader>( *m_pd3d11DeviceContext.Get() );
 
 	D3D11_INPUT_ELEMENT_DESC* inputDesc = vs->CreateInputElementDesc( 4 );
 
@@ -402,7 +381,18 @@ IShader* CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pP
 	inputDesc[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	inputDesc[3].InstanceDataStepRate = 0;
 
-	if ( vs->CreateShader( m_pd3d11Device.Get( ), pFilePath, pProfile ) )
+	bool result = false;
+	CShaderByteCode byteCode = GetCompiledByteCode( pFilePath );
+	if ( byteCode.GetBufferSize( ) > 0 )
+	{
+		result = vs->CreateShader( *m_pd3d11Device.Get( ), byteCode.GetBufferPointer( ), byteCode.GetBufferSize( ) );
+	}
+	else if ( Microsoft::WRL::ComPtr<ID3DBlob> shaderBlob = GetShaderBlob( pFilePath, pProfile ) )
+	{
+		result = vs->CreateShader( *m_pd3d11Device.Get( ), shaderBlob->GetBufferPointer( ), shaderBlob->GetBufferSize( ) );
+	}
+
+	if ( result )
 	{
 		D3D11VertexShader* ret = vs.get( );
 		m_shaderList.emplace( UTIL::GetFileName( pFilePath ), std::move( vs ) );
@@ -414,9 +404,20 @@ IShader* CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pP
 
 IShader* CDirect3D11::CreatePixelShader( const TCHAR* pFilePath, const char* pProfile )
 {
-	std::unique_ptr<D3D11PixelShader> ps = std::make_unique<D3D11PixelShader>( m_pd3d11DeviceContext.Get( ) );
+	std::unique_ptr<D3D11PixelShader> ps = std::make_unique<D3D11PixelShader>( *m_pd3d11DeviceContext.Get( ) );
+	bool result = false;
+	CShaderByteCode byteCode = GetCompiledByteCode( pFilePath );
 	
-	if ( ps->CreateShader( m_pd3d11Device.Get( ), pFilePath, pProfile ) )
+	if ( byteCode.GetBufferSize( ) > 0 )
+	{
+		result = ps->CreateShader( *m_pd3d11Device.Get( ), byteCode.GetBufferPointer( ), byteCode.GetBufferSize( ) );
+	}
+	else if ( Microsoft::WRL::ComPtr<ID3DBlob> shaderBlob = GetShaderBlob( pFilePath, pProfile ) )
+	{
+		result = ps->CreateShader( *m_pd3d11Device.Get( ), shaderBlob->GetBufferPointer( ), shaderBlob->GetBufferSize( ) );
+	}
+
+	if ( result )
 	{
 		D3D11PixelShader* ret = ps.get( );
 		m_shaderList.emplace( UTIL::GetFileName( pFilePath ), std::move( ps ) );
@@ -428,9 +429,9 @@ IShader* CDirect3D11::CreatePixelShader( const TCHAR* pFilePath, const char* pPr
 
 IBuffer* CDirect3D11::CreateBuffer( const BUFFER_TRAIT& trait )
 {
-	std::unique_ptr<CD3D11Buffer> buffer = std::make_unique<CD3D11Buffer>( m_pd3d11DeviceContext.Get() );
+	std::unique_ptr<CD3D11Buffer> buffer = std::make_unique<CD3D11Buffer>( *m_pd3d11DeviceContext.Get() );
 	
-	if ( buffer->Create( m_pd3d11Device.Get( ), trait ) )
+	if ( buffer->Create( *m_pd3d11Device.Get( ), trait ) )
 	{
 		CD3D11Buffer* ret = buffer.get( );
 		m_bufferList.emplace_back( std::move( buffer ) );
@@ -477,24 +478,6 @@ bool CDirect3D11::InitializeMaterial( )
 IMaterial* CDirect3D11::GetMaterialPtr( const TCHAR* pMaterialName )
 {
 	return MaterialSystem::GetInstance( )->SearchMaterialByName( pMaterialName );
-}
-
-IMesh* CDirect3D11::GetModelPtr( const TCHAR* pModelName )
-{
-	if ( m_meshLoader.LoadMeshFromFile( *this, pModelName, &m_surfaceManager ) )
-	{
-		return m_meshLoader.GetMesh( pModelName );
-	}
-
-	return nullptr;
-}
-
-void CDirect3D11::SetModelPtr( const String& modelName, std::unique_ptr<IMesh> pModel )
-{
-	if ( pModel )
-	{
-		m_meshLoader.RegisterMesh( modelName, std::move( pModel ) );
-	}
 }
 
 void CDirect3D11::PushViewPort( const float topLeftX, const float topLeftY, const float width, const float height, const float minDepth, const float maxDepth )
@@ -555,7 +538,7 @@ void CDirect3D11::UpdateWorldMatrix( const CXMFLOAT4X4& worldMatrix, const CXMFL
 	}
 
 	m_pWorldMatrixBuffer->UnLockBuffer( );
-	m_pWorldMatrixBuffer->SetVSBuffer( static_cast<int>( VS_CONSTANT_BUFFER::WORLD ) );
+	m_pWorldMatrixBuffer->SetVSBuffer( static_cast<int>( _VS_CONSTANT_BUFFER::WORLD ) );
 }
 
 IRenderState* CDirect3D11::CreateRenderState( const String& stateName )
@@ -566,7 +549,7 @@ IRenderState* CDirect3D11::CreateRenderState( const String& stateName )
 		return nullptr;
 	}
 
-	return m_pRasterizerFactory->GetRasterizerState( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), stateName );
+	return m_pRasterizerFactory->GetRasterizerState( *m_pd3d11Device.Get( ), *m_pd3d11DeviceContext.Get( ), stateName );
 }
 
 IRenderResource* CDirect3D11::GetShaderResourceFromFile( const String& fileName )
@@ -583,7 +566,7 @@ IRenderState* CDirect3D11::CreateSamplerState( const String& stateName )
 		return nullptr;
 	}
 
-	return m_pSamplerFactory->GetSamplerState( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), stateName );
+	return m_pSamplerFactory->GetSamplerState( *m_pd3d11Device.Get( ), *m_pd3d11DeviceContext.Get( ), stateName );
 }
 
 IRenderState* CDirect3D11::CreateDepthStencilState( const String& stateName )
@@ -594,7 +577,7 @@ IRenderState* CDirect3D11::CreateDepthStencilState( const String& stateName )
 		return nullptr;
 	}
 
-	return m_pDepthStencilFactory->GetDepthStencilState( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get(), stateName );
+	return m_pDepthStencilFactory->GetDepthStencilState( *m_pd3d11Device.Get( ), *m_pd3d11DeviceContext.Get(), stateName );
 }
 
 IRenderState* CDirect3D11::CreateBlendState( const String& stateName )
@@ -605,12 +588,12 @@ IRenderState* CDirect3D11::CreateBlendState( const String& stateName )
 		return nullptr;
 	}
 
-	return m_pBlendFactory->GetBlendState( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ), stateName );
+	return m_pBlendFactory->GetBlendState( *m_pd3d11Device.Get( ), *m_pd3d11DeviceContext.Get( ), stateName );
 }
 
 void CDirect3D11::TakeSnapshot2D( const String& sourceTextureName, const String& destTextureName )
 {
-	m_resourceManager->TakeSnapshot( m_pd3d11DeviceContext.Get(), sourceTextureName, destTextureName );
+	m_resourceManager->TakeSnapshot( *m_pd3d11DeviceContext.Get(), sourceTextureName, destTextureName );
 }
 
 void CDirect3D11::PSSetShaderResource( UINT startSlot, IRenderResource* shaderResourceOrNull )
@@ -675,12 +658,6 @@ void CDirect3D11::DrawInstancedInstanced( UINT primitive, UINT indexCount, UINT 
 void CDirect3D11::DrawAuto( UINT primitive )
 {
 	m_pd3d11DeviceContext->DrawAuto( );
-}
-
-IMeshBuilder& CDirect3D11::GetMeshBuilder( )
-{
-	m_meshBuilder.Clear( );
-	return m_meshBuilder;
 }
 
 CDirect3D11::CDirect3D11( )

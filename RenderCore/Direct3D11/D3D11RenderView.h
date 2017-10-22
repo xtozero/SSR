@@ -40,10 +40,10 @@ private:
 	IBuffer* m_viewConstantBuffer = nullptr;
 	IBuffer* m_gBufferConstantBuffer = nullptr;
 
-	ID3D11DeviceContext* m_pDeviceContext = nullptr;
+	ID3D11DeviceContext& m_deviceContext;
 	float m_zFar;
 public:
-	D3D11RenderView( ID3D11DeviceContext* pDeviceContext );
+	D3D11RenderView( ID3D11DeviceContext& deviceContext );
 	~D3D11RenderView( );
 };
 

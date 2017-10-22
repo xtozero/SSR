@@ -1,11 +1,10 @@
 #include "stdafx.h"
 #include "common.h"
-#include "IBuffer.h"
-#include "IRenderer.h"
-#include "IRenderState.h"
-#include "IShader.h"
-#include "IRenderResource.h"
-#include "ISurface.h"
+#include "CommonRenderer/IBuffer.h"
+#include "CommonRenderer/IRenderer.h"
+#include "CommonRenderer/IRenderState.h"
+#include "CommonRenderer/IRenderResource.h"
+#include "CommonRenderer/IShader.h"
 #include "Material.h"
 
 #include <d3d11.h>
@@ -53,35 +52,9 @@ void Material::SetTexture( UINT shaderType, UINT slot, const IRenderResource* pT
 	}
 }
 
-void Material::SetSurface( UINT shaderType, UINT slot, const ISurface* pSurface )
-{
- 	if ( m_pConstantBuffers && pSurface && shaderType < SHADER_TYPE::MAX_SHADER )
-	{
-		IBuffer* pSurfaceBuffer = (*m_pConstantBuffers)[MAT_CONSTANT_BUFFER::SURFACE];
-
-		if ( m_pShaders[shaderType] && pSurfaceBuffer )
-		{
-			const SurfaceTrait& src = pSurface->GetTrait( );
-			void* dest = pSurfaceBuffer->LockBuffer( );
-
-			if ( dest )
-			{
-				::memcpy_s( dest, pSurfaceBuffer->Size( ), &src, sizeof( SurfaceTrait ) );
-				pSurfaceBuffer->UnLockBuffer( );
-				m_pShaders[shaderType]->SetConstantBuffer( slot, pSurfaceBuffer );
-			}
-			else
-			{
-				pSurfaceBuffer->UnLockBuffer( );
-			}
-		}
-	}
-}
-
 Material::Material( ) :
 	m_pRasterizerState( nullptr ),
 	m_pDepthStencilState( nullptr ),
-	m_pConstantBuffers( nullptr ),
 	m_pBlendState( nullptr )
 {
 	for ( int i = 0; i < MAX_SHADER; ++i )

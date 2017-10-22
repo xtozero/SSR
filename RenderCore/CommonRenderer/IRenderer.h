@@ -7,13 +7,10 @@
 
 class IBuffer;
 class IMaterial;
-class IMesh;
-class IMeshBuilder;
 class IRenderResource;
 class IRenderState;
 class IRenderView;
 class IResourceManager;
-class ISampler;
 class IShader;
 class RenderTargetBinder;
 struct BUFFER_TRAIT;
@@ -47,8 +44,6 @@ public:
 	virtual IShader* SearchShaderByName( const TCHAR* name ) = 0;
 
 	virtual IMaterial* GetMaterialPtr( const TCHAR* pMaterialName ) = 0;
-	virtual IMesh* GetModelPtr( const TCHAR* pModelName ) = 0;
-	virtual void SetModelPtr( const String& modelName, std::unique_ptr<IMesh> pModel ) = 0;
 
 	virtual void PushViewPort( const float topLeftX, const float topLeftY, const float width, const float height, const float minDepth = 0.0f, const float maxDepth = 1.0f ) = 0;
 	virtual void PopViewPort( ) = 0;
@@ -84,7 +79,6 @@ public:
 	virtual void DrawAuto( UINT primitive ) = 0;
 
 	virtual IDXGISwapChain* GetSwapChain( ) const = 0;
-	virtual IMeshBuilder& GetMeshBuilder( ) = 0;
 	virtual IResourceManager& GetResourceManager( ) = 0;
 
 protected:

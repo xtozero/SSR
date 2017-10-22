@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "IRenderer.h"
-#include "IRenderState.h"
+#include "CommonRenderer/IRenderer.h"
+#include "CommonRenderer/IRenderState.h"
 #include "SkyBoxMaterial.h"
 
 void SkyBoxMaterial::Init( IRenderer& renderer )

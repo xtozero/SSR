@@ -3,6 +3,6 @@
 #include "common.h"
 
 class IRenderer;
-class IMeshBuilder;
+class IModelBuilder;
 
 RENDERCORE_FUNC_DLL IRenderer* CreateDirect3D11Renderer( );

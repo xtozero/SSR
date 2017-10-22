@@ -18,7 +18,7 @@ D3D11_BUFFER_DESC InitBufferDesc( const BUFFER_TRAIT& trait )
 	return D3D11_BUFFER_DESC{ byteWidth, usage, bindFlag, cpuAccessFlag, miscFlags, structureByteStride };
 }
 
-bool CD3D11Buffer::Create( ID3D11Device* pDevice, const BUFFER_TRAIT& trait )
+bool CD3D11Buffer::Create( ID3D11Device& device, const BUFFER_TRAIT& trait )
 {
 	D3D11_BUFFER_DESC desc = InitBufferDesc(trait);
 
@@ -35,35 +35,35 @@ bool CD3D11Buffer::Create( ID3D11Device* pDevice, const BUFFER_TRAIT& trait )
 	}
 
 	m_bufferSize = trait.m_count * trait.m_stride;
-	HRESULT hr = pDevice->CreateBuffer( &desc, pSrd, m_buffer.GetAddressOf( ) );
+	HRESULT hr = device.CreateBuffer( &desc, pSrd, m_buffer.GetAddressOf( ) );
 
 	return SUCCEEDED( hr );
 }
 
 void CD3D11Buffer::SetVertexBuffer( const UINT* pStride, const UINT* pOffset ) const
 {
-	m_pDeviceContext->IASetVertexBuffers( 0, 1, m_buffer.GetAddressOf( ), pStride, pOffset );
+	m_deviceContext.IASetVertexBuffers( 0, 1, m_buffer.GetAddressOf( ), pStride, pOffset );
 }
 
 void CD3D11Buffer::SetIndexBuffer( UINT stride, UINT offset ) const
 {
-	m_pDeviceContext->IASetIndexBuffer( m_buffer.Get( ), sizeof( WORD ) == stride ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, offset );
+	m_deviceContext.IASetIndexBuffer( m_buffer.Get( ), sizeof( WORD ) == stride ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, offset );
 }
 
 void CD3D11Buffer::SetVSBuffer( const UINT startSlot ) const
 {
-	m_pDeviceContext->VSSetConstantBuffers( startSlot, 1, m_buffer.GetAddressOf( ) );
+	m_deviceContext.VSSetConstantBuffers( startSlot, 1, m_buffer.GetAddressOf( ) );
 }
 
 void CD3D11Buffer::SetPSBuffer( const UINT startSlot ) const
 {
-	m_pDeviceContext->PSSetConstantBuffers( startSlot, 1, m_buffer.GetAddressOf( ) );
+	m_deviceContext.PSSetConstantBuffers( startSlot, 1, m_buffer.GetAddressOf( ) );
 }
 
 void* CD3D11Buffer::LockBuffer( UINT subResource )
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource = {};
-	HRESULT hr = m_pDeviceContext->Map( m_buffer.Get( ), subResource, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
+	HRESULT hr = m_deviceContext.Map( m_buffer.Get( ), subResource, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
 	
 	if ( SUCCEEDED( hr ) )
 	{
@@ -75,10 +75,7 @@ void* CD3D11Buffer::LockBuffer( UINT subResource )
 
 void CD3D11Buffer::UnLockBuffer( UINT subResource )
 {
-	m_pDeviceContext->Unmap( m_buffer.Get( ), subResource );
+	m_deviceContext.Unmap( m_buffer.Get( ), subResource );
 }
 
-CD3D11Buffer::CD3D11Buffer( ID3D11DeviceContext* pDeviceContext ) : m_pDeviceContext( pDeviceContext )
-{
-	assert( m_pDeviceContext );
-}
+CD3D11Buffer::CD3D11Buffer( ID3D11DeviceContext& deviceContext ) : m_deviceContext( deviceContext ) {}

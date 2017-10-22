@@ -88,12 +88,12 @@ void D3D11RenderView::PopScissorRect( )
 
 void D3D11RenderView::SetViewPort( )
 {
-	m_pDeviceContext->RSSetViewports( m_viewportList.size( ), m_viewportList.data( ) );
+	m_deviceContext.RSSetViewports( m_viewportList.size( ), m_viewportList.data( ) );
 }
 
 void D3D11RenderView::SetScissorRects( )
 {
-	m_pDeviceContext->RSSetScissorRects( m_scissorRectList.size( ), m_scissorRectList.data( ) );
+	m_deviceContext.RSSetScissorRects( m_scissorRectList.size( ), m_scissorRectList.data( ) );
 }
 
 void D3D11RenderView::CreatePerspectiveFovLHMatrix( float fov, float aspect, float zNear, float zFar )
@@ -116,7 +116,7 @@ void D3D11RenderView::UpdataView( )
 		pData->m_projection = XMMatrixTranspose( m_projectionMatrix );
 
 		m_viewConstantBuffer->UnLockBuffer( );
-		m_viewConstantBuffer->SetVSBuffer( static_cast<int>( VS_CONSTANT_BUFFER::VIEW_PROJECTION ) );
+		m_viewConstantBuffer->SetVSBuffer( static_cast<int>( _VS_CONSTANT_BUFFER::VIEW_PROJECTION ) );
 	}
 
 	if ( GBUFFER_INFO* pData = static_cast<GBUFFER_INFO*>( m_gBufferConstantBuffer->LockBuffer( ) ) )
@@ -131,15 +131,14 @@ void D3D11RenderView::UpdataView( )
 		}
 
 		m_gBufferConstantBuffer->UnLockBuffer( );
-		m_gBufferConstantBuffer->SetPSBuffer( static_cast<int>(PS_CONSTANT_BUFFER::GBUFFER) );
+		m_gBufferConstantBuffer->SetPSBuffer( static_cast<int>( _PS_CONSTANT_BUFFER::GBUFFER ) );
 	}
 }
 
-D3D11RenderView::D3D11RenderView( ID3D11DeviceContext* pDeviceContext ) : 
-	m_pDeviceContext( pDeviceContext ),
+D3D11RenderView::D3D11RenderView( ID3D11DeviceContext& deviceContext ) : 
+	m_deviceContext( deviceContext ),
 	m_zFar( 0.f )
 {
-	assert( m_pDeviceContext );
 	m_viewMatrix = XMMatrixIdentity( );
 	m_projectionMatrix = XMMatrixIdentity( );
 }
