@@ -108,9 +108,6 @@
     <ClInclude Include="Direct3D11\D3D11VertexShader.h">
       <Filter>Direct11\Shader</Filter>
     </ClInclude>
-    <ClInclude Include="Direct3D11\D3D11RenderView.h">
-      <Filter>Direct11</Filter>
-    </ClInclude>
     <ClInclude Include="Direct3D11\D3D11Texture.h">
       <Filter>Direct11\RenderResource</Filter>
     </ClInclude>
@@ -144,9 +141,6 @@
     <ClInclude Include="ShaderListScriptLoader.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="CommonRenderer\ConstantBufferDefine.h">
-      <Filter>RenderCommon</Filter>
-    </ClInclude>
     <ClInclude Include="CommonRenderer\IBuffer.h">
       <Filter>RenderCommon</Filter>
     </ClInclude>
@@ -163,9 +157,6 @@
       <Filter>RenderCommon</Filter>
     </ClInclude>
     <ClInclude Include="CommonRenderer\IRenderState.h">
-      <Filter>RenderCommon</Filter>
-    </ClInclude>
-    <ClInclude Include="CommonRenderer\IRenderView.h">
       <Filter>RenderCommon</Filter>
     </ClInclude>
     <ClInclude Include="CommonRenderer\Resource.h">
@@ -235,9 +226,6 @@
     </ClCompile>
     <ClCompile Include="Direct3D11\D3D11VertexShader.cpp">
       <Filter>Direct11\Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="Direct3D11\D3D11RenderView.cpp">
-      <Filter>Direct11</Filter>
     </ClCompile>
     <ClCompile Include="Direct3D11\D3D11Texture.cpp">
       <Filter>Direct11\RenderResource</Filter>

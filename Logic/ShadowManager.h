@@ -1,8 +1,11 @@
 #pragma once
 
+#include <memory>
+#include <vector>
+
 class CGameLogic;
+class CGameObject;
 class CLightManager;
-class IBuffer;
 class IMaterial;
 class IRenderResource;
 class ITexture;
@@ -25,6 +28,5 @@ private:
 	IRenderResource* m_dsvShadowMap = nullptr;
 
 	IMaterial* m_shadowMapMtl = nullptr;
-	IBuffer* m_cbShadow = nullptr;
 };
 

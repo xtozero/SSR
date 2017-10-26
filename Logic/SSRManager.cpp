@@ -11,7 +11,6 @@
 #include "../RenderCore/CommonRenderer/IRenderResource.h"
 #include "../RenderCore/CommonRenderer/IRenderResourceManager.h"
 #include "../RenderCore/CommonRenderer/IRenderState.h"
-#include "../RenderCore/CommonRenderer/IRenderView.h"
 
 #include "../Shared/Util.h"
 
@@ -111,17 +110,15 @@ void CSSRManager::Process( CGameLogic& gameLogic, const std::list<CGameObject*>&
 	IRenderer& renderer = gameLogic.GetRenderer( );
 
 	// Set Constant Buffer
-	if ( IRenderView* pView = renderer.GetCurrentRenderView( ) )
+	CXMFLOAT4X4* pSsrConstant = static_cast<CXMFLOAT4X4*>( m_ssrConstantBuffer->LockBuffer( ) );
+
+	if ( pSsrConstant )
 	{
-		CXMFLOAT4X4* pSsrConstant = static_cast<CXMFLOAT4X4*>(m_ssrConstantBuffer->LockBuffer( ));
+		CRenderView& view = gameLogic.GetView( );
+		*pSsrConstant = XMMatrixTranspose( view.GetProjectionMatrix( ) );
 
-		if ( pSsrConstant )
-		{
-			*pSsrConstant = XMMatrixTranspose( pView->GetProjectionMatrix( ) );
-
-			m_ssrConstantBuffer->UnLockBuffer( );
-			m_ssrConstantBuffer->SetPSBuffer( 3 );
-		}
+		m_ssrConstantBuffer->UnLockBuffer( );
+		m_ssrConstantBuffer->SetPSBuffer( 3 );
 	}
 
 	// Set RenderTarget
@@ -139,7 +136,7 @@ void CSSRManager::Process( CGameLogic& gameLogic, const std::list<CGameObject*>&
 	for ( auto& object : reflectableList )
 	{
 		object->SetOverrideMaterial( m_pSsrMaterial );
-		object->UpdateWorldMatrix( renderer );
+		object->UpdateTransform( gameLogic );
 		object->Render( gameLogic );
 		object->SetOverrideMaterial( nullptr );
 	}

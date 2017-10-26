@@ -32,7 +32,7 @@ D3D11_INPUT_ELEMENT_DESC* D3D11VertexShader::CreateInputElementDesc ( const UINT
 {
 	m_numInputElement = num;
 
-	SAFE_ARRAY_DELETE ( m_pInputElementDesc );
+	delete[] m_pInputElementDesc;
 
 	m_pInputElementDesc = new D3D11_INPUT_ELEMENT_DESC[m_numInputElement];
 
@@ -76,5 +76,5 @@ m_deviceContext( deviceContext )
 
 D3D11VertexShader::~D3D11VertexShader ()
 {
-	SAFE_ARRAY_DELETE ( m_pInputElementDesc );
+	delete[] m_pInputElementDesc;
 }

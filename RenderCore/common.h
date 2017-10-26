@@ -24,20 +24,3 @@ using String = std::wstring;
 		return false; \
 	}\
 }
-
-#define ON_SUCCESS_RETURE( x ){ \
-if ( x ) \
-	return true; \
-}
-
-#define SAFE_DELETE( x ) { \
-if ( x ) \
-	delete x; \
-	x = nullptr; \
-}
-
-#define SAFE_ARRAY_DELETE( x ) { \
-if ( x ) \
-	delete []x; \
-	x = nullptr; \
-}

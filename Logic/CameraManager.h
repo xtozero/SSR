@@ -5,10 +5,10 @@ class CCamera;
 class CCameraManager
 {
 public:
-	static CCameraManager* GetInstance( )
+	static CCameraManager& GetInstance( )
 	{
 		static CCameraManager instance;
-		return &instance;
+		return instance;
 	}
 
 	CCamera* GetCurrentCamera( ) const { return m_curCamera; }

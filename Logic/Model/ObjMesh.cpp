@@ -59,7 +59,7 @@ void CObjMesh::Draw( CGameLogic& gameLogic )
 			FOR_EACH_VEC( m_mtlGroup, i )
 			{
 				m_pMaterial->SetTexture( SHADER_TYPE::PS, 0, i->m_pTexture );
-				IBuffer& constantBuffer = gameLogic.GetCommonConstantBuffer( COMMON_CONSTANT_BUFFER::PS_SURFACE );
+				IBuffer& constantBuffer = gameLogic.GetCommonConstantBuffer( SHARED_CONSTANT_BUFFER::PS_SURFACE );
 				SurfaceTrait* surface = static_cast<SurfaceTrait*>(constantBuffer.LockBuffer( ));
 
 				if ( surface )

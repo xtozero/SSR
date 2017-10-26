@@ -1,11 +1,12 @@
 #include "stdafx.h"
-#include "LightManager.h"
 #include "ShadowManager.h"
 
+#include "ConstantBufferDefine.h"
 #include "GameLogic.h"
+#include "LightManager.h"
+
 #include "../shared/Math/CXMFloat.h"
 #include "../Shared/Util.h"
-#include "../RenderCore/CommonRenderer/ConstantBufferDefine.h"
 #include "../RenderCore/CommonRenderer/IBuffer.h"
 #include "../RenderCore/CommonRenderer/IMaterial.h"
 #include "../RenderCore/CommonRenderer/IRenderer.h"
@@ -18,35 +19,12 @@ namespace
 {
 	constexpr TCHAR* SHADOWMAP_CONST_BUFFER_NAME = _T( "ShadowMapConstBuffer" );
 	constexpr TCHAR* SHADOWMAP_MATERIAL_NAME = _T( "mat_shadowMap" );
-
-	struct LightViewProjection
-	{
-		CXMFLOAT4X4 m_lightView;
-		CXMFLOAT4X4 m_lightProjection;
-	};
 }
 
 void CShadowManager::Init( CGameLogic& gameLogic )
 {
 	m_isEnabled = false;
 	IRenderer& renderer = gameLogic.GetRenderer( );
-
-	//그림자용 상수 버퍼 생성
-	BUFFER_TRAIT buffertrait = { sizeof( CXMFLOAT4X4 ),
-								2,
-								RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
-								RESOURCE_TYPE::CONSTANT_BUFFER,
-								0,
-								nullptr,
-								0,
-								0 };
-
-	m_cbShadow = renderer.CreateBuffer( buffertrait );
-
-	if ( m_cbShadow == nullptr )
-	{
-		return;
-	}
 
 	//그림자용 렌더 타겟 생성
 	IResourceManager& resourceMgr = renderer.GetResourceManager( );
@@ -97,16 +75,22 @@ void CShadowManager::SceneBegin( CLightManager& lightMgr, CGameLogic& gameLogic 
 {
 	IRenderer& renderer = gameLogic.GetRenderer( );
 
+	using namespace SHARED_CONSTANT_BUFFER;
+	IBuffer& shadowBuffer = gameLogic.GetCommonConstantBuffer( VS_SHADOW );
 	//그림자 렌더링에 사용할 조명으로 View 행렬을 만들어 세팅
-	LightViewProjection* buffer = static_cast<LightViewProjection*>( m_cbShadow->LockBuffer() );
+	ShadowTransform* buffer = static_cast<ShadowTransform*>( shadowBuffer.LockBuffer() );
 
 	if ( buffer )
 	{
 		buffer->m_lightView = XMMatrixTranspose( lightMgr.GetPrimaryLightViewMatrix( ) );
 		buffer->m_lightProjection = XMMatrixTranspose( lightMgr.GerPrimaryLightProjectionMatrix( ) );
 
-		m_cbShadow->UnLockBuffer( );
-		m_cbShadow->SetVSBuffer( static_cast<int>( VS_CONSTANT_BUFFER::LIGHT_VIEW_PROJECTION ) );
+		shadowBuffer.UnLockBuffer( );
+		shadowBuffer.SetVSBuffer( static_cast<int>( VS_CONSTANT_BUFFER::SHADOW ) );
+	}
+	else
+	{
+		__debugbreak( );
 	}
 
 	//그림자 텍스쳐로 랜더 타겟 변경
@@ -119,9 +103,13 @@ void CShadowManager::SceneBegin( CLightManager& lightMgr, CGameLogic& gameLogic 
 	renderer.ClearDepthStencil( *m_dsvShadowMap, 1.0f, 0 );
 
 	//뷰포트 세팅
-	renderer.PopViewPort( );
-	renderer.PopScissorRect( );
-	renderer.PushViewPort( 0, 0, 2048, 2048 );
+	CRenderView& view = gameLogic.GetView( );
+	view.PopViewPort( );
+	view.PopScissorRect( );
+	view.PushViewPort( 0, 0, 2048, 2048 );
+	view.SetViewPort( renderer );
+	view.SetScissorRects( renderer );
+	view.UpdataView( );
 }
 
 void CShadowManager::DrawScene( CLightManager& lightMgr, CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects )
@@ -132,7 +120,7 @@ void CShadowManager::DrawScene( CLightManager& lightMgr, CGameLogic& gameLogic, 
 		if ( object.get() && object->ShouldDrawShadow( ) )
 		{
 			object->SetOverrideMaterial( m_shadowMapMtl );
-			object->UpdateWorldMatrix( gameLogic.GetRenderer( ) );
+			object->UpdateTransform( gameLogic );
 			object->Render( gameLogic );
 			object->SetOverrideMaterial( nullptr );
 		}
@@ -144,7 +132,8 @@ void CShadowManager::SceneEnd( CLightManager& lightMgr, CGameLogic& gameLogic )
 	IRenderer& renderer = gameLogic.GetRenderer( );
 
 	//뷰포트 원상 복귀
-	gameLogic.GetRenderer().PopViewPort( );
+	CRenderView& view = gameLogic.GetView( );
+	view.PopViewPort( );
 
 	//랜터 타겟 원상 복귀, 그림자 맵 세팅
 	renderer.SetRenderTarget( nullptr, nullptr );

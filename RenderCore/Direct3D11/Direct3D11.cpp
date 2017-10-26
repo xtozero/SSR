@@ -1,7 +1,6 @@
 #include "stdafx.h"
 
 #include "../common.h"
-#include "../CommonRenderer/ConstantBufferDefine.h"
 #include "../CommonRenderer/IMaterial.h"
 #include "../CommonRenderer/IRenderer.h"
 #include "../CommonRenderer/IRenderResource.h"
@@ -14,7 +13,6 @@
 #include "D3D11PixelShader.h"
 #include "D3D11RasterizerStateFactory.h"
 #include "D3D11RenderTarget.h"
-#include "D3D11RenderView.h"
 #include "D3D11Resource.h"
 #include "D3D11ResourceManager.h"
 #include "D3D11SamplerStateFactory.h"
@@ -48,12 +46,8 @@
 #include <string>
 #include <vector>
 
-using namespace DirectX;
-
 namespace
 {
-	constexpr int WORLD_MATRIX_ELEMENT_SIZE = 2;
-
 	void RegisterGraphicsEnumString()
 	{
 		//Register enum string
@@ -172,14 +166,9 @@ public:
 
 	virtual IMaterial* GetMaterialPtr( const TCHAR* pMaterialName ) override;
 
-	virtual void PushViewPort( const float topLeftX, const float topLeftY, const float width, const float height, const float minDepth = 0.0f, const float maxDepth = 1.0f ) override;
-	virtual void PopViewPort( ) override;
-	virtual void PushScissorRect( const RECT& rect ) override;
-	virtual void PopScissorRect( ) override;
+	virtual void SetViewports( std::vector<Viewport>& viewports ) override;
+	virtual void SetScissorRects( std::vector<RECT>& rects ) override;
 
-	virtual IRenderView* GetCurrentRenderView( ) override;
-
-	virtual void UpdateWorldMatrix( const CXMFLOAT4X4& worldMatrix, const CXMFLOAT4X4& invWorldMatrix ) override;
 	virtual IRenderState* CreateRenderState( const String& stateName ) override;
 
 	virtual IRenderResource* GetShaderResourceFromFile( const String& fileName ) override;
@@ -223,68 +212,50 @@ private:
 	std::map<String, std::unique_ptr<IShader>>		m_shaderList;
 	std::vector<std::unique_ptr<IBuffer>>			m_bufferList;
 
-	std::unique_ptr<D3D11RenderView>				m_pView;
-
-	IBuffer*										m_pWorldMatrixBuffer = nullptr;
-
 	std::unique_ptr<CD3D11ResourceManager>			m_resourceManager;
 	CRenderOutputManager							m_renderOutput;
 
 	CShaderListScriptLoader							m_shaderLoader;
 
-	std::unique_ptr<CD3D11DepthStencilStateFactory>	m_pDepthStencilFactory;
-	std::unique_ptr<CD3D11RasterizerStateFactory>	m_pRasterizerFactory;
-	std::unique_ptr<CD3D11SamplerStateFactory>		m_pSamplerFactory;
-	std::unique_ptr<CD3D11BlendStateFactory>		m_pBlendFactory;
-	std::unique_ptr<CMaterialLoader>				m_pMaterialLoader;
+	CD3D11DepthStencilStateFactory					m_DepthStencilFactory;
+	CD3D11RasterizerStateFactory					m_RasterizerFactory;
+	CD3D11SamplerStateFactory						m_SamplerFactory;
+	CD3D11BlendStateFactory							m_BlendFactory;
+	CMaterialLoader									m_MaterialLoader;
 
 	CRenderEffect									m_renderEffect;
 };
 
 bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeight )
 {
-	ON_FAIL_RETURN( CreateD3D11Device( hWind, nWndWidth, nWndHeight ) );
+	if ( !CreateD3D11Device( hWind, nWndWidth, nWndHeight ) )
+	{
+		return false;
+	}
 
-	m_pView = std::make_unique<D3D11RenderView>( *m_pd3d11DeviceContext.Get() );
-	ON_FAIL_RETURN( m_pView->initialize( *this ) );
+	m_DepthStencilFactory.LoadDesc( );
+	m_RasterizerFactory.LoadDesc( );
+	m_SamplerFactory.LoadDesc( );
+	m_BlendFactory.LoadDesc( );
 
-	m_pDepthStencilFactory = std::make_unique<CD3D11DepthStencilStateFactory>( );
-	ON_FAIL_RETURN( m_pDepthStencilFactory );
-	m_pDepthStencilFactory->LoadDesc( );
+	if ( !InitializeShaders( ) )
+	{
+		return false;
+	}
 
-	m_pRasterizerFactory = std::make_unique<CD3D11RasterizerStateFactory>( );
-	ON_FAIL_RETURN( m_pRasterizerFactory );
-	m_pRasterizerFactory->LoadDesc( );
-
-	m_pSamplerFactory = std::make_unique<CD3D11SamplerStateFactory>( );
-	ON_FAIL_RETURN( m_pSamplerFactory );
-	m_pSamplerFactory->LoadDesc( );
-
-	m_pBlendFactory = std::make_unique<CD3D11BlendStateFactory>( );
-	ON_FAIL_RETURN( m_pBlendFactory );
-	m_pBlendFactory->LoadDesc( );
-
-	ON_FAIL_RETURN( InitializeShaders( ) );
-	ON_FAIL_RETURN( InitializeMaterial( ) );
+	if ( !InitializeMaterial( ) )
+	{
+		return false;
+	}
 	
 	m_resourceManager = std::make_unique<CD3D11ResourceManager>( *m_pd3d11Device.Get( ) );
 	m_resourceManager->SetFrameBufferSize( nWndWidth, nWndHeight );
-	ON_FAIL_RETURN( m_resourceManager->Bootup( ) );
+	if ( !m_resourceManager->Bootup( ) )
+	{
+		return false;
+	}
 
-	ON_FAIL_RETURN( m_renderOutput.Initialize( *m_resourceManager, *m_pdxgiSwapChain.Get() ) );
-
-	BUFFER_TRAIT trait = { sizeof( CXMFLOAT4X4 ),
-							WORLD_MATRIX_ELEMENT_SIZE, 
-							RESOURCE_ACCESS_FLAG::CPU_WRITE | RESOURCE_ACCESS_FLAG::GPU_READ,  
-							RESOURCE_TYPE::CONSTANT_BUFFER,
-							0,
-							nullptr, 
-							0, 
-							0 };
-
-	m_pWorldMatrixBuffer = CreateBuffer( trait );
-
-	if ( m_pWorldMatrixBuffer == nullptr )
+	if ( !m_renderOutput.Initialize( *m_resourceManager, *m_pdxgiSwapChain.Get( ) ) )
 	{
 		return false;
 	}
@@ -297,15 +268,6 @@ void CDirect3D11::ShutDownRenderer( )
 	m_shaderList.clear( );
 	m_bufferList.clear( );
 
-	m_pView = std::move( nullptr );
-
-	m_pWorldMatrixBuffer = nullptr;
-
-	m_pDepthStencilFactory = std::move( nullptr );
-	m_pRasterizerFactory = std::move( nullptr );
-	m_pSamplerFactory = std::move( nullptr );
-	m_pMaterialLoader = std::move( nullptr );
-
 #ifdef _DEBUG
 	ReportLiveDevice( );
 #endif
@@ -316,11 +278,6 @@ void CDirect3D11::SceneBegin( )
 	m_renderOutput.SetRenderTargetDepthStencilView( *this );
 	m_renderOutput.ClearDepthStencil( *this );
 	m_renderOutput.ClearRenderTargets( *this, rtClearColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
-
-	if ( m_pView )
-	{
-		m_pView->UpdataView( );
-	}
 
 	m_renderEffect.SceneBegin( *this );
 }
@@ -465,14 +422,7 @@ bool CDirect3D11::InitializeMaterial( )
 	REGISTER_MATERIAL( *this, TextureMaterial, texture );
 	REGISTER_MATERIAL( *this, SkyBoxMaterial, skybox );
 
-	m_pMaterialLoader = CreateMaterialLoader( );
-
-	if ( m_pMaterialLoader )
-	{
-		return m_pMaterialLoader->LoadMaterials( *this );
-	}
-
-	return false;
+	return m_MaterialLoader.LoadMaterials( *this );
 }
 
 IMaterial* CDirect3D11::GetMaterialPtr( const TCHAR* pMaterialName )
@@ -480,76 +430,28 @@ IMaterial* CDirect3D11::GetMaterialPtr( const TCHAR* pMaterialName )
 	return MaterialSystem::GetInstance( )->SearchMaterialByName( pMaterialName );
 }
 
-void CDirect3D11::PushViewPort( const float topLeftX, const float topLeftY, const float width, const float height, const float minDepth, const float maxDepth )
+void CDirect3D11::SetViewports( std::vector<Viewport>& viewports )
 {
-	if ( m_pView )
+	std::vector<D3D11_VIEWPORT> d3d11Viewports;
+
+	for ( const Viewport& vp : viewports )
 	{
-		m_pView->PushViewPort( topLeftX, topLeftY, width, height, minDepth, maxDepth );
-		m_pView->SetViewPort( );
+		D3D11_VIEWPORT newVeiwport = { vp.m_x, vp.m_y, vp.m_width, vp.m_height, vp.m_near, vp.m_far };
+
+		d3d11Viewports.push_back( newVeiwport );
 	}
+
+	m_pd3d11DeviceContext->RSSetViewports( d3d11Viewports.size( ), d3d11Viewports.data( ) );
 }
 
-void CDirect3D11::PopViewPort( )
+void CDirect3D11::SetScissorRects( std::vector<RECT>& rects )
 {
-	if ( m_pView )
-	{
-		m_pView->PopViewPort( );
-		m_pView->SetViewPort( );
-	}
-}
-
-void CDirect3D11::PushScissorRect( const RECT& rect )
-{
-	if ( m_pView )
-	{
-		m_pView->PushScissorRect( rect );
-		m_pView->SetScissorRects( );
-	}
-}
-
-void CDirect3D11::PopScissorRect( )
-{
-	if ( m_pView )
-	{
-		m_pView->PopScissorRect( );
-		m_pView->SetScissorRects( );
-	}
-}
-
-IRenderView* CDirect3D11::GetCurrentRenderView( )
-{
-	return m_pView.get( );
-}
-
-void CDirect3D11::UpdateWorldMatrix( const CXMFLOAT4X4& worldMatrix, const CXMFLOAT4X4& invWorldMatrix )
-{
-	if ( m_pWorldMatrixBuffer == nullptr )
-	{
-		DebugWarning( "m_pWorldMatrixBuffer is nullptr\n" );
-		return;
-	}
-
-	CXMFLOAT4X4* pWorld = static_cast<CXMFLOAT4X4*>( m_pWorldMatrixBuffer->LockBuffer( ) );
-
-	if ( pWorld )
-	{
-		pWorld[0] = XMMatrixTranspose( worldMatrix );
-		pWorld[1] = XMMatrixTranspose( invWorldMatrix );
-	}
-
-	m_pWorldMatrixBuffer->UnLockBuffer( );
-	m_pWorldMatrixBuffer->SetVSBuffer( static_cast<int>( _VS_CONSTANT_BUFFER::WORLD ) );
+	m_pd3d11DeviceContext->RSSetScissorRects( rects.size( ), rects.data( ) );
 }
 
 IRenderState* CDirect3D11::CreateRenderState( const String& stateName )
 {
-	if ( m_pRasterizerFactory == nullptr )
-	{
-		DebugWarning( "RasterizerFactory is nullptr" );
-		return nullptr;
-	}
-
-	return m_pRasterizerFactory->GetRasterizerState( *m_pd3d11Device.Get( ), *m_pd3d11DeviceContext.Get( ), stateName );
+	return m_RasterizerFactory.GetRasterizerState( *m_pd3d11Device.Get( ), *m_pd3d11DeviceContext.Get( ), stateName );
 }
 
 IRenderResource* CDirect3D11::GetShaderResourceFromFile( const String& fileName )
@@ -560,35 +462,17 @@ IRenderResource* CDirect3D11::GetShaderResourceFromFile( const String& fileName 
 
 IRenderState* CDirect3D11::CreateSamplerState( const String& stateName )
 {
-	if ( m_pSamplerFactory == nullptr )
-	{
-		DebugWarning( "SamplerFactory is nullptr" );
-		return nullptr;
-	}
-
-	return m_pSamplerFactory->GetSamplerState( *m_pd3d11Device.Get( ), *m_pd3d11DeviceContext.Get( ), stateName );
+	return m_SamplerFactory.GetSamplerState( *m_pd3d11Device.Get( ), *m_pd3d11DeviceContext.Get( ), stateName );
 }
 
 IRenderState* CDirect3D11::CreateDepthStencilState( const String& stateName )
 {
-	if ( m_pDepthStencilFactory == nullptr )
-	{
-		DebugWarning( "DepthStencilFactory is nullptr" );
-		return nullptr;
-	}
-
-	return m_pDepthStencilFactory->GetDepthStencilState( *m_pd3d11Device.Get( ), *m_pd3d11DeviceContext.Get(), stateName );
+	return m_DepthStencilFactory.GetDepthStencilState( *m_pd3d11Device.Get( ), *m_pd3d11DeviceContext.Get(), stateName );
 }
 
 IRenderState* CDirect3D11::CreateBlendState( const String& stateName )
 {
-	if ( m_pBlendFactory == nullptr )
-	{
-		DebugWarning( "BlendStateFactory is nullptr" );
-		return nullptr;
-	}
-
-	return m_pBlendFactory->GetBlendState( *m_pd3d11Device.Get( ), *m_pd3d11DeviceContext.Get( ), stateName );
+	return m_BlendFactory.GetBlendState( *m_pd3d11Device.Get( ), *m_pd3d11DeviceContext.Get( ), stateName );
 }
 
 void CDirect3D11::TakeSnapshot2D( const String& sourceTextureName, const String& destTextureName )

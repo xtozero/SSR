@@ -8,7 +8,6 @@
 #include <memory>
 
 class CGameLogic;
-class IRenderer;
 class IRigidBody;
 class IMaterial;
 class IMesh;
@@ -29,7 +28,7 @@ public:
 	const CXMFLOAT4X4& GetTransformMatrix( );
 	const CXMFLOAT4X4& GetInvTransformMatrix( );
 
-	void UpdateWorldMatrix( IRenderer& renderer );
+	void UpdateTransform( CGameLogic& gameLogic );
 	virtual void Render( CGameLogic& gameLogic );
 
 	virtual void Think( );

@@ -171,6 +171,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="Movement.h" />
     <ClInclude Include="PickingManager.h" />
     <ClInclude Include="Ray.h" />
+    <ClInclude Include="RenderView.h" />
     <ClInclude Include="RigidBodyManager.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="common.h" />
@@ -212,6 +213,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClCompile Include="model\PlyMeshLoader.cpp" />
     <ClCompile Include="PickingManager.cpp" />
     <ClCompile Include="Ray.cpp" />
+    <ClCompile Include="RenderView.cpp" />
     <ClCompile Include="RigidBodyManager.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DebugConsole.cpp" />

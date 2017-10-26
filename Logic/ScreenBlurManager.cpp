@@ -9,7 +9,6 @@
 #include "../RenderCore/CommonRenderer/IRenderer.h"
 #include "../RenderCore/CommonRenderer/IRenderResource.h"
 #include "../RenderCore/CommonRenderer/IRenderResourceManager.h"
-#include "../RenderCore/CommonRenderer/IRenderView.h"
 
 #include "../Shared/Util.h"
 

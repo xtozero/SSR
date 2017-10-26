@@ -14,6 +14,3 @@ public:
 private:
 	bool CreateScriptedMaterial( IRenderer& renderer, const KeyValue& keyValue );
 };
-
-std::unique_ptr<CMaterialLoader> CreateMaterialLoader( );
-

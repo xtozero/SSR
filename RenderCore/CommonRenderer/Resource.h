@@ -209,6 +209,16 @@ struct RESOURCE_INIT_DATA
 	UINT m_slicePitch;
 };
 
+struct Viewport
+{
+	float m_x;
+	float m_y;
+	float m_width;
+	float m_height;
+	float m_near;
+	float m_far;
+};
+
 inline void RegisterResourceEnumString( )
 {
 	// Register enum string

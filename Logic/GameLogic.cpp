@@ -10,7 +10,6 @@
 #include "../Engine/ConCommand.h"
 #include "../Engine/KeyValueReader.h"
 #include "../RenderCore/CommonRenderer/IRenderer.h"
-#include "../RenderCore/CommonRenderer/IRenderView.h"
 #include "../RenderCore/RenderCoreDllFunc.h"
 #include "../shared/IPlatform.h"
 #include "../shared/UserInput.h"
@@ -42,32 +41,25 @@ bool CGameLogic::Initialize( IPlatform& platform )
 	CUtilWindowInfo::GetInstance( ).SetRect( m_wndSize.first, m_wndSize.second );
 
 	ON_FAIL_RETURN( m_pRenderer->InitializeRenderer( m_wndHwnd, m_wndSize.first, m_wndSize.second ) );
+	ON_FAIL_RETURN( m_view.initialize( *m_pRenderer ) );
+
+	m_view.CreatePerspectiveFovLHMatrix( XMConvertToRadians( 60 ),
+		static_cast<float>( m_wndSize.first ) / m_wndSize.second,
+		1.f,
+		1500.0f );
+
+	m_pickingManager.PushInvProjection( XMConvertToRadians( 60 ),
+		static_cast<float>( m_wndSize.first ) / m_wndSize.second,
+		1.f,
+		1500.0f );
 
 	m_pickingManager.PushViewport( 0.0f, 0.0f, static_cast<float>( m_wndSize.first ), static_cast<float>( m_wndSize.second ) );
-
-	IRenderView* view = m_pRenderer->GetCurrentRenderView( );
-
-	if ( view )
-	{
-		view->CreatePerspectiveFovLHMatrix( XMConvertToRadians( 60 ),
-			static_cast<float>( m_wndSize.first ) / m_wndSize.second,
-			1.f,
-			1500.0f );
-		m_pickingManager.PushInvProjection( XMConvertToRadians( 60 ),
-			static_cast<float>( m_wndSize.first ) / m_wndSize.second,
-			1.f,
-			1500.0f );
-	}
-	else
-	{
-		return false;
-	}
 
 	m_pickingManager.PushCamera( &m_mainCamera );
 	m_inputBroadCaster.AddListener( &m_pickingManager );
 	m_inputBroadCaster.AddListener( &m_mainCamera );
 
-	CCameraManager::GetInstance( )->SetCurrentCamera( &m_mainCamera );
+	CCameraManager::GetInstance( ).SetCurrentCamera( &m_mainCamera );
 
 	ON_FAIL_RETURN( LoadScene( ) );
 	ON_FAIL_RETURN( m_lightManager.Initialize( *m_pRenderer, m_gameObjects ) );
@@ -86,8 +78,26 @@ bool CGameLogic::Initialize( IPlatform& platform )
 		0,
 	};
 
-	m_commonConstantBuffer[COMMON_CONSTANT_BUFFER::PS_SURFACE] = m_pRenderer->CreateBuffer( trait );
-	if ( m_commonConstantBuffer[COMMON_CONSTANT_BUFFER::PS_SURFACE] == nullptr )
+	using namespace SHARED_CONSTANT_BUFFER;
+
+	m_commonConstantBuffer[PS_SURFACE] = m_pRenderer->CreateBuffer( trait );
+	if ( m_commonConstantBuffer[PS_SURFACE] == nullptr )
+	{
+		return false;
+	}
+
+	trait.m_stride = sizeof( GeometryTransform );
+
+	m_commonConstantBuffer[VS_GEOMETRY] = m_pRenderer->CreateBuffer( trait );
+	if ( m_commonConstantBuffer[VS_GEOMETRY] == nullptr )
+	{
+		return false;
+	}
+
+	trait.m_stride = sizeof( ShadowTransform );
+
+	m_commonConstantBuffer[VS_SHADOW] = m_pRenderer->CreateBuffer( trait );
+	if ( m_commonConstantBuffer[VS_SHADOW] == nullptr )
 	{
 		return false;
 	}
@@ -138,7 +148,7 @@ void CGameLogic::EndLogic ( void )
 	m_shadowManager.Process( m_lightManager, *this, m_gameObjects );
 
 	//게임 로직 수행 후처리
-	m_mainCamera.UpdateToRenderer( *m_pRenderer );
+	m_mainCamera.UpdateToRenderer( m_view );
 	m_lightManager.UpdateToRenderer( *m_pRenderer, m_mainCamera );
 	BuildRenderableList( );
 	SceneBegin( );
@@ -163,12 +173,15 @@ bool CGameLogic::LoadScene( void )
 	return true;
 }
 
-void CGameLogic::SceneBegin( void ) const
+void CGameLogic::SceneBegin( void )
 {
 	float wndWidth = static_cast<float>( m_wndSize.first );
 	float wndHeight = static_cast<float>( m_wndSize.second );
-	m_pRenderer->PushViewPort( 0.f, 0.f, wndWidth, wndHeight );
-	m_pRenderer->PushScissorRect( CUtilWindowInfo::GetInstance( ).GetRect() );
+	m_view.PushViewPort( 0.f, 0.f, wndWidth, wndHeight );
+	m_view.PushScissorRect( CUtilWindowInfo::GetInstance( ).GetRect() );
+	m_view.SetViewPort( *m_pRenderer );
+	m_view.SetScissorRects( *m_pRenderer );
+	m_view.UpdataView( );
 
 	m_pRenderer->SceneBegin( );
 }
@@ -183,14 +196,6 @@ void CGameLogic::DrawScene( void )
 void CGameLogic::SceneEnd( void ) const
 {
 	m_pRenderer->SceneEnd( );
-}
-
-void CGameLogic::UpdateWorldMatrix( CGameObject* object ) const
-{
-	if ( object )
-	{
-		m_pRenderer->UpdateWorldMatrix( object->GetTransformMatrix( ), object->GetInvTransformMatrix( ) );
-	}
 }
 
 void CGameLogic::BuildRenderableList( )
@@ -223,7 +228,7 @@ void CGameLogic::DrawOpaqueRenderable( )
 {
 	for ( auto& object : m_renderableList[OPAQUE_RENDERABLE] )
 	{
-		UpdateWorldMatrix( object );
+		object->UpdateTransform( *this );
 		object->Render( *this );
 	}
 }
@@ -232,7 +237,7 @@ void CGameLogic::DrawTransparentRenderable( )
 {
 	for ( auto& object : m_renderableList[TRANSPARENT_RENDERABLE] )
 	{
-		UpdateWorldMatrix( object );
+		object->UpdateTransform( *this );
 		object->Render( *this );
 	}
 }

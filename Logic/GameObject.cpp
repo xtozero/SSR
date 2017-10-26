@@ -70,14 +70,28 @@ const CXMFLOAT4X4& CGameObject::GetInvTransformMatrix( )
 		RebuildTransform( );
 	}
 
-	m_invMatTransform = XMMatrixInverse( nullptr, m_matTransform );
-
 	return m_invMatTransform;
 }
 
-void CGameObject::UpdateWorldMatrix( IRenderer & renderer )
+void CGameObject::UpdateTransform( CGameLogic& gameLogic )
 {
-	renderer.UpdateWorldMatrix( GetTransformMatrix( ), GetInvTransformMatrix( ) );
+	using namespace SHARED_CONSTANT_BUFFER;
+	IBuffer& geometryBuffer = gameLogic.GetCommonConstantBuffer( VS_GEOMETRY );
+
+	GeometryTransform* pDest = static_cast<GeometryTransform*>( geometryBuffer.LockBuffer( ) );
+
+	if ( pDest )
+	{
+		pDest->m_world = XMMatrixTranspose( GetTransformMatrix() );
+		pDest->m_invWorld = XMMatrixTranspose( GetInvTransformMatrix() );
+
+		geometryBuffer.UnLockBuffer( );
+		geometryBuffer.SetVSBuffer( VS_CONSTANT_BUFFER::GEOMETRY );
+	}
+	else
+	{
+		__debugbreak( );
+	}
 }
 
 void CGameObject::Render( CGameLogic& gameLogic )
@@ -253,6 +267,8 @@ void CGameObject::RebuildTransform( )
 	m_matTransform._41 = m_vecPos.x;
 	m_matTransform._42 = m_vecPos.y;
 	m_matTransform._43 = m_vecPos.z;
+
+	m_invMatTransform = XMMatrixInverse( nullptr, m_matTransform );
 
 	UpdateRigidBodyAll( );
 	m_needRebuildTransform = false;

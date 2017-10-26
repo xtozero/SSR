@@ -25,9 +25,6 @@
     <Filter Include="Camera">
       <UniqueIdentifier>{ac2787ac-d8e0-4688-9e27-faf49d9e4fae}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Renderer">
-      <UniqueIdentifier>{33551755-7ec3-4d3e-8011-b423276b1f7c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Collision">
       <UniqueIdentifier>{c1aec5de-e5d7-4cc3-815c-2c16a93268fe}</UniqueIdentifier>
     </Filter>
@@ -36,6 +33,9 @@
     </Filter>
     <Filter Include="Model">
       <UniqueIdentifier>{10216d73-92cc-469d-872e-ec1e237dac0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Render">
+      <UniqueIdentifier>{33551755-7ec3-4d3e-8011-b423276b1f7c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -106,7 +106,7 @@
       <Filter>GameObject</Filter>
     </ClInclude>
     <ClInclude Include="ShadowManager.h">
-      <Filter>Renderer</Filter>
+      <Filter>Render</Filter>
     </ClInclude>
     <ClInclude Include="RigidBodyManager.h">
       <Filter>Collision</Filter>
@@ -124,13 +124,13 @@
       <Filter>Collision</Filter>
     </ClInclude>
     <ClInclude Include="SSRManager.h">
-      <Filter>Renderer</Filter>
+      <Filter>Render</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\CDirectXMath.h">
       <Filter>Shared</Filter>
     </ClInclude>
     <ClInclude Include="ScreenBlurManager.h">
-      <Filter>Renderer</Filter>
+      <Filter>Render</Filter>
     </ClInclude>
     <ClInclude Include="ILogic.h">
       <Filter>헤더 파일</Filter>
@@ -182,6 +182,9 @@
     </ClInclude>
     <ClInclude Include="model\Surface.h">
       <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderView.h">
+      <Filter>Render</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -240,7 +243,7 @@
       <Filter>Light</Filter>
     </ClCompile>
     <ClCompile Include="ShadowManager.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>Render</Filter>
     </ClCompile>
     <ClCompile Include="Aaboundingbox.cpp">
       <Filter>Collision</Filter>
@@ -258,10 +261,10 @@
       <Filter>Collision</Filter>
     </ClCompile>
     <ClCompile Include="SSRManager.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>Render</Filter>
     </ClCompile>
     <ClCompile Include="ScreenBlurManager.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>Render</Filter>
     </ClCompile>
     <ClCompile Include="model\ObjMesh.cpp">
       <Filter>Model</Filter>
@@ -286,6 +289,9 @@
     </ClCompile>
     <ClCompile Include="Model\DebugMesh.cpp">
       <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderView.cpp">
+      <Filter>Render</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

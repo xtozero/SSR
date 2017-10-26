@@ -7,6 +7,7 @@
 #include "LightManager.h"
 #include "MouseController.h"
 #include "PickingManager.h"
+#include "RenderView.h"
 #include "SceneLoader.h"
 #include "ShadowManager.h"
 #include "SSRManager.h"
@@ -41,6 +42,7 @@ public:
 	IRenderer& GetRenderer( ) const { return *m_pRenderer; }
 	CModelManager& GetModelManager( ) { return m_meshManager; }
 	IBuffer& GetCommonConstantBuffer( int purpose ) { return *m_commonConstantBuffer[purpose]; }
+	CRenderView& GetView( ) { return m_view; }
 
 private:
 	void StartLogic ( void );
@@ -49,11 +51,9 @@ private:
 
 	bool LoadScene( void );
 
-	void SceneBegin( void ) const;
+	void SceneBegin( void );
 	void DrawScene( void );
 	void SceneEnd( void ) const;
-
-	void UpdateWorldMatrix( CGameObject* object ) const;
 
 	void BuildRenderableList( );
 	void DrawOpaqueRenderable( );
@@ -76,9 +76,10 @@ private:
 	CSSRManager m_ssrManager;
 	CModelManager m_meshManager;
 	IRenderer* m_pRenderer;
+	CRenderView m_view;
 	std::vector<std::unique_ptr<CGameObject>> m_gameObjects;
 
 	std::list<CGameObject*> m_renderableList[RENDERABLE_TYPE_COUNT];
 
-	IBuffer* m_commonConstantBuffer[COMMON_CONSTANT_BUFFER::Count] = { nullptr, };
+	IBuffer* m_commonConstantBuffer[SHARED_CONSTANT_BUFFER::Count] = { nullptr, };
 };

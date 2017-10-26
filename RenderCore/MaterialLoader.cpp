@@ -133,37 +133,47 @@ bool CMaterialLoader::CreateScriptedMaterial( IRenderer& renderer, const KeyValu
 	{
 		for ( auto shader = pShader->GetChild( ); shader != nullptr; shader = shader->GetNext( ) )
 		{
-			ON_FAIL_RETURN( pMaterial->SetShader( renderer, TranslateShaderType( shader->GetKey( ) ), shader->GetValue( ) ) );
+			if ( !pMaterial->SetShader( renderer, TranslateShaderType( shader->GetKey( ) ), shader->GetValue( ) ) )
+			{
+				return false;
+			}
 		}
 	}
 
 	if ( const KeyValue* pRsState = keyValue.Find( _T( "RS_State" ) ) )
 	{
-		ON_FAIL_RETURN( pMaterial->SetRasterizerState( renderer, pRsState->GetValue( ) ) );
+		if ( !pMaterial->SetRasterizerState( renderer, pRsState->GetValue( ) ) )
+		{
+			return false;
+		}
 	}
 	
 	if ( const KeyValue* pDsState = keyValue.Find( _T( "DS_State" ) ) )
 	{
-		ON_FAIL_RETURN( pMaterial->SetDepthStencilState( renderer, pDsState->GetValue( ) ) );
+		if ( !pMaterial->SetDepthStencilState( renderer, pDsState->GetValue( ) ) )
+		{
+			return false;
+		}
 	}
 	
 	if ( const KeyValue* pSamplers = keyValue.Find( _T( "Sampler" ) ) )
 	{
 		for ( auto sampler = pSamplers->GetChild( ); sampler != nullptr; sampler = sampler->GetNext( ) )
 		{
-			ON_FAIL_RETURN( pMaterial->SetSamplerState( renderer, TranslateShaderType( sampler->GetKey( ) ), sampler->GetValue( ) ) );
+			if ( !pMaterial->SetSamplerState( renderer, TranslateShaderType( sampler->GetKey( ) ), sampler->GetValue( ) ) )
+			{
+				return false;
+			}
 		}
 	}
 	
 	if ( const KeyValue* pBlend = keyValue.Find( _T( "Blend" ) ) )
 	{
-		ON_FAIL_RETURN( pMaterial->SetBlendState( renderer, pBlend->GetValue( ) ) )
+		if ( !pMaterial->SetBlendState( renderer, pBlend->GetValue( ) ) )
+		{
+			return false;
+		}
 	}
 
 	return true;
-}
-
-std::unique_ptr<CMaterialLoader> CreateMaterialLoader( )
-{
-	return std::make_unique<CMaterialLoader>( );
 }

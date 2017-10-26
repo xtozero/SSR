@@ -8,7 +8,6 @@
 #include "../Shared/Util.h"
 
 #include <array>
-#include <D3D11.h>
 
 namespace
 {

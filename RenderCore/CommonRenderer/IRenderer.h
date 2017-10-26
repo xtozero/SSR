@@ -16,6 +16,7 @@ class RenderTargetBinder;
 struct BUFFER_TRAIT;
 struct CXMFLOAT4X4;
 struct IDXGISwapChain;
+struct Viewport;
 
 enum SHADER_TYPE;
 
@@ -45,14 +46,8 @@ public:
 
 	virtual IMaterial* GetMaterialPtr( const TCHAR* pMaterialName ) = 0;
 
-	virtual void PushViewPort( const float topLeftX, const float topLeftY, const float width, const float height, const float minDepth = 0.0f, const float maxDepth = 1.0f ) = 0;
-	virtual void PopViewPort( ) = 0;
-	virtual void PushScissorRect( const RECT& rect ) = 0;
-	virtual void PopScissorRect( ) = 0;
-
-	virtual IRenderView* GetCurrentRenderView( ) = 0;
-
-	virtual void UpdateWorldMatrix( const CXMFLOAT4X4& worldMatrix, const CXMFLOAT4X4& invWorldMatrix ) = 0;
+	virtual void SetViewports( std::vector<Viewport>& viewports ) = 0;
+	virtual void SetScissorRects( std::vector<RECT>& rects ) = 0;
 
 	virtual IRenderState* CreateRenderState( const String& stateName ) = 0;
 	virtual IRenderResource* GetShaderResourceFromFile( const String& fileName ) = 0;

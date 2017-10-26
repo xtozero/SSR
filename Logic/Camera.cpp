@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "common.h"
 #include "Camera.h"
+#include "RenderView.h"
 #include "Timer.h"
 #include "../Engine/KeyValueReader.h"
 #include "../RenderCore/CommonRenderer/IRenderer.h"
-#include "../RenderCore/CommonRenderer/IRenderView.h"
 #include "../shared/UserInput.h"
 #include "../shared/Util.h"
 
@@ -120,13 +120,11 @@ void CCamera::Rotate( const float pitch, const float yaw, const float roll )
 	}
 }
 
-void CCamera::UpdateToRenderer( IRenderer& renderer )
+void CCamera::UpdateToRenderer( CRenderView& view )
 {
 	if ( m_isNeedUpdateRenderer )
 	{
-		IRenderView* view = renderer.GetCurrentRenderView( );
-
-		view->SetViewMatrix( GetViewMatrix( ) );
+		view.SetViewMatrix( GetViewMatrix( ) );
 		m_isNeedUpdateRenderer = false;
 	}
 }

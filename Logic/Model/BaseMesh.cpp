@@ -73,6 +73,6 @@ void BaseMesh::SetMaterial( IMaterial* pMaterial )
 
 BaseMesh::~BaseMesh( )
 {
-	SAFE_ARRAY_DELETE( m_pModelData );
-	SAFE_ARRAY_DELETE( m_pIndexData );
+	delete[] m_pModelData;
+	delete[] m_pIndexData;
 }

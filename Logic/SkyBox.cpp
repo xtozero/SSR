@@ -19,7 +19,7 @@ namespace
 
 void CSkyBox::Think( )
 {
-	CCamera* pCurCamera = CCameraManager::GetInstance( )->GetCurrentCamera( );
+	CCamera* pCurCamera = CCameraManager::GetInstance( ).GetCurrentCamera( );
 
 	if ( pCurCamera )
 	{

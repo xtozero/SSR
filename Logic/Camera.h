@@ -5,6 +5,7 @@
 
 #include "../shared/Math/CXMFloat.h"
 
+class CRenderView;
 class IRenderer;
 class KeyValue;
 
@@ -25,7 +26,7 @@ public:
 	void Move( CXMFLOAT3 delta );
 	void Rotate( const float pitch, const float yaw, const float roll );
  
- 	void UpdateToRenderer( IRenderer& renderer );
+ 	void UpdateToRenderer( CRenderView& view );
 	const CXMFLOAT4X4& GetInvViewMatrix( ) const { return m_invViewMatrix; }
 	void SetEnableRotate( bool isEnable ) { m_enableRotate = isEnable; }
 

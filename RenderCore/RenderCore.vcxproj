@@ -211,14 +211,12 @@ call "$(SolutionDIr)Shader\make_shader.bat"</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Shared\Util.h" />
-    <ClInclude Include="CommonRenderer\ConstantBufferDefine.h" />
     <ClInclude Include="CommonRenderer\IBuffer.h" />
     <ClInclude Include="CommonRenderer\IMaterial.h" />
     <ClInclude Include="CommonRenderer\IRenderer.h" />
     <ClInclude Include="CommonRenderer\IRenderResource.h" />
     <ClInclude Include="CommonRenderer\IRenderResourceManager.h" />
     <ClInclude Include="CommonRenderer\IRenderState.h" />
-    <ClInclude Include="CommonRenderer\IRenderView.h" />
     <ClInclude Include="CommonRenderer\IShader.h" />
     <ClInclude Include="CommonRenderer\Resource.h" />
     <ClInclude Include="Direct3D11\D3D11BlendStateFactory.h" />
@@ -228,7 +226,6 @@ call "$(SolutionDIr)Shader\make_shader.bat"</Command>
     <ClInclude Include="Direct3D11\D3D11PixelShader.h" />
     <ClInclude Include="Direct3D11\D3D11RasterizerStateFactory.h" />
     <ClInclude Include="Direct3D11\D3D11RenderTarget.h" />
-    <ClInclude Include="Direct3D11\D3D11RenderView.h" />
     <ClInclude Include="Direct3D11\D3D11Resource.h" />
     <ClInclude Include="Direct3D11\D3D11ResourceManager.h" />
     <ClInclude Include="Direct3D11\D3D11SamplerStateFactory.h" />
@@ -271,7 +268,6 @@ call "$(SolutionDIr)Shader\make_shader.bat"</Command>
     <ClCompile Include="Direct3D11\D3D11PixelShader.cpp" />
     <ClCompile Include="Direct3D11\D3D11RasterizerStateFactory.cpp" />
     <ClCompile Include="Direct3D11\D3D11RenderTarget.cpp" />
-    <ClCompile Include="Direct3D11\D3D11RenderView.cpp" />
     <ClCompile Include="Direct3D11\D3D11ResourceManager.cpp" />
     <ClCompile Include="Direct3D11\D3D11SamplerStateFactory.cpp" />
     <ClCompile Include="Direct3D11\D3D11ShaderResource.cpp" />
