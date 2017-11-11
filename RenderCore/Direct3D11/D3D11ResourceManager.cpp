@@ -2,6 +2,7 @@
 #include "D3D11ResourceManager.h"
 
 #include "D3D11DepthStencil.h"
+#include "D3D11RandomAccessResource.h"
 #include "D3D11RenderTarget.h"
 #include "D3D11ShaderResource.h"
 #include "D3D11Texture.h"
@@ -215,8 +216,7 @@ ITexture* CD3D11ResourceManager::CreateTexture1D( const TEXTURE_TRAIT& trait, co
 {
 	if ( FindTexture( textureName ) )
 	{
-		DebugWarning( "CD3D11ResourceManager Error - Try Create Exist Texture Name\n" );
-		return nullptr;
+		__debugbreak( );
 	}
 
 	std::unique_ptr<CD3D11Texture1D> newTexture = std::make_unique<CD3D11Texture1D>( );
@@ -234,8 +234,7 @@ ITexture* CD3D11ResourceManager::CreateTexture1D( const String& descName, const 
 {
 	if ( FindTexture( textureName ) )
 	{
-		DebugWarning( "CD3D11ResourceManager Error - Try Create Exist Texture Name\n" );
-		return nullptr;
+		__debugbreak( );
 	}
 
 	auto found = m_textureTraits.find( descName );
@@ -251,8 +250,7 @@ ITexture* CD3D11ResourceManager::CreateTexture2D( const TEXTURE_TRAIT& trait, co
 {
 	if ( FindTexture( textureName ) )
 	{
-		DebugWarning( "CD3D11ResourceManager Error - Try Create Exist Texture Name\n" );
-		return nullptr;
+		__debugbreak( );
 	}
 
 	std::unique_ptr<CD3D11Texture2D> newTexture = std::make_unique<CD3D11Texture2D>( );
@@ -270,8 +268,7 @@ ITexture* CD3D11ResourceManager::CreateTexture2D( const String& descName, const 
 {
 	if ( FindTexture( textureName ) )
 	{
-		DebugWarning( "CD3D11ResourceManager Error - Try Create Exist Texture Name\n" );
-		return nullptr;
+		__debugbreak( );
 	}
 
 	auto found = m_textureTraits.find( descName );
@@ -287,8 +284,7 @@ ITexture* CD3D11ResourceManager::RegisterTexture2D( const String& textureName, v
 {
 	if ( FindTexture( textureName ) )
 	{
-		DebugWarning( "CTextureManager Error - Try Regist Exist Texture Name\n" );
-		return nullptr;
+		__debugbreak( );
 	}
 
 	Microsoft::WRL::ComPtr<ID3D11Resource> texture = static_cast<ID3D11Resource*>( pTexture );
@@ -317,8 +313,9 @@ void CD3D11ResourceManager::SetFrameBufferSize( UINT nWndWidth, UINT nWndHeight 
 	m_frameBufferSize.second = nWndHeight;
 }
 
-CD3D11ResourceManager::CD3D11ResourceManager( ID3D11Device& device ) :
+CD3D11ResourceManager::CD3D11ResourceManager( ID3D11Device& device, ID3D11DeviceContext& deviceContext ) :
 	m_device( device ),
+	m_deviceContext( deviceContext ),
 	m_frameBufferSize( 0, 0 )
 {
 }
@@ -419,18 +416,53 @@ IRenderResource* CD3D11ResourceManager::FindShaderResource( const String& fileNa
 	{
 		return found->second.get( );
 	}
-	else
+	
+	return nullptr;
+}
+
+IRenderResource* CD3D11ResourceManager::CreateShaderResource( const ITexture& texture, const String& resourceName, const TEXTURE_TRAIT* trait )
+{
+	if ( IRenderResource* found = FindShaderResource( resourceName ) )
 	{
-		return nullptr;
+		return found;
 	}
+
+	std::unique_ptr<CD3D11ShaderResource> newResource = std::make_unique<CD3D11ShaderResource>( );
+
+	if ( newResource->CreateShaderResource( m_device, texture, trait ) )
+	{
+		CD3D11ShaderResource* ret = newResource.get( );
+		m_shaderResources.emplace( resourceName, std::move( newResource ) );
+		return ret;
+	}
+
+	return nullptr;
+}
+
+IRenderResource * CD3D11ResourceManager::CreateShaderResource( const IBuffer& buffer, const String& resourceName, const BUFFER_TRAIT* trait )
+{
+	if ( IRenderResource* found = FindShaderResource( resourceName ) )
+	{
+		return found;
+	}
+
+	std::unique_ptr<CD3D11ShaderResource> newResource = std::make_unique<CD3D11ShaderResource>( );
+
+	if ( newResource->CreateShaderResource( m_device, buffer, trait ) )
+	{
+		CD3D11ShaderResource* ret = newResource.get( );
+		m_shaderResources.emplace( resourceName, std::move( newResource ) );
+		return ret;
+	}
+
+	return nullptr;
 }
 
 void CD3D11ResourceManager::RegisterShaderResource( const String& resourceName, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& srView )
 {
 	if ( FindShaderResource( resourceName ) )
 	{
-		DebugWarning( "CD3D11ResourceManager Error - Try Regist Exist ShaderResource Name\n" );
-		return;
+		__debugbreak( );
 	}
 
 	std::unique_ptr<CD3D11ShaderResource> newShaderResource = std::make_unique<CD3D11ShaderResource>( );
@@ -439,20 +471,50 @@ void CD3D11ResourceManager::RegisterShaderResource( const String& resourceName, 
 	m_shaderResources.emplace( resourceName, std::move( newShaderResource ) );
 }
 
-IRenderResource* CD3D11ResourceManager::CreateShaderResource( const ITexture& texture, const String& resourceName, const TEXTURE_TRAIT* trait )
+IRenderResource* CD3D11ResourceManager::FindRandomAccessResource( const String& resourceName ) const
 {
-	if ( FindShaderResource( resourceName ) )
+	auto found = m_randomAccessResource.find( resourceName );
+
+	if ( found != m_randomAccessResource.end( ) )
 	{
-		DebugWarning( "CD3D11ResourceManager Error - Try Create Exist ShaderResource Name\n" );
-		return nullptr;
+		return found->second.get( );
 	}
 
-	std::unique_ptr<CD3D11ShaderResource> newShaderResource = std::make_unique<CD3D11ShaderResource>( );
+	return nullptr;
+}
 
-	if ( newShaderResource->CreateShaderResource( m_device, texture, trait ) )
+IRenderResource* CD3D11ResourceManager::CreateRandomAccessResource( const ITexture& texture, const String& resourceName, const TEXTURE_TRAIT* trait )
+{
+	if ( IRenderResource* found = FindRandomAccessResource( resourceName ) )
 	{
-		CD3D11ShaderResource* ret = newShaderResource.get( );
-		m_shaderResources.emplace( resourceName, std::move( newShaderResource ) );
+		return found;
+	}
+
+	std::unique_ptr<CD3D11RandomAccessResource> newResource = std::make_unique<CD3D11RandomAccessResource>( );
+
+	if ( newResource->CreateRandomAccessResource( m_device, texture, trait ) )
+	{
+		CD3D11RandomAccessResource* ret = newResource.get( );
+		m_randomAccessResource.emplace( resourceName, std::move( newResource ) );
+		return ret;
+	}
+
+	return nullptr;
+}
+
+IRenderResource * CD3D11ResourceManager::CreateRandomAccessResource( const IBuffer& buffer, const String& resourceName, const BUFFER_TRAIT* trait )
+{
+	if ( IRenderResource* found = FindRandomAccessResource( resourceName ) )
+	{
+		return found;
+	}
+
+	std::unique_ptr<CD3D11RandomAccessResource> newResource = std::make_unique<CD3D11RandomAccessResource>( );
+
+	if ( newResource->CreateRandomAccessResource( m_device, buffer, trait ) )
+	{
+		CD3D11RandomAccessResource* ret = newResource.get( );
+		m_randomAccessResource.emplace( resourceName, std::move( newResource ) );
 		return ret;
 	}
 
@@ -492,7 +554,27 @@ ITexture* CD3D11ResourceManager::CreateCloneTexture( const ITexture& src, const 
 	return nullptr;
 }
 
-void CD3D11ResourceManager::TakeSnapshot( ID3D11DeviceContext& deviceContext, const String& sourceTextureName, const String& destTextureName )
+void CD3D11ResourceManager::CopyResource( IRenderResource& dest, const RESOURCE_REGION* destRegionOrNull, IRenderResource& src, const RESOURCE_REGION* srcRegionOrNull )
+{
+	ID3D11Resource* pDest = static_cast<ID3D11Resource*>( dest.Get( ) );
+	ID3D11Resource* pSrc = static_cast<ID3D11Resource*>( src.Get( ) );
+
+	if ( destRegionOrNull == nullptr || srcRegionOrNull == nullptr )
+	{
+		m_deviceContext.CopyResource( pDest, pSrc );
+	}
+	else
+	{
+		const RESOURCE_REGION& destRegion = *destRegionOrNull;
+		const RESOURCE_REGION& srcRegion = *srcRegionOrNull;
+
+		D3D11_BOX box = { srcRegion.m_left,  srcRegion.m_top,  srcRegion.m_front,  srcRegion.m_right,  srcRegion.m_bottom,  srcRegion.m_back };
+
+		m_deviceContext.CopySubresourceRegion( pDest, destRegion.m_subResource, destRegion.m_left, destRegion.m_top, destRegion.m_front, pSrc, srcRegion.m_subResource, &box );
+	}
+}
+
+void CD3D11ResourceManager::TakeSnapshot( const String& sourceTextureName, const String& destTextureName )
 {
 	ITexture* pSource = FindTexture( sourceTextureName );
 
@@ -512,5 +594,5 @@ void CD3D11ResourceManager::TakeSnapshot( ID3D11DeviceContext& deviceContext, co
 		}
 	}
 
-	deviceContext.CopyResource( reinterpret_cast<ID3D11Resource*>( pDest->Get( ) ), reinterpret_cast<ID3D11Resource*>( pSource->Get( ) ) );
+	m_deviceContext.CopyResource( reinterpret_cast<ID3D11Resource*>( pDest->Get( ) ), reinterpret_cast<ID3D11Resource*>( pSource->Get( ) ) );
 }

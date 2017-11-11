@@ -6,6 +6,7 @@
 #include <memory>
 
 class IBuffer;
+class IComputeShader;
 class IMaterial;
 class IRenderResource;
 class IRenderState;
@@ -39,10 +40,12 @@ public:
 
 	virtual IShader* CreateVertexShader( const TCHAR* pFilePath, const char* pProfile ) = 0;
 	virtual IShader* CreatePixelShader( const TCHAR* pFilePath, const char* pProfile ) = 0;
+	virtual IComputeShader* CreateComputeShader( const TCHAR* pFilePath, const char* pProfile ) = 0;
 
 	virtual IBuffer* CreateBuffer( const BUFFER_TRAIT& trait ) = 0;
 
-	virtual IShader* SearchShaderByName( const TCHAR* name ) = 0;
+	virtual IShader* FindGraphicsShaderByName( const TCHAR* name ) = 0;
+	virtual IComputeShader* FindComputeShaderByName( const TCHAR* pName ) = 0;
 
 	virtual IMaterial* GetMaterialPtr( const TCHAR* pMaterialName ) = 0;
 

@@ -37,6 +37,9 @@
     <Filter Include="Render">
       <UniqueIdentifier>{33551755-7ec3-4d3e-8011-b423276b1f7c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UnitTest">
+      <UniqueIdentifier>{e927c642-6806-4aa2-baf5-12dead1f9054}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -186,6 +189,9 @@
     <ClInclude Include="RenderView.h">
       <Filter>Render</Filter>
     </ClInclude>
+    <ClInclude Include="ComputeShaderUnitTest.h">
+      <Filter>UnitTest</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -292,6 +298,9 @@
     </ClCompile>
     <ClCompile Include="RenderView.cpp">
       <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="ComputeShaderUnitTest.cpp">
+      <Filter>UnitTest</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

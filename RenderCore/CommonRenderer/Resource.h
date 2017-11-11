@@ -176,6 +176,18 @@ namespace RESOURCE_PRIMITIVE
 	};
 }
 
+namespace BUFFER_LOCKFLAG
+{
+	enum
+	{
+		READ = 1,
+		WRITE,
+		READ_WRITE,
+		WRITE_DISCARD,
+		WRITE_NO_OVERWRITE,
+	};
+}
+
 struct BUFFER_TRAIT
 {
 	UINT m_stride;
@@ -217,6 +229,17 @@ struct Viewport
 	float m_height;
 	float m_near;
 	float m_far;
+};
+
+struct RESOURCE_REGION
+{
+	UINT m_subResource;
+	UINT m_left;
+	UINT m_right;
+	UINT m_top;
+	UINT m_bottom;
+	UINT m_front;
+	UINT m_back;
 };
 
 inline void RegisterResourceEnumString( )

@@ -146,6 +146,11 @@ call "$(SolutionDIr)Shader\make_shader.bat"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <FxCompile Include="..\Shader\csExperimental.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="..\Shader\psGaussianBlurX.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -221,9 +226,11 @@ call "$(SolutionDIr)Shader\make_shader.bat"</Command>
     <ClInclude Include="CommonRenderer\Resource.h" />
     <ClInclude Include="Direct3D11\D3D11BlendStateFactory.h" />
     <ClInclude Include="Direct3D11\D3D11Buffer.h" />
+    <ClInclude Include="Direct3D11\D3D11ComputeShader.h" />
     <ClInclude Include="Direct3D11\D3D11DepthStencil.h" />
     <ClInclude Include="Direct3D11\D3D11DepthStencilStateFactory.h" />
     <ClInclude Include="Direct3D11\D3D11PixelShader.h" />
+    <ClInclude Include="Direct3D11\D3D11RandomAccessResource.h" />
     <ClInclude Include="Direct3D11\D3D11RasterizerStateFactory.h" />
     <ClInclude Include="Direct3D11\D3D11RenderTarget.h" />
     <ClInclude Include="Direct3D11\D3D11Resource.h" />
@@ -263,9 +270,11 @@ call "$(SolutionDIr)Shader\make_shader.bat"</Command>
     <ClCompile Include="..\Shared\Util.cpp" />
     <ClCompile Include="Direct3D11\D3D11BlendStateFactory.cpp" />
     <ClCompile Include="Direct3D11\D3D11Buffer.cpp" />
+    <ClCompile Include="Direct3D11\D3D11ComputeShader.cpp" />
     <ClCompile Include="Direct3D11\D3D11DepthStencil.cpp" />
     <ClCompile Include="Direct3D11\D3D11DepthStencilStateFactory.cpp" />
     <ClCompile Include="Direct3D11\D3D11PixelShader.cpp" />
+    <ClCompile Include="Direct3D11\D3D11RandomAccessResource.cpp" />
     <ClCompile Include="Direct3D11\D3D11RasterizerStateFactory.cpp" />
     <ClCompile Include="Direct3D11\D3D11RenderTarget.cpp" />
     <ClCompile Include="Direct3D11\D3D11ResourceManager.cpp" />

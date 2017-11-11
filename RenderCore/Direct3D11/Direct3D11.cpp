@@ -8,6 +8,7 @@
 
 #include "D3D11BlendStateFactory.h"
 #include "D3D11Buffer.h"
+#include "D3D11ComputeShader.h"
 #include "D3D11DepthStencil.h"
 #include "D3D11DepthStencilStateFactory.h"
 #include "D3D11PixelShader.h"
@@ -159,10 +160,12 @@ public:
 
 	virtual IShader* CreateVertexShader( const TCHAR* pFilePath, const char* pProfile ) override;
 	virtual IShader* CreatePixelShader( const TCHAR* pFilePath, const char* pProfile ) override;
+	virtual IComputeShader* CreateComputeShader( const TCHAR* pFilePath, const char* pProfile ) override;
 
 	virtual IBuffer* CreateBuffer( const BUFFER_TRAIT& trait ) override;
 
-	virtual IShader* SearchShaderByName( const TCHAR* pName ) override;
+	virtual IShader* FindGraphicsShaderByName( const TCHAR* pName ) override;
+	virtual IComputeShader* FindComputeShaderByName( const TCHAR* pName ) override;
 
 	virtual IMaterial* GetMaterialPtr( const TCHAR* pMaterialName ) override;
 
@@ -205,25 +208,26 @@ private:
 	bool InitializeShaders( );
 	bool InitializeMaterial( );
 
-	Microsoft::WRL::ComPtr<ID3D11Device>			m_pd3d11Device;
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext>		m_pd3d11DeviceContext;
-	Microsoft::WRL::ComPtr<IDXGISwapChain>			m_pdxgiSwapChain;
+	Microsoft::WRL::ComPtr<ID3D11Device>					m_pd3d11Device;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext>				m_pd3d11DeviceContext;
+	Microsoft::WRL::ComPtr<IDXGISwapChain>					m_pdxgiSwapChain;
 
-	std::map<String, std::unique_ptr<IShader>>		m_shaderList;
-	std::vector<std::unique_ptr<IBuffer>>			m_bufferList;
+	std::map<String, std::unique_ptr<IShader>>				m_graphicsShaderList;
+	std::map<String, std::unique_ptr<IComputeShader>>		m_computeShaderList;
+	std::vector<std::unique_ptr<IBuffer>>					m_bufferList;
 
-	std::unique_ptr<CD3D11ResourceManager>			m_resourceManager;
-	CRenderOutputManager							m_renderOutput;
+	std::unique_ptr<CD3D11ResourceManager>					m_resourceManager;
+	CRenderOutputManager									m_renderOutput;
 
-	CShaderListScriptLoader							m_shaderLoader;
+	CShaderListScriptLoader									m_shaderLoader;
 
-	CD3D11DepthStencilStateFactory					m_DepthStencilFactory;
-	CD3D11RasterizerStateFactory					m_RasterizerFactory;
-	CD3D11SamplerStateFactory						m_SamplerFactory;
-	CD3D11BlendStateFactory							m_BlendFactory;
-	CMaterialLoader									m_MaterialLoader;
+	CD3D11DepthStencilStateFactory							m_DepthStencilFactory;
+	CD3D11RasterizerStateFactory							m_RasterizerFactory;
+	CD3D11SamplerStateFactory								m_SamplerFactory;
+	CD3D11BlendStateFactory									m_BlendFactory;
+	CMaterialLoader											m_MaterialLoader;
 
-	CRenderEffect									m_renderEffect;
+	CRenderEffect											m_renderEffect;
 };
 
 bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeight )
@@ -248,7 +252,7 @@ bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 		return false;
 	}
 	
-	m_resourceManager = std::make_unique<CD3D11ResourceManager>( *m_pd3d11Device.Get( ) );
+	m_resourceManager = std::make_unique<CD3D11ResourceManager>( *m_pd3d11Device.Get( ), *m_pd3d11DeviceContext.Get( ) );
 	m_resourceManager->SetFrameBufferSize( nWndWidth, nWndHeight );
 	if ( !m_resourceManager->Bootup( ) )
 	{
@@ -265,7 +269,7 @@ bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 
 void CDirect3D11::ShutDownRenderer( )
 {
-	m_shaderList.clear( );
+	m_graphicsShaderList.clear( );
 	m_bufferList.clear( );
 
 #ifdef _DEBUG
@@ -302,6 +306,12 @@ void CDirect3D11::SceneEnd( )
 
 IShader* CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pProfile )
 {
+	String fileName = UTIL::GetFileName( pFilePath );
+	if ( IShader* found = FindGraphicsShaderByName( fileName.c_str() ) )
+	{
+		return found;
+	}
+
 	std::unique_ptr<D3D11VertexShader> vs = std::make_unique<D3D11VertexShader>( *m_pd3d11DeviceContext.Get() );
 
 	D3D11_INPUT_ELEMENT_DESC* inputDesc = vs->CreateInputElementDesc( 4 );
@@ -352,7 +362,7 @@ IShader* CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pP
 	if ( result )
 	{
 		D3D11VertexShader* ret = vs.get( );
-		m_shaderList.emplace( UTIL::GetFileName( pFilePath ), std::move( vs ) );
+		m_graphicsShaderList.emplace( fileName, std::move( vs ) );
 		return ret;
 	}
 
@@ -361,6 +371,12 @@ IShader* CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pP
 
 IShader* CDirect3D11::CreatePixelShader( const TCHAR* pFilePath, const char* pProfile )
 {
+	String fileName = UTIL::GetFileName( pFilePath );
+	if ( IShader* found = FindGraphicsShaderByName( fileName.c_str( ) ) )
+	{
+		return found;
+	}
+
 	std::unique_ptr<D3D11PixelShader> ps = std::make_unique<D3D11PixelShader>( *m_pd3d11DeviceContext.Get( ) );
 	bool result = false;
 	CShaderByteCode byteCode = GetCompiledByteCode( pFilePath );
@@ -377,7 +393,38 @@ IShader* CDirect3D11::CreatePixelShader( const TCHAR* pFilePath, const char* pPr
 	if ( result )
 	{
 		D3D11PixelShader* ret = ps.get( );
-		m_shaderList.emplace( UTIL::GetFileName( pFilePath ), std::move( ps ) );
+		m_graphicsShaderList.emplace( fileName, std::move( ps ) );
+		return ret;
+	}
+
+	return nullptr;
+}
+
+IComputeShader* CDirect3D11::CreateComputeShader( const TCHAR* pFilePath, const char* pProfile )
+{
+	String fileName = UTIL::GetFileName( pFilePath );
+	if ( IComputeShader* found = FindComputeShaderByName( fileName.c_str( ) ) )
+	{
+		return found;
+	}
+
+	std::unique_ptr<D3D11ComputeShader> cs = std::make_unique<D3D11ComputeShader>( *m_pd3d11DeviceContext.Get( ) );
+	bool result = false;
+	CShaderByteCode byteCode = GetCompiledByteCode( pFilePath );
+
+	if ( byteCode.GetBufferSize( ) > 0 )
+	{
+		result = cs->CreateShader( *m_pd3d11Device.Get( ), byteCode.GetBufferPointer( ), byteCode.GetBufferSize( ) );
+	}
+	else if ( Microsoft::WRL::ComPtr<ID3DBlob> shaderBlob = GetShaderBlob( pFilePath, pProfile ) )
+	{
+		result = cs->CreateShader( *m_pd3d11Device.Get( ), shaderBlob->GetBufferPointer( ), shaderBlob->GetBufferSize( ) );
+	}
+
+	if ( result )
+	{
+		D3D11ComputeShader* ret = cs.get( );
+		m_computeShaderList.emplace( fileName, std::move( cs ) );
 		return ret;
 	}
 
@@ -398,18 +445,35 @@ IBuffer* CDirect3D11::CreateBuffer( const BUFFER_TRAIT& trait )
 	return nullptr;
 }
 
-IShader* CDirect3D11::SearchShaderByName( const TCHAR* pName )
+IShader* CDirect3D11::FindGraphicsShaderByName( const TCHAR* pName )
 {
 	if ( !pName )
 	{
 		return nullptr;
 	}
 
-	auto found = m_shaderList.find( pName );
+	auto found = m_graphicsShaderList.find( pName );
 
-	if ( found != m_shaderList.end( ) )
+	if ( found != m_graphicsShaderList.end( ) )
 	{
 		return found->second.get();
+	}
+
+	return nullptr;
+}
+
+IComputeShader * CDirect3D11::FindComputeShaderByName( const TCHAR* pName )
+{
+	if ( !pName )
+	{
+		return nullptr;
+	}
+
+	auto found = m_computeShaderList.find( pName );
+
+	if ( found != m_computeShaderList.end( ) )
+	{
+		return found->second.get( );
 	}
 
 	return nullptr;
@@ -477,7 +541,7 @@ IRenderState* CDirect3D11::CreateBlendState( const String& stateName )
 
 void CDirect3D11::TakeSnapshot2D( const String& sourceTextureName, const String& destTextureName )
 {
-	m_resourceManager->TakeSnapshot( *m_pd3d11DeviceContext.Get(), sourceTextureName, destTextureName );
+	m_resourceManager->TakeSnapshot( sourceTextureName, destTextureName );
 }
 
 void CDirect3D11::PSSetShaderResource( UINT startSlot, IRenderResource* shaderResourceOrNull )

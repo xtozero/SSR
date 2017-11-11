@@ -1,8 +1,7 @@
 #include "stdafx.h"
 #include "D3D11ShaderResource.h"
 
-#include "../common.h"
-
+#include "D3D11Buffer.h"
 #include "D3D11Resource.h"
 
 #include <D3DX11.h>
@@ -78,20 +77,37 @@ inline D3D11_SHADER_RESOURCE_VIEW_DESC ConvertTextureTraitToSRV( const TEXTURE_T
 	}
 	else
 	{
-		assert( false );
+		__debugbreak( );
 	}
 
 	return srv;
 }
 
-void* CD3D11ShaderResource::Get( ) const
+inline D3D11_SHADER_RESOURCE_VIEW_DESC ConvertBufferTraitToSRV( const BUFFER_TRAIT& trait )
 {
-	return m_pShaderResourceView.Get( );
-}
+	D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
 
-void CD3D11ShaderResource::SetShaderResourceView( Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& shaderResourceView )
-{
-	m_pShaderResourceView = shaderResourceView;
+	if ( trait.m_miscFlag == RESOURCE_MISC::BUFFER_ALLOW_RAW_VIEWS )
+	{
+		if ( ( ( trait.m_stride * trait.m_count ) % 4 ) != 0 )
+		{
+			__debugbreak( );
+		}
+
+		srv.Format = DXGI_FORMAT_R32_TYPELESS;
+		srv.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
+		srv.BufferEx.NumElements = static_cast<UINT>( ( trait.m_stride * trait.m_count ) / 4 );
+		srv.BufferEx.Flags = D3D11_BUFFEREX_SRV_FLAG_RAW;
+	}
+	else
+	{
+		srv.Format = DXGI_FORMAT_UNKNOWN;
+		srv.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+		srv.Buffer.NumElements = trait.m_count;
+		srv.Buffer.ElementWidth = trait.m_stride;
+	}
+
+	return srv;
 }
 
 bool CD3D11ShaderResource::LoadShaderResourceFromFile( ID3D11Device& device, const String& fileName )
@@ -107,7 +123,7 @@ bool CD3D11ShaderResource::LoadShaderResourceFromFile( ID3D11Device& device, con
 	return false;
 }
 
-bool CD3D11ShaderResource::CreateShaderResource( ID3D11Device& device, const ITexture& pTexture, const TEXTURE_TRAIT* traitOrNull )
+bool CD3D11ShaderResource::CreateShaderResource( ID3D11Device& device, const ITexture& texture, const TEXTURE_TRAIT* traitOrNull )
 {
 	const D3D11_SHADER_RESOURCE_VIEW_DESC* pDesc = nullptr;
 	D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
@@ -118,7 +134,27 @@ bool CD3D11ShaderResource::CreateShaderResource( ID3D11Device& device, const ITe
 		pDesc = &srv;
 	}
 
-	ID3D11Resource* pResource = static_cast<ID3D11Resource*>( pTexture.Get( ) );
+	ID3D11Resource* pResource = static_cast<ID3D11Resource*>( texture.Get( ) );
+
+	if ( SUCCEEDED( device.CreateShaderResourceView( pResource, pDesc, &m_pShaderResourceView ) ) )
+	{
+		return true;
+	}
+	return false;
+}
+
+bool CD3D11ShaderResource::CreateShaderResource( ID3D11Device& device, const IBuffer& buffer, const BUFFER_TRAIT* traitOrNull )
+{
+	const D3D11_SHADER_RESOURCE_VIEW_DESC* pDesc = nullptr;
+	D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
+
+	if ( traitOrNull )
+	{
+		srv = ConvertBufferTraitToSRV( *traitOrNull );
+		pDesc = &srv;
+	}
+
+	ID3D11Resource* pResource = static_cast<ID3D11Resource*>( buffer.Get( ) );
 
 	if ( SUCCEEDED( device.CreateShaderResourceView( pResource, pDesc, &m_pShaderResourceView ) ) )
 	{

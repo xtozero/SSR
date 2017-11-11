@@ -18,14 +18,6 @@ void D3D11PixelShader::SetShaderResource( UINT slot, const IRenderResource* pRes
 	m_deviceContext.PSSetShaderResources( slot, 1, &srv );
 }
 
-void D3D11PixelShader::SetConstantBuffer( UINT slot, const IBuffer* pBuffer )
-{
-	if ( pBuffer )
-	{
-		pBuffer->SetPSBuffer( slot );
-	}
-}
-
 bool D3D11PixelShader::CreateShader( ID3D11Device& device, const void* byteCodePtr, const size_t byteCodeSize )
 {
 	bool result = SUCCEEDED( device.CreatePixelShader(

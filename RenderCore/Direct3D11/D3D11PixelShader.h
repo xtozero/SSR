@@ -13,7 +13,6 @@ class D3D11PixelShader : public IShader
 public:
 	virtual void SetShader( ) override;
 	virtual void SetShaderResource( UINT slot, const IRenderResource* pResource ) override;
-	virtual void SetConstantBuffer( UINT slot, const IBuffer* pBuffer ) override;
 
 	bool CreateShader( ID3D11Device& device, const void* byteCodePtr, const size_t byteCodeSize );
 

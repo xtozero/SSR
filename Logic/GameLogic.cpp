@@ -67,16 +67,14 @@ bool CGameLogic::Initialize( IPlatform& platform )
 
 	ON_FAIL_RETURN( m_ssrManager.Init( *this ) );
 
-	BUFFER_TRAIT trait = {
-		sizeof( SurfaceTrait ),
-		1,
-		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
-		RESOURCE_TYPE::CONSTANT_BUFFER,
-		0,
-		nullptr,
-		0,
-		0,
-	};
+	BUFFER_TRAIT trait = { sizeof( SurfaceTrait ),
+							1,
+							RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
+							RESOURCE_TYPE::CONSTANT_BUFFER,
+							0,
+							nullptr,
+							0,
+							0 };
 
 	using namespace SHARED_CONSTANT_BUFFER;
 

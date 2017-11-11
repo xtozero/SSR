@@ -7,9 +7,9 @@ void SkyBoxMaterial::Init( IRenderer& renderer )
 {
 	Material::Init( renderer );
 
-	m_pShaders[SHADER_TYPE::VS] = renderer.SearchShaderByName( _T( "vsSkybox" ) );
+	m_pShaders[SHADER_TYPE::VS] = renderer.FindGraphicsShaderByName( _T( "vsSkybox" ) );
 
-	m_pShaders[SHADER_TYPE::PS] = renderer.SearchShaderByName( _T( "psSkybox" ) );
+	m_pShaders[SHADER_TYPE::PS] = renderer.FindGraphicsShaderByName( _T( "psSkybox" ) );
 
 	m_pSamplerState[SHADER_TYPE::PS] = renderer.CreateSamplerState( _T( "default" ) );
 

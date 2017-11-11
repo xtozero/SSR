@@ -20,14 +20,6 @@ void D3D11VertexShader::SetShaderResource( UINT slot, const IRenderResource* pRe
 	m_deviceContext.VSSetShaderResources( slot, 1, &srv );
 }
 
-void D3D11VertexShader::SetConstantBuffer( UINT slot, const IBuffer* pBufferOrNull )
-{
-	if ( pBufferOrNull )
-	{
-		pBufferOrNull->SetVSBuffer( slot );
-	}
-}
-
 D3D11_INPUT_ELEMENT_DESC* D3D11VertexShader::CreateInputElementDesc ( const UINT num )
 {
 	m_numInputElement = num;

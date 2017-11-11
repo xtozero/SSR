@@ -61,7 +61,7 @@ bool CScriptedMaterial::SetShader( IRenderer& renderer, const SHADER_TYPE type, 
 		return false;
 	}
 
-	m_pShaders[type] = renderer.SearchShaderByName( shaderName.c_str( ) );
+	m_pShaders[type] = renderer.FindGraphicsShaderByName( shaderName.c_str( ) );
 	return m_pShaders[type] ? true : false;
 }
 

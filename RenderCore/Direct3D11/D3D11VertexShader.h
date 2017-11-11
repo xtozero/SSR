@@ -15,7 +15,6 @@ class D3D11VertexShader : public IShader
 public:
 	virtual void SetShader( ) override;
 	virtual void SetShaderResource( UINT slot, const IRenderResource* pResourceOrNull ) override;
-	virtual void SetConstantBuffer( UINT slot, const IBuffer* pBufferOrNull ) override;
 
 	D3D11_INPUT_ELEMENT_DESC* CreateInputElementDesc ( const UINT num );
 

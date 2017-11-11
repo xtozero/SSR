@@ -87,6 +87,7 @@ void ScreenBlurManager::Process( CGameLogic& gameLogic, IRenderResource& destSRV
 	m_pScreenRect->Draw( gameLogic );
 
 	// Set RenderTarget
+	renderer.PSSetShaderResource( 1, nullptr );
 	renderer.SetRenderTarget( &destRT, nullptr );
 
 	// Set Gaussian_Y Shader State

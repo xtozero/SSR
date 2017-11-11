@@ -168,6 +168,12 @@
     <ClInclude Include="CommonRenderer\IShader.h">
       <Filter>RenderCommon</Filter>
     </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11ComputeShader.h">
+      <Filter>Direct11\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11RandomAccessResource.h">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -260,6 +266,12 @@
     <ClCompile Include="ShaderListScriptLoader.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11ComputeShader.cpp">
+      <Filter>Direct11\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11RandomAccessResource.cpp">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Shader\psTutorial.fx">
@@ -311,6 +323,9 @@
       <Filter>fx</Filter>
     </FxCompile>
     <FxCompile Include="..\Shader\psGaussianBlurX.fx">
+      <Filter>fx</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shader\csExperimental.fx">
       <Filter>fx</Filter>
     </FxCompile>
   </ItemGroup>

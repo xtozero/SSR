@@ -13,7 +13,7 @@ D3D11_BUFFER_DESC InitBufferDesc( const BUFFER_TRAIT& trait )
 	UINT bindFlag = ConvertTypeToBind( trait.m_bufferType );
 	UINT cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );
 	UINT miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
-	UINT structureByteStride = ( trait.m_miscFlag & RESOURCE_MISC::BUFFER_STRUCTURED ) ? trait.m_stride : 0;
+	UINT structureByteStride = trait.m_stride;
 
 	return D3D11_BUFFER_DESC{ byteWidth, usage, bindFlag, cpuAccessFlag, miscFlags, structureByteStride };
 }
@@ -60,10 +60,15 @@ void CD3D11Buffer::SetPSBuffer( const UINT startSlot ) const
 	m_deviceContext.PSSetConstantBuffers( startSlot, 1, m_buffer.GetAddressOf( ) );
 }
 
-void* CD3D11Buffer::LockBuffer( UINT subResource )
+void CD3D11Buffer::SetCSBuffer( const UINT startSlot ) const
+{
+	m_deviceContext.CSSetConstantBuffers( startSlot, 1, m_buffer.GetAddressOf( ) );
+}
+
+void* CD3D11Buffer::LockBuffer( UINT lockFlag, UINT subResource )
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource = {};
-	HRESULT hr = m_deviceContext.Map( m_buffer.Get( ), subResource, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
+	HRESULT hr = m_deviceContext.Map( m_buffer.Get( ), subResource, ConvertLockFlagToD3D11Map( lockFlag ), 0, &mappedResource );
 	
 	if ( SUCCEEDED( hr ) )
 	{

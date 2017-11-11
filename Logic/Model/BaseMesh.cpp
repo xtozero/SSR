@@ -33,8 +33,8 @@ bool BaseMesh::Load( IRenderer& renderer, UINT primitive )
 
 	m_stride = VERTEX_STRIDE;
 
-	BUFFER_TRAIT trait = { m_stride,
-							m_nVertices,
+	BUFFER_TRAIT trait = { m_stride * m_nVertices,
+							1,
 							RESOURCE_ACCESS_FLAG::GPU_READ,
 							RESOURCE_TYPE::VERTEX_BUFFER,
 							0,

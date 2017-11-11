@@ -47,24 +47,34 @@ public:
 	virtual void LoadShaderResourceFromFile( const String& fileName ) override;
 	virtual IRenderResource* FindShaderResource( const String& fileName ) const override;
 	virtual IRenderResource* CreateShaderResource( const ITexture& texture, const String& resourceName, const TEXTURE_TRAIT* trait = nullptr ) override;
+	virtual IRenderResource* CreateShaderResource( const IBuffer& buffer, const String& resourceName, const BUFFER_TRAIT* trait = nullptr ) override;
 
 	void RegisterShaderResource( const String& resourceName, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& srView );
 
+	// RandomAccessResource
+	virtual IRenderResource* FindRandomAccessResource( const String& resourceName ) const override;
+	virtual IRenderResource* CreateRandomAccessResource( const ITexture& texture, const String& resourceName, const TEXTURE_TRAIT* trait = nullptr ) override;
+	virtual IRenderResource* CreateRandomAccessResource( const IBuffer& buffer, const String& resourceName, const BUFFER_TRAIT* trait = nullptr ) override;
+
 	// UTIL
 	virtual ITexture* CreateCloneTexture( const ITexture& src, const String& textureName ) override;
-	void TakeSnapshot( ID3D11DeviceContext& deviceContext, const String& sourceTextureName, const String& destTextureName );
+	virtual void CopyResource( IRenderResource& dest, const RESOURCE_REGION* destRegionOrNull, IRenderResource& src, const RESOURCE_REGION* srcRegionOrNull ) override;
 
-	CD3D11ResourceManager( ID3D11Device& device );
+	void TakeSnapshot( const String& sourceTextureName, const String& destTextureName );
+
+	CD3D11ResourceManager( ID3D11Device& device, ID3D11DeviceContext& deviceContext );
 
 private:
 	std::map<String, std::unique_ptr<IRenderResource>> m_depthStencils;
 	std::map<String, std::unique_ptr<IRenderResource>> m_renderTargets;
 	std::map<String, std::unique_ptr<IRenderResource>> m_shaderResources;
+	std::map<String, std::unique_ptr<IRenderResource>> m_randomAccessResource;
 	std::map<String, std::unique_ptr<ITexture>> m_pTextures;
 
 	std::map<String, TEXTURE_TRAIT> m_textureTraits;
 
 	ID3D11Device& m_device;
+	ID3D11DeviceContext& m_deviceContext;
 
 	std::pair<int, int>	m_frameBufferSize;
 };

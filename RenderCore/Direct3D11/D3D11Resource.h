@@ -18,6 +18,7 @@ inline D3D11_USAGE ConvertAccessFlagToUsage( UINT accessFlag )
 	case GPU_READ:
 		return D3D11_USAGE_IMMUTABLE;
 	case ( GPU_READ | GPU_WRITE | CPU_READ | CPU_WRITE ):
+	case ( GPU_READ | GPU_WRITE | CPU_READ ):
 		return D3D11_USAGE_STAGING;
 	default:
 		assert( false );
@@ -898,5 +899,25 @@ inline D3D_PRIMITIVE_TOPOLOGY ConvertPrimToD3D11Prim( UINT primitive )
 	default:
 		assert( false );
 		return D3D_PRIMITIVE_TOPOLOGY_UNDEFINED;
+	}
+}
+
+inline D3D11_MAP ConvertLockFlagToD3D11Map( UINT lockFlag )
+{
+	switch ( lockFlag )
+	{
+	case BUFFER_LOCKFLAG::READ:
+		return D3D11_MAP_READ;
+	case BUFFER_LOCKFLAG::READ_WRITE:
+		return D3D11_MAP_READ_WRITE;
+	case BUFFER_LOCKFLAG::WRITE:
+		return D3D11_MAP_WRITE;
+	case BUFFER_LOCKFLAG::WRITE_DISCARD:
+		return D3D11_MAP_WRITE_DISCARD;
+	case BUFFER_LOCKFLAG::WRITE_NO_OVERWRITE:
+		return D3D11_MAP_WRITE_NO_OVERWRITE;
+	default:
+		__debugbreak( );
+		return static_cast<D3D11_MAP>( 0 );
 	}
 }

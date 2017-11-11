@@ -149,6 +149,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="BoundingSphere.h" />
     <ClInclude Include="CameraManager.h" />
     <ClInclude Include="CollisionUtil.h" />
+    <ClInclude Include="ComputeShaderUnitTest.h" />
     <ClInclude Include="ConstantBufferDefine.h" />
     <ClInclude Include="GameObjectFactory.h" />
     <ClInclude Include="GameObjectProperty.h" />
@@ -200,6 +201,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClCompile Include="BoundingSphere.cpp" />
     <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="CollisionUtil.cpp" />
+    <ClCompile Include="ComputeShaderUnitTest.cpp" />
     <ClCompile Include="GameObjectFactory.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="LightManager.cpp" />

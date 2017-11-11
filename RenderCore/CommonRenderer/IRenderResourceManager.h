@@ -2,9 +2,12 @@
 
 #include "../common.h"
 
+struct BUFFER_TRAIT;
 struct RESOURCE_INIT_DATA;
+struct RESOURCE_REGION;
 struct TEXTURE_TRAIT;
 
+class IBuffer;
 class IRenderResource;
 class ITexture;
 
@@ -39,8 +42,15 @@ public:
 	virtual IRenderResource* FindDepthStencil( const String& depthStencilName ) const = 0;
 
 	virtual void LoadShaderResourceFromFile( const String& fileName ) = 0;
-	virtual IRenderResource* FindShaderResource( const String& fileName ) const = 0;
+	virtual IRenderResource* FindShaderResource( const String& resourceName ) const = 0;
 	virtual IRenderResource* CreateShaderResource( const ITexture& texture, const String& resourceName, const TEXTURE_TRAIT* trait = nullptr ) = 0;
+	virtual IRenderResource* CreateShaderResource( const IBuffer& buffer, const String& resourceName, const BUFFER_TRAIT* trait = nullptr ) = 0;
+
+	virtual IRenderResource* FindRandomAccessResource( const String& resourceName ) const = 0;
+	virtual IRenderResource* CreateRandomAccessResource( const ITexture& texture, const String& resourceName, const TEXTURE_TRAIT* trait = nullptr ) = 0;
+	virtual IRenderResource* CreateRandomAccessResource( const IBuffer& buffer, const String& resourceName, const BUFFER_TRAIT* trait = nullptr ) = 0;
 
 	virtual ITexture* CreateCloneTexture( const ITexture& pSourceTexture, const String& textureName ) = 0;
+
+	virtual void CopyResource( IRenderResource& dest, const RESOURCE_REGION* destRegionOrNull, IRenderResource& src, const RESOURCE_REGION* srcRegionOrNull ) = 0;
 };
