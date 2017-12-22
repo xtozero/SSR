@@ -7,7 +7,7 @@
 
 struct D3D11_RASTERIZER_DESC;
 struct ID3D11Device;
-struct ID3D11DeviceContext;
+class CD3D11RenderStateManager;
 class IRenderState;
 class KeyValue;
 
@@ -15,7 +15,7 @@ class CD3D11RasterizerStateFactory
 {
 public:
 	void LoadDesc( );
-	IRenderState* GetRasterizerState( ID3D11Device& device, ID3D11DeviceContext& deviceContext, const String& stateName );
+	IRenderState* GetRasterizerState( ID3D11Device& device, CD3D11RenderStateManager& renderStateManager, const String& stateName );
 	void AddRasterizerDesc( const String& descName, const D3D11_RASTERIZER_DESC& newDesc );
 
 private:

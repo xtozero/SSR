@@ -48,6 +48,9 @@ int APIENTRY _tWinMain ( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE , _In_ LPT
 	}
 
 	engine->Run( );
+	
+	engine->ShutDown( );
+	FreeLibrary( engineDll );
 
 	return 0;
 }

@@ -49,7 +49,7 @@ private:
 	void ProcessLogic ( void );
 	void EndLogic ( void );
 
-	bool LoadScene( void );
+	bool LoadScene( const String& scene );
 
 	void SceneBegin( void );
 	void DrawScene( void );

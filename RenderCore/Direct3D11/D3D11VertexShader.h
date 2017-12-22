@@ -4,9 +4,10 @@
 
 #include <wrl/client.h>
 
+class CD3D11RenderStateManager;
+
 struct D3D11_INPUT_ELEMENT_DESC;
 struct ID3D11Device;
-struct ID3D11DeviceContext;
 struct ID3D11VertexShader;
 struct ID3D11InputLayout;
 
@@ -20,7 +21,7 @@ public:
 
 	bool CreateShader( ID3D11Device& device, const void* byteCodePtr, const size_t byteCodeSize );
 
-	D3D11VertexShader( ID3D11DeviceContext& deviceContext );
+	D3D11VertexShader( CD3D11RenderStateManager& renderStateManager );
 	virtual ~D3D11VertexShader ();
 
 private:
@@ -30,6 +31,6 @@ private:
 	UINT m_numInputElement = 0;
 
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_pInputLayout;
-	ID3D11DeviceContext& m_deviceContext;
+	CD3D11RenderStateManager& m_renderStateManager;
 };
 

@@ -4,6 +4,8 @@
 
 #include <wrl/client.h>
 
+class CD3D11RenderStateManager;
+
 struct ID3D11Device;
 struct ID3D11DeviceContext;
 struct ID3D11PixelShader;
@@ -16,10 +18,10 @@ public:
 
 	bool CreateShader( ID3D11Device& device, const void* byteCodePtr, const size_t byteCodeSize );
 
-	D3D11PixelShader( ID3D11DeviceContext& deviceContext );
+	D3D11PixelShader( CD3D11RenderStateManager& renderStateManager );
 
 private:
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> m_pPixelShader;
-	ID3D11DeviceContext& m_deviceContext;
+	CD3D11RenderStateManager& m_renderStateManager;
 };
 

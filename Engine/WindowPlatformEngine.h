@@ -21,6 +21,7 @@ protected:
 
 private:
 	WindowPlatformInputConvertor m_inputConvertor;
+	HMODULE m_logicDll = nullptr;
 	std::unique_ptr<ILogic> m_logic = nullptr;
 
 	bool m_isAvailable = false;

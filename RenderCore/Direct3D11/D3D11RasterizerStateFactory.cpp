@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "D3D11RasterizerStateFactory.h"
 
+#include "D3D11RenderStateManager.h"
+
 #include "../CommonRenderer/IRenderState.h"
 
 #include "../../Engine/EnumStringMap.h"
@@ -25,17 +27,17 @@ public:
 
 	bool Create( ID3D11Device& device, const D3D11_RASTERIZER_DESC& rsDesc );
 
-	CRasterizerState( ID3D11DeviceContext& deviceContext ) : m_deviceContext( deviceContext ) { }
+	CRasterizerState( CD3D11RenderStateManager& renderStateManager ) : m_renderStateManager( renderStateManager ) { }
 private:
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_pRasterizerState;
-	ID3D11DeviceContext& m_deviceContext;
+	CD3D11RenderStateManager& m_renderStateManager;
 };
 
 void CRasterizerState::Set( const SHADER_TYPE type )
 {
 	assert( type == SHADER_TYPE::NONE );
 
-	m_deviceContext.RSSetState( m_pRasterizerState.Get() );
+	m_renderStateManager.SetRasterizerState( m_pRasterizerState.Get() );
 }
 
 bool CRasterizerState::Create( ID3D11Device& device, const D3D11_RASTERIZER_DESC& rsDesc )
@@ -48,15 +50,15 @@ class CNullRasterizerState : public IRenderState
 public:
 	virtual void Set( const SHADER_TYPE type = SHADER_TYPE::NONE ) override;
 
-	CNullRasterizerState( ID3D11DeviceContext& deviceContext ) : m_deviceContext( deviceContext ) { }
+	CNullRasterizerState( CD3D11RenderStateManager& renderStateManager ) : m_renderStateManager( renderStateManager ) { }
 private:
-	ID3D11DeviceContext& m_deviceContext;
+	CD3D11RenderStateManager& m_renderStateManager;
 };
 
 void CNullRasterizerState::Set( const SHADER_TYPE type )
 {
 	assert( type == SHADER_TYPE::NONE );
-	m_deviceContext.RSSetState( nullptr );
+	m_renderStateManager.SetRasterizerState( nullptr );
 }
 
 void CD3D11RasterizerStateFactory::LoadDesc( )
@@ -71,7 +73,7 @@ void CD3D11RasterizerStateFactory::LoadDesc( )
 	}
 }
 
-IRenderState* CD3D11RasterizerStateFactory::GetRasterizerState( ID3D11Device& device, ID3D11DeviceContext& deviceContext, const String& stateName )
+IRenderState* CD3D11RasterizerStateFactory::GetRasterizerState( ID3D11Device& device, CD3D11RenderStateManager& renderStateManager, const String& stateName )
 {
 	auto foundState = m_rasterizerState.find( stateName );
 
@@ -84,7 +86,7 @@ IRenderState* CD3D11RasterizerStateFactory::GetRasterizerState( ID3D11Device& de
 
 	if ( foundDesc != m_rasterizerStateDesc.end( ) )
 	{
-		std::unique_ptr<CRasterizerState> newState = std::make_unique<CRasterizerState>( deviceContext );
+		std::unique_ptr<CRasterizerState> newState = std::make_unique<CRasterizerState>( renderStateManager );
 
 		if ( newState->Create( device, foundDesc->second ) )
 		{
@@ -94,7 +96,7 @@ IRenderState* CD3D11RasterizerStateFactory::GetRasterizerState( ID3D11Device& de
 		}
 	}
 
-	std::unique_ptr<CNullRasterizerState> nullState = std::make_unique<CNullRasterizerState>( deviceContext );
+	std::unique_ptr<CNullRasterizerState> nullState = std::make_unique<CNullRasterizerState>( renderStateManager );
 	CNullRasterizerState* ret = nullState.get( );
 	m_rasterizerState.emplace( _T( "NULL" ), std::move( nullState ) );
 	return ret;

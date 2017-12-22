@@ -4,9 +4,10 @@
 
 #include <wrl/client.h>
 
+class CD3D11RenderStateManager;
+
 struct ID3D11Buffer;
 struct ID3D11Device;
-struct ID3D11DeviceContext;
 
 class CD3D11Buffer : public IBuffer
 {
@@ -24,10 +25,10 @@ public:
 	virtual void* LockBuffer( UINT lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, UINT subResource = 0 ) override;
 	virtual void UnLockBuffer( UINT subResource = 0 ) override;
 
-	explicit CD3D11Buffer( ID3D11DeviceContext& deviceContext );
+	explicit CD3D11Buffer( CD3D11RenderStateManager& renderStateManager );
 
 private:
-	ID3D11DeviceContext& m_deviceContext;
+	CD3D11RenderStateManager& m_renderStateManager;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_buffer;
 };

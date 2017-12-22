@@ -232,6 +232,7 @@ call "$(SolutionDIr)Shader\make_shader.bat"</Command>
     <ClInclude Include="Direct3D11\D3D11PixelShader.h" />
     <ClInclude Include="Direct3D11\D3D11RandomAccessResource.h" />
     <ClInclude Include="Direct3D11\D3D11RasterizerStateFactory.h" />
+    <ClInclude Include="Direct3D11\D3D11RenderStateManager.h" />
     <ClInclude Include="Direct3D11\D3D11RenderTarget.h" />
     <ClInclude Include="Direct3D11\D3D11Resource.h" />
     <ClInclude Include="Direct3D11\D3D11ResourceManager.h" />
@@ -276,6 +277,7 @@ call "$(SolutionDIr)Shader\make_shader.bat"</Command>
     <ClCompile Include="Direct3D11\D3D11PixelShader.cpp" />
     <ClCompile Include="Direct3D11\D3D11RandomAccessResource.cpp" />
     <ClCompile Include="Direct3D11\D3D11RasterizerStateFactory.cpp" />
+    <ClCompile Include="Direct3D11\D3D11RenderStateManager.cpp" />
     <ClCompile Include="Direct3D11\D3D11RenderTarget.cpp" />
     <ClCompile Include="Direct3D11\D3D11ResourceManager.cpp" />
     <ClCompile Include="Direct3D11\D3D11SamplerStateFactory.cpp" />

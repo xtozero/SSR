@@ -61,7 +61,7 @@ bool CGameLogic::Initialize( IPlatform& platform )
 
 	CCameraManager::GetInstance( ).SetCurrentCamera( &m_mainCamera );
 
-	ON_FAIL_RETURN( LoadScene( ) );
+	ON_FAIL_RETURN( LoadScene( _T( "../Script/defaultScene.txt" ) ) );
 	ON_FAIL_RETURN( m_lightManager.Initialize( *m_pRenderer, m_gameObjects ) );
 	m_shadowManager.Init( *this );
 
@@ -154,12 +154,12 @@ void CGameLogic::EndLogic ( void )
 	SceneEnd( );
 }
 
-bool CGameLogic::LoadScene( void )
+bool CGameLogic::LoadScene( const String& scene )
 {
 	m_gameObjects.clear( );
 
 	CSceneLoader sceneLoader;
-	std::unique_ptr<KeyValue> keyValue = sceneLoader.LoadSceneFromFile( *this, m_gameObjects, _T( "../Script/TestScene.txt" ) );
+	std::unique_ptr<KeyValue> keyValue = sceneLoader.LoadSceneFromFile( *this, m_gameObjects, scene.c_str() );
 
 	if ( !keyValue )
 	{

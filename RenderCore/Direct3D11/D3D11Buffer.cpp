@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "D3D11Buffer.h"
 
-#include "../Direct3D11/D3D11Resource.h"
+#include "D3D11RenderStateManager.h"
+#include "D3D11Resource.h"
 
 #include <cassert>
 #include <D3D11.h>
@@ -42,33 +43,33 @@ bool CD3D11Buffer::Create( ID3D11Device& device, const BUFFER_TRAIT& trait )
 
 void CD3D11Buffer::SetVertexBuffer( const UINT* pStride, const UINT* pOffset ) const
 {
-	m_deviceContext.IASetVertexBuffers( 0, 1, m_buffer.GetAddressOf( ), pStride, pOffset );
+	m_renderStateManager.SetVertexBuffer( 0, 1, m_buffer.GetAddressOf( ), pStride, pOffset );
 }
 
 void CD3D11Buffer::SetIndexBuffer( UINT stride, UINT offset ) const
 {
-	m_deviceContext.IASetIndexBuffer( m_buffer.Get( ), sizeof( WORD ) == stride ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, offset );
+	m_renderStateManager.SetIndexBuffer( m_buffer.Get( ), sizeof( WORD ) == stride ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, offset );
 }
 
 void CD3D11Buffer::SetVSBuffer( const UINT startSlot ) const
 {
-	m_deviceContext.VSSetConstantBuffers( startSlot, 1, m_buffer.GetAddressOf( ) );
+	m_renderStateManager.SetVsConstantBuffers( startSlot, 1, m_buffer.GetAddressOf( ) );
 }
 
 void CD3D11Buffer::SetPSBuffer( const UINT startSlot ) const
 {
-	m_deviceContext.PSSetConstantBuffers( startSlot, 1, m_buffer.GetAddressOf( ) );
+	m_renderStateManager.SetPsConstantBuffers( startSlot, 1, m_buffer.GetAddressOf( ) );
 }
 
 void CD3D11Buffer::SetCSBuffer( const UINT startSlot ) const
 {
-	m_deviceContext.CSSetConstantBuffers( startSlot, 1, m_buffer.GetAddressOf( ) );
+	m_renderStateManager.SetCsConstantBuffers( startSlot, 1, m_buffer.GetAddressOf( ) );
 }
 
 void* CD3D11Buffer::LockBuffer( UINT lockFlag, UINT subResource )
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource = {};
-	HRESULT hr = m_deviceContext.Map( m_buffer.Get( ), subResource, ConvertLockFlagToD3D11Map( lockFlag ), 0, &mappedResource );
+	HRESULT hr = m_renderStateManager.Map( m_buffer.Get( ), subResource, ConvertLockFlagToD3D11Map( lockFlag ), 0, &mappedResource );
 	
 	if ( SUCCEEDED( hr ) )
 	{
@@ -80,7 +81,7 @@ void* CD3D11Buffer::LockBuffer( UINT lockFlag, UINT subResource )
 
 void CD3D11Buffer::UnLockBuffer( UINT subResource )
 {
-	m_deviceContext.Unmap( m_buffer.Get( ), subResource );
+	m_renderStateManager.Unmap( m_buffer.Get( ), subResource );
 }
 
-CD3D11Buffer::CD3D11Buffer( ID3D11DeviceContext& deviceContext ) : m_deviceContext( deviceContext ) {}
+CD3D11Buffer::CD3D11Buffer( CD3D11RenderStateManager& renderStateManager ) : m_renderStateManager( renderStateManager ) {}

@@ -13,6 +13,7 @@
 #include "D3D11DepthStencilStateFactory.h"
 #include "D3D11PixelShader.h"
 #include "D3D11RasterizerStateFactory.h"
+#include "D3D11RenderStateManager.h"
 #include "D3D11RenderTarget.h"
 #include "D3D11Resource.h"
 #include "D3D11ResourceManager.h"
@@ -221,6 +222,7 @@ private:
 
 	CShaderListScriptLoader									m_shaderLoader;
 
+	std::unique_ptr<CD3D11RenderStateManager>				m_pRenderStateManager;
 	CD3D11DepthStencilStateFactory							m_DepthStencilFactory;
 	CD3D11RasterizerStateFactory							m_RasterizerFactory;
 	CD3D11SamplerStateFactory								m_SamplerFactory;
@@ -312,7 +314,7 @@ IShader* CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pP
 		return found;
 	}
 
-	std::unique_ptr<D3D11VertexShader> vs = std::make_unique<D3D11VertexShader>( *m_pd3d11DeviceContext.Get() );
+	std::unique_ptr<D3D11VertexShader> vs = std::make_unique<D3D11VertexShader>( *m_pRenderStateManager );
 
 	D3D11_INPUT_ELEMENT_DESC* inputDesc = vs->CreateInputElementDesc( 4 );
 
@@ -377,7 +379,7 @@ IShader* CDirect3D11::CreatePixelShader( const TCHAR* pFilePath, const char* pPr
 		return found;
 	}
 
-	std::unique_ptr<D3D11PixelShader> ps = std::make_unique<D3D11PixelShader>( *m_pd3d11DeviceContext.Get( ) );
+	std::unique_ptr<D3D11PixelShader> ps = std::make_unique<D3D11PixelShader>( *m_pRenderStateManager );
 	bool result = false;
 	CShaderByteCode byteCode = GetCompiledByteCode( pFilePath );
 	
@@ -408,7 +410,7 @@ IComputeShader* CDirect3D11::CreateComputeShader( const TCHAR* pFilePath, const 
 		return found;
 	}
 
-	std::unique_ptr<D3D11ComputeShader> cs = std::make_unique<D3D11ComputeShader>( *m_pd3d11DeviceContext.Get( ) );
+	std::unique_ptr<D3D11ComputeShader> cs = std::make_unique<D3D11ComputeShader>( *m_pRenderStateManager );
 	bool result = false;
 	CShaderByteCode byteCode = GetCompiledByteCode( pFilePath );
 
@@ -433,7 +435,7 @@ IComputeShader* CDirect3D11::CreateComputeShader( const TCHAR* pFilePath, const 
 
 IBuffer* CDirect3D11::CreateBuffer( const BUFFER_TRAIT& trait )
 {
-	std::unique_ptr<CD3D11Buffer> buffer = std::make_unique<CD3D11Buffer>( *m_pd3d11DeviceContext.Get() );
+	std::unique_ptr<CD3D11Buffer> buffer = std::make_unique<CD3D11Buffer>( *m_pRenderStateManager );
 	
 	if ( buffer->Create( *m_pd3d11Device.Get( ), trait ) )
 	{
@@ -515,7 +517,7 @@ void CDirect3D11::SetScissorRects( std::vector<RECT>& rects )
 
 IRenderState* CDirect3D11::CreateRenderState( const String& stateName )
 {
-	return m_RasterizerFactory.GetRasterizerState( *m_pd3d11Device.Get( ), *m_pd3d11DeviceContext.Get( ), stateName );
+	return m_RasterizerFactory.GetRasterizerState( *m_pd3d11Device.Get( ), *m_pRenderStateManager, stateName );
 }
 
 IRenderResource* CDirect3D11::GetShaderResourceFromFile( const String& fileName )
@@ -526,17 +528,17 @@ IRenderResource* CDirect3D11::GetShaderResourceFromFile( const String& fileName 
 
 IRenderState* CDirect3D11::CreateSamplerState( const String& stateName )
 {
-	return m_SamplerFactory.GetSamplerState( *m_pd3d11Device.Get( ), *m_pd3d11DeviceContext.Get( ), stateName );
+	return m_SamplerFactory.GetSamplerState( *m_pd3d11Device.Get( ), *m_pRenderStateManager, stateName );
 }
 
 IRenderState* CDirect3D11::CreateDepthStencilState( const String& stateName )
 {
-	return m_DepthStencilFactory.GetDepthStencilState( *m_pd3d11Device.Get( ), *m_pd3d11DeviceContext.Get(), stateName );
+	return m_DepthStencilFactory.GetDepthStencilState( *m_pd3d11Device.Get( ), *m_pRenderStateManager, stateName );
 }
 
 IRenderState* CDirect3D11::CreateBlendState( const String& stateName )
 {
-	return m_BlendFactory.GetBlendState( *m_pd3d11Device.Get( ), *m_pd3d11DeviceContext.Get( ), stateName );
+	return m_BlendFactory.GetBlendState( *m_pd3d11Device.Get( ), *m_pRenderStateManager, stateName );
 }
 
 void CDirect3D11::TakeSnapshot2D( const String& sourceTextureName, const String& destTextureName )
@@ -547,7 +549,7 @@ void CDirect3D11::TakeSnapshot2D( const String& sourceTextureName, const String&
 void CDirect3D11::PSSetShaderResource( UINT startSlot, IRenderResource* shaderResourceOrNull )
 {
 	ID3D11ShaderResourceView* srv = static_cast<ID3D11ShaderResourceView*>( shaderResourceOrNull ? shaderResourceOrNull->Get( ) : nullptr );
-	m_pd3d11DeviceContext->PSSetShaderResources( startSlot, 1, &srv );
+	m_pRenderStateManager->SetPsShaderResource( startSlot, 1, &srv );
 }
 
 void CDirect3D11::ClearRendertarget( IRenderResource& renderTarget, const float (&clearColor)[4] )
@@ -578,28 +580,28 @@ void CDirect3D11::SetRenderTarget( RenderTargetBinder& binder, IRenderResource* 
 void CDirect3D11::Draw( UINT primitive, UINT vertexCount, UINT vertexOffset )
 {
 	D3D_PRIMITIVE_TOPOLOGY d3d11Primitive = ConvertPrimToD3D11Prim( primitive );
-	m_pd3d11DeviceContext->IASetPrimitiveTopology( d3d11Primitive );
+	m_pRenderStateManager->SetPrimitiveTopology( d3d11Primitive );
 	m_pd3d11DeviceContext->Draw( vertexCount, vertexOffset );
 }
 
 void CDirect3D11::DrawIndexed( UINT primitive, UINT indexCount, UINT indexOffset, UINT vertexOffset )
 {
 	D3D_PRIMITIVE_TOPOLOGY d3d11Primitive = ConvertPrimToD3D11Prim( primitive );
-	m_pd3d11DeviceContext->IASetPrimitiveTopology( d3d11Primitive );
+	m_pRenderStateManager->SetPrimitiveTopology( d3d11Primitive );
 	m_pd3d11DeviceContext->DrawIndexed( indexCount, indexOffset, vertexOffset );
 }
 
 void CDirect3D11::DrawInstanced( UINT primitive, UINT vertexCount, UINT instanceCount, UINT vertexOffset, UINT instanceOffset )
 {
 	D3D_PRIMITIVE_TOPOLOGY d3d11Primitive = ConvertPrimToD3D11Prim( primitive );
-	m_pd3d11DeviceContext->IASetPrimitiveTopology( d3d11Primitive );
+	m_pRenderStateManager->SetPrimitiveTopology( d3d11Primitive );
 	m_pd3d11DeviceContext->DrawInstanced( vertexCount, instanceCount, vertexOffset, instanceOffset );
 }
 
 void CDirect3D11::DrawInstancedInstanced( UINT primitive, UINT indexCount, UINT instanceCount, UINT indexOffset, UINT vertexOffset, UINT instanceOffset )
 {
 	D3D_PRIMITIVE_TOPOLOGY d3d11Primitive = ConvertPrimToD3D11Prim( primitive );
-	m_pd3d11DeviceContext->IASetPrimitiveTopology( d3d11Primitive );
+	m_pRenderStateManager->SetPrimitiveTopology( d3d11Primitive );
 	m_pd3d11DeviceContext->DrawIndexedInstanced( indexCount, instanceCount, indexOffset, vertexOffset, instanceOffset );
 }
 
@@ -676,6 +678,7 @@ bool CDirect3D11::CreateD3D11Device( HWND hWind, UINT nWndWidth, UINT nWndHeight
 #ifdef _DEBUG
 			SetDebugName( m_pd3d11DeviceContext.Get( ), "Device Context" );
 #endif
+			m_pRenderStateManager = std::make_unique<CD3D11RenderStateManager>( *m_pd3d11DeviceContext.Get( ) );
 
 			return true;
 		}

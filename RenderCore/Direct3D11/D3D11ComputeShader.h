@@ -4,9 +4,10 @@
 
 #include <wrl/client.h>
 
+class CD3D11RenderStateManager;
+
 struct ID3D11ComputeShader;
 struct ID3D11Device;
-struct ID3D11DeviceContext;
 struct ID3D11UnorderedAccessView;
 
 class D3D11ComputeShader : public IComputeShader
@@ -19,10 +20,10 @@ public:
 
 	bool CreateShader( ID3D11Device& device, const void* byteCodePtr, const size_t byteCodeSize );
 
-	D3D11ComputeShader( ID3D11DeviceContext& deviceContext ) : m_deviceContext( deviceContext ) {}
+	D3D11ComputeShader( CD3D11RenderStateManager& renderStateManager ) : m_renderStateManager( renderStateManager ) {}
 
 private:
 	Microsoft::WRL::ComPtr<ID3D11ComputeShader> m_pComputeShader;
-	ID3D11DeviceContext& m_deviceContext;
+	CD3D11RenderStateManager& m_renderStateManager;
 };
 

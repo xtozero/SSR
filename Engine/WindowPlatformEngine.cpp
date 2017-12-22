@@ -14,15 +14,15 @@ bool WindowPlatformEngine::BootUp( IPlatform& platform )
 		return false;
 	}
 
-	HMODULE logicDll = LoadLibrary( _T( "../bin/Logic.dll" ) );
+	m_logicDll = LoadLibrary( _T( "../bin/Logic.dll" ) );
 
-	if ( logicDll == nullptr )
+	if ( m_logicDll == nullptr )
 	{
 		return false;
 	}
 
 	using CreateGameLogicFunc = Owner<ILogic*> (*)( );
-	CreateGameLogicFunc CreateGameLogic = reinterpret_cast<CreateGameLogicFunc>( GetProcAddress( logicDll, "CreateGameLogic" ) );
+	CreateGameLogicFunc CreateGameLogic = reinterpret_cast<CreateGameLogicFunc>( GetProcAddress( m_logicDll, "CreateGameLogic" ) );
 
 	if ( CreateGameLogic == nullptr )
 	{
@@ -43,6 +43,7 @@ void WindowPlatformEngine::ShutDown( )
 {
 	m_logic = nullptr;
 	m_isAvailable = false;
+	FreeLibrary( m_logicDll );
 }
 
 void WindowPlatformEngine::Run( )

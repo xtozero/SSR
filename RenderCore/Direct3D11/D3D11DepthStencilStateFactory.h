@@ -7,7 +7,7 @@
 
 struct D3D11_DEPTH_STENCIL_DESC;
 struct ID3D11Device;
-struct ID3D11DeviceContext;
+class CD3D11RenderStateManager;
 class IRenderState;
 class KeyValue;
 
@@ -15,7 +15,7 @@ class CD3D11DepthStencilStateFactory
 {
 public:
 	void LoadDesc( );
-	IRenderState* GetDepthStencilState( ID3D11Device& device, ID3D11DeviceContext& deviceContext, const String& stateName );
+	IRenderState* GetDepthStencilState( ID3D11Device& device, CD3D11RenderStateManager& renderStateManager, const String& stateName );
 	void AddDepthStencilDesc( const String & descName, const D3D11_DEPTH_STENCIL_DESC & newDesc );
 
 private:

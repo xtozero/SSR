@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "D3D11BlendStateFactory.h"
 
+#include "D3D11RenderStateManager.h"
+
 #include "../CommonRenderer/IRenderState.h"
 
 #include "../../Engine/EnumStringMap.h"
@@ -26,10 +28,10 @@ public:
 	void SetBlendFactor( const std::array<float, 4>& blendFactor ) noexcept;
 	void SetSampleMask( unsigned int sampleMask ) noexcept { m_sampleMask = sampleMask; }
 
-	CBlendState( ID3D11DeviceContext& deviceContext ) : m_deviceContext( deviceContext ) {}
+	CBlendState( CD3D11RenderStateManager& renderStateManager ) : m_renderStateManager( renderStateManager ) {}
 private:
 	Microsoft::WRL::ComPtr<ID3D11BlendState> m_pBlendState;
-	ID3D11DeviceContext& m_deviceContext;
+	CD3D11RenderStateManager& m_renderStateManager;
 	std::array<float, 4> m_blendFactor = { 0, };
 	unsigned int m_sampleMask = D3D11_DEFAULT_SAMPLE_MASK;
 };
@@ -37,7 +39,7 @@ private:
 void CBlendState::Set( const SHADER_TYPE type )
 {
 	assert( type == SHADER_TYPE::NONE );
-	m_deviceContext.OMSetBlendState( m_pBlendState.Get( ), m_blendFactor.data(), m_sampleMask );
+	m_renderStateManager.SetBlendState( m_pBlendState.Get( ), m_blendFactor.data(), m_sampleMask );
 }
 
 bool CBlendState::Create( ID3D11Device& device, const CD3D_BLEND_DESC& blendDesc )
@@ -55,15 +57,15 @@ class CNullBlendState : public IRenderState
 public:
 	virtual void Set( const SHADER_TYPE type = SHADER_TYPE::NONE ) override;
 
-	CNullBlendState( ID3D11DeviceContext& deviceContext ) : m_deviceContext( deviceContext ) { }
+	CNullBlendState( CD3D11RenderStateManager& renderStateManager ) : m_renderStateManager( renderStateManager ) { }
 private:
-	ID3D11DeviceContext& m_deviceContext;
+	CD3D11RenderStateManager& m_renderStateManager;
 };
 
 void CNullBlendState::Set( const SHADER_TYPE type )
 {
 	assert( type == SHADER_TYPE::NONE );
-	m_deviceContext.OMSetBlendState( nullptr, nullptr, D3D11_DEFAULT_SAMPLE_MASK );
+	m_renderStateManager.SetBlendState( nullptr, nullptr, D3D11_DEFAULT_SAMPLE_MASK );
 }
 
 void CD3D11BlendStateFactory::LoadDesc( )
@@ -78,7 +80,7 @@ void CD3D11BlendStateFactory::LoadDesc( )
 	}
 }
 
-IRenderState* CD3D11BlendStateFactory::GetBlendState( ID3D11Device& device, ID3D11DeviceContext& deviceContext, const String& stateName )
+IRenderState* CD3D11BlendStateFactory::GetBlendState( ID3D11Device& device, CD3D11RenderStateManager& deviceContext, const String& stateName )
 {
 	auto foundState = m_blendState.find( stateName );
 
