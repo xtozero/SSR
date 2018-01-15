@@ -153,7 +153,8 @@ namespace
 class CDirect3D11 : public IRenderer
 {
 public:
-	virtual bool InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeight ) override;
+	virtual bool BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight ) override;
+	virtual void AppSizeChanged( UINT nWndWidth, UINT nWndHeight ) override;
 	virtual void ShutDownRenderer( ) override;
 	virtual void SceneBegin( ) override;
 	virtual void ForwardRenderEnd( ) override;
@@ -198,19 +199,20 @@ public:
 	virtual void DrawInstancedInstanced( UINT primitive, UINT indexCount, UINT instanceCount, UINT indexOffset = 0, UINT vertexOffset = 0, UINT instanceOffset = 0 ) override;
 	virtual void DrawAuto( UINT primitive ) override;
 
-	virtual IDXGISwapChain* GetSwapChain( ) const override { return m_pdxgiSwapChain.Get( ); }
 	virtual IResourceManager& GetResourceManager( ) override { return *m_resourceManager.get( ); }
 
 	CDirect3D11( );
 	virtual ~CDirect3D11( );
 private:
-	bool CreateD3D11Device( HWND hWind, UINT nWndWidth, UINT nWndHeight );
+	bool CreateDeviceDependentResource( HWND hWnd, UINT nWndWidth, UINT nWndHeight );
+	bool CreateDeviceIndependentResource( );
 	void ReportLiveDevice( );
 	bool InitializeShaders( );
 	bool InitializeMaterial( );
 
 	Microsoft::WRL::ComPtr<ID3D11Device>					m_pd3d11Device;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext>				m_pd3d11DeviceContext;
+	Microsoft::WRL::ComPtr<IDXGIFactory1>					m_pdxgiFactory;
 	Microsoft::WRL::ComPtr<IDXGISwapChain>					m_pdxgiSwapChain;
 
 	std::map<String, std::unique_ptr<IShader>>				m_graphicsShaderList;
@@ -232,12 +234,19 @@ private:
 	CRenderEffect											m_renderEffect;
 };
 
-bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeight )
+bool CDirect3D11::BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
 {
-	if ( !CreateD3D11Device( hWind, nWndWidth, nWndHeight ) )
+	if ( !CreateDeviceIndependentResource( ) )
 	{
 		return false;
 	}
+
+	if ( !CreateDeviceDependentResource( hWnd, nWndWidth, nWndHeight ) )
+	{
+		return false;
+	}
+
+	m_pRenderStateManager = std::make_unique<CD3D11RenderStateManager>( *m_pd3d11DeviceContext.Get( ) );
 
 	m_DepthStencilFactory.LoadDesc( );
 	m_RasterizerFactory.LoadDesc( );
@@ -255,7 +264,7 @@ bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 	}
 	
 	m_resourceManager = std::make_unique<CD3D11ResourceManager>( *m_pd3d11Device.Get( ), *m_pd3d11DeviceContext.Get( ) );
-	m_resourceManager->SetFrameBufferSize( nWndWidth, nWndHeight );
+	m_resourceManager->AppSizeChanged( nWndWidth, nWndHeight );
 	if ( !m_resourceManager->Bootup( ) )
 	{
 		return false;
@@ -266,7 +275,40 @@ bool CDirect3D11::InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeigh
 		return false;
 	}
 
+	{
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> pd3d11BackBuffer = nullptr;
+		m_pdxgiSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), reinterpret_cast<void**>( pd3d11BackBuffer.GetAddressOf( ) ) );
+	}
+
 	return true;
+}
+
+void CDirect3D11::AppSizeChanged( UINT nWndWidth, UINT nWndHeight )
+{
+	if ( m_pd3d11Device == nullptr )
+	{
+		__debugbreak( );
+	}
+
+	if ( m_pdxgiSwapChain == nullptr )
+	{
+		__debugbreak( );
+	}
+
+	if ( m_resourceManager == nullptr )
+	{
+		__debugbreak( );
+	}
+
+	m_resourceManager->AppSizeChanged( nWndWidth, nWndHeight );
+
+	HRESULT hr = m_pdxgiSwapChain->ResizeBuffers( 1, nWndWidth, nWndHeight, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH );
+	if ( FAILED( hr ) )
+	{
+		__debugbreak( );
+	}
+
+	m_renderOutput.AppSizeChanged( *m_resourceManager, *m_pdxgiSwapChain.Get() );
 }
 
 void CDirect3D11::ShutDownRenderer( )
@@ -620,7 +662,7 @@ CDirect3D11::~CDirect3D11( )
 	ShutDownRenderer( );
 }
 
-bool CDirect3D11::CreateD3D11Device( HWND hWind, UINT nWndWidth, UINT nWndHeight )
+bool CDirect3D11::CreateDeviceDependentResource( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
 {
 	D3D_DRIVER_TYPE d3dDriverTypes[] = {
 		D3D_DRIVER_TYPE_HARDWARE,
@@ -639,52 +681,62 @@ bool CDirect3D11::CreateD3D11Device( HWND hWind, UINT nWndWidth, UINT nWndHeight
 	flag |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-	DXGI_SWAP_CHAIN_DESC dxgiSwapchainDesc;
-	::ZeroMemory( &dxgiSwapchainDesc, sizeof( dxgiSwapchainDesc ) );
-
-	dxgiSwapchainDesc.BufferCount = 1;
-	dxgiSwapchainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	dxgiSwapchainDesc.BufferDesc.Height = nWndHeight;
-	dxgiSwapchainDesc.BufferDesc.Width = nWndWidth;
-	dxgiSwapchainDesc.BufferDesc.RefreshRate.Denominator = 1;
-	dxgiSwapchainDesc.BufferDesc.RefreshRate.Numerator = 60;
-	dxgiSwapchainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	dxgiSwapchainDesc.OutputWindow = hWind;
-	dxgiSwapchainDesc.SampleDesc.Count = 1;
-	dxgiSwapchainDesc.SampleDesc.Quality = 0;
-	dxgiSwapchainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-	dxgiSwapchainDesc.Windowed = true;
-
 	D3D_FEATURE_LEVEL selectedFeature = D3D_FEATURE_LEVEL_11_0;
-
-	HRESULT hr;
+	HRESULT hr = E_FAIL;
 
 	for ( int i = 0; i < _countof( d3dDriverTypes ); ++i )
 	{
-		if ( SUCCEEDED( hr = D3D11CreateDeviceAndSwapChain( nullptr,
+		hr = D3D11CreateDevice( nullptr,
 			d3dDriverTypes[i],
-			nullptr,
-			flag,
+			nullptr, flag,
 			d3dFeatureLevel,
 			_countof( d3dFeatureLevel ),
 			D3D11_SDK_VERSION,
-			&dxgiSwapchainDesc,
-			&m_pdxgiSwapChain,
-			&m_pd3d11Device,
+			m_pd3d11Device.GetAddressOf( ),
 			&selectedFeature,
-			&m_pd3d11DeviceContext
-			) ) )
+			m_pd3d11DeviceContext.GetAddressOf( )
+		);
+
+		if ( SUCCEEDED( hr ) )
 		{
-#ifdef _DEBUG
-			SetDebugName( m_pd3d11DeviceContext.Get( ), "Device Context" );
-#endif
-			m_pRenderStateManager = std::make_unique<CD3D11RenderStateManager>( *m_pd3d11DeviceContext.Get( ) );
+			DXGI_SWAP_CHAIN_DESC dxgiSwapchainDesc = {};
+
+			dxgiSwapchainDesc.BufferCount = 1;
+			dxgiSwapchainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+			dxgiSwapchainDesc.BufferDesc.Height = nWndHeight;
+			dxgiSwapchainDesc.BufferDesc.Width = nWndWidth;
+			dxgiSwapchainDesc.BufferDesc.RefreshRate.Denominator = 1;
+			dxgiSwapchainDesc.BufferDesc.RefreshRate.Numerator = 60;
+			dxgiSwapchainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+			dxgiSwapchainDesc.OutputWindow = hWnd;
+			dxgiSwapchainDesc.SampleDesc.Count = 1;
+			dxgiSwapchainDesc.SampleDesc.Quality = 0;
+			dxgiSwapchainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+			dxgiSwapchainDesc.Windowed = true;
+			dxgiSwapchainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
+			hr = m_pdxgiFactory->CreateSwapChain( m_pd3d11Device.Get( ), &dxgiSwapchainDesc, m_pdxgiSwapChain.GetAddressOf( ) );
+			if ( FAILED( hr ) )
+			{
+				return false;
+			}
 
 			return true;
 		}
 	}
-
+	
 	return false;
+}
+
+bool CDirect3D11::CreateDeviceIndependentResource( )
+{
+	HRESULT hr = CreateDXGIFactory1( __uuidof( IDXGIFactory1 ), reinterpret_cast<void**>( m_pdxgiFactory.GetAddressOf( ) ) );
+	if ( FAILED( hr ) )
+	{
+		return false;
+	}
+
+	return true;
 }
 
 void CDirect3D11::ReportLiveDevice( )
@@ -712,6 +764,5 @@ bool CDirect3D11::InitializeShaders( )
 
 IRenderer* CreateDirect3D11Renderer( )
 {
-	static CDirect3D11 direct3D11;
-	return &direct3D11;
+	return new CDirect3D11( );
 }

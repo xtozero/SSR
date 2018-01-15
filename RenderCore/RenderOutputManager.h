@@ -24,6 +24,7 @@ class CRenderOutputManager
 {
 public:
 	bool Initialize( IResourceManager& resourceMgr, IDXGISwapChain& pSwapChain );
+	void AppSizeChanged( IResourceManager& resourceMgr, IDXGISwapChain& pSwapChain );
 	void SetRenderTargetDepthStencilView( IRenderer& renderer );
 	void ClearDepthStencil( IRenderer& renderer );
 	void ClearRenderTargets( IRenderer& renderer, const rtClearColor& clearColor );
@@ -31,6 +32,7 @@ public:
 
 	CRenderOutputManager( );
 private:
+	
 	bool CreateDefaultRenderTaraget( IResourceManager& resourceMgr, IDXGISwapChain& pSwapChain );
 	bool CreateNormalRenderTarget( IResourceManager& resourceMgr );
 	bool CreateDepthRenderTarget( IResourceManager& resourceMgr );

@@ -10,7 +10,6 @@ class IComputeShader;
 class IMaterial;
 class IRenderResource;
 class IRenderState;
-class IRenderView;
 class IResourceManager;
 class IShader;
 class RenderTargetBinder;
@@ -32,7 +31,8 @@ namespace Microsoft
 class IRenderer
 {
 public:
-	virtual bool InitializeRenderer( HWND hWind, UINT nWndWidth, UINT nWndHeight ) = 0;
+	virtual bool BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight ) = 0;
+	virtual void AppSizeChanged( UINT nWndWidth, UINT nWndHeight ) = 0;
 	virtual void ShutDownRenderer( ) = 0;
 	virtual void SceneBegin( ) = 0;
 	virtual void ForwardRenderEnd( ) = 0;
@@ -76,13 +76,11 @@ public:
 	virtual void DrawInstancedInstanced( UINT primitive, UINT indexCount, UINT instanceCount, UINT indexOffset = 0, UINT vertexOffset = 0, UINT instanceOffset = 0 ) = 0;
 	virtual void DrawAuto( UINT primitive ) = 0;
 
-	virtual IDXGISwapChain* GetSwapChain( ) const = 0;
 	virtual IResourceManager& GetResourceManager( ) = 0;
+
+	virtual ~IRenderer( ) = default;
 
 protected:
 	IRenderer( ) = default;
-
-public:
-	virtual ~IRenderer( ) = default;
 };
 

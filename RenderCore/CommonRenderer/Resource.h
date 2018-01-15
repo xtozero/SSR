@@ -22,6 +22,7 @@ namespace RESOURCE_MISC
 {
 	enum
 	{
+		NONE = 0x00,
 		// from D3D11
 		GENERATE_MIPS = 0x01,
 		SHARED = 0x02,
@@ -32,6 +33,9 @@ namespace RESOURCE_MISC
 		RESOURCE_CLAMP = 0x40,
 		SHARED_KEYEDMUTEX = 0x80,
 		GDI_COMPATIBLE = 0x100,
+
+		// Custom
+		APP_SIZE_DEPENDENT = 0x200,
 	};
 }
 
@@ -39,7 +43,7 @@ namespace RESOURCE_ACCESS_FLAG
 {
 	enum
 	{
-		ACCESS_NONE = 0x00,
+		NONE = 0x00,
 		GPU_READ = 0x01,
 		GPU_WRITE = 0x02,
 		CPU_READ = 0x04,

@@ -76,6 +76,8 @@ inline D3D11_UNORDERED_ACCESS_VIEW_DESC ConvertBufferTraitToUAV( const BUFFER_TR
 
 bool CD3D11RandomAccessResource::CreateRandomAccessResource( ID3D11Device& device, const ITexture& texture, const TEXTURE_TRAIT* traitOrNull )
 {
+	SetAppSizeDependency( texture.IsAppSizeDependency( ) );
+
 	const D3D11_UNORDERED_ACCESS_VIEW_DESC* pDesc = nullptr;
 	D3D11_UNORDERED_ACCESS_VIEW_DESC uav = {};
 

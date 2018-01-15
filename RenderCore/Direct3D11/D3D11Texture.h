@@ -13,7 +13,7 @@ struct ID3D11Texture3D;
 class CD3D11Texture1D : public ITexture
 {
 public:
-	bool SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTexture );
+	bool SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTexture, bool isAppSizeDependent = false );
 	bool Create( ID3D11Device& device, const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr );
 	bool LoadFromFile( ID3D11Device& device, const TCHAR* filePath );
 
@@ -27,7 +27,7 @@ private:
 class CD3D11Texture2D : public ITexture
 {
 public:
-	bool SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTexture );
+	bool SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTexture, bool isAppSizeDependent = false );
 	bool Create( ID3D11Device& device, const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr );
 	bool LoadFromFile( ID3D11Device& device, const TCHAR* filePath );
 
@@ -41,7 +41,7 @@ private:
 class CD3D11Texture3D : public ITexture
 {
 public:
-	bool SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTexture );
+	bool SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTexture, bool isAppSizeDependent = false );
 	bool Create( ID3D11Device& device, const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr );
 	bool LoadFromFile( ID3D11Device& device, const TCHAR* filePath );
 

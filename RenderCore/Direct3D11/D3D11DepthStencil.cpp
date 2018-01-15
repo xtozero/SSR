@@ -65,6 +65,8 @@ void* CDepthStencil::Get( ) const
 
 bool CDepthStencil::CreateDepthStencil( ID3D11Device& device, const ITexture& texture, const TEXTURE_TRAIT* traitOrNull )
 {
+	SetAppSizeDependency( texture.IsAppSizeDependency( ) );
+
 	D3D11_DEPTH_STENCIL_VIEW_DESC* pDsvDesc = nullptr;
 	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
 

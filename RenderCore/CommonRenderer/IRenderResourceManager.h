@@ -31,10 +31,10 @@ public:
 	virtual ITexture* CreateTexture2D( const TEXTURE_TRAIT& trait, const String& textureName, const RESOURCE_INIT_DATA* initData = nullptr ) = 0;
 	virtual ITexture* CreateTexture2D( const String& descName, const String& textureName, const RESOURCE_INIT_DATA* initData = nullptr ) = 0;
 
-	virtual ITexture* RegisterTexture2D( const String& textureName, void* pTexture ) = 0;
+	virtual ITexture* RegisterTexture2D( const String& textureName, void* pTexture, bool isAppSizeDependent = false ) = 0;
 	virtual ITexture* FindTexture( const String& textureName ) const = 0;
 
-	virtual void SetFrameBufferSize( UINT nWndWidth, UINT nWndHeight ) = 0;
+	virtual void AppSizeChanged( UINT nWndWidth, UINT nWndHeight ) = 0;
 
 	virtual IRenderResource* CreateRenderTarget( const ITexture& texture, const String& renderTargetName, const TEXTURE_TRAIT* trait = nullptr ) = 0;
 	virtual IRenderResource* CreateDepthStencil( const ITexture& texture, const String& depthStencilName, const TEXTURE_TRAIT* trait = nullptr ) = 0;
@@ -53,4 +53,6 @@ public:
 	virtual ITexture* CreateCloneTexture( const ITexture& pSourceTexture, const String& textureName ) = 0;
 
 	virtual void CopyResource( IRenderResource& dest, const RESOURCE_REGION* destRegionOrNull, IRenderResource& src, const RESOURCE_REGION* srcRegionOrNull ) = 0;
+
+	virtual ~IResourceManager( ) = default;
 };

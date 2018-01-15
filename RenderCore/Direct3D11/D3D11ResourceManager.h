@@ -32,10 +32,10 @@ public:
 	virtual ITexture* CreateTexture2D( const TEXTURE_TRAIT& trait, const String& textureName, const RESOURCE_INIT_DATA* initData = nullptr ) override;
 	virtual ITexture* CreateTexture2D( const String& descName, const String& textureName, const RESOURCE_INIT_DATA* initData = nullptr ) override;
 
-	virtual ITexture* RegisterTexture2D( const String& textureName, void* pTexture ) override;
+	virtual ITexture* RegisterTexture2D( const String& textureName, void* pTexture, bool isAppSizeDependent = false ) override;
 	virtual ITexture* FindTexture( const String& textureName ) const override;
 
-	virtual void SetFrameBufferSize( UINT nWndWidth, UINT nWndHeight ) override;
+	virtual void AppSizeChanged( UINT nWndWidth, UINT nWndHeight ) override;
 
 	// RenderTarget
 	virtual IRenderResource* CreateRenderTarget( const ITexture& texture, const String& renderTargetName, const TEXTURE_TRAIT* trait = nullptr ) override;

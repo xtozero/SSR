@@ -65,6 +65,8 @@ inline D3D11_RENDER_TARGET_VIEW_DESC ConvertTextureTraitToRTV( const TEXTURE_TRA
 
 bool CRenderTarget::CreateRenderTarget( ID3D11Device& device, const ITexture& texture, const TEXTURE_TRAIT* traitOrNull )
 {
+	SetAppSizeDependency( texture.IsAppSizeDependency( ) );
+
 	D3D11_RENDER_TARGET_VIEW_DESC* pRtvDesc = nullptr;
 	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = {};
 

@@ -28,9 +28,10 @@ namespace
 		{
 			if ( keyValue->GetValue( ) == FRAME_BUFFER_SIZE_KEYWORD )
 			{
-				trait.m_width = frameBufferSize.first;
-				trait.m_height = frameBufferSize.second;
+				trait.m_width = 0;
+				trait.m_height = 0;
 				trait.m_depth = 1;
+				trait.m_miscFlag |= RESOURCE_MISC::APP_SIZE_DEPENDENT;
 			}
 			else
 			{
@@ -240,6 +241,12 @@ ITexture* CD3D11ResourceManager::CreateTexture1D( const String& descName, const 
 	auto found = m_textureTraits.find( descName );
 	if ( found != m_textureTraits.end( ) )
 	{
+		if ( found->second.m_miscFlag & RESOURCE_MISC::APP_SIZE_DEPENDENT )
+		{
+			found->second.m_width = m_frameBufferSize.first;
+			found->second.m_height = m_frameBufferSize.second;
+		}
+		
 		return CreateTexture1D( found->second, textureName, initData );
 	}
 
@@ -274,13 +281,19 @@ ITexture* CD3D11ResourceManager::CreateTexture2D( const String& descName, const 
 	auto found = m_textureTraits.find( descName );
 	if ( found != m_textureTraits.end( ) )
 	{
+		if ( found->second.m_miscFlag & RESOURCE_MISC::APP_SIZE_DEPENDENT )
+		{
+			found->second.m_width = m_frameBufferSize.first;
+			found->second.m_height = m_frameBufferSize.second;
+		}
+
 		return CreateTexture2D( found->second, textureName, initData );
 	}
 
 	return nullptr;
 }
 
-ITexture* CD3D11ResourceManager::RegisterTexture2D( const String& textureName, void* pTexture )
+ITexture* CD3D11ResourceManager::RegisterTexture2D( const String& textureName, void* pTexture, bool isAppSizeDependent )
 {
 	if ( FindTexture( textureName ) )
 	{
@@ -289,7 +302,7 @@ ITexture* CD3D11ResourceManager::RegisterTexture2D( const String& textureName, v
 
 	Microsoft::WRL::ComPtr<ID3D11Resource> texture = static_cast<ID3D11Resource*>( pTexture );
 	std::unique_ptr<CD3D11Texture2D> newTexture = std::make_unique<CD3D11Texture2D>( );
-	newTexture->SetTexture( texture );
+	newTexture->SetTexture( texture, isAppSizeDependent );
 	ITexture* ret = newTexture.get( );
 	m_pTextures.emplace( textureName, std::move( newTexture ) );
 	return ret;
@@ -307,10 +320,75 @@ ITexture* CD3D11ResourceManager::FindTexture( const String& textureName ) const
 	return nullptr;
 }
 
-void CD3D11ResourceManager::SetFrameBufferSize( UINT nWndWidth, UINT nWndHeight )
+void CD3D11ResourceManager::AppSizeChanged( UINT nWndWidth, UINT nWndHeight )
 {
 	m_frameBufferSize.first = nWndWidth;
 	m_frameBufferSize.second = nWndHeight;
+
+	auto iter = m_depthStencils.begin( );
+	while ( iter != m_depthStencils.end( ) )
+	{
+		if ( iter->second->IsAppSizeDependency( ) )
+		{
+			iter = m_depthStencils.erase( iter );
+		}
+		else
+		{
+			++iter;
+		}
+	}
+
+	iter = m_renderTargets.begin( );
+	while ( iter != m_renderTargets.end( ) )
+	{
+		if ( iter->second->IsAppSizeDependency( ) )
+		{
+			iter = m_renderTargets.erase( iter );
+		}
+		else
+		{
+			++iter;
+		}
+	}
+
+	iter = m_shaderResources.begin( );
+	while ( iter != m_shaderResources.end( ) )
+	{
+		if ( iter->second->IsAppSizeDependency( ) )
+		{
+			iter = m_shaderResources.erase( iter );
+		}
+		else
+		{
+			++iter;
+		}
+	}
+
+	iter = m_randomAccessResource.begin( );
+	while ( iter != m_randomAccessResource.end( ) )
+	{
+		if ( iter->second->IsAppSizeDependency( ) )
+		{
+			iter = m_randomAccessResource.erase( iter );
+		}
+		else
+		{
+			++iter;
+		}
+	}
+
+	auto texIter = m_pTextures.begin( );
+	while ( texIter != m_pTextures.end( ) )
+	{
+		if ( texIter->second->IsAppSizeDependency( ) )
+		{
+			texIter = m_pTextures.erase( texIter );
+		}
+		else
+		{
+			++texIter;
+		}
+	}
 }
 
 CD3D11ResourceManager::CD3D11ResourceManager( ID3D11Device& device, ID3D11DeviceContext& deviceContext ) :

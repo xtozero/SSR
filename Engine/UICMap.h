@@ -10,7 +10,7 @@
 
 namespace
 {
-	void RegisterUicEnumString()
+	inline void RegisterUicEnumString()
 	{
 		REGISTER_ENUM_STRING( UIC_A );
 		REGISTER_ENUM_STRING( UIC_B );

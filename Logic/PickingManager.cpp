@@ -49,6 +49,11 @@ void CPickingManager::PushViewport( const float topLeftX, const float topLeftY, 
 	m_viewports.emplace_back( topLeftX, topLeftY, width, height );
 }
 
+void CPickingManager::PopViewport( )
+{
+	m_viewports.pop_back( );
+}
+
 void CPickingManager::PushCamera( CCamera* camera )
 {
 	m_cameras.push_back( camera );
@@ -68,6 +73,11 @@ void CPickingManager::PushInvProjection( float fov, float aspect, float zNear, f
 	}
 
 	m_InvProjections.emplace_back( XMMatrixInverse( nullptr, projection ) );
+}
+
+void CPickingManager::PopInvProjection( )
+{
+	m_InvProjections.pop_back( );
 }
 
 bool CPickingManager::CreateWorldSpaceRay( CRay& ray, float x, float y )

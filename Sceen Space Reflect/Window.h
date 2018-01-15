@@ -38,12 +38,16 @@ class Window : public  IPlatform
 {
 public:
 	virtual std::pair<UINT, UINT> GetSize( ) const noexcept override { return { m_width, m_height }; };
+	virtual void UpdateSize( UINT width, UINT height )
+	{
+		m_width = width;
+		m_height = height;
+	}
 
 	bool Run( CWindowSetup& setup, WNDPROC wndProc );
 	HWND GetHwnd( ) const noexcept { return m_hwnd; }
 
-	Window( const String& title ) noexcept;
-	~Window( );
+	Window( const String& title, DWORD style = WS_OVERLAPPEDWINDOW ) noexcept;
 
 private:
 	virtual void* GetRawHandleImple( ) const noexcept override
@@ -52,7 +56,7 @@ private:
 	}
 
 	String m_wndTitle = _T( "default window" );
-	DWORD m_style = WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER;
+	DWORD m_style = 0;
 	HWND m_hwnd = nullptr;
 
 	UINT m_width = 0;

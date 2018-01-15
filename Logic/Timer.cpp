@@ -33,6 +33,21 @@ void CTimer::Tick ( )
 		m_fps = static_cast<float>( m_frame );
 		m_frame = 0;
 	}
+
+	if ( m_isPaused )
+	{
+		m_elapsedTime = 0;
+	}
+}
+
+void CTimer::Pause( )
+{
+	m_isPaused = true;
+}
+
+void CTimer::Resume( )
+{
+	m_isPaused = false;
 }
 
 CTimer::CTimer ( )

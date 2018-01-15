@@ -13,6 +13,8 @@ class IConsoleMessageExecutor
 {
 public:
 	virtual void Execute( const String& name ) = 0;
+
+	virtual ~IConsoleMessageExecutor( ) = default;
 };
 
 class ConsoleMessageExecutor : public IConsoleMessageExecutor

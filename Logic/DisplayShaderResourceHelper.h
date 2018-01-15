@@ -16,13 +16,14 @@ public:
 	virtual bool IgnorePicking( ) const override { return ShouldDraw( ); }
 
 	virtual bool ShouldDraw( ) const override;
+
 protected:
 	virtual bool LoadModelMesh( CGameLogic& gameLogic ) override;
 
 private:
-
 	float m_width;
 	float m_height;
+	
 	String m_textureName;
 
 public:

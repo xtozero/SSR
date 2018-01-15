@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Sceen Space Reflect.h"
-#include "../Engine/IEngine.h"
+#include "../Engine/WindowPlatformEngine.h"
 #include "Window.h"
 
 #include <memory>
@@ -10,6 +10,8 @@ constexpr int FRAME_BUFFER_HEIGHT = 768;
 
 LRESULT CALLBACK	WndProc ( HWND, UINT, WPARAM, LPARAM );
 INT_PTR CALLBACK	About ( HWND, UINT, WPARAM, LPARAM );
+
+WindowPlatformEngine* g_engine = nullptr;
 
 int APIENTRY _tWinMain ( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE , _In_ LPTSTR , _In_ int )
 {
@@ -36,20 +38,20 @@ int APIENTRY _tWinMain ( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE , _In_ LPT
 		return false;
 	}
 
-	std::unique_ptr<IEngine> engine( CreatePlatformEngine( SUPPORT_PLATFORM::Window() ) );
-	if ( engine == nullptr )
+	g_engine = dynamic_cast<WindowPlatformEngine*>( CreatePlatformEngine( SUPPORT_PLATFORM::Window() ) );
+	if ( g_engine == nullptr )
 	{
 		return false;
 	}
 
-	if ( !engine->BootUp( mainWindow ) )
+	if ( !g_engine->BootUp( mainWindow ) )
 	{
 		return false;
 	}
 
-	engine->Run( );
+	g_engine->Run( );
 	
-	engine->ShutDown( );
+	g_engine->ShutDown( );
 	FreeLibrary( engineDll );
 
 	return 0;
@@ -57,20 +59,10 @@ int APIENTRY _tWinMain ( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE , _In_ LPT
 
 LRESULT CALLBACK WndProc ( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
-	PAINTSTRUCT ps;
-	HDC hdc;
-
-	switch ( message )
+	if ( g_engine )
 	{
-	case WM_PAINT:
-		hdc = BeginPaint ( hWnd, &ps );
-		EndPaint ( hWnd, &ps );
-		break;
-	case WM_DESTROY:
-		PostQuitMessage ( 0 );
-		break;
-	default:
-		return DefWindowProc ( hWnd, message, wParam, lParam );
+		return g_engine->MsgProc( hWnd, message, wParam, lParam );
 	}
-	return 0;
+
+	return DefWindowProc( hWnd, message, wParam, lParam );
 }

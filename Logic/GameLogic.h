@@ -37,12 +37,16 @@ class CGameLogic : public ILogic
 public:
 	virtual bool Initialize( IPlatform& platform ) override;
 	virtual void Update() override;
-	virtual void HandleUserInput( const UserInput& input );
+	virtual void Pause( ) override;
+	virtual void Resume( ) override;
+	virtual void HandleUserInput( const UserInput& input ) override;
+	virtual void AppSizeChanged( IPlatform& platform ) override;
 
 	IRenderer& GetRenderer( ) const { return *m_pRenderer; }
 	CModelManager& GetModelManager( ) { return m_meshManager; }
 	IBuffer& GetCommonConstantBuffer( int purpose ) { return *m_commonConstantBuffer[purpose]; }
 	CRenderView& GetView( ) { return m_view; }
+	const std::pair<UINT, UINT>& GetAPPSize( ) { return m_appSize; }
 
 private:
 	void StartLogic ( void );
@@ -61,12 +65,12 @@ private:
 	void DrawReflectRenderable( );
 
 public:
-	CGameLogic ();
-	~CGameLogic () = default;
+	CGameLogic();
+	~CGameLogic() = default;
 
 private:
 	HWND	m_wndHwnd;
-	std::pair<UINT, UINT> m_wndSize;
+	std::pair<UINT, UINT> m_appSize;
 
 	CCamera m_mainCamera;
 	CUserInputBroadCaster m_inputBroadCaster;
@@ -75,7 +79,7 @@ private:
 	CShadowManager m_shadowManager;
 	CSSRManager m_ssrManager;
 	CModelManager m_meshManager;
-	IRenderer* m_pRenderer;
+	std::unique_ptr<IRenderer> m_pRenderer;
 	CRenderView m_view;
 	std::vector<std::unique_ptr<CGameObject>> m_gameObjects;
 

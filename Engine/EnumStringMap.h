@@ -7,6 +7,8 @@ class IEnumStringMap
 public:
 	virtual void RegisterEnumString( const String& enumString, const int enumValue ) = 0;
 	virtual int GetEnum( const String& enumName, const int defaultValue ) const = 0;
+
+	virtual ~IEnumStringMap( ) = default;
 };
 
 ENGINE_FUNC_DLL IEnumStringMap& GetEnumStringMap( );

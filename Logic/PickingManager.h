@@ -5,6 +5,7 @@
 
 #include "../shared/Math/CXMFloat.h"
 
+#include <algorithm>
 #include <memory>
 #include <vector>
 
@@ -37,8 +38,10 @@ public:
 	virtual void ProcessInput( const UserInput& ) override;
 
 	void PushViewport( const float topLeftX, const float topLeftY, const float width, const float height );
+	void PopViewport( );
 	void PushCamera( CCamera* camera );
 	void PushInvProjection( float fov, float aspect, float zNear, float zFar, bool isLH = true );
+	void PopInvProjection( );
 	bool CreateWorldSpaceRay( CRay& ray, float x, float y );
 	bool PickingObject( float x, float y );
 	void ReleasePickingObject( );

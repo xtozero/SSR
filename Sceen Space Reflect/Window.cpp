@@ -10,18 +10,18 @@ bool Window::Run( CWindowSetup& setup, WNDPROC wndProc )
 	if ( RegisterClassEx( &wndclsex ) )
 	{
 		RECT rc = setup.GetScreenArea( );
-		AdjustWindowRect( &rc, m_style, false );
-
 		m_width = rc.right - rc.left;
 		m_height = rc.bottom - rc.top;
+
+		AdjustWindowRect( &rc, m_style, false );
 
 		m_hwnd = CreateWindow( m_wndTitle.c_str( ),
 								m_wndTitle.c_str( ),
 								m_style,
 								CW_USEDEFAULT,
 								CW_USEDEFAULT,
-								m_width,
-								m_height,
+								rc.right - rc.left,
+								rc.bottom - rc.top,
 								nullptr,
 								nullptr,
 								setup.GethInstance( ),
@@ -41,10 +41,7 @@ bool Window::Run( CWindowSetup& setup, WNDPROC wndProc )
 	return false;
 }
 
-Window::Window( const String& title ) noexcept : m_wndTitle( title )
+Window::Window( const String& title, DWORD style ) noexcept : m_wndTitle( title ), m_style( style )
 {
 }
 
-Window::~Window( )
-{
-}

@@ -125,6 +125,8 @@ bool CD3D11ShaderResource::LoadShaderResourceFromFile( ID3D11Device& device, con
 
 bool CD3D11ShaderResource::CreateShaderResource( ID3D11Device& device, const ITexture& texture, const TEXTURE_TRAIT* traitOrNull )
 {
+	SetAppSizeDependency( texture.IsAppSizeDependency( ) );
+
 	const D3D11_SHADER_RESOURCE_VIEW_DESC* pDesc = nullptr;
 	D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
 

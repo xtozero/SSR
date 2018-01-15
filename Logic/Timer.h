@@ -4,6 +4,17 @@
 
 class CTimer
 {
+public:
+	static CTimer& GetInstance( );
+
+	void Tick( );
+	void Pause( );
+	void Resume( );
+	inline float GetElapsedTIme( ) const { return m_elapsedTime; }
+	inline float GetFps( ) const { return m_fps; }
+
+	CTimer( );
+
 private:
 	float m_elapsedTime = 0.f;
 
@@ -12,13 +23,6 @@ private:
 	int m_frame = 0;
 	float m_fps = 0.f;
 	float m_frameCheckInterval = 0.f;
-public:
-	static CTimer& GetInstance( );
-
-	void Tick ();
-	inline float GetElapsedTIme( ) const { return m_elapsedTime; }
-	inline float GetFps( ) const { return m_fps; }
-
-	CTimer( );
+	bool m_isPaused = false;
 };
 

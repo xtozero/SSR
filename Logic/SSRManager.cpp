@@ -36,30 +36,6 @@ bool CSSRManager::Init( CGameLogic& gameLogic )
 		return false;
 	}
 
-	// Create Screen Space Reflect Rendertarget
-	String ssrTextureName( _T( "ScreenSpaceReflect" ) );
-	IResourceManager& resourceMgr = renderer.GetResourceManager( );
-
-	ITexture* ssrTex = resourceMgr.CreateTexture2D( ssrTextureName, ssrTextureName );
-	if ( ssrTex == nullptr )
-	{
-		return false;
-	}
-
-	m_pSsrRt = resourceMgr.CreateRenderTarget( *ssrTex, ssrTextureName );
-	m_pSsrSrv = resourceMgr.CreateShaderResource( *ssrTex, ssrTextureName );
-
-	m_pDefaultRt = resourceMgr.FindRenderTarget( _T( "DefaultRenderTarget" ) );
-	m_pDefaultDS = resourceMgr.FindDepthStencil( _T( "DefaultDepthStencil" ) );
-	m_pDefaultSrv = resourceMgr.FindShaderResource( _T( "DuplicateFrameBuffer" ) );
-	m_pDepthSrv = resourceMgr.FindShaderResource( _T( "DuplicateDepthGBuffer" ) );
-
-	if ( m_pSsrRt == nullptr || m_pSsrSrv == nullptr || m_pDefaultRt == nullptr ||
-		m_pDefaultDS == nullptr || m_pDefaultSrv == nullptr || m_pDepthSrv == nullptr )
-	{
-		return false;
-	}
-
 	// Create Screen Rect Mesh
 	IModelBuilder& meshBuilder = gameLogic.GetModelManager( ).GetModelBuilder( );
 	meshBuilder.Clear( );
@@ -97,7 +73,12 @@ bool CSSRManager::Init( CGameLogic& gameLogic )
 		return false;
 	}
 
-	if ( !m_blur.Init( gameLogic, meshBuilder ) )
+	if ( m_blur.Init( gameLogic, meshBuilder ) == false )
+	{
+		return false;
+	}
+
+	if ( CreateAppSizeDependentResource( gameLogic ) == false )
 	{
 		return false;
 	}
@@ -154,4 +135,41 @@ void CSSRManager::Process( CGameLogic& gameLogic, const std::list<CGameObject*>&
 	m_pScreenRect->Draw( gameLogic );
 
 	renderer.PSSetShaderResource( 1, nullptr );
+}
+
+void CSSRManager::AppSizeChanged( CGameLogic& gameLogic )
+{
+	CreateAppSizeDependentResource( gameLogic );
+	m_blur.AppSizeChanged( gameLogic );
+}
+
+bool CSSRManager::CreateAppSizeDependentResource( CGameLogic& gameLogic )
+{
+	IRenderer& renderer = gameLogic.GetRenderer( );
+	
+	// Create Screen Space Reflect Rendertarget
+	String ssrTextureName( _T( "ScreenSpaceReflect" ) );
+	IResourceManager& resourceMgr = renderer.GetResourceManager( );
+
+	ITexture* ssrTex = resourceMgr.CreateTexture2D( ssrTextureName, ssrTextureName );
+	if ( ssrTex == nullptr )
+	{
+		return false;
+	}
+
+	m_pSsrRt = resourceMgr.CreateRenderTarget( *ssrTex, ssrTextureName );
+	m_pSsrSrv = resourceMgr.CreateShaderResource( *ssrTex, ssrTextureName );
+
+	m_pDefaultRt = resourceMgr.FindRenderTarget( _T( "DefaultRenderTarget" ) );
+	m_pDefaultDS = resourceMgr.FindDepthStencil( _T( "DefaultDepthStencil" ) );
+	m_pDefaultSrv = resourceMgr.FindShaderResource( _T( "DuplicateFrameBuffer" ) );
+	m_pDepthSrv = resourceMgr.FindShaderResource( _T( "DuplicateDepthGBuffer" ) );
+
+	if ( m_pSsrRt == nullptr || m_pSsrSrv == nullptr || m_pDefaultRt == nullptr ||
+		m_pDefaultDS == nullptr || m_pDefaultSrv == nullptr || m_pDepthSrv == nullptr )
+	{
+		return false;
+	}
+
+	return true;
 }

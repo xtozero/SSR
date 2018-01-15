@@ -130,7 +130,7 @@ void* CD3D11Texture1D::Get( ) const
 	return m_pTexture.Get( );
 }
 
-bool CD3D11Texture1D::SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTexture )
+bool CD3D11Texture1D::SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTexture, bool isAppSizeDependent )
 {
 	HRESULT hr = pTexture.Get( )->QueryInterface( IID_ID3D11Texture1D, reinterpret_cast<void**>( m_pTexture.GetAddressOf( ) ) );
 
@@ -139,6 +139,7 @@ bool CD3D11Texture1D::SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTextu
 		D3D11_TEXTURE1D_DESC desc;
 		m_pTexture->GetDesc( &desc );
 		m_trait = Convert1DDescToTrait( desc );
+		SetAppSizeDependency( isAppSizeDependent );
 		return true;
 	}
 
@@ -148,6 +149,7 @@ bool CD3D11Texture1D::SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTextu
 bool CD3D11Texture1D::Create( ID3D11Device& device, const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
 {
 	m_trait = trait;
+	SetAppSizeDependency( m_trait.m_miscFlag & RESOURCE_MISC::APP_SIZE_DEPENDENT );
 	D3D11_TEXTURE1D_DESC desc = ConvertTraitTo1DDesc( trait );
 
 	D3D11_SUBRESOURCE_DATA* pSrd = nullptr;
@@ -183,7 +185,7 @@ void* CD3D11Texture2D::Get( ) const
 	return m_pTexture.Get( );
 }
 
-bool CD3D11Texture2D::SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTexture )
+bool CD3D11Texture2D::SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTexture, bool isAppSizeDependent )
 {
 	HRESULT hr = pTexture.Get( )->QueryInterface( IID_ID3D11Texture2D, reinterpret_cast<void**>( m_pTexture.GetAddressOf( ) ) );
 
@@ -192,6 +194,8 @@ bool CD3D11Texture2D::SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTextu
 		D3D11_TEXTURE2D_DESC desc;
 		m_pTexture->GetDesc( &desc );
 		m_trait = Convert2DDescToTrait( desc );
+		m_trait.m_miscFlag |= isAppSizeDependent ? RESOURCE_MISC::APP_SIZE_DEPENDENT : RESOURCE_MISC::NONE;
+		SetAppSizeDependency( isAppSizeDependent );
 		return true;
 	}
 
@@ -201,6 +205,7 @@ bool CD3D11Texture2D::SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTextu
 bool CD3D11Texture2D::Create( ID3D11Device& device, const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
 {
 	m_trait = trait;
+	SetAppSizeDependency( m_trait.m_miscFlag & RESOURCE_MISC::APP_SIZE_DEPENDENT );
 	D3D11_TEXTURE2D_DESC desc = ConvertTraitTo2DDesc( trait );
 
 	D3D11_SUBRESOURCE_DATA* pSrd = nullptr;
@@ -236,7 +241,7 @@ void* CD3D11Texture3D::Get( ) const
 	return m_pTexture.Get( );
 }
 
-bool CD3D11Texture3D::SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTexture )
+bool CD3D11Texture3D::SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTexture, bool isAppSizeDependent )
 {
 	HRESULT hr = pTexture.Get( )->QueryInterface( IID_ID3D11Texture3D, reinterpret_cast<void**>( m_pTexture.GetAddressOf( ) ) );
 
@@ -245,6 +250,7 @@ bool CD3D11Texture3D::SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTextu
 		D3D11_TEXTURE3D_DESC desc;
 		m_pTexture->GetDesc( &desc );
 		m_trait = Convert3DDescToTrait( desc );
+		SetAppSizeDependency( isAppSizeDependent );
 		return true;
 	}
 
@@ -254,6 +260,7 @@ bool CD3D11Texture3D::SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTextu
 bool CD3D11Texture3D::Create( ID3D11Device& device, const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
 {
 	m_trait = trait;
+	SetAppSizeDependency( m_trait.m_miscFlag & RESOURCE_MISC::APP_SIZE_DEPENDENT );
 	D3D11_TEXTURE3D_DESC desc = ConvertTraitTo3DDesc( trait );
 
 	D3D11_SUBRESOURCE_DATA* pSrd = nullptr;

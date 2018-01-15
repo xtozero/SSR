@@ -27,7 +27,7 @@ namespace
 
 bool CGameLogic::Initialize( IPlatform& platform )
 {
-	m_pRenderer = CreateDirect3D11Renderer( );
+	m_pRenderer.reset( CreateDirect3D11Renderer( ) );
 
 	if ( m_pRenderer == nullptr )
 	{
@@ -37,29 +37,29 @@ bool CGameLogic::Initialize( IPlatform& platform )
 	m_wndHwnd = platform.GetRawHandle<HWND>();
 	srand( static_cast<UINT>(time( nullptr )) );
 	
-	m_wndSize = platform.GetSize( );
-	CUtilWindowInfo::GetInstance( ).SetRect( m_wndSize.first, m_wndSize.second );
+	m_appSize = platform.GetSize( );
+	CUtilWindowInfo::GetInstance( ).SetRect( m_appSize.first, m_appSize.second );
 
-	ON_FAIL_RETURN( m_pRenderer->InitializeRenderer( m_wndHwnd, m_wndSize.first, m_wndSize.second ) );
-	ON_FAIL_RETURN( m_view.initialize( *m_pRenderer ) );
+	ON_FAIL_RETURN( m_pRenderer->BootUp( m_wndHwnd, m_appSize.first, m_appSize.second ) );
 
 	m_view.CreatePerspectiveFovLHMatrix( XMConvertToRadians( 60 ),
-		static_cast<float>( m_wndSize.first ) / m_wndSize.second,
+		static_cast<float>( m_appSize.first ) / m_appSize.second,
 		1.f,
 		1500.0f );
 
 	m_pickingManager.PushInvProjection( XMConvertToRadians( 60 ),
-		static_cast<float>( m_wndSize.first ) / m_wndSize.second,
+		static_cast<float>( m_appSize.first ) / m_appSize.second,
 		1.f,
 		1500.0f );
 
-	m_pickingManager.PushViewport( 0.0f, 0.0f, static_cast<float>( m_wndSize.first ), static_cast<float>( m_wndSize.second ) );
+	m_pickingManager.PushViewport( 0.0f, 0.0f, static_cast<float>( m_appSize.first ), static_cast<float>( m_appSize.second ) );
 
 	m_pickingManager.PushCamera( &m_mainCamera );
 	m_inputBroadCaster.AddListener( &m_pickingManager );
 	m_inputBroadCaster.AddListener( &m_mainCamera );
-
 	CCameraManager::GetInstance( ).SetCurrentCamera( &m_mainCamera );
+
+	ON_FAIL_RETURN( m_view.initialize( *m_pRenderer ) );
 
 	ON_FAIL_RETURN( LoadScene( _T( "../Script/defaultScene.txt" ) ) );
 	ON_FAIL_RETURN( m_lightManager.Initialize( *m_pRenderer, m_gameObjects ) );
@@ -103,7 +103,7 @@ bool CGameLogic::Initialize( IPlatform& platform )
 	return true;
 }
 
-void CGameLogic::Update( void )
+void CGameLogic::Update( )
 {
 	// 한 프레임의 시작 ElapsedTime 갱신
 	CTimer::GetInstance( ).Tick( );
@@ -121,17 +121,58 @@ void CGameLogic::Update( void )
 	}
 }
 
+void CGameLogic::Pause( )
+{
+	CTimer::GetInstance().Pause( );
+}
+
+void CGameLogic::Resume( )
+{
+	CTimer::GetInstance().Resume( );
+}
+
 void CGameLogic::HandleUserInput( const UserInput& input )
 {
 	m_inputBroadCaster.ProcessInput( input );
 }
 
-void CGameLogic::StartLogic ( void )
+void CGameLogic::AppSizeChanged( IPlatform& platform )
+{
+	const std::pair<UINT, UINT>& newAppSize = platform.GetSize( );
+
+	if ( m_appSize == newAppSize )
+	{
+		return;
+	}
+
+	m_appSize = newAppSize;
+	CUtilWindowInfo::GetInstance( ).SetRect( m_appSize.first, m_appSize.second );
+
+	m_pRenderer->AppSizeChanged( m_appSize.first, m_appSize.second );
+
+	m_ssrManager.AppSizeChanged( *this );
+
+	m_view.CreatePerspectiveFovLHMatrix( XMConvertToRadians( 60 ),
+		static_cast<float>( m_appSize.first ) / m_appSize.second,
+		1.f,
+		1500.0f );
+
+	m_pickingManager.PopInvProjection( );
+	m_pickingManager.PushInvProjection( XMConvertToRadians( 60 ),
+		static_cast<float>( m_appSize.first ) / m_appSize.second,
+		1.f,
+		1500.0f );
+
+	m_pickingManager.PopViewport( );
+	m_pickingManager.PushViewport( 0.0f, 0.0f, static_cast<float>( m_appSize.first ), static_cast<float>( m_appSize.second ) );
+}
+
+void CGameLogic::StartLogic( )
 {
 	//게임 로직 수행 전처리
 }
 
-void CGameLogic::ProcessLogic ( void )
+void CGameLogic::ProcessLogic( )
 {
 	//게임 로직 수행
 	for ( auto& object : m_gameObjects )
@@ -140,7 +181,7 @@ void CGameLogic::ProcessLogic ( void )
 	}
 }
 
-void CGameLogic::EndLogic ( void )
+void CGameLogic::EndLogic( )
 {
 	//그림자 맵 렌더링
 	m_shadowManager.Process( m_lightManager, *this, m_gameObjects );
@@ -173,8 +214,8 @@ bool CGameLogic::LoadScene( const String& scene )
 
 void CGameLogic::SceneBegin( void )
 {
-	float wndWidth = static_cast<float>( m_wndSize.first );
-	float wndHeight = static_cast<float>( m_wndSize.second );
+	float wndWidth = static_cast<float>( m_appSize.first );
+	float wndHeight = static_cast<float>( m_appSize.second );
 	m_view.PushViewPort( 0.f, 0.f, wndWidth, wndHeight );
 	m_view.PushScissorRect( CUtilWindowInfo::GetInstance( ).GetRect() );
 	m_view.SetViewPort( *m_pRenderer );

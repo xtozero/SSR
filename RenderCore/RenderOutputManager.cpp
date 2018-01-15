@@ -22,6 +22,11 @@ bool CRenderOutputManager::Initialize( IResourceManager& resourceMgr, IDXGISwapC
 	return true;
 }
 
+void CRenderOutputManager::AppSizeChanged( IResourceManager& resourceMgr, IDXGISwapChain& pSwapChain )
+{
+	Initialize( resourceMgr, pSwapChain );
+}
+
 void CRenderOutputManager::SetRenderTargetDepthStencilView( IRenderer& renderer )
 {
 	RenderTargetBinder binder;
@@ -67,12 +72,12 @@ CRenderOutputManager::CRenderOutputManager( ) :
 
 bool CRenderOutputManager::CreateDefaultRenderTaraget( IResourceManager& resourceMgr, IDXGISwapChain& pSwapChain )
 {
-	void* pd3d11BackBuffer = nullptr;
-	if ( SUCCEEDED( pSwapChain.GetBuffer( 0, __uuidof(ID3D11Texture2D), &pd3d11BackBuffer ) ) )
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> pd3d11BackBuffer = nullptr;
+	if ( SUCCEEDED( pSwapChain.GetBuffer( 0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>( pd3d11BackBuffer.GetAddressOf() ) ) ) )
 	{
 		String renderTargetTexName( _T( "DefaultRenderTarget" ) );
 
-		ITexture* pBackBufferTex = resourceMgr.RegisterTexture2D( renderTargetTexName, pd3d11BackBuffer );
+		ITexture* pBackBufferTex = resourceMgr.RegisterTexture2D( renderTargetTexName, pd3d11BackBuffer.Get(), true );
 		if ( pBackBufferTex == nullptr )
 		{
 			return false;

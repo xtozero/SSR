@@ -17,8 +17,11 @@ class CSSRManager
 public:
 	bool Init( CGameLogic& gameLogic );
 	void Process( CGameLogic& gameLogic, const std::list<CGameObject*>& reflectableList ) const;
+	void AppSizeChanged( CGameLogic& gameLogic );
 
 private:
+	bool CreateAppSizeDependentResource( CGameLogic& gameLogic );
+
 	IMesh* m_pScreenRect = nullptr;
 	IMaterial* m_pSsrMaterial = nullptr;
 	IMaterial* m_pSsrBlendMaterial = nullptr;

@@ -48,23 +48,7 @@ bool ScreenBlurManager::Init( CGameLogic& gameLogic, IModelBuilder& meshBuilder 
 		return false;
 	}
 
-	String blurTempTextureName( _T( "BlurTempTexture" ) );
-	IResourceManager& resourceMgr = renderer.GetResourceManager( );
-
-	ITexture* ssrTex = resourceMgr.CreateTexture2D( blurTempTextureName, blurTempTextureName );
-	if ( ssrTex == nullptr )
-	{
-		return false;
-	}
-
-	m_pBlurRt = resourceMgr.CreateRenderTarget( *ssrTex, blurTempTextureName );
-	if ( m_pBlurRt == nullptr )
-	{
-		return false;
-	}
-
-	m_pBlurSrv = resourceMgr.CreateShaderResource( *ssrTex, blurTempTextureName );
-	if ( m_pBlurSrv == nullptr )
+	if ( CreateAppSizeDependentResource( gameLogic ) == false )
 	{
 		return false;
 	}
@@ -96,4 +80,37 @@ void ScreenBlurManager::Process( CGameLogic& gameLogic, IRenderResource& destSRV
 
 	m_pScreenRect->SetMaterial( m_pBlurMaterial[1] );
 	m_pScreenRect->Draw( gameLogic );
+}
+
+void ScreenBlurManager::AppSizeChanged( CGameLogic & gameLogic )
+{
+	CreateAppSizeDependentResource( gameLogic );
+}
+
+bool ScreenBlurManager::CreateAppSizeDependentResource( CGameLogic & gameLogic )
+{
+	IRenderer& renderer = gameLogic.GetRenderer( );
+
+	String blurTempTextureName( _T( "BlurTempTexture" ) );
+	IResourceManager& resourceMgr = renderer.GetResourceManager( );
+
+	ITexture* ssrTex = resourceMgr.CreateTexture2D( blurTempTextureName, blurTempTextureName );
+	if ( ssrTex == nullptr )
+	{
+		return false;
+	}
+
+	m_pBlurRt = resourceMgr.CreateRenderTarget( *ssrTex, blurTempTextureName );
+	if ( m_pBlurRt == nullptr )
+	{
+		return false;
+	}
+
+	m_pBlurSrv = resourceMgr.CreateShaderResource( *ssrTex, blurTempTextureName );
+	if ( m_pBlurSrv == nullptr )
+	{
+		return false;
+	}
+
+	return true;
 }
