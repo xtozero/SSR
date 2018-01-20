@@ -1,4 +1,7 @@
 #pragma once
+
+#include "INotifyGraphicsDevice.h"
+
 #include <memory>
 
 class CGameLogic;
@@ -7,14 +10,17 @@ class IModelBuilder;
 class IMaterial;
 class IRenderResource;
 
-class ScreenBlurManager
+class ScreenBlurManager : public IGraphicsDeviceNotify
 {
 public:
-	bool Init( CGameLogic& gameLogic, IModelBuilder& meshBuilder );
+	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
+
+	bool Init( CGameLogic& gameLogic );
 	void Process( CGameLogic& gameLogic, IRenderResource& destSRV, IRenderResource& destRT ) const;
 	void AppSizeChanged( CGameLogic& gameLogic );
 
 private:
+	bool CreateDeviceDependentResource( CGameLogic& gameLogic );
 	bool CreateAppSizeDependentResource( CGameLogic& gameLogic );
 
 	IMesh* m_pScreenRect = nullptr;

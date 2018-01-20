@@ -2,8 +2,7 @@
 
 #include "CommonRenderer/IRenderer.h"
 #include "Material.h"
-#include "MaterialLoader.h"
-#include "MaterialSystem.h"
+#include "MaterialManager.h"
 #include "../Engine/KeyValueReader.h"
 #include "../Shared/Util.h"
 
@@ -94,7 +93,12 @@ bool CScriptedMaterial::SetBlendState( IRenderer & renderer, const String& blend
 	return m_pBlendState ? true : false;
 }
 
-bool CMaterialLoader::LoadMaterials( IRenderer& renderer )
+void CMaterialManager::OnDeviceLost( )
+{
+	m_materials.clear( );
+}
+
+bool CMaterialManager::LoadMaterials( IRenderer& renderer )
 {
 	CKeyValueReader keyValueReader;
 
@@ -122,12 +126,48 @@ bool CMaterialLoader::LoadMaterials( IRenderer& renderer )
 	return true;
 }
 
-bool CMaterialLoader::CreateScriptedMaterial( IRenderer& renderer, const KeyValue& keyValue )
+void CMaterialManager::RegisterMaterial( const TCHAR* pName, std::unique_ptr<IMaterial> pMaterial )
 {
+	if ( pName && pMaterial )
+	{
+		auto found = m_materials.find( pName );
+
+		if ( found == m_materials.end( ) )
+		{
+			m_materials.emplace( pName, std::move( pMaterial ) );
+		}
+	}
+}
+
+IMaterial* CMaterialManager::SearchMaterialByName( const TCHAR* pName )
+{
+	if ( !pName )
+	{
+		return nullptr;
+	}
+
+	auto found = m_materials.find( pName );
+
+	if ( found != m_materials.end( ) )
+	{
+		return found->second.get( );
+	}
+
+	return nullptr;
+}
+
+bool CMaterialManager::CreateScriptedMaterial( IRenderer& renderer, const KeyValue& keyValue )
+{
+	const TCHAR* materialName = keyValue.GetKey( ).c_str( );
+	if ( SearchMaterialByName( materialName ) != nullptr )
+	{
+		return false;
+	}
+
 	std::unique_ptr<CScriptedMaterial> newMaterial = std::make_unique<CScriptedMaterial>();
 	newMaterial->Init( renderer );
 	CScriptedMaterial* pMaterial = newMaterial.get( );
-	MaterialSystem::GetInstance( )->RegisterMaterial( keyValue.GetKey( ).c_str(), std::move( newMaterial ) );
+	m_materials.emplace( materialName, std::move( newMaterial ) );
 
 	if ( const KeyValue* pShader = keyValue.Find( _T( "Shader" ) ) )
 	{

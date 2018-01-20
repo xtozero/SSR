@@ -62,6 +62,11 @@ void CNullDepthStencilState::Set( const SHADER_TYPE type )
 	m_renderStateManager.SetDepthStencilState( nullptr, 1 );
 }
 
+void CD3D11DepthStencilStateFactory::OnDeviceLost( )
+{
+	m_depthStencilState.clear( );
+}
+
 void CD3D11DepthStencilStateFactory::LoadDesc( )
 {
 	CKeyValueReader KeyValueReader;

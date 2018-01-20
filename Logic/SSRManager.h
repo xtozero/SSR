@@ -1,26 +1,31 @@
 #pragma once
 
+#include "INotifyGraphicsDevice.h"
+#include "ScreenBlurManager.h"
+
 #include <memory>
 #include <list>
-
-#include "ScreenBlurManager.h"
 
 class CGameLogic;
 class CGameObject;
 class IBuffer;
 class IMaterial;
 class IMesh;
+class IRenderer;
 class IRenderResource;
 
-class CSSRManager
+class CSSRManager : public IGraphicsDeviceNotify
 {
 public:
+	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
+
 	bool Init( CGameLogic& gameLogic );
 	void Process( CGameLogic& gameLogic, const std::list<CGameObject*>& reflectableList ) const;
 	void AppSizeChanged( CGameLogic& gameLogic );
 
 private:
-	bool CreateAppSizeDependentResource( CGameLogic& gameLogic );
+	bool CreateAppSizeDependentResource( IRenderer& renderer );
+	bool CreateDeviceDependendResource( CGameLogic& gameLogic );
 
 	IMesh* m_pScreenRect = nullptr;
 	IMaterial* m_pSsrMaterial = nullptr;

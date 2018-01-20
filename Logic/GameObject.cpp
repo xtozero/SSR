@@ -15,6 +15,15 @@ using namespace DirectX;
 
 DECLARE_GAME_OBJECT( base, CGameObject );
 
+void CGameObject::OnDeviceRestore( CGameLogic & gameLogic )
+{
+	m_pModel = nullptr;
+	m_pMaterial = nullptr;
+
+	LoadModelMesh( gameLogic );
+	LoadMaterial( gameLogic );
+}
+
 void CGameObject::SetPosition( const float x, const float y, const float z )
 {
 	SetPosition( CXMFLOAT3( x, y, z ) );

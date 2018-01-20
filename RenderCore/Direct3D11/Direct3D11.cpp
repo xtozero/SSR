@@ -21,8 +21,7 @@
 #include "D3D11ShaderUtil.h"
 #include "D3D11VertexShader.h"
 
-#include "../MaterialSystem.h"
-#include "../MaterialLoader.h"
+#include "../MaterialManager.h"
 
 #include "../RenderCoreDllFunc.h"
 #include "../RenderEffect.h"
@@ -154,11 +153,12 @@ class CDirect3D11 : public IRenderer
 {
 public:
 	virtual bool BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight ) override;
+	virtual void HandleDeviceLost( HWND hWnd, UINT nWndWidth, UINT nWndHeight ) override;
 	virtual void AppSizeChanged( UINT nWndWidth, UINT nWndHeight ) override;
 	virtual void ShutDownRenderer( ) override;
 	virtual void SceneBegin( ) override;
 	virtual void ForwardRenderEnd( ) override;
-	virtual void SceneEnd( ) override;
+	virtual BYTE SceneEnd( ) override;
 
 	virtual IShader* CreateVertexShader( const TCHAR* pFilePath, const char* pProfile ) override;
 	virtual IShader* CreatePixelShader( const TCHAR* pFilePath, const char* pProfile ) override;
@@ -199,7 +199,7 @@ public:
 	virtual void DrawInstancedInstanced( UINT primitive, UINT indexCount, UINT instanceCount, UINT indexOffset = 0, UINT vertexOffset = 0, UINT instanceOffset = 0 ) override;
 	virtual void DrawAuto( UINT primitive ) override;
 
-	virtual IResourceManager& GetResourceManager( ) override { return *m_resourceManager.get( ); }
+	virtual IResourceManager& GetResourceManager( ) override { return *m_pResourceManager.get( ); }
 
 	CDirect3D11( );
 	virtual ~CDirect3D11( );
@@ -219,7 +219,7 @@ private:
 	std::map<String, std::unique_ptr<IComputeShader>>		m_computeShaderList;
 	std::vector<std::unique_ptr<IBuffer>>					m_bufferList;
 
-	std::unique_ptr<CD3D11ResourceManager>					m_resourceManager;
+	std::unique_ptr<CD3D11ResourceManager>					m_pResourceManager;
 	CRenderOutputManager									m_renderOutput;
 
 	CShaderListScriptLoader									m_shaderLoader;
@@ -229,7 +229,7 @@ private:
 	CD3D11RasterizerStateFactory							m_RasterizerFactory;
 	CD3D11SamplerStateFactory								m_SamplerFactory;
 	CD3D11BlendStateFactory									m_BlendFactory;
-	CMaterialLoader											m_MaterialLoader;
+	CMaterialManager										m_MaterialManager;
 
 	CRenderEffect											m_renderEffect;
 };
@@ -263,24 +263,82 @@ bool CDirect3D11::BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
 		return false;
 	}
 	
-	m_resourceManager = std::make_unique<CD3D11ResourceManager>( *m_pd3d11Device.Get( ), *m_pd3d11DeviceContext.Get( ) );
-	m_resourceManager->AppSizeChanged( nWndWidth, nWndHeight );
-	if ( !m_resourceManager->Bootup( ) )
+	m_pResourceManager = std::make_unique<CD3D11ResourceManager>( *m_pd3d11Device.Get( ), *m_pd3d11DeviceContext.Get( ) );
+	m_pResourceManager->AppSizeChanged( nWndWidth, nWndHeight );
+	if ( !m_pResourceManager->Bootup( ) )
 	{
 		return false;
 	}
 
-	if ( !m_renderOutput.Initialize( *m_resourceManager, *m_pdxgiSwapChain.Get( ) ) )
+	if ( !m_renderOutput.Initialize( *m_pResourceManager, *m_pdxgiSwapChain.Get( ) ) )
 	{
 		return false;
 	}
 
-	{
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> pd3d11BackBuffer = nullptr;
-		m_pdxgiSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), reinterpret_cast<void**>( pd3d11BackBuffer.GetAddressOf( ) ) );
-	}
+	m_renderEffect.BootUp( );
 
 	return true;
+}
+
+void CDirect3D11::HandleDeviceLost( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
+{
+	m_pResourceManager.reset( );
+	m_pRenderStateManager.reset( );
+
+	m_DepthStencilFactory.OnDeviceLost( );
+	m_RasterizerFactory.OnDeviceLost( );
+	m_SamplerFactory.OnDeviceLost( );
+	m_BlendFactory.OnDeviceLost( );
+	m_MaterialManager.OnDeviceLost( );
+
+	m_renderEffect.OnDeviceLost( );
+
+	m_graphicsShaderList.clear( );
+	m_computeShaderList.clear( );
+	m_bufferList.clear( );
+
+	m_pdxgiSwapChain.Reset( );
+	m_pdxgiFactory.Reset( );
+	m_pd3d11DeviceContext.Reset( );
+	m_pd3d11Device.Reset( );
+
+	ReportLiveDevice( );
+
+	if ( !CreateDeviceIndependentResource( ) )
+	{
+		__debugbreak( );
+	}
+
+	if ( !CreateDeviceDependentResource( hWnd, nWndWidth, nWndHeight ) )
+	{
+		__debugbreak( );
+	}
+
+	m_pRenderStateManager = std::make_unique<CD3D11RenderStateManager>( *m_pd3d11DeviceContext.Get( ) );
+
+	if ( !InitializeShaders( ) )
+	{
+		__debugbreak( );
+	}
+
+	if ( !InitializeMaterial( ) )
+	{
+		__debugbreak( );
+	}
+
+	m_pResourceManager = std::make_unique<CD3D11ResourceManager>( *m_pd3d11Device.Get( ), *m_pd3d11DeviceContext.Get( ) );
+	m_pResourceManager->AppSizeChanged( nWndWidth, nWndHeight );
+	if ( !m_pResourceManager->Bootup( ) )
+	{
+		__debugbreak( );
+	}
+
+	if ( !m_renderOutput.Initialize( *m_pResourceManager, *m_pdxgiSwapChain.Get( ) ) )
+	{
+		__debugbreak( );
+	}
+
+	m_renderEffect.BootUp( );
 }
 
 void CDirect3D11::AppSizeChanged( UINT nWndWidth, UINT nWndHeight )
@@ -295,12 +353,12 @@ void CDirect3D11::AppSizeChanged( UINT nWndWidth, UINT nWndHeight )
 		__debugbreak( );
 	}
 
-	if ( m_resourceManager == nullptr )
+	if ( m_pResourceManager == nullptr )
 	{
 		__debugbreak( );
 	}
 
-	m_resourceManager->AppSizeChanged( nWndWidth, nWndHeight );
+	m_pResourceManager->AppSizeChanged( nWndWidth, nWndHeight );
 
 	HRESULT hr = m_pdxgiSwapChain->ResizeBuffers( 1, nWndWidth, nWndHeight, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH );
 	if ( FAILED( hr ) )
@@ -308,7 +366,7 @@ void CDirect3D11::AppSizeChanged( UINT nWndWidth, UINT nWndHeight )
 		__debugbreak( );
 	}
 
-	m_renderOutput.AppSizeChanged( *m_resourceManager, *m_pdxgiSwapChain.Get() );
+	m_renderOutput.AppSizeChanged( *m_pResourceManager, *m_pdxgiSwapChain.Get() );
 }
 
 void CDirect3D11::ShutDownRenderer( )
@@ -336,9 +394,14 @@ void CDirect3D11::ForwardRenderEnd( )
 	TakeSnapshot2D( _T( "DefaultRenderTarget" ), _T( "DuplicateFrameBuffer" ) );
 }
 
-void CDirect3D11::SceneEnd( )
+BYTE CDirect3D11::SceneEnd( )
 {
-	m_pdxgiSwapChain->Present( 0, 0 );
+	HRESULT hr = m_pdxgiSwapChain->Present( 0, 0 );
+
+	if ( hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET )
+	{
+		return DEVICE_ERROR::DEVICE_LOST;
+	}
 
 	TakeSnapshot2D( _T( "DefaultDepthStencil" ), _T( "DebugDepthStencil" ) );
 	TakeSnapshot2D( _T( "ShadowMap" ), _T( "DebugShadowMap" ) );
@@ -346,6 +409,8 @@ void CDirect3D11::SceneEnd( )
 	m_renderOutput.SceneEnd( *m_pd3d11DeviceContext.Get() );
 
 	m_renderEffect.SceneEnd( *this );
+
+	return DEVICE_ERROR::NONE;
 }
 
 IShader* CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pProfile )
@@ -525,17 +590,29 @@ IComputeShader * CDirect3D11::FindComputeShaderByName( const TCHAR* pName )
 
 bool CDirect3D11::InitializeMaterial( )
 {
-	REGISTER_MATERIAL( *this, TutorialMaterial, tutorial );
-	REGISTER_MATERIAL( *this, WireFrame, wireframe );
-	REGISTER_MATERIAL( *this, TextureMaterial, texture );
-	REGISTER_MATERIAL( *this, SkyBoxMaterial, skybox );
+	auto tutorialMaterial = std::make_unique<TutorialMaterial>( );
+	tutorialMaterial->Init( *this );
 
-	return m_MaterialLoader.LoadMaterials( *this );
+	auto wireFrame = std::make_unique<WireFrame>( );
+	wireFrame->Init( *this );
+
+	auto texture = std::make_unique<TextureMaterial>( );
+	texture->Init( *this );
+
+	auto skyBox = std::make_unique<SkyBoxMaterial>( );
+	skyBox->Init( *this );
+
+	m_MaterialManager.RegisterMaterial( _T( "tutorial" ), std::move( tutorialMaterial ) );
+	m_MaterialManager.RegisterMaterial( _T( "wireframe" ), std::move( wireFrame ) );
+	m_MaterialManager.RegisterMaterial( _T( "texture" ), std::move( texture ) );
+	m_MaterialManager.RegisterMaterial( _T( "skybox" ), std::move( skyBox ) );
+
+	return m_MaterialManager.LoadMaterials( *this );
 }
 
 IMaterial* CDirect3D11::GetMaterialPtr( const TCHAR* pMaterialName )
 {
-	return MaterialSystem::GetInstance( )->SearchMaterialByName( pMaterialName );
+	return m_MaterialManager.SearchMaterialByName( pMaterialName );
 }
 
 void CDirect3D11::SetViewports( std::vector<Viewport>& viewports )
@@ -564,8 +641,8 @@ IRenderState* CDirect3D11::CreateRenderState( const String& stateName )
 
 IRenderResource* CDirect3D11::GetShaderResourceFromFile( const String& fileName )
 {
-	m_resourceManager->LoadShaderResourceFromFile( fileName );
-	return m_resourceManager->FindShaderResource( fileName );
+	m_pResourceManager->LoadShaderResourceFromFile( fileName );
+	return m_pResourceManager->FindShaderResource( fileName );
 }
 
 IRenderState* CDirect3D11::CreateSamplerState( const String& stateName )
@@ -585,7 +662,7 @@ IRenderState* CDirect3D11::CreateBlendState( const String& stateName )
 
 void CDirect3D11::TakeSnapshot2D( const String& sourceTextureName, const String& destTextureName )
 {
-	m_resourceManager->TakeSnapshot( sourceTextureName, destTextureName );
+	m_pResourceManager->TakeSnapshot( sourceTextureName, destTextureName );
 }
 
 void CDirect3D11::PSSetShaderResource( UINT startSlot, IRenderResource* shaderResourceOrNull )

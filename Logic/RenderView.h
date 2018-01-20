@@ -1,5 +1,7 @@
 #pragma once
 
+#include "INotifyGraphicsDevice.h"
+
 #include "../RenderCore/CommonRenderer/IBuffer.h"
 #include "../shared/Math/CXMFloat.h"
 
@@ -8,9 +10,11 @@
 
 class IRenderer;
 
-class CRenderView
+class CRenderView : public IGraphicsDeviceNotify
 {
 public:
+	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
+
 	bool initialize( IRenderer& renderer );
 
 	void PushViewPort( const float x, const float y, const float width, const float height, const float zNear = 0.f, const float zFar = 1.0f );
@@ -32,6 +36,8 @@ public:
 
 	CRenderView( );
 private:
+	bool CreateDeviceDependentResource( IRenderer& renderer );
+
 	std::vector<Viewport> m_viewportList;
 	std::vector<RECT> m_scissorRectList;
 

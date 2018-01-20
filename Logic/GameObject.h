@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameObjectProperty.h"
+#include "INotifyGraphicsDevice.h"
 #include "RigidBodyManager.h"
 
 #include "../shared/Math/CXMFloat.h"
@@ -13,9 +14,10 @@ class IMaterial;
 class IMesh;
 class KeyValue;
 
-class CGameObject
+class CGameObject : IGraphicsDeviceNotify
 {
 public:
+	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
 	virtual void SetPosition( const float x, const float y, const float z );
 	virtual void SetPosition( const CXMFLOAT3& pos );
 	virtual void SetScale( const float xScale, const float yScale, const float zScale );

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IListener.h"
+#include "INotifyGraphicsDevice.h"
 #include "Movement.h"
 
 #include "../shared/Math/CXMFloat.h"
@@ -9,9 +10,10 @@ class CRenderView;
 class IRenderer;
 class KeyValue;
 
-class CCamera : public IListener
+class CCamera : public IListener, public IGraphicsDeviceNotify
 {
 public:
+	virtual void OnDeviceRestore( CGameLogic& gameLogic );
 	// IListener
 	virtual void ProcessInput( const UserInput& input );
 

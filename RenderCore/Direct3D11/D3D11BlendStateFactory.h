@@ -23,9 +23,9 @@ struct CD3D_BLEND_DESC
 class CD3D11BlendStateFactory
 {
 public:
+	void OnDeviceLost( );
 	void LoadDesc( );
 	IRenderState* GetBlendState( ID3D11Device& device, CD3D11RenderStateManager& renderStateManager, const String& stateName );
-	void AddBlendDesc( const String& descName, const CD3D_BLEND_DESC& newDesc );
 
 private:
 	void LoadRasterizerDesc( const KeyValue& keyValue );

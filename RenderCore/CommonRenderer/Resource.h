@@ -192,6 +192,15 @@ namespace BUFFER_LOCKFLAG
 	};
 }
 
+namespace DEVICE_ERROR
+{
+	enum
+	{
+		NONE = 0,
+		DEVICE_LOST,
+	};
+}
+
 struct BUFFER_TRAIT
 {
 	UINT m_stride;

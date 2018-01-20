@@ -12,6 +12,11 @@
 
 using namespace DirectX;
 
+void CCamera::OnDeviceRestore( CGameLogic & gameLogic )
+{
+	CameraChanged( );
+}
+
 void CCamera::ProcessInput( const UserInput& input )
 {
 	switch ( input.m_code )

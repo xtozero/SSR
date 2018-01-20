@@ -61,6 +61,11 @@ void CNullRasterizerState::Set( const SHADER_TYPE type )
 	m_renderStateManager.SetRasterizerState( nullptr );
 }
 
+void CD3D11RasterizerStateFactory::OnDeviceLost( )
+{
+	m_rasterizerState.clear( );
+}
+
 void CD3D11RasterizerStateFactory::LoadDesc( )
 {
 	CKeyValueReader KeyValueReader;

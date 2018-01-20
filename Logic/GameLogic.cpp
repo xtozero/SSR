@@ -67,40 +67,7 @@ bool CGameLogic::Initialize( IPlatform& platform )
 
 	ON_FAIL_RETURN( m_ssrManager.Init( *this ) );
 
-	BUFFER_TRAIT trait = { sizeof( SurfaceTrait ),
-							1,
-							RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
-							RESOURCE_TYPE::CONSTANT_BUFFER,
-							0,
-							nullptr,
-							0,
-							0 };
-
-	using namespace SHARED_CONSTANT_BUFFER;
-
-	m_commonConstantBuffer[PS_SURFACE] = m_pRenderer->CreateBuffer( trait );
-	if ( m_commonConstantBuffer[PS_SURFACE] == nullptr )
-	{
-		return false;
-	}
-
-	trait.m_stride = sizeof( GeometryTransform );
-
-	m_commonConstantBuffer[VS_GEOMETRY] = m_pRenderer->CreateBuffer( trait );
-	if ( m_commonConstantBuffer[VS_GEOMETRY] == nullptr )
-	{
-		return false;
-	}
-
-	trait.m_stride = sizeof( ShadowTransform );
-
-	m_commonConstantBuffer[VS_SHADOW] = m_pRenderer->CreateBuffer( trait );
-	if ( m_commonConstantBuffer[VS_SHADOW] == nullptr )
-	{
-		return false;
-	}
-
-	return true;
+	return CreateDeviceDependentResource( );
 }
 
 void CGameLogic::Update( )
@@ -232,9 +199,13 @@ void CGameLogic::DrawScene( void )
 	DrawReflectRenderable( );
 }
 
-void CGameLogic::SceneEnd( void ) const
+void CGameLogic::SceneEnd( void )
 {
-	m_pRenderer->SceneEnd( );
+	BYTE errorCode = m_pRenderer->SceneEnd( );
+	if ( errorCode == DEVICE_ERROR::DEVICE_LOST )
+	{
+		HandleDeviceLost( );
+	}
 }
 
 void CGameLogic::BuildRenderableList( )
@@ -285,6 +256,63 @@ void CGameLogic::DrawReflectRenderable( )
 {
 	m_pRenderer->ForwardRenderEnd( );
 	m_ssrManager.Process( *this, m_renderableList[REFLECT_RENDERABLE] );
+}
+
+void CGameLogic::HandleDeviceLost( )
+{
+	m_pRenderer->HandleDeviceLost( m_wndHwnd, m_appSize.first, m_appSize.second );
+
+	CreateDeviceDependentResource( );
+
+	m_meshManager.OnDeviceRestore( *this );
+	m_lightManager.OnDeviceRestore( *this );
+	m_shadowManager.OnDeviceRestore( *this );
+	m_ssrManager.OnDeviceRestore( *this );
+	m_view.OnDeviceRestore( *this );
+	m_mainCamera.OnDeviceRestore( *this );
+
+	for ( auto& object : m_gameObjects )
+	{
+		object->OnDeviceRestore( *this );
+	}
+}
+
+bool CGameLogic::CreateDeviceDependentResource( )
+{
+	BUFFER_TRAIT trait = { sizeof( SurfaceTrait ),
+		1,
+		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
+		RESOURCE_TYPE::CONSTANT_BUFFER,
+		0,
+		nullptr,
+		0,
+		0 };
+
+	using namespace SHARED_CONSTANT_BUFFER;
+
+	m_commonConstantBuffer[PS_SURFACE] = m_pRenderer->CreateBuffer( trait );
+	if ( m_commonConstantBuffer[PS_SURFACE] == nullptr )
+	{
+		return false;
+	}
+
+	trait.m_stride = sizeof( GeometryTransform );
+
+	m_commonConstantBuffer[VS_GEOMETRY] = m_pRenderer->CreateBuffer( trait );
+	if ( m_commonConstantBuffer[VS_GEOMETRY] == nullptr )
+	{
+		return false;
+	}
+
+	trait.m_stride = sizeof( ShadowTransform );
+
+	m_commonConstantBuffer[VS_SHADOW] = m_pRenderer->CreateBuffer( trait );
+	if ( m_commonConstantBuffer[VS_SHADOW] == nullptr )
+	{
+		return false;
+	}
+
+	return true;
 }
 
 CGameLogic::CGameLogic( ):

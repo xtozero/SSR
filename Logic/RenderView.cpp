@@ -4,38 +4,19 @@
 
 #include "common.h"
 #include "ConstantBufferDefine.h"
+#include "GameLogic.h"
 #include "../RenderCore/CommonRenderer/IRenderer.h"
 
 using namespace DirectX;
 
+void CRenderView::OnDeviceRestore( CGameLogic& gameLogic )
+{
+	CreateDeviceDependentResource( gameLogic.GetRenderer( ) );
+}
+
 bool CRenderView::initialize( IRenderer& renderer )
 {
-	BUFFER_TRAIT trait = { sizeof( ViewProjectionTrasform ),
-							1,
-							RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
-							RESOURCE_TYPE::CONSTANT_BUFFER,
-							0,
-							nullptr,
-							0,
-							0 };
-
-	m_viewConstantBuffer = renderer.CreateBuffer( trait );
-
-	if ( m_viewConstantBuffer == nullptr )
-	{
-		return false;
-	}
-
-	trait.m_stride = sizeof( GbufferInfo );
-
-	m_gbufferConstantBuffer = renderer.CreateBuffer( trait );
-
-	if ( m_gbufferConstantBuffer == nullptr )
-	{
-		return false;
-	}
-
-	return true;
+	return CreateDeviceDependentResource( renderer );
 }
 
 void CRenderView::PushViewPort( const float x, const float y, const float width, const float height, const float zNear, const float zFar )
@@ -119,4 +100,34 @@ CRenderView::CRenderView( )
 {
 	m_viewMatrix = XMMatrixIdentity( );
 	m_projectionMatrix = XMMatrixIdentity( );
+}
+
+bool CRenderView::CreateDeviceDependentResource( IRenderer& renderer )
+{
+	BUFFER_TRAIT trait = { sizeof( ViewProjectionTrasform ),
+		1,
+		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
+		RESOURCE_TYPE::CONSTANT_BUFFER,
+		0,
+		nullptr,
+		0,
+		0 };
+
+	m_viewConstantBuffer = renderer.CreateBuffer( trait );
+
+	if ( m_viewConstantBuffer == nullptr )
+	{
+		return false;
+	}
+
+	trait.m_stride = sizeof( GbufferInfo );
+
+	m_gbufferConstantBuffer = renderer.CreateBuffer( trait );
+
+	if ( m_gbufferConstantBuffer == nullptr )
+	{
+		return false;
+	}
+
+	return true;
 }

@@ -14,6 +14,7 @@ class KeyValue;
 class CD3D11DepthStencilStateFactory
 {
 public:
+	void OnDeviceLost( );
 	void LoadDesc( );
 	IRenderState* GetDepthStencilState( ID3D11Device& device, CD3D11RenderStateManager& renderStateManager, const String& stateName );
 	void AddDepthStencilDesc( const String & descName, const D3D11_DEPTH_STENCIL_DESC & newDesc );

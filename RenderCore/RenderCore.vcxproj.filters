@@ -72,16 +72,10 @@
     <ClInclude Include="util_rendercore.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="MaterialSystem.h">
-      <Filter>Direct11\Material</Filter>
-    </ClInclude>
     <ClInclude Include="TextureMaterial.h">
       <Filter>Direct11\Material</Filter>
     </ClInclude>
     <ClInclude Include="SkyBoxMaterial.h">
-      <Filter>Direct11\Material</Filter>
-    </ClInclude>
-    <ClInclude Include="MaterialLoader.h">
       <Filter>Direct11\Material</Filter>
     </ClInclude>
     <ClInclude Include="Surface.h">
@@ -177,6 +171,9 @@
     <ClInclude Include="Direct3D11\D3D11RenderStateManager.h">
       <Filter>Direct11\RenderState</Filter>
     </ClInclude>
+    <ClInclude Include="MaterialManager.h">
+      <Filter>Direct11\Material</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -203,16 +200,10 @@
     <ClCompile Include="..\Shared\Util.cpp">
       <Filter>Shared</Filter>
     </ClCompile>
-    <ClCompile Include="MaterialSystem.cpp">
-      <Filter>Direct11\Material</Filter>
-    </ClCompile>
     <ClCompile Include="TextureMaterial.cpp">
       <Filter>Direct11\Material</Filter>
     </ClCompile>
     <ClCompile Include="SkyBoxMaterial.cpp">
-      <Filter>Direct11\Material</Filter>
-    </ClCompile>
-    <ClCompile Include="MaterialLoader.cpp">
       <Filter>Direct11\Material</Filter>
     </ClCompile>
     <ClCompile Include="Surface.cpp">
@@ -277,6 +268,9 @@
     </ClCompile>
     <ClCompile Include="Direct3D11\D3D11RenderStateManager.cpp">
       <Filter>Direct11\RenderState</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialManager.cpp">
+      <Filter>Direct11\Material</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

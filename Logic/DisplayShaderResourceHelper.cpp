@@ -73,8 +73,6 @@ bool CDisplayShaderResourceHelper::ShouldDraw( ) const
 
 bool CDisplayShaderResourceHelper::LoadModelMesh( CGameLogic& gameLogic )
 {
-	IModelBuilder& meshBuilder = gameLogic.GetModelManager( ).GetModelBuilder( );
-
 	if ( GetModel( ) != nullptr )
 	{
 		return false;
@@ -85,6 +83,9 @@ bool CDisplayShaderResourceHelper::LoadModelMesh( CGameLogic& gameLogic )
 
 	float halfWidth = m_width / wndWidth;
 	float halfHeight = m_height / wndHeight;
+
+	IModelBuilder& meshBuilder = gameLogic.GetModelManager( ).GetModelBuilder( );
+	meshBuilder.Clear( );
 
 	meshBuilder.Append( MeshVertex( CXMFLOAT3( -halfWidth, -halfHeight, 1.f ), CXMFLOAT2( 0.f, 1.f ) ) );
 	meshBuilder.Append( MeshVertex( CXMFLOAT3( -halfWidth, halfHeight, 1.f ), CXMFLOAT2( 0.f, 0.0f ) ) );

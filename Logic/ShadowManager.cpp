@@ -21,54 +21,15 @@ namespace
 	constexpr TCHAR* SHADOWMAP_MATERIAL_NAME = _T( "mat_shadowMap" );
 }
 
+void CShadowManager::OnDeviceRestore( CGameLogic& gameLogic )
+{
+	m_isEnabled = CreateDeviceDependentResource( gameLogic.GetRenderer() );
+}
+
 void CShadowManager::Init( CGameLogic& gameLogic )
 {
-	m_isEnabled = false;
 	IRenderer& renderer = gameLogic.GetRenderer( );
-
-	//±×¸²ÀÚ¿ë ·»´õ Å¸°Ù »ý¼º
-	IResourceManager& resourceMgr = renderer.GetResourceManager( );
-	m_shadowMap = resourceMgr.CreateTexture2D( _T( "ShadowMap" ), _T( "ShadowMap" ) );
-	if ( m_shadowMap == nullptr )
-	{
-		return;
-	}
-
-	m_rtvShadowMap = resourceMgr.CreateRenderTarget( *m_shadowMap, _T( "ShadowMap" ) );
-	if ( m_rtvShadowMap == nullptr )
-	{
-		return;
-	}
-
-	m_srvShadowMap = resourceMgr.CreateShaderResource( *m_shadowMap, _T( "ShadowMap" ) );
-	if ( m_srvShadowMap == nullptr )
-	{
-		return;
-	}
-
-	const ITexture* depthStencilTexture = resourceMgr.CreateTexture2D( _T( "ShadowMapDepthStencil" ), _T( "ShadowMapDepthStencil" ) );
-	if ( depthStencilTexture == nullptr )
-	{
-		return;
-	}
-
-	TEXTURE_TRAIT texTrait = depthStencilTexture->GetTrait( );
-	texTrait.m_format = RESOURCE_FORMAT::D24_UNORM_S8_UINT;
-
-	m_dsvShadowMap = resourceMgr.CreateDepthStencil( *depthStencilTexture, _T( "ShadowMapDepthStencil" ), &texTrait );
-	if ( m_dsvShadowMap == nullptr )
-	{
-		return;
-	}
-
-	m_shadowMapMtl = renderer.GetMaterialPtr( SHADOWMAP_MATERIAL_NAME );
-
-	if ( m_shadowMapMtl == nullptr )
-	{
-		return;
-	}
-
-	m_isEnabled = true;
+	m_isEnabled = CreateDeviceDependentResource( renderer );
 }
 
 void CShadowManager::SceneBegin( CLightManager& lightMgr, CGameLogic& gameLogic )
@@ -148,4 +109,50 @@ void CShadowManager::Process( CLightManager& lightMgr, CGameLogic& gameLogic, st
 		DrawScene( lightMgr, gameLogic, gameObjects );
 		SceneEnd( lightMgr, gameLogic );
 	}
+}
+
+bool CShadowManager::CreateDeviceDependentResource( IRenderer& renderer )
+{
+	//±×¸²ÀÚ¿ë ·»´õ Å¸°Ù »ý¼º
+	IResourceManager& resourceMgr = renderer.GetResourceManager( );
+	m_shadowMap = resourceMgr.CreateTexture2D( _T( "ShadowMap" ), _T( "ShadowMap" ) );
+	if ( m_shadowMap == nullptr )
+	{
+		return false;
+	}
+
+	m_rtvShadowMap = resourceMgr.CreateRenderTarget( *m_shadowMap, _T( "ShadowMap" ) );
+	if ( m_rtvShadowMap == nullptr )
+	{
+		return false;
+	}
+
+	m_srvShadowMap = resourceMgr.CreateShaderResource( *m_shadowMap, _T( "ShadowMap" ) );
+	if ( m_srvShadowMap == nullptr )
+	{
+		return false;
+	}
+
+	const ITexture* depthStencilTexture = resourceMgr.CreateTexture2D( _T( "ShadowMapDepthStencil" ), _T( "ShadowMapDepthStencil" ) );
+	if ( depthStencilTexture == nullptr )
+	{
+		return false;
+	}
+
+	TEXTURE_TRAIT texTrait = depthStencilTexture->GetTrait( );
+	texTrait.m_format = RESOURCE_FORMAT::D24_UNORM_S8_UINT;
+
+	m_dsvShadowMap = resourceMgr.CreateDepthStencil( *depthStencilTexture, _T( "ShadowMapDepthStencil" ), &texTrait );
+	if ( m_dsvShadowMap == nullptr )
+	{
+		return false;
+	}
+
+	m_shadowMapMtl = renderer.GetMaterialPtr( SHADOWMAP_MATERIAL_NAME );
+	if ( m_shadowMapMtl == nullptr )
+	{
+		return false;
+	}
+
+	return true;
 }

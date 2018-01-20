@@ -80,6 +80,11 @@ void CNullSamplerState::Set( const SHADER_TYPE  )
 
 }
 
+void CD3D11SamplerStateFactory::OnDeviceLost( )
+{
+	m_samplerState.clear( );
+}
+
 void CD3D11SamplerStateFactory::LoadDesc( )
 {
 	CKeyValueReader KeyValueReader;

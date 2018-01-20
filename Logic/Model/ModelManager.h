@@ -7,6 +7,7 @@
 #include "PlyMeshLoader.h"
 
 #include "../common.h"
+#include "../INotifyGraphicsDevice.h"
 #include "../../shared/Util.h"
 
 #include <map>
@@ -17,9 +18,11 @@ class IModelLoader;
 class IRenderer;
 class CSurfaceManager;
 
-class CModelManager
+class CModelManager : IGraphicsDeviceNotify
 {
 public:
+	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
+
 	IMesh* LoadMeshFromFile( IRenderer& renderer, const TCHAR* pfileName );
 	IMesh* FindModel( const String& modelName );
 	void RegisterMesh( const String& modelName, const std::unique_ptr<IMesh> pMesh );

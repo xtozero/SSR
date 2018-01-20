@@ -68,6 +68,11 @@ void CNullBlendState::Set( const SHADER_TYPE type )
 	m_renderStateManager.SetBlendState( nullptr, nullptr, D3D11_DEFAULT_SAMPLE_MASK );
 }
 
+void CD3D11BlendStateFactory::OnDeviceLost( )
+{
+	m_blendState.clear( );
+}
+
 void CD3D11BlendStateFactory::LoadDesc( )
 {
 	CKeyValueReader KeyValueReader;

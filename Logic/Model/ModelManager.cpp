@@ -9,6 +9,11 @@
 #include <fstream>
 #include <vector>
 
+void CModelManager::OnDeviceRestore( CGameLogic & gameLogic )
+{
+	m_meshList.clear( );
+}
+
 IMesh* CModelManager::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pfileName )
 {
 	auto iter = m_meshList.find( pfileName );

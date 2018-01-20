@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.h"
+#include "INotifyGraphicsDevice.h"
 #include "Light.h"
 
 #include "../shared/Math/CXMFloat.h"
@@ -27,9 +28,11 @@ class IBuffer;
 class IRenderer;
 class KeyValue;
 
-class CLightManager
+class CLightManager : IGraphicsDeviceNotify
 {
 public:
+	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
+
 	bool Initialize( IRenderer& renderer, std::vector<std::unique_ptr<CGameObject>>& objectList );
 	void UpdateToRenderer( IRenderer& renderer, const CCamera& camera );
 
@@ -45,6 +48,7 @@ public:
 	~CLightManager( ) = default;
 
 private:
+	bool CreateDeviceDependentResource( IRenderer& renderer );
 	void LoadPropertyFromScript( );
 	void LoadLightProperty( const KeyValue& keyValue );
 

@@ -14,6 +14,7 @@ class KeyValue;
 class CD3D11SamplerStateFactory
 {
 public:
+	void OnDeviceLost( );
 	void LoadDesc( );
 	IRenderState* GetSamplerState( ID3D11Device& device, CD3D11RenderStateManager& renderStateManager, const String& stateName );
 	void AddSamplerDesc( const String& descName, const D3D11_SAMPLER_DESC& newDesc );

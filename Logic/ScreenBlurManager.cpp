@@ -12,48 +12,14 @@
 
 #include "../Shared/Util.h"
 
-bool ScreenBlurManager::Init( CGameLogic& gameLogic, IModelBuilder& meshBuilder )
+void ScreenBlurManager::OnDeviceRestore( CGameLogic & gameLogic )
 {
-	IRenderer& renderer = gameLogic.GetRenderer( );
+	CreateDeviceDependentResource( gameLogic );
+}
 
-	constexpr TCHAR* BLUR_MATERIAL_NAME[] = { _T( "mat_gaussian_blur_x" ), _T( "mat_gaussian_blur_y" ) };
-
-	for ( int i = 0; i < 2; ++i )
-	{
-		m_pBlurMaterial[i] = renderer.GetMaterialPtr( BLUR_MATERIAL_NAME[i] );
-
-		if ( m_pBlurMaterial[i] == nullptr )
-		{
-			return false;
-		}
-	}
-
-	// Create Screen Rect Mesh
-	meshBuilder.Clear( );
-
-	meshBuilder.Append( MeshVertex( CXMFLOAT3( -1.f, -1.f, 1.f ), CXMFLOAT2( 0.f, 1.f ) ) );
-	meshBuilder.Append( MeshVertex( CXMFLOAT3( -1.f, 1.f, 1.f ), CXMFLOAT2( 0.f, 0.f ) ) );
-	meshBuilder.Append( MeshVertex( CXMFLOAT3( 1.f, -1.f, 1.f ), CXMFLOAT2( 1.f, 1.f ) ) );
-	meshBuilder.Append( MeshVertex( CXMFLOAT3( 1.f, 1.f, 1.f ), CXMFLOAT2( 1.f, 0.f ) ) );
-
-	meshBuilder.AppendIndex( 0 );
-	meshBuilder.AppendIndex( 1 );
-	meshBuilder.AppendIndex( 2 );
-	meshBuilder.AppendIndex( 3 );
-
-	m_pScreenRect = meshBuilder.Build( renderer, _T( "ScreenRect" ), D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
-
-	if ( m_pScreenRect == nullptr )
-	{
-		return false;
-	}
-
-	if ( CreateAppSizeDependentResource( gameLogic ) == false )
-	{
-		return false;
-	}
-
-	return true;
+bool ScreenBlurManager::Init( CGameLogic& gameLogic )
+{
+	return CreateDeviceDependentResource( gameLogic );
 }
 
 void ScreenBlurManager::Process( CGameLogic& gameLogic, IRenderResource& destSRV, IRenderResource& destRT ) const
@@ -85,6 +51,51 @@ void ScreenBlurManager::Process( CGameLogic& gameLogic, IRenderResource& destSRV
 void ScreenBlurManager::AppSizeChanged( CGameLogic & gameLogic )
 {
 	CreateAppSizeDependentResource( gameLogic );
+}
+
+bool ScreenBlurManager::CreateDeviceDependentResource( CGameLogic& gameLogic )
+{
+	IRenderer& renderer = gameLogic.GetRenderer( );
+
+	constexpr TCHAR* BLUR_MATERIAL_NAME[] = { _T( "mat_gaussian_blur_x" ), _T( "mat_gaussian_blur_y" ) };
+
+	for ( int i = 0; i < 2; ++i )
+	{
+		m_pBlurMaterial[i] = renderer.GetMaterialPtr( BLUR_MATERIAL_NAME[i] );
+
+		if ( m_pBlurMaterial[i] == nullptr )
+		{
+			return false;
+		}
+	}
+
+	// Create Screen Rect Mesh
+	IModelBuilder& meshBuilder = gameLogic.GetModelManager( ).GetModelBuilder();
+	meshBuilder.Clear( );
+
+	meshBuilder.Append( MeshVertex( CXMFLOAT3( -1.f, -1.f, 1.f ), CXMFLOAT2( 0.f, 1.f ) ) );
+	meshBuilder.Append( MeshVertex( CXMFLOAT3( -1.f, 1.f, 1.f ), CXMFLOAT2( 0.f, 0.f ) ) );
+	meshBuilder.Append( MeshVertex( CXMFLOAT3( 1.f, -1.f, 1.f ), CXMFLOAT2( 1.f, 1.f ) ) );
+	meshBuilder.Append( MeshVertex( CXMFLOAT3( 1.f, 1.f, 1.f ), CXMFLOAT2( 1.f, 0.f ) ) );
+
+	meshBuilder.AppendIndex( 0 );
+	meshBuilder.AppendIndex( 1 );
+	meshBuilder.AppendIndex( 2 );
+	meshBuilder.AppendIndex( 3 );
+
+	m_pScreenRect = meshBuilder.Build( renderer, _T( "ScreenRect" ), D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
+
+	if ( m_pScreenRect == nullptr )
+	{
+		return false;
+	}
+
+	if ( CreateAppSizeDependentResource( gameLogic ) == false )
+	{
+		return false;
+	}
+
+	return true;
 }
 
 bool ScreenBlurManager::CreateAppSizeDependentResource( CGameLogic & gameLogic )

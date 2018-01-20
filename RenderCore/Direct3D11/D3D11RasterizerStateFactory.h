@@ -14,6 +14,7 @@ class KeyValue;
 class CD3D11RasterizerStateFactory
 {
 public:
+	void OnDeviceLost( );
 	void LoadDesc( );
 	IRenderState* GetRasterizerState( ID3D11Device& device, CD3D11RenderStateManager& renderStateManager, const String& stateName );
 	void AddRasterizerDesc( const String& descName, const D3D11_RASTERIZER_DESC& newDesc );

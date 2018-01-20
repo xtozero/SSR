@@ -32,11 +32,12 @@ class IRenderer
 {
 public:
 	virtual bool BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight ) = 0;
+	virtual void HandleDeviceLost( HWND hWnd, UINT nWndWidth, UINT nWndHeight ) = 0;
 	virtual void AppSizeChanged( UINT nWndWidth, UINT nWndHeight ) = 0;
 	virtual void ShutDownRenderer( ) = 0;
 	virtual void SceneBegin( ) = 0;
 	virtual void ForwardRenderEnd( ) = 0;
-	virtual void SceneEnd( ) = 0;
+	virtual BYTE SceneEnd( ) = 0;
 
 	virtual IShader* CreateVertexShader( const TCHAR* pFilePath, const char* pProfile ) = 0;
 	virtual IShader* CreatePixelShader( const TCHAR* pFilePath, const char* pProfile ) = 0;

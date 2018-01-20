@@ -29,12 +29,13 @@ void CSkyBox::Think( )
 
 bool CSkyBox::LoadModelMesh( CGameLogic& gameLogic )
 {
-	IModelBuilder& meshBuilder = gameLogic.GetModelManager( ).GetModelBuilder( );
-
 	if ( GetModel( ) != nullptr )
 	{
 		return false;
 	}
+
+	IModelBuilder& meshBuilder = gameLogic.GetModelManager( ).GetModelBuilder( );
+	meshBuilder.Clear( );
 
 	meshBuilder.Append( MeshVertex( CXMFLOAT3( -SKYBOX_LENGTH, -SKYBOX_LENGTH, -SKYBOX_LENGTH ) ) );
 	meshBuilder.Append( MeshVertex( CXMFLOAT3( -SKYBOX_LENGTH, -SKYBOX_LENGTH, SKYBOX_LENGTH ) ) );

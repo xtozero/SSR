@@ -2,6 +2,7 @@
 #include "Camera.h"
 #include "ConstantBufferDefine.h"
 #include "LightManager.h"
+#include "GameLogic.h"
 
 #include "../Engine/EnumStringMap.h"
 #include "../Engine/KeyValueReader.h"
@@ -44,17 +45,7 @@ bool CLightManager::Initialize( IRenderer& renderer, std::vector<std::unique_ptr
 
 	LoadPropertyFromScript( );
 
-	BUFFER_TRAIT trait = { sizeof( ShaderLightTrait ),
-							1,
-							RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
-							RESOURCE_TYPE::CONSTANT_BUFFER,
-							0,
-							nullptr,
-							0,
-							0 };
-
-	m_lightBuffer = renderer.CreateBuffer( trait );
-	return m_lightBuffer ? true : false;
+	return CreateDeviceDependentResource( renderer );
 }
 
 void CLightManager::UpdateToRenderer( IRenderer& renderer, const CCamera& camera )
@@ -124,6 +115,22 @@ CLightManager::CLightManager( ) :
 	m_primaryLight( 0 )
 {
 	RegisterEnumString( );
+}
+
+bool CLightManager::CreateDeviceDependentResource( IRenderer& renderer )
+{
+	BUFFER_TRAIT trait = { sizeof( ShaderLightTrait ),
+		1,
+		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
+		RESOURCE_TYPE::CONSTANT_BUFFER,
+		0,
+		nullptr,
+		0,
+		0 };
+
+	m_lightBuffer = renderer.CreateBuffer( trait );
+
+	return m_lightBuffer ? true : false;
 }
 
 void CLightManager::LoadPropertyFromScript( )
@@ -216,4 +223,10 @@ void CLightManager::LoadLightProperty( const KeyValue& keyValue )
 
 		PushLightTrait( trait );
 	}
+}
+
+void CLightManager::OnDeviceRestore( CGameLogic& gameLogic )
+{
+	m_needUpdateToRenderer = true;
+	CreateDeviceDependentResource( gameLogic.GetRenderer() );
 }

@@ -57,12 +57,15 @@ private:
 
 	void SceneBegin( void );
 	void DrawScene( void );
-	void SceneEnd( void ) const;
+	void SceneEnd( void );
 
 	void BuildRenderableList( );
 	void DrawOpaqueRenderable( );
 	void DrawTransparentRenderable( );
 	void DrawReflectRenderable( );
+
+	void HandleDeviceLost( );
+	bool CreateDeviceDependentResource( );
 
 public:
 	CGameLogic();

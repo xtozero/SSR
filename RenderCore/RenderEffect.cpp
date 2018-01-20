@@ -80,6 +80,16 @@ void CEffectOrenNayar::SceneBegin( IRenderer& renderer )
 CEffectOrenNayar::CEffectOrenNayar( ) :
 	lookupTexCreated( false ) {}
 
+void CRenderEffect::OnDeviceLost( )
+{
+	m_renderEffects.clear( );
+}
+
+void CRenderEffect::BootUp( )
+{
+	m_renderEffects.emplace_back( std::make_unique<CEffectOrenNayar>( ) );
+}
+
 void CRenderEffect::SceneBegin( IRenderer& renderer )
 {
 	for ( auto& effect : m_renderEffects )
@@ -94,9 +104,4 @@ void CRenderEffect::SceneEnd( IRenderer& renderer )
 	{
 		effect->SceneEnd( renderer );
 	}
-}
-
-CRenderEffect::CRenderEffect( )
-{
-	m_renderEffects.emplace_back( std::make_unique<CEffectOrenNayar>( ) );
 }
