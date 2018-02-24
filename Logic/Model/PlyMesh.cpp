@@ -12,20 +12,22 @@ void CPlyMesh::Draw( CGameLogic& gameLogic )
 		return;
 	}
 
-	if ( !m_pVertexBuffer )
+	if ( m_vertexBuffer == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
 		return;
 	}
 
-	m_pMaterial->SetShader( );
-	m_pVertexBuffer->SetVertexBuffer( &m_stride, &m_nOffset );
-	if ( m_pIndexBuffer )
+	IRenderer& renderer = gameLogic.GetRenderer( );
+
+	m_pMaterial->Bind( renderer );
+	renderer.BindVertexBuffer( &m_vertexBuffer, 0, 1, &m_stride, &m_offset );
+	if ( m_indexBuffer == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
-		m_pIndexBuffer->SetIndexBuffer( sizeof( WORD ), m_nIndexOffset );
-		gameLogic.GetRenderer().DrawIndexed( m_primitiveTopology, m_nIndices, m_nIndexOffset, m_nOffset );
+		renderer.Draw( m_primitiveTopology, m_nVertices, m_offset );
 	}
 	else
 	{
-		gameLogic.GetRenderer().Draw( m_primitiveTopology, m_nVertices, m_nOffset );
+		renderer.BindIndexBuffer16( m_indexBuffer, m_nIndexOffset );
+		renderer.DrawIndexed( m_primitiveTopology, m_nIndices, m_nIndexOffset, m_offset );
 	}
 }

@@ -1,5 +1,21 @@
 "Materials"
 {
+	"tutorial"
+	{
+		"Shader"
+		{
+			"VS"	"vsTutorial"
+			"PS"	"psTutorial"
+		}
+		
+		"RS_State"	"default"
+		"DS_State"	"default"
+		
+		"Sampler"
+		{
+			"PS"	"default"
+		}
+	}
 	"mat_default"
 	{
 		"Shader"
@@ -78,6 +94,11 @@
 		
 		"RS_State"	"default"
 		"DS_State"	"default"
+		
+		"Sampler"
+		{
+			"PS"	"default"
+		}
 	}
 	
 	"mat_reflectable"
@@ -90,6 +111,11 @@
 		
 		"RS_State"	"scissor_on"
 		"DS_State"	"reflectable"
+		
+		"Sampler"
+		{
+			"PS"	"default"
+		}
 	}
 	
 	"mat_screen_space_reflect"
@@ -120,6 +146,11 @@
 		"RS_State"	"scissor_on"
 		"DS_State"	"depthWriteTestOff"
 		"Blend"		"ssr"
+		
+		"Sampler"
+		{
+			"PS"	"default"
+		}
 	}
 	
 	"mat_gaussian_blur_x"
@@ -149,6 +180,54 @@
 		
 		"RS_State"	"scissor_on"
 		"DS_State"	"depthTestOff"
+		
+		"Sampler"
+		{
+			"PS"	"default"
+		}
+	}
+	"skybox"
+	{
+		"Shader"
+		{
+			"VS"	"vsScreenRect"
+			"PS"	"psGaussianBlurY"
+		}
+		
+		"RS_State"	"default"
+		"DS_State"	"depthWriteOff"
+		
+		"Sampler"
+		{
+			"PS"	"default"
+		}
+	}
+	"texture"
+	{
+		"Shader"
+		{
+			"VS"	"vsTexture"
+			"PS"	"psTexture"
+		}
+		
+		"RS_State"	"default"
+		"DS_State"	"default"
+		
+		"Sampler"
+		{
+			"PS"	"default"
+		}
+	}
+	"wireframe"
+	{
+		"Shader"
+		{
+			"VS"	"vsTutorial"
+			"PS"	"psTutorial"
+		}
+		
+		"RS_State"	"wireFrame"
+		"DS_State"	"default"
 		
 		"Sampler"
 		{

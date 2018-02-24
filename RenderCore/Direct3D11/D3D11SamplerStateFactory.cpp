@@ -1,9 +1,8 @@
 #include "stdafx.h"
 #include "D3D11SamplerStateFactory.h"
 
+#include "D3D11RenderState.h"
 #include "D3D11RenderStateManager.h"
-
-#include "../CommonRenderer/IRenderState.h"
 
 #include "../../Engine/EnumStringMap.h"
 #include "../../Engine/KeyValueReader.h"
@@ -20,71 +19,6 @@ namespace
 	constexpr TCHAR* SMAPLER_DESC_HANDLER_KEY_NAME = _T( "SamplerDesc" );
 }
 
-class CSamplerState : public IRenderState
-{
-public:
-	virtual void Set( const SHADER_TYPE type = SHADER_TYPE::NONE ) override;
-
-	bool Create( ID3D11Device& device, const D3D11_SAMPLER_DESC& samplerDesc );
-
-	CSamplerState( CD3D11RenderStateManager& renderStateManager ) : m_renderStateManager( renderStateManager ) { }
-private:
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_pSamplerState;
-	CD3D11RenderStateManager& m_renderStateManager;
-};
-
-void CSamplerState::Set( const SHADER_TYPE type )
-{
-	assert( type != SHADER_TYPE::NONE );
-
-	switch ( type )
-	{
-	case SHADER_TYPE::VS:
-		m_renderStateManager.SetVsSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
-		break;
-	case SHADER_TYPE::HS:
-		m_renderStateManager.SetHsSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
-		break;
-	case SHADER_TYPE::DS:
-		m_renderStateManager.SetDsSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
-		break;
-	case SHADER_TYPE::GS:
-		m_renderStateManager.SetGsSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
-		break;
-	case SHADER_TYPE::PS:
-		m_renderStateManager.SetPsSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
-		break;
-	case SHADER_TYPE::CS:
-		m_renderStateManager.SetCsSamplers( 0, 1, m_pSamplerState.GetAddressOf( ) );
-		break;
-	default:
-		DebugWarning( "InValid SamplerState SHADER_TYPE" );
-		break;
-	}
-}
-
-bool CSamplerState::Create( ID3D11Device& device, const D3D11_SAMPLER_DESC & samplerDesc )
-{
-	HRESULT hr = device.CreateSamplerState( &samplerDesc, &m_pSamplerState );
-	return SUCCEEDED( hr );
-}
-
-class CNullSamplerState : public IRenderState
-{
-public:
-	virtual void Set( const SHADER_TYPE type = NONE ) override;
-};
-
-void CNullSamplerState::Set( const SHADER_TYPE  )
-{
-
-}
-
-void CD3D11SamplerStateFactory::OnDeviceLost( )
-{
-	m_samplerState.clear( );
-}
-
 void CD3D11SamplerStateFactory::LoadDesc( )
 {
 	CKeyValueReader KeyValueReader;
@@ -97,38 +31,21 @@ void CD3D11SamplerStateFactory::LoadDesc( )
 	}
 }
 
-IRenderState* CD3D11SamplerStateFactory::GetSamplerState( ID3D11Device& device, CD3D11RenderStateManager& renderStateManager, const String& stateName )
+Owner<CD3D11SamplerState*> CD3D11SamplerStateFactory::GetSamplerState( ID3D11Device& device, const String& stateName )
 {
-	auto foundState = m_samplerState.find( stateName );
-
-	if ( foundState != m_samplerState.end( ) )
-	{
-		return foundState->second.get( );
-	}
-
 	auto foundDesc = m_samplerStateDesc.find( stateName );
 
 	if ( foundDesc != m_samplerStateDesc.end( ) )
 	{
-		std::unique_ptr<CSamplerState> newState = std::make_unique<CSamplerState>( renderStateManager );
+		CD3D11SamplerState* newState = new CD3D11SamplerState;
 
 		if ( newState->Create( device, foundDesc->second ) )
 		{
-			CSamplerState* ret = newState.get( );
-			m_samplerState.emplace( stateName, std::move( newState ) );
-			return ret;
+			return newState;
 		}
 	}
 
-	std::unique_ptr<CNullSamplerState> nullState = std::make_unique<CNullSamplerState>();
-	CNullSamplerState* ret = nullState.get( );
-	m_samplerState.emplace( _T( "NULL" ), std::move( nullState ) );
-	return ret;
-}
-
-void CD3D11SamplerStateFactory::AddSamplerDesc( const String& descName, const D3D11_SAMPLER_DESC& newDesc )
-{
-	m_samplerStateDesc.emplace( descName, newDesc );
+	return nullptr;
 }
 
 void CD3D11SamplerStateFactory::LoadSamplerDesc( const KeyValue& keyValue )
@@ -191,6 +108,6 @@ void CD3D11SamplerStateFactory::LoadSamplerDesc( const KeyValue& keyValue )
 			newDesc.MaxLOD = pMaxLOD->GetValue<float>( );
 		}
 
-		AddSamplerDesc( desc->GetValue( ), newDesc );
+		m_samplerStateDesc.emplace( desc->GetValue( ), newDesc );
 	}
 }

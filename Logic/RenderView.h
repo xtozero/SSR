@@ -2,7 +2,7 @@
 
 #include "INotifyGraphicsDevice.h"
 
-#include "../RenderCore/CommonRenderer/IBuffer.h"
+#include "../RenderCore/CommonRenderer/Resource.h"
 #include "../shared/Math/CXMFloat.h"
 
 #include <d3d11.h>
@@ -28,7 +28,7 @@ public:
 	void CreatePerspectiveFovLHMatrix( float fov, float aspect, float zNear, float zFar );
 	void CreatePerspectiveFovRHMatrix( float fov, float aspect, float zNear, float zFar );
 
-	void UpdataView( );
+	void UpdataView( IRenderer& renderer );
 
 	void SetViewMatrix( const CXMFLOAT4X4& viewMat ) { m_viewMatrix = viewMat; }
 
@@ -44,9 +44,10 @@ private:
 	CXMFLOAT4X4 m_viewMatrix;
 	CXMFLOAT4X4 m_projectionMatrix;
 
-	IBuffer* m_viewConstantBuffer = nullptr;
-	IBuffer* m_gbufferConstantBuffer = nullptr;
+	RE_HANDLE m_viewConstantBuffer = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_gbufferConstantBuffer = RE_HANDLE_TYPE::INVALID_HANDLE;
 
+	float m_zNear = 0.f;
 	float m_zFar = 0.f;
 };
 

@@ -6,7 +6,6 @@
 
 #include "../Engine/EnumStringMap.h"
 #include "../Engine/KeyValueReader.h"
-#include "../RenderCore/CommonRenderer/IBuffer.h"
 #include "../RenderCore/CommonRenderer/IMaterial.h"
 #include "../RenderCore/CommonRenderer/IRenderer.h"
 #include "../Shared/Util.h"
@@ -54,13 +53,13 @@ void CLightManager::UpdateToRenderer( IRenderer& renderer, const CCamera& camera
 
 	if ( m_needUpdateToRenderer )
 	{
-		void* lights = m_lightBuffer->LockBuffer( );
+		void* lights = renderer.LockBuffer( m_lightBuffer );
 
 		if ( lights )
 		{
 			memcpy( lights, &m_shaderLightProperty, sizeof( ShaderLightTrait ) );
-			m_lightBuffer->UnLockBuffer( );
-			m_lightBuffer->SetPSBuffer( PS_CONSTANT_BUFFER::LIGHT );
+			renderer.UnLockBuffer( m_lightBuffer );
+			renderer.BindConstantBuffer( SHADER_TYPE::PS, PS_CONSTANT_BUFFER::LIGHT, 1, &m_lightBuffer );
 		}
 
 		m_needUpdateToRenderer = false;

@@ -16,17 +16,8 @@
     <Filter Include="Direct11">
       <UniqueIdentifier>{760371a0-97b4-45ae-9f7c-514816113782}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Direct11\Shader">
-      <UniqueIdentifier>{2261c28c-7442-4035-b441-319f10df8e67}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Direct11\Buffer">
-      <UniqueIdentifier>{33a2abaa-e4a4-4df5-988f-08233263cccb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="fx">
       <UniqueIdentifier>{f6246641-54f6-4e9d-af0f-2a8948500840}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Direct11\Material">
-      <UniqueIdentifier>{c0580400-df12-4357-a7c5-5c1a689acf87}</UniqueIdentifier>
     </Filter>
     <Filter Include="Shared">
       <UniqueIdentifier>{c0305b5f-d5c8-4805-be40-0bb03273cfeb}</UniqueIdentifier>
@@ -37,11 +28,11 @@
     <Filter Include="Direct11\RenderState">
       <UniqueIdentifier>{573f0faf-025d-47c7-b263-31f5a138ea16}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Direct11\Surface">
-      <UniqueIdentifier>{f5d720cf-3c71-4145-874c-19a091be9b1d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="RenderCommon">
       <UniqueIdentifier>{19182356-112d-4a7b-87ce-40a9757385b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Material">
+      <UniqueIdentifier>{c0580400-df12-4357-a7c5-5c1a689acf87}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -57,32 +48,8 @@
     <ClInclude Include="common.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Material.h">
-      <Filter>Direct11\Material</Filter>
-    </ClInclude>
-    <ClInclude Include="TutorialMaterial.h">
-      <Filter>Direct11\Material</Filter>
-    </ClInclude>
-    <ClInclude Include="WireFrame.h">
-      <Filter>Direct11\Material</Filter>
-    </ClInclude>
     <ClInclude Include="..\Shared\Util.h">
       <Filter>Shared</Filter>
-    </ClInclude>
-    <ClInclude Include="util_rendercore.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureMaterial.h">
-      <Filter>Direct11\Material</Filter>
-    </ClInclude>
-    <ClInclude Include="SkyBoxMaterial.h">
-      <Filter>Direct11\Material</Filter>
-    </ClInclude>
-    <ClInclude Include="Surface.h">
-      <Filter>Direct11\Surface</Filter>
-    </ClInclude>
-    <ClInclude Include="SurfaceManager.h">
-      <Filter>Direct11\Surface</Filter>
     </ClInclude>
     <ClInclude Include="RenderEffect.h">
       <Filter>Direct11</Filter>
@@ -92,27 +59,6 @@
     </ClInclude>
     <ClInclude Include="RenderOutputManager.h">
       <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Direct3D11\D3D11Buffer.h">
-      <Filter>Direct11\Buffer</Filter>
-    </ClInclude>
-    <ClInclude Include="Direct3D11\D3D11PixelShader.h">
-      <Filter>Direct11\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="Direct3D11\D3D11VertexShader.h">
-      <Filter>Direct11\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="Direct3D11\D3D11Texture.h">
-      <Filter>Direct11\RenderResource</Filter>
-    </ClInclude>
-    <ClInclude Include="Direct3D11\D3D11ShaderResource.h">
-      <Filter>Direct11\RenderResource</Filter>
-    </ClInclude>
-    <ClInclude Include="Direct3D11\D3D11RenderTarget.h">
-      <Filter>Direct11\RenderResource</Filter>
-    </ClInclude>
-    <ClInclude Include="Direct3D11\D3D11DepthStencil.h">
-      <Filter>Direct11\RenderResource</Filter>
     </ClInclude>
     <ClInclude Include="Direct3D11\D3D11Resource.h">
       <Filter>Direct11\RenderResource</Filter>
@@ -132,12 +78,6 @@
     <ClInclude Include="Direct3D11\D3D11ResourceManager.h">
       <Filter>Direct11\RenderResource</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderListScriptLoader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CommonRenderer\IBuffer.h">
-      <Filter>RenderCommon</Filter>
-    </ClInclude>
     <ClInclude Include="CommonRenderer\IMaterial.h">
       <Filter>RenderCommon</Filter>
     </ClInclude>
@@ -150,29 +90,20 @@
     <ClInclude Include="CommonRenderer\IRenderResourceManager.h">
       <Filter>RenderCommon</Filter>
     </ClInclude>
-    <ClInclude Include="CommonRenderer\IRenderState.h">
-      <Filter>RenderCommon</Filter>
-    </ClInclude>
     <ClInclude Include="CommonRenderer\Resource.h">
       <Filter>RenderCommon</Filter>
-    </ClInclude>
-    <ClInclude Include="Direct3D11\D3D11ShaderUtil.h">
-      <Filter>Direct11\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="CommonRenderer\IShader.h">
-      <Filter>RenderCommon</Filter>
-    </ClInclude>
-    <ClInclude Include="Direct3D11\D3D11ComputeShader.h">
-      <Filter>Direct11\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="Direct3D11\D3D11RandomAccessResource.h">
-      <Filter>Direct11\RenderResource</Filter>
     </ClInclude>
     <ClInclude Include="Direct3D11\D3D11RenderStateManager.h">
       <Filter>Direct11\RenderState</Filter>
     </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11RenderState.h">
+      <Filter>Direct11\RenderState</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Material</Filter>
+    </ClInclude>
     <ClInclude Include="MaterialManager.h">
-      <Filter>Direct11\Material</Filter>
+      <Filter>Material</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -185,59 +116,14 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="util_rendercore.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Material.cpp">
-      <Filter>Direct11\Material</Filter>
-    </ClCompile>
-    <ClCompile Include="TutorialMaterial.cpp">
-      <Filter>Direct11\Material</Filter>
-    </ClCompile>
-    <ClCompile Include="WireFrame.cpp">
-      <Filter>Direct11\Material</Filter>
-    </ClCompile>
     <ClCompile Include="..\Shared\Util.cpp">
       <Filter>Shared</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureMaterial.cpp">
-      <Filter>Direct11\Material</Filter>
-    </ClCompile>
-    <ClCompile Include="SkyBoxMaterial.cpp">
-      <Filter>Direct11\Material</Filter>
-    </ClCompile>
-    <ClCompile Include="Surface.cpp">
-      <Filter>Direct11\Surface</Filter>
-    </ClCompile>
-    <ClCompile Include="SurfaceManager.cpp">
-      <Filter>Direct11\Surface</Filter>
     </ClCompile>
     <ClCompile Include="RenderEffect.cpp">
       <Filter>Direct11</Filter>
     </ClCompile>
     <ClCompile Include="RenderOutputManager.cpp">
       <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Direct3D11\D3D11Buffer.cpp">
-      <Filter>Direct11\Buffer</Filter>
-    </ClCompile>
-    <ClCompile Include="Direct3D11\D3D11PixelShader.cpp">
-      <Filter>Direct11\Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="Direct3D11\D3D11VertexShader.cpp">
-      <Filter>Direct11\Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="Direct3D11\D3D11Texture.cpp">
-      <Filter>Direct11\RenderResource</Filter>
-    </ClCompile>
-    <ClCompile Include="Direct3D11\D3D11ShaderResource.cpp">
-      <Filter>Direct11\RenderResource</Filter>
-    </ClCompile>
-    <ClCompile Include="Direct3D11\D3D11RenderTarget.cpp">
-      <Filter>Direct11\RenderResource</Filter>
-    </ClCompile>
-    <ClCompile Include="Direct3D11\D3D11DepthStencil.cpp">
-      <Filter>Direct11\RenderResource</Filter>
     </ClCompile>
     <ClCompile Include="Direct3D11\Direct3D11.cpp">
       <Filter>Direct11</Filter>
@@ -257,20 +143,17 @@
     <ClCompile Include="Direct3D11\D3D11ResourceManager.cpp">
       <Filter>Direct11\RenderResource</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderListScriptLoader.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Direct3D11\D3D11ComputeShader.cpp">
-      <Filter>Direct11\Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="Direct3D11\D3D11RandomAccessResource.cpp">
-      <Filter>Direct11\RenderResource</Filter>
-    </ClCompile>
     <ClCompile Include="Direct3D11\D3D11RenderStateManager.cpp">
       <Filter>Direct11\RenderState</Filter>
     </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11Resource.cpp">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
     <ClCompile Include="MaterialManager.cpp">
-      <Filter>Direct11\Material</Filter>
+      <Filter>Material</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

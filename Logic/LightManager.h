@@ -4,6 +4,7 @@
 #include "INotifyGraphicsDevice.h"
 #include "Light.h"
 
+#include "../RenderCore/CommonRenderer/Resource.h"
 #include "../shared/Math/CXMFloat.h"
 
 #include <array>
@@ -24,7 +25,6 @@ struct ShaderLightTrait
 };
 
 class CCamera;
-class IBuffer;
 class IRenderer;
 class KeyValue;
 
@@ -59,5 +59,5 @@ private:
 
 	UINT m_primaryLight;
 
-	IBuffer* m_lightBuffer = nullptr;
+	RE_HANDLE m_lightBuffer = RE_HANDLE_TYPE::INVALID_HANDLE;
 };

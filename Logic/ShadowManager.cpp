@@ -7,10 +7,8 @@
 
 #include "../shared/Math/CXMFloat.h"
 #include "../Shared/Util.h"
-#include "../RenderCore/CommonRenderer/IBuffer.h"
 #include "../RenderCore/CommonRenderer/IMaterial.h"
 #include "../RenderCore/CommonRenderer/IRenderer.h"
-#include "../RenderCore/CommonRenderer/IRenderResource.h"
 #include "../RenderCore/CommonRenderer/IRenderResourceManager.h"
 
 using namespace DirectX;
@@ -37,17 +35,17 @@ void CShadowManager::SceneBegin( CLightManager& lightMgr, CGameLogic& gameLogic 
 	IRenderer& renderer = gameLogic.GetRenderer( );
 
 	using namespace SHARED_CONSTANT_BUFFER;
-	IBuffer& shadowBuffer = gameLogic.GetCommonConstantBuffer( VS_SHADOW );
+	RE_HANDLE shadowBuffer = gameLogic.GetCommonConstantBuffer( VS_SHADOW );
 	//그림자 렌더링에 사용할 조명으로 View 행렬을 만들어 세팅
-	ShadowTransform* buffer = static_cast<ShadowTransform*>( shadowBuffer.LockBuffer() );
+	ShadowTransform* buffer = static_cast<ShadowTransform*>( renderer.LockBuffer( shadowBuffer ) );
 
 	if ( buffer )
 	{
 		buffer->m_lightView = XMMatrixTranspose( lightMgr.GetPrimaryLightViewMatrix( ) );
 		buffer->m_lightProjection = XMMatrixTranspose( lightMgr.GerPrimaryLightProjectionMatrix( ) );
 
-		shadowBuffer.UnLockBuffer( );
-		shadowBuffer.SetVSBuffer( static_cast<int>( VS_CONSTANT_BUFFER::SHADOW ) );
+		renderer.UnLockBuffer( shadowBuffer );
+		renderer.BindConstantBuffer( SHADER_TYPE::VS, VS_CONSTANT_BUFFER::SHADOW, 1, &shadowBuffer );
 	}
 	else
 	{
@@ -55,13 +53,14 @@ void CShadowManager::SceneBegin( CLightManager& lightMgr, CGameLogic& gameLogic 
 	}
 
 	//그림자 텍스쳐로 랜더 타겟 변경
-	renderer.PSSetShaderResource( 2, nullptr );
-	renderer.SetRenderTarget( m_rtvShadowMap, m_dsvShadowMap );
+	RE_HANDLE defaultResource[] = { RE_HANDLE_TYPE::INVALID_HANDLE };
+	renderer.BindShaderResource( SHADER_TYPE::PS, 2, 1, defaultResource );
+	renderer.BindRenderTargets( &m_rtvShadowMap, 1, m_dsvShadowMap );
 
 	constexpr float clearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-	renderer.ClearRendertarget( *m_rtvShadowMap, clearColor );
-	renderer.ClearDepthStencil( *m_dsvShadowMap, 1.0f, 0 );
+	renderer.ClearRendertarget( m_rtvShadowMap, clearColor );
+	renderer.ClearDepthStencil( m_dsvShadowMap, 1.0f, 0 );
 
 	//뷰포트 세팅
 	CRenderView& view = gameLogic.GetView( );
@@ -70,7 +69,7 @@ void CShadowManager::SceneBegin( CLightManager& lightMgr, CGameLogic& gameLogic 
 	view.PushViewPort( 0, 0, 2048, 2048 );
 	view.SetViewPort( renderer );
 	view.SetScissorRects( renderer );
-	view.UpdataView( );
+	view.UpdataView( renderer );
 }
 
 void CShadowManager::DrawScene( CLightManager& lightMgr, CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects )
@@ -97,8 +96,9 @@ void CShadowManager::SceneEnd( CLightManager& lightMgr, CGameLogic& gameLogic )
 	view.PopViewPort( );
 
 	//랜터 타겟 원상 복귀, 그림자 맵 세팅
-	renderer.SetRenderTarget( nullptr, nullptr );
-	renderer.PSSetShaderResource( 2, m_srvShadowMap );
+	RE_HANDLE default[] = { RE_HANDLE_TYPE::INVALID_HANDLE };
+	renderer.BindRenderTargets( default, 1, default[0] );
+	renderer.BindShaderResource( SHADER_TYPE::PS, 2, 1, &m_srvShadowMap );
 }
 
 void CShadowManager::Process( CLightManager& lightMgr, CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects )
@@ -116,39 +116,39 @@ bool CShadowManager::CreateDeviceDependentResource( IRenderer& renderer )
 	//그림자용 렌더 타겟 생성
 	IResourceManager& resourceMgr = renderer.GetResourceManager( );
 	m_shadowMap = resourceMgr.CreateTexture2D( _T( "ShadowMap" ), _T( "ShadowMap" ) );
-	if ( m_shadowMap == nullptr )
+	if ( m_shadowMap == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
 		return false;
 	}
 
-	m_rtvShadowMap = resourceMgr.CreateRenderTarget( *m_shadowMap, _T( "ShadowMap" ) );
-	if ( m_rtvShadowMap == nullptr )
+	m_rtvShadowMap = resourceMgr.CreateRenderTarget( m_shadowMap, _T( "ShadowMap" ) );
+	if ( m_rtvShadowMap == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
 		return false;
 	}
 
-	m_srvShadowMap = resourceMgr.CreateShaderResource( *m_shadowMap, _T( "ShadowMap" ) );
-	if ( m_srvShadowMap == nullptr )
+	m_srvShadowMap = resourceMgr.CreateTextureShaderResource( m_shadowMap, _T( "ShadowMap" ) );
+	if ( m_srvShadowMap == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
 		return false;
 	}
 
-	const ITexture* depthStencilTexture = resourceMgr.CreateTexture2D( _T( "ShadowMapDepthStencil" ), _T( "ShadowMapDepthStencil" ) );
-	if ( depthStencilTexture == nullptr )
+	m_shadowDepth = resourceMgr.CreateTexture2D( _T( "ShadowMapDepthStencil" ), _T( "ShadowMapDepthStencil" ) );
+	if ( m_shadowDepth == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
 		return false;
 	}
 
-	TEXTURE_TRAIT texTrait = depthStencilTexture->GetTrait( );
+	TEXTURE_TRAIT texTrait = resourceMgr.GetTextureTrait( m_shadowDepth );
 	texTrait.m_format = RESOURCE_FORMAT::D24_UNORM_S8_UINT;
 
-	m_dsvShadowMap = resourceMgr.CreateDepthStencil( *depthStencilTexture, _T( "ShadowMapDepthStencil" ), &texTrait );
-	if ( m_dsvShadowMap == nullptr )
+	m_dsvShadowMap = resourceMgr.CreateDepthStencil( m_shadowDepth, _T( "ShadowMapDepthStencil" ), &texTrait );
+	if ( m_dsvShadowMap == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
 		return false;
 	}
 
-	m_shadowMapMtl = renderer.GetMaterialPtr( SHADOWMAP_MATERIAL_NAME );
+	m_shadowMapMtl = renderer.SearchMaterial( SHADOWMAP_MATERIAL_NAME );
 	if ( m_shadowMapMtl == nullptr )
 	{
 		return false;

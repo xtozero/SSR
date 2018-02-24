@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../common.h"
+#include "../../shared/Util.h"
 
 #include <map>
 #include <memory>
@@ -8,20 +9,17 @@
 struct D3D11_SAMPLER_DESC;
 struct ID3D11Device;
 class CD3D11RenderStateManager;
-class IRenderState;
+class CD3D11SamplerState;
 class KeyValue;
 
 class CD3D11SamplerStateFactory
 {
 public:
-	void OnDeviceLost( );
 	void LoadDesc( );
-	IRenderState* GetSamplerState( ID3D11Device& device, CD3D11RenderStateManager& renderStateManager, const String& stateName );
-	void AddSamplerDesc( const String& descName, const D3D11_SAMPLER_DESC& newDesc );
+	Owner<CD3D11SamplerState*> GetSamplerState( ID3D11Device& device, const String& stateName );
 
 private:
 	void LoadSamplerDesc( const KeyValue& keyValue );
 
-	std::map<String, std::unique_ptr<IRenderState>> m_samplerState;
 	std::map<String, D3D11_SAMPLER_DESC> m_samplerStateDesc;
 };

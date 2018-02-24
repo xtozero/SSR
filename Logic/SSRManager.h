@@ -3,16 +3,16 @@
 #include "INotifyGraphicsDevice.h"
 #include "ScreenBlurManager.h"
 
+#include "../RenderCore/CommonRenderer/Resource.h"
+
 #include <memory>
 #include <list>
 
 class CGameLogic;
 class CGameObject;
-class IBuffer;
 class IMaterial;
 class IMesh;
 class IRenderer;
-class IRenderResource;
 
 class CSSRManager : public IGraphicsDeviceNotify
 {
@@ -30,13 +30,14 @@ private:
 	IMesh* m_pScreenRect = nullptr;
 	IMaterial* m_pSsrMaterial = nullptr;
 	IMaterial* m_pSsrBlendMaterial = nullptr;
-	IRenderResource* m_pSsrRt = nullptr;
-	IRenderResource* m_pDefaultRt = nullptr;
-	IRenderResource* m_pDefaultDS = nullptr;
-	IRenderResource* m_pSsrSrv = nullptr;
-	IRenderResource* m_pDefaultSrv = nullptr;
-	IRenderResource* m_pDepthSrv = nullptr;
-	IBuffer* m_ssrConstantBuffer = nullptr;
+	RE_HANDLE m_ssrTexture = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_ssrRt = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_ssrSrv = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_defaultRt = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_defaultDS = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_defaultSrv = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_depthSrv = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_ssrConstantBuffer = RE_HANDLE_TYPE::INVALID_HANDLE;
 
 	ScreenBlurManager m_blur;
 };

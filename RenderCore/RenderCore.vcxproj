@@ -216,90 +216,41 @@ call "$(SolutionDIr)Shader\make_shader.bat"</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Shared\Util.h" />
-    <ClInclude Include="CommonRenderer\IBuffer.h" />
     <ClInclude Include="CommonRenderer\IMaterial.h" />
     <ClInclude Include="CommonRenderer\IRenderer.h" />
     <ClInclude Include="CommonRenderer\IRenderResource.h" />
     <ClInclude Include="CommonRenderer\IRenderResourceManager.h" />
-    <ClInclude Include="CommonRenderer\IRenderState.h" />
-    <ClInclude Include="CommonRenderer\IShader.h" />
     <ClInclude Include="CommonRenderer\Resource.h" />
     <ClInclude Include="Direct3D11\D3D11BlendStateFactory.h" />
-    <ClInclude Include="Direct3D11\D3D11Buffer.h" />
-    <ClInclude Include="Direct3D11\D3D11ComputeShader.h" />
-    <ClInclude Include="Direct3D11\D3D11DepthStencil.h" />
     <ClInclude Include="Direct3D11\D3D11DepthStencilStateFactory.h" />
-    <ClInclude Include="Direct3D11\D3D11PixelShader.h" />
-    <ClInclude Include="Direct3D11\D3D11RandomAccessResource.h" />
     <ClInclude Include="Direct3D11\D3D11RasterizerStateFactory.h" />
+    <ClInclude Include="Direct3D11\D3D11RenderState.h" />
     <ClInclude Include="Direct3D11\D3D11RenderStateManager.h" />
-    <ClInclude Include="Direct3D11\D3D11RenderTarget.h" />
     <ClInclude Include="Direct3D11\D3D11Resource.h" />
     <ClInclude Include="Direct3D11\D3D11ResourceManager.h" />
     <ClInclude Include="Direct3D11\D3D11SamplerStateFactory.h" />
-    <ClInclude Include="Direct3D11\D3D11ShaderResource.h" />
-    <ClInclude Include="Direct3D11\D3D11Texture.h" />
-    <ClInclude Include="Direct3D11\D3D11VertexShader.h" />
-    <ClInclude Include="Direct3D11\D3D11ShaderUtil.h" />
     <ClInclude Include="RenderOutputManager.h" />
     <ClInclude Include="MaterialManager.h" />
     <ClInclude Include="RenderEffect.h" />
-    <ClInclude Include="ShaderListScriptLoader.h" />
-    <ClInclude Include="SkyBoxMaterial.h" />
-    <ClInclude Include="Surface.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="SurfaceManager.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="TextureMaterial.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="TutorialMaterial.h" />
-    <ClInclude Include="util_rendercore.h" />
-    <ClInclude Include="WireFrame.h" />
     <ClInclude Include="RenderCoreDllFunc.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Shared\Util.cpp" />
     <ClCompile Include="Direct3D11\D3D11BlendStateFactory.cpp" />
-    <ClCompile Include="Direct3D11\D3D11Buffer.cpp" />
-    <ClCompile Include="Direct3D11\D3D11ComputeShader.cpp" />
-    <ClCompile Include="Direct3D11\D3D11DepthStencil.cpp" />
     <ClCompile Include="Direct3D11\D3D11DepthStencilStateFactory.cpp" />
-    <ClCompile Include="Direct3D11\D3D11PixelShader.cpp" />
-    <ClCompile Include="Direct3D11\D3D11RandomAccessResource.cpp" />
     <ClCompile Include="Direct3D11\D3D11RasterizerStateFactory.cpp" />
     <ClCompile Include="Direct3D11\D3D11RenderStateManager.cpp" />
-    <ClCompile Include="Direct3D11\D3D11RenderTarget.cpp" />
+    <ClCompile Include="Direct3D11\D3D11Resource.cpp" />
     <ClCompile Include="Direct3D11\D3D11ResourceManager.cpp" />
     <ClCompile Include="Direct3D11\D3D11SamplerStateFactory.cpp" />
-    <ClCompile Include="Direct3D11\D3D11ShaderResource.cpp" />
-    <ClCompile Include="Direct3D11\D3D11Texture.cpp" />
-    <ClCompile Include="Direct3D11\D3D11VertexShader.cpp" />
     <ClCompile Include="Direct3D11\Direct3D11.cpp" />
     <ClCompile Include="RenderOutputManager.cpp" />
     <ClCompile Include="MaterialManager.cpp" />
     <ClCompile Include="RenderEffect.cpp" />
-    <ClCompile Include="ShaderListScriptLoader.cpp" />
-    <ClCompile Include="SkyBoxMaterial.cpp" />
-    <ClCompile Include="Surface.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="SurfaceManager.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="TextureMaterial.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -318,9 +269,6 @@ call "$(SolutionDIr)Shader\make_shader.bat"</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="TutorialMaterial.cpp" />
-    <ClCompile Include="util_rendercore.cpp" />
-    <ClCompile Include="WireFrame.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shader\lightCommon.fxh">

@@ -10,12 +10,15 @@ public:
 	void Tick( );
 	void Pause( );
 	void Resume( );
+
 	inline float GetElapsedTIme( ) const { return m_elapsedTime; }
+	inline float GetTotalTime( ) const { return m_totalTime; }
 	inline float GetFps( ) const { return m_fps; }
 
 	CTimer( );
 
 private:
+	float m_totalTime = 0.f;
 	float m_elapsedTime = 0.f;
 
 	std::chrono::time_point<std::chrono::steady_clock> m_lastTime;

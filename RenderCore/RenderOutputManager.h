@@ -1,11 +1,11 @@
 #pragma once
 
+#include "CommonRenderer/Resource.h"
+
 #include <array>
-#include <tuple>
 
 struct ID3D11DeviceContext;
 struct IDXGISwapChain;
-class IBuffer;
 class IRenderer;
 class IRenderResource;
 class IResourceManager;
@@ -18,8 +18,6 @@ enum RENDER_OUPUT_TYPE
 	COUNT
 };
 
-using rtClearColor = std::tuple<float, float, float, float>;
-
 class CRenderOutputManager
 {
 public:
@@ -27,8 +25,8 @@ public:
 	void AppSizeChanged( IResourceManager& resourceMgr, IDXGISwapChain& pSwapChain );
 	void SetRenderTargetDepthStencilView( IRenderer& renderer );
 	void ClearDepthStencil( IRenderer& renderer );
-	void ClearRenderTargets( IRenderer& renderer, const rtClearColor& clearColor );
-	void SceneEnd( ID3D11DeviceContext& deviceContext );
+	void ClearRenderTargets( IRenderer& renderer, const float( &clearColor )[4] );
+	void SceneEnd( IRenderer& deviceContext );
 
 	CRenderOutputManager( );
 private:
@@ -38,8 +36,8 @@ private:
 	bool CreateDepthRenderTarget( IResourceManager& resourceMgr );
 	bool CreateDefaultDepthStencil( IResourceManager& resourceMgr );
 
-	std::array<IRenderResource*, RENDER_OUPUT_TYPE::COUNT>	m_renderSRVs;
-	std::array<IRenderResource*, RENDER_OUPUT_TYPE::COUNT>	m_renderOutputs;
-	IRenderResource*										m_pPrimeDs;
+	std::array<RE_HANDLE, RENDER_OUPUT_TYPE::COUNT>	m_renderSRVs;
+	std::array<RE_HANDLE, RENDER_OUPUT_TYPE::COUNT>	m_renderOutputs;
+	RE_HANDLE										m_primeDs = RE_HANDLE_TYPE::INVALID_HANDLE;
 };
 

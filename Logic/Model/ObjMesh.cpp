@@ -16,11 +16,11 @@ bool CObjMesh::Load( IRenderer& renderer, UINT primitive )
 		const String& textureName = i->m_pSurface->m_diffuseTexName;
 		if ( textureName.size() > 0 )
 		{
-			auto texture = renderer.GetShaderResourceFromFile( textureName );
+			auto texture = renderer.CreateShaderResourceFromFile( textureName );
 
 			if ( texture )
 			{
-				i->m_pTexture = texture;
+				i->m_texture = texture;
 			}
 			else
 			{
@@ -39,43 +39,45 @@ void CObjMesh::Draw( CGameLogic& gameLogic )
 		return;
 	}
 
-	if ( !m_pVertexBuffer )
+	if ( m_vertexBuffer == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
 		return;
 	}
 
-	m_pMaterial->SetShader( );
-	m_pVertexBuffer->SetVertexBuffer( &m_stride, &m_nOffset );
-	if ( m_pIndexBuffer )
+	IRenderer& renderer = gameLogic.GetRenderer( );
+
+	m_pMaterial->Bind( renderer );
+	renderer.BindVertexBuffer( &m_vertexBuffer, 0, 1, &m_stride, &m_offset );
+	if ( m_indexBuffer == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
-		m_pIndexBuffer->SetIndexBuffer( sizeof( WORD ), m_nIndexOffset );
+		gameLogic.GetRenderer( ).Draw( m_primitiveTopology, m_nVertices, m_offset );
+	}
+	else
+	{
+		renderer.BindIndexBuffer16( m_indexBuffer, m_nIndexOffset );
 
 		if ( m_mtlGroup.size( ) == 0 )
 		{
-			gameLogic.GetRenderer().DrawIndexed( m_primitiveTopology, m_nIndices, m_nIndexOffset, m_nOffset );
+			gameLogic.GetRenderer( ).DrawIndexed( m_primitiveTopology, m_nIndices, m_nIndexOffset, m_offset );
 		}
 		else
 		{
 			FOR_EACH_VEC( m_mtlGroup, i )
 			{
-				m_pMaterial->SetTexture( SHADER_TYPE::PS, 0, i->m_pTexture );
-				IBuffer& constantBuffer = gameLogic.GetCommonConstantBuffer( SHARED_CONSTANT_BUFFER::PS_SURFACE );
-				SurfaceTrait* surface = static_cast<SurfaceTrait*>(constantBuffer.LockBuffer( ));
+				renderer.BindShaderResource( SHADER_TYPE::PS, 0, 1, &i->m_texture );
+				RE_HANDLE constantBuffer = gameLogic.GetCommonConstantBuffer( SHARED_CONSTANT_BUFFER::PS_SURFACE );
+				SurfaceTrait* surface = static_cast<SurfaceTrait*>( renderer.LockBuffer( constantBuffer ) );
 
 				if ( surface )
 				{
 					memcpy_s( surface, sizeof( SurfaceTrait ), &i->m_pSurface->m_trait, sizeof( SurfaceTrait ) );
 				}
 
-				constantBuffer.UnLockBuffer( );
-				constantBuffer.SetPSBuffer( PS_CONSTANT_BUFFER::SURFACE );
-				gameLogic.GetRenderer( ).DrawIndexed( m_primitiveTopology, i->m_indexCount, i->m_indexOffset, m_nOffset );
+				renderer.UnLockBuffer( constantBuffer );
+				renderer.BindConstantBuffer( SHADER_TYPE::PS, PS_CONSTANT_BUFFER::SURFACE, 1, &constantBuffer );
+				gameLogic.GetRenderer( ).DrawIndexed( m_primitiveTopology, i->m_indexCount, i->m_indexOffset, m_offset );
 			}
 		}
-	}
-	else
-	{
-		gameLogic.GetRenderer( ).Draw( m_primitiveTopology, m_nVertices, m_nOffset );
 	}
 }
 

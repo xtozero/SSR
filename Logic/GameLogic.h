@@ -44,7 +44,7 @@ public:
 
 	IRenderer& GetRenderer( ) const { return *m_pRenderer; }
 	CModelManager& GetModelManager( ) { return m_meshManager; }
-	IBuffer& GetCommonConstantBuffer( int purpose ) { return *m_commonConstantBuffer[purpose]; }
+	RE_HANDLE GetCommonConstantBuffer( int purpose ) { return m_commonConstantBuffer[purpose]; }
 	CRenderView& GetView( ) { return m_view; }
 	const std::pair<UINT, UINT>& GetAPPSize( ) { return m_appSize; }
 
@@ -88,5 +88,5 @@ private:
 
 	std::list<CGameObject*> m_renderableList[RENDERABLE_TYPE_COUNT];
 
-	IBuffer* m_commonConstantBuffer[SHARED_CONSTANT_BUFFER::Count] = { nullptr, };
+	RE_HANDLE m_commonConstantBuffer[SHARED_CONSTANT_BUFFER::Count];
 };

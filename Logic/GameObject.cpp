@@ -85,17 +85,18 @@ const CXMFLOAT4X4& CGameObject::GetInvTransformMatrix( )
 void CGameObject::UpdateTransform( CGameLogic& gameLogic )
 {
 	using namespace SHARED_CONSTANT_BUFFER;
-	IBuffer& geometryBuffer = gameLogic.GetCommonConstantBuffer( VS_GEOMETRY );
+	RE_HANDLE geometryBuffer = gameLogic.GetCommonConstantBuffer( VS_GEOMETRY );
+	IRenderer& renderer = gameLogic.GetRenderer( );
 
-	GeometryTransform* pDest = static_cast<GeometryTransform*>( geometryBuffer.LockBuffer( ) );
+	GeometryTransform* pDest = static_cast<GeometryTransform*>( renderer.LockBuffer( geometryBuffer ) );
 
 	if ( pDest )
 	{
 		pDest->m_world = XMMatrixTranspose( GetTransformMatrix() );
 		pDest->m_invWorld = XMMatrixTranspose( GetInvTransformMatrix() );
 
-		geometryBuffer.UnLockBuffer( );
-		geometryBuffer.SetVSBuffer( VS_CONSTANT_BUFFER::GEOMETRY );
+		renderer.UnLockBuffer( geometryBuffer );
+		renderer.BindConstantBuffer( SHADER_TYPE::VS, VS_CONSTANT_BUFFER::GEOMETRY, 1, &geometryBuffer );
 	}
 	else
 	{
@@ -251,11 +252,11 @@ bool CGameObject::LoadMaterial( CGameLogic& gameLogic )
 
 		if ( m_materialName.length( ) > 0 )
 		{
-			m_pMaterial = renderer.GetMaterialPtr( m_materialName.c_str( ) );
+			m_pMaterial = renderer.SearchMaterial( m_materialName.c_str( ) );
 		}
 		else
 		{
-			m_pMaterial = renderer.GetMaterialPtr( _T( "wireframe" ) );
+			m_pMaterial = renderer.SearchMaterial( _T( "wireframe" ) );
 		}
 	}
 

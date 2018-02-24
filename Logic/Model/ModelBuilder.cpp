@@ -16,13 +16,13 @@ public:
 	virtual bool Load( IRenderer& renderer, UINT primitive = RESOURCE_PRIMITIVE::TRIANGLELIST ) override;
 	virtual void Draw( CGameLogic& gameLogic ) override;
 
-	virtual void SetTexture( IRenderResource* pTexture ) override;
-	virtual IRenderResource* GetTexture( ) const override { return m_pTexture; };
+	virtual void SetTexture( RE_HANDLE pTexture ) override;
+	virtual RE_HANDLE GetTexture( ) const override { return m_texture; };
 
 	void SetTextureName( const String& textureName ) { m_textureName = textureName; }
 
 private:
-	IRenderResource* m_pTexture;
+	RE_HANDLE m_texture;
 	String m_textureName;
 };
 
@@ -32,12 +32,7 @@ bool CMeshBuilderMesh::Load( IRenderer& renderer, UINT primitive )
 
 	if ( m_textureName.size( ) > 0 )
 	{
-		auto texture = renderer.GetShaderResourceFromFile( m_textureName );
-
-		if ( texture )
-		{
-			m_pTexture = texture;
-		}
+		m_texture = renderer.CreateShaderResourceFromFile( m_textureName );
 	}
 
 	return loadSuccess;
@@ -50,28 +45,30 @@ void CMeshBuilderMesh::Draw( CGameLogic& gameLogic )
 		return;
 	}
 
-	if ( !m_pVertexBuffer )
+	if ( m_vertexBuffer == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
 		return;
 	}
 
-	m_pMaterial->SetShader( );
-	m_pVertexBuffer->SetVertexBuffer( &m_stride, &m_nOffset );
-	m_pMaterial->SetTexture( SHADER_TYPE::PS, 0, m_pTexture );
-	if ( m_pIndexBuffer )
+	IRenderer& renderer = gameLogic.GetRenderer( );
+
+	m_pMaterial->Bind( renderer );
+	renderer.BindVertexBuffer( &m_vertexBuffer, 0, 1, &m_stride, &m_offset );
+	renderer.BindShaderResource( SHADER_TYPE::PS, 0, 1, &m_texture );
+	if ( m_indexBuffer == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
-		m_pIndexBuffer->SetIndexBuffer( sizeof( WORD ), m_nIndexOffset );
-		gameLogic.GetRenderer().DrawIndexed( m_primitiveTopology, m_nIndices, m_nIndexOffset, m_nOffset );
+		gameLogic.GetRenderer( ).Draw( m_primitiveTopology, m_nVertices, m_offset );
 	}
 	else
 	{
-		gameLogic.GetRenderer( ).Draw( m_primitiveTopology, m_nVertices, m_nOffset );
+		gameLogic.GetRenderer( ).BindIndexBuffer16( m_indexBuffer, m_nIndexOffset );
+		gameLogic.GetRenderer( ).DrawIndexed( m_primitiveTopology, m_nIndices, m_nIndexOffset, m_offset );
 	}
 }
 
-void CMeshBuilderMesh::SetTexture( IRenderResource* pTexture )
+void CMeshBuilderMesh::SetTexture( RE_HANDLE texture )
 {
-	m_pTexture = pTexture;
+	m_texture = texture;
 }
 
 void CModelBuilder::Append( const MeshVertex& newVertex )

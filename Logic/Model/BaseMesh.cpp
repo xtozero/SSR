@@ -42,9 +42,9 @@ bool BaseMesh::Load( IRenderer& renderer, UINT primitive )
 							0,
 							0 };
 
-	m_pVertexBuffer = renderer.CreateBuffer( trait );
+	m_vertexBuffer = renderer.CreateBuffer( trait );
 
-	if ( !m_pVertexBuffer )
+	if ( m_vertexBuffer == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
 		return false;
 	}
@@ -56,14 +56,10 @@ bool BaseMesh::Load( IRenderer& renderer, UINT primitive )
 		trait.m_bufferType = RESOURCE_TYPE::INDEX_BUFFER;
 		trait.m_srcData = m_pIndexData;
 
-		m_pIndexBuffer = renderer.CreateBuffer( trait );
+		m_indexBuffer = renderer.CreateBuffer( trait );
 	}
 
 	return true;
-}
-
-void BaseMesh::Draw( CGameLogic& )
-{
 }
 
 void BaseMesh::SetMaterial( IMaterial* pMaterial )

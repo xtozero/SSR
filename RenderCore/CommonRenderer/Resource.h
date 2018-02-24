@@ -2,6 +2,132 @@
 
 #include "../../Engine/EnumStringMap.h"
 
+enum SHADER_TYPE
+{
+	NONE = -1,
+	VS,
+	HS,
+	DS,
+	GS,
+	PS,
+	CS,
+	MAX_SHADER
+};
+
+using RE_HANDLE = unsigned int;
+constexpr int RE_INDEX_MASK = 0x00FFFFFF;
+
+namespace RE_HANDLE_TYPE
+{
+	enum : unsigned int
+	{
+		BUFFER_HANDLE = 0x01000000,
+		DEPTH_STENCIL_HANDLE = 0x02000000,
+		RENDER_TARGET_HANDLE = 0x03000000,
+		SHADER_RESOURCE_HANDLE = 0x04000000,
+		RANDOM_ACCESS_HANDLE = 0x05000000,
+		TEXTURE_HANDLE = 0x06000000,
+		VS_HANDLE = 0x07000000,
+		GS_HANDLE = 0x08000000,
+		PS_HANDLE = 0x09000000,
+		CS_HANDLE = 0x0A000000,
+		SAMPLER_STATE_HANDLE = 0x0B000000,
+		RASTERIZER_STATE_HANDLE = 0x0C000000,
+		BLEND_STATE_HANDLE = 0x0D000000,
+		DEPTH_STENCIL_STATE_HANDLE = 0x0E000000,
+		INVALID_HANDLE = 0xFFFFFFFF
+	};
+}
+
+inline RE_HANDLE MakeResourceHandle( int handleType, int index )
+{
+	return static_cast<RE_HANDLE>( handleType | index );
+}
+
+inline bool IsBufferHandle( RE_HANDLE handle )
+{
+	using namespace RE_HANDLE_TYPE;
+	return BUFFER_HANDLE <= handle && handle < DEPTH_STENCIL_HANDLE;
+}
+
+inline bool IsDepthStencilHandle( RE_HANDLE handle )
+{
+	using namespace RE_HANDLE_TYPE;
+	return DEPTH_STENCIL_HANDLE <= handle && handle < RENDER_TARGET_HANDLE;
+}
+
+inline bool IsRenderTargetHandle( RE_HANDLE handle )
+{
+	using namespace RE_HANDLE_TYPE;
+	return RENDER_TARGET_HANDLE <= handle && handle < SHADER_RESOURCE_HANDLE;
+}
+
+inline bool IsShaderResourceHandle( RE_HANDLE handle )
+{
+	using namespace RE_HANDLE_TYPE;
+	return SHADER_RESOURCE_HANDLE <= handle && handle < RANDOM_ACCESS_HANDLE;
+}
+
+inline bool IsRandomAccessHandle( RE_HANDLE handle )
+{
+	using namespace RE_HANDLE_TYPE;
+	return RANDOM_ACCESS_HANDLE <= handle && handle < TEXTURE_HANDLE;
+}
+
+inline bool IsTexutreHandle( RE_HANDLE handle )
+{
+	using namespace RE_HANDLE_TYPE;
+	return TEXTURE_HANDLE <= handle && handle < VS_HANDLE;
+}
+
+inline bool IsVertexShaderHandle( RE_HANDLE handle )
+{
+	using namespace RE_HANDLE_TYPE;
+	return VS_HANDLE <= handle && handle < GS_HANDLE;
+}
+
+inline bool IsGeometryShaderHandle( RE_HANDLE handle )
+{
+	using namespace RE_HANDLE_TYPE;
+	return GS_HANDLE <= handle && handle < PS_HANDLE;
+}
+
+inline bool IsPixelShaderHandle( RE_HANDLE handle )
+{
+	using namespace RE_HANDLE_TYPE;
+	return PS_HANDLE <= handle && handle < CS_HANDLE;
+}
+
+inline bool IsComputeShaderHandle( RE_HANDLE handle )
+{
+	using namespace RE_HANDLE_TYPE;
+	return CS_HANDLE <= handle && handle < SAMPLER_STATE_HANDLE;
+}
+
+inline bool IsSamplerStateHandle( RE_HANDLE handle )
+{
+	using namespace RE_HANDLE_TYPE;
+	return SAMPLER_STATE_HANDLE <= handle && handle < RASTERIZER_STATE_HANDLE;
+}
+
+inline bool IsRasterizerStateHandle( RE_HANDLE handle )
+{
+	using namespace RE_HANDLE_TYPE;
+	return RASTERIZER_STATE_HANDLE <= handle && handle < BLEND_STATE_HANDLE;
+}
+
+inline bool IsBlendStateHandle( RE_HANDLE handle )
+{
+	using namespace RE_HANDLE_TYPE;
+	return BLEND_STATE_HANDLE <= handle && handle < DEPTH_STENCIL_STATE_HANDLE;
+}
+
+inline bool IsDepthStencilStateHandle( RE_HANDLE handle )
+{
+	using namespace RE_HANDLE_TYPE;
+	return DEPTH_STENCIL_STATE_HANDLE <= handle && handle < INVALID_HANDLE;
+}
+
 namespace RESOURCE_TYPE
 {
 	enum
@@ -253,6 +379,16 @@ struct RESOURCE_REGION
 	UINT m_bottom;
 	UINT m_front;
 	UINT m_back;
+};
+
+struct VERTEX_LAYOUT
+{
+	const char* m_name;
+	int m_index;
+	int m_format;
+	int m_slot;
+	bool m_isInstanceData;
+	int m_instanceDataStep;
 };
 
 inline void RegisterResourceEnumString( )

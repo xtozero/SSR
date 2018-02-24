@@ -33,9 +33,9 @@ void CDisplayShaderResourceHelper::Render( CGameLogic& gameLogic )
 	if ( ShouldDraw( ) )
 	{
 		// 스냅샷으로 만들어지는 텍스쳐의 경우 로드시에는 없기때문에 렌더때 텍스쳐가 없으면 세팅을 시도합니다.
-		if ( GetModel( ) && GetModel( )->GetTexture() == nullptr )
+		if ( GetModel( ) && GetModel( )->GetTexture() == RE_HANDLE_TYPE::INVALID_HANDLE )
 		{
-			GetModel( )->SetTexture( gameLogic.GetRenderer().GetShaderResourceFromFile( m_textureName ) );
+			GetModel( )->SetTexture( gameLogic.GetRenderer().CreateShaderResourceFromFile( m_textureName ) );
 		}
 
 		CGameObject::Render( gameLogic );

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "INotifyGraphicsDevice.h"
+#include "../RenderCore/CommonRenderer/Resource.h"
 
 #include <memory>
 #include <vector>
@@ -28,10 +29,11 @@ private:
 	bool CreateDeviceDependentResource( IRenderer& renderer );
 	bool m_isEnabled = false;
 	
-	ITexture* m_shadowMap = nullptr;
-	IRenderResource* m_srvShadowMap = nullptr;
-	IRenderResource* m_rtvShadowMap = nullptr;
-	IRenderResource* m_dsvShadowMap = nullptr;
+	RE_HANDLE m_shadowMap = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_srvShadowMap = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_rtvShadowMap = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_shadowDepth = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_dsvShadowMap = RE_HANDLE_TYPE::INVALID_HANDLE;
 
 	IMaterial* m_shadowMapMtl = nullptr;
 };

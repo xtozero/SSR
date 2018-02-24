@@ -3,29 +3,13 @@
 #include <array>
 #include <memory>
 
-class IBuffer;
 class IRenderer;
-class IRenderResource;
-class ISurface;
-
-enum SHADER_TYPE
-{
-	NONE = -1,
-	VS,
-	HS,
-	DS,
-	GS,
-	PS,
-	CS,
-	MAX_SHADER
-};
 
 class IMaterial
 {
 public:
 	virtual void Init( IRenderer& renderer ) = 0;
-	virtual void SetShader( ) = 0;
-	virtual void SetTexture( UINT shaderType, UINT slot, const IRenderResource* pTexture ) = 0;
+	virtual void Bind( IRenderer& renderer ) = 0;
 
 	virtual ~IMaterial( ) = default;
 

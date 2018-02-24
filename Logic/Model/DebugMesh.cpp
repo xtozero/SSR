@@ -36,14 +36,14 @@ bool TriangleMesh::Load( IRenderer& renderer, UINT primitive )
 							0,
 							0 };
 
-	m_pVertexBuffer = renderer.CreateBuffer( trait );
+	m_vertexBuffer = renderer.CreateBuffer( trait );
 
-	if ( !m_pVertexBuffer )
+	if ( m_vertexBuffer == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
 		return false;
 	}
 
-	SetMaterial( renderer.GetMaterialPtr( _T( "tutorial" ) ) );
+	SetMaterial( renderer.SearchMaterial( _T( "tutorial" ) ) );
 	
 	return true;
 }
@@ -55,14 +55,16 @@ void TriangleMesh::Draw( CGameLogic& gameLogic )
 		return;
 	}
 
-	if ( !m_pVertexBuffer )
+	if ( m_vertexBuffer == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
 		return;
 	}
 
-	m_pVertexBuffer->SetVertexBuffer( &m_stride, &m_nOffset );
-	m_pMaterial->SetShader( );
-	gameLogic.GetRenderer().Draw( m_primitiveTopology, m_nVertices, m_nOffset);
+	IRenderer& renderer = gameLogic.GetRenderer( );
+
+	m_pMaterial->Bind( renderer );
+	renderer.BindVertexBuffer( &m_vertexBuffer, 0, 1, &m_stride, &m_offset );
+	gameLogic.GetRenderer().Draw( m_primitiveTopology, m_nVertices, m_offset);
 }
 
 TriangleMesh::TriangleMesh( )

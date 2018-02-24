@@ -30,8 +30,8 @@ public:
 	virtual void Draw( CGameLogic& renderer ) = 0;
 
 	virtual void SetMaterial( IMaterial* pMaterial ) = 0;
-	virtual void SetTexture( IRenderResource* pTexture ) = 0;
-	virtual IRenderResource* GetTexture( ) const = 0;
+	virtual void SetTexture( RE_HANDLE pTexture ) = 0;
+	virtual RE_HANDLE GetTexture( ) const = 0;
 
 	virtual const void* GetMeshData( ) const = 0;
 	virtual int GetVerticesCount( ) const = 0;

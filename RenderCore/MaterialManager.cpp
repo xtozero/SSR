@@ -60,8 +60,8 @@ bool CScriptedMaterial::SetShader( IRenderer& renderer, const SHADER_TYPE type, 
 		return false;
 	}
 
-	m_pShaders[type] = renderer.FindGraphicsShaderByName( shaderName.c_str( ) );
-	return m_pShaders[type] ? true : false;
+	m_hShaders[type] = renderer.FindGraphicsShaderByName( shaderName.c_str( ) );
+	return ( m_hShaders[type] != RE_HANDLE_TYPE::INVALID_HANDLE ) ? true : false;
 }
 
 bool CScriptedMaterial::SetSamplerState( IRenderer& renderer, const SHADER_TYPE type, const String& samplerName )
@@ -71,26 +71,26 @@ bool CScriptedMaterial::SetSamplerState( IRenderer& renderer, const SHADER_TYPE 
 		return false;
 	}
 
-	m_pSamplerState[type] = renderer.CreateSamplerState( samplerName );
-	return m_pSamplerState[type] ? true : false;
+	m_hSamplerState[type] = renderer.CreateSamplerState( samplerName );
+	return ( m_hSamplerState[type] != RE_HANDLE_TYPE::INVALID_HANDLE ) ? true : false;
 }
 
 bool CScriptedMaterial::SetDepthStencilState( IRenderer& renderer, const String& dsStateName )
 {
-	m_pDepthStencilState = renderer.CreateDepthStencilState( dsStateName );
-	return m_pDepthStencilState ? true : false;
+	m_hDepthStencilState = renderer.CreateDepthStencilState( dsStateName );
+	return ( m_hDepthStencilState != RE_HANDLE_TYPE::INVALID_HANDLE ) ? true : false;
 }
 
 bool CScriptedMaterial::SetRasterizerState( IRenderer& renderer, const String& rsStateName )
 {
-	m_pRasterizerState = renderer.CreateRenderState( rsStateName );
-	return m_pRasterizerState ? true : false;
+	m_hRasterizerState = renderer.CreateRasterizerState( rsStateName );
+	return ( m_hRasterizerState != RE_HANDLE_TYPE::INVALID_HANDLE ) ? true : false;
 }
 
 bool CScriptedMaterial::SetBlendState( IRenderer & renderer, const String& blendStateName )
 {
-	m_pBlendState = renderer.CreateBlendState( blendStateName );
-	return m_pBlendState ? true : false;
+	m_hBlendState = renderer.CreateBlendState( blendStateName );
+	return ( m_hBlendState != RE_HANDLE_TYPE::INVALID_HANDLE ) ? true : false;
 }
 
 void CMaterialManager::OnDeviceLost( )

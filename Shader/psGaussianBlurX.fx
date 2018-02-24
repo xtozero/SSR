@@ -21,11 +21,9 @@ float4 main( PS_INPUT input ) : SV_TARGET
 	GaussianKernal[5] = 0.131514;
 	GaussianKernal[6] = 0.071303;
 
-	float g_XScale = 1.f / g_TargetWidth;
-
-	float2 offset1 = float2( 1.0f, 0.f ) * g_XScale;
-	float2 offset2 = float2( 2.0f, 0.f ) * g_XScale;
-	float2 offset3 = float2( 3.0f, 0.f ) * g_XScale;
+	float2 offset1 = float2( 1.0f, 0.f ) * g_invTargetSize.x;
+	float2 offset2 = float2( 2.0f, 0.f ) * g_invTargetSize.x;
+	float2 offset3 = float2( 3.0f, 0.f ) * g_invTargetSize.x;
 
 	float2 position[7];
 

@@ -52,10 +52,12 @@ struct ViewProjectionTrasform
 	CXMFLOAT4X4 m_projection;
 };
 
-struct GbufferInfo
+struct PASS_CONSTANT
 {
+	float m_zNear;
 	float m_zFar;
-	float m_targetWidth;
-	float m_targetHeight;
-	float m_padding;
+	float m_elapsedTime;
+	float m_totalTime;
+	CXMFLOAT2 m_renderTargetSize;
+	CXMFLOAT2 m_invRenderTargetSize;
 };

@@ -59,40 +59,47 @@ void CRenderView::SetScissorRects( IRenderer& renderer )
 
 void CRenderView::CreatePerspectiveFovLHMatrix( float fov, float aspect, float zNear, float zFar )
 {
+	m_zNear = zNear;
 	m_zFar = zFar;
 	m_projectionMatrix = XMMatrixPerspectiveFovLH( fov, aspect, zNear, zFar );
 }
 
 void CRenderView::CreatePerspectiveFovRHMatrix( float fov, float aspect, float zNear, float zFar )
 {
+	m_zNear = zNear;
 	m_zFar = zFar;
 	m_projectionMatrix = XMMatrixPerspectiveFovRH( fov, aspect, zNear, zFar );
 }
 
-void CRenderView::UpdataView( )
+void CRenderView::UpdataView( IRenderer& renderer )
 {
-	if ( ViewProjectionTrasform* pData = static_cast<ViewProjectionTrasform*>( m_viewConstantBuffer->LockBuffer( ) ) )
+	if ( ViewProjectionTrasform* pData = static_cast<ViewProjectionTrasform*>( renderer.LockBuffer( m_viewConstantBuffer ) ) )
 	{
 		pData->m_view = XMMatrixTranspose( m_viewMatrix );
 		pData->m_projection = XMMatrixTranspose( m_projectionMatrix );
 
-		m_viewConstantBuffer->UnLockBuffer( );
-		m_viewConstantBuffer->SetVSBuffer( static_cast<int>( VS_CONSTANT_BUFFER::VIEW_PROJECTION ) );
+		renderer.UnLockBuffer( m_viewConstantBuffer );
+		renderer.BindConstantBuffer( SHADER_TYPE::VS, static_cast<int>( VS_CONSTANT_BUFFER::VIEW_PROJECTION ), 1, &m_viewConstantBuffer );
 	}
 
-	if ( GbufferInfo* pData = static_cast<GbufferInfo*>( m_gbufferConstantBuffer->LockBuffer( ) ) )
+	if ( PASS_CONSTANT* pData = static_cast<PASS_CONSTANT*>( renderer.LockBuffer( m_gbufferConstantBuffer ) ) )
 	{
 		pData->m_zFar = m_zFar;
+		pData->m_zNear = m_zNear;
+		pData->m_elapsedTime = CTimer::GetInstance().GetElapsedTIme();
+		pData->m_totalTime = CTimer::GetInstance().GetTotalTime();
 
 		auto mainView = m_viewportList.begin( );
 		if ( mainView != m_viewportList.end( ) )
 		{
-			pData->m_targetWidth = mainView->m_width;
-			pData->m_targetHeight = mainView->m_height;
+			pData->m_renderTargetSize.x = mainView->m_width;
+			pData->m_renderTargetSize.y = mainView->m_height;
+			pData->m_invRenderTargetSize.x = 1.f / mainView->m_width;
+			pData->m_invRenderTargetSize.y = 1.f / mainView->m_height;
 		}
 
-		m_gbufferConstantBuffer->UnLockBuffer( );
-		m_gbufferConstantBuffer->SetPSBuffer( static_cast<int>( PS_CONSTANT_BUFFER::GBUFFER ) );
+		renderer.UnLockBuffer( m_gbufferConstantBuffer );
+		renderer.BindConstantBuffer( SHADER_TYPE::PS, static_cast<int>( PS_CONSTANT_BUFFER::GBUFFER ), 1, &m_gbufferConstantBuffer );
 	}
 }
 
@@ -115,16 +122,16 @@ bool CRenderView::CreateDeviceDependentResource( IRenderer& renderer )
 
 	m_viewConstantBuffer = renderer.CreateBuffer( trait );
 
-	if ( m_viewConstantBuffer == nullptr )
+	if ( m_viewConstantBuffer == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
 		return false;
 	}
 
-	trait.m_stride = sizeof( GbufferInfo );
+	trait.m_stride = sizeof( PASS_CONSTANT );
 
 	m_gbufferConstantBuffer = renderer.CreateBuffer( trait );
 
-	if ( m_gbufferConstantBuffer == nullptr )
+	if ( m_gbufferConstantBuffer == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
 		return false;
 	}

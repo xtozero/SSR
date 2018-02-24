@@ -4,23 +4,18 @@
 
 #include <wrl/client.h>
 
-class IShader;
-class IBuffer;
-class IRenderState;
-
 class Material : public IMaterial
 {
 protected:
-	IShader* m_pShaders[SHADER_TYPE::MAX_SHADER];
-	IRenderState* m_pRasterizerState;
-	IRenderState* m_pSamplerState[SHADER_TYPE::MAX_SHADER];
-	IRenderState* m_pDepthStencilState;
-	IRenderState* m_pBlendState;
+	RE_HANDLE m_hShaders[SHADER_TYPE::MAX_SHADER];
+	RE_HANDLE m_hRasterizerState = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_hSamplerState[SHADER_TYPE::MAX_SHADER];
+	RE_HANDLE m_hDepthStencilState = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_hBlendState = RE_HANDLE_TYPE::INVALID_HANDLE;
 
 public:
-	virtual void Init( IRenderer& renderer ) override;
-	virtual void SetShader( ) override;
-	virtual void SetTexture( UINT shaderType, UINT slot, const IRenderResource* pTexture ) override;
+	virtual void Init( IRenderer& ) override {};
+	virtual void Bind( IRenderer& renderer ) override;
 	
 	Material( );
 };

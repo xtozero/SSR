@@ -27,6 +27,12 @@ struct MeshVertex
 		m_color( CXMFLOAT3( 0.f, 0.f, 0.f ) ),
 		m_texcoord( CXMFLOAT2( 0.f, 0.f ) ) {}
 
+	MeshVertex( const CXMFLOAT3& position, const CXMFLOAT3& normal, const CXMFLOAT2& texcoord ) :
+		m_position( position ),
+		m_normal( normal ),
+		m_color( CXMFLOAT3( 0.f, 0.f, 0.f ) ),
+		m_texcoord( texcoord ) {}
+
 	MeshVertex( const CXMFLOAT3& position, const CXMFLOAT3& normal, const CXMFLOAT3& color ) :
 		m_position( position ),
 		m_normal( normal ),

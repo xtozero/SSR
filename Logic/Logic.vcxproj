@@ -163,6 +163,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="model\IMesh.h" />
     <ClInclude Include="model\IModelBuilder.h" />
     <ClInclude Include="model\IModelLoader.h" />
+    <ClInclude Include="Model\MeshBuildHelper.h" />
     <ClInclude Include="model\ModelBuilder.h" />
     <ClInclude Include="model\ModelManager.h" />
     <ClInclude Include="model\ObjMesh.h" />

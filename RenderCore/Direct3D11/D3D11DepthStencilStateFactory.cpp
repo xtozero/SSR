@@ -1,9 +1,8 @@
 #include "stdafx.h"
 #include "D3D11DepthStencilStateFactory.h"
 
+#include "D3D11RenderState.h"
 #include "D3D11RenderStateManager.h"
-
-#include "../CommonRenderer/IRenderState.h"
 
 #include "../../Shared/Util.h"
 #include "../../Engine/EnumStringMap.h"
@@ -19,54 +18,6 @@ namespace
 	constexpr TCHAR* DEPTH_STENCIL_DESC_HANDLER_KEY_NAME = _T( "DepthStencilDesc" );
 }
 
-class CDepthStencilState : public IRenderState
-{
-public:
-	virtual void Set( const SHADER_TYPE type = SHADER_TYPE::NONE ) override;
-
-	bool Create( ID3D11Device& device, const D3D11_DEPTH_STENCIL_DESC& dsDesc );
-
-	CDepthStencilState( CD3D11RenderStateManager& renderStateManager ) : m_renderStateManager( renderStateManager ) { }
-private:
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_pDsState;
-	CD3D11RenderStateManager& m_renderStateManager;
-};
-
-void CDepthStencilState::Set( const SHADER_TYPE type )
-{
-	assert( type == SHADER_TYPE::NONE );
-
-	m_renderStateManager.SetDepthStencilState( m_pDsState.Get( ), 1 );
-}
-
-bool CDepthStencilState::Create( ID3D11Device& device, const D3D11_DEPTH_STENCIL_DESC & dsDesc )
-{
-	return SUCCEEDED( device.CreateDepthStencilState( &dsDesc, &m_pDsState ) );
-}
-
-class CNullDepthStencilState : public IRenderState
-{
-public:
-	virtual void Set( const SHADER_TYPE type = SHADER_TYPE::NONE ) override;
-
-	CNullDepthStencilState( CD3D11RenderStateManager& renderStateManager ) : m_renderStateManager( renderStateManager ) { }
-
-private:
-	CD3D11RenderStateManager& m_renderStateManager;
-};
-
-void CNullDepthStencilState::Set( const SHADER_TYPE type )
-{
-	assert( type == SHADER_TYPE::NONE );
-
-	m_renderStateManager.SetDepthStencilState( nullptr, 1 );
-}
-
-void CD3D11DepthStencilStateFactory::OnDeviceLost( )
-{
-	m_depthStencilState.clear( );
-}
-
 void CD3D11DepthStencilStateFactory::LoadDesc( )
 {
 	CKeyValueReader KeyValueReader;
@@ -79,33 +30,23 @@ void CD3D11DepthStencilStateFactory::LoadDesc( )
 	}
 }
 
-IRenderState* CD3D11DepthStencilStateFactory::GetDepthStencilState( ID3D11Device& device, CD3D11RenderStateManager& renderStateManager, const String& stateName )
+Owner<CD3D11DepthStencilState*> CD3D11DepthStencilStateFactory::GetDepthStencilState( ID3D11Device& device, const String& stateName )
 {
-	auto foundState = m_depthStencilState.find( stateName );
-
-	if ( foundState != m_depthStencilState.end( ) )
-	{
-		return foundState->second.get( );
-	}
-
 	auto foundDesc = m_depthStencilDesc.find( stateName );
 
 	if ( foundDesc != m_depthStencilDesc.end( ) )
 	{
-		std::unique_ptr<CDepthStencilState> newState = std::make_unique<CDepthStencilState>( renderStateManager );
+		CD3D11DepthStencilState* newState = new CD3D11DepthStencilState;
 
 		if ( newState->Create( device, foundDesc->second ) )
 		{
-			CDepthStencilState* ret = newState.get( );
-			m_depthStencilState.emplace( stateName, std::move( newState ) );
-			return ret;
+			return newState;
 		}
+
+		delete newState;
 	}
-	
-	std::unique_ptr<CNullDepthStencilState> nullState = std::make_unique<CNullDepthStencilState>( renderStateManager );
-	CNullDepthStencilState* ret = nullState.get( );
-	m_depthStencilState.emplace( _T( "NULL" ), std::move( nullState ) );
-	return ret;
+
+	return nullptr;
 }
 
 void CD3D11DepthStencilStateFactory::AddDepthStencilDesc( const String& descName, const D3D11_DEPTH_STENCIL_DESC & newDesc )

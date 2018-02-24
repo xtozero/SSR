@@ -7,7 +7,6 @@
 
 #include "../RenderCore/CommonRenderer/IMaterial.h"
 #include "../RenderCore/CommonRenderer/IRenderer.h"
-#include "../RenderCore/CommonRenderer/IRenderResource.h"
 #include "../RenderCore/CommonRenderer/IRenderResourceManager.h"
 
 #include "../Shared/Util.h"
@@ -22,27 +21,28 @@ bool ScreenBlurManager::Init( CGameLogic& gameLogic )
 	return CreateDeviceDependentResource( gameLogic );
 }
 
-void ScreenBlurManager::Process( CGameLogic& gameLogic, IRenderResource& destSRV, IRenderResource& destRT ) const
+void ScreenBlurManager::Process( CGameLogic& gameLogic, RE_HANDLE destSRV, RE_HANDLE destRT ) const
 {
 	IRenderer& renderer = gameLogic.GetRenderer( );
+	RE_HANDLE default[] = { RE_HANDLE_TYPE::INVALID_HANDLE };
 
 	// Set RenderTarget
-	renderer.SetRenderTarget( m_pBlurRt, nullptr );
+	renderer.BindRenderTargets( &m_blurRt, 1, default[0] );
 
 	// Set Gaussian_X Shader State
-	renderer.PSSetShaderResource( 1, &destSRV );
-	m_pBlurMaterial[0]->SetShader( );
+	renderer.BindShaderResource( SHADER_TYPE::PS, 1, 1, &destSRV );
+	m_pBlurMaterial[0]->Bind( renderer );
 
 	m_pScreenRect->SetMaterial( m_pBlurMaterial[0] );
 	m_pScreenRect->Draw( gameLogic );
 
 	// Set RenderTarget
-	renderer.PSSetShaderResource( 1, nullptr );
-	renderer.SetRenderTarget( &destRT, nullptr );
+	renderer.BindShaderResource( SHADER_TYPE::PS, 1, 1, default );
+	renderer.BindRenderTargets( &destRT, 1, default[0] );
 
 	// Set Gaussian_Y Shader State
-	renderer.PSSetShaderResource( 1, m_pBlurSrv );
-	m_pBlurMaterial[1]->SetShader( );
+	renderer.BindShaderResource( SHADER_TYPE::PS, 1, 1, &m_blurSrv );
+	m_pBlurMaterial[1]->Bind( renderer );
 
 	m_pScreenRect->SetMaterial( m_pBlurMaterial[1] );
 	m_pScreenRect->Draw( gameLogic );
@@ -61,7 +61,7 @@ bool ScreenBlurManager::CreateDeviceDependentResource( CGameLogic& gameLogic )
 
 	for ( int i = 0; i < 2; ++i )
 	{
-		m_pBlurMaterial[i] = renderer.GetMaterialPtr( BLUR_MATERIAL_NAME[i] );
+		m_pBlurMaterial[i] = renderer.SearchMaterial( BLUR_MATERIAL_NAME[i] );
 
 		if ( m_pBlurMaterial[i] == nullptr )
 		{
@@ -105,20 +105,20 @@ bool ScreenBlurManager::CreateAppSizeDependentResource( CGameLogic & gameLogic )
 	String blurTempTextureName( _T( "BlurTempTexture" ) );
 	IResourceManager& resourceMgr = renderer.GetResourceManager( );
 
-	ITexture* ssrTex = resourceMgr.CreateTexture2D( blurTempTextureName, blurTempTextureName );
-	if ( ssrTex == nullptr )
+	m_blurTexture = resourceMgr.CreateTexture2D( blurTempTextureName, blurTempTextureName );
+	if ( m_blurTexture == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
 		return false;
 	}
 
-	m_pBlurRt = resourceMgr.CreateRenderTarget( *ssrTex, blurTempTextureName );
-	if ( m_pBlurRt == nullptr )
+	m_blurRt = resourceMgr.CreateRenderTarget( m_blurTexture, blurTempTextureName );
+	if ( m_blurRt == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
 		return false;
 	}
 
-	m_pBlurSrv = resourceMgr.CreateShaderResource( *ssrTex, blurTempTextureName );
-	if ( m_pBlurSrv == nullptr )
+	m_blurSrv = resourceMgr.CreateTextureShaderResource( m_blurTexture, blurTempTextureName );
+	if ( m_blurSrv == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
 		return false;
 	}

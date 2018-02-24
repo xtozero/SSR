@@ -38,6 +38,10 @@ void CTimer::Tick ( )
 	{
 		m_elapsedTime = 0;
 	}
+	else
+	{
+		m_totalTime += m_elapsedTime;
+	}
 }
 
 void CTimer::Pause( )

@@ -16,7 +16,6 @@
 
 class IModelLoader;
 class IRenderer;
-class CSurfaceManager;
 
 class CModelManager : IGraphicsDeviceNotify
 {

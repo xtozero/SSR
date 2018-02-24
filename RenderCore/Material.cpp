@@ -1,65 +1,38 @@
 #include "stdafx.h"
 #include "common.h"
-#include "CommonRenderer/IBuffer.h"
 #include "CommonRenderer/IRenderer.h"
-#include "CommonRenderer/IRenderState.h"
-#include "CommonRenderer/IRenderResource.h"
-#include "CommonRenderer/IShader.h"
 #include "Material.h"
 
 #include <d3d11.h>
 #include <type_traits>
 
-void Material::Init( IRenderer& renderer )
-{
-	m_pRasterizerState = renderer.CreateRenderState( _T( "NULL" ) );
-	m_pDepthStencilState = renderer.CreateDepthStencilState( _T( "NULL" ) );
-	for ( int i = 0; i < SHADER_TYPE::MAX_SHADER; ++i )
-	{
-		m_pSamplerState[i] = renderer.CreateSamplerState( _T( "NULL" ) );
-	}
-	m_pBlendState = renderer.CreateBlendState( _T( "NULL" ) );
-}
+using namespace RE_HANDLE_TYPE;
 
-void Material::SetShader( )
+void Material::Bind( IRenderer& renderer )
 {
 	for ( int i = 0; i < SHADER_TYPE::MAX_SHADER; ++i )
 	{
-		if ( m_pShaders[i] )
+		if ( m_hShaders[i] != INVALID_HANDLE )
 		{
-			m_pShaders[i]->SetShader( );
+			renderer.BindShader( static_cast<SHADER_TYPE>( i ), m_hShaders[i] );
 		}
 	}
 
-	m_pRasterizerState->Set( );
-	m_pDepthStencilState->Set( );
-	m_pBlendState->Set( );
+	renderer.BindRasterizerState( m_hRasterizerState );
+	renderer.BindDepthStencilState( m_hDepthStencilState );
+	renderer.BindBlendState( m_hBlendState );
 
 	for ( int i = 0; i < SHADER_TYPE::MAX_SHADER; ++i )
 	{
-		m_pSamplerState[i]->Set( static_cast<SHADER_TYPE>( i ) );
+		renderer.BindSamplerState( static_cast<SHADER_TYPE>( i ), 0, 1, &m_hSamplerState[i] );
 	}
 }
 
-void Material::SetTexture( UINT shaderType, UINT slot, const IRenderResource* pTexture )
-{
-	if ( shaderType < SHADER_TYPE::MAX_SHADER )
-	{
-		if ( m_pShaders[shaderType] )
-		{
-			m_pShaders[shaderType]->SetShaderResource( slot, pTexture );
-		}
-	}
-}
-
-Material::Material( ) :
-	m_pRasterizerState( nullptr ),
-	m_pDepthStencilState( nullptr ),
-	m_pBlendState( nullptr )
+Material::Material( )
 {
 	for ( int i = 0; i < MAX_SHADER; ++i )
 	{
-		m_pShaders[i] = nullptr;
-		m_pSamplerState[i] = nullptr;
+		m_hShaders[i] = INVALID_HANDLE;
+		m_hSamplerState[i] = INVALID_HANDLE;
 	}
 }

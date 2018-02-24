@@ -2,19 +2,20 @@
 #include "RenderEffect.h"
 
 #include "CommonRenderer/IRenderer.h"
-#include "CommonRenderer/IRenderResource.h"
 #include "CommonRenderer/IRenderResourceManager.h"
+#include "CommonRenderer/Resource.h"
 
 #include "../Shared/Util.h"
 
 #include <array>
+
+using namespace RE_HANDLE_TYPE;
 
 namespace
 {
 	constexpr TCHAR* OREN_NAYAR_TEX_NAME = _T( "OrenNayarLookUP" );
 	constexpr TCHAR* OREN_NAYAR_SNAPSHOT_NAME = _T( "DebugOrenNayarLookUP" );
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // CEffectOrenNayar
@@ -62,11 +63,11 @@ void CEffectOrenNayar::SceneBegin( IRenderer& renderer )
 
 		IResourceManager& resourceMgr = renderer.GetResourceManager( );
 
-		ITexture* pTexture = resourceMgr.CreateTexture2D( OREN_NAYAR_TEX_NAME, OREN_NAYAR_TEX_NAME, &initData );
-		if ( pTexture )
+		RE_HANDLE hTexture = resourceMgr.CreateTexture2D( OREN_NAYAR_TEX_NAME, OREN_NAYAR_TEX_NAME, &initData );
+		if ( hTexture != INVALID_HANDLE )
 		{
-			auto lookupResource = resourceMgr.CreateShaderResource( *pTexture, OREN_NAYAR_TEX_NAME );
-			renderer.PSSetShaderResource( 1, lookupResource );
+			RE_HANDLE hLUT = resourceMgr.CreateTextureShaderResource( hTexture, OREN_NAYAR_TEX_NAME );
+			renderer.BindShaderResource( SHADER_TYPE::PS, 1, 1, &hLUT );
 #ifdef _DEBUG
 			renderer.TakeSnapshot2D( OREN_NAYAR_TEX_NAME, OREN_NAYAR_SNAPSHOT_NAME );
 #endif

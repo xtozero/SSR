@@ -187,7 +187,7 @@ void CGameLogic::SceneBegin( void )
 	m_view.PushScissorRect( CUtilWindowInfo::GetInstance( ).GetRect() );
 	m_view.SetViewPort( *m_pRenderer );
 	m_view.SetScissorRects( *m_pRenderer );
-	m_view.UpdataView( );
+	m_view.UpdataView( *m_pRenderer );
 
 	m_pRenderer->SceneBegin( );
 }
@@ -291,7 +291,7 @@ bool CGameLogic::CreateDeviceDependentResource( )
 	using namespace SHARED_CONSTANT_BUFFER;
 
 	m_commonConstantBuffer[PS_SURFACE] = m_pRenderer->CreateBuffer( trait );
-	if ( m_commonConstantBuffer[PS_SURFACE] == nullptr )
+	if ( m_commonConstantBuffer[PS_SURFACE] == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
 		return false;
 	}
@@ -299,7 +299,7 @@ bool CGameLogic::CreateDeviceDependentResource( )
 	trait.m_stride = sizeof( GeometryTransform );
 
 	m_commonConstantBuffer[VS_GEOMETRY] = m_pRenderer->CreateBuffer( trait );
-	if ( m_commonConstantBuffer[VS_GEOMETRY] == nullptr )
+	if ( m_commonConstantBuffer[VS_GEOMETRY] == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
 		return false;
 	}
@@ -307,7 +307,7 @@ bool CGameLogic::CreateDeviceDependentResource( )
 	trait.m_stride = sizeof( ShadowTransform );
 
 	m_commonConstantBuffer[VS_SHADOW] = m_pRenderer->CreateBuffer( trait );
-	if ( m_commonConstantBuffer[VS_SHADOW] == nullptr )
+	if ( m_commonConstantBuffer[VS_SHADOW] == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
 		return false;
 	}
@@ -315,11 +315,13 @@ bool CGameLogic::CreateDeviceDependentResource( )
 	return true;
 }
 
-CGameLogic::CGameLogic( ):
-	m_wndHwnd( nullptr ),
-	m_pickingManager( &m_gameObjects ),
-	m_pRenderer( nullptr )
+CGameLogic::CGameLogic( ) : m_pickingManager( &m_gameObjects )
 {
+	for ( int i = 0; i < SHARED_CONSTANT_BUFFER::Count; ++i )
+	{
+		m_commonConstantBuffer[i] = RE_HANDLE_TYPE::INVALID_HANDLE;
+	}
+
 	ShowDebugConsole( );
 }
 

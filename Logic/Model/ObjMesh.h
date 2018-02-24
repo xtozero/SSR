@@ -8,16 +8,10 @@ struct Surface;
 
 struct ObjSurfaceTrait
 {
-	ObjSurfaceTrait() : m_indexOffset( 0 ),
-		m_indexCount( 0 ),
-		m_pSurface( nullptr ),
-		m_pTexture( nullptr )
-	{}
-
-	UINT m_indexOffset;
-	UINT m_indexCount;
-	Surface* m_pSurface;
-	IRenderResource* m_pTexture;
+	UINT m_indexOffset = 0;
+	UINT m_indexCount = 0;
+	Surface* m_pSurface = nullptr;
+	RE_HANDLE m_texture = RE_HANDLE_TYPE::INVALID_HANDLE;
 };
 
 class CObjMesh : public BaseMesh

@@ -3,8 +3,6 @@
 
 #include "D3D11RenderStateManager.h"
 
-#include "../CommonRenderer/IRenderState.h"
-
 #include "../../Engine/EnumStringMap.h"
 #include "../../Engine/KeyValueReader.h"
 #include "../../Shared/Util.h"
@@ -19,60 +17,6 @@ namespace
 	constexpr TCHAR* RASTERIZER_DESC_HANDLER_KEY_NAME = _T( "BlendDesc" );
 }
 
-class CBlendState : public IRenderState
-{
-public:
-	virtual void Set( const SHADER_TYPE type = SHADER_TYPE::NONE ) override;
-
-	bool Create( ID3D11Device& device, const CD3D_BLEND_DESC& blendDesc );
-	void SetBlendFactor( const std::array<float, 4>& blendFactor ) noexcept;
-	void SetSampleMask( unsigned int sampleMask ) noexcept { m_sampleMask = sampleMask; }
-
-	CBlendState( CD3D11RenderStateManager& renderStateManager ) : m_renderStateManager( renderStateManager ) {}
-private:
-	Microsoft::WRL::ComPtr<ID3D11BlendState> m_pBlendState;
-	CD3D11RenderStateManager& m_renderStateManager;
-	std::array<float, 4> m_blendFactor = { 0, };
-	unsigned int m_sampleMask = D3D11_DEFAULT_SAMPLE_MASK;
-};
-
-void CBlendState::Set( const SHADER_TYPE type )
-{
-	assert( type == SHADER_TYPE::NONE );
-	m_renderStateManager.SetBlendState( m_pBlendState.Get( ), m_blendFactor.data(), m_sampleMask );
-}
-
-bool CBlendState::Create( ID3D11Device& device, const CD3D_BLEND_DESC& blendDesc )
-{
-	return SUCCEEDED( device.CreateBlendState( &blendDesc.m_desc, &m_pBlendState ) );
-}
-
-void CBlendState::SetBlendFactor( const std::array<float, 4>& blendFactor ) noexcept
-{
-	m_blendFactor = blendFactor;
-}
-
-class CNullBlendState : public IRenderState
-{
-public:
-	virtual void Set( const SHADER_TYPE type = SHADER_TYPE::NONE ) override;
-
-	CNullBlendState( CD3D11RenderStateManager& renderStateManager ) : m_renderStateManager( renderStateManager ) { }
-private:
-	CD3D11RenderStateManager& m_renderStateManager;
-};
-
-void CNullBlendState::Set( const SHADER_TYPE type )
-{
-	assert( type == SHADER_TYPE::NONE );
-	m_renderStateManager.SetBlendState( nullptr, nullptr, D3D11_DEFAULT_SAMPLE_MASK );
-}
-
-void CD3D11BlendStateFactory::OnDeviceLost( )
-{
-	m_blendState.clear( );
-}
-
 void CD3D11BlendStateFactory::LoadDesc( )
 {
 	CKeyValueReader KeyValueReader;
@@ -85,33 +29,23 @@ void CD3D11BlendStateFactory::LoadDesc( )
 	}
 }
 
-IRenderState* CD3D11BlendStateFactory::GetBlendState( ID3D11Device& device, CD3D11RenderStateManager& deviceContext, const String& stateName )
+Owner<CD3D11BlendState*> CD3D11BlendStateFactory::GetBlendState( ID3D11Device& device, const String& stateName )
 {
-	auto foundState = m_blendState.find( stateName );
-
-	if ( foundState != m_blendState.end( ) )
-	{
-		return foundState->second.get( );
-	}
-
 	auto foundDesc = m_blendStateDesc.find( stateName );
 
 	if ( foundDesc != m_blendStateDesc.end( ) )
 	{
-		std::unique_ptr<CBlendState> newState = std::make_unique<CBlendState>( deviceContext );
+		CD3D11BlendState* newState = new CD3D11BlendState;
 
 		if ( newState->Create( device, foundDesc->second ) )
 		{
-			CBlendState* ret = newState.get( );
-			m_blendState.emplace( stateName, std::move( newState ) );
-			return ret;
+			return newState;
 		}
+
+		delete newState;
 	}
 
-	std::unique_ptr<CNullBlendState> nullState = std::make_unique<CNullBlendState>( deviceContext );
-	CNullBlendState* ret = nullState.get( );
-	m_blendState.emplace( _T( "NULL" ), std::move( nullState ) );
-	return ret;
+	return nullptr;
 }
 
 void CD3D11BlendStateFactory::LoadRasterizerDesc( const KeyValue& keyValue )
