@@ -166,7 +166,6 @@ call "$(ProjectDir)Shader\make_shader.bat" "$(ProjectDIr)Shader"</Command>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\public\Core\common.h" />
     <ClInclude Include="Source\public\Core\RenderCoreDllFunc.h" />
     <ClInclude Include="Source\public\D3D11\D3D11RenderState.h" />
     <ClInclude Include="Source\public\D3D11\D3D11RenderStateFactory.h" />

@@ -3,7 +3,6 @@
 
 #include "Render/IRenderer.h"
 #include "Render/IRenderResourceManager.h"
-
 #include "Util.h"
 
 #include <cassert>

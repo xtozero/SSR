@@ -9,10 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="리소스 파일">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="ConsoleMessage">
       <UniqueIdentifier>{04659954-84f2-4956-95b5-52c4494e0106}</UniqueIdentifier>
     </Filter>
@@ -30,13 +26,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Public\Core\common.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Public\Core\IEngine.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Public\Core\targetver.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Public\UserInput\UICMap.h">
@@ -68,6 +58,9 @@
     </ClInclude>
     <ClInclude Include="Source\Public\DataStructure\KeyValueReader.h">
       <Filter>DataStructure</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\targetver.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

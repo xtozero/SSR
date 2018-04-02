@@ -1,7 +1,8 @@
 #include "stdafx.h"
+#include "Render/Material.h"
+
 #include "common.h"
 #include "Render/IRenderer.h"
-#include "Render/Material.h"
 
 #include <d3d11.h>
 #include <type_traits>

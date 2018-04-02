@@ -138,15 +138,14 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="Source\Public\ConsoleMessage\ConsoleMessageExecutor.h" />
     <ClInclude Include="Source\Public\ConsoleMessage\ConVar.h" />
     <ClInclude Include="Source\Public\ConsoleMessage\IConsoleMessage.h" />
-    <ClInclude Include="Source\Public\Core\common.h" />
     <ClInclude Include="Source\Public\Core\IEngine.h" />
-    <ClInclude Include="Source\Public\Core\targetver.h" />
     <ClInclude Include="Source\Public\DataStructure\EnumStringMap.h" />
     <ClInclude Include="Source\Public\DataStructure\KeyValueReader.h" />
     <ClInclude Include="Source\Public\Platform\WindowPlatformEngine.h" />
     <ClInclude Include="Source\Public\Platform\WindowPlatformInputConvertor.h" />
     <ClInclude Include="Source\Public\UserInput\UICMap.h" />
     <ClInclude Include="Source\stdafx.h" />
+    <ClInclude Include="Source\targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Private\ConsoleMessage\ConCommand.cpp" />

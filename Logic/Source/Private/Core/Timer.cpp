@@ -1,11 +1,11 @@
 #include "stdafx.h"
-#include "common.h"
 #include "Core/Timer.h"
+
+#include "common.h"
 #include "ConsoleMessage/ConVar.h"
 #include "Util.h"
-#include <windows.h>
 
-#pragma comment( lib, "winmm.lib" )
+#include <windows.h>
 
 using namespace std::chrono;
 

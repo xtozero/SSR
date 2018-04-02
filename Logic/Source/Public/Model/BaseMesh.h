@@ -1,8 +1,7 @@
 #pragma once
 
-#include "IMesh.h"
-
 #include "common.h"
+#include "IMesh.h"
 #include "Math/CXMFloat.h"
 #include "Util.h"
 

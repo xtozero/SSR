@@ -1,8 +1,8 @@
 #pragma once
 
-#include <memory>
-
 #include "Math/CXMFloat.h"
+
+#include <memory>
 
 class IMesh;
 class CRay;

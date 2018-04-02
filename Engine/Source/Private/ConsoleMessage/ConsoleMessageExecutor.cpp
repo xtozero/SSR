@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ConsoleMessage/ConsoleMessageExecutor.h"
+
 #include "Util.h"
 
 IConsoleMessageExecutor* GetConsoleMessageExecutor( )

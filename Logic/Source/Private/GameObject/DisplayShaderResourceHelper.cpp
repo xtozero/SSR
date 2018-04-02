@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "GameObject/DisplayShaderResourceHelper.h"
 
+#include "ConsoleMessage/ConVar.h"
 #include "Core/GameLogic.h"
 #include "Core/UtilWindowInfo.h"
-#include "ConsoleMessage/ConVar.h"
 #include "DataStructure/KeyValueReader.h"
 #include "GameObject/GameObject.h"
 #include "GameObject/GameObjectFactory.h"

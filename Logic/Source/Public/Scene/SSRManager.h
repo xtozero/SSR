@@ -2,9 +2,8 @@
 
 #include "INotifyGraphicsDevice.h"
 #include "Math/CXMFloat.h"
-#include "ScreenBlurManager.h"
-
 #include "Render/Resource.h"
+#include "ScreenBlurManager.h"
 
 #include <memory>
 #include <list>

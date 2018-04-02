@@ -2,7 +2,6 @@
 
 #include "DataStructure/EnumStringMap.h"
 #include "Math/CXMFloat.h"
-
 #include "UserInput/UICMap.h"
 
 #include <WinUser.h>

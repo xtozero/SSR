@@ -1,7 +1,6 @@
 #pragma once
 
 #include "INotifyGraphicsDevice.h"
-
 #include "Math/CXMFloat.h"
 #include "Render/Resource.h"
 

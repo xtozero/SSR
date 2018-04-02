@@ -1,12 +1,12 @@
 #pragma once
 
 #include "common.h"
+#include "Util.h"
+
 #include <memory>
 #include <stack>
 #include <type_traits>
 #include <vector>
-
-#include "Util.h"
 
 class ENGINE_DLL KeyValue
 {

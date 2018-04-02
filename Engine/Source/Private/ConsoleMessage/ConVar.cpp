@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "ConsoleMessage/ConVar.h"
+
 #include "ConsoleMessage/ConsoleMessageExecutor.h"
 #include "Util.h"
+
 #include <tchar.h>
 #include <vector>
 

@@ -1,8 +1,8 @@
 #pragma once
 
+#include "Core/IListener.h"
 #include "Math/CXMFloat.h"
 #include "Physics/Ray.h"
-#include "Core/IListener.h"
 
 #include <algorithm>
 #include <memory>

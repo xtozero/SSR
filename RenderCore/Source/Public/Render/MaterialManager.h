@@ -4,6 +4,7 @@
 
 #include <map>
 #include <memory>
+#include <vector>
 
 class IRenderer;
 class KeyValue;

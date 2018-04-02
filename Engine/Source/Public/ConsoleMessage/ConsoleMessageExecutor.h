@@ -3,6 +3,7 @@
 #include "common.h"
 #include "ConCommand.h"
 #include "IConsoleMessage.h"
+
 #include <functional>
 #include <map>
 #include <memory>

@@ -1,8 +1,9 @@
 #include "stdafx.h"
+#include "GameObject/Camera.h"
+
 #include "common.h"
 #include "Core/Timer.h"
 #include "DataStructure/KeyValueReader.h"
-#include "GameObject/Camera.h"
 #include "Render/IRenderer.h"
 #include "Scene/RenderView.h"
 #include "UserInput/UserInput.h"

@@ -1,8 +1,7 @@
 #pragma once
 
-#include "Render/IRenderResourceManager.h"
-
 #include "D3D11RenderStateFactory.h"
+#include "Render/IRenderResourceManager.h"
 
 #include <map>
 #include <memory>

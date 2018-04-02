@@ -1,7 +1,8 @@
 #include "stdafx.h"
+#include "Platform/WindowPlatformEngine.h"
+
 #include "Core/ILogic.h"
 #include "Platform/IPlatform.h"
-#include "Platform/WindowPlatformEngine.h"
 #include "Util.h"
 
 #include <Windows.h>

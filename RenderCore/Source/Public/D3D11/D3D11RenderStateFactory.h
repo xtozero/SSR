@@ -1,8 +1,7 @@
 #pragma once
 
-#include "D3D11RenderState.h"
-
 #include "common.h"
+#include "D3D11RenderState.h"
 #include "Util.h"
 
 #include <map>

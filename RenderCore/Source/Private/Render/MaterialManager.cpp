@@ -1,9 +1,9 @@
 #include "stdafx.h"
+#include "Render/MaterialManager.h"
 
 #include "common.h"
 #include "DataStructure/KeyValueReader.h"
 #include "Render/IRenderer.h"
-#include "Render/MaterialManager.h"
 #include "Util.h"
 
 #include <vector>

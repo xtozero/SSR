@@ -1,10 +1,9 @@
 #pragma once
 
 #include "Core/IListener.h"
+#include "Math/CXMFloat.h"
 #include "Physics/Movement.h"
 #include "Scene/INotifyGraphicsDevice.h"
-
-#include "Math/CXMFloat.h"
 
 class CRenderView;
 class IRenderer;

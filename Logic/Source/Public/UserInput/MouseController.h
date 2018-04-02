@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vector>
-
 #include "Math/CXMFloat.h"
+
+#include <vector>
 
 class IListener;
 struct UserInput;

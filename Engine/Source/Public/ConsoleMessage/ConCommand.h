@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IConsoleMessage.h"
+
 #include <functional>
 
 class ENGINE_DLL CConCommand : public IConsoleMessage
