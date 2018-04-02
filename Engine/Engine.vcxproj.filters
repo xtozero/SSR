@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Shared">
-      <UniqueIdentifier>{df199ef9-48a3-4010-a633-a2b9ebc1a304}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ConsoleMessage">
       <UniqueIdentifier>{04659954-84f2-4956-95b5-52c4494e0106}</UniqueIdentifier>
     </Filter>
@@ -25,89 +22,83 @@
     <Filter Include="UserInput">
       <UniqueIdentifier>{ed8e8dcd-faec-4bcb-bc6a-dbdcffdfffb5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DataStructure">
+      <UniqueIdentifier>{39add48f-92c0-4618-bac0-0497839d1a9c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="Source\Public\Core\common.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
+    <ClInclude Include="Source\Public\Core\IEngine.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="common.h">
+    <ClInclude Include="Source\Public\Core\targetver.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="KeyValueReader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Shared\Util.h">
-      <Filter>Shared</Filter>
-    </ClInclude>
-    <ClInclude Include="ConCommand.h">
-      <Filter>ConsoleMessage</Filter>
-    </ClInclude>
-    <ClInclude Include="IConsoleMessage.h">
-      <Filter>ConsoleMessage</Filter>
-    </ClInclude>
-    <ClInclude Include="ConsoleMessageExecutor.h">
-      <Filter>ConsoleMessage</Filter>
-    </ClInclude>
-    <ClInclude Include="ConVar.h">
-      <Filter>ConsoleMessage</Filter>
-    </ClInclude>
-    <ClInclude Include="EnumStringMap.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="IEngine.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="WindowPlatformEngine.h">
-      <Filter>Window</Filter>
-    </ClInclude>
-    <ClInclude Include="UICMap.h">
+    <ClInclude Include="Source\Public\UserInput\UICMap.h">
       <Filter>UserInput</Filter>
     </ClInclude>
-    <ClInclude Include="WindowPlatformInputConvertor.h">
+    <ClInclude Include="Source\Public\ConsoleMessage\ConsoleMessageExecutor.h">
+      <Filter>ConsoleMessage</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\ConsoleMessage\ConVar.h">
+      <Filter>ConsoleMessage</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\ConsoleMessage\IConsoleMessage.h">
+      <Filter>ConsoleMessage</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\ConsoleMessage\ConCommand.h">
+      <Filter>ConsoleMessage</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\stdafx.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Platform\WindowPlatformEngine.h">
       <Filter>Window</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\UserInput.h">
-      <Filter>Shared</Filter>
+    <ClInclude Include="Source\Public\Platform\WindowPlatformInputConvertor.h">
+      <Filter>Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\DataStructure\EnumStringMap.h">
+      <Filter>DataStructure</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\DataStructure\KeyValueReader.h">
+      <Filter>DataStructure</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="dllmain.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="KeyValueReader.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Shared\Util.cpp">
-      <Filter>Shared</Filter>
-    </ClCompile>
-    <ClCompile Include="ConCommand.cpp">
+    <ClCompile Include="Source\Private\ConsoleMessage\ConCommand.cpp">
       <Filter>ConsoleMessage</Filter>
     </ClCompile>
-    <ClCompile Include="ConsoleMessageExecutor.cpp">
+    <ClCompile Include="Source\Private\ConsoleMessage\ConsoleMessageExecutor.cpp">
       <Filter>ConsoleMessage</Filter>
     </ClCompile>
-    <ClCompile Include="ConVar.cpp">
-      <Filter>ConsoleMessage</Filter>
-    </ClCompile>
-    <ClCompile Include="EnumStringMap.cpp">
+    <ClCompile Include="Source\Private\Core\dllmain.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="WindowPlatformEngine.cpp">
+    <ClCompile Include="Source\Private\Core\Engine.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\DataStructure\EnumStringMap.cpp">
+      <Filter>DataStructure</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\DataStructure\KeyValueReader.cpp">
+      <Filter>DataStructure</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\ConsoleMessage\ConVar.cpp">
+      <Filter>ConsoleMessage</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\stdafx.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Platform\WindowPlatformEngine.cpp">
       <Filter>Window</Filter>
     </ClCompile>
-    <ClCompile Include="WindowPlatformInputConvertor.cpp">
+    <ClCompile Include="Source\Private\Platform\WindowPlatformInputConvertor.cpp">
       <Filter>Window</Filter>
     </ClCompile>
   </ItemGroup>

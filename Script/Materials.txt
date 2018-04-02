@@ -123,7 +123,24 @@
 		"Shader"
 		{
 			"VS"	"vsSSR"
-			"PS"	"psSSR"
+			"PS"	"psDdaSSR"
+		}
+		
+		"RS_State"	"scissor_on"
+		"DS_State"	"ScreenSpaceReflect"
+		
+		"Sampler"
+		{
+			"PS"	"default"
+		}
+	}
+	
+	"mat_ms_screen_space_reflect"
+	{
+		"Shader"
+		{
+			"VS"	"vsSSR"
+			"PS"	"psDdaSsrMs"
 		}
 		
 		"RS_State"	"scissor_on"
@@ -144,7 +161,25 @@
 		}
 		
 		"RS_State"	"scissor_on"
-		"DS_State"	"depthWriteTestOff"
+		"DS_State"	"ScreenSpaceReflect"
+		"Blend"		"ssr"
+		
+		"Sampler"
+		{
+			"PS"	"default"
+		}
+	}
+	
+	"mat_ms_ssr_blend"
+	{
+		"Shader"
+		{
+			"VS"	"vsScreenRect"
+			"PS"	"psSSRBlendMs"
+		}
+		
+		"RS_State"	"scissor_on"
+		"DS_State"	"ScreenSpaceReflect"
 		"Blend"		"ssr"
 		
 		"Sampler"
@@ -186,6 +221,24 @@
 			"PS"	"default"
 		}
 	}
+	
+	"mat_draw_back_face_depth"
+	{
+		"Shader"
+		{
+			"VS"	"vsDrawBackfaceDepth"
+			"PS"	"psDrawBackfaceDepth"
+		}
+		
+		"RS_State"	"cullFront"
+		"DS_State"	"drawBackfaceDepth"
+		
+		"Sampler"
+		{
+			"PS"	"default"
+		}
+	}
+	
 	"skybox"
 	{
 		"Shader"
@@ -202,6 +255,7 @@
 			"PS"	"default"
 		}
 	}
+	
 	"texture"
 	{
 		"Shader"
@@ -218,6 +272,7 @@
 			"PS"	"default"
 		}
 	}
+	
 	"wireframe"
 	{
 		"Shader"

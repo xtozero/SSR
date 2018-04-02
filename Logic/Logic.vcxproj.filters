@@ -13,20 +13,8 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Shared">
-      <UniqueIdentifier>{9cb62874-b432-4130-9aa1-29ca50ad8f14}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameObject">
       <UniqueIdentifier>{3328af24-85b7-434a-bfd5-c46a4ec8852a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Light">
-      <UniqueIdentifier>{a6e3974b-f76f-4d31-a115-cf54bc783948}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Camera">
-      <UniqueIdentifier>{ac2787ac-d8e0-4688-9e27-faf49d9e4fae}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Collision">
-      <UniqueIdentifier>{c1aec5de-e5d7-4cc3-815c-2c16a93268fe}</UniqueIdentifier>
     </Filter>
     <Filter Include="Physics">
       <UniqueIdentifier>{23d8f70d-f5e2-44ac-a9e5-132c02636e96}</UniqueIdentifier>
@@ -40,273 +28,261 @@
     <Filter Include="UnitTest">
       <UniqueIdentifier>{e927c642-6806-4aa2-baf5-12dead1f9054}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UserInput">
+      <UniqueIdentifier>{bffbcae5-8f59-46e9-a75f-31de4c92c7b5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GameLogic.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Timer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="common.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DebugConsole.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneLoader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Shared\Util.h">
-      <Filter>Shared</Filter>
-    </ClInclude>
-    <ClInclude Include="MouseController.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="IListener.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="PickingManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GameObject.h">
+    <ClCompile Include="Source\Private\Core\DebugConsole.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Core\dllmain.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Core\GameLogic.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Core\Logic.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Core\Timer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\GameObject\Camera.cpp">
       <Filter>GameObject</Filter>
-    </ClInclude>
-    <ClInclude Include="GameObjectFactory.h">
+    </ClCompile>
+    <ClCompile Include="Source\Private\GameObject\CameraManager.cpp">
       <Filter>GameObject</Filter>
-    </ClInclude>
-    <ClInclude Include="SkyBox.h">
+    </ClCompile>
+    <ClCompile Include="Source\Private\GameObject\GameObject.cpp">
       <Filter>GameObject</Filter>
-    </ClInclude>
-    <ClInclude Include="DisplayShaderResourceHelper.h">
+    </ClCompile>
+    <ClCompile Include="Source\Private\GameObject\GameObjectFactory.cpp">
       <Filter>GameObject</Filter>
-    </ClInclude>
-    <ClInclude Include="UtilWindowInfo.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="CameraManager.h">
-      <Filter>Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="Light.h">
-      <Filter>Light</Filter>
-    </ClInclude>
-    <ClInclude Include="LightManager.h">
-      <Filter>Light</Filter>
-    </ClInclude>
-    <ClInclude Include="GameObjectProperty.h">
+    </ClCompile>
+    <ClCompile Include="Source\Private\GameObject\PickingManager.cpp">
       <Filter>GameObject</Filter>
-    </ClInclude>
-    <ClInclude Include="ShadowManager.h">
-      <Filter>Render</Filter>
-    </ClInclude>
-    <ClInclude Include="RigidBodyManager.h">
-      <Filter>Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="Aaboundingbox.h">
-      <Filter>Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="BoundingSphere.h">
-      <Filter>Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="CollisionUtil.h">
-      <Filter>Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="Ray.h">
-      <Filter>Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="SSRManager.h">
-      <Filter>Render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\CDirectXMath.h">
-      <Filter>Shared</Filter>
-    </ClInclude>
-    <ClInclude Include="ScreenBlurManager.h">
-      <Filter>Render</Filter>
-    </ClInclude>
-    <ClInclude Include="ILogic.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Movement.h">
+    </ClCompile>
+    <ClCompile Include="Source\Private\GameObject\SkyBox.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Model\BaseMesh.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Model\DebugMesh.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Model\ModelBuilder.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Model\ModelManager.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Model\ObjMesh.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Model\ObjMeshLoader.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Model\PlyMesh.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Model\PlyMeshLoader.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Physics\Aaboundingbox.cpp">
       <Filter>Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="model\CommonMeshDefine.h">
-      <Filter>Model</Filter>
-    </ClInclude>
-    <ClInclude Include="model\IMesh.h">
-      <Filter>Model</Filter>
-    </ClInclude>
-    <ClInclude Include="model\ObjMesh.h">
-      <Filter>Model</Filter>
-    </ClInclude>
-    <ClInclude Include="model\ObjMeshLoader.h">
-      <Filter>Model</Filter>
-    </ClInclude>
-    <ClInclude Include="model\PlyMesh.h">
-      <Filter>Model</Filter>
-    </ClInclude>
-    <ClInclude Include="model\PlyMeshLoader.h">
-      <Filter>Model</Filter>
-    </ClInclude>
-    <ClInclude Include="model\BaseMesh.h">
-      <Filter>Model</Filter>
-    </ClInclude>
-    <ClInclude Include="IRigidBody.h">
-      <Filter>Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="model\IModelLoader.h">
-      <Filter>Model</Filter>
-    </ClInclude>
-    <ClInclude Include="model\ModelManager.h">
-      <Filter>Model</Filter>
-    </ClInclude>
-    <ClInclude Include="model\ModelBuilder.h">
-      <Filter>Model</Filter>
-    </ClInclude>
-    <ClInclude Include="model\IModelBuilder.h">
-      <Filter>Model</Filter>
-    </ClInclude>
-    <ClInclude Include="Model\DebugMesh.h">
-      <Filter>Model</Filter>
-    </ClInclude>
-    <ClInclude Include="ConstantBufferDefine.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="model\Surface.h">
-      <Filter>Model</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderView.h">
+    </ClCompile>
+    <ClCompile Include="Source\Private\Physics\BoundingSphere.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Physics\CollisionUtil.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Physics\Ray.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Physics\RigidBodyManager.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\GameObject\DisplayShaderResourceHelper.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\GameObject\Light.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\GameObject\LightManager.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Scene\RenderView.cpp">
       <Filter>Render</Filter>
-    </ClInclude>
-    <ClInclude Include="ComputeShaderUnitTest.h">
+    </ClCompile>
+    <ClCompile Include="Source\Private\Scene\SceneLoader.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Scene\ScreenBlurManager.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Scene\ShadowManager.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Scene\SSRManager.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\UserInput\MouseController.cpp">
+      <Filter>UserInput</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Scene\ComputeShaderUnitTest.cpp">
       <Filter>UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="INotifyGraphicsDevice.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Model\MeshBuildHelper.h">
-      <Filter>Model</Filter>
-    </ClInclude>
+    </ClCompile>
+    <ClCompile Include="Source\stdafx.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Logic.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="dllmain.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="GameLogic.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Timer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="DebugConsole.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneLoader.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Shared\Util.cpp">
-      <Filter>Shared</Filter>
-    </ClCompile>
-    <ClCompile Include="MouseController.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="PickingManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="GameObject.cpp">
+    <ClInclude Include="Source\Public\Core\UtilWindowInfo.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Core\DebugConsole.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Core\GameLogic.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Core\IListener.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Core\Timer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\GameObject\Camera.h">
       <Filter>GameObject</Filter>
-    </ClCompile>
-    <ClCompile Include="GameObjectFactory.cpp">
+    </ClInclude>
+    <ClInclude Include="Source\Public\GameObject\CameraManager.h">
       <Filter>GameObject</Filter>
-    </ClCompile>
-    <ClCompile Include="SkyBox.cpp">
+    </ClInclude>
+    <ClInclude Include="Source\Public\GameObject\GameObject.h">
       <Filter>GameObject</Filter>
-    </ClCompile>
-    <ClCompile Include="DisplayShaderResourceHelper.cpp">
+    </ClInclude>
+    <ClInclude Include="Source\Public\GameObject\GameObjectFactory.h">
       <Filter>GameObject</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="CameraManager.cpp">
-      <Filter>Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="Light.cpp">
-      <Filter>Light</Filter>
-    </ClCompile>
-    <ClCompile Include="LightManager.cpp">
-      <Filter>Light</Filter>
-    </ClCompile>
-    <ClCompile Include="ShadowManager.cpp">
+    </ClInclude>
+    <ClInclude Include="Source\Public\GameObject\GameObjectProperty.h">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\GameObject\PickingManager.h">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\GameObject\SkyBox.h">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\GameObject\LightManager.h">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\GameObject\DisplayShaderResourceHelper.h">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\GameObject\Light.h">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Model\BaseMesh.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Model\CommonMeshDefine.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Model\DebugMesh.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Model\IMesh.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Model\IModelBuilder.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Model\IModelLoader.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Model\MeshBuildHelper.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Model\ModelBuilder.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Model\ModelManager.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Model\ObjMesh.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Model\ObjMeshLoader.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Model\PlyMesh.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Model\PlyMeshLoader.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Model\Surface.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Physics\Aaboundingbox.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Physics\BoundingSphere.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Physics\CollisionUtil.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Physics\IRigidBody.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Physics\Movement.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Physics\Ray.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Physics\RigidBodyManager.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Scene\INotifyGraphicsDevice.h">
       <Filter>Render</Filter>
-    </ClCompile>
-    <ClCompile Include="Aaboundingbox.cpp">
-      <Filter>Collision</Filter>
-    </ClCompile>
-    <ClCompile Include="BoundingSphere.cpp">
-      <Filter>Collision</Filter>
-    </ClCompile>
-    <ClCompile Include="CollisionUtil.cpp">
-      <Filter>Collision</Filter>
-    </ClCompile>
-    <ClCompile Include="Ray.cpp">
-      <Filter>Collision</Filter>
-    </ClCompile>
-    <ClCompile Include="RigidBodyManager.cpp">
-      <Filter>Collision</Filter>
-    </ClCompile>
-    <ClCompile Include="SSRManager.cpp">
+    </ClInclude>
+    <ClInclude Include="Source\Public\Scene\RenderView.h">
       <Filter>Render</Filter>
-    </ClCompile>
-    <ClCompile Include="ScreenBlurManager.cpp">
+    </ClInclude>
+    <ClInclude Include="Source\Public\Scene\SceneLoader.h">
       <Filter>Render</Filter>
-    </ClCompile>
-    <ClCompile Include="model\ObjMesh.cpp">
-      <Filter>Model</Filter>
-    </ClCompile>
-    <ClCompile Include="model\ObjMeshLoader.cpp">
-      <Filter>Model</Filter>
-    </ClCompile>
-    <ClCompile Include="model\PlyMesh.cpp">
-      <Filter>Model</Filter>
-    </ClCompile>
-    <ClCompile Include="model\PlyMeshLoader.cpp">
-      <Filter>Model</Filter>
-    </ClCompile>
-    <ClCompile Include="model\BaseMesh.cpp">
-      <Filter>Model</Filter>
-    </ClCompile>
-    <ClCompile Include="model\ModelManager.cpp">
-      <Filter>Model</Filter>
-    </ClCompile>
-    <ClCompile Include="model\ModelBuilder.cpp">
-      <Filter>Model</Filter>
-    </ClCompile>
-    <ClCompile Include="Model\DebugMesh.cpp">
-      <Filter>Model</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderView.cpp">
+    </ClInclude>
+    <ClInclude Include="Source\Public\Scene\ScreenBlurManager.h">
       <Filter>Render</Filter>
-    </ClCompile>
-    <ClCompile Include="ComputeShaderUnitTest.cpp">
+    </ClInclude>
+    <ClInclude Include="Source\Public\Scene\ShadowManager.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Scene\SSRManager.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Scene\ComputeShaderUnitTest.h">
       <Filter>UnitTest</Filter>
-    </ClCompile>
+    </ClInclude>
+    <ClInclude Include="Source\Public\UserInput\MouseController.h">
+      <Filter>UserInput</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\stdafx.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\targetver.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Scene\ConstantBufferDefine.h">
+      <Filter>Render</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

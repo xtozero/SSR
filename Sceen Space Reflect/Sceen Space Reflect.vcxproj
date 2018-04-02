@@ -18,6 +18,7 @@
     <ProjectGuid>{EE2F8EA4-34FF-4B5E-BA59-E02E5D97D091}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>SceenSpaceReflect</RootNamespace>
+    <ProjectName>Screen Space Reflect</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -55,17 +56,17 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
+    <IncludePath>.\Source\Public;..\Shared\Public;..\Engine\Source\Public;$(IncludePath)</IncludePath>
     <LibraryPath>$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
+    <IncludePath>.\Source\Public;..\Shared\Public;..\Engine\Source\Public;$(IncludePath)</IncludePath>
     <LibraryPath>$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
+    <IncludePath>.\Source\Public;..\Shared\Public;..\Engine\Source\Public;$(IncludePath)</IncludePath>
     <LibraryPath>$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -122,30 +123,27 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\RenderCore\Direct3D11.h" />
-    <ClInclude Include="..\RenderCore\IRenderer.h" />
-    <ClInclude Include="common.h" />
-    <ClInclude Include="Resource.h" />
-    <ClInclude Include="Sceen Space Reflect.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
-    <ClInclude Include="Window.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Sceen Space Reflect.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Window.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="Sceen Space Reflect.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Sceen Space Reflect.ico" />
     <Image Include="small.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Private\Sceen Space Reflect.cpp" />
+    <ClCompile Include="Source\Private\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Window.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Public\Resource.h" />
+    <ClInclude Include="Source\Public\Sceen Space Reflect.h" />
+    <ClInclude Include="Source\Public\stdafx.h" />
+    <ClInclude Include="Source\Public\targetver.h" />
+    <ClInclude Include="Source\Public\Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -55,18 +55,18 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>.\Source\Public;..\Shared\Public;..\Engine\Source\Public;..\RenderCore\Source\Public;$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
+    <LibraryPath>../lib;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>.\Source\Public;..\Shared\Public;..\Engine\Source\Public;..\RenderCore\Source\Public;$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
+    <LibraryPath>../lib;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>.\Source\Public;..\Shared\Public;..\Engine\Source\Public;..\RenderCore\Source\Public;$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
+    <LibraryPath>../lib;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -143,111 +143,94 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\shared\CDirectXMath.h" />
-    <ClInclude Include="..\Shared\Util.h" />
-    <ClInclude Include="Aaboundingbox.h" />
-    <ClInclude Include="BoundingSphere.h" />
-    <ClInclude Include="CameraManager.h" />
-    <ClInclude Include="CollisionUtil.h" />
-    <ClInclude Include="ComputeShaderUnitTest.h" />
-    <ClInclude Include="ConstantBufferDefine.h" />
-    <ClInclude Include="GameObjectFactory.h" />
-    <ClInclude Include="GameObjectProperty.h" />
-    <ClInclude Include="ILogic.h" />
-    <ClInclude Include="INotifyGraphicsDevice.h" />
-    <ClInclude Include="Light.h" />
-    <ClInclude Include="LightManager.h" />
-    <ClInclude Include="model\BaseMesh.h" />
-    <ClInclude Include="model\CommonMeshDefine.h" />
-    <ClInclude Include="Model\DebugMesh.h" />
-    <ClInclude Include="model\IMesh.h" />
-    <ClInclude Include="model\IModelBuilder.h" />
-    <ClInclude Include="model\IModelLoader.h" />
-    <ClInclude Include="Model\MeshBuildHelper.h" />
-    <ClInclude Include="model\ModelBuilder.h" />
-    <ClInclude Include="model\ModelManager.h" />
-    <ClInclude Include="model\ObjMesh.h" />
-    <ClInclude Include="model\ObjMeshLoader.h" />
-    <ClInclude Include="model\PlyMesh.h" />
-    <ClInclude Include="model\PlyMeshLoader.h" />
-    <ClInclude Include="model\Surface.h" />
-    <ClInclude Include="Movement.h" />
-    <ClInclude Include="PickingManager.h" />
-    <ClInclude Include="Ray.h" />
-    <ClInclude Include="RenderView.h" />
-    <ClInclude Include="RigidBodyManager.h" />
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="common.h" />
-    <ClInclude Include="DebugConsole.h" />
-    <ClInclude Include="GameLogic.h" />
-    <ClInclude Include="GameObject.h" />
-    <ClInclude Include="IListener.h" />
-    <ClInclude Include="IRigidBody.h" />
-    <ClInclude Include="MouseController.h" />
-    <ClInclude Include="SceneLoader.h" />
-    <ClInclude Include="ScreenBlurManager.h" />
-    <ClInclude Include="ShadowManager.h" />
-    <ClInclude Include="SkyBox.h" />
-    <ClInclude Include="SSRManager.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
-    <ClInclude Include="Timer.h" />
-    <ClInclude Include="DisplayShaderResourceHelper.h" />
-    <ClInclude Include="UtilWindowInfo.h" />
+    <ClCompile Include="Source\Private\Core\DebugConsole.cpp" />
+    <ClCompile Include="Source\Private\Core\dllmain.cpp" />
+    <ClCompile Include="Source\Private\Core\GameLogic.cpp" />
+    <ClCompile Include="Source\Private\Core\Logic.cpp" />
+    <ClCompile Include="Source\Private\Core\Timer.cpp" />
+    <ClCompile Include="Source\Private\GameObject\Camera.cpp" />
+    <ClCompile Include="Source\Private\GameObject\CameraManager.cpp" />
+    <ClCompile Include="Source\Private\GameObject\DisplayShaderResourceHelper.cpp" />
+    <ClCompile Include="Source\Private\GameObject\GameObject.cpp" />
+    <ClCompile Include="Source\Private\GameObject\GameObjectFactory.cpp" />
+    <ClCompile Include="Source\Private\GameObject\Light.cpp" />
+    <ClCompile Include="Source\Private\GameObject\LightManager.cpp" />
+    <ClCompile Include="Source\Private\GameObject\PickingManager.cpp" />
+    <ClCompile Include="Source\Private\GameObject\SkyBox.cpp" />
+    <ClCompile Include="Source\Private\Model\BaseMesh.cpp" />
+    <ClCompile Include="Source\Private\Model\DebugMesh.cpp" />
+    <ClCompile Include="Source\Private\Model\ModelBuilder.cpp" />
+    <ClCompile Include="Source\Private\Model\ModelManager.cpp" />
+    <ClCompile Include="Source\Private\Model\ObjMesh.cpp" />
+    <ClCompile Include="Source\Private\Model\ObjMeshLoader.cpp" />
+    <ClCompile Include="Source\Private\Model\PlyMesh.cpp" />
+    <ClCompile Include="Source\Private\Model\PlyMeshLoader.cpp" />
+    <ClCompile Include="Source\Private\Physics\Aaboundingbox.cpp" />
+    <ClCompile Include="Source\Private\Physics\BoundingSphere.cpp" />
+    <ClCompile Include="Source\Private\Physics\CollisionUtil.cpp" />
+    <ClCompile Include="Source\Private\Physics\Ray.cpp" />
+    <ClCompile Include="Source\Private\Physics\RigidBodyManager.cpp" />
+    <ClCompile Include="Source\Private\Scene\ComputeShaderUnitTest.cpp" />
+    <ClCompile Include="Source\Private\Scene\RenderView.cpp" />
+    <ClCompile Include="Source\Private\Scene\SceneLoader.cpp" />
+    <ClCompile Include="Source\Private\Scene\ScreenBlurManager.cpp" />
+    <ClCompile Include="Source\Private\Scene\ShadowManager.cpp" />
+    <ClCompile Include="Source\Private\Scene\SSRManager.cpp" />
+    <ClCompile Include="Source\Private\UserInput\MouseController.cpp" />
+    <ClCompile Include="Source\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Shared\Util.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Aaboundingbox.cpp" />
-    <ClCompile Include="BoundingSphere.cpp" />
-    <ClCompile Include="CameraManager.cpp" />
-    <ClCompile Include="CollisionUtil.cpp" />
-    <ClCompile Include="ComputeShaderUnitTest.cpp" />
-    <ClCompile Include="GameObjectFactory.cpp" />
-    <ClCompile Include="Light.cpp" />
-    <ClCompile Include="LightManager.cpp" />
-    <ClCompile Include="model\BaseMesh.cpp" />
-    <ClCompile Include="Model\DebugMesh.cpp" />
-    <ClCompile Include="model\ModelBuilder.cpp" />
-    <ClCompile Include="model\ModelManager.cpp" />
-    <ClCompile Include="model\ObjMesh.cpp" />
-    <ClCompile Include="model\ObjMeshLoader.cpp" />
-    <ClCompile Include="model\PlyMesh.cpp" />
-    <ClCompile Include="model\PlyMeshLoader.cpp" />
-    <ClCompile Include="PickingManager.cpp" />
-    <ClCompile Include="Ray.cpp" />
-    <ClCompile Include="RenderView.cpp" />
-    <ClCompile Include="RigidBodyManager.cpp" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="DebugConsole.cpp" />
-    <ClCompile Include="dllmain.cpp">
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">false</CompileAsManaged>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="GameLogic.cpp" />
-    <ClCompile Include="GameObject.cpp" />
-    <ClCompile Include="Logic.cpp" />
-    <ClCompile Include="MouseController.cpp" />
-    <ClCompile Include="SceneLoader.cpp" />
-    <ClCompile Include="ScreenBlurManager.cpp" />
-    <ClCompile Include="ShadowManager.cpp" />
-    <ClCompile Include="SkyBox.cpp" />
-    <ClCompile Include="SSRManager.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Timer.cpp" />
-    <ClCompile Include="DisplayShaderResourceHelper.cpp" />
+    <ClInclude Include="Source\Public\Core\DebugConsole.h" />
+    <ClInclude Include="Source\Public\Core\GameLogic.h" />
+    <ClInclude Include="Source\Public\Core\IListener.h" />
+    <ClInclude Include="Source\Public\Core\Timer.h" />
+    <ClInclude Include="Source\Public\Core\UtilWindowInfo.h" />
+    <ClInclude Include="Source\Public\GameObject\Camera.h" />
+    <ClInclude Include="Source\Public\GameObject\CameraManager.h" />
+    <ClInclude Include="Source\Public\GameObject\DisplayShaderResourceHelper.h" />
+    <ClInclude Include="Source\Public\GameObject\GameObject.h" />
+    <ClInclude Include="Source\Public\GameObject\GameObjectFactory.h" />
+    <ClInclude Include="Source\Public\GameObject\GameObjectProperty.h" />
+    <ClInclude Include="Source\Public\GameObject\Light.h" />
+    <ClInclude Include="Source\Public\GameObject\LightManager.h" />
+    <ClInclude Include="Source\Public\GameObject\PickingManager.h" />
+    <ClInclude Include="Source\Public\GameObject\SkyBox.h" />
+    <ClInclude Include="Source\Public\Model\BaseMesh.h" />
+    <ClInclude Include="Source\Public\Model\CommonMeshDefine.h" />
+    <ClInclude Include="Source\Public\Model\DebugMesh.h" />
+    <ClInclude Include="Source\Public\Model\IMesh.h" />
+    <ClInclude Include="Source\Public\Model\IModelBuilder.h" />
+    <ClInclude Include="Source\Public\Model\IModelLoader.h" />
+    <ClInclude Include="Source\Public\Model\MeshBuildHelper.h" />
+    <ClInclude Include="Source\Public\Model\ModelBuilder.h" />
+    <ClInclude Include="Source\Public\Model\ModelManager.h" />
+    <ClInclude Include="Source\Public\Model\ObjMesh.h" />
+    <ClInclude Include="Source\Public\Model\ObjMeshLoader.h" />
+    <ClInclude Include="Source\Public\Model\PlyMesh.h" />
+    <ClInclude Include="Source\Public\Model\PlyMeshLoader.h" />
+    <ClInclude Include="Source\Public\Model\Surface.h" />
+    <ClInclude Include="Source\Public\Physics\Aaboundingbox.h" />
+    <ClInclude Include="Source\Public\Physics\BoundingSphere.h" />
+    <ClInclude Include="Source\Public\Physics\CollisionUtil.h" />
+    <ClInclude Include="Source\Public\Physics\IRigidBody.h" />
+    <ClInclude Include="Source\Public\Physics\Movement.h" />
+    <ClInclude Include="Source\Public\Physics\Ray.h" />
+    <ClInclude Include="Source\Public\Physics\RigidBodyManager.h" />
+    <ClInclude Include="Source\Public\Scene\ComputeShaderUnitTest.h" />
+    <ClInclude Include="Source\Public\Scene\ConstantBufferDefine.h" />
+    <ClInclude Include="Source\Public\Scene\INotifyGraphicsDevice.h" />
+    <ClInclude Include="Source\Public\Scene\RenderView.h" />
+    <ClInclude Include="Source\Public\Scene\SceneLoader.h" />
+    <ClInclude Include="Source\Public\Scene\ScreenBlurManager.h" />
+    <ClInclude Include="Source\Public\Scene\ShadowManager.h" />
+    <ClInclude Include="Source\Public\Scene\SSRManager.h" />
+    <ClInclude Include="Source\Public\UserInput\MouseController.h" />
+    <ClInclude Include="Source\stdafx.h" />
+    <ClInclude Include="Source\targetver.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -55,12 +55,15 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>.\Source;.\Source\Public;..\Shared\Public;..\Logic\Source\Public;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>.\Source;.\Source\Public;..\Shared\Public;..\Logic\Source\Public;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>.\Source;.\Source\Public;..\Shared\Public;..\Logic\Source\Public;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -131,58 +134,35 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\shared\UserInput.h" />
-    <ClInclude Include="..\Shared\Util.h" />
-    <ClInclude Include="ConCommand.h" />
-    <ClInclude Include="ConsoleMessageExecutor.h" />
-    <ClInclude Include="ConVar.h" />
-    <ClInclude Include="EnumStringMap.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">false</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="UICMap.h" />
-    <ClInclude Include="WindowPlatformEngine.h" />
-    <ClInclude Include="IConsoleMessage.h" />
-    <ClInclude Include="IEngine.h" />
-    <ClInclude Include="KeyValueReader.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
-    <ClInclude Include="common.h" />
-    <ClInclude Include="WindowPlatformInputConvertor.h" />
+    <ClInclude Include="Source\Public\ConsoleMessage\ConCommand.h" />
+    <ClInclude Include="Source\Public\ConsoleMessage\ConsoleMessageExecutor.h" />
+    <ClInclude Include="Source\Public\ConsoleMessage\ConVar.h" />
+    <ClInclude Include="Source\Public\ConsoleMessage\IConsoleMessage.h" />
+    <ClInclude Include="Source\Public\Core\common.h" />
+    <ClInclude Include="Source\Public\Core\IEngine.h" />
+    <ClInclude Include="Source\Public\Core\targetver.h" />
+    <ClInclude Include="Source\Public\DataStructure\EnumStringMap.h" />
+    <ClInclude Include="Source\Public\DataStructure\KeyValueReader.h" />
+    <ClInclude Include="Source\Public\Platform\WindowPlatformEngine.h" />
+    <ClInclude Include="Source\Public\Platform\WindowPlatformInputConvertor.h" />
+    <ClInclude Include="Source\Public\UserInput\UICMap.h" />
+    <ClInclude Include="Source\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Shared\Util.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="ConCommand.cpp" />
-    <ClCompile Include="ConsoleMessageExecutor.cpp" />
-    <ClCompile Include="ConVar.cpp" />
-    <ClCompile Include="dllmain.cpp">
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">false</CompileAsManaged>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Engine.cpp" />
-    <ClCompile Include="EnumStringMap.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="KeyValueReader.cpp" />
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="Source\Private\ConsoleMessage\ConCommand.cpp" />
+    <ClCompile Include="Source\Private\ConsoleMessage\ConsoleMessageExecutor.cpp" />
+    <ClCompile Include="Source\Private\ConsoleMessage\ConVar.cpp" />
+    <ClCompile Include="Source\Private\Core\dllmain.cpp" />
+    <ClCompile Include="Source\Private\Core\Engine.cpp" />
+    <ClCompile Include="Source\Private\DataStructure\EnumStringMap.cpp" />
+    <ClCompile Include="Source\Private\DataStructure\KeyValueReader.cpp" />
+    <ClCompile Include="Source\Private\Platform\WindowPlatformEngine.cpp" />
+    <ClCompile Include="Source\Private\Platform\WindowPlatformInputConvertor.cpp" />
+    <ClCompile Include="Source\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='use_console_debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="WindowPlatformEngine.cpp" />
-    <ClCompile Include="WindowPlatformInputConvertor.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
