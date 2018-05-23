@@ -27,7 +27,7 @@ public:
 	void CreatePerspectiveFovLHMatrix( float fov, float aspect, float zNear, float zFar );
 	void CreatePerspectiveFovRHMatrix( float fov, float aspect, float zNear, float zFar );
 
-	void UpdataView( IRenderer& renderer );
+	void UpdataView( IRenderer& renderer, RE_HANDLE viewProjBuffer );
 
 	void SetViewMatrix( const CXMFLOAT4X4& viewMat ) { m_viewMatrix = viewMat; }
 
@@ -43,7 +43,6 @@ private:
 	CXMFLOAT4X4 m_viewMatrix;
 	CXMFLOAT4X4 m_projectionMatrix;
 
-	RE_HANDLE m_viewConstantBuffer = RE_HANDLE_TYPE::INVALID_HANDLE;
 	RE_HANDLE m_gbufferConstantBuffer = RE_HANDLE_TYPE::INVALID_HANDLE;
 
 	float m_zNear = 0.f;

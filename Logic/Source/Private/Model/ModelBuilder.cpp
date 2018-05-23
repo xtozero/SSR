@@ -59,7 +59,7 @@ void CMeshBuilderMesh::Draw( CGameLogic& gameLogic )
 	}
 	else
 	{
-		gameLogic.GetRenderer( ).BindIndexBuffer16( m_indexBuffer, m_nIndexOffset );
+		gameLogic.GetRenderer( ).BindIndexBuffer( m_indexBuffer, m_nIndexOffset );
 		gameLogic.GetRenderer( ).DrawIndexed( m_primitiveTopology, m_nIndices, m_nIndexOffset, m_offset );
 	}
 }

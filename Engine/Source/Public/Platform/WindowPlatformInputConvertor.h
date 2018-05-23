@@ -32,5 +32,5 @@ private:
 	UserInput Convert( unsigned long msg );
 	WindowPlatformInputMap m_inputMap;
 
-	CXMFLOAT2 m_prevMousePos = { -FLT_MAX, -FLT_MAX };
+	CXMFLOAT2 m_prevMousePos = { 0.f, 0.f };
 };

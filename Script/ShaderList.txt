@@ -19,6 +19,16 @@
 	"vs_4_0"	"../Shader/vsSSR.fx"
 	"vs_4_0"	"../Shader/vsScreenRect.fx"
 	"vs_4_0"	"../Shader/vsDrawBackfaceDepth.fx"
+	"vs_4_0"
+	{
+		"path"	"../Shader/vsDrawUI.fx"
+		"layout"
+		{
+			"POSITION"	"0 R32G32_FLOAT 0 0 0"
+			"TEXCOORD"	"0 R32G32_FLOAT 0 0 0"
+			"COLOR"		"0 R32G32B32A32_FLOAT 0 0 0"
+		}
+	}
 	
 	// Pixel Shader Define
 	"ps_4_0"	"../Shader/psTutorial.fx"
@@ -35,4 +45,5 @@
 	"ps_4_0"	"../Shader/psGaussianBlurX.fx"	
 	"ps_4_0"	"../Shader/psGaussianBlurY.fx"
 	"ps_4_0"	"../Shader/psDrawBackfaceDepth.fx"
+	"ps_4_0"	"../Shader/psDrawUI.fx"
 }

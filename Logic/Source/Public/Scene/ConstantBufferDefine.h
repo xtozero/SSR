@@ -8,7 +8,8 @@ namespace SHARED_CONSTANT_BUFFER
 	enum
 	{
 		VS_GEOMETRY = 0,
-		VS_SHADOW = 1,
+		VS_VIEW_PROJECTION,
+		VS_SHADOW,
 		PS_SURFACE,
 		Count,
 	};

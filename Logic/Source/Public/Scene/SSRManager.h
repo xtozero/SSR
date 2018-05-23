@@ -60,6 +60,8 @@ private:
 	RE_HANDLE m_backfaceDepthSrv = RE_HANDLE_TYPE::INVALID_HANDLE;
 
 	ScreenBlurManager m_blur;
-	SSRProperties m_properties = { 0.01f, 2.f, 1.8f, 500.f, 200 };
+	mutable SSRProperties m_properties = { 0.01f, 3.f, 1.8f, 100.f, 100 };
+
+	mutable bool m_isEnabled = true;
 };
 

@@ -53,7 +53,7 @@ void CRenderView::SetViewPort( IRenderer& renderer )
 
 void CRenderView::SetScissorRects( IRenderer& renderer )
 {
-	renderer.SetScissorRects( m_scissorRectList );
+	renderer.SetScissorRects( m_scissorRectList.data(), static_cast<int>( m_scissorRectList.size( ) ) );
 }
 
 void CRenderView::CreatePerspectiveFovLHMatrix( float fov, float aspect, float zNear, float zFar )
@@ -70,15 +70,15 @@ void CRenderView::CreatePerspectiveFovRHMatrix( float fov, float aspect, float z
 	m_projectionMatrix = XMMatrixPerspectiveFovRH( fov, aspect, zNear, zFar );
 }
 
-void CRenderView::UpdataView( IRenderer& renderer )
+void CRenderView::UpdataView( IRenderer& renderer, RE_HANDLE viewProjBuffer )
 {
-	if ( ViewProjectionTrasform* pData = static_cast<ViewProjectionTrasform*>( renderer.LockBuffer( m_viewConstantBuffer ) ) )
+	if ( ViewProjectionTrasform* pData = static_cast<ViewProjectionTrasform*>( renderer.LockBuffer( viewProjBuffer ) ) )
 	{
 		pData->m_view = XMMatrixTranspose( m_viewMatrix );
 		pData->m_projection = XMMatrixTranspose( m_projectionMatrix );
 
-		renderer.UnLockBuffer( m_viewConstantBuffer );
-		renderer.BindConstantBuffer( SHADER_TYPE::VS, static_cast<int>( VS_CONSTANT_BUFFER::VIEW_PROJECTION ), 1, &m_viewConstantBuffer );
+		renderer.UnLockBuffer( viewProjBuffer );
+		renderer.BindConstantBuffer( SHADER_TYPE::VS, static_cast<int>( VS_CONSTANT_BUFFER::VIEW_PROJECTION ), 1, &viewProjBuffer );
 	}
 
 	if ( PASS_CONSTANT* pData = static_cast<PASS_CONSTANT*>( renderer.LockBuffer( m_gbufferConstantBuffer ) ) )
@@ -110,7 +110,7 @@ CRenderView::CRenderView( )
 
 bool CRenderView::CreateDeviceDependentResource( IRenderer& renderer )
 {
-	BUFFER_TRAIT trait = { sizeof( ViewProjectionTrasform ),
+	BUFFER_TRAIT trait = { sizeof( PASS_CONSTANT ),
 		1,
 		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
 		RESOURCE_TYPE::CONSTANT_BUFFER,
@@ -118,13 +118,6 @@ bool CRenderView::CreateDeviceDependentResource( IRenderer& renderer )
 		nullptr,
 		0,
 		0 };
-
-	m_viewConstantBuffer = renderer.CreateBuffer( trait );
-
-	if ( m_viewConstantBuffer == RE_HANDLE_TYPE::INVALID_HANDLE )
-	{
-		return false;
-	}
 
 	trait.m_stride = sizeof( PASS_CONSTANT );
 

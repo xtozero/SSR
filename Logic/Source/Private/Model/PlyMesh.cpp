@@ -26,7 +26,7 @@ void CPlyMesh::Draw( CGameLogic& gameLogic )
 	}
 	else
 	{
-		renderer.BindIndexBuffer16( m_indexBuffer, m_nIndexOffset );
+		renderer.BindIndexBuffer( m_indexBuffer, m_nIndexOffset );
 		renderer.DrawIndexed( m_primitiveTopology, m_nIndices, m_nIndexOffset, m_offset );
 	}
 }

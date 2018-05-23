@@ -154,7 +154,7 @@ inline D3D11_RENDER_TARGET_VIEW_DESC ConvertTextureTraitToRTV( const TEXTURE_TRA
 	{
 		if ( trait.m_depth > 1 )
 		{
-			if ( trait.m_sampleCount != 0 )
+			if ( trait.m_sampleCount > 1 )
 			{
 				rtv.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMSARRAY;
 				rtv.Texture2DMSArray.ArraySize = trait.m_depth;
@@ -167,7 +167,7 @@ inline D3D11_RENDER_TARGET_VIEW_DESC ConvertTextureTraitToRTV( const TEXTURE_TRA
 		}
 		else
 		{
-			if ( trait.m_sampleCount != 0 )
+			if ( trait.m_sampleCount > 1 )
 			{
 				rtv.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
 			}
@@ -212,7 +212,7 @@ inline D3D11_DEPTH_STENCIL_VIEW_DESC ConvertTextureTraitToDSV( const TEXTURE_TRA
 	{
 		if ( trait.m_depth > 1 )
 		{
-			if ( trait.m_sampleCount != 0 )
+			if ( trait.m_sampleCount > 1 )
 			{
 				dsv.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMSARRAY;
 				dsv.Texture2DMSArray.ArraySize = trait.m_depth;
@@ -225,7 +225,7 @@ inline D3D11_DEPTH_STENCIL_VIEW_DESC ConvertTextureTraitToDSV( const TEXTURE_TRA
 		}
 		else
 		{
-			if ( trait.m_sampleCount != 0 )
+			if ( trait.m_sampleCount > 1 )
 			{
 				dsv.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
 			}
@@ -281,7 +281,7 @@ inline D3D11_SHADER_RESOURCE_VIEW_DESC ConvertTextureTraitToSRV( const TEXTURE_T
 		}
 		else if ( trait.m_depth > 1 )
 		{
-			if ( trait.m_sampleCount != 0 )
+			if ( trait.m_sampleCount > 1 )
 			{
 				srv.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2DMSARRAY;
 				srv.Texture2DMSArray.ArraySize = trait.m_depth;
@@ -296,7 +296,7 @@ inline D3D11_SHADER_RESOURCE_VIEW_DESC ConvertTextureTraitToSRV( const TEXTURE_T
 		}
 		else
 		{
-			if ( trait.m_sampleCount != 0 )
+			if ( trait.m_sampleCount > 1 )
 			{
 				srv.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2DMS;
 			}
@@ -432,6 +432,7 @@ bool CD3D11Buffer::Create( ID3D11Device& device, const BUFFER_TRAIT& trait )
 	}
 
 	m_bufferSize = trait.m_count * trait.m_stride;
+	m_stride = trait.m_stride;
 	HRESULT hr = device.CreateBuffer( &desc, pSrd, m_buffer.GetAddressOf( ) );
 
 	return SUCCEEDED( hr );

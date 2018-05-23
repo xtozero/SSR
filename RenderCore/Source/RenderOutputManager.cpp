@@ -14,10 +14,25 @@ using namespace RE_HANDLE_TYPE;
 
 bool CRenderOutputManager::Initialize( IResourceManager& resourceMgr, IDXGISwapChain& pSwapChain, DXGI_SAMPLE_DESC& sampleDesc )
 {
-	ON_FAIL_RETURN( CreateDefaultRenderTaraget( resourceMgr, pSwapChain ) );
-	ON_FAIL_RETURN( CreateDefaultDepthStencil( resourceMgr, sampleDesc ) );
-	ON_FAIL_RETURN( CreateNormalRenderTarget( resourceMgr, sampleDesc ) );
-	ON_FAIL_RETURN( CreateDepthRenderTarget( resourceMgr, sampleDesc ) );
+	if ( CreateDefaultRenderTaraget( resourceMgr, pSwapChain ) == false )
+	{
+		__debugbreak( );
+	}
+	
+	if ( CreateDefaultDepthStencil( resourceMgr, sampleDesc ) == false )
+	{
+		__debugbreak( );
+	}
+
+	if ( CreateNormalRenderTarget( resourceMgr, sampleDesc ) == false )
+	{
+		__debugbreak( );
+	}
+
+	if ( CreateDepthRenderTarget( resourceMgr, sampleDesc ) == false )
+	{
+		__debugbreak( );
+	}
 
 	return true;
 }
@@ -43,10 +58,6 @@ void CRenderOutputManager::ClearRenderTargets( IRenderer& renderer, const float 
 	{
 		renderer.ClearRendertarget( m_renderOutputs[i], clearColor );
 	}
-}
-
-void CRenderOutputManager::SceneEnd( IRenderer& renderer )
-{
 }
 
 CRenderOutputManager::CRenderOutputManager( )
@@ -94,12 +105,12 @@ bool CRenderOutputManager::CreateNormalRenderTarget( IResourceManager& resourceM
 	String normalTexName( _T( "NormalGBuffer" ) );
 
 	TEXTURE_TRAIT normalGBufferTrait = {
-		-1,
-		-1,
-		1,
+		0U,
+		0U,
+		1U,
 		sampleDesc.Count,
 		sampleDesc.Quality,
-		1,
+		1U,
 		RESOURCE_FORMAT::R16G16_FLOAT,
 		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
 		RESOURCE_TYPE::RENDER_TARGET | RESOURCE_TYPE::SHADER_RESOURCE,
@@ -129,12 +140,12 @@ bool CRenderOutputManager::CreateDepthRenderTarget( IResourceManager& resourceMg
 	String depthTexName( _T( "DepthGBuffer" ) );
 
 	TEXTURE_TRAIT depthGBufferTrait = {
-		-1,
-		-1,
-		1,
+		0U,
+		0U,
+		1U,
 		sampleDesc.Count,
 		sampleDesc.Quality,
-		1,
+		1U,
 		RESOURCE_FORMAT::R32_FLOAT,
 		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
 		RESOURCE_TYPE::RENDER_TARGET | RESOURCE_TYPE::SHADER_RESOURCE,
@@ -171,12 +182,12 @@ bool CRenderOutputManager::CreateDefaultDepthStencil( IResourceManager& resource
 	String depthStencilTexName( _T( "DefaultDepthStencil" ) );
 	
 	TEXTURE_TRAIT depthStencilTrait = {
-		-1,
-		-1,
-		1,
+		0U,
+		0U,
+		1U,
 		sampleDesc.Count,
 		sampleDesc.Quality,
-		1,
+		1U,
 		RESOURCE_FORMAT::R24G8_TYPELESS,
 		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
 		RESOURCE_TYPE::DEPTH_STENCIL | RESOURCE_TYPE::SHADER_RESOURCE,

@@ -93,6 +93,11 @@ set (SCENE_SOURCE
 	"Source/Public/Scene/ShadowManager.h"
 	"Source/Public/Scene/SSRManager.h")
 	
+set (UI_SOURCE
+	"Source/Private/UI/ImUI.cpp"
+	"Source/Private/UI/ImUI_Draw.cpp"
+	"Source/Public/UI/ImUI.h")
+	
 set (UNIT_TEST_SOURCE
 	"Source/Private/Scene/ComputeShaderUnitTest.cpp"
 	"Source/Public/Scene/ComputeShaderUnitTest.h")
@@ -105,6 +110,7 @@ source_group("GameObject" FILES ${GAME_OBJECT_SOURCE})
 source_group("Model" FILES ${MODEL_SOURCE})
 source_group("Physics" FILES ${PHYSICS_SOURCE})
 source_group("Render" FILES ${SCENE_SOURCE})
+source_group("UI" FILES ${UI_SOURCE})
 source_group("UintTest" FILES ${UNIT_TEST_SOURCE})
 source_group("UserInput" FILES ${USER_INPUT_SOURCE})
 

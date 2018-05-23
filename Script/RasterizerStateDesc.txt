@@ -27,4 +27,12 @@
 	{
 		"CullMode"						"D3D11_CULL_FRONT"
 	}
+	
+	"RasterizerDesc" "draw_ui"
+	{
+		"FillMode"						"D3D11_FILL_SOLID"
+		"CullMode"						"D3D11_CULL_NONE"
+		"DepthClipEnable"				"1"
+		"ScissorEnable"					"1"
+	}
 }

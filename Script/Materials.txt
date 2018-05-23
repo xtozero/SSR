@@ -239,6 +239,24 @@
 		}
 	}
 	
+	"mat_draw_ui"
+	{
+		"Shader"
+		{
+			"VS"	"vsDrawUI"
+			"PS"	"psDrawUI"
+		}
+		
+		"RS_State"	"draw_ui"
+		"DS_State"	"draw_ui"
+		"Blend"		"draw_ui"
+		
+		"Sampler"
+		{
+			"PS"	"draw_ui"
+		}
+	}
+	
 	"skybox"
 	{
 		"Shader"

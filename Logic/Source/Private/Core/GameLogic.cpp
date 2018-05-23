@@ -12,6 +12,7 @@
 #include "GameObject/GameObject.h"
 #include "Platform/IPlatform.h"
 #include "Render/IRenderer.h"
+#include "Render/IRenderResourceManager.h"
 #include "UserInput/UserInput.h"
 #include "Util.h"
 
@@ -40,7 +41,10 @@ bool CGameLogic::Initialize( IPlatform& platform )
 	m_appSize = platform.GetSize( );
 	CUtilWindowInfo::GetInstance( ).SetRect( m_appSize.first, m_appSize.second );
 
-	ON_FAIL_RETURN( m_pRenderer->BootUp( m_wndHwnd, m_appSize.first, m_appSize.second ) );
+	if ( m_pRenderer->BootUp( m_wndHwnd, m_appSize.first, m_appSize.second ) == false )
+	{
+		__debugbreak( );
+	}
 
 	m_view.CreatePerspectiveFovLHMatrix( XMConvertToRadians( 60 ),
 		static_cast<float>( m_appSize.first ) / m_appSize.second,
@@ -54,18 +58,44 @@ bool CGameLogic::Initialize( IPlatform& platform )
 
 	m_pickingManager.PushViewport( 0.0f, 0.0f, static_cast<float>( m_appSize.first ), static_cast<float>( m_appSize.second ) );
 
+	m_uiProjMat = {
+		2.0f / m_appSize.first,	0.f,						0.f,	0.f,
+		0.f,					-2.0f / m_appSize.second,	0.f,	0.f,
+		0.f,					0.f,						0.5f,	0.f,
+		-1.f,					1.f,						0.5f,	1.f
+	};
+
 	m_pickingManager.PushCamera( &m_mainCamera );
 	m_inputBroadCaster.AddListener( &m_pickingManager );
 	m_inputBroadCaster.AddListener( &m_mainCamera );
 	CCameraManager::GetInstance( ).SetCurrentCamera( &m_mainCamera );
 
-	ON_FAIL_RETURN( m_view.initialize( *m_pRenderer ) );
+	if ( m_view.initialize( *m_pRenderer ) == false )
+	{
+		__debugbreak( );
+	}
 
-	ON_FAIL_RETURN( LoadScene( _T( "../Script/defaultScene.txt" ) ) );
-	ON_FAIL_RETURN( m_lightManager.Initialize( *m_pRenderer, m_gameObjects ) );
+	if ( LoadScene( _T( "../Script/defaultScene.txt" ) ) == false )
+	{
+		__debugbreak( );
+	}
+	
+	if ( m_lightManager.Initialize( *m_pRenderer, m_gameObjects ) == false )
+	{
+		__debugbreak( );
+	}
+
 	m_shadowManager.Init( *this );
 
-	ON_FAIL_RETURN( m_ssrManager.Init( *this ) );
+	if ( m_ssrManager.Init( *this ) == false )
+	{
+		__debugbreak( );
+	}
+
+	if ( m_ui.Initialize( ) == false )
+	{
+		__debugbreak( );
+	}
 
 	return CreateDeviceDependentResource( );
 }
@@ -100,7 +130,10 @@ void CGameLogic::Resume( )
 
 void CGameLogic::HandleUserInput( const UserInput& input )
 {
-	m_inputBroadCaster.ProcessInput( input );
+	if ( m_ui.HandleUserInput( input ) == false )
+	{
+		m_inputBroadCaster.ProcessInput( input );
+	}
 }
 
 void CGameLogic::AppSizeChanged( IPlatform& platform )
@@ -119,24 +152,32 @@ void CGameLogic::AppSizeChanged( IPlatform& platform )
 
 	m_ssrManager.AppSizeChanged( *this );
 
+	float fSizeX = static_cast<float>( m_appSize.first );
+	float fSizeY = static_cast<float>( m_appSize.second );
+
 	m_view.CreatePerspectiveFovLHMatrix( XMConvertToRadians( 60 ),
-		static_cast<float>( m_appSize.first ) / m_appSize.second,
+		fSizeX / fSizeY,
 		1.f,
 		1500.0f );
 
 	m_pickingManager.PopInvProjection( );
 	m_pickingManager.PushInvProjection( XMConvertToRadians( 60 ),
-		static_cast<float>( m_appSize.first ) / m_appSize.second,
+		fSizeX / fSizeY,
 		1.f,
 		1500.0f );
 
 	m_pickingManager.PopViewport( );
-	m_pickingManager.PushViewport( 0.0f, 0.0f, static_cast<float>( m_appSize.first ), static_cast<float>( m_appSize.second ) );
+	m_pickingManager.PushViewport( 0.0f, 0.0f, fSizeX, fSizeY );
+
+	m_uiProjMat = XMMatrixOrthographicLH( fSizeX, fSizeY, 0, 1 );
 }
 
 void CGameLogic::StartLogic( )
 {
 	//게임 로직 수행 전처리
+	RECT clientRect = { 0, 0, static_cast<long>( m_appSize.first ), static_cast<long>( m_appSize.second ) };
+	m_ui.BeginFrame( clientRect );
+	m_ui.Window( "SSR Option" );
 }
 
 void CGameLogic::ProcessLogic( )
@@ -163,7 +204,9 @@ void CGameLogic::EndLogic( )
 	m_view.PushScissorRect( CUtilWindowInfo::GetInstance( ).GetRect( ) );
 	m_view.SetViewPort( *m_pRenderer );
 	m_view.SetScissorRects( *m_pRenderer );
-	m_view.UpdataView( *m_pRenderer );
+
+	using namespace SHARED_CONSTANT_BUFFER;
+	m_view.UpdataView( *m_pRenderer, m_commonConstantBuffer[VS_VIEW_PROJECTION] );
 
 	// 후면 깊이 렌더링
 	m_ssrManager.PreProcess( *this, m_renderableList );
@@ -171,6 +214,7 @@ void CGameLogic::EndLogic( )
 	BuildRenderableList( );
 	SceneBegin( );
 	DrawScene( );
+	DrawUI( );
 	SceneEnd( );
 }
 
@@ -191,19 +235,130 @@ bool CGameLogic::LoadScene( const String& scene )
 	return true;
 }
 
-void CGameLogic::SceneBegin( void )
+void CGameLogic::SceneBegin( )
 {
 	m_pRenderer->SceneBegin( );
 }
 
-void CGameLogic::DrawScene( void )
+void CGameLogic::DrawScene( )
 {
 	DrawOpaqueRenderable( );
 	DrawTransparentRenderable( );
 	DrawReflectRenderable( );
 }
 
-void CGameLogic::SceneEnd( void )
+void CGameLogic::DrawUI( )
+{
+	m_ui.EndFrame( );
+
+	const ImDrawData drawData = m_ui.Render( );
+
+	if ( drawData.m_drawLists.size( ) == 0 )
+	{
+		return;
+	}
+
+	IResourceManager& resourceMgr = m_pRenderer->GetResourceManager( );
+
+	// Resize Buffer
+	if ( m_uiDrawBuffer[0].m_prevBufferSize != drawData.m_totalVertexCount ||
+		m_uiDrawBuffer[1].m_prevBufferSize != drawData.m_totalIndexCount )
+	{
+		for ( const ImUiDrawBuffer& drawBuffer : m_uiDrawBuffer )
+		{
+			if ( drawBuffer.m_buffer != RE_HANDLE_TYPE::INVALID_HANDLE )
+			{
+				resourceMgr.FreeResource( drawBuffer.m_buffer );
+			}
+		}
+
+		BUFFER_TRAIT trait = { sizeof( ImUiVertex ),
+			static_cast<UINT>( drawData.m_totalVertexCount ),
+			RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
+			RESOURCE_TYPE::VERTEX_BUFFER,
+			0U,
+			nullptr,
+			0U,
+			0U
+		};
+
+		m_uiDrawBuffer[0].m_buffer = m_pRenderer->CreateBuffer( trait );
+		m_uiDrawBuffer[0].m_prevBufferSize = drawData.m_totalVertexCount;
+
+		trait.m_stride = sizeof( DWORD );
+		trait.m_count = drawData.m_totalIndexCount;
+		trait.m_bufferType = RESOURCE_TYPE::INDEX_BUFFER,
+
+		m_uiDrawBuffer[1].m_buffer = m_pRenderer->CreateBuffer( trait );
+		m_uiDrawBuffer[1].m_prevBufferSize = drawData.m_totalIndexCount;
+	}
+
+	BYTE* pVertex = reinterpret_cast<BYTE*>( m_pRenderer->LockBuffer( m_uiDrawBuffer[0].m_buffer ) );
+	BYTE* pIndex = reinterpret_cast<BYTE*>( m_pRenderer->LockBuffer( m_uiDrawBuffer[1].m_buffer ) );
+
+	if ( pVertex && pIndex )
+	{
+		// Update Vertex, Index Buffer
+		for ( ImDrawList* drawList : drawData.m_drawLists )
+		{
+			int copySize = sizeof( ImUiVertex ) * drawList->m_vertices.size( );
+			memcpy( pVertex, drawList->m_vertices.data( ), copySize );
+			pVertex += copySize;
+
+			copySize = sizeof( DWORD ) * drawList->m_indices.size( );
+			memcpy( pIndex, drawList->m_indices.data( ), copySize );
+			pIndex += copySize;
+		}
+
+		m_pRenderer->UnLockBuffer( m_uiDrawBuffer[0].m_buffer );
+		m_pRenderer->UnLockBuffer( m_uiDrawBuffer[1].m_buffer );
+	}
+	else
+	{
+		__debugbreak( );
+	}
+
+	// Update Porjection Matrix
+	using namespace SHARED_CONSTANT_BUFFER;
+
+	ViewProjectionTrasform* viewProj = reinterpret_cast<ViewProjectionTrasform*>( m_pRenderer->LockBuffer( m_commonConstantBuffer[VS_VIEW_PROJECTION] ) );
+	if ( viewProj )
+	{
+		viewProj->m_projection = XMMatrixTranspose( m_uiProjMat );
+		
+		m_pRenderer->UnLockBuffer( m_commonConstantBuffer[VS_VIEW_PROJECTION] );
+	}
+	else
+	{
+		__debugbreak( );
+	}
+	
+
+	// Draw
+	UINT stride = sizeof( ImUiVertex );
+	UINT offset = 0;
+	m_pRenderer->BindVertexBuffer( &m_uiDrawBuffer[0].m_buffer, 0, 1, &stride, &offset );
+	m_pRenderer->BindIndexBuffer( m_uiDrawBuffer[1].m_buffer, 0 );
+
+	m_pRenderer->BindMaterial( m_uiMaterial );
+
+	int indexOffset = 0;
+	int vertexOffset = 0;
+	for ( ImDrawList* drawList : drawData.m_drawLists )
+	{
+		for ( const ImDrawCmd& drawCmd : drawList->m_cmdBuffer )
+		{
+			m_pRenderer->SetScissorRects( &drawCmd.m_clipRect, 1 );
+			m_pRenderer->BindShaderResource( SHADER_TYPE::PS, 0, 1, &drawCmd.m_textAtlas );
+			m_pRenderer->DrawIndexed( RESOURCE_PRIMITIVE::TRIANGLELIST, drawCmd.m_indicesCount, indexOffset, vertexOffset );
+			indexOffset += drawCmd.m_indicesCount;
+		}
+
+		vertexOffset += drawList->m_vertices.size( );
+	}
+}
+
+void CGameLogic::SceneEnd( )
 {
 	BYTE errorCode = m_pRenderer->SceneEnd( );
 	if ( errorCode == DEVICE_ERROR::DEVICE_LOST )
@@ -315,6 +470,72 @@ bool CGameLogic::CreateDeviceDependentResource( )
 	{
 		return false;
 	}
+
+	trait.m_stride = sizeof( ViewProjectionTrasform );
+
+	m_commonConstantBuffer[VS_VIEW_PROJECTION] = m_pRenderer->CreateBuffer( trait );
+	if ( m_commonConstantBuffer[VS_VIEW_PROJECTION] == RE_HANDLE_TYPE::INVALID_HANDLE )
+	{
+		return false;
+	}
+
+	m_uiMaterial = m_pRenderer->SearchMaterial( _T("mat_draw_ui") );
+	if ( m_uiMaterial == INVALID_MATERIAL )
+	{
+		return false;
+	}
+
+	if ( CreateDefaultFontResource( ) == false )
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool CGameLogic::CreateDefaultFontResource( )
+{
+	constexpr char* defaultFontData = "../Script/Fontdata.txt";
+
+	// Load default font
+	Ifstream data( defaultFontData );
+	if ( data.good( ) == false )
+	{
+		return false;
+	}
+
+	String atlasPath;
+	data >> atlasPath;
+
+	CTextAtlas defaultText;
+
+	IResourceManager& resourceMgr = m_pRenderer->GetResourceManager( );
+	defaultText.m_texture = resourceMgr.CreateShaderResourceFromFile( atlasPath );
+
+	if ( defaultText.m_texture == RE_HANDLE_TYPE::INVALID_HANDLE )
+	{
+		return false;
+	}
+
+	data >> defaultText.m_fontHeight;
+
+	FontUV fontInfo = { { 0.f, 0.f },{ 0.f, 1.0f }, 0.f };
+	int asciicode;
+
+	while ( data )
+	{
+		data >> asciicode;
+		data >> fontInfo.m_u.x;
+		data >> fontInfo.m_u.y;
+		data >> fontInfo.m_size;
+
+		defaultText.m_fontInfo.emplace( static_cast<char>( asciicode ), fontInfo );
+	}
+
+	defaultText.m_displayOffset.y = 4.f;
+	defaultText.m_fontSpacing = 1.f;
+
+	m_ui.SetDefaultText( "default", defaultText );
 
 	return true;
 }

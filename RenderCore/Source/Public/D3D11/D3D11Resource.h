@@ -943,6 +943,7 @@ public:
 	bool Create( ID3D11Device& device, const BUFFER_TRAIT& trait );
 	ID3D11Buffer* Get( ) const { return m_buffer.Get( ); };
 	int Size( ) const { return m_bufferSize; }
+	int Stride( ) const { return m_stride; }
 
 	CD3D11Buffer( ) = default;
 	~CD3D11Buffer( ) = default;
@@ -953,7 +954,8 @@ public:
 
 private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_buffer;
-	int m_bufferSize;
+	int m_bufferSize = 0;
+	int m_stride = 0;
 };
 
 

@@ -52,7 +52,7 @@ void CObjMesh::Draw( CGameLogic& gameLogic )
 	}
 	else
 	{
-		renderer.BindIndexBuffer16( m_indexBuffer, m_nIndexOffset );
+		renderer.BindIndexBuffer( m_indexBuffer, m_nIndexOffset );
 
 		if ( m_mtlGroup.size( ) == 0 )
 		{

@@ -27,6 +27,9 @@
     <Filter Include="UserInput">
       <UniqueIdentifier>{bffbcae5-8f59-46e9-a75f-31de4c92c7b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{93f5ac12-0296-427f-9beb-87e170d6b0c5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -136,6 +139,12 @@
     </ClCompile>
     <ClCompile Include="Source\stdafx.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\UI\ImUI.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\UI\ImUI_Draw.cpp">
+      <Filter>UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -279,6 +288,9 @@
     </ClInclude>
     <ClInclude Include="Source\Public\Scene\ConstantBufferDefine.h">
       <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\UI\ImUI.h">
+      <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

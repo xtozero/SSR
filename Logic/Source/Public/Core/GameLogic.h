@@ -8,12 +8,14 @@
 #include "Model/ModelBuilder.h"
 #include "Model/ModelManager.h"
 #include "Model/Surface.h"
+#include "Render/Resource.h"
 #include "Scene/ConstantBufferDefine.h"
 #include "Scene/RenderView.h"
 #include "Scene/SceneLoader.h"
 #include "Scene/ShadowManager.h"
 #include "Scene/SSRManager.h"
 #include "Timer.h"
+#include "UI/ImUI.h"
 #include "UserInput/MouseController.h"
 
 #include <list>
@@ -43,20 +45,22 @@ public:
 
 	IRenderer& GetRenderer( ) const { return *m_pRenderer; }
 	CModelManager& GetModelManager( ) { return m_meshManager; }
+	ImUI& GetUIManager( ) { return m_ui; }
 	RE_HANDLE GetCommonConstantBuffer( int purpose ) { return m_commonConstantBuffer[purpose]; }
 	CRenderView& GetView( ) { return m_view; }
 	const std::pair<UINT, UINT>& GetAPPSize( ) { return m_appSize; }
 
 private:
-	void StartLogic ( void );
-	void ProcessLogic ( void );
-	void EndLogic ( void );
+	void StartLogic ( );
+	void ProcessLogic ( );
+	void EndLogic ( );
 
 	bool LoadScene( const String& scene );
 
-	void SceneBegin( void );
-	void DrawScene( void );
-	void SceneEnd( void );
+	void SceneBegin( );
+	void DrawScene( );
+	void DrawUI( );
+	void SceneEnd( );
 
 	void BuildRenderableList( );
 	void DrawOpaqueRenderable( );
@@ -65,6 +69,7 @@ private:
 
 	void HandleDeviceLost( );
 	bool CreateDeviceDependentResource( );
+	bool CreateDefaultFontResource( );
 
 public:
 	CGameLogic();
@@ -88,4 +93,17 @@ private:
 	std::list<CGameObject*> m_renderableList[RENDERABLE_TYPE_COUNT];
 
 	RE_HANDLE m_commonConstantBuffer[SHARED_CONSTANT_BUFFER::Count];
+
+	// Immediate Mode UI
+	ImUI m_ui;
+
+	struct ImUiDrawBuffer
+	{
+		RE_HANDLE m_buffer = RE_HANDLE_TYPE::INVALID_HANDLE;
+		int m_prevBufferSize = 0;
+	};
+
+	ImUiDrawBuffer m_uiDrawBuffer[2];
+	Material m_uiMaterial = INVALID_MATERIAL;
+	CXMFLOAT4X4 m_uiProjMat;
 };

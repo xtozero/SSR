@@ -150,7 +150,7 @@ public:
 	virtual Material SearchMaterial( const TCHAR* pMaterialName ) override;
 
 	virtual void SetViewports( std::vector<Viewport>& viewports ) override;
-	virtual void SetScissorRects( std::vector<RECT>& rects ) override;
+	virtual void SetScissorRects( const RECT* rects, int size ) override;
 
 	virtual RE_HANDLE CreateShaderResourceFromFile( const String& fileName ) override;
 
@@ -165,7 +165,7 @@ public:
 	virtual void ClearDepthStencil( RE_HANDLE depthStencil, float depthColor, UINT8 stencilColor ) override;
 
 	virtual void BindVertexBuffer( RE_HANDLE* pVertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pStrides, const UINT* pOffsets ) override;
-	virtual void BindIndexBuffer16( RE_HANDLE indexBuffer, UINT indexOffset ) override;
+	virtual void BindIndexBuffer( RE_HANDLE indexBuffer, UINT indexOffset ) override;
 	virtual void BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT numBuffers, const RE_HANDLE* pConstantBuffers ) override;
 	virtual void BindShader( SHADER_TYPE type, RE_HANDLE shader ) override;
 	virtual void BindShaderResource( SHADER_TYPE type, int startSlot, int count, const RE_HANDLE* resource ) override;
@@ -181,7 +181,7 @@ public:
 	virtual void DrawIndexed( UINT primitive, UINT indexCount, UINT indexOffset = 0, UINT vertexOffset = 0 ) override;
 	virtual void DrawInstanced( UINT primitive, UINT vertexCount, UINT instanceCount, UINT vertexOffset = 0, UINT instanceOffset = 0 ) override;
 	virtual void DrawInstancedInstanced( UINT primitive, UINT indexCount, UINT instanceCount, UINT indexOffset = 0, UINT vertexOffset = 0, UINT instanceOffset = 0 ) override;
-	virtual void DrawAuto( UINT primitive ) override;
+	virtual void DrawAuto( ) override;
 	virtual void Dispatch( int x, int y, int z = 1 ) override;
 
 	virtual IResourceManager& GetResourceManager( ) override { return m_resourceManager; }
@@ -336,8 +336,6 @@ BYTE CDirect3D11::SceneEnd( )
 	TakeSnapshot2D( _T( "ShadowMap" ), _T( "DebugShadowMap" ) );
 #endif
 
-	m_renderOutput.SceneEnd( *this );
-
 	return DEVICE_ERROR::NONE;
 }
 
@@ -438,9 +436,9 @@ void CDirect3D11::SetViewports( std::vector<Viewport>& viewports )
 	m_pd3d11DeviceContext->RSSetViewports( d3d11Viewports.size( ), d3d11Viewports.data( ) );
 }
 
-void CDirect3D11::SetScissorRects( std::vector<RECT>& rects )
+void CDirect3D11::SetScissorRects( const RECT* rects, int size )
 {
-	m_pd3d11DeviceContext->RSSetScissorRects( rects.size( ), rects.data( ) );
+	m_pd3d11DeviceContext->RSSetScissorRects( size, rects );
 }
 
 RE_HANDLE CDirect3D11::CreateShaderResourceFromFile( const String& fileName )
@@ -501,17 +499,23 @@ void CDirect3D11::BindVertexBuffer( RE_HANDLE* pVertexBuffers, UINT startSlot, U
 	m_renderStateManager.SetVertexBuffer( startSlot, numBuffers, buffers, pStrides, pOffsets );
 }
 
-void CDirect3D11::BindIndexBuffer16( RE_HANDLE indexBuffer, UINT indexOffset )
+void CDirect3D11::BindIndexBuffer( RE_HANDLE indexBuffer, UINT indexOffset )
 {
 	ID3D11Buffer* buffer = nullptr;
+	DXGI_FORMAT format = DXGI_FORMAT_R16_UINT;
 
 	if ( indexBuffer != INVALID_HANDLE )
 	{
 		const CD3D11Buffer& d3d11buffer = m_resourceManager.GetBuffer( indexBuffer );
 		buffer = d3d11buffer.Get( );
+		
+		if ( d3d11buffer.Stride() == 4 )
+		{
+			format = DXGI_FORMAT_R32_UINT;
+		}
 	}
 
-	m_renderStateManager.SetIndexBuffer( buffer, DXGI_FORMAT_R16_UINT, indexOffset );
+	m_renderStateManager.SetIndexBuffer( buffer, format, indexOffset );
 }
 
 void CDirect3D11::BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT numBuffers, const RE_HANDLE* pConstantBuffers )
@@ -808,7 +812,7 @@ void CDirect3D11::DrawInstancedInstanced( UINT primitive, UINT indexCount, UINT 
 	m_pd3d11DeviceContext->DrawIndexedInstanced( indexCount, instanceCount, indexOffset, vertexOffset, instanceOffset );
 }
 
-void CDirect3D11::DrawAuto( UINT primitive )
+void CDirect3D11::DrawAuto( )
 {
 	m_pd3d11DeviceContext->DrawAuto( );
 }

@@ -50,7 +50,7 @@ public:
 	virtual Material SearchMaterial( const TCHAR* pMaterialName ) = 0;
 
 	virtual void SetViewports( std::vector<Viewport>& viewports ) = 0;
-	virtual void SetScissorRects( std::vector<RECT>& rects ) = 0;
+	virtual void SetScissorRects( const RECT* rects, int size ) = 0;
 
 	virtual RE_HANDLE CreateShaderResourceFromFile( const String& fileName ) = 0;
 
@@ -65,7 +65,7 @@ public:
 	virtual void ClearDepthStencil( RE_HANDLE depthStencil, float depthColor, UINT8 stencilColor ) = 0;
 
 	virtual void BindVertexBuffer( RE_HANDLE* pVertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pStrides, const UINT* pOffsets ) = 0;
-	virtual void BindIndexBuffer16( RE_HANDLE indexBuffer, UINT indexOffset ) = 0;
+	virtual void BindIndexBuffer( RE_HANDLE indexBuffer, UINT indexOffset ) = 0;
 	virtual void BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT numBuffers, const RE_HANDLE* pConstantBuffers ) = 0;
 	virtual void BindShader( SHADER_TYPE type, RE_HANDLE shader ) = 0;
 	virtual void BindShaderResource( SHADER_TYPE type, int startSlot, int count, const RE_HANDLE* resource ) = 0;
@@ -81,7 +81,7 @@ public:
 	virtual void DrawIndexed( UINT primitive, UINT indexCount, UINT indexOffset = 0, UINT vertexOffset = 0 ) = 0;
 	virtual void DrawInstanced( UINT primitive, UINT vertexCount, UINT instanceCount, UINT vertexOffset = 0, UINT instanceOffset = 0 ) = 0;
 	virtual void DrawInstancedInstanced( UINT primitive, UINT indexCount, UINT instanceCount, UINT indexOffset = 0, UINT vertexOffset = 0, UINT instanceOffset = 0 ) = 0;
-	virtual void DrawAuto( UINT primitive ) = 0;
+	virtual void DrawAuto( ) = 0;
 	virtual void Dispatch( int x, int y, int z = 1 ) = 0;
 
 	virtual IResourceManager& GetResourceManager( ) = 0;

@@ -176,6 +176,8 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClCompile Include="Source\Private\Scene\ScreenBlurManager.cpp" />
     <ClCompile Include="Source\Private\Scene\ShadowManager.cpp" />
     <ClCompile Include="Source\Private\Scene\SSRManager.cpp" />
+    <ClCompile Include="Source\Private\UI\ImUI.cpp" />
+    <ClCompile Include="Source\Private\UI\ImUI_Draw.cpp" />
     <ClCompile Include="Source\Private\UserInput\MouseController.cpp" />
     <ClCompile Include="Source\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -228,6 +230,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="Source\Public\Scene\ScreenBlurManager.h" />
     <ClInclude Include="Source\Public\Scene\ShadowManager.h" />
     <ClInclude Include="Source\Public\Scene\SSRManager.h" />
+    <ClInclude Include="Source\Public\UI\ImUI.h" />
     <ClInclude Include="Source\Public\UserInput\MouseController.h" />
     <ClInclude Include="Source\stdafx.h" />
     <ClInclude Include="Source\targetver.h" />

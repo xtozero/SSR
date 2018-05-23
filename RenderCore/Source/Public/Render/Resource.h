@@ -19,6 +19,7 @@ constexpr Material INVALID_MATERIAL = 0xFFFFFFFF;
 
 using RE_HANDLE = unsigned int;
 constexpr int RE_INDEX_MASK = 0x00FFFFFF;
+constexpr int RE_TYPE_MASK = 0xFF000000;
 
 namespace RE_HANDLE_TYPE
 {

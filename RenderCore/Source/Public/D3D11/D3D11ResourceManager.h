@@ -92,6 +92,7 @@ public:
 	// UTIL
 	virtual RE_HANDLE CreateCloneTexture( RE_HANDLE texHandle, const String& textureName ) override;
 	virtual void CopyResource( RE_HANDLE dest, const RESOURCE_REGION* destRegionOrNull, RE_HANDLE src, const RESOURCE_REGION* srcRegionOrNull ) override;
+	virtual void FreeResource( RE_HANDLE resourceHandle ) override;
 
 	void TakeSnapshot( const String& sourceTextureName, const String& destTextureName );
 	void OnDeviceLost( );
@@ -143,6 +144,7 @@ private:
 	BYTE* m_freeShaderResource = nullptr;
 	BYTE* m_freeRandomAccess = nullptr;
 	BYTE* m_freeTexture = nullptr;
+	BYTE* m_freeBuffer = nullptr;
 
 	std::map<String, RE_HANDLE> m_dsvLUT;
 	std::map<String, RE_HANDLE> m_rtvLUT;

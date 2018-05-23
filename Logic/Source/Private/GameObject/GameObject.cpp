@@ -129,8 +129,15 @@ void CGameObject::SetModelMeshName( const String& pModelName )
 
 bool CGameObject::Initialize( CGameLogic& gameLogic )
 {
-	ON_FAIL_RETURN( LoadModelMesh( gameLogic ) );
-	ON_FAIL_RETURN( LoadMaterial( gameLogic ) );
+	if ( LoadModelMesh( gameLogic ) == false )
+	{
+		__debugbreak( );
+	}
+
+	if ( LoadMaterial( gameLogic ) == false )
+	{
+		__debugbreak( );
+	}
 
 	m_needInitialize = false;
 	return true;

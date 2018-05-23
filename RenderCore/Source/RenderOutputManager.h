@@ -27,7 +27,6 @@ public:
 	void SetRenderTargetDepthStencilView( IRenderer& renderer );
 	void ClearDepthStencil( IRenderer& renderer );
 	void ClearRenderTargets( IRenderer& renderer, const float( &clearColor )[4] );
-	void SceneEnd( IRenderer& deviceContext );
 
 	CRenderOutputManager( );
 private:

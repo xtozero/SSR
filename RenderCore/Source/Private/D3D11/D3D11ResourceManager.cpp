@@ -611,14 +611,26 @@ void CD3D11ResourceManager::AppSizeChanged( UINT nWndWidth, UINT nWndHeight )
 
 RE_HANDLE CD3D11ResourceManager::CreateBuffer( const BUFFER_TRAIT& trait )
 {
-	CD3D11Buffer buffer;
+	CD3D11Buffer* pBuffer = nullptr;
 
-	if ( buffer.Create( *m_pDevice, trait ) )
+	if ( m_freeBuffer != nullptr )
 	{
-		m_buffers.emplace_back( std::move( buffer ) );
+		PopFrontInPlaceList( &m_freeBuffer, &pBuffer );
+	}
+	else
+	{
+		m_buffers.emplace_back( );
+		pBuffer = &m_buffers.back( );
+	}
 
-		int idx = static_cast<int>( m_buffers.size( ) ) - 1;
+	if ( pBuffer->Create( *m_pDevice, trait ) )
+	{
+		int idx = ( pBuffer - &m_buffers.front() );
 		return MakeResourceHandle( BUFFER_HANDLE, idx );
+	}
+	else
+	{
+		PushFrontInPlaceList( &m_freeBuffer, pBuffer );
 	}
 
 	return INVALID_HANDLE;
@@ -1293,6 +1305,49 @@ void CD3D11ResourceManager::CopyResource( RE_HANDLE dest, const RESOURCE_REGION*
 		D3D11_BOX box = { srcRegion.m_left,  srcRegion.m_top,  srcRegion.m_front,  srcRegion.m_right,  srcRegion.m_bottom,  srcRegion.m_back };
 
 		m_pDeviceContext->CopySubresourceRegion( pDest, destRegion.m_subResource, destRegion.m_left, destRegion.m_top, destRegion.m_front, pSrc, srcRegion.m_subResource, &box );
+	}
+}
+
+void CD3D11ResourceManager::FreeResource( RE_HANDLE resourceHandle )
+{
+	unsigned int resourceType = resourceHandle & RE_TYPE_MASK;
+	int resourceIdx = resourceHandle & RE_INDEX_MASK;
+
+	switch ( resourceType )
+	{
+	case BUFFER_HANDLE:
+		m_buffers[resourceIdx].~CD3D11Buffer( );
+		PushFrontInPlaceList( &m_freeBuffer, &m_buffers[resourceIdx] );
+		break;
+	case DEPTH_STENCIL_HANDLE:
+		break;
+	case RENDER_TARGET_HANDLE:
+		break;
+	case SHADER_RESOURCE_HANDLE:
+		break;
+	case RANDOM_ACCESS_HANDLE:
+		break;
+	case TEXTURE_HANDLE:
+		break;
+	case VS_HANDLE:
+		break;
+	case GS_HANDLE:
+		break;
+	case PS_HANDLE:
+		break;
+	case CS_HANDLE:
+		break;
+	case SAMPLER_STATE_HANDLE:
+		break;
+	case RASTERIZER_STATE_HANDLE:
+		break;
+	case BLEND_STATE_HANDLE:
+		break;
+	case DEPTH_STENCIL_STATE_HANDLE:
+		break;
+	default:
+		assert( false && "invalid resource handle" );
+		break;
 	}
 }
 

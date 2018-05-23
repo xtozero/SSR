@@ -24,6 +24,34 @@ bool CSSRManager::Init( CGameLogic& gameLogic )
 
 void CSSRManager::PreProcess( CGameLogic & gameLogic, const std::list<CGameObject*>* renderableList ) const
 {
+	ImUI& ui = gameLogic.GetUIManager( );
+	if ( ui.Button( "SSR On/Off" ) )
+	{
+		static int count = 0;
+		m_isEnabled = !m_isEnabled;
+	}
+
+	ui.SliderFloat( "Depthbias Slider", &m_properties.depthbias, 0.f, 1.f );
+	ui.SameLine( );
+	ui.Text( "Depthbias" );
+
+	ui.SliderFloat( "Ray Step Scale Slider", &m_properties.rayStepScale, 1.f, 10.f );
+	ui.SameLine( );
+	ui.Text( "Ray Step Scale" );
+
+	ui.SliderFloat( "Max Ray Length Slider", &m_properties.maxRayLength, 100.f, 500.f );
+	ui.SameLine( );
+	ui.Text( "Max Ray Length" );
+
+	ui.SliderInt( "Max Ray Step Slider", &m_properties.maxRayStep, 100, 300 );
+	ui.SameLine( );
+	ui.Text( "Max Ray Length" );
+
+	if ( m_isEnabled == false )
+	{
+		return;
+	}
+
 	assert( renderableList != nullptr );
 	IRenderer& renderer = gameLogic.GetRenderer( );
 
@@ -53,6 +81,11 @@ void CSSRManager::PreProcess( CGameLogic & gameLogic, const std::list<CGameObjec
 
 void CSSRManager::Process( CGameLogic& gameLogic, const std::list<CGameObject*>* renderableList ) const
 {
+	if ( m_isEnabled == false )
+	{
+		return;
+	}
+
 	assert( renderableList != nullptr );
 	IRenderer& renderer = gameLogic.GetRenderer( );
 
@@ -92,7 +125,7 @@ void CSSRManager::Process( CGameLogic& gameLogic, const std::list<CGameObject*>*
 	// m_blur.Process( gameLogic, m_ssrSrv, m_ssrRt );
 
 	// Set Framebuffer RenderTarget
-	RE_HANDLE default[] = { RE_HANDLE_TYPE::INVALID_HANDLE };
+	RE_HANDLE default[] = { RE_HANDLE_TYPE::INVALID_HANDLE, RE_HANDLE_TYPE::INVALID_HANDLE, RE_HANDLE_TYPE::INVALID_HANDLE };
 	renderer.BindRenderTargets( &m_defaultRt, 1, default[0] );
 
 	// Set Reflect Result By Texture
@@ -102,7 +135,7 @@ void CSSRManager::Process( CGameLogic& gameLogic, const std::list<CGameObject*>*
 	m_pScreenRect->SetMaterial( m_ssrBlendMaterial );
 	m_pScreenRect->Draw( gameLogic );
 
-	renderer.BindShaderResource( SHADER_TYPE::PS, 1, 1, default );
+	renderer.BindShaderResource( SHADER_TYPE::PS, 1, 3, default );
 }
 
 void CSSRManager::AppSizeChanged( CGameLogic& gameLogic )
@@ -121,12 +154,12 @@ bool CSSRManager::CreateAppSizeDependentResource( IRenderer& renderer )
 
 	String ssrTextureName( _T( "ScreenSpaceReflect" ) );
 	TEXTURE_TRAIT ssrTexTrait = {
-		-1,
-		-1,
-		1,
-		multiSampleOption.m_count,
-		multiSampleOption.m_quality,
-		1,
+		0U,
+		0U,
+		1U,
+		static_cast<UINT>( multiSampleOption.m_count ),
+		static_cast<UINT>( multiSampleOption.m_quality ),
+		1U,
 		RESOURCE_FORMAT::R8G8B8A8_UNORM,
 		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
 		RESOURCE_TYPE::RENDER_TARGET | RESOURCE_TYPE::SHADER_RESOURCE,

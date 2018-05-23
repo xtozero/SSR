@@ -114,7 +114,7 @@ namespace UTIL
 	}
 }
 
-#ifdef _DEBUG
+#if defined( _DEBUG ) || defined( DEBUGGING_BY_CONSOLE )
 #define DebugMsg( x, ... ) UTIL::DebugMsgImplment( _T( x ), ##__VA_ARGS__ )
 #define DebugWarning( x, ... ) UTIL::DebugWarningImplment( _T( x ), ##__VA_ARGS__ )
 #else

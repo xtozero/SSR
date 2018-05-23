@@ -68,7 +68,7 @@ void CShadowManager::Process( CLightManager& lightMgr, CGameLogic& gameLogic, st
 		view.PushViewPort( 0, 0, 2048, 2048 );
 		view.SetViewPort( renderer );
 		view.SetScissorRects( renderer );
-		view.UpdataView( renderer );
+		view.UpdataView( renderer, gameLogic.GetCommonConstantBuffer( VS_VIEW_PROJECTION ) );
 
 		//그림자 렌더링 마테리얼로 전체 오브젝트를 랜더링
 		for ( auto& object : gameObjects )
