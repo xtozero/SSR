@@ -40,8 +40,7 @@ public:
 
 	void PushLightTrait( const LightTrait& trait );
 
-	CXMFLOAT4X4 GetPrimaryLightViewMatrix( );
-	CXMFLOAT4X4 GerPrimaryLightProjectionMatrix( );
+	CLight* GetPrimaryLight( ) { return m_lights[m_primaryLight]; }
 
 	CLightManager( );
 	~CLightManager( ) = default;

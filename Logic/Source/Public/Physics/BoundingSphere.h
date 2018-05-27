@@ -3,12 +3,23 @@
 #include "IRigidBody.h"
 #include "Math/CXMFloat.h"
 
+class CAaboundingbox;
+
 class BoundingSphere : public IRigidBody
 {
 public:
 	virtual void CreateRigideBody( const IMesh& mesh ) override;
 	virtual void Update( const CXMFLOAT4X4& matrix, IRigidBody* original ) override;
 	virtual float Intersect( const CRay* ray ) const override;
+	virtual int Intersect( const CFrustum& frustum ) const override;
+
+	bool Intersect( const CFrustum& frustum, const CXMFLOAT3& sweepDir );
+	const CXMFLOAT3& GetCenter( ) const { return m_origin; }
+	float GetRadius( ) const { return sqrtf( m_radiusSqr ); }
+
+	BoundingSphere( ) = default;
+	BoundingSphere( const CAaboundingbox& box );
+	BoundingSphere( const CXMFLOAT3& center, float radiusSqr ) : m_origin( center ), m_radiusSqr( radiusSqr ) {}
 
 private:
 	CXMFLOAT3 m_origin;

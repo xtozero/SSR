@@ -58,6 +58,8 @@ void CRenderView::SetScissorRects( IRenderer& renderer )
 
 void CRenderView::CreatePerspectiveFovLHMatrix( float fov, float aspect, float zNear, float zFar )
 {
+	m_fov = fov;
+	m_aspect = aspect;
 	m_zNear = zNear;
 	m_zFar = zFar;
 	m_projectionMatrix = XMMatrixPerspectiveFovLH( fov, aspect, zNear, zFar );
@@ -65,6 +67,8 @@ void CRenderView::CreatePerspectiveFovLHMatrix( float fov, float aspect, float z
 
 void CRenderView::CreatePerspectiveFovRHMatrix( float fov, float aspect, float zNear, float zFar )
 {
+	m_fov = fov;
+	m_aspect = aspect;
 	m_zNear = zNear;
 	m_zFar = zFar;
 	m_projectionMatrix = XMMatrixPerspectiveFovRH( fov, aspect, zNear, zFar );

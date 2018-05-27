@@ -100,24 +100,6 @@ void CLightManager::PushLightTrait( const LightTrait & trait )
 	++m_shaderLightProperty.m_curLights;
 }
 
-CXMFLOAT4X4 CLightManager::GetPrimaryLightViewMatrix( )
-{
-	if ( m_lights.size() > m_primaryLight )
-	{
-		if ( m_lights[m_primaryLight] && m_lights[m_primaryLight]->IsOn( ) )
-		{
-			return m_lights[m_primaryLight]->GetViewMatrix( );
-		}
-	}
-	
-	return XMMatrixIdentity( );
-}
-
-CXMFLOAT4X4 CLightManager::GerPrimaryLightProjectionMatrix( )
-{
-	return XMMatrixPerspectiveFovLH( XM_PI / 4.f, 1.f, 1.f, 1500.f );
-}
-
 CLightManager::CLightManager( ) :
 	m_needUpdateToRenderer( false ),
 	m_primaryLight( 0 )

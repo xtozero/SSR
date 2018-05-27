@@ -42,7 +42,7 @@ public:
 
 	bool Initialize( CGameLogic& gameLogic );
 	bool NeedInitialize( ) { return m_needInitialize; }
-	const IRigidBody* GetRigidBody( int type ) const { return m_rigideBodies[type].get( ); }
+	const IRigidBody* GetRigidBody( int type );
 
 	void SetPicked( bool isPicked ) { m_isPicked = isPicked; }
 
