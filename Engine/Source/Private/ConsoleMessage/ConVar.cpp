@@ -41,5 +41,3 @@ m_description( description )
 CConVar::~CConVar( )
 {
 }
-
-ConVar( testConvar, "0", "Test Convar" );

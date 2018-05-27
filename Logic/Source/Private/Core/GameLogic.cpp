@@ -196,7 +196,7 @@ void CGameLogic::EndLogic( )
 	m_lightManager.UpdateToRenderer( *m_pRenderer, m_mainCamera );
 
 	// ±×¸²ÀÚ ¸Ê ·»´õ¸µ
-	m_shadowManager.Process( m_lightManager, *this, m_gameObjects );
+	m_shadowManager.Process( *this, m_gameObjects );
 
 	float wndWidth = static_cast<float>( m_appSize.first );
 	float wndHeight = static_cast<float>( m_appSize.second );

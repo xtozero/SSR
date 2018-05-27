@@ -74,6 +74,7 @@ set (PHYSICS_SOURCE
 	"Source/Public/Physics/Aaboundingbox.h"
 	"Source/Public/Physics/BoundingSphere.h"
 	"Source/Public/Physics/CollisionUtil.h"
+	"Source/Public/Physics/Frustum.h"
 	"Source/Public/Physics/IRigidBody.h"
 	"Source/Public/Physics/Movement.h"
 	"Source/Public/Physics/Ray.h"

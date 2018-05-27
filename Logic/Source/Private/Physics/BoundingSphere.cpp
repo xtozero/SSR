@@ -3,9 +3,42 @@
 
 #include "Model/CommonMeshDefine.h"
 #include "Model/IMesh.h"
+#include "Physics/Aaboundingbox.h"
+#include "Physics/Frustum.h"
 #include "Physics/Ray.h"
 
 using namespace DirectX;
+
+namespace
+{
+	bool SweptSpherePlaneIntersection( float& t0, float& t1, const CXMFLOAT4& plane, const BoundingSphere& sphere, const CXMFLOAT3& sweepDir )
+	{
+		float bdotn = XMVectorGetX( XMPlaneDotCoord( plane, sphere.GetCenter() ) );
+		float ddotn = XMVectorGetX( XMPlaneDotNormal( plane, sweepDir ) );
+
+		float radius = sphere.GetRadius( );
+
+		if ( ddotn == 0 )
+		{
+			if ( bdotn <= radius )
+			{
+				t0 = 0;
+				t1 = 1e32f;
+				return true;
+			}
+
+			return false;
+		}
+		else
+		{
+			float tmp0 = ( radius - bdotn ) / ddotn;
+			float tmp1 = ( -radius - bdotn ) / ddotn;
+			t0 = min( tmp0, tmp1 );
+			t1 = max( tmp0, tmp1 );
+			return true;
+		}
+	}
+}
 
 void BoundingSphere::CreateRigideBody( const IMesh& mesh )
 {
@@ -51,4 +84,60 @@ float BoundingSphere::Intersect( const CRay* ray ) const
 	}
 
 	return max( 0.f, std::sqrt( tangentSqr ) - std::sqrt( m_radiusSqr - normalVectorSqr ) );
+}
+
+int BoundingSphere::Intersect( const CFrustum& frustum ) const
+{
+	const CXMFLOAT4( &planes )[6] = frustum.GetPlanes( );
+
+	bool inside = true;
+	float radius = sqrtf( m_radiusSqr );
+
+	for ( int i = 0; ( i<6 ) && inside; i++ )
+		inside &= ( ( XMVectorGetX( XMPlaneDotNormal( planes[i], m_origin ) ) + radius ) >= 0.f );
+
+	return inside;
+}
+
+bool BoundingSphere::Intersect( const CFrustum& frustum, const CXMFLOAT3& sweepDir )
+{
+	float displacement[12];
+	int count = 0;
+	float t0 = -1;
+	float t1 = -1;
+	bool inFrustum = false;
+
+	const CXMFLOAT4(&planes)[6] = frustum.GetPlanes( );
+
+	for ( int i = 0; i < 6; ++i )
+	{
+		if ( SweptSpherePlaneIntersection( t0, t1, planes[i], *this, sweepDir ) )
+		{
+			if ( t0 >= 0.f )
+			{
+				displacement[count++] = t0;
+			}
+			if ( t1 >= 0.f )
+			{
+				displacement[count++] = t1;
+			}
+		}
+	}
+
+	for ( int i = 0; i < count; ++i )
+	{
+		float radius = m_radiusSqr * 1.1f * 1.1f;
+		CXMFLOAT3 center( m_origin );
+		center += sweepDir * displacement[i];
+		BoundingSphere sphere( center, radius );
+		inFrustum |= sphere.Intersect( frustum );
+	}
+
+	return inFrustum;
+}
+
+BoundingSphere::BoundingSphere( const CAaboundingbox& box )
+{
+	box.Centroid( m_origin );
+	m_radiusSqr = XMVectorGetX( XMVector3LengthSq( m_origin - box.GetMax( ) ) );
 }

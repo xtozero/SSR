@@ -44,6 +44,7 @@ public:
 	virtual void AppSizeChanged( IPlatform& platform ) override;
 
 	IRenderer& GetRenderer( ) const { return *m_pRenderer; }
+	CLightManager& GetLightManager( ) { return m_lightManager; }
 	CModelManager& GetModelManager( ) { return m_meshManager; }
 	ImUI& GetUIManager( ) { return m_ui; }
 	RE_HANDLE GetCommonConstantBuffer( int purpose ) { return m_commonConstantBuffer[purpose]; }

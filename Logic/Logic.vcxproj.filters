@@ -292,5 +292,8 @@
     <ClInclude Include="Source\Public\UI\ImUI.h">
       <Filter>UI</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Public\Physics\Frustum.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

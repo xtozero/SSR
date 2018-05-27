@@ -64,21 +64,13 @@ const CXMFLOAT3& CGameObject::GetRotate( )
 
 const CXMFLOAT4X4& CGameObject::GetTransformMatrix( )
 {
-	if ( m_needRebuildTransform )
-	{
-		RebuildTransform( );
-	}
-
+	RebuildTransform( );
 	return m_matTransform;
 }
 
 const CXMFLOAT4X4& CGameObject::GetInvTransformMatrix( )
 {
-	if ( m_needRebuildTransform )
-	{
-		RebuildTransform( );
-	}
-
+	RebuildTransform( );
 	return m_invMatTransform;
 }
 
@@ -141,6 +133,12 @@ bool CGameObject::Initialize( CGameLogic& gameLogic )
 
 	m_needInitialize = false;
 	return true;
+}
+
+const IRigidBody* CGameObject::GetRigidBody( int type )
+{
+	RebuildTransform( );
+	return m_rigideBodies[type].get( );
 }
 
 void CGameObject::LoadPropertyFromScript( const KeyValue& keyValue )
@@ -265,23 +263,26 @@ bool CGameObject::LoadMaterial( CGameLogic& gameLogic )
 
 void CGameObject::RebuildTransform( )
 {
-	//STR
-	XMMATRIX scale;
-	XMMATRIX rotate;
+	if ( m_needRebuildTransform )
+	{
+		//STR
+		XMMATRIX scale;
+		XMMATRIX rotate;
 
-	scale = XMMatrixScaling( m_vecScale.x, m_vecScale.y, m_vecScale.z );
-	rotate = XMMatrixRotationRollPitchYaw( m_vecRotate.x, m_vecRotate.y, m_vecRotate.z );
+		scale = XMMatrixScaling( m_vecScale.x, m_vecScale.y, m_vecScale.z );
+		rotate = XMMatrixRotationRollPitchYaw( m_vecRotate.x, m_vecRotate.y, m_vecRotate.z );
 
-	m_matTransform = scale * rotate;
+		m_matTransform = scale * rotate;
 
-	m_matTransform._41 = m_vecPos.x;
-	m_matTransform._42 = m_vecPos.y;
-	m_matTransform._43 = m_vecPos.z;
+		m_matTransform._41 = m_vecPos.x;
+		m_matTransform._42 = m_vecPos.y;
+		m_matTransform._43 = m_vecPos.z;
 
-	m_invMatTransform = XMMatrixInverse( nullptr, m_matTransform );
+		m_invMatTransform = XMMatrixInverse( nullptr, m_matTransform );
 
-	UpdateRigidBodyAll( );
-	m_needRebuildTransform = false;
+		UpdateRigidBodyAll( );
+		m_needRebuildTransform = false;
+	}
 }
 
 void CGameObject::UpdateRigidBody( RIGID_BODY_TYPE type )

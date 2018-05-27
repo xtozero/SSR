@@ -1,6 +1,8 @@
 #pragma once
 
 #include "INotifyGraphicsDevice.h"
+#include "Math/CXMFLOAT.h"
+#include "Physics/Aaboundingbox.h"
 #include "Render/Resource.h"
 
 #include <memory>
@@ -9,6 +11,7 @@
 class CGameLogic;
 class CGameObject;
 class CLightManager;
+class CRenderView;
 class IRenderer;
 class IRenderResource;
 class ITexture;
@@ -19,11 +22,15 @@ public:
 	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
 
 	void Init( CGameLogic& gameLogic );
-	void Process( CLightManager& lightMgr, CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects );
+	void Process( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects );
 
 private:
 	bool CreateDeviceDependentResource( IRenderer& renderer );
+	void ClassifyShadowCasterAndReceiver( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects );
+	void BuildOrthoShadowProjectionMatrix( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects );
+
 	bool m_isEnabled = false;
+	bool m_isUnitClipCube = true;
 	
 	RE_HANDLE m_shadowMap = RE_HANDLE_TYPE::INVALID_HANDLE;
 	RE_HANDLE m_srvShadowMap = RE_HANDLE_TYPE::INVALID_HANDLE;
@@ -32,5 +39,13 @@ private:
 	RE_HANDLE m_dsvShadowMap = RE_HANDLE_TYPE::INVALID_HANDLE;
 
 	Material m_shadowMapMtl = INVALID_MATERIAL;
+
+	CXMFLOAT4X4 m_lightView;
+	CXMFLOAT4X4 m_lightPorjection;
+
+	std::vector<CGameObject*> m_shadowCaster;
+	std::vector<CAaboundingbox> m_shadowCasterPoint;
+	std::vector<CGameObject*> m_shadowReceiver;
+	std::vector<CAaboundingbox> m_shadowReceiverPoint;
 };
 

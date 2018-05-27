@@ -8,5 +8,5 @@ enum RIGID_BODY_TYPE;
 
 namespace COLLISION_UTIL
 {
-	float IntersectWithRay( const CGameObject& object, const CRay& ray, RIGID_BODY_TYPE type );
+	float IntersectWithRay( CGameObject& object, const CRay& ray, RIGID_BODY_TYPE type );
 }

@@ -218,6 +218,7 @@ copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDIR)\bin\$(ProjectName).dll"
     <ClInclude Include="Source\Public\Physics\Aaboundingbox.h" />
     <ClInclude Include="Source\Public\Physics\BoundingSphere.h" />
     <ClInclude Include="Source\Public\Physics\CollisionUtil.h" />
+    <ClInclude Include="Source\Public\Physics\Frustum.h" />
     <ClInclude Include="Source\Public\Physics\IRigidBody.h" />
     <ClInclude Include="Source\Public\Physics\Movement.h" />
     <ClInclude Include="Source\Public\Physics\Ray.h" />

@@ -31,7 +31,13 @@ public:
 
 	void SetViewMatrix( const CXMFLOAT4X4& viewMat ) { m_viewMatrix = viewMat; }
 
-	const CXMFLOAT4X4& GetProjectionMatrix( ) { return m_projectionMatrix; }
+	const CXMFLOAT4X4& GetViewMatrix( ) const { return m_viewMatrix; }
+	const CXMFLOAT4X4& GetProjectionMatrix( ) const { return m_projectionMatrix; }
+
+	float GetNear( ) const { return m_zNear; }
+	float GetFar( ) const { return m_zFar; }
+	float GetAspect( ) const { return m_aspect; }
+	float GetFov( ) const { return m_fov; }
 
 	CRenderView( );
 private:
@@ -47,5 +53,7 @@ private:
 
 	float m_zNear = 0.f;
 	float m_zFar = 0.f;
+	float m_aspect = 0.f;
+	float m_fov = 0.f;
 };
 

@@ -3,6 +3,7 @@
 
 #include "Model/CommonMeshDefine.h"
 #include "Model/IMesh.h"
+#include "Physics/Frustum.h"
 #include "Physics/Ray.h"
 #include "Util.h"
 
@@ -122,12 +123,65 @@ float CAaboundingbox::Intersect( const CRay* ray ) const
 	return t_min;
 }
 
-CAaboundingbox::CAaboundingbox( ) : m_max( -FLT_MAX, -FLT_MAX, -FLT_MAX ),
-m_min( FLT_MAX, FLT_MAX, FLT_MAX )
+int CAaboundingbox::Intersect( const CFrustum& frustum ) const
 {
+	using namespace DirectX;
+
+	const CFrustum::LookUpTable& lut = frustum.GetVertexLUT( );
+	const CXMFLOAT4( &planes )[6] = frustum.GetPlanes( );
+
+	int result = COLLISION::INSIDE;
+	for ( int i = 0; i < 6; ++i )
+	{
+		CXMFLOAT3 p( ( lut[i] & CFrustum::X_MAX ) ? m_max.x : m_min.x, ( lut[i] & CFrustum::Y_MAX ) ? m_max.y : m_min.y, ( lut[i] & CFrustum::Z_MAX ) ? m_max.z : m_min.z );
+		CXMFLOAT3 n( ( lut[i] & CFrustum::X_MAX ) ? m_min.x : m_max.x, ( lut[i] & CFrustum::Y_MAX ) ? m_min.y : m_max.y, ( lut[i] & CFrustum::Z_MAX ) ? m_min.z : m_max.z );
+
+		if ( XMVectorGetX( XMPlaneDotCoord( planes[i], p ) ) < 0 )
+		{
+			return COLLISION::OUTSIDE;
+		}
+
+		if ( XMVectorGetX( XMPlaneDotCoord( planes[i], n ) ) < 0 )
+		{
+			result = COLLISION::INTERSECTION;
+		}
+	}
+
+	return result;
 }
 
-
-CAaboundingbox::~CAaboundingbox( )
+CAaboundingbox::CAaboundingbox( const std::vector<CAaboundingbox>& boxes )
 {
+	for ( const auto& box : boxes )
+	{
+		Merge( box.m_max );
+		Merge( box.m_min );
+	}
+}
+
+void CAaboundingbox::Merge( const CXMFLOAT3& vec )
+{
+	m_max.x = max( m_max.x, vec.x );
+	m_max.y = max( m_max.y, vec.y );
+	m_max.z = max( m_max.z, vec.z );
+	m_min.x = min( m_min.x, vec.x );
+	m_min.y = min( m_min.y, vec.y );
+	m_min.z = min( m_min.z, vec.z );
+}
+
+void TransformAABB( CAaboundingbox& result, const CAaboundingbox& src, const CXMFLOAT4X4& mat )
+{
+	CXMFLOAT3 point[8];
+	for ( int i = 0; i < 8; ++i )
+	{
+		point[i] = src.Point( i );
+	}
+
+	result.Reset( );
+
+	for ( int i = 0; i < 8; ++i )
+	{
+		point[i] = XMVector3TransformCoord( point[i], mat );
+		result.Merge( point[i] );
+	}
 }
