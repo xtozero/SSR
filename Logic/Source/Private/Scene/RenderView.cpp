@@ -8,52 +8,14 @@
 
 using namespace DirectX;
 
-void CRenderView::OnDeviceRestore( CGameLogic& gameLogic )
+void CRenderView::SetViewPort( IRenderer& renderer, const Viewport* viewPorts, int count )
 {
-	CreateDeviceDependentResource( gameLogic.GetRenderer( ) );
+	renderer.SetViewports( viewPorts, count );
 }
 
-bool CRenderView::initialize( IRenderer& renderer )
+void CRenderView::SetScissorRects( IRenderer& renderer, const RECT* rects, int count )
 {
-	return CreateDeviceDependentResource( renderer );
-}
-
-void CRenderView::PushViewPort( const float x, const float y, const float width, const float height, const float zNear, const float zFar )
-{
-	Viewport viewport = { x, y, width, height, zNear, zFar };
-
-	m_viewportList.push_back( viewport );
-}
-
-void CRenderView::PopViewPort( )
-{
-	if ( m_viewportList.size( ) > 0 )
-	{
-		m_viewportList.pop_back( );
-	}
-}
-
-void CRenderView::PushScissorRect( const RECT & rect )
-{
-	m_scissorRectList.push_back( rect );
-}
-
-void CRenderView::PopScissorRect( )
-{
-	if ( m_scissorRectList.size( ) > 0 )
-	{
-		m_scissorRectList.pop_back( );
-	}
-}
-
-void CRenderView::SetViewPort( IRenderer& renderer )
-{
-	renderer.SetViewports( m_viewportList );
-}
-
-void CRenderView::SetScissorRects( IRenderer& renderer )
-{
-	renderer.SetScissorRects( m_scissorRectList.data(), static_cast<int>( m_scissorRectList.size( ) ) );
+	renderer.SetScissorRects( rects, count );
 }
 
 void CRenderView::CreatePerspectiveFovLHMatrix( float fov, float aspect, float zNear, float zFar )
@@ -74,35 +36,20 @@ void CRenderView::CreatePerspectiveFovRHMatrix( float fov, float aspect, float z
 	m_projectionMatrix = XMMatrixPerspectiveFovRH( fov, aspect, zNear, zFar );
 }
 
-void CRenderView::UpdataView( IRenderer& renderer, RE_HANDLE viewProjBuffer )
+void CRenderView::UpdataView( CGameLogic& gameLogic, RE_HANDLE viewProjBuffer )
 {
+	IRenderer& renderer = gameLogic.GetRenderer( );
+
 	if ( ViewProjectionTrasform* pData = static_cast<ViewProjectionTrasform*>( renderer.LockBuffer( viewProjBuffer ) ) )
 	{
 		pData->m_view = XMMatrixTranspose( m_viewMatrix );
 		pData->m_projection = XMMatrixTranspose( m_projectionMatrix );
 
+		CShadowManager& shadowManager = gameLogic.GetShadowManager( );
+		pData->m_lightViewProjection = XMMatrixTranspose( shadowManager.GetLightViewProjectionMatrix( ) );
+
 		renderer.UnLockBuffer( viewProjBuffer );
 		renderer.BindConstantBuffer( SHADER_TYPE::VS, static_cast<int>( VS_CONSTANT_BUFFER::VIEW_PROJECTION ), 1, &viewProjBuffer );
-	}
-
-	if ( PASS_CONSTANT* pData = static_cast<PASS_CONSTANT*>( renderer.LockBuffer( m_gbufferConstantBuffer ) ) )
-	{
-		pData->m_zFar = m_zFar;
-		pData->m_zNear = m_zNear;
-		pData->m_elapsedTime = CTimer::GetInstance().GetElapsedTIme();
-		pData->m_totalTime = CTimer::GetInstance().GetTotalTime();
-
-		auto mainView = m_viewportList.begin( );
-		if ( mainView != m_viewportList.end( ) )
-		{
-			pData->m_renderTargetSize.x = mainView->m_width;
-			pData->m_renderTargetSize.y = mainView->m_height;
-			pData->m_invRenderTargetSize.x = 1.f / mainView->m_width;
-			pData->m_invRenderTargetSize.y = 1.f / mainView->m_height;
-		}
-
-		renderer.UnLockBuffer( m_gbufferConstantBuffer );
-		renderer.BindConstantBuffer( SHADER_TYPE::PS, static_cast<int>( PS_CONSTANT_BUFFER::GBUFFER ), 1, &m_gbufferConstantBuffer );
 	}
 }
 
@@ -110,27 +57,4 @@ CRenderView::CRenderView( )
 {
 	m_viewMatrix = XMMatrixIdentity( );
 	m_projectionMatrix = XMMatrixIdentity( );
-}
-
-bool CRenderView::CreateDeviceDependentResource( IRenderer& renderer )
-{
-	BUFFER_TRAIT trait = { sizeof( PASS_CONSTANT ),
-		1,
-		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
-		RESOURCE_TYPE::CONSTANT_BUFFER,
-		0,
-		nullptr,
-		0,
-		0 };
-
-	trait.m_stride = sizeof( PASS_CONSTANT );
-
-	m_gbufferConstantBuffer = renderer.CreateBuffer( trait );
-
-	if ( m_gbufferConstantBuffer == RE_HANDLE_TYPE::INVALID_HANDLE )
-	{
-		return false;
-	}
-
-	return true;
 }

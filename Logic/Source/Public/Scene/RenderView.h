@@ -9,25 +9,16 @@
 
 class IRenderer;
 
-class CRenderView : public IGraphicsDeviceNotify
+class CRenderView
 {
 public:
-	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
-
-	bool initialize( IRenderer& renderer );
-
-	void PushViewPort( const float x, const float y, const float width, const float height, const float zNear = 0.f, const float zFar = 1.0f );
-	void PopViewPort( );
-	void PushScissorRect( const RECT& rect );
-	void PopScissorRect( );
-
-	void SetViewPort( IRenderer& renderer );
-	void SetScissorRects( IRenderer& renderer );
+	void SetViewPort( IRenderer& renderer, const Viewport* viewPorts, int count );
+	void SetScissorRects( IRenderer& renderer, const RECT* rects, int count );
 
 	void CreatePerspectiveFovLHMatrix( float fov, float aspect, float zNear, float zFar );
 	void CreatePerspectiveFovRHMatrix( float fov, float aspect, float zNear, float zFar );
 
-	void UpdataView( IRenderer& renderer, RE_HANDLE viewProjBuffer );
+	void UpdataView( CGameLogic& gameLogic, RE_HANDLE viewProjBuffer );
 
 	void SetViewMatrix( const CXMFLOAT4X4& viewMat ) { m_viewMatrix = viewMat; }
 
@@ -40,16 +31,13 @@ public:
 	float GetFov( ) const { return m_fov; }
 
 	CRenderView( );
-private:
-	bool CreateDeviceDependentResource( IRenderer& renderer );
 
-	std::vector<Viewport> m_viewportList;
-	std::vector<RECT> m_scissorRectList;
+private:
+	Viewport m_viewportList;
+	RECT m_scissorRectList;
 
 	CXMFLOAT4X4 m_viewMatrix;
 	CXMFLOAT4X4 m_projectionMatrix;
-
-	RE_HANDLE m_gbufferConstantBuffer = RE_HANDLE_TYPE::INVALID_HANDLE;
 
 	float m_zNear = 0.f;
 	float m_zFar = 0.f;

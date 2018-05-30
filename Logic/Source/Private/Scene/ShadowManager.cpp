@@ -30,7 +30,7 @@ void CShadowManager::Init( CGameLogic& gameLogic )
 	m_isEnabled = CreateDeviceDependentResource( renderer );
 }
 
-void CShadowManager::Process( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects )
+void CShadowManager::BuildShadowProjectionMatrix( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects )
 {
 	if ( m_isEnabled )
 	{
@@ -41,28 +41,16 @@ void CShadowManager::Process( CGameLogic& gameLogic, std::vector<std::unique_ptr
 		}
 
 		BuildOrthoShadowProjectionMatrix( gameLogic, gameObjects );
+	}
+}
 
-		using namespace SHARED_CONSTANT_BUFFER;
-		RE_HANDLE shadowBuffer = gameLogic.GetCommonConstantBuffer( VS_SHADOW );
-
-		//그림자 렌더링에 사용할 조명으로 View 행렬을 만들어 세팅
+void CShadowManager::DrawShadowMap( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects )
+{
+	if ( m_isEnabled && ( m_shadowReceiver.size( ) != 0 ) )
+	{
 		IRenderer& renderer = gameLogic.GetRenderer( );
-		ShadowTransform* buffer = static_cast<ShadowTransform*>( renderer.LockBuffer( shadowBuffer ) );
 
-		if ( buffer )
-		{
-			buffer->m_lightView = XMMatrixTranspose( m_lightView );
-			buffer->m_lightProjection = XMMatrixTranspose( m_lightPorjection );
-
-			renderer.UnLockBuffer( shadowBuffer );
-			renderer.BindConstantBuffer( SHADER_TYPE::VS, VS_CONSTANT_BUFFER::SHADOW, 1, &shadowBuffer );
-		}
-		else
-		{
-			__debugbreak( );
-		}
-
-		//그림자 텍스쳐로 랜더 타겟 변경
+		// 그림자 텍스쳐로 랜더 타겟 변경
 		RE_HANDLE defaultResource[] = { RE_HANDLE_TYPE::INVALID_HANDLE };
 		renderer.BindShaderResource( SHADER_TYPE::PS, 2, 1, defaultResource );
 		renderer.BindRenderTargets( &m_rtvShadowMap, 1, m_dsvShadowMap );
@@ -74,15 +62,14 @@ void CShadowManager::Process( CGameLogic& gameLogic, std::vector<std::unique_ptr
 
 		const TEXTURE_TRAIT& trait = renderer.GetResourceManager( ).GetTextureTrait( m_shadowMap );
 
-		//뷰포트 세팅
+		// 뷰포트 세팅
 		CRenderView& view = gameLogic.GetView( );
-		view.PopViewPort( );
-		view.PushViewPort( 0, 0, static_cast<float>( trait.m_width ), static_cast<float>( trait.m_height ) );
-		view.SetViewPort( renderer );
-		view.SetScissorRects( renderer );
-		view.UpdataView( renderer, gameLogic.GetCommonConstantBuffer( VS_VIEW_PROJECTION ) );
+		Viewport viewport = { 0, 0, static_cast<float>( trait.m_width ), static_cast<float>( trait.m_height ), 0.f, 1.f };
+		view.SetViewPort( renderer, &viewport, 1 );
+		RECT rect = { 0, 0, static_cast<long>( trait.m_width ), static_cast<long>( trait.m_height ) };
+		view.SetScissorRects( renderer, &rect, 1 );
 
-		//그림자 렌더링 마테리얼로 Caster를 랜더링
+		// 그림자 렌더링 마테리얼로 Caster를 랜더링
 		for ( auto& object : m_shadowCaster )
 		{
 			if ( object && object->ShouldDrawShadow( ) )
@@ -94,11 +81,7 @@ void CShadowManager::Process( CGameLogic& gameLogic, std::vector<std::unique_ptr
 			}
 		}
 
-		//뷰포트 원상 복귀
-		view.PopViewPort( );
-		view.PopScissorRect( );
-
-		//랜터 타겟 원상 복귀, 그림자 맵 세팅
+		// 랜터 타겟 원상 복귀, 그림자 맵 세팅
 		RE_HANDLE default[] = { RE_HANDLE_TYPE::INVALID_HANDLE };
 		renderer.BindRenderTargets( default, 1, default[0] );
 		renderer.BindShaderResource( SHADER_TYPE::PS, 2, 1, &m_srvShadowMap );
@@ -107,7 +90,7 @@ void CShadowManager::Process( CGameLogic& gameLogic, std::vector<std::unique_ptr
 
 bool CShadowManager::CreateDeviceDependentResource( IRenderer& renderer )
 {
-	//그림자용 렌더 타겟 생성
+	// 그림자용 렌더 타겟 생성
 	IResourceManager& resourceMgr = renderer.GetResourceManager( );
 	m_shadowMap = resourceMgr.CreateTexture2D( _T( "ShadowMap" ), _T( "ShadowMap" ) );
 	if ( m_shadowMap == RE_HANDLE_TYPE::INVALID_HANDLE )
@@ -296,17 +279,19 @@ void CShadowManager::BuildOrthoShadowProjectionMatrix( CGameLogic& gameLogic, st
 		axis = { 0.f, 0.f, 1.f };
 	}
 
-	m_lightView = XMMatrixLookAtLH( lightPosition, center, axis );
+	CXMFLOAT4X4 lightView = XMMatrixLookAtLH( lightPosition, center, axis );
 
-	TransformAABB( frustumAABB, frustumAABB, m_lightView );
-	TransformAABB( casterAABB, casterAABB, m_lightView );
+	TransformAABB( frustumAABB, frustumAABB, lightView );
+	TransformAABB( casterAABB, casterAABB, lightView );
 
 	const CXMFLOAT3& frustumMin = frustumAABB.GetMin( );
 	const CXMFLOAT3& frustumMax = frustumAABB.GetMax( );
 	const CXMFLOAT3& casterMin = casterAABB.GetMin( );
 
-	m_lightView = XMMatrixMultiply( view.GetViewMatrix( ), m_lightView );
-	m_lightPorjection = XMMatrixOrthographicOffCenterLH( frustumMin.x, frustumMax.x,
+	CXMFLOAT4X4 lightPorjection = XMMatrixOrthographicOffCenterLH( frustumMin.x, frustumMax.x,
 														frustumMin.y, frustumMax.y,
 														casterMin.z, frustumMax.z );
+
+	m_lightViewPorjection = XMMatrixMultiply( view.GetViewMatrix( ), lightView );
+	m_lightViewPorjection = XMMatrixMultiply( m_lightViewPorjection, lightPorjection );
 }
