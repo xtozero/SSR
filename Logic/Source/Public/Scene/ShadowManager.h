@@ -22,7 +22,9 @@ public:
 	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
 
 	void Init( CGameLogic& gameLogic );
-	void Process( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects );
+	void BuildShadowProjectionMatrix( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects );
+	void DrawShadowMap( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects );
+	const CXMFLOAT4X4& GetLightViewProjectionMatrix( ) const { return m_lightViewPorjection; }
 
 private:
 	bool CreateDeviceDependentResource( IRenderer& renderer );
@@ -40,8 +42,7 @@ private:
 
 	Material m_shadowMapMtl = INVALID_MATERIAL;
 
-	CXMFLOAT4X4 m_lightView;
-	CXMFLOAT4X4 m_lightPorjection;
+	CXMFLOAT4X4 m_lightViewPorjection;
 
 	std::vector<CGameObject*> m_shadowCaster;
 	std::vector<CAaboundingbox> m_shadowCasterPoint;

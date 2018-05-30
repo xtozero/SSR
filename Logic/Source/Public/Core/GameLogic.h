@@ -45,6 +45,7 @@ public:
 
 	IRenderer& GetRenderer( ) const { return *m_pRenderer; }
 	CLightManager& GetLightManager( ) { return m_lightManager; }
+	CShadowManager& GetShadowManager( ) { return m_shadowManager; }
 	CModelManager& GetModelManager( ) { return m_meshManager; }
 	ImUI& GetUIManager( ) { return m_ui; }
 	RE_HANDLE GetCommonConstantBuffer( int purpose ) { return m_commonConstantBuffer[purpose]; }

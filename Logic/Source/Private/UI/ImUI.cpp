@@ -107,15 +107,6 @@ namespace
 	}
 }
 
-ImUiDrawContext::ImUiDrawContext( )
-{
-	for ( int i = 0, end = _countof( m_circleVertex ); i < end; ++i )
-	{
-		const float angle = ( static_cast<float>( i ) * DirectX::XM_2PI ) / end;
-		m_circleVertex[i] = CXMFLOAT2( cosf( angle ), sinf( angle ) );
-	}
-}
-
 ImGUID ImUiWindow::GetID( const char* str )
 {
 	ImGUID seed = m_idStack.back( );
@@ -159,14 +150,29 @@ bool ImUI::Initialize( )
 
 	LoadSettingFromDisk( "../cfg/imUI_setting.cfg" );
 
+	for ( int i = 0, end = _countof( m_circleVertex ); i < end; ++i )
+	{
+		const float angle = ( static_cast<float>( i ) * DirectX::XM_2PI ) / end;
+		m_circleVertex[i] = CXMFLOAT2( cosf( angle ), sinf( angle ) );
+	}
+
 	return true;
 }
 
-void ImUI::SetDefaultText( const std::string& fontName, CTextAtlas& textAtlas )
+void ImUI::SetDefaultText( const std::string& fontName, const CTextAtlas& textAtlas )
 {
-	m_curTextAltas = static_cast<int>( m_textAtlas.size( ) );
-	m_textAtlasLUT.emplace( fontName, m_curTextAltas );
-	m_textAtlas.emplace_back( textAtlas );
+	auto found = m_textAtlasLUT.find( fontName );
+	if ( found != m_textAtlasLUT.end() )
+	{
+		m_curTextAltas = found->second;
+		m_textAtlas[found->second] = textAtlas;
+	}
+	else
+	{
+		m_curTextAltas = static_cast<int>( m_textAtlas.size( ) );
+		m_textAtlasLUT.emplace( fontName, m_curTextAltas );
+		m_textAtlas.emplace_back( textAtlas );
+	}
 }
 
 void ImUI::StyleColorDark( )

@@ -70,11 +70,6 @@ bool CGameLogic::Initialize( IPlatform& platform )
 	m_inputBroadCaster.AddListener( &m_mainCamera );
 	CCameraManager::GetInstance( ).SetCurrentCamera( &m_mainCamera );
 
-	if ( m_view.initialize( *m_pRenderer ) == false )
-	{
-		__debugbreak( );
-	}
-
 	if ( LoadScene( _T( "../Script/defaultScene.txt" ) ) == false )
 	{
 		__debugbreak( );
@@ -110,12 +105,6 @@ void CGameLogic::Update( )
 	StartLogic( );
 	ProcessLogic( );
 	EndLogic( );
-
-	if ( showFps.GetBool( ) )
-	{
-		String fps = _T( "FPS : " ) + TO_STRING( CTimer::GetInstance( ).GetFps( ) );
-		SetWindowText( m_wndHwnd, fps.c_str( ) );
-	}
 }
 
 void CGameLogic::Pause( )
@@ -177,6 +166,14 @@ void CGameLogic::StartLogic( )
 	//게임 로직 수행 전처리
 	RECT clientRect = { 0, 0, static_cast<long>( m_appSize.first ), static_cast<long>( m_appSize.second ) };
 	m_ui.BeginFrame( clientRect );
+
+	m_ui.Window( "FPS Window" );
+	if ( showFps.GetBool( ) )
+	{
+		std::string fps = std::string( "FPS : " ) + std::to_string( CTimer::GetInstance( ).GetFps( ) );
+		m_ui.Text( fps.c_str( ) );
+	}
+
 	m_ui.Window( "SSR Option" );
 }
 
@@ -191,22 +188,39 @@ void CGameLogic::ProcessLogic( )
 
 void CGameLogic::EndLogic( )
 {
+	using namespace SHARED_CONSTANT_BUFFER;
+
 	//게임 로직 수행 후처리
 	m_mainCamera.UpdateToRenderer( m_view );
 	m_lightManager.UpdateToRenderer( *m_pRenderer, m_mainCamera );
 
+	m_shadowManager.BuildShadowProjectionMatrix( *this, m_gameObjects );
+
+	m_view.UpdataView( *this, m_commonConstantBuffer[VS_VIEW_PROJECTION] );
+
 	// 그림자 맵 렌더링
-	m_shadowManager.Process( *this, m_gameObjects );
+	m_shadowManager.DrawShadowMap( *this, m_gameObjects );
 
 	float wndWidth = static_cast<float>( m_appSize.first );
 	float wndHeight = static_cast<float>( m_appSize.second );
-	m_view.PushViewPort( 0.f, 0.f, wndWidth, wndHeight );
-	m_view.PushScissorRect( CUtilWindowInfo::GetInstance( ).GetRect( ) );
-	m_view.SetViewPort( *m_pRenderer );
-	m_view.SetScissorRects( *m_pRenderer );
+	Viewport viewport = { 0.f, 0.f, wndWidth, wndHeight, 0.f, 1.f };
+	m_view.SetViewPort( *m_pRenderer, &viewport, 1 );
+	m_view.SetScissorRects( *m_pRenderer, &CUtilWindowInfo::GetInstance( ).GetRect( ), 1 );
+	
+	if ( PassConstant* pData = static_cast<PassConstant*>( m_pRenderer->LockBuffer( m_commonConstantBuffer[PS_UTIL] ) ) )
+	{
+		pData->m_zFar = m_view.GetFar();
+		pData->m_zNear = m_view.GetNear( );
+		pData->m_elapsedTime = CTimer::GetInstance( ).GetElapsedTIme( );
+		pData->m_totalTime = CTimer::GetInstance( ).GetTotalTime( );
+		pData->m_renderTargetSize.x = wndWidth;
+		pData->m_renderTargetSize.y = wndHeight;
+		pData->m_invRenderTargetSize.x = 1.f / wndWidth;
+		pData->m_invRenderTargetSize.y = 1.f / wndHeight;
 
-	using namespace SHARED_CONSTANT_BUFFER;
-	m_view.UpdataView( *m_pRenderer, m_commonConstantBuffer[VS_VIEW_PROJECTION] );
+		m_pRenderer->UnLockBuffer( m_commonConstantBuffer[PS_UTIL] );
+		m_pRenderer->BindConstantBuffer( SHADER_TYPE::PS, static_cast<int>( PS_CONSTANT_BUFFER::UTIL ), 1, &m_commonConstantBuffer[PS_UTIL] );
+	}
 
 	// 후면 깊이 렌더링
 	m_ssrManager.PreProcess( *this, m_renderableList );
@@ -427,7 +441,6 @@ void CGameLogic::HandleDeviceLost( )
 	m_lightManager.OnDeviceRestore( *this );
 	m_shadowManager.OnDeviceRestore( *this );
 	m_ssrManager.OnDeviceRestore( *this );
-	m_view.OnDeviceRestore( *this );
 	m_mainCamera.OnDeviceRestore( *this );
 
 	for ( auto& object : m_gameObjects )
@@ -438,7 +451,7 @@ void CGameLogic::HandleDeviceLost( )
 
 bool CGameLogic::CreateDeviceDependentResource( )
 {
-	BUFFER_TRAIT trait = { sizeof( SurfaceTrait ),
+	BUFFER_TRAIT trait = { sizeof( GeometryTransform ),
 		1,
 		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
 		RESOURCE_TYPE::CONSTANT_BUFFER,
@@ -449,24 +462,8 @@ bool CGameLogic::CreateDeviceDependentResource( )
 
 	using namespace SHARED_CONSTANT_BUFFER;
 
-	m_commonConstantBuffer[PS_SURFACE] = m_pRenderer->CreateBuffer( trait );
-	if ( m_commonConstantBuffer[PS_SURFACE] == RE_HANDLE_TYPE::INVALID_HANDLE )
-	{
-		return false;
-	}
-
-	trait.m_stride = sizeof( GeometryTransform );
-
 	m_commonConstantBuffer[VS_GEOMETRY] = m_pRenderer->CreateBuffer( trait );
 	if ( m_commonConstantBuffer[VS_GEOMETRY] == RE_HANDLE_TYPE::INVALID_HANDLE )
-	{
-		return false;
-	}
-
-	trait.m_stride = sizeof( ShadowTransform );
-
-	m_commonConstantBuffer[VS_SHADOW] = m_pRenderer->CreateBuffer( trait );
-	if ( m_commonConstantBuffer[VS_SHADOW] == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
 		return false;
 	}
@@ -475,6 +472,22 @@ bool CGameLogic::CreateDeviceDependentResource( )
 
 	m_commonConstantBuffer[VS_VIEW_PROJECTION] = m_pRenderer->CreateBuffer( trait );
 	if ( m_commonConstantBuffer[VS_VIEW_PROJECTION] == RE_HANDLE_TYPE::INVALID_HANDLE )
+	{
+		return false;
+	}
+
+	trait.m_stride = sizeof( SurfaceTrait );
+
+	m_commonConstantBuffer[PS_SURFACE] = m_pRenderer->CreateBuffer( trait );
+	if ( m_commonConstantBuffer[PS_SURFACE] == RE_HANDLE_TYPE::INVALID_HANDLE )
+	{
+		return false;
+	}
+
+	trait.m_stride = sizeof( PassConstant );
+
+	m_commonConstantBuffer[PS_UTIL] = m_pRenderer->CreateBuffer( trait );
+	if ( m_commonConstantBuffer[PS_UTIL] == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
 		return false;
 	}

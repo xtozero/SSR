@@ -100,10 +100,6 @@ struct ImUiDrawContext
 	float m_prevLineHeight;
 	float m_prevLineTextBaseOffset;
 	float m_indentX;
-
-	CXMFLOAT2 m_circleVertex[12];
-
-	ImUiDrawContext( );
 };
 
 struct ImDrawList
@@ -140,7 +136,6 @@ struct ImDrawList
 	std::vector<ImUiVertex> m_vertices;
 	ImUiVertex* m_pVertexWriter = nullptr;
 
-	ImUiDrawContext* m_dc = nullptr;
 	const ImUI* m_imUi = nullptr;
 };
 
@@ -157,7 +152,6 @@ struct ImUiWindow
 {
 	ImUiWindow( const ImUI& imUi ) : m_imUi( imUi ) 
 	{
-		m_drawList.m_dc = &m_dc;
 		m_drawList.m_imUi = &m_imUi;
 	}
 
@@ -233,7 +227,7 @@ class ImUI
 {
 public:
 	bool Initialize( );
-	void SetDefaultText( const std::string& fontName, CTextAtlas& textAtlas );
+	void SetDefaultText( const std::string& fontName, const CTextAtlas& textAtlas );
 	void StyleColorDark( );
 	
 	void BeginFrame( RECT clientRect );
@@ -262,6 +256,7 @@ public:
 	ImUiWindowSetting* FindWindowSettings( const char* name );
 	ImUiWindowSetting* AddWindowSettings( const char* name );
 
+	CXMFLOAT2 m_circleVertex[12];
 private:
 	ImUiWindow* FindWindow( const char* name );
 	ImUiWindow* FindMouseOverWindow( );
@@ -308,7 +303,6 @@ private:
 
 	ImGuiIO m_io;
 
-	CXMFLOAT2 m_circleVertex[12];
 	CXMFLOAT2 m_activeIDClickOffset = { -1, -1 };
 
 	std::map<std::string, int> m_textAtlasLUT;

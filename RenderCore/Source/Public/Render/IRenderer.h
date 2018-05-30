@@ -49,7 +49,7 @@ public:
 
 	virtual Material SearchMaterial( const TCHAR* pMaterialName ) = 0;
 
-	virtual void SetViewports( std::vector<Viewport>& viewports ) = 0;
+	virtual void SetViewports( const Viewport* viewPorts, int count ) = 0;
 	virtual void SetScissorRects( const RECT* rects, int size ) = 0;
 
 	virtual RE_HANDLE CreateShaderResourceFromFile( const String& fileName ) = 0;

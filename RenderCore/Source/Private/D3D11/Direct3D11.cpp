@@ -149,7 +149,7 @@ public:
 
 	virtual Material SearchMaterial( const TCHAR* pMaterialName ) override;
 
-	virtual void SetViewports( std::vector<Viewport>& viewports ) override;
+	virtual void SetViewports( const Viewport* viewPorts, int count ) override;
 	virtual void SetScissorRects( const RECT* rects, int size ) override;
 
 	virtual RE_HANDLE CreateShaderResourceFromFile( const String& fileName ) override;
@@ -422,12 +422,13 @@ Material CDirect3D11::SearchMaterial( const TCHAR* pMaterialName )
 	return m_materialManager.SearchMaterialByName( pMaterialName );
 }
 
-void CDirect3D11::SetViewports( std::vector<Viewport>& viewports )
+void CDirect3D11::SetViewports( const Viewport* viewPorts, int count )
 {
 	std::vector<D3D11_VIEWPORT> d3d11Viewports;
 
-	for ( const Viewport& vp : viewports )
+	for ( int i = 0; i < count; ++i )
 	{
+		const Viewport& vp = viewPorts[i];
 		D3D11_VIEWPORT newVeiwport = { vp.m_x, vp.m_y, vp.m_width, vp.m_height, vp.m_near, vp.m_far };
 
 		d3d11Viewports.push_back( newVeiwport );

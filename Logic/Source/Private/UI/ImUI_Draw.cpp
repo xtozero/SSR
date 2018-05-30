@@ -17,6 +17,16 @@ void ImDrawList::Clear( )
 	m_pIndexWriter = nullptr;
 	m_vertices.clear( );
 	m_pVertexWriter = nullptr;
+	
+	for ( size_t i = 0, end = m_clipRect.size( ); i < end; ++i )
+	{
+		m_clipRect.pop( );
+	}
+
+	for ( size_t i = 0, end = m_textAtlas.size( ); i < end; ++i )
+	{
+		m_textAtlas.pop( );
+	}
 }
 
 void ImDrawList::AddDrawCmd( )
@@ -236,7 +246,7 @@ void ImDrawList::PathArcToFast( const CXMFLOAT2& centre, float radius, int minOf
 	m_path.reserve( m_path.size( ) + ( maxOf12 - minOf12 + 1 ) );
 	for ( int i = minOf12; i <= maxOf12; ++i )
 	{
-		const CXMFLOAT2& c = m_dc->m_circleVertex[i % _countof( m_dc->m_circleVertex )];
+		const CXMFLOAT2& c = m_imUi->m_circleVertex[i % _countof( m_imUi->m_circleVertex )];
 		m_path.emplace_back( centre.x + c.x * radius, centre.y + c.y * radius );
 	}
 }

@@ -21,8 +21,7 @@ VS_OUTPUT main( VS_INPUT input )
 	output.normal = mul( float4(input.normal, 0.f), transpose( g_invWorldMatrix ) ).xyz;
 	output.texcoord = input.texcoord;
 
-	matrix lightWorldViewPorjection = mul( g_worldMatrix, g_lightViewMatrix );
-	lightWorldViewPorjection = mul( lightWorldViewPorjection, g_lightProjectionMatrix );
+	matrix lightWorldViewPorjection = mul( g_worldMatrix, g_lightViewProjectionMatrix );
 
 	output.shadowCoord = mul( float4(input.position, 1.0f), lightWorldViewPorjection );
 	output.color = input.color;
