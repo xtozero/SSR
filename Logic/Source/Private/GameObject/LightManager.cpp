@@ -175,6 +175,7 @@ void CLightManager::LoadLightProperty( const KeyValue& keyValue )
 		{
 			Stringstream stream( pDirection->GetValue( ) );
 			stream >> trait.m_direction.x >> trait.m_direction.y >> trait.m_direction.z;
+			trait.m_direction = XMVector3Normalize( trait.m_direction );
 		}
 		
 		if ( const KeyValue* pRange = desc->Find( _T( "range" ) ) )

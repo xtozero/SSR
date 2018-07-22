@@ -28,6 +28,11 @@
 		"CullMode"						"D3D11_CULL_FRONT"
 	}
 	
+	"RasterizerDesc" "cullNone"
+	{
+		"CullMode"						"D3D11_CULL_NONE"
+	}
+	
 	"RasterizerDesc" "draw_ui"
 	{
 		"FillMode"						"D3D11_FILL_SOLID"

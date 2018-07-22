@@ -67,11 +67,13 @@ set ( MODEL_SOURCE
 
 set (PHYSICS_SOURCE
 	"Source/Private/Physics/Aaboundingbox.cpp"
+	"Source/Private/Physics/BoundingCone.cpp"
 	"Source/Private/Physics/BoundingSphere.cpp"
 	"Source/Private/Physics/CollisionUtil.cpp"
 	"Source/Private/Physics/Ray.cpp"
 	"Source/Private/Physics/RigidBodyManager.cpp"
 	"Source/Public/Physics/Aaboundingbox.h"
+	"Source/Public/Physics/BoundingCone.h"
 	"Source/Public/Physics/BoundingSphere.h"
 	"Source/Public/Physics/CollisionUtil.h"
 	"Source/Public/Physics/Frustum.h"

@@ -75,6 +75,26 @@ void CAaboundingbox::Update( const CXMFLOAT4X4& matrix, IRigidBody* original )
 	}
 }
 
+void CAaboundingbox::CalcSubRigidBody( std::vector<std::unique_ptr<IRigidBody>>& subRigidBody )
+{
+	subRigidBody.clear( );
+
+	CXMFLOAT3 length = m_max - m_min;
+
+	for ( int i = 0; i < 8 * 8 * 8; ++i )
+	{
+		float ix = ( i & 0x07 );
+		float iy = ( ( i >> 3 ) & 0x07 );
+		float iz = ( ( i >> 6 ) & 0x07 );
+
+		CAaboundingbox* subBox = new CAaboundingbox;
+		subBox->SetMin( m_min.x + ( ix / 8.f ) * length.x, m_min.y + ( iy / 8.f ) * length.y, m_min.z + ( iz / 8.f ) * length.z );
+		subBox->SetMax( m_min.x + ( ( ix + 1 ) / 8.f ) * length.x, m_min.y + ( ( iy + 1 ) / 8.f ) * length.y, m_min.z + ( ( iz + 1 ) / 8.f ) * length.z );
+
+		subRigidBody.emplace_back( subBox );
+	}
+}
+
 float CAaboundingbox::Intersect( const CRay* ray ) const
 {
 	if ( ray == nullptr )
@@ -156,6 +176,14 @@ CAaboundingbox::CAaboundingbox( const std::vector<CAaboundingbox>& boxes )
 	{
 		Merge( box.m_max );
 		Merge( box.m_min );
+	}
+}
+
+CAaboundingbox::CAaboundingbox( const std::vector<CXMFLOAT3>& points )
+{
+	for ( const auto& point : points )
+	{
+		Merge( point );
 	}
 }
 

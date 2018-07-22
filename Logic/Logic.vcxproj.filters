@@ -146,6 +146,9 @@
     <ClCompile Include="Source\Private\UI\ImUI_Draw.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Private\Physics\BoundingCone.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Public\Core\UtilWindowInfo.h">
@@ -293,6 +296,9 @@
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="Source\Public\Physics\Frustum.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Physics\BoundingCone.h">
       <Filter>Physics</Filter>
     </ClInclude>
   </ItemGroup>

@@ -21,7 +21,6 @@ namespace VS_CONSTANT_BUFFER
 	{
 		GEOMETRY = 0,
 		VIEW_PROJECTION,
-		SHADOW,
 	};
 }
 
@@ -32,6 +31,7 @@ namespace PS_CONSTANT_BUFFER
 		LIGHT = 0,
 		SURFACE,
 		UTIL,
+		SHADOW,
 	};
 }
 

@@ -25,6 +25,7 @@ bool CSSRManager::Init( CGameLogic& gameLogic )
 void CSSRManager::PreProcess( CGameLogic & gameLogic, const std::list<CGameObject*>* renderableList ) const
 {
 	ImUI& ui = gameLogic.GetUIManager( );
+	ui.Window( "SSR Option" );
 	if ( ui.Button( "SSR On/Off" ) )
 	{
 		static int count = 0;

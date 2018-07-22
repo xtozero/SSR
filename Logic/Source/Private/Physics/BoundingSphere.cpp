@@ -130,7 +130,7 @@ bool BoundingSphere::Intersect( const CFrustum& frustum, const CXMFLOAT3& sweepD
 		CXMFLOAT3 center( m_origin );
 		center += sweepDir * displacement[i];
 		BoundingSphere sphere( center, radius );
-		inFrustum |= sphere.Intersect( frustum );
+		inFrustum |= ( sphere.Intersect( frustum ) > 0 );
 	}
 
 	return inFrustum;
@@ -140,4 +140,29 @@ BoundingSphere::BoundingSphere( const CAaboundingbox& box )
 {
 	box.Centroid( m_origin );
 	m_radiusSqr = XMVectorGetX( XMVector3LengthSq( m_origin - box.GetMax( ) ) );
+}
+
+BoundingSphere::BoundingSphere( const std::vector<CXMFLOAT3>& points )
+{
+	auto iter = points.begin( );
+
+	float radius = 0.f;
+	m_origin = *iter++;
+
+	while ( iter != points.end( ) )
+	{
+		const CXMFLOAT3 tmp = *iter++;
+		CXMFLOAT3 toPoint = tmp - m_origin;
+		float d = XMVectorGetX( XMVector3Dot( toPoint, toPoint ) );
+		if ( d > radius * radius )
+		{
+			d = sqrtf( d );
+			float r = 0.5f * ( d + radius );
+			float scale = ( r - radius ) / d;
+			m_origin += scale * toPoint;
+			radius = r;
+		}
+	}
+
+	m_radiusSqr = radius * radius;
 }

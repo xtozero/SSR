@@ -104,7 +104,7 @@ void CLight::SetDiection( const CXMFLOAT3& direction )
 {
 	if ( m_property )
 	{
-		m_property->m_direction = direction;
+		m_property->m_direction = XMVector3Normalize( direction );
 	}
 }
 

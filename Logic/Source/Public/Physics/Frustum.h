@@ -59,6 +59,7 @@ public:
 	const LookUpTable& GetVertexLUT( ) const { return m_vertexLUT; }
 
 	const CXMFLOAT4( &GetPlanes( ) const )[6]{ return m_plane; }
+	const CXMFLOAT3( &GetVertices( ) const )[8]{ return m_vertices; }
 
 private:
 	CXMFLOAT4 m_plane[6];
