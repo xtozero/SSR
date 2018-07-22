@@ -43,6 +43,7 @@ public:
 	bool Initialize( CGameLogic& gameLogic );
 	bool NeedInitialize( ) { return m_needInitialize; }
 	const IRigidBody* GetRigidBody( int type );
+	const std::vector<std::unique_ptr<IRigidBody>>& GetSubRigidBody( int type );
 
 	void SetPicked( bool isPicked ) { m_isPicked = isPicked; }
 
@@ -75,6 +76,7 @@ private:
 	void RebuildTransform( );
 	void UpdateRigidBody( RIGID_BODY_TYPE type );
 	void UpdateRigidBodyAll( );
+	void UpdateSubRigidBody( RIGID_BODY_TYPE type );
 
 private:
 	CXMFLOAT3 m_vecPos;
@@ -94,9 +96,12 @@ private:
 
 	bool m_needInitialize = true;
 	bool m_isPicked = false;
+	BYTE m_updateSubRigidBody = 0;
 
 	IRigidBody* m_originRigidBodies[RIGID_BODY_TYPE::Count] = { nullptr, };
-	std::unique_ptr<IRigidBody>	m_rigideBodies[RIGID_BODY_TYPE::Count];
+	std::unique_ptr<IRigidBody>	m_rigidBodies[RIGID_BODY_TYPE::Count];
+
+	std::vector<std::unique_ptr<IRigidBody>> m_subRigidBodies[RIGID_BODY_TYPE::Count];
 
 	UINT m_property = 0;
 protected:

@@ -12,6 +12,11 @@
 
 using namespace DirectX;
 
+namespace
+{
+	constexpr int RIGID_BODY_UPDATE_FLAG_ALL = ( 1 << RIGID_BODY_TYPE::Count ) - 1;
+}
+
 DECLARE_GAME_OBJECT( base, CGameObject );
 
 void CGameObject::OnDeviceRestore( CGameLogic & gameLogic )
@@ -33,18 +38,21 @@ void CGameObject::SetPosition( const CXMFLOAT3& pos )
 {
 	m_vecPos = pos;
 	m_needRebuildTransform = true;
+	m_updateSubRigidBody = RIGID_BODY_UPDATE_FLAG_ALL;
 }
 
 void CGameObject::SetScale( const float xScale, const float yScale, const float zScale )
 {
 	m_vecScale = CXMFLOAT3( xScale, yScale, zScale );
 	m_needRebuildTransform = true;
+	m_updateSubRigidBody = RIGID_BODY_UPDATE_FLAG_ALL;
 }
 
 void CGameObject::SetRotate( const float pitch, const float yaw, const float roll )
 {
 	m_vecRotate = CXMFLOAT3( pitch, yaw, roll );
 	m_needRebuildTransform = true;
+	m_updateSubRigidBody = RIGID_BODY_UPDATE_FLAG_ALL;
 }
 
 const CXMFLOAT3& CGameObject::GetPosition( )
@@ -138,7 +146,14 @@ bool CGameObject::Initialize( CGameLogic& gameLogic )
 const IRigidBody* CGameObject::GetRigidBody( int type )
 {
 	RebuildTransform( );
-	return m_rigideBodies[type].get( );
+	return m_rigidBodies[type].get( );
+}
+
+const std::vector<std::unique_ptr<IRigidBody>>& CGameObject::GetSubRigidBody( int type )
+{
+	RebuildTransform( );
+	UpdateSubRigidBody( static_cast<RIGID_BODY_TYPE>( type ) );
+	return m_subRigidBodies[type];
 }
 
 void CGameObject::LoadPropertyFromScript( const KeyValue& keyValue )
@@ -207,7 +222,7 @@ m_vecRotate( 0.f, 0.f, 0.f )
 	for ( int i = 0; i < RIGID_BODY_TYPE::Count; ++i )
 	{
 		m_originRigidBodies[i] = nullptr;
-		m_rigideBodies[i] = nullptr;
+		m_rigidBodies[i] = nullptr;
 	}
 }
 
@@ -289,12 +304,12 @@ void CGameObject::UpdateRigidBody( RIGID_BODY_TYPE type )
 {
 	if ( m_originRigidBodies[type] )
 	{
-		if ( m_rigideBodies[type].get( ) == nullptr )
+		if ( m_rigidBodies[type].get( ) == nullptr )
 		{
-			m_rigideBodies[type].reset( CRigidBodyManager::GetInstance( ).MakeRigidBody( type ) );
+			m_rigidBodies[type].reset( CRigidBodyManager::GetInstance( ).MakeRigidBody( type ) );
 		}
 
-		m_rigideBodies[type]->Update( m_matTransform, m_originRigidBodies[type] );
+		m_rigidBodies[type]->Update( m_matTransform, m_originRigidBodies[type] );
 	}
 }
 
@@ -306,5 +321,16 @@ void CGameObject::UpdateRigidBodyAll( )
 		{
 			UpdateRigidBody( static_cast<RIGID_BODY_TYPE>( i ) );
 		}
+	}
+}
+
+void CGameObject::UpdateSubRigidBody( RIGID_BODY_TYPE type )
+{
+	UpdateRigidBody( type );
+
+	if ( m_rigidBodies[type].get( ) && ( m_updateSubRigidBody & ( 1 << type ) ) )
+	{
+		m_rigidBodies[type]->CalcSubRigidBody( m_subRigidBodies[type] );
+		m_updateSubRigidBody &= ~( 1 << type );
 	}
 }

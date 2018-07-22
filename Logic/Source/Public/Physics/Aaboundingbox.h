@@ -10,11 +10,13 @@ class CAaboundingbox : public IRigidBody
 public:
 	virtual void CreateRigideBody( const IMesh& mesh ) override;
 	virtual void Update( const CXMFLOAT4X4& matrix, IRigidBody* original ) override;
+	virtual void CalcSubRigidBody( std::vector<std::unique_ptr<IRigidBody>>& subRigidBody ) override;
 	virtual float Intersect( const CRay* ray ) const override;
 	virtual int Intersect( const CFrustum& frustum ) const override;
 
 	CAaboundingbox( ) = default;
-	CAaboundingbox( const std::vector<CAaboundingbox>& boxes );
+	explicit CAaboundingbox( const std::vector<CAaboundingbox>& boxes );
+	explicit CAaboundingbox( const std::vector<CXMFLOAT3>& points );
 
 	void Merge( const CXMFLOAT3& vec );
 	void Centroid( CXMFLOAT3& centroid ) const

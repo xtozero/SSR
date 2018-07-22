@@ -161,15 +161,13 @@ float4 CalcLight( PS_INPUT input, float4 color )
 			cColor.m_specular += LightColor.m_specular;
 		}
 	}
-
-	float bias = 0.0000025;
 	
 	float visibility = 1.0f;
 	float2 uv = input.shadowCoord.xy / input.shadowCoord.w;
 	uv.y = -uv.y;
 	uv = uv * 0.5f + 0.5f;
 
-	float curDepth = input.shadowCoord.z / input.shadowCoord.w - bias;
+	float curDepth = input.shadowCoord.z / input.shadowCoord.w - g_bias;
 
 	int j;
 
@@ -180,7 +178,7 @@ float4 CalcLight( PS_INPUT input, float4 color )
 	{
 		for ( j = 0; j < 4; ++j )
 		{
-			if ( RotatePoissonSample4x4Shadow( uv, sin_cos, i, j ) < curDepth )
+			if ( RotatePoissonSample4x4Shadow( uv, sin_cos, i, j ) <= curDepth )
 			{
 				visibility -= 0.04f;
 			}
