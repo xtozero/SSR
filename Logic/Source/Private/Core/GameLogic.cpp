@@ -173,6 +173,7 @@ void CGameLogic::StartLogic( )
 		std::string fps = std::string( "FPS : " ) + std::to_string( CTimer::GetInstance( ).GetFps( ) );
 		m_ui.Text( fps.c_str( ) );
 	}
+	m_ui.EndWindow( );
 }
 
 void CGameLogic::ProcessLogic( )

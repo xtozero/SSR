@@ -33,37 +33,23 @@ void CShadowManager::Init( CGameLogic& gameLogic )
 
 void CShadowManager::BuildShadowProjectionMatrix( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects )
 {
-	gameLogic.GetUIManager( ).Window( "Shadow" );
+	ImUI& ui = gameLogic.GetUIManager( );
+	ui.Window( "Shadow" );
 
-	if ( gameLogic.GetUIManager( ).Button( "Enable / Disable" ) )
+	const char* shadowTypeText[] = { "Ortho", "PSM", "LSPSM" };
+	ui.Combo( "Shadow Type", reinterpret_cast<int*>( &m_shadowType ), shadowTypeText, _countof( shadowTypeText ) );
+
+	if ( ui.Button( "Enable / Disable" ) )
 	{
 		m_isEnabled = !m_isEnabled;
 	}
 
-	if ( gameLogic.GetUIManager( ).Button( "ClipUnitCube On/Off" ) )
+	if ( ui.Button( "ClipUnitCube On/Off" ) )
 	{
 		m_isUnitClipCube = !m_isUnitClipCube;
 	}
 
-	gameLogic.GetUIManager( ).SliderFloat( "Z Bias", &m_constant.m_zBias, 0.f, 0.1f );
-	
-	if ( gameLogic.GetUIManager( ).Button( "Change Shadow Type" ) )
-	{
-		switch ( m_shadowType )
-		{
-		case ShadowType::Ortho:
-			m_shadowType = ShadowType::PSM;
-			break;
-		case ShadowType::PSM:
-			m_shadowType = ShadowType::LSPSM;
-			break;
-		case ShadowType::LSPSM:
-			m_shadowType = ShadowType::Ortho;
-			break;
-		default:
-			break;
-		}
-	}
+	ui.SliderFloat( "Z Bias", &m_constant.m_zBias, 0.f, 0.1f );
 
 	if ( m_isEnabled )
 	{
@@ -95,6 +81,8 @@ void CShadowManager::BuildShadowProjectionMatrix( CGameLogic& gameLogic, std::ve
 			gameLogic.GetRenderer( ).BindConstantBuffer( SHADER_TYPE::PS, static_cast<int>( PS_CONSTANT_BUFFER::SHADOW ), 1, &m_shadowConstant );
 		}
 	}
+
+	ui.EndWindow( );
 }
 
 void CShadowManager::DrawShadowMap( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects )
@@ -306,7 +294,7 @@ void CShadowManager::ClassifyShadowCasterAndReceiver( CGameLogic& gameLogic, std
 		}
 	}
 
-	m_cosGamma = -( XMVectorGetX( XMVector3Dot( sweepDir, CXMFLOAT3( viewMat._13, viewMat._23, viewMat._33 ) ) ) );
+	m_cosGamma = XMVectorGetX( XMVector3Dot( -sweepDir, CXMFLOAT3( viewMat._13, viewMat._23, viewMat._33 ) ) );
 
 	if ( hit )
 	{
@@ -721,7 +709,7 @@ void CShadowManager::BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, std::vec
 		lightSpaceBasis = XMMatrixMultiply( lightSpaceBasis, permute );
 		lightSpaceBasis = XMMatrixMultiply( lightSpaceBasis, ortho );
 
-		if ( m_isUnitClipCube )
+		if ( m_isUnitClipCube && ( m_shadowReceiverPoints.size() > 0 ) )
 		{
 			std::vector<CXMFLOAT3> receiverPoints;
 			receiverPoints.reserve( m_shadowReceiverPoints.size( ) * 8 );
