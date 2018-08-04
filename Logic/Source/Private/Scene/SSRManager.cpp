@@ -48,6 +48,8 @@ void CSSRManager::PreProcess( CGameLogic & gameLogic, const std::list<CGameObjec
 	ui.SameLine( );
 	ui.Text( "Max Ray Length" );
 
+	ui.EndWindow( );
+
 	if ( m_isEnabled == false )
 	{
 		return;
