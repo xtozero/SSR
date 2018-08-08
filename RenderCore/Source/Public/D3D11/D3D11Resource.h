@@ -1101,6 +1101,24 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_pInputLayout;
 };
 
+class CD3D11GeometryShader
+{
+public:
+	ID3D11GeometryShader* Get( ) const { return m_pGeometryShader.Get(); }
+
+	bool CreateShader( ID3D11Device& device, const void* byteCodePtr, size_t byteCodeSize );
+
+	CD3D11GeometryShader( ) = default;
+	CD3D11GeometryShader( const CD3D11GeometryShader& ) = delete;
+	CD3D11GeometryShader( CD3D11GeometryShader&& ) = default;
+	CD3D11GeometryShader& operator=( const CD3D11GeometryShader& ) = delete;
+	CD3D11GeometryShader& operator=( CD3D11GeometryShader&& ) = default;
+	~CD3D11GeometryShader( ) = default;
+
+private:
+	Microsoft::WRL::ComPtr<ID3D11GeometryShader> m_pGeometryShader;
+};
+
 class CD3D11PixelShader
 {
 public:

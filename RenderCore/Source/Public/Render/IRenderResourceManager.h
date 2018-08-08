@@ -39,6 +39,7 @@ public:
 	virtual RE_HANDLE CreateBuffer( const BUFFER_TRAIT& trait ) = 0;
 
 	virtual RE_HANDLE CreateVertexShader( const TCHAR* pFilePath, const char* pProfile, const VERTEX_LAYOUT* layoutOrNull = nullptr, int layoutSize = 0 ) = 0;
+	virtual RE_HANDLE CreateGeometryShader( const TCHAR* pFilePath, const char* pProfile ) = 0;
 	virtual RE_HANDLE CreatePixelShader( const TCHAR* pFilePath, const char* pProfile ) = 0;
 	virtual RE_HANDLE CreateComputeShader( const TCHAR* pFilePath, const char* pProfile ) = 0;
 	virtual RE_HANDLE FindGraphicsShaderByName( const TCHAR* pName ) = 0;

@@ -886,24 +886,17 @@ bool CD3D11VertexShader::CreateShader( ID3D11Device& device, const void* byteCod
 	return result;
 }
 
+bool CD3D11GeometryShader::CreateShader( ID3D11Device& device, const void* byteCodePtr, size_t byteCodeSize )
+{
+	return SUCCEEDED( device.CreateGeometryShader( byteCodePtr, byteCodeSize, nullptr, &m_pGeometryShader ) );
+}
+
 bool CD3D11PixelShader::CreateShader( ID3D11Device& device, const void* byteCodePtr, size_t byteCodeSize )
 {
-	bool result = SUCCEEDED( device.CreatePixelShader(
-		byteCodePtr,
-		byteCodeSize,
-		nullptr,
-		&m_pPixelShader ) );
-
-	return result;
+	return SUCCEEDED( device.CreatePixelShader( byteCodePtr, byteCodeSize, nullptr, &m_pPixelShader ) );
 }
 
 bool CD3D11ComputeShader::CreateShader( ID3D11Device& device, const void* byteCodePtr, size_t byteCodeSize )
 {
-	bool result = SUCCEEDED( device.CreateComputeShader(
-		byteCodePtr,
-		byteCodeSize,
-		nullptr,
-		&m_pComputeShader ) );
-
-	return result;
+	return SUCCEEDED( device.CreateComputeShader( byteCodePtr, byteCodeSize, nullptr, &m_pComputeShader ) );
 }

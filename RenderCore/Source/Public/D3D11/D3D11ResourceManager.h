@@ -23,6 +23,7 @@ class CD3D11Texture;
 class CRenderTarget;
 class CD3D11ShaderResource;
 class CD3D11ComputeShader;
+class CD3D11GeometryShader;
 class CD3D11PixelShader;
 class CD3D11VertexShader;
 
@@ -59,6 +60,7 @@ public:
 
 	// Shader
 	virtual RE_HANDLE CreateVertexShader( const TCHAR* pFilePath, const char* pProfile, const VERTEX_LAYOUT* layoutOrNull = nullptr, int layoutSize = 0 ) override;
+	virtual RE_HANDLE CreateGeometryShader( const TCHAR* pFilePath, const char* pProfile ) override;
 	virtual RE_HANDLE CreatePixelShader( const TCHAR* pFilePath, const char* pProfile ) override;
 	virtual RE_HANDLE CreateComputeShader( const TCHAR* pFilePath, const char* pProfile ) override;
 	virtual RE_HANDLE FindGraphicsShaderByName( const TCHAR* pName ) override;
@@ -132,6 +134,7 @@ private:
 	std::vector<CD3D11Texture> m_textures;
 	std::vector<CD3D11Buffer> m_buffers;
 	std::vector<CD3D11VertexShader> m_vertexShaders;
+	std::vector<CD3D11GeometryShader> m_geometryShaders;
 	std::vector<CD3D11PixelShader> m_pixelShaders;
 	std::vector<CD3D11ComputeShader> m_computeShaders;
 	std::vector<CD3D11SamplerState> m_samplerStates;
@@ -152,6 +155,7 @@ private:
 	std::map<String, RE_HANDLE> m_ravLUT;
 	std::map<String, RE_HANDLE> m_texLUT;
 	std::map<String, RE_HANDLE>	m_vertexShaderLUT;
+	std::map<String, RE_HANDLE> m_geometryShaderLUT;
 	std::map<String, RE_HANDLE>	m_pixelShaderLUT;
 	std::map<String, RE_HANDLE> m_computeShaderLUT;
 	std::map<String, RE_HANDLE> m_samplerStateLUT;

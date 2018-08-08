@@ -227,6 +227,36 @@ namespace
 
 		return CShaderByteCode( 0 );
 	}
+
+	template <typename T, int RESOURCE_TYPE>
+	RE_HANDLE CreateShader( ID3D11Device& device, const String& fileName, const TCHAR* pFilePath, const char* pProfile, std::vector<T>& shaders, std::map<String, RE_HANDLE>& lut )
+	{
+		T shader;
+		bool result = false;
+		CShaderByteCode byteCode = GetCompiledByteCode( pFilePath );
+
+		if ( byteCode.GetBufferSize( ) > 0 )
+		{
+			result = shader.CreateShader( device, byteCode.GetBufferPointer( ), byteCode.GetBufferSize( ) );
+		}
+		else if ( Microsoft::WRL::ComPtr<ID3DBlob> shaderBlob = GetShaderBlob( pFilePath, pProfile ) )
+		{
+			result = shader.CreateShader( device, shaderBlob->GetBufferPointer( ), shaderBlob->GetBufferSize( ) );
+		}
+
+		if ( result )
+		{
+			shaders.emplace_back( std::move( shader ) );
+
+			int idx = static_cast<int>( shaders.size( ) ) - 1;
+			RE_HANDLE handle = MakeResourceHandle( RESOURCE_TYPE, idx );
+
+			lut.emplace( fileName, handle );
+			return handle;
+		}
+
+		return INVALID_HANDLE;
+	}
 }
 
 bool CD3D11ResourceManager::Bootup( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext )
@@ -678,6 +708,18 @@ RE_HANDLE CD3D11ResourceManager::CreateVertexShader( const TCHAR* pFilePath, con
 	return INVALID_HANDLE;
 }
 
+RE_HANDLE CD3D11ResourceManager::CreateGeometryShader( const TCHAR* pFilePath, const char* pProfile )
+{
+	String fileName = UTIL::GetFileName( pFilePath );
+	RE_HANDLE found = FindGraphicsShaderByName( fileName.c_str( ) );
+	if ( found != INVALID_HANDLE )
+	{
+		return found;
+	}
+
+	return CreateShader<CD3D11GeometryShader, GS_HANDLE>( *m_pDevice, fileName, pFilePath, pProfile, m_geometryShaders, m_geometryShaderLUT );
+}
+
 RE_HANDLE CD3D11ResourceManager::CreatePixelShader( const TCHAR* pFilePath, const char* pProfile )
 {
 	String fileName = UTIL::GetFileName( pFilePath );
@@ -687,31 +729,7 @@ RE_HANDLE CD3D11ResourceManager::CreatePixelShader( const TCHAR* pFilePath, cons
 		return found;
 	}
 
-	CD3D11PixelShader ps;
-	bool result = false;
-	CShaderByteCode byteCode = GetCompiledByteCode( pFilePath );
-
-	if ( byteCode.GetBufferSize( ) > 0 )
-	{
-		result = ps.CreateShader( *m_pDevice, byteCode.GetBufferPointer( ), byteCode.GetBufferSize( ) );
-	}
-	else if ( Microsoft::WRL::ComPtr<ID3DBlob> shaderBlob = GetShaderBlob( pFilePath, pProfile ) )
-	{
-		result = ps.CreateShader( *m_pDevice, shaderBlob->GetBufferPointer( ), shaderBlob->GetBufferSize( ) );
-	}
-
-	if ( result )
-	{
-		m_pixelShaders.emplace_back( std::move( ps ) );
-
-		int idx = static_cast<int>( m_pixelShaders.size( ) ) - 1;
-		RE_HANDLE handle = MakeResourceHandle( PS_HANDLE, idx );
-
-		m_pixelShaderLUT.emplace( fileName, handle );
-		return handle;
-	}
-
-	return INVALID_HANDLE;
+	return CreateShader<CD3D11PixelShader, PS_HANDLE>( *m_pDevice, fileName, pFilePath, pProfile, m_pixelShaders, m_pixelShaderLUT );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateComputeShader( const TCHAR* pFilePath, const char* pProfile )
@@ -723,31 +741,7 @@ RE_HANDLE CD3D11ResourceManager::CreateComputeShader( const TCHAR* pFilePath, co
 		return found;
 	}
 
-	CD3D11ComputeShader cs;
-	bool result = false;
-	CShaderByteCode byteCode = GetCompiledByteCode( pFilePath );
-
-	if ( byteCode.GetBufferSize( ) > 0 )
-	{
-		result = cs.CreateShader( *m_pDevice, byteCode.GetBufferPointer( ), byteCode.GetBufferSize( ) );
-	}
-	else if ( Microsoft::WRL::ComPtr<ID3DBlob> shaderBlob = GetShaderBlob( pFilePath, pProfile ) )
-	{
-		result = cs.CreateShader( *m_pDevice, shaderBlob->GetBufferPointer( ), shaderBlob->GetBufferSize( ) );
-	}
-
-	if ( result )
-	{
-		m_computeShaders.emplace_back( std::move( cs ) );
-
-		int idx = static_cast<int>( m_computeShaders.size( ) ) - 1;
-		RE_HANDLE handle = MakeResourceHandle( CS_HANDLE, idx );
-
-		m_computeShaderLUT.emplace( fileName, handle );
-		return handle;
-	}
-
-	return INVALID_HANDLE;
+	return CreateShader<CD3D11ComputeShader, CS_HANDLE>( *m_pDevice, fileName, pFilePath, pProfile, m_computeShaders, m_computeShaderLUT );
 }
 
 RE_HANDLE CD3D11ResourceManager::FindGraphicsShaderByName( const TCHAR* pName )
@@ -759,6 +753,12 @@ RE_HANDLE CD3D11ResourceManager::FindGraphicsShaderByName( const TCHAR* pName )
 
 	auto found = m_vertexShaderLUT.find( pName );
 	if ( found != m_vertexShaderLUT.end( ) )
+	{
+		return found->second;
+	}
+
+	found = m_geometryShaderLUT.find( pName );
+	if ( found != m_geometryShaderLUT.end( ) )
 	{
 		return found->second;
 	}
@@ -1543,6 +1543,11 @@ bool CD3D11ResourceManager::LoadShader( )
 					const String& filePath = shaderList->GetValue( );
 					result = ( CreateVertexShader( filePath.c_str( ), mbsProfile ) != INVALID_HANDLE );
 				}
+			}
+			else if ( shaderType == _T("gs") )
+			{
+				const String& filePath = shaderList->GetValue( );
+				result = ( CreateGeometryShader( filePath.c_str( ), mbsProfile ) != INVALID_HANDLE );
 			}
 			else if ( shaderType.compare( _T( "ps" ) ) == 0 )
 			{

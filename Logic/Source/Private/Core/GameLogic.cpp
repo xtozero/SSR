@@ -49,12 +49,12 @@ bool CGameLogic::Initialize( IPlatform& platform )
 	m_view.CreatePerspectiveFovLHMatrix( XMConvertToRadians( 60 ),
 		static_cast<float>( m_appSize.first ) / m_appSize.second,
 		1.f,
-		800.0f );
+		1500.f );
 
 	m_pickingManager.PushInvProjection( XMConvertToRadians( 60 ),
 		static_cast<float>( m_appSize.first ) / m_appSize.second,
 		1.f,
-		800.0f );
+		1500.f );
 
 	m_pickingManager.PushViewport( 0.0f, 0.0f, static_cast<float>( m_appSize.first ), static_cast<float>( m_appSize.second ) );
 
@@ -147,13 +147,13 @@ void CGameLogic::AppSizeChanged( IPlatform& platform )
 	m_view.CreatePerspectiveFovLHMatrix( XMConvertToRadians( 60 ),
 		fSizeX / fSizeY,
 		1.f,
-		800.0f );
+		1500.f );
 
 	m_pickingManager.PopInvProjection( );
 	m_pickingManager.PushInvProjection( XMConvertToRadians( 60 ),
 		fSizeX / fSizeY,
 		1.f,
-		800.0f );
+		1500.f );
 
 	m_pickingManager.PopViewport( );
 	m_pickingManager.PushViewport( 0.0f, 0.0f, fSizeX, fSizeY );
