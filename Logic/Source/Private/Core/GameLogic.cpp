@@ -49,12 +49,12 @@ bool CGameLogic::Initialize( IPlatform& platform )
 	m_view.CreatePerspectiveFovLHMatrix( XMConvertToRadians( 60 ),
 		static_cast<float>( m_appSize.first ) / m_appSize.second,
 		1.f,
-		1500.0f );
+		800.0f );
 
 	m_pickingManager.PushInvProjection( XMConvertToRadians( 60 ),
 		static_cast<float>( m_appSize.first ) / m_appSize.second,
 		1.f,
-		1500.0f );
+		800.0f );
 
 	m_pickingManager.PushViewport( 0.0f, 0.0f, static_cast<float>( m_appSize.first ), static_cast<float>( m_appSize.second ) );
 
@@ -147,13 +147,13 @@ void CGameLogic::AppSizeChanged( IPlatform& platform )
 	m_view.CreatePerspectiveFovLHMatrix( XMConvertToRadians( 60 ),
 		fSizeX / fSizeY,
 		1.f,
-		1500.0f );
+		800.0f );
 
 	m_pickingManager.PopInvProjection( );
 	m_pickingManager.PushInvProjection( XMConvertToRadians( 60 ),
 		fSizeX / fSizeY,
 		1.f,
-		1500.0f );
+		800.0f );
 
 	m_pickingManager.PopViewport( );
 	m_pickingManager.PushViewport( 0.0f, 0.0f, fSizeX, fSizeY );
@@ -164,7 +164,7 @@ void CGameLogic::AppSizeChanged( IPlatform& platform )
 void CGameLogic::StartLogic( )
 {
 	//게임 로직 수행 전처리
-	RECT clientRect = { 0, 0, static_cast<long>( m_appSize.first ), static_cast<long>( m_appSize.second ) };
+	Rect clientRect( 0.f, 0.f, static_cast<float>( m_appSize.first ), static_cast<float>( m_appSize.second ) );
 	m_ui.BeginFrame( clientRect );
 
 	m_ui.Window( "FPS Window" );
@@ -357,11 +357,18 @@ void CGameLogic::DrawUI( )
 
 	int indexOffset = 0;
 	int vertexOffset = 0;
+	RECT scissorRect;
 	for ( ImDrawList* drawList : drawData.m_drawLists )
 	{
 		for ( const ImDrawCmd& drawCmd : drawList->m_cmdBuffer )
 		{
-			m_pRenderer->SetScissorRects( &drawCmd.m_clipRect, 1 );
+			const Rect& rc = drawCmd.m_clipRect;
+			scissorRect = { static_cast<LONG>( rc.m_leftTop.x ),
+							static_cast<LONG>( rc.m_leftTop.y ),
+							static_cast<LONG>( rc.m_rightBottom.x ),
+							static_cast<LONG>( rc.m_rightBottom.y ) };
+
+			m_pRenderer->SetScissorRects( &scissorRect, 1 );
 			m_pRenderer->BindShaderResource( SHADER_TYPE::PS, 0, 1, &drawCmd.m_textAtlas );
 			m_pRenderer->DrawIndexed( RESOURCE_PRIMITIVE::TRIANGLELIST, drawCmd.m_indicesCount, indexOffset, vertexOffset );
 			indexOffset += drawCmd.m_indicesCount;

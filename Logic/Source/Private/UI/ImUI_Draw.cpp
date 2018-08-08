@@ -3,11 +3,6 @@
 
 using namespace std::rel_ops;
 
-bool operator==( const RECT& lhs, const RECT& rhs )
-{
-	return memcmp( &lhs, &rhs, sizeof( RECT ) ) == 0;
-}
-
 void ImDrawList::Clear( )
 {
 	m_path.clear( );
@@ -39,7 +34,7 @@ void ImDrawList::AddDrawCmd( )
 	cmd.m_textAtlas = m_textAtlas.size() ? m_textAtlas.top( ) : RE_HANDLE_TYPE::INVALID_HANDLE;
 }
 
-void ImDrawList::PushClipRect( RECT clipRect )
+void ImDrawList::PushClipRect( const Rect& clipRect )
 {
 	m_clipRect.push( clipRect );
 	UpdateClipRect( );

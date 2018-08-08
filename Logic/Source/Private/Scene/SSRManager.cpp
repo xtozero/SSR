@@ -46,7 +46,7 @@ void CSSRManager::PreProcess( CGameLogic & gameLogic, const std::list<CGameObjec
 
 	ui.SliderInt( "Max Ray Step Slider", &m_properties.maxRayStep, 100, 300 );
 	ui.SameLine( );
-	ui.Text( "Max Ray Length" );
+	ui.Text( "Max Ray Step" );
 
 	ui.EndWindow( );
 

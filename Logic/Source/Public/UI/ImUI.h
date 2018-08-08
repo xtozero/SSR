@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "Math/CXMFloat.h"
+#include "Math/Util.h"
 #include "Render/Resource.h"
 #include "UserInput/UserInput.h"
 
@@ -145,7 +146,7 @@ struct ImUiStyle
 struct ImDrawCmd
 {
 	UINT m_indicesCount;
-	RECT m_clipRect;
+	Rect m_clipRect;
 	RE_HANDLE m_textAtlas = RE_HANDLE_TYPE::INVALID_HANDLE;
 };
 
@@ -167,7 +168,7 @@ struct ImDrawList
 {
 	void Clear( );
 	void AddDrawCmd( );
-	void PushClipRect( RECT clipRect );
+	void PushClipRect( const Rect& clipRect );
 	void PushTextAtlas( RE_HANDLE texHandle );
 	void UpdateClipRect( );
 	void UpdateTextAtlas( );
@@ -188,7 +189,7 @@ struct ImDrawList
 
 	std::vector<CXMFLOAT2> m_path;
 	std::vector<ImDrawCmd> m_cmdBuffer;
-	std::stack<RECT> m_clipRect;
+	std::stack<Rect> m_clipRect;
 	std::stack<RE_HANDLE> m_textAtlas;
 
 	UINT m_curIndex = 0;
@@ -223,7 +224,7 @@ struct ImUiWindow
 	CXMFLOAT2 m_sizeNonCollapsed = { 0.f, 0.f };
 	CXMFLOAT2 m_contentsSize = { 0.f, 0.f };
 	CXMFLOAT2 m_explicitContentsSize = { 0.f, 0.f };
-	RECT m_contentsRegionRect;
+	Rect m_contentsRegionRect;
 	CXMFLOAT2 m_windowPadding = { 0.f, 0.f };
 	float m_windowRounding = 0.f;
 	bool m_visible = false;
@@ -246,7 +247,7 @@ struct ImUiWindow
 	ImGUID GetID( const char* str );
 
 	float GetTitleBarHeight( ) const;
-	RECT GetTitleBarRect( ) const;
+	Rect GetTitleBarRect( ) const;
 
 	const ImUI& m_imUi;
 	ImGUID m_moveID;
@@ -343,7 +344,7 @@ struct ImUiNextWindowData
 	CXMFLOAT2 m_posPivot = { 0.f, 0.f };
 	CXMFLOAT2 m_size = { 0.f, 0.f };
 	CXMFLOAT2 m_contentSize = { 0.f, 0.f };
-	RECT m_constraintSizeRect = { 0L, 0L, 0L, 0L };
+	Rect m_constraintSizeRect = { 0.f, 0.f, 0.f, 0.f };
 	ImUiSizeCallBack m_sizeCallback = nullptr;
 	void* m_sizeCallbackUserData = nullptr;
 	float m_bgAlpha = FLT_MAX;
@@ -362,7 +363,7 @@ public:
 	void SetDefaultText( const std::string& fontName, const CTextAtlas& textAtlas );
 	void StyleColorDark( );
 	
-	void BeginFrame( RECT clientRect );
+	void BeginFrame( const Rect& clientRect );
 	void EndFrame( );
 	bool Window( const char* name, ImUiWindowFlags::Type flags = ImUiWindowFlags::None );
 	void EndWindow( );
@@ -389,7 +390,7 @@ public:
 	ImDrawData Render( );
 
 	const ImUiStyle& GetCurStyle( ) const { return m_curStyle; }
-	const RECT& GetClientRect( ) const { return m_clientRect; }
+	const Rect& GetClientRect( ) const { return m_clientRect; }
 
 	CXMFLOAT2 CalcTextSize( const char* text, int count ) const;
 	CXMFLOAT2 GetWindowContextRegionMax( );
@@ -408,19 +409,19 @@ private:
 	float CalcItemWidth( );
 	float CalcMaxPopupHeightFromItemCount( int itemCount );
 	bool ButtonEX( const char* label, const CXMFLOAT2& size = { 0.f, 0.f } );
-	bool ButtonBehavior( const RECT& boundingbox, ImGUID id, bool& mouseOvered, bool& mouseHeld );
+	bool ButtonBehavior( const Rect& boundingbox, ImGUID id, bool& mouseOvered, bool& mouseHeld );
 
-	bool SliderBehavior( const RECT& boundingbox, ImGUID id, float* v, float min, float max );
+	bool SliderBehavior( const Rect& boundingbox, ImGUID id, float* v, float min, float max );
 	float SliderBehaviorCalcRatioFromValue( float v, float min, float max, float linearZeroPos );
 
 	void RenderFrame( const CXMFLOAT2& pos, const CXMFLOAT2& size, const CXMFLOAT4& color, float rounding = 0.f );
 	void RenderText( const CXMFLOAT2& pos, const char* text, int count );
 	void RenderClippedText( const CXMFLOAT2& posMin, const CXMFLOAT2& posMax, const char* text, int count, const CXMFLOAT2& align );
 	void RenderArrow( const CXMFLOAT2& pos, ImDir::Type dir, float scale = 1.f );
-	void PushClipRect( const RECT& clipRect );
+	void PushClipRect( const Rect& clipRect );
 
 	void ItemSize( const CXMFLOAT2& size, float textOffsetY = 0.f );
-	bool MouseOveredItem( const RECT& boundingbox, ImGUID id );
+	bool MouseOveredItem( const Rect& boundingbox, ImGUID id );
 	bool IsWindowContentMouseOverable( ImUiWindow* window );
 
 	CXMFLOAT4 GetItemColor( ImUiColor::Type colorId, float alphaMul = 1.f );
@@ -445,14 +446,14 @@ private:
 
 	CXMFLOAT2 CalcAfterConstraintSize( ImUiWindow* window, const CXMFLOAT2& size );
 	CXMFLOAT2 CalcAutoFitSize( ImUiWindow* window, const CXMFLOAT2& contentsSize );
-	CXMFLOAT2 FindBestWindowPosForPopup( const CXMFLOAT2& refPos, const CXMFLOAT2& size, ImDir::Type& lastDir, const RECT& avoid, ImUiPopupPositionPolicy::Type policy = ImUiPopupPositionPolicy::Default );
+	CXMFLOAT2 FindBestWindowPosForPopup( const CXMFLOAT2& refPos, const CXMFLOAT2& size, ImDir::Type& lastDir, const Rect& avoid, ImUiPopupPositionPolicy::Type policy = ImUiPopupPositionPolicy::Default );
 
 	void SetNextWindowPos( const CXMFLOAT2& pos, ImUiCond::Type cond = ImUiCond::None, const CXMFLOAT2& pivot = { 0.f, 0.f } );
-	void SetNextWindowConstraintSize( const RECT& constraintSize, ImUiSizeCallBack callback = nullptr, void* callbackData = nullptr );
+	void SetNextWindowConstraintSize( const Rect& constraintSize, ImUiSizeCallBack callback = nullptr, void* callbackData = nullptr );
 
 	int m_frameCount = 0;
 
-	RECT m_clientRect = { 0, 0, 0, 0 };
+	Rect m_clientRect;
 
 	std::map<std::string, int> m_windowLUT;
 	std::vector<ImUiWindow> m_windows;
