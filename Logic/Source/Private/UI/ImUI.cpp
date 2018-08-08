@@ -9,16 +9,16 @@
 
 namespace
 {
-	bool Contain( const RECT& rect, const CXMFLOAT2& mousePos )
+	bool Contain( const Rect& rect, const CXMFLOAT2& mousePos )
 	{
-		return rect.left <= mousePos.x && rect.right >= mousePos.x &&
-			rect.top <= mousePos.y && rect.bottom >= mousePos.y;
+		return rect.m_leftTop.x <= mousePos.x && rect.m_rightBottom.x >= mousePos.x &&
+			rect.m_leftTop.y <= mousePos.y && rect.m_rightBottom.y >= mousePos.y;
 	}
 
-	bool Contain( const RECT& lhs, const RECT& rhs )
+	bool Contain( const Rect& lhs, const Rect& rhs )
 	{
-		return lhs.left <= rhs.left && lhs.right >= rhs.right &&
-			lhs.top <= rhs.top && lhs.bottom >= rhs.bottom;
+		return lhs.m_leftTop.x <= rhs.m_leftTop.x && lhs.m_rightBottom.x >= rhs.m_rightBottom.x &&
+			lhs.m_leftTop.y <= rhs.m_leftTop.y && lhs.m_rightBottom.y >= rhs.m_rightBottom.y;
 	}
 
 	// CRC 32 hash function
@@ -140,20 +140,20 @@ namespace
 		return CXMFLOAT2( max( lhs.x, rhs.x ), max( lhs.x, rhs.x ) );
 	}
 
-	void Expand( RECT& out, const float amount )
+	void Expand( Rect& out, const float amount )
 	{
-		out.left -= amount;
-		out.top -= amount;
-		out.right += amount;
-		out.bottom += amount;
+		out.m_leftTop.x -= amount;
+		out.m_leftTop.y -= amount;
+		out.m_rightBottom.x += amount;
+		out.m_rightBottom.y += amount;
 	}
 
-	void Expand( RECT& out, const CXMFLOAT2& amount )
+	void Expand( Rect& out, const CXMFLOAT2& amount )
 	{
-		out.left -= amount.x;
-		out.top -= amount.y;
-		out.right += amount.x;
-		out.bottom += amount.y;
+		out.m_leftTop.x -= amount.x;
+		out.m_leftTop.y -= amount.y;
+		out.m_rightBottom.x += amount.x;
+		out.m_rightBottom.y += amount.y;
 	}
 }
 
@@ -169,12 +169,9 @@ float ImUiWindow::GetTitleBarHeight( ) const
 	return ( m_flag & ImUiWindowFlags::NoTitleBar ) ? 0.f : m_imUi.GetCurStyle( ).m_framePadding.y * 2 + m_imUi.CalcTextSize( nullptr, 0 ).y;
 }
 
-RECT ImUiWindow::GetTitleBarRect( ) const
+Rect ImUiWindow::GetTitleBarRect( ) const
 {
-	return { static_cast<LONG>( m_pos.x ), 
-			static_cast<LONG>( m_pos.y ), 
-			static_cast<LONG>( m_pos.x + m_sizeNonCollapsed.x ), 
-			static_cast<LONG>( m_pos.y + GetTitleBarHeight( ) ) };
+	return Rect( m_pos.x, m_pos.y, m_pos.x + m_sizeNonCollapsed.x, m_pos.y + GetTitleBarHeight( ) );
 }
 
 void ImUiWindow::SetPos( const CXMFLOAT2& pos )
@@ -264,14 +261,14 @@ void ImUI::StyleColorDark( )
 	colors[ImUiColor::HeaderActive] = CXMFLOAT4( 0.26f, 0.59f, 0.98f, 1.00f );
 }
 
-void ImUI::BeginFrame( RECT clientRect )
+void ImUI::BeginFrame( const Rect& clientRect )
 {
 	using namespace DirectX;
 
 	++m_frameCount;
 
 	m_clientRect = clientRect;
-	m_io.m_displaySize = CXMFLOAT2( clientRect.right - clientRect.left, clientRect.bottom - clientRect.top );
+	m_io.m_displaySize = m_clientRect.m_widthHeight;
 
 	m_mouseOveredID = 0;
 
@@ -398,7 +395,7 @@ bool ImUI::Window( const char* name, ImUiWindowFlags::Type flags )
 
 	if ( ( flags & ImUiWindowFlags::NoTitleBar ) == 0 && ( flags & ImUiWindowFlags::NoCollapse ) == 0 )
 	{
-		RECT titleBarRect = window->GetTitleBarRect( );
+		Rect titleBarRect = window->GetTitleBarRect( );
 
 		if ( window->m_collapseToggleReserved ||
 			( m_mouseOveredWindow == window && Contain( titleBarRect, m_io.m_mousePos ) && m_io.m_mouseDoubleClick[0] ) )
@@ -417,7 +414,7 @@ bool ImUI::Window( const char* name, ImUiWindowFlags::Type flags )
 		--window->m_hiddenFrames;
 	}
 
-	if ( flags & ( ImUiWindowFlags::Popup | ImUiWindowFlags::Tooltip ) != 0 && windowJustActivatedByUser )
+	if ( ( flags & ( ImUiWindowFlags::Popup | ImUiWindowFlags::Tooltip ) ) != 0 && windowJustActivatedByUser )
 	{
 		window->m_hiddenFrames = 1;
 		if ( flags & ImUiWindowFlags::AlwaysAutoResize )
@@ -459,10 +456,10 @@ bool ImUI::Window( const char* name, ImUiWindowFlags::Type flags )
 		window->m_itemWidthDefault = GetFontHeight( ) * 16.f;
 	}
 
-	window->m_contentsRegionRect.left = window->m_windowPadding.x;
-	window->m_contentsRegionRect.top = window->m_windowPadding.y + window->GetTitleBarHeight( );
-	window->m_contentsRegionRect.right = -window->m_windowPadding.x + ( window->m_explicitContentsSize.x != 0.f ? window->m_explicitContentsSize.x : window->m_size.x );
-	window->m_contentsRegionRect.bottom = -window->m_windowPadding.y + ( window->m_explicitContentsSize.y != 0.f ? window->m_explicitContentsSize.y : window->m_size.y );
+	window->m_contentsRegionRect.m_leftTop.x = window->m_windowPadding.x;
+	window->m_contentsRegionRect.m_leftTop.y = window->m_windowPadding.y + window->GetTitleBarHeight( );
+	window->m_contentsRegionRect.m_rightBottom.x = -window->m_windowPadding.x + ( window->m_explicitContentsSize.x != 0.f ? window->m_explicitContentsSize.x : window->m_size.x );
+	window->m_contentsRegionRect.m_rightBottom.y = -window->m_windowPadding.y + ( window->m_explicitContentsSize.y != 0.f ? window->m_explicitContentsSize.y : window->m_size.y );
 
 	// DrawContext 초기화
 	ImUiDrawContext& dc = window->m_dc;
@@ -524,12 +521,10 @@ bool ImUI::Window( const char* name, ImUiWindowFlags::Type flags )
 			// Collapse botton
 			CXMFLOAT2 arrowMin = m_curWindow->m_pos + m_curStyle.m_framePadding;
 			float fontSize = CalcTextSize( nullptr, 0 ).y;
-			RECT arrowBoundingBox = {
-				static_cast<long>( arrowMin.x + 1.f ),
-				static_cast<long>( arrowMin.y + 1.f ),
-				static_cast<long>( arrowMin.x + fontSize - 1.f ),
-				static_cast<long>( arrowMin.y + fontSize - 1.f )
-			};
+			Rect arrowBoundingBox( arrowMin.x + 1.f,
+								arrowMin.y + 1.f,
+								arrowMin.x + fontSize - 1.f,
+								arrowMin.y + fontSize - 1.f );
 
 			ImGUID collapseId = m_curWindow->GetID( "COLLAPSE" );
 			bool mouseOvered = false;
@@ -597,12 +592,10 @@ bool ImUI::SliderFloat( const char* label, float* v, float min, float max, const
 	const CXMFLOAT2 pos = dc.m_cursorPos;
 	const CXMFLOAT2 labelSize = CalcTextSize( label, strlen( label ) );
 
-	const RECT boundingBox = {
-		static_cast<long>( pos.x ),
-		static_cast<long>( pos.y ),
-		static_cast<long>( pos.x + w ),
-		static_cast<long>( pos.y + labelSize.y + m_curStyle.m_framePadding.y * 2.f ),
-	};
+	Rect boundingBox( pos.x,
+					pos.y,
+					pos.x + w,
+					pos.y + labelSize.y + m_curStyle.m_framePadding.y * 2.f );
 
 	ItemSize( CXMFLOAT2( w, labelSize.y + m_curStyle.m_framePadding.y * 2.f ) );
 	bool mouseOvered = MouseOveredItem( boundingBox, id );
@@ -624,10 +617,7 @@ bool ImUI::SliderFloat( const char* label, float* v, float min, float max, const
 	sprintf_s( valueBuf, displayFormat, *v );
 	int count = std::strlen( valueBuf );
 
-	CXMFLOAT2 posMin( static_cast<float>( boundingBox.left ), static_cast<float>( boundingBox.top ) );
-	CXMFLOAT2 posMax( static_cast<float>( boundingBox.right ), static_cast<float>( boundingBox.bottom ) );
-
-	RenderClippedText( posMin, posMax, valueBuf, count, CXMFLOAT2( 0.5f, 0.5f ) );
+	RenderClippedText( boundingBox.m_leftTop, boundingBox.m_rightBottom, valueBuf, count, CXMFLOAT2( 0.5f, 0.5f ) );
 
 	return valueChanged;
 }
@@ -658,57 +648,49 @@ bool ImUI::BeginCombo( const char* label, const char* prevValue, ImUiComboFlag::
 
 	ImGUID id = m_curWindow->GetID( label );
 
-	const float arrowSize = ( flags & ImUiComboFlag::NoArrowButton ) ? 0 : GetFrameHeight( );
+	CXMFLOAT2 arrowSize( ( flags & ImUiComboFlag::NoArrowButton ) ? 0.f : GetFrameHeight( ), 0.f );
 	const int labelLen = strlen( label );
 	CXMFLOAT2 labelSize = CalcTextSize( label, labelLen );
 	const float width = CalcItemWidth( );
 
 	CXMFLOAT2 itemSize( width, labelSize.y + m_curStyle.m_framePadding.y * 2.0f );
 		
-	const RECT frameBB = {
-		static_cast<LONG>( m_curWindow->m_dc.m_cursorPos.x ),
-		static_cast<LONG>( m_curWindow->m_dc.m_cursorPos.y ),
-		static_cast<LONG>( m_curWindow->m_dc.m_cursorPos.x + width ),
-		static_cast<LONG>( m_curWindow->m_dc.m_cursorPos.y + itemSize.y )
-	};
+	Rect frameBB( m_curWindow->m_dc.m_cursorPos.x,
+				m_curWindow->m_dc.m_cursorPos.y,
+				m_curWindow->m_dc.m_cursorPos.x + width,
+				m_curWindow->m_dc.m_cursorPos.y + itemSize.y );
 
-	const RECT totalBB = {
-		static_cast<LONG>( m_curWindow->m_dc.m_cursorPos.x ),
-		static_cast<LONG>( m_curWindow->m_dc.m_cursorPos.y ),
-		static_cast<LONG>( frameBB.right + ( ( labelSize.x > 0.f ) ? m_curStyle.m_itemInnerSpacing.x + labelSize.x : 0 ) ),
-		static_cast<LONG>( frameBB.bottom )
-	};
+	Rect totalBB( m_curWindow->m_dc.m_cursorPos.x,
+				m_curWindow->m_dc.m_cursorPos.y,
+				frameBB.m_rightBottom.x + ( ( labelSize.x > 0.f ) ? m_curStyle.m_itemInnerSpacing.x + labelSize.x : 0 ),
+				frameBB.m_rightBottom.y );
 
 	ItemSize( itemSize );
 
 	bool overed, held;
 	bool pressed = ButtonBehavior( frameBB, id, overed, held );
 
-	const RECT valueBB = {
-		frameBB.left,
-		frameBB.top,
-		frameBB.right - arrowSize,
-		frameBB.bottom
-	};
-
 	const CXMFLOAT4 frameColor = GetItemColor( overed ? ImUiColor::FrameBgMouseOver : ImUiColor::FrameBg );
 
 	if ( ( flags & ImUiComboFlag::NoPreview ) == false )
 	{
-		m_curWindow->m_drawList.AddFilledRect( CXMFLOAT2( frameBB.left, frameBB.top ), CXMFLOAT2( frameBB.right - frameBB.left - arrowSize, frameBB.bottom - frameBB.top ), frameColor, m_curStyle.m_frameRounding, ImDrawCorner::Left );
+		m_curWindow->m_drawList.AddFilledRect( frameBB.m_leftTop, frameBB.m_widthHeight - arrowSize, frameColor, m_curStyle.m_frameRounding, ImDrawCorner::Left );
 	}
 
 	if ( ( flags & ImUiComboFlag::NoArrowButton ) == false )
 	{
-		m_curWindow->m_drawList.AddFilledRect( CXMFLOAT2( frameBB.right - arrowSize, frameBB.top ), CXMFLOAT2( arrowSize, frameBB.bottom - frameBB.top ), GetItemColor( overed ? ImUiColor::ButtonMouseOver : ImUiColor::Button ), m_curStyle.m_frameRounding, ( width <= arrowSize ) ? ImDrawCorner::All : ImDrawCorner::Right );
-		RenderArrow( CXMFLOAT2( frameBB.right - arrowSize + m_curStyle.m_framePadding.x, frameBB.top + m_curStyle.m_framePadding.y ), ImDir::Down );
+		CXMFLOAT2 lt( frameBB.m_rightBottom.x - arrowSize.x, frameBB.m_leftTop.y );
+		m_curWindow->m_drawList.AddFilledRect( lt, CXMFLOAT2( arrowSize.x, frameBB.m_widthHeight.y ), GetItemColor( overed ? ImUiColor::ButtonMouseOver : ImUiColor::Button ), m_curStyle.m_frameRounding, ( width <= arrowSize.x ) ? ImDrawCorner::All : ImDrawCorner::Right );
+		RenderArrow( lt + m_curStyle.m_framePadding, ImDir::Down );
 	}
 
 	if ( ( prevValue != nullptr ) && ( ( flags & ImUiComboFlag::NoPreview ) == false ) )
 	{
-		RenderClippedText( 
-			CXMFLOAT2( frameBB.left + m_curStyle.m_framePadding.x, frameBB.top + m_curStyle.m_framePadding.y ),
-			CXMFLOAT2( valueBB.right, valueBB.bottom ),
+		Rect valueBB( frameBB.m_leftTop, frameBB.m_rightBottom - arrowSize );
+
+		RenderClippedText(
+			frameBB.m_leftTop + m_curStyle.m_framePadding,
+			valueBB.m_rightBottom,
 			prevValue,
 			strlen( prevValue ),
 			CXMFLOAT2( 0.f, 0.f ) );
@@ -717,7 +699,7 @@ bool ImUI::BeginCombo( const char* label, const char* prevValue, ImUiComboFlag::
 	if ( labelSize.x > 0.f )
 	{
 		RenderText(
-			CXMFLOAT2( frameBB.right + m_curStyle.m_itemInnerSpacing.x, frameBB.top + m_curStyle.m_framePadding.y ),
+			CXMFLOAT2( frameBB.m_rightBottom.x, frameBB.m_leftTop.y ) + m_curStyle.m_itemInnerSpacing,
 			label,
 			labelLen
 		);
@@ -735,13 +717,13 @@ bool ImUI::BeginCombo( const char* label, const char* prevValue, ImUiComboFlag::
 		return false;
 	}
 
-	bool backupNextWindowSizeConstraint = m_nextWindowData.m_constraintSizeCond;
+	bool backupNextWindowSizeConstraint = ( m_nextWindowData.m_constraintSizeCond > 0 );
 	m_nextWindowData.m_constraintSizeCond = 0;
 
 	if ( backupNextWindowSizeConstraint )
 	{
 		m_nextWindowData.m_contentSizeCond = backupNextWindowSizeConstraint;
-		m_nextWindowData.m_constraintSizeRect.left = max( m_nextWindowData.m_constraintSizeRect.left, width );
+		m_nextWindowData.m_constraintSizeRect.m_leftTop.x = max( m_nextWindowData.m_constraintSizeRect.m_leftTop.x, width );
 	}
 	else
 	{
@@ -764,7 +746,7 @@ bool ImUI::BeginCombo( const char* label, const char* prevValue, ImUiComboFlag::
 			popupMaxHeihtInItems = 20;
 			break;
 		}
-		RECT constraintSize = { static_cast<LONG>( width ), 0L, LONG_MAX, static_cast<LONG>( CalcMaxPopupHeightFromItemCount( popupMaxHeihtInItems ) ) };
+		Rect constraintSize( width, 0.f, FLT_MAX, CalcMaxPopupHeightFromItemCount( popupMaxHeihtInItems ) );
 		SetNextWindowConstraintSize( constraintSize );
 	}
 
@@ -777,7 +759,7 @@ bool ImUI::BeginCombo( const char* label, const char* prevValue, ImUiComboFlag::
 		{
 			CXMFLOAT2 contentsSize = CalcContentsSize( popupWindow );
 			CXMFLOAT2 expectedSize = CalcAfterConstraintSize( popupWindow, CalcAutoFitSize( popupWindow, contentsSize ) );
-			CXMFLOAT2 pos = FindBestWindowPosForPopup( CXMFLOAT2( frameBB.left, frameBB.bottom ), expectedSize, popupWindow->m_autoPosLastDirection, frameBB, ImUiPopupPositionPolicy::ComboBox );
+			CXMFLOAT2 pos = FindBestWindowPosForPopup( CXMFLOAT2( frameBB.m_leftTop.x, frameBB.m_rightBottom.y ), expectedSize, popupWindow->m_autoPosLastDirection, frameBB, ImUiPopupPositionPolicy::ComboBox );
 			SetNextWindowPos( pos );
 		}
 	}
@@ -822,8 +804,7 @@ bool ImUI::Combo( const char* label, int* currentItem, bool( *itemsGettter )( vo
 
 	if ( heightInItem != -1 && ( m_nextWindowData.m_constraintSizeCond == false ) )
 	{
-		LONG popupMaxHeight = static_cast<LONG>( CalcMaxPopupHeightFromItemCount( heightInItem ) );
-		RECT constraintSize = { 0L, 0L, LONG_MAX, popupMaxHeight };
+		Rect constraintSize( 0.f, 0.f, FLT_MAX, CalcMaxPopupHeightFromItemCount( heightInItem ) );
 		SetNextWindowConstraintSize( constraintSize );
 	}
 
@@ -873,23 +854,21 @@ bool ImUI::Selectable( const char* label, bool selected, ImUiSelectableFlags::Ty
 	pos.y += m_curWindow->m_dc.m_currentLineTextBaseOffset;
 	ItemSize( size );
 
-	RECT bb = { pos.x, pos.y, pos.x + size.x, pos.y + size.y };
-
 	const CXMFLOAT2& windowPadding = m_curWindow->m_windowPadding;
 	float maxX = GetWindowContextRegionMax().x;
 	float drawWidth = max( labelSize.x, m_curWindow->m_pos.x + maxX - windowPadding.x - m_curWindow->m_dc.m_cursorPos.x );
 	CXMFLOAT2 drawSize( sizeArg.x != 0 ? sizeArg.x : drawWidth, sizeArg.y != 0 ? sizeArg.y : size.y );
-	RECT bbWithSpacing = { pos.x, pos.y, pos.x + drawSize.x, pos.y + drawSize.y };
+	Rect bbWithSpacing( pos.x, pos.y, pos.x + drawSize.x, pos.y + drawSize.y );
 
 	float spacing_L = static_cast<float>(static_cast<int>(m_curStyle.m_itemSpacing.x * 0.5f));
 	float spacing_T = static_cast<float>(static_cast<int>(m_curStyle.m_itemSpacing.y * 0.5f));
 	float spacing_R = m_curStyle.m_itemSpacing.x - spacing_L;
 	float spacing_B = m_curStyle.m_itemSpacing.y - spacing_T;
 
-	bbWithSpacing.left -= spacing_L;
-	bbWithSpacing.top -= spacing_T;
-	bbWithSpacing.right += spacing_R;
-	bbWithSpacing.bottom += spacing_B;
+	bbWithSpacing.m_leftTop.x -= spacing_L;
+	bbWithSpacing.m_leftTop.y -= spacing_T;
+	bbWithSpacing.m_rightBottom.x += spacing_R;
+	bbWithSpacing.m_rightBottom.y += spacing_B;
 
 	bool mouseOvered = false;
 	bool mouseHeld = false;
@@ -898,10 +877,10 @@ bool ImUI::Selectable( const char* label, bool selected, ImUiSelectableFlags::Ty
 	if ( mouseOvered || selected )
 	{
 		CXMFLOAT4 color = GetItemColor( ( mouseHeld && mouseOvered ) ? ImUiColor::HeaderActive : mouseOvered ? ImUiColor::HeaderMouseOver : ImUiColor::Header );
-		RenderFrame( CXMFLOAT2( bbWithSpacing.left, bbWithSpacing.top ), CXMFLOAT2( bbWithSpacing.right - bbWithSpacing.left, bbWithSpacing.bottom - bbWithSpacing.top ), color );
+		RenderFrame( bbWithSpacing.m_leftTop, bbWithSpacing.m_widthHeight, color );
 	}
 
-	RenderClippedText( CXMFLOAT2( bb.left, bb.top ), CXMFLOAT2( bbWithSpacing.right, bbWithSpacing.bottom ), label, strlen( label ), CXMFLOAT2( 0.f, 0.f ) );
+	RenderClippedText( pos, bbWithSpacing.m_rightBottom, label, strlen( label ), CXMFLOAT2( 0.f, 0.f ) );
 
 	if ( mousePressed && ( m_curWindow->m_flag & ImUiWindowFlags::Popup ) )
 	{
@@ -1022,7 +1001,7 @@ CXMFLOAT2 ImUI::GetWindowContextRegionMax( )
 {
 	assert( m_curWindow != nullptr );
 
-	return CXMFLOAT2( m_curWindow->m_contentsRegionRect.right, m_curWindow->m_contentsRegionRect.bottom );
+	return  m_curWindow->m_contentsRegionRect.m_rightBottom;
 }
 
 float ImUI::GetFontHeight( ) const
@@ -1076,11 +1055,10 @@ ImUiWindow* ImUI::FindMouseOverWindow( )
 			continue;
 		}
 
-		RECT boundingBox = { 
-			static_cast<long>( m_windows[i].m_pos.x ),
-			static_cast<long>( m_windows[i].m_pos.y ), 
-			static_cast<long>( m_windows[i].m_pos.x + m_windows[i].m_size.x ),
-			static_cast<long>( m_windows[i].m_pos.y + m_windows[i].m_size.y ) };
+		Rect boundingBox( m_windows[i].m_pos.x,
+						m_windows[i].m_pos.y, 
+						m_windows[i].m_pos.x + m_windows[i].m_size.x,
+						m_windows[i].m_pos.y + m_windows[i].m_size.y );
 
 		if ( Contain( boundingBox, m_io.m_mousePos ) )
 		{
@@ -1164,12 +1142,10 @@ bool ImUI::ButtonEX( const char* label, const CXMFLOAT2& size )
 
 	CXMFLOAT2& buttonSize = CalcItemSize( CXMFLOAT2( labelSize.x + m_curStyle.m_framePadding.x * 2.f, labelSize.y + m_curStyle.m_framePadding.y * 2.f ) );
 
-	const RECT boundingBox = {
-		static_cast<long>( pos.x ),
-		static_cast<long>( pos.y ),
-		static_cast<long>( pos.x + buttonSize.x ),
-		static_cast<long>( pos.y + buttonSize.y ),
-	};
+	const Rect boundingBox( pos.x,
+							pos.y,
+							pos.x + buttonSize.x,
+							pos.y + buttonSize.y );
 
 	ImGUID id = m_curWindow->GetID( label );
 
@@ -1183,12 +1159,12 @@ bool ImUI::ButtonEX( const char* label, const CXMFLOAT2& size )
 	// 임시
 	const CXMFLOAT4& color = GetItemColor( ( mouseOvered && mouseHeld ) ? ImUiColor::ButtonPress : ( mouseOvered ? ImUiColor::ButtonMouseOver : ImUiColor::Button ) );
 	m_curWindow->m_drawList.AddFilledRect( pos, buttonSize, color );
-	RenderClippedText( pos + m_curStyle.m_framePadding, CXMFLOAT2( boundingBox.right - m_curStyle.m_framePadding.x, boundingBox.bottom - m_curStyle.m_framePadding.y ), label, strCount, CXMFLOAT2( 0.f, 0.f ) );
+	RenderClippedText( pos + m_curStyle.m_framePadding, boundingBox.m_rightBottom - m_curStyle.m_framePadding, label, strCount, CXMFLOAT2( 0.f, 0.f ) );
 
 	return mousePreesed;
 }
 
-bool ImUI::ButtonBehavior( const RECT& boundingBox, ImGUID id, bool& mouseOvered, bool& mouseHeld )
+bool ImUI::ButtonBehavior( const Rect& boundingBox, ImGUID id, bool& mouseOvered, bool& mouseHeld )
 {
 	assert( m_curWindow != nullptr );
 
@@ -1224,7 +1200,7 @@ bool ImUI::ButtonBehavior( const RECT& boundingBox, ImGUID id, bool& mouseOvered
 	return pressed;
 }
 
-bool ImUI::SliderBehavior( const RECT& boundingbox, ImGUID id, float* v, float min, float max )
+bool ImUI::SliderBehavior( const Rect& boundingbox, ImGUID id, float* v, float min, float max )
 {
 	assert( m_curWindow != nullptr );
 
@@ -1233,8 +1209,8 @@ bool ImUI::SliderBehavior( const RECT& boundingbox, ImGUID id, float* v, float m
 	// 그리기
 
 	// 임시
-	CXMFLOAT2 framePos = CXMFLOAT2( static_cast<float>( boundingbox.left ), static_cast<float>( boundingbox.top ) );
-	CXMFLOAT2 frameSize = CXMFLOAT2( static_cast<float>( boundingbox.right - boundingbox.left ), static_cast<float>( boundingbox.bottom - boundingbox.top ) );
+	const CXMFLOAT2& framePos = boundingbox.m_leftTop;
+	const CXMFLOAT2& frameSize = boundingbox.m_widthHeight;
 
 	m_curWindow->m_drawList.AddFilledRect( framePos, frameSize, frameColor );
 
@@ -1242,8 +1218,8 @@ bool ImUI::SliderBehavior( const RECT& boundingbox, ImGUID id, float* v, float m
 	const float sliderSize = frameSize.x - grabPadding * 2.0f;
 	float grabSize = min( m_curStyle.m_grabMinSize, sliderSize );
 
-	const float sliderUsablePosMin = boundingbox.left + grabPadding + grabSize * 0.5f;
-	const float sliderUsablePosMax = boundingbox.right - grabPadding - grabSize * 0.5f;
+	const float sliderUsablePosMin = boundingbox.m_leftTop.x + grabPadding + grabSize * 0.5f;
+	const float sliderUsablePosMax = boundingbox.m_rightBottom.x - grabPadding - grabSize * 0.5f;
 
 	float linearZeroPos = 0.f;
 	if ( min * max < 0.f )
@@ -1269,7 +1245,7 @@ bool ImUI::SliderBehavior( const RECT& boundingbox, ImGUID id, float* v, float m
 		else
 		{
 			const float mousePos = m_io.m_mousePos.x;
-			clicked = ( sliderSize > 0.f ) ? clamp( ( mousePos - boundingbox.left ) / sliderSize, 0.f, 1.0f ) : 0.f;
+			clicked = ( sliderSize > 0.f ) ? clamp( ( mousePos - boundingbox.m_leftTop.x ) / sliderSize, 0.f, 1.0f ) : 0.f;
 			setNewValue = true;
 		}
 
@@ -1397,7 +1373,7 @@ void ImUI::RenderArrow( const CXMFLOAT2& pos, ImDir::Type dir, float scale )
 	m_curWindow->m_drawList.AddTriangleFilled( center + v[0], center + v[1], center + v[2], GetItemColor( ImUiColor::Text ) );
 }
 
-void ImUI::PushClipRect( const RECT& clipRect )
+void ImUI::PushClipRect( const Rect& clipRect )
 {
 	assert( m_curWindow != nullptr );
 	m_curWindow->m_drawList.PushClipRect( clipRect );
@@ -1422,7 +1398,7 @@ void ImUI::ItemSize( const CXMFLOAT2& size, float textOffsetY )
 	dc.m_currentLineTextBaseOffset = 0.f;
 }
 
-bool ImUI::MouseOveredItem( const RECT& boundingbox, ImGUID id )
+bool ImUI::MouseOveredItem( const Rect& boundingbox, ImGUID id )
 {
 	assert( m_curWindow != nullptr );
 
@@ -1609,7 +1585,7 @@ ImUiSettingHandler * ImUI::FindSettingHandler( const char* typeName )
 
 void ImUI::OpenPopupEx( ImGUID id )
 {
-	int curStackSize = m_currentPopupStack.size( );
+	size_t curStackSize = m_currentPopupStack.size( );
 
 	ImUIPopupRef popupRef = {
 		id,
@@ -1655,7 +1631,7 @@ void ImUI::ClosePopupsOverWindow( ImUiWindow* refWindow )
 		return;
 	}
 
-	int n = 0;
+	size_t n = 0;
 	if ( refWindow )
 	{
 		for ( n = 0; n < m_openPopupStack.size( ); ++n )
@@ -1673,7 +1649,7 @@ void ImUI::ClosePopupsOverWindow( ImUiWindow* refWindow )
 			}
 
 			bool hasFocus = false;
-			for ( int m = n; m < m_openPopupStack.size( ) && ( hasFocus == false ); ++m )
+			for ( size_t m = n; m < m_openPopupStack.size( ) && ( hasFocus == false ); ++m )
 			{
 				hasFocus = ( m_openPopupStack[m].m_window && m_openPopupStack[m].m_window->m_rootWindow == refWindow->m_rootWindow );
 			}
@@ -1699,7 +1675,7 @@ void ImUI::ClosePopupToLevel( int remaining )
 void ImUI::CloseCurrentPopup( )
 {
 	int popupIdx = m_currentPopupStack.size( ) - 1;
-	if ( popupIdx < 0 || popupIdx >= m_openPopupStack.size() || m_currentPopupStack[popupIdx].m_popupId != m_openPopupStack[popupIdx].m_popupId )
+	if ( popupIdx < 0 || static_cast<size_t>( popupIdx ) >= m_openPopupStack.size() || m_currentPopupStack[popupIdx].m_popupId != m_openPopupStack[popupIdx].m_popupId )
 	{
 		return;
 	}
@@ -1721,10 +1697,10 @@ CXMFLOAT2 ImUI::CalcAfterConstraintSize( ImUiWindow* window, const CXMFLOAT2& si
 
 	if ( m_nextWindowData.m_constraintSizeCond != 0 )
 	{
-		const RECT& cr = m_nextWindowData.m_constraintSizeRect;
+		const Rect& cr = m_nextWindowData.m_constraintSizeRect;
 
-		newSize.x = (cr.left >= 0 && cr.right >= 0) ? clamp( newSize.x, cr.left, cr.right ) : window->m_sizeNonCollapsed.x;
-		newSize.y = (cr.top >= 0 && cr.bottom >= 0) ? clamp( newSize.y, cr.top, cr.bottom ) : window->m_sizeNonCollapsed.y;
+		newSize.x = (cr.m_leftTop.x >= 0 && cr.m_rightBottom.x >= 0) ? clamp( newSize.x, cr.m_leftTop.x, cr.m_rightBottom.x ) : window->m_sizeNonCollapsed.x;
+		newSize.y = (cr.m_leftTop.y >= 0 && cr.m_rightBottom.y >= 0) ? clamp( newSize.y, cr.m_leftTop.y, cr.m_rightBottom.y ) : window->m_sizeNonCollapsed.y;
 		if ( m_nextWindowData.m_sizeCallback )
 		{
 			ImUiSizeCallbackData data;
@@ -1764,13 +1740,13 @@ CXMFLOAT2 ImUI::CalcAutoFitSize( ImUiWindow* window, const CXMFLOAT2& contentsSi
 	return autoFitSize;
 }
 
-CXMFLOAT2 ImUI::FindBestWindowPosForPopup( const CXMFLOAT2& refPos, const CXMFLOAT2& size, ImDir::Type& lastDir, const RECT& avoid, ImUiPopupPositionPolicy::Type policy )
+CXMFLOAT2 ImUI::FindBestWindowPosForPopup( const CXMFLOAT2& refPos, const CXMFLOAT2& size, ImDir::Type& lastDir, const Rect& avoid, ImUiPopupPositionPolicy::Type policy )
 {
 	const CXMFLOAT2& safePadding = m_curStyle.m_displaySafeAreaPadding;
-	RECT outer = m_clientRect;
+	Rect outer = m_clientRect;
 	Expand( outer, 
-		CXMFLOAT2( ( size.x - ( outer.right - outer.left ) > safePadding.x * 2 ) ? -safePadding.x : 0.f,
-		( size.y - ( outer.bottom - outer.top ) > safePadding.y * 2 ) ? -safePadding.y : 0.f)
+		CXMFLOAT2( ( size.x - ( m_clientRect.m_widthHeight.x ) > safePadding.x * 2 ) ? -safePadding.x : 0.f,
+		( size.y - ( m_clientRect.m_widthHeight.y ) > safePadding.y * 2 ) ? -safePadding.y : 0.f)
 	);
 	
 	if ( policy == ImUiPopupPositionPolicy::ComboBox )
@@ -1788,20 +1764,20 @@ CXMFLOAT2 ImUI::FindBestWindowPosForPopup( const CXMFLOAT2& refPos, const CXMFLO
 			switch ( dir )
 			{
 			case ImDir::Down:
-				pos = CXMFLOAT2( avoid.left, avoid.bottom );
+				pos = CXMFLOAT2( avoid.m_leftTop.x, avoid.m_rightBottom.y );
 				break;
 			case ImDir::Right:
-				pos = CXMFLOAT2( avoid.left, avoid.top - size.y );
+				pos = CXMFLOAT2( avoid.m_leftTop.x, avoid.m_leftTop.y - size.y );
 				break;
 			case ImDir::Left:
-				pos = CXMFLOAT2( avoid.right - size.x, avoid.bottom );
+				pos = CXMFLOAT2( avoid.m_rightBottom.x - size.x, avoid.m_rightBottom.y );
 				break;
 			case ImDir::Up:
-				pos = CXMFLOAT2( avoid.right - size.x, avoid.top - size.y );
+				pos = CXMFLOAT2( avoid.m_rightBottom.x - size.x, avoid.m_leftTop.y - size.y );
 				break;
 			}
 
-			RECT r = { pos.x, pos.y, pos.x + size.x, pos.y + size.y };
+			Rect r( pos.x, pos.y, pos.x + size.x, pos.y + size.y );
 			if ( Contain( outer, r ) == false )
 			{
 				continue;
@@ -1812,7 +1788,7 @@ CXMFLOAT2 ImUI::FindBestWindowPosForPopup( const CXMFLOAT2& refPos, const CXMFLO
 		}
 	}
 
-	CXMFLOAT2 clampedBasePos = clamp( refPos, CXMFLOAT2( outer.left, outer.top ), CXMFLOAT2( outer.right, outer.bottom ) );
+	CXMFLOAT2 clampedBasePos = clamp( refPos, outer.m_leftTop, outer.m_rightBottom );
 
 	ImDir::Type dirOrder[ImDir::Count] = { ImDir::Right, ImDir::Down, ImDir::Up, ImDir::Left };
 	for ( int i = ( lastDir != ImDir::None ) ? -1 : 0; i < ImDir::Count; ++i )
@@ -1823,24 +1799,24 @@ CXMFLOAT2 ImUI::FindBestWindowPosForPopup( const CXMFLOAT2& refPos, const CXMFLO
 			continue;
 		}
 
-		float availW = ( dir == ImDir::Left ? avoid.left : avoid.right ) - ( dir == ImDir::Right ? avoid.right : outer.left );
-		float availH = ( dir == ImDir::Up ? avoid.top : avoid.bottom ) - ( dir == ImDir::Down ? avoid.bottom : outer.top );
+		float availW = ( dir == ImDir::Left ? avoid.m_leftTop.x : avoid.m_rightBottom.x ) - ( dir == ImDir::Right ? avoid.m_rightBottom.x : outer.m_leftTop.x );
+		float availH = ( dir == ImDir::Up ? avoid.m_leftTop.y : avoid.m_rightBottom.y ) - ( dir == ImDir::Down ? avoid.m_rightBottom.y : outer.m_leftTop.y );
 		if ( availW < size.x || availH < size.y )
 		{
 			continue;
 		}
 
 		CXMFLOAT2 pos;
-		pos.x = ( dir == ImDir::Left ) ? avoid.left - size.x : ( dir == ImDir::Right ) ? avoid.right : clampedBasePos.x;
-		pos.y = ( dir == ImDir::Up ) ? avoid.top - size.y : ( dir == ImDir::Down ) ? avoid.bottom : clampedBasePos.y;
+		pos.x = ( dir == ImDir::Left ) ? avoid.m_leftTop.x - size.x : ( dir == ImDir::Right ) ? avoid.m_rightBottom.x : clampedBasePos.x;
+		pos.y = ( dir == ImDir::Up ) ? avoid.m_leftTop.y - size.y : ( dir == ImDir::Down ) ? avoid.m_rightBottom.y : clampedBasePos.y;
 		lastDir = dir;
 		return pos;
 	}
 
 	lastDir = ImDir::None;
 	CXMFLOAT2 pos = refPos;
-	pos.x = max( min( pos.x + size.x, outer.right ) - size.x, outer.left );
-	pos.y = max( min( pos.y + size.y, outer.bottom ) - size.y, outer.top );
+	pos.x = max( min( pos.x + size.x, outer.m_rightBottom.x ) - size.x, outer.m_leftTop.x );
+	pos.y = max( min( pos.y + size.y, outer.m_rightBottom.y ) - size.y, outer.m_leftTop.y );
 	return pos;
 }
 
@@ -1851,7 +1827,7 @@ void ImUI::SetNextWindowPos( const CXMFLOAT2& pos, ImUiCond::Type cond, const CX
 	m_nextWindowData.m_posCond = cond ? cond : ImUiCond::Always;
 }
 
-void ImUI::SetNextWindowConstraintSize( const RECT& constraintSize, ImUiSizeCallBack callback, void * callbackData )
+void ImUI::SetNextWindowConstraintSize( const Rect& constraintSize, ImUiSizeCallBack callback, void * callbackData )
 {
 	m_nextWindowData.m_constraintSizeCond = ImUiCond::Always;
 	m_nextWindowData.m_constraintSizeRect = constraintSize;

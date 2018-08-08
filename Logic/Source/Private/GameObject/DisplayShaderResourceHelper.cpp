@@ -13,7 +13,7 @@
 
 namespace
 {
-	ConVar( r_debugTexture, "0", "show texture for debug\ndepthStencilViewer : depth\nrenderTargetViewer : backBuffer" );
+	ConVar( r_debugTexture, "shadowmapViewer", "show texture for debug\ndepthStencilViewer : depth\nrenderTargetViewer : backBuffer" );
 }
 
 DECLARE_GAME_OBJECT( displaySRVHelper, CDisplayShaderResourceHelper );

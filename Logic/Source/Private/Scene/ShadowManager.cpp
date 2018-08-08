@@ -50,6 +50,8 @@ void CShadowManager::BuildShadowProjectionMatrix( CGameLogic& gameLogic, std::ve
 	}
 
 	ui.SliderFloat( "Z Bias", &m_constant.m_zBias, 0.f, 0.1f );
+	ui.SameLine( );
+	ui.Text( "Z Bias" );
 
 	if ( m_isEnabled )
 	{
@@ -623,12 +625,12 @@ void CShadowManager::BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, std::vec
 
 		const CRenderView& view = gameLogic.GetView( );
 
-		CFrustum eyeFrustum( view.GetProjectionMatrix( ) );
-		const CXMFLOAT3 ( &frustumVertices )[8] = eyeFrustum.GetVertices( );
-		for ( int i = 0; i < 8; ++i )
-		{
-			bodyB.emplace_back( frustumVertices[i] );
-		}
+		//CFrustum eyeFrustum( view.GetProjectionMatrix( ) );
+		//const CXMFLOAT3 ( &frustumVertices )[8] = eyeFrustum.GetVertices( );
+		//for ( int i = 0; i < 8; ++i )
+		//{
+		//	bodyB.emplace_back( frustumVertices[i] );
+		//}
 
 		for ( const auto& box : m_shadowCasterPoints )
 		{
@@ -674,25 +676,38 @@ void CShadowManager::BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, std::vec
 
 		float lspsmNopt = ( ( nOpt0 + nOpt1 ) / ( 2.f * sinGamma ) ) + 0.1f;
 
-		gameLogic.GetUIManager( ).SliderFloat( "nOpt Weight", &m_nOptWeight, 0.f, 1.f );
+		ImUI& ui = gameLogic.GetUIManager( );
+		ui.SliderFloat( "nOpt Weight", &m_nOptWeight, 0.f, 1.f );
+		ui.SameLine( );
+		ui.Text( "nOpt Weight" );
+		ui.Text( "cosGamma : %f", m_cosGamma );
+
 		float nOpt = 0.1f + m_nOptWeight * ( lspsmNopt - 0.1f );
+
+		ui.Text( "nOpt : %f", nOpt );
 
 		lightSpaceOrigin.z = lightSpaceBox.GetMin( ).z - nOpt;
 
-		float fovX = -FLT_MAX, fovY = -FLT_MAX, maxZ = -FLT_MAX;
+		float maxX = -FLT_MAX, maxY = -FLT_MAX, maxZ = -FLT_MAX;
 
 		CXMFLOAT3 tmp;
 		for ( const auto& point : bodyB )
 		{
 			tmp = point - lightSpaceOrigin;
 
-			fovX = max( fovX, abs( tmp.x / tmp.z ) );
-			fovY = max( fovY, abs( tmp.y / tmp.z ) );
+			maxX = max( maxX, abs( tmp.x / tmp.z ) );
+			maxY = max( maxY, abs( tmp.y / tmp.z ) );
 			maxZ = max( maxZ, tmp.z );
 		}
 
+		float fovX = XMConvertToDegrees( atanf(maxX) );
+		float fovY = XMConvertToDegrees( atanf(maxY) );
+
+		ui.Text( "lightSpaceOrigin : %f %f %f", lightSpaceOrigin.x, lightSpaceOrigin.y, lightSpaceOrigin.z );
+		ui.SliderFloat( "debug z", &m_debugZ, 0, 3000 );
+
 		CXMFLOAT4X4 translate = XMMatrixTranslation( -lightSpaceOrigin.x, -lightSpaceOrigin.y, -lightSpaceOrigin.z );
-		CXMFLOAT4X4 perspective = XMMatrixPerspectiveLH( 2.f * fovX * nOpt, 2.f * fovY * nOpt, nOpt, maxZ );
+		CXMFLOAT4X4 perspective = XMMatrixPerspectiveLH( 2.f * maxX * nOpt, 2.f * maxY * nOpt, nOpt, maxZ - m_debugZ );
 
 		lightSpaceBasis = XMMatrixMultiply( lightSpaceBasis, translate );
 		lightSpaceBasis = XMMatrixMultiply( lightSpaceBasis, perspective );

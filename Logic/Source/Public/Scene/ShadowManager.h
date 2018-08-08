@@ -63,6 +63,8 @@ private:
 	float m_cosGamma = 0.f;
 	float m_nOptWeight = 1.f;
 
+	float m_debugZ = 0.f;
+
 	struct ShadowConstant
 	{
 		float m_zBias = 0.001f;

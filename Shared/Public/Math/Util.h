@@ -31,3 +31,40 @@ inline bool PlanesIntersection( const CXMFLOAT4& p0, const CXMFLOAT4& p1, const 
 	point = -( p0.w * n1xn2 + p1.w * n2xn0 + p2.w * n0xn1 ) * rcpDetA;
 	return true;
 }
+
+struct Rect
+{
+	CXMFLOAT2 m_leftTop;
+	CXMFLOAT2 m_rightBottom;
+	CXMFLOAT2 m_widthHeight;
+
+	Rect( ) = default;
+	Rect( float left, float top, float right, float bottom )
+	{
+		m_leftTop.x = left;
+		m_leftTop.y = top;
+		m_rightBottom.x = right;
+		m_rightBottom.y = bottom;
+		m_widthHeight = m_rightBottom - m_leftTop;
+	}
+	Rect( const CXMFLOAT2& leftTop, const CXMFLOAT2& rightBottom )
+	{
+		m_leftTop = leftTop;
+		m_rightBottom = rightBottom;
+		m_widthHeight = m_rightBottom - m_leftTop;
+	}
+	Rect& operator=( const RECT& rect )
+	{
+		m_leftTop.x = static_cast<float>( rect.left );
+		m_leftTop.y = static_cast<float>( rect.top );
+		m_rightBottom.x = static_cast<float>( rect.right );
+		m_rightBottom.y = static_cast<float>( rect.bottom );
+		m_widthHeight = m_rightBottom - m_leftTop;
+		return *this;
+	}
+};
+
+inline bool operator==( const Rect& lhs, const Rect& rhs )
+{
+	return lhs.m_leftTop == rhs.m_leftTop && lhs.m_rightBottom == rhs.m_rightBottom;
+}

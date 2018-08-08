@@ -83,9 +83,9 @@ void CAaboundingbox::CalcSubRigidBody( std::vector<std::unique_ptr<IRigidBody>>&
 
 	for ( int i = 0; i < 8 * 8 * 8; ++i )
 	{
-		float ix = ( i & 0x07 );
-		float iy = ( ( i >> 3 ) & 0x07 );
-		float iz = ( ( i >> 6 ) & 0x07 );
+		float ix = static_cast<float>( i & 0x07 );
+		float iy = static_cast<float>( ( i >> 3 ) & 0x07 );
+		float iz = static_cast<float>( ( i >> 6 ) & 0x07 );
 
 		CAaboundingbox* subBox = new CAaboundingbox;
 		subBox->SetMin( m_min.x + ( ix / 8.f ) * length.x, m_min.y + ( iy / 8.f ) * length.y, m_min.z + ( iz / 8.f ) * length.z );
