@@ -21,6 +21,15 @@ namespace VS_CONSTANT_BUFFER
 	{
 		GEOMETRY = 0,
 		VIEW_PROJECTION,
+		SHADOW,
+	};
+}
+
+namespace GS_CONSTANT_BUFFER
+{
+	enum
+	{
+		SHADOW = 0,
 	};
 }
 
@@ -45,13 +54,12 @@ struct ViewProjectionTrasform
 {
 	CXMFLOAT4X4 m_view;
 	CXMFLOAT4X4 m_projection;
-	CXMFLOAT4X4 m_lightViewProjection;
 };
 
 struct PassConstant
 {
-	float m_zNear;
-	float m_zFar;
+	float m_receiversNear;
+	float m_receiversFar;
 	float m_elapsedTime;
 	float m_totalTime;
 	CXMFLOAT2 m_renderTargetSize;

@@ -7,6 +7,7 @@
 #include "UserInput/UserInput.h"
 
 #include <map>
+#include <memory>
 #include <stack>
 #include <unordered_map>
 #include <vector>
@@ -456,8 +457,8 @@ private:
 	Rect m_clientRect;
 
 	std::map<std::string, int> m_windowLUT;
-	std::vector<ImUiWindow> m_windows;
-	std::vector<int> m_currentWindowStack;
+	std::vector<std::unique_ptr<ImUiWindow>> m_windows;
+	std::vector<ImUiWindow*> m_currentWindowStack;
 	ImUiWindow* m_curWindow = nullptr;
 	ImUiWindow* m_navWindow = nullptr;
 	ImUiWindow* m_mouseOveredWindow = nullptr;

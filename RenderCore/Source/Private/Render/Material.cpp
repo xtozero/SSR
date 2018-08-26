@@ -13,10 +13,7 @@ void CMaterial::Bind( IRenderer& renderer ) const
 {
 	for ( int i = 0; i < SHADER_TYPE::MAX_SHADER; ++i )
 	{
-		if ( m_hShaders[i] != INVALID_HANDLE )
-		{
-			renderer.BindShader( static_cast<SHADER_TYPE>( i ), m_hShaders[i] );
-		}
+		renderer.BindShader( static_cast<SHADER_TYPE>( i ), m_hShaders[i] );
 	}
 
 	renderer.BindRasterizerState( m_hRasterizerState );

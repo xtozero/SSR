@@ -3,17 +3,19 @@
 struct VS_OUTPUT
 {
 	float4 position : SV_POSITION;
-	float4 shadowCoord : TEXCOORD1;
+	float2 shadowCoord : TEXCOORD0;
 };
 
 VS_OUTPUT main( VS_INPUT input )
 {
 	VS_OUTPUT output = (VS_OUTPUT)0;
 
-	matrix lightWorldViewPorjection = mul( g_worldMatrix, g_lightViewProjectionMatrix );
+	matrix lightWorldView = mul( g_worldMatrix, g_lightViewMatrix );
+	float4 lightViewPos = mul( float4(input.position, 1.0f), lightWorldView );
+	lightViewPos.z += g_zBias;
 
-	output.position = mul( float4(input.position, 1.0f), lightWorldViewPorjection );
-	output.shadowCoord = output.position;
+	output.position = mul( lightViewPos, g_lightProjectionMatrix );
+	output.shadowCoord = output.position.zw;
 
 	return output;
 }

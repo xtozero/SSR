@@ -14,12 +14,6 @@
 
 using namespace DirectX;
 
-namespace
-{
-	constexpr TCHAR* SHADOWMAP_CONST_BUFFER_NAME = _T( "ShadowMapConstBuffer" );
-	constexpr TCHAR* SHADOWMAP_MATERIAL_NAME = _T( "mat_shadowMap" );
-}
-
 void CShadowManager::OnDeviceRestore( CGameLogic& gameLogic )
 {
 	m_isEnabled = CreateDeviceDependentResource( gameLogic.GetRenderer() );
@@ -39,6 +33,27 @@ void CShadowManager::BuildShadowProjectionMatrix( CGameLogic& gameLogic, std::ve
 	const char* shadowTypeText[] = { "Ortho", "PSM", "LSPSM" };
 	ui.Combo( "Shadow Type", reinterpret_cast<int*>( &m_shadowType ), shadowTypeText, _countof( shadowTypeText ) );
 
+	if ( ui.Button( "Cascaded ShadowMap On/Off" ) )
+	{
+		IRenderer& renderer = gameLogic.GetRenderer( );
+		IResourceManager& resourceMgr = renderer.GetResourceManager( );
+		DestroyShadowmapTexture( resourceMgr );
+		if ( m_useCascaded )
+		{
+			CreateNonCascadedResource( resourceMgr );
+
+			m_shadowMapMtl = renderer.SearchMaterial( _T( "mat_shadowMap" ) );
+		}
+		else
+		{
+			CreateCascadedResource( resourceMgr );
+
+			m_shadowMapMtl = renderer.SearchMaterial( _T( "mat_cascaded_shadowMap" ) );
+		}
+
+		m_useCascaded = !m_useCascaded;
+	}
+
 	if ( ui.Button( "Enable / Disable" ) )
 	{
 		m_isEnabled = !m_isEnabled;
@@ -49,7 +64,7 @@ void CShadowManager::BuildShadowProjectionMatrix( CGameLogic& gameLogic, std::ve
 		m_isUnitClipCube = !m_isUnitClipCube;
 	}
 
-	ui.SliderFloat( "Z Bias", &m_constant.m_zBias, 0.f, 0.1f );
+	ui.SliderFloat( "Z Bias", &m_zBias, 0.f, 10.f );
 	ui.SameLine( );
 	ui.Text( "Z Bias" );
 
@@ -61,26 +76,79 @@ void CShadowManager::BuildShadowProjectionMatrix( CGameLogic& gameLogic, std::ve
 			return;
 		}
 
-		switch ( m_shadowType )
+		float zClipNear[MAX_CASCADED_NUM] = { -FLT_MAX, -FLT_MAX };
+		float zClipFar[MAX_CASCADED_NUM] = { FLT_MAX, FLT_MAX };
+
+		if ( m_useCascaded )
 		{
-		case ShadowType::Ortho:
-			BuildOrthoShadowProjectionMatrix( gameLogic, gameObjects );
-			break;
-		case ShadowType::PSM:
-			BuildPSMProjectionMatrix( gameLogic, gameObjects );
-			break;
-		case ShadowType::LSPSM:
-			BuildLSPSMProjectionMatrix( gameLogic, gameObjects );
-			break;
-		default:
-			break;
+			float interval = ( m_receiversFar - m_castersNear ) / MAX_CASCADED_NUM;
+
+			for ( int i = 0; i < MAX_CASCADED_NUM; ++i )
+			{
+				zClipNear[i] = ( i == 0 ) ? m_castersNear : zClipFar[i - 1];
+				zClipFar[i] = ( i == ( MAX_CASCADED_NUM - 1 ) ) ? m_receiversFar : zClipNear[i] + interval;
+				m_cascadeConstant[i].m_zFar = zClipFar[i];
+			}
+		}
+		else
+		{
+			m_cascadeConstant[0].m_zFar = FLT_MAX;
 		}
 
-		if ( ShadowConstant* pData = static_cast<ShadowConstant*>( gameLogic.GetRenderer( ).LockBuffer( m_shadowConstant ) ) )
+		for ( int i = 0, end = m_useCascaded ? MAX_CASCADED_NUM : 1; i < end; ++i )
 		{
-			*pData = m_constant;
-			gameLogic.GetRenderer( ).UnLockBuffer( m_shadowConstant );
-			gameLogic.GetRenderer( ).BindConstantBuffer( SHADER_TYPE::PS, static_cast<int>( PS_CONSTANT_BUFFER::SHADOW ), 1, &m_shadowConstant );
+			switch ( m_shadowType )
+			{
+			case ShadowType::ORTHO:
+				BuildOrthoShadowProjectionMatrix( gameLogic, i, zClipNear[i], zClipFar[i] );
+				break;
+			case ShadowType::PSM:
+				BuildPSMProjectionMatrix( gameLogic, i, zClipNear[i], zClipFar[i] );
+				break;
+			case ShadowType::LSPSM:
+				BuildLSPSMProjectionMatrix( gameLogic, i, zClipNear[i], zClipFar[i] );
+				break;
+			default:
+				break;
+			}
+		}
+
+		if ( PsCascadeConstant* pData = static_cast<PsCascadeConstant*>( gameLogic.GetRenderer( ).LockBuffer( m_psShadowConstant ) ) )
+		{
+			for ( int i = 0; i < MAX_CASCADED_NUM; ++i )
+			{
+				pData->m_cascadeConstant[i].m_zFar = m_cascadeConstant[i].m_zFar;
+				pData->m_lightViewProjection[i] = XMMatrixMultiplyTranspose( m_lightView[i], m_lightProjection[i] );
+			}
+
+			gameLogic.GetRenderer( ).UnLockBuffer( m_psShadowConstant );
+			gameLogic.GetRenderer( ).BindConstantBuffer( SHADER_TYPE::PS, static_cast<int>( PS_CONSTANT_BUFFER::SHADOW ), 1, &m_psShadowConstant );
+		}
+
+		if ( m_useCascaded )
+		{
+			if ( GsCascadeConstant* pData = static_cast<GsCascadeConstant*>( gameLogic.GetRenderer( ).LockBuffer( m_gsShadowConstant ) ) )
+			{
+				pData->m_zBias = m_zBias;
+				for ( int i = 0; i < MAX_CASCADED_NUM; ++i )
+				{
+					pData->m_lightView[i] = XMMatrixTranspose( m_lightView[i] );
+					pData->m_lightProjection[i] = XMMatrixTranspose( m_lightProjection[i] );
+				}
+				gameLogic.GetRenderer( ).UnLockBuffer( m_gsShadowConstant );
+				gameLogic.GetRenderer( ).BindConstantBuffer( SHADER_TYPE::GS, static_cast<int>( GS_CONSTANT_BUFFER::SHADOW ), 1, &m_gsShadowConstant );
+			}
+		}
+		else
+		{
+			if ( VsNonCascadeConstant* pData = static_cast<VsNonCascadeConstant*>( gameLogic.GetRenderer( ).LockBuffer( m_vsShadowConstant ) ) )
+			{
+				pData->m_zBias = m_zBias;
+				pData->m_lightView = XMMatrixTranspose( m_lightView[0] );
+				pData->m_lightProjection = XMMatrixTranspose( m_lightProjection[0] );
+				gameLogic.GetRenderer( ).UnLockBuffer( m_vsShadowConstant );
+				gameLogic.GetRenderer( ).BindConstantBuffer( SHADER_TYPE::VS, static_cast<int>( VS_CONSTANT_BUFFER::SHADOW ), 1, &m_vsShadowConstant );
+			}
 		}
 	}
 
@@ -135,6 +203,60 @@ bool CShadowManager::CreateDeviceDependentResource( IRenderer& renderer )
 {
 	// ±×¸²ÀÚ¿ë ·»´õ Å¸°Ù »ý¼º
 	IResourceManager& resourceMgr = renderer.GetResourceManager( );
+	if ( m_useCascaded )
+	{
+		if ( CreateCascadedResource( resourceMgr ) == false )
+		{
+			return false;
+		}
+
+		m_shadowMapMtl = renderer.SearchMaterial( _T( "mat_cascaded_shadowMap" ) );
+	}
+	else
+	{
+		if ( CreateNonCascadedResource( resourceMgr ) == false )
+		{
+			return false;
+		}
+
+		m_shadowMapMtl = renderer.SearchMaterial( _T( "mat_shadowMap" ) );
+	}
+
+	if ( m_shadowMapMtl == INVALID_MATERIAL )
+	{
+		return false;
+	}
+
+	BUFFER_TRAIT constantTrait = {
+		sizeof( PsCascadeConstant ),
+		1,
+		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
+		RESOURCE_TYPE::CONSTANT_BUFFER,
+		0U,
+		nullptr,
+		0U,
+		0U
+	};
+
+	m_psShadowConstant = resourceMgr.CreateBuffer( constantTrait );
+	if ( m_psShadowConstant == RE_HANDLE_TYPE::INVALID_HANDLE )
+	{
+		return false;
+	}
+
+	m_shadowSampler = resourceMgr.CreateSamplerState( _T( "shadow" ) );
+	if ( m_shadowSampler == RE_HANDLE_TYPE::INVALID_HANDLE )
+	{
+		return false;
+	}
+
+	renderer.BindSamplerState( SHADER_TYPE::PS, 1, 1, &m_shadowSampler );
+
+	return true;
+}
+
+bool CShadowManager::CreateNonCascadedResource( IResourceManager& resourceMgr )
+{
 	m_shadowMap = resourceMgr.CreateTexture2D( _T( "ShadowMap" ), _T( "ShadowMap" ) );
 	if ( m_shadowMap == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
@@ -168,14 +290,8 @@ bool CShadowManager::CreateDeviceDependentResource( IRenderer& renderer )
 		return false;
 	}
 
-	m_shadowMapMtl = renderer.SearchMaterial( SHADOWMAP_MATERIAL_NAME );
-	if ( m_shadowMapMtl == INVALID_MATERIAL )
-	{
-		return false;
-	}
-
 	BUFFER_TRAIT constantTrait = {
-		sizeof( ShadowConstant ),
+		sizeof( VsNonCascadeConstant ),
 		1,
 		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
 		RESOURCE_TYPE::CONSTANT_BUFFER,
@@ -185,21 +301,92 @@ bool CShadowManager::CreateDeviceDependentResource( IRenderer& renderer )
 		0U
 	};
 
-	m_shadowConstant = resourceMgr.CreateBuffer( constantTrait );
-	if ( m_shadowConstant == RE_HANDLE_TYPE::INVALID_HANDLE )
+	m_vsShadowConstant = resourceMgr.CreateBuffer( constantTrait );
+	if ( m_vsShadowConstant == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{
 		return false;
 	}
-
-	m_shadowSampler = resourceMgr.CreateSamplerState( _T( "shadow" ) );
-	if ( m_shadowSampler == RE_HANDLE_TYPE::INVALID_HANDLE )
-	{
-		return false;
-	}
-
-	renderer.BindSamplerState( SHADER_TYPE::PS, 1, 1, &m_shadowSampler );
 
 	return true;
+}
+
+bool CShadowManager::CreateCascadedResource( IResourceManager& resourceMgr )
+{
+	m_shadowMap = resourceMgr.CreateTexture2D( _T( "CascadedShadowMap" ), _T( "CascadedShadowMap" ) );
+	if ( m_shadowMap == RE_HANDLE_TYPE::INVALID_HANDLE )
+	{
+		return false;
+	}
+
+	m_rtvShadowMap = resourceMgr.CreateRenderTarget( m_shadowMap, _T( "CascadedShadowMap" ) );
+	if ( m_rtvShadowMap == RE_HANDLE_TYPE::INVALID_HANDLE )
+	{
+		return false;
+	}
+
+	m_srvShadowMap = resourceMgr.CreateTextureShaderResource( m_shadowMap, _T( "CascadedShadowMap" ) );
+	if ( m_srvShadowMap == RE_HANDLE_TYPE::INVALID_HANDLE )
+	{
+		return false;
+	}
+
+	m_shadowDepth = resourceMgr.CreateTexture2D( _T( "CascadedShadowMapDepthStencil" ), _T( "CascadedShadowMapDepthStencil" ) );
+	if ( m_shadowDepth == RE_HANDLE_TYPE::INVALID_HANDLE )
+	{
+		return false;
+	}
+
+	TEXTURE_TRAIT texTrait = resourceMgr.GetTextureTrait( m_shadowDepth );
+	texTrait.m_format = RESOURCE_FORMAT::D24_UNORM_S8_UINT;
+
+	m_dsvShadowMap = resourceMgr.CreateDepthStencil( m_shadowDepth, _T( "CascadedShadowMapDepthStencil" ), &texTrait );
+	if ( m_dsvShadowMap == RE_HANDLE_TYPE::INVALID_HANDLE )
+	{
+		return false;
+	}
+
+	BUFFER_TRAIT constantTrait = {
+		sizeof( GsCascadeConstant ),
+		1,
+		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
+		RESOURCE_TYPE::CONSTANT_BUFFER,
+		0U,
+		nullptr,
+		0U,
+		0U
+	};
+
+	m_gsShadowConstant = resourceMgr.CreateBuffer( constantTrait );
+	if ( m_gsShadowConstant == RE_HANDLE_TYPE::INVALID_HANDLE )
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void CShadowManager::DestroyShadowmapTexture( IResourceManager& resourceMgr )
+{
+	resourceMgr.FreeResource( m_srvShadowMap );
+	resourceMgr.FreeResource( m_rtvShadowMap );
+	resourceMgr.FreeResource( m_shadowMap );
+
+	resourceMgr.FreeResource( m_dsvShadowMap );
+	resourceMgr.FreeResource( m_shadowDepth );
+}
+
+void CShadowManager::DestroyNonCascadeResource( IResourceManager& resourceMgr )
+{
+	DestroyShadowmapTexture( resourceMgr );
+
+	resourceMgr.FreeResource( m_vsShadowConstant );
+}
+
+void CShadowManager::DestoryCascadedResource( IResourceManager& resourceMgr )
+{
+	DestroyShadowmapTexture( resourceMgr );
+
+	resourceMgr.FreeResource( m_gsShadowConstant );
 }
 
 void CShadowManager::ClassifyShadowCasterAndReceiver( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects )
@@ -240,6 +427,11 @@ void CShadowManager::ClassifyShadowCasterAndReceiver( CGameLogic& gameLogic, std
 
 	for ( auto& object : gameObjects )
 	{
+		//if ( object->GetName( ) == _T( "ground" ) )
+		//{
+		//	continue;
+		//}
+
 		const CAaboundingbox* aabb = reinterpret_cast<const CAaboundingbox*>( object->GetRigidBody( RIGID_BODY_TYPE::AABB ) );
 		if ( aabb == nullptr )
 		{
@@ -303,25 +495,34 @@ void CShadowManager::ClassifyShadowCasterAndReceiver( CGameLogic& gameLogic, std
 		float minZ = FLT_MAX;
 		float maxZ = -FLT_MAX;
 
-		for ( size_t i = 0; i < m_shadowReceiverPoints.size( ); ++i )
+		for ( const CAaboundingbox& aabb : m_shadowReceiverPoints )
 		{
-			minZ = min( minZ, m_shadowReceiverPoints[i].GetMin( ).z );
-			maxZ = max( maxZ, m_shadowReceiverPoints[i].GetMax( ).z );
+			minZ = min( minZ, aabb.GetMin( ).z );
+			maxZ = max( maxZ, aabb.GetMax( ).z );
 		}
 
-		m_zNear = max( view.GetNear( ), minZ );
-		m_zFar = min( view.GetFar( ), maxZ );
+		m_receiversNear = max( view.GetNear( ), minZ );
+		m_receiversFar = min( view.GetFar( ), maxZ );
 		m_slideBack = 0.f;
 	}
 	else
 	{
-		m_zNear = view.GetNear();
-		m_zFar = view.GetFar( );
+		m_receiversNear = view.GetNear();
+		m_receiversFar = view.GetFar( );
 		m_slideBack = 0.f;
+	}
+
+	m_castersNear = FLT_MAX;
+	m_castersFar = -FLT_MAX;
+
+	for ( const CAaboundingbox& aabb : m_shadowCasterPoints )
+	{
+		m_castersNear = min( m_castersNear, aabb.GetMin( ).z );
+		m_castersFar = max( m_castersFar, aabb.GetMax( ).z );
 	}
 }
 
-void CShadowManager::BuildOrthoShadowProjectionMatrix( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects )
+void CShadowManager::BuildOrthoShadowProjectionMatrix( CGameLogic& gameLogic, int cascadeLevel, float zClipNear, float zClipFar )
 {
 	using namespace DirectX;
 
@@ -341,20 +542,41 @@ void CShadowManager::BuildOrthoShadowProjectionMatrix( CGameLogic& gameLogic, st
 	CAaboundingbox frustumAABB;
 	if ( m_isUnitClipCube )
 	{
-		frustumAABB = CAaboundingbox( m_shadowReceiverPoints );
+		for ( const CAaboundingbox& aabb : m_shadowReceiverPoints )
+		{
+			const CXMFLOAT3& max = aabb.GetMax( );
+			const CXMFLOAT3& min = aabb.GetMin( );
+
+			if ( min.z < zClipFar && max.z > zClipNear )
+			{
+				frustumAABB.Merge( max );
+				frustumAABB.Merge( min );
+			}
+		}
 	}
 	else
 	{
 		float height = view.GetFov( );
 		float width = height * view.GetAspect( );
-		float zNear = view.GetNear( );
-		float zFar = view.GetFar( );
+		float zNear = max( view.GetNear( ), zClipNear );
+		float zFar = min( view.GetFar( ), zClipFar );
 
 		frustumAABB.SetMax( width * zFar, height * zFar, zFar );
 		frustumAABB.SetMin( -width * zFar, -height * zFar, zNear );
 	}
 
-	CAaboundingbox casterAABB( m_shadowCasterPoints );
+	CAaboundingbox casterAABB;
+	for ( const CAaboundingbox& aabb : m_shadowCasterPoints )
+	{
+		const CXMFLOAT3& max = aabb.GetMax( );
+		const CXMFLOAT3& min = aabb.GetMin( );
+
+		if ( min.z < zClipFar && max.z > zClipNear )
+		{
+			casterAABB.Merge( max );
+			casterAABB.Merge( min );
+		}
+	}
 
 	CXMFLOAT3 center;
 	frustumAABB.Centroid( center );
@@ -396,34 +618,54 @@ void CShadowManager::BuildOrthoShadowProjectionMatrix( CGameLogic& gameLogic, st
 	const CXMFLOAT3& frustumMax = frustumAABB.GetMax( );
 	const CXMFLOAT3& casterMin = casterAABB.GetMin( );
 
-	CXMFLOAT4X4 lightPorjection = XMMatrixOrthographicOffCenterLH( frustumMin.x, frustumMax.x,
-														frustumMin.y, frustumMax.y,
-														casterMin.z, frustumMax.z );
+	m_lightProjection[cascadeLevel] = XMMatrixOrthographicOffCenterLH( frustumMin.x, frustumMax.x,
+																				frustumMin.y, frustumMax.y,
+																				casterMin.z, frustumMax.z );
 
-	m_lightViewProjection = XMMatrixMultiply( view.GetViewMatrix( ), lightView );
-	m_lightViewProjection = XMMatrixMultiply( m_lightViewProjection, lightPorjection );
+	m_lightView[cascadeLevel] = XMMatrixMultiply( view.GetViewMatrix( ), lightView );
 }
 
-void CShadowManager::BuildPSMProjectionMatrix( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects )
+void CShadowManager::BuildPSMProjectionMatrix( CGameLogic& gameLogic, int cascadeLevel, float zClipNear, float zClipFar )
 {
-	ImUI& ui = gameLogic.GetUIManager( );
-
-	ui.SliderFloat( "minInfinityZ Slider", &m_minInfinityZ, 0.f, 100.f );
-	ui.SameLine( );
-	ui.Text( "minInfinityZ" );
-
 	using namespace DirectX;
+
+	zClipNear = max( zClipNear, m_receiversNear );
+	zClipFar = min( zClipFar, m_receiversFar );
+
+	std::vector<CAaboundingbox> clipedResivePoints;
+	clipedResivePoints.reserve( m_shadowReceiverPoints.size( ) );
+
+	for ( const auto& aabb : m_shadowReceiverPoints )
+	{
+		const CXMFLOAT3& max = aabb.GetMax( );
+		const CXMFLOAT3& min = aabb.GetMin( );
+
+		if ( min.z < zClipFar && max.z > zClipNear )
+		{
+			clipedResivePoints.emplace_back( aabb );
+		}
+	}
 
 	const CRenderView& view = gameLogic.GetView( );
 
-	float infinity = m_zFar / ( m_zFar - m_zNear );
-	
+	//float infinity = m_receiversFar / ( m_receiversFar - m_receiversNear );
+	//
+	//const float Z_EPSILON = 0.0001f;
+	//if ( m_isSlideBack && ( infinity <= m_minInfinityZ ) )
+	//{
+	//	m_slideBack = m_minInfinityZ * ( m_receiversFar - m_receiversNear ) - m_receiversFar + Z_EPSILON;
+	//	m_receiversFar += m_slideBack;
+	//	m_receiversNear += m_slideBack;
+	//}
+
+	float infinity = zClipFar / ( zClipFar - zClipNear );
+
 	const float Z_EPSILON = 0.0001f;
 	if ( m_isSlideBack && ( infinity <= m_minInfinityZ ) )
 	{
-		m_slideBack = m_minInfinityZ * ( m_zFar - m_zNear ) - m_zFar + Z_EPSILON;
-		m_zFar += m_slideBack;
-		m_zNear += m_slideBack;
+		m_slideBack = m_minInfinityZ * ( zClipFar - zClipNear ) - zClipFar + Z_EPSILON;
+		zClipFar += m_slideBack;
+		zClipNear += m_slideBack;
 	}
 
 	CXMFLOAT4X4 virtualCameraView = XMMatrixTranslation( 0.f, 0.f, m_slideBack );
@@ -433,26 +675,10 @@ void CShadowManager::BuildPSMProjectionMatrix( CGameLogic& gameLogic, std::vecto
 	{
 		if ( m_isUnitClipCube )
 		{
-			CBoundingCone cone( m_shadowReceiverPoints, virtualCameraView, CXMFLOAT3( 0.f, 0.f, 0.f ), CXMFLOAT3( 0.f, 0.f, 1.f ) );
-			virtualCameraProjection = XMMatrixPerspectiveLH( 2.f * tanf( cone.GetFovX( ) ) * m_zNear, 2.f * tanf( cone.GetFovY() ) * m_zNear, m_zNear, m_zFar );
-
-			std::string viewWidth = std::string( "viewWidth : " ) + std::to_string( 2.f * tanf( cone.GetFovX( ) ) * m_zNear );
-			ui.Text( viewWidth.c_str( ) );
-
-			std::string vidwHeight = std::string( "viewHeight : " ) + std::to_string( 2.f * tanf( cone.GetFovY( ) ) * m_zNear );
-			ui.Text( vidwHeight.c_str( ) );
-
-			std::string fovX = std::string( "fovX : " ) + std::to_string( cone.GetFovX( ) );
-			ui.Text( fovX.c_str( ) );
-
-			std::string fovY = std::string( "fovY : " ) + std::to_string( cone.GetFovY( ) );
-			ui.Text( fovY.c_str( ) );
-
-			std::string zNear = std::string( "Near : " ) + std::to_string( m_zNear );
-			ui.Text( zNear.c_str( ) );
-
-			std::string zFar = std::string( "Far : " ) + std::to_string( m_zFar );
-			ui.Text( zFar.c_str( ) );
+			//CBoundingCone cone( m_shadowReceiverPoints, virtualCameraView, CXMFLOAT3( 0.f, 0.f, 0.f ), CXMFLOAT3( 0.f, 0.f, 1.f ) );
+			CBoundingCone cone( clipedResivePoints, virtualCameraView, CXMFLOAT3( 0.f, 0.f, 0.f ), CXMFLOAT3( 0.f, 0.f, 1.f ) );
+			//virtualCameraProjection = XMMatrixPerspectiveLH( 2.f * tanf( cone.GetFovX( ) ) * m_receiversNear, 2.f * tanf( cone.GetFovY() ) * m_receiversNear, m_receiversNear, m_receiversFar );
+			virtualCameraProjection = XMMatrixPerspectiveLH( 2.f * tanf( cone.GetFovX( ) ) * zClipNear, 2.f * tanf( cone.GetFovY( ) ) * zClipNear, zClipNear, zClipFar );
 		}
 		else
 		{
@@ -462,13 +688,15 @@ void CShadowManager::BuildPSMProjectionMatrix( CGameLogic& gameLogic, std::vecto
 			float halfFovy = atanf( viewHeight / ( view.GetFar() + m_slideBack ) ) ;
 			float halfFovx = atanf( viewWidth / ( view.GetFar() + m_slideBack ) );
 
-			virtualCameraProjection = XMMatrixPerspectiveLH( 2.f * tanf( halfFovx ) * m_zNear, 2.f * tanf( halfFovy ) * m_zNear, m_zNear, m_zFar );
+			//virtualCameraProjection = XMMatrixPerspectiveLH( 2.f * tanf( halfFovx ) * m_receiversNear, 2.f * tanf( halfFovy ) * m_receiversNear, m_receiversNear, m_receiversFar );
+			virtualCameraProjection = XMMatrixPerspectiveLH( 2.f * tanf( halfFovx ) * zClipNear, 2.f * tanf( halfFovy ) * zClipNear, zClipNear, zClipFar );
 		}
 	}
 	else
 	{
 		virtualCameraView = XMMatrixIdentity( );
-		virtualCameraProjection = XMMatrixPerspectiveFovLH( view.GetFov( ), view.GetAspect( ), m_zNear, m_zFar );
+		//virtualCameraProjection = XMMatrixPerspectiveFovLH( view.GetFov( ), view.GetAspect( ), m_receiversNear, m_receiversFar );
+		virtualCameraProjection = XMMatrixPerspectiveFovLH( view.GetFov( ), view.GetAspect( ), zClipNear, zClipFar );
 	}
 
 	CLightManager& lightMgr = gameLogic.GetLightManager( );
@@ -546,7 +774,8 @@ void CShadowManager::BuildPSMProjectionMatrix( CGameLogic& gameLogic, std::vecto
 			CBoundingCone viewCone;
 			if ( m_isUnitClipCube )
 			{
-				viewCone = CBoundingCone( m_shadowReceiverPoints, eyeToPostProjectiveVirtualCamera, ppLightPos );
+				//viewCone = CBoundingCone( m_shadowReceiverPoints, eyeToPostProjectiveVirtualCamera, ppLightPos );
+				viewCone = CBoundingCone( clipedResivePoints, eyeToPostProjectiveVirtualCamera, ppLightPos );
 			}
 			else
 			{
@@ -570,7 +799,8 @@ void CShadowManager::BuildPSMProjectionMatrix( CGameLogic& gameLogic, std::vecto
 
 			if ( m_isUnitClipCube )
 			{
-				CBoundingCone viewCone( m_shadowReceiverPoints, eyeToPostProjectiveVirtualCamera, ppLightPos );
+				//CBoundingCone viewCone( m_shadowReceiverPoints, eyeToPostProjectiveVirtualCamera, ppLightPos );
+				CBoundingCone viewCone( clipedResivePoints, eyeToPostProjectiveVirtualCamera, ppLightPos );
 				lightView = viewCone.GetLookAt( );
 
 				fFovy = viewCone.GetFovY( ) * 2.f;
@@ -606,17 +836,18 @@ void CShadowManager::BuildPSMProjectionMatrix( CGameLogic& gameLogic, std::vecto
 		}
 	}
 
-	m_lightViewProjection = XMMatrixMultiply( view.GetViewMatrix( ), virtualCameraView );
-	m_lightViewProjection = XMMatrixMultiply( m_lightViewProjection, virtualCameraProjection );
-	m_lightViewProjection = XMMatrixMultiply( m_lightViewProjection, lightView );
-	m_lightViewProjection = XMMatrixMultiply( m_lightViewProjection, lightProjection );
+
+	m_lightView[cascadeLevel] = XMMatrixMultiply( view.GetViewMatrix( ), virtualCameraView );
+	m_lightView[cascadeLevel] = XMMatrixMultiply( m_lightView[cascadeLevel], virtualCameraProjection );
+	m_lightView[cascadeLevel] = XMMatrixMultiply( m_lightView[cascadeLevel], lightView );
+	m_lightProjection[cascadeLevel] = lightProjection;
 }
 
-void CShadowManager::BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects )
+void CShadowManager::BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, int cascadeLevel, float zClipNear, float zClipFar )
 {
 	if ( abs( m_cosGamma ) >= 0.999f )
 	{
-		BuildOrthoShadowProjectionMatrix( gameLogic, gameObjects );
+		BuildOrthoShadowProjectionMatrix( gameLogic, 0, -FLT_MAX, FLT_MAX );
 	}
 	else
 	{
@@ -634,9 +865,15 @@ void CShadowManager::BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, std::vec
 
 		for ( const auto& box : m_shadowCasterPoints )
 		{
-			for ( int i = 0; i < 8; ++i )
+			const CXMFLOAT3& max = box.GetMax( );
+			const CXMFLOAT3& min = box.GetMin( );
+
+			if ( min.z < zClipFar && max.z > zClipNear )
 			{
-				bodyB.emplace_back( box.Point( i ) );
+				for ( int i = 0; i < 8; ++i )
+				{
+					bodyB.emplace_back( box.Point( i ) );
+				}
 			}
 		}
 
@@ -668,7 +905,7 @@ void CShadowManager::BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, std::vec
 		lightSpaceBox.Centroid( lightSpaceOrigin );
 		float sinGamma = sqrtf( 1.f - m_cosGamma * m_cosGamma );
 
-		float nOpt0 = m_zNear + sqrtf( m_zNear * m_zFar );
+		float nOpt0 = m_receiversNear + sqrtf( m_receiversNear * m_receiversFar );
 
 		float zNear = view.GetNear( );
 		float zFar = view.GetFar( );
@@ -676,15 +913,7 @@ void CShadowManager::BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, std::vec
 
 		float lspsmNopt = ( ( nOpt0 + nOpt1 ) / ( 2.f * sinGamma ) ) + 0.1f;
 
-		ImUI& ui = gameLogic.GetUIManager( );
-		ui.SliderFloat( "nOpt Weight", &m_nOptWeight, 0.f, 1.f );
-		ui.SameLine( );
-		ui.Text( "nOpt Weight" );
-		ui.Text( "cosGamma : %f", m_cosGamma );
-
 		float nOpt = 0.1f + m_nOptWeight * ( lspsmNopt - 0.1f );
-
-		ui.Text( "nOpt : %f", nOpt );
 
 		lightSpaceOrigin.z = lightSpaceBox.GetMin( ).z - nOpt;
 
@@ -703,11 +932,8 @@ void CShadowManager::BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, std::vec
 		float fovX = XMConvertToDegrees( atanf(maxX) );
 		float fovY = XMConvertToDegrees( atanf(maxY) );
 
-		ui.Text( "lightSpaceOrigin : %f %f %f", lightSpaceOrigin.x, lightSpaceOrigin.y, lightSpaceOrigin.z );
-		ui.SliderFloat( "debug z", &m_debugZ, 0, 3000 );
-
 		CXMFLOAT4X4 translate = XMMatrixTranslation( -lightSpaceOrigin.x, -lightSpaceOrigin.y, -lightSpaceOrigin.z );
-		CXMFLOAT4X4 perspective = XMMatrixPerspectiveLH( 2.f * maxX * nOpt, 2.f * maxY * nOpt, nOpt, maxZ - m_debugZ );
+		CXMFLOAT4X4 perspective = XMMatrixPerspectiveLH( 2.f * maxX * nOpt, 2.f * maxY * nOpt, nOpt, maxZ );
 
 		lightSpaceBasis = XMMatrixMultiply( lightSpaceBasis, translate );
 		lightSpaceBasis = XMMatrixMultiply( lightSpaceBasis, perspective );
@@ -722,7 +948,9 @@ void CShadowManager::BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, std::vec
 		CXMFLOAT4X4 ortho = XMMatrixOrthographicLH( 2.f, 1.f, 0.5f, 2.5f );
 
 		lightSpaceBasis = XMMatrixMultiply( lightSpaceBasis, permute );
-		lightSpaceBasis = XMMatrixMultiply( lightSpaceBasis, ortho );
+		m_lightView[cascadeLevel] = XMMatrixMultiply( view.GetViewMatrix( ), lightSpaceBasis );
+
+		m_lightProjection[cascadeLevel] = ortho;
 
 		if ( m_isUnitClipCube && ( m_shadowReceiverPoints.size() > 0 ) )
 		{
@@ -731,9 +959,15 @@ void CShadowManager::BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, std::vec
 
 			for ( const auto& box : m_shadowReceiverPoints )
 			{
-				for ( int i = 0; i < 8; ++i )
+				const CXMFLOAT3& max = box.GetMax( );
+				const CXMFLOAT3& min = box.GetMin( );
+
+				if ( min.z < zClipFar && max.z > zClipNear )
 				{
-					receiverPoints.emplace_back( box.Point( i ) );
+					for ( int i = 0; i < 8; ++i )
+					{
+						receiverPoints.emplace_back( box.Point( i ) );
+					}
 				}
 			}
 
@@ -761,10 +995,8 @@ void CShadowManager::BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, std::vec
 					-2.f * boxX / boxWidth, -2.f * boxY / boxHeight, 0.f, 1.f
 				);
 
-				lightSpaceBasis = XMMatrixMultiply( lightSpaceBasis, clip );
+				m_lightProjection[cascadeLevel] = XMMatrixMultiply( m_lightProjection[cascadeLevel], clip );
 			}
 		}
-
-		m_lightViewProjection = XMMatrixMultiply( view.GetViewMatrix( ), lightSpaceBasis );
 	}
 }

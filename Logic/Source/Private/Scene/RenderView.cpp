@@ -45,9 +45,6 @@ void CRenderView::UpdataView( CGameLogic& gameLogic, RE_HANDLE viewProjBuffer )
 		pData->m_view = XMMatrixTranspose( m_viewMatrix );
 		pData->m_projection = XMMatrixTranspose( m_projectionMatrix );
 
-		CShadowManager& shadowManager = gameLogic.GetShadowManager( );
-		pData->m_lightViewProjection = XMMatrixTranspose( shadowManager.GetLightViewProjectionMatrix( ) );
-
 		renderer.UnLockBuffer( viewProjBuffer );
 		renderer.BindConstantBuffer( SHADER_TYPE::VS, static_cast<int>( VS_CONSTANT_BUFFER::VIEW_PROJECTION ), 1, &viewProjBuffer );
 	}

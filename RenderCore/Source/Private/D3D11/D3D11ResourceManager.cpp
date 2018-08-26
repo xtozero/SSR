@@ -1285,11 +1285,8 @@ RE_HANDLE CD3D11ResourceManager::CreateCloneTexture( RE_HANDLE texHandle, const 
 
 void CD3D11ResourceManager::CopyResource( RE_HANDLE dest, const RESOURCE_REGION* destRegionOrNull, RE_HANDLE src, const RESOURCE_REGION* srcRegionOrNull )
 {
-	ID3D11Resource* pDest = nullptr;
-	ID3D11Resource* pSrc = nullptr;
-
-	pDest = GetD3D11ResourceGeneric( dest );
-	pSrc = GetD3D11ResourceGeneric( src );
+	ID3D11Resource* pDest = GetD3D11ResourceGeneric( dest );
+	ID3D11Resource* pSrc = GetD3D11ResourceGeneric( src );
 
 	assert( pDest != nullptr && pSrc != nullptr );
 
@@ -1310,6 +1307,11 @@ void CD3D11ResourceManager::CopyResource( RE_HANDLE dest, const RESOURCE_REGION*
 
 void CD3D11ResourceManager::FreeResource( RE_HANDLE resourceHandle )
 {
+	if ( resourceHandle == INVALID_HANDLE )
+	{
+		return;
+	}
+
 	unsigned int resourceType = resourceHandle & RE_TYPE_MASK;
 	int resourceIdx = resourceHandle & RE_INDEX_MASK;
 
@@ -1320,14 +1322,22 @@ void CD3D11ResourceManager::FreeResource( RE_HANDLE resourceHandle )
 		PushFrontInPlaceList( &m_freeBuffer, &m_buffers[resourceIdx] );
 		break;
 	case DEPTH_STENCIL_HANDLE:
+		m_depthStencils[resourceIdx].~CDepthStencil( );
+		PushFrontInPlaceList( &m_freeDepthStencil, &m_depthStencils[resourceIdx] );
 		break;
 	case RENDER_TARGET_HANDLE:
+		m_renderTargets[resourceIdx].~CRenderTarget( );
+		PushFrontInPlaceList( &m_freeRenderTarget, &m_renderTargets[resourceIdx] );
 		break;
 	case SHADER_RESOURCE_HANDLE:
+		m_shaderResources[resourceIdx].~CD3D11ShaderResource( );
+		PushFrontInPlaceList( &m_freeShaderResource, &m_shaderResources[resourceIdx] );
 		break;
 	case RANDOM_ACCESS_HANDLE:
 		break;
 	case TEXTURE_HANDLE:
+		m_textures[resourceIdx].~CD3D11Texture( );
+		PushFrontInPlaceList( &m_freeTexture, &m_textures[resourceIdx] );
 		break;
 	case VS_HANDLE:
 		break;
@@ -1460,6 +1470,12 @@ const CD3D11VertexShader& CD3D11ResourceManager::GetVertexShader( RE_HANDLE hand
 {
 	assert( IsVertexShaderHandle( handle ) );
 	return m_vertexShaders[handle & RE_INDEX_MASK];
+}
+
+const CD3D11GeometryShader& CD3D11ResourceManager::GetGeometryShader( RE_HANDLE handle ) const
+{
+	assert( IsGeometryShaderHandle( handle ) );
+	return m_geometryShaders[handle & RE_INDEX_MASK];
 }
 
 const CD3D11PixelShader& CD3D11ResourceManager::GetPixelShader( RE_HANDLE handle ) const

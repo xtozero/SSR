@@ -8,7 +8,14 @@ cbuffer VEIW_PROJECTION : register(b1)
 {
 	matrix g_viewMatrix : packoffset(c0);
 	matrix g_projectionMatrix : packoffset(c4);
-	matrix g_lightViewProjectionMatrix : packoffset(c8);
+};
+
+cbuffer SHADOW_VIEW_PROJECTION : register(b2)
+{
+	float g_zBias;
+	float3 padding;
+	matrix g_lightViewMatrix;
+	matrix g_lightProjectionMatrix;
 };
 
 struct VS_INPUT

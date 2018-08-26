@@ -107,6 +107,7 @@ public:
 	const CD3D11Texture& GetTexture( RE_HANDLE handle ) const;
 	const CD3D11Buffer& GetBuffer( RE_HANDLE handle ) const;
 	const CD3D11VertexShader& GetVertexShader( RE_HANDLE handle ) const;
+	const CD3D11GeometryShader& GetGeometryShader( RE_HANDLE handle ) const;
 	const CD3D11PixelShader& GetPixelShader( RE_HANDLE handle ) const;
 	const CD3D11ComputeShader& GetComputeShader( RE_HANDLE handle ) const;
 	const CD3D11SamplerState& GetSamplerState( RE_HANDLE handle ) const;

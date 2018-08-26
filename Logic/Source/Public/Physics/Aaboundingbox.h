@@ -19,6 +19,11 @@ public:
 	explicit CAaboundingbox( const std::vector<CXMFLOAT3>& points );
 
 	void Merge( const CXMFLOAT3& vec );
+	void Size( CXMFLOAT3& size ) const
+	{
+		using namespace DirectX;
+		size = m_max - m_min;
+	}
 	void Centroid( CXMFLOAT3& centroid ) const
 	{
 		using namespace DirectX;
