@@ -929,8 +929,8 @@ void CShadowManager::BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, int casc
 			maxZ = max( maxZ, tmp.z );
 		}
 
-		float fovX = XMConvertToDegrees( atanf(maxX) );
-		float fovY = XMConvertToDegrees( atanf(maxY) );
+		// float fovX = XMConvertToDegrees( atanf(maxX) );
+		// float fovY = XMConvertToDegrees( atanf(maxY) );
 
 		CXMFLOAT4X4 translate = XMMatrixTranslation( -lightSpaceOrigin.x, -lightSpaceOrigin.y, -lightSpaceOrigin.z );
 		CXMFLOAT4X4 perspective = XMMatrixPerspectiveLH( 2.f * maxX * nOpt, 2.f * maxY * nOpt, nOpt, maxZ );
