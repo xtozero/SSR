@@ -14,6 +14,7 @@ class CLightManager;
 class CRenderView;
 class IRenderer;
 class IRenderResource;
+class IResourceManager;
 class ITexture;
 
 class CShadowManager : public IGraphicsDeviceNotify
@@ -24,18 +25,25 @@ public:
 	void Init( CGameLogic& gameLogic );
 	void BuildShadowProjectionMatrix( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects );
 	void DrawShadowMap( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects );
-	const CXMFLOAT4X4& GetLightViewProjectionMatrix( ) const { return m_lightViewProjection; }
 
 private:
 	bool CreateDeviceDependentResource( IRenderer& renderer );
+	bool CreateNonCascadedResource( IResourceManager& resourceMgr );
+	bool CreateCascadedResource( IResourceManager& resourceMgr );
+
+	void DestroyShadowmapTexture( IResourceManager& resourceMgr );
+	void DestroyNonCascadeResource( IResourceManager& resourceMgr );
+	void DestoryCascadedResource( IResourceManager& resourceMgr );
+
 	void ClassifyShadowCasterAndReceiver( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects );
-	void BuildOrthoShadowProjectionMatrix( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects );
-	void BuildPSMProjectionMatrix( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects );
-	void BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects );
+	void BuildOrthoShadowProjectionMatrix( CGameLogic& gameLogic, int cascadeLevel, float zClipNear, float zClipFar );
+	void BuildPSMProjectionMatrix( CGameLogic& gameLogic, int cascadeLevel, float zClipNear, float zClipFar );
+	void BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, int cascadeLevel, float zClipNear, float zClipFar );
 
 	bool m_isEnabled = false;
 	bool m_isUnitClipCube = true;
 	bool m_isSlideBack = true;
+	bool m_useCascaded = false;
 	
 	RE_HANDLE m_shadowMap = RE_HANDLE_TYPE::INVALID_HANDLE;
 	RE_HANDLE m_srvShadowMap = RE_HANDLE_TYPE::INVALID_HANDLE;
@@ -43,39 +51,68 @@ private:
 	RE_HANDLE m_shadowDepth = RE_HANDLE_TYPE::INVALID_HANDLE;
 	RE_HANDLE m_dsvShadowMap = RE_HANDLE_TYPE::INVALID_HANDLE;
 
-	RE_HANDLE m_shadowConstant = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_vsShadowConstant = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_gsShadowConstant = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_psShadowConstant = RE_HANDLE_TYPE::INVALID_HANDLE;
 
 	RE_HANDLE m_shadowSampler = RE_HANDLE_TYPE::INVALID_HANDLE;
 
 	Material m_shadowMapMtl = INVALID_MATERIAL;
-
-	CXMFLOAT4X4 m_lightViewProjection;
 
 	std::vector<CGameObject*> m_shadowCasters;
 	std::vector<CAaboundingbox> m_shadowCasterPoints;
 	std::vector<CGameObject*> m_shadowReceivers;
 	std::vector<CAaboundingbox> m_shadowReceiverPoints;
 
-	float m_zNear = 0.f;
-	float m_zFar = 0.f;
+	float m_receiversNear = 0.f;
+	float m_receiversFar = 0.f;
+	float m_castersNear = 0.f;
+	float m_castersFar = 0.f;
 	float m_slideBack = 0.f;
 	float m_minInfinityZ = 1.5f;
 	float m_cosGamma = 0.f;
 	float m_nOptWeight = 1.f;
 
-	float m_debugZ = 0.f;
+	const static int MAX_CASCADED_NUM = 2;
 
-	struct ShadowConstant
+	struct CascadeConstant
 	{
-		float m_zBias = 0.001f;
-		float padding[3];
-	} m_constant;
+		float m_zFar = 0.f;
+		float m_padding[3];
+	};
+
+	struct VsNonCascadeConstant
+	{
+		float m_zBias = 0.f;
+		float m_padding[3];
+		CXMFLOAT4X4 m_lightView;
+		CXMFLOAT4X4 m_lightProjection;
+	};
+
+	struct GsCascadeConstant
+	{
+		float m_zBias = 0.f;
+		float m_padding[3];
+		CXMFLOAT4X4 m_lightView[MAX_CASCADED_NUM];
+		CXMFLOAT4X4 m_lightProjection[MAX_CASCADED_NUM];
+	};
+
+	struct PsCascadeConstant
+	{
+		CascadeConstant m_cascadeConstant[MAX_CASCADED_NUM];
+		CXMFLOAT4X4 m_lightViewProjection[MAX_CASCADED_NUM];
+	};
+
+	float m_zBias = 1.f;
+	CascadeConstant m_cascadeConstant[MAX_CASCADED_NUM];
+	CXMFLOAT4X4 m_lightView[MAX_CASCADED_NUM];
+	CXMFLOAT4X4 m_lightProjection[MAX_CASCADED_NUM];
 
 	enum class ShadowType
 	{
-		Ortho = 0,
+		ORTHO = 0,
 		PSM,
 		LSPSM,
-	} m_shadowType = ShadowType::LSPSM;
+	} m_shadowType = ShadowType::PSM;
 };
 

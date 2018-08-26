@@ -101,6 +101,24 @@
 		}
 	}
 	
+	"mat_cascaded_shadowMap"
+	{
+		"Shader"
+		{
+			"VS"	"vsCascadedShadowMap"
+			"GS"	"gsCascadedShadowMap"
+			"PS"	"psCascadedShadowMap"
+		}
+		
+		"RS_State"	"default"
+		"DS_State"	"default"
+		
+		"Sampler"
+		{
+			"PS"	"default"
+		}
+	}
+	
 	"mat_reflectable"
 	{
 		"Shader"

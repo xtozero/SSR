@@ -332,8 +332,8 @@ BYTE CDirect3D11::SceneEnd( )
 	}
 
 #ifdef _DEBUG
-	TakeSnapshot2D( _T( "DefaultDepthStencil" ), _T( "DebugDepthStencil" ) );
-	TakeSnapshot2D( _T( "ShadowMap" ), _T( "DebugShadowMap" ) );
+	//TakeSnapshot2D( _T( "DefaultDepthStencil" ), _T( "DebugDepthStencil" ) );
+	//TakeSnapshot2D( _T( "ShadowMap" ), _T( "DebugShadowMap" ) );
 #endif
 
 	return DEVICE_ERROR::NONE;
@@ -542,6 +542,7 @@ void CDirect3D11::BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT num
 	case DS:
 		break;
 	case GS:
+		m_renderStateManager.SetGsConstantBuffers( startSlot, numBuffers, buffers );
 		break;
 	case PS:
 		m_renderStateManager.SetPsConstantBuffers( startSlot, numBuffers, buffers );
@@ -578,6 +579,16 @@ void CDirect3D11::BindShader( SHADER_TYPE type, RE_HANDLE shader )
 	case DS:
 		break;
 	case GS:
+		{
+			ID3D11GeometryShader* gs = nullptr;
+			if ( shader != INVALID_HANDLE )
+			{
+				const CD3D11GeometryShader& d3d11gs = m_resourceManager.GetGeometryShader( shader );
+				gs = d3d11gs.Get( );
+			}
+
+			m_renderStateManager.SetGeometryShader( gs, nullptr, 0 );
+		}
 		break;
 	case PS:
 		{

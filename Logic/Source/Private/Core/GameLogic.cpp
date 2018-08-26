@@ -208,8 +208,8 @@ void CGameLogic::EndLogic( )
 	
 	if ( PassConstant* pData = static_cast<PassConstant*>( m_pRenderer->LockBuffer( m_commonConstantBuffer[PS_UTIL] ) ) )
 	{
-		pData->m_zFar = m_view.GetFar();
-		pData->m_zNear = m_view.GetNear( );
+		pData->m_receiversFar = m_view.GetFar();
+		pData->m_receiversNear = m_view.GetNear( );
 		pData->m_elapsedTime = CTimer::GetInstance( ).GetElapsedTIme( );
 		pData->m_totalTime = CTimer::GetInstance( ).GetTotalTime( );
 		pData->m_renderTargetSize.x = wndWidth;

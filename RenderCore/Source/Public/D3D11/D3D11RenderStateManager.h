@@ -29,6 +29,7 @@ public:
 	void SetIndexBuffer( ID3D11Buffer* pIndexBuffer, DXGI_FORMAT Format, UINT offset );
 
 	void SetVertexShader( ID3D11VertexShader* pVertexSahder, ID3D11ClassInstance* const* ppClassInstance, UINT NumClassInstances );
+	void SetGeometryShader( ID3D11GeometryShader* pGeometryShader, ID3D11ClassInstance* const* ppClassInstance, UINT NumClassInstances );
 	void SetPixelShader( ID3D11PixelShader* pPixelShader, ID3D11ClassInstance* const* ppClassInstance, UINT NumClassInstances );
 	void SetComputeShader( ID3D11ComputeShader* pComputeShader, ID3D11ClassInstance* const* ppClassInstance, UINT NumClassInstances );
 
@@ -39,6 +40,7 @@ public:
 	void SetCsUnorderedAccess( UINT StartSlot, UINT NumUAVs, ID3D11UnorderedAccessView* const* ppUnorderedAccessViews, const UINT* pUAVInitialCounts );
 
 	void SetVsConstantBuffers( UINT StartSlot, UINT NumBuffers, ID3D11Buffer* const* ppConstantBuffers );
+	void SetGsConstantBuffers( UINT StartSlot, UINT NumBuffers, ID3D11Buffer* const* ppConstantBuffers );
 	void SetPsConstantBuffers( UINT StartSlot, UINT NumBuffers, ID3D11Buffer* const* ppConstantBuffers );
 	void SetCsConstantBuffers( UINT StartSlot, UINT NumBuffers, ID3D11Buffer* const* ppConstantBuffers );
 
@@ -67,6 +69,7 @@ private:
 
 	ID3D11InputLayout* m_pCurInputLayout = nullptr;
 	ID3D11VertexShader* m_pCurVS = nullptr;
+	ID3D11GeometryShader* m_pCurGS = nullptr;
 	ID3D11PixelShader* m_pCurPS = nullptr;
 	ID3D11ComputeShader* m_pCurCS = nullptr;
 
@@ -75,6 +78,7 @@ private:
 	ID3D11ShaderResourceView* m_pCurCsSRV[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = { nullptr };
 
 	ID3D11Buffer* m_pCurVsBuffer[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT] = { nullptr };
+	ID3D11Buffer* m_pCurGsBuffer[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT] = { nullptr };
 	ID3D11Buffer* m_pCurPsBuffer[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT] = { nullptr };
 	ID3D11Buffer* m_pCurCsBuffer[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT] = { nullptr };
 

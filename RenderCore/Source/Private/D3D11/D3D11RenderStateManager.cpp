@@ -40,6 +40,15 @@ void CD3D11RenderStateManager::SetVertexShader( ID3D11VertexShader* pVertexSahde
 	}
 }
 
+void CD3D11RenderStateManager::SetGeometryShader( ID3D11GeometryShader * pGeometryShader, ID3D11ClassInstance * const * ppClassInstance, UINT NumClassInstances )
+{
+	if ( m_pCurGS != pGeometryShader )
+	{
+		m_pCurGS = pGeometryShader;
+		m_pDeviceContext->GSSetShader( pGeometryShader, ppClassInstance, NumClassInstances );
+	}
+}
+
 void CD3D11RenderStateManager::SetPixelShader( ID3D11PixelShader* pPixelShader, ID3D11ClassInstance* const* ppClassInstance, UINT NumClassInstances )
 {
 	if ( m_pCurPS != pPixelShader )
@@ -120,6 +129,21 @@ void CD3D11RenderStateManager::SetVsConstantBuffers( UINT StartSlot, UINT NumBuf
 	if ( diffCount > 0 )
 	{
 		m_pDeviceContext->VSSetConstantBuffers( StartSlot, NumBuffers, ppConstantBuffers );
+	}
+}
+
+void CD3D11RenderStateManager::SetGsConstantBuffers( UINT StartSlot, UINT NumBuffers, ID3D11Buffer* const* ppConstantBuffers )
+{
+	int diffCount = 0;
+	for ( int i = 0, slot = StartSlot, end = StartSlot + NumBuffers; slot < end; ++i, ++slot )
+	{
+		diffCount += ( ppConstantBuffers[i] != m_pCurGsBuffer[slot] ) ? 1 : 0;
+		m_pCurGsBuffer[slot] = ppConstantBuffers[i];
+	}
+
+	if ( diffCount > 0 )
+	{
+		m_pDeviceContext->GSSetConstantBuffers( StartSlot, NumBuffers, ppConstantBuffers );
 	}
 }
 

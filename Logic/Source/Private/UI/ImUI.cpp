@@ -268,7 +268,7 @@ void ImUI::BeginFrame( const Rect& clientRect )
 	++m_frameCount;
 
 	m_clientRect = clientRect;
-	m_io.m_displaySize = m_clientRect.m_widthHeight;
+	m_io.m_displaySize = m_clientRect.GetWidthHeight();
 
 	m_mouseOveredID = 0;
 
@@ -304,8 +304,8 @@ void ImUI::BeginFrame( const Rect& clientRect )
 
 	for ( auto& window : m_windows )
 	{
-		window.m_wasVisible = window.m_visible;
-		window.m_visible = false;
+		window->m_wasVisible = window->m_visible;
+		window->m_visible = false;
 	}
 
 	m_currentWindowStack.resize( 0 );
@@ -343,10 +343,10 @@ bool ImUI::Window( const char* name, ImUiWindowFlags::Type flags )
 		window = CreateImUiWindow( name, defaultSize );
 	}
 
-	ImUiWindow* parentWindowInStack = m_currentWindowStack.empty( ) ? nullptr : &m_windows[ m_currentWindowStack.back( ) ];
+	ImUiWindow* parentWindowInStack = m_currentWindowStack.empty( ) ? nullptr : m_currentWindowStack.back( );
 	ImUiWindow* parentWindow = parentWindowInStack;
 
-	m_currentWindowStack.push_back( window->m_id );
+	m_currentWindowStack.push_back( window );
 	SetCurrentWindow( window );
 
 	window->m_flag = flags;
@@ -567,7 +567,7 @@ void ImUI::EndWindow( )
 		m_currentPopupStack.pop_back( );
 	}
 
-	SetCurrentWindow( m_currentWindowStack.empty() ? nullptr : &m_windows[ m_currentWindowStack.back( ) ] );
+	SetCurrentWindow( m_currentWindowStack.empty() ? nullptr : m_currentWindowStack.back( ) );
 }
 
 bool ImUI::Button( const char* label, const CXMFLOAT2& size )
@@ -672,15 +672,17 @@ bool ImUI::BeginCombo( const char* label, const char* prevValue, ImUiComboFlag::
 
 	const CXMFLOAT4 frameColor = GetItemColor( overed ? ImUiColor::FrameBgMouseOver : ImUiColor::FrameBg );
 
+	CXMFLOAT2 frameWH = frameBB.GetWidthHeight( );
+
 	if ( ( flags & ImUiComboFlag::NoPreview ) == false )
 	{
-		m_curWindow->m_drawList.AddFilledRect( frameBB.m_leftTop, frameBB.m_widthHeight - arrowSize, frameColor, m_curStyle.m_frameRounding, ImDrawCorner::Left );
+		m_curWindow->m_drawList.AddFilledRect( frameBB.m_leftTop, frameWH - arrowSize, frameColor, m_curStyle.m_frameRounding, ImDrawCorner::Left );
 	}
 
 	if ( ( flags & ImUiComboFlag::NoArrowButton ) == false )
 	{
 		CXMFLOAT2 lt( frameBB.m_rightBottom.x - arrowSize.x, frameBB.m_leftTop.y );
-		m_curWindow->m_drawList.AddFilledRect( lt, CXMFLOAT2( arrowSize.x, frameBB.m_widthHeight.y ), GetItemColor( overed ? ImUiColor::ButtonMouseOver : ImUiColor::Button ), m_curStyle.m_frameRounding, ( width <= arrowSize.x ) ? ImDrawCorner::All : ImDrawCorner::Right );
+		m_curWindow->m_drawList.AddFilledRect( lt, CXMFLOAT2( arrowSize.x, frameWH.y ), GetItemColor( overed ? ImUiColor::ButtonMouseOver : ImUiColor::Button ), m_curStyle.m_frameRounding, ( width <= arrowSize.x ) ? ImDrawCorner::All : ImDrawCorner::Right );
 		RenderArrow( lt + m_curStyle.m_framePadding, ImDir::Down );
 	}
 
@@ -877,7 +879,7 @@ bool ImUI::Selectable( const char* label, bool selected, ImUiSelectableFlags::Ty
 	if ( mouseOvered || selected )
 	{
 		CXMFLOAT4 color = GetItemColor( ( mouseHeld && mouseOvered ) ? ImUiColor::HeaderActive : mouseOvered ? ImUiColor::HeaderMouseOver : ImUiColor::Header );
-		RenderFrame( bbWithSpacing.m_leftTop, bbWithSpacing.m_widthHeight, color );
+		RenderFrame( bbWithSpacing.m_leftTop, bbWithSpacing.GetWidthHeight(), color );
 	}
 
 	RenderClippedText( pos, bbWithSpacing.m_rightBottom, label, strlen( label ), CXMFLOAT2( 0.f, 0.f ) );
@@ -956,7 +958,6 @@ bool ImUI::HandleUserInput( const UserInput& input )
 	}
 
 	return FindMouseOverWindow( ) != nullptr;
-	return true;
 }
 
 ImDrawData ImUI::Render( )
@@ -967,16 +968,16 @@ ImDrawData ImUI::Render( )
 
 	for ( auto& window : m_windows )
 	{
-		if ( window.m_visible && ( window.m_hiddenFrames == 0 ) )
+		if ( window->m_visible && ( window->m_hiddenFrames == 0 ) )
 		{
-			if ( window.m_drawList.m_cmdBuffer.empty( ) )
+			if ( window->m_drawList.m_cmdBuffer.empty( ) )
 			{
 				continue;
 			}
 
-			drawData.m_drawLists.push_back( &window.m_drawList );
-			drawData.m_totalVertexCount += window.m_drawList.m_vertices.size( );
-			drawData.m_totalIndexCount += window.m_drawList.m_indices.size( );
+			drawData.m_drawLists.push_back( &window->m_drawList );
+			drawData.m_totalVertexCount += window->m_drawList.m_vertices.size( );
+			drawData.m_totalIndexCount += window->m_drawList.m_indices.size( );
 		}
 	}
 
@@ -1040,7 +1041,7 @@ ImUiWindow* ImUI::FindWindow( const char* name )
 	auto found = m_windowLUT.find( name );
 	if ( found != m_windowLUT.end( ) )
 	{
-		return &m_windows[found->second];
+		return m_windows[found->second].get();
 	}
 
 	return nullptr;
@@ -1050,19 +1051,21 @@ ImUiWindow* ImUI::FindMouseOverWindow( )
 {
 	for ( int i = static_cast<int>( m_windows.size() ) - 1; i >= 0; --i )
 	{
-		if ( m_windows[i].m_visible == false )
+		ImUiWindow* window = m_windows[i].get();
+
+		if ( window->m_visible == false )
 		{
 			continue;
 		}
 
-		Rect boundingBox( m_windows[i].m_pos.x,
-						m_windows[i].m_pos.y, 
-						m_windows[i].m_pos.x + m_windows[i].m_size.x,
-						m_windows[i].m_pos.y + m_windows[i].m_size.y );
+		Rect boundingBox( window->m_pos.x,
+						window->m_pos.y, 
+						window->m_pos.x + window->m_size.x,
+						window->m_pos.y + window->m_size.y );
 
 		if ( Contain( boundingBox, m_io.m_mousePos ) )
 		{
-			return (&m_windows[i]);
+			return window;
 		}
 	}
 
@@ -1073,29 +1076,29 @@ ImUiWindow* ImUI::CreateImUiWindow( const char* name, const CXMFLOAT2& size )
 {
 	int id = static_cast<int>( m_windows.size( ) );
 	m_windowLUT.emplace( name, m_windows.size( ) );
-	m_windows.emplace_back( *this );
+	m_windows.emplace_back( std::make_unique<ImUiWindow>( *this ) );
 	
-	ImUiWindow& window = m_windows.back( );
-	window.m_id = id;
+	ImUiWindow* window = m_windows.back( ).get();
+	window->m_id = id;
 
 	if ( ImUiWindowSetting* settings = FindWindowSettings( name ) )
 	{
-		window.m_pos = settings->m_pos;
-		window.m_size = settings->m_size;
-		window.m_collapsed = settings->m_collapsed;
+		window->m_pos = settings->m_pos;
+		window->m_size = settings->m_size;
+		window->m_collapsed = settings->m_collapsed;
 	}
 	else
 	{
-		window.m_pos = CXMFLOAT2( 60, 60 );
-		window.m_size = size;
+		window->m_pos = CXMFLOAT2( 60, 60 );
+		window->m_size = size;
 	}
 	
-	window.m_sizeNonCollapsed = window.m_size;
-	window.m_idStack.push_back( ImHash( name ) );
+	window->m_sizeNonCollapsed = window->m_size;
+	window->m_idStack.push_back( ImHash( name ) );
 
-	window.m_moveID = window.GetID( "MOVE" );
+	window->m_moveID = window->GetID( "MOVE" );
 
-	return &window;
+	return window;
 }
 
 CXMFLOAT2 ImUI::CalcItemSize( const CXMFLOAT2& size )
@@ -1210,7 +1213,7 @@ bool ImUI::SliderBehavior( const Rect& boundingbox, ImGUID id, float* v, float m
 
 	// юс╫ц
 	const CXMFLOAT2& framePos = boundingbox.m_leftTop;
-	const CXMFLOAT2& frameSize = boundingbox.m_widthHeight;
+	const CXMFLOAT2& frameSize = boundingbox.GetWidthHeight();
 
 	m_curWindow->m_drawList.AddFilledRect( framePos, frameSize, frameColor );
 
@@ -1744,9 +1747,10 @@ CXMFLOAT2 ImUI::FindBestWindowPosForPopup( const CXMFLOAT2& refPos, const CXMFLO
 {
 	const CXMFLOAT2& safePadding = m_curStyle.m_displaySafeAreaPadding;
 	Rect outer = m_clientRect;
+	CXMFLOAT2 widthHeight = m_clientRect.GetWidthHeight( );
 	Expand( outer, 
-		CXMFLOAT2( ( size.x - ( m_clientRect.m_widthHeight.x ) > safePadding.x * 2 ) ? -safePadding.x : 0.f,
-		( size.y - ( m_clientRect.m_widthHeight.y ) > safePadding.y * 2 ) ? -safePadding.y : 0.f)
+		CXMFLOAT2( ( size.x - ( widthHeight.x ) > safePadding.x * 2 ) ? -safePadding.x : 0.f,
+		( size.y - ( widthHeight.y ) > safePadding.y * 2 ) ? -safePadding.y : 0.f)
 	);
 	
 	if ( policy == ImUiPopupPositionPolicy::ComboBox )

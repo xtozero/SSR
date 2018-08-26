@@ -46,7 +46,6 @@ struct PS_INPUT
 	float3 normal : NORMAL;
 	float3 color : COLOR;
 	float2 texcoord : TEXCOORD;
-	float4 shadowCoord : TEXCOORD1;
 };
 
 struct PS_OUTPUT
@@ -162,28 +161,7 @@ float4 CalcLight( PS_INPUT input, float4 color )
 		}
 	}
 	
-	float visibility = 1.0f;
-	float2 uv = input.shadowCoord.xy / input.shadowCoord.w;
-	uv.y = -uv.y;
-	uv = uv * 0.5f + 0.5f;
-
-	float curDepth = input.shadowCoord.z / input.shadowCoord.w - g_bias;
-
-	int j;
-
-	float angle = random( input.worldPos ) % 360.f;
-	float2 sin_cos = float2( sin(angle), cos(angle) );
-
-	for ( i = 0; i < 4; ++i )
-	{
-		for ( j = 0; j < 4; ++j )
-		{
-			if ( RotatePoissonSample4x4Shadow( uv, sin_cos, i, j ) <= curDepth )
-			{
-				visibility -= 0.04f;
-			}
-		}
-	}
+	float visibility = CalcShadowVisibility( input.worldPos, input.viewPos );
 
 	float4 lightColor = g_globalAmbient * g_ambient;
 	lightColor += cColor.m_diffuse * g_diffuse * visibility;

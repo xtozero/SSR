@@ -33,6 +33,28 @@
 		"Misc"				"0"
 	}
 	
+	"CascadedShadowMap"
+	{
+		"Size"				"2048 2048 2" //Width Height Depth(aka. ArraySize)
+		"Sample"			"1 0" //Count Quality
+		"MipLevels"			"1"
+		"Format"			"R32_FLOAT"
+		"Access"			"GPU_READ|GPU_WRITE"
+		"Type"				"SHADER_RESOURCE|RENDER_TARGET"
+		"Misc"				"0"
+	}
+	
+	"CascadedShadowMapDepthStencil"
+	{
+		"Size"				"2048 2048 2" //Width Height Depth(aka. ArraySize)
+		"Sample"			"1 0" //Count Quality
+		"MipLevels"			"1"
+		"Format"			"R24G8_TYPELESS"
+		"Access"			"GPU_READ|GPU_WRITE"
+		"Type"				"DEPTH_STENCIL"
+		"Misc"				"0"
+	}
+	
 	"ScreenSpaceReflect"
 	{
 		"Size"				"FRAME_BUFFER"

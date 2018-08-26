@@ -110,7 +110,7 @@ void CCamera::Rotate( const float pitch, const float yaw, const float roll )
 			constexpr float angleLimit = XM_PI * 2.f;
 			for ( auto& elem : m_angles )
 			{
-				if ( angleLimit >= angleLimit )
+				if ( elem >= angleLimit )
 				{
 					elem -= angleLimit;
 				}

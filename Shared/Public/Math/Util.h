@@ -36,7 +36,8 @@ struct Rect
 {
 	CXMFLOAT2 m_leftTop;
 	CXMFLOAT2 m_rightBottom;
-	CXMFLOAT2 m_widthHeight;
+	
+	CXMFLOAT2 GetWidthHeight( ) const { return m_rightBottom - m_leftTop; }
 
 	Rect( ) = default;
 	Rect( float left, float top, float right, float bottom )
@@ -45,13 +46,11 @@ struct Rect
 		m_leftTop.y = top;
 		m_rightBottom.x = right;
 		m_rightBottom.y = bottom;
-		m_widthHeight = m_rightBottom - m_leftTop;
 	}
 	Rect( const CXMFLOAT2& leftTop, const CXMFLOAT2& rightBottom )
 	{
 		m_leftTop = leftTop;
 		m_rightBottom = rightBottom;
-		m_widthHeight = m_rightBottom - m_leftTop;
 	}
 	Rect& operator=( const RECT& rect )
 	{
@@ -59,7 +58,6 @@ struct Rect
 		m_leftTop.y = static_cast<float>( rect.top );
 		m_rightBottom.x = static_cast<float>( rect.right );
 		m_rightBottom.y = static_cast<float>( rect.bottom );
-		m_widthHeight = m_rightBottom - m_leftTop;
 		return *this;
 	}
 };

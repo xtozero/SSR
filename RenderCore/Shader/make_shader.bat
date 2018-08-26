@@ -1,4 +1,7 @@
 if NOT "%1" == "" cd %1
+fxc /Fo gsCascadedShadowmap.cso			/Zi /T gs_4_0 /E main gsCascadedShadowmap.fx
+
+fxc /Fo psCascadedShadowmap.cso			/Zi /T ps_4_0 /E main psCascadedShadowmap.fx
 fxc /Fo psDepthStencil.cso			/Zi /T ps_4_0 /E main psDepthStencil.fx
 fxc /Fo psShadowmap.cso 			/Zi /T ps_4_0 /E main psShadowmap.fx
 fxc /Fo psSkybox.cso 				/Zi /T ps_4_0 /E main psSkybox.fx
@@ -14,6 +17,8 @@ fxc /Fo psGaussianBlurX.cso			/Zi /T ps_4_0 /E main psGaussianBlurX.fx
 fxc /Fo psGaussianBlurY.cso			/Zi /T ps_4_0 /E main psGaussianBlurY.fx
 fxc /Fo psDrawBackfaceDepth.cso			/Zi /T ps_4_0 /E main psDrawBackfaceDepth.fx
 fxc /Fo psDrawUI.cso				/Zi /T ps_4_0 /E psMain drawUI.fx
+
+fxc /Fo vsCascadedShadowmap.cso			/Zi /T vs_4_0 /E main vsCascadedShadowmap.fx
 fxc /Fo vsDepthStencil.cso 			/Zi /T vs_4_0 /E main vsDepthStencil.fx
 fxc /Fo vsScreenRect.cso 			/Zi /T vs_4_0 /E main vsScreenRect.fx
 fxc /Fo vsSSR.cso 				/Zi /T vs_4_0 /E main vsSSR.fx
