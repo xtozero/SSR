@@ -131,9 +131,10 @@ add_library(Logic SHARED 	${PRECOMPILED}
 							${MODEL_SOURCE}
 							${PHYSICS_SOURCE}
 							${SCENE_SOURCE}
+							${UI_SOURCE}
 							${UNIT_TEST_SOURCE}
 							${USER_INPUT_SOURCE})
 							
 add_custom_command(TARGET Logic POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/\$\(Configuration\)/Logic.lib" "${CMAKE_CURRENT_SOURCE_DIR}/../lib"
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/\$\(Configuration\)/Logic.dll" "${CMAKE_CURRENT_SOURCE_DIR}/../bin")
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/\$\(Configuration\)/Logic.lib" "${CMAKE_CURRENT_SOURCE_DIR}/../lib/Logic.lib"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/\$\(Configuration\)/Logic.dll" "${CMAKE_CURRENT_SOURCE_DIR}/../bin/Logic.dll")

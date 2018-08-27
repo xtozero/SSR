@@ -4,7 +4,6 @@
 #include "ConsoleMessage/ConVar.h"
 #include "ConsoleMessage/ConCommand.h"
 #include "Core/DebugConsole.h"
-#include "Core/RenderCoreDllFunc.h"
 #include "Core/Timer.h"
 #include "Core/UtilWindowInfo.h"
 #include "DataStructure/KeyValueReader.h"
@@ -28,6 +27,15 @@ namespace
 
 bool CGameLogic::Initialize( IPlatform& platform )
 {
+	HMODULE renderCoreDll = LoadLibrary( _T( "../bin/RenderCore.dll" ) );
+	if ( renderCoreDll == nullptr )
+	{
+		return false;
+	}
+
+	using CreateRendererFunc = IRenderer* (*)( );
+	CreateRendererFunc CreateDirect3D11Renderer = reinterpret_cast<CreateRendererFunc>( GetProcAddress( renderCoreDll, "CreateDirect3D11Renderer" ) );
+
 	m_pRenderer.reset( CreateDirect3D11Renderer( ) );
 
 	if ( m_pRenderer == nullptr )

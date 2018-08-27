@@ -57,5 +57,5 @@ add_library(Engine SHARED	${PRECOMPILED}
 							${USER_INPUT_SOURCE})
 							
 add_custom_command(TARGET Engine POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/\$\(Configuration\)/Engine.lib" "${CMAKE_CURRENT_SOURCE_DIR}/../lib"
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/\$\(Configuration\)/Engine.dll" "${CMAKE_CURRENT_SOURCE_DIR}/../bin")
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/\$\(Configuration\)/Engine.lib" "${CMAKE_CURRENT_SOURCE_DIR}/../lib/Engine.lib"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/\$\(Configuration\)/Engine.dll" "${CMAKE_CURRENT_SOURCE_DIR}/../bin/Engine.dll")
