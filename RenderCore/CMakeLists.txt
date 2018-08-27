@@ -79,7 +79,12 @@ set (DIRECT3D_LIBRARY
 	"dxgi.lib")
 								
 target_link_libraries(RenderCore PRIVATE ${DIRECT3D_LIBRARY})
-								
+
 add_custom_command(TARGET RenderCore POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/\$\(Configuration\)/RenderCore.lib" "${CMAKE_CURRENT_SOURCE_DIR}/../lib"
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/\$\(Configuration\)/RenderCore.dll" "${CMAKE_CURRENT_SOURCE_DIR}/../bin")
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/\$\(Configuration\)/RenderCore.lib" "${CMAKE_CURRENT_SOURCE_DIR}/../lib/RenderCore.lib"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/\$\(Configuration\)/RenderCore.dll" "${CMAKE_CURRENT_SOURCE_DIR}/../bin/RenderCore.dll")
+
+if (WIN32)
+	add_custom_command(TARGET RenderCore POST_BUILD
+	COMMAND cmd /c call ${CMAKE_CURRENT_SOURCE_DIR}/Shader/make_shader.bat ${CMAKE_CURRENT_SOURCE_DIR}/Shader)
+endif()

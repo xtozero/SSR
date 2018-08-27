@@ -21,7 +21,7 @@ include_directories(../Engine/Source/Public)
 
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../lib)
 
-set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/.. )
+set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ )
 	
 if (NOT "${CMAKE_GENERATOR}" MATCHES "(WIN64|IA64)")
 add_executable( "ScreenSpaceReflect" WIN32 ${EXCUTABLE_SOUCE} )
@@ -29,4 +29,4 @@ else()
 add_executable( "ScreenSpaceReflect" ${EXCUTABLE_SOUCE} )
 endif()
 
-set_target_properties( "ScreenSpaceReflect" PROPERTIES VS_DEBUGGER_WORKING_DIECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} )
+set_target_properties( "ScreenSpaceReflect" PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} )

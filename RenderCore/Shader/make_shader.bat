@@ -1,4 +1,8 @@
 if NOT "%1" == "" cd %1
+cd ..\..\bin
+mkdir Shader
+cd ..\RenderCore\Shader
+
 fxc /Fo gsCascadedShadowmap.cso			/Zi /T gs_4_0 /E main gsCascadedShadowmap.fx
 
 fxc /Fo psCascadedShadowmap.cso			/Zi /T ps_4_0 /E main psCascadedShadowmap.fx

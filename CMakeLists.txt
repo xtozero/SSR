@@ -8,3 +8,7 @@ add_subdirectory (Engine)
 add_subdirectory (RenderCore)
 add_subdirectory (Logic)
 add_subdirectory ("Sceen Space Reflect")
+
+add_dependencies(RenderCore Engine)
+add_dependencies(Logic Engine)
+add_dependencies("ScreenSpaceReflect" Engine RenderCore Logic)
