@@ -1,0 +1,471 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|Win32">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|Win32">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{1F714862-36E6-3607-8F67-F8EE862F1C14}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>Win32</Platform>
+    <ProjectName>Logic</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">H:\Programming\Git\SSR\Build\Logic\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Logic.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Logic</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">H:\Programming\Git\SSR\Build\Logic\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Logic.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Logic</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">H:\Programming\Git\SSR\Build\Logic\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Logic.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Logic</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">H:\Programming\Git\SSR\Build\Logic\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Logic.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Logic</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">true</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Logic\.\Source;H:\Programming\Git\SSR\Logic\.\Source\Public;H:\Programming\Git\SSR\Logic\..\Shared\Public;H:\Programming\Git\SSR\Logic\..\Engine\Source\Public;H:\Programming\Git\SSR\Logic\..\RenderCore\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;LOGIC_EXPORTS=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR="Debug";Logic_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;LOGIC_EXPORTS=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR=\"Debug\";Logic_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Logic\.\Source;H:\Programming\Git\SSR\Logic\.\Source\Public;H:\Programming\Git\SSR\Logic\..\Shared\Public;H:\Programming\Git\SSR\Logic\..\Engine\Source\Public;H:\Programming\Git\SSR\Logic\..\RenderCore\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Logic\.\Source;H:\Programming\Git\SSR\Logic\.\Source\Public;H:\Programming\Git\SSR\Logic\..\Shared\Public;H:\Programming\Git\SSR\Logic\..\Engine\Source\Public;H:\Programming\Git\SSR\Logic\..\RenderCore\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different H:/Programming/Git/SSR/Build/Logic/$(Configuration)/Logic.lib H:/Programming/Git/SSR/Logic/../lib/Logic.lib
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different H:/Programming/Git/SSR/Build/Logic/$(Configuration)/Logic.dll H:/Programming/Git/SSR/Logic/../bin/Logic.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>H:/Programming/Git/SSR/Logic/../lib;H:/Programming/Git/SSR/Logic/../lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>H:/Programming/Git/SSR/Build/Logic/Debug/Logic.lib</ImportLibrary>
+      <ProgramDataBaseFile>H:/Programming/Git/SSR/Build/Logic/Debug/Logic.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Logic\.\Source;H:\Programming\Git\SSR\Logic\.\Source\Public;H:\Programming\Git\SSR\Logic\..\Shared\Public;H:\Programming\Git\SSR\Logic\..\Engine\Source\Public;H:\Programming\Git\SSR\Logic\..\RenderCore\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Release/</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;LOGIC_EXPORTS=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR="Release";Logic_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;LOGIC_EXPORTS=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR=\"Release\";Logic_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Logic\.\Source;H:\Programming\Git\SSR\Logic\.\Source\Public;H:\Programming\Git\SSR\Logic\..\Shared\Public;H:\Programming\Git\SSR\Logic\..\Engine\Source\Public;H:\Programming\Git\SSR\Logic\..\RenderCore\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Logic\.\Source;H:\Programming\Git\SSR\Logic\.\Source\Public;H:\Programming\Git\SSR\Logic\..\Shared\Public;H:\Programming\Git\SSR\Logic\..\Engine\Source\Public;H:\Programming\Git\SSR\Logic\..\RenderCore\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different H:/Programming/Git/SSR/Build/Logic/$(Configuration)/Logic.lib H:/Programming/Git/SSR/Logic/../lib/Logic.lib
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different H:/Programming/Git/SSR/Build/Logic/$(Configuration)/Logic.dll H:/Programming/Git/SSR/Logic/../bin/Logic.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>H:/Programming/Git/SSR/Logic/../lib;H:/Programming/Git/SSR/Logic/../lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>H:/Programming/Git/SSR/Build/Logic/Release/Logic.lib</ImportLibrary>
+      <ProgramDataBaseFile>H:/Programming/Git/SSR/Build/Logic/Release/Logic.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Logic\.\Source;H:\Programming\Git\SSR\Logic\.\Source\Public;H:\Programming\Git\SSR\Logic\..\Shared\Public;H:\Programming\Git\SSR\Logic\..\Engine\Source\Public;H:\Programming\Git\SSR\Logic\..\RenderCore\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>MinSizeRel/</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;LOGIC_EXPORTS=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR="MinSizeRel";Logic_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;LOGIC_EXPORTS=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR=\"MinSizeRel\";Logic_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Logic\.\Source;H:\Programming\Git\SSR\Logic\.\Source\Public;H:\Programming\Git\SSR\Logic\..\Shared\Public;H:\Programming\Git\SSR\Logic\..\Engine\Source\Public;H:\Programming\Git\SSR\Logic\..\RenderCore\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Logic\.\Source;H:\Programming\Git\SSR\Logic\.\Source\Public;H:\Programming\Git\SSR\Logic\..\Shared\Public;H:\Programming\Git\SSR\Logic\..\Engine\Source\Public;H:\Programming\Git\SSR\Logic\..\RenderCore\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different H:/Programming/Git/SSR/Build/Logic/$(Configuration)/Logic.lib H:/Programming/Git/SSR/Logic/../lib/Logic.lib
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different H:/Programming/Git/SSR/Build/Logic/$(Configuration)/Logic.dll H:/Programming/Git/SSR/Logic/../bin/Logic.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>H:/Programming/Git/SSR/Logic/../lib;H:/Programming/Git/SSR/Logic/../lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>H:/Programming/Git/SSR/Build/Logic/MinSizeRel/Logic.lib</ImportLibrary>
+      <ProgramDataBaseFile>H:/Programming/Git/SSR/Build/Logic/MinSizeRel/Logic.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Logic\.\Source;H:\Programming\Git\SSR\Logic\.\Source\Public;H:\Programming\Git\SSR\Logic\..\Shared\Public;H:\Programming\Git\SSR\Logic\..\Engine\Source\Public;H:\Programming\Git\SSR\Logic\..\RenderCore\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>RelWithDebInfo/</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;LOGIC_EXPORTS=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR="RelWithDebInfo";Logic_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;LOGIC_EXPORTS=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR=\"RelWithDebInfo\";Logic_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Logic\.\Source;H:\Programming\Git\SSR\Logic\.\Source\Public;H:\Programming\Git\SSR\Logic\..\Shared\Public;H:\Programming\Git\SSR\Logic\..\Engine\Source\Public;H:\Programming\Git\SSR\Logic\..\RenderCore\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Logic\.\Source;H:\Programming\Git\SSR\Logic\.\Source\Public;H:\Programming\Git\SSR\Logic\..\Shared\Public;H:\Programming\Git\SSR\Logic\..\Engine\Source\Public;H:\Programming\Git\SSR\Logic\..\RenderCore\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different H:/Programming/Git/SSR/Build/Logic/$(Configuration)/Logic.lib H:/Programming/Git/SSR/Logic/../lib/Logic.lib
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different H:/Programming/Git/SSR/Build/Logic/$(Configuration)/Logic.dll H:/Programming/Git/SSR/Logic/../bin/Logic.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>H:/Programming/Git/SSR/Logic/../lib;H:/Programming/Git/SSR/Logic/../lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>H:/Programming/Git/SSR/Build/Logic/RelWithDebInfo/Logic.lib</ImportLibrary>
+      <ProgramDataBaseFile>H:/Programming/Git/SSR/Build/Logic/RelWithDebInfo/Logic.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="H:\Programming\Git\SSR\Logic\CMakeLists.txt">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Custom Rule H:/Programming/Git/SSR/Logic/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -HH:/Programming/Git/SSR -BH:/Programming/Git/SSR/Build --check-stamp-file H:/Programming/Git/SSR/Build/Logic/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">H:/Programming/Git/SSR/Logic/CMakeLists.txt;H:\Programming\Git\SSR\Logic\CMakeLists.txt;H:\Programming\Git\SSR\Logic\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">H:\Programming\Git\SSR\Build\Logic\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building Custom Rule H:/Programming/Git/SSR/Logic/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -HH:/Programming/Git/SSR -BH:/Programming/Git/SSR/Build --check-stamp-file H:/Programming/Git/SSR/Build/Logic/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">H:/Programming/Git/SSR/Logic/CMakeLists.txt;H:\Programming\Git\SSR\Logic\CMakeLists.txt;H:\Programming\Git\SSR\Logic\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">H:\Programming\Git\SSR\Build\Logic\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Building Custom Rule H:/Programming/Git/SSR/Logic/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -HH:/Programming/Git/SSR -BH:/Programming/Git/SSR/Build --check-stamp-file H:/Programming/Git/SSR/Build/Logic/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">H:/Programming/Git/SSR/Logic/CMakeLists.txt;H:\Programming\Git\SSR\Logic\CMakeLists.txt;H:\Programming\Git\SSR\Logic\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">H:\Programming\Git\SSR\Build\Logic\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Building Custom Rule H:/Programming/Git/SSR/Logic/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -HH:/Programming/Git/SSR -BH:/Programming/Git/SSR/Build --check-stamp-file H:/Programming/Git/SSR/Build/Logic/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">H:/Programming/Git/SSR/Logic/CMakeLists.txt;H:\Programming\Git\SSR\Logic\CMakeLists.txt;H:\Programming\Git\SSR\Logic\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">H:\Programming\Git\SSR\Build\Logic\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\stdafx.cpp" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\stdafx.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\targetver.h" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Core\DebugConsole.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Core\dllmain.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Core\GameLogic.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Core\Logic.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Core\Timer.cpp" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Core\DebugConsole.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Core\GameLogic.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Core\IListener.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Core\ILogic.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Core\Timer.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Core\UtilWindowInfo.h" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\GameObject\Camera.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\GameObject\CameraManager.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\GameObject\DisplayShaderResourceHelper.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\GameObject\GameObject.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\GameObject\GameObjectFactory.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\GameObject\Light.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\GameObject\LightManager.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\GameObject\PickingManager.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\GameObject\SkyBox.cpp" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\GameObject\Camera.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\GameObject\CameraManager.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\GameObject\DisplayShaderResourceHelper.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\GameObject\GameObject.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\GameObject\GameObjectFactory.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\GameObject\GameObjectProperty.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\GameObject\Light.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\GameObject\LightManager.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\GameObject\PickingManager.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\GameObject\SkyBox.h" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Model\BaseMesh.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Model\DebugMesh.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Model\ModelBuilder.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Model\ModelManager.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Model\ObjMesh.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Model\ObjMeshLoader.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Model\PlyMesh.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Model\PlyMeshLoader.cpp" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Model\BaseMesh.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Model\CommonMeshDefine.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Model\DebugMesh.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Model\IMesh.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Model\IModelBuilder.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Model\IModelLoader.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Model\MeshBuildHelper.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Model\ModelBuilder.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Model\ModelManager.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Model\ObjMesh.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Model\ObjMeshLoader.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Model\PlyMesh.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Model\PlyMeshLoader.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Model\Surface.h" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Physics\Aaboundingbox.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Physics\BoundingCone.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Physics\BoundingSphere.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Physics\CollisionUtil.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Physics\Ray.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Physics\RigidBodyManager.cpp" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Physics\Aaboundingbox.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Physics\BoundingCone.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Physics\BoundingSphere.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Physics\CollisionUtil.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Physics\Frustum.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Physics\IRigidBody.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Physics\Movement.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Physics\Ray.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Physics\RigidBodyManager.h" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Scene\RenderView.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Scene\SceneLoader.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Scene\ScreenBlurManager.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Scene\ShadowManager.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Scene\SSRManager.cpp" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Scene\ConstantBufferDefine.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Scene\INotifyGraphicsDevice.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Scene\RenderView.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Scene\SceneLoader.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Scene\ScreenBlurManager.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Scene\ShadowManager.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Scene\SSRManager.h" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\UI\ImUI.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\UI\ImUI_Draw.cpp" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\UI\ImUI.h" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\Scene\ComputeShaderUnitTest.cpp" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\Scene\ComputeShaderUnitTest.h" />
+    <ClCompile Include="H:\Programming\Git\SSR\Logic\Source\Private\UserInput\MouseController.cpp" />
+    <ClInclude Include="H:\Programming\Git\SSR\Logic\Source\Public\UserInput\MouseController.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="H:\Programming\Git\SSR\Build\ZERO_CHECK.vcxproj">
+      <Project>{B9321C77-D466-3FF3-A641-73A1BCE94351}</Project>
+      <Name>ZERO_CHECK</Name>
+    </ProjectReference>
+    <ProjectReference Include="H:\Programming\Git\SSR\Build\Engine\Engine.vcxproj">
+      <Project>{79A1B6AE-EE78-3ADC-A8E7-648E8E3CCBE1}</Project>
+      <Name>Engine</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

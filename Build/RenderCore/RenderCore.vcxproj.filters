@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="H:\Programming\Git\SSR\RenderCore\Source\RenderOutputManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="H:\Programming\Git\SSR\RenderCore\Source\stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="H:\Programming\Git\SSR\RenderCore\Source\Private\Core\dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="H:\Programming\Git\SSR\RenderCore\Source\Private\Core\RenderCore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="H:\Programming\Git\SSR\RenderCore\Source\Private\D3D11\D3D11Resource.cpp">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClCompile>
+    <ClCompile Include="H:\Programming\Git\SSR\RenderCore\Source\Private\D3D11\D3D11ResourceManager.cpp">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClCompile>
+    <ClCompile Include="H:\Programming\Git\SSR\RenderCore\Source\Private\D3D11\D3D11RenderStateFactory.cpp">
+      <Filter>Direct11\RenderState</Filter>
+    </ClCompile>
+    <ClCompile Include="H:\Programming\Git\SSR\RenderCore\Source\Private\D3D11\D3D11RenderStateManager.cpp">
+      <Filter>Direct11\RenderState</Filter>
+    </ClCompile>
+    <ClCompile Include="H:\Programming\Git\SSR\RenderCore\Source\Private\D3D11\Direct3D11.cpp">
+      <Filter>Direct11</Filter>
+    </ClCompile>
+    <ClCompile Include="H:\Programming\Git\SSR\RenderCore\Source\Private\Render\Material.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="H:\Programming\Git\SSR\RenderCore\Source\Private\Render\MaterialManager.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="H:\Programming\Git\SSR\RenderCore\Source\RenderOutputManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="H:\Programming\Git\SSR\RenderCore\Source\stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="H:\Programming\Git\SSR\RenderCore\Source\targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="H:\Programming\Git\SSR\RenderCore\Source\Public\Core\RenderCoreDllFunc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="H:\Programming\Git\SSR\RenderCore\Source\Public\D3D11\D3D11Resource.h">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClInclude>
+    <ClInclude Include="H:\Programming\Git\SSR\RenderCore\Source\Public\D3D11\D3D11ResourceManager.h">
+      <Filter>Direct11\RenderResource</Filter>
+    </ClInclude>
+    <ClInclude Include="H:\Programming\Git\SSR\RenderCore\Source\Public\D3D11\D3D11RenderState.h">
+      <Filter>Direct11\RenderState</Filter>
+    </ClInclude>
+    <ClInclude Include="H:\Programming\Git\SSR\RenderCore\Source\Public\D3D11\D3D11RenderStateFactory.h">
+      <Filter>Direct11\RenderState</Filter>
+    </ClInclude>
+    <ClInclude Include="H:\Programming\Git\SSR\RenderCore\Source\Public\D3D11\D3D11RenderStateManager.h">
+      <Filter>Direct11\RenderState</Filter>
+    </ClInclude>
+    <ClInclude Include="H:\Programming\Git\SSR\RenderCore\Source\Public\Render\Material.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="H:\Programming\Git\SSR\RenderCore\Source\Public\Render\MaterialManager.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="H:\Programming\Git\SSR\RenderCore\Source\Public\Render\IRenderer.h">
+      <Filter>RenderCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="H:\Programming\Git\SSR\RenderCore\Source\Public\Render\IRenderResource.h">
+      <Filter>RenderCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="H:\Programming\Git\SSR\RenderCore\Source\Public\Render\IRenderResourceManager.h">
+      <Filter>RenderCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="H:\Programming\Git\SSR\RenderCore\Source\Public\Render\Resource.h">
+      <Filter>RenderCommon</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="H:\Programming\Git\SSR\RenderCore\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Direct11">
+      <UniqueIdentifier>{BFF8C76F-CEF4-3D52-A18A-EE01369CA7FD}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Direct11\RenderResource">
+      <UniqueIdentifier>{CD481D6C-C217-363B-BA26-31333C1193DD}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Direct11\RenderState">
+      <UniqueIdentifier>{47C0C9F6-8AB0-3676-973F-DD7E225C9B8D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{EB32B5E5-DEFE-37B1-9276-257C53F3151C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Material">
+      <UniqueIdentifier>{1B0E034B-01E3-3703-97E1-27B1216FEF61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RenderCommon">
+      <UniqueIdentifier>{8431FF81-7761-3EA1-A226-4D8E86376E70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{B7009EDC-F328-3B08-85A1-5142F7F1D5A1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

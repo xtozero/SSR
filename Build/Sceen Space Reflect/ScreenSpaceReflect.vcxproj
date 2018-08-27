@@ -1,0 +1,346 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|Win32">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|Win32">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{4A3047BD-9DDE-30A1-A0A6-A6647B272F13}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>Win32</Platform>
+    <ProjectName>ScreenSpaceReflect</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">H:\Programming\Git\SSR\Sceen Space Reflect\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ScreenSpaceReflect.dir\Debug\</IntDir>
+    <LocalDebuggerWorkingDirectory Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">H:/Programming/Git/SSR/Sceen Space Reflect/</LocalDebuggerWorkingDirectory>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ScreenSpaceReflect</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">H:\Programming\Git\SSR\Sceen Space Reflect\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ScreenSpaceReflect.dir\Release\</IntDir>
+    <LocalDebuggerWorkingDirectory Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">H:/Programming/Git/SSR/Sceen Space Reflect/</LocalDebuggerWorkingDirectory>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ScreenSpaceReflect</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">H:\Programming\Git\SSR\Sceen Space Reflect\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">ScreenSpaceReflect.dir\MinSizeRel\</IntDir>
+    <LocalDebuggerWorkingDirectory Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">H:/Programming/Git/SSR/Sceen Space Reflect/</LocalDebuggerWorkingDirectory>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">ScreenSpaceReflect</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">H:\Programming\Git\SSR\Sceen Space Reflect\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">ScreenSpaceReflect.dir\RelWithDebInfo\</IntDir>
+    <LocalDebuggerWorkingDirectory Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">H:/Programming/Git/SSR/Sceen Space Reflect/</LocalDebuggerWorkingDirectory>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">ScreenSpaceReflect</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">true</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Sceen Space Reflect\.\Source;H:\Programming\Git\SSR\Sceen Space Reflect\.\Source\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Shared\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Engine\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;UNICODE=1;_UNICODE=1;WIN32=1;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;UNICODE=1;_UNICODE=1;WIN32=1;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Sceen Space Reflect\.\Source;H:\Programming\Git\SSR\Sceen Space Reflect\.\Source\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Shared\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Engine\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Sceen Space Reflect\.\Source;H:\Programming\Git\SSR\Sceen Space Reflect\.\Source\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Shared\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Engine\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>H:/Programming/Git/SSR/Sceen Space Reflect/../lib;H:/Programming/Git/SSR/Sceen Space Reflect/../lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>H:/Programming/Git/SSR/Build/Sceen Space Reflect/Debug/ScreenSpaceReflect.lib</ImportLibrary>
+      <ProgramDataBaseFile>H:/Programming/Git/SSR/Sceen Space Reflect/Debug/ScreenSpaceReflect.pdb</ProgramDataBaseFile>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Sceen Space Reflect\.\Source;H:\Programming\Git\SSR\Sceen Space Reflect\.\Source\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Shared\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Engine\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Release/</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE=1;_UNICODE=1;WIN32=1;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE=1;_UNICODE=1;WIN32=1;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Sceen Space Reflect\.\Source;H:\Programming\Git\SSR\Sceen Space Reflect\.\Source\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Shared\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Engine\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Sceen Space Reflect\.\Source;H:\Programming\Git\SSR\Sceen Space Reflect\.\Source\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Shared\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Engine\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>H:/Programming/Git/SSR/Sceen Space Reflect/../lib;H:/Programming/Git/SSR/Sceen Space Reflect/../lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>H:/Programming/Git/SSR/Build/Sceen Space Reflect/Release/ScreenSpaceReflect.lib</ImportLibrary>
+      <ProgramDataBaseFile>H:/Programming/Git/SSR/Sceen Space Reflect/Release/ScreenSpaceReflect.pdb</ProgramDataBaseFile>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Sceen Space Reflect\.\Source;H:\Programming\Git\SSR\Sceen Space Reflect\.\Source\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Shared\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Engine\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>MinSizeRel/</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE=1;_UNICODE=1;WIN32=1;CMAKE_INTDIR="MinSizeRel";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE=1;_UNICODE=1;WIN32=1;CMAKE_INTDIR=\"MinSizeRel\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Sceen Space Reflect\.\Source;H:\Programming\Git\SSR\Sceen Space Reflect\.\Source\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Shared\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Engine\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Sceen Space Reflect\.\Source;H:\Programming\Git\SSR\Sceen Space Reflect\.\Source\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Shared\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Engine\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>H:/Programming/Git/SSR/Sceen Space Reflect/../lib;H:/Programming/Git/SSR/Sceen Space Reflect/../lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>H:/Programming/Git/SSR/Build/Sceen Space Reflect/MinSizeRel/ScreenSpaceReflect.lib</ImportLibrary>
+      <ProgramDataBaseFile>H:/Programming/Git/SSR/Sceen Space Reflect/MinSizeRel/ScreenSpaceReflect.pdb</ProgramDataBaseFile>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Sceen Space Reflect\.\Source;H:\Programming\Git\SSR\Sceen Space Reflect\.\Source\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Shared\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Engine\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>RelWithDebInfo/</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE=1;_UNICODE=1;WIN32=1;CMAKE_INTDIR="RelWithDebInfo";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE=1;_UNICODE=1;WIN32=1;CMAKE_INTDIR=\"RelWithDebInfo\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Sceen Space Reflect\.\Source;H:\Programming\Git\SSR\Sceen Space Reflect\.\Source\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Shared\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Engine\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>H:\Programming\Git\SSR\Sceen Space Reflect\.\Source;H:\Programming\Git\SSR\Sceen Space Reflect\.\Source\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Shared\Public;H:\Programming\Git\SSR\Sceen Space Reflect\..\Engine\Source\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>H:/Programming/Git/SSR/Sceen Space Reflect/../lib;H:/Programming/Git/SSR/Sceen Space Reflect/../lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>H:/Programming/Git/SSR/Build/Sceen Space Reflect/RelWithDebInfo/ScreenSpaceReflect.lib</ImportLibrary>
+      <ProgramDataBaseFile>H:/Programming/Git/SSR/Sceen Space Reflect/RelWithDebInfo/ScreenSpaceReflect.pdb</ProgramDataBaseFile>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="H:\Programming\Git\SSR\Sceen Space Reflect\CMakeLists.txt">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Custom Rule H:/Programming/Git/SSR/Sceen Space Reflect/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -HH:/Programming/Git/SSR -BH:/Programming/Git/SSR/Build --check-stamp-file "H:/Programming/Git/SSR/Build/Sceen Space Reflect/CMakeFiles/generate.stamp"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">H:/Programming/Git/SSR/Sceen Space Reflect/CMakeLists.txt;H:\Programming\Git\SSR\Sceen Space Reflect\CMakeLists.txt;H:\Programming\Git\SSR\Sceen Space Reflect\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">H:\Programming\Git\SSR\Build\Sceen Space Reflect\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building Custom Rule H:/Programming/Git/SSR/Sceen Space Reflect/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -HH:/Programming/Git/SSR -BH:/Programming/Git/SSR/Build --check-stamp-file "H:/Programming/Git/SSR/Build/Sceen Space Reflect/CMakeFiles/generate.stamp"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">H:/Programming/Git/SSR/Sceen Space Reflect/CMakeLists.txt;H:\Programming\Git\SSR\Sceen Space Reflect\CMakeLists.txt;H:\Programming\Git\SSR\Sceen Space Reflect\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">H:\Programming\Git\SSR\Build\Sceen Space Reflect\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Building Custom Rule H:/Programming/Git/SSR/Sceen Space Reflect/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -HH:/Programming/Git/SSR -BH:/Programming/Git/SSR/Build --check-stamp-file "H:/Programming/Git/SSR/Build/Sceen Space Reflect/CMakeFiles/generate.stamp"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">H:/Programming/Git/SSR/Sceen Space Reflect/CMakeLists.txt;H:\Programming\Git\SSR\Sceen Space Reflect\CMakeLists.txt;H:\Programming\Git\SSR\Sceen Space Reflect\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">H:\Programming\Git\SSR\Build\Sceen Space Reflect\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Building Custom Rule H:/Programming/Git/SSR/Sceen Space Reflect/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -HH:/Programming/Git/SSR -BH:/Programming/Git/SSR/Build --check-stamp-file "H:/Programming/Git/SSR/Build/Sceen Space Reflect/CMakeFiles/generate.stamp"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">H:/Programming/Git/SSR/Sceen Space Reflect/CMakeLists.txt;H:\Programming\Git\SSR\Sceen Space Reflect\CMakeLists.txt;H:\Programming\Git\SSR\Sceen Space Reflect\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">H:\Programming\Git\SSR\Build\Sceen Space Reflect\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="H:\Programming\Git\SSR\Sceen Space Reflect\Source\Private\Sceen Space Reflect.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Sceen Space Reflect\Source\Private\stdafx.cpp" />
+    <ClCompile Include="H:\Programming\Git\SSR\Sceen Space Reflect\Source\Private\Window.cpp" />
+    <ClInclude Include="H:\Programming\Git\SSR\Sceen Space Reflect\Source\Public\Resource.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Sceen Space Reflect\Source\Public\Sceen Space Reflect.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Sceen Space Reflect\Source\Public\stdafx.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Sceen Space Reflect\Source\Public\targetver.h" />
+    <ClInclude Include="H:\Programming\Git\SSR\Sceen Space Reflect\Source\Public\Window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="H:\Programming\Git\SSR\Build\ZERO_CHECK.vcxproj">
+      <Project>{B9321C77-D466-3FF3-A641-73A1BCE94351}</Project>
+      <Name>ZERO_CHECK</Name>
+    </ProjectReference>
+    <ProjectReference Include="H:\Programming\Git\SSR\Build\Engine\Engine.vcxproj">
+      <Project>{79A1B6AE-EE78-3ADC-A8E7-648E8E3CCBE1}</Project>
+      <Name>Engine</Name>
+    </ProjectReference>
+    <ProjectReference Include="H:\Programming\Git\SSR\Build\Logic\Logic.vcxproj">
+      <Project>{1F714862-36E6-3607-8F67-F8EE862F1C14}</Project>
+      <Name>Logic</Name>
+    </ProjectReference>
+    <ProjectReference Include="H:\Programming\Git\SSR\Build\RenderCore\RenderCore.vcxproj">
+      <Project>{0D22375A-7817-3A35-88C8-8766D4CD4CBC}</Project>
+      <Name>RenderCore</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
