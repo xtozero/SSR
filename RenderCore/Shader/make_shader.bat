@@ -35,3 +35,4 @@ fxc /Fo vsDrawUI.cso				/Zi /T vs_4_0 /E vsMain drawUI.fx
 copy /Y "*.cso" "..\..\bin\Shader\*.cso"
 DEL "*.cso"
 pause>nul
+exit 0
