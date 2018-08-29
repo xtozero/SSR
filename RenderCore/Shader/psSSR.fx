@@ -68,12 +68,13 @@ float4 BinarySearch( float3 dir, float3 viewPos )
 	texCoord = GetTexCoordXYLinearDepthZ( viewPos );
 	srcdepth = depthbufferTex.SampleLevel( baseSampler, texCoord.xy, 0 ).x;
 	depthDiff = abs( srcdepth - texCoord.z );
+	float4 result = float4( 0.f, 0.f, 0.f, 0.f );
 	if ( texCoord.z < 0.9f && depthDiff < g_depthbias )
 	{
-		return framebufferTex.SampleLevel( baseSampler, texCoord.xy, 0 );
+		result = framebufferTex.SampleLevel( baseSampler, texCoord.xy, 0 );
 	}
 
-	return float4(0.f, 0.f, 0.f, 0.f);
+	return result;
 }
 
 float4 main( PS_INPUT input ) : SV_TARGET

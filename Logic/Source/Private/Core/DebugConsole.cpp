@@ -10,7 +10,7 @@
 
 namespace
 {
-	unsigned int __stdcall asyncInputFunc( void * arg )
+	unsigned int __stdcall asyncInputFunc( void* arg )
 	{
 		bool* isAlive = static_cast<bool*>( arg );
 
@@ -46,7 +46,7 @@ CDebugConsole* CDebugConsole::GetInstance( )
 
 CDebugConsole::CDebugConsole( ) : m_isAlive( true )
 {
-	HANDLE m_thread = (HANDLE)_beginthreadex( nullptr, 0, asyncInputFunc, &m_isAlive, 0, nullptr );
+	m_thread = (HANDLE)_beginthreadex( nullptr, 0, asyncInputFunc, &m_isAlive, 0, nullptr );
 
 	AllocConsole( );
 	::_tfreopen_s( &m_pConOut, _T( "CONOUT$" ), _T( "wt" ), stdout );

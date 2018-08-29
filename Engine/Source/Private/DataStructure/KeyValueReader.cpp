@@ -35,7 +35,7 @@ void KeyValue::SetChild( std::unique_ptr<KeyValue>&& pChild )
 	m_pChild = std::move( pChild );
 }
 
-void KeyValue::SetChild( std::nullptr_t pChild )
+void KeyValue::SetChild( std::nullptr_t /*pChild*/ )
 {
 	m_pChild = nullptr;
 }

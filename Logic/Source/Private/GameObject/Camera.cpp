@@ -13,7 +13,7 @@
 
 using namespace DirectX;
 
-void CCamera::OnDeviceRestore( CGameLogic & gameLogic )
+void CCamera::OnDeviceRestore( CGameLogic& /*gameLogic*/ )
 {
 	CameraChanged( );
 }

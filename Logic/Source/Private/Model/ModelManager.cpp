@@ -9,7 +9,7 @@
 #include <fstream>
 #include <vector>
 
-void CModelManager::OnDeviceRestore( CGameLogic & gameLogic )
+void CModelManager::OnDeviceRestore( CGameLogic& /*gameLogic*/ )
 {
 	m_meshList.clear( );
 }

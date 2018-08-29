@@ -96,7 +96,7 @@ namespace
 		return nullptr;
 	}
 
-	void* SettingHandlerWindow_ReadOpen( ImUI* ui, ImUiSettingHandler* handler, const char* name )
+	void* SettingHandlerWindow_ReadOpen( ImUI* ui, ImUiSettingHandler* /*handler*/, const char* name )
 	{
 		ImUiWindowSetting* settings = ui->FindWindowSettings( name );
 		if ( settings == nullptr )
@@ -107,7 +107,7 @@ namespace
 		return static_cast<void*>( settings );
 	}
 
-	void SettingHandlerWindow_ReadLine( ImUI* ui, ImUiSettingHandler* handler, void* entry, const char* line )
+	void SettingHandlerWindow_ReadLine( ImUI* /*ui*/, ImUiSettingHandler* /*handler*/, void* entry, const char* line )
 	{
 		ImUiWindowSetting* settings = static_cast<ImUiWindowSetting*>( entry );
 		float x, y;
@@ -841,7 +841,7 @@ bool ImUI::Combo( const char* label, int* currentItem, bool( *itemsGettter )( vo
 	return valueChanged;
 }
 
-bool ImUI::Selectable( const char* label, bool selected, ImUiSelectableFlags::Type flags, const CXMFLOAT2& sizeArg )
+bool ImUI::Selectable( const char* label, bool selected, ImUiSelectableFlags::Type /*flags*/, const CXMFLOAT2& sizeArg )
 {
 	assert( m_curWindow != nullptr );
 	if ( m_curWindow->m_skipItem )
@@ -1129,7 +1129,7 @@ float ImUI::CalcMaxPopupHeightFromItemCount( int itemCount )
 	return ( GetFontHeight( ) + m_curStyle.m_itemSpacing.y ) * itemCount - m_curStyle.m_itemSpacing.y + ( m_curStyle.m_windowPadding.y * 2.f );
 }
 
-bool ImUI::ButtonEX( const char* label, const CXMFLOAT2& size )
+bool ImUI::ButtonEX( const char* label, const CXMFLOAT2& /*size*/ )
 {
 	assert( m_curWindow != nullptr );
 	if ( m_curWindow->m_skipItem )
@@ -1143,7 +1143,7 @@ bool ImUI::ButtonEX( const char* label, const CXMFLOAT2& size )
 	const int strCount = strlen( label );
 	const CXMFLOAT2 labelSize = CalcTextSize( label, strCount );
 
-	CXMFLOAT2& buttonSize = CalcItemSize( CXMFLOAT2( labelSize.x + m_curStyle.m_framePadding.x * 2.f, labelSize.y + m_curStyle.m_framePadding.y * 2.f ) );
+	const CXMFLOAT2& buttonSize = CalcItemSize( CXMFLOAT2( labelSize.x + m_curStyle.m_framePadding.x * 2.f, labelSize.y + m_curStyle.m_framePadding.y * 2.f ) );
 
 	const Rect boundingBox( pos.x,
 							pos.y,
@@ -1276,7 +1276,7 @@ bool ImUI::SliderBehavior( const Rect& boundingbox, ImGUID id, float* v, float m
 	return valueChanged;
 }
 
-float ImUI::SliderBehaviorCalcRatioFromValue( float v, float min, float max, float linearZeroPos )
+float ImUI::SliderBehaviorCalcRatioFromValue( float v, float min, float max, float /*linearZeroPos*/ )
 {
 	if ( min == max )
 	{

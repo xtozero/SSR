@@ -206,13 +206,15 @@ void CGameLogic::EndLogic( )
 	m_view.UpdataView( *this, m_commonConstantBuffer[VS_VIEW_PROJECTION] );
 
 	// ±×¸²ÀÚ ¸Ê ·»´õ¸µ
-	m_shadowManager.DrawShadowMap( *this, m_gameObjects );
+	m_shadowManager.DrawShadowMap( *this );
 
 	float wndWidth = static_cast<float>( m_appSize.first );
 	float wndHeight = static_cast<float>( m_appSize.second );
 	Viewport viewport = { 0.f, 0.f, wndWidth, wndHeight, 0.f, 1.f };
 	m_view.SetViewPort( *m_pRenderer, &viewport, 1 );
-	m_view.SetScissorRects( *m_pRenderer, &CUtilWindowInfo::GetInstance( ).GetRect( ), 1 );
+
+	RECT wndRect = { 0L, 0L, static_cast<LONG>( wndWidth ), static_cast<LONG>( wndHeight ) };
+	m_view.SetScissorRects( *m_pRenderer, &wndRect, 1 );
 	
 	if ( PassConstant* pData = static_cast<PassConstant*>( m_pRenderer->LockBuffer( m_commonConstantBuffer[PS_UTIL] ) ) )
 	{

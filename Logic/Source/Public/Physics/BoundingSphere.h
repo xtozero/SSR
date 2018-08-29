@@ -12,7 +12,7 @@ class BoundingSphere : public IRigidBody
 public:
 	virtual void CreateRigideBody( const IMesh& mesh ) override;
 	virtual void Update( const CXMFLOAT4X4& matrix, IRigidBody* original ) override;
-	virtual void CalcSubRigidBody( std::vector<std::unique_ptr<IRigidBody>>& subRigidBody ) override { assert( false && "Not Implemented" ); }
+	virtual void CalcSubRigidBody( std::vector<std::unique_ptr<IRigidBody>>& /*subRigidBody*/ ) override { assert( false && "Not Implemented" ); }
 	virtual float Intersect( const CRay* ray ) const override;
 	virtual int Intersect( const CFrustum& frustum ) const override;
 

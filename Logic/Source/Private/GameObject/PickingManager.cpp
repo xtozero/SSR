@@ -97,7 +97,7 @@ bool CPickingManager::CreateWorldSpaceRay( CRay& ray, float x, float y )
 
 	std::vector<VIEWPORT>::iterator curViewport = m_viewports.end();
 
-	for ( auto& viewport = m_viewports.begin(); viewport != m_viewports.end(); ++viewport )
+	for ( auto viewport = m_viewports.begin(); viewport != m_viewports.end(); ++viewport )
 	{
 		if ( viewport->IsContain( x, y ) )
 		{

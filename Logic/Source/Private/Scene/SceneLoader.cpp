@@ -29,8 +29,7 @@ std::unique_ptr<KeyValue> CSceneLoader::LoadSceneFromFile( CGameLogic& gameLogic
 
 void CSceneLoader::SetSceneObjectProperty( CGameLogic& gameLogic, KeyValue* keyValue, std::vector<std::unique_ptr<CGameObject>>& objectList )
 {
-	const KeyValue* object = keyValue->Find( _T( "Object" ) );
-	while ( object )
+	for ( const KeyValue* object = keyValue->Find( _T( "Object" ) ); object != nullptr; object = object->GetNext( ) )
 	{
 		auto newObject = CGameObjectFactory::GetInstance( ).CreateGameObjectByClassName( object->GetValue( ) );
 
@@ -39,8 +38,6 @@ void CSceneLoader::SetSceneObjectProperty( CGameLogic& gameLogic, KeyValue* keyV
 			newObject->LoadPropertyFromScript( *object );
 			objectList.emplace_back( newObject );
 		}
-
-		object = object->GetNext( );
 	}
 
 	for ( const auto& object : objectList )

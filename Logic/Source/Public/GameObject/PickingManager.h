@@ -21,7 +21,7 @@ struct VIEWPORT
 	float m_width;
 	float m_height;
 
-	bool IsContain( float x, float y )
+	bool IsContain( float x, float y ) const
 	{
 		return m_topLeftX <= x && m_topLeftY <= y && ( x - m_topLeftX ) <= m_width && ( y - m_topLeftY ) <= m_height;
 	}

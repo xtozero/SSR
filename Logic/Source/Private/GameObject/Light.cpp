@@ -21,17 +21,17 @@ void CLight::SetPosition( const CXMFLOAT3& pos )
 	}
 }
 
-void CLight::SetScale( const float xScale, const float yScale, const float zScale )
+void CLight::SetScale( const float /*xScale*/, const float /*yScale*/, const float /*zScale*/ )
 {
 	//Do Nothing
 }
 
-void CLight::SetRotate( const float pitch, const float yaw, const float roll )
+void CLight::SetRotate( const float /*pitch*/, const float /*yaw*/, const float /*roll*/ )
 {
 	//DO Nothing
 }
 
-void CLight::Render( CGameLogic& gameLogic )
+void CLight::Render( CGameLogic& /*gameLogic*/ )
 {
 	//Do Nothing Yet
 }

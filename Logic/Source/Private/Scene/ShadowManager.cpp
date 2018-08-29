@@ -155,7 +155,7 @@ void CShadowManager::BuildShadowProjectionMatrix( CGameLogic& gameLogic, std::ve
 	ui.EndWindow( );
 }
 
-void CShadowManager::DrawShadowMap( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects )
+void CShadowManager::DrawShadowMap( CGameLogic& gameLogic )
 {
 	if ( m_isEnabled && ( m_shadowReceivers.size( ) != 0 ) )
 	{
@@ -977,8 +977,8 @@ void CShadowManager::BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, int casc
 			
 			float minX = min( -1.f, receiverBox.GetMin().x );
 			float minY = min( -1.f, receiverBox.GetMin( ).y );
-			float maxX = max( 1.f, receiverBox.GetMax( ).x );
-			float maxY = max( 1.f, receiverBox.GetMax( ).y );
+			maxX = max( 1.f, receiverBox.GetMax( ).x );
+			maxY = max( 1.f, receiverBox.GetMax( ).y );
 
 			float boxWidth = maxX - minX;
 			float boxHeight = maxY - minY;

@@ -73,7 +73,7 @@ namespace
 	}
 }
 
-Owner<IMesh*> CPlyMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pFileName, SurfaceMap& surface )
+Owner<IMesh*> CPlyMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pFileName, SurfaceMap& /*surface*/ )
 {
 	TCHAR pPath[MAX_PATH];
 	::GetCurrentDirectory( MAX_PATH, pPath );
