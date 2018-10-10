@@ -113,6 +113,42 @@ struct CXMFLOAT2 : public DirectX::XMFLOAT2
 		return !(*this == rhs);
 	}
 
+	float& operator[]( int idx )
+	{
+		switch ( idx )
+		{
+		case 0:
+			return x;
+			break;
+		case 1:
+			return y;
+			break;
+		default:
+			__debugbreak( );
+			break;
+		}
+
+		return x;
+	}
+
+	const float& operator[]( int idx ) const
+	{
+		switch ( idx )
+		{
+		case 0:
+			return x;
+			break;
+		case 1:
+			return y;
+			break;
+		default:
+			__debugbreak( );
+			break;
+		}
+
+		return x;
+	}
+
 	float* begin( )
 	{
 		return &x;
@@ -233,6 +269,48 @@ struct CXMFLOAT3 : public DirectX::XMFLOAT3
 	bool operator!=( const CXMFLOAT3& rhs ) const
 	{
 		return !( *this == rhs );
+	}
+
+	float& operator[]( int idx )
+	{
+		switch ( idx )
+		{
+		case 0:
+			return x;
+			break;
+		case 1:
+			return y;
+			break;
+		case 2:
+			return z;
+			break;
+		default:
+			__debugbreak( );
+			break;
+		}
+
+		return x;
+	}
+
+	const float& operator[]( int idx ) const
+	{
+		switch ( idx )
+		{
+		case 0:
+			return x;
+			break;
+		case 1:
+			return y;
+			break;
+		case 2:
+			return z;
+			break;
+		default:
+			__debugbreak( );
+			break;
+		}
+
+		return x;
 	}
 
 	float* begin( )
@@ -357,6 +435,54 @@ struct CXMFLOAT4 : public DirectX::XMFLOAT4
 		return !(*this == rhs);
 	}
 
+	float& operator[]( int idx )
+	{
+		switch ( idx )
+		{
+		case 0:
+			return x;
+			break;
+		case 1:
+			return y;
+			break;
+		case 2:
+			return z;
+			break;
+		case 3:
+			return w;
+			break;
+		default:
+			__debugbreak( );
+			break;
+		}
+
+		return x;
+	}
+
+	const float& operator[]( int idx ) const
+	{
+		switch ( idx )
+		{
+		case 0:
+			return x;
+			break;
+		case 1:
+			return y;
+			break;
+		case 2:
+			return z;
+			break;
+		case 3:
+			return w;
+			break;
+		default:
+			__debugbreak( );
+			break;
+		}
+
+		return x;
+	}
+
 	float* begin( )
 	{
 		return &x;
@@ -375,9 +501,14 @@ struct CXMFLOAT3X3 : public DirectX::XMFLOAT3X3
 	CXMFLOAT3X3( ) : XMFLOAT3X3{} {}
 	CXMFLOAT3X3( float m00, float m01, float m02,
 				float m10, float m11, float m12,
-				float m20, float m21, float m22 ) : XMFLOAT3X3( m00, m01, m02, 
-																m10, m11, m12,
-																m20, m21, m22 ) {}
+				float m20, float m21, float m22 ) : 
+		XMFLOAT3X3( m00, m01, m02, 
+		m10, m11, m12,
+		m20, m21, m22 ) {}
+	CXMFLOAT3X3( const CXMFLOAT3& row1, const CXMFLOAT3& row2, const CXMFLOAT3& row3 ) : 
+		XMFLOAT3X3( row1.x, row1.y, row1.z,
+		row2.x, row2.y, row2.z,
+		row3.x, row3.y, row3.z ) {}
 	explicit CXMFLOAT3X3( const float *pArray ) : XMFLOAT3X3( pArray ) {}
 
 	using XMFLOAT3X3::operator=;
@@ -390,6 +521,21 @@ struct CXMFLOAT3X3 : public DirectX::XMFLOAT3X3
 	// casting
 	operator DirectX::XMMATRIX( ) const { return XMLoadFloat3x3( this ); }
 	operator const DirectX::XMMATRIX( ) { return XMLoadFloat3x3( this ); }
+
+	// assignment operators
+	CXMFLOAT3X3& operator+=( const CXMFLOAT3X3& rhs )
+	{
+		DirectX::XMMATRIX xmLHS = *this;
+		DirectX::XMMATRIX xmRHS = rhs;
+
+		for ( int i = 0; i < 3; ++i )
+		{
+			xmLHS.r[i] = _mm_add_ps( xmLHS.r[i], xmRHS.r[i] );
+		}
+
+		*this = xmLHS;
+		return *this;
+	}
 };
 
 //------------------------------
@@ -400,10 +546,16 @@ struct CXMFLOAT4X3 : public DirectX::XMFLOAT4X3
 	CXMFLOAT4X3( float m00, float m01, float m02,
 				float m10, float m11, float m12,
 				float m20, float m21, float m22,
-				float m30, float m31, float m32 ) : XMFLOAT4X3( m00, m01, m02, 
-																m10, m11, m12, 
-																m20, m21, m22, 
-																m30, m31, m32 ) {}
+				float m30, float m31, float m32 ) : 
+		XMFLOAT4X3( m00, m01, m02, 
+		m10, m11, m12, 
+		m20, m21, m22, 
+		m30, m31, m32 ) {}
+	CXMFLOAT4X3( const CXMFLOAT3& row1, const CXMFLOAT3& row2, const CXMFLOAT3& row3, const CXMFLOAT3& row4 ) :
+		XMFLOAT4X3( row1.x, row1.y, row1.z,
+		row2.x, row2.y, row2.z,
+		row3.x, row3.y, row3.z,
+		row4.x, row4.y, row4.z) {}
 	explicit CXMFLOAT4X3( const float *pArray ) : XMFLOAT4X3( pArray ) {}
 
 	using XMFLOAT4X3::operator=;

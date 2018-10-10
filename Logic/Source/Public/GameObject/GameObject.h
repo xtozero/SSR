@@ -2,11 +2,19 @@
 
 #include "GameObjectProperty.h"
 #include "Math/CXMFloat.h"
+#include "Physics/Body.h"
 #include "Physics/RigidBodyManager.h"
 #include "Render/Resource.h"
 #include "Scene/INotifyGraphicsDevice.h"
 
 #include <memory>
+
+enum DIRTY_FLAG
+{
+	DF_POSITION = 1 << 0,
+	DF_ROTATION = 1 << 1,
+	DF_SCALING	= 1 << 2,
+};
 
 class CGameLogic;
 class IRigidBody;
@@ -67,11 +75,18 @@ public:
 	virtual bool ShouldDraw( ) const { return true; }
 	virtual bool ShouldDrawShadow( ) const { return true; }
 
+	RigidBody* GetRigidBody( ) { return &m_body; }
+
+	int GetDirty( ) const { return m_dirtyFlag; }
+	void SetDirty( int dirtyFlag ) { m_dirtyFlag |= dirtyFlag; }
+
 	CGameObject( );
 	~CGameObject( ) = default ;
+
 protected:
 	virtual bool LoadModelMesh( CGameLogic& gameLogic );
 	virtual bool LoadMaterial( CGameLogic& gameLogic );
+
 private:
 	void RebuildTransform( );
 	void UpdateRigidBody( RIGID_BODY_TYPE type );
@@ -104,6 +119,10 @@ private:
 	std::vector<std::unique_ptr<IRigidBody>> m_subRigidBodies[RIGID_BODY_TYPE::Count];
 
 	UINT m_property = 0;
+
+	RigidBody m_body;
+
+	int m_dirtyFlag = 0;
 protected:
 	bool m_needRebuildTransform = false;
 };

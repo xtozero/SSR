@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CXMFloat.h"
+#include <windows.h>
 
 // http://www.songho.ca/math/plane/plane.html
 // Intersection of 3 Planes
@@ -65,4 +66,32 @@ struct Rect
 inline bool operator==( const Rect& lhs, const Rect& rhs )
 {
 	return lhs.m_leftTop == rhs.m_leftTop && lhs.m_rightBottom == rhs.m_rightBottom;
+}
+
+inline DirectX::XMMATRIX XM_CALLCONV lerp( DirectX::FXMMATRIX a, DirectX::CXMMATRIX b, float prop )
+{
+	assert( prop <= 1.f );
+	DirectX::XMMATRIX result;
+	float omp = 1.f - prop;
+
+	__m128 p = _mm_set1_ps( prop );
+	__m128 o = _mm_set1_ps( omp );
+
+	for ( int i = 0; i < 4; ++i )
+	{
+		result.r[i] = _mm_add_ps(
+			_mm_mul_ps( a.r[i], o ), 
+			_mm_mul_ps( b.r[i], p ) 
+		);
+	}
+
+	return result;
+}
+
+inline CXMFLOAT3X3 MakeSkewSymmetric( const CXMFLOAT3& v )
+{
+	return CXMFLOAT3X3(
+		0.f, -v.z, v.y,
+		v.z, 0.f, -v.x,
+		-v.y, v.x, 0.f );
 }

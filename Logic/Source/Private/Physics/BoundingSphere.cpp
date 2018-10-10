@@ -45,27 +45,27 @@ void BoundingSphere::CreateRigideBody( const IMesh& mesh )
 	int verticesCount = mesh.GetVerticesCount( );
 	const MeshVertex* pVertices = static_cast<const MeshVertex*>( mesh.GetMeshData( ) );
 
-	m_radiusSqr = -FLT_MAX;
+	float maxRadiusSqr = -FLT_MAX;
 	for ( int i = 0; i < verticesCount; ++i )
 	{
 		float radiusSqr = XMVectorGetX( XMVector3LengthSq( pVertices[i].m_position ) );
 
-		if ( radiusSqr > m_radiusSqr )
+		if ( radiusSqr > maxRadiusSqr )
 		{
-			m_radiusSqr = radiusSqr;
+			maxRadiusSqr = radiusSqr;
 		}
 	}
+
+	m_radius = sqrtf( maxRadiusSqr );
 }
 
 void BoundingSphere::Update( const CXMFLOAT4X4& matrix, IRigidBody* original )
 {
 	BoundingSphere* orig = dynamic_cast<BoundingSphere*>( original );
-	
 	m_origin = CXMFLOAT3( matrix._41, matrix._42, matrix._43 );
 
 	float scale = max( matrix._11, max( matrix._22, max( matrix._33, 1 ) ) );
-	float newRadius = sqrt( orig->m_radiusSqr ) * scale;
-	m_radiusSqr = newRadius * newRadius;
+	m_radius = orig->GetRadius() * scale;
 }
 
 float BoundingSphere::Intersect( const CRay* ray ) const
@@ -78,12 +78,13 @@ float BoundingSphere::Intersect( const CRay* ray ) const
 
 	float normalVectorSqr = toShpereSqr - tangentSqr;
 
-	if ( normalVectorSqr > m_radiusSqr )
+	float radiusSqr = m_radius * m_radius;
+	if ( normalVectorSqr > radiusSqr )
 	{
 		return -1;
 	}
 
-	return max( 0.f, std::sqrt( tangentSqr ) - std::sqrt( m_radiusSqr - normalVectorSqr ) );
+	return max( 0.f, sqrtf( tangentSqr ) - sqrtf( radiusSqr - normalVectorSqr ) );
 }
 
 int BoundingSphere::Intersect( const CFrustum& frustum ) const
@@ -91,12 +92,28 @@ int BoundingSphere::Intersect( const CFrustum& frustum ) const
 	const CXMFLOAT4( &planes )[6] = frustum.GetPlanes( );
 
 	bool inside = true;
-	float radius = sqrtf( m_radiusSqr );
 
 	for ( int i = 0; ( i<6 ) && inside; i++ )
-		inside &= ( ( XMVectorGetX( XMPlaneDotNormal( planes[i], m_origin ) ) + radius ) >= 0.f );
+		inside &= ( ( XMVectorGetX( XMPlaneDotCoord( planes[i], m_origin ) ) + m_radius ) >= 0.f );
 
 	return inside;
+}
+
+int BoundingSphere::Intersect( const BoundingSphere& sphere ) const
+{
+	float distance = XMVectorGetX( XMVector3LengthSq( m_origin - sphere.m_origin ) );
+
+	return ( distance < ( m_radius + sphere.m_radius ) * ( m_radius + sphere.m_radius ) ) ? 1 : 0;
+}
+
+float BoundingSphere::CalcGrowth( const BoundingSphere& sphere ) const
+{
+	BoundingSphere newSphere( *this, sphere );
+
+	float radiusDiff = ( newSphere.GetRadius( ) - m_radius );
+
+	// ( ( 4 / 3 ) * pi * r^3 )
+	return 1.33333f * XM_PI * radiusDiff * radiusDiff * radiusDiff;
 }
 
 bool BoundingSphere::Intersect( const CFrustum& frustum, const CXMFLOAT3& sweepDir )
@@ -126,7 +143,7 @@ bool BoundingSphere::Intersect( const CFrustum& frustum, const CXMFLOAT3& sweepD
 
 	for ( int i = 0; i < count; ++i )
 	{
-		float radius = m_radiusSqr * 1.1f * 1.1f;
+		float radius = m_radius * 1.1f;
 		CXMFLOAT3 center( m_origin );
 		center += sweepDir * displacement[i];
 		BoundingSphere sphere( center, radius );
@@ -139,14 +156,14 @@ bool BoundingSphere::Intersect( const CFrustum& frustum, const CXMFLOAT3& sweepD
 BoundingSphere::BoundingSphere( const CAaboundingbox& box )
 {
 	box.Centroid( m_origin );
-	m_radiusSqr = XMVectorGetX( XMVector3LengthSq( m_origin - box.GetMax( ) ) );
+	m_radius = XMVectorGetX( XMVector3Length( m_origin - box.GetMax( ) ) );
 }
 
 BoundingSphere::BoundingSphere( const std::vector<CXMFLOAT3>& points )
 {
 	auto iter = points.begin( );
 
-	float radius = 0.f;
+	m_radius = 0.f;
 	m_origin = *iter++;
 
 	while ( iter != points.end( ) )
@@ -154,15 +171,46 @@ BoundingSphere::BoundingSphere( const std::vector<CXMFLOAT3>& points )
 		const CXMFLOAT3 tmp = *iter++;
 		CXMFLOAT3 toPoint = tmp - m_origin;
 		float d = XMVectorGetX( XMVector3Dot( toPoint, toPoint ) );
-		if ( d > radius * radius )
+		if ( d > m_radius * m_radius )
 		{
 			d = sqrtf( d );
-			float r = 0.5f * ( d + radius );
-			float scale = ( r - radius ) / d;
+			float r = 0.5f * ( d + m_radius );
+			float scale = ( r - m_radius ) / d;
 			m_origin += scale * toPoint;
-			radius = r;
+			m_radius = r;
 		}
 	}
+}
 
-	m_radiusSqr = radius * radius;
+BoundingSphere::BoundingSphere( const BoundingSphere& one, const BoundingSphere& two )
+{
+	CXMFLOAT3 centerOffset = two.m_origin - one.m_origin;
+	float distance = XMVectorGetX( XMVector3LengthSq( centerOffset ) );
+
+	float radiusDiff = two.m_radius - one.m_radius;
+
+	if ( radiusDiff * radiusDiff >= distance )
+	{
+		if ( one.m_radius > two.m_radius )
+		{
+			m_origin = one.m_origin;
+			m_radius = one.m_radius;
+		}
+		else
+		{
+			m_origin = two.m_origin;
+			m_radius = two.m_radius;
+		}
+	}
+	else
+	{
+		distance = sqrtf( distance );
+		m_radius = ( distance + one.m_radius + two.m_radius ) * 0.5f;
+
+		m_origin = one.m_origin;
+		if ( distance > 0 )
+		{
+			m_origin += centerOffset * ( ( m_radius - one.m_radius ) / distance );
+		}
+	}
 }

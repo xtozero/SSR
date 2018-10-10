@@ -8,6 +8,8 @@
 #include "Model/ModelBuilder.h"
 #include "Model/ModelManager.h"
 #include "Model/Surface.h"
+#include "Physics/BoundingSphere.h"
+#include "Physics/CollideBroad.h"
 #include "Render/Resource.h"
 #include "Scene/ConstantBufferDefine.h"
 #include "Scene/RenderView.h"
@@ -42,6 +44,7 @@ public:
 	virtual void Resume( ) override;
 	virtual void HandleUserInput( const UserInput& input ) override;
 	virtual void AppSizeChanged( IPlatform& platform ) override;
+	virtual void OnObjectSpawned( CGameObject& object ) override;
 
 	IRenderer& GetRenderer( ) const { return *m_pRenderer; }
 	CLightManager& GetLightManager( ) { return m_lightManager; }
@@ -108,4 +111,7 @@ private:
 	ImUiDrawBuffer m_uiDrawBuffer[2];
 	Material m_uiMaterial = INVALID_MATERIAL;
 	CXMFLOAT4X4 m_uiProjMat;
+
+	// Collision Acceleration
+	BVHTree<BoundingSphere> m_bvhTree;
 };

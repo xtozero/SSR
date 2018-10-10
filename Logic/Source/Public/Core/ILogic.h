@@ -3,6 +3,7 @@
 #include "common.h"
 #include "Util.h"
 
+class CGameObject;
 class IPlatform;
 struct UserInput;
 
@@ -15,6 +16,7 @@ public:
 	virtual void Resume( ) = 0;
 	virtual void HandleUserInput( const UserInput& ) = 0;
 	virtual void AppSizeChanged( IPlatform& platform ) = 0;
+	virtual void OnObjectSpawned( CGameObject& object ) = 0;
 
 	virtual ~ILogic( ) = default;
 };

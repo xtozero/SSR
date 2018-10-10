@@ -39,6 +39,7 @@ void CGameObject::SetPosition( const CXMFLOAT3& pos )
 	m_vecPos = pos;
 	m_needRebuildTransform = true;
 	m_updateSubRigidBody = RIGID_BODY_UPDATE_FLAG_ALL;
+	SetDirty( DF_POSITION );
 }
 
 void CGameObject::SetScale( const float xScale, const float yScale, const float zScale )
@@ -46,6 +47,7 @@ void CGameObject::SetScale( const float xScale, const float yScale, const float 
 	m_vecScale = CXMFLOAT3( xScale, yScale, zScale );
 	m_needRebuildTransform = true;
 	m_updateSubRigidBody = RIGID_BODY_UPDATE_FLAG_ALL;
+	SetDirty( DF_SCALING );
 }
 
 void CGameObject::SetRotate( const float pitch, const float yaw, const float roll )
@@ -53,6 +55,7 @@ void CGameObject::SetRotate( const float pitch, const float yaw, const float rol
 	m_vecRotate = CXMFLOAT3( pitch, yaw, roll );
 	m_needRebuildTransform = true;
 	m_updateSubRigidBody = RIGID_BODY_UPDATE_FLAG_ALL;
+	SetDirty( DF_ROTATION );
 }
 
 const CXMFLOAT3& CGameObject::GetPosition( )
@@ -140,6 +143,9 @@ bool CGameObject::Initialize( CGameLogic& gameLogic )
 	}
 
 	m_needInitialize = false;
+
+	gameLogic.OnObjectSpawned( *this );
+
 	return true;
 }
 

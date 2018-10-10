@@ -169,6 +169,18 @@ void CGameLogic::AppSizeChanged( IPlatform& platform )
 	m_uiProjMat = XMMatrixOrthographicLH( fSizeX, fSizeY, 0, 1 );
 }
 
+void CGameLogic::OnObjectSpawned( CGameObject& object )
+{
+	const BoundingSphere* sphere = reinterpret_cast<const BoundingSphere*>( object.GetRigidBody( RIGID_BODY_TYPE::Sphere ) );
+
+	if ( sphere == nullptr )
+	{
+		return;
+	}
+
+	m_bvhTree.Insert( object.GetRigidBody( ), *sphere );
+}
+
 void CGameLogic::StartLogic( )
 {
 	//게임 로직 수행 전처리
@@ -182,6 +194,25 @@ void CGameLogic::StartLogic( )
 		m_ui.Text( fps.c_str( ) );
 	}
 	m_ui.EndWindow( );
+
+	constexpr int moveDirty = DF_POSITION | DF_ROTATION | DF_SCALING;
+	// Update BVH Tree, Not Optimized Fix Later
+	for ( auto& object : m_gameObjects )
+	{
+		if ( object->GetDirty( ) & moveDirty )
+		{
+			if ( auto found = m_bvhTree.Find( object->GetRigidBody( ) ) )
+			{
+				delete found;
+				const BoundingSphere* sphere = reinterpret_cast<const BoundingSphere*>( object->GetRigidBody( RIGID_BODY_TYPE::Sphere ) );
+
+				if ( sphere )
+				{
+					m_bvhTree.Insert( object->GetRigidBody( ), *sphere );
+				}
+			}
+		}
+	}
 }
 
 void CGameLogic::ProcessLogic( )
