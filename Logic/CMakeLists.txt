@@ -72,6 +72,7 @@ set (PHYSICS_SOURCE
 	"Source/Private/Physics/BoundingSphere.cpp"
 	"Source/Private/Physics/CollisionUtil.cpp"
 	"Source/Private/Physics/CollideNarrow.cpp"
+	"Source/Private/Physics/Contacts.cpp"
 	"Source/Private/Physics/ForceGenerator.cpp"
 	"Source/Private/Physics/Particle.cpp"
 	"Source/Private/Physics/ParticleContacts.cpp"
