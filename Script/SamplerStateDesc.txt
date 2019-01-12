@@ -9,7 +9,7 @@
         "MipLODBias"			"0"
         "MaxAnisotropy"			"1"
         "ComparisonFunc"		"D3D11_COMPARISON_NEVER"
-        "BorderColor"			"1.0f 1.0f 1.0f 1.0f"
+        "BorderColor"			"1.0 1.0 1.0 1.0"
         "MinLOD"				"-3.402823466e+38F"	// -FLT_MAX
         "MaxLOD"				"3.402823466e+38F"	// FLT_MAX
 	}
@@ -23,7 +23,7 @@
 		"MipLODBias"			"0"
         "MaxAnisotropy"			"1"
         "ComparisonFunc"		"D3D11_COMPARISON_NEVER"
-        "BorderColor"			"1.0f 1.0f 1.0f 1.0f"
+        "BorderColor"			"1.0 1.0 1.0 1.0"
         "MinLOD"				"-3.402823466e+38F"	// -FLT_MAX
         "MaxLOD"				"3.402823466e+38F"	// FLT_MAX
 	}
@@ -37,7 +37,7 @@
 		"MipLODBias"			"0"
         "MaxAnisotropy"			"1"
         "ComparisonFunc"		"D3D11_COMPARISON_NEVER"
-        "BorderColor"			"1.0f 1.0f 1.0f 1.0f"
+        "BorderColor"			"1.0 1.0 1.0 1.0"
         "MinLOD"				"-3.402823466e+38F"	// -FLT_MAX
         "MaxLOD"				"3.402823466e+38F"	// FLT_MAX
 	}
@@ -51,7 +51,7 @@
 		"MipLODBias"			"0"
         "MaxAnisotropy"			"1"
         "ComparisonFunc"		"D3D11_COMPARISON_NEVER"
-        "BorderColor"			"1.0f 1.0f 1.0f 1.0f"
+        "BorderColor"			"1.0 1.0 1.0 1.0"
         "MinLOD"				"-3.402823466e+38F"	// -FLT_MAX
         "MaxLOD"				"3.402823466e+38F"	// FLT_MAX
 	}

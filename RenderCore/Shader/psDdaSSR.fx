@@ -36,7 +36,7 @@ float Noise( float2 seed )
 
 bool TraceScreenSpaceRay( float3 dir, float3 viewPos, out float3 hitPixel_alpha  )
 {
-	float rayLength = ( viewPos.z * dir.z * g_maxRayLength ) < g_nearPlaneDist ? ( g_nearPlaneDist - viewPos.z ) / dir.z : g_maxRayLength;
+	float rayLength = ( viewPos.z + dir.z * g_maxRayLength ) < g_nearPlaneDist ? ( g_nearPlaneDist - viewPos.z ) / dir.z : g_maxRayLength;
 
 	hitPixel_alpha = float3( -1, -1, 1 );
 
@@ -47,9 +47,6 @@ bool TraceScreenSpaceRay( float3 dir, float3 viewPos, out float3 hitPixel_alpha 
 
 	float k0 = 1 / ssRayBegin.w;
 	float k1 = 1 / ssRayEnd.w;
-
-	float Q0 = viewPos.z * k0;
-	float Q1 = rayEnd.z * k1;
 
 	float2 P0 = ssRayBegin.xy * k0;
 	float2 P1 = ssRayEnd.xy * k1;
@@ -78,31 +75,31 @@ bool TraceScreenSpaceRay( float3 dir, float3 viewPos, out float3 hitPixel_alpha 
 
 	float end = stepDir * P1.x;
 
-	float4 PQk = float4( P0, Q0, k0 );
-	float4 dPQk = float4( float2( stepDir, delta.y * invdx ), ( Q1 - Q0 ) * invdx, ( k1 - k0 ) * invdx );
+	float3 Pk = float3( P0, k0 );
+	float3 dPk = float3( float2( stepDir, delta.y * invdx ), ( k1 - k0 ) * invdx );
 
-	dPQk *= g_rayStepScale;
+	dPk *= g_rayStepScale;
 
-	// float jitter = Noise( PQk.xy );
-	// PQk += dPQk * jitter;
+	// float jitter = Noise( Pk.xy );
+	// Pk += dPk * jitter;
 
 	float thickness = g_maxThickness;
 
 	[loop]
 	for ( ;
-		( ( PQk.x * stepDir ) <= end ) &&
+		( ( Pk.x * stepDir ) <= end ) &&
 		( stepCount < g_maxRayStep ) &&
 		( ( rayZ < sceneZMax ) || 
 		( ( rayZ - thickness ) > sceneZMax ) ) &&
 		( sceneZMax != 0.0 );
-		PQk += dPQk,
+		Pk += dPk,
 		stepCount += 1 )
 	{
-		hitPixel_alpha.xy = permute ? PQk.yx : PQk.xy;
+		hitPixel_alpha.xy = permute ? Pk.yx : Pk.xy;
 		hitPixel_alpha.xy *= g_invTargetSize;
 		hitPixel_alpha.y = 1 - hitPixel_alpha.y;
 
-		rayZ = PQk.z / PQk.w;
+		rayZ = 1 / Pk.z;
 
 		sceneZMax = depthbufferTex.SampleLevel( baseSampler, hitPixel_alpha.xy, 0 ).x;
 		thickness = backfaceDepthBufferTex.SampleLevel( baseSampler, hitPixel_alpha.xy, 0 ).x * g_FarPlaneDist;

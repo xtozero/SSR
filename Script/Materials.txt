@@ -16,6 +16,7 @@
 			"PS"	"default"
 		}
 	}
+	
 	"mat_default"
 	{
 		"Shader"
@@ -272,6 +273,23 @@
 		"Sampler"
 		{
 			"PS"	"draw_ui"
+		}
+	}
+	
+	"mat_debugOverlay"
+	{
+		"Shader"
+		{
+			"VS"	"vsDebugOverlay"
+			"PS"	"psDebugOverlay"
+		}
+		
+		"RS_State"	"default"
+		"DS_State"	"default"
+		
+		"Sampler"
+		{
+			"PS"	"default"
 		}
 	}
 	

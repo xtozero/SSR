@@ -1,17 +1,19 @@
 #include "stdafx.h"
 #include "Physics/Aaboundingbox.h"
 
+#include "Core/Timer.h"
 #include "Model/CommonMeshDefine.h"
 #include "Model/IMesh.h"
 #include "Physics/Frustum.h"
 #include "Physics/Ray.h"
+#include "Scene/DebugOverlayManager.h"
 #include "Util.h"
 
 #include <algorithm> 
 
 using namespace DirectX;
 
-void CAaboundingbox::CreateRigideBody( const IMesh& mesh )
+void CAaboundingbox::CalcMeshBounds( const IMesh& mesh )
 {
 	m_min = CXMFLOAT3( FLT_MAX, FLT_MAX, FLT_MAX );
 	m_max = CXMFLOAT3( -FLT_MAX, -FLT_MAX, -FLT_MAX );
@@ -37,7 +39,7 @@ void CAaboundingbox::CreateRigideBody( const IMesh& mesh )
 #endif
 }
 
-void CAaboundingbox::Update( const CXMFLOAT4X4& matrix, IRigidBody* original )
+void CAaboundingbox::Update( const CXMFLOAT3& scaling, const CXMFLOAT3& rotation, const CXMFLOAT3& translation, ICollider* original )
 {
 	CAaboundingbox* orig = dynamic_cast<CAaboundingbox*>( original );
 	if ( orig == nullptr )
@@ -55,6 +57,8 @@ void CAaboundingbox::Update( const CXMFLOAT4X4& matrix, IRigidBody* original )
 		CXMFLOAT3( orig->m_max.x, orig->m_min.y, orig->m_min.z ),
 		CXMFLOAT3( orig->m_min.x, orig->m_min.y, orig->m_min.z ),
 	};
+	
+	CXMFLOAT4X4 matrix = XMMatrixAffineTransformation( scaling, XMVectorZero( ), XMQuaternionRotationRollPitchYaw( rotation.x, rotation.y, rotation.z ), translation );
 
 	for ( int i = 0; i < 8; ++i )
 	{
@@ -75,9 +79,9 @@ void CAaboundingbox::Update( const CXMFLOAT4X4& matrix, IRigidBody* original )
 	}
 }
 
-void CAaboundingbox::CalcSubRigidBody( std::vector<std::unique_ptr<IRigidBody>>& subRigidBody )
+void CAaboundingbox::CalcSubMeshBounds( std::vector<std::unique_ptr<ICollider>>& subColliders )
 {
-	subRigidBody.clear( );
+	subColliders.clear( );
 
 	CXMFLOAT3 length = m_max - m_min;
 
@@ -91,7 +95,7 @@ void CAaboundingbox::CalcSubRigidBody( std::vector<std::unique_ptr<IRigidBody>>&
 		subBox->SetMin( m_min.x + ( ix / 8.f ) * length.x, m_min.y + ( iy / 8.f ) * length.y, m_min.z + ( iz / 8.f ) * length.z );
 		subBox->SetMax( m_min.x + ( ( ix + 1 ) / 8.f ) * length.x, m_min.y + ( ( iy + 1 ) / 8.f ) * length.y, m_min.z + ( ( iz + 1 ) / 8.f ) * length.z );
 
-		subRigidBody.emplace_back( subBox );
+		subColliders.emplace_back( subBox );
 	}
 }
 
@@ -168,6 +172,31 @@ int CAaboundingbox::Intersect( const CFrustum& frustum ) const
 	}
 
 	return result;
+}
+
+void CAaboundingbox::DrawDebugOverlay( CDebugOverlayManager& debugOverlay ) const
+{
+	debugOverlay.AddDebugCube( m_min, m_max, g_colorChartreuse, CTimer::GetInstance( ).GetElapsedTime( ) );
+}
+
+int CAaboundingbox::Intersect( const CAaboundingbox& box ) const
+{
+	for ( int i = 0; i < 3; ++i )
+	{
+		if ( m_max[i] < box.m_min[i] || m_min[i] > box.m_max[i] )
+		{
+			return COLLISION::OUTSIDE;
+		}
+	}
+
+	if ( m_min.x <= box.m_min.x && box.m_max.x <= m_max.x &&
+		m_min.y <= box.m_min.y && box.m_max.y <= m_max.y &&
+		m_min.z <= box.m_min.z && box.m_max.z <= m_max.z )
+	{
+		return COLLISION::INSIDE;
+	}
+
+	return COLLISION::INTERSECTION;
 }
 
 CAaboundingbox::CAaboundingbox( const std::vector<CAaboundingbox>& boxes )

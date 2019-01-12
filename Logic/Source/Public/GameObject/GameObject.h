@@ -3,7 +3,7 @@
 #include "GameObjectProperty.h"
 #include "Math/CXMFloat.h"
 #include "Physics/Body.h"
-#include "Physics/RigidBodyManager.h"
+#include "Physics/ColliderManager.h"
 #include "Render/Resource.h"
 #include "Scene/INotifyGraphicsDevice.h"
 
@@ -16,19 +16,31 @@ enum DIRTY_FLAG
 	DF_SCALING	= 1 << 2,
 };
 
+class CDebugOverlayManager;
 class CGameLogic;
-class IRigidBody;
+class CGameObject;
+class ICollider;
 class IMesh;
 class KeyValue;
+
+struct ObjectRelatedRigidBody : public RigidBody
+{
+	CGameObject* m_gameObject = nullptr;
+};
 
 class CGameObject : IGraphicsDeviceNotify
 {
 public:
 	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
+	virtual bool Initialize( CGameLogic& gameLogic, int id );
 	virtual void SetPosition( const float x, const float y, const float z );
 	virtual void SetPosition( const CXMFLOAT3& pos );
 	virtual void SetScale( const float xScale, const float yScale, const float zScale );
 	virtual void SetRotate( const float pitch, const float yaw, const float roll );
+	virtual void SetRotate( const CXMFLOAT3& pitchYawRoll );
+
+	int GetID( ) const { return m_id; }
+	void SetID( int id ) { m_id = id; }
 
 	const CXMFLOAT3& GetPosition( );
 	const CXMFLOAT3& GetScale( );
@@ -41,6 +53,7 @@ public:
 	virtual void Render( CGameLogic& gameLogic );
 
 	virtual void Think( );
+	virtual void PostThink( );
 
 	void SetName( const String& name ) { m_name = name; }
 	const String& GetName( ) const { return m_name; }
@@ -48,11 +61,13 @@ public:
 	void SetModelMeshName( const String& pModelName );
 	const String& GetMeshName( ) const { return m_meshName; }
 
-	bool Initialize( CGameLogic& gameLogic );
-	bool NeedInitialize( ) { return m_needInitialize; }
-	const IRigidBody* GetRigidBody( int type );
-	const std::vector<std::unique_ptr<IRigidBody>>& GetSubRigidBody( int type );
+	COLLIDER::TYPE GetColliderType( ) const { return m_colliderType; }
+	const ICollider* GetDefaultCollider( );
+	const ICollider* GetCollider( int type );
+	const std::vector<std::unique_ptr<ICollider>>& GetSubColliders( int type );
+	void DrawDefaultCollider( CDebugOverlayManager& debugOverlay );
 
+	bool IsPicked( ) const { return m_isPicked; }
 	void SetPicked( bool isPicked ) { m_isPicked = isPicked; }
 
 	IMesh* GetModel( ) const { return m_pModel; }
@@ -75,7 +90,7 @@ public:
 	virtual bool ShouldDraw( ) const { return true; }
 	virtual bool ShouldDrawShadow( ) const { return true; }
 
-	RigidBody* GetRigidBody( ) { return &m_body; }
+	ObjectRelatedRigidBody* GetRigidBody( ) { return &m_body; }
 
 	int GetDirty( ) const { return m_dirtyFlag; }
 	void SetDirty( int dirtyFlag ) { m_dirtyFlag |= dirtyFlag; }
@@ -89,11 +104,13 @@ protected:
 
 private:
 	void RebuildTransform( );
-	void UpdateRigidBody( RIGID_BODY_TYPE type );
-	void UpdateRigidBodyAll( );
-	void UpdateSubRigidBody( RIGID_BODY_TYPE type );
+	void UpdateCollider( COLLIDER::TYPE type );
+	void UpdateAllCollider( );
+	void UpdateSubCollider( COLLIDER::TYPE type );
 
 private:
+	int m_id = -1;
+
 	CXMFLOAT3 m_vecPos;
 	CXMFLOAT3 m_vecScale;
 	CXMFLOAT3 m_vecRotate;
@@ -109,20 +126,20 @@ private:
 	String m_materialName;
 	String m_meshName;
 
-	bool m_needInitialize = true;
 	bool m_isPicked = false;
-	BYTE m_updateSubRigidBody = 0;
 
-	IRigidBody* m_originRigidBodies[RIGID_BODY_TYPE::Count] = { nullptr, };
-	std::unique_ptr<IRigidBody>	m_rigidBodies[RIGID_BODY_TYPE::Count];
+	COLLIDER::TYPE m_colliderType = COLLIDER::NONE;
+	ICollider* m_originalColliders[COLLIDER::COUNT] = { nullptr, };
+	std::unique_ptr<ICollider>	m_colliders[COLLIDER::COUNT];
 
-	std::vector<std::unique_ptr<IRigidBody>> m_subRigidBodies[RIGID_BODY_TYPE::Count];
+	std::vector<std::unique_ptr<ICollider>> m_subColliders[COLLIDER::COUNT];
 
 	UINT m_property = 0;
 
-	RigidBody m_body;
+	ObjectRelatedRigidBody m_body;
 
 	int m_dirtyFlag = 0;
+
 protected:
 	bool m_needRebuildTransform = false;
 };

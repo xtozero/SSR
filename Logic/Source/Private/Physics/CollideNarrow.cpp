@@ -27,7 +27,7 @@ unsigned int SphereAndSphere( const BoundingSphere& lhs, RigidBody* lhsBody, con
 
 	Contact* contact = data->m_contacts;
 	contact->SetContactNormal( normal );
-	contact->SetContactPoint( lhsPos + CXMFLOAT3( midline * 0.5f ) );
+	contact->SetContactPoint( lhsPos - CXMFLOAT3( midline * 0.5f ) );
 	contact->SetPenetration( lhs.GetRadius( ) + rhs.GetRadius( ) - size );
 	contact->SetBodyData( lhsBody, rhsBody, data->m_friction, data->m_restitution );
 
@@ -142,7 +142,7 @@ unsigned int BoxAndSphere( const CAaboundingbox& box, RigidBody* boxBody, const 
 
 	BoundingSphere boxSphere( box );
 
-	if ( boxSphere.Intersect( sphere ) == 0 )
+	if ( boxSphere.Intersect( sphere ) == COLLISION::OUTSIDE )
 	{
 		return 0;
 	}
@@ -202,6 +202,11 @@ unsigned int BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const CAa
 		return 0;
 	}
 
+	if ( lhs.Intersect( rhs ) == COLLISION::OUTSIDE )
+	{
+		return 0;
+	}
+
 	const CXMFLOAT3& lhsMin = lhs.GetMin();
 	const CXMFLOAT3& lhsMax = lhs.GetMax();
 	const CXMFLOAT3& rhsMin = rhs.GetMin();
@@ -219,7 +224,7 @@ unsigned int BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const CAa
 
 	for ( int i = 0; i < 3; ++i )
 	{
-		float overlap = totalSize[i] - ( ( lhsMax[i] > rhsMax[i] ) ? lhsMax[i] : rhsMax[i] - ( lhsMin[i] < rhsMin[i] ) ? lhsMin[i] : rhsMin[i] );
+		float overlap = ( totalSize[i] - fabsf( max( lhsMax[i], rhsMax[i] ) - min( lhsMin[i], rhsMin[i] ) ) ) * 0.5f;
 		
 		if ( overlap < bestOverlap )
 		{

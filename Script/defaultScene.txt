@@ -22,6 +22,7 @@
 		"Material"	"mat_reflectable"
 		"Position"	"0 -10 0"
 		"Reflectable"	"1"
+		"ColliderType"	"Box"
 	}
 	
 	"Object" "base"
@@ -31,6 +32,8 @@
 		"Material"	"mat_default" //재질명
 		"Position"	"-26.409266 -4.787085 0.000000" //x y z
 		"Scale"		"10 10 10" //xScale yScale zScale
+		"ColliderType"	"Sphere"
+		"Mass"		"10"
 	}
 	
 	"Object" "base"
@@ -40,6 +43,7 @@
 		"Material"	"mat_default" //재질명
 		"Scale"		"10 10 10" //xScale yScale zScale
 		"Position"	"-13.516332 -4.475936 0.000000" //x y z
+		"ColliderType"	"Box"
 	}
 	
 	"Object" "base"
@@ -49,6 +53,7 @@
 		"Material"	"mat_default" //재질명
 		"Scale"		"10 10 10" //xScale yScale zScale
 		"Position"	"-1.270190 -4.746570 0.000000" //x y z
+		"ColliderType"	"Box"
 	}
 	
 	"Object" "base"
@@ -58,6 +63,7 @@
 		"Material"	"mat_default" //재질명
 		"Scale"		"10 10 10" //xScale yScale zScale
 		"Position"	"11.517221 -8.738405 0.000000" //x y z
+		"ColliderType"	"Box"
 	}
 	
 	"Object" "base"
@@ -67,6 +73,7 @@
 		"Material"	"mat_default" //재질명
 		"Scale"		"10 10 10" //xScale yScale zScale
 		"Position"	"25.928568 -4.814196 0.000000" //x y z
+		"ColliderType"	"Box"
 	}
 	
 	"Object" "displaySRVHelper"

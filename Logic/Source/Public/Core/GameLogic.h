@@ -10,8 +10,10 @@
 #include "Model/Surface.h"
 #include "Physics/BoundingSphere.h"
 #include "Physics/CollideBroad.h"
+#include "Physics/World.h"
 #include "Render/Resource.h"
 #include "Scene/ConstantBufferDefine.h"
+#include "Scene/DebugOverlayManager.h"
 #include "Scene/RenderView.h"
 #include "Scene/SceneLoader.h"
 #include "Scene/ShadowManager.h"
@@ -64,6 +66,8 @@ private:
 
 	void SceneBegin( );
 	void DrawScene( );
+	void DrawForDebug( );
+	void DrawDebugOverlay( );
 	void DrawUI( );
 	void SceneEnd( );
 
@@ -112,6 +116,7 @@ private:
 	Material m_uiMaterial = INVALID_MATERIAL;
 	CXMFLOAT4X4 m_uiProjMat;
 
-	// Collision Acceleration
-	BVHTree<BoundingSphere> m_bvhTree;
+	CDebugOverlayManager m_debugOverlay;
+
+	World m_world;
 };

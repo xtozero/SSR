@@ -77,6 +77,11 @@ void RigidBody::SetOrientation( const CXMFLOAT4& orientation )
 	m_orientation = orientation;
 }
 
+void RigidBody::SetOrientation( float pitch, float yaw, float roll )
+{
+	SetOrientation( XMQuaternionRotationRollPitchYaw( pitch, yaw, roll ) );
+}
+
 CXMFLOAT4 RigidBody::GetOrientation( ) const
 {
 	return m_orientation;
@@ -120,6 +125,11 @@ CXMFLOAT4X4 RigidBody::GetTransform( ) const
 void RigidBody::SetInertiaTensor( const CXMFLOAT3X3& inertiaTensor )
 {
 	m_inverseInertiaTensor = XMMatrixInverse( nullptr, inertiaTensor );
+
+	if ( XMMatrixIsNaN( m_inverseInertiaTensor ) )
+	{
+		m_inverseInertiaTensor = CXMFLOAT3X3( 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f );
+	}
 }
 
 CXMFLOAT3X3 RigidBody::GetInertiaTensor( ) const

@@ -47,7 +47,7 @@ void CCamera::ProcessInput( const UserInput& input )
 
 void CCamera::Think( )
 {
-	float elapsedTime = CTimer::GetInstance( ).GetElapsedTIme( );
+	float elapsedTime = CTimer::GetInstance( ).GetElapsedTime( );
 
 	CXMFLOAT3 force( static_cast<float>( m_inputDirection[2] - m_inputDirection[0] ),
 					0.f,

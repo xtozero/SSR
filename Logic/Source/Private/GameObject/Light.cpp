@@ -5,20 +5,25 @@
 
 using namespace DirectX;
 
-void CLight::SetPosition( const float x, const float y, const float z )
+bool CLight::Initialize( CGameLogic& /*gameLogic*/, int /*id*/ )
 {
-	SetPosition( CXMFLOAT3( x, y, z ) );
+	return true;
 }
 
-void CLight::SetPosition( const CXMFLOAT3& pos )
+void CLight::SetPosition( const float x, const float y, const float z )
 {
-	CGameObject::SetPosition( pos );
+	CGameObject::SetPosition( x, y, z );
 	m_needRebuildTransform = false;
 
 	if ( m_property )
 	{
-		m_property->m_position = CXMFLOAT4( pos.x, pos.y, pos.z, 0.f );
+		m_property->m_position = CXMFLOAT4( x, y, z, 0.f );
 	}
+}
+
+void CLight::SetPosition( const CXMFLOAT3& pos )
+{
+	SetPosition( pos.x, pos.y, pos.z );
 }
 
 void CLight::SetScale( const float /*xScale*/, const float /*yScale*/, const float /*zScale*/ )

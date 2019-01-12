@@ -11,7 +11,7 @@ public:
 	void Pause( );
 	void Resume( );
 
-	inline float GetElapsedTIme( ) const { return m_elapsedTime; }
+	inline float GetElapsedTime( ) const { return m_elapsedTime; }
 	inline float GetTotalTime( ) const { return m_totalTime; }
 	inline float GetFps( ) const { return m_fps; }
 

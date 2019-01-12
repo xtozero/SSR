@@ -40,8 +40,8 @@ void CSceneLoader::SetSceneObjectProperty( CGameLogic& gameLogic, KeyValue* keyV
 		}
 	}
 
-	for ( const auto& object : objectList )
+	for ( auto object = objectList.begin(); object != objectList.end(); ++object )
 	{
-		object->Initialize( gameLogic );
+		(*object)->Initialize( gameLogic, std::distance( object, objectList.begin() ) );
 	}
 }

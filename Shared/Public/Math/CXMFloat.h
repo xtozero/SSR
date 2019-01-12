@@ -10,12 +10,11 @@ struct CXMFLOAT2 : public DirectX::XMFLOAT2
 	CXMFLOAT2( float x, float y ) : XMFLOAT2( x, y ) {}
 	explicit CXMFLOAT2( const float *pArray ) : XMFLOAT2( pArray ) {}
 
-	using XMFLOAT2::operator=;
 	CXMFLOAT2( const DirectX::FXMVECTOR vec )
 	{
 		DirectX::XMStoreFloat2( this, vec );
 	}
-
+	
 	// casting
 	operator float*() { return &x; }
 	operator const float*() { return &x; }
@@ -167,7 +166,6 @@ struct CXMFLOAT3 : public DirectX::XMFLOAT3
 	CXMFLOAT3( ) : XMFLOAT3{} {}
 	CXMFLOAT3( float x, float y, float z ) : XMFLOAT3( x, y, z ) {}
 	explicit CXMFLOAT3( const float *pArray ) : XMFLOAT3( pArray ) {}
-	using XMFLOAT3::operator=;
 
 	CXMFLOAT3( const DirectX::FXMVECTOR vec )
 	{
@@ -332,7 +330,6 @@ struct CXMFLOAT4 : public DirectX::XMFLOAT4
 	CXMFLOAT4( float x, float y, float z, float w ) : XMFLOAT4( x, y, z, w ) {}
 	explicit CXMFLOAT4( const float *pArray ) : XMFLOAT4( pArray ) {}
 
-	using XMFLOAT4::operator=;
 	CXMFLOAT4( const DirectX::FXMVECTOR vec )
 	{
 		DirectX::XMStoreFloat4( this, vec );
@@ -511,8 +508,6 @@ struct CXMFLOAT3X3 : public DirectX::XMFLOAT3X3
 		row3.x, row3.y, row3.z ) {}
 	explicit CXMFLOAT3X3( const float *pArray ) : XMFLOAT3X3( pArray ) {}
 
-	using XMFLOAT3X3::operator=;
-
 	CXMFLOAT3X3( const DirectX::CXMMATRIX mat )
 	{
 		DirectX::XMStoreFloat3x3( this, mat );
@@ -558,8 +553,6 @@ struct CXMFLOAT4X3 : public DirectX::XMFLOAT4X3
 		row4.x, row4.y, row4.z) {}
 	explicit CXMFLOAT4X3( const float *pArray ) : XMFLOAT4X3( pArray ) {}
 
-	using XMFLOAT4X3::operator=;
-
 	CXMFLOAT4X3( const DirectX::CXMMATRIX mat )
 	{
 		DirectX::XMStoreFloat4x3( this, mat );
@@ -583,8 +576,6 @@ struct CXMFLOAT4X4 : public DirectX::XMFLOAT4X4
 																			m20, m21, m22, m23,
 																			m30, m31, m32, m33 ) {}
 	explicit CXMFLOAT4X4( const float *pArray ) : XMFLOAT4X4( pArray ) {}
-
-	using XMFLOAT4X4::operator=;
 
 	CXMFLOAT4X4( const DirectX::CXMMATRIX mat )
 	{

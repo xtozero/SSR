@@ -157,12 +157,15 @@ bool CPickingManager::PickingObject( float x, float y )
 				continue;
 			}
 
-			float hitDist = COLLISION_UTIL::IntersectWithRay( *object, ray, RIGID_BODY_TYPE::AABB );
-
-			if ( hitDist >= 0 && m_closestHitDist > hitDist )
+			if ( const ICollider* pCollider = object->GetCollider( COLLIDER::AABB ) )
 			{
-				m_closestHitDist = hitDist;
-				m_curSelectedObject = object.get();
+				float hitDist = pCollider->Intersect( &ray );
+
+				if ( hitDist >= 0 && m_closestHitDist > hitDist )
+				{
+					m_closestHitDist = hitDist;
+					m_curSelectedObject = object.get( );
+				}
 			}
 		}
 
@@ -267,7 +270,7 @@ void CPickingManager::OnMouseMove( const UserInput& input )
 			rayDir = XMVector3Normalize( rayDir );
 
 			CRay pickingRay( origin, rayDir );
-			float hitDist = COLLISION_UTIL::IntersectWithRay( *m_curSelectedObject, pickingRay, RIGID_BODY_TYPE::AABB );
+			float hitDist = m_curSelectedObject->GetCollider( COLLIDER::AABB )->Intersect( &pickingRay );
 
 			if ( hitDist >= 0.f )
 			{

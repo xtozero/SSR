@@ -44,6 +44,7 @@ private:
 class ContactResolver
 {
 public:
+	void Initialize( int iterations, float velocityEpsilon = 0.01f, float positionEpsilon = 0.01f );
 	void ResolveContacts( Contact* contactArray, int numContacts, float duration );
 
 private:
@@ -56,4 +57,7 @@ private:
 
 	int m_velocityIterations = 0;
 	int m_velocityIterationsUsed = 0;
+
+	float m_velocityEpsilon = 0.01f;
+	float m_positionEpsilon = 0.01f;
 };

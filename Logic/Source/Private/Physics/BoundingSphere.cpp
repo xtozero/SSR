@@ -1,11 +1,13 @@
 #include "stdafx.h"
 #include "Physics/BoundingSphere.h"
 
+#include "Core/Timer.h"
 #include "Model/CommonMeshDefine.h"
 #include "Model/IMesh.h"
 #include "Physics/Aaboundingbox.h"
 #include "Physics/Frustum.h"
 #include "Physics/Ray.h"
+#include "Scene/DebugOverlayManager.h"
 
 using namespace DirectX;
 
@@ -40,7 +42,7 @@ namespace
 	}
 }
 
-void BoundingSphere::CreateRigideBody( const IMesh& mesh )
+void BoundingSphere::CalcMeshBounds( const IMesh& mesh )
 {
 	int verticesCount = mesh.GetVerticesCount( );
 	const MeshVertex* pVertices = static_cast<const MeshVertex*>( mesh.GetMeshData( ) );
@@ -59,13 +61,13 @@ void BoundingSphere::CreateRigideBody( const IMesh& mesh )
 	m_radius = sqrtf( maxRadiusSqr );
 }
 
-void BoundingSphere::Update( const CXMFLOAT4X4& matrix, IRigidBody* original )
+void BoundingSphere::Update( const CXMFLOAT3& scaling, const CXMFLOAT3& rotation, const CXMFLOAT3& translation, ICollider* original )
 {
 	BoundingSphere* orig = dynamic_cast<BoundingSphere*>( original );
-	m_origin = CXMFLOAT3( matrix._41, matrix._42, matrix._43 );
+	m_origin = translation;
 
-	float scale = max( matrix._11, max( matrix._22, max( matrix._33, 1 ) ) );
-	m_radius = orig->GetRadius() * scale;
+	float maxScaling = max( scaling.x, max( scaling.y, max( scaling.z, 1 ) ) );
+	m_radius = orig->GetRadius() * maxScaling;
 }
 
 float BoundingSphere::Intersect( const CRay* ray ) const
@@ -97,6 +99,11 @@ int BoundingSphere::Intersect( const CFrustum& frustum ) const
 		inside &= ( ( XMVectorGetX( XMPlaneDotCoord( planes[i], m_origin ) ) + m_radius ) >= 0.f );
 
 	return inside;
+}
+
+void BoundingSphere::DrawDebugOverlay( CDebugOverlayManager& debugOverlay ) const
+{
+	debugOverlay.AddDebugSphere( m_origin, m_radius, g_colorChartreuse, CTimer::GetInstance( ).GetElapsedTime( ) );
 }
 
 int BoundingSphere::Intersect( const BoundingSphere& sphere ) const
@@ -147,7 +154,7 @@ bool BoundingSphere::Intersect( const CFrustum& frustum, const CXMFLOAT3& sweepD
 		CXMFLOAT3 center( m_origin );
 		center += sweepDir * displacement[i];
 		BoundingSphere sphere( center, radius );
-		inFrustum |= ( sphere.Intersect( frustum ) > 0 );
+		inFrustum |= ( sphere.Intersect( frustum ) > COLLISION::OUTSIDE );
 	}
 
 	return inFrustum;

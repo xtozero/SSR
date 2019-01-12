@@ -5,17 +5,16 @@
 #include "Core/Timer.h"
 #include "DataStructure/KeyValueReader.h"
 #include "GameObject/GameObjectFactory.h"
+#include "Math/Util.h"
 #include "Model/IMesh.h"
+#include "Physics/Aaboundingbox.h"
+#include "Physics/BoundingSphere.h"
 #include "Render/IRenderer.h"
+#include "Scene/DebugOverlayManager.h"
 
 #include <tchar.h>
 
 using namespace DirectX;
-
-namespace
-{
-	constexpr int RIGID_BODY_UPDATE_FLAG_ALL = ( 1 << RIGID_BODY_TYPE::Count ) - 1;
-}
 
 DECLARE_GAME_OBJECT( base, CGameObject );
 
@@ -29,33 +28,94 @@ void CGameObject::OnDeviceRestore( CGameLogic & gameLogic )
 	LoadMaterial( gameLogic );
 }
 
+bool CGameObject::Initialize( CGameLogic& gameLogic, int id )
+{
+	if ( LoadModelMesh( gameLogic ) == false )
+	{
+		__debugbreak( );
+	}
+
+	if ( LoadMaterial( gameLogic ) == false )
+	{
+		__debugbreak( );
+	}
+
+	const ICollider* defaultCollider = GetDefaultCollider( );
+	CXMFLOAT3X3 inertiaTensor;
+	
+	switch ( m_colliderType )
+	{
+	case COLLIDER::SPHERE:
+		{
+			const BoundingSphere* sphereCollider = static_cast<const BoundingSphere*>( defaultCollider );
+			inertiaTensor = MakeSphereInertiaTensor( sphereCollider->GetRadius( ), m_body.GetMass( ) );
+		}
+		break;
+	case COLLIDER::AABB:
+		{
+			const CAaboundingbox* boxCollider = static_cast<const CAaboundingbox*>( defaultCollider );
+			CXMFLOAT3 halfSize;
+			boxCollider->Size( halfSize );
+			halfSize *= 0.5f;
+			inertiaTensor = MakeBlockInertiaTensor( halfSize, m_body.GetMass( ) );
+		}
+		break;
+	}
+
+	m_body.SetInertiaTensor( inertiaTensor );
+
+	SetID( id );
+	gameLogic.OnObjectSpawned( *this );
+
+	return true;
+}
+
 void CGameObject::SetPosition( const float x, const float y, const float z )
 {
-	SetPosition( CXMFLOAT3( x, y, z ) );
+	if ( m_vecPos.x == x && m_vecPos.y == y && m_vecPos.z == z )
+	{
+		return;
+	}
+
+	m_vecPos = CXMFLOAT3( x, y, z );
+	m_body.SetPosition( m_vecPos );
+	m_needRebuildTransform = true;
+	SetDirty( DF_POSITION );
 }
 
 void CGameObject::SetPosition( const CXMFLOAT3& pos )
 {
-	m_vecPos = pos;
-	m_needRebuildTransform = true;
-	m_updateSubRigidBody = RIGID_BODY_UPDATE_FLAG_ALL;
-	SetDirty( DF_POSITION );
+	SetPosition( pos.x, pos.y, pos.z );
 }
 
 void CGameObject::SetScale( const float xScale, const float yScale, const float zScale )
 {
+	if ( m_vecScale.x == xScale && m_vecScale.y == yScale && m_vecScale.z == zScale )
+	{
+		return;
+	}
+
 	m_vecScale = CXMFLOAT3( xScale, yScale, zScale );
 	m_needRebuildTransform = true;
-	m_updateSubRigidBody = RIGID_BODY_UPDATE_FLAG_ALL;
 	SetDirty( DF_SCALING );
 }
 
 void CGameObject::SetRotate( const float pitch, const float yaw, const float roll )
 {
+	if ( m_vecRotate.x == pitch && m_vecRotate.y == yaw && m_vecRotate.z == roll )
+	{
+		return;
+	}
+
 	m_vecRotate = CXMFLOAT3( pitch, yaw, roll );
+	m_body.SetOrientation( pitch, yaw, roll );
 	m_needRebuildTransform = true;
-	m_updateSubRigidBody = RIGID_BODY_UPDATE_FLAG_ALL;
 	SetDirty( DF_ROTATION );
+}
+
+void CGameObject::SetRotate( const CXMFLOAT3& pitchYawRoll )
+{
+	SetRotate( pitchYawRoll.x, pitchYawRoll.y, pitchYawRoll.z );
 }
 
 const CXMFLOAT3& CGameObject::GetPosition( )
@@ -120,6 +180,12 @@ void CGameObject::Think( )
 {
 }
 
+void CGameObject::PostThink( )
+{
+	SetPosition( m_body.GetPosition( ) );
+	SetRotate( ConvertQuaternionToEulerAngle( m_body.GetOrientation( ) ) );
+}
+
 void CGameObject::SetMaterialName( const String& pMaterialName )
 {
 	m_materialName = pMaterialName;
@@ -130,36 +196,46 @@ void CGameObject::SetModelMeshName( const String& pModelName )
 	m_meshName = pModelName;
 }
 
-bool CGameObject::Initialize( CGameLogic& gameLogic )
+const ICollider* CGameObject::GetDefaultCollider( )
 {
-	if ( LoadModelMesh( gameLogic ) == false )
-	{
-		__debugbreak( );
-	}
-
-	if ( LoadMaterial( gameLogic ) == false )
-	{
-		__debugbreak( );
-	}
-
-	m_needInitialize = false;
-
-	gameLogic.OnObjectSpawned( *this );
-
-	return true;
+	return GetCollider( m_colliderType );
 }
 
-const IRigidBody* CGameObject::GetRigidBody( int type )
+const ICollider* CGameObject::GetCollider( int type )
 {
 	RebuildTransform( );
-	return m_rigidBodies[type].get( );
+	return m_colliders[type].get( );
 }
 
-const std::vector<std::unique_ptr<IRigidBody>>& CGameObject::GetSubRigidBody( int type )
+const std::vector<std::unique_ptr<ICollider>>& CGameObject::GetSubColliders( int type )
 {
 	RebuildTransform( );
-	UpdateSubRigidBody( static_cast<RIGID_BODY_TYPE>( type ) );
-	return m_subRigidBodies[type];
+	UpdateSubCollider( static_cast<COLLIDER::TYPE>( type ) );
+	return m_subColliders[type];
+}
+
+void CGameObject::DrawDefaultCollider( CDebugOverlayManager& debugOverlay )
+{
+	if ( const ICollider* collider = GetDefaultCollider( ) )
+	{
+		switch ( GetColliderType() )
+		{
+		case COLLIDER::AABB:
+			{
+				const CAaboundingbox* box = reinterpret_cast<const CAaboundingbox*>( collider );
+				debugOverlay.AddDebugCube( box->GetMin( ), box->GetMax( ), Convert2ARGB( 255, 140, 0, 255 ), CTimer::GetInstance( ).GetElapsedTime( ) );
+			}
+			break;
+		case COLLIDER::SPHERE:
+			{
+				const BoundingSphere* sphere = reinterpret_cast<const BoundingSphere*>( collider );
+				debugOverlay.AddDebugSphere( sphere->GetCenter( ), sphere->GetRadius( ), Convert2ARGB( 255, 140, 0, 255 ), CTimer::GetInstance( ).GetElapsedTime( ) );
+			}
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 void CGameObject::LoadPropertyFromScript( const KeyValue& keyValue )
@@ -215,6 +291,29 @@ void CGameObject::LoadPropertyFromScript( const KeyValue& keyValue )
 	{
 		AddProperty( REFLECTABLE_OBJECT );
 	}
+
+	if ( const KeyValue* pColliderType = keyValue.Find( _T( "ColliderType" ) ) )
+	{
+		const String& type = pColliderType->GetValue();
+
+		if ( type == _T( "Sphere" ) )
+		{
+			m_colliderType = COLLIDER::SPHERE;
+		}
+		else if ( type == _T( "Box" ) )
+		{
+			m_colliderType = COLLIDER::AABB;
+		}
+		else
+		{
+			__debugbreak( );
+		}
+	}
+
+	if ( const KeyValue* pMass = keyValue.Find( _T( "Mass" ) ) )
+	{
+		m_body.SetMass( pMass->GetValue<float>( ) );
+	}
 }
 
 CGameObject::CGameObject( ) :
@@ -225,11 +324,13 @@ m_vecRotate( 0.f, 0.f, 0.f )
 	m_matTransform = XMMatrixIdentity();
 	m_invMatTransform = XMMatrixIdentity( );
 
-	for ( int i = 0; i < RIGID_BODY_TYPE::Count; ++i )
+	for ( int i = 0; i < COLLIDER::COUNT; ++i )
 	{
-		m_originRigidBodies[i] = nullptr;
-		m_rigidBodies[i] = nullptr;
+		m_originalColliders[i] = nullptr;
+		m_colliders[i] = nullptr;
 	}
+
+	m_body.m_gameObject = this;
 }
 
 bool CGameObject::LoadModelMesh( CGameLogic& gameLogic )
@@ -247,9 +348,9 @@ bool CGameObject::LoadModelMesh( CGameLogic& gameLogic )
 
 		if ( m_pModel )
 		{
-			for ( int i = 0; i < RIGID_BODY_TYPE::Count; ++i )
+			for ( int i = 0; i < COLLIDER::COUNT; ++i )
 			{
-				m_originRigidBodies[i] = CRigidBodyManager::GetInstance( ).GetRigidBody( *m_pModel, static_cast<RIGID_BODY_TYPE>( i ) );
+				m_originalColliders[i] = CColliderManager::GetInstance( ).GetCollider( *m_pModel, static_cast<COLLIDER::TYPE>( i ) );
 			}
 
 			return true;
@@ -301,42 +402,41 @@ void CGameObject::RebuildTransform( )
 
 		m_invMatTransform = XMMatrixInverse( nullptr, m_matTransform );
 
-		UpdateRigidBodyAll( );
+		UpdateAllCollider( );
 		m_needRebuildTransform = false;
 	}
 }
 
-void CGameObject::UpdateRigidBody( RIGID_BODY_TYPE type )
+void CGameObject::UpdateCollider( COLLIDER::TYPE type )
 {
-	if ( m_originRigidBodies[type] )
+	if ( m_originalColliders[type] )
 	{
-		if ( m_rigidBodies[type].get( ) == nullptr )
+		if ( m_colliders[type].get( ) == nullptr )
 		{
-			m_rigidBodies[type].reset( CRigidBodyManager::GetInstance( ).MakeRigidBody( type ) );
+			m_colliders[type].reset( CColliderManager::GetInstance( ).CreateCollider( type ) );
 		}
 
-		m_rigidBodies[type]->Update( m_matTransform, m_originRigidBodies[type] );
+		m_colliders[type]->Update( m_vecScale, m_vecRotate, m_vecPos, m_originalColliders[type] );
 	}
 }
 
-void CGameObject::UpdateRigidBodyAll( )
+void CGameObject::UpdateAllCollider( )
 {
-	for ( int i = 0; i < RIGID_BODY_TYPE::Count; ++i )
+	for ( int i = 0; i < COLLIDER::COUNT; ++i )
 	{
-		if ( m_originRigidBodies[i] )
+		if ( m_originalColliders[i] )
 		{
-			UpdateRigidBody( static_cast<RIGID_BODY_TYPE>( i ) );
+			UpdateCollider( static_cast<COLLIDER::TYPE>( i ) );
 		}
 	}
 }
 
-void CGameObject::UpdateSubRigidBody( RIGID_BODY_TYPE type )
+void CGameObject::UpdateSubCollider( COLLIDER::TYPE type )
 {
-	UpdateRigidBody( type );
+	UpdateCollider( type );
 
-	if ( m_rigidBodies[type].get( ) && ( m_updateSubRigidBody & ( 1 << type ) ) )
+	if ( m_colliders[type].get( ) )
 	{
-		m_rigidBodies[type]->CalcSubRigidBody( m_subRigidBodies[type] );
-		m_updateSubRigidBody &= ~( 1 << type );
+		m_colliders[type]->CalcSubMeshBounds( m_subColliders[type] );
 	}
 }

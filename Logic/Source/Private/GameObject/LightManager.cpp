@@ -32,8 +32,10 @@ namespace
 	}
 }
 
-bool CLightManager::Initialize( IRenderer& renderer, std::vector<std::unique_ptr<CGameObject>>& objectList )
+bool CLightManager::Initialize( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& objectList )
 {
+	IRenderer& renderer = gameLogic.GetRenderer( );
+
 	// 속성과 클래스를 연결
 	for ( int i = 0; i < MAX_LIGHTS; ++i )
 	{
@@ -41,6 +43,7 @@ bool CLightManager::Initialize( IRenderer& renderer, std::vector<std::unique_ptr
 		if ( newLight )
 		{
 			newLight->RegisterProperty( &m_shaderLightProperty.m_properties[i] );
+			newLight->Initialize( gameLogic, static_cast<int>( objectList.size( ) ) );
 			m_lights[i] = newLight.get( );
 			objectList.emplace_back( std::move( newLight ) );
 		}

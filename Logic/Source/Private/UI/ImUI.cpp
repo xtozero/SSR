@@ -276,7 +276,7 @@ void ImUI::BeginFrame( const Rect& clientRect )
 	{
 		m_io.m_mouseClicked[i] = m_io.m_mouseDown[i] && m_io.m_mouseDownDuration[i] < 0.f;
 		m_io.m_mouseDownDurationPrev[i] = m_io.m_mouseDownDuration[i];
-		m_io.m_mouseDownDuration[i] = m_io.m_mouseDown[i] ? ( m_io.m_mouseDownDuration[i] < 0.f ? 0.f : m_io.m_mouseDownDuration[i] + CTimer::GetInstance( ).GetElapsedTIme( ) ) : -1.f;
+		m_io.m_mouseDownDuration[i] = m_io.m_mouseDown[i] ? ( m_io.m_mouseDownDuration[i] < 0.f ? 0.f : m_io.m_mouseDownDuration[i] + CTimer::GetInstance( ).GetElapsedTime( ) ) : -1.f;
 		m_io.m_mouseDoubleClick[i] = false;
 		if ( m_io.m_mouseClicked[i] )
 		{

@@ -1,18 +1,20 @@
 #pragma once
 
-#include "IRigidBody.h"
+#include "ICollider.h"
 #include "Math/CXMFloat.h"
 
 #include <vector>
 
-class CAaboundingbox : public IRigidBody
+class CAaboundingbox : public ICollider
 {
 public:
-	virtual void CreateRigideBody( const IMesh& mesh ) override;
-	virtual void Update( const CXMFLOAT4X4& matrix, IRigidBody* original ) override;
-	virtual void CalcSubRigidBody( std::vector<std::unique_ptr<IRigidBody>>& subRigidBody ) override;
+	virtual void CalcMeshBounds( const IMesh& mesh ) override;
+	virtual void Update( const CXMFLOAT3& scaling, const CXMFLOAT3& rotation, const CXMFLOAT3& translation, ICollider* original ) override;
+	virtual void CalcSubMeshBounds( std::vector<std::unique_ptr<ICollider>>& subColliders ) override;
 	virtual float Intersect( const CRay* ray ) const override;
 	virtual int Intersect( const CFrustum& frustum ) const override;
+	virtual void DrawDebugOverlay( CDebugOverlayManager& debugOverlay ) const override;
+	int Intersect( const CAaboundingbox& box ) const;
 
 	CAaboundingbox( ) = default;
 	explicit CAaboundingbox( const std::vector<CAaboundingbox>& boxes );
@@ -43,6 +45,12 @@ public:
 
 	const CXMFLOAT3& GetMax( ) const { return m_max; }
 	const CXMFLOAT3& GetMin( ) const { return m_min; }
+	float GetSize( ) const 
+	{
+		CXMFLOAT3 size;
+		Size( size );
+		return size.x * size.y * size.z; // l * w * h
+	}
 
 private:
 	CXMFLOAT3 m_max = { -FLT_MAX, -FLT_MAX, -FLT_MAX };

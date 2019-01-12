@@ -21,6 +21,7 @@ fxc /Fo psGaussianBlurX.cso			/Zi /T ps_4_0 /E main psGaussianBlurX.fx
 fxc /Fo psGaussianBlurY.cso			/Zi /T ps_4_0 /E main psGaussianBlurY.fx
 fxc /Fo psDrawBackfaceDepth.cso			/Zi /T ps_4_0 /E main psDrawBackfaceDepth.fx
 fxc /Fo psDrawUI.cso				/Zi /T ps_4_0 /E psMain drawUI.fx
+fxc /Fo psDebugOverlay.cso			/Zi /T ps_4_0 /E psMain debugOverlay.fx
 
 fxc /Fo vsCascadedShadowmap.cso			/Zi /T vs_4_0 /E main vsCascadedShadowmap.fx
 fxc /Fo vsDepthStencil.cso 			/Zi /T vs_4_0 /E main vsDepthStencil.fx
@@ -32,6 +33,7 @@ fxc /Fo vsTexture.cso 				/Zi /T vs_4_0 /E main vsTexture.fx
 fxc /Fo vsTutorial.cso 				/Zi /T vs_4_0 /E main vsTutorial.fx
 fxc /Fo vsDrawBackfaceDepth.cso			/Zi /T vs_4_0 /E main vsDrawBackfaceDepth.fx
 fxc /Fo vsDrawUI.cso				/Zi /T vs_4_0 /E vsMain drawUI.fx
+fxc /Fo vsDebugOverlay.cso			/Zi /T vs_4_0 /E vsMain debugOverlay.fx
 copy /Y "*.cso" "..\..\bin\Shader\*.cso"
 DEL "*.cso"
 pause>nul

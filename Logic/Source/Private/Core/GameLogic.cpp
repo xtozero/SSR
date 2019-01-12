@@ -66,12 +66,12 @@ bool CGameLogic::Initialize( IPlatform& platform )
 
 	m_pickingManager.PushViewport( 0.0f, 0.0f, static_cast<float>( m_appSize.first ), static_cast<float>( m_appSize.second ) );
 
-	m_uiProjMat = {
+	m_uiProjMat = CXMFLOAT4X4(
 		2.0f / m_appSize.first,	0.f,						0.f,	0.f,
 		0.f,					-2.0f / m_appSize.second,	0.f,	0.f,
 		0.f,					0.f,						0.5f,	0.f,
 		-1.f,					1.f,						0.5f,	1.f
-	};
+	);
 
 	m_pickingManager.PushCamera( &m_mainCamera );
 	m_inputBroadCaster.AddListener( &m_pickingManager );
@@ -83,7 +83,7 @@ bool CGameLogic::Initialize( IPlatform& platform )
 		__debugbreak( );
 	}
 	
-	if ( m_lightManager.Initialize( *m_pRenderer, m_gameObjects ) == false )
+	if ( m_lightManager.Initialize( *this, m_gameObjects ) == false )
 	{
 		__debugbreak( );
 	}
@@ -96,6 +96,11 @@ bool CGameLogic::Initialize( IPlatform& platform )
 	}
 
 	if ( m_ui.Initialize( ) == false )
+	{
+		__debugbreak( );
+	}
+
+	if ( m_debugOverlay.Init( *this ) == false )
 	{
 		__debugbreak( );
 	}
@@ -171,14 +176,14 @@ void CGameLogic::AppSizeChanged( IPlatform& platform )
 
 void CGameLogic::OnObjectSpawned( CGameObject& object )
 {
-	const BoundingSphere* sphere = reinterpret_cast<const BoundingSphere*>( object.GetRigidBody( RIGID_BODY_TYPE::Sphere ) );
+	const BoundingSphere* sphere = reinterpret_cast<const BoundingSphere*>( object.GetCollider( COLLIDER::SPHERE ) );
 
 	if ( sphere == nullptr )
 	{
 		return;
 	}
 
-	m_bvhTree.Insert( object.GetRigidBody( ), *sphere );
+	m_world.OnObjectSpawned( object.GetRigidBody( ), *sphere );
 }
 
 void CGameLogic::StartLogic( )
@@ -201,34 +206,39 @@ void CGameLogic::StartLogic( )
 	{
 		if ( object->GetDirty( ) & moveDirty )
 		{
-			if ( auto found = m_bvhTree.Find( object->GetRigidBody( ) ) )
+			const BoundingSphere* sphere = reinterpret_cast<const BoundingSphere*>( object->GetCollider( COLLIDER::SPHERE ) );
+			if ( sphere )
 			{
-				delete found;
-				const BoundingSphere* sphere = reinterpret_cast<const BoundingSphere*>( object->GetRigidBody( RIGID_BODY_TYPE::Sphere ) );
-
-				if ( sphere )
-				{
-					m_bvhTree.Insert( object->GetRigidBody( ), *sphere );
-				}
+				m_world.UpdateObjectMovement( object->GetRigidBody( ), *sphere );
 			}
 		}
 	}
+
+	m_world.StartFrame( );
 }
 
 void CGameLogic::ProcessLogic( )
 {
-	//게임 로직 수행
+	// 게임 로직 수행
 	for ( auto& object : m_gameObjects )
 	{
 		object->Think( );
 	}
+
+	m_world.RunPhysics( CTimer::GetInstance( ).GetElapsedTime( ) );
 }
 
 void CGameLogic::EndLogic( )
 {
 	using namespace SHARED_CONSTANT_BUFFER;
 
-	//게임 로직 수행 후처리
+	// 물리 시뮬레이션 결과를 반영
+	for ( auto& object : m_gameObjects )
+	{
+		object->PostThink( );
+	}
+
+	// 게임 로직 수행 후처리
 	m_mainCamera.UpdateToRenderer( m_view );
 	m_lightManager.UpdateToRenderer( *m_pRenderer, m_mainCamera );
 
@@ -251,7 +261,7 @@ void CGameLogic::EndLogic( )
 	{
 		pData->m_receiversFar = m_view.GetFar();
 		pData->m_receiversNear = m_view.GetNear( );
-		pData->m_elapsedTime = CTimer::GetInstance( ).GetElapsedTIme( );
+		pData->m_elapsedTime = CTimer::GetInstance( ).GetElapsedTime( );
 		pData->m_totalTime = CTimer::GetInstance( ).GetTotalTime( );
 		pData->m_renderTargetSize.x = wndWidth;
 		pData->m_renderTargetSize.y = wndHeight;
@@ -268,6 +278,8 @@ void CGameLogic::EndLogic( )
 	BuildRenderableList( );
 	SceneBegin( );
 	DrawScene( );
+	DrawForDebug( );
+	DrawDebugOverlay( );
 	DrawUI( );
 	SceneEnd( );
 }
@@ -299,6 +311,33 @@ void CGameLogic::DrawScene( )
 	DrawOpaqueRenderable( );
 	DrawTransparentRenderable( );
 	DrawReflectRenderable( );
+}
+
+void CGameLogic::DrawForDebug( )
+{
+	m_ui.Window( "Debug Control" );
+
+	static bool colliderWireFrame = false;
+	colliderWireFrame = m_ui.Button( "Draw collider wireframe" ) ? !colliderWireFrame : colliderWireFrame;
+
+	if ( colliderWireFrame )
+	{
+		for ( auto& object : m_gameObjects )
+		{
+			const ICollider* collider = object->GetDefaultCollider( );
+			if ( collider )
+			{
+				collider->DrawDebugOverlay( m_debugOverlay );
+			}
+		}
+	}
+
+	m_ui.EndWindow( );
+}
+
+void CGameLogic::DrawDebugOverlay( )
+{
+	m_debugOverlay.DrawPrimitive( *m_pRenderer, CTimer::GetInstance().GetElapsedTime() );
 }
 
 void CGameLogic::DrawUI( )
@@ -489,6 +528,7 @@ void CGameLogic::HandleDeviceLost( )
 	m_shadowManager.OnDeviceRestore( *this );
 	m_ssrManager.OnDeviceRestore( *this );
 	m_mainCamera.OnDeviceRestore( *this );
+	m_debugOverlay.OnDeviceRestore( *this );
 
 	for ( auto& object : m_gameObjects )
 	{

@@ -1,12 +1,13 @@
 #pragma once
 
 class CRay;
-class IRigidBody;
 class CGameObject;
-
-enum RIGID_BODY_TYPE;
+class ICollider;
+class RigidBody;
+struct CollisionData;
 
 namespace COLLISION_UTIL
 {
-	float IntersectWithRay( CGameObject& object, const CRay& ray, RIGID_BODY_TYPE type );
+	float IntersectWithRay( const ICollider& collider, const CRay& ray );
+	unsigned int DetectCollisionObjectAndObject( CGameObject* lhs, RigidBody* lhsBody, CGameObject* rhs, RigidBody* rhsBody, CollisionData* data );
 }

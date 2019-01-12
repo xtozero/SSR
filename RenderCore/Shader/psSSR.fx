@@ -6,7 +6,7 @@ Texture2D depthbufferTex : register( t2 );
 
 static const int g_maxBinarySearchStep = 40;
 //static const int g_maxRayStep = 70;
-//static const float g_depthbias = 0.01f;
+static const float g_depthbias = 0.0001f;
 //static const float g_rayStepScale = 1.05f;
 //static const float g_maxThickness = 1.8f / g_FarPlaneDist;
 //static const float g_maxRayLength = 20.f;
@@ -14,7 +14,7 @@ static const int g_maxBinarySearchStep = 40;
 cbuffer SSRConstantBuffer : register(b3)
 {
 	matrix g_projectionMatrix;
-	float g_depthbias;
+	float padding;							// g_depthbias
 	float g_rayStepScale;
 	float g_maxThickness;
 	float g_maxRayLength;
@@ -38,7 +38,7 @@ float3 GetTexCoordXYLinearDepthZ( float3 viewPos )
 	float4 projPos = mul( float4(viewPos, 1.f), g_projectionMatrix );
 	projPos.xy /= projPos.w;
 	projPos.xy = projPos.xy * float2(0.5f, -0.5f) + float2(0.5f, 0.5f);
-	projPos.z = projPos.w / g_FarPlaneDist;
+	projPos.z = viewPos.z / g_FarPlaneDist;
 
 	return projPos.xyz;
 }
@@ -86,7 +86,7 @@ float4 main( PS_INPUT input ) : SV_TARGET
 	reflectVec = normalize( reflectVec );
 	reflectVec *= g_rayStepScale;
 
-	float3 reflectPos = input.viewPos + reflectVec;
+	float3 reflectPos = input.viewPos;
 
 	float thickness = g_maxThickness / g_FarPlaneDist;
 
@@ -96,7 +96,8 @@ float4 main( PS_INPUT input ) : SV_TARGET
 		float3 texCoord = GetTexCoordXYLinearDepthZ( reflectPos );
 		float srcdepth = depthbufferTex.SampleLevel( baseSampler, texCoord.xy, 0 ).x;
 
-		if ( texCoord.z - srcdepth > 0 && texCoord.z - srcdepth < thickness )
+		float depthDiff = texCoord.z - srcdepth;
+		if ( depthDiff > g_depthbias && depthDiff < thickness )
 		{
 			float4 reflectColor = BinarySearch( reflectVec, reflectPos );
 
@@ -106,7 +107,7 @@ float4 main( PS_INPUT input ) : SV_TARGET
 		}
 		else
 		{
-			reflectPos = input.viewPos + ( ( i + Noise( texCoord.xy ) ) * reflectVec );
+			reflectPos += ( i + Noise( texCoord.xy ) ) * reflectVec;
 		}
 	}
 

@@ -14,6 +14,89 @@
 
 using namespace DirectX;
 
+namespace
+{
+	inline XMMATRIX XM_CALLCONV XMMatrixPerspectiveLH_NoAssert
+	(
+		float ViewWidth,
+		float ViewHeight,
+		float NearZ,
+		float FarZ
+	)
+	{
+#if defined(_XM_NO_INTRINSICS_)
+
+		float TwoNearZ = NearZ + NearZ;
+		float fRange = FarZ / ( FarZ - NearZ );
+
+		XMMATRIX M;
+		M.m[0][0] = TwoNearZ / ViewWidth;
+		M.m[0][1] = 0.0f;
+		M.m[0][2] = 0.0f;
+		M.m[0][3] = 0.0f;
+
+		M.m[1][0] = 0.0f;
+		M.m[1][1] = TwoNearZ / ViewHeight;
+		M.m[1][2] = 0.0f;
+		M.m[1][3] = 0.0f;
+
+		M.m[2][0] = 0.0f;
+		M.m[2][1] = 0.0f;
+		M.m[2][2] = fRange;
+		M.m[2][3] = 1.0f;
+
+		M.m[3][0] = 0.0f;
+		M.m[3][1] = 0.0f;
+		M.m[3][2] = -fRange * NearZ;
+		M.m[3][3] = 0.0f;
+		return M;
+
+#elif defined(_XM_ARM_NEON_INTRINSICS_)
+		float TwoNearZ = NearZ + NearZ;
+		float fRange = FarZ / ( FarZ - NearZ );
+		const XMVECTOR Zero = vdupq_n_f32( 0 );
+		XMMATRIX M;
+		M.r[0] = vsetq_lane_f32( TwoNearZ / ViewWidth, Zero, 0 );
+		M.r[1] = vsetq_lane_f32( TwoNearZ / ViewHeight, Zero, 1 );
+		M.r[2] = vsetq_lane_f32( fRange, g_XMIdentityR3.v, 2 );
+		M.r[3] = vsetq_lane_f32( -fRange * NearZ, Zero, 2 );
+		return M;
+#elif defined(_XM_SSE_INTRINSICS_)
+		XMMATRIX M;
+		float TwoNearZ = NearZ + NearZ;
+		float fRange = FarZ / ( FarZ - NearZ );
+		// Note: This is recorded on the stack
+		XMVECTOR rMem = {
+			TwoNearZ / ViewWidth,
+			TwoNearZ / ViewHeight,
+			fRange,
+			-fRange * NearZ
+		};
+		// Copy from memory to SSE register
+		XMVECTOR vValues = rMem;
+		XMVECTOR vTemp = _mm_setzero_ps( );
+		// Copy x only
+		vTemp = _mm_move_ss( vTemp, vValues );
+		// TwoNearZ / ViewWidth,0,0,0
+		M.r[0] = vTemp;
+		// 0,TwoNearZ / ViewHeight,0,0
+		vTemp = vValues;
+		vTemp = _mm_and_ps( vTemp, g_XMMaskY );
+		M.r[1] = vTemp;
+		// x=fRange,y=-fRange * NearZ,0,1.0f
+		vValues = _mm_shuffle_ps( vValues, g_XMIdentityR3, _MM_SHUFFLE( 3, 2, 3, 2 ) );
+		// 0,0,fRange,1.0f
+		vTemp = _mm_setzero_ps( );
+		vTemp = _mm_shuffle_ps( vTemp, vValues, _MM_SHUFFLE( 3, 0, 0, 0 ) );
+		M.r[2] = vTemp;
+		// 0,0,-fRange * NearZ,0
+		vTemp = _mm_shuffle_ps( vTemp, vValues, _MM_SHUFFLE( 2, 1, 0, 0 ) );
+		M.r[3] = vTemp;
+		return M;
+#endif
+	}
+}
+
 void CShadowManager::OnDeviceRestore( CGameLogic& gameLogic )
 {
 	m_isEnabled = CreateDeviceDependentResource( gameLogic.GetRenderer() );
@@ -427,12 +510,7 @@ void CShadowManager::ClassifyShadowCasterAndReceiver( CGameLogic& gameLogic, std
 
 	for ( auto& object : gameObjects )
 	{
-		//if ( object->GetName( ) == _T( "ground" ) )
-		//{
-		//	continue;
-		//}
-
-		const CAaboundingbox* aabb = reinterpret_cast<const CAaboundingbox*>( object->GetRigidBody( RIGID_BODY_TYPE::AABB ) );
+		const CAaboundingbox* aabb = reinterpret_cast<const CAaboundingbox*>( object->GetCollider( COLLIDER::AABB ) );
 		if ( aabb == nullptr )
 		{
 			continue;
@@ -470,7 +548,7 @@ void CShadowManager::ClassifyShadowCasterAndReceiver( CGameLogic& gameLogic, std
 				m_shadowCasters.emplace_back( object.get( ) );
 				m_shadowReceivers.emplace_back( object.get( ) );
 
-				const std::vector<std::unique_ptr<IRigidBody>>& subBoxes = object->GetSubRigidBody( RIGID_BODY_TYPE::AABB );
+				const std::vector<std::unique_ptr<ICollider>>& subBoxes = object->GetSubColliders( COLLIDER::AABB );
 
 				for ( const auto& subBox : subBoxes )
 				{
@@ -788,7 +866,7 @@ void CShadowManager::BuildPSMProjectionMatrix( CGameLogic& gameLogic, int cascad
 			lightView = viewCone.GetLookAt( );
 			
 			float fNear = max( 0.001f, viewCone.GetNear( ) * 0.3f );
-			lightProjection = XMMatrixPerspectiveLH( 2.f * tanf( viewCone.GetFovX( ) ) * -fNear, 2.f * tanf( viewCone.GetFovY( ) ) * -fNear, -fNear, fNear );
+			lightProjection = XMMatrixPerspectiveLH_NoAssert( 2.f * tanf( viewCone.GetFovX( ) ) * -fNear, 2.f * tanf( viewCone.GetFovY( ) ) * -fNear, -fNear, fNear );
 		}
 		else
 		{

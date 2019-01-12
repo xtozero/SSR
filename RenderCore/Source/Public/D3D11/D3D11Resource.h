@@ -173,11 +173,13 @@ inline UINT ConvertMicsToDXMisc( UINT miscFlag )
 
 	if ( miscFlag & BUFFER_ALLOW_RAW_VIEWS )
 	{
+		assert( ( miscFlag & BUFFER_STRUCTURED ) == 0 );
 		ret |= D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
 	}
 
 	if ( miscFlag & BUFFER_STRUCTURED )
 	{
+		assert( ( miscFlag & BUFFER_ALLOW_RAW_VIEWS ) == 0 );
 		ret |= D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 	}
 

@@ -23,6 +23,7 @@ public:
 	CXMFLOAT3 GetPosition( ) const;
 	
 	void SetOrientation( const CXMFLOAT4& orientation );
+	void SetOrientation( float pitch, float yaw, float roll );
 	CXMFLOAT4 GetOrientation( ) const;
 	
 	void SetVelocity( const CXMFLOAT3& velocity );

@@ -1,20 +1,21 @@
 #pragma once
 
-#include "IRigidBody.h"
+#include "ICollider.h"
 #include "Math/CXMFloat.h"
 
 #include <vector>
 
 class CAaboundingbox;
 
-class BoundingSphere : public IRigidBody
+class BoundingSphere : public ICollider
 {
 public:
-	virtual void CreateRigideBody( const IMesh& mesh ) override;
-	virtual void Update( const CXMFLOAT4X4& matrix, IRigidBody* original ) override;
-	virtual void CalcSubRigidBody( std::vector<std::unique_ptr<IRigidBody>>& /*subRigidBody*/ ) override { assert( false && "Not Implemented" ); }
+	virtual void CalcMeshBounds( const IMesh& mesh ) override;
+	virtual void Update( const CXMFLOAT3& scaling, const CXMFLOAT3& rotation, const CXMFLOAT3& translation, ICollider* original ) override;
+	virtual void CalcSubMeshBounds( std::vector<std::unique_ptr<ICollider>>& /*subColliders*/ ) override { assert( false && "Not Implemented" ); }
 	virtual float Intersect( const CRay* ray ) const override;
 	virtual int Intersect( const CFrustum& frustum ) const override;
+	virtual void DrawDebugOverlay( CDebugOverlayManager& debugOverlay ) const override;
 	int Intersect( const BoundingSphere& sphere ) const;
 	float CalcGrowth( const BoundingSphere& sphere ) const;
 
