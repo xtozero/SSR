@@ -15,6 +15,7 @@ inline constexpr unsigned int Convert2ARGB( unsigned char r, unsigned char g, un
 }
 
 constexpr unsigned int g_colorChartreuse = Convert2ARGB( 127, 255, 0, 255 );
+constexpr unsigned int g_colorRed = Convert2ARGB( 255, 0, 0, 255 );
 
 class BaseDebugPrimitive
 {
@@ -55,7 +56,8 @@ public:
 	void AddDebugLine( const CXMFLOAT3& from, const CXMFLOAT3& to, unsigned int color, float life );
 	void AddDebugTriangle( const CXMFLOAT3& p0, const CXMFLOAT3& p1, const CXMFLOAT3& p2, unsigned int color, float life );
 	void AddDebugCube( const CXMFLOAT3& min, const CXMFLOAT3& max, unsigned int color, float life );
-	void AddDebugSolid( const CXMFLOAT3& min, const CXMFLOAT3& max, unsigned int color, float life );
+	void AddDebugCube( const CXMFLOAT3& halfSize, const CXMFLOAT4X4& transform, unsigned int color, float life );
+	void AddDebugSolidCube( const CXMFLOAT3& min, const CXMFLOAT3& max, unsigned int color, float life );
 	void AddDebugSphere( const CXMFLOAT3& center, float radius, unsigned int color, float life );
 
 private:

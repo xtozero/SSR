@@ -36,6 +36,7 @@ public:
 	virtual void SetPosition( const float x, const float y, const float z );
 	virtual void SetPosition( const CXMFLOAT3& pos );
 	virtual void SetScale( const float xScale, const float yScale, const float zScale );
+	virtual void SetRotate( const CXMFLOAT4& rotate );
 	virtual void SetRotate( const float pitch, const float yaw, const float roll );
 	virtual void SetRotate( const CXMFLOAT3& pitchYawRoll );
 
@@ -44,7 +45,7 @@ public:
 
 	const CXMFLOAT3& GetPosition( );
 	const CXMFLOAT3& GetScale( );
-	const CXMFLOAT3& GetRotate( );
+	const CXMFLOAT4& GetRotate( );
 
 	const CXMFLOAT4X4& GetTransformMatrix( );
 	const CXMFLOAT4X4& GetInvTransformMatrix( );
@@ -65,7 +66,6 @@ public:
 	const ICollider* GetDefaultCollider( );
 	const ICollider* GetCollider( int type );
 	const std::vector<std::unique_ptr<ICollider>>& GetSubColliders( int type );
-	void DrawDefaultCollider( CDebugOverlayManager& debugOverlay );
 
 	bool IsPicked( ) const { return m_isPicked; }
 	void SetPicked( bool isPicked ) { m_isPicked = isPicked; }
@@ -111,9 +111,9 @@ private:
 private:
 	int m_id = -1;
 
-	CXMFLOAT3 m_vecPos;
-	CXMFLOAT3 m_vecScale;
-	CXMFLOAT3 m_vecRotate;
+	CXMFLOAT3 m_vecPos = { 0.f, 0.f, 0.f };
+	CXMFLOAT3 m_vecScale = { 1.f, 1.f, 1.f };
+	CXMFLOAT4 m_vecRotate = { 0.f, 0.f, 0.f, 1.f };
 
 	CXMFLOAT4X4 m_matTransform;
 	CXMFLOAT4X4 m_invMatTransform;
@@ -141,5 +141,5 @@ private:
 	int m_dirtyFlag = 0;
 
 protected:
-	bool m_needRebuildTransform = false;
+	bool m_needRebuildTransform = true;
 };

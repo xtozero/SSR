@@ -3,6 +3,11 @@
 
 using namespace DirectX;
 
+namespace
+{
+	constexpr float g_sleepEpsilon = 0.3f;
+}
+
 void RigidBody::SetMass( float mass )
 {
 	assert( mass != 0.f );
@@ -75,6 +80,7 @@ CXMFLOAT3 RigidBody::GetPosition( ) const
 void RigidBody::SetOrientation( const CXMFLOAT4& orientation )
 {
 	m_orientation = orientation;
+	m_orientation = XMQuaternionNormalize( m_orientation );
 }
 
 void RigidBody::SetOrientation( float pitch, float yaw, float roll )
@@ -115,6 +121,31 @@ CXMFLOAT3 RigidBody::GetRotation( ) const
 void RigidBody::AddRotation( const CXMFLOAT3& deltaRotation )
 {
 	m_rotation += deltaRotation;
+}
+
+void RigidBody::SetAwake( bool awake )
+{
+	m_isAwake = awake;
+
+	if ( awake )
+	{
+		m_motion = g_sleepEpsilon * 2.f;
+	}
+	else
+	{
+		m_velocity = { 0.f, 0.f, 0.f };
+		m_rotation = { 0.f, 0.f, 0.f };
+	}
+}
+
+void RigidBody::SetCanSleep( bool canSleep )
+{
+	m_canSleep = canSleep;
+
+	if ( m_canSleep == false && m_isAwake == false )
+	{
+		SetAwake( );
+	}
 }
 
 CXMFLOAT4X4 RigidBody::GetTransform( ) const
@@ -212,6 +243,17 @@ void RigidBody::ClearAccumulators( )
 
 void RigidBody::Integrate( float duration )
 {
+	if ( m_isAwake == false )
+	{
+		return;
+	}
+
+	if ( HasFiniteMass( ) == false ) 
+	{
+		SetAwake( false );
+		return;
+	}
+
 	m_lastFrameAcceleration = m_acceleration;
 	m_lastFrameAcceleration += m_forceAccum * m_inverseMass;
 
@@ -224,10 +266,33 @@ void RigidBody::Integrate( float duration )
 	m_rotation *= powf( m_angularDamping, duration );
 
 	m_position += m_velocity * duration;
-	m_orientation += m_rotation * duration;
+
+	CXMFLOAT4 dq = m_rotation * duration;
+	dq = XMQuaternionMultiply( m_orientation, dq ) * 0.5f;
+	m_orientation += dq;
 
 	CalculateDerivedData( );
 	ClearAccumulators( );
+
+	if ( m_canSleep )
+	{
+		float currentMotion = XMVectorGetX( XMVector3Dot( m_velocity, m_velocity ) ) +
+			XMVectorGetX( XMVector3Dot( m_rotation, m_rotation ) );
+
+		float bias = powf( 0.5f, duration );
+		m_motion = bias * m_motion + ( 1.f - bias ) * currentMotion;
+
+		if ( ( m_lastFrameMotion > m_motion ) && ( m_motion < g_sleepEpsilon ) )
+		{
+			SetAwake( false );
+		}
+		else if ( m_motion > g_sleepEpsilon * 10.f )
+		{
+			m_motion = 10.f * g_sleepEpsilon;
+		}
+
+		m_lastFrameMotion = m_motion;
+	}
 }
 
 void RigidBody::CalculateDerivedData( )

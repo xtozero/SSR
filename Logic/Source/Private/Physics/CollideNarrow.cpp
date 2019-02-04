@@ -1,15 +1,87 @@
 #include "stdafx.h"
-#include "Physics/Aaboundingbox.h"
-#include "Physics/BoundingSphere.h"
 #include "Physics/CollideNarrow.h"
 
+#include "Physics/Aaboundingbox.h"
+#include "Physics/BoundingSphere.h"
+#include "Physics/OrientedBoundingBox.h"
+
 using namespace DirectX;
+
+namespace
+{
+	void FillPointFaceBoxBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, const COrientedBoundingBox& rhs, RigidBody* rhsBody, const CXMFLOAT3& toCentre, CollisionData* data, unsigned int best, float pen )
+	{
+		Contact* contact = data->m_contacts;
+
+		CXMFLOAT3 normal = lhs.GetAxisVector( best );
+
+		if ( XMVectorGetX( XMVector3Dot( normal, toCentre ) ) > 0 )
+		{
+			normal = -normal;
+		}
+
+		CXMFLOAT3 vertex = rhs.GetHalfSize( );
+		if ( XMVectorGetX( XMVector3Dot( rhs.GetAxisVector( 0 ), normal ) ) < 0 )
+		{
+			vertex.x = -vertex.x;
+		}
+		if ( XMVectorGetX( XMVector3Dot( rhs.GetAxisVector( 1 ), normal ) ) < 0 )
+		{
+			vertex.y = -vertex.y;
+		}
+		if ( XMVectorGetX( XMVector3Dot( rhs.GetAxisVector( 2 ), normal ) ) < 0 )
+		{
+			vertex.z = -vertex.z;
+		}
+
+		contact->SetContactNormal( normal );
+		contact->SetPenetration( pen );
+		contact->SetContactPoint( XMVector3TransformCoord( vertex, rhs.GetTransform( ) ) );
+		contact->SetBodyData( lhsBody, rhsBody, data->m_friction, data->m_restitution );
+	}
+
+	CXMFLOAT3 CalcEdgeContactPoint( const CXMFLOAT3& pLhs, const CXMFLOAT3& dLhs, float lhsSize, const CXMFLOAT3& pRhs, const CXMFLOAT3& dRhs, float rhsSize, bool useLhs )
+	{
+		float smLhs = XMVectorGetX( XMVector3LengthSq( dLhs ) );
+		float smRhs = XMVectorGetX( XMVector3LengthSq( dRhs ) );
+		float dpLhsRhs = XMVectorGetX( XMVector3Dot( dLhs, dRhs ) );
+
+		CXMFLOAT3 toSt = pLhs - pRhs;
+		float dpStaLhs = XMVectorGetX( XMVector3Dot( toSt, dLhs ) );
+		float dpStaRhs = XMVectorGetX( XMVector3Dot( toSt, dRhs ) );
+
+		float denom = smLhs * smRhs - dpLhsRhs * dpLhsRhs;
+
+		if ( fabsf( denom ) < 0.0001f )
+		{
+			return useLhs ? pLhs : pRhs;
+		}
+
+		float  mua = ( dpLhsRhs * dpStaRhs - smRhs * dpStaLhs ) / denom;
+		float  mub = ( smLhs * dpStaRhs - dpLhsRhs * dpStaLhs ) / denom;
+
+		if ( mua > lhsSize ||
+			mua < -lhsSize ||
+			mub > rhsSize ||
+			mub < -rhsSize )
+		{
+			return useLhs ? pLhs : pRhs;
+		}
+		else
+		{
+			CXMFLOAT3 cLhs = pLhs + ( dLhs * mua );
+			CXMFLOAT3 cRhs = pRhs + ( dRhs * mub );
+
+			return ( cLhs + cRhs ) * 0.5;
+		}
+	}
+}
 
 unsigned int SphereAndSphere( const BoundingSphere& lhs, RigidBody* lhsBody, const BoundingSphere& rhs, RigidBody* rhsBody, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
-		return 0;
+		return COLLISION::OUTSIDE;
 	}
 
 	const CXMFLOAT3& lhsPos = lhs.GetCenter( );
@@ -20,7 +92,7 @@ unsigned int SphereAndSphere( const BoundingSphere& lhs, RigidBody* lhsBody, con
 
 	if ( size <= 0.f || size >= lhs.GetRadius( ) + rhs.GetRadius( ) )
 	{
-		return 0;
+		return COLLISION::OUTSIDE;
 	}
 
 	CXMFLOAT3 normal = midline / size;
@@ -32,14 +104,14 @@ unsigned int SphereAndSphere( const BoundingSphere& lhs, RigidBody* lhsBody, con
 	contact->SetBodyData( lhsBody, rhsBody, data->m_friction, data->m_restitution );
 
 	data->AddContacts( 1 );
-	return 1;
+	return COLLISION::INTERSECTION;
 }
 
 unsigned int SphereAndHalfSpace( const BoundingSphere& sphere, RigidBody* sphereBody, const CXMFLOAT4& plane, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
-		return 0;
+		return COLLISION::OUTSIDE;
 	}
 
 	const CXMFLOAT3& pos = sphere.GetCenter( );
@@ -48,7 +120,7 @@ unsigned int SphereAndHalfSpace( const BoundingSphere& sphere, RigidBody* sphere
 
 	if ( ballDistance >= 0 )
 	{
-		return 0;
+		return COLLISION::OUTSIDE;
 	}
 
 	Contact* contact = data->m_contacts;
@@ -59,14 +131,14 @@ unsigned int SphereAndHalfSpace( const BoundingSphere& sphere, RigidBody* sphere
 	contact->SetBodyData( sphereBody, nullptr, data->m_friction, data->m_restitution );
 
 	data->AddContacts( 1 );
-	return 1;
+	return COLLISION::INTERSECTION;
 }
 
 unsigned int SphereAndTruePlane( const BoundingSphere & sphere, RigidBody * sphereBody, const CXMFLOAT4 & plane, CollisionData * data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
-		return 0;
+		return COLLISION::OUTSIDE;
 	}
 
 	const CXMFLOAT3& pos = sphere.GetCenter( );
@@ -75,7 +147,7 @@ unsigned int SphereAndTruePlane( const BoundingSphere & sphere, RigidBody * sphe
 
 	if ( centerDistance > sphere.GetRadius() )
 	{
-		return 0;
+		return COLLISION::OUTSIDE;
 	}
 
 	CXMFLOAT3 normal( plane.x, plane.y, plane.z );
@@ -94,14 +166,14 @@ unsigned int SphereAndTruePlane( const BoundingSphere & sphere, RigidBody * sphe
 	contact->SetBodyData( sphereBody, nullptr, data->m_friction, data->m_restitution );
 
 	data->AddContacts( 1 );
-	return 1;
+	return COLLISION::INTERSECTION;
 }
 
 unsigned int BoxAndHalfSpace( const CAaboundingbox& box, RigidBody* boxBody, const CXMFLOAT4& plane, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
-		return 0;
+		return COLLISION::OUTSIDE;
 	}
 
 	Contact* contact = data->m_contacts;
@@ -137,14 +209,14 @@ unsigned int BoxAndSphere( const CAaboundingbox& box, RigidBody* boxBody, const 
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
-		return 0;
+		return COLLISION::OUTSIDE;
 	}
 
 	BoundingSphere boxSphere( box );
 
 	if ( boxSphere.Intersect( sphere ) == COLLISION::OUTSIDE )
 	{
-		return 0;
+		return COLLISION::OUTSIDE;
 	}
 
 	const CXMFLOAT3& center = sphere.GetCenter( );
@@ -182,7 +254,7 @@ unsigned int BoxAndSphere( const CAaboundingbox& box, RigidBody* boxBody, const 
 	float dist = XMVectorGetX( XMVector3LengthSq( closestPoint - center ) );
 	if ( dist > sphere.GetRadius( ) * sphere.GetRadius( ) )
 	{
-		return 0;
+		return COLLISION::OUTSIDE;
 	}
 
 	Contact* contact = data->m_contacts;
@@ -192,19 +264,85 @@ unsigned int BoxAndSphere( const CAaboundingbox& box, RigidBody* boxBody, const 
 	contact->SetBodyData( boxBody, sphereBody, data->m_friction, data->m_restitution );
 
 	data->AddContacts( 1 );
-	return 1;
+	return COLLISION::INTERSECTION;
+}
+
+unsigned int BoxAndSphere( const COrientedBoundingBox& box, RigidBody* boxBody, const BoundingSphere& sphere, RigidBody* sphereBody, CollisionData* data )
+{
+	if ( data->m_contactsLeft <= 0 )
+	{
+		return COLLISION::OUTSIDE;
+	}
+
+	const CXMFLOAT3& centre = sphere.GetCenter( );
+	CXMFLOAT3 relCentre = XMVector3TransformCoord( centre, XMMatrixInverse( nullptr, box.GetTransform( ) ) );
+
+	float radius = sphere.GetRadius( );
+	const CXMFLOAT3& halfSize = box.GetHalfSize( );
+	if ( fabsf( relCentre.x ) - radius > halfSize.x ||
+		fabsf( relCentre.y ) - radius > halfSize.y || 
+		fabsf( relCentre.z ) - radius > halfSize.z )
+	{
+		return COLLISION::OUTSIDE;
+	}
+
+	CXMFLOAT3 closestPoint( relCentre );
+
+	if ( relCentre.x > halfSize.x )
+	{
+		closestPoint.x = halfSize.x;
+	}
+	else if ( relCentre.x < -halfSize.x )
+	{
+		closestPoint.x = -halfSize.x;
+	}
+
+	if ( relCentre.y > halfSize.y )
+	{
+		closestPoint.y = halfSize.y;
+	}
+	else if ( relCentre.y < -halfSize.y )
+	{
+		closestPoint.y = -halfSize.y;
+	}
+
+	if ( relCentre.z > halfSize.z )
+	{
+		closestPoint.z = halfSize.z;
+	}
+	else if ( relCentre.z < -halfSize.z )
+	{
+		closestPoint.z = -halfSize.z;
+	}
+
+	float dist = XMVectorGetX( XMVector3LengthSq( closestPoint - relCentre ) );
+	if ( dist > ( sphere.GetRadius( ) * sphere.GetRadius( ) ) )
+	{
+		return COLLISION::OUTSIDE;
+	}
+
+	closestPoint = XMVector3TransformCoord( closestPoint, box.GetTransform( ) );
+
+	Contact* contact = data->m_contacts;
+	contact->SetContactNormal( XMVector3Normalize( closestPoint - centre ) );
+	contact->SetContactPoint( closestPoint );
+	contact->SetPenetration( sphere.GetRadius( ) - sqrtf( dist ) );
+	contact->SetBodyData( boxBody, sphereBody, data->m_friction, data->m_restitution );
+
+	data->AddContacts( 1 );
+	return COLLISION::INTERSECTION;
 }
 
 unsigned int BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const CAaboundingbox& rhs, RigidBody* rhsBody, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
-		return 0;
+		return COLLISION::OUTSIDE;
 	}
 
 	if ( lhs.Intersect( rhs ) == COLLISION::OUTSIDE )
 	{
-		return 0;
+		return COLLISION::OUTSIDE;
 	}
 
 	const CXMFLOAT3& lhsMin = lhs.GetMin();
@@ -274,5 +412,169 @@ unsigned int BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const CAa
 	contact->SetBodyData( lhsBody, rhsBody, data->m_friction, data->m_restitution );
 
 	data->AddContacts( 1 );
-	return 1;
+	return COLLISION::INTERSECTION;
+}
+
+unsigned int BoxAndBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, const COrientedBoundingBox& rhs, RigidBody* rhsBody, CollisionData* data )
+{
+	if ( data->m_contactsLeft <= 0 )
+	{
+		return COLLISION::OUTSIDE;
+	}
+
+	CXMFLOAT3 toCentre = rhs.GetAxisVector( 3 ) - lhs.GetAxisVector( 3 );
+
+	float pen = FLT_MAX;
+	unsigned int best = UINT_MAX;
+
+	if ( TryAxis( lhs, rhs, lhs.GetAxisVector( 0 ), toCentre, 0, pen, best ) == false )
+	{
+		return COLLISION::OUTSIDE;
+	}
+
+	if ( TryAxis( lhs, rhs, lhs.GetAxisVector( 1 ), toCentre, 1, pen, best ) == false )
+	{
+		return COLLISION::OUTSIDE;
+	}
+
+	if ( TryAxis( lhs, rhs, lhs.GetAxisVector( 2 ), toCentre, 2, pen, best ) == false )
+	{
+		return COLLISION::OUTSIDE;
+	}
+
+	if ( TryAxis( lhs, rhs, rhs.GetAxisVector( 0 ), toCentre, 3, pen, best ) == false )
+	{
+		return COLLISION::OUTSIDE;
+	}
+
+	if ( TryAxis( lhs, rhs, rhs.GetAxisVector( 1 ), toCentre, 4, pen, best ) == false )
+	{
+		return COLLISION::OUTSIDE;
+	}
+
+	if ( TryAxis( lhs, rhs, rhs.GetAxisVector( 2 ), toCentre, 5, pen, best ) == false )
+	{
+		return COLLISION::OUTSIDE;
+	}
+
+	unsigned int bestSingleAxis = best;
+
+	if ( TryAxis( lhs, rhs, XMVector3Normalize( XMVector3Cross( lhs.GetAxisVector( 0 ), rhs.GetAxisVector( 0 ) ) ), toCentre, 6, pen, best ) == false )
+	{
+		return COLLISION::OUTSIDE;
+	}
+
+	if ( TryAxis( lhs, rhs, XMVector3Normalize( XMVector3Cross( lhs.GetAxisVector( 0 ), rhs.GetAxisVector( 1 ) ) ), toCentre, 7, pen, best ) == false )
+	{
+		return COLLISION::OUTSIDE;
+	}
+
+	if ( TryAxis( lhs, rhs, XMVector3Normalize( XMVector3Cross( lhs.GetAxisVector( 0 ), rhs.GetAxisVector( 2 ) ) ), toCentre, 8, pen, best ) == false )
+	{
+		return COLLISION::OUTSIDE;
+	}
+
+	if ( TryAxis( lhs, rhs, XMVector3Normalize( XMVector3Cross( lhs.GetAxisVector( 1 ), rhs.GetAxisVector( 0 ) ) ), toCentre, 9, pen, best ) == false )
+	{
+		return COLLISION::OUTSIDE;
+	}
+
+	if ( TryAxis( lhs, rhs, XMVector3Normalize( XMVector3Cross( lhs.GetAxisVector( 1 ), rhs.GetAxisVector( 1 ) ) ), toCentre, 10, pen, best ) == false )
+	{
+		return COLLISION::OUTSIDE;
+	}
+
+	if ( TryAxis( lhs, rhs, XMVector3Normalize( XMVector3Cross( lhs.GetAxisVector( 1 ), rhs.GetAxisVector( 2 ) ) ), toCentre, 11, pen, best ) == false )
+	{
+		return COLLISION::OUTSIDE;
+	}
+
+	if ( TryAxis( lhs, rhs, XMVector3Normalize( XMVector3Cross( lhs.GetAxisVector( 2 ), rhs.GetAxisVector( 0 ) ) ), toCentre, 12, pen, best ) == false )
+	{
+		return COLLISION::OUTSIDE;
+	}
+
+	if ( TryAxis( lhs, rhs, XMVector3Normalize( XMVector3Cross( lhs.GetAxisVector( 2 ), rhs.GetAxisVector( 1 ) ) ), toCentre, 13, pen, best ) == false )
+	{
+		return COLLISION::OUTSIDE;
+	}
+
+	if ( TryAxis( lhs, rhs, XMVector3Normalize( XMVector3Cross( lhs.GetAxisVector( 2 ), rhs.GetAxisVector( 2 ) ) ), toCentre, 14, pen, best ) == false )
+	{
+		return COLLISION::OUTSIDE;
+	}
+
+	if ( best < 3 )
+	{
+		FillPointFaceBoxBox( lhs, lhsBody, rhs, rhsBody, toCentre, data, best, pen );
+		data->AddContacts( 1 );
+		return COLLISION::INTERSECTION;
+	}
+	else if ( best < 6 )
+	{
+		FillPointFaceBoxBox( rhs, rhsBody, lhs, lhsBody, -toCentre, data, best - 3, pen );
+		data->AddContacts( 1 );
+		return COLLISION::INTERSECTION;
+	}
+	else
+	{
+		best -= 6;
+		unsigned int lhsAxisIndex = best / 3;
+		unsigned int rhsAxisIndex = best % 3;
+		CXMFLOAT3 lhsAxis = lhs.GetAxisVector( lhsAxisIndex );
+		CXMFLOAT3 rhsAxis = rhs.GetAxisVector( rhsAxisIndex );
+		CXMFLOAT3 axis = XMVector3Normalize( XMVector3Cross( lhsAxis, rhsAxis ) );
+
+		if ( XMVectorGetX( XMVector3Dot( axis, toCentre ) ) > 0 )
+		{
+			axis = -axis;
+		}
+
+		CXMFLOAT3 ptOnLhsEdge = lhs.GetHalfSize( );
+		CXMFLOAT3 ptOnRhsEdge = rhs.GetHalfSize( );
+
+		for ( unsigned int i = 0; i < 3; ++i )
+		{
+			if ( i == lhsAxisIndex )
+			{
+				ptOnLhsEdge[i] = 0;
+			}
+			else if ( XMVectorGetX( XMVector3Dot( lhs.GetAxisVector( i ), axis ) ) > 0 )
+			{
+				ptOnLhsEdge[i] = -ptOnLhsEdge[i];
+			}
+
+			if ( i == rhsAxisIndex )
+			{
+				ptOnRhsEdge[i] = 0;
+			}
+			else if ( XMVectorGetX( XMVector3Dot( rhs.GetAxisVector( i ), axis ) ) < 0 )
+			{
+				ptOnRhsEdge[i] = -ptOnRhsEdge[i];
+			}
+		}
+
+		ptOnLhsEdge = XMVector3TransformCoord( ptOnLhsEdge, lhs.GetTransform( ) );
+		ptOnRhsEdge = XMVector3TransformCoord( ptOnRhsEdge, rhs.GetTransform( ) );
+
+		CXMFLOAT3 vertex = CalcEdgeContactPoint( ptOnLhsEdge, lhsAxis, lhs.GetHalfSize( )[lhsAxisIndex],
+												ptOnRhsEdge, rhsAxis, rhs.GetHalfSize( )[rhsAxisIndex],
+												bestSingleAxis > 2 );
+
+		Contact* contact = data->m_contacts;
+
+		contact->SetPenetration( pen );
+		contact->SetContactNormal( axis );
+		contact->SetContactPoint( vertex );
+		contact->SetBodyData( lhsBody, rhsBody, data->m_friction, data->m_restitution );
+		data->AddContacts( 1 );
+		return COLLISION::INTERSECTION;
+	}
+}
+
+unsigned int BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const COrientedBoundingBox& rhs, RigidBody* rhsBody, CollisionData* data )
+{
+	COrientedBoundingBox lhsOBB( lhs );
+
+	return BoxAndBox( lhsOBB, lhsBody, rhs, rhsBody, data );
 }

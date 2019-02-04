@@ -39,7 +39,7 @@ void CAaboundingbox::CalcMeshBounds( const IMesh& mesh )
 #endif
 }
 
-void CAaboundingbox::Update( const CXMFLOAT3& scaling, const CXMFLOAT3& rotation, const CXMFLOAT3& translation, ICollider* original )
+void CAaboundingbox::Update( const CXMFLOAT3& scaling, const CXMFLOAT4& rotation, const CXMFLOAT3& translation, ICollider* original )
 {
 	CAaboundingbox* orig = dynamic_cast<CAaboundingbox*>( original );
 	if ( orig == nullptr )
@@ -58,7 +58,7 @@ void CAaboundingbox::Update( const CXMFLOAT3& scaling, const CXMFLOAT3& rotation
 		CXMFLOAT3( orig->m_min.x, orig->m_min.y, orig->m_min.z ),
 	};
 	
-	CXMFLOAT4X4 matrix = XMMatrixAffineTransformation( scaling, XMVectorZero( ), XMQuaternionRotationRollPitchYaw( rotation.x, rotation.y, rotation.z ), translation );
+	CXMFLOAT4X4 matrix = XMMatrixAffineTransformation( scaling, g_XMZero, rotation, translation );
 
 	for ( int i = 0; i < 8; ++i )
 	{
@@ -174,9 +174,9 @@ int CAaboundingbox::Intersect( const CFrustum& frustum ) const
 	return result;
 }
 
-void CAaboundingbox::DrawDebugOverlay( CDebugOverlayManager& debugOverlay ) const
+void CAaboundingbox::DrawDebugOverlay( CDebugOverlayManager& debugOverlay, unsigned int color ) const
 {
-	debugOverlay.AddDebugCube( m_min, m_max, g_colorChartreuse, CTimer::GetInstance( ).GetElapsedTime( ) );
+	debugOverlay.AddDebugCube( m_min, m_max, color, CTimer::GetInstance( ).GetElapsedTime( ) );
 }
 
 int CAaboundingbox::Intersect( const CAaboundingbox& box ) const

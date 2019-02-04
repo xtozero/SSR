@@ -9,6 +9,7 @@
 #include "Model/IMesh.h"
 #include "Physics/Aaboundingbox.h"
 #include "Physics/BoundingSphere.h"
+#include "Physics/OrientedBoundingBox.h"
 #include "Render/IRenderer.h"
 #include "Scene/DebugOverlayManager.h"
 
@@ -60,6 +61,12 @@ bool CGameObject::Initialize( CGameLogic& gameLogic, int id )
 			inertiaTensor = MakeBlockInertiaTensor( halfSize, m_body.GetMass( ) );
 		}
 		break;
+	case COLLIDER::OBB:
+		{
+			const COrientedBoundingBox* boxCollider = static_cast<const COrientedBoundingBox*>( defaultCollider );
+			inertiaTensor = MakeBlockInertiaTensor( boxCollider->GetHalfSize( ), m_body.GetMass( ) );
+		}
+		break;
 	}
 
 	m_body.SetInertiaTensor( inertiaTensor );
@@ -100,22 +107,27 @@ void CGameObject::SetScale( const float xScale, const float yScale, const float 
 	SetDirty( DF_SCALING );
 }
 
-void CGameObject::SetRotate( const float pitch, const float yaw, const float roll )
+void CGameObject::SetRotate( const CXMFLOAT4& rotate )
 {
-	if ( m_vecRotate.x == pitch && m_vecRotate.y == yaw && m_vecRotate.z == roll )
+	if ( m_vecRotate == rotate )
 	{
 		return;
 	}
 
-	m_vecRotate = CXMFLOAT3( pitch, yaw, roll );
-	m_body.SetOrientation( pitch, yaw, roll );
+	m_vecRotate = rotate;
+	m_body.SetOrientation( m_vecRotate );
 	m_needRebuildTransform = true;
 	SetDirty( DF_ROTATION );
 }
 
+void CGameObject::SetRotate( const float pitch, const float yaw, const float roll )
+{
+	SetRotate( static_cast<CXMFLOAT4>( XMQuaternionRotationRollPitchYaw( pitch, yaw, roll ) ) );
+}
+
 void CGameObject::SetRotate( const CXMFLOAT3& pitchYawRoll )
 {
-	SetRotate( pitchYawRoll.x, pitchYawRoll.y, pitchYawRoll.z );
+	SetRotate( static_cast<CXMFLOAT4>( XMQuaternionRotationRollPitchYaw( pitchYawRoll.x, pitchYawRoll.y, pitchYawRoll.z ) ) );
 }
 
 const CXMFLOAT3& CGameObject::GetPosition( )
@@ -128,7 +140,7 @@ const CXMFLOAT3& CGameObject::GetScale( )
 	return m_vecScale;
 }
 
-const CXMFLOAT3& CGameObject::GetRotate( )
+const CXMFLOAT4& CGameObject::GetRotate( )
 {
 	return m_vecRotate;
 }
@@ -182,8 +194,14 @@ void CGameObject::Think( )
 
 void CGameObject::PostThink( )
 {
+	if ( m_isPicked )
+	{
+		m_body.SetVelocity( CXMFLOAT3( 0.f, 0.f, 0.f ) );
+		m_body.SetRotation( CXMFLOAT3( 0.f, 0.f, 0.f ) );
+	}
+	
 	SetPosition( m_body.GetPosition( ) );
-	SetRotate( ConvertQuaternionToEulerAngle( m_body.GetOrientation( ) ) );
+	SetRotate( m_body.GetOrientation( ) );
 }
 
 void CGameObject::SetMaterialName( const String& pMaterialName )
@@ -203,39 +221,19 @@ const ICollider* CGameObject::GetDefaultCollider( )
 
 const ICollider* CGameObject::GetCollider( int type )
 {
-	RebuildTransform( );
+	if ( type == COLLIDER::NONE )
+	{
+		return nullptr;
+	}
+
+	UpdateCollider( static_cast<COLLIDER::TYPE>( type ) );
 	return m_colliders[type].get( );
 }
 
 const std::vector<std::unique_ptr<ICollider>>& CGameObject::GetSubColliders( int type )
 {
-	RebuildTransform( );
 	UpdateSubCollider( static_cast<COLLIDER::TYPE>( type ) );
 	return m_subColliders[type];
-}
-
-void CGameObject::DrawDefaultCollider( CDebugOverlayManager& debugOverlay )
-{
-	if ( const ICollider* collider = GetDefaultCollider( ) )
-	{
-		switch ( GetColliderType() )
-		{
-		case COLLIDER::AABB:
-			{
-				const CAaboundingbox* box = reinterpret_cast<const CAaboundingbox*>( collider );
-				debugOverlay.AddDebugCube( box->GetMin( ), box->GetMax( ), Convert2ARGB( 255, 140, 0, 255 ), CTimer::GetInstance( ).GetElapsedTime( ) );
-			}
-			break;
-		case COLLIDER::SPHERE:
-			{
-				const BoundingSphere* sphere = reinterpret_cast<const BoundingSphere*>( collider );
-				debugOverlay.AddDebugSphere( sphere->GetCenter( ), sphere->GetRadius( ), Convert2ARGB( 255, 140, 0, 255 ), CTimer::GetInstance( ).GetElapsedTime( ) );
-			}
-			break;
-		default:
-			break;
-		}
-	}
 }
 
 void CGameObject::LoadPropertyFromScript( const KeyValue& keyValue )
@@ -281,6 +279,27 @@ void CGameObject::LoadPropertyFromScript( const KeyValue& keyValue )
 			SetScale( x, y, z );
 		}
 	}
+
+	if ( const KeyValue* pRotate = keyValue.Find( _T( "Rotate" ) ) )
+	{
+		std::vector<String> params;
+
+		UTIL::Split( pRotate->GetValue( ), params, _T( ' ' ) );
+
+		if ( params.size( ) == 3 )
+		{
+			float pitch = static_cast<float>( _ttof( params[0].c_str( ) ) );
+			pitch = XMConvertToRadians( pitch );
+
+			float yaw = static_cast<float>( _ttof( params[1].c_str( ) ) );
+			yaw = XMConvertToRadians( yaw );
+
+			float roll = static_cast<float>( _ttof( params[2].c_str( ) ) );
+			roll = XMConvertToRadians( roll );
+
+			SetRotate( pitch, yaw, roll );
+		}
+	}
 	
 	if ( const KeyValue* pMat = keyValue.Find( _T( "Material" ) ) )
 	{
@@ -300,9 +319,13 @@ void CGameObject::LoadPropertyFromScript( const KeyValue& keyValue )
 		{
 			m_colliderType = COLLIDER::SPHERE;
 		}
-		else if ( type == _T( "Box" ) )
+		else if ( type == _T( "AlignedBox" ) )
 		{
 			m_colliderType = COLLIDER::AABB;
+		}
+		else if ( type == _T( "Box" ) )
+		{
+			m_colliderType = COLLIDER::OBB;
 		}
 		else
 		{
@@ -312,14 +335,25 @@ void CGameObject::LoadPropertyFromScript( const KeyValue& keyValue )
 
 	if ( const KeyValue* pMass = keyValue.Find( _T( "Mass" ) ) )
 	{
+		assert( ( m_colliderType != COLLIDER::AABB ) || ( pMass->GetValue<float>( ) == FLT_MAX ) );
 		m_body.SetMass( pMass->GetValue<float>( ) );
+	}
+
+	if ( const KeyValue* pDamping = keyValue.Find( _T( "Damping" ) ) )
+	{
+		std::vector<String> params;
+
+		UTIL::Split( pDamping->GetValue( ), params, _T( ' ' ) );
+
+		if ( params.size( ) == 2 )
+		{
+			m_body.SetLinearDamping( static_cast<float>( _ttof( params[0].c_str( ) ) ) );
+			m_body.SetAngularDamping( static_cast<float>( _ttof( params[1].c_str( ) ) ) );
+		}
 	}
 }
 
-CGameObject::CGameObject( ) :
-m_vecPos( 0.f, 0.f, 0.f ),
-m_vecScale( 1.f, 1.f, 1.f ),
-m_vecRotate( 0.f, 0.f, 0.f )
+CGameObject::CGameObject( )
 {
 	m_matTransform = XMMatrixIdentity();
 	m_invMatTransform = XMMatrixIdentity( );
@@ -392,7 +426,7 @@ void CGameObject::RebuildTransform( )
 		XMMATRIX rotate;
 
 		scale = XMMatrixScaling( m_vecScale.x, m_vecScale.y, m_vecScale.z );
-		rotate = XMMatrixRotationRollPitchYaw( m_vecRotate.x, m_vecRotate.y, m_vecRotate.z );
+		rotate = XMMatrixRotationQuaternion( m_vecRotate );
 
 		m_matTransform = scale * rotate;
 
@@ -402,7 +436,6 @@ void CGameObject::RebuildTransform( )
 
 		m_invMatTransform = XMMatrixInverse( nullptr, m_matTransform );
 
-		UpdateAllCollider( );
 		m_needRebuildTransform = false;
 	}
 }
@@ -416,7 +449,7 @@ void CGameObject::UpdateCollider( COLLIDER::TYPE type )
 			m_colliders[type].reset( CColliderManager::GetInstance( ).CreateCollider( type ) );
 		}
 
-		m_colliders[type]->Update( m_vecScale, m_vecRotate, m_vecPos, m_originalColliders[type] );
+		m_colliders[type]->Update( m_vecScale, m_body.GetOrientation(), m_body.GetPosition(), m_originalColliders[type] );
 	}
 }
 

@@ -74,6 +74,7 @@
 		"Scale"		"10 10 10" //xScale yScale zScale
 		"Position"	"25.928568 -4.814196 0.000000" //x y z
 		"ColliderType"	"Box"
+		"Mass"		"10"
 	}
 	
 	"Object" "displaySRVHelper"

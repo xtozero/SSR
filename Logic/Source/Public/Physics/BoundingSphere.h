@@ -6,16 +6,17 @@
 #include <vector>
 
 class CAaboundingbox;
+class COrientedBoundingBox;
 
 class BoundingSphere : public ICollider
 {
 public:
 	virtual void CalcMeshBounds( const IMesh& mesh ) override;
-	virtual void Update( const CXMFLOAT3& scaling, const CXMFLOAT3& rotation, const CXMFLOAT3& translation, ICollider* original ) override;
+	virtual void Update( const CXMFLOAT3& scaling, const CXMFLOAT4& rotation, const CXMFLOAT3& translation, ICollider* original ) override;
 	virtual void CalcSubMeshBounds( std::vector<std::unique_ptr<ICollider>>& /*subColliders*/ ) override { assert( false && "Not Implemented" ); }
 	virtual float Intersect( const CRay* ray ) const override;
 	virtual int Intersect( const CFrustum& frustum ) const override;
-	virtual void DrawDebugOverlay( CDebugOverlayManager& debugOverlay ) const override;
+	virtual void DrawDebugOverlay( CDebugOverlayManager& debugOverlay, unsigned int color ) const override;
 	int Intersect( const BoundingSphere& sphere ) const;
 	float CalcGrowth( const BoundingSphere& sphere ) const;
 
@@ -26,6 +27,7 @@ public:
 
 	BoundingSphere( ) = default;
 	explicit BoundingSphere( const CAaboundingbox& box );
+	explicit BoundingSphere( const COrientedBoundingBox& box );
 	explicit BoundingSphere( const std::vector<CXMFLOAT3>& points );
 	BoundingSphere( const CXMFLOAT3& center, float radius ) : m_origin( center ), m_radius( radius ) {}
 	BoundingSphere( const BoundingSphere& one, const BoundingSphere& two );

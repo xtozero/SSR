@@ -113,7 +113,7 @@ inline CXMFLOAT3X3 MakeBlockInertiaTensor( const CXMFLOAT3& halfSizes, float mas
 		return CXMFLOAT3X3( 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f );
 	}
 
-	CXMFLOAT3 squares = DirectX::XMVector3Dot( halfSizes, halfSizes );
+	CXMFLOAT3 squares = halfSizes * halfSizes;
 	return MakeInertiaTensorCoeffs( 0.3f * mass * ( squares.y + squares.z ),
 		0.3f * mass * ( squares.x + squares.z ),
 		0.3f * mass * ( squares.x + squares.y ) );
@@ -128,14 +128,4 @@ inline CXMFLOAT3X3 MakeSphereInertiaTensor( const float radius, float mass )
 
 	float coeff = 0.4f * mass * radius * radius;
 	return MakeInertiaTensorCoeffs( coeff, coeff, coeff );
-}
-
-inline CXMFLOAT3 ConvertQuaternionToEulerAngle( const CXMFLOAT4& q )
-{
-	float pitch = atan2( 2.f * ( q.w * q.x + q.y * q.z ), 1.f - 2.f * (q.x * q.x + q.y * q.y) );
-	float sinp = 2.f * ( q.w * q.y - q.z * q.x );
-	float yaw = fabsf( sinp ) >= 1 ? copysign( DirectX::XM_PIDIV2, sinp ) : asin( sinp );
-	float roll = atan2( 2.f * ( q.w * q.z + q.x * q.y ), 1.f - 2.f * ( q.y * q.y + q.z * q.z ) );
-
-	return CXMFLOAT3( pitch, yaw, roll );
 }

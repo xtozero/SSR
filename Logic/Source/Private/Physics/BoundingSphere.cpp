@@ -6,6 +6,7 @@
 #include "Model/IMesh.h"
 #include "Physics/Aaboundingbox.h"
 #include "Physics/Frustum.h"
+#include "Physics/OrientedBoundingBox.h"
 #include "Physics/Ray.h"
 #include "Scene/DebugOverlayManager.h"
 
@@ -61,7 +62,7 @@ void BoundingSphere::CalcMeshBounds( const IMesh& mesh )
 	m_radius = sqrtf( maxRadiusSqr );
 }
 
-void BoundingSphere::Update( const CXMFLOAT3& scaling, const CXMFLOAT3& rotation, const CXMFLOAT3& translation, ICollider* original )
+void BoundingSphere::Update( const CXMFLOAT3& scaling, const CXMFLOAT4& /*rotation*/, const CXMFLOAT3& translation, ICollider* original )
 {
 	BoundingSphere* orig = dynamic_cast<BoundingSphere*>( original );
 	m_origin = translation;
@@ -101,9 +102,9 @@ int BoundingSphere::Intersect( const CFrustum& frustum ) const
 	return inside;
 }
 
-void BoundingSphere::DrawDebugOverlay( CDebugOverlayManager& debugOverlay ) const
+void BoundingSphere::DrawDebugOverlay( CDebugOverlayManager& debugOverlay, unsigned int color ) const
 {
-	debugOverlay.AddDebugSphere( m_origin, m_radius, g_colorChartreuse, CTimer::GetInstance( ).GetElapsedTime( ) );
+	debugOverlay.AddDebugSphere( m_origin, m_radius, color, CTimer::GetInstance( ).GetElapsedTime( ) );
 }
 
 int BoundingSphere::Intersect( const BoundingSphere& sphere ) const
@@ -164,6 +165,12 @@ BoundingSphere::BoundingSphere( const CAaboundingbox& box )
 {
 	box.Centroid( m_origin );
 	m_radius = XMVectorGetX( XMVector3Length( m_origin - box.GetMax( ) ) );
+}
+
+BoundingSphere::BoundingSphere( const COrientedBoundingBox& box )
+{
+	m_origin = box.GetAxisVector( 3 );
+	m_radius = XMVectorGetX( XMVector3Length( box.GetHalfSize( ) ) );
 }
 
 BoundingSphere::BoundingSphere( const std::vector<CXMFLOAT3>& points )

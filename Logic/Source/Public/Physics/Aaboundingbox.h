@@ -9,11 +9,11 @@ class CAaboundingbox : public ICollider
 {
 public:
 	virtual void CalcMeshBounds( const IMesh& mesh ) override;
-	virtual void Update( const CXMFLOAT3& scaling, const CXMFLOAT3& rotation, const CXMFLOAT3& translation, ICollider* original ) override;
+	virtual void Update( const CXMFLOAT3& scaling, const CXMFLOAT4& rotation, const CXMFLOAT3& translation, ICollider* original ) override;
 	virtual void CalcSubMeshBounds( std::vector<std::unique_ptr<ICollider>>& subColliders ) override;
 	virtual float Intersect( const CRay* ray ) const override;
 	virtual int Intersect( const CFrustum& frustum ) const override;
-	virtual void DrawDebugOverlay( CDebugOverlayManager& debugOverlay ) const override;
+	virtual void DrawDebugOverlay( CDebugOverlayManager& debugOverlay, unsigned int color ) const override;
 	int Intersect( const CAaboundingbox& box ) const;
 
 	CAaboundingbox( ) = default;

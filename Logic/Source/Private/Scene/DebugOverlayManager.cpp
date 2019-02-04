@@ -4,6 +4,8 @@
 #include "Core/GameLogic.h"
 #include "Render/Resource.h"
 
+using namespace DirectX;
+
 void CDebugOverlayManager::OnDeviceRestore( CGameLogic& gameLogic )
 {
 	m_dynamicVB.OnDeviceRestore( gameLogic );
@@ -166,7 +168,41 @@ void CDebugOverlayManager::AddDebugCube( const CXMFLOAT3& min, const CXMFLOAT3& 
 	AddDebugLine( from, to, color, life );
 }
 
-void CDebugOverlayManager::AddDebugSolid( const CXMFLOAT3& min, const CXMFLOAT3& max, unsigned int color, float life )
+void CDebugOverlayManager::AddDebugCube( const CXMFLOAT3& halfSize, const CXMFLOAT4X4& transform, unsigned int color, float life )
+{
+	CXMFLOAT3 vertex[8] = {
+		CXMFLOAT3( -halfSize.x, -halfSize.y, -halfSize.z ),
+		CXMFLOAT3( halfSize.x, -halfSize.y, -halfSize.z ),
+		CXMFLOAT3( halfSize.x, halfSize.y, -halfSize.z ),
+		CXMFLOAT3( -halfSize.x, halfSize.y, -halfSize.z ),
+		CXMFLOAT3( -halfSize.x, -halfSize.y, halfSize.z ),
+		CXMFLOAT3( halfSize.x, -halfSize.y, halfSize.z ),
+		CXMFLOAT3( halfSize.x, halfSize.y, halfSize.z ),
+		CXMFLOAT3( -halfSize.x, halfSize.y, halfSize.z )
+	};
+
+	for ( int i = 0; i < 8; ++i )
+	{
+		vertex[i] = XMVector3TransformCoord( vertex[i], transform );
+	}
+
+	AddDebugLine( vertex[0], vertex[1], color, life );
+	AddDebugLine( vertex[1], vertex[2], color, life );
+	AddDebugLine( vertex[2], vertex[3], color, life );
+	AddDebugLine( vertex[3], vertex[0], color, life );
+
+	AddDebugLine( vertex[4], vertex[5], color, life );
+	AddDebugLine( vertex[5], vertex[6], color, life );
+	AddDebugLine( vertex[6], vertex[7], color, life );
+	AddDebugLine( vertex[7], vertex[4], color, life );
+
+	AddDebugLine( vertex[0], vertex[4], color, life );
+	AddDebugLine( vertex[1], vertex[5], color, life );
+	AddDebugLine( vertex[2], vertex[6], color, life );
+	AddDebugLine( vertex[3], vertex[7], color, life );
+}
+
+void CDebugOverlayManager::AddDebugSolidCube( const CXMFLOAT3& min, const CXMFLOAT3& max, unsigned int color, float life )
 {
 	CXMFLOAT3 a = min;
 	CXMFLOAT3 b( max.x, min.y, min.z );

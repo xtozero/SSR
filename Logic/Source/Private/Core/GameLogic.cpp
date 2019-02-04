@@ -200,7 +200,7 @@ void CGameLogic::StartLogic( )
 	}
 	m_ui.EndWindow( );
 
-	constexpr int moveDirty = DF_POSITION | DF_ROTATION | DF_SCALING;
+	constexpr int moveDirty = DF_POSITION | DF_SCALING;
 	// Update BVH Tree, Not Optimized Fix Later
 	for ( auto& object : m_gameObjects )
 	{
@@ -219,13 +219,16 @@ void CGameLogic::StartLogic( )
 
 void CGameLogic::ProcessLogic( )
 {
-	// 게임 로직 수행
-	for ( auto& object : m_gameObjects )
+	if ( CTimer::GetInstance( ).IsPaused() == false )
 	{
-		object->Think( );
-	}
+		// 게임 로직 수행
+		for ( auto& object : m_gameObjects )
+		{
+			object->Think( );
+		}
 
-	m_world.RunPhysics( CTimer::GetInstance( ).GetElapsedTime( ) );
+		m_world.RunPhysics( CTimer::GetInstance( ).GetElapsedTime( ) );
+	}
 }
 
 void CGameLogic::EndLogic( )
@@ -327,7 +330,7 @@ void CGameLogic::DrawForDebug( )
 			const ICollider* collider = object->GetDefaultCollider( );
 			if ( collider )
 			{
-				collider->DrawDebugOverlay( m_debugOverlay );
+				collider->DrawDebugOverlay( m_debugOverlay, object->GetRigidBody()->IsAwake() ? g_colorChartreuse : g_colorRed );
 			}
 		}
 	}

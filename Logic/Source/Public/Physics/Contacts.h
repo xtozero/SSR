@@ -27,6 +27,7 @@ public:
 	friend ContactResolver;
 private:
 	void SwapBodies( );
+	void MatchAwakeState( );
 
 	RigidBody* m_body[2] = { nullptr, nullptr };
 	CXMFLOAT3 m_contactPoint;

@@ -4,6 +4,7 @@
 #include "Model/IMesh.h"
 #include "Physics/Aaboundingbox.h"
 #include "Physics/BoundingSphere.h"
+#include "Physics/OrientedBoundingBox.h"
 #include "Render/IRenderer.h"
 
 #include <memory>
@@ -38,21 +39,7 @@ ICollider* CColliderManager::GetCollider( const IMesh& mesh, COLLIDER::TYPE type
 
 Owner<ICollider*> CColliderManager::CreateCollider( const IMesh& mesh, COLLIDER::TYPE type )
 {
-	ICollider* newCollider = nullptr;
-
-	switch ( type )
-	{
-	case COLLIDER::SPHERE:
-		newCollider = new BoundingSphere;
-		break;
-	case COLLIDER::AABB:
-		newCollider = new CAaboundingbox;
-		break;
-	case COLLIDER::OBB:
-		break;
-	default:
-		break;
-	}
+	ICollider* newCollider = CreateCollider( type );
 
 	if ( newCollider )
 	{
@@ -73,6 +60,7 @@ Owner<ICollider*> CColliderManager::CreateCollider( COLLIDER::TYPE type )
 		return new CAaboundingbox;
 		break;
 	case COLLIDER::OBB:
+		return new COrientedBoundingBox;
 		break;
 	default:
 		break;

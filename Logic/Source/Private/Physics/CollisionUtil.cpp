@@ -39,6 +39,11 @@ namespace COLLISION_UTIL
 				const CAaboundingbox* boxCollider = reinterpret_cast<const CAaboundingbox*>( rhs->GetDefaultCollider( ) );
 				return BoxAndSphere( *boxCollider, rhsBody, *lhsCollider , lhsBody, data );
 			}
+			else if ( rhsType == COLLIDER::OBB )
+			{
+				const COrientedBoundingBox* boxCollider = reinterpret_cast<const COrientedBoundingBox*>( rhs->GetDefaultCollider( ) );
+				return BoxAndSphere( *boxCollider, rhsBody, *lhsCollider, lhsBody, data );
+			}
 		}
 		else if ( lhsType == COLLIDER::AABB )
 		{
@@ -47,6 +52,21 @@ namespace COLLISION_UTIL
 			if ( rhsType == COLLIDER::AABB )
 			{
 				const CAaboundingbox* boxCollider2 = reinterpret_cast<const CAaboundingbox*>( rhs->GetDefaultCollider( ) );
+				return BoxAndBox( *boxCollider1, lhsBody, *boxCollider2, rhsBody, data );
+			}
+			else if ( rhsType == COLLIDER::OBB )
+			{
+				const COrientedBoundingBox* boxCollider2 = reinterpret_cast<const COrientedBoundingBox*>( rhs->GetDefaultCollider( ) );
+				return BoxAndBox( *boxCollider1, lhsBody, *boxCollider2, rhsBody, data );
+			}
+		}
+		else if ( lhsType == COLLIDER::OBB )
+		{
+			const COrientedBoundingBox* boxCollider1 = reinterpret_cast<const COrientedBoundingBox*>( lhs->GetDefaultCollider( ) );
+
+			if ( rhsType == COLLIDER::OBB )
+			{
+				const COrientedBoundingBox* boxCollider2 = reinterpret_cast<const COrientedBoundingBox*>( rhs->GetDefaultCollider( ) );
 				return BoxAndBox( *boxCollider1, lhsBody, *boxCollider2, rhsBody, data );
 			}
 		}

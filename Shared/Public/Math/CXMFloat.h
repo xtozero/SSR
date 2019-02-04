@@ -180,16 +180,6 @@ struct CXMFLOAT3 : public DirectX::XMFLOAT3
 	operator const XMFLOAT3&( ) { return *this; }
 	
 	// binary operators
-	DirectX::XMVECTOR operator+( const CXMFLOAT3& rhs ) const
-	{
-		using namespace DirectX;
-
-		XMVECTOR lVec = *this;
-		XMVECTOR rVec = rhs;
-
-		return lVec + rVec;
-	}
-
 	DirectX::XMVECTOR operator-( const CXMFLOAT3& rhs ) const
 	{
 		using namespace DirectX;

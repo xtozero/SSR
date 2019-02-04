@@ -34,6 +34,12 @@ public:
 	CXMFLOAT3 GetRotation( ) const;
 	void AddRotation( const CXMFLOAT3& deltaRotation );
 	
+	bool IsAwake( ) const { return m_isAwake; }
+	void SetAwake( bool awake = true );
+
+	bool IsCanSleep( ) const { return m_canSleep; }
+	void SetCanSleep( bool canSleep = true );
+
 	CXMFLOAT4X4 GetTransform( ) const;
 
 	void SetInertiaTensor( const CXMFLOAT3X3& inertiaTensor );
@@ -62,13 +68,16 @@ public:
 	void Integrate( float duration );
 
 	void CalculateDerivedData( );
+
 private:
 	float m_inverseMass = 0.f;
 	float m_linearDamping = 0.99f;
 	float m_angularDamping = 0.8f;
+	float m_motion = 0;
+	float m_lastFrameMotion = 0;
 	
 	CXMFLOAT3 m_position;
-	CXMFLOAT4 m_orientation;
+	CXMFLOAT4 m_orientation = CXMFLOAT4( 0.f, 0.f, 0.f, 1.f );
 	CXMFLOAT3 m_velocity;
 	CXMFLOAT3 m_rotation;
 	
@@ -84,4 +93,5 @@ private:
 	CXMFLOAT3 m_lastFrameAcceleration;
 
 	bool m_isAwake = true;
+	bool m_canSleep = true;
 };

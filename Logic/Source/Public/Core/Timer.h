@@ -11,9 +11,11 @@ public:
 	void Pause( );
 	void Resume( );
 
-	inline float GetElapsedTime( ) const { return m_elapsedTime; }
-	inline float GetTotalTime( ) const { return m_totalTime; }
-	inline float GetFps( ) const { return m_fps; }
+	float GetElapsedTime( ) const { return m_elapsedTime; }
+	float GetTotalTime( ) const { return m_totalTime; }
+	float GetFps( ) const { return m_fps; }
+
+	bool IsPaused( ) const { return m_isPaused; }
 
 	CTimer( );
 
