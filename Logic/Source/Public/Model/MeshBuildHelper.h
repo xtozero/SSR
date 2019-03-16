@@ -158,28 +158,28 @@ namespace MeshBuildHelper
 		vertices.emplace_back( CXMFLOAT3( -w2, -h2, d2 ), CXMFLOAT3( 0.f, 0.f, 1.f ), CXMFLOAT2( 1.f, 1.f ) );
 		
 		// left
-		vertices.emplace_back( CXMFLOAT3( -w2, -h2, d2 ), CXMFLOAT3( -1.f, 0.f, 0.f ), ( 0.f, 1.f ) );
-		vertices.emplace_back( CXMFLOAT3( -w2, h2, d2 ), CXMFLOAT3( -1.f, 0.f, 0.f ), ( 0.f, 0.f ) );
-		vertices.emplace_back( CXMFLOAT3( -w2, h2, -d2 ), CXMFLOAT3( -1.f, 0.f, 0.f ), ( 1.f, 0.f ) );
-		vertices.emplace_back( CXMFLOAT3( -w2, -h2, -d2 ), CXMFLOAT3( -1.f, 0.f, 0.f ), ( 1.f, 1.f ) );
+		vertices.emplace_back( CXMFLOAT3( -w2, -h2, d2 ), CXMFLOAT3( -1.f, 0.f, 0.f ), CXMFLOAT2( 0.f, 1.f ) );
+		vertices.emplace_back( CXMFLOAT3( -w2, h2, d2 ), CXMFLOAT3( -1.f, 0.f, 0.f ), CXMFLOAT2( 0.f, 0.f ) );
+		vertices.emplace_back( CXMFLOAT3( -w2, h2, -d2 ), CXMFLOAT3( -1.f, 0.f, 0.f ), CXMFLOAT2( 1.f, 0.f ) );
+		vertices.emplace_back( CXMFLOAT3( -w2, -h2, -d2 ), CXMFLOAT3( -1.f, 0.f, 0.f ), CXMFLOAT2( 1.f, 1.f ) );
 		
 		// right
-		vertices.emplace_back( CXMFLOAT3( w2, -h2, -d2 ), CXMFLOAT3( 1.f, 0.f, 0.f ), ( 0.f, 1.f ) );
-		vertices.emplace_back( CXMFLOAT3( w2, h2, -d2 ), CXMFLOAT3( 1.f, 0.f, 0.f ), ( 0.f, 0.f ) );
-		vertices.emplace_back( CXMFLOAT3( w2, h2, d2 ), CXMFLOAT3( 1.f, 0.f, 0.f ), ( 1.f, 0.f ) );
-		vertices.emplace_back( CXMFLOAT3( w2, -h2, d2 ), CXMFLOAT3( 1.f, 0.f, 0.f ), ( 1.f, 1.f ) );
+		vertices.emplace_back( CXMFLOAT3( w2, -h2, -d2 ), CXMFLOAT3( 1.f, 0.f, 0.f ), CXMFLOAT2( 0.f, 1.f ) );
+		vertices.emplace_back( CXMFLOAT3( w2, h2, -d2 ), CXMFLOAT3( 1.f, 0.f, 0.f ), CXMFLOAT2( 0.f, 0.f ) );
+		vertices.emplace_back( CXMFLOAT3( w2, h2, d2 ), CXMFLOAT3( 1.f, 0.f, 0.f ), CXMFLOAT2( 1.f, 0.f ) );
+		vertices.emplace_back( CXMFLOAT3( w2, -h2, d2 ), CXMFLOAT3( 1.f, 0.f, 0.f ), CXMFLOAT2( 1.f, 1.f ) );
 		
 		// top
-		vertices.emplace_back( CXMFLOAT3( -w2, h2, -d2 ), CXMFLOAT3( 0.f, 1.f, 0.f ), ( 0.f, 1.f ) );
-		vertices.emplace_back( CXMFLOAT3( -w2, h2, d2 ), CXMFLOAT3( 0.f, 1.f, 0.f ), ( 0.f, 0.f ) );
-		vertices.emplace_back( CXMFLOAT3( w2, h2, d2 ), CXMFLOAT3( 0.f, 1.f, 0.f ), ( 1.f, 0.f ) );
-		vertices.emplace_back( CXMFLOAT3( w2, h2, -d2 ), CXMFLOAT3( 0.f, 1.f, 0.f ), ( 1.f, 1.f ) );
+		vertices.emplace_back( CXMFLOAT3( -w2, h2, -d2 ), CXMFLOAT3( 0.f, 1.f, 0.f ), CXMFLOAT2( 0.f, 1.f ) );
+		vertices.emplace_back( CXMFLOAT3( -w2, h2, d2 ), CXMFLOAT3( 0.f, 1.f, 0.f ), CXMFLOAT2( 0.f, 0.f ) );
+		vertices.emplace_back( CXMFLOAT3( w2, h2, d2 ), CXMFLOAT3( 0.f, 1.f, 0.f ), CXMFLOAT2( 1.f, 0.f ) );
+		vertices.emplace_back( CXMFLOAT3( w2, h2, -d2 ), CXMFLOAT3( 0.f, 1.f, 0.f ), CXMFLOAT2( 1.f, 1.f ) );
 		
 		// bottom
-		vertices.emplace_back( CXMFLOAT3( -w2, -h2, d2 ), CXMFLOAT3( 0.f, -1.f, 0.f ), ( 0.f, 1.f ) );
-		vertices.emplace_back( CXMFLOAT3( -w2, -h2, -d2 ), CXMFLOAT3( 0.f, -1.f, 0.f ), ( 0.f, 0.f ) );
-		vertices.emplace_back( CXMFLOAT3( w2, -h2, -d2 ), CXMFLOAT3( 0.f, -1.f, 0.f ), ( 1.f, 0.f ) );
-		vertices.emplace_back( CXMFLOAT3( w2, -h2, d2 ), CXMFLOAT3( 0.f, -1.f, 0.f ), ( 1.f, 1.f ) );
+		vertices.emplace_back( CXMFLOAT3( -w2, -h2, d2 ), CXMFLOAT3( 0.f, -1.f, 0.f ), CXMFLOAT2( 0.f, 1.f ) );
+		vertices.emplace_back( CXMFLOAT3( -w2, -h2, -d2 ), CXMFLOAT3( 0.f, -1.f, 0.f ), CXMFLOAT2( 0.f, 0.f ) );
+		vertices.emplace_back( CXMFLOAT3( w2, -h2, -d2 ), CXMFLOAT3( 0.f, -1.f, 0.f ), CXMFLOAT2( 1.f, 0.f ) );
+		vertices.emplace_back( CXMFLOAT3( w2, -h2, d2 ), CXMFLOAT3( 0.f, -1.f, 0.f ), CXMFLOAT2( 1.f, 1.f ) );
 
 		meshData.m_indices.resize( 36 );
 

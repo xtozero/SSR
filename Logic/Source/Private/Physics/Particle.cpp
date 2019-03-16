@@ -22,7 +22,7 @@ void Particle::Integrate( float duration )
 	ClearAccumulator( );
 }
 
-void Particle::SetPosition( const CXMFLOAT3 & position )
+void Particle::SetPosition( const CXMFLOAT3& position )
 {
 	m_position = position;
 }
@@ -32,7 +32,7 @@ CXMFLOAT3 Particle::GetPosition( ) const
 	return m_position;
 }
 
-void Particle::SetVelocity( const CXMFLOAT3 & velocity )
+void Particle::SetVelocity( const CXMFLOAT3& velocity )
 {
 	m_velocity = velocity;
 }

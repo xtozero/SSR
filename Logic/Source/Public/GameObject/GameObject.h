@@ -23,9 +23,21 @@ class ICollider;
 class IMesh;
 class KeyValue;
 
-struct ObjectRelatedRigidBody : public RigidBody
+class ObjectRelatedRigidBody : public RigidBody
 {
+public:
+	CGameObject* GetGameObject( ) const { return m_gameObject; }
+	const ICollider* GetCollider( int type );
+
+	int GetDirty( ) const { return m_dirtyFlag; }
+	void SetDirty( int dirtyFlag ) { m_dirtyFlag |= dirtyFlag; }
+	void ResetDirty( ) { m_dirtyFlag = 0; }
+
+	explicit ObjectRelatedRigidBody( CGameObject* object ) : m_gameObject( object ) {}
+
+private:
 	CGameObject* m_gameObject = nullptr;
+	int m_dirtyFlag = 0;
 };
 
 class CGameObject : IGraphicsDeviceNotify
@@ -53,8 +65,8 @@ public:
 	void UpdateTransform( CGameLogic& gameLogic );
 	virtual void Render( CGameLogic& gameLogic );
 
-	virtual void Think( );
-	virtual void PostThink( );
+	virtual void Think( float elapsedTime );
+	virtual void PostThink( float elapsedTime );
 
 	void SetName( const String& name ) { m_name = name; }
 	const String& GetName( ) const { return m_name; }
@@ -66,6 +78,8 @@ public:
 	const ICollider* GetDefaultCollider( );
 	const ICollider* GetCollider( int type );
 	const std::vector<std::unique_ptr<ICollider>>& GetSubColliders( int type );
+
+	void SetColliderType( COLLIDER::TYPE type ) { m_colliderType = type; }
 
 	bool IsPicked( ) const { return m_isPicked; }
 	void SetPicked( bool isPicked ) { m_isPicked = isPicked; }
@@ -83,6 +97,8 @@ public:
 	void AddProperty( const GAMEOBJECT_PROPERTY property ) { m_property |= property; }
 	void RemoveProperty( const GAMEOBJECT_PROPERTY property ) { m_property &= ~property; }
 
+	bool WillRemove( ) const { return ( m_property & GAMEOBJECT_PROPERTY::REMOVE_ME ); }
+
 	virtual void LoadPropertyFromScript( const KeyValue& keyValue );
 
 	virtual bool IgnorePicking( ) const { return false; }
@@ -92,15 +108,13 @@ public:
 
 	ObjectRelatedRigidBody* GetRigidBody( ) { return &m_body; }
 
-	int GetDirty( ) const { return m_dirtyFlag; }
-	void SetDirty( int dirtyFlag ) { m_dirtyFlag |= dirtyFlag; }
-
 	CGameObject( );
 	~CGameObject( ) = default ;
 
 protected:
 	virtual bool LoadModelMesh( CGameLogic& gameLogic );
 	virtual bool LoadMaterial( CGameLogic& gameLogic );
+	virtual void CalcOriginalCollider( );
 
 private:
 	void RebuildTransform( );
@@ -136,10 +150,13 @@ private:
 
 	UINT m_property = 0;
 
-	ObjectRelatedRigidBody m_body;
-
-	int m_dirtyFlag = 0;
+	ObjectRelatedRigidBody m_body{ this };
 
 protected:
 	bool m_needRebuildTransform = true;
 };
+
+inline void RemoveObject( CGameObject& object )
+{
+	object.AddProperty( GAMEOBJECT_PROPERTY::REMOVE_ME );
+}

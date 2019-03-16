@@ -241,17 +241,17 @@ void RigidBody::ClearAccumulators( )
 	m_torqueAccum = { 0.f, 0.f, 0.f };
 }
 
-void RigidBody::Integrate( float duration )
+bool RigidBody::Integrate( float duration )
 {
 	if ( m_isAwake == false )
 	{
-		return;
+		return false;
 	}
 
 	if ( HasFiniteMass( ) == false ) 
 	{
 		SetAwake( false );
-		return;
+		return false;
 	}
 
 	m_lastFrameAcceleration = m_acceleration;
@@ -265,8 +265,10 @@ void RigidBody::Integrate( float duration )
 	m_velocity *= powf( m_linearDamping, duration );
 	m_rotation *= powf( m_angularDamping, duration );
 
+	CXMFLOAT3 prevPos = m_position;
 	m_position += m_velocity * duration;
 
+	CXMFLOAT4 prevOrient = m_orientation;
 	CXMFLOAT4 dq = m_rotation * duration;
 	dq = XMQuaternionMultiply( m_orientation, dq ) * 0.5f;
 	m_orientation += dq;
@@ -293,6 +295,8 @@ void RigidBody::Integrate( float duration )
 
 		m_lastFrameMotion = m_motion;
 	}
+
+	return ( prevPos != m_position ) || ( prevOrient != m_orientation );
 }
 
 void RigidBody::CalculateDerivedData( )

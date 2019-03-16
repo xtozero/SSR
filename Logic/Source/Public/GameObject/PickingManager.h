@@ -34,7 +34,7 @@ struct UserInput;
 class CPickingManager : public IListener
 {
 public:
-	virtual void ProcessInput( const UserInput& ) override;
+	virtual void ProcessInput( const UserInput&, CGameLogic& gameLogic ) override;
 
 	void PushViewport( const float topLeftX, const float topLeftY, const float width, const float height );
 	void PopViewport( );

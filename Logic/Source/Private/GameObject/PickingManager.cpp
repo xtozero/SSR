@@ -28,7 +28,7 @@ namespace
 	ConVar( picked_object_name, "0", "flag show picked Object Name : 0 or 1" );
 }
 
-void CPickingManager::ProcessInput( const UserInput& input )
+void CPickingManager::ProcessInput( const UserInput& input, CGameLogic& /*gameLogic*/ )
 {
 	switch ( input.m_code )
 	{
@@ -159,7 +159,7 @@ bool CPickingManager::PickingObject( float x, float y )
 
 			if ( const ICollider* pCollider = object->GetCollider( COLLIDER::AABB ) )
 			{
-				float hitDist = pCollider->Intersect( &ray );
+				float hitDist = pCollider->Intersect( ray );
 
 				if ( hitDist >= 0 && m_closestHitDist > hitDist )
 				{
@@ -205,7 +205,7 @@ CPickingManager::CPickingManager( const GameObjectsPtr objects ) :
 {
 }
 
-void CPickingManager::OnMouseLButton( const UserInput & input )
+void CPickingManager::OnMouseLButton( const UserInput& input )
 {
 	m_curMousePos = { input.m_axis[UserInput::X_AXIS], input.m_axis[UserInput::Y_AXIS] };
 
@@ -270,7 +270,7 @@ void CPickingManager::OnMouseMove( const UserInput& input )
 			rayDir = XMVector3Normalize( rayDir );
 
 			CRay pickingRay( origin, rayDir );
-			float hitDist = m_curSelectedObject->GetCollider( COLLIDER::AABB )->Intersect( &pickingRay );
+			float hitDist = m_curSelectedObject->GetCollider( COLLIDER::AABB )->Intersect( pickingRay );
 
 			if ( hitDist >= 0.f )
 			{

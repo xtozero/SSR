@@ -12,7 +12,6 @@ public:
 	virtual String GetDescription( ) override { return m_description; }
 
 	CConVar( const String& name, const String& value, const String& description );
-	~CConVar( );
 
 	void SetValue( const String& newValue );
 	const String& GetString( ) { return m_value; }

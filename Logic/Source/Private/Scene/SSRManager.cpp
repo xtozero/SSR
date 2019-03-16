@@ -22,7 +22,7 @@ bool CSSRManager::Init( CGameLogic& gameLogic )
 	return CreateDeviceDependendResource( gameLogic );
 }
 
-void CSSRManager::PreProcess( CGameLogic & gameLogic, const std::list<CGameObject*>* renderableList ) const
+void CSSRManager::PreProcess( CGameLogic& gameLogic, const std::list<CGameObject*>* renderableList ) const
 {
 	ImUI& ui = gameLogic.GetUIManager( );
 	ui.Window( "SSR Option" );

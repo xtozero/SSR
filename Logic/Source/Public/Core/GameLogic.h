@@ -1,9 +1,11 @@
 #pragma once
 
+#include "Core/DebugConsole.h"
 #include "common.h"
 #include "GameObject/Camera.h"
 #include "GameObject/LightManager.h"
 #include "GameObject/PickingManager.h"
+#include "GameObject/Player.h"
 #include "ILogic.h"
 #include "Model/ModelBuilder.h"
 #include "Model/ModelManager.h"
@@ -46,7 +48,9 @@ public:
 	virtual void Resume( ) override;
 	virtual void HandleUserInput( const UserInput& input ) override;
 	virtual void AppSizeChanged( IPlatform& platform ) override;
-	virtual void OnObjectSpawned( CGameObject& object ) override;
+	
+	void SpawnObject( Owner<CGameObject*> object );
+	void OnObjectSpawned( CGameObject& object );
 
 	IRenderer& GetRenderer( ) const { return *m_pRenderer; }
 	CLightManager& GetLightManager( ) { return m_lightManager; }
@@ -63,6 +67,7 @@ private:
 	void EndLogic ( );
 
 	bool LoadScene( const String& scene );
+	void ShutdownScene( );
 
 	void SceneBegin( );
 	void DrawScene( );
@@ -80,6 +85,8 @@ private:
 	bool CreateDeviceDependentResource( );
 	bool CreateDefaultFontResource( );
 
+	CPlayer* GetLocalPlayer( );
+
 public:
 	CGameLogic();
 	~CGameLogic() = default;
@@ -88,7 +95,7 @@ private:
 	HWND	m_wndHwnd;
 	std::pair<UINT, UINT> m_appSize;
 
-	CCamera m_mainCamera;
+	CTimer m_clock;
 	CUserInputBroadCaster m_inputBroadCaster;
 	CPickingManager m_pickingManager;
 	CLightManager m_lightManager;
@@ -98,6 +105,7 @@ private:
 	std::unique_ptr<IRenderer> m_pRenderer;
 	CRenderView m_view;
 	std::vector<std::unique_ptr<CGameObject>> m_gameObjects;
+	std::vector<CPlayer> m_players;
 
 	std::list<CGameObject*> m_renderableList[RENDERABLE_TYPE_COUNT];
 
@@ -119,4 +127,9 @@ private:
 	CDebugOverlayManager m_debugOverlay;
 
 	World m_world;
+	float m_remainPhysicsSimulateTime = 0.f;
+
+#ifdef DEBUGGING_BY_CONSOLE
+	CDebugConsole m_commandConsole;
+#endif
 };

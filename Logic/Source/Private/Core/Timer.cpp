@@ -9,13 +9,6 @@
 
 using namespace std::chrono;
 
-CTimer& CTimer::GetInstance ( )
-{
-	static CTimer timer;
-
-	return timer;
-}
-
 void CTimer::Tick ( )
 {
 	++m_frame;
@@ -33,6 +26,8 @@ void CTimer::Tick ( )
 		m_fps = static_cast<float>( m_frame );
 		m_frame = 0;
 	}
+
+	m_elapsedTime *= m_timeScale;
 
 	if ( m_isPaused )
 	{

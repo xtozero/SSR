@@ -387,8 +387,6 @@ void ContactResolver::PrepareContacts( Contact* contactArray, int numContacts, f
 
 void ContactResolver::AdjustPositions( Contact* contactArray, int numContacts, float /*duration*/ )
 {
-	int index = 0;
-	float max = 0.f;
 	CXMFLOAT3 linearChange[2];
 	CXMFLOAT3 angularChange[2];
 	CXMFLOAT3 deltaPosition;
@@ -396,8 +394,8 @@ void ContactResolver::AdjustPositions( Contact* contactArray, int numContacts, f
 	m_positionIterationsUsed = 0;
 	while ( m_positionIterationsUsed < m_positionIterations )
 	{
-		max = m_positionEpsilon;
-		index = numContacts;
+		float max = m_positionEpsilon;
+		int index = numContacts;
 
 		for ( int i = 0; i < numContacts; ++i )
 		{

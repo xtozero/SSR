@@ -11,9 +11,9 @@ public:
 	virtual void CalcMeshBounds( const IMesh& mesh ) override;
 	virtual void Update( const CXMFLOAT3& scaling, const CXMFLOAT4& rotation, const CXMFLOAT3& translation, ICollider* original ) override;
 	virtual void CalcSubMeshBounds( std::vector<std::unique_ptr<ICollider>>& subColliders ) override;
-	virtual float Intersect( const CRay* ray ) const override;
+	virtual float Intersect( const CRay& ray ) const override;
 	virtual int Intersect( const CFrustum& frustum ) const override;
-	virtual void DrawDebugOverlay( CDebugOverlayManager& debugOverlay, unsigned int color ) const override;
+	virtual void DrawDebugOverlay( CDebugOverlayManager& debugOverlay, unsigned int color, float duration ) const override;
 
 	CXMFLOAT3 GetAxisVector( int i ) const;
 	CXMFLOAT3 GetHalfSize( ) const { return m_halfSize; }
@@ -25,6 +25,7 @@ public:
 private:
 	CXMFLOAT3 m_halfSize = { 0.f, 0.f, 0.f };
 	CXMFLOAT4X4 m_matTransform;
+	CXMFLOAT4X4 m_matInvTransform;
 };
 
 float CalcPenetrationOnAxis( const COrientedBoundingBox& lhs, const COrientedBoundingBox& rhs, const CXMFLOAT3& axis, const CXMFLOAT3& toCentre );

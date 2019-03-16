@@ -68,7 +68,7 @@ CBoundingCone::CBoundingCone( const std::vector<CAaboundingbox>& boxes, const CX
 	}
 }
 
-CBoundingCone::CBoundingCone( const std::vector<CAaboundingbox>& boxes, const CXMFLOAT4X4 & projection, const CXMFLOAT3 & apex, const CXMFLOAT3 & dir ) :
+CBoundingCone::CBoundingCone( const std::vector<CAaboundingbox>& boxes, const CXMFLOAT4X4& projection, const CXMFLOAT3& apex, const CXMFLOAT3& dir ) :
 	m_apex( apex )
 {
 	using namespace DirectX;

@@ -12,13 +12,17 @@ namespace
 {
 	unsigned int __stdcall asyncInputFunc( void* arg )
 	{
-		bool* isAlive = static_cast<bool*>( arg );
-
-		char conMessage[1024] = { 0, };
+		bool& isAlive = *(static_cast<bool*>( arg ));
 
 		while ( isAlive )
 		{
+			char conMessage[1024] = { 0, };
 			gets_s( conMessage, sizeof( conMessage ) );
+
+			if ( strlen( conMessage ) == 0 )
+			{
+				continue;
+			}
 
 			TCHAR convertedMessage[1024];
 			size_t converted;
@@ -30,18 +34,11 @@ namespace
 				continue;
 			}
 
-			GetConsoleMessageExecutor( )->Execute( convertedMessage );
+			GetConsoleMessageExecutor( ).AppendCommand( convertedMessage );
 		}
 
 		return 0;
 	}
-}
-
-CDebugConsole* CDebugConsole::GetInstance( )
-{
-	static CDebugConsole console;
-
-	return &console;
 }
 
 CDebugConsole::CDebugConsole( ) : m_isAlive( true )

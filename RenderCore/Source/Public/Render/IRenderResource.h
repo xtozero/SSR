@@ -8,16 +8,20 @@
 class IRenderResource
 {
 public:
-	virtual ~IRenderResource( ) = default;
-
 	void SetAppSizeDependency( bool isDepentant ) { m_isAppSizeDependent = isDepentant; }
 	bool IsAppSizeDependency() const { return m_isAppSizeDependent; }
+
+	const String& GetName( ) const { return m_name; }
+	void SetName( const String& name ) { m_name = name; }
+
+	virtual ~IRenderResource( ) = default;
 
 protected:
 	IRenderResource( ) = default;
 
 private:
 	bool m_isAppSizeDependent = false;
+	String m_name;
 };
 
 enum class TEXTURE_TYPE

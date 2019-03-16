@@ -225,7 +225,7 @@ void ImDrawList::PathLineTo( const CXMFLOAT2& pos )
 	m_path.emplace_back( pos );
 }
 
-void ImDrawList::PathFillConvex( const CXMFLOAT4 & color )
+void ImDrawList::PathFillConvex( const CXMFLOAT4& color )
 {
 	AddConvexPolyFilled( m_path.data( ), static_cast<int>( m_path.size( ) ), color );
 	PathClear( );

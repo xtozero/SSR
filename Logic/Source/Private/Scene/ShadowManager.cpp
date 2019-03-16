@@ -663,7 +663,7 @@ void CShadowManager::BuildOrthoShadowProjectionMatrix( CGameLogic& gameLogic, in
 	rayOrigin += center;
 
 	CRay ray( rayOrigin, viewLightDir );
-	float t = casterAABB.Intersect( &ray );
+	float t = casterAABB.Intersect( ray );
 
 	CXMFLOAT3 lightPosition = primaryLight->GetPosition( );
 	if ( t > 0.f )
@@ -807,7 +807,7 @@ void CShadowManager::BuildPSMProjectionMatrix( CGameLogic& gameLogic, int cascad
 		rayOrigin += cubeCenter;
 
 		CRay ray( rayOrigin, -ppLightDir );
-		float t = ppUnitBox.Intersect( &ray );
+		float t = ppUnitBox.Intersect( ray );
 
 		CXMFLOAT3 lightPosition;
 		if ( t > 0.f )

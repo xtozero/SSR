@@ -13,14 +13,14 @@ struct ID3D11DeviceContext;
 struct ID3D11Resource;
 struct ID3D11ShaderResourceView;
 
-class CDepthStencil;
+class CD3D11DepthStencil;
 class CD3D11BlendState;
 class CD3D11Buffer;
 class CD3D11DepthStencilState;
 class CD3D11RandomAccessResource;
 class CD3D11SamplerState;
 class CD3D11Texture;
-class CRenderTarget;
+class CD3D11RenderTarget;
 class CD3D11ShaderResource;
 class CD3D11ComputeShader;
 class CD3D11GeometryShader;
@@ -100,8 +100,8 @@ public:
 	void OnDeviceLost( );
 	void OnDeviceRestore( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext );
 
-	const CDepthStencil& GetDepthstencil( RE_HANDLE handle ) const;
-	const CRenderTarget& GetRendertarget( RE_HANDLE handle ) const;
+	const CD3D11DepthStencil& GetDepthstencil( RE_HANDLE handle ) const;
+	const CD3D11RenderTarget& GetRendertarget( RE_HANDLE handle ) const;
 	const CD3D11ShaderResource& GetShaderResource( RE_HANDLE handle ) const;
 	const CD3D11RandomAccessResource& GetRandomAccess( RE_HANDLE handle ) const;
 	const CD3D11Texture& GetTexture( RE_HANDLE handle ) const;
@@ -128,8 +128,8 @@ private:
 	bool LoadShader( );
 	bool CreateVertexShaderFromScript( const KeyValue* desc, const char* profile );
 
-	std::vector<CDepthStencil> m_depthStencils;
-	std::vector<CRenderTarget> m_renderTargets;
+	std::vector<CD3D11DepthStencil> m_depthStencils;
+	std::vector<CD3D11RenderTarget> m_renderTargets;
 	std::vector<CD3D11ShaderResource> m_shaderResources;
 	std::vector<CD3D11RandomAccessResource> m_randomAccessResource;
 	std::vector<CD3D11Texture> m_textures;
@@ -155,10 +155,7 @@ private:
 	std::map<String, RE_HANDLE> m_srvLUT;
 	std::map<String, RE_HANDLE> m_ravLUT;
 	std::map<String, RE_HANDLE> m_texLUT;
-	std::map<String, RE_HANDLE>	m_vertexShaderLUT;
-	std::map<String, RE_HANDLE> m_geometryShaderLUT;
-	std::map<String, RE_HANDLE>	m_pixelShaderLUT;
-	std::map<String, RE_HANDLE> m_computeShaderLUT;
+	std::map<String, RE_HANDLE> m_shaderLUT[SHADER_TYPE::MAX_SHADER];
 	std::map<String, RE_HANDLE> m_samplerStateLUT;
 	std::map<String, RE_HANDLE> m_rasterizerStateLUT;
 	std::map<String, RE_HANDLE> m_blendStateLUT;

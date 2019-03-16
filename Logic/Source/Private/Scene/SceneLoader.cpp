@@ -9,7 +9,7 @@
 
 #include <tchar.h>
 
-std::unique_ptr<KeyValue> CSceneLoader::LoadSceneFromFile( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& objectList, const String& fileName )
+std::unique_ptr<KeyValue> CSceneLoader::LoadSceneFromFile( CGameLogic& gameLogic, const String& fileName )
 {
 	CKeyValueReader scene;
 
@@ -17,7 +17,7 @@ std::unique_ptr<KeyValue> CSceneLoader::LoadSceneFromFile( CGameLogic& gameLogic
 
 	if ( pKeyValue )
 	{
-		SetSceneObjectProperty( gameLogic, pKeyValue.get(), objectList );
+		SetSceneObjectProperty( gameLogic, pKeyValue.get() );
 
 		return std::move( pKeyValue );
 	}
@@ -27,21 +27,16 @@ std::unique_ptr<KeyValue> CSceneLoader::LoadSceneFromFile( CGameLogic& gameLogic
 	}
 }
 
-void CSceneLoader::SetSceneObjectProperty( CGameLogic& gameLogic, KeyValue* keyValue, std::vector<std::unique_ptr<CGameObject>>& objectList )
+void CSceneLoader::SetSceneObjectProperty( CGameLogic& gameLogic, KeyValue* keyValue )
 {
 	for ( const KeyValue* object = keyValue->Find( _T( "Object" ) ); object != nullptr; object = object->GetNext( ) )
 	{
-		auto newObject = CGameObjectFactory::GetInstance( ).CreateGameObjectByClassName( object->GetValue( ) );
+		auto newObject = GetGameObjectFactory( ).CreateGameObjectByClassName( object->GetValue( ) );
 
 		if ( newObject )
 		{
 			newObject->LoadPropertyFromScript( *object );
-			objectList.emplace_back( newObject );
+			gameLogic.SpawnObject( newObject );
 		}
-	}
-
-	for ( auto object = objectList.begin(); object != objectList.end(); ++object )
-	{
-		(*object)->Initialize( gameLogic, std::distance( object, objectList.begin() ) );
 	}
 }

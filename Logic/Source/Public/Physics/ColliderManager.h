@@ -26,21 +26,13 @@ struct ColliderGroup
 	std::unique_ptr<ICollider> m_colliders[COLLIDER::COUNT];
 };
 
-class CColliderManager
+class IColladerManager
 {
 public:
-	static CColliderManager& GetInstance( )
-	{
-		static CColliderManager instance;
-		return instance;
-	}
+	virtual ICollider* GetCollider( const IMesh& mesh, COLLIDER::TYPE type ) = 0;
+	virtual Owner<ICollider*> CreateCollider( COLLIDER::TYPE type ) = 0;
 
-	ICollider* GetCollider( const IMesh& mesh, COLLIDER::TYPE type );
-	Owner<ICollider*> CreateCollider( COLLIDER::TYPE type );
-
-private:
-	Owner<ICollider*> CreateCollider( const IMesh& mesh, COLLIDER::TYPE type );
-
-	std::map<String, ColliderGroup> m_colliderList;
+	virtual ~IColladerManager( ) = default;
 };
 
+IColladerManager& GetColliderManager( );

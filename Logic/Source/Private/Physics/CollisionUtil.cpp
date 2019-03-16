@@ -9,7 +9,7 @@ namespace COLLISION_UTIL
 {
 	float IntersectWithRay( const ICollider& collider, const CRay& ray )
 	{
-		return collider.Intersect( &ray );
+		return collider.Intersect( ray );
 	}
 
 	unsigned int DetectCollisionObjectAndObject( CGameObject* lhs, RigidBody* lhsBody, CGameObject* rhs, RigidBody* rhsBody, CollisionData* data )

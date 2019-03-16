@@ -9,7 +9,7 @@
 
 #include "Util.h"
 
-void ScreenBlurManager::OnDeviceRestore( CGameLogic & gameLogic )
+void ScreenBlurManager::OnDeviceRestore( CGameLogic& gameLogic )
 {
 	CreateDeviceDependentResource( gameLogic );
 }
@@ -42,7 +42,7 @@ void ScreenBlurManager::Process( CGameLogic& gameLogic, RE_HANDLE destSRV, RE_HA
 	m_pScreenRect->Draw( gameLogic );
 }
 
-void ScreenBlurManager::AppSizeChanged( CGameLogic & gameLogic )
+void ScreenBlurManager::AppSizeChanged( CGameLogic& gameLogic )
 {
 	CreateAppSizeDependentResource( gameLogic );
 }
@@ -92,7 +92,7 @@ bool ScreenBlurManager::CreateDeviceDependentResource( CGameLogic& gameLogic )
 	return true;
 }
 
-bool ScreenBlurManager::CreateAppSizeDependentResource( CGameLogic & gameLogic )
+bool ScreenBlurManager::CreateAppSizeDependentResource( CGameLogic& gameLogic )
 {
 	IRenderer& renderer = gameLogic.GetRenderer( );
 

@@ -12,9 +12,9 @@ class KeyValue;
 class CSceneLoader
 {
 public:
-	std::unique_ptr<KeyValue> LoadSceneFromFile( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& objectList, const String& fileName );
+	std::unique_ptr<KeyValue> LoadSceneFromFile( CGameLogic& gameLogic, const String& fileName );
 
 private:
-	void SetSceneObjectProperty( CGameLogic& gameLogic, KeyValue* keyValue, std::vector<std::unique_ptr<CGameObject>>& objectList );
+	void SetSceneObjectProperty( CGameLogic& gameLogic, KeyValue* keyValue );
 };
 

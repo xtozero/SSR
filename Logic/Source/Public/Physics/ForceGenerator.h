@@ -90,6 +90,7 @@ class ForceRegistry
 public:
 	void Add( RigidBody* body, ForceGenerator* fg );
 	void Remove( RigidBody* body, ForceGenerator* fg );
+	void Remove( RigidBody* body );
 
 	void Clear( );
 

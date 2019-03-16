@@ -112,7 +112,7 @@ Owner<IMesh*> CObjMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR
 				int tex = -1;
 				int normal = -1;
 
-				FOR_EACH_VEC( face, iter )
+				for ( auto iter = face.begin( ); iter != face.end( ); ++iter )
 				{
 					int idx = _ttoi( iter->c_str( ) ) - 1;
 
@@ -186,7 +186,7 @@ Owner<IMesh*> CObjMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR
 	const std::vector<MeshVertex>& buildedVertices = BuildVertices( );
 	std::vector<WORD> buildedindices;
 	
-	FOR_EACH_VEC( buildedVertices, iter )
+	for ( auto iter = buildedVertices.begin(); iter != buildedVertices.end(); ++iter )
 	{
 		buildedindices.push_back( static_cast<WORD>( std::distance( buildedVertices.begin( ), iter ) ) );
 	}
@@ -202,14 +202,14 @@ Owner<IMesh*> CObjMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR
 
 	CObjMesh* newMesh = new CObjMesh;
 
-	FOR_EACH_VEC( m_mtlGroup, i )
+	for ( const auto& mtl : m_mtlGroup )
 	{
 		ObjSurfaceTrait trait;
 
-		trait.m_indexOffset = i->m_startIndex;
-		trait.m_indexCount = i->m_endIndex - i->m_startIndex + 1;
+		trait.m_indexOffset = mtl.m_startIndex;
+		trait.m_indexCount = mtl.m_endIndex - mtl.m_startIndex + 1;
 
-		Surface* found = FindSurface( surface, i->m_materialName );
+		Surface* found = FindSurface( surface, mtl.m_materialName );
 		if ( found == nullptr )
 		{
 			__debugbreak( );

@@ -65,7 +65,7 @@ public:
 
 	void ClearAccumulators( );
 
-	void Integrate( float duration );
+	bool Integrate( float duration );
 
 	void CalculateDerivedData( );
 

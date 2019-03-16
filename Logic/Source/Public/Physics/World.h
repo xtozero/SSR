@@ -20,6 +20,7 @@ public:
 	void RunPhysics( float duration );
 
 	void OnObjectSpawned( ObjectRelatedRigidBody* body, const BoundingSphere& volume );
+	void OnObjectRemoved( ObjectRelatedRigidBody* body );
 	void UpdateObjectMovement( ObjectRelatedRigidBody* body, const BoundingSphere& volume );
 	void DebugDrawBVH( CDebugOverlayManager& debugOverlay, unsigned int color, float duration );
 

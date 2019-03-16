@@ -474,13 +474,13 @@ void CDirect3D11::TakeSnapshot2D( const String& sourceTextureName, const String&
 
 void CDirect3D11::ClearRendertarget( RE_HANDLE renderTarget, const float (&clearColor)[4] )
 {
-	const CRenderTarget& rtv = m_resourceManager.GetRendertarget( renderTarget );
+	const CD3D11RenderTarget& rtv = m_resourceManager.GetRendertarget( renderTarget );
 	m_pd3d11DeviceContext->ClearRenderTargetView( rtv.Get(), clearColor );
 }
 
 void CDirect3D11::ClearDepthStencil( RE_HANDLE depthStencil, float depthColor, UINT8 stencilColor )
 {
-	const CDepthStencil& dsv = m_resourceManager.GetDepthstencil( depthStencil );
+	const CD3D11DepthStencil& dsv = m_resourceManager.GetDepthstencil( depthStencil );
 	m_pd3d11DeviceContext->ClearDepthStencilView( dsv.Get( ), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthColor, stencilColor );
 }
 

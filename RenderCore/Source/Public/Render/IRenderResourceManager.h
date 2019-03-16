@@ -69,4 +69,6 @@ public:
 	virtual void CopyResource( RE_HANDLE dest, const RESOURCE_REGION* destRegionOrNull, RE_HANDLE src, const RESOURCE_REGION* srcRegionOrNull ) = 0;
 
 	virtual void FreeResource( RE_HANDLE resourceHandle ) = 0;
+
+	virtual ~IResourceManager( ) = default;
 };

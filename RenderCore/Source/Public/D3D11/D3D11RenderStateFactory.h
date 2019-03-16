@@ -50,7 +50,7 @@ class CD3D11DepthStencilStateFactory
 public:
 	void LoadDesc( );
 	Owner<CD3D11DepthStencilState*> GetDepthStencilState( ID3D11Device& device, const String& stateName );
-	void AddDepthStencilDesc( const String & descName, const CD3D11DepthStencilDesc& newDesc );
+	void AddDepthStencilDesc( const String& descName, const CD3D11DepthStencilDesc& newDesc );
 
 private:
 	void LoadDepthStencilDesc( const KeyValue& keyValue );

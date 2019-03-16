@@ -18,7 +18,7 @@ void CCamera::OnDeviceRestore( CGameLogic& /*gameLogic*/ )
 	CameraChanged( );
 }
 
-void CCamera::ProcessInput( const UserInput& input )
+void CCamera::ProcessInput( const UserInput& input, CGameLogic& /*gameLogic*/ )
 {
 	switch ( input.m_code )
 	{
@@ -45,10 +45,8 @@ void CCamera::ProcessInput( const UserInput& input )
 	}
 }
 
-void CCamera::Think( )
+void CCamera::Think( float elapsedTime )
 {
-	float elapsedTime = CTimer::GetInstance( ).GetElapsedTime( );
-
 	CXMFLOAT3 force( static_cast<float>( m_inputDirection[2] - m_inputDirection[0] ),
 					0.f,
 					static_cast<float>( m_inputDirection[1] - m_inputDirection[3] ) );

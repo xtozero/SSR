@@ -12,16 +12,20 @@ class KeyValue;
 class CCamera : public IListener, public IGraphicsDeviceNotify
 {
 public:
-	virtual void OnDeviceRestore( CGameLogic& gameLogic );
+	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
 	// IListener
-	virtual void ProcessInput( const UserInput& input );
+	virtual void ProcessInput( const UserInput& input, CGameLogic& gameLogic ) override;
 
-	void Think( );
+	void Think( float elapsedTime );
 
 	const CXMFLOAT4X4& CCamera::GetViewMatrix();
 	
 	void SetOrigin( const CXMFLOAT3& origin );
 	const CXMFLOAT3& GetOrigin( ) const { return m_origin; }
+
+	const CXMFLOAT3& GetForwardVector( ) const { return m_lookVector; }
+	const CXMFLOAT3& GetRightVector( ) const { return m_rightVector; }
+	const CXMFLOAT3& GetUpVector( ) const { return m_upVector; }
 
 	void Move( const float right, const float up, const float look );
 	void Move( CXMFLOAT3 delta );

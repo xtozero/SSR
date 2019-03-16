@@ -119,6 +119,16 @@ void ForceRegistry::Remove( RigidBody* body, ForceGenerator* fg )
 	m_registrations.erase( std::remove_if( m_registrations.begin( ), m_registrations.end( ), pred ), m_registrations.end( ) );
 }
 
+void ForceRegistry::Remove( RigidBody* body )
+{
+	auto pred = [body]( const ForceRegistration& value )
+	{
+		return value.m_body == body;
+	};
+
+	m_registrations.erase( std::remove_if( m_registrations.begin( ), m_registrations.end( ), pred ), m_registrations.end( ) );
+}
+
 void ForceRegistry::Clear( )
 {
 	m_registrations.clear( );

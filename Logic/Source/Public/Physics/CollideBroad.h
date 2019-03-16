@@ -306,15 +306,19 @@ public:
 	using NodeType = BVHNode<BoundingVolumeClass, RigidBody>;
 
 	void Insert( RigidBody* body, const BoundingVolumeClass& volume );
+	void Remove( RigidBody* body );
 	BVHNode<BoundingVolumeClass, RigidBody>* Find( RigidBody* body );
 
 	BVHTreeIterater<BVHTree<BoundingVolumeClass, RigidBody>> begin( );
 	BVHTreeIterater<BVHTree<BoundingVolumeClass, RigidBody>> end( );
 
+	size_t LeafSize( ) const { return m_leafSize; }
+
 	unsigned int GetPotentialContacts( PotentialContact<RigidBody>* contacts, unsigned int limit ) const;
 
 private:
 	BVHNode<BoundingVolumeClass, RigidBody> m_root;
+	size_t m_leafSize = 0;
 };
 
 template<typename BoundingVolumeClass, typename RigidBody>
@@ -327,6 +331,18 @@ void BVHTree<BoundingVolumeClass, RigidBody>::Insert( RigidBody* body, const Bou
 	else
 	{
 		m_root.m_children[0]->Insert( body, volume );
+	}
+
+	++m_leafSize;
+}
+
+template<typename BoundingVolumeClass, typename RigidBody>
+void BVHTree<BoundingVolumeClass, RigidBody>::Remove( RigidBody* body )
+{
+	if ( auto found = Find( body ) )
+	{
+		delete found;
+		--m_leafSize;
 	}
 }
 

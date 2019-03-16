@@ -5,7 +5,7 @@
 class CSkyBox : public CGameObject
 {
 public:
-	virtual void Think( ) override;
+	virtual void Think( float elapsedTime ) override;
 
 	virtual bool IgnorePicking( ) const override { return true; }
 

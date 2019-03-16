@@ -5,8 +5,9 @@
 
 using namespace DirectX;
 
-bool CLight::Initialize( CGameLogic& /*gameLogic*/, int /*id*/ )
+bool CLight::Initialize( CGameLogic& /*gameLogic*/, int id )
 {
+	SetID( id );
 	return true;
 }
 

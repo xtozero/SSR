@@ -504,8 +504,9 @@ void CD3D11Texture::SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTexture
 	}
 }
 
-bool CD3D11Texture::Create( ID3D11Device& device, TEXTURE_TYPE type, const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
+bool CD3D11Texture::Create( ID3D11Device& device, const String& name, TEXTURE_TYPE type, const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
 {
+	SetName( name );
 	m_trait = trait;
 	m_type = type;
 	SetAppSizeDependency( ( m_trait.m_miscFlag & RESOURCE_MISC::APP_SIZE_DEPENDENT ) > 0 );
@@ -557,11 +558,13 @@ bool CD3D11Texture::Create( ID3D11Device& device, TEXTURE_TYPE type, const TEXTU
 	return SUCCEEDED( hr );
 }
 
-bool CD3D11Texture::LoadFromFile( ID3D11Device& device, const TCHAR* filePath )
+bool CD3D11Texture::LoadFromFile( ID3D11Device& device, const String& filePath )
 {
+	SetName( filePath );
+
 	HRESULT hr;
 	Microsoft::WRL::ComPtr<ID3D11Resource> resource;
-	D3DX11CreateTextureFromFile( &device, filePath, nullptr, nullptr, resource.GetAddressOf( ), &hr );
+	D3DX11CreateTextureFromFile( &device, filePath.c_str(), nullptr, nullptr, resource.GetAddressOf( ), &hr );
 
 	if ( SUCCEEDED( hr ) == false )
 	{
@@ -589,8 +592,9 @@ bool CD3D11Texture::LoadFromFile( ID3D11Device& device, const TCHAR* filePath )
 	return false;
 }
 
-bool CRenderTarget::CreateRenderTarget( ID3D11Device& device, const CD3D11Texture& texture, const TEXTURE_TRAIT* traitOrNull )
+bool CD3D11RenderTarget::CreateRenderTarget( ID3D11Device& device, const String& name, const CD3D11Texture& texture, const TEXTURE_TRAIT* traitOrNull )
 {
+	SetName( name );
 	SetAppSizeDependency( texture.IsAppSizeDependency( ) );
 
 	D3D11_RENDER_TARGET_VIEW_DESC* pRtvDesc = nullptr;
@@ -612,23 +616,24 @@ bool CRenderTarget::CreateRenderTarget( ID3D11Device& device, const CD3D11Textur
 	return SUCCEEDED( device.CreateRenderTargetView( pResource, pRtvDesc, &m_pRenderTargetView ) );
 }
 
-ID3D11RenderTargetView* CRenderTarget::Get( ) const
+ID3D11RenderTargetView* CD3D11RenderTarget::Get( ) const
 {
 	return m_pRenderTargetView.Get( );
 }
 
-void CRenderTarget::SetRenderTargetView( Microsoft::WRL::ComPtr<ID3D11RenderTargetView>& renderTargetView )
+void CD3D11RenderTarget::SetRenderTargetView( Microsoft::WRL::ComPtr<ID3D11RenderTargetView>& renderTargetView )
 {
 	m_pRenderTargetView = renderTargetView;
 }
 
-ID3D11DepthStencilView* CDepthStencil::Get( ) const
+ID3D11DepthStencilView* CD3D11DepthStencil::Get( ) const
 {
 	return m_pDepthStencilVeiw.Get( );
 }
 
-bool CDepthStencil::CreateDepthStencil( ID3D11Device& device, const CD3D11Texture& texture, const TEXTURE_TRAIT* traitOrNull )
+bool CD3D11DepthStencil::CreateDepthStencil( ID3D11Device& device, const String& name, const CD3D11Texture& texture, const TEXTURE_TRAIT* traitOrNull )
 {
+	SetName( name );
 	SetAppSizeDependency( texture.IsAppSizeDependency( ) );
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC* pDsvDesc = nullptr;
@@ -650,12 +655,12 @@ bool CDepthStencil::CreateDepthStencil( ID3D11Device& device, const CD3D11Textur
 	return SUCCEEDED( device.CreateDepthStencilView( pResource, pDsvDesc, m_pDepthStencilVeiw.GetAddressOf( ) ) );
 }
 
-void CDepthStencil::SetRenderTargetView( Microsoft::WRL::ComPtr<ID3D11DepthStencilView>& depthStencilView )
+void CD3D11DepthStencil::SetRenderTargetView( Microsoft::WRL::ComPtr<ID3D11DepthStencilView>& depthStencilView )
 {
 	m_pDepthStencilVeiw = depthStencilView;
 }
 
-void CDepthStencil::Clear( ID3D11DeviceContext& deviceContext, unsigned int clearFlag, float depth, unsigned char stencil )
+void CD3D11DepthStencil::Clear( ID3D11DeviceContext& deviceContext, unsigned int clearFlag, float depth, unsigned char stencil )
 {
 	if ( m_pDepthStencilVeiw )
 	{
@@ -665,6 +670,8 @@ void CDepthStencil::Clear( ID3D11DeviceContext& deviceContext, unsigned int clea
 
 bool CD3D11ShaderResource::CreateShaderResourceFromFile( ID3D11Device& device, const String& fileName )
 {
+	SetName( fileName );
+
 	HRESULT hr;
 	D3DX11CreateShaderResourceViewFromFile( &device, fileName.c_str( ), nullptr, nullptr, &m_pShaderResourceView, &hr );
 
@@ -676,8 +683,9 @@ bool CD3D11ShaderResource::CreateShaderResourceFromFile( ID3D11Device& device, c
 	return false;
 }
 
-bool CD3D11ShaderResource::CreateShaderResource( ID3D11Device& device, const CD3D11Texture& texture, const TEXTURE_TRAIT* traitOrNull )
+bool CD3D11ShaderResource::CreateShaderResource( ID3D11Device& device, const String& name, const CD3D11Texture& texture, const TEXTURE_TRAIT* traitOrNull )
 {
+	SetName( name );
 	SetAppSizeDependency( texture.IsAppSizeDependency( ) );
 
 	const D3D11_SHADER_RESOURCE_VIEW_DESC* pDesc = nullptr;
@@ -698,8 +706,10 @@ bool CD3D11ShaderResource::CreateShaderResource( ID3D11Device& device, const CD3
 	return false;
 }
 
-bool CD3D11ShaderResource::CreateShaderResource( ID3D11Device& device, const CD3D11Buffer& buffer, const BUFFER_TRAIT* traitOrNull )
+bool CD3D11ShaderResource::CreateShaderResource( ID3D11Device& device, const String& name, const CD3D11Buffer& buffer, const BUFFER_TRAIT* traitOrNull )
 {
+	SetName( name );
+
 	const D3D11_SHADER_RESOURCE_VIEW_DESC* pDesc = nullptr;
 	D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
 
@@ -716,8 +726,9 @@ bool CD3D11ShaderResource::CreateShaderResource( ID3D11Device& device, const CD3
 	return false;
 }
 
-bool CD3D11RandomAccessResource::CreateRandomAccessResource( ID3D11Device& device, const CD3D11Texture& texture, const TEXTURE_TRAIT* traitOrNull )
+bool CD3D11RandomAccessResource::CreateRandomAccessResource( ID3D11Device& device, const String& name, const CD3D11Texture& texture, const TEXTURE_TRAIT* traitOrNull )
 {
+	SetName( name );
 	SetAppSizeDependency( texture.IsAppSizeDependency( ) );
 
 	const D3D11_UNORDERED_ACCESS_VIEW_DESC* pDesc = nullptr;
@@ -739,8 +750,10 @@ bool CD3D11RandomAccessResource::CreateRandomAccessResource( ID3D11Device& devic
 	return false;
 }
 
-bool CD3D11RandomAccessResource::CreateRandomAccessResource( ID3D11Device& device, const CD3D11Buffer& buffer, const BUFFER_TRAIT* traitOrNull )
+bool CD3D11RandomAccessResource::CreateRandomAccessResource( ID3D11Device& device, const String& name, const CD3D11Buffer& buffer, const BUFFER_TRAIT* traitOrNull )
 {
+	SetName( name );
+
 	const D3D11_UNORDERED_ACCESS_VIEW_DESC* pDesc = nullptr;
 	D3D11_UNORDERED_ACCESS_VIEW_DESC uav = {};
 
@@ -758,8 +771,10 @@ bool CD3D11RandomAccessResource::CreateRandomAccessResource( ID3D11Device& devic
 	return false;
 }
 
-bool CD3D11VertexShader::CreateShader( ID3D11Device& device, const void* byteCodePtr, const size_t byteCodeSize, const D3D11_INPUT_ELEMENT_DESC* layout, int numLayout )
+bool CD3D11VertexShader::CreateShader( ID3D11Device& device, const String& name, const void* byteCodePtr, const size_t byteCodeSize, const D3D11_INPUT_ELEMENT_DESC* layout, int numLayout )
 {
+	SetName( name );
+
 	const D3D11_INPUT_ELEMENT_DESC* pLayout = layout;
 
 	constexpr int MAX_LAYOUT_COUNT = 16;
@@ -886,17 +901,20 @@ bool CD3D11VertexShader::CreateShader( ID3D11Device& device, const void* byteCod
 	return result;
 }
 
-bool CD3D11GeometryShader::CreateShader( ID3D11Device& device, const void* byteCodePtr, size_t byteCodeSize )
+bool CD3D11GeometryShader::CreateShader( ID3D11Device& device, const String& name, const void* byteCodePtr, size_t byteCodeSize )
 {
+	SetName( name );
 	return SUCCEEDED( device.CreateGeometryShader( byteCodePtr, byteCodeSize, nullptr, &m_pGeometryShader ) );
 }
 
-bool CD3D11PixelShader::CreateShader( ID3D11Device& device, const void* byteCodePtr, size_t byteCodeSize )
+bool CD3D11PixelShader::CreateShader( ID3D11Device& device, const String& name, const void* byteCodePtr, size_t byteCodeSize )
 {
+	SetName( name );
 	return SUCCEEDED( device.CreatePixelShader( byteCodePtr, byteCodeSize, nullptr, &m_pPixelShader ) );
 }
 
-bool CD3D11ComputeShader::CreateShader( ID3D11Device& device, const void* byteCodePtr, size_t byteCodeSize )
+bool CD3D11ComputeShader::CreateShader( ID3D11Device& device, const String& name, const void* byteCodePtr, size_t byteCodeSize )
 {
+	SetName( name );
 	return SUCCEEDED( device.CreateComputeShader( byteCodePtr, byteCodeSize, nullptr, &m_pComputeShader ) );
 }

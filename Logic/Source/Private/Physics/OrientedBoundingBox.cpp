@@ -5,6 +5,7 @@
 #include "Model/CommonMeshDefine.h"
 #include "Model/IMesh.h"
 #include "Physics/Aaboundingbox.h"
+#include "Physics/CollideNarrow.h"
 #include "Physics/Frustum.h"
 #include "Physics/Ray.h"
 #include "Scene/DebugOverlayManager.h"
@@ -57,7 +58,8 @@ void COrientedBoundingBox::Update( const CXMFLOAT3& scaling, const CXMFLOAT4& ro
 	}
 
 	m_matTransform = XMMatrixAffineTransformation( g_XMOne3, g_XMZero, rotation, translation );
-	
+	m_matInvTransform = XMMatrixInverse( nullptr, m_matTransform );
+
 	for ( int i = 0; i < 3; ++i )
 	{
 		m_halfSize[i] = orig->m_halfSize[i] * scaling[i];
@@ -68,9 +70,12 @@ void COrientedBoundingBox::CalcSubMeshBounds( std::vector<std::unique_ptr<IColli
 {
 }
 
-float COrientedBoundingBox::Intersect( const CRay* ray ) const
+float COrientedBoundingBox::Intersect( const CRay& ray ) const
 {
-	return 0.0f;
+	CXMFLOAT3 rayOrigin = XMVector3TransformCoord( ray.GetOrigin(), m_matInvTransform );
+	CXMFLOAT3 rayDir = XMVector3TransformNormal( ray.GetDir( ), m_matInvTransform );
+
+	return RayAndBox( rayOrigin, rayDir, m_halfSize, -m_halfSize );
 }
 
 int COrientedBoundingBox::Intersect( const CFrustum& frustum ) const
@@ -78,9 +83,9 @@ int COrientedBoundingBox::Intersect( const CFrustum& frustum ) const
 	return 0;
 }
 
-void COrientedBoundingBox::DrawDebugOverlay( CDebugOverlayManager& debugOverlay, unsigned int color ) const
+void COrientedBoundingBox::DrawDebugOverlay( CDebugOverlayManager& debugOverlay, unsigned int color, float duration ) const
 {
-	debugOverlay.AddDebugCube( m_halfSize, m_matTransform, color, CTimer::GetInstance( ).GetElapsedTime( ) );
+	debugOverlay.AddDebugCube( m_halfSize, m_matTransform, color, duration );
 }
 
 CXMFLOAT3 COrientedBoundingBox::GetAxisVector( int i ) const
@@ -98,7 +103,9 @@ COrientedBoundingBox::COrientedBoundingBox( const CAaboundingbox& box )
 		1.f, 0.f, 0.f, 0.f,
 		0.f, 1.f, 0.f, 0.f,
 		0.f, 0.f, 1.f, 0.f,
-		centre.x, centre.y, centre.z, 0.f );
+		centre.x, centre.y, centre.z, 1.f );
+
+	m_matInvTransform = XMMatrixInverse( nullptr, m_matTransform );
 }
 
 float CalcPenetrationOnAxis( const COrientedBoundingBox& lhs, const COrientedBoundingBox& rhs, const CXMFLOAT3& axis, const CXMFLOAT3& toCentre )

@@ -32,10 +32,20 @@ namespace
 	}
 }
 
-bool CLightManager::Initialize( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& objectList )
+bool CLightManager::Initialize( CGameLogic& gameLogic )
 {
 	IRenderer& renderer = gameLogic.GetRenderer( );
 
+	if ( CreateOrenNayarLUTAndBind( renderer ) == false )
+	{
+		return false;
+	}
+
+	return CreateDeviceDependentResource( renderer );
+}
+
+void CLightManager::SpawnLights( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& objectList )
+{
 	// 속성과 클래스를 연결
 	for ( int i = 0; i < MAX_LIGHTS; ++i )
 	{
@@ -50,13 +60,6 @@ bool CLightManager::Initialize( CGameLogic& gameLogic, std::vector<std::unique_p
 	}
 
 	LoadPropertyFromScript( );
-
-	if ( CreateOrenNayarLUTAndBind( renderer ) == false )
-	{
-		return false;
-	}
-
-	return CreateDeviceDependentResource( renderer );
 }
 
 void CLightManager::UpdateToRenderer( IRenderer& renderer, const CCamera& camera )
@@ -96,7 +99,7 @@ void CLightManager::SetGlobalAmbient( const CXMFLOAT4& globalAmbient )
 	}
 }
 
-void CLightManager::PushLightTrait( const LightTrait & trait )
+void CLightManager::PushLightTrait( const LightTrait& trait )
 {
 	int idx = m_shaderLightProperty.m_curLights;
 	::memcpy( &m_shaderLightProperty.m_properties[idx], &trait, sizeof( trait ) );
@@ -219,7 +222,7 @@ void CLightManager::LoadLightProperty( const KeyValue& keyValue )
 	}
 }
 
-bool CLightManager::CreateOrenNayarLUTAndBind( IRenderer & renderer )
+bool CLightManager::CreateOrenNayarLUTAndBind( IRenderer& renderer )
 {
 	constexpr UINT lookupSize = 512;
 

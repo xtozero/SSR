@@ -9,7 +9,7 @@ class CDisplayShaderResourceHelper : public CGameObject
 public:
 	virtual void SetPosition( const CXMFLOAT3& pos ) override;
 	virtual void Render( CGameLogic& gameLogic ) override;
-	virtual void Think( ) override;
+	virtual void Think( float elapsedTime ) override;
 
 	virtual void LoadPropertyFromScript( const KeyValue& pKeyValue ) override;
 

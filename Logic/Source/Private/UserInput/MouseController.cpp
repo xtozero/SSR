@@ -6,11 +6,11 @@
 #include "UserInput/UserInput.h"
 #include "Util.h"
 
-void CUserInputBroadCaster::ProcessInput( const UserInput& input )
+void CUserInputBroadCaster::ProcessInput( const UserInput& input, CGameLogic& gameLogic )
 {
 	for ( const auto& listener : m_listeners )
 	{
-		listener->ProcessInput( input );
+		listener->ProcessInput( input, gameLogic );
 	}
 }
 

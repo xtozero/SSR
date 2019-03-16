@@ -9,62 +9,76 @@
 
 #include <memory>
 
-ICollider* CColliderManager::GetCollider( const IMesh& mesh, COLLIDER::TYPE type )
+class CColliderManager : public IColladerManager
 {
-	if ( type < 0 || type >= COLLIDER::COUNT )
+public:
+	virtual ICollider* GetCollider( const IMesh& mesh, COLLIDER::TYPE type ) override
 	{
+		ICollider* newCollider = CreateCollider( type );
+
+		if ( newCollider )
+		{
+			newCollider->CalcMeshBounds( mesh );
+		}
+
+		return newCollider;
+	}
+
+	virtual Owner<ICollider*> CreateCollider( COLLIDER::TYPE type ) override
+	{
+		switch ( type )
+		{
+		case COLLIDER::SPHERE:
+			return new BoundingSphere;
+			break;
+		case COLLIDER::AABB:
+			return new CAaboundingbox;
+			break;
+		case COLLIDER::OBB:
+			return new COrientedBoundingBox;
+			break;
+		default:
+			break;
+		}
+
 		return nullptr;
 	}
+	
 
-	const TCHAR* meshName = mesh.GetName( );
-	auto found = m_colliderList.find( meshName );
-
-	if ( found == m_colliderList.end( ) )
+private:
+	Owner<ICollider*> CreateCollider( const IMesh& mesh, COLLIDER::TYPE type )
 	{
-		ColliderGroup newColliderGroup;
-		m_colliderList.emplace( meshName, std::move( newColliderGroup ) );
+		if ( type < 0 || type >= COLLIDER::COUNT )
+		{
+			return nullptr;
+		}
+
+		const TCHAR* meshName = mesh.GetName( );
+		auto found = m_colliderList.find( meshName );
+
+		if ( found == m_colliderList.end( ) )
+		{
+			ColliderGroup newColliderGroup;
+			m_colliderList.emplace( meshName, std::move( newColliderGroup ) );
+		}
+
+		ColliderGroup& colliderGroup = m_colliderList[meshName];
+
+		int colliderType = static_cast<int>( type );
+
+		if ( colliderGroup.m_colliders[colliderType].get( ) == nullptr )
+		{
+			colliderGroup.m_colliders[colliderType].reset( CreateCollider( mesh, type ) );
+		}
+
+		return colliderGroup.m_colliders[colliderType].get( );
 	}
 
-	ColliderGroup& colliderGroup = m_colliderList[meshName];
+	std::map<String, ColliderGroup> m_colliderList;
+};
 
-	int colliderType = static_cast<int>( type );
-
-	if ( colliderGroup.m_colliders[colliderType].get( ) == nullptr )
-	{
-		colliderGroup.m_colliders[colliderType].reset( CreateCollider( mesh, type ) );
-	}
-
-	return colliderGroup.m_colliders[colliderType].get();
-}
-
-Owner<ICollider*> CColliderManager::CreateCollider( const IMesh& mesh, COLLIDER::TYPE type )
+IColladerManager& GetColliderManager( )
 {
-	ICollider* newCollider = CreateCollider( type );
-
-	if ( newCollider )
-	{
-		newCollider->CalcMeshBounds( mesh );
-	}
-
-	return newCollider;
-}
-
-Owner<ICollider*> CColliderManager::CreateCollider( COLLIDER::TYPE type )
-{
-	switch ( type )
-	{
-	case COLLIDER::SPHERE:
-		return new BoundingSphere;
-		break;
-	case COLLIDER::AABB:
-		return new CAaboundingbox;
-		break;
-	case COLLIDER::OBB:
-		return new COrientedBoundingBox;
-		break;
-	default:
-		break;
-	}
-
-	return nullptr;
+	static CColliderManager colliderManager;
+	return colliderManager;
 }

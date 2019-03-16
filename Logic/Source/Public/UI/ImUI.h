@@ -364,7 +364,7 @@ public:
 	void SetDefaultText( const std::string& fontName, const CTextAtlas& textAtlas );
 	void StyleColorDark( );
 	
-	void BeginFrame( const Rect& clientRect );
+	void BeginFrame( const Rect& clientRect, float elapsedTime, float totalTime );
 	void EndFrame( );
 	bool Window( const char* name, ImUiWindowFlags::Type flags = ImUiWindowFlags::None );
 	void EndWindow( );

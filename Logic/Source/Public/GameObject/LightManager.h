@@ -32,7 +32,9 @@ class CLightManager : IGraphicsDeviceNotify
 public:
 	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
 
-	bool Initialize( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& objectList );
+	bool Initialize( CGameLogic& gameLogic );
+	void SpawnLights( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& objectList );
+
 	void UpdateToRenderer( IRenderer& renderer, const CCamera& camera );
 
 	void SetCameraPosition( const CXMFLOAT3& cameraPos );

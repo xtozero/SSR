@@ -40,7 +40,7 @@ void CD3D11RenderStateManager::SetVertexShader( ID3D11VertexShader* pVertexSahde
 	}
 }
 
-void CD3D11RenderStateManager::SetGeometryShader( ID3D11GeometryShader * pGeometryShader, ID3D11ClassInstance * const * ppClassInstance, UINT NumClassInstances )
+void CD3D11RenderStateManager::SetGeometryShader( ID3D11GeometryShader* pGeometryShader, ID3D11ClassInstance* const* ppClassInstance, UINT NumClassInstances )
 {
 	if ( m_pCurGS != pGeometryShader )
 	{
@@ -82,7 +82,7 @@ void CD3D11RenderStateManager::SetVsShaderResource( UINT StartSlot, UINT NumView
 	}
 }
 
-void CD3D11RenderStateManager::SetPsShaderResource( UINT StartSlot, UINT NumViews, ID3D11ShaderResourceView * const * ppShaderResourceViews )
+void CD3D11RenderStateManager::SetPsShaderResource( UINT StartSlot, UINT NumViews, ID3D11ShaderResourceView* const* ppShaderResourceViews )
 {
 	int diffCount = 0;
 	for ( int i = 0, slot = StartSlot, end = StartSlot + NumViews; slot < end; ++i, ++slot )
@@ -267,7 +267,7 @@ void CD3D11RenderStateManager::SetCsSamplers( UINT StartSlot, UINT NumSamplers, 
 	}
 }
 
-void CD3D11RenderStateManager::SetRasterizerState( ID3D11RasterizerState * pRasterizerState )
+void CD3D11RenderStateManager::SetRasterizerState( ID3D11RasterizerState* pRasterizerState )
 {
 	if ( m_pCurRasterizerState != pRasterizerState )
 	{

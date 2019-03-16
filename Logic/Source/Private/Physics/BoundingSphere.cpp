@@ -5,6 +5,7 @@
 #include "Model/CommonMeshDefine.h"
 #include "Model/IMesh.h"
 #include "Physics/Aaboundingbox.h"
+#include "Physics/CollideNarrow.h"
 #include "Physics/Frustum.h"
 #include "Physics/OrientedBoundingBox.h"
 #include "Physics/Ray.h"
@@ -71,23 +72,9 @@ void BoundingSphere::Update( const CXMFLOAT3& scaling, const CXMFLOAT4& /*rotati
 	m_radius = orig->GetRadius() * maxScaling;
 }
 
-float BoundingSphere::Intersect( const CRay* ray ) const
+float BoundingSphere::Intersect( const CRay& ray ) const
 {
-	XMVECTOR toShpere = m_origin - ray->GetOrigin( );
-
-	float toShpereSqr = XMVectorGetX( XMVector3LengthSq( toShpere ) );
-	float tangentSqr = XMVectorGetX( XMVector3Dot( toShpere, ray->GetDir( ) ) );
-	tangentSqr *= tangentSqr;
-
-	float normalVectorSqr = toShpereSqr - tangentSqr;
-
-	float radiusSqr = m_radius * m_radius;
-	if ( normalVectorSqr > radiusSqr )
-	{
-		return -1;
-	}
-
-	return max( 0.f, sqrtf( tangentSqr ) - sqrtf( radiusSqr - normalVectorSqr ) );
+	return RayAndSphere( ray.GetOrigin( ), ray.GetDir( ), m_origin, m_radius );
 }
 
 int BoundingSphere::Intersect( const CFrustum& frustum ) const
@@ -102,9 +89,9 @@ int BoundingSphere::Intersect( const CFrustum& frustum ) const
 	return inside;
 }
 
-void BoundingSphere::DrawDebugOverlay( CDebugOverlayManager& debugOverlay, unsigned int color ) const
+void BoundingSphere::DrawDebugOverlay( CDebugOverlayManager& debugOverlay, unsigned int color, float duration ) const
 {
-	debugOverlay.AddDebugSphere( m_origin, m_radius, color, CTimer::GetInstance( ).GetElapsedTime( ) );
+	debugOverlay.AddDebugSphere( m_origin, m_radius, color, duration );
 }
 
 int BoundingSphere::Intersect( const BoundingSphere& sphere ) const

@@ -9,16 +9,16 @@ bool CObjMesh::Load( IRenderer& renderer, UINT primitive )
 {
 	bool loadSuccess = BaseMesh::Load( renderer, primitive );
 
-	FOR_EACH_VEC( m_mtlGroup, i )
+	for ( auto& mtl : m_mtlGroup )
 	{
-		const String& textureName = i->m_pSurface->m_diffuseTexName;
+		const String& textureName = mtl.m_pSurface->m_diffuseTexName;
 		if ( textureName.size() > 0 )
 		{
 			auto texture = renderer.CreateShaderResourceFromFile( textureName );
 
 			if ( texture )
 			{
-				i->m_texture = texture;
+				mtl.m_texture = texture;
 			}
 			else
 			{
@@ -60,20 +60,20 @@ void CObjMesh::Draw( CGameLogic& gameLogic )
 		}
 		else
 		{
-			FOR_EACH_VEC( m_mtlGroup, i )
+			for ( const auto& mtl : m_mtlGroup )
 			{
-				renderer.BindShaderResource( SHADER_TYPE::PS, 0, 1, &i->m_texture );
+				renderer.BindShaderResource( SHADER_TYPE::PS, 0, 1, &mtl.m_texture );
 				RE_HANDLE constantBuffer = gameLogic.GetCommonConstantBuffer( SHARED_CONSTANT_BUFFER::PS_SURFACE );
 				SurfaceTrait* surface = static_cast<SurfaceTrait*>( renderer.LockBuffer( constantBuffer ) );
 
 				if ( surface )
 				{
-					memcpy_s( surface, sizeof( SurfaceTrait ), &i->m_pSurface->m_trait, sizeof( SurfaceTrait ) );
+					memcpy_s( surface, sizeof( SurfaceTrait ), &mtl.m_pSurface->m_trait, sizeof( SurfaceTrait ) );
 				}
 
 				renderer.UnLockBuffer( constantBuffer );
 				renderer.BindConstantBuffer( SHADER_TYPE::PS, PS_CONSTANT_BUFFER::SURFACE, 1, &constantBuffer );
-				gameLogic.GetRenderer( ).DrawIndexed( m_primitiveTopology, i->m_indexCount, i->m_indexOffset, m_offset );
+				gameLogic.GetRenderer( ).DrawIndexed( m_primitiveTopology, mtl.m_indexCount, mtl.m_indexOffset, m_offset );
 			}
 		}
 	}

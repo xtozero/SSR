@@ -16,7 +16,7 @@ namespace
 	constexpr float SKYBOX_LENGTH = 10.f;
 }
 
-void CSkyBox::Think( )
+void CSkyBox::Think( float /*elapsedTime*/ )
 {
 	CCamera* pCurCamera = CCameraManager::GetInstance( ).GetCurrentCamera( );
 

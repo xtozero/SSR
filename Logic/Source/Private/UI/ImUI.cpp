@@ -261,7 +261,7 @@ void ImUI::StyleColorDark( )
 	colors[ImUiColor::HeaderActive] = CXMFLOAT4( 0.26f, 0.59f, 0.98f, 1.00f );
 }
 
-void ImUI::BeginFrame( const Rect& clientRect )
+void ImUI::BeginFrame( const Rect& clientRect, float elapsedTime, float totalTime )
 {
 	using namespace DirectX;
 
@@ -276,11 +276,11 @@ void ImUI::BeginFrame( const Rect& clientRect )
 	{
 		m_io.m_mouseClicked[i] = m_io.m_mouseDown[i] && m_io.m_mouseDownDuration[i] < 0.f;
 		m_io.m_mouseDownDurationPrev[i] = m_io.m_mouseDownDuration[i];
-		m_io.m_mouseDownDuration[i] = m_io.m_mouseDown[i] ? ( m_io.m_mouseDownDuration[i] < 0.f ? 0.f : m_io.m_mouseDownDuration[i] + CTimer::GetInstance( ).GetElapsedTime( ) ) : -1.f;
+		m_io.m_mouseDownDuration[i] = m_io.m_mouseDown[i] ? ( m_io.m_mouseDownDuration[i] < 0.f ? 0.f : m_io.m_mouseDownDuration[i] + elapsedTime ) : -1.f;
 		m_io.m_mouseDoubleClick[i] = false;
 		if ( m_io.m_mouseClicked[i] )
 		{
-			if ( CTimer::GetInstance().GetTotalTime() - m_io.m_mouseClickedTime[i] < m_io.m_mouseDoubleDownTime )
+			if ( totalTime - m_io.m_mouseClickedTime[i] < m_io.m_mouseDoubleDownTime )
 			{
 				if ( XMVectorGetX( XMVector2LengthSq( m_io.m_mousePos - m_io.m_mouseClickedPos[i] ) ) < m_io.m_mouseDoubleDownMaxDist * m_io.m_mouseDoubleDownMaxDist )
 				{
@@ -290,7 +290,7 @@ void ImUI::BeginFrame( const Rect& clientRect )
 			}
 			else
 			{
-				m_io.m_mouseClickedTime[i] = CTimer::GetInstance( ).GetTotalTime( );
+				m_io.m_mouseClickedTime[i] = totalTime;
 			}
 			m_io.m_mouseClickedPos[i] = m_io.m_mousePos;
 		}
@@ -796,7 +796,7 @@ bool ImUI::Combo( const char* label, int* currentItem, const char* const items[]
 	return valueChanged;
 }
 
-bool ImUI::Combo( const char* label, int* currentItem, bool( *itemsGettter )( void *data, int idx, const char **outText ), void * data, int itemCount, int heightInItem )
+bool ImUI::Combo( const char* label, int* currentItem, bool( *itemsGettter )( void* data, int idx, const char **outText ), void* data, int itemCount, int heightInItem )
 {
 	const char* prevText = nullptr;
 	if ( *currentItem >= 0 && *currentItem < itemCount )
@@ -1459,7 +1459,7 @@ void ImUI::SetMouseOveredID( ImGUID id )
 	m_mouseOveredID = id;
 }
 
-void ImUI::SetCurrentWindow( ImUiWindow * window )
+void ImUI::SetCurrentWindow( ImUiWindow* window )
 {
 	m_curWindow = window;
 }
@@ -1575,7 +1575,7 @@ void ImUI::LoadSettingFromMemory( const char* buf, int count )
 	delete[] duplicatedBuf;
 }
 
-ImUiSettingHandler * ImUI::FindSettingHandler( const char* typeName )
+ImUiSettingHandler* ImUI::FindSettingHandler( const char* typeName )
 {
 	auto found = m_settingHandler.find( typeName );
 	if ( found != m_settingHandler.end( ) )
@@ -1831,7 +1831,7 @@ void ImUI::SetNextWindowPos( const CXMFLOAT2& pos, ImUiCond::Type cond, const CX
 	m_nextWindowData.m_posCond = cond ? cond : ImUiCond::Always;
 }
 
-void ImUI::SetNextWindowConstraintSize( const Rect& constraintSize, ImUiSizeCallBack callback, void * callbackData )
+void ImUI::SetNextWindowConstraintSize( const Rect& constraintSize, ImUiSizeCallBack callback, void* callbackData )
 {
 	m_nextWindowData.m_constraintSizeCond = ImUiCond::Always;
 	m_nextWindowData.m_constraintSizeRect = constraintSize;

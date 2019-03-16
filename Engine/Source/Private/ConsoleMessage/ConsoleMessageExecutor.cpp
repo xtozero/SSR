@@ -3,76 +3,106 @@
 
 #include "Util.h"
 
-IConsoleMessageExecutor* GetConsoleMessageExecutor( )
+class ConsoleMessageExecutor : public IConsoleMessageExecutor
 {
-	return ConsoleMessageExecutor::GetInstance( );
-}
-
-void ConsoleMessageExecutor::RegistConsoleMessage( const String& name, IConsoleMessage* consoleMessage )
-{
-	m_consoleMessages.emplace( name, consoleMessage );
-}
-
-void ConsoleMessageExecutor::UnRegistConsoleMessage( const String& name )
-{
-	auto found = m_consoleMessages.find( name );
-
-	if ( found != m_consoleMessages.end( ) )
+public:
+	virtual void RegistConsoleMessage( const String& name, IConsoleMessage* consoleMessage ) override
 	{
-		m_consoleMessages.erase( found );
-	}
-}
-
-void ConsoleMessageExecutor::Execute( const String& cmdString )
-{
-	TokenizingCmdString( cmdString );
-
-	if ( m_argC == 0 )
-	{
-		return;
+		m_consoleMessages.emplace( name, consoleMessage );
 	}
 
-	auto found = m_consoleMessages.find( m_argV[0] );
-
-	if ( found != m_consoleMessages.end( ) )
+	virtual void UnRegistConsoleMessage( const String& name ) override
 	{
-		if ( found->second == nullptr )
+		auto found = m_consoleMessages.find( name );
+
+		if ( found != m_consoleMessages.end( ) )
+		{
+			m_consoleMessages.erase( found );
+		}
+	}
+
+	virtual void AppendCommand( String&& command ) override
+	{
+		std::lock_guard<std::mutex> lock( m_commandStackMutex );
+		m_commandStack.push( command );
+	}
+
+	virtual void Execute( ) override
+	{
+		if ( m_commandStack.size( ) == 0 )
 		{
 			return;
 		}
 
-		found->second->Execute( );
-	}
-}
+		String cmdString;
+		{
+			std::lock_guard<std::mutex> lock( m_commandStackMutex );
+			cmdString = std::move( m_commandStack.top( ) );
+			m_commandStack.pop( );
+		}
 
-void ConsoleMessageExecutor::PrintConsoleMessages( )
-{
-	FOR_EACH_MAP( m_consoleMessages, i )
-	{
-		if ( i->second == nullptr )
+		TokenizingCmdString( cmdString );
+
+		if ( m_argC == 0 )
 		{
 			return;
 		}
-		
-		DebugMsg( "%s - %s\n", i->first.c_str( ), i->second->GetDescription( ).c_str( ) );
+
+		auto found = m_consoleMessages.find( m_argV[0] );
+
+		if ( found != m_consoleMessages.end( ) )
+		{
+			if ( found->second == nullptr )
+			{
+				return;
+			}
+
+			found->second->Execute( );
+		}
 	}
-}
 
-ConsoleMessageExecutor::ConsoleMessageExecutor( ) :
-m_argC( 0 )
-{
-}
+	void PrintConsoleMessages( )
+	{
+		for( const auto& message : m_consoleMessages )
+		{
+			if ( message.second == nullptr )
+			{
+				return;
+			}
 
-void ConsoleMessageExecutor::TokenizingCmdString( const String& cmdString )
+			DebugMsg( "%s - %s\n", message.first.c_str( ), message.second->GetDescription( ).c_str( ) );
+		}
+	}
+
+	virtual const std::vector<String>& ArgV( ) const override { return m_argV; }
+	virtual int ArgC( ) const override { return m_argC; }
+
+private:
+	void TokenizingCmdString( const String& cmdString )
+	{
+		m_argV.clear( );
+		UTIL::Split( cmdString, m_argV, _T( ' ' ) );
+		m_argC = m_argV.size( );
+	}
+
+	std::map<String, IConsoleMessage*> m_consoleMessages;
+
+	std::vector<String> m_argV;
+	int m_argC = 0;
+
+	std::stack<String> m_commandStack;
+	std::mutex m_commandStackMutex;
+};
+
+IConsoleMessageExecutor& GetConsoleMessageExecutor( )
 {
-	m_argV.clear( );
-	UTIL::Split( cmdString, m_argV, _T( ' ' ) );
-	m_argC = m_argV.size( );
+	static ConsoleMessageExecutor g_consoleMessageExecutor;
+	return g_consoleMessageExecutor;
 }
 
 CON_COMMAND( list, "List of Registed Console Messages" )
 {
-	ConsoleMessageExecutor::GetInstance( )->PrintConsoleMessages( );
+	static_cast<ConsoleMessageExecutor&>( GetConsoleMessageExecutor( ) ).PrintConsoleMessages( );
 }
 
 CON_COMMAND( exit, "Terminate Process" )

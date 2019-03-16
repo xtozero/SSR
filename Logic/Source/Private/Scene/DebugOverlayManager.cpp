@@ -254,7 +254,7 @@ void CDebugOverlayManager::AddDebugSolidCube( const CXMFLOAT3& min, const CXMFLO
 	AddDebugTriangle( a, c, b, color, life );
 }
 
-void CDebugOverlayManager::AddDebugSphere( const CXMFLOAT3 & center, float radius, unsigned int color, float life )
+void CDebugOverlayManager::AddDebugSphere( const CXMFLOAT3& center, float radius, unsigned int color, float life )
 {
 	static const int COLS = 36;
 	static const int ROWS = COLS >> 1;

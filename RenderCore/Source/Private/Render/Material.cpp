@@ -69,7 +69,7 @@ bool CMaterial::SetRasterizerState( IRenderer& renderer, const String& rsStateNa
 	return ( m_hRasterizerState != RE_HANDLE_TYPE::INVALID_HANDLE ) ? true : false;
 }
 
-bool CMaterial::SetBlendState( IRenderer & renderer, const String& blendStateName )
+bool CMaterial::SetBlendState( IRenderer& renderer, const String& blendStateName )
 {
 	m_hBlendState = renderer.CreateBlendState( blendStateName );
 	return ( m_hBlendState != RE_HANDLE_TYPE::INVALID_HANDLE ) ? true : false;

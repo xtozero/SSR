@@ -122,12 +122,6 @@ namespace UTIL
 #define DebugWarning( x, ... ) __noop
 #endif
 
-#define FOR_EACH_VEC( x, i ) \
-for ( auto i = x.begin( ); i != x.end( ); ++i )
-
-#define FOR_EACH_MAP( x, i ) \
-for ( auto i = x.begin( ); i != x.end( ); ++i )
-
 #ifdef _DEBUG
 #define KEYVALUE_VALUE_ASSERT( value, count ) UTIL::KeyValueAssert( value, count )
 #else

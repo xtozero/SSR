@@ -41,7 +41,15 @@ set (GAME_OBJECT_SOURCE
 	"Source/Public/GameObject/PickingManager.h"
 	"Source/Public/GameObject/SkyBox.h")
 	
-set ( MODEL_SOURCE
+set (PLAYER_OBJECT_SOURCE
+	"Source/Private/GameObject/Player.cpp"
+	"Source/Public/GameObject/Player.h")
+	
+set (TEST_SCENE_OBJECT_SOURCE
+	"Source/Private/GameObject/BallProjectile.cpp"
+	"Source/Public/GameObject/BallProjectile.h")
+	
+set (MODEL_SOURCE
 	"Source/Private/Model/BaseMesh.cpp"
 	"Source/Private/Model/DebugMesh.cpp"
 	"Source/Private/Model/ModelBuilder.cpp"
@@ -137,6 +145,8 @@ set (USER_INPUT_SOURCE
 	"Source/Public/UserInput/MouseController.h")
 	
 source_group("GameObject" FILES ${GAME_OBJECT_SOURCE})
+source_group("GameObject\\Player" FILES ${PLAYER_OBJECT_SOURCE})
+source_group("GameObject\\TestScene" FILES ${TEST_SCENE_OBJECT_SOURCE})
 source_group("Model" FILES ${MODEL_SOURCE})
 source_group("Physics" FILES ${PHYSICS_SOURCE})
 source_group("Render" FILES ${SCENE_SOURCE})
@@ -155,6 +165,8 @@ link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../lib)
 add_library(Logic SHARED 	${PRECOMPILED}
 							${CORE_SOURCE}
 							${GAME_OBJECT_SOURCE}
+							${PLAYER_OBJECT_SOURCE}
+							${TEST_SCENE_OBJECT_SOURCE}
 							${MODEL_SOURCE}
 							${PHYSICS_SOURCE}
 							${SCENE_SOURCE}

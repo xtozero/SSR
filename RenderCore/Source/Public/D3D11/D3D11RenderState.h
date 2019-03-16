@@ -64,7 +64,7 @@ class CD3D11SamplerState
 public:
 	ID3D11SamplerState* Get( ) const { return m_pSamplerState.Get( ); }
 
-	bool Create( ID3D11Device& device, const D3D11_SAMPLER_DESC & samplerDesc )
+	bool Create( ID3D11Device& device, const D3D11_SAMPLER_DESC& samplerDesc )
 	{
 		return SUCCEEDED( device.CreateSamplerState( &samplerDesc, &m_pSamplerState ) );
 	}

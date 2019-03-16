@@ -14,6 +14,8 @@ public:
 		return static_cast<RT>( GetRawHandleImple() );
 	}
 
+	virtual ~IPlatform( ) = default;
+
 private:
 	virtual void* GetRawHandleImple( ) const noexcept = 0;
 };

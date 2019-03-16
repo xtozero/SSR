@@ -966,8 +966,8 @@ class CD3D11Texture : public ITexture
 public:
 	void SetTexture( Microsoft::WRL::ComPtr<ID3D11Resource>& pTexture, bool isAppSizeDependent = false );
 
-	bool Create( ID3D11Device& device, TEXTURE_TYPE type, const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr );
-	bool LoadFromFile( ID3D11Device& device, const TCHAR* filePath );
+	bool Create( ID3D11Device& device, const String& name, TEXTURE_TYPE type, const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr );
+	bool LoadFromFile( ID3D11Device& device, const String& filePath );
 
 	ID3D11Resource* Get( ) const { return m_pTexture.Get( ); };
 	void Free( ) { m_pTexture.Reset( ); };
@@ -985,42 +985,42 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Resource> m_pTexture;
 };
 
-class CRenderTarget : public IRenderResource
+class CD3D11RenderTarget : public IRenderResource
 {
 public:
 	ID3D11RenderTargetView* Get( ) const;
 	void Free( ) { m_pRenderTargetView.Reset( ); }
 
-	bool CreateRenderTarget( ID3D11Device& device, const CD3D11Texture& texture, const TEXTURE_TRAIT* traitOrNull );
+	bool CreateRenderTarget( ID3D11Device& device, const String& name, const CD3D11Texture& texture, const TEXTURE_TRAIT* traitOrNull );
 	void SetRenderTargetView( Microsoft::WRL::ComPtr<ID3D11RenderTargetView>& renderTargetView );
 
-	CRenderTarget( ) = default;
-	~CRenderTarget( ) = default;
-	CRenderTarget( const CRenderTarget& ) = delete;
-	CRenderTarget( CRenderTarget&& ) = default;
-	CRenderTarget& operator=( const CRenderTarget& ) = delete;
-	CRenderTarget& operator=( CRenderTarget&& ) = default;
+	CD3D11RenderTarget( ) = default;
+	~CD3D11RenderTarget( ) = default;
+	CD3D11RenderTarget( const CD3D11RenderTarget& ) = delete;
+	CD3D11RenderTarget( CD3D11RenderTarget&& ) = default;
+	CD3D11RenderTarget& operator=( const CD3D11RenderTarget& ) = delete;
+	CD3D11RenderTarget& operator=( CD3D11RenderTarget&& ) = default;
 
 private:
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_pRenderTargetView;
 };
 
-class CDepthStencil : public IRenderResource
+class CD3D11DepthStencil : public IRenderResource
 {
 public:
 	ID3D11DepthStencilView* Get( ) const;
 	void Free( ) { m_pDepthStencilVeiw.Reset( ); }
 
-	bool CreateDepthStencil( ID3D11Device& device, const CD3D11Texture& texture, const TEXTURE_TRAIT* traitOrNull );
+	bool CreateDepthStencil( ID3D11Device& device, const String& name, const CD3D11Texture& texture, const TEXTURE_TRAIT* traitOrNull );
 	void SetRenderTargetView( Microsoft::WRL::ComPtr<ID3D11DepthStencilView>& depthStencilView );
 	void Clear( ID3D11DeviceContext& deviceContext, unsigned int clearFlag, float depth, unsigned char stencil );
 
-	CDepthStencil( ) = default;
-	~CDepthStencil( ) = default;
-	CDepthStencil( const CDepthStencil& ) = delete;
-	CDepthStencil( CDepthStencil&& ) = default;
-	CDepthStencil& operator=( const CDepthStencil& ) = delete;
-	CDepthStencil& operator=( CDepthStencil&& ) = default;
+	CD3D11DepthStencil( ) = default;
+	~CD3D11DepthStencil( ) = default;
+	CD3D11DepthStencil( const CD3D11DepthStencil& ) = delete;
+	CD3D11DepthStencil( CD3D11DepthStencil&& ) = default;
+	CD3D11DepthStencil& operator=( const CD3D11DepthStencil& ) = delete;
+	CD3D11DepthStencil& operator=( CD3D11DepthStencil&& ) = default;
 
 private:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_pDepthStencilVeiw;
@@ -1041,8 +1041,8 @@ public:
 	}
 
 	bool CreateShaderResourceFromFile( ID3D11Device& device, const String& fileName );
-	bool CreateShaderResource( ID3D11Device& device, const CD3D11Texture& texture, const TEXTURE_TRAIT* traitOrNull );
-	bool CreateShaderResource( ID3D11Device& device, const CD3D11Buffer& buffer, const BUFFER_TRAIT* traitOrNull );
+	bool CreateShaderResource( ID3D11Device& device, const String& name, const CD3D11Texture& texture, const TEXTURE_TRAIT* traitOrNull );
+	bool CreateShaderResource( ID3D11Device& device, const String& name, const CD3D11Buffer& buffer, const BUFFER_TRAIT* traitOrNull );
 
 	CD3D11ShaderResource( ) = default;
 	~CD3D11ShaderResource( ) = default;
@@ -1069,8 +1069,8 @@ public:
 		m_pUnorderedAccessView = randomAccess;
 	}
 
-	bool CreateRandomAccessResource( ID3D11Device& device, const CD3D11Texture& texture, const TEXTURE_TRAIT* traitOrNull );
-	bool CreateRandomAccessResource( ID3D11Device& device, const CD3D11Buffer& buffer, const BUFFER_TRAIT* traitOrNull );
+	bool CreateRandomAccessResource( ID3D11Device& device, const String& name, const CD3D11Texture& texture, const TEXTURE_TRAIT* traitOrNull );
+	bool CreateRandomAccessResource( ID3D11Device& device, const String& name, const CD3D11Buffer& buffer, const BUFFER_TRAIT* traitOrNull );
 
 	CD3D11RandomAccessResource( ) = default;
 	~CD3D11RandomAccessResource( ) = default;
@@ -1083,13 +1083,13 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_pUnorderedAccessView;
 };
 
-class CD3D11VertexShader
+class CD3D11VertexShader : public IRenderResource
 {
 public:
 	ID3D11VertexShader* Get( ) const { return m_pVertexShader.Get( ); }
 	ID3D11InputLayout* GetLayout( ) const { return m_pInputLayout.Get( ); }
 
-	bool CreateShader( ID3D11Device& device, const void* byteCodePtr, size_t byteCodeSize, const D3D11_INPUT_ELEMENT_DESC* layout, int numLayout );
+	bool CreateShader( ID3D11Device& device, const String& name, const void* byteCodePtr, size_t byteCodeSize, const D3D11_INPUT_ELEMENT_DESC* layout, int numLayout );
 
 	CD3D11VertexShader( ) = default;
 	CD3D11VertexShader( const CD3D11VertexShader& ) = delete;
@@ -1103,12 +1103,12 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_pInputLayout;
 };
 
-class CD3D11GeometryShader
+class CD3D11GeometryShader : public IRenderResource
 {
 public:
 	ID3D11GeometryShader* Get( ) const { return m_pGeometryShader.Get(); }
 
-	bool CreateShader( ID3D11Device& device, const void* byteCodePtr, size_t byteCodeSize );
+	bool CreateShader( ID3D11Device& device, const String& name, const void* byteCodePtr, size_t byteCodeSize );
 
 	CD3D11GeometryShader( ) = default;
 	CD3D11GeometryShader( const CD3D11GeometryShader& ) = delete;
@@ -1121,12 +1121,12 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11GeometryShader> m_pGeometryShader;
 };
 
-class CD3D11PixelShader
+class CD3D11PixelShader : public IRenderResource
 {
 public:
 	ID3D11PixelShader* Get( ) const { return m_pPixelShader.Get( ); }
 
-	bool CreateShader( ID3D11Device& device, const void* byteCodePtr, size_t byteCodeSize );
+	bool CreateShader( ID3D11Device& device, const String& name, const void* byteCodePtr, size_t byteCodeSize );
 
 	CD3D11PixelShader( ) = default;
 	CD3D11PixelShader( const CD3D11PixelShader& ) = delete;
@@ -1139,12 +1139,12 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> m_pPixelShader;
 };
 
-class CD3D11ComputeShader
+class CD3D11ComputeShader : public IRenderResource
 {
 public:
 	virtual ID3D11ComputeShader* Get( ) const { return m_pComputeShader.Get( ); }
 
-	bool CreateShader( ID3D11Device& device, const void* byteCodePtr, size_t byteCodeSize );
+	bool CreateShader( ID3D11Device& device, const String& name, const void* byteCodePtr, size_t byteCodeSize );
 
 	CD3D11ComputeShader( ) = default;
 	CD3D11ComputeShader( const CD3D11ComputeShader& ) = delete;

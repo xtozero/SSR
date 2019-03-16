@@ -237,11 +237,11 @@ namespace
 
 		if ( byteCode.GetBufferSize( ) > 0 )
 		{
-			result = shader.CreateShader( device, byteCode.GetBufferPointer( ), byteCode.GetBufferSize( ) );
+			result = shader.CreateShader( device, fileName, byteCode.GetBufferPointer( ), byteCode.GetBufferSize( ) );
 		}
 		else if ( Microsoft::WRL::ComPtr<ID3DBlob> shaderBlob = GetShaderBlob( pFilePath, pProfile ) )
 		{
-			result = shader.CreateShader( device, shaderBlob->GetBufferPointer( ), shaderBlob->GetBufferSize( ) );
+			result = shader.CreateShader( device, fileName, shaderBlob->GetBufferPointer( ), shaderBlob->GetBufferSize( ) );
 		}
 
 		if ( result )
@@ -399,7 +399,7 @@ RE_HANDLE CD3D11ResourceManager::CreateTexture1D( TEXTURE_TRAIT& trait, const St
 		trait.m_height = m_frameBufferSize.second;
 	}
 
-	if ( newTexture->Create( *m_pDevice, TEXTURE_TYPE::TEXTURE_1D, trait, initData ) )
+	if ( newTexture->Create( *m_pDevice, textureName, TEXTURE_TYPE::TEXTURE_1D, trait, initData ) )
 	{
 		int idx = ( newTexture - &m_textures.front() );
 		RE_HANDLE handle = MakeResourceHandle( TEXTURE_HANDLE, idx );
@@ -457,7 +457,7 @@ RE_HANDLE CD3D11ResourceManager::CreateTexture2D( TEXTURE_TRAIT& trait, const St
 		trait.m_height = m_frameBufferSize.second;
 	}
 
-	if ( newTexture->Create( *m_pDevice, TEXTURE_TYPE::TEXTURE_2D, trait, initData ) )
+	if ( newTexture->Create( *m_pDevice, textureName, TEXTURE_TYPE::TEXTURE_2D, trait, initData ) )
 	{
 		int idx = ( newTexture - &m_textures.front( ) );
 		RE_HANDLE handle = MakeResourceHandle( TEXTURE_HANDLE, idx );
@@ -547,7 +547,7 @@ void CD3D11ResourceManager::AppSizeChanged( UINT nWndWidth, UINT nWndHeight )
 	while ( iter != m_dsvLUT.end( ) )
 	{
 		handle = iter->second;
-		const CDepthStencil& dsv = GetDepthstencil( iter->second );
+		const CD3D11DepthStencil& dsv = GetDepthstencil( iter->second );
 		if ( dsv.IsAppSizeDependency() )
 		{
 			iter = m_dsvLUT.erase( iter );
@@ -566,7 +566,7 @@ void CD3D11ResourceManager::AppSizeChanged( UINT nWndWidth, UINT nWndHeight )
 	while ( iter != m_rtvLUT.end( ) )
 	{
 		handle = iter->second;
-		const CRenderTarget& rtv = GetRendertarget( iter->second );
+		const CD3D11RenderTarget& rtv = GetRendertarget( iter->second );
 		if ( rtv.IsAppSizeDependency( ) )
 		{
 			iter = m_rtvLUT.erase( iter );
@@ -687,11 +687,11 @@ RE_HANDLE CD3D11ResourceManager::CreateVertexShader( const TCHAR* pFilePath, con
 	CShaderByteCode byteCode = GetCompiledByteCode( pFilePath );
 	if ( byteCode.GetBufferSize( ) > 0 )
 	{
-		result = vs.CreateShader( *m_pDevice, byteCode.GetBufferPointer( ), byteCode.GetBufferSize( ), inputDesc, layoutSize );
+		result = vs.CreateShader( *m_pDevice, fileName, byteCode.GetBufferPointer( ), byteCode.GetBufferSize( ), inputDesc, layoutSize );
 	}
 	else if ( Microsoft::WRL::ComPtr<ID3DBlob> shaderBlob = GetShaderBlob( pFilePath, pProfile ) )
 	{
-		result = vs.CreateShader( *m_pDevice, shaderBlob->GetBufferPointer( ), shaderBlob->GetBufferSize( ), inputDesc, layoutSize );
+		result = vs.CreateShader( *m_pDevice, fileName, shaderBlob->GetBufferPointer( ), shaderBlob->GetBufferSize( ), inputDesc, layoutSize );
 	}
 
 	if ( result )
@@ -701,7 +701,7 @@ RE_HANDLE CD3D11ResourceManager::CreateVertexShader( const TCHAR* pFilePath, con
 		int idx = static_cast<int>( m_vertexShaders.size( ) ) - 1;
 		RE_HANDLE handle = MakeResourceHandle( VS_HANDLE, idx );
 
-		m_vertexShaderLUT.emplace( fileName, handle );
+		m_shaderLUT[SHADER_TYPE::VS].emplace( fileName, handle );
 		return handle;
 	}
 
@@ -717,7 +717,7 @@ RE_HANDLE CD3D11ResourceManager::CreateGeometryShader( const TCHAR* pFilePath, c
 		return found;
 	}
 
-	return CreateShader<CD3D11GeometryShader, GS_HANDLE>( *m_pDevice, fileName, pFilePath, pProfile, m_geometryShaders, m_geometryShaderLUT );
+	return CreateShader<CD3D11GeometryShader, GS_HANDLE>( *m_pDevice, fileName, pFilePath, pProfile, m_geometryShaders, m_shaderLUT[SHADER_TYPE::GS] );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreatePixelShader( const TCHAR* pFilePath, const char* pProfile )
@@ -729,7 +729,7 @@ RE_HANDLE CD3D11ResourceManager::CreatePixelShader( const TCHAR* pFilePath, cons
 		return found;
 	}
 
-	return CreateShader<CD3D11PixelShader, PS_HANDLE>( *m_pDevice, fileName, pFilePath, pProfile, m_pixelShaders, m_pixelShaderLUT );
+	return CreateShader<CD3D11PixelShader, PS_HANDLE>( *m_pDevice, fileName, pFilePath, pProfile, m_pixelShaders, m_shaderLUT[SHADER_TYPE::PS] );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateComputeShader( const TCHAR* pFilePath, const char* pProfile )
@@ -741,7 +741,7 @@ RE_HANDLE CD3D11ResourceManager::CreateComputeShader( const TCHAR* pFilePath, co
 		return found;
 	}
 
-	return CreateShader<CD3D11ComputeShader, CS_HANDLE>( *m_pDevice, fileName, pFilePath, pProfile, m_computeShaders, m_computeShaderLUT );
+	return CreateShader<CD3D11ComputeShader, CS_HANDLE>( *m_pDevice, fileName, pFilePath, pProfile, m_computeShaders, m_shaderLUT[SHADER_TYPE::CS] );
 }
 
 RE_HANDLE CD3D11ResourceManager::FindGraphicsShaderByName( const TCHAR* pName )
@@ -751,22 +751,13 @@ RE_HANDLE CD3D11ResourceManager::FindGraphicsShaderByName( const TCHAR* pName )
 		return INVALID_HANDLE;
 	}
 
-	auto found = m_vertexShaderLUT.find( pName );
-	if ( found != m_vertexShaderLUT.end( ) )
+	for ( int i = SHADER_TYPE::VS; i < SHADER_TYPE::CS; ++i )
 	{
-		return found->second;
-	}
-
-	found = m_geometryShaderLUT.find( pName );
-	if ( found != m_geometryShaderLUT.end( ) )
-	{
-		return found->second;
-	}
-
-	found = m_pixelShaderLUT.find( pName );
-	if ( found != m_pixelShaderLUT.end( ) )
-	{
-		return found->second;
+		auto found = m_shaderLUT[i].find( pName );
+		if ( found != m_shaderLUT[i].end( ) )
+		{
+			return found->second;
+		}
 	}
 
 	return INVALID_HANDLE;
@@ -779,9 +770,9 @@ RE_HANDLE CD3D11ResourceManager::FindComputeShaderByName( const TCHAR* pName )
 		return INVALID_HANDLE;
 	}
 
-	auto found = m_computeShaderLUT.find( pName );
+	auto found = m_shaderLUT[SHADER_TYPE::CS].find( pName );
 
-	if ( found != m_computeShaderLUT.end( ) )
+	if ( found != m_shaderLUT[SHADER_TYPE::CS].end( ) )
 	{
 		return found->second;
 	}
@@ -798,7 +789,7 @@ RE_HANDLE CD3D11ResourceManager::CreateRenderTarget( RE_HANDLE texhandle, const 
 		return found;
 	}
 
-	CRenderTarget* newRenderTarget = nullptr;
+	CD3D11RenderTarget* newRenderTarget = nullptr;
 	if ( m_freeRenderTarget != nullptr )
 	{
 		PopFrontInPlaceList( &m_freeRenderTarget, &newRenderTarget );
@@ -811,7 +802,7 @@ RE_HANDLE CD3D11ResourceManager::CreateRenderTarget( RE_HANDLE texhandle, const 
 
 	const CD3D11Texture& texture = GetTexture( texhandle );
 
-	if ( newRenderTarget->CreateRenderTarget( *m_pDevice, texture, trait ) )
+	if ( newRenderTarget->CreateRenderTarget( *m_pDevice, renderTargetName, texture, trait ) )
 	{
 		int idx = ( newRenderTarget - &m_renderTargets.front( ) );
 		RE_HANDLE handle = MakeResourceHandle( RENDER_TARGET_HANDLE, idx );
@@ -836,7 +827,7 @@ RE_HANDLE CD3D11ResourceManager::CreateDepthStencil( RE_HANDLE texhandle, const 
 		return found;
 	}
 
-	CDepthStencil* newDepthStencil = nullptr;
+	CD3D11DepthStencil* newDepthStencil = nullptr;
 	if ( m_freeDepthStencil != nullptr )
 	{
 		PopFrontInPlaceList( &m_freeDepthStencil, &newDepthStencil );
@@ -849,7 +840,7 @@ RE_HANDLE CD3D11ResourceManager::CreateDepthStencil( RE_HANDLE texhandle, const 
 	
 	const CD3D11Texture& texture = GetTexture( texhandle );
 
-	if ( newDepthStencil->CreateDepthStencil( *m_pDevice, texture, trait ) )
+	if ( newDepthStencil->CreateDepthStencil( *m_pDevice, depthStencilName, texture, trait ) )
 	{
 		int idx = ( newDepthStencil - &m_depthStencils.front() );
 		RE_HANDLE handle = MakeResourceHandle( DEPTH_STENCIL_HANDLE, idx );
@@ -975,7 +966,7 @@ RE_HANDLE CD3D11ResourceManager::CreateTextureShaderResource( RE_HANDLE texHandl
 
 	const CD3D11Texture& texture = GetTexture( texHandle );
 
-	if ( newResource->CreateShaderResource( *m_pDevice, texture, trait ) )
+	if ( newResource->CreateShaderResource( *m_pDevice, resourceName, texture, trait ) )
 	{
 		int idx = ( newResource - &m_shaderResources.front( ) );
 		RE_HANDLE handle = MakeResourceHandle( SHADER_RESOURCE_HANDLE, idx );
@@ -1015,7 +1006,7 @@ RE_HANDLE CD3D11ResourceManager::CreateBufferShaderResource( RE_HANDLE bufHandle
 
 	const CD3D11Buffer& buffer = GetBuffer( bufHandle );
 
-	if ( newResource->CreateShaderResource( *m_pDevice, buffer, trait ) )
+	if ( newResource->CreateShaderResource( *m_pDevice, resourceName, buffer, trait ) )
 	{
 		int idx = ( newResource - &m_shaderResources.front( ) );
 		RE_HANDLE handle = MakeResourceHandle( SHADER_RESOURCE_HANDLE, idx );
@@ -1094,7 +1085,7 @@ RE_HANDLE CD3D11ResourceManager::CreateTextureRandomAccess( RE_HANDLE texHandle,
 
 	const CD3D11Texture& texture = GetTexture( texHandle );
 
-	if ( newResource->CreateRandomAccessResource( *m_pDevice, texture, trait ) )
+	if ( newResource->CreateRandomAccessResource( *m_pDevice, resourceName, texture, trait ) )
 	{
 		int idx = ( newResource - &m_randomAccessResource.front( ) );
 		RE_HANDLE handle = MakeResourceHandle( RANDOM_ACCESS_HANDLE, idx );
@@ -1133,7 +1124,7 @@ RE_HANDLE CD3D11ResourceManager::CreateBufferRandomAccess( RE_HANDLE bufHandle, 
 
 	const CD3D11Buffer& buffer = GetBuffer( bufHandle );
 
-	if ( newResource->CreateRandomAccessResource( *m_pDevice, buffer, trait ) )
+	if ( newResource->CreateRandomAccessResource( *m_pDevice, resourceName, buffer, trait ) )
 	{
 		int idx = ( newResource - &m_randomAccessResource.front( ) );
 		RE_HANDLE handle = MakeResourceHandle( RANDOM_ACCESS_HANDLE, idx );
@@ -1318,42 +1309,83 @@ void CD3D11ResourceManager::FreeResource( RE_HANDLE resourceHandle )
 	switch ( resourceType )
 	{
 	case BUFFER_HANDLE:
-		m_buffers[resourceIdx].~CD3D11Buffer( );
-		PushFrontInPlaceList( &m_freeBuffer, &m_buffers[resourceIdx] );
+		{
+			CD3D11Buffer& buffer = m_buffers[resourceIdx];
+			buffer.~CD3D11Buffer( );
+			PushFrontInPlaceList( &m_freeBuffer, &buffer );
+		}
 		break;
 	case DEPTH_STENCIL_HANDLE:
-		m_depthStencils[resourceIdx].~CDepthStencil( );
-		PushFrontInPlaceList( &m_freeDepthStencil, &m_depthStencils[resourceIdx] );
+		{
+			CD3D11DepthStencil& depthStencil = m_depthStencils[resourceIdx];
+			m_dsvLUT.erase( depthStencil.GetName( ) );
+			depthStencil.~CD3D11DepthStencil( );
+			PushFrontInPlaceList( &m_freeDepthStencil, &depthStencil );
+		}
 		break;
 	case RENDER_TARGET_HANDLE:
-		m_renderTargets[resourceIdx].~CRenderTarget( );
-		PushFrontInPlaceList( &m_freeRenderTarget, &m_renderTargets[resourceIdx] );
+		{
+			CD3D11RenderTarget& renderTarget = m_renderTargets[resourceIdx];
+			m_rtvLUT.erase( renderTarget.GetName( ) );
+			renderTarget.~CD3D11RenderTarget( );
+			PushFrontInPlaceList( &m_freeRenderTarget, &renderTarget );
+		}
 		break;
 	case SHADER_RESOURCE_HANDLE:
-		m_shaderResources[resourceIdx].~CD3D11ShaderResource( );
-		PushFrontInPlaceList( &m_freeShaderResource, &m_shaderResources[resourceIdx] );
+		{
+			CD3D11ShaderResource& shaderResource = m_shaderResources[resourceIdx];
+			m_srvLUT.erase( shaderResource.GetName( ) );
+			shaderResource.~CD3D11ShaderResource( );
+			PushFrontInPlaceList( &m_freeShaderResource, &shaderResource );
+		}
 		break;
 	case RANDOM_ACCESS_HANDLE:
+		{
+			CD3D11RandomAccessResource& randomAccess = m_randomAccessResource[resourceIdx];
+			m_ravLUT.erase( randomAccess.GetName( ) );
+			randomAccess.~CD3D11RandomAccessResource( );
+			PushFrontInPlaceList( &m_freeRandomAccess, &randomAccess );
+		}
 		break;
 	case TEXTURE_HANDLE:
-		m_textures[resourceIdx].~CD3D11Texture( );
-		PushFrontInPlaceList( &m_freeTexture, &m_textures[resourceIdx] );
+		{
+			CD3D11Texture& texture = m_textures[resourceIdx];
+			m_texLUT.erase( texture.GetName( ) );
+			texture.~CD3D11Texture( );
+			PushFrontInPlaceList( &m_freeTexture, &texture );
+		}
 		break;
 	case VS_HANDLE:
+		{
+		}
 		break;
 	case GS_HANDLE:
+		{
+		}
 		break;
 	case PS_HANDLE:
+		{
+		}
 		break;
 	case CS_HANDLE:
+		{
+		}
 		break;
 	case SAMPLER_STATE_HANDLE:
+		{
+		}
 		break;
 	case RASTERIZER_STATE_HANDLE:
+		{
+		}
 		break;
 	case BLEND_STATE_HANDLE:
+		{
+		}
 		break;
 	case DEPTH_STENCIL_STATE_HANDLE:
+		{
+		}
 		break;
 	default:
 		assert( false && "invalid resource handle" );
@@ -1413,9 +1445,12 @@ void CD3D11ResourceManager::OnDeviceLost( )
 	m_srvLUT.clear( );
 	m_ravLUT.clear( );
 	m_texLUT.clear( );
-	m_vertexShaderLUT.clear( );
-	m_pixelShaderLUT.clear( );
-	m_computeShaderLUT.clear( );
+	
+	for ( auto& lut : m_shaderLUT )
+	{
+		lut.clear( );
+	}
+
 	m_samplerStateLUT.clear( );
 	m_rasterizerStateLUT.clear( );
 	m_blendStateLUT.clear( );
@@ -1430,13 +1465,13 @@ void CD3D11ResourceManager::OnDeviceRestore( ID3D11Device* pDevice, ID3D11Device
 	LoadShader( );
 }
 
-const CDepthStencil& CD3D11ResourceManager::GetDepthstencil( RE_HANDLE handle ) const
+const CD3D11DepthStencil& CD3D11ResourceManager::GetDepthstencil( RE_HANDLE handle ) const
 {
 	assert( IsDepthStencilHandle( handle ) );
 	return m_depthStencils[handle & RE_INDEX_MASK];
 }
 
-const CRenderTarget& CD3D11ResourceManager::GetRendertarget( RE_HANDLE handle ) const
+const CD3D11RenderTarget& CD3D11ResourceManager::GetRendertarget( RE_HANDLE handle ) const
 {
 	assert( IsRenderTargetHandle( handle ) );
 	return m_renderTargets[handle & RE_INDEX_MASK];

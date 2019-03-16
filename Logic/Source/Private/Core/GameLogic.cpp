@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include "Core/GameLogic.h"
 
-#include "ConsoleMessage/ConVar.h"
 #include "ConsoleMessage/ConCommand.h"
+#include "ConsoleMessage/ConsoleMessageExecutor.h"
+#include "ConsoleMessage/ConVar.h"
 #include "Core/DebugConsole.h"
 #include "Core/Timer.h"
 #include "Core/UtilWindowInfo.h"
@@ -73,17 +74,16 @@ bool CGameLogic::Initialize( IPlatform& platform )
 		-1.f,					1.f,						0.5f,	1.f
 	);
 
-	m_pickingManager.PushCamera( &m_mainCamera );
+	m_pickingManager.PushCamera( &GetLocalPlayer()->GetCamera() );
 	m_inputBroadCaster.AddListener( &m_pickingManager );
-	m_inputBroadCaster.AddListener( &m_mainCamera );
-	CCameraManager::GetInstance( ).SetCurrentCamera( &m_mainCamera );
-
-	if ( LoadScene( _T( "../Script/defaultScene.txt" ) ) == false )
+	CCameraManager::GetInstance( ).SetCurrentCamera( &GetLocalPlayer( )->GetCamera( ) );
+	
+	if ( m_lightManager.Initialize( *this ) == false )
 	{
 		__debugbreak( );
 	}
-	
-	if ( m_lightManager.Initialize( *this, m_gameObjects ) == false )
+
+	if ( LoadScene( _T( "../Script/defaultScene.txt" ) ) == false )
 	{
 		__debugbreak( );
 	}
@@ -111,9 +111,12 @@ bool CGameLogic::Initialize( IPlatform& platform )
 void CGameLogic::Update( )
 {
 	// 한 프레임의 시작 ElapsedTime 갱신
-	CTimer::GetInstance( ).Tick( );
+	m_clock.Tick( );
 
-	m_mainCamera.Think( );
+	for ( auto& player : m_players )
+	{
+		player.GetCamera( ).Think( m_clock.GetElapsedTime() );
+	}
 
 	StartLogic( );
 	ProcessLogic( );
@@ -122,19 +125,19 @@ void CGameLogic::Update( )
 
 void CGameLogic::Pause( )
 {
-	CTimer::GetInstance().Pause( );
+	m_clock.Pause( );
 }
 
 void CGameLogic::Resume( )
 {
-	CTimer::GetInstance().Resume( );
+	m_clock.Resume( );
 }
 
 void CGameLogic::HandleUserInput( const UserInput& input )
 {
 	if ( m_ui.HandleUserInput( input ) == false )
 	{
-		m_inputBroadCaster.ProcessInput( input );
+		m_inputBroadCaster.ProcessInput( input, *this );
 	}
 }
 
@@ -172,6 +175,19 @@ void CGameLogic::AppSizeChanged( IPlatform& platform )
 	m_pickingManager.PushViewport( 0.0f, 0.0f, fSizeX, fSizeY );
 
 	m_uiProjMat = XMMatrixOrthographicLH( fSizeX, fSizeY, 0, 1 );
+
+	m_uiProjMat = CXMFLOAT4X4(
+		2.0f / fSizeX,	0.f,			0.f,	0.f,
+		0.f,			-2.0f / fSizeY,	0.f,	0.f,
+		0.f,			0.f,			0.5f,	0.f,
+		-1.f,			1.f,			0.5f,	1.f
+	);
+}
+
+void CGameLogic::SpawnObject( Owner<CGameObject*> object )
+{
+	object->Initialize( *this, m_gameObjects.size( ) );
+	m_gameObjects.emplace_back( object );
 }
 
 void CGameLogic::OnObjectSpawned( CGameObject& object )
@@ -189,45 +205,52 @@ void CGameLogic::OnObjectSpawned( CGameObject& object )
 void CGameLogic::StartLogic( )
 {
 	//게임 로직 수행 전처리
-	Rect clientRect( 0.f, 0.f, static_cast<float>( m_appSize.first ), static_cast<float>( m_appSize.second ) );
-	m_ui.BeginFrame( clientRect );
+	GetConsoleMessageExecutor( ).Execute( );
 
-	m_ui.Window( "FPS Window" );
-	if ( showFps.GetBool( ) )
+	for ( auto object = m_gameObjects.begin(); object != m_gameObjects.end(); )
 	{
-		std::string fps = std::string( "FPS : " ) + std::to_string( CTimer::GetInstance( ).GetFps( ) );
-		m_ui.Text( fps.c_str( ) );
-	}
-	m_ui.EndWindow( );
-
-	constexpr int moveDirty = DF_POSITION | DF_SCALING;
-	// Update BVH Tree, Not Optimized Fix Later
-	for ( auto& object : m_gameObjects )
-	{
-		if ( object->GetDirty( ) & moveDirty )
+		CGameObject* candidate = object->get();
+		if ( candidate->WillRemove( ) )
 		{
-			const BoundingSphere* sphere = reinterpret_cast<const BoundingSphere*>( object->GetCollider( COLLIDER::SPHERE ) );
-			if ( sphere )
-			{
-				m_world.UpdateObjectMovement( object->GetRigidBody( ), *sphere );
-			}
+			m_world.OnObjectRemoved( candidate->GetRigidBody( ) );
+			object = m_gameObjects.erase( object );
+		}
+		else
+		{
+			++object;
 		}
 	}
 
-	m_world.StartFrame( );
+	Rect clientRect( 0.f, 0.f, static_cast<float>( m_appSize.first ), static_cast<float>( m_appSize.second ) );
+	m_ui.BeginFrame( clientRect, m_clock.GetElapsedTime(), m_clock.GetTotalTime() );
+
+	if ( showFps.GetBool( ) )
+	{
+		m_ui.Window( "FPS Window" );
+		std::string fps = std::string( "FPS : " ) + std::to_string( m_clock.GetFps( ) );
+		m_ui.Text( fps.c_str( ) );
+		m_ui.EndWindow( );
+	}
 }
 
 void CGameLogic::ProcessLogic( )
 {
-	if ( CTimer::GetInstance( ).IsPaused() == false )
+	if ( m_clock.IsPaused() == false )
 	{
 		// 게임 로직 수행
 		for ( auto& object : m_gameObjects )
 		{
-			object->Think( );
+			object->Think( m_clock.GetElapsedTime() );
 		}
 
-		m_world.RunPhysics( CTimer::GetInstance( ).GetElapsedTime( ) );
+		const float SIMULATE_INTERVAL = 0.016f;
+		m_remainPhysicsSimulateTime += m_clock.GetElapsedTime( );
+		while ( m_remainPhysicsSimulateTime >= SIMULATE_INTERVAL )
+		{
+			m_world.StartFrame( );
+			m_world.RunPhysics( SIMULATE_INTERVAL );
+			m_remainPhysicsSimulateTime -= SIMULATE_INTERVAL;
+		}
 	}
 }
 
@@ -238,12 +261,15 @@ void CGameLogic::EndLogic( )
 	// 물리 시뮬레이션 결과를 반영
 	for ( auto& object : m_gameObjects )
 	{
-		object->PostThink( );
+		object->PostThink( m_clock.GetElapsedTime( ) );
 	}
 
 	// 게임 로직 수행 후처리
-	m_mainCamera.UpdateToRenderer( m_view );
-	m_lightManager.UpdateToRenderer( *m_pRenderer, m_mainCamera );
+	BuildRenderableList( );
+
+	CCamera& playerCamera = GetLocalPlayer( )->GetCamera( );
+	playerCamera.UpdateToRenderer( m_view );
+	m_lightManager.UpdateToRenderer( *m_pRenderer, playerCamera );
 
 	m_shadowManager.BuildShadowProjectionMatrix( *this, m_gameObjects );
 
@@ -264,8 +290,8 @@ void CGameLogic::EndLogic( )
 	{
 		pData->m_receiversFar = m_view.GetFar();
 		pData->m_receiversNear = m_view.GetNear( );
-		pData->m_elapsedTime = CTimer::GetInstance( ).GetElapsedTime( );
-		pData->m_totalTime = CTimer::GetInstance( ).GetTotalTime( );
+		pData->m_elapsedTime = m_clock.GetElapsedTime( );
+		pData->m_totalTime = m_clock.GetTotalTime( );
 		pData->m_renderTargetSize.x = wndWidth;
 		pData->m_renderTargetSize.y = wndHeight;
 		pData->m_invRenderTargetSize.x = 1.f / wndWidth;
@@ -278,7 +304,6 @@ void CGameLogic::EndLogic( )
 	// 후면 깊이 렌더링
 	m_ssrManager.PreProcess( *this, m_renderableList );
 
-	BuildRenderableList( );
 	SceneBegin( );
 	DrawScene( );
 	DrawForDebug( );
@@ -289,19 +314,24 @@ void CGameLogic::EndLogic( )
 
 bool CGameLogic::LoadScene( const String& scene )
 {
-	m_gameObjects.clear( );
-
 	CSceneLoader sceneLoader;
-	std::unique_ptr<KeyValue> keyValue = sceneLoader.LoadSceneFromFile( *this, m_gameObjects, scene.c_str() );
+	std::unique_ptr<KeyValue> keyValue = sceneLoader.LoadSceneFromFile( *this, scene.c_str() );
 
 	if ( !keyValue )
 	{
 		return false;
 	}
 
-	m_mainCamera.LoadProperty( *keyValue );
+	GetLocalPlayer()->GetCamera().LoadProperty( *keyValue );
+
+	m_lightManager.SpawnLights( *this, m_gameObjects );
 
 	return true;
+}
+
+void CGameLogic::ShutdownScene( )
+{
+	m_gameObjects.clear( );
 }
 
 void CGameLogic::SceneBegin( )
@@ -330,7 +360,7 @@ void CGameLogic::DrawForDebug( )
 			const ICollider* collider = object->GetDefaultCollider( );
 			if ( collider )
 			{
-				collider->DrawDebugOverlay( m_debugOverlay, object->GetRigidBody()->IsAwake() ? g_colorChartreuse : g_colorRed );
+				collider->DrawDebugOverlay( m_debugOverlay, object->GetRigidBody()->IsAwake() ? g_colorChartreuse : g_colorRed, m_clock.GetElapsedTime() );
 			}
 		}
 	}
@@ -340,7 +370,7 @@ void CGameLogic::DrawForDebug( )
 
 void CGameLogic::DrawDebugOverlay( )
 {
-	m_debugOverlay.DrawPrimitive( *m_pRenderer, CTimer::GetInstance().GetElapsedTime() );
+	m_debugOverlay.DrawPrimitive( *m_pRenderer, m_clock.GetElapsedTime() );
 }
 
 void CGameLogic::DrawUI( )
@@ -524,18 +554,28 @@ void CGameLogic::HandleDeviceLost( )
 {
 	m_pRenderer->HandleDeviceLost( m_wndHwnd, m_appSize.first, m_appSize.second );
 
+	for ( auto& uiDrawBuffer : m_uiDrawBuffer )
+	{
+		uiDrawBuffer.m_prevBufferSize = 0;
+		uiDrawBuffer.m_buffer = RE_HANDLE_TYPE::INVALID_HANDLE;
+	}
+
 	CreateDeviceDependentResource( );
 
 	m_meshManager.OnDeviceRestore( *this );
 	m_lightManager.OnDeviceRestore( *this );
 	m_shadowManager.OnDeviceRestore( *this );
 	m_ssrManager.OnDeviceRestore( *this );
-	m_mainCamera.OnDeviceRestore( *this );
 	m_debugOverlay.OnDeviceRestore( *this );
 
 	for ( auto& object : m_gameObjects )
 	{
 		object->OnDeviceRestore( *this );
+	}
+
+	for ( auto& player : m_players )
+	{
+		player.OnDeviceRestore( *this );
 	}
 }
 
@@ -643,14 +683,23 @@ bool CGameLogic::CreateDefaultFontResource( )
 	return true;
 }
 
+CPlayer* CGameLogic::GetLocalPlayer( )
+{
+	if ( m_players.size( ) == 0 )
+	{
+		m_players.emplace_back( );
+		m_inputBroadCaster.AddListener( &m_players.front() );
+	}
+
+	return &m_players.front();
+}
+
 CGameLogic::CGameLogic( ) : m_pickingManager( &m_gameObjects )
 {
 	for ( int i = 0; i < SHARED_CONSTANT_BUFFER::Count; ++i )
 	{
 		m_commonConstantBuffer[i] = RE_HANDLE_TYPE::INVALID_HANDLE;
 	}
-
-	ShowDebugConsole( );
 }
 
 Owner<ILogic*> CreateGameLogic( )

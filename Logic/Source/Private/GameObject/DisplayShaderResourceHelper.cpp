@@ -41,7 +41,7 @@ void CDisplayShaderResourceHelper::Render( CGameLogic& gameLogic )
 	}
 }
 
-void CDisplayShaderResourceHelper::Think( )
+void CDisplayShaderResourceHelper::Think( float /*elapsedTime*/ )
 {
 }
 

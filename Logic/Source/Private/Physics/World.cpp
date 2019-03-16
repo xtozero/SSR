@@ -26,11 +26,25 @@ void World::RunPhysics( float duration )
 {
 	m_registry.UpdateForces( duration );
 	
+	std::vector<ObjectRelatedRigidBody*> dirtyBody;
 	for ( auto& node : m_bvhTree )
 	{
 		if ( node.IsLeaf( ) )
 		{
-			node.m_body->Integrate( duration );
+			if ( node.m_body->Integrate( duration ) || node.m_body->GetDirty() )
+			{
+				dirtyBody.push_back( node.m_body );
+				node.m_body->ResetDirty( );
+			}
+		}
+	}
+
+	for ( auto body : dirtyBody )
+	{
+		const BoundingSphere* sphere = reinterpret_cast<const BoundingSphere*>( body->GetCollider( COLLIDER::SPHERE ) );
+		if ( sphere )
+		{
+			UpdateObjectMovement( body, *sphere );
 		}
 	}
 
@@ -42,24 +56,26 @@ void World::RunPhysics( float duration )
 void World::OnObjectSpawned( ObjectRelatedRigidBody* body, const BoundingSphere& volume )
 {
 	m_bvhTree.Insert( body, volume );
-
 	m_registry.Add( body, &m_gravity );
+}
+
+void World::OnObjectRemoved( ObjectRelatedRigidBody* body )
+{
+	m_registry.Remove( body );
+	m_bvhTree.Remove( body );
 }
 
 void World::UpdateObjectMovement( ObjectRelatedRigidBody* body, const BoundingSphere& volume )
 {
-	if ( auto found = m_bvhTree.Find( body ) )
-	{
-		delete found;
-		m_bvhTree.Insert( body, volume );
-	}
+	m_bvhTree.Remove( body );
+	m_bvhTree.Insert( body, volume );
 }
 
 void World::DebugDrawBVH( CDebugOverlayManager& debugOverlay, unsigned int color, float duration )
 {
-	for ( auto iter = m_bvhTree.begin( ); iter != m_bvhTree.end( ); ++iter )
+	for ( auto node : m_bvhTree )
 	{
-		debugOverlay.AddDebugSphere( iter->m_volume.GetCenter( ), iter->m_volume.GetRadius( ), color, duration );
+		debugOverlay.AddDebugSphere( node.m_volume.GetCenter( ), node.m_volume.GetRadius( ), color, duration );
 	}
 }
 
@@ -74,7 +90,14 @@ int World::GenerateContacts( )
 
 	for ( int i = 0; i < nPotentialContact; ++i )
 	{
-		assert( candidate[i].m_body[0]->m_gameObject != nullptr && candidate[i].m_body[1]->m_gameObject != nullptr );
+		CGameObject* gameobject[] = { candidate[i].m_body[0]->GetGameObject( ), candidate[i].m_body[1]->GetGameObject( ) };
+
+		assert( gameobject[0] != nullptr && gameobject[1] != nullptr );
+
+		if ( gameobject[0]->WillRemove( ) || gameobject[1]->WillRemove( ) )
+		{
+			continue;
+		}
 
 		// if collide between immovable object skip generate contacts
 		if ( ( candidate[i].m_body[0]->GetInverseMass( ) == 0 ) && ( candidate[i].m_body[1]->GetInverseMass( ) == 0 ) )
@@ -82,9 +105,9 @@ int World::GenerateContacts( )
 			continue;
 		}
 
-		COLLISION_UTIL::DetectCollisionObjectAndObject( candidate[i].m_body[0]->m_gameObject, 
+		COLLISION_UTIL::DetectCollisionObjectAndObject( candidate[i].m_body[0]->GetGameObject( ),
 														candidate[i].m_body[0], 
-														candidate[i].m_body[1]->m_gameObject, 
+														candidate[i].m_body[1]->GetGameObject( ),
 														candidate[i].m_body[1], 
 														&m_collisionData );
 	}

@@ -30,7 +30,7 @@ int ParticleCable::AddContant( ParticleContact* contact, int /*limit*/ ) const
 	return 1;
 }
 
-int ParticleRod::AddContant( ParticleContact * contact, int /*limit*/ ) const
+int ParticleRod::AddContant( ParticleContact* contact, int /*limit*/ ) const
 {
 	float currentlength = CurrentLength( );
 	if ( currentlength == m_length )

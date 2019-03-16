@@ -4,6 +4,7 @@
 #include "Core/Timer.h"
 #include "Model/CommonMeshDefine.h"
 #include "Model/IMesh.h"
+#include "Physics/CollideNarrow.h"
 #include "Physics/Frustum.h"
 #include "Physics/Ray.h"
 #include "Scene/DebugOverlayManager.h"
@@ -99,52 +100,9 @@ void CAaboundingbox::CalcSubMeshBounds( std::vector<std::unique_ptr<ICollider>>&
 	}
 }
 
-float CAaboundingbox::Intersect( const CRay* ray ) const
+float CAaboundingbox::Intersect( const CRay& ray ) const
 {
-	if ( ray == nullptr )
-	{
-		return -1.f;
-	}
-
-	float t_min = 0;
-	float t_max = FLT_MAX;
-
-	float dir[3] = { ray->GetDir( ).x, ray->GetDir( ).y, ray->GetDir( ).z };
-	float origin[3] = { ray->GetOrigin( ).x, ray->GetOrigin( ).y, ray->GetOrigin( ).z };
-	float max[3] = { m_max.x, m_max.y, m_max.z };
-	float min[3] = { m_min.x, m_min.y, m_min.z };
-
-	for ( int i = 0; i < 3; ++i )
-	{
-		if ( abs( dir[i] ) < FLT_EPSILON )
-		{
-			if ( origin[i] < min[i] || origin[i] > max[i] )
-			{
-				return -1.f;
-			}
-		}
-		else
-		{
-			float d = 1.0f / dir[i];
-			float t1 = ( min[i] - origin[i] ) * d;
-			float t2 = ( max[i] - origin[i] ) * d;
-
-			if ( t1 > t2 )
-			{
-				std::swap( t1, t2 );
-			}
-
-			t_min = max( t1, t_min );
-			t_max = min( t2, t_max );
-
-			if ( t_min > t_max )
-			{
-				return -1.f;
-			}
-		}
-	}
-
-	return t_min;
+	return RayAndBox( ray.GetOrigin( ), ray.GetDir( ), m_max, m_min );
 }
 
 int CAaboundingbox::Intersect( const CFrustum& frustum ) const
@@ -174,9 +132,9 @@ int CAaboundingbox::Intersect( const CFrustum& frustum ) const
 	return result;
 }
 
-void CAaboundingbox::DrawDebugOverlay( CDebugOverlayManager& debugOverlay, unsigned int color ) const
+void CAaboundingbox::DrawDebugOverlay( CDebugOverlayManager& debugOverlay, unsigned int color, float duration ) const
 {
-	debugOverlay.AddDebugCube( m_min, m_max, color, CTimer::GetInstance( ).GetElapsedTime( ) );
+	debugOverlay.AddDebugCube( m_min, m_max, color, duration );
 }
 
 int CAaboundingbox::Intersect( const CAaboundingbox& box ) const

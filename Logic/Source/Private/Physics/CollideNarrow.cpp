@@ -134,7 +134,7 @@ unsigned int SphereAndHalfSpace( const BoundingSphere& sphere, RigidBody* sphere
 	return COLLISION::INTERSECTION;
 }
 
-unsigned int SphereAndTruePlane( const BoundingSphere & sphere, RigidBody * sphereBody, const CXMFLOAT4 & plane, CollisionData * data )
+unsigned int SphereAndTruePlane( const BoundingSphere& sphere, RigidBody* sphereBody, const CXMFLOAT4& plane, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
@@ -577,4 +577,61 @@ unsigned int BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const COr
 	COrientedBoundingBox lhsOBB( lhs );
 
 	return BoxAndBox( lhsOBB, lhsBody, rhs, rhsBody, data );
+}
+
+float RayAndBox( const CXMFLOAT3& rayOrigin, const CXMFLOAT3& rayDir, const CXMFLOAT3& max, const CXMFLOAT3& min )
+{
+	float t_min = 0;
+	float t_max = FLT_MAX;
+
+	for ( int i = 0; i < 3; ++i )
+	{
+		if ( abs( rayDir[i] ) < FLT_EPSILON )
+		{
+			if ( rayOrigin[i] < min[i] || rayOrigin[i] > max[i] )
+			{
+				return -1.f;
+			}
+		}
+		else
+		{
+			float d = 1.0f / rayDir[i];
+			float t1 = ( min[i] - rayOrigin[i] ) * d;
+			float t2 = ( max[i] - rayOrigin[i] ) * d;
+
+			if ( t1 > t2 )
+			{
+				std::swap( t1, t2 );
+			}
+
+			t_min = max( t1, t_min );
+			t_max = min( t2, t_max );
+
+			if ( t_min > t_max )
+			{
+				return -1.f;
+			}
+		}
+	}
+
+	return t_min;
+}
+
+float RayAndSphere( const CXMFLOAT3& rayOrigin, const CXMFLOAT3& rayDir, const CXMFLOAT3& origin, float radius )
+{
+	XMVECTOR toShpere = origin - rayOrigin;
+
+	float toShpereSqr = XMVectorGetX( XMVector3LengthSq( toShpere ) );
+	float tangentSqr = XMVectorGetX( XMVector3Dot( toShpere, rayDir ) );
+	tangentSqr *= tangentSqr;
+
+	float normalVectorSqr = toShpereSqr - tangentSqr;
+
+	float radiusSqr = radius * radius;
+	if ( normalVectorSqr > radiusSqr )
+	{
+		return -1.f;
+	}
+
+	return max( 0.f, sqrtf( tangentSqr ) - sqrtf( radiusSqr - normalVectorSqr ) );
 }

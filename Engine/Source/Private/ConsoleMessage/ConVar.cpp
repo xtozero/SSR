@@ -9,7 +9,7 @@
 
 void CConVar::Execute( )
 {
-	int argC = ConsoleMessageExecutor::GetInstance( )->ArgC( );
+	int argC = GetConsoleMessageExecutor( ).ArgC( );
 
 	if ( argC == 1 )
 	{
@@ -17,7 +17,7 @@ void CConVar::Execute( )
 	}
 	else
 	{
-		const std::vector<String>& argV = ConsoleMessageExecutor::GetInstance( )->ArgV( );
+		const std::vector<String>& argV = GetConsoleMessageExecutor( ).ArgV( );
 		SetValue( argV[1] );
 	}
 }
@@ -34,10 +34,5 @@ m_name( name ),
 m_description( description )
 {
 	SetValue( value );
-	ConsoleMessageExecutor::GetInstance( )->RegistConsoleMessage( name, this );
-}
-
-
-CConVar::~CConVar( )
-{
+	GetConsoleMessageExecutor( ).RegistConsoleMessage( name, this );
 }

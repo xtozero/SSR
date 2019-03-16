@@ -5,8 +5,6 @@
 class CTimer
 {
 public:
-	static CTimer& GetInstance( );
-
 	void Tick( );
 	void Pause( );
 	void Resume( );
@@ -22,6 +20,7 @@ public:
 private:
 	float m_totalTime = 0.f;
 	float m_elapsedTime = 0.f;
+	float m_timeScale = 1.f;
 
 	std::chrono::time_point<std::chrono::steady_clock> m_lastTime;
 

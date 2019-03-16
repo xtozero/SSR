@@ -9,20 +9,16 @@
 class CGameObject;
 class CCreateGameObjectHelper;
 
-class CGameObjectFactory
+class IGameObjectFactory
 {
 public:
-	static CGameObjectFactory& GetInstance( );
+	virtual void RegistGameObjectCreateFunc( const String& className, CCreateGameObjectHelper* helper ) = 0;
+	virtual Owner<CGameObject*> CreateGameObjectByClassName( const String& className ) const = 0;
 
-	void RegistGameObjectCreateFunc( const String& className, CCreateGameObjectHelper* helper );
-	Owner<CGameObject*> CreateGameObjectByClassName( const String& className );
-
-	CGameObjectFactory( );
-	~CGameObjectFactory( );
-
-private:
-	std::map<String, CCreateGameObjectHelper*> m_createHelpers;
+	virtual ~IGameObjectFactory( ) = default;
 };
+
+IGameObjectFactory& GetGameObjectFactory( );
 
 class CCreateGameObjectHelper
 {
@@ -30,7 +26,7 @@ public:
 	CCreateGameObjectHelper( const String& className, std::function<CGameObject*( )> createFunc )
 		: m_createFunc( createFunc )
 	{
-		CGameObjectFactory::GetInstance( ).RegistGameObjectCreateFunc( className, this );
+		GetGameObjectFactory( ).RegistGameObjectCreateFunc( className, this );
 	}
 
 	Owner<CGameObject*> Create( )

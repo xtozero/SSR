@@ -236,18 +236,23 @@ bool WindowPlatformInputConvertor::ProcessInput( ILogic& logic, const MSG& wndMs
 {
 	UserInput input;
 
-	switch ( wndMsg.message )
+	HWND hWnd = wndMsg.hwnd;
+	UINT message = wndMsg.message;
+	LPARAM lParam = wndMsg.lParam;
+	WPARAM wParam = wndMsg.wParam;
+
+	switch ( message )
 	{
 	case WM_KEYDOWN:
 	case WM_KEYUP:
 		{
-			input = Convert( static_cast<unsigned long>( wndMsg.wParam ) );
+			input = Convert( static_cast<unsigned long>( wParam ) );
 			if ( input.m_code == UIC_UNKNOWN )
 			{
 				return false;
 			}
 
-			input.m_axis[UserInput::Z_AXIS] = ( wndMsg.message == WM_KEYDOWN ) ? -1.f : 1.f;
+			input.m_axis[UserInput::Z_AXIS] = ( message == WM_KEYDOWN ) ? -1.f : 1.f;
 		}
 		break;
 	case WM_LBUTTONDOWN:
@@ -259,16 +264,21 @@ bool WindowPlatformInputConvertor::ProcessInput( ILogic& logic, const MSG& wndMs
 	case WM_MOUSEWHEEL:
 	case WM_MOUSEMOVE:
 		{
-			input = Convert( static_cast<unsigned long>( wndMsg.message ) );
+			input = Convert( static_cast<unsigned long>( message ) );
 			if ( input.m_code == UIC_UNKNOWN )
 			{
 				return false;
 			}
 
-			CXMFLOAT2 curMousePos = { static_cast<float>( GET_X_LPARAM( wndMsg.lParam ) ),
-									static_cast<float>( GET_Y_LPARAM( wndMsg.lParam ) ) };
+			POINT pt{ GET_X_LPARAM( lParam ),  GET_Y_LPARAM( lParam ) };
+			if ( message == WM_MOUSEWHEEL )
+			{
+				ScreenToClient( hWnd, &pt );
+			}
 
-			if ( wndMsg.message == WM_MOUSEMOVE )
+			CXMFLOAT2 curMousePos = { static_cast<float>( pt.x ), static_cast<float>( pt.y ) };
+			
+			if ( message == WM_MOUSEMOVE )
 			{
 				m_prevMousePos = curMousePos - m_prevMousePos;
 				input.m_axis[UserInput::X_AXIS] = m_prevMousePos.x;
