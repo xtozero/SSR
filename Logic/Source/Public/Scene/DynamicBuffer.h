@@ -26,7 +26,7 @@ public:
 
 			IResourceManager& resourceMgr = renderer.GetResourceManager( );
 			resourceMgr.FreeResource( m_bufferHandle );
-			m_bufferHandle = CreateDynamicBuffer( renderer.GetResourceManager( ), m_bufferType, size );
+			m_bufferHandle = CreateDynamicBuffer( renderer.GetResourceManager( ), m_bindType, size );
 			m_capacity = size;
 		}
 
@@ -45,6 +45,6 @@ private:
 
 	RE_HANDLE m_bufferHandle = RE_HANDLE_TYPE::INVALID_HANDLE;
 	size_t m_capacity = 0;
-	unsigned int m_bufferType = RESOURCE_TYPE::VERTEX_BUFFER;
+	unsigned int m_bindType = RESOURCE_BIND_TYPE::VERTEX_BUFFER;
 	void* m_lockedBuffer = nullptr;
 };

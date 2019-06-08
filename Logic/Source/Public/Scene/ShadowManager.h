@@ -25,6 +25,7 @@ public:
 	void Init( CGameLogic& gameLogic );
 	void BuildShadowProjectionMatrix( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects );
 	void DrawShadowMap( CGameLogic& gameLogic );
+	void PrepareBeforeRenderScene( IRenderer& renderer );
 
 private:
 	bool CreateDeviceDependentResource( IRenderer& renderer );

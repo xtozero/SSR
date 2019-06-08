@@ -49,7 +49,7 @@ inline UINT ConvertUsageToAccessFlag( D3D11_USAGE accessFlag )
 
 inline UINT ConvertTypeToBind( UINT type )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace RESOURCE_BIND_TYPE;
 
 	UINT ret = 0;
 
@@ -98,7 +98,7 @@ inline UINT ConvertTypeToBind( UINT type )
 
 inline UINT ConvertBindToType( UINT type )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace RESOURCE_BIND_TYPE;
 
 	UINT ret = 0;
 

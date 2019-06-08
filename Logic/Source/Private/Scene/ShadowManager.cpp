@@ -205,7 +205,6 @@ void CShadowManager::BuildShadowProjectionMatrix( CGameLogic& gameLogic, std::ve
 			}
 
 			gameLogic.GetRenderer( ).UnLockBuffer( m_psShadowConstant );
-			gameLogic.GetRenderer( ).BindConstantBuffer( SHADER_TYPE::PS, static_cast<int>( PS_CONSTANT_BUFFER::SHADOW ), 1, &m_psShadowConstant );
 		}
 
 		if ( m_useCascaded )
@@ -278,8 +277,13 @@ void CShadowManager::DrawShadowMap( CGameLogic& gameLogic )
 		// ·£ÅÍ Å¸°Ù ¿ø»ó º¹±Í, ±×¸²ÀÚ ¸Ê ¼¼ÆÃ
 		RE_HANDLE default[] = { RE_HANDLE_TYPE::INVALID_HANDLE };
 		renderer.BindRenderTargets( default, 1, default[0] );
-		renderer.BindShaderResource( SHADER_TYPE::PS, 2, 1, &m_srvShadowMap );
 	}
+}
+
+void CShadowManager::PrepareBeforeRenderScene( IRenderer& renderer )
+{
+	renderer.BindShaderResource( SHADER_TYPE::PS, 2, 1, &m_srvShadowMap );
+	renderer.BindConstantBuffer( SHADER_TYPE::PS, static_cast<int>( PS_CONSTANT_BUFFER::SHADOW ), 1, &m_psShadowConstant );
 }
 
 bool CShadowManager::CreateDeviceDependentResource( IRenderer& renderer )
@@ -314,7 +318,7 @@ bool CShadowManager::CreateDeviceDependentResource( IRenderer& renderer )
 		sizeof( PsCascadeConstant ),
 		1,
 		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
-		RESOURCE_TYPE::CONSTANT_BUFFER,
+		RESOURCE_BIND_TYPE::CONSTANT_BUFFER,
 		0U,
 		nullptr,
 		0U,
@@ -377,7 +381,7 @@ bool CShadowManager::CreateNonCascadedResource( IResourceManager& resourceMgr )
 		sizeof( VsNonCascadeConstant ),
 		1,
 		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
-		RESOURCE_TYPE::CONSTANT_BUFFER,
+		RESOURCE_BIND_TYPE::CONSTANT_BUFFER,
 		0U,
 		nullptr,
 		0U,
@@ -432,7 +436,7 @@ bool CShadowManager::CreateCascadedResource( IResourceManager& resourceMgr )
 		sizeof( GsCascadeConstant ),
 		1,
 		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
-		RESOURCE_TYPE::CONSTANT_BUFFER,
+		RESOURCE_BIND_TYPE::CONSTANT_BUFFER,
 		0U,
 		nullptr,
 		0U,
@@ -544,22 +548,27 @@ void CShadowManager::ClassifyShadowCasterAndReceiver( CGameLogic& gameLogic, std
 			break;
 		case COLLISION::INTERSECTION:
 			{
-				hit = true;
-				m_shadowCasters.emplace_back( object.get( ) );
-				m_shadowReceivers.emplace_back( object.get( ) );
+				bool isSubColliderAdded = false;
 
 				const std::vector<std::unique_ptr<ICollider>>& subBoxes = object->GetSubColliders( COLLIDER::AABB );
-
 				for ( const auto& subBox : subBoxes )
 				{
 					const CAaboundingbox* subAabb = reinterpret_cast<const CAaboundingbox*>( subBox.get() );
 
 					if ( subAabb->Intersect( frustum ) != COLLISION::OUTSIDE )
 					{
+						isSubColliderAdded = true;
 						TransformAABB( box, *subAabb, viewMat );
 						m_shadowCasterPoints.emplace_back( box );
 						m_shadowReceiverPoints.emplace_back( box );
 					}
+				}
+
+				if ( isSubColliderAdded )
+				{
+					hit = true;
+					m_shadowCasters.emplace_back( object.get( ) );
+					m_shadowReceivers.emplace_back( object.get( ) );
 				}
 			}
 			break;
@@ -598,6 +607,13 @@ void CShadowManager::ClassifyShadowCasterAndReceiver( CGameLogic& gameLogic, std
 		m_castersNear = min( m_castersNear, aabb.GetMin( ).z );
 		m_castersFar = max( m_castersFar, aabb.GetMax( ).z );
 	}
+
+	if ( m_shadowType == ShadowType::PSM )
+	{
+		m_castersNear = max( view.GetNear( ), m_castersNear );
+		m_castersFar = max( view.GetFar( ), m_castersFar );
+	}
+
 }
 
 void CShadowManager::BuildOrthoShadowProjectionMatrix( CGameLogic& gameLogic, int cascadeLevel, float zClipNear, float zClipFar )

@@ -9,7 +9,7 @@ inline D3D11_BUFFER_DESC ConvertTraitToDesc( const BUFFER_TRAIT& trait )
 {
 	UINT byteWidth = trait.m_count * trait.m_stride;
 	D3D11_USAGE usage = ConvertAccessFlagToUsage( trait.m_access );
-	UINT bindFlag = ConvertTypeToBind( trait.m_bufferType );
+	UINT bindFlag = ConvertTypeToBind( trait.m_bindType );
 	UINT cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );
 	UINT miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
 	UINT structureByteStride = trait.m_stride;
@@ -21,7 +21,7 @@ inline D3D11_TEXTURE1D_DESC ConvertTraitTo1DDesc( const TEXTURE_TRAIT& trait )
 {
 	DXGI_FORMAT format = ConvertFormatToDxgiFormat( trait.m_format );
 	D3D11_USAGE usage = ConvertAccessFlagToUsage( trait.m_access );
-	UINT bindFlag = ConvertTypeToBind( trait.m_type );
+	UINT bindFlag = ConvertTypeToBind( trait.m_bindType );
 	UINT cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );
 	UINT miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
 
@@ -40,7 +40,7 @@ inline D3D11_TEXTURE2D_DESC ConvertTraitTo2DDesc( const TEXTURE_TRAIT& trait )
 	DXGI_FORMAT format = ConvertFormatToDxgiFormat( trait.m_format );
 	DXGI_SAMPLE_DESC SampleDesc = { trait.m_sampleCount, trait.m_sampleQuality };
 	D3D11_USAGE usage = ConvertAccessFlagToUsage( trait.m_access );
-	UINT bindFlag = ConvertTypeToBind( trait.m_type );
+	UINT bindFlag = ConvertTypeToBind( trait.m_bindType );
 	UINT cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );
 	UINT miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
 
@@ -60,7 +60,7 @@ inline D3D11_TEXTURE3D_DESC ConvertTraitTo3DDesc( const TEXTURE_TRAIT& trait )
 {
 	DXGI_FORMAT format = ConvertFormatToDxgiFormat( trait.m_format );
 	D3D11_USAGE usage = ConvertAccessFlagToUsage( trait.m_access );
-	UINT bindFlag = ConvertTypeToBind( trait.m_type );
+	UINT bindFlag = ConvertTypeToBind( trait.m_bindType );
 	UINT cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );
 	UINT miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
 
@@ -697,9 +697,7 @@ bool CD3D11ShaderResource::CreateShaderResource( ID3D11Device& device, const Str
 		pDesc = &srv;
 	}
 
-	ID3D11Resource* pResource = texture.Get( );
-
-	if ( SUCCEEDED( device.CreateShaderResourceView( pResource, pDesc, &m_pShaderResourceView ) ) )
+	if ( SUCCEEDED( device.CreateShaderResourceView( texture.Get( ), pDesc, &m_pShaderResourceView ) ) )
 	{
 		return true;
 	}
@@ -803,11 +801,17 @@ bool CD3D11VertexShader::CreateShader( ID3D11Device& device, const String& name,
 		char semanticName[MAX_LAYOUT_COUNT][MAX_SEMANTIC_NAME_LENGTH] = {};
 
 		D3D11_SIGNATURE_PARAMETER_DESC paramDesc;
-		for ( int i = 0; i < numLayout; ++i )
+		for ( int i = 0, end = numLayout; i < end; ++i )
 		{
 			if ( FAILED( vsReflection->GetInputParameterDesc( i, &paramDesc ) ) )
 			{
 				__debugbreak( );
+			}
+
+			if ( _strnicmp( paramDesc.SemanticName, "SV_", 3 ) == 0 )
+			{
+				--numLayout;
+				continue;
 			}
 
 			assert( strlen( paramDesc.SemanticName ) < MAX_SEMANTIC_NAME_LENGTH );
@@ -883,11 +887,16 @@ bool CD3D11VertexShader::CreateShader( ID3D11Device& device, const String& name,
 		}
 	}
 
-	bool result = SUCCEEDED( device.CreateInputLayout( pLayout,
-		numLayout,
-		byteCodePtr,
-		byteCodeSize,
-		&m_pInputLayout ) );
+	bool result = numLayout <= 0;
+
+	if ( numLayout > 0 )
+	{
+		result = SUCCEEDED( device.CreateInputLayout( pLayout,
+			numLayout,
+			byteCodePtr,
+			byteCodeSize,
+			&m_pInputLayout ) );
+	}
 
 	if ( result )
 	{

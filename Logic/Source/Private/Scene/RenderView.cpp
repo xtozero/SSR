@@ -44,6 +44,8 @@ void CRenderView::UpdataView( CGameLogic& gameLogic, RE_HANDLE viewProjBuffer )
 	{
 		pData->m_view = XMMatrixTranspose( m_viewMatrix );
 		pData->m_projection = XMMatrixTranspose( m_projectionMatrix );
+		pData->m_invView = XMMatrixTranspose( XMMatrixInverse( nullptr, m_viewMatrix ) );
+		pData->m_invProjection = XMMatrixTranspose( XMMatrixInverse( nullptr, m_projectionMatrix ) );
 
 		renderer.UnLockBuffer( viewProjBuffer );
 		renderer.BindConstantBuffer( SHADER_TYPE::VS, static_cast<int>( VS_CONSTANT_BUFFER::VIEW_PROJECTION ), 1, &viewProjBuffer );

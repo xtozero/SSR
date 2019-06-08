@@ -134,6 +134,7 @@ public:
 	virtual void SceneBegin( ) override;
 	virtual void ForwardRenderEnd( ) override;
 	virtual BYTE SceneEnd( ) override;
+	virtual void WaitGPU( ) override;
 
 	virtual RE_HANDLE CreateVertexShader( const TCHAR* pFilePath, const char* pProfile ) override;
 	virtual RE_HANDLE CreatePixelShader( const TCHAR* pFilePath, const char* pProfile ) override;
@@ -339,6 +340,22 @@ BYTE CDirect3D11::SceneEnd( )
 	return DEVICE_ERROR::NONE;
 }
 
+void CDirect3D11::WaitGPU( )
+{
+	D3D11_QUERY_DESC desc = {
+		D3D11_QUERY_EVENT,
+		0U
+	};
+
+	Microsoft::WRL::ComPtr<ID3D11Query> pQuery = nullptr;
+	if ( SUCCEEDED( m_pd3d11Device->CreateQuery( &desc, pQuery.GetAddressOf( ) ) ) )
+	{
+		m_pd3d11DeviceContext->End( pQuery.Get( ) );
+		BOOL data = 0;
+		while( m_pd3d11DeviceContext->GetData( pQuery.Get( ), &data, sizeof( data ), 0 ) != S_OK ) { }
+	}
+}
+
 RE_HANDLE CDirect3D11::CreateVertexShader( const TCHAR* pFilePath, const char* pProfile )
 {
 	return m_resourceManager.CreateVertexShader( pFilePath, pProfile );
@@ -487,17 +504,26 @@ void CDirect3D11::ClearDepthStencil( RE_HANDLE depthStencil, float depthColor, U
 void CDirect3D11::BindVertexBuffer( RE_HANDLE* pVertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pStrides, const UINT* pOffsets )
 {
 	ID3D11Buffer* buffers[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
+	UINT strides[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
+	UINT offsets[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
 
-	for ( UINT i = 0; i < numBuffers; ++i )
+	if ( pVertexBuffers )
 	{
-		if ( pVertexBuffers[i] != INVALID_HANDLE )
+		assert( pStrides != nullptr );
+		assert( pOffsets != nullptr );
+		for ( UINT i = 0; i < numBuffers; ++i )
 		{
-			const CD3D11Buffer& d3d11buffer = m_resourceManager.GetBuffer( pVertexBuffers[i] );
-			buffers[i] = d3d11buffer.Get( );
+			if ( pVertexBuffers[i] != INVALID_HANDLE )
+			{
+				const CD3D11Buffer& d3d11buffer = m_resourceManager.GetBuffer( pVertexBuffers[i] );
+				buffers[i] = d3d11buffer.Get( );
+				strides[i] = pStrides[i];
+				offsets[i] = pOffsets[i];
+			}
 		}
 	}
 
-	m_renderStateManager.SetVertexBuffer( startSlot, numBuffers, buffers, pStrides, pOffsets );
+	m_renderStateManager.SetVertexBuffer( startSlot, numBuffers, buffers, strides, offsets );
 }
 
 void CDirect3D11::BindIndexBuffer( RE_HANDLE indexBuffer, UINT indexOffset )
@@ -624,12 +650,15 @@ void CDirect3D11::BindShaderResource( SHADER_TYPE type, int startSlot, int count
 {
 	ID3D11ShaderResourceView* srvs[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {};
 
-	for ( int i = 0; i < count; ++i )
+	if ( resource )
 	{
-		if ( resource[i] != INVALID_HANDLE )
+		for ( int i = 0; i < count; ++i )
 		{
-			const CD3D11ShaderResource& d3d11srv = m_resourceManager.GetShaderResource( resource[i] );
-			srvs[i] = d3d11srv.Get( );
+			if ( resource[i] != INVALID_HANDLE )
+			{
+				const CD3D11ShaderResource& d3d11srv = m_resourceManager.GetShaderResource( resource[i] );
+				srvs[i] = d3d11srv.Get( );
+			}
 		}
 	}
 
@@ -661,12 +690,15 @@ void CDirect3D11::BindRandomAccessResource( int startSlot, int count, RE_HANDLE*
 	ID3D11UnorderedAccessView* ravs[64] = {};
 	UINT initialCounts[64] = {};
 
-	for ( int i = 0; i < count; ++i )
+	if ( resource )
 	{
-		if ( resource[i] != INVALID_HANDLE )
+		for ( int i = 0; i < count; ++i )
 		{
-			const CD3D11RandomAccessResource& d3d11rav = m_resourceManager.GetRandomAccess( resource[i] );
-			ravs[i] = d3d11rav.Get( );
+			if ( resource[i] != INVALID_HANDLE )
+			{
+				const CD3D11RandomAccessResource& d3d11rav = m_resourceManager.GetRandomAccess( resource[i] );
+				ravs[i] = d3d11rav.Get( );
+			}
 		}
 	}
 
@@ -713,18 +745,17 @@ void CDirect3D11::BindSamplerState( SHADER_TYPE type, int startSlot, int numSamp
 {
 	ID3D11SamplerState* states[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] = {};
 
-	for ( int i = 0; i < numSamplers; ++i )
+	if ( pSamplerStates )
 	{
-		if ( pSamplerStates[i] == INVALID_HANDLE )
+		for ( int i = 0; i < numSamplers; ++i )
 		{
-			states[i] = nullptr;
-		}
-		else
-		{
-			states[i] = m_resourceManager.GetSamplerState( pSamplerStates[i] ).Get( );
+			if ( pSamplerStates[i] != INVALID_HANDLE )
+			{
+				states[i] = m_resourceManager.GetSamplerState( pSamplerStates[i] ).Get( );
+			}
 		}
 	}
-
+	
 	switch ( type )
 	{
 	case VS:

@@ -27,7 +27,7 @@ void CComputeShaderUnitTest::RunUnitTest( CGameLogic& gameLogic )
 		sizeof( float ),
 		DATA_SIZE,
 		GPU_READ | GPU_WRITE,
-		RESOURCE_TYPE::UNORDERED_ACCESS | RESOURCE_TYPE::SHADER_RESOURCE,
+		RESOURCE_BIND_TYPE::UNORDERED_ACCESS | RESOURCE_BIND_TYPE::SHADER_RESOURCE,
 		RESOURCE_MISC::BUFFER_STRUCTURED,
 		data.data(),
 		0,
@@ -51,7 +51,7 @@ void CComputeShaderUnitTest::RunUnitTest( CGameLogic& gameLogic )
 	bufferTrait.m_count = 1;
 	bufferTrait.m_access = GPU_READ | GPU_WRITE | CPU_READ;
 	bufferTrait.m_miscFlag = 0;
-	bufferTrait.m_bufferType = 0;
+	bufferTrait.m_bindType = 0;
 
 	m_readBackBuffers = renderer.CreateBuffer( bufferTrait );
 	if ( m_readBackBuffers == RE_HANDLE_TYPE::INVALID_HANDLE )
@@ -62,7 +62,7 @@ void CComputeShaderUnitTest::RunUnitTest( CGameLogic& gameLogic )
 	bufferTrait.m_stride = sizeof( int );
 	bufferTrait.m_count = 4;
 	bufferTrait.m_access = GPU_READ | CPU_WRITE;
-	bufferTrait.m_bufferType = RESOURCE_TYPE::CONSTANT_BUFFER;
+	bufferTrait.m_bindType = RESOURCE_BIND_TYPE::CONSTANT_BUFFER;
 	m_constantBuffer = renderer.CreateBuffer( bufferTrait );
 	if ( m_constantBuffer == RE_HANDLE_TYPE::INVALID_HANDLE )
 	{

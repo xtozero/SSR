@@ -21,6 +21,30 @@ using RE_HANDLE = unsigned int;
 constexpr int RE_INDEX_MASK = 0x00FFFFFF;
 constexpr int RE_TYPE_MASK = 0xFF000000;
 
+namespace RESOURCE_TYPE
+{
+	enum : unsigned int
+	{
+		BUFFER = 0,
+		TEXTURE,
+		SHADER_RESOURCE,
+		RANDOM_ACCESS,
+		RENDER_TARGET,
+		DEPTH_STENCIL,
+		VERTEX_SHADER,
+		HULL_SHADER,
+		DOMAIN_SHADER,
+		GEOMETRY_SHADER,
+		PIXEL_SHADER,
+		COMPUTE_SHADER,
+		SAMPLER_STATE,
+		RASTERIZER_STATE,
+		BLEND_STATE,
+		DEPTH_STENCIL_STATE,
+		COUNT
+	};
+}
+
 namespace RE_HANDLE_TYPE
 {
 	enum : unsigned int
@@ -132,7 +156,7 @@ inline bool IsDepthStencilStateHandle( RE_HANDLE handle )
 	return DEPTH_STENCIL_STATE_HANDLE <= handle && handle < INVALID_HANDLE;
 }
 
-namespace RESOURCE_TYPE
+namespace RESOURCE_BIND_TYPE
 {
 	enum
 	{
@@ -397,7 +421,7 @@ struct BUFFER_TRAIT
 	UINT m_stride;
 	UINT m_count;
 	UINT m_access;
-	UINT m_bufferType;
+	UINT m_bindType;
 	UINT m_miscFlag;
 	void* m_srcData;
 	UINT m_pitch;
@@ -414,7 +438,7 @@ struct TEXTURE_TRAIT
 	UINT m_mipLevels;
 	UINT m_format;
 	UINT m_access;
-	UINT m_type;
+	UINT m_bindType;
 	UINT m_miscFlag;
 };
 
@@ -577,8 +601,8 @@ inline void RegisterResourceEnumString( )
 	REGISTER_ENUM_STRING( CPU_READ );
 	REGISTER_ENUM_STRING( CPU_WRITE );
 
-	// RESOURCE_TYPE
-	using namespace RESOURCE_TYPE;
+	// RESOURCE_BIND_TYPE
+	using namespace RESOURCE_BIND_TYPE;
 
 	REGISTER_ENUM_STRING( VERTEX_BUFFER );
 	REGISTER_ENUM_STRING( INDEX_BUFFER );

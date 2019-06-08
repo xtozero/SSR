@@ -7,7 +7,7 @@ void CDynamicBuffer::OnDeviceRestore( CGameLogic& gameLogic )
 {
 	IRenderer& renderer = gameLogic.GetRenderer( );
 
-	m_bufferHandle = CreateDynamicBuffer( renderer.GetResourceManager( ), m_bufferType, m_capacity );
+	m_bufferHandle = CreateDynamicBuffer( renderer.GetResourceManager( ), m_bindType, m_capacity );
 }
 
 void CDynamicBuffer::Initialize( IResourceManager& resourceMgr, unsigned int bufferType, unsigned int bufferSize )
@@ -15,7 +15,7 @@ void CDynamicBuffer::Initialize( IResourceManager& resourceMgr, unsigned int buf
 	resourceMgr.FreeResource( m_bufferHandle );
 	m_bufferHandle = CreateDynamicBuffer( resourceMgr, bufferType, bufferSize );
 	m_capacity = bufferSize;
-	m_bufferType = bufferType;
+	m_bindType = bufferType;
 }
 
 void CDynamicBuffer::Unmap( IRenderer& renderer )

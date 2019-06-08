@@ -36,7 +36,7 @@ bool BaseMesh::Load( IRenderer& renderer, UINT primitive )
 	BUFFER_TRAIT trait = { m_stride * m_nVertices,
 							1,
 							RESOURCE_ACCESS_FLAG::GPU_READ,
-							RESOURCE_TYPE::VERTEX_BUFFER,
+							RESOURCE_BIND_TYPE::VERTEX_BUFFER,
 							0,
 							m_pModelData,
 							0,
@@ -53,7 +53,7 @@ bool BaseMesh::Load( IRenderer& renderer, UINT primitive )
 	{
 		trait.m_stride = sizeof( WORD );
 		trait.m_count = m_nIndices;
-		trait.m_bufferType = RESOURCE_TYPE::INDEX_BUFFER;
+		trait.m_bindType = RESOURCE_BIND_TYPE::INDEX_BUFFER;
 		trait.m_srcData = m_pIndexData;
 
 		m_indexBuffer = renderer.CreateBuffer( trait );

@@ -49,6 +49,9 @@ public:
 	virtual RE_HANDLE CreateTexture2D( TEXTURE_TRAIT& trait, const String& textureName, const RESOURCE_INIT_DATA* initData = nullptr ) override;
 	virtual RE_HANDLE CreateTexture2D( const String& descName, const String& textureName, const RESOURCE_INIT_DATA* initData = nullptr ) override;
 
+	virtual RE_HANDLE CreateTexture3D( TEXTURE_TRAIT& trait, const String& textureName, const RESOURCE_INIT_DATA* initData = nullptr ) override;
+	virtual RE_HANDLE CreateTexture3D( const String& descName, const String& textureName, const RESOURCE_INIT_DATA* initData = nullptr ) override;
+
 	virtual RE_HANDLE RegisterTexture2D( const String& textureName, void* pTexture, bool isAppSizeDependent = false ) override;
 	virtual RE_HANDLE FindTexture( const String& textureName ) const override;
 	virtual const TEXTURE_TRAIT& GetTextureTrait( RE_HANDLE texhandle ) const override;
@@ -94,6 +97,8 @@ public:
 	// UTIL
 	virtual RE_HANDLE CreateCloneTexture( RE_HANDLE texHandle, const String& textureName ) override;
 	virtual void CopyResource( RE_HANDLE dest, const RESOURCE_REGION* destRegionOrNull, RE_HANDLE src, const RESOURCE_REGION* srcRegionOrNull ) override;
+	virtual void UpdateResourceFromMemory( RE_HANDLE dest, void* src, UINT srcRowPitch, UINT srcDepthPitch, const RESOURCE_REGION* destRegionOrNull = nullptr ) override;
+
 	virtual void FreeResource( RE_HANDLE resourceHandle ) override;
 
 	void TakeSnapshot( const String& sourceTextureName, const String& destTextureName );
@@ -118,7 +123,7 @@ public:
 	ID3D11Resource* GetD3D11ResourceGeneric( RE_HANDLE handle ) const;
 
 	CD3D11ResourceManager( ) = default;
-	~CD3D11ResourceManager( ) = default;
+	~CD3D11ResourceManager( );
 	CD3D11ResourceManager( const CD3D11ResourceManager& ) = delete;
 	CD3D11ResourceManager( CD3D11ResourceManager&& ) = delete;
 	CD3D11ResourceManager& operator=( const CD3D11ResourceManager& ) = delete;
@@ -127,6 +132,7 @@ public:
 private:
 	bool LoadShader( );
 	bool CreateVertexShaderFromScript( const KeyValue* desc, const char* profile );
+	void CleanUpFreeResourceList( );
 
 	std::vector<CD3D11DepthStencil> m_depthStencils;
 	std::vector<CD3D11RenderTarget> m_renderTargets;
@@ -143,23 +149,8 @@ private:
 	std::vector<CD3D11BlendState> m_blendStates;
 	std::vector<CD3D11DepthStencilState> m_depthStencilStates;
 
-	BYTE* m_freeDepthStencil = nullptr;
-	BYTE* m_freeRenderTarget = nullptr;
-	BYTE* m_freeShaderResource = nullptr;
-	BYTE* m_freeRandomAccess = nullptr;
-	BYTE* m_freeTexture = nullptr;
-	BYTE* m_freeBuffer = nullptr;
-
-	std::map<String, RE_HANDLE> m_dsvLUT;
-	std::map<String, RE_HANDLE> m_rtvLUT;
-	std::map<String, RE_HANDLE> m_srvLUT;
-	std::map<String, RE_HANDLE> m_ravLUT;
-	std::map<String, RE_HANDLE> m_texLUT;
-	std::map<String, RE_HANDLE> m_shaderLUT[SHADER_TYPE::MAX_SHADER];
-	std::map<String, RE_HANDLE> m_samplerStateLUT;
-	std::map<String, RE_HANDLE> m_rasterizerStateLUT;
-	std::map<String, RE_HANDLE> m_blendStateLUT;
-	std::map<String, RE_HANDLE> m_depthStencilStateLUT;
+	std::map<String, RE_HANDLE> m_resourceLUT[RESOURCE_TYPE::COUNT];
+	BYTE* m_freeResourceList[RESOURCE_TYPE::COUNT] = {};
 
 	std::map<String, TEXTURE_TRAIT> m_textureTraits;
 

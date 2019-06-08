@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Render/IRenderResource.h"
+
 #include <array>
 #include <d3d11.h>
 #include <wrl/client.h>
@@ -11,7 +13,7 @@ public:
 	unsigned int StencilRef = 0;
 };
 
-class CD3D11DepthStencilState
+class CD3D11DepthStencilState: public IRenderResource
 {
 public:
 	ID3D11DepthStencilState* Get( ) const { return m_pDepthStencilState.Get( ); }
@@ -38,7 +40,7 @@ private:
 	unsigned int m_stencilRef = 0;
 };
 
-class CD3D11RasterizerState
+class CD3D11RasterizerState : public IRenderResource
 {
 public:
 	ID3D11RasterizerState* Get( ) const { return m_pRasterizerState.Get( ); }
@@ -59,7 +61,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_pRasterizerState;
 };
 
-class CD3D11SamplerState
+class CD3D11SamplerState : public IRenderResource
 {
 public:
 	ID3D11SamplerState* Get( ) const { return m_pSamplerState.Get( ); }
@@ -87,7 +89,7 @@ struct CD3D_BLEND_DESC
 	unsigned int m_sampleMask = D3D11_DEFAULT_SAMPLE_MASK;
 };
 
-class CD3D11BlendState
+class CD3D11BlendState : public IRenderResource
 {
 public:
 	ID3D11BlendState* Get( ) const { return m_pBlendState.Get( ); }

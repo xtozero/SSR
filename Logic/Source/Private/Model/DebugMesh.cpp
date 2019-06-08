@@ -28,7 +28,7 @@ bool TriangleMesh::Load( IRenderer& renderer, UINT primitive )
 	BUFFER_TRAIT trait = { m_stride * m_nVertices,
 							1,
 							RESOURCE_ACCESS_FLAG::GPU_READ,
-							RESOURCE_TYPE::VERTEX_BUFFER,
+							RESOURCE_BIND_TYPE::VERTEX_BUFFER,
 							0,
 							m_pModelData,
 							0,

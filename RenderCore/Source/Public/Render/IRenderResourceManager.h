@@ -30,6 +30,9 @@ public:
 	virtual RE_HANDLE CreateTexture2D( TEXTURE_TRAIT& trait, const String& textureName, const RESOURCE_INIT_DATA* initData = nullptr ) = 0;
 	virtual RE_HANDLE CreateTexture2D( const String& descName, const String& textureName, const RESOURCE_INIT_DATA* initData = nullptr ) = 0;
 
+	virtual RE_HANDLE CreateTexture3D( TEXTURE_TRAIT& trait, const String& textureName, const RESOURCE_INIT_DATA* initData = nullptr ) = 0;
+	virtual RE_HANDLE CreateTexture3D( const String& descName, const String& textureName, const RESOURCE_INIT_DATA* initData = nullptr ) = 0;
+
 	virtual RE_HANDLE RegisterTexture2D( const String& textureName, void* pTexture, bool isAppSizeDependent = false ) = 0;
 	virtual RE_HANDLE FindTexture( const String& textureName ) const = 0;
 	virtual const TEXTURE_TRAIT& GetTextureTrait( RE_HANDLE texhandle ) const = 0;
@@ -67,6 +70,7 @@ public:
 	virtual RE_HANDLE CreateCloneTexture( RE_HANDLE texHandle, const String& textureName ) = 0;
 
 	virtual void CopyResource( RE_HANDLE dest, const RESOURCE_REGION* destRegionOrNull, RE_HANDLE src, const RESOURCE_REGION* srcRegionOrNull ) = 0;
+	virtual void UpdateResourceFromMemory( RE_HANDLE dest, void* src, UINT srcRowPitch, UINT srcDepthPitch, const RESOURCE_REGION* destRegionOrNull = nullptr ) = 0;
 
 	virtual void FreeResource( RE_HANDLE resourceHandle ) = 0;
 

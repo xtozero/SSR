@@ -118,7 +118,7 @@ bool CLightManager::CreateDeviceDependentResource( IRenderer& renderer )
 	BUFFER_TRAIT trait = { sizeof( ShaderLightTrait ),
 		1,
 		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
-		RESOURCE_TYPE::CONSTANT_BUFFER,
+		RESOURCE_BIND_TYPE::CONSTANT_BUFFER,
 		0,
 		nullptr,
 		0,

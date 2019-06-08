@@ -42,6 +42,7 @@ Owner<CD3D11SamplerState*> CD3D11SamplerStateFactory::GetSamplerState( ID3D11Dev
 
 		if ( newState->Create( device, foundDesc->second ) )
 		{
+			newState->SetName( stateName );
 			return newState;
 		}
 	}
@@ -135,6 +136,7 @@ Owner<CD3D11RasterizerState*> CD3D11RasterizerStateFactory::GetRasterizerState( 
 
 		if ( newState->Create( device, foundDesc->second ) )
 		{
+			newState->SetName( stateName );
 			return newState;
 		}
 		
@@ -227,6 +229,7 @@ Owner<CD3D11BlendState*> CD3D11BlendStateFactory::GetBlendState( ID3D11Device& d
 
 		if ( newState->Create( device, foundDesc->second ) )
 		{
+			newState->SetName( stateName );
 			return newState;
 		}
 
@@ -340,6 +343,7 @@ Owner<CD3D11DepthStencilState*> CD3D11DepthStencilStateFactory::GetDepthStencilS
 
 		if ( newState->Create( device, foundDesc->second ) )
 		{
+			newState->SetName( stateName );
 			return newState;
 		}
 

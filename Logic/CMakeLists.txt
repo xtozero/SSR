@@ -114,6 +114,7 @@ set (PHYSICS_SOURCE
 	"Source/Public/Physics/World.h")
 
 set (SCENE_SOURCE
+	"Source/Private/Scene/AtmosphereScattering.cpp"
 	"Source/Private/Scene/DebugOverlayManager.cpp"
 	"Source/Private/Scene/DynamicBuffer.cpp"
 	"Source/Private/Scene/RenderView.cpp"
@@ -121,6 +122,7 @@ set (SCENE_SOURCE
 	"Source/Private/Scene/ScreenBlurManager.cpp"
 	"Source/Private/Scene/ShadowManager.cpp"
 	"Source/Private/Scene/SSRManager.cpp"
+	"Source/Public/Scene/AtmosphereScattering.h"
 	"Source/Public/Scene/ConstantBufferDefine.h"
 	"Source/Public/Scene/DebugOverlayManager.h"
 	"Source/Public/Scene/DynamicBuffer.h"
@@ -159,6 +161,7 @@ include_directories(./Source/Public)
 include_directories(../Shared/Public)
 include_directories(../Engine/Source/Public)
 include_directories(../RenderCore/Source/Public)
+include_directories(../RenderCore/Shader)
 
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../lib)
 

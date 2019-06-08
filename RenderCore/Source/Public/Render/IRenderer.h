@@ -34,6 +34,7 @@ public:
 	virtual void SceneBegin( ) = 0;
 	virtual void ForwardRenderEnd( ) = 0;
 	virtual BYTE SceneEnd( ) = 0;
+	virtual void WaitGPU( ) = 0;
 
 	virtual RE_HANDLE CreateVertexShader( const TCHAR* pFilePath, const char* pProfile ) = 0;
 	virtual RE_HANDLE CreatePixelShader( const TCHAR* pFilePath, const char* pProfile ) = 0;

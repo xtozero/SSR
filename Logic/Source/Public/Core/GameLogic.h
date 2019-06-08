@@ -14,6 +14,7 @@
 #include "Physics/CollideBroad.h"
 #include "Physics/World.h"
 #include "Render/Resource.h"
+#include "Scene/AtmosphereScattering.h"
 #include "Scene/ConstantBufferDefine.h"
 #include "Scene/DebugOverlayManager.h"
 #include "Scene/RenderView.h"
@@ -101,6 +102,7 @@ private:
 	CLightManager m_lightManager;
 	CShadowManager m_shadowManager;
 	CSSRManager m_ssrManager;
+	CAtmosphericScatteringManager m_atmosphereManager;
 	CModelManager m_meshManager;
 	std::unique_ptr<IRenderer> m_pRenderer;
 	CRenderView m_view;

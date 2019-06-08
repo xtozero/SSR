@@ -95,6 +95,11 @@ bool CGameLogic::Initialize( IPlatform& platform )
 		__debugbreak( );
 	}
 
+	if ( m_atmosphereManager.Init( *this ) == false )
+	{
+		__debugbreak( );
+	}
+
 	if ( m_ui.Initialize( ) == false )
 	{
 		__debugbreak( );
@@ -341,6 +346,16 @@ void CGameLogic::SceneBegin( )
 
 void CGameLogic::DrawScene( )
 {
+	CXMFLOAT3 sunDir( 0.f, 1.0f, 0.f );
+	if ( CLight* pLight = m_lightManager.GetPrimaryLight( ) )
+	{
+		sunDir = -pLight->GetDirection( );
+	}
+
+	CCamera& playerCamera = GetLocalPlayer( )->GetCamera( );
+	m_atmosphereManager.Render( GetRenderer( ), playerCamera.GetOrigin(), sunDir );
+	m_shadowManager.PrepareBeforeRenderScene( GetRenderer() );
+
 	DrawOpaqueRenderable( );
 	DrawTransparentRenderable( );
 	DrawReflectRenderable( );
@@ -401,7 +416,7 @@ void CGameLogic::DrawUI( )
 		BUFFER_TRAIT trait = { sizeof( ImUiVertex ),
 			static_cast<UINT>( drawData.m_totalVertexCount ),
 			RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
-			RESOURCE_TYPE::VERTEX_BUFFER,
+			RESOURCE_BIND_TYPE::VERTEX_BUFFER,
 			0U,
 			nullptr,
 			0U,
@@ -413,7 +428,7 @@ void CGameLogic::DrawUI( )
 
 		trait.m_stride = sizeof( DWORD );
 		trait.m_count = drawData.m_totalIndexCount;
-		trait.m_bufferType = RESOURCE_TYPE::INDEX_BUFFER,
+		trait.m_bindType = RESOURCE_BIND_TYPE::INDEX_BUFFER,
 
 		m_uiDrawBuffer[1].m_buffer = m_pRenderer->CreateBuffer( trait );
 		m_uiDrawBuffer[1].m_prevBufferSize = drawData.m_totalIndexCount;
@@ -567,6 +582,7 @@ void CGameLogic::HandleDeviceLost( )
 	m_shadowManager.OnDeviceRestore( *this );
 	m_ssrManager.OnDeviceRestore( *this );
 	m_debugOverlay.OnDeviceRestore( *this );
+	m_atmosphereManager.OnDeviceRestore( *this );
 
 	for ( auto& object : m_gameObjects )
 	{
@@ -584,7 +600,7 @@ bool CGameLogic::CreateDeviceDependentResource( )
 	BUFFER_TRAIT trait = { sizeof( GeometryTransform ),
 		1,
 		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
-		RESOURCE_TYPE::CONSTANT_BUFFER,
+		RESOURCE_BIND_TYPE::CONSTANT_BUFFER,
 		0,
 		nullptr,
 		0,

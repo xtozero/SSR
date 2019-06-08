@@ -41,6 +41,7 @@ namespace PS_CONSTANT_BUFFER
 		SURFACE,
 		UTIL,
 		SHADOW,
+		ATMOSPHERIC,
 	};
 }
 
@@ -54,6 +55,8 @@ struct ViewProjectionTrasform
 {
 	CXMFLOAT4X4 m_view;
 	CXMFLOAT4X4 m_projection;
+	CXMFLOAT4X4 m_invView;
+	CXMFLOAT4X4 m_invProjection;
 };
 
 struct PassConstant
