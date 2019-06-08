@@ -3,6 +3,17 @@ cd ..\..\bin
 mkdir Shader
 cd ..\RenderCore\Shader
 
+fxc /Fo csExperimental.cso				/Zi /T cs_4_0 /E main csExperimental.fx
+fxc /Fo csTransmittance.cso				/Zi /T cs_5_0 /E main AtmoshpericScattering/csTransmittance.fx
+fxc /Fo csIrradiance1.cso				/Zi /T cs_5_0 /E main AtmoshpericScattering/csIrradiance1.fx
+fxc /Fo csInscatter1.cso				/Zi /T cs_5_0 /E main AtmoshpericScattering/csInscatter1.fx
+fxc /Fo csCopyIrradiance.cso				/Zi /T cs_5_0 /E main AtmoshpericScattering/csCopyIrradiance.fx
+fxc /Fo csCopyInscatter1.cso				/Zi /T cs_5_0 /E main AtmoshpericScattering/csCopyInscatter1.fx
+fxc /Fo csInscatterS.cso				/Zi /T cs_5_0 /E main AtmoshpericScattering/csInscatterS.fx
+fxc /Fo csIrradianceN.cso				/Zi /T cs_5_0 /E main AtmoshpericScattering/csIrradianceN.fx
+fxc /Fo csInscatterN.cso				/Zi /T cs_5_0 /E main AtmoshpericScattering/csInscatterN.fx
+fxc /Fo csCopyInscatterN.cso				/Zi /T cs_5_0 /E main AtmoshpericScattering/csCopyInscatterN.fx
+
 fxc /Fo gsCascadedShadowmap.cso			/Zi /T gs_4_0 /E main gsCascadedShadowmap.fx
 
 fxc /Fo psCascadedShadowmap.cso			/Zi /T ps_4_0 /E main psCascadedShadowmap.fx
@@ -22,6 +33,7 @@ fxc /Fo psGaussianBlurY.cso			/Zi /T ps_4_0 /E main psGaussianBlurY.fx
 fxc /Fo psDrawBackfaceDepth.cso			/Zi /T ps_4_0 /E main psDrawBackfaceDepth.fx
 fxc /Fo psDrawUI.cso				/Zi /T ps_4_0 /E psMain drawUI.fx
 fxc /Fo psDebugOverlay.cso			/Zi /T ps_4_0 /E psMain debugOverlay.fx
+fxc /Fo psDrawAtmosphere.cso		/Zi /T ps_4_0 /E main AtmoshpericScattering/psDrawAtmosphere.fx
 
 fxc /Fo vsCascadedShadowmap.cso			/Zi /T vs_4_0 /E main vsCascadedShadowmap.fx
 fxc /Fo vsDepthStencil.cso 			/Zi /T vs_4_0 /E main vsDepthStencil.fx
@@ -34,6 +46,7 @@ fxc /Fo vsTutorial.cso 				/Zi /T vs_4_0 /E main vsTutorial.fx
 fxc /Fo vsDrawBackfaceDepth.cso			/Zi /T vs_4_0 /E main vsDrawBackfaceDepth.fx
 fxc /Fo vsDrawUI.cso				/Zi /T vs_4_0 /E vsMain drawUI.fx
 fxc /Fo vsDebugOverlay.cso			/Zi /T vs_4_0 /E vsMain debugOverlay.fx
+fxc /Fo vsDrawAtmosphere.cso		/Zi /T vs_4_0 /E main AtmoshpericScattering/vsDrawAtmosphere.fx
 copy /Y "*.cso" "..\..\bin\Shader\*.cso"
 DEL "*.cso"
 pause>nul
