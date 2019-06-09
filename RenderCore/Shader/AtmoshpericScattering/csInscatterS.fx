@@ -1,7 +1,5 @@
 #include "atmosphereCommon.fxh"
 
-static const int GROUP_X = 4;
-
 static const float dphi = M_PI / float( INSCATTER_SPHERICAL_INTEGRAL_SAMPLES );
 static const float dtheta = M_PI / float( INSCATTER_SPHERICAL_INTEGRAL_SAMPLES );
 

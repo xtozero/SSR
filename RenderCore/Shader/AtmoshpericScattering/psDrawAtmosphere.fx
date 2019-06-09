@@ -19,36 +19,36 @@ struct PS_INPUT
 	float3 wolrdPos : POSITION0;
 };
 
-float3 InscatterColor( float3 x, float t, float3 viewRay, float altitude, float mu, out float3 attenuation )
+float3 InscatterColor( float3 x, float t, float3 viewRay, float r, float mu, out float3 attenuation )
 {
 	float3 result = 0.f;
 	attenuation = 1.f;
 
-	float d = -altitude * mu - sqrt( altitude * altitude * ( mu * mu - 1.f ) + Rt * Rt );
+	float d = -r * mu - sqrt( r * r * ( mu * mu - 1.f ) + Rt * Rt );
 	if ( d > 0.f )
 	{
 		x += d * viewRay;
 		t -= d;
-		mu = ( altitude * mu + d ) / Rt;
-		altitude = Rt;
+		mu = ( r * mu + d ) / Rt;
+		r = Rt;
 	}
 
 	static const float EPS = 0.005f;
 
-	if ( altitude < Rg + HeightOffset + EPS )
+	if ( r < Rg + HeightOffset + EPS )
 	{
-		float diff = ( Rg + HeightOffset + EPS ) - altitude;
+		float diff = ( Rg + HeightOffset + EPS ) - r;
 		x -= diff * viewRay;
 		t -= diff;
-		mu = dot( x, viewRay ) / altitude;
-		altitude = Rg + HeightOffset + EPS;
+		mu = dot( x, viewRay ) / r;
+		r = Rg + HeightOffset + EPS;
 	}
 
-	if ( altitude <= Rt )
+	if ( r <= Rt )
 	{
 		float nu = dot( viewRay, g_sunDir.xyz );
-		float muS = dot( x, g_sunDir.xyz ) / altitude;
-		float4 inscatter = max( Sample4D( inscatterTex, inscatterSampler, altitude, mu, muS, nu ), 0.f );
+		float muS = dot( x, g_sunDir.xyz ) / r;
+		float4 inscatter = max( Sample4D( inscatterTex, inscatterSampler, r, mu, muS, nu ), 0.f );
 
 		if ( t > 0.f )
 		{
@@ -57,30 +57,30 @@ float3 InscatterColor( float3 x, float t, float3 viewRay, float altitude, float 
 			float mu0 = dot( x0, viewRay ) / altitude0;
 			float muS0 = dot( x0, g_sunDir.xyz ) / altitude0;
 
-			attenuation = AnalyticTransmittance( altitude, mu, t );
+			attenuation = AnalyticTransmittance( r, mu, t );
 
 			if ( altitude0 > Rg + HeightOffset )
 			{
 				inscatter = max( inscatter - attenuation.rgbr * Sample4D( inscatterTex, inscatterSampler, altitude0, mu0, muS0, nu ), 0.f );
 
-				float muHoriz = -sqrt( 1.f - ( Rg / altitude ) * ( Rg / altitude ) );
+				float muHoriz = -sqrt( 1.f - ( Rg / r ) * ( Rg / r ) );
 				if ( abs( mu - muHoriz ) < EPS )
 				{
 					float a = ( ( mu - muHoriz ) + EPS ) / ( 2.f * EPS );
 
 					mu = muHoriz - EPS;
-					altitude0 = sqrt( altitude * altitude + t * t + 2.f * altitude * t * mu );
-					mu0 = ( altitude * mu + t ) / altitude0;
+					altitude0 = sqrt( r * r + t * t + 2.f * r * t * mu );
+					mu0 = ( r * mu + t ) / altitude0;
 
-					float4 inscatter0 = Sample4D( inscatterTex, inscatterSampler, altitude, mu, muS, nu );
+					float4 inscatter0 = Sample4D( inscatterTex, inscatterSampler, r, mu, muS, nu );
 					float4 inscatter1 = Sample4D( inscatterTex, inscatterSampler, altitude0, mu0, muS0, nu );
 					float4 inscatterA = max( inscatter0 - attenuation.rgbr * inscatter1, 0.f );
 
 					mu = muHoriz + EPS;
-					altitude0 = sqrt( altitude * altitude + t * t + 2.f * altitude * t * mu );
-					mu0 = ( altitude * mu + t ) / altitude0;
+					altitude0 = sqrt( r * r + t * t + 2.f * r * t * mu );
+					mu0 = ( r * mu + t ) / altitude0;
 
-					inscatter0 = Sample4D( inscatterTex, inscatterSampler, altitude, mu, muS, nu );
+					inscatter0 = Sample4D( inscatterTex, inscatterSampler, r, mu, muS, nu );
 					inscatter1 = Sample4D( inscatterTex, inscatterSampler, altitude0, mu0, muS0, nu );
 					float4 inscatterB = max( inscatter0 - attenuation.rgbr * inscatter1, 0.f );
 
@@ -99,7 +99,7 @@ float3 InscatterColor( float3 x, float t, float3 viewRay, float altitude, float 
 	return result * ISun;
 }
 
-float3 GroundColor( float3 x, float t, float3 viewRay, float altitude, float mu, float3 attenuation )
+float3 GroundColor( float3 x, float t, float3 viewRay, float r, float mu, float3 attenuation )
 {
 	float3 result = 0.f;
 
@@ -128,7 +128,7 @@ float3 GroundColor( float3 x, float t, float3 viewRay, float altitude, float mu,
 	return result;
 }
 
-float3 SunColor( float3 x, float t, float3 viewRay, float altitude, float mu )
+float3 SunColor( float3 x, float t, float3 viewRay, float r, float mu )
 {
 	if ( t > 0.f )
 	{
@@ -136,7 +136,7 @@ float3 SunColor( float3 x, float t, float3 viewRay, float altitude, float mu )
 	}
 	else
 	{
-		float3 transmittance = altitude <= Rt ? TransmittanceWithShadow( altitude, mu ) : 1.f;
+		float3 transmittance = r <= Rt ? TransmittanceWithShadow( r, mu ) : 1.f;
 		float isun = step( cos( M_PI / 180 ), dot( viewRay, g_sunDir.xyz ) ) * ISun;
 		return transmittance * isun;
 	}
@@ -159,15 +159,15 @@ float4 main( PS_INPUT input ) : SV_Target
 	float3 viewPos = g_cameraPos.xyz * scale;
 	viewPos.y += Rg + HeightOffset;
 
-	float altitude = length( viewPos );
+	float r = length( viewPos );
 
-	float mu = dot( viewPos, viewRay ) / altitude;
-	float t = -altitude * mu - sqrt( altitude * altitude * ( mu * mu - 1.f ) + Rg * Rg );
+	float mu = dot( viewPos, viewRay ) / r;
+	float t = -r * mu - sqrt( r * r * ( mu * mu - 1.f ) + Rg * Rg );
 
 	float3 attenuation;
-	float3 inscatterColor = InscatterColor( viewPos, t, viewRay, altitude, mu, attenuation );
-	float3 groundColor = GroundColor( viewPos, t, viewRay, altitude, mu, attenuation );
-	float3 sunColor = SunColor( viewPos, t, viewRay, altitude, mu );
+	float3 inscatterColor = InscatterColor( viewPos, t, viewRay, r, mu, attenuation );
+	float3 groundColor = GroundColor( viewPos, t, viewRay, r, mu, attenuation );
+	float3 sunColor = SunColor( viewPos, t, viewRay, r, mu );
 
 	return float4( HDR( sunColor + inscatterColor + groundColor ), 1.f );
 }

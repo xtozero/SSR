@@ -1,19 +1,19 @@
 #include "AtmosphereConstant.h"
 
-static const float Rg = 6360.f;
-static const float Rt = 6420.f;
-static const float RL = 6421.f;
+static const float Rg = 6360.f;	// Altitude ground( km ) 
+static const float Rt = 6420.f;	// Altitude atmosphere( km )
+static const float RL = 6421.f;	// Altitude limit( km )
 
 static const float AVERAGE_GROUND_REFLECTANCE = 0.1;
 
 // Rayleigh
-static const float HR = 8.f;
-static const float3 betaR = float3( 5.8e-3f, 1.35e-2f, 3.31e-2f );
+static const float HR = 8.f; // HeightScale Rayleigh
+static const float3 betaR = float3( 5.8e-3f, 1.35e-2f, 3.31e-2f ); // REK 04, Table 3
 
 // Mie
-static const float HM = 1.2f;
+static const float HM = 1.2f; // HeightScale Mie
 static const float3 betaMSca = 4e-3f;
-static const float3 betaMEx = betaMSca / 0.9f;
+static const float3 betaMEx = betaMSca / 0.9f; // Figure 6 BetaMieScattering / BetaMieExtinction = 0.9
 static const float mieG = 0.8f;
 
 static const int TRANSMITTANCE_INTEGRAL_SAMPLES = 500;
@@ -48,6 +48,8 @@ SamplerState deltaJSampler : register( s4 );
 #define TRANSMITTANCE_NON_LINEAR
 #define INSCATTER_NON_LINEAR
 
+// r : altitude
+// mu : cos( view ray zenith angle at view ray origin )
 float limit( float r, float mu )
 {
 	float dout = -r * mu + sqrt( r * r * ( mu * mu - 1.f ) + RL * RL );
@@ -87,6 +89,8 @@ float3 TransmittanceWithShadow( float r, float mu )
 	return mu < -sqrt( 1.0 - ( Rg / r ) * ( Rg / r ) ) ? 0.f : Transmittance( r, mu );
 }
 
+// transmittance of atmosphere between x and x0
+// d : distance between x and x0
 float3 Transmittance( float r, float mu, float d )
 {
 	float3 result;
@@ -121,6 +125,7 @@ void GetRdhdH( int layer, out float r, out float4 dhdH )
 	dhdH.w = rho;
 }
 
+// muS : cos( sun zenith angle )
 float2 GetIrradianceUV( float r, float muS )
 {
 	float uR = ( r - Rg ) / ( Rt - Rg );
@@ -134,6 +139,7 @@ void GetIrradianceRMuS( uint3 DTid, out float r, out float muS )
 	muS = -0.2f + DTid.x / ( float( IRRADIANCE_W ) - 1.f ) * ( 1.f + 0.2f );
 }
 
+// nu : cos( angle between sun and view ray )
 float4 Sample4D( Texture3D tex, SamplerState texSampler, float r, float mu, float muS, float nu )
 {
 	float H = sqrt( Rt * Rt - Rg * Rg );
@@ -187,6 +193,7 @@ void GetMuMuSNu( int3 DTid, float r, float4 dhdH, out float mu, out float muS, o
 	nu = -1.f + floor( x / float( RES_MU_S ) ) / ( float( RES_NU ) - 1.f ) * 2.f;
 }
 
+// H : height scale
 float OpticalDepth( float H, float r, float mu, float d )
 {
 	float a = sqrt( ( 0.5 / H ) * r );
