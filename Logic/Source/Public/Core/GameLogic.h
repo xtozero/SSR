@@ -61,6 +61,7 @@ public:
 	RE_HANDLE GetCommonConstantBuffer( int purpose ) { return m_commonConstantBuffer[purpose]; }
 	CRenderView& GetView( ) { return m_view; }
 	const std::pair<UINT, UINT>& GetAPPSize( ) { return m_appSize; }
+	const CTimer& GetTimer( ) const { return m_clock; }
 
 private:
 	void StartLogic ( );

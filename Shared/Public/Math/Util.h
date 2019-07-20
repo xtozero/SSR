@@ -3,6 +3,7 @@
 #include "CXMFloat.h"
 
 #include <cmath>
+#include <utility>
 #include <windows.h>
 
 // http://www.songho.ca/math/plane/plane.html
@@ -128,4 +129,24 @@ inline CXMFLOAT3X3 MakeSphereInertiaTensor( const float radius, float mass )
 
 	float coeff = 0.4f * mass * radius * radius;
 	return MakeInertiaTensorCoeffs( coeff, coeff, coeff );
+}
+
+inline CXMFLOAT3 SphericalToCartesian( float inclination, float azimuth )
+{
+	float sinTheta = sin( inclination );
+	float cosTheta = cos( inclination );
+	float sinPhi = sin( azimuth );
+	float cosPhi = cos( azimuth );
+
+	return CXMFLOAT3( sinTheta * sinPhi, cosTheta, -sinTheta * cosPhi );
+}
+
+inline std::pair<float, float> CartesianToSpherical( const CXMFLOAT3& cartesian )
+{
+	using namespace DirectX;
+
+	float theta = acos( cartesian.y / ( XMVectorGetX( XMVector3Length( cartesian ) ) ) );
+	float phi = atan2( cartesian.x, -cartesian.z );
+
+	return std::make_pair( theta, phi );
 }

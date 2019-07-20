@@ -24,7 +24,7 @@ void Inscatter( float r, float mu, float muS, float nu, out float3 raymie )
 	float cthetamin = -sqrt( 1.f - ( Rg * Rg ) / ( r * r ) );
 
 	float3 v = float3( sqrt( 1.0 - mu * mu ), 0.f, mu );
-	float sx = v.x == 0.f ? 0.f : ( nu - muS * mu ) / v.x;
+	float sx = v.x == 0.f ? 0.f : ( nu - muS * mu ) / v.x; // https://en.wikipedia.org/wiki/Spherical_trigonometry#Derivation_of_the_cosine_rule
 	float3 s = float3( sx, sqrt( max( 0.f, 1.f - sx * sx - muS * muS ) ), muS );
 
 	raymie = 0.f;

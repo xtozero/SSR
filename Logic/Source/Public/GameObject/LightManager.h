@@ -36,6 +36,7 @@ public:
 	void SpawnLights( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& objectList );
 
 	void UpdateToRenderer( IRenderer& renderer, const CCamera& camera );
+	void OnLightPropertyUpdated( ) { m_needUpdateToRenderer = true; }
 
 	void SetCameraPosition( const CXMFLOAT3& cameraPos );
 	void SetGlobalAmbient( const CXMFLOAT4& globalAmbient );

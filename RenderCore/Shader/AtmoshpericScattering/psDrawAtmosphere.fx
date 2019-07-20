@@ -116,11 +116,12 @@ float3 GroundColor( float3 x, float t, float3 viewRay, float r, float mu, float3
 
 		float3 sceneColor = float3( 0.35f, 0.35f, 0.35f );
 		float3 reflectance = sceneColor * float3( 0.2f, 0.2f, 0.2f );
-		if ( altitude0 > Rg + HeightOffset ) {
+		if ( altitude0 > Rg + HeightOffset ) 
+		{
 			reflectance = float3( 0.4f, 0.4f, 0.4f );
 		}
 
-		float3 groundColor = reflectance * ISun / M_PI * ( max( muS, 0.f ) ) * sunLight + groundSkyLight;
+		float3 groundColor = reflectance * ISun / M_PI * ( max( muS, 0.f ) ) * ( sunLight + groundSkyLight );
 
 		result = attenuation * groundColor;
 	}

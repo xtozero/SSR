@@ -14,6 +14,7 @@ public:
 
 private:
 	void OnMouseLButton( const UserInput& input, CGameLogic& gameLogic );
+	void RotatePrimaryLightDir( CGameLogic& gameLogic, float deltaTheta, float deltaPhi );
 
 	CCamera m_camera;
 };
