@@ -5,6 +5,8 @@
 #include "Physics/BoundingSphere.h"
 #include "Physics/OrientedBoundingBox.h"
 
+#include <algorithm>
+
 using namespace DirectX;
 
 namespace
@@ -362,7 +364,7 @@ unsigned int BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const CAa
 
 	for ( int i = 0; i < 3; ++i )
 	{
-		float overlap = ( totalSize[i] - fabsf( max( lhsMax[i], rhsMax[i] ) - min( lhsMin[i], rhsMin[i] ) ) ) * 0.5f;
+		float overlap = ( totalSize[i] - fabsf( std::max( lhsMax[i], rhsMax[i] ) - std::min( lhsMin[i], rhsMin[i] ) ) ) * 0.5f;
 		
 		if ( overlap < bestOverlap )
 		{
@@ -604,8 +606,8 @@ float RayAndBox( const CXMFLOAT3& rayOrigin, const CXMFLOAT3& rayDir, const CXMF
 				std::swap( t1, t2 );
 			}
 
-			t_min = max( t1, t_min );
-			t_max = min( t2, t_max );
+			t_min = std::max( t1, t_min );
+			t_max = std::min( t2, t_max );
 
 			if ( t_min > t_max )
 			{
@@ -633,5 +635,5 @@ float RayAndSphere( const CXMFLOAT3& rayOrigin, const CXMFLOAT3& rayDir, const C
 		return -1.f;
 	}
 
-	return max( 0.f, sqrtf( tangentSqr ) - sqrtf( radiusSqr - normalVectorSqr ) );
+	return std::max( 0.f, sqrtf( tangentSqr ) - sqrtf( radiusSqr - normalVectorSqr ) );
 }

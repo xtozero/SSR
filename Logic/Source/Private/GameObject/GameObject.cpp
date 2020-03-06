@@ -35,7 +35,7 @@ void CGameObject::OnDeviceRestore( CGameLogic& gameLogic )
 	LoadMaterial( gameLogic );
 }
 
-bool CGameObject::Initialize( CGameLogic& gameLogic, int id )
+bool CGameObject::Initialize( CGameLogic& gameLogic, std::size_t id )
 {
 	if ( LoadModelMesh( gameLogic ) == false )
 	{

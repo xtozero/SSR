@@ -1,6 +1,7 @@
 add_definitions(-DRENDERCORE_EXPORTS=1)
 add_definitions(-DUNICODE=1)
 add_definitions(-D_UNICODE=1)
+add_definitions(-DNOMINMAX=1)
 
 set (PRECOMPILED
 	"Source/RenderOutputManager.cpp"
@@ -54,7 +55,7 @@ include_directories(../Shared/Public)
 include_directories(../Engine/Source/Public)
 include_directories($ENV{DXSDK_DIR}include)
 
-if (NOT "${CMAKE_GENERATOR}" MATCHES "(WIN64|IA64)")
+if (CMAKE_SIZEOF_VOID_P EQUAL 4)
 link_directories($ENV{DXSDK_DIR}lib/x86)
 else()
 link_directories($ENV{DXSDK_DIR}lib/x64)

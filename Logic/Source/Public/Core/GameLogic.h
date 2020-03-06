@@ -120,7 +120,7 @@ private:
 	struct ImUiDrawBuffer
 	{
 		RE_HANDLE m_buffer = RE_HANDLE_TYPE::INVALID_HANDLE;
-		int m_prevBufferSize = 0;
+		UINT m_prevBufferSize = 0;
 	};
 
 	ImUiDrawBuffer m_uiDrawBuffer[2];

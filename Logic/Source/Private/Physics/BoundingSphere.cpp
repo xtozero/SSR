@@ -11,6 +11,8 @@
 #include "Physics/Ray.h"
 #include "Scene/DebugOverlayManager.h"
 
+#include <algorithm>
+
 using namespace DirectX;
 
 namespace
@@ -37,8 +39,8 @@ namespace
 		{
 			float tmp0 = ( radius - bdotn ) / ddotn;
 			float tmp1 = ( -radius - bdotn ) / ddotn;
-			t0 = min( tmp0, tmp1 );
-			t1 = max( tmp0, tmp1 );
+			t0 = std::min( tmp0, tmp1 );
+			t1 = std::max( tmp0, tmp1 );
 			return true;
 		}
 	}
@@ -68,7 +70,7 @@ void BoundingSphere::Update( const CXMFLOAT3& scaling, const CXMFLOAT4& /*rotati
 	BoundingSphere* orig = dynamic_cast<BoundingSphere*>( original );
 	m_origin = translation;
 
-	float maxScaling = max( scaling.x, max( scaling.y, max( scaling.z, 1 ) ) );
+	float maxScaling = std::max( scaling.x, std::max( scaling.y, std::max( scaling.z, 1.f ) ) );
 	m_radius = orig->GetRadius() * maxScaling;
 }
 

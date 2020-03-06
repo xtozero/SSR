@@ -10,6 +10,7 @@
 #include "Scene/ConstantBufferDefine.h"
 #include "Util.h"
 
+#include <algorithm>
 
 using namespace DirectX;
 
@@ -241,8 +242,8 @@ bool CLightManager::CreateOrenNayarLUTAndBind( IRenderer& renderer )
 			LdotN *= 2.f;
 			LdotN -= 1.f;
 
-			float alpha = max( acosf( VdotN ), acosf( LdotN ) );
-			float beta = min( acosf( VdotN ), acosf( LdotN ) );
+			float alpha = std::max( acosf( VdotN ), acosf( LdotN ) );
+			float beta = std::min( acosf( VdotN ), acosf( LdotN ) );
 
 			lookup[i + j * lookupSize] = sinf( alpha ) * tanf( beta );
 		}

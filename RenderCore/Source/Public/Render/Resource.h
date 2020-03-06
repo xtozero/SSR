@@ -67,7 +67,7 @@ namespace RE_HANDLE_TYPE
 	};
 }
 
-inline RE_HANDLE MakeResourceHandle( int handleType, int index )
+inline RE_HANDLE MakeResourceHandle( int handleType, std::size_t index )
 {
 	return static_cast<RE_HANDLE>( handleType | index );
 }

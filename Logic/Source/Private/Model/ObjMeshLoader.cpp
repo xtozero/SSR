@@ -6,6 +6,7 @@
 #include "Model/ObjMesh.h"
 #include "Util.h"
 
+#include <algorithm>
 #include <assert.h>
 #include <fstream>
 #include <iostream>
@@ -139,7 +140,8 @@ Owner<IMesh*> CObjMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR
 			auto iter = m_faceMtlGroup.rbegin( );
 			if ( iter != m_faceMtlGroup.rend( ) )
 			{
-				iter->m_endFaceIndex = max( m_faceInfo.size( ) - 1, 0 );
+				assert( m_faceInfo.size( ) <= UINT_MAX );
+				iter->m_endFaceIndex = std::max( static_cast<UINT>( m_faceInfo.size( ) - 1 ), 0U );
 			}
 		}
 		else if ( token.find( _T( "mtllib" ) ) != String::npos )
@@ -184,21 +186,23 @@ Owner<IMesh*> CObjMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR
 	}
 
 	const std::vector<MeshVertex>& buildedVertices = BuildVertices( );
-	std::vector<WORD> buildedindices;
+	std::vector<WORD> buildedIndices;
 	
 	for ( auto iter = buildedVertices.begin(); iter != buildedVertices.end(); ++iter )
 	{
-		buildedindices.push_back( static_cast<WORD>( std::distance( buildedVertices.begin( ), iter ) ) );
+		buildedIndices.push_back( static_cast<WORD>( std::distance( buildedVertices.begin( ), iter ) ) );
 	}
 
-	int vertexCount = buildedVertices.size( );
-	int indexCount = buildedindices.size( );
+	assert( buildedVertices.size( ) <= UINT_MAX );
+	UINT vertexCount = static_cast<UINT>( buildedVertices.size( ) );
+	assert( buildedIndices.size( ) <= UINT_MAX );
+	UINT indexCount = static_cast<UINT>( buildedIndices.size( ) );
 
 	MeshVertex* vertices = new MeshVertex[vertexCount];
 	WORD* indices = new WORD[indexCount];
 
-	::memcpy_s( vertices, sizeof(MeshVertex) * vertexCount, &buildedVertices[0], sizeof(MeshVertex)* vertexCount );
-	::memcpy_s( indices, sizeof(WORD) * indexCount, &buildedindices[0], sizeof(WORD)* indexCount );
+	::memcpy_s( vertices, sizeof(MeshVertex) * vertexCount, &buildedVertices[0], sizeof(MeshVertex) * vertexCount );
+	::memcpy_s( indices, sizeof(WORD) * indexCount, &buildedIndices[0], sizeof(WORD) * indexCount );
 
 	CObjMesh* newMesh = new CObjMesh;
 
@@ -253,7 +257,8 @@ std::vector<MeshVertex> CObjMeshLoader::BuildVertices( )
 		static_cast<float>( rand( ) ) / RAND_MAX,
 		static_cast<float>( rand( ) ) / RAND_MAX );
 
-	UINT count = m_faceInfo.size( );
+	assert( m_faceInfo.size( ) <= UINT_MAX );
+	UINT count = static_cast<UINT>( m_faceInfo.size( ) );
 
 	UINT startGroupIdx = 0;
 	auto iter = m_faceMtlGroup.begin( );
@@ -317,7 +322,8 @@ void CObjMeshLoader::LoadMaterialFile( const TCHAR* pFileName, SurfaceMap& surfa
 		std::vector<String> params;
 		UTIL::Split( token, params, _T( ' ' ) );
 
-		UINT count = params.size( );
+		assert( params.size( ) <= UINT_MAX );
+		UINT count = static_cast<UINT>( params.size( ) );
 
 		if ( token.compare( 0, 1, _T( "#" ) ) == 0 )
 		{
@@ -406,7 +412,7 @@ void CObjMeshLoader::CalcObjNormal( )
 	}
 
 	std::vector<UINT> idxList;
-	idxList.reserve( max( m_positions.size( ), m_faceInfo.size() ) );
+	idxList.reserve( std::max( m_positions.size( ), m_faceInfo.size() ) );
 
 	if ( m_faceInfo.size() != 0 )
 	{

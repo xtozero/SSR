@@ -5,17 +5,19 @@
 #include "Render/IRenderer.h"
 #include "Render/IRenderResourceManager.h"
 
+#include <cstddef>
+
 class CDynamicBuffer : public IGraphicsDeviceNotify
 {
 public:
 	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
 
-	void Initialize( IResourceManager& resourceMgr, unsigned int bufferType, unsigned int bufferSize );
+	void Initialize( IResourceManager& resourceMgr, unsigned int bufferType, UINT bufferSize );
 	
 	RE_HANDLE GetHandle( ) const { return m_bufferHandle; }
 
 	template <typename T>
-	T* Map( IRenderer& renderer, unsigned int size )
+	T* Map( IRenderer& renderer, UINT size )
 	{
 		if ( m_capacity < size )
 		{
@@ -41,10 +43,10 @@ public:
 	void Unmap( IRenderer& renderer );
 
 private:
-	RE_HANDLE CreateDynamicBuffer( IResourceManager& resourceMgr, unsigned int bufferType, unsigned int bufferSize );
+	RE_HANDLE CreateDynamicBuffer( IResourceManager& resourceMgr, unsigned int bufferType, UINT bufferSize );
 
 	RE_HANDLE m_bufferHandle = RE_HANDLE_TYPE::INVALID_HANDLE;
-	size_t m_capacity = 0;
+	std::size_t m_capacity = 0;
 	unsigned int m_bindType = RESOURCE_BIND_TYPE::VERTEX_BUFFER;
 	void* m_lockedBuffer = nullptr;
 };

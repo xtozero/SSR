@@ -16,6 +16,7 @@
 - Windows 7 or later
 - CMake
 - Visual Studio 2017
+- [DirectX SDK June 2010](https://www.microsoft.com/en-us/download/details.aspx?id=6812)
 
 ## How to build
 
@@ -30,8 +31,10 @@
 5. Type in command line
 
    ```
-   cmake .. -G "Visual Studio 15"
+   cmake .. -G "Visual Studio 15 Win64"
    ```
+   
+6. Open 'Screen Space Reflection.sln' and Build
 
 ## Screenshot
 

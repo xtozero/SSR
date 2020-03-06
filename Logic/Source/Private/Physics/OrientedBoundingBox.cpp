@@ -66,7 +66,7 @@ void COrientedBoundingBox::Update( const CXMFLOAT3& scaling, const CXMFLOAT4& ro
 	}
 }
 
-void COrientedBoundingBox::CalcSubMeshBounds( std::vector<std::unique_ptr<ICollider>>& subColliders )
+void COrientedBoundingBox::CalcSubMeshBounds( std::vector<std::unique_ptr<ICollider>>& /*subColliders*/ )
 {
 }
 
@@ -78,7 +78,7 @@ float COrientedBoundingBox::Intersect( const CRay& ray ) const
 	return RayAndBox( rayOrigin, rayDir, m_halfSize, -m_halfSize );
 }
 
-int COrientedBoundingBox::Intersect( const CFrustum& frustum ) const
+int COrientedBoundingBox::Intersect( const CFrustum& /*frustum*/ ) const
 {
 	return 0;
 }

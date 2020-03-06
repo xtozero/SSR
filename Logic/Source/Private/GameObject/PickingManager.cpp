@@ -108,7 +108,7 @@ bool CPickingManager::CreateWorldSpaceRay( CRay& ray, float x, float y )
 
 	if ( curViewport != m_viewports.end( ) )
 	{
-		m_curSelectedIdx = std::distance( m_viewports.begin( ), curViewport );
+		m_curSelectedIdx = static_cast<int>( std::distance( m_viewports.begin( ), curViewport ) );
 
 		if ( m_curSelectedIdx > -1 )
 		{

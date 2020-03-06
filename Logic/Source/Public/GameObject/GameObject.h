@@ -7,6 +7,8 @@
 #include "Render/Resource.h"
 #include "Scene/INotifyGraphicsDevice.h"
 
+#include <cstddef>
+#include <limits>
 #include <memory>
 
 enum DIRTY_FLAG
@@ -44,7 +46,7 @@ class CGameObject : IGraphicsDeviceNotify
 {
 public:
 	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
-	virtual bool Initialize( CGameLogic& gameLogic, int id );
+	virtual bool Initialize( CGameLogic& gameLogic, std::size_t id );
 	virtual void SetPosition( const float x, const float y, const float z );
 	virtual void SetPosition( const CXMFLOAT3& pos );
 	virtual void SetScale( const float xScale, const float yScale, const float zScale );
@@ -52,8 +54,8 @@ public:
 	virtual void SetRotate( const float pitch, const float yaw, const float roll );
 	virtual void SetRotate( const CXMFLOAT3& pitchYawRoll );
 
-	int GetID( ) const { return m_id; }
-	void SetID( int id ) { m_id = id; }
+	std::size_t GetID( ) const { return m_id; }
+	void SetID( std::size_t id ) { m_id = id; }
 
 	const CXMFLOAT3& GetPosition( );
 	const CXMFLOAT3& GetScale( );
@@ -123,7 +125,7 @@ private:
 	void UpdateSubCollider( COLLIDER::TYPE type );
 
 private:
-	int m_id = -1;
+	std::size_t m_id = std::numeric_limits<std::size_t>::max( );
 
 	CXMFLOAT3 m_vecPos = { 0.f, 0.f, 0.f };
 	CXMFLOAT3 m_vecScale = { 1.f, 1.f, 1.f };

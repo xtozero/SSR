@@ -176,12 +176,12 @@ CAaboundingbox::CAaboundingbox( const std::vector<CXMFLOAT3>& points )
 
 void CAaboundingbox::Merge( const CXMFLOAT3& vec )
 {
-	m_max.x = max( m_max.x, vec.x );
-	m_max.y = max( m_max.y, vec.y );
-	m_max.z = max( m_max.z, vec.z );
-	m_min.x = min( m_min.x, vec.x );
-	m_min.y = min( m_min.y, vec.y );
-	m_min.z = min( m_min.z, vec.z );
+	m_max.x = std::max( m_max.x, vec.x );
+	m_max.y = std::max( m_max.y, vec.y );
+	m_max.z = std::max( m_max.z, vec.z );
+	m_min.x = std::min( m_min.x, vec.x );
+	m_min.y = std::min( m_min.y, vec.y );
+	m_min.z = std::min( m_min.z, vec.z );
 }
 
 void TransformAABB( CAaboundingbox& result, const CAaboundingbox& src, const CXMFLOAT4X4& mat )

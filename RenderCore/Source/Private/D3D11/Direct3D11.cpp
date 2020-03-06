@@ -451,7 +451,8 @@ void CDirect3D11::SetViewports( const Viewport* viewPorts, int count )
 		d3d11Viewports.push_back( newVeiwport );
 	}
 
-	m_pd3d11DeviceContext->RSSetViewports( d3d11Viewports.size( ), d3d11Viewports.data( ) );
+	assert( d3d11Viewports.size( ) <= UINT_MAX );
+	m_pd3d11DeviceContext->RSSetViewports( static_cast<UINT>( d3d11Viewports.size( ) ), d3d11Viewports.data( ) );
 }
 
 void CDirect3D11::SetScissorRects( const RECT* rects, int size )

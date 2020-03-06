@@ -1,6 +1,7 @@
 add_definitions(-DLOGIC_EXPORTS=1)
 add_definitions(-DUNICODE=1)
 add_definitions(-D_UNICODE=1)
+add_definitions(-DNOMINMAX=1)
 
 set (PRECOMPILED
 	"Source/stdafx.cpp"
@@ -105,7 +106,7 @@ set (PHYSICS_SOURCE
 	"Source/Public/Physics/Movement.h"
 	"Source/Public/Physics/OrientedBoundingBox.h"
 	"Source/Public/Physics/Particle.h"
-	"Source/PUblic/Physics/ParticleContacts.h"
+	"Source/Public/Physics/ParticleContacts.h"
 	"Source/Public/Physics/ParticleForceGenerator.h"
 	"Source/Public/Physics/ParticleLinks.h"
 	"Source/Public/Physics/ParticleWorld.h"

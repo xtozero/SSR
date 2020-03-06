@@ -5,7 +5,7 @@
 
 using namespace DirectX;
 
-bool CLight::Initialize( CGameLogic& /*gameLogic*/, int id )
+bool CLight::Initialize( CGameLogic& /*gameLogic*/, std::size_t id )
 {
 	SetID( id );
 	return true;

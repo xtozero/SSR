@@ -2,13 +2,15 @@
 
 #include "CommonMeshDefine.h"
 
+#include <cassert>
+#include <cstddef>
 #include <vector>
 #include <windef.h>
 
 struct MeshData 
 {
 	std::vector<MeshVertex> m_vertices;
-	std::vector<WORD> m_indices;
+	std::vector<DWORD> m_indices;
 };
 
 namespace MeshBuildHelper
@@ -19,7 +21,7 @@ namespace MeshBuildHelper
 
 		MeshData copy = meshData;
 
-		int numTris = meshData.m_indices.size( ) / 3;
+		std::size_t numTris = meshData.m_indices.size( ) / 3;
 
 		meshData.m_vertices.clear( );
 		meshData.m_indices.clear( );
@@ -121,7 +123,8 @@ namespace MeshBuildHelper
 			}
 		}
 
-		UINT southPoleIndex = meshData.m_vertices.size( ) - 1;
+		assert( ( meshData.m_vertices.size( ) - 1 ) <= UINT_MAX );
+		UINT southPoleIndex = static_cast<UINT>( meshData.m_vertices.size( ) - 1 );
 		baseIndex = southPoleIndex - ringVertexCount;
 
 		for ( UINT x = 0; x < sliceCount; ++x )
@@ -273,7 +276,8 @@ namespace MeshBuildHelper
 			}
 		}
 
-		UINT southPoleIndex = meshData.m_vertices.size( ) - 1;
+		assert( ( meshData.m_vertices.size( ) - 1 ) <= UINT_MAX );
+		UINT southPoleIndex = static_cast<UINT>( meshData.m_vertices.size( ) - 1 );
 		baseIndex = southPoleIndex - ringcount;
 
 		for ( UINT x = 0; x <= sliceCount; ++x )
@@ -363,14 +367,14 @@ namespace MeshBuildHelper
 
 		meshData.m_vertices.resize( m * n );
 
-		for ( int i = 0; i < m; ++i )
+		for ( UINT i = 0; i < m; ++i )
 		{
 			float z = halfDepth - i * dz;
-			for ( int j = 0; j < n; ++j )
+			for ( UINT j = 0; j < n; ++j )
 			{
 				float x = -halfWidth + j * dx;
 
-				MeshVertex& vertex = meshData.m_vertices[i*n + j];
+				MeshVertex& vertex = meshData.m_vertices[i * n + j];
 				vertex.m_position = CXMFLOAT3( x, 0.f, z );
 				vertex.m_normal = CXMFLOAT3( 0.f, 1.f, 0.f );
 				vertex.m_texcoord = CXMFLOAT2( j * du, i * dv );
@@ -380,9 +384,9 @@ namespace MeshBuildHelper
 		meshData.m_indices.resize( ( m - 1 ) * ( n - 1 ) * 6 );
 
 		int k = 0;
-		for ( int i = 0, iEnd = m - 1; i < iEnd; ++i )
+		for ( UINT i = 0, iEnd = m - 1; i < iEnd; ++i )
 		{
-			for ( int j = 0, jEnd = n - 1; j < jEnd; ++j )
+			for ( UINT j = 0, jEnd = n - 1; j < jEnd; ++j )
 			{
 				meshData.m_indices[k++] = i * n + j;
 				meshData.m_indices[k++] = i * n + j + 1;

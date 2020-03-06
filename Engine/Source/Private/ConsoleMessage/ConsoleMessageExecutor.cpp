@@ -3,6 +3,8 @@
 
 #include "Util.h"
 
+#include <cstddef>
+
 class ConsoleMessageExecutor : public IConsoleMessageExecutor
 {
 public:
@@ -75,7 +77,7 @@ public:
 	}
 
 	virtual const std::vector<String>& ArgV( ) const override { return m_argV; }
-	virtual int ArgC( ) const override { return m_argC; }
+	virtual std::size_t ArgC( ) const override { return m_argC; }
 
 private:
 	void TokenizingCmdString( const String& cmdString )
@@ -88,7 +90,7 @@ private:
 	std::map<String, IConsoleMessage*> m_consoleMessages;
 
 	std::vector<String> m_argV;
-	int m_argC = 0;
+	std::size_t m_argC = 0;
 
 	std::stack<String> m_commandStack;
 	std::mutex m_commandStackMutex;

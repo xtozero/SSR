@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include <cstddef>
 #include <sstream>
 #include <tchar.h>
 #include <vector>
@@ -46,9 +47,9 @@ namespace UTIL
 
 	inline void SplitByBracket( const String& string, std::vector<String>& params, const TCHAR startToken, const TCHAR endToken )
 	{
-		auto curIdx = 0;
-		auto startPos = string.find( startToken, curIdx );
-		auto endPos = string.find( endToken, ++startPos );
+		std::size_t curIdx = 0;
+		std::size_t startPos = string.find( startToken, curIdx );
+		std::size_t endPos = string.find( endToken, ++startPos );
 
 		while ( startPos != String::npos && endPos != String::npos )
 		{

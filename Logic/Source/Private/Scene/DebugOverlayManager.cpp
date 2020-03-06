@@ -4,6 +4,8 @@
 #include "Core/GameLogic.h"
 #include "Render/Resource.h"
 
+#include <cassert>
+
 using namespace DirectX;
 
 void CDebugOverlayManager::OnDeviceRestore( CGameLogic& gameLogic )
@@ -80,7 +82,8 @@ void CDebugOverlayManager::DrawPrimitive( IRenderer& renderer, float deltaTime )
 		unsigned int m_color;
 	};
 
-	DebugPrimitiveVertex* vertices = m_dynamicVB.Map<DebugPrimitiveVertex>( renderer, sizeof( DebugPrimitiveVertex ) * ( m_debugLine.size( ) * 2 + m_debugTriangle.size( ) * 3 ) );
+	assert( ( m_debugLine.size( ) * 2 + m_debugTriangle.size( ) * 3 ) <= UINT_MAX );
+	DebugPrimitiveVertex* vertices = m_dynamicVB.Map<DebugPrimitiveVertex>( renderer, sizeof( DebugPrimitiveVertex ) * static_cast<UINT>( m_debugLine.size( ) * 2 + m_debugTriangle.size( ) * 3 ) );
 	if ( vertices == nullptr )
 	{
 		__debugbreak( );
@@ -116,9 +119,11 @@ void CDebugOverlayManager::DrawPrimitive( IRenderer& renderer, float deltaTime )
 	renderer.BindVertexBuffer( &handle, 0, 1, &stride, &offset );
 	renderer.BindMaterial( m_debugMaterial );
 
-	size_t debugLineSize = m_debugLine.size( ) * 2;
+	assert( ( m_debugLine.size( ) * 2 ) <= UINT_MAX );
+	UINT debugLineSize = static_cast<UINT>( m_debugLine.size( ) * 2 );
 	renderer.Draw( RESOURCE_PRIMITIVE::LINELIST, debugLineSize );
-	renderer.Draw( RESOURCE_PRIMITIVE::TRIANGLELIST, m_debugTriangle.size() * 3, debugLineSize );
+	assert( ( m_debugTriangle.size( ) * 3 ) <= UINT_MAX );
+	renderer.Draw( RESOURCE_PRIMITIVE::TRIANGLELIST, static_cast<UINT>( m_debugTriangle.size() * 3 ), debugLineSize );
 }
 
 void CDebugOverlayManager::AddDebugLine( const CXMFLOAT3& from, const CXMFLOAT3& to, unsigned int color, float life )

@@ -6,6 +6,8 @@
 #include "Render/Resource.h"
 #include "UserInput/UserInput.h"
 
+#include <cassert>
+#include <cstddef>
 #include <map>
 #include <memory>
 #include <stack>
@@ -176,7 +178,7 @@ struct ImDrawList
 
 	void AddFilledRect( const CXMFLOAT2& pos, const CXMFLOAT2& size, const CXMFLOAT4& color, float rounding = 0.f, int reoundingFlag = ImDrawCorner::All );
 	void AddConvexPolyFilled( const CXMFLOAT2* points, const int count, const CXMFLOAT4& color );
-	void AddText( CTextAtlas& font, const CXMFLOAT2& pos, const CXMFLOAT4& color, const char* text, int count );
+	void AddText( CTextAtlas& font, const CXMFLOAT2& pos, const CXMFLOAT4& color, const char* text, UINT count );
 	void AddTriangleFilled( const CXMFLOAT2& v0, const CXMFLOAT2& v1, const CXMFLOAT2& v2, const CXMFLOAT4& color );
 
 	void BufferReserve( int vertexCount, int indexCount );
@@ -205,8 +207,8 @@ struct ImDrawList
 struct ImDrawData
 {
 	std::vector<ImDrawList*> m_drawLists;
-	int m_totalVertexCount;
-	int m_totalIndexCount;
+	UINT m_totalVertexCount;
+	UINT m_totalIndexCount;
 };
 
 using ImGUID = unsigned int;
@@ -284,7 +286,7 @@ struct FontUV
 class CTextAtlas
 {
 public:
-	CXMFLOAT2 CalcTextSize( const char* text, int count ) const;
+	CXMFLOAT2 CalcTextSize( const char* text, UINT count ) const;
 	FontUV* FindGlyph( char ch );
 
 	RE_HANDLE m_texture = RE_HANDLE_TYPE::INVALID_HANDLE;
@@ -382,7 +384,7 @@ public:
 	template <typename... T>
 	void Text( const char* format, T... args );
 
-	void TextUnformatted( const char* text, int count );
+	void TextUnformatted( const char* text, UINT count );
 
 	void SameLine( float xPos = 0.f, float wSpacing = -1.0f );
 
@@ -393,7 +395,7 @@ public:
 	const ImUiStyle& GetCurStyle( ) const { return m_curStyle; }
 	const Rect& GetClientRect( ) const { return m_clientRect; }
 
-	CXMFLOAT2 CalcTextSize( const char* text, int count ) const;
+	CXMFLOAT2 CalcTextSize( const char* text, UINT count ) const;
 	CXMFLOAT2 GetWindowContextRegionMax( );
 	float GetFontHeight( ) const;
 	float GetFrameHeight( ) const;
@@ -417,7 +419,7 @@ private:
 
 	void RenderFrame( const CXMFLOAT2& pos, const CXMFLOAT2& size, const CXMFLOAT4& color, float rounding = 0.f );
 	void RenderText( const CXMFLOAT2& pos, const char* text, int count );
-	void RenderClippedText( const CXMFLOAT2& posMin, const CXMFLOAT2& posMax, const char* text, int count, const CXMFLOAT2& align );
+	void RenderClippedText( const CXMFLOAT2& posMin, const CXMFLOAT2& posMax, const char* text, UINT count, const CXMFLOAT2& align );
 	void RenderArrow( const CXMFLOAT2& pos, ImDir::Type dir, float scale = 1.f );
 	void PushClipRect( const Rect& clipRect );
 
@@ -441,7 +443,7 @@ private:
 	void OpenPopupEx( ImGUID id );
 	void EndPopup( );
 	void ClosePopupsOverWindow( ImUiWindow* refWindow );
-	void ClosePopupToLevel( int remaining );
+	void ClosePopupToLevel( std::size_t remaining );
 	void CloseCurrentPopup( );
 	bool IsPopupOpen( ImGUID id );
 
@@ -506,6 +508,8 @@ inline void ImUI::Text( const char* format, T... args )
 
 	char temp[1024] = {};
 	sprintf_s( temp, format, args... );
-	int count = std::strlen( temp );
-	TextUnformatted( temp, count );
+
+	std::size_t count = std::strlen( temp );
+	assert( count <= UINT_MAX );
+	TextUnformatted( temp, static_cast<UINT>( count ) );
 }

@@ -4,6 +4,7 @@
 #include "ConCommand.h"
 #include "IConsoleMessage.h"
 
+#include <cstddef>
 #include <functional>
 #include <map>
 #include <memory>
@@ -21,7 +22,7 @@ public:
 	virtual void Execute( ) = 0;
 
 	virtual const std::vector<String>& ArgV( ) const = 0;
-	virtual int ArgC( ) const = 0;
+	virtual std::size_t ArgC( ) const = 0;
 
 	virtual ~IConsoleMessageExecutor( ) = default;
 };

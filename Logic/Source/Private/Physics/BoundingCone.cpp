@@ -2,6 +2,8 @@
 #include "Physics/BoundingCone.h"
 #include "physics/BoundingSphere.h"
 
+#include <algorithm>
+
 CBoundingCone::CBoundingCone( const std::vector<CAaboundingbox>& boxes, const CXMFLOAT4X4& projection, const CXMFLOAT3& apex )
 	: m_apex( apex )
 {
@@ -55,10 +57,10 @@ CBoundingCone::CBoundingCone( const std::vector<CAaboundingbox>& boxes, const CX
 		{
 			CXMFLOAT3 tmp = XMVector3TransformCoord( point, m_lookAt );
 
-			maxTanX = max( maxTanX, abs( tmp.x / tmp.z ) );
-			maxTanY = max( maxTanY, abs( tmp.y / tmp.z ) );
-			m_near = min( m_near, tmp.z );
-			m_far = max( m_far, tmp.z );
+			maxTanX = std::max( maxTanX, abs( tmp.x / tmp.z ) );
+			maxTanY = std::max( maxTanY, abs( tmp.y / tmp.z ) );
+			m_near = std::min( m_near, tmp.z );
+			m_far = std::max( m_far, tmp.z );
 		}
 
 		m_fovX = atanf( maxTanX );
@@ -98,10 +100,10 @@ CBoundingCone::CBoundingCone( const std::vector<CAaboundingbox>& boxes, const CX
 		{
 			CXMFLOAT3 point = XMVector3TransformCoord( box.Point( j ), concatMatrix );
 
-			maxTanX = max( maxTanX, abs( point.x / point.z ) );
-			maxTanY = max( maxTanY, abs( point.y / point.z ) );
-			m_near = min( m_near, point.z );
-			m_far = max( m_far, point.z );
+			maxTanX = std::max( maxTanX, abs( point.x / point.z ) );
+			maxTanY = std::max( maxTanY, abs( point.y / point.z ) );
+			m_near = std::min( m_near, point.z );
+			m_far = std::max( m_far, point.z );
 		}
 	}
 

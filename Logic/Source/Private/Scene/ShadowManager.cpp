@@ -12,6 +12,8 @@
 #include "Scene/ConstantBufferDefine.h"
 #include "Util.h"
 
+#include <algorithm>
+
 using namespace DirectX;
 
 namespace
@@ -584,12 +586,12 @@ void CShadowManager::ClassifyShadowCasterAndReceiver( CGameLogic& gameLogic, std
 
 		for ( const CAaboundingbox& aabb : m_shadowReceiverPoints )
 		{
-			minZ = min( minZ, aabb.GetMin( ).z );
-			maxZ = max( maxZ, aabb.GetMax( ).z );
+			minZ = std::min( minZ, aabb.GetMin( ).z );
+			maxZ = std::max( maxZ, aabb.GetMax( ).z );
 		}
 
-		m_receiversNear = max( view.GetNear( ), minZ );
-		m_receiversFar = min( view.GetFar( ), maxZ );
+		m_receiversNear = std::max( view.GetNear( ), minZ );
+		m_receiversFar = std::min( view.GetFar( ), maxZ );
 		m_slideBack = 0.f;
 	}
 	else
@@ -604,14 +606,14 @@ void CShadowManager::ClassifyShadowCasterAndReceiver( CGameLogic& gameLogic, std
 
 	for ( const CAaboundingbox& aabb : m_shadowCasterPoints )
 	{
-		m_castersNear = min( m_castersNear, aabb.GetMin( ).z );
-		m_castersFar = max( m_castersFar, aabb.GetMax( ).z );
+		m_castersNear = std::min( m_castersNear, aabb.GetMin( ).z );
+		m_castersFar = std::max( m_castersFar, aabb.GetMax( ).z );
 	}
 
 	if ( m_shadowType == ShadowType::PSM )
 	{
-		m_castersNear = max( view.GetNear( ), m_castersNear );
-		m_castersFar = max( view.GetFar( ), m_castersFar );
+		m_castersNear = std::max( view.GetNear( ), m_castersNear );
+		m_castersFar = std::max( view.GetFar( ), m_castersFar );
 	}
 
 }
@@ -652,8 +654,8 @@ void CShadowManager::BuildOrthoShadowProjectionMatrix( CGameLogic& gameLogic, in
 	{
 		float height = view.GetFov( );
 		float width = height * view.GetAspect( );
-		float zNear = max( view.GetNear( ), zClipNear );
-		float zFar = min( view.GetFar( ), zClipFar );
+		float zNear = std::max( view.GetNear( ), zClipNear );
+		float zFar = std::min( view.GetFar( ), zClipFar );
 
 		frustumAABB.SetMax( width * zFar, height * zFar, zFar );
 		frustumAABB.SetMin( -width * zFar, -height * zFar, zNear );
@@ -723,8 +725,8 @@ void CShadowManager::BuildPSMProjectionMatrix( CGameLogic& gameLogic, int cascad
 {
 	using namespace DirectX;
 
-	zClipNear = max( zClipNear, m_receiversNear );
-	zClipFar = min( zClipFar, m_receiversFar );
+	zClipNear = std::max( zClipNear, m_receiversNear );
+	zClipFar = std::min( zClipFar, m_receiversFar );
 
 	std::vector<CAaboundingbox> clipedResivePoints;
 	clipedResivePoints.reserve( m_shadowReceiverPoints.size( ) );
@@ -881,7 +883,7 @@ void CShadowManager::BuildPSMProjectionMatrix( CGameLogic& gameLogic, int cascad
 			}
 			lightView = viewCone.GetLookAt( );
 			
-			float fNear = max( 0.001f, viewCone.GetNear( ) * 0.3f );
+			float fNear = std::max( 0.001f, viewCone.GetNear( ) * 0.3f );
 			lightProjection = XMMatrixPerspectiveLH_NoAssert( 2.f * tanf( viewCone.GetFovX( ) ) * -fNear, 2.f * tanf( viewCone.GetFovY( ) ) * -fNear, -fNear, fNear );
 		}
 		else
@@ -925,7 +927,7 @@ void CShadowManager::BuildPSMProjectionMatrix( CGameLogic& gameLogic, int cascad
 				fFar = distance + 2.f * ppCubeRadius;
 			}
 
-			fNear = max( 0.001f, fNear );
+			fNear = std::max( 0.001f, fNear );
 			lightProjection = XMMatrixPerspectiveFovLH( fFovy, fAspect, fNear, fFar );
 		}
 	}
@@ -1018,9 +1020,9 @@ void CShadowManager::BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, int casc
 		{
 			tmp = point - lightSpaceOrigin;
 
-			maxX = max( maxX, abs( tmp.x / tmp.z ) );
-			maxY = max( maxY, abs( tmp.y / tmp.z ) );
-			maxZ = max( maxZ, tmp.z );
+			maxX = std::max( maxX, abs( tmp.x / tmp.z ) );
+			maxY = std::max( maxY, abs( tmp.y / tmp.z ) );
+			maxZ = std::max( maxZ, tmp.z );
 		}
 
 		// float fovX = XMConvertToDegrees( atanf(maxX) );
@@ -1069,10 +1071,10 @@ void CShadowManager::BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, int casc
 
 			CAaboundingbox receiverBox( receiverPoints );
 			
-			float minX = min( -1.f, receiverBox.GetMin().x );
-			float minY = min( -1.f, receiverBox.GetMin( ).y );
-			maxX = max( 1.f, receiverBox.GetMax( ).x );
-			maxY = max( 1.f, receiverBox.GetMax( ).y );
+			float minX = std::min( -1.f, receiverBox.GetMin().x );
+			float minY = std::min( -1.f, receiverBox.GetMin( ).y );
+			maxX = std::max( 1.f, receiverBox.GetMax( ).x );
+			maxY = std::max( 1.f, receiverBox.GetMax( ).y );
 
 			float boxWidth = maxX - minX;
 			float boxHeight = maxY - minY;

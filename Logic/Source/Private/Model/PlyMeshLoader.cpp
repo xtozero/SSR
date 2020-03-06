@@ -4,6 +4,7 @@
 #include "Model/CommonMeshDefine.h"
 #include "Model/PlyMesh.h"
 
+#include <algorithm>
 #include <assert.h>
 #include <fstream>
 #include <vector>
@@ -29,7 +30,7 @@ namespace
 		}
 
 		std::vector<UINT> idxList;
-		idxList.reserve( max( vertexCount, indexCount ) );
+		idxList.reserve( std::max( vertexCount, indexCount ) );
 
 		if ( indexCount != 0 )
 		{

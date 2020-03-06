@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "UI/ImUI.h"
 
+#include <algorithm>
+
 using namespace std::rel_ops;
 
 void ImDrawList::Clear( )
@@ -114,7 +116,7 @@ void ImDrawList::AddConvexPolyFilled( const CXMFLOAT2* points, const int count, 
 	m_curIndex += static_cast<UINT>( vertexCount );
 }
 
-void ImDrawList::AddText( CTextAtlas& font, const CXMFLOAT2& pos, const CXMFLOAT4& color, const char* text, int count )
+void ImDrawList::AddText( CTextAtlas& font, const CXMFLOAT2& pos, const CXMFLOAT4& color, const char* text, UINT count )
 {
 	if ( color.w == 0.f )
 	{
@@ -129,11 +131,13 @@ void ImDrawList::AddText( CTextAtlas& font, const CXMFLOAT2& pos, const CXMFLOAT
 	float x = pos.x + font.m_displayOffset.x;
 	float y = pos.y + font.m_displayOffset.y;
 
-	const int vtxCount = count * 4;
-	const int idxCount = count * 6;
+	assert( ( count * 4 ) <= UINT_MAX );
+	UINT vtxCount = count * 4;
+	assert( ( count * 6 ) <= UINT_MAX );
+	UINT idxCount = count * 6;
 	BufferReserve( vtxCount, idxCount );
 
-	for ( int i = 0; i < count; ++i )
+	for ( UINT i = 0; i < count; ++i )
 	{
 		if ( FontUV* glyph = font.FindGlyph( text[i] ) )
 		{
@@ -248,8 +252,8 @@ void ImDrawList::PathArcToFast( const CXMFLOAT2& centre, float radius, int minOf
 
 void ImDrawList::PathRect( const CXMFLOAT2& pos, const CXMFLOAT2& size, float rounding, int roundingFlag )
 {
-	rounding = min( rounding, size.x * ( ( ( roundingFlag & ImDrawCorner::Top ) == ImDrawCorner::Top ) || ( ( roundingFlag & ImDrawCorner::Bottom ) == ImDrawCorner::Bottom ) ? 0.5f : 1.0f ) - 1.0f );
-	rounding = min( rounding, size.y * ( ( ( roundingFlag & ImDrawCorner::Left ) == ImDrawCorner::Left ) || ( ( roundingFlag & ImDrawCorner::Right ) == ImDrawCorner::Right ) ? 0.5f : 1.0f ) - 1.0f );
+	rounding = std::min( rounding, size.x * ( ( ( roundingFlag & ImDrawCorner::Top ) == ImDrawCorner::Top ) || ( ( roundingFlag & ImDrawCorner::Bottom ) == ImDrawCorner::Bottom ) ? 0.5f : 1.0f ) - 1.0f );
+	rounding = std::min( rounding, size.y * ( ( ( roundingFlag & ImDrawCorner::Left ) == ImDrawCorner::Left ) || ( ( roundingFlag & ImDrawCorner::Right ) == ImDrawCorner::Right ) ? 0.5f : 1.0f ) - 1.0f );
 
 	const CXMFLOAT2& a = pos;
 	const CXMFLOAT2& b = pos + size;

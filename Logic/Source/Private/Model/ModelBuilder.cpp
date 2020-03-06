@@ -99,7 +99,8 @@ IMesh* CModelBuilder::Build( IRenderer& renderer, const String& meshName, UINT p
 
 	std::unique_ptr<CMeshBuilderMesh> newMesh = std::make_unique<CMeshBuilderMesh>();
 
-	UINT vertexCount = m_vertices.size( );
+	assert( m_vertices.size( ) <= UINT_MAX );
+	UINT vertexCount = static_cast<UINT>( m_vertices.size( ) );
 	MeshVertex* vertices = new MeshVertex[vertexCount];
 
 	for ( UINT i = 0; i < vertexCount; ++i )
@@ -109,7 +110,8 @@ IMesh* CModelBuilder::Build( IRenderer& renderer, const String& meshName, UINT p
 
 	newMesh->SetModelData( vertices, vertexCount );
 
-	UINT indexCount = m_indices.size( );
+	assert( m_indices.size( ) <= UINT_MAX );
+	UINT indexCount = static_cast<UINT>( m_indices.size( ) );
 	WORD* indices = new WORD[indexCount];
 
 	for ( UINT i = 0; i < indexCount; ++i )

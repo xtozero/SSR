@@ -4,6 +4,7 @@
 #include "ConsoleMessage/ConVar.h"
 #include "Util.h"
 
+#include <cstddef>
 #include <fstream>
 #include <iostream>
 #include <tchar.h>
@@ -229,8 +230,8 @@ void CKeyValueReader::LoadKeyValueFromFileInternal( Ifstream& file, KeyValue* ke
 
 		std::getline( file, buffer );
 
-		int curIdx = 0;
-		int len = buffer.length( );
+		std::size_t curIdx = 0;
+		std::size_t len = buffer.length( );
 
 		while ( curIdx < len )
 		{

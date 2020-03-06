@@ -4,12 +4,13 @@
 #include "ConsoleMessage/ConsoleMessageExecutor.h"
 #include "Util.h"
 
+#include <cstddef>
 #include <tchar.h>
 #include <vector>
 
 void CConVar::Execute( )
 {
-	int argC = GetConsoleMessageExecutor( ).ArgC( );
+	std::size_t argC = GetConsoleMessageExecutor( ).ArgC( );
 
 	if ( argC == 1 )
 	{

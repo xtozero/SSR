@@ -8,6 +8,7 @@
 #include "DataStructure/KeyValueReader.h"
 #include "Util.h"
 
+#include <cstddef>
 #include <D3Dcompiler.h>
 #include <D3DX11.h>
 #include <DXGI.h>
@@ -247,7 +248,7 @@ namespace
 		{
 			shader.SetName( fileName );
 
-			int idx = ( &shader - &shaders.front( ) );
+			std::size_t idx = ( &shader - &shaders.front( ) );
 			RE_HANDLE handle = MakeResourceHandle( RE_HANDLE_TYPE, idx );
 
 			lut.emplace( fileName, handle );
@@ -367,7 +368,7 @@ RE_HANDLE CD3D11ResourceManager::LoadTextureFromFile( const String& fileName )
 		}
 	}
 
-	int idx = ( newTexture - &m_textures.front( ) );
+	std::size_t idx = ( newTexture - &m_textures.front( ) );
 	RE_HANDLE handle = MakeResourceHandle( TEXTURE_HANDLE, idx );
 	m_resourceLUT[TEXTURE].emplace( fileName, handle );
 
@@ -404,7 +405,7 @@ RE_HANDLE CD3D11ResourceManager::CreateTexture1D( TEXTURE_TRAIT& trait, const St
 
 	if ( newTexture->Create( *m_pDevice, textureName, TEXTURE_TYPE::TEXTURE_1D, trait, initData ) )
 	{
-		int idx = ( newTexture - &m_textures.front() );
+		std::size_t idx = ( newTexture - &m_textures.front() );
 		RE_HANDLE handle = MakeResourceHandle( TEXTURE_HANDLE, idx );
 
 		m_resourceLUT[TEXTURE].emplace( textureName, handle );
@@ -464,7 +465,7 @@ RE_HANDLE CD3D11ResourceManager::CreateTexture2D( TEXTURE_TRAIT& trait, const St
 
 	if ( newTexture->Create( *m_pDevice, textureName, TEXTURE_TYPE::TEXTURE_2D, trait, initData ) )
 	{
-		int idx = ( newTexture - &m_textures.front( ) );
+		std::size_t idx = ( newTexture - &m_textures.front( ) );
 		RE_HANDLE handle = MakeResourceHandle( TEXTURE_HANDLE, idx );
 
 		m_resourceLUT[TEXTURE].emplace( textureName, handle );
@@ -524,7 +525,7 @@ RE_HANDLE CD3D11ResourceManager::CreateTexture3D( TEXTURE_TRAIT & trait, const S
 
 	if ( newTexture->Create( *m_pDevice, textureName, TEXTURE_TYPE::TEXTURE_3D, trait, initData ) )
 	{
-		int idx = ( newTexture - &m_textures.front( ) );
+		std::size_t idx = ( newTexture - &m_textures.front( ) );
 		RE_HANDLE handle = MakeResourceHandle( TEXTURE_HANDLE, idx );
 
 		m_resourceLUT[TEXTURE].emplace( textureName, handle );
@@ -579,7 +580,7 @@ RE_HANDLE CD3D11ResourceManager::RegisterTexture2D( const String& textureName, v
 	Microsoft::WRL::ComPtr<ID3D11Resource> texture = static_cast<ID3D11Resource*>( pTexture );
 	newTexture->SetTexture( texture, isAppSizeDependent );
 
-	int idx = ( newTexture - &m_textures.front( ) );
+	std::size_t idx = ( newTexture - &m_textures.front( ) );
 	RE_HANDLE handle = MakeResourceHandle( TEXTURE_HANDLE, idx );
 
 	m_resourceLUT[TEXTURE].emplace( textureName, handle );
@@ -728,7 +729,7 @@ RE_HANDLE CD3D11ResourceManager::CreateBuffer( const BUFFER_TRAIT& trait )
 
 	if ( pBuffer->Create( *m_pDevice, trait ) )
 	{
-		int idx = ( pBuffer - &m_buffers.front() );
+		std::size_t idx = ( pBuffer - &m_buffers.front() );
 		return MakeResourceHandle( BUFFER_HANDLE, idx );
 	}
 	else
@@ -924,7 +925,7 @@ RE_HANDLE CD3D11ResourceManager::CreateRenderTarget( RE_HANDLE texhandle, const 
 
 	if ( newRenderTarget->CreateRenderTarget( *m_pDevice, renderTargetName, texture, trait ) )
 	{
-		int idx = ( newRenderTarget - &m_renderTargets.front( ) );
+		std::size_t idx = ( newRenderTarget - &m_renderTargets.front( ) );
 		RE_HANDLE handle = MakeResourceHandle( RENDER_TARGET_HANDLE, idx );
 
 		m_resourceLUT[RENDER_TARGET].emplace( renderTargetName, handle );
@@ -964,7 +965,7 @@ RE_HANDLE CD3D11ResourceManager::CreateDepthStencil( RE_HANDLE texhandle, const 
 
 	if ( newDepthStencil->CreateDepthStencil( *m_pDevice, depthStencilName, texture, trait ) )
 	{
-		int idx = ( newDepthStencil - &m_depthStencils.front() );
+		std::size_t idx = ( newDepthStencil - &m_depthStencils.front() );
 		RE_HANDLE handle = MakeResourceHandle( DEPTH_STENCIL_HANDLE, idx );
 
 		m_resourceLUT[DEPTH_STENCIL].emplace( depthStencilName, handle );
@@ -1042,7 +1043,7 @@ RE_HANDLE CD3D11ResourceManager::CreateShaderResourceFromFile( const String& fil
 	
 	if ( newShaderResource->CreateShaderResourceFromFile( *m_pDevice, fileName ) )
 	{
-		int idx = ( newShaderResource - &m_shaderResources.front( ) );
+		std::size_t idx = ( newShaderResource - &m_shaderResources.front( ) );
 		handle = MakeResourceHandle( SHADER_RESOURCE_HANDLE, idx );
 
 		m_resourceLUT[SHADER_RESOURCE].emplace( fileName, handle );
@@ -1099,7 +1100,7 @@ RE_HANDLE CD3D11ResourceManager::CreateTextureShaderResource( RE_HANDLE texHandl
 	const CD3D11Texture& texture = GetTexture( texHandle );
 	if ( newResource->CreateShaderResource( *m_pDevice, resourceName, texture, trait ) )
 	{
-		int idx = ( newResource - &m_shaderResources.front( ) );
+		std::size_t idx = ( newResource - &m_shaderResources.front( ) );
 		RE_HANDLE handle = MakeResourceHandle( SHADER_RESOURCE_HANDLE, idx );
 
 		m_resourceLUT[SHADER_RESOURCE].emplace( resourceName, handle );
@@ -1140,7 +1141,7 @@ RE_HANDLE CD3D11ResourceManager::CreateBufferShaderResource( RE_HANDLE bufHandle
 	const CD3D11Buffer& buffer = GetBuffer( bufHandle );
 	if ( newResource->CreateShaderResource( *m_pDevice, resourceName, buffer, trait ) )
 	{
-		int idx = ( newResource - &m_shaderResources.front( ) );
+		std::size_t idx = ( newResource - &m_shaderResources.front( ) );
 		RE_HANDLE handle = MakeResourceHandle( SHADER_RESOURCE_HANDLE, idx );
 
 		m_resourceLUT[SHADER_RESOURCE].emplace( resourceName, handle );
@@ -1178,7 +1179,7 @@ void CD3D11ResourceManager::RegisterShaderResource( const String& resourceName, 
 
 	newResource->SetShaderResourceView( srView );
 
-	int idx = ( newResource - &m_shaderResources.front( ) );
+	std::size_t idx = ( newResource - &m_shaderResources.front( ) );
 	RE_HANDLE handle = MakeResourceHandle( SHADER_RESOURCE_HANDLE, idx );
 
 	m_resourceLUT[SHADER_RESOURCE].emplace( resourceName, handle );
@@ -1225,7 +1226,7 @@ RE_HANDLE CD3D11ResourceManager::CreateTextureRandomAccess( RE_HANDLE texHandle,
 
 	if ( newResource->CreateRandomAccessResource( *m_pDevice, resourceName, texture, trait ) )
 	{
-		int idx = ( newResource - &m_randomAccessResource.front( ) );
+		std::size_t idx = ( newResource - &m_randomAccessResource.front( ) );
 		RE_HANDLE handle = MakeResourceHandle( RANDOM_ACCESS_HANDLE, idx );
 
 		m_resourceLUT[RANDOM_ACCESS].emplace( resourceName, handle );
@@ -1266,7 +1267,7 @@ RE_HANDLE CD3D11ResourceManager::CreateBufferRandomAccess( RE_HANDLE bufHandle, 
 
 	if ( newResource->CreateRandomAccessResource( *m_pDevice, resourceName, buffer, trait ) )
 	{
-		int idx = ( newResource - &m_randomAccessResource.front( ) );
+		std::size_t idx = ( newResource - &m_randomAccessResource.front( ) );
 		RE_HANDLE handle = MakeResourceHandle( RANDOM_ACCESS_HANDLE, idx );
 
 		m_resourceLUT[RANDOM_ACCESS].emplace( resourceName, handle );

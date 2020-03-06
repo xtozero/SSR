@@ -16,6 +16,7 @@
 #include "UserInput/UserInput.h"
 #include "Util.h"
 
+#include <cstddef>
 #include <ctime>
 #include <tchar.h>
 
@@ -442,7 +443,7 @@ void CGameLogic::DrawUI( )
 		// Update Vertex, Index Buffer
 		for ( ImDrawList* drawList : drawData.m_drawLists )
 		{
-			int copySize = sizeof( ImUiVertex ) * drawList->m_vertices.size( );
+			std::size_t copySize = sizeof( ImUiVertex ) * drawList->m_vertices.size( );
 			memcpy( pVertex, drawList->m_vertices.data( ), copySize );
 			pVertex += copySize;
 
@@ -483,8 +484,8 @@ void CGameLogic::DrawUI( )
 
 	m_pRenderer->BindMaterial( m_uiMaterial );
 
-	int indexOffset = 0;
-	int vertexOffset = 0;
+	UINT indexOffset = 0;
+	UINT vertexOffset = 0;
 	RECT scissorRect;
 	for ( ImDrawList* drawList : drawData.m_drawLists )
 	{
@@ -502,7 +503,8 @@ void CGameLogic::DrawUI( )
 			indexOffset += drawCmd.m_indicesCount;
 		}
 
-		vertexOffset += drawList->m_vertices.size( );
+		assert( ( vertexOffset + drawList->m_vertices.size( ) ) <= UINT_MAX );
+		vertexOffset += static_cast<UINT>( drawList->m_vertices.size( ) );
 	}
 }
 

@@ -63,7 +63,7 @@ namespace
 
 	float clamp( const float value, const float minValue, const float maxValue )
 	{
-		return max( min( value, maxValue ), minValue );
+		return std::max( std::min( value, maxValue ), minValue );
 	}
 
 	CXMFLOAT2 clamp( const CXMFLOAT2& value, const CXMFLOAT2& minVlaue, const CXMFLOAT2& maxValue )
@@ -137,7 +137,7 @@ namespace
 
 	CXMFLOAT2 Max( const CXMFLOAT2& lhs, const CXMFLOAT2& rhs )
 	{
-		return CXMFLOAT2( max( lhs.x, rhs.x ), max( lhs.x, rhs.x ) );
+		return CXMFLOAT2( std::max( lhs.x, rhs.x ), std::max( lhs.x, rhs.x ) );
 	}
 
 	void Expand( Rect& out, const float amount )
@@ -183,11 +183,11 @@ void ImUiWindow::SetPos( const CXMFLOAT2& pos )
 	m_dc.m_cursorMaxPos += ( m_pos - oldPos );
 }
 
-CXMFLOAT2 CTextAtlas::CalcTextSize( const char* text, int count ) const
+CXMFLOAT2 CTextAtlas::CalcTextSize( const char* text, UINT count ) const
 {
 	CXMFLOAT2 size = { 0.f, m_fontHeight };
 
-	for ( int i = 0; i < count; ++i )
+	for ( UINT i = 0; i < count; ++i )
 	{
 		auto found = m_fontInfo.find( text[i] );
 		size.x += found->second.m_size + 1;
@@ -539,8 +539,9 @@ bool ImUI::Window( const char* name, ImUiWindowFlags::Type flags )
 		}
 
 		// Title text
-		int textCount = std::strlen( name );
-		CXMFLOAT2 textSize = CalcTextSize( name, textCount );
+		std::size_t textCount = std::strlen( name );
+		assert( textCount <= UINT_MAX );
+		CXMFLOAT2 textSize = CalcTextSize( name, static_cast<UINT>( textCount ) );
 
 		float padLeft = m_curStyle.m_framePadding.x + m_curStyle.m_itemInnerSpacing.x + textSize.y;
 		float padRight = m_curStyle.m_framePadding.x;
@@ -550,7 +551,7 @@ bool ImUI::Window( const char* name, ImUiWindowFlags::Type flags )
 		CXMFLOAT2 textPosMax = window->m_pos + CXMFLOAT2( window->m_size.x, titleBarHeight );
 		textPosMax.x -= padRight;
 
-		RenderClippedText( textPosMin, textPosMax, name, textCount, CXMFLOAT2( 0.f, 0.5f ) );
+		RenderClippedText( textPosMin, textPosMax, name, static_cast<UINT>( textCount ), CXMFLOAT2( 0.f, 0.5f ) );
 	}
 
 	m_nextWindowData.m_constraintSizeCond = 0;
@@ -590,7 +591,9 @@ bool ImUI::SliderFloat( const char* label, float* v, float min, float max, const
 	ImUiDrawContext& dc = m_curWindow->m_dc;
 
 	const CXMFLOAT2 pos = dc.m_cursorPos;
-	const CXMFLOAT2 labelSize = CalcTextSize( label, strlen( label ) );
+	std::size_t labelLength = strlen( label );
+	assert( labelLength <= UINT_MAX );
+	const CXMFLOAT2 labelSize = CalcTextSize( label, static_cast<UINT>( labelLength ) );
 
 	Rect boundingBox( pos.x,
 					pos.y,
@@ -615,9 +618,10 @@ bool ImUI::SliderFloat( const char* label, float* v, float min, float max, const
 
 	char valueBuf[64] = {};
 	sprintf_s( valueBuf, displayFormat, *v );
-	int count = std::strlen( valueBuf );
+	std::size_t count = std::strlen( valueBuf );
 
-	RenderClippedText( boundingBox.m_leftTop, boundingBox.m_rightBottom, valueBuf, count, CXMFLOAT2( 0.5f, 0.5f ) );
+	assert( count <= UINT_MAX );
+	RenderClippedText( boundingBox.m_leftTop, boundingBox.m_rightBottom, valueBuf, static_cast<UINT>( count ), CXMFLOAT2( 0.5f, 0.5f ) );
 
 	return valueChanged;
 }
@@ -649,8 +653,9 @@ bool ImUI::BeginCombo( const char* label, const char* prevValue, ImUiComboFlag::
 	ImGUID id = m_curWindow->GetID( label );
 
 	CXMFLOAT2 arrowSize( ( flags & ImUiComboFlag::NoArrowButton ) ? 0.f : GetFrameHeight( ), 0.f );
-	const int labelLen = strlen( label );
-	CXMFLOAT2 labelSize = CalcTextSize( label, labelLen );
+	const std::size_t labelLen = strlen( label );
+	assert( labelLen <= UINT_MAX );
+	CXMFLOAT2 labelSize = CalcTextSize( label, static_cast<UINT>( labelLen ) );
 	const float width = CalcItemWidth( );
 
 	CXMFLOAT2 itemSize( width, labelSize.y + m_curStyle.m_framePadding.y * 2.0f );
@@ -690,11 +695,13 @@ bool ImUI::BeginCombo( const char* label, const char* prevValue, ImUiComboFlag::
 	{
 		Rect valueBB( frameBB.m_leftTop, frameBB.m_rightBottom - arrowSize );
 
+		std::size_t prevValueLength = strlen( prevValue );
+		assert( prevValueLength <= UINT_MAX );
 		RenderClippedText(
 			frameBB.m_leftTop + m_curStyle.m_framePadding,
 			valueBB.m_rightBottom,
 			prevValue,
-			strlen( prevValue ),
+			static_cast<UINT>( prevValueLength ),
 			CXMFLOAT2( 0.f, 0.f ) );
 	}
 
@@ -703,7 +710,7 @@ bool ImUI::BeginCombo( const char* label, const char* prevValue, ImUiComboFlag::
 		RenderText(
 			CXMFLOAT2( frameBB.m_rightBottom.x, frameBB.m_leftTop.y ) + m_curStyle.m_itemInnerSpacing,
 			label,
-			labelLen
+			static_cast<UINT>( labelLen )
 		);
 	}
 
@@ -725,7 +732,7 @@ bool ImUI::BeginCombo( const char* label, const char* prevValue, ImUiComboFlag::
 	if ( backupNextWindowSizeConstraint )
 	{
 		m_nextWindowData.m_contentSizeCond = backupNextWindowSizeConstraint;
-		m_nextWindowData.m_constraintSizeRect.m_leftTop.x = max( m_nextWindowData.m_constraintSizeRect.m_leftTop.x, width );
+		m_nextWindowData.m_constraintSizeRect.m_leftTop.x = std::max( m_nextWindowData.m_constraintSizeRect.m_leftTop.x, width );
 	}
 	else
 	{
@@ -753,7 +760,7 @@ bool ImUI::BeginCombo( const char* label, const char* prevValue, ImUiComboFlag::
 	}
 
 	char name[16];
-	sprintf_s( name, "##Combo_%02d", m_currentPopupStack.size( ) );
+	sprintf_s( name, "##Combo_%02zd", m_currentPopupStack.size( ) );
 
 	if ( ImUiWindow* popupWindow = FindWindow( name ) )
 	{
@@ -850,7 +857,9 @@ bool ImUI::Selectable( const char* label, bool selected, ImUiSelectableFlags::Ty
 	}
 
 	ImGUID id = m_curWindow->GetID( label );
-	CXMFLOAT2 labelSize = CalcTextSize( label, strlen( label ) );
+	std::size_t labelLength = strlen( label );
+	assert( labelLength <= UINT_MAX );
+	CXMFLOAT2 labelSize = CalcTextSize( label, static_cast<UINT>( labelLength ) );
 	CXMFLOAT2 size( sizeArg.x != 0.f ? sizeArg.x : labelSize.x, sizeArg.y != 0.f ? sizeArg.y : labelSize.y );
 	CXMFLOAT2 pos = m_curWindow->m_dc.m_cursorPos;
 	pos.y += m_curWindow->m_dc.m_currentLineTextBaseOffset;
@@ -858,7 +867,7 @@ bool ImUI::Selectable( const char* label, bool selected, ImUiSelectableFlags::Ty
 
 	const CXMFLOAT2& windowPadding = m_curWindow->m_windowPadding;
 	float maxX = GetWindowContextRegionMax().x;
-	float drawWidth = max( labelSize.x, m_curWindow->m_pos.x + maxX - windowPadding.x - m_curWindow->m_dc.m_cursorPos.x );
+	float drawWidth = std::max( labelSize.x, m_curWindow->m_pos.x + maxX - windowPadding.x - m_curWindow->m_dc.m_cursorPos.x );
 	CXMFLOAT2 drawSize( sizeArg.x != 0 ? sizeArg.x : drawWidth, sizeArg.y != 0 ? sizeArg.y : size.y );
 	Rect bbWithSpacing( pos.x, pos.y, pos.x + drawSize.x, pos.y + drawSize.y );
 
@@ -882,7 +891,7 @@ bool ImUI::Selectable( const char* label, bool selected, ImUiSelectableFlags::Ty
 		RenderFrame( bbWithSpacing.m_leftTop, bbWithSpacing.GetWidthHeight(), color );
 	}
 
-	RenderClippedText( pos, bbWithSpacing.m_rightBottom, label, strlen( label ), CXMFLOAT2( 0.f, 0.f ) );
+	RenderClippedText( pos, bbWithSpacing.m_rightBottom, label, static_cast<UINT>( labelLength ), CXMFLOAT2( 0.f, 0.f ) );
 
 	if ( mousePressed && ( m_curWindow->m_flag & ImUiWindowFlags::Popup ) )
 	{
@@ -892,7 +901,7 @@ bool ImUI::Selectable( const char* label, bool selected, ImUiSelectableFlags::Ty
 	return mousePressed;
 }
 
-void ImUI::TextUnformatted( const char* text, int count )
+void ImUI::TextUnformatted( const char* text, UINT count )
 {
 	assert( m_curWindow != nullptr );
 	if ( m_curWindow->m_skipItem )
@@ -976,15 +985,17 @@ ImDrawData ImUI::Render( )
 			}
 
 			drawData.m_drawLists.push_back( &window->m_drawList );
-			drawData.m_totalVertexCount += window->m_drawList.m_vertices.size( );
-			drawData.m_totalIndexCount += window->m_drawList.m_indices.size( );
+			assert( ( drawData.m_totalVertexCount + window->m_drawList.m_vertices.size( ) ) <= UINT_MAX );
+			drawData.m_totalVertexCount += static_cast<UINT>( window->m_drawList.m_vertices.size( ) );
+			assert( ( drawData.m_totalIndexCount + window->m_drawList.m_indices.size( ) ) <= UINT_MAX );
+			drawData.m_totalIndexCount += static_cast<UINT>( window->m_drawList.m_indices.size( ) );
 		}
 	}
 
 	return drawData;
 }
 
-CXMFLOAT2 ImUI::CalcTextSize( const char* text, int count ) const
+CXMFLOAT2 ImUI::CalcTextSize( const char* text, UINT count ) const
 {
 	assert( m_curTextAltas != -1 );
 
@@ -1074,8 +1085,9 @@ ImUiWindow* ImUI::FindMouseOverWindow( )
 
 ImUiWindow* ImUI::CreateImUiWindow( const char* name, const CXMFLOAT2& size )
 {
+	assert( m_windows.size( ) <= INT_MAX );
 	int id = static_cast<int>( m_windows.size( ) );
-	m_windowLUT.emplace( name, m_windows.size( ) );
+	m_windowLUT.emplace( name, id );
 	m_windows.emplace_back( std::make_unique<ImUiWindow>( *this ) );
 	
 	ImUiWindow* window = m_windows.back( ).get();
@@ -1140,8 +1152,9 @@ bool ImUI::ButtonEX( const char* label, const CXMFLOAT2& /*size*/ )
 	ImUiDrawContext& dc = m_curWindow->m_dc;
 
 	const CXMFLOAT2 pos = dc.m_cursorPos;
-	const int strCount = strlen( label );
-	const CXMFLOAT2 labelSize = CalcTextSize( label, strCount );
+	const std::size_t strCount = strlen( label );
+	assert( strCount <= UINT_MAX );
+	const CXMFLOAT2 labelSize = CalcTextSize( label, static_cast<UINT>( strCount ) );
 
 	const CXMFLOAT2& buttonSize = CalcItemSize( CXMFLOAT2( labelSize.x + m_curStyle.m_framePadding.x * 2.f, labelSize.y + m_curStyle.m_framePadding.y * 2.f ) );
 
@@ -1162,7 +1175,7 @@ bool ImUI::ButtonEX( const char* label, const CXMFLOAT2& /*size*/ )
 	// юс╫ц
 	const CXMFLOAT4& color = GetItemColor( ( mouseOvered && mouseHeld ) ? ImUiColor::ButtonPress : ( mouseOvered ? ImUiColor::ButtonMouseOver : ImUiColor::Button ) );
 	m_curWindow->m_drawList.AddFilledRect( pos, buttonSize, color );
-	RenderClippedText( pos + m_curStyle.m_framePadding, boundingBox.m_rightBottom - m_curStyle.m_framePadding, label, strCount, CXMFLOAT2( 0.f, 0.f ) );
+	RenderClippedText( pos + m_curStyle.m_framePadding, boundingBox.m_rightBottom - m_curStyle.m_framePadding, label, static_cast<UINT>( strCount ), CXMFLOAT2( 0.f, 0.f ) );
 
 	return mousePreesed;
 }
@@ -1219,7 +1232,7 @@ bool ImUI::SliderBehavior( const Rect& boundingbox, ImGUID id, float* v, float m
 
 	constexpr float grabPadding = 2.0f;
 	const float sliderSize = frameSize.x - grabPadding * 2.0f;
-	float grabSize = min( m_curStyle.m_grabMinSize, sliderSize );
+	float grabSize = std::min( m_curStyle.m_grabMinSize, sliderSize );
 
 	const float sliderUsablePosMin = boundingbox.m_leftTop.x + grabPadding + grabSize * 0.5f;
 	const float sliderUsablePosMax = boundingbox.m_rightBottom.x - grabPadding - grabSize * 0.5f;
@@ -1309,7 +1322,7 @@ void ImUI::RenderText( const CXMFLOAT2& pos, const char* text, int count )
 	m_curWindow->m_drawList.AddText( m_textAtlas[m_curTextAltas], pos, GetItemColor( ImUiColor::Text ), text, count );
 }
 
-void ImUI::RenderClippedText( const CXMFLOAT2& posMin, const CXMFLOAT2& posMax, const char* text, int count, const CXMFLOAT2& align )
+void ImUI::RenderClippedText( const CXMFLOAT2& posMin, const CXMFLOAT2& posMax, const char* text, UINT count, const CXMFLOAT2& align )
 {
 	if ( count == 0 )
 	{
@@ -1324,11 +1337,11 @@ void ImUI::RenderClippedText( const CXMFLOAT2& posMin, const CXMFLOAT2& posMax, 
 	CXMFLOAT2 pos = posMin;
 	if ( align.x > 0.f )
 	{
-		pos.x = floor( max( pos.x, pos.x + ( posMax.x - posMin.x - textSize.x ) * align.x ) );
+		pos.x = floor( std::max( pos.x, pos.x + ( posMax.x - posMin.x - textSize.x ) * align.x ) );
 	}
 	if ( align.y > 0.f )
 	{
-		pos.y = floor( max( pos.y, pos.y + ( posMax.y - posMin.y - textSize.y ) * align.y ) );
+		pos.y = floor( std::max( pos.y, pos.y + ( posMax.y - posMin.y - textSize.y ) * align.y ) );
 	}
 
 	m_curWindow->m_drawList.AddText( m_textAtlas[m_curTextAltas], pos, GetItemColor( ImUiColor::Text ), text, count );
@@ -1387,13 +1400,13 @@ void ImUI::ItemSize( const CXMFLOAT2& size, float textOffsetY )
 	assert( m_curWindow != nullptr );
 
 	ImUiDrawContext& dc = m_curWindow->m_dc;
-	const float lineHeight = max( dc.m_currentLineHeight, size.y );
-	const float lineTextBaseOffset = max( dc.m_currentLineTextBaseOffset, textOffsetY );
+	const float lineHeight = std::max( dc.m_currentLineHeight, size.y );
+	const float lineTextBaseOffset = std::max( dc.m_currentLineTextBaseOffset, textOffsetY );
 
 	dc.m_prevCursorPos = CXMFLOAT2( dc.m_cursorPos.x + size.x, dc.m_cursorPos.y );
 	dc.m_cursorPos = CXMFLOAT2( m_curWindow->m_pos.x + dc.m_indentX, dc.m_cursorPos.y + lineHeight + m_curStyle.m_itemSpacing.y );
-	dc.m_cursorMaxPos.x = max( dc.m_cursorMaxPos.x, dc.m_prevCursorPos.x );
-	dc.m_cursorMaxPos.y = max( dc.m_cursorMaxPos.y, dc.m_cursorPos.y - m_curStyle.m_itemSpacing.y );
+	dc.m_cursorMaxPos.x = std::max( dc.m_cursorMaxPos.x, dc.m_prevCursorPos.x );
+	dc.m_cursorMaxPos.y = std::max( dc.m_cursorMaxPos.y, dc.m_cursorPos.y - m_curStyle.m_itemSpacing.y );
 
 	dc.m_prevLineHeight = lineHeight;
 	dc.m_prevLineTextBaseOffset = lineTextBaseOffset;
@@ -1668,7 +1681,7 @@ void ImUI::ClosePopupsOverWindow( ImUiWindow* refWindow )
 	}
 }
 
-void ImUI::ClosePopupToLevel( int remaining )
+void ImUI::ClosePopupToLevel( std::size_t remaining )
 {
 	ImUiWindow* focusWindow = ( remaining > 0 ) ? m_openPopupStack[remaining - 1].m_window : m_openPopupStack[0].m_parentWindow;
 	FocusWindow( focusWindow );
@@ -1677,8 +1690,8 @@ void ImUI::ClosePopupToLevel( int remaining )
 
 void ImUI::CloseCurrentPopup( )
 {
-	int popupIdx = m_currentPopupStack.size( ) - 1;
-	if ( popupIdx < 0 || static_cast<size_t>( popupIdx ) >= m_openPopupStack.size() || m_currentPopupStack[popupIdx].m_popupId != m_openPopupStack[popupIdx].m_popupId )
+	std::size_t popupIdx = m_currentPopupStack.size( ) - 1;
+	if ( popupIdx < 0 || popupIdx >= m_openPopupStack.size() || m_currentPopupStack[popupIdx].m_popupId != m_openPopupStack[popupIdx].m_popupId )
 	{
 		return;
 	}
@@ -1719,7 +1732,7 @@ CXMFLOAT2 ImUI::CalcAfterConstraintSize( ImUiWindow* window, const CXMFLOAT2& si
 	if ( !( window->m_flag & ( ImUiWindowFlags::ChildWindow | ImUiWindowFlags::AlwaysAutoResize ) ) )
 	{
 		newSize = Max( newSize, m_curStyle.m_windowMinSize );
-		newSize.y = max( newSize.y, window->GetTitleBarHeight( ) + max( 0.f, m_curStyle.m_windowRounding - 1.f ) );
+		newSize.y = std::max( newSize.y, window->GetTitleBarHeight( ) + std::max( 0.f, m_curStyle.m_windowRounding - 1.f ) );
 	}
 
 	return newSize;
@@ -1819,8 +1832,8 @@ CXMFLOAT2 ImUI::FindBestWindowPosForPopup( const CXMFLOAT2& refPos, const CXMFLO
 
 	lastDir = ImDir::None;
 	CXMFLOAT2 pos = refPos;
-	pos.x = max( min( pos.x + size.x, outer.m_rightBottom.x ) - size.x, outer.m_leftTop.x );
-	pos.y = max( min( pos.y + size.y, outer.m_rightBottom.y ) - size.y, outer.m_leftTop.y );
+	pos.x = std::max( std::min( pos.x + size.x, outer.m_rightBottom.x ) - size.x, outer.m_leftTop.x );
+	pos.y = std::max( std::min( pos.y + size.y, outer.m_rightBottom.y ) - size.y, outer.m_leftTop.y );
 	return pos;
 }
 

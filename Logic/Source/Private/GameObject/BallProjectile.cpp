@@ -47,7 +47,7 @@ bool CBallProjectile::LoadModelMesh( CGameLogic& gameLogic )
 
 	for ( const auto index : sphere.m_indices )
 	{
-		meshBuilder.AppendIndex( index );
+		meshBuilder.AppendIndex( static_cast<WORD>( index ) );
 	}
 	
 	SetModelMeshName( _T("ball_projectile") );
