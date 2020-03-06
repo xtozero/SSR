@@ -408,7 +408,7 @@ void CGameLogic::DrawUI( )
 	{
 		for ( const ImUiDrawBuffer& drawBuffer : m_uiDrawBuffer )
 		{
-			if ( drawBuffer.m_buffer != RE_HANDLE_TYPE::INVALID_HANDLE )
+			if ( drawBuffer.m_buffer != RE_HANDLE::InValidHandle( ) )
 			{
 				resourceMgr.FreeResource( drawBuffer.m_buffer );
 			}
@@ -574,7 +574,7 @@ void CGameLogic::HandleDeviceLost( )
 	for ( auto& uiDrawBuffer : m_uiDrawBuffer )
 	{
 		uiDrawBuffer.m_prevBufferSize = 0;
-		uiDrawBuffer.m_buffer = RE_HANDLE_TYPE::INVALID_HANDLE;
+		uiDrawBuffer.m_buffer = RE_HANDLE::InValidHandle( );
 	}
 
 	CreateDeviceDependentResource( );
@@ -611,7 +611,7 @@ bool CGameLogic::CreateDeviceDependentResource( )
 	using namespace SHARED_CONSTANT_BUFFER;
 
 	m_commonConstantBuffer[VS_GEOMETRY] = m_pRenderer->CreateBuffer( trait );
-	if ( m_commonConstantBuffer[VS_GEOMETRY] == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_commonConstantBuffer[VS_GEOMETRY] == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
@@ -619,7 +619,7 @@ bool CGameLogic::CreateDeviceDependentResource( )
 	trait.m_stride = sizeof( ViewProjectionTrasform );
 
 	m_commonConstantBuffer[VS_VIEW_PROJECTION] = m_pRenderer->CreateBuffer( trait );
-	if ( m_commonConstantBuffer[VS_VIEW_PROJECTION] == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_commonConstantBuffer[VS_VIEW_PROJECTION] == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
@@ -627,7 +627,7 @@ bool CGameLogic::CreateDeviceDependentResource( )
 	trait.m_stride = sizeof( SurfaceTrait );
 
 	m_commonConstantBuffer[PS_SURFACE] = m_pRenderer->CreateBuffer( trait );
-	if ( m_commonConstantBuffer[PS_SURFACE] == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_commonConstantBuffer[PS_SURFACE] == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
@@ -635,7 +635,7 @@ bool CGameLogic::CreateDeviceDependentResource( )
 	trait.m_stride = sizeof( PassConstant );
 
 	m_commonConstantBuffer[PS_UTIL] = m_pRenderer->CreateBuffer( trait );
-	if ( m_commonConstantBuffer[PS_UTIL] == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_commonConstantBuffer[PS_UTIL] == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
@@ -673,7 +673,7 @@ bool CGameLogic::CreateDefaultFontResource( )
 	IResourceManager& resourceMgr = m_pRenderer->GetResourceManager( );
 	defaultText.m_texture = resourceMgr.CreateShaderResourceFromFile( atlasPath );
 
-	if ( defaultText.m_texture == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( defaultText.m_texture == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
@@ -716,7 +716,7 @@ CGameLogic::CGameLogic( ) : m_pickingManager( &m_gameObjects )
 {
 	for ( int i = 0; i < SHARED_CONSTANT_BUFFER::Count; ++i )
 	{
-		m_commonConstantBuffer[i] = RE_HANDLE_TYPE::INVALID_HANDLE;
+		m_commonConstantBuffer[i] = RE_HANDLE::InValidHandle( );
 	}
 }
 

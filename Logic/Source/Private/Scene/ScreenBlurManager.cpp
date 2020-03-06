@@ -22,7 +22,7 @@ bool ScreenBlurManager::Init( CGameLogic& gameLogic )
 void ScreenBlurManager::Process( CGameLogic& gameLogic, RE_HANDLE destSRV, RE_HANDLE destRT ) const
 {
 	IRenderer& renderer = gameLogic.GetRenderer( );
-	RE_HANDLE default[] = { RE_HANDLE_TYPE::INVALID_HANDLE };
+	RE_HANDLE default[] = { RE_HANDLE::InValidHandle( ) };
 
 	// Set RenderTarget
 	renderer.BindRenderTargets( &m_blurRt, 1, default[0] );
@@ -100,19 +100,19 @@ bool ScreenBlurManager::CreateAppSizeDependentResource( CGameLogic& gameLogic )
 	IResourceManager& resourceMgr = renderer.GetResourceManager( );
 
 	m_blurTexture = resourceMgr.CreateTexture2D( blurTempTextureName, blurTempTextureName );
-	if ( m_blurTexture == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_blurTexture == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
 
 	m_blurRt = resourceMgr.CreateRenderTarget( m_blurTexture, blurTempTextureName );
-	if ( m_blurRt == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_blurRt == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
 
 	m_blurSrv = resourceMgr.CreateTextureShaderResource( m_blurTexture, blurTempTextureName );
-	if ( m_blurSrv == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_blurSrv == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}

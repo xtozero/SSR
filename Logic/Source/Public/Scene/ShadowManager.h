@@ -46,17 +46,17 @@ private:
 	bool m_isSlideBack = true;
 	bool m_useCascaded = false;
 	
-	RE_HANDLE m_shadowMap = RE_HANDLE_TYPE::INVALID_HANDLE;
-	RE_HANDLE m_srvShadowMap = RE_HANDLE_TYPE::INVALID_HANDLE;
-	RE_HANDLE m_rtvShadowMap = RE_HANDLE_TYPE::INVALID_HANDLE;
-	RE_HANDLE m_shadowDepth = RE_HANDLE_TYPE::INVALID_HANDLE;
-	RE_HANDLE m_dsvShadowMap = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_shadowMap = RE_HANDLE::InValidHandle( );
+	RE_HANDLE m_srvShadowMap = RE_HANDLE::InValidHandle( );
+	RE_HANDLE m_rtvShadowMap = RE_HANDLE::InValidHandle( );
+	RE_HANDLE m_shadowDepth = RE_HANDLE::InValidHandle( );
+	RE_HANDLE m_dsvShadowMap = RE_HANDLE::InValidHandle( );
 
-	RE_HANDLE m_vsShadowConstant = RE_HANDLE_TYPE::INVALID_HANDLE;
-	RE_HANDLE m_gsShadowConstant = RE_HANDLE_TYPE::INVALID_HANDLE;
-	RE_HANDLE m_psShadowConstant = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_vsShadowConstant = RE_HANDLE::InValidHandle( );
+	RE_HANDLE m_gsShadowConstant = RE_HANDLE::InValidHandle( );
+	RE_HANDLE m_psShadowConstant = RE_HANDLE::InValidHandle( );
 
-	RE_HANDLE m_shadowSampler = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_shadowSampler = RE_HANDLE::InValidHandle( );
 
 	Material m_shadowMapMtl = INVALID_MATERIAL;
 

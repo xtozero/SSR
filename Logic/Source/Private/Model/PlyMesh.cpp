@@ -11,7 +11,7 @@ void CPlyMesh::Draw( CGameLogic& gameLogic )
 		return;
 	}
 
-	if ( m_vertexBuffer == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_vertexBuffer == RE_HANDLE::InValidHandle( ) )
 	{
 		return;
 	}
@@ -20,7 +20,7 @@ void CPlyMesh::Draw( CGameLogic& gameLogic )
 
 	renderer.BindMaterial( m_material );
 	renderer.BindVertexBuffer( &m_vertexBuffer, 0, 1, &m_stride, &m_offset );
-	if ( m_indexBuffer == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_indexBuffer == RE_HANDLE::InValidHandle( ) )
 	{
 		renderer.Draw( m_primitiveTopology, m_nVertices, m_offset );
 	}

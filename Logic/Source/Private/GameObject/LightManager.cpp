@@ -127,7 +127,7 @@ bool CLightManager::CreateDeviceDependentResource( IRenderer& renderer )
 
 	m_lightBuffer = renderer.CreateBuffer( trait );
 
-	return m_lightBuffer ? true : false;
+	return m_lightBuffer != RE_HANDLE::InValidHandle( );
 }
 
 void CLightManager::LoadPropertyFromScript( )
@@ -254,7 +254,7 @@ bool CLightManager::CreateOrenNayarLUTAndBind( IRenderer& renderer )
 	IResourceManager& resourceMgr = renderer.GetResourceManager( );
 
 	RE_HANDLE hTexture = resourceMgr.CreateTexture2D( OREN_NAYAR_TEX_NAME, OREN_NAYAR_TEX_NAME, &initData );
-	if ( hTexture != RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( hTexture != RE_HANDLE::InValidHandle( ) )
 	{
 		RE_HANDLE hLUT = resourceMgr.CreateTextureShaderResource( hTexture, OREN_NAYAR_TEX_NAME );
 		renderer.BindShaderResource( SHADER_TYPE::PS, 3, 1, &hLUT );

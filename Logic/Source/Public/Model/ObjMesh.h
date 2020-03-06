@@ -12,7 +12,7 @@ struct ObjSurfaceTrait
 	UINT m_indexOffset = 0;
 	UINT m_indexCount = 0;
 	Surface* m_pSurface = nullptr;
-	RE_HANDLE m_texture = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_texture = RE_HANDLE::InValidHandle( );
 };
 
 class CObjMesh : public BaseMesh

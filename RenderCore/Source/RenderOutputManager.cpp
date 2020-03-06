@@ -10,8 +10,6 @@
 #include <D3D11.h>
 #include <wrl\client.h>
 
-using namespace RE_HANDLE_TYPE;
-
 bool CRenderOutputManager::Initialize( IResourceManager& resourceMgr, IDXGISwapChain& pSwapChain, DXGI_SAMPLE_DESC& sampleDesc )
 {
 	if ( CreateDefaultRenderTaraget( resourceMgr, pSwapChain ) == false )
@@ -62,8 +60,8 @@ void CRenderOutputManager::ClearRenderTargets( IRenderer& renderer, const float 
 
 CRenderOutputManager::CRenderOutputManager( )
 {
-	m_renderOutputs.fill( INVALID_HANDLE );
-	m_renderSRVs.fill( INVALID_HANDLE );
+	m_renderOutputs.fill( RE_HANDLE::InValidHandle( ) );
+	m_renderSRVs.fill( RE_HANDLE::InValidHandle( ) );
 }
 
 bool CRenderOutputManager::CreateDefaultRenderTaraget( IResourceManager& resourceMgr, IDXGISwapChain& pSwapChain )
@@ -74,13 +72,13 @@ bool CRenderOutputManager::CreateDefaultRenderTaraget( IResourceManager& resourc
 		String renderTargetTexName( _T( "DefaultRenderTarget" ) );
 
 		RE_HANDLE hBackBufferTex = resourceMgr.RegisterTexture2D( renderTargetTexName, pd3d11BackBuffer.Get(), true );
-		if ( hBackBufferTex == INVALID_HANDLE )
+		if ( hBackBufferTex == RE_HANDLE::InValidHandle( ) )
 		{
 			return false;
 		}
 
 		m_renderOutputs[FRAME_BUFFER] = resourceMgr.CreateRenderTarget( hBackBufferTex, renderTargetTexName );
-		if ( m_renderOutputs[FRAME_BUFFER] == INVALID_HANDLE )
+		if ( m_renderOutputs[FRAME_BUFFER] == RE_HANDLE::InValidHandle( ) )
 		{
 			return false;
 		}
@@ -88,7 +86,7 @@ bool CRenderOutputManager::CreateDefaultRenderTaraget( IResourceManager& resourc
 		String duplicateTexName( _T( "DuplicateFrameBuffer" ) );
 		RE_HANDLE hDuplicateTex = resourceMgr.CreateCloneTexture( hBackBufferTex, duplicateTexName );
 
-		if ( hDuplicateTex == INVALID_HANDLE )
+		if ( hDuplicateTex == RE_HANDLE::InValidHandle( ) )
 		{
 			return false;
 		}
@@ -118,14 +116,14 @@ bool CRenderOutputManager::CreateNormalRenderTarget( IResourceManager& resourceM
 	};
 
 	RE_HANDLE hGBufferNormal = resourceMgr.CreateTexture2D( normalGBufferTrait, normalTexName );
-	if ( hGBufferNormal == INVALID_HANDLE )
+	if ( hGBufferNormal == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
 
 	m_renderOutputs[NORMAL_BUFFER] = resourceMgr.CreateRenderTarget( hGBufferNormal, normalTexName );
 
-	if ( m_renderOutputs[NORMAL_BUFFER] == INVALID_HANDLE )
+	if ( m_renderOutputs[NORMAL_BUFFER] == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
@@ -153,13 +151,13 @@ bool CRenderOutputManager::CreateDepthRenderTarget( IResourceManager& resourceMg
 	};
 
 	RE_HANDLE hGBufferDepth = resourceMgr.CreateTexture2D( depthGBufferTrait, depthTexName );
-	if ( hGBufferDepth == INVALID_HANDLE )
+	if ( hGBufferDepth == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
 
 	m_renderOutputs[DEPTH_BUFFER] = resourceMgr.CreateRenderTarget( hGBufferDepth, depthTexName );
-	if ( m_renderOutputs[DEPTH_BUFFER] == INVALID_HANDLE )
+	if ( m_renderOutputs[DEPTH_BUFFER] == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
@@ -167,7 +165,7 @@ bool CRenderOutputManager::CreateDepthRenderTarget( IResourceManager& resourceMg
 	String duplicateTexName( _T( "DuplicateDepthGBuffer" ) );
 	RE_HANDLE hDuplicateTex = resourceMgr.CreateCloneTexture( hGBufferDepth, duplicateTexName );
 
-	if ( hDuplicateTex == INVALID_HANDLE )
+	if ( hDuplicateTex == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
@@ -196,7 +194,7 @@ bool CRenderOutputManager::CreateDefaultDepthStencil( IResourceManager& resource
 
 	RE_HANDLE hDepthStencilTexture = resourceMgr.CreateTexture2D( depthStencilTrait, depthStencilTexName );
 
-	if ( hDepthStencilTexture == INVALID_HANDLE )
+	if ( hDepthStencilTexture == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
@@ -206,7 +204,7 @@ bool CRenderOutputManager::CreateDefaultDepthStencil( IResourceManager& resource
 
 	m_primeDs = resourceMgr.CreateDepthStencil( hDepthStencilTexture, depthStencilTexName, &trait );
 
-	if ( m_primeDs == INVALID_HANDLE )
+	if ( m_primeDs == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}

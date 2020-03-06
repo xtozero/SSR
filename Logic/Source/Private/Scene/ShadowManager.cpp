@@ -246,7 +246,7 @@ void CShadowManager::DrawShadowMap( CGameLogic& gameLogic )
 		IRenderer& renderer = gameLogic.GetRenderer( );
 
 		// 그림자 텍스쳐로 랜더 타겟 변경
-		RE_HANDLE defaultResource[] = { RE_HANDLE_TYPE::INVALID_HANDLE };
+		RE_HANDLE defaultResource[] = { RE_HANDLE::InValidHandle( ) };
 		renderer.BindShaderResource( SHADER_TYPE::PS, 2, 1, defaultResource );
 		renderer.BindRenderTargets( &m_rtvShadowMap, 1, m_dsvShadowMap );
 
@@ -277,7 +277,7 @@ void CShadowManager::DrawShadowMap( CGameLogic& gameLogic )
 		}
 
 		// 랜터 타겟 원상 복귀, 그림자 맵 세팅
-		RE_HANDLE default[] = { RE_HANDLE_TYPE::INVALID_HANDLE };
+		RE_HANDLE default[] = { RE_HANDLE::InValidHandle( ) };
 		renderer.BindRenderTargets( default, 1, default[0] );
 	}
 }
@@ -328,13 +328,13 @@ bool CShadowManager::CreateDeviceDependentResource( IRenderer& renderer )
 	};
 
 	m_psShadowConstant = resourceMgr.CreateBuffer( constantTrait );
-	if ( m_psShadowConstant == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_psShadowConstant == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
 
 	m_shadowSampler = resourceMgr.CreateSamplerState( _T( "shadow" ) );
-	if ( m_shadowSampler == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_shadowSampler == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
@@ -347,25 +347,25 @@ bool CShadowManager::CreateDeviceDependentResource( IRenderer& renderer )
 bool CShadowManager::CreateNonCascadedResource( IResourceManager& resourceMgr )
 {
 	m_shadowMap = resourceMgr.CreateTexture2D( _T( "ShadowMap" ), _T( "ShadowMap" ) );
-	if ( m_shadowMap == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_shadowMap == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
 
 	m_rtvShadowMap = resourceMgr.CreateRenderTarget( m_shadowMap, _T( "ShadowMap" ) );
-	if ( m_rtvShadowMap == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_rtvShadowMap == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
 
 	m_srvShadowMap = resourceMgr.CreateTextureShaderResource( m_shadowMap, _T( "ShadowMap" ) );
-	if ( m_srvShadowMap == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_srvShadowMap == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
 
 	m_shadowDepth = resourceMgr.CreateTexture2D( _T( "ShadowMapDepthStencil" ), _T( "ShadowMapDepthStencil" ) );
-	if ( m_shadowDepth == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_shadowDepth == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
@@ -374,7 +374,7 @@ bool CShadowManager::CreateNonCascadedResource( IResourceManager& resourceMgr )
 	texTrait.m_format = RESOURCE_FORMAT::D24_UNORM_S8_UINT;
 
 	m_dsvShadowMap = resourceMgr.CreateDepthStencil( m_shadowDepth, _T( "ShadowMapDepthStencil" ), &texTrait );
-	if ( m_dsvShadowMap == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_dsvShadowMap == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
@@ -391,7 +391,7 @@ bool CShadowManager::CreateNonCascadedResource( IResourceManager& resourceMgr )
 	};
 
 	m_vsShadowConstant = resourceMgr.CreateBuffer( constantTrait );
-	if ( m_vsShadowConstant == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_vsShadowConstant == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
@@ -402,25 +402,25 @@ bool CShadowManager::CreateNonCascadedResource( IResourceManager& resourceMgr )
 bool CShadowManager::CreateCascadedResource( IResourceManager& resourceMgr )
 {
 	m_shadowMap = resourceMgr.CreateTexture2D( _T( "CascadedShadowMap" ), _T( "CascadedShadowMap" ) );
-	if ( m_shadowMap == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_shadowMap == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
 
 	m_rtvShadowMap = resourceMgr.CreateRenderTarget( m_shadowMap, _T( "CascadedShadowMap" ) );
-	if ( m_rtvShadowMap == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_rtvShadowMap == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
 
 	m_srvShadowMap = resourceMgr.CreateTextureShaderResource( m_shadowMap, _T( "CascadedShadowMap" ) );
-	if ( m_srvShadowMap == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_srvShadowMap == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
 
 	m_shadowDepth = resourceMgr.CreateTexture2D( _T( "CascadedShadowMapDepthStencil" ), _T( "CascadedShadowMapDepthStencil" ) );
-	if ( m_shadowDepth == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_shadowDepth == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
@@ -429,7 +429,7 @@ bool CShadowManager::CreateCascadedResource( IResourceManager& resourceMgr )
 	texTrait.m_format = RESOURCE_FORMAT::D24_UNORM_S8_UINT;
 
 	m_dsvShadowMap = resourceMgr.CreateDepthStencil( m_shadowDepth, _T( "CascadedShadowMapDepthStencil" ), &texTrait );
-	if ( m_dsvShadowMap == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_dsvShadowMap == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
@@ -446,7 +446,7 @@ bool CShadowManager::CreateCascadedResource( IResourceManager& resourceMgr )
 	};
 
 	m_gsShadowConstant = resourceMgr.CreateBuffer( constantTrait );
-	if ( m_gsShadowConstant == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_gsShadowConstant == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}

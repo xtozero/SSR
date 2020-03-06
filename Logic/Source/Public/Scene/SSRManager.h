@@ -47,17 +47,17 @@ private:
 	Material m_backfaceDepthMaterial = INVALID_MATERIAL;
 	Material m_ssrMaterial = INVALID_MATERIAL;
 	Material m_ssrBlendMaterial = INVALID_MATERIAL;
-	RE_HANDLE m_ssrTexture = RE_HANDLE_TYPE::INVALID_HANDLE;
-	RE_HANDLE m_ssrRt = RE_HANDLE_TYPE::INVALID_HANDLE;
-	RE_HANDLE m_ssrSrv = RE_HANDLE_TYPE::INVALID_HANDLE;
-	RE_HANDLE m_defaultRt = RE_HANDLE_TYPE::INVALID_HANDLE;
-	RE_HANDLE m_defaultDS = RE_HANDLE_TYPE::INVALID_HANDLE;
-	RE_HANDLE m_defaultSrv = RE_HANDLE_TYPE::INVALID_HANDLE;
-	RE_HANDLE m_depthSrv = RE_HANDLE_TYPE::INVALID_HANDLE;
-	RE_HANDLE m_ssrConstantBuffer = RE_HANDLE_TYPE::INVALID_HANDLE;
-	RE_HANDLE m_backfaceDepthTexture = RE_HANDLE_TYPE::INVALID_HANDLE;
-	RE_HANDLE m_backfaceDepthRt = RE_HANDLE_TYPE::INVALID_HANDLE;
-	RE_HANDLE m_backfaceDepthSrv = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_ssrTexture = RE_HANDLE::InValidHandle( );
+	RE_HANDLE m_ssrRt = RE_HANDLE::InValidHandle( );
+	RE_HANDLE m_ssrSrv = RE_HANDLE::InValidHandle( );
+	RE_HANDLE m_defaultRt = RE_HANDLE::InValidHandle( );
+	RE_HANDLE m_defaultDS = RE_HANDLE::InValidHandle( );
+	RE_HANDLE m_defaultSrv = RE_HANDLE::InValidHandle( );
+	RE_HANDLE m_depthSrv = RE_HANDLE::InValidHandle( );
+	RE_HANDLE m_ssrConstantBuffer = RE_HANDLE::InValidHandle( );
+	RE_HANDLE m_backfaceDepthTexture = RE_HANDLE::InValidHandle( );
+	RE_HANDLE m_backfaceDepthRt = RE_HANDLE::InValidHandle( );
+	RE_HANDLE m_backfaceDepthSrv = RE_HANDLE::InValidHandle( );
 
 	ScreenBlurManager m_blur;
 	mutable SSRProperties m_properties = { 0.01f, 3.f, 1.8f, 100.f, 100 };

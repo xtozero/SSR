@@ -22,7 +22,7 @@ public:
 
 	virtual void SetMaterial( Material material ) override;
 	virtual void SetTexture( RE_HANDLE ) override {}
-	virtual RE_HANDLE GetTexture( ) const override { return RE_HANDLE_TYPE::INVALID_HANDLE; }
+	virtual RE_HANDLE GetTexture( ) const override { return RE_HANDLE::InValidHandle( ); }
 
 	virtual const void* GetMeshData( ) const override { return m_pModelData; }
 	virtual int GetVerticesCount( ) const override { return m_nVertices; }
@@ -33,8 +33,8 @@ protected:
 	void* m_pModelData = nullptr;
 	void* m_pIndexData = nullptr;
 
-	RE_HANDLE m_vertexBuffer = RE_HANDLE_TYPE::INVALID_HANDLE;
-	RE_HANDLE m_indexBuffer = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_vertexBuffer = RE_HANDLE::InValidHandle( );
+	RE_HANDLE m_indexBuffer = RE_HANDLE::InValidHandle( );
 
 	UINT m_primitiveTopology = RESOURCE_PRIMITIVE::UNDEFINED;
 

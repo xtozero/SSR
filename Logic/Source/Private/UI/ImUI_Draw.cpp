@@ -33,7 +33,7 @@ void ImDrawList::AddDrawCmd( )
 	
 	cmd.m_indicesCount = 0;
 	cmd.m_clipRect = m_clipRect.size() ? m_clipRect.top( ) : m_imUi->GetClientRect();
-	cmd.m_textAtlas = m_textAtlas.size() ? m_textAtlas.top( ) : RE_HANDLE_TYPE::INVALID_HANDLE;
+	cmd.m_textAtlas = m_textAtlas.size() ? m_textAtlas.top( ) : RE_HANDLE::InValidHandle( );
 }
 
 void ImDrawList::PushClipRect( const Rect& clipRect )

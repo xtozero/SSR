@@ -7,8 +7,6 @@
 #include <d3d11.h>
 #include <type_traits>
 
-using namespace RE_HANDLE_TYPE;
-
 void CMaterial::Bind( IRenderer& renderer ) const
 {
 	for ( int i = 0; i < SHADER_TYPE::MAX_SHADER; ++i )
@@ -30,8 +28,8 @@ CMaterial::CMaterial( )
 {
 	for ( int i = 0; i < MAX_SHADER; ++i )
 	{
-		m_hShaders[i] = INVALID_HANDLE;
-		m_hSamplerState[i] = INVALID_HANDLE;
+		m_hShaders[i] = RE_HANDLE::InValidHandle( );
+		m_hSamplerState[i] = RE_HANDLE::InValidHandle( );
 	}
 }
 
@@ -43,7 +41,7 @@ bool CMaterial::SetShader( IRenderer& renderer, const SHADER_TYPE type, const St
 	}
 
 	m_hShaders[type] = renderer.FindGraphicsShaderByName( shaderName.c_str( ) );
-	return ( m_hShaders[type] != RE_HANDLE_TYPE::INVALID_HANDLE ) ? true : false;
+	return ( m_hShaders[type] != RE_HANDLE::InValidHandle( ) ) ? true : false;
 }
 
 bool CMaterial::SetSamplerState( IRenderer& renderer, const SHADER_TYPE type, const String& samplerName )
@@ -54,23 +52,23 @@ bool CMaterial::SetSamplerState( IRenderer& renderer, const SHADER_TYPE type, co
 	}
 
 	m_hSamplerState[type] = renderer.CreateSamplerState( samplerName );
-	return ( m_hSamplerState[type] != RE_HANDLE_TYPE::INVALID_HANDLE ) ? true : false;
+	return ( m_hSamplerState[type] != RE_HANDLE::InValidHandle( ) ) ? true : false;
 }
 
 bool CMaterial::SetDepthStencilState( IRenderer& renderer, const String& dsStateName )
 {
 	m_hDepthStencilState = renderer.CreateDepthStencilState( dsStateName );
-	return ( m_hDepthStencilState != RE_HANDLE_TYPE::INVALID_HANDLE ) ? true : false;
+	return ( m_hDepthStencilState != RE_HANDLE::InValidHandle( ) ) ? true : false;
 }
 
 bool CMaterial::SetRasterizerState( IRenderer& renderer, const String& rsStateName )
 {
 	m_hRasterizerState = renderer.CreateRasterizerState( rsStateName );
-	return ( m_hRasterizerState != RE_HANDLE_TYPE::INVALID_HANDLE ) ? true : false;
+	return ( m_hRasterizerState != RE_HANDLE::InValidHandle( ) ) ? true : false;
 }
 
 bool CMaterial::SetBlendState( IRenderer& renderer, const String& blendStateName )
 {
 	m_hBlendState = renderer.CreateBlendState( blendStateName );
-	return ( m_hBlendState != RE_HANDLE_TYPE::INVALID_HANDLE ) ? true : false;
+	return ( m_hBlendState != RE_HANDLE::InValidHandle( ) ) ? true : false;
 }

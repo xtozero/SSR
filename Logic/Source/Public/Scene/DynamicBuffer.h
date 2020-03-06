@@ -45,7 +45,7 @@ public:
 private:
 	RE_HANDLE CreateDynamicBuffer( IResourceManager& resourceMgr, unsigned int bufferType, UINT bufferSize );
 
-	RE_HANDLE m_bufferHandle = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_bufferHandle = RE_HANDLE::InValidHandle( );
 	std::size_t m_capacity = 0;
 	unsigned int m_bindType = RESOURCE_BIND_TYPE::VERTEX_BUFFER;
 	void* m_lockedBuffer = nullptr;

@@ -2,6 +2,9 @@
 
 #include "DataStructure/EnumStringMap.h"
 
+#include <cstddef>
+#include <limits>
+
 enum SHADER_TYPE
 {
 	NONE = -1,
@@ -14,16 +17,12 @@ enum SHADER_TYPE
 	MAX_SHADER
 };
 
-using Material = unsigned int;
-constexpr Material INVALID_MATERIAL = 0xFFFFFFFF;
+using Material = std::size_t;
+constexpr Material INVALID_MATERIAL = std::numeric_limits<std::size_t>::max();
 
-using RE_HANDLE = unsigned int;
-constexpr int RE_INDEX_MASK = 0x00FFFFFF;
-constexpr int RE_TYPE_MASK = 0xFF000000;
-
-namespace RESOURCE_TYPE
+namespace Resource
 {
-	enum : unsigned int
+	enum Type
 	{
 		BUFFER = 0,
 		TEXTURE,
@@ -41,119 +40,107 @@ namespace RESOURCE_TYPE
 		RASTERIZER_STATE,
 		BLEND_STATE,
 		DEPTH_STENCIL_STATE,
-		COUNT
+		COUNT,
 	};
 }
 
-namespace RE_HANDLE_TYPE
+class RE_HANDLE
 {
-	enum : unsigned int
+public:
+	Resource::Type m_type;
+	std::size_t m_index;
+
+	constexpr static RE_HANDLE InValidHandle( ) 
 	{
-		BUFFER_HANDLE = 0x01000000,
-		DEPTH_STENCIL_HANDLE = 0x02000000,
-		RENDER_TARGET_HANDLE = 0x03000000,
-		SHADER_RESOURCE_HANDLE = 0x04000000,
-		RANDOM_ACCESS_HANDLE = 0x05000000,
-		TEXTURE_HANDLE = 0x06000000,
-		VS_HANDLE = 0x07000000,
-		GS_HANDLE = 0x08000000,
-		PS_HANDLE = 0x09000000,
-		CS_HANDLE = 0x0A000000,
-		SAMPLER_STATE_HANDLE = 0x0B000000,
-		RASTERIZER_STATE_HANDLE = 0x0C000000,
-		BLEND_STATE_HANDLE = 0x0D000000,
-		DEPTH_STENCIL_STATE_HANDLE = 0x0E000000,
-		INVALID_HANDLE = 0xFFFFFFFF
-	};
-}
+		return RE_HANDLE( Resource::COUNT, std::numeric_limits<std::size_t>::max( ) );
+	}
 
-inline RE_HANDLE MakeResourceHandle( int handleType, std::size_t index )
-{
-	return static_cast<RE_HANDLE>( handleType | index );
-}
+	constexpr RE_HANDLE( Resource::Type type, std::size_t index ) : m_type( type ), m_index( index )
+	{}
+
+	constexpr RE_HANDLE( ) : m_type( Resource::COUNT ), m_index( std::numeric_limits<std::size_t>::max( ) )
+	{
+	}
+
+	friend bool operator==( const RE_HANDLE& lhs, const RE_HANDLE& rhs )
+	{
+		return lhs.m_type == rhs.m_type && lhs.m_index == rhs.m_index;
+	}
+
+	friend bool operator!=( const RE_HANDLE& lhs, const RE_HANDLE& rhs )
+	{
+		return !( lhs == rhs );
+	}
+};
 
 inline bool IsBufferHandle( RE_HANDLE handle )
 {
-	using namespace RE_HANDLE_TYPE;
-	return BUFFER_HANDLE <= handle && handle < DEPTH_STENCIL_HANDLE;
+	return handle.m_type == Resource::BUFFER;
 }
 
 inline bool IsDepthStencilHandle( RE_HANDLE handle )
 {
-	using namespace RE_HANDLE_TYPE;
-	return DEPTH_STENCIL_HANDLE <= handle && handle < RENDER_TARGET_HANDLE;
+	return handle.m_type == Resource::DEPTH_STENCIL;
 }
 
 inline bool IsRenderTargetHandle( RE_HANDLE handle )
 {
-	using namespace RE_HANDLE_TYPE;
-	return RENDER_TARGET_HANDLE <= handle && handle < SHADER_RESOURCE_HANDLE;
+	return handle.m_type == Resource::RENDER_TARGET;
 }
 
 inline bool IsShaderResourceHandle( RE_HANDLE handle )
 {
-	using namespace RE_HANDLE_TYPE;
-	return SHADER_RESOURCE_HANDLE <= handle && handle < RANDOM_ACCESS_HANDLE;
+	return handle.m_type == Resource::SHADER_RESOURCE;
 }
 
 inline bool IsRandomAccessHandle( RE_HANDLE handle )
 {
-	using namespace RE_HANDLE_TYPE;
-	return RANDOM_ACCESS_HANDLE <= handle && handle < TEXTURE_HANDLE;
+	return handle.m_type == Resource::RANDOM_ACCESS;
 }
 
 inline bool IsTextureHandle( RE_HANDLE handle )
 {
-	using namespace RE_HANDLE_TYPE;
-	return TEXTURE_HANDLE <= handle && handle < VS_HANDLE;
+	return handle.m_type == Resource::TEXTURE;
 }
 
 inline bool IsVertexShaderHandle( RE_HANDLE handle )
 {
-	using namespace RE_HANDLE_TYPE;
-	return VS_HANDLE <= handle && handle < GS_HANDLE;
+	return handle.m_type == Resource::VERTEX_SHADER;
 }
 
 inline bool IsGeometryShaderHandle( RE_HANDLE handle )
 {
-	using namespace RE_HANDLE_TYPE;
-	return GS_HANDLE <= handle && handle < PS_HANDLE;
+	return handle.m_type == Resource::GEOMETRY_SHADER;
 }
 
 inline bool IsPixelShaderHandle( RE_HANDLE handle )
 {
-	using namespace RE_HANDLE_TYPE;
-	return PS_HANDLE <= handle && handle < CS_HANDLE;
+	return handle.m_type == Resource::PIXEL_SHADER;
 }
 
 inline bool IsComputeShaderHandle( RE_HANDLE handle )
 {
-	using namespace RE_HANDLE_TYPE;
-	return CS_HANDLE <= handle && handle < SAMPLER_STATE_HANDLE;
+	return handle.m_type == Resource::COMPUTE_SHADER;
 }
 
 inline bool IsSamplerStateHandle( RE_HANDLE handle )
 {
-	using namespace RE_HANDLE_TYPE;
-	return SAMPLER_STATE_HANDLE <= handle && handle < RASTERIZER_STATE_HANDLE;
+	return handle.m_type == Resource::SAMPLER_STATE;
 }
 
 inline bool IsRasterizerStateHandle( RE_HANDLE handle )
 {
-	using namespace RE_HANDLE_TYPE;
-	return RASTERIZER_STATE_HANDLE <= handle && handle < BLEND_STATE_HANDLE;
+	return handle.m_type == Resource::RASTERIZER_STATE;
 }
 
 inline bool IsBlendStateHandle( RE_HANDLE handle )
 {
-	using namespace RE_HANDLE_TYPE;
-	return BLEND_STATE_HANDLE <= handle && handle < DEPTH_STENCIL_STATE_HANDLE;
+	return handle.m_type == Resource::BLEND_STATE;
 }
 
 inline bool IsDepthStencilStateHandle( RE_HANDLE handle )
 {
-	using namespace RE_HANDLE_TYPE;
-	return DEPTH_STENCIL_STATE_HANDLE <= handle && handle < INVALID_HANDLE;
+	return handle.m_type == Resource::DEPTH_STENCIL_STATE;
 }
 
 namespace RESOURCE_BIND_TYPE

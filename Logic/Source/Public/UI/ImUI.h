@@ -61,7 +61,7 @@ namespace ImDrawCorner
 		Bottom = BottomLeft | BottomRight,
 		Left = TopLeft | BottomLeft,
 		Right = TopRight | BottomRight,
-		All = 0xF
+		All = TopLeft | TopRight | BottomLeft | BottomRight,
 	};
 }
 
@@ -150,7 +150,7 @@ struct ImDrawCmd
 {
 	UINT m_indicesCount;
 	Rect m_clipRect;
-	RE_HANDLE m_textAtlas = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_textAtlas = RE_HANDLE::InValidHandle( );
 };
 
 struct ImUiDrawContext
@@ -289,7 +289,7 @@ public:
 	CXMFLOAT2 CalcTextSize( const char* text, UINT count ) const;
 	FontUV* FindGlyph( char ch );
 
-	RE_HANDLE m_texture = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_texture = RE_HANDLE::InValidHandle( );
 
 	std::map<char, FontUV> m_fontInfo;
 	float m_fontHeight = 0.f;

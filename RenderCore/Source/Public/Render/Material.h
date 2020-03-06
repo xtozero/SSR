@@ -8,10 +8,10 @@ class CMaterial
 {
 protected:
 	RE_HANDLE m_hShaders[SHADER_TYPE::MAX_SHADER];
-	RE_HANDLE m_hRasterizerState = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_hRasterizerState = RE_HANDLE::InValidHandle( );
 	RE_HANDLE m_hSamplerState[SHADER_TYPE::MAX_SHADER];
-	RE_HANDLE m_hDepthStencilState = RE_HANDLE_TYPE::INVALID_HANDLE;
-	RE_HANDLE m_hBlendState = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_hDepthStencilState = RE_HANDLE::InValidHandle( );
+	RE_HANDLE m_hBlendState = RE_HANDLE::InValidHandle( );
 
 public:
 	void Bind( IRenderer& renderer ) const;

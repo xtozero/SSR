@@ -16,8 +16,6 @@
 
 #pragma comment( lib, "d3dcompiler.lib" )
 
-using namespace RE_HANDLE_TYPE;
-
 namespace
 {
 	constexpr TCHAR* DEFAULT_TEXTURE_FILE_PATH = _T( "../Texture/" );
@@ -229,7 +227,7 @@ namespace
 		return CShaderByteCode( 0 );
 	}
 
-	template <typename T, int RE_HANDLE_TYPE>
+	template <typename T, Resource::Type Resource>
 	RE_HANDLE CreateShader( ID3D11Device& device, const String& fileName, const TCHAR* pFilePath, const char* pProfile, T& shader, std::vector<T>& shaders, std::map<String, RE_HANDLE>& lut )
 	{
 		bool result = false;
@@ -249,13 +247,13 @@ namespace
 			shader.SetName( fileName );
 
 			std::size_t idx = ( &shader - &shaders.front( ) );
-			RE_HANDLE handle = MakeResourceHandle( RE_HANDLE_TYPE, idx );
+			RE_HANDLE handle( Resource, idx );
 
 			lut.emplace( fileName, handle );
 			return handle;
 		}
 
-		return INVALID_HANDLE;
+		return RE_HANDLE::InValidHandle( );
 	}
 }
 
@@ -324,7 +322,7 @@ bool CD3D11ResourceManager::Bootup( ID3D11Device* pDevice, ID3D11DeviceContext* 
 
 RE_HANDLE CD3D11ResourceManager::LoadTextureFromFile( const String& fileName )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	TCHAR pPath[MAX_PATH];
 	::GetCurrentDirectory( MAX_PATH, pPath );
@@ -356,7 +354,7 @@ RE_HANDLE CD3D11ResourceManager::LoadTextureFromFile( const String& fileName )
 				if ( newTexture->LoadFromFile( *m_pDevice, fileName.c_str( ) ) == false )
 				{
 					PushFrontInPlaceList( &m_freeResourceList[TEXTURE], newTexture );
-					return INVALID_HANDLE;
+					return RE_HANDLE::InValidHandle( );
 				}
 			}
 			break;
@@ -369,7 +367,7 @@ RE_HANDLE CD3D11ResourceManager::LoadTextureFromFile( const String& fileName )
 	}
 
 	std::size_t idx = ( newTexture - &m_textures.front( ) );
-	RE_HANDLE handle = MakeResourceHandle( TEXTURE_HANDLE, idx );
+	RE_HANDLE handle( TEXTURE, idx );
 	m_resourceLUT[TEXTURE].emplace( fileName, handle );
 
 	::SetCurrentDirectory( pPath );
@@ -378,10 +376,10 @@ RE_HANDLE CD3D11ResourceManager::LoadTextureFromFile( const String& fileName )
 
 RE_HANDLE CD3D11ResourceManager::CreateTexture1D( TEXTURE_TRAIT& trait, const String& textureName, const RESOURCE_INIT_DATA* initData )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	RE_HANDLE found = FindTexture( textureName );
-	if ( found != INVALID_HANDLE )
+	if ( found != RE_HANDLE::InValidHandle( ) )
 	{
 		__debugbreak( );
 	}
@@ -406,7 +404,7 @@ RE_HANDLE CD3D11ResourceManager::CreateTexture1D( TEXTURE_TRAIT& trait, const St
 	if ( newTexture->Create( *m_pDevice, textureName, TEXTURE_TYPE::TEXTURE_1D, trait, initData ) )
 	{
 		std::size_t idx = ( newTexture - &m_textures.front() );
-		RE_HANDLE handle = MakeResourceHandle( TEXTURE_HANDLE, idx );
+		RE_HANDLE handle( TEXTURE, idx );
 
 		m_resourceLUT[TEXTURE].emplace( textureName, handle );
 		return handle;
@@ -416,13 +414,13 @@ RE_HANDLE CD3D11ResourceManager::CreateTexture1D( TEXTURE_TRAIT& trait, const St
 		PushFrontInPlaceList( &m_freeResourceList[TEXTURE], newTexture );
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateTexture1D( const String& descName, const String& textureName, const RESOURCE_INIT_DATA* initData )
 {
 	RE_HANDLE found = FindTexture( textureName );
-	if ( found != INVALID_HANDLE )
+	if ( found != RE_HANDLE::InValidHandle( ) )
 	{
 		__debugbreak( );
 	}
@@ -433,15 +431,15 @@ RE_HANDLE CD3D11ResourceManager::CreateTexture1D( const String& descName, const 
 		return CreateTexture1D( trait->second, textureName, initData );
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateTexture2D( TEXTURE_TRAIT& trait, const String& textureName, const RESOURCE_INIT_DATA* initData )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	RE_HANDLE found = FindTexture( textureName );
-	if ( found != INVALID_HANDLE )
+	if ( found != RE_HANDLE::InValidHandle( ) )
 	{
 		__debugbreak( );
 	}
@@ -466,7 +464,7 @@ RE_HANDLE CD3D11ResourceManager::CreateTexture2D( TEXTURE_TRAIT& trait, const St
 	if ( newTexture->Create( *m_pDevice, textureName, TEXTURE_TYPE::TEXTURE_2D, trait, initData ) )
 	{
 		std::size_t idx = ( newTexture - &m_textures.front( ) );
-		RE_HANDLE handle = MakeResourceHandle( TEXTURE_HANDLE, idx );
+		RE_HANDLE handle( TEXTURE, idx );
 
 		m_resourceLUT[TEXTURE].emplace( textureName, handle );
 		return handle;
@@ -476,13 +474,13 @@ RE_HANDLE CD3D11ResourceManager::CreateTexture2D( TEXTURE_TRAIT& trait, const St
 		PushFrontInPlaceList( &m_freeResourceList[TEXTURE], newTexture );
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateTexture2D( const String& descName, const String& textureName, const RESOURCE_INIT_DATA* initData )
 {
 	RE_HANDLE found = FindTexture( textureName );
-	if ( found != INVALID_HANDLE )
+	if ( found != RE_HANDLE::InValidHandle( ) )
 	{
 		__debugbreak( );
 	}
@@ -493,15 +491,15 @@ RE_HANDLE CD3D11ResourceManager::CreateTexture2D( const String& descName, const 
 		return CreateTexture2D( trait->second, textureName, initData );
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateTexture3D( TEXTURE_TRAIT & trait, const String & textureName, const RESOURCE_INIT_DATA * initData )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	RE_HANDLE found = FindTexture( textureName );
-	if ( found != INVALID_HANDLE )
+	if ( found != RE_HANDLE::InValidHandle( ) )
 	{
 		__debugbreak( );
 	}
@@ -526,7 +524,7 @@ RE_HANDLE CD3D11ResourceManager::CreateTexture3D( TEXTURE_TRAIT & trait, const S
 	if ( newTexture->Create( *m_pDevice, textureName, TEXTURE_TYPE::TEXTURE_3D, trait, initData ) )
 	{
 		std::size_t idx = ( newTexture - &m_textures.front( ) );
-		RE_HANDLE handle = MakeResourceHandle( TEXTURE_HANDLE, idx );
+		RE_HANDLE handle( TEXTURE, idx );
 
 		m_resourceLUT[TEXTURE].emplace( textureName, handle );
 		return handle;
@@ -536,13 +534,13 @@ RE_HANDLE CD3D11ResourceManager::CreateTexture3D( TEXTURE_TRAIT & trait, const S
 		PushFrontInPlaceList( &m_freeResourceList[TEXTURE], newTexture );
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateTexture3D( const String & descName, const String & textureName, const RESOURCE_INIT_DATA * initData )
 {
 	RE_HANDLE found = FindTexture( textureName );
-	if ( found != INVALID_HANDLE )
+	if ( found != RE_HANDLE::InValidHandle( ) )
 	{
 		__debugbreak( );
 	}
@@ -553,15 +551,15 @@ RE_HANDLE CD3D11ResourceManager::CreateTexture3D( const String & descName, const
 		return CreateTexture3D( trait->second, textureName, initData );
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 RE_HANDLE CD3D11ResourceManager::RegisterTexture2D( const String& textureName, void* pTexture, bool isAppSizeDependent )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	RE_HANDLE found = FindTexture( textureName );
-	if ( found != INVALID_HANDLE )
+	if ( found != RE_HANDLE::InValidHandle( ) )
 	{
 		__debugbreak( );
 	}
@@ -581,7 +579,7 @@ RE_HANDLE CD3D11ResourceManager::RegisterTexture2D( const String& textureName, v
 	newTexture->SetTexture( texture, isAppSizeDependent );
 
 	std::size_t idx = ( newTexture - &m_textures.front( ) );
-	RE_HANDLE handle = MakeResourceHandle( TEXTURE_HANDLE, idx );
+	RE_HANDLE handle( TEXTURE, idx );
 
 	m_resourceLUT[TEXTURE].emplace( textureName, handle );
 	return handle;
@@ -589,7 +587,7 @@ RE_HANDLE CD3D11ResourceManager::RegisterTexture2D( const String& textureName, v
 
 RE_HANDLE CD3D11ResourceManager::FindTexture( const String& textureName ) const
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	auto found = m_resourceLUT[TEXTURE].find( textureName );
 
@@ -598,7 +596,7 @@ RE_HANDLE CD3D11ResourceManager::FindTexture( const String& textureName ) const
 		return found->second;
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 const TEXTURE_TRAIT& CD3D11ResourceManager::GetTextureTrait( RE_HANDLE texhandle ) const
@@ -608,13 +606,13 @@ const TEXTURE_TRAIT& CD3D11ResourceManager::GetTextureTrait( RE_HANDLE texhandle
 
 void CD3D11ResourceManager::AppSizeChanged( UINT nWndWidth, UINT nWndHeight )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	m_frameBufferSize.first = nWndWidth;
 	m_frameBufferSize.second = nWndHeight;
 
 	auto iter = m_resourceLUT[DEPTH_STENCIL].begin( );
-	RE_HANDLE handle = INVALID_HANDLE;
+	RE_HANDLE handle = RE_HANDLE::InValidHandle( );
 
 	while ( iter != m_resourceLUT[DEPTH_STENCIL].end( ) )
 	{
@@ -623,7 +621,7 @@ void CD3D11ResourceManager::AppSizeChanged( UINT nWndWidth, UINT nWndHeight )
 		if ( dsv.IsAppSizeDependency() )
 		{
 			iter = m_resourceLUT[DEPTH_STENCIL].erase( iter );
-			int index = handle & RE_INDEX_MASK;
+			std::size_t index = handle.m_index;
 			m_depthStencils[index].Free( );
 
 			PushFrontInPlaceList( &m_freeResourceList[DEPTH_STENCIL], &m_depthStencils[index] );
@@ -642,7 +640,7 @@ void CD3D11ResourceManager::AppSizeChanged( UINT nWndWidth, UINT nWndHeight )
 		if ( rtv.IsAppSizeDependency( ) )
 		{
 			iter = m_resourceLUT[RENDER_TARGET].erase( iter );
-			int index = handle & RE_INDEX_MASK;
+			std::size_t index = handle.m_index;
 			m_renderTargets[index].Free( );
 
 			PushFrontInPlaceList( &m_freeResourceList[RENDER_TARGET], &m_renderTargets[index] );
@@ -661,7 +659,7 @@ void CD3D11ResourceManager::AppSizeChanged( UINT nWndWidth, UINT nWndHeight )
 		if ( srv.IsAppSizeDependency( ) )
 		{
 			iter = m_resourceLUT[SHADER_RESOURCE].erase( iter );
-			int index = handle & RE_INDEX_MASK;
+			std::size_t index = handle.m_index;
 			m_shaderResources[index].Free( );
 
 			PushFrontInPlaceList( &m_freeResourceList[SHADER_RESOURCE], &m_shaderResources[index] );
@@ -680,7 +678,7 @@ void CD3D11ResourceManager::AppSizeChanged( UINT nWndWidth, UINT nWndHeight )
 		if ( rav.IsAppSizeDependency( ) )
 		{
 			iter = m_resourceLUT[RANDOM_ACCESS].erase( iter );
-			int index = handle & RE_INDEX_MASK;
+			std::size_t index = handle.m_index;
 			m_randomAccessResource[index].Free( );
 
 			PushFrontInPlaceList( &m_freeResourceList[RANDOM_ACCESS], &m_randomAccessResource[index] );
@@ -699,7 +697,7 @@ void CD3D11ResourceManager::AppSizeChanged( UINT nWndWidth, UINT nWndHeight )
 		if ( tex.IsAppSizeDependency( ) )
 		{
 			iter = m_resourceLUT[TEXTURE].erase( iter );
-			int index = handle & RE_INDEX_MASK;
+			std::size_t index = handle.m_index;
 			m_textures[index].Free( );
 
 			PushFrontInPlaceList( &m_freeResourceList[TEXTURE], &m_textures[index] );
@@ -713,7 +711,7 @@ void CD3D11ResourceManager::AppSizeChanged( UINT nWndWidth, UINT nWndHeight )
 
 RE_HANDLE CD3D11ResourceManager::CreateBuffer( const BUFFER_TRAIT& trait )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	CD3D11Buffer* pBuffer = nullptr;
 
@@ -730,19 +728,19 @@ RE_HANDLE CD3D11ResourceManager::CreateBuffer( const BUFFER_TRAIT& trait )
 	if ( pBuffer->Create( *m_pDevice, trait ) )
 	{
 		std::size_t idx = ( pBuffer - &m_buffers.front() );
-		return MakeResourceHandle( BUFFER_HANDLE, idx );
+		return RE_HANDLE( BUFFER, idx );
 	}
 	else
 	{
 		PushFrontInPlaceList( &m_freeResourceList[BUFFER], pBuffer );
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateVertexShader( const TCHAR* pFilePath, const char* pProfile, const VERTEX_LAYOUT* layoutOrNull, int layoutSize )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	String fileName = UTIL::GetFileName( pFilePath );
 	auto found = m_resourceLUT[VERTEX_SHADER].find( fileName );
@@ -776,18 +774,18 @@ RE_HANDLE CD3D11ResourceManager::CreateVertexShader( const TCHAR* pFilePath, con
 		m_vertexShaders.emplace_back( std::move( vs ) );
 
 		int idx = static_cast<int>( m_vertexShaders.size( ) ) - 1;
-		RE_HANDLE handle = MakeResourceHandle( VS_HANDLE, idx );
+		RE_HANDLE handle( VERTEX_SHADER, idx );
 
 		m_resourceLUT[VERTEX_SHADER].emplace( fileName, handle );
 		return handle;
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateGeometryShader( const TCHAR* pFilePath, const char* pProfile )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	String fileName = UTIL::GetFileName( pFilePath );
 	auto found = m_resourceLUT[GEOMETRY_SHADER].find( fileName );
@@ -807,12 +805,12 @@ RE_HANDLE CD3D11ResourceManager::CreateGeometryShader( const TCHAR* pFilePath, c
 		gs = &m_geometryShaders.back( );
 	}
 
-	return CreateShader<CD3D11GeometryShader, GS_HANDLE>( *m_pDevice, fileName, pFilePath, pProfile, *gs, m_geometryShaders, m_resourceLUT[GEOMETRY_SHADER] );
+	return CreateShader<CD3D11GeometryShader, GEOMETRY_SHADER>( *m_pDevice, fileName, pFilePath, pProfile, *gs, m_geometryShaders, m_resourceLUT[GEOMETRY_SHADER] );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreatePixelShader( const TCHAR* pFilePath, const char* pProfile )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	String fileName = UTIL::GetFileName( pFilePath );
 	auto found = m_resourceLUT[PIXEL_SHADER].find( fileName );
@@ -832,12 +830,12 @@ RE_HANDLE CD3D11ResourceManager::CreatePixelShader( const TCHAR* pFilePath, cons
 		ps = &m_pixelShaders.back( );
 	}
 
-	return CreateShader<CD3D11PixelShader, PS_HANDLE>( *m_pDevice, fileName, pFilePath, pProfile, *ps, m_pixelShaders, m_resourceLUT[PIXEL_SHADER] );
+	return CreateShader<CD3D11PixelShader, PIXEL_SHADER>( *m_pDevice, fileName, pFilePath, pProfile, *ps, m_pixelShaders, m_resourceLUT[PIXEL_SHADER] );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateComputeShader( const TCHAR* pFilePath, const char* pProfile )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	String fileName = UTIL::GetFileName( pFilePath );
 	auto found = m_resourceLUT[COMPUTE_SHADER].find( fileName );
@@ -857,16 +855,16 @@ RE_HANDLE CD3D11ResourceManager::CreateComputeShader( const TCHAR* pFilePath, co
 		cs = &m_computeShaders.back( );
 	}
 
-	return CreateShader<CD3D11ComputeShader, CS_HANDLE>( *m_pDevice, fileName, pFilePath, pProfile, *cs, m_computeShaders, m_resourceLUT[COMPUTE_SHADER] );
+	return CreateShader<CD3D11ComputeShader, COMPUTE_SHADER>( *m_pDevice, fileName, pFilePath, pProfile, *cs, m_computeShaders, m_resourceLUT[COMPUTE_SHADER] );
 }
 
 RE_HANDLE CD3D11ResourceManager::FindGraphicsShaderByName( const TCHAR* pName )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	if ( !pName )
 	{
-		return INVALID_HANDLE;
+		return RE_HANDLE::InValidHandle( );
 	}
 
 	for ( int i = VERTEX_SHADER; i < COMPUTE_SHADER; ++i )
@@ -878,16 +876,16 @@ RE_HANDLE CD3D11ResourceManager::FindGraphicsShaderByName( const TCHAR* pName )
 		}
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 RE_HANDLE CD3D11ResourceManager::FindComputeShaderByName( const TCHAR* pName )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	if ( !pName )
 	{
-		return INVALID_HANDLE;
+		return RE_HANDLE::InValidHandle( );
 	}
 
 	auto found = m_resourceLUT[COMPUTE_SHADER].find( pName );
@@ -896,16 +894,16 @@ RE_HANDLE CD3D11ResourceManager::FindComputeShaderByName( const TCHAR* pName )
 		return found->second;
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateRenderTarget( RE_HANDLE texhandle, const String& renderTargetName, const TEXTURE_TRAIT* trait )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
-	assert( texhandle != INVALID_HANDLE );
+	assert( texhandle != RE_HANDLE::InValidHandle( ) );
 	RE_HANDLE found = FindRenderTarget( renderTargetName );
-	if ( found != INVALID_HANDLE )
+	if ( found != RE_HANDLE::InValidHandle( ) )
 	{
 		return found;
 	}
@@ -926,7 +924,7 @@ RE_HANDLE CD3D11ResourceManager::CreateRenderTarget( RE_HANDLE texhandle, const 
 	if ( newRenderTarget->CreateRenderTarget( *m_pDevice, renderTargetName, texture, trait ) )
 	{
 		std::size_t idx = ( newRenderTarget - &m_renderTargets.front( ) );
-		RE_HANDLE handle = MakeResourceHandle( RENDER_TARGET_HANDLE, idx );
+		RE_HANDLE handle( RENDER_TARGET, idx );
 
 		m_resourceLUT[RENDER_TARGET].emplace( renderTargetName, handle );
 		return handle;
@@ -936,16 +934,16 @@ RE_HANDLE CD3D11ResourceManager::CreateRenderTarget( RE_HANDLE texhandle, const 
 		PushFrontInPlaceList( &m_freeResourceList[RENDER_TARGET], newRenderTarget );
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateDepthStencil( RE_HANDLE texhandle, const String& depthStencilName, const TEXTURE_TRAIT* trait )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
-	assert( texhandle != INVALID_HANDLE );
+	assert( texhandle != RE_HANDLE::InValidHandle( ) );
 	RE_HANDLE found = FindDepthStencil( depthStencilName );
-	if ( found != INVALID_HANDLE )
+	if ( found != RE_HANDLE::InValidHandle( ) )
 	{
 		return found;
 	}
@@ -966,7 +964,7 @@ RE_HANDLE CD3D11ResourceManager::CreateDepthStencil( RE_HANDLE texhandle, const 
 	if ( newDepthStencil->CreateDepthStencil( *m_pDevice, depthStencilName, texture, trait ) )
 	{
 		std::size_t idx = ( newDepthStencil - &m_depthStencils.front() );
-		RE_HANDLE handle = MakeResourceHandle( DEPTH_STENCIL_HANDLE, idx );
+		RE_HANDLE handle( DEPTH_STENCIL, idx );
 
 		m_resourceLUT[DEPTH_STENCIL].emplace( depthStencilName, handle );
 		return handle;
@@ -976,12 +974,12 @@ RE_HANDLE CD3D11ResourceManager::CreateDepthStencil( RE_HANDLE texhandle, const 
 		PushFrontInPlaceList( &m_freeResourceList[DEPTH_STENCIL], newDepthStencil );
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 RE_HANDLE CD3D11ResourceManager::FindRenderTarget( const String& renderTargetName ) const
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	auto found = m_resourceLUT[RENDER_TARGET].find( renderTargetName );
 
@@ -990,12 +988,12 @@ RE_HANDLE CD3D11ResourceManager::FindRenderTarget( const String& renderTargetNam
 		return found->second;
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 RE_HANDLE CD3D11ResourceManager::FindDepthStencil( const String& depthStencilName ) const
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	auto found = m_resourceLUT[DEPTH_STENCIL].find( depthStencilName );
 
@@ -1004,15 +1002,15 @@ RE_HANDLE CD3D11ResourceManager::FindDepthStencil( const String& depthStencilNam
 		return found->second;
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateShaderResourceFromFile( const String& fileName )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	RE_HANDLE handle = FindShaderResource( fileName );
-	if ( handle != INVALID_HANDLE )
+	if ( handle != RE_HANDLE::InValidHandle( ) )
 	{
 		return handle;
 	}
@@ -1044,7 +1042,7 @@ RE_HANDLE CD3D11ResourceManager::CreateShaderResourceFromFile( const String& fil
 	if ( newShaderResource->CreateShaderResourceFromFile( *m_pDevice, fileName ) )
 	{
 		std::size_t idx = ( newShaderResource - &m_shaderResources.front( ) );
-		handle = MakeResourceHandle( SHADER_RESOURCE_HANDLE, idx );
+		handle = RE_HANDLE( SHADER_RESOURCE, idx );
 
 		m_resourceLUT[SHADER_RESOURCE].emplace( fileName, handle );
 	}
@@ -1062,7 +1060,7 @@ RE_HANDLE CD3D11ResourceManager::CreateShaderResourceFromFile( const String& fil
 
 RE_HANDLE CD3D11ResourceManager::FindShaderResource( const String& fileName ) const
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	auto found = m_resourceLUT[SHADER_RESOURCE].find( fileName );
 
@@ -1071,17 +1069,17 @@ RE_HANDLE CD3D11ResourceManager::FindShaderResource( const String& fileName ) co
 		return found->second;
 	}
 	
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateTextureShaderResource( RE_HANDLE texHandle, const String& resourceName, const TEXTURE_TRAIT* trait )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
-	assert( texHandle != INVALID_HANDLE );
+	assert( texHandle != RE_HANDLE::InValidHandle( ) );
 	assert( IsTextureHandle( texHandle ) );
 	RE_HANDLE found = FindShaderResource( resourceName );
-	if ( found != INVALID_HANDLE )
+	if ( found != RE_HANDLE::InValidHandle( ) )
 	{
 		return found;
 	}
@@ -1101,7 +1099,7 @@ RE_HANDLE CD3D11ResourceManager::CreateTextureShaderResource( RE_HANDLE texHandl
 	if ( newResource->CreateShaderResource( *m_pDevice, resourceName, texture, trait ) )
 	{
 		std::size_t idx = ( newResource - &m_shaderResources.front( ) );
-		RE_HANDLE handle = MakeResourceHandle( SHADER_RESOURCE_HANDLE, idx );
+		RE_HANDLE handle( SHADER_RESOURCE, idx );
 
 		m_resourceLUT[SHADER_RESOURCE].emplace( resourceName, handle );
 
@@ -1112,17 +1110,17 @@ RE_HANDLE CD3D11ResourceManager::CreateTextureShaderResource( RE_HANDLE texHandl
 		PushFrontInPlaceList( &m_freeResourceList[SHADER_RESOURCE], newResource );
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateBufferShaderResource( RE_HANDLE bufHandle, const String& resourceName, const BUFFER_TRAIT* trait )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
-	assert( bufHandle != INVALID_HANDLE );
+	assert( bufHandle != RE_HANDLE::InValidHandle( ) );
 	assert( IsBufferHandle( bufHandle ) );
 	RE_HANDLE found = FindShaderResource( resourceName );
-	if ( found != INVALID_HANDLE )
+	if ( found != RE_HANDLE::InValidHandle( ) )
 	{
 		return found;
 	}
@@ -1142,7 +1140,7 @@ RE_HANDLE CD3D11ResourceManager::CreateBufferShaderResource( RE_HANDLE bufHandle
 	if ( newResource->CreateShaderResource( *m_pDevice, resourceName, buffer, trait ) )
 	{
 		std::size_t idx = ( newResource - &m_shaderResources.front( ) );
-		RE_HANDLE handle = MakeResourceHandle( SHADER_RESOURCE_HANDLE, idx );
+		RE_HANDLE handle( SHADER_RESOURCE, idx );
 
 		m_resourceLUT[SHADER_RESOURCE].emplace( resourceName, handle );
 
@@ -1153,15 +1151,15 @@ RE_HANDLE CD3D11ResourceManager::CreateBufferShaderResource( RE_HANDLE bufHandle
 		PushFrontInPlaceList( &m_freeResourceList[SHADER_RESOURCE], newResource );
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 void CD3D11ResourceManager::RegisterShaderResource( const String& resourceName, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& srView )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	RE_HANDLE found = FindShaderResource( resourceName );
-	if ( found != INVALID_HANDLE )
+	if ( found != RE_HANDLE::InValidHandle( ) )
 	{
 		__debugbreak( );
 	}
@@ -1180,14 +1178,14 @@ void CD3D11ResourceManager::RegisterShaderResource( const String& resourceName, 
 	newResource->SetShaderResourceView( srView );
 
 	std::size_t idx = ( newResource - &m_shaderResources.front( ) );
-	RE_HANDLE handle = MakeResourceHandle( SHADER_RESOURCE_HANDLE, idx );
+	RE_HANDLE handle( SHADER_RESOURCE, idx );
 
 	m_resourceLUT[SHADER_RESOURCE].emplace( resourceName, handle );
 }
 
 RE_HANDLE CD3D11ResourceManager::FindRandomAccessResource( const String& resourceName ) const
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	auto found = m_resourceLUT[RANDOM_ACCESS].find( resourceName );
 
@@ -1196,17 +1194,17 @@ RE_HANDLE CD3D11ResourceManager::FindRandomAccessResource( const String& resourc
 		return found->second;
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateTextureRandomAccess( RE_HANDLE texHandle, const String& resourceName, const TEXTURE_TRAIT* trait )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
-	assert( texHandle != INVALID_HANDLE );
+	assert( texHandle != RE_HANDLE::InValidHandle( ) );
 	assert( IsTextureHandle( texHandle ) );
 	RE_HANDLE found = FindRandomAccessResource( resourceName );
-	if ( found != INVALID_HANDLE )
+	if ( found != RE_HANDLE::InValidHandle( ) )
 	{
 		return found;
 	}
@@ -1227,7 +1225,7 @@ RE_HANDLE CD3D11ResourceManager::CreateTextureRandomAccess( RE_HANDLE texHandle,
 	if ( newResource->CreateRandomAccessResource( *m_pDevice, resourceName, texture, trait ) )
 	{
 		std::size_t idx = ( newResource - &m_randomAccessResource.front( ) );
-		RE_HANDLE handle = MakeResourceHandle( RANDOM_ACCESS_HANDLE, idx );
+		RE_HANDLE handle( RANDOM_ACCESS, idx );
 
 		m_resourceLUT[RANDOM_ACCESS].emplace( resourceName, handle );
 		return handle;
@@ -1237,17 +1235,17 @@ RE_HANDLE CD3D11ResourceManager::CreateTextureRandomAccess( RE_HANDLE texHandle,
 		PushFrontInPlaceList( &m_freeResourceList[RANDOM_ACCESS], newResource );
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateBufferRandomAccess( RE_HANDLE bufHandle, const String& resourceName, const BUFFER_TRAIT* trait )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
-	assert( bufHandle != INVALID_HANDLE );
+	assert( bufHandle != RE_HANDLE::InValidHandle( ) );
 	assert( IsBufferHandle( bufHandle ) );
 	RE_HANDLE found = FindRandomAccessResource( resourceName );
-	if ( found != INVALID_HANDLE )
+	if ( found != RE_HANDLE::InValidHandle( ) )
 	{
 		return found;
 	}
@@ -1268,7 +1266,7 @@ RE_HANDLE CD3D11ResourceManager::CreateBufferRandomAccess( RE_HANDLE bufHandle, 
 	if ( newResource->CreateRandomAccessResource( *m_pDevice, resourceName, buffer, trait ) )
 	{
 		std::size_t idx = ( newResource - &m_randomAccessResource.front( ) );
-		RE_HANDLE handle = MakeResourceHandle( RANDOM_ACCESS_HANDLE, idx );
+		RE_HANDLE handle( RANDOM_ACCESS, idx );
 
 		m_resourceLUT[RANDOM_ACCESS].emplace( resourceName, handle );
 		return handle;
@@ -1278,12 +1276,12 @@ RE_HANDLE CD3D11ResourceManager::CreateBufferRandomAccess( RE_HANDLE bufHandle, 
 		PushFrontInPlaceList( &m_freeResourceList[RANDOM_ACCESS], newResource );
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateSamplerState( const String& stateName )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	auto found = m_resourceLUT[SAMPLER_STATE].find( stateName );
 	if ( found != m_resourceLUT[SAMPLER_STATE].end( ) )
@@ -1297,19 +1295,19 @@ RE_HANDLE CD3D11ResourceManager::CreateSamplerState( const String& stateName )
 		m_samplerStates.emplace_back( std::move( *newState ) );
 
 		int idx = static_cast<int>( m_samplerStates.size( ) ) - 1;
-		RE_HANDLE handle = MakeResourceHandle( SAMPLER_STATE_HANDLE, idx );
+		RE_HANDLE handle( SAMPLER_STATE, idx );
 
 		m_resourceLUT[SAMPLER_STATE].emplace( stateName, handle );
 
 		return handle;
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateRasterizerState( const String& stateName )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	auto found = m_resourceLUT[RASTERIZER_STATE].find( stateName );
 	if ( found != m_resourceLUT[RASTERIZER_STATE].end( ) )
@@ -1323,19 +1321,19 @@ RE_HANDLE CD3D11ResourceManager::CreateRasterizerState( const String& stateName 
 		m_rasterizerStates.emplace_back( std::move( *newState ) );
 
 		int idx = static_cast<int>( m_rasterizerStates.size( ) ) - 1;
-		RE_HANDLE handle = MakeResourceHandle( RASTERIZER_STATE_HANDLE, idx );
+		RE_HANDLE handle( RASTERIZER_STATE, idx );
 
 		m_resourceLUT[RASTERIZER_STATE].emplace( stateName, handle );
 
 		return handle;
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateBlendState( const String& stateName )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	auto found = m_resourceLUT[BLEND_STATE].find( stateName );
 	if ( found != m_resourceLUT[BLEND_STATE].end( ) )
@@ -1349,19 +1347,19 @@ RE_HANDLE CD3D11ResourceManager::CreateBlendState( const String& stateName )
 		m_blendStates.emplace_back( std::move( *newState ) );
 
 		int idx = static_cast<int>( m_blendStates.size( ) ) - 1;
-		RE_HANDLE handle = MakeResourceHandle( BLEND_STATE_HANDLE, idx );
+		RE_HANDLE handle( BLEND_STATE, idx );
 
 		m_resourceLUT[BLEND_STATE].emplace( stateName, handle );
 
 		return handle;
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateDepthStencilState( const String& stateName )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	auto found = m_resourceLUT[DEPTH_STENCIL_STATE].find( stateName );
 	if ( found != m_resourceLUT[DEPTH_STENCIL_STATE].end( ) )
@@ -1375,19 +1373,19 @@ RE_HANDLE CD3D11ResourceManager::CreateDepthStencilState( const String& stateNam
 		m_depthStencilStates.emplace_back( std::move( *newState ) );
 		
 		int idx = static_cast<int>( m_depthStencilStates.size( ) ) - 1;
-		RE_HANDLE handle = MakeResourceHandle( DEPTH_STENCIL_STATE_HANDLE, idx );
+		RE_HANDLE handle( DEPTH_STENCIL_STATE, idx );
 
 		m_resourceLUT[DEPTH_STENCIL_STATE].emplace( stateName, handle );
 
 		return handle;
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateCloneTexture( RE_HANDLE texHandle, const String& textureName )
 {
-	assert( texHandle != INVALID_HANDLE );
+	assert( texHandle != RE_HANDLE::InValidHandle( ) );
 	assert( IsTextureHandle( texHandle ) );
 	const ITexture& src = GetTexture( texHandle );
 
@@ -1404,7 +1402,7 @@ RE_HANDLE CD3D11ResourceManager::CreateCloneTexture( RE_HANDLE texHandle, const 
 		trait.m_access = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE;
 
 		RE_HANDLE newHandle = CreateTexture2D( trait, textureName );
-		if ( newHandle != INVALID_HANDLE )
+		if ( newHandle != RE_HANDLE::InValidHandle( ) )
 		{
 			trait.m_format = ( trait.m_format == RESOURCE_FORMAT::R24G8_TYPELESS ) ? RESOURCE_FORMAT::R24_UNORM_X8_TYPELESS : trait.m_format;
 
@@ -1420,7 +1418,7 @@ RE_HANDLE CD3D11ResourceManager::CreateCloneTexture( RE_HANDLE texHandle, const 
 		break;
 	}
 
-	return INVALID_HANDLE;
+	return RE_HANDLE::InValidHandle( );
 }
 
 void CD3D11ResourceManager::CopyResource( RE_HANDLE dest, const RESOURCE_REGION* destRegionOrNull, RE_HANDLE src, const RESOURCE_REGION* srcRegionOrNull )
@@ -1462,26 +1460,26 @@ void CD3D11ResourceManager::UpdateResourceFromMemory( RE_HANDLE dest, void* src,
 
 void CD3D11ResourceManager::FreeResource( RE_HANDLE resourceHandle )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
-	if ( resourceHandle == INVALID_HANDLE )
+	if ( resourceHandle == RE_HANDLE::InValidHandle( ) )
 	{
 		return;
 	}
 
-	unsigned int resourceType = resourceHandle & RE_TYPE_MASK;
-	int resourceIdx = resourceHandle & RE_INDEX_MASK;
+	Resource::Type resourceType = resourceHandle.m_type;
+	std::size_t resourceIdx = resourceHandle.m_index;
 
 	switch ( resourceType )
 	{
-	case BUFFER_HANDLE:
+	case BUFFER:
 		{
 			CD3D11Buffer& buffer = m_buffers[resourceIdx];
 			buffer.~CD3D11Buffer( );
 			PushFrontInPlaceList( &m_freeResourceList[BUFFER], &buffer );
 		}
 		break;
-	case DEPTH_STENCIL_HANDLE:
+	case DEPTH_STENCIL:
 		{
 			CD3D11DepthStencil& depthStencil = m_depthStencils[resourceIdx];
 			m_resourceLUT[DEPTH_STENCIL].erase( depthStencil.GetName( ) );
@@ -1489,7 +1487,7 @@ void CD3D11ResourceManager::FreeResource( RE_HANDLE resourceHandle )
 			PushFrontInPlaceList( &m_freeResourceList[DEPTH_STENCIL], &depthStencil );
 		}
 		break;
-	case RENDER_TARGET_HANDLE:
+	case RENDER_TARGET:
 		{
 			CD3D11RenderTarget& renderTarget = m_renderTargets[resourceIdx];
 			m_resourceLUT[RENDER_TARGET].erase( renderTarget.GetName( ) );
@@ -1497,7 +1495,7 @@ void CD3D11ResourceManager::FreeResource( RE_HANDLE resourceHandle )
 			PushFrontInPlaceList( &m_freeResourceList[RENDER_TARGET], &renderTarget );
 		}
 		break;
-	case SHADER_RESOURCE_HANDLE:
+	case SHADER_RESOURCE:
 		{
 			CD3D11ShaderResource& shaderResource = m_shaderResources[resourceIdx];
 			m_resourceLUT[SHADER_RESOURCE].erase( shaderResource.GetName( ) );
@@ -1505,7 +1503,7 @@ void CD3D11ResourceManager::FreeResource( RE_HANDLE resourceHandle )
 			PushFrontInPlaceList( &m_freeResourceList[SHADER_RESOURCE], &shaderResource );
 		}
 		break;
-	case RANDOM_ACCESS_HANDLE:
+	case RANDOM_ACCESS:
 		{
 			CD3D11RandomAccessResource& randomAccess = m_randomAccessResource[resourceIdx];
 			m_resourceLUT[RANDOM_ACCESS].erase( randomAccess.GetName( ) );
@@ -1513,7 +1511,7 @@ void CD3D11ResourceManager::FreeResource( RE_HANDLE resourceHandle )
 			PushFrontInPlaceList( &m_freeResourceList[RANDOM_ACCESS], &randomAccess );
 		}
 		break;
-	case TEXTURE_HANDLE:
+	case TEXTURE:
 		{
 			CD3D11Texture& texture = m_textures[resourceIdx];
 			m_resourceLUT[TEXTURE].erase( texture.GetName( ) );
@@ -1521,7 +1519,7 @@ void CD3D11ResourceManager::FreeResource( RE_HANDLE resourceHandle )
 			PushFrontInPlaceList( &m_freeResourceList[TEXTURE], &texture );
 		}
 		break;
-	case VS_HANDLE:
+	case VERTEX_SHADER:
 		{
 			CD3D11VertexShader& vs = m_vertexShaders[resourceIdx];
 			m_resourceLUT[VERTEX_SHADER].erase( vs.GetName( ) );
@@ -1529,7 +1527,7 @@ void CD3D11ResourceManager::FreeResource( RE_HANDLE resourceHandle )
 			PushFrontInPlaceList( &m_freeResourceList[VERTEX_SHADER], &vs );
 		}
 		break;
-	case GS_HANDLE:
+	case GEOMETRY_SHADER:
 		{
 			CD3D11GeometryShader& gs = m_geometryShaders[resourceIdx];
 			m_resourceLUT[GEOMETRY_SHADER].erase( gs.GetName( ) );
@@ -1537,7 +1535,7 @@ void CD3D11ResourceManager::FreeResource( RE_HANDLE resourceHandle )
 			PushFrontInPlaceList( &m_freeResourceList[GEOMETRY_SHADER], &gs );
 		}
 		break;
-	case PS_HANDLE:
+	case PIXEL_SHADER:
 		{
 			CD3D11PixelShader& ps = m_pixelShaders[resourceIdx];
 			m_resourceLUT[PIXEL_SHADER].erase( ps.GetName( ) );
@@ -1545,7 +1543,7 @@ void CD3D11ResourceManager::FreeResource( RE_HANDLE resourceHandle )
 			PushFrontInPlaceList( &m_freeResourceList[PIXEL_SHADER], &ps );
 		}
 		break;
-	case CS_HANDLE:
+	case COMPUTE_SHADER:
 		{
 			CD3D11ComputeShader& cs = m_computeShaders[resourceIdx];
 			m_resourceLUT[COMPUTE_SHADER].erase( cs.GetName( ) );
@@ -1553,7 +1551,7 @@ void CD3D11ResourceManager::FreeResource( RE_HANDLE resourceHandle )
 			PushFrontInPlaceList( &m_freeResourceList[COMPUTE_SHADER], &cs );
 		}
 		break;
-	case SAMPLER_STATE_HANDLE:
+	case SAMPLER_STATE:
 		{
 			CD3D11SamplerState& samplerState = m_samplerStates[resourceIdx];
 			m_resourceLUT[SAMPLER_STATE].erase( samplerState.GetName( ) );
@@ -1561,7 +1559,7 @@ void CD3D11ResourceManager::FreeResource( RE_HANDLE resourceHandle )
 			PushFrontInPlaceList( &m_freeResourceList[SAMPLER_STATE], &samplerState );
 		}
 		break;
-	case RASTERIZER_STATE_HANDLE:
+	case RASTERIZER_STATE:
 		{
 			CD3D11RasterizerState& rasterizerState = m_rasterizerStates[resourceIdx];
 			m_resourceLUT[RASTERIZER_STATE].erase( rasterizerState.GetName( ) );
@@ -1569,7 +1567,7 @@ void CD3D11ResourceManager::FreeResource( RE_HANDLE resourceHandle )
 			PushFrontInPlaceList( &m_freeResourceList[RASTERIZER_STATE], &rasterizerState );
 		}
 		break;
-	case BLEND_STATE_HANDLE:
+	case BLEND_STATE:
 		{
 			CD3D11BlendState& blendState = m_blendStates[resourceIdx];
 			m_resourceLUT[BLEND_STATE].erase( blendState.GetName( ) );
@@ -1577,7 +1575,7 @@ void CD3D11ResourceManager::FreeResource( RE_HANDLE resourceHandle )
 			PushFrontInPlaceList( &m_freeResourceList[BLEND_STATE], &blendState );
 		}
 		break;
-	case DEPTH_STENCIL_STATE_HANDLE:
+	case DEPTH_STENCIL_STATE:
 		{
 			CD3D11DepthStencilState& depthStencilState = m_depthStencilStates[resourceIdx];
 			m_resourceLUT[DEPTH_STENCIL_STATE].erase( depthStencilState.GetName( ) );
@@ -1595,7 +1593,7 @@ void CD3D11ResourceManager::TakeSnapshot( const String& sourceTextureName, const
 {
 	RE_HANDLE srcHandle = FindTexture( sourceTextureName );
 
-	if ( srcHandle == INVALID_HANDLE )
+	if ( srcHandle == RE_HANDLE::InValidHandle( ) )
 	{
 		DebugWarning( "Snapshot Error - Source Texture is nullptr\n" );
 		__debugbreak( );
@@ -1603,10 +1601,10 @@ void CD3D11ResourceManager::TakeSnapshot( const String& sourceTextureName, const
 
 	RE_HANDLE destHandle = FindTexture( destTextureName );
 
-	if ( destHandle == INVALID_HANDLE )
+	if ( destHandle == RE_HANDLE::InValidHandle( ) )
 	{
 		destHandle = CreateCloneTexture( srcHandle, destTextureName );
-		if ( destHandle == INVALID_HANDLE )
+		if ( destHandle == RE_HANDLE::InValidHandle( ) )
 		{
 			DebugWarning( "Snapshot Error - Fail Create DestTexture \n" );
 			__debugbreak( );
@@ -1657,85 +1655,85 @@ void CD3D11ResourceManager::OnDeviceRestore( ID3D11Device* pDevice, ID3D11Device
 const CD3D11DepthStencil& CD3D11ResourceManager::GetDepthstencil( RE_HANDLE handle ) const
 {
 	assert( IsDepthStencilHandle( handle ) );
-	return m_depthStencils[handle & RE_INDEX_MASK];
+	return m_depthStencils[handle.m_index];
 }
 
 const CD3D11RenderTarget& CD3D11ResourceManager::GetRendertarget( RE_HANDLE handle ) const
 {
 	assert( IsRenderTargetHandle( handle ) );
-	return m_renderTargets[handle & RE_INDEX_MASK];
+	return m_renderTargets[handle.m_index];
 }
 
 const CD3D11ShaderResource& CD3D11ResourceManager::GetShaderResource( RE_HANDLE handle ) const
 {
 	assert( IsShaderResourceHandle( handle ) );
-	return m_shaderResources[handle & RE_INDEX_MASK];
+	return m_shaderResources[handle.m_index];
 }
 
 const CD3D11RandomAccessResource& CD3D11ResourceManager::GetRandomAccess( RE_HANDLE handle ) const
 {
 	assert( IsRandomAccessHandle( handle ) );
-	return m_randomAccessResource[handle & RE_INDEX_MASK];
+	return m_randomAccessResource[handle.m_index];
 }
 
 const CD3D11Texture& CD3D11ResourceManager::GetTexture( RE_HANDLE handle ) const
 {
 	assert( IsTextureHandle( handle ) );
-	return m_textures[handle & RE_INDEX_MASK];
+	return m_textures[handle.m_index];
 }
 
 const CD3D11Buffer& CD3D11ResourceManager::GetBuffer( RE_HANDLE handle ) const
 {
 	assert( IsBufferHandle( handle ) );
-	return m_buffers[handle & RE_INDEX_MASK];
+	return m_buffers[handle.m_index];
 }
 
 const CD3D11VertexShader& CD3D11ResourceManager::GetVertexShader( RE_HANDLE handle ) const
 {
 	assert( IsVertexShaderHandle( handle ) );
-	return m_vertexShaders[handle & RE_INDEX_MASK];
+	return m_vertexShaders[handle.m_index];
 }
 
 const CD3D11GeometryShader& CD3D11ResourceManager::GetGeometryShader( RE_HANDLE handle ) const
 {
 	assert( IsGeometryShaderHandle( handle ) );
-	return m_geometryShaders[handle & RE_INDEX_MASK];
+	return m_geometryShaders[handle.m_index];
 }
 
 const CD3D11PixelShader& CD3D11ResourceManager::GetPixelShader( RE_HANDLE handle ) const
 {
 	assert( IsPixelShaderHandle( handle ) );
-	return m_pixelShaders[handle & RE_INDEX_MASK];
+	return m_pixelShaders[handle.m_index];
 }
 
 const CD3D11ComputeShader& CD3D11ResourceManager::GetComputeShader( RE_HANDLE handle ) const
 {
 	assert( IsComputeShaderHandle( handle ) );
-	return m_computeShaders[handle & RE_INDEX_MASK];
+	return m_computeShaders[handle.m_index];
 }
 
 const CD3D11SamplerState& CD3D11ResourceManager::GetSamplerState( RE_HANDLE handle ) const
 {
 	assert( IsSamplerStateHandle( handle ) );
-	return m_samplerStates[handle & RE_INDEX_MASK];
+	return m_samplerStates[handle.m_index];
 }
 
 const CD3D11RasterizerState& CD3D11ResourceManager::GetRasterizerState( RE_HANDLE handle ) const
 {
 	assert( IsRasterizerStateHandle( handle ) );
-	return m_rasterizerStates[handle & RE_INDEX_MASK];
+	return m_rasterizerStates[handle.m_index];
 }
 
 const CD3D11BlendState& CD3D11ResourceManager::GetBlendState( RE_HANDLE handle ) const
 {
 	assert( IsBlendStateHandle( handle ) );
-	return m_blendStates[handle & RE_INDEX_MASK];
+	return m_blendStates[handle.m_index];
 }
 
 const CD3D11DepthStencilState& CD3D11ResourceManager::GetDepthStencilState( RE_HANDLE handle ) const
 {
 	assert( IsDepthStencilStateHandle( handle ) );
-	return m_depthStencilStates[handle & RE_INDEX_MASK];
+	return m_depthStencilStates[handle.m_index];
 }
 
 ID3D11Resource* CD3D11ResourceManager::GetD3D11ResourceGeneric( RE_HANDLE handle ) const
@@ -1786,18 +1784,18 @@ bool CD3D11ResourceManager::LoadShader( )
 				else
 				{
 					const String& filePath = shaderList->GetValue( );
-					result = ( CreateVertexShader( filePath.c_str( ), mbsProfile ) != INVALID_HANDLE );
+					result = ( CreateVertexShader( filePath.c_str( ), mbsProfile ) != RE_HANDLE::InValidHandle( ) );
 				}
 			}
 			else if ( shaderType == _T("gs") )
 			{
 				const String& filePath = shaderList->GetValue( );
-				result = ( CreateGeometryShader( filePath.c_str( ), mbsProfile ) != INVALID_HANDLE );
+				result = ( CreateGeometryShader( filePath.c_str( ), mbsProfile ) != RE_HANDLE::InValidHandle( ) );
 			}
 			else if ( shaderType.compare( _T( "ps" ) ) == 0 )
 			{
 				const String& filePath = shaderList->GetValue( );
-				result = ( CreatePixelShader( filePath.c_str( ), mbsProfile ) != INVALID_HANDLE );
+				result = ( CreatePixelShader( filePath.c_str( ), mbsProfile ) != RE_HANDLE::InValidHandle( ) );
 			}
 
 			if ( result == false )
@@ -1837,12 +1835,12 @@ bool CD3D11ResourceManager::CreateVertexShaderFromScript( const KeyValue* desc, 
 		}
 	}
 	
-	return ( CreateVertexShader( path->GetValue( ).c_str( ), profile, vl, layoutSize ) != INVALID_HANDLE );
+	return ( CreateVertexShader( path->GetValue( ).c_str( ), profile, vl, layoutSize ) != RE_HANDLE::InValidHandle( ) );
 }
 
 void CD3D11ResourceManager::CleanUpFreeResourceList( )
 {
-	using namespace RESOURCE_TYPE;
+	using namespace Resource;
 
 	ClearFreeList<CD3D11Buffer>( &m_freeResourceList[BUFFER] );
 	ClearFreeList<CD3D11Texture>( &m_freeResourceList[TEXTURE] );

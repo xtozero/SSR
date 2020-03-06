@@ -127,7 +127,7 @@ void CSSRManager::Process( CGameLogic& gameLogic, const std::list<CGameObject*>*
 	// m_blur.Process( gameLogic, m_ssrSrv, m_ssrRt );
 
 	// Set Framebuffer RenderTarget
-	RE_HANDLE default[] = { RE_HANDLE_TYPE::INVALID_HANDLE, RE_HANDLE_TYPE::INVALID_HANDLE, RE_HANDLE_TYPE::INVALID_HANDLE };
+	RE_HANDLE default[] = { RE_HANDLE::InValidHandle( ), RE_HANDLE::InValidHandle( ), RE_HANDLE::InValidHandle( ) };
 	renderer.BindRenderTargets( &m_defaultRt, 1, default[0] );
 
 	// Set Reflect Result By Texture
@@ -169,7 +169,7 @@ bool CSSRManager::CreateAppSizeDependentResource( IRenderer& renderer )
 	};
 
 	m_ssrTexture = resourceMgr.CreateTexture2D( ssrTexTrait, ssrTextureName );
-	if ( m_ssrTexture == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_ssrTexture == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
@@ -184,7 +184,7 @@ bool CSSRManager::CreateAppSizeDependentResource( IRenderer& renderer )
 
 	String backfaceDepthTexName( _T( "BackfaceDepth" ) );
 	m_backfaceDepthTexture = resourceMgr.CreateTexture2D( backfaceDepthTexName, backfaceDepthTexName );
-	if ( m_backfaceDepthTexture == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_backfaceDepthTexture == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
@@ -192,14 +192,14 @@ bool CSSRManager::CreateAppSizeDependentResource( IRenderer& renderer )
 	m_backfaceDepthRt = resourceMgr.CreateRenderTarget( m_backfaceDepthTexture, backfaceDepthTexName );
 	m_backfaceDepthSrv = resourceMgr.CreateTextureShaderResource( m_backfaceDepthTexture, backfaceDepthTexName );
 
-	if ( m_ssrRt == RE_HANDLE_TYPE::INVALID_HANDLE ||
-		m_ssrSrv == RE_HANDLE_TYPE::INVALID_HANDLE ||
-		m_defaultRt == RE_HANDLE_TYPE::INVALID_HANDLE ||
-		m_defaultDS == RE_HANDLE_TYPE::INVALID_HANDLE ||
-		m_defaultSrv == RE_HANDLE_TYPE::INVALID_HANDLE ||
-		m_depthSrv == RE_HANDLE_TYPE::INVALID_HANDLE ||
-		m_backfaceDepthRt  == RE_HANDLE_TYPE::INVALID_HANDLE ||
-		m_backfaceDepthSrv == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_ssrRt == RE_HANDLE::InValidHandle( ) ||
+		m_ssrSrv == RE_HANDLE::InValidHandle( ) ||
+		m_defaultRt == RE_HANDLE::InValidHandle( ) ||
+		m_defaultDS == RE_HANDLE::InValidHandle( ) ||
+		m_defaultSrv == RE_HANDLE::InValidHandle( ) ||
+		m_depthSrv == RE_HANDLE::InValidHandle( ) ||
+		m_backfaceDepthRt  == RE_HANDLE::InValidHandle( ) ||
+		m_backfaceDepthSrv == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}
@@ -222,7 +222,7 @@ bool CSSRManager::CreateDeviceDependendResource( CGameLogic& gameLogic )
 	IRenderer& renderer = gameLogic.GetRenderer( );
 	m_ssrConstantBuffer = renderer.CreateBuffer( trait );
 
-	if ( m_ssrConstantBuffer == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_ssrConstantBuffer == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}

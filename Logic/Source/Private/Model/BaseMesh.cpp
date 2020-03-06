@@ -44,7 +44,7 @@ bool BaseMesh::Load( IRenderer& renderer, UINT primitive )
 
 	m_vertexBuffer = renderer.CreateBuffer( trait );
 
-	if ( m_vertexBuffer == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_vertexBuffer == RE_HANDLE::InValidHandle( ) )
 	{
 		return false;
 	}

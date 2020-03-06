@@ -46,7 +46,7 @@ RE_HANDLE CDynamicBuffer::CreateDynamicBuffer( IResourceManager& resourceMgr, un
 	};
 
 	RE_HANDLE buffer = resourceMgr.CreateBuffer( trait );
-	if ( buffer == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( buffer == RE_HANDLE::InValidHandle( ) )
 	{
 		__debugbreak( );
 	}

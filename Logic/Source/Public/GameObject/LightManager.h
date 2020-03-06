@@ -63,5 +63,5 @@ private:
 
 	UINT m_primaryLight;
 
-	RE_HANDLE m_lightBuffer = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE m_lightBuffer = RE_HANDLE::InValidHandle( );
 };

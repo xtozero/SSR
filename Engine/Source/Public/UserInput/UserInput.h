@@ -4,7 +4,7 @@ enum USER_INPUT_CODE
 {
 	UIC_UNKNOWN = -1,
 	// Character Keys
-	UIC_A = 0x00,
+	UIC_A = 0,
 	UIC_B,
 	UIC_C,
 	UIC_D,

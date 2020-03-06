@@ -8,9 +8,9 @@ class CFrustum
 public:
 	enum
 	{
-		X_MAX = 0x00000001,
-		Y_MAX = 0x00000002,
-		Z_MAX = 0x00000004,
+		X_MAX = 0x1,
+		Y_MAX = 0x2,
+		Z_MAX = 0x4,
 	};
 
 	explicit CFrustum( const CXMFLOAT4X4& projectionMat )

@@ -149,8 +149,8 @@ private:
 	std::vector<CD3D11BlendState> m_blendStates;
 	std::vector<CD3D11DepthStencilState> m_depthStencilStates;
 
-	std::map<String, RE_HANDLE> m_resourceLUT[RESOURCE_TYPE::COUNT];
-	BYTE* m_freeResourceList[RESOURCE_TYPE::COUNT] = {};
+	std::map<String, RE_HANDLE> m_resourceLUT[Resource::COUNT];
+	BYTE* m_freeResourceList[Resource::COUNT] = {};
 
 	std::map<String, TEXTURE_TRAIT> m_textureTraits;
 

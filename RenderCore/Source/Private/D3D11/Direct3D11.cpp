@@ -20,8 +20,6 @@
 #include <string>
 #include <vector>
 
-using namespace RE_HANDLE_TYPE;
-
 namespace
 {
 	void RegisterGraphicsEnumString()
@@ -514,7 +512,7 @@ void CDirect3D11::BindVertexBuffer( RE_HANDLE* pVertexBuffers, UINT startSlot, U
 		assert( pOffsets != nullptr );
 		for ( UINT i = 0; i < numBuffers; ++i )
 		{
-			if ( pVertexBuffers[i] != INVALID_HANDLE )
+			if ( pVertexBuffers[i] != RE_HANDLE::InValidHandle( ) )
 			{
 				const CD3D11Buffer& d3d11buffer = m_resourceManager.GetBuffer( pVertexBuffers[i] );
 				buffers[i] = d3d11buffer.Get( );
@@ -532,7 +530,7 @@ void CDirect3D11::BindIndexBuffer( RE_HANDLE indexBuffer, UINT indexOffset )
 	ID3D11Buffer* buffer = nullptr;
 	DXGI_FORMAT format = DXGI_FORMAT_R16_UINT;
 
-	if ( indexBuffer != INVALID_HANDLE )
+	if ( indexBuffer != RE_HANDLE::InValidHandle( ) )
 	{
 		const CD3D11Buffer& d3d11buffer = m_resourceManager.GetBuffer( indexBuffer );
 		buffer = d3d11buffer.Get( );
@@ -552,7 +550,7 @@ void CDirect3D11::BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT num
 
 	for ( UINT i = 0; i < numBuffers; ++i )
 	{
-		if ( pConstantBuffers[i] != INVALID_HANDLE )
+		if ( pConstantBuffers[i] != RE_HANDLE::InValidHandle( ) )
 		{
 			const CD3D11Buffer& d3d11buffer = m_resourceManager.GetBuffer( pConstantBuffers[i] );
 			buffers[i] = d3d11buffer.Get( );
@@ -590,7 +588,7 @@ void CDirect3D11::BindShader( SHADER_TYPE type, RE_HANDLE shader )
 		{
 			ID3D11VertexShader* vs = nullptr;
 			ID3D11InputLayout* inputLayout = nullptr;
-			if ( shader != INVALID_HANDLE )
+			if ( shader != RE_HANDLE::InValidHandle( ) )
 			{
 				const CD3D11VertexShader& d3d11vs = m_resourceManager.GetVertexShader( shader );
 				vs = d3d11vs.Get( );
@@ -608,7 +606,7 @@ void CDirect3D11::BindShader( SHADER_TYPE type, RE_HANDLE shader )
 	case GS:
 		{
 			ID3D11GeometryShader* gs = nullptr;
-			if ( shader != INVALID_HANDLE )
+			if ( shader != RE_HANDLE::InValidHandle( ) )
 			{
 				const CD3D11GeometryShader& d3d11gs = m_resourceManager.GetGeometryShader( shader );
 				gs = d3d11gs.Get( );
@@ -620,7 +618,7 @@ void CDirect3D11::BindShader( SHADER_TYPE type, RE_HANDLE shader )
 	case PS:
 		{
 			ID3D11PixelShader* ps = nullptr;
-			if ( shader != INVALID_HANDLE )
+			if ( shader != RE_HANDLE::InValidHandle( ) )
 			{
 				const CD3D11PixelShader& d3d11ps = m_resourceManager.GetPixelShader( shader );
 				ps = d3d11ps.Get( );
@@ -632,7 +630,7 @@ void CDirect3D11::BindShader( SHADER_TYPE type, RE_HANDLE shader )
 	case CS:
 		{
 			ID3D11ComputeShader* cs = nullptr;
-			if ( shader != INVALID_HANDLE )
+			if ( shader != RE_HANDLE::InValidHandle( ) )
 			{
 				const CD3D11ComputeShader& d3d11cs = m_resourceManager.GetComputeShader( shader );
 				cs = d3d11cs.Get( );
@@ -655,7 +653,7 @@ void CDirect3D11::BindShaderResource( SHADER_TYPE type, int startSlot, int count
 	{
 		for ( int i = 0; i < count; ++i )
 		{
-			if ( resource[i] != INVALID_HANDLE )
+			if ( resource[i] != RE_HANDLE::InValidHandle( ) )
 			{
 				const CD3D11ShaderResource& d3d11srv = m_resourceManager.GetShaderResource( resource[i] );
 				srvs[i] = d3d11srv.Get( );
@@ -695,7 +693,7 @@ void CDirect3D11::BindRandomAccessResource( int startSlot, int count, RE_HANDLE*
 	{
 		for ( int i = 0; i < count; ++i )
 		{
-			if ( resource[i] != INVALID_HANDLE )
+			if ( resource[i] != RE_HANDLE::InValidHandle( ) )
 			{
 				const CD3D11RandomAccessResource& d3d11rav = m_resourceManager.GetRandomAccess( resource[i] );
 				ravs[i] = d3d11rav.Get( );
@@ -712,7 +710,7 @@ void CDirect3D11::BindRenderTargets( const RE_HANDLE* pRenderTargets, int render
 
 	for ( int i = 0; i < renderTargetCount; ++i )
 	{
-		if ( pRenderTargets[i] == INVALID_HANDLE )
+		if ( pRenderTargets[i] == RE_HANDLE::InValidHandle( ) )
 		{
 			rtvs[i] = nullptr;
 		}
@@ -723,7 +721,7 @@ void CDirect3D11::BindRenderTargets( const RE_HANDLE* pRenderTargets, int render
 	}
 	
 	ID3D11DepthStencilView* dsv = nullptr;
-	if ( depthStencil != INVALID_HANDLE )
+	if ( depthStencil != RE_HANDLE::InValidHandle( ) )
 	{
 		dsv = m_resourceManager.GetDepthstencil( depthStencil ).Get();
 	}
@@ -734,7 +732,7 @@ void CDirect3D11::BindRasterizerState( RE_HANDLE rasterizerState )
 {
 	ID3D11RasterizerState* state = nullptr;
 
-	if ( rasterizerState != INVALID_HANDLE )
+	if ( rasterizerState != RE_HANDLE::InValidHandle( ) )
 	{
 		state = m_resourceManager.GetRasterizerState( rasterizerState ).Get();
 	}
@@ -750,7 +748,7 @@ void CDirect3D11::BindSamplerState( SHADER_TYPE type, int startSlot, int numSamp
 	{
 		for ( int i = 0; i < numSamplers; ++i )
 		{
-			if ( pSamplerStates[i] != INVALID_HANDLE )
+			if ( pSamplerStates[i] != RE_HANDLE::InValidHandle( ) )
 			{
 				states[i] = m_resourceManager.GetSamplerState( pSamplerStates[i] ).Get( );
 			}
@@ -797,7 +795,7 @@ void CDirect3D11::BindSamplerState( SHADER_TYPE type, int startSlot, int numSamp
 
 void CDirect3D11::BindDepthStencilState( RE_HANDLE depthStencilState )
 {
-	if ( depthStencilState == INVALID_HANDLE )
+	if ( depthStencilState == RE_HANDLE::InValidHandle( ) )
 	{
 		m_renderStateManager.SetDepthStencilState( nullptr, 0 );
 	}
@@ -810,7 +808,7 @@ void CDirect3D11::BindDepthStencilState( RE_HANDLE depthStencilState )
 
 void CDirect3D11::BindBlendState( RE_HANDLE blendState )
 {
-	if ( blendState == INVALID_HANDLE )
+	if ( blendState == RE_HANDLE::InValidHandle( ) )
 	{
 		float defaultBlendFactor[4] = { 0.f, 0.f, 0.f, 0.f };
 		m_renderStateManager.SetBlendState( nullptr, defaultBlendFactor, D3D11_DEFAULT_SAMPLE_MASK );

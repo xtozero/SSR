@@ -38,6 +38,6 @@ private:
 
 	std::array<RE_HANDLE, RENDER_OUPUT_TYPE::COUNT>	m_renderSRVs;
 	std::array<RE_HANDLE, RENDER_OUPUT_TYPE::COUNT>	m_renderOutputs;
-	RE_HANDLE										m_primeDs = RE_HANDLE_TYPE::INVALID_HANDLE;
+	RE_HANDLE										m_primeDs = RE_HANDLE::InValidHandle( );
 };
 

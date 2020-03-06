@@ -35,7 +35,7 @@ void CComputeShaderUnitTest::RunUnitTest( CGameLogic& gameLogic )
 	};
 
 	m_buffers[0] = renderer.CreateBuffer( bufferTrait );
-	if ( m_buffers[0] == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_buffers[0] == RE_HANDLE::InValidHandle( ) )
 	{
 		__debugbreak( );
 	}
@@ -43,7 +43,7 @@ void CComputeShaderUnitTest::RunUnitTest( CGameLogic& gameLogic )
 	bufferTrait.m_srcData = nullptr;
 
 	m_buffers[1] = renderer.CreateBuffer( bufferTrait );
-	if ( m_buffers[1] == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_buffers[1] == RE_HANDLE::InValidHandle( ) )
 	{
 		__debugbreak( );
 	}
@@ -54,7 +54,7 @@ void CComputeShaderUnitTest::RunUnitTest( CGameLogic& gameLogic )
 	bufferTrait.m_bindType = 0;
 
 	m_readBackBuffers = renderer.CreateBuffer( bufferTrait );
-	if ( m_readBackBuffers == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_readBackBuffers == RE_HANDLE::InValidHandle( ) )
 	{
 		__debugbreak( );
 	}
@@ -64,38 +64,38 @@ void CComputeShaderUnitTest::RunUnitTest( CGameLogic& gameLogic )
 	bufferTrait.m_access = GPU_READ | CPU_WRITE;
 	bufferTrait.m_bindType = RESOURCE_BIND_TYPE::CONSTANT_BUFFER;
 	m_constantBuffer = renderer.CreateBuffer( bufferTrait );
-	if ( m_constantBuffer == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_constantBuffer == RE_HANDLE::InValidHandle( ) )
 	{
 		__debugbreak( );
 	}
 
 	IResourceManager& rscMgr = renderer.GetResourceManager( );
 	m_srvs[0] = rscMgr.CreateBufferShaderResource( m_buffers[0], _T( "csInitBuffer" ) );
-	if ( m_srvs[0] == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_srvs[0] == RE_HANDLE::InValidHandle( ) )
 	{
 		__debugbreak( );
 	}
 
 	m_srvs[1] = rscMgr.CreateBufferShaderResource( m_buffers[1], _T( "csResultBuffer" ) );
-	if ( m_srvs[1] == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_srvs[1] == RE_HANDLE::InValidHandle( ) )
 	{
 		__debugbreak( );
 	}
 
 	m_uavs[0] = rscMgr.CreateBufferRandomAccess( m_buffers[0], _T( "csInitBuffer" ) );
-	if ( m_uavs[0] == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_uavs[0] == RE_HANDLE::InValidHandle( ) )
 	{
 		__debugbreak( );
 	}
 
 	m_uavs[1] = rscMgr.CreateBufferRandomAccess( m_buffers[1], _T( "csResultBuffer" ) );
-	if ( m_uavs[1] == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_uavs[1] == RE_HANDLE::InValidHandle( ) )
 	{
 		__debugbreak( );
 	}
 
 	m_computeShader = renderer.CreateComputeShader( _T( "../bin/Shader/csExperimental.cso" ), nullptr );
-	if ( m_computeShader == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_computeShader == RE_HANDLE::InValidHandle( ) )
 	{
 		__debugbreak( );
 	}
@@ -110,7 +110,7 @@ void CComputeShaderUnitTest::RunUnitTest( CGameLogic& gameLogic )
 	{
 		flag = !flag;
 
-		RE_HANDLE defaultHandle[] = { RE_HANDLE_TYPE::INVALID_HANDLE };
+		RE_HANDLE defaultHandle[] = { RE_HANDLE::InValidHandle( ) };
 		renderer.BindShaderResource( SHADER_TYPE::CS, 0, 1, defaultHandle );
 		renderer.BindRandomAccessResource( 0, 1, &m_uavs[flag ? 1 : 0] );
 		renderer.BindShaderResource( SHADER_TYPE::CS, 0, 1, &m_srvs[flag ? 0 : 1] );

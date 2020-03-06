@@ -16,7 +16,7 @@ bool CObjMesh::Load( IRenderer& renderer, UINT primitive )
 		{
 			auto texture = renderer.CreateShaderResourceFromFile( textureName );
 
-			if ( texture )
+			if ( texture != RE_HANDLE::InValidHandle( ) )
 			{
 				mtl.m_texture = texture;
 			}
@@ -37,7 +37,7 @@ void CObjMesh::Draw( CGameLogic& gameLogic )
 		return;
 	}
 
-	if ( m_vertexBuffer == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_vertexBuffer == RE_HANDLE::InValidHandle( ) )
 	{
 		return;
 	}
@@ -46,7 +46,7 @@ void CObjMesh::Draw( CGameLogic& gameLogic )
 
 	renderer.BindMaterial( m_material );
 	renderer.BindVertexBuffer( &m_vertexBuffer, 0, 1, &m_stride, &m_offset );
-	if ( m_indexBuffer == RE_HANDLE_TYPE::INVALID_HANDLE )
+	if ( m_indexBuffer == RE_HANDLE::InValidHandle( ) )
 	{
 		gameLogic.GetRenderer( ).Draw( m_primitiveTopology, m_nVertices, m_offset );
 	}
