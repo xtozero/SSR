@@ -3,19 +3,9 @@ image: Visual Studio 2017
 clone_folder: c:\ssr
 init:
 - cmd: >-
-    set arch=
-
-    if "%arch%"=="Win64" ( set arch= Win64)
-
-    echo %arch%
-
     echo %APPVEYOR_BUILD_WORKER_IMAGE%
 
-    if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2017" ( set generator="Visual Studio 15 2017%arch%" )
-
-    if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2015" ( set generator="Visual Studio 14 2015%arch%" )
-
-    if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2013" ( set generator="Visual Studio 12 2013%arch%" )
+    if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2017" ( set generator="Visual Studio 15 2017 Win64" )
 
     echo %generator%
 before_build:
