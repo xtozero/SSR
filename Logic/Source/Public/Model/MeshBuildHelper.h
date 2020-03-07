@@ -29,7 +29,7 @@ namespace MeshBuildHelper
 		meshData.m_vertices.reserve( numTris * 6 );
 		meshData.m_indices.reserve( numTris * 4 );
 
-		for ( int i = 0; i < numTris; ++i )
+		for ( unsigned int i = 0; i < numTris; ++i )
 		{
 			const CXMFLOAT3& v0 = copy.m_vertices[copy.m_indices[i * 3 + 0]].m_position;
 			const CXMFLOAT3& v1 = copy.m_vertices[copy.m_indices[i * 3 + 0]].m_position;
@@ -383,7 +383,7 @@ namespace MeshBuildHelper
 
 		meshData.m_indices.resize( ( m - 1 ) * ( n - 1 ) * 6 );
 
-		int k = 0;
+		std::size_t k = 0;
 		for ( UINT i = 0, iEnd = m - 1; i < iEnd; ++i )
 		{
 			for ( UINT j = 0, jEnd = n - 1; j < jEnd; ++j )

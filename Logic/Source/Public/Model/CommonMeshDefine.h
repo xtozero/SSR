@@ -2,6 +2,8 @@
 
 #include "Math/CXMFloat.h"
 
+#include <cstddef>
+
 struct MeshVertex
 {
 	CXMFLOAT3 m_position;
@@ -52,4 +54,4 @@ struct MeshVertex
 		m_texcoord( texcoord ) {}
 };
 
-constexpr int VERTEX_STRIDE = sizeof( MeshVertex );
+constexpr std::size_t VERTEX_STRIDE = sizeof( MeshVertex );

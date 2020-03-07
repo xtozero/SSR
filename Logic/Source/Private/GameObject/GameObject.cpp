@@ -381,7 +381,7 @@ CGameObject::CGameObject( )
 	m_matTransform = XMMatrixIdentity();
 	m_invMatTransform = XMMatrixIdentity( );
 
-	for ( int i = 0; i < COLLIDER::COUNT; ++i )
+	for ( std::size_t i = 0; i < COLLIDER::COUNT; ++i )
 	{
 		m_originalColliders[i] = nullptr;
 		m_colliders[i] = nullptr;

@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <assert.h>
+#include <cstddef>
 #include <fstream>
 #include <vector>
 
@@ -13,7 +14,7 @@ using namespace DirectX;
 
 namespace
 {
-	constexpr int PLY_FILE_READ_INDEX_STEP = 3;
+	constexpr std::size_t PLY_FILE_READ_INDEX_STEP = 3;
 
 	constexpr TCHAR* PLY_FILE_DIR = _T( "../model/ply/" );
 	constexpr TCHAR* PLY_DEFAULT_SURFACE_NAME = _T( "PlyDefaultSurface" );
@@ -47,7 +48,7 @@ namespace
 			}
 		}
 
-		for ( UINT i = 0; i < idxList.size(); i += 3 )
+		for ( std::size_t i = 0; i < idxList.size(); i += 3 )
 		{
 			const CXMFLOAT3& p0 = vertices[idxList[i]].m_position;
 			const CXMFLOAT3& p1 = vertices[idxList[i + 1]].m_position;

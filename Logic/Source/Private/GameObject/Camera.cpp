@@ -178,18 +178,18 @@ void CCamera::LoadProperty( const KeyValue& keyValue )
 
 void CCamera::OnMouseLButton( const UserInput& input )
 {
-	m_mouseRotateEnable = input.m_axis[2] < 0;
+	m_mouseRotateEnable = input.m_axis[UserInput::Z_AXIS] < 0;
 }
 
 void CCamera::OnMouseRButton( const UserInput& input )
 {
-	m_mouseTranslateEnable = input.m_axis[2] < 0;
+	m_mouseTranslateEnable = input.m_axis[UserInput::Z_AXIS] < 0;
 }
 
 void CCamera::OnMouseMove( const UserInput& input )
 {
-	float dx = input.m_axis[0];
-	float dy = input.m_axis[1];
+	float dx = input.m_axis[UserInput::X_AXIS];
+	float dy = input.m_axis[UserInput::Y_AXIS];
 
 	dx *= m_mouseSensitivity;
 	dy *= m_mouseSensitivity;
@@ -206,26 +206,26 @@ void CCamera::OnMouseMove( const UserInput& input )
 
 void CCamera::OnWheelMove( const UserInput& input )
 {
-	Move( 0, 0, static_cast<float>( input.m_axis[2] ) );
+	Move( 0, 0, static_cast<float>( input.m_axis[UserInput::Z_AXIS] ) );
 }
 
 void CCamera::HandleKeyEvent( const UserInput& input )
 {
 	if ( input.m_code == USER_INPUT_CODE::UIC_LEFT )
 	{
-		m_inputDirection[0] = ( input.m_axis[2] < 0 );
+		m_inputDirection[0] = ( input.m_axis[UserInput::Z_AXIS] < 0 );
 	}
 	else if ( input.m_code == USER_INPUT_CODE::UIC_UP )
 	{
-		m_inputDirection[1] = ( input.m_axis[2] < 0 );
+		m_inputDirection[1] = ( input.m_axis[UserInput::Z_AXIS] < 0 );
 	}
 	else if ( input.m_code == USER_INPUT_CODE::UIC_RIGHT )
 	{
-		m_inputDirection[2] = ( input.m_axis[2] < 0 );
+		m_inputDirection[2] = ( input.m_axis[UserInput::Z_AXIS] < 0 );
 	}
 	else if ( input.m_code == USER_INPUT_CODE::UIC_DOWN )
 	{
-		m_inputDirection[3] = ( input.m_axis[2] < 0 );
+		m_inputDirection[3] = ( input.m_axis[UserInput::Z_AXIS] < 0 );
 	}
 }
 

@@ -429,7 +429,7 @@ void CObjMeshLoader::CalcObjNormal( )
 		}
 	}
 
-	for ( UINT i = 0; i < idxList.size( ); i += 3 )
+	for ( std::size_t i = 0; i < idxList.size( ); i += 3 )
 	{
 		const CXMFLOAT3& p0 = m_positions[idxList[i]];
 		const CXMFLOAT3& p1 = m_positions[idxList[i + 1]];

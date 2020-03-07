@@ -8,6 +8,7 @@
 #include "GameObject/GameObject.h"
 #include "Math/CXMFloat.h"
 
+#include <cstddef>
 #include <memory>
 #include <vector>
 
@@ -32,7 +33,7 @@ private:
 	// Collision Acceleration
 	BVHTree<BoundingSphere, ObjectRelatedRigidBody> m_bvhTree;
 
-	static constexpr int MAX_CONTACTS = 256;
+	static constexpr std::size_t MAX_CONTACTS = 256;
 	Contact m_contacts[MAX_CONTACTS];
 	ContactResolver m_resolver;
 	CollisionData m_collisionData;

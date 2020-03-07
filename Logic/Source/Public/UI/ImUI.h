@@ -8,9 +8,11 @@
 
 #include <cassert>
 #include <cstddef>
+#include <cstdio>
 #include <map>
 #include <memory>
 #include <stack>
+#include <type_traits>
 #include <unordered_map>
 #include <vector>
 #include <windef.h>
@@ -507,7 +509,7 @@ inline void ImUI::Text( const char* format, T... args )
 	}
 
 	char temp[1024] = {};
-	sprintf_s( temp, format, args... );
+	std::snprintf( temp, std::extent_v<decltype(temp)>, format, args... );
 
 	std::size_t count = std::strlen( temp );
 	assert( count <= UINT_MAX );

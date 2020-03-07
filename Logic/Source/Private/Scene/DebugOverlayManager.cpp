@@ -89,7 +89,7 @@ void CDebugOverlayManager::DrawPrimitive( IRenderer& renderer, float deltaTime )
 		__debugbreak( );
 	}
 
-	int idx = 0;
+	std::size_t idx = 0;
 	for ( const auto& line : m_debugLine )
 	{
 		vertices[idx].m_pos = line.m_from;
@@ -261,9 +261,9 @@ void CDebugOverlayManager::AddDebugSolidCube( const CXMFLOAT3& min, const CXMFLO
 
 void CDebugOverlayManager::AddDebugSphere( const CXMFLOAT3& center, float radius, unsigned int color, float life )
 {
-	static const int COLS = 36;
-	static const int ROWS = COLS >> 1;
-	static const float STEP = ( DirectX::XM_PI / 180.0f ) * 360.0f / COLS;
+	constexpr int COLS = 36;
+	constexpr int ROWS = COLS >> 1;
+	constexpr float STEP = ( DirectX::XM_PI / 180.0f ) * 360.0f / COLS;
 	int p2 = COLS >> 1;
 	int r2 = ROWS >> 1;
 	float prev_ci = 1;

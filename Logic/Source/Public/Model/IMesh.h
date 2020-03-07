@@ -3,6 +3,7 @@
 #include "common.h"
 #include "Render/Resource.h"
 
+#include <cstddef>
 #include <memory>
 #include <D3Dcommon.h>
 
@@ -13,7 +14,7 @@ struct MeshVertex;
 struct CXMFLOAT3;
 enum SHADER_TYPE;
 
-constexpr int MAX_MESH_NAME = 32;
+constexpr std::size_t MAX_MESH_NAME = 32;
 
 class IMesh
 {

@@ -11,6 +11,7 @@
 #include "Util.h"
 
 #include <algorithm>
+#include <cstddef>
 
 using namespace DirectX;
 
@@ -225,13 +226,13 @@ void CLightManager::LoadLightProperty( const KeyValue& keyValue )
 
 bool CLightManager::CreateOrenNayarLUTAndBind( IRenderer& renderer )
 {
-	constexpr UINT lookupSize = 512;
+	constexpr std::size_t lookupSize = 512;
 
 	float* lookup = new float[lookupSize * lookupSize];
 
-	for ( int i = 0; i < lookupSize; ++i )
+	for ( std::size_t i = 0; i < lookupSize; ++i )
 	{
-		for ( int j = 0; j < lookupSize; ++j )
+		for ( std::size_t j = 0; j < lookupSize; ++j )
 		{
 			float VdotN = static_cast<float>( i ) / lookupSize;
 			float LdotN = static_cast<float>( j ) / lookupSize;

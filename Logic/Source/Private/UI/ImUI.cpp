@@ -112,9 +112,18 @@ namespace
 		ImUiWindowSetting* settings = static_cast<ImUiWindowSetting*>( entry );
 		float x, y;
 		int i;
-		if ( sscanf_s( line, "Pos=%f,%f", &x, &y ) == 2 )         settings->m_pos = CXMFLOAT2( x, y );
-		else if ( sscanf_s( line, "Size=%f,%f", &x, &y ) == 2 )   settings->m_size = CXMFLOAT2( x, y );
-		else if ( sscanf_s( line, "Collapsed=%d", &i ) == 1 )     settings->m_collapsed = ( i != 0 );
+		if ( sscanf_s( line, "Pos=%f,%f", &x, &y ) == 2 )
+		{
+			settings->m_pos = CXMFLOAT2( x, y );
+		}
+		else if ( sscanf_s( line, "Size=%f,%f", &x, &y ) == 2 )
+		{
+			settings->m_size = CXMFLOAT2( x, y );
+		}
+		else if ( sscanf_s( line, "Collapsed=%d", &i ) == 1 )
+		{
+			settings->m_collapsed = ( i != 0 );
+		}
 	}
 
 	static bool ItemsArrayGetter( void* data, int idx, const char** out_text )
@@ -617,7 +626,7 @@ bool ImUI::SliderFloat( const char* label, float* v, float min, float max, const
 	}
 
 	char valueBuf[64] = {};
-	sprintf_s( valueBuf, displayFormat, *v );
+	std::snprintf( valueBuf, std::extent_v<decltype(valueBuf)>, displayFormat, *v );
 	std::size_t count = std::strlen( valueBuf );
 
 	assert( count <= UINT_MAX );
@@ -760,7 +769,7 @@ bool ImUI::BeginCombo( const char* label, const char* prevValue, ImUiComboFlag::
 	}
 
 	char name[16];
-	sprintf_s( name, "##Combo_%02zd", m_currentPopupStack.size( ) );
+	std::snprintf( name, std::extent_v<decltype(name)>, "##Combo_%02zd", m_currentPopupStack.size( ) );
 
 	if ( ImUiWindow* popupWindow = FindWindow( name ) )
 	{
