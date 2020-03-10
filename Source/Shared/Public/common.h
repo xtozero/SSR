@@ -49,20 +49,20 @@ using Ifstream = std::wifstream;
 
 struct InPlaceListNode
 {
-	BYTE* m_next;
+	unsigned char* m_next;
 };
 
 template <typename T>
-void PushFrontInPlaceList( BYTE** head, T* newElement )
+void PushFrontInPlaceList( unsigned char** head, T* newElement )
 {
 	static_assert( sizeof( T ) >= sizeof( InPlaceListNode ), "Free-List element memory size must bigger than FreeResourceNode" );
 	InPlaceListNode* newFront = reinterpret_cast<InPlaceListNode*>( newElement );
 	newFront->m_next = *head;
-	*head = reinterpret_cast<BYTE*>( newElement );
+	*head = reinterpret_cast<unsigned char*>( newElement );
 }
 
 template <typename T>
-void PopFrontInPlaceList( BYTE** head, T** dest )
+void PopFrontInPlaceList( unsigned char** head, T** dest )
 {
 	static_assert( sizeof( T ) >= sizeof( InPlaceListNode ), "Free-List element memory size must bigger than FreeResourceNode" );
 	*dest = reinterpret_cast<T*>( *head );
@@ -72,7 +72,7 @@ void PopFrontInPlaceList( BYTE** head, T** dest )
 }
 
 template <typename T>
-void ClearFreeList( BYTE** head )
+void ClearFreeList( unsigned char** head )
 {
 	static_assert( sizeof( T ) >= sizeof( InPlaceListNode ), "Free-List element memory size must bigger than FreeResourceNode" );
 	while ( *head != nullptr )

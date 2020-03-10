@@ -19,7 +19,7 @@ include_directories(./Public)
 include_directories(../Shared/Public)
 include_directories(../Engine/Public)
 
-set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} )
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 	
 add_executable( "ScreenSpaceReflect" WIN32 ${EXCUTABLE_SOUCE} )
 

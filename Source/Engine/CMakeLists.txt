@@ -38,14 +38,25 @@ set (USER_INPUT_SOURCE
 	"Public/UserInput/UICMap.h"
 	"Public/UserInput/UserInput.h")
 	
+set (MULTI_THREAD
+	"../Core/Private/TaskScheduler.cpp"
+	"../Core/Public/TaskScheduler.h"
+	"Private/MultiThread/EngineTaskScheduler.cpp"
+	"Public/MultiThread/EngineTaskScheduler.h")
+	
 source_group("ConsoleMessage" FILES ${CONSOLE_MESSAGE_SOURCES})
 source_group("DataStructure" FILES ${DATA_STRUCTURE_SOURCE})
 source_group("Window" FILES ${PLATFORM_SOURCE})
-source_group("UserInput" FILES &{USER_INPUT_SOURCE})
+source_group("UserInput" FILES ${USER_INPUT_SOURCE})
+source_group("MultiThread" FILES ${MULTI_THREAD})
 
-include_directories (./Public)
-include_directories (../Shared/Public)
-include_directories (../Logic/Public)
+include_directories(./Public)
+include_directories(../Core/Public)
+include_directories(../Logic/Public)
+include_directories(../Shared/Public)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 add_library(Engine SHARED	${PRECOMPILED} 
 							${PRECOMPILED}
@@ -53,8 +64,8 @@ add_library(Engine SHARED	${PRECOMPILED}
 							${CONSOLE_MESSAGE_SOURCES}
 							${DATA_STRUCTURE_SOURCE}
 							${PLATFORM_SOURCE}
-							${USER_INPUT_SOURCE})
+							${USER_INPUT_SOURCE}
+							${MULTI_THREAD})
 							
 add_custom_command(TARGET Engine POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/\$\(Configuration\)/Engine.lib" "${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries/Engine.lib"
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/\$\(Configuration\)/Engine.dll" "${CMAKE_CURRENT_SOURCE_DIR}/../../Program/Binaries/Engine.dll")
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/Engine.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/Engine.dll")

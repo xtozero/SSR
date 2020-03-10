@@ -158,12 +158,15 @@ source_group("UintTest" FILES ${UNIT_TEST_SOURCE})
 source_group("UserInput" FILES ${USER_INPUT_SOURCE})
 
 include_directories(./Public)
+include_directories(../Core/Public)
 include_directories(../Shared/Public)
 include_directories(../Engine/Public)
 include_directories(../RenderCore/Public)
 include_directories(../Shaders/Public)
 
-link_directories(${CMAKE_SOURCE_DIR}/Libraries)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 add_library(Logic SHARED 	${PRECOMPILED}
 							${CORE_SOURCE}
@@ -178,5 +181,4 @@ add_library(Logic SHARED 	${PRECOMPILED}
 							${USER_INPUT_SOURCE})
 							
 add_custom_command(TARGET Logic POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/\$\(Configuration\)/Logic.lib" "${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries/Logic.lib"
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/\$\(Configuration\)/Logic.dll" "${CMAKE_CURRENT_SOURCE_DIR}/../../Program/Binaries/Logic.dll")
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/Logic.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/Logic.dll")

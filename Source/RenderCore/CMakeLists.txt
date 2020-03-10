@@ -63,7 +63,9 @@ else()
 link_directories($ENV{DXSDK_DIR}lib/x64)
 endif()
 
-link_directories(${CMAKE_SOURCE_DIR}/Libraries)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 add_library(RenderCore SHARED 	${PRECOMPILED}
 								${CORE_SOURCE}
@@ -85,8 +87,7 @@ set (DIRECT3D_LIBRARY
 target_link_libraries(RenderCore PRIVATE ${DIRECT3D_LIBRARY})
 
 add_custom_command(TARGET RenderCore POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/\$\(Configuration\)/RenderCore.lib" "${CMAKE_CURRENT_SOURCE_DIR}/../../Libraries/RenderCore.lib"
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_BINARY_DIR}/\$\(Configuration\)/RenderCore.dll" "${CMAKE_CURRENT_SOURCE_DIR}/../../Program/Binaries/RenderCore.dll")
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/RenderCore.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/RenderCore.dll")
 
 if (WIN32)
 	add_custom_command(TARGET RenderCore POST_BUILD
