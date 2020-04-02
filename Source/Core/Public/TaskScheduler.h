@@ -1,13 +1,17 @@
-#ifndef _TASK_SCHEDULER_H_
-#define _TASK_SCHEDULER_H_
+#pragma once
 
 #include <cstddef>
+#include <limits>
 
-using WorkerFunc = void (*)( void* );
 struct GroupHandle
 {
 	std::size_t m_groupIndex;
 	std::size_t m_id;
+
+	bool IsValid( ) const
+	{
+		return m_groupIndex != std::numeric_limits<std::size_t>::max( );
+	}
 };
 
 inline bool operator==( const GroupHandle& lhs, const GroupHandle& rhs )
@@ -20,10 +24,55 @@ inline bool operator!=( const GroupHandle& lhs, const GroupHandle& rhs )
 	return !( lhs == rhs );
 }
 
-struct Task
+class TaskBase
 {
-	WorkerFunc m_func;
-	void* m_context;
+public:
+	virtual void Execute( ) = 0;
+
+protected:
+	TaskBase( ) = default;
+	virtual ~TaskBase( ) = default;
+	TaskBase( const TaskBase& ) = delete;
+	TaskBase& operator=( const TaskBase& ) = delete;
+	TaskBase( TaskBase&& ) = delete;
+	TaskBase& operator=( TaskBase&& ) = delete;
+};
+
+template <typename TaskStorageType>
+class Task final : public TaskBase
+{
+public:
+	virtual void Execute( ) override
+	{
+		reinterpret_cast<TaskStorageType*>( m_storage )->DoTask( );
+		delete this;
+	}
+
+	template <typename... Args>
+	static Task* Create( Args&&... args )
+	{
+		return new Task( args... );
+	}
+
+protected:
+	template <typename... Args>
+	Task( Args&&... args )
+	{
+		new ( &m_storage )TaskStorageType( args... );
+	}
+
+	~Task( )
+	{
+		reinterpret_cast<TaskStorageType*>( m_storage )->~TaskStorageType( );
+	}
+
+	Task( const Task& ) = delete;
+	Task& operator=( const Task& ) = delete;
+	Task( Task&& ) = delete;
+	Task& operator=( Task&& ) = delete;
+
+private:
+	unsigned char m_storage[sizeof( TaskStorageType )];
 };
 
 struct TaskGroup;
@@ -37,7 +86,7 @@ class TaskScheduler
 public:
 	GroupHandle GetTaskGroup( std::size_t reserveSize = 0 );
 
-	bool Run( GroupHandle handle, WorkerFunc func, void* context );
+	bool Run( GroupHandle handle, TaskBase* task );
 
 	bool Wait( GroupHandle handle );
 	void WaitAll( );
@@ -64,5 +113,3 @@ private:
 
 	friend void WorkerThread( TaskScheduler* scheduler, Worker* worker );
 };
-
-#endif

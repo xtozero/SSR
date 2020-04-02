@@ -1,31 +1,18 @@
+#include "stdafx.h"
 #include "MultiThread/EngineTaskScheduler.h"
 
 #include <cstddef>
 
 EngineTaskScheduler* g_TaskScheduler = nullptr;
 
-namespace ThreadType
-{
-	enum
-	{
-		GameThread = -1,
-		FileSystemThread,
-		WorkerThread0,
-		WorkerThread1,
-		WorkerThread2,
-		WorkerThread3,
-		Count
-	};
-}
-
 GroupHandle EngineTaskScheduler::GetTaskGroup( std::size_t reserveSize )
 {
 	return m_taskScheduler.GetTaskGroup( reserveSize );
 }
 
-bool EngineTaskScheduler::Run( GroupHandle handle, WorkerFunc func, void* context )
+bool EngineTaskScheduler::Run( GroupHandle handle, TaskBase* task )
 {
-	return m_taskScheduler.Run( handle, func, context );
+	return m_taskScheduler.Run( handle, task );
 }
 
 bool EngineTaskScheduler::Wait( GroupHandle handle )

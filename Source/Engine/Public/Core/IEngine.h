@@ -27,4 +27,5 @@ namespace SUPPORT_PLATFORM
 	struct Window {};
 }
 
-ENGINE_FUNC_DLL Owner<IEngine*> CreatePlatformEngine( SUPPORT_PLATFORM::Window );
+ENGINE_FUNC_DLL Owner<IEngine*> CreatePlatformEngine( );
+ENGINE_FUNC_DLL void DestroyPlatformEngine( IEngine* pEngine );

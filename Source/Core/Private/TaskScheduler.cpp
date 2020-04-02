@@ -3,18 +3,18 @@
 #include <atomic>
 #include <cassert>
 #include <condition_variable>
-#include <mutex>
+#include <shared_mutex>
 #include <thread>
 #include <vector>
 
 struct TaskGroup
 {
-	std::vector<Task> m_tasks;
-	std::mutex m_taskLock;
+	std::vector<TaskBase*> m_tasks;
+	std::shared_mutex m_taskLock;
 	std::atomic<bool> m_free;
 	std::atomic<std::size_t> m_reference;
 	std::atomic<std::size_t> m_lastId;
-	std::size_t m_head;
+	std::atomic<std::size_t> m_head;
 };
 
 struct Worker
@@ -41,8 +41,10 @@ void WorkerThread( TaskScheduler* scheduler, Worker* worker )
 			}
 
 			TaskGroup* group = nullptr;
-			Task task = { nullptr, nullptr };
-			for ( std::size_t i = 0; i < scheduler->m_maxTaskGroup; ++i )
+			TaskBase* task = nullptr;
+			for ( std::size_t i = 0
+				; ( i < scheduler->m_maxTaskGroup ) && ( task == nullptr )
+				; ++i )
 			{
 				group = &scheduler->m_taskGroups[i];
 				if ( group->m_free || group->m_reference == 0 )
@@ -50,19 +52,29 @@ void WorkerThread( TaskScheduler* scheduler, Worker* worker )
 					continue;
 				}
 
-				std::lock_guard<std::mutex> taskLock( group->m_taskLock );
-				if ( group->m_head < group->m_tasks.size( ) )
+				while ( task == nullptr )
 				{
-					task = group->m_tasks[group->m_head++];
-					break;
+					std::size_t head = group->m_head.load( );
+					if ( head >= group->m_tasks.size( ) )
+					{
+						break;
+					}
+
+					if ( group->m_head.compare_exchange_strong( head, head + 1 ) )
+					{
+						std::shared_lock taskLock( group->m_taskLock );
+						task = group->m_tasks[head];
+					}
 				}
 			}
 
-			if ( task.m_func )
+			if ( task == nullptr )
 			{
-				task.m_func( task.m_context );
-				--group->m_reference;
+				break;
 			}
+
+			task->Execute( );
+			--group->m_reference;
 		}
 	}
 }
@@ -76,7 +88,7 @@ GroupHandle TaskScheduler::GetTaskGroup( std::size_t reserveSize )
 		if ( group.m_free.compare_exchange_strong( expected, false ) )
 		{
 			group.m_head = 0;
-			std::lock_guard<std::mutex> taskLock( group.m_taskLock );
+			std::unique_lock taskLock( group.m_taskLock );
 			group.m_tasks.clear( );
 			group.m_tasks.reserve( reserveSize );
 			return GroupHandle{ i, ++group.m_lastId };
@@ -86,7 +98,7 @@ GroupHandle TaskScheduler::GetTaskGroup( std::size_t reserveSize )
 	return GroupHandle{ std::numeric_limits<std::size_t>::max( ), 0 };
 }
 
-bool TaskScheduler::Run( GroupHandle handle, WorkerFunc func, void* context )
+bool TaskScheduler::Run( GroupHandle handle, TaskBase* task )
 {
 	if ( handle.m_groupIndex >= m_maxTaskGroup )
 	{
@@ -106,8 +118,8 @@ bool TaskScheduler::Run( GroupHandle handle, WorkerFunc func, void* context )
 	}
 
 	{
-		std::lock_guard<std::mutex> taskLock( group.m_taskLock );
-		group.m_tasks.push_back( { func, context } );
+		std::unique_lock taskLock( group.m_taskLock );
+		group.m_tasks.push_back( task );
 	}
 	
 	++group.m_reference;
@@ -137,18 +149,25 @@ bool TaskScheduler::Wait( GroupHandle handle )
 
 	while ( true )
 	{
-		Task* task = nullptr;
+		TaskBase* task = nullptr;
+		while ( task == nullptr )
 		{
-			std::lock_guard<std::mutex> taskLock( group.m_taskLock );
-			if ( group.m_head < group.m_tasks.size( ) )
+			std::size_t head = group.m_head.load( );
+			if ( group.m_head >= group.m_tasks.size( ) )
 			{
-				task = &group.m_tasks[group.m_head++];
+				break;
+			}
+
+			if ( group.m_head.compare_exchange_strong( head, head + 1 ) )
+			{
+				std::shared_lock taskLock( group.m_taskLock );
+				task = group.m_tasks[head];
 			}
 		}
 
 		if ( task )
 		{
-			task->m_func( task->m_context );
+			task->Execute( );
 			--group.m_reference;
 		}
 		else

@@ -2,6 +2,7 @@
 #include "Platform/WindowPlatformEngine.h"
 
 #include "Core/ILogic.h"
+#include "FileSystem/EngineFileSystem.h"
 #include "MultiThread/EngineTaskScheduler.h"
 #include "Platform/IPlatform.h"
 #include "Util.h"
@@ -142,9 +143,12 @@ LRESULT WindowPlatformEngine::MsgProc( HWND hWnd, UINT message, WPARAM wParam, L
 	}
 }
 
-Owner<IEngine*> CreatePlatformEngine( SUPPORT_PLATFORM::Window ) 
+Owner<IEngine*> CreatePlatformEngine( )
 {
-	static EngineTaskScheduler engineTaskScheduler;
-	g_TaskScheduler = &engineTaskScheduler;
-	return new WindowPlatformEngine( ); 
+	return new WindowPlatformEngine( );
+}
+
+void DestroyPlatformEngine( IEngine* pEngine )
+{
+	delete pEngine;
 }

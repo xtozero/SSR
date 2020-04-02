@@ -30,7 +30,7 @@ int APIENTRY _tWinMain ( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE , _In_ LPT
 		return false;
 	}
 
-	using CreateEngineFunc = Owner<IEngine*> (*)( SUPPORT_PLATFORM::Window );
+	using CreateEngineFunc = Owner<IEngine*> (*)( );
 	CreateEngineFunc CreatePlatformEngine = reinterpret_cast<CreateEngineFunc>( GetProcAddress( engineDll, "CreatePlatformEngine" ) );
 
 	if ( CreatePlatformEngine == nullptr )
@@ -38,7 +38,7 @@ int APIENTRY _tWinMain ( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE , _In_ LPT
 		return false;
 	}
 
-	g_engine = dynamic_cast<WindowPlatformEngine*>( CreatePlatformEngine( SUPPORT_PLATFORM::Window() ) );
+	g_engine = dynamic_cast<WindowPlatformEngine*>( CreatePlatformEngine( ) );
 	if ( g_engine == nullptr )
 	{
 		return false;
@@ -52,6 +52,16 @@ int APIENTRY _tWinMain ( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE , _In_ LPT
 	g_engine->Run( );
 	
 	g_engine->ShutDown( );
+
+	using DestroyEngineFunc = void (*)( IEngine* pEngine );
+	DestroyEngineFunc DestroyPlatformEngine = reinterpret_cast<DestroyEngineFunc>( GetProcAddress( engineDll, "DestroyPlatformEngine" ) );
+
+	if ( DestroyPlatformEngine == nullptr )
+	{
+		return false;
+	}
+
+	DestroyPlatformEngine( g_engine );
 	FreeLibrary( engineDll );
 
 	return 0;
