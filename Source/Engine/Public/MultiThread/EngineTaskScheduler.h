@@ -18,29 +18,20 @@ namespace ThreadType
 	};
 }
 
-class EngineTaskScheduler
+class ITaskScheduler
 {
 public:
-	ENGINE_DLL GroupHandle GetTaskGroup( std::size_t reserveSize = 0 );
+	virtual [[nodiscard]] GroupHandle GetTaskGroup( std::size_t reserveSize = 0 ) = 0;
 
-	ENGINE_DLL bool Run( GroupHandle handle, TaskBase* task );
+	virtual bool Run( GroupHandle handle, TaskBase* task ) = 0;
 
-	ENGINE_DLL bool Wait( GroupHandle handle );
-	ENGINE_DLL void WaitAll( );
+	virtual bool Wait( GroupHandle handle ) = 0;
+	virtual void WaitAll( ) = 0;
 
-	ENGINE_DLL bool IsComplete( GroupHandle handle ) const;
+	virtual bool IsComplete( GroupHandle handle ) const = 0;
 
-	EngineTaskScheduler( );
-	~EngineTaskScheduler( ) = default;
-	EngineTaskScheduler( const EngineTaskScheduler& ) = delete;
-	EngineTaskScheduler& operator=( const EngineTaskScheduler& ) = delete;
-	EngineTaskScheduler( EngineTaskScheduler&& ) = delete;
-	EngineTaskScheduler& operator=( EngineTaskScheduler&& ) = delete;
-
-private:
-	static constexpr std::size_t MAX_ENGINE_THREAD_GROUP = 1024;
-
-	TaskScheduler m_taskScheduler;
+	virtual ~ITaskScheduler( ) = default;
 };
 
-extern ENGINE_DLL EngineTaskScheduler* g_TaskScheduler;
+ITaskScheduler* CreateTaskScheduler( );
+void DestroyTaskScheduler( ITaskScheduler* taskScheduler );

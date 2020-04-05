@@ -27,6 +27,7 @@
 
 #include <list>
 #include <memory>
+#include <minwindef.h>
 #include <vector>
 
 class CGameObject;
@@ -43,7 +44,7 @@ enum RENDERABLE_TYPE
 class CGameLogic : public ILogic
 {
 public:
-	virtual bool Initialize( IPlatform& platform ) override;
+	virtual bool BootUp( IPlatform& platform ) override;
 	virtual void Update() override;
 	virtual void Pause( ) override;
 	virtual void Resume( ) override;
@@ -64,6 +65,8 @@ public:
 	const CTimer& GetTimer( ) const { return m_clock; }
 
 private:
+	void Shutdown( );
+
 	void StartLogic ( );
 	void ProcessLogic ( );
 	void EndLogic ( );
@@ -91,9 +94,11 @@ private:
 
 public:
 	CGameLogic();
-	~CGameLogic() = default;
+	~CGameLogic();
 
 private:
+	HMODULE m_renderCoreDll;
+
 	HWND	m_wndHwnd;
 	std::pair<UINT, UINT> m_appSize;
 
@@ -105,7 +110,7 @@ private:
 	CSSRManager m_ssrManager;
 	CAtmosphericScatteringManager m_atmosphereManager;
 	CModelManager m_meshManager;
-	std::unique_ptr<IRenderer> m_pRenderer;
+	IRenderer* m_pRenderer;
 	CRenderView m_view;
 	std::vector<std::unique_ptr<CGameObject>> m_gameObjects;
 	std::vector<CPlayer> m_players;

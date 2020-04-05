@@ -1,9 +1,29 @@
 #include "stdafx.h"
+#include "Core/InterfaceFactories.h"
 #include "FileSystem/EngineFileSystem.h"
 
 #include <cstddef>
 
-EngineFileSystem* g_FileSystem = nullptr;
+class EngineFileSystem : public IFileSystem
+{
+public:
+	virtual [[nodiscard]] FileHandle OpenFile( const char* filePath ) override;
+	virtual void CloseFile( const FileHandle& handle ) override;
+	virtual unsigned long GetFileSize( const FileHandle& handle ) const override;
+	virtual void ReadAsync( const FileHandle& handle, char* buffer, unsigned long size ) const override;
+
+	EngineFileSystem( );
+	~EngineFileSystem( );
+	EngineFileSystem( const EngineFileSystem& ) = delete;
+	EngineFileSystem& operator=( const EngineFileSystem& ) = delete;
+	EngineFileSystem( EngineFileSystem&& ) = delete;
+	EngineFileSystem& operator=( EngineFileSystem&& ) = delete;
+
+private:
+	std::mutex m_fileSystemMutex;
+	FileSystem m_fileSystem;
+	GroupHandle m_hWaitIO;
+};
 
 FileHandle EngineFileSystem::OpenFile( const char* filePath )
 {
@@ -29,7 +49,7 @@ void EngineFileSystem::ReadAsync( const FileHandle& handle, char* buffer, unsign
 
 EngineFileSystem::EngineFileSystem( )
 {
-	m_hWaitIO = g_TaskScheduler->GetTaskGroup( 1 );
+	m_hWaitIO = GetInterface<ITaskScheduler>()->GetTaskGroup( 1 );
 
 	class TaskWaitAsyncRead
 	{
@@ -45,11 +65,21 @@ EngineFileSystem::EngineFileSystem( )
 		FileSystem& m_fileSystem;
 	};
 
-	g_TaskScheduler->Run( m_hWaitIO, Task<TaskWaitAsyncRead>::Create( m_fileSystem ) );
+	GetInterface<ITaskScheduler>( )->Run( m_hWaitIO, Task<TaskWaitAsyncRead>::Create( m_fileSystem ) );
 }
 
 EngineFileSystem::~EngineFileSystem( )
 {
 	m_fileSystem.SuspendWaitAsyncIO( );
-	g_TaskScheduler->Wait( m_hWaitIO );
+	GetInterface<ITaskScheduler>( )->Wait( m_hWaitIO );
+}
+
+IFileSystem* CreateFileSystem( )
+{ 
+	return new EngineFileSystem( );
+}
+
+void DestroyFileSystem( IFileSystem* fileSystem )
+{
+	delete fileSystem;
 }

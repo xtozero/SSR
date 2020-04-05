@@ -11,7 +11,10 @@ set (PRECOMPILED
 set (CORE_SOURCE
 	"Private/Core/dllmain.cpp"
 	"Private/Core/Engine.cpp"
-	"Public/Core/IEngine.h")
+	"Private/Core/Interfacefactories.cpp"
+	"Private/Core/ModuleInit.cpp"
+	"Public/Core/IEngine.h"
+	"Public/Core/InterfaceFactories.h")
 
 set (CONSOLE_MESSAGE_SOURCES
 	"Private/ConsoleMessage/ConCommand.cpp"

@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <fstream>
+#include <libloaderapi.h>
 #include <string>
 #include <tchar.h>
 
@@ -82,4 +83,38 @@ void ClearFreeList( unsigned char** head )
 		*head = node->m_next;
 		elem = new ( elem )T;
 	}
+}
+
+inline HMODULE LoadModule( const TCHAR* dllPath )
+{
+	HMODULE hModule = LoadLibrary( dllPath );
+	if ( hModule == nullptr )
+	{
+		assert( "Module loading failed!" && false );
+	}
+
+	using BootUpFunc = void(*)( );
+	BootUpFunc bootUp = reinterpret_cast<BootUpFunc>( GetProcAddress( hModule, "BootUpModule" ) );
+	if ( bootUp == nullptr )
+	{
+		assert( "Module must have BootUpModule function!" && false );
+	}
+
+	bootUp( );
+
+	return hModule;
+}
+
+inline void ShutdownModule( HMODULE dll )
+{
+	using ShutDownFunc = void(*)( );
+	ShutDownFunc shutDown = reinterpret_cast<ShutDownFunc>( GetProcAddress( dll, "ShutdownModules" ) );
+	if ( shutDown == nullptr )
+	{
+		assert( "Module must have ShutDownModules function!" && false );
+	}
+
+	shutDown( );
+
+	FreeLibrary( dll );
 }

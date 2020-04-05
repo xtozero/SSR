@@ -30,7 +30,6 @@ public:
 	virtual bool BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight ) = 0;
 	virtual void HandleDeviceLost( HWND hWnd, UINT nWndWidth, UINT nWndHeight ) = 0;
 	virtual void AppSizeChanged( UINT nWndWidth, UINT nWndHeight ) = 0;
-	virtual void ShutDownRenderer( ) = 0;
 	virtual void SceneBegin( ) = 0;
 	virtual void ForwardRenderEnd( ) = 0;
 	virtual BYTE SceneEnd( ) = 0;
@@ -97,3 +96,5 @@ protected:
 	IRenderer( ) = default;
 };
 
+Owner<IRenderer*> CreateRenderer( );
+void DestoryRenderer( Owner<IRenderer*> pRenderer );

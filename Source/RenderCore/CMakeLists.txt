@@ -10,8 +10,8 @@ set (PRECOMPILED
 
 set (CORE_SOURCE
 	"Private/Core/dllmain.cpp"
-	"Private/Core/RenderCore.cpp"
-	"Public/Core/RenderCoreDllFunc.h")
+	"Private/Core/ModuleInit.cpp"
+	"Private/Core/RenderCore.cpp")
 
 set (D3D11_RENDER_STATE_SOURCE
 	"Private/D3D11/D3D11RenderStateFactory.cpp"

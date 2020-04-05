@@ -11,9 +11,10 @@ class IEngine
 {
 public:
 	virtual bool BootUp( IPlatform& ) = 0;
-	virtual void ShutDown( ) = 0;
 
 	virtual void Run( ) = 0;
+
+	virtual LRESULT MsgProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam ) = 0;
 
 	virtual ~IEngine( ) = default;
 
@@ -27,5 +28,5 @@ namespace SUPPORT_PLATFORM
 	struct Window {};
 }
 
-ENGINE_FUNC_DLL Owner<IEngine*> CreatePlatformEngine( );
-ENGINE_FUNC_DLL void DestroyPlatformEngine( IEngine* pEngine );
+Owner<IEngine*> CreatePlatformEngine( );
+void DestroyPlatformEngine( Owner<IEngine*> pEngine );

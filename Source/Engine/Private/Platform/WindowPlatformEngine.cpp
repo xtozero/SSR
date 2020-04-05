@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "Platform/WindowPlatformEngine.h"
 
+#include "common.h"
 #include "Core/ILogic.h"
+#include "Core/InterfaceFactories.h"
 #include "FileSystem/EngineFileSystem.h"
 #include "MultiThread/EngineTaskScheduler.h"
 #include "Platform/IPlatform.h"
@@ -16,26 +18,17 @@ bool WindowPlatformEngine::BootUp( IPlatform& platform )
 		return false;
 	}
 
-	m_logicDll = LoadLibrary( _T( "./Binaries/Logic.dll" ) );
-
+	m_logicDll = LoadModule( _T( "./Binaries/Logic.dll" ) );
 	if ( m_logicDll == nullptr )
 	{
 		return false;
 	}
 
-	using CreateGameLogicFunc = Owner<ILogic*> (*)( );
-	CreateGameLogicFunc CreateGameLogic = reinterpret_cast<CreateGameLogicFunc>( GetProcAddress( m_logicDll, "CreateGameLogic" ) );
-
-	if ( CreateGameLogic == nullptr )
-	{
-		return false;
-	}
-
-	m_logic.reset( CreateGameLogic( ) );
+	m_logic = GetInterface<ILogic>( );
 
 	if ( m_logic )
 	{
-		m_isAvailable = m_logic->Initialize( platform );
+		m_isAvailable = m_logic->BootUp( platform );
 	}
 
 	m_platform = &platform;
@@ -43,11 +36,11 @@ bool WindowPlatformEngine::BootUp( IPlatform& platform )
 	return m_isAvailable;
 }
 
-void WindowPlatformEngine::ShutDown( )
+void WindowPlatformEngine::Shutdown( )
 {
 	m_logic = nullptr;
 	m_isAvailable = false;
-	FreeLibrary( m_logicDll );
+	ShutdownModule( m_logicDll );
 }
 
 void WindowPlatformEngine::Run( )
@@ -143,12 +136,17 @@ LRESULT WindowPlatformEngine::MsgProc( HWND hWnd, UINT message, WPARAM wParam, L
 	}
 }
 
+WindowPlatformEngine::~WindowPlatformEngine( )
+{
+	Shutdown( );
+}
+
 Owner<IEngine*> CreatePlatformEngine( )
 {
 	return new WindowPlatformEngine( );
 }
 
-void DestroyPlatformEngine( IEngine* pEngine )
+void DestroyPlatformEngine( Owner<IEngine*> pEngine )
 {
 	delete pEngine;
 }

@@ -10,7 +10,7 @@ struct UserInput;
 class ILogic
 {
 public:
-	virtual bool Initialize( IPlatform& ) = 0;
+	virtual bool BootUp( IPlatform& ) = 0;
 	virtual void Update( ) = 0;
 	virtual void Pause( ) = 0;
 	virtual void Resume( ) = 0;
@@ -20,4 +20,5 @@ public:
 	virtual ~ILogic( ) = default;
 };
 
-LOGIC_FUNC_DLL Owner<ILogic*> CreateGameLogic( );
+Owner<ILogic*> CreateGameLogic( );
+void DestroyGameLogic( Owner<ILogic*> pGameLogic );

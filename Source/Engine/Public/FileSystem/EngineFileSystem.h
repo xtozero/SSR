@@ -7,25 +7,16 @@
 
 #include <mutex>
 
-class EngineFileSystem
+class IFileSystem
 {
 public:
-	ENGINE_DLL [[nodiscard]] FileHandle OpenFile( const char* filePath );
-	ENGINE_DLL void CloseFile( const FileHandle& handle );
-	ENGINE_DLL unsigned long GetFileSize( const FileHandle& handle ) const;
-	ENGINE_DLL void ReadAsync( const FileHandle& handle, char* buffer, unsigned long size ) const;
+	virtual [[nodiscard]] FileHandle OpenFile( const char* filePath ) = 0;
+	virtual void CloseFile( const FileHandle& handle ) = 0;
+	virtual unsigned long GetFileSize( const FileHandle& handle ) const = 0;
+	virtual void ReadAsync( const FileHandle& handle, char* buffer, unsigned long size ) const = 0;
 
-	EngineFileSystem( );
-	~EngineFileSystem( );
-	EngineFileSystem( const EngineFileSystem& ) = delete;
-	EngineFileSystem& operator=( const EngineFileSystem& ) = delete;
-	EngineFileSystem( EngineFileSystem&& ) = delete;
-	EngineFileSystem& operator=( EngineFileSystem&& ) = delete;
-
-private:
-	std::mutex m_fileSystemMutex;
-	FileSystem m_fileSystem;
-	GroupHandle m_hWaitIO;
+	virtual ~IFileSystem( ) = default;
 };
 
-extern ENGINE_DLL EngineFileSystem* g_FileSystem;
+IFileSystem* CreateFileSystem( );
+void DestroyFileSystem( IFileSystem* fileSystem );

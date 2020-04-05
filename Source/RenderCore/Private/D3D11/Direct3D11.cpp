@@ -1,7 +1,6 @@
 #include "stdafx.h"
 
 #include "common.h"
-#include "Core/RenderCoreDllFunc.h"
 #include "D3D11/D3D11RenderStateManager.h"
 #include "D3D11/D3D11Resource.h"
 #include "D3D11/D3D11ResourceManager.h"
@@ -128,7 +127,6 @@ public:
 	virtual bool BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight ) override;
 	virtual void HandleDeviceLost( HWND hWnd, UINT nWndWidth, UINT nWndHeight ) override;
 	virtual void AppSizeChanged( UINT nWndWidth, UINT nWndHeight ) override;
-	virtual void ShutDownRenderer( ) override;
 	virtual void SceneBegin( ) override;
 	virtual void ForwardRenderEnd( ) override;
 	virtual BYTE SceneEnd( ) override;
@@ -191,7 +189,10 @@ public:
 
 	CDirect3D11( );
 	virtual ~CDirect3D11( );
+
 private:
+	void Shutdown( );
+
 	bool CreateDeviceDependentResource( HWND hWnd, UINT nWndWidth, UINT nWndHeight );
 	bool CreateDeviceIndependentResource( );
 	void ReportLiveDevice( );
@@ -301,7 +302,7 @@ void CDirect3D11::AppSizeChanged( UINT nWndWidth, UINT nWndHeight )
 	m_renderOutput.AppSizeChanged( m_resourceManager, *m_pdxgiSwapChain.Get(), m_multiSampleOption );
 }
 
-void CDirect3D11::ShutDownRenderer( )
+void CDirect3D11::Shutdown( )
 {
 #ifdef _DEBUG
 	ReportLiveDevice( );
@@ -884,7 +885,7 @@ CDirect3D11::CDirect3D11( )
 
 CDirect3D11::~CDirect3D11( )
 {
-	ShutDownRenderer( );
+	Shutdown( );
 }
 
 bool CDirect3D11::CreateDeviceDependentResource( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
@@ -1004,7 +1005,12 @@ void CDirect3D11::ReportLiveDevice( )
 	}
 }
 
-IRenderer* CreateDirect3D11Renderer( )
+Owner<IRenderer*> CreateRenderer( )
 {
 	return new CDirect3D11( );
+}
+
+void DestoryRenderer( Owner<IRenderer*> pRenderer )
+{
+	delete pRenderer;
 }

@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by Sceen Space Reflect.rc
+// Used by ScreenSpaceReflection.rc
 //
 
 #define IDS_APP_TITLE			103

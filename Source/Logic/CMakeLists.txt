@@ -13,6 +13,7 @@ set (CORE_SOURCE
 	"Private/Core/dllmain.cpp"
 	"Private/Core/GameLogic.cpp"
 	"Private/Core/Logic.cpp"
+	"Private/Core/ModuleInit.cpp"
 	"Private/Core/Timer.cpp"
 	"Public/Core/DebugConsole.h"
 	"Public/Core/GameLogic.h"

@@ -11,21 +11,23 @@ class WindowPlatformEngine : public IEngine
 {
 public:
 	virtual bool BootUp( IPlatform& ) override;
-	virtual void ShutDown( ) override;
 
 	virtual void Run( ) override;
 
 	virtual LRESULT MsgProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
+
+	~WindowPlatformEngine( );
 
 protected:
 	virtual void ProcessInput( ) override;
 	virtual bool IsAvailable( ) override { return m_isAvailable; }
 
 private:
+	void Shutdown( );
 
 	WindowPlatformInputConvertor m_inputConvertor;
 	HMODULE m_logicDll = nullptr;
-	std::unique_ptr<ILogic> m_logic = nullptr;
+	ILogic* m_logic = nullptr;
 	IPlatform* m_platform = nullptr;
 
 	bool m_isAvailable = false;

@@ -1,10 +1,12 @@
 #include "stdafx.h"
 #include "Core/GameLogic.h"
 
+#include "common.h"
 #include "ConsoleMessage/ConCommand.h"
 #include "ConsoleMessage/ConsoleMessageExecutor.h"
 #include "ConsoleMessage/ConVar.h"
 #include "Core/DebugConsole.h"
+#include "Core/InterfaceFactories.h"
 #include "Core/Timer.h"
 #include "Core/UtilWindowInfo.h"
 #include "DataStructure/KeyValueReader.h"
@@ -27,19 +29,15 @@ namespace
 	ConVar( showFps, "1", "Show Fps" );
 }
 
-bool CGameLogic::Initialize( IPlatform& platform )
+bool CGameLogic::BootUp( IPlatform& platform )
 {
-	HMODULE renderCoreDll = LoadLibrary( _T( "./Binaries/RenderCore.dll" ) );
-	if ( renderCoreDll == nullptr )
+	m_renderCoreDll = LoadModule( _T( "./Binaries/RenderCore.dll" ) );
+	if ( m_renderCoreDll == nullptr )
 	{
 		return false;
 	}
 
-	using CreateRendererFunc = IRenderer* (*)( );
-	CreateRendererFunc CreateDirect3D11Renderer = reinterpret_cast<CreateRendererFunc>( GetProcAddress( renderCoreDll, "CreateDirect3D11Renderer" ) );
-
-	m_pRenderer.reset( CreateDirect3D11Renderer( ) );
-
+	m_pRenderer = GetInterface<IRenderer>( );
 	if ( m_pRenderer == nullptr )
 	{
 		return false;
@@ -206,6 +204,11 @@ void CGameLogic::OnObjectSpawned( CGameObject& object )
 	}
 
 	m_world.OnObjectSpawned( object.GetRigidBody( ), *sphere );
+}
+
+void CGameLogic::Shutdown( )
+{
+	ShutdownModule( m_renderCoreDll );
 }
 
 void CGameLogic::StartLogic( )
@@ -720,7 +723,17 @@ CGameLogic::CGameLogic( ) : m_pickingManager( &m_gameObjects )
 	}
 }
 
+CGameLogic::~CGameLogic( )
+{
+	Shutdown( );
+}
+
 Owner<ILogic*> CreateGameLogic( )
 {
 	return new CGameLogic( );
+}
+
+void DestroyGameLogic( Owner<ILogic*> pGameLogic )
+{
+	delete pGameLogic;
 }
