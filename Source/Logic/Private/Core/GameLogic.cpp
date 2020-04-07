@@ -178,8 +178,6 @@ void CGameLogic::AppSizeChanged( IPlatform& platform )
 	m_pickingManager.PopViewport( );
 	m_pickingManager.PushViewport( 0.0f, 0.0f, fSizeX, fSizeY );
 
-	m_uiProjMat = XMMatrixOrthographicLH( fSizeX, fSizeY, 0, 1 );
-
 	m_uiProjMat = CXMFLOAT4X4(
 		2.0f / fSizeX,	0.f,			0.f,	0.f,
 		0.f,			-2.0f / fSizeY,	0.f,	0.f,

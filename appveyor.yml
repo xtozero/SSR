@@ -16,5 +16,5 @@ before_build:
 
     cmake .. -G %generator%
 build:
-  project: c:\ssr\build\Screen Space Reflection.sln
+  project: c:\ssr\build\ScreenSpaceReflection.sln
   verbosity: minimal

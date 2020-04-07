@@ -84,7 +84,7 @@ void WorkerThread( TaskScheduler* scheduler, Worker* worker );
 class TaskScheduler
 {
 public:
-	GroupHandle GetTaskGroup( std::size_t reserveSize = 0 );
+	GroupHandle GetTaskGroup( std::size_t reserveSize = 0, std::size_t workerAffinity = std::numeric_limits<std::size_t>::max() );
 
 	bool Run( GroupHandle handle, TaskBase* task );
 

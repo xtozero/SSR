@@ -49,7 +49,8 @@ void EngineFileSystem::ReadAsync( const FileHandle& handle, char* buffer, unsign
 
 EngineFileSystem::EngineFileSystem( )
 {
-	m_hWaitIO = GetInterface<ITaskScheduler>()->GetTaskGroup( 1 );
+	constexpr std::size_t FileSystemWorkerAffinityMask = WorkerAffinityMask<ThreadType::FileSystemThread>( );
+	m_hWaitIO = GetInterface<ITaskScheduler>()->GetTaskGroup( 1, FileSystemWorkerAffinityMask );
 
 	class TaskWaitAsyncRead
 	{

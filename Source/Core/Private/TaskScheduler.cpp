@@ -7,6 +7,15 @@
 #include <thread>
 #include <vector>
 
+namespace
+{
+	bool CheckWorkerAffinity( std::size_t workerId, std::size_t workerAffinity )
+	{
+		assert( std::numeric_limits<std::size_t>::digits > workerId );
+		return ( ( 1i64 << workerId ) & workerAffinity ) > 0;
+	}
+}
+
 struct TaskGroup
 {
 	std::vector<TaskBase*> m_tasks;
@@ -15,10 +24,12 @@ struct TaskGroup
 	std::atomic<std::size_t> m_reference;
 	std::atomic<std::size_t> m_lastId;
 	std::atomic<std::size_t> m_head;
+	std::size_t m_workerAffinity;
 };
 
 struct Worker
 {
+	std::size_t m_id;
 	std::thread m_thread;
 	std::mutex m_lock;
 	std::condition_variable m_cv;
@@ -47,7 +58,7 @@ void WorkerThread( TaskScheduler* scheduler, Worker* worker )
 				; ++i )
 			{
 				group = &scheduler->m_taskGroups[i];
-				if ( group->m_free || group->m_reference == 0 )
+				if ( group->m_free || group->m_reference == 0 || ( CheckWorkerAffinity( worker->m_id, group->m_workerAffinity ) == false ) )
 				{
 					continue;
 				}
@@ -79,7 +90,7 @@ void WorkerThread( TaskScheduler* scheduler, Worker* worker )
 	}
 }
 
-GroupHandle TaskScheduler::GetTaskGroup( std::size_t reserveSize )
+GroupHandle TaskScheduler::GetTaskGroup( std::size_t reserveSize, std::size_t workerAffinity )
 {
 	for ( std::size_t i = 0; i < m_maxTaskGroup; ++i )
 	{
@@ -91,6 +102,7 @@ GroupHandle TaskScheduler::GetTaskGroup( std::size_t reserveSize )
 			std::unique_lock taskLock( group.m_taskLock );
 			group.m_tasks.clear( );
 			group.m_tasks.reserve( reserveSize );
+			group.m_workerAffinity = workerAffinity;
 			return GroupHandle{ i, ++group.m_lastId };
 		}
 	}
@@ -147,32 +159,40 @@ bool TaskScheduler::Wait( GroupHandle handle )
 		return false;
 	}
 
-	while ( true )
+	if ( group.m_free || group.m_reference == 0 )
 	{
-		TaskBase* task = nullptr;
-		while ( task == nullptr )
+		return false;
+	}
+
+	if ( CheckWorkerAffinity( handle.m_groupIndex, group.m_workerAffinity ) )
+	{
+		while ( true )
 		{
-			std::size_t head = group.m_head.load( );
-			if ( group.m_head >= group.m_tasks.size( ) )
+			TaskBase* task = nullptr;
+			while ( task == nullptr )
+			{
+				std::size_t head = group.m_head.load( );
+				if ( group.m_head >= group.m_tasks.size( ) )
+				{
+					break;
+				}
+
+				if ( group.m_head.compare_exchange_strong( head, head + 1 ) )
+				{
+					std::shared_lock taskLock( group.m_taskLock );
+					task = group.m_tasks[head];
+				}
+			}
+
+			if ( task )
+			{
+				task->Execute( );
+				--group.m_reference;
+			}
+			else
 			{
 				break;
 			}
-
-			if ( group.m_head.compare_exchange_strong( head, head + 1 ) )
-			{
-				std::shared_lock taskLock( group.m_taskLock );
-				task = group.m_tasks[head];
-			}
-		}
-
-		if ( task )
-		{
-			task->Execute( );
-			--group.m_reference;
-		}
-		else
-		{
-			break;
 		}
 	}
 
@@ -253,6 +273,7 @@ void TaskScheduler::Initialize( std::size_t groupCount, std::size_t workerCount 
 		m_taskGroups[i].m_reference = 0;
 		m_taskGroups[i].m_head = 0;
 		m_taskGroups[i].m_lastId = 0;
+		m_taskGroups[i].m_workerAffinity = std::numeric_limits<std::size_t>::max();
 	}
 
 	m_workerCount = workerCount;
@@ -260,6 +281,7 @@ void TaskScheduler::Initialize( std::size_t groupCount, std::size_t workerCount 
 
 	for ( std::size_t i = 0; i < m_workerCount; ++i )
 	{
+		m_workers[i].m_id = i;
 		m_workers[i].m_wakeup = false;
 		m_workers[i].m_thread = std::thread( WorkerThread, this, &m_workers[i] );
 	}

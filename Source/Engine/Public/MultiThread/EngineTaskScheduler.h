@@ -1,8 +1,9 @@
 #pragma once
 
+#include "common.h"
 #include "TaskScheduler.h"
 
-#include "common.h"
+#include <limits>
 
 namespace ThreadType
 {
@@ -18,10 +19,16 @@ namespace ThreadType
 	};
 }
 
+template <std::size_t... N>
+constexpr std::size_t WorkerAffinityMask( )
+{
+	return ( ( 1 << N ) | ... );
+}
+
 class ITaskScheduler
 {
 public:
-	virtual [[nodiscard]] GroupHandle GetTaskGroup( std::size_t reserveSize = 0 ) = 0;
+	virtual [[nodiscard]] GroupHandle GetTaskGroup( std::size_t reserveSize = 0, std::size_t workerAffinity = std::numeric_limits<std::size_t>::max( ) ) = 0;
 
 	virtual bool Run( GroupHandle handle, TaskBase* task ) = 0;
 

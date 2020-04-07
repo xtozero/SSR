@@ -6,7 +6,7 @@
 class EngineTaskScheduler : public ITaskScheduler
 {
 public:
-	virtual [[nodiscard]] GroupHandle GetTaskGroup( std::size_t reserveSize = 0 ) override;
+	virtual [[nodiscard]] GroupHandle GetTaskGroup( std::size_t reserveSize = 0, std::size_t workerAffinity = std::numeric_limits<std::size_t>::max( ) ) override;
 
 	virtual bool Run( GroupHandle handle, TaskBase* task ) override;
 
@@ -28,9 +28,9 @@ private:
 	TaskScheduler m_taskScheduler;
 };
 
-GroupHandle EngineTaskScheduler::GetTaskGroup( std::size_t reserveSize )
+GroupHandle EngineTaskScheduler::GetTaskGroup( std::size_t reserveSize, std::size_t workerAffinity )
 {
-	return m_taskScheduler.GetTaskGroup( reserveSize );
+	return m_taskScheduler.GetTaskGroup( reserveSize, workerAffinity );
 }
 
 bool EngineTaskScheduler::Run( GroupHandle handle, TaskBase* task )
