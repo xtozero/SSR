@@ -13,7 +13,7 @@ namespace
 	}
 }
 
-RENDERCORE_FUNC_DLL void BootUpModule( )
+RENDERCORE_FUNC_DLL void BootUpModules( )
 {
 	RegisterFactory<IRenderer>( &GetRenderer );
 

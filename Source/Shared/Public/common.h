@@ -94,10 +94,10 @@ inline HMODULE LoadModule( const TCHAR* dllPath )
 	}
 
 	using BootUpFunc = void(*)( );
-	BootUpFunc bootUp = reinterpret_cast<BootUpFunc>( GetProcAddress( hModule, "BootUpModule" ) );
+	BootUpFunc bootUp = reinterpret_cast<BootUpFunc>( GetProcAddress( hModule, "BootUpModules" ) );
 	if ( bootUp == nullptr )
 	{
-		assert( "Module must have BootUpModule function!" && false );
+		assert( "Module must have BootUpModules function!" && false );
 	}
 
 	bootUp( );

@@ -13,7 +13,7 @@ namespace
 	}
 }
 
-LOGIC_FUNC_DLL void BootUpModule( )
+LOGIC_FUNC_DLL void BootUpModules( )
 {
 	RegisterFactory<ILogic>( &GetGameLogic );
 

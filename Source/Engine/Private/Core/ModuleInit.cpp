@@ -27,7 +27,7 @@ namespace
 	}
 }
 
-ENGINE_FUNC_DLL void BootUpModule( )
+ENGINE_FUNC_DLL void BootUpModules( )
 {
 	RegisterFactory<IFileSystem>( &GetFileSystem );
 	RegisterFactory<IEngine>( &GetGameEngine );
