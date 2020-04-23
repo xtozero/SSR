@@ -1,8 +1,8 @@
 #include "stdafx.h"
 
+#include "Common/IAga.h"
 #include "Core/InterfaceFactories.h"
-#include "D3D11/Direct3D11.h"
-#include "Render/IRenderer.h"
+#include "D3D11Api.h"
 
 RENDERCORE_FUNC_DLL void BootUpModules( )
 {

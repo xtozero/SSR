@@ -155,10 +155,12 @@ public:
 private:
 	bool LoadKeyCode( const KeyValue& keyValues )
 	{
+		IEnumStringMap* enumStringMap = GetInterface<IEnumStringMap>( );
+
 		for ( KeyValue* keycode = keyValues.GetChild( ); keycode != nullptr; keycode = keycode->GetNext( ) )
 		{
-			m_codeMap.emplace_back( static_cast<unsigned long>( GetEnumStringMap( ).GetEnum( keycode->GetKey( ), -1 ) ),
-									static_cast<USER_INPUT_CODE>( GetEnumStringMap( ).GetEnum( keycode->GetValue( ), -1 ) ) );
+			m_codeMap.emplace_back( static_cast<unsigned long>( enumStringMap->GetEnum( keycode->GetKey( ), -1 ) ),
+									static_cast<USER_INPUT_CODE>( enumStringMap->GetEnum( keycode->GetValue( ), -1 ) ) );
 		}
 
 		std::sort( m_codeMap.begin( ), m_codeMap.end( ),

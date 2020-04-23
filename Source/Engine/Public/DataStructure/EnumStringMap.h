@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.h"
+#include "Core/InterfaceFactories.h"
 
 class IEnumStringMap
 {
@@ -11,7 +12,7 @@ public:
 	virtual ~IEnumStringMap( ) = default;
 };
 
-ENGINE_FUNC_DLL IEnumStringMap& GetEnumStringMap( );
+void* GetEnumStringMap( );
 
 #define REGISTER_ENUM_STRING( enumValue ) \
-	GetEnumStringMap().RegisterEnumString( _T( #enumValue ), static_cast<int>( enumValue ) )
+	GetInterface<IEnumStringMap>( )->RegisterEnumString( _T( #enumValue ), static_cast<int>( enumValue ) )

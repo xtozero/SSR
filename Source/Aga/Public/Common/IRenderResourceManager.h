@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common.h"
-#include "Resource.h"
+#include "GraphicsApiResource.h"
 
 struct BUFFER_TRAIT;
 struct RESOURCE_INIT_DATA;
@@ -11,13 +11,11 @@ struct TEXTURE_TRAIT;
 class IResourceManager
 {
 public:
-	virtual RE_HANDLE CreateTexture1D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) = 0;
-
-	virtual RE_HANDLE CreateTexture2D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) = 0;
-
-	virtual RE_HANDLE CreateTexture3D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) = 0;
-
 	virtual void AppSizeChanged( UINT nWndWidth, UINT nWndHeight ) = 0;
+
+	virtual RE_HANDLE CreateTexture1D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) = 0;
+	virtual RE_HANDLE CreateTexture2D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) = 0;
+	virtual RE_HANDLE CreateTexture3D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) = 0;
 
 	virtual RE_HANDLE CreateBuffer( const BUFFER_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) = 0;
 

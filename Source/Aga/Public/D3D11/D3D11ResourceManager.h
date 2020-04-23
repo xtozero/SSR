@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Render/IRenderResource.h"
-#include "Render/IRenderResourceManager.h"
+#include "D3D11ResourceInterface.h"
+#include "IRenderResourceManager.h"
+#include "RefHandle.h"
 
 #include <map>
 #include <memory>
@@ -43,15 +44,12 @@ class CD3D11ResourceManager : public IResourceManager
 {
 public:
 	bool Bootup( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext );
+	virtual void AppSizeChanged( UINT nWndWidth, UINT nWndHeight ) override;
 
 	// Texture
 	virtual RE_HANDLE CreateTexture1D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
-
 	virtual RE_HANDLE CreateTexture2D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
-
 	virtual RE_HANDLE CreateTexture3D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
-
-	virtual void AppSizeChanged( UINT nWndWidth, UINT nWndHeight ) override;
 
 	// Buffer
 	virtual RE_HANDLE CreateBuffer( const BUFFER_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
@@ -65,6 +63,7 @@ public:
 
 	// RenderTarget
 	virtual RE_HANDLE CreateRenderTarget( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) override;
+	// Depth Stencil
 	virtual RE_HANDLE CreateDepthStencil( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) override;
 
 	// ShaderResource
@@ -93,23 +92,23 @@ public:
 	void OnDeviceLost( );
 	void OnDeviceRestore( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext );
 
-	RefHandle<CD3D11DepthStencil>& GetDepthstencil( RE_HANDLE handle );
-	RefHandle<CD3D11RenderTarget>& GetRendertarget( RE_HANDLE handle );
-	RefHandle<CD3D11ShaderResource>& GetShaderResource( RE_HANDLE handle );
-	RefHandle<CD3D11RandomAccessResource>& GetRandomAccess( RE_HANDLE handle );
-	RefHandle<CD3D11Texture1D>& GetTexture1D( RE_HANDLE handle );
-	RefHandle<CD3D11Texture2D>& GetTexture2D( RE_HANDLE handle );
-	RefHandle<CD3D11Texture3D>& GetTexture3D( RE_HANDLE handle );
-	RefHandle<CD3D11Buffer>& GetBuffer( RE_HANDLE handle );
-	RefHandle<CD3D11VertexLayout>& GetVertexLayout( RE_HANDLE handle );
-	RefHandle<CD3D11VertexShader>& GetVertexShader( RE_HANDLE handle );
-	RefHandle<CD3D11GeometryShader>& GetGeometryShader( RE_HANDLE handle );
-	RefHandle<CD3D11PixelShader>& GetPixelShader( RE_HANDLE handle );
-	RefHandle<CD3D11ComputeShader>& GetComputeShader( RE_HANDLE handle );
-	RefHandle<CD3D11SamplerState>& GetSamplerState( RE_HANDLE handle );
-	RefHandle<CD3D11RasterizerState>& GetRasterizerState( RE_HANDLE handle );
-	RefHandle<CD3D11BlendState>& GetBlendState( RE_HANDLE handle );
-	RefHandle<CD3D11DepthStencilState>& GetDepthStencilState( RE_HANDLE handle );
+	CD3D11DepthStencil* GetDepthstencil( RE_HANDLE handle );
+	CD3D11RenderTarget* GetRendertarget( RE_HANDLE handle );
+	CD3D11ShaderResource* GetShaderResource( RE_HANDLE handle );
+	CD3D11RandomAccessResource* GetRandomAccess( RE_HANDLE handle );
+	CD3D11Texture1D* GetTexture1D( RE_HANDLE handle );
+	CD3D11Texture2D* GetTexture2D( RE_HANDLE handle );
+	CD3D11Texture3D* GetTexture3D( RE_HANDLE handle );
+	CD3D11Buffer* GetBuffer( RE_HANDLE handle );
+	CD3D11VertexLayout* GetVertexLayout( RE_HANDLE handle );
+	CD3D11VertexShader* GetVertexShader( RE_HANDLE handle );
+	CD3D11GeometryShader* GetGeometryShader( RE_HANDLE handle );
+	CD3D11PixelShader* GetPixelShader( RE_HANDLE handle );
+	CD3D11ComputeShader* GetComputeShader( RE_HANDLE handle );
+	CD3D11SamplerState* GetSamplerState( RE_HANDLE handle );
+	CD3D11RasterizerState* GetRasterizerState( RE_HANDLE handle );
+	CD3D11BlendState* GetBlendState( RE_HANDLE handle );
+	CD3D11DepthStencilState* GetDepthStencilState( RE_HANDLE handle );
 
 	ID3D11Resource* GetD3D11ResourceGeneric( RE_HANDLE handle );
 

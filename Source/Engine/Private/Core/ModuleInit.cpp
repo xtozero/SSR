@@ -2,6 +2,7 @@
 
 #include "Core/IEngine.h"
 #include "Core/InterfaceFactories.h"
+#include "DataStructure/EnumStringMap.h"
 #include "FileSystem/EngineFileSystem.h"
 #include "MultiThread/EngineTaskScheduler.h"
 
@@ -32,6 +33,7 @@ ENGINE_FUNC_DLL void BootUpModules( )
 	RegisterFactory<IFileSystem>( &GetFileSystem );
 	RegisterFactory<IEngine>( &GetGameEngine );
 	RegisterFactory<ITaskScheduler>( &GetTaskScheduler );
+	RegisterFactory<IEnumStringMap>( &GetEnumStringMap );
 
 	g_taskScheduler = CreateTaskScheduler( );
 	g_fileSystem = CreateFileSystem( );
@@ -47,4 +49,5 @@ ENGINE_FUNC_DLL void ShutdownModules( )
 	UnregisterFactory<IFileSystem>( );
 	UnregisterFactory<IEngine>( );
 	UnregisterFactory<ITaskScheduler>( );
+	UnregisterFactory<IEnumStringMap>( );
 }

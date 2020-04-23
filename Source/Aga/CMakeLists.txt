@@ -14,26 +14,55 @@ set (CORE_SOURCE
 	"Private/Core/ModuleInit.cpp")
 	
 set (D3D11_RENDER_RESOURCE_SOURCE
-	"Private/D3D11/D3D11Resource.cpp"
+	"Private/D3D11/D3D11BlendState.cpp"
+	"Private/D3D11/D3D11Buffer.cpp"
+	"Private/D3D11/D3D11DepthStencil.cpp"
+	"Private/D3D11/D3D11DepthStencilState.cpp"
+	"Private/D3D11/D3D11RandomAccessResource.cpp"
+	"Private/D3D11/D3D11RasterizerState.cpp"
+	"Private/D3D11/D3D11RenderTarget.cpp"
 	"Private/D3D11/D3D11ResourceManager.cpp"
-	"Public/D3D11/D3D11Resource.h"
-	"Public/D3D11/D3D11ResourceManager.h")
+	"Private/D3D11/D3D11SamplerState.cpp"
+	"Private/D3D11/D3D11ShaderResource.cpp"
+	"Private/D3D11/D3D11Shaders.cpp"
+	"Private/D3D11/D3D11Textures.cpp"
+	"Private/D3D11/D3D11VetexLayout.cpp"
+	"Public/D3D11/D3D11BlendState.h"
+	"Public/D3D11/D3D11Buffer.h"
+	"Public/D3D11/D3D11DepthStencil.h"
+	"Public/D3D11/D3D11DepthStencilState.h"
+	"Public/D3D11/D3D11RandomAccessResource.h"
+	"Public/D3D11/D3D11RasterizerState.h"
+	"Public/D3D11/D3D11RenderTarget.h"
+	"Public/D3D11/D3D11ResourceInterface.h"
+	"Public/D3D11/D3D11ResourceManager.h"
+	"Public/D3D11/D3D11SamplerState.h"
+	"Public/D3D11/D3D11ShaderResource.h"
+	"Public/D3D11/D3D11Shaders.h"
+	"Public/D3D11/D3D11Textures.h"
+	"Public/D3D11/D3D11VetexLayout.h")
 
 set (D3D11_SOURCE
-	"Private/D3D11/Direct3D11.cpp"
-	"Public/D3D11/Direct3D11.h")
+	"Private/D3D11/D3D11Api.cpp"
+	"Public/D3D11/D3D11Api.h")
 	
-set (RENDER_COMMON_SOURCE
-	"Public/Render/IRenderer.h"
-	"Public/Render/IRenderResource.h"
-	"Public/Render/IRenderResourceManager.h"
-	"Public/Render/Resource.h")
+set (D3D11_UTILITY
+	"Public/D3D11/D3D11FlagConvertor.h")
 	
+set (COMMON_SOURCE
+	"Public/Common/GraphicsApiResource.h"
+	"Public/Common/IAga.h"
+	"Public/Common/IRenderResourceManager.h"
+	"Public/Common/RefHandle.h")
+
+source_group("Direct11" FILES ${D3D11_SOURCE})	
 source_group("Direct11\\RenderResource" FILES ${D3D11_RENDER_RESOURCE_SOURCE})
-source_group("Direct11" FILES ${D3D11_SOURCE})
-source_group("RenderCommon" FILES ${RENDER_COMMON_SOURCE})
+source_group("Direct11\\Utility" FILES ${D3D11_UTILITY})
+source_group("RenderCommon" FILES ${COMMON_SOURCE})
 
 include_directories(./Public)
+include_directories(./Public/Common)
+include_directories(./Public/D3D11)
 include_directories(../Shared/Public)
 include_directories(../Engine/Public)
 include_directories($ENV{DXSDK_DIR}include)
@@ -52,9 +81,8 @@ add_library(Aga SHARED 	${PRECOMPILED}
 						${CORE_SOURCE}
 						${D3D11_RENDER_RESOURCE_SOURCE}
 						${D3D11_SOURCE}
-						${MATERIAL_SOURCE}
-						${RENDER_COMMON_SOURCE}
-						${RENDER_UTIL})
+						${D3D11_UTILITY}
+						${COMMON_SOURCE})
 
 set (DIRECT3D_LIBRARY
 	"d3d11.lib"

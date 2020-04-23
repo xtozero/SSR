@@ -1,11 +1,25 @@
 #include "stdafx.h"
+#include "D3D11Api.h"
 
 #include "common.h"
-#include "D3D11/D3D11Resource.h"
-#include "D3D11/D3D11ResourceManager.h"
+#include "Common/IAga.h"
+#include "D3D11ResourceInterface.h"
+
+#include "D3D11BlendState.h"
+#include "D3D11Buffer.h"
+#include "D3D11DepthStencil.h"
+#include "D3D11DepthStencilState.h"
+#include "D3D11FlagConvertor.h"
+#include "D3D11RandomAccessResource.h"
+#include "D3D11RasterizerState.h"
+#include "D3D11RenderTarget.h"
+#include "D3D11ResourceManager.h"
+#include "D3D11SamplerState.h"
+#include "D3D11ShaderResource.h"
+#include "D3D11Shaders.h"
+#include "D3D11VetexLayout.h"
+
 #include "DataStructure/EnumStringMap.h"
-#include "Render/IRenderer.h"
-#include "Render/IRenderResource.h"
 #include "Util.h"
 
 #include <array>
@@ -15,7 +29,6 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "..\..\Public\D3D11\Direct3D11.h"
 
 namespace
 {
@@ -23,105 +36,6 @@ namespace
 
 	Microsoft::WRL::ComPtr<ID3D11Device> g_pd3d11Device;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> g_pd3d11DeviceContext;
-
-	/* void RegisterGraphicsEnumString()
-	{
-		//Register enum string
-		RegisterResourceEnumString( );
-
-		//Fill Mode
-		REGISTER_ENUM_STRING( D3D11_FILL_SOLID );
-		REGISTER_ENUM_STRING( D3D11_FILL_WIREFRAME );
-
-		//Cull Mode
-		REGISTER_ENUM_STRING( D3D11_CULL_NONE );
-		REGISTER_ENUM_STRING( D3D11_CULL_FRONT );
-		REGISTER_ENUM_STRING( D3D11_CULL_BACK );
-
-		//Comparision Function
-		REGISTER_ENUM_STRING( D3D11_COMPARISON_NEVER );
-		REGISTER_ENUM_STRING( D3D11_COMPARISON_LESS );
-		REGISTER_ENUM_STRING( D3D11_COMPARISON_EQUAL );
-		REGISTER_ENUM_STRING( D3D11_COMPARISON_LESS_EQUAL );
-		REGISTER_ENUM_STRING( D3D11_COMPARISON_GREATER );
-		REGISTER_ENUM_STRING( D3D11_COMPARISON_NOT_EQUAL );
-		REGISTER_ENUM_STRING( D3D11_COMPARISON_GREATER_EQUAL );
-		REGISTER_ENUM_STRING( D3D11_COMPARISON_ALWAYS );
-
-		//Depth Write Mask
-		REGISTER_ENUM_STRING( D3D11_DEPTH_WRITE_MASK_ZERO );
-		REGISTER_ENUM_STRING( D3D11_DEPTH_WRITE_MASK_ALL );
-
-		//Stencil OP
-		REGISTER_ENUM_STRING( D3D11_STENCIL_OP_KEEP );
-		REGISTER_ENUM_STRING( D3D11_STENCIL_OP_ZERO );
-		REGISTER_ENUM_STRING( D3D11_STENCIL_OP_REPLACE );
-		REGISTER_ENUM_STRING( D3D11_STENCIL_OP_INCR_SAT );
-		REGISTER_ENUM_STRING( D3D11_STENCIL_OP_DECR_SAT );
-		REGISTER_ENUM_STRING( D3D11_STENCIL_OP_INVERT );
-		REGISTER_ENUM_STRING( D3D11_STENCIL_OP_INCR );
-		REGISTER_ENUM_STRING( D3D11_STENCIL_OP_DECR );
-
-		//Filter
-		REGISTER_ENUM_STRING( D3D11_FILTER_MIN_MAG_MIP_POINT );
-		REGISTER_ENUM_STRING( D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR );
-		REGISTER_ENUM_STRING( D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT );
-		REGISTER_ENUM_STRING( D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR );
-		REGISTER_ENUM_STRING( D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT );
-		REGISTER_ENUM_STRING( D3D11_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR );
-		REGISTER_ENUM_STRING( D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT );
-		REGISTER_ENUM_STRING( D3D11_FILTER_MIN_MAG_MIP_LINEAR );
-		REGISTER_ENUM_STRING( D3D11_FILTER_ANISOTROPIC );
-		REGISTER_ENUM_STRING( D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT );
-		REGISTER_ENUM_STRING( D3D11_FILTER_COMPARISON_MIN_MAG_POINT_MIP_LINEAR );
-		REGISTER_ENUM_STRING( D3D11_FILTER_COMPARISON_MIN_POINT_MAG_LINEAR_MIP_POINT );
-		REGISTER_ENUM_STRING( D3D11_FILTER_COMPARISON_MIN_POINT_MAG_MIP_LINEAR );
-		REGISTER_ENUM_STRING( D3D11_FILTER_COMPARISON_MIN_LINEAR_MAG_MIP_POINT );
-		REGISTER_ENUM_STRING( D3D11_FILTER_COMPARISON_MIN_LINEAR_MAG_POINT_MIP_LINEAR );
-		REGISTER_ENUM_STRING( D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT );
-		REGISTER_ENUM_STRING( D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR );
-		REGISTER_ENUM_STRING( D3D11_FILTER_COMPARISON_ANISOTROPIC );
-
-		//Texture Address Mode
-		REGISTER_ENUM_STRING( D3D11_TEXTURE_ADDRESS_WRAP );
-		REGISTER_ENUM_STRING( D3D11_TEXTURE_ADDRESS_MIRROR );
-		REGISTER_ENUM_STRING( D3D11_TEXTURE_ADDRESS_CLAMP );
-		REGISTER_ENUM_STRING( D3D11_TEXTURE_ADDRESS_BORDER );
-		REGISTER_ENUM_STRING( D3D11_TEXTURE_ADDRESS_MIRROR_ONCE );
-
-		//Blend
-		REGISTER_ENUM_STRING( D3D11_BLEND_ZERO );
-		REGISTER_ENUM_STRING( D3D11_BLEND_ONE );
-		REGISTER_ENUM_STRING( D3D11_BLEND_SRC_COLOR );
-		REGISTER_ENUM_STRING( D3D11_BLEND_INV_SRC_COLOR );
-		REGISTER_ENUM_STRING( D3D11_BLEND_SRC_ALPHA );
-		REGISTER_ENUM_STRING( D3D11_BLEND_INV_SRC_ALPHA );
-		REGISTER_ENUM_STRING( D3D11_BLEND_DEST_ALPHA );
-		REGISTER_ENUM_STRING( D3D11_BLEND_INV_DEST_ALPHA );
-		REGISTER_ENUM_STRING( D3D11_BLEND_DEST_COLOR );
-		REGISTER_ENUM_STRING( D3D11_BLEND_INV_DEST_COLOR );
-		REGISTER_ENUM_STRING( D3D11_BLEND_SRC_ALPHA_SAT );
-		REGISTER_ENUM_STRING( D3D11_BLEND_BLEND_FACTOR );
-		REGISTER_ENUM_STRING( D3D11_BLEND_INV_BLEND_FACTOR );
-		REGISTER_ENUM_STRING( D3D11_BLEND_SRC1_COLOR );
-		REGISTER_ENUM_STRING( D3D11_BLEND_INV_SRC1_COLOR );
-		REGISTER_ENUM_STRING( D3D11_BLEND_SRC1_ALPHA );
-		REGISTER_ENUM_STRING( D3D11_BLEND_INV_SRC1_ALPHA );
-
-		//Blend Op
-		REGISTER_ENUM_STRING( D3D11_BLEND_OP_ADD );
-		REGISTER_ENUM_STRING( D3D11_BLEND_OP_SUBTRACT );
-		REGISTER_ENUM_STRING( D3D11_BLEND_OP_REV_SUBTRACT );
-		REGISTER_ENUM_STRING( D3D11_BLEND_OP_MIN );
-		REGISTER_ENUM_STRING( D3D11_BLEND_OP_MAX );
-
-		//Color Write Enable
-		REGISTER_ENUM_STRING( D3D11_COLOR_WRITE_ENABLE_RED );
-		REGISTER_ENUM_STRING( D3D11_COLOR_WRITE_ENABLE_GREEN );
-		REGISTER_ENUM_STRING( D3D11_COLOR_WRITE_ENABLE_BLUE );
-		REGISTER_ENUM_STRING( D3D11_COLOR_WRITE_ENABLE_ALPHA );
-		REGISTER_ENUM_STRING( D3D11_COLOR_WRITE_ENABLE_ALL );
-	} */
 };
 
 class CDirect3D11 : public IAga
@@ -132,22 +46,40 @@ public:
 	virtual void AppSizeChanged( UINT nWndWidth, UINT nWndHeight ) override;
 	virtual void WaitGPU( ) override;
 
+	virtual RE_HANDLE CreateTexture1D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
+	virtual RE_HANDLE CreateTexture2D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
+	virtual RE_HANDLE CreateTexture3D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
+
+	virtual RE_HANDLE CreateBuffer( const BUFFER_TRAIT& trait ) override;
+
+	virtual RE_HANDLE CreateVertexLayout( RE_HANDLE vsHandle, const VERTEX_LAYOUT* layoutOrNull, int layoutSize ) override;
 	virtual RE_HANDLE CreateVertexShader( const void* byteCodePtr, std::size_t byteCodeSize ) override;
+	virtual RE_HANDLE CreateGeometryShader( const void* byteCodePtr, std::size_t byteCodeSize ) override;
 	virtual RE_HANDLE CreatePixelShader( const void* byteCodePtr, std::size_t byteCodeSize ) override;
 	virtual RE_HANDLE CreateComputeShader( const void* byteCodePtr, std::size_t byteCodeSize ) override;
 
-	virtual RE_HANDLE CreateBuffer( const BUFFER_TRAIT& trait ) override;
+	virtual RE_HANDLE CreateRenderTarget( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) override;
+	virtual RE_HANDLE CreateDepthStencil( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) override;
+
+	virtual RE_HANDLE CreateTexture1DShaderResource( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) override;
+	virtual RE_HANDLE CreateTexture2DShaderResource( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) override;
+	virtual RE_HANDLE CreateTexture3DShaderResource( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) override;
+	virtual RE_HANDLE CreateBufferShaderResource( RE_HANDLE bufHandle, const BUFFER_TRAIT* trait = nullptr ) override;
+
+	virtual RE_HANDLE CreateTexture1DRandomAccess( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) override;
+	virtual RE_HANDLE CreateTexture2DRandomAccess( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) override;
+	virtual RE_HANDLE CreateBufferRandomAccess( RE_HANDLE bufHandle, const BUFFER_TRAIT* trait = nullptr ) override;
+
+	virtual RE_HANDLE CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) override;
+	virtual RE_HANDLE CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) override;
+	virtual RE_HANDLE CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) override;
+	virtual RE_HANDLE CreateBlendState( const BLEND_STATE_TRAIT& trait ) override;
 
 	virtual void* LockBuffer( RE_HANDLE buffer, int lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, UINT subResource = 0 ) override;
 	virtual void UnLockBuffer( RE_HANDLE buffer, UINT subResource = 0 ) override;
 
 	virtual void SetViewports( const Viewport* viewPorts, int count ) override;
 	virtual void SetScissorRects( const RECT* rects, int size ) override;
-
-	virtual RE_HANDLE CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) override;
-	virtual RE_HANDLE CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) override;
-	virtual RE_HANDLE CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) override;
-	virtual RE_HANDLE CreateBlendState( const BLEND_STATE_TRAIT& trait ) override;
 
 	virtual void ClearRendertarget( RE_HANDLE renderTarget, const float( &clearColor )[4] ) override;
 	virtual void ClearDepthStencil( RE_HANDLE depthStencil, float depthColor, UINT8 stencilColor ) override;
@@ -286,9 +218,39 @@ void CDirect3D11::WaitGPU( )
 	}
 }
 
+RE_HANDLE CDirect3D11::CreateTexture1D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
+{
+	return m_resourceManager.CreateTexture1D( trait, initData );
+}
+
+RE_HANDLE CDirect3D11::CreateTexture2D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
+{
+	return m_resourceManager.CreateTexture2D( trait, initData );
+}
+
+RE_HANDLE CDirect3D11::CreateTexture3D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
+{
+	return m_resourceManager.CreateTexture3D( trait, initData );
+}
+
+RE_HANDLE CDirect3D11::CreateBuffer( const BUFFER_TRAIT& trait )
+{
+	return m_resourceManager.CreateBuffer( trait );
+}
+
+RE_HANDLE CDirect3D11::CreateVertexLayout( RE_HANDLE vsHandle, const VERTEX_LAYOUT* layoutOrNull, int layoutSize )
+{
+	return m_resourceManager.CreateVertexLayout( vsHandle, layoutOrNull, layoutSize );
+}
+
 RE_HANDLE CDirect3D11::CreateVertexShader( const void* byteCodePtr, std::size_t byteCodeSize )
 {
 	return m_resourceManager.CreateVertexShader( byteCodePtr, byteCodeSize );
+}
+
+RE_HANDLE CDirect3D11::CreateGeometryShader( const void* byteCodePtr, std::size_t byteCodeSize )
+{
+	return m_resourceManager.CreateGeometryShader( byteCodePtr, byteCodeSize );
 }
 
 RE_HANDLE CDirect3D11::CreatePixelShader( const void* byteCodePtr, std::size_t byteCodeSize )
@@ -301,14 +263,54 @@ RE_HANDLE CDirect3D11::CreateComputeShader( const void* byteCodePtr, std::size_t
 	return m_resourceManager.CreateComputeShader( byteCodePtr, byteCodeSize );
 }
 
-RE_HANDLE CDirect3D11::CreateBuffer( const BUFFER_TRAIT& trait )
+RE_HANDLE CDirect3D11::CreateRenderTarget( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait )
 {
-	return m_resourceManager.CreateBuffer( trait );
+	return m_resourceManager.CreateRenderTarget( texHandle, trait );
+}
+
+RE_HANDLE CDirect3D11::CreateDepthStencil( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait )
+{
+	return m_resourceManager.CreateDepthStencil( texHandle, trait );
+}
+
+RE_HANDLE CDirect3D11::CreateTexture1DShaderResource( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait )
+{
+	return m_resourceManager.CreateTexture1DShaderResource( texHandle, trait );
+}
+
+RE_HANDLE CDirect3D11::CreateTexture2DShaderResource( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait )
+{
+	return m_resourceManager.CreateTexture2DShaderResource( texHandle, trait );
+}
+
+RE_HANDLE CDirect3D11::CreateTexture3DShaderResource( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait )
+{
+	return m_resourceManager.CreateTexture3DShaderResource( texHandle, trait );
+}
+
+RE_HANDLE CDirect3D11::CreateBufferShaderResource( RE_HANDLE bufHandle, const BUFFER_TRAIT* trait )
+{
+	return m_resourceManager.CreateBufferShaderResource( bufHandle, trait );
+}
+
+RE_HANDLE CDirect3D11::CreateTexture1DRandomAccess( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait )
+{
+	return m_resourceManager.CreateTexture1DRandomAccess( texHandle, trait );
+}
+
+RE_HANDLE CDirect3D11::CreateTexture2DRandomAccess( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait )
+{
+	return m_resourceManager.CreateTexture2DRandomAccess( texHandle, trait );
+}
+
+RE_HANDLE CDirect3D11::CreateBufferRandomAccess( RE_HANDLE bufHandle, const BUFFER_TRAIT* trait )
+{
+	return m_resourceManager.CreateBufferRandomAccess( bufHandle, trait );
 }
 
 void* CDirect3D11::LockBuffer( RE_HANDLE buffer, int lockFlag, UINT subResource )
 {
-	RefHandle<CD3D11Buffer>& d3d11buffer = m_resourceManager.GetBuffer( buffer );
+	CD3D11Buffer* d3d11buffer = m_resourceManager.GetBuffer( buffer );
 	D3D11_MAPPED_SUBRESOURCE resource;
 
 	HRESULT hr = g_pd3d11DeviceContext->Map( d3d11buffer->Get( ), subResource, ConvertLockFlagToD3D11Map( lockFlag ), 0, &resource );
@@ -322,7 +324,7 @@ void* CDirect3D11::LockBuffer( RE_HANDLE buffer, int lockFlag, UINT subResource 
 
 void CDirect3D11::UnLockBuffer( RE_HANDLE buffer, UINT subResource )
 {
-	RefHandle<CD3D11Buffer>& d3d11buffer = m_resourceManager.GetBuffer( buffer );
+	CD3D11Buffer* d3d11buffer = m_resourceManager.GetBuffer( buffer );
 
 	g_pd3d11DeviceContext->Unmap( d3d11buffer->Get( ), subResource );
 }
@@ -392,13 +394,13 @@ RE_HANDLE CDirect3D11::CreateBlendState( const BLEND_STATE_TRAIT& trait )
 
 void CDirect3D11::ClearRendertarget( RE_HANDLE renderTarget, const float (&clearColor)[4] )
 {
-	RefHandle<CD3D11RenderTarget>& rtv = m_resourceManager.GetRendertarget( renderTarget );
+	CD3D11RenderTarget* rtv = m_resourceManager.GetRendertarget( renderTarget );
 	g_pd3d11DeviceContext->ClearRenderTargetView( rtv->Get(), clearColor );
 }
 
 void CDirect3D11::ClearDepthStencil( RE_HANDLE depthStencil, float depthColor, UINT8 stencilColor )
 {
-	RefHandle<CD3D11DepthStencil>& dsv = m_resourceManager.GetDepthstencil( depthStencil );
+	CD3D11DepthStencil* dsv = m_resourceManager.GetDepthstencil( depthStencil );
 	g_pd3d11DeviceContext->ClearDepthStencilView( dsv->Get( ), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthColor, stencilColor );
 }
 
@@ -414,9 +416,9 @@ void CDirect3D11::BindVertexBuffer( RE_HANDLE* pVertexBuffers, UINT startSlot, U
 		assert( pOffsets != nullptr );
 		for ( UINT i = 0; i < numBuffers; ++i )
 		{
-			if ( pVertexBuffers[i] != RE_HANDLE::InvalidHandle( ) )
+			if ( pVertexBuffers[i].IsValid( ) )
 			{
-				RefHandle<CD3D11Buffer>& d3d11buffer = m_resourceManager.GetBuffer( pVertexBuffers[i] );
+				CD3D11Buffer* d3d11buffer = m_resourceManager.GetBuffer( pVertexBuffers[i] );
 				pBuffers[i] = d3d11buffer->Get( );
 				strides[i] = pStrides[i];
 				offsets[i] = pOffsets[i];
@@ -432,9 +434,9 @@ void CDirect3D11::BindIndexBuffer( RE_HANDLE indexBuffer, UINT indexOffset )
 	ID3D11Buffer* buffer = nullptr;
 	DXGI_FORMAT format = DXGI_FORMAT_R16_UINT;
 
-	if ( indexBuffer != RE_HANDLE::InvalidHandle( ) )
+	if ( indexBuffer.IsValid( ) )
 	{
-		RefHandle<CD3D11Buffer>& d3d11buffer = m_resourceManager.GetBuffer( indexBuffer );
+		CD3D11Buffer* d3d11buffer = m_resourceManager.GetBuffer( indexBuffer );
 		buffer = d3d11buffer->Get( );
 		
 		if ( d3d11buffer->Stride() == 4 )
@@ -452,29 +454,31 @@ void CDirect3D11::BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT num
 
 	for ( UINT i = 0; i < numBuffers; ++i )
 	{
-		if ( pConstantBuffers[i] != RE_HANDLE::InvalidHandle( ) )
+		if ( pConstantBuffers[i].IsValid( ) )
 		{
-			RefHandle<CD3D11Buffer>& d3d11buffer = m_resourceManager.GetBuffer( pConstantBuffers[i] );
+			CD3D11Buffer* d3d11buffer = m_resourceManager.GetBuffer( pConstantBuffers[i] );
 			pBuffers[i] = d3d11buffer->Get( );
 		}
 	}
 
 	switch ( type )
 	{
-	case VS:
+	case SHADER_TYPE::VS:
 		g_pd3d11DeviceContext->VSSetConstantBuffers( startSlot, numBuffers, pBuffers );
 		break;
-	case HS:
+	case SHADER_TYPE::HS:
+		g_pd3d11DeviceContext->HSSetConstantBuffers( startSlot, numBuffers, pBuffers );
 		break;
-	case DS:
+	case SHADER_TYPE::DS:
+		g_pd3d11DeviceContext->DSSetConstantBuffers( startSlot, numBuffers, pBuffers );
 		break;
-	case GS:
+	case SHADER_TYPE::GS:
 		g_pd3d11DeviceContext->GSSetConstantBuffers( startSlot, numBuffers, pBuffers );
 		break;
-	case PS:
+	case SHADER_TYPE::PS:
 		g_pd3d11DeviceContext->PSSetConstantBuffers( startSlot, numBuffers, pBuffers );
 		break;
-	case CS:
+	case SHADER_TYPE::CS:
 		g_pd3d11DeviceContext->CSSetConstantBuffers( startSlot, numBuffers, pBuffers );
 		break;
 	default:
@@ -486,9 +490,9 @@ void CDirect3D11::BindVertexLayout( RE_HANDLE layout )
 {
 	assert( IsVertexLayout( layout ) );
 	ID3D11InputLayout* inputLayout = nullptr;
-	if ( layout != RE_HANDLE::InvalidHandle( ) )
+	if ( layout.IsValid( ) )
 	{
-		RefHandle<CD3D11VertexLayout>& d3d11Layout = m_resourceManager.GetVertexLayout( layout );
+		CD3D11VertexLayout* d3d11Layout = m_resourceManager.GetVertexLayout( layout );
 		inputLayout = d3d11Layout->Get( );
 	}
 
@@ -500,9 +504,9 @@ void CDirect3D11::BindShader( RE_HANDLE shader )
 	if ( IsVertexShaderHandle( shader ) )
 	{
 		ID3D11VertexShader* vs = nullptr;
-		if ( shader != RE_HANDLE::InvalidHandle( ) )
+		if ( shader.IsValid( ) )
 		{
-			RefHandle<CD3D11VertexShader>& d3d11VS = m_resourceManager.GetVertexShader( shader );
+			CD3D11VertexShader* d3d11VS = m_resourceManager.GetVertexShader( shader );
 			vs = d3d11VS->Get( );
 		}
 
@@ -511,9 +515,9 @@ void CDirect3D11::BindShader( RE_HANDLE shader )
 	else if ( IsGeometryShaderHandle( shader ) )
 	{
 		ID3D11GeometryShader* gs = nullptr;
-		if ( shader != RE_HANDLE::InvalidHandle( ) )
+		if ( shader.IsValid( ) )
 		{
-			RefHandle<CD3D11GeometryShader>& d3d11GS = m_resourceManager.GetGeometryShader( shader );
+			CD3D11GeometryShader* d3d11GS = m_resourceManager.GetGeometryShader( shader );
 			gs = d3d11GS->Get( );
 		}
 
@@ -522,9 +526,9 @@ void CDirect3D11::BindShader( RE_HANDLE shader )
 	else if ( IsPixelShaderHandle( shader ) )
 	{
 		ID3D11PixelShader* ps = nullptr;
-		if ( shader != RE_HANDLE::InvalidHandle( ) )
+		if ( shader.IsValid( ) )
 		{
-			RefHandle<CD3D11PixelShader>& d3d11PS = m_resourceManager.GetPixelShader( shader );
+			CD3D11PixelShader* d3d11PS = m_resourceManager.GetPixelShader( shader );
 			ps = d3d11PS->Get( );
 		}
 
@@ -533,9 +537,9 @@ void CDirect3D11::BindShader( RE_HANDLE shader )
 	else if ( IsComputeShaderHandle( shader ) )
 	{
 		ID3D11ComputeShader* cs = nullptr;
-		if ( shader != RE_HANDLE::InvalidHandle( ) )
+		if ( shader.IsValid( ) )
 		{
-			RefHandle<CD3D11ComputeShader>& d3d11CS = m_resourceManager.GetComputeShader( shader );
+			CD3D11ComputeShader* d3d11CS = m_resourceManager.GetComputeShader( shader );
 			cs = d3d11CS->Get( );
 		}
 
@@ -555,9 +559,9 @@ void CDirect3D11::BindShaderResource( SHADER_TYPE type, int startSlot, int count
 	{
 		for ( int i = 0; i < count; ++i )
 		{
-			if ( resource[i] != RE_HANDLE::InvalidHandle( ) )
+			if ( resource[i].IsValid( ) )
 			{
-				RefHandle<CD3D11ShaderResource>& d3d11SRV = m_resourceManager.GetShaderResource( resource[i] );
+				CD3D11ShaderResource* d3d11SRV = m_resourceManager.GetShaderResource( resource[i] );
 				pSrvs[i] = d3d11SRV->Get( );
 			}
 		}
@@ -565,19 +569,22 @@ void CDirect3D11::BindShaderResource( SHADER_TYPE type, int startSlot, int count
 
 	switch ( type )
 	{
-	case VS:
+	case SHADER_TYPE::VS:
 		g_pd3d11DeviceContext->VSSetShaderResources( startSlot, count, pSrvs );
 		break;
-	case HS:
+	case SHADER_TYPE::HS:
+		g_pd3d11DeviceContext->HSSetShaderResources( startSlot, count, pSrvs );
 		break;
-	case DS:
+	case SHADER_TYPE::DS:
+		g_pd3d11DeviceContext->DSSetShaderResources( startSlot, count, pSrvs );
 		break;
-	case GS:
+	case SHADER_TYPE::GS:
+		g_pd3d11DeviceContext->GSSetShaderResources( startSlot, count, pSrvs );
 		break;
-	case PS:
+	case SHADER_TYPE::PS:
 		g_pd3d11DeviceContext->PSSetShaderResources( startSlot, count, pSrvs );
 		break;
-	case CS:
+	case SHADER_TYPE::CS:
 		g_pd3d11DeviceContext->CSSetShaderResources( startSlot, count, pSrvs );
 		break;
 	default:
@@ -595,9 +602,9 @@ void CDirect3D11::BindRandomAccessResource( int startSlot, int count, RE_HANDLE*
 	{
 		for ( int i = 0; i < count; ++i )
 		{
-			if ( resource[i] != RE_HANDLE::InvalidHandle( ) )
+			if ( resource[i].IsValid( ) )
 			{
-				RefHandle<CD3D11RandomAccessResource>& d3d11RAV = m_resourceManager.GetRandomAccess( resource[i] );
+				CD3D11RandomAccessResource* d3d11RAV = m_resourceManager.GetRandomAccess( resource[i] );
 				pRavs[i] = d3d11RAV->Get( );
 			}
 		}
@@ -612,18 +619,18 @@ void CDirect3D11::BindRenderTargets( const RE_HANDLE* pRenderTargets, int render
 
 	for ( int i = 0; i < renderTargetCount; ++i )
 	{
-		if ( pRenderTargets[i] == RE_HANDLE::InvalidHandle( ) )
+		if ( pRenderTargets[i].IsValid( ) )
 		{
-			pRtvs[i] = nullptr;
+			pRtvs[i] = m_resourceManager.GetRendertarget( pRenderTargets[i] )->Get( );
 		}
 		else
 		{
-			pRtvs[i] = m_resourceManager.GetRendertarget( pRenderTargets[i] )->Get( );
+			pRtvs[i] = nullptr;
 		}
 	}
 	
 	ID3D11DepthStencilView* pDsv = nullptr;
-	if ( depthStencil != RE_HANDLE::InvalidHandle( ) )
+	if ( depthStencil.IsValid( ) )
 	{
 		pDsv = m_resourceManager.GetDepthstencil( depthStencil )->Get();
 	}
@@ -635,7 +642,7 @@ void CDirect3D11::BindRasterizerState( RE_HANDLE rasterizerState )
 {
 	ID3D11RasterizerState* pState = nullptr;
 
-	if ( rasterizerState != RE_HANDLE::InvalidHandle( ) )
+	if ( rasterizerState.IsValid( ) )
 	{
 		pState = m_resourceManager.GetRasterizerState( rasterizerState )->Get();
 	}
@@ -651,7 +658,7 @@ void CDirect3D11::BindSamplerState( SHADER_TYPE type, int startSlot, int numSamp
 	{
 		for ( int i = 0; i < numSamplers; ++i )
 		{
-			if ( pSamplerStates[i] != RE_HANDLE::InvalidHandle( ) )
+			if ( pSamplerStates[i].IsValid( ) )
 			{
 				pStates[i] = m_resourceManager.GetSamplerState( pSamplerStates[i] )->Get( );
 			}
@@ -660,32 +667,32 @@ void CDirect3D11::BindSamplerState( SHADER_TYPE type, int startSlot, int numSamp
 	
 	switch ( type )
 	{
-	case VS:
+	case SHADER_TYPE::VS:
 		{
 			g_pd3d11DeviceContext->VSSetSamplers( startSlot, numSamplers, pStates );
 		}
 		break;
-	case HS:
+	case SHADER_TYPE::HS:
 		{
 			g_pd3d11DeviceContext->HSSetSamplers( startSlot, numSamplers, pStates );
 		}
 		break;
-	case DS:
+	case SHADER_TYPE::DS:
 		{
 			g_pd3d11DeviceContext->DSSetSamplers( startSlot, numSamplers, pStates );
 		}
 		break;
-	case GS:
+	case SHADER_TYPE::GS:
 		{
 			g_pd3d11DeviceContext->GSSetSamplers( startSlot, numSamplers, pStates );
 		}
 		break;
-	case PS:
+	case SHADER_TYPE::PS:
 		{
 			g_pd3d11DeviceContext->PSSetSamplers( startSlot, numSamplers, pStates );
 		}
 		break;
-	case CS:
+	case SHADER_TYPE::CS:
 		{
 			g_pd3d11DeviceContext->CSSetSamplers( startSlot, numSamplers, pStates );
 		}
@@ -698,28 +705,28 @@ void CDirect3D11::BindSamplerState( SHADER_TYPE type, int startSlot, int numSamp
 
 void CDirect3D11::BindDepthStencilState( RE_HANDLE depthStencilState )
 {
-	if ( depthStencilState == RE_HANDLE::InvalidHandle( ) )
+	if ( depthStencilState.IsValid( ) )
 	{
-		g_pd3d11DeviceContext->OMSetDepthStencilState( nullptr, 0 );
+		CD3D11DepthStencilState* state = m_resourceManager.GetDepthStencilState( depthStencilState );
+		g_pd3d11DeviceContext->OMSetDepthStencilState( state->Get( ), state->GetStencilRef( ) );
 	}
 	else
 	{
-		RefHandle<CD3D11DepthStencilState>& state = m_resourceManager.GetDepthStencilState( depthStencilState );
-		g_pd3d11DeviceContext->OMSetDepthStencilState( state->Get( ), state->GetStencilRef( ) );
+		g_pd3d11DeviceContext->OMSetDepthStencilState( nullptr, 0 );
 	}
 }
 
 void CDirect3D11::BindBlendState( RE_HANDLE blendState )
 {
-	if ( blendState == RE_HANDLE::InvalidHandle( ) )
+	if ( blendState.IsValid( ) )
 	{
-		float defaultBlendFactor[4] = { 0.f, 0.f, 0.f, 0.f };
-		g_pd3d11DeviceContext->OMSetBlendState( nullptr, defaultBlendFactor, D3D11_DEFAULT_SAMPLE_MASK );
+		CD3D11BlendState* state = m_resourceManager.GetBlendState( blendState );
+		g_pd3d11DeviceContext->OMSetBlendState( state->Get( ), state->GetBlendFactor( ), state->GetSamplerMask( ) );
 	}
 	else
 	{
-		RefHandle<CD3D11BlendState>& state = m_resourceManager.GetBlendState( blendState );
-		g_pd3d11DeviceContext->OMSetBlendState( state->Get( ), state->GetBlendFactor( ), state->GetSamplerMask( ) );
+		float defaultBlendFactor[4] = { 0.f, 0.f, 0.f, 0.f };
+		g_pd3d11DeviceContext->OMSetBlendState( nullptr, defaultBlendFactor, D3D11_DEFAULT_SAMPLE_MASK );
 	}
 }
 
@@ -775,7 +782,7 @@ BYTE CDirect3D11::Present( )
 
 void CDirect3D11::GenerateMips( RE_HANDLE shaderResource )
 {
-	RefHandle<CD3D11ShaderResource>& srv = m_resourceManager.GetShaderResource( shaderResource );
+	CD3D11ShaderResource* srv = m_resourceManager.GetShaderResource( shaderResource );
 	g_pd3d11DeviceContext->GenerateMips( srv->Get( ) );
 }
 

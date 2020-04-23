@@ -8,7 +8,7 @@
 
 namespace
 {
-	inline void RegisterWindowInputEnumString()
+	void RegisterWindowInputEnumString()
 	{
 		// mouse input
 		REGISTER_ENUM_STRING( WM_MOUSEMOVE );
