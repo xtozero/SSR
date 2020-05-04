@@ -92,23 +92,23 @@ public:
 	void OnDeviceLost( );
 	void OnDeviceRestore( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext );
 
-	CD3D11DepthStencil* GetDepthstencil( RE_HANDLE handle );
-	CD3D11RenderTarget* GetRendertarget( RE_HANDLE handle );
-	CD3D11ShaderResource* GetShaderResource( RE_HANDLE handle );
-	CD3D11RandomAccessResource* GetRandomAccess( RE_HANDLE handle );
-	CD3D11Texture1D* GetTexture1D( RE_HANDLE handle );
-	CD3D11Texture2D* GetTexture2D( RE_HANDLE handle );
-	CD3D11Texture3D* GetTexture3D( RE_HANDLE handle );
-	CD3D11Buffer* GetBuffer( RE_HANDLE handle );
+	CD3D11DepthStencil* GetDepthstencil( RE_HANDLE handle ) const;
+	CD3D11RenderTarget* GetRendertarget( RE_HANDLE handle ) const;
+	CD3D11ShaderResource* GetShaderResource( RE_HANDLE handle ) const;
+	CD3D11RandomAccessResource* GetRandomAccess( RE_HANDLE handle ) const;
+	CD3D11Texture1D* GetTexture1D( RE_HANDLE handle ) const;
+	CD3D11Texture2D* GetTexture2D( RE_HANDLE handle ) const;
+	CD3D11Texture3D* GetTexture3D( RE_HANDLE handle ) const;
+	CD3D11Buffer* GetBuffer( RE_HANDLE handle ) const;
 	CD3D11VertexLayout* GetVertexLayout( RE_HANDLE handle );
-	CD3D11VertexShader* GetVertexShader( RE_HANDLE handle );
-	CD3D11GeometryShader* GetGeometryShader( RE_HANDLE handle );
-	CD3D11PixelShader* GetPixelShader( RE_HANDLE handle );
-	CD3D11ComputeShader* GetComputeShader( RE_HANDLE handle );
-	CD3D11SamplerState* GetSamplerState( RE_HANDLE handle );
-	CD3D11RasterizerState* GetRasterizerState( RE_HANDLE handle );
-	CD3D11BlendState* GetBlendState( RE_HANDLE handle );
-	CD3D11DepthStencilState* GetDepthStencilState( RE_HANDLE handle );
+	CD3D11VertexShader* GetVertexShader( RE_HANDLE handle ) const;
+	CD3D11GeometryShader* GetGeometryShader( RE_HANDLE handle ) const;
+	CD3D11PixelShader* GetPixelShader( RE_HANDLE handle ) const;
+	CD3D11ComputeShader* GetComputeShader( RE_HANDLE handle ) const;
+	CD3D11SamplerState* GetSamplerState( RE_HANDLE handle ) const;
+	CD3D11RasterizerState* GetRasterizerState( RE_HANDLE handle ) const;
+	CD3D11BlendState* GetBlendState( RE_HANDLE handle ) const;
+	CD3D11DepthStencilState* GetDepthStencilState( RE_HANDLE handle ) const;
 
 	ID3D11Resource* GetD3D11ResourceGeneric( RE_HANDLE handle );
 

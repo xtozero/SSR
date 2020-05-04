@@ -53,7 +53,9 @@ set (COMMON_SOURCE
 	"Public/Common/GraphicsApiResource.h"
 	"Public/Common/IAga.h"
 	"Public/Common/IRenderResourceManager.h"
-	"Public/Common/RefHandle.h")
+	"Public/Common/RefHandle.h"
+	"Public/Common/ShaderPrameterInfo.h"
+	"Public/Common/ShaderPrameterMap.h")
 
 source_group("Direct11" FILES ${D3D11_SOURCE})	
 source_group("Direct11\\RenderResource" FILES ${D3D11_RENDER_RESOURCE_SOURCE})
@@ -86,6 +88,7 @@ add_library(Aga SHARED 	${PRECOMPILED}
 
 set (DIRECT3D_LIBRARY
 	"d3d11.lib"
+	"d3dcompiler.lib"
 	"d3dx11.lib"
 	"d3dx9.lib"
 	"d3dx10.lib"
@@ -96,3 +99,8 @@ target_link_libraries(Aga PRIVATE ${DIRECT3D_LIBRARY})
 
 add_custom_command(TARGET Aga POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/Aga.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/Aga.dll")
+
+if (WIN32)
+	add_custom_command(TARGET Aga POST_BUILD
+	COMMAND cmd /c call ${CMAKE_SOURCE_DIR}/Source/Shaders/make_shader.bat ${CMAKE_SOURCE_DIR}/Program/Shaders)
+endif()

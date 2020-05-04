@@ -7,6 +7,7 @@
 #include <memory>
 
 class IResourceManager;
+class ShaderParameterInfo;
 struct BUFFER_TRAIT;
 struct CXMFLOAT4X4;
 struct IDXGISwapChain;
@@ -31,6 +32,7 @@ public:
 	virtual RE_HANDLE CreateGeometryShader( const void* byteCodePtr, std::size_t byteCodeSize ) = 0;
 	virtual RE_HANDLE CreatePixelShader( const void* byteCodePtr, std::size_t byteCodeSize ) = 0;
 	virtual RE_HANDLE CreateComputeShader( const void* byteCodePtr, std::size_t byteCodeSize ) = 0;
+	virtual const ShaderParameterInfo& GetShaderParameterInfo( RE_HANDLE shader ) const = 0;
 
 	virtual RE_HANDLE CreateRenderTarget( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) = 0;
 	virtual RE_HANDLE CreateDepthStencil( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) = 0;
@@ -71,10 +73,10 @@ public:
 	virtual void BindDepthStencilState( RE_HANDLE depthStencilState ) = 0;
 	virtual void BindBlendState( RE_HANDLE blendState ) = 0;
 
-	virtual void Draw( UINT primitive, UINT vertexCount, UINT vertexOffset = 0 ) = 0;
-	virtual void DrawIndexed( UINT primitive, UINT indexCount, UINT indexOffset = 0, UINT vertexOffset = 0 ) = 0;
-	virtual void DrawInstanced( UINT primitive, UINT vertexCount, UINT instanceCount, UINT vertexOffset = 0, UINT instanceOffset = 0 ) = 0;
-	virtual void DrawInstancedInstanced( UINT primitive, UINT indexCount, UINT instanceCount, UINT indexOffset = 0, UINT vertexOffset = 0, UINT instanceOffset = 0 ) = 0;
+	virtual void Draw( RESOURCE_PRIMITIVE primitive, UINT vertexCount, UINT vertexOffset = 0 ) = 0;
+	virtual void DrawIndexed( RESOURCE_PRIMITIVE primitive, UINT indexCount, UINT indexOffset = 0, UINT vertexOffset = 0 ) = 0;
+	virtual void DrawInstanced( RESOURCE_PRIMITIVE primitive, UINT vertexCount, UINT instanceCount, UINT vertexOffset = 0, UINT instanceOffset = 0 ) = 0;
+	virtual void DrawInstancedInstanced( RESOURCE_PRIMITIVE primitive, UINT indexCount, UINT instanceCount, UINT indexOffset = 0, UINT vertexOffset = 0, UINT instanceOffset = 0 ) = 0;
 	virtual void DrawAuto( ) = 0;
 	virtual void Dispatch( int x, int y, int z = 1 ) = 0;
 

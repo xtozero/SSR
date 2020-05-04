@@ -4,6 +4,7 @@ project ("ScreenSpaceReflection")
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /std:c++17")
 
+add_subdirectory (Source/Aga)
 add_subdirectory (Source/Engine)
 add_subdirectory (Source/RenderCore)
 add_subdirectory (Source/Logic)

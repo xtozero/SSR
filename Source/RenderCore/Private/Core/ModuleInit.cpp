@@ -1,11 +1,11 @@
 #include "stdafx.h"
 
 #include "Core/InterfaceFactories.h"
-#include "Render/IRenderer.h"
+#include "Renderer/IRenderCore.h"
 
 namespace
 {
-	IRenderer* g_renderer = nullptr;
+	Owner<IRenderCore*> g_renderer = nullptr;
 
 	void* GetRenderer( )
 	{
@@ -15,14 +15,14 @@ namespace
 
 RENDERCORE_FUNC_DLL void BootUpModules( )
 {
-	RegisterFactory<IRenderer>( &GetRenderer );
+	RegisterFactory<IRenderCore>( &GetRenderer );
 
-	g_renderer = CreateRenderer( );
+	g_renderer = CreateRenderCore( );
 }
 
 RENDERCORE_FUNC_DLL void ShutdownModules( )
 {
-	DestoryRenderer( g_renderer );
+	DestoryRenderCore( g_renderer );
 
-	UnregisterFactory<IRenderer>( );
+	UnregisterFactory<IRenderCore>( );
 }

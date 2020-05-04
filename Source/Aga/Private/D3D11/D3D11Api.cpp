@@ -20,6 +20,9 @@
 #include "D3D11VetexLayout.h"
 
 #include "DataStructure/EnumStringMap.h"
+
+#include "ShaderPrameterMap.h"
+
 #include "Util.h"
 
 #include <array>
@@ -57,6 +60,7 @@ public:
 	virtual RE_HANDLE CreateGeometryShader( const void* byteCodePtr, std::size_t byteCodeSize ) override;
 	virtual RE_HANDLE CreatePixelShader( const void* byteCodePtr, std::size_t byteCodeSize ) override;
 	virtual RE_HANDLE CreateComputeShader( const void* byteCodePtr, std::size_t byteCodeSize ) override;
+	virtual const ShaderParameterInfo& GetShaderParameterInfo( RE_HANDLE shader ) const override;
 
 	virtual RE_HANDLE CreateRenderTarget( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) override;
 	virtual RE_HANDLE CreateDepthStencil( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) override;
@@ -97,10 +101,10 @@ public:
 	virtual void BindDepthStencilState( RE_HANDLE depthStencilState ) override;
 	virtual void BindBlendState( RE_HANDLE blendState ) override;
 
-	virtual void Draw( UINT primitive, UINT vertexCount, UINT vertexOffset = 0 ) override;
-	virtual void DrawIndexed( UINT primitive, UINT indexCount, UINT indexOffset = 0, UINT vertexOffset = 0 ) override;
-	virtual void DrawInstanced( UINT primitive, UINT vertexCount, UINT instanceCount, UINT vertexOffset = 0, UINT instanceOffset = 0 ) override;
-	virtual void DrawInstancedInstanced( UINT primitive, UINT indexCount, UINT instanceCount, UINT indexOffset = 0, UINT vertexOffset = 0, UINT instanceOffset = 0 ) override;
+	virtual void Draw( RESOURCE_PRIMITIVE primitive, UINT vertexCount, UINT vertexOffset = 0 ) override;
+	virtual void DrawIndexed( RESOURCE_PRIMITIVE primitive, UINT indexCount, UINT indexOffset = 0, UINT vertexOffset = 0 ) override;
+	virtual void DrawInstanced( RESOURCE_PRIMITIVE primitive, UINT vertexCount, UINT instanceCount, UINT vertexOffset = 0, UINT instanceOffset = 0 ) override;
+	virtual void DrawInstancedInstanced( RESOURCE_PRIMITIVE primitive, UINT indexCount, UINT instanceCount, UINT indexOffset = 0, UINT vertexOffset = 0, UINT instanceOffset = 0 ) override;
 	virtual void DrawAuto( ) override;
 	virtual void Dispatch( int x, int y, int z = 1 ) override;
 
@@ -261,6 +265,32 @@ RE_HANDLE CDirect3D11::CreatePixelShader( const void* byteCodePtr, std::size_t b
 RE_HANDLE CDirect3D11::CreateComputeShader( const void* byteCodePtr, std::size_t byteCodeSize )
 {
 	return m_resourceManager.CreateComputeShader( byteCodePtr, byteCodeSize );
+}
+
+const ShaderParameterInfo& CDirect3D11::GetShaderParameterInfo( RE_HANDLE shader ) const
+{
+	assert( shader.IsValid( ) );
+	if ( IsVertexShaderHandle( shader ) )
+	{
+		CD3D11VertexShader* d3d11VS = m_resourceManager.GetVertexShader( shader );
+		return d3d11VS->GetParameterInfo( );
+	}
+	else if ( IsGeometryShaderHandle( shader ) )
+	{
+		CD3D11GeometryShader* d3d11GS = m_resourceManager.GetGeometryShader( shader );
+		return d3d11GS->GetParameterInfo( );
+	}
+	else if ( IsPixelShaderHandle( shader ) )
+	{
+		CD3D11PixelShader* d3d11PS = m_resourceManager.GetPixelShader( shader );
+		return d3d11PS->GetParameterInfo( );
+	}
+	else
+	{
+		assert( IsComputeShaderHandle( shader ) );
+		CD3D11ComputeShader* d3d11CS = m_resourceManager.GetComputeShader( shader );
+		return d3d11CS->GetParameterInfo( );
+	}
 }
 
 RE_HANDLE CDirect3D11::CreateRenderTarget( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait )
@@ -730,28 +760,28 @@ void CDirect3D11::BindBlendState( RE_HANDLE blendState )
 	}
 }
 
-void CDirect3D11::Draw( UINT primitive, UINT vertexCount, UINT vertexOffset )
+void CDirect3D11::Draw( RESOURCE_PRIMITIVE primitive, UINT vertexCount, UINT vertexOffset )
 {
 	D3D_PRIMITIVE_TOPOLOGY d3d11Primitive = ConvertPrimToD3D11Prim( primitive );
 	g_pd3d11DeviceContext->IASetPrimitiveTopology( d3d11Primitive );
 	g_pd3d11DeviceContext->Draw( vertexCount, vertexOffset );
 }
 
-void CDirect3D11::DrawIndexed( UINT primitive, UINT indexCount, UINT indexOffset, UINT vertexOffset )
+void CDirect3D11::DrawIndexed( RESOURCE_PRIMITIVE primitive, UINT indexCount, UINT indexOffset, UINT vertexOffset )
 {
 	D3D_PRIMITIVE_TOPOLOGY d3d11Primitive = ConvertPrimToD3D11Prim( primitive );
 	g_pd3d11DeviceContext->IASetPrimitiveTopology( d3d11Primitive );
 	g_pd3d11DeviceContext->DrawIndexed( indexCount, indexOffset, vertexOffset );
 }
 
-void CDirect3D11::DrawInstanced( UINT primitive, UINT vertexCount, UINT instanceCount, UINT vertexOffset, UINT instanceOffset )
+void CDirect3D11::DrawInstanced( RESOURCE_PRIMITIVE primitive, UINT vertexCount, UINT instanceCount, UINT vertexOffset, UINT instanceOffset )
 {
 	D3D_PRIMITIVE_TOPOLOGY d3d11Primitive = ConvertPrimToD3D11Prim( primitive );
 	g_pd3d11DeviceContext->IASetPrimitiveTopology( d3d11Primitive );
 	g_pd3d11DeviceContext->DrawInstanced( vertexCount, instanceCount, vertexOffset, instanceOffset );
 }
 
-void CDirect3D11::DrawInstancedInstanced( UINT primitive, UINT indexCount, UINT instanceCount, UINT indexOffset, UINT vertexOffset, UINT instanceOffset )
+void CDirect3D11::DrawInstancedInstanced( RESOURCE_PRIMITIVE primitive, UINT indexCount, UINT instanceCount, UINT indexOffset, UINT vertexOffset, UINT instanceOffset )
 {
 	D3D_PRIMITIVE_TOPOLOGY d3d11Primitive = ConvertPrimToD3D11Prim( primitive );
 	g_pd3d11DeviceContext->IASetPrimitiveTopology( d3d11Primitive );

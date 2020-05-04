@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/Resource.h"
+#include "GraphicsApiResource.h"
 
 #include <array>
 

@@ -12,56 +12,35 @@ set (CORE_SOURCE
 	"Private/Core/dllmain.cpp"
 	"Private/Core/ModuleInit.cpp"
 	"Private/Core/RenderCore.cpp")
-
-set (D3D11_RENDER_STATE_SOURCE
-	"Private/D3D11/D3D11RenderStateFactory.cpp"
-	"Private/D3D11/D3D11RenderStateManager.cpp"
-	"Public/D3D11/D3D11RenderState.h"
-	"Public/D3D11/D3D11RenderStateFactory.h"
-	"Public/D3D11/D3D11RenderStateManager.h")
 	
-set (D3D11_RENDER_RESOURCE_SOURCE
-	"Private/D3D11/D3D11Resource.cpp"
-	"Private/D3D11/D3D11ResourceManager.cpp"
-	"Public/D3D11/D3D11Resource.h"
-	"Public/D3D11/D3D11ResourceManager.h")
-
-set (D3D11_SOURCE
-	"Private/D3D11/Direct3D11.cpp")
+set (RENDERER_SOURCE
+	"Private/Renderer/ForwardRenderer.cpp"
+	"Public/Renderer/IRenderCore.h")
 	
-set (MATERIAL_SOURCE
-	"Private/Render/Material.cpp"
-	"Private/Render/MaterialManager.cpp"
-	"Public/Render/Material.h"
-	"Public/Render/MaterialManager.h")
-	
-set (RENDER_COMMON_SOURCE
-	"Public/Render/IRenderer.h"
-	"Public/Render/IRenderResource.h"
-	"Public/Render/IRenderResourceManager.h"
-	"Public/Render/Resource.h")
+set (RENDER_SCENE_SOURCE
+	"Private/Renderer/Scene.cpp"
+	"Public/Renderer/IScene.h")
 
 set (RENDER_UTIL
-	"Private/Render/RenderOutputManager.cpp"
-	"Public/Render/RenderOutputManager.h")
+	"Private/Renderer/RenderOutputManager.cpp"
+	"Public/Renderer/RenderOutputManager.h")
 	
-source_group("Direct11\\RenderResource" FILES ${D3D11_RENDER_RESOURCE_SOURCE})
-source_group("Direct11\\RenderState" FILES ${D3D11_RENDER_STATE_SOURCE})
-source_group("Direct11" FILES ${D3D11_SOURCE})
-source_group("Material" FILES ${MATERIAL_SOURCE})
-source_group("RenderCommon" FILES ${RENDER_COMMON_SOURCE})
+set (GRAPHICS_RESOURCE_SOURCE
+#	"Private/GraphicsResource/"
+	"Public/GraphicsResource/DrawSnapshot.h"
+	"Public/GraphicsResource/ShaderBindings.h"
+	"Public/GraphicsResource/VertexInputStream.h")
+	
+source_group("Renderer" FILES ${RENDERER_SOURCE})
 source_group("RenderUtil" FILES ${RENDER_UTIL})
 
 include_directories(./Public)
+include_directories(./Public/Core)
+include_directories(./Public/Material)
+include_directories(./Public/Renderer)
+include_directories(../Aga/Public/Common)
 include_directories(../Shared/Public)
 include_directories(../Engine/Public)
-include_directories($ENV{DXSDK_DIR}include)
-
-if (CMAKE_SIZEOF_VOID_P EQUAL 4)
-link_directories($ENV{DXSDK_DIR}lib/x86)
-else()
-link_directories($ENV{DXSDK_DIR}lib/x64)
-endif()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -69,27 +48,10 @@ link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 add_library(RenderCore SHARED 	${PRECOMPILED}
 								${CORE_SOURCE}
-								${D3D11_RENDER_RESOURCE_SOURCE}
-								${D3D11_RENDER_STATE_SOURCE}
-								${D3D11_SOURCE}
-								${MATERIAL_SOURCE}
-								${RENDER_COMMON_SOURCE}
-								${RENDER_UTIL})
-
-set (DIRECT3D_LIBRARY
-	"d3d11.lib"
-	"d3dx11.lib"
-	"d3dx9.lib"
-	"d3dx10.lib"
-	"dxguid.lib"
-	"dxgi.lib")
-								
-target_link_libraries(RenderCore PRIVATE ${DIRECT3D_LIBRARY})
+								${RENDERER_SOURCE}
+								${RENDER_SCENE_SOURCE}
+								${RENDER_UTIL}
+								${GRAPHICS_RESOURCE_SOURCE})
 
 add_custom_command(TARGET RenderCore POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/RenderCore.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/RenderCore.dll")
-
-if (WIN32)
-	add_custom_command(TARGET RenderCore POST_BUILD
-	COMMAND cmd /c call ${CMAKE_SOURCE_DIR}/Source/Shaders/make_shader.bat ${CMAKE_SOURCE_DIR}/Program/Shaders)
-endif()

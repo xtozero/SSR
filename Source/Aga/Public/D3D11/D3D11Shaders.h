@@ -1,6 +1,11 @@
 #pragma once
 
 #include "D3D11ResourceInterface.h"
+#include "ShaderPrameterInfo.h"
+
+void ExtractShaderParameters( const void* byteCodePtr, std::size_t byteCodeSize, ShaderParameterMap& parameterMap );
+
+void BuildShaderParameterInfo( const std::map<std::string, ShaderParameter>& parameterMap, ShaderParameterInfo& parameterInfo );
 
 template <typename ResourceType>
 class CD3D11ShaderBase : public DeviceDependantBase<ResourceType>
@@ -9,10 +14,19 @@ public:
 	const void* ByteCode( ) const { return m_byteCodePtr; }
 	std::size_t ByteCodeSize( ) const { return m_byteCodeSize; }
 
+	const ShaderParameterInfo& GetParameterInfo( ) const 
+	{
+		return m_parameterInfo;
+	}
+
 	CD3D11ShaderBase( const void* byteCodePtr, std::size_t byteCodeSize ) : m_byteCodeSize( byteCodeSize )
 	{
 		m_byteCodePtr = new unsigned char[m_byteCodeSize];
 		std::memcpy( m_byteCodePtr, byteCodePtr, m_byteCodeSize );
+
+		ShaderParameterMap parameterMap;
+		ExtractShaderParameters( byteCodePtr, byteCodeSize, parameterMap );
+		BuildShaderParameterInfo( parameterMap.GetParameterMap(), m_parameterInfo );
 	}
 
 	virtual ~CD3D11ShaderBase( )
@@ -28,6 +42,7 @@ public:
 protected:
 	void* m_byteCodePtr = nullptr;
 	std::size_t m_byteCodeSize = 0;
+	ShaderParameterInfo m_parameterInfo;
 };
 
 class CD3D11VertexShader : public CD3D11ShaderBase<ID3D11VertexShader>

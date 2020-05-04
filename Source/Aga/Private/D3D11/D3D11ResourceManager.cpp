@@ -632,49 +632,49 @@ void CD3D11ResourceManager::OnDeviceRestore( ID3D11Device* pDevice, ID3D11Device
 	m_pDeviceContext = pDeviceContext;
 }
 
-CD3D11DepthStencil* CD3D11ResourceManager::GetDepthstencil( RE_HANDLE handle )
+CD3D11DepthStencil* CD3D11ResourceManager::GetDepthstencil( RE_HANDLE handle ) const
 {
 	assert( IsDepthStencilHandle( handle ) );
 	return reinterpret_cast<CD3D11DepthStencil*>( handle.m_resource.Get( ) );
 }
 
-CD3D11RenderTarget* CD3D11ResourceManager::GetRendertarget( RE_HANDLE handle )
+CD3D11RenderTarget* CD3D11ResourceManager::GetRendertarget( RE_HANDLE handle ) const
 {
 	assert( IsRenderTargetHandle( handle ) );
 	return reinterpret_cast<CD3D11RenderTarget*>( handle.m_resource.Get( ) );
 }
 
-CD3D11ShaderResource* CD3D11ResourceManager::GetShaderResource( RE_HANDLE handle )
+CD3D11ShaderResource* CD3D11ResourceManager::GetShaderResource( RE_HANDLE handle ) const
 {
 	assert( IsShaderResourceHandle( handle ) );
 	return reinterpret_cast<CD3D11ShaderResource*>( handle.m_resource.Get( ) );
 }
 
-CD3D11RandomAccessResource* CD3D11ResourceManager::GetRandomAccess( RE_HANDLE handle )
+CD3D11RandomAccessResource* CD3D11ResourceManager::GetRandomAccess( RE_HANDLE handle ) const
 {
 	assert( IsRandomAccessHandle( handle ) );
 	return reinterpret_cast<CD3D11RandomAccessResource*>( handle.m_resource.Get( ) );
 }
 
-CD3D11Texture1D* CD3D11ResourceManager::GetTexture1D( RE_HANDLE handle )
+CD3D11Texture1D* CD3D11ResourceManager::GetTexture1D( RE_HANDLE handle ) const
 {
 	assert( IsTexture1DHandle( handle ) );
 	return reinterpret_cast<CD3D11Texture1D*>( handle.m_resource.Get( ) );
 }
 
-CD3D11Texture2D* CD3D11ResourceManager::GetTexture2D( RE_HANDLE handle )
+CD3D11Texture2D* CD3D11ResourceManager::GetTexture2D( RE_HANDLE handle ) const
 {
 	assert( IsTexture2DHandle( handle ) );
 	return reinterpret_cast<CD3D11Texture2D*>( handle.m_resource.Get( ) );
 }
 
-CD3D11Texture3D* CD3D11ResourceManager::GetTexture3D( RE_HANDLE handle )
+CD3D11Texture3D* CD3D11ResourceManager::GetTexture3D( RE_HANDLE handle ) const
 {
 	assert( IsTexture3DHandle( handle ) );
 	return reinterpret_cast<CD3D11Texture3D*>( handle.m_resource.Get( ) );
 }
 
-CD3D11Buffer* CD3D11ResourceManager::GetBuffer( RE_HANDLE handle )
+CD3D11Buffer* CD3D11ResourceManager::GetBuffer( RE_HANDLE handle ) const
 {
 	assert( IsBufferHandle( handle ) );
 	return reinterpret_cast<CD3D11Buffer*>( handle.m_resource.Get( ) );
@@ -686,49 +686,49 @@ CD3D11VertexLayout* CD3D11ResourceManager::GetVertexLayout( RE_HANDLE handle )
 	return reinterpret_cast<CD3D11VertexLayout*>( handle.m_resource.Get( ) );
 }
 
-CD3D11VertexShader* CD3D11ResourceManager::GetVertexShader( RE_HANDLE handle )
+CD3D11VertexShader* CD3D11ResourceManager::GetVertexShader( RE_HANDLE handle ) const
 {
 	assert( IsVertexShaderHandle( handle ) );
 	return reinterpret_cast<CD3D11VertexShader*>( handle.m_resource.Get( ) );
 }
 
-CD3D11GeometryShader* CD3D11ResourceManager::GetGeometryShader( RE_HANDLE handle )
+CD3D11GeometryShader* CD3D11ResourceManager::GetGeometryShader( RE_HANDLE handle ) const
 {
 	assert( IsGeometryShaderHandle( handle ) );
 	return reinterpret_cast<CD3D11GeometryShader*>( handle.m_resource.Get( ) );
 }
 
-CD3D11PixelShader* CD3D11ResourceManager::GetPixelShader( RE_HANDLE handle )
+CD3D11PixelShader* CD3D11ResourceManager::GetPixelShader( RE_HANDLE handle ) const
 {
 	assert( IsPixelShaderHandle( handle ) );
 	return reinterpret_cast<CD3D11PixelShader*>( handle.m_resource.Get( ) );
 }
 
-CD3D11ComputeShader* CD3D11ResourceManager::GetComputeShader( RE_HANDLE handle )
+CD3D11ComputeShader* CD3D11ResourceManager::GetComputeShader( RE_HANDLE handle ) const
 {
 	assert( IsComputeShaderHandle( handle ) );
 	return reinterpret_cast<CD3D11ComputeShader*>( handle.m_resource.Get( ) );
 }
 
-CD3D11SamplerState* CD3D11ResourceManager::GetSamplerState( RE_HANDLE handle )
+CD3D11SamplerState* CD3D11ResourceManager::GetSamplerState( RE_HANDLE handle ) const
 {
 	assert( IsSamplerStateHandle( handle ) );
 	return reinterpret_cast<CD3D11SamplerState*>( handle.m_resource.Get( ) );
 }
 
-CD3D11RasterizerState* CD3D11ResourceManager::GetRasterizerState( RE_HANDLE handle )
+CD3D11RasterizerState* CD3D11ResourceManager::GetRasterizerState( RE_HANDLE handle ) const
 {
 	assert( IsRasterizerStateHandle( handle ) );
 	return reinterpret_cast<CD3D11RasterizerState*>( handle.m_resource.Get( ) );
 }
 
-CD3D11BlendState* CD3D11ResourceManager::GetBlendState( RE_HANDLE handle )
+CD3D11BlendState* CD3D11ResourceManager::GetBlendState( RE_HANDLE handle ) const
 {
 	assert( IsBlendStateHandle( handle ) );
 	return reinterpret_cast<CD3D11BlendState*>( handle.m_resource.Get( ) );
 }
 
-CD3D11DepthStencilState* CD3D11ResourceManager::GetDepthStencilState( RE_HANDLE handle )
+CD3D11DepthStencilState* CD3D11ResourceManager::GetDepthStencilState( RE_HANDLE handle ) const
 {
 	assert( IsDepthStencilStateHandle( handle ) );
 	return reinterpret_cast<CD3D11DepthStencilState*>( handle.m_resource.Get( ) );
