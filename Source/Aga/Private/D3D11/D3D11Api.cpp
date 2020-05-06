@@ -79,6 +79,8 @@ public:
 	virtual RE_HANDLE CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) override;
 	virtual RE_HANDLE CreateBlendState( const BLEND_STATE_TRAIT& trait ) override;
 
+	virtual RE_HANDLE GetBackBuffer( UINT buffer ) const override;
+
 	virtual void* LockBuffer( RE_HANDLE buffer, int lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, UINT subResource = 0 ) override;
 	virtual void UnLockBuffer( RE_HANDLE buffer, UINT subResource = 0 ) override;
 
@@ -131,6 +133,8 @@ private:
 	CD3D11ResourceManager									m_resourceManager;
 
 	DXGI_SAMPLE_DESC										m_multiSampleOption = { 1, 0 };
+
+	RE_HANDLE												m_backBuffer;
 };
 
 bool CDirect3D11::BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
@@ -420,6 +424,18 @@ RE_HANDLE CDirect3D11::CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT&
 RE_HANDLE CDirect3D11::CreateBlendState( const BLEND_STATE_TRAIT& trait )
 {
 	return m_resourceManager.CreateBlendState( trait );
+}
+
+RE_HANDLE CDirect3D11::GetBackBuffer( UINT buffer ) const
+{
+	if ( buffer == 0 )
+	{
+		return m_backBuffer;
+	}
+	else
+	{
+		return RE_HANDLE( );
+	}
 }
 
 void CDirect3D11::ClearRendertarget( RE_HANDLE renderTarget, const float (&clearColor)[4] )
@@ -912,6 +928,15 @@ bool CDirect3D11::CreateDeviceDependentResource( HWND hWnd, UINT nWndWidth, UINT
 			}
 
 			m_resourceManager.OnDeviceRestore( g_pd3d11Device.Get( ), g_pd3d11DeviceContext.Get( ) );
+
+			Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
+			hr = m_pdxgiSwapChain->GetBuffer( 0, IID_PPV_ARGS( &backBuffer ) );
+			if ( FAILED( hr ) )
+			{
+				return false;
+			}
+
+			m_backBuffer = m_resourceManager.AddTexture2D( backBuffer, true );
 
 			return true;
 		}

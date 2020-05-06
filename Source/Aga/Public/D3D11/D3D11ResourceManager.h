@@ -92,6 +92,8 @@ public:
 	void OnDeviceLost( );
 	void OnDeviceRestore( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext );
 
+	RE_HANDLE AddTexture2D( const Microsoft::WRL::ComPtr<ID3D11Texture2D>& texture2D, bool appSizeDepentant = false );
+
 	CD3D11DepthStencil* GetDepthstencil( RE_HANDLE handle ) const;
 	CD3D11RenderTarget* GetRendertarget( RE_HANDLE handle ) const;
 	CD3D11ShaderResource* GetShaderResource( RE_HANDLE handle ) const;

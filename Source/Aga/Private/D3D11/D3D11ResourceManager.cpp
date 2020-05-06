@@ -632,6 +632,28 @@ void CD3D11ResourceManager::OnDeviceRestore( ID3D11Device* pDevice, ID3D11Device
 	m_pDeviceContext = pDeviceContext;
 }
 
+RE_HANDLE CD3D11ResourceManager::AddTexture2D( const Microsoft::WRL::ComPtr<ID3D11Texture2D>& texture2D, bool appSizeDepentant )
+{
+	if ( texture2D.Get( ) )
+	{
+		auto resource = new CD3D11Texture2D( texture2D, appSizeDepentant );
+
+		auto found = std::find( m_texture2Ds.begin( ), m_texture2Ds.end( ), nullptr );
+		if ( found != m_texture2Ds.end( ) )
+		{
+			*found = resource;
+		}
+		else
+		{
+			m_texture2Ds.emplace_back( resource );
+		}
+
+		return RE_HANDLE( GraphicsResourceType::TEXTURE2D, resource );
+	}
+
+	return RE_HANDLE( );
+}
+
 CD3D11DepthStencil* CD3D11ResourceManager::GetDepthstencil( RE_HANDLE handle ) const
 {
 	assert( IsDepthStencilHandle( handle ) );

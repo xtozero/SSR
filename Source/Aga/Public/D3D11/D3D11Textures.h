@@ -33,6 +33,7 @@ public:
 	const D3D11_TEXTURE2D_DESC& GetDesc( ) const { return m_desc; }
 
 	CD3D11Texture2D( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr );
+	CD3D11Texture2D( const Microsoft::WRL::ComPtr<ID3D11Texture2D>& texture2D, bool appSizeDepentant );
 	~CD3D11Texture2D( )
 	{
 		delete m_dataStorage;

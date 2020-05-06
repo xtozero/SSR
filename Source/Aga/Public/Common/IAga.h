@@ -51,6 +51,8 @@ public:
 	virtual RE_HANDLE CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) = 0;
 	virtual RE_HANDLE CreateBlendState( const BLEND_STATE_TRAIT& trait ) = 0;
 
+	virtual RE_HANDLE GetBackBuffer( UINT buffer ) const = 0;
+
 	virtual void* LockBuffer( RE_HANDLE buffer, int lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, UINT subResource = 0 ) = 0;
 	virtual void UnLockBuffer( RE_HANDLE buffer, UINT subResource = 0 ) = 0;
 

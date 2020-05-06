@@ -35,9 +35,8 @@ class GraphicsAssetBase : public BaseType
 public:
 	virtual NativeType* Get( ) override
 	{
-		if ( m_needInitialize )
+		if ( m_pResource.Get( ) == nullptr )
 		{
-			m_needInitialize = false;
 			InitResource( );
 		}
 
@@ -46,16 +45,12 @@ public:
 
 	virtual void Free( ) override
 	{
-		m_needInitialize = true;
 		m_pResource.Reset( );
 	};
 
 protected:
 	GraphicsAssetBase( ) = default;
 	Microsoft::WRL::ComPtr<NativeType> m_pResource;
-
-private:
-	bool m_needInitialize = false;
 };
 
 template <typename NativeType>

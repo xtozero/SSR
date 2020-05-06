@@ -113,6 +113,16 @@ CD3D11Texture2D::CD3D11Texture2D( const TEXTURE_TRAIT& trait, const RESOURCE_INI
 	m_desc = ConvertTraitTo2DDesc( trait );
 }
 
+CD3D11Texture2D::CD3D11Texture2D( const Microsoft::WRL::ComPtr<ID3D11Texture2D>& texture2D, bool appSizeDepentant )
+{
+	assert( texture2D.Get( ) != nullptr );
+	SetAppSizeDependency( appSizeDepentant );
+
+	texture2D->GetDesc( &m_desc );
+
+	m_pResource = texture2D;
+}
+
 void CD3D11Texture3D::InitResource( )
 {
 	bool result = SUCCEEDED( D3D11Device( ).CreateTexture3D( &m_desc, ( m_initData.pSysMem == nullptr ) ? nullptr : &m_initData, m_pResource.GetAddressOf( ) ) );
