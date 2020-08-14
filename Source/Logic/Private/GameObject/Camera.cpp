@@ -4,7 +4,7 @@
 #include "common.h"
 #include "Core/Timer.h"
 #include "DataStructure/KeyValueReader.h"
-#include "Render/IRenderer.h"
+//#include "Render/IRenderer.h"
 #include "Scene/RenderView.h"
 #include "UserInput/UserInput.h"
 #include "Util.h"

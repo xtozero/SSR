@@ -3,7 +3,7 @@
 #include "common.h"
 #include "Math/CXMFloat.h"
 #include "Math/Util.h"
-#include "Render/Resource.h"
+//#include "Render/Resource.h"
 #include "UserInput/UserInput.h"
 
 #include <cassert>
@@ -152,7 +152,7 @@ struct ImDrawCmd
 {
 	UINT m_indicesCount;
 	Rect m_clipRect;
-	RE_HANDLE m_textAtlas = RE_HANDLE::InValidHandle( );
+	//RE_HANDLE m_textAtlas = RE_HANDLE::InValidHandle( );
 };
 
 struct ImUiDrawContext
@@ -174,7 +174,7 @@ struct ImDrawList
 	void Clear( );
 	void AddDrawCmd( );
 	void PushClipRect( const Rect& clipRect );
-	void PushTextAtlas( RE_HANDLE texHandle );
+	//void PushTextAtlas( RE_HANDLE texHandle );
 	void UpdateClipRect( );
 	void UpdateTextAtlas( );
 
@@ -195,7 +195,7 @@ struct ImDrawList
 	std::vector<CXMFLOAT2> m_path;
 	std::vector<ImDrawCmd> m_cmdBuffer;
 	std::stack<Rect> m_clipRect;
-	std::stack<RE_HANDLE> m_textAtlas;
+	//std::stack<RE_HANDLE> m_textAtlas;
 
 	UINT m_curIndex = 0;
 	std::vector<DWORD> m_indices;
@@ -291,7 +291,7 @@ public:
 	CXMFLOAT2 CalcTextSize( const char* text, UINT count ) const;
 	FontUV* FindGlyph( char ch );
 
-	RE_HANDLE m_texture = RE_HANDLE::InValidHandle( );
+	//RE_HANDLE m_texture = RE_HANDLE::InValidHandle( );
 
 	std::map<char, FontUV> m_fontInfo;
 	float m_fontHeight = 0.f;

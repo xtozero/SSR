@@ -6,7 +6,7 @@
 #include "GameObject/GameObjectFactory.h"
 #include "Model/IModelBuilder.h"
 #include "Model/MeshBuildHelper.h"
-#include "Render/IRenderer.h"
+//#include "Render/IRenderer.h"
 
 DECLARE_GAME_OBJECT( ball_projectile, CBallProjectile );
 
@@ -30,28 +30,28 @@ CBallProjectile::CBallProjectile( )
 
 bool CBallProjectile::LoadModelMesh( CGameLogic& gameLogic )
 {
-	if ( GetModel( ) != nullptr )
-	{
-		return false;
-	}
+	//if ( GetModel( ) != nullptr )
+	//{
+	//	return false;
+	//}
 
-	MeshData sphere = MeshBuildHelper::CreateSphere( 0.5f, 15, 15 );
+	//MeshData sphere = MeshBuildHelper::CreateSphere( 0.5f, 15, 15 );
 
-	IModelBuilder& meshBuilder = gameLogic.GetModelManager( ).GetModelBuilder( );
-	meshBuilder.Clear( );
+	//IModelBuilder& meshBuilder = gameLogic.GetModelManager( ).GetModelBuilder( );
+	//meshBuilder.Clear( );
 
-	for ( const auto& vertex : sphere.m_vertices )
-	{
-		meshBuilder.Append( MeshVertex( vertex.m_position, vertex.m_normal, CXMFLOAT3( 1.f, 0.f, 0.f ) ) );
-	}
+	//for ( const auto& vertex : sphere.m_vertices )
+	//{
+	//	meshBuilder.Append( MeshVertex( vertex.m_position, vertex.m_normal, CXMFLOAT3( 1.f, 0.f, 0.f ) ) );
+	//}
 
-	for ( const auto index : sphere.m_indices )
-	{
-		meshBuilder.AppendIndex( static_cast<WORD>( index ) );
-	}
-	
-	SetModelMeshName( _T("ball_projectile") );
-	SetModel( meshBuilder.Build( gameLogic.GetRenderer(), GetMeshName() ) );
+	//for ( const auto index : sphere.m_indices )
+	//{
+	//	meshBuilder.AppendIndex( static_cast<WORD>( index ) );
+	//}
+	//
+	//SetModelMeshName( _T("ball_projectile") );
+	//SetModel( meshBuilder.Build( gameLogic.GetRenderer(), GetMeshName() ) );
 
 	return true;
 }

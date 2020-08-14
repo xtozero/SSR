@@ -16,13 +16,13 @@ public:
 	virtual void SetModelData( Owner<MeshVertex*> pOrignal, UINT vertexCount ) override;
 	virtual void SetIndexData( Owner<void*> pOrignal, UINT indexCount ) override;
 	virtual void SetColor( const CXMFLOAT3& color ) override;
-	virtual bool Load( IRenderer& renderer, UINT primitive = RESOURCE_PRIMITIVE::TRIANGLELIST ) override;
+	//virtual bool Load( IRenderer& renderer, UINT primitive = RESOURCE_PRIMITIVE::TRIANGLELIST ) override;
 
 	virtual void Draw( CGameLogic& ) override {};
 
-	virtual void SetMaterial( Material material ) override;
-	virtual void SetTexture( RE_HANDLE ) override {}
-	virtual RE_HANDLE GetTexture( ) const override { return RE_HANDLE::InValidHandle( ); }
+	//virtual void SetMaterial( Material material ) override;
+	//virtual void SetTexture( RE_HANDLE ) override {}
+	//virtual RE_HANDLE GetTexture( ) const override { return RE_HANDLE::InValidHandle( ); }
 
 	virtual const void* GetMeshData( ) const override { return m_pModelData; }
 	virtual int GetVerticesCount( ) const override { return m_nVertices; }
@@ -33,12 +33,12 @@ protected:
 	void* m_pModelData = nullptr;
 	void* m_pIndexData = nullptr;
 
-	RE_HANDLE m_vertexBuffer = RE_HANDLE::InValidHandle( );
-	RE_HANDLE m_indexBuffer = RE_HANDLE::InValidHandle( );
+	//RE_HANDLE m_vertexBuffer = RE_HANDLE::InValidHandle( );
+	//RE_HANDLE m_indexBuffer = RE_HANDLE::InValidHandle( );
 
-	UINT m_primitiveTopology = RESOURCE_PRIMITIVE::UNDEFINED;
+	//UINT m_primitiveTopology = RESOURCE_PRIMITIVE::UNDEFINED;
 
-	Material m_material = INVALID_MATERIAL;
+	//Material m_material = INVALID_MATERIAL;
 
 	UINT m_nVertices = 0;
 	UINT m_stride = 0;

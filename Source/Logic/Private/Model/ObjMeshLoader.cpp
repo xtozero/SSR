@@ -27,213 +27,215 @@ namespace
 
 Owner<IMesh*> CObjMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pFileName, SurfaceMap& surface )
 {
-	Initialize( );
-	TCHAR pPath[MAX_PATH];
-	::GetCurrentDirectory( MAX_PATH, pPath );
-	::SetCurrentDirectory( OBJ_FILE_DIR );
+//	Initialize( );
+//	TCHAR pPath[MAX_PATH];
+//	::GetCurrentDirectory( MAX_PATH, pPath );
+//	::SetCurrentDirectory( OBJ_FILE_DIR );
+//
+//	Ifstream meshFile;
+//	meshFile.open( pFileName, 0 );
+//
+//	if ( !meshFile.is_open( ) )
+//	{
+//		::SetCurrentDirectory( pPath );
+//		return nullptr;
+//	}
+//	
+//	String token;
+//	Stringstream sStream;
+//
+//	while ( meshFile.good( ) )
+//	{
+//		sStream.str( _T( "" ) );
+//		sStream.clear( );
+//
+//		std::getline( meshFile, token );
+//
+//		std::vector<String> params;
+//		UTIL::Split( token, params, _T( ' ' ) );
+//
+//		UINT count = static_cast<UINT>( params.size( ) );
+//
+//		if ( token.compare( 0, 1, _T( "#" ) ) == 0 )
+//		{
+//			//Do Nothing
+//		}
+//		else if ( token.find( _T( "vn" ) ) != String::npos )
+//		{
+//			assert( count == 4 );
+//
+//			sStream << params[1].c_str( ) << ' ' <<
+//				params[2].c_str( ) << ' ' <<
+//				params[3].c_str( );
+//
+//			float x = 0.f, y = 0.f, z = 0.f;
+//			sStream >> x >> y >> z;
+//
+//			m_normals.emplace_back( x, y, z );
+//		}
+//		else if ( token.find( _T( "vt" ) ) != String::npos )
+//		{
+//			assert( count == 3 );
+//
+//			sStream << params[1].c_str( ) << ' ' <<
+//				params[2].c_str( );
+//
+//			float u = 0.f, v = 0.f;
+//			sStream >> u >> v;
+//
+//			m_texCoords.emplace_back( u, 1.0f - v );
+//		}
+//		else if ( token.find( _T( "v " ) ) != String::npos )
+//		{
+//			assert( count == 4 );
+//
+//			sStream << params[1].c_str() << ' ' << 
+//				params[2].c_str( ) << ' ' <<
+//				params[3].c_str( );
+//
+//			float x = 0.f, y = 0.f, z = 0.f;
+//			sStream >> x >> y >> z;
+//
+//			assert( !sStream.fail( ) && !sStream.bad( ) && sStream.eof( ) );
+//
+// 			m_positions.emplace_back( x, y, z );
+//		}
+//		else if ( token.find( _T( "f " ) ) != String::npos )
+//		{
+//			assert( count == 4 );
+//
+//			for ( UINT i = 1; i < count; ++i )
+//			{
+//				std::vector<String> face;
+//
+//				UTIL::Split( params[i], face, _T( '/' ) );
+//				int pos = -1;
+//				int tex = -1;
+//				int normal = -1;
+//
+//				for ( auto iter = face.begin( ); iter != face.end( ); ++iter )
+//				{
+//					int idx = _ttoi( iter->c_str( ) ) - 1;
+//
+//					if ( idx != -1 )
+//					{
+//						switch ( std::distance( face.begin( ), iter ) )
+//						{
+//						case OBJ_FACE_ELEMENT::VERTEX:
+//							pos = idx;
+//							break;
+//						case OBJ_FACE_ELEMENT::TEXTURE:
+//							tex = idx;
+//							break;
+//						case OBJ_FACE_ELEMENT::NORMAL:
+//							normal = idx;
+//							break;
+//						}
+//					}
+//				}
+//
+//				m_faceInfo.emplace_back( pos, tex, normal );
+//			}
+//
+//			auto iter = m_faceMtlGroup.rbegin( );
+//			if ( iter != m_faceMtlGroup.rend( ) )
+//			{
+//				assert( m_faceInfo.size( ) <= UINT_MAX );
+//				iter->m_endFaceIndex = std::max( static_cast<UINT>( m_faceInfo.size( ) - 1 ), 0U );
+//			}
+//		}
+//		else if ( token.find( _T( "mtllib" ) ) != String::npos )
+//		{
+//			if ( count > 1 )
+//			{
+//				LoadMaterialFile( params[1].c_str(), surface );
+//			}
+//		}
+//		else if ( token.find( _T( "usemtl" ) ) != String::npos )
+//		{
+//			if ( count > 1 )
+//			{
+//				m_faceMtlGroup.emplace_back( 0, params[1] );
+//			}
+//		}
+//	}
+//
+//	::SetCurrentDirectory( pPath );
+//	meshFile.close();
+//
+//#ifdef TEST_CODE
+//	for ( auto iter = m_vertices.begin( ); iter != m_vertices.end( ); ++iter )
+//	{
+//		DebugMsg( "v: %f, %f, %f\n", iter->x, iter->y, iter->z );
+//	}
+//
+//	for ( auto iter = m_normals.begin( ); iter != m_normals.end( ); ++iter )
+//	{
+//		DebugMsg( "n: %f, %f, %f\n", iter->x, iter->y, iter->z );
+//	}
+//#endif
+//
+//	if ( m_normals.size() == 0 )
+//	{
+//		CalcObjNormal();
+//		
+//		for ( auto& face : m_faceInfo )
+//		{
+//			face.m_normal = face.m_position;
+//		}
+//	}
+//
+//	const std::vector<MeshVertex>& buildedVertices = BuildVertices( );
+//	std::vector<WORD> buildedIndices;
+//	
+//	for ( auto iter = buildedVertices.begin(); iter != buildedVertices.end(); ++iter )
+//	{
+//		buildedIndices.push_back( static_cast<WORD>( std::distance( buildedVertices.begin( ), iter ) ) );
+//	}
+//
+//	assert( buildedVertices.size( ) <= UINT_MAX );
+//	UINT vertexCount = static_cast<UINT>( buildedVertices.size( ) );
+//	assert( buildedIndices.size( ) <= UINT_MAX );
+//	UINT indexCount = static_cast<UINT>( buildedIndices.size( ) );
+//
+//	MeshVertex* vertices = new MeshVertex[vertexCount];
+//	WORD* indices = new WORD[indexCount];
+//
+//	::memcpy_s( vertices, sizeof(MeshVertex) * vertexCount, &buildedVertices[0], sizeof(MeshVertex) * vertexCount );
+//	::memcpy_s( indices, sizeof(WORD) * indexCount, &buildedIndices[0], sizeof(WORD) * indexCount );
+//
+//	CObjMesh* newMesh = new CObjMesh;
+//
+//	for ( const auto& mtl : m_mtlGroup )
+//	{
+//		ObjSurfaceTrait trait;
+//
+//		trait.m_indexOffset = mtl.m_startIndex;
+//		trait.m_indexCount = mtl.m_endIndex - mtl.m_startIndex + 1;
+//
+//		Surface* found = FindSurface( surface, mtl.m_materialName );
+//		if ( found == nullptr )
+//		{
+//			__debugbreak( );
+//		}
+//
+//		trait.m_pSurface = found;
+//
+//		newMesh->AddMaterialGroup( trait );
+//	}
+//	newMesh->SetModelData( vertices, vertexCount );
+//	newMesh->SetIndexData( indices, indexCount );
+//	
+//	if ( newMesh->Load( renderer ) )
+//	{
+//		return newMesh;
+//	}
+//	else
+//	{
+//		return nullptr;
+//	}
 
-	Ifstream meshFile;
-	meshFile.open( pFileName, 0 );
-
-	if ( !meshFile.is_open( ) )
-	{
-		::SetCurrentDirectory( pPath );
-		return nullptr;
-	}
-	
-	String token;
-	Stringstream sStream;
-
-	while ( meshFile.good( ) )
-	{
-		sStream.str( _T( "" ) );
-		sStream.clear( );
-
-		std::getline( meshFile, token );
-
-		std::vector<String> params;
-		UTIL::Split( token, params, _T( ' ' ) );
-
-		UINT count = static_cast<UINT>( params.size( ) );
-
-		if ( token.compare( 0, 1, _T( "#" ) ) == 0 )
-		{
-			//Do Nothing
-		}
-		else if ( token.find( _T( "vn" ) ) != String::npos )
-		{
-			assert( count == 4 );
-
-			sStream << params[1].c_str( ) << ' ' <<
-				params[2].c_str( ) << ' ' <<
-				params[3].c_str( );
-
-			float x = 0.f, y = 0.f, z = 0.f;
-			sStream >> x >> y >> z;
-
-			m_normals.emplace_back( x, y, z );
-		}
-		else if ( token.find( _T( "vt" ) ) != String::npos )
-		{
-			assert( count == 3 );
-
-			sStream << params[1].c_str( ) << ' ' <<
-				params[2].c_str( );
-
-			float u = 0.f, v = 0.f;
-			sStream >> u >> v;
-
-			m_texCoords.emplace_back( u, 1.0f - v );
-		}
-		else if ( token.find( _T( "v " ) ) != String::npos )
-		{
-			assert( count == 4 );
-
-			sStream << params[1].c_str() << ' ' << 
-				params[2].c_str( ) << ' ' <<
-				params[3].c_str( );
-
-			float x = 0.f, y = 0.f, z = 0.f;
-			sStream >> x >> y >> z;
-
-			assert( !sStream.fail( ) && !sStream.bad( ) && sStream.eof( ) );
-
- 			m_positions.emplace_back( x, y, z );
-		}
-		else if ( token.find( _T( "f " ) ) != String::npos )
-		{
-			assert( count == 4 );
-
-			for ( UINT i = 1; i < count; ++i )
-			{
-				std::vector<String> face;
-
-				UTIL::Split( params[i], face, _T( '/' ) );
-				int pos = -1;
-				int tex = -1;
-				int normal = -1;
-
-				for ( auto iter = face.begin( ); iter != face.end( ); ++iter )
-				{
-					int idx = _ttoi( iter->c_str( ) ) - 1;
-
-					if ( idx != -1 )
-					{
-						switch ( std::distance( face.begin( ), iter ) )
-						{
-						case OBJ_FACE_ELEMENT::VERTEX:
-							pos = idx;
-							break;
-						case OBJ_FACE_ELEMENT::TEXTURE:
-							tex = idx;
-							break;
-						case OBJ_FACE_ELEMENT::NORMAL:
-							normal = idx;
-							break;
-						}
-					}
-				}
-
-				m_faceInfo.emplace_back( pos, tex, normal );
-			}
-
-			auto iter = m_faceMtlGroup.rbegin( );
-			if ( iter != m_faceMtlGroup.rend( ) )
-			{
-				assert( m_faceInfo.size( ) <= UINT_MAX );
-				iter->m_endFaceIndex = std::max( static_cast<UINT>( m_faceInfo.size( ) - 1 ), 0U );
-			}
-		}
-		else if ( token.find( _T( "mtllib" ) ) != String::npos )
-		{
-			if ( count > 1 )
-			{
-				LoadMaterialFile( params[1].c_str(), surface );
-			}
-		}
-		else if ( token.find( _T( "usemtl" ) ) != String::npos )
-		{
-			if ( count > 1 )
-			{
-				m_faceMtlGroup.emplace_back( 0, params[1] );
-			}
-		}
-	}
-
-	::SetCurrentDirectory( pPath );
-	meshFile.close();
-
-#ifdef TEST_CODE
-	for ( auto iter = m_vertices.begin( ); iter != m_vertices.end( ); ++iter )
-	{
-		DebugMsg( "v: %f, %f, %f\n", iter->x, iter->y, iter->z );
-	}
-
-	for ( auto iter = m_normals.begin( ); iter != m_normals.end( ); ++iter )
-	{
-		DebugMsg( "n: %f, %f, %f\n", iter->x, iter->y, iter->z );
-	}
-#endif
-
-	if ( m_normals.size() == 0 )
-	{
-		CalcObjNormal();
-		
-		for ( auto& face : m_faceInfo )
-		{
-			face.m_normal = face.m_position;
-		}
-	}
-
-	const std::vector<MeshVertex>& buildedVertices = BuildVertices( );
-	std::vector<WORD> buildedIndices;
-	
-	for ( auto iter = buildedVertices.begin(); iter != buildedVertices.end(); ++iter )
-	{
-		buildedIndices.push_back( static_cast<WORD>( std::distance( buildedVertices.begin( ), iter ) ) );
-	}
-
-	assert( buildedVertices.size( ) <= UINT_MAX );
-	UINT vertexCount = static_cast<UINT>( buildedVertices.size( ) );
-	assert( buildedIndices.size( ) <= UINT_MAX );
-	UINT indexCount = static_cast<UINT>( buildedIndices.size( ) );
-
-	MeshVertex* vertices = new MeshVertex[vertexCount];
-	WORD* indices = new WORD[indexCount];
-
-	::memcpy_s( vertices, sizeof(MeshVertex) * vertexCount, &buildedVertices[0], sizeof(MeshVertex) * vertexCount );
-	::memcpy_s( indices, sizeof(WORD) * indexCount, &buildedIndices[0], sizeof(WORD) * indexCount );
-
-	CObjMesh* newMesh = new CObjMesh;
-
-	for ( const auto& mtl : m_mtlGroup )
-	{
-		ObjSurfaceTrait trait;
-
-		trait.m_indexOffset = mtl.m_startIndex;
-		trait.m_indexCount = mtl.m_endIndex - mtl.m_startIndex + 1;
-
-		Surface* found = FindSurface( surface, mtl.m_materialName );
-		if ( found == nullptr )
-		{
-			__debugbreak( );
-		}
-
-		trait.m_pSurface = found;
-
-		newMesh->AddMaterialGroup( trait );
-	}
-	newMesh->SetModelData( vertices, vertexCount );
-	newMesh->SetIndexData( indices, indexCount );
-	
-	if ( newMesh->Load( renderer ) )
-	{
-		return newMesh;
-	}
-	else
-	{
-		return nullptr;
-	}
+	return nullptr;
 }
 
 void CObjMeshLoader::Initialize( )

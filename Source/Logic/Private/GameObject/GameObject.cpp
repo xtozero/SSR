@@ -10,7 +10,7 @@
 #include "Physics/Aaboundingbox.h"
 #include "Physics/BoundingSphere.h"
 #include "Physics/OrientedBoundingBox.h"
-#include "Render/IRenderer.h"
+//#include "Render/IRenderer.h"
 #include "Scene/DebugOverlayManager.h"
 
 #include <tchar.h>
@@ -27,8 +27,8 @@ DECLARE_GAME_OBJECT( base, CGameObject );
 
 void CGameObject::OnDeviceRestore( CGameLogic& gameLogic )
 {
-	m_material = INVALID_MATERIAL;
-	m_overrideMaterial = INVALID_MATERIAL;
+	//m_material = INVALID_MATERIAL;
+	//m_overrideMaterial = INVALID_MATERIAL;
 
 	m_pModel = nullptr;
 	LoadModelMesh( gameLogic );
@@ -169,33 +169,33 @@ const CXMFLOAT4X4& CGameObject::GetInvTransformMatrix( )
 
 void CGameObject::UpdateTransform( CGameLogic& gameLogic )
 {
-	using namespace SHARED_CONSTANT_BUFFER;
-	RE_HANDLE geometryBuffer = gameLogic.GetCommonConstantBuffer( VS_GEOMETRY );
-	IRenderer& renderer = gameLogic.GetRenderer( );
+	//using namespace SHARED_CONSTANT_BUFFER;
+	//RE_HANDLE geometryBuffer = gameLogic.GetCommonConstantBuffer( VS_GEOMETRY );
+	//IRenderer& renderer = gameLogic.GetRenderer( );
 
-	GeometryTransform* pDest = static_cast<GeometryTransform*>( renderer.LockBuffer( geometryBuffer ) );
+	//GeometryTransform* pDest = static_cast<GeometryTransform*>( renderer.LockBuffer( geometryBuffer ) );
 
-	if ( pDest )
-	{
-		pDest->m_world = XMMatrixTranspose( GetTransformMatrix() );
-		pDest->m_invWorld = XMMatrixTranspose( GetInvTransformMatrix() );
+	//if ( pDest )
+	//{
+	//	pDest->m_world = XMMatrixTranspose( GetTransformMatrix() );
+	//	pDest->m_invWorld = XMMatrixTranspose( GetInvTransformMatrix() );
 
-		renderer.UnLockBuffer( geometryBuffer );
-		renderer.BindConstantBuffer( SHADER_TYPE::VS, VS_CONSTANT_BUFFER::GEOMETRY, 1, &geometryBuffer );
-	}
-	else
-	{
-		__debugbreak( );
-	}
+	//	renderer.UnLockBuffer( geometryBuffer );
+	//	renderer.BindConstantBuffer( SHADER_TYPE::VS, VS_CONSTANT_BUFFER::GEOMETRY, 1, &geometryBuffer );
+	//}
+	//else
+	//{
+	//	__debugbreak( );
+	//}
 }
 
 void CGameObject::Render( CGameLogic& gameLogic )
 {
-	if ( ShouldDraw() && m_pModel )
-	{
-		m_pModel->SetMaterial( ( m_overrideMaterial != INVALID_MATERIAL ) ? m_overrideMaterial : m_material );
-		m_pModel->Draw( gameLogic );
-	}
+	//if ( ShouldDraw() && m_pModel )
+	//{
+	//	m_pModel->SetMaterial( ( m_overrideMaterial != INVALID_MATERIAL ) ? m_overrideMaterial : m_material );
+	//	m_pModel->Draw( gameLogic );
+	//}
 }
 
 void CGameObject::Think( float /*elapsedTime*/ )
@@ -390,37 +390,39 @@ CGameObject::CGameObject( )
 
 bool CGameObject::LoadModelMesh( CGameLogic& gameLogic )
 {
-	if ( m_pModel != nullptr )
-	{
-		return false;
-	}
+	//if ( m_pModel != nullptr )
+	//{
+	//	return false;
+	//}
 
-	if ( m_meshName.length( ) > 0 )
-	{
-		CModelManager& modelManager = gameLogic.GetModelManager( );
-		m_pModel = modelManager.LoadMeshFromFile( gameLogic.GetRenderer(), m_meshName.c_str() );
-	}
+	//if ( m_meshName.length( ) > 0 )
+	//{
+	//	CModelManager& modelManager = gameLogic.GetModelManager( );
+	//	m_pModel = modelManager.LoadMeshFromFile( gameLogic.GetRenderer(), m_meshName.c_str() );
+	//}
 
 	return true;
 }
 
 bool CGameObject::LoadMaterial( CGameLogic& gameLogic )
 {
-	if ( m_pModel )
-	{
-		IRenderer& renderer = gameLogic.GetRenderer( );
+	//if ( m_pModel )
+	//{
+	//	IRenderer& renderer = gameLogic.GetRenderer( );
 
-		if ( m_materialName.length( ) > 0 )
-		{
-			m_material = renderer.SearchMaterial( m_materialName.c_str( ) );
-		}
-		else
-		{
-			m_material = renderer.SearchMaterial( _T( "wireframe" ) );
-		}
-	}
+	//	if ( m_materialName.length( ) > 0 )
+	//	{
+	//		m_material = renderer.SearchMaterial( m_materialName.c_str( ) );
+	//	}
+	//	else
+	//	{
+	//		m_material = renderer.SearchMaterial( _T( "wireframe" ) );
+	//	}
+	//}
 
-	return ( m_material != INVALID_MATERIAL ) ? true : false;
+	//return ( m_material != INVALID_MATERIAL ) ? true : false;
+
+	return true;
 }
 
 void CGameObject::CalcOriginalCollider( )

@@ -65,5 +65,5 @@ private:
 	std::vector<DebugTriangle> m_debugTriangle;
 
 	CDynamicBuffer m_dynamicVB;
-	Material m_debugMaterial = INVALID_MATERIAL;
+	//Material m_debugMaterial = INVALID_MATERIAL;
 };

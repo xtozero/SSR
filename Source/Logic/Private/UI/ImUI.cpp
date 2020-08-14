@@ -499,7 +499,7 @@ bool ImUI::Window( const char* name, ImUiWindowFlags::Type flags )
 
 	// ±×¸®±â
 	window->m_drawList.Clear( );
-	window->m_drawList.PushTextAtlas( m_textAtlas[m_curTextAltas].m_texture );
+//	window->m_drawList.PushTextAtlas( m_textAtlas[m_curTextAltas].m_texture );
 	PushClipRect( m_clientRect );
 	
 	float windowRounding = window->m_windowRounding;

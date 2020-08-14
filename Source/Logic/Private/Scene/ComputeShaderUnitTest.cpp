@@ -2,14 +2,14 @@
 #include "Scene/ComputeShaderUnitTest.h"
 
 #include "Core/GameLogic.h"
-#include "Render/IRenderer.h"
-#include "Render/IRenderResourceManager.h"
+//#include "Render/IRenderer.h"
+//#include "Render/IRenderResourceManager.h"
 
 #include <vector>
 
 void CComputeShaderUnitTest::RunUnitTest( CGameLogic& gameLogic )
 {
-	using namespace RESOURCE_ACCESS_FLAG;
+	/*using namespace RESOURCE_ACCESS_FLAG;
 
 	constexpr int DATA_SIZE = 6220800;
 
@@ -146,5 +146,5 @@ void CComputeShaderUnitTest::RunUnitTest( CGameLogic& gameLogic )
 	if ( sum != DATA_SIZE )
 	{
 		__debugbreak( );
-	}
+	}*/
 }

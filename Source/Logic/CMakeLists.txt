@@ -181,5 +181,7 @@ add_library(Logic SHARED 	${PRECOMPILED}
 							${UNIT_TEST_SOURCE}
 							${USER_INPUT_SOURCE})
 							
+target_link_libraries(Logic RenderCore)
+							
 add_custom_command(TARGET Logic POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/Logic.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/Logic.dll")

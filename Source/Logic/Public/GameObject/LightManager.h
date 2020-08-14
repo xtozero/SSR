@@ -3,7 +3,7 @@
 #include "common.h"
 #include "Light.h"
 #include "Math/CXMFloat.h"
-#include "Render/Resource.h"
+//#include "Render/Resource.h"
 #include "Scene/INotifyGraphicsDevice.h"
 
 #include <array>
@@ -63,5 +63,5 @@ private:
 
 	UINT m_primaryLight;
 
-	RE_HANDLE m_lightBuffer = RE_HANDLE::InValidHandle( );
+	//RE_HANDLE m_lightBuffer = RE_HANDLE::InValidHandle( );
 };

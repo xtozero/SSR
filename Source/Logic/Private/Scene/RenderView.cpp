@@ -3,20 +3,20 @@
 
 #include "common.h"
 #include "Core/GameLogic.h"
-#include "Render/IRenderer.h"
+//#include "Render/IRenderer.h"
 #include "Scene/ConstantBufferDefine.h"
 
 using namespace DirectX;
 
-void CRenderView::SetViewPort( IRenderer& renderer, const Viewport* viewPorts, int count )
-{
-	renderer.SetViewports( viewPorts, count );
-}
-
-void CRenderView::SetScissorRects( IRenderer& renderer, const RECT* rects, int count )
-{
-	renderer.SetScissorRects( rects, count );
-}
+//void CRenderView::SetViewPort( IRenderer& renderer, const Viewport* viewPorts, int count )
+//{
+//	renderer.SetViewports( viewPorts, count );
+//}
+//
+//void CRenderView::SetScissorRects( IRenderer& renderer, const RECT* rects, int count )
+//{
+//	renderer.SetScissorRects( rects, count );
+//}
 
 void CRenderView::CreatePerspectiveFovLHMatrix( float fov, float aspect, float zNear, float zFar )
 {
@@ -36,21 +36,21 @@ void CRenderView::CreatePerspectiveFovRHMatrix( float fov, float aspect, float z
 	m_projectionMatrix = XMMatrixPerspectiveFovRH( fov, aspect, zNear, zFar );
 }
 
-void CRenderView::UpdataView( CGameLogic& gameLogic, RE_HANDLE viewProjBuffer )
-{
-	IRenderer& renderer = gameLogic.GetRenderer( );
-
-	if ( ViewProjectionTrasform* pData = static_cast<ViewProjectionTrasform*>( renderer.LockBuffer( viewProjBuffer ) ) )
-	{
-		pData->m_view = XMMatrixTranspose( m_viewMatrix );
-		pData->m_projection = XMMatrixTranspose( m_projectionMatrix );
-		pData->m_invView = XMMatrixTranspose( XMMatrixInverse( nullptr, m_viewMatrix ) );
-		pData->m_invProjection = XMMatrixTranspose( XMMatrixInverse( nullptr, m_projectionMatrix ) );
-
-		renderer.UnLockBuffer( viewProjBuffer );
-		renderer.BindConstantBuffer( SHADER_TYPE::VS, static_cast<int>( VS_CONSTANT_BUFFER::VIEW_PROJECTION ), 1, &viewProjBuffer );
-	}
-}
+//void CRenderView::UpdataView( CGameLogic& gameLogic, RE_HANDLE viewProjBuffer )
+//{
+//	IRenderer& renderer = gameLogic.GetRenderer( );
+//
+//	if ( ViewProjectionTrasform* pData = static_cast<ViewProjectionTrasform*>( renderer.LockBuffer( viewProjBuffer ) ) )
+//	{
+//		pData->m_view = XMMatrixTranspose( m_viewMatrix );
+//		pData->m_projection = XMMatrixTranspose( m_projectionMatrix );
+//		pData->m_invView = XMMatrixTranspose( XMMatrixInverse( nullptr, m_viewMatrix ) );
+//		pData->m_invProjection = XMMatrixTranspose( XMMatrixInverse( nullptr, m_projectionMatrix ) );
+//
+//		renderer.UnLockBuffer( viewProjBuffer );
+//		renderer.BindConstantBuffer( SHADER_TYPE::VS, static_cast<int>( VS_CONSTANT_BUFFER::VIEW_PROJECTION ), 1, &viewProjBuffer );
+//	}
+//}
 
 CRenderView::CRenderView( )
 {

@@ -5,8 +5,8 @@
 #include "DataStructure/EnumStringMap.h"
 #include "DataStructure/KeyValueReader.h"
 #include "GameObject/Camera.h"
-#include "Render/IRenderer.h"
-#include "Render/IRenderResourceManager.h"
+//#include "Render/IRenderer.h"
+//#include "Render/IRenderResourceManager.h"
 #include "Scene/ConstantBufferDefine.h"
 #include "Util.h"
 
@@ -36,14 +36,15 @@ namespace
 
 bool CLightManager::Initialize( CGameLogic& gameLogic )
 {
-	IRenderer& renderer = gameLogic.GetRenderer( );
+	//IRenderer& renderer = gameLogic.GetRenderer( );
 
-	if ( CreateOrenNayarLUTAndBind( renderer ) == false )
-	{
-		return false;
-	}
+	//if ( CreateOrenNayarLUTAndBind( renderer ) == false )
+	//{
+	//	return false;
+	//}
 
-	return CreateDeviceDependentResource( renderer );
+	//return CreateDeviceDependentResource( renderer );
+	return true;
 }
 
 void CLightManager::SpawnLights( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& objectList )
@@ -66,21 +67,21 @@ void CLightManager::SpawnLights( CGameLogic& gameLogic, std::vector<std::unique_
 
 void CLightManager::UpdateToRenderer( IRenderer& renderer, const CCamera& camera )
 {
-	SetCameraPosition( camera.GetOrigin( ) );
+	//SetCameraPosition( camera.GetOrigin( ) );
 
-	if ( m_needUpdateToRenderer )
-	{
-		void* lights = renderer.LockBuffer( m_lightBuffer );
+	//if ( m_needUpdateToRenderer )
+	//{
+	//	void* lights = renderer.LockBuffer( m_lightBuffer );
 
-		if ( lights )
-		{
-			memcpy( lights, &m_shaderLightProperty, sizeof( ShaderLightTrait ) );
-			renderer.UnLockBuffer( m_lightBuffer );
-			renderer.BindConstantBuffer( SHADER_TYPE::PS, PS_CONSTANT_BUFFER::LIGHT, 1, &m_lightBuffer );
-		}
+	//	if ( lights )
+	//	{
+	//		memcpy( lights, &m_shaderLightProperty, sizeof( ShaderLightTrait ) );
+	//		renderer.UnLockBuffer( m_lightBuffer );
+	//		renderer.BindConstantBuffer( SHADER_TYPE::PS, PS_CONSTANT_BUFFER::LIGHT, 1, &m_lightBuffer );
+	//	}
 
-		m_needUpdateToRenderer = false;
-	}
+	//	m_needUpdateToRenderer = false;
+	//}
 }
 
 void CLightManager::SetCameraPosition( const CXMFLOAT3& cameraPos )
@@ -117,18 +118,19 @@ CLightManager::CLightManager( ) :
 
 bool CLightManager::CreateDeviceDependentResource( IRenderer& renderer )
 {
-	BUFFER_TRAIT trait = { sizeof( ShaderLightTrait ),
-		1,
-		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
-		RESOURCE_BIND_TYPE::CONSTANT_BUFFER,
-		0,
-		nullptr,
-		0,
-		0 };
+	//BUFFER_TRAIT trait = { sizeof( ShaderLightTrait ),
+	//	1,
+	//	RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
+	//	RESOURCE_BIND_TYPE::CONSTANT_BUFFER,
+	//	0,
+	//	nullptr,
+	//	0,
+	//	0 };
 
-	m_lightBuffer = renderer.CreateBuffer( trait );
+	//m_lightBuffer = renderer.CreateBuffer( trait );
 
-	return m_lightBuffer != RE_HANDLE::InValidHandle( );
+	//return m_lightBuffer != RE_HANDLE::InValidHandle( );
+	return true;
 }
 
 void CLightManager::LoadPropertyFromScript( )
@@ -161,7 +163,7 @@ void CLightManager::LoadLightProperty( const KeyValue& keyValue )
 
 		if ( const KeyValue* pType = desc->Find( _T( "type" ) ) )
 		{
-			trait.m_type = static_cast<LIGHT_TYPE>( GetEnumStringMap( ).GetEnum( pType->GetValue( ), static_cast<int>( LIGHT_TYPE::NONE ) ) );
+			trait.m_type = static_cast<LIGHT_TYPE>( GetInterface<IEnumStringMap>( )->GetEnum( pType->GetValue( ), static_cast<int>( LIGHT_TYPE::NONE ) ) );
 		}
 		
 		if ( const KeyValue* pOnOff = desc->Find( _T( "onOff" ) ) )
@@ -226,54 +228,56 @@ void CLightManager::LoadLightProperty( const KeyValue& keyValue )
 
 bool CLightManager::CreateOrenNayarLUTAndBind( IRenderer& renderer )
 {
-	constexpr std::size_t lookupSize = 512;
+//	constexpr std::size_t lookupSize = 512;
+//
+//	float* lookup = new float[lookupSize * lookupSize];
+//
+//	for ( std::size_t i = 0; i < lookupSize; ++i )
+//	{
+//		for ( std::size_t j = 0; j < lookupSize; ++j )
+//		{
+//			float VdotN = static_cast<float>( i ) / lookupSize;
+//			float LdotN = static_cast<float>( j ) / lookupSize;
+//
+//			VdotN *= 2.f;
+//			VdotN -= 1.f;
+//
+//			LdotN *= 2.f;
+//			LdotN -= 1.f;
+//
+//			float alpha = std::max( acosf( VdotN ), acosf( LdotN ) );
+//			float beta = std::min( acosf( VdotN ), acosf( LdotN ) );
+//
+//			lookup[i + j * lookupSize] = sinf( alpha ) * tanf( beta );
+//		}
+//	}
+//
+//	RESOURCE_INIT_DATA initData{ lookup, sizeof( float ) * lookupSize, 0 };
+//
+//	IResourceManager& resourceMgr = renderer.GetResourceManager( );
+//
+//	RE_HANDLE hTexture = resourceMgr.CreateTexture2D( OREN_NAYAR_TEX_NAME, OREN_NAYAR_TEX_NAME, &initData );
+//	if ( hTexture != RE_HANDLE::InValidHandle( ) )
+//	{
+//		RE_HANDLE hLUT = resourceMgr.CreateTextureShaderResource( hTexture, OREN_NAYAR_TEX_NAME );
+//		renderer.BindShaderResource( SHADER_TYPE::PS, 3, 1, &hLUT );
+//#ifdef _DEBUG
+//		renderer.TakeSnapshot2D( OREN_NAYAR_TEX_NAME, OREN_NAYAR_SNAPSHOT_NAME );
+//#endif
+//		delete[] lookup;
+//		return true;
+//	}
+//
+//	delete[] lookup;
+//	return false;
 
-	float* lookup = new float[lookupSize * lookupSize];
-
-	for ( std::size_t i = 0; i < lookupSize; ++i )
-	{
-		for ( std::size_t j = 0; j < lookupSize; ++j )
-		{
-			float VdotN = static_cast<float>( i ) / lookupSize;
-			float LdotN = static_cast<float>( j ) / lookupSize;
-
-			VdotN *= 2.f;
-			VdotN -= 1.f;
-
-			LdotN *= 2.f;
-			LdotN -= 1.f;
-
-			float alpha = std::max( acosf( VdotN ), acosf( LdotN ) );
-			float beta = std::min( acosf( VdotN ), acosf( LdotN ) );
-
-			lookup[i + j * lookupSize] = sinf( alpha ) * tanf( beta );
-		}
-	}
-
-	RESOURCE_INIT_DATA initData{ lookup, sizeof( float ) * lookupSize, 0 };
-
-	IResourceManager& resourceMgr = renderer.GetResourceManager( );
-
-	RE_HANDLE hTexture = resourceMgr.CreateTexture2D( OREN_NAYAR_TEX_NAME, OREN_NAYAR_TEX_NAME, &initData );
-	if ( hTexture != RE_HANDLE::InValidHandle( ) )
-	{
-		RE_HANDLE hLUT = resourceMgr.CreateTextureShaderResource( hTexture, OREN_NAYAR_TEX_NAME );
-		renderer.BindShaderResource( SHADER_TYPE::PS, 3, 1, &hLUT );
-#ifdef _DEBUG
-		renderer.TakeSnapshot2D( OREN_NAYAR_TEX_NAME, OREN_NAYAR_SNAPSHOT_NAME );
-#endif
-		delete[] lookup;
-		return true;
-	}
-
-	delete[] lookup;
-	return false;
+	return true;
 }
 
 void CLightManager::OnDeviceRestore( CGameLogic& gameLogic )
 {
-	m_needUpdateToRenderer = true;
-	IRenderer& renderer = gameLogic.GetRenderer( );
-	CreateDeviceDependentResource( renderer );
-	CreateOrenNayarLUTAndBind( renderer );
+	//m_needUpdateToRenderer = true;
+	//IRenderer& renderer = gameLogic.GetRenderer( );
+	//CreateDeviceDependentResource( renderer );
+	//CreateOrenNayarLUTAndBind( renderer );
 }

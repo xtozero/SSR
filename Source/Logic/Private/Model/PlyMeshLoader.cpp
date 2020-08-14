@@ -172,12 +172,14 @@ Owner<IMesh*> CPlyMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR
 	newMesh->SetModelData( vertices, vertexCount );
 	newMesh->SetIndexData( indices, indexCount );
 	
-	if ( newMesh->Load( renderer ) )
-	{
-		return newMesh;
-	}
-	else
-	{
-		return nullptr;
-	}
+	//if ( newMesh->Load( renderer ) )
+	//{
+	//	return newMesh;
+	//}
+	//else
+	//{
+	//	return nullptr;
+	//}
+
+	return nullptr;
 }

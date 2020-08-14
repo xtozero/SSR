@@ -153,7 +153,6 @@ bool CDirect3D11::BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
 	{
 		return false;
 	}
-	m_resourceManager.AppSizeChanged( nWndWidth, nWndHeight );
 
 	return true;
 }

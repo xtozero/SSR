@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common.h"
 #include "IModelBuilder.h"
 
 class CModelManager;
@@ -10,7 +11,7 @@ public:
 	virtual void Append( const MeshVertex& newVertex ) override;
 	virtual void AppendIndex( const WORD index ) override;
 	virtual void AppendTextureName( const String& textureName ) override;
-	virtual IMesh* Build( IRenderer& renderer, const String& meshName, UINT primitive = RESOURCE_PRIMITIVE::TRIANGLELIST ) const override;
+	//virtual IMesh* Build( IRenderer& renderer, const String& meshName, UINT primitive = RESOURCE_PRIMITIVE::TRIANGLELIST ) const override;
 
 	virtual void Clear( ) override;
 

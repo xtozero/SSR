@@ -3,7 +3,7 @@
 #include "INotifyGraphicsDevice.h"
 #include "Math/CXMFLOAT.h"
 #include "Physics/Aaboundingbox.h"
-#include "Render/Resource.h"
+//#include "Render/Resource.h"
 
 #include <memory>
 #include <vector>
@@ -46,19 +46,19 @@ private:
 	bool m_isSlideBack = true;
 	bool m_useCascaded = false;
 	
-	RE_HANDLE m_shadowMap = RE_HANDLE::InValidHandle( );
-	RE_HANDLE m_srvShadowMap = RE_HANDLE::InValidHandle( );
-	RE_HANDLE m_rtvShadowMap = RE_HANDLE::InValidHandle( );
-	RE_HANDLE m_shadowDepth = RE_HANDLE::InValidHandle( );
-	RE_HANDLE m_dsvShadowMap = RE_HANDLE::InValidHandle( );
+	//RE_HANDLE m_shadowMap = RE_HANDLE::InValidHandle( );
+	//RE_HANDLE m_srvShadowMap = RE_HANDLE::InValidHandle( );
+	//RE_HANDLE m_rtvShadowMap = RE_HANDLE::InValidHandle( );
+	//RE_HANDLE m_shadowDepth = RE_HANDLE::InValidHandle( );
+	//RE_HANDLE m_dsvShadowMap = RE_HANDLE::InValidHandle( );
 
-	RE_HANDLE m_vsShadowConstant = RE_HANDLE::InValidHandle( );
-	RE_HANDLE m_gsShadowConstant = RE_HANDLE::InValidHandle( );
-	RE_HANDLE m_psShadowConstant = RE_HANDLE::InValidHandle( );
+	//RE_HANDLE m_vsShadowConstant = RE_HANDLE::InValidHandle( );
+	//RE_HANDLE m_gsShadowConstant = RE_HANDLE::InValidHandle( );
+	//RE_HANDLE m_psShadowConstant = RE_HANDLE::InValidHandle( );
 
-	RE_HANDLE m_shadowSampler = RE_HANDLE::InValidHandle( );
+	//RE_HANDLE m_shadowSampler = RE_HANDLE::InValidHandle( );
 
-	Material m_shadowMapMtl = INVALID_MATERIAL;
+	//Material m_shadowMapMtl = INVALID_MATERIAL;
 
 	std::vector<CGameObject*> m_shadowCasters;
 	std::vector<CAaboundingbox> m_shadowCasterPoints;

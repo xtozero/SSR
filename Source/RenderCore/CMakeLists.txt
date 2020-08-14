@@ -27,12 +27,23 @@ set (RENDER_UTIL
 	
 set (GRAPHICS_RESOURCE_SOURCE
 #	"Private/GraphicsResource/"
+	"Public/"
 	"Public/GraphicsResource/DrawSnapshot.h"
 	"Public/GraphicsResource/ShaderBindings.h"
 	"Public/GraphicsResource/VertexInputStream.h")
 	
+set (PROXIES_SOURCE
+	"Private/Proxies/PrimitiveProxy.cpp"
+	"Public/Proxies/PrimitiveProxy.h")
+	
+set (COMPONENTS_SOURCE
+	"Private/Components/PrimitiveComponent.cpp"
+	"Public/Components/PrimitiveComponent.h")
+	
 source_group("Renderer" FILES ${RENDERER_SOURCE})
 source_group("RenderUtil" FILES ${RENDER_UTIL})
+source_group("Proxies" FILES ${PROXIES_SOURCE})
+source_group("Components" FILES ${COMPONENT_SOURCE})
 
 include_directories(./Public)
 include_directories(./Public/Core)
@@ -51,7 +62,9 @@ add_library(RenderCore SHARED 	${PRECOMPILED}
 								${RENDERER_SOURCE}
 								${RENDER_SCENE_SOURCE}
 								${RENDER_UTIL}
-								${GRAPHICS_RESOURCE_SOURCE})
+								${GRAPHICS_RESOURCE_SOURCE}
+								${PROXIES_SOURCE}
+								${COMPONENTS_SOURCE})
 
 add_custom_command(TARGET RenderCore POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/RenderCore.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/RenderCore.dll")

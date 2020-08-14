@@ -4,7 +4,7 @@
 #include "Math/CXMFloat.h"
 #include "Physics/Body.h"
 #include "Physics/ColliderManager.h"
-#include "Render/Resource.h"
+//#include "Render/Resource.h"
 #include "Scene/INotifyGraphicsDevice.h"
 
 #include <cstddef>
@@ -89,11 +89,11 @@ public:
 	IMesh* GetModel( ) const { return m_pModel; }
 	void SetModel( IMesh* pModel ) { m_pModel = pModel; }
 
-	Material GetMaterial( ) { return m_material; }
-	void SetMaterial( Material material ) { m_material = material; }
+	//Material GetMaterial( ) { return m_material; }
+	//void SetMaterial( Material material ) { m_material = material; }
 
-	Material GetOverrideMaterial( ) { return m_overrideMaterial; }
-	void SetOverrideMaterial( Material material ) { m_overrideMaterial = material; }
+	//Material GetOverrideMaterial( ) { return m_overrideMaterial; }
+	//void SetOverrideMaterial( Material material ) { m_overrideMaterial = material; }
 
 	UINT GetProperty( ) const { return m_property; }
 	void AddProperty( const GAMEOBJECT_PROPERTY property ) { m_property |= property; }
@@ -135,8 +135,8 @@ private:
 	CXMFLOAT4X4 m_invMatTransform;
 
 	IMesh* m_pModel = nullptr;
-	Material m_material = INVALID_MATERIAL;
-	Material m_overrideMaterial = INVALID_MATERIAL;
+	//Material m_material = INVALID_MATERIAL;
+	//Material m_overrideMaterial = INVALID_MATERIAL;
 
 	String m_name;
 	String m_materialName;

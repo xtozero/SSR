@@ -20,10 +20,10 @@ void ImDrawList::Clear( )
 		m_clipRect.pop( );
 	}
 
-	for ( size_t i = 0, end = m_textAtlas.size( ); i < end; ++i )
-	{
-		m_textAtlas.pop( );
-	}
+	//for ( size_t i = 0, end = m_textAtlas.size( ); i < end; ++i )
+	//{
+	//	m_textAtlas.pop( );
+	//}
 }
 
 void ImDrawList::AddDrawCmd( )
@@ -33,7 +33,7 @@ void ImDrawList::AddDrawCmd( )
 	
 	cmd.m_indicesCount = 0;
 	cmd.m_clipRect = m_clipRect.size() ? m_clipRect.top( ) : m_imUi->GetClientRect();
-	cmd.m_textAtlas = m_textAtlas.size() ? m_textAtlas.top( ) : RE_HANDLE::InValidHandle( );
+	//cmd.m_textAtlas = m_textAtlas.size() ? m_textAtlas.top( ) : RE_HANDLE::InValidHandle( );
 }
 
 void ImDrawList::PushClipRect( const Rect& clipRect )
@@ -42,11 +42,11 @@ void ImDrawList::PushClipRect( const Rect& clipRect )
 	UpdateClipRect( );
 }
 
-void ImDrawList::PushTextAtlas( RE_HANDLE texHandle )
-{
-	m_textAtlas.push( texHandle );
-	UpdateTextAtlas( );
-}
+//void ImDrawList::PushTextAtlas( RE_HANDLE texHandle )
+//{
+//	m_textAtlas.push( texHandle );
+//	UpdateTextAtlas( );
+//}
 
 void ImDrawList::UpdateClipRect( )
 {
@@ -60,12 +60,12 @@ void ImDrawList::UpdateClipRect( )
 
 void ImDrawList::UpdateTextAtlas( )
 {
-	ImDrawCmd* curCmd = m_cmdBuffer.empty( ) ? nullptr : &m_cmdBuffer.back( );
-	if ( curCmd == nullptr || ( curCmd->m_textAtlas != m_textAtlas.top( ) ) )
-	{
-		AddDrawCmd( );
-		return;
-	}
+	//ImDrawCmd* curCmd = m_cmdBuffer.empty( ) ? nullptr : &m_cmdBuffer.back( );
+	//if ( curCmd == nullptr || ( curCmd->m_textAtlas != m_textAtlas.top( ) ) )
+	//{
+	//	AddDrawCmd( );
+	//	return;
+	//}
 }
 
 void ImDrawList::AddFilledRect( const CXMFLOAT2& pos, const CXMFLOAT2& size, const CXMFLOAT4& color, float rounding, int roundingFlag )

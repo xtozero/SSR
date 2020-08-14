@@ -13,7 +13,7 @@
 #include "Physics/BoundingSphere.h"
 #include "Physics/CollideBroad.h"
 #include "Physics/World.h"
-#include "Render/Resource.h"
+// #include "Render/Resource.h"
 #include "Scene/AtmosphereScattering.h"
 #include "Scene/ConstantBufferDefine.h"
 #include "Scene/DebugOverlayManager.h"
@@ -31,7 +31,7 @@
 #include <vector>
 
 class CGameObject;
-class IRenderer;
+class IRenderCore;
 
 enum RENDERABLE_TYPE
 {
@@ -54,12 +54,12 @@ public:
 	void SpawnObject( Owner<CGameObject*> object );
 	void OnObjectSpawned( CGameObject& object );
 
-	IRenderer& GetRenderer( ) const { return *m_pRenderer; }
-	CLightManager& GetLightManager( ) { return m_lightManager; }
-	CShadowManager& GetShadowManager( ) { return m_shadowManager; }
-	CModelManager& GetModelManager( ) { return m_meshManager; }
-	ImUI& GetUIManager( ) { return m_ui; }
-	RE_HANDLE GetCommonConstantBuffer( int purpose ) { return m_commonConstantBuffer[purpose]; }
+	//IRenderer& GetRenderer( ) const { return *m_pRenderer; }
+	//CLightManager& GetLightManager( ) { return m_lightManager; }
+	//CShadowManager& GetShadowManager( ) { return m_shadowManager; }
+	//CModelManager& GetModelManager( ) { return m_meshManager; }
+	//ImUI& GetUIManager( ) { return m_ui; }
+	//RE_HANDLE GetCommonConstantBuffer( int purpose ) { return m_commonConstantBuffer[purpose]; }
 	CRenderView& GetView( ) { return m_view; }
 	const std::pair<UINT, UINT>& GetAPPSize( ) { return m_appSize; }
 	const CTimer& GetTimer( ) const { return m_clock; }
@@ -105,31 +105,31 @@ private:
 	CTimer m_clock;
 	CUserInputBroadCaster m_inputBroadCaster;
 	CPickingManager m_pickingManager;
-	CLightManager m_lightManager;
-	CShadowManager m_shadowManager;
-	CSSRManager m_ssrManager;
-	CAtmosphericScatteringManager m_atmosphereManager;
-	CModelManager m_meshManager;
-	IRenderer* m_pRenderer;
+	//CLightManager m_lightManager;
+	//CShadowManager m_shadowManager;
+	//CSSRManager m_ssrManager;
+	//CAtmosphericScatteringManager m_atmosphereManager;
+	//CModelManager m_meshManager;
+	IRenderCore* m_pRenderCore = nullptr;
 	CRenderView m_view;
 	std::vector<std::unique_ptr<CGameObject>> m_gameObjects;
 	std::vector<CPlayer> m_players;
 
 	std::list<CGameObject*> m_renderableList[RENDERABLE_TYPE_COUNT];
 
-	RE_HANDLE m_commonConstantBuffer[SHARED_CONSTANT_BUFFER::Count];
+	//RE_HANDLE m_commonConstantBuffer[SHARED_CONSTANT_BUFFER::Count];
 
 	// Immediate Mode UI
-	ImUI m_ui;
+	//ImUI m_ui;
 
-	struct ImUiDrawBuffer
-	{
-		RE_HANDLE m_buffer = RE_HANDLE::InValidHandle( );
-		UINT m_prevBufferSize = 0;
-	};
+	//struct ImUiDrawBuffer
+	//{
+	//	RE_HANDLE m_buffer = RE_HANDLE::InValidHandle( );
+	//	UINT m_prevBufferSize = 0;
+	//};
 
-	ImUiDrawBuffer m_uiDrawBuffer[2];
-	Material m_uiMaterial = INVALID_MATERIAL;
+	//ImUiDrawBuffer m_uiDrawBuffer[2];
+	//Material m_uiMaterial = INVALID_MATERIAL;
 	CXMFLOAT4X4 m_uiProjMat;
 
 	CDebugOverlayManager m_debugOverlay;

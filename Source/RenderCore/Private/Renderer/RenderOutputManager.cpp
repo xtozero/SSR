@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Render/RenderOutputManager.h"
+/* #include "Render/RenderOutputManager.h"
 
 #include "Render/IRenderer.h"
 #include "Render/IRenderResourceManager.h"
@@ -211,3 +211,4 @@ bool CRenderOutputManager::CreateDefaultDepthStencil( IResourceManager& resource
 
 	return true;
 }
+*/

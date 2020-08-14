@@ -2,7 +2,7 @@
 #include "Scene/DebugOverlayManager.h"
 
 #include "Core/GameLogic.h"
-#include "Render/Resource.h"
+//#include "Render/Resource.h"
 
 #include <cassert>
 
@@ -11,119 +11,119 @@ using namespace DirectX;
 void CDebugOverlayManager::OnDeviceRestore( CGameLogic& gameLogic )
 {
 	m_dynamicVB.OnDeviceRestore( gameLogic );
-	m_debugMaterial = gameLogic.GetRenderer( ).SearchMaterial( _T( "mat_debugOverlay" ) );
+	//m_debugMaterial = gameLogic.GetRenderer( ).SearchMaterial( _T( "mat_debugOverlay" ) );
 }
 
 bool CDebugOverlayManager::Init( CGameLogic& gameLogic )
 {
-	IRenderer& renderer = gameLogic.GetRenderer( );
-	IResourceManager& resourceMgr = renderer.GetResourceManager( );
+	//IRenderer& renderer = gameLogic.GetRenderer( );
+	//IResourceManager& resourceMgr = renderer.GetResourceManager( );
 
-	constexpr unsigned int defaultDynamicBufferSize = 64 * 1024;
-	m_dynamicVB.Initialize( resourceMgr, RESOURCE_BIND_TYPE::VERTEX_BUFFER, defaultDynamicBufferSize );
+	//constexpr unsigned int defaultDynamicBufferSize = 64 * 1024;
+	//m_dynamicVB.Initialize( resourceMgr, RESOURCE_BIND_TYPE::VERTEX_BUFFER, defaultDynamicBufferSize );
 
-	m_debugMaterial = renderer.SearchMaterial( _T( "mat_debugOverlay" ) );
-	if ( m_debugMaterial == INVALID_MATERIAL )
-	{
-		return false;
-	}
+	//m_debugMaterial = renderer.SearchMaterial( _T( "mat_debugOverlay" ) );
+	//if ( m_debugMaterial == INVALID_MATERIAL )
+	//{
+	//	return false;
+	//}
 	
 	return true;
 }
 
 void CDebugOverlayManager::DrawPrimitive( IRenderer& renderer, float deltaTime )
 {
-	int popCount = 0;
+	//int popCount = 0;
 
-	for ( auto iter = m_debugLine.begin( ), end = m_debugLine.end(); iter != end; )
-	{
-		if ( iter->m_life <= 0.f )
-		{
-			std::iter_swap( iter, end - 1 );
-			--end;
-			++popCount;
-		}
-		else
-		{
-			iter->m_life -= deltaTime;
-			++iter;
-		}
-	}
+	//for ( auto iter = m_debugLine.begin( ), end = m_debugLine.end(); iter != end; )
+	//{
+	//	if ( iter->m_life <= 0.f )
+	//	{
+	//		std::iter_swap( iter, end - 1 );
+	//		--end;
+	//		++popCount;
+	//	}
+	//	else
+	//	{
+	//		iter->m_life -= deltaTime;
+	//		++iter;
+	//	}
+	//}
 
-	while ( popCount-- > 0 )
-	{
-		m_debugLine.pop_back( );
-	}
+	//while ( popCount-- > 0 )
+	//{
+	//	m_debugLine.pop_back( );
+	//}
 
-	popCount = 0;
-	for ( auto iter = m_debugTriangle.begin( ), end = m_debugTriangle.end(); iter != end; )
-	{
-		if ( iter->m_life <= 0.f )
-		{
-			std::iter_swap( iter, end - 1 );
-			--end;
-			++popCount;
-		}
-		else
-		{
-			iter->m_life -= deltaTime;
-			++iter;
-		}
-	}
+	//popCount = 0;
+	//for ( auto iter = m_debugTriangle.begin( ), end = m_debugTriangle.end(); iter != end; )
+	//{
+	//	if ( iter->m_life <= 0.f )
+	//	{
+	//		std::iter_swap( iter, end - 1 );
+	//		--end;
+	//		++popCount;
+	//	}
+	//	else
+	//	{
+	//		iter->m_life -= deltaTime;
+	//		++iter;
+	//	}
+	//}
 
-	while ( popCount-- > 0 )
-	{
-		m_debugTriangle.pop_back( );
-	}
+	//while ( popCount-- > 0 )
+	//{
+	//	m_debugTriangle.pop_back( );
+	//}
 
-	struct DebugPrimitiveVertex
-	{
-		CXMFLOAT3 m_pos;
-		unsigned int m_color;
-	};
+	//struct DebugPrimitiveVertex
+	//{
+	//	CXMFLOAT3 m_pos;
+	//	unsigned int m_color;
+	//};
 
-	assert( ( m_debugLine.size( ) * 2 + m_debugTriangle.size( ) * 3 ) <= UINT_MAX );
-	DebugPrimitiveVertex* vertices = m_dynamicVB.Map<DebugPrimitiveVertex>( renderer, sizeof( DebugPrimitiveVertex ) * static_cast<UINT>( m_debugLine.size( ) * 2 + m_debugTriangle.size( ) * 3 ) );
-	if ( vertices == nullptr )
-	{
-		__debugbreak( );
-	}
+	//assert( ( m_debugLine.size( ) * 2 + m_debugTriangle.size( ) * 3 ) <= UINT_MAX );
+	//DebugPrimitiveVertex* vertices = m_dynamicVB.Map<DebugPrimitiveVertex>( renderer, sizeof( DebugPrimitiveVertex ) * static_cast<UINT>( m_debugLine.size( ) * 2 + m_debugTriangle.size( ) * 3 ) );
+	//if ( vertices == nullptr )
+	//{
+	//	__debugbreak( );
+	//}
 
-	std::size_t idx = 0;
-	for ( const auto& line : m_debugLine )
-	{
-		vertices[idx].m_pos = line.m_from;
-		vertices[idx++].m_color = line.m_color;
+	//std::size_t idx = 0;
+	//for ( const auto& line : m_debugLine )
+	//{
+	//	vertices[idx].m_pos = line.m_from;
+	//	vertices[idx++].m_color = line.m_color;
 
-		vertices[idx].m_pos = line.m_to;
-		vertices[idx++].m_color = line.m_color;
-	}
+	//	vertices[idx].m_pos = line.m_to;
+	//	vertices[idx++].m_color = line.m_color;
+	//}
 
-	for ( const auto& triangle : m_debugTriangle )
-	{
-		vertices[idx].m_pos = triangle.m_vertices[0];
-		vertices[idx++].m_color = triangle.m_color;
+	//for ( const auto& triangle : m_debugTriangle )
+	//{
+	//	vertices[idx].m_pos = triangle.m_vertices[0];
+	//	vertices[idx++].m_color = triangle.m_color;
 
-		vertices[idx].m_pos = triangle.m_vertices[1];
-		vertices[idx++].m_color = triangle.m_color;
+	//	vertices[idx].m_pos = triangle.m_vertices[1];
+	//	vertices[idx++].m_color = triangle.m_color;
 
-		vertices[idx].m_pos = triangle.m_vertices[2];
-		vertices[idx++].m_color = triangle.m_color;
-	}
+	//	vertices[idx].m_pos = triangle.m_vertices[2];
+	//	vertices[idx++].m_color = triangle.m_color;
+	//}
 
-	m_dynamicVB.Unmap( renderer );
+	//m_dynamicVB.Unmap( renderer );
 
-	RE_HANDLE handle = m_dynamicVB.GetHandle( );
-	UINT stride = sizeof( DebugPrimitiveVertex );
-	UINT offset = 0;
-	renderer.BindVertexBuffer( &handle, 0, 1, &stride, &offset );
-	renderer.BindMaterial( m_debugMaterial );
+	//RE_HANDLE handle = m_dynamicVB.GetHandle( );
+	//UINT stride = sizeof( DebugPrimitiveVertex );
+	//UINT offset = 0;
+	//renderer.BindVertexBuffer( &handle, 0, 1, &stride, &offset );
+	//renderer.BindMaterial( m_debugMaterial );
 
-	assert( ( m_debugLine.size( ) * 2 ) <= UINT_MAX );
-	UINT debugLineSize = static_cast<UINT>( m_debugLine.size( ) * 2 );
-	renderer.Draw( RESOURCE_PRIMITIVE::LINELIST, debugLineSize );
-	assert( ( m_debugTriangle.size( ) * 3 ) <= UINT_MAX );
-	renderer.Draw( RESOURCE_PRIMITIVE::TRIANGLELIST, static_cast<UINT>( m_debugTriangle.size() * 3 ), debugLineSize );
+	//assert( ( m_debugLine.size( ) * 2 ) <= UINT_MAX );
+	//UINT debugLineSize = static_cast<UINT>( m_debugLine.size( ) * 2 );
+	//renderer.Draw( RESOURCE_PRIMITIVE::LINELIST, debugLineSize );
+	//assert( ( m_debugTriangle.size( ) * 3 ) <= UINT_MAX );
+	//renderer.Draw( RESOURCE_PRIMITIVE::TRIANGLELIST, static_cast<UINT>( m_debugTriangle.size() * 3 ), debugLineSize );
 }
 
 void CDebugOverlayManager::AddDebugLine( const CXMFLOAT3& from, const CXMFLOAT3& to, unsigned int color, float life )

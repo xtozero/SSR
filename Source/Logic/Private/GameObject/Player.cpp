@@ -60,15 +60,15 @@ void CPlayer::OnMouseLButton( const UserInput& input, CGameLogic& gameLogic )
 
 void CPlayer::RotatePrimaryLightDir( CGameLogic& gameLogic, float deltaTheta, float deltaPhi )
 {
-	CLightManager& lightMgr = gameLogic.GetLightManager( );
+	//CLightManager& lightMgr = gameLogic.GetLightManager( );
 
-	if ( CLight* pLight = lightMgr.GetPrimaryLight( ) )
-	{
-		std::pair<float, float> sphericalCoord = CartesianToSpherical( pLight->GetDirection( ) );
-		sphericalCoord.first += deltaTheta;
-		sphericalCoord.second += deltaPhi;
-		pLight->SetDiection( SphericalToCartesian( sphericalCoord.first, sphericalCoord.second ) );
-	}
+	//if ( CLight* pLight = lightMgr.GetPrimaryLight( ) )
+	//{
+	//	std::pair<float, float> sphericalCoord = CartesianToSpherical( pLight->GetDirection( ) );
+	//	sphericalCoord.first += deltaTheta;
+	//	sphericalCoord.second += deltaPhi;
+	//	pLight->SetDiection( SphericalToCartesian( sphericalCoord.first, sphericalCoord.second ) );
+	//}
 
-	lightMgr.OnLightPropertyUpdated( );
+	//lightMgr.OnLightPropertyUpdated( );
 }

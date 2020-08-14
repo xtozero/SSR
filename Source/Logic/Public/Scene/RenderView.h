@@ -2,7 +2,7 @@
 
 #include "INotifyGraphicsDevice.h"
 #include "Math/CXMFloat.h"
-#include "Render/Resource.h"
+//#include "Render/Resource.h"
 
 #include <d3d11.h>
 #include <vector>
@@ -12,13 +12,13 @@ class IRenderer;
 class CRenderView
 {
 public:
-	void SetViewPort( IRenderer& renderer, const Viewport* viewPorts, int count );
-	void SetScissorRects( IRenderer& renderer, const RECT* rects, int count );
+	//void SetViewPort( IRenderer& renderer, const Viewport* viewPorts, int count );
+	//void SetScissorRects( IRenderer& renderer, const RECT* rects, int count );
 
 	void CreatePerspectiveFovLHMatrix( float fov, float aspect, float zNear, float zFar );
 	void CreatePerspectiveFovRHMatrix( float fov, float aspect, float zNear, float zFar );
 
-	void UpdataView( CGameLogic& gameLogic, RE_HANDLE viewProjBuffer );
+	//void UpdataView( CGameLogic& gameLogic, RE_HANDLE viewProjBuffer );
 
 	void SetViewMatrix( const CXMFLOAT4X4& viewMat ) { m_viewMatrix = viewMat; }
 
@@ -33,7 +33,7 @@ public:
 	CRenderView( );
 
 private:
-	Viewport m_viewportList;
+	//Viewport m_viewportList;
 	RECT m_scissorRectList;
 
 	CXMFLOAT4X4 m_viewMatrix;
