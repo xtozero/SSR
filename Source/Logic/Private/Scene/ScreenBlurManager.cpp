@@ -51,7 +51,7 @@ bool ScreenBlurManager::CreateDeviceDependentResource( CGameLogic& gameLogic )
 {
 	//IRenderer& renderer = gameLogic.GetRenderer( );
 
-	//constexpr TCHAR* BLUR_MATERIAL_NAME[] = { _T( "mat_gaussian_blur_x" ), _T( "mat_gaussian_blur_y" ) };
+	//constexpr char* BLUR_MATERIAL_NAME[] = { "mat_gaussian_blur_x", "mat_gaussian_blur_y" };
 
 	//for ( int i = 0; i < 2; ++i )
 	//{
@@ -77,7 +77,7 @@ bool ScreenBlurManager::CreateDeviceDependentResource( CGameLogic& gameLogic )
 	//meshBuilder.AppendIndex( 2 );
 	//meshBuilder.AppendIndex( 3 );
 
-	//m_pScreenRect = meshBuilder.Build( renderer, _T( "ScreenRect" ), D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
+	//m_pScreenRect = meshBuilder.Build( renderer, "ScreenRect", D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
 
 	//if ( m_pScreenRect == nullptr )
 	//{
@@ -96,7 +96,7 @@ bool ScreenBlurManager::CreateAppSizeDependentResource( CGameLogic& gameLogic )
 {
 	//IRenderer& renderer = gameLogic.GetRenderer( );
 
-	//String blurTempTextureName( _T( "BlurTempTexture" ) );
+	//std::string blurTempTextureName( "BlurTempTexture" );
 	//IResourceManager& resourceMgr = renderer.GetResourceManager( );
 
 	//m_blurTexture = resourceMgr.CreateTexture2D( blurTempTextureName, blurTempTextureName );

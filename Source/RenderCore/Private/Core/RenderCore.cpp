@@ -32,7 +32,7 @@ void DestoryRenderCore( Owner<IRenderCore*> pRenderCore )
 
 bool RenderCore::BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
 {
-	m_hAga = LoadModule( _T( "./Binaries/Aga.dll" ) );
+	m_hAga = LoadModule( "./Binaries/Aga.dll" );
 	if ( m_hAga == nullptr )
 	{
 		return false;

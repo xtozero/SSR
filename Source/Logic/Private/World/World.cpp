@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Physics/World.h"
+#include "World/World.h"
 
 #include "Physics/BoundingSphere.h"
 #include "Physics/CollisionUtil.h"
@@ -7,7 +7,15 @@
 
 using namespace DirectX;
 
-void World::StartFrame( )
+void World::OnDeviceRestore( CGameLogic& gameLogic )
+{
+	for ( auto& object : m_gameObjects )
+	{
+		object->OnDeviceRestore( gameLogic );
+	}
+}
+
+void World::PreparePhysics( )
 {
 	m_collisionData.Reset( m_contacts, MAX_CONTACTS );
 	m_resolver.Initialize( MAX_CONTACTS * 8 );
@@ -53,16 +61,49 @@ void World::RunPhysics( float duration )
 	m_resolver.ResolveContacts( m_contacts, usedContacts, duration );
 }
 
-void World::OnObjectSpawned( ObjectRelatedRigidBody* body, const BoundingSphere& volume )
+void World::BeginFrame( )
 {
-	m_bvhTree.Insert( body, volume );
-	m_registry.Add( body, &m_gravity );
+	for ( auto object = m_gameObjects.begin( ); object != m_gameObjects.end( ); )
+	{
+		CGameObject* candidate = object->get( );
+		if ( candidate->WillRemove( ) )
+		{
+			OnObjectRemoved( candidate->GetRigidBody( ) );
+			object = m_gameObjects.erase( object );
+		}
+		else
+		{
+			++object;
+		}
+	}
 }
 
-void World::OnObjectRemoved( ObjectRelatedRigidBody* body )
+void World::RunFrame( float duration )
 {
-	m_registry.Remove( body );
-	m_bvhTree.Remove( body );
+	for ( auto& object : m_gameObjects )
+	{
+		object->Think( duration );
+	}
+}
+
+void World::EndFrame( float duration )
+{
+	for ( auto& object : m_gameObjects )
+	{
+		object->PostThink( duration );
+	}
+}
+
+void World::SpawnObject( CGameLogic& gameLogic, Owner<CGameObject*> object )
+{
+	object->SetID( m_gameObjects.size( ) );
+	m_gameObjects.emplace_back( object );
+
+	const BoundingSphere* sphere = reinterpret_cast<const BoundingSphere*>( object->GetCollider( COLLIDER::SPHERE ) );
+	if ( sphere )
+	{
+		OnObjectSpawned( object->GetRigidBody( ), *sphere );
+	}
 }
 
 void World::UpdateObjectMovement( ObjectRelatedRigidBody* body, const BoundingSphere& volume )
@@ -113,4 +154,16 @@ int World::GenerateContacts( )
 	}
 
 	return m_collisionData.m_contactsCount;
+}
+
+void World::OnObjectSpawned( ObjectRelatedRigidBody* body, const BoundingSphere& volume )
+{
+	m_bvhTree.Insert( body, volume );
+	m_registry.Add( body, &m_gravity );
+}
+
+void World::OnObjectRemoved( ObjectRelatedRigidBody* body )
+{
+	m_registry.Remove( body );
+	m_bvhTree.Remove( body );
 }

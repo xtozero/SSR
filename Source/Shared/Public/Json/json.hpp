@@ -9,6 +9,14 @@
 
 #include <iostream>
 
+#ifdef FALSE
+#undef FALSE
+#endif
+
+#ifdef TRUE
+#undef TRUE
+#endif
+
 namespace JSON
 {
 	namespace
@@ -342,6 +350,24 @@ namespace JSON
 			
 			auto found = m_data.m_object->find( key );
 			return ( found == m_data.m_object->end( ) ) ? nullptr : &found->second;
+		}
+
+		std::vector<const char*> GetMemberNames( ) const
+		{
+			if ( Type( ) == DataType::OBJECT || Type( ) == DataType::ARRAY )
+			{
+				std::vector<const char*> members;
+				members.reserve( m_data.m_object->size( ) );
+
+				for ( const auto& member : *m_data.m_object )
+				{
+					members.push_back( member.first.c_str( ) );
+				}
+
+				return members;
+			}
+
+			return std::vector<const char*>( );
 		}
 
 		size_t Size( ) const
@@ -813,7 +839,7 @@ namespace JSON
 			return Parse( contents.data(), contents.size(), root );
 		}
 
-		bool Parse( char* contents, size_t length, Value& root )
+		bool Parse( const char* contents, size_t length, Value& root )
 		{
 			m_begin = contents;
 			m_end = contents + length;
@@ -857,8 +883,8 @@ namespace JSON
 		struct Token
 		{
 			TokenType m_type;
-			char* m_begin = nullptr;
-			char* m_end = nullptr;
+			const char* m_begin = nullptr;
+			const char* m_end = nullptr;
 		};
 
 		Token ReadToken( )
@@ -1026,6 +1052,7 @@ namespace JSON
 
 		void ReadNumber( )
 		{
+			--m_current;
 			char c = *m_current;
 
 			if ( c == '-' )
@@ -1036,16 +1063,17 @@ namespace JSON
 			if ( c == '0' )
 			{
 				c = ( m_current != m_end ) ? *( ++m_current ) : '\0';
-				if ( c == '.' )
-				{
-					c = ( m_current != m_end ) ? *( ++m_current ) : '\0';
-					while ( c >= '0' && c <= '9' )
-					{
-						c = ( m_current != m_end ) ? *( ++m_current ) : '\0';
-					}
-				}
 			}
 			else if ( c >= '1' && c <= '9' )
+			{
+				c = ( m_current != m_end ) ? *( ++m_current ) : '\0';
+				while ( c >= '0' && c <= '9' )
+				{
+					c = ( m_current != m_end ) ? *( ++m_current ) : '\0';
+				}
+			}
+
+			if ( c == '.' )
 			{
 				c = ( m_current != m_end ) ? *( ++m_current ) : '\0';
 				while ( c >= '0' && c <= '9' )
@@ -1179,7 +1207,7 @@ namespace JSON
 
 		Value DecodeNumberValue( const Token& token )
 		{
-			char* current = token.m_begin;
+			const char* current = token.m_begin;
 			bool isNegative = ( *current ) == '-';
 			if ( isNegative )
 			{
@@ -1228,8 +1256,8 @@ namespace JSON
 			std::string decoded;
 			decoded.reserve( token.m_end - token.m_begin - 2 );
 
-			char* current = token.m_begin + 1;
-			char* end = token.m_end - 2;
+			const char* current = token.m_begin + 1;
+			const char* end = token.m_end - 2;
 
 			while ( current <= end )
 			{
@@ -1349,10 +1377,18 @@ namespace JSON
 			return *m_valueStack.top( );
 		}
 
-		char* m_begin = nullptr;
-		char* m_end = nullptr;
-		char* m_current = nullptr;
+		const char* m_begin = nullptr;
+		const char* m_end = nullptr;
+		const char* m_current = nullptr;
 
 		std::stack<Value*> m_valueStack;
 	};
 }
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+
+#ifndef TRUE
+#define TRUE 1
+#endif

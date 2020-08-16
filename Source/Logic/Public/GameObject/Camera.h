@@ -7,7 +7,11 @@
 
 class CRenderView;
 class IRenderer;
-class KeyValue;
+
+namespace JSON
+{
+	class Value;
+}
 
 class CCamera : public IListener, public IGraphicsDeviceNotify
 {
@@ -35,7 +39,7 @@ public:
 	const CXMFLOAT4X4& GetInvViewMatrix( ) const { return m_invViewMatrix; }
 	void SetEnableRotate( bool isEnable ) { m_enableRotate = isEnable; }
 
-	void LoadProperty( const KeyValue& keyValue );
+	void LoadProperty( const JSON::Value& json );
 
 private:
 	void OnMouseLButton( const UserInput& input );

@@ -15,7 +15,7 @@ public:
 	
 	void BootUp( int maxContacts );
 
-	void StartFrame( );
+	void PreparePhysics( );
 	void RunPhysics( float duration );
 
 private:

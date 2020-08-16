@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <type_traits>
+#include <vector>
 
 struct IDelegateInstance
 {
@@ -105,10 +106,8 @@ private:
 	}
 
 	int m_id = 0;
-	static std::atomic<int> m_nextID;
+	inline static std::atomic<int> m_nextID = 1;
 };
-
-std::atomic<int> DelegateHandle::m_nextID = 1;
 
 template <typename RetType, typename... ArgTypes>
 struct IDelegateInterface : public IDelegateInstance

@@ -53,7 +53,7 @@ private:
 			return nullptr;
 		}
 
-		const TCHAR* meshName = mesh.GetName( );
+		const char* meshName = mesh.GetName( );
 		auto found = m_colliderList.find( meshName );
 
 		if ( found == m_colliderList.end( ) )
@@ -74,7 +74,7 @@ private:
 		return colliderGroup.m_colliders[colliderType].get( );
 	}
 
-	std::map<String, ColliderGroup> m_colliderList;
+	std::map<std::string, ColliderGroup> m_colliderList;
 };
 
 IColladerManager& GetColliderManager( )

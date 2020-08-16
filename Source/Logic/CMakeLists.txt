@@ -92,7 +92,6 @@ set (PHYSICS_SOURCE
 	"Private/Physics/ParticleWorld.cpp"
 	"Private/Physics/Ray.cpp"
 	"Private/Physics/ColliderManager.cpp"
-	"Private/Physics/World.cpp"
 	"Public/Physics/Aaboundingbox.h"
 	"Public/Physics/Body.h"
 	"Public/Physics/BoundingCone.h"
@@ -112,15 +111,13 @@ set (PHYSICS_SOURCE
 	"Public/Physics/ParticleLinks.h"
 	"Public/Physics/ParticleWorld.h"
 	"Public/Physics/Ray.h"
-	"Public/Physics/ColliderManager.h"
-	"Public/Physics/World.h")
+	"Public/Physics/ColliderManager.h")
 
 set (SCENE_SOURCE
 	"Private/Scene/AtmosphereScattering.cpp"
 	"Private/Scene/DebugOverlayManager.cpp"
 	"Private/Scene/DynamicBuffer.cpp"
 	"Private/Scene/RenderView.cpp"
-	"Private/Scene/SceneLoader.cpp"
 	"Private/Scene/ScreenBlurManager.cpp"
 	"Private/Scene/ShadowManager.cpp"
 	"Private/Scene/SSRManager.cpp"
@@ -130,7 +127,6 @@ set (SCENE_SOURCE
 	"Public/Scene/DynamicBuffer.h"
 	"Public/Scene/INotifyGraphicsDevice.h"
 	"Public/Scene/RenderView.h"
-	"Public/Scene/SceneLoader.h"
 	"Public/Scene/ScreenBlurManager.h"
 	"Public/Scene/ShadowManager.h"
 	"Public/Scene/SSRManager.h")
@@ -148,6 +144,12 @@ set (USER_INPUT_SOURCE
 	"Private/UserInput/MouseController.cpp"
 	"Public/UserInput/MouseController.h")
 	
+set (WORLD_SOURCE
+	"Private/World/World.cpp"
+	"Private/World/WorldLoader.cpp"
+	"Public/World/World.h"
+	"Public/World/WorldLoader.h")
+	
 source_group("GameObject" FILES ${GAME_OBJECT_SOURCE})
 source_group("GameObject\\Player" FILES ${PLAYER_OBJECT_SOURCE})
 source_group("GameObject\\TestScene" FILES ${TEST_SCENE_OBJECT_SOURCE})
@@ -157,6 +159,7 @@ source_group("Render" FILES ${SCENE_SOURCE})
 source_group("UI" FILES ${UI_SOURCE})
 source_group("UintTest" FILES ${UNIT_TEST_SOURCE})
 source_group("UserInput" FILES ${USER_INPUT_SOURCE})
+source_group("World" FILES ${WORLD_SOURCE})
 
 include_directories(./Public)
 include_directories(../Core/Public)
@@ -179,7 +182,8 @@ add_library(Logic SHARED 	${PRECOMPILED}
 							${SCENE_SOURCE}
 							${UI_SOURCE}
 							${UNIT_TEST_SOURCE}
-							${USER_INPUT_SOURCE})
+							${USER_INPUT_SOURCE}
+							${WORLD_SOURCE})
 							
 target_link_libraries(Logic RenderCore)
 							

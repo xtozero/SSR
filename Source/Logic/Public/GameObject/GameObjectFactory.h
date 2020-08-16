@@ -12,8 +12,8 @@ class CCreateGameObjectHelper;
 class IGameObjectFactory
 {
 public:
-	virtual void RegistGameObjectCreateFunc( const String& className, CCreateGameObjectHelper* helper ) = 0;
-	virtual Owner<CGameObject*> CreateGameObjectByClassName( const String& className ) const = 0;
+	virtual void RegistGameObjectCreateFunc( const std::string& className, CCreateGameObjectHelper* helper ) = 0;
+	virtual Owner<CGameObject*> CreateGameObjectByClassName( const std::string& className ) const = 0;
 
 	virtual ~IGameObjectFactory( ) = default;
 };
@@ -23,7 +23,7 @@ IGameObjectFactory& GetGameObjectFactory( );
 class CCreateGameObjectHelper
 {
 public:
-	CCreateGameObjectHelper( const String& className, std::function<CGameObject*( )> createFunc )
+	CCreateGameObjectHelper( const std::string& className, std::function<CGameObject*( )> createFunc )
 		: m_createFunc( createFunc )
 	{
 		GetGameObjectFactory( ).RegistGameObjectCreateFunc( className, this );
@@ -42,7 +42,7 @@ public:
 	}
 
 private:
-	std::function<Owner<CGameObject*> ( )> m_createFunc;
+	std::function<Owner<CGameObject*>( )> m_createFunc;
 };
 
 #define DECLARE_GAME_OBJECT( name, classType ) \
@@ -50,4 +50,4 @@ private:
 	{ \
 		return new classType; \
 	} \
-	static CCreateGameObjectHelper name##_create_heper( _T( #name ), create_##name );
+	static CCreateGameObjectHelper name##_create_heper( #name, create_##name );

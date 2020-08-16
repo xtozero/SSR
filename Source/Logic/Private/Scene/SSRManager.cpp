@@ -154,7 +154,7 @@ bool CSSRManager::CreateAppSizeDependentResource( IRenderer& renderer )
 	//// Create Screen Space Reflect Rendertarget
 	//IResourceManager& resourceMgr = renderer.GetResourceManager( );
 
-	//String ssrTextureName( _T( "ScreenSpaceReflect" ) );
+	//std::string ssrTextureName( "ScreenSpaceReflect" );
 	//TEXTURE_TRAIT ssrTexTrait = {
 	//	0U,
 	//	0U,
@@ -177,12 +177,12 @@ bool CSSRManager::CreateAppSizeDependentResource( IRenderer& renderer )
 	//m_ssrRt = resourceMgr.CreateRenderTarget( m_ssrTexture, ssrTextureName );
 	//m_ssrSrv = resourceMgr.CreateTextureShaderResource( m_ssrTexture, ssrTextureName );
 
-	//m_defaultRt = resourceMgr.FindRenderTarget( _T( "DefaultRenderTarget" ) );
-	//m_defaultDS = resourceMgr.FindDepthStencil( _T( "DefaultDepthStencil" ) );
-	//m_defaultSrv = resourceMgr.FindShaderResource( _T( "DuplicateFrameBuffer" ) );
-	//m_depthSrv = resourceMgr.FindShaderResource( _T( "DuplicateDepthGBuffer" ) );
+	//m_defaultRt = resourceMgr.FindRenderTarget( "DefaultRenderTarget" );
+	//m_defaultDS = resourceMgr.FindDepthStencil( "DefaultDepthStencil" );
+	//m_defaultSrv = resourceMgr.FindShaderResource( "DuplicateFrameBuffer" );
+	//m_depthSrv = resourceMgr.FindShaderResource( "DuplicateDepthGBuffer" );
 
-	//String backfaceDepthTexName( _T( "BackfaceDepth" ) );
+	//std::string backfaceDepthTexName( "BackfaceDepth" );
 	//m_backfaceDepthTexture = resourceMgr.CreateTexture2D( backfaceDepthTexName, backfaceDepthTexName );
 	//if ( m_backfaceDepthTexture == RE_HANDLE::InValidHandle( ) )
 	//{
@@ -241,7 +241,7 @@ bool CSSRManager::CreateDeviceDependendResource( CGameLogic& gameLogic )
 	//meshBuilder.AppendIndex( 2 );
 	//meshBuilder.AppendIndex( 3 );
 
-	//m_pScreenRect = meshBuilder.Build( renderer, _T( "ScreenRect" ), D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
+	//m_pScreenRect = meshBuilder.Build( renderer, "ScreenRect", D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
 
 	//if ( m_pScreenRect == nullptr )
 	//{
@@ -252,7 +252,7 @@ bool CSSRManager::CreateDeviceDependendResource( CGameLogic& gameLogic )
 	//renderer.GetRendererMultiSampleOption( &multiSampleOption );
 
 	//// Create Thickness Material
-	//m_backfaceDepthMaterial = renderer.SearchMaterial( _T( "mat_draw_back_face_depth" ) );
+	//m_backfaceDepthMaterial = renderer.SearchMaterial( "mat_draw_back_face_depth" );
 
 	//if ( m_backfaceDepthMaterial == INVALID_MATERIAL )
 	//{
@@ -264,11 +264,11 @@ bool CSSRManager::CreateDeviceDependendResource( CGameLogic& gameLogic )
 	//renderer.GetRendererMultiSampleOption( &msOption );
 	//if ( msOption.m_count > 1 )
 	//{
-	//	m_ssrMaterial = renderer.SearchMaterial( _T( "mat_ms_screen_space_reflect" ) );
+	//	m_ssrMaterial = renderer.SearchMaterial( "mat_ms_screen_space_reflect" );
 	//}
 	//else
 	//{
-	//	m_ssrMaterial = renderer.SearchMaterial( _T( "mat_screen_space_reflect" ) );
+	//	m_ssrMaterial = renderer.SearchMaterial( "mat_screen_space_reflect" );
 	//}
 	//
 	//if ( m_ssrMaterial == INVALID_MATERIAL )
@@ -279,11 +279,11 @@ bool CSSRManager::CreateDeviceDependendResource( CGameLogic& gameLogic )
 	//// Create SSR Blend Material
 	//if ( msOption.m_count > 1 )
 	//{
-	//	m_ssrBlendMaterial = renderer.SearchMaterial( _T( "mat_ms_ssr_blend" ) );
+	//	m_ssrBlendMaterial = renderer.SearchMaterial( "mat_ms_ssr_blend" );
 	//}
 	//else
 	//{
-	//	m_ssrBlendMaterial = renderer.SearchMaterial( _T( "mat_ssr_blend" ) );
+	//	m_ssrBlendMaterial = renderer.SearchMaterial( "mat_ssr_blend" );
 	//}
 
 	//if ( m_ssrBlendMaterial == INVALID_MATERIAL )

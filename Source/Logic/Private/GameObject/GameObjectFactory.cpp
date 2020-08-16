@@ -4,12 +4,12 @@
 class CGameObjectFactory : public IGameObjectFactory
 {
 public:
-	virtual void RegistGameObjectCreateFunc( const String& className, CCreateGameObjectHelper* helper ) override
+	virtual void RegistGameObjectCreateFunc( const std::string& className, CCreateGameObjectHelper* helper ) override
 	{
 		m_createHelpers.emplace( className, helper );
 	}
 
-	virtual Owner<CGameObject*> CreateGameObjectByClassName( const String& className ) const override
+	virtual Owner<CGameObject*> CreateGameObjectByClassName( const std::string& className ) const override
 	{
 		auto found = m_createHelpers.find( className );
 
@@ -24,7 +24,7 @@ public:
 	}
 
 private:
-	std::map<String, CCreateGameObjectHelper*> m_createHelpers;
+	std::map<std::string, CCreateGameObjectHelper*> m_createHelpers;
 };
 
 IGameObjectFactory& GetGameObjectFactory( )

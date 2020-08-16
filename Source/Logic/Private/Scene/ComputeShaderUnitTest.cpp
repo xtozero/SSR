@@ -70,31 +70,31 @@ void CComputeShaderUnitTest::RunUnitTest( CGameLogic& gameLogic )
 	}
 
 	IResourceManager& rscMgr = renderer.GetResourceManager( );
-	m_srvs[0] = rscMgr.CreateBufferShaderResource( m_buffers[0], _T( "csInitBuffer" ) );
+	m_srvs[0] = rscMgr.CreateBufferShaderResource( m_buffers[0], "csInitBuffer" );
 	if ( m_srvs[0] == RE_HANDLE::InValidHandle( ) )
 	{
 		__debugbreak( );
 	}
 
-	m_srvs[1] = rscMgr.CreateBufferShaderResource( m_buffers[1], _T( "csResultBuffer" ) );
+	m_srvs[1] = rscMgr.CreateBufferShaderResource( m_buffers[1], "csResultBuffer" );
 	if ( m_srvs[1] == RE_HANDLE::InValidHandle( ) )
 	{
 		__debugbreak( );
 	}
 
-	m_uavs[0] = rscMgr.CreateBufferRandomAccess( m_buffers[0], _T( "csInitBuffer" ) );
+	m_uavs[0] = rscMgr.CreateBufferRandomAccess( m_buffers[0], "csInitBuffer" );
 	if ( m_uavs[0] == RE_HANDLE::InValidHandle( ) )
 	{
 		__debugbreak( );
 	}
 
-	m_uavs[1] = rscMgr.CreateBufferRandomAccess( m_buffers[1], _T( "csResultBuffer" ) );
+	m_uavs[1] = rscMgr.CreateBufferRandomAccess( m_buffers[1], "csResultBuffer" );
 	if ( m_uavs[1] == RE_HANDLE::InValidHandle( ) )
 	{
 		__debugbreak( );
 	}
 
-	m_computeShader = renderer.CreateComputeShader( _T( "./Shaders/csExperimental.cso" ), nullptr );
+	m_computeShader = renderer.CreateComputeShader( "./Shaders/csExperimental.cso", nullptr );
 	if ( m_computeShader == RE_HANDLE::InValidHandle( ) )
 	{
 		__debugbreak( );

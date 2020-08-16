@@ -41,7 +41,7 @@
 //		return false;
 //	}
 //
-//	SetMaterial( renderer.SearchMaterial( _T( "tutorial" ) ) );
+//	SetMaterial( renderer.SearchMaterial( "tutorial" ) );
 //	
 //	return true;
 //}

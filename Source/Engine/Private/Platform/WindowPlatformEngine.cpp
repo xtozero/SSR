@@ -18,7 +18,13 @@ bool WindowPlatformEngine::BootUp( IPlatform& platform )
 		return false;
 	}
 
-	m_logicDll = LoadModule( _T( "./Binaries/Logic.dll" ) );
+	m_fileSystem = GetInterface<IFileSystem>( );
+	if ( m_fileSystem == nullptr )
+	{
+		return false;
+	}
+
+	m_logicDll = LoadModule( "./Binaries/Logic.dll" );
 	if ( m_logicDll == nullptr )
 	{
 		return false;
@@ -48,6 +54,7 @@ void WindowPlatformEngine::Run( )
 	while ( IsAvailable() )
 	{
 		ProcessInput( );
+		m_fileSystem->DispatchCallback( );
 		m_logic->Update( );
 	}
 }

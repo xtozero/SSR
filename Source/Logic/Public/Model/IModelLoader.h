@@ -11,7 +11,7 @@ class IRenderer;
 class IModelLoader
 {
 public:
-	virtual Owner<IMesh*> LoadMeshFromFile( IRenderer& renderer, const TCHAR* pFileName, SurfaceMap& pSurfaceManager ) = 0;
+	virtual Owner<IMesh*> LoadMeshFromFile( IRenderer& renderer, const char* pFileName, SurfaceMap& pSurfaceManager ) = 0;
 
 	virtual ~IModelLoader( ) = default;
 

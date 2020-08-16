@@ -127,13 +127,13 @@ void CShadowManager::BuildShadowProjectionMatrix( CGameLogic& gameLogic, std::ve
 	//	{
 	//		CreateNonCascadedResource( resourceMgr );
 
-	//		m_shadowMapMtl = renderer.SearchMaterial( _T( "mat_shadowMap" ) );
+	//		m_shadowMapMtl = renderer.SearchMaterial( "mat_shadowMap" );
 	//	}
 	//	else
 	//	{
 	//		CreateCascadedResource( resourceMgr );
 
-	//		m_shadowMapMtl = renderer.SearchMaterial( _T( "mat_cascaded_shadowMap" ) );
+	//		m_shadowMapMtl = renderer.SearchMaterial( "mat_cascaded_shadowMap" );
 	//	}
 
 	//	m_useCascaded = !m_useCascaded;
@@ -299,7 +299,7 @@ bool CShadowManager::CreateDeviceDependentResource( IRenderer& renderer )
 	//		return false;
 	//	}
 
-	//	m_shadowMapMtl = renderer.SearchMaterial( _T( "mat_cascaded_shadowMap" ) );
+	//	m_shadowMapMtl = renderer.SearchMaterial( "mat_cascaded_shadowMap" );
 	//}
 	//else
 	//{
@@ -308,7 +308,7 @@ bool CShadowManager::CreateDeviceDependentResource( IRenderer& renderer )
 	//		return false;
 	//	}
 
-	//	m_shadowMapMtl = renderer.SearchMaterial( _T( "mat_shadowMap" ) );
+	//	m_shadowMapMtl = renderer.SearchMaterial( "mat_shadowMap" );
 	//}
 
 	//if ( m_shadowMapMtl == INVALID_MATERIAL )
@@ -333,7 +333,7 @@ bool CShadowManager::CreateDeviceDependentResource( IRenderer& renderer )
 	//	return false;
 	//}
 
-	//m_shadowSampler = resourceMgr.CreateSamplerState( _T( "shadow" ) );
+	//m_shadowSampler = resourceMgr.CreateSamplerState( "shadow" );
 	//if ( m_shadowSampler == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	return false;
@@ -346,25 +346,25 @@ bool CShadowManager::CreateDeviceDependentResource( IRenderer& renderer )
 
 bool CShadowManager::CreateNonCascadedResource( IResourceManager& resourceMgr )
 {
-	//m_shadowMap = resourceMgr.CreateTexture2D( _T( "ShadowMap" ), _T( "ShadowMap" ) );
+	//m_shadowMap = resourceMgr.CreateTexture2D( "ShadowMap", "ShadowMap" );
 	//if ( m_shadowMap == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	return false;
 	//}
 
-	//m_rtvShadowMap = resourceMgr.CreateRenderTarget( m_shadowMap, _T( "ShadowMap" ) );
+	//m_rtvShadowMap = resourceMgr.CreateRenderTarget( m_shadowMap, "ShadowMap" );
 	//if ( m_rtvShadowMap == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	return false;
 	//}
 
-	//m_srvShadowMap = resourceMgr.CreateTextureShaderResource( m_shadowMap, _T( "ShadowMap" ) );
+	//m_srvShadowMap = resourceMgr.CreateTextureShaderResource( m_shadowMap, "ShadowMap" );
 	//if ( m_srvShadowMap == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	return false;
 	//}
 
-	//m_shadowDepth = resourceMgr.CreateTexture2D( _T( "ShadowMapDepthStencil" ), _T( "ShadowMapDepthStencil" ) );
+	//m_shadowDepth = resourceMgr.CreateTexture2D( "ShadowMapDepthStencil", "ShadowMapDepthStencil" );
 	//if ( m_shadowDepth == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	return false;
@@ -373,7 +373,7 @@ bool CShadowManager::CreateNonCascadedResource( IResourceManager& resourceMgr )
 	//TEXTURE_TRAIT texTrait = resourceMgr.GetTextureTrait( m_shadowDepth );
 	//texTrait.m_format = RESOURCE_FORMAT::D24_UNORM_S8_UINT;
 
-	//m_dsvShadowMap = resourceMgr.CreateDepthStencil( m_shadowDepth, _T( "ShadowMapDepthStencil" ), &texTrait );
+	//m_dsvShadowMap = resourceMgr.CreateDepthStencil( m_shadowDepth, "ShadowMapDepthStencil", &texTrait );
 	//if ( m_dsvShadowMap == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	return false;
@@ -401,25 +401,25 @@ bool CShadowManager::CreateNonCascadedResource( IResourceManager& resourceMgr )
 
 bool CShadowManager::CreateCascadedResource( IResourceManager& resourceMgr )
 {
-	//m_shadowMap = resourceMgr.CreateTexture2D( _T( "CascadedShadowMap" ), _T( "CascadedShadowMap" ) );
+	//m_shadowMap = resourceMgr.CreateTexture2D( "CascadedShadowMap", "CascadedShadowMap" );
 	//if ( m_shadowMap == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	return false;
 	//}
 
-	//m_rtvShadowMap = resourceMgr.CreateRenderTarget( m_shadowMap, _T( "CascadedShadowMap" ) );
+	//m_rtvShadowMap = resourceMgr.CreateRenderTarget( m_shadowMap, "CascadedShadowMap" );
 	//if ( m_rtvShadowMap == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	return false;
 	//}
 
-	//m_srvShadowMap = resourceMgr.CreateTextureShaderResource( m_shadowMap, _T( "CascadedShadowMap" ) );
+	//m_srvShadowMap = resourceMgr.CreateTextureShaderResource( m_shadowMap, "CascadedShadowMap" );
 	//if ( m_srvShadowMap == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	return false;
 	//}
 
-	//m_shadowDepth = resourceMgr.CreateTexture2D( _T( "CascadedShadowMapDepthStencil" ), _T( "CascadedShadowMapDepthStencil" ) );
+	//m_shadowDepth = resourceMgr.CreateTexture2D( "CascadedShadowMapDepthStencil",  "CascadedShadowMapDepthStencil" );
 	//if ( m_shadowDepth == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	return false;
@@ -428,7 +428,7 @@ bool CShadowManager::CreateCascadedResource( IResourceManager& resourceMgr )
 	//TEXTURE_TRAIT texTrait = resourceMgr.GetTextureTrait( m_shadowDepth );
 	//texTrait.m_format = RESOURCE_FORMAT::D24_UNORM_S8_UINT;
 
-	//m_dsvShadowMap = resourceMgr.CreateDepthStencil( m_shadowDepth, _T( "CascadedShadowMapDepthStencil" ), &texTrait );
+	//m_dsvShadowMap = resourceMgr.CreateDepthStencil( m_shadowDepth, "CascadedShadowMapDepthStencil", &texTrait );
 	//if ( m_dsvShadowMap == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	return false;

@@ -14,17 +14,17 @@ LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
 IEngine* g_engine = nullptr;
 
-int APIENTRY _tWinMain ( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE , _In_ LPTSTR , _In_ int )
+int APIENTRY WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int )
 {
 	CWindowSetup setup( hInstance, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT );
-	Window mainWindow( _T( "Screen Space Reflection" ) );
+	Window mainWindow( "Screen Space Reflection" );
 
 	if ( !mainWindow.Run( setup, WndProc ) )
 	{
 		return false;
 	}
 
-	HMODULE engineDll = LoadModule( _T( "./Binaries/Engine.dll" ) );
+	HMODULE engineDll = LoadModule( "./Binaries/Engine.dll" );
 	if ( engineDll == nullptr )
 	{
 		return false;
@@ -55,5 +55,5 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 		return g_engine->MsgProc( hWnd, message, wParam, lParam );
 	}
 
-	return DefWindowProc( hWnd, message, wParam, lParam );
+	return DefWindowProcA( hWnd, message, wParam, lParam );
 }

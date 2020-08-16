@@ -315,5 +315,5 @@ bool WindowPlatformInputMap::Initialize( )
 {
 	RegisterWindowInputEnumString( );
 	m_userInputMap.Initialize( );
-	return m_userInputMap.LoadConfig( _T( "./Configs/window_platform.cfg" ) );
+	return m_userInputMap.LoadConfig( "./Configs/window_platform.json" );
 }

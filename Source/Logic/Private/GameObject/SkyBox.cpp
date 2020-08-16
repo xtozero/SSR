@@ -59,7 +59,7 @@ bool CSkyBox::LoadModelMesh( CGameLogic& gameLogic )
 	//meshBuilder.AppendIndex( 7 ); meshBuilder.AppendIndex( 5 ); meshBuilder.AppendIndex( 1 );
 	//meshBuilder.AppendIndex( 3 ); meshBuilder.AppendIndex( 7 ); meshBuilder.AppendIndex( 1 );
 
-	//meshBuilder.AppendTextureName( _T( "SkyboxSet/TropicalSunnyDay/TropicalSunnyDay.dds" ) );
+	//meshBuilder.AppendTextureName( "SkyboxSet/TropicalSunnyDay/TropicalSunnyDay.dds" );
 	//
 	//SetModelMeshName( GetName( ) );
 	//SetModel( meshBuilder.Build( gameLogic.GetRenderer(), GetMeshName() ) );

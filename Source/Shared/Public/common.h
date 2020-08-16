@@ -30,16 +30,6 @@
 #define LOGIC_FUNC_DLL extern "C" __declspec(dllimport)
 #endif
 
-#ifndef UNICODE
-using String = std::string;
-using Ifstream = std::ifstream;
-#define TO_STRING( x ) std::to_string( x )
-#else
-using String = std::wstring;
-using Ifstream = std::wifstream;
-#define TO_STRING( x ) std::to_wstring( x )
-#endif
-
 #define ON_FAIL_RETURN( x ){ \
 	if ( !x ) \
 	{\
@@ -85,9 +75,9 @@ void ClearFreeList( unsigned char** head )
 	}
 }
 
-inline HMODULE LoadModule( const TCHAR* dllPath )
+inline HMODULE LoadModule( const char* dllPath )
 {
-	HMODULE hModule = LoadLibrary( dllPath );
+	HMODULE hModule = LoadLibraryA( dllPath );
 	if ( hModule == nullptr )
 	{
 		assert( "Module loading failed!" && false );

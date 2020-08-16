@@ -12,18 +12,17 @@
 #include "Model/Surface.h"
 #include "Physics/BoundingSphere.h"
 #include "Physics/CollideBroad.h"
-#include "Physics/World.h"
 // #include "Render/Resource.h"
 #include "Scene/AtmosphereScattering.h"
 #include "Scene/ConstantBufferDefine.h"
 #include "Scene/DebugOverlayManager.h"
 #include "Scene/RenderView.h"
-#include "Scene/SceneLoader.h"
 #include "Scene/ShadowManager.h"
 #include "Scene/SSRManager.h"
 #include "Timer.h"
 #include "UI/ImUI.h"
 #include "UserInput/MouseController.h"
+#include "World/World.h"
 
 #include <list>
 #include <memory>
@@ -52,7 +51,6 @@ public:
 	virtual void AppSizeChanged( IPlatform& platform ) override;
 	
 	void SpawnObject( Owner<CGameObject*> object );
-	void OnObjectSpawned( CGameObject& object );
 
 	//IRenderer& GetRenderer( ) const { return *m_pRenderer; }
 	//CLightManager& GetLightManager( ) { return m_lightManager; }
@@ -64,6 +62,8 @@ public:
 	const std::pair<UINT, UINT>& GetAPPSize( ) { return m_appSize; }
 	const CTimer& GetTimer( ) const { return m_clock; }
 
+	CPlayer* GetLocalPlayer( );
+
 private:
 	void Shutdown( );
 
@@ -71,7 +71,7 @@ private:
 	void ProcessLogic ( );
 	void EndLogic ( );
 
-	bool LoadScene( const String& scene );
+	bool LoadWorld( const char* filePath );
 	void ShutdownScene( );
 
 	void SceneBegin( );
@@ -90,8 +90,6 @@ private:
 	bool CreateDeviceDependentResource( );
 	bool CreateDefaultFontResource( );
 
-	CPlayer* GetLocalPlayer( );
-
 public:
 	CGameLogic();
 	~CGameLogic();
@@ -104,15 +102,14 @@ private:
 
 	CTimer m_clock;
 	CUserInputBroadCaster m_inputBroadCaster;
-	CPickingManager m_pickingManager;
-	//CLightManager m_lightManager;
+	//CPickingManager m_pickingManager;
+	CLightManager m_lightManager;
 	//CShadowManager m_shadowManager;
 	//CSSRManager m_ssrManager;
 	//CAtmosphericScatteringManager m_atmosphereManager;
 	//CModelManager m_meshManager;
 	IRenderCore* m_pRenderCore = nullptr;
 	CRenderView m_view;
-	std::vector<std::unique_ptr<CGameObject>> m_gameObjects;
 	std::vector<CPlayer> m_players;
 
 	std::list<CGameObject*> m_renderableList[RENDERABLE_TYPE_COUNT];

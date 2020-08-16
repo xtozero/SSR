@@ -10,8 +10,8 @@
 class BaseMesh : public IMesh
 {
 public:
-	virtual const TCHAR* GetName( ) const override { return m_name; }
-	virtual void SetName( const TCHAR* name ) override;
+	virtual const char* GetName( ) const override { return m_name; }
+	virtual void SetName( const char* name ) override;
 
 	virtual void SetModelData( Owner<MeshVertex*> pOrignal, UINT vertexCount ) override;
 	virtual void SetIndexData( Owner<void*> pOrignal, UINT indexCount ) override;
@@ -49,6 +49,6 @@ protected:
 
 	CXMFLOAT3 m_color;
 
-	TCHAR m_name[MAX_MESH_NAME + 1] = {};
+	char m_name[MAX_MESH_NAME + 1] = {};
 };
 

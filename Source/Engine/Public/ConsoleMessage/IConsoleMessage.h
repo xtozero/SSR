@@ -9,7 +9,7 @@ public:
 	virtual bool IsCommand( ) = 0;
 
 	virtual void Execute( ) = 0;
-	virtual String GetDescription( ) = 0;
+	virtual std::string GetDescription( ) = 0;
 
 	virtual ~IConsoleMessage( ) = default;
 

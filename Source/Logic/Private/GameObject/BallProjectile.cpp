@@ -25,7 +25,7 @@ void CBallProjectile::Think( float /*elapsedTime*/ )
 
 CBallProjectile::CBallProjectile( )
 {
-	SetMaterialName( _T( "mat_default" ) );
+	SetMaterialName( "mat_default" );
 }
 
 bool CBallProjectile::LoadModelMesh( CGameLogic& gameLogic )

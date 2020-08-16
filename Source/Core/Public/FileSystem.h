@@ -11,27 +11,21 @@
 
 struct FileSystemOverlapped : public OVERLAPPED
 {
-	bool m_isIOComplete;
+	FileSystemOverlapped( ) : OVERLAPPED{ }
+	{ }
+
+	bool m_isIOComplete = false;
+	char* m_buffer = nullptr;
+	unsigned long m_bufferSize = 0;
 };
 
 struct FileHandle
 {
 	void* m_handle = nullptr;
-	FileSystemOverlapped* m_overlapped = nullptr;
 
 	bool IsValid( ) const
 	{
 		return m_handle != INVALID_HANDLE_VALUE;
-	}
-
-	bool HasIoCompleted( ) const
-	{
-		if ( m_overlapped == nullptr )
-		{
-			return true;
-		}
-
-		return m_overlapped->m_isIOComplete;
 	}
 };
 
@@ -45,7 +39,7 @@ public:
 	FileHandle OpenFile( const char* filePath )
 	{
 		char normalizedPath[MAX_FILE_PATH] = { '\0' };
-		std::strncpy( normalizedPath, filePath, MAX_FILE_PATH );
+		strncpy_s( normalizedPath, filePath, MAX_FILE_PATH );
 
 		for ( char* c = normalizedPath; *c != '\0'; ++c )
 		{
@@ -58,12 +52,10 @@ public:
 		HANDLE hFile = CreateFileA( normalizedPath, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, nullptr );
 		if ( hFile == INVALID_HANDLE_VALUE )
 		{
-			return FileHandle{ INVALID_HANDLE_VALUE, nullptr };
+			return FileHandle{ INVALID_HANDLE_VALUE };
 		}
 
-		FileSystemOverlapped* overlapped = m_overlappedPool.Allocate( 1 );
-		std::memset( overlapped, 0, sizeof( FileSystemOverlapped ) );
-		return FileHandle{ hFile, overlapped };
+		return FileHandle{ hFile };
 	}
 
 	unsigned long GetFileSize( const FileHandle& handle ) const
@@ -80,7 +72,7 @@ public:
 		return fileSize.LowPart;
 	}
 
-	bool ReadAsync( const FileHandle& handle, char* buffer, unsigned long size ) const
+	void* ReadAsync( const FileHandle& handle, char* buffer, unsigned long size )
 	{
 		if ( handle.IsValid( ) == false )
 		{
@@ -95,21 +87,25 @@ public:
 			return false;
 		}
 
-		if ( ::ReadFile( hFile, buffer, static_cast<DWORD>( size ), nullptr, handle.m_overlapped ) == 0 )
+		FileSystemOverlapped* overlapped = m_overlappedPool.Allocate( 1 );
+		overlapped->m_buffer = buffer;
+		overlapped->m_bufferSize = size;
+
+		if ( ::ReadFile( hFile, buffer, static_cast<DWORD>( size ), nullptr, overlapped ) == 0 )
 		{
 			if ( GetLastError( ) != ERROR_IO_PENDING )
 			{
-				return false;
+				m_overlappedPool.Deallocate( overlapped, 1 );
+				return nullptr;
 			}
 		}
 
-		return true;
+		return overlapped;
 	}
 
 	void CloseFile( FileHandle handle )
 	{
 		CloseHandle( handle.m_handle );
-		m_overlappedPool.Deallocate( handle.m_overlapped, 1 );
 	}
 
 	void WaitAsyncIO( ) const
@@ -141,6 +137,11 @@ public:
 	void SuspendWaitAsyncIO( )
 	{
 		PostQueuedCompletionStatus( m_completionPort, 0, 0, nullptr );
+	}
+
+	void CleanUpIORequest( FileSystemOverlapped* overlapped )
+	{
+		m_overlappedPool.Deallocate( overlapped, 1 );
 	}
 
 	FileSystem( ) : m_overlappedPool( MAX_CONCURRENT_FILE_READ )

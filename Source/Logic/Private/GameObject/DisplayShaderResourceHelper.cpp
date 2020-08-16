@@ -4,9 +4,9 @@
 #include "ConsoleMessage/ConVar.h"
 #include "Core/GameLogic.h"
 #include "Core/UtilWindowInfo.h"
-#include "DataStructure/KeyValueReader.h"
 #include "GameObject/GameObject.h"
 #include "GameObject/GameObjectFactory.h"
+#include "Json/json.hpp"
 #include "Model/IMesh.h"
 #include "Model/IModelBuilder.h"
 //#include "Render/IRenderer.h"
@@ -45,24 +45,24 @@ void CDisplayShaderResourceHelper::Think( float /*elapsedTime*/ )
 {
 }
 
-void CDisplayShaderResourceHelper::LoadPropertyFromScript( const KeyValue& keyValue )
+void CDisplayShaderResourceHelper::LoadProperty( const JSON::Value& json )
 {
-	if ( const KeyValue* pTexName = keyValue.Find( _T( "TextureName" ) ) )
+	if ( const JSON::Value* pTexName = json.Find( "TextureName" ) )
 	{
-		m_textureName = pTexName->GetValue( );
+		m_textureName = pTexName->AsString( );
 	}
 	
-	if ( const KeyValue* pTexWidth = keyValue.Find( _T( "Width" ) ) )
+	if ( const JSON::Value* pTexWidth = json.Find( "Width" ) )
 	{
-		m_width = pTexWidth->GetValue<float>( );
+		m_width = static_cast<float>( pTexWidth->AsReal( ) );
 	}
 	
-	if ( const KeyValue* pTexHeight = keyValue.Find( _T( "Height" ) ) )
+	if ( const JSON::Value* pTexHeight = json.Find( "Height" ) )
 	{
-		m_height = pTexHeight->GetValue<float>( );
+		m_height = static_cast<float>( pTexHeight->AsReal( ) );
 	}
 
-	CGameObject::LoadPropertyFromScript( keyValue );
+	CGameObject::LoadProperty( json );
 }
 
 bool CDisplayShaderResourceHelper::ShouldDraw( ) const

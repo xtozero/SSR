@@ -11,7 +11,7 @@ using namespace DirectX;
 void CDebugOverlayManager::OnDeviceRestore( CGameLogic& gameLogic )
 {
 	m_dynamicVB.OnDeviceRestore( gameLogic );
-	//m_debugMaterial = gameLogic.GetRenderer( ).SearchMaterial( _T( "mat_debugOverlay" ) );
+	//m_debugMaterial = gameLogic.GetRenderer( ).SearchMaterial( "mat_debugOverlay" );
 }
 
 bool CDebugOverlayManager::Init( CGameLogic& gameLogic )
@@ -22,7 +22,7 @@ bool CDebugOverlayManager::Init( CGameLogic& gameLogic )
 	//constexpr unsigned int defaultDynamicBufferSize = 64 * 1024;
 	//m_dynamicVB.Initialize( resourceMgr, RESOURCE_BIND_TYPE::VERTEX_BUFFER, defaultDynamicBufferSize );
 
-	//m_debugMaterial = renderer.SearchMaterial( _T( "mat_debugOverlay" ) );
+	//m_debugMaterial = renderer.SearchMaterial( "mat_debugOverlay" );
 	//if ( m_debugMaterial == INVALID_MATERIAL )
 	//{
 	//	return false;

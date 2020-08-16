@@ -29,9 +29,7 @@ set (DATA_STRUCTURE_SOURCE
 	"../Core/Public/DoubleLinkedList.h"
 	"../Core/Public/SingleLInkedList.h"
 	"Private/DataStructure/EnumStringMap.cpp"
-	"Private/DataStructure/KeyValueReader.cpp"
-	"Public/DataStructure/EnumStringMap.h"
-	"Public/DataStructure/KeyValueReader.h")
+	"Public/DataStructure/EnumStringMap.h")
 	
 set (PLATFORM_SOURCE
 	"Private/Platform/WindowPlatformEngine.cpp"
@@ -41,6 +39,7 @@ set (PLATFORM_SOURCE
 	"Public/Platform/WindowPlatformInputConvertor.h")
 	
 set (USER_INPUT_SOURCE
+	"Private/UserInput/UICMap.cpp"
 	"Public/UserInput/UICMap.h"
 	"Public/UserInput/UserInput.h")
 	

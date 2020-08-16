@@ -12,12 +12,12 @@ class IMesh;
 class CObjMeshLoader : public IModelLoader
 {
 public:
-	virtual Owner<IMesh*> LoadMeshFromFile( IRenderer& renderer, const TCHAR* pFileName, SurfaceMap& pSurfaceManager ) override;
+	virtual Owner<IMesh*> LoadMeshFromFile( IRenderer& renderer, const char* pFileName, SurfaceMap& pSurfaceManager ) override;
 
 private:
 	void Initialize( );
 	std::vector<MeshVertex> BuildVertices( );
-	void LoadMaterialFile( const TCHAR* pFileName, SurfaceMap& surface );
+	void LoadMaterialFile( const char* pFileName, SurfaceMap& surface );
 
 private:
 	void CalcObjNormal( );
@@ -43,20 +43,20 @@ private:
 
 	struct ObjFaceMtlInfo
 	{
-		ObjFaceMtlInfo( UINT endFaceIndex, const String& materialName ) :
+		ObjFaceMtlInfo( UINT endFaceIndex, const std::string& materialName ) :
 		m_endFaceIndex( endFaceIndex ),
 		m_materialName( materialName )
 		{}
 
 		UINT m_endFaceIndex;
-		String m_materialName;
+		std::string m_materialName;
 	};
 
 	std::vector<ObjFaceMtlInfo> m_faceMtlGroup;
 
 	struct ObjMtlInfo
 	{
-		ObjMtlInfo( UINT startIndex, UINT endIndex, const String& textureName ) :
+		ObjMtlInfo( UINT startIndex, UINT endIndex, const std::string& textureName ) :
 			m_startIndex( startIndex ),
 			m_endIndex( endIndex ),
 			m_materialName( textureName )
@@ -65,14 +65,14 @@ private:
 
 		UINT m_startIndex;
 		UINT m_endIndex;
-		String m_materialName;
+		std::string m_materialName;
 	};
 
 	std::vector<ObjMtlInfo> m_mtlGroup;
 
 	struct ObjRawMtlInfo
 	{
-		String m_textureName;
+		std::string m_textureName;
 	};
 };
 

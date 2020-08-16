@@ -5,9 +5,9 @@
 #include "Model/CommonMeshDefine.h"
 //#include "Render/IRenderer.h"
 
-void BaseMesh::SetName( const TCHAR* name )
+void BaseMesh::SetName( const char* name )
 {
-	_tcsncpy_s( m_name, name, MAX_MESH_NAME );
+	strncpy_s( m_name, name, MAX_MESH_NAME );
 }
 
 void BaseMesh::SetModelData( Owner<MeshVertex*> pOrignal, UINT vertexCount )

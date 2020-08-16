@@ -3,6 +3,7 @@
 #include "FileSystem/EngineFileSystem.h"
 
 #include <cstddef>
+#include <list>
 
 class EngineFileSystem : public IFileSystem
 {
@@ -10,7 +11,8 @@ public:
 	virtual [[nodiscard]] FileHandle OpenFile( const char* filePath ) override;
 	virtual void CloseFile( const FileHandle& handle ) override;
 	virtual unsigned long GetFileSize( const FileHandle& handle ) const override;
-	virtual void ReadAsync( const FileHandle& handle, char* buffer, unsigned long size ) const override;
+	virtual bool ReadAsync( const FileHandle& handle, char* buffer, unsigned long size, IOCompletionCallback* callback = nullptr ) override;
+	virtual void DispatchCallback( ) override;
 
 	EngineFileSystem( );
 	~EngineFileSystem( );
@@ -23,17 +25,18 @@ private:
 	std::mutex m_fileSystemMutex;
 	FileSystem m_fileSystem;
 	GroupHandle m_hWaitIO;
+
+	using CallBack = std::pair<FileSystemOverlapped*, Delegate<void, char*, unsigned long>>;
+	std::list<CallBack> m_callbacks;
 };
 
 FileHandle EngineFileSystem::OpenFile( const char* filePath )
 {
-	std::lock_guard lk( m_fileSystemMutex );
 	return m_fileSystem.OpenFile( filePath );
 }
 
 void EngineFileSystem::CloseFile( const FileHandle& handle )
 {
-	std::lock_guard lk( m_fileSystemMutex );
 	m_fileSystem.CloseFile( handle );
 }
 
@@ -42,9 +45,51 @@ unsigned long EngineFileSystem::GetFileSize( const FileHandle& handle ) const
 	return m_fileSystem.GetFileSize( handle );
 }
 
-void EngineFileSystem::ReadAsync( const FileHandle& handle, char* buffer, unsigned long size ) const
-{ 
-	m_fileSystem.ReadAsync( handle, buffer, size );
+bool EngineFileSystem::ReadAsync( const FileHandle& handle, char* buffer, unsigned long size, IOCompletionCallback* callback )
+{
+	if ( handle.IsValid( ) == false )
+	{
+		return false;
+	}
+
+	std::lock_guard lk( m_fileSystemMutex );
+	FileSystemOverlapped* o = static_cast<FileSystemOverlapped*>( m_fileSystem.ReadAsync( handle, buffer, size ) );
+	if ( o != nullptr )
+	{
+		m_callbacks.emplace_back( o, callback ? *callback : IOCompletionCallback( ) );
+	}
+
+	return ( o != nullptr );
+}
+
+void EngineFileSystem::DispatchCallback( )
+{
+	if ( m_callbacks.size( ) == 0 )
+	{
+		return;
+	}
+
+	std::lock_guard lk( m_fileSystemMutex );
+	for ( auto iter = m_callbacks.begin( ); iter != m_callbacks.end( ); )
+	{
+		CallBack& callback = *iter;
+		FileSystemOverlapped* o = callback.first;
+		if ( o->m_isIOComplete )
+		{
+			if ( callback.second.IsBound( ) )
+			{
+				callback.second( o->m_buffer, o->m_bufferSize );
+			}
+
+			iter = m_callbacks.erase( iter );
+		}
+		else
+		{
+			++iter;
+		}
+
+		m_fileSystem.CleanUpIORequest( o );
+	}
 }
 
 EngineFileSystem::EngineFileSystem( )

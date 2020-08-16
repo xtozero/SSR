@@ -3,8 +3,8 @@
 
 #include "Core/GameLogic.h"
 #include "Core/Timer.h"
-#include "DataStructure/KeyValueReader.h"
 #include "GameObject/GameObjectFactory.h"
+#include "Json/json.hpp"
 #include "Math/Util.h"
 #include "Model/IMesh.h"
 #include "Physics/Aaboundingbox.h"
@@ -35,7 +35,7 @@ void CGameObject::OnDeviceRestore( CGameLogic& gameLogic )
 	LoadMaterial( gameLogic );
 }
 
-bool CGameObject::Initialize( CGameLogic& gameLogic, std::size_t id )
+bool CGameObject::Initialize( CGameLogic& gameLogic )
 {
 	if ( LoadModelMesh( gameLogic ) == false )
 	{
@@ -81,8 +81,7 @@ bool CGameObject::Initialize( CGameLogic& gameLogic, std::size_t id )
 		m_body.SetInertiaTensor( inertiaTensor );
 	}
 
-	SetID( id );
-	gameLogic.OnObjectSpawned( *this );
+	// SetID( id );
 
 	return true;
 }
@@ -227,12 +226,12 @@ void CGameObject::PostThink( float /*elapsedTime*/ )
 	}
 }
 
-void CGameObject::SetMaterialName( const String& pMaterialName )
+void CGameObject::SetMaterialName( const std::string& pMaterialName )
 {
 	m_materialName = pMaterialName;
 }
 
-void CGameObject::SetModelMeshName( const String& pModelName )
+void CGameObject::SetModelMeshName( const std::string& pModelName )
 {
 	m_meshName = pModelName;
 }
@@ -259,94 +258,88 @@ const std::vector<std::unique_ptr<ICollider>>& CGameObject::GetSubColliders( int
 	return m_subColliders[type];
 }
 
-void CGameObject::LoadPropertyFromScript( const KeyValue& keyValue )
+void CGameObject::LoadProperty( const JSON::Value& json )
 {
-	if ( const KeyValue* pName = keyValue.Find( _T( "Name" ) ) )
+	if ( const JSON::Value* pName = json.Find( "Name" ) )
 	{
-		SetName( pName->GetValue( ) );
+		SetName( pName->AsString( ) );
 	}
 	
-	if ( const KeyValue* pModel = keyValue.Find( _T( "Model" ) ) )
+	if ( const JSON::Value* pModel = json.Find( "Model" ) )
 	{
-		SetModelMeshName( pModel->GetValue( ).c_str( ) );
+		SetModelMeshName( pModel->AsString( ) );
 	}
 	
-	if ( const KeyValue* pPos = keyValue.Find( _T( "Position" ) ) )
+	if ( const JSON::Value* pPos = json.Find( "Position" ) )
 	{
-		std::vector<String> params;
+		const JSON::Value& pos = *pPos;
 
-		UTIL::Split( pPos->GetValue( ), params, _T( ' ' ) );
-
-		if ( params.size( ) == 3 )
+		if ( pos.Size( ) == 3 )
 		{
-			float x = static_cast<float>(_ttof( params[0].c_str( ) ));
-			float y = static_cast<float>(_ttof( params[1].c_str( ) ));
-			float z = static_cast<float>(_ttof( params[2].c_str( ) ));
+			float x = static_cast<float>( pos[0].AsReal( ) );
+			float y = static_cast<float>( pos[1].AsReal( ) );
+			float z = static_cast<float>( pos[2].AsReal( ) );
 
 			SetPosition( x, y, z );
 		}
 	}
 	
-	if ( const KeyValue* pScale = keyValue.Find( _T( "Scale" ) ) )
+	if ( const JSON::Value* pScale = json.Find( "Scale" ) )
 	{
-		std::vector<String> params;
+		const JSON::Value& scale = *pScale;
 
-		UTIL::Split( pScale->GetValue( ), params, _T( ' ' ) );
-
-		if ( params.size( ) == 3 )
+		if ( scale.Size( ) == 3 )
 		{
-			float x = static_cast<float>(_ttof( params[0].c_str( ) ));
-			float y = static_cast<float>(_ttof( params[1].c_str( ) ));
-			float z = static_cast<float>(_ttof( params[2].c_str( ) ));
+			float x = static_cast<float>( scale[0].AsReal( ) );
+			float y = static_cast<float>( scale[1].AsReal( ) );
+			float z = static_cast<float>( scale[2].AsReal( ) );
 
 			SetScale( x, y, z );
 		}
 	}
 
-	if ( const KeyValue* pRotate = keyValue.Find( _T( "Rotate" ) ) )
+	if ( const JSON::Value* pRotate = json.Find( "Rotate" ) )
 	{
-		std::vector<String> params;
+		const JSON::Value& rotate = *pRotate;
 
-		UTIL::Split( pRotate->GetValue( ), params, _T( ' ' ) );
-
-		if ( params.size( ) == 3 )
+		if ( rotate.Size( ) == 3 )
 		{
-			float pitch = static_cast<float>( _ttof( params[0].c_str( ) ) );
+			float pitch = static_cast<float>( rotate[0].AsReal( ) );
 			pitch = XMConvertToRadians( pitch );
 
-			float yaw = static_cast<float>( _ttof( params[1].c_str( ) ) );
+			float yaw = static_cast<float>( rotate[1].AsReal( ) );
 			yaw = XMConvertToRadians( yaw );
 
-			float roll = static_cast<float>( _ttof( params[2].c_str( ) ) );
+			float roll = static_cast<float>( rotate[2].AsReal( ) );
 			roll = XMConvertToRadians( roll );
 
 			SetRotate( pitch, yaw, roll );
 		}
 	}
 	
-	if ( const KeyValue* pMat = keyValue.Find( _T( "Material" ) ) )
+	if ( const JSON::Value* pMat = json.Find( "Material" ) )
 	{
-		SetMaterialName( pMat->GetValue( ) );
+		SetMaterialName( pMat->AsString( ) );
 	}
 	
-	if ( const KeyValue* pReflectable = keyValue.Find( _T( "Reflectable" ) ) )
+	if ( const JSON::Value* pReflectable = json.Find( "Reflectable" ) )
 	{
 		AddProperty( REFLECTABLE_OBJECT );
 	}
 
-	if ( const KeyValue* pColliderType = keyValue.Find( _T( "ColliderType" ) ) )
+	if ( const JSON::Value* pColliderType = json.Find(  "ColliderType" ) )
 	{
-		const String& type = pColliderType->GetValue();
+		const std::string& type = pColliderType->AsString();
 
-		if ( type == _T( "Sphere" ) )
+		if ( type == "Sphere" )
 		{
 			m_colliderType = COLLIDER::SPHERE;
 		}
-		else if ( type == _T( "AlignedBox" ) )
+		else if ( type == "AlignedBox" )
 		{
 			m_colliderType = COLLIDER::AABB;
 		}
-		else if ( type == _T( "Box" ) )
+		else if ( type == "Box" )
 		{
 			m_colliderType = COLLIDER::OBB;
 		}
@@ -356,22 +349,21 @@ void CGameObject::LoadPropertyFromScript( const KeyValue& keyValue )
 		}
 	}
 
-	if ( const KeyValue* pMass = keyValue.Find( _T( "Mass" ) ) )
+	if ( const JSON::Value* pMass = json.Find( "Mass" ) )
 	{
-		assert( ( m_colliderType != COLLIDER::AABB ) || ( pMass->GetValue<float>( ) == FLT_MAX ) );
-		m_body.SetMass( pMass->GetValue<float>( ) );
+		float mass = static_cast<float>( pMass->AsReal( ) );
+		assert( ( m_colliderType != COLLIDER::AABB ) || ( mass == FLT_MAX ) );
+		m_body.SetMass( mass );
 	}
 
-	if ( const KeyValue* pDamping = keyValue.Find( _T( "Damping" ) ) )
+	if ( const JSON::Value* pDamping = json.Find( "Damping" ) )
 	{
-		std::vector<String> params;
+		const JSON::Value& damping = *pDamping;
 
-		UTIL::Split( pDamping->GetValue( ), params, _T( ' ' ) );
-
-		if ( params.size( ) == 2 )
+		if ( damping.Size( ) == 2 )
 		{
-			m_body.SetLinearDamping( static_cast<float>( _ttof( params[0].c_str( ) ) ) );
-			m_body.SetAngularDamping( static_cast<float>( _ttof( params[1].c_str( ) ) ) );
+			m_body.SetLinearDamping( static_cast<float>( damping[0].AsReal( ) ) );
+			m_body.SetAngularDamping( static_cast<float>( damping[1].AsReal( ) ) );
 		}
 	}
 }
@@ -416,7 +408,7 @@ bool CGameObject::LoadMaterial( CGameLogic& gameLogic )
 	//	}
 	//	else
 	//	{
-	//		m_material = renderer.SearchMaterial( _T( "wireframe" ) );
+	//		m_material = renderer.SearchMaterial( "wireframe" );
 	//	}
 	//}
 

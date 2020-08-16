@@ -3,7 +3,7 @@
 
 #include "common.h"
 #include "Core/Timer.h"
-#include "DataStructure/KeyValueReader.h"
+#include "Json/json.hpp"
 //#include "Render/IRenderer.h"
 #include "Scene/RenderView.h"
 #include "UserInput/UserInput.h"
@@ -133,46 +133,39 @@ void CCamera::UpdateToRenderer( CRenderView& view )
 	}
 }
 
-void CCamera::LoadProperty( const KeyValue& keyValue )
+void CCamera::LoadProperty( const JSON::Value& json )
 {
-	if ( const KeyValue* pCamera = keyValue.Find( _T( "Camera" ) ) )
+	if ( const JSON::Value* pPos = json.Find( "Position" ) )
 	{
-		if ( const KeyValue* pPos = pCamera->Find( _T( "Position" ) ) )
-		{
-			std::vector<String> param;
-			UTIL::Split( pPos->GetValue( ), param, ' ' );
+		const JSON::Value& pos = *pPos;
 
-			if ( param.size( ) == 3 )
-			{
-				CXMFLOAT3 origin( static_cast<float>( _ttof( param[0].c_str( ) ) ),
-					static_cast<float>( _ttof( param[1].c_str( ) ) ),
-					static_cast<float>( _ttof( param[2].c_str( ) ) ) );
-				SetOrigin( origin );
-			}
-		}
-		
-		if ( const KeyValue* pMaxForce = pCamera->Find( _T( "Max_Force" ) ) )
+		if ( pos.Size( ) == 3 )
 		{
-			m_movement.SetMaxForceMagnitude( static_cast<float>( _ttof( pMaxForce->GetValue( ).c_str( ) ) ) );
+			CXMFLOAT3 origin( static_cast<float>( pos[0].AsReal( ) ),
+				static_cast<float>( pos[1].AsReal( ) ),
+				static_cast<float>( pos[2].AsReal( ) ) );
+			SetOrigin( origin );
 		}
-		
-		if ( const KeyValue* pFriction = pCamera->Find( _T( "Friction" ) ) )
-		{
-			std::vector<String> param;
-			UTIL::Split( pFriction->GetValue( ), param, ' ' );
+	}
 
-			if ( param.size( ) == 2 )
-			{
-				CXMFLOAT2 friction( static_cast<float>( _ttof( param[0].c_str( ) ) ),
-					static_cast<float>( _ttof( param[1].c_str( ) ) ) );
-				m_movement.SetFriction( friction );
-			}
-		}
-		
-		if ( const KeyValue* pForceScale = pCamera->Find( _T( "Kinetic_Force_Scale" ) ) )
+	if ( const JSON::Value* pMaxForce = json.Find( "Max_Force" ) )
+	{
+		m_movement.SetMaxForceMagnitude( static_cast<float>( pMaxForce->AsReal( ) ) );
+	}
+
+	if ( const JSON::Value* pFriction = json.Find( "Friction" ) )
+	{
+		const JSON::Value& friction = *pFriction;
+
+		if ( friction.Size( ) == 2 )
 		{
-			m_kineticForceScale = pForceScale->GetValue<float>( );
+			m_movement.SetFriction( CXMFLOAT2( static_cast<float>( friction[0].AsReal( ) ), static_cast<float>( friction[1].AsReal( ) ) ) );
 		}
+	}
+
+	if ( const JSON::Value* pForceScale = json.Find( "Kinetic_Force_Scale" ) )
+	{
+		m_kineticForceScale = static_cast<float>( pForceScale->AsReal( ) );
 	}
 }
 

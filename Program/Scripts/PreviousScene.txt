@@ -1,13 +1,13 @@
-ï»¿"Scene"
+"Scene"
 {
-	//ì¹´ë©”ë¼ ìœ„ì¹˜
+	//Ä«¸Ş¶ó À§Ä¡
 	"Camera Pos" "0 0 -30"
 	
-	//ì˜¤ë¸Œì íŠ¸ ì •ì˜ ì‹œì‘
+	//¿ÀºêÁ§Æ® Á¤ÀÇ ½ÃÀÛ
 	"Object" "skybox"
 	{
 		"Name"		"skybox"
-		"Material"	"mat_skyBox" //ì¬ì§ˆëª…	
+		"Material"	"mat_skyBox" //ÀçÁú¸í	
 	}
 	
 	"Object" "base"
@@ -22,8 +22,8 @@
 	"Object" "base"
 	{
 		"Name"		"sphere"
-		"Model"		"shape_sphere.obj" //ëª¨ë¸ëª…
-		"Material"	"tutorial" //ì¬ì§ˆëª…
+		"Model"		"shape_sphere.obj" //¸ğµ¨¸í
+		"Material"	"tutorial" //ÀçÁú¸í
 		"Position"	"-7.329643 -4.584109 0.000000" //x y z
 		"Scale"		"10 10 10" //xScale yScale zScale
 	}
@@ -31,8 +31,8 @@
 	"Object" "base"
 	{
 		"Name"		"cow"
-		"Model"		"object.ply" //ëª¨ë¸ëª…
-		"Material"	"tutorial" //ì¬ì§ˆëª…
+		"Model"		"object.ply" //¸ğµ¨¸í
+		"Material"	"tutorial" //ÀçÁú¸í
 		"Position"	"6.637395 -6.340924 0.000000" //x y z
 		"Scale"		"10 10 10" //xScale yScale zScale
 	}
@@ -40,8 +40,8 @@
 	"Object" "base"
 	{
 		"Name"		"spaceship"
-		"Model"		"spaceship.obj" //ëª¨ë¸ëª…
-		"Material"	"texture" //ì¬ì§ˆëª…
+		"Model"		"spaceship.obj" //¸ğµ¨¸í
+		"Material"	"texture" //ÀçÁú¸í
 		"Scale"		"0.3 0.3 0.3" //xScale yScale zScale
 		"Position"	"-15.357565 -5.872661 -10.000000" //x y z
 	}
@@ -49,8 +49,8 @@
 	"Object" "base"
 	{
 		"Name"		"statue"
-		"Model"		"statue.obj" //ëª¨ë¸ëª…
-		"Material"	"texture" //ì¬ì§ˆëª…
+		"Model"		"statue.obj" //¸ğµ¨¸í
+		"Material"	"texture" //ÀçÁú¸í
 		"Scale"		"3 3 3" //xScale yScale zScale
 		"Position"	"10.299509 -9.482673 -10.000000" //x y z
 	}

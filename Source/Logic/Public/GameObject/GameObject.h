@@ -23,7 +23,11 @@ class CGameLogic;
 class CGameObject;
 class ICollider;
 class IMesh;
-class KeyValue;
+
+namespace JSON
+{
+	class Value;
+}
 
 class ObjectRelatedRigidBody : public RigidBody
 {
@@ -46,7 +50,7 @@ class CGameObject : IGraphicsDeviceNotify
 {
 public:
 	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
-	virtual bool Initialize( CGameLogic& gameLogic, std::size_t id );
+	virtual bool Initialize( CGameLogic& gameLogic );
 	virtual void SetPosition( const float x, const float y, const float z );
 	virtual void SetPosition( const CXMFLOAT3& pos );
 	virtual void SetScale( const float xScale, const float yScale, const float zScale );
@@ -70,11 +74,11 @@ public:
 	virtual void Think( float elapsedTime );
 	virtual void PostThink( float elapsedTime );
 
-	void SetName( const String& name ) { m_name = name; }
-	const String& GetName( ) const { return m_name; }
-	void SetMaterialName( const String& pMaterialName );
-	void SetModelMeshName( const String& pModelName );
-	const String& GetMeshName( ) const { return m_meshName; }
+	void SetName( const std::string& name ) { m_name = name; }
+	const std::string& GetName( ) const { return m_name; }
+	void SetMaterialName( const std::string& pMaterialName );
+	void SetModelMeshName( const std::string& pModelName );
+	const std::string& GetMeshName( ) const { return m_meshName; }
 
 	COLLIDER::TYPE GetColliderType( ) const { return m_colliderType; }
 	const ICollider* GetDefaultCollider( );
@@ -101,7 +105,7 @@ public:
 
 	bool WillRemove( ) const { return ( m_property & GAMEOBJECT_PROPERTY::REMOVE_ME ); }
 
-	virtual void LoadPropertyFromScript( const KeyValue& keyValue );
+	virtual void LoadProperty( const JSON::Value& json );
 
 	virtual bool IgnorePicking( ) const { return false; }
 
@@ -138,9 +142,9 @@ private:
 	//Material m_material = INVALID_MATERIAL;
 	//Material m_overrideMaterial = INVALID_MATERIAL;
 
-	String m_name;
-	String m_materialName;
-	String m_meshName;
+	std::string m_name;
+	std::string m_materialName;
+	std::string m_meshName;
 
 	bool m_isPicked = false;
 

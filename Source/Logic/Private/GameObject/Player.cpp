@@ -44,9 +44,9 @@ void CPlayer::OnMouseLButton( const UserInput& input, CGameLogic& gameLogic )
 {
 	if ( input.m_axis[UserInput::Z_AXIS] >= 1 )
 	{
-		if ( Owner<CGameObject*> newObject = GetGameObjectFactory( ).CreateGameObjectByClassName( _T( "ball_projectile" ) ) )
+		if ( Owner<CGameObject*> newObject = GetGameObjectFactory( ).CreateGameObjectByClassName( "ball_projectile" ) )
 		{
-			newObject->SetName( _T( "ball" ) );
+			newObject->SetName( "ball" );
 			newObject->SetPosition( m_camera.GetOrigin( ) );
 			newObject->SetScale( 5, 5, 5 );
 			newObject->SetColliderType( COLLIDER::SPHERE );

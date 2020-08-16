@@ -18,19 +18,19 @@ void CConVar::Execute( )
 	}
 	else
 	{
-		const std::vector<String>& argV = GetConsoleMessageExecutor( ).ArgV( );
+		const std::vector<std::string>& argV = GetConsoleMessageExecutor( ).ArgV( );
 		SetValue( argV[1] );
 	}
 }
 
-void CConVar::SetValue( const String& newValue )
+void CConVar::SetValue( const std::string& newValue )
 {
 	m_value = newValue;
-	m_iValue = _ttoi( newValue.c_str( ) );
-	m_fValue = static_cast<float>( _ttof( newValue.c_str( ) ) );
+	m_iValue = std::atoi( newValue.c_str( ) );
+	m_fValue = static_cast<float>( std::atof( newValue.c_str( ) ) );
 }
 
-CConVar::CConVar( const String& name, const String& value, const String& description ) :
+CConVar::CConVar( const std::string& name, const std::string& value, const std::string& description ) :
 m_name( name ),
 m_description( description )
 {

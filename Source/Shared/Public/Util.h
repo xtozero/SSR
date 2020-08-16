@@ -6,18 +6,6 @@
 #include <tchar.h>
 #include <vector>
 
-#ifndef UNICODE
-using String = std::string;
-using Ifstream = std::ifstream;
-using Stringstream = std::stringstream;
-#define Cout std::cout
-#else
-using String = std::wstring;
-using Ifstream = std::wifstream;
-using Stringstream = std::wstringstream;
-#define Cout std::wcout
-#endif
-
 #define col GetStdHandle( STD_OUTPUT_HANDLE )
 #define SetColor_Red SetConsoleTextAttribute( col, 0x000c )
 #define SetColor_Blue SetConsoleTextAttribute( col, 0x0001 | 0x0008 )
@@ -33,10 +21,10 @@ using Stringstream = std::wstringstream;
 
 namespace UTIL
 {
-	inline void Split( const String& string, std::vector<String>& params, const TCHAR token )
+	inline void Split( const std::string& string, std::vector<std::string>& params, const char token )
 	{
-		Stringstream ss( string );
-		String subString;
+		std::stringstream ss( string );
+		std::string subString;
 		subString.reserve( string.length( ) );
 
 		while ( std::getline( ss, subString, token ) )
@@ -45,88 +33,75 @@ namespace UTIL
 		}
 	}
 
-	inline void SplitByBracket( const String& string, std::vector<String>& params, const TCHAR startToken, const TCHAR endToken )
+	inline void SplitByBracket( const std::string& string, std::vector<std::string>& params, const char startToken, const char endToken )
 	{
 		std::size_t curIdx = 0;
 		std::size_t startPos = string.find( startToken, curIdx );
 		std::size_t endPos = string.find( endToken, ++startPos );
 
-		while ( startPos != String::npos && endPos != String::npos )
+		while ( startPos != std::string::npos && endPos != std::string::npos )
 		{
 			params.push_back( string.substr( startPos, endPos - startPos ) );
 			curIdx = ++endPos;
 
 			startPos = string.find( startToken, curIdx );
-			if ( startPos != String::npos )
+			if ( startPos != std::string::npos )
 			{
 				endPos = string.find( endToken, ++startPos );
 			}
 		}
 	}
 
-	inline const String FileNameExtension( const String& pFileName )
+	inline const std::string FileNameExtension( const std::string& pFileName )
 	{
-		auto found = pFileName.find_last_of( _T( "." ) );
+		auto found = pFileName.find_last_of( "." );
 
 		return pFileName.substr( found + 1 );
 	}
 
-	inline String GetFileName( const TCHAR* pFilePath )
+	inline std::string GetFileName( const char* pFilePath )
 	{
-		const TCHAR* start = _tcsrchr( pFilePath, _T( '/' ) );
-		const TCHAR* end = _tcsrchr( pFilePath, _T( '.' ) );
+		const char* start = strchr( pFilePath, '/' );
+		const char* end = strchr( pFilePath, '.' );
 
-		return String( start + 1, end );
+		return std::string( start + 1, end );
 	}
 
-	inline void DebugMsgImplment( const TCHAR* msg, ... )
+	inline void DebugMsgImplment( const char* msg, ... )
 	{
 		SetColor_White;
 
-		TCHAR buf[1024] = { 0, };
+		char buf[1024] = { 0, };
 		va_list vaList;
 
 		va_start( vaList, msg );
-		_vstprintf_s( buf, _countof( buf ), msg, vaList );
+		sprintf_s( buf, _countof( buf ), msg, vaList );
 		va_end( vaList );
 
-		_tprintf_s( _T( "%s" ), buf );
+		printf_s( "%s", buf );
 	}
 
-	inline void DebugWarningImplment( const TCHAR* msg, ... )
+	inline void DebugWarningImplment( const char* msg, ... )
 	{
 		SetColor_Red;
 
-		TCHAR buf[1024] = { 0, };
+		char buf[1024] = { 0, };
 		va_list vaList;
 
 		va_start( vaList, msg );
-		_vstprintf_s( buf, _countof( buf ), msg, vaList );
+		sprintf_s( buf, _countof( buf ), msg, vaList );
 		va_end( vaList );
 
-		_tprintf_s( _T( "%s" ), buf );
-	}
-
-	inline void KeyValueAssert( String value, UINT count )
-	{
-		std::vector<String> params;
-		UTIL::Split( value, params, _T( ' ' ) );
-		assert( params.size( ) == count );
+		printf_s( "%s", buf );
 	}
 }
 
 #if defined( _DEBUG ) || defined( DEBUGGING_BY_CONSOLE )
-#define DebugMsg( x, ... ) UTIL::DebugMsgImplment( _T( x ), ##__VA_ARGS__ )
-#define DebugWarning( x, ... ) UTIL::DebugWarningImplment( _T( x ), ##__VA_ARGS__ )
+#define DebugMsg( x, ... ) UTIL::DebugMsgImplment( x, ##__VA_ARGS__ )
+#define DebugWarning( x, ... ) UTIL::DebugWarningImplment( x, ##__VA_ARGS__ )
 #else
 #define DebugMsg( x, ... ) __noop
 #define DebugWarning( x, ... ) __noop
-#endif
-
-#ifdef _DEBUG
-#define KEYVALUE_VALUE_ASSERT( value, count ) UTIL::KeyValueAssert( value, count )
-#else
-#define KEYVALUE_VALUE_ASSERT( value, count ) __noop
 #endif
 
 #define _STR(x) #x

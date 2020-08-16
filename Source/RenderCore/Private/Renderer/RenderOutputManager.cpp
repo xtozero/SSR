@@ -69,7 +69,7 @@ bool CRenderOutputManager::CreateDefaultRenderTaraget( IResourceManager& resourc
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> pd3d11BackBuffer = nullptr;
 	if ( SUCCEEDED( pSwapChain.GetBuffer( 0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>( pd3d11BackBuffer.GetAddressOf() ) ) ) )
 	{
-		String renderTargetTexName( _T( "DefaultRenderTarget" ) );
+		std::string renderTargetTexName( "DefaultRenderTarget" );
 
 		RE_HANDLE hBackBufferTex = resourceMgr.RegisterTexture2D( renderTargetTexName, pd3d11BackBuffer.Get(), true );
 		if ( hBackBufferTex == RE_HANDLE::InValidHandle( ) )
@@ -83,7 +83,7 @@ bool CRenderOutputManager::CreateDefaultRenderTaraget( IResourceManager& resourc
 			return false;
 		}
 
-		String duplicateTexName( _T( "DuplicateFrameBuffer" ) );
+		std::string duplicateTexName( "DuplicateFrameBuffer" );
 		RE_HANDLE hDuplicateTex = resourceMgr.CreateCloneTexture( hBackBufferTex, duplicateTexName );
 
 		if ( hDuplicateTex == RE_HANDLE::InValidHandle( ) )
@@ -100,7 +100,7 @@ bool CRenderOutputManager::CreateDefaultRenderTaraget( IResourceManager& resourc
 
 bool CRenderOutputManager::CreateNormalRenderTarget( IResourceManager& resourceMgr, DXGI_SAMPLE_DESC& sampleDesc )
 {
-	String normalTexName( _T( "NormalGBuffer" ) );
+	std::string normalTexName( "NormalGBuffer" );
 
 	TEXTURE_TRAIT normalGBufferTrait = {
 		0U,
@@ -135,7 +135,7 @@ bool CRenderOutputManager::CreateNormalRenderTarget( IResourceManager& resourceM
 
 bool CRenderOutputManager::CreateDepthRenderTarget( IResourceManager& resourceMgr, DXGI_SAMPLE_DESC& sampleDesc )
 {
-	String depthTexName( _T( "DepthGBuffer" ) );
+	std::string depthTexName( "DepthGBuffer" );
 
 	TEXTURE_TRAIT depthGBufferTrait = {
 		0U,
@@ -162,7 +162,7 @@ bool CRenderOutputManager::CreateDepthRenderTarget( IResourceManager& resourceMg
 		return false;
 	}
 
-	String duplicateTexName( _T( "DuplicateDepthGBuffer" ) );
+	std::string duplicateTexName( "DuplicateDepthGBuffer" );
 	RE_HANDLE hDuplicateTex = resourceMgr.CreateCloneTexture( hGBufferDepth, duplicateTexName );
 
 	if ( hDuplicateTex == RE_HANDLE::InValidHandle( ) )
@@ -177,7 +177,7 @@ bool CRenderOutputManager::CreateDepthRenderTarget( IResourceManager& resourceMg
 
 bool CRenderOutputManager::CreateDefaultDepthStencil( IResourceManager& resourceMgr, DXGI_SAMPLE_DESC& sampleDesc )
 {
-	String depthStencilTexName( _T( "DefaultDepthStencil" ) );
+	std::string depthStencilTexName( "DefaultDepthStencil" );
 	
 	TEXTURE_TRAIT depthStencilTrait = {
 		0U,

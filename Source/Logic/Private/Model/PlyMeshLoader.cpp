@@ -16,8 +16,8 @@ namespace
 {
 	constexpr std::size_t PLY_FILE_READ_INDEX_STEP = 3;
 
-	constexpr TCHAR* PLY_FILE_DIR = _T( "./Models/Ply/" );
-	constexpr TCHAR* PLY_DEFAULT_SURFACE_NAME = _T( "PlyDefaultSurface" );
+	constexpr char* PLY_FILE_DIR = "./Models/Ply/";
+	constexpr char* PLY_DEFAULT_SURFACE_NAME = "PlyDefaultSurface";
 
 	void CalcPlyNormal( MeshVertex* vertices, const UINT vertexCount, const WORD* indices, const UINT indexCount )
 	{
@@ -75,11 +75,11 @@ namespace
 	}
 }
 
-Owner<IMesh*> CPlyMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pFileName, SurfaceMap& /*surface*/ )
+Owner<IMesh*> CPlyMeshLoader::LoadMeshFromFile( IRenderer& renderer, const char* pFileName, SurfaceMap& /*surface*/ )
 {
-	TCHAR pPath[MAX_PATH];
-	::GetCurrentDirectory( MAX_PATH, pPath );
-	::SetCurrentDirectory( PLY_FILE_DIR );
+	char pPath[MAX_PATH];
+	::GetCurrentDirectoryA( MAX_PATH, pPath );
+	::SetCurrentDirectoryA( PLY_FILE_DIR );
 
 	std::ifstream meshfile( pFileName, 0 );
 
@@ -93,7 +93,7 @@ Owner<IMesh*> CPlyMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR
 
 	if ( !meshfile.is_open( ) )
 	{
-		::SetCurrentDirectory( pPath );
+		::SetCurrentDirectoryA( pPath );
 		return nullptr;
 	}
 
@@ -162,7 +162,7 @@ Owner<IMesh*> CPlyMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR
 		}
 	}
 
-	::SetCurrentDirectory( pPath );
+	::SetCurrentDirectoryA( pPath );
 	meshfile.close( );
 
 	CalcPlyNormal( vertices, vertexCount, indices, indexCount );

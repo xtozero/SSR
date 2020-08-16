@@ -19,8 +19,8 @@ constexpr std::size_t MAX_MESH_NAME = 32;
 class IMesh
 {
 public:
-	virtual const TCHAR* GetName( ) const = 0;
-	virtual void SetName( const TCHAR* name ) = 0;
+	virtual const char* GetName( ) const = 0;
+	virtual void SetName( const char* name ) = 0;
 
 	virtual void SetModelData( MeshVertex* pOrignal, UINT vertexCount ) = 0;
 	virtual void SetIndexData( void* pOrignal, UINT indexCount ) = 0;

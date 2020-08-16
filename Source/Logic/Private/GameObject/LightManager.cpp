@@ -3,8 +3,9 @@
 
 #include "Core/GameLogic.h"
 #include "DataStructure/EnumStringMap.h"
-#include "DataStructure/KeyValueReader.h"
+#include "FileSystem/EngineFileSystem.h"
 #include "GameObject/Camera.h"
+#include "Json/json.hpp"
 //#include "Render/IRenderer.h"
 //#include "Render/IRenderResourceManager.h"
 #include "Scene/ConstantBufferDefine.h"
@@ -17,11 +18,11 @@ using namespace DirectX;
 
 namespace
 {
-	constexpr TCHAR* CONST_BUFFER_NAME = _T( "Lights" );
-	constexpr TCHAR* LIGHT_PROPERTY_FILE_NAME = _T( "./Scripts/SceneLight.txt" );
+	constexpr char* CONST_BUFFER_NAME = "Lights";
+	constexpr char* LIGHT_PROPERTY_FILE_NAME = "./Scripts/WorldLight.json";
 
-	constexpr TCHAR* OREN_NAYAR_TEX_NAME = _T( "OrenNayarLookUP" );
-	constexpr TCHAR* OREN_NAYAR_SNAPSHOT_NAME = _T( "DebugOrenNayarLookUP" );
+	constexpr char* OREN_NAYAR_TEX_NAME = "OrenNayarLookUP";
+	constexpr char* OREN_NAYAR_SNAPSHOT_NAME = "DebugOrenNayarLookUP";
 
 	void RegisterEnumString()
 	{
@@ -44,25 +45,45 @@ bool CLightManager::Initialize( CGameLogic& gameLogic )
 	//}
 
 	//return CreateDeviceDependentResource( renderer );
-	return true;
-}
 
-void CLightManager::SpawnLights( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& objectList )
-{
 	// 속성과 클래스를 연결
 	for ( int i = 0; i < MAX_LIGHTS; ++i )
 	{
-		std::unique_ptr<CLight> newLight = std::make_unique<CLight>( );
-		if ( newLight )
-		{
-			newLight->RegisterProperty( &m_shaderLightProperty.m_properties[i] );
-			newLight->Initialize( gameLogic, static_cast<int>( objectList.size( ) ) );
-			m_lights[i] = newLight.get( );
-			objectList.emplace_back( std::move( newLight ) );
-		}
+		Owner<CLight*> newLight = new CLight;
+		newLight->RegisterProperty( &m_shaderLightProperty.m_properties[i] );
+		newLight->Initialize( gameLogic );
+		m_lights[i] = newLight;
+		gameLogic.SpawnObject( newLight );
 	}
 
-	LoadPropertyFromScript( );
+	IFileSystem* fileSystem = GetInterface<IFileSystem>( );
+	FileHandle lightAsset = fileSystem->OpenFile( LIGHT_PROPERTY_FILE_NAME );
+
+	if ( lightAsset.IsValid( ) == false )
+	{
+		return false;
+	}
+
+	unsigned long fileSize = fileSystem->GetFileSize( lightAsset );
+	char* buffer = new char[fileSize];
+
+	IFileSystem::IOCompletionCallback ParseLightAsset;
+	ParseLightAsset.BindFunctor(
+		[this]( const char* buffer, unsigned long bufferSize )
+		{
+			JSON::Value root( JSON::DataType::EMPTY );
+			JSON::Reader reader;
+
+			if ( reader.Parse( buffer, static_cast<size_t>( bufferSize ), root ) )
+			{
+				LoadProperty( root );
+			}
+
+			delete buffer;
+		}
+	);
+
+	return fileSystem->ReadAsync( lightAsset, buffer, fileSize, &ParseLightAsset );
 }
 
 void CLightManager::UpdateToRenderer( IRenderer& renderer, const CCamera& camera )
@@ -133,96 +154,123 @@ bool CLightManager::CreateDeviceDependentResource( IRenderer& renderer )
 	return true;
 }
 
-void CLightManager::LoadPropertyFromScript( )
+void CLightManager::LoadProperty( const JSON::Value& json )
 {
-	CKeyValueReader keyValueReader;
-
-	std::unique_ptr<KeyValue> pKeyValues = keyValueReader.LoadKeyValueFromFile( LIGHT_PROPERTY_FILE_NAME );
-
-	if ( pKeyValues )
+	if ( const JSON::Value* pGlobalAmbient = json.Find( "globalAmbient" ) )
 	{
-		LoadLightProperty( *pKeyValues.get() );
-	}
-}
+		if ( pGlobalAmbient->Size( ) == 4 )
+		{
+			const JSON::Value& globalAmbient = *pGlobalAmbient;
 
-void CLightManager::LoadLightProperty( const KeyValue& keyValue )
-{
-	if ( const KeyValue* pGlobalAmbient = keyValue.Find( _T( "globalAmbient" ) ) )
-	{
-		KEYVALUE_VALUE_ASSERT( pGlobalAmbient->GetValue( ), 4 );
-		Stringstream stream( pGlobalAmbient->GetValue( ) );
-		CXMFLOAT4 ambientColor( 0.f, 0.f, 0.f, 0.f );
-
-		stream >> ambientColor.x >> ambientColor.y >> ambientColor.z >> ambientColor.w;
-		SetGlobalAmbient( ambientColor );
+			CXMFLOAT4 ambientColor( static_cast<float>( globalAmbient[0].AsReal() ),
+									static_cast<float>( globalAmbient[1].AsReal( ) ), 
+									static_cast<float>( globalAmbient[2].AsReal( ) ), 
+									static_cast<float>( globalAmbient[3].AsReal( ) ) );
+			SetGlobalAmbient( ambientColor );
+		}
 	}
 
-	for ( auto desc = keyValue.Find( _T( "Light" ) ); desc != nullptr; desc = desc->GetNext( ) )
+	if ( const JSON::Value* pLights = json.Find( "Lights" ) )
 	{
-		LightTrait trait;
+		for ( const JSON::Value& light : *pLights )
+		{
+			LightTrait trait;
 
-		if ( const KeyValue* pType = desc->Find( _T( "type" ) ) )
-		{
-			trait.m_type = static_cast<LIGHT_TYPE>( GetInterface<IEnumStringMap>( )->GetEnum( pType->GetValue( ), static_cast<int>( LIGHT_TYPE::NONE ) ) );
-		}
-		
-		if ( const KeyValue* pOnOff = desc->Find( _T( "onOff" ) ) )
-		{
-			trait.m_isOn = pOnOff->GetValue<int>( ) == 1;
-		}
-		
-		if ( const KeyValue* pTheta = desc->Find( _T( "theta" ) ) )
-		{
-			trait.m_theta = pTheta->GetValue<float>( );
-		}
-		
-		if ( const KeyValue* pPhi = desc->Find( _T( "phi" ) ) )
-		{
-			trait.m_phi = pPhi->GetValue<float>( );
-		}
-		
-		if ( const KeyValue* pDirection = desc->Find( _T( "direction" ) ) )
-		{
-			Stringstream stream( pDirection->GetValue( ) );
-			stream >> trait.m_direction.x >> trait.m_direction.y >> trait.m_direction.z;
-			trait.m_direction = XMVector3Normalize( trait.m_direction );
-		}
-		
-		if ( const KeyValue* pRange = desc->Find( _T( "range" ) ) )
-		{
-			trait.m_range = pRange->GetValue<float>( );
-		}
-		
-		if ( const KeyValue* pFallOff = desc->Find( _T( "fallOff" ) ) )
-		{
-			trait.m_fallOff = pFallOff->GetValue<float>( );
-		}
-		
-		if ( const KeyValue* pAttenuation = desc->Find( _T( "attenuation" ) ) )
-		{
-			Stringstream stream( pAttenuation->GetValue( ) );
-			stream >> trait.m_attenuation.x >> trait.m_attenuation.y >> trait.m_attenuation.z;
-		}
-		
-		if ( const KeyValue* pPosition = desc->Find( _T( "position" ) ) )
-		{
-			Stringstream stream( pPosition->GetValue( ) );
-			stream >> trait.m_position.x >> trait.m_position.y >> trait.m_position.z;
-		}
-		
-		if ( const KeyValue* pDiffuse = desc->Find( _T( "diffuse" ) ) )
-		{
-			Stringstream stream( pDiffuse->GetValue( ) );
-			stream >> trait.m_diffuse.x >> trait.m_diffuse.y >> trait.m_diffuse.z >> trait.m_diffuse.w;
-		}
-		
-		if ( const KeyValue* pSpecular = desc->Find( _T( "specular" ) ) )
-		{
-			Stringstream stream( pSpecular->GetValue( ) );
-			stream >> trait.m_specular.x >> trait.m_specular.y >> trait.m_specular.z >> trait.m_specular.w;
-		}
+			if ( const JSON::Value* pType = light.Find( "type" ) )
+			{
+				trait.m_type = static_cast<LIGHT_TYPE>( GetInterface<IEnumStringMap>( )->GetEnum( pType->AsString( ), static_cast<int>( LIGHT_TYPE::NONE ) ) );
+			}
 
-		PushLightTrait( trait );
+			if ( const JSON::Value* pOnOff = light.Find( "onOff" ) )
+			{
+				trait.m_isOn = pOnOff->AsBool( );
+			}
+
+			if ( const JSON::Value* pTheta = light.Find( "theta" ) )
+			{
+				trait.m_theta = static_cast<float>( pTheta->AsReal( ) );
+			}
+
+			if ( const JSON::Value* pPhi = light.Find( "phi" ) )
+			{
+				trait.m_phi = static_cast<float>( pPhi->AsReal( ) );
+			}
+
+			if ( const JSON::Value* pDirection = light.Find( "direction" ) )
+			{
+				const JSON::Value& direction = *pDirection;
+
+				if ( direction.Size() == 3 )
+				{
+					trait.m_direction.x = static_cast<float>( direction[0].AsReal( ) );
+					trait.m_direction.y = static_cast<float>( direction[1].AsReal( ) );
+					trait.m_direction.z = static_cast<float>( direction[2].AsReal( ) );
+					trait.m_direction = XMVector3Normalize( trait.m_direction );
+				}
+			}
+
+			if ( const JSON::Value* pRange = light.Find( "range" ) )
+			{
+				trait.m_range = static_cast<float>( pRange->AsReal( ) );
+			}
+
+			if ( const JSON::Value* pFallOff = light.Find( "fallOff" ) )
+			{
+				trait.m_fallOff = static_cast<float>( pFallOff->AsReal( ) );
+			}
+
+			if ( const JSON::Value* pAttenuation = light.Find( "attenuation" ) )
+			{
+				const JSON::Value& attenuation = *pAttenuation;
+
+				if ( attenuation.Size( ) == 3 )
+				{
+					trait.m_attenuation.x = static_cast<float>( attenuation[0].AsReal( ) );
+					trait.m_attenuation.y = static_cast<float>( attenuation[1].AsReal( ) );
+					trait.m_attenuation.z = static_cast<float>( attenuation[2].AsReal( ) );
+				}
+			}
+
+			if ( const JSON::Value* pPosition = light.Find( "position" ) )
+			{
+				const JSON::Value& position = *pPosition;
+
+				if ( position.Size( ) == 3 )
+				{
+					trait.m_position.x = static_cast<float>( position[0].AsReal( ) );
+					trait.m_position.y = static_cast<float>( position[1].AsReal( ) );
+					trait.m_position.z = static_cast<float>( position[2].AsReal( ) );
+				}
+			}
+
+			if ( const JSON::Value* pDiffuse = light.Find( "diffuse" ) )
+			{
+				const JSON::Value& diffuse = *pDiffuse;
+
+				if ( diffuse.Size( ) == 4 )
+				{
+					trait.m_diffuse.x = static_cast<float>( diffuse[0].AsReal( ) );
+					trait.m_diffuse.y = static_cast<float>( diffuse[1].AsReal( ) );
+					trait.m_diffuse.z = static_cast<float>( diffuse[2].AsReal( ) );
+					trait.m_diffuse.w = static_cast<float>( diffuse[3].AsReal( ) );
+				}
+			}
+
+			if ( const JSON::Value* pSpecular = light.Find( "specular" ) )
+			{
+				const JSON::Value& specular = *pSpecular;
+
+				if ( specular.Size( ) == 4 )
+				{
+					trait.m_specular.x = static_cast<float>( specular[0].AsReal( ) );
+					trait.m_specular.y = static_cast<float>( specular[1].AsReal( ) );
+					trait.m_specular.z = static_cast<float>( specular[2].AsReal( ) );
+					trait.m_specular.w = static_cast<float>( specular[3].AsReal( ) );
+				}
+			}
+
+			PushLightTrait( trait );
+		}
 	}
 }
 

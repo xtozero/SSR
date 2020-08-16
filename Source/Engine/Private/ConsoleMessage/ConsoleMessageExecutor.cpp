@@ -8,12 +8,12 @@
 class ConsoleMessageExecutor : public IConsoleMessageExecutor
 {
 public:
-	virtual void RegistConsoleMessage( const String& name, IConsoleMessage* consoleMessage ) override
+	virtual void RegistConsoleMessage( const std::string& name, IConsoleMessage* consoleMessage ) override
 	{
 		m_consoleMessages.emplace( name, consoleMessage );
 	}
 
-	virtual void UnRegistConsoleMessage( const String& name ) override
+	virtual void UnRegistConsoleMessage( const std::string& name ) override
 	{
 		auto found = m_consoleMessages.find( name );
 
@@ -23,7 +23,7 @@ public:
 		}
 	}
 
-	virtual void AppendCommand( String&& command ) override
+	virtual void AppendCommand( std::string&& command ) override
 	{
 		std::lock_guard<std::mutex> lock( m_commandStackMutex );
 		m_commandStack.push( command );
@@ -36,7 +36,7 @@ public:
 			return;
 		}
 
-		String cmdString;
+		std::string cmdString;
 		{
 			std::lock_guard<std::mutex> lock( m_commandStackMutex );
 			cmdString = std::move( m_commandStack.top( ) );
@@ -76,23 +76,23 @@ public:
 		}
 	}
 
-	virtual const std::vector<String>& ArgV( ) const override { return m_argV; }
+	virtual const std::vector<std::string>& ArgV( ) const override { return m_argV; }
 	virtual std::size_t ArgC( ) const override { return m_argC; }
 
 private:
-	void TokenizingCmdString( const String& cmdString )
+	void TokenizingCmdString( const std::string& cmdString )
 	{
 		m_argV.clear( );
-		UTIL::Split( cmdString, m_argV, _T( ' ' ) );
+		UTIL::Split( cmdString, m_argV, ' ' );
 		m_argC = m_argV.size( );
 	}
 
-	std::map<String, IConsoleMessage*> m_consoleMessages;
+	std::map<std::string, IConsoleMessage*> m_consoleMessages;
 
-	std::vector<String> m_argV;
+	std::vector<std::string> m_argV;
 	std::size_t m_argC = 0;
 
-	std::stack<String> m_commandStack;
+	std::stack<std::string> m_commandStack;
 	std::mutex m_commandStackMutex;
 };
 

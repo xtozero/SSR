@@ -17,11 +17,11 @@ public:
 	//virtual void SetTexture( RE_HANDLE pTexture ) override;
 	//virtual RE_HANDLE GetTexture( ) const override { return m_texture; };
 
-	void SetTextureName( const String& textureName ) { m_textureName = textureName; }
+	void SetTextureName( const std::string& textureName ) { m_textureName = textureName; }
 
 private:
 	//RE_HANDLE m_texture;
-	String m_textureName;
+	std::string m_textureName;
 };
 
 //bool CMeshBuilderMesh::Load( IRenderer& renderer, UINT primitive )
@@ -79,12 +79,12 @@ void CModelBuilder::AppendIndex( const WORD index )
 	m_indices.push_back( index );
 }
 
-void CModelBuilder::AppendTextureName( const String& textureName )
+void CModelBuilder::AppendTextureName( const std::string& textureName )
 {
 	m_textureName = textureName;
 }
 
-//IMesh* CModelBuilder::Build( IRenderer& renderer, const String& meshName, UINT primitive ) const
+//IMesh* CModelBuilder::Build( IRenderer& renderer, const std::string& meshName, UINT primitive ) const
 //{
 //	if ( IMesh* found = m_modelManager.FindModel( meshName.c_str( ) ) )
 //	{

@@ -10,6 +10,11 @@
 #include <memory>
 #include <vector>
 
+namespace JSON
+{
+	class Value;
+}
+
 namespace
 {
 	constexpr std::size_t MAX_LIGHTS = 180;
@@ -25,7 +30,6 @@ struct ShaderLightTrait
 
 class CCamera;
 class IRenderer;
-class KeyValue;
 
 class CLightManager : IGraphicsDeviceNotify
 {
@@ -33,7 +37,6 @@ public:
 	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
 
 	bool Initialize( CGameLogic& gameLogic );
-	void SpawnLights( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& objectList );
 
 	void UpdateToRenderer( IRenderer& renderer, const CCamera& camera );
 	void OnLightPropertyUpdated( ) { m_needUpdateToRenderer = true; }
@@ -45,13 +48,13 @@ public:
 
 	CLight* GetPrimaryLight( ) { return m_lights[m_primaryLight]; }
 
+	void LoadProperty( const JSON::Value& json );
+
 	CLightManager( );
 	~CLightManager( ) = default;
 
 private:
 	bool CreateDeviceDependentResource( IRenderer& renderer );
-	void LoadPropertyFromScript( );
-	void LoadLightProperty( const KeyValue& keyValue );
 
 	// for OrenNayar
 	bool CreateOrenNayarLUTAndBind( IRenderer& renderer );

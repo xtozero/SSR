@@ -10,7 +10,7 @@ class CWindowSetup
 {
 public:
 	RECT GetScreenArea( ) const noexcept { return{ 0, 0, m_width, m_height }; }
-	const WNDCLASSEX& GetWndClass( ) const noexcept { return m_wndClass; }
+	const WNDCLASSEXA& GetWndClass( ) const noexcept { return m_wndClass; }
 	const HINSTANCE GethInstance( ) const noexcept { return m_wndClass.hInstance; }
 
 	CWindowSetup( HINSTANCE hInstance, LONG width, LONG height ) noexcept : m_width( width ), m_height( height )
@@ -29,7 +29,7 @@ public:
 	}
 
 private:
-	WNDCLASSEX m_wndClass = { sizeof( WNDCLASSEX ), };
+	WNDCLASSEXA m_wndClass = { sizeof( WNDCLASSEXA ), };
 	LONG m_width = 0;
 	LONG m_height = 0;
 };
@@ -47,7 +47,7 @@ public:
 	bool Run( CWindowSetup& setup, WNDPROC wndProc );
 	HWND GetHwnd( ) const noexcept { return m_hwnd; }
 
-	Window( const String& title, DWORD style = WS_OVERLAPPEDWINDOW ) noexcept;
+	Window( const std::string& title, DWORD style = WS_OVERLAPPEDWINDOW ) noexcept;
 
 private:
 	virtual void* GetRawHandleImple( ) const noexcept override
@@ -55,7 +55,7 @@ private:
 		return m_hwnd;
 	}
 
-	String m_wndTitle = _T( "default window" );
+	std::string m_wndTitle = "default window";
 	DWORD m_style = 0;
 	HWND m_hwnd = nullptr;
 

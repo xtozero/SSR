@@ -9,6 +9,6 @@ class IMesh;
 class CPlyMeshLoader : public IModelLoader
 {
 public:
-	virtual Owner<IMesh*> LoadMeshFromFile( IRenderer& renderer, const TCHAR* pFileName, SurfaceMap& surface ) override;
+	virtual Owner<IMesh*> LoadMeshFromFile( IRenderer& renderer, const char* pFileName, SurfaceMap& surface ) override;
 };
 

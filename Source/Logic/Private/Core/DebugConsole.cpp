@@ -24,17 +24,7 @@ namespace
 				continue;
 			}
 
-			TCHAR convertedMessage[1024];
-			size_t converted;
-			mbstowcs_s( &converted, convertedMessage, conMessage, _countof( convertedMessage ) );
-
-			if ( converted == _countof( convertedMessage ) )
-			{
-				DebugWarning( "Console Message Buffer Overflowed!!!\n" );
-				continue;
-			}
-
-			GetConsoleMessageExecutor( ).AppendCommand( convertedMessage );
+			GetConsoleMessageExecutor( ).AppendCommand( conMessage );
 		}
 
 		return 0;
@@ -46,8 +36,8 @@ CDebugConsole::CDebugConsole( ) : m_isAlive( true )
 	m_thread = (HANDLE)_beginthreadex( nullptr, 0, asyncInputFunc, &m_isAlive, 0, nullptr );
 
 	AllocConsole( );
-	::_tfreopen_s( &m_pConOut, _T( "CONOUT$" ), _T( "wt" ), stdout );
-	::_tfreopen_s( &m_pConIn, _T( "CONIN$" ), _T( "r" ), stdin );
+	freopen_s( &m_pConOut, "CONOUT$", "wt", stdout );
+	freopen_s( &m_pConIn, "CONIN$", "r", stdin );
 }
 
 

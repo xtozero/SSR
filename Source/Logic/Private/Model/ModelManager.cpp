@@ -14,7 +14,7 @@ void CModelManager::OnDeviceRestore( CGameLogic& /*gameLogic*/ )
 	m_meshList.clear( );
 }
 
-IMesh* CModelManager::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pfileName )
+IMesh* CModelManager::LoadMeshFromFile( IRenderer& renderer, const char* pfileName )
 {
 	auto iter = m_meshList.find( pfileName );
 
@@ -23,7 +23,7 @@ IMesh* CModelManager::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pfileN
 		return iter->second.get();
 	}
 
-	String exten = UTIL::FileNameExtension( pfileName );
+	std::string exten = UTIL::FileNameExtension( pfileName );
 
 	auto found = m_meshLoaders.find( exten );
 
@@ -34,7 +34,7 @@ IMesh* CModelManager::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pfileN
 		if ( newMesh )
 		{
 			newMesh->SetName( pfileName );
-			m_meshList.emplace( String( pfileName ), newMesh );
+			m_meshList.emplace( std::string( pfileName ), newMesh );
 			return newMesh;
 		}
 	}
@@ -42,7 +42,7 @@ IMesh* CModelManager::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pfileN
 	return nullptr;
 }
 
-IMesh* CModelManager::FindModel( const String& modelName )
+IMesh* CModelManager::FindModel( const std::string& modelName )
 {
 	auto found = m_meshList.find( modelName );
 
@@ -54,7 +54,7 @@ IMesh* CModelManager::FindModel( const String& modelName )
 	return nullptr;
 }
 
-void CModelManager::RegisterMesh( const String& modelName, std::unique_ptr<IMesh> pMesh )
+void CModelManager::RegisterMesh( const std::string& modelName, std::unique_ptr<IMesh> pMesh )
 {
 	if ( pMesh )
 	{

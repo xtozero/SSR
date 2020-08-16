@@ -19,12 +19,12 @@ struct SurfaceTrait
 struct Surface
 {
 	SurfaceTrait m_trait;
-	String m_diffuseTexName;
+	std::string m_diffuseTexName;
 };
 
-using SurfaceMap = std::map<String, std::unique_ptr<Surface>>;
+using SurfaceMap = std::map<std::string, std::unique_ptr<Surface>>;
 
-inline Surface* RegisterSurface( SurfaceMap& surfaceMap, const String& surfaceName, std::unique_ptr<Surface>&& surface )
+inline Surface* RegisterSurface( SurfaceMap& surfaceMap, const std::string& surfaceName, std::unique_ptr<Surface>&& surface )
 {
 	auto found = surfaceMap.find( surfaceName );
 
@@ -44,7 +44,7 @@ inline Surface* RegisterSurface( SurfaceMap& surfaceMap, const String& surfaceNa
 	return nullptr;
 }
 
-inline Surface* FindSurface( SurfaceMap& surfaceMap, const String& surfaceName )
+inline Surface* FindSurface( SurfaceMap& surfaceMap, const std::string& surfaceName )
 {
 	auto found = surfaceMap.find( surfaceName );
 

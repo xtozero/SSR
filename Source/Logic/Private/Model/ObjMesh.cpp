@@ -11,7 +11,7 @@
 //
 //	for ( auto& mtl : m_mtlGroup )
 //	{
-//		const String& textureName = mtl.m_pSurface->m_diffuseTexName;
+//		const std::string& textureName = mtl.m_pSurface->m_diffuseTexName;
 //		if ( textureName.size() > 0 )
 //		{
 //			auto texture = renderer.CreateShaderResourceFromFile( textureName );

@@ -16,7 +16,7 @@ void ParticleWorld::BootUp( int maxContacts )
 	m_contacts = std::make_unique<ParticleContact[]>( m_maxContacts );
 }
 
-void ParticleWorld::StartFrame( )
+void ParticleWorld::PreparePhysics( )
 {
 	for ( Particle* p : m_particles )
 	{

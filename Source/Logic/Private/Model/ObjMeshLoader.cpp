@@ -22,17 +22,17 @@ namespace
 		NORMAL,
 	};
 
-	constexpr TCHAR* OBJ_FILE_DIR = _T( "./Models/Obj/" );
+	constexpr char* OBJ_FILE_DIR = "./Models/Obj/";
 }
 
-Owner<IMesh*> CObjMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR* pFileName, SurfaceMap& surface )
+Owner<IMesh*> CObjMeshLoader::LoadMeshFromFile( IRenderer& renderer, const char* pFileName, SurfaceMap& surface )
 {
 //	Initialize( );
-//	TCHAR pPath[MAX_PATH];
+//	char pPath[MAX_PATH];
 //	::GetCurrentDirectory( MAX_PATH, pPath );
 //	::SetCurrentDirectory( OBJ_FILE_DIR );
 //
-//	Ifstream meshFile;
+//	std::ifstream meshFile;
 //	meshFile.open( pFileName, 0 );
 //
 //	if ( !meshFile.is_open( ) )
@@ -41,17 +41,17 @@ Owner<IMesh*> CObjMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR
 //		return nullptr;
 //	}
 //	
-//	String token;
-//	Stringstream sStream;
+//	std::string token;
+//	std::stringstream sStream;
 //
 //	while ( meshFile.good( ) )
 //	{
-//		sStream.str( _T( "" ) );
+//		sStream.str( "" );
 //		sStream.clear( );
 //
 //		std::getline( meshFile, token );
 //
-//		std::vector<String> params;
+//		std::vector<std::string> params;
 //		UTIL::Split( token, params, _T( ' ' ) );
 //
 //		UINT count = static_cast<UINT>( params.size( ) );
@@ -60,7 +60,7 @@ Owner<IMesh*> CObjMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR
 //		{
 //			//Do Nothing
 //		}
-//		else if ( token.find( _T( "vn" ) ) != String::npos )
+//		else if ( token.find( _T( "vn" ) ) != std::string::npos )
 //		{
 //			assert( count == 4 );
 //
@@ -73,7 +73,7 @@ Owner<IMesh*> CObjMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR
 //
 //			m_normals.emplace_back( x, y, z );
 //		}
-//		else if ( token.find( _T( "vt" ) ) != String::npos )
+//		else if ( token.find( _T( "vt" ) ) != std::string::npos )
 //		{
 //			assert( count == 3 );
 //
@@ -85,7 +85,7 @@ Owner<IMesh*> CObjMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR
 //
 //			m_texCoords.emplace_back( u, 1.0f - v );
 //		}
-//		else if ( token.find( _T( "v " ) ) != String::npos )
+//		else if ( token.find( _T( "v " ) ) != std::string::npos )
 //		{
 //			assert( count == 4 );
 //
@@ -100,13 +100,13 @@ Owner<IMesh*> CObjMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR
 //
 // 			m_positions.emplace_back( x, y, z );
 //		}
-//		else if ( token.find( _T( "f " ) ) != String::npos )
+//		else if ( token.find( _T( "f " ) ) != std::string::npos )
 //		{
 //			assert( count == 4 );
 //
 //			for ( UINT i = 1; i < count; ++i )
 //			{
-//				std::vector<String> face;
+//				std::vector<std::string> face;
 //
 //				UTIL::Split( params[i], face, _T( '/' ) );
 //				int pos = -1;
@@ -144,14 +144,14 @@ Owner<IMesh*> CObjMeshLoader::LoadMeshFromFile( IRenderer& renderer, const TCHAR
 //				iter->m_endFaceIndex = std::max( static_cast<UINT>( m_faceInfo.size( ) - 1 ), 0U );
 //			}
 //		}
-//		else if ( token.find( _T( "mtllib" ) ) != String::npos )
+//		else if ( token.find( _T( "mtllib" ) ) != std::string::npos )
 //		{
 //			if ( count > 1 )
 //			{
 //				LoadMaterialFile( params[1].c_str(), surface );
 //			}
 //		}
-//		else if ( token.find( _T( "usemtl" ) ) != String::npos )
+//		else if ( token.find( _T( "usemtl" ) ) != std::string::npos )
 //		{
 //			if ( count > 1 )
 //			{
@@ -301,49 +301,49 @@ std::vector<MeshVertex> CObjMeshLoader::BuildVertices( )
 	return vertices;
 }
 
-void CObjMeshLoader::LoadMaterialFile( const TCHAR* pFileName, SurfaceMap& surface )
+void CObjMeshLoader::LoadMaterialFile( const char* pFileName, SurfaceMap& surface )
 {
-	Ifstream materialFile( pFileName, 0 );
+	std::ifstream materialFile( pFileName, 0 );
 
 	if ( !materialFile.is_open( ) )
 	{
 		return;
 	}
 
-	String token;
+	std::string token;
 	Surface* pCurSuface = nullptr;
-	Stringstream sStream;
+	std::stringstream sStream;
 
 	while ( materialFile.good( ) )
 	{
-		sStream.str( _T( "" ) );
+		sStream.str( "" );
 		sStream.clear( );
 
 		std::getline( materialFile, token );
 
-		std::vector<String> params;
+		std::vector<std::string> params;
 		UTIL::Split( token, params, _T( ' ' ) );
 
 		assert( params.size( ) <= UINT_MAX );
 		UINT count = static_cast<UINT>( params.size( ) );
 
-		if ( token.compare( 0, 1, _T( "#" ) ) == 0 )
+		if ( token.compare( 0, 1, "#" ) == 0 )
 		{
 			//Do Nothing
 		}
-		else if ( count > 1 && token.find( _T( "newmtl" ) ) != String::npos )
+		else if ( count > 1 && token.find( "newmtl" ) != std::string::npos )
 		{
 			std::unique_ptr<Surface> newSurface = std::make_unique<Surface>( );
 			pCurSuface = RegisterSurface( surface, params[1], std::move( newSurface ) );
 		}
-		else if ( count > 1 && token.find( _T( "map_Kd" ) ) != String::npos )
+		else if ( count > 1 && token.find( "map_Kd" ) != std::string::npos )
 		{
 			if ( pCurSuface )
 			{
 				pCurSuface->m_diffuseTexName = params[1];
 			}
 		}
-		else if ( count > 3 && token.find( _T( "Ka" ) ) != String::npos )
+		else if ( count > 3 && token.find( "Ka" ) != std::string::npos )
 		{
 			if ( pCurSuface )
 			{
@@ -357,7 +357,7 @@ void CObjMeshLoader::LoadMaterialFile( const TCHAR* pFileName, SurfaceMap& surfa
 				pCurSuface->m_trait.m_ambient = color;
 			}
 		}
-		else if ( count > 3 && token.find( _T( "Kd" ) ) != String::npos )
+		else if ( count > 3 && token.find( "Kd" ) != std::string::npos )
 		{
 			if ( pCurSuface )
 			{
@@ -371,7 +371,7 @@ void CObjMeshLoader::LoadMaterialFile( const TCHAR* pFileName, SurfaceMap& surfa
 				pCurSuface->m_trait.m_diffuse = color;
 			}
 		}
-		else if ( count > 3 && token.find( _T( "Ks" ) ) != String::npos )
+		else if ( count > 3 && token.find( "Ks" ) != std::string::npos )
 		{
 			if ( pCurSuface )
 			{
@@ -385,7 +385,7 @@ void CObjMeshLoader::LoadMaterialFile( const TCHAR* pFileName, SurfaceMap& surfa
 				pCurSuface->m_trait.m_specular = color;
 			}
 		}
-		else if ( count > 1 && token.find( _T( "Ns" ) ) != String::npos )
+		else if ( count > 1 && token.find( "Ns" ) != std::string::npos )
 		{
 			if ( pCurSuface )
 			{

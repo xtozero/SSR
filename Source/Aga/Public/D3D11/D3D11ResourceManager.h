@@ -8,7 +8,6 @@
 #include <memory>
 #include <vector>
 
-class KeyValueGroup;
 struct ID3D11Device;
 struct ID3D11DeviceContext;
 struct ID3D11Resource;
@@ -141,7 +140,7 @@ private:
 	std::vector<RefHandle<CD3D11BlendState>> m_blendStates;
 	std::vector<RefHandle<CD3D11DepthStencilState>> m_depthStencilStates;
 
-	std::map<String, TEXTURE_TRAIT> m_textureTraits;
+	std::map<std::string, TEXTURE_TRAIT> m_textureTraits;
 
 	ID3D11Device* m_pDevice;
 	ID3D11DeviceContext* m_pDeviceContext;

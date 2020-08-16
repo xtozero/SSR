@@ -1,12 +1,13 @@
 #pragma once
 
-#include "BoundingSphere.h"
-#include "CollideBroad.h"
-#include "CollideNarrow.h"
-#include "Contacts.h"
-#include "ForceGenerator.h"
 #include "GameObject/GameObject.h"
 #include "Math/CXMFloat.h"
+#include "Physics/BoundingSphere.h"
+#include "Physics/CollideBroad.h"
+#include "Physics/CollideNarrow.h"
+#include "Physics/Contacts.h"
+#include "Physics/ForceGenerator.h"
+#include "Scene/INotifyGraphicsDevice.h"
 
 #include <cstddef>
 #include <memory>
@@ -14,19 +15,29 @@
 
 class CDebugOverlayManager;
 
-class World
+class World : public IGraphicsDeviceNotify
 {
 public:
-	void StartFrame( );
+	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
+
+	void PreparePhysics( );
 	void RunPhysics( float duration );
 
-	void OnObjectSpawned( ObjectRelatedRigidBody* body, const BoundingSphere& volume );
-	void OnObjectRemoved( ObjectRelatedRigidBody* body );
+	void BeginFrame( );
+	void RunFrame( float duration );
+	void EndFrame( float duration );
+
+	void SpawnObject( CGameLogic& gameLogic, Owner<CGameObject*> object );
+
 	void UpdateObjectMovement( ObjectRelatedRigidBody* body, const BoundingSphere& volume );
 	void DebugDrawBVH( CDebugOverlayManager& debugOverlay, unsigned int color, float duration );
 
 private:
 	int GenerateContacts( );
+	void OnObjectSpawned( ObjectRelatedRigidBody* body, const BoundingSphere& volume );
+	void OnObjectRemoved( ObjectRelatedRigidBody* body );
+
+	std::vector<std::unique_ptr<CGameObject>> m_gameObjects;
 
 	ForceRegistry m_registry;
 

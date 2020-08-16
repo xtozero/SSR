@@ -47,7 +47,7 @@ void UnregisterFactory( )
 template <typename T>
 T* GetInterface( )
 {
-	HMODULE hEngineModule = GetModuleHandle( _T( "./Binaries/Engine.dll" ) );
+	HMODULE hEngineModule = GetModuleHandleA( "./Binaries/Engine.dll" );
 	if ( hEngineModule == nullptr )
 	{
 		assert( "Engine module not loaded!" && false );
@@ -66,7 +66,7 @@ T* GetInterface( )
 template <typename T>
 void RegisterFactory( FactoryFunctionType factoryFunc )
 {
-	HMODULE hEngineModule = GetModuleHandle( _T( "./Binaries/Engine.dll" ) );
+	HMODULE hEngineModule = GetModuleHandleA( "./Binaries/Engine.dll" );
 	if ( hEngineModule == nullptr )
 	{
 		assert( "Engine module not loaded!" && false );
@@ -85,7 +85,7 @@ void RegisterFactory( FactoryFunctionType factoryFunc )
 template <typename T>
 void UnregisterFactory( )
 {
-	HMODULE hEngineModule = GetModuleHandle( _T( "./Binaries/Engine.dll" ) );
+	HMODULE hEngineModule = GetModuleHandleA( "./Binaries/Engine.dll" );
 	if ( hEngineModule == nullptr )
 	{
 		assert( "Engine module not loaded!" && false );

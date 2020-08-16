@@ -9,14 +9,16 @@
 #include "Core/InterfaceFactories.h"
 #include "Core/Timer.h"
 #include "Core/UtilWindowInfo.h"
-#include "DataStructure/KeyValueReader.h"
+#include "FileSystem/EngineFileSystem.h"
 #include "GameObject/CameraManager.h"
 #include "GameObject/GameObject.h"
+#include "Json/json.hpp"
 #include "Platform/IPlatform.h"
 #include "Renderer/IRenderCore.h"
 //#include "Render/IRenderResourceManager.h"
 #include "UserInput/UserInput.h"
 #include "Util.h"
+#include "World/WorldLoader.h"
 
 #include <cstddef>
 #include <ctime>
@@ -31,7 +33,7 @@ namespace
 
 bool CGameLogic::BootUp( IPlatform& platform )
 {
-	m_renderCoreDll = LoadModule( _T( "./Binaries/RenderCore.dll" ) );
+	m_renderCoreDll = LoadModule( "./Binaries/RenderCore.dll" );
 	if ( m_renderCoreDll == nullptr )
 	{
 		return false;
@@ -59,12 +61,14 @@ bool CGameLogic::BootUp( IPlatform& platform )
 		1.f,
 		1500.f );
 
+	/*
 	m_pickingManager.PushInvProjection( XMConvertToRadians( 60 ),
 		static_cast<float>( m_appSize.first ) / m_appSize.second,
 		1.f,
 		1500.f );
 
 	m_pickingManager.PushViewport( 0.0f, 0.0f, static_cast<float>( m_appSize.first ), static_cast<float>( m_appSize.second ) );
+	*/
 
 	m_uiProjMat = CXMFLOAT4X4(
 		2.0f / m_appSize.first,	0.f,						0.f,	0.f,
@@ -73,16 +77,16 @@ bool CGameLogic::BootUp( IPlatform& platform )
 		-1.f,					1.f,						0.5f,	1.f
 	);
 
-	m_pickingManager.PushCamera( &GetLocalPlayer()->GetCamera() );
-	m_inputBroadCaster.AddListener( &m_pickingManager );
+	// m_pickingManager.PushCamera( &GetLocalPlayer()->GetCamera() );
+	// m_inputBroadCaster.AddListener( &m_pickingManager );
 	CCameraManager::GetInstance( ).SetCurrentCamera( &GetLocalPlayer( )->GetCamera( ) );
 	
-	//if ( m_lightManager.Initialize( *this ) == false )
-	//{
-	//	__debugbreak( );
-	//}
+	if ( m_lightManager.Initialize( *this ) == false )
+	{
+		__debugbreak( );
+	}
 
-	if ( LoadScene( _T( "./Scripts/DefaultScene.txt" ) ) == false )
+	if ( LoadWorld( "./Scripts/DefaultScene.json" ) == false )
 	{
 		__debugbreak( );
 	}
@@ -169,6 +173,7 @@ void CGameLogic::AppSizeChanged( IPlatform& platform )
 		1.f,
 		1500.f );
 
+	/*
 	m_pickingManager.PopInvProjection( );
 	m_pickingManager.PushInvProjection( XMConvertToRadians( 60 ),
 		fSizeX / fSizeY,
@@ -177,6 +182,7 @@ void CGameLogic::AppSizeChanged( IPlatform& platform )
 
 	m_pickingManager.PopViewport( );
 	m_pickingManager.PushViewport( 0.0f, 0.0f, fSizeX, fSizeY );
+	*/
 
 	m_uiProjMat = CXMFLOAT4X4(
 		2.0f / fSizeX,	0.f,			0.f,	0.f,
@@ -188,20 +194,18 @@ void CGameLogic::AppSizeChanged( IPlatform& platform )
 
 void CGameLogic::SpawnObject( Owner<CGameObject*> object )
 {
-	object->Initialize( *this, m_gameObjects.size( ) );
-	m_gameObjects.emplace_back( object );
+	m_world.SpawnObject( *this, object );
 }
 
-void CGameLogic::OnObjectSpawned( CGameObject& object )
+CPlayer* CGameLogic::GetLocalPlayer( )
 {
-	const BoundingSphere* sphere = reinterpret_cast<const BoundingSphere*>( object.GetCollider( COLLIDER::SPHERE ) );
-
-	if ( sphere == nullptr )
+	if ( m_players.size( ) == 0 )
 	{
-		return;
+		m_players.emplace_back( );
+		m_inputBroadCaster.AddListener( &m_players.front( ) );
 	}
 
-	m_world.OnObjectSpawned( object.GetRigidBody( ), *sphere );
+	return &m_players.front( );
 }
 
 void CGameLogic::Shutdown( )
@@ -214,19 +218,7 @@ void CGameLogic::StartLogic( )
 	//게임 로직 수행 전처리
 	GetConsoleMessageExecutor( ).Execute( );
 
-	for ( auto object = m_gameObjects.begin(); object != m_gameObjects.end(); )
-	{
-		CGameObject* candidate = object->get();
-		if ( candidate->WillRemove( ) )
-		{
-			m_world.OnObjectRemoved( candidate->GetRigidBody( ) );
-			object = m_gameObjects.erase( object );
-		}
-		else
-		{
-			++object;
-		}
-	}
+	m_world.BeginFrame( );
 
 	//Rect clientRect( 0.f, 0.f, static_cast<float>( m_appSize.first ), static_cast<float>( m_appSize.second ) );
 	//m_ui.BeginFrame( clientRect, m_clock.GetElapsedTime(), m_clock.GetTotalTime() );
@@ -245,16 +237,13 @@ void CGameLogic::ProcessLogic( )
 	if ( m_clock.IsPaused() == false )
 	{
 		// 게임 로직 수행
-		for ( auto& object : m_gameObjects )
-		{
-			object->Think( m_clock.GetElapsedTime() );
-		}
+		m_world.RunFrame( m_clock.GetElapsedTime( ) );
 
 		const float SIMULATE_INTERVAL = 0.016f;
 		m_remainPhysicsSimulateTime += m_clock.GetElapsedTime( );
 		while ( m_remainPhysicsSimulateTime >= SIMULATE_INTERVAL )
 		{
-			m_world.StartFrame( );
+			m_world.PreparePhysics( );
 			m_world.RunPhysics( SIMULATE_INTERVAL );
 			m_remainPhysicsSimulateTime -= SIMULATE_INTERVAL;
 		}
@@ -266,10 +255,7 @@ void CGameLogic::EndLogic( )
 	using namespace SHARED_CONSTANT_BUFFER;
 
 	// 물리 시뮬레이션 결과를 반영
-	for ( auto& object : m_gameObjects )
-	{
-		object->PostThink( m_clock.GetElapsedTime( ) );
-	}
+	m_world.EndFrame( m_clock.GetElapsedTime( ) );
 
 	//// 게임 로직 수행 후처리
 	//BuildRenderableList( );
@@ -319,26 +305,34 @@ void CGameLogic::EndLogic( )
 	//SceneEnd( );
 }
 
-bool CGameLogic::LoadScene( const String& scene )
+bool CGameLogic::LoadWorld( const char* filePath )
 {
-	//CSceneLoader sceneLoader;
-	//std::unique_ptr<KeyValue> keyValue = sceneLoader.LoadSceneFromFile( *this, scene.c_str() );
+	IFileSystem* fileSystem = GetInterface<IFileSystem>( );
+	FileHandle worldAsset = fileSystem->OpenFile( filePath );
 
-	//if ( !keyValue )
-	//{
-	//	return false;
-	//}
+	if ( worldAsset.IsValid( ) == false )
+	{
+		return false;
+	}
 
-	//GetLocalPlayer()->GetCamera().LoadProperty( *keyValue );
+	unsigned long fileSize = fileSystem->GetFileSize( worldAsset ); 
+	char* buffer = new char[fileSize];
 
-	//m_lightManager.SpawnLights( *this, m_gameObjects );
+	IFileSystem::IOCompletionCallback ParseWorldAsset;
+	ParseWorldAsset.BindFunctor( 
+		[this]( const char* buffer, unsigned long bufferSize )
+		{
+			CWorldLoader::Load( *this, buffer, bufferSize );
+			delete buffer;
+		}
+	);
 
-	return true;
+	return fileSystem->ReadAsync( worldAsset, buffer, fileSize, &ParseWorldAsset );
 }
 
 void CGameLogic::ShutdownScene( )
 {
-	m_gameObjects.clear( );
+	//m_gameObjects.clear( );
 }
 
 void CGameLogic::SceneBegin( )
@@ -525,23 +519,23 @@ void CGameLogic::BuildRenderableList( )
 		list.clear( );
 	}
 
-	for ( auto& object : m_gameObjects )
-	{
-		if ( object )
-		{
-			// Reflectable list
-			if ( object->GetProperty( ) & REFLECTABLE_OBJECT )
-			{
-				m_renderableList[REFLECT_RENDERABLE].push_back( object.get() );
-			}
+	//for ( auto& object : m_gameObjects )
+	//{
+	//	if ( object )
+	//	{
+	//		// Reflectable list
+	//		if ( object->GetProperty( ) & REFLECTABLE_OBJECT )
+	//		{
+	//			m_renderableList[REFLECT_RENDERABLE].push_back( object.get() );
+	//		}
 
-			// Opaque list
-			if ( object->ShouldDraw( ) )
-			{
-				m_renderableList[OPAQUE_RENDERABLE].push_back( object.get( ) );
-			}
-		}
-	}
+	//		// Opaque list
+	//		if ( object->ShouldDraw( ) )
+	//		{
+	//			m_renderableList[OPAQUE_RENDERABLE].push_back( object.get( ) );
+	//		}
+	//	}
+	//}
 }
 
 void CGameLogic::DrawOpaqueRenderable( )
@@ -587,10 +581,7 @@ void CGameLogic::HandleDeviceLost( )
 	//m_debugOverlay.OnDeviceRestore( *this );
 	//m_atmosphereManager.OnDeviceRestore( *this );
 
-	for ( auto& object : m_gameObjects )
-	{
-		object->OnDeviceRestore( *this );
-	}
+	m_world.OnDeviceRestore( *this );
 
 	for ( auto& player : m_players )
 	{
@@ -641,7 +632,7 @@ bool CGameLogic::CreateDeviceDependentResource( )
 	//	return false;
 	//}
 
-	//m_uiMaterial = m_pRenderer->SearchMaterial( _T("mat_draw_ui") );
+	//m_uiMaterial = m_pRenderer->SearchMaterial( "mat_draw_ui" );
 	//if ( m_uiMaterial == INVALID_MATERIAL )
 	//{
 	//	return false;
@@ -660,13 +651,13 @@ bool CGameLogic::CreateDefaultFontResource( )
 	//constexpr char* defaultFontData = "./Scripts/Fontdata.txt";
 
 	//// Load default font
-	//Ifstream data( defaultFontData );
+	//std::ifstream data( defaultFontData );
 	//if ( data.good( ) == false )
 	//{
 	//	return false;
 	//}
 
-	//String atlasPath;
+	//std::string atlasPath;
 	//data >> atlasPath;
 
 	//CTextAtlas defaultText;
@@ -702,18 +693,7 @@ bool CGameLogic::CreateDefaultFontResource( )
 	return true;
 }
 
-CPlayer* CGameLogic::GetLocalPlayer( )
-{
-	if ( m_players.size( ) == 0 )
-	{
-		m_players.emplace_back( );
-		m_inputBroadCaster.AddListener( &m_players.front() );
-	}
-
-	return &m_players.front();
-}
-
-CGameLogic::CGameLogic( ) : m_pickingManager( &m_gameObjects )
+CGameLogic::CGameLogic( ) // : m_pickingManager( &m_gameObjects )
 {
 	// for ( int i = 0; i < SHARED_CONSTANT_BUFFER::Count; ++i )
 	// {

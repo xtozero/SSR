@@ -5,6 +5,7 @@
 
 #include <memory>
 
+class IFileSystem;
 class ILogic;
 
 class WindowPlatformEngine : public IEngine
@@ -29,6 +30,7 @@ private:
 	HMODULE m_logicDll = nullptr;
 	ILogic* m_logic = nullptr;
 	IPlatform* m_platform = nullptr;
+	IFileSystem* m_fileSystem = nullptr;
 
 	bool m_isAvailable = false;
 	bool m_isPaused = false;

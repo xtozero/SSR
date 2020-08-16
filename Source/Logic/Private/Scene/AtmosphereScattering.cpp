@@ -40,13 +40,13 @@ void CAtmosphericScatteringManager::Precompute( IRenderer& renderer )
 	//renderer.BindSamplerState( SHADER_TYPE::CS, 0, 5, precomputeSampler );
 
 	//// 1. Transmittance Table
-	//RE_HANDLE csTransmittance = renderer.CreateComputeShader( _T( "./Shaders/csTransmittance.cso" ), nullptr );
+	//RE_HANDLE csTransmittance = renderer.CreateComputeShader( "./Shaders/csTransmittance.cso", nullptr );
 	//if ( csTransmittance == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
 	//}
 
-	//RE_HANDLE transmittanceRav = resourceMgr.CreateTextureRandomAccess( m_transmittanceTex, _T( "TransmittanceTable" ) );
+	//RE_HANDLE transmittanceRav = resourceMgr.CreateTextureRandomAccess( m_transmittanceTex, "TransmittanceTable" );
 	//if ( transmittanceRav == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
@@ -61,7 +61,7 @@ void CAtmosphericScatteringManager::Precompute( IRenderer& renderer )
 	//resourceMgr.FreeResource( transmittanceRav );
 
 	//// 2. Ground irradiance due to direct sunlight
-	//RE_HANDLE csIrradiance1 = renderer.CreateComputeShader( _T( "./Shaders/csIrradiance1.cso" ), nullptr );
+	//RE_HANDLE csIrradiance1 = renderer.CreateComputeShader( "./Shaders/csIrradiance1.cso", nullptr );
 	//if ( csIrradiance1 == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
@@ -80,13 +80,13 @@ void CAtmosphericScatteringManager::Precompute( IRenderer& renderer )
 	//	0U
 	//};
 
-	//RE_HANDLE deltaETex = resourceMgr.CreateTexture2D( irradianceTexTrait, _T( "DeltaETable" ) );
+	//RE_HANDLE deltaETex = resourceMgr.CreateTexture2D( irradianceTexTrait, "DeltaETable" );
 	//if ( deltaETex == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
 	//}
 
-	//RE_HANDLE deltaERav = resourceMgr.CreateTextureRandomAccess( deltaETex, _T( "DeltaETable" ) );
+	//RE_HANDLE deltaERav = resourceMgr.CreateTextureRandomAccess( deltaETex, "DeltaETable" );
 	//if ( deltaERav == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
@@ -102,7 +102,7 @@ void CAtmosphericScatteringManager::Precompute( IRenderer& renderer )
 	//resourceMgr.FreeResource( csIrradiance1 );
 
 	//// 3. Compute single scattering texture deltaS
-	//RE_HANDLE csInscatter1 = renderer.CreateComputeShader( _T( "./Shaders/csInscatter1.cso" ), nullptr );
+	//RE_HANDLE csInscatter1 = renderer.CreateComputeShader( "./Shaders/csInscatter1.cso", nullptr );
 	//if ( csInscatter1 == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
@@ -120,25 +120,25 @@ void CAtmosphericScatteringManager::Precompute( IRenderer& renderer )
 	//	RESOURCE_BIND_TYPE::SHADER_RESOURCE | RESOURCE_BIND_TYPE::UNORDERED_ACCESS,
 	//};
 
-	//RE_HANDLE deltaSRTex = resourceMgr.CreateTexture3D( inscatterTexTrait, _T( "DeltaSRTable" ) );
+	//RE_HANDLE deltaSRTex = resourceMgr.CreateTexture3D( inscatterTexTrait, "DeltaSRTable" );
 	//if ( deltaSRTex == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
 	//}
 
-	//RE_HANDLE deltaSRRav = resourceMgr.CreateTextureRandomAccess( deltaSRTex, _T( "DeltaSRTable" ) );
+	//RE_HANDLE deltaSRRav = resourceMgr.CreateTextureRandomAccess( deltaSRTex, "DeltaSRTable" );
 	//if ( deltaSRRav == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
 	//}
 
-	//RE_HANDLE deltaSMTex = resourceMgr.CreateTexture3D( inscatterTexTrait, _T( "DeltaSMTable" ) );
+	//RE_HANDLE deltaSMTex = resourceMgr.CreateTexture3D( inscatterTexTrait, "DeltaSMTable" );
 	//if ( deltaSMTex == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
 	//}
 
-	//RE_HANDLE deltaSMRav = resourceMgr.CreateTextureRandomAccess( deltaSMTex, _T( "DeltaSMTable" ) );
+	//RE_HANDLE deltaSMRav = resourceMgr.CreateTextureRandomAccess( deltaSMTex, "DeltaSMTable" );
 	//if ( deltaSMRav == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
@@ -154,19 +154,19 @@ void CAtmosphericScatteringManager::Precompute( IRenderer& renderer )
 	//resourceMgr.FreeResource( csInscatter1 );
 
 	//// 4. Copy deltaS into inscatter texture S
-	//RE_HANDLE csCopyInscatter = renderer.CreateComputeShader( _T( "./Shaders/csCopyInscatter1.cso" ), nullptr );
+	//RE_HANDLE csCopyInscatter = renderer.CreateComputeShader( "./Shaders/csCopyInscatter1.cso", nullptr );
 	//if ( csCopyInscatter == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
 	//}
 
-	//RE_HANDLE deltaSRSrv = resourceMgr.CreateTextureShaderResource( deltaSRTex, _T( "DeltaSRTable" ) );
+	//RE_HANDLE deltaSRSrv = resourceMgr.CreateTextureShaderResource( deltaSRTex, "DeltaSRTable" );
 	//if ( deltaSRSrv == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
 	//}
 
-	//RE_HANDLE deltaSMSrv = resourceMgr.CreateTextureShaderResource( deltaSMTex, _T( "DeltaSMTable" ) );
+	//RE_HANDLE deltaSMSrv = resourceMgr.CreateTextureShaderResource( deltaSMTex, "DeltaSMTable" );
 	//if ( deltaSMSrv == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
@@ -190,7 +190,7 @@ void CAtmosphericScatteringManager::Precompute( IRenderer& renderer )
 	//	__debugbreak( );
 	//}
 
-	//RE_HANDLE inscatterRav = resourceMgr.CreateBufferRandomAccess( inscatterBuf, _T( "InscatterTable" ) );
+	//RE_HANDLE inscatterRav = resourceMgr.CreateBufferRandomAccess( inscatterBuf, "InscatterTable" );
 	//if ( inscatterRav == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
@@ -225,55 +225,55 @@ void CAtmosphericScatteringManager::Precompute( IRenderer& renderer )
 	//	__debugbreak( );
 	//}
 
-	//RE_HANDLE csInscatterS = renderer.CreateComputeShader( _T( "./Shaders/csInscatterS.cso" ), nullptr );
+	//RE_HANDLE csInscatterS = renderer.CreateComputeShader( "./Shaders/csInscatterS.cso", nullptr );
 	//if ( csInscatterS == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
 	//}
 
-	//RE_HANDLE csIrradianceN = renderer.CreateComputeShader( _T( "./Shaders/csIrradianceN.cso" ), nullptr );
+	//RE_HANDLE csIrradianceN = renderer.CreateComputeShader( "./Shaders/csIrradianceN.cso", nullptr );
 	//if ( csIrradianceN == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
 	//}
 
-	//RE_HANDLE csInscatterN = renderer.CreateComputeShader( _T( "./Shaders/csInscatterN.cso" ), nullptr );
+	//RE_HANDLE csInscatterN = renderer.CreateComputeShader( "./Shaders/csInscatterN.cso", nullptr );
 	//if ( csInscatterN == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
 	//}
 
-	//RE_HANDLE csCopyIrradiance = renderer.CreateComputeShader( _T( "./Shaders/csCopyIrradiance.cso" ), nullptr );
+	//RE_HANDLE csCopyIrradiance = renderer.CreateComputeShader( "./Shaders/csCopyIrradiance.cso", nullptr );
 	//if ( csCopyIrradiance == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
 	//}
 
-	//RE_HANDLE csCopyInscatterN = renderer.CreateComputeShader( _T( "./Shaders/csCopyInscatterN.cso" ), nullptr );
+	//RE_HANDLE csCopyInscatterN = renderer.CreateComputeShader( "./Shaders/csCopyInscatterN.cso", nullptr );
 	//if ( csCopyInscatterN == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
 	//}
 
-	//RE_HANDLE deltaESrv = resourceMgr.CreateTextureShaderResource( deltaETex, _T( "DeltaETable" ) );
+	//RE_HANDLE deltaESrv = resourceMgr.CreateTextureShaderResource( deltaETex, "DeltaETable" );
 	//if ( deltaESrv == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
 	//}
 
-	//RE_HANDLE deltaJTex = resourceMgr.CreateTexture3D( inscatterTexTrait, _T( "DeltaJTable" ) );
+	//RE_HANDLE deltaJTex = resourceMgr.CreateTexture3D( inscatterTexTrait, "DeltaJTable" );
 	//if ( deltaJTex == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
 	//}
 
-	//RE_HANDLE deltaJRav = resourceMgr.CreateTextureRandomAccess( deltaJTex, _T( "DeltaJTable" ) );
+	//RE_HANDLE deltaJRav = resourceMgr.CreateTextureRandomAccess( deltaJTex, "DeltaJTable" );
 	//if ( deltaJRav == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
 	//}
 
-	//RE_HANDLE deltaJSrv = resourceMgr.CreateTextureShaderResource( deltaJTex, _T( "DeltaJTable" ) );
+	//RE_HANDLE deltaJSrv = resourceMgr.CreateTextureShaderResource( deltaJTex, "DeltaJTable" );
 	//if ( deltaJSrv == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
@@ -298,7 +298,7 @@ void CAtmosphericScatteringManager::Precompute( IRenderer& renderer )
 	//	__debugbreak( );
 	//}
 
-	//RE_HANDLE irradianceRav = resourceMgr.CreateBufferRandomAccess( irradianceBuf, _T( "IrradianceTable" ) );
+	//RE_HANDLE irradianceRav = resourceMgr.CreateBufferRandomAccess( irradianceBuf, "IrradianceTable" );
 	//if ( irradianceRav == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	__debugbreak( );
@@ -484,13 +484,13 @@ bool CAtmosphericScatteringManager::CreateDeviceDependendResource( IRenderer& re
 	//	0U
 	//};
 
-	//m_transmittanceTex = resourceMgr.CreateTexture2D( transmittanceTexTrait, _T( "TransmittanceTable" ) );
+	//m_transmittanceTex = resourceMgr.CreateTexture2D( transmittanceTexTrait, "TransmittanceTable" );
 	//if ( m_transmittanceTex == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	return false;
 	//}
 
-	//m_transmittanceSrv = resourceMgr.CreateTextureShaderResource( m_transmittanceTex, _T( "TransmittanceTable" ) );
+	//m_transmittanceSrv = resourceMgr.CreateTextureShaderResource( m_transmittanceTex,  "TransmittanceTable" );
 	//if ( m_transmittanceSrv == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	return false;
@@ -510,13 +510,13 @@ bool CAtmosphericScatteringManager::CreateDeviceDependendResource( IRenderer& re
 	//	0U
 	//};
 
-	//m_irradianceTex = resourceMgr.CreateTexture2D( irradianceTexTrait, _T( "IrradianceTable" ) );
+	//m_irradianceTex = resourceMgr.CreateTexture2D( irradianceTexTrait, "IrradianceTable" );
 	//if ( m_irradianceTex == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	return false;
 	//}
 
-	//m_irradianceSrv = resourceMgr.CreateTextureShaderResource( m_irradianceTex, _T( "IrradianceTable" ) );
+	//m_irradianceSrv = resourceMgr.CreateTextureShaderResource( m_irradianceTex, "IrradianceTable" );
 	//if ( m_irradianceSrv == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	return false;
@@ -535,13 +535,13 @@ bool CAtmosphericScatteringManager::CreateDeviceDependendResource( IRenderer& re
 	//	RESOURCE_BIND_TYPE::SHADER_RESOURCE,
 	//};
 
-	//m_inscatterTex = resourceMgr.CreateTexture3D( inscatterTexTrait, _T( "InscatterTable" ) );
+	//m_inscatterTex = resourceMgr.CreateTexture3D( inscatterTexTrait, "InscatterTable" );
 	//if ( m_inscatterTex == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	return false;
 	//}
 
-	//m_inscatterSrv = resourceMgr.CreateTextureShaderResource( m_inscatterTex, _T( "InscatterTable" ) );
+	//m_inscatterSrv = resourceMgr.CreateTextureShaderResource( m_inscatterTex, "InscatterTable" );
 	//if ( m_inscatterSrv == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	return false;
@@ -566,28 +566,28 @@ bool CAtmosphericScatteringManager::CreateDeviceDependendResource( IRenderer& re
 	//}
 
 	//// Vertex shader
-	//m_atmosphericVs = renderer.CreateVertexShader( _T( "./Shaders/vsDrawAtmosphere.cso" ), nullptr );
+	//m_atmosphericVs = renderer.CreateVertexShader( "./Shaders/vsDrawAtmosphere.cso", nullptr );
 	//if ( m_atmosphericVs == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	return false;
 	//}
 
 	//// Pixel shader
-	//m_atmosphericPs = renderer.CreatePixelShader( _T( "./Shaders/psDrawAtmosphere.cso" ), nullptr );
+	//m_atmosphericPs = renderer.CreatePixelShader( "./Shaders/psDrawAtmosphere.cso", nullptr );
 	//if ( m_atmosphericPs == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	return false;
 	//}
 
 	//// Depth state
-	//m_atmosphericDepthState = resourceMgr.CreateDepthStencilState( _T( "depthWriteTestOff" ) );
+	//m_atmosphericDepthState = resourceMgr.CreateDepthStencilState( "depthWriteTestOff" );
 	//if ( m_atmosphericDepthState == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	return false;
 	//}
 
 	//// Sampler state
-	//m_atmosphericSampler = resourceMgr.CreateSamplerState( _T( "default" ) );
+	//m_atmosphericSampler = resourceMgr.CreateSamplerState( "default" );
 	//if ( m_atmosphericSampler == RE_HANDLE::InValidHandle( ) )
 	//{
 	//	return false;

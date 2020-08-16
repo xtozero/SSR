@@ -2,8 +2,6 @@
 
 #include "GameObject.h"
 
-class KeyValue;
-
 class CDisplayShaderResourceHelper : public CGameObject
 {
 public:
@@ -11,7 +9,7 @@ public:
 	virtual void Render( CGameLogic& gameLogic ) override;
 	virtual void Think( float elapsedTime ) override;
 
-	virtual void LoadPropertyFromScript( const KeyValue& pKeyValue ) override;
+	virtual void LoadProperty( const JSON::Value& json ) override;
 
 	virtual bool IgnorePicking( ) const override { return ShouldDraw( ); }
 
@@ -24,7 +22,7 @@ private:
 	float m_width;
 	float m_height;
 	
-	String m_textureName;
+	std::string m_textureName;
 
 public:
 	CDisplayShaderResourceHelper( );
