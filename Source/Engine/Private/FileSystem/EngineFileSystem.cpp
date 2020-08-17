@@ -15,7 +15,7 @@ public:
 	virtual void DispatchCallback( ) override;
 
 	EngineFileSystem( );
-	~EngineFileSystem( );
+	virtual ~EngineFileSystem( );
 	EngineFileSystem( const EngineFileSystem& ) = delete;
 	EngineFileSystem& operator=( const EngineFileSystem& ) = delete;
 	EngineFileSystem( EngineFileSystem&& ) = delete;
@@ -32,12 +32,12 @@ private:
 
 FileHandle EngineFileSystem::OpenFile( const char* filePath )
 {
-	return m_fileSystem.OpenFile( filePath );
+	return FileSystem::OpenFile( filePath );
 }
 
 void EngineFileSystem::CloseFile( const FileHandle& handle )
 {
-	m_fileSystem.CloseFile( handle );
+	FileSystem::CloseFile( handle );
 }
 
 unsigned long EngineFileSystem::GetFileSize( const FileHandle& handle ) const

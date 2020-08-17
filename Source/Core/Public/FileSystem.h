@@ -36,7 +36,7 @@ private:
 	static constexpr int MAX_CONCURRENT_FILE_READ = 128;
 
 public:
-	FileHandle OpenFile( const char* filePath )
+	static FileHandle OpenFile( const char* filePath )
 	{
 		char normalizedPath[MAX_FILE_PATH] = { '\0' };
 		strncpy_s( normalizedPath, filePath, MAX_FILE_PATH );
@@ -103,7 +103,7 @@ public:
 		return overlapped;
 	}
 
-	void CloseFile( FileHandle handle )
+	static void CloseFile( FileHandle handle )
 	{
 		CloseHandle( handle.m_handle );
 	}

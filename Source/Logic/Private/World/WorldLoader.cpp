@@ -9,12 +9,12 @@
 
 #include <tchar.h>
 
-bool CWorldLoader::Load( CGameLogic& gameLogic, const char* worldAsset, unsigned long assertSize )
+bool CWorldLoader::Load( CGameLogic& gameLogic, const char* worldAsset, size_t assertSize )
 {
 	JSON::Value root( JSON::DataType::EMPTY );
 	JSON::Reader reader;
 
-	if ( reader.Parse( worldAsset, static_cast<size_t>( assertSize ), root ) )
+	if ( reader.Parse( worldAsset, assertSize, root ) )
 	{
 		const JSON::Value* pWorld = root.Find( "World" );
 		if ( pWorld == nullptr )

@@ -4,11 +4,6 @@
 
 #include <vector>
 
-namespace JSON
-{
-	class Value;
-}
-
 class UICMap
 {
 public:
@@ -19,7 +14,7 @@ public:
 	bool LoadConfig( const char* fileName );
 
 private:
-	void LoadKeyCode( const JSON::Value& json );
+	void LoadKeyCode( const char* uicAsset, size_t assetSize );
 
 	using CodePair = std::pair<unsigned long, USER_INPUT_CODE>;
 	std::vector<CodePair> m_codeMap;

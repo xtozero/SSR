@@ -10,11 +10,6 @@
 #include <memory>
 #include <vector>
 
-namespace JSON
-{
-	class Value;
-}
-
 namespace
 {
 	constexpr std::size_t MAX_LIGHTS = 180;
@@ -48,7 +43,7 @@ public:
 
 	CLight* GetPrimaryLight( ) { return m_lights[m_primaryLight]; }
 
-	void LoadProperty( const JSON::Value& json );
+	void LoadProperty( const char* lightAsset, size_t assertSize );
 
 	CLightManager( );
 	~CLightManager( ) = default;

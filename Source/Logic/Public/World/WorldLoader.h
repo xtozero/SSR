@@ -11,6 +11,6 @@ class CGameLogic;
 class CWorldLoader
 {
 public:
-	static bool Load( CGameLogic& gameLogic, const char* worldAsset, unsigned long assertSize );
+	static bool Load( CGameLogic& gameLogic, const char* worldAsset, size_t assertSize );
 };
 

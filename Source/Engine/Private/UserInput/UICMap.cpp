@@ -148,43 +148,44 @@ bool UICMap::LoadConfig( const char* fileName )
 
 	IFileSystem::IOCompletionCallback ParseUICAsset;
 	ParseUICAsset.BindFunctor(
-		[this]( const char* buffer, unsigned long bufferSize )
+		[this, uicAsset]( const char* buffer, unsigned long bufferSize )
 		{
-			JSON::Value root( JSON::DataType::EMPTY );
-			JSON::Reader reader;
-
-			if ( reader.Parse( buffer, static_cast<size_t>( bufferSize ), root ) )
-			{
-				LoadKeyCode( root );
-			}
+			LoadKeyCode( buffer, static_cast<size_t>( bufferSize ) );
 
 			delete buffer;
+			GetInterface<IFileSystem>( )->CloseFile( uicAsset );
 		}
 	);
 
 	return fileSystem->ReadAsync( uicAsset, buffer, fileSize, &ParseUICAsset );
 }
 
-void UICMap::LoadKeyCode( const JSON::Value& json )
+void UICMap::LoadKeyCode( const char* uicAsset, size_t assetSize )
 {
-	IEnumStringMap* enumStringMap = GetInterface<IEnumStringMap>( );
+	JSON::Value root( JSON::DataType::EMPTY );
+	JSON::Reader reader;
 
-	if ( const JSON::Value* pKeyCodes = json.Find( "KeyCodes" ) )
+	if ( reader.Parse( uicAsset, assetSize, root ) )
 	{
-		std::vector<const char*> members = pKeyCodes->GetMemberNames( );
-		for ( const char* member : members )
+		IEnumStringMap* enumStringMap = GetInterface<IEnumStringMap>( );
+
+		if ( const JSON::Value* pKeyCodes = root.Find( "KeyCodes" ) )
 		{
-			if ( const JSON::Value* pUserInputCode = pKeyCodes->Find( member ) )
+			std::vector<const char*> members = pKeyCodes->GetMemberNames( );
+			for ( const char* member : members )
 			{
-				m_codeMap.emplace_back( static_cast<unsigned long>( enumStringMap->GetEnum( member, -1 ) ),
-										static_cast<USER_INPUT_CODE>( enumStringMap->GetEnum( pUserInputCode->AsString( ), -1 ) ) );
+				if ( const JSON::Value* pUserInputCode = pKeyCodes->Find( member ) )
+				{
+					m_codeMap.emplace_back( static_cast<unsigned long>( enumStringMap->GetEnum( member, -1 ) ),
+						static_cast<USER_INPUT_CODE>( enumStringMap->GetEnum( pUserInputCode->AsString( ), -1 ) ) );
+				}
 			}
 		}
-	}
 
-	std::sort( m_codeMap.begin( ), m_codeMap.end( ),
-		[]( const CodePair& lhs, const CodePair& rhs )
-	{
-		return lhs.first < rhs.first;
-	} );
+		std::sort( m_codeMap.begin( ), m_codeMap.end( ),
+			[]( const CodePair& lhs, const CodePair& rhs )
+		{
+			return lhs.first < rhs.first;
+		} );
+	}
 }

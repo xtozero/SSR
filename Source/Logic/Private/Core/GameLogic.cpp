@@ -320,10 +320,12 @@ bool CGameLogic::LoadWorld( const char* filePath )
 
 	IFileSystem::IOCompletionCallback ParseWorldAsset;
 	ParseWorldAsset.BindFunctor( 
-		[this]( const char* buffer, unsigned long bufferSize )
+		[this, worldAsset]( const char* buffer, unsigned long bufferSize )
 		{
-			CWorldLoader::Load( *this, buffer, bufferSize );
+			CWorldLoader::Load( *this, buffer, static_cast<size_t>( bufferSize ) );
+
 			delete buffer;
+			GetInterface<IFileSystem>( )->CloseFile( worldAsset );
 		}
 	);
 
