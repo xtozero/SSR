@@ -11,7 +11,7 @@ class COrientedBoundingBox;
 class BoundingSphere : public ICollider
 {
 public:
-	virtual void CalcMeshBounds( const IMesh& mesh ) override;
+	virtual void CalcMeshBounds( const MeshData& mesh ) override;
 	virtual void Update( const CXMFLOAT3& scaling, const CXMFLOAT4& rotation, const CXMFLOAT3& translation, ICollider* original ) override;
 	virtual void CalcSubMeshBounds( std::vector<std::unique_ptr<ICollider>>& /*subColliders*/ ) override { assert( false && "Not Implemented" ); }
 	virtual float Intersect( const CRay& ray ) const override;

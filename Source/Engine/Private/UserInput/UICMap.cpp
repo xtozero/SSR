@@ -152,12 +152,19 @@ bool UICMap::LoadConfig( const char* fileName )
 		{
 			LoadKeyCode( buffer, static_cast<size_t>( bufferSize ) );
 
-			delete buffer;
+			delete[] buffer;
 			GetInterface<IFileSystem>( )->CloseFile( uicAsset );
 		}
 	);
 
-	return fileSystem->ReadAsync( uicAsset, buffer, fileSize, &ParseUICAsset );
+	bool result = fileSystem->ReadAsync( uicAsset, buffer, fileSize, &ParseUICAsset );
+	if ( result == false )
+	{
+		delete[] buffer;
+		GetInterface<IFileSystem>( )->CloseFile( uicAsset );
+	}
+
+	return result;
 }
 
 void UICMap::LoadKeyCode( const char* uicAsset, size_t assetSize )

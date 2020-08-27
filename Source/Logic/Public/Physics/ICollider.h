@@ -8,7 +8,7 @@
 class CDebugOverlayManager;
 class CFrustum;
 class CRay;
-class IMesh;
+struct MeshData;
 
 namespace COLLISION
 {
@@ -23,7 +23,7 @@ namespace COLLISION
 class ICollider
 {
 public:
-	virtual void CalcMeshBounds( const IMesh& mesh ) = 0;
+	virtual void CalcMeshBounds( const MeshData& mesh ) = 0;
 	virtual void Update( const CXMFLOAT3& scaling, const CXMFLOAT4& rotation, const CXMFLOAT3& translation, ICollider* original ) = 0;
 	virtual void CalcSubMeshBounds( std::vector<std::unique_ptr<ICollider>>& subColliders ) = 0;
 	virtual float Intersect( const CRay& ray ) const = 0;

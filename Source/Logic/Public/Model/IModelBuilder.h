@@ -7,7 +7,6 @@
 #include <vector>
 
 class IRenderer;
-class IMesh;
 
 class IModelBuilder
 {

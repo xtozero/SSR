@@ -3,7 +3,6 @@
 
 #include "Core/Timer.h"
 #include "Model/CommonMeshDefine.h"
-#include "Model/IMesh.h"
 #include "Physics/Aaboundingbox.h"
 #include "Physics/CollideNarrow.h"
 #include "Physics/Frustum.h"
@@ -46,10 +45,10 @@ namespace
 	}
 }
 
-void BoundingSphere::CalcMeshBounds( const IMesh& mesh )
+void BoundingSphere::CalcMeshBounds( const MeshData& mesh )
 {
-	int verticesCount = mesh.GetVerticesCount( );
-	const MeshVertex* pVertices = static_cast<const MeshVertex*>( mesh.GetMeshData( ) );
+	int verticesCount = mesh.m_vertices;
+	const MeshVertex* pVertices = static_cast<const MeshVertex*>( mesh.m_pVertexData );
 
 	float maxRadiusSqr = -FLT_MAX;
 	for ( int i = 0; i < verticesCount; ++i )

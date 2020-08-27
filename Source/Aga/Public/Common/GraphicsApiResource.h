@@ -22,8 +22,8 @@ enum class SHADER_TYPE
 template <typename T>
 constexpr T MAX_SHADER_TYPE = static_cast<T>( SHADER_TYPE::Count );
 
-using Material = std::size_t;
-constexpr Material INVALID_MATERIAL = std::numeric_limits<std::size_t>::max();
+// using Material = std::size_t;
+// constexpr Material INVALID_MATERIAL = std::numeric_limits<std::size_t>::max();
 
 enum class GraphicsResourceType
 {

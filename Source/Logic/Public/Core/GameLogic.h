@@ -55,7 +55,7 @@ public:
 	//IRenderer& GetRenderer( ) const { return *m_pRenderer; }
 	//CLightManager& GetLightManager( ) { return m_lightManager; }
 	//CShadowManager& GetShadowManager( ) { return m_shadowManager; }
-	//CModelManager& GetModelManager( ) { return m_meshManager; }
+	CModelManager& GetModelManager( ) { return m_modelManager; }
 	//ImUI& GetUIManager( ) { return m_ui; }
 	//RE_HANDLE GetCommonConstantBuffer( int purpose ) { return m_commonConstantBuffer[purpose]; }
 	CRenderView& GetView( ) { return m_view; }
@@ -107,7 +107,7 @@ private:
 	//CShadowManager m_shadowManager;
 	//CSSRManager m_ssrManager;
 	//CAtmosphericScatteringManager m_atmosphereManager;
-	//CModelManager m_meshManager;
+	CModelManager m_modelManager;
 	IRenderCore* m_pRenderCore = nullptr;
 	CRenderView m_view;
 	std::vector<CPlayer> m_players;

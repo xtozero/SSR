@@ -5,6 +5,6 @@
 class CPlyMesh : public BaseMesh
 {
 public:
-	virtual void Draw( CGameLogic& gameLogic ) override;
+	//virtual void Draw( CGameLogic& gameLogic ) override;
 };
 

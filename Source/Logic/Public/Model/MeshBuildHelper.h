@@ -7,7 +7,7 @@
 #include <vector>
 #include <windef.h>
 
-struct MeshData 
+struct MeshBuildData 
 {
 	std::vector<MeshVertex> m_vertices;
 	std::vector<DWORD> m_indices;
@@ -15,11 +15,11 @@ struct MeshData
 
 namespace MeshBuildHelper
 {
-	inline void Subdivide( MeshData& meshData )
+	inline void Subdivide( MeshBuildData& meshData )
 	{
 		using namespace DirectX;
 
-		MeshData copy = meshData;
+		MeshBuildData copy = meshData;
 
 		std::size_t numTris = meshData.m_indices.size( ) / 3;
 
@@ -64,9 +64,9 @@ namespace MeshBuildHelper
 		}
 	}
 
-	inline MeshData CreateSphere( float radius, UINT sliceCount, UINT stackCount )
+	inline MeshBuildData CreateSphere( float radius, UINT sliceCount, UINT stackCount )
 	{
-		MeshData meshData;
+		MeshBuildData meshData;
 
 		float phiStep = DirectX::XM_PI / stackCount;
 		float thetaStep = DirectX::XM_PI * 2.f / sliceCount;
@@ -137,9 +137,9 @@ namespace MeshBuildHelper
 		return meshData;
 	}
 
-	inline MeshData CreateBox( float width, float height, float depth )
+	inline MeshBuildData CreateBox( float width, float height, float depth )
 	{
-		MeshData meshData;
+		MeshBuildData meshData;
 
 		float w2 = 0.5f * width;
 		float h2 = 0.5f * height;
@@ -213,9 +213,9 @@ namespace MeshBuildHelper
 		return meshData;
 	}
 
-	inline MeshData CreateCylinder( float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount )
+	inline MeshBuildData CreateCylinder( float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount )
 	{
-		MeshData meshData;
+		MeshBuildData meshData;
 
 		float stackHeight = height / stackCount;
 		float radiusStep = ( bottomRadius - topRadius ) / stackCount;
@@ -290,9 +290,9 @@ namespace MeshBuildHelper
 		return meshData;
 	}
 
-	inline MeshData CreateGeoshpere( float radius, UINT subdivisions )
+	inline MeshBuildData CreateGeoshpere( float radius, UINT subdivisions )
 	{
-		MeshData meshData;
+		MeshBuildData meshData;
 
 		constexpr float x = 0.525731f;
 		constexpr float z = 0.850651f;
@@ -352,9 +352,9 @@ namespace MeshBuildHelper
 		return meshData;
 	}
 
-	inline MeshData CreateGrid( float width, float depth, UINT m, UINT n )
+	inline MeshBuildData CreateGrid( float width, float depth, UINT m, UINT n )
 	{
-		MeshData meshData;
+		MeshBuildData meshData;
 
 		float halfWidth = width * 0.5f;
 		float halfDepth = depth * 0.5f;

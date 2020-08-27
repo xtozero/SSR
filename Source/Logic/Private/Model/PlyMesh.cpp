@@ -4,8 +4,8 @@
 #include "Core/GameLogic.h"
 //#include "Render/IRenderer.h"
 
-void CPlyMesh::Draw( CGameLogic& gameLogic )
-{
+//void CPlyMesh::Draw( CGameLogic& gameLogic )
+//{
 	//if ( m_material == INVALID_MATERIAL )
 	//{
 	//	return;
@@ -29,4 +29,4 @@ void CPlyMesh::Draw( CGameLogic& gameLogic )
 	//	renderer.BindIndexBuffer( m_indexBuffer, m_nIndexOffset );
 	//	renderer.DrawIndexed( m_primitiveTopology, m_nIndices, m_nIndexOffset, m_offset );
 	//}
-}
+//}

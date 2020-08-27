@@ -3,7 +3,6 @@
 
 #include "Core/GameLogic.h"
 #include "GameObject/GameObject.h"
-#include "Model/IMesh.h"
 #include "Model/IModelBuilder.h"
 //#include "Render/IRenderer.h"
 //#include "Render/IRenderResourceManager.h"

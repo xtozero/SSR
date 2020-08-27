@@ -2,77 +2,54 @@
 
 #include "CommonMeshDefine.h"
 #include "IModelLoader.h"
+#include "Material/Material.h"
+#include "Model/MeshDescription.h"
 
 #include <map>
 #include <memory>
+#include <string>
 #include <vector>
 
-class IMesh;
+struct ObjMeshLoadContext
+{
+	std::size_t m_contextID = 0;
+
+	std::string m_meshDirectory;
+
+	MeshDescription m_meshDescription;
+
+	std::vector<Material> m_meshMaterials;
+	std::vector<std::string> m_mtlFileNames;
+
+	std::size_t m_loadingMaterialIndex = 0;
+
+	IModelLoader::LoadCompletionCallback m_completionCallback;
+};
 
 class CObjMeshLoader : public IModelLoader
 {
 public:
-	virtual Owner<IMesh*> LoadMeshFromFile( IRenderer& renderer, const char* pFileName, SurfaceMap& pSurfaceManager ) override;
+	virtual Owner<MeshDescription*> RequestAsyncLoad( const char* pFilePath, LoadCompletionCallback completionCallback ) override;
 
 private:
-	void Initialize( );
-	std::vector<MeshVertex> BuildVertices( );
-	void LoadMaterialFile( const char* pFileName, SurfaceMap& surface );
+	void LoadMaterialFromFile( ObjMeshLoadContext* pContext );
+	void ParseMtl( ObjMeshLoadContext* pContext, char* buffer, unsigned long bufferSize );
+	void ParseObjMesh( ObjMeshLoadContext* pContext, char* buffer, unsigned long bufferSize );
 
-private:
-	void CalcObjNormal( );
+	void OnLoadSuccessed( ObjMeshLoadContext* pContext );
+	void OnLoadFailed( ObjMeshLoadContext* pContext );
 
-	struct ObjFaceInfo
+	// std::vector<MeshVertex> BuildVertices( );
+	// void CalcObjNormal( );
+
+	enum OBJ_FACE_ELEMENT
 	{
-		ObjFaceInfo( int position, int texCoord, int normal ) :
-		m_position( position ),
-		m_texCoord( texCoord ),
-		m_normal( normal )
-		{}
-
-		int m_position;
-		int m_texCoord;
-		int m_normal;
+		VERTEX = 0,
+		TEXTURE,
+		NORMAL,
 	};
 
-	std::vector<CXMFLOAT3> m_positions;
-	std::vector<CXMFLOAT3> m_normals;
-	std::vector<CXMFLOAT2> m_texCoords;
-
-	std::vector<ObjFaceInfo> m_faceInfo;
-
-	struct ObjFaceMtlInfo
-	{
-		ObjFaceMtlInfo( UINT endFaceIndex, const std::string& materialName ) :
-		m_endFaceIndex( endFaceIndex ),
-		m_materialName( materialName )
-		{}
-
-		UINT m_endFaceIndex;
-		std::string m_materialName;
-	};
-
-	std::vector<ObjFaceMtlInfo> m_faceMtlGroup;
-
-	struct ObjMtlInfo
-	{
-		ObjMtlInfo( UINT startIndex, UINT endIndex, const std::string& textureName ) :
-			m_startIndex( startIndex ),
-			m_endIndex( endIndex ),
-			m_materialName( textureName )
-		{
-		}
-
-		UINT m_startIndex;
-		UINT m_endIndex;
-		std::string m_materialName;
-	};
-
-	std::vector<ObjMtlInfo> m_mtlGroup;
-
-	struct ObjRawMtlInfo
-	{
-		std::string m_textureName;
-	};
+	std::map<std::size_t, ObjMeshLoadContext> m_contexts;
+	std::size_t m_lastContextID = 0;
 };
 

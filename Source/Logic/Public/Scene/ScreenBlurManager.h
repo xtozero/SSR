@@ -5,8 +5,8 @@
 
 #include <memory>
 
+class BaseMesh;
 class CGameLogic;
-class IMesh;
 class IModelBuilder;
 class IRenderResource;
 
@@ -23,7 +23,7 @@ private:
 	bool CreateDeviceDependentResource( CGameLogic& gameLogic );
 	bool CreateAppSizeDependentResource( CGameLogic& gameLogic );
 
-	IMesh* m_pScreenRect = nullptr;
+	BaseMesh* m_pScreenRect = nullptr;
 	//Material m_blurMaterial[2] = { INVALID_MATERIAL, INVALID_MATERIAL };
 	//RE_HANDLE m_blurTexture = RE_HANDLE::InValidHandle( );
 	//RE_HANDLE m_blurRt = RE_HANDLE::InValidHandle( );

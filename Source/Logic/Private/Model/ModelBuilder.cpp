@@ -3,7 +3,6 @@
 
 #include "Core/GameLogic.h"
 #include "Model/BaseMesh.h"
-#include "Model/IMesh.h"
 #include "Model/ModelManager.h"
 //#include "Render/IRenderer.h"
 #include "Util.h"
@@ -12,7 +11,7 @@ class CMeshBuilderMesh : public BaseMesh
 {
 public:
 	//virtual bool Load( IRenderer& renderer, UINT primitive = RESOURCE_PRIMITIVE::TRIANGLELIST ) override;
-	virtual void Draw( CGameLogic& gameLogic ) override;
+	//virtual void Draw( CGameLogic& gameLogic ) override;
 
 	//virtual void SetTexture( RE_HANDLE pTexture ) override;
 	//virtual RE_HANDLE GetTexture( ) const override { return m_texture; };
@@ -36,8 +35,8 @@ private:
 //	return loadSuccess;
 //}
 
-void CMeshBuilderMesh::Draw( CGameLogic& gameLogic )
-{
+//void CMeshBuilderMesh::Draw( CGameLogic& gameLogic )
+//{
 	//if ( m_material == INVALID_MATERIAL )
 	//{
 	//	return;
@@ -62,7 +61,7 @@ void CMeshBuilderMesh::Draw( CGameLogic& gameLogic )
 	//	gameLogic.GetRenderer( ).BindIndexBuffer( m_indexBuffer, m_nIndexOffset );
 	//	gameLogic.GetRenderer( ).DrawIndexed( m_primitiveTopology, m_nIndices, m_nIndexOffset, m_offset );
 	//}
-}
+//}
 
 //void CMeshBuilderMesh::SetTexture( RE_HANDLE texture )
 //{

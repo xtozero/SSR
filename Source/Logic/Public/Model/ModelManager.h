@@ -1,8 +1,8 @@
 #pragma once
 
-#include "BaseMesh.h"
 #include "common.h"
-#include "IMesh.h"
+#include "Material/Material.h"
+#include "MeshDescription.h"
 #include "ModelBuilder.h"
 #include "ObjMeshLoader.h"
 #include "PlyMeshLoader.h"
@@ -21,14 +21,16 @@ class CModelManager : IGraphicsDeviceNotify
 public:
 	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
 
-	IMesh* LoadMeshFromFile( IRenderer& renderer, const char* pfileName );
-	IMesh* FindModel( const std::string& modelName );
-	void RegisterMesh( const std::string& modelName, const std::unique_ptr<IMesh> pMesh );
+	using LoadCompletionCallback = Delegate<void, void*>;
+
+	MeshDescription* RequestAsyncLoad( const char* pFilePath, LoadCompletionCallback completionCallback );
+	void RegisterMesh( const std::string& modelName, Owner<MeshDescription*> pMesh );
 
 	CModelBuilder& GetModelBuilder( ) { return m_meshBuilder; }
 
 private:
-	std::map<std::string, std::unique_ptr<IMesh>> m_meshList;
+	void* PostMeshLoading( MeshDescription&& meshDescription, std::vector<Material>&& materials );
+	// std::map<std::string, std::unique_ptr<MeshDescription>> m_modelList;
 
 	CPlyMeshLoader m_plyLoader;
 	CObjMeshLoader m_objLoader;
@@ -39,7 +41,5 @@ private:
 	};
 
 	CModelBuilder m_meshBuilder = CModelBuilder( *this );
-
-	SurfaceMap m_surfaces;
 };
 

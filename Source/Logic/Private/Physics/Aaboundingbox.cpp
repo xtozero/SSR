@@ -3,7 +3,6 @@
 
 #include "Core/Timer.h"
 #include "Model/CommonMeshDefine.h"
-#include "Model/IMesh.h"
 #include "Physics/CollideNarrow.h"
 #include "Physics/Frustum.h"
 #include "Physics/Ray.h"
@@ -14,13 +13,13 @@
 
 using namespace DirectX;
 
-void CAaboundingbox::CalcMeshBounds( const IMesh& mesh )
+void CAaboundingbox::CalcMeshBounds( const MeshData& mesh )
 {
 	m_min = CXMFLOAT3( FLT_MAX, FLT_MAX, FLT_MAX );
 	m_max = CXMFLOAT3( -FLT_MAX, -FLT_MAX, -FLT_MAX );
 
-	int verticesCount = mesh.GetVerticesCount( );
-	const MeshVertex* pVertices = static_cast<const MeshVertex*>( mesh.GetMeshData( ) );
+	int verticesCount = mesh.m_vertices;
+	const MeshVertex* pVertices = static_cast<const MeshVertex*>( mesh.m_pVertexData );
 
 	for ( int i = 0; i < verticesCount; ++i )
 	{

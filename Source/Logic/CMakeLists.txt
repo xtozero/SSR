@@ -51,6 +51,10 @@ set (TEST_SCENE_OBJECT_SOURCE
 	"Private/GameObject/BallProjectile.cpp"
 	"Public/GameObject/BallProjectile.h")
 	
+set (MATERIAL_SOURCE
+	"Private/Material/Material.cpp"
+	"Public/Material/Material.h")
+	
 set (MODEL_SOURCE
 	"Private/Model/BaseMesh.cpp"
 	"Private/Model/DebugMesh.cpp"
@@ -63,10 +67,10 @@ set (MODEL_SOURCE
 	"Public/Model/BaseMesh.h"
 	"Public/Model/CommonMeshDefine.h"
 	"Public/Model/DebugMesh.h"
-	"Public/Model/IMesh.h"
 	"Public/Model/IModelBuilder.h"
 	"Public/Model/IModelLoader.h"
 	"Public/Model/MeshBuildHelper.h"
+	"Public/Model/MeshDescription.h"
 	"Public/Model/ModelBuilder.h"
 	"Public/Model/ModelManager.h"
 	"Public/Model/ObjMesh.h"
@@ -153,6 +157,7 @@ set (WORLD_SOURCE
 source_group("GameObject" FILES ${GAME_OBJECT_SOURCE})
 source_group("GameObject\\Player" FILES ${PLAYER_OBJECT_SOURCE})
 source_group("GameObject\\TestScene" FILES ${TEST_SCENE_OBJECT_SOURCE})
+source_group("Material" FILES ${MATERIAL_SOURCE})
 source_group("Model" FILES ${MODEL_SOURCE})
 source_group("Physics" FILES ${PHYSICS_SOURCE})
 source_group("Render" FILES ${SCENE_SOURCE})
@@ -177,6 +182,7 @@ add_library(Logic SHARED 	${PRECOMPILED}
 							${GAME_OBJECT_SOURCE}
 							${PLAYER_OBJECT_SOURCE}
 							${TEST_SCENE_OBJECT_SOURCE}
+							${MATERIAL_SOURCE}
 							${MODEL_SOURCE}
 							${PHYSICS_SOURCE}
 							${SCENE_SOURCE}

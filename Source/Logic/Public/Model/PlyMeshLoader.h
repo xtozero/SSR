@@ -4,11 +4,11 @@
 
 #include <memory>
 
-class IMesh;
+struct MeshDescription;
 
 class CPlyMeshLoader : public IModelLoader
 {
 public:
-	virtual Owner<IMesh*> LoadMeshFromFile( IRenderer& renderer, const char* pFileName, SurfaceMap& surface ) override;
+	virtual Owner<MeshDescription*> RequestAsyncLoad( const char* pFileName, LoadCompletionCallback completionCallback ) override;
 };
 

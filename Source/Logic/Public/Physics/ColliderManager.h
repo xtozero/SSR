@@ -29,7 +29,7 @@ struct ColliderGroup
 class IColladerManager
 {
 public:
-	virtual ICollider* GetCollider( const IMesh& mesh, COLLIDER::TYPE type ) = 0;
+	virtual ICollider* GetCollider( const MeshData& mesh, COLLIDER::TYPE type ) = 0;
 	virtual Owner<ICollider*> CreateCollider( COLLIDER::TYPE type ) = 0;
 
 	virtual ~IColladerManager( ) = default;

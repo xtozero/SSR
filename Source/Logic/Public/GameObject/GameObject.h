@@ -18,11 +18,11 @@ enum DIRTY_FLAG
 	DF_SCALING	= 1 << 2,
 };
 
+class BaseMesh;
 class CDebugOverlayManager;
 class CGameLogic;
 class CGameObject;
 class ICollider;
-class IMesh;
 
 namespace JSON
 {
@@ -78,7 +78,7 @@ public:
 	const std::string& GetName( ) const { return m_name; }
 	void SetMaterialName( const std::string& pMaterialName );
 	void SetModelMeshName( const std::string& pModelName );
-	const std::string& GetMeshName( ) const { return m_meshName; }
+	const std::string& GetModelPath( ) const { return m_modelPath; }
 
 	COLLIDER::TYPE GetColliderType( ) const { return m_colliderType; }
 	const ICollider* GetDefaultCollider( );
@@ -90,8 +90,8 @@ public:
 	bool IsPicked( ) const { return m_isPicked; }
 	void SetPicked( bool isPicked ) { m_isPicked = isPicked; }
 
-	IMesh* GetModel( ) const { return m_pModel; }
-	void SetModel( IMesh* pModel ) { m_pModel = pModel; }
+	BaseMesh* GetModel( ) const { return m_pModel; }
+	void SetModel( BaseMesh* pModel ) { m_pModel = pModel; }
 
 	//Material GetMaterial( ) { return m_material; }
 	//void SetMaterial( Material material ) { m_material = material; }
@@ -127,8 +127,8 @@ private:
 	void UpdateCollider( COLLIDER::TYPE type );
 	void UpdateAllCollider( );
 	void UpdateSubCollider( COLLIDER::TYPE type );
+	void OnModelLoadFinished( void* model );
 
-private:
 	std::size_t m_id = std::numeric_limits<std::size_t>::max( );
 
 	CXMFLOAT3 m_vecPos = { 0.f, 0.f, 0.f };
@@ -138,13 +138,13 @@ private:
 	CXMFLOAT4X4 m_matTransform;
 	CXMFLOAT4X4 m_invMatTransform;
 
-	IMesh* m_pModel = nullptr;
+	BaseMesh* m_pModel = nullptr;
 	//Material m_material = INVALID_MATERIAL;
 	//Material m_overrideMaterial = INVALID_MATERIAL;
 
 	std::string m_name;
 	std::string m_materialName;
-	std::string m_meshName;
+	std::string m_modelPath;
 
 	bool m_isPicked = false;
 

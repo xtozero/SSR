@@ -324,12 +324,19 @@ bool CGameLogic::LoadWorld( const char* filePath )
 		{
 			CWorldLoader::Load( *this, buffer, static_cast<size_t>( bufferSize ) );
 
-			delete buffer;
+			delete[] buffer;
 			GetInterface<IFileSystem>( )->CloseFile( worldAsset );
 		}
 	);
 
-	return fileSystem->ReadAsync( worldAsset, buffer, fileSize, &ParseWorldAsset );
+	bool result = fileSystem->ReadAsync( worldAsset, buffer, fileSize, &ParseWorldAsset );
+	if ( result == false )
+	{
+		delete buffer;
+		GetInterface<IFileSystem>( )->CloseFile( worldAsset );
+	}
+
+	return result;
 }
 
 void CGameLogic::ShutdownScene( )
@@ -576,7 +583,7 @@ void CGameLogic::HandleDeviceLost( )
 
 	//CreateDeviceDependentResource( );
 
-	//m_meshManager.OnDeviceRestore( *this );
+	m_modelManager.OnDeviceRestore( *this );
 	//m_lightManager.OnDeviceRestore( *this );
 	//m_shadowManager.OnDeviceRestore( *this );
 	//m_ssrManager.OnDeviceRestore( *this );

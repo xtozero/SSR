@@ -46,8 +46,8 @@
 //	return true;
 //}
 
-void TriangleMesh::Draw( CGameLogic& gameLogic )
-{
+//void TriangleMesh::Draw( CGameLogic& gameLogic )
+//{
 	//if ( m_material == INVALID_MATERIAL )
 	//{
 	//	return;
@@ -63,7 +63,7 @@ void TriangleMesh::Draw( CGameLogic& gameLogic )
 	//renderer.BindMaterial( m_material );
 	//renderer.BindVertexBuffer( &m_vertexBuffer, 0, 1, &m_stride, &m_offset );
 	//gameLogic.GetRenderer().Draw( m_primitiveTopology, m_nVertices, m_offset);
-}
+//}
 
 TriangleMesh::TriangleMesh( )
 {

@@ -53,8 +53,24 @@ public:
 	~DelegateStorage( ) = default;
 	DelegateStorage( const DelegateStorage& ) = delete;
 	DelegateStorage& operator=( const DelegateStorage& ) = delete;
-	DelegateStorage( DelegateStorage&& ) = delete;
-	DelegateStorage& operator=( DelegateStorage&& ) = delete;
+	DelegateStorage( DelegateStorage&& other )
+	{
+		*this = std::move( other );
+	}
+
+	DelegateStorage& operator=( DelegateStorage&& other )
+	{
+		if ( &other != this )
+		{
+			m_storage = other.m_storage;
+			m_size = other.m_size;
+
+			other.m_storage = nullptr;
+			other.m_size = 0;
+		}
+
+		return *this;
+	}
 
 private:
 	void* m_storage = nullptr;
@@ -288,7 +304,7 @@ public:
 		return GetHandle( );
 	}
 
-	RetType Execute( ArgTypes... args )
+	RetType Execute( ArgTypes... args ) const
 	{
 		DelegateInterface* pInstance = static_cast<DelegateInterface*>( m_storage.GetRaw( ) );
 		
@@ -297,7 +313,7 @@ public:
 		return pInstance->Execute( std::forward<ArgTypes>( args )... );
 	}
 
-	RetType operator()( ArgTypes... args )
+	RetType operator()( ArgTypes... args ) const
 	{
 		return Execute( std::forward<ArgTypes>( args )... );
 	}
@@ -336,6 +352,16 @@ public:
 	Delegate( Delegate&& other )
 	{
 		( *this ) = std::move( other );
+	}
+
+	Delegate& operator=( Delegate&& other )
+	{
+		if ( &other != this )
+		{
+			m_storage = std::move( other.m_storage );
+		}
+
+		return *this;
 	}
 
 private:

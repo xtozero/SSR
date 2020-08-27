@@ -8,9 +8,9 @@
 #include <memory>
 #include <list>
 
+class BaseMesh;
 class CGameLogic;
 class CGameObject;
-class IMesh;
 class IRenderer;
 
 class CSSRManager : public IGraphicsDeviceNotify
@@ -43,7 +43,7 @@ private:
 		CXMFLOAT3 pedding;
 	};
 
-	IMesh* m_pScreenRect = nullptr;
+	BaseMesh* m_pScreenRect = nullptr;
 	//Material m_backfaceDepthMaterial = INVALID_MATERIAL;
 	//Material m_ssrMaterial = INVALID_MATERIAL;
 	//Material m_ssrBlendMaterial = INVALID_MATERIAL;

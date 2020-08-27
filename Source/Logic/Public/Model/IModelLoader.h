@@ -1,17 +1,20 @@
 #pragma once
 
+#include "Delegate.h"
 #include "Surface.h"
 #include "Util.h"
 
-#include <memory>
+#include <string>
 
-class IMesh;
-class IRenderer;
+struct MeshDescription;
+class Material;
 
 class IModelLoader
 {
 public:
-	virtual Owner<IMesh*> LoadMeshFromFile( IRenderer& renderer, const char* pFileName, SurfaceMap& pSurfaceManager ) = 0;
+	using LoadCompletionCallback = Delegate<void, MeshDescription&&, std::vector<Material>&&>;
+
+	virtual Owner<MeshDescription*> RequestAsyncLoad( const char* pFilePath, LoadCompletionCallback completionCallback ) = 0;
 
 	virtual ~IModelLoader( ) = default;
 

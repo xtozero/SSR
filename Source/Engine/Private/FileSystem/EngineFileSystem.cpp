@@ -22,7 +22,8 @@ public:
 	EngineFileSystem& operator=( EngineFileSystem&& ) = delete;
 
 private:
-	std::mutex m_fileSystemMutex;
+	std::mutex m_ioRequestMutex;
+	std::mutex m_callbackMutex;
 	FileSystem m_fileSystem;
 	GroupHandle m_hWaitIO;
 
@@ -52,7 +53,7 @@ bool EngineFileSystem::ReadAsync( const FileHandle& handle, char* buffer, unsign
 		return false;
 	}
 
-	std::lock_guard lk( m_fileSystemMutex );
+	std::lock_guard lk( m_ioRequestMutex );
 	FileSystemOverlapped* o = static_cast<FileSystemOverlapped*>( m_fileSystem.ReadAsync( handle, buffer, size ) );
 	if ( o != nullptr )
 	{
@@ -69,7 +70,7 @@ void EngineFileSystem::DispatchCallback( )
 		return;
 	}
 
-	std::lock_guard lk( m_fileSystemMutex );
+	std::lock_guard lk( m_callbackMutex );
 	for ( auto iter = m_callbacks.begin( ); iter != m_callbacks.end( ); )
 	{
 		CallBack& callback = *iter;

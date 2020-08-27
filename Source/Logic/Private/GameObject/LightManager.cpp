@@ -73,12 +73,19 @@ bool CLightManager::Initialize( CGameLogic& gameLogic )
 		{
 			LoadProperty( buffer, static_cast<size_t>( bufferSize ) );
 
-			delete buffer;
+			delete[] buffer;
 			GetInterface<IFileSystem>( )->CloseFile( lightAsset );
 		}
 	);
 
-	return fileSystem->ReadAsync( lightAsset, buffer, fileSize, &ParseLightAsset );
+	bool result = fileSystem->ReadAsync( lightAsset, buffer, fileSize, &ParseLightAsset );
+	if ( result == false )
+	{
+		delete[] buffer;
+		GetInterface<IFileSystem>( )->CloseFile( lightAsset );
+	}
+
+	return result;
 }
 
 void CLightManager::UpdateToRenderer( IRenderer& renderer, const CCamera& camera )

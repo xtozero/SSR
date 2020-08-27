@@ -30,8 +30,8 @@
 //	return loadSuccess;
 //}
 
-void CObjMesh::Draw( CGameLogic& gameLogic )
-{
+//void CObjMesh::Draw( CGameLogic& gameLogic )
+//{
 	//if ( m_material == INVALID_MATERIAL )
 	//{
 	//	return;
@@ -77,7 +77,7 @@ void CObjMesh::Draw( CGameLogic& gameLogic )
 	//		}
 	//	}
 	//}
-}
+//}
 
 void CObjMesh::AddMaterialGroup( const ObjSurfaceTrait& trait )
 {

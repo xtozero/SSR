@@ -6,7 +6,6 @@
 #include "GameObject/GameObjectFactory.h"
 #include "Json/json.hpp"
 #include "Math/Util.h"
-#include "Model/IMesh.h"
 #include "Physics/Aaboundingbox.h"
 #include "Physics/BoundingSphere.h"
 #include "Physics/OrientedBoundingBox.h"
@@ -233,7 +232,7 @@ void CGameObject::SetMaterialName( const std::string& pMaterialName )
 
 void CGameObject::SetModelMeshName( const std::string& pModelName )
 {
-	m_meshName = pModelName;
+	m_modelPath = pModelName;
 }
 
 const ICollider* CGameObject::GetDefaultCollider( )
@@ -382,18 +381,24 @@ CGameObject::CGameObject( )
 
 bool CGameObject::LoadModelMesh( CGameLogic& gameLogic )
 {
-	//if ( m_pModel != nullptr )
-	//{
-	//	return false;
-	//}
+	if ( m_pModel != nullptr )
+	{
+		return false;
+	}
 
-	//if ( m_meshName.length( ) > 0 )
-	//{
-	//	CModelManager& modelManager = gameLogic.GetModelManager( );
-	//	m_pModel = modelManager.LoadMeshFromFile( gameLogic.GetRenderer(), m_meshName.c_str() );
-	//}
+	if ( m_modelPath.length( ) > 0 )
+	{
+		CModelManager& modelManager = gameLogic.GetModelManager( );
+		// ¸ðµ¨·Îµå
+		CModelManager::LoadCompletionCallback onMeshLoadComplete;
+		onMeshLoadComplete.BindMemberFunction( this, &CGameObject::OnModelLoadFinished );
+		/*m_pModel =*/ modelManager.RequestAsyncLoad( m_modelPath.c_str(), onMeshLoadComplete );
 
-	return true;
+		return true;
+		return ( m_pModel != nullptr );
+	}
+
+	return false;
 }
 
 bool CGameObject::LoadMaterial( CGameLogic& gameLogic )
@@ -419,15 +424,15 @@ bool CGameObject::LoadMaterial( CGameLogic& gameLogic )
 
 void CGameObject::CalcOriginalCollider( )
 {
-	if ( m_pModel == nullptr )
-	{
-		return;
-	}
+	//if ( m_pModel == nullptr )
+	//{
+	//	return;
+	//}
 
-	for ( int i = 0; i < COLLIDER::COUNT; ++i )
-	{
-		m_originalColliders[i] = GetColliderManager( ).GetCollider( *m_pModel, static_cast<COLLIDER::TYPE>( i ) );
-	}
+	//for ( int i = 0; i < COLLIDER::COUNT; ++i )
+	//{
+	//	m_originalColliders[i] = GetColliderManager( ).GetCollider( *m_pModel, static_cast<COLLIDER::TYPE>( i ) );
+	//}
 }
 
 void CGameObject::RebuildTransform( )
@@ -485,4 +490,9 @@ void CGameObject::UpdateSubCollider( COLLIDER::TYPE type )
 	{
 		m_colliders[type]->CalcSubMeshBounds( m_subColliders[type] );
 	}
+}
+
+void CGameObject::OnModelLoadFinished( void* model )
+{
+	m_pModel = static_cast<BaseMesh*>( model );
 }

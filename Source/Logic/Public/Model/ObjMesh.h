@@ -19,7 +19,7 @@ class CObjMesh : public BaseMesh
 {
 public:
 	//virtual bool Load( IRenderer& renderer, UINT primitive = RESOURCE_PRIMITIVE::TRIANGLELIST ) override;
-	virtual void Draw( CGameLogic& gameLogic ) override;
+	//virtual void Draw( CGameLogic& gameLogic ) override;
 
 	void AddMaterialGroup( const ObjSurfaceTrait& trait );
 

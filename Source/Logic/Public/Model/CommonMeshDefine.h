@@ -4,6 +4,17 @@
 
 #include <cstddef>
 
+struct MeshData
+{
+	void* m_pVertexData = nullptr;
+	void* m_pIndexData = nullptr;
+
+	unsigned int m_vertices = 0;
+	unsigned int m_stride = 0;
+
+	unsigned int m_indices = 0;
+};
+
 struct MeshVertex
 {
 	CXMFLOAT3 m_position;

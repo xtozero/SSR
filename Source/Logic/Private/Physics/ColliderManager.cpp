@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Physics/ColliderManager.h"
 
-#include "Model/IMesh.h"
+#include "Model/CommonMeshDefine.h"
 #include "Physics/Aaboundingbox.h"
 #include "Physics/BoundingSphere.h"
 #include "Physics/OrientedBoundingBox.h"
@@ -12,7 +12,7 @@
 class CColliderManager : public IColladerManager
 {
 public:
-	virtual ICollider* GetCollider( const IMesh& mesh, COLLIDER::TYPE type ) override
+	virtual ICollider* GetCollider( const MeshData& mesh, COLLIDER::TYPE type ) override
 	{
 		ICollider* newCollider = CreateCollider( type );
 
@@ -46,9 +46,9 @@ public:
 	
 
 private:
-	Owner<ICollider*> CreateCollider( const IMesh& mesh, COLLIDER::TYPE type )
+	Owner<ICollider*> CreateCollider( const MeshData& mesh, COLLIDER::TYPE type )
 	{
-		if ( type < 0 || type >= COLLIDER::COUNT )
+		/*if ( type < 0 || type >= COLLIDER::COUNT )
 		{
 			return nullptr;
 		}
@@ -71,7 +71,7 @@ private:
 			colliderGroup.m_colliders[colliderType].reset( CreateCollider( mesh, type ) );
 		}
 
-		return colliderGroup.m_colliders[colliderType].get( );
+		return colliderGroup.m_colliders[colliderType].get( );*/
 	}
 
 	std::map<std::string, ColliderGroup> m_colliderList;

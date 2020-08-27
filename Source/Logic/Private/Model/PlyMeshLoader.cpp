@@ -17,7 +17,6 @@ namespace
 	constexpr std::size_t PLY_FILE_READ_INDEX_STEP = 3;
 
 	constexpr char* PLY_FILE_DIR = "./Models/Ply/";
-	constexpr char* PLY_DEFAULT_SURFACE_NAME = "PlyDefaultSurface";
 
 	void CalcPlyNormal( MeshVertex* vertices, const UINT vertexCount, const WORD* indices, const UINT indexCount )
 	{
@@ -75,7 +74,7 @@ namespace
 	}
 }
 
-Owner<IMesh*> CPlyMeshLoader::LoadMeshFromFile( IRenderer& renderer, const char* pFileName, SurfaceMap& /*surface*/ )
+Owner<MeshDescription*> CPlyMeshLoader::RequestAsyncLoad( const char* pFileName, LoadCompletionCallback completionCallback )
 {
 	char pPath[MAX_PATH];
 	::GetCurrentDirectoryA( MAX_PATH, pPath );
@@ -169,8 +168,8 @@ Owner<IMesh*> CPlyMeshLoader::LoadMeshFromFile( IRenderer& renderer, const char*
 
 	CPlyMesh* newMesh = new CPlyMesh;
 
-	newMesh->SetModelData( vertices, vertexCount );
-	newMesh->SetIndexData( indices, indexCount );
+	//newMesh->SetModelData( vertices, vertexCount );
+	//newMesh->SetIndexData( indices, indexCount );
 	
 	//if ( newMesh->Load( renderer ) )
 	//{

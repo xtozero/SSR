@@ -61,10 +61,21 @@ namespace UTIL
 
 	inline std::string GetFileName( const char* pFilePath )
 	{
-		const char* start = strchr( pFilePath, '/' );
-		const char* end = strchr( pFilePath, '.' );
+		const char* start = strrchr( pFilePath, '/' );
+		const char* end = strrchr( pFilePath, '.' );
 
 		return std::string( start + 1, end );
+	}
+
+	inline std::string GetFilePath( const char* pFilePath )
+	{
+		if ( const char* end = strrchr( pFilePath, '.' ) )
+		{
+			const char* start = strrchr( pFilePath, '/' );
+			return std::string( pFilePath, start + 1 );
+		}
+		
+		return pFilePath;
 	}
 
 	inline void DebugMsgImplment( const char* msg, ... )
@@ -93,6 +104,14 @@ namespace UTIL
 		va_end( vaList );
 
 		printf_s( "%s", buf );
+	}
+
+	inline void ReplaceChar( char* dest, const char* src, char find, char replace, std::size_t destSize, std::size_t srcSize )
+	{
+		for ( int i = 0; i < destSize && i < srcSize; ++i )
+		{
+			dest[i] = ( src[i] == find ) ? replace : src[i];
+		}
 	}
 }
 

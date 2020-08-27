@@ -3,7 +3,6 @@
 
 #include "Core/Timer.h"
 #include "Model/CommonMeshDefine.h"
-#include "Model/IMesh.h"
 #include "Physics/Aaboundingbox.h"
 #include "Physics/CollideNarrow.h"
 #include "Physics/Frustum.h"
@@ -30,10 +29,10 @@ namespace
 	}
 }
 
-void COrientedBoundingBox::CalcMeshBounds( const IMesh& mesh )
+void COrientedBoundingBox::CalcMeshBounds( const MeshData& mesh )
 {
-	int verticesCount = mesh.GetVerticesCount( );
-	const MeshVertex* pVertices = static_cast<const MeshVertex*>( mesh.GetMeshData( ) );
+	int verticesCount = mesh.m_vertices;
+	const MeshVertex* pVertices = static_cast<const MeshVertex*>( mesh.m_pVertexData );
 
 	CXMFLOAT3 length;
 	for ( int i = 0; i < verticesCount; ++i )

@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "Model/ModelManager.h"
 
-#include "Model/BaseMesh.h"
 #include "Model/IModelLoader.h"
+#include "Model/MeshDescription.h"
 #include "Util.h"
 
 #include <assert.h>
@@ -11,30 +11,41 @@
 
 void CModelManager::OnDeviceRestore( CGameLogic& /*gameLogic*/ )
 {
-	m_meshList.clear( );
+	// m_modelList.clear( );
 }
 
-IMesh* CModelManager::LoadMeshFromFile( IRenderer& renderer, const char* pfileName )
+MeshDescription* CModelManager::RequestAsyncLoad( const char* pFilePath, LoadCompletionCallback completionCallback )
 {
-	auto iter = m_meshList.find( pfileName );
+	//auto iter = m_modelList.find( pFilePath );
 
-	if ( iter != m_meshList.end( ) )
-	{
-		return iter->second.get();
-	}
+	//if ( iter != m_modelList.end( ) )
+	//{
+	//	return iter->second.get( );
+	//}
 
-	std::string exten = UTIL::FileNameExtension( pfileName );
+	std::string exten = UTIL::FileNameExtension( pFilePath );
 
 	auto found = m_meshLoaders.find( exten );
 
 	if ( found != m_meshLoaders.end() )
 	{
-		IMesh* newMesh = found->second.LoadMeshFromFile( renderer, pfileName, m_surfaces );
+		IModelLoader::LoadCompletionCallback postMeshLoading;
+		postMeshLoading.BindFunctor( 
+			[completionCallback, this]( MeshDescription&& meshDescription, std::vector<Material>&& materials )
+			{
+				void* asset = PostMeshLoading( std::move( meshDescription ), std::move( materials ) );
+				if ( completionCallback.IsBound() )
+				{
+					completionCallback( asset );
+				}
+			}
+		);
+
+		MeshDescription* newMesh = found->second.RequestAsyncLoad( pFilePath, postMeshLoading );
 
 		if ( newMesh )
 		{
-			newMesh->SetName( pfileName );
-			m_meshList.emplace( std::string( pfileName ), newMesh );
+			//m_modelList.emplace( pFilePath, newMesh );
 			return newMesh;
 		}
 	}
@@ -42,23 +53,15 @@ IMesh* CModelManager::LoadMeshFromFile( IRenderer& renderer, const char* pfileNa
 	return nullptr;
 }
 
-IMesh* CModelManager::FindModel( const std::string& modelName )
-{
-	auto found = m_meshList.find( modelName );
-
-	if ( found != m_meshList.end( ) )
-	{
-		return found->second.get();
-	}
-
-	return nullptr;
-}
-
-void CModelManager::RegisterMesh( const std::string& modelName, std::unique_ptr<IMesh> pMesh )
+void CModelManager::RegisterMesh( const std::string& modelName, Owner<MeshDescription*> pMesh )
 {
 	if ( pMesh )
 	{
-		pMesh->SetName( modelName.c_str( ) );
-		m_meshList.emplace( modelName, std::move( pMesh ) );
+		//m_modelList.emplace( modelName, std::move( pMesh ) );
 	}
+}
+
+void* CModelManager::PostMeshLoading( MeshDescription&& meshDescription, std::vector<Material>&& materials )
+{
+	return nullptr;
 }
