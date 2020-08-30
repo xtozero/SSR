@@ -6,7 +6,6 @@
 #pragma once
 
 #pragma warning( disable : 4005 )
-#pragma warning( disable : 4251 )
 #pragma warning( disable : 4996 )
 
 #pragma comment( lib, "Engine.lib" )

@@ -30,7 +30,7 @@ public:
 
 private:
 	void* PostMeshLoading( MeshDescription&& meshDescription, std::vector<Material>&& materials );
-	// std::map<std::string, std::unique_ptr<MeshDescription>> m_modelList;
+	std::map<std::string, void*> m_modelList;
 
 	CPlyMeshLoader m_plyLoader;
 	CObjMeshLoader m_objLoader;

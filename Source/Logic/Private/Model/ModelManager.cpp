@@ -3,6 +3,7 @@
 
 #include "Model/IModelLoader.h"
 #include "Model/MeshDescription.h"
+#include "Model/StaticMesh.h"
 #include "Util.h"
 
 #include <assert.h>
@@ -63,5 +64,6 @@ void CModelManager::RegisterMesh( const std::string& modelName, Owner<MeshDescri
 
 void* CModelManager::PostMeshLoading( MeshDescription&& meshDescription, std::vector<Material>&& materials )
 {
-	return nullptr;
+	// Currently only support static mesh
+	return new StaticMesh( std::move( meshDescription ), std::move( materials ) );
 }

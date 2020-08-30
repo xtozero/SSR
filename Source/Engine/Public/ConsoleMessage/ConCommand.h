@@ -4,16 +4,16 @@
 
 #include <functional>
 
-class ENGINE_DLL CConCommand : public IConsoleMessage
+class CConCommand : public IConsoleMessage
 {
 public:
-	virtual bool IsValue( ) override { return false; }
-	virtual bool IsCommand( ) override { return true; }
+	ENGINE_DLL virtual bool IsValue( ) override { return false; }
+	ENGINE_DLL virtual bool IsCommand( ) override { return true; }
 
-	virtual void Execute( ) override;
-	virtual std::string GetDescription( ) override { return m_description; };
+	ENGINE_DLL virtual void Execute( ) override;
+	ENGINE_DLL virtual std::string GetDescription( ) override { return m_description; };
 
-	CConCommand( const std::string& name, const std::string& description, const std::function<void()>& function );
+	ENGINE_DLL CConCommand( const std::string& name, const std::string& description, const std::function<void()>& function );
 
 private:
 	std::string m_name;

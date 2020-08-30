@@ -57,6 +57,7 @@ set (MATERIAL_SOURCE
 	
 set (MODEL_SOURCE
 	"Private/Model/BaseMesh.cpp"
+	"Private/Model/StaticMesh.cpp"
 	"Private/Model/DebugMesh.cpp"
 	"Private/Model/ModelBuilder.cpp"
 	"Private/Model/ModelManager.cpp"
@@ -65,6 +66,7 @@ set (MODEL_SOURCE
 	"Private/Model/PlyMesh.cpp"
 	"Private/Model/PlyMeshLoader.cpp"
 	"Public/Model/BaseMesh.h"
+	"Public/Model/StaticMesh.h"
 	"Public/Model/CommonMeshDefine.h"
 	"Public/Model/DebugMesh.h"
 	"Public/Model/IModelBuilder.h"
@@ -167,6 +169,7 @@ source_group("UserInput" FILES ${USER_INPUT_SOURCE})
 source_group("World" FILES ${WORLD_SOURCE})
 
 include_directories(./Public)
+include_directories(../Aga/Public/Common)
 include_directories(../Core/Public)
 include_directories(../Shared/Public)
 include_directories(../Engine/Public)

@@ -2,22 +2,22 @@
 
 #include "IConsoleMessage.h"
 
-class ENGINE_DLL CConVar : public IConsoleMessage
+class CConVar : public IConsoleMessage
 {
 public:
-	virtual bool IsValue( ) override { return true; }
-	virtual bool IsCommand( ) override { return false; }
+	ENGINE_DLL virtual bool IsValue( ) override { return true; }
+	ENGINE_DLL virtual bool IsCommand( ) override { return false; }
 
-	virtual void Execute( ) override;
-	virtual std::string GetDescription( ) override { return m_description; }
+	ENGINE_DLL virtual void Execute( ) override;
+	ENGINE_DLL virtual std::string GetDescription( ) override { return m_description; }
 
-	CConVar( const std::string& name, const std::string& value, const std::string& description );
+	ENGINE_DLL CConVar( const std::string& name, const std::string& value, const std::string& description );
 
-	void SetValue( const std::string& newValue );
-	const std::string& GetString( ) { return m_value; }
-	int GetInteger( ) { return m_iValue; }
-	float GetFloat( ) { return m_fValue; }
-	bool GetBool( ) { return m_iValue > 0; }
+	ENGINE_DLL void SetValue( const std::string& newValue );
+	ENGINE_DLL const std::string& GetString( ) { return m_value; }
+	ENGINE_DLL int GetInteger( ) { return m_iValue; }
+	ENGINE_DLL float GetFloat( ) { return m_fValue; }
+	ENGINE_DLL bool GetBool( ) { return m_iValue > 0; }
 
 private:
 	std::string m_name;
