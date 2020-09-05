@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <limits>
+#include <thread>
 
 struct GroupHandle
 {
@@ -91,7 +92,11 @@ public:
 	bool Wait( GroupHandle handle );
 	void WaitAll( );
 
+	void ProcessThisThreadTask( );
+
 	bool IsComplete( GroupHandle handle ) const;
+
+	std::size_t GetThisThreadType( ) const;
 
 	TaskScheduler( );
 	TaskScheduler( std::size_t workerCount );
@@ -109,6 +114,7 @@ private:
 	std::size_t m_maxTaskGroup = 4;
 	std::size_t m_workerCount = 1;
 	Worker* m_workers = nullptr;
+	std::thread::id* m_workerid = nullptr;
 	volatile bool m_shutdown = false;
 
 	friend void WorkerThread( TaskScheduler* scheduler, Worker* worker );

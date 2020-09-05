@@ -74,7 +74,7 @@ namespace
 	}
 }
 
-Owner<MeshDescription*> CPlyMeshLoader::RequestAsyncLoad( const char* pFileName, LoadCompletionCallback completionCallback )
+ModelLoaderSharedHandle CPlyMeshLoader::RequestAsyncLoad( const char* pFileName, LoadCompletionCallback completionCallback )
 {
 	char pPath[MAX_PATH];
 	::GetCurrentDirectoryA( MAX_PATH, pPath );
@@ -180,5 +180,5 @@ Owner<MeshDescription*> CPlyMeshLoader::RequestAsyncLoad( const char* pFileName,
 	//	return nullptr;
 	//}
 
-	return nullptr;
+	return std::make_shared<ModelLoaderHandle>();
 }

@@ -1,7 +1,14 @@
 #include "stdafx.h"
 #include "MultiThread/EngineTaskScheduler.h"
 
+#include "Core/InterfaceFactories.h"
+
 #include <cstddef>
+
+bool IsInGameThread( )
+{
+	return GetInterface<ITaskScheduler>( )->GetThisThreadTyep( ) == ThreadType::GameThread;
+}
 
 class EngineTaskScheduler : public ITaskScheduler
 {
@@ -13,7 +20,11 @@ public:
 	virtual bool Wait( GroupHandle handle ) override;
 	virtual void WaitAll( ) override;
 
+	virtual void ProcessThisThreadTask( ) override;
+
 	virtual bool IsComplete( GroupHandle handle ) const override;
+
+	virtual std::size_t GetThisThreadTyep( ) const override;
 
 	EngineTaskScheduler( );
 	~EngineTaskScheduler( ) = default;
@@ -48,12 +59,22 @@ void EngineTaskScheduler::WaitAll( )
 	m_taskScheduler.WaitAll( );
 }
 
+void EngineTaskScheduler::ProcessThisThreadTask( )
+{
+	m_taskScheduler.ProcessThisThreadTask( );
+}
+
 bool EngineTaskScheduler::IsComplete( GroupHandle handle ) const
 {
 	return m_taskScheduler.IsComplete( handle );
 }
 
-EngineTaskScheduler::EngineTaskScheduler( ) : m_taskScheduler( MAX_ENGINE_THREAD_GROUP, ThreadType::Count )
+std::size_t EngineTaskScheduler::GetThisThreadTyep( ) const
+{
+	return m_taskScheduler.GetThisThreadType( );
+}
+
+EngineTaskScheduler::EngineTaskScheduler( ) : m_taskScheduler( MAX_ENGINE_THREAD_GROUP, ThreadType::WorkerThreadCount )
 {
 }
 

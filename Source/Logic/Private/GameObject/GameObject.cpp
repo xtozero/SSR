@@ -392,10 +392,10 @@ bool CGameObject::LoadModelMesh( CGameLogic& gameLogic )
 		// ¸ðµ¨·Îµå
 		CModelManager::LoadCompletionCallback onMeshLoadComplete;
 		onMeshLoadComplete.BindMemberFunction( this, &CGameObject::OnModelLoadFinished );
-		/*m_pModel =*/ modelManager.RequestAsyncLoad( m_modelPath.c_str(), onMeshLoadComplete );
 
-		return true;
-		return ( m_pModel != nullptr );
+		ModelLoaderSharedHandle handle = modelManager.RequestAsyncLoad( m_modelPath.c_str(), onMeshLoadComplete );
+
+		return handle->IsLoadingInProgress( ) || handle->IsLoadComplete( );
 	}
 
 	return false;

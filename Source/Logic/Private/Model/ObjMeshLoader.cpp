@@ -6,7 +6,7 @@
 #include "Math/CXMFloat.h"
 #include "Model/CommonMeshDefine.h"
 #include "Model/MeshDescription.h"
-#include "Model/ObjMesh.h"
+#include "Model/StaticMesh.h"
 #include "Util.h"
 
 #include <algorithm>
@@ -17,20 +17,20 @@
 
 using namespace DirectX;
 
-Owner<MeshDescription*> CObjMeshLoader::RequestAsyncLoad( const char* pFilePath, LoadCompletionCallback completionCallback )
+ModelLoaderSharedHandle CObjMeshLoader::RequestAsyncLoad( const char* pFilePath, LoadCompletionCallback completionCallback )
 {
 	IFileSystem* fileSystem = GetInterface<IFileSystem>( );
 
 	FileHandle objAsset = fileSystem->OpenFile( pFilePath );
 	if ( objAsset.IsValid( ) == false )
 	{
-		return nullptr;
+		return CreateHandle( );
 	}
 
 	unsigned long fileSize = fileSystem->GetFileSize( objAsset );
 	if ( fileSize == 0 )
 	{
-		return nullptr;
+		return CreateHandle( );
 	}
 
 	++m_lastContextID;
@@ -40,28 +40,30 @@ Owner<MeshDescription*> CObjMeshLoader::RequestAsyncLoad( const char* pFilePath,
 	ObjMeshLoadContext* pContext = &result.first->second;
 	pContext->m_contextID = m_lastContextID;
 	pContext->m_meshDirectory = UTIL::GetFilePath( pFilePath );
-	pContext->m_completionCallback = completionCallback;
+	pContext->m_handle = CreateHandle( );
 
 	char* buffer = new char[fileSize];
 	IFileSystem::IOCompletionCallback ParseObjAsset;
 	ParseObjAsset.BindFunctor( 
 		[this, pContext, objAsset]( char* buffer, unsigned long bufferSize )
 		{
-			ParseObjMesh( pContext, buffer, bufferSize );
+			ParseObjMesh( *pContext, buffer, bufferSize );
 			delete[] buffer;
 			GetInterface<IFileSystem>( )->CloseFile( objAsset );
 
-			OnLoadSuccessed( pContext );
+			OnLoadSuccessed( *pContext );
 		} );
 
 	if ( fileSystem->ReadAsync( objAsset, buffer, fileSize, &ParseObjAsset ) == false )
 	{
 		delete[] buffer;
-		OnLoadFailed( pContext );
-		return nullptr;
+		OnLoadFailed( *pContext );
 	}
 
-	return &pContext->m_meshDescription;
+	pContext->m_handle->BindCompletionCallback( completionCallback );
+	pContext->m_handle->OnStartLoading( );
+
+	return pContext->m_handle;
 /*
 #ifdef TEST_CODE
 	for ( auto iter = m_vertices.begin( ); iter != m_vertices.end( ); ++iter )
@@ -139,11 +141,9 @@ Owner<MeshDescription*> CObjMeshLoader::RequestAsyncLoad( const char* pFilePath,
 	*/
 }
 
-void CObjMeshLoader::LoadMaterialFromFile( ObjMeshLoadContext* pContext )
+void CObjMeshLoader::LoadMaterialFromFile( ObjMeshLoadContext& context )
 {
-	assert( pContext != nullptr );
-
-	const char* pFilePath = pContext->m_mtlFileNames[pContext->m_loadingMaterialIndex].c_str( );
+	const char* pFilePath = context.m_mtlFileNames[context.m_loadingMaterialIndex].c_str( );
 	IFileSystem* fileSystem = GetInterface<IFileSystem>( );
 
 	FileHandle mtlAsset = fileSystem->OpenFile( pFilePath );
@@ -161,25 +161,24 @@ void CObjMeshLoader::LoadMaterialFromFile( ObjMeshLoadContext* pContext )
 	char* buffer = new char[fileSize];
 	IFileSystem::IOCompletionCallback ParseMtlAsset;
 	ParseMtlAsset.BindFunctor(
-		[this, pContext, mtlAsset]( char* buffer, unsigned long bufferSize )
+		[this, &context, mtlAsset]( char* buffer, unsigned long bufferSize )
 		{
-			ParseMtl( pContext, buffer, bufferSize );
+			ParseMtl( context, buffer, bufferSize );
 			delete[] buffer;
 			GetInterface<IFileSystem>( )->CloseFile( mtlAsset );
 
-			OnLoadSuccessed( pContext );
+			OnLoadSuccessed( context );
 		} );
 
 	if ( fileSystem->ReadAsync( mtlAsset, buffer, fileSize, &ParseMtlAsset ) == false )
 	{
 		delete[] buffer;
-		OnLoadFailed( pContext );
+		OnLoadFailed( context );
 	}
 }
 
-void CObjMeshLoader::ParseMtl( ObjMeshLoadContext* pContext, char* buffer, unsigned long bufferSize )
+void CObjMeshLoader::ParseMtl( ObjMeshLoadContext& context, char* buffer, unsigned long bufferSize )
 {
-	assert( pContext );
 	assert( buffer );
 
 	UTIL::ReplaceChar( buffer, buffer, '\r', ' ', static_cast<size_t>( bufferSize ), static_cast<size_t>( bufferSize ) );
@@ -208,8 +207,8 @@ void CObjMeshLoader::ParseMtl( ObjMeshLoadContext* pContext, char* buffer, unsig
 		}
 		else if ( count > 1 && token.find( "newmtl" ) != std::string::npos )
 		{
-			pContext->m_meshMaterials.emplace_back( params[1].c_str( ) );
-			pCurMaterial = &pContext->m_meshMaterials.back( );
+			context.m_meshMaterials.emplace_back( params[1].c_str( ) );
+			pCurMaterial = &context.m_meshMaterials.back( );
 		}
 		else if ( count > 1 && token.find( "map_Kd" ) != std::string::npos )
 		{
@@ -267,14 +266,13 @@ void CObjMeshLoader::ParseMtl( ObjMeshLoadContext* pContext, char* buffer, unsig
 	}
 }
 
-void CObjMeshLoader::ParseObjMesh( ObjMeshLoadContext* pContext, char* buffer, unsigned long bufferSize )
+void CObjMeshLoader::ParseObjMesh( ObjMeshLoadContext& context, char* buffer, unsigned long bufferSize )
 {
-	assert( pContext != nullptr );
 	assert( buffer != nullptr );
 
 	UTIL::ReplaceChar( buffer, buffer, '\r', ' ', static_cast<size_t>( bufferSize ), static_cast<size_t>( bufferSize ) );
 
-	MeshDescription& outMesh = pContext->m_meshDescription;
+	MeshDescription& outMesh = context.m_meshDescription;
 
 	std::string token;
 	std::stringstream meshFile( buffer );
@@ -403,7 +401,7 @@ void CObjMeshLoader::ParseObjMesh( ObjMeshLoadContext* pContext, char* buffer, u
 		{
 			if ( count > 1 )
 			{
-				pContext->m_mtlFileNames.emplace_back( pContext->m_meshDirectory + params[1] );
+				context.m_mtlFileNames.emplace_back( context.m_meshDirectory + params[1] );
 			}
 		}
 		else if ( token.find( "usemtl" ) != std::string::npos )
@@ -519,29 +517,33 @@ void CObjMeshLoader::ParseObjMesh( ObjMeshLoadContext* pContext, char* buffer, u
 //	}
 //}
 
-void CObjMeshLoader::OnLoadSuccessed( ObjMeshLoadContext* pContext )
+void CObjMeshLoader::OnLoadSuccessed( ObjMeshLoadContext& context )
 {
-	assert( pContext != nullptr );
-	bool needMaterialLoad = ( pContext->m_loadingMaterialIndex < pContext->m_mtlFileNames.size( ) );
+	bool needMaterialLoad = ( context.m_loadingMaterialIndex < context.m_mtlFileNames.size( ) );
 
 	if ( needMaterialLoad )
 	{
-		LoadMaterialFromFile( pContext );
-		++pContext->m_loadingMaterialIndex;
+		LoadMaterialFromFile( context );
+		++context.m_loadingMaterialIndex;
 	}
 	else
 	{
+		// Currently only support static mesh
+		void* asset = new StaticMesh( std::move( context.m_meshDescription ), std::move( context.m_meshMaterials ) );
+
 		// Handle completion callback
-		if ( pContext->m_completionCallback.IsBound( ) )
-		{
-			pContext->m_completionCallback( std::move( pContext->m_meshDescription ), std::move( pContext->m_meshMaterials ) );
-		}
-		m_contexts.erase( pContext->m_contextID );
+		context.m_handle->SetLoadedAsset( asset );
+		context.m_handle->ExecuteCompletionCallback( );
+		m_contexts.erase( context.m_contextID );
 	}
 }
 
-void CObjMeshLoader::OnLoadFailed( ObjMeshLoadContext* pContext )
+void CObjMeshLoader::OnLoadFailed( ObjMeshLoadContext& context )
 {
-	assert( pContext != nullptr );
-	m_contexts.erase( pContext->m_contextID );
+	m_contexts.erase( context.m_contextID );
+}
+
+std::shared_ptr<ModelLoaderHandle> CObjMeshLoader::CreateHandle( )
+{
+	return std::make_shared<ModelLoaderHandle>( );
 }

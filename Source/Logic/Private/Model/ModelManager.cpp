@@ -15,14 +15,16 @@ void CModelManager::OnDeviceRestore( CGameLogic& /*gameLogic*/ )
 	// m_modelList.clear( );
 }
 
-MeshDescription* CModelManager::RequestAsyncLoad( const char* pFilePath, LoadCompletionCallback completionCallback )
+ModelLoaderSharedHandle CModelManager::RequestAsyncLoad( const char* pFilePath, LoadCompletionCallback completionCallback )
 {
-	//auto iter = m_modelList.find( pFilePath );
-
-	//if ( iter != m_modelList.end( ) )
-	//{
-	//	return iter->second.get( );
-	//}
+	auto iter = m_modelList.find( pFilePath );
+	if ( iter != m_modelList.end( ) )
+	{
+		auto handle = std::make_shared<ModelLoaderHandle>( );
+		handle->SetLoadedAsset( iter->second.get() );
+		handle->ExecuteCompletionCallback( );
+		return handle;
+	}
 
 	std::string exten = UTIL::FileNameExtension( pFilePath );
 
@@ -30,11 +32,13 @@ MeshDescription* CModelManager::RequestAsyncLoad( const char* pFilePath, LoadCom
 
 	if ( found != m_meshLoaders.end() )
 	{
+		std::string filePath = pFilePath;
+
 		IModelLoader::LoadCompletionCallback postMeshLoading;
 		postMeshLoading.BindFunctor( 
-			[completionCallback, this]( MeshDescription&& meshDescription, std::vector<Material>&& materials )
+			[path = std::move( filePath ), completionCallback, this]( void* asset )
 			{
-				void* asset = PostMeshLoading( std::move( meshDescription ), std::move( materials ) );
+				PostMeshLoading( path, asset );
 				if ( completionCallback.IsBound() )
 				{
 					completionCallback( asset );
@@ -42,28 +46,17 @@ MeshDescription* CModelManager::RequestAsyncLoad( const char* pFilePath, LoadCom
 			}
 		);
 
-		MeshDescription* newMesh = found->second.RequestAsyncLoad( pFilePath, postMeshLoading );
+		ModelLoaderSharedHandle handle = found->second.RequestAsyncLoad( pFilePath, postMeshLoading );
 
-		if ( newMesh )
-		{
-			//m_modelList.emplace( pFilePath, newMesh );
-			return newMesh;
-		}
+		assert( handle->IsLoadingInProgress( ) );
+		return handle;
 	}
 
-	return nullptr;
+	return std::make_shared<ModelLoaderHandle>( );
 }
 
-void CModelManager::RegisterMesh( const std::string& modelName, Owner<MeshDescription*> pMesh )
+void CModelManager::PostMeshLoading( const std::string& path, void* asset )
 {
-	if ( pMesh )
-	{
-		//m_modelList.emplace( modelName, std::move( pMesh ) );
-	}
-}
-
-void* CModelManager::PostMeshLoading( MeshDescription&& meshDescription, std::vector<Material>&& materials )
-{
-	// Currently only support static mesh
-	return new StaticMesh( std::move( meshDescription ), std::move( materials ) );
+	auto result = m_modelList.emplace( path, static_cast<BaseMesh*>( asset ) );
+	assert( result.second );
 }

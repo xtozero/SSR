@@ -9,6 +9,6 @@ struct MeshDescription;
 class CPlyMeshLoader : public IModelLoader
 {
 public:
-	virtual Owner<MeshDescription*> RequestAsyncLoad( const char* pFileName, LoadCompletionCallback completionCallback ) override;
+	virtual ModelLoaderSharedHandle RequestAsyncLoad( const char* pFileName, LoadCompletionCallback completionCallback ) override;
 };
 

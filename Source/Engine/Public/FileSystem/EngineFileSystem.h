@@ -17,7 +17,6 @@ public:
 	virtual void CloseFile( const FileHandle& handle ) = 0;
 	virtual unsigned long GetFileSize( const FileHandle& handle ) const = 0;
 	virtual bool ReadAsync( const FileHandle& handle, char* buffer, unsigned long size, IOCompletionCallback* callback = nullptr ) = 0;
-	virtual void DispatchCallback( ) = 0;
 
 	virtual ~IFileSystem( ) = default;
 };

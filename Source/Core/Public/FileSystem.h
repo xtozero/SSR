@@ -29,6 +29,7 @@ struct FileHandle
 	}
 };
 
+template <typename OverlappedType>
 class FileSystem
 {
 private:
@@ -87,7 +88,7 @@ public:
 			return false;
 		}
 
-		FileSystemOverlapped* overlapped = m_overlappedPool.Allocate( 1 );
+		OverlappedType* overlapped = m_overlappedPool.Allocate( 1 );
 		overlapped->m_buffer = buffer;
 		overlapped->m_bufferSize = size;
 
@@ -108,30 +109,31 @@ public:
 		CloseHandle( handle.m_handle );
 	}
 
-	void WaitAsyncIO( ) const
+	OverlappedType* WaitAsyncIO( ) const
 	{ 
 		DWORD numberOfBytesTransferred;
 		unsigned long* requestSize;
-		FileSystemOverlapped* o;
+		OverlappedType* o;
 
-		while ( true )
+		if ( GetQueuedCompletionStatus( m_completionPort, &numberOfBytesTransferred, (PULONG_PTR)&requestSize, (LPOVERLAPPED*)&o, INFINITE ) )
 		{
-			if ( GetQueuedCompletionStatus( m_completionPort, &numberOfBytesTransferred, (PULONG_PTR)&requestSize, (LPOVERLAPPED*)&o, INFINITE ) )
+			assert( numberOfBytesTransferred == (long long)requestSize );
+			if ( ( numberOfBytesTransferred == 0 )
+				&& ( requestSize == nullptr )
+				&& ( o == nullptr ) )
 			{
-				assert( numberOfBytesTransferred == (long long)requestSize );
-				if ( ( numberOfBytesTransferred == 0 )
-					&& ( requestSize == nullptr )
-					&& ( o == nullptr ) )
-				{
-					break;
-				}
-
-				if ( o )
-				{
-					o->m_isIOComplete = true;
-				}
+				return nullptr;
 			}
+
+			if ( o )
+			{
+				o->m_isIOComplete = true;
+			}
+
+			return o;
 		}
+
+		return nullptr;
 	}
 
 	void SuspendWaitAsyncIO( )
@@ -139,7 +141,7 @@ public:
 		PostQueuedCompletionStatus( m_completionPort, 0, 0, nullptr );
 	}
 
-	void CleanUpIORequest( FileSystemOverlapped* overlapped )
+	void CleanUpIORequest( OverlappedType* overlapped )
 	{
 		m_overlappedPool.Deallocate( overlapped, 1 );
 	}
@@ -163,5 +165,5 @@ public:
 
 private:
 	HANDLE m_completionPort = INVALID_HANDLE_VALUE;
-	FixedBlockMemoryPool<FileSystemOverlapped> m_overlappedPool;
+	FixedBlockMemoryPool<OverlappedType> m_overlappedPool;
 };

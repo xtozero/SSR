@@ -24,6 +24,12 @@ bool WindowPlatformEngine::BootUp( IPlatform& platform )
 		return false;
 	}
 
+	m_taskScheduler = GetInterface<ITaskScheduler>( );
+	if ( m_taskScheduler == nullptr )
+	{
+		return false;
+	}
+
 	m_logicDll = LoadModule( "./Binaries/Logic.dll" );
 	if ( m_logicDll == nullptr )
 	{
@@ -54,7 +60,7 @@ void WindowPlatformEngine::Run( )
 	while ( IsAvailable() )
 	{
 		ProcessInput( );
-		m_fileSystem->DispatchCallback( );
+		m_taskScheduler->ProcessThisThreadTask( );
 		m_logic->Update( );
 	}
 }

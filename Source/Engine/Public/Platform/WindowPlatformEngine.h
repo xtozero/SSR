@@ -7,6 +7,7 @@
 
 class IFileSystem;
 class ILogic;
+class ITaskScheduler;
 
 class WindowPlatformEngine : public IEngine
 {
@@ -31,6 +32,7 @@ private:
 	ILogic* m_logic = nullptr;
 	IPlatform* m_platform = nullptr;
 	IFileSystem* m_fileSystem = nullptr;
+	ITaskScheduler* m_taskScheduler = nullptr;
 
 	bool m_isAvailable = false;
 	bool m_isPaused = false;

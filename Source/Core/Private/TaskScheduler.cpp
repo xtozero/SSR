@@ -4,7 +4,6 @@
 #include <cassert>
 #include <condition_variable>
 #include <shared_mutex>
-#include <thread>
 #include <vector>
 
 namespace
@@ -29,7 +28,7 @@ struct TaskGroup
 
 struct Worker
 {
-	std::size_t m_id;
+	std::size_t m_threadType;
 	std::thread m_thread;
 	std::mutex m_lock;
 	std::condition_variable m_cv;
@@ -38,10 +37,15 @@ struct Worker
 
 void WorkerThread( TaskScheduler* scheduler, Worker* worker )
 {
+	scheduler->m_workerid[worker->m_threadType] = std::this_thread::get_id( );
+
 	while ( true )
 	{
-		std::unique_lock<std::mutex> lock( worker->m_lock );
-		worker->m_cv.wait( lock, [&worker]( ) { return worker->m_wakeup.load( ); } );
+		{
+			std::unique_lock<std::mutex> lock( worker->m_lock );
+			worker->m_cv.wait( lock, [&worker]( ) { return worker->m_wakeup.load( ); } );
+		}
+		
 		worker->m_wakeup = false;
 
 		while ( true )
@@ -58,7 +62,7 @@ void WorkerThread( TaskScheduler* scheduler, Worker* worker )
 				; ++i )
 			{
 				group = &scheduler->m_taskGroups[i];
-				if ( group->m_free || group->m_reference == 0 || ( CheckWorkerAffinity( worker->m_id, group->m_workerAffinity ) == false ) )
+				if ( group->m_free || group->m_reference == 0 || ( CheckWorkerAffinity( worker->m_threadType, group->m_workerAffinity ) == false ) )
 				{
 					continue;
 				}
@@ -135,11 +139,15 @@ bool TaskScheduler::Run( GroupHandle handle, TaskBase* task )
 	}
 	
 	++group.m_reference;
-	
+
 	for ( std::size_t i = 0; i < m_workerCount; ++i )
 	{
-		m_workers[i].m_wakeup = true;
-		m_workers[i].m_cv.notify_one( );
+		if ( CheckWorkerAffinity( i, group.m_workerAffinity ) )
+		{
+			std::unique_lock<std::mutex> lock( m_workers[i].m_lock );
+			m_workers[i].m_wakeup = true;
+			m_workers[i].m_cv.notify_one( );
+		}
 	}
 
 	return true;
@@ -164,7 +172,7 @@ bool TaskScheduler::Wait( GroupHandle handle )
 		return false;
 	}
 
-	if ( CheckWorkerAffinity( handle.m_groupIndex, group.m_workerAffinity ) )
+	if ( CheckWorkerAffinity( GetThisThreadType( ), group.m_workerAffinity ) )
 	{
 		while ( true )
 		{
@@ -213,6 +221,56 @@ void TaskScheduler::WaitAll( )
 	}
 }
 
+void TaskScheduler::ProcessThisThreadTask( )
+{
+	std::size_t threadType = GetThisThreadType( );
+
+	for ( std::size_t i = 0; i < m_maxTaskGroup; ++i )
+	{
+		TaskGroup& group = m_taskGroups[i];
+		if ( group.m_free || group.m_reference == 0 )
+		{
+			continue;
+		}
+
+		if ( CheckWorkerAffinity( threadType, group.m_workerAffinity ) == false )
+		{
+			continue;
+		}
+
+		while ( true )
+		{
+			TaskBase* task = nullptr;
+			while ( task == nullptr )
+			{
+				std::size_t head = group.m_head.load( );
+				if ( group.m_head >= group.m_tasks.size( ) )
+				{
+					break;
+				}
+
+				if ( group.m_head.compare_exchange_strong( head, head + 1 ) )
+				{
+					std::shared_lock taskLock( group.m_taskLock );
+					task = group.m_tasks[head];
+				}
+			}
+
+			if ( task )
+			{
+				task->Execute( );
+				--group.m_reference;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		group.m_free = true;
+	}
+}
+
 bool TaskScheduler::IsComplete( GroupHandle handle ) const
 {
 	if ( handle.m_groupIndex >= m_maxTaskGroup )
@@ -223,6 +281,21 @@ bool TaskScheduler::IsComplete( GroupHandle handle ) const
 	TaskGroup& group = m_taskGroups[handle.m_groupIndex];
 
 	return handle.m_id < group.m_lastId || group.m_free;
+}
+
+std::size_t TaskScheduler::GetThisThreadType( ) const
+{
+	std::thread::id thisThreadId = std::this_thread::get_id( );
+
+	for ( std::size_t i = 0; i < m_workerCount; ++i )
+	{
+		if ( m_workerid[i] == thisThreadId )
+		{
+			return i;
+		}
+	}
+
+	return m_workerCount;
 }
 
 TaskScheduler::TaskScheduler( )
@@ -260,6 +333,7 @@ TaskScheduler::~TaskScheduler( )
 
 	delete[] m_taskGroups;
 	delete[] m_workers;
+	delete[] m_workerid;
 }
 
 void TaskScheduler::Initialize( std::size_t groupCount, std::size_t workerCount )
@@ -278,10 +352,11 @@ void TaskScheduler::Initialize( std::size_t groupCount, std::size_t workerCount 
 
 	m_workerCount = workerCount;
 	m_workers = new Worker[m_workerCount];
+	m_workerid = new std::thread::id[m_workerCount];
 
 	for ( std::size_t i = 0; i < m_workerCount; ++i )
 	{
-		m_workers[i].m_id = i;
+		m_workers[i].m_threadType = i;
 		m_workers[i].m_wakeup = false;
 		m_workers[i].m_thread = std::thread( WorkerThread, this, &m_workers[i] );
 	}

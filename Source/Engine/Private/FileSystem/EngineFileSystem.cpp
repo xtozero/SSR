@@ -5,6 +5,14 @@
 #include <cstddef>
 #include <list>
 
+struct EngineFileSystemOverlapped : public FileSystemOverlapped
+{
+	EngineFileSystemOverlapped( ) : FileSystemOverlapped{ }
+	{ }
+
+	IFileSystem::IOCompletionCallback m_callback;
+};
+
 class EngineFileSystem : public IFileSystem
 {
 public:
@@ -12,7 +20,6 @@ public:
 	virtual void CloseFile( const FileHandle& handle ) override;
 	virtual unsigned long GetFileSize( const FileHandle& handle ) const override;
 	virtual bool ReadAsync( const FileHandle& handle, char* buffer, unsigned long size, IOCompletionCallback* callback = nullptr ) override;
-	virtual void DispatchCallback( ) override;
 
 	EngineFileSystem( );
 	virtual ~EngineFileSystem( );
@@ -24,21 +31,19 @@ public:
 private:
 	std::mutex m_ioRequestMutex;
 	std::mutex m_callbackMutex;
-	FileSystem m_fileSystem;
+	FileSystem<EngineFileSystemOverlapped> m_fileSystem;
 	GroupHandle m_hWaitIO;
 
-	using CallBack = std::pair<FileSystemOverlapped*, Delegate<void, char*, unsigned long>>;
-	std::list<CallBack> m_callbacks;
 };
 
 FileHandle EngineFileSystem::OpenFile( const char* filePath )
 {
-	return FileSystem::OpenFile( filePath );
+	return FileSystem<EngineFileSystemOverlapped>::OpenFile( filePath );
 }
 
 void EngineFileSystem::CloseFile( const FileHandle& handle )
 {
-	FileSystem::CloseFile( handle );
+	FileSystem<EngineFileSystemOverlapped>::CloseFile( handle );
 }
 
 unsigned long EngineFileSystem::GetFileSize( const FileHandle& handle ) const
@@ -54,43 +59,13 @@ bool EngineFileSystem::ReadAsync( const FileHandle& handle, char* buffer, unsign
 	}
 
 	std::lock_guard lk( m_ioRequestMutex );
-	FileSystemOverlapped* o = static_cast<FileSystemOverlapped*>( m_fileSystem.ReadAsync( handle, buffer, size ) );
-	if ( o != nullptr )
+	EngineFileSystemOverlapped* o = static_cast<EngineFileSystemOverlapped*>( m_fileSystem.ReadAsync( handle, buffer, size ) );
+	if ( callback && ( o != nullptr ) )
 	{
-		m_callbacks.emplace_back( o, callback ? *callback : IOCompletionCallback( ) );
+		o->m_callback = *callback;
 	}
 
 	return ( o != nullptr );
-}
-
-void EngineFileSystem::DispatchCallback( )
-{
-	if ( m_callbacks.size( ) == 0 )
-	{
-		return;
-	}
-
-	std::lock_guard lk( m_callbackMutex );
-	for ( auto iter = m_callbacks.begin( ); iter != m_callbacks.end( ); )
-	{
-		CallBack& callback = *iter;
-		FileSystemOverlapped* o = callback.first;
-		if ( o->m_isIOComplete )
-		{
-			if ( callback.second.IsBound( ) )
-			{
-				callback.second( o->m_buffer, o->m_bufferSize );
-			}
-
-			iter = m_callbacks.erase( iter );
-		}
-		else
-		{
-			++iter;
-		}
-
-		m_fileSystem.CleanUpIORequest( o );
-	}
 }
 
 EngineFileSystem::EngineFileSystem( )
@@ -103,13 +78,43 @@ EngineFileSystem::EngineFileSystem( )
 	public:
 		void DoTask( )
 		{
-			m_fileSystem.WaitAsyncIO( );
+			while ( true )
+			{
+				EngineFileSystemOverlapped* o = m_fileSystem.WaitAsyncIO( );
+				if ( o == nullptr )
+				{
+					break;
+				}
+
+				class TaskIOCompletionCallback
+				{
+				public:
+					void DoTask( )
+					{
+						if ( m_o->m_callback.IsBound( ) )
+						{
+							m_o->m_callback( m_o->m_buffer, m_o->m_bufferSize );
+						}
+
+						m_fileSystem.CleanUpIORequest( m_o );
+					}
+
+					TaskIOCompletionCallback( FileSystem<EngineFileSystemOverlapped>& fileSystem, EngineFileSystemOverlapped* o ) : m_fileSystem( fileSystem ), m_o( o )
+					{}
+
+				private:
+					FileSystem<EngineFileSystemOverlapped>& m_fileSystem;
+					EngineFileSystemOverlapped* m_o = nullptr;
+				};
+
+				ENQUEUE_THREAD_TASK<ThreadType::GameThread>( Task<TaskIOCompletionCallback>::Create( m_fileSystem, o ) );
+			}
 		}
 
-		TaskWaitAsyncRead( FileSystem& fileSystem ) : m_fileSystem( fileSystem ) {  }
+		TaskWaitAsyncRead( FileSystem<EngineFileSystemOverlapped>& fileSystem ) : m_fileSystem( fileSystem ) {  }
 
 	private:
-		FileSystem& m_fileSystem;
+		FileSystem<EngineFileSystemOverlapped>& m_fileSystem;
 	};
 
 	GetInterface<ITaskScheduler>( )->Run( m_hWaitIO, Task<TaskWaitAsyncRead>::Create( m_fileSystem ) );
