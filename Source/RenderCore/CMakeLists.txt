@@ -31,8 +31,12 @@ set (RENDER_UTIL
 	
 set (GRAPHICS_RESOURCE_SOURCE
 	"Private/GraphicsResource/IndexBuffer.cpp"
+	"Private/GraphicsResource/RenderOption.cpp"
+	"Private/GraphicsResource/RenderOptionManager.cpp"
 	"Public/GraphicsResource/DrawSnapshot.h"
 	"Public/GraphicsResource/IndexBuffer.h"
+	"Public/GraphicsResource/RenderOption.h"
+	"Public/GraphicsResource/RenderOptionManager.h"
 	"Public/GraphicsResource/ShaderBindings.h"
 	"Public/GraphicsResource/VertexBuffer.h"
 	"Public/GraphicsResource/VertexInputStream.h")
@@ -57,6 +61,7 @@ include_directories(./Public/Core)
 include_directories(./Public/Material)
 include_directories(./Public/Renderer)
 include_directories(../Aga/Public/Common)
+include_directories(../Core/Public)
 include_directories(../Shared/Public)
 include_directories(../Engine/Public)
 

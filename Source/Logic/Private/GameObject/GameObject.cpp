@@ -2,8 +2,10 @@
 #include "GameObject/GameObject.h"
 
 #include "Core/GameLogic.h"
+#include "Core/InterfaceFactories.h"
 #include "Core/Timer.h"
 #include "GameObject/GameObjectFactory.h"
+#include "GraphicsResource/RenderOptionManager.h"
 #include "Json/json.hpp"
 #include "Math/Util.h"
 #include "Physics/Aaboundingbox.h"
@@ -316,9 +318,10 @@ void CGameObject::LoadProperty( const JSON::Value& json )
 		}
 	}
 	
-	if ( const JSON::Value* pMat = json.Find( "Material" ) )
+	if ( const JSON::Value* pRenderOption = json.Find( "RenderOption" ) )
 	{
-		SetMaterialName( pMat->AsString( ) );
+		// SetMaterialName( pMat->AsString( ) );
+		m_pRenderOption = GetInterface<IRenderOptionManager>( )->GetRenderOption( pRenderOption->AsString() );
 	}
 	
 	if ( const JSON::Value* pReflectable = json.Find( "Reflectable" ) )

@@ -16,6 +16,6 @@ public:
 private:
 	void LoadKeyCode( const char* uicAsset, size_t assetSize );
 
-	using CodePair = std::pair<unsigned long, USER_INPUT_CODE>;
+	using CodePair = std::pair<int, USER_INPUT_CODE>;
 	std::vector<CodePair> m_codeMap;
 };

@@ -53,7 +53,7 @@ bool CGameLogic::BootUp( IPlatform& platform )
 
 	if ( m_pRenderCore->BootUp( m_wndHwnd, m_appSize.first, m_appSize.second ) == false )
 	{
-		__debugbreak( );
+		return false;
 	}
 
 	m_view.CreatePerspectiveFovLHMatrix( XMConvertToRadians( 60 ),
@@ -332,7 +332,7 @@ bool CGameLogic::LoadWorld( const char* filePath )
 	bool result = fileSystem->ReadAsync( worldAsset, buffer, fileSize, &ParseWorldAsset );
 	if ( result == false )
 	{
-		delete buffer;
+		delete[] buffer;
 		GetInterface<IFileSystem>( )->CloseFile( worldAsset );
 	}
 

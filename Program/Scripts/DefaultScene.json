@@ -10,7 +10,7 @@
 		{
 			"Object": {
 				"Class": "skybox",
-				"Material": "mat_skyBox"
+				"RenderOption": "mat_skyBox"
 			}
 		},
 		{
@@ -18,7 +18,7 @@
 				"Class": "base",
 				"Name": "ground",
 				"Model": "./Models/Obj/plane.obj",
-				"Material": "mat_reflectable",
+				"RenderOption": "mat_reflectable",
 				"Position": [ 0, -10, 0 ],
 				"Reflectable": 1,
 				"ColliderType": "Box"
@@ -29,7 +29,7 @@
 				"Class": "base",
 				"Name": "sphere",
 				"Model": "./Models/Obj/shape_sphere.obj",
-				"Material": "mat_default",
+				"RenderOption": "mat_default",
 				"Position": [ -26.409266, -4.787085, 0.000000 ],
 				"Scale": [ 10, 10, 10 ],
 				"ColliderType": "Sphere",
@@ -41,7 +41,7 @@
 				"Class": "base",
 				"Name": "cone",
 				"Model": "./Models/Obj/cone.obj",
-				"Material": "mat_default",
+				"RenderOption": "mat_default",
 				"Position": [ -13.516332, -4.475936, 0.000000 ],
 				"Scale": [ 10, 10, 10 ],
 				"ColliderType": "Box"
@@ -52,7 +52,7 @@
 				"Class": "base",
 				"Name": "cylinder",
 				"Model": "./Models/Obj/cylinder.obj",
-				"Material": "mat_default",
+				"RenderOption": "mat_default",
 				"Position": [ -1.270190, -4.746570, 0.000000 ],
 				"Scale": [ 10, 10, 10 ],
 				"ColliderType": "Box"
@@ -63,7 +63,7 @@
 				"Class": "base",
 				"Name": "torus",
 				"Model": "./Models/Obj/torus.obj",
-				"Material": "mat_default",
+				"RenderOption": "mat_default",
 				"Position": [ 11.517221, -8.738405, 0.000000 ],
 				"Scale": [ 10, 10, 10 ],
 				"ColliderType": "Box"
@@ -74,7 +74,7 @@
 				"Class": "base",
 				"Name": "dice",
 				"Model": "./Models/Obj/dice.obj",
-				"Material": "mat_default",
+				"RenderOption": "mat_default",
 				"Position": [ 25.928568, -4.814196, 0.000000 ],
 				"Scale": [ 10, 10, 10 ],
 				"ColliderType": "Box",
@@ -85,7 +85,7 @@
 			"Object": {
 				"Class": "displaySRVHelper",
 				"Name": "depthStencilViewer",
-				"Material": "mat_display_depth",
+				"RenderOption": "mat_display_depth",
 				"Position": [ 150, 115, 0 ],
 				"TextureName": "DebugDepthStencil",
 				"Width": 300,
@@ -96,7 +96,7 @@
 			"Object": {
 				"Class": "displaySRVHelper",
 				"Name": "renderTargetViewer",
-				"Material": "mat_display_renderTarget",
+				"RenderOption": "mat_display_renderTarget",
 				"Position": [ 150, 115, 0 ],
 				"TextureName": "DuplicateFrameBuffer",
 				"Width": 300,
@@ -107,7 +107,7 @@
 			"Object": {
 				"Class": "displaySRVHelper",
 				"Name": "shadowmapViewer",
-				"Material": "mat_display_renderTarget",
+				"RenderOption": "mat_display_renderTarget",
 				"Position": [ 150, 115, 0 ],
 				"TextureName": "DebugShadowMap",
 				"Width": 300,

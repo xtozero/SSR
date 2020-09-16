@@ -156,12 +156,12 @@ bool CLightManager::CreateDeviceDependentResource( IRenderer& renderer )
 	return true;
 }
 
-void CLightManager::LoadProperty( const char* lightAsset, size_t assertSize )
+void CLightManager::LoadProperty( const char* lightAsset, size_t assetSize )
 {
 	JSON::Value root( JSON::DataType::EMPTY );
 	JSON::Reader reader;
 
-	if ( reader.Parse( lightAsset, assertSize, root ) )
+	if ( reader.Parse( lightAsset, assetSize, root ) )
 	{
 		if ( const JSON::Value* pGlobalAmbient = root.Find( "globalAmbient" ) )
 		{
@@ -185,7 +185,7 @@ void CLightManager::LoadProperty( const char* lightAsset, size_t assertSize )
 
 				if ( const JSON::Value* pType = light.Find( "type" ) )
 				{
-					trait.m_type = static_cast<LIGHT_TYPE>( GetInterface<IEnumStringMap>( )->GetEnum( pType->AsString( ), static_cast<int>( LIGHT_TYPE::NONE ) ) );
+					trait.m_type = GetEnum( pType->AsString( ), LIGHT_TYPE::NONE );
 				}
 
 				if ( const JSON::Value* pOnOff = light.Find( "onOff" ) )

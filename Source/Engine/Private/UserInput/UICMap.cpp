@@ -183,8 +183,7 @@ void UICMap::LoadKeyCode( const char* uicAsset, size_t assetSize )
 			{
 				if ( const JSON::Value* pUserInputCode = pKeyCodes->Find( member ) )
 				{
-					m_codeMap.emplace_back( static_cast<unsigned long>( enumStringMap->GetEnum( member, -1 ) ),
-						static_cast<USER_INPUT_CODE>( enumStringMap->GetEnum( pUserInputCode->AsString( ), -1 ) ) );
+					m_codeMap.emplace_back( GetEnum( member, -1 ), GetEnum( pUserInputCode->AsString( ), UIC_UNKNOWN ) );
 				}
 			}
 		}

@@ -23,6 +23,7 @@ class CDebugOverlayManager;
 class CGameLogic;
 class CGameObject;
 class ICollider;
+struct RenderOption;
 
 namespace JSON
 {
@@ -139,6 +140,7 @@ private:
 	CXMFLOAT4X4 m_invMatTransform;
 
 	BaseMesh* m_pModel = nullptr;
+	const RenderOption* m_pRenderOption = nullptr;
 	//Material m_material = INVALID_MATERIAL;
 	//Material m_overrideMaterial = INVALID_MATERIAL;
 

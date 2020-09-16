@@ -1,0 +1,20 @@
+{
+	"default": {
+	},
+
+	"point": {
+		"Filter": ["TEXTURE_FILTER::POINT"]
+	},
+
+	"draw_ui": {
+		"AddressU": "TEXTURE_ADDRESS_MODE::BORDER",
+		"AddressV": "TEXTURE_ADDRESS_MODE::BORDER",
+		"AddressW": "TEXTURE_ADDRESS_MODE::BORDER"
+	},
+
+	"shadow": {
+		"AddressU": "TEXTURE_ADDRESS_MODE::BORDER",
+		"AddressV": "TEXTURE_ADDRESS_MODE::BORDER",
+		"AddressW": "TEXTURE_ADDRESS_MODE::BORDER"
+	}
+}

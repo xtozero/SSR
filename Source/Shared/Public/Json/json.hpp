@@ -600,16 +600,29 @@ namespace JSON
 		{
 			assert( ( Type() == DataType::ARRAY ) );
 			ObjectType& array = *m_data.m_object;
-			auto iter = array.emplace( std::to_string( index ), Value( DataType::EMPTY ) );
-			return iter.first->second;
+			std::string indexString = std::to_string( index );
+			auto found = array.find( indexString );
+			if ( found == array.end( ) )
+			{
+				auto result = array.emplace( std::to_string( index ), Value( DataType::EMPTY ) );
+				return result.first->second;
+			}
+
+			return found->second;
 		}
 
 		Value& operator[]( const std::string& key ) const
 		{
 			assert( ( Type( ) == DataType::OBJECT ) );
-			ObjectType& map = *m_data.m_object;
-			auto iter = map.emplace( key, Value( DataType::EMPTY ) );
-			return iter.first->second;
+			ObjectType& array = *m_data.m_object;
+			auto found = array.find( key );
+			if ( found == array.end( ) )
+			{
+				auto result = array.emplace( key, Value( DataType::EMPTY ) );
+				return result.first->second;
+			}
+
+			return found->second;
 		}
 
 		Value& operator=( const Value& rhs )
@@ -671,6 +684,11 @@ namespace JSON
 			}
 
 			return *this;
+		}
+		
+		Value( ) : m_type( DataType::EMPTY )
+		{
+
 		}
 
 		explicit Value( DataType type ) : m_type( type ) 

@@ -43,7 +43,7 @@ public:
 
 	CLight* GetPrimaryLight( ) { return m_lights[m_primaryLight]; }
 
-	void LoadProperty( const char* lightAsset, size_t assertSize );
+	void LoadProperty( const char* lightAsset, size_t assetSize );
 
 	CLightManager( );
 	~CLightManager( ) = default;
