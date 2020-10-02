@@ -15,7 +15,7 @@
 		},
 		{
 			"Object": {
-				"Class": "base",
+				"Class": "static_mesh",
 				"Name": "ground",
 				"Model": "./Models/Obj/plane.obj",
 				"RenderOption": "mat_reflectable",
@@ -26,7 +26,7 @@
 		},
 		{
 			"Object": {
-				"Class": "base",
+				"Class": "static_mesh",
 				"Name": "sphere",
 				"Model": "./Models/Obj/shape_sphere.obj",
 				"RenderOption": "mat_default",
@@ -38,7 +38,7 @@
 		},
 		{
 			"Object": {
-				"Class": "base",
+				"Class": "static_mesh",
 				"Name": "cone",
 				"Model": "./Models/Obj/cone.obj",
 				"RenderOption": "mat_default",
@@ -49,7 +49,7 @@
 		},
 		{
 			"Object": {
-				"Class": "base",
+				"Class": "static_mesh",
 				"Name": "cylinder",
 				"Model": "./Models/Obj/cylinder.obj",
 				"RenderOption": "mat_default",
@@ -60,7 +60,7 @@
 		},
 		{
 			"Object": {
-				"Class": "base",
+				"Class": "static_mesh",
 				"Name": "torus",
 				"Model": "./Models/Obj/torus.obj",
 				"RenderOption": "mat_default",
@@ -71,7 +71,7 @@
 		},
 		{
 			"Object": {
-				"Class": "base",
+				"Class": "static_mesh",
 				"Name": "dice",
 				"Model": "./Models/Obj/dice.obj",
 				"RenderOption": "mat_default",

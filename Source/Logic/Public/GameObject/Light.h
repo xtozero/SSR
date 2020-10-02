@@ -33,10 +33,8 @@ class CLight : public CGameObject
 {
 public:
 	virtual bool Initialize( CGameLogic& gameLogic ) override;
-	virtual void SetPosition( const float x, const float y, const float z ) override;
-	virtual void SetPosition( const CXMFLOAT3& pos ) override;
-	virtual void SetScale( const float xScale, const float yScale, const float zScale ) override;
-	virtual void SetRotate( const float pitch, const float yaw, const float roll ) override;
+	//virtual void SetPosition( const float x, const float y, const float z ) override;
+	//virtual void SetPosition( const CXMFLOAT3& pos ) override;
 	
 	virtual void Render( CGameLogic& gameLogic ) override;
 

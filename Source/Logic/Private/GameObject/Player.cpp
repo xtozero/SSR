@@ -50,8 +50,8 @@ void CPlayer::OnMouseLButton( const UserInput& input, CGameLogic& gameLogic )
 			newObject->SetPosition( m_camera.GetOrigin( ) );
 			newObject->SetScale( 5, 5, 5 );
 			newObject->SetColliderType( COLLIDER::SPHERE );
-			newObject->GetRigidBody( )->SetMass( 10 );
-			newObject->GetRigidBody( )->SetVelocity( m_camera.GetForwardVector() * 200.f );
+			//newObject->GetRigidBody( )->SetMass( 10 );
+			//newObject->GetRigidBody( )->SetVelocity( m_camera.GetForwardVector() * 200.f );
 
 			gameLogic.SpawnObject( newObject );
 		}

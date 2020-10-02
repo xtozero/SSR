@@ -133,7 +133,7 @@ void CCamera::UpdateToRenderer( CRenderView& view )
 	}
 }
 
-void CCamera::LoadProperty( const JSON::Value& json )
+void CCamera::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 {
 	if ( const JSON::Value* pPos = json.Find( "Position" ) )
 	{

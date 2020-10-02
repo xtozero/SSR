@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <limits>
 #include <memory>
+#include <vector>
 
 enum DIRTY_FLAG
 {
@@ -22,7 +23,9 @@ class BaseMesh;
 class CDebugOverlayManager;
 class CGameLogic;
 class CGameObject;
+class Component;
 class ICollider;
+class SceneComponent;
 struct RenderOption;
 
 namespace JSON
@@ -52,12 +55,12 @@ class CGameObject : IGraphicsDeviceNotify
 public:
 	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
 	virtual bool Initialize( CGameLogic& gameLogic );
-	virtual void SetPosition( const float x, const float y, const float z );
-	virtual void SetPosition( const CXMFLOAT3& pos );
-	virtual void SetScale( const float xScale, const float yScale, const float zScale );
-	virtual void SetRotate( const CXMFLOAT4& rotate );
-	virtual void SetRotate( const float pitch, const float yaw, const float roll );
-	virtual void SetRotate( const CXMFLOAT3& pitchYawRoll );
+	void SetPosition( const float x, const float y, const float z );
+	void SetPosition( const CXMFLOAT3& pos );
+	void SetScale( const float xScale, const float yScale, const float zScale );
+	void SetRotate( const CXMFLOAT4& rotate );
+	void SetRotate( const float pitch, const float yaw, const float roll );
+	void SetRotate( const CXMFLOAT3& pitchYawRoll );
 
 	std::size_t GetID( ) const { return m_id; }
 	void SetID( std::size_t id ) { m_id = id; }
@@ -78,8 +81,6 @@ public:
 	void SetName( const std::string& name ) { m_name = name; }
 	const std::string& GetName( ) const { return m_name; }
 	void SetMaterialName( const std::string& pMaterialName );
-	void SetModelMeshName( const std::string& pModelName );
-	const std::string& GetModelPath( ) const { return m_modelPath; }
 
 	COLLIDER::TYPE GetColliderType( ) const { return m_colliderType; }
 	const ICollider* GetDefaultCollider( );
@@ -90,9 +91,6 @@ public:
 
 	bool IsPicked( ) const { return m_isPicked; }
 	void SetPicked( bool isPicked ) { m_isPicked = isPicked; }
-
-	BaseMesh* GetModel( ) const { return m_pModel; }
-	void SetModel( BaseMesh* pModel ) { m_pModel = pModel; }
 
 	//Material GetMaterial( ) { return m_material; }
 	//void SetMaterial( Material material ) { m_material = material; }
@@ -106,47 +104,56 @@ public:
 
 	bool WillRemove( ) const { return ( m_property & GAMEOBJECT_PROPERTY::REMOVE_ME ); }
 
-	virtual void LoadProperty( const JSON::Value& json );
+	virtual void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json );
 
 	virtual bool IgnorePicking( ) const { return false; }
 
 	virtual bool ShouldDraw( ) const { return true; }
 	virtual bool ShouldDrawShadow( ) const { return true; }
 
-	ObjectRelatedRigidBody* GetRigidBody( ) { return &m_body; }
+	SceneComponent* GetRootComponent( ) const { return m_rootComponent; }
+	void AddComponent( Component* component );
 
 	CGameObject( );
-	~CGameObject( ) = default ;
+	~CGameObject( );
 
 protected:
-	virtual bool LoadModelMesh( CGameLogic& gameLogic );
 	virtual bool LoadMaterial( CGameLogic& gameLogic );
 	virtual void CalcOriginalCollider( );
 
+	template <typename T>
+	T* CreateComponent( CGameObject& gameObject )
+	{
+		return new T( &gameObject );
+	}
+
+	template <typename T>
+	T* GetComponent( )
+	{
+		for ( Component* component : m_components )
+		{
+			if ( T* concrete = dynamic_cast<T*>( component ) )
+			{
+				return concrete;
+			}
+		}
+
+		return nullptr;
+	}
+
 private:
-	void RebuildTransform( );
 	void UpdateCollider( COLLIDER::TYPE type );
 	void UpdateAllCollider( );
 	void UpdateSubCollider( COLLIDER::TYPE type );
-	void OnModelLoadFinished( void* model );
 
 	std::size_t m_id = std::numeric_limits<std::size_t>::max( );
 
-	CXMFLOAT3 m_vecPos = { 0.f, 0.f, 0.f };
-	CXMFLOAT3 m_vecScale = { 1.f, 1.f, 1.f };
-	CXMFLOAT4 m_vecRotate = { 0.f, 0.f, 0.f, 1.f };
-
-	CXMFLOAT4X4 m_matTransform;
-	CXMFLOAT4X4 m_invMatTransform;
-
-	BaseMesh* m_pModel = nullptr;
 	const RenderOption* m_pRenderOption = nullptr;
 	//Material m_material = INVALID_MATERIAL;
 	//Material m_overrideMaterial = INVALID_MATERIAL;
 
 	std::string m_name;
 	std::string m_materialName;
-	std::string m_modelPath;
 
 	bool m_isPicked = false;
 
@@ -158,13 +165,14 @@ private:
 
 	UINT m_property = 0;
 
-	ObjectRelatedRigidBody m_body{ this };
+	// ObjectRelatedRigidBody m_body{ this };
+
+	std::vector<Component*> m_components;
 
 protected:
-	bool m_needRebuildTransform = true;
+	SceneComponent* m_rootComponent = nullptr;
+
+	friend Component;
 };
 
-inline void RemoveObject( CGameObject& object )
-{
-	object.AddProperty( GAMEOBJECT_PROPERTY::REMOVE_ME );
-}
+void RemoveObject( CGameObject& object );

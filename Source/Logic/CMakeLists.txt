@@ -8,6 +8,16 @@ set (PRECOMPILED
 	"Public/stdafx.h"
 	"Public/targetver.h")
 	
+set (COMPOENETS_SOURCE
+	"Private/Components/Component.cpp"
+	"Private/Components/PrimitiveComponent.cpp"
+	"Private/Components/SceneComponent.cpp"
+	"Private/Components/StaticMeshComponent.cpp"
+	"Public/Components/Component.h"
+	"Public/Components/PrimitiveComponent.h"
+	"Public/Components/SceneComponent.h"
+	"Public/Components/StaticMeshComponent.h")
+	
 set (CORE_SOURCE
 	"Private/Core/DebugConsole.cpp"
 	"Private/Core/dllmain.cpp"
@@ -32,6 +42,7 @@ set (GAME_OBJECT_SOURCE
 	"Private/GameObject/LightManager.cpp"
 	"Private/GameObject/PickingManager.cpp"
 	"Private/GameObject/SkyBox.cpp"
+	"Private/GameObject/StaticMeshGameObject.cpp"
 	"Public/GameObject/Camera.h"
 	"Public/GameObject/CameraManager.h"
 	"Public/GameObject/DisplayShaderResourceHelper.h"
@@ -41,7 +52,9 @@ set (GAME_OBJECT_SOURCE
 	"Public/GameObject/Light.h"
 	"Public/GameObject/LightManager.h"
 	"Public/GameObject/PickingManager.h"
-	"Public/GameObject/SkyBox.h")
+	"Public/GameObject/SkyBox.h"
+	"Public/GameObject/StaticMeshGameObject.h"
+	)
 	
 set (PLAYER_OBJECT_SOURCE
 	"Private/GameObject/Player.cpp"
@@ -154,6 +167,8 @@ set (WORLD_SOURCE
 	"Public/World/World.h"
 	"Public/World/WorldLoader.h")
 	
+source_group("Components" FILES ${COMPOENETS_SOURCE})
+source_group("Core" FILES ${CORE_SOURCE})
 source_group("GameObject" FILES ${GAME_OBJECT_SOURCE})
 source_group("GameObject\\Player" FILES ${PLAYER_OBJECT_SOURCE})
 source_group("GameObject\\TestScene" FILES ${TEST_SCENE_OBJECT_SOURCE})
@@ -179,6 +194,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 add_library(Logic SHARED 	${PRECOMPILED}
+							${COMPOENETS_SOURCE}
 							${CORE_SOURCE}
 							${GAME_OBJECT_SOURCE}
 							${PLAYER_OBJECT_SOURCE}

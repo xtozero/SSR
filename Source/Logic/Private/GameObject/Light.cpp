@@ -10,31 +10,20 @@ bool CLight::Initialize( CGameLogic& /*gameLogic*/ )
 	return true;
 }
 
-void CLight::SetPosition( const float x, const float y, const float z )
-{
-	CGameObject::SetPosition( x, y, z );
-	m_needRebuildTransform = false;
-
-	if ( m_property )
-	{
-		m_property->m_position = CXMFLOAT4( x, y, z, 0.f );
-	}
-}
-
-void CLight::SetPosition( const CXMFLOAT3& pos )
-{
-	SetPosition( pos.x, pos.y, pos.z );
-}
-
-void CLight::SetScale( const float /*xScale*/, const float /*yScale*/, const float /*zScale*/ )
-{
-	//Do Nothing
-}
-
-void CLight::SetRotate( const float /*pitch*/, const float /*yaw*/, const float /*roll*/ )
-{
-	//DO Nothing
-}
+//void CLight::SetPosition( const float x, const float y, const float z )
+//{
+//	CGameObject::SetPosition( x, y, z );
+//
+//	if ( m_property )
+//	{
+//		m_property->m_position = CXMFLOAT4( x, y, z, 0.f );
+//	}
+//}
+//
+//void CLight::SetPosition( const CXMFLOAT3& pos )
+//{
+//	SetPosition( pos.x, pos.y, pos.z );
+//}
 
 void CLight::Render( CGameLogic& /*gameLogic*/ )
 {

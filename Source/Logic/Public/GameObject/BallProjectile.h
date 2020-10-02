@@ -8,6 +8,6 @@ public:
 	virtual void Think( float elapsedTime ) override;
 
 	CBallProjectile( );
-protected:
-	virtual bool LoadModelMesh( CGameLogic& gameLogic ) override;
+//protected:
+//	virtual bool LoadModelMesh( CGameLogic& gameLogic ) override;
 };

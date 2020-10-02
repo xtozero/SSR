@@ -28,8 +28,8 @@ CBallProjectile::CBallProjectile( )
 	SetMaterialName( "mat_default" );
 }
 
-bool CBallProjectile::LoadModelMesh( CGameLogic& gameLogic )
-{
+//bool CBallProjectile::LoadModelMesh( CGameLogic& gameLogic )
+//{
 	//if ( GetModel( ) != nullptr )
 	//{
 	//	return false;
@@ -53,5 +53,5 @@ bool CBallProjectile::LoadModelMesh( CGameLogic& gameLogic )
 	//SetModelMeshName( _T("ball_projectile") );
 	//SetModel( meshBuilder.Build( gameLogic.GetRenderer(), GetMeshName() ) );
 
-	return true;
-}
+//	return true;
+//}

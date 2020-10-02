@@ -17,14 +17,14 @@ namespace
 
 DECLARE_GAME_OBJECT( displaySRVHelper, CDisplayShaderResourceHelper );
 
-void CDisplayShaderResourceHelper::SetPosition( const CXMFLOAT3& pos )
-{
-	float wndWidth = static_cast<float>( CUtilWindowInfo::GetInstance( ).GetWidth( ) );
-	float wndHeight = static_cast<float>( CUtilWindowInfo::GetInstance( ).GetHeight( ) );
-
-	CXMFLOAT3 projPos( ( ( pos.x / wndWidth) - 0.5f ) * 2.f, ( ( pos.y / wndHeight ) - 0.5f ) * -2.f, 0.f );
-	CGameObject::SetPosition( projPos );
-}
+//void CDisplayShaderResourceHelper::SetPosition( const CXMFLOAT3& pos )
+//{
+//	float wndWidth = static_cast<float>( CUtilWindowInfo::GetInstance( ).GetWidth( ) );
+//	float wndHeight = static_cast<float>( CUtilWindowInfo::GetInstance( ).GetHeight( ) );
+//
+//	CXMFLOAT3 projPos( ( ( pos.x / wndWidth) - 0.5f ) * 2.f, ( ( pos.y / wndHeight ) - 0.5f ) * -2.f, 0.f );
+//	CGameObject::SetPosition( projPos );
+//}
 
 void CDisplayShaderResourceHelper::Render( CGameLogic& gameLogic )
 {
@@ -44,8 +44,10 @@ void CDisplayShaderResourceHelper::Think( float /*elapsedTime*/ )
 {
 }
 
-void CDisplayShaderResourceHelper::LoadProperty( const JSON::Value& json )
+void CDisplayShaderResourceHelper::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 {
+	CGameObject::LoadProperty( gameLogic, json );
+
 	if ( const JSON::Value* pTexName = json.Find( "TextureName" ) )
 	{
 		m_textureName = pTexName->AsString( );
@@ -60,8 +62,6 @@ void CDisplayShaderResourceHelper::LoadProperty( const JSON::Value& json )
 	{
 		m_height = static_cast<float>( pTexHeight->AsReal( ) );
 	}
-
-	CGameObject::LoadProperty( json );
 }
 
 bool CDisplayShaderResourceHelper::ShouldDraw( ) const
@@ -69,8 +69,8 @@ bool CDisplayShaderResourceHelper::ShouldDraw( ) const
 	return r_debugTexture.GetString( ) == GetName( );
 }
 
-bool CDisplayShaderResourceHelper::LoadModelMesh( CGameLogic& gameLogic )
-{
+//bool CDisplayShaderResourceHelper::LoadModelMesh( CGameLogic& gameLogic )
+//{
 	//if ( GetModel( ) != nullptr )
 	//{
 	//	return false;
@@ -102,8 +102,8 @@ bool CDisplayShaderResourceHelper::LoadModelMesh( CGameLogic& gameLogic )
 
 	//return GetModel( ) ? true : false;
 
-	return true;
-}
+//	return true;
+//}
 
 CDisplayShaderResourceHelper::CDisplayShaderResourceHelper( ) :
 	m_width( 1.0f ),

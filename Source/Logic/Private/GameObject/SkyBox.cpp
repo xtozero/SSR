@@ -26,8 +26,8 @@ void CSkyBox::Think( float /*elapsedTime*/ )
 	}
 }
 
-bool CSkyBox::LoadModelMesh( CGameLogic& gameLogic )
-{
+//bool CSkyBox::LoadModelMesh( CGameLogic& gameLogic )
+//{
 	//if ( GetModel( ) != nullptr )
 	//{
 	//	return false;
@@ -65,5 +65,5 @@ bool CSkyBox::LoadModelMesh( CGameLogic& gameLogic )
 	//SetModel( meshBuilder.Build( gameLogic.GetRenderer(), GetMeshName() ) );
 
 	//return GetModel() ? true : false;
-	return true;
-}
+	//return true;
+//}

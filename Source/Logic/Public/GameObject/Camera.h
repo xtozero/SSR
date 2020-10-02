@@ -39,7 +39,7 @@ public:
 	const CXMFLOAT4X4& GetInvViewMatrix( ) const { return m_invViewMatrix; }
 	void SetEnableRotate( bool isEnable ) { m_enableRotate = isEnable; }
 
-	void LoadProperty( const JSON::Value& json );
+	void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json );
 
 private:
 	void OnMouseLButton( const UserInput& input );

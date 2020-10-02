@@ -68,7 +68,7 @@ void World::BeginFrame( )
 		CGameObject* candidate = object->get( );
 		if ( candidate->WillRemove( ) )
 		{
-			OnObjectRemoved( candidate->GetRigidBody( ) );
+			// OnObjectRemoved( candidate->GetRigidBody( ) );
 			object = m_gameObjects.erase( object );
 		}
 		else
@@ -102,7 +102,7 @@ void World::SpawnObject( CGameLogic& gameLogic, Owner<CGameObject*> object )
 	const BoundingSphere* sphere = reinterpret_cast<const BoundingSphere*>( object->GetCollider( COLLIDER::SPHERE ) );
 	if ( sphere )
 	{
-		OnObjectSpawned( object->GetRigidBody( ), *sphere );
+		// OnObjectSpawned( object->GetRigidBody( ), *sphere );
 	}
 }
 

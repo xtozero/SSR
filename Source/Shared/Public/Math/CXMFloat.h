@@ -576,3 +576,7 @@ struct CXMFLOAT4X4 : public DirectX::XMFLOAT4X4
 	operator DirectX::XMMATRIX( ) const { return XMLoadFloat4x4( this ); }
 	operator const DirectX::XMMATRIX( ) { return XMLoadFloat4x4( this ); }
 };
+
+static const CXMFLOAT3 vec3_zero( 0.f, 0.f, 0.f );
+static const CXMFLOAT4 quat_zero( 0.f, 0.f, 0.f, 1.f );
+static const CXMFLOAT4X4 mat4x4_identity = DirectX::XMMatrixIdentity( );
