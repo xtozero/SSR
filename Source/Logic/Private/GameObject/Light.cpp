@@ -5,11 +5,6 @@
 
 using namespace DirectX;
 
-bool CLight::Initialize( CGameLogic& /*gameLogic*/ )
-{
-	return true;
-}
-
 //void CLight::SetPosition( const float x, const float y, const float z )
 //{
 //	CGameObject::SetPosition( x, y, z );
@@ -128,7 +123,7 @@ void CLight::SetSpecularColor( const CXMFLOAT4& specularColor )
 
 CXMFLOAT4X4 CLight::GetViewMatrix( )
 {
-	if ( m_isNeedReclac )
+	if ( m_needRecalc )
 	{
 		CXMFLOAT3 eyePos( m_property->m_position.x, m_property->m_position.y, m_property->m_position.z );
 		assert( m_property->m_direction.x != 0.f || m_property->m_direction.y != 0.f || m_property->m_direction.z != 0.f );
@@ -137,7 +132,7 @@ CXMFLOAT4X4 CLight::GetViewMatrix( )
 		CXMFLOAT3 up( 0.f, 1.0f, 0.f );
 
 		m_viewMatrix = XMMatrixLookAtLH( eyePos, lookAt, up );
-		m_isNeedReclac = false;
+		m_needRecalc = false;
 	}
 
 	return m_viewMatrix;
@@ -145,6 +140,6 @@ CXMFLOAT4X4 CLight::GetViewMatrix( )
 
 CLight::CLight( ) :
 	m_property( nullptr ),
-	m_isNeedReclac( true )
+	m_needRecalc( true )
 {
 }

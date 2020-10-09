@@ -1,11 +1,11 @@
 #pragma once
 
+#include "SceneComponent.h"
 #include "Core/IListener.h"
 #include "Math/CXMFloat.h"
 #include "Physics/Movement.h"
 #include "Scene/INotifyGraphicsDevice.h"
 
-class CRenderView;
 class IRenderer;
 
 namespace JSON
@@ -13,20 +13,14 @@ namespace JSON
 	class Value;
 }
 
-class CCamera : public IListener, public IGraphicsDeviceNotify
+class CameraComponent : public SceneComponent, public IListener
 {
 public:
-	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
 	// IListener
 	virtual void ProcessInput( const UserInput& input, CGameLogic& gameLogic ) override;
 
 	void Think( float elapsedTime );
-
-	const CXMFLOAT4X4& CCamera::GetViewMatrix();
 	
-	void SetOrigin( const CXMFLOAT3& origin );
-	const CXMFLOAT3& GetOrigin( ) const { return m_origin; }
-
 	const CXMFLOAT3& GetForwardVector( ) const { return m_lookVector; }
 	const CXMFLOAT3& GetRightVector( ) const { return m_rightVector; }
 	const CXMFLOAT3& GetUpVector( ) const { return m_upVector; }
@@ -35,11 +29,13 @@ public:
 	void Move( CXMFLOAT3 delta );
 	void Rotate( const float pitch, const float yaw, const float roll );
  
- 	void UpdateToRenderer( CRenderView& view );
-	const CXMFLOAT4X4& GetInvViewMatrix( ) const { return m_invViewMatrix; }
+	const CXMFLOAT4X4& GetViewMatrix( ) const;
+	const CXMFLOAT4X4& GetInvViewMatrix( ) const;
 	void SetEnableRotate( bool isEnable ) { m_enableRotate = isEnable; }
 
 	void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json );
+
+	CameraComponent( CGameObject* pOwner );
 
 private:
 	void OnMouseLButton( const UserInput& input );
@@ -48,34 +44,26 @@ private:
 	void OnWheelMove( const UserInput& input );
 	void HandleKeyEvent( const UserInput& input );
 
-	void ReCalcViewMatrix( );
-	void CameraChanged( )
+	void ReCalcViewMatrix( ) const;
+	void MarkCameraTransformDirty( )
 	{
-		m_isNeedReclac = true;
-		m_isNeedUpdateRenderer = true;
+		m_needRecalc = true;
 	}
-
-public:
-	CCamera( );
-	virtual ~CCamera( ) = default;
 
 private:
 	CGroundMovement m_movement;
 	float m_kineticForceScale = 1.f;
 
-	CXMFLOAT4X4 m_viewMatrix;
-	CXMFLOAT4X4 m_invViewMatrix;
+	mutable CXMFLOAT4X4 m_viewMatrix;
+	mutable CXMFLOAT4X4 m_invViewMatrix;
 	
-	CXMFLOAT3 m_origin;
-	CXMFLOAT3 m_angles;
 	CXMFLOAT3 m_lookVector = { 0.f, 0.f, 1.f };
 	CXMFLOAT3 m_upVector = { 0.f, 1.f, 0.f };
 	CXMFLOAT3 m_rightVector = { 1.f, 0.f, 0.f };
 
 	bool m_inputDirection[4] = { false, false, false, false };
 
-	bool m_isNeedReclac = false;
-	bool m_isNeedUpdateRenderer = true;
+	mutable bool m_needRecalc = false;
 
 	bool m_mouseRotateEnable = false;
 

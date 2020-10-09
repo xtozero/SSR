@@ -2,8 +2,6 @@
 #include "GameObject/SkyBox.h"
 
 #include "Core/GameLogic.h"
-#include "GameObject/Camera.h"
-#include "GameObject/CameraManager.h"
 #include "GameObject/GameObject.h"
 #include "GameObject/GameObjectFactory.h"
 #include "Model/IModelBuilder.h"
@@ -18,12 +16,13 @@ namespace
 
 void CSkyBox::Think( float /*elapsedTime*/ )
 {
-	CCamera* pCurCamera = CCameraManager::GetInstance( ).GetCurrentCamera( );
+	// To Do
+	//CameraComponent* pCurCamera = CCameraManager::GetInstance( ).GetCurrentCamera( );
 
-	if ( pCurCamera )
-	{
-		SetPosition( pCurCamera->GetOrigin( ) );
-	}
+	//if ( pCurCamera )
+	//{
+	//	SetPosition( pCurCamera->GetOrigin( ) );
+	//}
 }
 
 //bool CSkyBox::LoadModelMesh( CGameLogic& gameLogic )

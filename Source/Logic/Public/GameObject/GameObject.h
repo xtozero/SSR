@@ -26,6 +26,7 @@ class CGameObject;
 class Component;
 class ICollider;
 class SceneComponent;
+class World;
 struct RenderOption;
 
 namespace JSON
@@ -54,7 +55,7 @@ class CGameObject : IGraphicsDeviceNotify
 {
 public:
 	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
-	virtual bool Initialize( CGameLogic& gameLogic );
+	virtual bool Initialize( CGameLogic& gameLogic, World& world );
 	void SetPosition( const float x, const float y, const float z );
 	void SetPosition( const CXMFLOAT3& pos );
 	void SetScale( const float xScale, const float yScale, const float zScale );
@@ -112,7 +113,8 @@ public:
 	virtual bool ShouldDrawShadow( ) const { return true; }
 
 	SceneComponent* GetRootComponent( ) const { return m_rootComponent; }
-	void AddComponent( Component* component );
+
+	World* GetWorld( ) const { return m_pWorld; }
 
 	CGameObject( );
 	~CGameObject( );
@@ -147,6 +149,7 @@ private:
 	void UpdateSubCollider( COLLIDER::TYPE type );
 
 	std::size_t m_id = std::numeric_limits<std::size_t>::max( );
+	World* m_pWorld = nullptr;
 
 	const RenderOption* m_pRenderOption = nullptr;
 	//Material m_material = INVALID_MATERIAL;

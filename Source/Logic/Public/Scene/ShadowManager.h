@@ -11,11 +11,12 @@
 class CGameLogic;
 class CGameObject;
 class CLightManager;
-class CRenderView;
 class IRenderer;
 class IRenderResource;
 class IResourceManager;
 class ITexture;
+
+struct RenderView;
 
 class CShadowManager : public IGraphicsDeviceNotify
 {

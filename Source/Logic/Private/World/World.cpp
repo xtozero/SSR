@@ -1,8 +1,10 @@
 #include "stdafx.h"
 #include "World/World.h"
 
+#include "Core/InterfaceFactories.h"
 #include "Physics/BoundingSphere.h"
 #include "Physics/CollisionUtil.h"
+#include "Renderer/IRenderCore.h"
 #include "Scene/DebugOverlayManager.h"
 
 using namespace DirectX;
@@ -13,6 +15,17 @@ void World::OnDeviceRestore( CGameLogic& gameLogic )
 	{
 		object->OnDeviceRestore( gameLogic );
 	}
+}
+
+void World::Initialize( )
+{
+	m_scene = GetInterface<IRenderCore>( )->CreateScene( );
+}
+
+void World::CleanUp( )
+{
+	m_gameObjects.clear( );
+	GetInterface<IRenderCore>( )->RemoveScene( m_scene );
 }
 
 void World::PreparePhysics( )
@@ -96,6 +109,7 @@ void World::EndFrame( float duration )
 
 void World::SpawnObject( CGameLogic& gameLogic, Owner<CGameObject*> object )
 {
+	object->Initialize( gameLogic, *this );
 	object->SetID( m_gameObjects.size( ) );
 	m_gameObjects.emplace_back( object );
 

@@ -70,54 +70,28 @@ bool EngineFileSystem::ReadAsync( const FileHandle& handle, char* buffer, unsign
 
 EngineFileSystem::EngineFileSystem( )
 {
-	constexpr std::size_t FileSystemWorkerAffinityMask = WorkerAffinityMask<ThreadType::FileSystemThread>( );
-	m_hWaitIO = GetInterface<ITaskScheduler>()->GetTaskGroup( 1, FileSystemWorkerAffinityMask );
-
-	class TaskWaitAsyncRead
-	{
-	public:
-		void DoTask( )
+	auto waitIO = [this]( ) {
+		while ( true )
 		{
-			while ( true )
+			EngineFileSystemOverlapped* o = m_fileSystem.WaitAsyncIO( );
+			if ( o == nullptr )
 			{
-				EngineFileSystemOverlapped* o = m_fileSystem.WaitAsyncIO( );
-				if ( o == nullptr )
+				break;
+			}
+
+			ENQUEUE_THREAD_TASK<ThreadType::GameThread>( [this, o]( )
+			{
+				if ( o->m_callback.IsBound( ) )
 				{
-					break;
+					o->m_callback( o->m_buffer, o->m_bufferSize );
 				}
 
-				class TaskIOCompletionCallback
-				{
-				public:
-					void DoTask( )
-					{
-						if ( m_o->m_callback.IsBound( ) )
-						{
-							m_o->m_callback( m_o->m_buffer, m_o->m_bufferSize );
-						}
-
-						m_fileSystem.CleanUpIORequest( m_o );
-					}
-
-					TaskIOCompletionCallback( FileSystem<EngineFileSystemOverlapped>& fileSystem, EngineFileSystemOverlapped* o ) : m_fileSystem( fileSystem ), m_o( o )
-					{}
-
-				private:
-					FileSystem<EngineFileSystemOverlapped>& m_fileSystem;
-					EngineFileSystemOverlapped* m_o = nullptr;
-				};
-
-				ENQUEUE_THREAD_TASK<ThreadType::GameThread>( Task<TaskIOCompletionCallback>::Create( m_fileSystem, o ) );
-			}
+				m_fileSystem.CleanUpIORequest( o );
+			} );
 		}
-
-		TaskWaitAsyncRead( FileSystem<EngineFileSystemOverlapped>& fileSystem ) : m_fileSystem( fileSystem ) {  }
-
-	private:
-		FileSystem<EngineFileSystemOverlapped>& m_fileSystem;
 	};
 
-	GetInterface<ITaskScheduler>( )->Run( m_hWaitIO, Task<TaskWaitAsyncRead>::Create( m_fileSystem ) );
+	m_hWaitIO = ENQUEUE_THREAD_TASK<ThreadType::FileSystemThread>( waitIO );
 }
 
 EngineFileSystem::~EngineFileSystem( )

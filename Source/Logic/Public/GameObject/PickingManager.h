@@ -27,7 +27,7 @@ struct VIEWPORT
 	}
 };
 
-class CCamera;
+class CameraComponent;
 class CGameObject;
 struct UserInput;
 
@@ -38,7 +38,7 @@ public:
 
 	void PushViewport( const float topLeftX, const float topLeftY, const float width, const float height );
 	void PopViewport( );
-	void PushCamera( CCamera* camera );
+	void PushCamera( CameraComponent* camera );
 	void PushInvProjection( float fov, float aspect, float zNear, float zFar, bool isLH = true );
 	void PopInvProjection( );
 	bool CreateWorldSpaceRay( CRay& ray, float x, float y );
@@ -53,7 +53,7 @@ private:
 	void OnMouseMove( const UserInput& input );
 
 	std::vector<VIEWPORT> m_viewports;
-	std::vector<CCamera*> m_cameras;
+	std::vector<CameraComponent*> m_cameras;
 	std::vector<CXMFLOAT4X4> m_InvProjections;
 
 	CGameObject* m_curSelectedObject = nullptr;

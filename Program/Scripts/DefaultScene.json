@@ -1,10 +1,13 @@
 {
 	"World": [
 		{
-			"Camera": {
-				"Position": [ 0, 0, -50 ],
-				"Kinetic_Force_Scale": 300,
-				"Friction": [ 300, 200 ]
+			"Object": {
+				"Class": "player",
+				"Camera":{
+					"Position": [ 0, 0, -50 ],
+					"Kinetic_Force_Scale": 300,
+					"Friction": [ 300, 200 ]
+				}
 			}
 		},
 		{

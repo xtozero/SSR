@@ -9,10 +9,12 @@ set (PRECOMPILED
 	"Public/targetver.h")
 	
 set (COMPOENETS_SOURCE
+	"Private/Components/CameraComponent.cpp"
 	"Private/Components/Component.cpp"
 	"Private/Components/PrimitiveComponent.cpp"
 	"Private/Components/SceneComponent.cpp"
 	"Private/Components/StaticMeshComponent.cpp"
+	"Public/Components/CameraComponent.h"
 	"Public/Components/Component.h"
 	"Public/Components/PrimitiveComponent.h"
 	"Public/Components/SceneComponent.h"
@@ -33,8 +35,6 @@ set (CORE_SOURCE
 	"Public/Core/UtilWindowInfo.h")
 	
 set (GAME_OBJECT_SOURCE
-	"Private/GameObject/Camera.cpp"
-	"Private/GameObject/CameraManager.cpp"
 	"Private/GameObject/DisplayShaderResourceHelper.cpp"
 	"Private/GameObject/GameObject.cpp"
 	"Private/GameObject/GameObjectFactory.cpp"
@@ -43,8 +43,6 @@ set (GAME_OBJECT_SOURCE
 	"Private/GameObject/PickingManager.cpp"
 	"Private/GameObject/SkyBox.cpp"
 	"Private/GameObject/StaticMeshGameObject.cpp"
-	"Public/GameObject/Camera.h"
-	"Public/GameObject/CameraManager.h"
 	"Public/GameObject/DisplayShaderResourceHelper.h"
 	"Public/GameObject/GameObject.h"
 	"Public/GameObject/GameObjectFactory.h"
@@ -53,8 +51,7 @@ set (GAME_OBJECT_SOURCE
 	"Public/GameObject/LightManager.h"
 	"Public/GameObject/PickingManager.h"
 	"Public/GameObject/SkyBox.h"
-	"Public/GameObject/StaticMeshGameObject.h"
-	)
+	"Public/GameObject/StaticMeshGameObject.h")
 	
 set (PLAYER_OBJECT_SOURCE
 	"Private/GameObject/Player.cpp"

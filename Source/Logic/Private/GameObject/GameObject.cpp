@@ -36,8 +36,15 @@ void CGameObject::OnDeviceRestore( CGameLogic& gameLogic )
 	LoadMaterial( gameLogic );
 }
 
-bool CGameObject::Initialize( CGameLogic& gameLogic )
+bool CGameObject::Initialize( CGameLogic& gameLogic, World& world )
 {
+	m_pWorld = &world;
+
+	for ( Component* component : m_components )
+	{
+		component->RegisterComponent( );
+	}
+
 	if ( LoadMaterial( gameLogic ) == false )
 	{
 		__debugbreak( );
@@ -379,12 +386,6 @@ void CGameObject::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 	}
 }
 
-void CGameObject::AddComponent( Component* component )
-{
-	assert( component != nullptr );
-	m_components.push_back( component );
-}
-
 CGameObject::CGameObject( )
 {
 	for ( std::size_t i = 0; i < COLLIDER::COUNT; ++i )
@@ -398,6 +399,7 @@ CGameObject::~CGameObject( )
 {
 	for ( Component* component : m_components )
 	{
+		component->UnregisterComponent( );
 		delete component;
 	}
 }

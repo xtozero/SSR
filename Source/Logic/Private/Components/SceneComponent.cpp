@@ -51,17 +51,17 @@ void SceneComponent::SetRotate( const CXMFLOAT3& pitchYawRoll )
 	SetRotate( static_cast<CXMFLOAT4>( XMQuaternionRotationRollPitchYaw( pitchYawRoll.x, pitchYawRoll.y, pitchYawRoll.z ) ) );
 }
 
-const CXMFLOAT3& SceneComponent::GetPosition( )
+const CXMFLOAT3& SceneComponent::GetPosition( ) const
 {
 	return m_vecPos;
 }
 
-const CXMFLOAT3& SceneComponent::GetScale( )
+const CXMFLOAT3& SceneComponent::GetScale( ) const
 {
 	return m_vecScale;
 }
 
-const CXMFLOAT4& SceneComponent::GetRotate( )
+const CXMFLOAT4& SceneComponent::GetRotate( ) const
 {
 	return m_vecRotate;
 }

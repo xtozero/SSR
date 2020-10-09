@@ -10,6 +10,11 @@ bool IsInGameThread( )
 	return GetInterface<ITaskScheduler>( )->GetThisThreadTyep( ) == ThreadType::GameThread;
 }
 
+bool IsInRenderThread( )
+{
+	return GetInterface<ITaskScheduler>( )->GetThisThreadTyep( ) == ThreadType::RenderThread;
+}
+
 class EngineTaskScheduler : public ITaskScheduler
 {
 public:

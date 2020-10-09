@@ -2,9 +2,9 @@
 #include "GameObject/LightManager.h"
 
 #include "Core/GameLogic.h"
+#include "Components/CameraComponent.h"
 #include "DataStructure/EnumStringMap.h"
 #include "FileSystem/EngineFileSystem.h"
-#include "GameObject/Camera.h"
 #include "Json/json.hpp"
 //#include "Render/IRenderer.h"
 //#include "Render/IRenderResourceManager.h"
@@ -51,7 +51,6 @@ bool CLightManager::Initialize( CGameLogic& gameLogic )
 	{
 		Owner<CLight*> newLight = new CLight;
 		newLight->RegisterProperty( &m_shaderLightProperty.m_properties[i] );
-		newLight->Initialize( gameLogic );
 		m_lights[i] = newLight;
 		gameLogic.SpawnObject( newLight );
 	}
@@ -88,7 +87,7 @@ bool CLightManager::Initialize( CGameLogic& gameLogic )
 	return result;
 }
 
-void CLightManager::UpdateToRenderer( IRenderer& renderer, const CCamera& camera )
+void CLightManager::UpdateToRenderer( IRenderer& renderer, const CameraComponent& camera )
 {
 	//SetCameraPosition( camera.GetOrigin( ) );
 

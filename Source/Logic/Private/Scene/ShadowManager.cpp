@@ -258,7 +258,7 @@ void CShadowManager::DrawShadowMap( CGameLogic& gameLogic )
 	//	const TEXTURE_TRAIT& trait = renderer.GetResourceManager( ).GetTextureTrait( m_shadowMap );
 
 	//	// ºäÆ÷Æ® ¼¼ÆÃ
-	//	CRenderView& view = gameLogic.GetView( );
+	//	RenderView& view = gameLogic.GetView( );
 	//	Viewport viewport = { 0, 0, static_cast<float>( trait.m_width ), static_cast<float>( trait.m_height ), 0.f, 1.f };
 	//	view.SetViewPort( renderer, &viewport, 1 );
 	//	RECT rect = { 0, 0, static_cast<long>( trait.m_width ), static_cast<long>( trait.m_height ) };
@@ -483,7 +483,7 @@ void CShadowManager::ClassifyShadowCasterAndReceiver( CGameLogic& gameLogic, std
 	//using namespace DirectX;
 
 	//CLightManager& lightMgr = gameLogic.GetLightManager( );
-	//const CRenderView& view = gameLogic.GetView( );
+	//const RenderView& view = gameLogic.GetView( );
 
 	//CLight* primaryLight = lightMgr.GetPrimaryLight( );
 
@@ -623,7 +623,7 @@ void CShadowManager::BuildOrthoShadowProjectionMatrix( CGameLogic& gameLogic, in
 	//using namespace DirectX;
 
 	//CLightManager& lightMgr = gameLogic.GetLightManager( );
-	//const CRenderView& view = gameLogic.GetView( );
+	//const RenderView& view = gameLogic.GetView( );
 
 	//CLight* primaryLight = lightMgr.GetPrimaryLight( );
 
@@ -742,7 +742,7 @@ void CShadowManager::BuildPSMProjectionMatrix( CGameLogic& gameLogic, int cascad
 	//	}
 	//}
 
-	//const CRenderView& view = gameLogic.GetView( );
+	//const RenderView& view = gameLogic.GetView( );
 
 	////float infinity = m_receiversFar / ( m_receiversFar - m_receiversNear );
 	////
@@ -950,7 +950,7 @@ void CShadowManager::BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, int casc
 	//	std::vector<CXMFLOAT3> bodyB;
 	//	bodyB.reserve( m_shadowCasterPoints.size( ) * 8 + 8 );
 
-	//	const CRenderView& view = gameLogic.GetView( );
+	//	const RenderView& view = gameLogic.GetView( );
 
 	//	//CFrustum eyeFrustum( view.GetProjectionMatrix( ) );
 	//	//const CXMFLOAT3 ( &frustumVertices )[8] = eyeFrustum.GetVertices( );

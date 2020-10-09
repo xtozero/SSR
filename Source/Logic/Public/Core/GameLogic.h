@@ -2,7 +2,6 @@
 
 #include "Core/DebugConsole.h"
 #include "common.h"
-#include "GameObject/Camera.h"
 #include "GameObject/LightManager.h"
 #include "GameObject/PickingManager.h"
 #include "GameObject/Player.h"
@@ -58,7 +57,6 @@ public:
 	CModelManager& GetModelManager( ) { return m_modelManager; }
 	//ImUI& GetUIManager( ) { return m_ui; }
 	//RE_HANDLE GetCommonConstantBuffer( int purpose ) { return m_commonConstantBuffer[purpose]; }
-	CRenderView& GetView( ) { return m_view; }
 	const std::pair<UINT, UINT>& GetAPPSize( ) { return m_appSize; }
 	const CTimer& GetTimer( ) const { return m_clock; }
 
@@ -72,10 +70,9 @@ private:
 	void EndLogic ( );
 
 	bool LoadWorld( const char* filePath );
-	void ShutdownScene( );
 
-	void SceneBegin( );
-	void DrawScene( );
+	void InitView( RenderViewGroup& views );
+	void DrawScene( const RenderViewGroup& views );
 	void DrawForDebug( );
 	void DrawDebugOverlay( );
 	void DrawUI( );
@@ -109,8 +106,6 @@ private:
 	//CAtmosphericScatteringManager m_atmosphereManager;
 	CModelManager m_modelManager;
 	IRenderCore* m_pRenderCore = nullptr;
-	CRenderView m_view;
-	std::vector<CPlayer> m_players;
 
 	std::list<CGameObject*> m_renderableList[RENDERABLE_TYPE_COUNT];
 

@@ -167,7 +167,7 @@ bool TaskScheduler::Wait( GroupHandle handle )
 		return false;
 	}
 
-	if ( group.m_free || group.m_reference == 0 )
+	if ( group.m_free )
 	{
 		return false;
 	}

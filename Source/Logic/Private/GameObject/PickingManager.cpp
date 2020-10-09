@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "GameObject/PickingManager.h"
 
+#include "Components/CameraComponent.h"
 #include "ConsoleMessage/ConVar.h"
-#include "GameObject/Camera.h"
 #include "GameObject/GameObject.h"
 #include "Physics/CollisionUtil.h"
 #include "UserInput/UserInput.h"
@@ -53,7 +53,7 @@ void CPickingManager::PopViewport( )
 	m_viewports.pop_back( );
 }
 
-void CPickingManager::PushCamera( CCamera* camera )
+void CPickingManager::PushCamera( CameraComponent* camera )
 {
 	m_cameras.push_back( camera );
 }
@@ -112,9 +112,9 @@ bool CPickingManager::CreateWorldSpaceRay( CRay& ray, float x, float y )
 
 		if ( m_curSelectedIdx > -1 )
 		{
-			if ( CCamera* curSelectedCamera = m_cameras.at( m_curSelectedIdx ) )
+			if ( CameraComponent* curSelectedCamera = m_cameras.at( m_curSelectedIdx ) )
 			{
-				const CXMFLOAT3& origin = curSelectedCamera->GetOrigin( );
+				const CXMFLOAT3& origin = curSelectedCamera->GetPosition( );
 				CXMFLOAT3 pos( x, y, 1.f );
 
 				//NDC공간으로 변환
@@ -193,7 +193,7 @@ void CPickingManager::ReleasePickingObject( )
 
 	if ( m_curSelectedIdx > -1 )
 	{
-		if ( CCamera* curCamera = m_cameras.at( m_curSelectedIdx ) )
+		if ( CameraComponent* curCamera = m_cameras.at( m_curSelectedIdx ) )
 		{
 			curCamera->SetEnableRotate( true );
 		}
@@ -219,7 +219,7 @@ void CPickingManager::OnMouseLButton( const UserInput& input )
 
 		if ( m_curSelectedIdx > -1 )
 		{
-			if ( CCamera* curCamera = m_cameras.at( m_curSelectedIdx ) )
+			if ( CameraComponent* curCamera = m_cameras.at( m_curSelectedIdx ) )
 			{
 				curCamera->SetEnableRotate( false );
 			}
@@ -245,7 +245,7 @@ void CPickingManager::OnMouseMove( const UserInput& input )
 			//뷰포트를 벗어 났으면 픽킹 해제
 			ReleasePickingObject( );
 		}
-		else if ( CCamera* curCamera = m_cameras.at( m_curSelectedIdx ) )
+		else if ( CameraComponent* curCamera = m_cameras.at( m_curSelectedIdx ) )
 		{
 			CXMFLOAT3 curPos( m_curMousePos.x, m_curMousePos.y, 1.f );
 			CXMFLOAT3 prevPos( prevMousePos.x, prevMousePos.y, 1.f );
@@ -264,7 +264,7 @@ void CPickingManager::OnMouseMove( const UserInput& input )
 			prevPos = XMVector3TransformCoord( prevPos, curCamera->GetInvViewMatrix( ) );
 
 			//삼각형 닮음을 이용한 월드 공간 이동 벡터 계산
-			const CXMFLOAT3& origin = curCamera->GetOrigin( );
+			const CXMFLOAT3& origin = curCamera->GetPosition( );
 			XMVECTOR rayDir = prevPos - origin;
 			float farPlaneRayDist = XMVectorGetX( XMVector3Length( rayDir ) );
 			rayDir = XMVector3Normalize( rayDir );

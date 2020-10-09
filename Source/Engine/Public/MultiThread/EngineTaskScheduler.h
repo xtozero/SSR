@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.h"
+#include "Core/InterfaceFactories.h"
 #include "TaskScheduler.h"
 
 #include <limits>
@@ -15,6 +16,7 @@ namespace ThreadType
 		WorkerThread2,
 		WorkerThread3,
 		// if add new thread type, insert here
+		RenderThread,
 		GameThread,
 		WorkerThreadCount = GameThread,
 	};
@@ -26,17 +28,34 @@ constexpr std::size_t WorkerAffinityMask( )
 	return ( ( 1 << N ) | ... );
 }
 
-template <std::size_t... N>
-void ENQUEUE_THREAD_TASK( TaskBase* task )
+template <typename Lambda>
+class LambdaTask
+{
+public:
+	void DoTask( )
+	{
+		m_lambda( );
+	}
+
+	LambdaTask( const Lambda& lambda ) : m_lambda( lambda ) {}
+
+private:
+	Lambda m_lambda;
+};
+
+template <std::size_t... N, typename Lambda>
+GroupHandle ENQUEUE_THREAD_TASK( Lambda lambda )
 {
 	ITaskScheduler* taskScheduler = GetInterface<ITaskScheduler>( );
 	constexpr std::size_t afinityMask = WorkerAffinityMask<N...>( );
 	GroupHandle taskGroup = taskScheduler->GetTaskGroup( 1, afinityMask );
-	bool success = taskScheduler->Run( taskGroup, task );
+	bool success = taskScheduler->Run( taskGroup, Task<LambdaTask<Lambda>>::Create( lambda ) );
 	assert( success );
+	return taskGroup;
 }
 
-bool IsInGameThread( );
+ENGINE_FUNC_DLL bool IsInGameThread( );
+ENGINE_FUNC_DLL bool IsInRenderThread( );
 
 class ITaskScheduler
 {

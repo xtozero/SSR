@@ -23,7 +23,7 @@ struct ShaderLightTrait
 	std::array<LightTrait, MAX_LIGHTS> m_properties;
 };
 
-class CCamera;
+class CameraComponent;
 class IRenderer;
 
 class CLightManager : IGraphicsDeviceNotify
@@ -33,7 +33,7 @@ public:
 
 	bool Initialize( CGameLogic& gameLogic );
 
-	void UpdateToRenderer( IRenderer& renderer, const CCamera& camera );
+	void UpdateToRenderer( IRenderer& renderer, const CameraComponent& camera );
 	void OnLightPropertyUpdated( ) { m_needUpdateToRenderer = true; }
 
 	void SetCameraPosition( const CXMFLOAT3& cameraPos );

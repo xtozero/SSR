@@ -30,7 +30,7 @@ bool WindowPlatformEngine::BootUp( IPlatform& platform )
 		return false;
 	}
 
-	m_logicDll = LoadModule( "./Binaries/Logic.dll" );
+	m_logicDll = LoadModule( "Logic.dll" );
 	if ( m_logicDll == nullptr )
 	{
 		return false;

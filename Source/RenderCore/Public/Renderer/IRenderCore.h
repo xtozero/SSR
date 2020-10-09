@@ -2,12 +2,17 @@
 
 #include "Util.h"
 
+class IScene;
+
 class IRenderCore
 {
 public:
 	virtual bool BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight ) = 0;
 	virtual void HandleDeviceLost( HWND hWnd, UINT nWndWidth, UINT nWndHeight ) = 0;
 	virtual void AppSizeChanged( UINT nWndWidth, UINT nWndHeight ) = 0;
+
+	virtual IScene* CreateScene( ) = 0;
+	virtual void RemoveScene( IScene* scene ) = 0;
 
 	virtual ~IRenderCore( ) = default;
 

@@ -15,9 +15,9 @@ public:
 	void SetRotate( const float pitch, const float yaw, const float roll );
 	void SetRotate( const CXMFLOAT3& pitchYawRoll );
 
-	const CXMFLOAT3& GetPosition( );
-	const CXMFLOAT3& GetScale( );
-	const CXMFLOAT4& GetRotate( );
+	const CXMFLOAT3& GetPosition( ) const;
+	const CXMFLOAT3& GetScale( ) const;
+	const CXMFLOAT4& GetRotate( ) const;
 
 	const CXMFLOAT4X4& GetTransformMatrix( );
 	const CXMFLOAT4X4& GetInvTransformMatrix( );

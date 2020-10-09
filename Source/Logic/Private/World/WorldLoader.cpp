@@ -31,13 +31,8 @@ bool CWorldLoader::Load( CGameLogic& gameLogic, const char* worldAsset, size_t a
 				if ( newObject )
 				{
 					newObject->LoadProperty( gameLogic, *pObject );
-					newObject->Initialize( gameLogic );
-					// gameLogic.SpawnObject( newObject );
+					gameLogic.SpawnObject( newObject );
 				}
-			}
-			else if ( const JSON::Value* pCamera = elem.Find( "Camera" ) )
-			{
-				gameLogic.GetLocalPlayer( )->GetCamera( ).LoadProperty( gameLogic, *pCamera );
 			}
 		}
 

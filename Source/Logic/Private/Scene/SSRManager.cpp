@@ -95,7 +95,7 @@ void CSSRManager::Process( CGameLogic& gameLogic, const std::list<CGameObject*>*
 
 	//if ( pSsrConstant )
 	//{
-	//	CRenderView& view = gameLogic.GetView( );
+	//	RenderView& view = gameLogic.GetView( );
 	//	pSsrConstant->projectionMatrix = XMMatrixTranspose( view.GetProjectionMatrix( ) );
 	//	pSsrConstant->properties = m_properties;
 

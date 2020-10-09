@@ -3,6 +3,8 @@
 
 #include "common.h"
 #include "IAga.h"
+#include "MultiThread/EngineTaskScheduler.h"
+#include "Scene/Scene.h"
 
 class RenderCore : public IRenderCore
 {
@@ -10,6 +12,9 @@ public:
 	virtual bool BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight ) override;
 	virtual void HandleDeviceLost( HWND hWnd, UINT nWndWidth, UINT nWndHeight ) override;
 	virtual void AppSizeChanged( UINT nWndWidth, UINT nWndHeight ) override;
+
+	virtual IScene* CreateScene( ) override;
+	virtual void RemoveScene( IScene* scene ) override;
 
 	~RenderCore( );
 
@@ -32,7 +37,7 @@ void DestoryRenderCore( Owner<IRenderCore*> pRenderCore )
 
 bool RenderCore::BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
 {
-	m_hAga = LoadModule( "./Binaries/Aga.dll" );
+	m_hAga = LoadModule( "Aga.dll" );
 	if ( m_hAga == nullptr )
 	{
 		return false;
@@ -59,6 +64,19 @@ void RenderCore::HandleDeviceLost( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
 void RenderCore::AppSizeChanged( UINT nWndWidth, UINT nWndHeight )
 {
 	m_AbstractGraphicsAPI->AppSizeChanged( nWndWidth, nWndHeight );
+}
+
+IScene* RenderCore::CreateScene( )
+{
+	return new Scene();
+}
+
+void RenderCore::RemoveScene( IScene* scene )
+{
+	ENQUEUE_THREAD_TASK<ThreadType::RenderThread>( [scene]( )
+	{
+		delete scene;
+	});
 }
 
 RenderCore::~RenderCore( )

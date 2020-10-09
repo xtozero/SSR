@@ -14,11 +14,15 @@
 #include <vector>
 
 class CDebugOverlayManager;
+class IScene;
 
 class World : public IGraphicsDeviceNotify
 {
 public:
 	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
+
+	void Initialize( );
+	void CleanUp( );
 
 	void PreparePhysics( );
 	void RunPhysics( float duration );
@@ -31,6 +35,16 @@ public:
 
 	void UpdateObjectMovement( ObjectRelatedRigidBody* body, const BoundingSphere& volume );
 	void DebugDrawBVH( CDebugOverlayManager& debugOverlay, unsigned int color, float duration );
+
+	const std::vector<std::unique_ptr<CGameObject>>& GameObjects( )
+	{
+		return m_gameObjects;
+	}
+
+	IScene* Scene( ) const
+	{
+		return m_scene;
+	}
 
 private:
 	int GenerateContacts( );
@@ -50,4 +64,6 @@ private:
 	CollisionData m_collisionData;
 
 	Gravity m_gravity = Gravity( CXMFLOAT3( 0.f, -9.8f, 0.f ) );
+
+	IScene* m_scene = nullptr;
 };

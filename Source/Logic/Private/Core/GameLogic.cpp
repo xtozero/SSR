@@ -2,6 +2,7 @@
 #include "Core/GameLogic.h"
 
 #include "common.h"
+#include "Components/CameraComponent.h"
 #include "ConsoleMessage/ConCommand.h"
 #include "ConsoleMessage/ConsoleMessageExecutor.h"
 #include "ConsoleMessage/ConVar.h"
@@ -10,11 +11,11 @@
 #include "Core/Timer.h"
 #include "Core/UtilWindowInfo.h"
 #include "FileSystem/EngineFileSystem.h"
-#include "GameObject/CameraManager.h"
 #include "GameObject/GameObject.h"
 #include "Json/json.hpp"
 #include "Platform/IPlatform.h"
 #include "Renderer/IRenderCore.h"
+#include "Scene/IScene.h"
 //#include "Render/IRenderResourceManager.h"
 #include "UserInput/UserInput.h"
 #include "Util.h"
@@ -33,7 +34,7 @@ namespace
 
 bool CGameLogic::BootUp( IPlatform& platform )
 {
-	m_renderCoreDll = LoadModule( "./Binaries/RenderCore.dll" );
+	m_renderCoreDll = LoadModule( "RenderCore.dll" );
 	if ( m_renderCoreDll == nullptr )
 	{
 		return false;
@@ -56,10 +57,10 @@ bool CGameLogic::BootUp( IPlatform& platform )
 		return false;
 	}
 
-	m_view.CreatePerspectiveFovLHMatrix( XMConvertToRadians( 60 ),
-		static_cast<float>( m_appSize.first ) / m_appSize.second,
-		1.f,
-		1500.f );
+	//m_view.CreatePerspectiveFovLHMatrix( XMConvertToRadians( 60 ),
+	//	static_cast<float>( m_appSize.first ) / m_appSize.second,
+	//	1.f,
+	//	1500.f );
 
 	/*
 	m_pickingManager.PushInvProjection( XMConvertToRadians( 60 ),
@@ -79,8 +80,7 @@ bool CGameLogic::BootUp( IPlatform& platform )
 
 	// m_pickingManager.PushCamera( &GetLocalPlayer()->GetCamera() );
 	// m_inputBroadCaster.AddListener( &m_pickingManager );
-	CCameraManager::GetInstance( ).SetCurrentCamera( &GetLocalPlayer( )->GetCamera( ) );
-	
+
 	if ( m_lightManager.Initialize( *this ) == false )
 	{
 		__debugbreak( );
@@ -113,6 +113,8 @@ bool CGameLogic::BootUp( IPlatform& platform )
 		__debugbreak( );
 	}
 
+	m_world.Initialize( );
+
 	return CreateDeviceDependentResource( );
 }
 
@@ -120,12 +122,6 @@ void CGameLogic::Update( )
 {
 	// 한 프레임의 시작 ElapsedTime 갱신
 	m_clock.Tick( );
-
-	for ( auto& player : m_players )
-	{
-		player.GetCamera( ).Think( m_clock.GetElapsedTime() );
-	}
-
 	StartLogic( );
 	ProcessLogic( );
 	EndLogic( );
@@ -168,10 +164,10 @@ void CGameLogic::AppSizeChanged( IPlatform& platform )
 	float fSizeX = static_cast<float>( m_appSize.first );
 	float fSizeY = static_cast<float>( m_appSize.second );
 
-	m_view.CreatePerspectiveFovLHMatrix( XMConvertToRadians( 60 ),
-		fSizeX / fSizeY,
-		1.f,
-		1500.f );
+	//m_view.CreatePerspectiveFovLHMatrix( XMConvertToRadians( 60 ),
+	//	fSizeX / fSizeY,
+	//	1.f,
+	//	1500.f );
 
 	/*
 	m_pickingManager.PopInvProjection( );
@@ -199,17 +195,28 @@ void CGameLogic::SpawnObject( Owner<CGameObject*> object )
 
 CPlayer* CGameLogic::GetLocalPlayer( )
 {
-	if ( m_players.size( ) == 0 )
+	CPlayer* localPlayer = nullptr;
+
+	const auto& gameObjects = m_world.GameObjects( );
+	for ( const auto& gameObject : gameObjects )
 	{
-		m_players.emplace_back( );
-		m_inputBroadCaster.AddListener( &m_players.front( ) );
+		if ( CPlayer* player = dynamic_cast<CPlayer*>( gameObject.get( ) ) )
+		{
+			localPlayer = player;
+			break;
+		}
 	}
 
-	return &m_players.front( );
+	// To DO
+	// m_inputBroadCaster.AddListener( &m_players.front( ) );
+
+	return localPlayer;
 }
 
 void CGameLogic::Shutdown( )
 {
+	m_world.CleanUp( );
+
 	ShutdownModule( m_renderCoreDll );
 }
 
@@ -260,7 +267,7 @@ void CGameLogic::EndLogic( )
 	//// 게임 로직 수행 후처리
 	//BuildRenderableList( );
 
-	//CCamera& playerCamera = GetLocalPlayer( )->GetCamera( );
+	//CameraComponent& playerCamera = GetLocalPlayer( )->GetCamera( );
 	//playerCamera.UpdateToRenderer( m_view );
 	//m_lightManager.UpdateToRenderer( *m_pRenderer, playerCamera );
 
@@ -297,8 +304,9 @@ void CGameLogic::EndLogic( )
 	//// 후면 깊이 렌더링
 	//m_ssrManager.PreProcess( *this, m_renderableList );
 
-	//SceneBegin( );
-	//DrawScene( );
+	RenderViewGroup views;
+	InitView( views );
+	DrawScene( views );
 	//DrawForDebug( );
 	//DrawDebugOverlay( );
 	//DrawUI( );
@@ -339,25 +347,48 @@ bool CGameLogic::LoadWorld( const char* filePath )
 	return result;
 }
 
-void CGameLogic::ShutdownScene( )
+void CGameLogic::InitView( RenderViewGroup& views )
 {
-	//m_gameObjects.clear( );
+	CPlayer* localPlayer = GetLocalPlayer( );
+	assert( localPlayer );
+
+	const CameraComponent* cameraComponent = localPlayer->GetCameraComponent( );
+	assert( cameraComponent );
+
+	RenderView localPlayerView = views.AddRenderView( );
+
+	localPlayerView.m_viewOrigin = cameraComponent->GetPosition( );
+	localPlayerView.m_viewAxis = CXMFLOAT3X3( cameraComponent->GetRightVector( ),
+											cameraComponent->GetUpVector( ),
+											cameraComponent->GetForwardVector() );
+
+	localPlayerView.m_nearPlaneDistance = 1.f;
+	localPlayerView.m_farPlaneDistance = 1500.f;
+
+	float width = static_cast<float>( m_appSize.first );
+	float height = static_cast<float>( m_appSize.second );
+	localPlayerView.m_aspect = width / height;
+	localPlayerView.m_fov = XMConvertToRadians( 60.f );
+
+	localPlayerView.m_viewport = { 0, 0, width, height, 0, 1.f };
+	localPlayerView.m_scissorRect = { 0, 0, static_cast<long>( width ), static_cast<long>( height ) };
 }
 
-void CGameLogic::SceneBegin( )
+void CGameLogic::DrawScene( const RenderViewGroup& views )
 {
-	//m_pRenderer->SceneBegin( );
-}
+	IScene* scene = m_world.Scene( );
+	if ( scene )
+	{
+		scene->DrawScene( views );
+	}
 
-void CGameLogic::DrawScene( )
-{
 	//CXMFLOAT3 sunDir( 0.f, 1.0f, 0.f );
 	//if ( CLight* pLight = m_lightManager.GetPrimaryLight( ) )
 	//{
 	//	sunDir = -pLight->GetDirection( );
 	//}
 
-	//CCamera& playerCamera = GetLocalPlayer( )->GetCamera( );
+	//CameraComponent& playerCamera = GetLocalPlayer( )->GetCamera( );
 	//m_atmosphereManager.Render( GetRenderer( ), playerCamera.GetOrigin(), sunDir );
 	//m_shadowManager.PrepareBeforeRenderScene( GetRenderer() );
 
@@ -591,11 +622,6 @@ void CGameLogic::HandleDeviceLost( )
 	//m_atmosphereManager.OnDeviceRestore( *this );
 
 	m_world.OnDeviceRestore( *this );
-
-	for ( auto& player : m_players )
-	{
-		player.OnDeviceRestore( *this );
-	}
 }
 
 bool CGameLogic::CreateDeviceDependentResource( )

@@ -32,7 +32,6 @@ struct LightTrait
 class CLight : public CGameObject
 {
 public:
-	virtual bool Initialize( CGameLogic& gameLogic ) override;
 	//virtual void SetPosition( const float x, const float y, const float z ) override;
 	//virtual void SetPosition( const CXMFLOAT3& pos ) override;
 	
@@ -63,6 +62,6 @@ public:
 
 private:
 	LightTrait* m_property;
-	bool m_isNeedReclac;
+	bool m_needRecalc;
 	CXMFLOAT4X4 m_viewMatrix;
 };
