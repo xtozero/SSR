@@ -19,7 +19,10 @@ set (MESH_SOURCE
 
 set (RENDERER_SOURCE
 	"Private/Renderer/ForwardRenderer.cpp"
-	"Public/Renderer/IRenderCore.h")
+	"Private/Renderer/SceneRenderer.cpp"
+	"Public/Renderer/ForwardRenderer.h"
+	"Public/Renderer/IRenderCore.h"
+	"Public/Renderer/SceneRenderer.h")
 
 set (RENDER_UTIL
 	"Private/Renderer/RenderOutputManager.cpp"
