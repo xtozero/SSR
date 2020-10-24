@@ -1,4 +1,4 @@
-add_definitions(-DRENDERCORE_EXPORTS=1)
+add_definitions(-DAGA_EXPORTS=1)
 add_definitions(-DUNICODE=1)
 add_definitions(-D_UNICODE=1)
 add_definitions(-DNOMINMAX=1)
@@ -50,6 +50,7 @@ set (D3D11_UTILITY
 	"Public/D3D11/D3D11FlagConvertor.h")
 	
 set (COMMON_SOURCE
+	"Private/Common/GraphicsApiResource.cpp"
 	"Public/Common/GraphicsApiResource.h"
 	"Public/Common/IAga.h"
 	"Public/Common/IRenderResourceManager.h"
@@ -57,10 +58,19 @@ set (COMMON_SOURCE
 	"Public/Common/ShaderPrameterInfo.h"
 	"Public/Common/ShaderPrameterMap.h")
 
+set (RENDER_RESOURCE_SOURCE
+	"Private/RenderResource/ConstantBuffer.cpp"
+	"Private/RenderResource/IndexBuffer.cpp"
+	"Private/RenderResource/VertexBuffer.cpp"
+	"Public/RenderResource/ConstantBuffer.h"
+	"Public/RenderResource/IndexBuffer.h"
+	"Public/RenderResource/VertexBuffer.h")
+
 source_group("Direct11" FILES ${D3D11_SOURCE})	
 source_group("Direct11\\RenderResource" FILES ${D3D11_RENDER_RESOURCE_SOURCE})
 source_group("Direct11\\Utility" FILES ${D3D11_UTILITY})
 source_group("RenderCommon" FILES ${COMMON_SOURCE})
+source_group("RenderResource" FILES ${RENDER_RESOURCE_SOURCE})
 
 include_directories(./Public)
 include_directories(./Public/Common)
@@ -79,12 +89,18 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
-add_library(Aga SHARED 	${PRECOMPILED}
+add_library(Aga SHARED 	${COMMON_SOURCE}
 						${CORE_SOURCE}
 						${D3D11_RENDER_RESOURCE_SOURCE}
 						${D3D11_SOURCE}
 						${D3D11_UTILITY}
-						${COMMON_SOURCE})
+						${PRECOMPILED}
+						${RENDER_RESOURCE_SOURCE})
+
+target_include_directories( Aga
+	PUBLIC
+		./Public/RenderResource
+)
 
 set (DIRECT3D_LIBRARY
 	"d3d11.lib"

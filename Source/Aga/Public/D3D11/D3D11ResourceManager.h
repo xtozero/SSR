@@ -6,6 +6,7 @@
 
 #include <map>
 #include <memory>
+#include <set>
 #include <vector>
 
 struct ID3D11Device;
@@ -52,6 +53,9 @@ public:
 
 	// Buffer
 	virtual RE_HANDLE CreateBuffer( const BUFFER_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
+	virtual ConstantBuffer* CreateConstantBuffer( const BUFFER_TRAIT& trait ) override;
+	virtual VertexBuffer* CreateVertexBuffer( const BUFFER_TRAIT& trait, const void* initData ) override;
+	virtual IndexBuffer* CreateIndexBuffer( const BUFFER_TRAIT& trait, const void* initData ) override;
 
 	// Shader
 	virtual RE_HANDLE CreateVertexLayout( RE_HANDLE vsHandle, const VERTEX_LAYOUT* layoutOrNull, int layoutSize ) override;
@@ -146,5 +150,7 @@ private:
 	ID3D11DeviceContext* m_pDeviceContext;
 
 	std::pair<int, int>	m_frameBufferSize = { 0, 0 };
+
+	std::set<RefHandle<GraphicsApiResource>> m_renderResources;
 };
 

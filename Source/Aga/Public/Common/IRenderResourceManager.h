@@ -3,6 +3,9 @@
 #include "common.h"
 #include "GraphicsApiResource.h"
 
+class ConstantBuffer;
+class IndexBuffer;
+class VertexBuffer;
 struct BUFFER_TRAIT;
 struct RESOURCE_INIT_DATA;
 struct RESOURCE_REGION;
@@ -18,6 +21,9 @@ public:
 	virtual RE_HANDLE CreateTexture3D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) = 0;
 
 	virtual RE_HANDLE CreateBuffer( const BUFFER_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) = 0;
+	virtual ConstantBuffer* CreateConstantBuffer( const BUFFER_TRAIT& trait ) = 0;
+	virtual VertexBuffer* CreateVertexBuffer( const BUFFER_TRAIT& trait, const void* initData ) = 0;
+	virtual IndexBuffer* CreateIndexBuffer( const BUFFER_TRAIT& trait, const void* initData ) = 0;
 
 	virtual RE_HANDLE CreateVertexLayout( RE_HANDLE vsHandle, const VERTEX_LAYOUT* layoutOrNull, int layoutSize ) = 0;
 	virtual RE_HANDLE CreateVertexShader( const void* byteCodePtr, std::size_t byteCodeSize ) = 0;

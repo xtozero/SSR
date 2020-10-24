@@ -4,12 +4,10 @@
 #include "../../Logic/Public/Material/Material.h"
 #include "../../Logic/Public/Model/MeshDescription.h"
 #include "Math/CXMFloat.h"
+#include "MultiThread/EngineTaskScheduler.h"
 
+#include <cassert>
 #include <vector>
-
-StaticMeshVertexLayout::StaticMeshVertexLayout( const char* name, int index, RESOURCE_FORMAT format, int slot, bool isInstanceData, int instanceDataStep ) : VERTEX_LAYOUT { name, index, format, slot, isInstanceData, instanceDataStep }
-{
-}
 
 void StaticMeshRenderData::AddLODResource( const MeshDescription& meshDescription, const std::vector<Material>& materials )
 {
@@ -20,7 +18,7 @@ void StaticMeshRenderData::AddLODResource( const MeshDescription& meshDescriptio
 	const std::vector<CXMFLOAT2>& texCoord = meshDescription.m_texCoords;
 	const std::vector<MeshVertexInstance>& vertexInstances = meshDescription.m_vertexInstances;
 
-	std::vector<StaticMeshVertex> vertices;
+	auto& vertices = lodResource.m_vertexData;
 	vertices.reserve( vertexInstances.size( ) );
 
 	std::size_t normalCount = normal.size( );
@@ -36,8 +34,6 @@ void StaticMeshRenderData::AddLODResource( const MeshDescription& meshDescriptio
 		v.m_texcoord = ( vertexInstance.m_texCoordID < texcoordCount ) ? texCoord[vertexInstance.m_texCoordID] : CXMFLOAT2( 0.f, 0.f );
 	}
 
-	lodResource.m_vb.Initialize( std::move( vertices ) );
-
 	const std::vector<MeshTriangle>& triangles = meshDescription.m_triangles;
 	const std::vector<MeshPolygon>& polygons = meshDescription.m_polygons;
 
@@ -47,14 +43,14 @@ void StaticMeshRenderData::AddLODResource( const MeshDescription& meshDescriptio
 		indexCount += polygon.m_triangleID.size( ) * 3;
 	}
 
-	std::vector<std::size_t> indices;
+	auto& indices = lodResource.m_indexData;
 	indices.reserve( indexCount );
 
 	for ( std::size_t i = 0; i < polygons.size(); ++i )
 	{
 		const MeshPolygon& polygon = polygons[i];
 
-		StaticMeshSection& section = m_sections.emplace_back( );
+		StaticMeshSection& section = lodResource.m_sections.emplace_back( );
 		section.m_startLocation = indices.size( );
 
 		for ( std::size_t triangleID : polygon.m_triangleID )
@@ -78,40 +74,83 @@ void StaticMeshRenderData::AddLODResource( const MeshDescription& meshDescriptio
 		}
 	}
 
-	lodResource.m_ib.Initialize( indices );
+	StaticMeshVertexLayout& vertexLayout = m_vertexLayouts.emplace_back( );
+	vertexLayout.Initialize( &lodResource );
 }
 
-void StaticMeshRenderData::PostLODResourceSetup( )
+void StaticMeshRenderData::InitRenderResource( )
 {
-	m_vertexLayouts.reserve( 3 );
+	assert( IsInRenderThread( ) );
+
+	void* indexData = nullptr;
+	std::size_t indexDataByteWidth = 0;
+
+	for ( StaticMeshLODResource& lodResource : m_lodResources )
+	{
+		std::vector<StaticMeshVertex>& vertexData = lodResource.m_vertexData;
+		lodResource.m_vb.Initialize( vertexData.size( ), vertexData.data( ) );
+
+		bool isDWORD = vertexData.size( ) > std::numeric_limits<WORD>::max( );
+		std::size_t requireByteWidth = ( isDWORD ? 4 : 2 ) * lodResource.m_indexData.size( );
+
+		if ( indexDataByteWidth < requireByteWidth )
+		{
+			delete[] indexData;
+			indexData = new unsigned char[requireByteWidth];
+			indexDataByteWidth = requireByteWidth;
+
+			if ( isDWORD )
+			{
+				for ( std::size_t i = 0; i < lodResource.m_indexData.size( ); ++i )
+				{
+					static_cast<DWORD*>( indexData )[i] = static_cast<DWORD>( lodResource.m_indexData[i] );
+				}
+			}
+			else
+			{
+				for ( std::size_t i = 0; i < lodResource.m_indexData.size( ); ++i )
+				{
+					static_cast<WORD*>( indexData )[i] = static_cast<WORD>( lodResource.m_indexData[i] );
+				}
+			}
+		}
+
+		lodResource.m_ib = IndexBuffer::Create( lodResource.m_indexData.size( ), indexData, isDWORD );
+	}
+
+	delete[] indexData;
+}
+
+void StaticMeshVertexLayout::Initialize( const StaticMeshLODResource* lodResource )
+{
+	m_vertexLayoutData.reserve( 3 );
 
 	// position
-	m_vertexLayouts.emplace_back(
-			"POSITION",
-			0,
-			RESOURCE_FORMAT::R32G32B32_FLOAT,
-			0,
-			false,
-			0
-	);
+	AddLayout( "POSITION",
+				0,
+				RESOURCE_FORMAT::R32G32B32_FLOAT,
+				0,
+				false,
+				0 );
 
 	// normal
-	m_vertexLayouts.emplace_back(
-			"NORMAL",
-			0,
-			RESOURCE_FORMAT::R32G32B32_FLOAT,
-			0,
-			false,
-			0
-	);
+	AddLayout( "NORMAL",
+				0,
+				RESOURCE_FORMAT::R32G32B32_FLOAT,
+				0,
+				false,
+				0 );
 
 	// texcoord
-	m_vertexLayouts.emplace_back(
-			"TEXCOORD",
-			0,
-			RESOURCE_FORMAT::R32G32_FLOAT,
-			0,
-			false,
-			0
-	);
+	AddLayout( "TEXCOORD",
+				0,
+				RESOURCE_FORMAT::R32G32_FLOAT,
+				0,
+				false,
+				0 );
+}
+
+void StaticMeshVertexLayout::AddLayout( const char* name, int index, RESOURCE_FORMAT format, int slot, bool isInstanceData, int instanceDataStep )
+{
+	m_vertexLayoutData.emplace_back( name, index, format, slot, isInstanceData, instanceDataStep );
 }

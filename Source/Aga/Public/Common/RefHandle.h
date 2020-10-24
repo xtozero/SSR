@@ -81,6 +81,11 @@ public:
 		return lhs.m_reference == rhs.m_reference;
 	}
 
+	friend bool operator<( const RefHandle& lhs, const RefHandle& rhs )
+	{
+		return lhs.m_reference < rhs.m_reference;
+	}
+
 private:
 	ReferencedType* m_reference = nullptr;
 };

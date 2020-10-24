@@ -30,6 +30,14 @@
 #define LOGIC_FUNC_DLL extern "C" __declspec(dllimport)
 #endif
 
+#ifdef AGA_EXPORTS
+#define AGA_DLL __declspec(dllexport)
+#define AGA_FUNC_DLL extern "C" __declspec(dllexport)
+#else
+#define AGA_DLL __declspec(dllimport)
+#define AGA_FUNC_DLL extern "C" __declspec(dllimport)
+#endif
+
 #define ON_FAIL_RETURN( x ){ \
 	if ( !x ) \
 	{\

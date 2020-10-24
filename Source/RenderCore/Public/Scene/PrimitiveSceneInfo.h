@@ -5,7 +5,7 @@ class PrimitiveProxy;
 class PrimitivieSceneInfo
 {
 public:
-	PrimitivieSceneInfo( PrimitiveProxy* proxy ) : m_proxy( proxy ) {}
+	PrimitivieSceneInfo( PrimitiveProxy* proxy ) : m_sceneProxy( proxy ) {}
 
-	PrimitiveProxy* m_proxy = nullptr;
+	PrimitiveProxy* m_sceneProxy = nullptr;
 };

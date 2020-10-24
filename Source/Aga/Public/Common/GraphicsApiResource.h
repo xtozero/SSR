@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common.h"
 #include "DataStructure/EnumStringMap.h"
 #include "RefHandle.h"
 
@@ -63,41 +64,29 @@ enum class GraphicsResourceType
 	COUNT,
 };
 
-class IGraphicsApiResource
+class GraphicsApiResource
 {
 public:
-	virtual ~IGraphicsApiResource( ) = default;
+	virtual ~GraphicsApiResource( ) = default;
 
 	virtual void Free( ) = 0;
+	virtual void InitResource( ) = 0;
 
-	int AddRef( )
-	{
-		++m_refCount;
-		return m_refCount;
-	}
-
-	int ReleaseRef( )
-	{
-		--m_refCount;
-
-		int refCount = m_refCount;
-		if ( refCount == 0 )
-		{
-			Free( );
-			delete this;
-		}
-
-		return refCount;
-	}
+	AGA_DLL int AddRef( );
+	AGA_DLL int ReleaseRef( );
 
 private:
 	std::atomic<int> m_refCount = 0;
 };
 
+class DeviceDependantResource : public GraphicsApiResource
+{
+};
+
 struct RE_HANDLE
 {
 	GraphicsResourceType m_type;
-	RefHandle<IGraphicsApiResource> m_resource;
+	RefHandle<GraphicsApiResource> m_resource;
 
 	bool IsValid() const
 	{
@@ -106,7 +95,7 @@ struct RE_HANDLE
 
 	RE_HANDLE( ) : m_type( GraphicsResourceType::COUNT ) {}
 
-	RE_HANDLE( GraphicsResourceType type, IGraphicsApiResource* resource ) : m_type( type ), m_resource( resource )
+	RE_HANDLE( GraphicsResourceType type, GraphicsApiResource* resource ) : m_type( type ), m_resource( resource )
 	{}
 
 	friend bool operator==( const RE_HANDLE& lhs, const RE_HANDLE& rhs )
@@ -586,6 +575,8 @@ struct RESOURCE_REGION
 
 struct VERTEX_LAYOUT
 {
+	VERTEX_LAYOUT( const char* name, int index, RESOURCE_FORMAT format, int slot, bool isInstanceData, int instanceDataStep ) : m_name( name ), m_index( index ), m_format( format ), m_slot( slot ), m_isInstanceData( isInstanceData ), m_instanceDataStep( instanceDataStep ) {}
+
 	std::string m_name;
 	int m_index;
 	RESOURCE_FORMAT m_format;

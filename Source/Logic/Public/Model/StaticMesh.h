@@ -14,6 +14,7 @@ class StaticMesh : public BaseMesh
 {
 public:
 	StaticMesh( MeshDescription&& meshDescription, std::vector<Material>&& materials );
+	~StaticMesh( );
 
 	StaticMeshRenderData* RenderData( ) const
 	{

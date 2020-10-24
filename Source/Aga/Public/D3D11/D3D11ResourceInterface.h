@@ -7,14 +7,12 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 
-class IDeviceDependant : public IGraphicsApiResource
+class IDeviceDependant : public GraphicsApiResource
 {
 public:
 	virtual ~IDeviceDependant( ) = default;
 
 	virtual ID3D11DeviceChild* Get( ) = 0;
-
-	virtual void InitResource( ) = 0;
 };
 
 class IGraphicsResource : public IDeviceDependant

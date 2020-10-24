@@ -162,6 +162,30 @@ RE_HANDLE CD3D11ResourceManager::CreateBuffer( const BUFFER_TRAIT& trait, const 
 	return RE_HANDLE( GraphicsResourceType::BUFFER, resource );
 }
 
+ConstantBuffer* CD3D11ResourceManager::CreateConstantBuffer( const BUFFER_TRAIT& trait )
+{
+	ConstantBuffer* newBuf = new D3D11ConstantBuffer( trait );
+	m_renderResources.emplace( newBuf );
+
+	return newBuf;
+}
+
+VertexBuffer* CD3D11ResourceManager::CreateVertexBuffer( const BUFFER_TRAIT& trait, const void* initData )
+{
+	VertexBuffer* newBuf = new D3D11VertexBuffer( trait, initData );
+	m_renderResources.emplace( newBuf );
+
+	return newBuf;
+}
+
+IndexBuffer* CD3D11ResourceManager::CreateIndexBuffer( const BUFFER_TRAIT& trait, const void* initData )
+{
+	IndexBuffer* newBuf = new D3D11IndexBuffer( trait, initData );
+	m_renderResources.emplace( newBuf );
+
+	return newBuf;
+}
+
 RE_HANDLE CD3D11ResourceManager::CreateVertexLayout( RE_HANDLE vsHandle, const VERTEX_LAYOUT* layoutOrNull, int layoutSize )
 {
 	CD3D11VertexShader* vs = GetVertexShader( vsHandle );

@@ -54,6 +54,9 @@ public:
 	virtual RE_HANDLE CreateTexture3D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
 
 	virtual RE_HANDLE CreateBuffer( const BUFFER_TRAIT& trait ) override;
+	virtual ConstantBuffer* CreateConstantBuffer( const BUFFER_TRAIT& trait ) override;
+	virtual VertexBuffer* CreateVertexBuffer( const BUFFER_TRAIT& trait, const void* initData ) override;
+	virtual IndexBuffer* CreateIndexBuffer( const BUFFER_TRAIT& trait, const void* initData ) override;
 
 	virtual RE_HANDLE CreateVertexLayout( RE_HANDLE vsHandle, const VERTEX_LAYOUT* layoutOrNull, int layoutSize ) override;
 	virtual RE_HANDLE CreateVertexShader( const void* byteCodePtr, std::size_t byteCodeSize ) override;
@@ -243,6 +246,21 @@ RE_HANDLE CDirect3D11::CreateTexture3D( TEXTURE_TRAIT& trait, const RESOURCE_INI
 RE_HANDLE CDirect3D11::CreateBuffer( const BUFFER_TRAIT& trait )
 {
 	return m_resourceManager.CreateBuffer( trait );
+}
+
+ConstantBuffer* CDirect3D11::CreateConstantBuffer( const BUFFER_TRAIT& trait )
+{
+	return m_resourceManager.CreateConstantBuffer( trait );
+}
+
+VertexBuffer* CDirect3D11::CreateVertexBuffer( const BUFFER_TRAIT& trait, const void* initData )
+{
+	return m_resourceManager.CreateVertexBuffer( trait, initData );
+}
+
+IndexBuffer* CDirect3D11::CreateIndexBuffer( const BUFFER_TRAIT& trait, const void* initData )
+{
+	return m_resourceManager.CreateIndexBuffer( trait, initData );
 }
 
 RE_HANDLE CDirect3D11::CreateVertexLayout( RE_HANDLE vsHandle, const VERTEX_LAYOUT* layoutOrNull, int layoutSize )

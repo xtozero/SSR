@@ -29,15 +29,13 @@ set (RENDER_UTIL
 	"Public/Renderer/RenderOutputManager.h")
 	
 set (GRAPHICS_RESOURCE_SOURCE
-	"Private/GraphicsResource/IndexBuffer.cpp"
 	"Private/GraphicsResource/RenderOption.cpp"
 	"Private/GraphicsResource/RenderOptionManager.cpp"
+	"Public/GraphicsResource/Buffer.h"
 	"Public/GraphicsResource/DrawSnapshot.h"
-	"Public/GraphicsResource/IndexBuffer.h"
 	"Public/GraphicsResource/RenderOption.h"
 	"Public/GraphicsResource/RenderOptionManager.h"
 	"Public/GraphicsResource/ShaderBindings.h"
-	"Public/GraphicsResource/VertexBuffer.h"
 	"Public/GraphicsResource/VertexInputStream.h")
 	
 set (PROXIES_SOURCE
@@ -49,9 +47,11 @@ set (PROXIES_SOURCE
 set (RENDER_SCENE_SOURCE
 	"Private/Scene/PrimitiveSceneInfo.cpp"
 	"Private/Scene/Scene.cpp"
+	"Private/Scene/SceneConstantBuffers.cpp"
 	"Public/Scene/IScene.h"
 	"Public/Scene/PrimitiveSceneInfo.h"
-	"Public/Scene/Scene.h")
+	"Public/Scene/Scene.h"
+	"Public/Scene/SceneConstantBuffers.h")
 	
 source_group("GraphicsResource" FILES ${GRAPHICS_RESOURCE_SOURCE})
 source_group("Mesh" FILES ${MESH_SOURCE})
@@ -83,6 +83,8 @@ add_library(RenderCore SHARED 	${PRECOMPILED}
 								${GRAPHICS_RESOURCE_SOURCE}
 								${PROXIES_SOURCE}
 								${SCENE_SOURCE})
+
+target_link_libraries(RenderCore Aga)
 
 add_custom_command(TARGET RenderCore POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/RenderCore.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/RenderCore.dll")

@@ -8,6 +8,14 @@
 
 #include <algorithm>
 
+Scene::Scene( )
+{
+	ENQUEUE_THREAD_TASK<ThreadType::RenderThread>( [this]
+	{
+		m_constantBuffers.Initialize( );
+	});
+}
+
 void Scene::AddPrimitive( PrimitiveComponent* primitive )
 {
 	PrimitiveProxy* proxy = primitive->CreateProxy( );
@@ -19,14 +27,24 @@ void Scene::AddPrimitive( PrimitiveComponent* primitive )
 	}
 
 	PrimitivieSceneInfo* primitiveSceneInfo = new PrimitivieSceneInfo( proxy );
-	primitiveSceneInfo->m_proxy = proxy;
+	primitiveSceneInfo->m_sceneProxy = proxy;
 
 	proxy->m_primitiveSceneInfo = primitiveSceneInfo;
 
-	CXMFLOAT4X4 renderMatrix = primitive->GetRenderMatrix( );
-
-	ENQUEUE_THREAD_TASK<ThreadType::RenderThread>( [this, primitiveSceneInfo]( )
+	struct AddPrimitiveSceneInfoParam
 	{
+		CXMFLOAT4X4 m_worldTransform;
+	};
+	AddPrimitiveSceneInfoParam param = {
+		primitive->GetRenderMatrix( )
+	};
+
+	ENQUEUE_THREAD_TASK<ThreadType::RenderThread>( [this, param, primitiveSceneInfo]( )
+	{
+		PrimitiveProxy* sceneProxy = primitiveSceneInfo->m_sceneProxy;
+
+		sceneProxy->SetTransform( param.m_worldTransform );
+
 		AddPrimitiveSceneInfo( primitiveSceneInfo );
 	} );
 }
@@ -63,6 +81,6 @@ void Scene::RemovePrimitiveSceneInfo( PrimitivieSceneInfo* primitiveSceneInfo )
 	assert( IsInRenderThread( ) );
 
 	m_primitives.erase( std::remove( m_primitives.begin(), m_primitives.end(), primitiveSceneInfo ) );
-	delete primitiveSceneInfo->m_proxy;
+	delete primitiveSceneInfo->m_sceneProxy;
 	delete primitiveSceneInfo;
 }

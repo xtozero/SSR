@@ -206,7 +206,7 @@ void RegisterResourceEnumString( )
 	REGISTER_ENUM_STRING( COLOR_WRITE_ENABLE::ALL );
 }
 
-RENDERCORE_FUNC_DLL void BootUpModules( )
+AGA_FUNC_DLL void BootUpModules( )
 {
 	RegisterFactory<IAga>( &GetD3D11GraphicsApi );
 
@@ -215,7 +215,7 @@ RENDERCORE_FUNC_DLL void BootUpModules( )
 	RegisterResourceEnumString( );
 }
 
-RENDERCORE_FUNC_DLL void ShutdownModules( )
+AGA_FUNC_DLL void ShutdownModules( )
 {
 	DestoryAbstractGraphicsApi( );
 
