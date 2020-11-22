@@ -2,8 +2,8 @@
 	{
 		"tutorial": {
 			"Shader": {
-				"VS": "vsTutorial",
-				"PS": "psTutorial"
+				"VS": "./Shaders/vsTutorial.cso",
+				"PS": "./Shaders/psTutorial.cso"
 			},
 
 			"RS_State": "default",
@@ -18,8 +18,8 @@
 	{
 		"mat_default": {
 			"Shader": {
-				"VS": "vsTutorial",
-				"PS": "psTutorial"
+				"VS": "./Shaders/vsTutorial.cso",
+				"PS": "./Shaders/psTutorial.cso"
 			},
 
 			"RS_State": "scissor_on",
@@ -34,8 +34,8 @@
 	{
 		"mat_skyBox": {
 			"Shader": {
-				"VS": "vsSkybox",
-				"PS": "psSkybox"
+				"VS": "./Shaders/vsSkybox.cso",
+				"PS": "./Shaders/psSkybox.cso"
 			},
 
 			"RS_State": "scissor_on",
@@ -50,8 +50,8 @@
 	{
 		"mat_display_depth": {
 			"Shader": {
-				"VS": "vsDepthStencil",
-				"PS": "psDepthStencil"
+				"VS": "./Shaders/vsDepthStencil.cso",
+				"PS": "./Shaders/psDepthStencil.cso"
 			},
 
 			"RS_State": "scissor_on",
@@ -66,8 +66,8 @@
 	{
 		"mat_display_renderTarget": {
 			"Shader": {
-				"VS": "vsDepthStencil",
-				"PS": "psTexWithOutLight"
+				"VS": "./Shaders/vsDepthStencil.cso",
+				"PS": "./Shaders/psTexWithOutLight.cso"
 			},
 
 			"RS_State": "scissor_on",
@@ -82,8 +82,8 @@
 	{
 		"mat_shadowMap": {
 			"Shader": {
-				"VS": "vsShadowmap",
-				"PS": "psShadowmap"
+				"VS": "./Shaders/vsShadowmap.cso",
+				"PS": "./Shaders/psShadowmap.cso"
 			},
 
 			"RS_State": "default",
@@ -98,9 +98,9 @@
 	{
 		"mat_cascaded_shadowMap": {
 			"Shader": {
-				"VS": "vsCascadedShadowMap",
-				"GS": "gsCascadedShadowMap",
-				"PS": "psCascadedShadowMap"
+				"VS": "./Shaders/vsCascadedShadowMap.cso",
+				"GS": "./Shaders/gsCascadedShadowMap.cso",
+				"PS": "./Shaders/psCascadedShadowMap.cso"
 			},
 
 			"RS_State": "default",
@@ -115,8 +115,8 @@
 	{
 		"mat_reflectable": {
 			"Shader": {
-				"VS": "vsTutorial",
-				"PS": "psTutorial"
+				"VS": "./Shaders/vsTutorial.cso",
+				"PS": "./Shaders/psTutorial.cso"
 			},
 
 			"RS_State": "scissor_on",
@@ -131,8 +131,8 @@
 	{
 		"mat_screen_space_reflect": {
 			"Shader": {
-				"VS": "vsSSR",
-				"PS": "psDdaSSR"
+				"VS": "./Shaders/vsSSR.cso",
+				"PS": "./Shaders/psDdaSSR.cso"
 			},
 
 			"RS_State": "scissor_on",
@@ -147,8 +147,8 @@
 	{
 		"mat_ms_screen_space_reflect": {
 			"Shader": {
-				"VS": "vsSSR",
-				"PS": "psDdaSsrMs"
+				"VS": "./Shaders/vsSSR.cso",
+				"PS": "./Shaders/psDdaSsrMs.cso"
 			},
 
 			"RS_State": "scissor_on",
@@ -163,8 +163,8 @@
 	{
 		"mat_ssr_blend": {
 			"Shader": {
-				"VS": "vsScreenRect",
-				"PS": "psSSRBlend"
+				"VS": "./Shaders/vsScreenRect.cso",
+				"PS": "./Shaders/psSSRBlend.cso"
 			},
 
 			"RS_State": "scissor_on",
@@ -180,8 +180,8 @@
 	{
 		"mat_ms_ssr_blend": {
 			"Shader": {
-				"VS": "vsScreenRect",
-				"PS": "psSSRBlendMs"
+				"VS": "./Shaders/vsScreenRect.cso",
+				"PS": "./Shaders/psSSRBlendMs.cso"
 			},
 
 			"RS_State": "scissor_on",
@@ -197,8 +197,8 @@
 	{
 		"mat_gaussian_blur_x": {
 			"Shader": {
-				"VS": "vsScreenRect",
-				"PS": "psGaussianBlurX"
+				"VS": "./Shaders/vsScreenRect.cso",
+				"PS": "./Shaders/psGaussianBlurX.cso"
 			},
 
 			"RS_State": "scissor_on",
@@ -213,8 +213,8 @@
 	{
 		"mat_gaussian_blur_y": {
 			"Shader": {
-				"VS": "vsScreenRect",
-				"PS": "psGaussianBlurY"
+				"VS": "./Shaders/vsScreenRect.cso",
+				"PS": "./Shaders/psGaussianBlurY.cso"
 			},
 
 			"RS_State": "scissor_on",
@@ -229,8 +229,8 @@
 	{
 		"mat_draw_back_face_depth": {
 			"Shader": {
-				"VS": "vsDrawBackfaceDepth",
-				"PS": "psDrawBackfaceDepth"
+				"VS": "./Shaders/vsDrawBackfaceDepth.cso",
+				"PS": "./Shaders/psDrawBackfaceDepth.cso"
 			},
 
 			"RS_State": "cullFront",
@@ -245,8 +245,8 @@
 	{
 		"mat_draw_ui": {
 			"Shader": {
-				"VS": "vsDrawUI",
-				"PS": "psDrawUI"
+				"VS": "./Shaders/vsDrawUI.cso",
+				"PS": "./Shaders/psDrawUI.cso"
 			},
 
 			"RS_State": "draw_ui",
@@ -262,8 +262,8 @@
 	{
 		"mat_debugOverlay": {
 			"Shader": {
-				"VS": "vsDebugOverlay",
-				"PS": "psDebugOverlay"
+				"VS": "./Shaders/vsDebugOverlay.cso",
+				"PS": "./Shaders/psDebugOverlay.cso"
 			},
 
 			"RS_State": "default",
@@ -278,8 +278,8 @@
 	{
 		"skybox": {
 			"Shader": {
-				"VS": "vsScreenRect",
-				"PS": "psGaussianBlurY"
+				"VS": "./Shaders/vsScreenRect.cso",
+				"PS": "./Shaders/psGaussianBlurY.cso"
 			},
 
 			"RS_State": "default",
@@ -294,8 +294,8 @@
 	{
 		"texture": {
 			"Shader": {
-				"VS": "vsTexture",
-				"PS": "psTexture"
+				"VS": "./Shaders/vsTexture.cso",
+				"PS": "./Shaders/psTexture.cso"
 			},
 
 			"RS_State": "default",
@@ -310,8 +310,8 @@
 	{
 		"wireframe": {
 			"Shader": {
-				"VS": "vsTutorial",
-				"PS": "psTutorial"
+				"VS": "./Shaders/vsTutorial.cso",
+				"PS": "./Shaders/psTutorial.cso"
 			},
 
 			"RS_State": "wireFrame",

@@ -5,6 +5,7 @@
 #include "GraphicsResource/Buffer.h"
 #include "IndexBuffer.h"
 #include "Math/CXMFloat.h"
+#include "VertexInputLayout.h"
 
 #include <vector>
 
@@ -41,9 +42,7 @@ public:
 	void Initialize( const StaticMeshLODResource* lodResource );
 
 private:
-	void AddLayout( const char* name, int index, RESOURCE_FORMAT format, int slot, bool isInstanceData, int instanceDataStep );
-
-	std::vector<VERTEX_LAYOUT> m_vertexLayoutData;
+	VertexLayoutDesc m_vertexLayoutDesc;
 	RE_HANDLE m_vertexLayout;
 };
 

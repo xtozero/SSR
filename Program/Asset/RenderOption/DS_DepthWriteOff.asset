@@ -1,0 +1,17 @@
+{
+	"Type": "DepthStencilOption",
+	"DepthEnable": true,
+	"DepthWriteEnable": false,
+	"DepthFunc": "COMPARISON_FUNC::LESS",
+	"StencilEnable": false,
+	"StencilReadMask": 255,
+	"StencilWriteMask": 255,
+	"FrontFace.StencilFunc": "COMPARISON_FUNC::ALWAYS",
+	"BackFace.StencilFunc": "COMPARISON_FUNC::ALWAYS",
+	"FrontFace.StencilDepthFailOp": "STENCIL_OP::KEEP",
+	"BackFace.StencilDepthFailOp": "STENCIL_OP::KEEP",
+	"FrontFace.StencilPassOp": "STENCIL_OP::KEEP",
+	"BackFace.StencilPassOp": "STENCIL_OP::KEEP",
+	"FrontFace.StencilFailOp": "STENCIL_OP::KEEP",
+	"BackFace.StencilFailOp": "STENCIL_OP::KEEP"
+}

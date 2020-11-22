@@ -1,0 +1,12 @@
+{
+	"Type": "RenderOption",
+	"Shader": {
+		"VS": "./Asset/Shaders/VS_Tutorial.cso",
+		"PS": "./Asset/Shaders/PS_Tutorial.cso"
+	},
+	"RS_State": "./Asset/RenderOption/RS_ScissorOn.asset",
+	"DS_State": "./Asset/RenderOption/DS_ObjectDefault.asset",
+	"Sampler": {
+		"PS": "./Asset/RenderOption/SS_Default.asset"
+	}
+}

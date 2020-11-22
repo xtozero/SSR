@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <sstream>
 #include <tchar.h>
+#include <Windows.h>
 #include <vector>
 
 #define col GetStdHandle( STD_OUTPUT_HANDLE )

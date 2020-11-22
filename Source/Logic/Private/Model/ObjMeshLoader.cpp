@@ -48,7 +48,6 @@ ModelLoaderSharedHandle CObjMeshLoader::RequestAsyncLoad( const char* pFilePath,
 		[this, pContext, objAsset]( char* buffer, unsigned long bufferSize )
 		{
 			ParseObjMesh( *pContext, buffer, bufferSize );
-			delete[] buffer;
 			GetInterface<IFileSystem>( )->CloseFile( objAsset );
 
 			OnLoadSuccessed( *pContext );
@@ -164,7 +163,6 @@ void CObjMeshLoader::LoadMaterialFromFile( ObjMeshLoadContext& context )
 		[this, &context, mtlAsset]( char* buffer, unsigned long bufferSize )
 		{
 			ParseMtl( context, buffer, bufferSize );
-			delete[] buffer;
 			GetInterface<IFileSystem>( )->CloseFile( mtlAsset );
 
 			OnLoadSuccessed( context );

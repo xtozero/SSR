@@ -331,8 +331,6 @@ bool CGameLogic::LoadWorld( const char* filePath )
 		[this, worldAsset]( const char* buffer, unsigned long bufferSize )
 		{
 			CWorldLoader::Load( *this, buffer, static_cast<size_t>( bufferSize ) );
-
-			delete[] buffer;
 			GetInterface<IFileSystem>( )->CloseFile( worldAsset );
 		}
 	);

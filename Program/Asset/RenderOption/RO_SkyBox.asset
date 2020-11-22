@@ -1,0 +1,12 @@
+{
+	"Type": "RenderOption",
+	"Shader": {
+		"VS": "./Asset/Shaders/VS_Skybox.cso",
+		"PS": "./Asset/Shaders/PS_Skybox.cso"
+	},
+	"RS_State": "./Asset/RenderOption/RS_ScissorOn.asset",
+	"DS_State": "./Asset/RenderOption/DS_DepthWriteOff.asset",
+	"Sampler": {
+		"PS": "./Asset/RenderOption/SS_Default.asset"
+	}
+}

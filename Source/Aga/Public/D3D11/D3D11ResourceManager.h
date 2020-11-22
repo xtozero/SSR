@@ -1,6 +1,7 @@
 #pragma once
 
 #include "D3D11ResourceInterface.h"
+#include "D3D11VetexLayout.h"
 #include "IRenderResourceManager.h"
 #include "RefHandle.h"
 
@@ -58,11 +59,11 @@ public:
 	virtual IndexBuffer* CreateIndexBuffer( const BUFFER_TRAIT& trait, const void* initData ) override;
 
 	// Shader
-	virtual RE_HANDLE CreateVertexLayout( RE_HANDLE vsHandle, const VERTEX_LAYOUT* layoutOrNull, int layoutSize ) override;
-	virtual RE_HANDLE CreateVertexShader( const void* byteCodePtr, std::size_t byteCodeSize ) override;
-	virtual RE_HANDLE CreateGeometryShader( const void* byteCodePtr, std::size_t byteCodeSize ) override;
-	virtual RE_HANDLE CreatePixelShader( const void* byteCodePtr, std::size_t byteCodeSize ) override;
-	virtual RE_HANDLE CreateComputeShader( const void* byteCodePtr, std::size_t byteCodeSize ) override;
+	virtual VertexLayout* FindAndCreateVertexLayout( const VertexShader* vs, const VertexLayoutDesc& layoutDesc ) override;
+	virtual RE_HANDLE CreateGeometryShader( const void* byteCode, std::size_t byteCodeSize ) override;
+	virtual RE_HANDLE CreateComputeShader( const void* byteCode, std::size_t byteCodeSize ) override;
+	virtual VertexShader* CreateVertexShader( const void* byteCode, std::size_t byteCodeSize ) override;
+	virtual PixelShader* CreatePixelShader( const void* byteCode, std::size_t byteCodeSize ) override;
 
 	// RenderTarget
 	virtual RE_HANDLE CreateRenderTarget( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) override;
@@ -134,7 +135,7 @@ private:
 	std::vector<RefHandle<CD3D11Texture2D>> m_texture2Ds;
 	std::vector<RefHandle<CD3D11Texture3D>> m_texture3Ds;
 	std::vector<RefHandle<CD3D11Buffer>> m_buffers;
-	std::vector<RefHandle<CD3D11VertexLayout>> m_vertexLayouts;
+	// std::vector<RefHandle<CD3D11VertexLayout>> m_vertexLayouts;
 	std::vector<RefHandle<CD3D11VertexShader>> m_vertexShaders;
 	std::vector<RefHandle<CD3D11GeometryShader>> m_geometryShaders;
 	std::vector<RefHandle<CD3D11PixelShader>> m_pixelShaders;
@@ -152,5 +153,6 @@ private:
 	std::pair<int, int>	m_frameBufferSize = { 0, 0 };
 
 	std::set<RefHandle<GraphicsApiResource>> m_renderResources;
+	std::map<VertexLayoutDesc, RefHandle<D3D11VertexLayout>> m_vertexLayouts;
 };
 

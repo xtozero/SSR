@@ -3,12 +3,14 @@ add_definitions(-DUNICODE=1)
 add_definitions(-D_UNICODE=1)
 add_definitions(-DNOMINMAX=1)
 
-set (PRECOMPILED
-	"Private/stdafx.cpp"
-	"Public/stdafx.h"
-	"Public/targetver.h")
+set (ASSET_LOADER
+	"Private/AssetLoader/AssetFactory.cpp"
+	"Private/AssetLoader/AssetLoader.cpp"
+	"Public/AssetLoader/AssetFactory.h"
+	"Public/AssetLoader/AssetLoader.h"
+)
 	
-set (COMPOENETS_SOURCE
+set (COMPOENETS
 	"Private/Components/CameraComponent.cpp"
 	"Private/Components/Component.cpp"
 	"Private/Components/PrimitiveComponent.cpp"
@@ -20,7 +22,7 @@ set (COMPOENETS_SOURCE
 	"Public/Components/SceneComponent.h"
 	"Public/Components/StaticMeshComponent.h")
 	
-set (CORE_SOURCE
+set (CORE
 	"Private/Core/DebugConsole.cpp"
 	"Private/Core/dllmain.cpp"
 	"Private/Core/GameLogic.cpp"
@@ -29,12 +31,13 @@ set (CORE_SOURCE
 	"Private/Core/Timer.cpp"
 	"Public/Core/DebugConsole.h"
 	"Public/Core/GameLogic.h"
+	"Public/Core/IAsyncLoadableAsset.h"
 	"Public/Core/IListener.h"
 	"Public/Core/ILogic.h"
 	"Public/Core/Timer.h"
 	"Public/Core/UtilWindowInfo.h")
 	
-set (GAME_OBJECT_SOURCE
+set (GAME_OBJECT
 	"Private/GameObject/DisplayShaderResourceHelper.cpp"
 	"Private/GameObject/GameObject.cpp"
 	"Private/GameObject/GameObjectFactory.cpp"
@@ -52,20 +55,12 @@ set (GAME_OBJECT_SOURCE
 	"Public/GameObject/PickingManager.h"
 	"Public/GameObject/SkyBox.h"
 	"Public/GameObject/StaticMeshGameObject.h")
-	
-set (PLAYER_OBJECT_SOURCE
-	"Private/GameObject/Player.cpp"
-	"Public/GameObject/Player.h")
-	
-set (TEST_SCENE_OBJECT_SOURCE
-	"Private/GameObject/BallProjectile.cpp"
-	"Public/GameObject/BallProjectile.h")
-	
-set (MATERIAL_SOURCE
+
+set (MATERIAL
 	"Private/Material/Material.cpp"
 	"Public/Material/Material.h")
 	
-set (MODEL_SOURCE
+set (MODEL
 	"Private/Model/BaseMesh.cpp"
 	"Private/Model/StaticMesh.cpp"
 	"Private/Model/DebugMesh.cpp"
@@ -89,7 +84,7 @@ set (MODEL_SOURCE
 	"Public/Model/PlyMeshLoader.h"
 	"Public/Model/Surface.h")
 
-set (PHYSICS_SOURCE
+set (PHYSICS
 	"Private/Physics/Aaboundingbox.cpp"
 	"Private/Physics/Body.cpp"
 	"Private/Physics/BoundingCone.cpp"
@@ -127,7 +122,23 @@ set (PHYSICS_SOURCE
 	"Public/Physics/Ray.h"
 	"Public/Physics/ColliderManager.h")
 
-set (SCENE_SOURCE
+set (PLAYER_OBJECT
+	"Private/GameObject/Player.cpp"
+	"Public/GameObject/Player.h")
+
+set (PRECOMPILED
+	"Private/stdafx.cpp"
+	"Public/stdafx.h"
+	"Public/targetver.h")
+
+set (RENDERING
+	"Private/Rendering/RenderOption.cpp"
+	"Private/Rendering/ShaderAsset.cpp"
+	"Public/Rendering/RenderOption.h"
+	"Public/Rendering/ShaderAsset.h"
+)
+
+set (SCENE
 	"Private/Scene/AtmosphereScattering.cpp"
 	"Private/Scene/DebugOverlayManager.cpp"
 	"Private/Scene/DynamicBuffer.cpp"
@@ -145,38 +156,44 @@ set (SCENE_SOURCE
 	"Public/Scene/ShadowManager.h"
 	"Public/Scene/SSRManager.h")
 	
-set (UI_SOURCE
+set (TEST_SCENE_OBJECT
+	"Private/GameObject/BallProjectile.cpp"
+	"Public/GameObject/BallProjectile.h")
+	
+set (UI
 	"Private/UI/ImUI.cpp"
 	"Private/UI/ImUI_Draw.cpp"
 	"Public/UI/ImUI.h")
 	
-set (UNIT_TEST_SOURCE
+set (UNIT_TEST
 	"Private/Scene/ComputeShaderUnitTest.cpp"
 	"Public/Scene/ComputeShaderUnitTest.h")
 	
-set (USER_INPUT_SOURCE
+set (USER_INPUT
 	"Private/UserInput/MouseController.cpp"
 	"Public/UserInput/MouseController.h")
 	
-set (WORLD_SOURCE
+set (WORLD
 	"Private/World/World.cpp"
 	"Private/World/WorldLoader.cpp"
 	"Public/World/World.h"
 	"Public/World/WorldLoader.h")
-	
-source_group("Components" FILES ${COMPOENETS_SOURCE})
-source_group("Core" FILES ${CORE_SOURCE})
-source_group("GameObject" FILES ${GAME_OBJECT_SOURCE})
-source_group("GameObject\\Player" FILES ${PLAYER_OBJECT_SOURCE})
-source_group("GameObject\\TestScene" FILES ${TEST_SCENE_OBJECT_SOURCE})
-source_group("Material" FILES ${MATERIAL_SOURCE})
-source_group("Model" FILES ${MODEL_SOURCE})
-source_group("Physics" FILES ${PHYSICS_SOURCE})
-source_group("Render" FILES ${SCENE_SOURCE})
-source_group("UI" FILES ${UI_SOURCE})
-source_group("UintTest" FILES ${UNIT_TEST_SOURCE})
-source_group("UserInput" FILES ${USER_INPUT_SOURCE})
-source_group("World" FILES ${WORLD_SOURCE})
+
+source_group("AssetLoader" FILES ${ASSET_LOADER} )	
+source_group("Components" FILES ${COMPOENETS})
+source_group("Core" FILES ${CORE})
+source_group("GameObject" FILES ${GAME_OBJECT})
+source_group("GameObject\\Player" FILES ${PLAYER_OBJECT})
+source_group("GameObject\\TestScene" FILES ${TEST_SCENE_OBJECT})
+source_group("Material" FILES ${MATERIAL})
+source_group("Model" FILES ${MODEL})
+source_group("Physics" FILES ${PHYSICS})
+source_group("Render" FILES ${SCENE}
+							${RENDERING})
+source_group("UI" FILES ${UI})
+source_group("UintTest" FILES ${UNIT_TEST})
+source_group("UserInput" FILES ${USER_INPUT})
+source_group("World" FILES ${WORLD})
 
 include_directories(./Public)
 include_directories(../Aga/Public/Common)
@@ -190,20 +207,22 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
-add_library(Logic SHARED 	${PRECOMPILED}
-							${COMPOENETS_SOURCE}
-							${CORE_SOURCE}
-							${GAME_OBJECT_SOURCE}
-							${PLAYER_OBJECT_SOURCE}
-							${TEST_SCENE_OBJECT_SOURCE}
-							${MATERIAL_SOURCE}
-							${MODEL_SOURCE}
-							${PHYSICS_SOURCE}
-							${SCENE_SOURCE}
-							${UI_SOURCE}
-							${UNIT_TEST_SOURCE}
-							${USER_INPUT_SOURCE}
-							${WORLD_SOURCE})
+add_library(Logic SHARED 	${ASSET_LOADER}
+							${COMPOENETS}
+							${CORE}
+							${GAME_OBJECT}
+							${MATERIAL}
+							${MODEL}
+							${PHYSICS}
+							${PLAYER_OBJECT}
+							${PRECOMPILED}
+							${RENDERING}
+							${SCENE}
+							${TEST_SCENE_OBJECT}
+							${UI}
+							${UNIT_TEST}
+							${USER_INPUT}
+							${WORLD})
 							
 target_link_libraries(Logic RenderCore)
 							

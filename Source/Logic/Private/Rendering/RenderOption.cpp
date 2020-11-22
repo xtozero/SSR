@@ -1,9 +1,11 @@
 #include "stdafx.h"
-#include "GraphicsResource/RenderOption.h"
+#include "Rendering/RenderOption.h"
 
+#include "FileSystem/EngineFileSystem.h"
 #include "Json/json.hpp"
+#include "Rendering/ShaderAsset.h"
 
-void BlendOption::LoadFromScript( const JSON::Value& blendOption )
+void BlendOption::LoadFromAsset( const JSON::Value& blendOption, const AssetLoaderSharedHandle& /*handle*/ )
 {
 	if ( const JSON::Value* alphaToConverage = blendOption.Find( "AlphaToConverage" ) )
 	{
@@ -67,7 +69,7 @@ void BlendOption::LoadFromScript( const JSON::Value& blendOption )
 	}
 }
 
-void DepthStencilOption::LoadFromScript( const JSON::Value& depthStencilOption )
+void DepthStencilOption::LoadFromAsset( const JSON::Value& depthStencilOption, const AssetLoaderSharedHandle& /*handle*/ )
 {
 	if ( const JSON::Value* depthEnable = depthStencilOption.Find( "DepthEnable" ) )
 	{
@@ -147,7 +149,7 @@ void DepthStencilOption::LoadFromScript( const JSON::Value& depthStencilOption )
 	}
 }
 
-void RasterizerOption::LoadFromScript( const JSON::Value& rasterizerOption )
+void RasterizerOption::LoadFromAsset( const JSON::Value& rasterizerOption, const AssetLoaderSharedHandle& /*handle*/ )
 {
 	if ( const JSON::Value* wireframe = rasterizerOption.Find( "Wireframe" ) )
 	{
@@ -190,7 +192,7 @@ void RasterizerOption::LoadFromScript( const JSON::Value& rasterizerOption )
 	}
 }
 
-void SamplerOption::LoadFromScript( const JSON::Value& samplerOption )
+void SamplerOption::LoadFromAsset( const JSON::Value& samplerOption, const AssetLoaderSharedHandle& /*handle*/ )
 {
 	if ( const JSON::Value* filter = samplerOption.Find( "Filter" ) )
 	{
@@ -227,43 +229,90 @@ void SamplerOption::LoadFromScript( const JSON::Value& samplerOption )
 	}
 }
 
-void RenderOption::LoadFromScript( const JSON::Value& renderOption, const JSON::Value& blendOptionAsset, const JSON::Value& depthStencilOptionAsset, const JSON::Value& rasterizerOptionAsset, const JSON::Value& samplerOptionAsset )
+void RenderOption::LoadFromAsset( const JSON::Value& renderOption, const AssetLoaderSharedHandle& handle )
 {
 	if ( const JSON::Value* shaderKeys = renderOption.Find( "Shader" ) )
 	{
 		for ( int shaderType = static_cast<int>( SHADER_TYPE::VS ); shaderType < static_cast<int>( SHADER_TYPE::Count ); ++shaderType )
 		{
-			const JSON::Value* shaderKey = shaderKeys->Find( ToString( static_cast<SHADER_TYPE>( shaderType ) ) );
-			if ( shaderKey == nullptr )
+			const JSON::Value* shaderFilePath = shaderKeys->Find( ToString( static_cast<SHADER_TYPE>( shaderType ) ) );
+			if ( shaderFilePath == nullptr )
 			{
 				continue;
 			}
 
-			m_shader[shaderType] = shaderKey->AsString( );
+			IAssetLoader::LoadCompletionCallback onLoadComplete;
+			onLoadComplete.BindFunctor(
+				[this, shaderType]( void* shader )
+				{
+					switch( static_cast<SHADER_TYPE>( shaderType ) )
+					{
+					case SHADER_TYPE::VS:
+						m_vertexShader = static_cast<VertexShaderAsset*>( shader )->m_shader;
+						break;
+					case SHADER_TYPE::PS:
+						m_pixelShader = static_cast<PixelShaderAsset*>( shader )->m_shader;
+						break;
+					}
+				}
+			);
+
+			auto hRequest = GetInterface<IAssetLoader>( )->RequestAsyncLoad( shaderFilePath->AsString( ), onLoadComplete );
+			if ( hRequest->IsLoadingInProgress( ) )
+			{
+				handle->AddPrerequisite( hRequest );
+			}
 		}
 	}
 
 	if ( const JSON::Value* blendOptionKey = renderOption.Find( "Blend" ) )
 	{
-		if ( const JSON::Value* blendOption = blendOptionAsset.Find( blendOptionKey->AsString( ) ) )
+		IAssetLoader::LoadCompletionCallback onLoadComplete;
+		onLoadComplete.BindFunctor(
+			[this]( void* blendOption )
+			{
+				m_blendOption = static_cast<BlendOption*>( blendOption );
+			}
+		);
+
+		auto hRequest = GetInterface<IAssetLoader>( )->RequestAsyncLoad( blendOptionKey->AsString( ), onLoadComplete );
+		if ( hRequest->IsLoadingInProgress( ) )
 		{
-			m_blendOption.LoadFromScript( *blendOption );
+			handle->AddPrerequisite( hRequest );
 		}
 	}
 
 	if ( const JSON::Value* depthStencilOptionKey = renderOption.Find( "DS_State" ) )
 	{
-		if ( const JSON::Value* depthStencilOption = depthStencilOptionAsset.Find( depthStencilOptionKey->AsString( ) ) )
+		IAssetLoader::LoadCompletionCallback onLoadComplete;
+		onLoadComplete.BindFunctor(
+			[this]( void* depthStencilOption )
+			{
+				m_depthStencilOption = static_cast<DepthStencilOption*>( depthStencilOption );
+			}
+		);
+
+		auto hRequest = GetInterface<IAssetLoader>( )->RequestAsyncLoad( depthStencilOptionKey->AsString( ), onLoadComplete );
+		if ( hRequest->IsLoadingInProgress( ) )
 		{
-			m_depthStencilOption.LoadFromScript( *depthStencilOption );
+			handle->AddPrerequisite( hRequest );
 		}
 	}
 
 	if ( const JSON::Value* rasterizerOptionKey = renderOption.Find( "RS_State" ) )
 	{
-		if ( const JSON::Value* rasterizerOption = rasterizerOptionAsset.Find( rasterizerOptionKey->AsString( ) ) )
+		IAssetLoader::LoadCompletionCallback onLoadComplete;
+		onLoadComplete.BindFunctor(
+			[this]( void* rasterizerOption )
+			{
+				m_rasterizerOption = static_cast<RasterizerOption*>( rasterizerOption );
+			}
+		);
+
+		auto hRequest = GetInterface<IAssetLoader>( )->RequestAsyncLoad( rasterizerOptionKey->AsString( ), onLoadComplete );
+		if ( hRequest->IsLoadingInProgress( ) )
 		{
-			m_rasterizerOption.LoadFromScript( *rasterizerOption );
+			handle->AddPrerequisite( hRequest );
 		}
 	}
 
@@ -277,9 +326,18 @@ void RenderOption::LoadFromScript( const JSON::Value& renderOption, const JSON::
 				continue;
 			}
 
-			if ( const JSON::Value* samplerOption = samplerOptionAsset.Find( samplerOptionKey->AsString( ) ) )
+			IAssetLoader::LoadCompletionCallback onLoadComplete;
+			onLoadComplete.BindFunctor(
+				[this, shaderType]( void* samplerOption )
+				{
+					m_samplerOption[shaderType][0] = static_cast<SamplerOption*>( samplerOption );
+				}
+			);
+
+			auto hRequest = GetInterface<IAssetLoader>( )->RequestAsyncLoad( samplerOptionKey->AsString( ), onLoadComplete );
+			if ( hRequest->IsLoadingInProgress( ) )
 			{
-				m_samplerOption[shaderType].LoadFromScript( *samplerOption );
+				handle->AddPrerequisite( hRequest );
 			}
 		}
 	}

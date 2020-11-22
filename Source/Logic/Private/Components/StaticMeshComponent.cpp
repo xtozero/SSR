@@ -8,7 +8,9 @@
 
 PrimitiveProxy* StaticMeshComponent::CreateProxy( ) const
 {
-	if ( m_pStaticMesh == nullptr || m_pStaticMesh->RenderData( ) == nullptr )
+	if ( m_pStaticMesh == nullptr 
+		|| m_pStaticMesh->RenderData( ) == nullptr
+		|| m_pRenderOption == nullptr )
 	{
 		return nullptr;
 	}
@@ -20,6 +22,14 @@ void StaticMeshComponent::SetStaticMesh( StaticMesh* pStaticMesh )
 {
 	assert( pStaticMesh != nullptr );
 	m_pStaticMesh = pStaticMesh;
+
+	MarkRenderStateDirty( );
+}
+
+void StaticMeshComponent::SetRenderOption( const RenderOption* pRenderOption )
+{
+	assert( pRenderOption != nullptr );
+	m_pRenderOption = pRenderOption;
 
 	MarkRenderStateDirty( );
 }

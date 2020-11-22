@@ -7,11 +7,11 @@
 
 #include <d3dcompiler.h>
 
-void ExtractShaderParameters( const void* byteCodePtr, std::size_t byteCodeSize, ShaderParameterMap& parameterMap )
+void ExtractShaderParameters( const void* byteCode, std::size_t byteCodeSize, ShaderParameterMap& parameterMap )
 {
 	ID3D11ShaderReflection* pReflector = nullptr;
 
-	HRESULT hResult = D3DReflect( byteCodePtr, byteCodeSize, IID_ID3D11ShaderReflection, reinterpret_cast<void**>( &pReflector ) );
+	HRESULT hResult = D3DReflect( byteCode, byteCodeSize, IID_ID3D11ShaderReflection, reinterpret_cast<void**>( &pReflector ) );
 	assert( SUCCEEDED( hResult ) );
 
 	D3D11_SHADER_DESC shaderDesc = {};
@@ -108,25 +108,47 @@ void BuildShaderParameterInfo( const std::map<std::string, ShaderParameter>& par
 
 void CD3D11VertexShader::InitResource( )
 {
-	bool result = SUCCEEDED( D3D11Device( ).CreateVertexShader( m_byteCodePtr, m_byteCodeSize, nullptr, m_pResource.GetAddressOf( ) ) );
+	bool result = SUCCEEDED( D3D11Device( ).CreateVertexShader( m_byteCode, m_byteCodeSize, nullptr, m_pResource.GetAddressOf( ) ) );
 	assert( result );
 }
 
 void CD3D11GeometryShader::InitResource( )
 {
-	bool result = SUCCEEDED( D3D11Device( ).CreateGeometryShader( m_byteCodePtr, m_byteCodeSize, nullptr, m_pResource.GetAddressOf( ) ) );
+	bool result = SUCCEEDED( D3D11Device( ).CreateGeometryShader( m_byteCode, m_byteCodeSize, nullptr, m_pResource.GetAddressOf( ) ) );
 	assert( result );
 }
 
 void CD3D11PixelShader::InitResource( )
 {
-	bool result = SUCCEEDED( D3D11Device( ).CreatePixelShader( m_byteCodePtr, m_byteCodeSize, nullptr, m_pResource.GetAddressOf( ) ) );
+	bool result = SUCCEEDED( D3D11Device( ).CreatePixelShader( m_byteCode, m_byteCodeSize, nullptr, m_pResource.GetAddressOf( ) ) );
 
 	assert( result );
 }
 
 void CD3D11ComputeShader::InitResource( )
 {
-	bool result = SUCCEEDED( D3D11Device( ).CreateComputeShader( m_byteCodePtr, m_byteCodeSize, nullptr, m_pResource.GetAddressOf( ) ) );
+	bool result = SUCCEEDED( D3D11Device( ).CreateComputeShader( m_byteCode, m_byteCodeSize, nullptr, m_pResource.GetAddressOf( ) ) );
 	assert( result );
+}
+
+void D3D11VertexShader::InitResource( )
+{
+	bool result = SUCCEEDED( D3D11Device( ).CreateVertexShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
+	assert( result );
+}
+
+void D3D11VertexShader::Free( )
+{
+	D3D11ShaderBase<ID3D11VertexShader>::Free( );
+}
+
+void D3D11PixelShader::InitResource( )
+{
+	bool result = SUCCEEDED( D3D11Device( ).CreatePixelShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
+	assert( result );
+}
+
+void D3D11PixelShader::Free( )
+{
+	D3D11ShaderBase<ID3D11PixelShader>::Free( );
 }

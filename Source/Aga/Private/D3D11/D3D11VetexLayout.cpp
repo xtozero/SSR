@@ -7,9 +7,9 @@
 
 namespace
 {
-	void ConvertVertexLayoutToInputLayout( D3D11_INPUT_ELEMENT_DESC* iL, const VERTEX_LAYOUT* vL, int numLayout )
+	void ConvertVertexLayoutToInputLayout( D3D11_INPUT_ELEMENT_DESC* iL, const VertexLayoutDescElem* vL, std::size_t numLayout )
 	{
-		for ( int i = 0; i < numLayout; ++i )
+		for ( std::size_t i = 0; i < numLayout; ++i )
 		{
 			iL[i].SemanticName = vL[i].m_name.c_str( );
 			iL[i].SemanticIndex = vL[i].m_index;
@@ -28,7 +28,7 @@ void CD3D11VertexLayout::InitResource( )
 	assert( result );
 }
 
-CD3D11VertexLayout::CD3D11VertexLayout( const RefHandle<CD3D11VertexShader>& vs, const VERTEX_LAYOUT* layout, int layoutSize ) : m_vs( vs ), m_layoutSize( layoutSize )
+CD3D11VertexLayout::CD3D11VertexLayout( const RefHandle<CD3D11VertexShader>& vs, const VertexLayoutDescElem* layout, int layoutSize ) : m_vs( vs ), m_layoutSize( layoutSize )
 {
 	m_imputDesc = new D3D11_INPUT_ELEMENT_DESC[m_layoutSize];
 	ConvertVertexLayoutToInputLayout( m_imputDesc, layout, m_layoutSize );
@@ -37,4 +37,28 @@ CD3D11VertexLayout::CD3D11VertexLayout( const RefHandle<CD3D11VertexShader>& vs,
 CD3D11VertexLayout::~CD3D11VertexLayout( )
 {
 	delete[] m_imputDesc;
+}
+
+void D3D11VertexLayout::Free( )
+{
+	if ( m_pResource )
+	{
+		m_pResource->Release( );
+		m_pResource = nullptr;
+	}
+}
+
+D3D11VertexLayout::D3D11VertexLayout( const D3D11VertexShader* vs, const VertexLayoutDesc& layoutDesc ) : m_layoutDescSize( layoutDesc.Size() )
+{
+	m_inputDesc = new D3D11_INPUT_ELEMENT_DESC[m_layoutDescSize];
+	ConvertVertexLayoutToInputLayout( m_inputDesc, layoutDesc.Desc(), m_layoutDescSize );
+
+	bool result = SUCCEEDED( D3D11Device( ).CreateInputLayout( m_inputDesc, static_cast<UINT>( m_layoutDescSize ), vs->ByteCode( ), vs->ByteCodeSize( ), &m_pResource ) );
+	assert( result );
+}
+
+D3D11VertexLayout::~D3D11VertexLayout( )
+{
+	delete[] m_inputDesc;
+	Free( );
 }

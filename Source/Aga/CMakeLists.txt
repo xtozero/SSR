@@ -61,10 +61,13 @@ set (COMMON_SOURCE
 set (RENDER_RESOURCE_SOURCE
 	"Private/RenderResource/ConstantBuffer.cpp"
 	"Private/RenderResource/IndexBuffer.cpp"
+	"Private/RenderResource/Shader.cpp"
 	"Private/RenderResource/VertexBuffer.cpp"
 	"Public/RenderResource/ConstantBuffer.h"
 	"Public/RenderResource/IndexBuffer.h"
-	"Public/RenderResource/VertexBuffer.h")
+	"Public/RenderResource/Shader.h"
+	"Public/RenderResource/VertexBuffer.h"
+	"Public/RenderResource/VertexInputLayout.h")
 
 source_group("Direct11" FILES ${D3D11_SOURCE})	
 source_group("Direct11\\RenderResource" FILES ${D3D11_RENDER_RESOURCE_SOURCE})

@@ -573,18 +573,6 @@ struct RESOURCE_REGION
 	UINT m_back;
 };
 
-struct VERTEX_LAYOUT
-{
-	VERTEX_LAYOUT( const char* name, int index, RESOURCE_FORMAT format, int slot, bool isInstanceData, int instanceDataStep ) : m_name( name ), m_index( index ), m_format( format ), m_slot( slot ), m_isInstanceData( isInstanceData ), m_instanceDataStep( instanceDataStep ) {}
-
-	std::string m_name;
-	int m_index;
-	RESOURCE_FORMAT m_format;
-	int m_slot;
-	bool m_isInstanceData;
-	int m_instanceDataStep;
-};
-
 struct MULTISAMPLE_OPTION
 {
 	int m_count;

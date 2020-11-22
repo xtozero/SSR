@@ -12,6 +12,7 @@
 void StaticMeshRenderData::AddLODResource( const MeshDescription& meshDescription, const std::vector<Material>& materials )
 {
 	StaticMeshLODResource& lodResource = m_lodResources.emplace_back( );
+	m_vertexLayouts.emplace_back( );
 
 	const std::vector<CXMFLOAT3>& pos = meshDescription.m_positions;
 	const std::vector<CXMFLOAT3>& normal = meshDescription.m_normals;
@@ -73,9 +74,6 @@ void StaticMeshRenderData::AddLODResource( const MeshDescription& meshDescriptio
 			}
 		}
 	}
-
-	StaticMeshVertexLayout& vertexLayout = m_vertexLayouts.emplace_back( );
-	vertexLayout.Initialize( &lodResource );
 }
 
 void StaticMeshRenderData::InitRenderResource( )
@@ -85,8 +83,11 @@ void StaticMeshRenderData::InitRenderResource( )
 	void* indexData = nullptr;
 	std::size_t indexDataByteWidth = 0;
 
-	for ( StaticMeshLODResource& lodResource : m_lodResources )
+	for ( std::size_t i = 0; i < m_lodResources.size(); ++i )
 	{
+		StaticMeshLODResource& lodResource = m_lodResources[i];
+		m_vertexLayouts[i].Initialize( &lodResource );
+
 		std::vector<StaticMeshVertex>& vertexData = lodResource.m_vertexData;
 		lodResource.m_vb.Initialize( vertexData.size( ), vertexData.data( ) );
 
@@ -101,16 +102,16 @@ void StaticMeshRenderData::InitRenderResource( )
 
 			if ( isDWORD )
 			{
-				for ( std::size_t i = 0; i < lodResource.m_indexData.size( ); ++i )
+				for ( std::size_t j = 0; j < lodResource.m_indexData.size( ); ++j )
 				{
-					static_cast<DWORD*>( indexData )[i] = static_cast<DWORD>( lodResource.m_indexData[i] );
+					static_cast<DWORD*>( indexData )[j] = static_cast<DWORD>( lodResource.m_indexData[j] );
 				}
 			}
 			else
 			{
-				for ( std::size_t i = 0; i < lodResource.m_indexData.size( ); ++i )
+				for ( std::size_t j = 0; j < lodResource.m_indexData.size( ); ++j )
 				{
-					static_cast<WORD*>( indexData )[i] = static_cast<WORD>( lodResource.m_indexData[i] );
+					static_cast<WORD*>( indexData )[j] = static_cast<WORD>( lodResource.m_indexData[j] );
 				}
 			}
 		}
@@ -123,34 +124,26 @@ void StaticMeshRenderData::InitRenderResource( )
 
 void StaticMeshVertexLayout::Initialize( const StaticMeshLODResource* lodResource )
 {
-	m_vertexLayoutData.reserve( 3 );
+	m_vertexLayoutDesc.Initialize( 3 );
 
 	// position
-	AddLayout( "POSITION",
-				0,
-				RESOURCE_FORMAT::R32G32B32_FLOAT,
-				0,
-				false,
-				0 );
+	m_vertexLayoutDesc.AddLayout( "POSITION", 0,
+									RESOURCE_FORMAT::R32G32B32_FLOAT,
+									0,
+									false,
+									0 );
 
 	// normal
-	AddLayout( "NORMAL",
-				0,
-				RESOURCE_FORMAT::R32G32B32_FLOAT,
-				0,
-				false,
-				0 );
+	m_vertexLayoutDesc.AddLayout( "NORMAL", 0,
+									RESOURCE_FORMAT::R32G32B32_FLOAT,
+									0,
+									false,
+									0 );
 
 	// texcoord
-	AddLayout( "TEXCOORD",
-				0,
-				RESOURCE_FORMAT::R32G32_FLOAT,
-				0,
-				false,
-				0 );
-}
-
-void StaticMeshVertexLayout::AddLayout( const char* name, int index, RESOURCE_FORMAT format, int slot, bool isInstanceData, int instanceDataStep )
-{
-	m_vertexLayoutData.emplace_back( name, index, format, slot, isInstanceData, instanceDataStep );
+	m_vertexLayoutDesc.AddLayout( "TEXCOORD", 0,
+									RESOURCE_FORMAT::R32G32_FLOAT,
+									0,
+									false,
+									0 );
 }

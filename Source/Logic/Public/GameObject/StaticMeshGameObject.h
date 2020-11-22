@@ -14,6 +14,9 @@ public:
 	StaticMeshGameObject( );
 
 private:
-	bool LoadModelMesh( CGameLogic& gameLogic, std::string assetPath );
-	void StaticMeshGameObject::OnModelLoadFinished( void* model );
+	bool LoadModelMesh( CGameLogic& gameLogic, const std::string& assetPath );
+	bool LoadRenderOption( CGameLogic& gameLogic, const std::string& assetPath );
+	void OnModelLoadFinished( void* model );
+
+	void OnRenderOptionLoadFinished( void* renderOption );
 };

@@ -71,8 +71,6 @@ bool CLightManager::Initialize( CGameLogic& gameLogic )
 		[this, lightAsset]( const char* buffer, unsigned long bufferSize )
 		{
 			LoadProperty( buffer, static_cast<size_t>( bufferSize ) );
-
-			delete[] buffer;
 			GetInterface<IFileSystem>( )->CloseFile( lightAsset );
 		}
 	);

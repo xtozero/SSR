@@ -25,9 +25,9 @@ class CGameLogic;
 class CGameObject;
 class Component;
 class ICollider;
+class RenderOption;
 class SceneComponent;
 class World;
-struct RenderOption;
 
 namespace JSON
 {
@@ -151,7 +151,7 @@ private:
 	std::size_t m_id = std::numeric_limits<std::size_t>::max( );
 	World* m_pWorld = nullptr;
 
-	const RenderOption* m_pRenderOption = nullptr;
+	//const RenderOption* m_pRenderOption = nullptr;
 	//Material m_material = INVALID_MATERIAL;
 	//Material m_overrideMaterial = INVALID_MATERIAL;
 

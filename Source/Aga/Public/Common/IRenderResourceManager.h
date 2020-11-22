@@ -5,7 +5,11 @@
 
 class ConstantBuffer;
 class IndexBuffer;
+class PixelShader;
 class VertexBuffer;
+class VertexLayout;
+class VertexLayoutDesc;
+class VertexShader;
 struct BUFFER_TRAIT;
 struct RESOURCE_INIT_DATA;
 struct RESOURCE_REGION;
@@ -25,11 +29,11 @@ public:
 	virtual VertexBuffer* CreateVertexBuffer( const BUFFER_TRAIT& trait, const void* initData ) = 0;
 	virtual IndexBuffer* CreateIndexBuffer( const BUFFER_TRAIT& trait, const void* initData ) = 0;
 
-	virtual RE_HANDLE CreateVertexLayout( RE_HANDLE vsHandle, const VERTEX_LAYOUT* layoutOrNull, int layoutSize ) = 0;
-	virtual RE_HANDLE CreateVertexShader( const void* byteCodePtr, std::size_t byteCodeSize ) = 0;
-	virtual RE_HANDLE CreateGeometryShader( const void* byteCodePtr, std::size_t byteCodeSize ) = 0;
-	virtual RE_HANDLE CreatePixelShader( const void* byteCodePtr, std::size_t byteCodeSize ) = 0;
-	virtual RE_HANDLE CreateComputeShader( const void* byteCodePtr, std::size_t byteCodeSize ) = 0;
+	virtual VertexLayout* FindAndCreateVertexLayout( const VertexShader* vs, const VertexLayoutDesc& layoutDesc ) = 0;
+	virtual RE_HANDLE CreateGeometryShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
+	virtual RE_HANDLE CreateComputeShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
+	virtual VertexShader* CreateVertexShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
+	virtual PixelShader* CreatePixelShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
 
 	virtual RE_HANDLE CreateRenderTarget( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) = 0;
 	virtual RE_HANDLE CreateDepthStencil( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) = 0;

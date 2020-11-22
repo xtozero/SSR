@@ -151,8 +151,6 @@ bool UICMap::LoadConfig( const char* fileName )
 		[this, uicAsset]( const char* buffer, unsigned long bufferSize )
 		{
 			LoadKeyCode( buffer, static_cast<size_t>( bufferSize ) );
-
-			delete[] buffer;
 			GetInterface<IFileSystem>( )->CloseFile( uicAsset );
 		}
 	);

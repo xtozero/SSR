@@ -86,6 +86,7 @@ EngineFileSystem::EngineFileSystem( )
 					o->m_callback( o->m_buffer, o->m_bufferSize );
 				}
 
+				delete[] o->m_buffer;
 				m_fileSystem.CleanUpIORequest( o );
 			} );
 		}

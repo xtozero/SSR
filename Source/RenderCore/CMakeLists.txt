@@ -29,12 +29,8 @@ set (RENDER_UTIL
 	"Public/Renderer/RenderOutputManager.h")
 	
 set (GRAPHICS_RESOURCE_SOURCE
-	"Private/GraphicsResource/RenderOption.cpp"
-	"Private/GraphicsResource/RenderOptionManager.cpp"
 	"Public/GraphicsResource/Buffer.h"
 	"Public/GraphicsResource/DrawSnapshot.h"
-	"Public/GraphicsResource/RenderOption.h"
-	"Public/GraphicsResource/RenderOptionManager.h"
 	"Public/GraphicsResource/ShaderBindings.h"
 	"Public/GraphicsResource/VertexInputStream.h")
 	
