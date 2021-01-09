@@ -51,6 +51,6 @@ fxc /Fo vsDrawBackfaceDepth.cso				/Zi /T vs_5_0 /I %IncludePath% /E main Privat
 fxc /Fo vsDrawUI.cso						/Zi /T vs_5_0 /I %IncludePath% /E vsMain Private/drawUI.fx
 fxc /Fo vsDebugOverlay.cso					/Zi /T vs_5_0 /I %IncludePath% /E vsMain Private/debugOverlay.fx
 fxc /Fo vsDrawAtmosphere.cso				/Zi /T vs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/vsDrawAtmosphere.fx
-copy /Y "*.cso" "..\..\Program\Shaders\*.cso"
+copy /Y "*.cso" "..\..\RawAssets\Shaders\*.cso"
 DEL "*.cso"
 pause>nul

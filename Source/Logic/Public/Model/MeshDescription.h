@@ -25,9 +25,9 @@ struct MeshVertexInstance
 		return lhs.m_positionID < rhs.m_positionID;
 	}
 
-	int m_positionID;
-	int m_normalID;
-	int m_texCoordID;
+	int m_positionID = -1;
+	int m_normalID = -1;
+	int m_texCoordID = -1;
 };
 
 struct MeshTriangle

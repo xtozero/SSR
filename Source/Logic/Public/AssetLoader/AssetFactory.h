@@ -16,16 +16,22 @@ public:
 	}
 
 	template <typename T>
-	void RegisterAsset( const std::string& typeName )
+	void RegisterAsset( )
 	{
-		Delegate<IAsyncLoadableAsset*> func;
-		func.BindFunction( &NewAsset<T> );
-		m_createfunctions.emplace( typeName, std::move( func ) );
+		if ( T::ID == -1 )
+		{
+			T::ID = m_lastAssetID++;
+
+			Delegate<IAsyncLoadableAsset*> func;
+			func.BindFunction( &NewAsset<T> );
+
+			m_createfunctions.emplace( T::ID, std::move( func ) );
+		}
 	}
 
-	IAsyncLoadableAsset* CreateAsset( const std::string& typeName )
+	IAsyncLoadableAsset* CreateAsset( int assetID )
 	{
-		auto found = m_createfunctions.find( typeName );
+		auto found = m_createfunctions.find( assetID );
 		if ( found != m_createfunctions.end( ) )
 		{
 			return found->second( );
@@ -35,7 +41,8 @@ public:
 	}
 
 private:
-	std::map<std::string, Delegate<IAsyncLoadableAsset*>> m_createfunctions;
+	std::map<int, Delegate<IAsyncLoadableAsset*>> m_createfunctions;
+	int m_lastAssetID = 0;
 };
 
 template <typename T>
@@ -48,14 +55,16 @@ template <typename T>
 class AssetFactoryRegister
 {
 public:
-	AssetFactoryRegister( const std::string& typeName )
+	AssetFactoryRegister( )
 	{
-		AssetFactory::GetInstance( ).RegisterAsset<T>( typeName );
+		AssetFactory::GetInstance( ).RegisterAsset<T>( );
 	}
 };
 
 #define DECLARE_ASSET( type ) \
-	static AssetFactoryRegister<type> type##Register( #type );
+public : \
+	LOGIC_DLL static int ID
 
-#define DECLARE_NAMED_ASSET( type, name ) \
-	static AssetFactoryRegister<type> type##Register( #name );
+#define REGISTER_ASSET( type ) \
+	int type::ID = -1; \
+	const AssetFactoryRegister<type> type##Register;

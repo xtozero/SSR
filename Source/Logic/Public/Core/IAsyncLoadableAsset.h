@@ -1,6 +1,8 @@
 #pragma once
 
+#include "Archive.h"
 #include "AssetLoader/AssetLoader.h"
+#include "common.h"
 
 namespace JSON
 {
@@ -11,6 +13,9 @@ class IAsyncLoadableAsset
 {
 public:
 	virtual ~IAsyncLoadableAsset( ) = default;
-	virtual void LoadFromAsset( const JSON::Value& renderOption, const AssetLoaderSharedHandle& handle ) = 0;
-	virtual void LoadFromAsset( const char* asset, unsigned long assetSize ) = 0;
+	virtual void Serialize( Archive& ar ) = 0;
+};
+
+class AsyncLoadableAsset : public IAsyncLoadableAsset
+{
 };

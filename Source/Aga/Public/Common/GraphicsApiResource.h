@@ -632,6 +632,14 @@ struct STENCIL_OP_TRAIT
 	STENCIL_OP m_depthFailOp;
 	STENCIL_OP m_passOp;
 	COMPARISON_FUNC m_func;
+
+	friend bool operator==( const STENCIL_OP_TRAIT& lhs, const STENCIL_OP_TRAIT& rhs )
+	{
+		return lhs.m_failOp == rhs.m_failOp
+			&& lhs.m_depthFailOp == rhs.m_depthFailOp
+			&& lhs.m_passOp == rhs.m_passOp
+			&& lhs.m_func == rhs.m_func;
+	}
 };
 
 struct DEPTH_STENCIL_STATE_TRAIT

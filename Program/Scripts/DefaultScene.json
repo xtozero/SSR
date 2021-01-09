@@ -13,15 +13,15 @@
 		{
 			"Object": {
 				"Class": "skybox",
-				"RenderOption": "./Asset/RenderOption/RO_SkyBox.asset"
+				"RenderOption": "./Assets/RenderOptions/RO_SkyBox.asset"
 			}
 		},
 		{
 			"Object": {
 				"Class": "static_mesh",
 				"Name": "ground",
-				"Model": "./Models/Obj/plane.obj",
-				"RenderOption": "./Asset/RenderOption/RO_Reflectable.asset",
+				"Model": "./Assets/Models/Obj/plane.asset",
+				"RenderOption": "./Assets/RenderOptions/RO_Reflectable.asset",
 				"Position": [ 0, -10, 0 ],
 				"Reflectable": 1,
 				"ColliderType": "Box"
@@ -31,8 +31,8 @@
 			"Object": {
 				"Class": "static_mesh",
 				"Name": "sphere",
-				"Model": "./Models/Obj/shape_sphere.obj",
-				"RenderOption": "./Asset/RenderOption/RO_Default.asset",
+				"Model": "./Assets/Models/Obj/shape_sphere.asset",
+				"RenderOption": "./Assets/RenderOptions/RO_Default.asset",
 				"Position": [ -26.409266, -4.787085, 0.000000 ],
 				"Scale": [ 10, 10, 10 ],
 				"ColliderType": "Sphere",
@@ -43,8 +43,8 @@
 			"Object": {
 				"Class": "static_mesh",
 				"Name": "cone",
-				"Model": "./Models/Obj/cone.obj",
-				"RenderOption": "./Asset/RenderOption/RO_Default.asset",
+				"Model": "./Assets/Models/Obj/cone.asset",
+				"RenderOption": "./Assets/RenderOptions/RO_Default.asset",
 				"Position": [ -13.516332, -4.475936, 0.000000 ],
 				"Scale": [ 10, 10, 10 ],
 				"ColliderType": "Box"
@@ -54,8 +54,8 @@
 			"Object": {
 				"Class": "static_mesh",
 				"Name": "cylinder",
-				"Model": "./Models/Obj/cylinder.obj",
-				"RenderOption": "./Asset/RenderOption/RO_Default.asset",
+				"Model": "./Assets/Models/Obj/cylinder.asset",
+				"RenderOption": "./Assets/RenderOptions/RO_Default.asset",
 				"Position": [ -1.270190, -4.746570, 0.000000 ],
 				"Scale": [ 10, 10, 10 ],
 				"ColliderType": "Box"
@@ -65,8 +65,8 @@
 			"Object": {
 				"Class": "static_mesh",
 				"Name": "torus",
-				"Model": "./Models/Obj/torus.obj",
-				"RenderOption": "./Asset/RenderOption/RO_Default.asset",
+				"Model": "./Assets/Models/Obj/torus.asset",
+				"RenderOption": "./Assets/RenderOptions/RO_Default.asset",
 				"Position": [ 11.517221, -8.738405, 0.000000 ],
 				"Scale": [ 10, 10, 10 ],
 				"ColliderType": "Box"
@@ -76,8 +76,8 @@
 			"Object": {
 				"Class": "static_mesh",
 				"Name": "dice",
-				"Model": "./Models/Obj/dice.obj",
-				"RenderOption": "./Asset/RenderOption/RO_Default.asset",
+				"Model": "./Assets/Models/Obj/dice.asset",
+				"RenderOption": "./Assets/RenderOptions/RO_Default.asset",
 				"Position": [ 25.928568, -4.814196, 0.000000 ],
 				"Scale": [ 10, 10, 10 ],
 				"ColliderType": "Box",
@@ -88,7 +88,7 @@
 			"Object": {
 				"Class": "displaySRVHelper",
 				"Name": "depthStencilViewer",
-				"RenderOption": "./Asset/RenderOption/RO_DisplayDepth.asset",
+				"RenderOption": "./Assets/RenderOptions/RO_DisplayDepth.asset",
 				"Position": [ 150, 115, 0 ],
 				"TextureName": "DebugDepthStencil",
 				"Width": 300,
@@ -99,7 +99,7 @@
 			"Object": {
 				"Class": "displaySRVHelper",
 				"Name": "renderTargetViewer",
-				"RenderOption": "./Asset/RenderOption/RO_DisplayRenderTarget.asset",
+				"RenderOption": "./Assets/RenderOptions/RO_DisplayRenderTarget.asset",
 				"Position": [ 150, 115, 0 ],
 				"TextureName": "DuplicateFrameBuffer",
 				"Width": 300,
@@ -110,7 +110,7 @@
 			"Object": {
 				"Class": "displaySRVHelper",
 				"Name": "shadowmapViewer",
-				"RenderOption": "./Asset/RenderOption/RO_DisplayRenderTarget.asset",
+				"RenderOption": "./Assets/RenderOptions/RO_DisplayRenderTarget.asset",
 				"Position": [ 150, 115, 0 ],
 				"TextureName": "DebugShadowMap",
 				"Width": 300,

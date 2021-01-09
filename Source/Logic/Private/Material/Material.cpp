@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "Material/Material.h"
 
+#include "Archive.h"
+#include "ArchiveUtility.h"
+
 #include <cassert>
 
 MaterialPropertyStorage::MaterialPropertyStorage( MaterialPropertyStorage&& other )
@@ -30,25 +33,55 @@ void MaterialProperty::Clone( MaterialPropertyStorage& storage ) const
 int MaterialProperty::AsInteger( ) const
 {
 	assert( m_type == MaterialPropertyType::TYPE_INTEGER );
-	return *( static_cast<int*>( m_storage.GetRaw( ) ) );
+	return *static_cast<int*>( m_storage.GetRaw( ) );
 }
 
 float MaterialProperty::AsFloat( ) const
 {
 	assert( m_type == MaterialPropertyType::TYPE_FLOAT );
-	return *( static_cast<float*>( m_storage.GetRaw( ) ) );
+	return *static_cast<float*>( m_storage.GetRaw( ) );
 }
 
 const CXMFLOAT4& MaterialProperty::AsVector( ) const
 {
 	assert( m_type == MaterialPropertyType::TYPE_VECTOR );
-	return *( static_cast<CXMFLOAT4*>( m_storage.GetRaw( ) ) );
+	return *static_cast<CXMFLOAT4*>( m_storage.GetRaw( ) );
 }
 
 const char* MaterialProperty::AsString( ) const
 {
 	assert( m_type == MaterialPropertyType::TYPE_STRING );
 	return static_cast<const char*>( m_storage.GetRaw( ) );
+}
+
+void MaterialProperty::Serialize( Archive& ar )
+{
+	std::size_t storageSize = m_storage.Size( );
+	ar << storageSize;
+	ar << m_type;
+	
+	if ( ar.IsWriteMode( ) == false )
+	{
+		m_storage.Allocate( storageSize );
+	}
+
+	switch ( m_type )
+	{
+	case MaterialPropertyType::TYPE_INTEGER:
+		ar << *static_cast<int*>( m_storage.GetRaw( ) );
+		break;
+	case MaterialPropertyType::TYPE_FLOAT:
+		ar << *static_cast<float*>( m_storage.GetRaw( ) );
+		break;
+	case MaterialPropertyType::TYPE_VECTOR:
+		ar << *static_cast<CXMFLOAT4*>( m_storage.GetRaw( ) );
+		break;
+	case MaterialPropertyType::TYPE_STRING:
+		ar << static_cast<char*>( m_storage.GetRaw( ) );
+		break;
+	default:
+		break;
+	}
 }
 
 MaterialProperty::MaterialProperty( int value )
@@ -60,7 +93,9 @@ MaterialProperty & MaterialProperty::operator=( int value )
 {
 	m_type = MaterialPropertyType::TYPE_INTEGER;
 	m_storage.Allocate( sizeof( value ) );
+
 	*static_cast<int*>( m_storage.GetRaw( ) ) = value;
+
 	return *this;
 }
 
@@ -73,7 +108,9 @@ MaterialProperty& MaterialProperty::operator=( float value )
 {
 	m_type = MaterialPropertyType::TYPE_FLOAT;
 	m_storage.Allocate( sizeof( value ) );
+
 	*static_cast<float*>( m_storage.GetRaw( ) ) = value;
+
 	return *this;
 }
 
@@ -86,7 +123,11 @@ MaterialProperty& MaterialProperty::operator=( const CXMFLOAT4& value )
 {
 	m_type = MaterialPropertyType::TYPE_VECTOR;
 	m_storage.Allocate( sizeof( value ) );
-	*static_cast<CXMFLOAT4*>( m_storage.GetRaw( ) ) = value;
+
+	auto& vector = *static_cast<CXMFLOAT4*>( m_storage.GetRaw( ) );
+	new ( &vector )CXMFLOAT4( );
+
+	vector = value;
 	return *this;
 }
 
@@ -99,13 +140,40 @@ MaterialProperty& MaterialProperty::operator=( const char* value )
 {
 	m_type = MaterialPropertyType::TYPE_STRING;
 	m_storage.Allocate( std::strlen( value ) + 1 );
+
 	std::strcpy( static_cast<char*>( m_storage.GetRaw( ) ), value );
+
 	return *this;
+}
+
+void MaterialProperty::Destroy( )
+{
+	switch ( m_type )
+	{
+	case MaterialProperty::MaterialPropertyType::TYPE_UNKNOWN:
+		[[fallthrough]];
+	case MaterialProperty::MaterialPropertyType::TYPE_INTEGER:
+		// [[fallthrough]];
+	case MaterialProperty::MaterialPropertyType::TYPE_FLOAT:
+		break;
+	case MaterialProperty::MaterialPropertyType::TYPE_VECTOR:
+		{
+			auto& vector = *static_cast<CXMFLOAT4*>( m_storage.GetRaw( ) );
+			vector.~CXMFLOAT4( );
+		}
+		break;
+	case MaterialProperty::MaterialPropertyType::TYPE_STRING:
+		break;
+	default:
+		break;
+	}
+
+	m_storage.Deallocate( );
 }
 
 MaterialProperty::~MaterialProperty( )
 {
-	m_storage.Deallocate( );
+	Destroy( );
 }
 
 MaterialProperty::MaterialProperty( const MaterialProperty& other )
@@ -123,7 +191,7 @@ MaterialProperty& MaterialProperty::operator=( const MaterialProperty& other )
 		}
 		else
 		{
-			m_storage.Deallocate( );
+			Destroy( );
 		}
 
 		m_type = other.m_type;
@@ -145,6 +213,49 @@ MaterialProperty& MaterialProperty::operator=( MaterialProperty&& other )
 		m_type = other.m_type;
 	}
 	return *this;
+}
+
+Archive& operator<<( Archive& ar, MaterialProperty& property )
+{
+	property.Serialize( ar );
+	return ar;
+}
+
+REGISTER_ASSET( Material );
+void Material::Serialize( Archive& ar )
+{
+	if ( ar.IsWriteMode( ) )
+	{
+		ar << ID;
+	}
+
+	if ( ar.IsWriteMode( ) )
+	{
+		ar << m_properties.size( );
+		for ( auto& p : m_properties )
+		{
+			const std::string& propertyName = p.first;
+			MaterialProperty& property = p.second;
+
+			ar << propertyName;
+			ar << property;
+		}
+	}
+	else
+	{
+		std::size_t size = 0;
+		ar << size;
+		for ( std::size_t i = 0; i < size; ++i )
+		{
+			std::string propertyName;
+			MaterialProperty property;
+
+			ar << propertyName;
+			ar << property;
+
+			m_properties.emplace( std::move( propertyName ), std::move( property ) );
+		}
+	}
 }
 
 void Material::AddProperty( const char* key, int value )
@@ -186,7 +297,7 @@ void Material::AddProperty( const char* key, const CXMFLOAT4& value )
 	}
 }
 
-void Material::AddProperty( const char * key, const char * value )
+void Material::AddProperty( const char* key, const char* value )
 {
 	auto found = m_properties.find( key );
 	if ( found == m_properties.end( ) )

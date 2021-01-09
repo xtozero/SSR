@@ -35,12 +35,11 @@ bool StaticMeshGameObject::LoadModelMesh( CGameLogic& gameLogic, const std::stri
 {
 	if ( assetPath.length( ) > 0 )
 	{
-		CModelManager& modelManager = gameLogic.GetModelManager( );
 		// ¸ðµ¨·Îµå
-		CModelManager::LoadCompletionCallback onLoadComplete;
+		IAssetLoader::LoadCompletionCallback onLoadComplete;
 		onLoadComplete.BindMemberFunction( this, &StaticMeshGameObject::OnModelLoadFinished );
 
-		ModelLoaderSharedHandle handle = modelManager.RequestAsyncLoad( assetPath.c_str( ), onLoadComplete );
+		AssetLoaderSharedHandle handle = GetInterface<IAssetLoader>( )->RequestAsyncLoad( assetPath, onLoadComplete );
 
 		return handle->IsLoadingInProgress( ) || handle->IsLoadComplete( );
 	}

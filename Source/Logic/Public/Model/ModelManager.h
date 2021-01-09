@@ -5,7 +5,6 @@
 #include "MeshDescription.h"
 #include "Model/BaseMesh.h"
 #include "ModelBuilder.h"
-#include "ObjMeshLoader.h"
 #include "PlyMeshLoader.h"
 #include "Scene/INotifyGraphicsDevice.h"
 #include "Util.h"
@@ -33,11 +32,9 @@ private:
 	std::map<std::string, std::unique_ptr<BaseMesh>> m_modelList;
 
 	CPlyMeshLoader m_plyLoader;
-	CObjMeshLoader m_objLoader;
 
 	std::map<std::string, IModelLoader&> m_meshLoaders = {
-		{ std::string( "ply" ), m_plyLoader },
-		{ std::string( "obj" ), m_objLoader }
+		{ std::string( "ply" ), m_plyLoader }
 	};
 
 	CModelBuilder m_meshBuilder = CModelBuilder( *this );

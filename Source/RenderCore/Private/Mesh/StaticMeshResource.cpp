@@ -3,77 +3,98 @@
 
 #include "../../Logic/Public/Material/Material.h"
 #include "../../Logic/Public/Model/MeshDescription.h"
+#include "Archive.h"
 #include "Math/CXMFloat.h"
 #include "MultiThread/EngineTaskScheduler.h"
 
 #include <cassert>
 #include <vector>
 
-void StaticMeshRenderData::AddLODResource( const MeshDescription& meshDescription, const std::vector<Material>& materials )
+void StaticMeshVertex::Serialize( Archive& ar )
 {
-	StaticMeshLODResource& lodResource = m_lodResources.emplace_back( );
-	m_vertexLayouts.emplace_back( );
+	ar << m_position.x << m_position.y << m_position.z
+		<< m_normal.x << m_normal.y << m_normal.z
+		<< m_texcoord.x << m_texcoord.y;
+}
 
-	const std::vector<CXMFLOAT3>& pos = meshDescription.m_positions;
-	const std::vector<CXMFLOAT3>& normal = meshDescription.m_normals;
-	const std::vector<CXMFLOAT2>& texCoord = meshDescription.m_texCoords;
-	const std::vector<MeshVertexInstance>& vertexInstances = meshDescription.m_vertexInstances;
+Archive& operator<<( Archive& ar, StaticMeshVertex& vertex )
+{
+	vertex.Serialize( ar );
+	return ar;
+}
 
-	auto& vertices = lodResource.m_vertexData;
-	vertices.reserve( vertexInstances.size( ) );
+void StaticMeshSection::Serialize( Archive& ar )
+{
+	ar << m_startLocation << m_count << m_materialIndex;
+}
 
-	std::size_t normalCount = normal.size( );
-	std::size_t texcoordCount = texCoord.size( );
+Archive& operator<<( Archive& ar, StaticMeshSection& section )
+{
+	section.Serialize( ar );
+	return ar;
+}
 
-	for ( std::size_t i = 0; i < vertexInstances.size( ); ++i )
+void StaticMeshLODResource::Serialize( Archive& ar )
+{
+	if ( ar.IsWriteMode( ) )
 	{
-		const MeshVertexInstance& vertexInstance = vertexInstances[i];
-
-		StaticMeshVertex& v = vertices.emplace_back( );
-		v.m_posision = pos[vertexInstance.m_positionID];
-		v.m_normal = ( vertexInstance.m_normalID < normalCount ) ? normal[vertexInstance.m_normalID] : CXMFLOAT3( 0.f, 0.f, 0.f );
-		v.m_texcoord = ( vertexInstance.m_texCoordID < texcoordCount ) ? texCoord[vertexInstance.m_texCoordID] : CXMFLOAT2( 0.f, 0.f );
+		ar << m_vertexData.size( );
+	}
+	else
+	{
+		std::size_t size = 0;
+		ar << size;
+		m_vertexData.resize( size );
 	}
 
-	const std::vector<MeshTriangle>& triangles = meshDescription.m_triangles;
-	const std::vector<MeshPolygon>& polygons = meshDescription.m_polygons;
-
-	std::size_t indexCount = 0;
-	for ( const MeshPolygon& polygon : polygons )
+	for ( auto& vertex : m_vertexData )
 	{
-		indexCount += polygon.m_triangleID.size( ) * 3;
+		ar << vertex;
 	}
 
-	auto& indices = lodResource.m_indexData;
-	indices.reserve( indexCount );
-
-	for ( std::size_t i = 0; i < polygons.size(); ++i )
+	if ( ar.IsWriteMode( ) )
 	{
-		const MeshPolygon& polygon = polygons[i];
-
-		StaticMeshSection& section = lodResource.m_sections.emplace_back( );
-		section.m_startLocation = indices.size( );
-
-		for ( std::size_t triangleID : polygon.m_triangleID )
-		{
-			for ( std::size_t vertexInstanceID : triangles[triangleID].m_vertexInstanceID )
-			{
-				indices.push_back( vertexInstanceID );
-			}
-		}
-
-		section.m_count = indices.size( ) - section.m_startLocation;
-
-		const std::string& polygonMaterialName = meshDescription.m_polygonMaterialName[i];
-		for ( std::size_t j = 0; j < materials.size(); ++j )
-		{
-			if ( polygonMaterialName == materials[j].Name( ) )
-			{
-				section.m_materialIndex = j;
-				break;
-			}
-		}
+		ar << m_indexData.size( );
 	}
+	else
+	{
+		std::size_t size = 0;
+		ar << size;
+		m_indexData.resize( size );
+	}
+
+	for ( auto& index : m_indexData )
+	{
+		ar << index;
+	}
+
+	if ( ar.IsWriteMode( ) )
+	{
+		ar << m_sections.size( );
+	}
+	else
+	{
+		std::size_t size = 0;
+		ar << size;
+		m_sections.resize( size );
+	}
+
+	for ( auto& section : m_sections )
+	{
+		ar << section;
+	}
+}
+
+Archive& operator<<( Archive& ar, StaticMeshLODResource& lodResource )
+{
+	lodResource.Serialize( ar );
+	return ar;
+}
+
+void StaticMeshRenderData::AllocateLODResources( std::size_t numLOD )
+{
+	m_lodResources.resize( numLOD );
+	m_vertexLayouts.resize( numLOD );
 }
 
 void StaticMeshRenderData::InitRenderResource( )
@@ -120,6 +141,25 @@ void StaticMeshRenderData::InitRenderResource( )
 	}
 
 	delete[] indexData;
+}
+
+void StaticMeshRenderData::Serialize( Archive& ar )
+{
+	if ( ar.IsWriteMode( ) )
+	{
+		ar << m_lodResources.size( );
+	}
+	else
+	{
+		std::size_t size = 0;
+		ar << size;
+		m_lodResources.resize( size );
+	}
+
+	for ( auto& lodResource : m_lodResources )
+	{
+		ar << lodResource;
+	}
 }
 
 void StaticMeshVertexLayout::Initialize( const StaticMeshLODResource* lodResource )

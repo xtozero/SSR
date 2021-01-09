@@ -66,7 +66,6 @@ set (MODEL
 	"Private/Model/DebugMesh.cpp"
 	"Private/Model/ModelBuilder.cpp"
 	"Private/Model/ModelManager.cpp"
-	"Private/Model/ObjMeshLoader.cpp"
 	"Private/Model/PlyMesh.cpp"
 	"Private/Model/PlyMeshLoader.cpp"
 	"Public/Model/BaseMesh.h"
@@ -79,7 +78,6 @@ set (MODEL
 	"Public/Model/MeshDescription.h"
 	"Public/Model/ModelBuilder.h"
 	"Public/Model/ModelManager.h"
-	"Public/Model/ObjMeshLoader.h"
 	"Public/Model/PlyMesh.h"
 	"Public/Model/PlyMeshLoader.h"
 	"Public/Model/Surface.h")

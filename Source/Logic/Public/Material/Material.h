@@ -1,9 +1,15 @@
 #pragma once
 
+#include "AssetLoader/AssetFactory.h"
+#include "common.h"
+#include "Core/IAsyncLoadableAsset.h"
 #include "Math/CXMFloat.h"
 
+#include <filesystem>
 #include <map>
 #include <string>
+
+class Archive;
 
 class MaterialPropertyStorage
 {
@@ -30,6 +36,11 @@ public:
 		std::free( m_memory );
 		m_memory = nullptr;
 		m_size = 0;
+	}
+
+	std::size_t Size( ) const
+	{
+		return m_size;
 	}
 
 	MaterialPropertyStorage( ) = default;
@@ -63,8 +74,10 @@ public:
 	const CXMFLOAT4& AsVector( ) const;
 	const char* AsString( ) const;
 
+	void Serialize( Archive& ar );
+
 	MaterialProperty( ) = default;
-	~MaterialProperty( );
+	LOGIC_DLL ~MaterialProperty( );
 	MaterialProperty( const MaterialProperty& other );
 	MaterialProperty& operator=( const MaterialProperty& other );
 	MaterialProperty( MaterialProperty&& other );
@@ -80,6 +93,8 @@ public:
 	MaterialProperty& operator=( const char* value );
 
 private:
+	void Destroy( );
+
 	enum class MaterialPropertyType
 	{
 		TYPE_UNKNOWN = -1,
@@ -93,13 +108,19 @@ private:
 	MaterialPropertyType m_type;
 };
 
-class Material
+class Material : public AsyncLoadableAsset
 {
+	DECLARE_ASSET( Material );
 public:
-	void AddProperty( const char* key, int value );
-	void AddProperty( const char* key, float value );
-	void AddProperty( const char* key, const CXMFLOAT4& value );
-	void AddProperty( const char* key, const char* value );
+	LOGIC_DLL virtual void Serialize( Archive& ar ) override;
+
+	const std::filesystem::path& Path( ) const { return m_path; }
+	void SetPath( const std::filesystem::path& path ) { m_path = path; }
+
+	LOGIC_DLL void AddProperty( const char* key, int value );
+	LOGIC_DLL void AddProperty( const char* key, float value );
+	LOGIC_DLL void AddProperty( const char* key, const CXMFLOAT4& value );
+	LOGIC_DLL void AddProperty( const char* key, const char* value );
 
 	int AsInteger( const char* key ) const;
 	float AsFloat( const char* key ) const;
@@ -108,16 +129,18 @@ public:
 
 	const MaterialProperty* HasProperty( const char* key ) const;
 
-	const std::string& Name( ) const { return m_name; };
+	const std::string& Name( ) const { return m_name; }
 
-	Material( const char* name ) : m_name( name ) {}
-	~Material( ) = default;
+	LOGIC_DLL Material( const char* name ) : m_name( name ) {}
+	LOGIC_DLL Material( ) = default;
 	Material( const Material& ) = default;
 	Material& operator=( const Material& ) = default;
 	Material( Material&& ) = default;
 	Material& operator=( Material&& ) = default;
 
 private:
+	std::filesystem::path m_path;
+
 	std::string m_name;
 	std::map<std::string, MaterialProperty> m_properties;
 };

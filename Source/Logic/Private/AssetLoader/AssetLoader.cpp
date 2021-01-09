@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "AssetLoader/AssetLoader.h"
 
+#include "Archive.h"
 #include "Core/InterfaceFactories.h"
 #include "FileSystem/EngineFileSystem.h"
 #include "Rendering/RenderOption.h"
@@ -27,7 +28,8 @@ private:
 
 	std::unordered_map<std::string, std::vector<AssetLoaderSharedHandle>> m_waitingHandle;
 	std::unordered_map<std::string, std::shared_ptr<IAsyncLoadableAsset>> m_assets;
-	std::unordered_map<std::string, void*> m_loaders;
+
+	AssetLoaderSharedHandle m_dependantAssetHandle = nullptr;
 };
 
 AssetLoaderSharedHandle AssetLoader::RequestAsyncLoad( const std::string& assetPath, LoadCompletionCallback completionCallback )
@@ -67,6 +69,11 @@ AssetLoaderSharedHandle AssetLoader::RequestAsyncLoad( const std::string& assetP
 
 	AssetLoaderSharedHandle handle = LoadAsset( assetPath.c_str(), onRenderOptionLoaded );
 
+	if ( ( m_dependantAssetHandle != nullptr ) && handle->IsLoadingInProgress( ) )
+	{
+		m_dependantAssetHandle->AddPrerequisite( handle );
+	}
+
 	assert( handle->IsLoadingInProgress( ) );
 	return handle;
 }
@@ -92,62 +99,33 @@ AssetLoaderSharedHandle AssetLoader::LoadAsset( const char* assetPath, LoadCompl
 	char* asset = new char[assetSize];
 
 	IFileSystem::IOCompletionCallback AssetProcessing;
-	if ( strstr( assetPath, ".asset" ) )
-	{
-		AssetProcessing.BindFunctor(
-			[this, handle, hAsset]( const char* buffer, unsigned long bufferSize )
-			{
-				JSON::Value assetJson;
-				JSON::Reader reader;
-				if ( reader.Parse( buffer, bufferSize, assetJson ) == false )
-				{
-					__debugbreak( );
-				}
-
-				if ( const JSON::Value* pType = assetJson.Find( "Type" ) )
-				{
-					IAsyncLoadableAsset* newAsset = AssetFactory::GetInstance( ).CreateAsset( pType->AsString( ) );
-
-					assert( newAsset != nullptr );
-
-					if ( newAsset )
-					{
-						newAsset->LoadFromAsset( assetJson, handle );
-						handle->SetLoadedAsset( newAsset );
-					}
-				}
-
-				handle->ExecuteCompletionCallback( );
-				GetInterface<IFileSystem>( )->CloseFile( hAsset );
-			}
-		);
-	}
-	else if ( const char* assetTypeStart = strrchr( assetPath, '/' ) )
-	{	
-		if ( const char* assetTypeEnd = strchr( assetTypeStart, '_' ) )
+	AssetProcessing.BindFunctor(
+		[this, handle, hAsset, path = std::string( assetPath )]( const char* buffer, unsigned long bufferSize )
 		{
-			std::string type( assetTypeStart + 1, assetTypeEnd );
+			m_dependantAssetHandle = handle;
 
-			AssetProcessing.BindFunctor(
-				[this, handle, hAsset, type]( const char* buffer, unsigned long bufferSize )
-				{
-					IAsyncLoadableAsset* newAsset = AssetFactory::GetInstance( ).CreateAsset( type );
+			Archive ar( buffer, bufferSize );
+			int assetID = -1;
 
-					assert( newAsset != nullptr );
+			ar << assetID;
 
-					if ( newAsset )
-					{
-						newAsset->LoadFromAsset( buffer, bufferSize );
-						handle->SetLoadedAsset( newAsset );
-					}
+			IAsyncLoadableAsset* newAsset = AssetFactory::GetInstance( ).CreateAsset( assetID );
+			if ( newAsset != nullptr )
+			{
+				newAsset->Serialize( ar );
+				handle->SetLoadedAsset( newAsset );
+				handle->ExecuteCompletionCallback( );
+			}
+			else // Fail...
+			{
 
-					handle->ExecuteCompletionCallback( );
-					GetInterface<IFileSystem>( )->CloseFile( hAsset );
-				}
-			);
+			}
+
+			m_dependantAssetHandle = nullptr;
+
+			GetInterface<IFileSystem>( )->CloseFile( hAsset );
 		}
-	}
-	
+	);
 
 	if ( fileSystem->ReadAsync( hAsset, asset, assetSize, &AssetProcessing ) == false )
 	{

@@ -4,22 +4,20 @@
 #include "Core/IAsyncLoadableAsset.h"
 #include "Shader.h"
 
-class VertexShaderAsset : public IAsyncLoadableAsset
+class VertexShaderAsset : public AsyncLoadableAsset
 {
+	DECLARE_ASSET( VertexShaderAsset );
 public:
-	virtual void LoadFromAsset( [[maybe_unused]] const JSON::Value& renderOption, [[maybe_unused]] const AssetLoaderSharedHandle& handle ) override {}
-	virtual void LoadFromAsset( const char* asset, unsigned long assetSize ) override;
+	virtual void Serialize( Archive& ar ) override;
 
 	RefHandle<VertexShader> m_shader;
 };
-DECLARE_NAMED_ASSET( VertexShaderAsset, VS );
 
-class PixelShaderAsset : public IAsyncLoadableAsset
+class PixelShaderAsset : public AsyncLoadableAsset
 {
+	DECLARE_ASSET( PixelShaderAsset );
 public:
-	virtual void LoadFromAsset( [[maybe_unused]] const JSON::Value& renderOption, [[maybe_unused]] const AssetLoaderSharedHandle& handle ) override {}
-	virtual void LoadFromAsset( const char* asset, unsigned long assetSize ) override;
+	virtual void Serialize( Archive& ar ) override;
 
 	RefHandle<PixelShader> m_shader;
 };
-DECLARE_NAMED_ASSET( PixelShaderAsset, PS );

@@ -7,28 +7,39 @@
 #include "Math/CXMFloat.h"
 #include "VertexInputLayout.h"
 
+#include <filesystem>
 #include <vector>
 
+class Archive;
 class Material;
 
 struct MeshDescription;
 
-struct StaticMeshVertex
+class StaticMeshVertex
 {
-	CXMFLOAT3 m_posision;
+public:
+	void Serialize( Archive& ar );
+
+	CXMFLOAT3 m_position;
 	CXMFLOAT3 m_normal;
 	CXMFLOAT2 m_texcoord;
 };
 
-struct StaticMeshSection
+class StaticMeshSection
 {
+public:
+	void Serialize( Archive& ar );
+
 	std::size_t m_startLocation;
 	std::size_t m_count;
 	std::size_t m_materialIndex;
 };
 
-struct StaticMeshLODResource
+class StaticMeshLODResource
 {
+public:
+	void Serialize( Archive& ar );
+
 	std::vector<StaticMeshVertex> m_vertexData;
 	std::vector<std::size_t> m_indexData;
 	TypeVertexBuffer<StaticMeshVertex> m_vb;
@@ -49,9 +60,13 @@ private:
 class StaticMeshRenderData
 {
 public:
-	RENDERCORE_DLL StaticMeshRenderData( ) = default;
-	RENDERCORE_DLL void AddLODResource( const MeshDescription& meshDescription, const std::vector<Material>& materials );
+	RENDERCORE_DLL void AllocateLODResources( std::size_t numLOD );
 	RENDERCORE_DLL void InitRenderResource( );
+	RENDERCORE_DLL void Serialize( Archive& ar );
+
+	StaticMeshLODResource& LODResource( int index ) { return m_lodResources[index]; };
+
+	RENDERCORE_DLL StaticMeshRenderData( ) = default;
 
 private:
 	std::vector<StaticMeshLODResource> m_lodResources;
