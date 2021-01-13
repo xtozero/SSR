@@ -12,5 +12,5 @@ public:
 	 RENDERCORE_DLL StaticMeshPrimitiveProxy( const StaticMeshComponent& component );
 
 private:
-	StaticMesh* m_pStaticMesh = nullptr;
+	std::shared_ptr<const StaticMesh> m_pStaticMesh = nullptr;
 };

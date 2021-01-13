@@ -1,12 +1,39 @@
 #include "ShaderManufacturer.h"
 
-#include "Rendering/ShaderAsset.h"
+#include "Rendering/Shader.h"
 
 #include <fstream>
 #include <d3dcompiler.h>
 #include <wrl/client.h>
 
 namespace fs = std::filesystem;
+
+namespace
+{
+	bool ValidateShaderAsset( const AsyncLoadableAsset* asset, const Archive& ar )
+	{
+		Archive rAr( ar.Data( ), ar.Size( ) );
+		int assetID = -1;
+		rAr << assetID;
+
+		if ( assetID == PixelShader::ID )
+		{
+			PixelShader ps;
+			ps.Serialize( rAr );
+
+			return ( ps == *reinterpret_cast<const PixelShader*>( asset ) );
+		}
+		else if ( assetID == VertexShader::ID )
+		{
+			VertexShader vs;
+			vs.Serialize( rAr );
+
+			return ( vs == *reinterpret_cast<const VertexShader*>( asset ) );
+		}
+
+		return false;
+	}
+}
 
 bool ShaderManufacturer::IsSuitable( const std::filesystem::path& srcPath ) const
 {
@@ -43,15 +70,19 @@ std::optional<Products> ShaderManufacturer::Manufacture( const std::filesystem::
 
 	D3D11_SHADER_VERSION_TYPE shaderType = static_cast<D3D11_SHADER_VERSION_TYPE>( D3D11_SHVER_GET_TYPE( desc.Version ) );
 
-	int assetID = -1;
+	AsyncLoadableAsset* shader = nullptr;
 	switch ( shaderType )
 	{
 	case D3D11_SHVER_PIXEL_SHADER:
-		assetID = PixelShaderAsset::ID;
+	{
+		shader = new PixelShader( std::move( byteCode ) );
 		break;
+	}
 	case D3D11_SHVER_VERTEX_SHADER:
-		assetID = VertexShaderAsset::ID;
+	{
+		shader = new VertexShader( std::move( byteCode ) );
 		break;
+	}
 	// Reservation
 	//case D3D11_SHVER_GEOMETRY_SHADER:
 	//	break;
@@ -64,23 +95,19 @@ std::optional<Products> ShaderManufacturer::Manufacture( const std::filesystem::
 	//case D3D11_SHVER_RESERVED0:
 	//	break;
 	default:
-		return {};
 		break;
 	}
 
+	if ( shader == nullptr )
+	{
+		return {};
+	}
+
 	Archive ar;
-	ar << assetID;
-	ar << byteCode;
+	shader->Serialize( ar );
 
 #ifdef ASSET_VALIDATE
-	Archive rAr( ar.Data( ), ar.Size( ) );
-	int rAssetID;
-	BinaryChunk rByteCode( 0 );
-
-	rAr << rAssetID;
-	rAr << rByteCode;
-
-	if ( std::memcmp( byteCode.Data( ), rByteCode.Data( ), rByteCode.Size( ) ) == 0 )
+	if ( ValidateShaderAsset( shader, ar ) == false )
 	{
 		DebugBreak( );
 	}

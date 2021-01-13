@@ -173,15 +173,42 @@ private:
 	}
 
 	template <typename T>
+	void ReadData( std::shared_ptr<T>& value )
+	{
+		std::string path;
+		ReadData( path );
+
+		if ( path.empty( ) )
+		{
+			return;
+		}
+
+		IAssetLoader::LoadCompletionCallback onLoadComplete;
+		onLoadComplete.BindFunctor( [&value]( const std::shared_ptr<void>& asset )
+		{
+			value = std::reinterpret_pointer_cast<T>( asset );
+		} );
+
+		AssetLoaderSharedHandle handle = GetInterface<IAssetLoader>( )->RequestAsyncLoad( path, onLoadComplete );
+
+		assert( handle->IsLoadingInProgress( ) || handle->IsLoadComplete( ) );
+	}
+
+	template <typename T>
 	void ReadData( T*& value )
 	{
 		std::string path;
 		ReadData( path );
 
-		IAssetLoader::LoadCompletionCallback onLoadComplete;
-		onLoadComplete.BindFunctor( [&value]( void* asset )
+		if ( path.empty( ) )
 		{
-			value = reinterpret_cast<T*>( asset );
+			return;
+		}
+
+		IAssetLoader::LoadCompletionCallback onLoadComplete;
+		onLoadComplete.BindFunctor( [&value]( const std::shared_ptr<void>& asset )
+		{
+			value = std::reinterpret_pointer_cast<T*>( asset );
 		} );
 
 		AssetLoaderSharedHandle handle = GetInterface<IAssetLoader>( )->RequestAsyncLoad( path, onLoadComplete );
@@ -304,6 +331,12 @@ private:
 		{
 			WriteData( value->Path( ).generic_string( ) );
 		}
+	}
+
+	template <typename T>
+	void WriteData( std::shared_ptr<T>& value )
+	{
+		WriteData( value.get( ) );
 	}
 	
 	void WriteData( char* str )

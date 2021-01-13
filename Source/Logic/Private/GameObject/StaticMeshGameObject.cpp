@@ -62,22 +62,22 @@ bool StaticMeshGameObject::LoadRenderOption( CGameLogic& gameLogic, const std::s
 	return false;
 }
 
-void StaticMeshGameObject::OnModelLoadFinished( void* model )
+void StaticMeshGameObject::OnModelLoadFinished( const std::shared_ptr<void>& model )
 {
 	StaticMeshComponent* staticMeshComponent = GetComponent<StaticMeshComponent>( );
 
 	if ( staticMeshComponent )
 	{
-		staticMeshComponent->SetStaticMesh( static_cast<StaticMesh*>( model ) );
+		staticMeshComponent->SetStaticMesh( std::static_pointer_cast<StaticMesh>( model ) );
 	}
 }
 
-void StaticMeshGameObject::OnRenderOptionLoadFinished( void* renderOption )
+void StaticMeshGameObject::OnRenderOptionLoadFinished( const std::shared_ptr<void>& renderOption )
 {
 	StaticMeshComponent* staticMeshComponent = GetComponent<StaticMeshComponent>( );
 
 	if ( staticMeshComponent )
 	{
-		staticMeshComponent->SetRenderOption( static_cast<RenderOption*>( renderOption ) );
+		staticMeshComponent->SetRenderOption( std::static_pointer_cast<RenderOption>( renderOption ) );
 	}
 }

@@ -59,11 +59,11 @@ public:
 	virtual IndexBuffer* CreateIndexBuffer( const BUFFER_TRAIT& trait, const void* initData ) override;
 
 	// Shader
-	virtual VertexLayout* FindAndCreateVertexLayout( const VertexShader* vs, const VertexLayoutDesc& layoutDesc ) override;
+	virtual VertexLayout* FindAndCreateVertexLayout( const aga::VertexShader* vs, const VertexLayoutDesc& layoutDesc ) override;
 	virtual RE_HANDLE CreateGeometryShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	virtual RE_HANDLE CreateComputeShader( const void* byteCode, std::size_t byteCodeSize ) override;
-	virtual VertexShader* CreateVertexShader( const void* byteCode, std::size_t byteCodeSize ) override;
-	virtual PixelShader* CreatePixelShader( const void* byteCode, std::size_t byteCodeSize ) override;
+	virtual aga::VertexShader* CreateVertexShader( const void* byteCode, std::size_t byteCodeSize ) override;
+	virtual aga::PixelShader* CreatePixelShader( const void* byteCode, std::size_t byteCodeSize ) override;
 
 	// RenderTarget
 	virtual RE_HANDLE CreateRenderTarget( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) override;

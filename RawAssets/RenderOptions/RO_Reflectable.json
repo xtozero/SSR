@@ -1,12 +1,14 @@
 {
 	"Type": "RenderOption",
 	"Shader": {
-		"VS": "./Asset/Shaders/VS_Tutorial.asset",
-		"PS": "./Asset/Shaders/PS_Tutorial.asset"
+		"VS": "./Assets/Shaders/VS_Tutorial.asset",
+		"PS": "./Assets/Shaders/PS_Tutorial.asset"
 	},
-	"RS_State": "./Asset/RenderOption/RS_ScissorOn.asset",
-	"DS_State": "./Asset/RenderOption/DS_Reflectable.asset",
+	"RS_State": "./Assets/RenderOptions/RS_ScissorOn.asset",
+	"DS_State": "./Assets/RenderOptions/DS_Reflectable.asset",
 	"Sampler": {
-		"PS": "./Asset/RenderOption/SO_Default.asset"
+		"PS": [
+			"./Assets/RenderOptions/SO_Default.asset"
+		]
 	}
 }

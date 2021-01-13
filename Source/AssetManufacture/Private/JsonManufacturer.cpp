@@ -303,30 +303,57 @@ namespace
 						continue;
 					}
 
-					renderOption->m_shaderPath[shaderType] = shaderPath->AsString( );
+					switch ( static_cast<SHADER_TYPE>( shaderType ) )
+					{
+					case SHADER_TYPE::VS:
+					{
+						auto vs = std::make_shared<VertexShader>( );
+						vs->SetPath( shaderPath->AsString( ) );
+						renderOption->m_vertexShader = vs;
+						break;
+					}
+					case SHADER_TYPE::HS:
+						break;
+					case SHADER_TYPE::DS:
+						break;
+					case SHADER_TYPE::GS:
+						break;
+					case SHADER_TYPE::PS:
+					{
+						auto ps = std::make_shared<PixelShader>( );
+						ps->SetPath( shaderPath->AsString( ) );
+						renderOption->m_pixelShader = ps;
+						break;
+					}
+					case SHADER_TYPE::CS:
+						break;
+					case SHADER_TYPE::Count:
+						[[fallthrough]];
+					case SHADER_TYPE::NONE:
+						[[fallthrough]];
+					default:
+						break;
+					}
 				}
 			}
 
 			if ( const JSON::Value* blendOptionPath = root.Find( "Blend" ) )
 			{
-				// TODO: Remove memory leak
-				auto blendOption = new BlendOption( );
+				auto blendOption = std::make_shared<BlendOption>( );
 				blendOption->SetPath( fs::path( blendOptionPath->AsString( ) ) );
 				renderOption->m_blendOption = blendOption;
 			}
 
 			if ( const JSON::Value* depthStencilOptionPath = root.Find( "DS_State" ) )
 			{
-				// TODO: Remove memory leak
-				auto depthStencilOption = new DepthStencilOption( );
+				auto depthStencilOption = std::make_shared<DepthStencilOption>( );
 				depthStencilOption->SetPath( fs::path( depthStencilOptionPath->AsString( ) ) );
 				renderOption->m_depthStencilOption = depthStencilOption;
 			}
 
 			if ( const JSON::Value* rasterizerOptionPath = root.Find( "RS_State" ) )
 			{
-				// TODO: Remove memory leak
-				auto rasterizerOption = new RasterizerOption( );
+				auto rasterizerOption = std::make_shared<RasterizerOption>( );
 				rasterizerOption->SetPath( fs::path( rasterizerOptionPath->AsString( ) ) );
 				renderOption->m_rasterizerOption = rasterizerOption;
 			}
@@ -341,7 +368,12 @@ namespace
 						continue;
 					}
 
-					renderOption->m_samplerOptionPath[shaderType] = samplerOptionKey->AsString( );
+					for ( int i = 0; i < samplerOptionKey->Size(); ++i )
+					{
+						auto samplerOption = std::make_shared<SamplerOption>( );
+						samplerOption->SetPath( fs::path( (*samplerOptionKey)[i].AsString( ) ) );
+						renderOption->m_samplerOption[shaderType][i] = samplerOption;
+					}
 				}
 			}
 
@@ -438,7 +470,7 @@ std::optional<Products> JsonManufacturer::Manufacture( const std::filesystem::pa
 	asset->Serialize( ar );
 
 #ifdef ASSET_VALIDATE
-	if ( ValidateJsonAsset( asset.get( ), ar ) )
+	if ( ValidateJsonAsset( asset.get( ), ar ) == false )
 	{
 		DebugBreak( );
 	}

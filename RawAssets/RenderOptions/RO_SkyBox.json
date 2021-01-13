@@ -1,12 +1,14 @@
 {
 	"Type": "RenderOption",
 	"Shader": {
-		"VS": "./Asset/Shaders/VS_Skybox.asset",
-		"PS": "./Asset/Shaders/PS_Skybox.asset"
+		"VS": "./Assets/Shaders/VS_Skybox.asset",
+		"PS": "./Assets/Shaders/PS_Skybox.asset"
 	},
-	"RS_State": "./Asset/RenderOption/RS_ScissorOn.asset",
-	"DS_State": "./Asset/RenderOption/DS_DepthWriteOff.asset",
+	"RS_State": "./Assets/RenderOptions/RS_ScissorOn.asset",
+	"DS_State": "./Assets/RenderOptions/DS_DepthWriteOff.asset",
 	"Sampler": {
-		"PS": "./Asset/RenderOption/SO_Default.asset"
+		"PS": [
+			"./Assets/RenderOptions/SO_Default.asset"
+		]
 	}
 }

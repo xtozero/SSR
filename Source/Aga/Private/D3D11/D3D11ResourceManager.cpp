@@ -186,7 +186,7 @@ IndexBuffer* CD3D11ResourceManager::CreateIndexBuffer( const BUFFER_TRAIT& trait
 	return newBuf;
 }
 
-VertexLayout* CD3D11ResourceManager::FindAndCreateVertexLayout( const VertexShader* vs, const VertexLayoutDesc& layoutDesc )
+VertexLayout* CD3D11ResourceManager::FindAndCreateVertexLayout( const aga::VertexShader* vs, const VertexLayoutDesc& layoutDesc )
 {
 	auto found = m_vertexLayouts.find( layoutDesc );
 	if ( found != m_vertexLayouts.end( ) )
@@ -234,7 +234,7 @@ RE_HANDLE CD3D11ResourceManager::CreateComputeShader( const void* byteCode, std:
 	return RE_HANDLE( GraphicsResourceType::COMPUTE_SHADER, resource );
 }
 
-VertexShader* CD3D11ResourceManager::CreateVertexShader( const void* byteCode, std::size_t byteCodeSize )
+aga::VertexShader* CD3D11ResourceManager::CreateVertexShader( const void* byteCode, std::size_t byteCodeSize )
 {
 	auto newShader = new D3D11VertexShader( byteCode, byteCodeSize );
 	m_renderResources.emplace( newShader );
@@ -242,7 +242,7 @@ VertexShader* CD3D11ResourceManager::CreateVertexShader( const void* byteCode, s
 	return newShader;
 }
 
-PixelShader* CD3D11ResourceManager::CreatePixelShader( const void* byteCode, std::size_t byteCodeSize )
+aga::PixelShader* CD3D11ResourceManager::CreatePixelShader( const void* byteCode, std::size_t byteCodeSize )
 {
 	auto newShader = new D3D11PixelShader( byteCode, byteCodeSize );
 	m_renderResources.emplace( newShader );

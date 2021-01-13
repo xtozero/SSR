@@ -131,9 +131,9 @@ set (PRECOMPILED
 
 set (RENDERING
 	"Private/Rendering/RenderOption.cpp"
-	"Private/Rendering/ShaderAsset.cpp"
+	"Private/Rendering/Shader.cpp"
 	"Public/Rendering/RenderOption.h"
-	"Public/Rendering/ShaderAsset.h"
+	"Public/Rendering/Shader.h"
 )
 
 set (SCENE

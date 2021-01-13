@@ -16,7 +16,7 @@ public:
 private:
 	bool LoadModelMesh( CGameLogic& gameLogic, const std::string& assetPath );
 	bool LoadRenderOption( CGameLogic& gameLogic, const std::string& assetPath );
-	void OnModelLoadFinished( void* model );
+	void OnModelLoadFinished( const std::shared_ptr<void>& model );
 
-	void OnRenderOptionLoadFinished( void* renderOption );
+	void OnRenderOptionLoadFinished( const std::shared_ptr<void>& renderOption );
 };

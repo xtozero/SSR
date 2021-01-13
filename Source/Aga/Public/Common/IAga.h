@@ -6,15 +6,19 @@
 
 #include <memory>
 
+namespace aga
+{
+	class PixelShader;
+	class VertexShader;
+}
+
 class ConstantBuffer;
 class IndexBuffer;
 class IResourceManager;
-class PixelShader;
 class ShaderParameterInfo;
 class VertexBuffer;
 class VertexLayout;
 class VertexLayoutDesc;
-class VertexShader;
 struct BUFFER_TRAIT;
 struct CXMFLOAT4X4;
 struct IDXGISwapChain;
@@ -37,13 +41,13 @@ public:
 	virtual VertexBuffer* CreateVertexBuffer( const BUFFER_TRAIT& trait, const void* initData ) = 0;
 	virtual IndexBuffer* CreateIndexBuffer( const BUFFER_TRAIT& trait, const void* initData ) = 0;
 
-	virtual VertexLayout* FindAndCreateVertexLayout( VertexShader* vs, const VertexLayoutDesc& layoutDesc ) = 0;
+	virtual VertexLayout* FindAndCreateVertexLayout( aga::VertexShader* vs, const VertexLayoutDesc& layoutDesc ) = 0;
 	//virtual RE_HANDLE CreateVertexShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
 	virtual RE_HANDLE CreateGeometryShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
 	//virtual RE_HANDLE CreatePixelShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
 	virtual RE_HANDLE CreateComputeShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
-	virtual VertexShader* CreateVertexShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
-	virtual PixelShader* CreatePixelShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
+	virtual aga::VertexShader* CreateVertexShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
+	virtual aga::PixelShader* CreatePixelShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
 	virtual const ShaderParameterInfo& GetShaderParameterInfo( RE_HANDLE shader ) const = 0;
 
 	virtual RE_HANDLE CreateRenderTarget( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) = 0;

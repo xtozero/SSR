@@ -1,7 +1,7 @@
 #pragma once
 
 #include "D3D11ResourceInterface.h"
-#include "Shader.h"
+#include "ShaderResource.h"
 #include "ShaderPrameterInfo.h"
 
 void ExtractShaderParameters( const void* byteCode, std::size_t byteCodeSize, ShaderParameterMap& parameterMap );
@@ -147,7 +147,7 @@ protected:
 	ShaderParameterInfo m_parameterInfo;
 };
 
-class D3D11VertexShader : public VertexShader, public D3D11ShaderBase<ID3D11VertexShader>
+class D3D11VertexShader : public aga::VertexShader, public D3D11ShaderBase<ID3D11VertexShader>
 {
 public:
 	virtual void InitResource( ) override;
@@ -161,7 +161,7 @@ public:
 	~D3D11VertexShader( ) = default;
 };
 
-class D3D11PixelShader : public PixelShader, public D3D11ShaderBase<ID3D11PixelShader>
+class D3D11PixelShader : public aga::PixelShader, public D3D11ShaderBase<ID3D11PixelShader>
 {
 public:
 	virtual void InitResource( ) override;

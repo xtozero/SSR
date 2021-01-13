@@ -15,9 +15,10 @@ class StaticMeshRenderData;
 
 struct StaticMeshMaterial
 {
-	StaticMeshMaterial( Material* mateiral ) : m_mateiral( mateiral ) {}
+	explicit StaticMeshMaterial( const std::shared_ptr<Material>& mateiral ) : m_mateiral( mateiral ) {}
+	StaticMeshMaterial( ) = default;
 
-	Material* m_mateiral;
+	std::shared_ptr<const Material> m_mateiral;
 };
 
 class StaticMesh : public AsyncLoadableAsset, BaseMesh
@@ -29,7 +30,7 @@ public:
 	LOGIC_DLL void BuildMeshFromMeshDescriptions( const std::vector<MeshDescription>& meshDescriptions );
 	void BuildMeshFromMeshDescription( const MeshDescription& meshDescription, StaticMeshLODResource& lodResource );
 
-	LOGIC_DLL void AddMaterial( Material* mateiral );
+	LOGIC_DLL void AddMaterial( const std::shared_ptr<Material>& mateiral );
 
 	LOGIC_DLL StaticMesh( );
 	StaticMesh( MeshDescription&& meshDescription, std::vector<Material>&& materials );
@@ -58,8 +59,6 @@ public:
 	}
 
 private:
-	friend ObjMeshAssetProcessor;
-
 	StaticMeshRenderData* m_renderData = nullptr;
 	std::vector<StaticMeshMaterial> m_materials;
 };

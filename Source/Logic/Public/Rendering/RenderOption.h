@@ -207,32 +207,20 @@ public:
 
 		for ( int i = 0; i < std::extent_v<decltype( lhs.m_samplerOption )>; ++i )
 		{
-			for ( int j = 0; j < std::extent_v<decltype( lhs.m_samplerOption), 1>; ++j )
+			for ( int j = 0; j < std::extent_v<decltype( lhs.m_samplerOption ), 1>; ++j )
 			{
 				ret &= ( lhs.m_samplerOption[i][j] == rhs.m_samplerOption[i][j] );
 			}
 		}
 
-		for ( int i = 0; i < std::extent_v<decltype( lhs.m_shaderPath )>; ++i )
-		{
-			ret &= ( lhs.m_shaderPath[i] == rhs.m_shaderPath[i] );
-		}
-
-		for ( int i = 0; i < std::extent_v<decltype( lhs.m_samplerOptionPath )>; ++i )
-		{
-			ret &= ( lhs.m_samplerOptionPath[i] == rhs.m_samplerOptionPath[i] );
-		}
-
 		return ret;
 	}
 
-	RefHandle<VertexShader> m_vertexShader = nullptr;
-	RefHandle<PixelShader> m_pixelShader = nullptr;
-	BlendOption* m_blendOption = nullptr;
-	DepthStencilOption* m_depthStencilOption = nullptr;
-	RasterizerOption* m_rasterizerOption = nullptr;
-	SamplerOption* m_samplerOption[MAX_SHADER_TYPE<int>][16] = {};
-
-	std::filesystem::path m_shaderPath[MAX_SHADER_TYPE<int>];
-	std::filesystem::path m_samplerOptionPath[MAX_SHADER_TYPE<int>];
+	std::shared_ptr<VertexShader> m_vertexShader = nullptr;
+	std::shared_ptr<PixelShader> m_pixelShader = nullptr;
+	std::shared_ptr<BlendOption> m_blendOption = nullptr;
+	std::shared_ptr<DepthStencilOption> m_depthStencilOption = nullptr;
+	std::shared_ptr<RasterizerOption> m_rasterizerOption = nullptr;
+	static constexpr int SAMPLER_SLOT_COUNT = 16;
+	std::shared_ptr<SamplerOption> m_samplerOption[MAX_SHADER_TYPE<int>][SAMPLER_SLOT_COUNT] = {};
 };

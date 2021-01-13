@@ -130,8 +130,7 @@ namespace
 				std::string prefix = mesh.m_materialLibraryName.empty() ? "M_" : "M_" + mesh.m_materialLibraryName + "_";
 				fs::path materialAsset( prefix + mesh.m_materialName + ".asset" );
 
-				// TODO: Remove memory leak
-				Material* mat = new Material( mesh.m_materialName.c_str( ) );
+				auto mat = std::make_shared<Material>( mesh.m_materialName.c_str( ) );
 				mat->SetPath( assetsRootPath / materialAsset );
 				staticMesh.AddMaterial( mat );
 			}

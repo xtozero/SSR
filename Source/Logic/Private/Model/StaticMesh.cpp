@@ -7,6 +7,12 @@
 #include "Model/MeshDescription.h"
 #include "MultiThread/EngineTaskScheduler.h"
 
+Archive operator<<( Archive& ar, StaticMeshMaterial& m )
+{
+	ar << m.m_mateiral;
+	return ar;
+}
+
 REGISTER_ASSET( StaticMesh );
 void StaticMesh::Serialize( Archive& ar )
 {
@@ -28,12 +34,12 @@ void StaticMesh::Serialize( Archive& ar )
 	{
 		std::size_t size = 0;
 		ar << size;
-		m_materials.resize( size, nullptr );
+		m_materials.resize( size );
 	}
 
 	for ( auto& material : m_materials )
 	{
-		ar << material.m_mateiral;
+		ar << material;
 	}
 }
 
@@ -114,7 +120,7 @@ void StaticMesh::BuildMeshFromMeshDescription( const MeshDescription& meshDescri
 	}
 }
 
-void StaticMesh::AddMaterial( Material* mateiral )
+void StaticMesh::AddMaterial( const std::shared_ptr<Material>& mateiral )
 {
 	m_materials.emplace_back( mateiral );
 }

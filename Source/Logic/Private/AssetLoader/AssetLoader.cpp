@@ -24,10 +24,10 @@ public:
 private:
 	AssetLoaderSharedHandle LoadAsset( const char* assetPath, LoadCompletionCallback completionCallback );
 
-	void OnAssetLoaded( const std::string& path, void* asset );
+	void OnAssetLoaded( const std::string& path, const std::shared_ptr<void>& asset );
 
 	std::unordered_map<std::string, std::vector<AssetLoaderSharedHandle>> m_waitingHandle;
-	std::unordered_map<std::string, std::shared_ptr<IAsyncLoadableAsset>> m_assets;
+	std::unordered_map<std::string, std::shared_ptr<void>> m_assets;
 
 	AssetLoaderSharedHandle m_dependantAssetHandle = nullptr;
 };
@@ -38,7 +38,7 @@ AssetLoaderSharedHandle AssetLoader::RequestAsyncLoad( const std::string& assetP
 	if ( found != m_assets.end() )
 	{
 		auto handle = std::make_shared<AssetLoaderHandle>( );
-		handle->SetLoadedAsset( found->second.get( ) );
+		handle->SetLoadedAsset( found->second );
 		handle->ExecuteCompletionCallback( );
 		return handle;
 	} 
@@ -57,7 +57,7 @@ AssetLoaderSharedHandle AssetLoader::RequestAsyncLoad( const std::string& assetP
 
 	IAssetLoader::LoadCompletionCallback onRenderOptionLoaded;
 	onRenderOptionLoaded.BindFunctor(
-		[assetPath, completionCallback, this]( void* asset )
+		[assetPath, completionCallback, this]( const std::shared_ptr<void>& asset )
 		{
 			if ( completionCallback.IsBound( ) )
 			{
@@ -109,7 +109,7 @@ AssetLoaderSharedHandle AssetLoader::LoadAsset( const char* assetPath, LoadCompl
 
 			ar << assetID;
 
-			IAsyncLoadableAsset* newAsset = AssetFactory::GetInstance( ).CreateAsset( assetID );
+			std::shared_ptr<IAsyncLoadableAsset> newAsset( AssetFactory::GetInstance( ).CreateAsset( assetID ) );
 			if ( newAsset != nullptr )
 			{
 				newAsset->Serialize( ar );
@@ -139,9 +139,9 @@ AssetLoaderSharedHandle AssetLoader::LoadAsset( const char* assetPath, LoadCompl
 	return handle;
 }
 
-void AssetLoader::OnAssetLoaded( const std::string& path, void* asset )
+void AssetLoader::OnAssetLoaded( const std::string& path, const std::shared_ptr<void>& asset )
 {
-	auto result = m_assets.emplace( path, static_cast<IAsyncLoadableAsset*>( asset ) );
+	auto result = m_assets.emplace( path, asset );
 	assert( result.second );
 
 	auto found = m_waitingHandle.find( path );

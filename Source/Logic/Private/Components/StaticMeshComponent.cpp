@@ -18,7 +18,7 @@ PrimitiveProxy* StaticMeshComponent::CreateProxy( ) const
 	return new StaticMeshPrimitiveProxy( *this );
 }
 
-void StaticMeshComponent::SetStaticMesh( StaticMesh* pStaticMesh )
+void StaticMeshComponent::SetStaticMesh( const std::shared_ptr<StaticMesh>& pStaticMesh )
 {
 	assert( pStaticMesh != nullptr );
 	m_pStaticMesh = pStaticMesh;
@@ -26,7 +26,7 @@ void StaticMeshComponent::SetStaticMesh( StaticMesh* pStaticMesh )
 	MarkRenderStateDirty( );
 }
 
-void StaticMeshComponent::SetRenderOption( const RenderOption* pRenderOption )
+void StaticMeshComponent::SetRenderOption( const std::shared_ptr<RenderOption>& pRenderOption )
 {
 	assert( pRenderOption != nullptr );
 	m_pRenderOption = pRenderOption;

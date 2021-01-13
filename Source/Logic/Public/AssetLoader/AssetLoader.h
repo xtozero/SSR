@@ -3,6 +3,7 @@
 #include "Delegate.h"
 #include "Util.h"
 
+#include <memory>
 #include <string>
 
 class AssetLoaderHandle;
@@ -12,7 +13,7 @@ using AssetLoaderSharedHandle = std::shared_ptr<AssetLoaderHandle>;
 class IAssetLoader
 {
 public:
-	using LoadCompletionCallback = Delegate<void, void*>;
+	using LoadCompletionCallback = Delegate<void, const std::shared_ptr<void>&>;
 
 	virtual AssetLoaderSharedHandle RequestAsyncLoad( const std::string& assetPath, LoadCompletionCallback completionCallback ) = 0;
 
@@ -59,7 +60,7 @@ public:
 		}
 	}
 
-	void SetLoadedAsset( void* loadedAsset )
+	void SetLoadedAsset( const std::shared_ptr<void>& loadedAsset )
 	{
 		m_loadingInProgress = false;
 		m_loadComplete = ( loadedAsset != nullptr );
@@ -93,7 +94,7 @@ private:
 	int m_prerequisites = 0;
 
 	IAssetLoader::LoadCompletionCallback m_loadCompletionCallback;
-	void* m_loadedAsset = nullptr;
+	std::shared_ptr<void> m_loadedAsset = nullptr;
 	bool m_loadingInProgress = false;
 	bool m_loadComplete = false;
 };

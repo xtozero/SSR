@@ -2,6 +2,8 @@
 
 #include "PrimitiveComponent.h"
 
+#include <memory>
+
 class StaticMesh;
 class RenderOption;
 
@@ -12,13 +14,13 @@ public:
 
 	virtual PrimitiveProxy* CreateProxy( ) const override;
 
-	void SetStaticMesh( StaticMesh* pStaticMesh );
-	StaticMesh* GetStaticMesh( ) const { return m_pStaticMesh; }
+	void SetStaticMesh( const std::shared_ptr<StaticMesh>& pStaticMesh );
+	std::shared_ptr<StaticMesh> GetStaticMesh( ) const { return m_pStaticMesh; }
 
-	void SetRenderOption( const RenderOption* pRenderOption );
-	const RenderOption* GetRenderOption( ) const { return m_pRenderOption; }
+	void SetRenderOption( const std::shared_ptr<RenderOption>& pRenderOption );
+	std::shared_ptr<RenderOption> GetRenderOption( ) const { return m_pRenderOption; }
 
 private:
-	StaticMesh* m_pStaticMesh = nullptr;
-	const RenderOption* m_pRenderOption = nullptr;
+	std::shared_ptr<StaticMesh> m_pStaticMesh = nullptr;
+	std::shared_ptr<RenderOption> m_pRenderOption = nullptr;
 };

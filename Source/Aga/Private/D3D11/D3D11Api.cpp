@@ -58,13 +58,13 @@ public:
 	virtual VertexBuffer* CreateVertexBuffer( const BUFFER_TRAIT& trait, const void* initData ) override;
 	virtual IndexBuffer* CreateIndexBuffer( const BUFFER_TRAIT& trait, const void* initData ) override;
 
-	virtual VertexLayout* FindAndCreateVertexLayout( VertexShader* vs, const VertexLayoutDesc& layoutDesc ) override;
+	virtual VertexLayout* FindAndCreateVertexLayout( aga::VertexShader* vs, const VertexLayoutDesc& layoutDesc ) override;
 	//virtual RE_HANDLE CreateVertexShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	virtual RE_HANDLE CreateGeometryShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	//virtual RE_HANDLE CreatePixelShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	virtual RE_HANDLE CreateComputeShader( const void* byteCode, std::size_t byteCodeSize ) override;
-	virtual VertexShader* CreateVertexShader( const void* byteCode, std::size_t byteCodeSize ) override;
-	virtual PixelShader* CreatePixelShader( const void* byteCode, std::size_t byteCodeSize ) override;
+	virtual aga::VertexShader* CreateVertexShader( const void* byteCode, std::size_t byteCodeSize ) override;
+	virtual aga::PixelShader* CreatePixelShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	virtual const ShaderParameterInfo& GetShaderParameterInfo( RE_HANDLE shader ) const override;
 
 	virtual RE_HANDLE CreateRenderTarget( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) override;
@@ -265,7 +265,7 @@ IndexBuffer* CDirect3D11::CreateIndexBuffer( const BUFFER_TRAIT& trait, const vo
 	return m_resourceManager.CreateIndexBuffer( trait, initData );
 }
 
-VertexLayout* CDirect3D11::FindAndCreateVertexLayout( VertexShader* vs, const VertexLayoutDesc& layoutDesc )
+VertexLayout* CDirect3D11::FindAndCreateVertexLayout( aga::VertexShader* vs, const VertexLayoutDesc& layoutDesc )
 {
 	return m_resourceManager.FindAndCreateVertexLayout( vs, layoutDesc );
 }
@@ -280,12 +280,12 @@ RE_HANDLE CDirect3D11::CreateComputeShader( const void* byteCode, std::size_t by
 	return m_resourceManager.CreateComputeShader( byteCode, byteCodeSize );
 }
 
-VertexShader* CDirect3D11::CreateVertexShader( const void* byteCode, std::size_t byteCodeSize )
+aga::VertexShader* CDirect3D11::CreateVertexShader( const void* byteCode, std::size_t byteCodeSize )
 {
 	return m_resourceManager.CreateVertexShader( byteCode, byteCodeSize );
 }
 
-PixelShader* CDirect3D11::CreatePixelShader( const void* byteCode, std::size_t byteCodeSize )
+aga::PixelShader* CDirect3D11::CreatePixelShader( const void* byteCode, std::size_t byteCodeSize )
 {
 	return m_resourceManager.CreatePixelShader( byteCode, byteCodeSize );
 }

@@ -61,11 +61,11 @@ set (COMMON_SOURCE
 set (RENDER_RESOURCE_SOURCE
 	"Private/RenderResource/ConstantBuffer.cpp"
 	"Private/RenderResource/IndexBuffer.cpp"
-	"Private/RenderResource/Shader.cpp"
+	"Private/RenderResource/ShaderResource.cpp"
 	"Private/RenderResource/VertexBuffer.cpp"
 	"Public/RenderResource/ConstantBuffer.h"
 	"Public/RenderResource/IndexBuffer.h"
-	"Public/RenderResource/Shader.h"
+	"Public/RenderResource/ShaderResource.h"
 	"Public/RenderResource/VertexBuffer.h"
 	"Public/RenderResource/VertexInputLayout.h")
 

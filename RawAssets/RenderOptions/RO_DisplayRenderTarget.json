@@ -1,12 +1,14 @@
 {
 	"Type": "RenderOption",
 	"Shader": {
-		"VS": "./Asset/Shaders/VS_DepthStencil.asset",
-		"PS": "./Asset/Shaders/PS_TexWithOutLight.asset"
+		"VS": "./Assets/Shaders/VS_DepthStencil.asset",
+		"PS": "./Assets/Shaders/PS_TexWithOutLight.asset"
 	},
-	"RS_State": "./Asset/RenderOption/RS_ScissorOn.asset",
-	"DS_State": "./Asset/RenderOption/DS_DepthTestOff.asset",
+	"RS_State": "./Assets/RenderOptions/RS_ScissorOn.asset",
+	"DS_State": "./Assets/RenderOptions/DS_DepthTestOff.asset",
 	"Sampler": {
-		"PS": "./Asset/RenderOption/SO_Default.asset"
+		"PS": [
+			"./Assets/RenderOptions/SO_Default.asset"
+		]
 	}
 }
