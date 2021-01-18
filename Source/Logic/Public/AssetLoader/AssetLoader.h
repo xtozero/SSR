@@ -36,29 +36,7 @@ public:
 		return m_loadComplete;
 	}
 
-	void ExecuteCompletionCallback( )
-	{
-		if ( m_loadComplete == false )
-		{
-			return;
-		}
-
-		if ( m_prerequisites > 0 )
-		{
-			return;
-		}
-		
-		if ( m_loadCompletionCallback.IsBound( ) )
-		{
-			m_loadCompletionCallback( m_loadedAsset );
-		}
-
-		for ( const auto& subSequent : m_subSequentList )
-		{
-			subSequent->OnAchievePrerequisite( );
-			subSequent->ExecuteCompletionCallback( );
-		}
-	}
+	void ExecuteCompletionCallback( );
 
 	void SetLoadedAsset( const std::shared_ptr<void>& loadedAsset )
 	{

@@ -32,6 +32,10 @@ void BlendOption::Serialize( Archive& ar )
 	}
 }
 
+void BlendOption::PostLoadImpl( )
+{
+}
+
 REGISTER_ASSET( DepthStencilOption );
 void DepthStencilOption::Serialize( Archive& ar )
 {
@@ -61,6 +65,10 @@ void DepthStencilOption::Serialize( Archive& ar )
 	ar << m_stencil.m_ref;
 }
 
+void DepthStencilOption::PostLoadImpl( )
+{
+}
+
 REGISTER_ASSET( RasterizerOption );
 void RasterizerOption::Serialize( Archive& ar )
 {
@@ -79,6 +87,10 @@ void RasterizerOption::Serialize( Archive& ar )
 	ar << m_antialiasedLineEnable;
 }
 
+void RasterizerOption::PostLoadImpl( )
+{
+}
+
 REGISTER_ASSET( SamplerOption );
 void SamplerOption::Serialize( Archive& ar )
 {
@@ -93,6 +105,10 @@ void SamplerOption::Serialize( Archive& ar )
 	ar << m_addressW;
 	ar << m_mipLODBias;
 	ar << m_comparisonFunc;
+}
+
+void SamplerOption::PostLoadImpl( )
+{
 }
 
 REGISTER_ASSET( RenderOption );
@@ -117,4 +133,8 @@ void RenderOption::Serialize( Archive& ar )
 			ar << m_samplerOption[i][slot];
 		}
 	}
+}
+
+void RenderOption::PostLoadImpl( )
+{
 }

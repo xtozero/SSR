@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AssetLoader/AssetFactory.h"
-#include "Core/IAsyncLoadableAsset.h"
+#include "AssetLoader/IAsyncLoadableAsset.h"
 #include "ShaderResource.h"
 
 class ShaderBase : public AsyncLoadableAsset
@@ -37,6 +37,10 @@ public:
 		return static_cast<const ShaderBase&>( lhs ) == static_cast<const ShaderBase&>( rhs )
 			&& lhs.m_shader == rhs.m_shader;
 	}
+
+protected:
+	LOGIC_DLL virtual void PostLoadImpl( ) override;
+
 private:
 	std::filesystem::path m_path;
 	RefHandle<aga::VertexShader> m_shader;
@@ -59,6 +63,10 @@ public:
 		return static_cast<const ShaderBase&>( lhs ) == static_cast<const ShaderBase&>( rhs )
 			&& lhs.m_shader == rhs.m_shader;
 	}
+
+protected:
+	LOGIC_DLL virtual void PostLoadImpl( ) override;
+
 private:
 	std::filesystem::path m_path;
 	RefHandle<aga::PixelShader> m_shader;

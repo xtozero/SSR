@@ -1,8 +1,8 @@
 #pragma once
 
 #include "AssetLoader/AssetFactory.h"
+#include "AssetLoader/IAsyncLoadableAsset.h"
 #include "BaseMesh.h"
-#include "Core/IAsyncLoadableAsset.h"
 #include "Material/Material.h"
 
 #include <vector>
@@ -32,8 +32,7 @@ public:
 
 	LOGIC_DLL void AddMaterial( const std::shared_ptr<Material>& mateiral );
 
-	LOGIC_DLL StaticMesh( );
-	StaticMesh( MeshDescription&& meshDescription, std::vector<Material>&& materials );
+	LOGIC_DLL StaticMesh( ) = default;
 	LOGIC_DLL StaticMesh( const StaticMesh& ) = delete;
 	LOGIC_DLL StaticMesh( StaticMesh&& other )
 	{
@@ -57,6 +56,9 @@ public:
 	{
 		return m_renderData;
 	}
+
+protected:
+	LOGIC_DLL virtual void PostLoadImpl( ) override;
 
 private:
 	StaticMeshRenderData* m_renderData = nullptr;

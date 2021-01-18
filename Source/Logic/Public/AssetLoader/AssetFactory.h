@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/IAsyncLoadableAsset.h"
+#include "IAsyncLoadableAsset.h"
 #include "Delegate.h"
 
 #include <map>

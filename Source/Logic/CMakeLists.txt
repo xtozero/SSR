@@ -8,6 +8,7 @@ set (ASSET_LOADER
 	"Private/AssetLoader/AssetLoader.cpp"
 	"Public/AssetLoader/AssetFactory.h"
 	"Public/AssetLoader/AssetLoader.h"
+	"Public/AssetLoader/IAsyncLoadableAsset.h"
 )
 	
 set (COMPOENETS
@@ -31,7 +32,6 @@ set (CORE
 	"Private/Core/Timer.cpp"
 	"Public/Core/DebugConsole.h"
 	"Public/Core/GameLogic.h"
-	"Public/Core/IAsyncLoadableAsset.h"
 	"Public/Core/IListener.h"
 	"Public/Core/ILogic.h"
 	"Public/Core/Timer.h"

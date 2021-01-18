@@ -10,6 +10,35 @@
 #include <memory>
 #include <unordered_map>
 
+void AssetLoaderHandle::ExecuteCompletionCallback( )
+{
+	if ( m_loadComplete == false )
+	{
+		return;
+	}
+
+	if ( m_prerequisites > 0 )
+	{
+		return;
+	}
+
+	if ( auto pAsyncLoadable = static_cast<AsyncLoadableAsset*>( m_loadedAsset.get() ) )
+	{
+		pAsyncLoadable->PostLoad( );
+	}
+
+	if ( m_loadCompletionCallback.IsBound( ) )
+	{
+		m_loadCompletionCallback( m_loadedAsset );
+	}
+
+	for ( const auto& subSequent : m_subSequentList )
+	{
+		subSequent->OnAchievePrerequisite( );
+		subSequent->ExecuteCompletionCallback( );
+	}
+}
+
 class AssetLoader : public IAssetLoader
 {
 public:

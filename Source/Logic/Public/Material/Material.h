@@ -1,8 +1,8 @@
 #pragma once
 
 #include "AssetLoader/AssetFactory.h"
+#include "AssetLoader/IAsyncLoadableAsset.h"
 #include "common.h"
-#include "Core/IAsyncLoadableAsset.h"
 #include "Math/CXMFloat.h"
 
 #include <filesystem>
@@ -137,6 +137,9 @@ public:
 	Material& operator=( const Material& ) = default;
 	Material( Material&& ) = default;
 	Material& operator=( Material&& ) = default;
+
+protected:
+	LOGIC_DLL virtual void PostLoadImpl( ) override;
 
 private:
 	std::filesystem::path m_path;

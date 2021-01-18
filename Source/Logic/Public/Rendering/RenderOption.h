@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AssetLoader/AssetFactory.h"
-#include "Core/IAsyncLoadableAsset.h"
+#include "AssetLoader/IAsyncLoadableAsset.h"
 #include "GraphicsApiResource.h"
 #include "Shader.h"
 
@@ -58,6 +58,9 @@ public:
 	bool m_alphaToConverageEnable;
 	bool m_independentBlendEnable;
 	RenderTargetBlendOption m_renderTarget[8];
+
+protected:
+	LOGIC_DLL virtual void PostLoadImpl( ) override;
 
 private:
 	std::filesystem::path m_path;
@@ -121,6 +124,9 @@ public:
 	DepthOption m_depth;
 	StencilOption m_stencil;
 
+protected:
+	LOGIC_DLL virtual void PostLoadImpl( ) override;
+
 private:
 	std::filesystem::path m_path;
 };
@@ -155,6 +161,9 @@ public:
 	bool m_multisampleEnalbe = false;
 	bool m_antialiasedLineEnable = false;
 
+protected:
+	LOGIC_DLL virtual void PostLoadImpl( ) override;
+
 private:
 	std::filesystem::path m_path;
 };
@@ -184,6 +193,9 @@ public:
 	TEXTURE_ADDRESS_MODE m_addressW = TEXTURE_ADDRESS_MODE::CLAMP;
 	float m_mipLODBias = 0.f;
 	COMPARISON_FUNC m_comparisonFunc = COMPARISON_FUNC::NEVER;
+
+protected:
+	LOGIC_DLL virtual void PostLoadImpl( ) override;
 
 private:
 	std::filesystem::path m_path;
@@ -223,4 +235,7 @@ public:
 	std::shared_ptr<RasterizerOption> m_rasterizerOption = nullptr;
 	static constexpr int SAMPLER_SLOT_COUNT = 16;
 	std::shared_ptr<SamplerOption> m_samplerOption[MAX_SHADER_TYPE<int>][SAMPLER_SLOT_COUNT] = {};
+
+protected:
+	LOGIC_DLL virtual void PostLoadImpl( ) override;
 };

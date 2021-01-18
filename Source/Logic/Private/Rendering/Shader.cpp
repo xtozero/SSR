@@ -28,6 +28,10 @@ void VertexShader::Serialize( Archive& ar )
 	ShaderBase::Serialize( ar );
 }
 
+void VertexShader::PostLoadImpl( )
+{
+}
+
 REGISTER_ASSET( PixelShader );
 void PixelShader::Serialize( Archive& ar )
 {
@@ -37,4 +41,8 @@ void PixelShader::Serialize( Archive& ar )
 	}
 
 	ShaderBase::Serialize( ar );
+}
+
+void PixelShader::PostLoadImpl( )
+{
 }

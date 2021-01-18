@@ -21,10 +21,11 @@ void StaticMesh::Serialize( Archive& ar )
 		ar << ID;
 	}
 
-	if ( m_renderData )
+	if ( m_renderData == nullptr )
 	{
-		m_renderData->Serialize( ar );
+		m_renderData = new StaticMeshRenderData( );
 	}
+	m_renderData->Serialize( ar );
 
 	if ( ar.IsWriteMode( ) )
 	{
@@ -45,6 +46,7 @@ void StaticMesh::Serialize( Archive& ar )
 
 void StaticMesh::BuildMeshFromMeshDescriptions( const std::vector<MeshDescription>& meshDescriptions )
 {
+	m_renderData = new StaticMeshRenderData( );
 	m_renderData->AllocateLODResources( meshDescriptions.size( ) );
 
 	int lodIndex = 0;
@@ -125,14 +127,18 @@ void StaticMesh::AddMaterial( const std::shared_ptr<Material>& mateiral )
 	m_materials.emplace_back( mateiral );
 }
 
-StaticMesh::StaticMesh( )
+StaticMesh::~StaticMesh( )
 {
-	m_renderData = new StaticMeshRenderData( );
+	delete m_renderData;
 }
 
-StaticMesh::StaticMesh( MeshDescription&& meshDescription, std::vector<Material>&& materials )
+void StaticMesh::PostLoadImpl( )
 {
-	 m_renderData = new StaticMeshRenderData( );
+}
+
+//StaticMesh::StaticMesh( MeshDescription&& meshDescription, std::vector<Material>&& materials )
+//{
+//	 m_renderData = new StaticMeshRenderData( );
 	 // TODO: 추후작업이 필요함
 	 /*m_materials = std::move( materials );
 
@@ -141,10 +147,4 @@ StaticMesh::StaticMesh( MeshDescription&& meshDescription, std::vector<Material>
 	 ENQUEUE_THREAD_TASK<ThreadType::RenderThread>( [this]( ){
 		 m_renderData->InitRenderResource( );
 	 } );*/
-}
-
- StaticMesh::~StaticMesh( )
- {
-	 // TODO: 추후작업으로 삭제 말고 레퍼 카운트 감소해야 함.
-	 delete m_renderData;
- }
+//}

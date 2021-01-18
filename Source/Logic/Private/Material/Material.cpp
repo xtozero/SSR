@@ -348,3 +348,7 @@ const MaterialProperty* Material::HasProperty( const char* key ) const
 
 	return nullptr;
 }
+
+void Material::PostLoadImpl( )
+{
+}
