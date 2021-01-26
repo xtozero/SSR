@@ -18,10 +18,6 @@ struct RenderView
 	float m_farPlaneDistance = 0.f;
 	float m_aspect = 0.f;
 	float m_fov = 0.f;
-
-	// for screen space
-	Viewport m_viewport = {};
-	RECT m_scissorRect = {};
 };
 
 class RenderViewGroup

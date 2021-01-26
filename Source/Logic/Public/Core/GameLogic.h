@@ -5,6 +5,7 @@
 #include "GameObject/LightManager.h"
 #include "GameObject/PickingManager.h"
 #include "GameObject/Player.h"
+#include "GraphicsResource/Viewport.h"
 #include "ILogic.h"
 #include "Model/ModelBuilder.h"
 #include "Model/ModelManager.h"
@@ -29,6 +30,7 @@
 #include <vector>
 
 class CGameObject;
+class GameClientViewport;
 class IRenderCore;
 
 enum RENDERABLE_TYPE
@@ -92,6 +94,8 @@ public:
 	~CGameLogic();
 
 private:
+	void CreateGameViewport( );
+
 	HMODULE m_renderCoreDll;
 
 	HWND	m_wndHwnd;
@@ -128,6 +132,9 @@ private:
 
 	World m_world;
 	float m_remainPhysicsSimulateTime = 0.f;
+
+	std::unique_ptr<rendercore::Viewport> m_primayViewport;
+	GameClientViewport* m_gameViewport;
 
 #ifdef DEBUGGING_BY_CONSOLE
 	CDebugConsole m_commandConsole;

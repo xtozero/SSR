@@ -3,6 +3,7 @@
 
 #include "common.h"
 
+#include "D3D11BaseTexture.h"
 #include "D3D11BlendState.h"
 #include "D3D11Buffer.h"
 #include "D3D11DepthStencil.h"
@@ -15,8 +16,12 @@
 #include "D3D11Shaders.h"
 #include "D3D11Textures.h"
 #include "D3D11VetexLayout.h"
+#include "D3D11Viewport.h"
 
 #include "DataStructure/EnumStringMap.h"
+
+#include "Texture.h"
+
 #include "Util.h"
 
 #include <cstddef>
@@ -143,6 +148,37 @@ RE_HANDLE CD3D11ResourceManager::CreateTexture3D( TEXTURE_TRAIT& trait, const RE
 	}
 
 	return RE_HANDLE( GraphicsResourceType::TEXTURE3D, resource );
+}
+
+aga::Texture* CD3D11ResourceManager::CreateTexture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
+{
+	if ( trait.m_miscFlag & RESOURCE_MISC::APP_SIZE_DEPENDENT )
+	{
+		// TODO : 텍스쳐 리사이즈 로직필요
+		//trait.m_width = m_frameBufferSize.first;
+		//trait.m_height = m_frameBufferSize.second;
+	}
+
+	aga::Texture* newTexture = nullptr;
+	if ( aga::IsTexture1D( trait ) )
+	{
+		newTexture = new aga::D3D11BaseTexture1D( trait, initData );
+	}
+	else if ( aga::IsTexture2D( trait ) )
+	{
+		newTexture = new aga::D3D11BaseTexture2D( trait, initData );
+	}
+	else if ( aga::IsTexture3D( trait ) )
+	{
+		newTexture = new aga::D3D11BaseTexture3D( trait, initData );
+	}
+	else
+	{
+		return nullptr;
+	}
+
+	m_renderResources.emplace( newTexture );
+	return newTexture;
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateBuffer( const BUFFER_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
@@ -505,6 +541,14 @@ RE_HANDLE CD3D11ResourceManager::CreateDepthStencilState( const DEPTH_STENCIL_ST
 	}
 
 	return RE_HANDLE( GraphicsResourceType::DEPTH_STENCIL_STATE, resource );
+}
+
+aga::Viewport* CD3D11ResourceManager::CreateViewport( int width, int height, HWND hWnd, DXGI_FORMAT format )
+{
+	auto viewport = new aga::D3D11Viewport( width, height, hWnd, format );
+	m_renderResources.emplace( viewport );
+
+	return viewport;
 }
 
 void CD3D11ResourceManager::CopyResource( RE_HANDLE dest, const RESOURCE_REGION* destRegionOrNull, RE_HANDLE src, const RESOURCE_REGION* srcRegionOrNull )

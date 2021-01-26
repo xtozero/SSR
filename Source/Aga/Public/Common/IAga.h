@@ -9,7 +9,9 @@
 namespace aga
 {
 	class PixelShader;
+	class Texture;
 	class VertexShader;
+	class Viewport;
 }
 
 class ConstantBuffer;
@@ -22,7 +24,6 @@ class VertexLayoutDesc;
 struct BUFFER_TRAIT;
 struct CXMFLOAT4X4;
 struct IDXGISwapChain;
-struct Viewport;
 
 class IAga
 {
@@ -35,6 +36,7 @@ public:
 	virtual RE_HANDLE CreateTexture1D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) = 0;
 	virtual RE_HANDLE CreateTexture2D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) = 0;
 	virtual RE_HANDLE CreateTexture3D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) = 0;
+	virtual aga::Texture* CreateTexture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) = 0;
 
 	virtual RE_HANDLE CreateBuffer( const BUFFER_TRAIT& trait ) = 0;
 	virtual ConstantBuffer* CreateConstantBuffer( const BUFFER_TRAIT& trait ) = 0;
@@ -67,13 +69,17 @@ public:
 	virtual RE_HANDLE CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) = 0;
 	virtual RE_HANDLE CreateBlendState( const BLEND_STATE_TRAIT& trait ) = 0;
 
-	virtual RE_HANDLE GetBackBuffer( UINT buffer ) const = 0;
+	// virtual RE_HANDLE GetBackBuffer( UINT buffer ) const = 0;
+
+	virtual aga::Viewport* CreateViewport( int width, int height, HWND hWnd, RESOURCE_FORMAT format ) = 0;
 
 	virtual void* LockBuffer( RE_HANDLE buffer, int lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, UINT subResource = 0 ) = 0;
 	virtual void UnLockBuffer( RE_HANDLE buffer, UINT subResource = 0 ) = 0;
 
-	virtual void SetViewports( const Viewport* viewPorts, int count ) = 0;
-	virtual void SetScissorRects( const RECT* rects, int size ) = 0;
+	virtual void SetViewports( const aga::Viewport* viewPorts, int count ) = 0;
+	virtual void SetViewport( UINT minX, UINT minY, float minZ, UINT maxX, UINT maxY, float maxZ ) = 0;
+	virtual void SetScissorRects( const aga::Viewport* viewPorts, int size ) = 0;
+	virtual void SetScissorRect( UINT minX, UINT minY, UINT maxX, UINT maxY ) = 0;
 
 	virtual void ClearRendertarget( RE_HANDLE renderTarget, const float( &clearColor )[4] ) = 0;
 	virtual void ClearDepthStencil( RE_HANDLE depthStencil, float depthColor, UINT8 stencilColor ) = 0;
@@ -98,7 +104,7 @@ public:
 	virtual void DrawAuto( ) = 0;
 	virtual void Dispatch( int x, int y, int z = 1 ) = 0;
 
-	virtual BYTE Present( ) = 0;
+	// virtual BYTE Present( ) = 0;
 
 	virtual void GenerateMips( RE_HANDLE shaderResource ) = 0;
 

@@ -33,6 +33,11 @@ class CD3D11PixelShader;
 class CD3D11VertexLayout;
 class CD3D11VertexShader;
 
+namespace aga
+{
+	class Viewport;
+}
+
 namespace Microsoft
 {
 	namespace WRL
@@ -51,6 +56,7 @@ public:
 	virtual RE_HANDLE CreateTexture1D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
 	virtual RE_HANDLE CreateTexture2D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
 	virtual RE_HANDLE CreateTexture3D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
+	virtual aga::Texture* CreateTexture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
 
 	// Buffer
 	virtual RE_HANDLE CreateBuffer( const BUFFER_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
@@ -86,6 +92,9 @@ public:
 	virtual RE_HANDLE CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) override;
 	virtual RE_HANDLE CreateBlendState( const BLEND_STATE_TRAIT& trait ) override;
 	virtual RE_HANDLE CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) override;
+
+	// Viewport
+	aga::Viewport* CreateViewport( int width, int height, HWND hWnd, DXGI_FORMAT format );
 
 	// UTIL
 	virtual void CopyResource( RE_HANDLE dest, const RESOURCE_REGION* destRegionOrNull, RE_HANDLE src, const RESOURCE_REGION* srcRegionOrNull ) override;

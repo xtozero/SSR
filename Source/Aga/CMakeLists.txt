@@ -14,6 +14,7 @@ set (CORE_SOURCE
 	"Private/Core/ModuleInit.cpp")
 	
 set (D3D11_RENDER_RESOURCE_SOURCE
+	"Private/D3D11/D3D11BaseTexture.cpp"
 	"Private/D3D11/D3D11BlendState.cpp"
 	"Private/D3D11/D3D11Buffer.cpp"
 	"Private/D3D11/D3D11DepthStencil.cpp"
@@ -27,6 +28,8 @@ set (D3D11_RENDER_RESOURCE_SOURCE
 	"Private/D3D11/D3D11Shaders.cpp"
 	"Private/D3D11/D3D11Textures.cpp"
 	"Private/D3D11/D3D11VetexLayout.cpp"
+	"Private/D3D11/D3D11Viewport.cpp"
+	"Public/D3D11/D3D11BaseTexture.h"
 	"Public/D3D11/D3D11BlendState.h"
 	"Public/D3D11/D3D11Buffer.h"
 	"Public/D3D11/D3D11DepthStencil.h"
@@ -40,7 +43,8 @@ set (D3D11_RENDER_RESOURCE_SOURCE
 	"Public/D3D11/D3D11ShaderResource.h"
 	"Public/D3D11/D3D11Shaders.h"
 	"Public/D3D11/D3D11Textures.h"
-	"Public/D3D11/D3D11VetexLayout.h")
+	"Public/D3D11/D3D11VetexLayout.h"
+	"Public/D3D11/D3D11Viewport.h")
 
 set (D3D11_SOURCE
 	"Private/D3D11/D3D11Api.cpp"
@@ -62,12 +66,15 @@ set (RENDER_RESOURCE_SOURCE
 	"Private/RenderResource/ConstantBuffer.cpp"
 	"Private/RenderResource/IndexBuffer.cpp"
 	"Private/RenderResource/ShaderResource.cpp"
+	"Private/RenderResource/Texture.cpp"
 	"Private/RenderResource/VertexBuffer.cpp"
 	"Public/RenderResource/ConstantBuffer.h"
 	"Public/RenderResource/IndexBuffer.h"
 	"Public/RenderResource/ShaderResource.h"
+	"Public/RenderResource/Texture.h"
 	"Public/RenderResource/VertexBuffer.h"
-	"Public/RenderResource/VertexInputLayout.h")
+	"Public/RenderResource/VertexInputLayout.h"
+	"Public/RenderResource/Viewport.h")
 
 source_group("Direct11" FILES ${D3D11_SOURCE})	
 source_group("Direct11\\RenderResource" FILES ${D3D11_RENDER_RESOURCE_SOURCE})

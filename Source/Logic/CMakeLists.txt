@@ -39,6 +39,7 @@ set (CORE
 	
 set (GAME_OBJECT
 	"Private/GameObject/DisplayShaderResourceHelper.cpp"
+	"Private/GameObject/GameClientViewport.cpp"
 	"Private/GameObject/GameObject.cpp"
 	"Private/GameObject/GameObjectFactory.cpp"
 	"Private/GameObject/Light.cpp"
@@ -47,6 +48,7 @@ set (GAME_OBJECT
 	"Private/GameObject/SkyBox.cpp"
 	"Private/GameObject/StaticMeshGameObject.cpp"
 	"Public/GameObject/DisplayShaderResourceHelper.h"
+	"Public/GameObject/GameClientViewport.h"
 	"Public/GameObject/GameObject.h"
 	"Public/GameObject/GameObjectFactory.h"
 	"Public/GameObject/GameObjectProperty.h"

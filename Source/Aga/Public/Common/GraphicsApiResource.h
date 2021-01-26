@@ -228,6 +228,7 @@ namespace RESOURCE_MISC
 
 		// Custom
 		APP_SIZE_DEPENDENT = 0x200,
+		TEXTURE3D = 0x400,
 	};
 }
 
@@ -406,14 +407,11 @@ namespace BUFFER_LOCKFLAG
 	};
 }
 
-namespace DEVICE_ERROR
+enum class DEVICE_ERROR
 {
-	enum
-	{
-		NONE = 0,
-		DEVICE_LOST,
-	};
-}
+	NONE = 0,
+	DEVICE_LOST,
+};
 
 namespace TEXTURE_FILTER
 {
@@ -550,16 +548,6 @@ struct RESOURCE_INIT_DATA
 	std::size_t m_srcSize;
 	UINT m_pitch;
 	UINT m_slicePitch;
-};
-
-struct Viewport
-{
-	float m_x;
-	float m_y;
-	float m_width;
-	float m_height;
-	float m_near;
-	float m_far;
 };
 
 struct RESOURCE_REGION

@@ -49,7 +49,7 @@ GroupHandle ENQUEUE_THREAD_TASK( Lambda lambda )
 	ITaskScheduler* taskScheduler = GetInterface<ITaskScheduler>( );
 	constexpr std::size_t afinityMask = WorkerAffinityMask<N...>( );
 	GroupHandle taskGroup = taskScheduler->GetTaskGroup( 1, afinityMask );
-	bool success = taskScheduler->Run( taskGroup, Task<LambdaTask<Lambda>>::Create( lambda ) );
+	bool success = taskScheduler->Run( taskGroup, Task<LambdaTask<Lambda>>::Create( TASK_TYPE::FIRE_AND_FORGET, lambda ) );
 	assert( success );
 	return taskGroup;
 }

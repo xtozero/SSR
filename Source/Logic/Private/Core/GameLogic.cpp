@@ -12,6 +12,7 @@
 #include "Core/UtilWindowInfo.h"
 #include "FileSystem/EngineFileSystem.h"
 #include "GameObject/GameObject.h"
+#include "GameObject/GameClientViewport.h"
 #include "Json/json.hpp"
 #include "Platform/IPlatform.h"
 #include "Renderer/IRenderCore.h"
@@ -80,6 +81,8 @@ bool CGameLogic::BootUp( IPlatform& platform )
 
 	// m_pickingManager.PushCamera( &GetLocalPlayer()->GetCamera() );
 	// m_inputBroadCaster.AddListener( &m_pickingManager );
+
+	CreateGameViewport( );
 
 	if ( m_lightManager.Initialize( *this ) == false )
 	{
@@ -304,9 +307,12 @@ void CGameLogic::EndLogic( )
 	//// ÈÄ¸é ±íÀÌ ·»´õ¸µ
 	//m_ssrManager.PreProcess( *this, m_renderableList );
 
-	RenderViewGroup views;
-	InitView( views );
-	DrawScene( views );
+	//RenderViewGroup views;
+	//InitView( views );
+	//DrawScene( views );
+
+	m_gameViewport->Draw( );
+
 	//DrawForDebug( );
 	//DrawDebugOverlay( );
 	//DrawUI( );
@@ -367,9 +373,6 @@ void CGameLogic::InitView( RenderViewGroup& views )
 	float height = static_cast<float>( m_appSize.second );
 	localPlayerView.m_aspect = width / height;
 	localPlayerView.m_fov = XMConvertToRadians( 60.f );
-
-	localPlayerView.m_viewport = { 0, 0, width, height, 0, 1.f };
-	localPlayerView.m_scissorRect = { 0, 0, static_cast<long>( width ), static_cast<long>( height ) };
 }
 
 void CGameLogic::DrawScene( const RenderViewGroup& views )
@@ -737,6 +740,18 @@ CGameLogic::CGameLogic( ) // : m_pickingManager( &m_gameObjects )
 CGameLogic::~CGameLogic( )
 {
 	Shutdown( );
+}
+
+void CGameLogic::CreateGameViewport( )
+{
+	m_primayViewport = std::make_unique<rendercore::Viewport>( 
+		m_appSize.first, 
+		m_appSize.second, 
+		m_wndHwnd,
+		RESOURCE_FORMAT::R8G8B8A8_UNORM_SRGB );
+
+	m_gameViewport = new GameClientViewport( m_primayViewport.get( ) );
+	SpawnObject( m_gameViewport );
 }
 
 Owner<ILogic*> CreateGameLogic( )

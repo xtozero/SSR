@@ -88,8 +88,18 @@ void WorkerThread( TaskScheduler* scheduler, Worker* worker )
 				break;
 			}
 
+			TASK_TYPE type = task->Type( );
+
 			task->Execute( );
 			--group->m_reference;
+
+			if ( type == TASK_TYPE::FIRE_AND_FORGET )
+			{
+				if ( group->m_reference == 0 )
+				{
+					group->m_free = true;
+				}
+			}
 		}
 	}
 }

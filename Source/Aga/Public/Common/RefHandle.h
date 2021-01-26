@@ -76,6 +76,11 @@ public:
 		return lhs.m_reference == rhs;
 	}
 
+	friend bool operator==( ReferencedType* lhs, const RefHandle& rhs )
+	{
+		return lhs == rhs.m_reference;
+	}
+
 	friend bool operator==( const RefHandle& lhs, const RefHandle& rhs )
 	{
 		return lhs.m_reference == rhs.m_reference;

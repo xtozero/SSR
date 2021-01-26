@@ -25,18 +25,31 @@ inline bool operator!=( const GroupHandle& lhs, const GroupHandle& rhs )
 	return !( lhs == rhs );
 }
 
+enum class TASK_TYPE
+{
+	WAITABLE,
+	FIRE_AND_FORGET
+};
+
 class TaskBase
 {
 public:
 	virtual void Execute( ) = 0;
+	TASK_TYPE Type( )
+	{
+		return m_type;
+	}
 
 protected:
-	TaskBase( ) = default;
+	explicit TaskBase( TASK_TYPE type ) : m_type( type ) {}
 	virtual ~TaskBase( ) = default;
 	TaskBase( const TaskBase& ) = delete;
 	TaskBase& operator=( const TaskBase& ) = delete;
 	TaskBase( TaskBase&& ) = delete;
 	TaskBase& operator=( TaskBase&& ) = delete;
+
+private:
+	const TASK_TYPE m_type;
 };
 
 template <typename TaskStorageType>
@@ -50,14 +63,14 @@ public:
 	}
 
 	template <typename... Args>
-	static Task* Create( Args&&... args )
+	static Task* Create( TASK_TYPE type, Args&&... args )
 	{
-		return new Task( args... );
+		return new Task( type, args... );
 	}
 
 protected:
 	template <typename... Args>
-	Task( Args&&... args )
+	Task( TASK_TYPE type, Args&&... args ) : TaskBase( type )
 	{
 		new ( &m_storage )TaskStorageType( args... );
 	}

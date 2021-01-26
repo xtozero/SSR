@@ -18,6 +18,7 @@
 #include "D3D11ShaderResource.h"
 #include "D3D11Shaders.h"
 #include "D3D11VetexLayout.h"
+#include "D3D11Viewport.h"
 
 #include "DataStructure/EnumStringMap.h"
 
@@ -36,9 +37,6 @@
 namespace
 {
 	IAga* g_AbstractGraphicsApi = nullptr;
-
-	Microsoft::WRL::ComPtr<ID3D11Device> g_pd3d11Device;
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext> g_pd3d11DeviceContext;
 };
 
 class CDirect3D11 : public IAga
@@ -52,6 +50,7 @@ public:
 	virtual RE_HANDLE CreateTexture1D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
 	virtual RE_HANDLE CreateTexture2D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
 	virtual RE_HANDLE CreateTexture3D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
+	virtual aga::Texture* CreateTexture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
 
 	virtual RE_HANDLE CreateBuffer( const BUFFER_TRAIT& trait ) override;
 	virtual ConstantBuffer* CreateConstantBuffer( const BUFFER_TRAIT& trait ) override;
@@ -84,13 +83,17 @@ public:
 	virtual RE_HANDLE CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) override;
 	virtual RE_HANDLE CreateBlendState( const BLEND_STATE_TRAIT& trait ) override;
 
-	virtual RE_HANDLE GetBackBuffer( UINT buffer ) const override;
+	virtual aga::Viewport* CreateViewport( int width, int height, HWND hWnd, RESOURCE_FORMAT format ) override;
+
+	// virtual RE_HANDLE GetBackBuffer( UINT buffer ) const override;
 
 	virtual void* LockBuffer( RE_HANDLE buffer, int lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, UINT subResource = 0 ) override;
 	virtual void UnLockBuffer( RE_HANDLE buffer, UINT subResource = 0 ) override;
 
-	virtual void SetViewports( const Viewport* viewPorts, int count ) override;
-	virtual void SetScissorRects( const RECT* rects, int size ) override;
+	virtual void SetViewports( const aga::Viewport* viewPorts, int count ) override;
+	virtual void SetViewport( UINT minX, UINT minY, float minZ, UINT maxX, UINT maxY, float maxZ ) override;
+	virtual void SetScissorRects( const aga::Viewport* viewPorts, int size ) override;
+	virtual void SetScissorRect( UINT minX, UINT minY, UINT maxX, UINT maxY ) override;
 
 	virtual void ClearRendertarget( RE_HANDLE renderTarget, const float( &clearColor )[4] ) override;
 	virtual void ClearDepthStencil( RE_HANDLE depthStencil, float depthColor, UINT8 stencilColor ) override;
@@ -115,11 +118,26 @@ public:
 	virtual void DrawAuto( ) override;
 	virtual void Dispatch( int x, int y, int z = 1 ) override;
 
-	virtual BYTE Present( ) override;
+	// virtual BYTE Present( ) override;
 
 	virtual void GenerateMips( RE_HANDLE shaderResource ) override;
 
 	virtual void GetRendererMultiSampleOption( MULTISAMPLE_OPTION* option ) override;
+
+	IDXGIFactory1& GetFactory( ) const
+	{
+		return *m_pdxgiFactory.Get( );
+	}
+
+	ID3D11Device& GetDevice( ) const
+	{
+		return *m_pd3d11Device.Get( );
+	}
+
+	ID3D11DeviceContext& GetDeviceContext( ) const
+	{
+		return *m_pd3d11DeviceContext.Get( );
+	}
 
 	CDirect3D11( );
 	virtual ~CDirect3D11( );
@@ -133,13 +151,13 @@ private:
 	void EnumerateSampleCountAndQuality( int* size, DXGI_SAMPLE_DESC* pSamples );
 
 	Microsoft::WRL::ComPtr<IDXGIFactory1>					m_pdxgiFactory;
-	Microsoft::WRL::ComPtr<IDXGISwapChain>					m_pdxgiSwapChain;
+
+	Microsoft::WRL::ComPtr<ID3D11Device>					m_pd3d11Device;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext>				m_pd3d11DeviceContext;
 
 	CD3D11ResourceManager									m_resourceManager;
 
 	DXGI_SAMPLE_DESC										m_multiSampleOption = { 1, 0 };
-
-	RE_HANDLE												m_backBuffer;
 };
 
 bool CDirect3D11::BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
@@ -154,7 +172,7 @@ bool CDirect3D11::BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
 		return false;
 	}
 
-	if ( !m_resourceManager.Bootup( g_pd3d11Device.Get( ), g_pd3d11DeviceContext.Get( ) ) )
+	if ( !m_resourceManager.Bootup( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ) ) )
 	{
 		return false;
 	}
@@ -166,10 +184,9 @@ void CDirect3D11::HandleDeviceLost( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
 {
 	m_resourceManager.OnDeviceLost( );
 
-	m_pdxgiSwapChain.Reset( );
 	m_pdxgiFactory.Reset( );
-	g_pd3d11DeviceContext.Reset( );
-	g_pd3d11Device.Reset( );
+	m_pd3d11DeviceContext.Reset( );
+	m_pd3d11Device.Reset( );
 
 	ReportLiveDevice( );
 
@@ -188,23 +205,24 @@ void CDirect3D11::HandleDeviceLost( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
 
 void CDirect3D11::AppSizeChanged( UINT nWndWidth, UINT nWndHeight )
 {
-	if ( g_pd3d11Device == nullptr )
+	if ( m_pd3d11Device == nullptr )
 	{
 		__debugbreak( );
 	}
 
-	if ( m_pdxgiSwapChain == nullptr )
-	{
-		__debugbreak( );
-	}
+	// TODO: viewport 에서 윈도우 크기 변환 관련 처리를 할 수 있도록 추가
+	//if ( m_pdxgiSwapChain == nullptr )
+	//{
+	//	__debugbreak( );
+	//}
 
 	m_resourceManager.AppSizeChanged( nWndWidth, nWndHeight );
 
-	HRESULT hr = m_pdxgiSwapChain->ResizeBuffers( 1, nWndWidth, nWndHeight, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH );
-	if ( FAILED( hr ) )
-	{
-		__debugbreak( );
-	}
+	//HRESULT hr = m_pdxgiSwapChain->ResizeBuffers( 1, nWndWidth, nWndHeight, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH );
+	//if ( FAILED( hr ) )
+	//{
+	//	__debugbreak( );
+	//}
 }
 
 void CDirect3D11::Shutdown( )
@@ -222,11 +240,11 @@ void CDirect3D11::WaitGPU( )
 	};
 
 	Microsoft::WRL::ComPtr<ID3D11Query> pQuery = nullptr;
-	if ( SUCCEEDED( g_pd3d11Device->CreateQuery( &desc, pQuery.GetAddressOf( ) ) ) )
+	if ( SUCCEEDED( m_pd3d11Device->CreateQuery( &desc, pQuery.GetAddressOf( ) ) ) )
 	{
-		g_pd3d11DeviceContext->End( pQuery.Get( ) );
+		m_pd3d11DeviceContext->End( pQuery.Get( ) );
 		BOOL data = 0;
-		while( g_pd3d11DeviceContext->GetData( pQuery.Get( ), &data, sizeof( data ), 0 ) != S_OK ) { }
+		while( m_pd3d11DeviceContext->GetData( pQuery.Get( ), &data, sizeof( data ), 0 ) != S_OK ) { }
 	}
 }
 
@@ -243,6 +261,11 @@ RE_HANDLE CDirect3D11::CreateTexture2D( TEXTURE_TRAIT& trait, const RESOURCE_INI
 RE_HANDLE CDirect3D11::CreateTexture3D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
 {
 	return m_resourceManager.CreateTexture3D( trait, initData );
+}
+
+aga::Texture* CDirect3D11::CreateTexture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
+{
+	return nullptr;
 }
 
 RE_HANDLE CDirect3D11::CreateBuffer( const BUFFER_TRAIT& trait )
@@ -366,7 +389,7 @@ void* CDirect3D11::LockBuffer( RE_HANDLE buffer, int lockFlag, UINT subResource 
 	CD3D11Buffer* d3d11buffer = m_resourceManager.GetBuffer( buffer );
 	D3D11_MAPPED_SUBRESOURCE resource;
 
-	HRESULT hr = g_pd3d11DeviceContext->Map( d3d11buffer->Get( ), subResource, ConvertLockFlagToD3D11Map( lockFlag ), 0, &resource );
+	HRESULT hr = m_pd3d11DeviceContext->Map( d3d11buffer->Get( ), subResource, ConvertLockFlagToD3D11Map( lockFlag ), 0, &resource );
 	if ( FAILED( hr ) )
 	{
 		__debugbreak();
@@ -379,7 +402,7 @@ void CDirect3D11::UnLockBuffer( RE_HANDLE buffer, UINT subResource )
 {
 	CD3D11Buffer* d3d11buffer = m_resourceManager.GetBuffer( buffer );
 
-	g_pd3d11DeviceContext->Unmap( d3d11buffer->Get( ), subResource );
+	m_pd3d11DeviceContext->Unmap( d3d11buffer->Get( ), subResource );
 }
 
 void CDirect3D11::EnumerateSampleCountAndQuality( int* size, DXGI_SAMPLE_DESC* pSamples )
@@ -390,7 +413,7 @@ void CDirect3D11::EnumerateSampleCountAndQuality( int* size, DXGI_SAMPLE_DESC* p
 	UINT qualityLevel = 0;
 	for ( int i = 0; i < _countof( desireCounts ); ++i )
 	{
-		HRESULT hr = g_pd3d11Device->CheckMultisampleQualityLevels( DXGI_FORMAT_R8G8B8A8_UNORM, desireCounts[i], &qualityLevel );
+		HRESULT hr = m_pd3d11Device->CheckMultisampleQualityLevels( DXGI_FORMAT_R8G8B8A8_UNORM, desireCounts[i], &qualityLevel );
 		if ( SUCCEEDED( hr ) && qualityLevel > 0 )
 		{
 			if ( pSamples != nullptr )
@@ -404,25 +427,72 @@ void CDirect3D11::EnumerateSampleCountAndQuality( int* size, DXGI_SAMPLE_DESC* p
 	}
 }
 
-void CDirect3D11::SetViewports( const Viewport* viewPorts, int count )
+void CDirect3D11::SetViewports( const aga::Viewport* viewPorts, int size )
 {
 	std::vector<D3D11_VIEWPORT> d3d11Viewports;
 
-	for ( int i = 0; i < count; ++i )
+	for ( int i = 0; i < size; ++i )
 	{
-		const Viewport& vp = viewPorts[i];
-		D3D11_VIEWPORT newVeiwport = { vp.m_x, vp.m_y, vp.m_width, vp.m_height, vp.m_near, vp.m_far };
+		const auto& vp = static_cast<const aga::D3D11Viewport*>( viewPorts )[i];
+		auto renderTargetSize = vp.Size( );
+		D3D11_VIEWPORT newVeiwport = { 
+			0.f, 
+			0.f, 
+			static_cast<float>( renderTargetSize.first ),
+			static_cast<float>( renderTargetSize.second ),
+			0.f,
+			1.f };
 
 		d3d11Viewports.push_back( newVeiwport );
 	}
 
 	assert( d3d11Viewports.size( ) <= UINT_MAX );
-	g_pd3d11DeviceContext->RSSetViewports( static_cast<UINT>( d3d11Viewports.size( ) ), d3d11Viewports.data( ) );
+	m_pd3d11DeviceContext->RSSetViewports( static_cast<UINT>( d3d11Viewports.size( ) ), d3d11Viewports.data( ) );
 }
 
-void CDirect3D11::SetScissorRects( const RECT* rects, int size )
+void CDirect3D11::SetViewport( UINT minX, UINT minY, float minZ, UINT maxX, UINT maxY, float maxZ )
 {
-	g_pd3d11DeviceContext->RSSetScissorRects( size, rects );
+	D3D11_VIEWPORT viewport = {
+		static_cast<float>( minX ),
+		static_cast<float>( minY ),
+		static_cast<float>( maxX ),
+		static_cast<float>( maxY ),
+		minZ,
+		maxZ
+	};
+
+	m_pd3d11DeviceContext->RSSetViewports( 1, &viewport );
+}
+
+void CDirect3D11::SetScissorRects( const aga::Viewport* viewPorts, int size )
+{
+	std::vector<D3D11_RECT> d3d11Rects;
+
+	for ( int i = 0; i < size; ++i )
+	{
+		const auto& vp = static_cast<const aga::D3D11Viewport*>( viewPorts )[i];
+		auto renderTargetSize = vp.Size( );
+		D3D11_RECT newVeiwport = { 
+			0L, 
+			0L, 
+			static_cast<LONG>( renderTargetSize.first ),
+			static_cast<LONG>( renderTargetSize.second ) };
+
+		d3d11Rects.push_back( newVeiwport );
+	}
+
+	m_pd3d11DeviceContext->RSSetScissorRects( static_cast<UINT>( d3d11Rects.size( ) ), d3d11Rects.data( ) );
+}
+
+void CDirect3D11::SetScissorRect( UINT minX, UINT minY, UINT maxX, UINT maxY )
+{
+	D3D11_RECT rect = {};
+	rect.left = minX;
+	rect.top = minY;
+	rect.right = maxX;
+	rect.bottom = maxY;
+
+	m_pd3d11DeviceContext->RSSetScissorRects( 1, &rect );
 }
 
 RE_HANDLE CDirect3D11::CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait )
@@ -445,28 +515,33 @@ RE_HANDLE CDirect3D11::CreateBlendState( const BLEND_STATE_TRAIT& trait )
 	return m_resourceManager.CreateBlendState( trait );
 }
 
-RE_HANDLE CDirect3D11::GetBackBuffer( UINT buffer ) const
+aga::Viewport* CDirect3D11::CreateViewport( int width, int height, HWND hWnd, RESOURCE_FORMAT format )
 {
-	if ( buffer == 0 )
-	{
-		return m_backBuffer;
-	}
-	else
-	{
-		return RE_HANDLE( );
-	}
+	return m_resourceManager.CreateViewport( width, height, hWnd, ConvertFormatToDxgiFormat( format ) );
 }
+
+//RE_HANDLE CDirect3D11::GetBackBuffer( UINT buffer ) const
+//{
+//	if ( buffer == 0 )
+//	{
+//		return m_backBuffer;
+//	}
+//	else
+//	{
+//		return RE_HANDLE( );
+//	}
+//}
 
 void CDirect3D11::ClearRendertarget( RE_HANDLE renderTarget, const float (&clearColor)[4] )
 {
 	CD3D11RenderTarget* rtv = m_resourceManager.GetRendertarget( renderTarget );
-	g_pd3d11DeviceContext->ClearRenderTargetView( rtv->Get(), clearColor );
+	m_pd3d11DeviceContext->ClearRenderTargetView( rtv->Get(), clearColor );
 }
 
 void CDirect3D11::ClearDepthStencil( RE_HANDLE depthStencil, float depthColor, UINT8 stencilColor )
 {
 	CD3D11DepthStencil* dsv = m_resourceManager.GetDepthstencil( depthStencil );
-	g_pd3d11DeviceContext->ClearDepthStencilView( dsv->Get( ), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthColor, stencilColor );
+	m_pd3d11DeviceContext->ClearDepthStencilView( dsv->Get( ), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthColor, stencilColor );
 }
 
 void CDirect3D11::BindVertexBuffer( RE_HANDLE* pVertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pStrides, const UINT* pOffsets )
@@ -491,7 +566,7 @@ void CDirect3D11::BindVertexBuffer( RE_HANDLE* pVertexBuffers, UINT startSlot, U
 		}
 	}
 
-	g_pd3d11DeviceContext->IASetVertexBuffers( startSlot, numBuffers, pBuffers, pStrides, pOffsets );
+	m_pd3d11DeviceContext->IASetVertexBuffers( startSlot, numBuffers, pBuffers, pStrides, pOffsets );
 }
 
 void CDirect3D11::BindIndexBuffer( RE_HANDLE indexBuffer, UINT indexOffset )
@@ -510,7 +585,7 @@ void CDirect3D11::BindIndexBuffer( RE_HANDLE indexBuffer, UINT indexOffset )
 		}
 	}
 
-	g_pd3d11DeviceContext->IASetIndexBuffer( buffer, format, indexOffset );
+	m_pd3d11DeviceContext->IASetIndexBuffer( buffer, format, indexOffset );
 }
 
 void CDirect3D11::BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT numBuffers, const RE_HANDLE* pConstantBuffers )
@@ -529,22 +604,22 @@ void CDirect3D11::BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT num
 	switch ( type )
 	{
 	case SHADER_TYPE::VS:
-		g_pd3d11DeviceContext->VSSetConstantBuffers( startSlot, numBuffers, pBuffers );
+		m_pd3d11DeviceContext->VSSetConstantBuffers( startSlot, numBuffers, pBuffers );
 		break;
 	case SHADER_TYPE::HS:
-		g_pd3d11DeviceContext->HSSetConstantBuffers( startSlot, numBuffers, pBuffers );
+		m_pd3d11DeviceContext->HSSetConstantBuffers( startSlot, numBuffers, pBuffers );
 		break;
 	case SHADER_TYPE::DS:
-		g_pd3d11DeviceContext->DSSetConstantBuffers( startSlot, numBuffers, pBuffers );
+		m_pd3d11DeviceContext->DSSetConstantBuffers( startSlot, numBuffers, pBuffers );
 		break;
 	case SHADER_TYPE::GS:
-		g_pd3d11DeviceContext->GSSetConstantBuffers( startSlot, numBuffers, pBuffers );
+		m_pd3d11DeviceContext->GSSetConstantBuffers( startSlot, numBuffers, pBuffers );
 		break;
 	case SHADER_TYPE::PS:
-		g_pd3d11DeviceContext->PSSetConstantBuffers( startSlot, numBuffers, pBuffers );
+		m_pd3d11DeviceContext->PSSetConstantBuffers( startSlot, numBuffers, pBuffers );
 		break;
 	case SHADER_TYPE::CS:
-		g_pd3d11DeviceContext->CSSetConstantBuffers( startSlot, numBuffers, pBuffers );
+		m_pd3d11DeviceContext->CSSetConstantBuffers( startSlot, numBuffers, pBuffers );
 		break;
 	default:
 		break;
@@ -561,7 +636,7 @@ void CDirect3D11::BindVertexLayout( RE_HANDLE layout )
 		inputLayout = d3d11Layout->Get( );
 	}
 
-	g_pd3d11DeviceContext->IASetInputLayout( inputLayout );
+	m_pd3d11DeviceContext->IASetInputLayout( inputLayout );
 }
 
 void CDirect3D11::BindShader( RE_HANDLE shader )
@@ -575,7 +650,7 @@ void CDirect3D11::BindShader( RE_HANDLE shader )
 			vs = d3d11VS->Get( );
 		}
 
-		g_pd3d11DeviceContext->VSSetShader( vs, nullptr, 0 );
+		m_pd3d11DeviceContext->VSSetShader( vs, nullptr, 0 );
 	}
 	else if ( IsGeometryShaderHandle( shader ) )
 	{
@@ -586,7 +661,7 @@ void CDirect3D11::BindShader( RE_HANDLE shader )
 			gs = d3d11GS->Get( );
 		}
 
-		g_pd3d11DeviceContext->GSSetShader( gs, nullptr, 0 );
+		m_pd3d11DeviceContext->GSSetShader( gs, nullptr, 0 );
 	}
 	else if ( IsPixelShaderHandle( shader ) )
 	{
@@ -597,7 +672,7 @@ void CDirect3D11::BindShader( RE_HANDLE shader )
 			ps = d3d11PS->Get( );
 		}
 
-		g_pd3d11DeviceContext->PSSetShader( ps, nullptr, 0 );
+		m_pd3d11DeviceContext->PSSetShader( ps, nullptr, 0 );
 	}
 	else if ( IsComputeShaderHandle( shader ) )
 	{
@@ -608,7 +683,7 @@ void CDirect3D11::BindShader( RE_HANDLE shader )
 			cs = d3d11CS->Get( );
 		}
 
-		g_pd3d11DeviceContext->CSSetShader( cs, nullptr, 0 );
+		m_pd3d11DeviceContext->CSSetShader( cs, nullptr, 0 );
 	}
 	else
 	{
@@ -635,22 +710,22 @@ void CDirect3D11::BindShaderResource( SHADER_TYPE type, int startSlot, int count
 	switch ( type )
 	{
 	case SHADER_TYPE::VS:
-		g_pd3d11DeviceContext->VSSetShaderResources( startSlot, count, pSrvs );
+		m_pd3d11DeviceContext->VSSetShaderResources( startSlot, count, pSrvs );
 		break;
 	case SHADER_TYPE::HS:
-		g_pd3d11DeviceContext->HSSetShaderResources( startSlot, count, pSrvs );
+		m_pd3d11DeviceContext->HSSetShaderResources( startSlot, count, pSrvs );
 		break;
 	case SHADER_TYPE::DS:
-		g_pd3d11DeviceContext->DSSetShaderResources( startSlot, count, pSrvs );
+		m_pd3d11DeviceContext->DSSetShaderResources( startSlot, count, pSrvs );
 		break;
 	case SHADER_TYPE::GS:
-		g_pd3d11DeviceContext->GSSetShaderResources( startSlot, count, pSrvs );
+		m_pd3d11DeviceContext->GSSetShaderResources( startSlot, count, pSrvs );
 		break;
 	case SHADER_TYPE::PS:
-		g_pd3d11DeviceContext->PSSetShaderResources( startSlot, count, pSrvs );
+		m_pd3d11DeviceContext->PSSetShaderResources( startSlot, count, pSrvs );
 		break;
 	case SHADER_TYPE::CS:
-		g_pd3d11DeviceContext->CSSetShaderResources( startSlot, count, pSrvs );
+		m_pd3d11DeviceContext->CSSetShaderResources( startSlot, count, pSrvs );
 		break;
 	default:
 		__debugbreak( );
@@ -675,7 +750,7 @@ void CDirect3D11::BindRandomAccessResource( int startSlot, int count, RE_HANDLE*
 		}
 	}
 
-	g_pd3d11DeviceContext->CSSetUnorderedAccessViews( startSlot, count, pRavs, initialCounts );
+	m_pd3d11DeviceContext->CSSetUnorderedAccessViews( startSlot, count, pRavs, initialCounts );
 }
 
 void CDirect3D11::BindRenderTargets( const RE_HANDLE* pRenderTargets, int renderTargetCount, RE_HANDLE depthStencil )
@@ -700,7 +775,7 @@ void CDirect3D11::BindRenderTargets( const RE_HANDLE* pRenderTargets, int render
 		pDsv = m_resourceManager.GetDepthstencil( depthStencil )->Get();
 	}
 
-	g_pd3d11DeviceContext->OMSetRenderTargets( static_cast<UINT>( renderTargetCount ), pRtvs, pDsv );
+	m_pd3d11DeviceContext->OMSetRenderTargets( static_cast<UINT>( renderTargetCount ), pRtvs, pDsv );
 }
 
 void CDirect3D11::BindRasterizerState( RE_HANDLE rasterizerState )
@@ -712,7 +787,7 @@ void CDirect3D11::BindRasterizerState( RE_HANDLE rasterizerState )
 		pState = m_resourceManager.GetRasterizerState( rasterizerState )->Get();
 	}
 
-	g_pd3d11DeviceContext->RSSetState( pState );
+	m_pd3d11DeviceContext->RSSetState( pState );
 }
 
 void CDirect3D11::BindSamplerState( SHADER_TYPE type, int startSlot, int numSamplers, const RE_HANDLE* pSamplerStates )
@@ -734,32 +809,32 @@ void CDirect3D11::BindSamplerState( SHADER_TYPE type, int startSlot, int numSamp
 	{
 	case SHADER_TYPE::VS:
 		{
-			g_pd3d11DeviceContext->VSSetSamplers( startSlot, numSamplers, pStates );
+			m_pd3d11DeviceContext->VSSetSamplers( startSlot, numSamplers, pStates );
 		}
 		break;
 	case SHADER_TYPE::HS:
 		{
-			g_pd3d11DeviceContext->HSSetSamplers( startSlot, numSamplers, pStates );
+			m_pd3d11DeviceContext->HSSetSamplers( startSlot, numSamplers, pStates );
 		}
 		break;
 	case SHADER_TYPE::DS:
 		{
-			g_pd3d11DeviceContext->DSSetSamplers( startSlot, numSamplers, pStates );
+			m_pd3d11DeviceContext->DSSetSamplers( startSlot, numSamplers, pStates );
 		}
 		break;
 	case SHADER_TYPE::GS:
 		{
-			g_pd3d11DeviceContext->GSSetSamplers( startSlot, numSamplers, pStates );
+			m_pd3d11DeviceContext->GSSetSamplers( startSlot, numSamplers, pStates );
 		}
 		break;
 	case SHADER_TYPE::PS:
 		{
-			g_pd3d11DeviceContext->PSSetSamplers( startSlot, numSamplers, pStates );
+			m_pd3d11DeviceContext->PSSetSamplers( startSlot, numSamplers, pStates );
 		}
 		break;
 	case SHADER_TYPE::CS:
 		{
-			g_pd3d11DeviceContext->CSSetSamplers( startSlot, numSamplers, pStates );
+			m_pd3d11DeviceContext->CSSetSamplers( startSlot, numSamplers, pStates );
 		}
 		break;
 	default:
@@ -773,11 +848,11 @@ void CDirect3D11::BindDepthStencilState( RE_HANDLE depthStencilState )
 	if ( depthStencilState.IsValid( ) )
 	{
 		CD3D11DepthStencilState* state = m_resourceManager.GetDepthStencilState( depthStencilState );
-		g_pd3d11DeviceContext->OMSetDepthStencilState( state->Get( ), state->GetStencilRef( ) );
+		m_pd3d11DeviceContext->OMSetDepthStencilState( state->Get( ), state->GetStencilRef( ) );
 	}
 	else
 	{
-		g_pd3d11DeviceContext->OMSetDepthStencilState( nullptr, 0 );
+		m_pd3d11DeviceContext->OMSetDepthStencilState( nullptr, 0 );
 	}
 }
 
@@ -786,69 +861,69 @@ void CDirect3D11::BindBlendState( RE_HANDLE blendState )
 	if ( blendState.IsValid( ) )
 	{
 		CD3D11BlendState* state = m_resourceManager.GetBlendState( blendState );
-		g_pd3d11DeviceContext->OMSetBlendState( state->Get( ), state->GetBlendFactor( ), state->GetSamplerMask( ) );
+		m_pd3d11DeviceContext->OMSetBlendState( state->Get( ), state->GetBlendFactor( ), state->GetSamplerMask( ) );
 	}
 	else
 	{
 		float defaultBlendFactor[4] = { 0.f, 0.f, 0.f, 0.f };
-		g_pd3d11DeviceContext->OMSetBlendState( nullptr, defaultBlendFactor, D3D11_DEFAULT_SAMPLE_MASK );
+		m_pd3d11DeviceContext->OMSetBlendState( nullptr, defaultBlendFactor, D3D11_DEFAULT_SAMPLE_MASK );
 	}
 }
 
 void CDirect3D11::Draw( RESOURCE_PRIMITIVE primitive, UINT vertexCount, UINT vertexOffset )
 {
 	D3D_PRIMITIVE_TOPOLOGY d3d11Primitive = ConvertPrimToD3D11Prim( primitive );
-	g_pd3d11DeviceContext->IASetPrimitiveTopology( d3d11Primitive );
-	g_pd3d11DeviceContext->Draw( vertexCount, vertexOffset );
+	m_pd3d11DeviceContext->IASetPrimitiveTopology( d3d11Primitive );
+	m_pd3d11DeviceContext->Draw( vertexCount, vertexOffset );
 }
 
 void CDirect3D11::DrawIndexed( RESOURCE_PRIMITIVE primitive, UINT indexCount, UINT indexOffset, UINT vertexOffset )
 {
 	D3D_PRIMITIVE_TOPOLOGY d3d11Primitive = ConvertPrimToD3D11Prim( primitive );
-	g_pd3d11DeviceContext->IASetPrimitiveTopology( d3d11Primitive );
-	g_pd3d11DeviceContext->DrawIndexed( indexCount, indexOffset, vertexOffset );
+	m_pd3d11DeviceContext->IASetPrimitiveTopology( d3d11Primitive );
+	m_pd3d11DeviceContext->DrawIndexed( indexCount, indexOffset, vertexOffset );
 }
 
 void CDirect3D11::DrawInstanced( RESOURCE_PRIMITIVE primitive, UINT vertexCount, UINT instanceCount, UINT vertexOffset, UINT instanceOffset )
 {
 	D3D_PRIMITIVE_TOPOLOGY d3d11Primitive = ConvertPrimToD3D11Prim( primitive );
-	g_pd3d11DeviceContext->IASetPrimitiveTopology( d3d11Primitive );
-	g_pd3d11DeviceContext->DrawInstanced( vertexCount, instanceCount, vertexOffset, instanceOffset );
+	m_pd3d11DeviceContext->IASetPrimitiveTopology( d3d11Primitive );
+	m_pd3d11DeviceContext->DrawInstanced( vertexCount, instanceCount, vertexOffset, instanceOffset );
 }
 
 void CDirect3D11::DrawInstancedInstanced( RESOURCE_PRIMITIVE primitive, UINT indexCount, UINT instanceCount, UINT indexOffset, UINT vertexOffset, UINT instanceOffset )
 {
 	D3D_PRIMITIVE_TOPOLOGY d3d11Primitive = ConvertPrimToD3D11Prim( primitive );
-	g_pd3d11DeviceContext->IASetPrimitiveTopology( d3d11Primitive );
-	g_pd3d11DeviceContext->DrawIndexedInstanced( indexCount, instanceCount, indexOffset, vertexOffset, instanceOffset );
+	m_pd3d11DeviceContext->IASetPrimitiveTopology( d3d11Primitive );
+	m_pd3d11DeviceContext->DrawIndexedInstanced( indexCount, instanceCount, indexOffset, vertexOffset, instanceOffset );
 }
 
 void CDirect3D11::DrawAuto( )
 {
-	g_pd3d11DeviceContext->DrawAuto( );
+	m_pd3d11DeviceContext->DrawAuto( );
 }
 
 void CDirect3D11::Dispatch( int x, int y, int z )
 {
-	g_pd3d11DeviceContext->Dispatch( static_cast<UINT>( x ), static_cast<UINT>( y ), static_cast<UINT>( z ) );
+	m_pd3d11DeviceContext->Dispatch( static_cast<UINT>( x ), static_cast<UINT>( y ), static_cast<UINT>( z ) );
 }
 
-BYTE CDirect3D11::Present( )
-{
-	HRESULT hr = m_pdxgiSwapChain->Present( 0, 0 );
-
-	if ( hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET )
-	{
-		return DEVICE_ERROR::DEVICE_LOST;
-	}
-
-	return DEVICE_ERROR::NONE;
-}
+//BYTE CDirect3D11::Present( )
+//{
+//	HRESULT hr = m_pdxgiSwapChain->Present( 0, 0 );
+//
+//	if ( hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET )
+//	{
+//		return DEVICE_ERROR::DEVICE_LOST;
+//	}
+//
+//	return DEVICE_ERROR::NONE;
+//}
 
 void CDirect3D11::GenerateMips( RE_HANDLE shaderResource )
 {
 	CD3D11ShaderResource* srv = m_resourceManager.GetShaderResource( shaderResource );
-	g_pd3d11DeviceContext->GenerateMips( srv->Get( ) );
+	m_pd3d11DeviceContext->GenerateMips( srv->Get( ) );
 }
 
 void CDirect3D11::GetRendererMultiSampleOption( MULTISAMPLE_OPTION* option )
@@ -898,14 +973,15 @@ bool CDirect3D11::CreateDeviceDependentResource( HWND hWnd, UINT nWndWidth, UINT
 			d3dFeatureLevel,
 			_countof( d3dFeatureLevel ),
 			D3D11_SDK_VERSION,
-			g_pd3d11Device.GetAddressOf( ),
+			m_pd3d11Device.GetAddressOf( ),
 			&selectedFeature,
-			g_pd3d11DeviceContext.GetAddressOf( )
+			m_pd3d11DeviceContext.GetAddressOf( )
 		);
 
 		if ( SUCCEEDED( hr ) )
 		{
-			int desiredSampleCount = 0;
+			// TODO: Viewport 에서 멀티 샘플링 관련 기능 구현
+			/*int desiredSampleCount = 0;
 			EnumerateSampleCountAndQuality( &desiredSampleCount, nullptr );
 
 			std::vector<DXGI_SAMPLE_DESC> sampleCountAndQuality;
@@ -940,13 +1016,13 @@ bool CDirect3D11::CreateDeviceDependentResource( HWND hWnd, UINT nWndWidth, UINT
 			dxgiSwapchainDesc.Windowed = true;
 			dxgiSwapchainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-			hr = m_pdxgiFactory->CreateSwapChain( g_pd3d11Device.Get( ), &dxgiSwapchainDesc, m_pdxgiSwapChain.GetAddressOf( ) );
+			hr = m_pdxgiFactory->CreateSwapChain( m_pd3d11Device.Get( ), &dxgiSwapchainDesc, m_pdxgiSwapChain.GetAddressOf( ) );
 			if ( FAILED( hr ) )
 			{
 				return false;
 			}
 
-			m_resourceManager.OnDeviceRestore( g_pd3d11Device.Get( ), g_pd3d11DeviceContext.Get( ) );
+			m_resourceManager.OnDeviceRestore( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ) );
 
 			Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
 			hr = m_pdxgiSwapChain->GetBuffer( 0, IID_PPV_ARGS( &backBuffer ) );
@@ -955,7 +1031,7 @@ bool CDirect3D11::CreateDeviceDependentResource( HWND hWnd, UINT nWndWidth, UINT
 				return false;
 			}
 
-			m_backBuffer = m_resourceManager.AddTexture2D( backBuffer, true );
+			m_backBuffer = m_resourceManager.AddTexture2D( backBuffer, true );*/
 
 			return true;
 		}
@@ -977,7 +1053,7 @@ bool CDirect3D11::CreateDeviceIndependentResource( )
 
 void CDirect3D11::ReportLiveDevice( )
 {
-	if ( g_pd3d11Device == nullptr )
+	if ( m_pd3d11Device == nullptr )
 	{
 		return;
 	}
@@ -985,7 +1061,7 @@ void CDirect3D11::ReportLiveDevice( )
 	HRESULT hr;
 	Microsoft::WRL::ComPtr<ID3D11Debug> pD3dDebug;
 
-	hr = g_pd3d11Device.Get( )->QueryInterface( IID_PPV_ARGS( &pD3dDebug ) );
+	hr = m_pd3d11Device.Get( )->QueryInterface( IID_PPV_ARGS( &pD3dDebug ) );
 
 	if ( SUCCEEDED( hr ) )
 	{
@@ -1001,18 +1077,24 @@ void CreateAbstractGraphicsApi( )
 void DestoryAbstractGraphicsApi( )
 {
 	delete g_AbstractGraphicsApi;
-	g_pd3d11DeviceContext.Reset( );
-	g_pd3d11Device.Reset( );
 }
 
 ID3D11Device& D3D11Device( )
 {
-	return *g_pd3d11Device.Get( );
+	auto d3d11Api = static_cast<CDirect3D11*>( GetD3D11GraphicsApi( ) );
+	return d3d11Api->GetDevice( );
 }
 
 ID3D11DeviceContext& D3D11Context( )
 {
-	return *g_pd3d11DeviceContext.Get();
+	auto d3d11Api = static_cast<CDirect3D11*>( GetD3D11GraphicsApi( ) );
+	return d3d11Api->GetDeviceContext( );
+}
+
+IDXGIFactory1& D3D11Factory( )
+{
+	auto d3d11Api = static_cast<CDirect3D11*>( GetD3D11GraphicsApi( ) );
+	return d3d11Api->GetFactory( );
 }
 
 void* GetD3D11GraphicsApi( )
