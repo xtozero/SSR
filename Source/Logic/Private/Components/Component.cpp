@@ -56,10 +56,10 @@ void Component::MarkRenderStateDirty( )
 
 		if ( m_markForUpdateState == false )
 		{
-			ENQUEUE_THREAD_TASK<ThreadType::GameThread>( [this]( )
+			EnqueueThreadTask<ThreadType::GameThread>( [this]( )
 			{
 				UpdateState( );
-			} );
+			}, TASK_TYPE::FIRE_AND_FORGET );
 		}
 
 		m_markForUpdateState = true;

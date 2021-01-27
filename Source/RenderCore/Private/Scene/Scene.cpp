@@ -10,7 +10,7 @@
 
 Scene::Scene( )
 {
-	ENQUEUE_THREAD_TASK<ThreadType::RenderThread>( [this]
+	EnqueueRenderTask( [this]
 	{
 		m_constantBuffers.Initialize( );
 	});
@@ -39,7 +39,7 @@ void Scene::AddPrimitive( PrimitiveComponent* primitive )
 		primitive->GetRenderMatrix( )
 	};
 
-	ENQUEUE_THREAD_TASK<ThreadType::RenderThread>( [this, param, primitiveSceneInfo]( )
+	EnqueueRenderTask( [this, param, primitiveSceneInfo]( )
 	{
 		PrimitiveProxy* sceneProxy = primitiveSceneInfo->m_sceneProxy;
 
@@ -58,7 +58,7 @@ void Scene::RemovePrimitive( PrimitiveComponent* primitive )
 		PrimitivieSceneInfo* primitiveSceneInfo = proxy->m_primitiveSceneInfo;
 		primitive->m_sceneProxy = nullptr;
 
-		ENQUEUE_THREAD_TASK<ThreadType::RenderThread>( [this, primitiveSceneInfo]( )
+		EnqueueRenderTask( [this, primitiveSceneInfo]( )
 		{
 			RemovePrimitiveSceneInfo( primitiveSceneInfo );
 		} );

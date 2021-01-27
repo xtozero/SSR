@@ -44,23 +44,27 @@ private:
 };
 
 template <std::size_t... N, typename Lambda>
-GroupHandle ENQUEUE_THREAD_TASK( Lambda lambda )
+GroupHandle EnqueueThreadTask( Lambda lambda, TASK_TYPE taskType = TASK_TYPE::WAITABLE )
 {
 	ITaskScheduler* taskScheduler = GetInterface<ITaskScheduler>( );
 	constexpr std::size_t afinityMask = WorkerAffinityMask<N...>( );
-	GroupHandle taskGroup = taskScheduler->GetTaskGroup( 1, afinityMask );
-	bool success = taskScheduler->Run( taskGroup, Task<LambdaTask<Lambda>>::Create( TASK_TYPE::FIRE_AND_FORGET, lambda ) );
+	GroupHandle taskGroup = taskScheduler->GetTaskGroup( afinityMask );
+	bool success = taskScheduler->Run( taskGroup, Task<LambdaTask<Lambda>>::Create( taskType, lambda ) );
 	assert( success );
 	return taskGroup;
 }
 
-ENGINE_FUNC_DLL bool IsInGameThread( );
-ENGINE_FUNC_DLL bool IsInRenderThread( );
+template <typename Lambda>
+void EnqueueRenderTask( Lambda lambda )
+{
+	auto* task = Task<LambdaTask<Lambda>>::Create( TASK_TYPE::WAITABLE, lambda );
+	EnqueueRenderTask( static_cast<TaskBase*>( task ) );
+}
 
 class ITaskScheduler
 {
 public:
-	virtual [[nodiscard]] GroupHandle GetTaskGroup( std::size_t reserveSize = 0, std::size_t workerAffinity = std::numeric_limits<std::size_t>::max( ) ) = 0;
+	[[nodiscard]] virtual GroupHandle GetTaskGroup( std::size_t workerAffinity = std::numeric_limits<std::size_t>::max( ) ) = 0;
 
 	virtual bool Run( GroupHandle handle, TaskBase* task ) = 0;
 
@@ -71,10 +75,14 @@ public:
 
 	virtual bool IsComplete( GroupHandle handle ) const = 0;
 
-	virtual std::size_t GetThisThreadTyep( ) const = 0;
+	virtual std::size_t GetThisThreadType( ) const = 0;
 
 	virtual ~ITaskScheduler( ) = default;
 };
 
 ITaskScheduler* CreateTaskScheduler( );
 void DestroyTaskScheduler( ITaskScheduler* taskScheduler );
+
+ENGINE_FUNC_DLL bool IsInGameThread( );
+ENGINE_FUNC_DLL bool IsInRenderThread( );
+ENGINE_FUNC_DLL void EnqueueRenderTask( TaskBase* task );

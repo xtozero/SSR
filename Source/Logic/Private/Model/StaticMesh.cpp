@@ -144,7 +144,7 @@ void StaticMesh::PostLoadImpl( )
 
 	 m_renderData->AddLODResource( meshDescription, m_materials );
 
-	 ENQUEUE_THREAD_TASK<ThreadType::RenderThread>( [this]( ){
+	EnqueueRenderTask( [this]( ){
 		 m_renderData->InitRenderResource( );
 	 } );*/
 //}

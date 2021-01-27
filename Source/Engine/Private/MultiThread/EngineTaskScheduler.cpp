@@ -5,20 +5,10 @@
 
 #include <cstddef>
 
-bool IsInGameThread( )
-{
-	return GetInterface<ITaskScheduler>( )->GetThisThreadTyep( ) == ThreadType::GameThread;
-}
-
-bool IsInRenderThread( )
-{
-	return GetInterface<ITaskScheduler>( )->GetThisThreadTyep( ) == ThreadType::RenderThread;
-}
-
 class EngineTaskScheduler : public ITaskScheduler
 {
 public:
-	virtual [[nodiscard]] GroupHandle GetTaskGroup( std::size_t reserveSize = 0, std::size_t workerAffinity = std::numeric_limits<std::size_t>::max( ) ) override;
+	[[nodiscard]] virtual GroupHandle GetTaskGroup( std::size_t workerAffinity = std::numeric_limits<std::size_t>::max( ) ) override;
 
 	virtual bool Run( GroupHandle handle, TaskBase* task ) override;
 
@@ -29,7 +19,9 @@ public:
 
 	virtual bool IsComplete( GroupHandle handle ) const override;
 
-	virtual std::size_t GetThisThreadTyep( ) const override;
+	virtual std::size_t GetThisThreadType( ) const override;
+
+	[[nodiscard]] GroupHandle GetOrderedTaskGroup( int threadType );
 
 	EngineTaskScheduler( );
 	~EngineTaskScheduler( ) = default;
@@ -42,11 +34,12 @@ private:
 	static constexpr std::size_t MAX_ENGINE_THREAD_GROUP = 1024;
 
 	TaskScheduler m_taskScheduler;
+	GroupHandle m_orderedTask[ThreadType::WorkerThreadCount];
 };
 
-GroupHandle EngineTaskScheduler::GetTaskGroup( std::size_t reserveSize, std::size_t workerAffinity )
+GroupHandle EngineTaskScheduler::GetTaskGroup( std::size_t workerAffinity )
 {
-	return m_taskScheduler.GetTaskGroup( reserveSize, workerAffinity );
+	return m_taskScheduler.GetTaskGroup( workerAffinity );
 }
 
 bool EngineTaskScheduler::Run( GroupHandle handle, TaskBase* task )
@@ -74,13 +67,22 @@ bool EngineTaskScheduler::IsComplete( GroupHandle handle ) const
 	return m_taskScheduler.IsComplete( handle );
 }
 
-std::size_t EngineTaskScheduler::GetThisThreadTyep( ) const
+std::size_t EngineTaskScheduler::GetThisThreadType( ) const
 {
 	return m_taskScheduler.GetThisThreadType( );
 }
 
+GroupHandle EngineTaskScheduler::GetOrderedTaskGroup( int threadType )
+{
+	return m_orderedTask[threadType];
+}
+
 EngineTaskScheduler::EngineTaskScheduler( ) : m_taskScheduler( MAX_ENGINE_THREAD_GROUP, ThreadType::WorkerThreadCount )
 {
+	for ( std::size_t threadType = 0; threadType < ThreadType::WorkerThreadCount; ++threadType )
+	{
+		m_orderedTask[threadType] = GetTaskGroup( 1i64 << threadType );
+	}
 }
 
 ITaskScheduler* CreateTaskScheduler( )
@@ -91,4 +93,22 @@ ITaskScheduler* CreateTaskScheduler( )
 void DestroyTaskScheduler( ITaskScheduler* taskScheduler )
 {
 	delete taskScheduler;
+}
+
+bool IsInGameThread( )
+{
+	return GetInterface<ITaskScheduler>( )->GetThisThreadType( ) == ThreadType::GameThread;
+}
+
+bool IsInRenderThread( )
+{
+	return GetInterface<ITaskScheduler>( )->GetThisThreadType( ) == ThreadType::RenderThread;
+}
+
+void EnqueueRenderTask( TaskBase* task )
+{
+	auto taskScheduler = static_cast<EngineTaskScheduler*>( GetInterface<ITaskScheduler>( ) );
+	GroupHandle taskGroup = taskScheduler->GetOrderedTaskGroup( ThreadType::RenderThread );
+	bool success = taskScheduler->Run( taskGroup, task );
+	assert( success );
 }

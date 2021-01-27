@@ -79,7 +79,7 @@ EngineFileSystem::EngineFileSystem( )
 				break;
 			}
 
-			ENQUEUE_THREAD_TASK<ThreadType::GameThread>( [this, o]( )
+			EnqueueThreadTask<ThreadType::GameThread>( [this, o]( )
 			{
 				if ( o->m_callback.IsBound( ) )
 				{
@@ -88,11 +88,11 @@ EngineFileSystem::EngineFileSystem( )
 
 				delete[] o->m_buffer;
 				m_fileSystem.CleanUpIORequest( o );
-			} );
+			}, TASK_TYPE::FIRE_AND_FORGET );
 		}
 	};
 
-	m_hWaitIO = ENQUEUE_THREAD_TASK<ThreadType::FileSystemThread>( waitIO );
+	m_hWaitIO = EnqueueThreadTask<ThreadType::FileSystemThread>( waitIO );
 }
 
 EngineFileSystem::~EngineFileSystem( )

@@ -73,7 +73,7 @@ IScene* RenderCore::CreateScene( )
 
 void RenderCore::RemoveScene( IScene* scene )
 {
-	ENQUEUE_THREAD_TASK<ThreadType::RenderThread>( [scene]( )
+	EnqueueRenderTask( [scene]( )
 	{
 		delete scene;
 	});

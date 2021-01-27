@@ -14,7 +14,7 @@ void GameClientViewport::Draw( )
 
 	++m_curDrawFence;
 
-	ENQUEUE_THREAD_TASK<ThreadType::RenderThread>( [viewport = m_viewport, clearColor = &m_clearColor]( )
+	EnqueueRenderTask( [viewport = m_viewport, clearColor = &m_clearColor]( )
 	{
 		viewport->Clear( *clearColor );
 	} );
@@ -26,7 +26,7 @@ void GameClientViewport::Draw( )
 		static_cast<long>( renderTargetSize.first ),
 		static_cast<long>( renderTargetSize.second ) };
 
-	ENQUEUE_THREAD_TASK<ThreadType::RenderThread>( [aga = GetInterface<IAga>( ), rect]()
+	EnqueueRenderTask( [aga = GetInterface<IAga>( ), rect]( )
 	{
 		if ( aga )
 		{
@@ -35,7 +35,7 @@ void GameClientViewport::Draw( )
 		}
 	} );
 
-	ENQUEUE_THREAD_TASK<ThreadType::RenderThread>( [this, viewport = m_viewport]( )
+	EnqueueRenderTask( [this, viewport = m_viewport]( )
 	{
 		viewport->Present( false );
 		++m_drawFence;
