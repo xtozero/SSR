@@ -19,22 +19,22 @@ set (MESH_SOURCE
 
 set (RENDERER_SOURCE
 	"Private/Renderer/ForwardRenderer.cpp"
+	"Private/Renderer/RenderView.cpp"
 	"Private/Renderer/SceneRenderer.cpp"
 	"Public/Renderer/ForwardRenderer.h"
 	"Public/Renderer/IRenderCore.h"
+	"Public/Renderer/RenderView.h"
 	"Public/Renderer/SceneRenderer.h")
-
-set (RENDER_UTIL
-	"Private/Renderer/RenderOutputManager.cpp"
-	"Public/Renderer/RenderOutputManager.h")
 	
 set (GRAPHICS_RESOURCE_SOURCE
-	"Private/GraphicsResource/Viewport.cpp"
-	"Public/GraphicsResource/Buffer.h"
-	"Public/GraphicsResource/DrawSnapshot.h"
-	"Public/GraphicsResource/ShaderBindings.h"
-	"Public/GraphicsResource/VertexInputStream.h"
-	"Public/GraphicsResource/Viewport.h")
+	Private/GraphicsResource/DepthStencil.cpp
+	Private/GraphicsResource/Viewport.cpp
+	Public/GraphicsResource/Buffer.h
+	Public/GraphicsResource/DepthStencil.h
+	Public/GraphicsResource/DrawSnapshot.h
+	Public/GraphicsResource/ShaderBindings.h
+	Public/GraphicsResource/VertexInputStream.h
+	Public/GraphicsResource/Viewport.h)
 	
 set (PROXIES_SOURCE
 	"Private/Proxies/PrimitiveProxy.cpp"
@@ -55,7 +55,6 @@ source_group("GraphicsResource" FILES ${GRAPHICS_RESOURCE_SOURCE})
 source_group("Mesh" FILES ${MESH_SOURCE})
 source_group("Proxies" FILES ${PROXIES_SOURCE})
 source_group("Renderer" FILES ${RENDERER_SOURCE})
-source_group("RenderUtil" FILES ${RENDER_UTIL})
 source_group("Scene" FILES ${RENDER_SCENE_SOURCE})
 
 include_directories(./Public)

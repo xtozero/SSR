@@ -16,7 +16,6 @@
 #include "Scene/AtmosphereScattering.h"
 #include "Scene/ConstantBufferDefine.h"
 #include "Scene/DebugOverlayManager.h"
-#include "Scene/RenderView.h"
 #include "Scene/ShadowManager.h"
 #include "Scene/SSRManager.h"
 #include "Timer.h"
@@ -62,8 +61,6 @@ public:
 	const std::pair<UINT, UINT>& GetAPPSize( ) { return m_appSize; }
 	const CTimer& GetTimer( ) const { return m_clock; }
 
-	CPlayer* GetLocalPlayer( );
-
 private:
 	void Shutdown( );
 
@@ -73,8 +70,7 @@ private:
 
 	bool LoadWorld( const char* filePath );
 
-	void InitView( RenderViewGroup& views );
-	void DrawScene( const RenderViewGroup& views );
+	void DrawScene( );
 	void DrawForDebug( );
 	void DrawDebugOverlay( );
 	void DrawUI( );

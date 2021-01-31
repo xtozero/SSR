@@ -4,6 +4,8 @@
 #include "D3D11Api.h"
 #include "D3D11BaseTexture.h"
 
+#include "Texture.h"
+
 #include <d3d11.h>
 
 namespace aga
@@ -78,5 +80,10 @@ namespace aga
 		assert( SUCCEEDED( hr ) );
 		m_backBuffer = new D3D11BaseTexture2D( backBuffer );
 		m_backBuffer->InitResource( );
+	}
+
+	aga::Texture* D3D11Viewport::Texture( )
+	{
+		return m_backBuffer.Get( );
 	}
 }

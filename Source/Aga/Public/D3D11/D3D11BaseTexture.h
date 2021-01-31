@@ -7,22 +7,9 @@
 
 namespace aga
 {
-	template <typename T>
 	class D3D11BaseTexture : public Texture
 	{
 	public:
-		virtual void InitResource( ) override
-		{
-			if ( m_texture == nullptr )
-			{
-				CreateTexture( );
-			}
-			
-			CreateShaderResource( );
-			CreateRenderTarget( );
-			CreateDepthStencil( );
-		}
-
 		virtual void Free( ) override
 		{
 			if ( m_srv )
@@ -42,15 +29,15 @@ namespace aga
 				m_dsv->Release( );
 				m_dsv = nullptr;
 			}
+		}
 
-			if ( m_texture )
-			{
-				m_texture->Release( );
-				m_texture = nullptr;
-			}
+		virtual std::pair<UINT, UINT> Size( ) const override
+		{
+			return { m_trait.m_width, m_trait.m_height };
 		}
 
 		ID3D11RenderTargetView* RenderTargetView( ) { return m_rtv; }
+		ID3D11DepthStencilView* DepthStencilView( ) { return m_dsv; }
 
 		D3D11BaseTexture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData ) : m_trait( trait ) 
 		{
@@ -77,6 +64,56 @@ namespace aga
 		}
 
 	protected:
+		virtual void CreateTexture( ) = 0;
+
+		TEXTURE_TRAIT m_trait = {};
+		D3D11_SUBRESOURCE_DATA m_initData = {};
+
+		ID3D11ShaderResourceView* m_srv = nullptr;
+		ID3D11RenderTargetView* m_rtv = nullptr;
+		ID3D11DepthStencilView* m_dsv = nullptr;
+
+	private:
+		void* m_dataStorage = nullptr;
+	};
+
+	template <typename T>
+	class D3D11Texture : public D3D11BaseTexture
+	{
+	public:
+		virtual void InitResource( ) override
+		{
+			if ( m_texture == nullptr )
+			{
+				CreateTexture( );
+			}
+
+			CreateShaderResource( );
+			CreateRenderTarget( );
+			CreateDepthStencil( );
+		}
+
+		virtual void Free( ) override
+		{
+			D3D11BaseTexture::Free( );
+
+			if ( m_texture )
+			{
+				m_texture->Release( );
+				m_texture = nullptr;
+			}
+		}
+
+		D3D11Texture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData ) : D3D11BaseTexture( trait, initData ) { }
+		D3D11Texture( ) = default;
+		D3D11Texture( const D3D11BaseTexture& ) = delete;
+		D3D11Texture& operator=( const D3D11BaseTexture& ) = delete;
+		D3D11Texture( D3D11BaseTexture&& ) = delete;
+		D3D11Texture& operator=( D3D11BaseTexture&& ) = delete;
+
+	protected:
+		T* m_texture = nullptr;
+
 		void CreateShaderResource( )
 		{
 			if ( ( m_trait.m_bindType & RESOURCE_BIND_TYPE::SHADER_RESOURCE ) > 0 )
@@ -103,52 +140,42 @@ namespace aga
 				assert( SUCCEEDED( hr ) );
 			}
 		}
-
-		T* m_texture = nullptr;
-		TEXTURE_TRAIT m_trait = {};
-		D3D11_SUBRESOURCE_DATA m_initData = {};
-
-	private:
-		virtual void CreateTexture( ) = 0;
-
-		void* m_dataStorage = nullptr;
-
-		ID3D11ShaderResourceView* m_srv = nullptr;
-		ID3D11RenderTargetView* m_rtv = nullptr;
-		ID3D11DepthStencilView* m_dsv = nullptr;
 	};
 
-	class D3D11BaseTexture1D final : public D3D11BaseTexture<ID3D11Texture1D>
+	class D3D11BaseTexture1D final : public D3D11Texture<ID3D11Texture1D>
 	{
 	public:
 		D3D11BaseTexture1D( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData );
 
-	private:
+	protected:
 		virtual void CreateTexture( ) override;
 
+	private:
 		D3D11_TEXTURE1D_DESC m_desc = {};
 	};
 
-	class D3D11BaseTexture2D final : public D3D11BaseTexture<ID3D11Texture2D>
+	class D3D11BaseTexture2D final : public D3D11Texture<ID3D11Texture2D>
 	{
 	public:
 		D3D11BaseTexture2D( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData );
 		explicit D3D11BaseTexture2D( ID3D11Texture2D* texture );
 
-	private:
+	protected:
 		virtual void CreateTexture( ) override;
 
+	private:
 		D3D11_TEXTURE2D_DESC m_desc = {};
 	};
 
-	class D3D11BaseTexture3D final : public D3D11BaseTexture<ID3D11Texture3D>
+	class D3D11BaseTexture3D final : public D3D11Texture<ID3D11Texture3D>
 	{
 	public:
 		D3D11BaseTexture3D( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData );
 
-	private:
+	protected:
 		virtual void CreateTexture( ) override;
 
+	private:
 		D3D11_TEXTURE3D_DESC m_desc = {};
 	};
 

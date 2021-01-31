@@ -69,6 +69,11 @@ void Scene::DrawScene( const RenderViewGroup& views )
 {
 }
 
+SHADING_METHOD Scene::ShadingMethod( ) const
+{
+	return SHADING_METHOD::Forward;
+}
+
 void Scene::AddPrimitiveSceneInfo( PrimitivieSceneInfo* primitiveSceneInfo )
 {
 	assert( IsInRenderThread() );

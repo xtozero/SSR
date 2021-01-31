@@ -196,26 +196,6 @@ void CGameLogic::SpawnObject( Owner<CGameObject*> object )
 	m_world.SpawnObject( *this, object );
 }
 
-CPlayer* CGameLogic::GetLocalPlayer( )
-{
-	CPlayer* localPlayer = nullptr;
-
-	const auto& gameObjects = m_world.GameObjects( );
-	for ( const auto& gameObject : gameObjects )
-	{
-		if ( CPlayer* player = dynamic_cast<CPlayer*>( gameObject.get( ) ) )
-		{
-			localPlayer = player;
-			break;
-		}
-	}
-
-	// To DO
-	// m_inputBroadCaster.AddListener( &m_players.front( ) );
-
-	return localPlayer;
-}
-
 void CGameLogic::Shutdown( )
 {
 	m_world.CleanUp( );
@@ -307,11 +287,9 @@ void CGameLogic::EndLogic( )
 	//// ÈÄ¸é ±íÀÌ ·»´õ¸µ
 	//m_ssrManager.PreProcess( *this, m_renderableList );
 
-	//RenderViewGroup views;
 	//InitView( views );
-	//DrawScene( views );
 
-	m_gameViewport->Draw( );
+	DrawScene( );
 
 	//DrawForDebug( );
 	//DrawDebugOverlay( );
@@ -351,37 +329,14 @@ bool CGameLogic::LoadWorld( const char* filePath )
 	return result;
 }
 
-void CGameLogic::InitView( RenderViewGroup& views )
+void CGameLogic::DrawScene( )
 {
-	CPlayer* localPlayer = GetLocalPlayer( );
-	assert( localPlayer );
-
-	const CameraComponent* cameraComponent = localPlayer->GetCameraComponent( );
-	assert( cameraComponent );
-
-	RenderView localPlayerView = views.AddRenderView( );
-
-	localPlayerView.m_viewOrigin = cameraComponent->GetPosition( );
-	localPlayerView.m_viewAxis = CXMFLOAT3X3( cameraComponent->GetRightVector( ),
-											cameraComponent->GetUpVector( ),
-											cameraComponent->GetForwardVector() );
-
-	localPlayerView.m_nearPlaneDistance = 1.f;
-	localPlayerView.m_farPlaneDistance = 1500.f;
-
-	float width = static_cast<float>( m_appSize.first );
-	float height = static_cast<float>( m_appSize.second );
-	localPlayerView.m_aspect = width / height;
-	localPlayerView.m_fov = XMConvertToRadians( 60.f );
-}
-
-void CGameLogic::DrawScene( const RenderViewGroup& views )
-{
-	IScene* scene = m_world.Scene( );
-	if ( scene )
-	{
-		scene->DrawScene( views );
-	}
+	m_gameViewport->Draw( );
+	//IScene* scene = m_world.Scene( );
+	//if ( scene )
+	//{
+	//	scene->DrawScene( views );
+	//}
 
 	//CXMFLOAT3 sunDir( 0.f, 1.0f, 0.f );
 	//if ( CLight* pLight = m_lightManager.GetPrimaryLight( ) )

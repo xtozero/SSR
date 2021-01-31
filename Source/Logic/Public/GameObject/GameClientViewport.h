@@ -6,6 +6,8 @@ namespace rendercore
 	class Viewport;
 }
 
+class RenderViewGroup;
+
 class GameClientViewport : public CGameObject
 {
 public:
@@ -16,6 +18,8 @@ public:
 	explicit GameClientViewport( rendercore::Viewport* viewport ) : m_viewport( viewport ) { }
 
 private:
+	void InitView( RenderViewGroup& views );
+
 	rendercore::Viewport* m_viewport;
 
 	int m_drawFence = 0;

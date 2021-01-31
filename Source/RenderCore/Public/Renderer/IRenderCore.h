@@ -3,6 +3,7 @@
 #include "Util.h"
 
 class IScene;
+class RenderViewGroup;
 
 class IRenderCore
 {
@@ -13,6 +14,8 @@ public:
 
 	virtual IScene* CreateScene( ) = 0;
 	virtual void RemoveScene( IScene* scene ) = 0;
+
+	virtual void BeginRenderingViewGroup( RenderViewGroup& renderViewGroup ) = 0;
 
 	virtual ~IRenderCore( ) = default;
 

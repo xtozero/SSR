@@ -2,8 +2,10 @@
 #include "Renderer/IRenderCore.h"
 
 #include "common.h"
+#include "ForwardRenderer.h"
 #include "IAga.h"
 #include "MultiThread/EngineTaskScheduler.h"
+#include "RenderView.h"
 #include "Scene/Scene.h"
 
 class RenderCore : public IRenderCore
@@ -16,13 +18,18 @@ public:
 	virtual IScene* CreateScene( ) override;
 	virtual void RemoveScene( IScene* scene ) override;
 
+	virtual void BeginRenderingViewGroup( RenderViewGroup& renderViewGroup ) override;
+
 	~RenderCore( );
 
 private:
 	void Shutdown( );
+	SceneRenderer* FindAndCreateSceneRenderer( const RenderViewGroup& renderViewGroup );
 
 	HMODULE m_hAga;
 	IAga* m_AbstractGraphicsAPI = nullptr;
+
+	std::map<SHADING_METHOD, std::unique_ptr<SceneRenderer>> m_sceneRenderer;
 };
 
 Owner<IRenderCore*> CreateRenderCore( )
@@ -79,6 +86,16 @@ void RenderCore::RemoveScene( IScene* scene )
 	});
 }
 
+void RenderCore::BeginRenderingViewGroup( RenderViewGroup& renderViewGroup )
+{
+	SceneRenderer* pSceneRenderer = FindAndCreateSceneRenderer( renderViewGroup );
+	if ( pSceneRenderer )
+	{
+		pSceneRenderer->PrepareRender( renderViewGroup );
+		pSceneRenderer->Render( renderViewGroup );
+	}
+}
+
 RenderCore::~RenderCore( )
 {
 	Shutdown( );
@@ -87,4 +104,26 @@ RenderCore::~RenderCore( )
 void RenderCore::Shutdown( )
 {
 	ShutdownModule( m_hAga );
+}
+
+SceneRenderer* RenderCore::FindAndCreateSceneRenderer( const RenderViewGroup& renderViewGroup )
+{
+	SHADING_METHOD shadingMethod = renderViewGroup.Scene( ).ShadingMethod( );
+
+	auto& sceneRenderer = m_sceneRenderer[shadingMethod];
+	if ( sceneRenderer.get( ) == nullptr )
+	{
+		switch ( shadingMethod )
+		{
+		case SHADING_METHOD::Forward:
+		{
+			sceneRenderer = std::make_unique<ForwardRenderer>( );
+			break;
+		}
+		default:
+			break;
+		}
+	}
+
+	return sceneRenderer.get( );
 }

@@ -82,7 +82,7 @@ public:
 	virtual void SetScissorRect( UINT minX, UINT minY, UINT maxX, UINT maxY ) = 0;
 
 	virtual void ClearRendertarget( RE_HANDLE renderTarget, const float( &clearColor )[4] ) = 0;
-	virtual void ClearDepthStencil( RE_HANDLE depthStencil, float depthColor, UINT8 stencilColor ) = 0;
+	virtual void ClearDepthStencil( aga::Texture* depthStencil, float depthColor, UINT8 stencilColor ) = 0;
 
 	virtual void BindVertexBuffer( RE_HANDLE* pVertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pStrides, const UINT* pOffsets ) = 0;
 	virtual void BindIndexBuffer( RE_HANDLE indexBuffer, UINT indexOffset ) = 0;
@@ -91,7 +91,7 @@ public:
 	virtual void BindShader( RE_HANDLE shader ) = 0;
 	virtual void BindShaderResource( SHADER_TYPE type, int startSlot, int count, const RE_HANDLE* resource ) = 0;
 	virtual void BindRandomAccessResource( int startSlot, int count, RE_HANDLE* resource ) = 0;
-	virtual void BindRenderTargets( const RE_HANDLE* pRenderTargets, int renderTargetCount, RE_HANDLE depthStencil ) = 0;
+	virtual void BindRenderTargets( aga::Texture** pRenderTargets, int renderTargetCount, aga::Texture* depthStencil ) = 0;
 	virtual void BindRasterizerState( RE_HANDLE rasterizerState ) = 0;
 	virtual void BindSamplerState( SHADER_TYPE type, int startSlot, int numSamplers, const RE_HANDLE* pSamplerStates ) = 0;
 	virtual void BindDepthStencilState( RE_HANDLE depthStencilState ) = 0;

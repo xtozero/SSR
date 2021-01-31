@@ -5,6 +5,7 @@
 #include "Common/IAga.h"
 #include "D3D11ResourceInterface.h"
 
+#include "D3D11BaseTexture.h"
 #include "D3D11BlendState.h"
 #include "D3D11Buffer.h"
 #include "D3D11DepthStencil.h"
@@ -23,6 +24,8 @@
 #include "DataStructure/EnumStringMap.h"
 
 #include "ShaderPrameterMap.h"
+
+#include "Texture.h"
 
 #include "Util.h"
 
@@ -96,7 +99,7 @@ public:
 	virtual void SetScissorRect( UINT minX, UINT minY, UINT maxX, UINT maxY ) override;
 
 	virtual void ClearRendertarget( RE_HANDLE renderTarget, const float( &clearColor )[4] ) override;
-	virtual void ClearDepthStencil( RE_HANDLE depthStencil, float depthColor, UINT8 stencilColor ) override;
+	virtual void ClearDepthStencil( aga::Texture* depthStencil, float depthColor, UINT8 stencilColor ) override;
 
 	virtual void BindVertexBuffer( RE_HANDLE* pVertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pStrides, const UINT* pOffsets ) override;
 	virtual void BindIndexBuffer( RE_HANDLE indexBuffer, UINT indexOffset ) override;
@@ -105,7 +108,7 @@ public:
 	virtual void BindShader( RE_HANDLE shader ) override;
 	virtual void BindShaderResource( SHADER_TYPE type, int startSlot, int count, const RE_HANDLE* resource ) override;
 	virtual void BindRandomAccessResource( int startSlot, int count, RE_HANDLE* resource ) override;
-	virtual void BindRenderTargets( const RE_HANDLE* pRenderTargets, int renderTargetCount, RE_HANDLE depthStencil ) override;
+	virtual void BindRenderTargets( aga::Texture** pRenderTargets, int renderTargetCount, aga::Texture* depthStencil ) override;
 	virtual void BindRasterizerState( RE_HANDLE rasterizerState ) override;
 	virtual void BindSamplerState( SHADER_TYPE type, int startSlot, int numSamplers, const RE_HANDLE* pSamplerStates ) override;
 	virtual void BindDepthStencilState( RE_HANDLE depthStencilState ) override;
@@ -265,7 +268,7 @@ RE_HANDLE CDirect3D11::CreateTexture3D( TEXTURE_TRAIT& trait, const RESOURCE_INI
 
 aga::Texture* CDirect3D11::CreateTexture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
 {
-	return nullptr;
+	return m_resourceManager.CreateTexture( trait, initData );
 }
 
 RE_HANDLE CDirect3D11::CreateBuffer( const BUFFER_TRAIT& trait )
@@ -538,10 +541,17 @@ void CDirect3D11::ClearRendertarget( RE_HANDLE renderTarget, const float (&clear
 	m_pd3d11DeviceContext->ClearRenderTargetView( rtv->Get(), clearColor );
 }
 
-void CDirect3D11::ClearDepthStencil( RE_HANDLE depthStencil, float depthColor, UINT8 stencilColor )
+void CDirect3D11::ClearDepthStencil( aga::Texture* depthStencil, float depthColor, UINT8 stencilColor )
 {
-	CD3D11DepthStencil* dsv = m_resourceManager.GetDepthstencil( depthStencil );
-	m_pd3d11DeviceContext->ClearDepthStencilView( dsv->Get( ), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthColor, stencilColor );
+	if ( depthStencil == nullptr )
+	{
+		return;
+	}
+
+	auto baseTexture = reinterpret_cast<aga::D3D11BaseTexture*>( depthStencil );
+	ID3D11DepthStencilView* dsv = baseTexture->DepthStencilView( );
+
+	m_pd3d11DeviceContext->ClearDepthStencilView( dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthColor, stencilColor );
 }
 
 void CDirect3D11::BindVertexBuffer( RE_HANDLE* pVertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pStrides, const UINT* pOffsets )
@@ -753,29 +763,28 @@ void CDirect3D11::BindRandomAccessResource( int startSlot, int count, RE_HANDLE*
 	m_pd3d11DeviceContext->CSSetUnorderedAccessViews( startSlot, count, pRavs, initialCounts );
 }
 
-void CDirect3D11::BindRenderTargets( const RE_HANDLE* pRenderTargets, int renderTargetCount, RE_HANDLE depthStencil )
+void CDirect3D11::BindRenderTargets( aga::Texture** pRenderTargets, int renderTargetCount, aga::Texture* depthStencil )
 {
-	ID3D11RenderTargetView* pRtvs[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = {};
+	ID3D11RenderTargetView* rtvs[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = {};
 
 	for ( int i = 0; i < renderTargetCount; ++i )
 	{
-		if ( pRenderTargets[i].IsValid( ) )
+		auto rtTex = static_cast<aga::D3D11BaseTexture*>( pRenderTargets[i] );
+		if ( rtTex )
 		{
-			pRtvs[i] = m_resourceManager.GetRendertarget( pRenderTargets[i] )->Get( );
-		}
-		else
-		{
-			pRtvs[i] = nullptr;
+			rtvs[i] = rtTex->RenderTargetView( );
 		}
 	}
 	
-	ID3D11DepthStencilView* pDsv = nullptr;
-	if ( depthStencil.IsValid( ) )
+	ID3D11DepthStencilView* dsv = nullptr;
+
+	auto dsTex = static_cast<aga::D3D11BaseTexture*>( depthStencil );
+	if ( dsTex )
 	{
-		pDsv = m_resourceManager.GetDepthstencil( depthStencil )->Get();
+		dsv = dsTex->DepthStencilView( );
 	}
 
-	m_pd3d11DeviceContext->OMSetRenderTargets( static_cast<UINT>( renderTargetCount ), pRtvs, pDsv );
+	m_pd3d11DeviceContext->OMSetRenderTargets( static_cast<UINT>( renderTargetCount ), rtvs, dsv );
 }
 
 void CDirect3D11::BindRasterizerState( RE_HANDLE rasterizerState )

@@ -2,6 +2,7 @@
 #include "World/World.h"
 
 #include "Core/InterfaceFactories.h"
+#include "GameObject/Player.h"
 #include "Physics/BoundingSphere.h"
 #include "Physics/CollisionUtil.h"
 #include "Renderer/IRenderCore.h"
@@ -180,4 +181,21 @@ void World::OnObjectRemoved( ObjectRelatedRigidBody* body )
 {
 	m_registry.Remove( body );
 	m_bvhTree.Remove( body );
+}
+
+CPlayer* GetLocalPlayer( World& w )
+{
+	CPlayer* localPlayer = nullptr;
+
+	const auto& gameObjects = w.GameObjects( );
+	for ( const auto& gameObject : gameObjects )
+	{
+		if ( CPlayer* player = dynamic_cast<CPlayer*>( gameObject.get( ) ) )
+		{
+			localPlayer = player;
+			break;
+		}
+	}
+
+	return localPlayer;
 }

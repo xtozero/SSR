@@ -21,6 +21,8 @@ namespace aga
 
 		virtual std::pair<UINT, UINT> Size( ) const override;
 
+		virtual aga::Texture* Texture( ) override;
+
 		D3D11Viewport( int width, int height, HWND hWnd, DXGI_FORMAT format );
 
 	private:

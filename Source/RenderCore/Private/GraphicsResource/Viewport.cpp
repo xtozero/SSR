@@ -35,6 +35,16 @@ namespace rendercore
 		return {};
 	}
 
+	aga::Texture* Viewport::Texture( )
+	{
+		if ( m_pViewport.Get( ) )
+		{
+			return m_pViewport->Texture( );
+		}
+
+		return nullptr;
+	}
+
 	Viewport::Viewport( int width, int height, HWND hWnd, RESOURCE_FORMAT format )
 	{
 		m_pViewport = GetInterface<IAga>( )->CreateViewport( width, height, hWnd, format );

@@ -91,7 +91,8 @@ namespace aga
 		};
 	}
 
-	D3D11BaseTexture1D::D3D11BaseTexture1D( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData ) : D3D11BaseTexture<ID3D11Texture1D>( trait, initData )
+	D3D11BaseTexture1D::D3D11BaseTexture1D( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData ) 
+		: D3D11Texture<ID3D11Texture1D>( trait, initData )
 	{
 	}
 
@@ -103,9 +104,9 @@ namespace aga
 		assert( SUCCEEDED( hr ) );
 	}
 
-	D3D11BaseTexture2D::D3D11BaseTexture2D( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData ) : D3D11BaseTexture<ID3D11Texture2D>( trait, initData )
+	D3D11BaseTexture2D::D3D11BaseTexture2D( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData ) 
+		: D3D11Texture<ID3D11Texture2D>( trait, initData )
 	{
-
 	}
 
 	D3D11BaseTexture2D::D3D11BaseTexture2D( ID3D11Texture2D* texture )
@@ -126,9 +127,9 @@ namespace aga
 		assert( SUCCEEDED( hr ) );
 	}
 
-	D3D11BaseTexture3D::D3D11BaseTexture3D( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData ) : D3D11BaseTexture<ID3D11Texture3D>( trait, initData )
+	D3D11BaseTexture3D::D3D11BaseTexture3D( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
+		: D3D11Texture<ID3D11Texture3D>( trait, initData )
 	{
-
 	}
 
 	void D3D11BaseTexture3D::CreateTexture( )

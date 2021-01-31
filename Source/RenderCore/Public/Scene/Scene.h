@@ -17,6 +17,8 @@ public:
 
 	virtual void DrawScene( const RenderViewGroup& views ) override;
 
+	virtual SHADING_METHOD ShadingMethod( ) const override;
+
 private:
 	void AddPrimitiveSceneInfo( PrimitivieSceneInfo* primitiveSceneInfo );
 	void RemovePrimitiveSceneInfo( PrimitivieSceneInfo* primitiveSceneInfo );

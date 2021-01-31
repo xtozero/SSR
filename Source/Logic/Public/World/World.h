@@ -14,6 +14,7 @@
 #include <vector>
 
 class CDebugOverlayManager;
+class CPlayer;
 class IScene;
 
 class World : public IGraphicsDeviceNotify
@@ -67,3 +68,5 @@ private:
 
 	IScene* m_scene = nullptr;
 };
+
+CPlayer* GetLocalPlayer( World& w );
