@@ -10,27 +10,6 @@ namespace aga
 	class D3D11BaseTexture : public Texture
 	{
 	public:
-		virtual void Free( ) override
-		{
-			if ( m_srv )
-			{
-				m_srv->Release( );
-				m_srv = nullptr;
-			}
-
-			if ( m_rtv )
-			{
-				m_rtv->Release( );
-				m_rtv = nullptr;
-			}
-
-			if ( m_dsv )
-			{
-				m_dsv->Release( );
-				m_dsv = nullptr;
-			}
-		}
-
 		virtual std::pair<UINT, UINT> Size( ) const override
 		{
 			return { m_trait.m_width, m_trait.m_height };
@@ -59,11 +38,33 @@ namespace aga
 		~D3D11BaseTexture( )
 		{
 			Free( );
+
 			delete[] m_dataStorage;
 			m_dataStorage = nullptr;
 		}
 
 	protected:
+		virtual void FreeResource( ) override
+		{
+			if ( m_srv )
+			{
+				m_srv->Release( );
+				m_srv = nullptr;
+			}
+
+			if ( m_rtv )
+			{
+				m_rtv->Release( );
+				m_rtv = nullptr;
+			}
+
+			if ( m_dsv )
+			{
+				m_dsv->Release( );
+				m_dsv = nullptr;
+			}
+		}
+
 		virtual void CreateTexture( ) = 0;
 
 		TEXTURE_TRAIT m_trait = {};
@@ -81,29 +82,6 @@ namespace aga
 	class D3D11Texture : public D3D11BaseTexture
 	{
 	public:
-		virtual void InitResource( ) override
-		{
-			if ( m_texture == nullptr )
-			{
-				CreateTexture( );
-			}
-
-			CreateShaderResource( );
-			CreateRenderTarget( );
-			CreateDepthStencil( );
-		}
-
-		virtual void Free( ) override
-		{
-			D3D11BaseTexture::Free( );
-
-			if ( m_texture )
-			{
-				m_texture->Release( );
-				m_texture = nullptr;
-			}
-		}
-
 		D3D11Texture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData ) : D3D11BaseTexture( trait, initData ) { }
 		D3D11Texture( ) = default;
 		D3D11Texture( const D3D11BaseTexture& ) = delete;
@@ -138,6 +116,30 @@ namespace aga
 			{
 				HRESULT hr = D3D11Device( ).CreateDepthStencilView( m_texture, nullptr, &m_dsv );
 				assert( SUCCEEDED( hr ) );
+			}
+		}
+
+	private:
+		virtual void InitResource( ) override
+		{
+			if ( m_texture == nullptr )
+			{
+				CreateTexture( );
+			}
+
+			CreateShaderResource( );
+			CreateRenderTarget( );
+			CreateDepthStencil( );
+		}
+
+		virtual void FreeResource( ) override
+		{
+			D3D11BaseTexture::FreeResource( );
+
+			if ( m_texture )
+			{
+				m_texture->Release( );
+				m_texture = nullptr;
 			}
 		}
 	};

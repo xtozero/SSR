@@ -16,7 +16,10 @@ namespace rendercore
 		RENDERCORE_DLL DEVICE_ERROR Present( bool vSync = false );
 		RENDERCORE_DLL void Clear( const float (&color)[4] );
 
+		RENDERCORE_DLL void* Handle( ) const;
 		RENDERCORE_DLL std::pair<UINT, UINT> Size( ) const;
+
+		RENDERCORE_DLL void Resize( const std::pair<UINT, UINT>& newSize );
 
 		aga::Texture* Texture( );
 

@@ -18,21 +18,28 @@ set (MESH_SOURCE
 	"Public/Mesh/StaticMeshResource.h")
 
 set (RENDERER_SOURCE
-	"Private/Renderer/ForwardRenderer.cpp"
-	"Private/Renderer/RenderView.cpp"
-	"Private/Renderer/SceneRenderer.cpp"
-	"Public/Renderer/ForwardRenderer.h"
-	"Public/Renderer/IRenderCore.h"
-	"Public/Renderer/RenderView.h"
-	"Public/Renderer/SceneRenderer.h")
+	Private/Renderer/ForwardRenderer.cpp
+	Private/Renderer/RenderView.cpp
+	Private/Renderer/SceneRenderer.cpp
+	Public/Renderer/ConstantSlotDefine.h
+	Public/Renderer/ForwardRenderer.h
+	Public/Renderer/IRenderCore.h
+	Public/Renderer/RenderView.h
+	Public/Renderer/SceneRenderer.h)
 	
 set (GRAPHICS_RESOURCE_SOURCE
+	Private/GraphicsResource/ConstantBuffer.cpp
 	Private/GraphicsResource/DepthStencil.cpp
+	Private/GraphicsResource/IndexBuffer.cpp
+	Private/GraphicsResource/VertexBuffer.cpp
 	Private/GraphicsResource/Viewport.cpp
-	Public/GraphicsResource/Buffer.h
+	Public/GraphicsResource/ConstantBuffer.h
 	Public/GraphicsResource/DepthStencil.h
 	Public/GraphicsResource/DrawSnapshot.h
+	Public/GraphicsResource/IndexBuffer.h
 	Public/GraphicsResource/ShaderBindings.h
+	Public/GraphicsResource/TypedBuffer.h
+	Public/GraphicsResource/VertexBuffer.h
 	Public/GraphicsResource/VertexInputStream.h
 	Public/GraphicsResource/Viewport.h)
 	
@@ -57,16 +64,6 @@ source_group("Proxies" FILES ${PROXIES_SOURCE})
 source_group("Renderer" FILES ${RENDERER_SOURCE})
 source_group("Scene" FILES ${RENDER_SCENE_SOURCE})
 
-include_directories(./Public)
-include_directories(./Public/Core)
-include_directories(./Public/Material)
-include_directories(./Public/Renderer)
-include_directories(../Aga/Public/Common)
-include_directories(../Core/Public)
-include_directories(../Shared/Public)
-include_directories(../Engine/Public)
-include_directories(../Logic/Public)
-
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
@@ -82,6 +79,21 @@ add_library(RenderCore SHARED 	${PRECOMPILED}
 								${SCENE_SOURCE})
 
 target_link_libraries(RenderCore Aga)
+
+target_include_directories(RenderCore
+PUBLIC
+	./Public
+	./Public/Core
+	./Public/GraphicsResource
+	./Public/Material
+	./Public/Renderer
+	../Aga/Public/Common
+	../Core/Public
+	../Shared/Public
+	../Engine/Public
+	../Logic/Public
+PRIVATE
+	)
 
 add_custom_command(TARGET RenderCore POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/RenderCore.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/RenderCore.dll")

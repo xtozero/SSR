@@ -35,13 +35,13 @@ public:
 	{
 		if ( m_pResource.Get( ) == nullptr )
 		{
-			InitResource( );
+			Init( );
 		}
 
 		return m_pResource.Get( );
 	};
 
-	virtual void Free( ) override
+	virtual void FreeResource( ) override
 	{
 		m_pResource.Reset( );
 	};

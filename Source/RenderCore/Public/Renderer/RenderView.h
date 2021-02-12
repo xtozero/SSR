@@ -38,6 +38,23 @@ public:
 		return m_viewGroup[index];
 	}
 
+	RenderView* begin( )
+	{
+		return m_viewGroup.size( ) > 0 ? &m_viewGroup[0] : nullptr;
+	}
+
+	RenderView* end( )
+	{
+		RenderView* endIter = nullptr;
+		if ( m_viewGroup.size( ) > 0 )
+		{
+			endIter = &m_viewGroup.back( );
+			++endIter;
+		}
+
+		return endIter;
+	}
+
 	IScene& Scene() { return m_scene; }
 	const IScene& Scene( ) const { return m_scene; }
 	rendercore::Viewport& Viewport( ) { return m_viewport; }

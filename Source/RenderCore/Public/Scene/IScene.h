@@ -2,6 +2,7 @@
 
 class PrimitiveComponent;
 class RenderViewGroup;
+class SceneConstantBuffers;
 
 enum class SHADING_METHOD
 {
@@ -14,6 +15,7 @@ public:
 	virtual void AddPrimitive( PrimitiveComponent* primitive ) = 0;
 	virtual void RemovePrimitive( PrimitiveComponent* primitive ) = 0;
 
+	virtual SceneConstantBuffers& SceneConstant( ) = 0;
 	virtual void DrawScene( const RenderViewGroup& views ) = 0;
 
 	virtual SHADING_METHOD ShadingMethod( ) const = 0;

@@ -15,6 +15,8 @@ public:
 
 	void SetViewPort( rendercore::Viewport* viewport );
 
+	void AppSizeChanged( void* handle, const std::pair<UINT, UINT>& newSize );
+
 	explicit GameClientViewport( rendercore::Viewport* viewport ) : m_viewport( viewport ) { }
 
 private:

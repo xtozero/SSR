@@ -2,9 +2,9 @@
 
 #include "common.h"
 #include "GraphicsApiResource.h"
-#include "GraphicsResource/Buffer.h"
 #include "IndexBuffer.h"
 #include "Math/CXMFloat.h"
+#include "TypedBuffer.h"
 #include "VertexInputLayout.h"
 
 #include <filesystem>
@@ -43,7 +43,7 @@ public:
 	std::vector<StaticMeshVertex> m_vertexData;
 	std::vector<std::size_t> m_indexData;
 	TypeVertexBuffer<StaticMeshVertex> m_vb;
-	RefHandle<IndexBuffer> m_ib;
+	IndexBuffer m_ib;
 	std::vector<StaticMeshSection> m_sections;
 };
 

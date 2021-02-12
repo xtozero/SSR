@@ -69,14 +69,33 @@ class GraphicsApiResource
 public:
 	virtual ~GraphicsApiResource( ) = default;
 
-	virtual void Free( ) = 0;
-	virtual void InitResource( ) = 0;
+	void Init( )
+	{
+		if ( m_isInitialized == false )
+		{
+			InitResource( );
+			m_isInitialized = true;
+		}
+	}
+
+	void Free( )
+	{
+		if ( m_isInitialized )
+		{
+			FreeResource( );
+			m_isInitialized = false;
+		}
+	}
 
 	AGA_DLL int AddRef( );
 	AGA_DLL int ReleaseRef( );
 
 private:
+	virtual void InitResource( ) = 0;
+	virtual void FreeResource( ) = 0;
+
 	std::atomic<int> m_refCount = 0;
+	bool m_isInitialized = false;
 };
 
 class DeviceDependantResource : public GraphicsApiResource

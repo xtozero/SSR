@@ -22,31 +22,22 @@ namespace
 	}
 }
 
-void CD3D11VertexLayout::InitResource( )
-{
-	bool result = SUCCEEDED( D3D11Device( ).CreateInputLayout( m_imputDesc, m_layoutSize, m_vs->ByteCode( ), m_vs->ByteCodeSize( ), m_pResource.GetAddressOf( ) ) );
-	assert( result );
-}
-
-CD3D11VertexLayout::CD3D11VertexLayout( const RefHandle<CD3D11VertexShader>& vs, const VertexLayoutDescElem* layout, int layoutSize ) : m_vs( vs ), m_layoutSize( layoutSize )
-{
-	m_imputDesc = new D3D11_INPUT_ELEMENT_DESC[m_layoutSize];
-	ConvertVertexLayoutToInputLayout( m_imputDesc, layout, m_layoutSize );
-}
-
-CD3D11VertexLayout::~CD3D11VertexLayout( )
-{
-	delete[] m_imputDesc;
-}
-
-void D3D11VertexLayout::Free( )
-{
-	if ( m_pResource )
-	{
-		m_pResource->Release( );
-		m_pResource = nullptr;
-	}
-}
+//void CD3D11VertexLayout::InitResource( )
+//{
+//	bool result = SUCCEEDED( D3D11Device( ).CreateInputLayout( m_imputDesc, m_layoutSize, m_vs->ByteCode( ), m_vs->ByteCodeSize( ), m_pResource.GetAddressOf( ) ) );
+//	assert( result );
+//}
+//
+//CD3D11VertexLayout::CD3D11VertexLayout( const RefHandle<CD3D11VertexShader>& vs, const VertexLayoutDescElem* layout, int layoutSize ) : m_vs( vs ), m_layoutSize( layoutSize )
+//{
+//	m_imputDesc = new D3D11_INPUT_ELEMENT_DESC[m_layoutSize];
+//	ConvertVertexLayoutToInputLayout( m_imputDesc, layout, m_layoutSize );
+//}
+//
+//CD3D11VertexLayout::~CD3D11VertexLayout( )
+//{
+//	delete[] m_imputDesc;
+//}
 
 D3D11VertexLayout::D3D11VertexLayout( const D3D11VertexShader* vs, const VertexLayoutDesc& layoutDesc ) : m_layoutDescSize( layoutDesc.Size() )
 {
@@ -61,4 +52,13 @@ D3D11VertexLayout::~D3D11VertexLayout( )
 {
 	delete[] m_inputDesc;
 	Free( );
+}
+
+void D3D11VertexLayout::FreeResource( )
+{
+	if ( m_pResource )
+	{
+		m_pResource->Release( );
+		m_pResource = nullptr;
+	}
 }

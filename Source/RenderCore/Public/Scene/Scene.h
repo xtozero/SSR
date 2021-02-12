@@ -7,13 +7,18 @@
 
 class PrimitivieSceneInfo;
 
-class Scene : public IScene
+class Scene final : public IScene
 {
 public:
 	Scene( );
 
 	virtual void AddPrimitive( PrimitiveComponent* primitive ) override;
 	virtual void RemovePrimitive( PrimitiveComponent* primitive ) override;
+
+	virtual SceneConstantBuffers& SceneConstant( ) override
+	{
+		return m_constantBuffers;
+	}
 
 	virtual void DrawScene( const RenderViewGroup& views ) override;
 

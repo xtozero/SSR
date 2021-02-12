@@ -78,6 +78,27 @@ void GameClientViewport::SetViewPort( rendercore::Viewport* viewport )
 	m_viewport = viewport;
 }
 
+void GameClientViewport::AppSizeChanged( void* handle, const std::pair<UINT, UINT>& newSize )
+{
+	if ( m_viewport == nullptr )
+	{
+		return;
+	}
+	else if ( m_viewport->Handle( ) != handle )
+	{
+		return;
+	}
+	else if ( m_viewport->Size( ) == newSize )
+	{
+		return;
+	}
+
+	EnqueueRenderTask( [viewport = m_viewport, appSize = newSize]( )
+	{
+		viewport->Resize( appSize );
+	} );
+}
+
 void GameClientViewport::InitView( RenderViewGroup& views )
 {
 	using namespace DirectX;
@@ -100,7 +121,7 @@ void GameClientViewport::InitView( RenderViewGroup& views )
 		return;
 	}
 
-	RenderView localPlayerView = views.AddRenderView( );
+	RenderView& localPlayerView = views.AddRenderView( );
 
 	localPlayerView.m_viewOrigin = cameraComponent->GetPosition( );
 	localPlayerView.m_viewAxis = CXMFLOAT3X3( cameraComponent->GetRightVector( ),

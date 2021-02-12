@@ -10,16 +10,6 @@
 
 namespace aga
 {
-	void D3D11Viewport::Free( )
-	{
-		m_backBuffer = nullptr;
-		m_pSwapChain.Reset( );
-	}
-
-	void D3D11Viewport::InitResource( )
-	{
-	}
-
 	DEVICE_ERROR D3D11Viewport::Present( bool vSync )
 	{
 		HRESULT hr = m_pSwapChain->Present( vSync ? 1 : 0, 0 );
@@ -49,8 +39,35 @@ namespace aga
 		return { m_width, m_height };
 	}
 
-	D3D11Viewport::D3D11Viewport( int width, int height, HWND hWnd, DXGI_FORMAT format ) :
-		m_width( static_cast<UINT>( width ) ), m_height( static_cast<UINT>( height ) ), m_format( format )
+	void D3D11Viewport::Resize( const std::pair<UINT, UINT>& newSize )
+	{
+		m_width = newSize.first;
+		m_height = newSize.second;
+
+		m_backBuffer->Free( );
+
+		HRESULT hr = m_pSwapChain->ResizeBuffers( 1, m_width, m_height, m_format, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH );
+		assert( SUCCEEDED( hr ) );
+
+		ID3D11Texture2D* backBuffer = nullptr;
+		hr = m_pSwapChain->GetBuffer( 0, IID_PPV_ARGS( &backBuffer ) );
+
+		assert( SUCCEEDED( hr ) );
+		new ( m_backBuffer.Get( ) )D3D11BaseTexture2D( backBuffer );
+		m_backBuffer->Init( );
+	}
+
+	D3D11Viewport::D3D11Viewport( int width, int height, void* hWnd, DXGI_FORMAT format ) :
+		m_width( static_cast<UINT>( width ) ), m_height( static_cast<UINT>( height ) ), m_hWnd( hWnd ), m_format( format )
+	{
+	}
+
+	aga::Texture* D3D11Viewport::Texture( )
+	{
+		return m_backBuffer.Get( );
+	}
+
+	void D3D11Viewport::InitResource( )
 	{
 		DXGI_SWAP_CHAIN_DESC dxgiSwapchainDesc = {};
 
@@ -61,7 +78,7 @@ namespace aga
 		dxgiSwapchainDesc.BufferDesc.RefreshRate.Denominator = 1;
 		dxgiSwapchainDesc.BufferDesc.RefreshRate.Numerator = 60;
 		dxgiSwapchainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
-		dxgiSwapchainDesc.OutputWindow = hWnd;
+		dxgiSwapchainDesc.OutputWindow = static_cast<HWND>(m_hWnd);
 		dxgiSwapchainDesc.SampleDesc.Count = 1;
 		dxgiSwapchainDesc.SampleDesc.Quality = 0;
 		dxgiSwapchainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
@@ -74,16 +91,17 @@ namespace aga
 
 		assert( SUCCEEDED( hr ) );
 
-		ID3D11Texture2D* backBuffer;
+		ID3D11Texture2D* backBuffer = nullptr;
 		hr = m_pSwapChain->GetBuffer( 0, IID_PPV_ARGS( &backBuffer ) );
 
 		assert( SUCCEEDED( hr ) );
 		m_backBuffer = new D3D11BaseTexture2D( backBuffer );
-		m_backBuffer->InitResource( );
+		m_backBuffer->Init( );
 	}
 
-	aga::Texture* D3D11Viewport::Texture( )
+	void D3D11Viewport::FreeResource( )
 	{
-		return m_backBuffer.Get( );
+		m_backBuffer = nullptr;
+		m_pSwapChain.Reset( );
 	}
 }

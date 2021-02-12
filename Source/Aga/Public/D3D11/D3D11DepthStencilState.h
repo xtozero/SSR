@@ -5,8 +5,6 @@
 class CD3D11DepthStencilState : public DeviceDependantBase<ID3D11DepthStencilState>
 {
 public:
-	virtual void InitResource( ) override;
-
 	unsigned int GetStencilRef( ) const { return m_stencilRef; }
 	void SetStencilRef( unsigned int stencilRef ) { m_stencilRef = stencilRef; }
 
@@ -18,6 +16,8 @@ public:
 	~CD3D11DepthStencilState( ) = default;
 
 private:
+	virtual void InitResource( ) override;
+
 	unsigned int m_stencilRef = 0;
 	D3D11_DEPTH_STENCIL_DESC m_desc;
 };

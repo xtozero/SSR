@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Math/CXMFloat.h"
-#include "Model/Surface.h"
 
 namespace SHARED_CONSTANT_BUFFER
 {

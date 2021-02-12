@@ -521,6 +521,13 @@ struct CXMFLOAT3X3 : public DirectX::XMFLOAT3X3
 		*this = xmLHS;
 		return *this;
 	}
+
+	CXMFLOAT3 operator[]( int index ) const
+	{
+		assert( index < 3 );
+
+		return CXMFLOAT3( ( *this )( index, 0 ), ( *this )( index, 1 ), ( *this )( index, 2 ) );
+	}
 };
 
 //------------------------------

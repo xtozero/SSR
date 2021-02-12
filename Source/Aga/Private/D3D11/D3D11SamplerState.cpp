@@ -28,10 +28,10 @@ namespace
 	}
 }
 
+CD3D11SamplerState::CD3D11SamplerState( const SAMPLER_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
+
 void CD3D11SamplerState::InitResource( )
 {
 	bool result = SUCCEEDED( D3D11Device( ).CreateSamplerState( &m_desc, m_pResource.GetAddressOf( ) ) );
 	assert( result );
 }
-
-CD3D11SamplerState::CD3D11SamplerState( const SAMPLER_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}

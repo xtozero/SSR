@@ -50,60 +50,37 @@ public:
 	virtual void AppSizeChanged( UINT nWndWidth, UINT nWndHeight ) override;
 	virtual void WaitGPU( ) override;
 
-	virtual RE_HANDLE CreateTexture1D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
-	virtual RE_HANDLE CreateTexture2D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
-	virtual RE_HANDLE CreateTexture3D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
 	virtual aga::Texture* CreateTexture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
 
-	virtual RE_HANDLE CreateBuffer( const BUFFER_TRAIT& trait ) override;
-	virtual ConstantBuffer* CreateConstantBuffer( const BUFFER_TRAIT& trait ) override;
-	virtual VertexBuffer* CreateVertexBuffer( const BUFFER_TRAIT& trait, const void* initData ) override;
-	virtual IndexBuffer* CreateIndexBuffer( const BUFFER_TRAIT& trait, const void* initData ) override;
+	virtual aga::Buffer* CreateBuffer( const BUFFER_TRAIT& trait, const void* initData = nullptr ) override;
 
 	virtual VertexLayout* FindAndCreateVertexLayout( aga::VertexShader* vs, const VertexLayoutDesc& layoutDesc ) override;
-	//virtual RE_HANDLE CreateVertexShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	virtual RE_HANDLE CreateGeometryShader( const void* byteCode, std::size_t byteCodeSize ) override;
-	//virtual RE_HANDLE CreatePixelShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	virtual RE_HANDLE CreateComputeShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	virtual aga::VertexShader* CreateVertexShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	virtual aga::PixelShader* CreatePixelShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	virtual const ShaderParameterInfo& GetShaderParameterInfo( RE_HANDLE shader ) const override;
-
-	virtual RE_HANDLE CreateRenderTarget( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) override;
-	virtual RE_HANDLE CreateDepthStencil( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) override;
-
-	virtual RE_HANDLE CreateTexture1DShaderResource( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) override;
-	virtual RE_HANDLE CreateTexture2DShaderResource( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) override;
-	virtual RE_HANDLE CreateTexture3DShaderResource( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) override;
-	virtual RE_HANDLE CreateBufferShaderResource( RE_HANDLE bufHandle, const BUFFER_TRAIT* trait = nullptr ) override;
-
-	virtual RE_HANDLE CreateTexture1DRandomAccess( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) override;
-	virtual RE_HANDLE CreateTexture2DRandomAccess( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait = nullptr ) override;
-	virtual RE_HANDLE CreateBufferRandomAccess( RE_HANDLE bufHandle, const BUFFER_TRAIT* trait = nullptr ) override;
 
 	virtual RE_HANDLE CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) override;
 	virtual RE_HANDLE CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) override;
 	virtual RE_HANDLE CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) override;
 	virtual RE_HANDLE CreateBlendState( const BLEND_STATE_TRAIT& trait ) override;
 
-	virtual aga::Viewport* CreateViewport( int width, int height, HWND hWnd, RESOURCE_FORMAT format ) override;
+	virtual aga::Viewport* CreateViewport( int width, int height, void* hWnd, RESOURCE_FORMAT format ) override;
 
-	// virtual RE_HANDLE GetBackBuffer( UINT buffer ) const override;
-
-	virtual void* LockBuffer( RE_HANDLE buffer, int lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, UINT subResource = 0 ) override;
-	virtual void UnLockBuffer( RE_HANDLE buffer, UINT subResource = 0 ) override;
+	virtual void* Lock( aga::Buffer* buffer, int lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, UINT subResource = 0 ) override;
+	virtual void UnLock( aga::Buffer* buffer, UINT subResource = 0 ) override;
 
 	virtual void SetViewports( const aga::Viewport* viewPorts, int count ) override;
 	virtual void SetViewport( UINT minX, UINT minY, float minZ, UINT maxX, UINT maxY, float maxZ ) override;
 	virtual void SetScissorRects( const aga::Viewport* viewPorts, int size ) override;
 	virtual void SetScissorRect( UINT minX, UINT minY, UINT maxX, UINT maxY ) override;
 
-	virtual void ClearRendertarget( RE_HANDLE renderTarget, const float( &clearColor )[4] ) override;
 	virtual void ClearDepthStencil( aga::Texture* depthStencil, float depthColor, UINT8 stencilColor ) override;
 
 	virtual void BindVertexBuffer( RE_HANDLE* pVertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pStrides, const UINT* pOffsets ) override;
 	virtual void BindIndexBuffer( RE_HANDLE indexBuffer, UINT indexOffset ) override;
-	virtual void BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT numBuffers, const RE_HANDLE* pConstantBuffers ) override;
+	virtual void BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT numBuffers, aga::Buffer** pConstantBuffers ) override;
 	virtual void BindVertexLayout( RE_HANDLE layout ) override;
 	virtual void BindShader( RE_HANDLE shader ) override;
 	virtual void BindShaderResource( SHADER_TYPE type, int startSlot, int count, const RE_HANDLE* resource ) override;
@@ -251,44 +228,14 @@ void CDirect3D11::WaitGPU( )
 	}
 }
 
-RE_HANDLE CDirect3D11::CreateTexture1D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
-{
-	return m_resourceManager.CreateTexture1D( trait, initData );
-}
-
-RE_HANDLE CDirect3D11::CreateTexture2D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
-{
-	return m_resourceManager.CreateTexture2D( trait, initData );
-}
-
-RE_HANDLE CDirect3D11::CreateTexture3D( TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
-{
-	return m_resourceManager.CreateTexture3D( trait, initData );
-}
-
 aga::Texture* CDirect3D11::CreateTexture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
 {
 	return m_resourceManager.CreateTexture( trait, initData );
 }
 
-RE_HANDLE CDirect3D11::CreateBuffer( const BUFFER_TRAIT& trait )
+aga::Buffer* CDirect3D11::CreateBuffer( const BUFFER_TRAIT& trait, const void* initData )
 {
 	return m_resourceManager.CreateBuffer( trait );
-}
-
-ConstantBuffer* CDirect3D11::CreateConstantBuffer( const BUFFER_TRAIT& trait )
-{
-	return m_resourceManager.CreateConstantBuffer( trait );
-}
-
-VertexBuffer* CDirect3D11::CreateVertexBuffer( const BUFFER_TRAIT& trait, const void* initData )
-{
-	return m_resourceManager.CreateVertexBuffer( trait, initData );
-}
-
-IndexBuffer* CDirect3D11::CreateIndexBuffer( const BUFFER_TRAIT& trait, const void* initData )
-{
-	return m_resourceManager.CreateIndexBuffer( trait, initData );
 }
 
 VertexLayout* CDirect3D11::FindAndCreateVertexLayout( aga::VertexShader* vs, const VertexLayoutDesc& layoutDesc )
@@ -298,12 +245,16 @@ VertexLayout* CDirect3D11::FindAndCreateVertexLayout( aga::VertexShader* vs, con
 
 RE_HANDLE CDirect3D11::CreateGeometryShader( const void* byteCode, std::size_t byteCodeSize )
 {
-	return m_resourceManager.CreateGeometryShader( byteCode, byteCodeSize );
+	// TODO : Need to be implemented later
+	//return m_resourceManager.CreateGeometryShader( byteCode, byteCodeSize );
+	return {};
 }
 
 RE_HANDLE CDirect3D11::CreateComputeShader( const void* byteCode, std::size_t byteCodeSize )
 {
-	return m_resourceManager.CreateComputeShader( byteCode, byteCodeSize );
+	// TODO : Need to be implemented later
+	//return m_resourceManager.CreateComputeShader( byteCode, byteCodeSize );
+	return {};
 }
 
 aga::VertexShader* CDirect3D11::CreateVertexShader( const void* byteCode, std::size_t byteCodeSize )
@@ -318,81 +269,43 @@ aga::PixelShader* CDirect3D11::CreatePixelShader( const void* byteCode, std::siz
 
 const ShaderParameterInfo& CDirect3D11::GetShaderParameterInfo( RE_HANDLE shader ) const
 {
-	assert( shader.IsValid( ) );
-	if ( IsVertexShaderHandle( shader ) )
+	// TODO : Need to be implemented later
+	//assert( shader.IsValid( ) );
+	//if ( IsVertexShaderHandle( shader ) )
+	//{
+	//	CD3D11VertexShader* d3d11VS = m_resourceManager.GetVertexShader( shader );
+	//	return d3d11VS->GetParameterInfo( );
+	//}
+	//else if ( IsGeometryShaderHandle( shader ) )
+	//{
+	//	CD3D11GeometryShader* d3d11GS = m_resourceManager.GetGeometryShader( shader );
+	//	return d3d11GS->GetParameterInfo( );
+	//}
+	//else if ( IsPixelShaderHandle( shader ) )
+	//{
+	//	CD3D11PixelShader* d3d11PS = m_resourceManager.GetPixelShader( shader );
+	//	return d3d11PS->GetParameterInfo( );
+	//}
+	//else
+	//{
+	//	assert( IsComputeShaderHandle( shader ) );
+	//	CD3D11ComputeShader* d3d11CS = m_resourceManager.GetComputeShader( shader );
+	//	return d3d11CS->GetParameterInfo( );
+	//}
+	return {};
+}
+
+void* CDirect3D11::Lock( aga::Buffer* buffer, int lockFlag, UINT subResource )
+{
+	if ( buffer == nullptr )
 	{
-		CD3D11VertexShader* d3d11VS = m_resourceManager.GetVertexShader( shader );
-		return d3d11VS->GetParameterInfo( );
+		return nullptr;
 	}
-	else if ( IsGeometryShaderHandle( shader ) )
-	{
-		CD3D11GeometryShader* d3d11GS = m_resourceManager.GetGeometryShader( shader );
-		return d3d11GS->GetParameterInfo( );
-	}
-	else if ( IsPixelShaderHandle( shader ) )
-	{
-		CD3D11PixelShader* d3d11PS = m_resourceManager.GetPixelShader( shader );
-		return d3d11PS->GetParameterInfo( );
-	}
-	else
-	{
-		assert( IsComputeShaderHandle( shader ) );
-		CD3D11ComputeShader* d3d11CS = m_resourceManager.GetComputeShader( shader );
-		return d3d11CS->GetParameterInfo( );
-	}
-}
 
-RE_HANDLE CDirect3D11::CreateRenderTarget( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait )
-{
-	return m_resourceManager.CreateRenderTarget( texHandle, trait );
-}
-
-RE_HANDLE CDirect3D11::CreateDepthStencil( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait )
-{
-	return m_resourceManager.CreateDepthStencil( texHandle, trait );
-}
-
-RE_HANDLE CDirect3D11::CreateTexture1DShaderResource( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait )
-{
-	return m_resourceManager.CreateTexture1DShaderResource( texHandle, trait );
-}
-
-RE_HANDLE CDirect3D11::CreateTexture2DShaderResource( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait )
-{
-	return m_resourceManager.CreateTexture2DShaderResource( texHandle, trait );
-}
-
-RE_HANDLE CDirect3D11::CreateTexture3DShaderResource( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait )
-{
-	return m_resourceManager.CreateTexture3DShaderResource( texHandle, trait );
-}
-
-RE_HANDLE CDirect3D11::CreateBufferShaderResource( RE_HANDLE bufHandle, const BUFFER_TRAIT* trait )
-{
-	return m_resourceManager.CreateBufferShaderResource( bufHandle, trait );
-}
-
-RE_HANDLE CDirect3D11::CreateTexture1DRandomAccess( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait )
-{
-	return m_resourceManager.CreateTexture1DRandomAccess( texHandle, trait );
-}
-
-RE_HANDLE CDirect3D11::CreateTexture2DRandomAccess( RE_HANDLE texHandle, const TEXTURE_TRAIT* trait )
-{
-	return m_resourceManager.CreateTexture2DRandomAccess( texHandle, trait );
-}
-
-RE_HANDLE CDirect3D11::CreateBufferRandomAccess( RE_HANDLE bufHandle, const BUFFER_TRAIT* trait )
-{
-	return m_resourceManager.CreateBufferRandomAccess( bufHandle, trait );
-}
-
-void* CDirect3D11::LockBuffer( RE_HANDLE buffer, int lockFlag, UINT subResource )
-{
-	CD3D11Buffer* d3d11buffer = m_resourceManager.GetBuffer( buffer );
+	D3D11BufferBase* d3d11buffer = static_cast<D3D11BufferBase*>( buffer );
 	D3D11_MAPPED_SUBRESOURCE resource;
 
-	HRESULT hr = m_pd3d11DeviceContext->Map( d3d11buffer->Get( ), subResource, ConvertLockFlagToD3D11Map( lockFlag ), 0, &resource );
+	HRESULT hr = m_pd3d11DeviceContext->Map( d3d11buffer->Buffer( ), subResource, ConvertLockFlagToD3D11Map( lockFlag ), 0, &resource );
 	if ( FAILED( hr ) )
 	{
 		__debugbreak();
@@ -401,11 +314,16 @@ void* CDirect3D11::LockBuffer( RE_HANDLE buffer, int lockFlag, UINT subResource 
 	return resource.pData;
 }
 
-void CDirect3D11::UnLockBuffer( RE_HANDLE buffer, UINT subResource )
+void CDirect3D11::UnLock( aga::Buffer* buffer, UINT subResource )
 {
-	CD3D11Buffer* d3d11buffer = m_resourceManager.GetBuffer( buffer );
+	if ( buffer == nullptr )
+	{
+		return;
+	}
 
-	m_pd3d11DeviceContext->Unmap( d3d11buffer->Get( ), subResource );
+	D3D11BufferBase* d3d11buffer = static_cast<D3D11BufferBase*>( buffer );
+
+	m_pd3d11DeviceContext->Unmap( d3d11buffer->Buffer( ), subResource );
 }
 
 void CDirect3D11::EnumerateSampleCountAndQuality( int* size, DXGI_SAMPLE_DESC* pSamples )
@@ -518,27 +436,9 @@ RE_HANDLE CDirect3D11::CreateBlendState( const BLEND_STATE_TRAIT& trait )
 	return m_resourceManager.CreateBlendState( trait );
 }
 
-aga::Viewport* CDirect3D11::CreateViewport( int width, int height, HWND hWnd, RESOURCE_FORMAT format )
+aga::Viewport* CDirect3D11::CreateViewport( int width, int height, void* hWnd, RESOURCE_FORMAT format )
 {
 	return m_resourceManager.CreateViewport( width, height, hWnd, ConvertFormatToDxgiFormat( format ) );
-}
-
-//RE_HANDLE CDirect3D11::GetBackBuffer( UINT buffer ) const
-//{
-//	if ( buffer == 0 )
-//	{
-//		return m_backBuffer;
-//	}
-//	else
-//	{
-//		return RE_HANDLE( );
-//	}
-//}
-
-void CDirect3D11::ClearRendertarget( RE_HANDLE renderTarget, const float (&clearColor)[4] )
-{
-	CD3D11RenderTarget* rtv = m_resourceManager.GetRendertarget( renderTarget );
-	m_pd3d11DeviceContext->ClearRenderTargetView( rtv->Get(), clearColor );
 }
 
 void CDirect3D11::ClearDepthStencil( aga::Texture* depthStencil, float depthColor, UINT8 stencilColor )
@@ -556,58 +456,59 @@ void CDirect3D11::ClearDepthStencil( aga::Texture* depthStencil, float depthColo
 
 void CDirect3D11::BindVertexBuffer( RE_HANDLE* pVertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pStrides, const UINT* pOffsets )
 {
-	ID3D11Buffer* pBuffers[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
-	UINT strides[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
-	UINT offsets[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
+	// TODO : Need to be implemented later
+	//ID3D11Buffer* pBuffers[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
+	//UINT strides[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
+	//UINT offsets[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
 
-	if ( pVertexBuffers )
-	{
-		assert( pStrides != nullptr );
-		assert( pOffsets != nullptr );
-		for ( UINT i = 0; i < numBuffers; ++i )
-		{
-			if ( pVertexBuffers[i].IsValid( ) )
-			{
-				CD3D11Buffer* d3d11buffer = m_resourceManager.GetBuffer( pVertexBuffers[i] );
-				pBuffers[i] = d3d11buffer->Get( );
-				strides[i] = pStrides[i];
-				offsets[i] = pOffsets[i];
-			}
-		}
-	}
+	//if ( pVertexBuffers )
+	//{
+	//	assert( pStrides != nullptr );
+	//	assert( pOffsets != nullptr );
+	//	for ( UINT i = 0; i < numBuffers; ++i )
+	//	{
+	//		if ( pVertexBuffers[i].IsValid( ) )
+	//		{
+	//			CD3D11Buffer* d3d11buffer = m_resourceManager.GetBuffer( pVertexBuffers[i] );
+	//			pBuffers[i] = d3d11buffer->Get( );
+	//			strides[i] = pStrides[i];
+	//			offsets[i] = pOffsets[i];
+	//		}
+	//	}
+	//}
 
-	m_pd3d11DeviceContext->IASetVertexBuffers( startSlot, numBuffers, pBuffers, pStrides, pOffsets );
+	//m_pd3d11DeviceContext->IASetVertexBuffers( startSlot, numBuffers, pBuffers, pStrides, pOffsets );
 }
 
 void CDirect3D11::BindIndexBuffer( RE_HANDLE indexBuffer, UINT indexOffset )
 {
-	ID3D11Buffer* buffer = nullptr;
-	DXGI_FORMAT format = DXGI_FORMAT_R16_UINT;
+	// TODO : Need to be implemented later
+	//ID3D11Buffer* buffer = nullptr;
+	//DXGI_FORMAT format = DXGI_FORMAT_R16_UINT;
 
-	if ( indexBuffer.IsValid( ) )
-	{
-		CD3D11Buffer* d3d11buffer = m_resourceManager.GetBuffer( indexBuffer );
-		buffer = d3d11buffer->Get( );
-		
-		if ( d3d11buffer->Stride() == 4 )
-		{
-			format = DXGI_FORMAT_R32_UINT;
-		}
-	}
+	//if ( indexBuffer.IsValid( ) )
+	//{
+	//	CD3D11Buffer* d3d11buffer = m_resourceManager.GetBuffer( indexBuffer );
+	//	buffer = d3d11buffer->Get( );
+	//	
+	//	if ( d3d11buffer->Stride() == 4 )
+	//	{
+	//		format = DXGI_FORMAT_R32_UINT;
+	//	}
+	//}
 
-	m_pd3d11DeviceContext->IASetIndexBuffer( buffer, format, indexOffset );
+	//m_pd3d11DeviceContext->IASetIndexBuffer( buffer, format, indexOffset );
 }
 
-void CDirect3D11::BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT numBuffers, const RE_HANDLE* pConstantBuffers )
+void CDirect3D11::BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT numBuffers, aga::Buffer** pConstantBuffers )
 {
 	ID3D11Buffer* pBuffers[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT] = {};
 
 	for ( UINT i = 0; i < numBuffers; ++i )
 	{
-		if ( pConstantBuffers[i].IsValid( ) )
+		if ( auto d3d11buffer = static_cast<D3D11BufferBase*>( pConstantBuffers[i] ) )
 		{
-			CD3D11Buffer* d3d11buffer = m_resourceManager.GetBuffer( pConstantBuffers[i] );
-			pBuffers[i] = d3d11buffer->Get( );
+			pBuffers[i] = d3d11buffer->Buffer( );
 		}
 	}
 
@@ -638,72 +539,78 @@ void CDirect3D11::BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT num
 
 void CDirect3D11::BindVertexLayout( RE_HANDLE layout )
 {
-	assert( IsVertexLayout( layout ) );
-	ID3D11InputLayout* inputLayout = nullptr;
-	if ( layout.IsValid( ) )
-	{
-		CD3D11VertexLayout* d3d11Layout = m_resourceManager.GetVertexLayout( layout );
-		inputLayout = d3d11Layout->Get( );
-	}
+	// TODO : Need to be implemented later
 
-	m_pd3d11DeviceContext->IASetInputLayout( inputLayout );
+	//assert( IsVertexLayout( layout ) );
+	//ID3D11InputLayout* inputLayout = nullptr;
+	//if ( layout.IsValid( ) )
+	//{
+	//	CD3D11VertexLayout* d3d11Layout = m_resourceManager.GetVertexLayout( layout );
+	//	inputLayout = d3d11Layout->Get( );
+	//}
+
+	//m_pd3d11DeviceContext->IASetInputLayout( inputLayout );
 }
 
 void CDirect3D11::BindShader( RE_HANDLE shader )
 {
-	if ( IsVertexShaderHandle( shader ) )
-	{
-		ID3D11VertexShader* vs = nullptr;
-		if ( shader.IsValid( ) )
-		{
-			CD3D11VertexShader* d3d11VS = m_resourceManager.GetVertexShader( shader );
-			vs = d3d11VS->Get( );
-		}
+	// TODO : Need to be implemented later
 
-		m_pd3d11DeviceContext->VSSetShader( vs, nullptr, 0 );
-	}
-	else if ( IsGeometryShaderHandle( shader ) )
-	{
-		ID3D11GeometryShader* gs = nullptr;
-		if ( shader.IsValid( ) )
-		{
-			CD3D11GeometryShader* d3d11GS = m_resourceManager.GetGeometryShader( shader );
-			gs = d3d11GS->Get( );
-		}
+	//if ( IsVertexShaderHandle( shader ) )
+	//{
+	//	ID3D11VertexShader* vs = nullptr;
+	//	if ( shader.IsValid( ) )
+	//	{
+	//		CD3D11VertexShader* d3d11VS = m_resourceManager.GetVertexShader( shader );
+	//		vs = d3d11VS->Get( );
+	//	}
 
-		m_pd3d11DeviceContext->GSSetShader( gs, nullptr, 0 );
-	}
-	else if ( IsPixelShaderHandle( shader ) )
-	{
-		ID3D11PixelShader* ps = nullptr;
-		if ( shader.IsValid( ) )
-		{
-			CD3D11PixelShader* d3d11PS = m_resourceManager.GetPixelShader( shader );
-			ps = d3d11PS->Get( );
-		}
+	//	m_pd3d11DeviceContext->VSSetShader( vs, nullptr, 0 );
+	//}
+	//else if ( IsGeometryShaderHandle( shader ) )
+	//{
+	//	ID3D11GeometryShader* gs = nullptr;
+	//	if ( shader.IsValid( ) )
+	//	{
+	//		CD3D11GeometryShader* d3d11GS = m_resourceManager.GetGeometryShader( shader );
+	//		gs = d3d11GS->Get( );
+	//	}
 
-		m_pd3d11DeviceContext->PSSetShader( ps, nullptr, 0 );
-	}
-	else if ( IsComputeShaderHandle( shader ) )
-	{
-		ID3D11ComputeShader* cs = nullptr;
-		if ( shader.IsValid( ) )
-		{
-			CD3D11ComputeShader* d3d11CS = m_resourceManager.GetComputeShader( shader );
-			cs = d3d11CS->Get( );
-		}
+	//	m_pd3d11DeviceContext->GSSetShader( gs, nullptr, 0 );
+	//}
+	//else if ( IsPixelShaderHandle( shader ) )
+	//{
+	//	ID3D11PixelShader* ps = nullptr;
+	//	if ( shader.IsValid( ) )
+	//	{
+	//		CD3D11PixelShader* d3d11PS = m_resourceManager.GetPixelShader( shader );
+	//		ps = d3d11PS->Get( );
+	//	}
 
-		m_pd3d11DeviceContext->CSSetShader( cs, nullptr, 0 );
-	}
-	else
-	{
-		__debugbreak( );
-	}
+	//	m_pd3d11DeviceContext->PSSetShader( ps, nullptr, 0 );
+	//}
+	//else if ( IsComputeShaderHandle( shader ) )
+	//{
+	//	ID3D11ComputeShader* cs = nullptr;
+	//	if ( shader.IsValid( ) )
+	//	{
+	//		CD3D11ComputeShader* d3d11CS = m_resourceManager.GetComputeShader( shader );
+	//		cs = d3d11CS->Get( );
+	//	}
+
+	//	m_pd3d11DeviceContext->CSSetShader( cs, nullptr, 0 );
+	//}
+	//else
+	//{
+	//	__debugbreak( );
+	//}
 }
 
 void CDirect3D11::BindShaderResource( SHADER_TYPE type, int startSlot, int count, const RE_HANDLE* resource )
 {
-	ID3D11ShaderResourceView* pSrvs[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {};
+	// TODO : Need to be implemented later
+
+	/*ID3D11ShaderResourceView* pSrvs[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {};
 
 	if ( resource )
 	{
@@ -740,12 +647,14 @@ void CDirect3D11::BindShaderResource( SHADER_TYPE type, int startSlot, int count
 	default:
 		__debugbreak( );
 		break;
-	}
+	}*/
 }
 
 void CDirect3D11::BindRandomAccessResource( int startSlot, int count, RE_HANDLE* resource )
 {
-	ID3D11UnorderedAccessView* pRavs[64] = {};
+	// TODO : Need to be implemented later
+
+	/*ID3D11UnorderedAccessView* pRavs[64] = {};
 	UINT initialCounts[64] = {};
 
 	if ( resource )
@@ -760,7 +669,7 @@ void CDirect3D11::BindRandomAccessResource( int startSlot, int count, RE_HANDLE*
 		}
 	}
 
-	m_pd3d11DeviceContext->CSSetUnorderedAccessViews( startSlot, count, pRavs, initialCounts );
+	m_pd3d11DeviceContext->CSSetUnorderedAccessViews( startSlot, count, pRavs, initialCounts );*/
 }
 
 void CDirect3D11::BindRenderTargets( aga::Texture** pRenderTargets, int renderTargetCount, aga::Texture* depthStencil )
@@ -917,22 +826,12 @@ void CDirect3D11::Dispatch( int x, int y, int z )
 	m_pd3d11DeviceContext->Dispatch( static_cast<UINT>( x ), static_cast<UINT>( y ), static_cast<UINT>( z ) );
 }
 
-//BYTE CDirect3D11::Present( )
-//{
-//	HRESULT hr = m_pdxgiSwapChain->Present( 0, 0 );
-//
-//	if ( hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET )
-//	{
-//		return DEVICE_ERROR::DEVICE_LOST;
-//	}
-//
-//	return DEVICE_ERROR::NONE;
-//}
-
 void CDirect3D11::GenerateMips( RE_HANDLE shaderResource )
 {
-	CD3D11ShaderResource* srv = m_resourceManager.GetShaderResource( shaderResource );
-	m_pd3d11DeviceContext->GenerateMips( srv->Get( ) );
+	// TODO : Need to be implemented later
+
+	//CD3D11ShaderResource* srv = m_resourceManager.GetShaderResource( shaderResource );
+	//m_pd3d11DeviceContext->GenerateMips( srv->Get( ) );
 }
 
 void CDirect3D11::GetRendererMultiSampleOption( MULTISAMPLE_OPTION* option )

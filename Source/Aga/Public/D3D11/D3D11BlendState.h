@@ -5,8 +5,6 @@
 class CD3D11BlendState : public DeviceDependantBase<ID3D11BlendState>
 {
 public:
-	virtual void InitResource( ) override;
-
 	const float* GetBlendFactor( ) const { return m_blendFactor.data( ); }
 
 	unsigned int GetSamplerMask( ) const { return m_sampleMask; }
@@ -26,6 +24,8 @@ public:
 	~CD3D11BlendState( ) = default;
 
 private:
+	virtual void InitResource( ) override;
+
 	std::array<float, 4> m_blendFactor = { 0, };
 	unsigned int m_sampleMask = D3D11_DEFAULT_SAMPLE_MASK;
 	D3D11_BLEND_DESC m_desc;

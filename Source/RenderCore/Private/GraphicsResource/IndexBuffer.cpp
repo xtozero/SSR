@@ -4,8 +4,10 @@
 #include "Core/InterfaceFactories.h"
 #include "IAga.h"
 
-RefHandle<IndexBuffer> IndexBuffer::Create( std::size_t numElement, const void* initData, bool isDWORD )
+IndexBuffer IndexBuffer::Create( std::size_t numElement, const void* initData, bool isDWORD )
 {
+	IndexBuffer ib;
+
 	BUFFER_TRAIT trait = {
 		isDWORD ? 4u : 2u,
 		static_cast<UINT>( numElement ),
@@ -13,5 +15,7 @@ RefHandle<IndexBuffer> IndexBuffer::Create( std::size_t numElement, const void* 
 		RESOURCE_BIND_TYPE::INDEX_BUFFER
 	};
 
-	return GetInterface<IAga>( )->CreateIndexBuffer( trait, initData );
+	ib.m_buffer = GetInterface<IAga>( )->CreateBuffer( trait, initData );
+
+	return ib;
 }

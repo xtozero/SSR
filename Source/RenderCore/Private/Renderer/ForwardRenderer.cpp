@@ -3,7 +3,9 @@
 
 #include "IAga.h"
 #include "RenderView.h"
-#include "GraphicsResource/Viewport.h"
+#include "Scene/IScene.h"
+#include "Scene/SceneConstantBuffers.h"
+#include "Viewport.h"
 
 void ForwardRenderer::PrepareRender( RenderViewGroup& renderViewGroup )
 {
@@ -19,6 +21,18 @@ void ForwardRenderer::Render( RenderViewGroup& renderViewGroup )
 	depthStencil.Clear( 0.f, 0 );
 
 	SetRenderTarget( renderViewGroup );
+
+	IScene& scene = renderViewGroup.Scene( );
+	auto& sceneConstant = scene.SceneConstant( );
+
+	for ( auto view : renderViewGroup )
+	{
+		ViewConstantBufferParameters viewConstantParam;
+		FillViewConstantParam( viewConstantParam, view );
+
+		sceneConstant.Update( viewConstantParam );
+		sceneConstant.Bind( );
+	}
 }
 
 void ForwardRenderer::SetRenderTarget( RenderViewGroup& renderViewGroup )

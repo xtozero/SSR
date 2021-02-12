@@ -1,13 +1,14 @@
 #include "stdafx.h"
-#include "GraphicsResource/Viewport.h"
+#include "Viewport.h"
 
+#include "../RenderResource/Viewport.h"
 #include "Core/InterfaceFactories.h"
 #include "IAga.h"
-#include "Viewport.h"
+#include "MultiThread/EngineTaskScheduler.h"
 
 namespace rendercore
 {
-	RENDERCORE_DLL DEVICE_ERROR Viewport::Present( bool vSync )
+	DEVICE_ERROR Viewport::Present( bool vSync )
 	{
 		if ( m_pViewport.Get( ) )
 		{
@@ -25,6 +26,16 @@ namespace rendercore
 		}
 	}
 
+	void* Viewport::Handle( ) const
+	{
+		if ( m_pViewport.Get( ) )
+		{
+			return m_pViewport->Handle( );
+		}
+
+		return nullptr;
+	}
+
 	std::pair<UINT, UINT> Viewport::Size( ) const
 	{
 		if ( m_pViewport.Get( ) )
@@ -33,6 +44,14 @@ namespace rendercore
 		}
 
 		return {};
+	}
+
+	void Viewport::Resize( const std::pair<UINT, UINT>& newSize )
+	{
+		if ( m_pViewport.Get( ) )
+		{
+			m_pViewport->Resize( newSize );
+		}
 	}
 
 	aga::Texture* Viewport::Texture( )
@@ -48,6 +67,17 @@ namespace rendercore
 	Viewport::Viewport( int width, int height, HWND hWnd, RESOURCE_FORMAT format )
 	{
 		m_pViewport = GetInterface<IAga>( )->CreateViewport( width, height, hWnd, format );
+		if ( IsInRenderThread( ) )
+		{
+			m_pViewport->Init( );
+		}
+		else
+		{
+			EnqueueRenderTask( [viewport = m_pViewport]( )
+			{
+				viewport->Init( );
+			} );
+		}
 	}
 
 	Viewport::~Viewport( )

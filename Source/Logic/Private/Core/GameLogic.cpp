@@ -160,6 +160,8 @@ void CGameLogic::AppSizeChanged( IPlatform& platform )
 	m_appSize = newAppSize;
 	CUtilWindowInfo::GetInstance( ).SetRect( m_appSize.first, m_appSize.second );
 
+	m_gameViewport->AppSizeChanged( platform.GetRawHandle<void*>( ), newAppSize );
+
 	//m_pRenderer->AppSizeChanged( m_appSize.first, m_appSize.second );
 
 	//m_ssrManager.AppSizeChanged( *this );
@@ -242,8 +244,6 @@ void CGameLogic::ProcessLogic( )
 
 void CGameLogic::EndLogic( )
 {
-	using namespace SHARED_CONSTANT_BUFFER;
-
 	// 물리 시뮬레이션 결과를 반영
 	m_world.EndFrame( m_clock.GetElapsedTime( ) );
 

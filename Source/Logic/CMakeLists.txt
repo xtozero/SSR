@@ -146,7 +146,6 @@ set (SCENE
 	"Private/Scene/ShadowManager.cpp"
 	"Private/Scene/SSRManager.cpp"
 	"Public/Scene/AtmosphereScattering.h"
-	"Public/Scene/ConstantBufferDefine.h"
 	"Public/Scene/DebugOverlayManager.h"
 	"Public/Scene/DynamicBuffer.h"
 	"Public/Scene/INotifyGraphicsDevice.h"

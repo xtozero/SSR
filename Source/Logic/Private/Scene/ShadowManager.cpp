@@ -9,7 +9,6 @@
 #include "Physics/Frustum.h"
 //#include "Render/IRenderer.h"
 //#include "Render/IRenderResourceManager.h"
-#include "Scene/ConstantBufferDefine.h"
 #include "Util.h"
 
 #include <algorithm>

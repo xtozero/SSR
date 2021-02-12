@@ -6,8 +6,6 @@
 class CD3D11SamplerState : public DeviceDependantBase<ID3D11SamplerState>
 {
 public:
-	virtual void InitResource( ) override;
-
 	CD3D11SamplerState( const SAMPLER_STATE_TRAIT& trait );
 	CD3D11SamplerState( const CD3D11SamplerState& ) = default;
 	CD3D11SamplerState( CD3D11SamplerState&& ) = default;
@@ -16,5 +14,7 @@ public:
 	~CD3D11SamplerState( ) = default;
 
 private:
+	virtual void InitResource( ) override;
+
 	D3D11_SAMPLER_DESC m_desc;
 };

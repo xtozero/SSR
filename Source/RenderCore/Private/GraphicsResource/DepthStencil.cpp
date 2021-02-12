@@ -28,13 +28,13 @@ namespace rendercore
 			m_depthStencil = aga::Texture::Create( trait );
 			if ( IsInRenderThread( ) )
 			{
-				m_depthStencil->InitResource( );
+				m_depthStencil->Init( );
 			}
 			else
 			{
 				EnqueueRenderTask( [depthStencil = m_depthStencil]( )
 				{
-					depthStencil->InitResource( );
+					depthStencil->Init( );
 				} );
 			}
 		}

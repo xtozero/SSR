@@ -29,10 +29,10 @@ namespace
 	}
 }
 
+CD3D11BlendState::CD3D11BlendState( const BLEND_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
+
 void CD3D11BlendState::InitResource( )
 {
 	bool result = SUCCEEDED( D3D11Device( ).CreateBlendState( &m_desc, m_pResource.GetAddressOf( ) ) );
 	assert( result );
 }
-
-CD3D11BlendState::CD3D11BlendState( const BLEND_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}

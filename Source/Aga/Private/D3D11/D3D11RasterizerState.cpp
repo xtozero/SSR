@@ -23,10 +23,10 @@ namespace
 	}
 }
 
+CD3D11RasterizerState::CD3D11RasterizerState( const RASTERIZER_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
+
 void CD3D11RasterizerState::InitResource( )
 {
 	bool result = SUCCEEDED( D3D11Device( ).CreateRasterizerState( &m_desc, m_pResource.GetAddressOf( ) ) );
 	assert( result );
 }
-
-CD3D11RasterizerState::CD3D11RasterizerState( const RASTERIZER_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
