@@ -1,6 +1,6 @@
 #include "ShaderManufacturer.h"
 
-#include "Rendering/Shader.h"
+#include "Shader.h"
 
 #include <fstream>
 #include <d3dcompiler.h>
@@ -13,7 +13,7 @@ namespace
 	bool ValidateShaderAsset( const AsyncLoadableAsset* asset, const Archive& ar )
 	{
 		Archive rAr( ar.Data( ), ar.Size( ) );
-		int assetID = -1;
+		std::size_t assetID = 0;
 		rAr << assetID;
 
 		if ( assetID == PixelShader::ID )

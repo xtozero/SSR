@@ -37,6 +37,7 @@ PRIVATE
 
 target_link_libraries(AssetManufacture
 PRIVATE 
+	Engine
 	Logic
 	RenderCore
 	d3dcompiler)

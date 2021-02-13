@@ -23,7 +23,7 @@ struct StaticMeshMaterial
 
 class StaticMesh : public AsyncLoadableAsset, BaseMesh
 {
-	DECLARE_ASSET( StaticMesh );
+	DECLARE_ASSET( LOGIC, StaticMesh );
 public:
 	LOGIC_DLL virtual void Serialize( Archive& ar ) override;
 

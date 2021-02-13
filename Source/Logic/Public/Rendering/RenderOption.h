@@ -1,7 +1,5 @@
 #pragma once
 
-#include "AssetLoader/AssetFactory.h"
-#include "AssetLoader/IAsyncLoadableAsset.h"
 #include "GraphicsApiResource.h"
 #include "Shader.h"
 
@@ -34,7 +32,7 @@ struct RenderTargetBlendOption
 
 class BlendOption : public AsyncLoadableAsset
 {
-	DECLARE_ASSET( BlendOption );
+	DECLARE_ASSET( LOGIC, BlendOption );
 public:
 	LOGIC_DLL virtual void Serialize( Archive& ar ) override;
 
@@ -108,7 +106,7 @@ struct StencilOption
 
 class DepthStencilOption : public AsyncLoadableAsset
 {
-	DECLARE_ASSET( DepthStencilOption );
+	DECLARE_ASSET( LOGIC, DepthStencilOption );
 public:
 	LOGIC_DLL virtual void Serialize( Archive& ar ) override;
 
@@ -133,7 +131,7 @@ private:
 
 class RasterizerOption : public AsyncLoadableAsset
 {
-	DECLARE_ASSET( RasterizerOption );
+	DECLARE_ASSET( LOGIC, RasterizerOption );
 public:
 	LOGIC_DLL virtual void Serialize( Archive& ar ) override;
 
@@ -170,7 +168,7 @@ private:
 
 class SamplerOption : public AsyncLoadableAsset
 {
-	DECLARE_ASSET( SamplerOption );
+	DECLARE_ASSET( LOGIC, SamplerOption );
 public:
 	LOGIC_DLL virtual void Serialize( Archive& ar ) override;
 
@@ -203,7 +201,7 @@ private:
 
 class RenderOption : public AsyncLoadableAsset
 {
-	DECLARE_ASSET( RenderOption );
+	DECLARE_ASSET( LOGIC, RenderOption );
 public:
 	LOGIC_DLL virtual void Serialize( Archive& ar ) override;
 

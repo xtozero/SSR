@@ -7,7 +7,7 @@ namespace fs = std::filesystem;
 
 namespace
 {
-	int ConvertAssetTypeToAssetID( const JSON::Value& root )
+	std::optional<std::size_t> ConvertAssetTypeToAssetID( const JSON::Value& root )
 	{
 		const JSON::Value* type = root.Find( "Type" );
 		if ( type != nullptr )
@@ -35,10 +35,10 @@ namespace
 			}
 		}
 
-		return -1;
+		return {};
 	}
 
-	std::unique_ptr<AsyncLoadableAsset> CreateAssetByAssetID( int assetID, const fs::path& assetPath, const JSON::Value& root )
+	std::unique_ptr<AsyncLoadableAsset> CreateAssetByAssetID( std::size_t assetID, const fs::path& assetPath, const JSON::Value& root )
 	{
 		std::unique_ptr<AsyncLoadableAsset> asset = nullptr;
 
@@ -386,7 +386,7 @@ namespace
 	bool ValidateJsonAsset( const AsyncLoadableAsset* asset, const Archive& ar )
 	{
 		Archive rAr( ar.Data( ), ar.Size( ) );
-		int assetID = -1;
+		std::size_t assetID = 0;
 		rAr << assetID;
 
 		if ( assetID == BlendOption::ID )
@@ -448,8 +448,8 @@ std::optional<Products> JsonManufacturer::Manufacture( const std::filesystem::pa
 		return { };
 	}
 
-	int assetID = ConvertAssetTypeToAssetID( root );
-	if ( assetID == -1 )
+	auto assetID = ConvertAssetTypeToAssetID( root );
+	if ( assetID == false )
 	{
 		return { };
 	}
@@ -460,7 +460,7 @@ std::optional<Products> JsonManufacturer::Manufacture( const std::filesystem::pa
 		assetPath /= *destRootHint;
 	}
 	assetPath /= srcPath.filename( );
-	std::unique_ptr<AsyncLoadableAsset> asset = CreateAssetByAssetID( assetID, assetPath, root );
+	std::unique_ptr<AsyncLoadableAsset> asset = CreateAssetByAssetID( assetID.value( ), assetPath, root );
 	if ( asset == nullptr )
 	{
 		return { };

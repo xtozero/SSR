@@ -31,12 +31,14 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Private/GraphicsResource/ConstantBuffer.cpp
 	Private/GraphicsResource/DepthStencil.cpp
 	Private/GraphicsResource/IndexBuffer.cpp
+	Private/GraphicsResource/Shader.cpp
 	Private/GraphicsResource/VertexBuffer.cpp
 	Private/GraphicsResource/Viewport.cpp
 	Public/GraphicsResource/ConstantBuffer.h
 	Public/GraphicsResource/DepthStencil.h
 	Public/GraphicsResource/DrawSnapshot.h
 	Public/GraphicsResource/IndexBuffer.h
+	Public/GraphicsResource/Shader.h
 	Public/GraphicsResource/ShaderBindings.h
 	Public/GraphicsResource/TypedBuffer.h
 	Public/GraphicsResource/VertexBuffer.h

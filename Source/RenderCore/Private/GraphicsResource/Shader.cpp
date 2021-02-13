@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Rendering/Shader.h"
+#include "Shader.h"
 
 void ShaderBase::Serialize( Archive& ar )
 {

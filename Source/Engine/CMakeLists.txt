@@ -3,10 +3,13 @@ add_definitions(-DUNICODE=1)
 add_definitions(-D_UNICODE=1)
 add_definitions(-DNOMINMAX=1)
 
-set (PRECOMPILED
-	"Private/stdafx.cpp"
-	"Public/stdafx.h"
-	"Public/targetver.h")
+set (ASSET_LOADER
+	Private/AssetLoader/AssetFactory.cpp
+	Private/AssetLoader/AssetLoader.cpp
+	Public/AssetLoader/AssetFactory.h
+	Public/AssetLoader/AssetLoader.h
+	Public/AssetLoader/IAsyncLoadableAsset.h
+)
 
 set (CORE_SOURCE
 	"Private/Core/dllmain.cpp"
@@ -37,6 +40,11 @@ set (PLATFORM_SOURCE
 	"Public/Platform/IPlatform.h"
 	"Public/Platform/WindowPlatformEngine.h"
 	"Public/Platform/WindowPlatformInputConvertor.h")
+
+set (PRECOMPILED
+	"Private/stdafx.cpp"
+	"Public/stdafx.h"
+	"Public/targetver.h")
 	
 set (USER_INPUT_SOURCE
 	"Private/UserInput/UICMap.cpp"
@@ -57,7 +65,8 @@ set (FILE_SYSTEM
 set (MEMORY_MANAGEMENT
 	"../Core/Public/FixedBlockMemoryPool.h"
 	"../Core/Public/MemoryPool.h")
-	
+
+source_group("AssetLoader" FILES ${ASSET_LOADER} )		
 source_group("ConsoleMessage" FILES ${CONSOLE_MESSAGE_SOURCES})
 source_group("DataStructure" FILES ${DATA_STRUCTURE_SOURCE})
 source_group("Window" FILES ${PLATFORM_SOURCE})
@@ -74,12 +83,12 @@ include_directories(../Shared/Public)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-add_library(Engine SHARED	${PRECOMPILED} 
-							${PRECOMPILED}
+add_library(Engine SHARED	${ASSET_LOADER}
 							${CORE_SOURCE}
 							${CONSOLE_MESSAGE_SOURCES}
 							${DATA_STRUCTURE_SOURCE}
 							${PLATFORM_SOURCE}
+							${PRECOMPILED} 
 							${USER_INPUT_SOURCE}
 							${MULTI_THREAD}
 							${FILE_SYSTEM}

@@ -3,7 +3,7 @@
 
 #include "FileSystem/EngineFileSystem.h"
 #include "Json/json.hpp"
-#include "Rendering/Shader.h"
+#include "Shader.h"
 
 #include <cassert>
 

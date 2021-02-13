@@ -7,7 +7,7 @@
 class ShaderBase : public AsyncLoadableAsset
 {
 public:
-	LOGIC_DLL virtual void Serialize( Archive& ar ) override;
+	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
 
 	ShaderBase( BinaryChunk&& byteCode ) : m_byteCode( std::move( byteCode ) ) {}
 	ShaderBase( ) = default;
@@ -22,9 +22,9 @@ protected:
 
 class VertexShader : public ShaderBase
 {
-	DECLARE_ASSET( VertexShader );
+	DECLARE_ASSET( RENDERCORE, VertexShader );
 public:
-	LOGIC_DLL virtual void Serialize( Archive& ar ) override;
+	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
 
 	const std::filesystem::path& Path( ) const { return m_path; }
 	void SetPath( const std::filesystem::path& path ) { m_path = path; }
@@ -39,7 +39,7 @@ public:
 	}
 
 protected:
-	LOGIC_DLL virtual void PostLoadImpl( ) override;
+	RENDERCORE_DLL virtual void PostLoadImpl( ) override;
 
 private:
 	std::filesystem::path m_path;
@@ -48,9 +48,9 @@ private:
 
 class PixelShader : public ShaderBase
 {
-	DECLARE_ASSET( PixelShader );
+	DECLARE_ASSET( RENDERCORE, PixelShader );
 public:
-	LOGIC_DLL virtual void Serialize( Archive& ar ) override;
+	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
 
 	const std::filesystem::path& Path( ) const { return m_path; }
 	void SetPath( const std::filesystem::path& path ) { m_path = path; }
@@ -65,7 +65,7 @@ public:
 	}
 
 protected:
-	LOGIC_DLL virtual void PostLoadImpl( ) override;
+	RENDERCORE_DLL virtual void PostLoadImpl( ) override;
 
 private:
 	std::filesystem::path m_path;

@@ -2,14 +2,6 @@ add_definitions(-DLOGIC_EXPORTS=1)
 add_definitions(-DUNICODE=1)
 add_definitions(-D_UNICODE=1)
 add_definitions(-DNOMINMAX=1)
-
-set (ASSET_LOADER
-	"Private/AssetLoader/AssetFactory.cpp"
-	"Private/AssetLoader/AssetLoader.cpp"
-	"Public/AssetLoader/AssetFactory.h"
-	"Public/AssetLoader/AssetLoader.h"
-	"Public/AssetLoader/IAsyncLoadableAsset.h"
-)
 	
 set (COMPOENETS
 	"Private/Components/CameraComponent.cpp"
@@ -133,9 +125,7 @@ set (PRECOMPILED
 
 set (RENDERING
 	"Private/Rendering/RenderOption.cpp"
-	"Private/Rendering/Shader.cpp"
 	"Public/Rendering/RenderOption.h"
-	"Public/Rendering/Shader.h"
 )
 
 set (SCENE
@@ -176,7 +166,6 @@ set (WORLD
 	"Public/World/World.h"
 	"Public/World/WorldLoader.h")
 
-source_group("AssetLoader" FILES ${ASSET_LOADER} )	
 source_group("Components" FILES ${COMPOENETS})
 source_group("Core" FILES ${CORE})
 source_group("GameObject" FILES ${GAME_OBJECT})
@@ -204,8 +193,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
-add_library(Logic SHARED 	${ASSET_LOADER}
-							${COMPOENETS}
+add_library(Logic SHARED 	${COMPOENETS}
 							${CORE}
 							${GAME_OBJECT}
 							${MATERIAL}

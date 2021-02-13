@@ -110,7 +110,7 @@ private:
 
 class Material : public AsyncLoadableAsset
 {
-	DECLARE_ASSET( Material );
+	DECLARE_ASSET( LOGIC, Material );
 public:
 	LOGIC_DLL virtual void Serialize( Archive& ar ) override;
 

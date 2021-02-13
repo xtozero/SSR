@@ -2,9 +2,10 @@
 #include "AssetLoader/AssetLoader.h"
 
 #include "Archive.h"
+#include "AssetLoader/AssetFactory.h"
+#include "AssetLoader/IAsyncLoadableAsset.h"
 #include "Core/InterfaceFactories.h"
 #include "FileSystem/EngineFileSystem.h"
-#include "Rendering/RenderOption.h"
 #include "Json/json.hpp"
 
 #include <memory>
@@ -45,6 +46,7 @@ public:
 	virtual AssetLoaderSharedHandle RequestAsyncLoad( const std::string& assetPath, LoadCompletionCallback completionCallback ) override;
 
 	AssetLoader( ) = default;
+	~AssetLoader( );
 	AssetLoader( const AssetLoader& ) = delete;
 	AssetLoader( AssetLoader&& ) = delete;
 	AssetLoader& operator=( const AssetLoader& ) = delete;
@@ -107,6 +109,11 @@ AssetLoaderSharedHandle AssetLoader::RequestAsyncLoad( const std::string& assetP
 	return handle;
 }
 
+AssetLoader::~AssetLoader( )
+{
+	AssetFactory::GetInstance( ).Shutdown( );
+}
+
 AssetLoaderSharedHandle AssetLoader::LoadAsset( const char* assetPath, LoadCompletionCallback completionCallback )
 {
 	AssetLoaderSharedHandle handle = std::make_shared<AssetLoaderHandle>( );
@@ -134,7 +141,7 @@ AssetLoaderSharedHandle AssetLoader::LoadAsset( const char* assetPath, LoadCompl
 			m_dependantAssetHandle = handle;
 
 			Archive ar( buffer, bufferSize );
-			int assetID = -1;
+			std::size_t assetID = 0;
 
 			ar << assetID;
 
@@ -188,11 +195,10 @@ void AssetLoader::OnAssetLoaded( const std::string& path, const std::shared_ptr<
 
 Owner<IAssetLoader*> CreateAssetLoader( )
 {
-	IAssetLoader* pRenderOptionManager = new AssetLoader;
-	return pRenderOptionManager;
+	return new AssetLoader( );
 }
 
-void DestoryAssetLoader( Owner<IAssetLoader*> pRenderOptionManager )
+void DestoryAssetLoader( Owner<IAssetLoader*> pAssetLoader )
 {
-	delete pRenderOptionManager;
+	delete pAssetLoader;
 }
