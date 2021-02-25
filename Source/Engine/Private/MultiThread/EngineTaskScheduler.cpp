@@ -97,7 +97,12 @@ void DestroyTaskScheduler( ITaskScheduler* taskScheduler )
 
 bool IsInGameThread( )
 {
-	return GetInterface<ITaskScheduler>( )->GetThisThreadType( ) == ThreadType::GameThread;
+	if ( GetInterface<ITaskScheduler>( ) )
+	{
+		return GetInterface<ITaskScheduler>( )->GetThisThreadType( ) == ThreadType::GameThread;
+	}
+
+	return true;
 }
 
 bool IsInRenderThread( )

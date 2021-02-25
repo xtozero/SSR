@@ -42,7 +42,7 @@ public:
 
 	std::vector<StaticMeshVertex> m_vertexData;
 	std::vector<std::size_t> m_indexData;
-	TypeVertexBuffer<StaticMeshVertex> m_vb;
+	TypedVertexBuffer<StaticMeshVertex> m_vb;
 	IndexBuffer m_ib;
 	std::vector<StaticMeshSection> m_sections;
 };

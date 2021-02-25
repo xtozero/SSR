@@ -5,6 +5,6 @@ class RenderViewGroup;
 class SceneRenderer
 {
 public:
-	virtual void PrepareRender( RenderViewGroup& renderViewGroup ) = 0;
+	virtual bool PrepareRender( RenderViewGroup& renderViewGroup ) = 0;
 	virtual void Render( RenderViewGroup& renderViewGroup ) = 0;
 };

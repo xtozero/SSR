@@ -6,7 +6,7 @@
 class ForwardRenderer final : public SceneRenderer
 {
 public:
-	virtual void PrepareRender( RenderViewGroup& renderViewGroup ) override;
+	virtual bool PrepareRender( RenderViewGroup& renderViewGroup ) override;
 	virtual void Render( RenderViewGroup& renderViewGroup ) override;
 
 private:

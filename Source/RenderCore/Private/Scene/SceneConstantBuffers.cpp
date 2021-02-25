@@ -5,27 +5,28 @@
 #include "Core/InterfaceFactories.h"
 #include "IAga.h"
 #include "MultiThread/EngineTaskScheduler.h"
+#include "Proxies/PrimitiveProxy.h"
 #include "RenderView.h"
 
 #include <assert.h>
 
-void SceneConstantBuffers::Initialize( )
+void SceneViewConstantBuffer::Initialize( )
 {
 	assert( IsInRenderThread() );
 
-	m_viewConstantBuffer = TypedConstatBuffer<ViewConstantBufferParameters>::Create( );
+	m_constantBuffer = TypedConstatBuffer<ViewConstantBufferParameters>::Create( );
 }
 
-void SceneConstantBuffers::Update( const ViewConstantBufferParameters& param )
+void SceneViewConstantBuffer::Update( const ViewConstantBufferParameters& param )
 {
 	assert( IsInRenderThread( ) );
 
-	m_viewConstantBuffer.Update( param );
+	m_constantBuffer.Update( param );
 }
 
-void SceneConstantBuffers::Bind( )
+void SceneViewConstantBuffer::Bind( )
 {
-	m_viewConstantBuffer.Bind( SHADER_TYPE::VS, VS_CONSTANT_BUFFER::VIEW_PROJECTION );
+	m_constantBuffer.Bind( SHADER_TYPE::VS, VS_CONSTANT_BUFFER::VIEW_PROJECTION );
 }
 
 void FillViewConstantParam( ViewConstantBufferParameters& param, const RenderView& view )
@@ -49,4 +50,17 @@ void FillViewConstantParam( ViewConstantBufferParameters& param, const RenderVie
 	param.m_invViewMatrix = XMMatrixInverse( nullptr, viewMatrix );
 	param.m_invProjMatrix = XMMatrixInverse( nullptr, projMatrix );
 	param.m_invViewProjMatrix = XMMatrixInverse( nullptr, param.m_viewProjMatrix );
+}
+
+PrimitiveBufferParameters::PrimitiveBufferParameters( const PrimitiveProxy* proxy )
+{
+	if ( proxy )
+	{
+		m_worldMatrix = proxy->GetTransform( );
+	}
+}
+
+void ScenePrimitiveBuffer::Resize( std::size_t size )
+{
+	m_buffer.Resize( size * sizeof( PrimitiveBufferParameters ) / sizeof( CXMFLOAT4 ) );
 }

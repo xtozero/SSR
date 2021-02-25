@@ -3,16 +3,19 @@
 
 #include "IAga.h"
 #include "RenderView.h"
-#include "Scene/IScene.h"
+#include "Scene/Scene.h"
 #include "Scene/SceneConstantBuffers.h"
 #include "Viewport.h"
 
-void ForwardRenderer::PrepareRender( RenderViewGroup& renderViewGroup )
+bool ForwardRenderer::PrepareRender( RenderViewGroup& renderViewGroup )
 {
 	auto rendertargetSize = renderViewGroup.Viewport( ).Size( );
 
 	auto& depthStencil = m_renderTargets.GetDepthStencil( );
 	depthStencil.UpdateBufferSize( rendertargetSize.first, rendertargetSize.second );
+
+	IScene& scene = renderViewGroup.Scene( );
+	return UpdateGPUPrimitiveInfos( *scene.GetRenderScene( ) );
 }
 
 void ForwardRenderer::Render( RenderViewGroup& renderViewGroup )
@@ -23,15 +26,16 @@ void ForwardRenderer::Render( RenderViewGroup& renderViewGroup )
 	SetRenderTarget( renderViewGroup );
 
 	IScene& scene = renderViewGroup.Scene( );
-	auto& sceneConstant = scene.SceneConstant( );
+
+	auto& viewConstant = scene.SceneViewConstant( );
 
 	for ( auto view : renderViewGroup )
 	{
 		ViewConstantBufferParameters viewConstantParam;
 		FillViewConstantParam( viewConstantParam, view );
 
-		sceneConstant.Update( viewConstantParam );
-		sceneConstant.Bind( );
+		viewConstant.Update( viewConstantParam );
+		viewConstant.Bind( );
 	}
 }
 

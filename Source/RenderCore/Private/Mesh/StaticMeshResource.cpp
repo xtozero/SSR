@@ -110,7 +110,7 @@ void StaticMeshRenderData::InitRenderResource( )
 		m_vertexLayouts[i].Initialize( &lodResource );
 
 		std::vector<StaticMeshVertex>& vertexData = lodResource.m_vertexData;
-		lodResource.m_vb.Initialize( vertexData.size( ), vertexData.data( ) );
+		lodResource.m_vb = TypedVertexBuffer<StaticMeshVertex>::Create( vertexData.size( ), vertexData.data( ) );
 
 		bool isDWORD = vertexData.size( ) > std::numeric_limits<WORD>::max( );
 		std::size_t requireByteWidth = ( isDWORD ? 4 : 2 ) * lodResource.m_indexData.size( );

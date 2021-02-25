@@ -18,7 +18,8 @@ namespace VS_CONSTANT_BUFFER
 {
 	enum
 	{
-		GEOMETRY = 0,
+		DEFAULT = 0,
+		GEOMETRY,
 		VIEW_PROJECTION,
 		SHADOW,
 	};
@@ -28,7 +29,8 @@ namespace GS_CONSTANT_BUFFER
 {
 	enum
 	{
-		SHADOW = 0,
+		DEFAULT = 0,
+		SHADOW,
 	};
 }
 
@@ -36,11 +38,20 @@ namespace PS_CONSTANT_BUFFER
 {
 	enum
 	{
-		LIGHT = 0,
+		DEFAULT = 0,
+		LIGHT,
 		SURFACE,
 		UTIL,
 		SHADOW,
 		ATMOSPHERIC,
+	};
+}
+
+namespace CS_CONSTANT_BUFFER
+{
+	enum
+	{
+		DEFAULT = 0,
 	};
 }
 

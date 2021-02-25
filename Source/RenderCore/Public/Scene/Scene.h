@@ -2,6 +2,7 @@
 
 #include "IScene.h"
 #include "SceneConstantBuffers.h"
+#include "UploadBuffer.h"
 
 #include <vector>
 
@@ -15,19 +16,31 @@ public:
 	virtual void AddPrimitive( PrimitiveComponent* primitive ) override;
 	virtual void RemovePrimitive( PrimitiveComponent* primitive ) override;
 
-	virtual SceneConstantBuffers& SceneConstant( ) override
+	virtual SceneViewConstantBuffer& SceneViewConstant( ) override
 	{
-		return m_constantBuffers;
+		return m_viewConstant;
 	}
 
 	virtual void DrawScene( const RenderViewGroup& views ) override;
 
 	virtual SHADING_METHOD ShadingMethod( ) const override;
 
+	virtual Scene* GetRenderScene( ) { return this; };
+
 private:
 	void AddPrimitiveSceneInfo( PrimitivieSceneInfo* primitiveSceneInfo );
 	void RemovePrimitiveSceneInfo( PrimitivieSceneInfo* primitiveSceneInfo );
 
 	std::vector<PrimitivieSceneInfo*> m_primitives;
-	SceneConstantBuffers m_constantBuffers;
+	SceneViewConstantBuffer m_viewConstant;
+
+	std::vector<std::size_t> m_primitiveToUpdate;
+	ScenePrimitiveBuffer m_gpuPrimitiveInfos;
+
+	TypedUploadBuffer<CXMFLOAT4> m_uploadPrimitiveBuffer;
+	TypedUploadBuffer<UINT> m_distributionBuffer;
+
+	friend bool UpdateGPUPrimitiveInfos( Scene& scene );
 };
+
+bool UpdateGPUPrimitiveInfos( Scene& scene );

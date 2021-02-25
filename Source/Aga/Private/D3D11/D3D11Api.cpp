@@ -56,7 +56,7 @@ public:
 
 	virtual VertexLayout* FindAndCreateVertexLayout( aga::VertexShader* vs, const VertexLayoutDesc& layoutDesc ) override;
 	virtual RE_HANDLE CreateGeometryShader( const void* byteCode, std::size_t byteCodeSize ) override;
-	virtual RE_HANDLE CreateComputeShader( const void* byteCode, std::size_t byteCodeSize ) override;
+	virtual aga::ComputeShader* CreateComputeShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	virtual aga::VertexShader* CreateVertexShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	virtual aga::PixelShader* CreatePixelShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	virtual const ShaderParameterInfo& GetShaderParameterInfo( RE_HANDLE shader ) const override;
@@ -83,7 +83,18 @@ public:
 	virtual void BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT numBuffers, aga::Buffer** pConstantBuffers ) override;
 	virtual void BindVertexLayout( RE_HANDLE layout ) override;
 	virtual void BindShader( RE_HANDLE shader ) override;
-	virtual void BindShaderResource( SHADER_TYPE type, int startSlot, int count, const RE_HANDLE* resource ) override;
+	virtual void BindShader( aga::ComputeShader* shader ) override;
+
+	virtual void BindConstant( aga::VertexShader* shader, int startSlot, int numBuffers, aga::Buffer** pBuffers ) override;
+	virtual void BindShaderInput( aga::VertexShader* shader, int startSlot, int numBuffers, aga::Buffer** pBuffers ) override;
+
+	virtual void BindConstant( aga::PixelShader* shader, int startSlot, int numBuffers, aga::Buffer** pBuffers ) override;
+	virtual void BindShaderInput( aga::PixelShader* shader, int startSlot, int numBuffers, aga::Buffer** pBuffers ) override;
+
+	virtual void BindConstant( aga::ComputeShader* shader, int startSlot, int numBuffers, aga::Buffer** pBuffers ) override;
+	virtual void BindShaderInput( aga::ComputeShader* shader, int startSlot, int numBuffers, aga::Buffer** pBuffers ) override;
+	virtual void BindShaderOutput( aga::ComputeShader* shader, int startSlot, int numBuffers, aga::Buffer** pBuffers ) override;
+
 	virtual void BindRandomAccessResource( int startSlot, int count, RE_HANDLE* resource ) override;
 	virtual void BindRenderTargets( aga::Texture** pRenderTargets, int renderTargetCount, aga::Texture* depthStencil ) override;
 	virtual void BindRasterizerState( RE_HANDLE rasterizerState ) override;
@@ -96,9 +107,9 @@ public:
 	virtual void DrawInstanced( RESOURCE_PRIMITIVE primitive, UINT vertexCount, UINT instanceCount, UINT vertexOffset = 0, UINT instanceOffset = 0 ) override;
 	virtual void DrawInstancedInstanced( RESOURCE_PRIMITIVE primitive, UINT indexCount, UINT instanceCount, UINT indexOffset = 0, UINT vertexOffset = 0, UINT instanceOffset = 0 ) override;
 	virtual void DrawAuto( ) override;
-	virtual void Dispatch( int x, int y, int z = 1 ) override;
+	virtual void Dispatch( UINT x, UINT y, UINT z = 1 ) override;
 
-	// virtual BYTE Present( ) override;
+	virtual void Copy( aga::Buffer* dst, aga::Buffer* src, std::size_t size ) override;
 
 	virtual void GenerateMips( RE_HANDLE shaderResource ) override;
 
@@ -235,7 +246,7 @@ aga::Texture* CDirect3D11::CreateTexture( const TEXTURE_TRAIT& trait, const RESO
 
 aga::Buffer* CDirect3D11::CreateBuffer( const BUFFER_TRAIT& trait, const void* initData )
 {
-	return m_resourceManager.CreateBuffer( trait );
+	return m_resourceManager.CreateBuffer( trait, initData );
 }
 
 VertexLayout* CDirect3D11::FindAndCreateVertexLayout( aga::VertexShader* vs, const VertexLayoutDesc& layoutDesc )
@@ -250,11 +261,9 @@ RE_HANDLE CDirect3D11::CreateGeometryShader( const void* byteCode, std::size_t b
 	return {};
 }
 
-RE_HANDLE CDirect3D11::CreateComputeShader( const void* byteCode, std::size_t byteCodeSize )
+aga::ComputeShader* CDirect3D11::CreateComputeShader( const void* byteCode, std::size_t byteCodeSize )
 {
-	// TODO : Need to be implemented later
-	//return m_resourceManager.CreateComputeShader( byteCode, byteCodeSize );
-	return {};
+	return m_resourceManager.CreateComputeShader( byteCode, byteCodeSize );
 }
 
 aga::VertexShader* CDirect3D11::CreateVertexShader( const void* byteCode, std::size_t byteCodeSize )
@@ -606,48 +615,120 @@ void CDirect3D11::BindShader( RE_HANDLE shader )
 	//}
 }
 
-void CDirect3D11::BindShaderResource( SHADER_TYPE type, int startSlot, int count, const RE_HANDLE* resource )
+void CDirect3D11::BindShader( aga::ComputeShader* shader )
 {
-	// TODO : Need to be implemented later
-
-	/*ID3D11ShaderResourceView* pSrvs[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {};
-
-	if ( resource )
+	ID3D11ComputeShader* cs = nullptr;
+	if ( D3D11ComputeShader* d3d11CS = static_cast<D3D11ComputeShader*>( shader ) )
 	{
-		for ( int i = 0; i < count; ++i )
+		cs = d3d11CS->Resource( );
+	}
+
+	D3D11Context( ).CSSetShader( cs, nullptr, 0 );
+}
+
+void CDirect3D11::BindConstant( aga::VertexShader* shader, int startSlot, int numBuffers, aga::Buffer** pBuffers )
+{
+	ID3D11Buffer* pConstants[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT] = {};
+
+	for ( UINT i = 0; i < numBuffers; ++i )
+	{
+		if ( auto d3d11buffer = static_cast<D3D11BufferBase*>( pBuffers[i] ) )
 		{
-			if ( resource[i].IsValid( ) )
-			{
-				CD3D11ShaderResource* d3d11SRV = m_resourceManager.GetShaderResource( resource[i] );
-				pSrvs[i] = d3d11SRV->Get( );
-			}
+			pConstants[i] = d3d11buffer->Buffer( );
 		}
 	}
 
-	switch ( type )
+	m_pd3d11DeviceContext->VSSetConstantBuffers( startSlot, numBuffers, pConstants );
+}
+
+void CDirect3D11::BindShaderInput( aga::VertexShader* shader, int startSlot, int numBuffers, aga::Buffer ** pBuffers )
+{
+	ID3D11ShaderResourceView* pSrvs[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {};
+
+	for ( UINT i = 0; i < numBuffers; ++i )
 	{
-	case SHADER_TYPE::VS:
-		m_pd3d11DeviceContext->VSSetShaderResources( startSlot, count, pSrvs );
-		break;
-	case SHADER_TYPE::HS:
-		m_pd3d11DeviceContext->HSSetShaderResources( startSlot, count, pSrvs );
-		break;
-	case SHADER_TYPE::DS:
-		m_pd3d11DeviceContext->DSSetShaderResources( startSlot, count, pSrvs );
-		break;
-	case SHADER_TYPE::GS:
-		m_pd3d11DeviceContext->GSSetShaderResources( startSlot, count, pSrvs );
-		break;
-	case SHADER_TYPE::PS:
-		m_pd3d11DeviceContext->PSSetShaderResources( startSlot, count, pSrvs );
-		break;
-	case SHADER_TYPE::CS:
-		m_pd3d11DeviceContext->CSSetShaderResources( startSlot, count, pSrvs );
-		break;
-	default:
-		__debugbreak( );
-		break;
-	}*/
+		if ( auto d3d11buffer = static_cast<D3D11BufferBase*>( pBuffers[i] ) )
+		{
+			pSrvs[i] = d3d11buffer->Srv( );
+		}
+	}
+
+	m_pd3d11DeviceContext->VSSetShaderResources( startSlot, numBuffers, pSrvs );
+}
+
+void CDirect3D11::BindConstant( aga::PixelShader* shader, int startSlot, int numBuffers, aga::Buffer** pBuffers )
+{
+	ID3D11Buffer* pConstants[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT] = {};
+
+	for ( UINT i = 0; i < numBuffers; ++i )
+	{
+		if ( auto d3d11buffer = static_cast<D3D11BufferBase*>( pBuffers[i] ) )
+		{
+			pConstants[i] = d3d11buffer->Buffer( );
+		}
+	}
+
+	m_pd3d11DeviceContext->CSSetConstantBuffers( startSlot, numBuffers, pConstants );
+}
+
+void CDirect3D11::BindShaderInput( aga::PixelShader* shader, int startSlot, int numBuffers, aga::Buffer ** pBuffers )
+{
+	ID3D11ShaderResourceView* pSrvs[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {};
+
+	for ( UINT i = 0; i < numBuffers; ++i )
+	{
+		if ( auto d3d11buffer = static_cast<D3D11BufferBase*>( pBuffers[i] ) )
+		{
+			pSrvs[i] = d3d11buffer->Srv( );
+		}
+	}
+
+	m_pd3d11DeviceContext->CSSetShaderResources( startSlot, numBuffers, pSrvs );
+}
+
+void CDirect3D11::BindConstant( aga::ComputeShader* shader, int startSlot, int numBuffers, aga::Buffer** pBuffers )
+{
+	ID3D11Buffer* pConstants[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT] = {};
+
+	for ( UINT i = 0; i < numBuffers; ++i )
+	{
+		if ( auto d3d11buffer = static_cast<D3D11BufferBase*>( pBuffers[i] ) )
+		{
+			pConstants[i] = d3d11buffer->Buffer( );
+		}
+	}
+
+	m_pd3d11DeviceContext->CSSetConstantBuffers( startSlot, numBuffers, pConstants );
+}
+
+void CDirect3D11::BindShaderInput( aga::ComputeShader* shader, int startSlot, int numBuffers, aga::Buffer ** pBuffers )
+{
+	ID3D11ShaderResourceView* pSrvs[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {};
+
+	for ( UINT i = 0; i < numBuffers; ++i )
+	{
+		if ( auto d3d11buffer = static_cast<D3D11BufferBase*>( pBuffers[i] ) )
+		{
+			pSrvs[i] = d3d11buffer->Srv( );
+		}
+	}
+
+	m_pd3d11DeviceContext->CSSetShaderResources( startSlot, numBuffers, pSrvs );
+}
+
+void CDirect3D11::BindShaderOutput( aga::ComputeShader* shader, int startSlot, int numBuffers, aga::Buffer** pBuffers )
+{
+	ID3D11UnorderedAccessView* pUavs[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {};
+
+	for ( UINT i = 0; i < numBuffers; ++i )
+	{
+		if ( auto d3d11buffer = static_cast<D3D11BufferBase*>( pBuffers[i] ) )
+		{
+			pUavs[i] = d3d11buffer->Uav( );
+		}
+	}
+
+	m_pd3d11DeviceContext->CSSetUnorderedAccessViews( startSlot, numBuffers, pUavs, nullptr );
 }
 
 void CDirect3D11::BindRandomAccessResource( int startSlot, int count, RE_HANDLE* resource )
@@ -821,9 +902,39 @@ void CDirect3D11::DrawAuto( )
 	m_pd3d11DeviceContext->DrawAuto( );
 }
 
-void CDirect3D11::Dispatch( int x, int y, int z )
+void CDirect3D11::Dispatch( UINT x, UINT y, UINT z )
 {
-	m_pd3d11DeviceContext->Dispatch( static_cast<UINT>( x ), static_cast<UINT>( y ), static_cast<UINT>( z ) );
+	m_pd3d11DeviceContext->Dispatch( x, y, z );
+}
+
+void CDirect3D11::Copy( aga::Buffer* dst, aga::Buffer* src, std::size_t size )
+{
+	D3D11BufferBase* d3d11Dst = static_cast<D3D11BufferBase*>( dst );
+	D3D11BufferBase* d3d11Src = static_cast<D3D11BufferBase*>( src );
+
+	if ( ( d3d11Dst == nullptr ) || ( d3d11Src == nullptr ) )
+	{
+		return;
+	}
+
+	ID3D11Buffer* dstBuffer = d3d11Dst->Buffer( );
+	ID3D11Buffer* srcBuffer = d3d11Src->Buffer( );
+
+	if ( ( dstBuffer == nullptr ) || ( srcBuffer == nullptr ) )
+	{
+		return;
+	}
+
+	D3D11_BOX srcBox = {
+		0,
+		0,
+		0,
+		size,
+		1,
+		1,
+	};
+
+	m_pd3d11DeviceContext->CopySubresourceRegion( dstBuffer, 0, 0, 0, 0, srcBuffer, 0, &srcBox );
 }
 
 void CDirect3D11::GenerateMips( RE_HANDLE shaderResource )

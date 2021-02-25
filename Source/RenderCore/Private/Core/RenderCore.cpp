@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Renderer/IRenderCore.h"
 
+#include "AgaDelegator.h"
 #include "common.h"
 #include "ForwardRenderer.h"
 #include "IAga.h"
@@ -61,6 +62,8 @@ bool RenderCore::BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
 		return false;
 	}
 
+	GetAgaDelegator().BootUp( m_AbstractGraphicsAPI );
+
 	return true;
 }
 
@@ -91,7 +94,11 @@ void RenderCore::BeginRenderingViewGroup( RenderViewGroup& renderViewGroup )
 	SceneRenderer* pSceneRenderer = FindAndCreateSceneRenderer( renderViewGroup );
 	if ( pSceneRenderer )
 	{
-		pSceneRenderer->PrepareRender( renderViewGroup );
+		if ( pSceneRenderer->PrepareRender( renderViewGroup ) == false )
+		{
+			return;
+		}
+
 		pSceneRenderer->Render( renderViewGroup );
 	}
 }
@@ -103,6 +110,8 @@ RenderCore::~RenderCore( )
 
 void RenderCore::Shutdown( )
 {
+	GetAgaDelegator().Shutdown( );
+
 	ShutdownModule( m_hAga );
 }
 

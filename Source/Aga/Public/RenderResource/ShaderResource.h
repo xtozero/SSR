@@ -16,4 +16,10 @@ namespace aga
 	public:
 		AGA_DLL static PixelShader* Create( const void* byteCode, std::size_t byteCodeSize );
 	};
+
+	class ComputeShader : public DeviceDependantResource
+	{
+	public:
+		AGA_DLL static ComputeShader* Create( const void* byteCode, std::size_t byteCodeSize );
+	};
 }

@@ -8,3 +8,9 @@ void PrimitiveProxy::SetTransform( const CXMFLOAT4X4& worldTransform )
 	assert( IsInRenderThread() );
 	m_worldTransform = worldTransform;
 }
+
+const CXMFLOAT4X4& PrimitiveProxy::GetTransform( ) const
+{
+	assert( IsInRenderThread( ) );
+	return m_worldTransform;
+}

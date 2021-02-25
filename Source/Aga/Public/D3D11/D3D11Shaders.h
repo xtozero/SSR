@@ -4,99 +4,9 @@
 #include "ShaderResource.h"
 #include "ShaderPrameterInfo.h"
 
-void ExtractShaderParameters( const void* byteCode, std::size_t byteCodeSize, ShaderParameterMap& parameterMap );
+AGA_DLL void ExtractShaderParameters( const void* byteCode, std::size_t byteCodeSize, ShaderParameterMap& parameterMap );
 
 void BuildShaderParameterInfo( const std::map<std::string, ShaderParameter>& parameterMap, ShaderParameterInfo& parameterInfo );
-
-//template <typename ResourceType>
-//class CD3D11ShaderBase : public DeviceDependantBase<ResourceType>
-//{
-//public:
-//	const void* ByteCode( ) const { return m_byteCode; }
-//	std::size_t ByteCodeSize( ) const { return m_byteCodeSize; }
-//
-//	const ShaderParameterInfo& GetParameterInfo( ) const 
-//	{
-//		return m_parameterInfo;
-//	}
-//
-//	CD3D11ShaderBase( const void* byteCode, std::size_t byteCodeSize ) : m_byteCodeSize( byteCodeSize )
-//	{
-//		m_byteCode = new unsigned char[m_byteCodeSize];
-//		std::memcpy( m_byteCode, byteCode, m_byteCodeSize );
-//
-//		ShaderParameterMap parameterMap;
-//		ExtractShaderParameters( byteCode, byteCodeSize, parameterMap );
-//		BuildShaderParameterInfo( parameterMap.GetParameterMap(), m_parameterInfo );
-//	}
-//
-//	virtual ~CD3D11ShaderBase( )
-//	{
-//		delete m_byteCode;
-//	}
-//
-//	CD3D11ShaderBase( const CD3D11ShaderBase& ) = delete;
-//	CD3D11ShaderBase( CD3D11ShaderBase&& other ) = default;
-//	CD3D11ShaderBase& operator=( const CD3D11ShaderBase& ) = delete;
-//	CD3D11ShaderBase& operator=( CD3D11ShaderBase&& other ) = default;
-//
-//protected:
-//	void* m_byteCode = nullptr;
-//	std::size_t m_byteCodeSize = 0;
-//	ShaderParameterInfo m_parameterInfo;
-//};
-//
-//class CD3D11VertexShader : public CD3D11ShaderBase<ID3D11VertexShader>
-//{
-//public:
-//	virtual void InitResource( ) override;
-//
-//	CD3D11VertexShader( const void* byteCode, std::size_t byteCodeSize ) : CD3D11ShaderBase<ID3D11VertexShader>( byteCode, byteCodeSize ) {}
-//	CD3D11VertexShader( const CD3D11VertexShader& ) = delete;
-//	CD3D11VertexShader( CD3D11VertexShader&& ) = default;
-//	CD3D11VertexShader& operator=( const CD3D11VertexShader& ) = delete;
-//	CD3D11VertexShader& operator=( CD3D11VertexShader&& ) = default;
-//	~CD3D11VertexShader( ) = default;
-//};
-//
-//class CD3D11GeometryShader : public CD3D11ShaderBase<ID3D11GeometryShader>
-//{
-//public:
-//	virtual void InitResource( ) override;
-//
-//	CD3D11GeometryShader( const void* byteCode, std::size_t byteCodeSize ) : CD3D11ShaderBase<ID3D11GeometryShader>( byteCode, byteCodeSize ) {}
-//	CD3D11GeometryShader( const CD3D11GeometryShader& ) = delete;
-//	CD3D11GeometryShader( CD3D11GeometryShader&& ) = default;
-//	CD3D11GeometryShader& operator=( const CD3D11GeometryShader& ) = delete;
-//	CD3D11GeometryShader& operator=( CD3D11GeometryShader&& ) = default;
-//	~CD3D11GeometryShader( ) = default;
-//};
-//
-//class CD3D11PixelShader : public CD3D11ShaderBase<ID3D11PixelShader>
-//{
-//public:
-//	virtual void InitResource( ) override;
-//
-//	CD3D11PixelShader( const void* byteCode, std::size_t byteCodeSize ) : CD3D11ShaderBase<ID3D11PixelShader>( byteCode, byteCodeSize ) {}
-//	CD3D11PixelShader( const CD3D11PixelShader& ) = delete;
-//	CD3D11PixelShader( CD3D11PixelShader&& ) = default;
-//	CD3D11PixelShader& operator=( const CD3D11PixelShader& ) = delete;
-//	CD3D11PixelShader& operator=( CD3D11PixelShader&& ) = default;
-//	~CD3D11PixelShader( ) = default;
-//};
-//
-//class CD3D11ComputeShader : public CD3D11ShaderBase<ID3D11ComputeShader>
-//{
-//public:
-//	virtual void InitResource( ) override;
-//
-//	CD3D11ComputeShader( const void* byteCode, std::size_t byteCodeSize ) : CD3D11ShaderBase<ID3D11ComputeShader>( byteCode, byteCodeSize ) {}
-//	CD3D11ComputeShader( const CD3D11ComputeShader& ) = delete;
-//	CD3D11ComputeShader( CD3D11ComputeShader&& ) = default;
-//	CD3D11ComputeShader& operator=( const CD3D11ComputeShader& ) = delete;
-//	CD3D11ComputeShader& operator=( CD3D11ComputeShader&& ) = default;
-//	~CD3D11ComputeShader( ) = default;
-//};
 
 class D3D11ShaderBase
 {
@@ -114,9 +24,9 @@ public:
 		m_byteCode = new unsigned char[m_byteCodeSize];
 		std::memcpy( m_byteCode, byteCode, m_byteCodeSize );
 
-		ShaderParameterMap parameterMap;
-		ExtractShaderParameters( byteCode, byteCodeSize, parameterMap );
-		BuildShaderParameterInfo( parameterMap.GetParameterMap( ), m_parameterInfo );
+		//ShaderParameterMap parameterMap;
+		//ExtractShaderParameters( byteCode, byteCodeSize, parameterMap );
+		//BuildShaderParameterInfo( parameterMap.GetParameterMap( ), m_parameterInfo );
 	}
 
 	virtual ~D3D11ShaderBase( )
@@ -138,6 +48,8 @@ protected:
 class D3D11VertexShader : public aga::VertexShader, public D3D11ShaderBase
 {
 public:
+	ID3D11VertexShader* Resource( ) { return m_pResource; }
+
 	D3D11VertexShader( const void* byteCode, std::size_t byteCodeSize ) : D3D11ShaderBase( byteCode, byteCodeSize ) {}
 	D3D11VertexShader( const D3D11VertexShader& ) = delete;
 	D3D11VertexShader( D3D11VertexShader&& ) = default;
@@ -155,6 +67,8 @@ private:
 class D3D11PixelShader : public aga::PixelShader, public D3D11ShaderBase
 {
 public:
+	ID3D11PixelShader* Resource( ) { return m_pResource; }
+
 	D3D11PixelShader( const void* byteCode, std::size_t byteCodeSize ) : D3D11ShaderBase( byteCode, byteCodeSize ) {}
 	D3D11PixelShader( const D3D11PixelShader& ) = delete;
 	D3D11PixelShader( D3D11PixelShader&& ) = default;
@@ -167,4 +81,23 @@ private:
 	virtual void FreeResource( ) override;
 
 	ID3D11PixelShader* m_pResource = nullptr;
+};
+
+class D3D11ComputeShader : public aga::ComputeShader, public D3D11ShaderBase
+{
+public:
+	ID3D11ComputeShader* Resource( ) { return m_pResource; }
+
+	D3D11ComputeShader( const void* byteCode, std::size_t byteCodeSize ) : D3D11ShaderBase( byteCode, byteCodeSize ) {}
+	D3D11ComputeShader( const D3D11ComputeShader& ) = delete;
+	D3D11ComputeShader( D3D11ComputeShader&& ) = default;
+	D3D11ComputeShader& operator=( const D3D11ComputeShader& ) = delete;
+	D3D11ComputeShader& operator=( D3D11ComputeShader&& ) = default;
+	~D3D11ComputeShader( ) = default;
+
+private:
+	virtual void InitResource( ) override;
+	virtual void FreeResource( ) override;
+
+	ID3D11ComputeShader* m_pResource = nullptr;
 };

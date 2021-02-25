@@ -3,11 +3,12 @@
 
 #include "Core/InterfaceFactories.h"
 #include "IAga.h"
+#include "MultiThread/EngineTaskScheduler.h"
 
 VertexBuffer VertexBuffer::Create( std::size_t elementSize, std::size_t numElement, const void* initData )
 {
 	VertexBuffer vb;
-
+	
 	BUFFER_TRAIT trait = {
 		static_cast<UINT>( elementSize ),
 		static_cast<UINT>( numElement ),
@@ -16,6 +17,17 @@ VertexBuffer VertexBuffer::Create( std::size_t elementSize, std::size_t numEleme
 	};
 
 	vb.m_buffer = GetInterface<IAga>( )->CreateBuffer( trait, initData );
+	if ( IsInRenderThread( ) )
+	{
+		vb.m_buffer->Init( );
+	}
+	else
+	{
+		EnqueueRenderTask( [buffer = vb.m_buffer]( )
+		{
+			buffer->Init( );
+		} );
+	}
 
 	return vb;
 }

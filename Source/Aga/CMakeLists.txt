@@ -52,19 +52,20 @@ set (D3D11_UTILITY
 	"Public/D3D11/D3D11FlagConvertor.h")
 	
 set (COMMON_SOURCE
-	"Private/Common/GraphicsApiResource.cpp"
-	"Public/Common/GraphicsApiResource.h"
-	"Public/Common/IAga.h"
-	"Public/Common/IRenderResourceManager.h"
-	"Public/Common/RefHandle.h"
-	"Public/Common/ShaderPrameterInfo.h"
-	"Public/Common/ShaderPrameterMap.h")
+	Private/Common/GraphicsApiResource.cpp
+	Public/Common/GraphicsApiResource.h
+	Public/Common/IAga.h
+	Public/Common/IRenderResourceManager.h
+	Public/Common/RefHandle.h)
 
 set (RENDER_RESOURCE_SOURCE
 	Private/RenderResource/Buffer.cpp
+	Private/RenderResource/ShaderPrameterMap.cpp
 	Private/RenderResource/ShaderResource.cpp
 	Private/RenderResource/Texture.cpp
 	Public/RenderResource/Buffer.h
+	Public/RenderResource/ShaderPrameterInfo.h
+	Public/RenderResource/ShaderPrameterMap.h
 	Public/RenderResource/ShaderResource.h
 	Public/RenderResource/Texture.h
 	Public/RenderResource/VertexInputLayout.h

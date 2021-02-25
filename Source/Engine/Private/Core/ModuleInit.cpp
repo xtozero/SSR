@@ -29,7 +29,7 @@ namespace
 		return g_taskScheduler;
 	}
 
-	void* GetRenderOptionManager( )
+	void* GetAssetLoader( )
 	{
 		return g_assetLoader;
 	}
@@ -37,7 +37,7 @@ namespace
 
 ENGINE_FUNC_DLL void BootUpModules( )
 {
-	RegisterFactory<IAssetLoader>( &GetRenderOptionManager );
+	RegisterFactory<IAssetLoader>( &GetAssetLoader );
 	RegisterFactory<IEngine>( &GetGameEngine );
 	RegisterFactory<IEnumStringMap>( &GetEnumStringMap );
 	RegisterFactory<IFileSystem>( &GetFileSystem );
@@ -45,15 +45,15 @@ ENGINE_FUNC_DLL void BootUpModules( )
 
 	g_taskScheduler = CreateTaskScheduler( );
 	g_fileSystem = CreateFileSystem( );
-	g_gameEngine = CreatePlatformEngine( );
 	g_assetLoader = CreateAssetLoader( );
+	g_gameEngine = CreatePlatformEngine( );
 }
 
 ENGINE_FUNC_DLL void ShutdownModules( )
 {
 	DestoryAssetLoader( g_assetLoader );
-	DestroyPlatformEngine( g_gameEngine );
 	DestroyFileSystem( g_fileSystem );
+	DestroyPlatformEngine( g_gameEngine );
 	DestroyTaskScheduler( g_taskScheduler );
 
 	UnregisterFactory<IAssetLoader>( );

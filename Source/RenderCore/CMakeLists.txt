@@ -26,21 +26,34 @@ set (RENDERER_SOURCE
 	Public/Renderer/IRenderCore.h
 	Public/Renderer/RenderView.h
 	Public/Renderer/SceneRenderer.h)
+
+set (RENDER_UTILITY
+	Private/RenderUtility/AgaDelegator.cpp
+	Public/RenderUtility/AgaDelegator.h
+	Public/RenderUtility/ShaderParameterUtil.h)
 	
 set (GRAPHICS_RESOURCE_SOURCE
+	Private/GraphicsResource/ByteBuffer.cpp
 	Private/GraphicsResource/ConstantBuffer.cpp
+	Private/GraphicsResource/DefaultConstantBuffers.cpp
 	Private/GraphicsResource/DepthStencil.cpp
+	Private/GraphicsResource/GlobalShaders.cpp
 	Private/GraphicsResource/IndexBuffer.cpp
 	Private/GraphicsResource/Shader.cpp
+	Private/GraphicsResource/UploadBuffer.cpp
 	Private/GraphicsResource/VertexBuffer.cpp
 	Private/GraphicsResource/Viewport.cpp
+	Public/GraphicsResource/ByteBuffer.h
 	Public/GraphicsResource/ConstantBuffer.h
+	Public/GraphicsResource/DefaultConstantBuffers.h
 	Public/GraphicsResource/DepthStencil.h
 	Public/GraphicsResource/DrawSnapshot.h
+	Public/GraphicsResource/GlobalShaders.h
 	Public/GraphicsResource/IndexBuffer.h
 	Public/GraphicsResource/Shader.h
 	Public/GraphicsResource/ShaderBindings.h
 	Public/GraphicsResource/TypedBuffer.h
+	Public/GraphicsResource/UploadBuffer.h
 	Public/GraphicsResource/VertexBuffer.h
 	Public/GraphicsResource/VertexInputStream.h
 	Public/GraphicsResource/Viewport.h)
@@ -75,7 +88,7 @@ add_library(RenderCore SHARED 	${PRECOMPILED}
 								${MESH_SOURCE}
 								${RENDERER_SOURCE}
 								${RENDER_SCENE_SOURCE}
-								${RENDER_UTIL}
+								${RENDER_UTILITY}
 								${GRAPHICS_RESOURCE_SOURCE}
 								${PROXIES_SOURCE}
 								${SCENE_SOURCE})
@@ -95,6 +108,7 @@ PUBLIC
 	../Engine/Public
 	../Logic/Public
 PRIVATE
+	./Public/RenderUtility
 	)
 
 add_custom_command(TARGET RenderCore POST_BUILD

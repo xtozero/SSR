@@ -11,6 +11,11 @@ public:
 	void Update( const void* data, std::size_t size );
 	void Bind( SHADER_TYPE shaderType, UINT slot );
 
+	operator aga::Buffer*( )
+	{
+		return m_buffer.Get( );
+	}
+
 private:
 	RefHandle<aga::Buffer> m_buffer;
 };

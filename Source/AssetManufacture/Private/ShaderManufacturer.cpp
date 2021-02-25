@@ -1,6 +1,7 @@
 #include "ShaderManufacturer.h"
 
 #include "Shader.h"
+#include "../D3D11/D3D11Shaders.h"
 
 #include <fstream>
 #include <d3dcompiler.h>
@@ -70,7 +71,10 @@ std::optional<Products> ShaderManufacturer::Manufacture( const std::filesystem::
 
 	D3D11_SHADER_VERSION_TYPE shaderType = static_cast<D3D11_SHADER_VERSION_TYPE>( D3D11_SHVER_GET_TYPE( desc.Version ) );
 
-	AsyncLoadableAsset* shader = nullptr;
+	ShaderParameterMap parameterMap;
+	ExtractShaderParameters( byteCode.Data( ), size, parameterMap );
+
+	ShaderBase* shader = nullptr;
 	switch ( shaderType )
 	{
 	case D3D11_SHVER_PIXEL_SHADER:
@@ -90,8 +94,11 @@ std::optional<Products> ShaderManufacturer::Manufacture( const std::filesystem::
 	//	break;
 	//case D3D11_SHVER_DOMAIN_SHADER:
 	//	break;
-	//case D3D11_SHVER_COMPUTE_SHADER:
-	//	break;
+	case D3D11_SHVER_COMPUTE_SHADER:
+	{
+		shader = new ComputeShader( std::move( byteCode ) );
+		break;
+	}
 	//case D3D11_SHVER_RESERVED0:
 	//	break;
 	default:
@@ -102,6 +109,8 @@ std::optional<Products> ShaderManufacturer::Manufacture( const std::filesystem::
 	{
 		return {};
 	}
+
+	shader->ParameterMap( ) = parameterMap;
 
 	Archive ar;
 	shader->Serialize( ar );

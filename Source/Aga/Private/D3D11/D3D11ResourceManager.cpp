@@ -72,7 +72,7 @@ aga::Texture* CD3D11ResourceManager::CreateTexture( const TEXTURE_TRAIT& trait, 
 	return newTexture;
 }
 
-aga::Buffer* CD3D11ResourceManager::CreateBuffer( const BUFFER_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
+aga::Buffer* CD3D11ResourceManager::CreateBuffer( const BUFFER_TRAIT& trait, const void* initData )
 {
 	aga::Buffer* newBuffer = new D3D11BufferBase( trait, initData );
 	m_renderResources.emplace( newBuffer );
@@ -92,6 +92,14 @@ VertexLayout* CD3D11ResourceManager::FindAndCreateVertexLayout( const aga::Verte
 	m_vertexLayouts.emplace( layoutDesc, newLayout );
 
 	return newLayout;
+}
+
+aga::ComputeShader * CD3D11ResourceManager::CreateComputeShader( const void* byteCode, std::size_t byteCodeSize )
+{
+	auto newShader = new D3D11ComputeShader( byteCode, byteCodeSize );
+	m_renderResources.emplace( newShader );
+
+	return newShader;
 }
 
 aga::VertexShader* CD3D11ResourceManager::CreateVertexShader( const void* byteCode, std::size_t byteCodeSize )

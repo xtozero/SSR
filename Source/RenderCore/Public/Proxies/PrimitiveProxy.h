@@ -10,6 +10,7 @@ public:
 	virtual ~PrimitiveProxy( ) = default;
 
 	void SetTransform( const CXMFLOAT4X4& worldTransform );
+	const CXMFLOAT4X4& GetTransform( ) const;
 
 private:
 	friend Scene;

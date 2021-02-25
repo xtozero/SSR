@@ -17,6 +17,7 @@ fxc /Fo CS_InscatterS.cso					/Zi /T cs_5_0 /I %IncludePath% /E main Private/Atm
 fxc /Fo CS_IrradianceN.cso					/Zi /T cs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/csIrradianceN.fx
 fxc /Fo CS_InscatterN.cso					/Zi /T cs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/csInscatterN.fx
 fxc /Fo CS_CopyInscatterN.cso				/Zi /T cs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/csCopyInscatterN.fx
+fxc /Fo CS_DistributionCopy.cso				/Zi /T cs_5_0 /I %IncludePath% /E main Private/CS_DistributionCopy.fx
 
 fxc /Fo GS_CascadedShadowmap.cso				/Zi /T gs_5_0 /I %IncludePath% /E main Private/gsCascadedShadowmap.fx
 

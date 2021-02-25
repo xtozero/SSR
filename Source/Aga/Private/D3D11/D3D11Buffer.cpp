@@ -46,7 +46,6 @@ namespace
 			srv.Format = DXGI_FORMAT_UNKNOWN;
 			srv.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
 			srv.Buffer.NumElements = ( desc.StructureByteStride != 0 ) ? ( desc.ByteWidth / desc.StructureByteStride ) : desc.ByteWidth;
-			srv.Buffer.ElementWidth = desc.StructureByteStride;
 		}
 
 		return srv;
@@ -78,26 +77,6 @@ namespace
 		return uav;
 	}
 }
-
-//void CD3D11Buffer::InitResource( )
-//{
-//	bool result = SUCCEEDED( D3D11Device( ).CreateBuffer( &m_desc, ( m_initData.pSysMem == nullptr ) ? nullptr : &m_initData, m_pResource.GetAddressOf( ) ) );
-//	assert( result );
-//}
-//
-//CD3D11Buffer::CD3D11Buffer( const BUFFER_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
-//{
-//	if ( initData )
-//	{
-//		m_dataStorage = new unsigned char[initData->m_srcSize];
-//
-//		m_initData.SysMemPitch = initData->m_pitch;
-//		m_initData.SysMemSlicePitch = initData->m_slicePitch;
-//	}
-//	m_initData.pSysMem = m_dataStorage;
-//
-//	m_desc = ConvertTraitToDesc( trait );
-//}
 
 D3D11BufferBase::D3D11BufferBase( const BUFFER_TRAIT& trait, const void* initData )
 {
@@ -138,14 +117,14 @@ void D3D11BufferBase::CreateBuffer( )
 	HRESULT hr = D3D11Device( ).CreateBuffer( &m_desc, initData, &m_buffer );
 	assert( SUCCEEDED( hr ) );
 
-	if ( m_desc.BindFlags == D3D11_BIND_SHADER_RESOURCE )
+	if ( m_desc.BindFlags & D3D11_BIND_SHADER_RESOURCE )
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc );
 		hr = D3D11Device( ).CreateShaderResourceView( m_buffer, &srvDesc, &m_srv );
 		assert( SUCCEEDED( hr ) );
 	}
 
-	if ( m_desc.BindFlags == D3D11_BIND_UNORDERED_ACCESS )
+	if ( m_desc.BindFlags & D3D11_BIND_UNORDERED_ACCESS )
 	{
 		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc );
 		hr = D3D11Device( ).CreateUnorderedAccessView( m_buffer, &uavDesc, &m_uav );

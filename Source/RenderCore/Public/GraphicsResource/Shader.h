@@ -2,6 +2,7 @@
 
 #include "AssetLoader/AssetFactory.h"
 #include "AssetLoader/IAsyncLoadableAsset.h"
+#include "ShaderPrameterMap.h"
 #include "ShaderResource.h"
 
 class ShaderBase : public AsyncLoadableAsset
@@ -16,8 +17,13 @@ public:
 	{
 		return lhs.m_byteCode == rhs.m_byteCode;
 	}
+
+	ShaderParameterMap& ParameterMap( ) { return m_parameterMap; }
+	const ShaderParameterMap& ParameterMap( ) const { return m_parameterMap; }
+
 protected:
 	BinaryChunk m_byteCode{ 0 };
+	ShaderParameterMap m_parameterMap;
 };
 
 class VertexShader : public ShaderBase
@@ -31,6 +37,11 @@ public:
 
 	VertexShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
 	VertexShader( ) = default;
+
+	operator aga::VertexShader*( )
+	{
+		return m_shader.Get( );
+	}
 
 	friend bool operator==( const VertexShader& lhs, const VertexShader& rhs )
 	{
@@ -58,6 +69,11 @@ public:
 	PixelShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
 	PixelShader( ) = default;
 
+	operator aga::PixelShader*( )
+	{
+		return m_shader.Get( );
+	}
+
 	friend bool operator==( const PixelShader& lhs, const PixelShader& rhs )
 	{
 		return static_cast<const ShaderBase&>( lhs ) == static_cast<const ShaderBase&>( rhs )
@@ -70,4 +86,35 @@ protected:
 private:
 	std::filesystem::path m_path;
 	RefHandle<aga::PixelShader> m_shader;
+};
+
+class ComputeShader : public ShaderBase
+{
+	DECLARE_ASSET( RENDERCORE, ComputeShader );
+public:
+	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
+
+	const std::filesystem::path& Path( ) const { return m_path; }
+	void SetPath( const std::filesystem::path& path ) { m_path = path; }
+
+	ComputeShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
+	ComputeShader( ) = default;
+
+	operator aga::ComputeShader*( )
+	{
+		return m_shader.Get( );
+	}
+
+	friend bool operator==( const ComputeShader& lhs, const ComputeShader& rhs )
+	{
+		return static_cast<const ShaderBase&>( lhs ) == static_cast<const ShaderBase&>( rhs )
+			&& lhs.m_shader == rhs.m_shader;
+	}
+
+protected:
+	RENDERCORE_DLL virtual void PostLoadImpl( ) override;
+
+private:
+	std::filesystem::path m_path;
+	RefHandle<aga::ComputeShader> m_shader;
 };

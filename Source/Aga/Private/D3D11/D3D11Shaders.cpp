@@ -30,6 +30,22 @@ void ExtractShaderParameters( const void* byteCode, std::size_t byteCodeSize, Sh
 		if ( bindDesc.Type == D3D_SIT_CBUFFER || bindDesc.Type == D3D_SIT_TBUFFER )
 		{
 			parameterType = ShaderParameterType::ConstantBuffer;
+
+			ID3D11ShaderReflectionConstantBuffer *constBufferReflection = pReflector->GetConstantBufferByName( bindDesc.Name );
+			if ( constBufferReflection )
+			{
+				D3D11_SHADER_BUFFER_DESC shaderBuffDesc;
+				constBufferReflection->GetDesc( &shaderBuffDesc );
+
+				for ( UINT j = 0; j < shaderBuffDesc.Variables; ++j )
+				{
+					ID3D11ShaderReflectionVariable* variableReflection = constBufferReflection->GetVariableByIndex( j );
+					D3D11_SHADER_VARIABLE_DESC shaderVarDesc;
+					variableReflection->GetDesc( &shaderVarDesc );
+
+					parameterMap.AddParameter( shaderVarDesc.Name, ShaderParameterType::ConstantBufferValue, bindDesc.BindPoint, shaderVarDesc.StartOffset );
+				}
+			}
 		}
 		else if ( bindDesc.Type == D3D_SIT_TEXTURE )
 		{
@@ -54,7 +70,7 @@ void ExtractShaderParameters( const void* byteCode, std::size_t byteCodeSize, Sh
 			assert( false && "Unexpected case" );
 		}
 
-		parameterMap.AddParameter( bindDesc.Name, parameterType, bindDesc.BindPoint );
+		parameterMap.AddParameter( bindDesc.Name, parameterType, bindDesc.BindPoint, 0 );
 	}
 
 	pReflector->Release( );
@@ -106,31 +122,6 @@ void BuildShaderParameterInfo( const std::map<std::string, ShaderParameter>& par
 	}
 }
 
-//void CD3D11VertexShader::InitResource( )
-//{
-//	bool result = SUCCEEDED( D3D11Device( ).CreateVertexShader( m_byteCode, m_byteCodeSize, nullptr, m_pResource.GetAddressOf( ) ) );
-//	assert( result );
-//}
-//
-//void CD3D11GeometryShader::InitResource( )
-//{
-//	bool result = SUCCEEDED( D3D11Device( ).CreateGeometryShader( m_byteCode, m_byteCodeSize, nullptr, m_pResource.GetAddressOf( ) ) );
-//	assert( result );
-//}
-//
-//void CD3D11PixelShader::InitResource( )
-//{
-//	bool result = SUCCEEDED( D3D11Device( ).CreatePixelShader( m_byteCode, m_byteCodeSize, nullptr, m_pResource.GetAddressOf( ) ) );
-//
-//	assert( result );
-//}
-//
-//void CD3D11ComputeShader::InitResource( )
-//{
-//	bool result = SUCCEEDED( D3D11Device( ).CreateComputeShader( m_byteCode, m_byteCodeSize, nullptr, m_pResource.GetAddressOf( ) ) );
-//	assert( result );
-//}
-
 void D3D11VertexShader::InitResource( )
 {
 	bool result = SUCCEEDED( D3D11Device( ).CreateVertexShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
@@ -153,6 +144,21 @@ void D3D11PixelShader::InitResource( )
 }
 
 void D3D11PixelShader::FreeResource( )
+{
+	if ( m_pResource )
+	{
+		m_pResource->Release( );
+		m_pResource = nullptr;
+	}
+}
+
+void D3D11ComputeShader::InitResource( )
+{
+	bool result = SUCCEEDED( D3D11Device( ).CreateComputeShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
+	assert( result );
+}
+
+void D3D11ComputeShader::FreeResource( )
 {
 	if ( m_pResource )
 	{

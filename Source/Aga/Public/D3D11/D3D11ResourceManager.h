@@ -33,7 +33,7 @@ namespace Microsoft
 	}
 }
 
-class CD3D11ResourceManager : public IResourceManager
+class CD3D11ResourceManager final : public IResourceManager
 {
 public:
 	bool Bootup( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext );
@@ -43,10 +43,11 @@ public:
 	virtual aga::Texture* CreateTexture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
 
 	// Buffer
-	virtual aga::Buffer* CreateBuffer( const BUFFER_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
+	virtual aga::Buffer* CreateBuffer( const BUFFER_TRAIT& trait, const void* initData = nullptr ) override;
 
 	// Shader
 	virtual VertexLayout* FindAndCreateVertexLayout( const aga::VertexShader* vs, const VertexLayoutDesc& layoutDesc ) override;
+	virtual aga::ComputeShader* CreateComputeShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	virtual aga::VertexShader* CreateVertexShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	virtual aga::PixelShader* CreatePixelShader( const void* byteCode, std::size_t byteCodeSize ) override;
 
