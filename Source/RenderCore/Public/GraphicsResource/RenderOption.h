@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GraphicsApiResource.h"
+#include "HashUtil.h"
 #include "Shader.h"
 
 #include <string>
@@ -32,9 +33,9 @@ struct RenderTargetBlendOption
 
 class BlendOption : public AsyncLoadableAsset
 {
-	DECLARE_ASSET( LOGIC, BlendOption );
+	DECLARE_ASSET( RENDERCORE, BlendOption );
 public:
-	LOGIC_DLL virtual void Serialize( Archive& ar ) override;
+	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
 
 	const std::filesystem::path& Path( ) const { return m_path; }
 	void SetPath( const std::filesystem::path& path ) { m_path = path; }
@@ -58,7 +59,7 @@ public:
 	RenderTargetBlendOption m_renderTarget[8];
 
 protected:
-	LOGIC_DLL virtual void PostLoadImpl( ) override;
+	RENDERCORE_DLL virtual void PostLoadImpl( ) override;
 
 private:
 	std::filesystem::path m_path;
@@ -78,6 +79,19 @@ struct DepthOption
 	}
 };
 
+struct DepthOptionHasher
+{
+	std::size_t operator()( const DepthOption& option ) const
+	{
+		std::size_t hash = typeid( DepthOption ).hash_code();
+		HashCombine( hash, option.m_enable );
+		HashCombine( hash, option.m_writeDepth );
+		HashCombine( hash, option.m_depthFunc );
+
+		return hash;
+	}
+};
+
 struct StencilOption
 {
 	bool m_enable = false;
@@ -91,7 +105,7 @@ struct StencilOption
 									STENCIL_OP::KEEP, 
 									STENCIL_OP::KEEP, 
 									COMPARISON_FUNC::ALWAYS };
-	unsigned int m_ref;
+	unsigned int m_ref = 0;
 
 	friend bool operator==( const StencilOption& lhs, const StencilOption& rhs )
 	{
@@ -104,11 +118,33 @@ struct StencilOption
 	}
 };
 
+struct StencilOptionHasher
+{
+	std::size_t operator()( const StencilOption& option ) const
+	{
+		std::size_t hash = typeid( StencilOption ).hash_code( );
+		HashCombine( hash, option.m_enable );
+		HashCombine( hash, option.m_readMask );
+		HashCombine( hash, option.m_writeMask );
+		HashCombine( hash, option.m_frontFace.m_failOp );
+		HashCombine( hash, option.m_frontFace.m_depthFailOp );
+		HashCombine( hash, option.m_frontFace.m_passOp );
+		HashCombine( hash, option.m_frontFace.m_func );
+		HashCombine( hash, option.m_backFace.m_failOp );
+		HashCombine( hash, option.m_backFace.m_depthFailOp );
+		HashCombine( hash, option.m_backFace.m_passOp );
+		HashCombine( hash, option.m_backFace.m_func );
+		HashCombine( hash, option.m_ref );
+
+		return hash;
+	}
+};
+
 class DepthStencilOption : public AsyncLoadableAsset
 {
-	DECLARE_ASSET( LOGIC, DepthStencilOption );
+	DECLARE_ASSET( RENDERCORE, DepthStencilOption );
 public:
-	LOGIC_DLL virtual void Serialize( Archive& ar ) override;
+	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
 
 	const std::filesystem::path& Path( ) const { return m_path; }
 	void SetPath( const std::filesystem::path& path ) { m_path = path; }
@@ -123,17 +159,29 @@ public:
 	StencilOption m_stencil;
 
 protected:
-	LOGIC_DLL virtual void PostLoadImpl( ) override;
+	RENDERCORE_DLL virtual void PostLoadImpl( ) override;
 
 private:
 	std::filesystem::path m_path;
 };
 
+struct DepthStencilOptionHasher
+{
+	std::size_t operator()( const DepthStencilOption& option ) const
+	{
+		std::size_t hash = typeid( DepthStencilOption ).hash_code( );
+		HashCombine( hash, DepthOptionHasher( )( option.m_depth ) );
+		HashCombine( hash, StencilOptionHasher( )( option.m_stencil ) );
+
+		return hash;
+	}
+};
+
 class RasterizerOption : public AsyncLoadableAsset
 {
-	DECLARE_ASSET( LOGIC, RasterizerOption );
+	DECLARE_ASSET( RENDERCORE, RasterizerOption );
 public:
-	LOGIC_DLL virtual void Serialize( Archive& ar ) override;
+	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
 
 	const std::filesystem::path& Path( ) const { return m_path; }
 	void SetPath( const std::filesystem::path& path ) { m_path = path; }
@@ -160,7 +208,7 @@ public:
 	bool m_antialiasedLineEnable = false;
 
 protected:
-	LOGIC_DLL virtual void PostLoadImpl( ) override;
+	RENDERCORE_DLL virtual void PostLoadImpl( ) override;
 
 private:
 	std::filesystem::path m_path;
@@ -168,9 +216,9 @@ private:
 
 class SamplerOption : public AsyncLoadableAsset
 {
-	DECLARE_ASSET( LOGIC, SamplerOption );
+	DECLARE_ASSET( RENDERCORE, SamplerOption );
 public:
-	LOGIC_DLL virtual void Serialize( Archive& ar ) override;
+	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
 
 	const std::filesystem::path& Path( ) const { return m_path; }
 	void SetPath( const std::filesystem::path& path ) { m_path = path; }
@@ -193,7 +241,7 @@ public:
 	COMPARISON_FUNC m_comparisonFunc = COMPARISON_FUNC::NEVER;
 
 protected:
-	LOGIC_DLL virtual void PostLoadImpl( ) override;
+	RENDERCORE_DLL virtual void PostLoadImpl( ) override;
 
 private:
 	std::filesystem::path m_path;
@@ -201,9 +249,9 @@ private:
 
 class RenderOption : public AsyncLoadableAsset
 {
-	DECLARE_ASSET( LOGIC, RenderOption );
+	DECLARE_ASSET( RENDERCORE, RenderOption );
 public:
-	LOGIC_DLL virtual void Serialize( Archive& ar ) override;
+	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
 
 	friend bool operator==( const RenderOption& lhs, const RenderOption& rhs )
 	{
@@ -235,5 +283,5 @@ public:
 	std::shared_ptr<SamplerOption> m_samplerOption[MAX_SHADER_TYPE<int>][SAMPLER_SLOT_COUNT] = {};
 
 protected:
-	LOGIC_DLL virtual void PostLoadImpl( ) override;
+	RENDERCORE_DLL virtual void PostLoadImpl( ) override;
 };

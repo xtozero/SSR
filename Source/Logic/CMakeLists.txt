@@ -123,11 +123,6 @@ set (PRECOMPILED
 	"Public/stdafx.h"
 	"Public/targetver.h")
 
-set (RENDERING
-	"Private/Rendering/RenderOption.cpp"
-	"Public/Rendering/RenderOption.h"
-)
-
 set (SCENE
 	"Private/Scene/AtmosphereScattering.cpp"
 	"Private/Scene/DebugOverlayManager.cpp"
@@ -174,8 +169,7 @@ source_group("GameObject\\TestScene" FILES ${TEST_SCENE_OBJECT})
 source_group("Material" FILES ${MATERIAL})
 source_group("Model" FILES ${MODEL})
 source_group("Physics" FILES ${PHYSICS})
-source_group("Render" FILES ${SCENE}
-							${RENDERING})
+source_group("Render" FILES ${SCENE})
 source_group("UI" FILES ${UI})
 source_group("UintTest" FILES ${UNIT_TEST})
 source_group("UserInput" FILES ${USER_INPUT})
@@ -201,7 +195,6 @@ add_library(Logic SHARED 	${COMPOENETS}
 							${PHYSICS}
 							${PLAYER_OBJECT}
 							${PRECOMPILED}
-							${RENDERING}
 							${SCENE}
 							${TEST_SCENE_OBJECT}
 							${UI}

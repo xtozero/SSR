@@ -1,16 +1,22 @@
 #pragma once
 
 #include "GraphicsApiResource.h"
+#include "VertexBuffer.h"
 
 struct VertexInput
 {
-	RE_HANDLE m_vertexBuffer;
+	VertexBuffer m_vertexBuffer;
 };
 
-struct VertexInputStream
+class VertexInputStream
 {
-	static constexpr int MAX_VERTEX_SLOT = 32;
+public:
+	void Bind( VertexBuffer vertexBuffer, int slot )
+	{
+		m_vertexInputs[slot].m_vertexBuffer = vertexBuffer;
+	}
 
+	static constexpr int MAX_VERTEX_SLOT = 32;
 	VertexInput m_vertexInputs[MAX_VERTEX_SLOT];
 };
 

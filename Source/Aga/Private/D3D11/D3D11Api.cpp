@@ -8,7 +8,6 @@
 #include "D3D11BaseTexture.h"
 #include "D3D11BlendState.h"
 #include "D3D11Buffer.h"
-#include "D3D11DepthStencil.h"
 #include "D3D11DepthStencilState.h"
 #include "D3D11FlagConvertor.h"
 #include "D3D11RandomAccessResource.h"
@@ -63,7 +62,7 @@ public:
 
 	virtual RE_HANDLE CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) override;
 	virtual RE_HANDLE CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) override;
-	virtual RE_HANDLE CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) override;
+	virtual aga::DepthStencilState* CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) override;
 	virtual RE_HANDLE CreateBlendState( const BLEND_STATE_TRAIT& trait ) override;
 
 	virtual aga::Viewport* CreateViewport( int width, int height, void* hWnd, RESOURCE_FORMAT format ) override;
@@ -99,7 +98,7 @@ public:
 	virtual void BindRenderTargets( aga::Texture** pRenderTargets, int renderTargetCount, aga::Texture* depthStencil ) override;
 	virtual void BindRasterizerState( RE_HANDLE rasterizerState ) override;
 	virtual void BindSamplerState( SHADER_TYPE type, int startSlot, int numSamplers, const RE_HANDLE* pSamplerStates ) override;
-	virtual void BindDepthStencilState( RE_HANDLE depthStencilState ) override;
+	//virtual void BindDepthStencilState( RE_HANDLE depthStencilState ) override;
 	virtual void BindBlendState( RE_HANDLE blendState ) override;
 
 	virtual void Draw( RESOURCE_PRIMITIVE primitive, UINT vertexCount, UINT vertexOffset = 0 ) override;
@@ -435,7 +434,7 @@ RE_HANDLE CDirect3D11::CreateSamplerState( const SAMPLER_STATE_TRAIT& trait )
 	return m_resourceManager.CreateSamplerState( trait );
 }
 
-RE_HANDLE CDirect3D11::CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait )
+aga::DepthStencilState* CDirect3D11::CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait )
 {
 	return m_resourceManager.CreateDepthStencilState( trait );
 }
@@ -842,18 +841,18 @@ void CDirect3D11::BindSamplerState( SHADER_TYPE type, int startSlot, int numSamp
 	}
 }
 
-void CDirect3D11::BindDepthStencilState( RE_HANDLE depthStencilState )
-{
-	if ( depthStencilState.IsValid( ) )
-	{
-		CD3D11DepthStencilState* state = m_resourceManager.GetDepthStencilState( depthStencilState );
-		m_pd3d11DeviceContext->OMSetDepthStencilState( state->Get( ), state->GetStencilRef( ) );
-	}
-	else
-	{
-		m_pd3d11DeviceContext->OMSetDepthStencilState( nullptr, 0 );
-	}
-}
+//void CDirect3D11::BindDepthStencilState( RE_HANDLE depthStencilState )
+//{
+//	if ( depthStencilState.IsValid( ) )
+//	{
+//		D3D11DepthStencilState* state = m_resourceManager.GetDepthStencilState( depthStencilState );
+//		m_pd3d11DeviceContext->OMSetDepthStencilState( state->Get( ), state->GetStencilRef( ) );
+//	}
+//	else
+//	{
+//		m_pd3d11DeviceContext->OMSetDepthStencilState( nullptr, 0 );
+//	}
+//}
 
 void CDirect3D11::BindBlendState( RE_HANDLE blendState )
 {

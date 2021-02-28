@@ -2,7 +2,11 @@
 
 #include "IAga.h"
 #include "DefaultConstantBuffers.h"
+#include "GraphicsPipelineState.h"
+#include "RenderOption.h"
 #include "ShaderPrameterMap.h"
+
+#include <unordered_map>
 
 class ComputeShader;
 class PixelShader;
@@ -30,9 +34,13 @@ public:
 
 	void Dispatch( UINT x, UINT y, UINT z = 1 );
 
+	DepthStencilState FindOrCreate( const DepthStencilOption& option );
+
 private:
 	IAga* m_aga = nullptr;
 	DefaultConstantBuffers m_defaultConstants;
+
+	std::unordered_map<DepthStencilOption, DepthStencilState, DepthStencilOptionHasher> m_depthStencilStates;
 };
 
 AgaDelegator& GetAgaDelegator();

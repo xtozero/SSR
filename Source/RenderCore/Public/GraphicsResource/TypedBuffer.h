@@ -55,6 +55,11 @@ public:
 	TypedVertexBuffer( TypedVertexBuffer&& ) = default;
 	TypedVertexBuffer& operator=( TypedVertexBuffer&& ) = default;
 
+	operator const VertexBuffer&( ) const
+	{
+		return m_vb;
+	}
+
 private:
 	TypedVertexBuffer( VertexBuffer&& vb )
 	{

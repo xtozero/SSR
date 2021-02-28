@@ -2,6 +2,7 @@
 
 #include "AssetLoader/AssetFactory.h"
 #include "AssetLoader/IAsyncLoadableAsset.h"
+#include "ShaderPrameterInfo.h"
 #include "ShaderPrameterMap.h"
 #include "ShaderResource.h"
 
@@ -24,6 +25,7 @@ public:
 protected:
 	BinaryChunk m_byteCode{ 0 };
 	ShaderParameterMap m_parameterMap;
+	ShaderParameterInfo m_parameterInfo;
 };
 
 class VertexShader : public ShaderBase
@@ -34,6 +36,11 @@ public:
 
 	const std::filesystem::path& Path( ) const { return m_path; }
 	void SetPath( const std::filesystem::path& path ) { m_path = path; }
+
+	bool IsValid( ) const
+	{
+		return m_shader.Get( ) != nullptr;
+	}
 
 	VertexShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
 	VertexShader( ) = default;
@@ -65,6 +72,11 @@ public:
 
 	const std::filesystem::path& Path( ) const { return m_path; }
 	void SetPath( const std::filesystem::path& path ) { m_path = path; }
+
+	bool IsValid( ) const
+	{
+		return m_shader.Get( ) != nullptr;
+	}
 
 	PixelShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
 	PixelShader( ) = default;

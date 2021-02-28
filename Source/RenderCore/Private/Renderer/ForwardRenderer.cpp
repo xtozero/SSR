@@ -36,6 +36,8 @@ void ForwardRenderer::Render( RenderViewGroup& renderViewGroup )
 
 		viewConstant.Update( viewConstantParam );
 		viewConstant.Bind( );
+
+		RenderMesh( scene, view );
 	}
 }
 

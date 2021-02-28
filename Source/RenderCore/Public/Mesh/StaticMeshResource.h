@@ -11,7 +11,6 @@
 #include <vector>
 
 class Archive;
-class Material;
 
 struct MeshDescription;
 
@@ -65,6 +64,9 @@ public:
 	RENDERCORE_DLL void Serialize( Archive& ar );
 
 	StaticMeshLODResource& LODResource( int index ) { return m_lodResources[index]; };
+	const StaticMeshLODResource& LODResource( int index ) const { return m_lodResources[index]; };
+	std::size_t LODSize( ) const { return m_lodResources.size( ); }
+	const StaticMeshVertexLayout& VertexLayout( int index ) const { return m_vertexLayouts[index]; }
 
 	RENDERCORE_DLL StaticMeshRenderData( ) = default;
 

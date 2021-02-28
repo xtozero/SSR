@@ -7,7 +7,7 @@
 #include "Core/GameLogic.h"
 #include "GameObject/GameObjectFactory.h"
 #include "Json/json.hpp"
-#include "Rendering/RenderOption.h"
+#include "RenderOption.h"
 
 DECLARE_GAME_OBJECT( static_mesh, StaticMeshGameObject );
 

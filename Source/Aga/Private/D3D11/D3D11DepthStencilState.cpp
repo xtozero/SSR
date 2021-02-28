@@ -31,10 +31,23 @@ namespace
 	}
 }
 
-CD3D11DepthStencilState::CD3D11DepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
-
-void CD3D11DepthStencilState::InitResource( )
+namespace aga
 {
-	bool result = SUCCEEDED( D3D11Device( ).CreateDepthStencilState( &m_desc, m_pResource.GetAddressOf( ) ) );
-	assert( result );
+	D3D11DepthStencilState::D3D11DepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
+
+	void D3D11DepthStencilState::InitResource( )
+	{
+		bool result = SUCCEEDED( D3D11Device( ).CreateDepthStencilState( &m_desc, &m_depthStencilState ) );
+		assert( result );
+	}
+
+	void D3D11DepthStencilState::FreeResource( )
+	{
+		if ( m_depthStencilState )
+		{
+			m_depthStencilState->Release( );
+			m_depthStencilState = nullptr;
+		}
+	}
+
 }

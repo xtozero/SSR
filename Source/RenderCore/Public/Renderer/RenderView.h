@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.h"
+#include "DrawSnapshot.h"
 #include "GraphicsApiResource.h"
 #include "Math/CXMFloat.h"
 
@@ -24,6 +25,8 @@ struct RenderView
 	float m_farPlaneDistance = 0.f;
 	float m_aspect = 0.f;
 	float m_fov = 0.f;
+
+	std::vector<DrawSnapshot> m_drawSnapshots;
 };
 
 class RenderViewGroup

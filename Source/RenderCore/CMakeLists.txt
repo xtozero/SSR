@@ -38,7 +38,9 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Private/GraphicsResource/DefaultConstantBuffers.cpp
 	Private/GraphicsResource/DepthStencil.cpp
 	Private/GraphicsResource/GlobalShaders.cpp
+	Private/GraphicsResource/GraphicsPipelineState.cpp
 	Private/GraphicsResource/IndexBuffer.cpp
+	Private/GraphicsResource/RenderOption.cpp
 	Private/GraphicsResource/Shader.cpp
 	Private/GraphicsResource/UploadBuffer.cpp
 	Private/GraphicsResource/VertexBuffer.cpp
@@ -49,7 +51,9 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Public/GraphicsResource/DepthStencil.h
 	Public/GraphicsResource/DrawSnapshot.h
 	Public/GraphicsResource/GlobalShaders.h
+	Public/GraphicsResource/GraphicsPipelineState.h
 	Public/GraphicsResource/IndexBuffer.h
+	Public/GraphicsResource/RenderOption.h
 	Public/GraphicsResource/Shader.h
 	Public/GraphicsResource/ShaderBindings.h
 	Public/GraphicsResource/TypedBuffer.h

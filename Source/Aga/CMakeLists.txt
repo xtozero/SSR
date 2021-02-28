@@ -14,35 +14,33 @@ set (CORE_SOURCE
 	"Private/Core/ModuleInit.cpp")
 	
 set (D3D11_RENDER_RESOURCE_SOURCE
-	"Private/D3D11/D3D11BaseTexture.cpp"
-	"Private/D3D11/D3D11BlendState.cpp"
-	"Private/D3D11/D3D11Buffer.cpp"
-	"Private/D3D11/D3D11DepthStencil.cpp"
-	"Private/D3D11/D3D11DepthStencilState.cpp"
-	"Private/D3D11/D3D11RandomAccessResource.cpp"
-	"Private/D3D11/D3D11RasterizerState.cpp"
-	"Private/D3D11/D3D11RenderTarget.cpp"
-	"Private/D3D11/D3D11ResourceManager.cpp"
-	"Private/D3D11/D3D11SamplerState.cpp"
-	"Private/D3D11/D3D11ShaderResource.cpp"
-	"Private/D3D11/D3D11Shaders.cpp"
-	"Private/D3D11/D3D11VetexLayout.cpp"
-	"Private/D3D11/D3D11Viewport.cpp"
-	"Public/D3D11/D3D11BaseTexture.h"
-	"Public/D3D11/D3D11BlendState.h"
-	"Public/D3D11/D3D11Buffer.h"
-	"Public/D3D11/D3D11DepthStencil.h"
-	"Public/D3D11/D3D11DepthStencilState.h"
-	"Public/D3D11/D3D11RandomAccessResource.h"
-	"Public/D3D11/D3D11RasterizerState.h"
-	"Public/D3D11/D3D11RenderTarget.h"
-	"Public/D3D11/D3D11ResourceInterface.h"
-	"Public/D3D11/D3D11ResourceManager.h"
-	"Public/D3D11/D3D11SamplerState.h"
-	"Public/D3D11/D3D11ShaderResource.h"
-	"Public/D3D11/D3D11Shaders.h"
-	"Public/D3D11/D3D11VetexLayout.h"
-	"Public/D3D11/D3D11Viewport.h")
+	Private/D3D11/D3D11BaseTexture.cpp
+	Private/D3D11/D3D11BlendState.cpp
+	Private/D3D11/D3D11Buffer.cpp
+	Private/D3D11/D3D11DepthStencilState.cpp
+	Private/D3D11/D3D11RandomAccessResource.cpp
+	Private/D3D11/D3D11RasterizerState.cpp
+	Private/D3D11/D3D11RenderTarget.cpp
+	Private/D3D11/D3D11ResourceManager.cpp
+	Private/D3D11/D3D11SamplerState.cpp
+	Private/D3D11/D3D11ShaderResource.cpp
+	Private/D3D11/D3D11Shaders.cpp
+	Private/D3D11/D3D11VetexLayout.cpp
+	Private/D3D11/D3D11Viewport.cpp
+	Public/D3D11/D3D11BaseTexture.h
+	Public/D3D11/D3D11BlendState.h
+	Public/D3D11/D3D11Buffer.h
+	Public/D3D11/D3D11DepthStencilState.h
+	Public/D3D11/D3D11RandomAccessResource.h
+	Public/D3D11/D3D11RasterizerState.h
+	Public/D3D11/D3D11RenderTarget.h
+	Public/D3D11/D3D11ResourceInterface.h
+	Public/D3D11/D3D11ResourceManager.h
+	Public/D3D11/D3D11SamplerState.h
+	Public/D3D11/D3D11ShaderResource.h
+	Public/D3D11/D3D11Shaders.h
+	Public/D3D11/D3D11VetexLayout.h
+	Public/D3D11/D3D11Viewport.h)
 
 set (D3D11_SOURCE
 	"Private/D3D11/D3D11Api.cpp"
@@ -60,10 +58,12 @@ set (COMMON_SOURCE
 
 set (RENDER_RESOURCE_SOURCE
 	Private/RenderResource/Buffer.cpp
+	Private/RenderResource/PipelineState.cpp
 	Private/RenderResource/ShaderPrameterMap.cpp
 	Private/RenderResource/ShaderResource.cpp
 	Private/RenderResource/Texture.cpp
 	Public/RenderResource/Buffer.h
+	Public/RenderResource/PipelineState.h
 	Public/RenderResource/ShaderPrameterInfo.h
 	Public/RenderResource/ShaderPrameterMap.h
 	Public/RenderResource/ShaderResource.h

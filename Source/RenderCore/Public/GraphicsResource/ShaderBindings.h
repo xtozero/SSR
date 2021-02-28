@@ -2,11 +2,22 @@
 
 #include "GraphicsApiResource.h"
 #include "IAga.h"
+#include "Shader.h"
 #include "ShaderPrameterInfo.h"
-
 
 #include <cassert>
 #include <vector>
+
+struct ShaderStates
+{
+	RE_HANDLE m_vertexLayout;
+	VertexShader m_vertexShader;
+	// Reserved
+	// HullShadaer m_hullShader;
+	// DomainShader m_domainShader;
+	// GeometryShader m_geometryShader;
+	PixelShader m_pixelShader;
+};
 
 class ShaderBindingLayout
 {
@@ -163,9 +174,9 @@ public:
 	void Initialize( const IAga& aga, const ShaderStates& shaders )
 	{
 		std::size_t numShaders = ( shaders.m_vertexShader.IsValid( ) ? 1 : 0 ) +
-			( shaders.m_hullShader.IsValid( ) ? 1 : 0 ) +
-			( shaders.m_domainShader.IsValid( ) ? 1 : 0 ) +
-			( shaders.m_geometryShader.IsValid( ) ? 1 : 0 ) +
+			//( shaders.m_hullShader.IsValid( ) ? 1 : 0 ) +
+			//( shaders.m_domainShader.IsValid( ) ? 1 : 0 ) +
+			//( shaders.m_geometryShader.IsValid( ) ? 1 : 0 ) +
 			( shaders.m_pixelShader.IsValid( ) ? 1 : 0 );
 
 		m_shaderLayouts.reserve( numShaders );
@@ -173,32 +184,32 @@ public:
 
 		if ( shaders.m_vertexShader.IsValid( ) )
 		{
-			m_shaderLayouts.emplace_back( aga.GetShaderParameterInfo( shaders.m_vertexShader ) );
-			shaderBindsDataSize += m_shaderLayouts.back( ).GetDataSize( );
+			//m_shaderLayouts.emplace_back( aga.GetShaderParameterInfo( shaders.m_vertexShader ) );
+			//shaderBindsDataSize += m_shaderLayouts.back( ).GetDataSize( );
 		}
 
-		if ( shaders.m_hullShader.IsValid( ) )
-		{
-			m_shaderLayouts.emplace_back( aga.GetShaderParameterInfo( shaders.m_hullShader ) );
-			shaderBindsDataSize += m_shaderLayouts.back( ).GetDataSize( );
-		}
+		//if ( shaders.m_hullShader.IsValid( ) )
+		//{
+		//	m_shaderLayouts.emplace_back( aga.GetShaderParameterInfo( shaders.m_hullShader ) );
+		//	shaderBindsDataSize += m_shaderLayouts.back( ).GetDataSize( );
+		//}
 
-		if ( shaders.m_domainShader.IsValid( ) )
-		{
-			m_shaderLayouts.emplace_back( aga.GetShaderParameterInfo( shaders.m_domainShader ) );
-			shaderBindsDataSize += m_shaderLayouts.back( ).GetDataSize( );
-		}
+		//if ( shaders.m_domainShader.IsValid( ) )
+		//{
+		//	m_shaderLayouts.emplace_back( aga.GetShaderParameterInfo( shaders.m_domainShader ) );
+		//	shaderBindsDataSize += m_shaderLayouts.back( ).GetDataSize( );
+		//}
 
-		if ( shaders.m_geometryShader.IsValid( ) )
-		{
-			m_shaderLayouts.emplace_back( aga.GetShaderParameterInfo( shaders.m_geometryShader ) );
-			shaderBindsDataSize += m_shaderLayouts.back( ).GetDataSize( );
-		}
+		//if ( shaders.m_geometryShader.IsValid( ) )
+		//{
+		//	m_shaderLayouts.emplace_back( aga.GetShaderParameterInfo( shaders.m_geometryShader ) );
+		//	shaderBindsDataSize += m_shaderLayouts.back( ).GetDataSize( );
+		//}
 
 		if ( shaders.m_pixelShader.IsValid( ) )
 		{
-			m_shaderLayouts.emplace_back( aga.GetShaderParameterInfo( shaders.m_pixelShader ) );
-			shaderBindsDataSize += m_shaderLayouts.back( ).GetDataSize( );
+			//m_shaderLayouts.emplace_back( aga.GetShaderParameterInfo( shaders.m_pixelShader ) );
+			//shaderBindsDataSize += m_shaderLayouts.back( ).GetDataSize( );
 		}
 
 		Allocate( shaderBindsDataSize );

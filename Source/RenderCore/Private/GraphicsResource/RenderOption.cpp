@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Rendering/RenderOption.h"
+#include "RenderOption.h"
 
 #include "FileSystem/EngineFileSystem.h"
 #include "Json/json.hpp"

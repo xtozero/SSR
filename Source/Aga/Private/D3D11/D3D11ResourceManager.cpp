@@ -8,7 +8,6 @@
 #include "D3D11BaseTexture.h"
 #include "D3D11BlendState.h"
 #include "D3D11Buffer.h"
-#include "D3D11DepthStencil.h"
 #include "D3D11DepthStencilState.h"
 #include "D3D11RandomAccessResource.h"
 #include "D3D11RasterizerState.h"
@@ -169,21 +168,12 @@ RE_HANDLE CD3D11ResourceManager::CreateBlendState( const BLEND_STATE_TRAIT& trai
 	return RE_HANDLE( GraphicsResourceType::BLEND_STATE, resource );
 }
 
-RE_HANDLE CD3D11ResourceManager::CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait )
+aga::DepthStencilState* CD3D11ResourceManager::CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait )
 {
-	auto resource = new CD3D11DepthStencilState( trait );
+	auto depthStencilState = new aga::D3D11DepthStencilState( trait );
+	m_renderResources.emplace( depthStencilState );
 
-	auto found = std::find( m_depthStencilStates.begin( ), m_depthStencilStates.end( ), nullptr );
-	if ( found != m_depthStencilStates.end( ) )
-	{
-		*found = resource;
-	}
-	else
-	{
-		m_depthStencilStates.emplace_back( resource );
-	}
-
-	return RE_HANDLE( GraphicsResourceType::DEPTH_STENCIL_STATE, resource );
+	return depthStencilState;
 }
 
 aga::Viewport* CD3D11ResourceManager::CreateViewport( int width, int height, void* hWnd, DXGI_FORMAT format )
@@ -261,11 +251,6 @@ void CD3D11ResourceManager::OnDeviceLost( )
 	{
 		blendState->Free( );
 	}
-
-	for ( auto depthStencilState : m_depthStencilStates )
-	{
-		depthStencilState->Free( );
-	}
 }
 
 void CD3D11ResourceManager::OnDeviceRestore( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext )
@@ -292,12 +277,6 @@ CD3D11BlendState* CD3D11ResourceManager::GetBlendState( RE_HANDLE handle ) const
 	return reinterpret_cast<CD3D11BlendState*>( handle.m_resource.Get( ) );
 }
 
-CD3D11DepthStencilState* CD3D11ResourceManager::GetDepthStencilState( RE_HANDLE handle ) const
-{
-	assert( IsDepthStencilStateHandle( handle ) );
-	return reinterpret_cast<CD3D11DepthStencilState*>( handle.m_resource.Get( ) );
-}
-
 IDeviceDependant* CD3D11ResourceManager::GetGraphicsResource( RE_HANDLE handle ) const
 {
 	GraphicsResourceType resourceType = handle.m_type;
@@ -317,11 +296,6 @@ IDeviceDependant* CD3D11ResourceManager::GetGraphicsResource( RE_HANDLE handle )
 	case GraphicsResourceType::BLEND_STATE:
 		{
 			return reinterpret_cast<CD3D11BlendState*>( handle.m_resource.Get( ) );
-		}
-		break;
-	case GraphicsResourceType::DEPTH_STENCIL_STATE:
-		{
-			return reinterpret_cast<CD3D11DepthStencilState*>( handle.m_resource.Get( ) );
 		}
 		break;
 	default:

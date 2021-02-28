@@ -660,22 +660,3 @@ struct DEPTH_STENCIL_STATE_TRAIT
 	STENCIL_OP_TRAIT m_frontFace;
 	STENCIL_OP_TRAIT m_backFace;
 };
-
-struct ShaderStates
-{
-	RE_HANDLE m_vertexLayout;
-	RE_HANDLE m_vertexShader;
-	RE_HANDLE m_hullShader;
-	RE_HANDLE m_domainShader;
-	RE_HANDLE m_geometryShader;
-	RE_HANDLE m_pixelShader;
-};
-
-struct GraphisPipelineState
-{
-	ShaderStates m_shaderState;
-	RE_HANDLE m_rasterizerState;
-	RE_HANDLE m_depthStencilState;
-	RE_HANDLE m_blendState;
-	RESOURCE_PRIMITIVE m_primitive;
-};

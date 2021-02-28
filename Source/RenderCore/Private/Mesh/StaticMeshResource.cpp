@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "Mesh/StaticMeshResource.h"
 
-#include "../../Logic/Public/Material/Material.h"
-#include "../../Logic/Public/Model/MeshDescription.h"
 #include "Archive.h"
 #include "Math/CXMFloat.h"
 #include "MultiThread/EngineTaskScheduler.h"

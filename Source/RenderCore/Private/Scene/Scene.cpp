@@ -34,7 +34,7 @@ void Scene::AddPrimitive( PrimitiveComponent* primitive )
 		return;
 	}
 
-	PrimitivieSceneInfo* primitiveSceneInfo = new PrimitivieSceneInfo( proxy );
+	PrimitiveSceneInfo* primitiveSceneInfo = new PrimitiveSceneInfo( proxy );
 	primitiveSceneInfo->m_sceneProxy = proxy;
 
 	proxy->m_primitiveSceneInfo = primitiveSceneInfo;
@@ -63,7 +63,7 @@ void Scene::RemovePrimitive( PrimitiveComponent* primitive )
 
 	if ( proxy )
 	{
-		PrimitivieSceneInfo* primitiveSceneInfo = proxy->m_primitiveSceneInfo;
+		PrimitiveSceneInfo* primitiveSceneInfo = proxy->m_primitiveSceneInfo;
 		primitive->m_sceneProxy = nullptr;
 
 		EnqueueRenderTask( [this, primitiveSceneInfo]( )
@@ -82,7 +82,7 @@ SHADING_METHOD Scene::ShadingMethod( ) const
 	return SHADING_METHOD::Forward;
 }
 
-void Scene::AddPrimitiveSceneInfo( PrimitivieSceneInfo* primitiveSceneInfo )
+void Scene::AddPrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo )
 {
 	assert( IsInRenderThread() );
 	assert( primitiveSceneInfo );
@@ -93,7 +93,7 @@ void Scene::AddPrimitiveSceneInfo( PrimitivieSceneInfo* primitiveSceneInfo )
 	m_primitives.push_back( primitiveSceneInfo );
 }
 
-void Scene::RemovePrimitiveSceneInfo( PrimitivieSceneInfo* primitiveSceneInfo )
+void Scene::RemovePrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo )
 {
 	assert( IsInRenderThread( ) );
 

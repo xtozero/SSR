@@ -6,7 +6,7 @@
 
 #include <vector>
 
-class PrimitivieSceneInfo;
+class PrimitiveSceneInfo;
 
 class Scene final : public IScene
 {
@@ -15,6 +15,15 @@ public:
 
 	virtual void AddPrimitive( PrimitiveComponent* primitive ) override;
 	virtual void RemovePrimitive( PrimitiveComponent* primitive ) override;
+	virtual std::vector<PrimitiveSceneInfo*>& Primitives( ) override
+	{
+		return m_primitives;
+	}
+	virtual const std::vector<PrimitiveSceneInfo*>& Primitives( ) const override
+	{
+		return m_primitives;
+	}
+
 
 	virtual SceneViewConstantBuffer& SceneViewConstant( ) override
 	{
@@ -28,10 +37,10 @@ public:
 	virtual Scene* GetRenderScene( ) { return this; };
 
 private:
-	void AddPrimitiveSceneInfo( PrimitivieSceneInfo* primitiveSceneInfo );
-	void RemovePrimitiveSceneInfo( PrimitivieSceneInfo* primitiveSceneInfo );
+	void AddPrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo );
+	void RemovePrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo );
 
-	std::vector<PrimitivieSceneInfo*> m_primitives;
+	std::vector<PrimitiveSceneInfo*> m_primitives;
 	SceneViewConstantBuffer m_viewConstant;
 
 	std::vector<std::size_t> m_primitiveToUpdate;
