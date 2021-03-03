@@ -41,12 +41,39 @@ DepthStencilState AgaDelegator::FindOrCreate( const DepthStencilOption& option )
 			option.m_stencil.m_backFace
 		};
 
-		auto state = m_aga->CreateDepthStencilState( trait );
+		auto state = DepthStencilState::Create( trait );
 		m_depthStencilStates.emplace( option, state );
 
 		return state;
 	}
 
+	return found->second;
+}
+
+RasterizerState AgaDelegator::FindOrCreate( const RasterizerOption& option )
+{
+	auto found = m_rasterizerStates.find( option );
+	if ( found == m_rasterizerStates.end( ) )
+	{
+		RASTERIZER_STATE_TRAIT trait = {
+		option.m_isWireframe ? FILL_MODE::WIREFRAME : FILL_MODE::SOLID,
+		option.m_cullMode,
+		option.m_counterClockwise,
+		option.m_depthBias,
+		0.f,
+		0.f,
+		option.m_depthClipEnable,
+		option.m_scissorEnable,
+		option.m_multisampleEnalbe,
+		option.m_antialiasedLineEnable
+		};
+
+		auto state = RasterizerState::Create( trait );
+		m_rasterizerStates.emplace( option, state );
+
+		return state;
+	}
+	
 	return found->second;
 }
 

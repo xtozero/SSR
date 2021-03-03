@@ -214,6 +214,24 @@ private:
 	std::filesystem::path m_path;
 };
 
+struct RasterizerOptionHasher
+{
+	std::size_t operator()( const RasterizerOption& option ) const
+	{
+		std::size_t hash = typeid( RasterizerOption ).hash_code( );
+		HashCombine( hash, option.m_isWireframe );
+		HashCombine( hash, option.m_cullMode );
+		HashCombine( hash, option.m_counterClockwise );
+		HashCombine( hash, option.m_depthBias );
+		HashCombine( hash, option.m_depthClipEnable );
+		HashCombine( hash, option.m_scissorEnable );
+		HashCombine( hash, option.m_multisampleEnalbe );
+		HashCombine( hash, option.m_antialiasedLineEnable );
+
+		return hash;
+	}
+};
+
 class SamplerOption : public AsyncLoadableAsset
 {
 	DECLARE_ASSET( RENDERCORE, SamplerOption );

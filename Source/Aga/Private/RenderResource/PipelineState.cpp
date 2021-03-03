@@ -10,4 +10,9 @@ namespace aga
 	{
 		return GetInterface<IAga>( )->CreateDepthStencilState( trait );
 	}
+
+	RefHandle<RasterizerState> RasterizerState::Create( const RASTERIZER_STATE_TRAIT& trait )
+	{
+		return GetInterface<IAga>( )->CreateRasterizerState( trait );
+	}
 }

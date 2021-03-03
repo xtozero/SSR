@@ -35,12 +35,14 @@ public:
 	void Dispatch( UINT x, UINT y, UINT z = 1 );
 
 	DepthStencilState FindOrCreate( const DepthStencilOption& option );
+	RasterizerState FindOrCreate( const RasterizerOption& option );
 
 private:
 	IAga* m_aga = nullptr;
 	DefaultConstantBuffers m_defaultConstants;
 
 	std::unordered_map<DepthStencilOption, DepthStencilState, DepthStencilOptionHasher> m_depthStencilStates;
+	std::unordered_map<RasterizerOption, RasterizerState, RasterizerOptionHasher> m_rasterizerStates;
 };
 
 AgaDelegator& GetAgaDelegator();

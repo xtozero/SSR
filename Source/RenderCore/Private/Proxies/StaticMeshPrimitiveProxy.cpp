@@ -37,6 +37,11 @@ void StaticMeshPrimitiveProxy::TakeSnapshot( std::vector<DrawSnapshot>& snapshot
 		{
 			pipelineState.m_depthStencilState = aga.FindOrCreate( *m_pRenderOption->m_depthStencilOption );
 		}
+
+		if ( m_pRenderOption->m_rasterizerOption )
+		{
+			pipelineState.m_rasterizerState = aga.FindOrCreate( *m_pRenderOption->m_rasterizerOption );
+		}
 		
 		pipelineState.m_primitive = RESOURCE_PRIMITIVE::TRIANGLELIST;
 

@@ -12,6 +12,7 @@ namespace aga
 	class ComputeShader;
 	class DepthStencilState;
 	class PixelShader;
+	class RasterizerState;
 	class Texture;
 	class VertexShader;
 	class Viewport;
@@ -46,7 +47,7 @@ public:
 	virtual aga::PixelShader* CreatePixelShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
 	virtual const ShaderParameterInfo& GetShaderParameterInfo( RE_HANDLE shader ) const = 0;
 
-	virtual RE_HANDLE CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) = 0;
+	virtual aga::RasterizerState* CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) = 0;
 	virtual RE_HANDLE CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) = 0;
 	virtual aga::DepthStencilState* CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) = 0;
 	virtual RE_HANDLE CreateBlendState( const BLEND_STATE_TRAIT& trait ) = 0;
@@ -82,7 +83,7 @@ public:
 
 	virtual void BindRandomAccessResource( int startSlot, int count, RE_HANDLE* resource ) = 0;
 	virtual void BindRenderTargets( aga::Texture** pRenderTargets, int renderTargetCount, aga::Texture* depthStencil ) = 0;
-	virtual void BindRasterizerState( RE_HANDLE rasterizerState ) = 0;
+	// virtual void BindRasterizerState( RE_HANDLE rasterizerState ) = 0;
 	virtual void BindSamplerState( SHADER_TYPE type, int startSlot, int numSamplers, const RE_HANDLE* pSamplerStates ) = 0;
 	// virtual void BindDepthStencilState( RE_HANDLE depthStencilState ) = 0;
 	virtual void BindBlendState( RE_HANDLE blendState ) = 0;

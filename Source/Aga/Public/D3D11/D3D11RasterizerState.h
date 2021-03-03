@@ -1,19 +1,26 @@
 #pragma once
 
-#include "D3D11ResourceInterface.h"
+#include "PipelineState.h"
 
-class CD3D11RasterizerState : public DeviceDependantBase<ID3D11RasterizerState>
+#include <d3d11.h>
+
+namespace aga
 {
-public:
-	CD3D11RasterizerState( const RASTERIZER_STATE_TRAIT& trait );
-	CD3D11RasterizerState( const CD3D11RasterizerState& ) = delete;
-	CD3D11RasterizerState( CD3D11RasterizerState&& ) = default;
-	CD3D11RasterizerState& operator=( const CD3D11RasterizerState& ) = delete;
-	CD3D11RasterizerState& operator=( CD3D11RasterizerState&& ) = default;
-	~CD3D11RasterizerState( ) = default;
+	class D3D11RasterizerState : public RasterizerState
+	{
+	public:
+		D3D11RasterizerState( const RASTERIZER_STATE_TRAIT& trait );
+		D3D11RasterizerState( const D3D11RasterizerState& ) = delete;
+		D3D11RasterizerState( D3D11RasterizerState&& ) = default;
+		D3D11RasterizerState& operator=( const D3D11RasterizerState& ) = delete;
+		D3D11RasterizerState& operator=( D3D11RasterizerState&& ) = default;
+		~D3D11RasterizerState( ) = default;
 
-private:
-	virtual void InitResource( ) override;
+	private:
+		virtual void InitResource( ) override;
+		virtual void FreeResource( ) override;
 
-	D3D11_RASTERIZER_DESC m_desc;
-};
+		D3D11_RASTERIZER_DESC m_desc;
+		ID3D11RasterizerState* m_rasterizerState = nullptr;
+	};
+}

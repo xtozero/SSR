@@ -49,5 +49,4 @@ namespace aga
 			m_depthStencilState = nullptr;
 		}
 	}
-
 }

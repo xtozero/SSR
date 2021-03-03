@@ -23,10 +23,22 @@ namespace
 	}
 }
 
-CD3D11RasterizerState::CD3D11RasterizerState( const RASTERIZER_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
-
-void CD3D11RasterizerState::InitResource( )
+namespace aga
 {
-	bool result = SUCCEEDED( D3D11Device( ).CreateRasterizerState( &m_desc, m_pResource.GetAddressOf( ) ) );
-	assert( result );
+	D3D11RasterizerState::D3D11RasterizerState( const RASTERIZER_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
+
+	void D3D11RasterizerState::InitResource( )
+	{
+		bool result = SUCCEEDED( D3D11Device( ).CreateRasterizerState( &m_desc, &m_rasterizerState ) );
+		assert( result );
+	}
+
+	void D3D11RasterizerState::FreeResource( )
+	{
+		if ( m_rasterizerState )
+		{
+			m_rasterizerState->Release( );
+			m_rasterizerState = nullptr;
+		}
+	}
 }

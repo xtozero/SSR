@@ -16,8 +16,6 @@ struct ID3D11Resource;
 struct ID3D11ShaderResourceView;
 
 class CD3D11BlendState;
-class D3D11DepthStencilState;
-class CD3D11RasterizerState;
 class CD3D11SamplerState;
 
 namespace aga
@@ -53,7 +51,7 @@ public:
 
 	// RenderState
 	virtual RE_HANDLE CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) override;
-	virtual RE_HANDLE CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) override;
+	virtual aga::RasterizerState* CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) override;
 	virtual RE_HANDLE CreateBlendState( const BLEND_STATE_TRAIT& trait ) override;
 	virtual aga::DepthStencilState* CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) override;
 
@@ -70,7 +68,6 @@ public:
 	void OnDeviceRestore( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext );
 
 	CD3D11SamplerState* GetSamplerState( RE_HANDLE handle ) const;
-	CD3D11RasterizerState* GetRasterizerState( RE_HANDLE handle ) const;
 	CD3D11BlendState* GetBlendState( RE_HANDLE handle ) const;
 
 	IDeviceDependant* GetGraphicsResource( RE_HANDLE handle ) const;
@@ -83,7 +80,6 @@ public:
 
 private:
 	std::vector<RefHandle<CD3D11SamplerState>> m_samplerStates;
-	std::vector<RefHandle<CD3D11RasterizerState>> m_rasterizerStates;
 	std::vector<RefHandle<CD3D11BlendState>> m_blendStates;
 
 	std::map<std::string, TEXTURE_TRAIT> m_textureTraits;

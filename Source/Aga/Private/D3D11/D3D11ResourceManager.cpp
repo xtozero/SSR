@@ -134,21 +134,12 @@ RE_HANDLE CD3D11ResourceManager::CreateSamplerState( const SAMPLER_STATE_TRAIT& 
 	return RE_HANDLE( GraphicsResourceType::SAMPLER_STATE, resource );
 }
 
-RE_HANDLE CD3D11ResourceManager::CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait )
+aga::RasterizerState* CD3D11ResourceManager::CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait )
 {
-	auto resource = new CD3D11RasterizerState( trait );
+	auto rasterizerState = new aga::D3D11RasterizerState( trait );
+	m_renderResources.emplace( rasterizerState );
 
-	auto found = std::find( m_rasterizerStates.begin( ), m_rasterizerStates.end( ), nullptr );
-	if ( found != m_rasterizerStates.end( ) )
-	{
-		*found = resource;
-	}
-	else
-	{
-		m_rasterizerStates.emplace_back( resource );
-	}
-
-	return RE_HANDLE( GraphicsResourceType::RASTERIZER_STATE, resource );
+	return rasterizerState;
 }
 
 RE_HANDLE CD3D11ResourceManager::CreateBlendState( const BLEND_STATE_TRAIT& trait )
@@ -242,11 +233,6 @@ void CD3D11ResourceManager::OnDeviceLost( )
 		samplerState->Free( );
 	}
 
-	for ( auto rasterizerState : m_rasterizerStates )
-	{
-		rasterizerState->Free( );
-	}
-
 	for ( auto blendState : m_blendStates )
 	{
 		blendState->Free( );
@@ -265,12 +251,6 @@ CD3D11SamplerState* CD3D11ResourceManager::GetSamplerState( RE_HANDLE handle ) c
 	return reinterpret_cast<CD3D11SamplerState*>( handle.m_resource.Get( ) );
 }
 
-CD3D11RasterizerState* CD3D11ResourceManager::GetRasterizerState( RE_HANDLE handle ) const
-{
-	assert( IsRasterizerStateHandle( handle ) );
-	return reinterpret_cast<CD3D11RasterizerState*>( handle.m_resource.Get( ) );
-}
-
 CD3D11BlendState* CD3D11ResourceManager::GetBlendState( RE_HANDLE handle ) const
 {
 	assert( IsBlendStateHandle( handle ) );
@@ -286,11 +266,6 @@ IDeviceDependant* CD3D11ResourceManager::GetGraphicsResource( RE_HANDLE handle )
 	case GraphicsResourceType::SAMPLER_STATE:
 		{
 			return reinterpret_cast<CD3D11SamplerState*>( handle.m_resource.Get( ) );
-		}
-		break;
-	case GraphicsResourceType::RASTERIZER_STATE:
-		{
-			return reinterpret_cast<CD3D11RasterizerState*>( handle.m_resource.Get( ) );
 		}
 		break;
 	case GraphicsResourceType::BLEND_STATE:

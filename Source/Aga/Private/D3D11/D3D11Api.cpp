@@ -60,7 +60,7 @@ public:
 	virtual aga::PixelShader* CreatePixelShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	virtual const ShaderParameterInfo& GetShaderParameterInfo( RE_HANDLE shader ) const override;
 
-	virtual RE_HANDLE CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) override;
+	virtual aga::RasterizerState* CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) override;
 	virtual RE_HANDLE CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) override;
 	virtual aga::DepthStencilState* CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) override;
 	virtual RE_HANDLE CreateBlendState( const BLEND_STATE_TRAIT& trait ) override;
@@ -96,7 +96,7 @@ public:
 
 	virtual void BindRandomAccessResource( int startSlot, int count, RE_HANDLE* resource ) override;
 	virtual void BindRenderTargets( aga::Texture** pRenderTargets, int renderTargetCount, aga::Texture* depthStencil ) override;
-	virtual void BindRasterizerState( RE_HANDLE rasterizerState ) override;
+	//virtual void BindRasterizerState( RE_HANDLE rasterizerState ) override;
 	virtual void BindSamplerState( SHADER_TYPE type, int startSlot, int numSamplers, const RE_HANDLE* pSamplerStates ) override;
 	//virtual void BindDepthStencilState( RE_HANDLE depthStencilState ) override;
 	virtual void BindBlendState( RE_HANDLE blendState ) override;
@@ -424,7 +424,7 @@ void CDirect3D11::SetScissorRect( UINT minX, UINT minY, UINT maxX, UINT maxY )
 	m_pd3d11DeviceContext->RSSetScissorRects( 1, &rect );
 }
 
-RE_HANDLE CDirect3D11::CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait )
+aga::RasterizerState* CDirect3D11::CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait )
 {
 	return m_resourceManager.CreateRasterizerState( trait );
 }
@@ -776,17 +776,17 @@ void CDirect3D11::BindRenderTargets( aga::Texture** pRenderTargets, int renderTa
 	m_pd3d11DeviceContext->OMSetRenderTargets( static_cast<UINT>( renderTargetCount ), rtvs, dsv );
 }
 
-void CDirect3D11::BindRasterizerState( RE_HANDLE rasterizerState )
-{
-	ID3D11RasterizerState* pState = nullptr;
-
-	if ( rasterizerState.IsValid( ) )
-	{
-		pState = m_resourceManager.GetRasterizerState( rasterizerState )->Get();
-	}
-
-	m_pd3d11DeviceContext->RSSetState( pState );
-}
+//void CDirect3D11::BindRasterizerState( RE_HANDLE rasterizerState )
+//{
+//	ID3D11RasterizerState* pState = nullptr;
+//
+//	if ( rasterizerState.IsValid( ) )
+//	{
+//		pState = m_resourceManager.GetRasterizerState( rasterizerState )->Get();
+//	}
+//
+//	m_pd3d11DeviceContext->RSSetState( pState );
+//}
 
 void CDirect3D11::BindSamplerState( SHADER_TYPE type, int startSlot, int numSamplers, const RE_HANDLE* pSamplerStates )
 {
