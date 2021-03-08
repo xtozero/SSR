@@ -9,6 +9,11 @@ class VertexBuffer
 public:
 	static VertexBuffer Create( std::size_t elementSize, std::size_t numElement, const void* initData );
 
+	operator aga::Buffer*( )
+	{
+		return m_buffer.Get( );
+	}
+
 private:
 	RefHandle<aga::Buffer> m_buffer;
 };

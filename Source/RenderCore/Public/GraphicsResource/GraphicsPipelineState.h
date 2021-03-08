@@ -4,6 +4,24 @@
 #include "PipelineState.h"
 #include "ShaderBindings.h"
 
+class BlendState
+{
+public:
+	static BlendState Create( const BLEND_STATE_TRAIT& trait );
+
+	aga::BlendState* State( )
+	{
+		return m_state.Get( );
+	}
+
+	BlendState( ) = default;
+
+private:
+	explicit BlendState( aga::BlendState* state ) : m_state( state ) {}
+
+	RefHandle<aga::BlendState> m_state;
+};
+
 class DepthStencilState
 {
 public:
@@ -45,6 +63,6 @@ struct GraphicsPipelineState
 	ShaderStates m_shaderState;
 	RasterizerState m_rasterizerState;
 	DepthStencilState m_depthStencilState;
-	RE_HANDLE m_blendState;
+	BlendState m_blendState;
 	RESOURCE_PRIMITIVE m_primitive;
 };

@@ -60,6 +60,11 @@ public:
 		return m_vb;
 	}
 
+	operator aga::Buffer*( )
+	{
+		return m_vb;
+	}
+
 private:
 	TypedVertexBuffer( VertexBuffer&& vb )
 	{

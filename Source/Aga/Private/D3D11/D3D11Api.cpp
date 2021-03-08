@@ -60,10 +60,10 @@ public:
 	virtual aga::PixelShader* CreatePixelShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	virtual const ShaderParameterInfo& GetShaderParameterInfo( RE_HANDLE shader ) const override;
 
+	virtual aga::DepthStencilState* CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) override;
+	virtual aga::BlendState* CreateBlendState( const BLEND_STATE_TRAIT& trait ) override;
 	virtual aga::RasterizerState* CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) override;
 	virtual RE_HANDLE CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) override;
-	virtual aga::DepthStencilState* CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) override;
-	virtual RE_HANDLE CreateBlendState( const BLEND_STATE_TRAIT& trait ) override;
 
 	virtual aga::Viewport* CreateViewport( int width, int height, void* hWnd, RESOURCE_FORMAT format ) override;
 
@@ -96,10 +96,10 @@ public:
 
 	virtual void BindRandomAccessResource( int startSlot, int count, RE_HANDLE* resource ) override;
 	virtual void BindRenderTargets( aga::Texture** pRenderTargets, int renderTargetCount, aga::Texture* depthStencil ) override;
-	//virtual void BindRasterizerState( RE_HANDLE rasterizerState ) override;
+	// virtual void BindRasterizerState( RE_HANDLE rasterizerState ) override;
 	virtual void BindSamplerState( SHADER_TYPE type, int startSlot, int numSamplers, const RE_HANDLE* pSamplerStates ) override;
-	//virtual void BindDepthStencilState( RE_HANDLE depthStencilState ) override;
-	virtual void BindBlendState( RE_HANDLE blendState ) override;
+	// virtual void BindDepthStencilState( RE_HANDLE depthStencilState ) override;
+	// virtual void BindBlendState( RE_HANDLE blendState ) override;
 
 	virtual void Draw( RESOURCE_PRIMITIVE primitive, UINT vertexCount, UINT vertexOffset = 0 ) override;
 	virtual void DrawIndexed( RESOURCE_PRIMITIVE primitive, UINT indexCount, UINT indexOffset = 0, UINT vertexOffset = 0 ) override;
@@ -424,6 +424,16 @@ void CDirect3D11::SetScissorRect( UINT minX, UINT minY, UINT maxX, UINT maxY )
 	m_pd3d11DeviceContext->RSSetScissorRects( 1, &rect );
 }
 
+aga::BlendState* CDirect3D11::CreateBlendState( const BLEND_STATE_TRAIT& trait )
+{
+	return m_resourceManager.CreateBlendState( trait );
+}
+
+aga::DepthStencilState* CDirect3D11::CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait )
+{
+	return m_resourceManager.CreateDepthStencilState( trait );
+}
+
 aga::RasterizerState* CDirect3D11::CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait )
 {
 	return m_resourceManager.CreateRasterizerState( trait );
@@ -432,16 +442,6 @@ aga::RasterizerState* CDirect3D11::CreateRasterizerState( const RASTERIZER_STATE
 RE_HANDLE CDirect3D11::CreateSamplerState( const SAMPLER_STATE_TRAIT& trait )
 {
 	return m_resourceManager.CreateSamplerState( trait );
-}
-
-aga::DepthStencilState* CDirect3D11::CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait )
-{
-	return m_resourceManager.CreateDepthStencilState( trait );
-}
-
-RE_HANDLE CDirect3D11::CreateBlendState( const BLEND_STATE_TRAIT& trait )
-{
-	return m_resourceManager.CreateBlendState( trait );
 }
 
 aga::Viewport* CDirect3D11::CreateViewport( int width, int height, void* hWnd, RESOURCE_FORMAT format )
@@ -854,19 +854,19 @@ void CDirect3D11::BindSamplerState( SHADER_TYPE type, int startSlot, int numSamp
 //	}
 //}
 
-void CDirect3D11::BindBlendState( RE_HANDLE blendState )
-{
-	if ( blendState.IsValid( ) )
-	{
-		CD3D11BlendState* state = m_resourceManager.GetBlendState( blendState );
-		m_pd3d11DeviceContext->OMSetBlendState( state->Get( ), state->GetBlendFactor( ), state->GetSamplerMask( ) );
-	}
-	else
-	{
-		float defaultBlendFactor[4] = { 0.f, 0.f, 0.f, 0.f };
-		m_pd3d11DeviceContext->OMSetBlendState( nullptr, defaultBlendFactor, D3D11_DEFAULT_SAMPLE_MASK );
-	}
-}
+//void CDirect3D11::BindBlendState( RE_HANDLE blendState )
+//{
+//	if ( blendState.IsValid( ) )
+//	{
+//		D3D11BlendState* state = m_resourceManager.GetBlendState( blendState );
+//		m_pd3d11DeviceContext->OMSetBlendState( state->Get( ), state->GetBlendFactor( ), state->GetSamplerMask( ) );
+//	}
+//	else
+//	{
+//		float defaultBlendFactor[4] = { 0.f, 0.f, 0.f, 0.f };
+//		m_pd3d11DeviceContext->OMSetBlendState( nullptr, defaultBlendFactor, D3D11_DEFAULT_SAMPLE_MASK );
+//	}
+//}
 
 void CDirect3D11::Draw( RESOURCE_PRIMITIVE primitive, UINT vertexCount, UINT vertexOffset )
 {

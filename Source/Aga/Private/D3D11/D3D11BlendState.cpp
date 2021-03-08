@@ -29,10 +29,22 @@ namespace
 	}
 }
 
-CD3D11BlendState::CD3D11BlendState( const BLEND_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
-
-void CD3D11BlendState::InitResource( )
+namespace aga
 {
-	bool result = SUCCEEDED( D3D11Device( ).CreateBlendState( &m_desc, m_pResource.GetAddressOf( ) ) );
-	assert( result );
+	D3D11BlendState::D3D11BlendState( const BLEND_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
+
+	void D3D11BlendState::InitResource( )
+	{
+		bool result = SUCCEEDED( D3D11Device( ).CreateBlendState( &m_desc, &m_blendState ) );
+		assert( result );
+	}
+
+	void D3D11BlendState::FreeResource( )
+	{
+		if ( m_blendState )
+		{
+			m_blendState->Release( );
+			m_blendState = nullptr;
+		}
+	}
 }

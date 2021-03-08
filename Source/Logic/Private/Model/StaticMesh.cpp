@@ -89,7 +89,7 @@ void StaticMesh::BuildMeshFromMeshDescription( const MeshDescription& meshDescri
 		indexCount += polygon.m_triangleID.size( ) * 3;
 	}
 
-	auto& indices = lodResource.m_indexData;
+	std::vector<size_t> indices;
 	indices.reserve( indexCount );
 
 	for ( std::size_t i = 0; i < polygons.size( ); ++i )
@@ -120,6 +120,26 @@ void StaticMesh::BuildMeshFromMeshDescription( const MeshDescription& meshDescri
 			}
 		}
 	}
+
+	lodResource.m_isDWORD = ( vertexInstances.size( ) > std::numeric_limits<DWORD>::max( ) );
+
+	std::size_t indexStride = lodResource.m_isDWORD ? sizeof( DWORD ) : sizeof( WORD );
+	lodResource.m_indexData.resize( indices.size() * indexStride );
+
+	if ( lodResource.m_isDWORD )
+	{
+		for ( std::size_t i = 0; i < indices.size( ); ++i )
+		{
+			reinterpret_cast<DWORD*>( lodResource.m_indexData.data( ) )[i] = static_cast<DWORD>( indices[i] );
+		}
+	}
+	else
+	{
+		for ( std::size_t i = 0; i < indices.size( ); ++i )
+		{
+			reinterpret_cast<WORD*>( lodResource.m_indexData.data( ) )[i] = static_cast<WORD>( indices[i] );
+		}
+	}
 }
 
 void StaticMesh::AddMaterial( const std::shared_ptr<Material>& mateiral )
@@ -134,17 +154,7 @@ StaticMesh::~StaticMesh( )
 
 void StaticMesh::PostLoadImpl( )
 {
+	EnqueueRenderTask( [this]( ) {
+		m_renderData->Init( );
+	} );
 }
-
-//StaticMesh::StaticMesh( MeshDescription&& meshDescription, std::vector<Material>&& materials )
-//{
-//	 m_renderData = new StaticMeshRenderData( );
-	 // TODO: 추후작업이 필요함
-	 /*m_materials = std::move( materials );
-
-	 m_renderData->AddLODResource( meshDescription, m_materials );
-
-	EnqueueRenderTask( [this]( ){
-		 m_renderData->InitRenderResource( );
-	 } );*/
-//}

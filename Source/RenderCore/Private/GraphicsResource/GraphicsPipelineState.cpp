@@ -5,6 +5,24 @@
 #include "IAga.h"
 #include "MultiThread/EngineTaskScheduler.h"
 
+BlendState BlendState::Create( const BLEND_STATE_TRAIT& trait )
+{
+	aga::BlendState* state( GetInterface<IAga>( )->CreateBlendState( trait ) );
+	if ( IsInRenderThread( ) )
+	{
+		state->Init( );
+	}
+	else
+	{
+		EnqueueRenderTask( [state]( )
+		{
+			state->Init( );
+		} );
+	}
+
+	return BlendState( state );
+}
+
 DepthStencilState DepthStencilState::Create( const DEPTH_STENCIL_STATE_TRAIT& trait )
 {
 	aga::DepthStencilState* state( GetInterface<IAga>( )->CreateDepthStencilState( trait ) );

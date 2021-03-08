@@ -333,7 +333,8 @@ __pycache__/
 *.odx.cs
 *.xsd.cs
 
-!Program/Models/*
+!Program/Assets/Models/*
+!RawAssets/Models/*
 
 ### VisualStudio Patch ###
 # By default, sensitive information, such as encrypted password

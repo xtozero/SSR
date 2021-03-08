@@ -40,7 +40,8 @@ public:
 	void Serialize( Archive& ar );
 
 	std::vector<StaticMeshVertex> m_vertexData;
-	std::vector<std::size_t> m_indexData;
+	bool m_isDWORD = false;
+	std::vector<unsigned char> m_indexData;
 	TypedVertexBuffer<StaticMeshVertex> m_vb;
 	IndexBuffer m_ib;
 	std::vector<StaticMeshSection> m_sections;
@@ -60,13 +61,15 @@ class StaticMeshRenderData
 {
 public:
 	RENDERCORE_DLL void AllocateLODResources( std::size_t numLOD );
-	RENDERCORE_DLL void InitRenderResource( );
+	RENDERCORE_DLL void Init( );
 	RENDERCORE_DLL void Serialize( Archive& ar );
 
 	StaticMeshLODResource& LODResource( int index ) { return m_lodResources[index]; };
 	const StaticMeshLODResource& LODResource( int index ) const { return m_lodResources[index]; };
 	std::size_t LODSize( ) const { return m_lodResources.size( ); }
 	const StaticMeshVertexLayout& VertexLayout( int index ) const { return m_vertexLayouts[index]; }
+
+	void CreateRenderResource( );
 
 	RENDERCORE_DLL StaticMeshRenderData( ) = default;
 

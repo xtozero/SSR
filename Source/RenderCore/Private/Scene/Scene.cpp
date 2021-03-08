@@ -52,6 +52,7 @@ void Scene::AddPrimitive( PrimitiveComponent* primitive )
 		PrimitiveProxy* sceneProxy = primitiveSceneInfo->m_sceneProxy;
 
 		sceneProxy->SetTransform( param.m_worldTransform );
+		sceneProxy->CreateRenderData( );
 
 		AddPrimitiveSceneInfo( primitiveSceneInfo );
 	} );

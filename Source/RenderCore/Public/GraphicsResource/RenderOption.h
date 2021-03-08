@@ -31,6 +31,24 @@ struct RenderTargetBlendOption
 	}
 };
 
+struct RenderTargetBlendOptionHasher
+{
+	std::size_t operator()( const RenderTargetBlendOption& option ) const
+	{
+		std::size_t hash = typeid( RenderTargetBlendOption ).hash_code( );
+		HashCombine( hash, option.m_blendEnable );
+		HashCombine( hash, option.m_srcBlend );
+		HashCombine( hash, option.m_destBlend );
+		HashCombine( hash, option.m_blendOp );
+		HashCombine( hash, option.m_srcBlendAlpha );
+		HashCombine( hash, option.m_destBlendAlpha );
+		HashCombine( hash, option.m_blendOpAlpha );
+		HashCombine( hash, option.m_renderTargetWriteMask );
+
+		return hash;
+	}
+};
+
 class BlendOption : public AsyncLoadableAsset
 {
 	DECLARE_ASSET( RENDERCORE, BlendOption );
@@ -63,6 +81,25 @@ protected:
 
 private:
 	std::filesystem::path m_path;
+};
+
+struct BlendOptionHasher
+{
+	std::size_t operator()( const BlendOption& option ) const
+	{
+		std::size_t hash = typeid( BlendOption ).hash_code( );
+		HashCombine( hash, option.m_alphaToConverageEnable );
+		HashCombine( hash, option.m_independentBlendEnable );
+		
+		constexpr int size = std::extent_v<decltype( option.m_renderTarget )>;
+		for ( int i = 0; i < size; ++i )
+		{
+			HashCombine( hash, i );
+			HashCombine( hash, RenderTargetBlendOptionHasher( )( option.m_renderTarget[i] ) );
+		}
+
+		return hash;
+	}
 };
 
 struct DepthOption 

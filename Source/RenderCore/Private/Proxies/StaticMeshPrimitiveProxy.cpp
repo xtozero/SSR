@@ -6,11 +6,18 @@
 #include "DrawSnapshot.h"
 #include "Mesh/StaticMeshResource.h"
 #include "Model/StaticMesh.h"
+#include "MultiThread/EngineTaskScheduler.h"
 #include "RenderOption.h"
 
 StaticMeshPrimitiveProxy::StaticMeshPrimitiveProxy( const StaticMeshComponent& component ) : m_pStaticMesh( component.GetStaticMesh( ) ), m_pRenderData( m_pStaticMesh->RenderData( ) ), m_pRenderOption( component.GetRenderOption( ) )
 {
 	
+}
+
+void StaticMeshPrimitiveProxy::CreateRenderData( )
+{
+	assert( IsInRenderThread( ) );
+	m_pRenderData->CreateRenderResource( );
 }
 
 void StaticMeshPrimitiveProxy::TakeSnapshot( std::vector<DrawSnapshot>& snapshots )
@@ -33,6 +40,11 @@ void StaticMeshPrimitiveProxy::TakeSnapshot( std::vector<DrawSnapshot>& snapshot
 		snapShot.m_indexBuffer = lodResource.m_ib;
 
 		GraphicsPipelineState pipelineState = snapShot.m_pipelineState;
+		if ( m_pRenderOption->m_blendOption )
+		{
+			pipelineState.m_blendState = aga.FindOrCreate( *m_pRenderOption->m_blendOption );
+		}
+
 		if ( m_pRenderOption->m_depthStencilOption )
 		{
 			pipelineState.m_depthStencilState = aga.FindOrCreate( *m_pRenderOption->m_depthStencilOption );

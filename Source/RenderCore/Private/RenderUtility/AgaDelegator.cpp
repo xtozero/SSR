@@ -25,6 +25,38 @@ void AgaDelegator::Dispatch( UINT x, UINT y, UINT z )
 	BindShader( empty );
 }
 
+BlendState AgaDelegator::FindOrCreate( const BlendOption& option )
+{
+	auto found = m_blendStates.find( option );
+	if ( found == m_blendStates.end( ) )
+	{
+		BLEND_STATE_TRAIT trait;
+		trait.m_alphaToConverageEnable = option.m_alphaToConverageEnable;
+		trait.m_independentBlendEnable = option.m_independentBlendEnable;
+
+		constexpr int size = std::extent_v<decltype( option.m_renderTarget )>;
+		for ( int i = 0; i < size; ++i )
+		{
+			auto& dst = trait.m_renderTarget[i];
+			auto& src = option.m_renderTarget[i];
+
+			dst.m_blendEnable = src.m_blendEnable;
+			dst.m_srcBlend = src.m_srcBlend;
+			dst.m_destBlend = src.m_destBlend;
+			dst.m_blendOp = src.m_blendOp;
+			dst.m_srcBlendAlpha = src.m_srcBlendAlpha;
+			dst.m_destBlendAlpha = src.m_destBlendAlpha;
+			dst.m_blendOpAlpha = src.m_blendOpAlpha;
+			dst.m_renderTargetWriteMask = src.m_renderTargetWriteMask;
+		}
+
+		auto state = BlendState::Create( trait );
+		m_blendStates.emplace( option, state );
+	}
+
+	return found->second;
+}
+
 DepthStencilState AgaDelegator::FindOrCreate( const DepthStencilOption& option )
 {
 	auto found = m_depthStencilStates.find( option );

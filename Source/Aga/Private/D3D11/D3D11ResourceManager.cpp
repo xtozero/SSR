@@ -117,6 +117,30 @@ aga::PixelShader* CD3D11ResourceManager::CreatePixelShader( const void* byteCode
 	return newShader;
 }
 
+aga::BlendState* CD3D11ResourceManager::CreateBlendState( const BLEND_STATE_TRAIT& trait )
+{
+	auto blendState = new aga::D3D11BlendState( trait );
+	m_renderResources.emplace( blendState );
+
+	return blendState;
+}
+
+aga::DepthStencilState* CD3D11ResourceManager::CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait )
+{
+	auto depthStencilState = new aga::D3D11DepthStencilState( trait );
+	m_renderResources.emplace( depthStencilState );
+
+	return depthStencilState;
+}
+
+aga::RasterizerState* CD3D11ResourceManager::CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait )
+{
+	auto rasterizerState = new aga::D3D11RasterizerState( trait );
+	m_renderResources.emplace( rasterizerState );
+
+	return rasterizerState;
+}
+
 RE_HANDLE CD3D11ResourceManager::CreateSamplerState( const SAMPLER_STATE_TRAIT& trait )
 {
 	auto resource = new CD3D11SamplerState( trait );
@@ -132,39 +156,6 @@ RE_HANDLE CD3D11ResourceManager::CreateSamplerState( const SAMPLER_STATE_TRAIT& 
 	}
 
 	return RE_HANDLE( GraphicsResourceType::SAMPLER_STATE, resource );
-}
-
-aga::RasterizerState* CD3D11ResourceManager::CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait )
-{
-	auto rasterizerState = new aga::D3D11RasterizerState( trait );
-	m_renderResources.emplace( rasterizerState );
-
-	return rasterizerState;
-}
-
-RE_HANDLE CD3D11ResourceManager::CreateBlendState( const BLEND_STATE_TRAIT& trait )
-{
-	auto resource = new CD3D11BlendState( trait );
-
-	auto found = std::find( m_blendStates.begin( ), m_blendStates.end( ), nullptr );
-	if ( found != m_blendStates.end( ) )
-	{
-		*found = resource;
-	}
-	else
-	{
-		m_blendStates.emplace_back( resource );
-	}
-
-	return RE_HANDLE( GraphicsResourceType::BLEND_STATE, resource );
-}
-
-aga::DepthStencilState* CD3D11ResourceManager::CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait )
-{
-	auto depthStencilState = new aga::D3D11DepthStencilState( trait );
-	m_renderResources.emplace( depthStencilState );
-
-	return depthStencilState;
 }
 
 aga::Viewport* CD3D11ResourceManager::CreateViewport( int width, int height, void* hWnd, DXGI_FORMAT format )
@@ -232,11 +223,6 @@ void CD3D11ResourceManager::OnDeviceLost( )
 	{
 		samplerState->Free( );
 	}
-
-	for ( auto blendState : m_blendStates )
-	{
-		blendState->Free( );
-	}
 }
 
 void CD3D11ResourceManager::OnDeviceRestore( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext )
@@ -251,10 +237,10 @@ CD3D11SamplerState* CD3D11ResourceManager::GetSamplerState( RE_HANDLE handle ) c
 	return reinterpret_cast<CD3D11SamplerState*>( handle.m_resource.Get( ) );
 }
 
-CD3D11BlendState* CD3D11ResourceManager::GetBlendState( RE_HANDLE handle ) const
+D3D11BlendState* CD3D11ResourceManager::GetBlendState( RE_HANDLE handle ) const
 {
 	assert( IsBlendStateHandle( handle ) );
-	return reinterpret_cast<CD3D11BlendState*>( handle.m_resource.Get( ) );
+	return reinterpret_cast<D3D11BlendState*>( handle.m_resource.Get( ) );
 }
 
 IDeviceDependant* CD3D11ResourceManager::GetGraphicsResource( RE_HANDLE handle ) const
@@ -266,11 +252,6 @@ IDeviceDependant* CD3D11ResourceManager::GetGraphicsResource( RE_HANDLE handle )
 	case GraphicsResourceType::SAMPLER_STATE:
 		{
 			return reinterpret_cast<CD3D11SamplerState*>( handle.m_resource.Get( ) );
-		}
-		break;
-	case GraphicsResourceType::BLEND_STATE:
-		{
-			return reinterpret_cast<CD3D11BlendState*>( handle.m_resource.Get( ) );
 		}
 		break;
 	default:
