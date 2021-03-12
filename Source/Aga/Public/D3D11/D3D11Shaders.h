@@ -1,8 +1,9 @@
 #pragma once
 
-#include "D3D11ResourceInterface.h"
 #include "ShaderResource.h"
 #include "ShaderPrameterInfo.h"
+
+#include <d3d11.h>
 
 AGA_DLL void ExtractShaderParameters( const void* byteCode, std::size_t byteCodeSize, ShaderParameterMap& parameterMap );
 

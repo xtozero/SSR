@@ -35,7 +35,8 @@ struct RenderTargetBlendOptionHasher
 {
 	std::size_t operator()( const RenderTargetBlendOption& option ) const
 	{
-		std::size_t hash = typeid( RenderTargetBlendOption ).hash_code( );
+		static std::size_t typeHash = typeid( RenderTargetBlendOption ).hash_code( );
+		std::size_t hash = typeHash;
 		HashCombine( hash, option.m_blendEnable );
 		HashCombine( hash, option.m_srcBlend );
 		HashCombine( hash, option.m_destBlend );
@@ -87,7 +88,8 @@ struct BlendOptionHasher
 {
 	std::size_t operator()( const BlendOption& option ) const
 	{
-		std::size_t hash = typeid( BlendOption ).hash_code( );
+		static std::size_t typeHash = typeid( BlendOption ).hash_code( );
+		std::size_t hash = typeHash;
 		HashCombine( hash, option.m_alphaToConverageEnable );
 		HashCombine( hash, option.m_independentBlendEnable );
 		
@@ -120,7 +122,8 @@ struct DepthOptionHasher
 {
 	std::size_t operator()( const DepthOption& option ) const
 	{
-		std::size_t hash = typeid( DepthOption ).hash_code();
+		static std::size_t typeHash = typeid( DepthOption ).hash_code( );
+		std::size_t hash = typeHash;
 		HashCombine( hash, option.m_enable );
 		HashCombine( hash, option.m_writeDepth );
 		HashCombine( hash, option.m_depthFunc );
@@ -159,7 +162,8 @@ struct StencilOptionHasher
 {
 	std::size_t operator()( const StencilOption& option ) const
 	{
-		std::size_t hash = typeid( StencilOption ).hash_code( );
+		static std::size_t typeHash = typeid( StencilOption ).hash_code( );
+		std::size_t hash = typeHash;
 		HashCombine( hash, option.m_enable );
 		HashCombine( hash, option.m_readMask );
 		HashCombine( hash, option.m_writeMask );
@@ -206,7 +210,8 @@ struct DepthStencilOptionHasher
 {
 	std::size_t operator()( const DepthStencilOption& option ) const
 	{
-		std::size_t hash = typeid( DepthStencilOption ).hash_code( );
+		static std::size_t typeHash = typeid( DepthStencilOption ).hash_code( );
+		std::size_t hash = typeHash; 
 		HashCombine( hash, DepthOptionHasher( )( option.m_depth ) );
 		HashCombine( hash, StencilOptionHasher( )( option.m_stencil ) );
 
@@ -255,7 +260,8 @@ struct RasterizerOptionHasher
 {
 	std::size_t operator()( const RasterizerOption& option ) const
 	{
-		std::size_t hash = typeid( RasterizerOption ).hash_code( );
+		static std::size_t typeHash = typeid( RasterizerOption ).hash_code( );
+		std::size_t hash = typeHash;
 		HashCombine( hash, option.m_isWireframe );
 		HashCombine( hash, option.m_cullMode );
 		HashCombine( hash, option.m_counterClockwise );
@@ -300,6 +306,23 @@ protected:
 
 private:
 	std::filesystem::path m_path;
+};
+
+struct SamplerOptionHasher
+{
+	std::size_t operator()( const SamplerOption& option ) const
+	{
+		static std::size_t typeHash = typeid( SamplerOption ).hash_code( );
+		std::size_t hash = typeHash;
+		HashCombine( hash, option.m_filter );
+		HashCombine( hash, option.m_addressU );
+		HashCombine( hash, option.m_addressV );
+		HashCombine( hash, option.m_addressW );
+		HashCombine( hash, option.m_mipLODBias );
+		HashCombine( hash, option.m_comparisonFunc );
+
+		return hash;
+	}
 };
 
 class RenderOption : public AsyncLoadableAsset

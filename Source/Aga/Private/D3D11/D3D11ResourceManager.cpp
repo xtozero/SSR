@@ -141,21 +141,12 @@ aga::RasterizerState* CD3D11ResourceManager::CreateRasterizerState( const RASTER
 	return rasterizerState;
 }
 
-RE_HANDLE CD3D11ResourceManager::CreateSamplerState( const SAMPLER_STATE_TRAIT& trait )
+aga::SamplerState* CD3D11ResourceManager::CreateSamplerState( const SAMPLER_STATE_TRAIT& trait )
 {
-	auto resource = new CD3D11SamplerState( trait );
+	auto samplerState = new aga::D3D11SamplerState( trait );
+	m_renderResources.emplace( samplerState );
 
-	auto found = std::find( m_samplerStates.begin( ), m_samplerStates.end( ), nullptr );
-	if ( found != m_samplerStates.end( ) )
-	{
-		*found = resource;
-	}
-	else
-	{
-		m_samplerStates.emplace_back( resource );
-	}
-
-	return RE_HANDLE( GraphicsResourceType::SAMPLER_STATE, resource );
+	return samplerState;
 }
 
 aga::Viewport* CD3D11ResourceManager::CreateViewport( int width, int height, void* hWnd, DXGI_FORMAT format )
@@ -203,61 +194,12 @@ void CD3D11ResourceManager::UpdateResourceFromMemory( RE_HANDLE dest, void* src,
 	m_pDeviceContext->UpdateSubresource( pDest, destSubresouce, destRegionOrNull ? &destBox : nullptr, src, srcRowPitch, srcDepthPitch );
 }
 
-void CD3D11ResourceManager::FreeResource( RE_HANDLE handle )
-{
-	if ( handle.IsValid( ) == false )
-	{
-		return;
-	}
-
-	IDeviceDependant* graphicsResource = GetGraphicsResource( handle );
-	if ( graphicsResource )
-	{
-		graphicsResource->Free( );
-	}
-}
-
 void CD3D11ResourceManager::OnDeviceLost( )
 {
-	for ( auto samplerState : m_samplerStates )
-	{
-		samplerState->Free( );
-	}
 }
 
 void CD3D11ResourceManager::OnDeviceRestore( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext )
 {
 	m_pDevice = pDevice;
 	m_pDeviceContext = pDeviceContext;
-}
-
-CD3D11SamplerState* CD3D11ResourceManager::GetSamplerState( RE_HANDLE handle ) const
-{
-	assert( IsSamplerStateHandle( handle ) );
-	return reinterpret_cast<CD3D11SamplerState*>( handle.m_resource.Get( ) );
-}
-
-D3D11BlendState* CD3D11ResourceManager::GetBlendState( RE_HANDLE handle ) const
-{
-	assert( IsBlendStateHandle( handle ) );
-	return reinterpret_cast<D3D11BlendState*>( handle.m_resource.Get( ) );
-}
-
-IDeviceDependant* CD3D11ResourceManager::GetGraphicsResource( RE_HANDLE handle ) const
-{
-	GraphicsResourceType resourceType = handle.m_type;
-
-	switch ( resourceType )
-	{
-	case GraphicsResourceType::SAMPLER_STATE:
-		{
-			return reinterpret_cast<CD3D11SamplerState*>( handle.m_resource.Get( ) );
-		}
-		break;
-	default:
-		assert( false && "invalid resource handle" );
-		break;
-	}
-
-	return nullptr;
 }

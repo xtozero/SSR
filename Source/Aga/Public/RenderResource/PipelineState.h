@@ -5,6 +5,10 @@
 
 namespace aga
 {
+	class BlendState : public DeviceDependantResource
+	{
+	};
+
 	class DepthStencilState : public DeviceDependantResource
 	{
 	};
@@ -13,7 +17,7 @@ namespace aga
 	{
 	};
 
-	class BlendState : public DeviceDependantResource
+	class SamplerState : public DeviceDependantResource
 	{
 	};
 }

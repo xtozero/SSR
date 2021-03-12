@@ -3,7 +3,6 @@
 
 #include "common.h"
 #include "Common/IAga.h"
-#include "D3D11ResourceInterface.h"
 
 #include "D3D11BaseTexture.h"
 #include "D3D11BlendState.h"
@@ -63,7 +62,7 @@ public:
 	virtual aga::DepthStencilState* CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) override;
 	virtual aga::BlendState* CreateBlendState( const BLEND_STATE_TRAIT& trait ) override;
 	virtual aga::RasterizerState* CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) override;
-	virtual RE_HANDLE CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) override;
+	virtual aga::SamplerState* CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) override;
 
 	virtual aga::Viewport* CreateViewport( int width, int height, void* hWnd, RESOURCE_FORMAT format ) override;
 
@@ -97,7 +96,7 @@ public:
 	virtual void BindRandomAccessResource( int startSlot, int count, RE_HANDLE* resource ) override;
 	virtual void BindRenderTargets( aga::Texture** pRenderTargets, int renderTargetCount, aga::Texture* depthStencil ) override;
 	// virtual void BindRasterizerState( RE_HANDLE rasterizerState ) override;
-	virtual void BindSamplerState( SHADER_TYPE type, int startSlot, int numSamplers, const RE_HANDLE* pSamplerStates ) override;
+	// virtual void BindSamplerState( SHADER_TYPE type, int startSlot, int numSamplers, const RE_HANDLE* pSamplerStates ) override;
 	// virtual void BindDepthStencilState( RE_HANDLE depthStencilState ) override;
 	// virtual void BindBlendState( RE_HANDLE blendState ) override;
 
@@ -439,7 +438,7 @@ aga::RasterizerState* CDirect3D11::CreateRasterizerState( const RASTERIZER_STATE
 	return m_resourceManager.CreateRasterizerState( trait );
 }
 
-RE_HANDLE CDirect3D11::CreateSamplerState( const SAMPLER_STATE_TRAIT& trait )
+aga::SamplerState* CDirect3D11::CreateSamplerState( const SAMPLER_STATE_TRAIT& trait )
 {
 	return m_resourceManager.CreateSamplerState( trait );
 }
@@ -788,58 +787,58 @@ void CDirect3D11::BindRenderTargets( aga::Texture** pRenderTargets, int renderTa
 //	m_pd3d11DeviceContext->RSSetState( pState );
 //}
 
-void CDirect3D11::BindSamplerState( SHADER_TYPE type, int startSlot, int numSamplers, const RE_HANDLE* pSamplerStates )
-{
-	ID3D11SamplerState* pStates[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] = {};
-
-	if ( pSamplerStates )
-	{
-		for ( int i = 0; i < numSamplers; ++i )
-		{
-			if ( pSamplerStates[i].IsValid( ) )
-			{
-				pStates[i] = m_resourceManager.GetSamplerState( pSamplerStates[i] )->Get( );
-			}
-		}
-	}
-	
-	switch ( type )
-	{
-	case SHADER_TYPE::VS:
-		{
-			m_pd3d11DeviceContext->VSSetSamplers( startSlot, numSamplers, pStates );
-		}
-		break;
-	case SHADER_TYPE::HS:
-		{
-			m_pd3d11DeviceContext->HSSetSamplers( startSlot, numSamplers, pStates );
-		}
-		break;
-	case SHADER_TYPE::DS:
-		{
-			m_pd3d11DeviceContext->DSSetSamplers( startSlot, numSamplers, pStates );
-		}
-		break;
-	case SHADER_TYPE::GS:
-		{
-			m_pd3d11DeviceContext->GSSetSamplers( startSlot, numSamplers, pStates );
-		}
-		break;
-	case SHADER_TYPE::PS:
-		{
-			m_pd3d11DeviceContext->PSSetSamplers( startSlot, numSamplers, pStates );
-		}
-		break;
-	case SHADER_TYPE::CS:
-		{
-			m_pd3d11DeviceContext->CSSetSamplers( startSlot, numSamplers, pStates );
-		}
-		break;
-	default:
-		__debugbreak( );
-		break;
-	}
-}
+//void CDirect3D11::BindSamplerState( SHADER_TYPE type, int startSlot, int numSamplers, const RE_HANDLE* pSamplerStates )
+//{
+//	ID3D11SamplerState* pStates[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] = {};
+//
+//	if ( pSamplerStates )
+//	{
+//		for ( int i = 0; i < numSamplers; ++i )
+//		{
+//			if ( pSamplerStates[i].IsValid( ) )
+//			{
+//				pStates[i] = m_resourceManager.GetSamplerState( pSamplerStates[i] )->Get( );
+//			}
+//		}
+//	}
+//	
+//	switch ( type )
+//	{
+//	case SHADER_TYPE::VS:
+//		{
+//			m_pd3d11DeviceContext->VSSetSamplers( startSlot, numSamplers, pStates );
+//		}
+//		break;
+//	case SHADER_TYPE::HS:
+//		{
+//			m_pd3d11DeviceContext->HSSetSamplers( startSlot, numSamplers, pStates );
+//		}
+//		break;
+//	case SHADER_TYPE::DS:
+//		{
+//			m_pd3d11DeviceContext->DSSetSamplers( startSlot, numSamplers, pStates );
+//		}
+//		break;
+//	case SHADER_TYPE::GS:
+//		{
+//			m_pd3d11DeviceContext->GSSetSamplers( startSlot, numSamplers, pStates );
+//		}
+//		break;
+//	case SHADER_TYPE::PS:
+//		{
+//			m_pd3d11DeviceContext->PSSetSamplers( startSlot, numSamplers, pStates );
+//		}
+//		break;
+//	case SHADER_TYPE::CS:
+//		{
+//			m_pd3d11DeviceContext->CSSetSamplers( startSlot, numSamplers, pStates );
+//		}
+//		break;
+//	default:
+//		__debugbreak( );
+//		break;
+//	}
+//}
 
 //void CDirect3D11::BindDepthStencilState( RE_HANDLE depthStencilState )
 //{

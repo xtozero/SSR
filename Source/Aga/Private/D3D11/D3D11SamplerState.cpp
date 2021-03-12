@@ -28,10 +28,22 @@ namespace
 	}
 }
 
-CD3D11SamplerState::CD3D11SamplerState( const SAMPLER_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
-
-void CD3D11SamplerState::InitResource( )
+namespace aga
 {
-	bool result = SUCCEEDED( D3D11Device( ).CreateSamplerState( &m_desc, m_pResource.GetAddressOf( ) ) );
-	assert( result );
+	D3D11SamplerState::D3D11SamplerState( const SAMPLER_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
+
+	void D3D11SamplerState::InitResource( )
+	{
+		bool result = SUCCEEDED( D3D11Device( ).CreateSamplerState( &m_desc, &m_samplerState ) );
+		assert( result );
+	}
+
+	void D3D11SamplerState::FreeResource( )
+	{
+		if ( m_samplerState )
+		{
+			m_samplerState->Release( );
+			m_samplerState = nullptr;
+		}
+	}
 }

@@ -15,9 +15,6 @@ struct ID3D11DeviceContext;
 struct ID3D11Resource;
 struct ID3D11ShaderResourceView;
 
-class D3D11BlendState;
-class CD3D11SamplerState;
-
 namespace aga
 {
 	class Viewport;
@@ -53,7 +50,7 @@ public:
 	virtual aga::BlendState* CreateBlendState( const BLEND_STATE_TRAIT& trait ) override;
 	virtual aga::DepthStencilState* CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) override;
 	virtual aga::RasterizerState* CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) override;
-	virtual RE_HANDLE CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) override;
+	virtual aga::SamplerState* CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) override;
 
 	// Viewport
 	aga::Viewport* CreateViewport( int width, int height, void* hWnd, DXGI_FORMAT format );
@@ -62,15 +59,8 @@ public:
 	virtual void CopyResource( RE_HANDLE dest, const RESOURCE_REGION* destRegionOrNull, RE_HANDLE src, const RESOURCE_REGION* srcRegionOrNull ) override;
 	virtual void UpdateResourceFromMemory( RE_HANDLE dest, void* src, UINT srcRowPitch, UINT srcDepthPitch, const RESOURCE_REGION* destRegionOrNull = nullptr ) override;
 
-	virtual void FreeResource( RE_HANDLE handle ) override;
-
 	void OnDeviceLost( );
 	void OnDeviceRestore( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext );
-
-	CD3D11SamplerState* GetSamplerState( RE_HANDLE handle ) const;
-	D3D11BlendState* GetBlendState( RE_HANDLE handle ) const;
-
-	IDeviceDependant* GetGraphicsResource( RE_HANDLE handle ) const;
 
 	CD3D11ResourceManager( ) = default;
 	CD3D11ResourceManager( const CD3D11ResourceManager& ) = delete;
@@ -79,8 +69,6 @@ public:
 	CD3D11ResourceManager& operator=( CD3D11ResourceManager&& ) = delete;
 
 private:
-	std::vector<RefHandle<CD3D11SamplerState>> m_samplerStates;
-
 	std::map<std::string, TEXTURE_TRAIT> m_textureTraits;
 
 	ID3D11Device* m_pDevice;

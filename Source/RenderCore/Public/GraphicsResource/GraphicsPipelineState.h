@@ -58,6 +58,24 @@ private:
 	RefHandle<aga::RasterizerState> m_state;
 };
 
+class SamplerState
+{
+public:
+	static SamplerState Create( const SAMPLER_STATE_TRAIT& trait );
+
+	aga::SamplerState* State( )
+	{
+		return m_state.Get( );
+	}
+
+	SamplerState( ) = default;
+
+private:
+	explicit SamplerState( aga::SamplerState* state ) : m_state( state ) {}
+
+	RefHandle<aga::SamplerState> m_state;
+};
+
 struct GraphicsPipelineState
 {
 	ShaderStates m_shaderState;

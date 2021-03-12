@@ -58,3 +58,21 @@ RasterizerState RasterizerState::Create( const RASTERIZER_STATE_TRAIT& trait )
 
 	return RasterizerState( state );
 }
+
+SamplerState SamplerState::Create( const SAMPLER_STATE_TRAIT& trait )
+{
+	aga::SamplerState* state( GetInterface<IAga>( )->CreateSamplerState( trait ) );
+	if ( IsInRenderThread( ) )
+	{
+		state->Init( );
+	}
+	else
+	{
+		EnqueueRenderTask( [state]( )
+		{
+			state->Init( );
+		} );
+	}
+
+	return SamplerState( state );
+}

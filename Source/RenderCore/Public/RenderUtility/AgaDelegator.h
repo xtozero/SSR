@@ -37,6 +37,7 @@ public:
 	BlendState FindOrCreate( const BlendOption& option );
 	DepthStencilState FindOrCreate( const DepthStencilOption& option );
 	RasterizerState FindOrCreate( const RasterizerOption& option );
+	SamplerState FindOrCreate( const SamplerOption& option );
 
 private:
 	IAga* m_aga = nullptr;
@@ -45,6 +46,7 @@ private:
 	std::unordered_map<BlendOption, BlendState, BlendOptionHasher> m_blendStates;
 	std::unordered_map<DepthStencilOption, DepthStencilState, DepthStencilOptionHasher> m_depthStencilStates;
 	std::unordered_map<RasterizerOption, RasterizerState, RasterizerOptionHasher> m_rasterizerStates;
+	std::unordered_map<SamplerOption, SamplerState, SamplerOptionHasher> m_samplerStates;
 };
 
 AgaDelegator& GetAgaDelegator();

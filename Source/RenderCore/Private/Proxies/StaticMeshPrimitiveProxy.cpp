@@ -22,6 +22,7 @@ void StaticMeshPrimitiveProxy::CreateRenderData( )
 
 void StaticMeshPrimitiveProxy::TakeSnapshot( std::vector<DrawSnapshot>& snapshots )
 {
+	assert( IsInRenderThread( ) );
 	std::size_t lodSize = m_pRenderData->LODSize( );
 	if ( lodSize < 0 )
 	{

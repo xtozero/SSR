@@ -1,20 +1,27 @@
 #pragma once
 
-#include "D3D11ResourceInterface.h"
+#include "PipelineState.h"
 
+#include <d3d11.h>
 
-class CD3D11SamplerState : public DeviceDependantBase<ID3D11SamplerState>
+namespace aga
 {
-public:
-	CD3D11SamplerState( const SAMPLER_STATE_TRAIT& trait );
-	CD3D11SamplerState( const CD3D11SamplerState& ) = default;
-	CD3D11SamplerState( CD3D11SamplerState&& ) = default;
-	CD3D11SamplerState& operator=( const CD3D11SamplerState& ) = default;
-	CD3D11SamplerState& operator=( CD3D11SamplerState&& ) = default;
-	~CD3D11SamplerState( ) = default;
+	class D3D11SamplerState : public SamplerState
+	{
+	public:
+		D3D11SamplerState( const SAMPLER_STATE_TRAIT& trait );
+		D3D11SamplerState( const D3D11SamplerState& ) = default;
+		D3D11SamplerState( D3D11SamplerState&& ) = default;
+		D3D11SamplerState& operator=( const D3D11SamplerState& ) = default;
+		D3D11SamplerState& operator=( D3D11SamplerState&& ) = default;
+		~D3D11SamplerState( ) = default;
 
-private:
-	virtual void InitResource( ) override;
+	private:
+		virtual void InitResource( ) override;
+		virtual void FreeResource( ) override;
 
-	D3D11_SAMPLER_DESC m_desc;
-};
+		ID3D11SamplerState* m_samplerState = nullptr;
+
+		D3D11_SAMPLER_DESC m_desc;
+	};
+}

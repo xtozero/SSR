@@ -88,16 +88,16 @@ RasterizerState AgaDelegator::FindOrCreate( const RasterizerOption& option )
 	if ( found == m_rasterizerStates.end( ) )
 	{
 		RASTERIZER_STATE_TRAIT trait = {
-		option.m_isWireframe ? FILL_MODE::WIREFRAME : FILL_MODE::SOLID,
-		option.m_cullMode,
-		option.m_counterClockwise,
-		option.m_depthBias,
-		0.f,
-		0.f,
-		option.m_depthClipEnable,
-		option.m_scissorEnable,
-		option.m_multisampleEnalbe,
-		option.m_antialiasedLineEnable
+			option.m_isWireframe ? FILL_MODE::WIREFRAME : FILL_MODE::SOLID,
+			option.m_cullMode,
+			option.m_counterClockwise,
+			option.m_depthBias,
+			0.f,
+			0.f,
+			option.m_depthClipEnable,
+			option.m_scissorEnable,
+			option.m_multisampleEnalbe,
+			option.m_antialiasedLineEnable
 		};
 
 		auto state = RasterizerState::Create( trait );
@@ -106,6 +106,33 @@ RasterizerState AgaDelegator::FindOrCreate( const RasterizerOption& option )
 		return state;
 	}
 	
+	return found->second;
+}
+
+SamplerState AgaDelegator::FindOrCreate( const SamplerOption& option )
+{
+	auto found = m_samplerStates.find( option );
+	if ( found == m_samplerStates.end( ) )
+	{
+		SAMPLER_STATE_TRAIT trait = {
+			static_cast<TEXTURE_FILTER::Type>( option.m_filter ),
+			option.m_addressU,
+			option.m_addressV,
+			option.m_addressW,
+			option.m_mipLODBias,
+			1,	/*anisotropy option set later*/
+			option.m_comparisonFunc,
+			{ 1.f, 1.f, 1.f, 1.f },
+			std::numeric_limits<float>::min(),
+			std::numeric_limits<float>::max()
+		};
+
+		auto state = SamplerState::Create( trait );
+		m_samplerStates.emplace( option, state );
+
+		return state;
+	}
+
 	return found->second;
 }
 
