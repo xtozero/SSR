@@ -18,7 +18,7 @@ VS_OUTPUT main( VS_INPUT input )
 	output.viewPos = mul( float4(output.worldPos, 1.0f), g_viewMatrix ).xyz;
 	output.position = mul( float4(output.viewPos, 1.0f), g_projectionMatrix );
 	output.normal = mul( float4(input.normal, 0.f), transpose( g_invWorldMatrix ) ).xyz;
-	output.color = input.color;
+	output.color = float4( 1.0f, 0.0f, 1.0f, 1.0f ); // dummy color
 	output.texcoord = input.texcoord;
 
 	return output;

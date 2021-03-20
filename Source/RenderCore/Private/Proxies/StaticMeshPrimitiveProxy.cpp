@@ -33,12 +33,17 @@ void StaticMeshPrimitiveProxy::TakeSnapshot( std::vector<DrawSnapshot>& snapshot
 
 	// To Do : will make lod available later
 	const StaticMeshLODResource& lodResource = m_pRenderData->LODResource( 0 );
+	const StaticMeshVertexLayout& vertexLayout = m_pRenderData->VertexLayout( 0 );
 
 	for ( const auto& section : lodResource.m_sections )
 	{
 		DrawSnapshot& snapShot = snapshots.emplace_back( );
 		snapShot.m_vertexStream.Bind( lodResource.m_vb, 0 );
 		snapShot.m_indexBuffer = lodResource.m_ib;
+
+		snapShot.m_shaders.m_vertexLayout = aga.FindOrCreate( *m_pRenderOption->m_vertexShader, vertexLayout.Desc( ) );
+		snapShot.m_shaders.m_vertexShader = *m_pRenderOption->m_vertexShader;
+		snapShot.m_shaders.m_pixelShader = *m_pRenderOption->m_pixelShader;
 
 		GraphicsPipelineState pipelineState = snapShot.m_pipelineState;
 		if ( m_pRenderOption->m_blendOption )

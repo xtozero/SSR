@@ -13,15 +13,15 @@ namespace aga
 	class RasterizerState;
 	class SamplerState;
 	class Texture;
+	class VertexLayout;
 	class VertexShader;
 }
 
-class VertexLayout;
-class VertexLayoutDesc;
 struct BUFFER_TRAIT;
 struct RESOURCE_INIT_DATA;
 struct RESOURCE_REGION;
 struct TEXTURE_TRAIT;
+struct VERTEX_LAYOUT_TRAIT;
 
 class IResourceManager
 {
@@ -32,7 +32,7 @@ public:
 
 	virtual aga::Buffer* CreateBuffer( const BUFFER_TRAIT& trait, const void* initData = nullptr ) = 0;
 
-	virtual VertexLayout* FindAndCreateVertexLayout( const aga::VertexShader* vs, const VertexLayoutDesc& layoutDesc ) = 0;
+	virtual aga::VertexLayout* CreateVertexLayout( const aga::VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, std::size_t size ) = 0;
 	virtual aga::ComputeShader* CreateComputeShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
 	virtual aga::VertexShader* CreateVertexShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
 	virtual aga::PixelShader* CreatePixelShader( const void* byteCode, std::size_t byteCodeSize ) = 0;

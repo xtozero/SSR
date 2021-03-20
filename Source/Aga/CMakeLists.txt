@@ -68,7 +68,6 @@ set (RENDER_RESOURCE_SOURCE
 	Public/RenderResource/ShaderPrameterMap.h
 	Public/RenderResource/ShaderResource.h
 	Public/RenderResource/Texture.h
-	Public/RenderResource/VertexInputLayout.h
 	Public/RenderResource/Viewport.h)
 
 source_group("Direct11" FILES ${D3D11_SOURCE})	

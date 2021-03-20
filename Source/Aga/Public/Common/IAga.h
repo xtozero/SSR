@@ -16,15 +16,13 @@ namespace aga
 	class RasterizerState;
 	class SamplerState;
 	class Texture;
+	class VertexLayout;
 	class VertexShader;
 	class Viewport;
 }
 
 class IResourceManager;
 class ShaderParameterInfo;
-class VertexLayout;
-class VertexLayoutDesc;
-struct BUFFER_TRAIT;
 struct CXMFLOAT4X4;
 struct IDXGISwapChain;
 
@@ -40,10 +38,8 @@ public:
 
 	virtual aga::Buffer* CreateBuffer( const BUFFER_TRAIT& trait, const void* initData = nullptr ) = 0;
 
-	virtual VertexLayout* FindAndCreateVertexLayout( aga::VertexShader* vs, const VertexLayoutDesc& layoutDesc ) = 0;
-	//virtual RE_HANDLE CreateVertexShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
+	virtual aga::VertexLayout* CreateVertexLayout( const aga::VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, std::size_t size ) = 0;
 	virtual RE_HANDLE CreateGeometryShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
-	//virtual RE_HANDLE CreatePixelShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
 	virtual aga::ComputeShader* CreateComputeShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
 	virtual aga::VertexShader* CreateVertexShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
 	virtual aga::PixelShader* CreatePixelShader( const void* byteCode, std::size_t byteCodeSize ) = 0;

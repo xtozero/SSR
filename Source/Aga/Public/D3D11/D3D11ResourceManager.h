@@ -41,7 +41,7 @@ public:
 	virtual aga::Buffer* CreateBuffer( const BUFFER_TRAIT& trait, const void* initData = nullptr ) override;
 
 	// Shader
-	virtual VertexLayout* FindAndCreateVertexLayout( const aga::VertexShader* vs, const VertexLayoutDesc& layoutDesc ) override;
+	virtual aga::VertexLayout* CreateVertexLayout( const aga::VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, std::size_t size ) override;
 	virtual aga::ComputeShader* CreateComputeShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	virtual aga::VertexShader* CreateVertexShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	virtual aga::PixelShader* CreatePixelShader( const void* byteCode, std::size_t byteCodeSize ) override;
@@ -77,6 +77,5 @@ private:
 	std::pair<int, int>	m_frameBufferSize = { 0, 0 };
 
 	std::set<RefHandle<GraphicsApiResource>> m_renderResources;
-	std::map<VertexLayoutDesc, RefHandle<D3D11VertexLayout>> m_vertexLayouts;
 };
 

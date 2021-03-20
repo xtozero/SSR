@@ -50,6 +50,11 @@ public:
 		return m_shader.Get( );
 	}
 
+	operator const aga::VertexShader*( ) const
+	{
+		return m_shader.Get( );
+	}
+
 	friend bool operator==( const VertexShader& lhs, const VertexShader& rhs )
 	{
 		return static_cast<const ShaderBase&>( lhs ) == static_cast<const ShaderBase&>( rhs )
@@ -86,6 +91,11 @@ public:
 		return m_shader.Get( );
 	}
 
+	operator const aga::PixelShader*( ) const
+	{
+		return m_shader.Get( );
+	}
+
 	friend bool operator==( const PixelShader& lhs, const PixelShader& rhs )
 	{
 		return static_cast<const ShaderBase&>( lhs ) == static_cast<const ShaderBase&>( rhs )
@@ -113,6 +123,11 @@ public:
 	ComputeShader( ) = default;
 
 	operator aga::ComputeShader*( )
+	{
+		return m_shader.Get( );
+	}
+
+	operator const aga::ComputeShader*( ) const
 	{
 		return m_shader.Get( );
 	}

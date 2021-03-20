@@ -79,23 +79,17 @@ aga::Buffer* CD3D11ResourceManager::CreateBuffer( const BUFFER_TRAIT& trait, con
 	return newBuffer;
 }
 
-VertexLayout* CD3D11ResourceManager::FindAndCreateVertexLayout( const aga::VertexShader* vs, const VertexLayoutDesc& layoutDesc )
+aga::VertexLayout* CD3D11ResourceManager::CreateVertexLayout( const aga::VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, std::size_t size )
 {
-	auto found = m_vertexLayouts.find( layoutDesc );
-	if ( found != m_vertexLayouts.end( ) )
-	{
-		return found->second.Get();
-	}
+	auto d3d11VS = static_cast<const aga::D3D11VertexShader*>( vs );
+	auto newVertexLayout = new aga::D3D11VertexLayout( d3d11VS, trait, size );
 
-	auto newLayout = new D3D11VertexLayout( reinterpret_cast<const D3D11VertexShader*>( vs ), layoutDesc );
-	m_vertexLayouts.emplace( layoutDesc, newLayout );
-
-	return newLayout;
+	return newVertexLayout;
 }
 
 aga::ComputeShader * CD3D11ResourceManager::CreateComputeShader( const void* byteCode, std::size_t byteCodeSize )
 {
-	auto newShader = new D3D11ComputeShader( byteCode, byteCodeSize );
+	auto newShader = new aga::D3D11ComputeShader( byteCode, byteCodeSize );
 	m_renderResources.emplace( newShader );
 
 	return newShader;
@@ -103,7 +97,7 @@ aga::ComputeShader * CD3D11ResourceManager::CreateComputeShader( const void* byt
 
 aga::VertexShader* CD3D11ResourceManager::CreateVertexShader( const void* byteCode, std::size_t byteCodeSize )
 {
-	auto newShader = new D3D11VertexShader( byteCode, byteCodeSize );
+	auto newShader = new aga::D3D11VertexShader( byteCode, byteCodeSize );
 	m_renderResources.emplace( newShader );
 
 	return newShader;
@@ -111,7 +105,7 @@ aga::VertexShader* CD3D11ResourceManager::CreateVertexShader( const void* byteCo
 
 aga::PixelShader* CD3D11ResourceManager::CreatePixelShader( const void* byteCode, std::size_t byteCodeSize )
 {
-	auto newShader = new D3D11PixelShader( byteCode, byteCodeSize );
+	auto newShader = new aga::D3D11PixelShader( byteCode, byteCodeSize );
 	m_renderResources.emplace( newShader );
 
 	return newShader;

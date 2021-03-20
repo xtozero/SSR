@@ -5,7 +5,7 @@
 #include "IndexBuffer.h"
 #include "Math/CXMFloat.h"
 #include "TypedBuffer.h"
-#include "VertexInputLayout.h"
+#include "VertexLayout.h"
 
 #include <filesystem>
 #include <vector>
@@ -52,9 +52,10 @@ class StaticMeshVertexLayout
 public:
 	void Initialize( const StaticMeshLODResource* lodResource );
 
+	const VertexLayoutDesc& Desc( ) const { return m_vertexLayoutDesc; }
+
 private:
 	VertexLayoutDesc m_vertexLayoutDesc;
-	RE_HANDLE m_vertexLayout;
 };
 
 class StaticMeshRenderData

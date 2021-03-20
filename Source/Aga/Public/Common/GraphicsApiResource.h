@@ -7,6 +7,7 @@
 #include <atomic>
 #include <cstddef>
 #include <limits>
+#include <string>
 
 enum class SHADER_TYPE
 {
@@ -659,4 +660,29 @@ struct DEPTH_STENCIL_STATE_TRAIT
 	unsigned char m_stencilWriteMask;
 	STENCIL_OP_TRAIT m_frontFace;
 	STENCIL_OP_TRAIT m_backFace;
+};
+
+struct VERTEX_LAYOUT_TRAIT
+{
+	bool m_isInstanceData;
+	int m_index;
+	RESOURCE_FORMAT m_format;
+	int m_slot;
+	int m_instanceDataStep;
+	std::string m_name;
+
+	friend bool operator==( const VERTEX_LAYOUT_TRAIT& lhs, const VERTEX_LAYOUT_TRAIT& rhs )
+	{
+		return  lhs.m_isInstanceData == rhs.m_isInstanceData
+			&& lhs.m_index == rhs.m_index
+			&& lhs.m_format == rhs.m_format
+			&& lhs.m_slot == rhs.m_slot
+			&& lhs.m_instanceDataStep == rhs.m_instanceDataStep
+			&& lhs.m_name == rhs.m_name;
+	}
+
+	friend bool operator!=( const VERTEX_LAYOUT_TRAIT& lhs, const VERTEX_LAYOUT_TRAIT& rhs )
+	{
+		return !( lhs == rhs );
+	}
 };

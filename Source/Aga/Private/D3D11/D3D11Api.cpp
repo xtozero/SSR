@@ -52,7 +52,7 @@ public:
 
 	virtual aga::Buffer* CreateBuffer( const BUFFER_TRAIT& trait, const void* initData = nullptr ) override;
 
-	virtual VertexLayout* FindAndCreateVertexLayout( aga::VertexShader* vs, const VertexLayoutDesc& layoutDesc ) override;
+	virtual aga::VertexLayout* CreateVertexLayout( const aga::VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, std::size_t size ) override;
 	virtual RE_HANDLE CreateGeometryShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	virtual aga::ComputeShader* CreateComputeShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	virtual aga::VertexShader* CreateVertexShader( const void* byteCode, std::size_t byteCodeSize ) override;
@@ -247,9 +247,9 @@ aga::Buffer* CDirect3D11::CreateBuffer( const BUFFER_TRAIT& trait, const void* i
 	return m_resourceManager.CreateBuffer( trait, initData );
 }
 
-VertexLayout* CDirect3D11::FindAndCreateVertexLayout( aga::VertexShader* vs, const VertexLayoutDesc& layoutDesc )
+aga::VertexLayout* CDirect3D11::CreateVertexLayout( const aga::VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, std::size_t size )
 {
-	return m_resourceManager.FindAndCreateVertexLayout( vs, layoutDesc );
+	return m_resourceManager.CreateVertexLayout( vs, trait, size );
 }
 
 RE_HANDLE CDirect3D11::CreateGeometryShader( const void* byteCode, std::size_t byteCodeSize )
@@ -616,7 +616,7 @@ void CDirect3D11::BindShader( RE_HANDLE shader )
 void CDirect3D11::BindShader( aga::ComputeShader* shader )
 {
 	ID3D11ComputeShader* cs = nullptr;
-	if ( D3D11ComputeShader* d3d11CS = static_cast<D3D11ComputeShader*>( shader ) )
+	if ( auto d3d11CS = static_cast<aga::D3D11ComputeShader*>( shader ) )
 	{
 		cs = d3d11CS->Resource( );
 	}

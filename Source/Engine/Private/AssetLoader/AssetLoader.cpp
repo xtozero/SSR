@@ -23,9 +23,13 @@ void AssetLoaderHandle::ExecuteCompletionCallback( )
 		return;
 	}
 
-	if ( auto pAsyncLoadable = static_cast<AsyncLoadableAsset*>( m_loadedAsset.get() ) )
+	if ( m_needPostProcess )
 	{
-		pAsyncLoadable->PostLoad( );
+		if ( auto pAsyncLoadable = static_cast<AsyncLoadableAsset*>( m_loadedAsset.get( ) ) )
+		{
+			pAsyncLoadable->PostLoad( );
+		}
+		m_needPostProcess = false;
 	}
 
 	if ( m_loadCompletionCallback.IsBound( ) )
@@ -69,8 +73,10 @@ AssetLoaderSharedHandle AssetLoader::RequestAsyncLoad( const std::string& assetP
 	if ( found != m_assets.end() )
 	{
 		auto handle = std::make_shared<AssetLoaderHandle>( );
+		handle->BindCompletionCallback( completionCallback );
 		handle->SetLoadedAsset( found->second );
 		handle->ExecuteCompletionCallback( );
+
 		return handle;
 	} 
 
@@ -171,6 +177,7 @@ AssetLoaderSharedHandle AssetLoader::LoadAsset( const char* assetPath, LoadCompl
 
 	handle->BindCompletionCallback( completionCallback );
 	handle->OnStartLoading( );
+	handle->NeedPostProcess( );
 
 	return handle;
 }

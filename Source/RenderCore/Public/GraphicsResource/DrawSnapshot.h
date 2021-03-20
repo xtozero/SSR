@@ -11,6 +11,8 @@ class DrawSnapshot
 public:
 	VertexInputStream m_vertexStream;
 	IndexBuffer m_indexBuffer;
+
+	ShaderStates m_shaders;
 	ShaderBindings m_shaderBindings;
 
 	// Pipeline State

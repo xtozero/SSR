@@ -7,58 +7,44 @@
 
 namespace
 {
-	void ConvertVertexLayoutToInputLayout( D3D11_INPUT_ELEMENT_DESC* iL, const VertexLayoutDescElem* vL, std::size_t numLayout )
+	void ConvertVertexLayoutToInputLayout( std::vector<std::string>& namePool, std::vector<D3D11_INPUT_ELEMENT_DESC>& descs, const VERTEX_LAYOUT_TRAIT* trait, std::size_t size )
 	{
-		for ( std::size_t i = 0; i < numLayout; ++i )
+		for ( std::size_t i = 0; i < size; ++i )
 		{
-			iL[i].SemanticName = vL[i].m_name.c_str( );
-			iL[i].SemanticIndex = vL[i].m_index;
-			iL[i].Format = ConvertFormatToDxgiFormat( vL[i].m_format );
-			iL[i].InputSlot = vL[i].m_slot;
-			iL[i].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-			iL[i].InputSlotClass = vL[i].m_isInstanceData ? D3D11_INPUT_PER_INSTANCE_DATA : D3D11_INPUT_PER_VERTEX_DATA;
-			iL[i].InstanceDataStepRate = vL[i].m_instanceDataStep;
+			namePool.emplace_back( trait[i].m_name );
+			descs.emplace_back( );
+
+			D3D11_INPUT_ELEMENT_DESC& desc = descs.back( );
+
+			desc.SemanticName = namePool[i].c_str( );
+			desc.SemanticIndex = trait[i].m_index;
+			desc.Format = ConvertFormatToDxgiFormat( trait[i].m_format );
+			desc.InputSlot = trait[i].m_slot;
+			desc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+			desc.InputSlotClass = trait[i].m_isInstanceData ? D3D11_INPUT_PER_INSTANCE_DATA : D3D11_INPUT_PER_VERTEX_DATA;
+			desc.InstanceDataStepRate = trait[i].m_instanceDataStep;
 		}
 	}
 }
 
-//void CD3D11VertexLayout::InitResource( )
-//{
-//	bool result = SUCCEEDED( D3D11Device( ).CreateInputLayout( m_imputDesc, m_layoutSize, m_vs->ByteCode( ), m_vs->ByteCodeSize( ), m_pResource.GetAddressOf( ) ) );
-//	assert( result );
-//}
-//
-//CD3D11VertexLayout::CD3D11VertexLayout( const RefHandle<CD3D11VertexShader>& vs, const VertexLayoutDescElem* layout, int layoutSize ) : m_vs( vs ), m_layoutSize( layoutSize )
-//{
-//	m_imputDesc = new D3D11_INPUT_ELEMENT_DESC[m_layoutSize];
-//	ConvertVertexLayoutToInputLayout( m_imputDesc, layout, m_layoutSize );
-//}
-//
-//CD3D11VertexLayout::~CD3D11VertexLayout( )
-//{
-//	delete[] m_imputDesc;
-//}
-
-D3D11VertexLayout::D3D11VertexLayout( const D3D11VertexShader* vs, const VertexLayoutDesc& layoutDesc ) : m_layoutDescSize( layoutDesc.Size() )
+namespace aga
 {
-	m_inputDesc = new D3D11_INPUT_ELEMENT_DESC[m_layoutDescSize];
-	ConvertVertexLayoutToInputLayout( m_inputDesc, layoutDesc.Desc(), m_layoutDescSize );
-
-	bool result = SUCCEEDED( D3D11Device( ).CreateInputLayout( m_inputDesc, static_cast<UINT>( m_layoutDescSize ), vs->ByteCode( ), vs->ByteCodeSize( ), &m_pResource ) );
-	assert( result );
-}
-
-D3D11VertexLayout::~D3D11VertexLayout( )
-{
-	delete[] m_inputDesc;
-	Free( );
-}
-
-void D3D11VertexLayout::FreeResource( )
-{
-	if ( m_pResource )
+	D3D11VertexLayout::D3D11VertexLayout( const D3D11VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, std::size_t size )
 	{
-		m_pResource->Release( );
-		m_pResource = nullptr;
+		m_namePool.reserve( size );
+		m_inputDesc.reserve( size );
+		ConvertVertexLayoutToInputLayout( m_namePool, m_inputDesc, trait, size );
+
+		bool result = SUCCEEDED( D3D11Device( ).CreateInputLayout( m_inputDesc.data( ), static_cast<UINT>( size ), vs->ByteCode( ), vs->ByteCodeSize( ), &m_pInputLayout ) );
+		assert( result );
+	}
+
+	void D3D11VertexLayout::FreeResource( )
+	{
+		if ( m_pInputLayout )
+		{
+			m_pInputLayout->Release( );
+			m_pInputLayout = nullptr;
+		}
 	}
 }

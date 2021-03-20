@@ -4,13 +4,14 @@
 #include "IAga.h"
 #include "Shader.h"
 #include "ShaderPrameterInfo.h"
+#include "VertexLayout.h"
 
 #include <cassert>
 #include <vector>
 
 struct ShaderStates
 {
-	RE_HANDLE m_vertexLayout;
+	VertexLayout m_vertexLayout;
 	VertexShader m_vertexShader;
 	// Reserved
 	// HullShadaer m_hullShader;

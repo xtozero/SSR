@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Buffer.h"
-#include "D3D11ResourceInterface.h"
+
+#include <d3d11.h>
 
 class D3D11BufferBase : public aga::Buffer
 {

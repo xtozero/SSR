@@ -122,47 +122,51 @@ void BuildShaderParameterInfo( const std::map<std::string, ShaderParameter>& par
 	}
 }
 
-void D3D11VertexShader::InitResource( )
+namespace aga
 {
-	bool result = SUCCEEDED( D3D11Device( ).CreateVertexShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
-	assert( result );
-}
-
-void D3D11VertexShader::FreeResource( )
-{
-	if ( m_pResource )
+	void D3D11VertexShader::InitResource( )
 	{
-		m_pResource->Release( );
-		m_pResource = nullptr;
+		bool result = SUCCEEDED( D3D11Device( ).CreateVertexShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
+		assert( result );
 	}
-}
 
-void D3D11PixelShader::InitResource( )
-{
-	bool result = SUCCEEDED( D3D11Device( ).CreatePixelShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
-	assert( result );
-}
-
-void D3D11PixelShader::FreeResource( )
-{
-	if ( m_pResource )
+	void D3D11VertexShader::FreeResource( )
 	{
-		m_pResource->Release( );
-		m_pResource = nullptr;
+		if ( m_pResource )
+		{
+			m_pResource->Release( );
+			m_pResource = nullptr;
+		}
 	}
-}
 
-void D3D11ComputeShader::InitResource( )
-{
-	bool result = SUCCEEDED( D3D11Device( ).CreateComputeShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
-	assert( result );
-}
-
-void D3D11ComputeShader::FreeResource( )
-{
-	if ( m_pResource )
+	void D3D11PixelShader::InitResource( )
 	{
-		m_pResource->Release( );
-		m_pResource = nullptr;
+		bool result = SUCCEEDED( D3D11Device( ).CreatePixelShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
+		assert( result );
 	}
+
+	void D3D11PixelShader::FreeResource( )
+	{
+		if ( m_pResource )
+		{
+			m_pResource->Release( );
+			m_pResource = nullptr;
+		}
+	}
+
+	void D3D11ComputeShader::InitResource( )
+	{
+		bool result = SUCCEEDED( D3D11Device( ).CreateComputeShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
+		assert( result );
+	}
+
+	void D3D11ComputeShader::FreeResource( )
+	{
+		if ( m_pResource )
+		{
+			m_pResource->Release( );
+			m_pResource = nullptr;
+		}
+	}
+
 }

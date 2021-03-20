@@ -20,4 +20,8 @@ namespace aga
 	class SamplerState : public DeviceDependantResource
 	{
 	};
+
+	class VertexLayout : public DeviceDependantResource
+	{
+	};
 }

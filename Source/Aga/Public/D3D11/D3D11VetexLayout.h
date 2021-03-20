@@ -1,44 +1,29 @@
 #pragma once
 
-#include "D3D11ResourceInterface.h"
-#include "VertexInputLayout.h"
+#include "PipelineState.h"
 
-//class CD3D11VertexShader;
-class D3D11VertexShader;
+#include <d3d11.h>
+#include <vector>
 
-//class CD3D11VertexLayout : public DeviceDependantBase<ID3D11InputLayout>
-//{
-//public:
-//	virtual void InitResource( ) override;
-//
-//	CD3D11VertexLayout( const RefHandle<CD3D11VertexShader>& vs, const VertexLayoutDescElem* layout, int layoutSize );
-//	CD3D11VertexLayout( const CD3D11VertexLayout& ) = delete;
-//	CD3D11VertexLayout( CD3D11VertexLayout&& ) = default;
-//	CD3D11VertexLayout& operator=( const CD3D11VertexLayout& ) = delete;
-//	CD3D11VertexLayout& operator=( CD3D11VertexLayout&& ) = default;
-//	~CD3D11VertexLayout( );
-//
-//private:
-//	D3D11_INPUT_ELEMENT_DESC* m_imputDesc;
-//	unsigned int m_layoutSize;
-//	RefHandle<CD3D11VertexShader> m_vs;
-//};
-
-class D3D11VertexLayout : public VertexLayout
+namespace aga
 {
-public:
-	D3D11VertexLayout( const D3D11VertexShader* vs, const VertexLayoutDesc& layoutDesc );
-	D3D11VertexLayout( const D3D11VertexLayout& ) = delete;
-	D3D11VertexLayout( D3D11VertexLayout&& ) = default;
-	D3D11VertexLayout& operator=( const D3D11VertexLayout& ) = delete;
-	D3D11VertexLayout& operator=( D3D11VertexLayout&& ) = default;
-	~D3D11VertexLayout( );
+	class D3D11VertexShader;
 
-private:
-	virtual void InitResource( ) override { }
-	virtual void FreeResource( ) override;
+	class D3D11VertexLayout : public VertexLayout
+	{
+	public:
+		D3D11VertexLayout( const D3D11VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, std::size_t size );
+		D3D11VertexLayout( const D3D11VertexLayout& ) = delete;
+		D3D11VertexLayout( D3D11VertexLayout&& ) = default;
+		D3D11VertexLayout& operator=( const D3D11VertexLayout& ) = delete;
+		D3D11VertexLayout& operator=( D3D11VertexLayout&& ) = default;
 
-	D3D11_INPUT_ELEMENT_DESC* m_inputDesc = nullptr;
-	std::size_t m_layoutDescSize = 0;
-	ID3D11InputLayout* m_pResource = nullptr;
-};
+	private:
+		virtual void InitResource( ) override { }
+		virtual void FreeResource( ) override;
+		
+		std::vector<std::string> m_namePool;
+		std::vector<D3D11_INPUT_ELEMENT_DESC> m_inputDesc;
+		ID3D11InputLayout* m_pInputLayout = nullptr;
+	};
+}

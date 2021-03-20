@@ -136,6 +136,20 @@ SamplerState AgaDelegator::FindOrCreate( const SamplerOption& option )
 	return found->second;
 }
 
+VertexLayout AgaDelegator::FindOrCreate( const VertexShader& vs, const VertexLayoutDesc& desc )
+{
+	auto found = m_vertexLayouts.find( desc );
+	if ( found == m_vertexLayouts.end( ) )
+	{
+		auto vertexLayout = VertexLayout::Create( vs, desc );
+		m_vertexLayouts.emplace( desc, vertexLayout );
+
+		return vertexLayout;
+	}
+
+	return found->second;
+}
+
 AgaDelegator& GetAgaDelegator( )
 {
 	return g_agaDelegator;

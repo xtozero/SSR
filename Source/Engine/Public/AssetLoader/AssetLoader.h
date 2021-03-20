@@ -62,6 +62,11 @@ public:
 		m_loadingInProgress = true;
 	}
 
+	void NeedPostProcess( )
+	{
+		m_needPostProcess = true;
+	}
+
 private:
 	void OnAchievePrerequisite( )
 	{
@@ -75,4 +80,5 @@ private:
 	std::shared_ptr<void> m_loadedAsset = nullptr;
 	bool m_loadingInProgress = false;
 	bool m_loadComplete = false;
+	bool m_needPostProcess = false;
 };

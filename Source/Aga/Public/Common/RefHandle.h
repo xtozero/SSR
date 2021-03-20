@@ -76,12 +76,12 @@ public:
 		return m_reference;
 	}
 
-	friend bool operator==( const RefHandle& lhs, ReferencedType* rhs )
+	friend bool operator==( const RefHandle& lhs, const ReferencedType* rhs )
 	{
 		return lhs.m_reference == rhs;
 	}
 
-	friend bool operator==( ReferencedType* lhs, const RefHandle& rhs )
+	friend bool operator==( const ReferencedType* lhs, const RefHandle& rhs )
 	{
 		return lhs == rhs.m_reference;
 	}

@@ -5,6 +5,7 @@
 #include "GraphicsPipelineState.h"
 #include "RenderOption.h"
 #include "ShaderPrameterMap.h"
+#include "VertexLayout.h"
 
 #include <unordered_map>
 
@@ -38,6 +39,7 @@ public:
 	DepthStencilState FindOrCreate( const DepthStencilOption& option );
 	RasterizerState FindOrCreate( const RasterizerOption& option );
 	SamplerState FindOrCreate( const SamplerOption& option );
+	VertexLayout FindOrCreate( const VertexShader& vs, const VertexLayoutDesc& desc );
 
 private:
 	IAga* m_aga = nullptr;
@@ -47,6 +49,7 @@ private:
 	std::unordered_map<DepthStencilOption, DepthStencilState, DepthStencilOptionHasher> m_depthStencilStates;
 	std::unordered_map<RasterizerOption, RasterizerState, RasterizerOptionHasher> m_rasterizerStates;
 	std::unordered_map<SamplerOption, SamplerState, SamplerOptionHasher> m_samplerStates;
+	std::unordered_map<VertexLayoutDesc, VertexLayout, VertexLayoutDescHasher> m_vertexLayouts;
 };
 
 AgaDelegator& GetAgaDelegator();

@@ -44,6 +44,7 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Private/GraphicsResource/Shader.cpp
 	Private/GraphicsResource/UploadBuffer.cpp
 	Private/GraphicsResource/VertexBuffer.cpp
+	Private/GraphicsResource/VertexLayout.cpp
 	Private/GraphicsResource/Viewport.cpp
 	Public/GraphicsResource/ByteBuffer.h
 	Public/GraphicsResource/ConstantBuffer.h
@@ -59,6 +60,7 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Public/GraphicsResource/TypedBuffer.h
 	Public/GraphicsResource/UploadBuffer.h
 	Public/GraphicsResource/VertexBuffer.h
+	Public/GraphicsResource/VertexLayout.h
 	Public/GraphicsResource/VertexInputStream.h
 	Public/GraphicsResource/Viewport.h)
 	
