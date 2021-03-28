@@ -11,5 +11,8 @@ add_subdirectory (Source/RenderCore)
 add_subdirectory (Source/Logic)
 add_subdirectory (Source/ScreenSpaceReflection)
 
+option(BUILD_TOOLS "I don't need command-line tools" OFF)
+add_subdirectory (ThirdParty/DirectXTex)
+
 add_dependencies(RenderCore Engine)
 add_dependencies(Logic Engine)
