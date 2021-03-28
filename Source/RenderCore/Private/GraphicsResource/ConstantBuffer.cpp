@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "ConstantBuffer.h"
 
-#include "..\..\Public\GraphicsResource\ConstantBuffer.h"
-
 #include "Core/InterfaceFactories.h"
 #include "IAga.h"
 #include "MultiThread/EngineTaskScheduler.h"

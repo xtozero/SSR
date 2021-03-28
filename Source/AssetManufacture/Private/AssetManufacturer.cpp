@@ -4,7 +4,7 @@
 #include "ShaderManufacturer.h"
 #include "WavefrontObjManufacturer.h"
 
-std::optional<Products> AssetManufacturer::Manufacture( const std::filesystem::path& srcPath, const std::filesystem::path* destRootHint )
+std::optional<Products> AssetManufacturer::Manufacture( const std::filesystem::path& srcPath, const std::filesystem::path& destPath )
 {
 	IManufacturer* representative = nullptr;
 	for ( const std::unique_ptr<IManufacturer>& manufacturer : m_manufacturers )
@@ -21,7 +21,7 @@ std::optional<Products> AssetManufacturer::Manufacture( const std::filesystem::p
 		return {};
 	}
 
-	return representative->Manufacture( srcPath, destRootHint );
+	return representative->Manufacture( srcPath, destPath );
 }
 
 AssetManufacturer::AssetManufacturer( )

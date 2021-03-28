@@ -45,6 +45,8 @@ void StaticMeshPrimitiveProxy::TakeSnapshot( std::vector<DrawSnapshot>& snapshot
 		snapShot.m_shaders.m_vertexShader = *m_pRenderOption->m_vertexShader;
 		snapShot.m_shaders.m_pixelShader = *m_pRenderOption->m_pixelShader;
 
+		snapShot.m_shaderBindings.Initialize( snapShot.m_shaders );
+
 		GraphicsPipelineState pipelineState = snapShot.m_pipelineState;
 		if ( m_pRenderOption->m_blendOption )
 		{

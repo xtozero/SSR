@@ -6,219 +6,51 @@
 
 #include <cassert>
 
-MaterialPropertyStorage::MaterialPropertyStorage( MaterialPropertyStorage&& other )
+namespace
 {
-	*this = std::move( other );
-}
-
-MaterialPropertyStorage& MaterialPropertyStorage::operator=( MaterialPropertyStorage&& other )
-{
-	if ( &other != this )
+	MaterialProperty* CreateMaterialPropertyByType( MaterialPropertyType type )
 	{
-		m_memory = other.m_memory;
-		m_size = other.m_size;
-
-		other.m_memory = nullptr;
-		other.m_size = 0;
-	}
-	
-	return *this;
-}
-
-void MaterialProperty::Clone( MaterialPropertyStorage& storage ) const
-{
-	new ( storage )MaterialProperty( *this );
-}
-
-int MaterialProperty::AsInteger( ) const
-{
-	assert( m_type == MaterialPropertyType::TYPE_INTEGER );
-	return *static_cast<int*>( m_storage.GetRaw( ) );
-}
-
-float MaterialProperty::AsFloat( ) const
-{
-	assert( m_type == MaterialPropertyType::TYPE_FLOAT );
-	return *static_cast<float*>( m_storage.GetRaw( ) );
-}
-
-const CXMFLOAT4& MaterialProperty::AsVector( ) const
-{
-	assert( m_type == MaterialPropertyType::TYPE_VECTOR );
-	return *static_cast<CXMFLOAT4*>( m_storage.GetRaw( ) );
-}
-
-const char* MaterialProperty::AsString( ) const
-{
-	assert( m_type == MaterialPropertyType::TYPE_STRING );
-	return static_cast<const char*>( m_storage.GetRaw( ) );
-}
-
-void MaterialProperty::Serialize( Archive& ar )
-{
-	std::size_t storageSize = m_storage.Size( );
-	ar << storageSize;
-	ar << m_type;
-	
-	if ( ar.IsWriteMode( ) == false )
-	{
-		m_storage.Allocate( storageSize );
-	}
-
-	switch ( m_type )
-	{
-	case MaterialPropertyType::TYPE_INTEGER:
-		ar << *static_cast<int*>( m_storage.GetRaw( ) );
-		break;
-	case MaterialPropertyType::TYPE_FLOAT:
-		ar << *static_cast<float*>( m_storage.GetRaw( ) );
-		break;
-	case MaterialPropertyType::TYPE_VECTOR:
-		ar << *static_cast<CXMFLOAT4*>( m_storage.GetRaw( ) );
-		break;
-	case MaterialPropertyType::TYPE_STRING:
-		ar << static_cast<char*>( m_storage.GetRaw( ) );
-		break;
-	default:
-		break;
-	}
-}
-
-MaterialProperty::MaterialProperty( int value )
-{
-	*this = value;
-}
-
-MaterialProperty & MaterialProperty::operator=( int value )
-{
-	m_type = MaterialPropertyType::TYPE_INTEGER;
-	m_storage.Allocate( sizeof( value ) );
-
-	*static_cast<int*>( m_storage.GetRaw( ) ) = value;
-
-	return *this;
-}
-
-MaterialProperty::MaterialProperty( float value )
-{
-	*this = value;
-}
-
-MaterialProperty& MaterialProperty::operator=( float value )
-{
-	m_type = MaterialPropertyType::TYPE_FLOAT;
-	m_storage.Allocate( sizeof( value ) );
-
-	*static_cast<float*>( m_storage.GetRaw( ) ) = value;
-
-	return *this;
-}
-
-MaterialProperty::MaterialProperty( const CXMFLOAT4& value )
-{
-	*this = value;
-}
-
-MaterialProperty& MaterialProperty::operator=( const CXMFLOAT4& value )
-{
-	m_type = MaterialPropertyType::TYPE_VECTOR;
-	m_storage.Allocate( sizeof( value ) );
-
-	auto& vector = *static_cast<CXMFLOAT4*>( m_storage.GetRaw( ) );
-	new ( &vector )CXMFLOAT4( );
-
-	vector = value;
-	return *this;
-}
-
-MaterialProperty::MaterialProperty( const char* value )
-{
-	*this = value;
-}
-
-MaterialProperty& MaterialProperty::operator=( const char* value )
-{
-	m_type = MaterialPropertyType::TYPE_STRING;
-	m_storage.Allocate( std::strlen( value ) + 1 );
-
-	std::strcpy( static_cast<char*>( m_storage.GetRaw( ) ), value );
-
-	return *this;
-}
-
-void MaterialProperty::Destroy( )
-{
-	switch ( m_type )
-	{
-	case MaterialProperty::MaterialPropertyType::TYPE_UNKNOWN:
-		[[fallthrough]];
-	case MaterialProperty::MaterialPropertyType::TYPE_INTEGER:
-		// [[fallthrough]];
-	case MaterialProperty::MaterialPropertyType::TYPE_FLOAT:
-		break;
-	case MaterialProperty::MaterialPropertyType::TYPE_VECTOR:
+		switch ( type )
 		{
-			auto& vector = *static_cast<CXMFLOAT4*>( m_storage.GetRaw( ) );
-			vector.~CXMFLOAT4( );
-		}
-		break;
-	case MaterialProperty::MaterialPropertyType::TYPE_STRING:
-		break;
-	default:
-		break;
-	}
-
-	m_storage.Deallocate( );
-}
-
-MaterialProperty::~MaterialProperty( )
-{
-	Destroy( );
-}
-
-MaterialProperty::MaterialProperty( const MaterialProperty& other )
-{
-	( *this ) = other;
-}
-
-MaterialProperty& MaterialProperty::operator=( const MaterialProperty& other )
-{
-	if ( &other != this )
-	{
-		if ( other.m_storage.GetRaw( ) )
-		{
-			other.Clone( m_storage );
-		}
-		else
-		{
-			Destroy( );
+		case MaterialPropertyType::Float:
+			return new FloatProperty( );
+			break;
+		case MaterialPropertyType::Float4:
+			return new Float4Property( );
+			break;
+		case MaterialPropertyType::Int:
+			return new IntProperty( );
+			break;
+		case MaterialPropertyType::Texture:
+			return new TextureProperty( );
+			break;
+		default:
+			break;
 		}
 
-		m_type = other.m_type;
+		assert( false );
+		return nullptr;
 	}
-
-	return *this;
 }
 
-MaterialProperty::MaterialProperty( MaterialProperty&& other )
+void FloatProperty::Serialize( Archive& ar )
 {
-	( *this ) = std::move( other );
+	ar << m_value;
 }
 
-MaterialProperty& MaterialProperty::operator=( MaterialProperty&& other )
+void IntProperty::Serialize( Archive& ar )
 {
-	if ( &other != this )
-	{
-		m_storage = std::move( other.m_storage );
-		m_type = other.m_type;
-	}
-	return *this;
+	ar << m_value;
 }
 
-Archive& operator<<( Archive& ar, MaterialProperty& property )
+void Float4Property::Serialize( Archive& ar )
 {
-	property.Serialize( ar );
-	return ar;
+	ar << m_value;
+}
+
+void TextureProperty::Serialize( Archive& ar )
+{
+	ar << m_value;
 }
 
 REGISTER_ASSET( Material );
@@ -235,10 +67,11 @@ void Material::Serialize( Archive& ar )
 		for ( auto& p : m_properties )
 		{
 			const std::string& propertyName = p.first;
-			MaterialProperty& property = p.second;
+			MaterialProperty* property = p.second;
 
 			ar << propertyName;
-			ar << property;
+			ar << property->Type( );
+			property->Serialize( ar );
 		}
 	}
 	else
@@ -248,10 +81,13 @@ void Material::Serialize( Archive& ar )
 		for ( std::size_t i = 0; i < size; ++i )
 		{
 			std::string propertyName;
-			MaterialProperty property;
+			MaterialPropertyType type;
+			MaterialProperty* property;
 
 			ar << propertyName;
-			ar << property;
+			ar << type;
+			property = CreateMaterialPropertyByType( type );
+			property->Serialize( ar );
 
 			m_properties.emplace( std::move( propertyName ), std::move( property ) );
 		}
@@ -261,81 +97,161 @@ void Material::Serialize( Archive& ar )
 void Material::AddProperty( const char* key, int value )
 {
 	auto found = m_properties.find( key );
+	if ( found != m_properties.end( ) )
+	{
+		MaterialProperty* property = found->second;
+		if ( property && ( property->Type( ) != MaterialPropertyType::Int ) )
+		{
+			m_properties.erase( found );
+			found = m_properties.end( );
+		}
+	}
+
 	if ( found == m_properties.end( ) )
 	{
-		m_properties.emplace( key, MaterialProperty( value ) );
+		auto result = m_properties.emplace( key, new IntProperty( value ) );
+		found = result.first;
 	}
-	else
-	{
-		found->second = value;
-	}
+
+	IntProperty* property = static_cast<IntProperty*>( found->second );
 }
 
 void Material::AddProperty( const char* key, float value )
 {
 	auto found = m_properties.find( key );
+	if ( found != m_properties.end( ) )
+	{
+		MaterialProperty* property = found->second;
+		if ( property && ( property->Type( ) != MaterialPropertyType::Int ) )
+		{
+			m_properties.erase( found );
+			found = m_properties.end( );
+		}
+	}
+
 	if ( found == m_properties.end( ) )
 	{
-		m_properties.emplace( key, MaterialProperty( value ) );
+		auto result = m_properties.emplace( key, new FloatProperty( value ) );
+		found = result.first;
 	}
-	else
-	{
-		found->second = value;
-	}
+
+	FloatProperty* property = static_cast<FloatProperty*>( found->second );
 }
 
 void Material::AddProperty( const char* key, const CXMFLOAT4& value )
 {
 	auto found = m_properties.find( key );
+	if ( found != m_properties.end( ) )
+	{
+		MaterialProperty* property = found->second;
+		if ( property && ( property->Type( ) != MaterialPropertyType::Int ) )
+		{
+			m_properties.erase( found );
+			found = m_properties.end( );
+		}
+	}
+
 	if ( found == m_properties.end( ) )
 	{
-		m_properties.emplace( key, MaterialProperty( value ) );
+		auto result = m_properties.emplace( key, new Float4Property( value ) );
+		found = result.first;
 	}
-	else
-	{
-		found->second = value;
-	}
+
+	Float4Property* property = static_cast<Float4Property*>( found->second );
 }
 
-void Material::AddProperty( const char* key, const char* value )
+void Material::AddProperty( const char* key, const std::shared_ptr<Texture>& value )
 {
 	auto found = m_properties.find( key );
+	if ( found != m_properties.end( ) )
+	{
+		MaterialProperty* property = found->second;
+		if ( property && ( property->Type( ) != MaterialPropertyType::Int ) )
+		{
+			m_properties.erase( found );
+			found = m_properties.end( );
+		}
+	}
+
 	if ( found == m_properties.end( ) )
 	{
-		m_properties.emplace( key, MaterialProperty( value ) );
+		auto result = m_properties.emplace( key, new TextureProperty( value ) );
+		found = result.first;
 	}
-	else
-	{
-		found->second = value;
-	}
+
+	TextureProperty* property = static_cast<TextureProperty*>( found->second );
 }
 
 int Material::AsInteger( const char* key ) const
 {
 	auto found = m_properties.find( key );
 	assert( found != m_properties.end( ) );
-	return found->second.AsInteger( );
+
+	if ( found != m_properties.end( ) )
+	{
+		MaterialProperty* property = found->second;
+		if ( property && ( property->Type( ) == MaterialPropertyType::Int ) )
+		{
+			IntProperty* property = static_cast<IntProperty*>( found->second );
+			property->Value( );
+		}
+	}
+
+	return 0;
 }
 
 float Material::AsFloat( const char* key ) const
 {
 	auto found = m_properties.find( key );
 	assert( found != m_properties.end( ) );
-	return found->second.AsFloat( );
+	
+	if ( found != m_properties.end( ) )
+	{
+		MaterialProperty* property = found->second;
+		if ( property && ( property->Type( ) == MaterialPropertyType::Float ) )
+		{
+			FloatProperty* property = static_cast<FloatProperty*>( found->second );
+			property->Value( );
+		}
+	}
+
+	return 0.f;
 }
 
 const CXMFLOAT4& Material::AsVector( const char* key ) const
 {
 	auto found = m_properties.find( key );
 	assert( found != m_properties.end( ) );
-	return found->second.AsVector( );
+
+	if ( found != m_properties.end( ) )
+	{
+		MaterialProperty* property = found->second;
+		if ( property && ( property->Type( ) == MaterialPropertyType::Float4 ) )
+		{
+			Float4Property* property = static_cast<Float4Property*>( found->second );
+			property->Value( );
+		}
+	}
+
+	return CXMFLOAT4( 0.f, 0.f, 0.f, 0.f );
 }
 
-const char* Material::AsString( const char* key ) const
+aga::Texture* Material::AsTexture( const char* key ) const
 {
 	auto found = m_properties.find( key );
 	assert( found != m_properties.end( ) );
-	return found->second.AsString( );
+
+	if ( found != m_properties.end( ) )
+	{
+		MaterialProperty* property = found->second;
+		if ( property && ( property->Type( ) == MaterialPropertyType::Texture ) )
+		{
+			TextureProperty* property = static_cast<TextureProperty*>( found->second );
+			property->Value( );
+		}
+	}
+
+	return nullptr;
 }
 
 const MaterialProperty* Material::HasProperty( const char* key ) const
@@ -343,7 +259,7 @@ const MaterialProperty* Material::HasProperty( const char* key ) const
 	auto found = m_properties.find( key );
 	if ( found != m_properties.end( ) )
 	{
-		return &found->second;
+		return found->second;
 	}
 
 	return nullptr;

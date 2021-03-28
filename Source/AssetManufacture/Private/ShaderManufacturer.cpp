@@ -41,7 +41,7 @@ bool ShaderManufacturer::IsSuitable( const std::filesystem::path& srcPath ) cons
 	return srcPath.extension( ) == fs::path( ".cso" );
 }
 
-std::optional<Products> ShaderManufacturer::Manufacture( const std::filesystem::path& srcPath, [[maybe_unused]] const std::filesystem::path* destRootHint ) const
+std::optional<Products> ShaderManufacturer::Manufacture( const std::filesystem::path& srcPath, [[maybe_unused]] const std::filesystem::path& destPath ) const
 {
 	if ( fs::exists( srcPath ) == false )
 	{
@@ -110,6 +110,7 @@ std::optional<Products> ShaderManufacturer::Manufacture( const std::filesystem::
 		return {};
 	}
 
+	BuildShaderParameterInfo( parameterMap.GetParameterMap( ), shader->ParameterInfo( ) );
 	shader->ParameterMap( ) = parameterMap;
 
 	Archive ar;

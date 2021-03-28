@@ -3,19 +3,20 @@
 
 #include "MultiThread/EngineTaskScheduler.h"
 
+Archive& operator<<( Archive& ar, ShaderParameter& shaderParam )
+{
+	ar << shaderParam.m_type << shaderParam.m_bindPoint << shaderParam.m_offset;
+	return ar;
+}
+
 Archive& operator<<( Archive& ar, ShaderParameterMap& shaderParamMap )
 {
 	if ( ar.IsWriteMode( ) )
 	{
 		ar << shaderParamMap.Size( );
-		for ( const auto& shaderParam : shaderParamMap.GetParameterMap() )
+		for ( auto& shaderParam : shaderParamMap.GetParameterMap() )
 		{
-			const std::string& variableName = shaderParam.first;
-			ShaderParameterType type = shaderParam.second.m_type;
-			UINT bindPoint = shaderParam.second.m_bindPoint;
-			UINT offfset = shaderParam.second.m_offset;
-
-			ar << variableName << type << bindPoint << offfset;
+			ar << shaderParam.first << shaderParam.second;
 		}
 	}
 	else
@@ -26,13 +27,75 @@ Archive& operator<<( Archive& ar, ShaderParameterMap& shaderParamMap )
 		for ( int i = 0; i < size; ++i )
 		{
 			std::string variableName;
-			ShaderParameterType type;
-			UINT bindPoint;
-			UINT offset;
+			ShaderParameter shaderParam;
 
-			ar << variableName << type << bindPoint << offset;
+			ar << variableName << shaderParam;
 
-			shaderParamMap.AddParameter( variableName.c_str( ), type, bindPoint, offset );
+			shaderParamMap.AddParameter( variableName.c_str( ), shaderParam );
+		}
+	}
+
+	return ar;
+}
+
+Archive& operator<<( Archive& ar, ShaderParameterInfo& shaderParamInfo )
+{
+	if ( ar.IsWriteMode( ) )
+	{
+		ar << shaderParamInfo.m_constantBuffers.size( );
+		for ( auto& param : shaderParamInfo.m_constantBuffers )
+		{
+			ar << param;
+		}
+
+		ar << shaderParamInfo.m_srvs.size( );
+		for ( auto& param : shaderParamInfo.m_srvs )
+		{
+			ar << param;
+		}
+
+		ar << shaderParamInfo.m_uavs.size( );
+		for ( auto& param : shaderParamInfo.m_uavs )
+		{
+			ar << param;
+		}
+
+		ar << shaderParamInfo.m_samplers.size( );
+		for ( auto& param : shaderParamInfo.m_samplers )
+		{
+			ar << param;
+		}
+	}
+	else
+	{
+		std::size_t size;
+
+		ar << size;
+		shaderParamInfo.m_constantBuffers.resize( size );
+		for ( auto& param : shaderParamInfo.m_constantBuffers )
+		{
+			ar << param;
+		}
+
+		ar << size;
+		shaderParamInfo.m_srvs.resize( size );
+		for ( auto& param : shaderParamInfo.m_srvs )
+		{
+			ar << param;
+		}
+
+		ar << size;
+		shaderParamInfo.m_uavs.resize( size );
+		for ( auto& param : shaderParamInfo.m_uavs )
+		{
+			ar << param;
+		}
+
+		ar << size;
+		shaderParamInfo.m_samplers.resize( size );
+		for ( auto& param : shaderParamInfo.m_samplers )
+		{
+			ar << param;
 		}
 	}
 
@@ -43,6 +106,7 @@ void ShaderBase::Serialize( Archive& ar )
 {
 	ar << m_byteCode;
 	ar << m_parameterMap;
+	ar << m_parameterInfo;
 }
 
 REGISTER_ASSET( VertexShader );

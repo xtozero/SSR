@@ -2,7 +2,9 @@
 
 #include "AssetLoader/AssetFactory.h"
 #include "AssetLoader/IAsyncLoadableAsset.h"
+#include "BlockCompressionTexture.h"
 #include "common.h"
+#include "GraphicsApiResource.h"
 #include "Math/CXMFloat.h"
 
 #include <filesystem>
@@ -11,101 +13,98 @@
 
 class Archive;
 
-class MaterialPropertyStorage
+enum class MaterialPropertyType
 {
-public:
-	void* GetRaw( ) const
-	{
-		return m_memory;
-	}
-
-	void* Allocate( std::size_t size )
-	{
-		if ( m_size < size )
-		{
-			std::free( m_memory );
-			m_memory = std::malloc( size );
-			m_size = size;
-		}
-
-		return m_memory;
-	}
-
-	void Deallocate( )
-	{
-		std::free( m_memory );
-		m_memory = nullptr;
-		m_size = 0;
-	}
-
-	std::size_t Size( ) const
-	{
-		return m_size;
-	}
-
-	MaterialPropertyStorage( ) = default;
-	~MaterialPropertyStorage( ) = default;
-	MaterialPropertyStorage( const MaterialPropertyStorage& ) = delete;
-	MaterialPropertyStorage& operator=( const MaterialPropertyStorage& ) = delete;
-	MaterialPropertyStorage( MaterialPropertyStorage&& );
-	MaterialPropertyStorage& operator=( MaterialPropertyStorage&& );
-
-private:
-	void* m_memory = nullptr;
-	std::size_t m_size = 0;
+	Float = 0,
+	Float4,
+	Int,
+	Texture,
 };
 
-inline void* operator new( std::size_t count, MaterialPropertyStorage& storage )
-{
-	return storage.Allocate( count );
-}
-
-inline void operator delete( void* pMem, [[maybe_unused]] MaterialPropertyStorage& storage )
-{
-	std::free( pMem );
-}
-
-class MaterialProperty
+class IMaterialProperty
 {
 public:
-	void Clone( MaterialPropertyStorage& storage ) const;
-	int AsInteger( ) const;
-	float AsFloat( ) const;
-	const CXMFLOAT4& AsVector( ) const;
-	const char* AsString( ) const;
+	virtual void Serialize( Archive& ar ) = 0;
+	virtual MaterialPropertyType Type( ) = 0;
 
-	void Serialize( Archive& ar );
+	virtual ~IMaterialProperty( ) = default;
+};
 
-	MaterialProperty( ) = default;
-	LOGIC_DLL ~MaterialProperty( );
-	MaterialProperty( const MaterialProperty& other );
-	MaterialProperty& operator=( const MaterialProperty& other );
-	MaterialProperty( MaterialProperty&& other );
-	MaterialProperty& operator=( MaterialProperty&& other );
+class MaterialProperty : public IMaterialProperty
+{
+public:
+};
 
-	explicit MaterialProperty( int value );
-	MaterialProperty& operator=( int value );
-	explicit MaterialProperty( float value );
-	MaterialProperty& operator=( float value );
-	explicit MaterialProperty( const CXMFLOAT4& value );
-	MaterialProperty& operator=( const CXMFLOAT4& value );
-	explicit MaterialProperty( const char* value );
-	MaterialProperty& operator=( const char* value );
+class FloatProperty : public MaterialProperty
+{
+public:
+	virtual void Serialize( Archive& ar );
+	virtual MaterialPropertyType Type( ) override
+	{
+		return MaterialPropertyType::Float;
+	}
+
+	float Value( ) const { return m_value; }
+
+	explicit FloatProperty( float value ) : m_value( value ) {}
+	FloatProperty( ) = default;
 
 private:
-	void Destroy( );
+	float m_value;
+};
 
-	enum class MaterialPropertyType
+class Float4Property : public MaterialProperty
+{
+public:
+	virtual void Serialize( Archive& ar );
+	virtual MaterialPropertyType Type( ) override
 	{
-		TYPE_UNKNOWN = -1,
-		TYPE_INTEGER,
-		TYPE_FLOAT,
-		TYPE_VECTOR,
-		TYPE_STRING,
-	};
+		return MaterialPropertyType::Float4;
+	}
 
-	MaterialPropertyStorage m_storage;
-	MaterialPropertyType m_type;
+	const CXMFLOAT4& Value( ) const { return m_value; }
+
+	explicit Float4Property( const CXMFLOAT4& value ) : m_value( value ) {}
+	Float4Property( ) = default;
+
+private:
+	CXMFLOAT4 m_value;
+};
+
+class IntProperty : public MaterialProperty
+{
+public:
+	virtual void Serialize( Archive& ar );
+	virtual MaterialPropertyType Type( ) override
+	{
+		return MaterialPropertyType::Int;
+	}
+
+	int Value( ) const { return m_value; }
+
+	explicit IntProperty( int value ) : m_value( value ) {}
+	IntProperty( ) = default;
+
+private:
+	int m_value;
+};
+
+class TextureProperty : public MaterialProperty
+{
+public:
+	virtual void Serialize( Archive& ar );
+	virtual MaterialPropertyType Type( ) override
+	{
+		return MaterialPropertyType::Texture;
+	}
+
+	std::shared_ptr<Texture> Value( ) const { return m_value; }
+
+	explicit TextureProperty( const std::shared_ptr<Texture>& value ) : m_value( value ) {}
+	TextureProperty( ) = default;
+
+private:
+	std::shared_ptr<Texture> m_value;
 };
 
 class Material : public AsyncLoadableAsset
@@ -120,12 +119,12 @@ public:
 	LOGIC_DLL void AddProperty( const char* key, int value );
 	LOGIC_DLL void AddProperty( const char* key, float value );
 	LOGIC_DLL void AddProperty( const char* key, const CXMFLOAT4& value );
-	LOGIC_DLL void AddProperty( const char* key, const char* value );
+	LOGIC_DLL void AddProperty( const char* key, const std::shared_ptr<Texture>& value );
 
 	int AsInteger( const char* key ) const;
 	float AsFloat( const char* key ) const;
 	const CXMFLOAT4& AsVector( const char* key ) const;
-	const char* AsString( const char* key ) const;
+	aga::Texture* AsTexture( const char* key ) const;
 
 	const MaterialProperty* HasProperty( const char* key ) const;
 
@@ -145,5 +144,5 @@ private:
 	std::filesystem::path m_path;
 
 	std::string m_name;
-	std::map<std::string, MaterialProperty> m_properties;
+	std::map<std::string, MaterialProperty*> m_properties;
 };

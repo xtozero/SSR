@@ -12,7 +12,7 @@ set (CORE_SOURCE
 	"Private/Core/dllmain.cpp"
 	"Private/Core/ModuleInit.cpp"
 	"Private/Core/RenderCore.cpp")
-	
+
 set (MESH_SOURCE
 	"Private/Mesh/StaticMeshResource.cpp"
 	"Public/Mesh/StaticMeshResource.h")
@@ -33,6 +33,7 @@ set (RENDER_UTILITY
 	Public/RenderUtility/ShaderParameterUtil.h)
 	
 set (GRAPHICS_RESOURCE_SOURCE
+	Private/GraphicsResource/BlockCompressionTexture.cpp
 	Private/GraphicsResource/ByteBuffer.cpp
 	Private/GraphicsResource/ConstantBuffer.cpp
 	Private/GraphicsResource/DefaultConstantBuffers.cpp
@@ -46,6 +47,7 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Private/GraphicsResource/VertexBuffer.cpp
 	Private/GraphicsResource/VertexLayout.cpp
 	Private/GraphicsResource/Viewport.cpp
+	Private/GraphicsResource/BlockCompressionTexture
 	Public/GraphicsResource/ByteBuffer.h
 	Public/GraphicsResource/ConstantBuffer.h
 	Public/GraphicsResource/DefaultConstantBuffers.h

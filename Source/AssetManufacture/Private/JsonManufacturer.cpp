@@ -1,6 +1,7 @@
 #include "JsonManufacturer.h"
 
 #include "Json/json.hpp"
+#include "PathEnvironment.h"
 #include "RenderOption.h"
 
 namespace fs = std::filesystem;
@@ -434,7 +435,7 @@ bool JsonManufacturer::IsSuitable( const std::filesystem::path& srcPath ) const
 	return srcPath.extension() == fs::path( ".json" );
 }
 
-std::optional<Products> JsonManufacturer::Manufacture( const std::filesystem::path& srcPath, const std::filesystem::path* destRootHint ) const
+std::optional<Products> JsonManufacturer::Manufacture( const std::filesystem::path& srcPath, const std::filesystem::path& destPath ) const
 {
 	if ( fs::exists( srcPath ) == false )
 	{
@@ -454,12 +455,9 @@ std::optional<Products> JsonManufacturer::Manufacture( const std::filesystem::pa
 		return { };
 	}
 
-	fs::path assetPath;
-	if ( destRootHint )
-	{
-		assetPath /= *destRootHint;
-	}
-	assetPath /= srcPath.filename( );
+	fs::path assetPath = "." / fs::relative( destPath, destPath.parent_path( ) );
+	assetPath /= fs::relative( srcPath, PathEnvironment::Instance().SrcAssetRoot() );
+	assetPath.replace_extension( ".Asset" );
 	std::unique_ptr<AsyncLoadableAsset> asset = CreateAssetByAssetID( assetID.value( ), assetPath, root );
 	if ( asset == nullptr )
 	{

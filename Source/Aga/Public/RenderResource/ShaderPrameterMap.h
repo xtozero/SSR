@@ -35,7 +35,17 @@ public:
 		m_parameters.emplace( variableName, ShaderParameter{ type, bindPoint, offset } );
 	}
 
+	void AddParameter( const char* variableName, const ShaderParameter& parameter )
+	{
+		m_parameters.emplace( variableName, parameter );
+	}
+
 	const std::map<std::string, ShaderParameter>& GetParameterMap( ) const
+	{
+		return m_parameters;
+	}
+
+	std::map<std::string, ShaderParameter>& GetParameterMap( )
 	{
 		return m_parameters;
 	}

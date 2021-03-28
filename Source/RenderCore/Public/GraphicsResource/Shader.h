@@ -22,6 +22,9 @@ public:
 	ShaderParameterMap& ParameterMap( ) { return m_parameterMap; }
 	const ShaderParameterMap& ParameterMap( ) const { return m_parameterMap; }
 
+	ShaderParameterInfo& ParameterInfo( ) { return m_parameterInfo; }
+	const ShaderParameterInfo& ParameterInfo( ) const { return m_parameterInfo; }
+
 protected:
 	BinaryChunk m_byteCode{ 0 };
 	ShaderParameterMap m_parameterMap;

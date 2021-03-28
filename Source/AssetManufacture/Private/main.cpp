@@ -1,6 +1,7 @@
 #include "Archive.h"
 #include "AssetManufacturer.h"
 #include "common.h"
+#include "PathEnvironment.h"
 
 #include <filesystem>
 #include <fstream>
@@ -66,8 +67,9 @@ int main( int argc, const char* argv[] )
 	}
 
 	fs::path destDirectory = argv[1];
-	fs::path destRootDirectory = "." / fs::relative( destDirectory, destDirectory.parent_path( ) );
 	fs::path srcDirectory = argv[2];
+
+	PathEnvironment::Instance( ).Initialize( srcDirectory, destDirectory );
 
 	if ( LoadModules( ) == false )
 	{
@@ -90,7 +92,7 @@ int main( int argc, const char* argv[] )
 		if ( p.is_regular_file( ) )
 		{
 			fs::path targetDirectory = destDirectory / fs::relative( p.path( ).parent_path( ) );
-			auto products = manufacturer.Manufacture( p.path( ), &destRootDirectory );
+			auto products = manufacturer.Manufacture( p.path( ), destDirectory );
 			if ( products )
 			{
 				for ( const auto& product : products.value( ) )

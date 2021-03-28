@@ -151,42 +151,42 @@ aga::Viewport* CD3D11ResourceManager::CreateViewport( int width, int height, voi
 	return viewport;
 }
 
-void CD3D11ResourceManager::CopyResource( RE_HANDLE dest, const RESOURCE_REGION* destRegionOrNull, RE_HANDLE src, const RESOURCE_REGION* srcRegionOrNull )
-{
-	ID3D11Resource* pDest = nullptr/*GetD3D11ResourceGeneric( dest )*/;
-	ID3D11Resource* pSrc = nullptr /*GetD3D11ResourceGeneric( src )*/;
+//void CD3D11ResourceManager::CopyResource( RE_HANDLE dest, const RESOURCE_REGION* destRegionOrNull, RE_HANDLE src, const RESOURCE_REGION* srcRegionOrNull )
+//{
+//	ID3D11Resource* pDest = nullptr/*GetD3D11ResourceGeneric( dest )*/;
+//	ID3D11Resource* pSrc = nullptr /*GetD3D11ResourceGeneric( src )*/;
+//
+//	assert( pDest != nullptr && pSrc != nullptr );
+//
+//	if ( destRegionOrNull == nullptr || srcRegionOrNull == nullptr )
+//	{
+//		m_pDeviceContext->CopyResource( pDest, pSrc );
+//	}
+//	else
+//	{
+//		const RESOURCE_REGION& destRegion = *destRegionOrNull;
+//		const RESOURCE_REGION& srcRegion = *srcRegionOrNull;
+//
+//		D3D11_BOX box = { srcRegion.m_left,  srcRegion.m_top,  srcRegion.m_front,  srcRegion.m_right,  srcRegion.m_bottom,  srcRegion.m_back };
+//
+//		m_pDeviceContext->CopySubresourceRegion( pDest, destRegion.m_subResource, destRegion.m_left, destRegion.m_top, destRegion.m_front, pSrc, srcRegion.m_subResource, &box );
+//	}
+//}
 
-	assert( pDest != nullptr && pSrc != nullptr );
-
-	if ( destRegionOrNull == nullptr || srcRegionOrNull == nullptr )
-	{
-		m_pDeviceContext->CopyResource( pDest, pSrc );
-	}
-	else
-	{
-		const RESOURCE_REGION& destRegion = *destRegionOrNull;
-		const RESOURCE_REGION& srcRegion = *srcRegionOrNull;
-
-		D3D11_BOX box = { srcRegion.m_left,  srcRegion.m_top,  srcRegion.m_front,  srcRegion.m_right,  srcRegion.m_bottom,  srcRegion.m_back };
-
-		m_pDeviceContext->CopySubresourceRegion( pDest, destRegion.m_subResource, destRegion.m_left, destRegion.m_top, destRegion.m_front, pSrc, srcRegion.m_subResource, &box );
-	}
-}
-
-void CD3D11ResourceManager::UpdateResourceFromMemory( RE_HANDLE dest, void* src, UINT srcRowPitch, UINT srcDepthPitch, const RESOURCE_REGION* destRegionOrNull )
-{
-	ID3D11Resource* pDest = nullptr;/*GetD3D11ResourceGeneric( dest )*/;
-
-	D3D11_BOX destBox = {};
-	UINT destSubresouce = 0;
-	if ( destRegionOrNull != nullptr )
-	{
-		destBox = { destRegionOrNull->m_left, destRegionOrNull->m_top, destRegionOrNull->m_front, destRegionOrNull->m_right, destRegionOrNull->m_bottom, destRegionOrNull->m_back };
-		destSubresouce = destRegionOrNull->m_subResource;
-	}
-
-	m_pDeviceContext->UpdateSubresource( pDest, destSubresouce, destRegionOrNull ? &destBox : nullptr, src, srcRowPitch, srcDepthPitch );
-}
+//void CD3D11ResourceManager::UpdateResourceFromMemory( RE_HANDLE dest, void* src, UINT srcRowPitch, UINT srcDepthPitch, const RESOURCE_REGION* destRegionOrNull )
+//{
+//	ID3D11Resource* pDest = nullptr;/*GetD3D11ResourceGeneric( dest )*/;
+//
+//	D3D11_BOX destBox = {};
+//	UINT destSubresouce = 0;
+//	if ( destRegionOrNull != nullptr )
+//	{
+//		destBox = { destRegionOrNull->m_left, destRegionOrNull->m_top, destRegionOrNull->m_front, destRegionOrNull->m_right, destRegionOrNull->m_bottom, destRegionOrNull->m_back };
+//		destSubresouce = destRegionOrNull->m_subResource;
+//	}
+//
+//	m_pDeviceContext->UpdateSubresource( pDest, destSubresouce, destRegionOrNull ? &destBox : nullptr, src, srcRowPitch, srcDepthPitch );
+//}
 
 void CD3D11ResourceManager::OnDeviceLost( )
 {

@@ -53,11 +53,11 @@ public:
 	virtual aga::Buffer* CreateBuffer( const BUFFER_TRAIT& trait, const void* initData = nullptr ) override;
 
 	virtual aga::VertexLayout* CreateVertexLayout( const aga::VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, std::size_t size ) override;
-	virtual RE_HANDLE CreateGeometryShader( const void* byteCode, std::size_t byteCodeSize ) override;
+	// virtual RE_HANDLE CreateGeometryShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	virtual aga::ComputeShader* CreateComputeShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	virtual aga::VertexShader* CreateVertexShader( const void* byteCode, std::size_t byteCodeSize ) override;
 	virtual aga::PixelShader* CreatePixelShader( const void* byteCode, std::size_t byteCodeSize ) override;
-	virtual const ShaderParameterInfo& GetShaderParameterInfo( RE_HANDLE shader ) const override;
+	// virtual const ShaderParameterInfo& GetShaderParameterInfo( RE_HANDLE shader ) const override;
 
 	virtual aga::DepthStencilState* CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) override;
 	virtual aga::BlendState* CreateBlendState( const BLEND_STATE_TRAIT& trait ) override;
@@ -76,11 +76,11 @@ public:
 
 	virtual void ClearDepthStencil( aga::Texture* depthStencil, float depthColor, UINT8 stencilColor ) override;
 
-	virtual void BindVertexBuffer( RE_HANDLE* pVertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pStrides, const UINT* pOffsets ) override;
-	virtual void BindIndexBuffer( RE_HANDLE indexBuffer, UINT indexOffset ) override;
+	// virtual void BindVertexBuffer( RE_HANDLE* pVertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pStrides, const UINT* pOffsets ) override;
+	// virtual void BindIndexBuffer( RE_HANDLE indexBuffer, UINT indexOffset ) override;
 	virtual void BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT numBuffers, aga::Buffer** pConstantBuffers ) override;
-	virtual void BindVertexLayout( RE_HANDLE layout ) override;
-	virtual void BindShader( RE_HANDLE shader ) override;
+	// virtual void BindVertexLayout( RE_HANDLE layout ) override;
+	// virtual void BindShader( RE_HANDLE shader ) override;
 	virtual void BindShader( aga::ComputeShader* shader ) override;
 
 	virtual void BindConstant( aga::VertexShader* shader, int startSlot, int numBuffers, aga::Buffer** pBuffers ) override;
@@ -93,7 +93,7 @@ public:
 	virtual void BindShaderInput( aga::ComputeShader* shader, int startSlot, int numBuffers, aga::Buffer** pBuffers ) override;
 	virtual void BindShaderOutput( aga::ComputeShader* shader, int startSlot, int numBuffers, aga::Buffer** pBuffers ) override;
 
-	virtual void BindRandomAccessResource( int startSlot, int count, RE_HANDLE* resource ) override;
+	// virtual void BindRandomAccessResource( int startSlot, int count, RE_HANDLE* resource ) override;
 	virtual void BindRenderTargets( aga::Texture** pRenderTargets, int renderTargetCount, aga::Texture* depthStencil ) override;
 	// virtual void BindRasterizerState( RE_HANDLE rasterizerState ) override;
 	// virtual void BindSamplerState( SHADER_TYPE type, int startSlot, int numSamplers, const RE_HANDLE* pSamplerStates ) override;
@@ -109,7 +109,7 @@ public:
 
 	virtual void Copy( aga::Buffer* dst, aga::Buffer* src, std::size_t size ) override;
 
-	virtual void GenerateMips( RE_HANDLE shaderResource ) override;
+	// virtual void GenerateMips( RE_HANDLE shaderResource ) override;
 
 	virtual void GetRendererMultiSampleOption( MULTISAMPLE_OPTION* option ) override;
 
@@ -252,12 +252,12 @@ aga::VertexLayout* CDirect3D11::CreateVertexLayout( const aga::VertexShader* vs,
 	return m_resourceManager.CreateVertexLayout( vs, trait, size );
 }
 
-RE_HANDLE CDirect3D11::CreateGeometryShader( const void* byteCode, std::size_t byteCodeSize )
-{
-	// TODO : Need to be implemented later
-	//return m_resourceManager.CreateGeometryShader( byteCode, byteCodeSize );
-	return {};
-}
+//RE_HANDLE CDirect3D11::CreateGeometryShader( const void* byteCode, std::size_t byteCodeSize )
+//{
+//	// TODO : Need to be implemented later
+//	//return m_resourceManager.CreateGeometryShader( byteCode, byteCodeSize );
+//	return {};
+//}
 
 aga::ComputeShader* CDirect3D11::CreateComputeShader( const void* byteCode, std::size_t byteCodeSize )
 {
@@ -274,8 +274,8 @@ aga::PixelShader* CDirect3D11::CreatePixelShader( const void* byteCode, std::siz
 	return m_resourceManager.CreatePixelShader( byteCode, byteCodeSize );
 }
 
-const ShaderParameterInfo& CDirect3D11::GetShaderParameterInfo( RE_HANDLE shader ) const
-{
+//const ShaderParameterInfo& CDirect3D11::GetShaderParameterInfo( RE_HANDLE shader ) const
+//{
 	// TODO : Need to be implemented later
 	//assert( shader.IsValid( ) );
 	//if ( IsVertexShaderHandle( shader ) )
@@ -299,8 +299,8 @@ const ShaderParameterInfo& CDirect3D11::GetShaderParameterInfo( RE_HANDLE shader
 	//	CD3D11ComputeShader* d3d11CS = m_resourceManager.GetComputeShader( shader );
 	//	return d3d11CS->GetParameterInfo( );
 	//}
-	return {};
-}
+//	return {};
+//}
 
 void* CDirect3D11::Lock( aga::Buffer* buffer, int lockFlag, UINT subResource )
 {
@@ -461,8 +461,8 @@ void CDirect3D11::ClearDepthStencil( aga::Texture* depthStencil, float depthColo
 	m_pd3d11DeviceContext->ClearDepthStencilView( dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthColor, stencilColor );
 }
 
-void CDirect3D11::BindVertexBuffer( RE_HANDLE* pVertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pStrides, const UINT* pOffsets )
-{
+//void CDirect3D11::BindVertexBuffer( RE_HANDLE* pVertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pStrides, const UINT* pOffsets )
+//{
 	// TODO : Need to be implemented later
 	//ID3D11Buffer* pBuffers[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
 	//UINT strides[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
@@ -485,10 +485,10 @@ void CDirect3D11::BindVertexBuffer( RE_HANDLE* pVertexBuffers, UINT startSlot, U
 	//}
 
 	//m_pd3d11DeviceContext->IASetVertexBuffers( startSlot, numBuffers, pBuffers, pStrides, pOffsets );
-}
+//}
 
-void CDirect3D11::BindIndexBuffer( RE_HANDLE indexBuffer, UINT indexOffset )
-{
+//void CDirect3D11::BindIndexBuffer( RE_HANDLE indexBuffer, UINT indexOffset )
+//{
 	// TODO : Need to be implemented later
 	//ID3D11Buffer* buffer = nullptr;
 	//DXGI_FORMAT format = DXGI_FORMAT_R16_UINT;
@@ -505,7 +505,7 @@ void CDirect3D11::BindIndexBuffer( RE_HANDLE indexBuffer, UINT indexOffset )
 	//}
 
 	//m_pd3d11DeviceContext->IASetIndexBuffer( buffer, format, indexOffset );
-}
+//}
 
 void CDirect3D11::BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT numBuffers, aga::Buffer** pConstantBuffers )
 {
@@ -544,8 +544,8 @@ void CDirect3D11::BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT num
 	}
 }
 
-void CDirect3D11::BindVertexLayout( RE_HANDLE layout )
-{
+//void CDirect3D11::BindVertexLayout( RE_HANDLE layout )
+//{
 	// TODO : Need to be implemented later
 
 	//assert( IsVertexLayout( layout ) );
@@ -557,10 +557,10 @@ void CDirect3D11::BindVertexLayout( RE_HANDLE layout )
 	//}
 
 	//m_pd3d11DeviceContext->IASetInputLayout( inputLayout );
-}
+//}
 
-void CDirect3D11::BindShader( RE_HANDLE shader )
-{
+//void CDirect3D11::BindShader( RE_HANDLE shader )
+//{
 	// TODO : Need to be implemented later
 
 	//if ( IsVertexShaderHandle( shader ) )
@@ -611,7 +611,7 @@ void CDirect3D11::BindShader( RE_HANDLE shader )
 	//{
 	//	__debugbreak( );
 	//}
-}
+//}
 
 void CDirect3D11::BindShader( aga::ComputeShader* shader )
 {
@@ -729,8 +729,8 @@ void CDirect3D11::BindShaderOutput( aga::ComputeShader* shader, int startSlot, i
 	m_pd3d11DeviceContext->CSSetUnorderedAccessViews( startSlot, numBuffers, pUavs, nullptr );
 }
 
-void CDirect3D11::BindRandomAccessResource( int startSlot, int count, RE_HANDLE* resource )
-{
+//void CDirect3D11::BindRandomAccessResource( int startSlot, int count, RE_HANDLE* resource )
+//{
 	// TODO : Need to be implemented later
 
 	/*ID3D11UnorderedAccessView* pRavs[64] = {};
@@ -749,7 +749,7 @@ void CDirect3D11::BindRandomAccessResource( int startSlot, int count, RE_HANDLE*
 	}
 
 	m_pd3d11DeviceContext->CSSetUnorderedAccessViews( startSlot, count, pRavs, initialCounts );*/
-}
+//}
 
 void CDirect3D11::BindRenderTargets( aga::Texture** pRenderTargets, int renderTargetCount, aga::Texture* depthStencil )
 {
@@ -935,13 +935,13 @@ void CDirect3D11::Copy( aga::Buffer* dst, aga::Buffer* src, std::size_t size )
 	m_pd3d11DeviceContext->CopySubresourceRegion( dstBuffer, 0, 0, 0, 0, srcBuffer, 0, &srcBox );
 }
 
-void CDirect3D11::GenerateMips( RE_HANDLE shaderResource )
-{
+//void CDirect3D11::GenerateMips( RE_HANDLE shaderResource )
+//{
 	// TODO : Need to be implemented later
 
 	//CD3D11ShaderResource* srv = m_resourceManager.GetShaderResource( shaderResource );
 	//m_pd3d11DeviceContext->GenerateMips( srv->Get( ) );
-}
+//}
 
 void CDirect3D11::GetRendererMultiSampleOption( MULTISAMPLE_OPTION* option )
 {

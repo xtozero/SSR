@@ -15,13 +15,13 @@ class IManufacturer
 {
 public:
 	virtual bool IsSuitable( const std::filesystem::path& srcPath ) const = 0;
-	virtual std::optional<Products> Manufacture( const std::filesystem::path& srcPath, const std::filesystem::path* destRootHint = nullptr ) const = 0;
+	virtual std::optional<Products> Manufacture( const std::filesystem::path& srcPath, const std::filesystem::path& destPath ) const = 0;
 };
 
 class AssetManufacturer
 {
 public:
-	std::optional<Products> Manufacture( const std::filesystem::path& srcPath, const std::filesystem::path* destRootHint = nullptr );
+	std::optional<Products> Manufacture( const std::filesystem::path& srcPath, const std::filesystem::path& destPath );
 
 	AssetManufacturer( );
 	~AssetManufacturer( ) = default;

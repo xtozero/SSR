@@ -39,11 +39,11 @@ public:
 	virtual aga::Buffer* CreateBuffer( const BUFFER_TRAIT& trait, const void* initData = nullptr ) = 0;
 
 	virtual aga::VertexLayout* CreateVertexLayout( const aga::VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, std::size_t size ) = 0;
-	virtual RE_HANDLE CreateGeometryShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
+	// virtual RE_HANDLE CreateGeometryShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
 	virtual aga::ComputeShader* CreateComputeShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
 	virtual aga::VertexShader* CreateVertexShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
 	virtual aga::PixelShader* CreatePixelShader( const void* byteCode, std::size_t byteCodeSize ) = 0;
-	virtual const ShaderParameterInfo& GetShaderParameterInfo( RE_HANDLE shader ) const = 0;
+	// virtual const ShaderParameterInfo& GetShaderParameterInfo( RE_HANDLE shader ) const = 0;
 
 	virtual aga::BlendState* CreateBlendState( const BLEND_STATE_TRAIT& trait ) = 0;
 	virtual aga::DepthStencilState* CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) = 0;
@@ -62,11 +62,11 @@ public:
 
 	virtual void ClearDepthStencil( aga::Texture* depthStencil, float depthColor, UINT8 stencilColor ) = 0;
 
-	virtual void BindVertexBuffer( RE_HANDLE* pVertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pStrides, const UINT* pOffsets ) = 0;
-	virtual void BindIndexBuffer( RE_HANDLE indexBuffer, UINT indexOffset ) = 0;
+	// virtual void BindVertexBuffer( RE_HANDLE* pVertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pStrides, const UINT* pOffsets ) = 0;
+	// virtual void BindIndexBuffer( RE_HANDLE indexBuffer, UINT indexOffset ) = 0;
 	virtual void BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT numBuffers, aga::Buffer** pConstantBuffers ) = 0;
-	virtual void BindVertexLayout( RE_HANDLE layout ) = 0;
-	virtual void BindShader( RE_HANDLE shader ) = 0;
+	// virtual void BindVertexLayout( RE_HANDLE layout ) = 0;
+	// virtual void BindShader( RE_HANDLE shader ) = 0;
 	virtual void BindShader( aga::ComputeShader* shader ) = 0;
 
 	virtual void BindConstant( aga::VertexShader* shader, int startSlot, int numBuffers, aga::Buffer** pBuffers ) = 0;
@@ -79,7 +79,7 @@ public:
 	virtual void BindShaderInput( aga::ComputeShader* shader, int startSlot, int numBuffers, aga::Buffer** pBuffers ) = 0;
 	virtual void BindShaderOutput( aga::ComputeShader* shader, int startSlot, int numBuffers, aga::Buffer** pBuffers ) = 0;
 
-	virtual void BindRandomAccessResource( int startSlot, int count, RE_HANDLE* resource ) = 0;
+	// virtual void BindRandomAccessResource( int startSlot, int count, RE_HANDLE* resource ) = 0;
 	virtual void BindRenderTargets( aga::Texture** pRenderTargets, int renderTargetCount, aga::Texture* depthStencil ) = 0;
 	// virtual void BindRasterizerState( RE_HANDLE rasterizerState ) = 0;
 	// virtual void BindSamplerState( SHADER_TYPE type, int startSlot, int numSamplers, const RE_HANDLE* pSamplerStates ) = 0;
@@ -95,7 +95,7 @@ public:
 
 	virtual void Copy( aga::Buffer* dst, aga::Buffer* src, std::size_t size ) = 0;
 
-	virtual void GenerateMips( RE_HANDLE shaderResource ) = 0;
+	// virtual void GenerateMips( RE_HANDLE shaderResource ) = 0;
 
 	virtual void GetRendererMultiSampleOption( MULTISAMPLE_OPTION* option ) = 0;
 

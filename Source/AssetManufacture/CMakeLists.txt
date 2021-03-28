@@ -10,6 +10,7 @@ set (ENTRY_POINT
 set (MANUFACTURER
 	Public/AssetManufacturer.h
 	Public/JsonManufacturer.h
+	Public/PathEnvironment.h
 	Public/ShaderManufacturer.h
 	Public/WavefrontObjManufacturer.h
 	Public/WavefrontObjParser.hpp

@@ -7,7 +7,7 @@
 
 AGA_DLL void ExtractShaderParameters( const void* byteCode, std::size_t byteCodeSize, ShaderParameterMap& parameterMap );
 
-void BuildShaderParameterInfo( const std::map<std::string, ShaderParameter>& parameterMap, ShaderParameterInfo& parameterInfo );
+AGA_DLL void BuildShaderParameterInfo( const std::map<std::string, ShaderParameter>& parameterMap, ShaderParameterInfo& parameterInfo );
 
 namespace aga
 {
@@ -26,10 +26,6 @@ namespace aga
 		{
 			m_byteCode = new unsigned char[m_byteCodeSize];
 			std::memcpy( m_byteCode, byteCode, m_byteCodeSize );
-
-			//ShaderParameterMap parameterMap;
-			//ExtractShaderParameters( byteCode, byteCodeSize, parameterMap );
-			//BuildShaderParameterInfo( parameterMap.GetParameterMap( ), m_parameterInfo );
 		}
 
 		virtual ~D3D11ShaderBase( )

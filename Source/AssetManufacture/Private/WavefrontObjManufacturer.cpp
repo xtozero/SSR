@@ -141,9 +141,28 @@ namespace
 		return staticMesh;
 	}
 
-	Material CreateMaterialFromWavefrontMaterial( const char* name, const Wavefront::ObjMaterial& material )
+	fs::path ConvertTextureAssetPath( const fs::path& mtlFileName, const fs::path& texPath, const fs::path& destPath )
 	{
-		Material assetMaterial( name );
+		fs::path texName = texPath.filename( );
+		texName.replace_extension( ".asset" );
+
+		for ( const auto& p : fs::recursive_directory_iterator( destPath ) )
+		{
+			if ( p.is_directory( ) )
+			{
+				if ( p.path( ).filename( ) == mtlFileName )
+				{
+					return "." / fs::relative( p.path( ), destPath.parent_path( ) ) / texName;
+				}
+			}
+		}
+
+		return {};
+	}
+
+	Material CreateMaterialFromWavefrontMaterial( const std::string& mtlFileName, const std::string& materialName, const Wavefront::ObjMaterial& material, const fs::path& destPath )
+	{
+		Material assetMaterial( materialName.c_str( ) );
 
 		if ( material.m_ambient )
 		{
@@ -168,17 +187,38 @@ namespace
 		
 		if ( material.m_ambientTex.empty( ) == false )
 		{
-			assetMaterial.AddProperty( "AmbientMap", material.m_ambientTex.c_str( ) );
+			fs::path ambientTex = ConvertTextureAssetPath( mtlFileName, material.m_ambientTex, destPath );
+
+			if ( ambientTex.has_relative_path( ) )
+			{
+				auto ambient = std::make_shared<Texture>( );
+				ambient->SetPath( material.m_ambientTex );
+				assetMaterial.AddProperty( "AmbientMap", ambient );
+			}
 		}
 
 		if ( material.m_diffuseTex.empty( ) == false )
 		{
-			assetMaterial.AddProperty( "DiffuseMap", material.m_diffuseTex.c_str( ) );
+			fs::path diffuseTex = ConvertTextureAssetPath( mtlFileName, material.m_diffuseTex, destPath );
+
+			if ( diffuseTex.has_relative_path( ) )
+			{
+				auto diffuse = std::make_shared<Texture>( );
+				diffuse->SetPath( material.m_diffuseTex );
+				assetMaterial.AddProperty( "DiffuseMap", diffuse );
+			}
 		}
 
 		if ( material.m_specularTex.empty( ) == false )
 		{
-			assetMaterial.AddProperty( "SpecularMap", material.m_specularTex.c_str( ) );
+			fs::path specularTex = ConvertTextureAssetPath( mtlFileName, material.m_specularTex, destPath );
+
+			if ( specularTex.has_relative_path( ) )
+			{
+				auto specular = std::make_shared<Texture>( );
+				specular->SetPath( material.m_specularTex );
+				assetMaterial.AddProperty( "SpecularMap", specular );
+			}
 		}
 
 		return assetMaterial;
@@ -190,7 +230,7 @@ bool WavefrontObjManufacturer::IsSuitable( const std::filesystem::path& srcPath 
 	return srcPath.extension() == fs::path( ".obj" );
 }
 
-std::optional<Products> WavefrontObjManufacturer::Manufacture( const std::filesystem::path& srcPath, const std::filesystem::path* destRootHint ) const
+std::optional<Products> WavefrontObjManufacturer::Manufacture( const std::filesystem::path& srcPath, const std::filesystem::path& destPath ) const
 {
 	if ( fs::exists( srcPath ) == false )
 	{
@@ -204,11 +244,8 @@ std::optional<Products> WavefrontObjManufacturer::Manufacture( const std::filesy
 		return { };
 	}
 
-	fs::path assetsRootPath;
-	if ( destRootHint )
-	{
-		assetsRootPath = *destRootHint / fs::relative( srcPath.parent_path( ) );
-	}
+	fs::path destRootPath = "." / fs::relative( destPath, destPath.parent_path( ) );
+	fs::path assetsRootPath = destRootPath / fs::relative( srcPath.parent_path( ) );
 
 	Archive ar;
 	StaticMesh staticMesh = CreateStaticMeshFromWavefrontObj( model, assetsRootPath );
@@ -224,7 +261,7 @@ bool WavefrontMtlManufacturer::IsSuitable( const std::filesystem::path& srcPath 
 	return srcPath.extension( ) == fs::path( ".mtl" );
 }
 
-std::optional<Products> WavefrontMtlManufacturer::Manufacture( const std::filesystem::path& srcPath, [[maybe_unused]] const std::filesystem::path* destRootHint ) const
+std::optional<Products> WavefrontMtlManufacturer::Manufacture( const std::filesystem::path& srcPath, const std::filesystem::path& destPath ) const
 {
 	if ( fs::exists( srcPath ) == false )
 	{
@@ -246,7 +283,7 @@ std::optional<Products> WavefrontMtlManufacturer::Manufacture( const std::filesy
 		Archive ar;
 		const auto& materialName = namedMaterial.first;
 		const auto& material = namedMaterial.second;
-		Material assetMaterial = CreateMaterialFromWavefrontMaterial( materialName.c_str( ), material );
+		Material assetMaterial = CreateMaterialFromWavefrontMaterial( mtlFileName, materialName, material, destPath );
 		assetMaterial.Serialize( ar );
 
 		fs::path assetMaterialFileName( "M_" + mtlFileName + "_" + materialName + ".asset" );
