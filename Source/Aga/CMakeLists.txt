@@ -122,5 +122,5 @@ add_custom_command(TARGET Aga POST_BUILD
 
 if (WIN32)
 	add_custom_command(TARGET Aga POST_BUILD
-	COMMAND cmd /c call ${CMAKE_SOURCE_DIR}/Source/Shaders/make_shader.bat ${CMAKE_SOURCE_DIR}/Program/Shaders)
+	COMMAND cmd /c call ${CMAKE_SOURCE_DIR}/Source/Shaders/make_shader.bat)
 endif()

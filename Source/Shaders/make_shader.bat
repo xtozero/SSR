@@ -1,4 +1,4 @@
-if NOT "%1" == "" cd %1
+cd "%~dp0"
 cd ..\..\Program
 mkdir Shaders
 cd ..\Source\Shaders

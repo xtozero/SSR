@@ -1,8 +1,8 @@
-StructuredBuffer<float4> src : register( s0 );
-StructuredBuffer<uint> distributer : register( s1 );
+StructuredBuffer<float4> src : register( t0 );
+StructuredBuffer<uint> distributer : register( t1 );
 RWStructuredBuffer<float4> dest : register( u0 );
 
-cbuffer DistributionCopyConstant : register( c0 )
+cbuffer DistributionCopyConstant : register( b0 )
 {
 	uint numDistribution : packoffset( c0 );
 }
