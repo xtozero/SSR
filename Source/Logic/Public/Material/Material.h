@@ -2,8 +2,8 @@
 
 #include "AssetLoader/AssetFactory.h"
 #include "AssetLoader/IAsyncLoadableAsset.h"
-#include "BlockCompressionTexture.h"
 #include "common.h"
+#include "DDSTexture.h"
 #include "GraphicsApiResource.h"
 #include "Math/CXMFloat.h"
 

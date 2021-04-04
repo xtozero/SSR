@@ -1,5 +1,6 @@
 #include "AssetManufacturer.h"
 
+#include "DDSManufacturer.h"
 #include "JsonManufacturer.h"
 #include "ShaderManufacturer.h"
 #include "WavefrontObjManufacturer.h"
@@ -26,6 +27,7 @@ std::optional<Products> AssetManufacturer::Manufacture( const std::filesystem::p
 
 AssetManufacturer::AssetManufacturer( )
 {
+	m_manufacturers.emplace_back( std::make_unique<DDSManufacturer>( ) );
 	m_manufacturers.emplace_back( std::make_unique<JsonManufacturer>( ) );
 	m_manufacturers.emplace_back( std::make_unique<ShaderManufacturer>( ) );
 	m_manufacturers.emplace_back( std::make_unique<WavefrontMtlManufacturer>( ) );

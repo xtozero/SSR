@@ -9,12 +9,14 @@ set (ENTRY_POINT
 
 set (MANUFACTURER
 	Public/AssetManufacturer.h
+	Public/DDSManufacturer.h
 	Public/JsonManufacturer.h
 	Public/PathEnvironment.h
 	Public/ShaderManufacturer.h
 	Public/WavefrontObjManufacturer.h
 	Public/WavefrontObjParser.hpp
 	Private/AssetManufacturer.cpp
+	Private/DDSManufacturer.cpp
 	Private/JsonManufacturer.cpp
 	Private/ShaderManufacturer.cpp
 	Private/WavefrontObjManufacturer.cpp
@@ -33,11 +35,13 @@ PRIVATE
 	../Logic/Public
 	../Shared/Public
 	../Aga/Public/Common
+	../Aga/Public/D3D11
 	../Engine/Public
 	Public)
 
 target_link_libraries(AssetManufacture
 PRIVATE 
+	DirectXTex
 	Engine
 	Logic
 	RenderCore

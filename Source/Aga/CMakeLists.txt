@@ -47,7 +47,7 @@ set (D3D11_SOURCE
 	"Public/D3D11/D3D11Api.h")
 	
 set (D3D11_UTILITY
-	"Public/D3D11/D3D11FlagConvertor.h")
+	Public/D3D11/D3D11FlagConvertor.h)
 	
 set (COMMON_SOURCE
 	Private/Common/GraphicsApiResource.cpp

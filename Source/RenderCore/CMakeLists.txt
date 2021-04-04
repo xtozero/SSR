@@ -33,9 +33,9 @@ set (RENDER_UTILITY
 	Public/RenderUtility/ShaderParameterUtil.h)
 	
 set (GRAPHICS_RESOURCE_SOURCE
-	Private/GraphicsResource/BlockCompressionTexture.cpp
 	Private/GraphicsResource/ByteBuffer.cpp
 	Private/GraphicsResource/ConstantBuffer.cpp
+	Private/GraphicsResource/DDSTexture.cpp
 	Private/GraphicsResource/DefaultConstantBuffers.cpp
 	Private/GraphicsResource/DepthStencil.cpp
 	Private/GraphicsResource/GlobalShaders.cpp
@@ -47,9 +47,9 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Private/GraphicsResource/VertexBuffer.cpp
 	Private/GraphicsResource/VertexLayout.cpp
 	Private/GraphicsResource/Viewport.cpp
-	Private/GraphicsResource/BlockCompressionTexture
 	Public/GraphicsResource/ByteBuffer.h
 	Public/GraphicsResource/ConstantBuffer.h
+	Public/GraphicsResource/DDSTexture.h
 	Public/GraphicsResource/DefaultConstantBuffers.h
 	Public/GraphicsResource/DepthStencil.h
 	Public/GraphicsResource/DrawSnapshot.h

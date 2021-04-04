@@ -18,6 +18,8 @@ public:
 	char* Data( ) { return m_data; }
 	const char* Data( ) const { return m_data; }
 
+	BinaryChunk( ) = default;
+
 	explicit BinaryChunk( std::size_t size )
 	{
 		Alloc( size );
