@@ -67,7 +67,7 @@ void Material::Serialize( Archive& ar )
 		for ( auto& p : m_properties )
 		{
 			const std::string& propertyName = p.first;
-			MaterialProperty* property = p.second;
+			const std::unique_ptr<MaterialProperty>& property = p.second;
 
 			ar << propertyName;
 			ar << property->Type( );
@@ -99,7 +99,7 @@ void Material::AddProperty( const char* key, int value )
 	auto found = m_properties.find( key );
 	if ( found != m_properties.end( ) )
 	{
-		MaterialProperty* property = found->second;
+		const std::unique_ptr<MaterialProperty>& property = found->second;
 		if ( property && ( property->Type( ) != MaterialPropertyType::Int ) )
 		{
 			m_properties.erase( found );
@@ -111,9 +111,10 @@ void Material::AddProperty( const char* key, int value )
 	{
 		auto result = m_properties.emplace( key, new IntProperty( value ) );
 		found = result.first;
+		return;
 	}
 
-	IntProperty* property = static_cast<IntProperty*>( found->second );
+	new ( found->second.get( ) )IntProperty( value );
 }
 
 void Material::AddProperty( const char* key, float value )
@@ -121,7 +122,7 @@ void Material::AddProperty( const char* key, float value )
 	auto found = m_properties.find( key );
 	if ( found != m_properties.end( ) )
 	{
-		MaterialProperty* property = found->second;
+		const std::unique_ptr<MaterialProperty>& property = found->second;
 		if ( property && ( property->Type( ) != MaterialPropertyType::Int ) )
 		{
 			m_properties.erase( found );
@@ -133,9 +134,10 @@ void Material::AddProperty( const char* key, float value )
 	{
 		auto result = m_properties.emplace( key, new FloatProperty( value ) );
 		found = result.first;
+		return;
 	}
 
-	FloatProperty* property = static_cast<FloatProperty*>( found->second );
+	new ( found->second.get( ) )FloatProperty( value );
 }
 
 void Material::AddProperty( const char* key, const CXMFLOAT4& value )
@@ -143,7 +145,7 @@ void Material::AddProperty( const char* key, const CXMFLOAT4& value )
 	auto found = m_properties.find( key );
 	if ( found != m_properties.end( ) )
 	{
-		MaterialProperty* property = found->second;
+		const std::unique_ptr<MaterialProperty>& property = found->second;
 		if ( property && ( property->Type( ) != MaterialPropertyType::Int ) )
 		{
 			m_properties.erase( found );
@@ -155,9 +157,10 @@ void Material::AddProperty( const char* key, const CXMFLOAT4& value )
 	{
 		auto result = m_properties.emplace( key, new Float4Property( value ) );
 		found = result.first;
+		return;
 	}
 
-	Float4Property* property = static_cast<Float4Property*>( found->second );
+	new ( found->second.get( ) )Float4Property( value );
 }
 
 void Material::AddProperty( const char* key, const std::shared_ptr<Texture>& value )
@@ -165,7 +168,7 @@ void Material::AddProperty( const char* key, const std::shared_ptr<Texture>& val
 	auto found = m_properties.find( key );
 	if ( found != m_properties.end( ) )
 	{
-		MaterialProperty* property = found->second;
+		const std::unique_ptr<MaterialProperty>& property = found->second;
 		if ( property && ( property->Type( ) != MaterialPropertyType::Int ) )
 		{
 			m_properties.erase( found );
@@ -177,9 +180,10 @@ void Material::AddProperty( const char* key, const std::shared_ptr<Texture>& val
 	{
 		auto result = m_properties.emplace( key, new TextureProperty( value ) );
 		found = result.first;
+		return;
 	}
 
-	TextureProperty* property = static_cast<TextureProperty*>( found->second );
+	new ( found->second.get( ) )TextureProperty( value );
 }
 
 int Material::AsInteger( const char* key ) const
@@ -189,11 +193,11 @@ int Material::AsInteger( const char* key ) const
 
 	if ( found != m_properties.end( ) )
 	{
-		MaterialProperty* property = found->second;
+		const auto& property = found->second;
 		if ( property && ( property->Type( ) == MaterialPropertyType::Int ) )
 		{
-			IntProperty* property = static_cast<IntProperty*>( found->second );
-			property->Value( );
+			auto concreteProperty = static_cast<IntProperty*>( found->second.get( ) );
+			return concreteProperty->Value( );
 		}
 	}
 
@@ -204,14 +208,14 @@ float Material::AsFloat( const char* key ) const
 {
 	auto found = m_properties.find( key );
 	assert( found != m_properties.end( ) );
-	
+
 	if ( found != m_properties.end( ) )
 	{
-		MaterialProperty* property = found->second;
+		const std::unique_ptr<MaterialProperty>& property = found->second;
 		if ( property && ( property->Type( ) == MaterialPropertyType::Float ) )
 		{
-			FloatProperty* property = static_cast<FloatProperty*>( found->second );
-			property->Value( );
+			auto concreteProperty = static_cast<FloatProperty*>( found->second.get( ) );
+			return concreteProperty->Value( );
 		}
 	}
 
@@ -225,41 +229,41 @@ const CXMFLOAT4& Material::AsVector( const char* key ) const
 
 	if ( found != m_properties.end( ) )
 	{
-		MaterialProperty* property = found->second;
+		const std::unique_ptr<MaterialProperty>& property = found->second;
 		if ( property && ( property->Type( ) == MaterialPropertyType::Float4 ) )
 		{
-			Float4Property* property = static_cast<Float4Property*>( found->second );
-			property->Value( );
+			auto concreteProperty = static_cast<Float4Property*>( found->second.get( ) );
+			return concreteProperty->Value( );
 		}
 	}
 
 	return CXMFLOAT4( 0.f, 0.f, 0.f, 0.f );
 }
 
-aga::Texture* Material::AsTexture( const char* key ) const
+Texture* Material::AsTexture( const char* key ) const
 {
 	auto found = m_properties.find( key );
 	assert( found != m_properties.end( ) );
 
 	if ( found != m_properties.end( ) )
 	{
-		MaterialProperty* property = found->second;
+		const std::unique_ptr<MaterialProperty>& property = found->second;
 		if ( property && ( property->Type( ) == MaterialPropertyType::Texture ) )
 		{
-			TextureProperty* property = static_cast<TextureProperty*>( found->second );
-			property->Value( );
+			auto concreteProperty = static_cast<TextureProperty*>( found->second.get( ) );
+			return concreteProperty->Value( ).get( );
 		}
 	}
 
 	return nullptr;
 }
 
-const MaterialProperty* Material::HasProperty( const char* key ) const
+bool Material::HasProperty( const char* key ) const
 {
 	auto found = m_properties.find( key );
 	if ( found != m_properties.end( ) )
 	{
-		return found->second;
+		return found->second != nullptr;
 	}
 
 	return nullptr;

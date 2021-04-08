@@ -9,6 +9,7 @@
 
 #include <filesystem>
 #include <map>
+#include <memory>
 #include <string>
 
 class Archive;
@@ -124,9 +125,9 @@ public:
 	int AsInteger( const char* key ) const;
 	float AsFloat( const char* key ) const;
 	const CXMFLOAT4& AsVector( const char* key ) const;
-	aga::Texture* AsTexture( const char* key ) const;
+	Texture* AsTexture( const char* key ) const;
 
-	const MaterialProperty* HasProperty( const char* key ) const;
+	bool HasProperty( const char* key ) const;
 
 	const std::string& Name( ) const { return m_name; }
 
@@ -144,5 +145,5 @@ private:
 	std::filesystem::path m_path;
 
 	std::string m_name;
-	std::map<std::string, MaterialProperty*> m_properties;
+	std::map<std::string, std::unique_ptr<MaterialProperty>> m_properties;
 };
