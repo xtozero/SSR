@@ -21,8 +21,8 @@ DistributionCopyCS::DistributionCopyCS( )
 
 GpuMemcpy::GpuMemcpy( std::size_t numUpload, UINT sizePerFloat4, UploadBuffer& src, UploadBuffer& distributer ) : m_sizePerFloat4( sizePerFloat4 ), m_src( src ), m_distributer( distributer )
 {
-	m_src.Resize( m_sizePerFloat4 * numUpload );
-	m_distributer.Resize( m_sizePerFloat4 * numUpload );
+	m_src.Resize( m_sizePerFloat4 * numUpload, nullptr );
+	m_distributer.Resize( m_sizePerFloat4 * numUpload, nullptr );
 
 	m_pUploadData = m_src.Lock<char>( );
 	m_pDistributionData = m_distributer.Lock<UINT>( );
@@ -60,8 +60,8 @@ void GpuMemcpy::Upload( aga::Buffer* destBuffer )
 	GetAgaDelegator( ).BindShader( cs );
 
 	SetShaderValue( cs, computeShader.m_numDistribution, m_distributionCount );
-	BindShaderParameter( cs, computeShader.m_src, m_src );
-	BindShaderParameter( cs, computeShader.m_distributer, m_distributer );
+	BindShaderParameter( cs, computeShader.m_src, m_src.Resource( ) );
+	BindShaderParameter( cs, computeShader.m_distributer, m_distributer.Resource( ) );
 	BindShaderParameter( cs, computeShader.m_dest, destBuffer );
 
 	UINT threadGroup = ( ( m_distributionCount + DistributionCopyCS::ThreadGroupX - 1 ) / DistributionCopyCS::ThreadGroupX );

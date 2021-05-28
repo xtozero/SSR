@@ -28,14 +28,14 @@ cbuffer LIGHTS : register( b0 )
 	LIGHT_TRAIT	g_lights[MAX_LIGHTS];
 };
 
-cbuffer SURFACE : register( b1 )
+cbuffer Material : register( b1 )
 {
-	float4		g_ambient;
-	float4		g_diffuse;
-	float4		g_specular;
-	float		g_roughness;
-	float		g_specularPower;
-	float		g_pedding[2];
+	float4		Ambient;
+	float4		Diffuse;
+	float4		Specular;
+	float		Roughness;
+	float		SpecularPower;
+	float		pedding[2];
 };
 
 struct PS_INPUT
@@ -44,7 +44,6 @@ struct PS_INPUT
 	float3 worldPos : POSITION0;
 	float3 viewPos : POSITION1;
 	float3 normal : NORMAL;
-	float3 color : COLOR;
 	float2 texcoord : TEXCOORD;
 };
 
@@ -78,7 +77,7 @@ float OrenNayarDiffuse( float3 viewDirection, float3 lightDirection, float3 norm
 
 	float gamma = dot ( viewDirection - normal * vdotn, lightDirection - normal * ldotn );
 
-	float roughnessPwr = g_roughness * g_roughness;
+	float roughnessPwr = Roughness * Roughness;
 
 	float a = 1 - 0.5f * ( roughnessPwr / ( roughnessPwr + 0.33f ) );
 	float b = 0.45f * ( roughnessPwr / ( roughnessPwr + 0.09f ) );
@@ -96,7 +95,7 @@ float CookTorranceSpecular( float3 viewDirection, float3 lightDirection, float3 
 	float3 half = normalize( viewDirection + lightDirection );
 	float ndoth = dot( normal, half );
 	float ndothPwr = ndoth * ndoth;
-	float roughnessPwr = g_roughness * g_roughness;
+	float roughnessPwr = Roughness * Roughness;
 	float exponent = -( ( 1 - ndothPwr ) / ( roughnessPwr * ndothPwr ) );
 	
 	float d = exp( exponent ) / ( 4.f * roughnessPwr * ndothPwr * ndothPwr );
@@ -163,9 +162,9 @@ float4 CalcLight( PS_INPUT input, float4 color )
 	
 	float visibility = CalcShadowVisibility( input.worldPos, input.viewPos );
 
-	float4 lightColor = g_globalAmbient * g_ambient;
-	lightColor += cColor.m_diffuse * g_diffuse * visibility;
-	lightColor += cColor.m_specular * g_specular * visibility; 
+	float4 lightColor = g_globalAmbient * Ambient;
+	lightColor += cColor.m_diffuse * Diffuse * visibility;
+	lightColor += cColor.m_specular * Specular * visibility; 
 
 	return saturate( MoveGammaSapce( linearColor * lightColor ) );
 }

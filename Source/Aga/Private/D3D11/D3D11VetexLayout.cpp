@@ -29,6 +29,16 @@ namespace
 
 namespace aga
 {
+	ID3D11InputLayout* D3D11VertexLayout::Resource( )
+	{
+		return m_pInputLayout;
+	}
+
+	const ID3D11InputLayout* D3D11VertexLayout::Resource( ) const
+	{
+		return m_pInputLayout;
+	}
+
 	D3D11VertexLayout::D3D11VertexLayout( const D3D11VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, std::size_t size )
 	{
 		m_namePool.reserve( size );

@@ -1,15 +1,25 @@
 #include "stdafx.h"
 #include "VertexLayout.h"
 
-#include "Core/InterfaceFactories.h"
-#include "IAga.h"
 #include "MultiThread/EngineTaskScheduler.h"
 
-VertexLayout VertexLayout::Create( const VertexShader& vs, const VertexLayoutDesc& desc )
+aga::VertexLayout* VertexLayout::Resource( )
+{
+	return m_layout.Get( );
+}
+
+const aga::VertexLayout* VertexLayout::Resource( ) const
+{
+	return m_layout.Get( );
+}
+
+VertexLayout::VertexLayout( const VertexShader& vs, const VertexLayoutDesc& desc )
+{
+	InitResource( vs, desc );
+}
+
+void VertexLayout::InitResource( const VertexShader& vs, const VertexLayoutDesc& desc )
 {
 	assert( IsInRenderThread( ) );
-	std::size_t size = desc.Size( );
-	aga::VertexLayout* layout( GetInterface<IAga>( )->CreateVertexLayout( vs, desc.Data( ), size ) );
-
-	return VertexLayout( layout );
+	m_layout = aga::VertexLayout::Create( vs.Resource( ), desc.Data( ), desc.Size( ) );
 }

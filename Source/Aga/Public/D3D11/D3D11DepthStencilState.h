@@ -9,8 +9,11 @@ namespace aga
 	class D3D11DepthStencilState : public DepthStencilState
 	{
 	public:
-		unsigned int GetStencilRef( ) const { return m_stencilRef; }
-		void SetStencilRef( unsigned int stencilRef ) { m_stencilRef = stencilRef; }
+		ID3D11DepthStencilState* Resource( );
+		const ID3D11DepthStencilState* Resource( ) const;
+
+		unsigned int GetStencilRef( ) const;
+		void SetStencilRef( unsigned int stencilRef );
 
 		D3D11DepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait );
 		D3D11DepthStencilState( const D3D11DepthStencilState& ) = delete;

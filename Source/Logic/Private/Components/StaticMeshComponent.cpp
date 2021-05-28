@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Components/StaticMeshComponent.h"
 
-#include "Model/StaticMesh.h"
+#include "Mesh/StaticMesh.h"
 #include "Proxies/StaticMeshPrimitiveProxy.h"
 
 #include <cassert>

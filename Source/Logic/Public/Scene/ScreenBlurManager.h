@@ -7,7 +7,7 @@
 
 class BaseMesh;
 class CGameLogic;
-class IModelBuilder;
+//class IModelBuilder;
 class IRenderResource;
 
 class ScreenBlurManager : public IGraphicsDeviceNotify

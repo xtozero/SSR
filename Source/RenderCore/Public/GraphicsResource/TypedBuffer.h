@@ -6,119 +6,50 @@
 #include "VertexBuffer.h"
 
 template <typename T>
-class TypedConstatBuffer
+class TypedConstatBuffer : public ConstantBuffer
 {
 public:
-	static TypedConstatBuffer Create( )
-	{
-		return TypedConstatBuffer<T>( ConstantBuffer::Create( sizeof( T ) ) );
-	}
-
 	void Update( const T& data )
 	{
-		m_cb.Update( &data, sizeof( T ) );
+		ConstantBuffer::Update( &data, sizeof( T ) );
 	}
 
-	void Bind( SHADER_TYPE shaderType, UINT slot )
-	{
-		m_cb.Bind( shaderType, slot );
-	}
-
-	TypedConstatBuffer( ) = default;
+	TypedConstatBuffer( ) : ConstantBuffer( sizeof( T ) ) {}
+	~TypedConstatBuffer( ) = default;
 	TypedConstatBuffer( const TypedConstatBuffer& ) = default;
 	TypedConstatBuffer& operator=( const TypedConstatBuffer& ) = default;
 	TypedConstatBuffer( TypedConstatBuffer&& ) = default;
 	TypedConstatBuffer& operator=( TypedConstatBuffer&& ) = default;
-
-private:
-	TypedConstatBuffer( ConstantBuffer&& cb )
-	{
-		m_cb = std::move( cb );
-	}
-
-	ConstantBuffer m_cb;
 };
 
 template <typename T>
-class TypedVertexBuffer
+class TypedVertexBuffer : public VertexBuffer
 {
 public:
-	static TypedVertexBuffer Create( std::size_t numElement, const void* initData )
-	{
-		assert( numElement > 0 );
-		return TypedVertexBuffer<T>( VertexBuffer::Create( sizeof( T ), numElement, initData ) );
-	}
+	TypedVertexBuffer( std::size_t numElement, const void* initData ) : VertexBuffer( sizeof( T ), numElement, initData, false ) { }
 
 	TypedVertexBuffer( ) = default;
+	~TypedVertexBuffer( ) = default;
 	TypedVertexBuffer( const TypedVertexBuffer& ) = default;
 	TypedVertexBuffer& operator=( const TypedVertexBuffer& ) = default;
 	TypedVertexBuffer( TypedVertexBuffer&& ) = default;
 	TypedVertexBuffer& operator=( TypedVertexBuffer&& ) = default;
-
-	operator const VertexBuffer&( ) const
-	{
-		return m_vb;
-	}
-
-	operator aga::Buffer*( )
-	{
-		return m_vb;
-	}
-
-private:
-	TypedVertexBuffer( VertexBuffer&& vb )
-	{
-		m_vb = std::move( vb );
-	}
-
-	VertexBuffer m_vb;
 };
 
 template <typename T>
 class TypedBuffer
 {
 public:
-	static TypedBuffer Create( std::size_t numElement, const void* initData = nullptr )
+	void Resize( std::size_t newNumElement, bool copyPreviousData )
 	{
-		TypedBuffer tb;
-
-		if ( numElement > 0 )
+		if ( newNumElement > m_numElement )
 		{
-			BUFFER_TRAIT trait = {
-			static_cast<UINT>( sizeof( T ) ),
-			static_cast<UINT>( numElement ),
-			RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
-			RESOURCE_BIND_TYPE::SHADER_RESOURCE | RESOURCE_BIND_TYPE::RANDOM_ACCESS,
-			RESOURCE_MISC::BUFFER_STRUCTURED };
+			TypedBuffer newBuffer = TypedBuffer( newNumElement );
 
-			tb.m_buffer = GetInterface<IAga>( )->CreateBuffer( trait, initData );
-			if ( IsInRenderThread( ) )
+			if ( copyPreviousData )
 			{
-				tb.m_buffer->Init( );
+				GetInterface<IAga>( )->Copy( newBuffer.m_buffer, m_buffer, Size( ) );
 			}
-			else
-			{
-				EnqueueRenderTask( [buffer = tb.m_buffer]( )
-				{
-					buffer->Init( );
-				} );
-			}
-		}
-		
-		tb.m_numElement = numElement;
-		return tb;
-	}
-
-	void Resize( std::size_t newNumElement )
-	{
-		if ( m_numElement == 0 )
-		{
-			( *this ) = TypedBuffer::Create( newNumElement );
-		}
-		else if ( newNumElement > m_numElement )
-		{
-			TypedBuffer newBuffer = TypedBuffer::Create( newNumElement );
-			GetInterface<IAga>( )->Copy( newBuffer.m_buffer, m_buffer, Size( ) );
 
 			( *this ) = std::move( newBuffer );
 		}
@@ -126,23 +57,72 @@ public:
 
 	std::size_t Size( ) const { return sizeof( T ) * m_numElement; }
 
+	aga::Buffer* Resource( )
+	{
+		return m_buffer.Get( );
+	}
+
+	const aga::Buffer* Resource( ) const
+	{
+		return m_buffer.Get( );
+	}
+
+	aga::ShaderResourceView* SRV( )
+	{
+		return m_buffer.Get( ) ? m_buffer->SRV( ) : nullptr;
+	}
+
+	const aga::ShaderResourceView* SRV( ) const
+	{
+		return m_buffer.Get( ) ? m_buffer->SRV( ) : nullptr;
+	}
+
+	TypedBuffer( std::size_t numElement, const void* initData = nullptr ) :
+		m_numElement( numElement )
+	{
+		InitResource( initData );
+	}
+
 	TypedBuffer( ) = default;
+	~TypedBuffer( ) = default;
 	TypedBuffer( const TypedBuffer& ) = default;
 	TypedBuffer& operator=( const TypedBuffer& ) = default;
 	TypedBuffer( TypedBuffer&& ) = default;
 	TypedBuffer& operator=( TypedBuffer&& ) = default;
 
-	operator aga::Buffer*( )
+	operator aga::Buffer*( ) const
 	{
 		return m_buffer.Get( );
 	}
 
-private:
-	TypedBuffer( VertexBuffer&& vb )
+protected:
+	void InitResource( const void* initData )
 	{
-		m_vb = std::move( vb );
+		if ( m_numElement > 0 )
+		{
+			BUFFER_TRAIT trait = {
+			static_cast<UINT>( sizeof( T ) ),
+			static_cast<UINT>( m_numElement ),
+			RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
+			RESOURCE_BIND_TYPE::SHADER_RESOURCE | RESOURCE_BIND_TYPE::RANDOM_ACCESS,
+			RESOURCE_MISC::BUFFER_STRUCTURED };
+
+			m_buffer = aga::Buffer::Create( trait, initData );
+			if ( IsInRenderThread( ) )
+			{
+				m_buffer->Init( );
+			}
+			else
+			{
+				EnqueueRenderTask( [buffer = m_buffer]( )
+				{
+					buffer->Init( );
+				} );
+			}
+		}
 	}
 
+private:
 	RefHandle<aga::Buffer> m_buffer;
 	std::size_t m_numElement = 0;
 };
@@ -151,17 +131,10 @@ template <typename T>
 class TypedUploadBuffer : public UploadBuffer
 {
 public:
-	static TypedUploadBuffer Create( std::size_t numElement, const void* initData )
-	{
-		assert( numElement > 0 );
-		return TypedUploadBuffer<T>( UploadBuffer::Create( sizeof( T ), numElement, initData ) );
-	}
+	TypedUploadBuffer( std::size_t numElement, const void* initData ) : UploadBuffer( sizeof( T ), numElement, initData ) {}
 
-	TypedUploadBuffer( )
-	{
-		m_elementSize = sizeof( T );
-	}
-
+	TypedUploadBuffer( ) : UploadBuffer( sizeof( T ), 0, nullptr ) {}
+	~TypedUploadBuffer( ) = default;
 	TypedUploadBuffer( const TypedUploadBuffer& ) = default;
 	TypedUploadBuffer& operator=( const TypedUploadBuffer& ) = default;
 	TypedUploadBuffer( TypedUploadBuffer&& ) = default;

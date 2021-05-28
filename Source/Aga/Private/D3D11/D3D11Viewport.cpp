@@ -3,6 +3,7 @@
 
 #include "D3D11Api.h"
 #include "D3D11BaseTexture.h"
+#include "D3D11ResourceViews.h"
 
 #include "Texture.h"
 
@@ -24,13 +25,21 @@ namespace aga
 
 	void D3D11Viewport::Clear( const float( &clearColor )[4] )
 	{
-		if ( m_backBuffer.Get( ) )
+		if ( m_backBuffer.Get( ) == nullptr )
 		{
-			ID3D11RenderTargetView* rtv = m_backBuffer->RenderTargetView( );
-			if ( rtv )
-			{
-				D3D11Context( ).ClearRenderTargetView( rtv, clearColor );
-			}
+			return;
+		}
+
+		auto d3d11RTV = static_cast<D3D11RenderTargetView*>( m_backBuffer->RTV( ) );
+		if ( d3d11RTV == nullptr )
+		{
+			return;
+		}
+
+		ID3D11RenderTargetView* rtv = d3d11RTV->Resource( );
+		if ( rtv )
+		{
+			D3D11Context( ).ClearRenderTargetView( rtv, clearColor );
 		}
 	}
 

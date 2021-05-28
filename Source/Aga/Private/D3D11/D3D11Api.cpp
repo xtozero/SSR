@@ -2,17 +2,18 @@
 #include "D3D11Api.h"
 
 #include "common.h"
-#include "Common/IAga.h"
 
 #include "D3D11BaseTexture.h"
 #include "D3D11BlendState.h"
 #include "D3D11Buffer.h"
+#include "D3D11CommandList.h"
 #include "D3D11DepthStencilState.h"
 #include "D3D11FlagConvertor.h"
 #include "D3D11RandomAccessResource.h"
 #include "D3D11RasterizerState.h"
 #include "D3D11RenderTarget.h"
 #include "D3D11ResourceManager.h"
+#include "D3D11ResourceViews.h"
 #include "D3D11SamplerState.h"
 #include "D3D11ShaderResource.h"
 #include "D3D11Shaders.h"
@@ -20,6 +21,10 @@
 #include "D3D11Viewport.h"
 
 #include "DataStructure/EnumStringMap.h"
+
+#include "IAga.h"
+
+#include "PipelineState.h"
 
 #include "ShaderPrameterMap.h"
 
@@ -63,6 +68,7 @@ public:
 	virtual aga::BlendState* CreateBlendState( const BLEND_STATE_TRAIT& trait ) override;
 	virtual aga::RasterizerState* CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) override;
 	virtual aga::SamplerState* CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) override;
+	virtual aga::PipelineState* CreatePipelineState( const aga::PipelineStateInitializer& initializer ) override;
 
 	virtual aga::Viewport* CreateViewport( int width, int height, void* hWnd, RESOURCE_FORMAT format ) override;
 
@@ -76,8 +82,8 @@ public:
 
 	virtual void ClearDepthStencil( aga::Texture* depthStencil, float depthColor, UINT8 stencilColor ) override;
 
-	// virtual void BindVertexBuffer( RE_HANDLE* pVertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pStrides, const UINT* pOffsets ) override;
-	// virtual void BindIndexBuffer( RE_HANDLE indexBuffer, UINT indexOffset ) override;
+	virtual void BindVertexBuffer( aga::Buffer** vertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pStrides, const UINT* pOffsets ) override;
+	virtual void BindIndexBuffer( aga::Buffer* indexBuffer, UINT stride, UINT indexOffset ) override;
 	virtual void BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT numBuffers, aga::Buffer** pConstantBuffers ) override;
 	// virtual void BindVertexLayout( RE_HANDLE layout ) override;
 	// virtual void BindShader( RE_HANDLE shader ) override;
@@ -112,6 +118,8 @@ public:
 	// virtual void GenerateMips( RE_HANDLE shaderResource ) override;
 
 	virtual void GetRendererMultiSampleOption( MULTISAMPLE_OPTION* option ) override;
+
+	virtual std::unique_ptr<aga::IImmediateCommandList> GetImmediateCommandList( ) const override;
 
 	IDXGIFactory1& GetFactory( ) const
 	{
@@ -312,7 +320,7 @@ void* CDirect3D11::Lock( aga::Buffer* buffer, int lockFlag, UINT subResource )
 	D3D11BufferBase* d3d11buffer = static_cast<D3D11BufferBase*>( buffer );
 	D3D11_MAPPED_SUBRESOURCE resource;
 
-	HRESULT hr = m_pd3d11DeviceContext->Map( d3d11buffer->Buffer( ), subResource, ConvertLockFlagToD3D11Map( lockFlag ), 0, &resource );
+	HRESULT hr = m_pd3d11DeviceContext->Map( d3d11buffer->Resource( ), subResource, ConvertLockFlagToD3D11Map( lockFlag ), 0, &resource );
 	if ( FAILED( hr ) )
 	{
 		__debugbreak();
@@ -330,7 +338,7 @@ void CDirect3D11::UnLock( aga::Buffer* buffer, UINT subResource )
 
 	D3D11BufferBase* d3d11buffer = static_cast<D3D11BufferBase*>( buffer );
 
-	m_pd3d11DeviceContext->Unmap( d3d11buffer->Buffer( ), subResource );
+	m_pd3d11DeviceContext->Unmap( d3d11buffer->Resource( ), subResource );
 }
 
 void CDirect3D11::EnumerateSampleCountAndQuality( int* size, DXGI_SAMPLE_DESC* pSamples )
@@ -443,6 +451,11 @@ aga::SamplerState* CDirect3D11::CreateSamplerState( const SAMPLER_STATE_TRAIT& t
 	return m_resourceManager.CreateSamplerState( trait );
 }
 
+aga::PipelineState* CDirect3D11::CreatePipelineState( const aga::PipelineStateInitializer& initializer )
+{
+	return m_resourceManager.CreatePipelineState( initializer );
+}
+
 aga::Viewport* CDirect3D11::CreateViewport( int width, int height, void* hWnd, RESOURCE_FORMAT format )
 {
 	return m_resourceManager.CreateViewport( width, height, hWnd, ConvertFormatToDxgiFormat( format ) );
@@ -450,62 +463,56 @@ aga::Viewport* CDirect3D11::CreateViewport( int width, int height, void* hWnd, R
 
 void CDirect3D11::ClearDepthStencil( aga::Texture* depthStencil, float depthColor, UINT8 stencilColor )
 {
-	if ( depthStencil == nullptr )
+	auto d3d11Texture = reinterpret_cast<aga::D3D11BaseTexture*>( depthStencil );
+	if ( d3d11Texture == nullptr )
 	{
 		return;
 	}
 
-	auto baseTexture = reinterpret_cast<aga::D3D11BaseTexture*>( depthStencil );
-	ID3D11DepthStencilView* dsv = baseTexture->DepthStencilView( );
+	if ( auto d3d11DSV = static_cast<aga::D3D11DepthStencilView*>( d3d11Texture->DSV( ) ) )
+	{
+		ID3D11DepthStencilView* dsv = d3d11DSV->Resource( );
 
-	m_pd3d11DeviceContext->ClearDepthStencilView( dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthColor, stencilColor );
+		m_pd3d11DeviceContext->ClearDepthStencilView( dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthColor, stencilColor );
+	}
 }
 
-//void CDirect3D11::BindVertexBuffer( RE_HANDLE* pVertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pStrides, const UINT* pOffsets )
-//{
-	// TODO : Need to be implemented later
-	//ID3D11Buffer* pBuffers[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
-	//UINT strides[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
-	//UINT offsets[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
+void CDirect3D11::BindVertexBuffer( aga::Buffer** vertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pStrides, const UINT* pOffsets )
+{
+	ID3D11Buffer* pBuffers[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
+	UINT strides[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
+	UINT offsets[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
 
-	//if ( pVertexBuffers )
-	//{
-	//	assert( pStrides != nullptr );
-	//	assert( pOffsets != nullptr );
-	//	for ( UINT i = 0; i < numBuffers; ++i )
-	//	{
-	//		if ( pVertexBuffers[i].IsValid( ) )
-	//		{
-	//			CD3D11Buffer* d3d11buffer = m_resourceManager.GetBuffer( pVertexBuffers[i] );
-	//			pBuffers[i] = d3d11buffer->Get( );
-	//			strides[i] = pStrides[i];
-	//			offsets[i] = pOffsets[i];
-	//		}
-	//	}
-	//}
+	if ( vertexBuffers )
+	{
+		assert( pStrides != nullptr );
+		assert( pOffsets != nullptr );
+		for ( UINT i = 0; i < numBuffers; ++i )
+		{
+			if ( auto d3d11buffer = static_cast<D3D11BufferBase*>( vertexBuffers[i] ) )
+			{
+				pBuffers[i] = d3d11buffer->Resource( );
+				strides[i] = pStrides[i];
+				offsets[i] = pOffsets[i];
+			}
+		}
+	}
 
-	//m_pd3d11DeviceContext->IASetVertexBuffers( startSlot, numBuffers, pBuffers, pStrides, pOffsets );
-//}
+	m_pd3d11DeviceContext->IASetVertexBuffers( startSlot, numBuffers, pBuffers, pStrides, pOffsets );
+}
 
-//void CDirect3D11::BindIndexBuffer( RE_HANDLE indexBuffer, UINT indexOffset )
-//{
-	// TODO : Need to be implemented later
-	//ID3D11Buffer* buffer = nullptr;
-	//DXGI_FORMAT format = DXGI_FORMAT_R16_UINT;
+void CDirect3D11::BindIndexBuffer( aga::Buffer* indexBuffer, UINT stride, UINT indexOffset )
+{
+	ID3D11Buffer* buffer = nullptr;
+	DXGI_FORMAT format = ( stride == sizeof( UINT ) ) ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT;
 
-	//if ( indexBuffer.IsValid( ) )
-	//{
-	//	CD3D11Buffer* d3d11buffer = m_resourceManager.GetBuffer( indexBuffer );
-	//	buffer = d3d11buffer->Get( );
-	//	
-	//	if ( d3d11buffer->Stride() == 4 )
-	//	{
-	//		format = DXGI_FORMAT_R32_UINT;
-	//	}
-	//}
+	if ( auto d3d11buffer = static_cast<D3D11BufferBase*>( indexBuffer ) )
+	{
+		buffer = d3d11buffer->Resource( );
+	}
 
-	//m_pd3d11DeviceContext->IASetIndexBuffer( buffer, format, indexOffset );
-//}
+	m_pd3d11DeviceContext->IASetIndexBuffer( buffer, format, indexOffset );
+}
 
 void CDirect3D11::BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT numBuffers, aga::Buffer** pConstantBuffers )
 {
@@ -515,7 +522,7 @@ void CDirect3D11::BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT num
 	{
 		if ( auto d3d11buffer = static_cast<D3D11BufferBase*>( pConstantBuffers[i] ) )
 		{
-			pBuffers[i] = d3d11buffer->Buffer( );
+			pBuffers[i] = d3d11buffer->Resource( );
 		}
 	}
 
@@ -632,7 +639,7 @@ void CDirect3D11::BindConstant( aga::VertexShader* shader, int startSlot, int nu
 	{
 		if ( auto d3d11buffer = static_cast<D3D11BufferBase*>( pBuffers[i] ) )
 		{
-			pConstants[i] = d3d11buffer->Buffer( );
+			pConstants[i] = d3d11buffer->Resource( );
 		}
 	}
 
@@ -645,9 +652,15 @@ void CDirect3D11::BindShaderInput( aga::VertexShader* shader, int startSlot, int
 
 	for ( UINT i = 0; i < numBuffers; ++i )
 	{
-		if ( auto d3d11buffer = static_cast<D3D11BufferBase*>( pBuffers[i] ) )
+		auto d3d11buffer = static_cast<D3D11BufferBase*>( pBuffers[i] );
+		if ( d3d11buffer == nullptr )
 		{
-			pSrvs[i] = d3d11buffer->Srv( );
+			continue;
+		}
+
+		if ( auto d3d11SRV = static_cast<aga::D3D11ShaderResourceView*>( d3d11buffer->SRV( ) ) )
+		{
+			pSrvs[i] = d3d11SRV->Resource( );
 		}
 	}
 
@@ -662,7 +675,7 @@ void CDirect3D11::BindConstant( aga::PixelShader* shader, int startSlot, int num
 	{
 		if ( auto d3d11buffer = static_cast<D3D11BufferBase*>( pBuffers[i] ) )
 		{
-			pConstants[i] = d3d11buffer->Buffer( );
+			pConstants[i] = d3d11buffer->Resource( );
 		}
 	}
 
@@ -675,9 +688,15 @@ void CDirect3D11::BindShaderInput( aga::PixelShader* shader, int startSlot, int 
 
 	for ( UINT i = 0; i < numBuffers; ++i )
 	{
-		if ( auto d3d11buffer = static_cast<D3D11BufferBase*>( pBuffers[i] ) )
+		auto d3d11buffer = static_cast<D3D11BufferBase*>( pBuffers[i] );
+		if ( d3d11buffer == nullptr )
 		{
-			pSrvs[i] = d3d11buffer->Srv( );
+			continue;
+		}
+
+		if ( auto d3d11SRV = static_cast<aga::D3D11ShaderResourceView*>( d3d11buffer->SRV( ) ) )
+		{
+			pSrvs[i] = d3d11SRV->Resource( );
 		}
 	}
 
@@ -692,22 +711,28 @@ void CDirect3D11::BindConstant( aga::ComputeShader* shader, int startSlot, int n
 	{
 		if ( auto d3d11buffer = static_cast<D3D11BufferBase*>( pBuffers[i] ) )
 		{
-			pConstants[i] = d3d11buffer->Buffer( );
+			pConstants[i] = d3d11buffer->Resource( );
 		}
 	}
 
 	m_pd3d11DeviceContext->CSSetConstantBuffers( startSlot, numBuffers, pConstants );
 }
 
-void CDirect3D11::BindShaderInput( aga::ComputeShader* shader, int startSlot, int numBuffers, aga::Buffer ** pBuffers )
+void CDirect3D11::BindShaderInput( aga::ComputeShader* shader, int startSlot, int numBuffers, aga::Buffer** pBuffers )
 {
 	ID3D11ShaderResourceView* pSrvs[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {};
 
 	for ( UINT i = 0; i < numBuffers; ++i )
 	{
-		if ( auto d3d11buffer = static_cast<D3D11BufferBase*>( pBuffers[i] ) )
+		auto d3d11buffer = static_cast<D3D11BufferBase*>( pBuffers[i] );
+		if ( d3d11buffer == nullptr )
 		{
-			pSrvs[i] = d3d11buffer->Srv( );
+			continue;
+		}
+
+		if ( auto d3d11SRV = static_cast<aga::D3D11ShaderResourceView*>( d3d11buffer->SRV( ) ) )
+		{
+			pSrvs[i] = d3d11SRV->Resource( );
 		}
 	}
 
@@ -720,9 +745,15 @@ void CDirect3D11::BindShaderOutput( aga::ComputeShader* shader, int startSlot, i
 
 	for ( UINT i = 0; i < numBuffers; ++i )
 	{
-		if ( auto d3d11buffer = static_cast<D3D11BufferBase*>( pBuffers[i] ) )
+		auto d3d11buffer = static_cast<D3D11BufferBase*>( pBuffers[i] );
+		if ( d3d11buffer == nullptr )
 		{
-			pUavs[i] = d3d11buffer->Uav( );
+			continue;
+		}
+
+		if ( auto d3d11UAV = static_cast<aga::D3D11UnorderedAccessView*>( d3d11buffer->UAV( ) ) )
+		{
+			pUavs[i] = d3d11UAV->Resource( );
 		}
 	}
 
@@ -758,18 +789,25 @@ void CDirect3D11::BindRenderTargets( aga::Texture** pRenderTargets, int renderTa
 	for ( int i = 0; i < renderTargetCount; ++i )
 	{
 		auto rtTex = static_cast<aga::D3D11BaseTexture*>( pRenderTargets[i] );
-		if ( rtTex )
+		if ( rtTex == nullptr )
 		{
-			rtvs[i] = rtTex->RenderTargetView( );
+			continue;
+		}
+
+		if ( auto d3d11RTV = static_cast<aga::D3D11RenderTargetView*>( rtTex->RTV( ) ) )
+		{
+			rtvs[i] = d3d11RTV->Resource( );
 		}
 	}
 	
 	ID3D11DepthStencilView* dsv = nullptr;
 
-	auto dsTex = static_cast<aga::D3D11BaseTexture*>( depthStencil );
-	if ( dsTex )
+	if ( auto dsTex = static_cast<aga::D3D11BaseTexture*>( depthStencil ) )
 	{
-		dsv = dsTex->DepthStencilView( );
+		if ( auto d3d11DSV = static_cast<aga::D3D11DepthStencilView*>( dsTex->DSV( ) ) )
+		{
+			dsv = d3d11DSV->Resource( );
+		}
 	}
 
 	m_pd3d11DeviceContext->OMSetRenderTargets( static_cast<UINT>( renderTargetCount ), rtvs, dsv );
@@ -915,8 +953,8 @@ void CDirect3D11::Copy( aga::Buffer* dst, aga::Buffer* src, std::size_t size )
 		return;
 	}
 
-	ID3D11Buffer* dstBuffer = d3d11Dst->Buffer( );
-	ID3D11Buffer* srcBuffer = d3d11Src->Buffer( );
+	ID3D11Buffer* dstBuffer = d3d11Dst->Resource( );
+	ID3D11Buffer* srcBuffer = d3d11Src->Resource( );
 
 	if ( ( dstBuffer == nullptr ) || ( srcBuffer == nullptr ) )
 	{
@@ -948,6 +986,11 @@ void CDirect3D11::GetRendererMultiSampleOption( MULTISAMPLE_OPTION* option )
 	assert( option != nullptr );
 	option->m_count = m_multiSampleOption.Count;
 	option->m_quality = m_multiSampleOption.Quality;
+}
+
+std::unique_ptr<aga::IImmediateCommandList> CDirect3D11::GetImmediateCommandList( ) const
+{
+	return std::make_unique<aga::D3D11ImmediateCommandList>( );
 }
 
 CDirect3D11::CDirect3D11( )

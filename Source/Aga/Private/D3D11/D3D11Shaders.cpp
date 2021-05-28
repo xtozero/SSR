@@ -7,6 +7,37 @@
 
 #include <d3dcompiler.h>
 
+SHADER_TYPE ConvertShaderVersionToType( UINT shaderVersion )
+{
+	D3D11_SHADER_VERSION_TYPE shaderType = static_cast<D3D11_SHADER_VERSION_TYPE>( D3D11_SHVER_GET_TYPE( shaderVersion ) );
+
+	switch ( shaderType )
+	{
+	case D3D11_SHVER_PIXEL_SHADER:
+		return SHADER_TYPE::PS;
+		break;
+	case D3D11_SHVER_VERTEX_SHADER:
+		return SHADER_TYPE::VS;
+		break;
+	case D3D11_SHVER_GEOMETRY_SHADER:
+		return SHADER_TYPE::GS;
+		break;
+	case D3D11_SHVER_HULL_SHADER:
+		return SHADER_TYPE::HS;
+		break;
+	case D3D11_SHVER_DOMAIN_SHADER:
+		return SHADER_TYPE::DS;
+		break;
+	case D3D11_SHVER_COMPUTE_SHADER:
+		return SHADER_TYPE::CS;
+		break;
+	default:
+		break;
+	}
+
+	return SHADER_TYPE::NONE;
+}
+
 void ExtractShaderParameters( const void* byteCode, std::size_t byteCodeSize, ShaderParameterMap& parameterMap )
 {
 	ID3D11ShaderReflection* pReflector = nullptr;
@@ -18,6 +49,8 @@ void ExtractShaderParameters( const void* byteCode, std::size_t byteCodeSize, Sh
 	hResult = pReflector->GetDesc( &shaderDesc );
 	assert( SUCCEEDED( hResult ) );
 
+	SHADER_TYPE shaderType = ConvertShaderVersionToType( shaderDesc.Version );
+
 	// Get the resources
 	for ( UINT i = 0; i < shaderDesc.BoundResources; ++i )
 	{
@@ -26,6 +59,7 @@ void ExtractShaderParameters( const void* byteCode, std::size_t byteCodeSize, Sh
 		assert( SUCCEEDED( hResult ) );
 
 		ShaderParameterType parameterType = ShaderParameterType::ConstantBuffer;
+		UINT parameterSize = 0;
 
 		if ( bindDesc.Type == D3D_SIT_CBUFFER || bindDesc.Type == D3D_SIT_TBUFFER )
 		{
@@ -37,13 +71,15 @@ void ExtractShaderParameters( const void* byteCode, std::size_t byteCodeSize, Sh
 				D3D11_SHADER_BUFFER_DESC shaderBuffDesc;
 				constBufferReflection->GetDesc( &shaderBuffDesc );
 
+				parameterSize = shaderBuffDesc.Size;
+
 				for ( UINT j = 0; j < shaderBuffDesc.Variables; ++j )
 				{
 					ID3D11ShaderReflectionVariable* variableReflection = constBufferReflection->GetVariableByIndex( j );
 					D3D11_SHADER_VARIABLE_DESC shaderVarDesc;
 					variableReflection->GetDesc( &shaderVarDesc );
 
-					parameterMap.AddParameter( shaderVarDesc.Name, ShaderParameterType::ConstantBufferValue, bindDesc.BindPoint, shaderVarDesc.StartOffset );
+					parameterMap.AddParameter( shaderVarDesc.Name, shaderType, ShaderParameterType::ConstantBufferValue, bindDesc.BindPoint, shaderVarDesc.StartOffset, shaderVarDesc.Size );
 				}
 			}
 		}
@@ -70,7 +106,7 @@ void ExtractShaderParameters( const void* byteCode, std::size_t byteCodeSize, Sh
 			assert( false && "Unexpected case" );
 		}
 
-		parameterMap.AddParameter( bindDesc.Name, parameterType, bindDesc.BindPoint, 0 );
+		parameterMap.AddParameter( bindDesc.Name, shaderType, parameterType, bindDesc.BindPoint, 0, parameterSize );
 	}
 
 	pReflector->Release( );
@@ -105,9 +141,13 @@ void BuildShaderParameterInfo( const std::map<std::string, ShaderParameter>& par
 		{
 			shaderParameters = &parameterInfo.m_uavs;
 		}
-		else
+		else if ( curParameterType == ShaderParameterType::Sampler )
 		{
 			shaderParameters = &parameterInfo.m_samplers;
+		}
+		else
+		{
+			continue;
 		}
 
 		shaderParameters->reserve( count );

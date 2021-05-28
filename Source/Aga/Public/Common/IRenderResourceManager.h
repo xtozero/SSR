@@ -41,6 +41,7 @@ public:
 	virtual aga::DepthStencilState* CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) = 0;
 	virtual aga::RasterizerState* CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) = 0;
 	virtual aga::SamplerState* CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) = 0;
+	virtual aga::PipelineState* CreatePipelineState( const aga::PipelineStateInitializer& initializer ) = 0;
 
 	// virtual void CopyResource( RE_HANDLE dest, const RESOURCE_REGION* destRegionOrNull, RE_HANDLE src, const RESOURCE_REGION* srcRegionOrNull ) = 0;
 	// virtual void UpdateResourceFromMemory( RE_HANDLE dest, void* src, UINT srcRowPitch, UINT srcDepthPitch, const RESOURCE_REGION* destRegionOrNull = nullptr ) = 0;

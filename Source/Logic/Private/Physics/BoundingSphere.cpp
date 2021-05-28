@@ -2,7 +2,7 @@
 #include "Physics/BoundingSphere.h"
 
 #include "Core/Timer.h"
-#include "Model/CommonMeshDefine.h"
+//#include "Model/CommonMeshDefine.h"
 #include "Physics/Aaboundingbox.h"
 #include "Physics/CollideNarrow.h"
 #include "Physics/Frustum.h"
@@ -47,21 +47,21 @@ namespace
 
 void BoundingSphere::CalcMeshBounds( const MeshData& mesh )
 {
-	int verticesCount = mesh.m_vertices;
-	const MeshVertex* pVertices = static_cast<const MeshVertex*>( mesh.m_pVertexData );
+	//int verticesCount = mesh.m_vertices;
+	//const MeshVertex* pVertices = static_cast<const MeshVertex*>( mesh.m_pVertexData );
 
-	float maxRadiusSqr = -FLT_MAX;
-	for ( int i = 0; i < verticesCount; ++i )
-	{
-		float radiusSqr = XMVectorGetX( XMVector3LengthSq( pVertices[i].m_position ) );
+	//float maxRadiusSqr = -FLT_MAX;
+	//for ( int i = 0; i < verticesCount; ++i )
+	//{
+	//	float radiusSqr = XMVectorGetX( XMVector3LengthSq( pVertices[i].m_position ) );
 
-		if ( radiusSqr > maxRadiusSqr )
-		{
-			maxRadiusSqr = radiusSqr;
-		}
-	}
+	//	if ( radiusSqr > maxRadiusSqr )
+	//	{
+	//		maxRadiusSqr = radiusSqr;
+	//	}
+	//}
 
-	m_radius = sqrtf( maxRadiusSqr );
+	//m_radius = sqrtf( maxRadiusSqr );
 }
 
 void BoundingSphere::Update( const CXMFLOAT3& scaling, const CXMFLOAT4& /*rotation*/, const CXMFLOAT3& translation, ICollider* original )

@@ -11,6 +11,7 @@ public:
 	virtual bool PrepareRender( RenderViewGroup& renderViewGroup ) = 0;
 	virtual void Render( RenderViewGroup& renderViewGroup ) = 0;
 
+	static void WaitUntilRenderingIsFinish( );
 protected:
-	void RenderMesh( const IScene& scene, RenderView& view );
+	void RenderMesh( IScene& scene, RenderView& view );
 };

@@ -5,23 +5,13 @@
 #include "GraphicsApiResource.h"
 #include "IAga.h"
 #include "PipelineState.h"
-#include "Shader.h"
+#include "ResourceViews.h"
 #include "ShaderPrameterInfo.h"
-#include "VertexLayout.h"
+#include "ShaderResource.h"
 
 #include <cassert>
+#include <optional>
 #include <vector>
-
-struct ShaderStates
-{
-	VertexLayout m_vertexLayout;
-	VertexShader m_vertexShader;
-	// Reserved
-	// HullShadaer m_hullShader;
-	// DomainShader m_domainShader;
-	// GeometryShader m_geometryShader;
-	PixelShader m_pixelShader;
-};
 
 class ShaderBindingLayout
 {
@@ -31,29 +21,14 @@ public:
 		return ( m_parameterInfo.m_constantBuffers.size( ) + m_parameterInfo.m_srvs.size( ) + m_parameterInfo.m_uavs.size( ) + m_parameterInfo.m_samplers.size( ) ) * sizeof( RefHandle<GraphicsApiResource> );
 	}
 
-	std::size_t GetConstantBufferOffset( ) const
+	const ShaderParameterInfo& ParameterInfo( ) const
 	{
-		return 0;
+		return m_parameterInfo;
 	}
 
-	std::size_t GetSRVOffset( ) const
+	SHADER_TYPE ShaderType( ) const
 	{
-		return m_parameterInfo.m_srvs.size( ) * sizeof( RefHandle<GraphicsApiResource> );
-	}
-
-	std::size_t GetUAVOffset( ) const
-	{
-		return GetSRVOffset( ) + m_parameterInfo.m_srvs.size( ) * sizeof( RefHandle<GraphicsApiResource> );
-	}
-
-	std::size_t GetSamplerOffset( ) const
-	{
-		return GetUAVOffset( ) + m_parameterInfo.m_uavs.size( ) * sizeof( RefHandle<GraphicsApiResource> );
-	}
-
-	SHADER_TYPE GetShaderType( ) const
-	{
-		m_shaderType;
+		return m_shaderType;
 	}
 
 	ShaderBindingLayout( SHADER_TYPE type, const ShaderParameterInfo& parameterInfo ) : m_shaderType( type ), m_parameterInfo( parameterInfo ) {}
@@ -88,6 +63,26 @@ public:
 	}
 
 protected:
+	std::size_t GetConstantBufferOffset( ) const
+	{
+		return 0;
+	}
+
+	std::size_t GetSRVOffset( ) const
+	{
+		return m_parameterInfo.m_srvs.size( ) * sizeof( RefHandle<GraphicsApiResource> );
+	}
+
+	std::size_t GetUAVOffset( ) const
+	{
+		return GetSRVOffset( ) + m_parameterInfo.m_srvs.size( ) * sizeof( RefHandle<GraphicsApiResource> );
+	}
+
+	std::size_t GetSamplerOffset( ) const
+	{
+		return GetUAVOffset( ) + m_parameterInfo.m_uavs.size( ) * sizeof( RefHandle<GraphicsApiResource> );
+	}
+
 	SHADER_TYPE m_shaderType = SHADER_TYPE::NONE;
 	ShaderParameterInfo m_parameterInfo;
 };
@@ -95,120 +90,81 @@ protected:
 class SingleShaderBindings : public ShaderBindingLayout
 {
 public:
-	void AddConstantBuffer( int slot, aga::Buffer* buffer )
+	void AddConstantBuffer( UINT slot, aga::Buffer* buffer )
 	{
-		int foundSlot = -1;
+		std::optional<UINT> foundSlot;
 
 		for ( std::size_t i = 0; i < m_parameterInfo.m_constantBuffers.size(); ++i )
 		{
 			if ( m_parameterInfo.m_constantBuffers[i].m_bindPoint == slot )
 			{
-				foundSlot = i;
+				foundSlot = static_cast<UINT>( i );
 			}
 		}
 
-		if ( foundSlot > 0 )
+		if ( foundSlot )
 		{
-			GetConstantBufferStart( )[foundSlot] = buffer;
+			GetConstantBufferStart( )[*foundSlot] = buffer;
 		}
 	}
 
-	void AddSRV( int slot, aga::Texture* texture )
+	void AddSRV( UINT slot, aga::ShaderResourceView* srv )
 	{
-		int foundSlot = -1;
+		std::optional<UINT> foundSlot;
 
 		for ( std::size_t i = 0; i < m_parameterInfo.m_srvs.size( ); ++i )
 		{
 			if ( m_parameterInfo.m_srvs[i].m_bindPoint == slot )
 			{
-				foundSlot = i;
+				foundSlot = static_cast<UINT>( i );
 			}
 		}
 
-		if ( foundSlot > 0 )
+		if ( foundSlot )
 		{
-			GetSRVStart( )[foundSlot] = texture;
+			GetSRVStart( )[*foundSlot] = srv;
 		}
 	}
 
-	void AddSRV( int slot, aga::Buffer* buffer )
+	void AddUAV( UINT slot, aga::UnorderedAccessView* uav )
 	{
-		int foundSlot = -1;
-
-		for ( std::size_t i = 0; i < m_parameterInfo.m_srvs.size( ); ++i )
-		{
-			if ( m_parameterInfo.m_srvs[i].m_bindPoint == slot )
-			{
-				foundSlot = i;
-			}
-		}
-
-		if ( foundSlot > 0 )
-		{
-			GetSRVStart( )[foundSlot] = buffer;
-		}
-	}
-
-	void AddUAV( int slot, aga::Texture* texture )
-	{
-		int foundSlot = -1;
+		std::optional<UINT> foundSlot;
 
 		for ( std::size_t i = 0; i < m_parameterInfo.m_uavs.size( ); ++i )
 		{
 			if ( m_parameterInfo.m_uavs[i].m_bindPoint == slot )
 			{
-				foundSlot = i;
+				foundSlot = static_cast<UINT>( i );
 			}
 		}
 
-		if ( foundSlot > 0 )
+		if ( foundSlot )
 		{
-			GetUAVStart( )[foundSlot] = texture;
+			GetUAVStart( )[*foundSlot] = uav;
 		}
 	}
 
-	void AddUAV( int slot, aga::Buffer* buffer )
+	void AddSampler( UINT slot, aga::SamplerState* sampler )
 	{
-		int foundSlot = -1;
-
-		for ( std::size_t i = 0; i < m_parameterInfo.m_uavs.size( ); ++i )
-		{
-			if ( m_parameterInfo.m_uavs[i].m_bindPoint == slot )
-			{
-				foundSlot = i;
-			}
-		}
-
-		if ( foundSlot > 0 )
-		{
-			GetUAVStart( )[foundSlot] = buffer;
-		}
-	}
-
-	void AddSampler( int slot, aga::SamplerState* sampler )
-	{
-		int foundSlot = -1;
+		std::optional<UINT> foundSlot;
 
 		for ( std::size_t i = 0; i < m_parameterInfo.m_samplers.size( ); ++i )
 		{
 			if ( m_parameterInfo.m_samplers[i].m_bindPoint == slot )
 			{
-				foundSlot = i;
+				foundSlot = static_cast<UINT>( i );
 			}
 		}
 
-		if ( foundSlot > 0 )
+		if ( foundSlot )
 		{
-			GetSamplerStart( )[foundSlot] = sampler;
+			GetSamplerStart( )[*foundSlot] = sampler;
 		}
 	}
 
-	SingleShaderBindings( const ShaderBindingLayout& bindingLayout, unsigned char* data ) : ShaderBindingLayout( bindingLayout ), m_data( data ) {}
-
-private:
-	RefHandle<aga::Buffer>* GetConstantBufferStart( ) const
+	RefHandle<GraphicsApiResource>* GetConstantBufferStart( ) const
 	{
-		return reinterpret_cast<RefHandle<aga::Buffer>*>( m_data + GetConstantBufferOffset( ) );
+		return reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + GetConstantBufferOffset( ) );
 	}
 
 	RefHandle<GraphicsApiResource>* GetSRVStart( ) const
@@ -226,26 +182,47 @@ private:
 		return reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + GetSamplerOffset( ) );
 	}
 
+	SingleShaderBindings( const ShaderBindingLayout& bindingLayout, unsigned char* data ) : ShaderBindingLayout( bindingLayout ), m_data( data ) {}
+
+private:
 	unsigned char* m_data = nullptr;
+};
+
+class ShaderBindingsInitializer
+{
+public:
+	const ShaderParameterInfo* m_shaderParameterInfos[MAX_SHADER_TYPE<int>] = {};
+
+	const ShaderParameterInfo*& operator[]( SHADER_TYPE type )
+	{
+		assert( SHADER_TYPE::NONE < type && type < SHADER_TYPE::Count );
+		return m_shaderParameterInfos[static_cast<int>( type )];
+	}
+
+	const ShaderParameterInfo* operator[]( SHADER_TYPE type ) const
+	{
+		assert( SHADER_TYPE::NONE < type && type < SHADER_TYPE::Count );
+		return m_shaderParameterInfos[static_cast<int>( type )];
+	}
 };
 
 class ShaderBindings
 {
 public:
-	void Initialize( const ShaderStates& shaders )
+	void Initialize( const ShaderBindingsInitializer& initializer )
 	{
-		std::size_t numShaders = ( shaders.m_vertexShader.IsValid( ) ? 1 : 0 ) +
+		std::size_t numShaders = ( initializer[SHADER_TYPE::VS] ? 1 : 0 ) +
 			//( shaders.m_hullShader.IsValid( ) ? 1 : 0 ) +
 			//( shaders.m_domainShader.IsValid( ) ? 1 : 0 ) +
 			//( shaders.m_geometryShader.IsValid( ) ? 1 : 0 ) +
-			( shaders.m_pixelShader.IsValid( ) ? 1 : 0 );
+			( initializer[SHADER_TYPE::PS] ? 1 : 0 );
 
 		m_shaderLayouts.reserve( numShaders );
 		std::size_t shaderBindsDataSize = 0;
 
-		if ( shaders.m_vertexShader.IsValid( ) )
+		if ( initializer[SHADER_TYPE::VS] )
 		{
-			m_shaderLayouts.emplace_back( SHADER_TYPE::VS, shaders.m_vertexShader.ParameterInfo( ) );
+			m_shaderLayouts.emplace_back( SHADER_TYPE::VS, *initializer[SHADER_TYPE::VS] );
 			shaderBindsDataSize += m_shaderLayouts.back( ).GetDataSize( );
 		}
 
@@ -267,22 +244,22 @@ public:
 		//	shaderBindsDataSize += m_shaderLayouts.back( ).GetDataSize( );
 		//}
 
-		if ( shaders.m_pixelShader.IsValid( ) )
+		if ( initializer[SHADER_TYPE::PS] )
 		{
-			m_shaderLayouts.emplace_back( SHADER_TYPE::PS, shaders.m_vertexShader.ParameterInfo( ) );
+			m_shaderLayouts.emplace_back( SHADER_TYPE::PS, *initializer[SHADER_TYPE::PS] );
 			shaderBindsDataSize += m_shaderLayouts.back( ).GetDataSize( );
 		}
 
 		Allocate( shaderBindsDataSize );
 	}
 
-	SingleShaderBindings GetSingleShaderBindings( SHADER_TYPE shaderType )
+	SingleShaderBindings GetSingleShaderBindings( SHADER_TYPE shaderType ) const
 	{
 		for ( auto iter = m_shaderLayouts.begin( ); iter != m_shaderLayouts.end( ); ++iter )
 		{
 			std::size_t dataOffset = 0;
 
-			if ( iter->GetShaderType( ) == shaderType )
+			if ( iter->ShaderType( ) == shaderType )
 			{
 				return SingleShaderBindings( *iter, m_data + dataOffset );
 			}
@@ -304,6 +281,8 @@ public:
 	{
 		if ( this != &other )
 		{
+			Free( );
+
 			m_shaderLayouts = other.m_shaderLayouts;
 			Allocate( other.m_size );
 
@@ -321,6 +300,8 @@ public:
 	{
 		if ( this != &other )
 		{
+			Free( );
+
 			m_shaderLayouts = std::move( other.m_shaderLayouts );
 			m_data = other.m_data;
 			m_size = other.m_size;

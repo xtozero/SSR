@@ -24,18 +24,21 @@ class SceneViewConstantBuffer
 public:
 	void Initialize( );
 	void Update( const ViewConstantBufferParameters& param );
-	void Bind( );
+
+	aga::Buffer* Resource( );
+	const aga::Buffer* Resource( ) const;
 
 private:
 	TypedConstatBuffer<ViewConstantBufferParameters> m_constantBuffer;
 };
 
-class PrimitiveBufferParameters
+class PrimitiveSceneData
 {
 public:
-	explicit PrimitiveBufferParameters( const PrimitiveProxy* proxy );
+	explicit PrimitiveSceneData( const PrimitiveProxy* proxy );
 
 	CXMFLOAT4X4 m_worldMatrix;
+	CXMFLOAT4X4 m_invWorldMatrix;
 };
 
 class ScenePrimitiveBuffer
@@ -43,10 +46,11 @@ class ScenePrimitiveBuffer
 public:
 	void Resize( std::size_t size );
 
-	operator aga::Buffer*( )
-	{
-		return m_buffer;
-	}
+	aga::ShaderResourceView* SRV( );
+	const aga::ShaderResourceView* SRV( ) const;
+
+	aga::Buffer* Resource( );
+	const aga::Buffer* Resource( ) const;
 
 private:
 	std::size_t m_size = 0;

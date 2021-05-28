@@ -30,6 +30,6 @@ AssetManufacturer::AssetManufacturer( )
 	m_manufacturers.emplace_back( std::make_unique<DDSManufacturer>( ) );
 	m_manufacturers.emplace_back( std::make_unique<JsonManufacturer>( ) );
 	m_manufacturers.emplace_back( std::make_unique<ShaderManufacturer>( ) );
-	m_manufacturers.emplace_back( std::make_unique<WavefrontMtlManufacturer>( ) );
+	// m_manufacturers.emplace_back( std::make_unique<WavefrontMtlManufacturer>( ) );
 	m_manufacturers.emplace_back( std::make_unique<WavefrontObjManufacturer>( ) );
 }

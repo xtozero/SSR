@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Physics/ColliderManager.h"
 
-#include "Model/CommonMeshDefine.h"
+//#include "Model/CommonMeshDefine.h"
 #include "Physics/Aaboundingbox.h"
 #include "Physics/BoundingSphere.h"
 #include "Physics/OrientedBoundingBox.h"

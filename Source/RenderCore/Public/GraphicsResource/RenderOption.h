@@ -69,13 +69,15 @@ public:
 		{
 			ret &= ( lhs.m_renderTarget[i] == rhs.m_renderTarget[i] );
 		}
+		ret &= ( lhs.m_sampleMask == rhs.m_sampleMask );
 
 		return ret;
 	}
 
-	bool m_alphaToConverageEnable;
-	bool m_independentBlendEnable;
+	bool m_alphaToConverageEnable = false;
+	bool m_independentBlendEnable = false;
 	RenderTargetBlendOption m_renderTarget[8];
+	UINT m_sampleMask = (std::numeric_limits<UINT>::max)( );
 
 protected:
 	RENDERCORE_DLL virtual void PostLoadImpl( ) override;
@@ -99,6 +101,8 @@ struct BlendOptionHasher
 			HashCombine( hash, i );
 			HashCombine( hash, RenderTargetBlendOptionHasher( )( option.m_renderTarget[i] ) );
 		}
+
+		HashCombine( hash, option.m_sampleMask );
 
 		return hash;
 	}
@@ -335,30 +339,16 @@ public:
 	{
 		bool ret = true;
 
-		ret &= ( lhs.m_vertexShader == rhs.m_vertexShader );
-		ret &= ( lhs.m_pixelShader == rhs.m_pixelShader );
 		ret &= ( lhs.m_blendOption == rhs.m_blendOption );
 		ret &= ( lhs.m_depthStencilOption == rhs.m_depthStencilOption );
 		ret &= ( lhs.m_rasterizerOption == rhs.m_rasterizerOption );
 
-		for ( int i = 0; i < std::extent_v<decltype( lhs.m_samplerOption )>; ++i )
-		{
-			for ( int j = 0; j < std::extent_v<decltype( lhs.m_samplerOption ), 1>; ++j )
-			{
-				ret &= ( lhs.m_samplerOption[i][j] == rhs.m_samplerOption[i][j] );
-			}
-		}
-
 		return ret;
 	}
 
-	std::shared_ptr<VertexShader> m_vertexShader = nullptr;
-	std::shared_ptr<PixelShader> m_pixelShader = nullptr;
 	std::shared_ptr<BlendOption> m_blendOption = nullptr;
 	std::shared_ptr<DepthStencilOption> m_depthStencilOption = nullptr;
 	std::shared_ptr<RasterizerOption> m_rasterizerOption = nullptr;
-	static constexpr int SAMPLER_SLOT_COUNT = 16;
-	std::shared_ptr<SamplerOption> m_samplerOption[MAX_SHADER_TYPE<int>][SAMPLER_SLOT_COUNT] = {};
 
 protected:
 	RENDERCORE_DLL virtual void PostLoadImpl( ) override;

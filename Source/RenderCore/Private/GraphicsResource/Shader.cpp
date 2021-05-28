@@ -5,7 +5,7 @@
 
 Archive& operator<<( Archive& ar, ShaderParameter& shaderParam )
 {
-	ar << shaderParam.m_type << shaderParam.m_bindPoint << shaderParam.m_offset;
+	ar << shaderParam.m_shader << shaderParam.m_type << shaderParam.m_bindPoint << shaderParam.m_offset << shaderParam.m_sizeInByte;
 	return ar;
 }
 
@@ -120,6 +120,16 @@ void VertexShader::Serialize( Archive& ar )
 	ShaderBase::Serialize( ar );
 }
 
+aga::VertexShader* VertexShader::Resource( )
+{
+	return m_shader.Get( );
+}
+
+const aga::VertexShader* VertexShader::Resource( ) const
+{
+	return m_shader.Get( );
+}
+
 void VertexShader::PostLoadImpl( )
 {
 	m_shader = aga::VertexShader::Create( m_byteCode.Data( ), m_byteCode.Size( ) );
@@ -148,6 +158,16 @@ void PixelShader::Serialize( Archive& ar )
 	ShaderBase::Serialize( ar );
 }
 
+aga::PixelShader* PixelShader::Resource( )
+{
+	return m_shader.Get( );
+}
+
+const aga::PixelShader* PixelShader::Resource( ) const
+{
+	return m_shader.Get( );
+}
+
 void PixelShader::PostLoadImpl( )
 {
 	m_shader = aga::PixelShader::Create( m_byteCode.Data( ), m_byteCode.Size( ) );
@@ -174,6 +194,16 @@ void ComputeShader::Serialize( Archive & ar )
 	}
 
 	ShaderBase::Serialize( ar );
+}
+
+aga::ComputeShader* ComputeShader::Resource( )
+{
+	return m_shader.Get( );
+}
+
+const aga::ComputeShader* ComputeShader::Resource( ) const
+{
+	return m_shader.Get( );
 }
 
 void ComputeShader::PostLoadImpl( )

@@ -19,10 +19,10 @@ void BindShaderParameter( ShaderType& shader, const ShaderParameter& parameter, 
 	switch ( parameter.m_type )
 	{
 	case ShaderParameterType::ConstantBuffer:
-		GetInterface<IAga>( )->BindConstant( shader, parameter.m_bindPoint, 1, buffers );
+		GetInterface<IAga>( )->BindConstant( shader.Resource( ), parameter.m_bindPoint, 1, buffers );
 		break;
 	case ShaderParameterType::SRV:
-		GetInterface<IAga>( )->BindShaderInput( shader, parameter.m_bindPoint, 1, buffers );
+		GetInterface<IAga>( )->BindShaderInput( shader.Resource( ), parameter.m_bindPoint, 1, buffers );
 		break;
 	case ShaderParameterType::Sampler:
 		break;
@@ -36,13 +36,13 @@ inline void BindShaderParameter( ComputeShader& shader, const ShaderParameter& p
 	switch ( parameter.m_type )
 	{
 	case ShaderParameterType::ConstantBuffer:
-		GetInterface<IAga>( )->BindConstant( shader, parameter.m_bindPoint, 1, buffers );
+		GetInterface<IAga>( )->BindConstant( shader.Resource( ), parameter.m_bindPoint, 1, buffers );
 		break;
 	case ShaderParameterType::SRV:
-		GetInterface<IAga>( )->BindShaderInput( shader, parameter.m_bindPoint, 1, buffers );
+		GetInterface<IAga>( )->BindShaderInput( shader.Resource( ), parameter.m_bindPoint, 1, buffers );
 		break;
 	case ShaderParameterType::UAV:
-		GetInterface<IAga>( )->BindShaderOutput( shader, parameter.m_bindPoint, 1, buffers );
+		GetInterface<IAga>( )->BindShaderOutput( shader.Resource( ), parameter.m_bindPoint, 1, buffers );
 		break;
 	case ShaderParameterType::Sampler:
 		break;

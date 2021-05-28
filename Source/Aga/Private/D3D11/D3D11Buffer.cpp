@@ -3,6 +3,7 @@
 
 #include "D3D11Api.h"
 #include "D3D11FlagConvertor.h"
+#include "D3D11ResourceViews.h"
 
 namespace
 {
@@ -78,6 +79,21 @@ namespace
 	}
 }
 
+ID3D11Buffer* D3D11BufferBase::Resource( )
+{
+	return m_buffer;
+}
+
+const ID3D11Buffer* D3D11BufferBase::Resource( ) const
+{
+	return m_buffer;
+}
+
+UINT D3D11BufferBase::Stride( ) const
+{
+	return m_desc.StructureByteStride;
+}
+
 D3D11BufferBase::D3D11BufferBase( const BUFFER_TRAIT& trait, const void* initData )
 {
 	m_desc = ConvertTraitToDesc( trait );
@@ -120,33 +136,22 @@ void D3D11BufferBase::CreateBuffer( )
 	if ( m_desc.BindFlags & D3D11_BIND_SHADER_RESOURCE )
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc );
-		hr = D3D11Device( ).CreateShaderResourceView( m_buffer, &srvDesc, &m_srv );
-		assert( SUCCEEDED( hr ) );
+		m_srv = new aga::D3D11ShaderResourceView( m_buffer, srvDesc );
+		m_srv->Init( );
 	}
 
 	if ( m_desc.BindFlags & D3D11_BIND_UNORDERED_ACCESS )
 	{
 		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc );
-		hr = D3D11Device( ).CreateUnorderedAccessView( m_buffer, &uavDesc, &m_uav );
-		assert( SUCCEEDED( hr ) );
+		m_uav = new aga::D3D11UnorderedAccessView( m_buffer, uavDesc );
+		m_uav->Init( );
 	}
 }
 
 void D3D11BufferBase::DestroyBuffer( )
 {
-	if ( m_uav )
-	{
-		ULONG ref = m_uav->Release( );
-		m_uav = nullptr;
-		assert( ref == 0 );
-	}
-
-	if ( m_srv )
-	{
-		ULONG ref = m_srv->Release( );
-		m_srv = nullptr;
-		assert( ref == 0 );
-	}
+	m_srv = nullptr;
+	m_uav = nullptr;
 
 	if ( m_buffer )
 	{

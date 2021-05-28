@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "Common/IAga.h"
+#include "IAga.h"
 #include "Core/InterfaceFactories.h"
 #include "D3D11Api.h"
 

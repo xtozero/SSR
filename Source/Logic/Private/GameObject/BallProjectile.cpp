@@ -4,8 +4,8 @@
 #include "Core/GameLogic.h"
 #include "GameObject/GameObject.h"
 #include "GameObject/GameObjectFactory.h"
-#include "Model/IModelBuilder.h"
-#include "Model/MeshBuildHelper.h"
+//#include "Model/IModelBuilder.h"
+//#include "Model/MeshBuildHelper.h"
 //#include "Render/IRenderer.h"
 
 DECLARE_GAME_OBJECT( ball_projectile, CBallProjectile );

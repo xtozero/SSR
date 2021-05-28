@@ -1,78 +1,131 @@
 #include "stdafx.h"
 #include "GraphicsPipelineState.h"
 
-#include "Core/InterfaceFactories.h"
-#include "IAga.h"
+#include "PipelineState.h"
 #include "MultiThread/EngineTaskScheduler.h"
 
-BlendState BlendState::Create( const BLEND_STATE_TRAIT& trait )
+aga::BlendState* BlendState::Resource( )
 {
-	aga::BlendState* state( GetInterface<IAga>( )->CreateBlendState( trait ) );
-	if ( IsInRenderThread( ) )
-	{
-		state->Init( );
-	}
-	else
-	{
-		EnqueueRenderTask( [state]( )
-		{
-			state->Init( );
-		} );
-	}
-
-	return BlendState( state );
+	return m_state.Get( );
 }
 
-DepthStencilState DepthStencilState::Create( const DEPTH_STENCIL_STATE_TRAIT& trait )
+const aga::BlendState* BlendState::Resource( ) const
 {
-	aga::DepthStencilState* state( GetInterface<IAga>( )->CreateDepthStencilState( trait ) );
-	if ( IsInRenderThread( ) )
-	{
-		state->Init( );
-	}
-	else
-	{
-		EnqueueRenderTask( [state]( )
-		{
-			state->Init( );
-		} );
-	}
-
-	return DepthStencilState( state );
+	return m_state.Get( );
 }
 
-RasterizerState RasterizerState::Create( const RASTERIZER_STATE_TRAIT& trait )
+BlendState::BlendState( const BLEND_STATE_TRAIT& trait )
 {
-	aga::RasterizerState* state( GetInterface<IAga>( )->CreateRasterizerState( trait ) );
-	if ( IsInRenderThread( ) )
-	{
-		state->Init( );
-	}
-	else
-	{
-		EnqueueRenderTask( [state]( )
-		{
-			state->Init( );
-		} );
-	}
-
-	return RasterizerState( state );
+	InitResource( trait );
 }
 
-SamplerState SamplerState::Create( const SAMPLER_STATE_TRAIT& trait )
+void BlendState::InitResource( const BLEND_STATE_TRAIT& trait )
 {
-	aga::SamplerState* state( GetInterface<IAga>( )->CreateSamplerState( trait ) );
+	m_state = aga::BlendState::Create( trait );
+
 	if ( IsInRenderThread( ) )
 	{
-		state->Init( );
+		m_state->Init( );
 	}
 	else
 	{
-		EnqueueRenderTask( [state]( )
+		EnqueueRenderTask( [state = m_state]( )
 		{
 			state->Init( );
 		} );
 	}
+}
 
-	return SamplerState( state );
+aga::DepthStencilState* DepthStencilState::Resource( )
+{
+	return m_state.Get( );
+}
+
+const aga::DepthStencilState* DepthStencilState::Resource( ) const
+{
+	return m_state.Get( );
+}
+
+DepthStencilState::DepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait )
+{
+	InitResource( trait );
+}
+
+void DepthStencilState::InitResource( const DEPTH_STENCIL_STATE_TRAIT& trait )
+{
+	m_state = aga::DepthStencilState::Create( trait );
+
+	if ( IsInRenderThread( ) )
+	{
+		m_state->Init( );
+	}
+	else
+	{
+		EnqueueRenderTask( [state = m_state]( )
+		{
+			state->Init( );
+		} );
+	}
+}
+
+aga::RasterizerState* RasterizerState::Resource( )
+{
+	return m_state.Get( );
+}
+
+const aga::RasterizerState* RasterizerState::Resource( ) const
+{
+	return m_state.Get( );
+}
+
+RasterizerState::RasterizerState( const RASTERIZER_STATE_TRAIT& trait )
+{
+	InitResource( trait );
+}
+
+void RasterizerState::InitResource( const RASTERIZER_STATE_TRAIT& trait )
+{
+	m_state = aga::RasterizerState::Create( trait );
+	if ( IsInRenderThread( ) )
+	{
+		m_state->Init( );
+	}
+	else
+	{
+		EnqueueRenderTask( [state = m_state]( )
+		{
+			state->Init( );
+		} );
+	}
+}
+
+aga::SamplerState* SamplerState::Resource( )
+{
+	return m_state.Get( );
+}
+
+const aga::SamplerState* SamplerState::Resource( ) const
+{
+	return m_state.Get( );
+}
+
+SamplerState::SamplerState( const SAMPLER_STATE_TRAIT& trait )
+{
+	InitResource( trait );
+}
+
+void SamplerState::InitResource( const SAMPLER_STATE_TRAIT& trait )
+{
+	m_state = aga::SamplerState::Create( trait );
+	if ( IsInRenderThread( ) )
+	{
+		m_state->Init( );
+	}
+	else
+	{
+		EnqueueRenderTask( [state = m_state]( )
+		{
+			state->Init( );
+		} );
+	}
 }

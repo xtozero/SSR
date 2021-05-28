@@ -16,6 +16,9 @@ public:
 	const std::filesystem::path& Path( ) const { return m_path; }
 	void SetPath( const std::filesystem::path& path ) { m_path = path; }
 
+	aga::Texture* Resource( );
+	const aga::Texture* Resource( ) const;
+
 protected:
 	RENDERCORE_DLL virtual void PostLoadImpl( ) override;
 
@@ -34,6 +37,7 @@ protected:
 
 private:
 	std::filesystem::path m_path;
+	RefHandle<aga::Texture> m_texture;
 };
 
 struct DDSTextureInitializer;

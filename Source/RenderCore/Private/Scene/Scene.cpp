@@ -129,17 +129,18 @@ bool UpdateGPUPrimitiveInfos( Scene& scene )
 	std:size_t totalPrimitives = scene.m_primitives.size( );
 	scene.m_gpuPrimitiveInfos.Resize( totalPrimitives );
 
-	GpuMemcpy gpuMemcpy( updateSize, sizeof( PrimitiveBufferParameters ) / 16, scene.m_uploadPrimitiveBuffer, scene.m_distributionBuffer );
+	GpuMemcpy gpuMemcpy( updateSize, sizeof( PrimitiveSceneData ) / sizeof( CXMFLOAT4 ), scene.m_uploadPrimitiveBuffer, scene.m_distributionBuffer );
 
 	for ( auto index : scene.m_primitiveToUpdate )
 	{
 		PrimitiveProxy* proxy = scene.m_primitives[index]->m_sceneProxy;
 
-		PrimitiveBufferParameters param( proxy );
+		PrimitiveSceneData param( proxy );
 		gpuMemcpy.Add( (const char*)( &param ), index );
 	}
 
-	gpuMemcpy.Upload( scene.m_gpuPrimitiveInfos );
+	aga::Buffer* gpuPrimitiveInfos = scene.m_gpuPrimitiveInfos.Resource( );
+	gpuMemcpy.Upload( gpuPrimitiveInfos );
 
 	scene.m_primitiveToUpdate.clear( );
 	return true;

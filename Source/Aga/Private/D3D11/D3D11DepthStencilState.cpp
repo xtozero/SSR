@@ -33,6 +33,26 @@ namespace
 
 namespace aga
 {
+	ID3D11DepthStencilState* D3D11DepthStencilState::Resource( )
+	{
+		return m_depthStencilState;
+	}
+
+	const ID3D11DepthStencilState* D3D11DepthStencilState::Resource( ) const
+	{
+		return m_depthStencilState;
+	}
+
+	unsigned int D3D11DepthStencilState::GetStencilRef( ) const
+	{
+		return m_stencilRef;;
+	}
+
+	void D3D11DepthStencilState::SetStencilRef( unsigned int stencilRef )
+	{
+		m_stencilRef = stencilRef;
+	}
+
 	D3D11DepthStencilState::D3D11DepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
 
 	void D3D11DepthStencilState::InitResource( )

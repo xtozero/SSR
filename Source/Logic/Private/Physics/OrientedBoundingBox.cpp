@@ -2,7 +2,7 @@
 #include "Physics/OrientedBoundingBox.h"
 
 #include "Core/Timer.h"
-#include "Model/CommonMeshDefine.h"
+//#include "Model/CommonMeshDefine.h"
 #include "Physics/Aaboundingbox.h"
 #include "Physics/CollideNarrow.h"
 #include "Physics/Frustum.h"
@@ -31,21 +31,21 @@ namespace
 
 void COrientedBoundingBox::CalcMeshBounds( const MeshData& mesh )
 {
-	int verticesCount = mesh.m_vertices;
-	const MeshVertex* pVertices = static_cast<const MeshVertex*>( mesh.m_pVertexData );
+	//int verticesCount = mesh.m_vertices;
+	//const MeshVertex* pVertices = static_cast<const MeshVertex*>( mesh.m_pVertexData );
 
-	CXMFLOAT3 length;
-	for ( int i = 0; i < verticesCount; ++i )
-	{
-		for ( int j = 0; j < 3; ++j )
-		{
-			length[j] = fabsf( pVertices[i].m_position[j] );
-			if ( length[j] > m_halfSize[j] )
-			{
-				m_halfSize[j] = length[j];
-			}
-		}
-	}
+	//CXMFLOAT3 length;
+	//for ( int i = 0; i < verticesCount; ++i )
+	//{
+	//	for ( int j = 0; j < 3; ++j )
+	//	{
+	//		length[j] = fabsf( pVertices[i].m_position[j] );
+	//		if ( length[j] > m_halfSize[j] )
+	//		{
+	//			m_halfSize[j] = length[j];
+	//		}
+	//	}
+	//}
 }
 
 void COrientedBoundingBox::Update( const CXMFLOAT3& scaling, const CXMFLOAT4& rotation, const CXMFLOAT3& translation, ICollider* original )

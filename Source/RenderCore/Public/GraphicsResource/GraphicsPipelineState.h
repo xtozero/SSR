@@ -3,21 +3,25 @@
 #include "GraphicsApiResource.h"
 #include "PipelineState.h"
 #include "ShaderBindings.h"
+#include "VertexLayout.h"
 
 class BlendState
 {
 public:
-	static BlendState Create( const BLEND_STATE_TRAIT& trait );
+	aga::BlendState* Resource( );
+	const aga::BlendState* Resource( ) const;
 
-	aga::BlendState* State( )
-	{
-		return m_state.Get( );
-	}
+	explicit BlendState( const BLEND_STATE_TRAIT& trait );
 
 	BlendState( ) = default;
+	~BlendState( ) = default;
+	BlendState( const BlendState& ) = default;
+	BlendState& operator=( const BlendState& ) = default;
+	BlendState( BlendState&& ) = default;
+	BlendState& operator=( BlendState&& ) = default;
 
 private:
-	explicit BlendState( aga::BlendState* state ) : m_state( state ) {}
+	void InitResource( const BLEND_STATE_TRAIT& trait );
 
 	RefHandle<aga::BlendState> m_state;
 };
@@ -25,17 +29,20 @@ private:
 class DepthStencilState
 {
 public:
-	static DepthStencilState Create( const DEPTH_STENCIL_STATE_TRAIT& trait );
+	aga::DepthStencilState* Resource( );
+	const aga::DepthStencilState* Resource( ) const;
 
-	aga::DepthStencilState* State( )
-	{
-		return m_state.Get( );
-	}
+	explicit DepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait );
 
 	DepthStencilState( ) = default;
+	~DepthStencilState( ) = default;
+	DepthStencilState( const DepthStencilState& ) = default;
+	DepthStencilState& operator=( const DepthStencilState& ) = default;
+	DepthStencilState( DepthStencilState&& ) = default;
+	DepthStencilState& operator=( DepthStencilState&& ) = default;
 
 private:
-	explicit DepthStencilState( aga::DepthStencilState* state ) : m_state( state ) {}
+	void InitResource( const DEPTH_STENCIL_STATE_TRAIT& trait );
 
 	RefHandle<aga::DepthStencilState> m_state;
 };
@@ -43,17 +50,20 @@ private:
 class RasterizerState
 {
 public:
-	static RasterizerState Create( const RASTERIZER_STATE_TRAIT& trait );
+	aga::RasterizerState* Resource( );
+	const aga::RasterizerState* Resource( ) const;
 
-	aga::RasterizerState* State( )
-	{
-		return m_state.Get( );
-	}
+	explicit RasterizerState( const RASTERIZER_STATE_TRAIT& trait );
 
 	RasterizerState( ) = default;
+	~RasterizerState( ) = default;
+	RasterizerState( const RasterizerState& ) = default;
+	RasterizerState& operator=( const RasterizerState& ) = default;
+	RasterizerState( RasterizerState&& ) = default;
+	RasterizerState& operator=( RasterizerState&& ) = default;
 
 private:
-	explicit RasterizerState( aga::RasterizerState* state ) : m_state( state ) {}
+	void InitResource( const RASTERIZER_STATE_TRAIT& trait );
 
 	RefHandle<aga::RasterizerState> m_state;
 };
@@ -61,20 +71,51 @@ private:
 class SamplerState
 {
 public:
-	static SamplerState Create( const SAMPLER_STATE_TRAIT& trait );
+	aga::SamplerState* Resource( );
+	const aga::SamplerState* Resource( ) const;
 
-	aga::SamplerState* State( )
-	{
-		return m_state.Get( );
-	}
+	explicit SamplerState( const SAMPLER_STATE_TRAIT& trait );
 
 	SamplerState( ) = default;
+	~SamplerState( ) = default;
+	SamplerState( const SamplerState& ) = default;
+	SamplerState& operator=( const SamplerState& ) = default;
+	SamplerState( SamplerState&& ) = default;
+	SamplerState& operator=( SamplerState&& ) = default;
 
 private:
-	explicit SamplerState( aga::SamplerState* state ) : m_state( state ) {}
+	void InitResource( const SAMPLER_STATE_TRAIT& trait );
 
 	RefHandle<aga::SamplerState> m_state;
 };
+
+struct ShaderStates
+{
+	VertexLayout m_vertexLayout;
+	VertexShader m_vertexShader;
+	// Reserved
+	// HullShadaer m_hullShader;
+	// DomainShader m_domainShader;
+	// GeometryShader m_geometryShader;
+	PixelShader m_pixelShader;
+};
+
+inline ShaderBindingsInitializer CreateShaderBindingsInitializer( const ShaderStates& state )
+{
+	ShaderBindingsInitializer initializer;
+	
+	if ( state.m_vertexShader.IsValid( ) )
+	{
+		initializer[SHADER_TYPE::VS] = &state.m_vertexShader.ParameterInfo( );
+	}
+
+	if ( state.m_pixelShader.IsValid( ) )
+	{
+		initializer[SHADER_TYPE::PS] = &state.m_pixelShader.ParameterInfo( );
+	}
+
+	return initializer;
+}
 
 struct GraphicsPipelineState
 {
@@ -83,4 +124,6 @@ struct GraphicsPipelineState
 	DepthStencilState m_depthStencilState;
 	BlendState m_blendState;
 	RESOURCE_PRIMITIVE m_primitive;
+
+	RefHandle<aga::PipelineState> m_pso;
 };

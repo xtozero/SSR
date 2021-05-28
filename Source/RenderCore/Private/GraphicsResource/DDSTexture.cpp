@@ -2,9 +2,19 @@
 #include "DDSTexture.h"
 
 REGISTER_ASSET( Texture );
-void Texture::Serialize( Archive& ar )
+void Texture::Serialize( [[maybe_unused]] Archive& ar )
 {
 	// Do nothing
+}
+
+aga::Texture* Texture::Resource( )
+{
+	return m_texture.Get( );
+}
+
+const aga::Texture* Texture::Resource( ) const
+{
+	return m_texture.Get( );
 }
 
 void Texture::PostLoadImpl( )

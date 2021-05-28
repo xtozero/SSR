@@ -521,6 +521,7 @@ struct BLEND_STATE_TRAIT
 	bool m_alphaToConverageEnable;
 	bool m_independentBlendEnable;
 	RENDER_TARGET_BLEND_TRAIT m_renderTarget[8];
+	UINT m_sampleMask;
 };
 
 struct STENCIL_OP_TRAIT

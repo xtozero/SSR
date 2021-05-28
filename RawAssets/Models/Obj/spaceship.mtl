@@ -1,7 +1,7 @@
 # 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
 # File Created: 29.09.2012 02:41:09
 
-newmtl _Spaceshipc8bec9bd_dds
+newmtl body
 	Ns 10.0000
 	Ni 1.5000
 	d 1.0000
@@ -16,7 +16,7 @@ newmtl _Spaceshipc8bec9bd_dds
 	map_Kd diffuse.dds
 #	map_bump -bm 0.3000 Map__151_Normal_Bump.tga
 
-newmtl _Spaceship973653b1_dds
+newmtl glass
 	Ns 10.0000
 	Ni 1.5000
 	d 1.0000

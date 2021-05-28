@@ -9,20 +9,16 @@ namespace aga
 	class D3D11BlendState : public BlendState
 	{
 	public:
-		const float* GetBlendFactor( ) const { return m_blendFactor; }
+		ID3D11BlendState* Resource( );
+		const ID3D11BlendState* Resource( ) const;
 
-		unsigned int GetSamplerMask( ) const { return m_sampleMask; }
+		const float* GetBlendFactor( ) const;
 
-		void SetBlendFactor( const float (&blendFactor)[4] ) noexcept
-		{
-			constexpr int size = std::extent_v<decltype( blendFactor )>;
-			for ( int i = 0; i < size; ++i )
-			{
-				m_blendFactor[i] = blendFactor[i];
-			}
-		}
+		UINT SamplerMask( ) const;
 
-		void SetSampleMask( unsigned int sampleMask ) noexcept { m_sampleMask = sampleMask; }
+		void SetBlendFactor( const float( &blendFactor )[4] );
+
+		void SetSampleMask( unsigned int sampleMask );
 
 		D3D11BlendState( const BLEND_STATE_TRAIT& trait );
 		D3D11BlendState( const D3D11BlendState& ) = delete;
@@ -38,7 +34,7 @@ namespace aga
 		ID3D11BlendState* m_blendState = nullptr;
 
 		float m_blendFactor[4] = {};
-		unsigned int m_sampleMask = D3D11_DEFAULT_SAMPLE_MASK;
+		UINT m_sampleMask = D3D11_DEFAULT_SAMPLE_MASK;
 		D3D11_BLEND_DESC m_desc;
 	};
 }

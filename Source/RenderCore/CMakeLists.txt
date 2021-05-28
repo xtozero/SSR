@@ -13,9 +13,21 @@ set (CORE_SOURCE
 	"Private/Core/ModuleInit.cpp"
 	"Private/Core/RenderCore.cpp")
 
+set (MATERIAL_SOURCE
+	Private/Material/Material.cpp
+	Private/Material/MaterialResource.cpp
+	Public/Material/Material.h
+	Public/Material/MaterialResource.h)
+
 set (MESH_SOURCE
-	"Private/Mesh/StaticMeshResource.cpp"
-	"Public/Mesh/StaticMeshResource.h")
+	Private/Mesh/BaseMesh.cpp
+	Private/Mesh/StaticMesh.cpp
+	Private/Mesh/StaticMeshResource.cpp
+	Public/Mesh/BaseMesh.h
+	Public/Mesh/CommonMeshDefine.h
+	Public/Mesh/MeshDescription.h
+	Public/Mesh/StaticMesh.h
+	Public/Mesh/StaticMeshResource.h)
 
 set (RENDERER_SOURCE
 	Private/Renderer/ForwardRenderer.cpp
@@ -38,6 +50,7 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Private/GraphicsResource/DDSTexture.cpp
 	Private/GraphicsResource/DefaultConstantBuffers.cpp
 	Private/GraphicsResource/DepthStencil.cpp
+	Private/GraphicsResource/DrawSnapshot.cpp
 	Private/GraphicsResource/GlobalShaders.cpp
 	Private/GraphicsResource/GraphicsPipelineState.cpp
 	Private/GraphicsResource/IndexBuffer.cpp
@@ -58,7 +71,6 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Public/GraphicsResource/IndexBuffer.h
 	Public/GraphicsResource/RenderOption.h
 	Public/GraphicsResource/Shader.h
-	Public/GraphicsResource/ShaderBindings.h
 	Public/GraphicsResource/TypedBuffer.h
 	Public/GraphicsResource/UploadBuffer.h
 	Public/GraphicsResource/VertexBuffer.h
@@ -67,10 +79,10 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Public/GraphicsResource/Viewport.h)
 	
 set (PROXIES_SOURCE
-	"Private/Proxies/PrimitiveProxy.cpp"
-	"Private/Proxies/StaticMeshPrimitiveProxy.cpp"
-	"Public/Proxies/PrimitiveProxy.h"
-	"Public/Proxies/StaticMeshPrimitiveProxy.h")
+	Private/Proxies/PrimitiveProxy.cpp
+	Private/Proxies/StaticMeshPrimitiveProxy.cpp
+	Public/Proxies/PrimitiveProxy.h
+	Public/Proxies/StaticMeshPrimitiveProxy.h)
 
 set (RENDER_SCENE_SOURCE
 	"Private/Scene/PrimitiveSceneInfo.cpp"
@@ -93,6 +105,7 @@ link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 add_library(RenderCore SHARED 	${PRECOMPILED}
 								${CORE_SOURCE}
+								${MATERIAL_SOURCE}
 								${MESH_SOURCE}
 								${RENDERER_SOURCE}
 								${RENDER_SCENE_SOURCE}
@@ -116,6 +129,8 @@ PUBLIC
 	../Engine/Public
 	../Logic/Public
 PRIVATE
+	./Public/Mesh
+	./Public/Proxies
 	./Public/RenderUtility
 	)
 

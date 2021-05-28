@@ -6,17 +6,17 @@
 
 namespace aga
 {
-	VertexShader* VertexShader::Create( const void* byteCode, std::size_t byteCodeSize )
+	RefHandle<VertexShader> VertexShader::Create( const void* byteCode, std::size_t byteCodeSize )
 	{
 		return GetInterface<IAga>( )->CreateVertexShader( byteCode, byteCodeSize );
 	}
 
-	PixelShader* PixelShader::Create( const void* byteCode, std::size_t byteCodeSize )
+	RefHandle<PixelShader> PixelShader::Create( const void* byteCode, std::size_t byteCodeSize )
 	{
 		return GetInterface<IAga>( )->CreatePixelShader( byteCode, byteCodeSize );
 	}
 
-	ComputeShader* ComputeShader::Create( const void* byteCode, std::size_t byteCodeSize )
+	RefHandle<ComputeShader> ComputeShader::Create( const void* byteCode, std::size_t byteCodeSize )
 	{
 		return GetInterface<IAga>( )->CreateComputeShader( byteCode, byteCodeSize );
 	}

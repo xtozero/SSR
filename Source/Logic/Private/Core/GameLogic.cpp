@@ -570,7 +570,7 @@ void CGameLogic::HandleDeviceLost( )
 
 	//CreateDeviceDependentResource( );
 
-	m_modelManager.OnDeviceRestore( *this );
+	//m_modelManager.OnDeviceRestore( *this );
 	//m_lightManager.OnDeviceRestore( *this );
 	//m_shadowManager.OnDeviceRestore( *this );
 	//m_ssrManager.OnDeviceRestore( *this );

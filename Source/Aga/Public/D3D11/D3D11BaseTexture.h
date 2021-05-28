@@ -15,9 +15,6 @@ namespace aga
 			return { m_trait.m_width, m_trait.m_height };
 		}
 
-		ID3D11RenderTargetView* RenderTargetView( ) { return m_rtv; }
-		ID3D11DepthStencilView* DepthStencilView( ) { return m_dsv; }
-
 		D3D11BaseTexture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData ) : m_trait( trait ) 
 		{
 			if ( initData )
@@ -46,34 +43,16 @@ namespace aga
 	protected:
 		virtual void FreeResource( ) override
 		{
-			if ( m_srv )
-			{
-				m_srv->Release( );
-				m_srv = nullptr;
-			}
-
-			if ( m_rtv )
-			{
-				m_rtv->Release( );
-				m_rtv = nullptr;
-			}
-
-			if ( m_dsv )
-			{
-				m_dsv->Release( );
-				m_dsv = nullptr;
-			}
+			m_srv = nullptr;
+			m_uav = nullptr;
+			m_rtv = nullptr;
+			m_dsv = nullptr;
 		}
 
 		virtual void CreateTexture( ) = 0;
 
 		TEXTURE_TRAIT m_trait = {};
 		D3D11_SUBRESOURCE_DATA m_initData = {};
-
-		ID3D11ShaderResourceView* m_srv = nullptr;
-		ID3D11RenderTargetView* m_rtv = nullptr;
-		ID3D11DepthStencilView* m_dsv = nullptr;
-
 	private:
 		void* m_dataStorage = nullptr;
 	};
@@ -92,32 +71,9 @@ namespace aga
 	protected:
 		T* m_texture = nullptr;
 
-		void CreateShaderResource( )
-		{
-			if ( ( m_trait.m_bindType & RESOURCE_BIND_TYPE::SHADER_RESOURCE ) > 0 )
-			{
-				HRESULT hr = D3D11Device( ).CreateShaderResourceView( m_texture, nullptr, &m_srv );
-				assert( SUCCEEDED( hr ) );
-			}
-		}
-
-		void CreateRenderTarget( )
-		{
-			if ( ( m_trait.m_bindType & RESOURCE_BIND_TYPE::RENDER_TARGET ) > 0 )
-			{
-				HRESULT hr = D3D11Device( ).CreateRenderTargetView( m_texture, nullptr, &m_rtv );
-				assert( SUCCEEDED( hr ) );
-			}
-		}
-
-		void CreateDepthStencil( )
-		{
-			if ( ( m_trait.m_bindType & RESOURCE_BIND_TYPE::DEPTH_STENCIL ) > 0 )
-			{
-				HRESULT hr = D3D11Device( ).CreateDepthStencilView( m_texture, nullptr, &m_dsv );
-				assert( SUCCEEDED( hr ) );
-			}
-		}
+		virtual void CreateShaderResource( ) = 0;
+		virtual void CreateRenderTarget( ) = 0;
+		virtual void CreateDepthStencil( ) = 0;
 
 	private:
 		virtual void InitResource( ) override
@@ -127,9 +83,23 @@ namespace aga
 				CreateTexture( );
 			}
 
-			CreateShaderResource( );
-			CreateRenderTarget( );
-			CreateDepthStencil( );
+			if ( m_texture )
+			{
+				if ( ( m_trait.m_bindType & RESOURCE_BIND_TYPE::SHADER_RESOURCE ) > 0 )
+				{
+					CreateShaderResource( );
+				}
+
+				if ( ( m_trait.m_bindType & RESOURCE_BIND_TYPE::RENDER_TARGET ) > 0 )
+				{
+					CreateRenderTarget( );
+				}
+
+				if ( ( m_trait.m_bindType & RESOURCE_BIND_TYPE::DEPTH_STENCIL ) > 0 )
+				{
+					CreateDepthStencil( );
+				}
+			}
 		}
 
 		virtual void FreeResource( ) override
@@ -152,6 +122,10 @@ namespace aga
 	protected:
 		virtual void CreateTexture( ) override;
 
+		virtual void CreateShaderResource( ) override;
+		virtual void CreateRenderTarget( ) override {};
+		virtual void CreateDepthStencil( ) override {};
+
 	private:
 		D3D11_TEXTURE1D_DESC m_desc = {};
 	};
@@ -165,6 +139,10 @@ namespace aga
 	protected:
 		virtual void CreateTexture( ) override;
 
+		virtual void CreateShaderResource( ) override;
+		virtual void CreateRenderTarget( ) override;
+		virtual void CreateDepthStencil( ) override;
+
 	private:
 		D3D11_TEXTURE2D_DESC m_desc = {};
 	};
@@ -176,6 +154,10 @@ namespace aga
 
 	protected:
 		virtual void CreateTexture( ) override;
+
+		virtual void CreateShaderResource( ) override;
+		virtual void CreateRenderTarget( ) override {};
+		virtual void CreateDepthStencil( ) override {};
 
 	private:
 		D3D11_TEXTURE3D_DESC m_desc = {};

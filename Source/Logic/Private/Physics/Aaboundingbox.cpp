@@ -2,7 +2,7 @@
 #include "Physics/Aaboundingbox.h"
 
 #include "Core/Timer.h"
-#include "Model/CommonMeshDefine.h"
+//#include "Model/CommonMeshDefine.h"
 #include "Physics/CollideNarrow.h"
 #include "Physics/Frustum.h"
 #include "Physics/Ray.h"
@@ -15,28 +15,28 @@ using namespace DirectX;
 
 void CAaboundingbox::CalcMeshBounds( const MeshData& mesh )
 {
-	m_min = CXMFLOAT3( FLT_MAX, FLT_MAX, FLT_MAX );
-	m_max = CXMFLOAT3( -FLT_MAX, -FLT_MAX, -FLT_MAX );
-
-	int verticesCount = mesh.m_vertices;
-	const MeshVertex* pVertices = static_cast<const MeshVertex*>( mesh.m_pVertexData );
-
-	for ( int i = 0; i < verticesCount; ++i )
-	{
-		m_min.x = m_min.x > pVertices[i].m_position.x ? pVertices[i].m_position.x : m_min.x;
-		m_min.y = m_min.y > pVertices[i].m_position.y ? pVertices[i].m_position.y : m_min.y;
-		m_min.z = m_min.z > pVertices[i].m_position.z ? pVertices[i].m_position.z : m_min.z;
-		m_max.x = m_max.x < pVertices[i].m_position.x ? pVertices[i].m_position.x : m_max.x;
-		m_max.y = m_max.y < pVertices[i].m_position.y ? pVertices[i].m_position.y : m_max.y;
-		m_max.z = m_max.z < pVertices[i].m_position.z ? pVertices[i].m_position.z : m_max.z;
-	}
-
-#ifdef TEST_CODE
-	DebugMsg( "-------------------AABB-------------------\n" );
-	DebugMsg( "max %f, %f, %f\n", m_max.x, m_max.y, m_max.z );
-	DebugMsg( "min %f, %f, %f\n", m_min.x, m_min.y, m_min.z );
-	DebugMsg( "------------------------------------------\n" );
-#endif
+//	m_min = CXMFLOAT3( FLT_MAX, FLT_MAX, FLT_MAX );
+//	m_max = CXMFLOAT3( -FLT_MAX, -FLT_MAX, -FLT_MAX );
+//
+//	int verticesCount = mesh.m_vertices;
+//	const MeshVertex* pVertices = static_cast<const MeshVertex*>( mesh.m_pVertexData );
+//
+//	for ( int i = 0; i < verticesCount; ++i )
+//	{
+//		m_min.x = m_min.x > pVertices[i].m_position.x ? pVertices[i].m_position.x : m_min.x;
+//		m_min.y = m_min.y > pVertices[i].m_position.y ? pVertices[i].m_position.y : m_min.y;
+//		m_min.z = m_min.z > pVertices[i].m_position.z ? pVertices[i].m_position.z : m_min.z;
+//		m_max.x = m_max.x < pVertices[i].m_position.x ? pVertices[i].m_position.x : m_max.x;
+//		m_max.y = m_max.y < pVertices[i].m_position.y ? pVertices[i].m_position.y : m_max.y;
+//		m_max.z = m_max.z < pVertices[i].m_position.z ? pVertices[i].m_position.z : m_max.z;
+//	}
+//
+//#ifdef TEST_CODE
+//	DebugMsg( "-------------------AABB-------------------\n" );
+//	DebugMsg( "max %f, %f, %f\n", m_max.x, m_max.y, m_max.z );
+//	DebugMsg( "min %f, %f, %f\n", m_min.x, m_min.y, m_min.z );
+//	DebugMsg( "------------------------------------------\n" );
+//#endif
 }
 
 void CAaboundingbox::Update( const CXMFLOAT3& scaling, const CXMFLOAT4& rotation, const CXMFLOAT3& translation, ICollider* original )

@@ -85,12 +85,20 @@ struct VertexLayoutDescHasher
 class VertexLayout
 {
 public:
-	static VertexLayout Create( const VertexShader& vs, const VertexLayoutDesc& desc );
+	aga::VertexLayout* Resource( );
+	const aga::VertexLayout* Resource( ) const;
+
+	VertexLayout( const VertexShader& vs, const VertexLayoutDesc& desc );
 
 	VertexLayout( ) = default;
+	~VertexLayout( ) = default;
+	VertexLayout( const VertexLayout& ) = default;
+	VertexLayout& operator=( const VertexLayout& ) = default;
+	VertexLayout( VertexLayout&& ) = default;
+	VertexLayout& operator=( VertexLayout&& ) = default;
 
 private:
-	explicit VertexLayout( aga::VertexLayout* layout ) : m_layout( layout ) { }
+	void InitResource( const VertexShader& vs, const VertexLayoutDesc& desc );
 
 	RefHandle<aga::VertexLayout> m_layout;
 };

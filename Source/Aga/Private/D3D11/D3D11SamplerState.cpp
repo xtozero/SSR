@@ -30,6 +30,16 @@ namespace
 
 namespace aga
 {
+	ID3D11SamplerState* D3D11SamplerState::Resource( )
+	{
+		return m_samplerState;
+	}
+
+	const ID3D11SamplerState* D3D11SamplerState::Resource( ) const
+	{
+		return m_samplerState;
+	}
+
 	D3D11SamplerState::D3D11SamplerState( const SAMPLER_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
 
 	void D3D11SamplerState::InitResource( )

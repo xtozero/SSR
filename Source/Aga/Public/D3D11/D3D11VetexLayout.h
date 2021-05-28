@@ -12,11 +12,14 @@ namespace aga
 	class D3D11VertexLayout : public VertexLayout
 	{
 	public:
+		ID3D11InputLayout* Resource( );
+		const ID3D11InputLayout* Resource( ) const;
+
 		D3D11VertexLayout( const D3D11VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, std::size_t size );
 		D3D11VertexLayout( const D3D11VertexLayout& ) = delete;
-		D3D11VertexLayout( D3D11VertexLayout&& ) = default;
+		D3D11VertexLayout( D3D11VertexLayout&& ) = delete;
 		D3D11VertexLayout& operator=( const D3D11VertexLayout& ) = delete;
-		D3D11VertexLayout& operator=( D3D11VertexLayout&& ) = default;
+		D3D11VertexLayout& operator=( D3D11VertexLayout&& ) = delete;
 
 	private:
 		virtual void InitResource( ) override { }

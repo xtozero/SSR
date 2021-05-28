@@ -9,6 +9,7 @@
 #include "D3D11BlendState.h"
 #include "D3D11Buffer.h"
 #include "D3D11DepthStencilState.h"
+#include "D3D11PipelineState.h"
 #include "D3D11RandomAccessResource.h"
 #include "D3D11RasterizerState.h"
 #include "D3D11RenderTarget.h"
@@ -141,6 +142,20 @@ aga::SamplerState* CD3D11ResourceManager::CreateSamplerState( const SAMPLER_STAT
 	m_renderResources.emplace( samplerState );
 
 	return samplerState;
+}
+
+aga::PipelineState* CD3D11ResourceManager::CreatePipelineState( const aga::PipelineStateInitializer& initializer )
+{
+	auto cached = m_pipelineStateCache.find( initializer );
+	if ( cached != m_pipelineStateCache.end( ) )
+	{
+		return cached->second;
+	}
+
+	auto pipelineState = new aga::D3D11PipelineState( initializer );
+	m_pipelineStateCache.emplace( initializer, pipelineState );
+
+	return pipelineState;
 }
 
 aga::Viewport* CD3D11ResourceManager::CreateViewport( int width, int height, void* hWnd, DXGI_FORMAT format )

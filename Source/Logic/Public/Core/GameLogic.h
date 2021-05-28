@@ -7,9 +7,9 @@
 #include "GameObject/Player.h"
 #include "GraphicsResource/Viewport.h"
 #include "ILogic.h"
-#include "Model/ModelBuilder.h"
-#include "Model/ModelManager.h"
-#include "Model/Surface.h"
+//#include "Model/ModelBuilder.h"
+//#include "Model/ModelManager.h"
+//#include "Model/Surface.h"
 #include "Physics/BoundingSphere.h"
 #include "Physics/CollideBroad.h"
 // #include "Render/Resource.h"
@@ -54,7 +54,7 @@ public:
 	//IRenderer& GetRenderer( ) const { return *m_pRenderer; }
 	//CLightManager& GetLightManager( ) { return m_lightManager; }
 	//CShadowManager& GetShadowManager( ) { return m_shadowManager; }
-	CModelManager& GetModelManager( ) { return m_modelManager; }
+	//CModelManager& GetModelManager( ) { return m_modelManager; }
 	//ImUI& GetUIManager( ) { return m_ui; }
 	//RE_HANDLE GetCommonConstantBuffer( int purpose ) { return m_commonConstantBuffer[purpose]; }
 	const std::pair<UINT, UINT>& GetAPPSize( ) { return m_appSize; }
@@ -103,7 +103,7 @@ private:
 	//CShadowManager m_shadowManager;
 	//CSSRManager m_ssrManager;
 	//CAtmosphericScatteringManager m_atmosphereManager;
-	CModelManager m_modelManager;
+	//CModelManager m_modelManager;
 	IRenderCore* m_pRenderCore = nullptr;
 
 	std::list<CGameObject*> m_renderableList[RENDERABLE_TYPE_COUNT];

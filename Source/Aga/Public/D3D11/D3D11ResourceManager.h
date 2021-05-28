@@ -51,6 +51,7 @@ public:
 	virtual aga::DepthStencilState* CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) override;
 	virtual aga::RasterizerState* CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) override;
 	virtual aga::SamplerState* CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) override;
+	virtual aga::PipelineState* CreatePipelineState( const aga::PipelineStateInitializer& initializer ) override;
 
 	// Viewport
 	aga::Viewport* CreateViewport( int width, int height, void* hWnd, DXGI_FORMAT format );
@@ -69,13 +70,13 @@ public:
 	CD3D11ResourceManager& operator=( CD3D11ResourceManager&& ) = delete;
 
 private:
-	std::map<std::string, TEXTURE_TRAIT> m_textureTraits;
-
 	ID3D11Device* m_pDevice;
 	ID3D11DeviceContext* m_pDeviceContext;
 
 	std::pair<int, int>	m_frameBufferSize = { 0, 0 };
 
 	std::set<RefHandle<GraphicsApiResource>> m_renderResources;
+
+	std::map<aga::PipelineStateInitializer, RefHandle<aga::PipelineState>> m_pipelineStateCache;
 };
 

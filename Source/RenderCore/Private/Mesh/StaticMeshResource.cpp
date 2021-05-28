@@ -141,24 +141,18 @@ void StaticMeshRenderData::CreateRenderResource( )
 {
 	for ( StaticMeshLODResource& lodResource : m_lodResources )
 	{
-		if ( lodResource.m_vb == nullptr )
-		{
-			std::vector<StaticMeshVertex>& vertexData = lodResource.m_vertexData;
-			lodResource.m_vb = TypedVertexBuffer<StaticMeshVertex>::Create( vertexData.size( ), vertexData.data( ) );
-		}
+		std::vector<StaticMeshVertex>& vertexData = lodResource.m_vertexData;
+		lodResource.m_vb = TypedVertexBuffer<StaticMeshVertex>( vertexData.size( ), vertexData.data( ) );
 
-		if ( lodResource.m_ib == nullptr )
-		{
-			std::size_t stride = lodResource.m_isDWORD ? sizeof( DWORD ) : sizeof( WORD );
-			std::size_t size = lodResource.m_indexData.size( ) / stride;
-			lodResource.m_ib = IndexBuffer::Create( size, lodResource.m_indexData.data( ), lodResource.m_isDWORD );
-		}
+		std::size_t stride = lodResource.m_isDWORD ? sizeof( DWORD ) : sizeof( WORD );
+		std::size_t size = lodResource.m_indexData.size( ) / stride;
+		lodResource.m_ib = IndexBuffer( size, lodResource.m_indexData.data( ), lodResource.m_isDWORD );
 	}
 }
 
 void StaticMeshVertexLayout::Initialize( const StaticMeshLODResource* lodResource )
 {
-	m_vertexLayoutDesc.Initialize( 3 );
+	m_vertexLayoutDesc.Initialize( 4 );
 
 	// position
 	m_vertexLayoutDesc.AddLayout( "POSITION", 0,
@@ -180,4 +174,11 @@ void StaticMeshVertexLayout::Initialize( const StaticMeshLODResource* lodResourc
 									0,
 									false,
 									0 );
+
+	// primitive id
+	m_vertexLayoutDesc.AddLayout( "PRIMITIVEID", 0,
+									RESOURCE_FORMAT::R32_UINT,
+									1,
+									true,
+									1 );
 }

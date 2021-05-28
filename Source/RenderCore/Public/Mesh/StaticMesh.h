@@ -3,12 +3,12 @@
 #include "AssetLoader/AssetFactory.h"
 #include "AssetLoader/IAsyncLoadableAsset.h"
 #include "BaseMesh.h"
-#include "Material/Material.h"
 
 #include <vector>
 
 struct MeshDescription;
 class Material;
+class MaterialResource;
 class ObjMeshAssetProcessor;
 class StaticMeshLODResource;
 class StaticMeshRenderData;
@@ -18,28 +18,30 @@ struct StaticMeshMaterial
 	explicit StaticMeshMaterial( const std::shared_ptr<Material>& mateiral ) : m_mateiral( mateiral ) {}
 	StaticMeshMaterial( ) = default;
 
-	std::shared_ptr<const Material> m_mateiral;
+	std::shared_ptr<Material> m_mateiral;
 };
 
 class StaticMesh : public AsyncLoadableAsset, BaseMesh
 {
-	DECLARE_ASSET( LOGIC, StaticMesh );
+	DECLARE_ASSET( RENDERCORE, StaticMesh );
 public:
-	LOGIC_DLL virtual void Serialize( Archive& ar ) override;
+	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
 
-	LOGIC_DLL void BuildMeshFromMeshDescriptions( const std::vector<MeshDescription>& meshDescriptions );
+	RENDERCORE_DLL void BuildMeshFromMeshDescriptions( const std::vector<MeshDescription>& meshDescriptions );
 	void BuildMeshFromMeshDescription( const MeshDescription& meshDescription, StaticMeshLODResource& lodResource );
 
-	LOGIC_DLL void AddMaterial( const std::shared_ptr<Material>& mateiral );
+	RENDERCORE_DLL MaterialResource* GetMaterialResource( std::size_t idx ) const;
+	RENDERCORE_DLL void AddMaterial( const std::shared_ptr<Material>& mateiral );
 
-	LOGIC_DLL StaticMesh( ) = default;
-	LOGIC_DLL StaticMesh( const StaticMesh& ) = delete;
-	LOGIC_DLL StaticMesh( StaticMesh&& other )
+	RENDERCORE_DLL StaticMesh( ) = default;
+	RENDERCORE_DLL ~StaticMesh( );
+	RENDERCORE_DLL StaticMesh( const StaticMesh& ) = delete;
+	RENDERCORE_DLL StaticMesh( StaticMesh&& other ) noexcept
 	{
 		*this = std::move( other );
 	}
-	LOGIC_DLL StaticMesh& operator=( const StaticMesh& ) = delete;
-	LOGIC_DLL StaticMesh& operator=( StaticMesh&& other )
+	RENDERCORE_DLL StaticMesh& operator=( const StaticMesh& ) = delete;
+	RENDERCORE_DLL StaticMesh& operator=( StaticMesh&& other ) noexcept
 	{
 		if ( this != &other )
 		{
@@ -50,7 +52,6 @@ public:
 
 		return *this;
 	}
-	LOGIC_DLL ~StaticMesh( );
 
 	StaticMeshRenderData* RenderData( ) const
 	{
@@ -58,7 +59,7 @@ public:
 	}
 
 protected:
-	LOGIC_DLL virtual void PostLoadImpl( ) override;
+	RENDERCORE_DLL virtual void PostLoadImpl( ) override;
 
 private:
 	StaticMeshRenderData* m_renderData = nullptr;

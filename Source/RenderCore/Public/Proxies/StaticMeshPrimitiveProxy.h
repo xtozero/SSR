@@ -14,7 +14,7 @@ public:
 	 RENDERCORE_DLL StaticMeshPrimitiveProxy( const StaticMeshComponent& component );
 
 	 virtual void CreateRenderData( ) override;
-	 virtual void TakeSnapshot( std::vector<DrawSnapshot>& snapshots ) override;
+	 virtual void TakeSnapshot( std::vector<DrawSnapshot>& snapshots ) const override;
 
 private:
 	std::shared_ptr<const StaticMesh> m_pStaticMesh = nullptr;

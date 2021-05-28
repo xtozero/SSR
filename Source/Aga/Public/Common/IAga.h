@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "GraphicsApiResource.h"
+#include "ICommandList.h"
 #include "Util.h"
 
 #include <memory>
@@ -14,6 +15,8 @@ namespace aga
 	class DepthStencilState;
 	class PixelShader;
 	class RasterizerState;
+	class PipelineState;
+	class PipelineStateInitializer;
 	class SamplerState;
 	class Texture;
 	class VertexLayout;
@@ -49,6 +52,7 @@ public:
 	virtual aga::DepthStencilState* CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) = 0;
 	virtual aga::RasterizerState* CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) = 0;
 	virtual aga::SamplerState* CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) = 0;
+	virtual aga::PipelineState* CreatePipelineState( const aga::PipelineStateInitializer& initializer ) = 0;
 
 	virtual aga::Viewport* CreateViewport( int width, int height, void* hWnd, RESOURCE_FORMAT format ) = 0;
 
@@ -62,8 +66,8 @@ public:
 
 	virtual void ClearDepthStencil( aga::Texture* depthStencil, float depthColor, UINT8 stencilColor ) = 0;
 
-	// virtual void BindVertexBuffer( RE_HANDLE* pVertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pStrides, const UINT* pOffsets ) = 0;
-	// virtual void BindIndexBuffer( RE_HANDLE indexBuffer, UINT indexOffset ) = 0;
+	virtual void BindVertexBuffer( aga::Buffer** vertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pStrides, const UINT* pOffsets ) = 0;
+	virtual void BindIndexBuffer( aga::Buffer* indexBuffer, UINT stride, UINT indexOffset ) = 0;
 	virtual void BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT numBuffers, aga::Buffer** pConstantBuffers ) = 0;
 	// virtual void BindVertexLayout( RE_HANDLE layout ) = 0;
 	// virtual void BindShader( RE_HANDLE shader ) = 0;
@@ -98,6 +102,8 @@ public:
 	// virtual void GenerateMips( RE_HANDLE shaderResource ) = 0;
 
 	virtual void GetRendererMultiSampleOption( MULTISAMPLE_OPTION* option ) = 0;
+
+	virtual std::unique_ptr<aga::IImmediateCommandList> GetImmediateCommandList( ) const = 0;
 
 	virtual ~IAga( ) = default;
 

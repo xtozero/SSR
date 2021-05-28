@@ -24,10 +24,23 @@ public:
 		return m_primitives;
 	}
 
-
 	virtual SceneViewConstantBuffer& SceneViewConstant( ) override
 	{
 		return m_viewConstant;
+	}
+	virtual const SceneViewConstantBuffer& SceneViewConstant( ) const override
+	{
+		return m_viewConstant;
+	}
+
+	virtual ScenePrimitiveBuffer& GpuPrimitiveInfo( ) override
+	{
+		return m_gpuPrimitiveInfos;
+	}
+
+	virtual const ScenePrimitiveBuffer& GpuPrimitiveInfo( ) const override
+	{
+		return m_gpuPrimitiveInfos;
 	}
 
 	virtual void DrawScene( const RenderViewGroup& views ) override;

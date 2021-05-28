@@ -2,8 +2,6 @@
 #include "Scene/SceneConstantBuffers.h"
 
 #include "ConstantSlotDefine.h"
-#include "Core/InterfaceFactories.h"
-#include "IAga.h"
 #include "MultiThread/EngineTaskScheduler.h"
 #include "Proxies/PrimitiveProxy.h"
 #include "RenderView.h"
@@ -14,7 +12,7 @@ void SceneViewConstantBuffer::Initialize( )
 {
 	assert( IsInRenderThread() );
 
-	m_constantBuffer = TypedConstatBuffer<ViewConstantBufferParameters>::Create( );
+	m_constantBuffer = TypedConstatBuffer<ViewConstantBufferParameters>( );
 }
 
 void SceneViewConstantBuffer::Update( const ViewConstantBufferParameters& param )
@@ -24,43 +22,76 @@ void SceneViewConstantBuffer::Update( const ViewConstantBufferParameters& param 
 	m_constantBuffer.Update( param );
 }
 
-void SceneViewConstantBuffer::Bind( )
+aga::Buffer* SceneViewConstantBuffer::Resource( )
 {
-	m_constantBuffer.Bind( SHADER_TYPE::VS, VS_CONSTANT_BUFFER::VIEW_PROJECTION );
+	return m_constantBuffer.Resource( );
+}
+
+const aga::Buffer* SceneViewConstantBuffer::Resource( ) const
+{
+	return m_constantBuffer.Resource( );
 }
 
 void FillViewConstantParam( ViewConstantBufferParameters& param, const RenderView& view )
 {
 	using namespace DirectX;
 
-	auto viewMatrix = XMMatrixLookToLH( 
-		view.m_viewOrigin, 
-		view.m_viewAxis[2],
-		view.m_viewAxis[1] );
-	param.m_viewMatrix = viewMatrix;
+	auto viewMatrix = XMMatrixLookToLH( view.m_viewOrigin, 
+										view.m_viewAxis[2],
+										view.m_viewAxis[1] );
+	param.m_viewMatrix = XMMatrixTranspose( viewMatrix );
 
 	auto projMatrix = XMMatrixPerspectiveFovLH( view.m_fov, 
-		view.m_aspect, 
-		view.m_nearPlaneDistance, 
-		view.m_farPlaneDistance );
-	param.m_projMatrix = projMatrix;
+												view.m_aspect, 
+												view.m_nearPlaneDistance, 
+												view.m_farPlaneDistance );
+	param.m_projMatrix = XMMatrixTranspose( projMatrix );
 
-	param.m_viewProjMatrix = XMMatrixMultiply( viewMatrix, projMatrix );
+	auto viewProjMatrix = XMMatrixMultiply( viewMatrix, projMatrix );
+	param.m_viewProjMatrix = XMMatrixTranspose( viewProjMatrix );
 
-	param.m_invViewMatrix = XMMatrixInverse( nullptr, viewMatrix );
-	param.m_invProjMatrix = XMMatrixInverse( nullptr, projMatrix );
-	param.m_invViewProjMatrix = XMMatrixInverse( nullptr, param.m_viewProjMatrix );
+	auto invViewMatrix = XMMatrixInverse( nullptr, viewMatrix );
+	param.m_invViewMatrix = XMMatrixTranspose( invViewMatrix );
+
+	auto invProjMatrix = XMMatrixInverse( nullptr, projMatrix );
+	param.m_invProjMatrix = XMMatrixTranspose( invProjMatrix );
+
+	auto invViewProjMatrix = XMMatrixInverse( nullptr, viewProjMatrix );
+	param.m_invViewProjMatrix = XMMatrixTranspose( invViewProjMatrix );
 }
 
-PrimitiveBufferParameters::PrimitiveBufferParameters( const PrimitiveProxy* proxy )
+PrimitiveSceneData::PrimitiveSceneData( const PrimitiveProxy* proxy )
 {
+	using namespace DirectX;
+
 	if ( proxy )
 	{
 		m_worldMatrix = proxy->GetTransform( );
+		m_invWorldMatrix = XMMatrixInverse( nullptr, m_worldMatrix );
 	}
 }
 
 void ScenePrimitiveBuffer::Resize( std::size_t size )
 {
-	m_buffer.Resize( size * sizeof( PrimitiveBufferParameters ) / sizeof( CXMFLOAT4 ) );
+	m_buffer.Resize( size * sizeof( PrimitiveSceneData ) / sizeof( CXMFLOAT4 ), true );
+}
+
+aga::ShaderResourceView* ScenePrimitiveBuffer::SRV( )
+{
+	return m_buffer.SRV( );
+}
+
+const aga::ShaderResourceView* ScenePrimitiveBuffer::SRV( ) const
+{
+	return m_buffer.SRV( );
+}
+
+aga::Buffer* ScenePrimitiveBuffer::Resource( )
+{
+	return m_buffer.Resource( );
+}
+
+const aga::Buffer* ScenePrimitiveBuffer::Resource( ) const
+{
+	return m_buffer.Resource( );
 }

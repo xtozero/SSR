@@ -1,10 +1,12 @@
 #include "stdafx.h"
-#include "Model/StaticMesh.h"
+#include "Mesh/StaticMesh.h"
 
 #include "common.h"
-#include "Mesh/StaticMeshResource.h"
-#include "Model/CommonMeshDefine.h"
-#include "Model/MeshDescription.h"
+#include "CommonMeshDefine.h"
+#include "Material/Material.h"
+#include "Material/MaterialResource.h"
+#include "MeshDescription.h"
+#include "StaticMeshResource.h"
 #include "MultiThread/EngineTaskScheduler.h"
 
 Archive operator<<( Archive& ar, StaticMeshMaterial& m )
@@ -46,6 +48,7 @@ void StaticMesh::Serialize( Archive& ar )
 
 void StaticMesh::BuildMeshFromMeshDescriptions( const std::vector<MeshDescription>& meshDescriptions )
 {
+	delete m_renderData;
 	m_renderData = new StaticMeshRenderData( );
 	m_renderData->AllocateLODResources( meshDescriptions.size( ) );
 
@@ -140,6 +143,17 @@ void StaticMesh::BuildMeshFromMeshDescription( const MeshDescription& meshDescri
 			reinterpret_cast<WORD*>( lodResource.m_indexData.data( ) )[i] = static_cast<WORD>( indices[i] );
 		}
 	}
+}
+
+MaterialResource* StaticMesh::GetMaterialResource( std::size_t idx ) const
+{
+	assert( idx < m_materials.size( ) );
+	if ( m_materials[idx].m_mateiral == nullptr )
+	{
+		return nullptr;
+	}
+
+	return m_materials[idx].m_mateiral->GetMaterialResource();
 }
 
 void StaticMesh::AddMaterial( const std::shared_ptr<Material>& mateiral )

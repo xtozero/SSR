@@ -25,6 +25,16 @@ namespace
 
 namespace aga
 {
+	ID3D11RasterizerState* D3D11RasterizerState::Resource( )
+	{
+		return m_rasterizerState;
+	}
+
+	const ID3D11RasterizerState* D3D11RasterizerState::Resource( ) const
+	{
+		return m_rasterizerState;
+	}
+
 	D3D11RasterizerState::D3D11RasterizerState( const RASTERIZER_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
 
 	void D3D11RasterizerState::InitResource( )

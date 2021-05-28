@@ -25,7 +25,7 @@ void AssetLoaderHandle::ExecuteCompletionCallback( )
 
 	if ( m_needPostProcess )
 	{
-		if ( auto pAsyncLoadable = static_cast<AsyncLoadableAsset*>( m_loadedAsset.get( ) ) )
+		if ( auto pAsyncLoadable = std::static_pointer_cast<AsyncLoadableAsset>( m_loadedAsset ) )
 		{
 			pAsyncLoadable->PostLoad( );
 		}
@@ -60,6 +60,7 @@ private:
 	AssetLoaderSharedHandle LoadAsset( const char* assetPath, LoadCompletionCallback completionCallback );
 
 	void OnAssetLoaded( const std::string& path, const std::shared_ptr<void>& asset );
+	void AddPrerequisiteToDependantAsset( const AssetLoaderSharedHandle& handle );
 
 	std::unordered_map<std::string, std::vector<AssetLoaderSharedHandle>> m_waitingHandle;
 	std::unordered_map<std::string, std::shared_ptr<void>> m_assets;
@@ -87,6 +88,7 @@ AssetLoaderSharedHandle AssetLoader::RequestAsyncLoad( const std::string& assetP
 		handle->BindCompletionCallback( completionCallback );
 		handle->OnStartLoading( );
 		isInProgress->second.emplace_back( handle );
+		AddPrerequisiteToDependantAsset( handle );
 		return handle;
 	}
 
@@ -105,11 +107,7 @@ AssetLoaderSharedHandle AssetLoader::RequestAsyncLoad( const std::string& assetP
 	);
 
 	AssetLoaderSharedHandle handle = LoadAsset( assetPath.c_str(), onRenderOptionLoaded );
-
-	if ( ( m_dependantAssetHandle != nullptr ) && handle->IsLoadingInProgress( ) )
-	{
-		m_dependantAssetHandle->AddPrerequisite( handle );
-	}
+	AddPrerequisiteToDependantAsset( handle );
 
 	assert( handle->IsLoadingInProgress( ) );
 	return handle;
@@ -197,6 +195,14 @@ void AssetLoader::OnAssetLoaded( const std::string& path, const std::shared_ptr<
 		}
 
 		m_waitingHandle.erase( found );
+	}
+}
+
+void AssetLoader::AddPrerequisiteToDependantAsset( const AssetLoaderSharedHandle& handle )
+{
+	if ( ( m_dependantAssetHandle != nullptr ) && handle->IsLoadingInProgress( ) )
+	{
+		m_dependantAssetHandle->AddPrerequisite( handle );
 	}
 }
 

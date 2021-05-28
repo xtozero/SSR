@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Common/GraphicsApiResource.h"
+#include "GraphicsApiResource.h"
 
 int GraphicsApiResource::AddRef( )
 {

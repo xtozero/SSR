@@ -6,6 +6,7 @@ class PrimitiveComponent;
 class PrimitiveSceneInfo;
 class RenderViewGroup;
 class Scene;
+class ScenePrimitiveBuffer;
 class SceneViewConstantBuffer;
 
 enum class SHADING_METHOD
@@ -22,6 +23,11 @@ public:
 	virtual const std::vector<PrimitiveSceneInfo*>& Primitives( ) const = 0;
 
 	virtual SceneViewConstantBuffer& SceneViewConstant( ) = 0;
+	virtual const SceneViewConstantBuffer& SceneViewConstant( ) const = 0;
+
+	virtual ScenePrimitiveBuffer& GpuPrimitiveInfo( ) = 0;
+	virtual const ScenePrimitiveBuffer& GpuPrimitiveInfo( ) const = 0;
+
 	virtual void DrawScene( const RenderViewGroup& views ) = 0;
 
 	virtual SHADING_METHOD ShadingMethod( ) const = 0;

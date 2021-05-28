@@ -50,7 +50,9 @@ BlendState AgaDelegator::FindOrCreate( const BlendOption& option )
 			dst.m_renderTargetWriteMask = src.m_renderTargetWriteMask;
 		}
 
-		auto state = BlendState::Create( trait );
+		trait.m_sampleMask = option.m_sampleMask;
+
+		BlendState state( trait );
 		m_blendStates.emplace( option, state );
 	}
 
@@ -73,7 +75,7 @@ DepthStencilState AgaDelegator::FindOrCreate( const DepthStencilOption& option )
 			option.m_stencil.m_backFace
 		};
 
-		auto state = DepthStencilState::Create( trait );
+		DepthStencilState state( trait );
 		m_depthStencilStates.emplace( option, state );
 
 		return state;
@@ -100,7 +102,7 @@ RasterizerState AgaDelegator::FindOrCreate( const RasterizerOption& option )
 			option.m_antialiasedLineEnable
 		};
 
-		auto state = RasterizerState::Create( trait );
+		RasterizerState state( trait );
 		m_rasterizerStates.emplace( option, state );
 
 		return state;
@@ -127,7 +129,7 @@ SamplerState AgaDelegator::FindOrCreate( const SamplerOption& option )
 			std::numeric_limits<float>::max()
 		};
 
-		auto state = SamplerState::Create( trait );
+		SamplerState state( trait );
 		m_samplerStates.emplace( option, state );
 
 		return state;
@@ -141,7 +143,7 @@ VertexLayout AgaDelegator::FindOrCreate( const VertexShader& vs, const VertexLay
 	auto found = m_vertexLayouts.find( desc );
 	if ( found == m_vertexLayouts.end( ) )
 	{
-		auto vertexLayout = VertexLayout::Create( vs, desc );
+		VertexLayout vertexLayout( vs, desc );
 		m_vertexLayouts.emplace( desc, vertexLayout );
 
 		return vertexLayout;

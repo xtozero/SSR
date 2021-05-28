@@ -41,7 +41,7 @@ bool LoadModules( )
 
 void PrepareDestinationDirectories( const fs::path& destRoot, const fs::path& srcRoot )
 {
-	if ( fs::is_directory( destRoot ) )
+	if ( fs::exists( destRoot ) && fs::is_directory( destRoot ) )
 	{
 		fs::remove_all( destRoot );
 	}

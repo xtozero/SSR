@@ -31,7 +31,41 @@ namespace
 
 namespace aga
 {
-	D3D11BlendState::D3D11BlendState( const BLEND_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
+	ID3D11BlendState* D3D11BlendState::Resource( )
+	{
+		return m_blendState;
+	}
+
+	const ID3D11BlendState* D3D11BlendState::Resource( ) const
+	{
+		return m_blendState;
+	}
+
+	const float* D3D11BlendState::GetBlendFactor( ) const
+	{
+		return m_blendFactor;
+	}
+
+	UINT D3D11BlendState::SamplerMask( ) const
+	{
+		return m_sampleMask;
+	}
+
+	void D3D11BlendState::SetBlendFactor( const float( &blendFactor )[4] )
+	{
+		constexpr int size = std::extent_v<decltype( blendFactor )>;
+		for ( int i = 0; i < size; ++i )
+		{
+			m_blendFactor[i] = blendFactor[i];
+		}
+	}
+
+	void D3D11BlendState::SetSampleMask( unsigned int sampleMask )
+	{
+		m_sampleMask = sampleMask;
+	}
+
+	D3D11BlendState::D3D11BlendState( const BLEND_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ), m_sampleMask( trait.m_sampleMask ) {}
 
 	void D3D11BlendState::InitResource( )
 	{

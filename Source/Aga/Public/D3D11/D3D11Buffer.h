@@ -7,15 +7,17 @@
 class D3D11BufferBase : public aga::Buffer
 {
 public:
-	ID3D11Buffer* Buffer( ) { return m_buffer; }
-	const ID3D11Buffer* Buffer( ) const { return m_buffer; }
-	ID3D11ShaderResourceView* Srv( ) { return m_srv; }
-	const ID3D11ShaderResourceView* Srv( ) const { return m_srv; }
-	ID3D11UnorderedAccessView* Uav( ) { return m_uav; }
-	const ID3D11UnorderedAccessView* Uav( ) const { return m_uav; }
+	ID3D11Buffer* Resource( );
+	const ID3D11Buffer* Resource( ) const;
+
+	UINT Stride( ) const;
 
 	D3D11BufferBase( const BUFFER_TRAIT& trait, const void* initData );
 	~D3D11BufferBase( );
+	D3D11BufferBase( const D3D11BufferBase& ) = delete;
+	D3D11BufferBase& operator=( const D3D11BufferBase& ) = delete;
+	D3D11BufferBase( D3D11BufferBase&& ) = delete;
+	D3D11BufferBase& operator=( D3D11BufferBase&& ) = delete;
 
 protected:
 	virtual void InitResource( ) override;
@@ -29,7 +31,4 @@ protected:
 	D3D11_SUBRESOURCE_DATA m_initData = {};
 	void* m_dataStorage = nullptr;
 	bool m_hasInitData = false;
-
-	ID3D11ShaderResourceView* m_srv = nullptr;
-	ID3D11UnorderedAccessView* m_uav = nullptr;
 };

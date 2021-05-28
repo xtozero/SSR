@@ -101,6 +101,8 @@ void RenderCore::BeginRenderingViewGroup( RenderViewGroup& renderViewGroup )
 
 		pSceneRenderer->Render( renderViewGroup );
 	}
+
+	SceneRenderer::WaitUntilRenderingIsFinish( );
 }
 
 RenderCore::~RenderCore( )

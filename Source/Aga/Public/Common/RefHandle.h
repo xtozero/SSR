@@ -26,15 +26,20 @@ public:
 		}
 	}
 
-	RefHandle( const RefHandle& ref )
+	RefHandle( const RefHandle& other )
 	{
-		*this = ref;
+		*this = other;
 	}
 
 	RefHandle& operator=( const RefHandle& other )
 	{
 		if ( this != &other )
 		{
+			if ( m_reference )
+			{
+				m_reference->ReleaseRef( );
+			}
+
 			m_reference = other.m_reference;
 			if ( m_reference )
 			{
@@ -66,7 +71,7 @@ public:
 		return *this;
 	}
 
-	operator ReferencedType*( )
+	operator ReferencedType*( ) const
 	{
 		return m_reference;
 	}

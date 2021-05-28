@@ -1,33 +1,42 @@
 #include "stdafx.h"
 #include "IndexBuffer.h"
 
-#include "Core/InterfaceFactories.h"
-#include "IAga.h"
 #include "MultiThread/EngineTaskScheduler.h"
 
-IndexBuffer IndexBuffer::Create( std::size_t numElement, const void* initData, bool isDWORD )
+aga::Buffer* IndexBuffer::Resource( )
 {
-	IndexBuffer ib;
+	return m_buffer.Get( );
+}
 
+const aga::Buffer* IndexBuffer::Resource( ) const
+{
+	return m_buffer.Get( );
+}
+
+IndexBuffer::IndexBuffer( std::size_t numElement, const void* initData, bool isDWORD ) : m_numElement( numElement ), m_isDWORD( isDWORD )
+{
+	InitResource( initData );
+}
+
+void IndexBuffer::InitResource( const void* initData )
+{
 	BUFFER_TRAIT trait = {
-		isDWORD ? 4u : 2u,
-		static_cast<UINT>( numElement ),
+		m_isDWORD ? sizeof( DWORD ) : sizeof( WORD ),
+		static_cast<UINT>( m_numElement ),
 		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
 		RESOURCE_BIND_TYPE::INDEX_BUFFER
 	};
 
-	ib.m_buffer = GetInterface<IAga>( )->CreateBuffer( trait, initData );
+	m_buffer = aga::Buffer::Create( trait, initData );
 	if ( IsInRenderThread( ) )
 	{
-		ib.m_buffer->Init( );
+		m_buffer->Init( );
 	}
 	else
 	{
-		EnqueueRenderTask( [buffer = ib.m_buffer]( )
+		EnqueueRenderTask( [buffer = m_buffer]( )
 		{
 			buffer->Init( );
 		} );
 	}
-
-	return ib;
 }

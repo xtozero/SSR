@@ -19,7 +19,6 @@ namespace VS_CONSTANT_BUFFER
 	enum
 	{
 		DEFAULT = 0,
-		GEOMETRY,
 		VIEW_PROJECTION,
 		SHADOW,
 	};

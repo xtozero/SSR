@@ -30,7 +30,7 @@ public:
 	template <typename ShaderType>
 	void BindShader( ShaderType& shader )
 	{
-		m_aga->BindShader( shader );
+		m_aga->BindShader( shader.Resource( ) );
 	}
 
 	void Dispatch( UINT x, UINT y, UINT z = 1 );

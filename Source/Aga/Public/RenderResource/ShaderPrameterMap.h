@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.h"
+#include "GraphicsApiResource.h"
 
 #include <map>
 
@@ -20,19 +21,29 @@ class ShaderParameterMap;
 class ShaderParameter
 {
 public:
+	SHADER_TYPE m_shader = SHADER_TYPE::NONE;
 	ShaderParameterType m_type = ShaderParameterType::Unknown;
 	UINT m_bindPoint = 0;
 	UINT m_offset = 0;
+	UINT m_sizeInByte = 0;
 
 	AGA_DLL void Bind( const ShaderParameterMap& parameterMap, const char* variableName );
+
+	friend bool operator<( const ShaderParameter& lhs, const ShaderParameter& rhs )
+	{
+		auto lVariable = std::tie( lhs.m_shader, lhs.m_type, lhs.m_bindPoint, lhs.m_offset, lhs.m_sizeInByte );
+		auto rVariable = std::tie( rhs.m_shader, rhs.m_type, rhs.m_bindPoint, rhs.m_offset, rhs.m_sizeInByte );
+
+		return lVariable < rVariable;
+	}
 };
 
 class ShaderParameterMap
 {
 public:
-	void AddParameter( const char* variableName, ShaderParameterType type, UINT bindPoint, UINT offset )
+	void AddParameter( const char* variableName, SHADER_TYPE shader, ShaderParameterType type, UINT bindPoint, UINT offset, UINT sizeInByte )
 	{
-		m_parameters.emplace( variableName, ShaderParameter{ type, bindPoint, offset } );
+		m_parameters.emplace( variableName, ShaderParameter{ shader, type, bindPoint, offset, sizeInByte } );
 	}
 
 	void AddParameter( const char* variableName, const ShaderParameter& parameter )
@@ -50,7 +61,7 @@ public:
 		return m_parameters;
 	}
 
-	ShaderParameter GetParameter( const char* name ) const;
+	AGA_DLL ShaderParameter GetParameter( const char* name ) const;
 
 	std::size_t Size( ) const
 	{

@@ -12,7 +12,7 @@ void DefaultConstantBuffers::BootUp( )
 	{
 		ConstantBufferContext& context = m_contexts[i];
 
-		context.m_buffer = ConstantBuffer::Create( BUFFER_SIZE );
+		context.m_buffer = ConstantBuffer( BUFFER_SIZE );
 		context.m_dataStorage = new unsigned char[BUFFER_SIZE];
 		context.m_invalidRangeEnd = 0;
 	}
@@ -25,11 +25,11 @@ void DefaultConstantBuffers::BootUp( )
 		param.m_offset = 0;
 
 		VertexShader vs;
-		BindShaderParameter( vs, param, contexts[VS].m_buffer );
+		BindShaderParameter( vs, param, contexts[VS].m_buffer.Resource( ) );
 		PixelShader ps;
-		BindShaderParameter( ps, param, contexts[PS].m_buffer );
+		BindShaderParameter( ps, param, contexts[PS].m_buffer.Resource( ) );
 		ComputeShader cs;
-		BindShaderParameter( cs, param, contexts[CS].m_buffer );
+		BindShaderParameter( cs, param, contexts[CS].m_buffer.Resource( ) );
 	};
 
 	if ( IsInRenderThread( ) )

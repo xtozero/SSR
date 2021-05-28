@@ -1,6 +1,7 @@
 #include "JsonManufacturer.h"
 
 #include "Json/json.hpp"
+#include "Material/Material.h"
 #include "PathEnvironment.h"
 #include "RenderOption.h"
 
@@ -21,6 +22,10 @@ namespace
 			else if ( assetType == "DepthStencilOption" )
 			{
 				return DepthStencilOption::ID;
+			}
+			else if ( assetType == "Material" )
+			{
+				return Material::ID;
 			}
 			else if ( assetType == "RasterizerOption" )
 			{
@@ -114,6 +119,11 @@ namespace
 				}
 			}
 
+			if ( const JSON::Value* sampleMask = root.Find( "SampleMask" ) )
+			{
+				blendOption->m_sampleMask = static_cast<UINT>( sampleMask->AsInt( ) );
+			}
+
 			asset = std::move( blendOption );
 		}
 		else if ( assetID == DepthStencilOption::ID )
@@ -201,6 +211,124 @@ namespace
 			}
 
 			asset = std::move( depthStencilOption );
+		}
+		else if ( assetID == Material::ID )
+		{
+			auto material = std::make_unique<Material>( );
+			material->SetPath( assetPath );
+
+			if ( const JSON::Value* shaderKeys = root.Find( "Shader" ) )
+			{
+				for ( int shaderType = static_cast<int>( SHADER_TYPE::VS ); shaderType < static_cast<int>( SHADER_TYPE::Count ); ++shaderType )
+				{
+					const JSON::Value* shaderPath = shaderKeys->Find( ToString( static_cast<SHADER_TYPE>( shaderType ) ) );
+					if ( shaderPath == nullptr )
+					{
+						continue;
+					}
+
+					switch ( static_cast<SHADER_TYPE>( shaderType ) )
+					{
+					case SHADER_TYPE::VS:
+					{
+						auto vs = std::make_shared<VertexShader>( );
+						vs->SetPath( shaderPath->AsString( ) );
+						material->SetVertexShader( vs );
+						break;
+					}
+					case SHADER_TYPE::HS:
+						break;
+					case SHADER_TYPE::DS:
+						break;
+					case SHADER_TYPE::GS:
+						break;
+					case SHADER_TYPE::PS:
+					{
+						auto ps = std::make_shared<PixelShader>( );
+						ps->SetPath( shaderPath->AsString( ) );
+						material->SetPixelShader( ps );
+						break;
+					}
+					case SHADER_TYPE::CS:
+						break;
+					case SHADER_TYPE::Count:
+						[[fallthrough]];
+					case SHADER_TYPE::NONE:
+						[[fallthrough]];
+					default:
+						break;
+					}
+				}
+			}
+
+			if ( const JSON::Value* surface = root.Find( "Surface" ) )
+			{
+				auto memberNames = surface->GetMemberNames( );
+				for ( auto name : memberNames )
+				{
+					if ( const JSON::Value* property = surface->Find( name ) )
+					{
+						switch ( property->Type( ) )
+						{
+						case JSON::DataType::STRING:
+						{
+							auto texture = std::make_shared<Texture>( );
+							texture->SetPath( property->AsString( ) );
+							
+							material->AddProperty( name, texture );
+							break;
+						}
+						case JSON::DataType::INTERGER:
+						{
+							material->AddProperty( name, property->AsInt( ) );
+							break;
+						}
+						case JSON::DataType::REAL:
+						{
+							material->AddProperty( name, static_cast<float>( property->AsReal( ) ) );
+							break;
+						}
+						case JSON::DataType::ARRAY:
+						{
+							CXMFLOAT4 vector( 1.f, 1.f, 1.f, 1.f );
+
+							for ( int i = 0; i < property->Size( ) && i < 4; ++i )
+							{
+								vector[i] = static_cast<float>( (*property)[i].AsReal( ) );
+							}
+
+							material->AddProperty( name, vector );
+							break;
+						}
+						case JSON::DataType::OBJECT:
+							[[fallthrough]];
+						case JSON::DataType::BOOLEAN:
+							[[fallthrough]];
+						case JSON::DataType::EMPTY:
+							[[fallthrough]];
+						default:
+							break;
+						}
+					}
+				}
+			}
+
+			if ( const JSON::Value* sampler = root.Find( "Sampler" ) )
+			{
+				auto memberNames = sampler->GetMemberNames( );
+				for ( auto name : memberNames )
+				{
+					if ( const JSON::Value* path = sampler->Find( name ) )
+					{
+						auto samplerOption = std::make_shared<SamplerOption>( );
+						samplerOption->SetPath( path->AsString( ) );
+						
+						material->AddSampler( name, samplerOption );
+					}
+				}
+			}
+
+			asset = std::move( material );
 		}
 		else if ( assetID == RasterizerOption::ID )
 		{
@@ -294,50 +422,6 @@ namespace
 		{
 			auto renderOption = std::make_unique<RenderOption>( );
 
-			if ( const JSON::Value* shaderKeys = root.Find( "Shader" ) )
-			{
-				for ( int shaderType = static_cast<int>( SHADER_TYPE::VS ); shaderType < static_cast<int>( SHADER_TYPE::Count ); ++shaderType )
-				{
-					const JSON::Value* shaderPath = shaderKeys->Find( ToString( static_cast<SHADER_TYPE>( shaderType ) ) );
-					if ( shaderPath == nullptr )
-					{
-						continue;
-					}
-
-					switch ( static_cast<SHADER_TYPE>( shaderType ) )
-					{
-					case SHADER_TYPE::VS:
-					{
-						auto vs = std::make_shared<VertexShader>( );
-						vs->SetPath( shaderPath->AsString( ) );
-						renderOption->m_vertexShader = vs;
-						break;
-					}
-					case SHADER_TYPE::HS:
-						break;
-					case SHADER_TYPE::DS:
-						break;
-					case SHADER_TYPE::GS:
-						break;
-					case SHADER_TYPE::PS:
-					{
-						auto ps = std::make_shared<PixelShader>( );
-						ps->SetPath( shaderPath->AsString( ) );
-						renderOption->m_pixelShader = ps;
-						break;
-					}
-					case SHADER_TYPE::CS:
-						break;
-					case SHADER_TYPE::Count:
-						[[fallthrough]];
-					case SHADER_TYPE::NONE:
-						[[fallthrough]];
-					default:
-						break;
-					}
-				}
-			}
-
 			if ( const JSON::Value* blendOptionPath = root.Find( "Blend" ) )
 			{
 				auto blendOption = std::make_shared<BlendOption>( );
@@ -357,25 +441,6 @@ namespace
 				auto rasterizerOption = std::make_shared<RasterizerOption>( );
 				rasterizerOption->SetPath( fs::path( rasterizerOptionPath->AsString( ) ) );
 				renderOption->m_rasterizerOption = rasterizerOption;
-			}
-
-			if ( const JSON::Value* samplerOptionKeys = root.Find( "Sampler" ) )
-			{
-				for ( int shaderType = static_cast<int>( SHADER_TYPE::VS ); shaderType < static_cast<int>( SHADER_TYPE::Count ); ++shaderType )
-				{
-					const JSON::Value* samplerOptionKey = samplerOptionKeys->Find( ToString( static_cast<SHADER_TYPE>( shaderType ) ) );
-					if ( samplerOptionKey == nullptr )
-					{
-						continue;
-					}
-
-					for ( int i = 0; i < samplerOptionKey->Size(); ++i )
-					{
-						auto samplerOption = std::make_shared<SamplerOption>( );
-						samplerOption->SetPath( fs::path( (*samplerOptionKey)[i].AsString( ) ) );
-						renderOption->m_samplerOption[shaderType][i] = samplerOption;
-					}
-				}
 			}
 
 			asset = std::move( renderOption );
@@ -450,7 +515,7 @@ std::optional<Products> JsonManufacturer::Manufacture( const std::filesystem::pa
 	}
 
 	auto assetID = ConvertAssetTypeToAssetID( root );
-	if ( assetID == false )
+	if ( !assetID )
 	{
 		return { };
 	}

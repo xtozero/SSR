@@ -21,7 +21,7 @@ bool ForwardRenderer::PrepareRender( RenderViewGroup& renderViewGroup )
 void ForwardRenderer::Render( RenderViewGroup& renderViewGroup )
 {
 	auto& depthStencil = m_renderTargets.GetDepthStencil( );
-	depthStencil.Clear( 0.f, 0 );
+	depthStencil.Clear( 1.f, 0 );
 
 	SetRenderTarget( renderViewGroup );
 
@@ -29,13 +29,12 @@ void ForwardRenderer::Render( RenderViewGroup& renderViewGroup )
 
 	auto& viewConstant = scene.SceneViewConstant( );
 
-	for ( auto view : renderViewGroup )
+	for ( auto& view : renderViewGroup )
 	{
 		ViewConstantBufferParameters viewConstantParam;
 		FillViewConstantParam( viewConstantParam, view );
 
 		viewConstant.Update( viewConstantParam );
-		viewConstant.Bind( );
 
 		RenderMesh( scene, view );
 	}

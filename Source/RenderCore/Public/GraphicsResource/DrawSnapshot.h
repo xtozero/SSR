@@ -3,16 +3,42 @@
 #include "GraphicsApiResource.h"
 #include "GraphicsPipelineState.h"
 #include "IndexBuffer.h"
+#include "PipelineState.h"
 #include "ShaderBindings.h"
 #include "VertexInputStream.h"
+
+#include <map>
+
+class PrimitiveIdVertexBufferPool
+{
+public:
+	static PrimitiveIdVertexBufferPool& GetInstance( );
+
+	VertexBuffer Alloc( std::size_t require );
+	void DiscardAll( );
+
+protected:
+	PrimitiveIdVertexBufferPool( ) = default;
+
+private:
+	struct PrimitiveIdVertexBufferPoolEntry
+	{
+		std::size_t m_lastDiscardId;
+		VertexBuffer m_vertexBuffer;
+	};
+
+	std::vector<PrimitiveIdVertexBufferPoolEntry> m_entries;
+	std::size_t m_discardId = 0;
+};
 
 class DrawSnapshot
 {
 public:
+	UINT m_primitiveId;
+
 	VertexInputStream m_vertexStream;
 	IndexBuffer m_indexBuffer;
 
-	ShaderStates m_shaders;
 	ShaderBindings m_shaderBindings;
 
 	// Pipeline State
@@ -28,13 +54,14 @@ public:
 	{
 		( *this ) = other;
 	}
-	DrawSnapshot& operator=( const DrawSnapshot& other ) noexcept
+
+	DrawSnapshot& operator=( const DrawSnapshot& other )
 	{
 		if ( this != &other )
 		{
+			m_primitiveId = other.m_primitiveId;
 			m_vertexStream = other.m_vertexStream;
 			m_indexBuffer = other.m_indexBuffer;
-			m_shaders = other.m_shaders;
 			m_shaderBindings = other.m_shaderBindings;
 			m_pipelineState = other.m_pipelineState;
 			m_indexCount = other.m_indexCount;
@@ -44,17 +71,19 @@ public:
 
 		return *this;
 	}
+
 	DrawSnapshot( DrawSnapshot&& other ) noexcept
 	{
 		( *this ) = std::move( other );
 	}
+
 	DrawSnapshot& operator=( DrawSnapshot&& other ) noexcept
 	{
 		if ( this != &other )
 		{
+			m_primitiveId = other.m_primitiveId;
 			m_vertexStream = std::move( other.m_vertexStream );
 			m_indexBuffer = std::move( other.m_indexBuffer );
-			m_shaders = std::move( other.m_shaders );
 			m_shaderBindings = std::move( other.m_shaderBindings );
 			m_pipelineState = std::move( other.m_pipelineState );
 			m_indexCount = other.m_indexCount;
@@ -65,3 +94,7 @@ public:
 		return *this;
 	}
 };
+
+void PreparePipelineStateObject( std::vector<DrawSnapshot>& snapshots );
+void SortDrawSnapshot( std::vector<DrawSnapshot>& snapshots, VertexBuffer& primitiveIds );
+void CommitDrawSnapshot( std::vector<DrawSnapshot>& snapshots, const VertexBuffer& primitiveIds );

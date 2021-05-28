@@ -30,6 +30,8 @@ void BlendOption::Serialize( Archive& ar )
 		ar << rt.m_blendOpAlpha;
 		ar << rt.m_renderTargetWriteMask;
 	}
+
+	ar << m_sampleMask;
 }
 
 void BlendOption::PostLoadImpl( )
@@ -119,20 +121,9 @@ void RenderOption::Serialize( Archive& ar )
 		ar << ID;
 	}
 
-	ar << m_vertexShader;
-	ar << m_pixelShader;
-
 	ar << m_blendOption;
 	ar << m_depthStencilOption;
 	ar << m_rasterizerOption;
-
-	for ( int i = 0; i < MAX_SHADER_TYPE<int>; ++i )
-	{
-		for ( int slot = 0; slot < SAMPLER_SLOT_COUNT; ++slot )
-		{
-			ar << m_samplerOption[i][slot];
-		}
-	}
 }
 
 void RenderOption::PostLoadImpl( )

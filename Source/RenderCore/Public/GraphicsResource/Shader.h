@@ -48,15 +48,8 @@ public:
 	VertexShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
 	VertexShader( ) = default;
 
-	operator aga::VertexShader*( )
-	{
-		return m_shader.Get( );
-	}
-
-	operator const aga::VertexShader*( ) const
-	{
-		return m_shader.Get( );
-	}
+	aga::VertexShader* Resource( );
+	const aga::VertexShader* Resource( ) const;
 
 	friend bool operator==( const VertexShader& lhs, const VertexShader& rhs )
 	{
@@ -89,15 +82,8 @@ public:
 	PixelShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
 	PixelShader( ) = default;
 
-	operator aga::PixelShader*( )
-	{
-		return m_shader.Get( );
-	}
-
-	operator const aga::PixelShader*( ) const
-	{
-		return m_shader.Get( );
-	}
+	aga::PixelShader* Resource( );
+	const aga::PixelShader* Resource( ) const;
 
 	friend bool operator==( const PixelShader& lhs, const PixelShader& rhs )
 	{
@@ -125,15 +111,8 @@ public:
 	ComputeShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
 	ComputeShader( ) = default;
 
-	operator aga::ComputeShader*( )
-	{
-		return m_shader.Get( );
-	}
-
-	operator const aga::ComputeShader*( ) const
-	{
-		return m_shader.Get( );
-	}
+	aga::ComputeShader* Resource( );
+	const aga::ComputeShader* Resource( ) const;
 
 	friend bool operator==( const ComputeShader& lhs, const ComputeShader& rhs )
 	{

@@ -1,8 +1,9 @@
 #include "WavefrontObjManufacturer.h"
 
+#include "Material/Material.h"
+#include "Mesh/MeshDescription.h"
+#include "Mesh/StaticMesh.h"
 #include "WavefrontObjParser.hpp"
-#include "Model/MeshDescription.h"
-#include "Model/StaticMesh.h"
 
 #include <numeric>
 
@@ -245,7 +246,7 @@ std::optional<Products> WavefrontObjManufacturer::Manufacture( const std::filesy
 	}
 
 	fs::path destRootPath = "." / fs::relative( destPath, destPath.parent_path( ) );
-	fs::path assetsRootPath = destRootPath / fs::relative( srcPath.parent_path( ) );
+	fs::path assetsRootPath = destRootPath / fs::path( "Material" );
 
 	Archive ar;
 	StaticMesh staticMesh = CreateStaticMeshFromWavefrontObj( model, assetsRootPath );

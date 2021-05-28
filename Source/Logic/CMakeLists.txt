@@ -50,31 +50,25 @@ set (GAME_OBJECT
 	"Public/GameObject/SkyBox.h"
 	"Public/GameObject/StaticMeshGameObject.h")
 
-set (MATERIAL
-	"Private/Material/Material.cpp"
-	"Public/Material/Material.h")
+#set (MATERIAL
+#	"Private/Material/Material.cpp"
+#	"Public/Material/Material.h")
 	
-set (MODEL
-	"Private/Model/BaseMesh.cpp"
-	"Private/Model/StaticMesh.cpp"
-	"Private/Model/DebugMesh.cpp"
-	"Private/Model/ModelBuilder.cpp"
-	"Private/Model/ModelManager.cpp"
-	"Private/Model/PlyMesh.cpp"
-	"Private/Model/PlyMeshLoader.cpp"
-	"Public/Model/BaseMesh.h"
-	"Public/Model/StaticMesh.h"
-	"Public/Model/CommonMeshDefine.h"
-	"Public/Model/DebugMesh.h"
-	"Public/Model/IModelBuilder.h"
-	"Public/Model/IModelLoader.h"
-	"Public/Model/MeshBuildHelper.h"
-	"Public/Model/MeshDescription.h"
-	"Public/Model/ModelBuilder.h"
-	"Public/Model/ModelManager.h"
-	"Public/Model/PlyMesh.h"
-	"Public/Model/PlyMeshLoader.h"
-	"Public/Model/Surface.h")
+#set (MODEL
+#	"Private/Model/DebugMesh.cpp"
+#	"Private/Model/ModelBuilder.cpp"
+#	"Private/Model/ModelManager.cpp"
+#	"Private/Model/PlyMesh.cpp"
+#	"Private/Model/PlyMeshLoader.cpp"
+#	"Public/Model/DebugMesh.h"
+#	"Public/Model/IModelBuilder.h"
+#	"Public/Model/IModelLoader.h"
+#	"Public/Model/MeshBuildHelper.h"
+#	"Public/Model/ModelBuilder.h"
+#	"Public/Model/ModelManager.h"
+#	"Public/Model/PlyMesh.h"
+#	"Public/Model/PlyMeshLoader.h"
+#	"Public/Model/Surface.h")
 
 set (PHYSICS
 	"Private/Physics/Aaboundingbox.cpp"
@@ -190,8 +184,8 @@ link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 add_library(Logic SHARED 	${COMPOENETS}
 							${CORE}
 							${GAME_OBJECT}
-							${MATERIAL}
-							${MODEL}
+#							${MATERIAL}
+#							${MODEL}
 							${PHYSICS}
 							${PLAYER_OBJECT}
 							${PRECOMPILED}
