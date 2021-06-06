@@ -16,6 +16,8 @@ public:
 	using LoadCompletionCallback = Delegate<void, const std::shared_ptr<void>&>;
 
 	virtual AssetLoaderSharedHandle RequestAsyncLoad( const std::string& assetPath, LoadCompletionCallback completionCallback ) = 0;
+	virtual AssetLoaderSharedHandle HandleInProcess( ) const = 0;
+	virtual void SetHandleInProcess( const AssetLoaderSharedHandle& handle ) = 0;
 
 	virtual ~IAssetLoader( ) = default;
 };
@@ -42,6 +44,7 @@ public:
 	{
 		m_loadingInProgress = false;
 		m_loadComplete = ( loadedAsset != nullptr );
+		assert( m_loadComplete );
 
 		m_loadedAsset = loadedAsset;
 	}
@@ -54,7 +57,7 @@ public:
 	void AddPrerequisite( const AssetLoaderSharedHandle& prerequisite )
 	{
 		prerequisite->m_subSequentList.emplace_back( shared_from_this() );
-		++m_prerequisites;
+		IncreasePrerequisite( );
 	}
 
 	void OnStartLoading( )
@@ -67,12 +70,22 @@ public:
 		m_needPostProcess = true;
 	}
 
-private:
-	void OnAchievePrerequisite( )
+	bool HasPrerequisites( ) const
+	{
+		return m_prerequisites > 0;
+	}
+
+	void IncreasePrerequisite( )
+	{
+		++m_prerequisites;
+	}
+
+	void DecreasePrerequisite( )
 	{
 		--m_prerequisites;
 	}
 
+private:
 	std::vector<AssetLoaderSharedHandle> m_subSequentList;
 	int m_prerequisites = 0;
 

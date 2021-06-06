@@ -82,7 +82,7 @@ public:
 
 		HANDLE hFile = handle.m_handle;
 		HANDLE hPort = CreateIoCompletionPort( hFile, m_completionPort, (ULONG_PTR)size, 0 );
-		if ( hPort == NULL || hPort != m_completionPort )
+		if ( hPort == nullptr || hPort != m_completionPort )
 		{
 			assert( false );
 			return false;

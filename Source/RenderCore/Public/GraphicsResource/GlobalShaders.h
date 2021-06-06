@@ -15,9 +15,10 @@ public:
 		return globalShader;
 	}
 
-	bool RegisterShader( std::type_index typeIndex, const std::shared_ptr<ShaderBase>& shader );
+	void BootUp( );
 
-	void OnLoadShaderStarted( std::type_index typeIndex );
+	bool RegisterShader( std::type_index typeIndex, const std::shared_ptr<ShaderBase>& shader );
+	bool RegisterShaderPath( std::type_index typeIndex, const char* path );
 
 	ShaderBase* GetShader( std::type_index typeIndex );
 
@@ -25,6 +26,7 @@ private:
 	GlobalShader( ) = default;
 
 	std::map<std::type_index, std::shared_ptr<ShaderBase>> m_shaders;
+	std::map<std::type_index, const char*> m_shaderAssetPaths;
 
 	std::atomic<int> m_loadingInProgress = 0;
 };
@@ -32,7 +34,7 @@ private:
 class GlobalShaderRegister
 {
 public:
-	GlobalShaderRegister( std::type_index typeIndex, const std::string& assetPath );
+	GlobalShaderRegister( std::type_index typeIndex, const char* assetPath );
 };
 
 #define REGISTER_GLOBAL_SHADER( type, shaderPath ) \

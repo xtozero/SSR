@@ -1,10 +1,9 @@
 #include "TaskScheduler.h"
 
-#include <atomic>
 #include <cassert>
 #include <condition_variable>
-#include <shared_mutex>
 #include <queue>
+#include <mutex>
 
 namespace
 {
@@ -15,14 +14,15 @@ namespace
 	}
 }
 
-struct TaskGroup
+TaskHandle::TaskHandle( std::size_t queueId ) : m_queueId( queueId ), m_controlBlock( std::make_shared<TaskHandleControlBlock>( ) )
+{
+}
+
+struct TaskQueue
 {
 	std::queue<TaskBase*> m_tasks;
 	std::mutex m_taskLock;
-	std::atomic<bool> m_free;
 	std::atomic<std::size_t> m_reference;
-	std::atomic<std::size_t> m_lastId;
-	std::size_t m_workerAffinity;
 };
 
 struct Worker
@@ -43,9 +43,8 @@ void WorkerThread( TaskScheduler* scheduler, Worker* worker )
 		{
 			std::unique_lock<std::mutex> lock( worker->m_lock );
 			worker->m_cv.wait( lock, [&worker]( ) { return worker->m_wakeup.load( ); } );
+			worker->m_wakeup = false;
 		}
-		
-		worker->m_wakeup = false;
 
 		while ( true )
 		{
@@ -54,23 +53,30 @@ void WorkerThread( TaskScheduler* scheduler, Worker* worker )
 				return;
 			}
 
-			TaskGroup* group = nullptr;
+			TaskQueue* queue = nullptr;
 			TaskBase* task = nullptr;
 			for ( std::size_t i = 0
-				; ( i < scheduler->m_maxTaskGroup ) && ( task == nullptr )
+				; ( i < scheduler->m_maxTaskQueue ) && ( task == nullptr )
 				; ++i )
 			{
-				group = &scheduler->m_taskGroups[i];
-				if ( group->m_free || group->m_reference == 0 || ( CheckWorkerAffinity( worker->m_threadType, group->m_workerAffinity ) == false ) )
+				queue = &scheduler->m_taskQueues[i];
+				if ( queue->m_reference == 0 )
 				{
 					continue;
 				}
 
-				std::unique_lock taskLock( group->m_taskLock );
-				if ( group->m_tasks.empty( ) == false )
+				std::unique_lock taskLock( queue->m_taskLock );
+				if ( queue->m_tasks.empty( ) == false )
 				{
-					task = group->m_tasks.front( );
-					group->m_tasks.pop( );
+					task = queue->m_tasks.front( );
+
+					if ( CheckWorkerAffinity( worker->m_threadType, task->WorkerAffinity( ) ) == false )
+					{
+						task = nullptr;
+						continue;
+					}
+
+					queue->m_tasks.pop( );
 					break;
 				}
 			}
@@ -80,147 +86,130 @@ void WorkerThread( TaskScheduler* scheduler, Worker* worker )
 				break;
 			}
 
-			TASK_TYPE type = task->Type( );
-
 			task->Execute( );
-			--group->m_reference;
-
-			if ( type == TASK_TYPE::FIRE_AND_FORGET )
-			{
-				if ( group->m_reference == 0 )
-				{
-					group->m_free = true;
-				}
-			}
+			--queue->m_reference;
 		}
 	}
 }
 
-GroupHandle TaskScheduler::GetTaskGroup( std::size_t workerAffinity )
+TaskHandle TaskScheduler::GetTaskGroup( )
 {
-	for ( std::size_t i = 0; i < m_maxTaskGroup; ++i )
+	std::size_t workerId = m_workerCount;
+	std::size_t minReference = (std::numeric_limits<std::size_t>::max)();
+	for ( std::size_t i = m_workerCount; i < m_maxTaskQueue; ++i )
 	{
-		TaskGroup& group = m_taskGroups[i];
-		bool expected = true;
-		if ( group.m_free.compare_exchange_strong( expected, false ) )
+		const TaskQueue& queue = m_taskQueues[i];
+		if ( queue.m_reference < minReference )
 		{
-			group.m_workerAffinity = workerAffinity;
-			return GroupHandle{ i, ++group.m_lastId };
+			workerId = i;
 		}
 	}
 
-	return GroupHandle{ std::numeric_limits<std::size_t>::max( ), 0 };
+	return TaskHandle( workerId );
 }
 
-bool TaskScheduler::Run( GroupHandle handle, TaskBase* task )
+TaskHandle TaskScheduler::GetExclusiveTaskGroup( std::size_t workerId )
 {
-	if ( handle.m_groupIndex >= m_maxTaskGroup )
+	return TaskHandle( workerId );
+}
+
+bool TaskScheduler::Run( TaskHandle handle )
+{
+	if ( handle.m_queueId >= m_maxTaskQueue )
 	{
 		return false;
 	}
 
-	TaskGroup& group = m_taskGroups[handle.m_groupIndex];
+	TaskQueue& queue = m_taskQueues[handle.m_queueId];
 
-	if ( handle.m_id != group.m_lastId )
+	if ( handle.IsSubmitted( ) )
 	{
 		return false;
 	}
 
 	{
-		std::unique_lock taskLock( group.m_taskLock );
-		group.m_tasks.emplace( task );
+		std::unique_lock taskLock( queue.m_taskLock );
+		for ( auto task : handle.m_controlBlock->m_tasks )
+		{
+			queue.m_tasks.push( task );
+			++queue.m_reference;
+		}
 	}
-	
-	++group.m_reference;
 
 	for ( std::size_t i = 0; i < m_workerCount; ++i )
 	{
-		if ( CheckWorkerAffinity( i, group.m_workerAffinity ) )
-		{
-			std::unique_lock<std::mutex> lock( m_workers[i].m_lock );
-			m_workers[i].m_wakeup = true;
-			m_workers[i].m_cv.notify_one( );
-		}
+		std::unique_lock<std::mutex> lock( m_workers[i].m_lock );
+		m_workers[i].m_wakeup = true;
+		m_workers[i].m_cv.notify_one( );
 	}
 
 	return true;
 }
 
-bool TaskScheduler::Wait( GroupHandle handle )
+bool TaskScheduler::Wait( TaskHandle handle )
 {
-	if ( handle.m_groupIndex >= m_maxTaskGroup )
+	if ( handle.m_queueId >= m_maxTaskQueue )
 	{
 		return false;
 	}
 
-	TaskGroup& group = m_taskGroups[handle.m_groupIndex];
+	TaskQueue& queue = m_taskQueues[handle.m_queueId];
 	
-	if ( handle.m_id < group.m_lastId )
+	if ( handle.IsSubmitted( ) == false )
 	{
 		return false;
 	}
 
-	if ( group.m_free )
+	if ( handle.IsCompleted( ) )
 	{
 		return false;
 	}
 
-	if ( CheckWorkerAffinity( GetThisThreadType( ), group.m_workerAffinity ) )
+	while ( true )
 	{
-		while ( true )
+		TaskBase* task = nullptr;
 		{
-			TaskBase* task = nullptr;
+			std::unique_lock taskLock( queue.m_taskLock );
+			if ( queue.m_tasks.empty( ) == false )
 			{
-				std::unique_lock taskLock( group.m_taskLock );
-				if ( group.m_tasks.empty( ) == false )
-				{
-					task = group.m_tasks.front( );
-					group.m_tasks.pop( );
-				}
-			}
+				task = queue.m_tasks.front( );
 
-			if ( task )
-			{
-				task->Execute( );
-				--group.m_reference;
+				if ( CheckWorkerAffinity( GetThisThreadType( ), task->WorkerAffinity( ) ) == false )
+				{
+					break;
+				}
+
+				queue.m_tasks.pop( );
 			}
-			else
-			{
-				break;
-			}
+		}
+
+		if ( task )
+		{
+			task->Execute( );
+			--queue.m_reference;
+		}
+		else
+		{
+			break;
 		}
 	}
 
-	while ( group.m_reference > 0 )
+	while ( queue.m_reference > 0 )
 	{
 		std::this_thread::yield( );
 	}
 
-	group.m_free = true;
 	return true;
-}
-
-void TaskScheduler::WaitAll( )
-{
-	for ( std::size_t i = 0; i < m_maxTaskGroup; ++i )
-	{
-		Wait( GroupHandle{ i, m_taskGroups[i].m_lastId } );
-	}
 }
 
 void TaskScheduler::ProcessThisThreadTask( )
 {
 	std::size_t threadType = GetThisThreadType( );
 
-	for ( std::size_t i = 0; i < m_maxTaskGroup; ++i )
+	for ( std::size_t i = 0; i < m_maxTaskQueue; ++i )
 	{
-		TaskGroup& group = m_taskGroups[i];
-		if ( group.m_free || group.m_reference == 0 )
-		{
-			continue;
-		}
-
-		if ( CheckWorkerAffinity( threadType, group.m_workerAffinity ) == false )
+		TaskQueue& queue = m_taskQueues[i];
+		if ( queue.m_reference == 0 )
 		{
 			continue;
 		}
@@ -229,39 +218,32 @@ void TaskScheduler::ProcessThisThreadTask( )
 		{
 			TaskBase* task = nullptr;
 			{
-				std::unique_lock taskLock( group.m_taskLock );
-				if ( group.m_tasks.empty( ) == false )
+				std::unique_lock taskLock( queue.m_taskLock );
+				if ( queue.m_tasks.empty( ) == false )
 				{
-					task = group.m_tasks.front( );
-					group.m_tasks.pop( );
+					task = queue.m_tasks.front( );
+
+					if ( CheckWorkerAffinity( threadType, task->WorkerAffinity( ) ) == false )
+					{
+						task = nullptr;
+						break;
+					}
+
+					queue.m_tasks.pop( );
 				}
 			}
 
 			if ( task )
 			{
 				task->Execute( );
-				--group.m_reference;
+				--queue.m_reference;
 			}
 			else
 			{
 				break;
 			}
 		}
-
-		group.m_free = true;
 	}
-}
-
-bool TaskScheduler::IsComplete( GroupHandle handle ) const
-{
-	if ( handle.m_groupIndex >= m_maxTaskGroup )
-	{
-		return false;
-	}
-
-	TaskGroup& group = m_taskGroups[handle.m_groupIndex];
-
-	return handle.m_id < group.m_lastId || group.m_free;
 }
 
 std::size_t TaskScheduler::GetThisThreadType( ) const
@@ -282,19 +264,19 @@ std::size_t TaskScheduler::GetThisThreadType( ) const
 TaskScheduler::TaskScheduler( )
 {
 	std::size_t workerCount = ( std::thread::hardware_concurrency( ) < 1 ) ? 1 : std::thread::hardware_concurrency( ) * 2 + 1;
-	std::size_t groupCount = ( std::thread::hardware_concurrency( ) < 1 ) ? 4 : std::thread::hardware_concurrency( ) * 4;
-	Initialize( groupCount, workerCount );
+	std::size_t queueCount = ( std::thread::hardware_concurrency( ) < 1 ) ? 4 : std::thread::hardware_concurrency( ) * 4;
+	Initialize( queueCount, workerCount );
 }
 
 TaskScheduler::TaskScheduler( std::size_t workerCount )
 {
-	std::size_t groupCount = ( std::thread::hardware_concurrency( ) < 1 ) ? 4 : std::thread::hardware_concurrency( ) * 4;
-	Initialize( groupCount, workerCount );
+	std::size_t queueCount = ( std::thread::hardware_concurrency( ) < 1 ) ? 4 : std::thread::hardware_concurrency( ) * 4;
+	Initialize( queueCount, workerCount );
 }
 
-TaskScheduler::TaskScheduler( std::size_t groupCount, std::size_t workerCount )
+TaskScheduler::TaskScheduler( std::size_t queueCount, std::size_t workerCount )
 {
-	Initialize( groupCount, workerCount );
+	Initialize( queueCount, workerCount );
 }
 
 TaskScheduler::~TaskScheduler( )
@@ -304,7 +286,10 @@ TaskScheduler::~TaskScheduler( )
 	for ( std::size_t i = 0; i < m_workerCount; ++i )
 	{
 		Worker& worker = m_workers[i];
-		worker.m_wakeup = true;
+		{
+			std::unique_lock<std::mutex> lock( worker.m_lock );
+			worker.m_wakeup = true;
+		}
 		worker.m_cv.notify_one( );
 		if ( worker.m_thread.joinable( ) )
 		{
@@ -312,22 +297,19 @@ TaskScheduler::~TaskScheduler( )
 		}
 	}
 
-	delete[] m_taskGroups;
+	delete[] m_taskQueues;
 	delete[] m_workers;
 	delete[] m_workerid;
 }
 
-void TaskScheduler::Initialize( std::size_t groupCount, std::size_t workerCount )
+void TaskScheduler::Initialize( std::size_t queueCount, std::size_t workerCount )
 {
-	m_maxTaskGroup = groupCount;
-	m_taskGroups = new TaskGroup[m_maxTaskGroup];
+	m_maxTaskQueue = queueCount;
+	m_taskQueues = new TaskQueue[m_maxTaskQueue];
 
-	for ( std::size_t i = 0; i < m_maxTaskGroup; ++i )
+	for ( std::size_t i = 0; i < m_maxTaskQueue; ++i )
 	{
-		m_taskGroups[i].m_free = true;
-		m_taskGroups[i].m_reference = 0;
-		m_taskGroups[i].m_lastId = 0;
-		m_taskGroups[i].m_workerAffinity = std::numeric_limits<std::size_t>::max();
+		m_taskQueues[i].m_reference = 0;
 	}
 
 	m_workerCount = workerCount;

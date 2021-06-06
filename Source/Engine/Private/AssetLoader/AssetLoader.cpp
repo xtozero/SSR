@@ -13,12 +13,14 @@
 
 void AssetLoaderHandle::ExecuteCompletionCallback( )
 {
-	if ( m_loadComplete == false )
+	assert( IsInGameThread( ) );
+
+	if ( m_prerequisites > 0 )
 	{
 		return;
 	}
 
-	if ( m_prerequisites > 0 )
+	if ( m_loadComplete == false )
 	{
 		return;
 	}
@@ -39,15 +41,19 @@ void AssetLoaderHandle::ExecuteCompletionCallback( )
 
 	for ( const auto& subSequent : m_subSequentList )
 	{
-		subSequent->OnAchievePrerequisite( );
+		subSequent->DecreasePrerequisite( );
 		subSequent->ExecuteCompletionCallback( );
 	}
+
+	m_subSequentList.clear( );
 }
 
 class AssetLoader : public IAssetLoader
 {
 public:
 	virtual AssetLoaderSharedHandle RequestAsyncLoad( const std::string& assetPath, LoadCompletionCallback completionCallback ) override;
+	virtual AssetLoaderSharedHandle HandleInProcess( ) const override;
+	virtual void SetHandleInProcess( const AssetLoaderSharedHandle& handle ) override;
 
 	AssetLoader( ) = default;
 	~AssetLoader( );
@@ -65,17 +71,23 @@ private:
 	std::unordered_map<std::string, std::vector<AssetLoaderSharedHandle>> m_waitingHandle;
 	std::unordered_map<std::string, std::shared_ptr<void>> m_assets;
 
-	AssetLoaderSharedHandle m_dependantAssetHandle = nullptr;
+	thread_local static AssetLoaderSharedHandle AssetHandleInProcess;
 };
+
+thread_local AssetLoaderSharedHandle AssetLoader::AssetHandleInProcess = nullptr;
 
 AssetLoaderSharedHandle AssetLoader::RequestAsyncLoad( const std::string& assetPath, LoadCompletionCallback completionCallback )
 {
+	assert( IsInGameThread( ) );
+
 	auto found = m_assets.find( assetPath );
 	if ( found != m_assets.end() )
 	{
 		auto handle = std::make_shared<AssetLoaderHandle>( );
 		handle->BindCompletionCallback( completionCallback );
 		handle->SetLoadedAsset( found->second );
+		handle->OnStartLoading( );
+		AddPrerequisiteToDependantAsset( handle );
 		handle->ExecuteCompletionCallback( );
 
 		return handle;
@@ -87,8 +99,8 @@ AssetLoaderSharedHandle AssetLoader::RequestAsyncLoad( const std::string& assetP
 		auto handle = std::make_shared<AssetLoaderHandle>( );
 		handle->BindCompletionCallback( completionCallback );
 		handle->OnStartLoading( );
-		isInProgress->second.emplace_back( handle );
 		AddPrerequisiteToDependantAsset( handle );
+		isInProgress->second.emplace_back( handle );
 		return handle;
 	}
 
@@ -107,10 +119,19 @@ AssetLoaderSharedHandle AssetLoader::RequestAsyncLoad( const std::string& assetP
 	);
 
 	AssetLoaderSharedHandle handle = LoadAsset( assetPath.c_str(), onRenderOptionLoaded );
-	AddPrerequisiteToDependantAsset( handle );
 
 	assert( handle->IsLoadingInProgress( ) );
 	return handle;
+}
+
+AssetLoaderSharedHandle AssetLoader::HandleInProcess( ) const
+{
+	return AssetHandleInProcess;
+}
+
+void AssetLoader::SetHandleInProcess( const AssetLoaderSharedHandle& handle )
+{
+	AssetHandleInProcess = handle;
 }
 
 AssetLoader::~AssetLoader( )
@@ -140,32 +161,52 @@ AssetLoaderSharedHandle AssetLoader::LoadAsset( const char* assetPath, LoadCompl
 
 	IFileSystem::IOCompletionCallback AssetProcessing;
 	AssetProcessing.BindFunctor(
-		[this, handle, hAsset, path = std::string( assetPath )]( const char* buffer, unsigned long bufferSize )
+		[this, handle, hAsset]( char*& buffer, unsigned long bufferSize )
 		{
-			m_dependantAssetHandle = handle;
+			EnqueueThreadTask<WorkerThreads>(
+				[this, buffer, bufferSize, handle]( )
+				{
+					SetHandleInProcess( handle );
 
-			Archive ar( buffer, bufferSize );
-			std::size_t assetID = 0;
+					Archive ar( buffer, bufferSize );
+					std::size_t assetID = 0;
 
-			ar << assetID;
+					ar << assetID;
+					
+					std::shared_ptr<IAsyncLoadableAsset> newAsset( AssetFactory::GetInstance( ).CreateAsset( assetID ) );
+					if ( newAsset != nullptr )
+					{
+						handle->SetLoadedAsset( newAsset );
+						newAsset->Serialize( ar );
 
-			std::shared_ptr<IAsyncLoadableAsset> newAsset( AssetFactory::GetInstance( ).CreateAsset( assetID ) );
-			if ( newAsset != nullptr )
-			{
-				newAsset->Serialize( ar );
-				handle->SetLoadedAsset( newAsset );
-				handle->ExecuteCompletionCallback( );
-			}
-			else // Fail...
-			{
+						if ( handle->HasPrerequisites( ) == false )
+						{
+							EnqueueThreadTask<ThreadType::GameThread>(
+								[handle, newAsset]( )
+							{
+								assert( IsInGameThread( ) );
+								handle->ExecuteCompletionCallback( );
+							} );
+						}
+					}
+					else // Fail...
+					{
 
-			}
+					}
 
-			m_dependantAssetHandle = nullptr;
+					SetHandleInProcess( nullptr );
+					delete[] buffer;
+				} );
 
+			buffer = nullptr;
 			GetInterface<IFileSystem>( )->CloseFile( hAsset );
 		}
 	);
+
+	handle->BindCompletionCallback( completionCallback );
+	handle->OnStartLoading( );
+	handle->NeedPostProcess( );
+	AddPrerequisiteToDependantAsset( handle );
 
 	if ( fileSystem->ReadAsync( hAsset, asset, assetSize, &AssetProcessing ) == false )
 	{
@@ -173,15 +214,13 @@ AssetLoaderSharedHandle AssetLoader::LoadAsset( const char* assetPath, LoadCompl
 		GetInterface<IFileSystem>( )->CloseFile( hAsset );
 	}
 
-	handle->BindCompletionCallback( completionCallback );
-	handle->OnStartLoading( );
-	handle->NeedPostProcess( );
-
 	return handle;
 }
 
 void AssetLoader::OnAssetLoaded( const std::string& path, const std::shared_ptr<void>& asset )
 {
+	assert( IsInGameThread( ) );
+
 	auto result = m_assets.emplace( path, asset );
 	assert( result.second );
 
@@ -194,15 +233,15 @@ void AssetLoader::OnAssetLoaded( const std::string& path, const std::shared_ptr<
 			handle->ExecuteCompletionCallback( );
 		}
 
-		m_waitingHandle.erase( found );
+		m_waitingHandle.erase( path );
 	}
 }
 
 void AssetLoader::AddPrerequisiteToDependantAsset( const AssetLoaderSharedHandle& handle )
 {
-	if ( ( m_dependantAssetHandle != nullptr ) && handle->IsLoadingInProgress( ) )
+	if ( ( AssetHandleInProcess != nullptr ) && handle->IsLoadingInProgress( ) )
 	{
-		m_dependantAssetHandle->AddPrerequisite( handle );
+		AssetHandleInProcess->AddPrerequisite( handle );
 	}
 }
 

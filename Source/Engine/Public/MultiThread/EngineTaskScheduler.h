@@ -22,6 +22,8 @@ namespace ThreadType
 	};
 }
 
+#define WorkerThreads ThreadType::WorkerThread0, ThreadType::WorkerThread1, ThreadType::WorkerThread2, ThreadType::WorkerThread3
+
 template <std::size_t... N>
 constexpr std::size_t WorkerAffinityMask( )
 {
@@ -44,12 +46,13 @@ private:
 };
 
 template <std::size_t... N, typename Lambda>
-GroupHandle EnqueueThreadTask( Lambda lambda, TASK_TYPE taskType = TASK_TYPE::WAITABLE )
+TaskHandle EnqueueThreadTask( Lambda lambda )
 {
 	ITaskScheduler* taskScheduler = GetInterface<ITaskScheduler>( );
-	constexpr std::size_t afinityMask = WorkerAffinityMask<N...>( );
-	GroupHandle taskGroup = taskScheduler->GetTaskGroup( afinityMask );
-	bool success = taskScheduler->Run( taskGroup, Task<LambdaTask<Lambda>>::Create( taskType, lambda ) );
+	constexpr std::size_t affinityMask = WorkerAffinityMask<N...>( );
+	TaskHandle taskGroup = taskScheduler->GetTaskGroup( );
+	taskGroup.AddTask( Task<LambdaTask<Lambda>>::Create( affinityMask, lambda ) );
+	bool success = taskScheduler->Run( taskGroup );
 	assert( success );
 	return taskGroup;
 }
@@ -57,23 +60,20 @@ GroupHandle EnqueueThreadTask( Lambda lambda, TASK_TYPE taskType = TASK_TYPE::WA
 template <typename Lambda>
 void EnqueueRenderTask( Lambda lambda )
 {
-	auto* task = Task<LambdaTask<Lambda>>::Create( TASK_TYPE::WAITABLE, lambda );
+	auto* task = Task<LambdaTask<Lambda>>::Create( WorkerAffinityMask<ThreadType::RenderThread>( ), lambda );
 	EnqueueRenderTask( static_cast<TaskBase*>( task ) );
 }
 
 class ITaskScheduler
 {
 public:
-	[[nodiscard]] virtual GroupHandle GetTaskGroup( std::size_t workerAffinity = std::numeric_limits<std::size_t>::max( ) ) = 0;
+	[[nodiscard]] virtual TaskHandle GetTaskGroup( ) = 0;
 
-	virtual bool Run( GroupHandle handle, TaskBase* task ) = 0;
+	virtual bool Run( TaskHandle handle ) = 0;
 
-	virtual bool Wait( GroupHandle handle ) = 0;
-	virtual void WaitAll( ) = 0;
+	virtual bool Wait( TaskHandle handle ) = 0;
 
 	virtual void ProcessThisThreadTask( ) = 0;
-
-	virtual bool IsComplete( GroupHandle handle ) const = 0;
 
 	virtual std::size_t GetThisThreadType( ) const = 0;
 

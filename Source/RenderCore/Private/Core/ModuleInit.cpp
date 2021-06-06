@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "Core/InterfaceFactories.h"
+#include "GlobalShaders.h"
 #include "Renderer/IRenderCore.h"
 
 namespace
@@ -17,6 +18,8 @@ RENDERCORE_FUNC_DLL void BootUpModules( )
 {
 	RegisterFactory<IRenderCore>( &GetRenderer );
 	g_renderer = CreateRenderCore( );
+
+	GlobalShader::GetInstance( ).BootUp( );
 }
 
 RENDERCORE_FUNC_DLL void ShutdownModules( )

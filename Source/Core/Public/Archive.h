@@ -2,6 +2,7 @@
 
 #include "AssetLoader/AssetLoader.h"
 #include "Core/InterfaceFactories.h"
+#include "MultiThread/EngineTaskScheduler.h"
 
 #include <cassert>
 #include <cstddef>
@@ -174,6 +175,33 @@ private:
 		m_curPos += sizeof( T );
 	}
 
+	template <typename AssetType, typename T>
+	void RequestLoadAsset( std::string&& path, T& value )
+	{
+		auto assetLoader = GetInterface<IAssetLoader>( );
+		auto subSequentHandle = assetLoader->HandleInProcess( );
+		subSequentHandle->IncreasePrerequisite( );
+
+		EnqueueThreadTask<ThreadType::GameThread>(
+			[&value, subSequentHandle, assetPath = std::move( path )]( )
+			{
+				subSequentHandle->DecreasePrerequisite( );
+
+				IAssetLoader::LoadCompletionCallback onLoadComplete;
+				onLoadComplete.BindFunctor( [&value, subSequentHandle]( const std::shared_ptr<void>& asset )
+				{
+					value = std::reinterpret_pointer_cast<AssetType>( asset );
+				} );
+
+				auto assetLoader = GetInterface<IAssetLoader>( );
+				assetLoader->SetHandleInProcess( subSequentHandle );
+				AssetLoaderSharedHandle handle = assetLoader->RequestAsyncLoad( assetPath, onLoadComplete );
+				assetLoader->SetHandleInProcess( nullptr );
+
+				assert( handle->IsLoadingInProgress( ) || handle->IsLoadComplete( ) );
+			} );
+	}
+
 	template <typename T>
 	void ReadData( std::shared_ptr<T>& value )
 	{
@@ -185,15 +213,7 @@ private:
 			return;
 		}
 
-		IAssetLoader::LoadCompletionCallback onLoadComplete;
-		onLoadComplete.BindFunctor( [&value]( const std::shared_ptr<void>& asset )
-		{
-			value = std::reinterpret_pointer_cast<T>( asset );
-		} );
-
-		AssetLoaderSharedHandle handle = GetInterface<IAssetLoader>( )->RequestAsyncLoad( path, onLoadComplete );
-
-		assert( handle->IsLoadingInProgress( ) || handle->IsLoadComplete( ) );
+		RequestLoadAsset<T>( std::move( path ), value );
 	}
 
 	template <typename T>
@@ -207,15 +227,7 @@ private:
 			return;
 		}
 
-		IAssetLoader::LoadCompletionCallback onLoadComplete;
-		onLoadComplete.BindFunctor( [&value]( const std::shared_ptr<void>& asset )
-		{
-			value = std::reinterpret_pointer_cast<T*>( asset );
-		} );
-
-		AssetLoaderSharedHandle handle = GetInterface<IAssetLoader>( )->RequestAsyncLoad( path, onLoadComplete );
-
-		assert( handle->IsLoadingInProgress( ) || handle->IsLoadComplete( ) );
+		RequestLoadAsset<T>( std::move( path ), value );
 	}
 
 	void ReadData( char* str )

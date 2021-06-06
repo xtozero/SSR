@@ -348,6 +348,7 @@ private:
 		}
 
 		m_size = 0;
+		delete[] m_data;
 		m_data = nullptr;
 	}
 

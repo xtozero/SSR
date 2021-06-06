@@ -13,10 +13,13 @@ DistributionCopyCS::DistributionCopyCS( )
 {
 	m_shader = static_cast<ComputeShader*>( GetGlobalShader<DistributionCopyCS>( ) );
 
-	m_numDistribution.Bind( m_shader->ParameterMap( ), "numDistribution" );
-	m_src.Bind( m_shader->ParameterMap( ), "src" );
-	m_distributer.Bind( m_shader->ParameterMap( ), "distributer" );
-	m_dest.Bind( m_shader->ParameterMap( ), "dest" );
+	if ( m_shader )
+	{
+		m_numDistribution.Bind( m_shader->ParameterMap( ), "numDistribution" );
+		m_src.Bind( m_shader->ParameterMap( ), "src" );
+		m_distributer.Bind( m_shader->ParameterMap( ), "distributer" );
+		m_dest.Bind( m_shader->ParameterMap( ), "dest" );
+	}
 }
 
 GpuMemcpy::GpuMemcpy( std::size_t numUpload, UINT sizePerFloat4, UploadBuffer& src, UploadBuffer& distributer ) : m_sizePerFloat4( sizePerFloat4 ), m_src( src ), m_distributer( distributer )

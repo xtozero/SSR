@@ -59,7 +59,7 @@ void Component::MarkRenderStateDirty( )
 			EnqueueThreadTask<ThreadType::GameThread>( [this]( )
 			{
 				UpdateState( );
-			}, TASK_TYPE::FIRE_AND_FORGET );
+			} );
 		}
 
 		m_markForUpdateState = true;

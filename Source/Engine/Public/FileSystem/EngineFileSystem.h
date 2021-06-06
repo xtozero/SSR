@@ -11,7 +11,7 @@
 class IFileSystem
 {
 public:
-	using IOCompletionCallback = Delegate<void, char*, unsigned long>;
+	using IOCompletionCallback = Delegate<void, char*&, unsigned long>;
 
 	virtual [[nodiscard]] FileHandle OpenFile( const char* filePath ) = 0;
 	virtual void CloseFile( const FileHandle& handle ) = 0;

@@ -32,8 +32,7 @@ private:
 	std::mutex m_ioRequestMutex;
 	std::mutex m_callbackMutex;
 	FileSystem<EngineFileSystemOverlapped> m_fileSystem;
-	GroupHandle m_hWaitIO;
-
+	TaskHandle m_hWaitIO;
 };
 
 FileHandle EngineFileSystem::OpenFile( const char* filePath )
@@ -88,7 +87,7 @@ EngineFileSystem::EngineFileSystem( )
 
 				delete[] o->m_buffer;
 				m_fileSystem.CleanUpIORequest( o );
-			}, TASK_TYPE::FIRE_AND_FORGET );
+			} );
 		}
 	};
 

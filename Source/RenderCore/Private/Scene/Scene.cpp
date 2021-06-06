@@ -126,7 +126,7 @@ bool UpdateGPUPrimitiveInfos( Scene& scene )
 		return false;
 	}
 
-	std:size_t totalPrimitives = scene.m_primitives.size( );
+	std::size_t totalPrimitives = scene.m_primitives.size( );
 	scene.m_gpuPrimitiveInfos.Resize( totalPrimitives );
 
 	GpuMemcpy gpuMemcpy( updateSize, sizeof( PrimitiveSceneData ) / sizeof( CXMFLOAT4 ), scene.m_uploadPrimitiveBuffer, scene.m_distributionBuffer );
