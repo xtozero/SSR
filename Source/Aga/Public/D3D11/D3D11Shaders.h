@@ -5,9 +5,9 @@
 
 #include <d3d11.h>
 
-AGA_DLL void ExtractShaderParameters( const void* byteCode, std::size_t byteCodeSize, ShaderParameterMap& parameterMap );
+AGA_DLL void ExtractShaderParameters( const void* byteCode, std::size_t byteCodeSize, aga::ShaderParameterMap& parameterMap );
 
-AGA_DLL void BuildShaderParameterInfo( const std::map<std::string, ShaderParameter>& parameterMap, ShaderParameterInfo& parameterInfo );
+AGA_DLL void BuildShaderParameterInfo( const std::map<std::string, aga::ShaderParameter>& parameterMap, aga::ShaderParameterInfo& parameterInfo );
 
 namespace aga
 {

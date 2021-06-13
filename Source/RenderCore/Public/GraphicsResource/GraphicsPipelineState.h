@@ -100,9 +100,9 @@ struct ShaderStates
 	PixelShader m_pixelShader;
 };
 
-inline ShaderBindingsInitializer CreateShaderBindingsInitializer( const ShaderStates& state )
+inline aga::ShaderBindingsInitializer CreateShaderBindingsInitializer( const ShaderStates& state )
 {
-	ShaderBindingsInitializer initializer;
+	aga::ShaderBindingsInitializer initializer;
 	
 	if ( state.m_vertexShader.IsValid( ) )
 	{

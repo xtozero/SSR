@@ -79,84 +79,87 @@ namespace
 	}
 }
 
-ID3D11Buffer* D3D11BufferBase::Resource( )
+namespace aga
 {
-	return m_buffer;
-}
-
-const ID3D11Buffer* D3D11BufferBase::Resource( ) const
-{
-	return m_buffer;
-}
-
-UINT D3D11BufferBase::Stride( ) const
-{
-	return m_desc.StructureByteStride;
-}
-
-D3D11BufferBase::D3D11BufferBase( const BUFFER_TRAIT& trait, const void* initData )
-{
-	m_desc = ConvertTraitToDesc( trait );
-	m_dataStorage = new unsigned char[m_desc.ByteWidth];
-	m_initData.pSysMem = m_dataStorage;
-	m_initData.SysMemPitch = m_desc.ByteWidth;
-	m_initData.SysMemSlicePitch = m_desc.ByteWidth;
-	
-	if ( initData != nullptr )
+	ID3D11Buffer* D3D11Buffer::Resource( )
 	{
-		m_hasInitData = true;
-		std::memcpy( m_dataStorage, initData, m_desc.ByteWidth );
-	}
-}
-
-D3D11BufferBase::~D3D11BufferBase( )
-{
-	delete[] m_dataStorage;
-	m_dataStorage = nullptr;
-
-	Free( );
-}
-
-void D3D11BufferBase::InitResource( )
-{
-	CreateBuffer( );
-}
-
-void D3D11BufferBase::FreeResource( )
-{
-	DestroyBuffer( );
-}
-
-void D3D11BufferBase::CreateBuffer( )
-{
-	D3D11_SUBRESOURCE_DATA* initData = m_hasInitData ? &m_initData : nullptr;
-	HRESULT hr = D3D11Device( ).CreateBuffer( &m_desc, initData, &m_buffer );
-	assert( SUCCEEDED( hr ) );
-
-	if ( m_desc.BindFlags & D3D11_BIND_SHADER_RESOURCE )
-	{
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc );
-		m_srv = new aga::D3D11ShaderResourceView( m_buffer, srvDesc );
-		m_srv->Init( );
+		return m_buffer;
 	}
 
-	if ( m_desc.BindFlags & D3D11_BIND_UNORDERED_ACCESS )
+	const ID3D11Buffer* D3D11Buffer::Resource( ) const
 	{
-		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc );
-		m_uav = new aga::D3D11UnorderedAccessView( m_buffer, uavDesc );
-		m_uav->Init( );
+		return m_buffer;
 	}
-}
 
-void D3D11BufferBase::DestroyBuffer( )
-{
-	m_srv = nullptr;
-	m_uav = nullptr;
-
-	if ( m_buffer )
+	UINT D3D11Buffer::Stride( ) const
 	{
-		ULONG ref = m_buffer->Release( );
-		m_buffer = nullptr;
-		assert( ref == 0 );
+		return m_desc.StructureByteStride;
+	}
+
+	D3D11Buffer::D3D11Buffer( const BUFFER_TRAIT& trait, const void* initData )
+	{
+		m_desc = ConvertTraitToDesc( trait );
+		m_dataStorage = new unsigned char[m_desc.ByteWidth];
+		m_initData.pSysMem = m_dataStorage;
+		m_initData.SysMemPitch = m_desc.ByteWidth;
+		m_initData.SysMemSlicePitch = m_desc.ByteWidth;
+
+		if ( initData != nullptr )
+		{
+			m_hasInitData = true;
+			std::memcpy( m_dataStorage, initData, m_desc.ByteWidth );
+		}
+	}
+
+	D3D11Buffer::~D3D11Buffer( )
+	{
+		delete[] m_dataStorage;
+		m_dataStorage = nullptr;
+
+		Free( );
+	}
+
+	void D3D11Buffer::InitResource( )
+	{
+		CreateBuffer( );
+	}
+
+	void D3D11Buffer::FreeResource( )
+	{
+		DestroyBuffer( );
+	}
+
+	void D3D11Buffer::CreateBuffer( )
+	{
+		D3D11_SUBRESOURCE_DATA* initData = m_hasInitData ? &m_initData : nullptr;
+		HRESULT hr = D3D11Device( ).CreateBuffer( &m_desc, initData, &m_buffer );
+		assert( SUCCEEDED( hr ) );
+
+		if ( m_desc.BindFlags & D3D11_BIND_SHADER_RESOURCE )
+		{
+			D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc );
+			m_srv = new D3D11ShaderResourceView( m_buffer, srvDesc );
+			m_srv->Init( );
+		}
+
+		if ( m_desc.BindFlags & D3D11_BIND_UNORDERED_ACCESS )
+		{
+			D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc );
+			m_uav = new D3D11UnorderedAccessView( m_buffer, uavDesc );
+			m_uav->Init( );
+		}
+	}
+
+	void D3D11Buffer::DestroyBuffer( )
+	{
+		m_srv = nullptr;
+		m_uav = nullptr;
+
+		if ( m_buffer )
+		{
+			ULONG ref = m_buffer->Release( );
+			m_buffer = nullptr;
+			assert( ref == 0 );
+		}
 	}
 }

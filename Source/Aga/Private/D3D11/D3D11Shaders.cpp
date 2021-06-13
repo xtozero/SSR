@@ -38,7 +38,7 @@ SHADER_TYPE ConvertShaderVersionToType( UINT shaderVersion )
 	return SHADER_TYPE::NONE;
 }
 
-void ExtractShaderParameters( const void* byteCode, std::size_t byteCodeSize, ShaderParameterMap& parameterMap )
+void ExtractShaderParameters( const void* byteCode, std::size_t byteCodeSize, aga::ShaderParameterMap& parameterMap )
 {
 	ID3D11ShaderReflection* pReflector = nullptr;
 
@@ -58,12 +58,12 @@ void ExtractShaderParameters( const void* byteCode, std::size_t byteCodeSize, Sh
 		hResult = pReflector->GetResourceBindingDesc( i, &bindDesc );
 		assert( SUCCEEDED( hResult ) );
 
-		ShaderParameterType parameterType = ShaderParameterType::ConstantBuffer;
+		aga::ShaderParameterType parameterType = aga::ShaderParameterType::ConstantBuffer;
 		UINT parameterSize = 0;
 
 		if ( bindDesc.Type == D3D_SIT_CBUFFER || bindDesc.Type == D3D_SIT_TBUFFER )
 		{
-			parameterType = ShaderParameterType::ConstantBuffer;
+			parameterType = aga::ShaderParameterType::ConstantBuffer;
 
 			ID3D11ShaderReflectionConstantBuffer *constBufferReflection = pReflector->GetConstantBufferByName( bindDesc.Name );
 			if ( constBufferReflection )
@@ -79,27 +79,27 @@ void ExtractShaderParameters( const void* byteCode, std::size_t byteCodeSize, Sh
 					D3D11_SHADER_VARIABLE_DESC shaderVarDesc;
 					variableReflection->GetDesc( &shaderVarDesc );
 
-					parameterMap.AddParameter( shaderVarDesc.Name, shaderType, ShaderParameterType::ConstantBufferValue, bindDesc.BindPoint, shaderVarDesc.StartOffset, shaderVarDesc.Size );
+					parameterMap.AddParameter( shaderVarDesc.Name, shaderType, aga::ShaderParameterType::ConstantBufferValue, bindDesc.BindPoint, shaderVarDesc.StartOffset, shaderVarDesc.Size );
 				}
 			}
 		}
 		else if ( bindDesc.Type == D3D_SIT_TEXTURE )
 		{
-			parameterType = ShaderParameterType::SRV;
+			parameterType = aga::ShaderParameterType::SRV;
 		}
 		else if ( bindDesc.Type == D3D_SIT_SAMPLER )
 		{
-			parameterType = ShaderParameterType::Sampler;
+			parameterType = aga::ShaderParameterType::Sampler;
 		}
 		else if ( bindDesc.Type == D3D_SIT_UAV_RWTYPED || bindDesc.Type == D3D_SIT_UAV_RWSTRUCTURED ||
 			bindDesc.Type == D3D_SIT_UAV_RWBYTEADDRESS || bindDesc.Type == D3D_SIT_UAV_APPEND_STRUCTURED ||
 			bindDesc.Type == D3D_SIT_UAV_CONSUME_STRUCTURED || bindDesc.Type == D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER )
 		{
-			parameterType = ShaderParameterType::UAV;
+			parameterType = aga::ShaderParameterType::UAV;
 		}
 		else if ( bindDesc.Type == D3D_SIT_STRUCTURED || bindDesc.Type == D3D_SIT_BYTEADDRESS )
 		{
-			parameterType = ShaderParameterType::SRV;
+			parameterType = aga::ShaderParameterType::SRV;
 		}
 		else
 		{
@@ -112,11 +112,11 @@ void ExtractShaderParameters( const void* byteCode, std::size_t byteCodeSize, Sh
 	pReflector->Release( );
 }
 
-void BuildShaderParameterInfo( const std::map<std::string, ShaderParameter>& parameterMap, ShaderParameterInfo& parameterInfo )
+void BuildShaderParameterInfo( const std::map<std::string, aga::ShaderParameter>& parameterMap, aga::ShaderParameterInfo& parameterInfo )
 {
-	for ( int parameterType = static_cast<int>( ShaderParameterType::ConstantBuffer ); parameterType < static_cast<int>( ShaderParameterType::Count ); ++parameterType )
+	for ( int parameterType = static_cast<int>( aga::ShaderParameterType::ConstantBuffer ); parameterType < static_cast<int>( aga::ShaderParameterType::Count ); ++parameterType )
 	{
-		ShaderParameterType curParameterType = static_cast<ShaderParameterType>( parameterType );
+		auto curParameterType = static_cast<aga::ShaderParameterType>( parameterType );
 		std::size_t count = 0;
 
 		for ( auto iter = parameterMap.begin( ); iter != parameterMap.end( ); ++iter )
@@ -127,21 +127,21 @@ void BuildShaderParameterInfo( const std::map<std::string, ShaderParameter>& par
 			}
 		}
 
-		std::vector<ShaderParameter>* shaderParameters = nullptr;
+		std::vector<aga::ShaderParameter>* shaderParameters = nullptr;
 
-		if ( curParameterType == ShaderParameterType::ConstantBuffer )
+		if ( curParameterType == aga::ShaderParameterType::ConstantBuffer )
 		{
 			shaderParameters = &parameterInfo.m_constantBuffers;
 		}
-		else if ( curParameterType == ShaderParameterType::SRV )
+		else if ( curParameterType == aga::ShaderParameterType::SRV )
 		{
 			shaderParameters = &parameterInfo.m_srvs;
 		}
-		else if ( curParameterType == ShaderParameterType::UAV )
+		else if ( curParameterType == aga::ShaderParameterType::UAV )
 		{
 			shaderParameters = &parameterInfo.m_uavs;
 		}
-		else if ( curParameterType == ShaderParameterType::Sampler )
+		else if ( curParameterType == aga::ShaderParameterType::Sampler )
 		{
 			shaderParameters = &parameterInfo.m_samplers;
 		}

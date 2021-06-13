@@ -208,16 +208,16 @@ void RegisterResourceEnumString( )
 
 AGA_FUNC_DLL void BootUpModules( )
 {
-	RegisterFactory<IAga>( &GetD3D11GraphicsApi );
+	RegisterFactory<aga::IAga>( &aga::GetD3D11GraphicsApi );
 
-	CreateAbstractGraphicsApi( );
+	aga::CreateAbstractGraphicsApi( );
 
 	RegisterResourceEnumString( );
 }
 
 AGA_FUNC_DLL void ShutdownModules( )
 {
-	DestoryAbstractGraphicsApi( );
+	aga::DestoryAbstractGraphicsApi( );
 
-	UnregisterFactory<IAga>( );
+	UnregisterFactory<aga::IAga>( );
 }

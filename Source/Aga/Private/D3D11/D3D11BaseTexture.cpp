@@ -259,7 +259,7 @@ namespace aga
 	void D3D11BaseTexture1D::CreateShaderResource( )
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc );
-		m_srv = new aga::D3D11ShaderResourceView( m_texture, srvDesc );
+		m_srv = new D3D11ShaderResourceView( m_texture, srvDesc );
 		m_srv->Init( );
 	}
 
@@ -289,21 +289,21 @@ namespace aga
 	void D3D11BaseTexture2D::CreateShaderResource( )
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc );
-		m_srv = new aga::D3D11ShaderResourceView( m_texture, srvDesc );
+		m_srv = new D3D11ShaderResourceView( m_texture, srvDesc );
 		m_srv->Init( );
 	}
 
 	void D3D11BaseTexture2D::CreateRenderTarget( )
 	{
 		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = ConvertDescToRTV( m_desc );
-		m_rtv = new aga::D3D11RenderTargetView( m_texture, rtvDesc );
+		m_rtv = new D3D11RenderTargetView( m_texture, rtvDesc );
 		m_rtv->Init( );
 	}
 
 	void D3D11BaseTexture2D::CreateDepthStencil( )
 	{
 		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = ConvertDescToDSV( m_desc );
-		m_dsv = new aga::D3D11DepthStencilView( m_texture, dsvDesc );
+		m_dsv = new D3D11DepthStencilView( m_texture, dsvDesc );
 		m_dsv->Init( );
 	}
 
@@ -323,7 +323,7 @@ namespace aga
 	void D3D11BaseTexture3D::CreateShaderResource( )
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc );
-		m_srv = new aga::D3D11ShaderResourceView( m_texture, srvDesc );
+		m_srv = new D3D11ShaderResourceView( m_texture, srvDesc );
 		m_srv->Init( );
 	}
 

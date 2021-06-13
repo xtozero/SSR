@@ -20,13 +20,10 @@ set (D3D11_RENDER_RESOURCE_SOURCE
 	Private/D3D11/D3D11CommandList.cpp
 	Private/D3D11/D3D11DepthStencilState.cpp
 	Private/D3D11/D3D11PipelineState.cpp
-	Private/D3D11/D3D11RandomAccessResource.cpp
 	Private/D3D11/D3D11RasterizerState.cpp
-	Private/D3D11/D3D11RenderTarget.cpp
 	Private/D3D11/D3D11ResourceManager.cpp
 	Private/D3D11/D3D11ResourceViews.cpp
 	Private/D3D11/D3D11SamplerState.cpp
-	Private/D3D11/D3D11ShaderResource.cpp
 	Private/D3D11/D3D11Shaders.cpp
 	Private/D3D11/D3D11VetexLayout.cpp
 	Private/D3D11/D3D11Viewport.cpp
@@ -36,14 +33,11 @@ set (D3D11_RENDER_RESOURCE_SOURCE
 	Public/D3D11/D3D11CommandList.h
 	Public/D3D11/D3D11DepthStencilState.h
 	Public/D3D11/D3D11PipelineState.h
-	Public/D3D11/D3D11RandomAccessResource.h
 	Public/D3D11/D3D11RasterizerState.h
-	Public/D3D11/D3D11RenderTarget.h
 	Public/D3D11/D3D11ResourceInterface.h
 	Public/D3D11/D3D11ResourceManager.h
 	Public/D3D11/D3D11ResourceViews.h
 	Public/D3D11/D3D11SamplerState.h
-	Public/D3D11/D3D11ShaderResource.h
 	Public/D3D11/D3D11Shaders.h
 	Public/D3D11/D3D11VetexLayout.h
 	Public/D3D11/D3D11Viewport.h)

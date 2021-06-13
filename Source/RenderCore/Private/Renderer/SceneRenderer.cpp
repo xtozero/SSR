@@ -34,7 +34,7 @@ void SceneRenderer::RenderMesh( IScene& scene, RenderView& view )
 		binding.AddConstantBuffer( VS_CONSTANT_BUFFER::VIEW_PROJECTION, viewConstant.Resource( ) );
 
 		auto parameter = snapshot.m_pipelineState.m_shaderState.m_vertexShader.ParameterMap( );
-		ShaderParameter primitiveInfo = parameter.GetParameter( "primitiveInfo" );
+		aga::ShaderParameter primitiveInfo = parameter.GetParameter( "primitiveInfo" );
 
 		auto srv = scene.GpuPrimitiveInfo( ).SRV( );
 		binding.AddSRV( primitiveInfo.m_bindPoint, srv );

@@ -4,7 +4,7 @@
 
 AgaDelegator g_agaDelegator;
 
-void AgaDelegator::BootUp( IAga* pAga )
+void AgaDelegator::BootUp( aga::IAga* pAga )
 {
 	m_aga = pAga;
 	m_defaultConstants.BootUp( );

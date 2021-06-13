@@ -108,7 +108,7 @@ void SortDrawSnapshot( std::vector<DrawSnapshot>& snapshots, VertexBuffer& primi
 
 void CommitDrawSnapshot( std::vector<DrawSnapshot>& snapshots, const VertexBuffer& primitiveIds )
 {
-	auto commandList = GetInterface<IAga>( )->GetImmediateCommandList( );
+	auto commandList = GetInterface<aga::IAga>( )->GetImmediateCommandList( );
 
 	for ( auto& snapshot : snapshots )
 	{

@@ -39,7 +39,7 @@ public:
 	VertexInputStream m_vertexStream;
 	IndexBuffer m_indexBuffer;
 
-	ShaderBindings m_shaderBindings;
+	aga::ShaderBindings m_shaderBindings;
 
 	// Pipeline State
 	GraphicsPipelineState m_pipelineState;

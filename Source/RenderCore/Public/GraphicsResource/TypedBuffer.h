@@ -48,7 +48,7 @@ public:
 
 			if ( copyPreviousData )
 			{
-				GetInterface<IAga>( )->Copy( newBuffer.m_buffer, m_buffer, Size( ) );
+				GetInterface<aga::IAga>( )->Copy( newBuffer.m_buffer, m_buffer, Size( ) );
 			}
 
 			( *this ) = std::move( newBuffer );

@@ -12,46 +12,46 @@ namespace aga
 }
 
 template <typename ShaderType>
-void BindShaderParameter( ShaderType& shader, const ShaderParameter& parameter, aga::Buffer* buffer )
+void BindShaderParameter( ShaderType& shader, const aga::ShaderParameter& parameter, aga::Buffer* buffer )
 {
 	aga::Buffer* buffers[] = { buffer };
 
 	switch ( parameter.m_type )
 	{
-	case ShaderParameterType::ConstantBuffer:
-		GetInterface<IAga>( )->BindConstant( shader.Resource( ), parameter.m_bindPoint, 1, buffers );
+	case aga::ShaderParameterType::ConstantBuffer:
+		GetInterface<aga::IAga>( )->BindConstant( shader.Resource( ), parameter.m_bindPoint, 1, buffers );
 		break;
-	case ShaderParameterType::SRV:
-		GetInterface<IAga>( )->BindShaderInput( shader.Resource( ), parameter.m_bindPoint, 1, buffers );
+	case aga::ShaderParameterType::SRV:
+		GetInterface<aga::IAga>( )->BindShaderInput( shader.Resource( ), parameter.m_bindPoint, 1, buffers );
 		break;
-	case ShaderParameterType::Sampler:
+	case aga::ShaderParameterType::Sampler:
 		break;
 	}
 }
 
-inline void BindShaderParameter( ComputeShader& shader, const ShaderParameter& parameter, aga::Buffer* buffer )
+inline void BindShaderParameter( ComputeShader& shader, const aga::ShaderParameter& parameter, aga::Buffer* buffer )
 {
 	aga::Buffer* buffers[] = { buffer };
 
 	switch ( parameter.m_type )
 	{
-	case ShaderParameterType::ConstantBuffer:
-		GetInterface<IAga>( )->BindConstant( shader.Resource( ), parameter.m_bindPoint, 1, buffers );
+	case aga::ShaderParameterType::ConstantBuffer:
+		GetInterface<aga::IAga>( )->BindConstant( shader.Resource( ), parameter.m_bindPoint, 1, buffers );
 		break;
-	case ShaderParameterType::SRV:
-		GetInterface<IAga>( )->BindShaderInput( shader.Resource( ), parameter.m_bindPoint, 1, buffers );
+	case aga::ShaderParameterType::SRV:
+		GetInterface<aga::IAga>( )->BindShaderInput( shader.Resource( ), parameter.m_bindPoint, 1, buffers );
 		break;
-	case ShaderParameterType::UAV:
-		GetInterface<IAga>( )->BindShaderOutput( shader.Resource( ), parameter.m_bindPoint, 1, buffers );
+	case aga::ShaderParameterType::UAV:
+		GetInterface<aga::IAga>( )->BindShaderOutput( shader.Resource( ), parameter.m_bindPoint, 1, buffers );
 		break;
-	case ShaderParameterType::Sampler:
+	case aga::ShaderParameterType::Sampler:
 		break;
 	}
 }
 
 template <typename ShaderType, typename ValueType>
-void SetShaderValue( ShaderType& shader, const ShaderParameter& parameter, ValueType value )
+void SetShaderValue( ShaderType& shader, const aga::ShaderParameter& parameter, ValueType value )
 {
-	assert( parameter.m_type == ShaderParameterType::ConstantBufferValue );
+	assert( parameter.m_type == aga::ShaderParameterType::ConstantBufferValue );
 	GetAgaDelegator( ).SetShaderValue( shader, parameter, value );
 }

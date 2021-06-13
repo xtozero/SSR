@@ -19,8 +19,8 @@ void DefaultConstantBuffers::BootUp( )
 
 	auto SetDefaultConstant = [contexts = m_contexts]( )
 	{
-		ShaderParameter param = {  };
-		param.m_type = ShaderParameterType::ConstantBuffer;
+		aga::ShaderParameter param = {  };
+		param.m_type = aga::ShaderParameterType::ConstantBuffer;
 		param.m_bindPoint = 0;
 		param.m_offset = 0;
 

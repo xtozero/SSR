@@ -47,7 +47,7 @@ void GameClientViewport::Draw( )
 		static_cast<long>( renderTargetSize.first ),
 		static_cast<long>( renderTargetSize.second ) };
 
-	EnqueueRenderTask( [aga = GetInterface<IAga>( ), rect]( )
+	EnqueueRenderTask( [aga = GetInterface<aga::IAga>( ), rect]( )
 	{
 		if ( aga )
 		{

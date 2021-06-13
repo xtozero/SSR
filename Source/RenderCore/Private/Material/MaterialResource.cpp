@@ -32,7 +32,7 @@ void MaterialResource::TakeSnapShot( DrawSnapshot& snapShot )
 	{
 		auto& [cbParam, cb] = materialConstantBuffer;
 
-		SingleShaderBindings binding = snapShot.m_shaderBindings.GetSingleShaderBindings( cbParam.m_shader );
+		aga::SingleShaderBindings binding = snapShot.m_shaderBindings.GetSingleShaderBindings( cbParam.m_shader );
 
 		binding.AddConstantBuffer( cbParam.m_bindPoint, cb.Resource( ) );
 	}
@@ -49,15 +49,15 @@ void MaterialResource::TakeSnapShot( DrawSnapshot& snapShot )
 			continue;
 		}
 
-		SingleShaderBindings binding = snapShot.m_shaderBindings.GetSingleShaderBindings( shaderType );
+		aga::SingleShaderBindings binding = snapShot.m_shaderBindings.GetSingleShaderBindings( shaderType );
 
 		const auto& parameterMap = shader->ParameterMap( ).GetParameterMap( );
 		for ( const auto& pair : parameterMap )
 		{
 			const auto&[name, param] = pair;
 
-			if ( param.m_type == ShaderParameterType::SRV ||
-				param.m_type == ShaderParameterType::UAV )
+			if ( param.m_type == aga::ShaderParameterType::SRV ||
+				param.m_type == aga::ShaderParameterType::UAV )
 			{
 				auto texture = m_material->AsTexture( name.c_str( ) );
 				if ( texture == nullptr )
@@ -66,7 +66,7 @@ void MaterialResource::TakeSnapShot( DrawSnapshot& snapShot )
 				}
 
 				aga::Texture* resource = texture->Resource( );
-				if ( param.m_type == ShaderParameterType::SRV )
+				if ( param.m_type == aga::ShaderParameterType::SRV )
 				{
 					auto srv = resource ? resource->SRV( ) : nullptr;
 					binding.AddSRV( param.m_bindPoint, srv );
@@ -77,7 +77,7 @@ void MaterialResource::TakeSnapShot( DrawSnapshot& snapShot )
 					binding.AddUAV( param.m_bindPoint, uav );
 				}
 			}
-			else if ( param.m_type == ShaderParameterType::Sampler )
+			else if ( param.m_type == aga::ShaderParameterType::Sampler )
 			{
 				if ( auto samplerOption = m_material->AsSampelrOption( name.c_str( ) ) )
 				{
@@ -122,7 +122,7 @@ void MaterialResource::CreateGraphicsResource( )
 			for ( const auto& pair : parameterMap )
 			{
 				const auto&[name, param] = pair;
-				if ( ( param.m_type == ShaderParameterType::ConstantBuffer ) &&
+				if ( ( param.m_type == aga::ShaderParameterType::ConstantBuffer ) &&
 					( name == "Material" ) )
 				{
 					assert( materialCbSlotNumbers[static_cast<int>( shaderType )] == invalidSlot );
@@ -155,11 +155,11 @@ void MaterialResource::CreateGraphicsResource( )
 					continue;
 				}
 
-				if ( param.m_type == ShaderParameterType::ConstantBuffer )
+				if ( param.m_type == aga::ShaderParameterType::ConstantBuffer )
 				{
 					++constantBufferSize;
 				}
-				else if ( param.m_type == ShaderParameterType::ConstantBufferValue )
+				else if ( param.m_type == aga::ShaderParameterType::ConstantBufferValue )
 				{
 					++constantValueNameSize;
 				}
@@ -194,11 +194,11 @@ void MaterialResource::CreateGraphicsResource( )
 					continue;
 				}
 
-				if ( param.m_type == ShaderParameterType::ConstantBuffer )
+				if ( param.m_type == aga::ShaderParameterType::ConstantBuffer )
 				{
 					m_materialConstantBuffers.emplace_back( param, ConstantBuffer( param.m_sizeInByte ) );
 				}
-				else if ( param.m_type == ShaderParameterType::ConstantBufferValue )
+				else if ( param.m_type == aga::ShaderParameterType::ConstantBufferValue )
 				{
 					m_materialConstantValueNames.emplace_back( param, name );
 				}
@@ -225,7 +225,7 @@ void MaterialResource::UpdateToGPU( )
 			{
 				struct Comp
 				{
-					bool operator()( const NamedShaderParameter& lhs, const ShaderParameter& rhs )
+					bool operator()( const NamedShaderParameter& lhs, const aga::ShaderParameter& rhs )
 					{
 						auto lVariable = std::tie( lhs.first.m_shader, lhs.first.m_bindPoint );
 						auto rVariable = std::tie( rhs.m_shader, rhs.m_bindPoint );
@@ -233,7 +233,7 @@ void MaterialResource::UpdateToGPU( )
 						return lVariable < rVariable;
 					}
 					
-					bool operator()( const ShaderParameter& lhs, const NamedShaderParameter& rhs )
+					bool operator()( const aga::ShaderParameter& lhs, const NamedShaderParameter& rhs )
 					{
 						auto lVariable = std::tie( lhs.m_shader, lhs.m_bindPoint );
 						auto rVariable = std::tie( rhs.first.m_shader, rhs.first.m_bindPoint );

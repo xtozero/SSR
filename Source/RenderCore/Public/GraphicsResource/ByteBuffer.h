@@ -13,10 +13,10 @@ public:
 
 	static constexpr int ThreadGroupX = 64;
 
-	ShaderParameter m_numDistribution;
-	ShaderParameter m_src;
-	ShaderParameter m_distributer;
-	ShaderParameter m_dest;
+	aga::ShaderParameter m_numDistribution;
+	aga::ShaderParameter m_src;
+	aga::ShaderParameter m_distributer;
+	aga::ShaderParameter m_dest;
 
 private:
 	ComputeShader* m_shader = nullptr;

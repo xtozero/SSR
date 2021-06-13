@@ -3,13 +3,13 @@
 
 #include "MultiThread/EngineTaskScheduler.h"
 
-Archive& operator<<( Archive& ar, ShaderParameter& shaderParam )
+Archive& operator<<( Archive& ar, aga::ShaderParameter& shaderParam )
 {
 	ar << shaderParam.m_shader << shaderParam.m_type << shaderParam.m_bindPoint << shaderParam.m_offset << shaderParam.m_sizeInByte;
 	return ar;
 }
 
-Archive& operator<<( Archive& ar, ShaderParameterMap& shaderParamMap )
+Archive& operator<<( Archive& ar, aga::ShaderParameterMap& shaderParamMap )
 {
 	if ( ar.IsWriteMode( ) )
 	{
@@ -27,7 +27,7 @@ Archive& operator<<( Archive& ar, ShaderParameterMap& shaderParamMap )
 		for ( int i = 0; i < size; ++i )
 		{
 			std::string variableName;
-			ShaderParameter shaderParam;
+			aga::ShaderParameter shaderParam;
 
 			ar << variableName << shaderParam;
 
@@ -38,7 +38,7 @@ Archive& operator<<( Archive& ar, ShaderParameterMap& shaderParamMap )
 	return ar;
 }
 
-Archive& operator<<( Archive& ar, ShaderParameterInfo& shaderParamInfo )
+Archive& operator<<( Archive& ar, aga::ShaderParameterInfo& shaderParamInfo )
 {
 	if ( ar.IsWriteMode( ) )
 	{

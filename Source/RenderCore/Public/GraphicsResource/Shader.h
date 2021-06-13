@@ -19,16 +19,16 @@ public:
 		return lhs.m_byteCode == rhs.m_byteCode;
 	}
 
-	ShaderParameterMap& ParameterMap( ) { return m_parameterMap; }
-	const ShaderParameterMap& ParameterMap( ) const { return m_parameterMap; }
+	aga::ShaderParameterMap& ParameterMap( ) { return m_parameterMap; }
+	const aga::ShaderParameterMap& ParameterMap( ) const { return m_parameterMap; }
 
-	ShaderParameterInfo& ParameterInfo( ) { return m_parameterInfo; }
-	const ShaderParameterInfo& ParameterInfo( ) const { return m_parameterInfo; }
+	aga::ShaderParameterInfo& ParameterInfo( ) { return m_parameterInfo; }
+	const aga::ShaderParameterInfo& ParameterInfo( ) const { return m_parameterInfo; }
 
 protected:
 	BinaryChunk m_byteCode{ 0 };
-	ShaderParameterMap m_parameterMap;
-	ShaderParameterInfo m_parameterInfo;
+	aga::ShaderParameterMap m_parameterMap;
+	aga::ShaderParameterInfo m_parameterInfo;
 };
 
 class VertexShader : public ShaderBase

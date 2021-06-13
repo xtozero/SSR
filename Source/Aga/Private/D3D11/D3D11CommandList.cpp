@@ -15,7 +15,7 @@
 
 namespace aga
 {
-	void D3D11ImmediateCommandList::BindVertexBuffer( aga::Buffer* const* vertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pOffsets )
+	void D3D11ImmediateCommandList::BindVertexBuffer( Buffer* const* vertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pOffsets )
 	{
 		ID3D11Buffer* pBuffers[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
 		UINT strides[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
@@ -26,7 +26,7 @@ namespace aga
 			assert( pOffsets != nullptr );
 			for ( UINT i = 0; i < numBuffers; ++i )
 			{
-				if ( auto d3d11buffer = static_cast<D3D11BufferBase*>( vertexBuffers[i] ) )
+				if ( auto d3d11buffer = static_cast<D3D11Buffer*>( vertexBuffers[i] ) )
 				{
 					pBuffers[i] = d3d11buffer->Resource( );
 					strides[i] = d3d11buffer->Stride( );
@@ -38,12 +38,12 @@ namespace aga
 		D3D11Context( ).IASetVertexBuffers( startSlot, numBuffers, pBuffers, strides, offsets );
 	}
 
-	void D3D11ImmediateCommandList::BindIndexBuffer( aga::Buffer* indexBuffer, UINT indexOffset )
+	void D3D11ImmediateCommandList::BindIndexBuffer( Buffer* indexBuffer, UINT indexOffset )
 	{
 		ID3D11Buffer* buffer = nullptr;
 		DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
 
-		if ( auto d3d11buffer = static_cast<D3D11BufferBase*>( indexBuffer ) )
+		if ( auto d3d11buffer = static_cast<D3D11Buffer*>( indexBuffer ) )
 		{
 			buffer = d3d11buffer->Resource( );
 			format = ( d3d11buffer->Stride( ) == 4 ) ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT;
@@ -52,7 +52,7 @@ namespace aga
 		D3D11Context( ).IASetIndexBuffer( buffer, format, indexOffset );
 	}
 
-	void D3D11ImmediateCommandList::BindPipelineState( aga::PipelineState* pipelineState )
+	void D3D11ImmediateCommandList::BindPipelineState( PipelineState* pipelineState )
 	{
 		if ( auto d3d11PipelineState = static_cast<D3D11PipelineState*>( pipelineState ) )
 		{
@@ -77,7 +77,7 @@ namespace aga
 		auto setConstantBuffer = [&context]( SHADER_TYPE shader, UINT slot, const RefHandle<GraphicsApiResource>& cb )
 		{
 			ID3D11Buffer* buffer = nullptr;
-			if ( auto d3d11Buffer = static_cast<D3D11BufferBase*>( cb.Get( ) ) )
+			if ( auto d3d11Buffer = static_cast<D3D11Buffer*>( cb.Get( ) ) )
 			{
 				buffer = d3d11Buffer->Resource( );
 			}

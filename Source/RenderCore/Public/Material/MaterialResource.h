@@ -26,9 +26,9 @@ private:
 
 	std::shared_ptr<Material> m_material;
 
-	using ConstantBufferParameter = std::pair<ShaderParameter, ConstantBuffer>;
+	using ConstantBufferParameter = std::pair<aga::ShaderParameter, ConstantBuffer>;
 	std::vector<ConstantBufferParameter> m_materialConstantBuffers;
 
-	using NamedShaderParameter = std::pair<ShaderParameter, std::string>;
+	using NamedShaderParameter = std::pair<aga::ShaderParameter, std::string>;
 	std::vector<NamedShaderParameter> m_materialConstantValueNames;
 };

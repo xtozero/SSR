@@ -16,11 +16,11 @@ class VertexShader;
 class AgaDelegator
 {
 public:
-	void BootUp( IAga* pAga );
+	void BootUp( aga::IAga* pAga );
 	void Shutdown( );
 
 	template <typename ShaderType, typename ValueType>
-	void SetShaderValue( ShaderType& shader, const ShaderParameter& parameter, ValueType value )
+	void SetShaderValue( ShaderType& shader, const aga::ShaderParameter& parameter, ValueType value )
 	{
 		assert( parameter.m_bindPoint == 0 );
 
@@ -42,7 +42,7 @@ public:
 	VertexLayout FindOrCreate( const VertexShader& vs, const VertexLayoutDesc& desc );
 
 private:
-	IAga* m_aga = nullptr;
+	aga::IAga* m_aga = nullptr;
 	DefaultConstantBuffers m_defaultConstants;
 
 	std::unordered_map<BlendOption, BlendState, BlendOptionHasher> m_blendStates;

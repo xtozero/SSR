@@ -4,7 +4,6 @@
 #include <type_traits>
 
 class ComputeShader;
-class IAga;
 class PixelShader;
 class VertexShader;
 

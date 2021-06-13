@@ -8,13 +8,13 @@
 void* VertexBuffer::Lock( )
 {
 	assert( IsInRenderThread( ) );
-	return GetInterface<IAga>( )->Lock( m_buffer );
+	return GetInterface<aga::IAga>( )->Lock( m_buffer );
 }
 
 void VertexBuffer::Unlock( )
 {
 	assert( IsInRenderThread( ) );
-	GetInterface<IAga>( )->UnLock( m_buffer );
+	GetInterface<aga::IAga>( )->UnLock( m_buffer );
 }
 
 aga::Buffer* VertexBuffer::Resource( )

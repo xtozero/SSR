@@ -1,18 +1,21 @@
 #include "stdafx.h"
 #include "ShaderPrameterMap.h"
 
-void ShaderParameter::Bind( const ShaderParameterMap& parameterMap, const char* variableName )
+namespace aga
 {
-	(*this) = parameterMap.GetParameter( variableName );
-}
-
-ShaderParameter ShaderParameterMap::GetParameter( const char* name ) const
-{
-	auto found = m_parameters.find( name );
-	if ( found != m_parameters.end( ) )
+	void ShaderParameter::Bind( const ShaderParameterMap& parameterMap, const char* variableName )
 	{
-		return found->second;
+		( *this ) = parameterMap.GetParameter( variableName );
 	}
 
-	return {};
+	ShaderParameter ShaderParameterMap::GetParameter( const char* name ) const
+	{
+		auto found = m_parameters.find( name );
+		if ( found != m_parameters.end( ) )
+		{
+			return found->second;
+		}
+
+		return {};
+	}
 }

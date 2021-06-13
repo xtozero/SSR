@@ -66,7 +66,7 @@ namespace rendercore
 
 	Viewport::Viewport( int width, int height, HWND hWnd, RESOURCE_FORMAT format )
 	{
-		m_pViewport = GetInterface<IAga>( )->CreateViewport( width, height, hWnd, format );
+		m_pViewport = GetInterface<aga::IAga>( )->CreateViewport( width, height, hWnd, format );
 		if ( IsInRenderThread( ) )
 		{
 			m_pViewport->Init( );

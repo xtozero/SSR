@@ -26,7 +26,7 @@ namespace aga
 		return GetInterface<IAga>( )->CreateSamplerState( trait );
 	}
 
-	RefHandle<VertexLayout> VertexLayout::Create( const aga::VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, std::size_t size )
+	RefHandle<VertexLayout> VertexLayout::Create( const VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, std::size_t size )
 	{
 		return GetInterface<IAga>( )->CreateVertexLayout( vs, trait, size );
 	}

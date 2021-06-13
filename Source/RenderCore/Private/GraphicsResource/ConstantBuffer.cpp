@@ -10,30 +10,30 @@ void ConstantBuffer::Update( const void* data, std::size_t size )
 	assert( IsInRenderThread( ) );
 
 	assert( data != nullptr );
-	void* dst = GetInterface<IAga>( )->Lock( m_buffer );
+	void* dst = GetInterface<aga::IAga>( )->Lock( m_buffer );
 	if ( dst )
 	{
 		std::memcpy( dst, data, size );
 	}
-	GetInterface<IAga>( )->UnLock( m_buffer );
+	GetInterface<aga::IAga>( )->UnLock( m_buffer );
 }
 
 void* ConstantBuffer::Lock( )
 {
 	assert( IsInRenderThread( ) );
-	return GetInterface<IAga>( )->Lock( m_buffer );
+	return GetInterface<aga::IAga>( )->Lock( m_buffer );
 }
 
 void ConstantBuffer::Unlock( )
 {
 	assert( IsInRenderThread( ) );
-	GetInterface<IAga>( )->UnLock( m_buffer );
+	GetInterface<aga::IAga>( )->UnLock( m_buffer );
 }
 
 void ConstantBuffer::Bind( SHADER_TYPE shaderType, UINT slot )
 {
 	aga::Buffer* buffer[] = { m_buffer };
-	GetInterface<IAga>( )->BindConstantBuffer( shaderType, slot, 1, buffer );
+	GetInterface<aga::IAga>( )->BindConstantBuffer( shaderType, slot, 1, buffer );
 }
 
 aga::Buffer* ConstantBuffer::Resource( )

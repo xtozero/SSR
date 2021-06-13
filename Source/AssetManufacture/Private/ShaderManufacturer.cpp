@@ -71,7 +71,7 @@ std::optional<Products> ShaderManufacturer::Manufacture( const std::filesystem::
 
 	D3D11_SHADER_VERSION_TYPE shaderType = static_cast<D3D11_SHADER_VERSION_TYPE>( D3D11_SHVER_GET_TYPE( desc.Version ) );
 
-	ShaderParameterMap parameterMap;
+	aga::ShaderParameterMap parameterMap;
 	ExtractShaderParameters( byteCode.Data( ), size, parameterMap );
 
 	ShaderBase* shader = nullptr;

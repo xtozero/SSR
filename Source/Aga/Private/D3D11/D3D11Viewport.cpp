@@ -71,7 +71,7 @@ namespace aga
 	{
 	}
 
-	aga::Texture* D3D11Viewport::Texture( )
+	Texture* D3D11Viewport::Texture( )
 	{
 		return m_backBuffer.Get( );
 	}

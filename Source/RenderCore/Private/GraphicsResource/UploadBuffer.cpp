@@ -20,7 +20,7 @@ void UploadBuffer::Resize( std::size_t numElement, const void* initData )
 
 void UploadBuffer::Unlock( )
 {
-	GetInterface<IAga>( )->UnLock( m_buffer );
+	GetInterface<aga::IAga>( )->UnLock( m_buffer );
 }
 
 aga::Buffer* UploadBuffer::Resource( )
@@ -69,5 +69,5 @@ void UploadBuffer::InitResource( const void* initData )
 
 void* UploadBuffer::LockImple( )
 {
-	return GetInterface<IAga>( )->Lock( m_buffer );
+	return GetInterface<aga::IAga>( )->Lock( m_buffer );
 }

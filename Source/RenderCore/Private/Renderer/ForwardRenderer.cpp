@@ -45,5 +45,5 @@ void ForwardRenderer::SetRenderTarget( RenderViewGroup& renderViewGroup )
 	auto depthStencil = m_renderTargets.GetDepthStencil( ).Texture( );
 	auto renderTarget = renderViewGroup.Viewport( ).Texture( );
 
-	GetInterface<IAga>( )->BindRenderTargets( &renderTarget, 1, depthStencil );
+	GetInterface<aga::IAga>( )->BindRenderTargets( &renderTarget, 1, depthStencil );
 }

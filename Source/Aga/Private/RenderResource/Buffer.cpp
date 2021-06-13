@@ -6,7 +6,7 @@
 
 namespace aga
 {
-	RefHandle<Buffer> aga::Buffer::Create( const BUFFER_TRAIT& trait, const void* initData )
+	RefHandle<Buffer> Buffer::Create( const BUFFER_TRAIT& trait, const void* initData )
 	{
 		return GetInterface<IAga>( )->CreateBuffer( trait, initData );
 	}

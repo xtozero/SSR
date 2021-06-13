@@ -29,7 +29,7 @@ private:
 	SceneRenderer* FindAndCreateSceneRenderer( const RenderViewGroup& renderViewGroup );
 
 	HMODULE m_hAga;
-	IAga* m_AbstractGraphicsAPI = nullptr;
+	aga::IAga* m_AbstractGraphicsAPI = nullptr;
 
 	std::map<SHADING_METHOD, std::unique_ptr<SceneRenderer>> m_sceneRenderer;
 };
@@ -52,7 +52,7 @@ bool RenderCore::BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
 		return false;
 	}
 
-	m_AbstractGraphicsAPI = GetInterface<IAga>();
+	m_AbstractGraphicsAPI = GetInterface<aga::IAga>();
 	if ( m_AbstractGraphicsAPI == nullptr )
 	{
 		return false;

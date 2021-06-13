@@ -42,6 +42,6 @@ namespace rendercore
 
 	void DepthStencil::Clear( float depth, UINT8 stencil )
 	{
-		GetInterface<IAga>( )->ClearDepthStencil( m_depthStencil.Get( ), depth, stencil );
+		GetInterface<aga::IAga>( )->ClearDepthStencil( m_depthStencil.Get( ), depth, stencil );
 	}
 }
