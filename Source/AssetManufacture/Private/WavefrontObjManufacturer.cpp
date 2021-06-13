@@ -5,12 +5,79 @@
 #include "Mesh/StaticMesh.h"
 #include "WavefrontObjParser.hpp"
 
+#include <DirectXMath.h>
 #include <numeric>
 
 namespace fs = std::filesystem;
 
 namespace
 {
+	Wavefront::Vec3 CalcTriangleNormal( Wavefront::Vec3 v0, Wavefront::Vec3 v1, Wavefront::Vec3 v2 )
+	{
+		using namespace DirectX;
+
+		XMFLOAT3A f0( std::get<0>( v0 ), std::get<1>( v0 ), std::get<2>( v0 ) );
+		XMFLOAT3A f1( std::get<0>( v1 ), std::get<1>( v1 ), std::get<2>( v1 ) );
+		XMFLOAT3A f2( std::get<0>( v2 ), std::get<1>( v2 ), std::get<2>( v2 ) );
+
+		XMVECTOR xv0 = XMLoadFloat3A( &f0 );
+		XMVECTOR xv1 = XMLoadFloat3A( &f1 );
+		XMVECTOR xv2 = XMLoadFloat3A( &f2 );
+
+		XMVECTOR e0 = XMVector3Normalize( XMVectorSubtract( xv1, xv0 ) );
+		XMVECTOR e1 = XMVector3Normalize( XMVectorSubtract( xv2, xv0 ) );
+
+		XMVECTOR n = XMVector3Cross( e0, e1 );
+		n = XMVector3Normalize( n );
+
+		XMFLOAT3A normal;
+		XMStoreFloat3A( &normal, n );
+
+		return { normal.x, normal.y, normal.z };
+	}
+
+	std::vector<Wavefront::Vec3> CreateSmoothNormal( const Wavefront::ObjModel& model )
+	{
+		using namespace DirectX;
+
+		std::vector<Wavefront::Vec3> normals( model.m_vertices.size( ) );
+
+		for ( const auto& mesh : model.m_meshs )
+		{
+			for ( const auto& face : mesh.m_faces )
+			{
+				assert( face.m_vertices.size( ) == 3 );
+				std::size_t indicies[3] = {};
+				for ( int i = 0; i < 3; ++i )
+				{
+					indicies[i] = face.m_vertices[i];
+				}
+				Wavefront::Vec3 normal = CalcTriangleNormal( model.m_vertices[indicies[0]], model.m_vertices[indicies[1]], model.m_vertices[indicies[2]] );
+
+				for ( std::size_t i : indicies )
+				{
+					std::get<0>( normals[i] ) += std::get<0>( normal );
+					std::get<1>( normals[i] ) += std::get<1>( normal );
+					std::get<2>( normals[i] ) += std::get<2>( normal );
+				}
+			}
+		}
+
+		// Normalize vector
+		for ( auto& normal : normals )
+		{
+			XMFLOAT3A n( std::get<0>( normal ), std::get<1>( normal ), std::get<2>( normal ) );
+
+			XMVECTOR xn = XMLoadFloat3A( &n );
+			xn = XMVector3Normalize( xn );
+			XMStoreFloat3A( &n, xn );
+
+			normal = { n.x, n.y, n.z };
+		}
+
+		return normals;
+	}
+
 	StaticMesh CreateStaticMeshFromWavefrontObj( const Wavefront::ObjModel& model, const fs::path& assetsRootPath )
 	{
 		std::vector<MeshDescription> meshDescriptions;
@@ -47,7 +114,7 @@ namespace
 
 		auto meshTriFold = [faceTriFold]( std::size_t init, const Wavefront::ObjMesh& mesh )
 		{
-			std::size_t faceTriangle = std::accumulate( std::begin( mesh.m_face ), std::end( mesh.m_face ), std::size_t( 0 ), faceTriFold );
+			std::size_t faceTriangle = std::accumulate( std::begin( mesh.m_faces ), std::end( mesh.m_faces ), std::size_t( 0 ), faceTriFold );
 
 			return init + faceTriangle;
 		};
@@ -63,7 +130,7 @@ namespace
 
 		for ( const auto& mesh : model.m_meshs )
 		{
-			if ( mesh.m_face.size( ) == 0 )
+			if ( mesh.m_faces.size( ) == 0 )
 			{
 				continue;
 			}
@@ -75,7 +142,7 @@ namespace
 			auto& polygonMaterial = meshDescription.m_polygonMaterialName;
 			polygonMaterial.emplace_back( mesh.m_materialName );
 
-			for ( const auto& face : mesh.m_face )
+			for ( const auto& face : mesh.m_faces )
 			{
 				MeshTriangle triangle;
 
@@ -118,7 +185,7 @@ namespace
 		std::set<std::string> uniqueMaterial;
 		for ( const auto& mesh : model.m_meshs )
 		{
-			if ( mesh.m_face.size( ) == 0 )
+			if ( mesh.m_faces.size( ) == 0 )
 			{
 				continue;
 			}
@@ -243,6 +310,18 @@ std::optional<Products> WavefrontObjManufacturer::Manufacture( const std::filesy
 	if ( parser.Parse( srcPath, model ) == false )
 	{
 		return { };
+	}
+
+	if ( model.m_normal.empty( ) )
+	{
+		model.m_normal = CreateSmoothNormal( model );
+		for ( auto& mesh : model.m_meshs )
+		{
+			for ( auto& face : mesh.m_faces )
+			{
+				face.m_normals = face.m_vertices;
+			}
+		}
 	}
 
 	fs::path destRootPath = "." / fs::relative( destPath, destPath.parent_path( ) );

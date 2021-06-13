@@ -4,6 +4,7 @@
 #include "AgaDelegator.h"
 #include "common.h"
 #include "ForwardRenderer.h"
+#include "GlobalShaders.h"
 #include "IAga.h"
 #include "MultiThread/EngineTaskScheduler.h"
 #include "RenderView.h"
@@ -62,6 +63,7 @@ bool RenderCore::BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
 		return false;
 	}
 
+	GlobalShader::GetInstance( ).BootUp( );
 	GetAgaDelegator().BootUp( m_AbstractGraphicsAPI );
 
 	return true;

@@ -106,8 +106,8 @@ AssetLoaderSharedHandle AssetLoader::RequestAsyncLoad( const std::string& assetP
 
 	m_waitingHandle[assetPath];
 
-	IAssetLoader::LoadCompletionCallback onRenderOptionLoaded;
-	onRenderOptionLoaded.BindFunctor(
+	IAssetLoader::LoadCompletionCallback onAssetLoaded;
+	onAssetLoaded.BindFunctor(
 		[assetPath, completionCallback, this]( const std::shared_ptr<void>& asset )
 		{
 			if ( completionCallback.IsBound( ) )
@@ -118,7 +118,7 @@ AssetLoaderSharedHandle AssetLoader::RequestAsyncLoad( const std::string& assetP
 		}
 	);
 
-	AssetLoaderSharedHandle handle = LoadAsset( assetPath.c_str(), onRenderOptionLoaded );
+	AssetLoaderSharedHandle handle = LoadAsset( assetPath.c_str(), onAssetLoaded );
 
 	assert( handle->IsLoadingInProgress( ) );
 	return handle;

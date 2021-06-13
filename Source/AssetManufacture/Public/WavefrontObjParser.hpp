@@ -34,7 +34,7 @@ namespace Wavefront
 
 	struct ObjMesh
 	{
-		std::vector<Face> m_face;
+		std::vector<Face> m_faces;
 		std::string m_materialLibraryName;
 		std::string m_materialName;
 	};
@@ -755,8 +755,8 @@ namespace Wavefront
 				CreateObject( DefaultObjectName, mesh );
 			}
 
-			m_curMesh->m_face.emplace_back( );
-			Face& face = m_curMesh->m_face.back( );
+			m_curMesh->m_faces.emplace_back( );
+			Face& face = m_curMesh->m_faces.back( );
 
 			std::size_t vSize = mesh.m_vertices.size( );
 			std::size_t vtSize = mesh.m_texcoord.size( );
@@ -875,7 +875,7 @@ namespace Wavefront
 				CreateObject( name, mesh );
 			}
 
-			if ( ( m_curMesh->m_face.empty( ) == false )
+			if ( ( m_curMesh->m_faces.empty( ) == false )
 				&& ( m_curMesh->m_materialLibraryName.empty( ) == false )
 				&& ( m_curMesh->m_materialName.empty( ) == false ) )
 			{
