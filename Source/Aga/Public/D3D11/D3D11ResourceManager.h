@@ -17,12 +17,9 @@ struct ID3D11ShaderResourceView;
 
 namespace aga
 {
-	class Viewport;
-
 	class CD3D11ResourceManager final : public IResourceManager
 	{
 	public:
-		bool Bootup( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext );
 		virtual void AppSizeChanged( UINT nWndWidth, UINT nWndHeight ) override;
 
 		// Texture
@@ -45,14 +42,11 @@ namespace aga
 		virtual PipelineState* CreatePipelineState( const PipelineStateInitializer& initializer ) override;
 
 		// Viewport
-		Viewport* CreateViewport( int width, int height, void* hWnd, DXGI_FORMAT format );
+		virtual Viewport* CreateViewport( int width, int height, void* hWnd, RESOURCE_FORMAT format ) override;
 
 		// UTIL
 		// virtual void CopyResource( RE_HANDLE dest, const RESOURCE_REGION* destRegionOrNull, RE_HANDLE src, const RESOURCE_REGION* srcRegionOrNull ) override;
 		// virtual void UpdateResourceFromMemory( RE_HANDLE dest, void* src, UINT srcRowPitch, UINT srcDepthPitch, const RESOURCE_REGION* destRegionOrNull = nullptr ) override;
-
-		void OnDeviceLost( );
-		void OnDeviceRestore( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext );
 
 		CD3D11ResourceManager( ) = default;
 		CD3D11ResourceManager( const CD3D11ResourceManager& ) = delete;
@@ -61,13 +55,14 @@ namespace aga
 		CD3D11ResourceManager& operator=( CD3D11ResourceManager&& ) = delete;
 
 	private:
-		ID3D11Device* m_pDevice;
-		ID3D11DeviceContext* m_pDeviceContext;
-
 		std::pair<int, int>	m_frameBufferSize = { 0, 0 };
 
 		std::set<RefHandle<GraphicsApiResource>> m_renderResources;
 
 		std::map<PipelineStateInitializer, RefHandle<PipelineState>> m_pipelineStateCache;
 	};
+
+	void CreateD3D11ResourceManager( );
+	void DestoryD3D11ResourceManager( );
+	void* GetD3D11ResourceManager( );
 }

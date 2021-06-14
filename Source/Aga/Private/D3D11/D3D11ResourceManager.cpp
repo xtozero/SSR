@@ -9,6 +9,7 @@
 #include "D3D11BlendState.h"
 #include "D3D11Buffer.h"
 #include "D3D11DepthStencilState.h"
+#include "D3D11FlagConvertor.h"
 #include "D3D11PipelineState.h"
 #include "D3D11RasterizerState.h"
 #include "D3D11SamplerState.h"
@@ -27,11 +28,7 @@
 
 namespace aga
 {
-	bool CD3D11ResourceManager::Bootup( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext )
-	{
-		OnDeviceRestore( pDevice, pDeviceContext );
-		return true;
-	}
+	IResourceManager* g_resourceManager = nullptr;
 
 	void CD3D11ResourceManager::AppSizeChanged( UINT nWndWidth, UINT nWndHeight )
 	{
@@ -156,9 +153,9 @@ namespace aga
 		return pipelineState;
 	}
 
-	Viewport* CD3D11ResourceManager::CreateViewport( int width, int height, void* hWnd, DXGI_FORMAT format )
+	Viewport* CD3D11ResourceManager::CreateViewport( int width, int height, void* hWnd, RESOURCE_FORMAT format )
 	{
-		auto viewport = new D3D11Viewport( width, height, hWnd, format );
+		auto viewport = new D3D11Viewport( width, height, hWnd, ConvertFormatToDxgiFormat( format ) );
 		m_renderResources.emplace( viewport );
 
 		return viewport;
@@ -201,13 +198,18 @@ namespace aga
 	//	m_pDeviceContext->UpdateSubresource( pDest, destSubresouce, destRegionOrNull ? &destBox : nullptr, src, srcRowPitch, srcDepthPitch );
 	//}
 
-	void CD3D11ResourceManager::OnDeviceLost( )
+	void CreateD3D11ResourceManager( )
 	{
+		g_resourceManager = new CD3D11ResourceManager( );
 	}
 
-	void CD3D11ResourceManager::OnDeviceRestore( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext )
+	void DestoryD3D11ResourceManager( )
 	{
-		m_pDevice = pDevice;
-		m_pDeviceContext = pDeviceContext;
+		delete g_resourceManager;
+	}
+
+	void* GetD3D11ResourceManager( )
+	{
+		return g_resourceManager;
 	}
 }

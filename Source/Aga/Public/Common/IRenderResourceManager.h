@@ -15,12 +15,15 @@ namespace aga
 	class Buffer;
 	class ComputeShader;
 	class DepthStencilState;
+	class PipelineState;
+	class PipelineStateInitializer;
 	class PixelShader;
 	class RasterizerState;
 	class SamplerState;
 	class Texture;
 	class VertexLayout;
 	class VertexShader;
+	class Viewport;
 
 	class IResourceManager
 	{
@@ -41,6 +44,8 @@ namespace aga
 		virtual RasterizerState* CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) = 0;
 		virtual SamplerState* CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) = 0;
 		virtual PipelineState* CreatePipelineState( const PipelineStateInitializer& initializer ) = 0;
+
+		virtual Viewport* CreateViewport( int width, int height, void* hWnd, RESOURCE_FORMAT format ) = 0;
 
 		// virtual void CopyResource( RE_HANDLE dest, const RESOURCE_REGION* destRegionOrNull, RE_HANDLE src, const RESOURCE_REGION* srcRegionOrNull ) = 0;
 		// virtual void UpdateResourceFromMemory( RE_HANDLE dest, void* src, UINT srcRowPitch, UINT srcDepthPitch, const RESOURCE_REGION* destRegionOrNull = nullptr ) = 0;

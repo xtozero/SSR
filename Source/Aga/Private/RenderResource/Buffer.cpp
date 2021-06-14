@@ -2,12 +2,12 @@
 #include "Buffer.h"
 
 #include "Core/InterfaceFactories.h"
-#include "IAga.h"
+#include "IRenderResourceManager.h"
 
 namespace aga
 {
 	RefHandle<Buffer> Buffer::Create( const BUFFER_TRAIT& trait, const void* initData )
 	{
-		return GetInterface<IAga>( )->CreateBuffer( trait, initData );
+		return GetInterface<IResourceManager>( )->CreateBuffer( trait, initData );
 	}
 }

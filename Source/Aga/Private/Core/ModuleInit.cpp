@@ -3,6 +3,7 @@
 #include "IAga.h"
 #include "Core/InterfaceFactories.h"
 #include "D3D11Api.h"
+#include "D3D11ResourceManager.h"
 
 void RegisterResourceEnumString( )
 {
@@ -209,15 +210,19 @@ void RegisterResourceEnumString( )
 AGA_FUNC_DLL void BootUpModules( )
 {
 	RegisterFactory<aga::IAga>( &aga::GetD3D11GraphicsApi );
+	RegisterFactory<aga::IResourceManager>( &aga::GetD3D11ResourceManager );
 
-	aga::CreateAbstractGraphicsApi( );
+	aga::CreateD3D11GraphicsApi( );
+	aga::CreateD3D11ResourceManager( );
 
 	RegisterResourceEnumString( );
 }
 
 AGA_FUNC_DLL void ShutdownModules( )
 {
-	aga::DestoryAbstractGraphicsApi( );
+	aga::DestoryD3D11ResourceManager( );
+	aga::DestoryD3D11GraphicsApi( );
 
+	UnregisterFactory<aga::IResourceManager>( );
 	UnregisterFactory<aga::IAga>( );
 }

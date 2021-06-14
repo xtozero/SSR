@@ -734,21 +734,6 @@ inline DXGI_FORMAT ConvertToDxgiGammaFormat( DXGI_FORMAT format )
 	return format;
 }
 
-inline bool IsTexture1D( const TEXTURE_TRAIT& trait )
-{
-	return trait.m_height < 2;
-}
-
-inline bool IsTexture2D( const TEXTURE_TRAIT& trait )
-{
-	return trait.m_sampleCount > 0;
-}
-
-inline bool IsTexture3D( const TEXTURE_TRAIT& trait )
-{
-	return trait.m_height > 1 && trait.m_depth > 1 && trait.m_sampleCount < 2;
-}
-
 inline RESOURCE_PRIMITIVE Convert3D11PrimToPrim( D3D_PRIMITIVE_TOPOLOGY primitive )
 {
 	switch ( primitive )

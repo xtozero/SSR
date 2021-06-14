@@ -3,7 +3,7 @@
 
 #include "../RenderResource/Viewport.h"
 #include "Core/InterfaceFactories.h"
-#include "IAga.h"
+#include "IRenderResourceManager.h"
 #include "MultiThread/EngineTaskScheduler.h"
 
 namespace rendercore
@@ -66,7 +66,7 @@ namespace rendercore
 
 	Viewport::Viewport( int width, int height, HWND hWnd, RESOURCE_FORMAT format )
 	{
-		m_pViewport = GetInterface<aga::IAga>( )->CreateViewport( width, height, hWnd, format );
+		m_pViewport = GetInterface<aga::IResourceManager>( )->CreateViewport( width, height, hWnd, format );
 		if ( IsInRenderThread( ) )
 		{
 			m_pViewport->Init( );
