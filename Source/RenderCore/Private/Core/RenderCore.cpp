@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Renderer/IRenderCore.h"
 
-#include "AgaDelegator.h"
+#include "AbstractGraphicsInterface.h"
 #include "common.h"
 #include "ForwardRenderer.h"
 #include "GlobalShaders.h"
@@ -29,7 +29,7 @@ private:
 	SceneRenderer* FindAndCreateSceneRenderer( const RenderViewGroup& renderViewGroup );
 
 	HMODULE m_hAga;
-	aga::IAga* m_AbstractGraphicsAPI = nullptr;
+	aga::IAga* m_aga = nullptr;
 
 	std::map<SHADING_METHOD, std::unique_ptr<SceneRenderer>> m_sceneRenderer;
 };
@@ -52,19 +52,19 @@ bool RenderCore::BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
 		return false;
 	}
 
-	m_AbstractGraphicsAPI = GetInterface<aga::IAga>();
-	if ( m_AbstractGraphicsAPI == nullptr )
+	m_aga = GetInterface<aga::IAga>();
+	if ( m_aga == nullptr )
 	{
 		return false;
 	}
 
-	if ( m_AbstractGraphicsAPI->BootUp( hWnd, nWndWidth, nWndHeight ) == false )
+	if ( m_aga->BootUp( hWnd, nWndWidth, nWndHeight ) == false )
 	{
 		return false;
 	}
 
 	GlobalShader::GetInstance( ).BootUp( );
-	GetAgaDelegator().BootUp( m_AbstractGraphicsAPI );
+	GraphicsInterface().BootUp( m_aga );
 
 	return true;
 }
@@ -75,7 +75,7 @@ void RenderCore::HandleDeviceLost( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
 
 void RenderCore::AppSizeChanged( UINT nWndWidth, UINT nWndHeight )
 {
-	m_AbstractGraphicsAPI->AppSizeChanged( nWndWidth, nWndHeight );
+	m_aga->AppSizeChanged( nWndWidth, nWndHeight );
 }
 
 IScene* RenderCore::CreateScene( )
@@ -114,7 +114,7 @@ RenderCore::~RenderCore( )
 
 void RenderCore::Shutdown( )
 {
-	GetAgaDelegator().Shutdown( );
+	GraphicsInterface().Shutdown( );
 
 	ShutdownModule( m_hAga );
 }

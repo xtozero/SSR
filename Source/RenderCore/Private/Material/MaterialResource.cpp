@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "MaterialResource.h"
 
-#include "AgaDelegator.h"
+#include "AbstractGraphicsInterface.h"
 #include "MultiThread/EngineTaskScheduler.h"
 
 void MaterialResource::SetMaterial( const std::shared_ptr<Material>& material )
@@ -37,7 +37,7 @@ void MaterialResource::TakeSnapShot( DrawSnapshot& snapShot )
 		binding.AddConstantBuffer( cbParam.m_bindPoint, cb.Resource( ) );
 	}
 
-	auto& aga = GetAgaDelegator( );
+	auto& graphicsInterface = GraphicsInterface( );
 
 	// Bind texture and sampler
 	auto shaderTypes = { SHADER_TYPE::VS, SHADER_TYPE::PS };
@@ -81,7 +81,7 @@ void MaterialResource::TakeSnapShot( DrawSnapshot& snapShot )
 			{
 				if ( auto samplerOption = m_material->AsSampelrOption( name.c_str( ) ) )
 				{
-					auto sampler = aga.FindOrCreate( *samplerOption );
+					auto sampler = graphicsInterface.FindOrCreate( *samplerOption );
 					binding.AddSampler( param.m_bindPoint, sampler.Resource( ) );
 				}
 			}

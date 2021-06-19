@@ -4,13 +4,22 @@
 #include "Buffer.h"
 #include "GraphicsApiResource.h"
 
+class ComputeShader;
+class PixelShader;
+class VertexShader;
+
 class ConstantBuffer
 {
 public:
 	void Update( const void* data, std::size_t size );
 	void* Lock( );
 	void Unlock( );
-	void Bind( SHADER_TYPE shaderType, UINT slot );
+
+	template <typename ShaderType>
+	void Bind( ShaderType& shader, UINT slot )
+	{
+		BindImple( shader, slot );
+	}
 
 	aga::Buffer* Resource( );
 	const aga::Buffer* Resource( ) const;
@@ -28,5 +37,9 @@ protected:
 	void InitResource( std::size_t size );
 
 private:
+	void BindImple( VertexShader& shader, UINT slot );
+	void BindImple( PixelShader& shader, UINT slot );
+	void BindImple( ComputeShader& shader, UINT slot );
+
 	RefHandle<aga::Buffer> m_buffer;
 };

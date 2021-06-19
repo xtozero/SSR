@@ -40,20 +40,9 @@ void GameClientViewport::Draw( )
 		viewport->Clear( clearColor );
 	} );
 
-	auto renderTargetSize = m_viewport->Size( );
-	RECT rect = { 
-		0,
-		0,
-		static_cast<long>( renderTargetSize.first ),
-		static_cast<long>( renderTargetSize.second ) };
-
-	EnqueueRenderTask( [aga = GetInterface<aga::IAga>( ), rect]( )
+	EnqueueRenderTask( [viewport = m_viewport]( )
 	{
-		if ( aga )
-		{
-			aga->SetViewport( rect.left, rect.top, 0.f, rect.right, rect.bottom, 1.f );
-			aga->SetScissorRect( rect.left, rect.top, rect.right, rect.bottom );
-		}
+		viewport->Bind( );
 	} );
 
 	RenderViewGroup renderViewGroup( *GetWorld()->Scene(), *m_viewport );

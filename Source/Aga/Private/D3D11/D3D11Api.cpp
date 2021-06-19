@@ -52,14 +52,13 @@ namespace aga
 		virtual void* Lock( Buffer* buffer, int lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, UINT subResource = 0 ) override;
 		virtual void UnLock( Buffer* buffer, UINT subResource = 0 ) override;
 
-		virtual void SetViewports( const Viewport* viewPorts, int count ) override;
+		virtual void SetViewports( Viewport** viewPorts, int count ) override;
 		virtual void SetViewport( UINT minX, UINT minY, float minZ, UINT maxX, UINT maxY, float maxZ ) override;
-		virtual void SetScissorRects( const Viewport* viewPorts, int size ) override;
+		virtual void SetScissorRects( Viewport** viewPorts, int size ) override;
 		virtual void SetScissorRect( UINT minX, UINT minY, UINT maxX, UINT maxY ) override;
 
 		virtual void ClearDepthStencil( Texture* depthStencil, float depthColor, UINT8 stencilColor ) override;
 
-		virtual void BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT numBuffers, Buffer** pConstantBuffers ) override;
 		virtual void BindShader( ComputeShader* shader ) override;
 
 		virtual void BindConstant( VertexShader* shader, int startSlot, int numBuffers, Buffer** pBuffers ) override;
@@ -234,23 +233,25 @@ namespace aga
 		}
 	}
 
-	void CDirect3D11::SetViewports( const Viewport* viewPorts, int size )
+	void CDirect3D11::SetViewports( Viewport** viewPorts, int size )
 	{
 		std::vector<D3D11_VIEWPORT> d3d11Viewports;
 
 		for ( int i = 0; i < size; ++i )
 		{
-			const auto& vp = static_cast<const D3D11Viewport*>( viewPorts )[i];
-			auto renderTargetSize = vp.Size( );
-			D3D11_VIEWPORT newVeiwport = {
-				0.f,
-				0.f,
-				static_cast<float>( renderTargetSize.first ),
-				static_cast<float>( renderTargetSize.second ),
-				0.f,
-				1.f };
+			if ( auto vp = static_cast<const D3D11Viewport*>( viewPorts[i] ) )
+			{
+				auto renderTargetSize = vp->Size( );
+				D3D11_VIEWPORT newVeiwport = {
+					0.f,
+					0.f,
+					static_cast<float>( renderTargetSize.first ),
+					static_cast<float>( renderTargetSize.second ),
+					0.f,
+					1.f };
 
-			d3d11Viewports.push_back( newVeiwport );
+				d3d11Viewports.push_back( newVeiwport );
+			}
 		}
 
 		assert( d3d11Viewports.size( ) <= UINT_MAX );
@@ -271,21 +272,23 @@ namespace aga
 		m_pd3d11DeviceContext->RSSetViewports( 1, &viewport );
 	}
 
-	void CDirect3D11::SetScissorRects( const Viewport* viewPorts, int size )
+	void CDirect3D11::SetScissorRects( Viewport** viewPorts, int size )
 	{
 		std::vector<D3D11_RECT> d3d11Rects;
 
 		for ( int i = 0; i < size; ++i )
 		{
-			const auto& vp = static_cast<const D3D11Viewport*>( viewPorts )[i];
-			auto renderTargetSize = vp.Size( );
-			D3D11_RECT newVeiwport = {
-				0L,
-				0L,
-				static_cast<LONG>( renderTargetSize.first ),
-				static_cast<LONG>( renderTargetSize.second ) };
+			if ( auto vp = static_cast<const D3D11Viewport*>( viewPorts[i] ) )
+			{
+				auto renderTargetSize = vp->Size( );
+				D3D11_RECT newVeiwport = {
+					0L,
+					0L,
+					static_cast<LONG>( renderTargetSize.first ),
+					static_cast<LONG>( renderTargetSize.second ) };
 
-			d3d11Rects.push_back( newVeiwport );
+				d3d11Rects.push_back( newVeiwport );
+			}
 		}
 
 		m_pd3d11DeviceContext->RSSetScissorRects( static_cast<UINT>( d3d11Rects.size( ) ), d3d11Rects.data( ) );
@@ -315,43 +318,6 @@ namespace aga
 			ID3D11DepthStencilView* dsv = d3d11DSV->Resource( );
 
 			m_pd3d11DeviceContext->ClearDepthStencilView( dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthColor, stencilColor );
-		}
-	}
-
-	void CDirect3D11::BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT numBuffers, Buffer** pConstantBuffers )
-	{
-		ID3D11Buffer* pBuffers[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT] = {};
-
-		for ( UINT i = 0; i < numBuffers; ++i )
-		{
-			if ( auto d3d11buffer = static_cast<D3D11Buffer*>( pConstantBuffers[i] ) )
-			{
-				pBuffers[i] = d3d11buffer->Resource( );
-			}
-		}
-
-		switch ( type )
-		{
-		case SHADER_TYPE::VS:
-			m_pd3d11DeviceContext->VSSetConstantBuffers( startSlot, numBuffers, pBuffers );
-			break;
-		case SHADER_TYPE::HS:
-			m_pd3d11DeviceContext->HSSetConstantBuffers( startSlot, numBuffers, pBuffers );
-			break;
-		case SHADER_TYPE::DS:
-			m_pd3d11DeviceContext->DSSetConstantBuffers( startSlot, numBuffers, pBuffers );
-			break;
-		case SHADER_TYPE::GS:
-			m_pd3d11DeviceContext->GSSetConstantBuffers( startSlot, numBuffers, pBuffers );
-			break;
-		case SHADER_TYPE::PS:
-			m_pd3d11DeviceContext->PSSetConstantBuffers( startSlot, numBuffers, pBuffers );
-			break;
-		case SHADER_TYPE::CS:
-			m_pd3d11DeviceContext->CSSetConstantBuffers( startSlot, numBuffers, pBuffers );
-			break;
-		default:
-			break;
 		}
 	}
 
@@ -575,7 +541,6 @@ namespace aga
 
 	CDirect3D11::CDirect3D11( )
 	{
-		// RegisterGraphicsEnumString( );
 	}
 
 	CDirect3D11::~CDirect3D11( )

@@ -15,6 +15,7 @@ namespace rendercore
 	public:
 		RENDERCORE_DLL DEVICE_ERROR Present( bool vSync = false );
 		RENDERCORE_DLL void Clear( const float (&color)[4] );
+		RENDERCORE_DLL void Bind( );
 
 		RENDERCORE_DLL void* Handle( ) const;
 		RENDERCORE_DLL std::pair<UINT, UINT> Size( ) const;

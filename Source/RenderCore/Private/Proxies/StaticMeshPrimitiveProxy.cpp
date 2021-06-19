@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Proxies/StaticMeshPrimitiveProxy.h"
 
-#include "AgaDelegator.h"
+#include "AbstractGraphicsInterface.h"
 #include "Components/StaticMeshComponent.h"
 #include "DrawSnapshot.h"
 #include "Material/MaterialResource.h"
@@ -30,7 +30,7 @@ void StaticMeshPrimitiveProxy::TakeSnapshot( std::vector<DrawSnapshot>& snapshot
 		return;
 	}
 
-	auto& aga = GetAgaDelegator( );
+	auto& graphicsInterface = GraphicsInterface( );
 
 	// To Do : will make lod available later
 	StaticMeshLODResource& lodResource = m_pRenderData->LODResource( 0 );
@@ -48,22 +48,22 @@ void StaticMeshPrimitiveProxy::TakeSnapshot( std::vector<DrawSnapshot>& snapshot
 		if ( materialResource )
 		{
 			materialResource->TakeSnapShot( snapShot );
-			pipelineState.m_shaderState.m_vertexLayout = aga.FindOrCreate( pipelineState.m_shaderState.m_vertexShader, vertexLayout.Desc( ) );
+			pipelineState.m_shaderState.m_vertexLayout = graphicsInterface.FindOrCreate( pipelineState.m_shaderState.m_vertexShader, vertexLayout.Desc( ) );
 		}
 
 		if ( m_pRenderOption->m_blendOption )
 		{
-			pipelineState.m_blendState = aga.FindOrCreate( *m_pRenderOption->m_blendOption );
+			pipelineState.m_blendState = graphicsInterface.FindOrCreate( *m_pRenderOption->m_blendOption );
 		}
 
 		if ( m_pRenderOption->m_depthStencilOption )
 		{
-			pipelineState.m_depthStencilState = aga.FindOrCreate( *m_pRenderOption->m_depthStencilOption );
+			pipelineState.m_depthStencilState = graphicsInterface.FindOrCreate( *m_pRenderOption->m_depthStencilOption );
 		}
 
 		if ( m_pRenderOption->m_rasterizerOption )
 		{
-			pipelineState.m_rasterizerState = aga.FindOrCreate( *m_pRenderOption->m_rasterizerOption );
+			pipelineState.m_rasterizerState = graphicsInterface.FindOrCreate( *m_pRenderOption->m_rasterizerOption );
 		}
 		
 		pipelineState.m_primitive = RESOURCE_PRIMITIVE::TRIANGLELIST;

@@ -1,21 +1,62 @@
 #include "stdafx.h"
-#include "AgaDelegator.h"
+#include "AbstractGraphicsInterface.h"
+
 #include "Shader.h"
 
-AgaDelegator g_agaDelegator;
+AbstractGraphicsInterface g_abstractGraphicsInterface;
 
-void AgaDelegator::BootUp( aga::IAga* pAga )
+void AbstractGraphicsInterface::BootUp( aga::IAga* pAga )
 {
 	m_aga = pAga;
 	m_defaultConstants.BootUp( );
 }
 
-void AgaDelegator::Shutdown( )
+void AbstractGraphicsInterface::Shutdown( )
 {
 	m_defaultConstants.Shutdown( );
 }
 
-void AgaDelegator::Dispatch( UINT x, UINT y, UINT z )
+void* AbstractGraphicsInterface::Lock( aga::Buffer* buffer, int lockFlag, UINT subResource )
+{
+	return m_aga->Lock( buffer, lockFlag, subResource );
+}
+
+void AbstractGraphicsInterface::UnLock( aga::Buffer* buffer, UINT subResource )
+{
+	m_aga->UnLock( buffer, subResource );
+}
+
+void AbstractGraphicsInterface::SetViewports( aga::Viewport** pViewPorts, int size )
+{
+	m_aga->SetViewports( pViewPorts, size );
+}
+
+void AbstractGraphicsInterface::SetViewport( UINT minX, UINT minY, float minZ, UINT maxX, UINT maxY, float maxZ )
+{
+	m_aga->SetViewport( minX, minY, minZ, maxX, maxY, maxZ );
+}
+
+void AbstractGraphicsInterface::SetScissorRects( aga::Viewport** pViewPorts, int size )
+{
+	m_aga->SetScissorRects( pViewPorts, size );
+}
+
+void AbstractGraphicsInterface::SetScissorRect( UINT minX, UINT minY, UINT maxX, UINT maxY )
+{
+	m_aga->SetScissorRect( minX, minY, maxX, maxY );
+}
+
+void AbstractGraphicsInterface::BindRenderTargets( aga::Texture** pRenderTargets, int renderTargetCount, aga::Texture* depthStencil )
+{
+	m_aga->BindRenderTargets( pRenderTargets, 1, depthStencil );
+}
+
+void AbstractGraphicsInterface::ClearDepthStencil( aga::Texture* depthStencil, float depthColor, UINT8 stencilColor )
+{
+	m_aga->ClearDepthStencil( depthStencil, depthColor, stencilColor );
+}
+
+void AbstractGraphicsInterface::Dispatch( UINT x, UINT y, UINT z )
 {
 	ComputeShader empty;
 	m_defaultConstants.Commit( empty );
@@ -25,7 +66,12 @@ void AgaDelegator::Dispatch( UINT x, UINT y, UINT z )
 	BindShader( empty );
 }
 
-BlendState AgaDelegator::FindOrCreate( const BlendOption& option )
+void AbstractGraphicsInterface::Copy( aga::Buffer* dst, aga::Buffer* src, std::size_t size )
+{
+	m_aga->Copy( dst, src, size );
+}
+
+BlendState AbstractGraphicsInterface::FindOrCreate( const BlendOption& option )
 {
 	auto found = m_blendStates.find( option );
 	if ( found == m_blendStates.end( ) )
@@ -59,7 +105,7 @@ BlendState AgaDelegator::FindOrCreate( const BlendOption& option )
 	return found->second;
 }
 
-DepthStencilState AgaDelegator::FindOrCreate( const DepthStencilOption& option )
+DepthStencilState AbstractGraphicsInterface::FindOrCreate( const DepthStencilOption& option )
 {
 	auto found = m_depthStencilStates.find( option );
 	if ( found == m_depthStencilStates.end( ) )
@@ -84,7 +130,7 @@ DepthStencilState AgaDelegator::FindOrCreate( const DepthStencilOption& option )
 	return found->second;
 }
 
-RasterizerState AgaDelegator::FindOrCreate( const RasterizerOption& option )
+RasterizerState AbstractGraphicsInterface::FindOrCreate( const RasterizerOption& option )
 {
 	auto found = m_rasterizerStates.find( option );
 	if ( found == m_rasterizerStates.end( ) )
@@ -111,7 +157,7 @@ RasterizerState AgaDelegator::FindOrCreate( const RasterizerOption& option )
 	return found->second;
 }
 
-SamplerState AgaDelegator::FindOrCreate( const SamplerOption& option )
+SamplerState AbstractGraphicsInterface::FindOrCreate( const SamplerOption& option )
 {
 	auto found = m_samplerStates.find( option );
 	if ( found == m_samplerStates.end( ) )
@@ -138,7 +184,7 @@ SamplerState AgaDelegator::FindOrCreate( const SamplerOption& option )
 	return found->second;
 }
 
-VertexLayout AgaDelegator::FindOrCreate( const VertexShader& vs, const VertexLayoutDesc& desc )
+VertexLayout AbstractGraphicsInterface::FindOrCreate( const VertexShader& vs, const VertexLayoutDesc& desc )
 {
 	auto found = m_vertexLayouts.find( desc );
 	if ( found == m_vertexLayouts.end( ) )
@@ -152,7 +198,7 @@ VertexLayout AgaDelegator::FindOrCreate( const VertexShader& vs, const VertexLay
 	return found->second;
 }
 
-AgaDelegator& GetAgaDelegator( )
+AbstractGraphicsInterface& GraphicsInterface( )
 {
-	return g_agaDelegator;
+	return g_abstractGraphicsInterface;
 }

@@ -2,6 +2,7 @@
 #include "Viewport.h"
 
 #include "../RenderResource/Viewport.h"
+#include "AbstractGraphicsInterface.h"
 #include "Core/InterfaceFactories.h"
 #include "IRenderResourceManager.h"
 #include "MultiThread/EngineTaskScheduler.h"
@@ -23,6 +24,14 @@ namespace rendercore
 		if ( m_pViewport.Get( ) )
 		{
 			m_pViewport->Clear( color );
+		}
+	}
+
+	void Viewport::Bind( )
+	{
+		if ( m_pViewport.Get( ) )
+		{
+			m_pViewport->Bind( );
 		}
 	}
 
@@ -66,7 +75,7 @@ namespace rendercore
 
 	Viewport::Viewport( int width, int height, HWND hWnd, RESOURCE_FORMAT format )
 	{
-		m_pViewport = GetInterface<aga::IResourceManager>( )->CreateViewport( width, height, hWnd, format );
+		m_pViewport = aga::Viewport::Create( width, height, hWnd, format );
 		if ( IsInRenderThread( ) )
 		{
 			m_pViewport->Init( );

@@ -1,8 +1,7 @@
 #include "stdafx.h"
 #include "UploadBuffer.h"
 
-#include "Core/InterfaceFactories.h"
-#include "IAga.h"
+#include "AbstractGraphicsInterface.h"
 #include "MultiThread/EngineTaskScheduler.h"
 
 #include <cassert>
@@ -20,7 +19,7 @@ void UploadBuffer::Resize( std::size_t numElement, const void* initData )
 
 void UploadBuffer::Unlock( )
 {
-	GetInterface<aga::IAga>( )->UnLock( m_buffer );
+	GraphicsInterface( ).UnLock( m_buffer );
 }
 
 aga::Buffer* UploadBuffer::Resource( )
@@ -69,5 +68,5 @@ void UploadBuffer::InitResource( const void* initData )
 
 void* UploadBuffer::LockImple( )
 {
-	return GetInterface<aga::IAga>( )->Lock( m_buffer );
+	return GraphicsInterface( ).Lock( m_buffer );
 }

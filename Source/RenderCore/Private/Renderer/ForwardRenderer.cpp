@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ForwardRenderer.h"
 
-#include "IAga.h"
+#include "AbstractGraphicsInterface.h"
 #include "RenderView.h"
 #include "Scene/Scene.h"
 #include "Scene/SceneConstantBuffers.h"
@@ -45,5 +45,5 @@ void ForwardRenderer::SetRenderTarget( RenderViewGroup& renderViewGroup )
 	auto depthStencil = m_renderTargets.GetDepthStencil( ).Texture( );
 	auto renderTarget = renderViewGroup.Viewport( ).Texture( );
 
-	GetInterface<aga::IAga>( )->BindRenderTargets( &renderTarget, 1, depthStencil );
+	GraphicsInterface( ).BindRenderTargets( &renderTarget, 1, depthStencil );
 }

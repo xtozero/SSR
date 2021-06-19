@@ -1,8 +1,7 @@
 #include "stdafx.h"
 #include "ConstantBuffer.h"
 
-#include "Core/InterfaceFactories.h"
-#include "IAga.h"
+#include "AbstractGraphicsInterface.h"
 #include "MultiThread/EngineTaskScheduler.h"
 
 void ConstantBuffer::Update( const void* data, std::size_t size )
@@ -10,30 +9,24 @@ void ConstantBuffer::Update( const void* data, std::size_t size )
 	assert( IsInRenderThread( ) );
 
 	assert( data != nullptr );
-	void* dst = GetInterface<aga::IAga>( )->Lock( m_buffer );
+	void* dst = GraphicsInterface( ).Lock( m_buffer );
 	if ( dst )
 	{
 		std::memcpy( dst, data, size );
 	}
-	GetInterface<aga::IAga>( )->UnLock( m_buffer );
+	GraphicsInterface( ).UnLock( m_buffer );
 }
 
 void* ConstantBuffer::Lock( )
 {
 	assert( IsInRenderThread( ) );
-	return GetInterface<aga::IAga>( )->Lock( m_buffer );
+	return  GraphicsInterface( ).Lock( m_buffer );
 }
 
 void ConstantBuffer::Unlock( )
 {
 	assert( IsInRenderThread( ) );
-	GetInterface<aga::IAga>( )->UnLock( m_buffer );
-}
-
-void ConstantBuffer::Bind( SHADER_TYPE shaderType, UINT slot )
-{
-	aga::Buffer* buffer[] = { m_buffer };
-	GetInterface<aga::IAga>( )->BindConstantBuffer( shaderType, slot, 1, buffer );
+	GraphicsInterface( ).UnLock( m_buffer );
 }
 
 aga::Buffer* ConstantBuffer::Resource( )
@@ -72,4 +65,22 @@ void ConstantBuffer::InitResource( std::size_t size )
 			buffer->Init( );
 		} );
 	}
+}
+
+void ConstantBuffer::BindImple( VertexShader& shader, UINT slot )
+{
+	aga::Buffer* buffers[] = { m_buffer };
+	GraphicsInterface( ).BindConstant( shader, slot, 1, buffers );
+}
+
+void ConstantBuffer::BindImple( PixelShader& shader, UINT slot )
+{
+	aga::Buffer* buffers[] = { m_buffer };
+	GraphicsInterface( ).BindConstant( shader, slot, 1, buffers );
+}
+
+void ConstantBuffer::BindImple( ComputeShader& shader, UINT slot )
+{
+	aga::Buffer* buffers[] = { m_buffer };
+	GraphicsInterface( ).BindConstant( shader, slot, 1, buffers );
 }

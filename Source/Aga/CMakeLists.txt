@@ -64,6 +64,7 @@ set (RENDER_RESOURCE_SOURCE
 	Private/RenderResource/ShaderPrameterMap.cpp
 	Private/RenderResource/ShaderResource.cpp
 	Private/RenderResource/Texture.cpp
+	Private/RenderResource/Viewport.cpp
 	Public/RenderResource/Buffer.h
 	Public/RenderResource/PipelineState.h
 	Public/RenderResource/ResourceViews.h

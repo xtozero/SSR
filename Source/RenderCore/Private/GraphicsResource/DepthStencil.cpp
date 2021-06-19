@@ -1,8 +1,7 @@
 #include "stdafx.h"
 #include "GraphicsResource/DepthStencil.h"
 
-#include "Core/InterfaceFactories.h"
-#include "IAga.h"
+#include "AbstractGraphicsInterface.h"
 #include "MultiThread/EngineTaskScheduler.h"
 
 namespace rendercore
@@ -42,6 +41,6 @@ namespace rendercore
 
 	void DepthStencil::Clear( float depth, UINT8 stencil )
 	{
-		GetInterface<aga::IAga>( )->ClearDepthStencil( m_depthStencil.Get( ), depth, stencil );
+		GraphicsInterface( ).ClearDepthStencil( m_depthStencil.Get( ), depth, stencil );
 	}
 }

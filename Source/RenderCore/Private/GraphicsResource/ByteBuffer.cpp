@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "ByteBuffer.h"
 
+#include "AbstractGraphicsInterface.h"
 #include "GlobalShaders.h"
 #include "IAga.h"
 #include "MultiThread/EngineTaskScheduler.h"
-#include "RenderUtility/ShaderParameterUtil.h"
 #include "UploadBuffer.h"
 
 REGISTER_GLOBAL_SHADER( DistributionCopyCS, "./Assets/Shaders/CS_DistributionCopy.asset" );
@@ -60,17 +60,19 @@ void GpuMemcpy::Upload( aga::Buffer* destBuffer )
 	DistributionCopyCS computeShader;
 	ComputeShader& cs = *computeShader.Shader( );
 
-	GetAgaDelegator( ).BindShader( cs );
+	auto& graphicsInterface = GraphicsInterface( );
 
-	SetShaderValue( cs, computeShader.m_numDistribution, m_distributionCount );
-	BindShaderParameter( cs, computeShader.m_src, m_src.Resource( ) );
-	BindShaderParameter( cs, computeShader.m_distributer, m_distributer.Resource( ) );
-	BindShaderParameter( cs, computeShader.m_dest, destBuffer );
+	graphicsInterface.BindShader( cs );
+
+	graphicsInterface.SetShaderValue( cs, computeShader.m_numDistribution, m_distributionCount );
+	graphicsInterface.BindShaderParameter( cs, computeShader.m_src, m_src.Resource( ) );
+	graphicsInterface.BindShaderParameter( cs, computeShader.m_distributer, m_distributer.Resource( ) );
+	graphicsInterface.BindShaderParameter( cs, computeShader.m_dest, destBuffer );
 
 	UINT threadGroup = ( ( m_distributionCount + DistributionCopyCS::ThreadGroupX - 1 ) / DistributionCopyCS::ThreadGroupX );
 
-	GetAgaDelegator( ).Dispatch( threadGroup, 1 );
+	graphicsInterface.Dispatch( threadGroup, 1 );
 
-	BindShaderParameter( cs, computeShader.m_dest, nullptr );
+	graphicsInterface.BindShaderParameter( cs, computeShader.m_dest, nullptr );
 }
 

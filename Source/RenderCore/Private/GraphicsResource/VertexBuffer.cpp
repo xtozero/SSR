@@ -1,20 +1,19 @@
 #include "stdafx.h"
 #include "VertexBuffer.h"
 
-#include "Core/InterfaceFactories.h"
-#include "IAga.h"
+#include "AbstractGraphicsInterface.h"
 #include "MultiThread/EngineTaskScheduler.h"
 
 void* VertexBuffer::Lock( )
 {
 	assert( IsInRenderThread( ) );
-	return GetInterface<aga::IAga>( )->Lock( m_buffer );
+	return GraphicsInterface( ).Lock( m_buffer );
 }
 
 void VertexBuffer::Unlock( )
 {
 	assert( IsInRenderThread( ) );
-	GetInterface<aga::IAga>( )->UnLock( m_buffer );
+	GraphicsInterface( ).UnLock( m_buffer );
 }
 
 aga::Buffer* VertexBuffer::Resource( )

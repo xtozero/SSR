@@ -43,6 +43,15 @@ namespace aga
 		}
 	}
 
+	void D3D11Viewport::Bind( )
+	{
+		D3D11_VIEWPORT viewport{ 0.f, 0.f, static_cast<float>( m_width ), static_cast<float>( m_height ), 0.f, 1.f };
+		D3D11Context( ).RSSetViewports( 1, &viewport );
+
+		D3D11_RECT rect{ 0L, 0L, static_cast<LONG>( m_width ), static_cast<LONG>( m_height ) };
+		D3D11Context( ).RSSetScissorRects( 1, &rect );
+	}
+
 	std::pair<UINT, UINT> D3D11Viewport::Size( ) const
 	{
 		return { m_width, m_height };

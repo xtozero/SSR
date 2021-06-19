@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AbstractGraphicsInterface.h"
 #include "ConstantBuffer.h"
 #include "GraphicsApiResource.h"
 #include "UploadBuffer.h"
@@ -48,7 +49,7 @@ public:
 
 			if ( copyPreviousData )
 			{
-				GetInterface<aga::IAga>( )->Copy( newBuffer.m_buffer, m_buffer, Size( ) );
+				GraphicsInterface( ).Copy( newBuffer.m_buffer, m_buffer, Size( ) );
 			}
 
 			( *this ) = std::move( newBuffer );

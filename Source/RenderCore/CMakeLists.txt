@@ -40,9 +40,8 @@ set (RENDERER_SOURCE
 	Public/Renderer/SceneRenderer.h)
 
 set (RENDER_UTILITY
-	Private/RenderUtility/AgaDelegator.cpp
-	Public/RenderUtility/AgaDelegator.h
-	Public/RenderUtility/ShaderParameterUtil.h)
+	Private/RenderUtility/AbstractGraphicsInterface.cpp
+	Public/RenderUtility/AbstractGraphicsInterface.h)
 	
 set (GRAPHICS_RESOURCE_SOURCE
 	Private/GraphicsResource/ByteBuffer.cpp

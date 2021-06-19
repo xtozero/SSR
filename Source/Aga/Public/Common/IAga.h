@@ -39,14 +39,13 @@ namespace aga
 		virtual void* Lock( Buffer* buffer, int lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, UINT subResource = 0 ) = 0;
 		virtual void UnLock( Buffer* buffer, UINT subResource = 0 ) = 0;
 
-		virtual void SetViewports( const Viewport* viewPorts, int count ) = 0;
+		virtual void SetViewports( Viewport** viewPorts, int count ) = 0;
 		virtual void SetViewport( UINT minX, UINT minY, float minZ, UINT maxX, UINT maxY, float maxZ ) = 0;
-		virtual void SetScissorRects( const Viewport* viewPorts, int size ) = 0;
+		virtual void SetScissorRects( Viewport** viewPorts, int size ) = 0;
 		virtual void SetScissorRect( UINT minX, UINT minY, UINT maxX, UINT maxY ) = 0;
 
 		virtual void ClearDepthStencil( Texture* depthStencil, float depthColor, UINT8 stencilColor ) = 0;
 
-		virtual void BindConstantBuffer( SHADER_TYPE type, UINT startSlot, UINT numBuffers, Buffer** pConstantBuffers ) = 0;
 		virtual void BindShader( ComputeShader* shader ) = 0;
 
 		virtual void BindConstant( VertexShader* shader, int startSlot, int numBuffers, Buffer** pBuffers ) = 0;

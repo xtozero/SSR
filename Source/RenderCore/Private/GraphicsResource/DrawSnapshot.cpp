@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "DrawSnapshot.h"
 
-#include "AgaDelegator.h"
+#include "AbstractGraphicsInterface.h"
 
 #include <optional>
 
