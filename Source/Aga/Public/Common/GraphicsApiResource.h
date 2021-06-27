@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <limits>
 #include <string>
+#include <vector>
 
 enum class SHADER_TYPE
 {
@@ -451,12 +452,18 @@ struct TEXTURE_TRAIT
 	UINT m_miscFlag;
 };
 
+struct RESOURCE_SECTION_DATA
+{
+	std::size_t m_offset;
+	UINT m_pitch;
+	UINT m_slicePitch;
+};
+
 struct RESOURCE_INIT_DATA
 {
 	void* m_srcData;
 	std::size_t m_srcSize;
-	UINT m_pitch;
-	UINT m_slicePitch;
+	std::vector<RESOURCE_SECTION_DATA> m_sections;
 };
 
 struct RESOURCE_REGION

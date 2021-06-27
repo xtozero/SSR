@@ -3,8 +3,10 @@
 
 #include "ByteBuffer.h"
 #include "Components/PrimitiveComponent.h"
+#include "Components/TexturedSkyComponent.h"
 #include "MultiThread/EngineTaskScheduler.h"
 #include "Proxies/PrimitiveProxy.h"
+#include "Proxies/TexturedSkyProxy.h"
 #include "Scene/PrimitiveSceneInfo.h"
 
 #include <algorithm>
@@ -74,6 +76,37 @@ void Scene::RemovePrimitive( PrimitiveComponent* primitive )
 	}
 }
 
+void Scene::AddTexturedSkyComponent( TexturedSkyComponent* texturedSky )
+{
+	TexturedSkyProxy* proxy = texturedSky->CreateProxy( );
+	texturedSky->m_sceneProxy = proxy;
+
+	if ( proxy )
+	{
+		EnqueueRenderTask( [this, proxy]
+		{
+			proxy->CreateRenderData( );
+
+			AddTexturedSky( proxy );
+		} );
+	}
+}
+
+void Scene::RemoveTexturedSkyComponent( TexturedSkyComponent* texturedSky )
+{
+	TexturedSkyProxy* proxy = texturedSky->m_sceneProxy;
+
+	if ( proxy )
+	{
+		texturedSky->m_sceneProxy = nullptr;
+
+		EnqueueRenderTask( [this, proxy]( )
+		{
+			RemoveTexturedSky( proxy );
+		} );
+	}
+}
+
 void Scene::DrawScene( const RenderViewGroup& views )
 {
 }
@@ -108,6 +141,17 @@ void Scene::RemovePrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo )
 
 	delete primitiveSceneInfo->m_sceneProxy;
 	delete primitiveSceneInfo;
+}
+
+void Scene::AddTexturedSky( TexturedSkyProxy* texturedSky )
+{
+	m_texturedSky = texturedSky;
+}
+
+void Scene::RemoveTexturedSky( TexturedSkyProxy* texturedSky )
+{
+	delete m_texturedSky;
+	m_texturedSky = nullptr;
 }
 
 bool UpdateGPUPrimitiveInfos( Scene& scene )

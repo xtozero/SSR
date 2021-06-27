@@ -50,6 +50,12 @@ namespace
 		initializer.m_size = image.GetPixelsSize( );
 		initializer.m_memory = image.GetPixels( );
 
+		for ( std::size_t i = 0; i < image.GetImageCount( ); ++i )
+		{
+			auto subresources = image.GetImages( );
+			initializer.m_sections.emplace_back( subresources[i].rowPitch, subresources[i].slicePitch, subresources[i].pixels - initializer.m_memory );
+		}
+
 		return initializer;
 	}
 }

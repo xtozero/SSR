@@ -4,6 +4,7 @@
 #include "D3D11Api.h"
 
 #include <d3d11.h>
+#include <vector>
 
 namespace aga
 {
@@ -22,9 +23,16 @@ namespace aga
 				m_dataStorage = new unsigned char[initData->m_srcSize];
 				std::memcpy( m_dataStorage, initData->m_srcData, initData->m_srcSize );
 
-				m_initData.pSysMem = m_dataStorage;
-				m_initData.SysMemPitch = initData->m_pitch;
-				m_initData.SysMemSlicePitch = initData->m_slicePitch;
+				m_initData.resize( initData->m_sections.size( ) );
+
+				for ( std::size_t i = 0; i < initData->m_sections.size( ); ++i )
+				{
+					const RESOURCE_SECTION_DATA& section = initData->m_sections[i];
+
+					m_initData[i].pSysMem = static_cast<unsigned char*>( m_dataStorage ) + section.m_offset;
+					m_initData[i].SysMemPitch = section.m_pitch;
+					m_initData[i].SysMemSlicePitch = section.m_slicePitch;
+				}
 			}
 		}
 		D3D11BaseTexture( ) = default;
@@ -52,9 +60,9 @@ namespace aga
 		virtual void CreateTexture( ) = 0;
 
 		TEXTURE_TRAIT m_trait = {};
-		D3D11_SUBRESOURCE_DATA m_initData = {};
-	private:
+
 		void* m_dataStorage = nullptr;
+		std::vector<D3D11_SUBRESOURCE_DATA> m_initData = {};
 	};
 
 	template <typename T>

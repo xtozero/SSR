@@ -1,11 +1,18 @@
 #include "stdafx.h"
 #include "GameObject/SkyBox.h"
 
+#include "AssetLoader/AssetLoader.h"
+#include "Components/TexturedSkyComponent.h"
 #include "Core/GameLogic.h"
 #include "GameObject/GameObject.h"
 #include "GameObject/GameObjectFactory.h"
+#include "Json/json.hpp"
+#include "Mesh/MeshDescription.h"
+#include "Mesh/StaticMesh.h"
 //#include "Model/IModelBuilder.h"
 //#include "Render/IRenderer.h"
+
+#include <numeric>
 
 DECLARE_GAME_OBJECT( skybox, CSkyBox );
 
@@ -25,44 +32,73 @@ void CSkyBox::Think( float /*elapsedTime*/ )
 	//}
 }
 
-//bool CSkyBox::LoadModelMesh( CGameLogic& gameLogic )
-//{
-	//if ( GetModel( ) != nullptr )
-	//{
-	//	return false;
-	//}
+void CSkyBox::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
+{
+	CGameObject::LoadProperty( gameLogic, json );
 
-	//IModelBuilder& meshBuilder = gameLogic.GetModelManager( ).GetModelBuilder( );
-	//meshBuilder.Clear( );
+	if ( const JSON::Value* pTexture = json.Find( "Material" ) )
+	{
+		const std::string& assetPath = pTexture->AsString( );
 
-	//meshBuilder.Append( MeshVertex( CXMFLOAT3( -SKYBOX_LENGTH, -SKYBOX_LENGTH, -SKYBOX_LENGTH ) ) );
-	//meshBuilder.Append( MeshVertex( CXMFLOAT3( -SKYBOX_LENGTH, -SKYBOX_LENGTH, SKYBOX_LENGTH ) ) );
-	//meshBuilder.Append( MeshVertex( CXMFLOAT3( -SKYBOX_LENGTH, SKYBOX_LENGTH, -SKYBOX_LENGTH ) ) );
-	//meshBuilder.Append( MeshVertex( CXMFLOAT3( -SKYBOX_LENGTH, SKYBOX_LENGTH, SKYBOX_LENGTH ) ) );
-	//meshBuilder.Append( MeshVertex( CXMFLOAT3( SKYBOX_LENGTH, -SKYBOX_LENGTH, -SKYBOX_LENGTH ) ) );
-	//meshBuilder.Append( MeshVertex( CXMFLOAT3( SKYBOX_LENGTH, -SKYBOX_LENGTH, SKYBOX_LENGTH ) ) );
-	//meshBuilder.Append( MeshVertex( CXMFLOAT3( SKYBOX_LENGTH, SKYBOX_LENGTH, -SKYBOX_LENGTH ) ) );
-	//meshBuilder.Append( MeshVertex( CXMFLOAT3( SKYBOX_LENGTH, SKYBOX_LENGTH, SKYBOX_LENGTH ) ) );
+		IAssetLoader::LoadCompletionCallback onLoadComplete;
+		onLoadComplete.BindMemberFunction( this, &CSkyBox::OnMaterialLoadFinished );
 
-	////반 시계 방향으로 인덱스를 구성.
-	//meshBuilder.AppendIndex( 4 ); meshBuilder.AppendIndex( 6 ); meshBuilder.AppendIndex( 0 );
-	//meshBuilder.AppendIndex( 6 ); meshBuilder.AppendIndex( 2 ); meshBuilder.AppendIndex( 0 );
-	//meshBuilder.AppendIndex( 2 ); meshBuilder.AppendIndex( 3 ); meshBuilder.AppendIndex( 0 );
-	//meshBuilder.AppendIndex( 3 ); meshBuilder.AppendIndex( 1 ); meshBuilder.AppendIndex( 0 );
-	//meshBuilder.AppendIndex( 6 ); meshBuilder.AppendIndex( 7 ); meshBuilder.AppendIndex( 2 );
-	//meshBuilder.AppendIndex( 7 ); meshBuilder.AppendIndex( 3 ); meshBuilder.AppendIndex( 2 );
-	//meshBuilder.AppendIndex( 7 ); meshBuilder.AppendIndex( 6 ); meshBuilder.AppendIndex( 4 );
-	//meshBuilder.AppendIndex( 5 ); meshBuilder.AppendIndex( 7 ); meshBuilder.AppendIndex( 4 );
-	//meshBuilder.AppendIndex( 5 ); meshBuilder.AppendIndex( 4 ); meshBuilder.AppendIndex( 0 );
-	//meshBuilder.AppendIndex( 1 ); meshBuilder.AppendIndex( 5 ); meshBuilder.AppendIndex( 0 );
-	//meshBuilder.AppendIndex( 7 ); meshBuilder.AppendIndex( 5 ); meshBuilder.AppendIndex( 1 );
-	//meshBuilder.AppendIndex( 3 ); meshBuilder.AppendIndex( 7 ); meshBuilder.AppendIndex( 1 );
+		AssetLoaderSharedHandle handle = GetInterface<IAssetLoader>( )->RequestAsyncLoad( assetPath, onLoadComplete );
 
-	//meshBuilder.AppendTextureName( "SkyboxSet/TropicalSunnyDay/TropicalSunnyDay.dds" );
-	//
-	//SetModelMeshName( GetName( ) );
-	//SetModel( meshBuilder.Build( gameLogic.GetRenderer(), GetMeshName() ) );
+		assert( handle->IsLoadingInProgress( ) || handle->IsLoadComplete( ) );
+	}
+}
 
-	//return GetModel() ? true : false;
-	//return true;
-//}
+CSkyBox::CSkyBox( )
+{
+	m_pTexturedSkyComponent = CreateComponent<TexturedSkyComponent>( *this );
+	auto pStaticMesh = std::make_shared<StaticMesh>( );
+
+	std::vector<MeshDescription> descs( 1 );
+	MeshDescription& boxDesc = descs[0];
+
+	boxDesc.m_positions.resize( 8 );
+	boxDesc.m_positions[0] = CXMFLOAT3( -SKYBOX_LENGTH, -SKYBOX_LENGTH, -SKYBOX_LENGTH );
+	boxDesc.m_positions[1] = CXMFLOAT3( -SKYBOX_LENGTH, -SKYBOX_LENGTH, SKYBOX_LENGTH );
+	boxDesc.m_positions[2] = CXMFLOAT3( -SKYBOX_LENGTH, SKYBOX_LENGTH, -SKYBOX_LENGTH );
+	boxDesc.m_positions[3] = CXMFLOAT3( -SKYBOX_LENGTH, SKYBOX_LENGTH, SKYBOX_LENGTH );
+	boxDesc.m_positions[4] = CXMFLOAT3( SKYBOX_LENGTH, -SKYBOX_LENGTH, -SKYBOX_LENGTH );
+	boxDesc.m_positions[5] = CXMFLOAT3( SKYBOX_LENGTH, -SKYBOX_LENGTH, SKYBOX_LENGTH );
+	boxDesc.m_positions[6] = CXMFLOAT3( SKYBOX_LENGTH, SKYBOX_LENGTH, -SKYBOX_LENGTH );
+	boxDesc.m_positions[7] = CXMFLOAT3( SKYBOX_LENGTH, SKYBOX_LENGTH, SKYBOX_LENGTH );
+
+	for ( int i = 0; i < static_cast<int>( boxDesc.m_positions.size( ) ); ++i )
+	{
+		boxDesc.m_vertexInstances.emplace_back( i, -1, -1 );
+	}
+
+	boxDesc.m_triangles.resize( 12 );
+	boxDesc.m_triangles[0].m_vertexInstanceID[0] = 4; boxDesc.m_triangles[0].m_vertexInstanceID[1] = 6; boxDesc.m_triangles[0].m_vertexInstanceID[2] = 0;
+	boxDesc.m_triangles[1].m_vertexInstanceID[0] = 6; boxDesc.m_triangles[1].m_vertexInstanceID[1] = 2; boxDesc.m_triangles[1].m_vertexInstanceID[2] = 0;
+	boxDesc.m_triangles[2].m_vertexInstanceID[0] = 2; boxDesc.m_triangles[2].m_vertexInstanceID[1] = 3; boxDesc.m_triangles[2].m_vertexInstanceID[2] = 0;
+	boxDesc.m_triangles[3].m_vertexInstanceID[0] = 3; boxDesc.m_triangles[3].m_vertexInstanceID[1] = 1; boxDesc.m_triangles[3].m_vertexInstanceID[2] = 0;
+	boxDesc.m_triangles[4].m_vertexInstanceID[0] = 6; boxDesc.m_triangles[4].m_vertexInstanceID[1] = 7; boxDesc.m_triangles[4].m_vertexInstanceID[2] = 2;
+	boxDesc.m_triangles[5].m_vertexInstanceID[0] = 7; boxDesc.m_triangles[5].m_vertexInstanceID[1] = 3; boxDesc.m_triangles[5].m_vertexInstanceID[2] = 2;
+	boxDesc.m_triangles[6].m_vertexInstanceID[0] = 7; boxDesc.m_triangles[6].m_vertexInstanceID[1] = 6; boxDesc.m_triangles[6].m_vertexInstanceID[2] = 4;
+	boxDesc.m_triangles[7].m_vertexInstanceID[0] = 5; boxDesc.m_triangles[7].m_vertexInstanceID[1] = 7; boxDesc.m_triangles[7].m_vertexInstanceID[2] = 4;
+	boxDesc.m_triangles[8].m_vertexInstanceID[0] = 5; boxDesc.m_triangles[8].m_vertexInstanceID[1] = 4; boxDesc.m_triangles[8].m_vertexInstanceID[2] = 0;
+	boxDesc.m_triangles[9].m_vertexInstanceID[0] = 1; boxDesc.m_triangles[9].m_vertexInstanceID[1] = 5; boxDesc.m_triangles[9].m_vertexInstanceID[2] = 0;
+	boxDesc.m_triangles[10].m_vertexInstanceID[0] = 7; boxDesc.m_triangles[10].m_vertexInstanceID[1] = 5; boxDesc.m_triangles[10].m_vertexInstanceID[2] = 1;
+	boxDesc.m_triangles[11].m_vertexInstanceID[0] = 3; boxDesc.m_triangles[11].m_vertexInstanceID[1] = 7; boxDesc.m_triangles[11].m_vertexInstanceID[2] = 1;
+
+	boxDesc.m_polygons.resize( 1 );
+	auto& triangleID = boxDesc.m_polygons[0].m_triangleID;
+	triangleID.resize( 12 );
+	std::iota( std::begin( triangleID ), std::end( triangleID ), 0 );
+
+	boxDesc.m_polygonMaterialName.resize( 1 );
+
+	pStaticMesh->BuildMeshFromMeshDescriptions( descs );
+	pStaticMesh->PostLoad( );
+	m_pTexturedSkyComponent->SetStaticMesh( pStaticMesh );
+}
+
+void CSkyBox::OnMaterialLoadFinished( const std::shared_ptr<void>& material )
+{
+	m_pTexturedSkyComponent->SetMaterial( std::static_pointer_cast<Material>( material ) );
+}

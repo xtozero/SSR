@@ -1,5 +1,5 @@
-SamplerState baseSampler : register( s0 );
-TextureCube baseTexture : register( t0 );
+SamplerState SkyTextureSampler : register( s0 );
+TextureCube SkyTexture : register( t0 );
 
 struct PS_INPUT
 {
@@ -9,5 +9,5 @@ struct PS_INPUT
 
 float4 main( PS_INPUT input ) : SV_Target
 {
-	return baseTexture.Sample( baseSampler, normalize( input.ori_position ) );
+	return SkyTexture.Sample( SkyTextureSampler, normalize( input.ori_position ) );
 }

@@ -1,0 +1,13 @@
+{
+	"Type": "Material",
+	"Shader": {
+		"VS": "./Assets/Shaders/VS_Skybox.asset",
+		"PS": "./Assets/Shaders/PS_Skybox.asset"
+	},
+	"Surface": {
+		"SkyTexture": "./Assets/Textures/SkyboxSet/TropicalSunnyDay/TropicalSunnyDay.asset"
+	},
+	"Sampler": {
+		"SkyTextureSampler": "./Assets/RenderOptions/SO_Default.asset"
+	}
+}

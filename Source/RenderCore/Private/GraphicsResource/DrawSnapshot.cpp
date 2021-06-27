@@ -83,14 +83,13 @@ void PreparePipelineStateObject( std::vector<DrawSnapshot>& snapshots )
 			pipelineState.m_depthStencilState.Resource( ),
 			shaderState.m_vertexLayout.Resource( ),
 			pipelineState.m_primitive,
-
 		};
 
 		pipelineState.m_pso = aga::PipelineState::Create( initializer );
 	}
 }
 
-void SortDrawSnapshot( std::vector<DrawSnapshot>& snapshots, VertexBuffer& primitiveIds )
+void SortDrawSnapshots( std::vector<DrawSnapshot>& snapshots, VertexBuffer& primitiveIds )
 {
 	UINT* idBuffer = reinterpret_cast<UINT*>( primitiveIds.Lock( ) );
 	if ( idBuffer )
@@ -106,30 +105,35 @@ void SortDrawSnapshot( std::vector<DrawSnapshot>& snapshots, VertexBuffer& primi
 	}
 }
 
-void CommitDrawSnapshot( std::vector<DrawSnapshot>& snapshots, const VertexBuffer& primitiveIds )
+void CommitDrawSnapshots( std::vector<DrawSnapshot>& snapshots )
+{
+	for ( auto& snapshot : snapshots )
+	{
+		CommitDrawSnapshot( snapshot );
+	}
+}
+
+void CommitDrawSnapshot( DrawSnapshot& snapshot )
 {
 	auto commandList = GetInterface<aga::IAga>( )->GetImmediateCommandList( );
 
-	for ( auto& snapshot : snapshots )
-	{
-		// Set vertex buffer
-		int numVB = snapshot.m_vertexStream.NumBuffer( );
-		aga::Buffer* const* vertexBuffers = snapshot.m_vertexStream.VertexBuffers( );
-		const UINT* vertexOffsets = snapshot.m_vertexStream.Offsets( );
-		commandList->BindVertexBuffer( vertexBuffers, 0, numVB, vertexOffsets );
+	// Set vertex buffer
+	int numVB = snapshot.m_vertexStream.NumBuffer( );
+	aga::Buffer* const* vertexBuffers = snapshot.m_vertexStream.VertexBuffers( );
+	const UINT* vertexOffsets = snapshot.m_vertexStream.Offsets( );
+	commandList->BindVertexBuffer( vertexBuffers, 0, numVB, vertexOffsets );
 
-		// Set index buffer
-		aga::Buffer* indexBuffer = snapshot.m_indexBuffer.Resource( );
-		UINT indexOffset = 0;
+	// Set index buffer
+	aga::Buffer* indexBuffer = snapshot.m_indexBuffer.Resource( );
+	UINT indexOffset = 0;
 
-		commandList->BindIndexBuffer( indexBuffer, indexOffset );
+	commandList->BindIndexBuffer( indexBuffer, indexOffset );
 
-		// Set pipeline state
-		commandList->BindPipelineState( snapshot.m_pipelineState.m_pso );
+	// Set pipeline state
+	commandList->BindPipelineState( snapshot.m_pipelineState.m_pso );
 
-		// Set shader resources
-		commandList->BindShaderResources( snapshot.m_shaderBindings );
+	// Set shader resources
+	commandList->BindShaderResources( snapshot.m_shaderBindings );
 
-		commandList->Draw( snapshot.m_indexCount, snapshot.m_startIndexLocation, snapshot.m_baseVertexLocation );
-	}
+	commandList->Draw( snapshot.m_indexCount, snapshot.m_startIndexLocation, snapshot.m_baseVertexLocation );
 }

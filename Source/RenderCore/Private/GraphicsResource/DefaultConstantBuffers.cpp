@@ -1,10 +1,8 @@
 #include "stdafx.h"
 #include "DefaultConstantBuffers.h"
 
-#include "Core/InterfaceFactories.h"
-#include "IAga.h"
 #include "MultiThread/EngineTaskScheduler.h"
-#include "RenderUtility/ShaderParameterUtil.h"
+#include "Shader.h"
 
 void DefaultConstantBuffers::BootUp( )
 {

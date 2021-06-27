@@ -13,7 +13,8 @@
 		{
 			"Object": {
 				"Class": "skybox",
-				"RenderOption": "./Assets/RenderOptions/RO_SkyBox.asset"
+				"RenderOption": "./Assets/RenderOptions/RO_SkyBox.asset",
+				"Material": "./Assets/Material/M_TropicalSunnyDay.asset"
 			}
 		},
 		{

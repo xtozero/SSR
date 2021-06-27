@@ -152,8 +152,6 @@ void StaticMeshRenderData::CreateRenderResource( )
 
 void StaticMeshVertexLayout::Initialize( const StaticMeshLODResource* lodResource )
 {
-	m_vertexLayoutDesc.Initialize( 4 );
-
 	// position
 	m_vertexLayoutDesc.AddLayout( "POSITION", 0,
 									RESOURCE_FORMAT::R32G32B32_FLOAT,
@@ -174,11 +172,4 @@ void StaticMeshVertexLayout::Initialize( const StaticMeshLODResource* lodResourc
 									0,
 									false,
 									0 );
-
-	// primitive id
-	m_vertexLayoutDesc.AddLayout( "PRIMITIVEID", 0,
-									RESOURCE_FORMAT::R32_UINT,
-									1,
-									true,
-									1 );
 }

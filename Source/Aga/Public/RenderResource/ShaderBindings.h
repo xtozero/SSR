@@ -72,7 +72,7 @@ namespace aga
 
 		std::size_t GetSRVOffset( ) const
 		{
-			return m_parameterInfo.m_srvs.size( ) * sizeof( RefHandle<GraphicsApiResource> );
+			return m_parameterInfo.m_constantBuffers.size( ) * sizeof( RefHandle<GraphicsApiResource> );
 		}
 
 		std::size_t GetUAVOffset( ) const
@@ -257,10 +257,9 @@ namespace aga
 
 		SingleShaderBindings GetSingleShaderBindings( SHADER_TYPE shaderType ) const
 		{
+			std::size_t dataOffset = 0;
 			for ( auto iter = m_shaderLayouts.begin( ); iter != m_shaderLayouts.end( ); ++iter )
 			{
-				std::size_t dataOffset = 0;
-
 				if ( iter->ShaderType( ) == shaderType )
 				{
 					return SingleShaderBindings( *iter, m_data + dataOffset );

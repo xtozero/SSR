@@ -8,6 +8,7 @@ class RenderViewGroup;
 class Scene;
 class ScenePrimitiveBuffer;
 class SceneViewConstantBuffer;
+class TexturedSkyComponent;
 
 enum class SHADING_METHOD
 {
@@ -21,6 +22,9 @@ public:
 	virtual void RemovePrimitive( PrimitiveComponent* primitive ) = 0;
 	virtual std::vector<PrimitiveSceneInfo*>& Primitives( ) = 0;
 	virtual const std::vector<PrimitiveSceneInfo*>& Primitives( ) const = 0;
+
+	virtual void AddTexturedSkyComponent( TexturedSkyComponent* texturedSky ) = 0;
+	virtual void RemoveTexturedSkyComponent( TexturedSkyComponent* texturedSky ) = 0;
 
 	virtual SceneViewConstantBuffer& SceneViewConstant( ) = 0;
 	virtual const SceneViewConstantBuffer& SceneViewConstant( ) const = 0;

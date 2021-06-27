@@ -144,7 +144,7 @@ void CGameLogic::HandleUserInput( const UserInput& input )
 {
 	//if ( m_ui.HandleUserInput( input ) == false )
 	//{
-	//	m_inputBroadCaster.ProcessInput( input, *this );
+	m_inputBroadCaster.ProcessInput( input, *this );
 	//}
 }
 

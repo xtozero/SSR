@@ -80,8 +80,10 @@ set (GRAPHICS_RESOURCE_SOURCE
 set (PROXIES_SOURCE
 	Private/Proxies/PrimitiveProxy.cpp
 	Private/Proxies/StaticMeshPrimitiveProxy.cpp
+	Private/Proxies/TexturedSkyProxy.cpp
 	Public/Proxies/PrimitiveProxy.h
-	Public/Proxies/StaticMeshPrimitiveProxy.h)
+	Public/Proxies/StaticMeshPrimitiveProxy.h
+	Public/Proxies/TexturedSkyProxy.h)
 
 set (RENDER_SCENE_SOURCE
 	"Private/Scene/PrimitiveSceneInfo.cpp"

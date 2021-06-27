@@ -36,6 +36,7 @@ void ForwardRenderer::Render( RenderViewGroup& renderViewGroup )
 
 		viewConstant.Update( viewConstantParam );
 
+		RenderTexturedSky( scene );
 		RenderMesh( scene, view );
 	}
 }

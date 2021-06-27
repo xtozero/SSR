@@ -7,6 +7,17 @@
 
 #include <vector>
 
+struct TextureSection
+{
+	TextureSection( std::size_t rowPitch, std::size_t slicePitch, std::size_t offset ) : m_rowPitch( rowPitch ), m_slicePitch( slicePitch ), m_offset( offset )
+	{}
+	TextureSection( ) = default;
+
+	std::size_t m_rowPitch;
+	std::size_t m_slicePitch;
+	std::size_t m_offset;
+};
+
 class Texture : public AsyncLoadableAsset
 {
 	DECLARE_ASSET( RENDERCORE, Texture );
@@ -34,10 +45,12 @@ protected:
 	RESOURCE_FORMAT m_format = RESOURCE_FORMAT::UNKNOWN;
 
 	BinaryChunk m_memory;
+	std::vector<TextureSection> m_sections;
+
+	RefHandle<aga::Texture> m_texture;
 
 private:
 	std::filesystem::path m_path;
-	RefHandle<aga::Texture> m_texture;
 };
 
 struct DDSTextureInitializer;
@@ -76,4 +89,6 @@ struct DDSTextureInitializer
 
 	std::size_t m_size = 0;
 	const void* m_memory = nullptr;
+
+	std::vector<TextureSection> m_sections;
 };

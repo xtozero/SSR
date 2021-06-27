@@ -13,5 +13,6 @@ public:
 
 	static void WaitUntilRenderingIsFinish( );
 protected:
+	void RenderTexturedSky( IScene& scene );
 	void RenderMesh( IScene& scene, RenderView& view );
 };

@@ -1,4 +1,11 @@
-#include "vsCommon.fxh"
+#include "CommonVsConstant.fxh"
+
+struct VS_INPUT
+{
+	float3 position : POSITION;
+	float3 normal : NORMAL;
+	float2 texcoord : TEXCOORD;
+};
 
 struct VS_OUTPUT
 {
@@ -10,10 +17,8 @@ VS_OUTPUT main( VS_INPUT input )
 {
 	VS_OUTPUT output = (VS_OUTPUT)0;
 
-	matrix worldViewPorjection = mul( g_worldMatrix, g_viewMatrix );
-	worldViewPorjection = mul( worldViewPorjection, g_projectionMatrix );
-
-	output.position = mul( float4( input.position, 1.0f ), worldViewPorjection );
+	float3 projPos = mul( input.position, (float3x3)g_viewMatrix );
+	output.position = mul( float4( projPos, 1.0f ), g_projectionMatrix );
 
 	output.ori_position = input.position;
 

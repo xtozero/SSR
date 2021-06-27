@@ -73,7 +73,7 @@ void CameraComponent::Rotate( const float pitch, const float yaw, const float ro
 		{
 			XMVECTOR curRotate = GetRotate( );
 			XMVECTOR deltaRotate = XMQuaternionRotationRollPitchYaw( pitch, yaw, roll );
-			CXMFLOAT4 newRotate = XMQuaternionMultiply( curRotate, deltaRotate );
+			CXMFLOAT4 newRotate = XMQuaternionMultiply( deltaRotate, curRotate );
 			SetRotate( newRotate );
 
 			XMMATRIX rotateMat = XMMatrixRotationQuaternion( GetRotate() );

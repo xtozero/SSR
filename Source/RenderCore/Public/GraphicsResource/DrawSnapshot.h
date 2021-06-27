@@ -96,5 +96,6 @@ public:
 };
 
 void PreparePipelineStateObject( std::vector<DrawSnapshot>& snapshots );
-void SortDrawSnapshot( std::vector<DrawSnapshot>& snapshots, VertexBuffer& primitiveIds );
-void CommitDrawSnapshot( std::vector<DrawSnapshot>& snapshots, const VertexBuffer& primitiveIds );
+void SortDrawSnapshots( std::vector<DrawSnapshot>& snapshots, VertexBuffer& primitiveIds );
+void CommitDrawSnapshots( std::vector<DrawSnapshot>& snapshots );
+void CommitDrawSnapshot( DrawSnapshot& snapshot );

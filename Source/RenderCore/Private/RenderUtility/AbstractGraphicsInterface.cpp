@@ -100,6 +100,8 @@ BlendState AbstractGraphicsInterface::FindOrCreate( const BlendOption& option )
 
 		BlendState state( trait );
 		m_blendStates.emplace( option, state );
+
+		return state;
 	}
 
 	return found->second;

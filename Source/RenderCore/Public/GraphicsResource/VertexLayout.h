@@ -11,25 +11,20 @@
 class VertexLayoutDesc
 {
 public:
-	void Initialize( std::size_t descSize )
-	{
-		m_layoutData.reserve( descSize );
-	}
-
 	const VERTEX_LAYOUT_TRAIT* Data( ) const
 	{
-		return m_layoutData.data( );
+		return m_layoutData;
 	}
 
 	std::size_t Size( ) const
 	{
-		return m_layoutData.size( );
+		return m_size;
 	}
 
 	void AddLayout( const char* name, int index, RESOURCE_FORMAT format, int slot, bool isInstanceData, int instanceDataStep )
 	{
-		m_layoutData.emplace_back( );
-		VERTEX_LAYOUT_TRAIT& trait = m_layoutData.back( );
+		assert( m_size < MAX_VERTEX_LAYOUT_SIZE );
+		VERTEX_LAYOUT_TRAIT& trait = m_layoutData[m_size];
 
 		trait.m_name = name;
 		trait.m_isInstanceData = isInstanceData;
@@ -37,6 +32,8 @@ public:
 		trait.m_format = format;
 		trait.m_slot = slot;
 		trait.m_instanceDataStep = instanceDataStep;
+
+		++m_size;
 	}
 
 	friend bool operator==( const VertexLayoutDesc& lhs, const VertexLayoutDesc& rhs )
@@ -58,7 +55,10 @@ public:
 	}
 
 private: 
-	std::vector<VERTEX_LAYOUT_TRAIT> m_layoutData;
+	constexpr static int MAX_VERTEX_LAYOUT_SIZE = 17;
+
+	VERTEX_LAYOUT_TRAIT m_layoutData[MAX_VERTEX_LAYOUT_SIZE] = {};
+	std::size_t m_size = 0;
 };
 
 struct VertexLayoutDescHasher

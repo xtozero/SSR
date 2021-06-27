@@ -7,6 +7,7 @@
 #include <vector>
 
 class PrimitiveSceneInfo;
+class TexturedSkyProxy;
 
 class Scene final : public IScene
 {
@@ -23,6 +24,9 @@ public:
 	{
 		return m_primitives;
 	}
+
+	virtual void AddTexturedSkyComponent( TexturedSkyComponent* texturedSky ) override;
+	virtual void RemoveTexturedSkyComponent( TexturedSkyComponent* texturedSky ) override;
 
 	virtual SceneViewConstantBuffer& SceneViewConstant( ) override
 	{
@@ -49,9 +53,17 @@ public:
 
 	virtual Scene* GetRenderScene( ) { return this; };
 
+	TexturedSkyProxy* TexturedSky( )
+	{
+		return m_texturedSky;
+	}
+
 private:
 	void AddPrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo );
 	void RemovePrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo );
+
+	void AddTexturedSky( TexturedSkyProxy* texturedSky );
+	void RemoveTexturedSky( TexturedSkyProxy* texturedSky );
 
 	std::vector<PrimitiveSceneInfo*> m_primitives;
 	SceneViewConstantBuffer m_viewConstant;
@@ -61,6 +73,8 @@ private:
 
 	TypedUploadBuffer<CXMFLOAT4> m_uploadPrimitiveBuffer;
 	TypedUploadBuffer<UINT> m_distributionBuffer;
+
+	TexturedSkyProxy* m_texturedSky = nullptr;
 
 	friend bool UpdateGPUPrimitiveInfos( Scene& scene );
 };

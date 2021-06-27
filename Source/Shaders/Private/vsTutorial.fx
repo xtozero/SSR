@@ -1,3 +1,4 @@
+#include "CommonVsConstant.fxh"
 #include "vsCommon.fxh"
 
 struct VS_OUTPUT

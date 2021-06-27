@@ -25,7 +25,7 @@ void StaticMeshPrimitiveProxy::TakeSnapshot( std::vector<DrawSnapshot>& snapshot
 {
 	assert( IsInRenderThread( ) );
 	std::size_t lodSize = m_pRenderData->LODSize( );
-	if ( lodSize < 0 )
+	if ( lodSize == 0 )
 	{
 		return;
 	}
@@ -34,21 +34,27 @@ void StaticMeshPrimitiveProxy::TakeSnapshot( std::vector<DrawSnapshot>& snapshot
 
 	// To Do : will make lod available later
 	StaticMeshLODResource& lodResource = m_pRenderData->LODResource( 0 );
-	const StaticMeshVertexLayout& vertexLayout = m_pRenderData->VertexLayout( 0 );
+	VertexLayoutDesc vertexLayoutDesc = m_pRenderData->VertexLayout( 0 ).Desc( );
+
+	vertexLayoutDesc.AddLayout( "PRIMITIVEID", 0,
+								RESOURCE_FORMAT::R32_UINT,
+								1,
+								true,
+								1 );
 
 	for ( const auto& section : lodResource.m_sections )
 	{
-		DrawSnapshot& snapShot = snapshots.emplace_back( );
-		snapShot.m_primitiveId = GetId( );
-		snapShot.m_vertexStream.Bind( lodResource.m_vb, 0 );
-		snapShot.m_indexBuffer = lodResource.m_ib;
+		DrawSnapshot& snapshot = snapshots.emplace_back( );
+		snapshot.m_primitiveId = GetId( );
+		snapshot.m_vertexStream.Bind( lodResource.m_vb, 0 );
+		snapshot.m_indexBuffer = lodResource.m_ib;
 
-		GraphicsPipelineState& pipelineState = snapShot.m_pipelineState;
+		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 		auto materialResource = m_pStaticMesh->GetMaterialResource( section.m_materialIndex );
 		if ( materialResource )
 		{
-			materialResource->TakeSnapShot( snapShot );
-			pipelineState.m_shaderState.m_vertexLayout = graphicsInterface.FindOrCreate( pipelineState.m_shaderState.m_vertexShader, vertexLayout.Desc( ) );
+			materialResource->TakeSnapShot( snapshot );
+			pipelineState.m_shaderState.m_vertexLayout = graphicsInterface.FindOrCreate( pipelineState.m_shaderState.m_vertexShader, vertexLayoutDesc );
 		}
 
 		if ( m_pRenderOption->m_blendOption )
@@ -68,8 +74,8 @@ void StaticMeshPrimitiveProxy::TakeSnapshot( std::vector<DrawSnapshot>& snapshot
 		
 		pipelineState.m_primitive = RESOURCE_PRIMITIVE::TRIANGLELIST;
 
-		snapShot.m_indexCount = section.m_count;
-		snapShot.m_startIndexLocation = section.m_startLocation;
-		snapShot.m_baseVertexLocation = 0;
+		snapshot.m_indexCount = section.m_count;
+		snapshot.m_startIndexLocation = section.m_startLocation;
+		snapshot.m_baseVertexLocation = 0;
 	}
 }
