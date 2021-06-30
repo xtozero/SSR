@@ -18,7 +18,7 @@ public:
 	void UpdateState( );
 	void MarkRenderStateDirty( );
 
-	Component( CGameObject* pOwner );
+	explicit Component( CGameObject* pOwner );
 	virtual ~Component( ) = default;
 
 protected:

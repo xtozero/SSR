@@ -2,6 +2,7 @@
 #include "GameObject/GameObject.h"
 
 #include "Components/Component.h"
+#include "Components/InputComponent.h"
 #include "Components/PrimitiveComponent.h"
 #include "Components/SceneComponent.h"
 #include "Core/GameLogic.h"
@@ -32,10 +33,10 @@ void CGameObject::OnDeviceRestore( CGameLogic& gameLogic )
 	//m_overrideMaterial = INVALID_MATERIAL;
 
 	//LoadModelMesh( gameLogic );
-	LoadMaterial( gameLogic );
+	//LoadMaterial( gameLogic );
 }
 
-bool CGameObject::Initialize( CGameLogic& gameLogic, World& world )
+void CGameObject::Initialize( CGameLogic& gameLogic, World& world )
 {
 	m_pWorld = &world;
 
@@ -44,10 +45,10 @@ bool CGameObject::Initialize( CGameLogic& gameLogic, World& world )
 		component->RegisterComponent( );
 	}
 
-	if ( LoadMaterial( gameLogic ) == false )
-	{
-		__debugbreak( );
-	}
+	//if ( LoadMaterial( gameLogic ) == false )
+	//{
+	//	__debugbreak( );
+	//}
 
 	//CalcOriginalCollider( );
 
@@ -84,8 +85,6 @@ bool CGameObject::Initialize( CGameLogic& gameLogic, World& world )
 	//}
 
 	// SetID( id );
-
-	return true;
 }
 
 void CGameObject::SetPosition( const float x, const float y, const float z )
@@ -385,6 +384,25 @@ void CGameObject::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 	}
 }
 
+void CGameObject::SetInputController( InputController* inputController )
+{
+	m_inputController = inputController;
+}
+
+InputComponent* CGameObject::GetInputComponent( )
+{
+	return m_inputComponent;
+}
+
+void CGameObject::InitializeInputComponent( )
+{
+	if ( m_inputComponent == nullptr )
+	{
+		m_inputComponent = CreateComponent<InputComponent>( *this );
+		SetupInputComponent( );
+	}
+}
+
 CGameObject::CGameObject( )
 {
 	for ( std::size_t i = 0; i < COLLIDER::COUNT; ++i )
@@ -396,6 +414,11 @@ CGameObject::CGameObject( )
 
 CGameObject::~CGameObject( )
 {
+	if ( m_inputController )
+	{
+		m_inputController->Abandon( );
+	}
+
 	for ( Component* component : m_components )
 	{
 		component->UnregisterComponent( );
@@ -403,8 +426,8 @@ CGameObject::~CGameObject( )
 	}
 }
 
-bool CGameObject::LoadMaterial( CGameLogic& gameLogic )
-{
+//bool CGameObject::LoadMaterial( CGameLogic& gameLogic )
+//{
 	//if ( m_pModel )
 	//{
 	//	IRenderer& renderer = gameLogic.GetRenderer( );
@@ -421,8 +444,8 @@ bool CGameObject::LoadMaterial( CGameLogic& gameLogic )
 
 	//return ( m_material != INVALID_MATERIAL ) ? true : false;
 
-	return true;
-}
+//	return true;
+//}
 
 void CGameObject::CalcOriginalCollider( )
 {
@@ -435,6 +458,10 @@ void CGameObject::CalcOriginalCollider( )
 	//{
 	//	m_originalColliders[i] = GetColliderManager( ).GetCollider( *m_pModel, static_cast<COLLIDER::TYPE>( i ) );
 	//}
+}
+
+void CGameObject::SetupInputComponent( )
+{
 }
 
 void CGameObject::UpdateCollider( COLLIDER::TYPE type )

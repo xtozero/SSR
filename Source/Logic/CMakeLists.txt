@@ -6,12 +6,14 @@ add_definitions(-DNOMINMAX=1)
 set (COMPOENETS
 	Private/Components/CameraComponent.cpp
 	Private/Components/Component.cpp
+	Private/Components/InputComponent.cpp
 	Private/Components/PrimitiveComponent.cpp
 	Private/Components/SceneComponent.cpp
 	Private/Components/StaticMeshComponent.cpp
 	Private/Components/TexturedSkyComponent.cpp
 	Public/Components/CameraComponent.h
 	Public/Components/Component.h
+	Public/Components/InputComponent.h
 	Public/Components/PrimitiveComponent.h
 	Public/Components/SceneComponent.h
 	Public/Components/StaticMeshComponent.h
@@ -148,8 +150,8 @@ set (UNIT_TEST
 	"Public/Scene/ComputeShaderUnitTest.h")
 	
 set (USER_INPUT
-	"Private/UserInput/MouseController.cpp"
-	"Public/UserInput/MouseController.h")
+	Private/UserInput/Controller.cpp
+	Public/UserInput/Controller.h)
 	
 set (WORLD
 	"Private/World/World.cpp"

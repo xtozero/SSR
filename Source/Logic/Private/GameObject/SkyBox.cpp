@@ -4,13 +4,10 @@
 #include "AssetLoader/AssetLoader.h"
 #include "Components/TexturedSkyComponent.h"
 #include "Core/GameLogic.h"
-#include "GameObject/GameObject.h"
 #include "GameObject/GameObjectFactory.h"
 #include "Json/json.hpp"
 #include "Mesh/MeshDescription.h"
 #include "Mesh/StaticMesh.h"
-//#include "Model/IModelBuilder.h"
-//#include "Render/IRenderer.h"
 
 #include <numeric>
 
@@ -19,17 +16,6 @@ DECLARE_GAME_OBJECT( skybox, CSkyBox );
 namespace
 {
 	constexpr float SKYBOX_LENGTH = 10.f;
-}
-
-void CSkyBox::Think( float /*elapsedTime*/ )
-{
-	// To Do
-	//CameraComponent* pCurCamera = CCameraManager::GetInstance( ).GetCurrentCamera( );
-
-	//if ( pCurCamera )
-	//{
-	//	SetPosition( pCurCamera->GetOrigin( ) );
-	//}
 }
 
 void CSkyBox::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )

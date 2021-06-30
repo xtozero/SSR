@@ -25,6 +25,8 @@ class CGameLogic;
 class CGameObject;
 class Component;
 class ICollider;
+class InputComponent;
+class InputController;
 class RenderOption;
 class SceneComponent;
 class World;
@@ -55,7 +57,7 @@ class CGameObject : IGraphicsDeviceNotify
 {
 public:
 	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
-	virtual bool Initialize( CGameLogic& gameLogic, World& world );
+	virtual void Initialize( CGameLogic& gameLogic, World& world );
 	void SetPosition( const float x, const float y, const float z );
 	void SetPosition( const CXMFLOAT3& pos );
 	void SetScale( const float xScale, const float yScale, const float zScale );
@@ -114,14 +116,20 @@ public:
 
 	SceneComponent* GetRootComponent( ) const { return m_rootComponent; }
 
+	void SetInputController( InputController* inputController );
+
+	InputComponent* GetInputComponent( );
+	void InitializeInputComponent( );
+
 	World* GetWorld( ) const { return m_pWorld; }
 
 	CGameObject( );
 	~CGameObject( );
 
 protected:
-	virtual bool LoadMaterial( CGameLogic& gameLogic );
+	//virtual bool LoadMaterial( CGameLogic& gameLogic );
 	virtual void CalcOriginalCollider( );
+	virtual void SetupInputComponent( );
 
 	template <typename T>
 	T* CreateComponent( CGameObject& gameObject )
@@ -174,6 +182,9 @@ private:
 
 protected:
 	SceneComponent* m_rootComponent = nullptr;
+
+	InputComponent* m_inputComponent = nullptr;
+	InputController* m_inputController = nullptr;
 
 	friend Component;
 };

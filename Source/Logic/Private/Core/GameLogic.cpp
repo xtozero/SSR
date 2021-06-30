@@ -58,6 +58,8 @@ bool CGameLogic::BootUp( IPlatform& platform )
 		return false;
 	}
 
+	m_inputController = std::make_unique<PlayerController>( );
+
 	//m_view.CreatePerspectiveFovLHMatrix( XMConvertToRadians( 60 ),
 	//	static_cast<float>( m_appSize.first ) / m_appSize.second,
 	//	1.f,
@@ -142,9 +144,14 @@ void CGameLogic::Resume( )
 
 void CGameLogic::HandleUserInput( const UserInput& input )
 {
+	if ( m_inputController == nullptr )
+	{
+		return;
+	}
+
 	//if ( m_ui.HandleUserInput( input ) == false )
 	//{
-	m_inputBroadCaster.ProcessInput( input, *this );
+	m_inputController->ProcessInput( input );
 	//}
 }
 
@@ -196,6 +203,11 @@ void CGameLogic::AppSizeChanged( IPlatform& platform )
 void CGameLogic::SpawnObject( Owner<CGameObject*> object )
 {
 	m_world.SpawnObject( *this, object );
+}
+
+InputController* CGameLogic::GetInputController( )
+{
+	return m_inputController.get( );
 }
 
 void CGameLogic::Shutdown( )

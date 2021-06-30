@@ -19,7 +19,7 @@
 #include "Scene/SSRManager.h"
 #include "Timer.h"
 #include "UI/ImUI.h"
-#include "UserInput/MouseController.h"
+#include "UserInput/Controller.h"
 #include "World/World.h"
 
 #include <list>
@@ -60,6 +60,8 @@ public:
 	const std::pair<UINT, UINT>& GetAPPSize( ) { return m_appSize; }
 	const CTimer& GetTimer( ) const { return m_clock; }
 
+	InputController* GetInputController( );
+
 private:
 	void Shutdown( );
 
@@ -97,7 +99,7 @@ private:
 	std::pair<UINT, UINT> m_appSize;
 
 	CTimer m_clock;
-	CUserInputBroadCaster m_inputBroadCaster;
+	std::unique_ptr<InputController> m_inputController;
 	//CPickingManager m_pickingManager;
 	CLightManager m_lightManager;
 	//CShadowManager m_shadowManager;

@@ -11,44 +11,6 @@
 
 using namespace DirectX;
 
-void CameraComponent::ProcessInput( const UserInput& input, CGameLogic& /*gameLogic*/ )
-{
-	switch ( input.m_code )
-	{
-	case UIC_MOUSE_MOVE:
-		OnMouseMove( input );
-		break;
-	case UIC_MOUSE_LEFT:
-		OnMouseLButton( input );
-		break;
-	case UIC_MOUSE_RIGHT:
-		OnMouseRButton( input );
-		break;
-	case UIC_MOUSE_WHEELSPIN:
-		OnWheelMove( input );
-		break;
-	case UIC_RIGHT:
-	case UIC_LEFT:
-	case UIC_UP:
-	case UIC_DOWN:
-		HandleKeyEvent( input );
-		break;
-	default:
-		break;
-	}
-}
-
-void CameraComponent::Think( float elapsedTime )
-{
-	CXMFLOAT3 force( static_cast<float>( m_inputDirection[2] - m_inputDirection[0] ),
-					0.f,
-					static_cast<float>( m_inputDirection[1] - m_inputDirection[3] ) );
-
-	force *= m_kineticForceScale;
-	m_movement.Update( force, elapsedTime );
-	Move( m_movement.GetDelta( elapsedTime ) );
-}
-
 void CameraComponent::Move( const float right, const float up, const float look )
 {
 	if ( right != 0.f || up != 0.f || look != 0.f )
@@ -121,85 +83,12 @@ void CameraComponent::LoadProperty( CGameLogic& gameLogic, const JSON::Value& js
 			SetPosition( origin );
 		}
 	}
-
-	if ( const JSON::Value* pMaxForce = json.Find( "Max_Force" ) )
-	{
-		m_movement.SetMaxForceMagnitude( static_cast<float>( pMaxForce->AsReal( ) ) );
-	}
-
-	if ( const JSON::Value* pFriction = json.Find( "Friction" ) )
-	{
-		const JSON::Value& friction = *pFriction;
-
-		if ( friction.Size( ) == 2 )
-		{
-			m_movement.SetFriction( CXMFLOAT2( static_cast<float>( friction[0].AsReal( ) ), static_cast<float>( friction[1].AsReal( ) ) ) );
-		}
-	}
-
-	if ( const JSON::Value* pForceScale = json.Find( "Kinetic_Force_Scale" ) )
-	{
-		m_kineticForceScale = static_cast<float>( pForceScale->AsReal( ) );
-	}
 }
 
 CameraComponent::CameraComponent( CGameObject* pOwner ) : SceneComponent( pOwner )
 {
 	m_viewMatrix = XMMatrixIdentity( );
 	m_invViewMatrix = XMMatrixIdentity( );
-}
-
-void CameraComponent::OnMouseLButton( const UserInput& input )
-{
-	m_mouseRotateEnable = input.m_axis[UserInput::Z_AXIS] < 0;
-}
-
-void CameraComponent::OnMouseRButton( const UserInput& input )
-{
-	m_mouseTranslateEnable = input.m_axis[UserInput::Z_AXIS] < 0;
-}
-
-void CameraComponent::OnMouseMove( const UserInput& input )
-{
-	float dx = input.m_axis[UserInput::X_AXIS];
-	float dy = input.m_axis[UserInput::Y_AXIS];
-
-	dx *= m_mouseSensitivity;
-	dy *= m_mouseSensitivity;
-
-	if ( m_mouseRotateEnable )
-	{
-		Rotate( dy, dx, 0 );
-	}
-	else if ( m_mouseTranslateEnable )
-	{
-		Move( dx, dy, 0 );
-	}
-}
-
-void CameraComponent::OnWheelMove( const UserInput& input )
-{
-	Move( 0, 0, static_cast<float>( input.m_axis[UserInput::Z_AXIS] ) );
-}
-
-void CameraComponent::HandleKeyEvent( const UserInput& input )
-{
-	if ( input.m_code == USER_INPUT_CODE::UIC_LEFT )
-	{
-		m_inputDirection[0] = ( input.m_axis[UserInput::Z_AXIS] < 0 );
-	}
-	else if ( input.m_code == USER_INPUT_CODE::UIC_UP )
-	{
-		m_inputDirection[1] = ( input.m_axis[UserInput::Z_AXIS] < 0 );
-	}
-	else if ( input.m_code == USER_INPUT_CODE::UIC_RIGHT )
-	{
-		m_inputDirection[2] = ( input.m_axis[UserInput::Z_AXIS] < 0 );
-	}
-	else if ( input.m_code == USER_INPUT_CODE::UIC_DOWN )
-	{
-		m_inputDirection[3] = ( input.m_axis[UserInput::Z_AXIS] < 0 );
-	}
 }
 
 void CameraComponent::ReCalcViewMatrix( ) const
