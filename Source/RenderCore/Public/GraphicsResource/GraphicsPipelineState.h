@@ -92,26 +92,26 @@ private:
 struct ShaderStates
 {
 	VertexLayout m_vertexLayout;
-	VertexShader m_vertexShader;
+	VertexShader* m_vertexShader = nullptr;
 	// Reserved
 	// HullShadaer m_hullShader;
 	// DomainShader m_domainShader;
 	// GeometryShader m_geometryShader;
-	PixelShader m_pixelShader;
+	PixelShader* m_pixelShader = nullptr;
 };
 
 inline aga::ShaderBindingsInitializer CreateShaderBindingsInitializer( const ShaderStates& state )
 {
 	aga::ShaderBindingsInitializer initializer;
 	
-	if ( state.m_vertexShader.IsValid( ) )
+	if ( state.m_vertexShader && state.m_vertexShader->IsValid( ) )
 	{
-		initializer[SHADER_TYPE::VS] = &state.m_vertexShader.ParameterInfo( );
+		initializer[SHADER_TYPE::VS] = &state.m_vertexShader->ParameterInfo( );
 	}
 
-	if ( state.m_pixelShader.IsValid( ) )
+	if ( state.m_pixelShader && state.m_pixelShader->IsValid( ) )
 	{
-		initializer[SHADER_TYPE::PS] = &state.m_pixelShader.ParameterInfo( );
+		initializer[SHADER_TYPE::PS] = &state.m_pixelShader->ParameterInfo( );
 	}
 
 	return initializer;

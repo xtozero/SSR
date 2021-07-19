@@ -1,7 +1,9 @@
 #pragma once
 
+#include "DrawSnapshot.h"
 #include "IScene.h"
 #include "SceneConstantBuffers.h"
+#include "SparseArray.h"
 #include "UploadBuffer.h"
 
 #include <vector>
@@ -47,12 +49,14 @@ public:
 		return m_gpuPrimitiveInfos;
 	}
 
-	virtual void DrawScene( const RenderViewGroup& views ) override;
-
 	virtual SHADING_METHOD ShadingMethod( ) const override;
 
 	virtual Scene* GetRenderScene( ) { return this; };
 
+	[[nodiscard]] std::size_t AddCachedDrawSnapshot( const DrawSnapshot& snapshot );
+	void RemoveCachedDrawSnapshot( std::size_t index );
+	SparseArray<DrawSnapshot>& CachedSnapshots( ) { return m_cachedSnapshots; }
+	 
 	TexturedSkyProxy* TexturedSky( )
 	{
 		return m_texturedSky;
@@ -66,6 +70,7 @@ private:
 	void RemoveTexturedSky( TexturedSkyProxy* texturedSky );
 
 	std::vector<PrimitiveSceneInfo*> m_primitives;
+	SparseArray<DrawSnapshot> m_cachedSnapshots;
 	SceneViewConstantBuffer m_viewConstant;
 
 	std::vector<std::size_t> m_primitiveToUpdate;

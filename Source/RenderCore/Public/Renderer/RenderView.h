@@ -26,7 +26,7 @@ struct RenderView
 	float m_aspect = 0.f;
 	float m_fov = 0.f;
 
-	std::vector<DrawSnapshot> m_drawSnapshots;
+	std::vector<VisibleDrawSnapshot> m_snapshots;
 };
 
 class RenderViewGroup

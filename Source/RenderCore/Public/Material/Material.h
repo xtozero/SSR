@@ -147,11 +147,14 @@ public:
 
 	const std::string& Name( ) const { return m_name; }
 
-	RENDERCORE_DLL void SetVertexShader( const std::shared_ptr<VertexShader>& vertexshader );
 	const ShaderBase* GetShader( SHADER_TYPE type ) const;
+
+	RENDERCORE_DLL void SetVertexShader( const std::shared_ptr<VertexShader>& vertexshader );
 	const VertexShader* GetVertexShader( ) const;
-	const PixelShader* GetPixelShader( ) const;
+	VertexShader* GetVertexShader( );
 	RENDERCORE_DLL void SetPixelShader( const std::shared_ptr<PixelShader>& pixelShader );
+	const PixelShader* GetPixelShader( ) const;
+	PixelShader* GetPixelShader( );
 	RENDERCORE_DLL void AddSampler( const std::string& key, const  std::shared_ptr<SamplerOption>& samplerOption );
 
 	RENDERCORE_DLL MaterialResource* GetMaterialResource( ) const;

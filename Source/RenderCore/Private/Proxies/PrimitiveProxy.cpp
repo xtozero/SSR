@@ -16,9 +16,9 @@ const CXMFLOAT4X4& PrimitiveProxy::GetTransform( ) const
 	return m_worldTransform;
 }
 
-std::size_t PrimitiveProxy::GetId( ) const
+std::size_t PrimitiveProxy::PrimitiveId( ) const
 {
 	assert( IsInRenderThread( ) );
 	assert( m_primitiveSceneInfo );
-	return m_primitiveSceneInfo->m_id;
+	return m_primitiveSceneInfo->m_primitiveId;
 }

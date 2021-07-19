@@ -67,36 +67,33 @@ void PrimitiveIdVertexBufferPool::DiscardAll( )
 	}
 }
 
-void PreparePipelineStateObject( std::vector<DrawSnapshot>& snapshots )
+void PreparePipelineStateObject( DrawSnapshot& snapshot )
 {
-	for ( auto& snapshot : snapshots )
+	auto& pipelineState = snapshot.m_pipelineState;
+	auto& shaderState = pipelineState.m_shaderState;
+
+	aga::PipelineStateInitializer initializer
 	{
-		auto& pipelineState = snapshot.m_pipelineState;
-		auto& shaderState = pipelineState.m_shaderState;
+		shaderState.m_vertexShader ? shaderState.m_vertexShader->Resource( ) : nullptr,
+		shaderState.m_pixelShader ? shaderState.m_pixelShader->Resource( ) : nullptr,
+		pipelineState.m_blendState.Resource( ),
+		pipelineState.m_rasterizerState.Resource( ),
+		pipelineState.m_depthStencilState.Resource( ),
+		shaderState.m_vertexLayout.Resource( ),
+		pipelineState.m_primitive,
+	};
 
-		aga::PipelineStateInitializer initializer
-		{
-			shaderState.m_vertexShader.Resource( ),
-			shaderState.m_pixelShader.Resource( ),
-			pipelineState.m_blendState.Resource( ),
-			pipelineState.m_rasterizerState.Resource( ),
-			pipelineState.m_depthStencilState.Resource( ),
-			shaderState.m_vertexLayout.Resource( ),
-			pipelineState.m_primitive,
-		};
-
-		pipelineState.m_pso = aga::PipelineState::Create( initializer );
-	}
+	pipelineState.m_pso = aga::PipelineState::Create( initializer );
 }
 
-void SortDrawSnapshots( std::vector<DrawSnapshot>& snapshots, VertexBuffer& primitiveIds )
+void SortDrawSnapshots( std::vector<VisibleDrawSnapshot>& snapshots, VertexBuffer& primitiveIds )
 {
 	UINT* idBuffer = reinterpret_cast<UINT*>( primitiveIds.Lock( ) );
 	if ( idBuffer )
 	{
 		for ( std::size_t i = 0; i < snapshots.size(); ++i )
 		{
-			snapshots[i].m_vertexStream.Bind( primitiveIds, 1, static_cast<UINT>( i ) * sizeof( UINT ) );
+			snapshots[i].m_primitiveIdOffset = static_cast<UINT>( i );
 			*idBuffer = snapshots[i].m_primitiveId;
 			++idBuffer;
 		}
@@ -105,22 +102,26 @@ void SortDrawSnapshots( std::vector<DrawSnapshot>& snapshots, VertexBuffer& prim
 	}
 }
 
-void CommitDrawSnapshots( std::vector<DrawSnapshot>& snapshots )
+void CommitDrawSnapshots( std::vector<VisibleDrawSnapshot>& snapshots, VertexBuffer& primitiveIds )
 {
 	for ( auto& snapshot : snapshots )
 	{
-		CommitDrawSnapshot( snapshot );
+		CommitDrawSnapshot( snapshot, primitiveIds );
 	}
 }
 
-void CommitDrawSnapshot( DrawSnapshot& snapshot )
+void CommitDrawSnapshot( VisibleDrawSnapshot& visibleSnapshot, VertexBuffer& primitiveIds )
 {
+	DrawSnapshot& snapshot = *visibleSnapshot.m_drawSnapshot;
 	auto commandList = GetInterface<aga::IAga>( )->GetImmediateCommandList( );
 
 	// Set vertex buffer
-	int numVB = snapshot.m_vertexStream.NumBuffer( );
-	aga::Buffer* const* vertexBuffers = snapshot.m_vertexStream.VertexBuffers( );
-	const UINT* vertexOffsets = snapshot.m_vertexStream.Offsets( );
+	VertexInputStream vertexStream = snapshot.m_vertexStream;
+	vertexStream.Bind( primitiveIds, 1, visibleSnapshot.m_primitiveIdOffset * sizeof( UINT ) );
+
+	int numVB = vertexStream.NumBuffer( );
+	aga::Buffer* const* vertexBuffers = vertexStream.VertexBuffers( );
+	const UINT* vertexOffsets = vertexStream.Offsets( );
 	commandList->BindVertexBuffer( vertexBuffers, 0, numVB, vertexOffsets );
 
 	// Set index buffer
@@ -135,5 +136,12 @@ void CommitDrawSnapshot( DrawSnapshot& snapshot )
 	// Set shader resources
 	commandList->BindShaderResources( snapshot.m_shaderBindings );
 
-	commandList->Draw( snapshot.m_indexCount, snapshot.m_startIndexLocation, snapshot.m_baseVertexLocation );
+	if ( visibleSnapshot.m_numInstances > 1 )
+	{
+
+	}
+	else
+	{
+		commandList->Draw( snapshot.m_indexCount, snapshot.m_startIndexLocation, snapshot.m_baseVertexLocation );
+	}
 }

@@ -32,8 +32,6 @@ public:
 	virtual ScenePrimitiveBuffer& GpuPrimitiveInfo( ) = 0;
 	virtual const ScenePrimitiveBuffer& GpuPrimitiveInfo( ) const = 0;
 
-	virtual void DrawScene( const RenderViewGroup& views ) = 0;
-
 	virtual SHADING_METHOD ShadingMethod( ) const = 0;
 
 	virtual Scene* GetRenderScene( ) = 0;

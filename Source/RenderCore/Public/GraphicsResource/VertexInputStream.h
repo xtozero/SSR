@@ -119,8 +119,9 @@ public:
 		return *this;
 	}
 
-private:
 	static constexpr int MAX_VERTEX_SLOT = 32;
+
+private:
 	aga::Buffer* m_vertexBuffers[MAX_VERTEX_SLOT] = {};
 	UINT m_offset[MAX_VERTEX_SLOT] = {};
 	int m_numBuffers = 0;

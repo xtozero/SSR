@@ -34,8 +34,6 @@ private:
 class DrawSnapshot
 {
 public:
-	UINT m_primitiveId;
-
 	VertexInputStream m_vertexStream;
 	IndexBuffer m_indexBuffer;
 
@@ -59,7 +57,6 @@ public:
 	{
 		if ( this != &other )
 		{
-			m_primitiveId = other.m_primitiveId;
 			m_vertexStream = other.m_vertexStream;
 			m_indexBuffer = other.m_indexBuffer;
 			m_shaderBindings = other.m_shaderBindings;
@@ -81,7 +78,6 @@ public:
 	{
 		if ( this != &other )
 		{
-			m_primitiveId = other.m_primitiveId;
 			m_vertexStream = std::move( other.m_vertexStream );
 			m_indexBuffer = std::move( other.m_indexBuffer );
 			m_shaderBindings = std::move( other.m_shaderBindings );
@@ -95,7 +91,22 @@ public:
 	}
 };
 
-void PreparePipelineStateObject( std::vector<DrawSnapshot>& snapshots );
-void SortDrawSnapshots( std::vector<DrawSnapshot>& snapshots, VertexBuffer& primitiveIds );
-void CommitDrawSnapshots( std::vector<DrawSnapshot>& snapshots );
-void CommitDrawSnapshot( DrawSnapshot& snapshot );
+class VisibleDrawSnapshot
+{
+public:
+	UINT m_primitiveId;
+	UINT m_primitiveIdOffset;
+	UINT m_primitiveIdStreamSlot;
+	UINT m_numInstances;
+	DrawSnapshot* m_drawSnapshot;
+};
+
+struct CachedDrawSnapshotInfo
+{
+	std::size_t m_snapshotIndex;
+};
+
+void PreparePipelineStateObject( DrawSnapshot& snapshot );
+void SortDrawSnapshots( std::vector<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
+void CommitDrawSnapshots( std::vector<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
+void CommitDrawSnapshot( VisibleDrawSnapshot& visibleSnapshot, VertexBuffer& primitiveIds );

@@ -21,7 +21,9 @@ private:
 	void UpdateToGPU( );
 
 	const VertexShader* GetVertexShader( ) const;
+	VertexShader* GetVertexShader( );
 	const PixelShader* GetPixelShader( ) const;
+	PixelShader* GetPixelShader( );
 	const ShaderBase* GetShader( SHADER_TYPE type ) const;
 
 	std::shared_ptr<Material> m_material;

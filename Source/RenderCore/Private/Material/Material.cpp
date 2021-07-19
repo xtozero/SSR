@@ -342,11 +342,6 @@ bool Material::HasProperty( const char* key ) const
 	return nullptr;
 }
 
-void Material::SetVertexShader( const std::shared_ptr<VertexShader>& vertexshader )
-{
-	m_vertexShader = vertexshader;
-}
-
 const ShaderBase* Material::GetShader( SHADER_TYPE type ) const
 {
 	switch ( type )
@@ -376,19 +371,34 @@ const ShaderBase* Material::GetShader( SHADER_TYPE type ) const
 	return nullptr;
 }
 
-const VertexShader* Material::GetVertexShader( ) const
+void Material::SetVertexShader( const std::shared_ptr<VertexShader>& vertexshader )
 {
-	return m_vertexShader.get();
+	m_vertexShader = vertexshader;
 }
 
-const PixelShader* Material::GetPixelShader( ) const
+const VertexShader* Material::GetVertexShader( ) const
 {
-	return m_pixelShader.get();
+	return m_vertexShader.get( );
+}
+
+VertexShader* Material::GetVertexShader( )
+{
+	return m_vertexShader.get( );
 }
 
 void Material::SetPixelShader( const std::shared_ptr<PixelShader>& pixelShader )
 {
 	m_pixelShader = pixelShader;
+}
+
+const PixelShader* Material::GetPixelShader( ) const
+{
+	return m_pixelShader.get( );
+}
+
+PixelShader* Material::GetPixelShader( )
+{
+	return m_pixelShader.get( );
 }
 
 void Material::AddSampler( const std::string& key, const std::shared_ptr<SamplerOption>& samplerOption )

@@ -36,7 +36,7 @@ void Scene::AddPrimitive( PrimitiveComponent* primitive )
 		return;
 	}
 
-	PrimitiveSceneInfo* primitiveSceneInfo = new PrimitiveSceneInfo( proxy );
+	PrimitiveSceneInfo* primitiveSceneInfo = new PrimitiveSceneInfo( primitive, *this );
 	primitiveSceneInfo->m_sceneProxy = proxy;
 
 	proxy->m_primitiveSceneInfo = primitiveSceneInfo;
@@ -107,13 +107,19 @@ void Scene::RemoveTexturedSkyComponent( TexturedSkyComponent* texturedSky )
 	}
 }
 
-void Scene::DrawScene( const RenderViewGroup& views )
-{
-}
-
 SHADING_METHOD Scene::ShadingMethod( ) const
 {
 	return SHADING_METHOD::Forward;
+}
+
+std::size_t Scene::AddCachedDrawSnapshot( const DrawSnapshot& snapshot )
+{
+	return m_cachedSnapshots.Add( snapshot );
+}
+
+void Scene::RemoveCachedDrawSnapshot( std::size_t index )
+{
+	m_cachedSnapshots.RemoveAt( index );
 }
 
 void Scene::AddPrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo )
@@ -122,9 +128,11 @@ void Scene::AddPrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo )
 	assert( primitiveSceneInfo );
 
 	m_primitiveToUpdate.push_back( m_primitives.size( ) );
-	primitiveSceneInfo->m_id = m_primitives.size( );
+	primitiveSceneInfo->m_primitiveId = m_primitives.size( );
 
 	m_primitives.push_back( primitiveSceneInfo );
+
+	primitiveSceneInfo->AddToScene( );
 }
 
 void Scene::RemovePrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo )
@@ -132,13 +140,14 @@ void Scene::RemovePrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo )
 	assert( IsInRenderThread( ) );
 
 	m_primitives.erase( std::remove( m_primitives.begin(), m_primitives.end(), primitiveSceneInfo ), m_primitives.end( ) );
-	m_primitiveToUpdate.erase( std::remove( m_primitiveToUpdate.begin( ), m_primitiveToUpdate.end( ), primitiveSceneInfo->m_id ), m_primitiveToUpdate.end( ) );
+	m_primitiveToUpdate.erase( std::remove( m_primitiveToUpdate.begin( ), m_primitiveToUpdate.end( ), primitiveSceneInfo->m_primitiveId ), m_primitiveToUpdate.end( ) );
 
-	for ( std::size_t i = primitiveSceneInfo->m_id; i < m_primitives.size( ); ++i )
+	for ( std::size_t i = primitiveSceneInfo->m_primitiveId; i < m_primitives.size( ); ++i )
 	{
-		--m_primitives[i]->m_id;
+		--m_primitives[i]->m_primitiveId;
 	}
 
+	primitiveSceneInfo->RemoveFromScene( );
 	delete primitiveSceneInfo->m_sceneProxy;
 	delete primitiveSceneInfo;
 }

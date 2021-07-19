@@ -14,15 +14,8 @@ void MaterialResource::TakeSnapShot( DrawSnapshot& snapShot )
 {
 	GraphicsPipelineState& pipelineState = snapShot.m_pipelineState;
 
-	if ( auto vs = GetVertexShader( ) )
-	{
-		pipelineState.m_shaderState.m_vertexShader = *vs;
-	}
-
-	if ( auto ps = GetPixelShader( ) )
-	{
-		pipelineState.m_shaderState.m_pixelShader = *ps;
-	}
+	pipelineState.m_shaderState.m_vertexShader = GetVertexShader( );
+	pipelineState.m_shaderState.m_pixelShader = GetPixelShader( );
 
 	auto initializer = CreateShaderBindingsInitializer( pipelineState.m_shaderState );
 	snapShot.m_shaderBindings.Initialize( initializer );
@@ -34,7 +27,7 @@ void MaterialResource::TakeSnapShot( DrawSnapshot& snapShot )
 
 		aga::SingleShaderBindings binding = snapShot.m_shaderBindings.GetSingleShaderBindings( cbParam.m_shader );
 
-		binding.AddConstantBuffer( cbParam.m_bindPoint, cb.Resource( ) );
+		binding.AddConstantBuffer( cbParam, cb.Resource( ) );
 	}
 
 	auto& graphicsInterface = GraphicsInterface( );
@@ -69,12 +62,12 @@ void MaterialResource::TakeSnapShot( DrawSnapshot& snapShot )
 				if ( param.m_type == aga::ShaderParameterType::SRV )
 				{
 					auto srv = resource ? resource->SRV( ) : nullptr;
-					binding.AddSRV( param.m_bindPoint, srv );
+					binding.AddSRV( param, srv );
 				}
 				else
 				{
 					auto uav = resource ? resource->UAV( ) : nullptr;
-					binding.AddUAV( param.m_bindPoint, uav );
+					binding.AddUAV( param, uav );
 				}
 			}
 			else if ( param.m_type == aga::ShaderParameterType::Sampler )
@@ -82,7 +75,7 @@ void MaterialResource::TakeSnapShot( DrawSnapshot& snapShot )
 				if ( auto samplerOption = m_material->AsSampelrOption( name.c_str( ) ) )
 				{
 					auto sampler = graphicsInterface.FindOrCreate( *samplerOption );
-					binding.AddSampler( param.m_bindPoint, sampler.Resource( ) );
+					binding.AddSampler( param, sampler.Resource( ) );
 				}
 			}
 		}
@@ -277,7 +270,27 @@ const VertexShader* MaterialResource::GetVertexShader( ) const
 	return nullptr;
 }
 
+VertexShader* MaterialResource::GetVertexShader( )
+{
+	if ( m_material )
+	{
+		return m_material->GetVertexShader( );
+	}
+
+	return nullptr;
+}
+
 const PixelShader* MaterialResource::GetPixelShader( ) const
+{
+	if ( m_material )
+	{
+		return m_material->GetPixelShader( );
+	}
+
+	return nullptr;
+}
+
+PixelShader* MaterialResource::GetPixelShader( )
 {
 	if ( m_material )
 	{

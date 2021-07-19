@@ -1,11 +1,17 @@
 #pragma once
 #include "Math/CXMFloat.h"
 
+#include <deque>
+#include <optional>
 #include <vector>
 
 class DrawSnapshot;
 class PrimitiveSceneInfo;
+class PrimitiveSubMesh;
 class Scene;
+class ScenePrimitiveBuffer;
+class SceneViewConstantBuffer;
+class VisibleDrawSnapshot;
 
 class PrimitiveProxy
 {
@@ -14,13 +20,16 @@ public:
 	const CXMFLOAT4X4& GetTransform( ) const;
 
 	virtual void CreateRenderData( ) = 0;
-	virtual void TakeSnapshot( std::vector<DrawSnapshot>& snapshots ) const = 0;
+	virtual void PrepareSubMeshs( ) = 0;
+	virtual void GetSubMeshElement( std::size_t lod, std::size_t sectionIndex, PrimitiveSubMesh& subMesh ) = 0;
+	virtual void TakeSnapshot( std::deque<DrawSnapshot>& snapshotStorage, SceneViewConstantBuffer& viewConstant, std::vector<VisibleDrawSnapshot>& drawList ) const = 0;
+	virtual std::optional<DrawSnapshot> TakeSnapshot( std::size_t lod, std::size_t sectionIndex, SceneViewConstantBuffer& viewConstant ) const = 0;
 
 	virtual ~PrimitiveProxy( ) = default;
 
-	std::size_t GetId( ) const;
+	std::size_t PrimitiveId( ) const;
 
-private:
+protected:
 	friend Scene;
 
 	PrimitiveSceneInfo* m_primitiveSceneInfo = nullptr;

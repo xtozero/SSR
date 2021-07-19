@@ -65,10 +65,10 @@ public:
 	RENDERCORE_DLL void Init( );
 	RENDERCORE_DLL void Serialize( Archive& ar );
 
-	StaticMeshLODResource& LODResource( int index ) { return m_lodResources[index]; };
-	const StaticMeshLODResource& LODResource( int index ) const { return m_lodResources[index]; };
+	StaticMeshLODResource& LODResource( std::size_t index ) { return m_lodResources[index]; };
+	const StaticMeshLODResource& LODResource( std::size_t index ) const { return m_lodResources[index]; };
 	std::size_t LODSize( ) const { return m_lodResources.size( ); }
-	const StaticMeshVertexLayout& VertexLayout( int index ) const { return m_vertexLayouts[index]; }
+	const StaticMeshVertexLayout& VertexLayout( std::size_t index ) const { return m_vertexLayouts[index]; }
 
 	void CreateRenderResource( );
 

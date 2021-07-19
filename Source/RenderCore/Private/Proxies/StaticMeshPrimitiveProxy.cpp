@@ -9,6 +9,8 @@
 #include "Mesh/StaticMeshResource.h"
 #include "MultiThread/EngineTaskScheduler.h"
 #include "RenderOption.h"
+#include "Scene/PrimitiveSceneInfo.h"
+#include "Scene/SceneConstantBuffers.h"
 
 StaticMeshPrimitiveProxy::StaticMeshPrimitiveProxy( const StaticMeshComponent& component ) : m_pStaticMesh( component.GetStaticMesh( ) ), m_pRenderData( m_pStaticMesh->RenderData( ) ), m_pRenderOption( component.GetRenderOption( ) )
 {
@@ -21,20 +23,66 @@ void StaticMeshPrimitiveProxy::CreateRenderData( )
 	m_pRenderData->CreateRenderResource( );
 }
 
-void StaticMeshPrimitiveProxy::TakeSnapshot( std::vector<DrawSnapshot>& snapshots ) const
+void StaticMeshPrimitiveProxy::PrepareSubMeshs( )
 {
 	assert( IsInRenderThread( ) );
 	std::size_t lodSize = m_pRenderData->LODSize( );
-	if ( lodSize == 0 )
+
+	for ( std::size_t lod = 0; lod < lodSize; ++lod )
 	{
-		return;
+		StaticMeshLODResource& lodResource = m_pRenderData->LODResource( lod );
+
+		std::size_t sectionSize = lodResource.m_sections.size( );
+		for ( std::size_t sectionIndex = 0; sectionIndex < sectionSize; ++sectionIndex )
+		{
+			PrimitiveSubMesh& subMesh = m_primitiveSceneInfo->AddSubMesh( );
+			GetSubMeshElement( lod, sectionIndex, subMesh );
+		}
+	}
+}
+
+void StaticMeshPrimitiveProxy::GetSubMeshElement( std::size_t lod, std::size_t sectionIndex, PrimitiveSubMesh& subMesh )
+{
+	StaticMeshLODResource& lodResource = m_pRenderData->LODResource( lod );
+	const StaticMeshSection& section = lodResource.m_sections[sectionIndex];
+
+	subMesh.Lod( ) = lod;
+	subMesh.SectionIndex( ) = sectionIndex;
+}
+
+void StaticMeshPrimitiveProxy::TakeSnapshot( std::deque<DrawSnapshot>& snapshotStorage, SceneViewConstantBuffer& viewConstant, std::vector<VisibleDrawSnapshot>& drawList ) const
+{
+	// To Do : will make lod available later
+	StaticMeshLODResource& lodResource = m_pRenderData->LODResource( 0 );
+	for ( std::size_t sectionIndex = 0; sectionIndex < lodResource.m_sections.size( ); ++sectionIndex )
+	{
+		std::optional<DrawSnapshot> snapshot = TakeSnapshot( 0, sectionIndex, viewConstant );
+
+		if ( snapshot )
+		{
+			snapshotStorage.emplace_back( std::move( snapshot.value( ) ) );
+			VisibleDrawSnapshot& visibleSnapshot = drawList.emplace_back( );
+			visibleSnapshot.m_drawSnapshot = &snapshotStorage.back( );
+			visibleSnapshot.m_primitiveId = PrimitiveId( );
+			visibleSnapshot.m_primitiveIdStreamSlot = 1;
+			visibleSnapshot.m_numInstances = 1;
+		}
+	}
+}
+
+std::optional<DrawSnapshot> StaticMeshPrimitiveProxy::TakeSnapshot( std::size_t lod, std::size_t sectionIndex, SceneViewConstantBuffer& viewConstant ) const
+{
+	assert( IsInRenderThread( ) );
+	std::size_t lodSize = m_pRenderData->LODSize( );
+	if ( lod >= lodSize )
+	{
+		return {};
 	}
 
 	auto& graphicsInterface = GraphicsInterface( );
 
-	// To Do : will make lod available later
-	StaticMeshLODResource& lodResource = m_pRenderData->LODResource( 0 );
-	VertexLayoutDesc vertexLayoutDesc = m_pRenderData->VertexLayout( 0 ).Desc( );
+	StaticMeshLODResource& lodResource = m_pRenderData->LODResource( lod );
+	VertexLayoutDesc vertexLayoutDesc = m_pRenderData->VertexLayout( lod ).Desc( );
 
 	vertexLayoutDesc.AddLayout( "PRIMITIVEID", 0,
 								RESOURCE_FORMAT::R32_UINT,
@@ -42,40 +90,52 @@ void StaticMeshPrimitiveProxy::TakeSnapshot( std::vector<DrawSnapshot>& snapshot
 								true,
 								1 );
 
-	for ( const auto& section : lodResource.m_sections )
+	const StaticMeshSection& section = lodResource.m_sections[sectionIndex];
+
+	DrawSnapshot snapshot;
+	snapshot.m_vertexStream.Bind( lodResource.m_vb, 0 );
+	snapshot.m_indexBuffer = lodResource.m_ib;
+
+	GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+	auto materialResource = m_pStaticMesh->GetMaterialResource( section.m_materialIndex );
+	if ( materialResource )
 	{
-		DrawSnapshot& snapshot = snapshots.emplace_back( );
-		snapshot.m_primitiveId = GetId( );
-		snapshot.m_vertexStream.Bind( lodResource.m_vb, 0 );
-		snapshot.m_indexBuffer = lodResource.m_ib;
-
-		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
-		auto materialResource = m_pStaticMesh->GetMaterialResource( section.m_materialIndex );
-		if ( materialResource )
-		{
-			materialResource->TakeSnapShot( snapshot );
-			pipelineState.m_shaderState.m_vertexLayout = graphicsInterface.FindOrCreate( pipelineState.m_shaderState.m_vertexShader, vertexLayoutDesc );
-		}
-
-		if ( m_pRenderOption->m_blendOption )
-		{
-			pipelineState.m_blendState = graphicsInterface.FindOrCreate( *m_pRenderOption->m_blendOption );
-		}
-
-		if ( m_pRenderOption->m_depthStencilOption )
-		{
-			pipelineState.m_depthStencilState = graphicsInterface.FindOrCreate( *m_pRenderOption->m_depthStencilOption );
-		}
-
-		if ( m_pRenderOption->m_rasterizerOption )
-		{
-			pipelineState.m_rasterizerState = graphicsInterface.FindOrCreate( *m_pRenderOption->m_rasterizerOption );
-		}
-		
-		pipelineState.m_primitive = RESOURCE_PRIMITIVE::TRIANGLELIST;
-
-		snapshot.m_indexCount = section.m_count;
-		snapshot.m_startIndexLocation = section.m_startLocation;
-		snapshot.m_baseVertexLocation = 0;
+		materialResource->TakeSnapShot( snapshot );
 	}
+
+	if ( m_pRenderOption->m_blendOption )
+	{
+		pipelineState.m_blendState = graphicsInterface.FindOrCreate( *m_pRenderOption->m_blendOption );
+	}
+
+	if ( m_pRenderOption->m_depthStencilOption )
+	{
+		pipelineState.m_depthStencilState = graphicsInterface.FindOrCreate( *m_pRenderOption->m_depthStencilOption );
+	}
+
+	if ( m_pRenderOption->m_rasterizerOption )
+	{
+		pipelineState.m_rasterizerState = graphicsInterface.FindOrCreate( *m_pRenderOption->m_rasterizerOption );
+	}
+
+	pipelineState.m_primitive = RESOURCE_PRIMITIVE::TRIANGLELIST;
+
+	snapshot.m_indexCount = section.m_count;
+	snapshot.m_startIndexLocation = section.m_startLocation;
+	snapshot.m_baseVertexLocation = 0;
+
+	if ( pipelineState.m_shaderState.m_vertexShader )
+	{
+		pipelineState.m_shaderState.m_vertexLayout = graphicsInterface.FindOrCreate( *pipelineState.m_shaderState.m_vertexShader, vertexLayoutDesc );
+
+		const auto& vsParameterMap = pipelineState.m_shaderState.m_vertexShader->ParameterMap( );
+
+		auto binding = snapshot.m_shaderBindings.GetSingleShaderBindings( SHADER_TYPE::VS );
+		aga::ShaderParameter viewProjection = vsParameterMap.GetParameter( "VEIW_PROJECTION" );
+		binding.AddConstantBuffer( viewProjection, viewConstant.Resource( ) );
+	}
+
+	PreparePipelineStateObject( snapshot );
+
+	return snapshot;
 }
