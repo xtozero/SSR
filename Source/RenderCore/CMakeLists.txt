@@ -30,10 +30,12 @@ set (MESH_SOURCE
 	Public/Mesh/StaticMeshResource.h)
 
 set (RENDERER_SOURCE
+	Private/Renderer/ForwardLighting.cpp
 	Private/Renderer/ForwardRenderer.cpp
 	Private/Renderer/RenderView.cpp
 	Private/Renderer/SceneRenderer.cpp
 	Public/Renderer/ConstantSlotDefine.h
+	Public/Renderer/ForwardLighting.h
 	Public/Renderer/ForwardRenderer.h
 	Public/Renderer/IRenderCore.h
 	Public/Renderer/RenderView.h
@@ -78,21 +80,25 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Public/GraphicsResource/Viewport.h)
 	
 set (PROXIES_SOURCE
+	Private/Proxies/LightProxy.cpp
 	Private/Proxies/PrimitiveProxy.cpp
 	Private/Proxies/StaticMeshPrimitiveProxy.cpp
 	Private/Proxies/TexturedSkyProxy.cpp
+	Public/Proxies/LightProxy.h
 	Public/Proxies/PrimitiveProxy.h
 	Public/Proxies/StaticMeshPrimitiveProxy.h
 	Public/Proxies/TexturedSkyProxy.h)
 
 set (RENDER_SCENE_SOURCE
-	"Private/Scene/PrimitiveSceneInfo.cpp"
-	"Private/Scene/Scene.cpp"
-	"Private/Scene/SceneConstantBuffers.cpp"
-	"Public/Scene/IScene.h"
-	"Public/Scene/PrimitiveSceneInfo.h"
-	"Public/Scene/Scene.h"
-	"Public/Scene/SceneConstantBuffers.h")
+	Private/Scene/LightSceneInfo.cpp
+	Private/Scene/PrimitiveSceneInfo.cpp
+	Private/Scene/Scene.cpp
+	Private/Scene/SceneConstantBuffers.cpp
+	Public/Scene/IScene.h
+	Public/Scene/LightSceneInfo.h
+	Public/Scene/PrimitiveSceneInfo.h
+	Public/Scene/Scene.h
+	Public/Scene/SceneConstantBuffers.h)
 	
 source_group("GraphicsResource" FILES ${GRAPHICS_RESOURCE_SOURCE})
 source_group("Mesh" FILES ${MESH_SOURCE})

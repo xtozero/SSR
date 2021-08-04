@@ -6,14 +6,14 @@ class CDisplayShaderResourceHelper : public CGameObject
 {
 public:
 	//virtual void SetPosition( const CXMFLOAT3& pos ) override;
-	virtual void Render( CGameLogic& gameLogic ) override;
+	//virtual void Render( CGameLogic& gameLogic ) override;
 	virtual void Think( float elapsedTime ) override;
 
 	virtual void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json ) override;
 
-	virtual bool IgnorePicking( ) const override { return ShouldDraw( ); }
+	//virtual bool IgnorePicking( ) const override { return ShouldDraw( ); }
 
-	virtual bool ShouldDraw( ) const override;
+	//virtual bool ShouldDraw( ) const override;
 
 protected:
 	// virtual bool LoadModelMesh( CGameLogic& gameLogic ) override;

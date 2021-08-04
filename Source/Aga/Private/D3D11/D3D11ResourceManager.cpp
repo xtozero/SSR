@@ -70,7 +70,6 @@ namespace aga
 	Buffer* CD3D11ResourceManager::CreateBuffer( const BUFFER_TRAIT& trait, const void* initData )
 	{
 		Buffer* newBuffer = new D3D11Buffer( trait, initData );
-		m_renderResources.emplace( newBuffer );
 
 		return newBuffer;
 	}

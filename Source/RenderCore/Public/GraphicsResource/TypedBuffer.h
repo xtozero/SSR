@@ -106,7 +106,9 @@ protected:
 			static_cast<UINT>( m_numElement ),
 			RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
 			RESOURCE_BIND_TYPE::SHADER_RESOURCE | RESOURCE_BIND_TYPE::RANDOM_ACCESS,
-			RESOURCE_MISC::BUFFER_STRUCTURED };
+			RESOURCE_MISC::BUFFER_STRUCTURED,
+			RESOURCE_FORMAT::UNKNOWN
+			};
 
 			m_buffer = aga::Buffer::Create( trait, initData );
 			if ( IsInRenderThread( ) )

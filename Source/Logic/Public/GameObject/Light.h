@@ -5,6 +5,9 @@
 
 #include <array>
 
+class DirectionalLightComponent;
+class LightComponent;
+
 enum class LIGHT_TYPE
 {
 	NONE = -1,
@@ -32,36 +35,40 @@ struct LightTrait
 class CLight : public CGameObject
 {
 public:
-	//virtual void SetPosition( const float x, const float y, const float z ) override;
-	//virtual void SetPosition( const CXMFLOAT3& pos ) override;
-	
-	virtual void Render( CGameLogic& gameLogic ) override;
+	virtual const LIGHT_TYPE GetType( ) const = 0;
 
-	virtual bool ShouldDraw( ) const override { return false; }
-	virtual bool ShouldDrawShadow( ) const override { return false; }
+	virtual void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json ) override;
+	//const bool IsOn( ) const;
+	//CXMFLOAT3 GetDirection( ) const;
 
-	const LIGHT_TYPE GetType( ) const;
-	const bool IsOn( ) const;
-	CXMFLOAT3 GetDirection( ) const;
-
-	void SetOnOff( const bool on );
-	void SetRange( const float range );
-	void SetFallOff( const float fallOff );
-	void SetConeProperty( const float theta, const float phi );
-	void SetDiection( const CXMFLOAT3& direction );
-	void SetAttenuation( const CXMFLOAT3& attenuation );
+	//void SetOnOff( const bool on );
+	//void SetRange( const float range );
+	//void SetFallOff( const float fallOff );
+	//void SetConeProperty( const float theta, const float phi );
+	//void SetDiection( const CXMFLOAT3& direction );
+	//void SetAttenuation( const CXMFLOAT3& attenuation );
 	void SetDiffuseColor( const CXMFLOAT4& diffuseColor );
 	void SetSpecularColor( const CXMFLOAT4& specularColor );
 
-	void RegisterProperty( LightTrait* const property ) { m_property = property; }
-
-	CXMFLOAT4X4 GetViewMatrix( );
-
-	CLight( );
 	virtual ~CLight( ) = default;
 
 private:
-	LightTrait* m_property;
-	bool m_needRecalc;
-	CXMFLOAT4X4 m_viewMatrix;
+	LightComponent& GetLightComponent( );
+
+	LightComponent* m_component = nullptr;
+};
+
+class DirectionalLight : public CLight
+{
+public:
+	virtual const LIGHT_TYPE GetType( ) const override;
+
+	virtual void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json ) override;
+
+	const CXMFLOAT3& Direction( ) const;
+
+	DirectionalLight( );
+
+private:
+	DirectionalLightComponent* m_directionalLightComponent = nullptr;
 };

@@ -17,16 +17,6 @@ void Component::UnregisterComponent( )
 	}
 }
 
-void Component::CreateRenderState( )
-{
-	m_renderStateCreated = true;
-}
-
-void Component::RemoveRenderState( )
-{
-	m_renderStateCreated = false;
-}
-
 void Component::RecreateRenderState( )
 {
 	if ( m_renderStateCreated )
@@ -74,6 +64,16 @@ Component::Component( CGameObject* pOwner ) : m_pOwner( pOwner )
 bool Component::ShouldCreateRenderState( ) const
 {
 	return false;
+}
+
+void Component::CreateRenderState( )
+{
+	m_renderStateCreated = true;
+}
+
+void Component::RemoveRenderState( )
+{
+	m_renderStateCreated = false;
 }
 
 void Component::RegisterComponent( World* pWorld )

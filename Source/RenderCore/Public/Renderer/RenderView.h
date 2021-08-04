@@ -14,6 +14,8 @@ namespace rendercore
 
 class IScene;
 
+struct ForwardLightingResource;
+
 struct RenderView
 {
 	// for view
@@ -27,6 +29,8 @@ struct RenderView
 	float m_fov = 0.f;
 
 	std::vector<VisibleDrawSnapshot> m_snapshots;
+
+	ForwardLightingResource* m_forwardLighting = nullptr;
 };
 
 class RenderViewGroup

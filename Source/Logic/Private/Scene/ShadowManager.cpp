@@ -2,7 +2,6 @@
 #include "Scene/ShadowManager.h"
 
 #include "Core/GameLogic.h"
-#include "GameObject/LightManager.h"
 #include "Math/CXMFloat.h"
 #include "Physics/BoundingCone.h"
 #include "Physics/BoundingSphere.h"

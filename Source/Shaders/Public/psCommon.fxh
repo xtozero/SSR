@@ -1,4 +1,6 @@
-cbuffer PS_PASS_CONSTANT : register( b2 )
+#include "constants.fxh"
+
+cbuffer PS_PASS_CONSTANT : register( b3 )
 {
 	float		g_nearPlaneDist;
 	float		g_FarPlaneDist;

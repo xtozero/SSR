@@ -24,7 +24,9 @@ void IndexBuffer::InitResource( const void* initData )
 		m_isDWORD ? sizeof( DWORD ) : sizeof( WORD ),
 		static_cast<UINT>( m_numElement ),
 		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
-		RESOURCE_BIND_TYPE::INDEX_BUFFER
+		RESOURCE_BIND_TYPE::INDEX_BUFFER,
+		0,
+		RESOURCE_FORMAT::UNKNOWN
 	};
 
 	m_buffer = aga::Buffer::Create( trait, initData );

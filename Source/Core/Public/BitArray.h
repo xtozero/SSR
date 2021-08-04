@@ -34,13 +34,13 @@ private:
 class ConstSetBitIterator
 {
 public:
-	using iterator_category = std::bidirectional_iterator_tag;
+	using iterator_category = std::forward_iterator_tag;
 	using value_type = bool;
 	using difference_type = std::ptrdiff_t;
 	using pointer = const bool*;
 	using reference = const bool&;
 
-	ConstSetBitIterator( BitArray& array, std::size_t startIndex ) : m_array( array ), m_startIndex( startIndex ) {}
+	ConstSetBitIterator( const BitArray& array, std::size_t startIndex ) : m_array( array ), m_startIndex( startIndex ) {}
 
 	friend bool operator==( const ConstSetBitIterator& lhs, const ConstSetBitIterator& rhs )
 	{
@@ -56,6 +56,11 @@ public:
 	{
 		FindFirstSetBit( );
 		return *this;
+	}
+
+	std::size_t operator*( ) const
+	{
+		return m_startIndex;
 	}
 
 private:
@@ -75,6 +80,6 @@ private:
 		}
 	}
 
-	BitArray m_array;
+	const BitArray& m_array;
 	std::size_t m_startIndex = 0;
 };

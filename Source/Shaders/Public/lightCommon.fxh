@@ -2,33 +2,32 @@
 #include "shadowCommon.fxh"
 
 #define MAX_LIGHTS 180
+static const uint LIGHTDATA_PER_FLOAT4 = 6;
 
 Texture2D lookupTexture : register( t3 );
+Buffer<float4> ForwardLight : register( t4 );
 
-struct LIGHT_TRAIT
+struct ForwardLightData
 {
-	int		m_type;
-	bool	m_isOn;
+	uint	m_type;
 	float	m_theta;
 	float	m_phi;
 	float3	m_direction;
 	float	m_range;
 	float	m_falloff;
 	float3	m_attenuation;
-	float4	m_position;
+	float3	m_position;
 	float4	m_diffuse;
 	float4	m_specular;
 };
 
-cbuffer LIGHTS : register( b0 )
+cbuffer ForwardLightConstant : register( b1 )
 {
-	int			g_curLights;
-	float3		g_cameraPos;
-	float4		g_globalAmbient;
-	LIGHT_TRAIT	g_lights[MAX_LIGHTS];
+	uint		NumLights;
+	float3		CameraPos;
 };
 
-cbuffer Material : register( b1 )
+cbuffer Material : register( b2 )
 {
 	float4		Ambient;
 	float4		Diffuse;
@@ -60,6 +59,33 @@ struct LIGHTCOLOR
 	float4 m_specular;
 };
 
+ForwardLightData GetLight( uint index )
+{
+	uint base = index * LIGHTDATA_PER_FLOAT4;
+	
+	float4 positionAndRange = ForwardLight[base + 0];
+	float4 diffuse = ForwardLight[base + 1];
+	float4 specular = ForwardLight[base + 2];
+	float4 attenuationAndFalloff = ForwardLight[base + 3];
+	float4 directionAndType = ForwardLight[base + 4];
+	float4 spotAngles = ForwardLight[base + 5];
+	
+	ForwardLightData light;
+
+	light.m_type = directionAndType.w;
+	light.m_theta = spotAngles.x;
+	light.m_phi = spotAngles.y;
+	light.m_direction = directionAndType.xyz;
+	light.m_range = positionAndRange.w;
+	light.m_falloff = attenuationAndFalloff.w;
+	light.m_attenuation = attenuationAndFalloff.xyz;
+	light.m_position = positionAndRange.xyz;
+	light.m_diffuse = diffuse;
+	light.m_specular = specular;
+	
+	return light;
+}
+
 float4 MoveLinearSpace( float4 color )
 {
 	return float4( pow( saturate( color.xyz ), 2.2 ), color.a );
@@ -70,14 +96,14 @@ float4 MoveGammaSapce( float4 color )
 	return float4( pow( saturate( color.xyz ), 0.45 ), color.a );
 }
 
-float OrenNayarDiffuse( float3 viewDirection, float3 lightDirection, float3 normal )
+float OrenNayarDiffuse( float3 viewDirection, float3 lightDirection, float3 normal, float roughness )
 {
 	float vdotn = dot( viewDirection, normal );
 	float ldotn = dot( lightDirection, normal );
 
 	float gamma = dot ( viewDirection - normal * vdotn, lightDirection - normal * ldotn );
 
-	float roughnessPwr = Roughness * Roughness;
+	float roughnessPwr = roughness * roughness;
 
 	float a = 1 - 0.5f * ( roughnessPwr / ( roughnessPwr + 0.33f ) );
 	float b = 0.45f * ( roughnessPwr / ( roughnessPwr + 0.09f ) );
@@ -90,12 +116,12 @@ float OrenNayarDiffuse( float3 viewDirection, float3 lightDirection, float3 norm
 	return max( 0.0f, ldotn ) * final;
 }
 
-float CookTorranceSpecular( float3 viewDirection, float3 lightDirection, float3 normal )
+float CookTorranceSpecular( float3 viewDirection, float3 lightDirection, float3 normal, float roughness )
 {
 	float3 half = normalize( viewDirection + lightDirection );
 	float ndoth = dot( normal, half );
 	float ndothPwr = ndoth * ndoth;
-	float roughnessPwr = Roughness * Roughness;
+	float roughnessPwr = roughness * roughness;
 	float exponent = -( ( 1 - ndothPwr ) / ( roughnessPwr * ndothPwr ) );
 	
 	float d = exp( exponent ) / ( 4.f * roughnessPwr * ndothPwr * ndothPwr );
@@ -114,57 +140,58 @@ float CookTorranceSpecular( float3 viewDirection, float3 lightDirection, float3 
 	return ( d * g * f ) / ( 4 * vdotn * ldotn );
 }
 
-LIGHTCOLOR CalcLightProperties( int i, float3 viewDirection, float3 lightDirection, float3 normal )
+LIGHTCOLOR CalcLightProperties( ForwardLightData light, float3 viewDirection, float3 lightDirection, float3 normal, float roughness )
 {
 	LIGHTCOLOR lightColor = (LIGHTCOLOR)0;
 
-	float diffuseFactor = OrenNayarDiffuse( viewDirection, lightDirection, normal );
-	lightColor.m_diffuse = diffuseFactor * g_lights[i].m_diffuse;
-	if ( diffuseFactor > 0.f )
+	// ToDo 
+	// float diffuseFactor = OrenNayarDiffuse( viewDirection, lightDirection, normal, roughness );
+	float ndotl = saturate( dot( lightDirection, normal ) );
+	lightColor.m_diffuse = light.m_diffuse * ndotl;
+	if ( ndotl > 0.f )
 	{
-		lightColor.m_specular += CookTorranceSpecular( viewDirection, lightDirection, normal ) * g_lights[i].m_specular;
+		lightColor.m_specular += CookTorranceSpecular( viewDirection, lightDirection, normal, roughness ) * light.m_specular * ndotl;
 	}
 
 	return lightColor;
 }
 
-float4 CalcLight( PS_INPUT input, float4 color )
+float4 CalcLight( PS_INPUT input )
 {
-	int i;
-	float4 linearColor = MoveLinearSpace( color );
-
-	float3 viewDirection = normalize( g_cameraPos - input.worldPos );
+	float3 viewDirection = normalize( CameraPos - input.worldPos );
 	float3 normal = normalize( input.normal );
 
 	LIGHTCOLOR LightColor = (LIGHTCOLOR)0;
 	LIGHTCOLOR cColor = (LIGHTCOLOR)0;
 
-	for ( i = 0; i < g_curLights; ++i )
+	float roughness = saturate( Roughness - EPSILON) + EPSILON;
+
+	for ( uint i = 0; i < NumLights; ++i )
 	{
-		if ( g_lights[i].m_isOn )
-		{
-			float3 lightDirection = { 0.f, 0.f, 0.f };
-			
-			if ( length( g_lights[i].m_direction ) > 0.f )
-			{
-				lightDirection = -normalize( g_lights[i].m_direction );
-			}
-			else
-			{
-				lightDirection = normalize( g_lights[i].m_position.xyz - input.worldPos );
-			} 
-
-			LightColor = CalcLightProperties( i, viewDirection, lightDirection, normal );
-			cColor.m_diffuse += LightColor.m_diffuse;
-			cColor.m_specular += LightColor.m_specular;
-		}
-	}
+		ForwardLightData light = GetLight( i );
 	
-	float visibility = CalcShadowVisibility( input.worldPos, input.viewPos );
+		float3 lightDirection = { 0.f, 0.f, 0.f };
+			
+		if ( length( light.m_direction ) > 0.f )
+		{
+			lightDirection = -normalize( light.m_direction );
+		}	
+		else
+		{
+			lightDirection = normalize( light.m_position - input.worldPos );
+		} 
 
-	float4 lightColor = g_globalAmbient * Ambient;
-	lightColor += cColor.m_diffuse * Diffuse * visibility;
-	lightColor += cColor.m_specular * Specular * visibility; 
+		LightColor = CalcLightProperties( light, viewDirection, lightDirection, normal, roughness );
+		cColor.m_diffuse += LightColor.m_diffuse;
+		cColor.m_specular += LightColor.m_specular;
+	}
 
-	return saturate( MoveGammaSapce( linearColor * lightColor ) );
+	// ToDo
+	float visibility = 1.f; // CalcShadowVisibility( input.worldPos, input.viewPos );
+
+	float4 lightColor = 0; // g_globalAmbient * Ambient;
+	lightColor += cColor.m_diffuse * MoveLinearSpace( Diffuse ) * visibility;
+	lightColor += cColor.m_specular * MoveLinearSpace( Specular ) * visibility; 
+
+	return saturate( MoveGammaSapce( lightColor ) );
 }

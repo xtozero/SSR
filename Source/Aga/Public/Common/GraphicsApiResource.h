@@ -436,6 +436,7 @@ struct BUFFER_TRAIT
 	UINT m_access;
 	UINT m_bindType;
 	UINT m_miscFlag;
+	RESOURCE_FORMAT m_format;
 };
 
 struct TEXTURE_TRAIT

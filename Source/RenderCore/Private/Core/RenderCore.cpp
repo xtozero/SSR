@@ -96,12 +96,13 @@ void RenderCore::BeginRenderingViewGroup( RenderViewGroup& renderViewGroup )
 	SceneRenderer* pSceneRenderer = FindAndCreateSceneRenderer( renderViewGroup );
 	if ( pSceneRenderer )
 	{
-		if ( pSceneRenderer->PrepareRender( renderViewGroup ) == false )
+		if ( pSceneRenderer->PreRender( renderViewGroup ) == false )
 		{
 			return;
 		}
 
 		pSceneRenderer->Render( renderViewGroup );
+		pSceneRenderer->PostRender( renderViewGroup );
 	}
 
 	SceneRenderer::WaitUntilRenderingIsFinish( );

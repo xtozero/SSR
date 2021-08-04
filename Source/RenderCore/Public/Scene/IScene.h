@@ -2,6 +2,7 @@
 
 #include <vector>
 
+class LightComponent;
 class PrimitiveComponent;
 class PrimitiveSceneInfo;
 class RenderViewGroup;
@@ -25,6 +26,9 @@ public:
 
 	virtual void AddTexturedSkyComponent( TexturedSkyComponent* texturedSky ) = 0;
 	virtual void RemoveTexturedSkyComponent( TexturedSkyComponent* texturedSky ) = 0;
+
+	virtual void AddLight( LightComponent* light ) = 0;
+	virtual void RemoveLight( LightComponent* light ) = 0;
 
 	virtual SceneViewConstantBuffer& SceneViewConstant( ) = 0;
 	virtual const SceneViewConstantBuffer& SceneViewConstant( ) const = 0;

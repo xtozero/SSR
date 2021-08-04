@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/IListener.h"
+#include "GameObject.h"
 #include "Physics/Movement.h"
 #include "Scene/INotifyGraphicsDevice.h"
 

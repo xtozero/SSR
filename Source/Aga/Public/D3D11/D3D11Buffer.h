@@ -30,6 +30,7 @@ namespace aga
 
 		ID3D11Buffer* m_buffer = nullptr;
 		D3D11_BUFFER_DESC m_desc = {};
+		DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
 		D3D11_SUBRESOURCE_DATA m_initData = {};
 		void* m_dataStorage = nullptr;
 		bool m_hasInitData = false;

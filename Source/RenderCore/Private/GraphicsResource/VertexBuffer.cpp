@@ -47,7 +47,9 @@ void VertexBuffer::InitResource( std::size_t elementSize, std::size_t numElement
 		static_cast<UINT>( elementSize ),
 		static_cast<UINT>( numElement ),
 		accessFlag,
-		RESOURCE_BIND_TYPE::VERTEX_BUFFER
+		RESOURCE_BIND_TYPE::VERTEX_BUFFER,
+		0,
+		RESOURCE_FORMAT::UNKNOWN
 	};
 
 	m_buffer = aga::Buffer::Create( trait, initData );

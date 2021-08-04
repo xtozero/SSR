@@ -86,11 +86,6 @@ bool CGameLogic::BootUp( IPlatform& platform )
 
 	CreateGameViewport( );
 
-	if ( m_lightManager.Initialize( *this ) == false )
-	{
-		__debugbreak( );
-	}
-
 	if ( LoadWorld( "./Scripts/DefaultScene.json" ) == false )
 	{
 		__debugbreak( );
@@ -264,7 +259,6 @@ void CGameLogic::EndLogic( )
 
 	//CameraComponent& playerCamera = GetLocalPlayer( )->GetCamera( );
 	//playerCamera.UpdateToRenderer( m_view );
-	//m_lightManager.UpdateToRenderer( *m_pRenderer, playerCamera );
 
 	//m_shadowManager.BuildShadowProjectionMatrix( *this, m_gameObjects );
 
@@ -551,7 +545,6 @@ void CGameLogic::DrawOpaqueRenderable( )
 	for ( auto& object : m_renderableList[OPAQUE_RENDERABLE] )
 	{
 		object->UpdateTransform( *this );
-		object->Render( *this );
 	}
 }
 
@@ -560,7 +553,6 @@ void CGameLogic::DrawTransparentRenderable( )
 	for ( auto& object : m_renderableList[TRANSPARENT_RENDERABLE] )
 	{
 		object->UpdateTransform( *this );
-		object->Render( *this );
 	}
 }
 
@@ -583,7 +575,6 @@ void CGameLogic::HandleDeviceLost( )
 	//CreateDeviceDependentResource( );
 
 	//m_modelManager.OnDeviceRestore( *this );
-	//m_lightManager.OnDeviceRestore( *this );
 	//m_shadowManager.OnDeviceRestore( *this );
 	//m_ssrManager.OnDeviceRestore( *this );
 	//m_debugOverlay.OnDeviceRestore( *this );

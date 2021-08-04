@@ -50,7 +50,9 @@ void ConstantBuffer::InitResource( std::size_t size )
 		static_cast<UINT>( size ),
 		1,
 		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
-		RESOURCE_BIND_TYPE::CONSTANT_BUFFER
+		RESOURCE_BIND_TYPE::CONSTANT_BUFFER,
+		0,
+		RESOURCE_FORMAT::UNKNOWN
 	};
 
 	m_buffer = aga::Buffer::Create( trait );

@@ -26,7 +26,7 @@ namespace
 		};
 	}
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC ConvertDescToSRV( const D3D11_BUFFER_DESC& desc )
+	D3D11_SHADER_RESOURCE_VIEW_DESC ConvertDescToSRV( const D3D11_BUFFER_DESC& desc, DXGI_FORMAT format )
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
 
@@ -44,7 +44,7 @@ namespace
 		}
 		else
 		{
-			srv.Format = DXGI_FORMAT_UNKNOWN;
+			srv.Format = format;
 			srv.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
 			srv.Buffer.NumElements = ( desc.StructureByteStride != 0 ) ? ( desc.ByteWidth / desc.StructureByteStride ) : desc.ByteWidth;
 		}
@@ -52,7 +52,7 @@ namespace
 		return srv;
 	}
 
-	D3D11_UNORDERED_ACCESS_VIEW_DESC ConvertDescToUAV( const D3D11_BUFFER_DESC& desc )
+	D3D11_UNORDERED_ACCESS_VIEW_DESC ConvertDescToUAV( const D3D11_BUFFER_DESC& desc, DXGI_FORMAT format )
 	{
 		D3D11_UNORDERED_ACCESS_VIEW_DESC uav = {};
 		uav.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
@@ -70,7 +70,7 @@ namespace
 		}
 		else
 		{
-			uav.Format = DXGI_FORMAT_UNKNOWN;
+			uav.Format = format;
 			uav.Buffer.NumElements = ( desc.StructureByteStride != 0 ) ? ( desc.ByteWidth / desc.StructureByteStride ) : desc.ByteWidth;
 			uav.Buffer.Flags = 0; // TODO : handle append / counter flag later
 		}
@@ -99,6 +99,7 @@ namespace aga
 	D3D11Buffer::D3D11Buffer( const BUFFER_TRAIT& trait, const void* initData )
 	{
 		m_desc = ConvertTraitToDesc( trait );
+		m_format = ConvertFormatToDxgiFormat( trait.m_format );
 		m_dataStorage = new unsigned char[m_desc.ByteWidth];
 		m_initData.pSysMem = m_dataStorage;
 		m_initData.SysMemPitch = m_desc.ByteWidth;
@@ -137,14 +138,14 @@ namespace aga
 
 		if ( m_desc.BindFlags & D3D11_BIND_SHADER_RESOURCE )
 		{
-			D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc );
+			D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc, m_format );
 			m_srv = new D3D11ShaderResourceView( m_buffer, srvDesc );
 			m_srv->Init( );
 		}
 
 		if ( m_desc.BindFlags & D3D11_BIND_UNORDERED_ACCESS )
 		{
-			D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc );
+			D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc, m_format );
 			m_uav = new D3D11UnorderedAccessView( m_buffer, uavDesc );
 			m_uav->Init( );
 		}
@@ -159,7 +160,6 @@ namespace aga
 		{
 			ULONG ref = m_buffer->Release( );
 			m_buffer = nullptr;
-			assert( ref == 0 );
 		}
 	}
 }

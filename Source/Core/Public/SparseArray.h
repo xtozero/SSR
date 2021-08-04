@@ -3,6 +3,7 @@
 #include "BitArray.h"
 
 #include <optional>
+#include <type_traits>
 
 template <typename T>
 union SparseArrayElement
@@ -48,6 +49,79 @@ public:
 	const T& operator[]( std::size_t index ) const
 	{
 		return ( (const T&)GetData( index ).m_data );
+	}
+
+	template <bool IsConst>
+	class IteratorBase
+	{
+	public:
+		using iterator_category = std::forward_iterator_tag;
+		using value_type = T;
+		using difference_type = std::ptrdiff_t;
+		using pointer = std::conditional_t<IsConst, const value_type*, value_type*>;
+		using reference = std::conditional_t<IsConst, const value_type&, value_type&>;
+
+		using ArrayType = std::conditional_t<IsConst, const SparseArray, SparseArray>;
+
+		IteratorBase& operator++( )
+		{
+			++m_bitIter;
+			return *this;
+		}
+
+		reference operator*( ) const
+		{
+			return m_array[*m_bitIter];
+		}
+
+		friend bool operator==( const IteratorBase& lhs, const IteratorBase& rhs )
+		{
+			return ( &lhs.m_array == &rhs.m_array ) && ( lhs.m_bitIter == rhs.m_bitIter );
+		}
+
+		friend bool operator!=( const IteratorBase& lhs, const IteratorBase& rhs )
+		{
+			return !( lhs == rhs );
+		}
+
+		IteratorBase( ArrayType& array, std::size_t startIndex ) : m_array( array ), m_bitIter( ConstSetBitIterator( array.m_allocationFlag, startIndex ) )
+		{}
+
+	protected:
+		ArrayType& m_array;
+		ConstSetBitIterator m_bitIter;
+	};
+
+	class Iterator : public IteratorBase<false>
+	{
+	public:
+		using IteratorBase::IteratorBase;
+	};
+
+	class ConstIterator : public IteratorBase<true>
+	{
+	public:
+		using IteratorBase::IteratorBase;
+	};
+
+	Iterator begin( ) noexcept
+	{
+		return Iterator( *this, 0 );
+	}
+
+	ConstIterator begin( ) const noexcept
+	{
+		return ConstIterator( *this, 0 );
+	}
+
+	Iterator end( ) noexcept
+	{
+		return Iterator( *this, m_allocationFlag.Size( ) );
+	}
+
+	ConstIterator end( ) const noexcept
+	{
+		return ConstIterator( *this, m_allocationFlag.Size( ) );
 	}
 
 private:
@@ -100,6 +174,11 @@ private:
 	}
 
 	Element& GetData( std::size_t index )
+	{
+		return m_data[index];
+	}
+
+	const Element& GetData( std::size_t index ) const
 	{
 		return m_data[index];
 	}

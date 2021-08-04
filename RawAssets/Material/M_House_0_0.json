@@ -5,6 +5,8 @@
 		"PS": "./Assets/Shaders/PS_Tutorial.asset"
 	},
 	"Surface": {
-		"Diffuse": [ 0.000000, 0.627451, 0.909804 ]
+		"Diffuse": [ 0.000000, 0.627451, 0.909804 ],
+		"Specular": [ 1.000000, 1.000000, 1.000000 ],
+		"Roughness" : 0.01
 	}
 }

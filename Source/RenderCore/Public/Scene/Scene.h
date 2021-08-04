@@ -2,6 +2,7 @@
 
 #include "DrawSnapshot.h"
 #include "IScene.h"
+#include "LightSceneInfo.h"
 #include "SceneConstantBuffers.h"
 #include "SparseArray.h"
 #include "UploadBuffer.h"
@@ -29,6 +30,14 @@ public:
 
 	virtual void AddTexturedSkyComponent( TexturedSkyComponent* texturedSky ) override;
 	virtual void RemoveTexturedSkyComponent( TexturedSkyComponent* texturedSky ) override;
+
+	virtual void AddLight( LightComponent* light ) override;
+	virtual void RemoveLight( LightComponent* light ) override;
+	
+	const SparseArray<LightSceneInfo*>& Lights( ) const
+	{
+		return m_lights;
+	}
 
 	virtual SceneViewConstantBuffer& SceneViewConstant( ) override
 	{
@@ -69,7 +78,13 @@ private:
 	void AddTexturedSky( TexturedSkyProxy* texturedSky );
 	void RemoveTexturedSky( TexturedSkyProxy* texturedSky );
 
+	void AddLightSceneInfo( LightSceneInfo* lightSceneInfo );
+	void RemoveLightSceneInfo( LightSceneInfo* lightSceneInfo );
+
 	std::vector<PrimitiveSceneInfo*> m_primitives;
+	SparseArray<LightSceneInfo*> m_lights;
+	TexturedSkyProxy* m_texturedSky = nullptr;
+
 	SparseArray<DrawSnapshot> m_cachedSnapshots;
 	SceneViewConstantBuffer m_viewConstant;
 
@@ -78,8 +93,6 @@ private:
 
 	TypedUploadBuffer<CXMFLOAT4> m_uploadPrimitiveBuffer;
 	TypedUploadBuffer<UINT> m_distributionBuffer;
-
-	TexturedSkyProxy* m_texturedSky = nullptr;
 
 	friend bool UpdateGPUPrimitiveInfos( Scene& scene );
 };

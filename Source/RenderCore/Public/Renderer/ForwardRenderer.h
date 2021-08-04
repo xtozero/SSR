@@ -6,11 +6,13 @@
 class ForwardRenderer final : public SceneRenderer
 {
 public:
-	virtual bool PrepareRender( RenderViewGroup& renderViewGroup ) override;
+	virtual bool PreRender( RenderViewGroup& renderViewGroup ) override;
 	virtual void Render( RenderViewGroup& renderViewGroup ) override;
+	virtual void PostRender( RenderViewGroup& renderViewGroup ) override;
 
 private:
 	void SetRenderTarget( RenderViewGroup& renderViewGroup );
+	void UpdateLightResource( RenderViewGroup& renderViewGroup );
 
 	class ForwardRendererRenderTargets
 	{

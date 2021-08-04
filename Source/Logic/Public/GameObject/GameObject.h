@@ -76,7 +76,6 @@ public:
 	const CXMFLOAT4X4& GetInvTransformMatrix( );
 
 	void UpdateTransform( CGameLogic& gameLogic );
-	virtual void Render( CGameLogic& gameLogic );
 
 	virtual void Think( float elapsedTime );
 	virtual void PostThink( float elapsedTime );
@@ -110,9 +109,6 @@ public:
 	virtual void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json );
 
 	virtual bool IgnorePicking( ) const { return false; }
-
-	virtual bool ShouldDraw( ) const { return true; }
-	virtual bool ShouldDrawShadow( ) const { return true; }
 
 	SceneComponent* GetRootComponent( ) const { return m_rootComponent; }
 

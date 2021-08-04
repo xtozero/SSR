@@ -9,8 +9,6 @@ public:
 	void RegisterComponent( );
 	void UnregisterComponent( );
 
-	virtual void CreateRenderState( );
-	virtual void RemoveRenderState( );
 	virtual void ThinkComponent( [[maybe_unused]]float elapsedTime ) {};
 
 	void RecreateRenderState( );
@@ -23,6 +21,8 @@ public:
 
 protected:
 	virtual bool ShouldCreateRenderState( ) const;
+	virtual void CreateRenderState( );
+	virtual void RemoveRenderState( );
 
 	World* m_pWorld = nullptr;
 

@@ -1,145 +1,162 @@
 #include "stdafx.h"
 #include "GameObject/Light.h"
 
+#include "Components/LightComponent.h"
+#include "GameObject/GameObjectFactory.h"
+#include "Json/json.hpp"
+
 #include <cassert>
 
 using namespace DirectX;
 
-//void CLight::SetPosition( const float x, const float y, const float z )
+//const bool CLight::IsOn( ) const
 //{
-//	CGameObject::SetPosition( x, y, z );
-//
 //	if ( m_property )
 //	{
-//		m_property->m_position = CXMFLOAT4( x, y, z, 0.f );
+//		return m_property->m_isOn;
+//	}
+//
+//	return false;
+//}
+
+//void CLight::SetOnOff( const bool on )
+//{
+//	if ( m_property )
+//	{
+//		m_property->m_isOn = on;
 //	}
 //}
-//
-//void CLight::SetPosition( const CXMFLOAT3& pos )
+
+//void CLight::SetRange( const float range )
 //{
-//	SetPosition( pos.x, pos.y, pos.z );
+//	if ( m_property )
+//	{
+//		m_property->m_range = range;
+//	}
 //}
 
-void CLight::Render( CGameLogic& /*gameLogic*/ )
-{
-	//Do Nothing Yet
-}
+//void CLight::SetFallOff( const float fallOff )
+//{
+//	if ( m_property )
+//	{
+//		m_property->m_fallOff = fallOff;
+//	}
+//}
 
-const LIGHT_TYPE CLight::GetType( ) const
+//void CLight::SetConeProperty( const float theta, const float phi )
+//{
+//	if ( m_property )
+//	{
+//		m_property->m_theta = theta;
+//		m_property->m_phi = phi;
+//	}
+//}
+
+//void CLight::SetDiection( const CXMFLOAT3& direction )
+//{
+//	if ( m_property )
+//	{
+//		m_property->m_direction = XMVector3Normalize( direction );
+//	}
+//}
+
+//void CLight::SetAttenuation( const CXMFLOAT3& attenuation )
+//{
+//	if ( m_property )
+//	{
+//		m_property->m_attenuation = attenuation;
+//	}
+//}
+
+void CLight::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 {
-	if ( m_property )
+	if ( const JSON::Value* pDiffuse = json.Find( "Diffuse" ) )
 	{
-		return m_property->m_type;
+		const JSON::Value& diffuse = *pDiffuse;
+
+		if ( diffuse.Size( ) >= 4 )
+		{
+			float r = static_cast<float>( diffuse[0].AsReal( ) );
+			float g = static_cast<float>( diffuse[1].AsReal( ) );
+			float b = static_cast<float>( diffuse[2].AsReal( ) );
+			float a = static_cast<float>( diffuse[3].AsReal( ) );
+
+			SetDiffuseColor( CXMFLOAT4( r, g, b, a ) );
+		}
 	}
 
-	return LIGHT_TYPE::NONE;
-}
-
-const bool CLight::IsOn( ) const
-{
-	if ( m_property )
+	if ( const JSON::Value* pSpecular = json.Find( "Specular" ) )
 	{
-		return m_property->m_isOn;
-	}
+		const JSON::Value& specluar = *pSpecular;
 
-	return false;
-}
+		if ( specluar.Size( ) >= 4 )
+		{
+			float r = static_cast<float>( specluar[0].AsReal( ) );
+			float g = static_cast<float>( specluar[1].AsReal( ) );
+			float b = static_cast<float>( specluar[2].AsReal( ) );
+			float a = static_cast<float>( specluar[3].AsReal( ) );
 
-CXMFLOAT3 CLight::GetDirection( ) const
-{
-	if ( m_property )
-	{
-		return m_property->m_direction;
-	}
-
-	CXMFLOAT3 default = { 0.f, 0.f, 0.f };
-	return default;
-}
-
-void CLight::SetOnOff( const bool on )
-{
-	if ( m_property )
-	{
-		m_property->m_isOn = on;
-	}
-}
-
-void CLight::SetRange( const float range )
-{
-	if ( m_property )
-	{
-		m_property->m_range = range;
-	}
-}
-
-void CLight::SetFallOff( const float fallOff )
-{
-	if ( m_property )
-	{
-		m_property->m_fallOff = fallOff;
-	}
-}
-
-void CLight::SetConeProperty( const float theta, const float phi )
-{
-	if ( m_property )
-	{
-		m_property->m_theta = theta;
-		m_property->m_phi = phi;
-	}
-}
-
-void CLight::SetDiection( const CXMFLOAT3& direction )
-{
-	if ( m_property )
-	{
-		m_property->m_direction = XMVector3Normalize( direction );
-	}
-}
-
-void CLight::SetAttenuation( const CXMFLOAT3& attenuation )
-{
-	if ( m_property )
-	{
-		m_property->m_attenuation = attenuation;
+			SetSpecularColor( CXMFLOAT4( r, g, b, a ) );
+		}
 	}
 }
 
 void CLight::SetDiffuseColor( const CXMFLOAT4& diffuseColor )
 {
-	if ( m_property )
-	{
-		m_property->m_diffuse = diffuseColor;
-	}
+	GetLightComponent( ).SetDiffuseColor( diffuseColor );
 }
 
 void CLight::SetSpecularColor( const CXMFLOAT4& specularColor )
 {
-	if ( m_property )
+	GetLightComponent( ).SetSpecularColor( specularColor );
+}
+
+LightComponent& CLight::GetLightComponent( )
+{
+	if ( m_component == nullptr )
 	{
-		m_property->m_specular = specularColor;
+		m_component = GetComponent<LightComponent>( );
+	}
+
+	return *m_component;
+}
+
+DECLARE_GAME_OBJECT( directional_light, DirectionalLight );
+
+const LIGHT_TYPE DirectionalLight::GetType( ) const
+{
+	return LIGHT_TYPE::DIRECTINAL_LIGHT;
+}
+
+void DirectionalLight::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
+{
+	CLight::LoadProperty( gameLogic, json );
+
+	if ( const JSON::Value* pDirection = json.Find( "Direction" ) )
+	{
+		const JSON::Value& direction = *pDirection;
+
+		if ( direction.Size( ) >= 3 )
+		{
+			float x = static_cast<float>( direction[0].AsReal( ) );
+			float y = static_cast<float>( direction[1].AsReal( ) );
+			float z = static_cast<float>( direction[2].AsReal( ) );
+
+			CXMFLOAT3 vDir( x, y, z );
+			vDir = XMVector3Normalize( vDir );
+
+			m_directionalLightComponent->SetDirection( vDir );
+		}
 	}
 }
 
-CXMFLOAT4X4 CLight::GetViewMatrix( )
+const CXMFLOAT3& DirectionalLight::Direction( ) const
 {
-	if ( m_needRecalc )
-	{
-		CXMFLOAT3 eyePos( m_property->m_position.x, m_property->m_position.y, m_property->m_position.z );
-		assert( m_property->m_direction.x != 0.f || m_property->m_direction.y != 0.f || m_property->m_direction.z != 0.f );
-		CXMFLOAT3 dir( m_property->m_direction.x, m_property->m_direction.y, m_property->m_direction.z );
-		XMVECTOR lookAt = eyePos + dir;
-		CXMFLOAT3 up( 0.f, 1.0f, 0.f );
-
-		m_viewMatrix = XMMatrixLookAtLH( eyePos, lookAt, up );
-		m_needRecalc = false;
-	}
-
-	return m_viewMatrix;
+	return m_directionalLightComponent->Direction( );
 }
 
-CLight::CLight( ) :
-	m_property( nullptr ),
-	m_needRecalc( true )
+DirectionalLight::DirectionalLight( )
 {
+	m_directionalLightComponent = CreateComponent<DirectionalLightComponent>( *this );
+	m_rootComponent = m_directionalLightComponent;
 }

@@ -2,7 +2,6 @@
 
 #include "Core/DebugConsole.h"
 #include "common.h"
-#include "GameObject/LightManager.h"
 #include "GameObject/PickingManager.h"
 #include "GameObject/Player.h"
 #include "GraphicsResource/Viewport.h"
@@ -52,7 +51,6 @@ public:
 	void SpawnObject( Owner<CGameObject*> object );
 
 	//IRenderer& GetRenderer( ) const { return *m_pRenderer; }
-	//CLightManager& GetLightManager( ) { return m_lightManager; }
 	//CShadowManager& GetShadowManager( ) { return m_shadowManager; }
 	//CModelManager& GetModelManager( ) { return m_modelManager; }
 	//ImUI& GetUIManager( ) { return m_ui; }
@@ -101,7 +99,6 @@ private:
 	CTimer m_clock;
 	std::unique_ptr<InputController> m_inputController;
 	//CPickingManager m_pickingManager;
-	CLightManager m_lightManager;
 	//CShadowManager m_shadowManager;
 	//CSSRManager m_ssrManager;
 	//CAtmosphericScatteringManager m_atmosphereManager;

@@ -13,9 +13,6 @@ class TexturedSkyComponent : public Component
 public:
 	using Component::Component;
 
-	virtual void CreateRenderState( ) override;
-	virtual void RemoveRenderState( ) override;
-
 	virtual TexturedSkyProxy* CreateProxy( ) const;
 
 	void SetStaticMesh( const std::shared_ptr<StaticMesh>& pStaticMesh );
@@ -24,10 +21,12 @@ public:
 	void SetMaterial( const std::shared_ptr<Material>& pMaterial );
 	std::shared_ptr<Material> GetMaterial( ) const { return m_pMaterial; }
 
-	TexturedSkyProxy* m_sceneProxy = nullptr;
+	TexturedSkyProxy* m_texturedSkyProxy = nullptr;
 
 protected:
 	virtual bool ShouldCreateRenderState( ) const override;
+	virtual void CreateRenderState( ) override;
+	virtual void RemoveRenderState( ) override;
 
 private:
 	std::shared_ptr<StaticMesh> m_pStaticMesh = nullptr;

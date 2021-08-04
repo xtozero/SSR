@@ -10,5 +10,5 @@ float4 main( PS_INPUT input ) : SV_Target0
 	//output.depth.x = input.viewPos.z / g_FarPlaneDist;
 	//return output;
 	
-	return float4( Diffuse );
+	return CalcLight( input );
 }

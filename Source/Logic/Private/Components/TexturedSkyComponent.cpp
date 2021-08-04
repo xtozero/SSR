@@ -5,18 +5,6 @@
 #include "Scene/IScene.h"
 #include "World/World.h"
 
-void TexturedSkyComponent::CreateRenderState( )
-{
-	Component::CreateRenderState( );
-	m_pWorld->Scene( )->AddTexturedSkyComponent( this );
-}
-
-void TexturedSkyComponent::RemoveRenderState( )
-{
-	Component::RemoveRenderState( );
-	m_pWorld->Scene( )->RemoveTexturedSkyComponent( this );
-}
-
 TexturedSkyProxy* TexturedSkyComponent::CreateProxy( ) const
 {
 	if ( m_pStaticMesh == nullptr ||
@@ -47,4 +35,16 @@ void TexturedSkyComponent::SetMaterial( const std::shared_ptr<Material>& pMateri
 bool TexturedSkyComponent::ShouldCreateRenderState( ) const
 {
 	return true;
+}
+
+void TexturedSkyComponent::CreateRenderState( )
+{
+	Component::CreateRenderState( );
+	m_pWorld->Scene( )->AddTexturedSkyComponent( this );
+}
+
+void TexturedSkyComponent::RemoveRenderState( )
+{
+	Component::RemoveRenderState( );
+	m_pWorld->Scene( )->RemoveTexturedSkyComponent( this );
 }

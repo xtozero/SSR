@@ -203,15 +203,6 @@ void CGameObject::UpdateTransform( CGameLogic& gameLogic )
 	//}
 }
 
-void CGameObject::Render( CGameLogic& gameLogic )
-{
-	//if ( ShouldDraw() && m_pModel )
-	//{
-	//	m_pModel->SetMaterial( ( m_overrideMaterial != INVALID_MATERIAL ) ? m_overrideMaterial : m_material );
-	//	m_pModel->Draw( gameLogic );
-	//}
-}
-
 void CGameObject::Think( float elapsedTime )
 {
 	if ( m_isPicked )

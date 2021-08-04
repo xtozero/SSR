@@ -11,7 +11,7 @@ struct CascadeConstant
 	float3 padding;
 };
 
-cbuffer SHADOW_CONSTANT : register( b3 )
+cbuffer SHADOW_CONSTANT : register( b4 )
 {
 	CascadeConstant g_cascadeConstant[MAX_CASCADED_NUM];
 	matrix g_lightViewProjection[MAX_CASCADED_NUM];

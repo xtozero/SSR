@@ -4,18 +4,6 @@
 #include "Scene/IScene.h"
 #include "World/World.h"
 
-void PrimitiveComponent::CreateRenderState( )
-{
-	SceneComponent::CreateRenderState( );
-	m_pWorld->Scene( )->AddPrimitive( this );
-}
-
-void PrimitiveComponent::RemoveRenderState( )
-{
-	SceneComponent::RemoveRenderState( );
-	m_pWorld->Scene( )->RemovePrimitive( this );
-}
-
 void PrimitiveComponent::SetMass( float mass )
 {
 	m_rigidBody.SetMass( mass );
@@ -39,4 +27,16 @@ const CXMFLOAT4X4& PrimitiveComponent::GetRenderMatrix( )
 bool PrimitiveComponent::ShouldCreateRenderState( ) const
 {
 	return true;
+}
+
+void PrimitiveComponent::CreateRenderState( )
+{
+	SceneComponent::CreateRenderState( );
+	m_pWorld->Scene( )->AddPrimitive( this );
+}
+
+void PrimitiveComponent::RemoveRenderState( )
+{
+	SceneComponent::RemoveRenderState( );
+	m_pWorld->Scene( )->RemovePrimitive( this );
 }

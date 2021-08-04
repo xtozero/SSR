@@ -7,6 +7,7 @@ set (COMPOENETS
 	Private/Components/CameraComponent.cpp
 	Private/Components/Component.cpp
 	Private/Components/InputComponent.cpp
+	Private/Components/LightComponent.cpp
 	Private/Components/PrimitiveComponent.cpp
 	Private/Components/SceneComponent.cpp
 	Private/Components/StaticMeshComponent.cpp
@@ -14,6 +15,7 @@ set (COMPOENETS
 	Public/Components/CameraComponent.h
 	Public/Components/Component.h
 	Public/Components/InputComponent.h
+	Public/Components/LightComponent.h
 	Public/Components/PrimitiveComponent.h
 	Public/Components/SceneComponent.h
 	Public/Components/StaticMeshComponent.h
@@ -34,25 +36,23 @@ set (CORE
 	"Public/Core/UtilWindowInfo.h")
 	
 set (GAME_OBJECT
-	"Private/GameObject/DisplayShaderResourceHelper.cpp"
-	"Private/GameObject/GameClientViewport.cpp"
-	"Private/GameObject/GameObject.cpp"
-	"Private/GameObject/GameObjectFactory.cpp"
-	"Private/GameObject/Light.cpp"
-	"Private/GameObject/LightManager.cpp"
-	"Private/GameObject/PickingManager.cpp"
-	"Private/GameObject/SkyBox.cpp"
-	"Private/GameObject/StaticMeshGameObject.cpp"
-	"Public/GameObject/DisplayShaderResourceHelper.h"
-	"Public/GameObject/GameClientViewport.h"
-	"Public/GameObject/GameObject.h"
-	"Public/GameObject/GameObjectFactory.h"
-	"Public/GameObject/GameObjectProperty.h"
-	"Public/GameObject/Light.h"
-	"Public/GameObject/LightManager.h"
-	"Public/GameObject/PickingManager.h"
-	"Public/GameObject/SkyBox.h"
-	"Public/GameObject/StaticMeshGameObject.h")
+	Private/GameObject/DisplayShaderResourceHelper.cpp
+	Private/GameObject/GameClientViewport.cpp
+	Private/GameObject/GameObject.cpp
+	Private/GameObject/GameObjectFactory.cpp
+	Private/GameObject/Light.cpp
+	Private/GameObject/PickingManager.cpp
+	Private/GameObject/SkyBox.cpp
+	Private/GameObject/StaticMeshGameObject.cpp
+	Public/GameObject/DisplayShaderResourceHelper.h
+	Public/GameObject/GameClientViewport.h
+	Public/GameObject/GameObject.h
+	Public/GameObject/GameObjectFactory.h
+	Public/GameObject/GameObjectProperty.h
+	Public/GameObject/Light.h
+	Public/GameObject/PickingManager.h
+	Public/GameObject/SkyBox.h
+	Public/GameObject/StaticMeshGameObject.h)
 
 #set (MATERIAL
 #	"Private/Material/Material.cpp"

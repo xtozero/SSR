@@ -11,9 +11,6 @@ class PrimitiveComponent : public SceneComponent
 public:
 	using SceneComponent::SceneComponent;
 
-	virtual void CreateRenderState( ) override;
-	virtual void RemoveRenderState( ) override;
-
 	void SetMass( float mass );
 
 	void SetLinearDamping( float linearDamping );
@@ -26,6 +23,8 @@ public:
 
 protected:
 	virtual bool ShouldCreateRenderState( ) const override;
+	virtual void CreateRenderState( ) override;
+	virtual void RemoveRenderState( ) override;
 
 private:
 	RigidBody m_rigidBody;

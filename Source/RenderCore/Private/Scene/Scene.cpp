@@ -2,11 +2,14 @@
 #include "Scene/Scene.h"
 
 #include "ByteBuffer.h"
+#include "Components/LightComponent.h"
 #include "Components/PrimitiveComponent.h"
 #include "Components/TexturedSkyComponent.h"
 #include "MultiThread/EngineTaskScheduler.h"
+#include "Proxies/LightProxy.h"
 #include "Proxies/PrimitiveProxy.h"
 #include "Proxies/TexturedSkyProxy.h"
+#include "Scene/LightSceneInfo.h"
 #include "Scene/PrimitiveSceneInfo.h"
 
 #include <algorithm>
@@ -37,7 +40,6 @@ void Scene::AddPrimitive( PrimitiveComponent* primitive )
 	}
 
 	PrimitiveSceneInfo* primitiveSceneInfo = new PrimitiveSceneInfo( primitive, *this );
-	primitiveSceneInfo->m_sceneProxy = proxy;
 
 	proxy->m_primitiveSceneInfo = primitiveSceneInfo;
 
@@ -79,7 +81,7 @@ void Scene::RemovePrimitive( PrimitiveComponent* primitive )
 void Scene::AddTexturedSkyComponent( TexturedSkyComponent* texturedSky )
 {
 	TexturedSkyProxy* proxy = texturedSky->CreateProxy( );
-	texturedSky->m_sceneProxy = proxy;
+	texturedSky->m_texturedSkyProxy = proxy;
 
 	if ( proxy )
 	{
@@ -94,15 +96,51 @@ void Scene::AddTexturedSkyComponent( TexturedSkyComponent* texturedSky )
 
 void Scene::RemoveTexturedSkyComponent( TexturedSkyComponent* texturedSky )
 {
-	TexturedSkyProxy* proxy = texturedSky->m_sceneProxy;
+	TexturedSkyProxy* proxy = texturedSky->m_texturedSkyProxy;
 
 	if ( proxy )
 	{
-		texturedSky->m_sceneProxy = nullptr;
+		texturedSky->m_texturedSkyProxy = nullptr;
 
 		EnqueueRenderTask( [this, proxy]( )
 		{
 			RemoveTexturedSky( proxy );
+		} );
+	}
+}
+
+void Scene::AddLight( LightComponent* light )
+{
+	LightProxy* proxy = light->CreateProxy( );
+	light->m_lightProxy = proxy;
+
+	if ( proxy == nullptr )
+	{
+		return;
+	}
+
+	LightSceneInfo* lightsceneInfo = new LightSceneInfo( *light, *this );
+
+	proxy->m_lightSceneInfo = lightsceneInfo;
+
+	EnqueueRenderTask( [this, lightsceneInfo]
+	{
+		AddLightSceneInfo( lightsceneInfo );
+	} );
+}
+
+void Scene::RemoveLight( LightComponent* light )
+{
+	LightProxy* proxy = light->m_lightProxy;
+
+	if ( proxy )
+	{
+		LightSceneInfo* lightSceneInfo = proxy->m_lightSceneInfo;
+		light->m_lightProxy = nullptr;
+
+		EnqueueRenderTask( [this, lightSceneInfo]( )
+		{
+			RemoveLightSceneInfo( lightSceneInfo );
 		} );
 	}
 }
@@ -161,6 +199,21 @@ void Scene::RemoveTexturedSky( TexturedSkyProxy* texturedSky )
 {
 	delete m_texturedSky;
 	m_texturedSky = nullptr;
+}
+
+void Scene::AddLightSceneInfo( LightSceneInfo* lightSceneInfo )
+{
+	std::size_t id = m_lights.Add( lightSceneInfo );
+	lightSceneInfo->SetID( id );
+}
+
+void Scene::RemoveLightSceneInfo( LightSceneInfo* lightSceneInfo )
+{
+	std::size_t id = lightSceneInfo->ID( );
+	m_lights.RemoveAt( id );
+
+	delete lightSceneInfo->Proxy( );
+	delete lightSceneInfo;
 }
 
 bool UpdateGPUPrimitiveInfos( Scene& scene )

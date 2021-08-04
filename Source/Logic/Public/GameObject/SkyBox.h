@@ -11,8 +11,6 @@ public:
 
 	virtual bool IgnorePicking( ) const override { return true; }
 
-	virtual bool ShouldDrawShadow( ) const override { return false; }
-
 public:
 	CSkyBox( );
 	~CSkyBox( ) = default;

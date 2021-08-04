@@ -10,8 +10,91 @@
 #include "Scene/PrimitiveSceneInfo.h"
 #include "Scene/Scene.h"
 #include "Scene/SceneConstantBuffers.h"
+#include "ShaderBindings.h"
 
 #include <deque>
+
+void RenderingShaderResource::BindResources( const ShaderStates& shaders, aga::ShaderBindings& bindings )
+{
+	const ShaderBase* shaderArray[] = {
+		shaders.m_vertexShader,
+		nullptr, // HS
+		nullptr, // DS
+		nullptr, // GS					
+		shaders.m_pixelShader,
+		nullptr, // CS
+	};
+
+	for ( int shaderType = 0; shaderType < MAX_SHADER_TYPE<int>; ++shaderType )
+	{
+		if ( shaderArray[shaderType] == nullptr )
+		{
+			continue;
+		}
+
+		aga::SingleShaderBindings singleBinding = bindings.GetSingleShaderBindings( static_cast<SHADER_TYPE>( shaderType ) );
+
+		if ( singleBinding.ShaderType( ) == SHADER_TYPE::NONE )
+		{
+			continue;
+		}
+
+		const auto& parameterMap = shaderArray[shaderType]->ParameterMap( );
+
+		for ( std::size_t i = 0; i < m_parameterNames.size( ); ++i )
+		{
+			GraphicsApiResource* resource = m_resources[i];
+			if ( resource == nullptr )
+			{
+				continue;
+			}
+
+			aga::ShaderParameter parameter = parameterMap.GetParameter( m_parameterNames[i].c_str( ) );
+			
+			switch ( parameter.m_type )
+			{
+			case aga::ShaderParameterType::ConstantBuffer:
+				singleBinding.AddConstantBuffer( parameter, reinterpret_cast<aga::Buffer*>( m_resources[i] ) );
+				break;
+			case aga::ShaderParameterType::SRV:
+				singleBinding.AddSRV( parameter, reinterpret_cast<aga::ShaderResourceView*>( m_resources[i] ) );
+				break;
+			case aga::ShaderParameterType::UAV:
+				singleBinding.AddUAV( parameter, reinterpret_cast<aga::UnorderedAccessView*>( m_resources[i] ) );
+				break;
+			case aga::ShaderParameterType::Sampler:
+				singleBinding.AddSampler( parameter, reinterpret_cast<aga::SamplerState*>( m_resources[i] ) );
+				break;
+			default:
+				break;
+			}
+		}
+	}
+}
+
+void RenderingShaderResource::AddResource( const std::string& parameterName, GraphicsApiResource* resource )
+{
+	auto found = std::find( std::begin( m_parameterNames ), std::end( m_parameterNames ), parameterName );
+
+	if ( found == std::end( m_parameterNames ) )
+	{
+		m_parameterNames.emplace_back( parameterName );
+		m_resources.emplace_back( resource );
+	}
+	else
+	{
+		std::size_t idx = std::distance( std::begin( m_parameterNames ), found );
+		m_resources[idx] = resource;
+	}
+}
+
+void RenderingShaderResource::ClearResources( )
+{
+	for ( auto& resource : m_resources )
+	{
+		resource = nullptr;
+	}
+}
 
 void SceneRenderer::WaitUntilRenderingIsFinish( )
 {
@@ -134,18 +217,13 @@ void SceneRenderer::RenderMesh( IScene& scene, RenderView& view )
 		}
 	}
 
-	// Update new primitvie info buffer
-	auto& gpuPrimitiveInfo = scene.GpuPrimitiveInfo( );
+	// Update invalidated resources
 	for ( auto& viewDrawSnapshot : view.m_snapshots )
 	{
 		DrawSnapshot& snapshot = *viewDrawSnapshot.m_drawSnapshot;
 		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
-		const auto& vsParameterMap = pipelineState.m_shaderState.m_vertexShader->ParameterMap( );
 
-		auto binding = snapshot.m_shaderBindings.GetSingleShaderBindings( SHADER_TYPE::VS );
-		aga::ShaderParameter primitiveInfo = vsParameterMap.GetParameter( "primitiveInfo" );
-		auto srv = gpuPrimitiveInfo.SRV( );
-		binding.AddSRV( primitiveInfo, srv );
+		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 	}
 
 	VertexBuffer primitiveIds = PrimitiveIdVertexBufferPool::GetInstance( ).Alloc( view.m_snapshots.size( ) * sizeof( UINT ) );

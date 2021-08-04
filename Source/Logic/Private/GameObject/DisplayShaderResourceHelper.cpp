@@ -26,19 +26,19 @@ DECLARE_GAME_OBJECT( displaySRVHelper, CDisplayShaderResourceHelper );
 //	CGameObject::SetPosition( projPos );
 //}
 
-void CDisplayShaderResourceHelper::Render( CGameLogic& gameLogic )
-{
-	if ( ShouldDraw( ) )
-	{
+//void CDisplayShaderResourceHelper::Render( CGameLogic& gameLogic )
+//{
+	//if ( ShouldDraw( ) )
+	//{
 		//// 스냅샷으로 만들어지는 텍스쳐의 경우 로드시에는 없기때문에 렌더때 텍스쳐가 없으면 세팅을 시도합니다.
 		//if ( GetModel( ) && GetModel( )->GetTexture() == RE_HANDLE::InValidHandle( ) )
 		//{
 		//	GetModel( )->SetTexture( gameLogic.GetRenderer().CreateShaderResourceFromFile( m_textureName ) );
 		//}
 
-		CGameObject::Render( gameLogic );
-	}
-}
+		//CGameObject::Render( gameLogic );
+	//}
+//}
 
 void CDisplayShaderResourceHelper::Think( float /*elapsedTime*/ )
 {
@@ -64,10 +64,10 @@ void CDisplayShaderResourceHelper::LoadProperty( CGameLogic& gameLogic, const JS
 	}
 }
 
-bool CDisplayShaderResourceHelper::ShouldDraw( ) const
-{
-	return r_debugTexture.GetString( ) == GetName( );
-}
+//bool CDisplayShaderResourceHelper::ShouldDraw( ) const
+//{
+//	return r_debugTexture.GetString( ) == GetName( );
+//}
 
 //bool CDisplayShaderResourceHelper::LoadModelMesh( CGameLogic& gameLogic )
 //{
