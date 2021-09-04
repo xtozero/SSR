@@ -250,14 +250,7 @@ void MaterialResource::UpdateToGPU( )
 		}
 	};
 
-	if ( IsInRenderThread( ) )
-	{
-		Update( );
-	}
-	else
-	{
-		EnqueueRenderTask( Update );
-	}
+	EnqueueRenderTask( Update );
 }
 
 const VertexShader* MaterialResource::GetVertexShader( ) const

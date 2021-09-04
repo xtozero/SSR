@@ -16,17 +16,10 @@ void ForwardLightBuffer::Initialize( std::size_t bytePerElement, std::size_t num
 	};
 
 	m_buffer = aga::Buffer::Create( trait );
-	if ( IsInRenderThread( ) )
+	EnqueueRenderTask( [buffer = m_buffer]( )
 	{
-		m_buffer->Init( );
-	}
-	else
-	{
-		EnqueueRenderTask( [buffer = m_buffer]( )
-		{
-			buffer->Init( );
-		} );
-	}
+		buffer->Init( );
+	} );
 }
 
 void* ForwardLightBuffer::Lock( )

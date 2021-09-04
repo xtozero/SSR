@@ -30,15 +30,8 @@ void IndexBuffer::InitResource( const void* initData )
 	};
 
 	m_buffer = aga::Buffer::Create( trait, initData );
-	if ( IsInRenderThread( ) )
+	EnqueueRenderTask( [buffer = m_buffer]( )
 	{
-		m_buffer->Init( );
-	}
-	else
-	{
-		EnqueueRenderTask( [buffer = m_buffer]( )
-		{
-			buffer->Init( );
-		} );
-	}
+		buffer->Init( );
+	} );
 }

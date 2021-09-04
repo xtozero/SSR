@@ -56,17 +56,10 @@ void ConstantBuffer::InitResource( std::size_t size )
 	};
 
 	m_buffer = aga::Buffer::Create( trait );
-	if ( IsInRenderThread( ) )
+	EnqueueRenderTask( [buffer = m_buffer]( )
 	{
-		m_buffer->Init( );
-	}
-	else
-	{
-		EnqueueRenderTask( [buffer = m_buffer]( )
-		{
-			buffer->Init( );
-		} );
-	}
+		buffer->Init( );
+	} );
 }
 
 void ConstantBuffer::BindImple( VertexShader& shader, UINT slot )

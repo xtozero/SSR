@@ -26,17 +26,10 @@ void DefaultConstantBuffers::BootUp( )
 		contexts[CS].m_buffer.Bind( cs, 0 );
 	};
 
-	if ( IsInRenderThread( ) )
+	EnqueueRenderTask( [SetDefaultConstant]( )
 	{
 		SetDefaultConstant( );
-	}
-	else
-	{
-		EnqueueRenderTask( [SetDefaultConstant]( )
-		{
-			SetDefaultConstant( );
-		} );
-	}
+	} );
 }
 
 void DefaultConstantBuffers::Shutdown( )

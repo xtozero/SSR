@@ -76,17 +76,10 @@ namespace rendercore
 	Viewport::Viewport( int width, int height, HWND hWnd, RESOURCE_FORMAT format )
 	{
 		m_pViewport = aga::Viewport::Create( width, height, hWnd, format );
-		if ( IsInRenderThread( ) )
+		EnqueueRenderTask( [viewport = m_pViewport]( )
 		{
-			m_pViewport->Init( );
-		}
-		else
-		{
-			EnqueueRenderTask( [viewport = m_pViewport]( )
-			{
-				viewport->Init( );
-			} );
-		}
+			viewport->Init( );
+		} );
 	}
 
 	Viewport::~Viewport( )

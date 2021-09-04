@@ -16,17 +16,10 @@
 
 Scene::Scene( )
 {
-	if ( IsInRenderThread( ) )
+	EnqueueRenderTask( [this]
 	{
 		m_viewConstant.Initialize( );
-	}
-	else
-	{
-		EnqueueRenderTask( [this]
-		{
-			m_viewConstant.Initialize( );
-		} );
-	}
+	} );
 }
 
 void Scene::AddPrimitive( PrimitiveComponent* primitive )

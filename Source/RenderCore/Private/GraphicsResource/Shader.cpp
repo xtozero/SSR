@@ -133,18 +133,10 @@ const aga::VertexShader* VertexShader::Resource( ) const
 void VertexShader::PostLoadImpl( )
 {
 	m_shader = aga::VertexShader::Create( m_byteCode.Data( ), m_byteCode.Size( ) );
-
-	if ( IsInRenderThread( ) )
+	EnqueueRenderTask( [shader = m_shader]( )
 	{
-		m_shader->Init( );
-	}
-	else
-	{
-		EnqueueRenderTask( [shader = m_shader]( )
-		{
-			shader->Init( );
-		} );
-	}
+		shader->Init( );
+	} );
 }
 
 REGISTER_ASSET( PixelShader );
@@ -171,18 +163,10 @@ const aga::PixelShader* PixelShader::Resource( ) const
 void PixelShader::PostLoadImpl( )
 {
 	m_shader = aga::PixelShader::Create( m_byteCode.Data( ), m_byteCode.Size( ) );
-
-	if ( IsInRenderThread( ) )
+	EnqueueRenderTask( [shader = m_shader]( )
 	{
-		m_shader->Init( );
-	}
-	else
-	{
-		EnqueueRenderTask( [shader = m_shader]( )
-		{
-			shader->Init( );
-		} );
-	}
+		shader->Init( );
+	} );
 }
 
 REGISTER_ASSET( ComputeShader );
@@ -209,16 +193,8 @@ const aga::ComputeShader* ComputeShader::Resource( ) const
 void ComputeShader::PostLoadImpl( )
 {
 	m_shader = aga::ComputeShader::Create( m_byteCode.Data( ), m_byteCode.Size( ) );
-
-	if ( IsInRenderThread( ) )
+	EnqueueRenderTask( [shader = m_shader]( )
 	{
-		m_shader->Init( );
-	}
-	else
-	{
-		EnqueueRenderTask( [shader = m_shader]( )
-		{
-			shader->Init( );
-		} );
-	}
+		shader->Init( );
+	} );
 }

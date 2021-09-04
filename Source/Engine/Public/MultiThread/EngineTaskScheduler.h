@@ -60,8 +60,15 @@ TaskHandle EnqueueThreadTask( Lambda lambda )
 template <typename Lambda>
 void EnqueueRenderTask( Lambda lambda )
 {
-	auto* task = Task<LambdaTask<Lambda>>::Create( WorkerAffinityMask<ThreadType::RenderThread>( ), lambda );
-	EnqueueRenderTask( static_cast<TaskBase*>( task ) );
+	if ( IsInRenderThread( ) )
+	{
+		lambda( );
+	}
+	else
+	{
+		auto* task = Task<LambdaTask<Lambda>>::Create( WorkerAffinityMask<ThreadType::RenderThread>( ), lambda );
+		EnqueueRenderTask( static_cast<TaskBase*>( task ) );
+	}
 }
 
 class ITaskScheduler
