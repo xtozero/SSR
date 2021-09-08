@@ -143,14 +143,19 @@ SHADING_METHOD Scene::ShadingMethod( ) const
 	return SHADING_METHOD::Forward;
 }
 
-std::size_t Scene::AddCachedDrawSnapshot( const DrawSnapshot& snapshot )
+CachedDrawSnapshotInfo Scene::AddCachedDrawSnapshot( const DrawSnapshot& snapshot )
 {
-	return m_cachedSnapshots.Add( snapshot );
+	CachedDrawSnapshotInfo info;
+	info.m_snapshotBucketId = m_cachedSnapshotBuckect.Add( snapshot );
+	info.m_snapshotIndex = m_cachedSnapshots.Add( snapshot );
+
+	return info;
 }
 
-void Scene::RemoveCachedDrawSnapshot( std::size_t index )
+void Scene::RemoveCachedDrawSnapshot( const CachedDrawSnapshotInfo& info )
 {
-	m_cachedSnapshots.RemoveAt( index );
+	m_cachedSnapshotBuckect.Remove( info.m_snapshotBucketId );
+	m_cachedSnapshots.RemoveAt( info.m_snapshotIndex );
 }
 
 void Scene::AddPrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo )

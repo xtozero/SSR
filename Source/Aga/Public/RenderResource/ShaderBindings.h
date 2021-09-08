@@ -34,6 +34,17 @@ namespace aga
 			return m_shaderType;
 		}
 
+		size_t GetHash( ) const
+		{
+			static size_t typeHash = typeid( ShaderBindingLayout ).hash_code( );
+			size_t hash = typeHash;
+
+			HashCombine( hash, m_shaderType );
+			HashCombine( hash, m_parameterInfo.GetHash( ) );
+
+			return hash;
+		}
+
 		ShaderBindingLayout( ) = default;
 		ShaderBindingLayout( SHADER_TYPE type, const ShaderParameterInfo& parameterInfo ) : m_shaderType( type ), m_parameterInfo( parameterInfo ) {}
 		ShaderBindingLayout( const ShaderBindingLayout& other )
@@ -64,6 +75,17 @@ namespace aga
 			}
 
 			return *this;
+		}
+
+		friend bool operator==( const ShaderBindingLayout& lhs, const ShaderBindingLayout& rhs )
+		{
+			return lhs.m_shaderType == rhs.m_shaderType &&
+				lhs.m_parameterInfo == rhs.m_parameterInfo;
+		}
+
+		friend bool operator!=( const ShaderBindingLayout& lhs, const ShaderBindingLayout& rhs )
+		{
+			return !( lhs == rhs );
 		}
 
 	protected:
@@ -299,7 +321,13 @@ namespace aga
 				std::copy_n( other.m_shaderLayouts, m_shaderLayoutSize, m_shaderLayouts );
 				Allocate( other.m_size );
 
-				std::memcpy( m_data, other.m_data, m_size );
+				for ( size_t offset = 0; offset < m_size; offset += sizeof( RefHandle<GraphicsApiResource> ) )
+				{
+					RefHandle<GraphicsApiResource>* handle = reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + offset );
+					RefHandle<GraphicsApiResource>* otherHandle = reinterpret_cast<RefHandle<GraphicsApiResource>*>( other.m_data + offset );
+
+					*handle = *otherHandle;
+				}
 			}
 
 			return *this;
@@ -332,6 +360,46 @@ namespace aga
 		~ShaderBindings( )
 		{
 			Free( );
+		}
+
+		bool MatchsForDynamicInstancing( const ShaderBindings& other ) const
+		{
+			if ( ( m_shaderLayoutSize != other.m_shaderLayoutSize ) ||
+				( m_size != other.m_size ) )
+			{
+				return false;
+			}
+
+			for ( int i = 0; i < m_shaderLayoutSize; ++i )
+			{
+				if ( m_shaderLayouts[i] != other.m_shaderLayouts[i] )
+				{
+					return false;
+				}
+			}
+
+			return std::memcmp( m_data, other.m_data, m_size ) == 0;
+		}
+
+		size_t HashForDynamicInstaning( ) const
+		{
+			static size_t typeHash = typeid( ShaderBindings ).hash_code( );
+			size_t hash = typeHash;
+
+			HashCombine( hash, m_size );
+
+			for ( size_t i = 0; i < m_shaderLayoutSize; ++i )
+			{
+				HashCombine( hash, m_shaderLayouts[i].GetHash( ) );
+			}
+
+			for ( size_t offset = 0; offset < m_size; offset += sizeof( RefHandle<GraphicsApiResource> ) )
+			{
+				auto handle = reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + offset );
+				HashCombine( hash, handle->Get( ) );
+			}
+
+			return hash;
 		}
 
 	private:

@@ -7,11 +7,6 @@
 
 #include <memory>
 
-class IResourceManager;
-class ShaderParameterInfo;
-struct CXMFLOAT4X4;
-struct IDXGISwapChain;
-
 namespace aga
 {
 	class BlendState;

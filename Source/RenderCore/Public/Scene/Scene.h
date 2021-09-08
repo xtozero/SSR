@@ -62,8 +62,8 @@ public:
 
 	virtual Scene* GetRenderScene( ) { return this; };
 
-	[[nodiscard]] std::size_t AddCachedDrawSnapshot( const DrawSnapshot& snapshot );
-	void RemoveCachedDrawSnapshot( std::size_t index );
+	[[nodiscard]] CachedDrawSnapshotInfo AddCachedDrawSnapshot( const DrawSnapshot& snapshot );
+	void RemoveCachedDrawSnapshot( const CachedDrawSnapshotInfo& info );
 	SparseArray<DrawSnapshot>& CachedSnapshots( ) { return m_cachedSnapshots; }
 	 
 	TexturedSkyProxy* TexturedSky( )
@@ -86,6 +86,8 @@ private:
 	TexturedSkyProxy* m_texturedSky = nullptr;
 
 	SparseArray<DrawSnapshot> m_cachedSnapshots;
+	CachedDrawSnapshotBucket m_cachedSnapshotBuckect;
+
 	SceneViewConstantBuffer m_viewConstant;
 
 	std::vector<std::size_t> m_primitiveToUpdate;

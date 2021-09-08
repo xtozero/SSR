@@ -191,9 +191,15 @@ namespace aga
 		}
 	}
 
-	void D3D11ImmediateCommandList::Draw( UINT indexCount, UINT startIndexLocation, UINT baseVertexLocation )
+	void D3D11ImmediateCommandList::Draw( uint32 indexCount, uint32 startIndexLocation, uint32 baseVertexLocation )
 	{
 		auto& context = D3D11Context( );
-		context.DrawIndexedInstanced( indexCount, 1, startIndexLocation, baseVertexLocation, 0 );
+		context.DrawIndexed( indexCount, startIndexLocation, baseVertexLocation );
+	}
+
+	void D3D11ImmediateCommandList::DrawInstancing( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
+	{
+		auto& context = D3D11Context( );
+		context.DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation, 0 );
 	}
 }

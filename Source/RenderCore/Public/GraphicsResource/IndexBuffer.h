@@ -19,6 +19,13 @@ public:
 	IndexBuffer( IndexBuffer&& ) = default;
 	IndexBuffer& operator=( IndexBuffer&& ) = default;
 
+	friend bool operator==( const IndexBuffer& lhs, const IndexBuffer& rhs )
+	{
+		return lhs.m_numElement == rhs.m_numElement &&
+				lhs.m_isDWORD == rhs.m_isDWORD &&
+				lhs.m_buffer == rhs.m_buffer;
+	}
+
 private:
 	void InitResource( const void* initData );
 

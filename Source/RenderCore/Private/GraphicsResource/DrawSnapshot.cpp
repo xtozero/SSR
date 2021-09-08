@@ -88,6 +88,25 @@ void PreparePipelineStateObject( DrawSnapshot& snapshot )
 
 void SortDrawSnapshots( std::vector<VisibleDrawSnapshot>& snapshots, VertexBuffer& primitiveIds )
 {
+	std::sort( std::begin( snapshots ), std::end( snapshots ), 
+		[]( const VisibleDrawSnapshot& lhs, const VisibleDrawSnapshot& rhs )
+		{
+			return lhs.m_snapshotBucketId < rhs.m_snapshotBucketId;
+		} );
+
+	for ( size_t cur = 0, dest = cur + 1; cur < snapshots.size( ) && dest < snapshots.size( ); ++dest )
+	{
+		if ( snapshots[cur].m_snapshotBucketId != -1 &&
+			snapshots[cur].m_snapshotBucketId == snapshots[dest].m_snapshotBucketId )
+		{
+			++snapshots[cur].m_numInstance;
+		}
+		else
+		{
+			cur = dest;
+		}
+	}
+
 	UINT* idBuffer = reinterpret_cast<UINT*>( primitiveIds.Lock( ) );
 	if ( idBuffer )
 	{
@@ -104,9 +123,10 @@ void SortDrawSnapshots( std::vector<VisibleDrawSnapshot>& snapshots, VertexBuffe
 
 void CommitDrawSnapshots( std::vector<VisibleDrawSnapshot>& snapshots, VertexBuffer& primitiveIds )
 {
-	for ( auto& snapshot : snapshots )
+	for ( size_t i = 0; i < snapshots.size( ); )
 	{
-		CommitDrawSnapshot( snapshot, primitiveIds );
+		CommitDrawSnapshot( snapshots[i], primitiveIds );
+		i += snapshots[i].m_numInstance;
 	}
 }
 
@@ -136,12 +156,42 @@ void CommitDrawSnapshot( VisibleDrawSnapshot& visibleSnapshot, VertexBuffer& pri
 	// Set shader resources
 	commandList->BindShaderResources( snapshot.m_shaderBindings );
 
-	if ( visibleSnapshot.m_numInstances > 1 )
+	if ( visibleSnapshot.m_numInstance > 1 )
 	{
-
+		commandList->DrawInstancing( snapshot.m_indexCount, visibleSnapshot.m_numInstance, snapshot.m_startIndexLocation, snapshot.m_baseVertexLocation );
 	}
 	else
 	{
 		commandList->Draw( snapshot.m_indexCount, snapshot.m_startIndexLocation, snapshot.m_baseVertexLocation );
 	}
+}
+
+int32 CachedDrawSnapshotBucket::Add( const DrawSnapshot& snapshot )
+{
+	constexpr size_t dummy = 0;
+	auto [iter, success] = m_bucket.emplace( snapshot, dummy );
+	if ( success )
+	{
+		size_t id = m_snapshots.Add( snapshot );
+		iter->second = id;
+		return static_cast<int32>( id );
+	}
+
+	return static_cast<int32>( iter->second );
+}
+
+void CachedDrawSnapshotBucket::Remove( int32 id )
+{
+	size_t index = static_cast<size_t>( id );
+	const DrawSnapshot& snapshot = m_snapshots[index];
+	auto found = m_bucket.find( snapshot );
+	if ( found == std::end( m_bucket ) )
+	{
+		// Error
+		assert( false );
+		return;
+	}
+
+	m_bucket.erase( found );
+	m_snapshots.RemoveAt( index );
 }

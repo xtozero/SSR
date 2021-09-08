@@ -2,6 +2,7 @@
 
 #include "Buffer.h"
 #include "GraphicsApiResource.h"
+#include "SizedTypes.h"
 #include "VertexBuffer.h"
 
 class VertexInputStream
@@ -87,6 +88,8 @@ public:
 					m_vertexBuffers[i]->AddRef( );
 				}
 			}
+
+			m_numBuffers = other.m_numBuffers;
 		}
 
 		return *this;
@@ -114,14 +117,36 @@ public:
 				m_vertexBuffers[i] = other.m_vertexBuffers[i];
 				other.m_vertexBuffers[i] = nullptr;
 			}
+
+			m_numBuffers = other.m_numBuffers;
+			other.m_numBuffers = 0;
 		}
 
 		return *this;
 	}
 
+	friend bool operator==( const VertexInputStream& lhs, const VertexInputStream& rhs )
+	{
+		return ( lhs.m_numBuffers == rhs.m_numBuffers ) && ( VertexInputStream::CompareStreams( lhs, rhs, lhs.m_numBuffers ) );
+	}
+
 	static constexpr int MAX_VERTEX_SLOT = 32;
 
 private:
+	static bool CompareStreams( const VertexInputStream& lhs, const VertexInputStream& rhs, int32 size )
+	{
+		while ( size-- > 0 )
+		{
+			if ( ( lhs.m_offset[size] != rhs.m_offset[size] ) ||
+				( lhs.m_vertexBuffers[size] != rhs.m_vertexBuffers[size] ) )
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	aga::Buffer* m_vertexBuffers[MAX_VERTEX_SLOT] = {};
 	UINT m_offset[MAX_VERTEX_SLOT] = {};
 	int m_numBuffers = 0;

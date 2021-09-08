@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SizedTypes.h"
+
 namespace aga
 {
 	class Buffer;
@@ -14,7 +16,8 @@ namespace aga
 		
 		virtual void BindPipelineState( PipelineState* pipelineState ) = 0;
 		virtual void BindShaderResources( const ShaderBindings& shaderBindings ) = 0;
-		virtual void Draw( UINT indexCount, UINT startIndexLocation, UINT baseVertexLocation ) = 0;
+		virtual void Draw( uint32 indexCount, uint32 startIndexLocation, uint32 baseVertexLocation ) = 0;
+		virtual void DrawInstancing( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) = 0;
 	};
 
 	class IImmediateCommandList : public ICommandList

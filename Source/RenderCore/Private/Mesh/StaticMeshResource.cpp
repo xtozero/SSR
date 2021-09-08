@@ -139,6 +139,11 @@ void StaticMeshRenderData::Serialize( Archive& ar )
 
 void StaticMeshRenderData::CreateRenderResource( )
 {
+	if ( Initialized( ) )
+	{
+		return;
+	}
+
 	for ( StaticMeshLODResource& lodResource : m_lodResources )
 	{
 		std::vector<StaticMeshVertex>& vertexData = lodResource.m_vertexData;
@@ -148,6 +153,8 @@ void StaticMeshRenderData::CreateRenderResource( )
 		std::size_t size = lodResource.m_indexData.size( ) / stride;
 		lodResource.m_ib = IndexBuffer( size, lodResource.m_indexData.data( ), lodResource.m_isDWORD );
 	}
+
+	m_initialized = true;
 }
 
 void StaticMeshVertexLayout::Initialize( const StaticMeshLODResource* lodResource )

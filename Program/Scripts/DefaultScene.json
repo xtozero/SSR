@@ -13,7 +13,7 @@
 			"Object": {
 				"Class": "player",
 				"Camera": {
-					"Position": [ 0, 0, -50 ]
+					"Position": [ 0, 0, -60 ]
 				},
 				"Kinetic_Force_Scale": 300,
 				"Friction": [ 300, 200 ]
@@ -43,7 +43,7 @@
 				"Name": "sphere",
 				"Model": "./Assets/Models/Obj/shape_sphere.asset",
 				"RenderOption": "./Assets/RenderOptions/RO_Default.asset",
-				"Position": [ -26.409266, -4.787085, 0.000000 ],
+				"Position": [ -26.409266, -4.787085, -10.000000 ],
 				"Scale": [ 10, 10, 10 ],
 				"ColliderType": "Sphere",
 				"Mass": 10
@@ -55,7 +55,7 @@
 				"Name": "cone",
 				"Model": "./Assets/Models/Obj/cone.asset",
 				"RenderOption": "./Assets/RenderOptions/RO_Default.asset",
-				"Position": [ -13.516332, -4.475936, 0.000000 ],
+				"Position": [ -13.516332, -4.475936, -10.000000 ],
 				"Scale": [ 10, 10, 10 ],
 				"ColliderType": "Box"
 			}
@@ -66,7 +66,7 @@
 				"Name": "cylinder",
 				"Model": "./Assets/Models/Obj/cylinder.asset",
 				"RenderOption": "./Assets/RenderOptions/RO_Default.asset",
-				"Position": [ -1.270190, -4.746570, 0.000000 ],
+				"Position": [ -1.270190, -4.746570, -10.000000 ],
 				"Scale": [ 10, 10, 10 ],
 				"ColliderType": "Box"
 			}
@@ -77,7 +77,7 @@
 				"Name": "torus",
 				"Model": "./Assets/Models/Obj/torus.asset",
 				"RenderOption": "./Assets/RenderOptions/RO_Default.asset",
-				"Position": [ 11.517221, -8.738405, 0.000000 ],
+				"Position": [ 11.517221, -8.738405, -10.000000 ],
 				"Scale": [ 10, 10, 10 ],
 				"ColliderType": "Box"
 			}
@@ -88,7 +88,64 @@
 				"Name": "dice",
 				"Model": "./Assets/Models/Obj/dice.asset",
 				"RenderOption": "./Assets/RenderOptions/RO_Default.asset",
-				"Position": [ 25.928568, -4.814196, 0.000000 ],
+				"Position": [ 25.928568, -4.814196, -10.000000 ],
+				"Scale": [ 10, 10, 10 ],
+				"ColliderType": "Box",
+				"Mass": 10
+			}
+		},
+		{
+			"Object": {
+				"Class": "static_mesh",
+				"Name": "sphere",
+				"Model": "./Assets/Models/Obj/shape_sphere.asset",
+				"RenderOption": "./Assets/RenderOptions/RO_Default.asset",
+				"Position": [ -26.409266, -4.787085, 10.000000 ],
+				"Scale": [ 10, 10, 10 ],
+				"ColliderType": "Sphere",
+				"Mass": 10
+			}
+		},
+		{
+			"Object": {
+				"Class": "static_mesh",
+				"Name": "cone",
+				"Model": "./Assets/Models/Obj/cone.asset",
+				"RenderOption": "./Assets/RenderOptions/RO_Default.asset",
+				"Position": [ -13.516332, -4.475936, 10.000000 ],
+				"Scale": [ 10, 10, 10 ],
+				"ColliderType": "Box"
+			}
+		},
+		{
+			"Object": {
+				"Class": "static_mesh",
+				"Name": "cylinder",
+				"Model": "./Assets/Models/Obj/cylinder.asset",
+				"RenderOption": "./Assets/RenderOptions/RO_Default.asset",
+				"Position": [ -1.270190, -4.746570, 10.000000 ],
+				"Scale": [ 10, 10, 10 ],
+				"ColliderType": "Box"
+			}
+		},
+		{
+			"Object": {
+				"Class": "static_mesh",
+				"Name": "torus",
+				"Model": "./Assets/Models/Obj/torus.asset",
+				"RenderOption": "./Assets/RenderOptions/RO_Default.asset",
+				"Position": [ 11.517221, -8.738405, 10.000000 ],
+				"Scale": [ 10, 10, 10 ],
+				"ColliderType": "Box"
+			}
+		},
+		{
+			"Object": {
+				"Class": "static_mesh",
+				"Name": "dice",
+				"Model": "./Assets/Models/Obj/dice.asset",
+				"RenderOption": "./Assets/RenderOptions/RO_Default.asset",
+				"Position": [ 25.928568, -4.814196, 10.000000 ],
 				"Scale": [ 10, 10, 10 ],
 				"ColliderType": "Box",
 				"Mass": 10

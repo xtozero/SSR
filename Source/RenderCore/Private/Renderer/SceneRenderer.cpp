@@ -162,8 +162,8 @@ void SceneRenderer::RenderTexturedSky( IScene& scene )
 		VisibleDrawSnapshot visibleSnapshot = {
 			0,
 			0,
-			0,
 			1,
+			-1,
 			&snapshot,
 		};
 
@@ -202,13 +202,14 @@ void SceneRenderer::RenderMesh( IScene& scene, RenderView& view )
 			for ( const auto& subMeshInfo : subMeshInfos )
 			{
 				std::size_t snapshotIndex = subMeshInfo.m_snapshotInfoBase;
+				const CachedDrawSnapshotInfo& info = primitive->GetCachedDrawSnapshotInfo( snapshotIndex );
 				DrawSnapshot& snapshot = primitive->CachedDrawSnapshot( snapshotIndex );
 
 				VisibleDrawSnapshot& visibleSnapshot = view.m_snapshots.emplace_back( );
+				visibleSnapshot.m_snapshotBucketId = info.m_snapshotBucketId;
 				visibleSnapshot.m_drawSnapshot = &snapshot;
 				visibleSnapshot.m_primitiveId = proxy->PrimitiveId( );
-				visibleSnapshot.m_primitiveIdStreamSlot = 1;
-				visibleSnapshot.m_numInstances = 1;
+				visibleSnapshot.m_numInstance = 1;
 			}
 		}
 		else

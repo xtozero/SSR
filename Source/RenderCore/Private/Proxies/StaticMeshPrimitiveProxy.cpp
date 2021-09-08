@@ -62,10 +62,10 @@ void StaticMeshPrimitiveProxy::TakeSnapshot( std::deque<DrawSnapshot>& snapshotS
 		{
 			snapshotStorage.emplace_back( std::move( snapshot.value( ) ) );
 			VisibleDrawSnapshot& visibleSnapshot = drawList.emplace_back( );
-			visibleSnapshot.m_drawSnapshot = &snapshotStorage.back( );
 			visibleSnapshot.m_primitiveId = PrimitiveId( );
-			visibleSnapshot.m_primitiveIdStreamSlot = 1;
-			visibleSnapshot.m_numInstances = 1;
+			visibleSnapshot.m_numInstance = 1;
+			visibleSnapshot.m_snapshotBucketId = -1;
+			visibleSnapshot.m_drawSnapshot = &snapshotStorage.back( );
 		}
 	}
 }

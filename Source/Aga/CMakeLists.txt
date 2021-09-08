@@ -108,6 +108,7 @@ target_include_directories( Aga
 		./Public/Common
 	PRIVATE
 		./Public/D3D11
+		../Core/Public
 		$ENV{DXSDK_DIR}include
 )
 

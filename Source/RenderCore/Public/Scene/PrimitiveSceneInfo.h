@@ -1,5 +1,6 @@
 #pragma once
 #include "DrawSnapshot.h"
+#include "SizedTypes.h"
 
 #include <cstddef>
 #include <vector>
@@ -54,6 +55,8 @@ public:
 
 	std::vector<PrimitiveSubMesh>& SubMeshs( );
 	const std::vector<PrimitiveSubMesh>& SubMeshs( ) const;
+
+	const CachedDrawSnapshotInfo& GetCachedDrawSnapshotInfo( size_t snapshotIndex );
 
 	DrawSnapshot& CachedDrawSnapshot( std::size_t snapshotIndex );
 

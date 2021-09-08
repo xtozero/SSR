@@ -46,6 +46,11 @@ const std::vector<PrimitiveSubMesh>& PrimitiveSceneInfo::SubMeshs( ) const
 	return m_subMeshs;
 }
 
+const CachedDrawSnapshotInfo& PrimitiveSceneInfo::GetCachedDrawSnapshotInfo( size_t snapshotIndex )
+{
+	return m_cachedDrawSnapshotInfos[snapshotIndex];
+}
+
 DrawSnapshot& PrimitiveSceneInfo::CachedDrawSnapshot( std::size_t snapshotIndex )
 {
 	const CachedDrawSnapshotInfo& cachedDrawSnapshotInfo = m_cachedDrawSnapshotInfos[snapshotIndex];
@@ -70,8 +75,7 @@ void PrimitiveSceneInfo::CacheDrawSnapshot( )
 
 		if ( snapshot )
 		{
-			CachedDrawSnapshotInfo cachedDrawSnapshotInfo;
-			cachedDrawSnapshotInfo.m_snapshotIndex = m_scene.AddCachedDrawSnapshot( snapshot.value( ) );
+			CachedDrawSnapshotInfo cachedDrawSnapshotInfo = m_scene.AddCachedDrawSnapshot( snapshot.value( ) );
 
 			subMeshInfo.m_snapshotInfoBase = m_cachedDrawSnapshotInfos.size( );
 			m_cachedDrawSnapshotInfos.emplace_back( cachedDrawSnapshotInfo );
@@ -83,6 +87,6 @@ void PrimitiveSceneInfo::RemoveCachedDrawSnapshot( )
 {
 	for ( CachedDrawSnapshotInfo& cachedDrawSnapshotInfo : m_cachedDrawSnapshotInfos )
 	{
-		m_scene.RemoveCachedDrawSnapshot( cachedDrawSnapshotInfo.m_snapshotIndex );
+		m_scene.RemoveCachedDrawSnapshot( cachedDrawSnapshotInfo );
 	}
 }

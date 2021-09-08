@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "GraphicsApiResource.h"
+#include "SizedTypes.h"
 
 #include <map>
 
@@ -29,6 +30,7 @@ namespace aga
 		UINT m_offset = 0;
 		UINT m_sizeInByte = 0;
 
+		AGA_DLL size_t GetHash( ) const;
 		AGA_DLL void Bind( const ShaderParameterMap& parameterMap, const char* variableName );
 
 		friend bool operator<( const ShaderParameter& lhs, const ShaderParameter& rhs )
@@ -37,6 +39,14 @@ namespace aga
 			auto rVariable = std::tie( rhs.m_shader, rhs.m_type, rhs.m_bindPoint, rhs.m_offset, rhs.m_sizeInByte );
 
 			return lVariable < rVariable;
+		}
+
+		friend bool operator==( const ShaderParameter& lhs, const ShaderParameter& rhs )
+		{
+			auto lVariable = std::tie( lhs.m_shader, lhs.m_type, lhs.m_bindPoint, lhs.m_offset, lhs.m_sizeInByte );
+			auto rVariable = std::tie( rhs.m_shader, rhs.m_type, rhs.m_bindPoint, rhs.m_offset, rhs.m_sizeInByte );
+
+			return lVariable == rVariable;
 		}
 	};
 

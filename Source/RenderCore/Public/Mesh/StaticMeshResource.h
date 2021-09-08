@@ -72,9 +72,13 @@ public:
 
 	void CreateRenderResource( );
 
+	bool Initialized( ) const { return m_initialized; }
+
 	RENDERCORE_DLL StaticMeshRenderData( ) = default;
 
 private:
 	std::vector<StaticMeshLODResource> m_lodResources;
 	std::vector<StaticMeshVertexLayout> m_vertexLayouts;
+	
+	bool m_initialized = false;
 };
