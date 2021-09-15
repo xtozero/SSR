@@ -71,7 +71,7 @@ PrimitiveSceneData::PrimitiveSceneData( const PrimitiveProxy* proxy )
 	}
 }
 
-void ScenePrimitiveBuffer::Resize( std::size_t size )
+void ScenePrimitiveBuffer::Resize( uint32 size )
 {
 	m_buffer.Resize( size * sizeof( PrimitiveSceneData ) / sizeof( CXMFLOAT4 ), true );
 }

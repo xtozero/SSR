@@ -10,9 +10,9 @@ namespace aga
 	{
 		DXGI_FORMAT format = ConvertFormatToDxgiFormat( trait.m_format );
 		D3D11_USAGE usage = ConvertAccessFlagToUsage( trait.m_access );
-		UINT bindFlag = ConvertTypeToBind( trait.m_bindType );
-		UINT cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );
-		UINT miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
+		uint32 bindFlag = ConvertTypeToBind( trait.m_bindType );
+		uint32 cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );
+		uint32 miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
 
 		return D3D11_TEXTURE1D_DESC{
 			trait.m_width,
@@ -31,10 +31,10 @@ namespace aga
 		DXGI_FORMAT format = ConvertFormatToDxgiFormat( trait.m_format );
 		DXGI_SAMPLE_DESC SampleDesc = { trait.m_sampleCount, trait.m_sampleQuality };
 		D3D11_USAGE usage = ConvertAccessFlagToUsage( trait.m_access );
-		UINT bindFlag = ConvertTypeToBind( trait.m_bindType );
-		UINT cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );
-		UINT miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
-
+		uint32 bindFlag = ConvertTypeToBind( trait.m_bindType );
+		uint32 cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );
+		uint32 miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
+		
 		return D3D11_TEXTURE2D_DESC{
 			trait.m_width,
 			trait.m_height,
@@ -53,9 +53,9 @@ namespace aga
 	{
 		DXGI_FORMAT format = ConvertFormatToDxgiFormat( trait.m_format );
 		D3D11_USAGE usage = ConvertAccessFlagToUsage( trait.m_access );
-		UINT bindFlag = ConvertTypeToBind( trait.m_bindType );
-		UINT cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );
-		UINT miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
+		uint32 bindFlag = ConvertTypeToBind( trait.m_bindType );
+		uint32 cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );
+		uint32 miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
 
 		return D3D11_TEXTURE3D_DESC{
 			trait.m_width,
@@ -73,9 +73,9 @@ namespace aga
 	TEXTURE_TRAIT ConvertDescToTrait( const D3D11_TEXTURE2D_DESC& desc )
 	{
 		RESOURCE_FORMAT format = ConvertDxgiFormatToFormat( desc.Format );
-		UINT access = ConvertUsageToAccessFlag( desc.Usage );
-		UINT bindType = ConvertBindToType( desc.BindFlags );
-		UINT miscFlag = ConvertDXMiscToMisc( desc.MiscFlags );
+		uint32 access = ConvertUsageToAccessFlag( desc.Usage );
+		uint32 bindType = ConvertBindToType( desc.BindFlags );
+		uint32 miscFlag = ConvertDXMiscToMisc( desc.MiscFlags );
 
 
 		return TEXTURE_TRAIT{

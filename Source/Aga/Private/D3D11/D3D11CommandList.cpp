@@ -15,16 +15,16 @@
 
 namespace aga
 {
-	void D3D11ImmediateCommandList::BindVertexBuffer( Buffer* const* vertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pOffsets )
+	void D3D11ImmediateCommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
 	{
 		ID3D11Buffer* pBuffers[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
-		UINT strides[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
-		UINT offsets[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
+		uint32 strides[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
+		uint32 offsets[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
 
 		if ( vertexBuffers )
 		{
 			assert( pOffsets != nullptr );
-			for ( UINT i = 0; i < numBuffers; ++i )
+			for ( uint32 i = 0; i < numBuffers; ++i )
 			{
 				if ( auto d3d11buffer = static_cast<D3D11Buffer*>( vertexBuffers[i] ) )
 				{
@@ -38,7 +38,7 @@ namespace aga
 		D3D11Context( ).IASetVertexBuffers( startSlot, numBuffers, pBuffers, strides, offsets );
 	}
 
-	void D3D11ImmediateCommandList::BindIndexBuffer( Buffer* indexBuffer, UINT indexOffset )
+	void D3D11ImmediateCommandList::BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset )
 	{
 		ID3D11Buffer* buffer = nullptr;
 		DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
@@ -74,7 +74,7 @@ namespace aga
 	{
 		auto& context = D3D11Context( );
 
-		auto setConstantBuffer = [&context]( SHADER_TYPE shader, UINT slot, const RefHandle<GraphicsApiResource>& cb )
+		auto setConstantBuffer = [&context]( SHADER_TYPE shader, uint32 slot, const RefHandle<GraphicsApiResource>& cb )
 		{
 			ID3D11Buffer* buffer = nullptr;
 			if ( auto d3d11Buffer = static_cast<D3D11Buffer*>( cb.Get( ) ) )
@@ -101,7 +101,7 @@ namespace aga
 			}
 		};
 
-		auto setSRV = [&context]( SHADER_TYPE shader, UINT slot, const RefHandle<GraphicsApiResource>& srv )
+		auto setSRV = [&context]( SHADER_TYPE shader, uint32 slot, const RefHandle<GraphicsApiResource>& srv )
 		{
 			ID3D11ShaderResourceView* rawSrv = nullptr;
 			if ( auto d3d11Srv = reinterpret_cast<D3D11ShaderResourceView*>( srv.Get( ) ) )
@@ -128,12 +128,25 @@ namespace aga
 			}
 		};
 
-		auto setUAV = [&context]( SHADER_TYPE shader, UINT slot, const RefHandle<GraphicsApiResource>& uav )
+		auto setUAV = [&context]( SHADER_TYPE shader, uint32 slot, const RefHandle<GraphicsApiResource>& uav )
 		{
+			ID3D11UnorderedAccessView* rawUAV = nullptr;
+			if ( auto d3d11Uav = reinterpret_cast<D3D11UnorderedAccessView*>( uav.Get( ) ) )
+			{
+				rawUAV = d3d11Uav->Resource( );
+			}
 
+			switch ( shader )
+			{
+			case SHADER_TYPE::CS:
+				context.CSSetUnorderedAccessViews( slot, 1, &rawUAV, nullptr );
+				break;
+			default:
+				break;
+			}
 		};
 
-		auto setSampler = [&context]( SHADER_TYPE shader, UINT slot, const RefHandle<GraphicsApiResource>& sampler )
+		auto setSampler = [&context]( SHADER_TYPE shader, uint32 slot, const RefHandle<GraphicsApiResource>& sampler )
 		{
 			ID3D11SamplerState* samplerState = nullptr;
 			if ( auto d3d11Sampler = static_cast<D3D11SamplerState*>( sampler.Get( ) ) )
@@ -160,30 +173,30 @@ namespace aga
 			}
 		};
 
-		for ( int shaderType = 0; shaderType < MAX_SHADER_TYPE<int>; ++shaderType )
+		for ( uint32 shaderType = 0; shaderType < MAX_SHADER_TYPE<uint32>; ++shaderType )
 		{
 			SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<SHADER_TYPE>( shaderType ) );
 
 			const ShaderParameterInfo& parameterInfo = binding.ParameterInfo( );
-			for ( int i = 0; i < parameterInfo.m_constantBuffers.size( ); ++i )
+			for ( size_t i = 0; i < parameterInfo.m_constantBuffers.size( ); ++i )
 			{
 				const ShaderParameter& param = parameterInfo.m_constantBuffers[i];
 				setConstantBuffer( param.m_shader, param.m_bindPoint, binding.GetConstantBufferStart( )[i] );
 			}
 
-			for ( int i = 0; i < parameterInfo.m_srvs.size( ); ++i )
+			for ( size_t i = 0; i < parameterInfo.m_srvs.size( ); ++i )
 			{
 				const ShaderParameter& param = parameterInfo.m_srvs[i];
 				setSRV( param.m_shader, param.m_bindPoint, binding.GetSRVStart( )[i] );
 			}
 
-			for ( int i = 0; i < parameterInfo.m_uavs.size( ); ++i )
+			for ( size_t i = 0; i < parameterInfo.m_uavs.size( ); ++i )
 			{
 				const ShaderParameter& param = parameterInfo.m_uavs[i];
 				setUAV( param.m_shader, param.m_bindPoint, binding.GetUAVStart( )[i] );
 			}
 
-			for ( int i = 0; i < parameterInfo.m_samplers.size( ); ++i )
+			for ( size_t i = 0; i < parameterInfo.m_samplers.size( ); ++i )
 			{
 				const ShaderParameter& param = parameterInfo.m_samplers[i];
 				setSampler( param.m_shader, param.m_bindPoint, binding.GetSamplerStart( )[i] );

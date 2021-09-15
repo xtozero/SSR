@@ -48,12 +48,12 @@ bool CGameLogic::BootUp( IPlatform& platform )
 	}
 
 	m_wndHwnd = platform.GetRawHandle<HWND>();
-	srand( static_cast<UINT>(time( nullptr )) );
+	srand( static_cast<uint32>(time( nullptr )) );
 	
 	m_appSize = platform.GetSize( );
 	CUtilWindowInfo::GetInstance( ).SetRect( m_appSize.first, m_appSize.second );
 
-	if ( m_pRenderCore->BootUp( m_wndHwnd, m_appSize.first, m_appSize.second ) == false )
+	if ( m_pRenderCore->BootUp( ) == false )
 	{
 		return false;
 	}
@@ -152,7 +152,7 @@ void CGameLogic::HandleUserInput( const UserInput& input )
 
 void CGameLogic::AppSizeChanged( IPlatform& platform )
 {
-	const std::pair<UINT, UINT>& newAppSize = platform.GetSize( );
+	const std::pair<uint32, uint32>& newAppSize = platform.GetSize( );
 
 	if ( m_appSize == newAppSize )
 	{
@@ -287,7 +287,7 @@ void CGameLogic::EndLogic( )
 	//	pData->m_invRenderTargetSize.y = 1.f / wndHeight;
 
 	//	m_pRenderer->UnLockBuffer( m_commonConstantBuffer[PS_UTIL] );
-	//	m_pRenderer->BindConstantBuffer( SHADER_TYPE::PS, static_cast<int>( PS_CONSTANT_BUFFER::UTIL ), 1, &m_commonConstantBuffer[PS_UTIL] );
+	//	m_pRenderer->BindConstantBuffer( SHADER_TYPE::PS, static_cast<int32>( PS_CONSTANT_BUFFER::UTIL ), 1, &m_commonConstantBuffer[PS_UTIL] );
 	//}
 
 	//// »ƒ∏È ±Ì¿Ã ∑ª¥ı∏µ
@@ -412,7 +412,7 @@ void CGameLogic::DrawUI( )
 	//	}
 
 	//	BUFFER_TRAIT trait = { sizeof( ImUiVertex ),
-	//		static_cast<UINT>( drawData.m_totalVertexCount ),
+	//		static_cast<uint32>( drawData.m_totalVertexCount ),
 	//		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
 	//		RESOURCE_BIND_TYPE::VERTEX_BUFFER,
 	//		0U,
@@ -440,7 +440,7 @@ void CGameLogic::DrawUI( )
 	//	// Update Vertex, Index Buffer
 	//	for ( ImDrawList* drawList : drawData.m_drawLists )
 	//	{
-	//		std::size_t copySize = sizeof( ImUiVertex ) * drawList->m_vertices.size( );
+	//		size_t copySize = sizeof( ImUiVertex ) * drawList->m_vertices.size( );
 	//		memcpy( pVertex, drawList->m_vertices.data( ), copySize );
 	//		pVertex += copySize;
 
@@ -474,15 +474,15 @@ void CGameLogic::DrawUI( )
 	//
 
 	//// Draw
-	//UINT stride = sizeof( ImUiVertex );
-	//UINT offset = 0;
+	//uint32 stride = sizeof( ImUiVertex );
+	//uint32 offset = 0;
 	//m_pRenderer->BindVertexBuffer( &m_uiDrawBuffer[0].m_buffer, 0, 1, &stride, &offset );
 	//m_pRenderer->BindIndexBuffer( m_uiDrawBuffer[1].m_buffer, 0 );
 
 	//m_pRenderer->BindMaterial( m_uiMaterial );
 
-	//UINT indexOffset = 0;
-	//UINT vertexOffset = 0;
+	//uint32 indexOffset = 0;
+	//uint32 vertexOffset = 0;
 	//RECT scissorRect;
 	//for ( ImDrawList* drawList : drawData.m_drawLists )
 	//{
@@ -501,7 +501,7 @@ void CGameLogic::DrawUI( )
 	//	}
 
 	//	assert( ( vertexOffset + drawList->m_vertices.size( ) ) <= UINT_MAX );
-	//	vertexOffset += static_cast<UINT>( drawList->m_vertices.size( ) );
+	//	vertexOffset += static_cast<uint32>( drawList->m_vertices.size( ) );
 	//}
 }
 
@@ -667,7 +667,7 @@ bool CGameLogic::CreateDefaultFontResource( )
 	//data >> defaultText.m_fontHeight;
 
 	//FontUV fontInfo = { { 0.f, 0.f },{ 0.f, 1.0f }, 0.f };
-	//int asciicode;
+	//int32 asciicode;
 
 	//while ( data )
 	//{
@@ -689,7 +689,7 @@ bool CGameLogic::CreateDefaultFontResource( )
 
 CGameLogic::CGameLogic( ) // : m_pickingManager( &m_gameObjects )
 {
-	// for ( int i = 0; i < SHARED_CONSTANT_BUFFER::Count; ++i )
+	// for ( int32 i = 0; i < SHARED_CONSTANT_BUFFER::Count; ++i )
 	// {
 	// 	m_commonConstantBuffer[i] = RE_HANDLE::InValidHandle( );
 	// }

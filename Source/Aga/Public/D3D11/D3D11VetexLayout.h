@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PipelineState.h"
+#include "SizedTypes.h"
 
 #include <d3d11.h>
 #include <vector>
@@ -15,7 +16,7 @@ namespace aga
 		ID3D11InputLayout* Resource( );
 		const ID3D11InputLayout* Resource( ) const;
 
-		D3D11VertexLayout( const D3D11VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, std::size_t size );
+		D3D11VertexLayout( const D3D11VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, uint32 size );
 		D3D11VertexLayout( const D3D11VertexLayout& ) = delete;
 		D3D11VertexLayout( D3D11VertexLayout&& ) = delete;
 		D3D11VertexLayout& operator=( const D3D11VertexLayout& ) = delete;

@@ -3,12 +3,13 @@
 #include "Buffer.h"
 #include "GraphicsApiResource.h"
 #include "Math/CXMFloat.h"
+#include "SizedTypes.h"
 #include "TypedBuffer.h"
 
 class ForwardLightBuffer
 {
 public:
-	void Initialize( std::size_t bytePerElement, std::size_t numElements, RESOURCE_FORMAT format );
+	void Initialize( uint32 bytePerElement, uint32 numElements, RESOURCE_FORMAT format );
 
 	void* Lock( );
 	void Unlock( );
@@ -20,7 +21,6 @@ public:
 	const aga::Buffer* Resource( ) const;
 
 private:
-	std::size_t m_size = 0;
 	RefHandle<aga::Buffer> m_buffer;
 };
 
@@ -36,7 +36,7 @@ struct ForwardLightData
 
 struct ForwardLightConstant
 {
-	unsigned int m_numLight = 0;
+	uint32 m_numLight = 0;
 	CXMFLOAT3 m_cameraPos;
 };
 

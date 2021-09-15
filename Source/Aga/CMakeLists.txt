@@ -109,15 +109,12 @@ target_include_directories( Aga
 	PRIVATE
 		./Public/D3D11
 		../Core/Public
-		$ENV{DXSDK_DIR}include
 )
 
 set (DIRECT3D_LIBRARY
 	"d3d11.lib"
 	"d3dcompiler.lib"
 	"d3dx11.lib"
-	"d3dx9.lib"
-	"d3dx10.lib"
 	"dxguid.lib"
 	"dxgi.lib")
 								

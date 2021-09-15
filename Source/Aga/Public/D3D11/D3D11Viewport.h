@@ -1,9 +1,10 @@
 #pragma once
 
 #include "GraphicsApiResource.h"
+#include "SizedTypes.h"
 #include "Viewport.h"
 
-#include <DXGI.h>
+#include <dxgi.h>
 #include <wrl/client.h>
 
 namespace aga
@@ -22,20 +23,20 @@ namespace aga
 			return m_hWnd;
 		}
 
-		virtual std::pair<UINT, UINT> Size( ) const override;
+		virtual std::pair<uint32, uint32> Size( ) const override;
 
-		virtual void Resize( const std::pair<UINT, UINT>& newSize ) override;
+		virtual void Resize( const std::pair<uint32, uint32>& newSize ) override;
 
 		virtual aga::Texture* Texture( ) override;
 
-		D3D11Viewport( int width, int height, void* hWnd, DXGI_FORMAT format );
+		D3D11Viewport( uint32 width, uint32 height, void* hWnd, DXGI_FORMAT format );
 
 	private:
 		virtual void InitResource( ) override;
 		virtual void FreeResource( ) override;
 
-		UINT m_width;
-		UINT m_height;
+		uint32 m_width;
+		uint32 m_height;
 		void* m_hWnd;
 		DXGI_FORMAT m_format;
 		Microsoft::WRL::ComPtr<IDXGISwapChain> m_pSwapChain;

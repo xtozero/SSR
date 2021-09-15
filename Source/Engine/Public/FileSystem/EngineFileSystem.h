@@ -1,22 +1,22 @@
 #pragma once
 
-#include "FileSystem.h"
-
 #include "common.h"
 #include "Delegate.h"
+#include "FileSystem.h"
 #include "MultiThread/EngineTaskScheduler.h"
+#include "SizedTypes.h"
 
 #include <mutex>
 
 class IFileSystem
 {
 public:
-	using IOCompletionCallback = Delegate<void, char*&, unsigned long>;
+	using IOCompletionCallback = Delegate<void, char*&, uint32>;
 
-	virtual [[nodiscard]] FileHandle OpenFile( const char* filePath ) = 0;
+	virtual FileHandle OpenFile( const char* filePath ) = 0;
 	virtual void CloseFile( const FileHandle& handle ) = 0;
-	virtual unsigned long GetFileSize( const FileHandle& handle ) const = 0;
-	virtual bool ReadAsync( const FileHandle& handle, char* buffer, unsigned long size, IOCompletionCallback* callback = nullptr ) = 0;
+	virtual uint32 GetFileSize( const FileHandle& handle ) const = 0;
+	virtual bool ReadAsync( const FileHandle& handle, char* buffer, uint32 size, IOCompletionCallback* callback = nullptr ) = 0;
 
 	virtual ~IFileSystem( ) = default;
 };

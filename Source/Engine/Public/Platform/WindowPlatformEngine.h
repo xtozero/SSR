@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/IEngine.h"
+#include "SizedTypes.h"
 #include "WindowPlatformInputConvertor.h"
 
 #include <memory>
@@ -16,7 +17,7 @@ public:
 
 	virtual void Run( ) override;
 
-	virtual LRESULT MsgProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
+	virtual LRESULT MsgProc( HWND hWnd, uint32 message, WPARAM wParam, LPARAM lParam );
 
 	~WindowPlatformEngine( );
 

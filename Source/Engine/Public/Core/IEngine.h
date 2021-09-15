@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.h"
+#include "SizedTypes.h"
 #include "Util.h"
 
 #include <memory>
@@ -14,7 +15,7 @@ public:
 
 	virtual void Run( ) = 0;
 
-	virtual LRESULT MsgProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam ) = 0;
+	virtual LRESULT MsgProc( HWND hWnd, uint32 message, WPARAM wParam, LPARAM lParam ) = 0;
 
 	virtual ~IEngine( ) = default;
 

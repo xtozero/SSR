@@ -29,7 +29,7 @@ namespace aga
 
 		D3D11_PRIMITIVE_TOPOLOGY PrimitiveTopology( ) const;
 
-		UINT SampleMask( ) const;
+		uint32 SampleMask( ) const;
 
 		explicit D3D11PipelineState( const PipelineStateInitializer& initializer );
 		D3D11PipelineState( const D3D11PipelineState& ) = delete;
@@ -48,6 +48,6 @@ namespace aga
 		ID3D11DepthStencilState* m_depthStencilState = nullptr;
 		ID3D11InputLayout* m_inputLayout = nullptr;
 		D3D11_PRIMITIVE_TOPOLOGY m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
-		UINT m_sampleMask = D3D11_DEFAULT_SAMPLE_MASK;
+		uint32 m_sampleMask = D3D11_DEFAULT_SAMPLE_MASK;
 	};
 }

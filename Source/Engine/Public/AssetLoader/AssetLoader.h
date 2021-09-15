@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Delegate.h"
+#include "SizedTypes.h"
 #include "Util.h"
 
 #include <memory>
@@ -87,7 +88,7 @@ public:
 
 private:
 	std::vector<AssetLoaderSharedHandle> m_subSequentList;
-	int m_prerequisites = 0;
+	int32 m_prerequisites = 0;
 
 	IAssetLoader::LoadCompletionCallback m_loadCompletionCallback;
 	std::shared_ptr<void> m_loadedAsset = nullptr;

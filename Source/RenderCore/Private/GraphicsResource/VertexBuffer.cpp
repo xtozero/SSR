@@ -26,14 +26,14 @@ const aga::Buffer* VertexBuffer::Resource( ) const
 	return m_buffer.Get( );
 }
 
-VertexBuffer::VertexBuffer( std::size_t elementSize, std::size_t numElement, const void* initData, bool isDynamic ) : m_size( elementSize * numElement ), m_isDynamic( isDynamic )
+VertexBuffer::VertexBuffer( uint32 elementSize, uint32 numElement, const void* initData, bool isDynamic ) : m_size( elementSize * numElement ), m_isDynamic( isDynamic )
 {
 	InitResource( elementSize, numElement, initData );
 }
 
-void VertexBuffer::InitResource( std::size_t elementSize, std::size_t numElement, const void* initData )
+void VertexBuffer::InitResource( uint32 elementSize, uint32 numElement, const void* initData )
 {
-	UINT accessFlag = 0;
+	uint32 accessFlag = 0;
 	if ( m_isDynamic )
 	{
 		accessFlag = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE;
@@ -44,8 +44,8 @@ void VertexBuffer::InitResource( std::size_t elementSize, std::size_t numElement
 	}
 
 	BUFFER_TRAIT trait = {
-		static_cast<UINT>( elementSize ),
-		static_cast<UINT>( numElement ),
+		elementSize,
+		numElement,
 		accessFlag,
 		RESOURCE_BIND_TYPE::VERTEX_BUFFER,
 		0,

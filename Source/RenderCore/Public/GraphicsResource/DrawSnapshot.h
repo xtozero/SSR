@@ -17,7 +17,7 @@ class PrimitiveIdVertexBufferPool
 public:
 	static PrimitiveIdVertexBufferPool& GetInstance( );
 
-	VertexBuffer Alloc( std::size_t require );
+	VertexBuffer Alloc( uint32 require );
 	void DiscardAll( );
 
 protected:
@@ -26,12 +26,12 @@ protected:
 private:
 	struct PrimitiveIdVertexBufferPoolEntry
 	{
-		std::size_t m_lastDiscardId;
+		size_t m_lastDiscardId;
 		VertexBuffer m_vertexBuffer;
 	};
 
 	std::vector<PrimitiveIdVertexBufferPoolEntry> m_entries;
-	std::size_t m_discardId = 0;
+	size_t m_discardId = 0;
 };
 
 class DrawSnapshot
@@ -46,9 +46,9 @@ public:
 	GraphicsPipelineState m_pipelineState;
 
 	// For Draw method
-	UINT m_indexCount;
-	UINT m_startIndexLocation;
-	UINT m_baseVertexLocation;
+	uint32 m_indexCount;
+	uint32 m_startIndexLocation;
+	uint32 m_baseVertexLocation;
 
 	DrawSnapshot( ) = default;
 	DrawSnapshot( const DrawSnapshot& other )
@@ -117,7 +117,7 @@ struct DrawSnapshotDynamicInstancingHasher
 
 		const aga::Buffer* const* vertexBuffers = ds.m_vertexStream.VertexBuffers( );
 		const uint32* const offsets = ds.m_vertexStream.Offsets( );
-		for ( int32 i = 0; i < ds.m_vertexStream.NumBuffer( ); ++i )
+		for ( uint32 i = 0; i < ds.m_vertexStream.NumBuffer( ); ++i )
 		{
 			HashCombine( hash, i );
 			HashCombine( hash, offsets[i] );
@@ -140,9 +140,9 @@ struct DrawSnapshotDynamicInstancingHasher
 class VisibleDrawSnapshot
 {
 public:
-	UINT m_primitiveId;
-	UINT m_primitiveIdOffset;
-	UINT m_numInstance;
+	uint32 m_primitiveId;
+	uint32 m_primitiveIdOffset;
+	uint32 m_numInstance;
 	int32 m_snapshotBucketId;
 	DrawSnapshot* m_drawSnapshot;
 };

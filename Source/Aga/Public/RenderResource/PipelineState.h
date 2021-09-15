@@ -3,6 +3,7 @@
 #include "common.h"
 #include "GraphicsApiResource.h"
 #include "ShaderResource.h"
+#include "SizedTypes.h"
 
 namespace aga
 {
@@ -33,7 +34,7 @@ namespace aga
 	class VertexLayout : public DeviceDependantResource
 	{
 	public:
-		AGA_DLL static RefHandle<VertexLayout> Create( const VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, std::size_t size );
+		AGA_DLL static RefHandle<VertexLayout> Create( const VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, uint32 size );
 	};
 
 	class PipelineStateInitializer

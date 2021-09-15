@@ -7,14 +7,14 @@
 
 namespace
 {
-	bool CheckWorkerAffinity( std::size_t workerId, std::size_t workerAffinity )
+	bool CheckWorkerAffinity( size_t workerId, size_t workerAffinity )
 	{
-		assert( std::numeric_limits<std::size_t>::digits > workerId );
+		assert( std::numeric_limits<size_t>::digits > workerId );
 		return ( ( 1i64 << workerId ) & workerAffinity ) > 0;
 	}
 }
 
-TaskHandle::TaskHandle( std::size_t queueId ) : m_queueId( queueId ), m_controlBlock( std::make_shared<TaskHandleControlBlock>( ) )
+TaskHandle::TaskHandle( size_t queueId ) : m_queueId( queueId ), m_controlBlock( std::make_shared<TaskHandleControlBlock>( ) )
 {
 }
 
@@ -22,12 +22,12 @@ struct TaskQueue
 {
 	std::queue<TaskBase*> m_tasks;
 	std::mutex m_taskLock;
-	std::atomic<std::size_t> m_reference;
+	std::atomic<size_t> m_reference;
 };
 
 struct Worker
 {
-	std::size_t m_threadType;
+	size_t m_threadType;
 	std::thread m_thread;
 	std::mutex m_lock;
 	std::condition_variable m_cv;
@@ -55,7 +55,7 @@ void WorkerThread( TaskScheduler* scheduler, Worker* worker )
 
 			TaskQueue* queue = nullptr;
 			TaskBase* task = nullptr;
-			for ( std::size_t i = 0
+			for ( size_t i = 0
 				; ( i < scheduler->m_maxTaskQueue ) && ( task == nullptr )
 				; ++i )
 			{
@@ -94,9 +94,9 @@ void WorkerThread( TaskScheduler* scheduler, Worker* worker )
 
 TaskHandle TaskScheduler::GetTaskGroup( )
 {
-	std::size_t workerId = m_workerCount;
-	std::size_t minReference = (std::numeric_limits<std::size_t>::max)();
-	for ( std::size_t i = m_workerCount; i < m_maxTaskQueue; ++i )
+	size_t workerId = m_workerCount;
+	size_t minReference = (std::numeric_limits<size_t>::max)();
+	for ( size_t i = m_workerCount; i < m_maxTaskQueue; ++i )
 	{
 		const TaskQueue& queue = m_taskQueues[i];
 		if ( queue.m_reference < minReference )
@@ -108,7 +108,7 @@ TaskHandle TaskScheduler::GetTaskGroup( )
 	return TaskHandle( workerId );
 }
 
-TaskHandle TaskScheduler::GetExclusiveTaskGroup( std::size_t workerId )
+TaskHandle TaskScheduler::GetExclusiveTaskGroup( size_t workerId )
 {
 	return TaskHandle( workerId );
 }
@@ -136,7 +136,7 @@ bool TaskScheduler::Run( TaskHandle handle )
 		}
 	}
 
-	for ( std::size_t i = 0; i < m_workerCount; ++i )
+	for ( size_t i = 0; i < m_workerCount; ++i )
 	{
 		std::unique_lock<std::mutex> lock( m_workers[i].m_lock );
 		m_workers[i].m_wakeup = true;
@@ -204,9 +204,9 @@ bool TaskScheduler::Wait( TaskHandle handle )
 
 void TaskScheduler::ProcessThisThreadTask( )
 {
-	std::size_t threadType = GetThisThreadType( );
+	size_t threadType = GetThisThreadType( );
 
-	for ( std::size_t i = 0; i < m_maxTaskQueue; ++i )
+	for ( size_t i = 0; i < m_maxTaskQueue; ++i )
 	{
 		TaskQueue& queue = m_taskQueues[i];
 		if ( queue.m_reference == 0 )
@@ -246,11 +246,11 @@ void TaskScheduler::ProcessThisThreadTask( )
 	}
 }
 
-std::size_t TaskScheduler::GetThisThreadType( ) const
+size_t TaskScheduler::GetThisThreadType( ) const
 {
 	std::thread::id thisThreadId = std::this_thread::get_id( );
 
-	for ( std::size_t i = 0; i < m_workerCount; ++i )
+	for ( size_t i = 0; i < m_workerCount; ++i )
 	{
 		if ( m_workerid[i] == thisThreadId )
 		{
@@ -263,18 +263,18 @@ std::size_t TaskScheduler::GetThisThreadType( ) const
 
 TaskScheduler::TaskScheduler( )
 {
-	std::size_t workerCount = ( std::thread::hardware_concurrency( ) < 1 ) ? 1 : std::thread::hardware_concurrency( ) * 2 + 1;
-	std::size_t queueCount = ( std::thread::hardware_concurrency( ) < 1 ) ? 4 : std::thread::hardware_concurrency( ) * 4;
+	size_t workerCount = ( std::thread::hardware_concurrency( ) < 1 ) ? 1 : std::thread::hardware_concurrency( ) * 2 + 1;
+	size_t queueCount = ( std::thread::hardware_concurrency( ) < 1 ) ? 4 : std::thread::hardware_concurrency( ) * 4;
 	Initialize( queueCount, workerCount );
 }
 
-TaskScheduler::TaskScheduler( std::size_t workerCount )
+TaskScheduler::TaskScheduler( size_t workerCount )
 {
-	std::size_t queueCount = ( std::thread::hardware_concurrency( ) < 1 ) ? 4 : std::thread::hardware_concurrency( ) * 4;
+	size_t queueCount = ( std::thread::hardware_concurrency( ) < 1 ) ? 4 : std::thread::hardware_concurrency( ) * 4;
 	Initialize( queueCount, workerCount );
 }
 
-TaskScheduler::TaskScheduler( std::size_t queueCount, std::size_t workerCount )
+TaskScheduler::TaskScheduler( size_t queueCount, size_t workerCount )
 {
 	Initialize( queueCount, workerCount );
 }
@@ -283,7 +283,7 @@ TaskScheduler::~TaskScheduler( )
 {
 	m_shutdown = true;
 
-	for ( std::size_t i = 0; i < m_workerCount; ++i )
+	for ( size_t i = 0; i < m_workerCount; ++i )
 	{
 		Worker& worker = m_workers[i];
 		{
@@ -302,12 +302,12 @@ TaskScheduler::~TaskScheduler( )
 	delete[] m_workerid;
 }
 
-void TaskScheduler::Initialize( std::size_t queueCount, std::size_t workerCount )
+void TaskScheduler::Initialize( size_t queueCount, size_t workerCount )
 {
 	m_maxTaskQueue = queueCount;
 	m_taskQueues = new TaskQueue[m_maxTaskQueue];
 
-	for ( std::size_t i = 0; i < m_maxTaskQueue; ++i )
+	for ( size_t i = 0; i < m_maxTaskQueue; ++i )
 	{
 		m_taskQueues[i].m_reference = 0;
 	}
@@ -316,7 +316,7 @@ void TaskScheduler::Initialize( std::size_t queueCount, std::size_t workerCount 
 	m_workers = new Worker[m_workerCount];
 	m_workerid = new std::thread::id[m_workerCount];
 
-	for ( std::size_t i = 0; i < m_workerCount; ++i )
+	for ( size_t i = 0; i < m_workerCount; ++i )
 	{
 		m_workers[i].m_threadType = i;
 		m_workers[i].m_wakeup = false;

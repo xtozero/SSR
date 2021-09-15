@@ -3,6 +3,7 @@
 #include "common.h"
 #include "Buffer.h"
 #include "GraphicsApiResource.h"
+#include "SizedTypes.h"
 
 class VertexBuffer
 {
@@ -10,7 +11,7 @@ public:
 	void* Lock( );
 	void Unlock( );
 
-	std::size_t Size( ) const
+	uint32 Size( ) const
 	{
 		return m_size;
 	}
@@ -18,7 +19,7 @@ public:
 	aga::Buffer* Resource( );
 	const aga::Buffer* Resource( ) const;
 
-	VertexBuffer( std::size_t elementSize, std::size_t numElement, const void* initData, bool isDynamic = false );
+	VertexBuffer( uint32 elementSize, uint32 numElement, const void* initData, bool isDynamic = false );
 
 	VertexBuffer( ) = default;
 	~VertexBuffer( ) = default;
@@ -28,9 +29,9 @@ public:
 	VertexBuffer& operator=( VertexBuffer&& ) = default;
 
 protected:
-	void InitResource( std::size_t elementSize, std::size_t numElement, const void* initData );
+	void InitResource( uint32 elementSize, uint32 numElement, const void* initData );
 
 	RefHandle<aga::Buffer> m_buffer;
-	std::size_t m_size = 0;
+	uint32 m_size = 0;
 	bool m_isDynamic = false;
 };

@@ -4,6 +4,7 @@
 #include "Core/GameLogic.h"
 //#include "Render/IRenderer.h"
 //#include "Render/IRenderResourceManager.h"
+#include "SizedTypes.h"
 
 #include <vector>
 
@@ -11,7 +12,7 @@ void CComputeShaderUnitTest::RunUnitTest( CGameLogic& gameLogic )
 {
 	/*using namespace RESOURCE_ACCESS_FLAG;
 
-	constexpr int DATA_SIZE = 6220800;
+	constexpr uint32 DATA_SIZE = 6220800;
 
 	std::vector<float> data;
 	data.resize( DATA_SIZE );
@@ -59,7 +60,7 @@ void CComputeShaderUnitTest::RunUnitTest( CGameLogic& gameLogic )
 		__debugbreak( );
 	}
 
-	bufferTrait.m_stride = sizeof( int );
+	bufferTrait.m_stride = sizeof( uint32 );
 	bufferTrait.m_count = 4;
 	bufferTrait.m_access = GPU_READ | CPU_WRITE;
 	bufferTrait.m_bindType = RESOURCE_BIND_TYPE::CONSTANT_BUFFER;
@@ -105,7 +106,7 @@ void CComputeShaderUnitTest::RunUnitTest( CGameLogic& gameLogic )
 	renderer.BindShader( SHADER_TYPE::CS, m_computeShader );
 	
 	bool flag = false;
-	unsigned int datacount = DATA_SIZE;
+	uint32 datacount = DATA_SIZE;
 	do
 	{
 		flag = !flag;
@@ -115,7 +116,7 @@ void CComputeShaderUnitTest::RunUnitTest( CGameLogic& gameLogic )
 		renderer.BindRandomAccessResource( 0, 1, &m_uavs[flag ? 1 : 0] );
 		renderer.BindShaderResource( SHADER_TYPE::CS, 0, 1, &m_srvs[flag ? 0 : 1] );
 
-		int* dataSize = static_cast<int*>( renderer.LockBuffer( m_constantBuffer ) );
+		uint32* dataSize = static_cast<uint32*>( renderer.LockBuffer( m_constantBuffer ) );
 		if ( dataSize )
 		{
 			*dataSize = datacount;
@@ -126,7 +127,7 @@ void CComputeShaderUnitTest::RunUnitTest( CGameLogic& gameLogic )
 			__debugbreak( );
 		}
 
-		unsigned int threadgroup = ( datacount + 127 ) / 128;
+		uint32 threadgroup = ( datacount + 127 ) / 128;
 		renderer.Dispatch( threadgroup, 1 );
 		datacount = threadgroup;
 	} while ( datacount > 1 );

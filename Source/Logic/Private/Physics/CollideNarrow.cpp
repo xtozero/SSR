@@ -11,7 +11,7 @@ using namespace DirectX;
 
 namespace
 {
-	void FillPointFaceBoxBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, const COrientedBoundingBox& rhs, RigidBody* rhsBody, const CXMFLOAT3& toCentre, CollisionData* data, unsigned int best, float pen )
+	void FillPointFaceBoxBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, const COrientedBoundingBox& rhs, RigidBody* rhsBody, const CXMFLOAT3& toCentre, CollisionData* data, uint32 best, float pen )
 	{
 		Contact* contact = data->m_contacts;
 
@@ -79,7 +79,7 @@ namespace
 	}
 }
 
-unsigned int SphereAndSphere( const BoundingSphere& lhs, RigidBody* lhsBody, const BoundingSphere& rhs, RigidBody* rhsBody, CollisionData* data )
+uint32 SphereAndSphere( const BoundingSphere& lhs, RigidBody* lhsBody, const BoundingSphere& rhs, RigidBody* rhsBody, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
@@ -109,7 +109,7 @@ unsigned int SphereAndSphere( const BoundingSphere& lhs, RigidBody* lhsBody, con
 	return COLLISION::INTERSECTION;
 }
 
-unsigned int SphereAndHalfSpace( const BoundingSphere& sphere, RigidBody* sphereBody, const CXMFLOAT4& plane, CollisionData* data )
+uint32 SphereAndHalfSpace( const BoundingSphere& sphere, RigidBody* sphereBody, const CXMFLOAT4& plane, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
@@ -136,7 +136,7 @@ unsigned int SphereAndHalfSpace( const BoundingSphere& sphere, RigidBody* sphere
 	return COLLISION::INTERSECTION;
 }
 
-unsigned int SphereAndTruePlane( const BoundingSphere& sphere, RigidBody* sphereBody, const CXMFLOAT4& plane, CollisionData* data )
+uint32 SphereAndTruePlane( const BoundingSphere& sphere, RigidBody* sphereBody, const CXMFLOAT4& plane, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
@@ -171,7 +171,7 @@ unsigned int SphereAndTruePlane( const BoundingSphere& sphere, RigidBody* sphere
 	return COLLISION::INTERSECTION;
 }
 
-unsigned int BoxAndHalfSpace( const CAaboundingbox& box, RigidBody* boxBody, const CXMFLOAT4& plane, CollisionData* data )
+uint32 BoxAndHalfSpace( const CAaboundingbox& box, RigidBody* boxBody, const CXMFLOAT4& plane, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
@@ -179,9 +179,9 @@ unsigned int BoxAndHalfSpace( const CAaboundingbox& box, RigidBody* boxBody, con
 	}
 
 	Contact* contact = data->m_contacts;
-	int contactsUsed = 0;
+	int32 contactsUsed = 0;
 
-	for ( int i = 0; i < 8; ++i )
+	for ( uint32 i = 0; i < 8; ++i )
 	{
 		CXMFLOAT3 vertexPos = box.Point( i );
 
@@ -207,7 +207,7 @@ unsigned int BoxAndHalfSpace( const CAaboundingbox& box, RigidBody* boxBody, con
 	return contactsUsed;
 }
 
-unsigned int BoxAndSphere( const CAaboundingbox& box, RigidBody* boxBody, const BoundingSphere& sphere, RigidBody* sphereBody, CollisionData* data )
+uint32 BoxAndSphere( const CAaboundingbox& box, RigidBody* boxBody, const BoundingSphere& sphere, RigidBody* sphereBody, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
@@ -269,7 +269,7 @@ unsigned int BoxAndSphere( const CAaboundingbox& box, RigidBody* boxBody, const 
 	return COLLISION::INTERSECTION;
 }
 
-unsigned int BoxAndSphere( const COrientedBoundingBox& box, RigidBody* boxBody, const BoundingSphere& sphere, RigidBody* sphereBody, CollisionData* data )
+uint32 BoxAndSphere( const COrientedBoundingBox& box, RigidBody* boxBody, const BoundingSphere& sphere, RigidBody* sphereBody, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
@@ -335,7 +335,7 @@ unsigned int BoxAndSphere( const COrientedBoundingBox& box, RigidBody* boxBody, 
 	return COLLISION::INTERSECTION;
 }
 
-unsigned int BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const CAaboundingbox& rhs, RigidBody* rhsBody, CollisionData* data )
+uint32 BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const CAaboundingbox& rhs, RigidBody* rhsBody, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
@@ -360,9 +360,9 @@ unsigned int BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const CAa
 	totalSize += rhsSize;
 
 	float bestOverlap = FLT_MAX;
-	int bestAxis = 0;
+	uint32 bestAxis = 0;
 
-	for ( int i = 0; i < 3; ++i )
+	for ( uint32 i = 0; i < 3; ++i )
 	{
 		float overlap = ( totalSize[i] - fabsf( std::max( lhsMax[i], rhsMax[i] ) - std::min( lhsMin[i], rhsMin[i] ) ) ) * 0.5f;
 		
@@ -417,7 +417,7 @@ unsigned int BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const CAa
 	return COLLISION::INTERSECTION;
 }
 
-unsigned int BoxAndBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, const COrientedBoundingBox& rhs, RigidBody* rhsBody, CollisionData* data )
+uint32 BoxAndBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, const COrientedBoundingBox& rhs, RigidBody* rhsBody, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
@@ -427,7 +427,7 @@ unsigned int BoxAndBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, con
 	CXMFLOAT3 toCentre = rhs.GetAxisVector( 3 ) - lhs.GetAxisVector( 3 );
 
 	float pen = FLT_MAX;
-	unsigned int best = UINT_MAX;
+	uint32 best = UINT_MAX;
 
 	if ( TryAxis( lhs, rhs, lhs.GetAxisVector( 0 ), toCentre, 0, pen, best ) == false )
 	{
@@ -459,7 +459,7 @@ unsigned int BoxAndBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, con
 		return COLLISION::OUTSIDE;
 	}
 
-	unsigned int bestSingleAxis = best;
+	uint32 bestSingleAxis = best;
 
 	if ( TryAxis( lhs, rhs, XMVector3Normalize( XMVector3Cross( lhs.GetAxisVector( 0 ), rhs.GetAxisVector( 0 ) ) ), toCentre, 6, pen, best ) == false )
 	{
@@ -521,8 +521,8 @@ unsigned int BoxAndBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, con
 	else
 	{
 		best -= 6;
-		unsigned int lhsAxisIndex = best / 3;
-		unsigned int rhsAxisIndex = best % 3;
+		uint32 lhsAxisIndex = best / 3;
+		uint32 rhsAxisIndex = best % 3;
 		CXMFLOAT3 lhsAxis = lhs.GetAxisVector( lhsAxisIndex );
 		CXMFLOAT3 rhsAxis = rhs.GetAxisVector( rhsAxisIndex );
 		CXMFLOAT3 axis = XMVector3Normalize( XMVector3Cross( lhsAxis, rhsAxis ) );
@@ -535,7 +535,7 @@ unsigned int BoxAndBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, con
 		CXMFLOAT3 ptOnLhsEdge = lhs.GetHalfSize( );
 		CXMFLOAT3 ptOnRhsEdge = rhs.GetHalfSize( );
 
-		for ( unsigned int i = 0; i < 3; ++i )
+		for ( uint32 i = 0; i < 3; ++i )
 		{
 			if ( i == lhsAxisIndex )
 			{
@@ -574,7 +574,7 @@ unsigned int BoxAndBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, con
 	}
 }
 
-unsigned int BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const COrientedBoundingBox& rhs, RigidBody* rhsBody, CollisionData* data )
+uint32 BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const COrientedBoundingBox& rhs, RigidBody* rhsBody, CollisionData* data )
 {
 	COrientedBoundingBox lhsOBB( lhs );
 
@@ -586,7 +586,7 @@ float RayAndBox( const CXMFLOAT3& rayOrigin, const CXMFLOAT3& rayDir, const CXMF
 	float t_min = 0;
 	float t_max = FLT_MAX;
 
-	for ( int i = 0; i < 3; ++i )
+	for ( uint32 i = 0; i < 3; ++i )
 	{
 		if ( abs( rayDir[i] ) < FLT_EPSILON )
 		{

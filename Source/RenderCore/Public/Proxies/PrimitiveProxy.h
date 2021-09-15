@@ -1,5 +1,7 @@
 #pragma once
+
 #include "Math/CXMFloat.h"
+#include "SizedTypes.h"
 
 #include <deque>
 #include <optional>
@@ -21,13 +23,13 @@ public:
 
 	virtual void CreateRenderData( ) = 0;
 	virtual void PrepareSubMeshs( ) = 0;
-	virtual void GetSubMeshElement( std::size_t lod, std::size_t sectionIndex, PrimitiveSubMesh& subMesh ) = 0;
+	virtual void GetSubMeshElement( uint32 lod, uint32 sectionIndex, PrimitiveSubMesh& subMesh ) = 0;
 	virtual void TakeSnapshot( std::deque<DrawSnapshot>& snapshotStorage, SceneViewConstantBuffer& viewConstant, std::vector<VisibleDrawSnapshot>& drawList ) const = 0;
-	virtual std::optional<DrawSnapshot> TakeSnapshot( std::size_t lod, std::size_t sectionIndex, SceneViewConstantBuffer& viewConstant ) const = 0;
+	virtual std::optional<DrawSnapshot> TakeSnapshot( uint32 lod, uint32 sectionIndex, SceneViewConstantBuffer& viewConstant ) const = 0;
 
 	virtual ~PrimitiveProxy( ) = default;
 
-	std::size_t PrimitiveId( ) const;
+	uint32 PrimitiveId( ) const;
 
 protected:
 	friend Scene;

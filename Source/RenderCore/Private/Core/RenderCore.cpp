@@ -13,9 +13,9 @@
 class RenderCore : public IRenderCore
 {
 public:
-	virtual bool BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight ) override;
-	virtual void HandleDeviceLost( HWND hWnd, UINT nWndWidth, UINT nWndHeight ) override;
-	virtual void AppSizeChanged( UINT nWndWidth, UINT nWndHeight ) override;
+	virtual bool BootUp( ) override;
+	virtual void HandleDeviceLost( ) override;
+	virtual void AppSizeChanged( ) override;
 
 	virtual IScene* CreateScene( ) override;
 	virtual void RemoveScene( IScene* scene ) override;
@@ -44,7 +44,7 @@ void DestoryRenderCore( Owner<IRenderCore*> pRenderCore )
 	delete pRenderCore;
 }
 
-bool RenderCore::BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
+bool RenderCore::BootUp( )
 {
 	m_hAga = LoadModule( "Aga.dll" );
 	if ( m_hAga == nullptr )
@@ -58,7 +58,7 @@ bool RenderCore::BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
 		return false;
 	}
 
-	if ( m_aga->BootUp( hWnd, nWndWidth, nWndHeight ) == false )
+	if ( m_aga->BootUp( ) == false )
 	{
 		return false;
 	}
@@ -69,13 +69,13 @@ bool RenderCore::BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
 	return true;
 }
 
-void RenderCore::HandleDeviceLost( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
+void RenderCore::HandleDeviceLost( )
 {
 }
 
-void RenderCore::AppSizeChanged( UINT nWndWidth, UINT nWndHeight )
+void RenderCore::AppSizeChanged( )
 {
-	m_aga->AppSizeChanged( nWndWidth, nWndHeight );
+	m_aga->AppSizeChanged( );
 }
 
 IScene* RenderCore::CreateScene( )

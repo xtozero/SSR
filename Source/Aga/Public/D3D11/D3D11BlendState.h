@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PipelineState.h"
+#include "SizedTypes.h"
 
 #include <d3d11.h>
 
@@ -14,11 +15,11 @@ namespace aga
 
 		const float* GetBlendFactor( ) const;
 
-		UINT SamplerMask( ) const;
+		uint32 SamplerMask( ) const;
 
 		void SetBlendFactor( const float( &blendFactor )[4] );
 
-		void SetSampleMask( unsigned int sampleMask );
+		void SetSampleMask( uint32 sampleMask );
 
 		D3D11BlendState( const BLEND_STATE_TRAIT& trait );
 		D3D11BlendState( const D3D11BlendState& ) = delete;
@@ -34,7 +35,7 @@ namespace aga
 		ID3D11BlendState* m_blendState = nullptr;
 
 		float m_blendFactor[4] = {};
-		UINT m_sampleMask = D3D11_DEFAULT_SAMPLE_MASK;
+		uint32 m_sampleMask = D3D11_DEFAULT_SAMPLE_MASK;
 		D3D11_BLEND_DESC m_desc;
 	};
 }

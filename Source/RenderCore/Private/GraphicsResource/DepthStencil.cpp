@@ -6,7 +6,7 @@
 
 namespace rendercore
 {
-	void DepthStencil::UpdateBufferSize( UINT width, UINT height )
+	void DepthStencil::UpdateBufferSize( uint32 width, uint32 height )
 	{
 		if ( ( m_depthStencil.Get( ) == nullptr )
 			|| m_depthStencil->Size( ) != std::pair( width, height ) )
@@ -32,7 +32,7 @@ namespace rendercore
 		}
 	}
 
-	void DepthStencil::Clear( float depth, UINT8 stencil )
+	void DepthStencil::Clear( float depth, uint8 stencil )
 	{
 		GraphicsInterface( ).ClearDepthStencil( m_depthStencil.Get( ), depth, stencil );
 	}

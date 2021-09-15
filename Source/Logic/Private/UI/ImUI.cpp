@@ -2,6 +2,7 @@
 #include "UI/ImUI.h"
 
 #include "Core/Timer.h"
+#include "Crc32Hash.h"
 #include "Util.h"
 
 #include <algorithm>
@@ -19,46 +20,6 @@ namespace
 	{
 		return lhs.m_leftTop.x <= rhs.m_leftTop.x && lhs.m_rightBottom.x >= rhs.m_rightBottom.x &&
 			lhs.m_leftTop.y <= rhs.m_leftTop.y && lhs.m_rightBottom.y >= rhs.m_rightBottom.y;
-	}
-
-	// CRC 32 hash function
-	ImGUID ImHash( const void* data, int size = 0, unsigned int seed = 0 )
-	{
-		static unsigned int crc32LUT[256] = { 0 };
-		if ( crc32LUT[1] == 0 )
-		{
-			constexpr unsigned int polynomial = 0xEDB88320;
-			for ( unsigned int i = 0; i < 256; ++i )
-			{
-				unsigned int crc = i;
-				for ( unsigned int j = 0; j < 8; ++j )
-				{
-					crc = ( crc >> 1 ) ^ ( unsigned int( -int( crc & 1 ) ) & polynomial );
-				}
-				crc32LUT[i] = crc;
-			}
-		}
-
-		seed = ~seed;
-		unsigned int crc = seed;
-		const unsigned char* current = (const unsigned char*)data;
-
-		if ( size > 0 )
-		{
-			for ( int i = 0; i < size; ++i )
-			{
-				crc = ( crc >> 8 ) ^ crc32LUT[( crc & 0xFF ) ^ *current++];
-			}
-		}
-		else
-		{
-			while ( unsigned char c = *current++ )
-			{
-				crc = ( crc >> 8 ) ^ crc32LUT[( crc & 0xFF ) ^ c];
-			}
-		}
-		
-		return ~crc;
 	}
 
 	float clamp( const float value, const float minValue, const float maxValue )
@@ -111,7 +72,7 @@ namespace
 	{
 		ImUiWindowSetting* settings = static_cast<ImUiWindowSetting*>( entry );
 		float x, y;
-		int i;
+		int32 i;
 		if ( sscanf_s( line, "Pos=%f,%f", &x, &y ) == 2 )
 		{
 			settings->m_pos = CXMFLOAT2( x, y );
@@ -126,7 +87,7 @@ namespace
 		}
 	}
 
-	static bool ItemsArrayGetter( void* data, int idx, const char** out_text )
+	static bool ItemsArrayGetter( void* data, int32 idx, const char** out_text )
 	{
 		const char* const* items = (const char* const*)data;
 		if ( out_text )
@@ -169,7 +130,7 @@ namespace
 ImGUID ImUiWindow::GetID( const char* str )
 {
 	ImGUID seed = m_idStack.back( );
-	ImGUID id = ImHash( str, 0, seed );
+	ImGUID id = Crc32Hash( str, 0, seed );
 	return id;
 }
 
@@ -192,11 +153,11 @@ void ImUiWindow::SetPos( const CXMFLOAT2& pos )
 	m_dc.m_cursorMaxPos += ( m_pos - oldPos );
 }
 
-CXMFLOAT2 CTextAtlas::CalcTextSize( const char* text, UINT count ) const
+CXMFLOAT2 CTextAtlas::CalcTextSize( const char* text, uint32 count ) const
 {
 	CXMFLOAT2 size = { 0.f, m_fontHeight };
 
-	for ( UINT i = 0; i < count; ++i )
+	for ( uint32 i = 0; i < count; ++i )
 	{
 		auto found = m_fontInfo.find( text[i] );
 		size.x += found->second.m_size + 1;
@@ -223,7 +184,7 @@ bool ImUI::Initialize( )
 
 	LoadSettingFromDisk( "./Configs/imUI_setting.cfg" );
 
-	for ( int i = 0, end = _countof( m_circleVertex ); i < end; ++i )
+	for ( int32 i = 0, end = _countof( m_circleVertex ); i < end; ++i )
 	{
 		const float angle = ( static_cast<float>( i ) * DirectX::XM_2PI ) / end;
 		m_circleVertex[i] = CXMFLOAT2( cosf( angle ), sinf( angle ) );
@@ -242,7 +203,7 @@ void ImUI::SetDefaultText( const std::string& fontName, const CTextAtlas& textAt
 	}
 	else
 	{
-		m_curTextAltas = static_cast<int>( m_textAtlas.size( ) );
+		m_curTextAltas = static_cast<int32>( m_textAtlas.size( ) );
 		m_textAtlasLUT.emplace( fontName, m_curTextAltas );
 		m_textAtlas.emplace_back( textAtlas );
 	}
@@ -281,7 +242,7 @@ void ImUI::BeginFrame( const Rect& clientRect, float elapsedTime, float totalTim
 
 	m_mouseOveredID = 0;
 
-	for ( int i = 0; i < 5; ++i )
+	for ( int32 i = 0; i < 5; ++i )
 	{
 		m_io.m_mouseClicked[i] = m_io.m_mouseDown[i] && m_io.m_mouseDownDuration[i] < 0.f;
 		m_io.m_mouseDownDurationPrev[i] = m_io.m_mouseDownDuration[i];
@@ -548,9 +509,9 @@ bool ImUI::Window( const char* name, ImUiWindowFlags::Type flags )
 		}
 
 		// Title text
-		std::size_t textCount = std::strlen( name );
+		size_t textCount = std::strlen( name );
 		assert( textCount <= UINT_MAX );
-		CXMFLOAT2 textSize = CalcTextSize( name, static_cast<UINT>( textCount ) );
+		CXMFLOAT2 textSize = CalcTextSize( name, static_cast<uint32>( textCount ) );
 
 		float padLeft = m_curStyle.m_framePadding.x + m_curStyle.m_itemInnerSpacing.x + textSize.y;
 		float padRight = m_curStyle.m_framePadding.x;
@@ -560,7 +521,7 @@ bool ImUI::Window( const char* name, ImUiWindowFlags::Type flags )
 		CXMFLOAT2 textPosMax = window->m_pos + CXMFLOAT2( window->m_size.x, titleBarHeight );
 		textPosMax.x -= padRight;
 
-		RenderClippedText( textPosMin, textPosMax, name, static_cast<UINT>( textCount ), CXMFLOAT2( 0.f, 0.5f ) );
+		RenderClippedText( textPosMin, textPosMax, name, static_cast<uint32>( textCount ), CXMFLOAT2( 0.f, 0.5f ) );
 	}
 
 	m_nextWindowData.m_constraintSizeCond = 0;
@@ -600,9 +561,9 @@ bool ImUI::SliderFloat( const char* label, float* v, float min, float max, const
 	ImUiDrawContext& dc = m_curWindow->m_dc;
 
 	const CXMFLOAT2 pos = dc.m_cursorPos;
-	std::size_t labelLength = strlen( label );
+	size_t labelLength = strlen( label );
 	assert( labelLength <= UINT_MAX );
-	const CXMFLOAT2 labelSize = CalcTextSize( label, static_cast<UINT>( labelLength ) );
+	const CXMFLOAT2 labelSize = CalcTextSize( label, static_cast<uint32>( labelLength ) );
 
 	Rect boundingBox( pos.x,
 					pos.y,
@@ -627,15 +588,15 @@ bool ImUI::SliderFloat( const char* label, float* v, float min, float max, const
 
 	char valueBuf[64] = {};
 	std::snprintf( valueBuf, std::extent_v<decltype(valueBuf)>, displayFormat, *v );
-	std::size_t count = std::strlen( valueBuf );
+	size_t count = std::strlen( valueBuf );
 
 	assert( count <= UINT_MAX );
-	RenderClippedText( boundingBox.m_leftTop, boundingBox.m_rightBottom, valueBuf, static_cast<UINT>( count ), CXMFLOAT2( 0.5f, 0.5f ) );
+	RenderClippedText( boundingBox.m_leftTop, boundingBox.m_rightBottom, valueBuf, static_cast<uint32>( count ), CXMFLOAT2( 0.5f, 0.5f ) );
 
 	return valueChanged;
 }
 
-bool ImUI::SliderInt( const char* label, int* v, int min, int max, const char* displayFormat )
+bool ImUI::SliderInt( const char* label, int32* v, int32 min, int32 max, const char* displayFormat )
 {
 	if ( displayFormat == nullptr )
 	{
@@ -644,7 +605,7 @@ bool ImUI::SliderInt( const char* label, int* v, int min, int max, const char* d
 
 	float floatValue = static_cast<float>( *v );
 	bool valueChanged = SliderFloat( label, &floatValue, static_cast<float>( min ), static_cast<float>( max ), displayFormat );
-	*v = static_cast<int>( floatValue );
+	*v = static_cast<int32>( floatValue );
 
 	return valueChanged;
 }
@@ -662,9 +623,9 @@ bool ImUI::BeginCombo( const char* label, const char* prevValue, ImUiComboFlag::
 	ImGUID id = m_curWindow->GetID( label );
 
 	CXMFLOAT2 arrowSize( ( flags & ImUiComboFlag::NoArrowButton ) ? 0.f : GetFrameHeight( ), 0.f );
-	const std::size_t labelLen = strlen( label );
+	const size_t labelLen = strlen( label );
 	assert( labelLen <= UINT_MAX );
-	CXMFLOAT2 labelSize = CalcTextSize( label, static_cast<UINT>( labelLen ) );
+	CXMFLOAT2 labelSize = CalcTextSize( label, static_cast<uint32>( labelLen ) );
 	const float width = CalcItemWidth( );
 
 	CXMFLOAT2 itemSize( width, labelSize.y + m_curStyle.m_framePadding.y * 2.0f );
@@ -704,13 +665,13 @@ bool ImUI::BeginCombo( const char* label, const char* prevValue, ImUiComboFlag::
 	{
 		Rect valueBB( frameBB.m_leftTop, frameBB.m_rightBottom - arrowSize );
 
-		std::size_t prevValueLength = strlen( prevValue );
+		size_t prevValueLength = strlen( prevValue );
 		assert( prevValueLength <= UINT_MAX );
 		RenderClippedText(
 			frameBB.m_leftTop + m_curStyle.m_framePadding,
 			valueBB.m_rightBottom,
 			prevValue,
-			static_cast<UINT>( prevValueLength ),
+			static_cast<uint32>( prevValueLength ),
 			CXMFLOAT2( 0.f, 0.f ) );
 	}
 
@@ -719,7 +680,7 @@ bool ImUI::BeginCombo( const char* label, const char* prevValue, ImUiComboFlag::
 		RenderText(
 			CXMFLOAT2( frameBB.m_rightBottom.x, frameBB.m_leftTop.y ) + m_curStyle.m_itemInnerSpacing,
 			label,
-			static_cast<UINT>( labelLen )
+			static_cast<uint32>( labelLen )
 		);
 	}
 
@@ -750,7 +711,7 @@ bool ImUI::BeginCombo( const char* label, const char* prevValue, ImUiComboFlag::
 			flags |= ImUiComboFlag::HeightRegular;
 		}
 
-		int popupMaxHeihtInItems = -1;
+		int32 popupMaxHeihtInItems = -1;
 
 		switch ( flags & ImUiComboFlag::HeightMask )
 		{
@@ -806,13 +767,13 @@ void ImUI::EndCombo( )
 	EndPopup( );
 }
 
-bool ImUI::Combo( const char* label, int* currentItem, const char* const items[], int itemsCount, int heightInItem )
+bool ImUI::Combo( const char* label, int32* currentItem, const char* const items[], int32 itemsCount, int32 heightInItem )
 {
 	bool valueChanged = Combo( label, currentItem, ItemsArrayGetter, (void*)( items ), itemsCount, heightInItem );
 	return valueChanged;
 }
 
-bool ImUI::Combo( const char* label, int* currentItem, bool( *itemsGettter )( void* data, int idx, const char **outText ), void* data, int itemCount, int heightInItem )
+bool ImUI::Combo( const char* label, int32* currentItem, bool( *itemsGettter )( void* data, int32 idx, const char **outText ), void* data, int32 itemCount, int32 heightInItem )
 {
 	const char* prevText = nullptr;
 	if ( *currentItem >= 0 && *currentItem < itemCount )
@@ -832,7 +793,7 @@ bool ImUI::Combo( const char* label, int* currentItem, bool( *itemsGettter )( vo
 	}
 
 	bool valueChanged = false;
-	for ( int i = 0; i < itemCount; ++i )
+	for ( int32 i = 0; i < itemCount; ++i )
 	{
 		const bool itemSelected = ( i == *currentItem );
 		const char* itemText;
@@ -866,9 +827,9 @@ bool ImUI::Selectable( const char* label, bool selected, ImUiSelectableFlags::Ty
 	}
 
 	ImGUID id = m_curWindow->GetID( label );
-	std::size_t labelLength = strlen( label );
+	size_t labelLength = strlen( label );
 	assert( labelLength <= UINT_MAX );
-	CXMFLOAT2 labelSize = CalcTextSize( label, static_cast<UINT>( labelLength ) );
+	CXMFLOAT2 labelSize = CalcTextSize( label, static_cast<uint32>( labelLength ) );
 	CXMFLOAT2 size( sizeArg.x != 0.f ? sizeArg.x : labelSize.x, sizeArg.y != 0.f ? sizeArg.y : labelSize.y );
 	CXMFLOAT2 pos = m_curWindow->m_dc.m_cursorPos;
 	pos.y += m_curWindow->m_dc.m_currentLineTextBaseOffset;
@@ -880,8 +841,8 @@ bool ImUI::Selectable( const char* label, bool selected, ImUiSelectableFlags::Ty
 	CXMFLOAT2 drawSize( sizeArg.x != 0 ? sizeArg.x : drawWidth, sizeArg.y != 0 ? sizeArg.y : size.y );
 	Rect bbWithSpacing( pos.x, pos.y, pos.x + drawSize.x, pos.y + drawSize.y );
 
-	float spacing_L = static_cast<float>(static_cast<int>(m_curStyle.m_itemSpacing.x * 0.5f));
-	float spacing_T = static_cast<float>(static_cast<int>(m_curStyle.m_itemSpacing.y * 0.5f));
+	float spacing_L = static_cast<float>(static_cast<int32>(m_curStyle.m_itemSpacing.x * 0.5f));
+	float spacing_T = static_cast<float>(static_cast<int32>(m_curStyle.m_itemSpacing.y * 0.5f));
 	float spacing_R = m_curStyle.m_itemSpacing.x - spacing_L;
 	float spacing_B = m_curStyle.m_itemSpacing.y - spacing_T;
 
@@ -900,7 +861,7 @@ bool ImUI::Selectable( const char* label, bool selected, ImUiSelectableFlags::Ty
 		RenderFrame( bbWithSpacing.m_leftTop, bbWithSpacing.GetWidthHeight(), color );
 	}
 
-	RenderClippedText( pos, bbWithSpacing.m_rightBottom, label, static_cast<UINT>( labelLength ), CXMFLOAT2( 0.f, 0.f ) );
+	RenderClippedText( pos, bbWithSpacing.m_rightBottom, label, static_cast<uint32>( labelLength ), CXMFLOAT2( 0.f, 0.f ) );
 
 	if ( mousePressed && ( m_curWindow->m_flag & ImUiWindowFlags::Popup ) )
 	{
@@ -910,7 +871,7 @@ bool ImUI::Selectable( const char* label, bool selected, ImUiSelectableFlags::Ty
 	return mousePressed;
 }
 
-void ImUI::TextUnformatted( const char* text, UINT count )
+void ImUI::TextUnformatted( const char* text, uint32 count )
 {
 	assert( m_curWindow != nullptr );
 	if ( m_curWindow->m_skipItem )
@@ -995,16 +956,16 @@ ImDrawData ImUI::Render( )
 
 			drawData.m_drawLists.push_back( &window->m_drawList );
 			assert( ( drawData.m_totalVertexCount + window->m_drawList.m_vertices.size( ) ) <= UINT_MAX );
-			drawData.m_totalVertexCount += static_cast<UINT>( window->m_drawList.m_vertices.size( ) );
+			drawData.m_totalVertexCount += static_cast<uint32>( window->m_drawList.m_vertices.size( ) );
 			assert( ( drawData.m_totalIndexCount + window->m_drawList.m_indices.size( ) ) <= UINT_MAX );
-			drawData.m_totalIndexCount += static_cast<UINT>( window->m_drawList.m_indices.size( ) );
+			drawData.m_totalIndexCount += static_cast<uint32>( window->m_drawList.m_indices.size( ) );
 		}
 	}
 
 	return drawData;
 }
 
-CXMFLOAT2 ImUI::CalcTextSize( const char* text, UINT count ) const
+CXMFLOAT2 ImUI::CalcTextSize( const char* text, uint32 count ) const
 {
 	assert( m_curTextAltas != -1 );
 
@@ -1069,7 +1030,7 @@ ImUiWindow* ImUI::FindWindow( const char* name )
 
 ImUiWindow* ImUI::FindMouseOverWindow( )
 {
-	for ( int i = static_cast<int>( m_windows.size() ) - 1; i >= 0; --i )
+	for ( int32 i = static_cast<int32>( m_windows.size() ) - 1; i >= 0; --i )
 	{
 		ImUiWindow* window = m_windows[i].get();
 
@@ -1095,7 +1056,7 @@ ImUiWindow* ImUI::FindMouseOverWindow( )
 ImUiWindow* ImUI::CreateImUiWindow( const char* name, const CXMFLOAT2& size )
 {
 	assert( m_windows.size( ) <= INT_MAX );
-	int id = static_cast<int>( m_windows.size( ) );
+	int32 id = static_cast<int32>( m_windows.size( ) );
 	m_windowLUT.emplace( name, id );
 	m_windows.emplace_back( std::make_unique<ImUiWindow>( *this ) );
 	
@@ -1115,7 +1076,7 @@ ImUiWindow* ImUI::CreateImUiWindow( const char* name, const CXMFLOAT2& size )
 	}
 	
 	window->m_sizeNonCollapsed = window->m_size;
-	window->m_idStack.push_back( ImHash( name ) );
+	window->m_idStack.push_back( Crc32Hash( name ) );
 
 	window->m_moveID = window->GetID( "MOVE" );
 
@@ -1136,11 +1097,11 @@ float ImUI::CalcItemWidth( )
 		assert( false && "Not Implemented" );
 	}
 
-	w = static_cast<float>( static_cast<int>( w ) );
+	w = static_cast<float>( static_cast<int32>( w ) );
 	return w;
 }
 
-float ImUI::CalcMaxPopupHeightFromItemCount( int itemCount )
+float ImUI::CalcMaxPopupHeightFromItemCount( int32 itemCount )
 {
 	if ( itemCount <= 0 )
 	{
@@ -1161,9 +1122,9 @@ bool ImUI::ButtonEX( const char* label, const CXMFLOAT2& /*size*/ )
 	ImUiDrawContext& dc = m_curWindow->m_dc;
 
 	const CXMFLOAT2 pos = dc.m_cursorPos;
-	const std::size_t strCount = strlen( label );
+	const size_t strCount = strlen( label );
 	assert( strCount <= UINT_MAX );
-	const CXMFLOAT2 labelSize = CalcTextSize( label, static_cast<UINT>( strCount ) );
+	const CXMFLOAT2 labelSize = CalcTextSize( label, static_cast<uint32>( strCount ) );
 
 	const CXMFLOAT2& buttonSize = CalcItemSize( CXMFLOAT2( labelSize.x + m_curStyle.m_framePadding.x * 2.f, labelSize.y + m_curStyle.m_framePadding.y * 2.f ) );
 
@@ -1184,7 +1145,7 @@ bool ImUI::ButtonEX( const char* label, const CXMFLOAT2& /*size*/ )
 	// юс╫ц
 	const CXMFLOAT4& color = GetItemColor( ( mouseOvered && mouseHeld ) ? ImUiColor::ButtonPress : ( mouseOvered ? ImUiColor::ButtonMouseOver : ImUiColor::Button ) );
 	m_curWindow->m_drawList.AddFilledRect( pos, buttonSize, color );
-	RenderClippedText( pos + m_curStyle.m_framePadding, boundingBox.m_rightBottom - m_curStyle.m_framePadding, label, static_cast<UINT>( strCount ), CXMFLOAT2( 0.f, 0.f ) );
+	RenderClippedText( pos + m_curStyle.m_framePadding, boundingBox.m_rightBottom - m_curStyle.m_framePadding, label, static_cast<uint32>( strCount ), CXMFLOAT2( 0.f, 0.f ) );
 
 	return mousePreesed;
 }
@@ -1316,7 +1277,7 @@ void ImUI::RenderFrame( const CXMFLOAT2& pos, const CXMFLOAT2& size, const CXMFL
 	m_curWindow->m_drawList.AddFilledRect( pos, size, color, rounding, ImDrawCorner::All );
 }
 
-void ImUI::RenderText( const CXMFLOAT2& pos, const char* text, int count )
+void ImUI::RenderText( const CXMFLOAT2& pos, const char* text, int32 count )
 {
 	if ( count == 0 )
 	{
@@ -1331,7 +1292,7 @@ void ImUI::RenderText( const CXMFLOAT2& pos, const char* text, int count )
 	m_curWindow->m_drawList.AddText( m_textAtlas[m_curTextAltas], pos, GetItemColor( ImUiColor::Text ), text, count );
 }
 
-void ImUI::RenderClippedText( const CXMFLOAT2& posMin, const CXMFLOAT2& posMax, const char* text, UINT count, const CXMFLOAT2& align )
+void ImUI::RenderClippedText( const CXMFLOAT2& posMin, const CXMFLOAT2& posMax, const char* text, uint32 count, const CXMFLOAT2& align )
 {
 	if ( count == 0 )
 	{
@@ -1531,7 +1492,7 @@ void ImUI::LoadSettingFromDisk( const char* fileName )
 		cfgfile.seekg( 0, std::ios::beg );
 
 		assert( INT_MAX >= fileSize );
-		int iFileSize = static_cast<int>( fileSize );
+		size_t iFileSize = fileSize;
 
 		char* buf = new char[iFileSize];
 
@@ -1543,7 +1504,7 @@ void ImUI::LoadSettingFromDisk( const char* fileName )
 	}
 }
 
-void ImUI::LoadSettingFromMemory( const char* buf, int count )
+void ImUI::LoadSettingFromMemory( const char* buf, size_t count )
 {
 	char* duplicatedBuf = new char[count + 1];
 	memcpy_s( duplicatedBuf, count, buf, count );
@@ -1690,7 +1651,7 @@ void ImUI::ClosePopupsOverWindow( ImUiWindow* refWindow )
 	}
 }
 
-void ImUI::ClosePopupToLevel( std::size_t remaining )
+void ImUI::ClosePopupToLevel( size_t remaining )
 {
 	ImUiWindow* focusWindow = ( remaining > 0 ) ? m_openPopupStack[remaining - 1].m_window : m_openPopupStack[0].m_parentWindow;
 	FocusWindow( focusWindow );
@@ -1699,7 +1660,7 @@ void ImUI::ClosePopupToLevel( std::size_t remaining )
 
 void ImUI::CloseCurrentPopup( )
 {
-	std::size_t popupIdx = m_currentPopupStack.size( ) - 1;
+	size_t popupIdx = m_currentPopupStack.size( ) - 1;
 	if ( popupIdx < 0 || popupIdx >= m_openPopupStack.size() || m_currentPopupStack[popupIdx].m_popupId != m_openPopupStack[popupIdx].m_popupId )
 	{
 		return;
@@ -1778,7 +1739,7 @@ CXMFLOAT2 ImUI::FindBestWindowPosForPopup( const CXMFLOAT2& refPos, const CXMFLO
 	if ( policy == ImUiPopupPositionPolicy::ComboBox )
 	{
 		ImDir::Type dirOrder[ImDir::Count] = { ImDir::Down, ImDir::Right, ImDir::Left, ImDir::Up };
-		for ( int i = ( lastDir != ImDir::None ) ? -1 : 0; i < ImDir::Count; ++i )
+		for ( int32 i = ( lastDir != ImDir::None ) ? -1 : 0; i < ImDir::Count; ++i )
 		{
 			ImDir::Type dir = ( i == -1 ) ? lastDir : dirOrder[i];
 			if ( i != -1 && dir == lastDir )
@@ -1817,7 +1778,7 @@ CXMFLOAT2 ImUI::FindBestWindowPosForPopup( const CXMFLOAT2& refPos, const CXMFLO
 	CXMFLOAT2 clampedBasePos = clamp( refPos, outer.m_leftTop, outer.m_rightBottom );
 
 	ImDir::Type dirOrder[ImDir::Count] = { ImDir::Right, ImDir::Down, ImDir::Up, ImDir::Left };
-	for ( int i = ( lastDir != ImDir::None ) ? -1 : 0; i < ImDir::Count; ++i )
+	for ( int32 i = ( lastDir != ImDir::None ) ? -1 : 0; i < ImDir::Count; ++i )
 	{
 		ImDir::Type dir = ( i == -1 ) ? lastDir : dirOrder[i];
 		if ( i != -1 && dir == lastDir )

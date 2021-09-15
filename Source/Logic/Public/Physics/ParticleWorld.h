@@ -2,6 +2,7 @@
 #include "Math/CXMFloat.h"
 #include "ParticleContacts.h"
 #include "ParticleForceGenerator.h"
+#include "SizedTypes.h"
 
 #include <memory>
 #include <vector>
@@ -11,15 +12,15 @@ class Particle;
 class ParticleWorld
 {
 public:
-	explicit ParticleWorld( int iteration = 0 );
+	explicit ParticleWorld( uint32 iteration = 0 );
 	
-	void BootUp( int maxContacts );
+	void BootUp( int32 maxContacts );
 
 	void PreparePhysics( );
 	void RunPhysics( float duration );
 
 private:
-	int GenerateContacts( );
+	int32 GenerateContacts( );
 	void Integrate( float duration );
 
 	using Particles = std::vector<Particle*>;
@@ -27,12 +28,12 @@ private:
 
 	ParticleForceRegistry m_registry;
 
-	ParticleContantResolver m_resolver;
+	ParticleContactResolver m_resolver;
 
 	using ContactGenerators = std::vector<ParticleContactGenerator*>;
 	ContactGenerators m_contactGenerators;
 
 	std::unique_ptr<ParticleContact[]> m_contacts;
-	int m_maxContacts = 0;
+	int32 m_maxContacts = 0;
 	bool m_calculateIterations = false;
 };

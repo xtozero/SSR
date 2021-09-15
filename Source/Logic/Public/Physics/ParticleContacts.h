@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math/CXMFloat.h"
+#include "SizedTypes.h"
 
 class Particle;
 
@@ -25,20 +26,20 @@ private:
 	void ResolveInterpenetration( float duration );
 };
 
-class ParticleContantResolver
+class ParticleContactResolver
 {
 public:
-	ParticleContantResolver( int iterations ) : m_iterations( iterations ) {}
-	void SetIterations( int iterations ) { m_iterations = iterations; }
-	void ResolveContants( ParticleContact* contactArray, int numContacts, float duration );
+	ParticleContactResolver( uint32 iterations ) : m_iterations( iterations ) {}
+	void SetIterations( uint32 iterations ) { m_iterations = iterations; }
+	void ResolveContacts( ParticleContact* contactArray, uint32 numContacts, float duration );
 
 private:
-	int m_iterations;
-	int m_iterationUsed;
+	uint32 m_iterations;
+	uint32 m_iterationUsed;
 };
 
 class ParticleContactGenerator
 {
 public:
-	virtual int AddContant( ParticleContact* contact, int limit ) const = 0;
+	virtual uint32 AddContact( ParticleContact* contact, uint32 limit ) const = 0;
 };

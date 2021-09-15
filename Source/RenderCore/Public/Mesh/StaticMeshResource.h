@@ -4,6 +4,7 @@
 #include "GraphicsApiResource.h"
 #include "IndexBuffer.h"
 #include "Math/CXMFloat.h"
+#include "SizedTypes.h"
 #include "TypedBuffer.h"
 #include "VertexLayout.h"
 
@@ -29,9 +30,9 @@ class StaticMeshSection
 public:
 	void Serialize( Archive& ar );
 
-	std::size_t m_startLocation;
-	std::size_t m_count;
-	std::size_t m_materialIndex;
+	uint32 m_startLocation;
+	uint32 m_count;
+	uint32 m_materialIndex;
 };
 
 class StaticMeshLODResource
@@ -61,14 +62,14 @@ private:
 class StaticMeshRenderData
 {
 public:
-	RENDERCORE_DLL void AllocateLODResources( std::size_t numLOD );
+	RENDERCORE_DLL void AllocateLODResources( uint32 numLOD );
 	RENDERCORE_DLL void Init( );
 	RENDERCORE_DLL void Serialize( Archive& ar );
 
-	StaticMeshLODResource& LODResource( std::size_t index ) { return m_lodResources[index]; };
-	const StaticMeshLODResource& LODResource( std::size_t index ) const { return m_lodResources[index]; };
-	std::size_t LODSize( ) const { return m_lodResources.size( ); }
-	const StaticMeshVertexLayout& VertexLayout( std::size_t index ) const { return m_vertexLayouts[index]; }
+	StaticMeshLODResource& LODResource( uint32 index ) { return m_lodResources[index]; };
+	const StaticMeshLODResource& LODResource( uint32 index ) const { return m_lodResources[index]; };
+	uint32 LODSize( ) const { return static_cast<uint32>( m_lodResources.size( ) ); }
+	const StaticMeshVertexLayout& VertexLayout( uint32 index ) const { return m_vertexLayouts[index]; }
 
 	void CreateRenderResource( );
 

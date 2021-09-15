@@ -12,8 +12,8 @@ union SparseArrayElement
 
 	struct SparseArrayFreeListNode
 	{
-		std::size_t m_prev;
-		std::size_t m_next;
+		size_t m_prev;
+		size_t m_next;
 	} m_node;
 };
 
@@ -21,14 +21,14 @@ template <typename T>
 class SparseArray
 {
 public:
-	std::size_t Add( const T& element )
+	size_t Add( const T& element )
 	{
-		std::size_t index = AddUninitialized( );
+		size_t index = AddUninitialized( );
 		new ( m_data[index].m_data )T( element );
 		return index;
 	}
 
-	void RemoveAt( std::size_t index )
+	void RemoveAt( size_t index )
 	{
 		if ( m_allocationFlag[index] == false )
 		{
@@ -41,12 +41,12 @@ public:
 		RemoveUninitialized( index );
 	}
 
-	T& operator[]( std::size_t index )
+	T& operator[]( size_t index )
 	{
 		return ( (T&)GetData( index ).m_data );
 	}
 
-	const T& operator[]( std::size_t index ) const
+	const T& operator[]( size_t index ) const
 	{
 		return ( (const T&)GetData( index ).m_data );
 	}
@@ -84,7 +84,7 @@ public:
 			return !( lhs == rhs );
 		}
 
-		IteratorBase( ArrayType& array, std::size_t startIndex ) : m_array( array ), m_bitIter( ConstSetBitIterator( array.m_allocationFlag, startIndex ) )
+		IteratorBase( ArrayType& array, size_t startIndex ) : m_array( array ), m_bitIter( ConstSetBitIterator( array.m_allocationFlag, startIndex ) )
 		{}
 
 	protected:
@@ -126,14 +126,14 @@ public:
 
 private:
 	using Element = SparseArrayElement<T>;
-	std::size_t AddUninitialized( )
+	size_t AddUninitialized( )
 	{
-		std::size_t index = 0;
+		size_t index = 0;
 
 		if ( m_firstFreeIndex )
 		{
 			index = m_firstFreeIndex.value( );
-			std::size_t nextIndex = GetData( index ).m_node.m_next;
+			size_t nextIndex = GetData( index ).m_node.m_next;
 
 			if ( nextIndex != index )
 			{
@@ -156,7 +156,7 @@ private:
 		return index;
 	}
 
-	void RemoveUninitialized( std::size_t index )
+	void RemoveUninitialized( size_t index )
 	{
 		assert( m_allocationFlag[index] );
 		Element& elem = GetData( index );
@@ -173,12 +173,12 @@ private:
 		m_allocationFlag[index] = false;
 	}
 
-	Element& GetData( std::size_t index )
+	Element& GetData( size_t index )
 	{
 		return m_data[index];
 	}
 
-	const Element& GetData( std::size_t index ) const
+	const Element& GetData( size_t index ) const
 	{
 		return m_data[index];
 	}
@@ -186,5 +186,5 @@ private:
 	std::vector<Element> m_data;
 	BitArray m_allocationFlag;
 
-	std::optional<std::size_t> m_firstFreeIndex;
+	std::optional<size_t> m_firstFreeIndex;
 };

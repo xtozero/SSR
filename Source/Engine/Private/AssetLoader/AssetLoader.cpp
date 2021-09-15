@@ -7,6 +7,7 @@
 #include "Core/InterfaceFactories.h"
 #include "FileSystem/EngineFileSystem.h"
 #include "Json/json.hpp"
+#include "SizedTypes.h"
 
 #include <memory>
 #include <unordered_map>
@@ -151,7 +152,7 @@ AssetLoaderSharedHandle AssetLoader::LoadAsset( const char* assetPath, LoadCompl
 		return handle;
 	}
 
-	unsigned long assetSize = fileSystem->GetFileSize( hAsset );
+	uint32 assetSize = fileSystem->GetFileSize( hAsset );
 	if ( assetSize == 0 )
 	{
 		return handle;
@@ -161,7 +162,7 @@ AssetLoaderSharedHandle AssetLoader::LoadAsset( const char* assetPath, LoadCompl
 
 	IFileSystem::IOCompletionCallback AssetProcessing;
 	AssetProcessing.BindFunctor(
-		[this, handle, hAsset]( char*& buffer, unsigned long bufferSize )
+		[this, handle, hAsset]( char*& buffer, uint32 bufferSize )
 		{
 			EnqueueThreadTask<WorkerThreads>(
 				[this, buffer, bufferSize, handle]( )
@@ -169,7 +170,7 @@ AssetLoaderSharedHandle AssetLoader::LoadAsset( const char* assetPath, LoadCompl
 					SetHandleInProcess( handle );
 
 					Archive ar( buffer, bufferSize );
-					std::size_t assetID = 0;
+					uint32 assetID = 0;
 
 					ar << assetID;
 					

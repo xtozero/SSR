@@ -10,7 +10,7 @@
 
 void CConVar::Execute( )
 {
-	std::size_t argC = GetConsoleMessageExecutor( ).ArgC( );
+	size_t argC = GetConsoleMessageExecutor( ).ArgC( );
 
 	if ( argC == 1 )
 	{

@@ -1,17 +1,17 @@
 #include "stdafx.h"
 #include "GraphicsApiResource.h"
 
-int GraphicsApiResource::AddRef( )
+int32 GraphicsApiResource::AddRef( )
 {
 	++m_refCount;
 	return m_refCount;
 }
 
-int GraphicsApiResource::ReleaseRef( )
+int32 GraphicsApiResource::ReleaseRef( )
 {
 	--m_refCount;
 
-	int refCount = m_refCount;
+	int32 refCount = m_refCount;
 	if ( refCount == 0 )
 	{
 		Free( );

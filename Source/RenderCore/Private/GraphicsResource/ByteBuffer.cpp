@@ -22,24 +22,24 @@ DistributionCopyCS::DistributionCopyCS( )
 	}
 }
 
-GpuMemcpy::GpuMemcpy( std::size_t numUpload, UINT sizePerFloat4, UploadBuffer& src, UploadBuffer& distributer ) : m_sizePerFloat4( sizePerFloat4 ), m_src( src ), m_distributer( distributer )
+GpuMemcpy::GpuMemcpy( uint32 numUpload, uint32 sizePerFloat4, UploadBuffer& src, UploadBuffer& distributer ) : m_sizePerFloat4( sizePerFloat4 ), m_src( src ), m_distributer( distributer )
 {
 	m_src.Resize( m_sizePerFloat4 * numUpload, nullptr );
 	m_distributer.Resize( m_sizePerFloat4 * numUpload, nullptr );
 
 	m_pUploadData = m_src.Lock<char>( );
-	m_pDistributionData = m_distributer.Lock<UINT>( );
+	m_pDistributionData = m_distributer.Lock<uint32>( );
 }
 
-void GpuMemcpy::Add( const char* data, unsigned int dstIndex )
+void GpuMemcpy::Add( const char* data, uint32 dstIndex )
 {
-	std::size_t elementSize = m_src.ElementSize( );
+	uint32 elementSize = m_src.ElementSize( );
 
 	std::memcpy( m_pUploadData, data, elementSize * m_sizePerFloat4 );
 
-	for ( std::size_t i = 0; i < m_sizePerFloat4; ++i )
+	for ( uint32 i = 0; i < m_sizePerFloat4; ++i )
 	{
-		m_pDistributionData[i] = static_cast<UINT>( dstIndex * m_sizePerFloat4 + i );
+		m_pDistributionData[i] = static_cast<uint32>( dstIndex * m_sizePerFloat4 + i );
 	}
 
 	m_pUploadData += elementSize * m_sizePerFloat4;
@@ -69,7 +69,7 @@ void GpuMemcpy::Upload( aga::Buffer* destBuffer )
 	graphicsInterface.BindShaderParameter( cs, computeShader.m_distributer, m_distributer.Resource( ) );
 	graphicsInterface.BindShaderParameter( cs, computeShader.m_dest, destBuffer );
 
-	UINT threadGroup = ( ( m_distributionCount + DistributionCopyCS::ThreadGroupX - 1 ) / DistributionCopyCS::ThreadGroupX );
+	uint32 threadGroup = ( ( m_distributionCount + DistributionCopyCS::ThreadGroupX - 1 ) / DistributionCopyCS::ThreadGroupX );
 
 	graphicsInterface.Dispatch( threadGroup, 1 );
 

@@ -49,7 +49,7 @@ void Contact::CalculateContactBasis( )
 	m_contactToWorld = CXMFLOAT3X3( m_contactNormal, contactTangent[0], contactTangent[1] );
 }
 
-CXMFLOAT3 Contact::CalculateLocalVelocity( int bodyIndex, float duration )
+CXMFLOAT3 Contact::CalculateLocalVelocity( uint32 bodyIndex, float duration )
 {
 	RigidBody* thisBody = m_body[bodyIndex];
 
@@ -209,7 +209,7 @@ void Contact::ApplyPositionChange( CXMFLOAT3 linearChange[2], CXMFLOAT3 angularC
 	float linearInertia[2];
 	float angularInertia[2];
 
-	for ( int i = 0; i < 2; ++i )
+	for ( uint32 i = 0; i < 2; ++i )
 	{
 		if ( m_body[i] )
 		{
@@ -226,7 +226,7 @@ void Contact::ApplyPositionChange( CXMFLOAT3 linearChange[2], CXMFLOAT3 angularC
 		}
 	}
 
-	for ( int i = 0; i < 2; ++i )
+	for ( uint32 i = 0; i < 2; ++i )
 	{
 		if ( m_body[i] )
 		{
@@ -354,7 +354,7 @@ void Contact::MatchAwakeState( )
 	}
 }
 
-void ContactResolver::Initialize( int iterations, float velocityEpsilon, float positionEpsilon )
+void ContactResolver::Initialize( uint32 iterations, float velocityEpsilon, float positionEpsilon )
 {
 	m_positionIterations = iterations;
 	m_velocityIterations = iterations;
@@ -362,7 +362,7 @@ void ContactResolver::Initialize( int iterations, float velocityEpsilon, float p
 	m_velocityEpsilon = velocityEpsilon;
 }
 
-void ContactResolver::ResolveContacts( Contact* contactArray, int numContacts, float duration )
+void ContactResolver::ResolveContacts( Contact* contactArray, uint32 numContacts, float duration )
 {
 	if ( numContacts == 0 )
 	{
@@ -376,7 +376,7 @@ void ContactResolver::ResolveContacts( Contact* contactArray, int numContacts, f
 	AdjustVelocities( contactArray, numContacts, duration );
 }
 
-void ContactResolver::PrepareContacts( Contact* contactArray, int numContacts, float duration )
+void ContactResolver::PrepareContacts( Contact* contactArray, uint32 numContacts, float duration )
 {
 	Contact* lastContact = contactArray + numContacts;
 	for ( Contact* contact = contactArray; contact < lastContact; ++contact )
@@ -385,7 +385,7 @@ void ContactResolver::PrepareContacts( Contact* contactArray, int numContacts, f
 	}
 }
 
-void ContactResolver::AdjustPositions( Contact* contactArray, int numContacts, float /*duration*/ )
+void ContactResolver::AdjustPositions( Contact* contactArray, uint32 numContacts, float /*duration*/ )
 {
 	CXMFLOAT3 linearChange[2];
 	CXMFLOAT3 angularChange[2];
@@ -395,9 +395,9 @@ void ContactResolver::AdjustPositions( Contact* contactArray, int numContacts, f
 	while ( m_positionIterationsUsed < m_positionIterations )
 	{
 		float max = m_positionEpsilon;
-		int index = numContacts;
+		uint32 index = numContacts;
 
-		for ( int i = 0; i < numContacts; ++i )
+		for ( uint32 i = 0; i < numContacts; ++i )
 		{
 			const Contact& c = contactArray[i];
 
@@ -417,13 +417,13 @@ void ContactResolver::AdjustPositions( Contact* contactArray, int numContacts, f
 
 		contactArray[index].ApplyPositionChange( linearChange, angularChange, max );
 
-		for ( int i = 0; i < numContacts; ++i )
+		for ( uint32 i = 0; i < numContacts; ++i )
 		{
-			for ( int b = 0; b < 2; ++b )
+			for ( uint32 b = 0; b < 2; ++b )
 			{
 				if ( contactArray[i].m_body[b] )
 				{
-					for ( int d = 0; d < 2; ++d )
+					for ( uint32 d = 0; d < 2; ++d )
 					{
 						if ( contactArray[i].m_body[b] == contactArray[index].m_body[d] )
 						{
@@ -439,7 +439,7 @@ void ContactResolver::AdjustPositions( Contact* contactArray, int numContacts, f
 	}
 }
 
-void ContactResolver::AdjustVelocities( Contact* contactArray, int numContacts, float duration )
+void ContactResolver::AdjustVelocities( Contact* contactArray, uint32 numContacts, float duration )
 {
 	CXMFLOAT3 velocityChange[2];
 	CXMFLOAT3 rotationChange[2];
@@ -449,9 +449,9 @@ void ContactResolver::AdjustVelocities( Contact* contactArray, int numContacts, 
 	while ( m_velocityIterationsUsed < m_velocityIterations )
 	{
 		float max = m_velocityEpsilon;
-		int index = numContacts;
+		uint32 index = numContacts;
 
-		for ( int i = 0; i < numContacts; ++i )
+		for ( uint32 i = 0; i < numContacts; ++i )
 		{
 			Contact& c = contactArray[i];
 
@@ -471,13 +471,13 @@ void ContactResolver::AdjustVelocities( Contact* contactArray, int numContacts, 
 
 		contactArray[index].ApplyVelocityChange( velocityChange, rotationChange );
 
-		for ( int i = 0; i < numContacts; ++i )
+		for ( uint32 i = 0; i < numContacts; ++i )
 		{
-			for ( int b = 0; b < 2; ++b )
+			for ( uint32 b = 0; b < 2; ++b )
 			{
 				if ( contactArray[i].m_body[b] )
 				{
-					for ( int d = 0; d < 2; ++d )
+					for ( uint32 d = 0; d < 2; ++d )
 					{
 						if ( contactArray[i].m_body[b] == contactArray[index].m_body[d] )
 						{

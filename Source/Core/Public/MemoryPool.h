@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DoubleLinkedList.h"
+#include "SizedTypes.h"
 
 #include <cassert>
 #include <cstddef>
@@ -9,7 +10,7 @@
 class MemoryPool
 {
 public:
-	void* Allocate( std::size_t size )
+	void* Allocate( size_t size )
 	{
 		assert( m_freeList != nullptr );
 
@@ -35,7 +36,7 @@ public:
 		AddFreeList( chunk );
 	}
 
-	explicit MemoryPool( std::size_t poolSize ) :
+	explicit MemoryPool( size_t poolSize ) :
 		m_poolSize( poolSize + sizeof( MemoryChunk ) )
 	{
 		m_storage = VirtualAlloc( nullptr, m_poolSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE );
@@ -47,7 +48,7 @@ public:
 
 	~MemoryPool( )
 	{
-		int ret = VirtualFree( m_storage, m_poolSize, MEM_DECOMMIT );
+		int32 ret = VirtualFree( m_storage, m_poolSize, MEM_DECOMMIT );
 		assert( ret != 0 );
 		ret = VirtualFree( m_storage, 0, MEM_RELEASE );
 		assert( ret != 0 );
@@ -63,10 +64,10 @@ private:
 	{
 		MemoryChunk* m_prev;
 		MemoryChunk* m_next;
-		std::size_t m_size;
+		size_t m_size;
 	};
 
-	MemoryChunk* GetFreeChunk( std::size_t size )
+	MemoryChunk* GetFreeChunk( size_t size )
 	{
 		MemoryChunk* chunk = DLinkedList::Find( m_freeList, [size]( const MemoryChunk* other ) { return size <= other->m_size; } );
 		
@@ -77,7 +78,7 @@ private:
 			return nullptr;
 		}
 
-		std::size_t remainSize = chunk->m_size - size;
+		size_t remainSize = chunk->m_size - size;
 		if ( remainSize >= sizeof( MemoryChunk ) )
 		{
 			MemoryChunk* nextChunk = reinterpret_cast<MemoryChunk*>( reinterpret_cast<unsigned char*>( chunk ) + sizeof( MemoryChunk ) + size );
@@ -206,7 +207,7 @@ private:
 	}
 
 	void* m_storage = nullptr;
-	std::size_t m_poolSize = 0;
+	size_t m_poolSize = 0;
 
 	MemoryChunk* m_freeList = nullptr;
 	MemoryChunk* m_allocList = nullptr;

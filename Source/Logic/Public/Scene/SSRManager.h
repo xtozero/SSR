@@ -4,6 +4,7 @@
 #include "Math/CXMFloat.h"
 //#include "Render/Resource.h"
 #include "ScreenBlurManager.h"
+#include "SizedTypes.h"
 
 #include <memory>
 #include <list>
@@ -33,7 +34,7 @@ private:
 		float rayStepScale;
 		float maxThickness;
 		float maxRayLength;
-		int maxRayStep;
+		int32 maxRayStep;
 	};
 
 	struct SSRConstantBuffer

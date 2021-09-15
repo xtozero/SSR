@@ -1,7 +1,8 @@
 #pragma once
-#include "Texture.h"
 
+#include "Texture.h"
 #include "D3D11Api.h"
+#include "SizedTypes.h"
 
 #include <d3d11.h>
 #include <vector>
@@ -11,7 +12,7 @@ namespace aga
 	class D3D11BaseTexture : public Texture
 	{
 	public:
-		virtual std::pair<UINT, UINT> Size( ) const override
+		virtual std::pair<uint32, uint32> Size( ) const override
 		{
 			return { m_trait.m_width, m_trait.m_height };
 		}
@@ -25,7 +26,7 @@ namespace aga
 
 				m_initData.resize( initData->m_sections.size( ) );
 
-				for ( std::size_t i = 0; i < initData->m_sections.size( ); ++i )
+				for ( size_t i = 0; i < initData->m_sections.size( ); ++i )
 				{
 					const RESOURCE_SECTION_DATA& section = initData->m_sections[i];
 

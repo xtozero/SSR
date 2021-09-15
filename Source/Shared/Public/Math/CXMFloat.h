@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SizedTypes.h"
+
 #include <DirectXMath.h>
 
 //------------------------------
@@ -112,7 +114,7 @@ struct CXMFLOAT2 : public DirectX::XMFLOAT2
 		return !(*this == rhs);
 	}
 
-	float& operator[]( int idx )
+	float& operator[]( size_t idx )
 	{
 		switch ( idx )
 		{
@@ -130,7 +132,7 @@ struct CXMFLOAT2 : public DirectX::XMFLOAT2
 		return x;
 	}
 
-	const float& operator[]( int idx ) const
+	const float& operator[]( size_t idx ) const
 	{
 		switch ( idx )
 		{
@@ -259,7 +261,7 @@ struct CXMFLOAT3 : public DirectX::XMFLOAT3
 		return !( *this == rhs );
 	}
 
-	float& operator[]( int idx )
+	float& operator[]( size_t idx )
 	{
 		switch ( idx )
 		{
@@ -280,7 +282,7 @@ struct CXMFLOAT3 : public DirectX::XMFLOAT3
 		return x;
 	}
 
-	const float& operator[]( int idx ) const
+	const float& operator[]( size_t idx ) const
 	{
 		switch ( idx )
 		{
@@ -422,7 +424,7 @@ struct CXMFLOAT4 : public DirectX::XMFLOAT4
 		return !(*this == rhs);
 	}
 
-	float& operator[]( int idx )
+	float& operator[]( size_t idx )
 	{
 		switch ( idx )
 		{
@@ -446,7 +448,7 @@ struct CXMFLOAT4 : public DirectX::XMFLOAT4
 		return x;
 	}
 
-	const float& operator[]( int idx ) const
+	const float& operator[]( size_t idx ) const
 	{
 		switch ( idx )
 		{
@@ -513,7 +515,7 @@ struct CXMFLOAT3X3 : public DirectX::XMFLOAT3X3
 		DirectX::XMMATRIX xmLHS = *this;
 		DirectX::XMMATRIX xmRHS = rhs;
 
-		for ( int i = 0; i < 3; ++i )
+		for ( size_t i = 0; i < 3; ++i )
 		{
 			xmLHS.r[i] = _mm_add_ps( xmLHS.r[i], xmRHS.r[i] );
 		}
@@ -522,7 +524,7 @@ struct CXMFLOAT3X3 : public DirectX::XMFLOAT3X3
 		return *this;
 	}
 
-	CXMFLOAT3 operator[]( int index ) const
+	CXMFLOAT3 operator[]( size_t index ) const
 	{
 		assert( index < 3 );
 

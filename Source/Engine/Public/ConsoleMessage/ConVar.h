@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IConsoleMessage.h"
+#include "SizedTypes.h"
 
 class CConVar : public IConsoleMessage
 {
@@ -15,7 +16,7 @@ public:
 
 	ENGINE_DLL void SetValue( const std::string& newValue );
 	ENGINE_DLL const std::string& GetString( ) { return m_value; }
-	ENGINE_DLL int GetInteger( ) { return m_iValue; }
+	ENGINE_DLL int32 GetInteger( ) { return m_iValue; }
 	ENGINE_DLL float GetFloat( ) { return m_fValue; }
 	ENGINE_DLL bool GetBool( ) { return m_iValue > 0; }
 
@@ -24,7 +25,7 @@ private:
 	std::string m_description;
 
 	std::string m_value;
-	int m_iValue;
+	int32 m_iValue;
 	float m_fValue;
 };
 

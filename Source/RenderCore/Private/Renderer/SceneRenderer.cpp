@@ -25,7 +25,7 @@ void RenderingShaderResource::BindResources( const ShaderStates& shaders, aga::S
 		nullptr, // CS
 	};
 
-	for ( int shaderType = 0; shaderType < MAX_SHADER_TYPE<int>; ++shaderType )
+	for ( uint32 shaderType = 0; shaderType < MAX_SHADER_TYPE<uint32>; ++shaderType )
 	{
 		if ( shaderArray[shaderType] == nullptr )
 		{
@@ -41,7 +41,7 @@ void RenderingShaderResource::BindResources( const ShaderStates& shaders, aga::S
 
 		const auto& parameterMap = shaderArray[shaderType]->ParameterMap( );
 
-		for ( std::size_t i = 0; i < m_parameterNames.size( ); ++i )
+		for ( size_t i = 0; i < m_parameterNames.size( ); ++i )
 		{
 			GraphicsApiResource* resource = m_resources[i];
 			if ( resource == nullptr )
@@ -83,7 +83,7 @@ void RenderingShaderResource::AddResource( const std::string& parameterName, Gra
 	}
 	else
 	{
-		std::size_t idx = std::distance( std::begin( m_parameterNames ), found );
+		size_t idx = std::distance( std::begin( m_parameterNames ), found );
 		m_resources[idx] = resource;
 	}
 }
@@ -201,7 +201,7 @@ void SceneRenderer::RenderMesh( IScene& scene, RenderView& view )
 		{
 			for ( const auto& subMeshInfo : subMeshInfos )
 			{
-				std::size_t snapshotIndex = subMeshInfo.m_snapshotInfoBase;
+				uint32 snapshotIndex = subMeshInfo.m_snapshotInfoBase;
 				const CachedDrawSnapshotInfo& info = primitive->GetCachedDrawSnapshotInfo( snapshotIndex );
 				DrawSnapshot& snapshot = primitive->CachedDrawSnapshot( snapshotIndex );
 
@@ -227,7 +227,7 @@ void SceneRenderer::RenderMesh( IScene& scene, RenderView& view )
 		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 	}
 
-	VertexBuffer primitiveIds = PrimitiveIdVertexBufferPool::GetInstance( ).Alloc( view.m_snapshots.size( ) * sizeof( UINT ) );
+	VertexBuffer primitiveIds = PrimitiveIdVertexBufferPool::GetInstance( ).Alloc( static_cast<uint32>( view.m_snapshots.size( ) * sizeof( uint32 ) ) );
 
 	SortDrawSnapshots( view.m_snapshots, primitiveIds );
 	CommitDrawSnapshots( view.m_snapshots, primitiveIds );

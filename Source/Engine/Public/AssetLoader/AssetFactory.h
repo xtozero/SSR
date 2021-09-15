@@ -1,7 +1,9 @@
 #pragma once
 
-#include "IAsyncLoadableAsset.h"
+#include "Crc32Hash.h"
 #include "Delegate.h"
+#include "IAsyncLoadableAsset.h"
+#include "SizedTypes.h"
 
 #include <functional>
 #include <map>
@@ -17,7 +19,7 @@ public:
 	template <typename T>
 	void RegisterAsset( const char* assetType )
 	{
-		T::ID = std::hash<std::string>{ }( assetType );
+		T::ID = Crc32Hash( assetType );
 
 		Delegate<IAsyncLoadableAsset*> func;
 		func.BindFunction( &NewAsset<T> );
@@ -27,12 +29,12 @@ public:
 		m_createfunctions.emplace( T::ID, std::move( func ) );
 	}
 
-	ENGINE_DLL IAsyncLoadableAsset* CreateAsset( std::size_t assetID );
+	ENGINE_DLL IAsyncLoadableAsset* CreateAsset( uint32 assetID );
 
 private:
 	AssetFactory( ) = default;
 
-	std::map<std::size_t, Delegate<IAsyncLoadableAsset*>> m_createfunctions;
+	std::map<uint32, Delegate<IAsyncLoadableAsset*>> m_createfunctions;
 };
 
 template <typename T>
@@ -53,8 +55,8 @@ public:
 
 #define DECLARE_ASSET( dllName, type ) \
 public : \
-	dllName##_DLL static std::size_t ID
+	dllName##_DLL static uint32 ID
 
 #define REGISTER_ASSET( type ) \
-	std::size_t type::ID = 0; \
+	uint32 type::ID = 0; \
 	const AssetFactoryRegister<type> type##Register( #type );

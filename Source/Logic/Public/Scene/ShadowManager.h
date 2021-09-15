@@ -4,6 +4,7 @@
 #include "Math/CXMFLOAT.h"
 #include "Physics/Aaboundingbox.h"
 //#include "Render/Resource.h"
+#include "SizedTypes.h"
 
 #include <memory>
 #include <vector>
@@ -38,9 +39,9 @@ private:
 	void DestoryCascadedResource( IResourceManager& resourceMgr );
 
 	void ClassifyShadowCasterAndReceiver( CGameLogic& gameLogic, std::vector<std::unique_ptr<CGameObject>>& gameObjects );
-	void BuildOrthoShadowProjectionMatrix( CGameLogic& gameLogic, int cascadeLevel, float zClipNear, float zClipFar );
-	void BuildPSMProjectionMatrix( CGameLogic& gameLogic, int cascadeLevel, float zClipNear, float zClipFar );
-	void BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, int cascadeLevel, float zClipNear, float zClipFar );
+	void BuildOrthoShadowProjectionMatrix( CGameLogic& gameLogic, uint32 cascadeLevel, float zClipNear, float zClipFar );
+	void BuildPSMProjectionMatrix( CGameLogic& gameLogic, uint32 cascadeLevel, float zClipNear, float zClipFar );
+	void BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, uint32 cascadeLevel, float zClipNear, float zClipFar );
 
 	bool m_isEnabled = false;
 	bool m_isUnitClipCube = true;
@@ -75,7 +76,7 @@ private:
 	float m_cosGamma = 0.f;
 	float m_nOptWeight = 1.f;
 
-	const static int MAX_CASCADED_NUM = 2;
+	static constexpr uint32 MAX_CASCADED_NUM = 2;
 
 	struct CascadeConstant
 	{

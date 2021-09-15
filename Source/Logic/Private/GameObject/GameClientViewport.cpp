@@ -67,7 +67,7 @@ void GameClientViewport::SetViewPort( rendercore::Viewport* viewport )
 	m_viewport = viewport;
 }
 
-void GameClientViewport::AppSizeChanged( void* handle, const std::pair<UINT, UINT>& newSize )
+void GameClientViewport::AppSizeChanged( void* handle, const std::pair<uint32, uint32>& newSize )
 {
 	if ( m_viewport == nullptr )
 	{

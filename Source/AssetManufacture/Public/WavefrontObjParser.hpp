@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SizedTypes.h"
+
 #include <cctype>
 #include <fstream>
 #include <map>
@@ -17,7 +19,7 @@ namespace Wavefront
 	using Vec2 = std::tuple<float, float>; 
 	using Vec3 = std::tuple<float, float, float>;
 	using Color = std::tuple<float, float, float>;
-	using IndexVector = std::vector<std::size_t>;
+	using IndexVector = std::vector<int32>;
 
 	struct Face
 	{
@@ -53,7 +55,7 @@ namespace Wavefront
 	class ParserBase
 	{
 	protected:
-		void Parse( const char* contents, std::size_t length )
+		void Parse( const char* contents, size_t length )
 		{
 			m_begin = contents;
 			m_end = contents + length;
@@ -131,7 +133,7 @@ namespace Wavefront
 
 		bool MatchNextString( const char* str, size_t length )
 		{
-			if ( m_end - m_current < static_cast<int>( length ) )
+			if ( ( m_current > m_end ) || ( static_cast<size_t>( m_end - m_current ) < length ) )
 			{
 				return false;
 			}
@@ -171,7 +173,7 @@ namespace Wavefront
 			return static_cast<float>( std::atof( ReadWord( ).c_str( ) ) );
 		}
 
-		int ReadInt( )
+		int32 ReadInt( )
 		{
 			SkipWhiteSpace( );
 			return std::atoi( ReadWord( ).c_str( ) );
@@ -194,7 +196,7 @@ namespace Wavefront
 		float m_ior = 1.f;
 		float m_alpha = 1.f;
 
-		int m_illuminationModel = 1;
+		int32 m_illuminationModel = 1;
 
 		std::string m_ambientTex;
 		std::string m_diffuseTex;
@@ -234,7 +236,7 @@ namespace Wavefront
 			return Parse( contents.data( ), contents.size( ), mtl );
 		}
 
-		bool Parse( const char* contents, std::size_t length, ObjMaterialLibrary& mtl )
+		bool Parse( const char* contents, size_t length, ObjMaterialLibrary& mtl )
 		{
 			ParserBase::Parse( contents, length );
 			return ParseMtl( mtl );
@@ -518,7 +520,7 @@ namespace Wavefront
 			return Parse( contents.data( ), contents.size( ), mesh );
 		}
 
-		bool Parse( const char* contents, std::size_t length, ObjModel& mesh )
+		bool Parse( const char* contents, size_t length, ObjModel& mesh )
 		{
 			ParserBase::Parse( contents, length );
 			return ParseObj( mesh );
@@ -534,7 +536,7 @@ namespace Wavefront
 				CreateObject( DefaultObjectName, mesh );
 			}
 
-			m_curObject->m_mesh.push_back( mesh.m_meshs.size( ) );
+			m_curObject->m_mesh.push_back( static_cast<int32>( mesh.m_meshs.size( ) ) );
 			mesh.m_meshs.emplace_back( );
 			m_curMesh = &mesh.m_meshs.back( );
 			m_curMesh->m_materialName = DefaultMaterialName;
@@ -666,9 +668,9 @@ namespace Wavefront
 			return token;
 		}
 
-		void CopyTokenContent( const Token& token, char* buffer, std::size_t size )
+		void CopyTokenContent( const Token& token, char* buffer, size_t size )
 		{
-			std::size_t contentSize = token.m_end - token.m_begin;
+			size_t contentSize = token.m_end - token.m_begin;
 			contentSize = ( contentSize > ( size - 1 ) ) ? ( size - 1 ) : contentSize;
 			std::memcpy( buffer, token.m_begin, contentSize );
 			buffer[contentSize] = '\0';
@@ -758,11 +760,11 @@ namespace Wavefront
 			m_curMesh->m_faces.emplace_back( );
 			Face& face = m_curMesh->m_faces.back( );
 
-			std::size_t vSize = mesh.m_vertices.size( );
-			std::size_t vtSize = mesh.m_texcoord.size( );
-			std::size_t vnSize = mesh.m_normal.size( );
+			int32 vSize = static_cast<int32>( mesh.m_vertices.size( ) );
+			int32 vtSize = static_cast<int32>( mesh.m_texcoord.size( ) );
+			int32 vnSize = static_cast<int32>( mesh.m_normal.size( ) );
 
-			int col = 0;
+			int32 col = 0;
 			while ( CanRead( ) )
 			{
 				SkipBlank( );
@@ -783,7 +785,7 @@ namespace Wavefront
 					col = 0;
 				}
 
-				int val = 1;
+				int32 val = 1;
 				if ( nextChar == '-' )
 				{
 					val = -1;

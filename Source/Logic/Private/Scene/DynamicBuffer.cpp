@@ -10,10 +10,10 @@ void CDynamicBuffer::OnDeviceRestore( CGameLogic& gameLogic )
 	//IRenderer& renderer = gameLogic.GetRenderer( );
 
 	//assert( m_capacity <= UINT_MAX );
-	//m_bufferHandle = CreateDynamicBuffer( renderer.GetResourceManager( ), m_bindType, static_cast<UINT>( m_capacity ) );
+	//m_bufferHandle = CreateDynamicBuffer( renderer.GetResourceManager( ), m_bindType, static_cast<uint32>( m_capacity ) );
 }
 
-//void CDynamicBuffer::Initialize( IResourceManager& resourceMgr, unsigned int bufferType, UINT bufferSize )
+//void CDynamicBuffer::Initialize( IResourceManager& resourceMgr, uint32 bufferType, uint32 bufferSize )
 //{
 //	resourceMgr.FreeResource( m_bufferHandle );
 //	m_bufferHandle = CreateDynamicBuffer( resourceMgr, bufferType, bufferSize );
@@ -30,7 +30,7 @@ void CDynamicBuffer::OnDeviceRestore( CGameLogic& gameLogic )
 //	}
 //}
 
-//RE_HANDLE CDynamicBuffer::CreateDynamicBuffer( IResourceManager& resourceMgr, unsigned int bufferType, UINT bufferSize )
+//RE_HANDLE CDynamicBuffer::CreateDynamicBuffer( IResourceManager& resourceMgr, uint32 bufferType, uint32 bufferSize )
 //{
 //	using namespace RESOURCE_ACCESS_FLAG;
 //

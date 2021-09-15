@@ -3,6 +3,7 @@
 #include "GraphicsApiResource.h"
 #include "HashUtil.h"
 #include "Shader.h"
+#include "SizedTypes.h"
 
 #include <string>
 #include <filesystem>
@@ -33,10 +34,10 @@ struct RenderTargetBlendOption
 
 struct RenderTargetBlendOptionHasher
 {
-	std::size_t operator()( const RenderTargetBlendOption& option ) const
+	size_t operator()( const RenderTargetBlendOption& option ) const
 	{
-		static std::size_t typeHash = typeid( RenderTargetBlendOption ).hash_code( );
-		std::size_t hash = typeHash;
+		static size_t typeHash = typeid( RenderTargetBlendOption ).hash_code( );
+		size_t hash = typeHash;
 		HashCombine( hash, option.m_blendEnable );
 		HashCombine( hash, option.m_srcBlend );
 		HashCombine( hash, option.m_destBlend );
@@ -65,7 +66,7 @@ public:
 
 		ret &= ( lhs.m_alphaToConverageEnable == rhs.m_alphaToConverageEnable );
 		ret &= ( lhs.m_independentBlendEnable == rhs.m_independentBlendEnable );
-		for ( int i = 0; i < std::extent_v<decltype( lhs.m_renderTarget )>; ++i )
+		for ( uint32 i = 0; i < std::extent_v<decltype( lhs.m_renderTarget )>; ++i )
 		{
 			ret &= ( lhs.m_renderTarget[i] == rhs.m_renderTarget[i] );
 		}
@@ -77,7 +78,7 @@ public:
 	bool m_alphaToConverageEnable = false;
 	bool m_independentBlendEnable = false;
 	RenderTargetBlendOption m_renderTarget[8];
-	UINT m_sampleMask = (std::numeric_limits<UINT>::max)( );
+	uint32 m_sampleMask = (std::numeric_limits<uint32>::max)( );
 
 protected:
 	RENDERCORE_DLL virtual void PostLoadImpl( ) override;
@@ -88,15 +89,15 @@ private:
 
 struct BlendOptionHasher
 {
-	std::size_t operator()( const BlendOption& option ) const
+	size_t operator()( const BlendOption& option ) const
 	{
-		static std::size_t typeHash = typeid( BlendOption ).hash_code( );
-		std::size_t hash = typeHash;
+		static size_t typeHash = typeid( BlendOption ).hash_code( );
+		size_t hash = typeHash;
 		HashCombine( hash, option.m_alphaToConverageEnable );
 		HashCombine( hash, option.m_independentBlendEnable );
 		
-		constexpr int size = std::extent_v<decltype( option.m_renderTarget )>;
-		for ( int i = 0; i < size; ++i )
+		constexpr uint32 size = std::extent_v<decltype( option.m_renderTarget )>;
+		for ( uint32 i = 0; i < size; ++i )
 		{
 			HashCombine( hash, i );
 			HashCombine( hash, RenderTargetBlendOptionHasher( )( option.m_renderTarget[i] ) );
@@ -124,10 +125,10 @@ struct DepthOption
 
 struct DepthOptionHasher
 {
-	std::size_t operator()( const DepthOption& option ) const
+	size_t operator()( const DepthOption& option ) const
 	{
-		static std::size_t typeHash = typeid( DepthOption ).hash_code( );
-		std::size_t hash = typeHash;
+		static size_t typeHash = typeid( DepthOption ).hash_code( );
+		size_t hash = typeHash;
 		HashCombine( hash, option.m_enable );
 		HashCombine( hash, option.m_writeDepth );
 		HashCombine( hash, option.m_depthFunc );
@@ -149,7 +150,7 @@ struct StencilOption
 									STENCIL_OP::KEEP, 
 									STENCIL_OP::KEEP, 
 									COMPARISON_FUNC::ALWAYS };
-	unsigned int m_ref = 0;
+	uint32 m_ref = 0;
 
 	friend bool operator==( const StencilOption& lhs, const StencilOption& rhs )
 	{
@@ -164,10 +165,10 @@ struct StencilOption
 
 struct StencilOptionHasher
 {
-	std::size_t operator()( const StencilOption& option ) const
+	size_t operator()( const StencilOption& option ) const
 	{
-		static std::size_t typeHash = typeid( StencilOption ).hash_code( );
-		std::size_t hash = typeHash;
+		static size_t typeHash = typeid( StencilOption ).hash_code( );
+		size_t hash = typeHash;
 		HashCombine( hash, option.m_enable );
 		HashCombine( hash, option.m_readMask );
 		HashCombine( hash, option.m_writeMask );
@@ -212,10 +213,10 @@ private:
 
 struct DepthStencilOptionHasher
 {
-	std::size_t operator()( const DepthStencilOption& option ) const
+	size_t operator()( const DepthStencilOption& option ) const
 	{
-		static std::size_t typeHash = typeid( DepthStencilOption ).hash_code( );
-		std::size_t hash = typeHash; 
+		static size_t typeHash = typeid( DepthStencilOption ).hash_code( );
+		size_t hash = typeHash; 
 		HashCombine( hash, DepthOptionHasher( )( option.m_depth ) );
 		HashCombine( hash, StencilOptionHasher( )( option.m_stencil ) );
 
@@ -247,7 +248,7 @@ public:
 	bool m_isWireframe = false;
 	CULL_MODE m_cullMode = CULL_MODE::BACK;
 	bool m_counterClockwise = false;
-	int m_depthBias = 0;
+	int32 m_depthBias = 0;
 	bool m_depthClipEnable = true;
 	bool m_scissorEnable = false;
 	bool m_multisampleEnalbe = false;
@@ -262,10 +263,10 @@ private:
 
 struct RasterizerOptionHasher
 {
-	std::size_t operator()( const RasterizerOption& option ) const
+	size_t operator()( const RasterizerOption& option ) const
 	{
-		static std::size_t typeHash = typeid( RasterizerOption ).hash_code( );
-		std::size_t hash = typeHash;
+		static size_t typeHash = typeid( RasterizerOption ).hash_code( );
+		size_t hash = typeHash;
 		HashCombine( hash, option.m_isWireframe );
 		HashCombine( hash, option.m_cullMode );
 		HashCombine( hash, option.m_counterClockwise );
@@ -298,7 +299,7 @@ public:
 			&& lhs.m_comparisonFunc == rhs.m_comparisonFunc;
 	}
 
-	unsigned int m_filter = TEXTURE_FILTER::MIN_LINEAR | TEXTURE_FILTER::MAG_LINEAR | TEXTURE_FILTER::MIP_LINEAR;
+	uint32 m_filter = TEXTURE_FILTER::MIN_LINEAR | TEXTURE_FILTER::MAG_LINEAR | TEXTURE_FILTER::MIP_LINEAR;
 	TEXTURE_ADDRESS_MODE m_addressU = TEXTURE_ADDRESS_MODE::CLAMP;
 	TEXTURE_ADDRESS_MODE m_addressV = TEXTURE_ADDRESS_MODE::CLAMP;
 	TEXTURE_ADDRESS_MODE m_addressW = TEXTURE_ADDRESS_MODE::CLAMP;
@@ -314,10 +315,10 @@ private:
 
 struct SamplerOptionHasher
 {
-	std::size_t operator()( const SamplerOption& option ) const
+	size_t operator()( const SamplerOption& option ) const
 	{
-		static std::size_t typeHash = typeid( SamplerOption ).hash_code( );
-		std::size_t hash = typeHash;
+		static size_t typeHash = typeid( SamplerOption ).hash_code( );
+		size_t hash = typeHash;
 		HashCombine( hash, option.m_filter );
 		HashCombine( hash, option.m_addressU );
 		HashCombine( hash, option.m_addressV );

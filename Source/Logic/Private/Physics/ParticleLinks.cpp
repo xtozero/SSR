@@ -11,7 +11,7 @@ float ParticleLink::CurrentLength( ) const
 	return XMVectorGetX( XMVector3Length( relativePos ) );
 }
 
-int ParticleCable::AddContant( ParticleContact* contact, int /*limit*/ ) const
+uint32 ParticleCable::AddContact( ParticleContact* contact, uint32 /*limit*/ ) const
 {
 	float length = CurrentLength( );
 	if ( length < m_maxLength )
@@ -30,7 +30,7 @@ int ParticleCable::AddContant( ParticleContact* contact, int /*limit*/ ) const
 	return 1;
 }
 
-int ParticleRod::AddContant( ParticleContact* contact, int /*limit*/ ) const
+uint32 ParticleRod::AddContact( ParticleContact* contact, uint32 /*limit*/ ) const
 {
 	float currentlength = CurrentLength( );
 	if ( currentlength == m_length )

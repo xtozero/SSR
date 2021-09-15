@@ -3,6 +3,7 @@
 #include "Core/IListener.h"
 #include "Math/CXMFloat.h"
 #include "Physics/Ray.h"
+#include "SizedTypes.h"
 
 #include <algorithm>
 #include <memory>
@@ -57,7 +58,7 @@ private:
 	std::vector<CXMFLOAT4X4> m_InvProjections;
 
 	CGameObject* m_curSelectedObject = nullptr;
-	int m_curSelectedIdx = -1;
+	int32 m_curSelectedIdx = -1;
 
 	CXMFLOAT2 m_curMousePos;
 

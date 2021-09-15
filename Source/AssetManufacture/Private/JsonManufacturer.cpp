@@ -4,12 +4,13 @@
 #include "Material/Material.h"
 #include "PathEnvironment.h"
 #include "RenderOption.h"
+#include "SizedTypes.h"
 
 namespace fs = std::filesystem;
 
 namespace
 {
-	std::optional<std::size_t> ConvertAssetTypeToAssetID( const JSON::Value& root )
+	std::optional<uint32> ConvertAssetTypeToAssetID( const JSON::Value& root )
 	{
 		const JSON::Value* type = root.Find( "Type" );
 		if ( type != nullptr )
@@ -44,7 +45,7 @@ namespace
 		return {};
 	}
 
-	std::unique_ptr<AsyncLoadableAsset> CreateAssetByAssetID( std::size_t assetID, const fs::path& assetPath, const JSON::Value& root )
+	std::unique_ptr<AsyncLoadableAsset> CreateAssetByAssetID( uint32 assetID, const fs::path& assetPath, const JSON::Value& root )
 	{
 		std::unique_ptr<AsyncLoadableAsset> asset = nullptr;
 
@@ -67,7 +68,7 @@ namespace
 			{
 				const JSON::Value& renderTargets = *pRenderTargets;
 
-				for ( int i = 0; i < renderTargets.Size( ); ++i )
+				for ( size_t i = 0; i < renderTargets.Size( ); ++i )
 				{
 					auto& rt = blendOption->m_renderTarget[i];
 					if ( const JSON::Value* blendEnable = renderTargets[i].Find( "BlendEnable" ) )
@@ -107,7 +108,7 @@ namespace
 
 					if ( const JSON::Value* renderTargetWriteMask = renderTargets[i].Find( "RenderTargetWriteMask" ) )
 					{
-						int writeMask = 0;
+						int32 writeMask = 0;
 
 						for ( const JSON::Value& mask : *renderTargetWriteMask )
 						{
@@ -121,7 +122,7 @@ namespace
 
 			if ( const JSON::Value* sampleMask = root.Find( "SampleMask" ) )
 			{
-				blendOption->m_sampleMask = static_cast<UINT>( sampleMask->AsInt( ) );
+				blendOption->m_sampleMask = static_cast<uint32>( sampleMask->AsInt( ) );
 			}
 
 			asset = std::move( blendOption );
@@ -165,7 +166,7 @@ namespace
 
 			if ( const JSON::Value* stencilRef = root.Find( "StencilRef" ) )
 			{
-				stencilOption.m_ref = static_cast<unsigned int>( stencilRef->AsInt( ) );
+				stencilOption.m_ref = static_cast<uint32>( stencilRef->AsInt( ) );
 			}
 
 			auto& front = stencilOption.m_frontFace;
@@ -219,15 +220,16 @@ namespace
 
 			if ( const JSON::Value* shaderKeys = root.Find( "Shader" ) )
 			{
-				for ( int shaderType = static_cast<int>( SHADER_TYPE::VS ); shaderType < static_cast<int>( SHADER_TYPE::Count ); ++shaderType )
+				for ( uint32 i = 0; i < static_cast<uint32>( SHADER_TYPE::Count ); ++i )
 				{
-					const JSON::Value* shaderPath = shaderKeys->Find( ToString( static_cast<SHADER_TYPE>( shaderType ) ) );
+					auto shaderType = static_cast<SHADER_TYPE>( i );
+					const JSON::Value* shaderPath = shaderKeys->Find( ToString( shaderType ) );
 					if ( shaderPath == nullptr )
 					{
 						continue;
 					}
 
-					switch ( static_cast<SHADER_TYPE>( shaderType ) )
+					switch ( shaderType )
 					{
 					case SHADER_TYPE::VS:
 					{
@@ -292,7 +294,7 @@ namespace
 						{
 							CXMFLOAT4 vector( 1.f, 1.f, 1.f, 1.f );
 
-							for ( int i = 0; i < property->Size( ) && i < 4; ++i )
+							for ( size_t i = 0; i < property->Size( ) && i < 4; ++i )
 							{
 								vector[i] = static_cast<float>( (*property)[i].AsReal( ) );
 							}
@@ -452,7 +454,7 @@ namespace
 	bool ValidateJsonAsset( const AsyncLoadableAsset* asset, const Archive& ar )
 	{
 		Archive rAr( ar.Data( ), ar.Size( ) );
-		std::size_t assetID = 0;
+		uint32 assetID = 0;
 		rAr << assetID;
 
 		if ( assetID == BlendOption::ID )

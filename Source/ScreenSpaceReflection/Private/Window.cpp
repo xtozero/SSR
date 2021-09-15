@@ -41,7 +41,7 @@ bool Window::Run( CWindowSetup& setup, WNDPROC wndProc )
 	return false;
 }
 
-Window::Window( const std::string& title, DWORD style ) noexcept : m_wndTitle( title ), m_style( style )
+Window::Window( const std::string& title, uint32 style ) noexcept : m_wndTitle( title ), m_style( style )
 {
 }
 

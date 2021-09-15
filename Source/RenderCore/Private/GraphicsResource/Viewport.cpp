@@ -45,7 +45,7 @@ namespace rendercore
 		return nullptr;
 	}
 
-	std::pair<UINT, UINT> Viewport::Size( ) const
+	std::pair<uint32, uint32> Viewport::Size( ) const
 	{
 		if ( m_pViewport.Get( ) )
 		{
@@ -55,7 +55,7 @@ namespace rendercore
 		return {};
 	}
 
-	void Viewport::Resize( const std::pair<UINT, UINT>& newSize )
+	void Viewport::Resize( const std::pair<uint32, uint32>& newSize )
 	{
 		if ( m_pViewport.Get( ) )
 		{
@@ -73,7 +73,7 @@ namespace rendercore
 		return nullptr;
 	}
 
-	Viewport::Viewport( int width, int height, HWND hWnd, RESOURCE_FORMAT format )
+	Viewport::Viewport( uint32 width, uint32 height, HWND hWnd, RESOURCE_FORMAT format )
 	{
 		m_pViewport = aga::Viewport::Create( width, height, hWnd, format );
 		EnqueueRenderTask( [viewport = m_pViewport]( )

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math/CXMFloat.h"
+#include "SizedTypes.h"
 
 #include <cstddef>
 
@@ -9,10 +10,9 @@ struct MeshData
 	void* m_pVertexData = nullptr;
 	void* m_pIndexData = nullptr;
 
-	unsigned int m_vertices = 0;
-	unsigned int m_stride = 0;
-
-	unsigned int m_indices = 0;
+	uint32 m_vertices = 0;
+	uint32 m_stride = 0;
+	uint32 m_indices = 0;
 };
 
 struct MeshVertex
@@ -65,4 +65,4 @@ struct MeshVertex
 		m_texcoord( texcoord ) {}
 };
 
-constexpr std::size_t VERTEX_STRIDE = sizeof( MeshVertex );
+constexpr size_t VERTEX_STRIDE = sizeof( MeshVertex );

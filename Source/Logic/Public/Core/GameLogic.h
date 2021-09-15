@@ -16,6 +16,7 @@
 #include "Scene/DebugOverlayManager.h"
 #include "Scene/ShadowManager.h"
 #include "Scene/SSRManager.h"
+#include "SizedTypes.h"
 #include "Timer.h"
 #include "UI/ImUI.h"
 #include "UserInput/Controller.h"
@@ -54,8 +55,8 @@ public:
 	//CShadowManager& GetShadowManager( ) { return m_shadowManager; }
 	//CModelManager& GetModelManager( ) { return m_modelManager; }
 	//ImUI& GetUIManager( ) { return m_ui; }
-	//RE_HANDLE GetCommonConstantBuffer( int purpose ) { return m_commonConstantBuffer[purpose]; }
-	const std::pair<UINT, UINT>& GetAPPSize( ) { return m_appSize; }
+	//RE_HANDLE GetCommonConstantBuffer( uint32 purpose ) { return m_commonConstantBuffer[purpose]; }
+	const std::pair<uint32, uint32>& GetAPPSize( ) { return m_appSize; }
 	const CTimer& GetTimer( ) const { return m_clock; }
 
 	InputController* GetInputController( );
@@ -94,7 +95,7 @@ private:
 	HMODULE m_renderCoreDll;
 
 	HWND	m_wndHwnd;
-	std::pair<UINT, UINT> m_appSize;
+	std::pair<uint32, uint32> m_appSize;
 
 	CTimer m_clock;
 	std::unique_ptr<InputController> m_inputController;
@@ -115,7 +116,7 @@ private:
 	//struct ImUiDrawBuffer
 	//{
 	//	RE_HANDLE m_buffer = RE_HANDLE::InValidHandle( );
-	//	UINT m_prevBufferSize = 0;
+	//	uint32 m_prevBufferSize = 0;
 	//};
 
 	//ImUiDrawBuffer m_uiDrawBuffer[2];

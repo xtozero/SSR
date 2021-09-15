@@ -3,18 +3,19 @@
 #include "Core/IEngine.h"
 #include "Core/InterfaceFactories.h"
 #include "ScreenSpaceReflection.h"
+#include "SizedTypes.h"
 #include "Window.h"
 
 #include <memory>
 
-constexpr int FRAME_BUFFER_WIDTH = 1024;
-constexpr int FRAME_BUFFER_HEIGHT = 768;
+constexpr int32 FRAME_BUFFER_WIDTH = 1024;
+constexpr int32 FRAME_BUFFER_HEIGHT = 768;
 
-LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
+LRESULT CALLBACK WndProc( HWND, uint32, WPARAM, LPARAM );
 
 IEngine* g_engine = nullptr;
 
-int APIENTRY WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int )
+int32 APIENTRY WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int32 )
 {
 	CWindowSetup setup( hInstance, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT );
 	Window mainWindow( "Screen Space Reflection" );
@@ -48,7 +49,7 @@ int APIENTRY WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, 
 	return 0;
 }
 
-LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
+LRESULT CALLBACK WndProc( HWND hWnd, uint32 message, WPARAM wParam, LPARAM lParam )
 {
 	if ( g_engine )
 	{

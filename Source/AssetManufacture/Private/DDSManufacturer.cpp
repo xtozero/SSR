@@ -11,7 +11,7 @@ namespace fs = std::filesystem;
 
 namespace
 {
-	std::size_t ConvertToBCTextureDemension( DirectX::TEX_DIMENSION dimension )
+	uint32 ConvertToBCTextureDemension( DirectX::TEX_DIMENSION dimension )
 	{
 		switch ( dimension )
 		{
@@ -36,24 +36,29 @@ namespace
 		DDSTextureInitializer initializer;
 
 		const DirectX::TexMetadata& meta = image.GetMetadata( );
-		initializer.m_width = meta.width;
-		initializer.m_height = meta.height;
-		initializer.m_depth = meta.depth;
-		initializer.m_arraySize = meta.arraySize;
-		initializer.m_mipLevels = meta.mipLevels;
+		initializer.m_width = static_cast<uint32>( meta.width );
+		initializer.m_height = static_cast<uint32>( meta.height );
+		initializer.m_depth = static_cast<uint32>( meta.depth );
+		initializer.m_arraySize = static_cast<uint32>( meta.arraySize );
+		initializer.m_mipLevels = static_cast<uint32>( meta.mipLevels );
 
 		initializer.m_isCubeMap = meta.IsCubemap( );
 		initializer.m_demension = ConvertToBCTextureDemension( meta.dimension );
 
 		initializer.m_format = ConvertDxgiFormatToFormat( meta.format );
 
-		initializer.m_size = image.GetPixelsSize( );
+		initializer.m_size = static_cast<uint32>( image.GetPixelsSize( ) );
 		initializer.m_memory = image.GetPixels( );
 
-		for ( std::size_t i = 0; i < image.GetImageCount( ); ++i )
+		for ( size_t i = 0; i < image.GetImageCount( ); ++i )
 		{
 			auto subresources = image.GetImages( );
-			initializer.m_sections.emplace_back( subresources[i].rowPitch, subresources[i].slicePitch, subresources[i].pixels - initializer.m_memory );
+
+			uint32 rowPitch = static_cast<uint32>( subresources[i].rowPitch );
+			uint32 slicePitch = static_cast<uint32>( subresources[i].slicePitch );
+			uint32 offset = static_cast<uint32>( subresources[i].pixels - initializer.m_memory );
+
+			initializer.m_sections.emplace_back( rowPitch, slicePitch, offset );
 		}
 
 		return initializer;
@@ -75,7 +80,7 @@ std::optional<Products> DDSManufacturer::Manufacture( const std::filesystem::pat
 	std::ifstream ddsFile;
 	ddsFile.open( srcPath, std::ios::binary | std::ios::ate );
 
-	std::size_t fileSize = ddsFile.tellg( );
+	size_t fileSize = ddsFile.tellg( );
 	ddsFile.seekg( 0, std::ios::beg );
 
 	if ( fileSize == 0 )

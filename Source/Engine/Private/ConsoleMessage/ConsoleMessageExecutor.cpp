@@ -77,7 +77,7 @@ public:
 	}
 
 	virtual const std::vector<std::string>& ArgV( ) const override { return m_argV; }
-	virtual std::size_t ArgC( ) const override { return m_argC; }
+	virtual size_t ArgC( ) const override { return m_argC; }
 
 private:
 	void TokenizingCmdString( const std::string& cmdString )
@@ -90,7 +90,7 @@ private:
 	std::map<std::string, IConsoleMessage*> m_consoleMessages;
 
 	std::vector<std::string> m_argV;
-	std::size_t m_argC = 0;
+	size_t m_argC = 0;
 
 	std::stack<std::string> m_commandStack;
 	std::mutex m_commandStackMutex;

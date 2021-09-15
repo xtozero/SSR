@@ -26,14 +26,14 @@ void StaticMeshPrimitiveProxy::CreateRenderData( )
 void StaticMeshPrimitiveProxy::PrepareSubMeshs( )
 {
 	assert( IsInRenderThread( ) );
-	std::size_t lodSize = m_pRenderData->LODSize( );
+	uint32 lodSize = m_pRenderData->LODSize( );
 
-	for ( std::size_t lod = 0; lod < lodSize; ++lod )
+	for ( uint32 lod = 0; lod < lodSize; ++lod )
 	{
 		StaticMeshLODResource& lodResource = m_pRenderData->LODResource( lod );
 
-		std::size_t sectionSize = lodResource.m_sections.size( );
-		for ( std::size_t sectionIndex = 0; sectionIndex < sectionSize; ++sectionIndex )
+		uint32 sectionSize = static_cast<uint32>( lodResource.m_sections.size( ) );
+		for ( uint32 sectionIndex = 0; sectionIndex < sectionSize; ++sectionIndex )
 		{
 			PrimitiveSubMesh& subMesh = m_primitiveSceneInfo->AddSubMesh( );
 			GetSubMeshElement( lod, sectionIndex, subMesh );
@@ -41,7 +41,7 @@ void StaticMeshPrimitiveProxy::PrepareSubMeshs( )
 	}
 }
 
-void StaticMeshPrimitiveProxy::GetSubMeshElement( std::size_t lod, std::size_t sectionIndex, PrimitiveSubMesh& subMesh )
+void StaticMeshPrimitiveProxy::GetSubMeshElement( uint32 lod, uint32 sectionIndex, PrimitiveSubMesh& subMesh )
 {
 	StaticMeshLODResource& lodResource = m_pRenderData->LODResource( lod );
 	const StaticMeshSection& section = lodResource.m_sections[sectionIndex];
@@ -54,7 +54,9 @@ void StaticMeshPrimitiveProxy::TakeSnapshot( std::deque<DrawSnapshot>& snapshotS
 {
 	// To Do : will make lod available later
 	StaticMeshLODResource& lodResource = m_pRenderData->LODResource( 0 );
-	for ( std::size_t sectionIndex = 0; sectionIndex < lodResource.m_sections.size( ); ++sectionIndex )
+	uint32 sectionSize = static_cast<uint32>( lodResource.m_sections.size( ) );
+
+	for ( uint32 sectionIndex = 0; sectionIndex < sectionSize; ++sectionIndex )
 	{
 		std::optional<DrawSnapshot> snapshot = TakeSnapshot( 0, sectionIndex, viewConstant );
 
@@ -70,10 +72,10 @@ void StaticMeshPrimitiveProxy::TakeSnapshot( std::deque<DrawSnapshot>& snapshotS
 	}
 }
 
-std::optional<DrawSnapshot> StaticMeshPrimitiveProxy::TakeSnapshot( std::size_t lod, std::size_t sectionIndex, SceneViewConstantBuffer& viewConstant ) const
+std::optional<DrawSnapshot> StaticMeshPrimitiveProxy::TakeSnapshot( uint32 lod, uint32 sectionIndex, SceneViewConstantBuffer& viewConstant ) const
 {
 	assert( IsInRenderThread( ) );
-	std::size_t lodSize = m_pRenderData->LODSize( );
+	uint32 lodSize = m_pRenderData->LODSize( );
 	if ( lod >= lodSize )
 	{
 		return {};

@@ -51,11 +51,11 @@ void DDSTexture::Serialize( Archive& ar )
 
 	if ( ar.IsWriteMode( ) )
 	{
-		ar << m_sections.size( );
+		ar << static_cast<uint32>( m_sections.size( ) );
 	}
 	else
 	{
-		std::size_t size;
+		uint32 size;
 		ar << size;
 		m_sections.resize( size );
 	}
@@ -87,7 +87,7 @@ DDSTexture::DDSTexture( const DDSTextureInitializer& initializer )
 
 void DDSTexture::PostLoadImpl( )
 {
-	UINT misc = 0;
+	uint32 misc = 0;
 	misc |= m_isCubeMap ? RESOURCE_MISC::TEXTURECUBE : 0;
 	misc |= ( m_depth > 1 ) ? RESOURCE_MISC::TEXTURE3D : 0;
 
@@ -110,7 +110,7 @@ void DDSTexture::PostLoadImpl( )
 	initData.m_srcData = m_memory.Data( );
 	initData.m_srcSize = m_memory.Size( );
 
-	for ( std::size_t i = 0; i < initData.m_sections.size( ); ++i )
+	for ( size_t i = 0; i < initData.m_sections.size( ); ++i )
 	{
 		initData.m_sections[i].m_offset = m_sections[i].m_offset;
 		initData.m_sections[i].m_pitch = m_sections[i].m_rowPitch;

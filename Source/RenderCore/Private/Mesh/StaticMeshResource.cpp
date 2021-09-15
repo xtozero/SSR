@@ -36,11 +36,11 @@ void StaticMeshLODResource::Serialize( Archive& ar )
 {
 	if ( ar.IsWriteMode( ) )
 	{
-		ar << m_vertexData.size( );
+		ar << static_cast<uint32>( m_vertexData.size( ) );
 	}
 	else
 	{
-		std::size_t size = 0;
+		uint32 size = 0;
 		ar << size;
 		m_vertexData.resize( size );
 	}
@@ -52,11 +52,11 @@ void StaticMeshLODResource::Serialize( Archive& ar )
 
 	if ( ar.IsWriteMode( ) )
 	{
-		ar << m_indexData.size( );
+		ar << static_cast<uint32>( m_indexData.size( ) );
 	}
 	else
 	{
-		std::size_t size = 0;
+		uint32 size = 0;
 		ar << size;
 		m_indexData.resize( size );
 	}
@@ -64,14 +64,14 @@ void StaticMeshLODResource::Serialize( Archive& ar )
 	ar << m_isDWORD;
 	if ( m_isDWORD )
 	{
-		for ( std::size_t i = 0; i < m_indexData.size(); i += sizeof( DWORD ) )
+		for ( size_t i = 0; i < m_indexData.size(); i += sizeof( DWORD ) )
 		{
 			ar << *reinterpret_cast<DWORD*>( m_indexData.data( ) + i );
 		}
 	}
 	else
 	{
-		for ( std::size_t i = 0; i < m_indexData.size( ); i += sizeof( WORD ) )
+		for ( size_t i = 0; i < m_indexData.size( ); i += sizeof( WORD ) )
 		{
 			ar << *reinterpret_cast<WORD*>( m_indexData.data( ) + i );
 		}
@@ -79,11 +79,11 @@ void StaticMeshLODResource::Serialize( Archive& ar )
 
 	if ( ar.IsWriteMode( ) )
 	{
-		ar << m_sections.size( );
+		ar << static_cast<uint32>( m_sections.size( ) );
 	}
 	else
 	{
-		std::size_t size = 0;
+		uint32 size = 0;
 		ar << size;
 		m_sections.resize( size );
 	}
@@ -100,7 +100,7 @@ Archive& operator<<( Archive& ar, StaticMeshLODResource& lodResource )
 	return ar;
 }
 
-void StaticMeshRenderData::AllocateLODResources( std::size_t numLOD )
+void StaticMeshRenderData::AllocateLODResources( uint32 numLOD )
 {
 	m_lodResources.resize( numLOD );
 	m_vertexLayouts.resize( numLOD );
@@ -110,7 +110,7 @@ void StaticMeshRenderData::Init( )
 {
 	assert( IsInRenderThread( ) );
 
-	for ( std::size_t i = 0; i < m_lodResources.size(); ++i )
+	for ( size_t i = 0; i < m_lodResources.size(); ++i )
 	{
 		StaticMeshLODResource& lodResource = m_lodResources[i];
 		m_vertexLayouts[i].Initialize( &lodResource );
@@ -121,11 +121,11 @@ void StaticMeshRenderData::Serialize( Archive& ar )
 {
 	if ( ar.IsWriteMode( ) )
 	{
-		ar << m_lodResources.size( );
+		ar << static_cast<uint32>( m_lodResources.size( ) );
 	}
 	else
 	{
-		std::size_t size = 0;
+		uint32 size = 0;
 		ar << size;
 		m_lodResources.resize( size );
 		m_vertexLayouts.resize( size );
@@ -147,10 +147,10 @@ void StaticMeshRenderData::CreateRenderResource( )
 	for ( StaticMeshLODResource& lodResource : m_lodResources )
 	{
 		std::vector<StaticMeshVertex>& vertexData = lodResource.m_vertexData;
-		lodResource.m_vb = TypedVertexBuffer<StaticMeshVertex>( vertexData.size( ), vertexData.data( ) );
+		lodResource.m_vb = TypedVertexBuffer<StaticMeshVertex>( static_cast<uint32>( vertexData.size( ) ), vertexData.data( ) );
 
-		std::size_t stride = lodResource.m_isDWORD ? sizeof( DWORD ) : sizeof( WORD );
-		std::size_t size = lodResource.m_indexData.size( ) / stride;
+		uint32 stride = lodResource.m_isDWORD ? sizeof( DWORD ) : sizeof( WORD );
+		uint32 size = static_cast<uint32>( lodResource.m_indexData.size( ) ) / stride;
 		lodResource.m_ib = IndexBuffer( size, lodResource.m_indexData.data( ), lodResource.m_isDWORD );
 	}
 

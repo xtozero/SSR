@@ -16,39 +16,39 @@ void AbstractGraphicsInterface::Shutdown( )
 	m_defaultConstants.Shutdown( );
 }
 
-void* AbstractGraphicsInterface::Lock( aga::Buffer* buffer, int lockFlag, UINT subResource )
+void* AbstractGraphicsInterface::Lock( aga::Buffer* buffer, uint32 lockFlag, uint32 subResource )
 {
 	return m_aga->Lock( buffer, lockFlag, subResource );
 }
 
-void AbstractGraphicsInterface::UnLock( aga::Buffer* buffer, UINT subResource )
+void AbstractGraphicsInterface::UnLock( aga::Buffer* buffer, uint32 subResource )
 {
 	m_aga->UnLock( buffer, subResource );
 }
 
-void AbstractGraphicsInterface::SetViewports( aga::Viewport** pViewPorts, int size )
+void AbstractGraphicsInterface::SetViewports( aga::Viewport** pViewPorts, uint32 size )
 {
 	m_aga->SetViewports( pViewPorts, size );
 }
 
-void AbstractGraphicsInterface::SetViewport( UINT minX, UINT minY, float minZ, UINT maxX, UINT maxY, float maxZ )
+void AbstractGraphicsInterface::SetViewport( uint32 minX, uint32 minY, float minZ, uint32 maxX, uint32 maxY, float maxZ )
 {
 	m_aga->SetViewport( minX, minY, minZ, maxX, maxY, maxZ );
 }
 
-void AbstractGraphicsInterface::SetScissorRects( aga::Viewport** pViewPorts, int size )
+void AbstractGraphicsInterface::SetScissorRects( aga::Viewport** pViewPorts, uint32 size )
 {
 	m_aga->SetScissorRects( pViewPorts, size );
 }
 
-void AbstractGraphicsInterface::SetScissorRect( UINT minX, UINT minY, UINT maxX, UINT maxY )
+void AbstractGraphicsInterface::SetScissorRect( uint32 minX, uint32 minY, uint32 maxX, uint32 maxY )
 {
 	m_aga->SetScissorRect( minX, minY, maxX, maxY );
 }
 
-void AbstractGraphicsInterface::BindRenderTargets( aga::Texture** pRenderTargets, int renderTargetCount, aga::Texture* depthStencil )
+void AbstractGraphicsInterface::BindRenderTargets( aga::Texture** pRenderTargets, uint32 renderTargetCount, aga::Texture* depthStencil )
 {
-	m_aga->BindRenderTargets( pRenderTargets, 1, depthStencil );
+	m_aga->BindRenderTargets( pRenderTargets, renderTargetCount, depthStencil );
 }
 
 void AbstractGraphicsInterface::ClearDepthStencil( aga::Texture* depthStencil, float depthColor, UINT8 stencilColor )
@@ -56,7 +56,7 @@ void AbstractGraphicsInterface::ClearDepthStencil( aga::Texture* depthStencil, f
 	m_aga->ClearDepthStencil( depthStencil, depthColor, stencilColor );
 }
 
-void AbstractGraphicsInterface::Dispatch( UINT x, UINT y, UINT z )
+void AbstractGraphicsInterface::Dispatch( uint32 x, uint32 y, uint32 z )
 {
 	ComputeShader empty;
 	m_defaultConstants.Commit( empty );
@@ -66,7 +66,7 @@ void AbstractGraphicsInterface::Dispatch( UINT x, UINT y, UINT z )
 	BindShader( empty );
 }
 
-void AbstractGraphicsInterface::Copy( aga::Buffer* dst, aga::Buffer* src, std::size_t size )
+void AbstractGraphicsInterface::Copy( aga::Buffer* dst, aga::Buffer* src, uint32 size )
 {
 	m_aga->Copy( dst, src, size );
 }
@@ -80,8 +80,8 @@ BlendState AbstractGraphicsInterface::FindOrCreate( const BlendOption& option )
 		trait.m_alphaToConverageEnable = option.m_alphaToConverageEnable;
 		trait.m_independentBlendEnable = option.m_independentBlendEnable;
 
-		constexpr int size = std::extent_v<decltype( option.m_renderTarget )>;
-		for ( int i = 0; i < size; ++i )
+		constexpr uint32 size = std::extent_v<decltype( option.m_renderTarget )>;
+		for ( uint32 i = 0; i < size; ++i )
 		{
 			auto& dst = trait.m_renderTarget[i];
 			auto& src = option.m_renderTarget[i];

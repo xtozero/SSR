@@ -5,24 +5,24 @@
 class BitArray
 {
 public:
-	std::size_t Add( bool value )
+	size_t Add( bool value )
 	{
-		std::size_t index = m_bits.size( );
+		size_t index = m_bits.size( );
 		m_bits.emplace_back( value );
 		return index;
 	}
 
-	std::size_t Size( ) const
+	size_t Size( ) const
 	{
 		return m_bits.size( );
 	}
 
-	auto operator[]( std::size_t index )
+	auto operator[]( size_t index )
 	{
 		return m_bits[index];
 	}
 
-	const bool operator[]( std::size_t index ) const
+	const bool operator[]( size_t index ) const
 	{
 		return m_bits[index];
 	}
@@ -40,7 +40,7 @@ public:
 	using pointer = const bool*;
 	using reference = const bool&;
 
-	ConstSetBitIterator( const BitArray& array, std::size_t startIndex ) : m_array( array ), m_startIndex( startIndex ) {}
+	ConstSetBitIterator( const BitArray& array, size_t startIndex ) : m_array( array ), m_startIndex( startIndex ) {}
 
 	friend bool operator==( const ConstSetBitIterator& lhs, const ConstSetBitIterator& rhs )
 	{
@@ -58,7 +58,7 @@ public:
 		return *this;
 	}
 
-	std::size_t operator*( ) const
+	size_t operator*( ) const
 	{
 		return m_startIndex;
 	}
@@ -81,5 +81,5 @@ private:
 	}
 
 	const BitArray& m_array;
-	std::size_t m_startIndex = 0;
+	size_t m_startIndex = 0;
 };

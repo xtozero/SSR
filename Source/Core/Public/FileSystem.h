@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FixedBlockMemoryPool.h"
+#include "SizedTypes.h"
 
 #include <cassert>
 #include <cstddef>
@@ -16,10 +17,10 @@ struct FileSystemOverlapped : public OVERLAPPED
 
 	bool m_isIOComplete = false;
 	char* m_buffer = nullptr;
-	unsigned long m_bufferSize = 0;
+	uint32 m_bufferSize = 0;
 };
 
-struct FileHandle
+struct [[nodiscard]] FileHandle
 {
 	void* m_handle = nullptr;
 
@@ -33,8 +34,8 @@ template <typename OverlappedType>
 class FileSystem
 {
 private:
-	static constexpr int MAX_FILE_PATH = 2048;
-	static constexpr int MAX_CONCURRENT_FILE_READ = 128;
+	static constexpr uint32 MAX_FILE_PATH = 2048;
+	static constexpr uint32 MAX_CONCURRENT_FILE_READ = 128;
 
 public:
 	static FileHandle OpenFile( const char* filePath )
@@ -59,7 +60,7 @@ public:
 		return FileHandle{ hFile };
 	}
 
-	unsigned long GetFileSize( const FileHandle& handle ) const
+	uint32 GetFileSize( const FileHandle& handle ) const
 	{
 		HANDLE hFile = handle.m_handle;
 
@@ -73,7 +74,7 @@ public:
 		return fileSize.LowPart;
 	}
 
-	void* ReadAsync( const FileHandle& handle, char* buffer, unsigned long size )
+	void* ReadAsync( const FileHandle& handle, char* buffer, uint32 size )
 	{
 		if ( handle.IsValid( ) == false )
 		{
@@ -81,7 +82,7 @@ public:
 		}
 
 		HANDLE hFile = handle.m_handle;
-		HANDLE hPort = CreateIoCompletionPort( hFile, m_completionPort, (ULONG_PTR)size, 0 );
+		HANDLE hPort = CreateIoCompletionPort( hFile, m_completionPort, (uptrint)size, 0 );
 		if ( hPort == nullptr || hPort != m_completionPort )
 		{
 			assert( false );
@@ -92,7 +93,7 @@ public:
 		overlapped->m_buffer = buffer;
 		overlapped->m_bufferSize = size;
 
-		if ( ::ReadFile( hFile, buffer, static_cast<DWORD>( size ), nullptr, overlapped ) == 0 )
+		if ( ::ReadFile( hFile, buffer, size, nullptr, overlapped ) == 0 )
 		{
 			if ( GetLastError( ) != ERROR_IO_PENDING )
 			{
@@ -110,14 +111,14 @@ public:
 	}
 
 	OverlappedType* WaitAsyncIO( ) const
-	{ 
-		DWORD numberOfBytesTransferred;
-		unsigned long* requestSize;
-		OverlappedType* o;
+	{
+		DWORD numberOfBytesTransferred = 0;
+		uptrint* requestSize = nullptr;
+		OverlappedType* o = nullptr;
 
-		if ( GetQueuedCompletionStatus( m_completionPort, &numberOfBytesTransferred, (PULONG_PTR)&requestSize, (LPOVERLAPPED*)&o, INFINITE ) )
+		if ( GetQueuedCompletionStatus( m_completionPort, &numberOfBytesTransferred, (uptrint*)&requestSize, (LPOVERLAPPED*)&o, INFINITE ) )
 		{
-			assert( numberOfBytesTransferred == (long long)requestSize );
+			assert( numberOfBytesTransferred == (uptrint)requestSize );
 			if ( ( numberOfBytesTransferred == 0 )
 				&& ( requestSize == nullptr )
 				&& ( o == nullptr ) )

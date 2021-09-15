@@ -31,13 +31,13 @@ namespace
 
 void COrientedBoundingBox::CalcMeshBounds( const MeshData& mesh )
 {
-	//int verticesCount = mesh.m_vertices;
+	//uint32 verticesCount = mesh.m_vertices;
 	//const MeshVertex* pVertices = static_cast<const MeshVertex*>( mesh.m_pVertexData );
 
 	//CXMFLOAT3 length;
-	//for ( int i = 0; i < verticesCount; ++i )
+	//for ( uint32 i = 0; i < verticesCount; ++i )
 	//{
-	//	for ( int j = 0; j < 3; ++j )
+	//	for ( uint32 j = 0; j < 3; ++j )
 	//	{
 	//		length[j] = fabsf( pVertices[i].m_position[j] );
 	//		if ( length[j] > m_halfSize[j] )
@@ -59,7 +59,7 @@ void COrientedBoundingBox::Update( const CXMFLOAT3& scaling, const CXMFLOAT4& ro
 	m_matTransform = XMMatrixAffineTransformation( g_XMOne3, g_XMZero, rotation, translation );
 	m_matInvTransform = XMMatrixInverse( nullptr, m_matTransform );
 
-	for ( int i = 0; i < 3; ++i )
+	for ( uint32 i = 0; i < 3; ++i )
 	{
 		m_halfSize[i] = orig->m_halfSize[i] * scaling[i];
 	}
@@ -77,17 +77,17 @@ float COrientedBoundingBox::Intersect( const CRay& ray ) const
 	return RayAndBox( rayOrigin, rayDir, m_halfSize, -m_halfSize );
 }
 
-int COrientedBoundingBox::Intersect( const CFrustum& /*frustum*/ ) const
+uint32 COrientedBoundingBox::Intersect( const CFrustum& /*frustum*/ ) const
 {
 	return 0;
 }
 
-void COrientedBoundingBox::DrawDebugOverlay( CDebugOverlayManager& debugOverlay, unsigned int color, float duration ) const
+void COrientedBoundingBox::DrawDebugOverlay( CDebugOverlayManager& debugOverlay, uint32 color, float duration ) const
 {
 	debugOverlay.AddDebugCube( m_halfSize, m_matTransform, color, duration );
 }
 
-CXMFLOAT3 COrientedBoundingBox::GetAxisVector( int i ) const
+CXMFLOAT3 COrientedBoundingBox::GetAxisVector( uint32 i ) const
 {
 	return CXMFLOAT3( m_matTransform.m[i][0], m_matTransform.m[i][1], m_matTransform.m[i][2] );
 }
@@ -117,7 +117,7 @@ float CalcPenetrationOnAxis( const COrientedBoundingBox& lhs, const COrientedBou
 	return lhsProject + rhsProject - distance;
 }
 
-bool TryAxis( const COrientedBoundingBox& lhs, const COrientedBoundingBox& rhs, const CXMFLOAT3& axis, const CXMFLOAT3& toCentre, unsigned int index, float& smallestPenetration, unsigned int& smallestCase )
+bool TryAxis( const COrientedBoundingBox& lhs, const COrientedBoundingBox& rhs, const CXMFLOAT3& axis, const CXMFLOAT3& toCentre, uint32 index, float& smallestPenetration, uint32& smallestCase )
 {
 	if ( XMVectorGetX( XMVector3LengthSq( axis ) ) < 0.0001 )
 	{

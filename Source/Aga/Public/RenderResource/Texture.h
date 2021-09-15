@@ -1,7 +1,9 @@
 #pragma once
+
 #include "common.h"
 #include "GraphicsApiResource.h"
 #include "ResourceViews.h"
+#include "SizedTypes.h"
 
 #include <utility>
 
@@ -12,7 +14,7 @@ namespace aga
 	public:
 		AGA_DLL static RefHandle<Texture> Create( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr );
 
-		virtual std::pair<UINT, UINT> Size( ) const = 0;
+		virtual std::pair<uint32, uint32> Size( ) const = 0;
 
 		ShaderResourceView* SRV( ) { return m_srv.Get( ); }
 		const ShaderResourceView* SRV( ) const { return m_srv.Get( ); }

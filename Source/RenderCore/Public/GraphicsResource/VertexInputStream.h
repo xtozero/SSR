@@ -8,7 +8,7 @@
 class VertexInputStream
 {
 public:
-	void Bind( VertexBuffer& vertexBuffer, int slot, UINT offset = 0 )
+	void Bind( VertexBuffer& vertexBuffer, uint32 slot, uint32 offset = 0 )
 	{
 		if ( m_vertexBuffers[slot] )
 		{
@@ -29,7 +29,7 @@ public:
 		}
 	}
 
-	int NumBuffer( ) const
+	uint32 NumBuffer( ) const
 	{
 		return m_numBuffers;
 	}
@@ -44,7 +44,7 @@ public:
 		return m_vertexBuffers;
 	}
 
-	const UINT* Offsets( ) const
+	const uint32* Offsets( ) const
 	{
 		return m_offset;
 	}
@@ -79,7 +79,7 @@ public:
 				}
 			}
 
-			for ( int i = 0; i < MAX_VERTEX_SLOT; ++i )
+			for ( uint32 i = 0; i < MAX_VERTEX_SLOT; ++i )
 			{
 				m_vertexBuffers[i] = other.m_vertexBuffers[i];
 
@@ -112,7 +112,7 @@ public:
 				}
 			}
 
-			for ( int i = 0; i < MAX_VERTEX_SLOT; ++i )
+			for ( uint32 i = 0; i < MAX_VERTEX_SLOT; ++i )
 			{
 				m_vertexBuffers[i] = other.m_vertexBuffers[i];
 				other.m_vertexBuffers[i] = nullptr;
@@ -130,7 +130,7 @@ public:
 		return ( lhs.m_numBuffers == rhs.m_numBuffers ) && ( VertexInputStream::CompareStreams( lhs, rhs, lhs.m_numBuffers ) );
 	}
 
-	static constexpr int MAX_VERTEX_SLOT = 32;
+	static constexpr uint32 MAX_VERTEX_SLOT = 32;
 
 private:
 	static bool CompareStreams( const VertexInputStream& lhs, const VertexInputStream& rhs, int32 size )
@@ -148,6 +148,6 @@ private:
 	}
 
 	aga::Buffer* m_vertexBuffers[MAX_VERTEX_SLOT] = {};
-	UINT m_offset[MAX_VERTEX_SLOT] = {};
-	int m_numBuffers = 0;
+	uint32 m_offset[MAX_VERTEX_SLOT] = {};
+	uint32 m_numBuffers = 0;
 };

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Physics/BoundingCone.h"
 #include "physics/BoundingSphere.h"
+#include "SizedTypes.h"
 
 #include <algorithm>
 
@@ -24,10 +25,10 @@ CBoundingCone::CBoundingCone( const std::vector<CAaboundingbox>& boxes, const CX
 		std::vector<CXMFLOAT3> points;
 		points.resize( boxes.size( ) * 8 );
 
-		int j = 0;
+		uint32 j = 0;
 		for ( const auto& box : boxes )
 		{
-			for ( int i = 0; i < 8; ++i )
+			for ( uint32 i = 0; i < 8; ++i )
 			{
 				points[j] = XMVector3TransformCoord( box.Point( i ), projection );
 
@@ -96,7 +97,7 @@ CBoundingCone::CBoundingCone( const std::vector<CAaboundingbox>& boxes, const CX
 	for ( size_t i = 0; i < boxes.size( ); ++i )
 	{
 		const CAaboundingbox& box = boxes[i];
-		for ( int j = 0; j < 8; ++j )
+		for ( uint32 j = 0; j < 8; ++j )
 		{
 			CXMFLOAT3 point = XMVector3TransformCoord( box.Point( j ), concatMatrix );
 

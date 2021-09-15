@@ -4,6 +4,7 @@
 #include "IScene.h"
 #include "LightSceneInfo.h"
 #include "SceneConstantBuffers.h"
+#include "SizedTypes.h"
 #include "SparseArray.h"
 #include "UploadBuffer.h"
 
@@ -90,11 +91,11 @@ private:
 
 	SceneViewConstantBuffer m_viewConstant;
 
-	std::vector<std::size_t> m_primitiveToUpdate;
+	std::vector<uint32> m_primitiveToUpdate;
 	ScenePrimitiveBuffer m_gpuPrimitiveInfos;
 
 	TypedUploadBuffer<CXMFLOAT4> m_uploadPrimitiveBuffer;
-	TypedUploadBuffer<UINT> m_distributionBuffer;
+	TypedUploadBuffer<uint32> m_distributionBuffer;
 
 	friend bool UpdateGPUPrimitiveInfos( Scene& scene );
 };

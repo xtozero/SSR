@@ -3,9 +3,11 @@
 #include "AssetLoader/AssetLoader.h"
 #include "Core/InterfaceFactories.h"
 #include "MultiThread/EngineTaskScheduler.h"
+#include "SizedTypes.h"
 
 #include <cassert>
 #include <cstddef>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <string>
@@ -15,13 +17,13 @@
 class BinaryChunk
 {
 public:
-	std::size_t Size( ) const { return m_size; }
+	uint32 Size( ) const { return m_size; }
 	char* Data( ) { return m_data; }
 	const char* Data( ) const { return m_data; }
 
 	BinaryChunk( ) = default;
 
-	explicit BinaryChunk( std::size_t size )
+	explicit BinaryChunk( uint32 size )
 	{
 		Alloc( size );
 	}
@@ -78,7 +80,7 @@ public:
 	}
 
 private:
-	void Alloc( std::size_t size )
+	void Alloc( uint32 size )
 	{
 		Purge( );
 		m_size = size;
@@ -97,7 +99,7 @@ private:
 	}
 
 	char* m_data = nullptr;
-	std::size_t m_size = 0;
+	uint32 m_size = 0;
 };
 
 class Archive
@@ -105,7 +107,7 @@ class Archive
 public:
 	Archive( ) = default;
 	Archive( const char* begin, const char* end ) : m_curPos( begin ), m_endPos( end ) {}
-	Archive( const char* begin, std::size_t size ) : m_curPos( begin ), m_endPos( begin + size ) {}
+	Archive( const char* begin, size_t size ) : m_curPos( begin ), m_endPos( begin + size ) {}
 	~Archive( ) = default;
 	Archive( const Archive& ) = default;
 	Archive& operator=( const Archive& ) = default;
@@ -135,7 +137,7 @@ public:
 		return *this;
 	}
 
-	std::size_t Size( ) const
+	size_t Size( ) const
 	{
 		return m_buffer.size( );
 	}
@@ -233,13 +235,13 @@ private:
 	void ReadData( char* str )
 	{
 		assert( str );
-		if ( CanRead( sizeof( std::size_t ) ) == false )
+		if ( CanRead( sizeof( uint32 ) ) == false )
 		{
 			return;
 		}
 
 		// Read string length
-		std::size_t stringSize = 0;
+		uint32 stringSize = 0;
 		( *this ) << stringSize;
 
 		if ( ( stringSize <= 0 ) || ( CanRead( stringSize ) == false ) )
@@ -254,13 +256,13 @@ private:
 
 	void ReadData( std::string& value )
 	{
-		if ( CanRead( sizeof( std::size_t ) ) == false )
+		if ( CanRead( sizeof( uint32 ) ) == false )
 		{
 			return;
 		}
 
 		// Read string length
-		std::size_t stringSize = 0;
+		uint32 stringSize = 0;
 		( *this ) << stringSize;
 
 		if ( ( stringSize <= 0 ) || ( CanRead( stringSize ) == false ) )
@@ -281,13 +283,13 @@ private:
 
 	void ReadData( BinaryChunk& chunk )
 	{
-		if ( CanRead( sizeof( std::size_t ) ) == false )
+		if ( CanRead( sizeof( uint32 ) ) == false )
 		{
 			return;
 		}
 
 		// Read binary data length
-		std::size_t size = 0;
+		uint32 size = 0;
 		( *this ) << size;
 
 		if ( ( size <= 0 ) || ( CanRead( size ) == false ) )
@@ -301,7 +303,7 @@ private:
 		m_curPos += size;
 	}
 
-	bool CanRead( std::size_t size )
+	bool CanRead( size_t size )
 	{
 		return ( m_curPos + size ) <= m_endPos;
 	}
@@ -313,7 +315,7 @@ private:
 		static_assert( std::is_arithmetic_v<T> || std::is_enum_v<T> );
 		char* cur = (char*)( &value );
 
-		for ( std::size_t i = 0; i < sizeof( T ); ++i )
+		for ( size_t i = 0; i < sizeof( T ); ++i )
 		{
 			m_buffer.push_back( cur[i] );
 		}
@@ -360,10 +362,10 @@ private:
 
 	void WriteData( const char* str )
 	{
-		std::size_t len = strlen( str );
+		uint32 len = static_cast<uint32>( std::strlen( str ) );
 		( *this ) << len;
 
-		for ( std::size_t i = 0; i < len; ++i )
+		for ( uint32 i = 0; i < len; ++i )
 		{
 			m_buffer.push_back( str[i] );
 		}
@@ -381,11 +383,11 @@ private:
 
 	void WriteData( const BinaryChunk& chunk )
 	{
-		std::size_t size = chunk.Size( );
+		uint32 size = chunk.Size( );
 		( *this ) << size;
 
 		const char* data = chunk.Data( );
-		for ( std::size_t i = 0; i < size; ++i )
+		for ( uint32 i = 0; i < size; ++i )
 		{
 			m_buffer.push_back( data[i] );
 		}

@@ -100,7 +100,7 @@ void ForwardRenderer::UpdateLightResource( RenderViewGroup& renderViewGroup )
 	{
 		ForwardLightBuffer& lightBuffer = view.m_forwardLighting->m_lightBuffer;
 
-		std::size_t numElement = ( sizeof( ForwardLightData ) / sizeof( CXMFLOAT4 ) ) * validLights.size( );
+		uint32 numElement = static_cast<uint32>( ( sizeof( ForwardLightData ) / sizeof( CXMFLOAT4 ) ) * validLights.size( ) );
 		lightBuffer.Initialize( sizeof( CXMFLOAT4 ), numElement, RESOURCE_FORMAT::R32G32B32A32_FLOAT );
 
 		auto lightData = static_cast<ForwardLightData*>( lightBuffer.Lock( ) );
@@ -127,7 +127,7 @@ void ForwardRenderer::UpdateLightResource( RenderViewGroup& renderViewGroup )
 		lightBuffer.Unlock( );
 
 		ForwardLightConstant lightConstant = {
-			validLights.size( ),
+			static_cast<uint32>( validLights.size( ) ),
 			view.m_viewOrigin
 		};
 

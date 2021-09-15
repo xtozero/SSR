@@ -1,5 +1,7 @@
 #pragma once
+
 #include "ConstantBuffer.h"
+#include "SizedTypes.h"
 
 #include <type_traits>
 
@@ -14,7 +16,7 @@ public:
 	void Shutdown( );
 
 	template <typename ShaderType>
-	void SetShaderValue( [[maybe_unused]] ShaderType& shader, UINT offset, UINT numBytes, const void* value )
+	void SetShaderValue( [[maybe_unused]] ShaderType& shader, uint32 offset, uint32 numBytes, const void* value )
 	{
 		if constexpr ( std::is_same_v<VertexShader, ShaderType> )
 		{
@@ -60,8 +62,8 @@ public:
 	}
 
 private:
-	void SetShaderValue( int ctxIndex, UINT offset, UINT numBytes, const void* value );
-	void Commit( int ctxIndex );
+	void SetShaderValue( uint32 ctxIndex, uint32 offset, uint32 numBytes, const void* value );
+	void Commit( uint32 ctxIndex );
 
 	enum
 	{
@@ -71,12 +73,12 @@ private:
 		TotalConstants
 	};
 
-	static constexpr int BUFFER_SIZE = 2048;
+	static constexpr uint32 BUFFER_SIZE = 2048;
 
 	struct ConstantBufferContext
 	{
 		ConstantBuffer m_buffer;
 		unsigned char* m_dataStorage = nullptr;
-		std::size_t m_invalidRangeEnd = 0;
+		uint32 m_invalidRangeEnd = 0;
 	} m_contexts[TotalConstants];
 };

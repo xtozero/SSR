@@ -47,11 +47,11 @@ namespace
 
 void BoundingSphere::CalcMeshBounds( const MeshData& mesh )
 {
-	//int verticesCount = mesh.m_vertices;
+	//uint32 verticesCount = mesh.m_vertices;
 	//const MeshVertex* pVertices = static_cast<const MeshVertex*>( mesh.m_pVertexData );
 
 	//float maxRadiusSqr = -FLT_MAX;
-	//for ( int i = 0; i < verticesCount; ++i )
+	//for ( uint32 i = 0; i < verticesCount; ++i )
 	//{
 	//	float radiusSqr = XMVectorGetX( XMVector3LengthSq( pVertices[i].m_position ) );
 
@@ -78,24 +78,24 @@ float BoundingSphere::Intersect( const CRay& ray ) const
 	return RayAndSphere( ray.GetOrigin( ), ray.GetDir( ), m_origin, m_radius );
 }
 
-int BoundingSphere::Intersect( const CFrustum& frustum ) const
+uint32 BoundingSphere::Intersect( const CFrustum& frustum ) const
 {
 	const CXMFLOAT4( &planes )[6] = frustum.GetPlanes( );
 
 	bool inside = true;
 
-	for ( int i = 0; ( i<6 ) && inside; i++ )
+	for ( uint32 i = 0; ( i<6 ) && inside; i++ )
 		inside &= ( ( XMVectorGetX( XMPlaneDotCoord( planes[i], m_origin ) ) + m_radius ) >= 0.f );
 
 	return inside;
 }
 
-void BoundingSphere::DrawDebugOverlay( CDebugOverlayManager& debugOverlay, unsigned int color, float duration ) const
+void BoundingSphere::DrawDebugOverlay( CDebugOverlayManager& debugOverlay, uint32 color, float duration ) const
 {
 	debugOverlay.AddDebugSphere( m_origin, m_radius, color, duration );
 }
 
-int BoundingSphere::Intersect( const BoundingSphere& sphere ) const
+uint32 BoundingSphere::Intersect( const BoundingSphere& sphere ) const
 {
 	float distance = XMVectorGetX( XMVector3LengthSq( m_origin - sphere.m_origin ) );
 
@@ -115,14 +115,14 @@ float BoundingSphere::CalcGrowth( const BoundingSphere& sphere ) const
 bool BoundingSphere::Intersect( const CFrustum& frustum, const CXMFLOAT3& sweepDir )
 {
 	float displacement[12];
-	int count = 0;
+	uint32 count = 0;
 	float t0 = -1;
 	float t1 = -1;
 	bool inFrustum = false;
 
 	const CXMFLOAT4(&planes)[6] = frustum.GetPlanes( );
 
-	for ( int i = 0; i < 6; ++i )
+	for ( uint32 i = 0; i < 6; ++i )
 	{
 		if ( SweptSpherePlaneIntersection( t0, t1, planes[i], *this, sweepDir ) )
 		{
@@ -137,7 +137,7 @@ bool BoundingSphere::Intersect( const CFrustum& frustum, const CXMFLOAT3& sweepD
 		}
 	}
 
-	for ( int i = 0; i < count; ++i )
+	for ( uint32 i = 0; i < count; ++i )
 	{
 		float radius = m_radius * 1.1f;
 		CXMFLOAT3 center( m_origin );

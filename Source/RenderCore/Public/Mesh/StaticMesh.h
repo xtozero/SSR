@@ -3,6 +3,7 @@
 #include "AssetLoader/AssetFactory.h"
 #include "AssetLoader/IAsyncLoadableAsset.h"
 #include "BaseMesh.h"
+#include "SizedTypes.h"
 
 #include <vector>
 
@@ -30,7 +31,7 @@ public:
 	RENDERCORE_DLL void BuildMeshFromMeshDescriptions( const std::vector<MeshDescription>& meshDescriptions );
 	void BuildMeshFromMeshDescription( const MeshDescription& meshDescription, StaticMeshLODResource& lodResource );
 
-	RENDERCORE_DLL MaterialResource* GetMaterialResource( std::size_t idx ) const;
+	RENDERCORE_DLL MaterialResource* GetMaterialResource( size_t idx ) const;
 	RENDERCORE_DLL void AddMaterial( const std::shared_ptr<Material>& mateiral );
 
 	RENDERCORE_DLL StaticMesh( ) = default;

@@ -3,6 +3,7 @@
 #include "common.h"
 #include "GraphicsApiResource.h"
 #include "ICommandList.h"
+#include "SizedTypes.h"
 #include "Util.h"
 
 #include <memory>
@@ -26,38 +27,38 @@ namespace aga
 	class IAga
 	{
 	public:
-		virtual bool BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight ) = 0;
-		virtual void HandleDeviceLost( HWND hWnd, UINT nWndWidth, UINT nWndHeight ) = 0;
-		virtual void AppSizeChanged( UINT nWndWidth, UINT nWndHeight ) = 0;
+		virtual bool BootUp( ) = 0;
+		virtual void HandleDeviceLost( ) = 0;
+		virtual void AppSizeChanged( ) = 0;
 		virtual void WaitGPU( ) = 0;
 
-		virtual void* Lock( Buffer* buffer, int lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, UINT subResource = 0 ) = 0;
-		virtual void UnLock( Buffer* buffer, UINT subResource = 0 ) = 0;
+		virtual void* Lock( Buffer* buffer, uint32 lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, uint32 subResource = 0 ) = 0;
+		virtual void UnLock( Buffer* buffer, uint32 subResource = 0 ) = 0;
 
-		virtual void SetViewports( Viewport** viewPorts, int count ) = 0;
-		virtual void SetViewport( UINT minX, UINT minY, float minZ, UINT maxX, UINT maxY, float maxZ ) = 0;
-		virtual void SetScissorRects( Viewport** viewPorts, int size ) = 0;
-		virtual void SetScissorRect( UINT minX, UINT minY, UINT maxX, UINT maxY ) = 0;
+		virtual void SetViewports( Viewport** viewPorts, uint32 count ) = 0;
+		virtual void SetViewport( uint32 minX, uint32 minY, float minZ, uint32 maxX, uint32 maxY, float maxZ ) = 0;
+		virtual void SetScissorRects( Viewport** viewPorts, uint32 size ) = 0;
+		virtual void SetScissorRect( uint32 minX, uint32 minY, uint32 maxX, uint32 maxY ) = 0;
 
-		virtual void ClearDepthStencil( Texture* depthStencil, float depthColor, UINT8 stencilColor ) = 0;
+		virtual void ClearDepthStencil( Texture* depthStencil, float depthColor, uint8 stencilColor ) = 0;
 
 		virtual void BindShader( ComputeShader* shader ) = 0;
 
-		virtual void BindConstant( VertexShader* shader, int startSlot, int numBuffers, Buffer** pBuffers ) = 0;
-		virtual void BindShaderInput( VertexShader* shader, int startSlot, int numBuffers, Buffer** pBuffers ) = 0;
+		virtual void BindConstant( VertexShader* shader, uint32 startSlot, uint32 numBuffers, Buffer** pBuffers ) = 0;
+		virtual void BindShaderInput( VertexShader* shader, uint32 startSlot, uint32 numBuffers, Buffer** pBuffers ) = 0;
 
-		virtual void BindConstant( PixelShader* shader, int startSlot, int numBuffers, Buffer** pBuffers ) = 0;
-		virtual void BindShaderInput( PixelShader* shader, int startSlot, int numBuffers, Buffer** pBuffers ) = 0;
+		virtual void BindConstant( PixelShader* shader, uint32 startSlot, uint32 numBuffers, Buffer** pBuffers ) = 0;
+		virtual void BindShaderInput( PixelShader* shader, uint32 startSlot, uint32 numBuffers, Buffer** pBuffers ) = 0;
 
-		virtual void BindConstant( ComputeShader* shader, int startSlot, int numBuffers, Buffer** pBuffers ) = 0;
-		virtual void BindShaderInput( ComputeShader* shader, int startSlot, int numBuffers, Buffer** pBuffers ) = 0;
-		virtual void BindShaderOutput( ComputeShader* shader, int startSlot, int numBuffers, Buffer** pBuffers ) = 0;
+		virtual void BindConstant( ComputeShader* shader, uint32 startSlot, uint32 numBuffers, Buffer** pBuffers ) = 0;
+		virtual void BindShaderInput( ComputeShader* shader, uint32 startSlot, uint32 numBuffers, Buffer** pBuffers ) = 0;
+		virtual void BindShaderOutput( ComputeShader* shader, uint32 startSlot, uint32 numBuffers, Buffer** pBuffers ) = 0;
 
-		virtual void BindRenderTargets( Texture** pRenderTargets, int renderTargetCount, Texture* depthStencil ) = 0;
+		virtual void BindRenderTargets( Texture** pRenderTargets, uint32 renderTargetCount, Texture* depthStencil ) = 0;
 
-		virtual void Dispatch( UINT x, UINT y, UINT z = 1 ) = 0;
+		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) = 0;
 
-		virtual void Copy( Buffer* dst, Buffer* src, std::size_t size ) = 0;
+		virtual void Copy( Buffer* dst, Buffer* src, uint32 size ) = 0;
 
 		virtual void GetRendererMultiSampleOption( MULTISAMPLE_OPTION* option ) = 0;
 

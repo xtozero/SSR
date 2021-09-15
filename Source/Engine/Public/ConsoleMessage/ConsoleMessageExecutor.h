@@ -3,6 +3,7 @@
 #include "common.h"
 #include "ConCommand.h"
 #include "IConsoleMessage.h"
+#include "SizedTypes.h"
 
 #include <cstddef>
 #include <functional>
@@ -22,7 +23,7 @@ public:
 	virtual void Execute( ) = 0;
 
 	virtual const std::vector<std::string>& ArgV( ) const = 0;
-	virtual std::size_t ArgC( ) const = 0;
+	virtual size_t ArgC( ) const = 0;
 
 	virtual ~IConsoleMessageExecutor( ) = default;
 };

@@ -30,12 +30,6 @@ namespace aga
 {
 	IResourceManager* g_resourceManager = nullptr;
 
-	void CD3D11ResourceManager::AppSizeChanged( UINT nWndWidth, UINT nWndHeight )
-	{
-		m_frameBufferSize.first = nWndWidth;
-		m_frameBufferSize.second = nWndHeight;
-	}
-
 	Texture* CD3D11ResourceManager::CreateTexture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
 	{
 		if ( trait.m_miscFlag & RESOURCE_MISC::APP_SIZE_DEPENDENT )
@@ -74,7 +68,7 @@ namespace aga
 		return newBuffer;
 	}
 
-	VertexLayout* CD3D11ResourceManager::CreateVertexLayout( const VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, std::size_t size )
+	VertexLayout* CD3D11ResourceManager::CreateVertexLayout( const VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, uint32 size )
 	{
 		auto d3d11VS = static_cast<const D3D11VertexShader*>( vs );
 		auto newVertexLayout = new D3D11VertexLayout( d3d11VS, trait, size );
@@ -82,7 +76,7 @@ namespace aga
 		return newVertexLayout;
 	}
 
-	ComputeShader * CD3D11ResourceManager::CreateComputeShader( const void* byteCode, std::size_t byteCodeSize )
+	ComputeShader * CD3D11ResourceManager::CreateComputeShader( const void* byteCode, size_t byteCodeSize )
 	{
 		auto newShader = new D3D11ComputeShader( byteCode, byteCodeSize );
 		m_renderResources.emplace( newShader );
@@ -90,7 +84,7 @@ namespace aga
 		return newShader;
 	}
 
-	VertexShader* CD3D11ResourceManager::CreateVertexShader( const void* byteCode, std::size_t byteCodeSize )
+	VertexShader* CD3D11ResourceManager::CreateVertexShader( const void* byteCode, size_t byteCodeSize )
 	{
 		auto newShader = new D3D11VertexShader( byteCode, byteCodeSize );
 		m_renderResources.emplace( newShader );
@@ -98,7 +92,7 @@ namespace aga
 		return newShader;
 	}
 
-	PixelShader* CD3D11ResourceManager::CreatePixelShader( const void* byteCode, std::size_t byteCodeSize )
+	PixelShader* CD3D11ResourceManager::CreatePixelShader( const void* byteCode, size_t byteCodeSize )
 	{
 		auto newShader = new D3D11PixelShader( byteCode, byteCodeSize );
 		m_renderResources.emplace( newShader );
@@ -152,7 +146,7 @@ namespace aga
 		return pipelineState;
 	}
 
-	Viewport* CD3D11ResourceManager::CreateViewport( int width, int height, void* hWnd, RESOURCE_FORMAT format )
+	Viewport* CD3D11ResourceManager::CreateViewport( uint32 width, uint32 height, void* hWnd, RESOURCE_FORMAT format )
 	{
 		auto viewport = new D3D11Viewport( width, height, hWnd, ConvertFormatToDxgiFormat( format ) );
 		m_renderResources.emplace( viewport );
@@ -182,12 +176,12 @@ namespace aga
 	//	}
 	//}
 
-	//void CD3D11ResourceManager::UpdateResourceFromMemory( RE_HANDLE dest, void* src, UINT srcRowPitch, UINT srcDepthPitch, const RESOURCE_REGION* destRegionOrNull )
+	//void CD3D11ResourceManager::UpdateResourceFromMemory( RE_HANDLE dest, void* src, uint32 srcRowPitch, uint32 srcDepthPitch, const RESOURCE_REGION* destRegionOrNull )
 	//{
 	//	ID3D11Resource* pDest = nullptr;/*GetD3D11ResourceGeneric( dest )*/;
 	//
 	//	D3D11_BOX destBox = {};
-	//	UINT destSubresouce = 0;
+	//	uint32 destSubresouce = 0;
 	//	if ( destRegionOrNull != nullptr )
 	//	{
 	//		destBox = { destRegionOrNull->m_left, destRegionOrNull->m_top, destRegionOrNull->m_front, destRegionOrNull->m_right, destRegionOrNull->m_bottom, destRegionOrNull->m_back };

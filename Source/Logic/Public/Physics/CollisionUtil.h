@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SizedTypes.h"
+
 class CRay;
 class CGameObject;
 class ICollider;
@@ -9,5 +11,5 @@ struct CollisionData;
 namespace COLLISION_UTIL
 {
 	float IntersectWithRay( const ICollider& collider, const CRay& ray );
-	unsigned int DetectCollisionObjectAndObject( CGameObject* lhs, RigidBody* lhsBody, CGameObject* rhs, RigidBody* rhsBody, CollisionData* data );
+	uint32 DetectCollisionObjectAndObject( CGameObject* lhs, RigidBody* lhsBody, CGameObject* rhs, RigidBody* rhsBody, CollisionData* data );
 }

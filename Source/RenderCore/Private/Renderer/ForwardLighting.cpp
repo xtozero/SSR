@@ -4,7 +4,7 @@
 #include "AbstractGraphicsInterface.h"
 #include "MultiThread/EngineTaskScheduler.h"
 
-void ForwardLightBuffer::Initialize( std::size_t bytePerElement, std::size_t numElements, RESOURCE_FORMAT format )
+void ForwardLightBuffer::Initialize( uint32 bytePerElement, uint32 numElements, RESOURCE_FORMAT format )
 {
 	BUFFER_TRAIT trait = {
 		bytePerElement,

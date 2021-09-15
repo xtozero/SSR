@@ -84,7 +84,7 @@ void WindowPlatformEngine::ProcessInput( )
 	}
 }
 
-LRESULT WindowPlatformEngine::MsgProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
+LRESULT WindowPlatformEngine::MsgProc( HWND hWnd, uint32 message, WPARAM wParam, LPARAM lParam )
 {
 	switch ( message )
 	{

@@ -2,6 +2,7 @@
 
 #include "TypedBuffer.h"
 #include "Math/CXMFloat.h"
+#include "SizedTypes.h"
 
 class PrimitiveProxy;
 struct RenderView;
@@ -44,7 +45,7 @@ public:
 class ScenePrimitiveBuffer
 {
 public:
-	void Resize( std::size_t size );
+	void Resize( uint32 size );
 
 	aga::ShaderResourceView* SRV( );
 	const aga::ShaderResourceView* SRV( ) const;
@@ -53,6 +54,5 @@ public:
 	const aga::Buffer* Resource( ) const;
 
 private:
-	std::size_t m_size = 0;
 	TypedBuffer<CXMFLOAT4> m_buffer;
 };

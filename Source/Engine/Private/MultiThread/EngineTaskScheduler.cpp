@@ -16,9 +16,9 @@ public:
 
 	virtual void ProcessThisThreadTask( ) override;
 
-	virtual std::size_t GetThisThreadType( ) const override;
+	virtual size_t GetThisThreadType( ) const override;
 
-	[[nodiscard]] TaskHandle GetExclusiveTaskGroup( std::size_t threadType );
+	[[nodiscard]] TaskHandle GetExclusiveTaskGroup( size_t threadType );
 
 	EngineTaskScheduler( );
 	~EngineTaskScheduler( ) = default;
@@ -28,7 +28,7 @@ public:
 	EngineTaskScheduler& operator=( EngineTaskScheduler&& ) = delete;
 
 private:
-	static constexpr std::size_t MAX_ENGINE_THREAD_GROUP = 1024;
+	static constexpr size_t MAX_ENGINE_THREAD_GROUP = 1024;
 
 	TaskScheduler m_taskScheduler;
 };
@@ -53,12 +53,12 @@ void EngineTaskScheduler::ProcessThisThreadTask( )
 	m_taskScheduler.ProcessThisThreadTask( );
 }
 
-std::size_t EngineTaskScheduler::GetThisThreadType( ) const
+size_t EngineTaskScheduler::GetThisThreadType( ) const
 {
 	return m_taskScheduler.GetThisThreadType( );
 }
 
-TaskHandle EngineTaskScheduler::GetExclusiveTaskGroup( std::size_t threadType )
+TaskHandle EngineTaskScheduler::GetExclusiveTaskGroup( size_t threadType )
 {
 	return m_taskScheduler.GetExclusiveTaskGroup( threadType );
 }

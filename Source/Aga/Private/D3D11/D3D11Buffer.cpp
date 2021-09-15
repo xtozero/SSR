@@ -9,12 +9,12 @@ namespace
 {
 	D3D11_BUFFER_DESC ConvertTraitToDesc( const BUFFER_TRAIT& trait )
 	{
-		UINT byteWidth = trait.m_count * trait.m_stride;
+		uint32 byteWidth = trait.m_count * trait.m_stride;
 		D3D11_USAGE usage = ConvertAccessFlagToUsage( trait.m_access );
-		UINT bindFlag = ConvertTypeToBind( trait.m_bindType );
-		UINT cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );
-		UINT miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
-		UINT structureByteStride = trait.m_stride;
+		uint32 bindFlag = ConvertTypeToBind( trait.m_bindType );
+		uint32 cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );
+		uint32 miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
+		uint32 structureByteStride = trait.m_stride;
 
 		return D3D11_BUFFER_DESC{
 			byteWidth,
@@ -91,7 +91,7 @@ namespace aga
 		return m_buffer;
 	}
 
-	UINT D3D11Buffer::Stride( ) const
+	uint32 D3D11Buffer::Stride( ) const
 	{
 		return m_desc.StructureByteStride;
 	}
@@ -158,7 +158,7 @@ namespace aga
 
 		if ( m_buffer )
 		{
-			ULONG ref = m_buffer->Release( );
+			[[maybe_unused]] uint32 ref = m_buffer->Release( );
 			m_buffer = nullptr;
 		}
 	}

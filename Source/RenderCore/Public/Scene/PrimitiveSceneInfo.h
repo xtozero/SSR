@@ -1,4 +1,5 @@
 #pragma once
+
 #include "DrawSnapshot.h"
 #include "SizedTypes.h"
 
@@ -11,35 +12,35 @@ class Scene;
 
 struct PrimitiveSubMeshInfo
 {
-	std::size_t m_snapshotInfoBase = 0;
+	uint32 m_snapshotInfoBase = 0;
 };
 
 class PrimitiveSubMesh
 {
 public:
-	std::size_t& Lod( )
+	uint32& Lod( )
 	{
 		return m_lod;
 	}
 
-	const std::size_t Lod( ) const
+	const uint32 Lod( ) const
 	{
 		return m_lod;
 	}
 
-	std::size_t& SectionIndex( )
+	uint32& SectionIndex( )
 	{
 		return m_sectionIndex;
 	}
 
-	const std::size_t SectionIndex( ) const
+	const uint32 SectionIndex( ) const
 	{
 		return m_sectionIndex;
 	}
 
 private:
-	std::size_t m_lod = 0;
-	std::size_t m_sectionIndex = 0;
+	uint32 m_lod = 0;
+	uint32 m_sectionIndex = 0;
 };
 
 class PrimitiveSceneInfo
@@ -56,14 +57,14 @@ public:
 	std::vector<PrimitiveSubMesh>& SubMeshs( );
 	const std::vector<PrimitiveSubMesh>& SubMeshs( ) const;
 
-	const CachedDrawSnapshotInfo& GetCachedDrawSnapshotInfo( size_t snapshotIndex );
+	const CachedDrawSnapshotInfo& GetCachedDrawSnapshotInfo( uint32 snapshotIndex );
 
-	DrawSnapshot& CachedDrawSnapshot( std::size_t snapshotIndex );
+	DrawSnapshot& CachedDrawSnapshot( uint32 snapshotIndex );
 
 	PrimitiveSceneInfo( PrimitiveComponent* component, Scene& scene );
 
 	PrimitiveProxy* m_sceneProxy = nullptr;
-	std::size_t m_primitiveId = 0;
+	uint32 m_primitiveId = 0;
 
 private:
 	void CacheDrawSnapshot( );

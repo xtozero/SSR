@@ -2,6 +2,7 @@
 
 #include "DataStructure/EnumStringMap.h"
 #include "Math/CXMFloat.h"
+#include "SizedTypes.h"
 #include "UserInput/UICMap.h"
 
 #include <WinUser.h>
@@ -13,7 +14,7 @@ class WindowPlatformInputMap
 public:
 	bool Initialize( );
 
-	USER_INPUT_CODE Convert( unsigned long code )
+	USER_INPUT_CODE Convert( uint32 code )
 	{
 		return m_userInputMap.Convert( code );
 	}
@@ -29,7 +30,7 @@ public:
 	bool ProcessInput( ILogic& logic, const MSG& wndMsg );
 
 private:
-	UserInput Convert( unsigned long msg );
+	UserInput Convert( uint32 msg );
 	WindowPlatformInputMap m_inputMap;
 
 	CXMFLOAT2 m_prevMousePos = { 0.f, 0.f };

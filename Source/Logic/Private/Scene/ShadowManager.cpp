@@ -114,7 +114,7 @@ void CShadowManager::BuildShadowProjectionMatrix( CGameLogic& gameLogic, std::ve
 	//ui.Window( "Shadow" );
 
 	//const char* shadowTypeText[] = { "Ortho", "PSM", "LSPSM" };
-	//ui.Combo( "Shadow Type", reinterpret_cast<int*>( &m_shadowType ), shadowTypeText, _countof( shadowTypeText ) );
+	//ui.Combo( "Shadow Type", reinterpret_cast<int32*>( &m_shadowType ), shadowTypeText, _countof( shadowTypeText ) );
 
 	//if ( ui.Button( "Cascaded ShadowMap On/Off" ) )
 	//{
@@ -166,7 +166,7 @@ void CShadowManager::BuildShadowProjectionMatrix( CGameLogic& gameLogic, std::ve
 	//	{
 	//		float interval = ( m_receiversFar - m_castersNear ) / MAX_CASCADED_NUM;
 
-	//		for ( int i = 0; i < MAX_CASCADED_NUM; ++i )
+	//		for ( uint32 i = 0; i < MAX_CASCADED_NUM; ++i )
 	//		{
 	//			zClipNear[i] = ( i == 0 ) ? m_castersNear : zClipFar[i - 1];
 	//			zClipFar[i] = ( i == ( MAX_CASCADED_NUM - 1 ) ) ? m_receiversFar : zClipNear[i] + interval;
@@ -178,7 +178,7 @@ void CShadowManager::BuildShadowProjectionMatrix( CGameLogic& gameLogic, std::ve
 	//		m_cascadeConstant[0].m_zFar = FLT_MAX;
 	//	}
 
-	//	for ( int i = 0, end = m_useCascaded ? MAX_CASCADED_NUM : 1; i < end; ++i )
+	//	for ( uint32 i = 0, end = m_useCascaded ? MAX_CASCADED_NUM : 1; i < end; ++i )
 	//	{
 	//		switch ( m_shadowType )
 	//		{
@@ -198,7 +198,7 @@ void CShadowManager::BuildShadowProjectionMatrix( CGameLogic& gameLogic, std::ve
 
 	//	if ( PsCascadeConstant* pData = static_cast<PsCascadeConstant*>( gameLogic.GetRenderer( ).LockBuffer( m_psShadowConstant ) ) )
 	//	{
-	//		for ( int i = 0; i < MAX_CASCADED_NUM; ++i )
+	//		for ( uint32 i = 0; i < MAX_CASCADED_NUM; ++i )
 	//		{
 	//			pData->m_cascadeConstant[i].m_zFar = m_cascadeConstant[i].m_zFar;
 	//			pData->m_lightViewProjection[i] = XMMatrixMultiplyTranspose( m_lightView[i], m_lightProjection[i] );
@@ -212,13 +212,13 @@ void CShadowManager::BuildShadowProjectionMatrix( CGameLogic& gameLogic, std::ve
 	//		if ( GsCascadeConstant* pData = static_cast<GsCascadeConstant*>( gameLogic.GetRenderer( ).LockBuffer( m_gsShadowConstant ) ) )
 	//		{
 	//			pData->m_zBias = m_zBias;
-	//			for ( int i = 0; i < MAX_CASCADED_NUM; ++i )
+	//			for ( uint32 i = 0; i < MAX_CASCADED_NUM; ++i )
 	//			{
 	//				pData->m_lightView[i] = XMMatrixTranspose( m_lightView[i] );
 	//				pData->m_lightProjection[i] = XMMatrixTranspose( m_lightProjection[i] );
 	//			}
 	//			gameLogic.GetRenderer( ).UnLockBuffer( m_gsShadowConstant );
-	//			gameLogic.GetRenderer( ).BindConstantBuffer( SHADER_TYPE::GS, static_cast<int>( GS_CONSTANT_BUFFER::SHADOW ), 1, &m_gsShadowConstant );
+	//			gameLogic.GetRenderer( ).BindConstantBuffer( SHADER_TYPE::GS, static_cast<uint32>( GS_CONSTANT_BUFFER::SHADOW ), 1, &m_gsShadowConstant );
 	//		}
 	//	}
 	//	else
@@ -229,7 +229,7 @@ void CShadowManager::BuildShadowProjectionMatrix( CGameLogic& gameLogic, std::ve
 	//			pData->m_lightView = XMMatrixTranspose( m_lightView[0] );
 	//			pData->m_lightProjection = XMMatrixTranspose( m_lightProjection[0] );
 	//			gameLogic.GetRenderer( ).UnLockBuffer( m_vsShadowConstant );
-	//			gameLogic.GetRenderer( ).BindConstantBuffer( SHADER_TYPE::VS, static_cast<int>( VS_CONSTANT_BUFFER::SHADOW ), 1, &m_vsShadowConstant );
+	//			gameLogic.GetRenderer( ).BindConstantBuffer( SHADER_TYPE::VS, static_cast<uint32>( VS_CONSTANT_BUFFER::SHADOW ), 1, &m_vsShadowConstant );
 	//		}
 	//	}
 	//}
@@ -283,7 +283,7 @@ void CShadowManager::DrawShadowMap( CGameLogic& gameLogic )
 void CShadowManager::PrepareBeforeRenderScene( IRenderer& renderer )
 {
 	//renderer.BindShaderResource( SHADER_TYPE::PS, 2, 1, &m_srvShadowMap );
-	//renderer.BindConstantBuffer( SHADER_TYPE::PS, static_cast<int>( PS_CONSTANT_BUFFER::SHADOW ), 1, &m_psShadowConstant );
+	//renderer.BindConstantBuffer( SHADER_TYPE::PS, static_cast<uint32>( PS_CONSTANT_BUFFER::SHADOW ), 1, &m_psShadowConstant );
 }
 
 bool CShadowManager::CreateDeviceDependentResource( IRenderer& renderer )
@@ -520,7 +520,7 @@ void CShadowManager::ClassifyShadowCasterAndReceiver( CGameLogic& gameLogic, std
 	//		continue;
 	//	}
 
-	//	int inFrustum = aabb->Intersect( frustum );
+	//	uint32 inFrustum = aabb->Intersect( frustum );
 
 	//	switch ( inFrustum )
 	//	{
@@ -616,7 +616,7 @@ void CShadowManager::ClassifyShadowCasterAndReceiver( CGameLogic& gameLogic, std
 
 }
 
-void CShadowManager::BuildOrthoShadowProjectionMatrix( CGameLogic& gameLogic, int cascadeLevel, float zClipNear, float zClipFar )
+void CShadowManager::BuildOrthoShadowProjectionMatrix( CGameLogic& gameLogic, uint32 cascadeLevel, float zClipNear, float zClipFar )
 {
 	//using namespace DirectX;
 
@@ -719,7 +719,7 @@ void CShadowManager::BuildOrthoShadowProjectionMatrix( CGameLogic& gameLogic, in
 	//m_lightView[cascadeLevel] = XMMatrixMultiply( view.GetViewMatrix( ), lightView );
 }
 
-void CShadowManager::BuildPSMProjectionMatrix( CGameLogic& gameLogic, int cascadeLevel, float zClipNear, float zClipFar )
+void CShadowManager::BuildPSMProjectionMatrix( CGameLogic& gameLogic, uint32 cascadeLevel, float zClipNear, float zClipFar )
 {
 	//using namespace DirectX;
 
@@ -937,7 +937,7 @@ void CShadowManager::BuildPSMProjectionMatrix( CGameLogic& gameLogic, int cascad
 	//m_lightProjection[cascadeLevel] = lightProjection;
 }
 
-void CShadowManager::BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, int cascadeLevel, float zClipNear, float zClipFar )
+void CShadowManager::BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, uint32 cascadeLevel, float zClipNear, float zClipFar )
 {
 	//if ( abs( m_cosGamma ) >= 0.999f )
 	//{
@@ -952,7 +952,7 @@ void CShadowManager::BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, int casc
 
 	//	//CFrustum eyeFrustum( view.GetProjectionMatrix( ) );
 	//	//const CXMFLOAT3 ( &frustumVertices )[8] = eyeFrustum.GetVertices( );
-	//	//for ( int i = 0; i < 8; ++i )
+	//	//for ( uint32 i = 0; i < 8; ++i )
 	//	//{
 	//	//	bodyB.emplace_back( frustumVertices[i] );
 	//	//}
@@ -964,7 +964,7 @@ void CShadowManager::BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, int casc
 
 	//		if ( min.z < zClipFar && max.z > zClipNear )
 	//		{
-	//			for ( int i = 0; i < 8; ++i )
+	//			for ( uint32 i = 0; i < 8; ++i )
 	//			{
 	//				bodyB.emplace_back( box.Point( i ) );
 	//			}
@@ -1058,7 +1058,7 @@ void CShadowManager::BuildLSPSMProjectionMatrix( CGameLogic& gameLogic, int casc
 
 	//			if ( min.z < zClipFar && max.z > zClipNear )
 	//			{
-	//				for ( int i = 0; i < 8; ++i )
+	//				for ( uint32 i = 0; i < 8; ++i )
 	//				{
 	//					receiverPoints.emplace_back( box.Point( i ) );
 	//				}

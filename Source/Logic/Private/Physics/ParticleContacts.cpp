@@ -109,13 +109,13 @@ void ParticleContact::ResolveInterpenetration( float /*duration*/ )
 	}
 }
 
-void ParticleContantResolver::ResolveContants( ParticleContact* contactArray, int numContacts, float duration )
+void ParticleContactResolver::ResolveContacts( ParticleContact* contactArray, uint32 numContacts, float duration )
 {
 	for ( m_iterationUsed = 0; m_iterationUsed < m_iterations; ++m_iterations )
 	{
 		float max = FLT_MAX;
-		int maxIndex = numContacts;
-		for ( int i = 0; i < numContacts; ++i )
+		uint32 maxIndex = numContacts;
+		for ( uint32 i = 0; i < numContacts; ++i )
 		{
 			float sepVel = contactArray[i].CalculateSeparatingVelocity( );
 			if ( sepVel < max && ( sepVel < 0 || contactArray[i].m_penetration > 0 ) )

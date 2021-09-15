@@ -4,6 +4,7 @@
 #include "Math/CXMFloat.h"
 #include "Math/Util.h"
 //#include "Render/Resource.h"
+#include "SizedTypes.h"
 #include "UserInput/UserInput.h"
 
 #include <cassert>
@@ -82,7 +83,7 @@ namespace ImDir
 
 namespace ImUiComboFlag
 {
-	using Type = int;
+	using Type = int32;
 	enum 
 	{
 		PopupAlignLeft = 1 << 0,
@@ -106,7 +107,7 @@ namespace ImUiSelectableFlags
 
 namespace ImUiWindowFlags
 {
-	using Type = int;
+	using Type = int32;
 	enum
 	{
 		None = 0,
@@ -150,7 +151,7 @@ struct ImUiStyle
 
 struct ImDrawCmd
 {
-	UINT m_indicesCount;
+	uint32 m_indicesCount;
 	Rect m_clipRect;
 	//RE_HANDLE m_textAtlas = RE_HANDLE::InValidHandle( );
 };
@@ -178,26 +179,26 @@ struct ImDrawList
 	void UpdateClipRect( );
 	void UpdateTextAtlas( );
 
-	void AddFilledRect( const CXMFLOAT2& pos, const CXMFLOAT2& size, const CXMFLOAT4& color, float rounding = 0.f, int reoundingFlag = ImDrawCorner::All );
-	void AddConvexPolyFilled( const CXMFLOAT2* points, const int count, const CXMFLOAT4& color );
-	void AddText( CTextAtlas& font, const CXMFLOAT2& pos, const CXMFLOAT4& color, const char* text, UINT count );
+	void AddFilledRect( const CXMFLOAT2& pos, const CXMFLOAT2& size, const CXMFLOAT4& color, float rounding = 0.f, int32 reoundingFlag = ImDrawCorner::All );
+	void AddConvexPolyFilled( const CXMFLOAT2* points, const int32 count, const CXMFLOAT4& color );
+	void AddText( CTextAtlas& font, const CXMFLOAT2& pos, const CXMFLOAT4& color, const char* text, uint32 count );
 	void AddTriangleFilled( const CXMFLOAT2& v0, const CXMFLOAT2& v1, const CXMFLOAT2& v2, const CXMFLOAT4& color );
 
-	void BufferReserve( int vertexCount, int indexCount );
+	void BufferReserve( int32 vertexCount, int32 indexCount );
 	void DrawRect( const CXMFLOAT2& pos, const CXMFLOAT2& size, const CXMFLOAT4& color );
 
 	void PathClear( ) { m_path.clear( ); }
 	void PathLineTo( const CXMFLOAT2& pos );
 	void PathFillConvex( const CXMFLOAT4& color );
-	void PathArcToFast( const CXMFLOAT2& centre, float radius, int minOf12, int maxOf12 );
-	void PathRect( const CXMFLOAT2& pos, const CXMFLOAT2& size, float rounding = 0.f, int reoundingFlag = ImDrawCorner::All );
+	void PathArcToFast( const CXMFLOAT2& centre, float radius, int32 minOf12, int32 maxOf12 );
+	void PathRect( const CXMFLOAT2& pos, const CXMFLOAT2& size, float rounding = 0.f, int32 reoundingFlag = ImDrawCorner::All );
 
 	std::vector<CXMFLOAT2> m_path;
 	std::vector<ImDrawCmd> m_cmdBuffer;
 	std::stack<Rect> m_clipRect;
 	//std::stack<RE_HANDLE> m_textAtlas;
 
-	UINT m_curIndex = 0;
+	uint32 m_curIndex = 0;
 	std::vector<DWORD> m_indices;
 	DWORD* m_pIndexWriter = nullptr;
 	std::vector<ImUiVertex> m_vertices;
@@ -209,11 +210,11 @@ struct ImDrawList
 struct ImDrawData
 {
 	std::vector<ImDrawList*> m_drawLists;
-	UINT m_totalVertexCount;
-	UINT m_totalIndexCount;
+	uint32 m_totalVertexCount;
+	uint32 m_totalIndexCount;
 };
 
-using ImGUID = unsigned int;
+using ImGUID = uint32;
 
 struct ImUiWindow
 {
@@ -222,7 +223,7 @@ struct ImUiWindow
 		m_drawList.m_imUi = &m_imUi;
 	}
 
-	int m_id = -1;
+	int32 m_id = -1;
 	ImUiWindowFlags::Type m_flag = static_cast<ImUiWindowFlags::Type>( 0 );
 	CXMFLOAT2 m_pos = { 0.f, 0.f };
 	CXMFLOAT2 m_size = { 0.f, 0.f };
@@ -239,9 +240,9 @@ struct ImUiWindow
 	bool m_skipItem = false;
 	ImGUID m_popupID = 0;
 	ImDir::Type m_autoPosLastDirection = ImDir::None;
-	int m_hiddenFrames = 0;
+	int32 m_hiddenFrames = 0;
 	ImUiDrawContext m_dc;
-	int m_lastActiveFrame = -1;
+	int32 m_lastActiveFrame = -1;
 	float m_itemWidthDefault = 0.f;
 	ImDrawList m_drawList;
 	ImUiWindow* m_parentWindow = nullptr;
@@ -288,7 +289,7 @@ struct FontUV
 class CTextAtlas
 {
 public:
-	CXMFLOAT2 CalcTextSize( const char* text, UINT count ) const;
+	CXMFLOAT2 CalcTextSize( const char* text, uint32 count ) const;
 	FontUV* FindGlyph( char ch );
 
 	//RE_HANDLE m_texture = RE_HANDLE::InValidHandle( );
@@ -324,7 +325,7 @@ struct ImUiSizeCallbackData
 
 namespace ImUiCond
 {
-	using Type = int;
+	using Type = int32;
 	enum
 	{
 		None = 0,
@@ -374,19 +375,19 @@ public:
 	void EndWindow( );
 	bool Button( const char* label, const CXMFLOAT2& size = { 0.f, 0.f } );
 	bool SliderFloat( const char* label, float* v, float min, float max, const char* displayFormat = nullptr );
-	bool SliderInt( const char* label, int* v, int min, int max, const char* displayFormat = nullptr );
+	bool SliderInt( const char* label, int32* v, int32 min, int32 max, const char* displayFormat = nullptr );
 	
 	bool BeginCombo( const char* label, const char* prevValue, ImUiComboFlag::Type flags = static_cast<ImUiComboFlag::Type>( 0 ) );
 	void EndCombo( );
-	bool Combo( const char* label, int* currentItem, const char* const items[], int itemsCount, int heightInItem = -1 );
-	bool Combo( const char* label, int* currentItem, bool( *itemsGettter )( void* data, int idx, const char** outText ), void* data, int itemCount, int heightInItem = -1 );
+	bool Combo( const char* label, int32* currentItem, const char* const items[], int32 itemsCount, int32 heightInItem = -1 );
+	bool Combo( const char* label, int32* currentItem, bool( *itemsGettter )( void* data, int32 idx, const char** outText ), void* data, int32 itemCount, int32 heightInItem = -1 );
 	
 	bool Selectable( const char* label, bool selected = false, ImUiSelectableFlags::Type flags = static_cast<ImUiSelectableFlags::Type>( 0 ), const CXMFLOAT2& sizeArg = { 0.f, 0.f } );
 
 	template <typename... T>
 	void Text( const char* format, T... args );
 
-	void TextUnformatted( const char* text, UINT count );
+	void TextUnformatted( const char* text, uint32 count );
 
 	void SameLine( float xPos = 0.f, float wSpacing = -1.0f );
 
@@ -397,7 +398,7 @@ public:
 	const ImUiStyle& GetCurStyle( ) const { return m_curStyle; }
 	const Rect& GetClientRect( ) const { return m_clientRect; }
 
-	CXMFLOAT2 CalcTextSize( const char* text, UINT count ) const;
+	CXMFLOAT2 CalcTextSize( const char* text, uint32 count ) const;
 	CXMFLOAT2 GetWindowContextRegionMax( );
 	float GetFontHeight( ) const;
 	float GetFrameHeight( ) const;
@@ -412,7 +413,7 @@ private:
 	ImUiWindow* CreateImUiWindow( const char* name, const CXMFLOAT2& size );
 	CXMFLOAT2 CalcItemSize( const CXMFLOAT2& size );
 	float CalcItemWidth( );
-	float CalcMaxPopupHeightFromItemCount( int itemCount );
+	float CalcMaxPopupHeightFromItemCount( int32 itemCount );
 	bool ButtonEX( const char* label, const CXMFLOAT2& size = { 0.f, 0.f } );
 	bool ButtonBehavior( const Rect& boundingbox, ImGUID id, bool& mouseOvered, bool& mouseHeld );
 
@@ -420,8 +421,8 @@ private:
 	float SliderBehaviorCalcRatioFromValue( float v, float min, float max, float linearZeroPos );
 
 	void RenderFrame( const CXMFLOAT2& pos, const CXMFLOAT2& size, const CXMFLOAT4& color, float rounding = 0.f );
-	void RenderText( const CXMFLOAT2& pos, const char* text, int count );
-	void RenderClippedText( const CXMFLOAT2& posMin, const CXMFLOAT2& posMax, const char* text, UINT count, const CXMFLOAT2& align );
+	void RenderText( const CXMFLOAT2& pos, const char* text, int32 count );
+	void RenderClippedText( const CXMFLOAT2& posMin, const CXMFLOAT2& posMax, const char* text, uint32 count, const CXMFLOAT2& align );
 	void RenderArrow( const CXMFLOAT2& pos, ImDir::Type dir, float scale = 1.f );
 	void PushClipRect( const Rect& clipRect );
 
@@ -439,13 +440,13 @@ private:
 	void UpdateMovingWindow( );
 
 	void LoadSettingFromDisk( const char* fileName );
-	void LoadSettingFromMemory( const char* buf, int count );
+	void LoadSettingFromMemory( const char* buf, size_t count );
 	ImUiSettingHandler* FindSettingHandler( const char* typeName );
 
 	void OpenPopupEx( ImGUID id );
 	void EndPopup( );
 	void ClosePopupsOverWindow( ImUiWindow* refWindow );
-	void ClosePopupToLevel( std::size_t remaining );
+	void ClosePopupToLevel( size_t remaining );
 	void CloseCurrentPopup( );
 	bool IsPopupOpen( ImGUID id );
 
@@ -456,11 +457,11 @@ private:
 	void SetNextWindowPos( const CXMFLOAT2& pos, ImUiCond::Type cond = ImUiCond::None, const CXMFLOAT2& pivot = { 0.f, 0.f } );
 	void SetNextWindowConstraintSize( const Rect& constraintSize, ImUiSizeCallBack callback = nullptr, void* callbackData = nullptr );
 
-	int m_frameCount = 0;
+	int32 m_frameCount = 0;
 
 	Rect m_clientRect;
 
-	std::map<std::string, int> m_windowLUT;
+	std::map<std::string, int32> m_windowLUT;
 	std::vector<std::unique_ptr<ImUiWindow>> m_windows;
 	std::vector<ImUiWindow*> m_currentWindowStack;
 	ImUiWindow* m_curWindow = nullptr;
@@ -477,9 +478,9 @@ private:
 
 	CXMFLOAT2 m_activeIDClickOffset = { -1, -1 };
 
-	std::map<std::string, int> m_textAtlasLUT;
+	std::map<std::string, int32> m_textAtlasLUT;
 	std::vector<CTextAtlas> m_textAtlas;
-	int m_curTextAltas = -1;
+	int32 m_curTextAltas = -1;
 
 	std::unordered_map<std::string, ImUiWindowSetting> m_settingWindows;
 	std::unordered_map<std::string, ImUiSettingHandler> m_settingHandler;
@@ -489,7 +490,7 @@ private:
 		ImGUID m_popupId;
 		ImUiWindow* m_window;
 		ImUiWindow* m_parentWindow;
-		int m_openFrameCount;
+		int32 m_openFrameCount;
 		ImGUID m_openParentID;
 		CXMFLOAT2 m_openPopupPos;
 		CXMFLOAT2 m_openMousePos;
@@ -511,7 +512,7 @@ inline void ImUI::Text( const char* format, T... args )
 	char temp[1024] = {};
 	std::snprintf( temp, std::extent_v<decltype(temp)>, format, args... );
 
-	std::size_t count = std::strlen( temp );
+	size_t count = std::strlen( temp );
 	assert( count <= UINT_MAX );
-	TextUnformatted( temp, static_cast<UINT>( count ) );
+	TextUnformatted( temp, static_cast<uint32>( count ) );
 }

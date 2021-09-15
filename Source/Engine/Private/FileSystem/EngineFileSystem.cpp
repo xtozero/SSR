@@ -16,10 +16,10 @@ struct EngineFileSystemOverlapped : public FileSystemOverlapped
 class EngineFileSystem : public IFileSystem
 {
 public:
-	virtual [[nodiscard]] FileHandle OpenFile( const char* filePath ) override;
+	virtual FileHandle OpenFile( const char* filePath ) override;
 	virtual void CloseFile( const FileHandle& handle ) override;
-	virtual unsigned long GetFileSize( const FileHandle& handle ) const override;
-	virtual bool ReadAsync( const FileHandle& handle, char* buffer, unsigned long size, IOCompletionCallback* callback = nullptr ) override;
+	virtual uint32 GetFileSize( const FileHandle& handle ) const override;
+	virtual bool ReadAsync( const FileHandle& handle, char* buffer, uint32 size, IOCompletionCallback* callback = nullptr ) override;
 
 	EngineFileSystem( );
 	virtual ~EngineFileSystem( );
@@ -45,12 +45,12 @@ void EngineFileSystem::CloseFile( const FileHandle& handle )
 	FileSystem<EngineFileSystemOverlapped>::CloseFile( handle );
 }
 
-unsigned long EngineFileSystem::GetFileSize( const FileHandle& handle ) const
+uint32 EngineFileSystem::GetFileSize( const FileHandle& handle ) const
 {
 	return m_fileSystem.GetFileSize( handle );
 }
 
-bool EngineFileSystem::ReadAsync( const FileHandle& handle, char* buffer, unsigned long size, IOCompletionCallback* callback )
+bool EngineFileSystem::ReadAsync( const FileHandle& handle, char* buffer, uint32 size, IOCompletionCallback* callback )
 {
 	if ( handle.IsValid( ) == false )
 	{

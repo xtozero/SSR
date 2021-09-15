@@ -40,17 +40,17 @@ class ObjectRelatedRigidBody : public RigidBody
 {
 public:
 	CGameObject* GetGameObject( ) const { return m_gameObject; }
-	const ICollider* GetCollider( int type );
+	const ICollider* GetCollider( int32 type );
 
-	int GetDirty( ) const { return m_dirtyFlag; }
-	void SetDirty( int dirtyFlag ) { m_dirtyFlag |= dirtyFlag; }
+	int32 GetDirty( ) const { return m_dirtyFlag; }
+	void SetDirty( int32 dirtyFlag ) { m_dirtyFlag |= dirtyFlag; }
 	void ResetDirty( ) { m_dirtyFlag = 0; }
 
 	explicit ObjectRelatedRigidBody( CGameObject* object ) : m_gameObject( object ) {}
 
 private:
 	CGameObject* m_gameObject = nullptr;
-	int m_dirtyFlag = 0;
+	int32 m_dirtyFlag = 0;
 };
 
 class CGameObject : IGraphicsDeviceNotify
@@ -65,8 +65,8 @@ public:
 	void SetRotate( const float pitch, const float yaw, const float roll );
 	void SetRotate( const CXMFLOAT3& pitchYawRoll );
 
-	std::size_t GetID( ) const { return m_id; }
-	void SetID( std::size_t id ) { m_id = id; }
+	size_t GetID( ) const { return m_id; }
+	void SetID( size_t id ) { m_id = id; }
 
 	const CXMFLOAT3& GetPosition( );
 	const CXMFLOAT3& GetScale( );
@@ -86,8 +86,8 @@ public:
 
 	COLLIDER::TYPE GetColliderType( ) const { return m_colliderType; }
 	const ICollider* GetDefaultCollider( );
-	const ICollider* GetCollider( int type );
-	const std::vector<std::unique_ptr<ICollider>>& GetSubColliders( int type );
+	const ICollider* GetCollider( int32 type );
+	const std::vector<std::unique_ptr<ICollider>>& GetSubColliders( int32 type );
 
 	void SetColliderType( COLLIDER::TYPE type ) { m_colliderType = type; }
 
@@ -100,7 +100,7 @@ public:
 	//Material GetOverrideMaterial( ) { return m_overrideMaterial; }
 	//void SetOverrideMaterial( Material material ) { m_overrideMaterial = material; }
 
-	UINT GetProperty( ) const { return m_property; }
+	uint32 GetProperty( ) const { return m_property; }
 	void AddProperty( const GAMEOBJECT_PROPERTY property ) { m_property |= property; }
 	void RemoveProperty( const GAMEOBJECT_PROPERTY property ) { m_property &= ~property; }
 
@@ -152,7 +152,7 @@ private:
 	void UpdateAllCollider( );
 	void UpdateSubCollider( COLLIDER::TYPE type );
 
-	std::size_t m_id = std::numeric_limits<std::size_t>::max( );
+	size_t m_id = std::numeric_limits<size_t>::max( );
 	World* m_pWorld = nullptr;
 
 	//const RenderOption* m_pRenderOption = nullptr;
@@ -170,7 +170,7 @@ private:
 
 	std::vector<std::unique_ptr<ICollider>> m_subColliders[COLLIDER::COUNT];
 
-	UINT m_property = 0;
+	uint32 m_property = 0;
 
 	// ObjectRelatedRigidBody m_body{ this };
 

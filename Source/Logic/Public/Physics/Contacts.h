@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math\CXMFloat.h"
+#include "SizedTypes.h"
 
 class RigidBody;
 
@@ -15,7 +16,7 @@ public:
 	void SetBodyData( RigidBody* one, RigidBody* two, float friction, float restitution );
 
 	void CalculateContactBasis( );
-	CXMFLOAT3 CalculateLocalVelocity( int bodyIndex, float duration );
+	CXMFLOAT3 CalculateLocalVelocity( uint32 bodyIndex, float duration );
 	void CalculateDesiredDeltaVelocity( float duration );
 	void CalculateInternals( float duration );
 	CXMFLOAT3 CalculateFrictionlessImpulse( const CXMFLOAT3X3* inverseInertiaTensor );
@@ -45,19 +46,19 @@ private:
 class ContactResolver
 {
 public:
-	void Initialize( int iterations, float velocityEpsilon = 0.01f, float positionEpsilon = 0.01f );
-	void ResolveContacts( Contact* contactArray, int numContacts, float duration );
+	void Initialize( uint32 iterations, float velocityEpsilon = 0.01f, float positionEpsilon = 0.01f );
+	void ResolveContacts( Contact* contactArray, uint32 numContacts, float duration );
 
 private:
-	void PrepareContacts( Contact* contactArray, int numContacts, float duration );
-	void AdjustPositions( Contact* contactArray, int numContacts, float duration );
-	void AdjustVelocities( Contact* contactArray, int numContacts, float duration );
+	void PrepareContacts( Contact* contactArray, uint32 numContacts, float duration );
+	void AdjustPositions( Contact* contactArray, uint32 numContacts, float duration );
+	void AdjustVelocities( Contact* contactArray, uint32 numContacts, float duration );
 
-	int m_positionIterations = 0;
-	int m_positionIterationsUsed = 0;
+	uint32 m_positionIterations = 0;
+	uint32 m_positionIterationsUsed = 0;
 
-	int m_velocityIterations = 0;
-	int m_velocityIterationsUsed = 0;
+	uint32 m_velocityIterations = 0;
+	uint32 m_velocityIterationsUsed = 0;
 
 	float m_velocityEpsilon = 0.01f;
 	float m_positionEpsilon = 0.01f;

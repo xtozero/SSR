@@ -1,12 +1,13 @@
 #pragma once
-#include "ParticleContacts.h"
 
 #include "Math/CXMFloat.h"
+#include "ParticleContacts.h"
+#include "SizedTypes.h"
 
 class ParticleLink : public ParticleContactGenerator
 {
 public:
-	virtual int AddContant( ParticleContact* contact, int limit ) const = 0;
+	virtual uint32 AddContact( ParticleContact* contact, uint32 limit ) const = 0;
 
 	Particle* m_particle[2];
 
@@ -17,7 +18,7 @@ protected:
 class ParticleCable : public ParticleLink
 {
 public:
-	virtual int AddContant( ParticleContact* contact, int limit ) const override;
+	virtual uint32 AddContact( ParticleContact* contact, uint32 limit ) const override;
 
 	float m_maxLength;
 	float m_restitution;
@@ -26,7 +27,7 @@ public:
 class ParticleRod : public ParticleLink
 {
 public:
-	virtual int AddContant( ParticleContact* contact, int limit ) const override;
+	virtual uint32 AddContact( ParticleContact* contact, uint32 limit ) const override;
 
 	float m_length;
 };

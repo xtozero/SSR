@@ -7,9 +7,9 @@
 
 namespace
 {
-	void ConvertVertexLayoutToInputLayout( std::vector<std::string>& namePool, std::vector<D3D11_INPUT_ELEMENT_DESC>& descs, const VERTEX_LAYOUT_TRAIT* trait, std::size_t size )
+	void ConvertVertexLayoutToInputLayout( std::vector<std::string>& namePool, std::vector<D3D11_INPUT_ELEMENT_DESC>& descs, const VERTEX_LAYOUT_TRAIT* trait, uint32 size )
 	{
-		for ( std::size_t i = 0; i < size; ++i )
+		for ( uint32 i = 0; i < size; ++i )
 		{
 			namePool.emplace_back( trait[i].m_name );
 			descs.emplace_back( );
@@ -39,13 +39,13 @@ namespace aga
 		return m_pInputLayout;
 	}
 
-	D3D11VertexLayout::D3D11VertexLayout( const D3D11VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, std::size_t size )
+	D3D11VertexLayout::D3D11VertexLayout( const D3D11VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, uint32 size )
 	{
 		m_namePool.reserve( size );
 		m_inputDesc.reserve( size );
 		ConvertVertexLayoutToInputLayout( m_namePool, m_inputDesc, trait, size );
 
-		bool result = SUCCEEDED( D3D11Device( ).CreateInputLayout( m_inputDesc.data( ), static_cast<UINT>( size ), vs->ByteCode( ), vs->ByteCodeSize( ), &m_pInputLayout ) );
+		bool result = SUCCEEDED( D3D11Device( ).CreateInputLayout( m_inputDesc.data( ), size, vs->ByteCode( ), vs->ByteCodeSize( ), &m_pInputLayout ) );
 		assert( result );
 	}
 

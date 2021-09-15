@@ -14,7 +14,7 @@ namespace
 	bool ValidateShaderAsset( const AsyncLoadableAsset* asset, const Archive& ar )
 	{
 		Archive rAr( ar.Data( ), ar.Size( ) );
-		std::size_t assetID = 0;
+		uint32 assetID = 0;
 		rAr << assetID;
 
 		if ( assetID == PixelShader::ID )
@@ -49,10 +49,10 @@ std::optional<Products> ShaderManufacturer::Manufacture( const std::filesystem::
 	}
 
 	std::ifstream compiledShader( srcPath, std::ios::ate | std::ios::binary );
-	std::size_t size = compiledShader.tellg( );
+	size_t size = compiledShader.tellg( );
 	compiledShader.seekg( 0 );
 
-	BinaryChunk byteCode( size );
+	BinaryChunk byteCode( static_cast<uint32>( size ) );
 	compiledShader.read( byteCode.Data( ), size );
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderReflection> pShaderReflection = nullptr;

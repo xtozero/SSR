@@ -15,13 +15,17 @@ set (EXCUTABLE_SOUCE
 	"./Public/targetver.h"
 	"./Public/Window.h")
 
-include_directories(./Public)
-include_directories(../Shared/Public)
-include_directories(../Engine/Public)
-
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 	
-add_executable( "ScreenSpaceReflection" WIN32 ${EXCUTABLE_SOUCE} )
+add_executable( ScreenSpaceReflection WIN32 ${EXCUTABLE_SOUCE} )
+
+target_include_directories( ScreenSpaceReflection
+PRIVATE
+	./Public
+	../Shared/Public
+	../Engine/Public
+	../Core/Public
+)
 
 set_target_properties( "ScreenSpaceReflection" PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/Program" )

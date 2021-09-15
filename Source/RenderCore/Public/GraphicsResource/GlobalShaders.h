@@ -1,5 +1,7 @@
 #pragma once
+
 #include "Shader.h"
+#include "SizedTypes.h"
 
 #include <atomic>
 #include <map>
@@ -28,7 +30,7 @@ private:
 	std::map<std::type_index, std::shared_ptr<ShaderBase>> m_shaders;
 	std::map<std::type_index, const char*> m_shaderAssetPaths;
 
-	std::atomic<int> m_loadingInProgress = 0;
+	std::atomic<int32> m_loadingInProgress = 0;
 };
 
 class GlobalShaderRegister

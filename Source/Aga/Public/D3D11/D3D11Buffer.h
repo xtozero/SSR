@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Buffer.h"
+#include "SizedTypes.h"
 
 #include <d3d11.h>
 
@@ -12,7 +13,7 @@ namespace aga
 		ID3D11Buffer* Resource( );
 		const ID3D11Buffer* Resource( ) const;
 
-		UINT Stride( ) const;
+		uint32 Stride( ) const;
 
 		D3D11Buffer( const BUFFER_TRAIT& trait, const void* initData );
 		~D3D11Buffer( );

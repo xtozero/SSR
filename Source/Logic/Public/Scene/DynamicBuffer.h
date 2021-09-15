@@ -4,6 +4,7 @@
 #include "Math/CXMFloat.h"
 //#include "Render/IRenderer.h"
 //#include "Render/IRenderResourceManager.h"
+#include "SizedTypes.h"
 
 #include <cstddef>
 
@@ -12,12 +13,12 @@ class CDynamicBuffer : public IGraphicsDeviceNotify
 public:
 	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
 
-	//void Initialize( IResourceManager& resourceMgr, unsigned int bufferType, UINT bufferSize );
+	//void Initialize( IResourceManager& resourceMgr, uint32 bufferType, uint32 bufferSize );
 	
 	//RE_HANDLE GetHandle( ) const { return m_bufferHandle; }
 
 	//template <typename T>
-	//T* Map( IRenderer& renderer, UINT size )
+	//T* Map( IRenderer& renderer, uint32 size )
 	//{
 	//	if ( m_capacity < size )
 	//	{
@@ -43,10 +44,10 @@ public:
 	//void Unmap( IRenderer& renderer );
 
 private:
-	//RE_HANDLE CreateDynamicBuffer( IResourceManager& resourceMgr, unsigned int bufferType, UINT bufferSize );
+	//RE_HANDLE CreateDynamicBuffer( IResourceManager& resourceMgr, uint32 bufferType, uint32 bufferSize );
 
 	//RE_HANDLE m_bufferHandle = RE_HANDLE::InValidHandle( );
-	std::size_t m_capacity = 0;
-	//unsigned int m_bindType = RESOURCE_BIND_TYPE::VERTEX_BUFFER;
+	uint32 m_capacity = 0;
+	//uint32 m_bindType = RESOURCE_BIND_TYPE::VERTEX_BUFFER;
 	void* m_lockedBuffer = nullptr;
 };

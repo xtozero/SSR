@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "Core/InterfaceFactories.h"
+#include "SizedTypes.h"
 #include "TaskScheduler.h"
 
 #include <limits>
@@ -24,8 +25,8 @@ namespace ThreadType
 
 #define WorkerThreads ThreadType::WorkerThread0, ThreadType::WorkerThread1, ThreadType::WorkerThread2, ThreadType::WorkerThread3
 
-template <std::size_t... N>
-constexpr std::size_t WorkerAffinityMask( )
+template <size_t... N>
+constexpr size_t WorkerAffinityMask( )
 {
 	return ( ( 1 << N ) | ... );
 }
@@ -45,11 +46,11 @@ private:
 	Lambda m_lambda;
 };
 
-template <std::size_t... N, typename Lambda>
+template <size_t... N, typename Lambda>
 TaskHandle EnqueueThreadTask( Lambda lambda )
 {
 	ITaskScheduler* taskScheduler = GetInterface<ITaskScheduler>( );
-	constexpr std::size_t affinityMask = WorkerAffinityMask<N...>( );
+	constexpr size_t affinityMask = WorkerAffinityMask<N...>( );
 	TaskHandle taskGroup = taskScheduler->GetTaskGroup( );
 	taskGroup.AddTask( Task<LambdaTask<Lambda>>::Create( affinityMask, lambda ) );
 	bool success = taskScheduler->Run( taskGroup );
@@ -82,7 +83,7 @@ public:
 
 	virtual void ProcessThisThreadTask( ) = 0;
 
-	virtual std::size_t GetThisThreadType( ) const = 0;
+	virtual size_t GetThisThreadType( ) const = 0;
 
 	virtual ~ITaskScheduler( ) = default;
 };

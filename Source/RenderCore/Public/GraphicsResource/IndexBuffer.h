@@ -10,7 +10,7 @@ public:
 	aga::Buffer* Resource( );
 	const aga::Buffer* Resource( ) const;
 
-	IndexBuffer( std::size_t numElement, const void* initData, bool isDWORD );
+	IndexBuffer( uint32 numElement, const void* initData, bool isDWORD );
 
 	IndexBuffer( ) = default;
 	~IndexBuffer( ) = default;
@@ -29,7 +29,7 @@ public:
 private:
 	void InitResource( const void* initData );
 
-	std::size_t m_numElement = 0;
+	uint32 m_numElement = 0;
 	bool m_isDWORD = false;
 	RefHandle<aga::Buffer> m_buffer;
 };

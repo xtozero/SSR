@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SizedTypes.h"
+
 #include <stack>
 
 template <typename RigidBody>
@@ -18,8 +20,8 @@ public:
 	}
 
 	bool Overlaps( const BVHNode<BoundingVolumeClass, RigidBody>* other ) const;
-	unsigned int GetPotentialContacts( PotentialContact<RigidBody>* contacts, unsigned int limit ) const;
-	unsigned int GetPotentialContactsWith( const BVHNode<BoundingVolumeClass, RigidBody>* other, PotentialContact<RigidBody>* contacts, unsigned int limit ) const;
+	uint32 GetPotentialContacts( PotentialContact<RigidBody>* contacts, uint32 limit ) const;
+	uint32 GetPotentialContactsWith( const BVHNode<BoundingVolumeClass, RigidBody>* other, PotentialContact<RigidBody>* contacts, uint32 limit ) const;
 	void Insert( RigidBody* body, const BoundingVolumeClass& volume );
 
 	BVHNode( ) = default;
@@ -46,7 +48,7 @@ bool BVHNode<BoundingVolumeClass, RigidBody>::Overlaps( const BVHNode<BoundingVo
 }
 
 template <typename BoundingVolumeClass, typename RigidBody>
-unsigned int BVHNode<BoundingVolumeClass, RigidBody>::GetPotentialContacts( PotentialContact<RigidBody>* contacts, unsigned int limit ) const
+uint32 BVHNode<BoundingVolumeClass, RigidBody>::GetPotentialContacts( PotentialContact<RigidBody>* contacts, uint32 limit ) const
 {
 	if ( IsLeaf( ) || limit == 0 )
 	{
@@ -57,7 +59,7 @@ unsigned int BVHNode<BoundingVolumeClass, RigidBody>::GetPotentialContacts( Pote
 }
 
 template <typename BoundingVolumeClass, typename RigidBody>
-unsigned int BVHNode<BoundingVolumeClass, RigidBody>::GetPotentialContactsWith( const BVHNode<BoundingVolumeClass, RigidBody>* other, PotentialContact<RigidBody>* contacts, unsigned int limit ) const
+uint32 BVHNode<BoundingVolumeClass, RigidBody>::GetPotentialContactsWith( const BVHNode<BoundingVolumeClass, RigidBody>* other, PotentialContact<RigidBody>* contacts, uint32 limit ) const
 {
 	if ( Overlaps( other ) == false || limit == 0 )
 	{
@@ -73,7 +75,7 @@ unsigned int BVHNode<BoundingVolumeClass, RigidBody>::GetPotentialContactsWith( 
 
 	if ( other->IsLeaf( ) || ( ( IsLeaf( ) == false ) && m_volume.GetSize( ) >= other->m_volume.GetSize( ) ) )
 	{
-		unsigned int count = m_children[0]->GetPotentialContactsWith( m_children[1], contacts, limit );
+		uint32 count = m_children[0]->GetPotentialContactsWith( m_children[1], contacts, limit );
 		
 		if ( limit > count )
 		{
@@ -89,7 +91,7 @@ unsigned int BVHNode<BoundingVolumeClass, RigidBody>::GetPotentialContactsWith( 
 	}
 	else
 	{
-		unsigned int count = other->m_children[0]->GetPotentialContactsWith( other->m_children[1], contacts, limit );
+		uint32 count = other->m_children[0]->GetPotentialContactsWith( other->m_children[1], contacts, limit );
 
 		if ( limit > count )
 		{
@@ -240,7 +242,7 @@ public:
 	BVHTreeIterater( BVHTreeIterater<T>&& ) = default;
 	BVHTreeIterater<T>& operator=( BVHTreeIterater<T>&& ) = default;
 
-	BVHTreeIterater<T>& operator++( int )
+	BVHTreeIterater<T>& operator++( int32 )
 	{
 		BVHTreeIterater<T> prev = *this;
 		++( *this );
@@ -314,7 +316,7 @@ public:
 
 	size_t LeafSize( ) const { return m_leafSize; }
 
-	unsigned int GetPotentialContacts( PotentialContact<RigidBody>* contacts, unsigned int limit ) const;
+	uint32 GetPotentialContacts( PotentialContact<RigidBody>* contacts, uint32 limit ) const;
 
 private:
 	BVHNode<BoundingVolumeClass, RigidBody> m_root;
@@ -405,7 +407,7 @@ BVHTreeIterater<BVHTree<BoundingVolumeClass, RigidBody>> BVHTree<BoundingVolumeC
 }
 
 template<typename BoundingVolumeClass, typename RigidBody>
-inline unsigned int BVHTree<BoundingVolumeClass, RigidBody>::GetPotentialContacts( PotentialContact<RigidBody>* contacts, unsigned int limit ) const
+inline uint32 BVHTree<BoundingVolumeClass, RigidBody>::GetPotentialContacts( PotentialContact<RigidBody>* contacts, uint32 limit ) const
 {
 	if ( m_root.m_children[0] == nullptr )
 	{

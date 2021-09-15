@@ -8,9 +8,9 @@ class RenderViewGroup;
 class IRenderCore
 {
 public:
-	virtual bool BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight ) = 0;
-	virtual void HandleDeviceLost( HWND hWnd, UINT nWndWidth, UINT nWndHeight ) = 0;
-	virtual void AppSizeChanged( UINT nWndWidth, UINT nWndHeight ) = 0;
+	virtual bool BootUp( ) = 0;
+	virtual void HandleDeviceLost( ) = 0;
+	virtual void AppSizeChanged( ) = 0;
 
 	virtual IScene* CreateScene( ) = 0;
 	virtual void RemoveScene( IScene* scene ) = 0;

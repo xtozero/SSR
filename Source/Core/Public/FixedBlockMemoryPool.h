@@ -3,6 +3,7 @@
 #define NOMINMAX 1
 
 #include "SingleLinkedList.h"
+#include "SizedTypes.h"
 
 #include <algorithm>
 #include <cassert>
@@ -13,7 +14,7 @@ template <typename T, typename = std::enable_if_t<sizeof(T) >= sizeof(void*)>>
 class FixedBlockMemoryPool
 {
 public:
-	T* Allocate( std::size_t n )
+	T* Allocate( size_t n )
 	{
 		if ( m_freeList == nullptr )
 		{
@@ -28,7 +29,7 @@ public:
 		// 1. try allocation
 		while ( memory != nullptr )
 		{
-			std::size_t continuousChunk = 1;
+			size_t continuousChunk = 1;
 			for ( ; ( continuousChunk < n ) && ( tailChunk != nullptr );  )
 			{
 				char* nextChunk = reinterpret_cast<char*>( tailChunk->m_next );
@@ -75,11 +76,11 @@ public:
 		return reinterpret_cast<T*>( memory );
 	}
 
-	void Deallocate( T* memory, std::size_t n )
+	void Deallocate( T* memory, size_t n )
 	{
 		// 1. Initialize MemoryChunk
 		MemoryChunk* entry = reinterpret_cast<MemoryChunk*>( memory );
-		for ( std::size_t i = n; i > 1; --i )
+		for ( size_t i = n; i > 1; --i )
 		{
 			entry->m_next = reinterpret_cast<MemoryChunk*>( reinterpret_cast<char*>( entry ) + m_blockSize );
 			entry = entry->m_next;
@@ -103,7 +104,7 @@ public:
 		}
 	}
 
-	explicit FixedBlockMemoryPool( std::size_t entryCount )
+	explicit FixedBlockMemoryPool( size_t entryCount )
 	{
 		m_capacity = entryCount;
 		m_blockSize = std::max( sizeof( MemoryChunk ), sizeof( T ) );
@@ -112,7 +113,7 @@ public:
 		assert( m_storage != nullptr );
 
 		MemoryChunk* entry = reinterpret_cast<MemoryChunk*>( m_storage );
-		for ( std::size_t i = entryCount; i > 1; --i )
+		for ( size_t i = entryCount; i > 1; --i )
 		{
 			entry->m_next = reinterpret_cast<MemoryChunk*>( reinterpret_cast<char*>( entry ) + m_blockSize );
 			entry = entry->m_next;
@@ -124,7 +125,7 @@ public:
 
 	~FixedBlockMemoryPool( )
 	{
-		int ret = VirtualFree( m_storage, m_poolSize, MEM_DECOMMIT );
+		int32 ret = VirtualFree( m_storage, m_poolSize, MEM_DECOMMIT );
 		assert( ret != 0 );
 		ret = VirtualFree( m_storage, 0, MEM_RELEASE );
 		assert( ret != 0 );
@@ -142,9 +143,9 @@ private:
 	};
 
 	void* m_storage = nullptr;
-	std::size_t m_poolSize;
-	std::size_t m_blockSize;
-	std::size_t m_capacity;
+	size_t m_poolSize;
+	size_t m_blockSize;
+	size_t m_capacity;
 
 	MemoryChunk* m_freeList = nullptr;
 };

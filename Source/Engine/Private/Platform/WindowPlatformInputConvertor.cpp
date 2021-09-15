@@ -237,7 +237,7 @@ bool WindowPlatformInputConvertor::ProcessInput( ILogic& logic, const MSG& wndMs
 	UserInput input;
 
 	HWND hWnd = wndMsg.hwnd;
-	UINT message = wndMsg.message;
+	uint32 message = wndMsg.message;
 	LPARAM lParam = wndMsg.lParam;
 	WPARAM wParam = wndMsg.wParam;
 
@@ -246,7 +246,7 @@ bool WindowPlatformInputConvertor::ProcessInput( ILogic& logic, const MSG& wndMs
 	case WM_KEYDOWN:
 	case WM_KEYUP:
 		{
-			input = Convert( static_cast<unsigned long>( wParam ) );
+			input = Convert( static_cast<uint32>( wParam ) );
 			if ( input.m_code == UIC_UNKNOWN )
 			{
 				return false;
@@ -264,7 +264,7 @@ bool WindowPlatformInputConvertor::ProcessInput( ILogic& logic, const MSG& wndMs
 	case WM_MOUSEWHEEL:
 	case WM_MOUSEMOVE:
 		{
-			input = Convert( static_cast<unsigned long>( message ) );
+			input = Convert( message );
 			if ( input.m_code == UIC_UNKNOWN )
 			{
 				return false;
@@ -303,7 +303,7 @@ bool WindowPlatformInputConvertor::ProcessInput( ILogic& logic, const MSG& wndMs
 	return true;
 }
 
-UserInput WindowPlatformInputConvertor::Convert( unsigned long msg )
+UserInput WindowPlatformInputConvertor::Convert( uint32 msg )
 {
 	UserInput input;
 	input.m_code = m_inputMap.Convert( msg );

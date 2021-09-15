@@ -5,12 +5,12 @@
 
 using namespace DirectX;
 
-ParticleWorld::ParticleWorld( int iteration ) : m_resolver( iteration )
+ParticleWorld::ParticleWorld( uint32 iteration ) : m_resolver( iteration )
 {
 	m_calculateIterations = ( iteration == 0 );
 }
 
-void ParticleWorld::BootUp( int maxContacts )
+void ParticleWorld::BootUp( int32 maxContacts )
 {
 	m_maxContacts = maxContacts;
 	m_contacts = std::make_unique<ParticleContact[]>( m_maxContacts );
@@ -30,26 +30,26 @@ void ParticleWorld::RunPhysics( float duration )
 
 	Integrate( duration );
 
-	int usedContacts = GenerateContacts( );
+	int32 usedContacts = GenerateContacts( );
 
-	if ( usedContacts )
+	if ( usedContacts > 0 )
 	{
 		if ( m_calculateIterations )
 		{
 			m_resolver.SetIterations( usedContacts * 2 );
 		}
-		m_resolver.ResolveContants( m_contacts.get(), usedContacts, duration );
+		m_resolver.ResolveContacts( m_contacts.get(), usedContacts, duration );
 	}
 }
 
-int ParticleWorld::GenerateContacts( )
+int32 ParticleWorld::GenerateContacts( )
 {
-	int limit = m_maxContacts;
+	int32 limit = m_maxContacts;
 	ParticleContact* nextContact = m_contacts.get();
 
 	for ( ParticleContactGenerator* g : m_contactGenerators )
 	{
-		int used = g->AddContant( nextContact, limit );
+		uint32 used = g->AddContact( nextContact, limit );
 		limit -= used;
 		nextContact += used;
 

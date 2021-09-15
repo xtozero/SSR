@@ -11,7 +11,7 @@ void AssetFactory::Shutdown( )
 	m_createfunctions.clear( );
 }
 
-IAsyncLoadableAsset* AssetFactory::CreateAsset( std::size_t assetID )
+IAsyncLoadableAsset* AssetFactory::CreateAsset( uint32 assetID )
 {
 	auto found = m_createfunctions.find( assetID );
 	if ( found != m_createfunctions.end( ) )

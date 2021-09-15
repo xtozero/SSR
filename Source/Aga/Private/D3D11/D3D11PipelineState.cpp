@@ -77,7 +77,7 @@ namespace aga
 		return m_primitiveTopology;
 	}
 
-	UINT D3D11PipelineState::SampleMask( ) const
+	uint32 D3D11PipelineState::SampleMask( ) const
 	{
 		return m_sampleMask;
 	}

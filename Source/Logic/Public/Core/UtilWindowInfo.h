@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SizedTypes.h"
+
 class CUtilWindowInfo
 {
 public:
@@ -9,11 +11,11 @@ public:
 		return windowInfo;
 	}
 
-	unsigned int GetWidth( ) { return m_wndRect.right; }
-	unsigned int GetHeight( ) { return m_wndRect.bottom; }
-	const RECT GetRect( ) { return m_wndRect; }
+	uint32 GetWidth( ) const { return m_wndRect.right; }
+	uint32 GetHeight( ) const { return m_wndRect.bottom; }
+	const RECT& GetRect( ) const { return m_wndRect; }
 
-	void SetRect( unsigned int right, unsigned int bottom, unsigned int left = 0, unsigned int top = 0 )
+	void SetRect( uint32 right, uint32 bottom, uint32 left = 0, uint32 top = 0 )
 	{
 		m_wndRect.left = left;
 		m_wndRect.top = top;

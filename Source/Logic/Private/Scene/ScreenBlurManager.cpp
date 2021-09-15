@@ -5,6 +5,7 @@
 //#include "Model/IModelBuilder.h"
 //#include "Render/IRenderer.h"
 //#include "Render/IRenderResourceManager.h"
+#include "SizedTypes.h"
 
 #include "Util.h"
 
@@ -52,7 +53,7 @@ bool ScreenBlurManager::CreateDeviceDependentResource( CGameLogic& gameLogic )
 
 	//constexpr char* BLUR_MATERIAL_NAME[] = { "mat_gaussian_blur_x", "mat_gaussian_blur_y" };
 
-	//for ( int i = 0; i < 2; ++i )
+	//for ( uint32 i = 0; i < 2; ++i )
 	//{
 	//	m_blurMaterial[i] = renderer.SearchMaterial( BLUR_MATERIAL_NAME[i] );
 

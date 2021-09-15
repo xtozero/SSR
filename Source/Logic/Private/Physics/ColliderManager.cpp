@@ -64,7 +64,7 @@ private:
 
 		ColliderGroup& colliderGroup = m_colliderList[meshName];
 
-		int colliderType = static_cast<int>( type );
+		int32 colliderType = static_cast<int32>( type );
 
 		if ( colliderGroup.m_colliders[colliderType].get( ) == nullptr )
 		{

@@ -48,16 +48,16 @@ namespace aga
 		D3D11_VIEWPORT viewport{ 0.f, 0.f, static_cast<float>( m_width ), static_cast<float>( m_height ), 0.f, 1.f };
 		D3D11Context( ).RSSetViewports( 1, &viewport );
 
-		D3D11_RECT rect{ 0L, 0L, static_cast<LONG>( m_width ), static_cast<LONG>( m_height ) };
+		D3D11_RECT rect{ 0L, 0L, static_cast<int32>( m_width ), static_cast<int32>( m_height ) };
 		D3D11Context( ).RSSetScissorRects( 1, &rect );
 	}
 
-	std::pair<UINT, UINT> D3D11Viewport::Size( ) const
+	std::pair<uint32, uint32> D3D11Viewport::Size( ) const
 	{
 		return { m_width, m_height };
 	}
 
-	void D3D11Viewport::Resize( const std::pair<UINT, UINT>& newSize )
+	void D3D11Viewport::Resize( const std::pair<uint32, uint32>& newSize )
 	{
 		m_width = newSize.first;
 		m_height = newSize.second;
@@ -75,8 +75,8 @@ namespace aga
 		m_backBuffer->Init( );
 	}
 
-	D3D11Viewport::D3D11Viewport( int width, int height, void* hWnd, DXGI_FORMAT format ) :
-		m_width( static_cast<UINT>( width ) ), m_height( static_cast<UINT>( height ) ), m_hWnd( hWnd ), m_format( format )
+	D3D11Viewport::D3D11Viewport( uint32 width, uint32 height, void* hWnd, DXGI_FORMAT format ) :
+		m_width( width ), m_height( height ), m_hWnd( hWnd ), m_format( format )
 	{
 	}
 

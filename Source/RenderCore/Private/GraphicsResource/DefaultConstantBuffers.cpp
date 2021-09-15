@@ -6,7 +6,7 @@
 
 void DefaultConstantBuffers::BootUp( )
 {
-	for ( int i = 0; i < TotalConstants; ++i )
+	for ( uint32 i = 0; i < TotalConstants; ++i )
 	{
 		ConstantBufferContext& context = m_contexts[i];
 
@@ -34,7 +34,7 @@ void DefaultConstantBuffers::BootUp( )
 
 void DefaultConstantBuffers::Shutdown( )
 {
-	for ( int i = 0; i < TotalConstants; ++i )
+	for ( uint32 i = 0; i < TotalConstants; ++i )
 	{
 		ConstantBufferContext& context = m_contexts[i];
 		context.m_dataStorage = {};
@@ -46,20 +46,20 @@ void DefaultConstantBuffers::Shutdown( )
 
 void DefaultConstantBuffers::CommitAll( )
 {
-	for ( int i = 0; i < TotalConstants; ++i )
+	for ( uint32 i = 0; i < TotalConstants; ++i )
 	{
 		Commit( i );
 	}
 }
 
-void DefaultConstantBuffers::SetShaderValue( int ctxIndex, UINT offset, UINT numBytes, const void* value )
+void DefaultConstantBuffers::SetShaderValue( uint32 ctxIndex, uint32 offset, uint32 numBytes, const void* value )
 {
 	ConstantBufferContext& context = m_contexts[ctxIndex];
 	std::memcpy( context.m_dataStorage + offset, value, numBytes );
-	context.m_invalidRangeEnd = std::max<std::size_t>( context.m_invalidRangeEnd, offset + numBytes );
+	context.m_invalidRangeEnd = std::max( context.m_invalidRangeEnd, offset + numBytes );
 }
 
-void DefaultConstantBuffers::Commit( int ctxIndex )
+void DefaultConstantBuffers::Commit( uint32 ctxIndex )
 {
 	ConstantBufferContext& context = m_contexts[ctxIndex];
 	if ( context.m_invalidRangeEnd > 0 )

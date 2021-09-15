@@ -13,7 +13,7 @@ const aga::Buffer* IndexBuffer::Resource( ) const
 	return m_buffer.Get( );
 }
 
-IndexBuffer::IndexBuffer( std::size_t numElement, const void* initData, bool isDWORD ) : m_numElement( numElement ), m_isDWORD( isDWORD )
+IndexBuffer::IndexBuffer( uint32 numElement, const void* initData, bool isDWORD ) : m_numElement( numElement ), m_isDWORD( isDWORD )
 {
 	InitResource( initData );
 }
@@ -22,7 +22,7 @@ void IndexBuffer::InitResource( const void* initData )
 {
 	BUFFER_TRAIT trait = {
 		m_isDWORD ? sizeof( DWORD ) : sizeof( WORD ),
-		static_cast<UINT>( m_numElement ),
+		m_numElement,
 		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
 		RESOURCE_BIND_TYPE::INDEX_BUFFER,
 		0,

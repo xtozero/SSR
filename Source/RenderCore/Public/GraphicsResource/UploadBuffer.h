@@ -8,8 +8,8 @@
 class UploadBuffer
 {
 public:
-	void Resize( std::size_t numElement, const void* initData );
-	std::size_t ElementSize( ) const { return m_elementSize; }
+	void Resize( uint32 numElement, const void* initData );
+	uint32 ElementSize( ) const { return m_elementSize; }
 
 	template <typename T>
 	T* Lock( )
@@ -22,7 +22,7 @@ public:
 	aga::Buffer* Resource( );
 	const aga::Buffer* Resource( ) const;
 
-	UploadBuffer( std::size_t elementSize, std::size_t numElement, const void* initData );
+	UploadBuffer( uint32 elementSize, uint32 numElement, const void* initData );
 
 	UploadBuffer( ) = default;
 	~UploadBuffer( ) = default;
@@ -35,8 +35,8 @@ protected:
 	void InitResource( const void* initData );
 
 	RefHandle<aga::Buffer> m_buffer;
-	std::size_t m_elementSize = 0;
-	std::size_t m_numElement = 0;
+	uint32 m_elementSize = 0;
+	uint32 m_numElement = 0;
 
 private:
 	void* LockImple( );

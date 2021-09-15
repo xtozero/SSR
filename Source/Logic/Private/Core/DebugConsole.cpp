@@ -10,7 +10,7 @@
 
 namespace
 {
-	unsigned int __stdcall asyncInputFunc( void* arg )
+	uint32 __stdcall asyncInputFunc( void* arg )
 	{
 		bool& isAlive = *(static_cast<bool*>( arg ));
 

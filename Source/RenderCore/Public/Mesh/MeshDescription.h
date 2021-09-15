@@ -1,13 +1,14 @@
 #pragma once
 
 #include "Math/CXMFloat.h"
+#include "SizedTypes.h"
 
 #include <string>
 #include <vector>
 
 struct MeshVertexInstance
 {
-	MeshVertexInstance( int positionID, int normalID, int texCoordID ) :
+	MeshVertexInstance( int32 positionID, int32 normalID, int32 texCoordID ) :
 		m_positionID( positionID ), m_normalID( normalID ), m_texCoordID( texCoordID ) {}
 
 	friend bool operator<( const MeshVertexInstance& lhs, const MeshVertexInstance& rhs )
@@ -25,19 +26,19 @@ struct MeshVertexInstance
 		return lhs.m_positionID < rhs.m_positionID;
 	}
 
-	int m_positionID = -1;
-	int m_normalID = -1;
-	int m_texCoordID = -1;
+	int32 m_positionID = -1;
+	int32 m_normalID = -1;
+	int32 m_texCoordID = -1;
 };
 
 struct MeshTriangle
 {
-	std::size_t m_vertexInstanceID[3];
+	size_t m_vertexInstanceID[3];
 };
 
 struct MeshPolygon
 {
-	std::vector<std::size_t> m_triangleID;
+	std::vector<size_t> m_triangleID;
 };
 
 struct MeshDescription

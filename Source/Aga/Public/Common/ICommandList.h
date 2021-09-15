@@ -11,8 +11,8 @@ namespace aga
 	class ICommandList
 	{
 	public:
-		virtual void BindVertexBuffer( Buffer* const* vertexBuffers, UINT startSlot, UINT numBuffers, const UINT* pOffsets ) = 0;
-		virtual void BindIndexBuffer( Buffer* indexBuffer, UINT indexOffset ) = 0;
+		virtual void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets ) = 0;
+		virtual void BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset ) = 0;
 		
 		virtual void BindPipelineState( PipelineState* pipelineState ) = 0;
 		virtual void BindShaderResources( const ShaderBindings& shaderBindings ) = 0;

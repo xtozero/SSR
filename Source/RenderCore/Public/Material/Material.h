@@ -7,6 +7,7 @@
 #include "GraphicsApiResource.h"
 #include "Math/CXMFloat.h"
 #include "RenderOption.h"
+#include "SizedTypes.h"
 
 #include <filesystem>
 #include <map>
@@ -91,13 +92,13 @@ public:
 
 	virtual void CopyValue( void* dest ) const override;
 
-	int Value( ) const { return m_value; }
+	int32 Value( ) const { return m_value; }
 
-	explicit IntProperty( int value ) : m_value( value ) {}
+	explicit IntProperty( int32 value ) : m_value( value ) {}
 	IntProperty( ) = default;
 
 private:
-	int m_value;
+	int32 m_value;
 };
 
 class TextureProperty : public MaterialProperty
@@ -129,13 +130,13 @@ public:
 	const std::filesystem::path& Path( ) const { return m_path; }
 	void SetPath( const std::filesystem::path& path ) { m_path = path; }
 
-	RENDERCORE_DLL void AddProperty( const char* key, int value );
+	RENDERCORE_DLL void AddProperty( const char* key, int32 value );
 	RENDERCORE_DLL void AddProperty( const char* key, float value );
 	RENDERCORE_DLL void AddProperty( const char* key, const CXMFLOAT4& value );
 	RENDERCORE_DLL void AddProperty( const char* key, const std::shared_ptr<Texture>& value );
 
 	const MaterialProperty* AsProperty( const char* key ) const;
-	int AsInteger( const char* key ) const;
+	int32 AsInteger( const char* key ) const;
 	float AsFloat( const char* key ) const;
 	const CXMFLOAT4& AsVector( const char* key ) const;
 	Texture* AsTexture( const char* key ) const;

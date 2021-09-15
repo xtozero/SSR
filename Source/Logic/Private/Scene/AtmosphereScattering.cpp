@@ -5,6 +5,7 @@
 #include "Core/GameLogic.h"
 //#include "Render/IRenderer.h"
 //#include "Render/IRenderResourceManager.h"
+#include "SizedTypes.h"
 
 #include "Util.h"
 
@@ -68,8 +69,8 @@ void CAtmosphericScatteringManager::Precompute( IRenderer& renderer )
 	//}
 
 	//TEXTURE_TRAIT irradianceTexTrait = {
-	//	static_cast<UINT>( IRRADIANCE_W ),
-	//	static_cast<UINT>( IRRADIANCE_H ),
+	//	static_cast<uint32>( IRRADIANCE_W ),
+	//	static_cast<uint32>( IRRADIANCE_H ),
 	//	1U,
 	//	1U,
 	//	0U,
@@ -109,9 +110,9 @@ void CAtmosphericScatteringManager::Precompute( IRenderer& renderer )
 	//}
 
 	//TEXTURE_TRAIT inscatterTexTrait = {
-	//	static_cast<UINT>( RES_MU_S * RES_NU ),
-	//	static_cast<UINT>( RES_MU ),
-	//	static_cast<UINT>( RES_R ),
+	//	static_cast<uint32>( RES_MU_S * RES_NU ),
+	//	static_cast<uint32>( RES_MU ),
+	//	static_cast<uint32>( RES_R ),
 	//	1U,
 	//	0U,
 	//	1U,
@@ -175,7 +176,7 @@ void CAtmosphericScatteringManager::Precompute( IRenderer& renderer )
 	//// Inscatter
 	//BUFFER_TRAIT inscatterBufTrait = {
 	//	sizeof( float ) * 4,
-	//	static_cast<UINT>( RES_MU_S * RES_NU * RES_MU * RES_R ),
+	//	static_cast<uint32>( RES_MU_S * RES_NU * RES_MU * RES_R ),
 	//	RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
 	//	RESOURCE_BIND_TYPE::UNORDERED_ACCESS,
 	//	RESOURCE_MISC::BUFFER_STRUCTURED,
@@ -209,7 +210,7 @@ void CAtmosphericScatteringManager::Precompute( IRenderer& renderer )
 	//resourceMgr.FreeResource( csCopyInscatter );
 
 	//BUFFER_TRAIT precomputeBufTrait = {
-	//	sizeof( int ) * 4,
+	//	sizeof( uint32 ) * 4,
 	//	1U,
 	//	RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE ,
 	//	RESOURCE_BIND_TYPE::CONSTANT_BUFFER,
@@ -283,7 +284,7 @@ void CAtmosphericScatteringManager::Precompute( IRenderer& renderer )
 	//float irradianceData[IRRADIANCE_W * IRRADIANCE_H * 4] = {};
 	//BUFFER_TRAIT irradianceBufTrait = {
 	//	sizeof( float ) * 4,
-	//	static_cast<UINT>( IRRADIANCE_W * IRRADIANCE_H ),
+	//	static_cast<uint32>( IRRADIANCE_W * IRRADIANCE_H ),
 	//	RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
 	//	RESOURCE_BIND_TYPE::UNORDERED_ACCESS,
 	//	RESOURCE_MISC::BUFFER_STRUCTURED,
@@ -305,9 +306,9 @@ void CAtmosphericScatteringManager::Precompute( IRenderer& renderer )
 	//}
 
 	//// loop for each scattering order
-	//for ( int order = 2; order <= 4; ++order )
+	//for ( uint32 order = 2; order <= 4; ++order )
 	//{
-	//	int* gpuScatteringOrder = static_cast<int*>( renderer.LockBuffer( precomputeBuf ) );
+	//	uint32* gpuScatteringOrder = static_cast<uint32*>( renderer.LockBuffer( precomputeBuf ) );
 	//	gpuScatteringOrder[0] = order;
 	//	renderer.UnLockBuffer( precomputeBuf );
 
@@ -318,9 +319,9 @@ void CAtmosphericScatteringManager::Precompute( IRenderer& renderer )
 	//	renderer.BindShaderResource( SHADER_TYPE::CS, 1, 1, &deltaESrv );
 	//	renderer.BindRandomAccessResource( 0, 1, &deltaJRav );
 
-	//	for ( int i = 0; i < INSCATTERS_GROUP_Z; ++i )
+	//	for ( uint32 i = 0; i < INSCATTERS_GROUP_Z; ++i )
 	//	{
-	//		gpuScatteringOrder = static_cast<int*>( renderer.LockBuffer( precomputeBuf ) );
+	//		gpuScatteringOrder = static_cast<uint32*>( renderer.LockBuffer( precomputeBuf ) );
 	//		gpuScatteringOrder[0] = order;
 	//		gpuScatteringOrder[1] = i;
 	//		renderer.UnLockBuffer( precomputeBuf );
@@ -389,7 +390,7 @@ void CAtmosphericScatteringManager::Precompute( IRenderer& renderer )
 	//// create intermediate buffer
 	//BUFFER_TRAIT intermediateBufTrait = {
 	//	sizeof( float ) * 4,
-	//	static_cast<UINT>( RES_MU_S * RES_NU * RES_MU * RES_R ),
+	//	static_cast<uint32>( RES_MU_S * RES_NU * RES_MU * RES_R ),
 	//	RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE | RESOURCE_ACCESS_FLAG::CPU_READ,
 	//	0U,
 	//	0U,
@@ -405,8 +406,8 @@ void CAtmosphericScatteringManager::Precompute( IRenderer& renderer )
 	//}
 
 	//// transfer irradiance buffer to texture
-	//RESOURCE_REGION srcRegion = { 0, 0, static_cast<UINT>( IRRADIANCE_W * IRRADIANCE_H * sizeof( float ) * 4 ), 0, 1, 0, 1 };
-	//RESOURCE_REGION destRegion = { 0, 0, static_cast<UINT>( IRRADIANCE_W * IRRADIANCE_H * sizeof(float) * 4 ), 0, 1, 0, 1 };
+	//RESOURCE_REGION srcRegion = { 0, 0, static_cast<uint32>( IRRADIANCE_W * IRRADIANCE_H * sizeof( float ) * 4 ), 0, 1, 0, 1 };
+	//RESOURCE_REGION destRegion = { 0, 0, static_cast<uint32>( IRRADIANCE_W * IRRADIANCE_H * sizeof(float) * 4 ), 0, 1, 0, 1 };
 	//resourceMgr.CopyResource( intermediateBuf, &destRegion, irradianceBuf, &srcRegion );
 
 	//float* data = static_cast<float*>( renderer.LockBuffer( intermediateBuf, BUFFER_LOCKFLAG::READ ) );
@@ -415,8 +416,8 @@ void CAtmosphericScatteringManager::Precompute( IRenderer& renderer )
 	//renderer.UnLockBuffer( intermediateBuf );
 
 	//// transfer inscatter buffer to texture
-	//srcRegion = { 0, 0, static_cast<UINT>( RES_MU_S * RES_NU * RES_MU * RES_R * sizeof( float ) * 4 ), 0, 1, 0, 1 };
-	//destRegion = { 0, 0, static_cast<UINT>( RES_MU_S * RES_NU * RES_MU * RES_R * sizeof( float ) * 4 ), 0, 1, 0, 1 };
+	//srcRegion = { 0, 0, static_cast<uint32>( RES_MU_S * RES_NU * RES_MU * RES_R * sizeof( float ) * 4 ), 0, 1, 0, 1 };
+	//destRegion = { 0, 0, static_cast<uint32>( RES_MU_S * RES_NU * RES_MU * RES_R * sizeof( float ) * 4 ), 0, 1, 0, 1 };
 	//resourceMgr.CopyResource( intermediateBuf, &destRegion, inscatterBuf, &srcRegion );
 
 	//data = static_cast<float*>( renderer.LockBuffer( intermediateBuf, BUFFER_LOCKFLAG::READ ) );
@@ -472,8 +473,8 @@ bool CAtmosphericScatteringManager::CreateDeviceDependendResource( IRenderer& re
 
 	//// Transmittance
 	//TEXTURE_TRAIT transmittanceTexTrait = {
-	//	static_cast<UINT>( TRANSMITTANCE_W ),
-	//	static_cast<UINT>( TRANSMITTANCE_H ),
+	//	static_cast<uint32>( TRANSMITTANCE_W ),
+	//	static_cast<uint32>( TRANSMITTANCE_H ),
 	//	1U,
 	//	1U,
 	//	0U,
@@ -498,8 +499,8 @@ bool CAtmosphericScatteringManager::CreateDeviceDependendResource( IRenderer& re
 
 	//// Irradiance
 	//TEXTURE_TRAIT irradianceTexTrait = {
-	//	static_cast<UINT>( IRRADIANCE_W ),
-	//	static_cast<UINT>( IRRADIANCE_H ),
+	//	static_cast<uint32>( IRRADIANCE_W ),
+	//	static_cast<uint32>( IRRADIANCE_H ),
 	//	1U,
 	//	1U,
 	//	0U,
@@ -524,9 +525,9 @@ bool CAtmosphericScatteringManager::CreateDeviceDependendResource( IRenderer& re
 
 	//// Inscatter
 	//TEXTURE_TRAIT inscatterTexTrait = {
-	//	static_cast<UINT>( RES_MU_S * RES_NU ),
-	//	static_cast<UINT>( RES_MU ),
-	//	static_cast<UINT>( RES_R ),
+	//	static_cast<uint32>( RES_MU_S * RES_NU ),
+	//	static_cast<uint32>( RES_MU ),
+	//	static_cast<uint32>( RES_R ),
 	//	1U,
 	//	0U,
 	//	1U,

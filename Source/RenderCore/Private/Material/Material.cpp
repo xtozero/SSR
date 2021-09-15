@@ -90,7 +90,7 @@ void Material::Serialize( Archive& ar )
 
 	if ( ar.IsWriteMode( ) )
 	{
-		ar << m_properties.size( );
+		ar << static_cast<uint32>( m_properties.size( ) );
 		for ( auto& p : m_properties )
 		{
 			const std::string& propertyName = p.first;
@@ -101,7 +101,7 @@ void Material::Serialize( Archive& ar )
 			property->Serialize( ar );
 		}
 
-		ar << m_samplers.size( );
+		ar << static_cast<uint32>( m_samplers.size( ) );
 		for ( auto& s : m_samplers )
 		{
 			ar << s.first;
@@ -110,9 +110,9 @@ void Material::Serialize( Archive& ar )
 	}
 	else
 	{
-		std::size_t size = 0;
+		uint32 size = 0;
 		ar << size;
-		for ( std::size_t i = 0; i < size; ++i )
+		for ( uint32 i = 0; i < size; ++i )
 		{
 			std::string propertyName;
 			MaterialPropertyType type;
@@ -127,7 +127,7 @@ void Material::Serialize( Archive& ar )
 		}
 
 		ar << size;
-		for ( std::size_t i = 0; i < size; ++i )
+		for ( uint32 i = 0; i < size; ++i )
 		{
 			std::string samplerName;
 			ar << samplerName;
@@ -136,7 +136,7 @@ void Material::Serialize( Archive& ar )
 	}
 }
 
-void Material::AddProperty( const char* key, int value )
+void Material::AddProperty( const char* key, int32 value )
 {
 	auto found = m_properties.find( key );
 	if ( found != m_properties.end( ) )
@@ -239,7 +239,7 @@ const MaterialProperty* Material::AsProperty( const char* key ) const
 	return nullptr;
 }
 
-int Material::AsInteger( const char* key ) const
+int32 Material::AsInteger( const char* key ) const
 {
 	auto found = m_properties.find( key );
 

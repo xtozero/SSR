@@ -8,6 +8,7 @@
 #include "Physics/Contacts.h"
 #include "Physics/ForceGenerator.h"
 #include "Scene/INotifyGraphicsDevice.h"
+#include "SizedTypes.h"
 
 #include <cstddef>
 #include <memory>
@@ -35,7 +36,7 @@ public:
 	void SpawnObject( CGameLogic& gameLogic, Owner<CGameObject*> object );
 
 	void UpdateObjectMovement( ObjectRelatedRigidBody* body, const BoundingSphere& volume );
-	void DebugDrawBVH( CDebugOverlayManager& debugOverlay, unsigned int color, float duration );
+	void DebugDrawBVH( CDebugOverlayManager& debugOverlay, uint32 color, float duration );
 
 	const std::vector<std::unique_ptr<CGameObject>>& GameObjects( )
 	{
@@ -48,7 +49,7 @@ public:
 	}
 
 private:
-	int GenerateContacts( );
+	int32 GenerateContacts( );
 	void OnObjectSpawned( ObjectRelatedRigidBody* body, const BoundingSphere& volume );
 	void OnObjectRemoved( ObjectRelatedRigidBody* body );
 
@@ -59,7 +60,7 @@ private:
 	// Collision Acceleration
 	BVHTree<BoundingSphere, ObjectRelatedRigidBody> m_bvhTree;
 
-	static constexpr std::size_t MAX_CONTACTS = 256;
+	static constexpr uint32 MAX_CONTACTS = 256;
 	Contact m_contacts[MAX_CONTACTS];
 	ContactResolver m_resolver;
 	CollisionData m_collisionData;

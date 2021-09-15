@@ -2,6 +2,7 @@
 #include "AssetManufacturer.h"
 #include "common.h"
 #include "PathEnvironment.h"
+#include "SizedTypes.h"
 
 #include <filesystem>
 #include <fstream>
@@ -56,11 +57,8 @@ void PrepareDestinationDirectories( const fs::path& destRoot, const fs::path& sr
 	}
 }
 
-int main( int argc, const char* argv[] )
+int32 main( int32 argc, const char* argv[] )
 {
-	//AssetManufacturer manufacturer;
-	//manufacturer.Manufacture( fs::path( "./statue.obj" ) );
-
 	if ( argc < 3 )
 	{
 		return EXIT_FAILURE;

@@ -4,7 +4,7 @@
 #include "AbstractGraphicsInterface.h"
 #include "MultiThread/EngineTaskScheduler.h"
 
-void ConstantBuffer::Update( const void* data, std::size_t size )
+void ConstantBuffer::Update( const void* data, uint32 size )
 {
 	assert( IsInRenderThread( ) );
 
@@ -39,15 +39,15 @@ const aga::Buffer* ConstantBuffer::Resource( ) const
 	return m_buffer.Get( );
 }
 
-ConstantBuffer::ConstantBuffer( std::size_t size )
+ConstantBuffer::ConstantBuffer( uint32 size )
 {
 	InitResource( size );
 }
 
-void ConstantBuffer::InitResource( std::size_t size )
+void ConstantBuffer::InitResource( uint32 size )
 {
 	BUFFER_TRAIT trait = {
-		static_cast<UINT>( size ),
+		size,
 		1,
 		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
 		RESOURCE_BIND_TYPE::CONSTANT_BUFFER,
@@ -62,19 +62,19 @@ void ConstantBuffer::InitResource( std::size_t size )
 	} );
 }
 
-void ConstantBuffer::BindImple( VertexShader& shader, UINT slot )
+void ConstantBuffer::BindImple( VertexShader& shader, uint32 slot )
 {
 	aga::Buffer* buffers[] = { m_buffer };
 	GraphicsInterface( ).BindConstant( shader, slot, 1, buffers );
 }
 
-void ConstantBuffer::BindImple( PixelShader& shader, UINT slot )
+void ConstantBuffer::BindImple( PixelShader& shader, uint32 slot )
 {
 	aga::Buffer* buffers[] = { m_buffer };
 	GraphicsInterface( ).BindConstant( shader, slot, 1, buffers );
 }
 
-void ConstantBuffer::BindImple( ComputeShader& shader, UINT slot )
+void ConstantBuffer::BindImple( ComputeShader& shader, uint32 slot )
 {
 	aga::Buffer* buffers[] = { m_buffer };
 	GraphicsInterface( ).BindConstant( shader, slot, 1, buffers );

@@ -3,19 +3,20 @@
 #include "AssetLoader/AssetFactory.h"
 #include "AssetLoader/IAsyncLoadableAsset.h"
 #include "GraphicsApiResource.h"
+#include "SizedTypes.h"
 #include "Texture.h"
 
 #include <vector>
 
 struct TextureSection
 {
-	TextureSection( std::size_t rowPitch, std::size_t slicePitch, std::size_t offset ) : m_rowPitch( rowPitch ), m_slicePitch( slicePitch ), m_offset( offset )
+	TextureSection( uint32 rowPitch, uint32 slicePitch, uint32 offset ) : m_rowPitch( rowPitch ), m_slicePitch( slicePitch ), m_offset( offset )
 	{}
 	TextureSection( ) = default;
 
-	std::size_t m_rowPitch;
-	std::size_t m_slicePitch;
-	std::size_t m_offset;
+	uint32 m_rowPitch;
+	uint32 m_slicePitch;
+	uint32 m_offset;
 };
 
 class Texture : public AsyncLoadableAsset
@@ -33,14 +34,14 @@ public:
 protected:
 	RENDERCORE_DLL virtual void PostLoadImpl( ) override;
 
-	std::size_t m_width = 0;
-	std::size_t m_height = 0;
-	std::size_t m_depth = 0;
-	std::size_t m_arraySize = 0;
-	std::size_t m_mipLevels = 0;
+	uint32 m_width = 0;
+	uint32 m_height = 0;
+	uint32 m_depth = 0;
+	uint32 m_arraySize = 0;
+	uint32 m_mipLevels = 0;
 
 	bool m_isCubeMap = false;
-	std::size_t m_demension = 0;
+	uint32 m_demension = 0;
 
 	RESOURCE_FORMAT m_format = RESOURCE_FORMAT::UNKNOWN;
 
@@ -76,19 +77,19 @@ private:
 
 struct DDSTextureInitializer
 {
-	std::size_t m_width = 0;
-	std::size_t m_height = 0;
-	std::size_t m_depth = 0;
-	std::size_t m_arraySize = 0;
-	std::size_t m_mipLevels = 0;
+	uint32 m_width = 0;
+	uint32 m_height = 0;
+	uint32 m_depth = 0;
+	uint32 m_arraySize = 0;
+	uint32 m_mipLevels = 0;
 
 	bool m_isCubeMap = false;
-	std::size_t m_demension = 0;
+	uint32 m_demension = 0;
 
 	RESOURCE_FORMAT m_format;
 
-	std::size_t m_size = 0;
-	const void* m_memory = nullptr;
+	uint32 m_size = 0;
+	const uint8* m_memory = nullptr;
 
 	std::vector<TextureSection> m_sections;
 };

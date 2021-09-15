@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SizedTypes.h"
+
 #include <chrono>
 
 class CTimer
@@ -24,7 +26,7 @@ private:
 
 	std::chrono::time_point<std::chrono::steady_clock> m_lastTime;
 
-	int m_frame = 0;
+	uint32 m_frame = 0;
 	float m_fps = 0.f;
 	float m_frameCheckInterval = 0.f;
 	bool m_isPaused = false;

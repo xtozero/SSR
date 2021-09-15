@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "Platform/IPlatform.h"
+#include "SizedTypes.h"
 
 #include <string>
 #include <Windows.h>
@@ -13,7 +14,7 @@ public:
 	const WNDCLASSEXA& GetWndClass( ) const noexcept { return m_wndClass; }
 	const HINSTANCE GethInstance( ) const noexcept { return m_wndClass.hInstance; }
 
-	CWindowSetup( HINSTANCE hInstance, LONG width, LONG height ) noexcept : m_width( width ), m_height( height )
+	CWindowSetup( HINSTANCE hInstance, int32 width, int32 height ) noexcept : m_width( width ), m_height( height )
 	{
 		m_wndClass.style = CS_HREDRAW | CS_VREDRAW;
 		m_wndClass.lpfnWndProc = nullptr;
@@ -30,15 +31,15 @@ public:
 
 private:
 	WNDCLASSEXA m_wndClass = { sizeof( WNDCLASSEXA ), };
-	LONG m_width = 0;
-	LONG m_height = 0;
+	int32 m_width = 0;
+	int32 m_height = 0;
 };
 
 class Window : public  IPlatform
 {
 public:
-	virtual std::pair<UINT, UINT> GetSize( ) const noexcept override { return { m_width, m_height }; };
-	virtual void UpdateSize( UINT width, UINT height )
+	virtual std::pair<uint32, uint32> GetSize( ) const noexcept override { return { m_width, m_height }; };
+	virtual void UpdateSize( uint32 width, uint32 height )
 	{
 		m_width = width;
 		m_height = height;
@@ -47,7 +48,7 @@ public:
 	bool Run( CWindowSetup& setup, WNDPROC wndProc );
 	HWND GetHwnd( ) const noexcept { return m_hwnd; }
 
-	Window( const std::string& title, DWORD style = WS_OVERLAPPEDWINDOW ) noexcept;
+	Window( const std::string& title, uint32 style = WS_OVERLAPPEDWINDOW ) noexcept;
 
 private:
 	virtual void* GetRawHandleImple( ) const noexcept override
@@ -56,10 +57,10 @@ private:
 	}
 
 	std::string m_wndTitle = "default window";
-	DWORD m_style = 0;
+	uint32 m_style = 0;
 	HWND m_hwnd = nullptr;
 
-	UINT m_width = 0;
-	UINT m_height = 0;
+	uint32 m_width = 0;
+	uint32 m_height = 0;
 };
 

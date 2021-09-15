@@ -30,8 +30,8 @@
 #include "Util.h"
 
 #include <array>
-#include <D3D11.h>
-#include <DXGI.h>
+#include <d3d11.h>
+#include <dxgi.h>
 #include <map>
 #include <string>
 #include <vector>
@@ -43,38 +43,38 @@ namespace aga
 	class CDirect3D11 : public IAga
 	{
 	public:
-		virtual bool BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight ) override;
-		virtual void HandleDeviceLost( HWND hWnd, UINT nWndWidth, UINT nWndHeight ) override;
-		virtual void AppSizeChanged( UINT nWndWidth, UINT nWndHeight ) override;
+		virtual bool BootUp( ) override;
+		virtual void HandleDeviceLost( ) override;
+		virtual void AppSizeChanged( ) override;
 		virtual void WaitGPU( ) override;
 
-		virtual void* Lock( Buffer* buffer, int lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, UINT subResource = 0 ) override;
-		virtual void UnLock( Buffer* buffer, UINT subResource = 0 ) override;
+		virtual void* Lock( Buffer* buffer, uint32 lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, uint32 subResource = 0 ) override;
+		virtual void UnLock( Buffer* buffer, uint32 subResource = 0 ) override;
 
-		virtual void SetViewports( Viewport** viewPorts, int count ) override;
-		virtual void SetViewport( UINT minX, UINT minY, float minZ, UINT maxX, UINT maxY, float maxZ ) override;
-		virtual void SetScissorRects( Viewport** viewPorts, int size ) override;
-		virtual void SetScissorRect( UINT minX, UINT minY, UINT maxX, UINT maxY ) override;
+		virtual void SetViewports( Viewport** viewPorts, uint32 count ) override;
+		virtual void SetViewport( uint32 minX, uint32 minY, float minZ, uint32 maxX, uint32 maxY, float maxZ ) override;
+		virtual void SetScissorRects( Viewport** viewPorts, uint32 size ) override;
+		virtual void SetScissorRect( uint32 minX, uint32 minY, uint32 maxX, uint32 maxY ) override;
 
-		virtual void ClearDepthStencil( Texture* depthStencil, float depthColor, UINT8 stencilColor ) override;
+		virtual void ClearDepthStencil( Texture* depthStencil, float depthColor, uint8 stencilColor ) override;
 
 		virtual void BindShader( ComputeShader* shader ) override;
 
-		virtual void BindConstant( VertexShader* shader, int startSlot, int numBuffers, Buffer** pBuffers ) override;
-		virtual void BindShaderInput( VertexShader* shader, int startSlot, int numBuffers, Buffer** pBuffers ) override;
+		virtual void BindConstant( VertexShader* shader, uint32 startSlot, uint32 numBuffers, Buffer** pBuffers ) override;
+		virtual void BindShaderInput( VertexShader* shader, uint32 startSlot, uint32 numBuffers, Buffer** pBuffers ) override;
 
-		virtual void BindConstant( PixelShader* shader, int startSlot, int numBuffers, Buffer** pBuffers ) override;
-		virtual void BindShaderInput( PixelShader* shader, int startSlot, int numBuffers, Buffer** pBuffers ) override;
+		virtual void BindConstant( PixelShader* shader, uint32 startSlot, uint32 numBuffers, Buffer** pBuffers ) override;
+		virtual void BindShaderInput( PixelShader* shader, uint32 startSlot, uint32 numBuffers, Buffer** pBuffers ) override;
 
-		virtual void BindConstant( ComputeShader* shader, int startSlot, int numBuffers, Buffer** pBuffers ) override;
-		virtual void BindShaderInput( ComputeShader* shader, int startSlot, int numBuffers, Buffer** pBuffers ) override;
-		virtual void BindShaderOutput( ComputeShader* shader, int startSlot, int numBuffers, Buffer** pBuffers ) override;
+		virtual void BindConstant( ComputeShader* shader, uint32 startSlot, uint32 numBuffers, Buffer** pBuffers ) override;
+		virtual void BindShaderInput( ComputeShader* shader, uint32 startSlot, uint32 numBuffers, Buffer** pBuffers ) override;
+		virtual void BindShaderOutput( ComputeShader* shader, uint32 startSlot, uint32 numBuffers, Buffer** pBuffers ) override;
 
-		virtual void BindRenderTargets( Texture** pRenderTargets, int renderTargetCount, Texture* depthStencil ) override;
+		virtual void BindRenderTargets( Texture** pRenderTargets, uint32 renderTargetCount, Texture* depthStencil ) override;
 
-		virtual void Dispatch( UINT x, UINT y, UINT z = 1 ) override;
+		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) override;
 
-		virtual void Copy( Buffer* dst, Buffer* src, std::size_t size ) override;
+		virtual void Copy( Buffer* dst, Buffer* src, uint32 size ) override;
 
 		virtual void GetRendererMultiSampleOption( MULTISAMPLE_OPTION* option ) override;
 
@@ -101,10 +101,10 @@ namespace aga
 	private:
 		void Shutdown( );
 
-		bool CreateDeviceDependentResource( HWND hWnd, UINT nWndWidth, UINT nWndHeight );
+		bool CreateDeviceDependentResource( );
 		bool CreateDeviceIndependentResource( );
 		void ReportLiveDevice( );
-		void EnumerateSampleCountAndQuality( int* size, DXGI_SAMPLE_DESC* pSamples );
+		void EnumerateSampleCountAndQuality( int32* size, DXGI_SAMPLE_DESC* pSamples );
 
 		Microsoft::WRL::ComPtr<IDXGIFactory1>					m_pdxgiFactory;
 
@@ -114,14 +114,14 @@ namespace aga
 		DXGI_SAMPLE_DESC										m_multiSampleOption = { 1, 0 };
 	};
 
-	bool CDirect3D11::BootUp( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
+	bool CDirect3D11::BootUp( )
 	{
 		if ( !CreateDeviceIndependentResource( ) )
 		{
 			return false;
 		}
 
-		if ( !CreateDeviceDependentResource( hWnd, nWndWidth, nWndHeight ) )
+		if ( !CreateDeviceDependentResource( ) )
 		{
 			return false;
 		}
@@ -129,7 +129,7 @@ namespace aga
 		return true;
 	}
 
-	void CDirect3D11::HandleDeviceLost( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
+	void CDirect3D11::HandleDeviceLost( )
 	{
 		m_pdxgiFactory.Reset( );
 		m_pd3d11DeviceContext.Reset( );
@@ -142,13 +142,13 @@ namespace aga
 			__debugbreak( );
 		}
 
-		if ( !CreateDeviceDependentResource( hWnd, nWndWidth, nWndHeight ) )
+		if ( !CreateDeviceDependentResource( ) )
 		{
 			__debugbreak( );
 		}
 	}
 
-	void CDirect3D11::AppSizeChanged( UINT nWndWidth, UINT nWndHeight )
+	void CDirect3D11::AppSizeChanged( )
 	{
 		if ( m_pd3d11Device == nullptr )
 		{
@@ -179,7 +179,7 @@ namespace aga
 		}
 	}
 
-	void* CDirect3D11::Lock( Buffer* buffer, int lockFlag, UINT subResource )
+	void* CDirect3D11::Lock( Buffer* buffer, uint32 lockFlag, uint32 subResource )
 	{
 		if ( buffer == nullptr )
 		{
@@ -198,7 +198,7 @@ namespace aga
 		return resource.pData;
 	}
 
-	void CDirect3D11::UnLock( Buffer* buffer, UINT subResource )
+	void CDirect3D11::UnLock( Buffer* buffer, uint32 subResource )
 	{
 		if ( buffer == nullptr )
 		{
@@ -210,13 +210,13 @@ namespace aga
 		m_pd3d11DeviceContext->Unmap( d3d11buffer->Resource( ), subResource );
 	}
 
-	void CDirect3D11::EnumerateSampleCountAndQuality( int* size, DXGI_SAMPLE_DESC* pSamples )
+	void CDirect3D11::EnumerateSampleCountAndQuality( int32* size, DXGI_SAMPLE_DESC* pSamples )
 	{
 		assert( size != nullptr );
 
-		constexpr int desireCounts[] = { 2, 4, 8 };
-		UINT qualityLevel = 0;
-		for ( int i = 0; i < _countof( desireCounts ); ++i )
+		constexpr int32 desireCounts[] = { 2, 4, 8 };
+		uint32 qualityLevel = 0;
+		for ( int32 i = 0; i < _countof( desireCounts ); ++i )
 		{
 			HRESULT hr = m_pd3d11Device->CheckMultisampleQualityLevels( DXGI_FORMAT_R8G8B8A8_UNORM, desireCounts[i], &qualityLevel );
 			if ( SUCCEEDED( hr ) && qualityLevel > 0 )
@@ -232,11 +232,11 @@ namespace aga
 		}
 	}
 
-	void CDirect3D11::SetViewports( Viewport** viewPorts, int size )
+	void CDirect3D11::SetViewports( Viewport** viewPorts, uint32 size )
 	{
 		std::vector<D3D11_VIEWPORT> d3d11Viewports;
 
-		for ( int i = 0; i < size; ++i )
+		for ( uint32 i = 0; i < size; ++i )
 		{
 			if ( auto vp = static_cast<const D3D11Viewport*>( viewPorts[i] ) )
 			{
@@ -253,11 +253,10 @@ namespace aga
 			}
 		}
 
-		assert( d3d11Viewports.size( ) <= UINT_MAX );
-		m_pd3d11DeviceContext->RSSetViewports( static_cast<UINT>( d3d11Viewports.size( ) ), d3d11Viewports.data( ) );
+		m_pd3d11DeviceContext->RSSetViewports( size, d3d11Viewports.data( ) );
 	}
 
-	void CDirect3D11::SetViewport( UINT minX, UINT minY, float minZ, UINT maxX, UINT maxY, float maxZ )
+	void CDirect3D11::SetViewport( uint32 minX, uint32 minY, float minZ, uint32 maxX, uint32 maxY, float maxZ )
 	{
 		D3D11_VIEWPORT viewport = {
 			static_cast<float>( minX ),
@@ -271,29 +270,26 @@ namespace aga
 		m_pd3d11DeviceContext->RSSetViewports( 1, &viewport );
 	}
 
-	void CDirect3D11::SetScissorRects( Viewport** viewPorts, int size )
+	void CDirect3D11::SetScissorRects( Viewport** viewPorts, uint32 size )
 	{
 		std::vector<D3D11_RECT> d3d11Rects;
 
-		for ( int i = 0; i < size; ++i )
+		for ( uint32 i = 0; i < size; ++i )
 		{
 			if ( auto vp = static_cast<const D3D11Viewport*>( viewPorts[i] ) )
 			{
 				auto renderTargetSize = vp->Size( );
-				D3D11_RECT newVeiwport = {
-					0L,
-					0L,
-					static_cast<LONG>( renderTargetSize.first ),
-					static_cast<LONG>( renderTargetSize.second ) };
+				const auto& [width, height] = renderTargetSize;
+				D3D11_RECT newVeiwport = { 0L, 0L, static_cast<int32>( width ), static_cast<int32>( height ) };
 
 				d3d11Rects.push_back( newVeiwport );
 			}
 		}
 
-		m_pd3d11DeviceContext->RSSetScissorRects( static_cast<UINT>( d3d11Rects.size( ) ), d3d11Rects.data( ) );
+		m_pd3d11DeviceContext->RSSetScissorRects( size, d3d11Rects.data( ) );
 	}
 
-	void CDirect3D11::SetScissorRect( UINT minX, UINT minY, UINT maxX, UINT maxY )
+	void CDirect3D11::SetScissorRect( uint32 minX, uint32 minY, uint32 maxX, uint32 maxY )
 	{
 		D3D11_RECT rect = {};
 		rect.left = minX;
@@ -304,7 +300,7 @@ namespace aga
 		m_pd3d11DeviceContext->RSSetScissorRects( 1, &rect );
 	}
 
-	void CDirect3D11::ClearDepthStencil( Texture* depthStencil, float depthColor, UINT8 stencilColor )
+	void CDirect3D11::ClearDepthStencil( Texture* depthStencil, float depthColor, uint8 stencilColor )
 	{
 		auto d3d11Texture = reinterpret_cast<D3D11BaseTexture*>( depthStencil );
 		if ( d3d11Texture == nullptr )
@@ -331,11 +327,11 @@ namespace aga
 		D3D11Context( ).CSSetShader( cs, nullptr, 0 );
 	}
 
-	void CDirect3D11::BindConstant( VertexShader* shader, int startSlot, int numBuffers, Buffer** pBuffers )
+	void CDirect3D11::BindConstant( [[maybe_unused]] VertexShader* shader, uint32 startSlot, uint32 numBuffers, Buffer** pBuffers )
 	{
 		ID3D11Buffer* pConstants[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT] = {};
 
-		for ( UINT i = 0; i < numBuffers; ++i )
+		for ( uint32 i = 0; i < numBuffers; ++i )
 		{
 			if ( auto d3d11buffer = static_cast<D3D11Buffer*>( pBuffers[i] ) )
 			{
@@ -346,11 +342,11 @@ namespace aga
 		m_pd3d11DeviceContext->VSSetConstantBuffers( startSlot, numBuffers, pConstants );
 	}
 
-	void CDirect3D11::BindShaderInput( VertexShader* shader, int startSlot, int numBuffers, Buffer ** pBuffers )
+	void CDirect3D11::BindShaderInput( [[maybe_unused]] VertexShader* shader, uint32 startSlot, uint32 numBuffers, Buffer ** pBuffers )
 	{
 		ID3D11ShaderResourceView* pSrvs[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {};
 
-		for ( UINT i = 0; i < numBuffers; ++i )
+		for ( uint32 i = 0; i < numBuffers; ++i )
 		{
 			auto d3d11buffer = static_cast<D3D11Buffer*>( pBuffers[i] );
 			if ( d3d11buffer == nullptr )
@@ -367,11 +363,11 @@ namespace aga
 		m_pd3d11DeviceContext->VSSetShaderResources( startSlot, numBuffers, pSrvs );
 	}
 
-	void CDirect3D11::BindConstant( PixelShader* shader, int startSlot, int numBuffers, Buffer** pBuffers )
+	void CDirect3D11::BindConstant( [[maybe_unused]] PixelShader* shader, uint32 startSlot, uint32 numBuffers, Buffer** pBuffers )
 	{
 		ID3D11Buffer* pConstants[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT] = {};
 
-		for ( UINT i = 0; i < numBuffers; ++i )
+		for ( uint32 i = 0; i < numBuffers; ++i )
 		{
 			if ( auto d3d11buffer = static_cast<D3D11Buffer*>( pBuffers[i] ) )
 			{
@@ -382,11 +378,11 @@ namespace aga
 		m_pd3d11DeviceContext->CSSetConstantBuffers( startSlot, numBuffers, pConstants );
 	}
 
-	void CDirect3D11::BindShaderInput( PixelShader* shader, int startSlot, int numBuffers, Buffer ** pBuffers )
+	void CDirect3D11::BindShaderInput( [[maybe_unused]] PixelShader* shader, uint32 startSlot, uint32 numBuffers, Buffer ** pBuffers )
 	{
 		ID3D11ShaderResourceView* pSrvs[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {};
 
-		for ( UINT i = 0; i < numBuffers; ++i )
+		for ( uint32 i = 0; i < numBuffers; ++i )
 		{
 			auto d3d11buffer = static_cast<D3D11Buffer*>( pBuffers[i] );
 			if ( d3d11buffer == nullptr )
@@ -403,11 +399,11 @@ namespace aga
 		m_pd3d11DeviceContext->CSSetShaderResources( startSlot, numBuffers, pSrvs );
 	}
 
-	void CDirect3D11::BindConstant( ComputeShader* shader, int startSlot, int numBuffers, Buffer** pBuffers )
+	void CDirect3D11::BindConstant( [[maybe_unused]] ComputeShader* shader, uint32 startSlot, uint32 numBuffers, Buffer** pBuffers )
 	{
 		ID3D11Buffer* pConstants[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT] = {};
 
-		for ( UINT i = 0; i < numBuffers; ++i )
+		for ( uint32 i = 0; i < numBuffers; ++i )
 		{
 			if ( auto d3d11buffer = static_cast<D3D11Buffer*>( pBuffers[i] ) )
 			{
@@ -418,11 +414,11 @@ namespace aga
 		m_pd3d11DeviceContext->CSSetConstantBuffers( startSlot, numBuffers, pConstants );
 	}
 
-	void CDirect3D11::BindShaderInput( ComputeShader* shader, int startSlot, int numBuffers, Buffer** pBuffers )
+	void CDirect3D11::BindShaderInput( [[maybe_unused]] ComputeShader* shader, uint32 startSlot, uint32 numBuffers, Buffer** pBuffers )
 	{
 		ID3D11ShaderResourceView* pSrvs[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {};
 
-		for ( UINT i = 0; i < numBuffers; ++i )
+		for ( uint32 i = 0; i < numBuffers; ++i )
 		{
 			auto d3d11buffer = static_cast<D3D11Buffer*>( pBuffers[i] );
 			if ( d3d11buffer == nullptr )
@@ -439,11 +435,11 @@ namespace aga
 		m_pd3d11DeviceContext->CSSetShaderResources( startSlot, numBuffers, pSrvs );
 	}
 
-	void CDirect3D11::BindShaderOutput( ComputeShader* shader, int startSlot, int numBuffers, Buffer** pBuffers )
+	void CDirect3D11::BindShaderOutput( [[maybe_unused]] ComputeShader* shader, uint32 startSlot, uint32 numBuffers, Buffer** pBuffers )
 	{
 		ID3D11UnorderedAccessView* pUavs[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {};
 
-		for ( UINT i = 0; i < numBuffers; ++i )
+		for ( uint32 i = 0; i < numBuffers; ++i )
 		{
 			auto d3d11buffer = static_cast<D3D11Buffer*>( pBuffers[i] );
 			if ( d3d11buffer == nullptr )
@@ -460,11 +456,11 @@ namespace aga
 		m_pd3d11DeviceContext->CSSetUnorderedAccessViews( startSlot, numBuffers, pUavs, nullptr );
 	}
 
-	void CDirect3D11::BindRenderTargets( Texture** pRenderTargets, int renderTargetCount, Texture* depthStencil )
+	void CDirect3D11::BindRenderTargets( Texture** pRenderTargets, uint32 renderTargetCount, Texture* depthStencil )
 	{
 		ID3D11RenderTargetView* rtvs[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = {};
 
-		for ( int i = 0; i < renderTargetCount; ++i )
+		for ( uint32 i = 0; i < renderTargetCount; ++i )
 		{
 			auto rtTex = static_cast<D3D11BaseTexture*>( pRenderTargets[i] );
 			if ( rtTex == nullptr )
@@ -488,15 +484,15 @@ namespace aga
 			}
 		}
 
-		m_pd3d11DeviceContext->OMSetRenderTargets( static_cast<UINT>( renderTargetCount ), rtvs, dsv );
+		m_pd3d11DeviceContext->OMSetRenderTargets( renderTargetCount, rtvs, dsv );
 	}
 
-	void CDirect3D11::Dispatch( UINT x, UINT y, UINT z )
+	void CDirect3D11::Dispatch( uint32 x, uint32 y, uint32 z )
 	{
 		m_pd3d11DeviceContext->Dispatch( x, y, z );
 	}
 
-	void CDirect3D11::Copy( Buffer* dst, Buffer* src, std::size_t size )
+	void CDirect3D11::Copy( Buffer* dst, Buffer* src, uint32 size )
 	{
 		auto d3d11Dst = static_cast<D3D11Buffer*>( dst );
 		auto d3d11Src = static_cast<D3D11Buffer*>( src );
@@ -547,7 +543,7 @@ namespace aga
 		Shutdown( );
 	}
 
-	bool CDirect3D11::CreateDeviceDependentResource( HWND hWnd, UINT nWndWidth, UINT nWndHeight )
+	bool CDirect3D11::CreateDeviceDependentResource( )
 	{
 		D3D_DRIVER_TYPE d3dDriverTypes[] = {
 			D3D_DRIVER_TYPE_HARDWARE,
@@ -561,7 +557,7 @@ namespace aga
 			D3D_FEATURE_LEVEL_10_0
 		};
 
-		UINT flag = 0;
+		uint32 flag = 0;
 #ifdef _DEBUG
 		flag |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
@@ -569,7 +565,7 @@ namespace aga
 		D3D_FEATURE_LEVEL selectedFeature = D3D_FEATURE_LEVEL_11_0;
 		HRESULT hr = E_FAIL;
 
-		for ( int i = 0; i < _countof( d3dDriverTypes ); ++i )
+		for ( uint32 i = 0; i < _countof( d3dDriverTypes ); ++i )
 		{
 			hr = D3D11CreateDevice( nullptr,
 				d3dDriverTypes[i],
@@ -585,7 +581,7 @@ namespace aga
 			if ( SUCCEEDED( hr ) )
 			{
 				// TODO: Viewport 에서 멀티 샘플링 관련 기능 구현
-				/*int desiredSampleCount = 0;
+				/*int32 desiredSampleCount = 0;
 				EnumerateSampleCountAndQuality( &desiredSampleCount, nullptr );
 
 				std::vector<DXGI_SAMPLE_DESC> sampleCountAndQuality;

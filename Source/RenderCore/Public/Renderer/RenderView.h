@@ -4,6 +4,7 @@
 #include "DrawSnapshot.h"
 #include "GraphicsApiResource.h"
 #include "Math/CXMFloat.h"
+#include "SizedTypes.h"
 
 #include <vector>
 
@@ -40,7 +41,7 @@ public:
 	{}
 
 	RENDERCORE_DLL RenderView& AddRenderView( );
-	const RenderView& operator[]( std::size_t index ) const
+	const RenderView& operator[]( size_t index ) const
 	{
 		return m_viewGroup[index];
 	}

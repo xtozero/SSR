@@ -12,7 +12,7 @@ namespace COLLISION_UTIL
 		return collider.Intersect( ray );
 	}
 
-	unsigned int DetectCollisionObjectAndObject( CGameObject* lhs, RigidBody* lhsBody, CGameObject* rhs, RigidBody* rhsBody, CollisionData* data )
+	uint32 DetectCollisionObjectAndObject( CGameObject* lhs, RigidBody* lhsBody, CGameObject* rhs, RigidBody* rhsBody, CollisionData* data )
 	{
 		assert( lhs && rhs && lhsBody && rhsBody && data );
 		COLLIDER::TYPE lhsType = lhs->GetColliderType( );
@@ -78,7 +78,7 @@ namespace COLLISION_UTIL
 	{
 		if ( type >= COLLIDER::COUNT || type < COLLIDER::SPHERE )
 		{
-			for ( int i = 0; i < COLLIDER::COUNT; ++i )
+			for ( uint32 i = 0; i < COLLIDER::COUNT; ++i )
 			{
 				if ( const ICollider* pCollider = object.GetCollider( i ) )
 				{

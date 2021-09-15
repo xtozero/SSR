@@ -3,6 +3,7 @@
 #include "common.h"
 #include "DataStructure/EnumStringMap.h"
 #include "RefHandle.h"
+#include "SizedTypes.h"
 
 #include <atomic>
 #include <cstddef>
@@ -36,11 +37,8 @@ inline constexpr char* ToString( SHADER_TYPE shaderType )
 		"CS"
 	};
 
-	return shaderTypeStr[static_cast<int>( shaderType )];
+	return shaderTypeStr[static_cast<uint32>( shaderType )];
 }
-
-// using Material = std::size_t;
-// constexpr Material INVALID_MATERIAL = std::numeric_limits<std::size_t>::max();
 
 enum class GraphicsResourceType
 {
@@ -89,14 +87,14 @@ public:
 		}
 	}
 
-	AGA_DLL int AddRef( );
-	AGA_DLL int ReleaseRef( );
+	AGA_DLL int32 AddRef( );
+	AGA_DLL int32 ReleaseRef( );
 
 private:
 	virtual void InitResource( ) = 0;
 	virtual void FreeResource( ) = 0;
 
-	std::atomic<int> m_refCount = 0;
+	std::atomic<int32> m_refCount = 0;
 	bool m_isInitialized = false;
 };
 
@@ -431,57 +429,57 @@ enum class COLOR_WRITE_ENABLE
 
 struct BUFFER_TRAIT
 {
-	UINT m_stride;
-	UINT m_count;
-	UINT m_access;
-	UINT m_bindType;
-	UINT m_miscFlag;
+	uint32 m_stride;
+	uint32 m_count;
+	uint32 m_access;
+	uint32 m_bindType;
+	uint32 m_miscFlag;
 	RESOURCE_FORMAT m_format;
 };
 
 struct TEXTURE_TRAIT
 {
-	UINT m_width;
-	UINT m_height;
-	UINT m_depth;
-	UINT m_sampleCount;
-	UINT m_sampleQuality;
-	UINT m_mipLevels;
+	uint32 m_width;
+	uint32 m_height;
+	uint32 m_depth;
+	uint32 m_sampleCount;
+	uint32 m_sampleQuality;
+	uint32 m_mipLevels;
 	RESOURCE_FORMAT m_format;
-	UINT m_access;
-	UINT m_bindType;
-	UINT m_miscFlag;
+	uint32 m_access;
+	uint32 m_bindType;
+	uint32 m_miscFlag;
 };
 
 struct RESOURCE_SECTION_DATA
 {
-	std::size_t m_offset;
-	UINT m_pitch;
-	UINT m_slicePitch;
+	size_t m_offset;
+	uint32 m_pitch;
+	uint32 m_slicePitch;
 };
 
 struct RESOURCE_INIT_DATA
 {
 	void* m_srcData;
-	std::size_t m_srcSize;
+	size_t m_srcSize;
 	std::vector<RESOURCE_SECTION_DATA> m_sections;
 };
 
 struct RESOURCE_REGION
 {
-	UINT m_subResource;
-	UINT m_left;
-	UINT m_right;
-	UINT m_top;
-	UINT m_bottom;
-	UINT m_front;
-	UINT m_back;
+	uint32 m_subResource;
+	uint32 m_left;
+	uint32 m_right;
+	uint32 m_top;
+	uint32 m_bottom;
+	uint32 m_front;
+	uint32 m_back;
 };
 
 struct MULTISAMPLE_OPTION
 {
-	int m_count;
-	int m_quality;
+	int32 m_count;
+	int32 m_quality;
 };
 
 struct SAMPLER_STATE_TRAIT
@@ -491,7 +489,7 @@ struct SAMPLER_STATE_TRAIT
 	TEXTURE_ADDRESS_MODE m_addressV;
 	TEXTURE_ADDRESS_MODE m_addressW;
 	float m_mipLODBias;
-	UINT m_maxAnisotropy;
+	uint32 m_maxAnisotropy;
 	COMPARISON_FUNC m_comparisonFunc;
 	float m_borderColor[4];
 	float m_minLOD;
@@ -503,7 +501,7 @@ struct RASTERIZER_STATE_TRAIT
 	FILL_MODE m_fillMode;
 	CULL_MODE m_cullMode;
 	bool m_frontCounterClockwise;
-	int m_depthBias;
+	int32 m_depthBias;
 	float m_depthBiasClamp;
 	float m_slopeScaleDepthBias;
 	bool m_depthClipEnable;
@@ -529,7 +527,7 @@ struct BLEND_STATE_TRAIT
 	bool m_alphaToConverageEnable;
 	bool m_independentBlendEnable;
 	RENDER_TARGET_BLEND_TRAIT m_renderTarget[8];
-	UINT m_sampleMask;
+	uint32 m_sampleMask;
 };
 
 struct STENCIL_OP_TRAIT
@@ -563,10 +561,10 @@ struct DEPTH_STENCIL_STATE_TRAIT
 struct VERTEX_LAYOUT_TRAIT
 {
 	bool m_isInstanceData;
-	int m_index;
+	uint32 m_index;
 	RESOURCE_FORMAT m_format;
-	int m_slot;
-	int m_instanceDataStep;
+	uint32 m_slot;
+	uint32 m_instanceDataStep;
 	std::string m_name;
 
 	friend bool operator==( const VERTEX_LAYOUT_TRAIT& lhs, const VERTEX_LAYOUT_TRAIT& rhs )

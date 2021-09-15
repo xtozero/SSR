@@ -117,13 +117,13 @@ void UICMap::Initialize( )
 	REGISTER_ENUM_STRING( UIC_MOUSE_MIDDLE );
 }
 
-USER_INPUT_CODE UICMap::Convert( unsigned long code )
+USER_INPUT_CODE UICMap::Convert( uint32 code )
 {
 	auto found = std::lower_bound( m_codeMap.begin( ), m_codeMap.end( ), code,
-		[]( const CodePair& codePair, unsigned long code )
-	{
-		return codePair.first < code;
-	} );
+		[]( const CodePair& codePair, uint32 code )
+		{
+			return codePair.first < code;
+		} );
 
 	if ( found != m_codeMap.end( ) && found->first == code )
 	{
@@ -143,12 +143,12 @@ bool UICMap::LoadConfig( const char* fileName )
 		return false;
 	}
 
-	unsigned long fileSize = fileSystem->GetFileSize( uicAsset );
+	uint32 fileSize = fileSystem->GetFileSize( uicAsset );
 	char* buffer = new char[fileSize];
 
 	IFileSystem::IOCompletionCallback ParseUICAsset;
 	ParseUICAsset.BindFunctor(
-		[this, uicAsset]( const char* buffer, unsigned long bufferSize )
+		[this, uicAsset]( const char* buffer, uint32 bufferSize )
 		{
 			LoadKeyCode( buffer, static_cast<size_t>( bufferSize ) );
 			GetInterface<IFileSystem>( )->CloseFile( uicAsset );
@@ -172,8 +172,6 @@ void UICMap::LoadKeyCode( const char* uicAsset, size_t assetSize )
 
 	if ( reader.Parse( uicAsset, assetSize, root ) )
 	{
-		IEnumStringMap* enumStringMap = GetInterface<IEnumStringMap>( );
-
 		if ( const JSON::Value* pKeyCodes = root.Find( "KeyCodes" ) )
 		{
 			std::vector<const char*> members = pKeyCodes->GetMemberNames( );
@@ -188,8 +186,9 @@ void UICMap::LoadKeyCode( const char* uicAsset, size_t assetSize )
 
 		std::sort( m_codeMap.begin( ), m_codeMap.end( ),
 			[]( const CodePair& lhs, const CodePair& rhs )
-		{
-			return lhs.first < rhs.first;
-		} );
+			{
+				return lhs.first < rhs.first;
+			} 
+		);
 	}
 }

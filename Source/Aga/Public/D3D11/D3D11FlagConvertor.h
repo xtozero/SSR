@@ -1,10 +1,11 @@
 #pragma once
 
 #include "GraphicsApiResource.h"
+#include "SizedTypes.h"
 
 #include <d3d11.h>
 
-inline D3D11_USAGE ConvertAccessFlagToUsage( UINT accessFlag )
+inline D3D11_USAGE ConvertAccessFlagToUsage( uint32 accessFlag )
 {
 	using namespace RESOURCE_ACCESS_FLAG;
 
@@ -25,7 +26,7 @@ inline D3D11_USAGE ConvertAccessFlagToUsage( UINT accessFlag )
 	}
 }
 
-inline UINT ConvertUsageToAccessFlag( D3D11_USAGE accessFlag )
+inline uint32 ConvertUsageToAccessFlag( D3D11_USAGE accessFlag )
 {
 	using namespace RESOURCE_ACCESS_FLAG;
 
@@ -45,11 +46,11 @@ inline UINT ConvertUsageToAccessFlag( D3D11_USAGE accessFlag )
 	}
 }
 
-inline UINT ConvertTypeToBind( UINT type )
+inline uint32 ConvertTypeToBind( uint32 type )
 {
 	using namespace RESOURCE_BIND_TYPE;
 
-	UINT ret = 0;
+	uint32 ret = 0;
 
 	if ( type & VERTEX_BUFFER )
 	{
@@ -94,11 +95,11 @@ inline UINT ConvertTypeToBind( UINT type )
 	return ret;
 }
 
-inline UINT ConvertBindToType( UINT type )
+inline uint32 ConvertBindToType( uint32 type )
 {
 	using namespace RESOURCE_BIND_TYPE;
 
-	UINT ret = 0;
+	uint32 ret = 0;
 
 	if ( type & D3D11_BIND_VERTEX_BUFFER )
 	{
@@ -143,11 +144,11 @@ inline UINT ConvertBindToType( UINT type )
 	return ret;
 }
 
-inline UINT ConvertMicsToDXMisc( UINT miscFlag )
+inline uint32 ConvertMicsToDXMisc( uint32 miscFlag )
 {
 	using namespace RESOURCE_MISC;
 
-	UINT ret = 0;
+	uint32 ret = 0;
 
 	if ( miscFlag & GENERATE_MIPS )
 	{
@@ -199,11 +200,11 @@ inline UINT ConvertMicsToDXMisc( UINT miscFlag )
 	return ret;
 }
 
-inline UINT ConvertDXMiscToMisc( UINT miscFlag )
+inline uint32 ConvertDXMiscToMisc( uint32 miscFlag )
 {
 	using namespace RESOURCE_MISC;
 
-	UINT ret = 0;
+	uint32 ret = 0;
 
 	if ( miscFlag & D3D11_RESOURCE_MISC_GENERATE_MIPS )
 	{
@@ -253,11 +254,11 @@ inline UINT ConvertDXMiscToMisc( UINT miscFlag )
 	return ret;
 }
 
-inline UINT ConvertAccessFlagToCpuFlag( UINT accessFlag )
+inline uint32 ConvertAccessFlagToCpuFlag( uint32 accessFlag )
 {
 	using namespace RESOURCE_ACCESS_FLAG;
 
-	UINT ret = 0;
+	uint32 ret = 0;
 
 	if ( accessFlag & CPU_READ )
 	{
@@ -922,7 +923,7 @@ inline D3D_PRIMITIVE_TOPOLOGY ConvertPrimToD3D11Prim( RESOURCE_PRIMITIVE primiti
 	}
 }
 
-inline D3D11_MAP ConvertLockFlagToD3D11Map( UINT lockFlag )
+inline D3D11_MAP ConvertLockFlagToD3D11Map( uint32 lockFlag )
 {
 	switch ( lockFlag )
 	{

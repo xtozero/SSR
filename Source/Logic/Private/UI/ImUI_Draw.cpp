@@ -68,7 +68,7 @@ void ImDrawList::UpdateTextAtlas( )
 	//}
 }
 
-void ImDrawList::AddFilledRect( const CXMFLOAT2& pos, const CXMFLOAT2& size, const CXMFLOAT4& color, float rounding, int roundingFlag )
+void ImDrawList::AddFilledRect( const CXMFLOAT2& pos, const CXMFLOAT2& size, const CXMFLOAT4& color, float rounding, int32 roundingFlag )
 {
 	if ( color.w == 0.f )
 	{
@@ -87,24 +87,24 @@ void ImDrawList::AddFilledRect( const CXMFLOAT2& pos, const CXMFLOAT2& size, con
 	}
 }
 
-void ImDrawList::AddConvexPolyFilled( const CXMFLOAT2* points, const int count, const CXMFLOAT4& color )
+void ImDrawList::AddConvexPolyFilled( const CXMFLOAT2* points, const int32 count, const CXMFLOAT4& color )
 {
 	if ( color.w == 0.f )
 	{
 		return;
 	}
 
-	int indexCount = ( count - 2 ) * 3;
-	int vertexCount = count;
+	int32 indexCount = ( count - 2 ) * 3;
+	int32 vertexCount = count;
 	
 	BufferReserve( vertexCount, indexCount );
-	for ( int i = 0; i < vertexCount; ++i )
+	for ( int32 i = 0; i < vertexCount; ++i )
 	{
 		m_pVertexWriter[0].m_pos = points[i];
 		m_pVertexWriter[0].m_color = color;
 		++m_pVertexWriter;
 	}
-	for ( int i = 2; i < vertexCount; ++i )
+	for ( int32 i = 2; i < vertexCount; ++i )
 	{
 		m_pIndexWriter[0] = m_curIndex;
 		m_pIndexWriter[1] = m_curIndex + i - 1;
@@ -113,10 +113,10 @@ void ImDrawList::AddConvexPolyFilled( const CXMFLOAT2* points, const int count, 
 		m_pIndexWriter += 3;
 	}
 
-	m_curIndex += static_cast<UINT>( vertexCount );
+	m_curIndex += static_cast<uint32>( vertexCount );
 }
 
-void ImDrawList::AddText( CTextAtlas& font, const CXMFLOAT2& pos, const CXMFLOAT4& color, const char* text, UINT count )
+void ImDrawList::AddText( CTextAtlas& font, const CXMFLOAT2& pos, const CXMFLOAT4& color, const char* text, uint32 count )
 {
 	if ( color.w == 0.f )
 	{
@@ -132,12 +132,12 @@ void ImDrawList::AddText( CTextAtlas& font, const CXMFLOAT2& pos, const CXMFLOAT
 	float y = pos.y + font.m_displayOffset.y;
 
 	assert( ( count * 4 ) <= UINT_MAX );
-	UINT vtxCount = count * 4;
+	uint32 vtxCount = count * 4;
 	assert( ( count * 6 ) <= UINT_MAX );
-	UINT idxCount = count * 6;
+	uint32 idxCount = count * 6;
 	BufferReserve( vtxCount, idxCount );
 
-	for ( UINT i = 0; i < count; ++i )
+	for ( uint32 i = 0; i < count; ++i )
 	{
 		if ( FontUV* glyph = font.FindGlyph( text[i] ) )
 		{
@@ -188,7 +188,7 @@ void ImDrawList::AddTriangleFilled( const CXMFLOAT2& v0, const CXMFLOAT2& v1, co
 	PathFillConvex( color );
 }
 
-void ImDrawList::BufferReserve( int vertexCount, int indexCount )
+void ImDrawList::BufferReserve( int32 vertexCount, int32 indexCount )
 {
 	assert( m_cmdBuffer.size( ) > 0 );
 	ImDrawCmd& cmd = m_cmdBuffer.back( );
@@ -231,11 +231,11 @@ void ImDrawList::PathLineTo( const CXMFLOAT2& pos )
 
 void ImDrawList::PathFillConvex( const CXMFLOAT4& color )
 {
-	AddConvexPolyFilled( m_path.data( ), static_cast<int>( m_path.size( ) ), color );
+	AddConvexPolyFilled( m_path.data( ), static_cast<int32>( m_path.size( ) ), color );
 	PathClear( );
 }
 
-void ImDrawList::PathArcToFast( const CXMFLOAT2& centre, float radius, int minOf12, int maxOf12 )
+void ImDrawList::PathArcToFast( const CXMFLOAT2& centre, float radius, int32 minOf12, int32 maxOf12 )
 {
 	if ( radius == 0.f || minOf12 > maxOf12 )
 	{
@@ -243,14 +243,14 @@ void ImDrawList::PathArcToFast( const CXMFLOAT2& centre, float radius, int minOf
 		return;
 	}
 	m_path.reserve( m_path.size( ) + ( maxOf12 - minOf12 + 1 ) );
-	for ( int i = minOf12; i <= maxOf12; ++i )
+	for ( int32 i = minOf12; i <= maxOf12; ++i )
 	{
 		const CXMFLOAT2& c = m_imUi->m_circleVertex[i % _countof( m_imUi->m_circleVertex )];
 		m_path.emplace_back( centre.x + c.x * radius, centre.y + c.y * radius );
 	}
 }
 
-void ImDrawList::PathRect( const CXMFLOAT2& pos, const CXMFLOAT2& size, float rounding, int roundingFlag )
+void ImDrawList::PathRect( const CXMFLOAT2& pos, const CXMFLOAT2& size, float rounding, int32 roundingFlag )
 {
 	rounding = std::min( rounding, size.x * ( ( ( roundingFlag & ImDrawCorner::Top ) == ImDrawCorner::Top ) || ( ( roundingFlag & ImDrawCorner::Bottom ) == ImDrawCorner::Bottom ) ? 0.5f : 1.0f ) - 1.0f );
 	rounding = std::min( rounding, size.y * ( ( ( roundingFlag & ImDrawCorner::Left ) == ImDrawCorner::Left ) || ( ( roundingFlag & ImDrawCorner::Right ) == ImDrawCorner::Right ) ? 0.5f : 1.0f ) - 1.0f );

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SizedTypes.h"
 #include "Texture.h"
 
 namespace rendercore
@@ -7,8 +8,8 @@ namespace rendercore
 	class DepthStencil
 	{
 	public:
-		void UpdateBufferSize( UINT width, UINT height );
-		void Clear( float depth, UINT8 stencil );
+		void UpdateBufferSize( uint32 width, uint32 height );
+		void Clear( float depth, uint8 stencil );
 
 		aga::Texture* Texture( ) { return m_depthStencil.Get( ); }
 

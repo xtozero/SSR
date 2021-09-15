@@ -43,12 +43,12 @@ namespace aga
 		return m_depthStencilState;
 	}
 
-	unsigned int D3D11DepthStencilState::GetStencilRef( ) const
+	uint32 D3D11DepthStencilState::GetStencilRef( ) const
 	{
-		return m_stencilRef;;
+		return m_stencilRef;
 	}
 
-	void D3D11DepthStencilState::SetStencilRef( unsigned int stencilRef )
+	void D3D11DepthStencilState::SetStencilRef( uint32 stencilRef )
 	{
 		m_stencilRef = stencilRef;
 	}

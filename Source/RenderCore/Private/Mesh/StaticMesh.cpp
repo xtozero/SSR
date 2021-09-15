@@ -31,11 +31,11 @@ void StaticMesh::Serialize( Archive& ar )
 
 	if ( ar.IsWriteMode( ) )
 	{
-		ar << m_materials.size( );
+		ar << static_cast<uint32>( m_materials.size( ) );
 	}
 	else
 	{
-		std::size_t size = 0;
+		uint32 size = 0;
 		ar << size;
 		m_materials.resize( size );
 	}
@@ -50,9 +50,9 @@ void StaticMesh::BuildMeshFromMeshDescriptions( const std::vector<MeshDescriptio
 {
 	delete m_renderData;
 	m_renderData = new StaticMeshRenderData( );
-	m_renderData->AllocateLODResources( meshDescriptions.size( ) );
+	m_renderData->AllocateLODResources( static_cast<uint32>( meshDescriptions.size( ) ) );
 
-	int lodIndex = 0;
+	uint32 lodIndex = 0;
 	for ( const auto& meshDescription : meshDescriptions )
 	{
 		StaticMeshLODResource& lodResource = m_renderData->LODResource( lodIndex );
@@ -70,10 +70,10 @@ void StaticMesh::BuildMeshFromMeshDescription( const MeshDescription& meshDescri
 	auto& vertices = lodResource.m_vertexData;
 	vertices.reserve( vertexInstances.size( ) );
 
-	std::size_t normalCount = normal.size( );
-	std::size_t texcoordCount = texCoord.size( );
+	size_t normalCount = normal.size( );
+	size_t texcoordCount = texCoord.size( );
 
-	for ( std::size_t i = 0; i < vertexInstances.size( ); ++i )
+	for ( size_t i = 0; i < vertexInstances.size( ); ++i )
 	{
 		const MeshVertexInstance& vertexInstance = vertexInstances[i];
 
@@ -86,7 +86,7 @@ void StaticMesh::BuildMeshFromMeshDescription( const MeshDescription& meshDescri
 	const std::vector<MeshTriangle>& triangles = meshDescription.m_triangles;
 	const std::vector<MeshPolygon>& polygons = meshDescription.m_polygons;
 
-	std::size_t indexCount = 0;
+	size_t indexCount = 0;
 	for ( const MeshPolygon& polygon : polygons )
 	{
 		indexCount += polygon.m_triangleID.size( ) * 3;
@@ -95,25 +95,25 @@ void StaticMesh::BuildMeshFromMeshDescription( const MeshDescription& meshDescri
 	std::vector<size_t> indices;
 	indices.reserve( indexCount );
 
-	for ( std::size_t i = 0; i < polygons.size( ); ++i )
+	for ( size_t i = 0; i < polygons.size( ); ++i )
 	{
 		const MeshPolygon& polygon = polygons[i];
 
 		StaticMeshSection& section = lodResource.m_sections.emplace_back( );
-		section.m_startLocation = indices.size( );
+		section.m_startLocation = static_cast<uint32>( indices.size( ) );
 
-		for ( std::size_t triangleID : polygon.m_triangleID )
+		for ( size_t triangleID : polygon.m_triangleID )
 		{
-			for ( std::size_t vertexInstanceID : triangles[triangleID].m_vertexInstanceID )
+			for ( size_t vertexInstanceID : triangles[triangleID].m_vertexInstanceID )
 			{
 				indices.push_back( vertexInstanceID );
 			}
 		}
 
-		section.m_count = indices.size( ) - section.m_startLocation;
+		section.m_count = static_cast<uint32>( indices.size( ) ) - section.m_startLocation;
 
 		const std::string& polygonMaterialName = meshDescription.m_polygonMaterialName[i];
-		for ( std::size_t j = 0; j < m_materials.size( ); ++j )
+		for ( uint32 j = 0; j < static_cast<uint32>( m_materials.size( ) ); ++j )
 		{
 			const auto material = m_materials[j].m_mateiral;
 			if ( polygonMaterialName == material->Path().stem() )
@@ -126,26 +126,26 @@ void StaticMesh::BuildMeshFromMeshDescription( const MeshDescription& meshDescri
 
 	lodResource.m_isDWORD = ( vertexInstances.size( ) > std::numeric_limits<DWORD>::max( ) );
 
-	std::size_t indexStride = lodResource.m_isDWORD ? sizeof( DWORD ) : sizeof( WORD );
+	size_t indexStride = lodResource.m_isDWORD ? sizeof( DWORD ) : sizeof( WORD );
 	lodResource.m_indexData.resize( indices.size() * indexStride );
 
 	if ( lodResource.m_isDWORD )
 	{
-		for ( std::size_t i = 0; i < indices.size( ); ++i )
+		for ( size_t i = 0; i < indices.size( ); ++i )
 		{
 			reinterpret_cast<DWORD*>( lodResource.m_indexData.data( ) )[i] = static_cast<DWORD>( indices[i] );
 		}
 	}
 	else
 	{
-		for ( std::size_t i = 0; i < indices.size( ); ++i )
+		for ( size_t i = 0; i < indices.size( ); ++i )
 		{
 			reinterpret_cast<WORD*>( lodResource.m_indexData.data( ) )[i] = static_cast<WORD>( indices[i] );
 		}
 	}
 }
 
-MaterialResource* StaticMesh::GetMaterialResource( std::size_t idx ) const
+MaterialResource* StaticMesh::GetMaterialResource( size_t idx ) const
 {
 	assert( idx < m_materials.size( ) );
 	if ( m_materials[idx].m_mateiral == nullptr )

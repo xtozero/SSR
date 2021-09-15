@@ -13,7 +13,7 @@ namespace
 		desc.AlphaToCoverageEnable = trait.m_alphaToConverageEnable;
 		desc.IndependentBlendEnable = trait.m_independentBlendEnable;
 
-		for ( int i = 0; i < 8; ++i )
+		for ( uint32 i = 0; i < 8; ++i )
 		{
 			desc.RenderTarget[i].BlendEnable = trait.m_renderTarget[i].m_blendEnable;
 			desc.RenderTarget[i].SrcBlend = ConvertToBlend( trait.m_renderTarget[i].m_srcBlend );
@@ -46,21 +46,21 @@ namespace aga
 		return m_blendFactor;
 	}
 
-	UINT D3D11BlendState::SamplerMask( ) const
+	uint32 D3D11BlendState::SamplerMask( ) const
 	{
 		return m_sampleMask;
 	}
 
 	void D3D11BlendState::SetBlendFactor( const float( &blendFactor )[4] )
 	{
-		constexpr int size = std::extent_v<decltype( blendFactor )>;
-		for ( int i = 0; i < size; ++i )
+		constexpr uint32 size = std::extent_v<decltype( blendFactor )>;
+		for ( uint32 i = 0; i < size; ++i )
 		{
 			m_blendFactor[i] = blendFactor[i];
 		}
 	}
 
-	void D3D11BlendState::SetSampleMask( unsigned int sampleMask )
+	void D3D11BlendState::SetSampleMask( uint32 sampleMask )
 	{
 		m_sampleMask = sampleMask;
 	}

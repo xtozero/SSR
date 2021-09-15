@@ -53,7 +53,7 @@ CSkyBox::CSkyBox( )
 	boxDesc.m_positions[6] = CXMFLOAT3( SKYBOX_LENGTH, SKYBOX_LENGTH, -SKYBOX_LENGTH );
 	boxDesc.m_positions[7] = CXMFLOAT3( SKYBOX_LENGTH, SKYBOX_LENGTH, SKYBOX_LENGTH );
 
-	for ( int i = 0; i < static_cast<int>( boxDesc.m_positions.size( ) ); ++i )
+	for ( int32 i = 0; i < static_cast<int32>( boxDesc.m_positions.size( ) ); ++i )
 	{
 		boxDesc.m_vertexInstances.emplace_back( i, -1, -1 );
 	}

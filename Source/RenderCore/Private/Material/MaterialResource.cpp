@@ -3,6 +3,7 @@
 
 #include "AbstractGraphicsInterface.h"
 #include "MultiThread/EngineTaskScheduler.h"
+#include "SizedTypes.h"
 
 void MaterialResource::SetMaterial( const std::shared_ptr<Material>& material )
 {
@@ -89,27 +90,29 @@ void MaterialResource::CreateGraphicsResource( )
 		return;
 	}
 
-	std::size_t constantBufferSize = 0;
-	std::size_t constantValueNameSize = 0;
+	size_t constantBufferSize = 0;
+	size_t constantValueNameSize = 0;
 
-	auto shaderTypes = { SHADER_TYPE::VS, SHADER_TYPE::PS };
+	auto shaderTypes = {
+		static_cast<uint32>( SHADER_TYPE::VS ), 
+		static_cast<uint32>( SHADER_TYPE::PS ) };
 
-	UINT materialCbSlotNumbers[MAX_SHADER_TYPE<int>];
-	constexpr UINT invalidSlot = std::numeric_limits<UINT>::max();
+	uint32 materialCbSlotNumbers[MAX_SHADER_TYPE<uint32>];
+	constexpr uint32 invalidSlot = std::numeric_limits<uint32>::max();
 	std::fill( std::begin( materialCbSlotNumbers ), std::end( materialCbSlotNumbers ), invalidSlot );
 
-	const ShaderBase* shaders[MAX_SHADER_TYPE<int>] = {};
+	const ShaderBase* shaders[MAX_SHADER_TYPE<uint32>] = {};
 
 	// cache shader
 	for ( auto shaderType : shaderTypes )
 	{
-		shaders[static_cast<int>( shaderType )] = GetShader( shaderType );
+		shaders[shaderType] = GetShader( static_cast<SHADER_TYPE>( shaderType ) );
 	}
 
 	// find material constant buffer slot
 	for ( auto shaderType : shaderTypes )
 	{
-		if ( auto shader = shaders[static_cast<int>( shaderType )] )
+		if ( auto shader = shaders[shaderType] )
 		{
 			const auto& parameterMap = shader->ParameterMap( ).GetParameterMap( );
 			for ( const auto& pair : parameterMap )
@@ -118,10 +121,10 @@ void MaterialResource::CreateGraphicsResource( )
 				if ( ( param.m_type == aga::ShaderParameterType::ConstantBuffer ) &&
 					( name == "Material" ) )
 				{
-					assert( materialCbSlotNumbers[static_cast<int>( shaderType )] == invalidSlot );
-					if ( materialCbSlotNumbers[static_cast<int>( shaderType )] == invalidSlot )
+					assert( materialCbSlotNumbers[shaderType] == invalidSlot );
+					if ( materialCbSlotNumbers[shaderType] == invalidSlot )
 					{
-						materialCbSlotNumbers[static_cast<int>( shaderType )] = param.m_bindPoint;
+						materialCbSlotNumbers[shaderType] = param.m_bindPoint;
 					}
 				}
 			}
@@ -131,13 +134,13 @@ void MaterialResource::CreateGraphicsResource( )
 	// gather vector size
 	for ( auto shaderType : shaderTypes )
 	{
-		UINT materialCbSlot = materialCbSlotNumbers[static_cast<int>( shaderType )];
+		uint32 materialCbSlot = materialCbSlotNumbers[shaderType];
 		if ( materialCbSlot == invalidSlot )
 		{
 			continue;
 		}
 
-		if ( auto shader = shaders[static_cast<int>( shaderType )] )
+		if ( auto shader = shaders[shaderType] )
 		{
 			const auto& parameterMap = shader->ParameterMap( ).GetParameterMap( );
 			for ( const auto& pair : parameterMap )
@@ -170,13 +173,13 @@ void MaterialResource::CreateGraphicsResource( )
 
 	for ( auto shaderType : shaderTypes )
 	{
-		UINT materialCbSlot = materialCbSlotNumbers[static_cast<int>( shaderType )];
+		uint32 materialCbSlot = materialCbSlotNumbers[shaderType];
 		if ( materialCbSlot == invalidSlot )
 		{
 			continue;
 		}
 
-		if ( auto shader = shaders[static_cast<int>( shaderType )] )
+		if ( auto shader = shaders[shaderType] )
 		{
 			const auto& parameterMap = shader->ParameterMap( ).GetParameterMap( );
 			for ( const auto& pair : parameterMap )

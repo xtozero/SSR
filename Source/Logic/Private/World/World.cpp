@@ -70,7 +70,7 @@ void World::RunPhysics( float duration )
 		}
 	}
 
-	int usedContacts = GenerateContacts( );
+	int32 usedContacts = GenerateContacts( );
 
 	m_resolver.ResolveContacts( m_contacts, usedContacts, duration );
 }
@@ -127,7 +127,7 @@ void World::UpdateObjectMovement( ObjectRelatedRigidBody* body, const BoundingSp
 	m_bvhTree.Insert( body, volume );
 }
 
-void World::DebugDrawBVH( CDebugOverlayManager& debugOverlay, unsigned int color, float duration )
+void World::DebugDrawBVH( CDebugOverlayManager& debugOverlay, uint32 color, float duration )
 {
 	for ( auto node : m_bvhTree )
 	{
@@ -135,16 +135,16 @@ void World::DebugDrawBVH( CDebugOverlayManager& debugOverlay, unsigned int color
 	}
 }
 
-int World::GenerateContacts( )
+int32 World::GenerateContacts( )
 {
 	m_collisionData.m_friction = 0.9f;
 	m_collisionData.m_restitution = 0.1f;
 	m_collisionData.m_tolerance = 0.1f;
 
 	PotentialContact<ObjectRelatedRigidBody> candidate[MAX_CONTACTS * 8];
-	int nPotentialContact = m_bvhTree.GetPotentialContacts( candidate, MAX_CONTACTS * 8 );
+	uint32 nPotentialContact = m_bvhTree.GetPotentialContacts( candidate, MAX_CONTACTS * 8 );
 
-	for ( int i = 0; i < nPotentialContact; ++i )
+	for ( uint32 i = 0; i < nPotentialContact; ++i )
 	{
 		CGameObject* gameobject[] = { candidate[i].m_body[0]->GetGameObject( ), candidate[i].m_body[1]->GetGameObject( ) };
 

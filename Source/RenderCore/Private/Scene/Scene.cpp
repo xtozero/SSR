@@ -163,8 +163,8 @@ void Scene::AddPrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo )
 	assert( IsInRenderThread() );
 	assert( primitiveSceneInfo );
 
-	m_primitiveToUpdate.push_back( m_primitives.size( ) );
-	primitiveSceneInfo->m_primitiveId = m_primitives.size( );
+	m_primitiveToUpdate.push_back( static_cast<uint32>( m_primitives.size( ) ) );
+	primitiveSceneInfo->m_primitiveId = static_cast<uint32>( m_primitives.size( ) );
 
 	m_primitives.push_back( primitiveSceneInfo );
 
@@ -178,7 +178,7 @@ void Scene::RemovePrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo )
 	m_primitives.erase( std::remove( m_primitives.begin(), m_primitives.end(), primitiveSceneInfo ), m_primitives.end( ) );
 	m_primitiveToUpdate.erase( std::remove( m_primitiveToUpdate.begin( ), m_primitiveToUpdate.end( ), primitiveSceneInfo->m_primitiveId ), m_primitiveToUpdate.end( ) );
 
-	for ( std::size_t i = primitiveSceneInfo->m_primitiveId; i < m_primitives.size( ); ++i )
+	for ( uint32 i = primitiveSceneInfo->m_primitiveId; i < m_primitives.size( ); ++i )
 	{
 		--m_primitives[i]->m_primitiveId;
 	}
@@ -201,13 +201,13 @@ void Scene::RemoveTexturedSky( TexturedSkyProxy* texturedSky )
 
 void Scene::AddLightSceneInfo( LightSceneInfo* lightSceneInfo )
 {
-	std::size_t id = m_lights.Add( lightSceneInfo );
+	uint32 id = static_cast<uint32>( m_lights.Add( lightSceneInfo ) );
 	lightSceneInfo->SetID( id );
 }
 
 void Scene::RemoveLightSceneInfo( LightSceneInfo* lightSceneInfo )
 {
-	std::size_t id = lightSceneInfo->ID( );
+	uint32 id = lightSceneInfo->ID( );
 	m_lights.RemoveAt( id );
 
 	delete lightSceneInfo->Proxy( );
@@ -217,7 +217,7 @@ void Scene::RemoveLightSceneInfo( LightSceneInfo* lightSceneInfo )
 bool UpdateGPUPrimitiveInfos( Scene& scene )
 {
 	assert( IsInRenderThread( ) );
-	std::size_t updateSize = scene.m_primitiveToUpdate.size( );
+	uint32 updateSize = static_cast<uint32>( scene.m_primitiveToUpdate.size( ) );
 	if ( updateSize == 0 )
 	{
 		return true;
@@ -230,7 +230,7 @@ bool UpdateGPUPrimitiveInfos( Scene& scene )
 		return false;
 	}
 
-	std::size_t totalPrimitives = scene.m_primitives.size( );
+	uint32 totalPrimitives = static_cast<uint32>( scene.m_primitives.size( ) );
 	scene.m_gpuPrimitiveInfos.Resize( totalPrimitives );
 
 	GpuMemcpy gpuMemcpy( updateSize, sizeof( PrimitiveSceneData ) / sizeof( CXMFLOAT4 ), scene.m_uploadPrimitiveBuffer, scene.m_distributionBuffer );

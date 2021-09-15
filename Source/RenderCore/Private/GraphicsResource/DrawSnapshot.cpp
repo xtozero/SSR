@@ -11,13 +11,13 @@ PrimitiveIdVertexBufferPool& PrimitiveIdVertexBufferPool::GetInstance( )
 	return primitiveIdVertexBufferPool;
 }
 
-VertexBuffer PrimitiveIdVertexBufferPool::Alloc( std::size_t require )
+VertexBuffer PrimitiveIdVertexBufferPool::Alloc( uint32 require )
 {
-	constexpr std::size_t minimum = 1024;
+	constexpr uint32 minimum = 1024;
 	require = ( require + minimum - 1 ) & ~( minimum - 1 );
 
-	std::optional<std::size_t> bestMatchIdx;
-	for ( std::size_t i = 0; i < m_entries.size( ); ++i )
+	std::optional<size_t> bestMatchIdx;
+	for ( size_t i = 0; i < m_entries.size( ); ++i )
 	{
 		if ( ( bestMatchIdx.has_value( ) == false ) ||
 			( m_entries[i].m_vertexBuffer.Size( ) < m_entries[*bestMatchIdx].m_vertexBuffer.Size() ) )
@@ -42,8 +42,8 @@ VertexBuffer PrimitiveIdVertexBufferPool::Alloc( std::size_t require )
 		auto& newEntry = m_entries.back( );
 		newEntry.m_lastDiscardId = m_discardId;
 
-		std::size_t elementSize = sizeof( UINT );
-		std::size_t numElement = require / sizeof( UINT );
+		constexpr uint32 elementSize = sizeof( uint32 );
+		uint32 numElement = require / sizeof( uint32 );
 		newEntry.m_vertexBuffer = VertexBuffer( elementSize, numElement, nullptr, true );
 
 		return newEntry.m_vertexBuffer;
@@ -107,12 +107,12 @@ void SortDrawSnapshots( std::vector<VisibleDrawSnapshot>& snapshots, VertexBuffe
 		}
 	}
 
-	UINT* idBuffer = reinterpret_cast<UINT*>( primitiveIds.Lock( ) );
+	uint32* idBuffer = reinterpret_cast<uint32*>( primitiveIds.Lock( ) );
 	if ( idBuffer )
 	{
-		for ( std::size_t i = 0; i < snapshots.size(); ++i )
+		for ( size_t i = 0; i < snapshots.size(); ++i )
 		{
-			snapshots[i].m_primitiveIdOffset = static_cast<UINT>( i );
+			snapshots[i].m_primitiveIdOffset = static_cast<uint32>( i );
 			*idBuffer = snapshots[i].m_primitiveId;
 			++idBuffer;
 		}
@@ -137,16 +137,16 @@ void CommitDrawSnapshot( VisibleDrawSnapshot& visibleSnapshot, VertexBuffer& pri
 
 	// Set vertex buffer
 	VertexInputStream vertexStream = snapshot.m_vertexStream;
-	vertexStream.Bind( primitiveIds, 1, visibleSnapshot.m_primitiveIdOffset * sizeof( UINT ) );
+	vertexStream.Bind( primitiveIds, 1, visibleSnapshot.m_primitiveIdOffset * sizeof( uint32 ) );
 
-	int numVB = vertexStream.NumBuffer( );
+	uint32 numVB = vertexStream.NumBuffer( );
 	aga::Buffer* const* vertexBuffers = vertexStream.VertexBuffers( );
-	const UINT* vertexOffsets = vertexStream.Offsets( );
+	const uint32* vertexOffsets = vertexStream.Offsets( );
 	commandList->BindVertexBuffer( vertexBuffers, 0, numVB, vertexOffsets );
 
 	// Set index buffer
 	aga::Buffer* indexBuffer = snapshot.m_indexBuffer.Resource( );
-	UINT indexOffset = 0;
+	uint32 indexOffset = 0;
 
 	commandList->BindIndexBuffer( indexBuffer, indexOffset );
 

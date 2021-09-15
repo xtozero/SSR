@@ -19,7 +19,7 @@ bool CDebugOverlayManager::Init( CGameLogic& gameLogic )
 	//IRenderer& renderer = gameLogic.GetRenderer( );
 	//IResourceManager& resourceMgr = renderer.GetResourceManager( );
 
-	//constexpr unsigned int defaultDynamicBufferSize = 64 * 1024;
+	//constexpr uint32 defaultDynamicBufferSize = 64 * 1024;
 	//m_dynamicVB.Initialize( resourceMgr, RESOURCE_BIND_TYPE::VERTEX_BUFFER, defaultDynamicBufferSize );
 
 	//m_debugMaterial = renderer.SearchMaterial( "mat_debugOverlay" );
@@ -33,7 +33,7 @@ bool CDebugOverlayManager::Init( CGameLogic& gameLogic )
 
 void CDebugOverlayManager::DrawPrimitive( IRenderer& renderer, float deltaTime )
 {
-	//int popCount = 0;
+	//int32 popCount = 0;
 
 	//for ( auto iter = m_debugLine.begin( ), end = m_debugLine.end(); iter != end; )
 	//{
@@ -79,17 +79,17 @@ void CDebugOverlayManager::DrawPrimitive( IRenderer& renderer, float deltaTime )
 	//struct DebugPrimitiveVertex
 	//{
 	//	CXMFLOAT3 m_pos;
-	//	unsigned int m_color;
+	//	uint32 m_color;
 	//};
 
 	//assert( ( m_debugLine.size( ) * 2 + m_debugTriangle.size( ) * 3 ) <= UINT_MAX );
-	//DebugPrimitiveVertex* vertices = m_dynamicVB.Map<DebugPrimitiveVertex>( renderer, sizeof( DebugPrimitiveVertex ) * static_cast<UINT>( m_debugLine.size( ) * 2 + m_debugTriangle.size( ) * 3 ) );
+	//DebugPrimitiveVertex* vertices = m_dynamicVB.Map<DebugPrimitiveVertex>( renderer, sizeof( DebugPrimitiveVertex ) * static_cast<uint32>( m_debugLine.size( ) * 2 + m_debugTriangle.size( ) * 3 ) );
 	//if ( vertices == nullptr )
 	//{
 	//	__debugbreak( );
 	//}
 
-	//std::size_t idx = 0;
+	//size_t idx = 0;
 	//for ( const auto& line : m_debugLine )
 	//{
 	//	vertices[idx].m_pos = line.m_from;
@@ -114,29 +114,29 @@ void CDebugOverlayManager::DrawPrimitive( IRenderer& renderer, float deltaTime )
 	//m_dynamicVB.Unmap( renderer );
 
 	//RE_HANDLE handle = m_dynamicVB.GetHandle( );
-	//UINT stride = sizeof( DebugPrimitiveVertex );
-	//UINT offset = 0;
+	//uint32 stride = sizeof( DebugPrimitiveVertex );
+	//uint32 offset = 0;
 	//renderer.BindVertexBuffer( &handle, 0, 1, &stride, &offset );
 	//renderer.BindMaterial( m_debugMaterial );
 
 	//assert( ( m_debugLine.size( ) * 2 ) <= UINT_MAX );
-	//UINT debugLineSize = static_cast<UINT>( m_debugLine.size( ) * 2 );
+	//uint32 debugLineSize = static_cast<uint32>( m_debugLine.size( ) * 2 );
 	//renderer.Draw( RESOURCE_PRIMITIVE::LINELIST, debugLineSize );
 	//assert( ( m_debugTriangle.size( ) * 3 ) <= UINT_MAX );
-	//renderer.Draw( RESOURCE_PRIMITIVE::TRIANGLELIST, static_cast<UINT>( m_debugTriangle.size() * 3 ), debugLineSize );
+	//renderer.Draw( RESOURCE_PRIMITIVE::TRIANGLELIST, static_cast<uint32>( m_debugTriangle.size() * 3 ), debugLineSize );
 }
 
-void CDebugOverlayManager::AddDebugLine( const CXMFLOAT3& from, const CXMFLOAT3& to, unsigned int color, float life )
+void CDebugOverlayManager::AddDebugLine( const CXMFLOAT3& from, const CXMFLOAT3& to, uint32 color, float life )
 {
 	m_debugLine.emplace_back( from, to, color, life );
 }
 
-void CDebugOverlayManager::AddDebugTriangle( const CXMFLOAT3& p0, const CXMFLOAT3& p1, const CXMFLOAT3& p2, unsigned int color, float life )
+void CDebugOverlayManager::AddDebugTriangle( const CXMFLOAT3& p0, const CXMFLOAT3& p1, const CXMFLOAT3& p2, uint32 color, float life )
 {
 	m_debugTriangle.emplace_back( p0, p1, p2, color, life );
 }
 
-void CDebugOverlayManager::AddDebugCube( const CXMFLOAT3& min, const CXMFLOAT3& max, unsigned int color, float life )
+void CDebugOverlayManager::AddDebugCube( const CXMFLOAT3& min, const CXMFLOAT3& max, uint32 color, float life )
 {
 	CXMFLOAT3 from = min;
 	CXMFLOAT3 to = min;
@@ -173,7 +173,7 @@ void CDebugOverlayManager::AddDebugCube( const CXMFLOAT3& min, const CXMFLOAT3& 
 	AddDebugLine( from, to, color, life );
 }
 
-void CDebugOverlayManager::AddDebugCube( const CXMFLOAT3& halfSize, const CXMFLOAT4X4& transform, unsigned int color, float life )
+void CDebugOverlayManager::AddDebugCube( const CXMFLOAT3& halfSize, const CXMFLOAT4X4& transform, uint32 color, float life )
 {
 	CXMFLOAT3 vertex[8] = {
 		CXMFLOAT3( -halfSize.x, -halfSize.y, -halfSize.z ),
@@ -186,7 +186,7 @@ void CDebugOverlayManager::AddDebugCube( const CXMFLOAT3& halfSize, const CXMFLO
 		CXMFLOAT3( -halfSize.x, halfSize.y, halfSize.z )
 	};
 
-	for ( int i = 0; i < 8; ++i )
+	for ( uint32 i = 0; i < 8; ++i )
 	{
 		vertex[i] = XMVector3TransformCoord( vertex[i], transform );
 	}
@@ -207,7 +207,7 @@ void CDebugOverlayManager::AddDebugCube( const CXMFLOAT3& halfSize, const CXMFLO
 	AddDebugLine( vertex[3], vertex[7], color, life );
 }
 
-void CDebugOverlayManager::AddDebugSolidCube( const CXMFLOAT3& min, const CXMFLOAT3& max, unsigned int color, float life )
+void CDebugOverlayManager::AddDebugSolidCube( const CXMFLOAT3& min, const CXMFLOAT3& max, uint32 color, float life )
 {
 	CXMFLOAT3 a = min;
 	CXMFLOAT3 b( max.x, min.y, min.z );
@@ -259,23 +259,23 @@ void CDebugOverlayManager::AddDebugSolidCube( const CXMFLOAT3& min, const CXMFLO
 	AddDebugTriangle( a, c, b, color, life );
 }
 
-void CDebugOverlayManager::AddDebugSphere( const CXMFLOAT3& center, float radius, unsigned int color, float life )
+void CDebugOverlayManager::AddDebugSphere( const CXMFLOAT3& center, float radius, uint32 color, float life )
 {
-	constexpr int COLS = 36;
-	constexpr int ROWS = COLS >> 1;
+	constexpr int32 COLS = 36;
+	constexpr int32 ROWS = COLS >> 1;
 	constexpr float STEP = ( DirectX::XM_PI / 180.0f ) * 360.0f / COLS;
-	int p2 = COLS >> 1;
-	int r2 = ROWS >> 1;
+	int32 p2 = COLS >> 1;
+	int32 r2 = ROWS >> 1;
 	float prev_ci = 1;
 	float prev_si = 0;
-	for ( int y = -r2; y < r2; ++y )
+	for ( int32 y = -r2; y < r2; ++y )
 	{
 		float cy = cos( y * STEP );
 		float cy1 = cos( ( y + 1 ) * STEP );
 		float sy = sin( y * STEP );
 		float sy1 = sin( ( y + 1 ) * STEP );
 
-		for ( int i = -p2; i < p2; ++i )
+		for ( int32 i = -p2; i < p2; ++i )
 		{
 			float ci = cos( i * STEP );
 			float si = sin( i * STEP );

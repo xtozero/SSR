@@ -21,7 +21,7 @@
 
 using namespace DirectX;
 
-const ICollider* ObjectRelatedRigidBody::GetCollider( int type )
+const ICollider* ObjectRelatedRigidBody::GetCollider( int32 type )
 {
 	assert( m_gameObject != nullptr );
 	return m_gameObject->GetCollider( type );
@@ -246,7 +246,7 @@ const ICollider* CGameObject::GetDefaultCollider( )
 	return GetCollider( m_colliderType );
 }
 
-const ICollider* CGameObject::GetCollider( int type )
+const ICollider* CGameObject::GetCollider( int32 type )
 {
 	if ( ( m_colliderType == COLLIDER::NONE ) || ( type == COLLIDER::NONE ) )
 	{
@@ -257,7 +257,7 @@ const ICollider* CGameObject::GetCollider( int type )
 	return m_colliders[type].get( );
 }
 
-const std::vector<std::unique_ptr<ICollider>>& CGameObject::GetSubColliders( int type )
+const std::vector<std::unique_ptr<ICollider>>& CGameObject::GetSubColliders( int32 type )
 {
 	UpdateSubCollider( static_cast<COLLIDER::TYPE>( type ) );
 	return m_subColliders[type];
@@ -396,7 +396,7 @@ void CGameObject::InitializeInputComponent( )
 
 CGameObject::CGameObject( )
 {
-	for ( std::size_t i = 0; i < COLLIDER::COUNT; ++i )
+	for ( uint32 i = 0; i < COLLIDER::COUNT; ++i )
 	{
 		m_originalColliders[i] = nullptr;
 		m_colliders[i] = nullptr;
@@ -445,7 +445,7 @@ void CGameObject::CalcOriginalCollider( )
 	//	return;
 	//}
 
-	//for ( int i = 0; i < COLLIDER::COUNT; ++i )
+	//for ( uint32 i = 0; i < COLLIDER::COUNT; ++i )
 	//{
 	//	m_originalColliders[i] = GetColliderManager( ).GetCollider( *m_pModel, static_cast<COLLIDER::TYPE>( i ) );
 	//}
@@ -470,7 +470,7 @@ void CGameObject::UpdateCollider( COLLIDER::TYPE type )
 
 void CGameObject::UpdateAllCollider( )
 {
-	for ( int i = 0; i < COLLIDER::COUNT; ++i )
+	for ( uint32 i = 0; i < COLLIDER::COUNT; ++i )
 	{
 		if ( m_originalColliders[i] )
 		{

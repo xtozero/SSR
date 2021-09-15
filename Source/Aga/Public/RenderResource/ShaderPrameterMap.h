@@ -26,9 +26,9 @@ namespace aga
 	public:
 		SHADER_TYPE m_shader = SHADER_TYPE::NONE;
 		ShaderParameterType m_type = ShaderParameterType::Unknown;
-		UINT m_bindPoint = 0;
-		UINT m_offset = 0;
-		UINT m_sizeInByte = 0;
+		uint32 m_bindPoint = 0;
+		uint32 m_offset = 0;
+		uint32 m_sizeInByte = 0;
 
 		AGA_DLL size_t GetHash( ) const;
 		AGA_DLL void Bind( const ShaderParameterMap& parameterMap, const char* variableName );
@@ -53,7 +53,7 @@ namespace aga
 	class ShaderParameterMap
 	{
 	public:
-		void AddParameter( const char* variableName, SHADER_TYPE shader, ShaderParameterType type, UINT bindPoint, UINT offset, UINT sizeInByte )
+		void AddParameter( const char* variableName, SHADER_TYPE shader, ShaderParameterType type, uint32 bindPoint, uint32 offset, uint32 sizeInByte )
 		{
 			m_parameters.emplace( variableName, ShaderParameter{ shader, type, bindPoint, offset, sizeInByte } );
 		}
@@ -75,9 +75,9 @@ namespace aga
 
 		AGA_DLL ShaderParameter GetParameter( const char* name ) const;
 
-		std::size_t Size( ) const
+		uint32 Size( ) const
 		{
-			return m_parameters.size( );
+			return static_cast<uint32>( m_parameters.size( ) );
 		}
 
 	private:

@@ -2,6 +2,7 @@
 
 #include "ICollider.h"
 #include "Math/CXMFloat.h"
+#include "SizedTypes.h"
 
 #include <vector>
 
@@ -15,9 +16,9 @@ public:
 	virtual void Update( const CXMFLOAT3& scaling, const CXMFLOAT4& rotation, const CXMFLOAT3& translation, ICollider* original ) override;
 	virtual void CalcSubMeshBounds( std::vector<std::unique_ptr<ICollider>>& /*subColliders*/ ) override { assert( false && "Not Implemented" ); }
 	virtual float Intersect( const CRay& ray ) const override;
-	virtual int Intersect( const CFrustum& frustum ) const override;
-	virtual void DrawDebugOverlay( CDebugOverlayManager& debugOverlay, unsigned int color, float duration ) const override;
-	int Intersect( const BoundingSphere& sphere ) const;
+	virtual uint32 Intersect( const CFrustum& frustum ) const override;
+	virtual void DrawDebugOverlay( CDebugOverlayManager& debugOverlay, uint32 color, float duration ) const override;
+	uint32 Intersect( const BoundingSphere& sphere ) const;
 	float CalcGrowth( const BoundingSphere& sphere ) const;
 
 	bool Intersect( const CFrustum& frustum, const CXMFLOAT3& sweepDir );

@@ -3,6 +3,7 @@
 #include "Material/Material.h"
 #include "Mesh/MeshDescription.h"
 #include "Mesh/StaticMesh.h"
+#include "SizedTypes.h"
 #include "WavefrontObjParser.hpp"
 
 #include <DirectXMath.h>
@@ -47,14 +48,14 @@ namespace
 			for ( const auto& face : mesh.m_faces )
 			{
 				assert( face.m_vertices.size( ) == 3 );
-				std::size_t indicies[3] = {};
-				for ( int i = 0; i < 3; ++i )
+				size_t indicies[3] = {};
+				for ( uint32 i = 0; i < 3; ++i )
 				{
 					indicies[i] = face.m_vertices[i];
 				}
 				Wavefront::Vec3 normal = CalcTriangleNormal( model.m_vertices[indicies[0]], model.m_vertices[indicies[1]], model.m_vertices[indicies[2]] );
 
-				for ( std::size_t i : indicies )
+				for ( size_t i : indicies )
 				{
 					std::get<0>( normals[i] ) += std::get<0>( normal );
 					std::get<1>( normals[i] ) += std::get<1>( normal );
@@ -105,28 +106,28 @@ namespace
 			texcoord.emplace_back( std::get<0>( t ), std::get<1>( t ) );
 		}
 		
-		auto faceTriFold = []( std::size_t init, const Wavefront::Face& face )
+		auto faceTriFold = []( size_t init, const Wavefront::Face& face )
 		{
 			assert( face.m_vertices.size( ) == 3 );
-			std::size_t numTri = face.m_vertices.size( ) / 3;
+			size_t numTri = face.m_vertices.size( ) / 3;
 			return init + numTri;
 		};
 
-		auto meshTriFold = [faceTriFold]( std::size_t init, const Wavefront::ObjMesh& mesh )
+		auto meshTriFold = [faceTriFold]( size_t init, const Wavefront::ObjMesh& mesh )
 		{
-			std::size_t faceTriangle = std::accumulate( std::begin( mesh.m_faces ), std::end( mesh.m_faces ), std::size_t( 0 ), faceTriFold );
+			size_t faceTriangle = std::accumulate( std::begin( mesh.m_faces ), std::end( mesh.m_faces ), size_t( 0 ), faceTriFold );
 
 			return init + faceTriangle;
 		};
 
-		std::size_t totalTriangle = std::accumulate( std::begin( model.m_meshs ), std::end( model.m_meshs ), std::size_t( 0 ), meshTriFold );
+		size_t totalTriangle = std::accumulate( std::begin( model.m_meshs ), std::end( model.m_meshs ), size_t( 0 ), meshTriFold );
 
 		auto& triangles = meshDescription.m_triangles;
 		triangles.reserve( totalTriangle );
 
 		auto& vertexInstances = meshDescription.m_vertexInstances;
 		vertexInstances.reserve( totalTriangle * 3 );
-		std::map<MeshVertexInstance, std::size_t> viLut;
+		std::map<MeshVertexInstance, size_t> viLut;
 
 		for ( const auto& mesh : model.m_meshs )
 		{
@@ -146,19 +147,19 @@ namespace
 			{
 				MeshTriangle triangle;
 
-				std::size_t vertexSize = face.m_vertices.size( );
+				size_t vertexSize = face.m_vertices.size( );
 				// Only support triangle list
 				assert( vertexSize == 3 );
-				std::size_t normalSize = face.m_normals.size( );
-				std::size_t texcoordSize = face.m_texcoords.size( );
+				size_t normalSize = face.m_normals.size( );
+				size_t texcoordSize = face.m_texcoords.size( );
 
-				for ( std::size_t i = 0; i < vertexSize; ++i )
+				for ( size_t i = 0; i < vertexSize; ++i )
 				{
-					int posIdx = static_cast<int>( face.m_vertices[i] );
-					int normalIdx = ( normalSize == 0 ) ? -1 : static_cast<int>( face.m_normals[i] );
-					int texIdx = ( texcoordSize == 0 ) ? -1 : static_cast<int>( face.m_texcoords[i] );
+					int32 posIdx = face.m_vertices[i];
+					int32 normalIdx = ( normalSize == 0 ) ? -1 : face.m_normals[i];
+					int32 texIdx = ( texcoordSize == 0 ) ? -1 : face.m_texcoords[i];
 
-					std::size_t vertexInstanceID = 0;
+					size_t vertexInstanceID = 0;
 					MeshVertexInstance vi( posIdx, normalIdx, texIdx );
 					auto found = viLut.find( vi );
 

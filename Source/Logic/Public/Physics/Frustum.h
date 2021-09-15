@@ -38,14 +38,14 @@ public:
 
 		// http://old.cescg.org/CESCG-2002/DSykoraJJelinek/
 		// Table 1: Look-up table for determining the n and p-vertices.
-		for ( int i = 0; i < 6; ++i )
+		for ( uint32 i = 0; i < 6; ++i )
 		{
 			m_vertexLUT[i] = ( ( m_plane[i].x > 0 ) ? X_MAX : 0 ) | 
 							( ( m_plane[i].y > 0 ) ? Y_MAX : 0 ) | 
 							( ( m_plane[i].z > 0 ) ? Z_MAX : 0 );
 		}
 
-		for ( int i = 0; i < 8; ++i )
+		for ( uint32 i = 0; i < 8; ++i )
 		{
 			const CXMFLOAT4& p0 = ( i & 1 ) ? m_plane[4] : m_plane[5];
 			const CXMFLOAT4& p1 = ( i & 2 ) ? m_plane[3] : m_plane[2];
@@ -55,7 +55,7 @@ public:
 		}
 	}
 
-	using LookUpTable = int[6];
+	using LookUpTable = uint32[6];
 	const LookUpTable& GetVertexLUT( ) const { return m_vertexLUT; }
 
 	const CXMFLOAT4( &GetPlanes( ) const )[6]{ return m_plane; }
@@ -64,5 +64,5 @@ public:
 private:
 	CXMFLOAT4 m_plane[6];
 	CXMFLOAT3 m_vertices[8];
-	int m_vertexLUT[6];
+	uint32 m_vertexLUT[6];
 };

@@ -3,6 +3,7 @@
 #include "AbstractGraphicsInterface.h"
 #include "ConstantBuffer.h"
 #include "GraphicsApiResource.h"
+#include "SizedTypes.h"
 #include "UploadBuffer.h"
 #include "VertexBuffer.h"
 
@@ -27,7 +28,7 @@ template <typename T>
 class TypedVertexBuffer : public VertexBuffer
 {
 public:
-	TypedVertexBuffer( std::size_t numElement, const void* initData ) : VertexBuffer( sizeof( T ), numElement, initData, false ) { }
+	TypedVertexBuffer( uint32 numElement, const void* initData ) : VertexBuffer( sizeof( T ), numElement, initData, false ) { }
 
 	TypedVertexBuffer( ) = default;
 	~TypedVertexBuffer( ) = default;
@@ -41,7 +42,7 @@ template <typename T>
 class TypedBuffer
 {
 public:
-	void Resize( std::size_t newNumElement, bool copyPreviousData )
+	void Resize( uint32 newNumElement, bool copyPreviousData )
 	{
 		if ( newNumElement > m_numElement )
 		{
@@ -56,7 +57,7 @@ public:
 		}
 	}
 
-	std::size_t Size( ) const { return sizeof( T ) * m_numElement; }
+	uint32 Size( ) const { return sizeof( T ) * m_numElement; }
 
 	aga::Buffer* Resource( )
 	{
@@ -78,7 +79,7 @@ public:
 		return m_buffer.Get( ) ? m_buffer->SRV( ) : nullptr;
 	}
 
-	TypedBuffer( std::size_t numElement, const void* initData = nullptr ) :
+	TypedBuffer( uint32 numElement, const void* initData = nullptr ) :
 		m_numElement( numElement )
 	{
 		InitResource( initData );
@@ -102,8 +103,8 @@ protected:
 		if ( m_numElement > 0 )
 		{
 			BUFFER_TRAIT trait = {
-			static_cast<UINT>( sizeof( T ) ),
-			static_cast<UINT>( m_numElement ),
+			static_cast<uint32>( sizeof( T ) ),
+			m_numElement,
 			RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
 			RESOURCE_BIND_TYPE::SHADER_RESOURCE | RESOURCE_BIND_TYPE::RANDOM_ACCESS,
 			RESOURCE_MISC::BUFFER_STRUCTURED,
@@ -120,14 +121,14 @@ protected:
 
 private:
 	RefHandle<aga::Buffer> m_buffer;
-	std::size_t m_numElement = 0;
+	uint32 m_numElement = 0;
 };
 
 template <typename T>
 class TypedUploadBuffer : public UploadBuffer
 {
 public:
-	TypedUploadBuffer( std::size_t numElement, const void* initData ) : UploadBuffer( sizeof( T ), numElement, initData ) {}
+	TypedUploadBuffer( uint32 numElement, const void* initData ) : UploadBuffer( sizeof( T ), numElement, initData ) {}
 
 	TypedUploadBuffer( ) : UploadBuffer( sizeof( T ), 0, nullptr ) {}
 	~TypedUploadBuffer( ) = default;

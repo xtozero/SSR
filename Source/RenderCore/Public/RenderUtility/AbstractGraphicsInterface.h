@@ -5,6 +5,7 @@
 #include "GraphicsPipelineState.h"
 #include "RenderOption.h"
 #include "ShaderPrameterMap.h"
+#include "SizedTypes.h"
 #include "VertexLayout.h"
 
 #include <unordered_map>
@@ -19,13 +20,13 @@ public:
 	void BootUp( aga::IAga* pAga );
 	void Shutdown( );
 
-	void* Lock( aga::Buffer* buffer, int lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, UINT subResource = 0 );
-	void UnLock( aga::Buffer* buffer, UINT subResource = 0 );
+	void* Lock( aga::Buffer* buffer, uint32 lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, uint32 subResource = 0 );
+	void UnLock( aga::Buffer* buffer, uint32 subResource = 0 );
 
-	void SetViewports( aga::Viewport** pViewPorts, int count );
-	void SetViewport( UINT minX, UINT minY, float minZ, UINT maxX, UINT maxY, float maxZ );
-	void SetScissorRects( aga::Viewport** pViewPorts, int size );
-	void SetScissorRect( UINT minX, UINT minY, UINT maxX, UINT maxY );
+	void SetViewports( aga::Viewport** pViewPorts, uint32 count );
+	void SetViewport( uint32 minX, uint32 minY, float minZ, uint32 maxX, uint32 maxY, float maxZ );
+	void SetScissorRects( aga::Viewport** pViewPorts, uint32 size );
+	void SetScissorRect( uint32 minX, uint32 minY, uint32 maxX, uint32 maxY );
 
 	template <typename ShaderType, typename ValueType>
 	void SetShaderValue( ShaderType& shader, const aga::ShaderParameter& parameter, ValueType value )
@@ -42,19 +43,19 @@ public:
 	}
 
 	template <typename ShaderType>
-	void BindConstant( ShaderType& shader, int startSlot, int numBuffers, aga::Buffer** pBuffers )
+	void BindConstant( ShaderType& shader, uint32 startSlot, uint32 numBuffers, aga::Buffer** pBuffers )
 	{
 		m_aga->BindConstant( shader.Resource( ), startSlot, numBuffers, pBuffers );
 	}
 
 	template <typename ShaderType>
-	void BindShaderInput( ShaderType& shader, int startSlot, int numBuffers, aga::Buffer** pBuffers )
+	void BindShaderInput( ShaderType& shader, uint32 startSlot, uint32 numBuffers, aga::Buffer** pBuffers )
 	{
 		m_aga->BindShaderInput( shader.Resource( ), startSlot, numBuffers, pBuffers );
 	}
 
 	template <typename ShaderType>
-	void BindShaderOutput( ShaderType& shader, int startSlot, int numBuffers, aga::Buffer** pBuffers )
+	void BindShaderOutput( ShaderType& shader, uint32 startSlot, uint32 numBuffers, aga::Buffer** pBuffers )
 	{
 		m_aga->BindShaderOutput( shader.Resource( ), startSlot, numBuffers, pBuffers );
 	}
@@ -93,13 +94,13 @@ public:
 		}
 	}
 
-	void BindRenderTargets( aga::Texture** pRenderTargets, int renderTargetCount, aga::Texture* depthStencil );
+	void BindRenderTargets( aga::Texture** pRenderTargets, uint32 renderTargetCount, aga::Texture* depthStencil );
 
 	void ClearDepthStencil( aga::Texture* depthStencil, float depthColor, UINT8 stencilColor );
 
-	void Dispatch( UINT x, UINT y, UINT z = 1 );
+	void Dispatch( uint32 x, uint32 y, uint32 z = 1 );
 
-	void Copy( aga::Buffer* dst, aga::Buffer* src, std::size_t size );
+	void Copy( aga::Buffer* dst, aga::Buffer* src, uint32 size );
 
 	BlendState FindOrCreate( const BlendOption& option );
 	DepthStencilState FindOrCreate( const DepthStencilOption& option );

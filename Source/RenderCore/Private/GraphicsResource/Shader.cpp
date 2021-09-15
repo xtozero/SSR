@@ -21,10 +21,10 @@ Archive& operator<<( Archive& ar, aga::ShaderParameterMap& shaderParamMap )
 	}
 	else
 	{
-		std::size_t size;
+		uint32 size;
 		ar << size;
 
-		for ( int i = 0; i < size; ++i )
+		for ( uint32 i = 0; i < size; ++i )
 		{
 			std::string variableName;
 			aga::ShaderParameter shaderParam;
@@ -42,25 +42,25 @@ Archive& operator<<( Archive& ar, aga::ShaderParameterInfo& shaderParamInfo )
 {
 	if ( ar.IsWriteMode( ) )
 	{
-		ar << shaderParamInfo.m_constantBuffers.size( );
+		ar << static_cast<uint32>( shaderParamInfo.m_constantBuffers.size( ) );
 		for ( auto& param : shaderParamInfo.m_constantBuffers )
 		{
 			ar << param;
 		}
 
-		ar << shaderParamInfo.m_srvs.size( );
+		ar << static_cast<uint32>( shaderParamInfo.m_srvs.size( ) );
 		for ( auto& param : shaderParamInfo.m_srvs )
 		{
 			ar << param;
 		}
 
-		ar << shaderParamInfo.m_uavs.size( );
+		ar << static_cast<uint32>( shaderParamInfo.m_uavs.size( ) );
 		for ( auto& param : shaderParamInfo.m_uavs )
 		{
 			ar << param;
 		}
 
-		ar << shaderParamInfo.m_samplers.size( );
+		ar << static_cast<uint32>( shaderParamInfo.m_samplers.size( ) );
 		for ( auto& param : shaderParamInfo.m_samplers )
 		{
 			ar << param;
@@ -68,7 +68,7 @@ Archive& operator<<( Archive& ar, aga::ShaderParameterInfo& shaderParamInfo )
 	}
 	else
 	{
-		std::size_t size;
+		uint32 size;
 
 		ar << size;
 		shaderParamInfo.m_constantBuffers.resize( size );
