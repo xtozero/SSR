@@ -1,5 +1,6 @@
 #pragma once
 
+#include "GraphicsApiResource.h"
 #include "SizedTypes.h"
 
 namespace aga
@@ -7,6 +8,7 @@ namespace aga
 	class Buffer;
 	class PipelineState;
 	class ShaderBindings;
+	class Texture;
 
 	class ICommandList
 	{
@@ -18,10 +20,24 @@ namespace aga
 		virtual void BindShaderResources( const ShaderBindings& shaderBindings ) = 0;
 		virtual void Draw( uint32 indexCount, uint32 startIndexLocation, uint32 baseVertexLocation ) = 0;
 		virtual void DrawInstancing( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) = 0;
+
+		virtual void SetViewports( uint32 count, const CubeArea<float>* areas ) = 0;
+		virtual void SetScissorRects( uint32 count, const RectangleArea<int32>* areas ) = 0;
+
+		virtual void BindRenderTargets( aga::Texture** pRenderTargets, uint32 renderTargetCount, aga::Texture* depthStencil ) = 0;
+
+		virtual ~ICommandList( ) = default;
+	};
+
+	class IDeferredCommandList : public ICommandList
+	{
+	public:
+		virtual void Finish( ) = 0;
 	};
 
 	class IImmediateCommandList : public ICommandList
 	{
-
+	public:
+		virtual void Execute( IDeferredCommandList& commandList ) = 0;
 	};
 }

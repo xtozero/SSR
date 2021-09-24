@@ -10,8 +10,9 @@ public:
 	virtual void Render( RenderViewGroup& renderViewGroup ) override;
 	virtual void PostRender( RenderViewGroup& renderViewGroup ) override;
 
+	virtual void SetRenderTarget( aga::ICommandList& commandList, RenderViewGroup& renderViewGroup ) override;
+
 private:
-	void SetRenderTarget( RenderViewGroup& renderViewGroup );
 	void UpdateLightResource( RenderViewGroup& renderViewGroup );
 
 	class ForwardRendererRenderTargets

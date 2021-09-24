@@ -57,7 +57,7 @@ namespace aga
 
 	void D3D11DepthStencilState::InitResource( )
 	{
-		bool result = SUCCEEDED( D3D11Device( ).CreateDepthStencilState( &m_desc, &m_depthStencilState ) );
+		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device( ).CreateDepthStencilState( &m_desc, &m_depthStencilState ) );
 		assert( result );
 	}
 

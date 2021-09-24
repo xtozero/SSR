@@ -41,9 +41,10 @@ public:
 	{}
 
 	RENDERCORE_DLL RenderView& AddRenderView( );
-	const RenderView& operator[]( size_t index ) const
+
+	size_t Size( ) const
 	{
-		return m_viewGroup[index];
+		return m_viewGroup.size( );
 	}
 
 	RenderView* begin( )
@@ -63,10 +64,20 @@ public:
 		return endIter;
 	}
 
-	IScene& Scene() { return m_scene; }
+	IScene& Scene( ) { return m_scene; }
 	const IScene& Scene( ) const { return m_scene; }
 	rendercore::Viewport& Viewport( ) { return m_viewport; }
 	const rendercore::Viewport& Viewport( ) const { return m_viewport; }
+
+	const RenderView& operator[]( size_t index ) const
+	{
+		return m_viewGroup[index];
+	}
+
+	RenderView& operator[]( size_t index )
+	{
+		return m_viewGroup[index];
+	}
 
 private:
 	std::vector<RenderView> m_viewGroup;

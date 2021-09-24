@@ -27,11 +27,11 @@ namespace rendercore
 		}
 	}
 
-	void Viewport::Bind( )
+	void Viewport::Bind( aga::ICommandList& commandList ) const
 	{
 		if ( m_pViewport.Get( ) )
 		{
-			m_pViewport->Bind( );
+			m_pViewport->Bind( commandList );
 		}
 	}
 

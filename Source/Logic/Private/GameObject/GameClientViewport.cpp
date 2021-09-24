@@ -40,11 +40,6 @@ void GameClientViewport::Draw( )
 		viewport->Clear( clearColor );
 	} );
 
-	EnqueueRenderTask( [viewport = m_viewport]( )
-	{
-		viewport->Bind( );
-	} );
-
 	RenderViewGroup renderViewGroup( *GetWorld()->Scene(), *m_viewport );
 	InitView( renderViewGroup );
 	EnqueueRenderTask( [renderModule = GetInterface<IRenderCore>( ), renderViewGroup]( ) mutable

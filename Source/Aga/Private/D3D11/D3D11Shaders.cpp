@@ -166,7 +166,7 @@ namespace aga
 {
 	void D3D11VertexShader::InitResource( )
 	{
-		bool result = SUCCEEDED( D3D11Device( ).CreateVertexShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
+		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device( ).CreateVertexShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
 		assert( result );
 	}
 
@@ -181,7 +181,7 @@ namespace aga
 
 	void D3D11PixelShader::InitResource( )
 	{
-		bool result = SUCCEEDED( D3D11Device( ).CreatePixelShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
+		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device( ).CreatePixelShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
 		assert( result );
 	}
 
@@ -196,7 +196,7 @@ namespace aga
 
 	void D3D11ComputeShader::InitResource( )
 	{
-		bool result = SUCCEEDED( D3D11Device( ).CreateComputeShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
+		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device( ).CreateComputeShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
 		assert( result );
 	}
 

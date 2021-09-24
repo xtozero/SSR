@@ -69,7 +69,7 @@ namespace aga
 
 	void D3D11BlendState::InitResource( )
 	{
-		bool result = SUCCEEDED( D3D11Device( ).CreateBlendState( &m_desc, &m_blendState ) );
+		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device( ).CreateBlendState( &m_desc, &m_blendState ) );
 		assert( result );
 	}
 

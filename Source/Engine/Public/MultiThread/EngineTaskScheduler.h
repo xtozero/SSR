@@ -53,7 +53,7 @@ TaskHandle EnqueueThreadTask( Lambda lambda )
 	constexpr size_t affinityMask = WorkerAffinityMask<N...>( );
 	TaskHandle taskGroup = taskScheduler->GetTaskGroup( );
 	taskGroup.AddTask( Task<LambdaTask<Lambda>>::Create( affinityMask, lambda ) );
-	bool success = taskScheduler->Run( taskGroup );
+	[[maybe_unused]] bool success = taskScheduler->Run( taskGroup );
 	assert( success );
 	return taskGroup;
 }

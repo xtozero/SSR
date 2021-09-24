@@ -2,8 +2,42 @@
 #include "DrawSnapshot.h"
 
 #include "AbstractGraphicsInterface.h"
+#include "RenderView.h"
+#include "SceneRenderer.h"
 
 #include <optional>
+#include <type_traits>
+
+namespace
+{
+	class CommitDrawSnapshotTask
+	{
+	public:
+		void DoTask( )
+		{
+			for ( auto drawSnapshot : m_drawSnapshot )
+			{
+				CommitDrawSnapshot( m_commandList, *drawSnapshot, m_primitiveIds );
+			}
+			m_commandList.Finish( );
+		}
+
+		void AddSnapshot( VisibleDrawSnapshot* snapshot )
+		{
+			m_drawSnapshot.push_back( snapshot );
+		}
+
+		CommitDrawSnapshotTask( size_t reserveSize, aga::IDeferredCommandList& commandList, VertexBuffer& primitiveIds ) : m_commandList( commandList ), m_primitiveIds( primitiveIds )
+		{
+			m_drawSnapshot.reserve( reserveSize );
+		}
+
+	private:
+		aga::IDeferredCommandList& m_commandList;
+		VertexBuffer& m_primitiveIds;
+		std::vector<VisibleDrawSnapshot*> m_drawSnapshot;
+	};
+}
 
 PrimitiveIdVertexBufferPool& PrimitiveIdVertexBufferPool::GetInstance( )
 {
@@ -121,19 +155,26 @@ void SortDrawSnapshots( std::vector<VisibleDrawSnapshot>& snapshots, VertexBuffe
 	}
 }
 
-void CommitDrawSnapshots( std::vector<VisibleDrawSnapshot>& snapshots, VertexBuffer& primitiveIds )
+void CommitDrawSnapshots( SceneRenderer& renderer, RenderViewGroup& renderViewGroup, size_t curView, VertexBuffer& primitiveIds )
 {
-	for ( size_t i = 0; i < snapshots.size( ); )
+	auto commandList = GetInterface<aga::IAga>( )->GetImmediateCommandList( );
+
+	renderer.SetRenderTarget( *commandList, renderViewGroup );
+	renderer.SetViewPort( *commandList, renderViewGroup );
+
+	auto& view = renderViewGroup[curView];
+	std::vector<VisibleDrawSnapshot>& visibleSnapshots = view.m_snapshots;
+
+	for ( size_t i = 0; i < visibleSnapshots.size( ); )
 	{
-		CommitDrawSnapshot( snapshots[i], primitiveIds );
-		i += snapshots[i].m_numInstance;
+		CommitDrawSnapshot( *commandList, visibleSnapshots[i], primitiveIds );
+		i += visibleSnapshots[i].m_numInstance;
 	}
 }
 
-void CommitDrawSnapshot( VisibleDrawSnapshot& visibleSnapshot, VertexBuffer& primitiveIds )
+void CommitDrawSnapshot( aga::ICommandList& commandList, VisibleDrawSnapshot& visibleSnapshot, VertexBuffer& primitiveIds )
 {
 	DrawSnapshot& snapshot = *visibleSnapshot.m_drawSnapshot;
-	auto commandList = GetInterface<aga::IAga>( )->GetImmediateCommandList( );
 
 	// Set vertex buffer
 	VertexInputStream vertexStream = snapshot.m_vertexStream;
@@ -142,27 +183,89 @@ void CommitDrawSnapshot( VisibleDrawSnapshot& visibleSnapshot, VertexBuffer& pri
 	uint32 numVB = vertexStream.NumBuffer( );
 	aga::Buffer* const* vertexBuffers = vertexStream.VertexBuffers( );
 	const uint32* vertexOffsets = vertexStream.Offsets( );
-	commandList->BindVertexBuffer( vertexBuffers, 0, numVB, vertexOffsets );
+	commandList.BindVertexBuffer( vertexBuffers, 0, numVB, vertexOffsets );
 
 	// Set index buffer
 	aga::Buffer* indexBuffer = snapshot.m_indexBuffer.Resource( );
 	uint32 indexOffset = 0;
 
-	commandList->BindIndexBuffer( indexBuffer, indexOffset );
+	commandList.BindIndexBuffer( indexBuffer, indexOffset );
 
 	// Set pipeline state
-	commandList->BindPipelineState( snapshot.m_pipelineState.m_pso );
+	commandList.BindPipelineState( snapshot.m_pipelineState.m_pso );
 
 	// Set shader resources
-	commandList->BindShaderResources( snapshot.m_shaderBindings );
+	commandList.BindShaderResources( snapshot.m_shaderBindings );
 
 	if ( visibleSnapshot.m_numInstance > 1 )
 	{
-		commandList->DrawInstancing( snapshot.m_indexCount, visibleSnapshot.m_numInstance, snapshot.m_startIndexLocation, snapshot.m_baseVertexLocation );
+		commandList.DrawInstancing( snapshot.m_indexCount, visibleSnapshot.m_numInstance, snapshot.m_startIndexLocation, snapshot.m_baseVertexLocation );
 	}
 	else
 	{
-		commandList->Draw( snapshot.m_indexCount, snapshot.m_startIndexLocation, snapshot.m_baseVertexLocation );
+		commandList.Draw( snapshot.m_indexCount, snapshot.m_startIndexLocation, snapshot.m_baseVertexLocation );
+	}
+}
+
+void ParallelCommitDrawSnapshot( SceneRenderer& renderer, RenderViewGroup& renderViewGroup, size_t curView, VertexBuffer& primitiveIds )
+{
+	auto& view = renderViewGroup[curView];
+	std::vector<VisibleDrawSnapshot>& visibleSnapshots = view.m_snapshots;
+
+	size_t dc = 0;
+	for ( size_t i = 0; i < visibleSnapshots.size( ); )
+	{
+		++dc;
+		i += visibleSnapshots[i].m_numInstance;
+	}
+
+	if ( dc < 64 )
+	{
+		CommitDrawSnapshots( renderer, renderViewGroup, curView, primitiveIds );
+	}
+	else
+	{
+		auto taskScheduler = GetInterface<ITaskScheduler>( );
+		constexpr size_t affinityMask = WorkerAffinityMask<WorkerThreads>( );
+		TaskHandle taskGroup = taskScheduler->GetTaskGroup( );
+
+		CommitDrawSnapshotTask* commitTasks[2] = {};
+		std::unique_ptr<aga::IDeferredCommandList> deferredCommandLists[2] = {};
+
+		for ( size_t i = 0, j = 0; i < std::extent_v<decltype(commitTasks)>; ++i )
+		{
+			deferredCommandLists[i] = GetInterface<aga::IAga>( )->CreateDeferredCommandList( );
+
+			size_t count = ( dc + 1 ) / 2;
+			auto task = Task<CommitDrawSnapshotTask>::Create( affinityMask, count, *deferredCommandLists[i], primitiveIds );
+			commitTasks[i] = &task->Element( );
+
+			size_t added = 0;
+			for ( ; j < visibleSnapshots.size( ) && ( added < count ); )
+			{
+				commitTasks[i]->AddSnapshot( &visibleSnapshots[j] );
+				j += visibleSnapshots[j].m_numInstance;
+				++added;
+			}
+
+			taskGroup.AddTask( task );
+		}
+
+		for ( size_t i = 0; i < std::extent_v<decltype( deferredCommandLists )>; ++i )
+		{
+			renderer.SetRenderTarget( *deferredCommandLists[i], renderViewGroup );
+			renderer.SetViewPort( *deferredCommandLists[i], renderViewGroup );
+		}
+
+		taskScheduler->Run( taskGroup );
+		taskScheduler->Wait( taskGroup );
+
+		auto immediateCommandList = GetInterface<aga::IAga>( )->GetImmediateCommandList( );
+		
+		for ( size_t i = 0; i < std::extent_v<decltype( deferredCommandLists )>; ++i )
+		{
+			immediateCommandList->Execute( *deferredCommandLists[i] );
+		}
 	}
 }
 

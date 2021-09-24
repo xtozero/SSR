@@ -133,7 +133,7 @@ namespace aga
 	void D3D11Buffer::CreateBuffer( )
 	{
 		D3D11_SUBRESOURCE_DATA* initData = m_hasInitData ? &m_initData : nullptr;
-		HRESULT hr = D3D11Device( ).CreateBuffer( &m_desc, initData, &m_buffer );
+		[[maybe_unused]] HRESULT hr = D3D11Device( ).CreateBuffer( &m_desc, initData, &m_buffer );
 		assert( SUCCEEDED( hr ) );
 
 		if ( m_desc.BindFlags & D3D11_BIND_SHADER_RESOURCE )

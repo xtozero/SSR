@@ -102,6 +102,7 @@ TaskHandle TaskScheduler::GetTaskGroup( )
 		if ( queue.m_reference < minReference )
 		{
 			workerId = i;
+			minReference = queue.m_reference;
 		}
 	}
 
@@ -143,6 +144,7 @@ bool TaskScheduler::Run( TaskHandle handle )
 		m_workers[i].m_cv.notify_one( );
 	}
 
+	handle.m_controlBlock->m_submitted = true;
 	return true;
 }
 

@@ -6,6 +6,7 @@
 namespace aga
 {
 	class ShaderBindings;
+	class ICommandList;
 }
 
 class GraphicsApiResource;
@@ -34,10 +35,14 @@ public:
 	virtual void Render( RenderViewGroup& renderViewGroup ) = 0;
 	virtual void PostRender( RenderViewGroup& renderViewGroup ) = 0;
 
+	virtual void SetRenderTarget( aga::ICommandList& commandList, RenderViewGroup& renderViewGroup ) = 0;
+	void SetViewPort( aga::ICommandList& commandList, const RenderViewGroup& renderViewGroup );
+
 	static void WaitUntilRenderingIsFinish( );
+
 protected:
-	void RenderTexturedSky( IScene& scene );
-	void RenderMesh( IScene& scene, RenderView& view );
+	void RenderTexturedSky( IScene& scene, RenderViewGroup& renderViewGroup );
+	void RenderMesh( IScene& scene, RenderViewGroup& renderViewGroup, size_t curView );
 
 	RenderingShaderResource m_shaderResources;
 };

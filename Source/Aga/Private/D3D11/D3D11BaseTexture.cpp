@@ -252,7 +252,7 @@ namespace aga
 	{
 		m_desc = ConvertTraitTo1DDesc( m_trait );
 
-		HRESULT hr = D3D11Device( ).CreateTexture1D( &m_desc, m_dataStorage ? m_initData.data( ) : nullptr, &m_texture );
+		[[maybe_unused]] HRESULT hr = D3D11Device( ).CreateTexture1D( &m_desc, m_dataStorage ? m_initData.data( ) : nullptr, &m_texture );
 		assert( SUCCEEDED( hr ) );
 	}
 
@@ -282,7 +282,7 @@ namespace aga
 	{
 		m_desc = ConvertTraitTo2DDesc( m_trait );
 
-		HRESULT hr = D3D11Device( ).CreateTexture2D( &m_desc, m_dataStorage ? m_initData.data( ) : nullptr, &m_texture );
+		[[maybe_unused]] HRESULT hr = D3D11Device( ).CreateTexture2D( &m_desc, m_dataStorage ? m_initData.data( ) : nullptr, &m_texture );
 		assert( SUCCEEDED( hr ) );
 	}
 
@@ -316,7 +316,7 @@ namespace aga
 	{
 		m_desc = ConvertTraitTo3DDesc( m_trait );
 
-		HRESULT hr = D3D11Device( ).CreateTexture3D( &m_desc, m_dataStorage ? m_initData.data( ) : nullptr, &m_texture );
+		[[maybe_unused]] HRESULT hr = D3D11Device( ).CreateTexture3D( &m_desc, m_dataStorage ? m_initData.data( ) : nullptr, &m_texture );
 		assert( SUCCEEDED( hr ) );
 	}
 

@@ -5,6 +5,7 @@
 
 namespace aga
 {
+	class ICommandList;
 	class Texture;
 
 	class Viewport : public DeviceDependantResource
@@ -14,7 +15,7 @@ namespace aga
 
 		virtual DEVICE_ERROR Present( bool vSync = false ) = 0;
 		virtual void Clear( const float( &clearColor )[4] ) = 0;
-		virtual void Bind( ) = 0;
+		virtual void Bind( ICommandList& commandList ) const = 0;
 		virtual void* Handle( ) const = 0;
 		virtual std::pair<uint32, uint32> Size( ) const = 0;
 		virtual void Resize( const std::pair<uint32, uint32>& newSize ) = 0;

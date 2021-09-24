@@ -582,3 +582,19 @@ struct VERTEX_LAYOUT_TRAIT
 		return !( lhs == rhs );
 	}
 };
+
+template <typename T>
+struct RectangleArea
+{
+	T m_left;
+	T m_top;
+	T m_right;
+	T m_bottom;
+};
+
+template<typename T>
+struct CubeArea : public RectangleArea<T>
+{
+	T m_back;
+	T m_front;
+};

@@ -86,7 +86,7 @@ bool CGameLogic::BootUp( IPlatform& platform )
 
 	CreateGameViewport( );
 
-	if ( LoadWorld( "./Scripts/DefaultScene.json" ) == false )
+	if ( LoadWorld( "./Scripts/MultiplePropScene.json" ) == false )
 	{
 		__debugbreak( );
 	}

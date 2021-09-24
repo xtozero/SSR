@@ -44,7 +44,7 @@ namespace aga
 
 	void D3D11SamplerState::InitResource( )
 	{
-		bool result = SUCCEEDED( D3D11Device( ).CreateSamplerState( &m_desc, &m_samplerState ) );
+		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device( ).CreateSamplerState( &m_desc, &m_samplerState ) );
 		assert( result );
 	}
 

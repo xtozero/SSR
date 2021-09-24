@@ -39,7 +39,7 @@ namespace aga
 
 	void D3D11RasterizerState::InitResource( )
 	{
-		bool result = SUCCEEDED( D3D11Device( ).CreateRasterizerState( &m_desc, &m_rasterizerState ) );
+		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device( ).CreateRasterizerState( &m_desc, &m_rasterizerState ) );
 		assert( result );
 	}
 

@@ -45,7 +45,7 @@ namespace aga
 		m_inputDesc.reserve( size );
 		ConvertVertexLayoutToInputLayout( m_namePool, m_inputDesc, trait, size );
 
-		bool result = SUCCEEDED( D3D11Device( ).CreateInputLayout( m_inputDesc.data( ), size, vs->ByteCode( ), vs->ByteCodeSize( ), &m_pInputLayout ) );
+		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device( ).CreateInputLayout( m_inputDesc.data( ), size, vs->ByteCode( ), vs->ByteCodeSize( ), &m_pInputLayout ) );
 		assert( result );
 	}
 

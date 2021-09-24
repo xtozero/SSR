@@ -4,7 +4,7 @@
 #include "D3D11Api.h"
 #include "D3D11BaseTexture.h"
 #include "D3D11ResourceViews.h"
-
+#include "ICommandList.h"
 #include "Texture.h"
 
 #include <d3d11.h>
@@ -43,13 +43,13 @@ namespace aga
 		}
 	}
 
-	void D3D11Viewport::Bind( )
+	void D3D11Viewport::Bind( ICommandList& commandList ) const
 	{
-		D3D11_VIEWPORT viewport{ 0.f, 0.f, static_cast<float>( m_width ), static_cast<float>( m_height ), 0.f, 1.f };
-		D3D11Context( ).RSSetViewports( 1, &viewport );
+		CubeArea<float> viewport{ 0.f, 0.f, static_cast<float>( m_width ), static_cast<float>( m_height ), 0.f, 1.f };
+		commandList.SetViewports( 1, &viewport );
 
-		D3D11_RECT rect{ 0L, 0L, static_cast<int32>( m_width ), static_cast<int32>( m_height ) };
-		D3D11Context( ).RSSetScissorRects( 1, &rect );
+		RectangleArea<int32> rect{ 0L, 0L, static_cast<int32>( m_width ), static_cast<int32>( m_height ) };
+		commandList.SetScissorRects( 1, &rect );
 	}
 
 	std::pair<uint32, uint32> D3D11Viewport::Size( ) const

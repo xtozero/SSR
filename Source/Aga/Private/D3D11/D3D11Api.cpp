@@ -79,6 +79,7 @@ namespace aga
 		virtual void GetRendererMultiSampleOption( MULTISAMPLE_OPTION* option ) override;
 
 		virtual std::unique_ptr<IImmediateCommandList> GetImmediateCommandList( ) const override;
+		virtual std::unique_ptr<IDeferredCommandList> CreateDeferredCommandList( ) const override;
 
 		IDXGIFactory1& GetFactory( ) const
 		{
@@ -532,6 +533,11 @@ namespace aga
 	std::unique_ptr<IImmediateCommandList> CDirect3D11::GetImmediateCommandList( ) const
 	{
 		return std::make_unique<D3D11ImmediateCommandList>( );
+	}
+
+	std::unique_ptr<IDeferredCommandList> CDirect3D11::CreateDeferredCommandList( ) const
+	{
+		return std::make_unique<D3D11DeferredCommandList>( );
 	}
 
 	CDirect3D11::CDirect3D11( )

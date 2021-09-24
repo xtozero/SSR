@@ -16,7 +16,7 @@ namespace aga
 	public:
 		virtual DEVICE_ERROR Present( bool vSync = false ) override;
 		virtual void Clear( const float (&clearColor)[4] ) override;
-		virtual void Bind( ) override;
+		virtual void Bind( ICommandList& commandList ) const override;
 
 		virtual void* Handle( ) const override
 		{

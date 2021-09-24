@@ -41,14 +41,14 @@ void ForwardRenderer::Render( RenderViewGroup& renderViewGroup )
 	auto& depthStencil = m_renderTargets.GetDepthStencil( );
 	depthStencil.Clear( 1.f, 0 );
 
-	SetRenderTarget( renderViewGroup );
-
 	IScene& scene = renderViewGroup.Scene( );
 
 	auto& viewConstant = scene.SceneViewConstant( );
 
-	for ( auto& view : renderViewGroup )
+	for ( size_t i = 0; i < renderViewGroup.Size( ); ++i )
 	{
+		auto& view = renderViewGroup[i];
+
 		ViewConstantBufferParameters viewConstantParam;
 		FillViewConstantParam( viewConstantParam, view );
 
@@ -57,8 +57,8 @@ void ForwardRenderer::Render( RenderViewGroup& renderViewGroup )
 		m_shaderResources.AddResource( "ForwardLightConstant", view.m_forwardLighting->m_lightConstant.Resource( ) );
 		m_shaderResources.AddResource( "ForwardLight", view.m_forwardLighting->m_lightBuffer.SRV( ) );
 
-		RenderTexturedSky( scene );
-		RenderMesh( scene, view );
+		RenderTexturedSky( scene, renderViewGroup );
+		RenderMesh( scene, renderViewGroup, i );
 	}
 }
 
@@ -73,12 +73,12 @@ void ForwardRenderer::PostRender( RenderViewGroup& renderViewGroup )
 	}
 }
 
-void ForwardRenderer::SetRenderTarget( RenderViewGroup& renderViewGroup )
+void ForwardRenderer::SetRenderTarget( aga::ICommandList& commandList, RenderViewGroup& renderViewGroup )
 {
 	auto depthStencil = m_renderTargets.GetDepthStencil( ).Texture( );
 	auto renderTarget = renderViewGroup.Viewport( ).Texture( );
 
-	GraphicsInterface( ).BindRenderTargets( &renderTarget, 1, depthStencil );
+	commandList.BindRenderTargets( &renderTarget, 1, depthStencil );
 }
 
 void ForwardRenderer::UpdateLightResource( RenderViewGroup& renderViewGroup )

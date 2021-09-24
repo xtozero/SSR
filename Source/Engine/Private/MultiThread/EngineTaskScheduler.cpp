@@ -97,6 +97,6 @@ void EnqueueRenderTask( TaskBase* task )
 	auto taskScheduler = static_cast<EngineTaskScheduler*>( GetInterface<ITaskScheduler>( ) );
 	TaskHandle taskGroup = taskScheduler->GetExclusiveTaskGroup( ThreadType::RenderThread );
 	taskGroup.AddTask( task );
-	bool success = taskScheduler->Run( taskGroup );
+	[[maybe_unused]] bool success = taskScheduler->Run( taskGroup );
 	assert( success );
 }

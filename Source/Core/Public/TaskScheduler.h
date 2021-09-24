@@ -98,6 +98,11 @@ public:
 		return new Task( workerAffinity, args... );
 	}
 
+	TaskStorageType& Element( )
+	{
+		return *reinterpret_cast<TaskStorageType*>( m_storage );
+	}
+
 protected:
 	template <typename... Args>
 	Task( size_t workerAffinity, Args&&... args ) : TaskBase( workerAffinity )

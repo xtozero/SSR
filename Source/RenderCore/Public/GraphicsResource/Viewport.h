@@ -5,6 +5,7 @@
 
 namespace aga
 {
+	class ICommandList;
 	class Texture;
 	class Viewport;
 }
@@ -16,7 +17,7 @@ namespace rendercore
 	public:
 		RENDERCORE_DLL DEVICE_ERROR Present( bool vSync = false );
 		RENDERCORE_DLL void Clear( const float (&color)[4] );
-		RENDERCORE_DLL void Bind( );
+		RENDERCORE_DLL void Bind( aga::ICommandList& commandList ) const;
 
 		RENDERCORE_DLL void* Handle( ) const;
 		RENDERCORE_DLL std::pair<uint32, uint32> Size( ) const;

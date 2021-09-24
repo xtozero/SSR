@@ -11,6 +11,7 @@
 #include "Scene/Scene.h"
 #include "Scene/SceneConstantBuffers.h"
 #include "ShaderBindings.h"
+#include "Viewport.h"
 
 #include <deque>
 
@@ -96,12 +97,18 @@ void RenderingShaderResource::ClearResources( )
 	}
 }
 
+void SceneRenderer::SetViewPort( aga::ICommandList& commandList, const RenderViewGroup& renderViewGroup )
+{
+	const auto& viewport = renderViewGroup.Viewport( );
+	viewport.Bind( commandList );
+}
+
 void SceneRenderer::WaitUntilRenderingIsFinish( )
 {
 	PrimitiveIdVertexBufferPool::GetInstance( ).DiscardAll( );
 }
 
-void SceneRenderer::RenderTexturedSky( IScene& scene )
+void SceneRenderer::RenderTexturedSky( IScene& scene, RenderViewGroup& renderViewGroup )
 {
 	Scene* renderScene = scene.GetRenderScene( );
 	if ( renderScene == nullptr )
@@ -126,6 +133,11 @@ void SceneRenderer::RenderTexturedSky( IScene& scene )
 
 	StaticMeshLODResource& lodResource = renderData->LODResource( 0 );
 	VertexLayoutDesc vertexLayoutDesc = renderData->VertexLayout( 0 ).Desc( );
+
+	auto commandList = GetInterface<aga::IAga>( )->GetImmediateCommandList( );
+
+	SetRenderTarget( *commandList, renderViewGroup );
+	SetViewPort( *commandList, renderViewGroup );
 
 	for ( const auto& section : lodResource.m_sections )
 	{
@@ -168,11 +180,11 @@ void SceneRenderer::RenderTexturedSky( IScene& scene )
 		};
 
 		VertexBuffer emptyPrimitiveID;
-		CommitDrawSnapshot( visibleSnapshot, emptyPrimitiveID );
+		CommitDrawSnapshot( *commandList, visibleSnapshot, emptyPrimitiveID );
 	}
 }
 
-void SceneRenderer::RenderMesh( IScene& scene, RenderView& view )
+void SceneRenderer::RenderMesh( IScene& scene, RenderViewGroup& renderViewGroup, size_t curView )
 {
 	const auto& primitives = scene.Primitives( );
 	if ( primitives.size( ) == 0 )
@@ -187,6 +199,7 @@ void SceneRenderer::RenderMesh( IScene& scene, RenderView& view )
 	}
 
 	auto& viewConstant = scene.SceneViewConstant( );
+	auto& view = renderViewGroup[curView];
 
 	std::deque<DrawSnapshot> snapshotStorage;
 
@@ -230,5 +243,6 @@ void SceneRenderer::RenderMesh( IScene& scene, RenderView& view )
 	VertexBuffer primitiveIds = PrimitiveIdVertexBufferPool::GetInstance( ).Alloc( static_cast<uint32>( view.m_snapshots.size( ) * sizeof( uint32 ) ) );
 
 	SortDrawSnapshots( view.m_snapshots, primitiveIds );
-	CommitDrawSnapshots( view.m_snapshots, primitiveIds );
+	// CommitDrawSnapshots( *this, renderViewGroup, curView, primitiveIds );
+	ParallelCommitDrawSnapshot( *this, renderViewGroup, curView, primitiveIds );
 }

@@ -63,6 +63,7 @@ namespace aga
 		virtual void GetRendererMultiSampleOption( MULTISAMPLE_OPTION* option ) = 0;
 
 		virtual std::unique_ptr<IImmediateCommandList> GetImmediateCommandList( ) const = 0;
+		virtual std::unique_ptr<IDeferredCommandList> CreateDeferredCommandList( ) const = 0;
 
 		virtual ~IAga( ) = default;
 

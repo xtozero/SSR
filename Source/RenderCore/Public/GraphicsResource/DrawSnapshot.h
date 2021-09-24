@@ -2,6 +2,7 @@
 
 #include "GraphicsApiResource.h"
 #include "GraphicsPipelineState.h"
+#include "ICommandList.h"
 #include "IndexBuffer.h"
 #include "PipelineState.h"
 #include "ShaderBindings.h"
@@ -11,6 +12,9 @@
 
 #include <map>
 #include <unordered_map>
+
+class RenderViewGroup;
+class SceneRenderer;
 
 class PrimitiveIdVertexBufferPool
 {
@@ -166,5 +170,6 @@ private:
 
 void PreparePipelineStateObject( DrawSnapshot& snapshot );
 void SortDrawSnapshots( std::vector<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
-void CommitDrawSnapshots( std::vector<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
-void CommitDrawSnapshot( VisibleDrawSnapshot& visibleSnapshot, VertexBuffer& primitiveIds );
+void CommitDrawSnapshots( SceneRenderer& renderer, RenderViewGroup& renderViewGroup, size_t curView, VertexBuffer& primitiveIds );
+void CommitDrawSnapshot( aga::ICommandList& commandList, VisibleDrawSnapshot& visibleSnapshot, VertexBuffer& primitiveIds );
+void ParallelCommitDrawSnapshot( SceneRenderer& renderer, RenderViewGroup& renderViewGroup, size_t curView, VertexBuffer& primitiveIds );
