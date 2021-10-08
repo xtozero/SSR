@@ -102,6 +102,35 @@ void Scene::RemoveTexturedSkyComponent( TexturedSkyComponent* texturedSky )
 	}
 }
 
+void Scene::AddHemisphereLightComponent( HemisphereLightComponent* light )
+{
+	HemisphereLightProxy* proxy = light->CreateProxy( );
+	light->Proxy( ) = proxy;
+
+	if ( proxy )
+	{
+		EnqueueRenderTask( [this, proxy]
+		{
+			AddHemisphereLight( proxy );
+		} );
+	}
+}
+
+void Scene::RemoveHemisphereLightComponent( HemisphereLightComponent* light )
+{
+	HemisphereLightProxy* proxy = light->Proxy( );
+
+	if ( proxy )
+	{
+		light->Proxy( ) = nullptr;
+
+		EnqueueRenderTask( [this, proxy]( )
+		{
+			RemoveHemisphereLight( proxy );
+		} );
+	}
+}
+
 void Scene::AddLight( LightComponent* light )
 {
 	LightProxy* proxy = light->CreateProxy( );
@@ -197,6 +226,17 @@ void Scene::RemoveTexturedSky( TexturedSkyProxy* texturedSky )
 {
 	delete m_texturedSky;
 	m_texturedSky = nullptr;
+}
+
+void Scene::AddHemisphereLight( HemisphereLightProxy* hemisphereLight )
+{
+	m_hemisphereLight = hemisphereLight;
+}
+
+void Scene::RemoveHemisphereLight( HemisphereLightProxy* hemisphereLight )
+{
+	delete hemisphereLight;
+	m_hemisphereLight = nullptr;
 }
 
 void Scene::AddLightSceneInfo( LightSceneInfo* lightSceneInfo )

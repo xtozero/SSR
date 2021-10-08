@@ -6,33 +6,18 @@
 #include <array>
 
 class DirectionalLightComponent;
+class HemisphereLightComponent;
 class LightComponent;
 
 enum class LIGHT_TYPE
 {
 	NONE = -1,
-	AMBIENT_LIGHT,
 	DIRECTINAL_LIGHT,
 	POINT_LIGHT,
 	SPOT_LIGHT
 };
 
-struct LightTrait
-{
-	LIGHT_TYPE				m_type = LIGHT_TYPE::NONE;
-	bool					m_isOn = false;
-	float					m_theta = 0.f;
-	float					m_phi = 0.f;
-	CXMFLOAT3				m_direction;
-	float					m_range = 0.f;
-	float					m_fallOff = 0.f;
-	CXMFLOAT3				m_attenuation;
-	CXMFLOAT4				m_position;
-	CXMFLOAT4				m_diffuse;
-	CXMFLOAT4				m_specular;
-};
-
-class CLight : public CGameObject
+class Light : public CGameObject
 {
 public:
 	virtual const LIGHT_TYPE GetType( ) const = 0;
@@ -50,7 +35,7 @@ public:
 	void SetDiffuseColor( const CXMFLOAT4& diffuseColor );
 	void SetSpecularColor( const CXMFLOAT4& specularColor );
 
-	virtual ~CLight( ) = default;
+	virtual ~Light( ) = default;
 
 private:
 	LightComponent& GetLightComponent( );
@@ -58,7 +43,7 @@ private:
 	LightComponent* m_component = nullptr;
 };
 
-class DirectionalLight : public CLight
+class DirectionalLight : public Light
 {
 public:
 	virtual const LIGHT_TYPE GetType( ) const override;
@@ -71,4 +56,18 @@ public:
 
 private:
 	DirectionalLightComponent* m_directionalLightComponent = nullptr;
+};
+
+class HemisphereLight : public CGameObject
+{
+public:
+	virtual void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json ) override;
+
+	void SetLowerColor( const CXMFLOAT4& color );
+	void SetUpperColor( const CXMFLOAT4& color );
+
+	HemisphereLight( );
+
+private:
+	HemisphereLightComponent* m_hemisphereLightComponent = nullptr;
 };

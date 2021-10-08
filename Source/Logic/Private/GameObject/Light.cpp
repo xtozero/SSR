@@ -68,7 +68,7 @@ using namespace DirectX;
 //	}
 //}
 
-void CLight::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
+void Light::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 {
 	if ( const JSON::Value* pDiffuse = json.Find( "Diffuse" ) )
 	{
@@ -101,17 +101,17 @@ void CLight::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 	}
 }
 
-void CLight::SetDiffuseColor( const CXMFLOAT4& diffuseColor )
+void Light::SetDiffuseColor( const CXMFLOAT4& diffuseColor )
 {
 	GetLightComponent( ).SetDiffuseColor( diffuseColor );
 }
 
-void CLight::SetSpecularColor( const CXMFLOAT4& specularColor )
+void Light::SetSpecularColor( const CXMFLOAT4& specularColor )
 {
 	GetLightComponent( ).SetSpecularColor( specularColor );
 }
 
-LightComponent& CLight::GetLightComponent( )
+LightComponent& Light::GetLightComponent( )
 {
 	if ( m_component == nullptr )
 	{
@@ -130,7 +130,7 @@ const LIGHT_TYPE DirectionalLight::GetType( ) const
 
 void DirectionalLight::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 {
-	CLight::LoadProperty( gameLogic, json );
+	Light::LoadProperty( gameLogic, json );
 
 	if ( const JSON::Value* pDirection = json.Find( "Direction" ) )
 	{
@@ -159,4 +159,61 @@ DirectionalLight::DirectionalLight( )
 {
 	m_directionalLightComponent = CreateComponent<DirectionalLightComponent>( *this );
 	m_rootComponent = m_directionalLightComponent;
+}
+
+DECLARE_GAME_OBJECT( hemisphere_light, HemisphereLight );
+
+void HemisphereLight::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
+{
+	if ( const JSON::Value* pLowerColor = json.Find( "LowerColor" ) )
+	{
+		const JSON::Value& lowerColor = *pLowerColor;
+
+		if ( lowerColor.Size( ) >= 4 )
+		{
+			float r = static_cast<float>( lowerColor[0].AsReal( ) );
+			float g = static_cast<float>( lowerColor[1].AsReal( ) );
+			float b = static_cast<float>( lowerColor[2].AsReal( ) );
+			float a = static_cast<float>( lowerColor[3].AsReal( ) );
+
+			SetLowerColor( CXMFLOAT4( r, g, b, a ) );
+		}
+	}
+
+	if ( const JSON::Value* pUpperColor = json.Find( "UpperColor" ) )
+	{
+		const JSON::Value& upperColor = *pUpperColor;
+
+		if ( upperColor.Size( ) >= 4 )
+		{
+			float r = static_cast<float>( upperColor[0].AsReal( ) );
+			float g = static_cast<float>( upperColor[1].AsReal( ) );
+			float b = static_cast<float>( upperColor[2].AsReal( ) );
+			float a = static_cast<float>( upperColor[3].AsReal( ) );
+
+			SetUpperColor( CXMFLOAT4( r, g, b, a ) );
+		}
+	}
+}
+
+void HemisphereLight::SetLowerColor( const CXMFLOAT4& color )
+{
+	if ( m_hemisphereLightComponent )
+	{
+		m_hemisphereLightComponent->SetLowerColor( color );
+	}
+}
+
+void HemisphereLight::SetUpperColor( const CXMFLOAT4& color )
+{
+	if ( m_hemisphereLightComponent )
+	{
+		m_hemisphereLightComponent->SetUpperColor( color );
+	}
+}
+
+HemisphereLight::HemisphereLight( )
+{
+	m_hemisphereLightComponent = CreateComponent<HemisphereLightComponent>( *this );
+	m_rootComponent = m_hemisphereLightComponent;
 }

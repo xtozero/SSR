@@ -3,8 +3,10 @@
 
 #include "ConstantSlotDefine.h"
 #include "MultiThread/EngineTaskScheduler.h"
+#include "Proxies/LightProxy.h"
 #include "Proxies/PrimitiveProxy.h"
 #include "RenderView.h"
+#include "Scene/Scene.h"
 
 #include <assert.h>
 
@@ -32,7 +34,7 @@ const aga::Buffer* SceneViewConstantBuffer::Resource( ) const
 	return m_constantBuffer.Resource( );
 }
 
-void FillViewConstantParam( ViewConstantBufferParameters& param, const RenderView& view )
+void FillViewConstantParam( ViewConstantBufferParameters& param, const Scene* scene, const RenderView& view )
 {
 	using namespace DirectX;
 
@@ -58,6 +60,21 @@ void FillViewConstantParam( ViewConstantBufferParameters& param, const RenderVie
 
 	auto invViewProjMatrix = XMMatrixInverse( nullptr, viewProjMatrix );
 	param.m_invViewProjMatrix = XMMatrixTranspose( invViewProjMatrix );
+
+	if ( scene && scene->HemisphereLight( ) )
+	{
+		const HemisphereLightProxy& hemisphereLight = *scene->HemisphereLight( );
+
+		param.m_hemisphereLightLowerColor = hemisphereLight.LowerColor( );
+		param.m_hemisphereLightUpperColor = hemisphereLight.UpperColor( );
+		param.m_hemisphereLightUpVector = hemisphereLight.UpVector( );
+	}
+	else
+	{
+		param.m_hemisphereLightLowerColor = CXMFLOAT4();
+		param.m_hemisphereLightUpperColor = CXMFLOAT4();
+		param.m_hemisphereLightUpVector = CXMFLOAT3();
+	}
 }
 
 PrimitiveSceneData::PrimitiveSceneData( const PrimitiveProxy* proxy )

@@ -129,12 +129,6 @@ std::optional<DrawSnapshot> StaticMeshPrimitiveProxy::TakeSnapshot( uint32 lod, 
 	if ( pipelineState.m_shaderState.m_vertexShader )
 	{
 		pipelineState.m_shaderState.m_vertexLayout = graphicsInterface.FindOrCreate( *pipelineState.m_shaderState.m_vertexShader, vertexLayoutDesc );
-
-		const auto& vsParameterMap = pipelineState.m_shaderState.m_vertexShader->ParameterMap( );
-
-		auto binding = snapshot.m_shaderBindings.GetSingleShaderBindings( SHADER_TYPE::VS );
-		aga::ShaderParameter viewProjection = vsParameterMap.GetParameter( "VEIW_PROJECTION" );
-		binding.AddConstantBuffer( viewProjection, viewConstant.Resource( ) );
 	}
 
 	PreparePipelineStateObject( snapshot );

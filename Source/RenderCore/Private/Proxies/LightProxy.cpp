@@ -32,3 +32,10 @@ DirectionalLightProxy::DirectionalLightProxy( const DirectionalLightComponent& c
 	m_direction( component.Direction( ) )
 {
 }
+
+HemisphereLightProxy::HemisphereLightProxy( const CXMFLOAT4& lowerColor, const CXMFLOAT4& upperColor, const CXMFLOAT3& upVector ) :
+	m_lowerHemisphereColor( lowerColor ),
+	m_upperHemisphereColor( upperColor ),
+	m_upVector( upVector )
+{
+}

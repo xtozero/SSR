@@ -4,6 +4,7 @@
 #include "Math/CXMFloat.h"
 
 class DirectionalLightComponent;
+class HemisphereLightComponent;
 class LightComponent;
 class LightSceneInfo;
 class Scene;
@@ -11,7 +12,6 @@ class Scene;
 enum class LIGHT_TYPE
 {
 	NONE = -1,
-	AMBIENT_LIGHT,
 	DIRECTINAL_LIGHT,
 	POINT_LIGHT,
 	SPOT_LIGHT
@@ -61,4 +61,30 @@ public:
 
 private:
 	CXMFLOAT3 m_direction;
+};
+
+class HemisphereLightProxy
+{
+public:
+	RENDERCORE_DLL HemisphereLightProxy( const CXMFLOAT4& lowerColor, const CXMFLOAT4& upperColor, const CXMFLOAT3& upVector );
+
+	const CXMFLOAT4& LowerColor( ) const
+	{
+		return m_lowerHemisphereColor;
+	}
+
+	const CXMFLOAT4& UpperColor( ) const
+	{
+		return m_upperHemisphereColor;
+	}
+
+	const CXMFLOAT3& UpVector( ) const
+	{
+		return m_upVector;
+	}
+
+private:
+	CXMFLOAT4 m_lowerHemisphereColor;
+	CXMFLOAT4 m_upperHemisphereColor;
+	CXMFLOAT3 m_upVector;
 };

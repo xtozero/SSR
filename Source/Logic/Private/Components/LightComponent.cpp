@@ -32,12 +32,42 @@ bool DirectionalLightComponent::ShouldCreateRenderState( ) const
 
 void DirectionalLightComponent::CreateRenderState( )
 {
-	SceneComponent::CreateRenderState( );
+	LightComponent::CreateRenderState( );
 	m_pWorld->Scene( )->AddLight( this );
 }
 
 void DirectionalLightComponent::RemoveRenderState( )
 {
-	SceneComponent::RemoveRenderState( );
+	LightComponent::RemoveRenderState( );
 	m_pWorld->Scene( )->RemoveLight( this );
+}
+
+HemisphereLightProxy* HemisphereLightComponent::CreateProxy( ) const
+{
+	return new HemisphereLightProxy( LowerColor( ), UpperColor( ), UpVector( ) );
+}
+
+const CXMFLOAT3& HemisphereLightComponent::UpVector( ) const
+{
+	using namespace DirectX;
+
+	XMMATRIX rotate = XMMatrixRotationQuaternion( GetRotate( ) );
+	return XMVector3TransformCoord( g_XMIdentityR1, rotate );
+}
+
+bool HemisphereLightComponent::ShouldCreateRenderState( ) const
+{
+	return true;
+}
+
+void HemisphereLightComponent::CreateRenderState( )
+{
+	SceneComponent::CreateRenderState( );
+	m_pWorld->Scene( )->AddHemisphereLightComponent( this );
+}
+
+void HemisphereLightComponent::RemoveRenderState( )
+{
+	SceneComponent::RemoveRenderState( );
+	m_pWorld->Scene( )->RemoveHemisphereLightComponent( this );
 }

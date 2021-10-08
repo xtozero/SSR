@@ -5,9 +5,10 @@
 #include "SizedTypes.h"
 
 class PrimitiveProxy;
+class Scene;
 struct RenderView;
 
-struct ViewConstantBufferParameters
+struct alignas(16) ViewConstantBufferParameters
 {
 	CXMFLOAT4X4 m_viewMatrix;
 	CXMFLOAT4X4 m_projMatrix;
@@ -16,9 +17,14 @@ struct ViewConstantBufferParameters
 	CXMFLOAT4X4 m_invViewMatrix;
 	CXMFLOAT4X4 m_invProjMatrix;
 	CXMFLOAT4X4 m_invViewProjMatrix;
+
+	CXMFLOAT4 m_hemisphereLightUpperColor;
+	CXMFLOAT4 m_hemisphereLightLowerColor;
+	CXMFLOAT3 m_hemisphereLightUpVector;
+	float padding3;
 };
 
-void FillViewConstantParam( ViewConstantBufferParameters& param, const RenderView& view );
+void FillViewConstantParam( ViewConstantBufferParameters& param, const Scene* scene, const RenderView& view );
 
 class SceneViewConstantBuffer
 {

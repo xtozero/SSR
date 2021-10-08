@@ -1,4 +1,4 @@
-#include "CommonVsConstant.fxh"
+#include "ViewConstant.fxh"
 
 struct VS_INPUT
 {

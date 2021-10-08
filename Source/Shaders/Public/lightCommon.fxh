@@ -1,5 +1,6 @@
 #include "psCommon.fxh"
 #include "shadowCommon.fxh"
+#include "ViewConstant.fxh"
 
 #define MAX_LIGHTS 180
 static const uint LIGHTDATA_PER_FLOAT4 = 6;
@@ -21,13 +22,13 @@ struct ForwardLightData
 	float4	m_specular;
 };
 
-cbuffer ForwardLightConstant : register( b1 )
+cbuffer ForwardLightConstant : register( b2 )
 {
 	uint		NumLights;
 	float3		CameraPos;
 };
 
-cbuffer Material : register( b2 )
+cbuffer Material : register( b3 )
 {
 	float4		Ambient;
 	float4		Diffuse;
@@ -156,6 +157,12 @@ LIGHTCOLOR CalcLightProperties( ForwardLightData light, float3 viewDirection, fl
 	return lightColor;
 }
 
+float3 HemisphereLight( float3 normal )
+{
+	float w = ( dot( normal, g_hemisphereUpVector ) + 1 ) * 0.5;
+	return lerp( g_hemisphereLowerColor, g_hemisphereUpperColor, w );
+}
+
 float4 CalcLight( PS_INPUT input )
 {
 	float3 viewDirection = normalize( CameraPos - input.worldPos );
@@ -189,7 +196,7 @@ float4 CalcLight( PS_INPUT input )
 	// ToDo
 	float visibility = 1.f; // CalcShadowVisibility( input.worldPos, input.viewPos );
 
-	float4 lightColor = 0; // g_globalAmbient * Ambient;
+	float4 lightColor = float4( HemisphereLight( normal ), 1 ) * MoveLinearSpace( Diffuse );
 	lightColor += cColor.m_diffuse * MoveLinearSpace( Diffuse ) * visibility;
 	lightColor += cColor.m_specular * MoveLinearSpace( Specular ) * visibility; 
 

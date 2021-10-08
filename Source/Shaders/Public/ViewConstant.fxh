@@ -1,4 +1,4 @@
-cbuffer VEIW_PROJECTION : register(b1)
+cbuffer VEIW_PROJECTION : register( b1 )
 {
 	matrix g_viewMatrix : packoffset(c0);
 	matrix g_projectionMatrix : packoffset(c4);
@@ -6,4 +6,7 @@ cbuffer VEIW_PROJECTION : register(b1)
 	matrix g_invViewMatrix : packoffset(c12);
 	matrix g_invProjectionMatrix : packoffset(c16);
 	matrix g_invViewProjectionMatrix : packoffset(c20);
+	float4 g_hemisphereUpperColor : packoffset(c24);
+	float4 g_hemisphereLowerColor : packoffset(c25);
+	float3 g_hemisphereUpVector : packoffset(c26);
 };

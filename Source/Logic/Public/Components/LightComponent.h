@@ -4,6 +4,7 @@
 #include "Components/SceneComponent.h"
 #include "Math/CXMFloat.h"
 
+class HemisphereLightProxy;
 class LightProxy;
 
 class LightComponent : public SceneComponent
@@ -52,4 +53,50 @@ protected:
 
 private:
 	CXMFLOAT3 m_direction;
+};
+
+class HemisphereLightComponent : public SceneComponent
+{
+public:
+	using SceneComponent::SceneComponent;
+
+	virtual HemisphereLightProxy* CreateProxy( ) const;
+
+	void SetLowerColor( const CXMFLOAT4& color )
+	{
+		m_lowerHemisphereColor = color;
+	}
+
+	const CXMFLOAT4& LowerColor( ) const
+	{
+		return m_lowerHemisphereColor;
+	}
+
+	void SetUpperColor( const CXMFLOAT4& color )
+	{
+		m_upperHemisphereColor = color;
+	}
+
+	const CXMFLOAT4& UpperColor( ) const
+	{
+		return m_upperHemisphereColor;
+	}
+
+	const CXMFLOAT3& UpVector( ) const;
+
+	HemisphereLightProxy*& Proxy( )
+	{
+		return m_proxy;
+	}
+
+protected:
+	virtual bool ShouldCreateRenderState( ) const override;
+	virtual void CreateRenderState( ) override;
+	virtual void RemoveRenderState( ) override;
+
+private:
+	HemisphereLightProxy* m_proxy = nullptr;
+	CXMFLOAT4 m_lowerHemisphereColor;
+	CXMFLOAT4 m_upperHemisphereColor;
+	CXMFLOAT3 m_upVector;
 };

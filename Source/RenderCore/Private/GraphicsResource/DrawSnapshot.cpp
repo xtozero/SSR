@@ -187,9 +187,7 @@ void CommitDrawSnapshot( aga::ICommandList& commandList, VisibleDrawSnapshot& vi
 
 	// Set index buffer
 	aga::Buffer* indexBuffer = snapshot.m_indexBuffer.Resource( );
-	uint32 indexOffset = 0;
-
-	commandList.BindIndexBuffer( indexBuffer, indexOffset );
+	commandList.BindIndexBuffer( indexBuffer, 0 );
 
 	// Set pipeline state
 	commandList.BindPipelineState( snapshot.m_pipelineState.m_pso );

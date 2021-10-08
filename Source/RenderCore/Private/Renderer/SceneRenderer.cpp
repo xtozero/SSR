@@ -152,12 +152,6 @@ void SceneRenderer::RenderTexturedSky( IScene& scene, RenderViewGroup& renderVie
 		if ( pipelineState.m_shaderState.m_vertexShader )
 		{
 			pipelineState.m_shaderState.m_vertexLayout = graphicsInterface.FindOrCreate( *pipelineState.m_shaderState.m_vertexShader, vertexLayoutDesc );
-
-			const auto& vsParameterMap = snapshot.m_pipelineState.m_shaderState.m_vertexShader->ParameterMap( );
-
-			auto binding = snapshot.m_shaderBindings.GetSingleShaderBindings( SHADER_TYPE::VS );
-			aga::ShaderParameter viewProjection = vsParameterMap.GetParameter( "VEIW_PROJECTION" );
-			binding.AddConstantBuffer( viewProjection, viewConstant.Resource( ) );
 		}
 
 		pipelineState.m_depthStencilState = graphicsInterface.FindOrCreate( proxy->GetDepthStencilOption( ) );
@@ -170,6 +164,8 @@ void SceneRenderer::RenderTexturedSky( IScene& scene, RenderViewGroup& renderVie
 		snapshot.m_baseVertexLocation = 0;
 
 		PreparePipelineStateObject( snapshot );
+
+		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
 		VisibleDrawSnapshot visibleSnapshot = {
 			0,

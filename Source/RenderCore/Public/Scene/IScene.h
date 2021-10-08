@@ -2,6 +2,7 @@
 
 #include <vector>
 
+class HemisphereLightComponent;
 class LightComponent;
 class PrimitiveComponent;
 class PrimitiveSceneInfo;
@@ -26,6 +27,9 @@ public:
 
 	virtual void AddTexturedSkyComponent( TexturedSkyComponent* texturedSky ) = 0;
 	virtual void RemoveTexturedSkyComponent( TexturedSkyComponent* texturedSky ) = 0;
+
+	virtual void AddHemisphereLightComponent( HemisphereLightComponent* light ) = 0;
+	virtual void RemoveHemisphereLightComponent( HemisphereLightComponent* light ) = 0;
 
 	virtual void AddLight( LightComponent* light ) = 0;
 	virtual void RemoveLight( LightComponent* light ) = 0;

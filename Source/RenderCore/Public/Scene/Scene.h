@@ -10,6 +10,7 @@
 
 #include <vector>
 
+class HemisphereLightProxy;
 class PrimitiveSceneInfo;
 class TexturedSkyProxy;
 
@@ -31,6 +32,9 @@ public:
 
 	virtual void AddTexturedSkyComponent( TexturedSkyComponent* texturedSky ) override;
 	virtual void RemoveTexturedSkyComponent( TexturedSkyComponent* texturedSky ) override;
+
+	virtual void AddHemisphereLightComponent( HemisphereLightComponent* light ) override;
+	virtual void RemoveHemisphereLightComponent( HemisphereLightComponent* light ) override;
 
 	virtual void AddLight( LightComponent* light ) override;
 	virtual void RemoveLight( LightComponent* light ) override;
@@ -72,6 +76,11 @@ public:
 		return m_texturedSky;
 	}
 
+	const HemisphereLightProxy* HemisphereLight( ) const
+	{
+		return m_hemisphereLight;
+	}
+
 private:
 	void AddPrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo );
 	void RemovePrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo );
@@ -79,12 +88,19 @@ private:
 	void AddTexturedSky( TexturedSkyProxy* texturedSky );
 	void RemoveTexturedSky( TexturedSkyProxy* texturedSky );
 
+	void AddHemisphereLight( HemisphereLightProxy* hemisphereLight );
+	void RemoveHemisphereLight( HemisphereLightProxy* hemisphereLight );
+
 	void AddLightSceneInfo( LightSceneInfo* lightSceneInfo );
 	void RemoveLightSceneInfo( LightSceneInfo* lightSceneInfo );
 
 	std::vector<PrimitiveSceneInfo*> m_primitives;
-	SparseArray<LightSceneInfo*> m_lights;
+
 	TexturedSkyProxy* m_texturedSky = nullptr;
+
+	HemisphereLightProxy* m_hemisphereLight = nullptr;
+
+	SparseArray<LightSceneInfo*> m_lights;
 
 	SparseArray<DrawSnapshot> m_cachedSnapshots;
 	CachedDrawSnapshotBucket m_cachedSnapshotBuckect;
