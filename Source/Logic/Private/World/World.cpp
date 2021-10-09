@@ -3,6 +3,7 @@
 
 #include "Core/InterfaceFactories.h"
 #include "GameObject/Player.h"
+#include "MultiThread/EngineTaskScheduler.h"
 #include "Physics/BoundingSphere.h"
 #include "Physics/CollisionUtil.h"
 #include "Renderer/IRenderCore.h"
@@ -27,6 +28,8 @@ void World::CleanUp( )
 {
 	m_gameObjects.clear( );
 	GetInterface<IRenderCore>( )->RemoveScene( m_scene );
+
+	WaitRenderThread( );
 }
 
 void World::PreparePhysics( )

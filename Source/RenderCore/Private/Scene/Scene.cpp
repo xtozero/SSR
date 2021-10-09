@@ -192,11 +192,11 @@ void Scene::AddPrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo )
 	assert( IsInRenderThread() );
 	assert( primitiveSceneInfo );
 
-	m_primitiveToUpdate.push_back( static_cast<uint32>( m_primitives.size( ) ) );
-	primitiveSceneInfo->m_primitiveId = static_cast<uint32>( m_primitives.size( ) );
+	uint32 primitiveId = static_cast<uint32>( m_primitives.Add( primitiveSceneInfo ) );
+	primitiveSceneInfo->m_primitiveId = primitiveId;
 
-	m_primitives.push_back( primitiveSceneInfo );
-
+	m_primitiveToUpdate.push_back( primitiveId );
+	
 	primitiveSceneInfo->AddToScene( );
 }
 
@@ -204,13 +204,8 @@ void Scene::RemovePrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo )
 {
 	assert( IsInRenderThread( ) );
 
-	m_primitives.erase( std::remove( m_primitives.begin(), m_primitives.end(), primitiveSceneInfo ), m_primitives.end( ) );
+	m_primitives.RemoveAt( primitiveSceneInfo->m_primitiveId );
 	m_primitiveToUpdate.erase( std::remove( m_primitiveToUpdate.begin( ), m_primitiveToUpdate.end( ), primitiveSceneInfo->m_primitiveId ), m_primitiveToUpdate.end( ) );
-
-	for ( uint32 i = primitiveSceneInfo->m_primitiveId; i < m_primitives.size( ); ++i )
-	{
-		--m_primitives[i]->m_primitiveId;
-	}
 
 	primitiveSceneInfo->RemoveFromScene( );
 	delete primitiveSceneInfo->m_sceneProxy;
@@ -270,7 +265,7 @@ bool UpdateGPUPrimitiveInfos( Scene& scene )
 		return false;
 	}
 
-	uint32 totalPrimitives = static_cast<uint32>( scene.m_primitives.size( ) );
+	uint32 totalPrimitives = static_cast<uint32>( scene.m_primitives.Size( ) );
 	scene.m_gpuPrimitiveInfos.Resize( totalPrimitives );
 
 	GpuMemcpy gpuMemcpy( updateSize, sizeof( PrimitiveSceneData ) / sizeof( CXMFLOAT4 ), scene.m_uploadPrimitiveBuffer, scene.m_distributionBuffer );

@@ -25,6 +25,9 @@ public:
 	{
 		size_t index = AddUninitialized( );
 		new ( m_data[index].m_data )T( element );
+
+		++m_size;
+
 		return index;
 	}
 
@@ -39,6 +42,13 @@ public:
 		( (T&)data.m_data ).~T( );
 
 		RemoveUninitialized( index );
+
+		--m_size;
+	}
+
+	size_t Size( ) const
+	{
+		return m_size;
 	}
 
 	T& operator[]( size_t index )
@@ -187,4 +197,6 @@ private:
 	BitArray m_allocationFlag;
 
 	std::optional<size_t> m_firstFreeIndex;
+
+	size_t m_size = 0;
 };

@@ -208,6 +208,7 @@ InputController* CGameLogic::GetInputController( )
 void CGameLogic::Shutdown( )
 {
 	m_world.CleanUp( );
+	m_primayViewport.reset( );
 
 	ShutdownModule( m_renderCoreDll );
 }

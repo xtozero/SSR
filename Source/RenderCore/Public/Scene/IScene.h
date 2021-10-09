@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+#include "SparseArray.h"
 
 class HemisphereLightComponent;
 class LightComponent;
@@ -22,8 +22,8 @@ class IScene
 public:
 	virtual void AddPrimitive( PrimitiveComponent* primitive ) = 0;
 	virtual void RemovePrimitive( PrimitiveComponent* primitive ) = 0;
-	virtual std::vector<PrimitiveSceneInfo*>& Primitives( ) = 0;
-	virtual const std::vector<PrimitiveSceneInfo*>& Primitives( ) const = 0;
+	virtual SparseArray<PrimitiveSceneInfo*>& Primitives( ) = 0;
+	virtual const SparseArray<PrimitiveSceneInfo*>& Primitives( ) const = 0;
 
 	virtual void AddTexturedSkyComponent( TexturedSkyComponent* texturedSky ) = 0;
 	virtual void RemoveTexturedSkyComponent( TexturedSkyComponent* texturedSky ) = 0;

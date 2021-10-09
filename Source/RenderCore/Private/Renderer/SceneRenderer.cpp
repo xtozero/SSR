@@ -183,7 +183,7 @@ void SceneRenderer::RenderTexturedSky( IScene& scene, RenderViewGroup& renderVie
 void SceneRenderer::RenderMesh( IScene& scene, RenderViewGroup& renderViewGroup, size_t curView )
 {
 	const auto& primitives = scene.Primitives( );
-	if ( primitives.size( ) == 0 )
+	if ( primitives.Size( ) == 0 )
 	{
 		return;
 	}

@@ -164,7 +164,15 @@ public:
 	void Remove( int32 id );
 
 private:
-	std::unordered_map<DrawSnapshot, size_t, DrawSnapshotDynamicInstancingHasher, DrawSnapshotDynamicInstancingEqual> m_bucket;
+	struct SharedSnapshotId
+	{
+		constexpr explicit SharedSnapshotId( int32 id ) : m_id( id ) {}
+
+		int32 m_id = -1;
+		int32 m_ref = 0;
+	};
+
+	std::unordered_map<DrawSnapshot, SharedSnapshotId, DrawSnapshotDynamicInstancingHasher, DrawSnapshotDynamicInstancingEqual> m_bucket;
 	SparseArray<DrawSnapshot> m_snapshots;
 };
 

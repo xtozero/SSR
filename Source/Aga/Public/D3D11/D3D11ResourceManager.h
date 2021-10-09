@@ -21,6 +21,8 @@ namespace aga
 	class CD3D11ResourceManager final : public IResourceManager
 	{
 	public:
+		virtual void Shutdown( ) override;
+
 		// Texture
 		virtual Texture* CreateTexture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
 
@@ -48,14 +50,13 @@ namespace aga
 		// virtual void UpdateResourceFromMemory( RE_HANDLE dest, void* src, uint32 srcRowPitch, uint32 srcDepthPitch, const RESOURCE_REGION* destRegionOrNull = nullptr ) override;
 
 		CD3D11ResourceManager( ) = default;
+		~CD3D11ResourceManager( );
 		CD3D11ResourceManager( const CD3D11ResourceManager& ) = delete;
 		CD3D11ResourceManager( CD3D11ResourceManager&& ) = delete;
 		CD3D11ResourceManager& operator=( const CD3D11ResourceManager& ) = delete;
 		CD3D11ResourceManager& operator=( CD3D11ResourceManager&& ) = delete;
 
 	private:
-		std::set<RefHandle<GraphicsApiResource>> m_renderResources;
-
 		std::map<PipelineStateInitializer, RefHandle<PipelineState>> m_pipelineStateCache;
 	};
 

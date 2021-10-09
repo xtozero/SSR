@@ -269,16 +269,16 @@ void ParallelCommitDrawSnapshot( SceneRenderer& renderer, RenderViewGroup& rende
 
 int32 CachedDrawSnapshotBucket::Add( const DrawSnapshot& snapshot )
 {
-	constexpr size_t dummy = 0;
+	constexpr SharedSnapshotId dummy( 0 );
 	auto [iter, success] = m_bucket.emplace( snapshot, dummy );
 	if ( success )
 	{
 		size_t id = m_snapshots.Add( snapshot );
-		iter->second = id;
-		return static_cast<int32>( id );
+		iter->second.m_id = static_cast<int32>( id );
 	}
 
-	return static_cast<int32>( iter->second );
+	++iter->second.m_ref;
+	return iter->second.m_id;
 }
 
 void CachedDrawSnapshotBucket::Remove( int32 id )
@@ -293,6 +293,10 @@ void CachedDrawSnapshotBucket::Remove( int32 id )
 		return;
 	}
 
-	m_bucket.erase( found );
-	m_snapshots.RemoveAt( index );
+	--found->second.m_ref;
+	if ( found->second.m_ref == 0 )
+	{
+		m_bucket.erase( found );
+		m_snapshots.RemoveAt( index );
+	}
 }

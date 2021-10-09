@@ -94,3 +94,4 @@ void DestroyTaskScheduler( ITaskScheduler* taskScheduler );
 ENGINE_FUNC_DLL bool IsInGameThread( );
 ENGINE_FUNC_DLL bool IsInRenderThread( );
 ENGINE_FUNC_DLL void EnqueueRenderTask( TaskBase* task );
+ENGINE_FUNC_DLL void WaitRenderThread( );

@@ -5,7 +5,6 @@
 #include "LightSceneInfo.h"
 #include "SceneConstantBuffers.h"
 #include "SizedTypes.h"
-#include "SparseArray.h"
 #include "UploadBuffer.h"
 
 #include <vector>
@@ -21,11 +20,11 @@ public:
 
 	virtual void AddPrimitive( PrimitiveComponent* primitive ) override;
 	virtual void RemovePrimitive( PrimitiveComponent* primitive ) override;
-	virtual std::vector<PrimitiveSceneInfo*>& Primitives( ) override
+	virtual SparseArray<PrimitiveSceneInfo*>& Primitives( ) override
 	{
 		return m_primitives;
 	}
-	virtual const std::vector<PrimitiveSceneInfo*>& Primitives( ) const override
+	virtual const SparseArray<PrimitiveSceneInfo*>& Primitives( ) const override
 	{
 		return m_primitives;
 	}
@@ -94,7 +93,7 @@ private:
 	void AddLightSceneInfo( LightSceneInfo* lightSceneInfo );
 	void RemoveLightSceneInfo( LightSceneInfo* lightSceneInfo );
 
-	std::vector<PrimitiveSceneInfo*> m_primitives;
+	SparseArray<PrimitiveSceneInfo*> m_primitives;
 
 	TexturedSkyProxy* m_texturedSky = nullptr;
 

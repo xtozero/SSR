@@ -115,6 +115,8 @@ RenderCore::~RenderCore( )
 
 void RenderCore::Shutdown( )
 {
+	m_sceneRenderer.clear( );
+
 	GraphicsInterface().Shutdown( );
 
 	ShutdownModule( m_hAga );

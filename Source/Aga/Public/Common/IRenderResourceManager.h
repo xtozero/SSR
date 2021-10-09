@@ -29,6 +29,8 @@ namespace aga
 	class IResourceManager
 	{
 	public:
+		virtual void Shutdown( ) = 0;
+
 		virtual Texture* CreateTexture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) = 0;
 
 		virtual Buffer* CreateBuffer( const BUFFER_TRAIT& trait, const void* initData = nullptr ) = 0;

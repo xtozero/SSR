@@ -30,6 +30,11 @@ namespace aga
 {
 	IResourceManager* g_resourceManager = nullptr;
 
+	void CD3D11ResourceManager::Shutdown( )
+	{
+		m_pipelineStateCache.clear( );
+	}
+
 	Texture* CD3D11ResourceManager::CreateTexture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
 	{
 		if ( trait.m_miscFlag & RESOURCE_MISC::APP_SIZE_DEPENDENT )
@@ -57,7 +62,6 @@ namespace aga
 			return nullptr;
 		}
 
-		m_renderResources.emplace( newTexture );
 		return newTexture;
 	}
 
@@ -79,7 +83,6 @@ namespace aga
 	ComputeShader * CD3D11ResourceManager::CreateComputeShader( const void* byteCode, size_t byteCodeSize )
 	{
 		auto newShader = new D3D11ComputeShader( byteCode, byteCodeSize );
-		m_renderResources.emplace( newShader );
 
 		return newShader;
 	}
@@ -87,7 +90,6 @@ namespace aga
 	VertexShader* CD3D11ResourceManager::CreateVertexShader( const void* byteCode, size_t byteCodeSize )
 	{
 		auto newShader = new D3D11VertexShader( byteCode, byteCodeSize );
-		m_renderResources.emplace( newShader );
 
 		return newShader;
 	}
@@ -95,7 +97,6 @@ namespace aga
 	PixelShader* CD3D11ResourceManager::CreatePixelShader( const void* byteCode, size_t byteCodeSize )
 	{
 		auto newShader = new D3D11PixelShader( byteCode, byteCodeSize );
-		m_renderResources.emplace( newShader );
 
 		return newShader;
 	}
@@ -103,7 +104,6 @@ namespace aga
 	BlendState* CD3D11ResourceManager::CreateBlendState( const BLEND_STATE_TRAIT& trait )
 	{
 		auto blendState = new D3D11BlendState( trait );
-		m_renderResources.emplace( blendState );
 
 		return blendState;
 	}
@@ -111,7 +111,6 @@ namespace aga
 	DepthStencilState* CD3D11ResourceManager::CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait )
 	{
 		auto depthStencilState = new D3D11DepthStencilState( trait );
-		m_renderResources.emplace( depthStencilState );
 
 		return depthStencilState;
 	}
@@ -119,7 +118,6 @@ namespace aga
 	RasterizerState* CD3D11ResourceManager::CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait )
 	{
 		auto rasterizerState = new D3D11RasterizerState( trait );
-		m_renderResources.emplace( rasterizerState );
 
 		return rasterizerState;
 	}
@@ -127,7 +125,6 @@ namespace aga
 	SamplerState* CD3D11ResourceManager::CreateSamplerState( const SAMPLER_STATE_TRAIT& trait )
 	{
 		auto samplerState = new D3D11SamplerState( trait );
-		m_renderResources.emplace( samplerState );
 
 		return samplerState;
 	}
@@ -149,9 +146,13 @@ namespace aga
 	Viewport* CD3D11ResourceManager::CreateViewport( uint32 width, uint32 height, void* hWnd, RESOURCE_FORMAT format )
 	{
 		auto viewport = new D3D11Viewport( width, height, hWnd, ConvertFormatToDxgiFormat( format ) );
-		m_renderResources.emplace( viewport );
 
 		return viewport;
+	}
+
+	CD3D11ResourceManager::~CD3D11ResourceManager( )
+	{
+		Shutdown( );
 	}
 
 	//void CD3D11ResourceManager::CopyResource( RE_HANDLE dest, const RESOURCE_REGION* destRegionOrNull, RE_HANDLE src, const RESOURCE_REGION* srcRegionOrNull )

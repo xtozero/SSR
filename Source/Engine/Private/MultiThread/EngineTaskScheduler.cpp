@@ -100,3 +100,9 @@ void EnqueueRenderTask( TaskBase* task )
 	[[maybe_unused]] bool success = taskScheduler->Run( taskGroup );
 	assert( success );
 }
+
+void WaitRenderThread( )
+{
+	TaskHandle handle = EnqueueThreadTask<ThreadType::RenderThread>( []( ) {} );
+	GetInterface<ITaskScheduler>( )->Wait( handle );
+}
