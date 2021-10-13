@@ -1,5 +1,6 @@
 #include "JsonManufacturer.h"
 
+#include "EnumStringMap.h"
 #include "Json/json.hpp"
 #include "Material/Material.h"
 #include "PathEnvironment.h"

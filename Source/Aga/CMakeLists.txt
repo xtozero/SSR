@@ -3,15 +3,18 @@ add_definitions(-DUNICODE=1)
 add_definitions(-D_UNICODE=1)
 add_definitions(-DNOMINMAX=1)
 
-set (PRECOMPILED
-	"Private/stdafx.cpp"
-	"Public/stdafx.h"
-	"Public/targetver.h")
+set (COMMON_SOURCE
+	Private/Common/GraphicsApiResource.cpp
+	Public/Common/GraphicsApiResource.h
+	Public/Common/IAga.h
+	Public/Common/ICommandList.h
+	Public/Common/IRenderResourceManager.h
+	Public/Common/RefHandle.h)
 
 set (CORE_SOURCE
-	"Private/Core/Aga.cpp"
-	"Private/Core/dllmain.cpp"
-	"Private/Core/ModuleInit.cpp")
+	Private/Core/Aga.cpp
+	Private/Core/dllmain.cpp
+	Private/Core/ModuleInit.cpp)
 	
 set (D3D11_RENDER_RESOURCE_SOURCE
 	Private/D3D11/D3D11BaseTexture.cpp
@@ -43,19 +46,16 @@ set (D3D11_RENDER_RESOURCE_SOURCE
 	Public/D3D11/D3D11Viewport.h)
 
 set (D3D11_SOURCE
-	"Private/D3D11/D3D11Api.cpp"
-	"Public/D3D11/D3D11Api.h")
+	Private/D3D11/D3D11Api.cpp
+	Public/D3D11/D3D11Api.h)
 	
 set (D3D11_UTILITY
 	Public/D3D11/D3D11FlagConvertor.h)
-	
-set (COMMON_SOURCE
-	Private/Common/GraphicsApiResource.cpp
-	Public/Common/GraphicsApiResource.h
-	Public/Common/IAga.h
-	Public/Common/ICommandList.h
-	Public/Common/IRenderResourceManager.h
-	Public/Common/RefHandle.h)
+
+set (PRECOMPILED
+	Private/Pch/stdafx.cpp
+	Public/Pch/stdafx.h
+	Public/Pch/targetver.h)
 
 set (RENDER_RESOURCE_SOURCE
 	Private/RenderResource/Buffer.cpp
@@ -75,14 +75,11 @@ set (RENDER_RESOURCE_SOURCE
 	Public/RenderResource/Texture.h
 	Public/RenderResource/Viewport.h)
 
-source_group("Direct11" FILES ${D3D11_SOURCE})	
 source_group("Direct11\\RenderResource" FILES ${D3D11_RENDER_RESOURCE_SOURCE})
+source_group("Direct11" FILES ${D3D11_SOURCE})	
 source_group("Direct11\\Utility" FILES ${D3D11_UTILITY})
 source_group("RenderCommon" FILES ${COMMON_SOURCE})
 source_group("RenderResource" FILES ${RENDER_RESOURCE_SOURCE})
-
-include_directories(../Shared/Public)
-include_directories(../Engine/Public)
 
 if (CMAKE_SIZEOF_VOID_P EQUAL 4)
 link_directories($ENV{DXSDK_DIR}lib/x86)
@@ -102,14 +99,14 @@ add_library(Aga SHARED 	${COMMON_SOURCE}
 						${PRECOMPILED}
 						${RENDER_RESOURCE_SOURCE})
 
-target_include_directories( Aga
-	PUBLIC
-		./Public/RenderResource
-		./Public/Common
-	PRIVATE
-		./Public/D3D11
-		../Core/Public
-)
+target_include_directories(Aga
+PUBLIC
+	./Public/RenderResource
+	./Public/Common
+PRIVATE
+	./Public
+	./Public/D3D11
+	./Public/Pch)
 
 set (DIRECT3D_LIBRARY
 	"d3d11.lib"
@@ -118,7 +115,10 @@ set (DIRECT3D_LIBRARY
 	"dxguid.lib"
 	"dxgi.lib")
 								
-target_link_libraries(Aga PRIVATE ${DIRECT3D_LIBRARY})
+target_link_libraries(Aga 
+PRIVATE 
+	Core 
+	${DIRECT3D_LIBRARY})
 
 add_custom_command(TARGET Aga POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/Aga.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/Aga.dll")

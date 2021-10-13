@@ -1,5 +1,4 @@
-#include "stdafx.h"
-#include "Core/InterfaceFactories.h"
+#include "InterfaceFactories.h"
 
 #include <cassert>
 

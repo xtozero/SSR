@@ -4,7 +4,6 @@
 #include "GraphicsApiResource.h"
 #include "ICommandList.h"
 #include "SizedTypes.h"
-#include "Util.h"
 
 #include <memory>
 

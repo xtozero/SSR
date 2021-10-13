@@ -1,8 +1,8 @@
 #pragma once
 
 #include "common.h"
+#include "GuideTypes.h"
 #include "ICollider.h"
-#include "Util.h"
 
 #include <map>
 #include <memory>

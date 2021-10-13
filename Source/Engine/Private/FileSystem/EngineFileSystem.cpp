@@ -1,6 +1,7 @@
 #include "stdafx.h"
-#include "Core/InterfaceFactories.h"
-#include "FileSystem/EngineFileSystem.h"
+#include "EngineFileSystem.h"
+
+#include "InterfaceFactories.h"
 
 #include <cstddef>
 #include <list>

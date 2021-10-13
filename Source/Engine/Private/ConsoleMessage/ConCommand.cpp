@@ -1,8 +1,8 @@
 #include "stdafx.h"
-#include "ConsoleMessage/ConCommand.h"
+#include "ConCommand.h"
 
-#include "ConsoleMessage/ConsoleMessageExecutor.h"
-#include "Util.h"
+#include "ConsoleMessageExecutor.h"
+#include "DebugUtil.h"
 
 void CConCommand::Execute( )
 {

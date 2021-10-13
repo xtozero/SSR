@@ -1,7 +1,6 @@
 #pragma once
 
 #include "common.h"
-#include "DataStructure/EnumStringMap.h"
 #include "RefHandle.h"
 #include "SizedTypes.h"
 

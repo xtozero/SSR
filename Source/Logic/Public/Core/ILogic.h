@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common.h"
-#include "Util.h"
+#include "GuideTypes.h"
 
 class CGameObject;
 class IPlatform;

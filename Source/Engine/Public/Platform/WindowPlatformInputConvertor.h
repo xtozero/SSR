@@ -1,9 +1,9 @@
 #pragma once
 
-#include "DataStructure/EnumStringMap.h"
+#include "EnumStringMap.h"
 #include "Math/CXMFloat.h"
 #include "SizedTypes.h"
-#include "UserInput/UICMap.h"
+#include "UICMap.h"
 
 #include <WinUser.h>
 

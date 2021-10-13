@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Buffer.h"
 
-#include "Core/InterfaceFactories.h"
+#include "InterfaceFactories.h"
 #include "IRenderResourceManager.h"
 
 namespace aga

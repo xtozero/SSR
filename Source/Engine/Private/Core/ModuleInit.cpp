@@ -1,10 +1,10 @@
 #include "stdafx.h"
 
-#include "AssetLoader/AssetLoader.h"
-#include "Core/IEngine.h"
-#include "Core/InterfaceFactories.h"
-#include "DataStructure/EnumStringMap.h"
-#include "FileSystem/EngineFileSystem.h"
+#include "AssetLoader.h"
+#include "EngineFileSystem.h"
+#include "EnumStringMap.h"
+#include "IEngine.h"
+#include "InterfaceFactories.h"
 #include "MultiThread/EngineTaskScheduler.h"
 
 namespace

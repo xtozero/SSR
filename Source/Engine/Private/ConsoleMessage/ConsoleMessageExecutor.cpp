@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "ConsoleMessage/ConsoleMessageExecutor.h"
+#include "ConsoleMessageExecutor.h"
 
-#include "Util.h"
+#include "DebugUtil.h"
 
 #include <cstddef>
 

@@ -7,8 +7,6 @@
 //#include "Render/IRenderResourceManager.h"
 #include "SizedTypes.h"
 
-#include "Util.h"
-
 void ScreenBlurManager::OnDeviceRestore( CGameLogic& gameLogic )
 {
 	CreateDeviceDependentResource( gameLogic );

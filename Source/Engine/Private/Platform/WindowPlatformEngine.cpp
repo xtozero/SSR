@@ -1,13 +1,13 @@
 #include "stdafx.h"
-#include "Platform/WindowPlatformEngine.h"
+#include "WindowPlatformEngine.h"
 
 #include "common.h"
 #include "Core/ILogic.h"
-#include "Core/InterfaceFactories.h"
-#include "FileSystem/EngineFileSystem.h"
+#include "EngineFileSystem.h"
+#include "GuideTypes.h"
+#include "InterfaceFactories.h"
+#include "IPlatform.h"
 #include "MultiThread/EngineTaskScheduler.h"
-#include "Platform/IPlatform.h"
-#include "Util.h"
 
 #include <Windows.h>
 

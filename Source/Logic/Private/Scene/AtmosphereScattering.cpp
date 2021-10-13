@@ -7,8 +7,6 @@
 //#include "Render/IRenderResourceManager.h"
 #include "SizedTypes.h"
 
-#include "Util.h"
-
 using namespace DirectX;
 
 void CAtmosphericScatteringManager::OnDeviceRestore( CGameLogic& gameLogic )

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common.h"
-#include "Core/InterfaceFactories.h"
+#include "InterfaceFactories.h"
 #include "SizedTypes.h"
 #include "TaskScheduler.h"
 

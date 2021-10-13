@@ -1,5 +1,4 @@
-#include "stdafx.h"
-#include "DataStructure/EnumStringMap.h"
+#include "EnumStringMap.h"
 
 #include <map>
 

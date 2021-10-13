@@ -7,8 +7,6 @@
 //#include "Render/IRenderer.h"
 //#include "Render/IRenderResourceManager.h"
 
-#include "Util.h"
-
 using namespace DirectX;
 
 void CSSRManager::OnDeviceRestore( CGameLogic& gameLogic )

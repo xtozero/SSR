@@ -1,9 +1,10 @@
 #include "stdafx.h"
 
-#include "IAga.h"
-#include "Core/InterfaceFactories.h"
 #include "D3D11Api.h"
 #include "D3D11ResourceManager.h"
+#include "EnumStringMap.h"
+#include "IAga.h"
+#include "InterfaceFactories.h"
 
 void RegisterResourceEnumString( )
 {

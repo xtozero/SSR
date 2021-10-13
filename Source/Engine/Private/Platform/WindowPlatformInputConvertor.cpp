@@ -1,8 +1,7 @@
 #include "stdafx.h"
-#include "Platform/WindowPlatformInputConvertor.h"
+#include "WindowPlatformInputConvertor.h"
 
 #include "Core/ILogic.h"
-#include "Util.h"
 
 #include <windowsx.h>
 

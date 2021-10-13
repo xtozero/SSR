@@ -1,8 +1,8 @@
 #include "stdafx.h"
-#include "ConsoleMessage/ConVar.h"
+#include "ConVar.h"
 
-#include "ConsoleMessage/ConsoleMessageExecutor.h"
-#include "Util.h"
+#include "ConsoleMessageExecutor.h"
+#include "DebugUtil.h"
 
 #include <cstddef>
 #include <tchar.h>

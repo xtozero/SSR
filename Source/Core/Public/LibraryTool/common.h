@@ -2,9 +2,17 @@
 
 #include <cassert>
 #include <fstream>
-#include <libloaderapi.h>
 #include <string>
 #include <tchar.h>
+#include <Windows.h>
+
+#ifdef CORE_EXPORTS
+#define CORE_DLL __declspec(dllexport)
+#define CORE_FUNC_DLL extern "C" __declspec(dllexport)
+#else
+#define CORE_DLL __declspec(dllimport)
+#define CORE_FUNC_DLL extern "C" __declspec(dllimport)
+#endif
 
 #ifdef ENGINE_EXPORTS
 #define ENGINE_DLL __declspec(dllexport)

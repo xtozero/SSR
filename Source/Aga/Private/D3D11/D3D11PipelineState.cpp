@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "D3D11PipelineState.h"
 
-#include "Core/InterfaceFactories.h"
 #include "D3D11BlendState.h"
 #include "D3D11DepthStencilState.h"
 #include "D3D11FlagConvertor.h"
@@ -9,6 +8,7 @@
 #include "D3D11Shaders.h"
 #include "D3D11VetexLayout.h"
 #include "IAga.h"
+#include "InterfaceFactories.h"
 
 namespace aga
 {

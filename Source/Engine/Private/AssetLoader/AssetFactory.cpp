@@ -1,4 +1,5 @@
-#include "AssetLoader\AssetFactory.h"
+#include "stdafx.h"
+#include "AssetFactory.h"
 
 AssetFactory& AssetFactory::GetInstance( )
 {

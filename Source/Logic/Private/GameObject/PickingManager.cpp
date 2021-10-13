@@ -3,10 +3,10 @@
 
 #include "Components/CameraComponent.h"
 #include "ConsoleMessage/ConVar.h"
+#include "DebugUtil.h"
 #include "GameObject/GameObject.h"
 #include "Physics/CollisionUtil.h"
 #include "UserInput/UserInput.h"
-#include "Util.h"
 
 using namespace DirectX;
 

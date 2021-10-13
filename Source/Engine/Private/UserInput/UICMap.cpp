@@ -1,8 +1,8 @@
 #include "stdafx.h"
-#include "UserInput/UICMap.h"
+#include "UICMap.h"
 
-#include "DataStructure/EnumStringMap.h"
-#include "FileSystem/EngineFileSystem.h"
+#include "EngineFileSystem.h"
+#include "EnumStringMap.h"
 #include "Json/json.hpp"
 
 #include <algorithm>

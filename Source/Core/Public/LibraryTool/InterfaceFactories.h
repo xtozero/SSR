@@ -102,6 +102,6 @@ void UnregisterFactory( )
 }
 #endif
 
-ENGINE_FUNC_DLL void* GetInterface( std::type_index typeIndex );
-ENGINE_FUNC_DLL void RegisterFactory( std::type_index typeIndex, FactoryFunctionType factoryFunc );
-ENGINE_FUNC_DLL void UnregisterFactory( std::type_index typeIndex );
+CORE_FUNC_DLL void* GetInterface( std::type_index typeIndex );
+CORE_FUNC_DLL void RegisterFactory( std::type_index typeIndex, FactoryFunctionType factoryFunc );
+CORE_FUNC_DLL void UnregisterFactory( std::type_index typeIndex );

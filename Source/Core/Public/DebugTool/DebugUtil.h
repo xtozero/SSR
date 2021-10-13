@@ -127,6 +127,3 @@ namespace UTIL
 #define _STR(x) #x
 #define STR(x) _STR(x)
 #define FIX_ME(x) __pragma(message("FIX ME: "_STR(x) " :: " __FILE__ "@"STR(__LINE__)))
-
-template <typename T>
-using Owner = T;

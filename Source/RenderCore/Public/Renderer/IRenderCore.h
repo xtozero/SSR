@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Util.h"
+#include "GuideTypes.h"
 
 class IScene;
 class RenderViewGroup;

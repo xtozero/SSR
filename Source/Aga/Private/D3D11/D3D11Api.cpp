@@ -17,7 +17,7 @@
 #include "D3D11VetexLayout.h"
 #include "D3D11Viewport.h"
 
-#include "DataStructure/EnumStringMap.h"
+#include "EnumStringMap.h"
 
 #include "IAga.h"
 
@@ -26,8 +26,6 @@
 #include "ShaderPrameterMap.h"
 
 #include "Texture.h"
-
-#include "Util.h"
 
 #include <array>
 #include <d3d11.h>

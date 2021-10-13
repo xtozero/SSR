@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 #include "Core/GameLogic.h"
-#include "Core/InterfaceFactories.h"
+#include "InterfaceFactories.h"
 
 namespace
 {

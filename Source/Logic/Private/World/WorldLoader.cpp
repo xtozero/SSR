@@ -5,7 +5,6 @@
 #include "GameObject/GameObject.h"
 #include "GameObject/GameObjectFactory.h"
 #include "Json/json.hpp"
-#include "Util.h"
 
 #include <tchar.h>
 

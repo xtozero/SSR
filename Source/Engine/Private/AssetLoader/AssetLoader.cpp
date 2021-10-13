@@ -1,11 +1,11 @@
 #include "stdafx.h"
-#include "AssetLoader/AssetLoader.h"
+#include "AssetLoader.h"
 
 #include "Archive.h"
-#include "AssetLoader/AssetFactory.h"
-#include "AssetLoader/IAsyncLoadableAsset.h"
-#include "Core/InterfaceFactories.h"
-#include "FileSystem/EngineFileSystem.h"
+#include "AssetFactory.h"
+#include "EngineFileSystem.h"
+#include "IAsyncLoadableAsset.h"
+#include "InterfaceFactories.h"
 #include "Json/json.hpp"
 #include "SizedTypes.h"
 

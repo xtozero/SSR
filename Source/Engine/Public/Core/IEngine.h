@@ -1,8 +1,8 @@
 #pragma once
 
 #include "common.h"
+#include "GuideTypes.h"
 #include "SizedTypes.h"
-#include "Util.h"
 
 #include <memory>
 

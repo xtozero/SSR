@@ -8,7 +8,6 @@
 #include "GameObject/GameObject.h"
 #include "GameObject/GameObjectFactory.h"
 #include "UserInput/UserInput.h"
-#include "Util.h"
 
 DECLARE_GAME_OBJECT( player_controller, PlayerController );
 

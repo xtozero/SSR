@@ -16,7 +16,6 @@
 #include <type_traits>
 #include <unordered_map>
 #include <vector>
-#include <windef.h>
 
 class ImUI;
 class CTextAtlas;

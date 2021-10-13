@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AssetLoader/AssetLoader.h"
-#include "Core/InterfaceFactories.h"
+#include "InterfaceFactories.h"
 #include "MultiThread/EngineTaskScheduler.h"
 #include "SizedTypes.h"
 

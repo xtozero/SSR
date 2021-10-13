@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "common.h"
 #include "Core/IEngine.h"
-#include "Core/InterfaceFactories.h"
+#include "InterfaceFactories.h"
 #include "ScreenSpaceReflection.h"
 #include "SizedTypes.h"
 #include "Window.h"

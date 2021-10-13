@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/IEngine.h"
+#include "IEngine.h"
 #include "SizedTypes.h"
 #include "WindowPlatformInputConvertor.h"
 

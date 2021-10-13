@@ -1,7 +1,7 @@
 #include "ShaderManufacturer.h"
 
+#include "D3D11Shaders.h"
 #include "Shader.h"
-#include "../D3D11/D3D11Shaders.h"
 
 #include <fstream>
 #include <d3dcompiler.h>

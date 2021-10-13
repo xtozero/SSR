@@ -3,48 +3,11 @@ add_definitions(-DUNICODE=1)
 add_definitions(-D_UNICODE=1)
 add_definitions(-DNOMINMAX=1)
 
-set (PRECOMPILED
-	"Private/stdafx.cpp"
-	"Public/stdafx.h"
-	"Public/targetver.h")
-
 set (CORE_SOURCE
-	"Private/Core/dllmain.cpp"
-	"Private/Core/ModuleInit.cpp"
-	"Private/Core/RenderCore.cpp")
+	Private/Core/dllmain.cpp
+	Private/Core/ModuleInit.cpp
+	Private/Core/RenderCore.cpp)
 
-set (MATERIAL_SOURCE
-	Private/Material/Material.cpp
-	Private/Material/MaterialResource.cpp
-	Public/Material/Material.h
-	Public/Material/MaterialResource.h)
-
-set (MESH_SOURCE
-	Private/Mesh/BaseMesh.cpp
-	Private/Mesh/StaticMesh.cpp
-	Private/Mesh/StaticMeshResource.cpp
-	Public/Mesh/BaseMesh.h
-	Public/Mesh/CommonMeshDefine.h
-	Public/Mesh/MeshDescription.h
-	Public/Mesh/StaticMesh.h
-	Public/Mesh/StaticMeshResource.h)
-
-set (RENDERER_SOURCE
-	Private/Renderer/ForwardLighting.cpp
-	Private/Renderer/ForwardRenderer.cpp
-	Private/Renderer/RenderView.cpp
-	Private/Renderer/SceneRenderer.cpp
-	Public/Renderer/ConstantSlotDefine.h
-	Public/Renderer/ForwardLighting.h
-	Public/Renderer/ForwardRenderer.h
-	Public/Renderer/IRenderCore.h
-	Public/Renderer/RenderView.h
-	Public/Renderer/SceneRenderer.h)
-
-set (RENDER_UTILITY
-	Private/RenderUtility/AbstractGraphicsInterface.cpp
-	Public/RenderUtility/AbstractGraphicsInterface.h)
-	
 set (GRAPHICS_RESOURCE_SOURCE
 	Private/GraphicsResource/ByteBuffer.cpp
 	Private/GraphicsResource/ConstantBuffer.cpp
@@ -78,6 +41,27 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Public/GraphicsResource/VertexLayout.h
 	Public/GraphicsResource/VertexInputStream.h
 	Public/GraphicsResource/Viewport.h)
+
+set (MATERIAL_SOURCE
+	Private/Material/Material.cpp
+	Private/Material/MaterialResource.cpp
+	Public/Material/Material.h
+	Public/Material/MaterialResource.h)
+
+set (MESH_SOURCE
+	Private/Mesh/BaseMesh.cpp
+	Private/Mesh/StaticMesh.cpp
+	Private/Mesh/StaticMeshResource.cpp
+	Public/Mesh/BaseMesh.h
+	Public/Mesh/CommonMeshDefine.h
+	Public/Mesh/MeshDescription.h
+	Public/Mesh/StaticMesh.h
+	Public/Mesh/StaticMeshResource.h)
+
+set (PRECOMPILED
+	Private/Pch/stdafx.cpp
+	Public/Pch/stdafx.h
+	Public/Pch/targetver.h)
 	
 set (PROXIES_SOURCE
 	Private/Proxies/LightProxy.cpp
@@ -99,8 +83,25 @@ set (RENDER_SCENE_SOURCE
 	Public/Scene/PrimitiveSceneInfo.h
 	Public/Scene/Scene.h
 	Public/Scene/SceneConstantBuffers.h)
+
+set (RENDER_UTILITY
+	Private/RenderUtility/AbstractGraphicsInterface.cpp
+	Public/RenderUtility/AbstractGraphicsInterface.h)
+	
+set (RENDERER_SOURCE
+	Private/Renderer/ForwardLighting.cpp
+	Private/Renderer/ForwardRenderer.cpp
+	Private/Renderer/RenderView.cpp
+	Private/Renderer/SceneRenderer.cpp
+	Public/Renderer/ConstantSlotDefine.h
+	Public/Renderer/ForwardLighting.h
+	Public/Renderer/ForwardRenderer.h
+	Public/Renderer/IRenderCore.h
+	Public/Renderer/RenderView.h
+	Public/Renderer/SceneRenderer.h)
 	
 source_group("GraphicsResource" FILES ${GRAPHICS_RESOURCE_SOURCE})
+source_group("Material" FILES ${MATERIAL_SOURCE})
 source_group("Mesh" FILES ${MESH_SOURCE})
 source_group("Proxies" FILES ${PROXIES_SOURCE})
 source_group("Renderer" FILES ${RENDERER_SOURCE})
@@ -112,16 +113,13 @@ link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 add_library(RenderCore SHARED 	${PRECOMPILED}
 								${CORE_SOURCE}
+								${GRAPHICS_RESOURCE_SOURCE}
 								${MATERIAL_SOURCE}
 								${MESH_SOURCE}
-								${RENDERER_SOURCE}
+								${PROXIES_SOURCE}
 								${RENDER_SCENE_SOURCE}
 								${RENDER_UTILITY}
-								${GRAPHICS_RESOURCE_SOURCE}
-								${PROXIES_SOURCE}
-								${SCENE_SOURCE})
-
-target_link_libraries(RenderCore Aga)
+								${RENDERER_SOURCE})
 
 target_include_directories(RenderCore
 PUBLIC
@@ -130,16 +128,19 @@ PUBLIC
 	./Public/GraphicsResource
 	./Public/Material
 	./Public/Renderer
-	../Aga/Public/Common
-	../Core/Public
-	../Shared/Public
+PRIVATE
 	../Engine/Public
 	../Logic/Public
-PRIVATE
 	./Public/Mesh
+	./Public/Pch
 	./Public/Proxies
-	./Public/RenderUtility
-	)
+	./Public/RenderUtility)
+	
+target_link_libraries(RenderCore 
+PUBLIC
+	Aga
+PRIVATE
+	Core)
 
 add_custom_command(TARGET RenderCore POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/RenderCore.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/RenderCore.dll")

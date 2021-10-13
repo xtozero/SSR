@@ -3,7 +3,7 @@
 
 #include "common.h"
 #include "ConsoleMessage/ConsoleMessageExecutor.h"
-#include "Util.h"
+#include "DebugUtil.h"
 
 #include <cstdio>
 #include <process.h>
