@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "Proxies/PrimitiveProxy.h"
 
-#include "MultiThread/EngineTaskScheduler.h"
 #include "Scene/PrimitiveSceneInfo.h"
+#include "TaskScheduler.h"
 
 void PrimitiveProxy::SetTransform( const CXMFLOAT4X4& worldTransform )
 {

@@ -3,19 +3,16 @@
 #include "Crc32Hash.h"
 #include "Delegate.h"
 #include "IAsyncLoadableAsset.h"
+#include "InterfaceFactories.h"
 #include "SizedTypes.h"
 
 #include <functional>
 #include <map>
 #include <typeindex>
 
-class AssetFactory
+class IAssetFactory
 {
 public:
-	ENGINE_DLL static AssetFactory& GetInstance( );
-
-	void Shutdown( );
-
 	template <typename T>
 	void RegisterAsset( const char* assetType )
 	{
@@ -24,17 +21,15 @@ public:
 		Delegate<IAsyncLoadableAsset*> func;
 		func.BindFunction( &NewAsset<T> );
 
-		assert( m_createfunctions.find( T::ID ) == std::end( m_createfunctions ) );
-
-		m_createfunctions.emplace( T::ID, std::move( func ) );
+		AddCreateFunction( T::ID, std::move( func ) );
 	}
 
-	ENGINE_DLL IAsyncLoadableAsset* CreateAsset( uint32 assetID );
+	virtual IAsyncLoadableAsset* CreateAsset( uint32 assetID ) const = 0;
 
-private:
-	AssetFactory( ) = default;
+	virtual ~IAssetFactory( ) = default;
 
-	std::map<uint32, Delegate<IAsyncLoadableAsset*>> m_createfunctions;
+protected:
+	virtual void AddCreateFunction( uint32 assetID, Delegate<IAsyncLoadableAsset*>&& func ) = 0;
 };
 
 template <typename T>
@@ -49,9 +44,12 @@ class AssetFactoryRegister
 public:
 	AssetFactoryRegister( const char* assetType )
 	{
-		AssetFactory::GetInstance( ).RegisterAsset<T>( assetType );
+		GetInterface<IAssetFactory>( )->RegisterAsset<T>( assetType );
 	}
 };
+
+Owner<IAssetFactory*> CreateAssetFactory( );
+void DestoryAssetFactory( Owner<IAssetFactory*> pAssetFactory );
 
 #define DECLARE_ASSET( dllName, type ) \
 public : \

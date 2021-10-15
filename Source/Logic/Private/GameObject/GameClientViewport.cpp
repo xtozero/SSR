@@ -5,9 +5,9 @@
 #include "GameObject/Player.h"
 #include "GraphicsResource/Viewport.h"
 #include "IAga.h"
-#include "MultiThread/EngineTaskScheduler.h"
 #include "Renderer/IRenderCore.h"
 #include "Renderer/RenderView.h"
+#include "TaskScheduler.h"
 #include "World/World.h"
 
 void GameClientViewport::Draw( )

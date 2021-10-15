@@ -2,7 +2,7 @@
 #include "UploadBuffer.h"
 
 #include "AbstractGraphicsInterface.h"
-#include "MultiThread/EngineTaskScheduler.h"
+#include "TaskScheduler.h"
 
 #include <cassert>
 

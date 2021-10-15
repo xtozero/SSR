@@ -7,10 +7,10 @@
 #include "Material/MaterialResource.h"
 #include "Mesh/StaticMesh.h"
 #include "Mesh/StaticMeshResource.h"
-#include "MultiThread/EngineTaskScheduler.h"
 #include "RenderOption.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "Scene/SceneConstantBuffers.h"
+#include "TaskScheduler.h"
 
 StaticMeshPrimitiveProxy::StaticMeshPrimitiveProxy( const StaticMeshComponent& component ) : m_pStaticMesh( component.GetStaticMesh( ) ), m_pRenderData( m_pStaticMesh->RenderData( ) ), m_pRenderOption( component.GetRenderOption( ) )
 {

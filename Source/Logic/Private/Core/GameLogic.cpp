@@ -9,7 +9,7 @@
 #include "Core/DebugConsole.h"
 #include "Core/Timer.h"
 #include "Core/UtilWindowInfo.h"
-#include "FileSystem/EngineFileSystem.h"
+#include "FileSystem.h"
 #include "GameObject/GameObject.h"
 #include "GameObject/GameClientViewport.h"
 #include "InterfaceFactories.h"

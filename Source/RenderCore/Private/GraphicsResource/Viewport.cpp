@@ -5,7 +5,7 @@
 #include "AbstractGraphicsInterface.h"
 #include "InterfaceFactories.h"
 #include "IRenderResourceManager.h"
-#include "MultiThread/EngineTaskScheduler.h"
+#include "TaskScheduler.h"
 
 namespace rendercore
 {

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "AssetLoader/AssetFactory.h"
-#include "AssetLoader/IAsyncLoadableAsset.h"
+#include "AssetFactory.h"
 #include "BaseMesh.h"
+#include "IAsyncLoadableAsset.h"
 #include "SizedTypes.h"
 
 #include <vector>

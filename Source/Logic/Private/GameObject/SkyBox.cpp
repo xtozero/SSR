@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "GameObject/SkyBox.h"
 
-#include "AssetLoader/AssetLoader.h"
+#include "AssetLoader.h"
 #include "Components/TexturedSkyComponent.h"
 #include "Core/GameLogic.h"
 #include "GameObject/GameObjectFactory.h"

@@ -3,6 +3,14 @@ add_definitions(-DUNICODE=1)
 add_definitions(-D_UNICODE=1)
 add_definitions(-DNOMINMAX=1)
 
+set (ASSET
+	Private/Asset/AssetFactory.cpp
+	Private/Asset/AssetLoader.cpp
+	Public/Asset/AssetFactory.h
+	Public/Asset/IAssetLoader.h
+	Public/Asset/IAssetLoader.h
+	Public/Asset/IAsyncLoadableAsset.h)
+
 set (COLLECTIONS
 	Public/Collections/BitArray.h
 	Public/Collections/SparseArray.h)
@@ -24,7 +32,9 @@ set (DELEGATE
 	Public/Delegate/Delegate.h)
 	
 set (FILESYSTEM
-	Public/Filesystem/FileSystem.h)
+	Private/Filesystem/FileSystem.cpp
+	Public/Filesystem/FileSystem.h
+	Public/Filesystem/FileSystemCore.h)
 
 set (HASH
 	Public/Hash/Crc32Hash.h
@@ -48,12 +58,15 @@ set (MEMORY
 
 set (MULTITHREAD
 	Private/Multithread/TaskScheduler.cpp
-	Public/Multithread/TaskScheduler.h)
+	Private/Multithread/TaskSchedulerCore.cpp
+	Public/Multithread/TaskScheduler.h
+	Public/Multithread/TaskSchedulerCore.h)
 
 set (SERIALIZATION
 	Public/Serialization/Archive.h
 	Public/Serialization/ArchiveUtility.h)
 
+source_group("Asset" FILES ${ASSET})
 source_group("Collections" FILES ${COLLECTIONS} )		
 source_group("DataStructure" FILES ${DATA_STRUCTURE})
 source_group("DataType" FILES ${DATA_TYPE})
@@ -68,7 +81,8 @@ source_group("Memory" FILES ${MEMORY})
 source_group("MultiThread" FILES ${MULTITHREAD})
 source_group("Serialization" FILES ${SERIALIZATION})
 
-add_library(Core STATIC	${COLLECTIONS}
+add_library(Core STATIC	${ASSET}
+						${COLLECTIONS}
 						${DATA_STRUCTURE}
 						${DATA_TYPE}
 						${DEBUG_TOOL}
@@ -85,6 +99,7 @@ add_library(Core STATIC	${COLLECTIONS}
 target_include_directories(Core
 PUBLIC
 	./Public/
+	./Public/Asset
 	./Public/Collections
 	./Public/DataStructure
 	./Public/DataType

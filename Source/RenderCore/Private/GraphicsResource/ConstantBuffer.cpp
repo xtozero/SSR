@@ -2,7 +2,7 @@
 #include "ConstantBuffer.h"
 
 #include "AbstractGraphicsInterface.h"
-#include "MultiThread/EngineTaskScheduler.h"
+#include "TaskScheduler.h"
 
 void ConstantBuffer::Update( const void* data, uint32 size )
 {

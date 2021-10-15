@@ -129,7 +129,6 @@ PUBLIC
 	./Public/Material
 	./Public/Renderer
 PRIVATE
-	../Engine/Public
 	../Logic/Public
 	./Public/Mesh
 	./Public/Pch

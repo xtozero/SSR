@@ -1,15 +1,16 @@
 #include "stdafx.h"
 #include "Mesh/StaticMesh.h"
 
+#include "ArchiveUtility.h"
 #include "common.h"
 #include "CommonMeshDefine.h"
 #include "Material/Material.h"
 #include "Material/MaterialResource.h"
 #include "MeshDescription.h"
 #include "StaticMeshResource.h"
-#include "MultiThread/EngineTaskScheduler.h"
+#include "TaskScheduler.h"
 
-Archive operator<<( Archive& ar, StaticMeshMaterial& m )
+Archive& operator<<( Archive& ar, StaticMeshMaterial& m )
 {
 	ar << m.m_mateiral;
 	return ar;
@@ -29,21 +30,7 @@ void StaticMesh::Serialize( Archive& ar )
 	}
 	m_renderData->Serialize( ar );
 
-	if ( ar.IsWriteMode( ) )
-	{
-		ar << static_cast<uint32>( m_materials.size( ) );
-	}
-	else
-	{
-		uint32 size = 0;
-		ar << size;
-		m_materials.resize( size );
-	}
-
-	for ( auto& material : m_materials )
-	{
-		ar << material;
-	}
+	ar << m_materials;
 }
 
 void StaticMesh::BuildMeshFromMeshDescriptions( const std::vector<MeshDescription>& meshDescriptions )

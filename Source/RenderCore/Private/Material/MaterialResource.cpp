@@ -2,8 +2,8 @@
 #include "MaterialResource.h"
 
 #include "AbstractGraphicsInterface.h"
-#include "MultiThread/EngineTaskScheduler.h"
 #include "SizedTypes.h"
+#include "TaskScheduler.h"
 
 void MaterialResource::SetMaterial( const std::shared_ptr<Material>& material )
 {

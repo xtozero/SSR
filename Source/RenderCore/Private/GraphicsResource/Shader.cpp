@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "Shader.h"
 
-#include "MultiThread/EngineTaskScheduler.h"
+#include "ArchiveUtility.h"
+#include "TaskScheduler.h"
 
 Archive& operator<<( Archive& ar, aga::ShaderParameter& shaderParam )
 {
@@ -11,94 +12,16 @@ Archive& operator<<( Archive& ar, aga::ShaderParameter& shaderParam )
 
 Archive& operator<<( Archive& ar, aga::ShaderParameterMap& shaderParamMap )
 {
-	if ( ar.IsWriteMode( ) )
-	{
-		ar << shaderParamMap.Size( );
-		for ( auto& shaderParam : shaderParamMap.GetParameterMap() )
-		{
-			ar << shaderParam.first << shaderParam.second;
-		}
-	}
-	else
-	{
-		uint32 size;
-		ar << size;
-
-		for ( uint32 i = 0; i < size; ++i )
-		{
-			std::string variableName;
-			aga::ShaderParameter shaderParam;
-
-			ar << variableName << shaderParam;
-
-			shaderParamMap.AddParameter( variableName.c_str( ), shaderParam );
-		}
-	}
-
+	ar << shaderParamMap.GetParameterMap( );
 	return ar;
 }
 
 Archive& operator<<( Archive& ar, aga::ShaderParameterInfo& shaderParamInfo )
 {
-	if ( ar.IsWriteMode( ) )
-	{
-		ar << static_cast<uint32>( shaderParamInfo.m_constantBuffers.size( ) );
-		for ( auto& param : shaderParamInfo.m_constantBuffers )
-		{
-			ar << param;
-		}
-
-		ar << static_cast<uint32>( shaderParamInfo.m_srvs.size( ) );
-		for ( auto& param : shaderParamInfo.m_srvs )
-		{
-			ar << param;
-		}
-
-		ar << static_cast<uint32>( shaderParamInfo.m_uavs.size( ) );
-		for ( auto& param : shaderParamInfo.m_uavs )
-		{
-			ar << param;
-		}
-
-		ar << static_cast<uint32>( shaderParamInfo.m_samplers.size( ) );
-		for ( auto& param : shaderParamInfo.m_samplers )
-		{
-			ar << param;
-		}
-	}
-	else
-	{
-		uint32 size;
-
-		ar << size;
-		shaderParamInfo.m_constantBuffers.resize( size );
-		for ( auto& param : shaderParamInfo.m_constantBuffers )
-		{
-			ar << param;
-		}
-
-		ar << size;
-		shaderParamInfo.m_srvs.resize( size );
-		for ( auto& param : shaderParamInfo.m_srvs )
-		{
-			ar << param;
-		}
-
-		ar << size;
-		shaderParamInfo.m_uavs.resize( size );
-		for ( auto& param : shaderParamInfo.m_uavs )
-		{
-			ar << param;
-		}
-
-		ar << size;
-		shaderParamInfo.m_samplers.resize( size );
-		for ( auto& param : shaderParamInfo.m_samplers )
-		{
-			ar << param;
-		}
-	}
-
+	ar << shaderParamInfo.m_constantBuffers;
+	ar << shaderParamInfo.m_srvs;
+	ar << shaderParamInfo.m_uavs;
+	ar << shaderParamInfo.m_samplers;
 	return ar;
 }
 

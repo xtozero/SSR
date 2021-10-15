@@ -1,7 +1,7 @@
 #include "GlobalShaders.h"
 
-#include "AssetLoader/AssetLoader.h"
-#include "MultiThread/EngineTaskScheduler.h"
+#include "AssetLoader.h"
+#include "TaskScheduler.h"
 
 #include <cassert>
 #include <memory>

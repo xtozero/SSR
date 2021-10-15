@@ -1,10 +1,10 @@
 #pragma once
 
-#include "AssetLoader/AssetFactory.h"
-#include "AssetLoader/IAsyncLoadableAsset.h"
+#include "AssetFactory.h"
 #include "common.h"
 #include "DDSTexture.h"
 #include "GraphicsApiResource.h"
+#include "IAsyncLoadableAsset.h"
 #include "Math/CXMFloat.h"
 #include "RenderOption.h"
 #include "SizedTypes.h"

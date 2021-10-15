@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "IndexBuffer.h"
 
-#include "MultiThread/EngineTaskScheduler.h"
+#include "TaskScheduler.h"
 
 aga::Buffer* IndexBuffer::Resource( )
 {

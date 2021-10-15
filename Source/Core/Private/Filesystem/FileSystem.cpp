@@ -1,20 +1,19 @@
-#include "stdafx.h"
-#include "EngineFileSystem.h"
+#include "FileSystem.h"
 
 #include "InterfaceFactories.h"
 
 #include <cstddef>
 #include <list>
 
-struct EngineFileSystemOverlapped : public FileSystemOverlapped
+struct FileSystemImplOverlapped : public FileSystemOverlapped
 {
-	EngineFileSystemOverlapped( ) : FileSystemOverlapped{ }
+	FileSystemImplOverlapped( ) : FileSystemOverlapped{ }
 	{ }
 
 	IFileSystem::IOCompletionCallback m_callback;
 };
 
-class EngineFileSystem : public IFileSystem
+class FileSystemImpl : public IFileSystem
 {
 public:
 	virtual FileHandle OpenFile( const char* filePath ) override;
@@ -22,36 +21,35 @@ public:
 	virtual uint32 GetFileSize( const FileHandle& handle ) const override;
 	virtual bool ReadAsync( const FileHandle& handle, char* buffer, uint32 size, IOCompletionCallback* callback = nullptr ) override;
 
-	EngineFileSystem( );
-	virtual ~EngineFileSystem( );
-	EngineFileSystem( const EngineFileSystem& ) = delete;
-	EngineFileSystem& operator=( const EngineFileSystem& ) = delete;
-	EngineFileSystem( EngineFileSystem&& ) = delete;
-	EngineFileSystem& operator=( EngineFileSystem&& ) = delete;
+	FileSystemImpl( );
+	virtual ~FileSystemImpl( );
+	FileSystemImpl( const FileSystemImpl& ) = delete;
+	FileSystemImpl& operator=( const FileSystemImpl& ) = delete;
+	FileSystemImpl( FileSystemImpl&& ) = delete;
+	FileSystemImpl& operator=( FileSystemImpl&& ) = delete;
 
 private:
 	std::mutex m_ioRequestMutex;
-	std::mutex m_callbackMutex;
-	FileSystem<EngineFileSystemOverlapped> m_fileSystem;
+	FileSystem<FileSystemImplOverlapped> m_fileSystem;
 	TaskHandle m_hWaitIO;
 };
 
-FileHandle EngineFileSystem::OpenFile( const char* filePath )
+FileHandle FileSystemImpl::OpenFile( const char* filePath )
 {
-	return FileSystem<EngineFileSystemOverlapped>::OpenFile( filePath );
+	return FileSystem<FileSystemImplOverlapped>::OpenFile( filePath );
 }
 
-void EngineFileSystem::CloseFile( const FileHandle& handle )
+void FileSystemImpl::CloseFile( const FileHandle& handle )
 {
-	FileSystem<EngineFileSystemOverlapped>::CloseFile( handle );
+	FileSystem<FileSystemImplOverlapped>::CloseFile( handle );
 }
 
-uint32 EngineFileSystem::GetFileSize( const FileHandle& handle ) const
+uint32 FileSystemImpl::GetFileSize( const FileHandle& handle ) const
 {
 	return m_fileSystem.GetFileSize( handle );
 }
 
-bool EngineFileSystem::ReadAsync( const FileHandle& handle, char* buffer, uint32 size, IOCompletionCallback* callback )
+bool FileSystemImpl::ReadAsync( const FileHandle& handle, char* buffer, uint32 size, IOCompletionCallback* callback )
 {
 	if ( handle.IsValid( ) == false )
 	{
@@ -59,7 +57,7 @@ bool EngineFileSystem::ReadAsync( const FileHandle& handle, char* buffer, uint32
 	}
 
 	std::lock_guard lk( m_ioRequestMutex );
-	EngineFileSystemOverlapped* o = static_cast<EngineFileSystemOverlapped*>( m_fileSystem.ReadAsync( handle, buffer, size ) );
+	FileSystemImplOverlapped* o = static_cast<FileSystemImplOverlapped*>( m_fileSystem.ReadAsync( handle, buffer, size ) );
 	if ( callback && ( o != nullptr ) )
 	{
 		o->m_callback = *callback;
@@ -68,12 +66,12 @@ bool EngineFileSystem::ReadAsync( const FileHandle& handle, char* buffer, uint32
 	return ( o != nullptr );
 }
 
-EngineFileSystem::EngineFileSystem( )
+FileSystemImpl::FileSystemImpl( )
 {
 	auto waitIO = [this]( ) {
 		while ( true )
 		{
-			EngineFileSystemOverlapped* o = m_fileSystem.WaitAsyncIO( );
+			FileSystemImplOverlapped* o = m_fileSystem.WaitAsyncIO( );
 			if ( o == nullptr )
 			{
 				break;
@@ -95,7 +93,7 @@ EngineFileSystem::EngineFileSystem( )
 	m_hWaitIO = EnqueueThreadTask<ThreadType::FileSystemThread>( waitIO );
 }
 
-EngineFileSystem::~EngineFileSystem( )
+FileSystemImpl::~FileSystemImpl( )
 {
 	m_fileSystem.SuspendWaitAsyncIO( );
 	GetInterface<ITaskScheduler>( )->Wait( m_hWaitIO );
@@ -103,7 +101,7 @@ EngineFileSystem::~EngineFileSystem( )
 
 IFileSystem* CreateFileSystem( )
 { 
-	return new EngineFileSystem( );
+	return new FileSystemImpl( );
 }
 
 void DestroyFileSystem( IFileSystem* fileSystem )

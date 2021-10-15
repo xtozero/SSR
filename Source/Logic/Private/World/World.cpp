@@ -3,11 +3,11 @@
 
 #include "GameObject/Player.h"
 #include "InterfaceFactories.h"
-#include "MultiThread/EngineTaskScheduler.h"
 #include "Physics/BoundingSphere.h"
 #include "Physics/CollisionUtil.h"
 #include "Renderer/IRenderCore.h"
 #include "Scene/DebugOverlayManager.h"
+#include "TaskScheduler.h"
 
 using namespace DirectX;
 

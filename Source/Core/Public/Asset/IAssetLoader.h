@@ -1,11 +1,9 @@
 #pragma once
 
 #include "Delegate.h"
-#include "GuideTypes.h"
 #include "SizedTypes.h"
 
 #include <memory>
-#include <string>
 
 class AssetLoaderHandle;
 
@@ -22,9 +20,6 @@ public:
 
 	virtual ~IAssetLoader( ) = default;
 };
-
-Owner<IAssetLoader*> CreateAssetLoader( );
-void DestoryAssetLoader( Owner<IAssetLoader*> pRenderOptionManager );
 
 class AssetLoaderHandle : public std::enable_shared_from_this<AssetLoaderHandle>
 {
@@ -57,7 +52,7 @@ public:
 
 	void AddPrerequisite( const AssetLoaderSharedHandle& prerequisite )
 	{
-		prerequisite->m_subSequentList.emplace_back( shared_from_this() );
+		prerequisite->m_subSequentList.emplace_back( shared_from_this( ) );
 		IncreasePrerequisite( );
 	}
 

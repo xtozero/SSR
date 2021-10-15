@@ -2,8 +2,6 @@
 
 #include <cassert>
 
-InterfaceFactories g_InterfaceFactories;
-
 void InterfaceFactories::RegisterFactory( std::type_index typeIndex, FactoryFunctionType factoryFunc )
 {
 	auto found = m_factoryFuncs.find( typeIndex );
@@ -33,7 +31,8 @@ FactoryFunctionType InterfaceFactories::GetFactoryFunction( std::type_index type
 
 InterfaceFactories& InterfaceFactories::Get( )
 {
-	return g_InterfaceFactories;
+	static InterfaceFactories interfaceFactories;
+	return interfaceFactories;
 }
 
 void* GetInterface( std::type_index typeIndex )

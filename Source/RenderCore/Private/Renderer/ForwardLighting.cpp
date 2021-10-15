@@ -2,7 +2,7 @@
 #include "Renderer\ForwardLighting.h"
 
 #include "AbstractGraphicsInterface.h"
-#include "MultiThread/EngineTaskScheduler.h"
+#include "TaskScheduler.h"
 
 void ForwardLightBuffer::Initialize( uint32 bytePerElement, uint32 numElements, RESOURCE_FORMAT format )
 {

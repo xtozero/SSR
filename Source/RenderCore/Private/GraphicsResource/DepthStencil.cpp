@@ -2,7 +2,7 @@
 #include "GraphicsResource/DepthStencil.h"
 
 #include "AbstractGraphicsInterface.h"
-#include "MultiThread/EngineTaskScheduler.h"
+#include "TaskScheduler.h"
 
 namespace rendercore
 {

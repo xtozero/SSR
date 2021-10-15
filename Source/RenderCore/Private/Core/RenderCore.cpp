@@ -6,8 +6,8 @@
 #include "ForwardRenderer.h"
 #include "GlobalShaders.h"
 #include "IAga.h"
-#include "MultiThread/EngineTaskScheduler.h"
 #include "RenderView.h"
+#include "TaskScheduler.h"
 #include "Scene/Scene.h"
 
 class RenderCore : public IRenderCore

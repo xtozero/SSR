@@ -4,7 +4,7 @@
 #include "AbstractGraphicsInterface.h"
 #include "GlobalShaders.h"
 #include "IAga.h"
-#include "MultiThread/EngineTaskScheduler.h"
+#include "TaskScheduler.h"
 #include "UploadBuffer.h"
 
 REGISTER_GLOBAL_SHADER( DistributionCopyCS, "./Assets/Shaders/CS_DistributionCopy.asset" );

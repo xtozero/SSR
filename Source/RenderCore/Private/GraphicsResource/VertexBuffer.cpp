@@ -2,7 +2,7 @@
 #include "VertexBuffer.h"
 
 #include "AbstractGraphicsInterface.h"
-#include "MultiThread/EngineTaskScheduler.h"
+#include "TaskScheduler.h"
 
 void* VertexBuffer::Lock( )
 {

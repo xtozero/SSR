@@ -100,13 +100,6 @@ void Material::Serialize( Archive& ar )
 			ar << property->Type( );
 			property->Serialize( ar );
 		}
-
-		ar << static_cast<uint32>( m_samplers.size( ) );
-		for ( auto& s : m_samplers )
-		{
-			ar << s.first;
-			ar << s.second;
-		}
 	}
 	else
 	{
@@ -125,15 +118,9 @@ void Material::Serialize( Archive& ar )
 
 			m_properties.emplace( std::move( propertyName ), std::move( property ) );
 		}
-
-		ar << size;
-		for ( uint32 i = 0; i < size; ++i )
-		{
-			std::string samplerName;
-			ar << samplerName;
-			ar << m_samplers[samplerName];
-		}
 	}
+
+	ar << m_samplers;
 }
 
 void Material::AddProperty( const char* key, int32 value )

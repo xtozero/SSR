@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "GameObject/StaticMeshGameObject.h"
 
-#include "AssetLoader/AssetLoader.h"
+#include "AssetLoader.h"
 #include "Components/Component.h"
 #include "Components/StaticMeshComponent.h"
 #include "Core/GameLogic.h"

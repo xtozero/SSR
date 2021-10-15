@@ -2,7 +2,7 @@
 #include "Components/Component.h"
 
 #include "GameObject/GameObject.h"
-#include "MultiThread/EngineTaskScheduler.h"
+#include "TaskScheduler.h"
 
 void Component::RegisterComponent( )
 {

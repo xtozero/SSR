@@ -1,7 +1,7 @@
 #pragma once
 
-#include "AssetLoader/AssetFactory.h"
-#include "AssetLoader/IAsyncLoadableAsset.h"
+#include "AssetFactory.h"
+#include "IAsyncLoadableAsset.h"
 #include "ShaderPrameterInfo.h"
 #include "ShaderPrameterMap.h"
 #include "ShaderResource.h"

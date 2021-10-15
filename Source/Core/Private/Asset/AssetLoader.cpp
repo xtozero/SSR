@@ -1,9 +1,8 @@
-#include "stdafx.h"
 #include "AssetLoader.h"
 
 #include "Archive.h"
 #include "AssetFactory.h"
-#include "EngineFileSystem.h"
+#include "FileSystem.h"
 #include "IAsyncLoadableAsset.h"
 #include "InterfaceFactories.h"
 #include "Json/json.hpp"
@@ -57,7 +56,7 @@ public:
 	virtual void SetHandleInProcess( const AssetLoaderSharedHandle& handle ) override;
 
 	AssetLoader( ) = default;
-	~AssetLoader( );
+	~AssetLoader( ) = default;
 	AssetLoader( const AssetLoader& ) = delete;
 	AssetLoader( AssetLoader&& ) = delete;
 	AssetLoader& operator=( const AssetLoader& ) = delete;
@@ -135,11 +134,6 @@ void AssetLoader::SetHandleInProcess( const AssetLoaderSharedHandle& handle )
 	AssetHandleInProcess = handle;
 }
 
-AssetLoader::~AssetLoader( )
-{
-	AssetFactory::GetInstance( ).Shutdown( );
-}
-
 AssetLoaderSharedHandle AssetLoader::LoadAsset( const char* assetPath, LoadCompletionCallback completionCallback )
 {
 	AssetLoaderSharedHandle handle = std::make_shared<AssetLoaderHandle>( );
@@ -174,7 +168,7 @@ AssetLoaderSharedHandle AssetLoader::LoadAsset( const char* assetPath, LoadCompl
 
 					ar << assetID;
 					
-					std::shared_ptr<IAsyncLoadableAsset> newAsset( AssetFactory::GetInstance( ).CreateAsset( assetID ) );
+					std::shared_ptr<IAsyncLoadableAsset> newAsset( GetInterface<IAssetFactory>()->CreateAsset( assetID ) );
 					if ( newAsset != nullptr )
 					{
 						handle->SetLoadedAsset( newAsset );

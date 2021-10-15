@@ -5,12 +5,12 @@
 #include "Components/LightComponent.h"
 #include "Components/PrimitiveComponent.h"
 #include "Components/TexturedSkyComponent.h"
-#include "MultiThread/EngineTaskScheduler.h"
 #include "Proxies/LightProxy.h"
 #include "Proxies/PrimitiveProxy.h"
 #include "Proxies/TexturedSkyProxy.h"
 #include "Scene/LightSceneInfo.h"
 #include "Scene/PrimitiveSceneInfo.h"
+#include "TaskScheduler.h"
 
 #include <algorithm>
 

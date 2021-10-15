@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "DDSTexture.h"
 
+#include "ArchiveUtility.h"
+
 Archive& operator<<( Archive& ar, TextureSection& section )
 {
 	ar << section.m_rowPitch << section.m_slicePitch << section.m_offset;
@@ -49,21 +51,7 @@ void DDSTexture::Serialize( Archive& ar )
 
 	ar << m_memory;
 
-	if ( ar.IsWriteMode( ) )
-	{
-		ar << static_cast<uint32>( m_sections.size( ) );
-	}
-	else
-	{
-		uint32 size;
-		ar << size;
-		m_sections.resize( size );
-	}
-
-	for ( auto& section : m_sections )
-	{
-		ar << section;
-	}
+	ar << m_sections;
 }
 
 DDSTexture::DDSTexture( const DDSTextureInitializer& initializer )

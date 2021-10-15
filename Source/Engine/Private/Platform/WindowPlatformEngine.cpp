@@ -3,11 +3,11 @@
 
 #include "common.h"
 #include "Core/ILogic.h"
-#include "EngineFileSystem.h"
+#include "FileSystem.h"
 #include "GuideTypes.h"
 #include "InterfaceFactories.h"
 #include "IPlatform.h"
-#include "MultiThread/EngineTaskScheduler.h"
+#include "TaskScheduler.h"
 
 #include <Windows.h>
 

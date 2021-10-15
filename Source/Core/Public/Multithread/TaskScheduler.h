@@ -1,167 +1,97 @@
 #pragma once
 
+#include "common.h"
+#include "InterfaceFactories.h"
 #include "SizedTypes.h"
+#include "TaskSchedulerCore.h"
 
-#include <atomic>
-#include <cstddef>
 #include <limits>
-#include <memory>
-#include <thread>
-#include <vector>
 
-struct TaskHandleControlBlock
+namespace ThreadType
 {
-	std::vector<class TaskBase*> m_tasks;
-	std::atomic<uint32> m_executed = 0;
-	std::atomic<bool> m_submitted = false;
-};
+	enum
+	{
+		FileSystemThread,
+		WorkerThread0,
+		WorkerThread1,
+		WorkerThread2,
+		WorkerThread3,
+		// if add new thread type, insert here
+		RenderThread,
+		GameThread,
+		WorkerThreadCount = GameThread,
+	};
+}
 
-class TaskBase
+#define WorkerThreads ThreadType::WorkerThread0, ThreadType::WorkerThread1, ThreadType::WorkerThread2, ThreadType::WorkerThread3
+
+template <size_t... N>
+constexpr size_t WorkerAffinityMask( )
+{
+	return ( ( 1 << N ) | ... );
+}
+
+template <typename Lambda>
+class LambdaTask
 {
 public:
-	virtual void Execute( ) = 0;
-
-	size_t WorkerAffinity( ) const
+	void DoTask( )
 	{
-		return m_workerAffinity;
+		m_lambda( );
 	}
 
-protected:
-	explicit TaskBase( size_t workerAffinity ) : m_workerAffinity( workerAffinity ) {}
-	virtual ~TaskBase( ) = default;
-	TaskBase( const TaskBase& ) = delete;
-	TaskBase& operator=( const TaskBase& ) = delete;
-	TaskBase( TaskBase&& ) = delete;
-	TaskBase& operator=( TaskBase&& ) = delete;
-
-	std::shared_ptr<TaskHandleControlBlock> m_controlBlock;
+	LambdaTask( const Lambda& lambda ) : m_lambda( lambda ) {}
 
 private:
-	size_t m_workerAffinity;
-
-	friend class TaskHandle;
+	Lambda m_lambda;
 };
 
-class TaskHandle
+template <size_t... N, typename Lambda>
+TaskHandle EnqueueThreadTask( Lambda lambda )
+{
+	ITaskScheduler* taskScheduler = GetInterface<ITaskScheduler>( );
+	constexpr size_t affinityMask = WorkerAffinityMask<N...>( );
+	TaskHandle taskGroup = taskScheduler->GetTaskGroup( );
+	taskGroup.AddTask( Task<LambdaTask<Lambda>>::Create( affinityMask, lambda ) );
+	[[maybe_unused]] bool success = taskScheduler->Run( taskGroup );
+	assert( success );
+	return taskGroup;
+}
+
+template <typename Lambda>
+void EnqueueRenderTask( Lambda lambda )
+{
+	if ( IsInRenderThread( ) )
+	{
+		lambda( );
+	}
+	else
+	{
+		auto* task = Task<LambdaTask<Lambda>>::Create( WorkerAffinityMask<ThreadType::RenderThread>( ), lambda );
+		EnqueueRenderTask( static_cast<TaskBase*>( task ) );
+	}
+}
+
+class ITaskScheduler
 {
 public:
-	void AddTask( class TaskBase* task )
-	{
-		task->m_controlBlock = m_controlBlock;
+	[[nodiscard]] virtual TaskHandle GetTaskGroup( ) = 0;
 
-		auto& tasks = m_controlBlock->m_tasks;
-		tasks.push_back( task );
-	}
+	virtual bool Run( TaskHandle handle ) = 0;
 
-	bool IsCompleted( ) const
-	{
-		if ( IsSubmitted( ) == false )
-		{
-			return false;
-		}
+	virtual bool Wait( TaskHandle handle ) = 0;
 
-		size_t totalTask = m_controlBlock->m_tasks.size( );
-		return totalTask == m_controlBlock->m_executed;
-	}
+	virtual void ProcessThisThreadTask( ) = 0;
 
-	bool IsSubmitted( ) const
-	{
-		return m_controlBlock->m_submitted;
-	}
+	virtual size_t GetThisThreadType( ) const = 0;
 
-	explicit TaskHandle( size_t queueId );
-	TaskHandle( ) = default;
-	~TaskHandle( ) = default;
-	TaskHandle( const TaskHandle& ) = default;
-	TaskHandle& operator=( const TaskHandle& ) = default;
-	TaskHandle( TaskHandle&& ) = default;
-	TaskHandle& operator=( TaskHandle&& ) = default;
-
-	size_t m_queueId = ( std::numeric_limits<size_t>::max )( );
-	std::shared_ptr<TaskHandleControlBlock> m_controlBlock;
+	virtual ~ITaskScheduler( ) = default;
 };
 
-template <typename TaskStorageType>
-class Task final : public TaskBase
-{
-public:
-	virtual void Execute( ) override
-	{
-		reinterpret_cast<TaskStorageType*>( m_storage )->DoTask( );
-		++m_controlBlock->m_executed;
-		delete this;
-	}
+ITaskScheduler* CreateTaskScheduler( );
+void DestroyTaskScheduler( ITaskScheduler* taskScheduler );
 
-	template <typename... Args>
-	static Task* Create( size_t workerAffinity, Args&&... args )
-	{
-		return new Task( workerAffinity, args... );
-	}
-
-	TaskStorageType& Element( )
-	{
-		return *reinterpret_cast<TaskStorageType*>( m_storage );
-	}
-
-protected:
-	template <typename... Args>
-	Task( size_t workerAffinity, Args&&... args ) : TaskBase( workerAffinity )
-	{
-		new ( &m_storage )TaskStorageType( args... );
-	}
-
-	~Task( )
-	{
-		reinterpret_cast<TaskStorageType*>( m_storage )->~TaskStorageType( );
-	}
-
-	Task( const Task& ) = delete;
-	Task& operator=( const Task& ) = delete;
-	Task( Task&& ) = delete;
-	Task& operator=( Task&& ) = delete;
-
-private:
-	unsigned char m_storage[sizeof( TaskStorageType )];
-};
-
-struct TaskQueue;
-struct Worker;
-class TaskScheduler;
-
-void WorkerThread( TaskScheduler* scheduler, Worker* worker );
-
-class TaskScheduler
-{
-public:
-	TaskHandle GetTaskGroup( );
-	TaskHandle GetExclusiveTaskGroup( size_t workerId );
-
-	bool Run( TaskHandle handle );
-
-	bool Wait( TaskHandle handle );
-
-	void ProcessThisThreadTask( );
-
-	size_t GetThisThreadType( ) const;
-
-	TaskScheduler( );
-	TaskScheduler( size_t workerCount );
-	TaskScheduler( size_t groupCount, size_t workerCount );
-	~TaskScheduler( );
-	TaskScheduler( const TaskScheduler& ) = delete;
-	TaskScheduler& operator=( const TaskScheduler& ) = delete;
-	TaskScheduler( TaskScheduler&& ) = delete;
-	TaskScheduler& operator=( TaskScheduler&& ) = delete;
-
-private:
-	void Initialize( size_t groupCount, size_t workerCount );
-
-	TaskQueue* m_taskQueues = nullptr;
-	size_t m_maxTaskQueue = 4;
-	size_t m_workerCount = 1;
-	Worker* m_workers = nullptr;
-	std::thread::id* m_workerid = nullptr;
-	volatile bool m_shutdown = false;
-
-	friend void WorkerThread( TaskScheduler* scheduler, Worker* worker );
-};
+bool IsInGameThread( );
+bool IsInRenderThread( );
+void EnqueueRenderTask( TaskBase* task );
+void WaitRenderThread( );

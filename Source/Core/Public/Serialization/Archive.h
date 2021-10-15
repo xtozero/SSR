@@ -1,9 +1,9 @@
 #pragma once
 
-#include "AssetLoader/AssetLoader.h"
+#include "IAssetLoader.h"
 #include "InterfaceFactories.h"
-#include "MultiThread/EngineTaskScheduler.h"
 #include "SizedTypes.h"
+#include "TaskScheduler.h"
 
 #include <cassert>
 #include <cstddef>
@@ -292,7 +292,7 @@ private:
 		uint32 size = 0;
 		( *this ) << size;
 
-		if ( ( size <= 0 ) || ( CanRead( size ) == false ) )
+		if ( ( size == 0 ) || ( CanRead( size ) == false ) )
 		{
 			return;
 		}
