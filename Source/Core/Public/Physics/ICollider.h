@@ -29,7 +29,6 @@ public:
 	virtual void CalcSubMeshBounds( std::vector<std::unique_ptr<ICollider>>& subColliders ) = 0;
 	virtual float Intersect( const CRay& ray ) const = 0;
 	virtual uint32 Intersect( const CFrustum& frustum ) const = 0;
-	virtual void DrawDebugOverlay( CDebugOverlayManager& debugOverlay, uint32 color, float duration ) const = 0;
 
 	virtual ~ICollider( ) = default;
 };

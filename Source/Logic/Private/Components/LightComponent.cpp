@@ -47,7 +47,7 @@ HemisphereLightProxy* HemisphereLightComponent::CreateProxy( ) const
 	return new HemisphereLightProxy( LowerColor( ), UpperColor( ), UpVector( ) );
 }
 
-const CXMFLOAT3& HemisphereLightComponent::UpVector( ) const
+CXMFLOAT3 HemisphereLightComponent::UpVector( ) const
 {
 	using namespace DirectX;
 

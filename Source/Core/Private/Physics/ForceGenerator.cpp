@@ -1,8 +1,7 @@
-#include "stdafx.h"
-#include "Physics/ForceGenerator.h"
+#include "ForceGenerator.h"
 
+#include "Body.h"
 #include "Math/Util.h"
-#include "Physics/Body.h"
 
 #include <algorithm>
 

@@ -1,5 +1,4 @@
-#include "stdafx.h"
-#include "Physics/Ray.h"
+#include "Ray.h"
 
 using namespace DirectX;
 

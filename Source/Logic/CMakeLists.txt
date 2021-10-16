@@ -177,7 +177,7 @@ add_library(Logic SHARED 	${COMPOENETS}
 							${GAME_OBJECT}
 #							${MATERIAL}
 #							${MODEL}
-							${PHYSICS}
+#							${PHYSICS}
 							${PLAYER_OBJECT}
 							${PRECOMPILED}
 							${PROXIES}

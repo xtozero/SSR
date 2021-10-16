@@ -1,9 +1,9 @@
-#include "stdafx.h"
-#include "Physics/CollideNarrow.h"
+#include "CollideNarrow.h"
 
-#include "Physics/Aaboundingbox.h"
-#include "Physics/BoundingSphere.h"
-#include "Physics/OrientedBoundingBox.h"
+#include "Aaboundingbox.h"
+#include "BoundingSphere.h"
+#include "Contacts.h"
+#include "OrientedBoundingBox.h"
 
 #include <algorithm>
 
@@ -77,6 +77,27 @@ namespace
 			return ( cLhs + cRhs ) * 0.5;
 		}
 	}
+}
+
+void CollisionData::AddContacts( int32 count )
+{
+	m_contactsLeft -= count;
+	m_contactsCount += count;
+
+	m_contacts += count;
+}
+
+void CollisionData::Reset( Contact* contactArray, int32 maxContacts )
+{
+	m_contactsLeft = maxContacts;
+	m_contactsCount = 0;
+	m_contactArray = contactArray;
+	m_contacts = m_contactArray;
+}
+
+bool CollisionData::HasMoreContact( ) const
+{
+	return m_contactsLeft > 0;
 }
 
 uint32 SphereAndSphere( const BoundingSphere& lhs, RigidBody* lhsBody, const BoundingSphere& rhs, RigidBody* rhsBody, CollisionData* data )

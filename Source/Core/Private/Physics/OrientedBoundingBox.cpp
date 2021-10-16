@@ -1,13 +1,9 @@
-#include "stdafx.h"
-#include "Physics/OrientedBoundingBox.h"
+#include "OrientedBoundingBox.h"
 
-#include "Core/Timer.h"
-//#include "Model/CommonMeshDefine.h"
-#include "Physics/Aaboundingbox.h"
-#include "Physics/CollideNarrow.h"
-#include "Physics/Frustum.h"
-#include "Physics/Ray.h"
-#include "Scene/DebugOverlayManager.h"
+#include "Aaboundingbox.h"
+#include "CollideNarrow.h"
+#include "Frustum.h"
+#include "Ray.h"
 
 using namespace DirectX;
 
@@ -79,11 +75,6 @@ float COrientedBoundingBox::Intersect( const CRay& ray ) const
 uint32 COrientedBoundingBox::Intersect( const CFrustum& /*frustum*/ ) const
 {
 	return 0;
-}
-
-void COrientedBoundingBox::DrawDebugOverlay( CDebugOverlayManager& debugOverlay, uint32 color, float duration ) const
-{
-	debugOverlay.AddDebugCube( m_halfSize, m_matTransform, color, duration );
 }
 
 CXMFLOAT3 COrientedBoundingBox::GetAxisVector( uint32 i ) const

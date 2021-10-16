@@ -1,5 +1,4 @@
-#include "stdafx.h"
-#include "Physics/Particle.h"
+#include "Particle.h"
 
 void Particle::Integrate( float duration )
 {

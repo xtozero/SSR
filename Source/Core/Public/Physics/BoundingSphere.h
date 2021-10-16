@@ -17,7 +17,6 @@ public:
 	virtual void CalcSubMeshBounds( std::vector<std::unique_ptr<ICollider>>& /*subColliders*/ ) override { assert( false && "Not Implemented" ); }
 	virtual float Intersect( const CRay& ray ) const override;
 	virtual uint32 Intersect( const CFrustum& frustum ) const override;
-	virtual void DrawDebugOverlay( CDebugOverlayManager& debugOverlay, uint32 color, float duration ) const override;
 	uint32 Intersect( const BoundingSphere& sphere ) const;
 	float CalcGrowth( const BoundingSphere& sphere ) const;
 

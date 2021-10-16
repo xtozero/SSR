@@ -1,7 +1,6 @@
-#include "stdafx.h"
-#include "Physics/ParticleForceGenerator.h"
+#include "ParticleForceGenerator.h"
 
-#include "Physics/Particle.h"
+#include "Particle.h"
 
 #include <algorithm>
 

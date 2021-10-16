@@ -1,9 +1,8 @@
-#include "stdafx.h"
-#include "Physics/CollisionUtil.h"
+#include "CollisionUtil.h"
 
-#include "GameObject/GameObject.h"
-#include "Physics/CollideNarrow.h"
-#include "Physics/ICollider.h"
+#include "ColliderManager.h"
+#include "CollideNarrow.h"
+#include "ICollider.h"
 
 namespace COLLISION_UTIL
 {
@@ -14,7 +13,7 @@ namespace COLLISION_UTIL
 
 	uint32 DetectCollisionObjectAndObject( CGameObject* lhs, RigidBody* lhsBody, CGameObject* rhs, RigidBody* rhsBody, CollisionData* data )
 	{
-		assert( lhs && rhs && lhsBody && rhsBody && data );
+		/*assert( lhs && rhs && lhsBody && rhsBody && data );
 		COLLIDER::TYPE lhsType = lhs->GetColliderType( );
 		COLLIDER::TYPE rhsType = rhs->GetColliderType( );
 
@@ -69,14 +68,14 @@ namespace COLLISION_UTIL
 				const COrientedBoundingBox* boxCollider2 = reinterpret_cast<const COrientedBoundingBox*>( rhs->GetDefaultCollider( ) );
 				return BoxAndBox( *boxCollider1, lhsBody, *boxCollider2, rhsBody, data );
 			}
-		}
+		}*/
 
 		return 0;
 	}
 
 	float IntersectWithRay( CGameObject& object, const CRay& ray, COLLIDER::TYPE type )
 	{
-		if ( type >= COLLIDER::COUNT || type < COLLIDER::SPHERE )
+		/*if ( type >= COLLIDER::COUNT || type < COLLIDER::SPHERE )
 		{
 			for ( uint32 i = 0; i < COLLIDER::COUNT; ++i )
 			{
@@ -92,7 +91,7 @@ namespace COLLISION_UTIL
 			{
 				return IntersectWithRay( *pCollider, ray );
 			}
-		}
+		}*/
 
 		return -1.f;
 	}

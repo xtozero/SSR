@@ -1,6 +1,6 @@
-#include "stdafx.h"
-#include "Physics/BoundingCone.h"
-#include "physics/BoundingSphere.h"
+#include "BoundingCone.h"
+
+#include "BoundingSphere.h"
 #include "SizedTypes.h"
 
 #include <algorithm>

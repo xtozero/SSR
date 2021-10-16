@@ -1,12 +1,8 @@
-#include "stdafx.h"
-#include "Physics/Aaboundingbox.h"
+#include "Aaboundingbox.h"
 
-#include "Core/Timer.h"
-//#include "Model/CommonMeshDefine.h"
-#include "Physics/CollideNarrow.h"
-#include "Physics/Frustum.h"
-#include "Physics/Ray.h"
-#include "Scene/DebugOverlayManager.h"
+#include "CollideNarrow.h"
+#include "Frustum.h"
+#include "Ray.h"
 
 #include <algorithm> 
 
@@ -128,11 +124,6 @@ uint32 CAaboundingbox::Intersect( const CFrustum& frustum ) const
 	}
 
 	return result;
-}
-
-void CAaboundingbox::DrawDebugOverlay( CDebugOverlayManager& debugOverlay, uint32 color, float duration ) const
-{
-	debugOverlay.AddDebugCube( m_min, m_max, color, duration );
 }
 
 uint32 CAaboundingbox::Intersect( const CAaboundingbox& box ) const

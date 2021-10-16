@@ -1,7 +1,6 @@
-#include "stdafx.h"
-#include "Physics/ParticleLinks.h"
+#include "ParticleLinks.h"
 
-#include "Physics/Particle.h"
+#include "Particle.h"
 
 using namespace DirectX;
 

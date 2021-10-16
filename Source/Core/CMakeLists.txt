@@ -62,6 +62,44 @@ set (MULTITHREAD
 	Public/Multithread/TaskScheduler.h
 	Public/Multithread/TaskSchedulerCore.h)
 
+set (PHYSICS
+	Private/Physics/Aaboundingbox.cpp
+	Private/Physics/Body.cpp
+	Private/Physics/BoundingCone.cpp
+	Private/Physics/BoundingSphere.cpp
+	Private/Physics/CollisionUtil.cpp
+	Private/Physics/CollideNarrow.cpp
+	Private/Physics/Contacts.cpp
+	Private/Physics/ForceGenerator.cpp
+	Private/Physics/OrientedBoundingBox.cpp
+	Private/Physics/Particle.cpp
+	Private/Physics/ParticleContacts.cpp
+	Private/Physics/ParticleForceGenerator.cpp
+	Private/Physics/ParticleLinks.cpp
+	Private/Physics/ParticleWorld.cpp
+	Private/Physics/Ray.cpp
+	Private/Physics/ColliderManager.cpp
+	Public/Physics/Aaboundingbox.h
+	Public/Physics/Body.h
+	Public/Physics/BoundingCone.h
+	Public/Physics/BoundingSphere.h
+	Public/Physics/CollideBroad.h
+	Public/Physics/CollisionUtil.h
+	Public/Physics/CollideNarrow.h
+	Public/Physics/Contacts.h
+	Public/Physics/ForceGenerator.h
+	Public/Physics/Frustum.h
+	Public/Physics/ICollider.h
+	Public/Physics/Movement.h
+	Public/Physics/OrientedBoundingBox.h
+	Public/Physics/Particle.h
+	Public/Physics/ParticleContacts.h
+	Public/Physics/ParticleForceGenerator.h
+	Public/Physics/ParticleLinks.h
+	Public/Physics/ParticleWorld.h
+	Public/Physics/Ray.h
+	Public/Physics/ColliderManager.h)
+
 set (SERIALIZATION
 	Public/Serialization/Archive.h
 	Public/Serialization/ArchiveUtility.h)
@@ -79,6 +117,7 @@ source_group("LibraryTool" FILES ${LIBRARY_TOOL})
 source_group("Math" FILES ${Math})
 source_group("Memory" FILES ${MEMORY})
 source_group("MultiThread" FILES ${MULTITHREAD})
+source_group("Physics" FILES ${PHYSICS})
 source_group("Serialization" FILES ${SERIALIZATION})
 
 add_library(Core STATIC	${ASSET}
@@ -94,7 +133,8 @@ add_library(Core STATIC	${ASSET}
 						${Math}
 						${MEMORY}
 						${MULTITHREAD}
-						${SERIALIZATION})
+						${SERIALIZATION}
+						${PHYSICS})
 
 target_include_directories(Core
 PUBLIC
@@ -112,5 +152,6 @@ PUBLIC
 	./Public/Multithread
 	./Public/Serialization
 PRIVATE
+	./Public/Physics
 )
 							

@@ -1,12 +1,15 @@
 #pragma once
 
-#include "Physics/Contacts.h"
 #include "SizedTypes.h"
 
 class BoundingSphere;
 class CAaboundingbox;
+class Contact;
 class COrientedBoundingBox;
 class RigidBody;
+
+struct CXMFLOAT3;
+struct CXMFLOAT4;
 
 struct CollisionData
 {
@@ -18,26 +21,11 @@ struct CollisionData
 	float m_restitution;
 	float m_tolerance;
 
-	void AddContacts( int32 count )
-	{
-		m_contactsLeft -= count;
-		m_contactsCount += count;
+	void AddContacts( int32 count );
 
-		m_contacts += count;
-	}
+	void Reset( Contact* contactArray, int32 maxContacts );
 
-	void Reset( Contact* contactArray, int32 maxContacts )
-	{
-		m_contactsLeft = maxContacts;
-		m_contactsCount = 0;
-		m_contactArray = contactArray;
-		m_contacts = m_contactArray;
-	}
-
-	bool HasMoreContact( ) const
-	{
-		return m_contactsLeft > 0;
-	}
+	bool HasMoreContact( ) const;
 };
 
 uint32 SphereAndSphere( const BoundingSphere& lhs, RigidBody* lhsBody, const BoundingSphere& rhs, RigidBody* rhsBody, CollisionData* data );

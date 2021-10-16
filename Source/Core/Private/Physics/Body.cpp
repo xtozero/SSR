@@ -1,5 +1,4 @@
-#include "stdafx.h"
-#include "Physics/Body.h"
+#include "Body.h"
 
 using namespace DirectX;
 

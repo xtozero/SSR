@@ -1,14 +1,10 @@
-#include "stdafx.h"
-#include "Physics/BoundingSphere.h"
+#include "BoundingSphere.h"
 
-#include "Core/Timer.h"
-//#include "Model/CommonMeshDefine.h"
-#include "Physics/Aaboundingbox.h"
-#include "Physics/CollideNarrow.h"
-#include "Physics/Frustum.h"
-#include "Physics/OrientedBoundingBox.h"
-#include "Physics/Ray.h"
-#include "Scene/DebugOverlayManager.h"
+#include "Aaboundingbox.h"
+#include "CollideNarrow.h"
+#include "Frustum.h"
+#include "OrientedBoundingBox.h"
+#include "Ray.h"
 
 #include <algorithm>
 
@@ -88,11 +84,6 @@ uint32 BoundingSphere::Intersect( const CFrustum& frustum ) const
 		inside &= ( ( XMVectorGetX( XMPlaneDotCoord( planes[i], m_origin ) ) + m_radius ) >= 0.f );
 
 	return inside;
-}
-
-void BoundingSphere::DrawDebugOverlay( CDebugOverlayManager& debugOverlay, uint32 color, float duration ) const
-{
-	debugOverlay.AddDebugSphere( m_origin, m_radius, color, duration );
 }
 
 uint32 BoundingSphere::Intersect( const BoundingSphere& sphere ) const

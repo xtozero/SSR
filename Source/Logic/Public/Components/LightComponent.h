@@ -82,7 +82,7 @@ public:
 		return m_upperHemisphereColor;
 	}
 
-	const CXMFLOAT3& UpVector( ) const;
+	CXMFLOAT3 UpVector( ) const;
 
 	HemisphereLightProxy*& Proxy( )
 	{
@@ -98,5 +98,4 @@ private:
 	HemisphereLightProxy* m_proxy = nullptr;
 	CXMFLOAT4 m_lowerHemisphereColor;
 	CXMFLOAT4 m_upperHemisphereColor;
-	CXMFLOAT3 m_upVector;
 };
