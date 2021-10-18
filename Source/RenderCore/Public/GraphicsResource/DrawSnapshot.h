@@ -8,7 +8,7 @@
 #include "ShaderBindings.h"
 #include "SparseArray.h"
 #include "SizedTypes.h"
-#include "VertexInputStream.h"
+#include "VertexBufferBundle.h"
 
 #include <map>
 #include <unordered_map>
@@ -41,7 +41,9 @@ private:
 class DrawSnapshot
 {
 public:
-	VertexInputStream m_vertexStream;
+	VertexBufferBundle m_vertexStream;
+	int32 m_primitiveIdSlot;
+
 	IndexBuffer m_indexBuffer;
 
 	aga::ShaderBindings m_shaderBindings;
@@ -65,6 +67,7 @@ public:
 		if ( this != &other )
 		{
 			m_vertexStream = other.m_vertexStream;
+			m_primitiveIdSlot = other.m_primitiveIdSlot;
 			m_indexBuffer = other.m_indexBuffer;
 			m_shaderBindings = other.m_shaderBindings;
 			m_pipelineState = other.m_pipelineState;
@@ -86,6 +89,7 @@ public:
 		if ( this != &other )
 		{
 			m_vertexStream = std::move( other.m_vertexStream );
+			m_primitiveIdSlot = other.m_primitiveIdSlot;
 			m_indexBuffer = std::move( other.m_indexBuffer );
 			m_shaderBindings = std::move( other.m_shaderBindings );
 			m_pipelineState = std::move( other.m_pipelineState );
@@ -103,6 +107,7 @@ struct DrawSnapshotDynamicInstancingEqual
 	bool operator()( const DrawSnapshot& lhs, const DrawSnapshot& rhs ) const
 	{
 		return lhs.m_vertexStream == rhs.m_vertexStream &&
+			lhs.m_primitiveIdSlot == rhs.m_primitiveIdSlot &&
 			lhs.m_indexBuffer == rhs.m_indexBuffer &&
 			lhs.m_shaderBindings.MatchsForDynamicInstancing( rhs.m_shaderBindings ) &&
 			lhs.m_pipelineState.m_pso == rhs.m_pipelineState.m_pso &&
@@ -127,6 +132,8 @@ struct DrawSnapshotDynamicInstancingHasher
 			HashCombine( hash, offsets[i] );
 			HashCombine( hash, vertexBuffers[i] );
 		}
+
+		HashCombine( hash, ds.m_primitiveIdSlot );
 
 		HashCombine( hash, ds.m_indexBuffer.Resource( ) );
 

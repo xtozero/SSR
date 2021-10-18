@@ -10,7 +10,6 @@
 struct MeshDescription;
 class Material;
 class MaterialResource;
-class ObjMeshAssetProcessor;
 class StaticMeshLODResource;
 class StaticMeshRenderData;
 

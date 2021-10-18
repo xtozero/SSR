@@ -84,27 +84,30 @@ std::optional<DrawSnapshot> StaticMeshPrimitiveProxy::TakeSnapshot( uint32 lod, 
 	auto& graphicsInterface = GraphicsInterface( );
 
 	StaticMeshLODResource& lodResource = m_pRenderData->LODResource( lod );
-	VertexLayoutDesc vertexLayoutDesc = m_pRenderData->VertexLayout( lod ).Desc( );
+	const VertexCollection& vertexCollection = lodResource.m_vertexCollection;
+	VertexStreamLayout vertexlayout = vertexCollection.VertexLayout( VertexStreamLayoutType::Default );
 
-	vertexLayoutDesc.AddLayout( "PRIMITIVEID", 0,
-								RESOURCE_FORMAT::R32_UINT,
-								1,
-								true,
-								1 );
-
-	const StaticMeshSection& section = lodResource.m_sections[sectionIndex];
+	uint32 primitiveIdSlot = vertexlayout.Size( );
+	vertexlayout.AddLayout( "PRIMITIVEID", 0,
+							RESOURCE_FORMAT::R32_UINT,
+							primitiveIdSlot,
+							true,
+							1,
+							-1 );
 
 	DrawSnapshot snapshot;
-	snapshot.m_vertexStream.Bind( lodResource.m_vb, 0 );
+	vertexCollection.Bind( snapshot.m_vertexStream, VertexStreamLayoutType::Default );
+	snapshot.m_primitiveIdSlot = primitiveIdSlot;
 	snapshot.m_indexBuffer = lodResource.m_ib;
 
-	GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+	const StaticMeshSection& section = lodResource.m_sections[sectionIndex];
 	auto materialResource = m_pStaticMesh->GetMaterialResource( section.m_materialIndex );
 	if ( materialResource )
 	{
 		materialResource->TakeSnapShot( snapshot );
 	}
 
+	GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 	if ( m_pRenderOption->m_blendOption )
 	{
 		pipelineState.m_blendState = graphicsInterface.FindOrCreate( *m_pRenderOption->m_blendOption );
@@ -128,7 +131,7 @@ std::optional<DrawSnapshot> StaticMeshPrimitiveProxy::TakeSnapshot( uint32 lod, 
 
 	if ( pipelineState.m_shaderState.m_vertexShader )
 	{
-		pipelineState.m_shaderState.m_vertexLayout = graphicsInterface.FindOrCreate( *pipelineState.m_shaderState.m_vertexShader, vertexLayoutDesc );
+		pipelineState.m_shaderState.m_vertexLayout = graphicsInterface.FindOrCreate( *pipelineState.m_shaderState.m_vertexShader, vertexlayout );
 	}
 
 	PreparePipelineStateObject( snapshot );

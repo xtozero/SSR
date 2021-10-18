@@ -33,11 +33,3 @@ cbuffer SHADOW_VIEW_PROJECTION : register(b3)
 	matrix g_lightViewMatrix;
 	matrix g_lightProjectionMatrix;
 };
-
-struct VS_INPUT
-{
-	float3 position : POSITION;
-	float3 normal : NORMAL;
-	float2 texcoord : TEXCOORD;
-	uint primitiveId : PRIMITIVEID;
-};

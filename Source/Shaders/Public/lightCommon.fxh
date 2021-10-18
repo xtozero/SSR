@@ -38,6 +38,7 @@ cbuffer Material : register( b3 )
 	float		pedding[2];
 };
 
+/*
 struct PS_INPUT
 {
 	float4 position : SV_POSITION;
@@ -52,6 +53,14 @@ struct PS_OUTPUT
 	float4 frame : SV_TARGET0;
 	float4 normal : SV_TARGET1;
 	float4 depth : SV_TARGET2;
+};
+*/
+
+struct GeometryProperty
+{
+	float3 worldPos;
+	float3 viewPos;
+	float3 normal;
 };
 
 struct LIGHTCOLOR
@@ -163,10 +172,10 @@ float3 HemisphereLight( float3 normal )
 	return lerp( g_hemisphereLowerColor, g_hemisphereUpperColor, w );
 }
 
-float4 CalcLight( PS_INPUT input )
+float4 CalcLight( GeometryProperty geometry )
 {
-	float3 viewDirection = normalize( CameraPos - input.worldPos );
-	float3 normal = normalize( input.normal );
+	float3 viewDirection = normalize( CameraPos - geometry.worldPos );
+	float3 normal = normalize( geometry.normal );
 
 	LIGHTCOLOR LightColor = (LIGHTCOLOR)0;
 	LIGHTCOLOR cColor = (LIGHTCOLOR)0;
@@ -185,7 +194,7 @@ float4 CalcLight( PS_INPUT input )
 		}	
 		else
 		{
-			lightDirection = normalize( light.m_position - input.worldPos );
+			lightDirection = normalize( light.m_position - geometry.worldPos );
 		} 
 
 		LightColor = CalcLightProperties( light, viewDirection, lightDirection, normal, roughness );
@@ -194,7 +203,7 @@ float4 CalcLight( PS_INPUT input )
 	}
 
 	// ToDo
-	float visibility = 1.f; // CalcShadowVisibility( input.worldPos, input.viewPos );
+	float visibility = 1.f; // CalcShadowVisibility( geometry.worldPos, geometry.viewPos );
 
 	float4 lightColor = float4( HemisphereLight( normal ), 1 ) * MoveLinearSpace( Diffuse );
 	lightColor += cColor.m_diffuse * MoveLinearSpace( Diffuse ) * visibility;

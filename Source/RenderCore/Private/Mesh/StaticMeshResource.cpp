@@ -9,17 +9,6 @@
 #include <cassert>
 #include <vector>
 
-void StaticMeshVertex::Serialize( Archive& ar )
-{
-	ar << m_position << m_normal << m_texcoord;
-}
-
-Archive& operator<<( Archive& ar, StaticMeshVertex& vertex )
-{
-	vertex.Serialize( ar );
-	return ar;
-}
-
 void StaticMeshSection::Serialize( Archive& ar )
 {
 	ar << m_startLocation << m_count << m_materialIndex;
@@ -33,7 +22,7 @@ Archive& operator<<( Archive& ar, StaticMeshSection& section )
 
 void StaticMeshLODResource::Serialize( Archive& ar )
 {
-	ar << m_vertexData;
+	ar << m_vertexCollection;
 
 	if ( ar.IsWriteMode( ) )
 	{
@@ -74,20 +63,11 @@ Archive& operator<<( Archive& ar, StaticMeshLODResource& lodResource )
 void StaticMeshRenderData::AllocateLODResources( uint32 numLOD )
 {
 	m_lodResources.resize( numLOD );
-	m_vertexLayouts.resize( numLOD );
 }
 
 void StaticMeshRenderData::Init( )
 {
 	assert( IsInRenderThread( ) );
-
-	m_vertexLayouts.resize( m_lodResources.size( ) );
-
-	for ( size_t i = 0; i < m_lodResources.size( ); ++i )
-	{
-		StaticMeshLODResource& lodResource = m_lodResources[i];
-		m_vertexLayouts[i].Initialize( &lodResource );
-	}
 }
 
 void StaticMeshRenderData::Serialize( Archive& ar )
@@ -104,8 +84,7 @@ void StaticMeshRenderData::CreateRenderResource( )
 
 	for ( StaticMeshLODResource& lodResource : m_lodResources )
 	{
-		std::vector<StaticMeshVertex>& vertexData = lodResource.m_vertexData;
-		lodResource.m_vb = TypedVertexBuffer<StaticMeshVertex>( static_cast<uint32>( vertexData.size( ) ), vertexData.data( ) );
+		lodResource.m_vertexCollection.InitResource( );
 
 		uint32 stride = lodResource.m_isDWORD ? sizeof( DWORD ) : sizeof( WORD );
 		uint32 size = static_cast<uint32>( lodResource.m_indexData.size( ) ) / stride;
@@ -113,28 +92,4 @@ void StaticMeshRenderData::CreateRenderResource( )
 	}
 
 	m_initialized = true;
-}
-
-void StaticMeshVertexLayout::Initialize( const StaticMeshLODResource* lodResource )
-{
-	// position
-	m_vertexLayoutDesc.AddLayout( "POSITION", 0,
-									RESOURCE_FORMAT::R32G32B32_FLOAT,
-									0,
-									false,
-									0 );
-
-	// normal
-	m_vertexLayoutDesc.AddLayout( "NORMAL", 0,
-									RESOURCE_FORMAT::R32G32B32_FLOAT,
-									0,
-									false,
-									0 );
-
-	// texcoord
-	m_vertexLayoutDesc.AddLayout( "TEXCOORD", 0,
-									RESOURCE_FORMAT::R32G32_FLOAT,
-									0,
-									false,
-									0 );
 }

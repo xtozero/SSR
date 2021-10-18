@@ -1,14 +1,19 @@
 #include "lightCommon.fxh"
-// #include "normalCompression.fxh"
+
+struct PS_INPUT
+{
+	float4 position : SV_POSITION;
+	float3 worldPos : POSITION0;
+	float3 viewPos : POSITION1;
+	float3 normal : NORMAL;
+};
 
 float4 main( PS_INPUT input ) : SV_Target0
 {
-	//PS_OUTPUT output = (PS_OUTPUT)0;
+	GeometryProperty geometry = (GeometryProperty)0;
+	geometry.worldPos = input.worldPos;
+	geometry.viewPos = input.viewPos;
+	geometry.normal = input.normal;
 
-	//output.frame = CalcLight( input, float4( input.color, 1.0f ) );
-	//output.normal.x = PackedSpheremapEncode( normalize( input.normal ) );
-	//output.depth.x = input.viewPos.z / g_FarPlaneDist;
-	//return output;
-	
-	return CalcLight( input );
+	return CalcLight( geometry );
 }

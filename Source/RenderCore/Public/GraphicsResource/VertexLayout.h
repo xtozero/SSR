@@ -12,6 +12,8 @@
 class VertexLayoutDesc
 {
 public:
+	virtual void Serialize( Archive& ar );
+
 	const VERTEX_LAYOUT_TRAIT* Data( ) const
 	{
 		return m_layoutData;
@@ -55,11 +57,13 @@ public:
 		return false;
 	}
 
-private: 
-	constexpr static uint32 MAX_VERTEX_LAYOUT_SIZE = 17;
+	virtual ~VertexLayoutDesc( ) = default;
 
-	VERTEX_LAYOUT_TRAIT m_layoutData[MAX_VERTEX_LAYOUT_SIZE] = {};
+protected:
 	uint32 m_size = 0;
+
+private: 
+	VERTEX_LAYOUT_TRAIT m_layoutData[MAX_VERTEX_LAYOUT_SIZE] = {};
 };
 
 struct VertexLayoutDescHasher

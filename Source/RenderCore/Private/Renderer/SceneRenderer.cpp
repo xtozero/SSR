@@ -130,28 +130,29 @@ void SceneRenderer::RenderTexturedSky( IScene& scene, RenderViewGroup& renderVie
 	}
 
 	auto& viewConstant = scene.SceneViewConstant( );
-
-	StaticMeshLODResource& lodResource = renderData->LODResource( 0 );
-	VertexLayoutDesc vertexLayoutDesc = renderData->VertexLayout( 0 ).Desc( );
-
 	auto commandList = GetInterface<aga::IAga>( )->GetImmediateCommandList( );
 
 	SetRenderTarget( *commandList, renderViewGroup );
 	SetViewPort( *commandList, renderViewGroup );
 
+	StaticMeshLODResource& lodResource = renderData->LODResource( 0 );
+	const VertexCollection& vertexCollection = lodResource.m_vertexCollection;
+
 	for ( const auto& section : lodResource.m_sections )
 	{
 		DrawSnapshot snapshot;
-		snapshot.m_vertexStream.Bind( lodResource.m_vb, 0 );
+		vertexCollection.Bind( snapshot.m_vertexStream, VertexStreamLayoutType::PositionOnly );
+		snapshot.m_primitiveIdSlot = -1;
 		snapshot.m_indexBuffer = lodResource.m_ib;
 
-		auto& pipelineState = snapshot.m_pipelineState;
 		material->TakeSnapShot( snapshot );
 
+		auto& pipelineState = snapshot.m_pipelineState;
 		auto& graphicsInterface = GraphicsInterface( );
 		if ( pipelineState.m_shaderState.m_vertexShader )
 		{
-			pipelineState.m_shaderState.m_vertexLayout = graphicsInterface.FindOrCreate( *pipelineState.m_shaderState.m_vertexShader, vertexLayoutDesc );
+			VertexStreamLayout vertexlayout = vertexCollection.VertexLayout( VertexStreamLayoutType::PositionOnly );
+			pipelineState.m_shaderState.m_vertexLayout = graphicsInterface.FindOrCreate( *pipelineState.m_shaderState.m_vertexShader, vertexlayout );
 		}
 
 		pipelineState.m_depthStencilState = graphicsInterface.FindOrCreate( proxy->GetDepthStencilOption( ) );

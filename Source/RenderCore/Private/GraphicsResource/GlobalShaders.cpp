@@ -72,8 +72,6 @@ ShaderBase* GlobalShader::GetShader( std::type_index typeIndex )
 
 GlobalShaderRegister::GlobalShaderRegister( std::type_index typeIndex, const char* assetPath )
 {
-	assert( IsInGameThread( ) );
-
 	GlobalShader::GetInstance( ).RegisterShaderPath( typeIndex, assetPath );
 }
 

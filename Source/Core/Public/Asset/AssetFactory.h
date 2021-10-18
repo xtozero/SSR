@@ -9,19 +9,19 @@
 #include <functional>
 #include <map>
 #include <typeindex>
+#include <vector>
+
+using AssetCreateFunctionPtr = IAsyncLoadableAsset * (*)( );
 
 class IAssetFactory
 {
 public:
-	template <typename T>
-	void RegisterAsset( const char* assetType )
+	void RegisterCreateFunction( uint32 id, AssetCreateFunctionPtr createFunc )
 	{
-		T::ID = Crc32Hash( assetType );
-
 		Delegate<IAsyncLoadableAsset*> func;
-		func.BindFunction( &NewAsset<T> );
+		func.BindFunction( createFunc );
 
-		AddCreateFunction( T::ID, std::move( func ) );
+		AddCreateFunction( id, std::move( func ) );
 	}
 
 	virtual IAsyncLoadableAsset* CreateAsset( uint32 assetID ) const = 0;
@@ -38,13 +38,44 @@ IAsyncLoadableAsset* NewAsset( )
 	return new T();
 }
 
+class DeferredAssetRegister
+{
+public:
+	static DeferredAssetRegister& GetInstance( )
+	{
+		static DeferredAssetRegister deferredAssetRegister;
+		return deferredAssetRegister;
+	}
+
+	void Register( ) const
+	{
+		auto* assetFactory = GetInterface<IAssetFactory>( );
+		for ( const auto& pair : m_functionPairs )
+		{
+			auto& [id, createFunction] = pair;
+			assetFactory->RegisterCreateFunction( id, createFunction );
+		}
+	}
+
+	template <typename T>
+	void AddCreateFunction( const char* assetType )
+	{
+		T::ID = Crc32Hash( assetType );
+		m_functionPairs.emplace_back( T::ID, &NewAsset<T> );
+	}
+
+private:
+	using AssetCreateFunctionPair = std::pair<uint32, AssetCreateFunctionPtr>;
+	std::vector<AssetCreateFunctionPair> m_functionPairs;
+};
+
 template <typename T>
 class AssetFactoryRegister
 {
 public:
 	AssetFactoryRegister( const char* assetType )
 	{
-		GetInterface<IAssetFactory>( )->RegisterAsset<T>( assetType );
+		DeferredAssetRegister::GetInstance( ).AddCreateFunction<T>( assetType );
 	}
 };
 

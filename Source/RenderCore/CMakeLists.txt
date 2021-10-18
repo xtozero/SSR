@@ -39,7 +39,7 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Public/GraphicsResource/UploadBuffer.h
 	Public/GraphicsResource/VertexBuffer.h
 	Public/GraphicsResource/VertexLayout.h
-	Public/GraphicsResource/VertexInputStream.h
+	Public/GraphicsResource/VertexBufferBundle.h
 	Public/GraphicsResource/Viewport.h)
 
 set (MATERIAL_SOURCE
@@ -52,11 +52,13 @@ set (MESH_SOURCE
 	Private/Mesh/BaseMesh.cpp
 	Private/Mesh/StaticMesh.cpp
 	Private/Mesh/StaticMeshResource.cpp
+	Private/Mesh/VertexCollection.cpp
 	Public/Mesh/BaseMesh.h
 	Public/Mesh/CommonMeshDefine.h
 	Public/Mesh/MeshDescription.h
 	Public/Mesh/StaticMesh.h
-	Public/Mesh/StaticMeshResource.h)
+	Public/Mesh/StaticMeshResource.h
+	Public/Mesh/VertexCollection.h)
 
 set (PRECOMPILED
 	Private/Pch/stdafx.cpp

@@ -9,6 +9,7 @@
 #include "MeshDescription.h"
 #include "StaticMeshResource.h"
 #include "TaskScheduler.h"
+#include "VertexCollection.h"
 
 Archive& operator<<( Archive& ar, StaticMeshMaterial& m )
 {
@@ -49,26 +50,9 @@ void StaticMesh::BuildMeshFromMeshDescriptions( const std::vector<MeshDescriptio
 
 void StaticMesh::BuildMeshFromMeshDescription( const MeshDescription& meshDescription, StaticMeshLODResource& lodResource )
 {
-	const std::vector<CXMFLOAT3>& pos = meshDescription.m_positions;
-	const std::vector<CXMFLOAT3>& normal = meshDescription.m_normals;
-	const std::vector<CXMFLOAT2>& texCoord = meshDescription.m_texCoords;
 	const std::vector<MeshVertexInstance>& vertexInstances = meshDescription.m_vertexInstances;
 
-	auto& vertices = lodResource.m_vertexData;
-	vertices.reserve( vertexInstances.size( ) );
-
-	size_t normalCount = normal.size( );
-	size_t texcoordCount = texCoord.size( );
-
-	for ( size_t i = 0; i < vertexInstances.size( ); ++i )
-	{
-		const MeshVertexInstance& vertexInstance = vertexInstances[i];
-
-		StaticMeshVertex& v = vertices.emplace_back( );
-		v.m_position = pos[vertexInstance.m_positionID];
-		v.m_normal = ( vertexInstance.m_normalID < normalCount ) ? normal[vertexInstance.m_normalID] : CXMFLOAT3( 0.f, 0.f, 0.f );
-		v.m_texcoord = ( vertexInstance.m_texCoordID < texcoordCount ) ? texCoord[vertexInstance.m_texCoordID] : CXMFLOAT2( 0.f, 0.f );
-	}
+	lodResource.m_vertexCollection = BuildFromMeshDescription( meshDescription );
 
 	const std::vector<MeshTriangle>& triangles = meshDescription.m_triangles;
 	const std::vector<MeshPolygon>& polygons = meshDescription.m_polygons;

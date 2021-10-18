@@ -29,8 +29,7 @@ PRIVATE
 	./Public)
 
 target_link_libraries(AssetManufacture
-PRIVATE 
-	Aga
+PRIVATE
 	Core
 	DirectXTex
 	Engine

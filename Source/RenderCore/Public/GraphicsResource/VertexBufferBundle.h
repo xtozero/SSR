@@ -5,11 +5,16 @@
 #include "SizedTypes.h"
 #include "VertexBuffer.h"
 
-class VertexInputStream
+class VertexBufferBundle
 {
 public:
 	void Bind( VertexBuffer& vertexBuffer, uint32 slot, uint32 offset = 0 )
 	{
+		if ( slot >= MAX_VERTEX_SLOT )
+		{
+			return;
+		}
+
 		if ( m_vertexBuffers[slot] )
 		{
 			m_vertexBuffers[slot]->ReleaseRef( );
@@ -49,9 +54,9 @@ public:
 		return m_offset;
 	}
 
-	VertexInputStream( ) = default;
+	VertexBufferBundle( ) = default;
 
-	~VertexInputStream( )
+	~VertexBufferBundle( )
 	{
 		for ( aga::Buffer* vertexBuffer : m_vertexBuffers )
 		{
@@ -62,12 +67,12 @@ public:
 		}
 	}
 
-	VertexInputStream( const VertexInputStream& other ) noexcept
+	VertexBufferBundle( const VertexBufferBundle& other ) noexcept
 	{
 		*this = other;
 	}
 
-	VertexInputStream& operator=( const VertexInputStream& other )
+	VertexBufferBundle& operator=( const VertexBufferBundle& other )
 	{
 		if ( this != &other )
 		{
@@ -95,12 +100,12 @@ public:
 		return *this;
 	}
 
-	VertexInputStream( VertexInputStream&& other ) noexcept
+	VertexBufferBundle( VertexBufferBundle&& other ) noexcept
 	{
 		*this = std::move( other );
 	}
 
-	VertexInputStream& operator=( VertexInputStream&& other ) noexcept
+	VertexBufferBundle& operator=( VertexBufferBundle&& other ) noexcept
 	{
 		if ( this != &other )
 		{
@@ -125,15 +130,13 @@ public:
 		return *this;
 	}
 
-	friend bool operator==( const VertexInputStream& lhs, const VertexInputStream& rhs )
+	friend bool operator==( const VertexBufferBundle& lhs, const VertexBufferBundle& rhs )
 	{
-		return ( lhs.m_numBuffers == rhs.m_numBuffers ) && ( VertexInputStream::CompareStreams( lhs, rhs, lhs.m_numBuffers ) );
+		return ( lhs.m_numBuffers == rhs.m_numBuffers ) && ( VertexBufferBundle::CompareBundles( lhs, rhs, lhs.m_numBuffers ) );
 	}
 
-	static constexpr uint32 MAX_VERTEX_SLOT = 32;
-
 private:
-	static bool CompareStreams( const VertexInputStream& lhs, const VertexInputStream& rhs, int32 size )
+	static bool CompareBundles( const VertexBufferBundle& lhs, const VertexBufferBundle& rhs, int32 size )
 	{
 		while ( size-- > 0 )
 		{

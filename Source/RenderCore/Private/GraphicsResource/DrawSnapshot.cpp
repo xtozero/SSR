@@ -177,8 +177,11 @@ void CommitDrawSnapshot( aga::ICommandList& commandList, VisibleDrawSnapshot& vi
 	DrawSnapshot& snapshot = *visibleSnapshot.m_drawSnapshot;
 
 	// Set vertex buffer
-	VertexInputStream vertexStream = snapshot.m_vertexStream;
-	vertexStream.Bind( primitiveIds, 1, visibleSnapshot.m_primitiveIdOffset * sizeof( uint32 ) );
+	VertexBufferBundle vertexStream = snapshot.m_vertexStream;
+	if ( snapshot.m_primitiveIdSlot != -1 )
+	{
+		vertexStream.Bind( primitiveIds, static_cast<uint32>( snapshot.m_primitiveIdSlot ), visibleSnapshot.m_primitiveIdOffset * sizeof( uint32 ) );
+	}
 
 	uint32 numVB = vertexStream.NumBuffer( );
 	aga::Buffer* const* vertexBuffers = vertexStream.VertexBuffers( );
