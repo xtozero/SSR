@@ -32,6 +32,8 @@ void StaticMesh::Serialize( Archive& ar )
 	m_renderData->Serialize( ar );
 
 	ar << m_materials;
+
+	ar << m_bounds;
 }
 
 void StaticMesh::BuildMeshFromMeshDescriptions( const std::vector<MeshDescription>& meshDescriptions )

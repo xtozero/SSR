@@ -67,6 +67,7 @@ set (PHYSICS
 	Private/Physics/Body.cpp
 	Private/Physics/BoundingCone.cpp
 	Private/Physics/BoundingSphere.cpp
+	Private/Physics/BoxSphereBounds.cpp
 	Private/Physics/CollisionUtil.cpp
 	Private/Physics/CollideNarrow.cpp
 	Private/Physics/Contacts.cpp
@@ -83,6 +84,7 @@ set (PHYSICS
 	Public/Physics/Body.h
 	Public/Physics/BoundingCone.h
 	Public/Physics/BoundingSphere.h
+	Public/Physics/BoxSphereBounds.h
 	Public/Physics/CollideBroad.h
 	Public/Physics/CollisionUtil.h
 	Public/Physics/CollideNarrow.h

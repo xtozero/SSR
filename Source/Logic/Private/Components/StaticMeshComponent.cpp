@@ -6,6 +6,18 @@
 
 #include <cassert>
 
+BoxSphereBounds StaticMeshComponent::CalcBounds( const CXMFLOAT4X4& transform )
+{
+	if ( m_pStaticMesh )
+	{
+		BoxSphereBounds bounds = m_pStaticMesh->Bounds( ).TransformBy( transform );
+		return bounds;
+	}
+
+	CXMFLOAT3 position( transform._41, transform._42, transform._43 );
+	return BoxSphereBounds( position, CXMFLOAT3( 0, 0, 0 ), 0.f );
+}
+
 PrimitiveProxy* StaticMeshComponent::CreateProxy( ) const
 {
 	if ( m_pStaticMesh == nullptr 
@@ -24,6 +36,8 @@ void StaticMeshComponent::SetStaticMesh( const std::shared_ptr<StaticMesh>& pSta
 	m_pStaticMesh = pStaticMesh;
 
 	MarkRenderStateDirty( );
+
+	UpdateBounds( );
 }
 
 void StaticMeshComponent::SetRenderOption( const std::shared_ptr<RenderOption>& pRenderOption )

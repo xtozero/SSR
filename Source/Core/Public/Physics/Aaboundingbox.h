@@ -18,18 +18,18 @@ public:
 
 	CAaboundingbox( ) = default;
 	explicit CAaboundingbox( const std::vector<CAaboundingbox>& boxes );
-	explicit CAaboundingbox( const std::vector<CXMFLOAT3>& points );
+	CAaboundingbox( const CXMFLOAT3* points, int32 numPoints );
 
 	void Merge( const CXMFLOAT3& vec );
-	void Size( CXMFLOAT3& size ) const
+	CXMFLOAT3 Size( ) const
 	{
 		using namespace DirectX;
-		size = m_max - m_min;
+		return m_max - m_min;
 	}
-	void Centroid( CXMFLOAT3& centroid ) const
+	CXMFLOAT3 Centroid( ) const
 	{
 		using namespace DirectX;
-		centroid = ( m_max + m_min ) * 0.5f; 
+		return ( m_max + m_min ) * 0.5f; 
 	}
 	void Reset( )
 	{
@@ -47,8 +47,7 @@ public:
 	const CXMFLOAT3& GetMin( ) const { return m_min; }
 	float GetSize( ) const 
 	{
-		CXMFLOAT3 size;
-		Size( size );
+		CXMFLOAT3 size = Size( );
 		return size.x * size.y * size.z; // l * w * h
 	}
 

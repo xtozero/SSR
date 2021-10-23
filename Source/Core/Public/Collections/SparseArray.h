@@ -21,6 +21,36 @@ template <typename T>
 class SparseArray
 {
 public:
+	size_t AddUninitialized( )
+	{
+		size_t index = 0;
+
+		if ( m_firstFreeIndex )
+		{
+			index = m_firstFreeIndex.value( );
+			size_t nextIndex = GetData( index ).m_node.m_next;
+
+			if ( nextIndex != index )
+			{
+				GetData( nextIndex ).m_node.m_prev = nextIndex;
+				m_firstFreeIndex = nextIndex;
+			}
+			else
+			{
+				m_firstFreeIndex = std::nullopt;
+			}
+		}
+		else
+		{
+			index = m_data.size( );
+			m_data.emplace_back( );
+			m_allocationFlag.Add( false );
+		}
+
+		m_allocationFlag[index] = true;
+		return index;
+	}
+
 	size_t Add( const T& element )
 	{
 		size_t index = AddUninitialized( );
@@ -136,35 +166,6 @@ public:
 
 private:
 	using Element = SparseArrayElement<T>;
-	size_t AddUninitialized( )
-	{
-		size_t index = 0;
-
-		if ( m_firstFreeIndex )
-		{
-			index = m_firstFreeIndex.value( );
-			size_t nextIndex = GetData( index ).m_node.m_next;
-
-			if ( nextIndex != index )
-			{
-				GetData( nextIndex ).m_node.m_prev = nextIndex;
-				m_firstFreeIndex = nextIndex;
-			}
-			else
-			{
-				m_firstFreeIndex = std::nullopt;
-			}
-		}
-		else
-		{
-			index = m_data.size( );
-			m_data.emplace_back( );
-			m_allocationFlag.Add( false );
-		}
-
-		m_allocationFlag[index] = true;
-		return index;
-	}
 
 	void RemoveUninitialized( size_t index )
 	{

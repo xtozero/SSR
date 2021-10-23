@@ -3,6 +3,7 @@
 #include "AssetFactory.h"
 #include "BaseMesh.h"
 #include "IAsyncLoadableAsset.h"
+#include "Physics/BoxSphereBounds.h"
 #include "SizedTypes.h"
 
 #include <vector>
@@ -48,6 +49,7 @@ public:
 			m_renderData = other.m_renderData;
 			other.m_renderData = nullptr;
 			m_materials = std::move( other.m_materials );
+			m_bounds = std::move( other.m_bounds );
 		}
 
 		return *this;
@@ -58,10 +60,17 @@ public:
 		return m_renderData;
 	}
 
+	BoxSphereBounds& Bounds( )
+	{
+		return m_bounds;
+	}
+
 protected:
 	RENDERCORE_DLL virtual void PostLoadImpl( ) override;
 
 private:
 	StaticMeshRenderData* m_renderData = nullptr;
 	std::vector<StaticMeshMaterial> m_materials;
+
+	BoxSphereBounds m_bounds;
 };

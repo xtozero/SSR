@@ -142,7 +142,7 @@ bool BoundingSphere::Intersect( const CFrustum& frustum, const CXMFLOAT3& sweepD
 
 BoundingSphere::BoundingSphere( const CAaboundingbox& box )
 {
-	box.Centroid( m_origin );
+	m_origin = box.Centroid( );
 	m_radius = XMVectorGetX( XMVector3Length( m_origin - box.GetMax( ) ) );
 }
 

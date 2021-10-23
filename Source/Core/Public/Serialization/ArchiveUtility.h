@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Math/CXMFloat.h"
 
 #include <map>

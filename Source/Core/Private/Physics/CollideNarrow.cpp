@@ -374,10 +374,10 @@ uint32 BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const CAaboundi
 	const CXMFLOAT3& rhsMax = rhs.GetMax();
 
 	CXMFLOAT3 totalSize;
-	lhs.Size( totalSize );
+	totalSize = lhs.Size( );
 
 	CXMFLOAT3 rhsSize;
-	rhs.Size( rhsSize );
+	rhsSize = rhs.Size( );
 	totalSize += rhsSize;
 
 	float bestOverlap = FLT_MAX;
@@ -402,9 +402,9 @@ uint32 BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const CAaboundi
 
 	CXMFLOAT3 normal = axis[bestAxis];
 	CXMFLOAT3 lhsCentre;
-	lhs.Centroid( lhsCentre );
+	lhsCentre = lhs.Centroid( );
 	CXMFLOAT3 rhsCentre;
-	rhs.Centroid( rhsCentre );
+	rhsCentre = rhs.Centroid( );
 
 	CXMFLOAT3 toCentre = XMVector3Normalize( rhsCentre - lhsCentre );
 	if ( XMVectorGetX( XMVector3Dot( normal, toCentre ) ) > 0 )

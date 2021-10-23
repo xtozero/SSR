@@ -78,6 +78,16 @@ const CXMFLOAT4X4& SceneComponent::GetInvTransformMatrix( )
 	return m_invMatTransform;
 }
 
+BoxSphereBounds SceneComponent::CalcBounds( [[maybe_unused]] const CXMFLOAT4X4& transform )
+{
+	return BoxSphereBounds( CXMFLOAT3( 0, 0, 0 ), CXMFLOAT3( 0, 0, 0 ), 0.f );
+}
+
+void SceneComponent::UpdateBounds( )
+{
+	m_bounds = CalcBounds( GetTransformMatrix( ) );
+}
+
 void SceneComponent::RebuildTransform( )
 {
 	if ( m_needRebuildTransform )

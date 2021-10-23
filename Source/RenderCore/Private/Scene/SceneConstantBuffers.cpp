@@ -83,7 +83,7 @@ PrimitiveSceneData::PrimitiveSceneData( const PrimitiveProxy* proxy )
 
 	if ( proxy )
 	{
-		m_worldMatrix = proxy->GetTransform( );
+		m_worldMatrix = proxy->WorldTransform( );
 		m_invWorldMatrix = XMMatrixInverse( nullptr, m_worldMatrix );
 	}
 }

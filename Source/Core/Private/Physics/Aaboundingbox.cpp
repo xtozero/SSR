@@ -155,11 +155,11 @@ CAaboundingbox::CAaboundingbox( const std::vector<CAaboundingbox>& boxes )
 	}
 }
 
-CAaboundingbox::CAaboundingbox( const std::vector<CXMFLOAT3>& points )
+CAaboundingbox::CAaboundingbox( const CXMFLOAT3* points, int32 numPoints )
 {
-	for ( const auto& point : points )
+	for ( int32 i = 0; i < numPoints; ++i )
 	{
-		Merge( point );
+		Merge( points[i] );
 	}
 }
 

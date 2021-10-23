@@ -5,6 +5,7 @@
 #include "Components/LightComponent.h"
 #include "Components/PrimitiveComponent.h"
 #include "Components/TexturedSkyComponent.h"
+#include "Physics/BoxSphereBounds.h"
 #include "Proxies/LightProxy.h"
 #include "Proxies/PrimitiveProxy.h"
 #include "Proxies/TexturedSkyProxy.h"
@@ -39,16 +40,22 @@ void Scene::AddPrimitive( PrimitiveComponent* primitive )
 	struct AddPrimitiveSceneInfoParam
 	{
 		CXMFLOAT4X4 m_worldTransform;
+		BoxSphereBounds m_worldBounds;
+		BoxSphereBounds m_localBounds;
 	};
 	AddPrimitiveSceneInfoParam param = {
-		primitive->GetRenderMatrix( )
+		primitive->GetRenderMatrix( ),
+		primitive->Bounds(),
+		primitive->CalcBounds( DirectX::XMMatrixIdentity( ) ),
 	};
 
 	EnqueueRenderTask( [this, param, primitiveSceneInfo]( )
 	{
-		PrimitiveProxy* sceneProxy = primitiveSceneInfo->m_sceneProxy;
+		PrimitiveProxy* sceneProxy = primitiveSceneInfo->Proxy( );
 
-		sceneProxy->SetTransform( param.m_worldTransform );
+		sceneProxy->WorldTransform( ) = param.m_worldTransform;
+		sceneProxy->Bounds( ) = param.m_worldBounds;
+		sceneProxy->LocalBounds( ) = param.m_localBounds;
 		sceneProxy->CreateRenderData( );
 
 		AddPrimitiveSceneInfo( primitiveSceneInfo );
@@ -193,7 +200,8 @@ void Scene::AddPrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo )
 	assert( primitiveSceneInfo );
 
 	uint32 primitiveId = static_cast<uint32>( m_primitives.Add( primitiveSceneInfo ) );
-	primitiveSceneInfo->m_primitiveId = primitiveId;
+	primitiveSceneInfo->PrimitiveId( ) = primitiveId;
+	m_primitiveBounds.AddUninitialized( );
 
 	m_primitiveToUpdate.push_back( primitiveId );
 	
@@ -204,11 +212,14 @@ void Scene::RemovePrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo )
 {
 	assert( IsInRenderThread( ) );
 
-	m_primitives.RemoveAt( primitiveSceneInfo->m_primitiveId );
-	m_primitiveToUpdate.erase( std::remove( m_primitiveToUpdate.begin( ), m_primitiveToUpdate.end( ), primitiveSceneInfo->m_primitiveId ), m_primitiveToUpdate.end( ) );
+	uint32 primitiveId = primitiveSceneInfo->PrimitiveId( );
+
+	m_primitives.RemoveAt( primitiveId );
+	m_primitiveBounds.RemoveAt( primitiveId );
+	m_primitiveToUpdate.erase( std::remove( m_primitiveToUpdate.begin( ), m_primitiveToUpdate.end( ), primitiveId ), m_primitiveToUpdate.end( ) );
 
 	primitiveSceneInfo->RemoveFromScene( );
-	delete primitiveSceneInfo->m_sceneProxy;
+	delete primitiveSceneInfo->Proxy( );
 	delete primitiveSceneInfo;
 }
 
@@ -272,7 +283,7 @@ bool UpdateGPUPrimitiveInfos( Scene& scene )
 
 	for ( auto index : scene.m_primitiveToUpdate )
 	{
-		PrimitiveProxy* proxy = scene.m_primitives[index]->m_sceneProxy;
+		PrimitiveProxy* proxy = scene.m_primitives[index]->Proxy( );
 
 		PrimitiveSceneData param( proxy );
 		gpuMemcpy.Add( (const char*)( &param ), index );

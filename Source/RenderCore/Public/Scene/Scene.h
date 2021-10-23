@@ -3,6 +3,7 @@
 #include "DrawSnapshot.h"
 #include "IScene.h"
 #include "LightSceneInfo.h"
+#include "Physics/BoxSphereBounds.h"
 #include "SceneConstantBuffers.h"
 #include "SizedTypes.h"
 #include "UploadBuffer.h"
@@ -37,11 +38,6 @@ public:
 
 	virtual void AddLight( LightComponent* light ) override;
 	virtual void RemoveLight( LightComponent* light ) override;
-	
-	const SparseArray<LightSceneInfo*>& Lights( ) const
-	{
-		return m_lights;
-	}
 
 	virtual SceneViewConstantBuffer& SceneViewConstant( ) override
 	{
@@ -65,6 +61,16 @@ public:
 	virtual SHADING_METHOD ShadingMethod( ) const override;
 
 	virtual Scene* GetRenderScene( ) { return this; };
+
+	const SparseArray<LightSceneInfo*>& Lights( ) const
+	{
+		return m_lights;
+	}
+
+	SparseArray<BoxSphereBounds>& PrimitiveBounds( )
+	{
+		return m_primitiveBounds;
+	}
 
 	[[nodiscard]] CachedDrawSnapshotInfo AddCachedDrawSnapshot( const DrawSnapshot& snapshot );
 	void RemoveCachedDrawSnapshot( const CachedDrawSnapshotInfo& info );
@@ -94,6 +100,7 @@ private:
 	void RemoveLightSceneInfo( LightSceneInfo* lightSceneInfo );
 
 	SparseArray<PrimitiveSceneInfo*> m_primitives;
+	SparseArray<BoxSphereBounds> m_primitiveBounds;
 
 	TexturedSkyProxy* m_texturedSky = nullptr;
 

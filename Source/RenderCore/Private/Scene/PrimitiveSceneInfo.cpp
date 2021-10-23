@@ -5,8 +5,30 @@
 #include "Proxies/PrimitiveProxy.h"
 #include "Scene/Scene.h"
 
+PrimitiveProxy*& PrimitiveSceneInfo::Proxy( )
+{
+	return m_sceneProxy;
+}
+
+const PrimitiveProxy* PrimitiveSceneInfo::Proxy( ) const
+{
+	return m_sceneProxy;
+}
+
+uint32& PrimitiveSceneInfo::PrimitiveId( )
+{
+	return m_primitiveId;
+}
+
+uint32 PrimitiveSceneInfo::PrimitiveId( ) const
+{
+	return m_primitiveId;
+}
+
 void PrimitiveSceneInfo::AddToScene( )
 {
+	m_scene.PrimitiveBounds( )[m_primitiveId] = m_sceneProxy->Bounds( );
+
 	m_sceneProxy->PrepareSubMeshs( );
 
 	CacheDrawSnapshot( );

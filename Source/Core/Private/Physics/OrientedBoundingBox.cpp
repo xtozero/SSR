@@ -84,8 +84,7 @@ CXMFLOAT3 COrientedBoundingBox::GetAxisVector( uint32 i ) const
 
 COrientedBoundingBox::COrientedBoundingBox( const CAaboundingbox& box )
 {
-	CXMFLOAT3 centre;
-	box.Centroid( centre );
+	CXMFLOAT3 centre = box.Centroid( );
 
 	m_halfSize = box.GetMax( ) - centre;
 	m_matTransform = CXMFLOAT4X4( 

@@ -12,6 +12,8 @@ class StaticMeshComponent : public PrimitiveComponent
 public:
 	using PrimitiveComponent::PrimitiveComponent;
 
+	virtual BoxSphereBounds CalcBounds( const CXMFLOAT4X4& transform ) override;
+
 	virtual PrimitiveProxy* CreateProxy( ) const override;
 
 	void SetStaticMesh( const std::shared_ptr<StaticMesh>& pStaticMesh );

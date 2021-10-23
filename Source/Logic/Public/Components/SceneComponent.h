@@ -2,6 +2,7 @@
 
 #include "Component.h"
 #include "Math/CXMFloat.h"
+#include "Physics/BoxSphereBounds.h"
 
 class SceneComponent : public Component
 {
@@ -22,6 +23,13 @@ public:
 	const CXMFLOAT4X4& GetTransformMatrix( );
 	const CXMFLOAT4X4& GetInvTransformMatrix( );
 
+	virtual BoxSphereBounds CalcBounds( const CXMFLOAT4X4& transform );
+	void UpdateBounds( );
+	const BoxSphereBounds& Bounds( ) const
+	{
+		return m_bounds;
+	}
+
 private:
 	void RebuildTransform( );
 
@@ -31,6 +39,8 @@ private:
 
 	CXMFLOAT4X4 m_matTransform;
 	CXMFLOAT4X4 m_invMatTransform;
+
+	BoxSphereBounds m_bounds;
 
 	bool m_needRebuildTransform = true;
 };

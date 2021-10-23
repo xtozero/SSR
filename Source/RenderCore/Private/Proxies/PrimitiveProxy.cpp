@@ -4,21 +4,45 @@
 #include "Scene/PrimitiveSceneInfo.h"
 #include "TaskScheduler.h"
 
-void PrimitiveProxy::SetTransform( const CXMFLOAT4X4& worldTransform )
-{
-	assert( IsInRenderThread() );
-	m_worldTransform = worldTransform;
-}
-
-const CXMFLOAT4X4& PrimitiveProxy::GetTransform( ) const
+CXMFLOAT4X4& PrimitiveProxy::WorldTransform( )
 {
 	assert( IsInRenderThread( ) );
 	return m_worldTransform;
+}
+
+const CXMFLOAT4X4& PrimitiveProxy::WorldTransform( ) const
+{
+	assert( IsInRenderThread( ) );
+	return m_worldTransform;
+}
+
+BoxSphereBounds& PrimitiveProxy::Bounds( )
+{
+	assert( IsInRenderThread( ) );
+	return m_bounds;
+}
+
+const BoxSphereBounds& PrimitiveProxy::Bounds( ) const
+{
+	assert( IsInRenderThread( ) );
+	return m_bounds;
+}
+
+BoxSphereBounds& PrimitiveProxy::LocalBounds( )
+{
+	assert( IsInRenderThread( ) );
+	return m_localBounds;
+}
+
+const BoxSphereBounds& PrimitiveProxy::LocalBounds( ) const
+{
+	assert( IsInRenderThread( ) );
+	return m_localBounds;
 }
 
 uint32 PrimitiveProxy::PrimitiveId( ) const
 {
 	assert( IsInRenderThread( ) );
 	assert( m_primitiveSceneInfo );
-	return m_primitiveSceneInfo->m_primitiveId;
+	return m_primitiveSceneInfo->PrimitiveId( );
 }

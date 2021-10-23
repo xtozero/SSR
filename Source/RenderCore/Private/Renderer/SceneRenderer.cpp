@@ -203,7 +203,7 @@ void SceneRenderer::RenderMesh( IScene& scene, RenderViewGroup& renderViewGroup,
 	// Create DrawSnapshot
 	for ( auto primitive : primitives )
 	{
-		PrimitiveProxy* proxy = primitive->m_sceneProxy;
+		PrimitiveProxy* proxy = primitive->Proxy( );
 
 		const std::vector<PrimitiveSubMeshInfo>& subMeshInfos = primitive->SubMeshInfos( );
 

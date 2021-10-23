@@ -206,6 +206,7 @@ namespace
 		}
 
 		staticMesh.BuildMeshFromMeshDescriptions( meshDescriptions );
+		staticMesh.Bounds( ) = BoxSphereBounds( pos.data( ), static_cast<uint32>( pos.size( ) ) );
 
 		return staticMesh;
 	}

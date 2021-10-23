@@ -46,6 +46,12 @@ private:
 class PrimitiveSceneInfo
 {
 public:
+	PrimitiveProxy*& Proxy( );
+	const PrimitiveProxy* Proxy( ) const;
+
+	uint32& PrimitiveId( );
+	uint32 PrimitiveId( ) const;
+
 	void AddToScene( );
 	void RemoveFromScene( );
 
@@ -63,14 +69,15 @@ public:
 
 	PrimitiveSceneInfo( PrimitiveComponent* component, Scene& scene );
 
-	PrimitiveProxy* m_sceneProxy = nullptr;
-	uint32 m_primitiveId = 0;
-
 private:
 	void CacheDrawSnapshot( );
 	void RemoveCachedDrawSnapshot( );
 
 	Scene& m_scene;
+
+	PrimitiveProxy* m_sceneProxy = nullptr;
+
+	uint32 m_primitiveId = 0;
 
 	std::vector<PrimitiveSubMeshInfo> m_subMeshInfos;
 	std::vector<PrimitiveSubMesh> m_subMeshs;
