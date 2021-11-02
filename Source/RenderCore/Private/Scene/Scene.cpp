@@ -179,19 +179,21 @@ SHADING_METHOD Scene::ShadingMethod( ) const
 	return SHADING_METHOD::Forward;
 }
 
-CachedDrawSnapshotInfo Scene::AddCachedDrawSnapshot( const DrawSnapshot& snapshot )
+CachedDrawSnapshotInfo Scene::AddCachedDrawSnapshot( RenderPass passType, const DrawSnapshot& snapshot )
 {
 	CachedDrawSnapshotInfo info;
+	info.m_renderPass = passType;
 	info.m_snapshotBucketId = m_cachedSnapshotBuckect.Add( snapshot );
-	info.m_snapshotIndex = m_cachedSnapshots.Add( snapshot );
+	info.m_snapshotIndex = m_cachedSnapshots[static_cast<uint32>( passType )].Add( snapshot );
 
 	return info;
 }
 
 void Scene::RemoveCachedDrawSnapshot( const CachedDrawSnapshotInfo& info )
 {
+	uint32 passType = static_cast<uint32>( info.m_renderPass );
 	m_cachedSnapshotBuckect.Remove( info.m_snapshotBucketId );
-	m_cachedSnapshots.RemoveAt( info.m_snapshotIndex );
+	m_cachedSnapshots[passType].RemoveAt( info.m_snapshotIndex );
 }
 
 void Scene::AddPrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo )

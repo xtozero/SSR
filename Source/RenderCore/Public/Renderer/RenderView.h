@@ -4,6 +4,7 @@
 #include "DrawSnapshot.h"
 #include "GraphicsApiResource.h"
 #include "Math/CXMFloat.h"
+#include "PassProcessor.h"
 #include "SizedTypes.h"
 
 #include <vector>
@@ -29,7 +30,7 @@ struct RenderView
 	float m_aspect = 0.f;
 	float m_fov = 0.f;
 
-	std::vector<VisibleDrawSnapshot> m_snapshots;
+	std::vector<VisibleDrawSnapshot> m_snapshots[RenderPass::Count];
 
 	ForwardLightingResource* m_forwardLighting = nullptr;
 };

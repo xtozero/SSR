@@ -68,16 +68,16 @@ const std::vector<PrimitiveSubMesh>& PrimitiveSceneInfo::SubMeshs( ) const
 	return m_subMeshs;
 }
 
-const CachedDrawSnapshotInfo& PrimitiveSceneInfo::GetCachedDrawSnapshotInfo( uint32 snapshotIndex )
+const CachedDrawSnapshotInfo& PrimitiveSceneInfo::GetCachedDrawSnapshotInfo( uint32 snapshotInfoBase )
 {
-	return m_cachedDrawSnapshotInfos[snapshotIndex];
+	return m_cachedDrawSnapshotInfos[snapshotInfoBase];
 }
 
 DrawSnapshot& PrimitiveSceneInfo::CachedDrawSnapshot( uint32 snapshotIndex )
 {
 	const CachedDrawSnapshotInfo& cachedDrawSnapshotInfo = m_cachedDrawSnapshotInfos[snapshotIndex];
 
-	return m_scene.CachedSnapshots( )[cachedDrawSnapshotInfo.m_snapshotIndex];
+	return m_scene.CachedSnapshots( cachedDrawSnapshotInfo.m_renderPass )[cachedDrawSnapshotInfo.m_snapshotIndex];
 }
 
 PrimitiveSceneInfo::PrimitiveSceneInfo( PrimitiveComponent* component, Scene& scene ) : m_sceneProxy( component->m_sceneProxy ), m_scene( scene )
@@ -86,21 +86,30 @@ PrimitiveSceneInfo::PrimitiveSceneInfo( PrimitiveComponent* component, Scene& sc
 
 void PrimitiveSceneInfo::CacheDrawSnapshot( )
 {
-	auto& viewConstant = m_scene.SceneViewConstant( );
-
 	for ( size_t i = 0; i < m_subMeshs.size( ); ++i )
 	{
 		const PrimitiveSubMesh& subMesh = m_subMeshs[i];
 		PrimitiveSubMeshInfo& subMeshInfo = m_subMeshInfos[i];
+		subMeshInfo.SnapshotInfoBase( ) = static_cast<uint32>( m_cachedDrawSnapshotInfos.size( ) );
 
-		std::optional<DrawSnapshot> snapshot = m_sceneProxy->TakeSnapshot( subMesh.Lod( ), subMesh.SectionIndex( ), viewConstant );
-
-		if ( snapshot )
+		for ( uint32 j = 0; j < static_cast<uint32>( RenderPass::Count ); ++j )
 		{
-			CachedDrawSnapshotInfo cachedDrawSnapshotInfo = m_scene.AddCachedDrawSnapshot( snapshot.value( ) );
+			auto passType = static_cast<RenderPass>( j );
+			IPassProcessor* processor = PassProcessorManager::GetPassProcessor( passType );
+			if ( processor == nullptr )
+			{
+				continue;
+			}
 
-			subMeshInfo.m_snapshotInfoBase = static_cast<uint32>( m_cachedDrawSnapshotInfos.size( ) );
-			m_cachedDrawSnapshotInfos.emplace_back( cachedDrawSnapshotInfo );
+			std::optional<DrawSnapshot> snapshot = processor->Process( *m_sceneProxy, subMesh );
+
+			if ( snapshot )
+			{
+				CachedDrawSnapshotInfo cachedDrawSnapshotInfo = m_scene.AddCachedDrawSnapshot( passType, snapshot.value( ) );
+
+				m_cachedDrawSnapshotInfos.emplace_back( cachedDrawSnapshotInfo );
+				subMeshInfo.OnDrawSnapshotAdded( passType );
+			}
 		}
 	}
 }
@@ -111,4 +120,39 @@ void PrimitiveSceneInfo::RemoveCachedDrawSnapshot( )
 	{
 		m_scene.RemoveCachedDrawSnapshot( cachedDrawSnapshotInfo );
 	}
+}
+
+std::optional<uint32> PrimitiveSubMeshInfo::GetCachedDrawSnapshotInfoIndex( RenderPass passType ) const
+{
+	uint32 iPassType = static_cast<uint32>( passType );
+	if ( ( m_passTypeMask & ( 1 << iPassType ) ) == 0 )
+	{
+		return {};
+	}
+
+	uint32 snapshotInfoIndex = m_snapshotInfoBase;
+	for ( uint32 i = 0; i < iPassType; ++i )
+	{
+		if ( ( m_passTypeMask & ( 1 << i ) ) > 0 )
+		{
+			++snapshotInfoIndex;
+		}
+	}
+
+	return snapshotInfoIndex;
+}
+
+void PrimitiveSubMeshInfo::OnDrawSnapshotAdded( RenderPass passType )
+{
+	m_passTypeMask |= 1 << static_cast<uint32>( passType );
+}
+
+uint32& PrimitiveSubMeshInfo::SnapshotInfoBase( )
+{
+	return m_snapshotInfoBase;
+}
+
+uint32 PrimitiveSubMeshInfo::SnapshotInfoBase( ) const
+{
+	return m_snapshotInfoBase;
 }

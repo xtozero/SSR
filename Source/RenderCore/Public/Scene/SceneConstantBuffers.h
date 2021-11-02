@@ -21,7 +21,10 @@ struct alignas(16) ViewConstantBufferParameters
 	CXMFLOAT4 m_hemisphereLightUpperColor;
 	CXMFLOAT4 m_hemisphereLightLowerColor;
 	CXMFLOAT3 m_hemisphereLightUpVector;
-	float padding3;
+	float padding1;
+	float m_nearPlaneDist;
+	float m_farPlaneDist;
+	CXMFLOAT2 padding2;
 };
 
 void FillViewConstantParam( ViewConstantBufferParameters& param, const Scene* scene, const RenderView& view );

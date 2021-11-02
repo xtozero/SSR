@@ -54,6 +54,7 @@ namespace aga
 		virtual void SetScissorRects( Viewport** viewPorts, uint32 size ) override;
 		virtual void SetScissorRect( uint32 minX, uint32 minY, uint32 maxX, uint32 maxY ) override;
 
+		virtual void ClearRenderTarget( Texture* renderTarget, const float( &clearColor )[4] ) override;
 		virtual void ClearDepthStencil( Texture* depthStencil, float depthColor, uint8 stencilColor ) override;
 
 		virtual void BindShader( ComputeShader* shader ) override;
@@ -297,6 +298,22 @@ namespace aga
 		rect.bottom = maxY;
 
 		m_pd3d11DeviceContext->RSSetScissorRects( 1, &rect );
+	}
+
+	void CDirect3D11::ClearRenderTarget( Texture* renderTarget, const float( &clearColor )[4] )
+	{
+		auto d3d11Texture = reinterpret_cast<D3D11BaseTexture*>( renderTarget );
+		if ( d3d11Texture == nullptr )
+		{
+			return;
+		}
+
+		if ( auto d3d11RTV = static_cast<D3D11RenderTargetView*>( d3d11Texture->RTV( ) ) )
+		{
+			ID3D11RenderTargetView* rtv = d3d11RTV->Resource( );
+
+			m_pd3d11DeviceContext->ClearRenderTargetView( rtv, clearColor );
+		}
 	}
 
 	void CDirect3D11::ClearDepthStencil( Texture* depthStencil, float depthColor, uint8 stencilColor )

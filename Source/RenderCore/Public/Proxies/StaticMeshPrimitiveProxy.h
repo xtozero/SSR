@@ -15,11 +15,12 @@ public:
 
 	 virtual void CreateRenderData( ) override;
 	 virtual void PrepareSubMeshs( ) override;
-	 virtual void GetSubMeshElement( uint32 lod, uint32 sectionIndex, PrimitiveSubMesh& subMesh ) override;
-	 virtual void TakeSnapshot( std::deque<DrawSnapshot>& snapshotStorage, SceneViewConstantBuffer& viewConstant, std::vector<VisibleDrawSnapshot>& drawList ) const override;
-	 virtual std::optional<DrawSnapshot> TakeSnapshot( uint32 lod, uint32 sectionIndex, SceneViewConstantBuffer& viewConstant ) const override;
+	 virtual void TakeSnapshot( std::deque<DrawSnapshot>& snapshotStorage, std::vector<VisibleDrawSnapshot>& drawList ) const override;
+	 virtual std::optional<DrawSnapshot> TakeSnapshot( uint32 lod, uint32 sectionIndex ) const override;
+	 virtual MeshDrawInfo GatherMeshDrawInfo( uint32 lod, uint32 sectionIndex ) const override;
 
 private:
+
 	std::shared_ptr<const StaticMesh> m_pStaticMesh = nullptr;
 	StaticMeshRenderData* m_pRenderData = nullptr;
 

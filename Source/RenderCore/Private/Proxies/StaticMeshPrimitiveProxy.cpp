@@ -36,21 +36,12 @@ void StaticMeshPrimitiveProxy::PrepareSubMeshs( )
 		for ( uint32 sectionIndex = 0; sectionIndex < sectionSize; ++sectionIndex )
 		{
 			PrimitiveSubMesh& subMesh = m_primitiveSceneInfo->AddSubMesh( );
-			GetSubMeshElement( lod, sectionIndex, subMesh );
+			new (&subMesh) PrimitiveSubMesh( GatherMeshDrawInfo( lod, sectionIndex ) );
 		}
 	}
 }
 
-void StaticMeshPrimitiveProxy::GetSubMeshElement( uint32 lod, uint32 sectionIndex, PrimitiveSubMesh& subMesh )
-{
-	StaticMeshLODResource& lodResource = m_pRenderData->LODResource( lod );
-	const StaticMeshSection& section = lodResource.m_sections[sectionIndex];
-
-	subMesh.Lod( ) = lod;
-	subMesh.SectionIndex( ) = sectionIndex;
-}
-
-void StaticMeshPrimitiveProxy::TakeSnapshot( std::deque<DrawSnapshot>& snapshotStorage, SceneViewConstantBuffer& viewConstant, std::vector<VisibleDrawSnapshot>& drawList ) const
+void StaticMeshPrimitiveProxy::TakeSnapshot( std::deque<DrawSnapshot>& snapshotStorage,  std::vector<VisibleDrawSnapshot>& drawList ) const
 {
 	// To Do : will make lod available later
 	StaticMeshLODResource& lodResource = m_pRenderData->LODResource( 0 );
@@ -58,7 +49,7 @@ void StaticMeshPrimitiveProxy::TakeSnapshot( std::deque<DrawSnapshot>& snapshotS
 
 	for ( uint32 sectionIndex = 0; sectionIndex < sectionSize; ++sectionIndex )
 	{
-		std::optional<DrawSnapshot> snapshot = TakeSnapshot( 0, sectionIndex, viewConstant );
+		std::optional<DrawSnapshot> snapshot = TakeSnapshot( 0, sectionIndex );
 
 		if ( snapshot )
 		{
@@ -72,7 +63,7 @@ void StaticMeshPrimitiveProxy::TakeSnapshot( std::deque<DrawSnapshot>& snapshotS
 	}
 }
 
-std::optional<DrawSnapshot> StaticMeshPrimitiveProxy::TakeSnapshot( uint32 lod, uint32 sectionIndex, SceneViewConstantBuffer& viewConstant ) const
+std::optional<DrawSnapshot> StaticMeshPrimitiveProxy::TakeSnapshot( uint32 lod, uint32 sectionIndex ) const
 {
 	assert( IsInRenderThread( ) );
 	uint32 lodSize = m_pRenderData->LODSize( );
@@ -100,14 +91,17 @@ std::optional<DrawSnapshot> StaticMeshPrimitiveProxy::TakeSnapshot( uint32 lod, 
 	snapshot.m_primitiveIdSlot = primitiveIdSlot;
 	snapshot.m_indexBuffer = lodResource.m_ib;
 
+	GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 	const StaticMeshSection& section = lodResource.m_sections[sectionIndex];
 	auto materialResource = m_pStaticMesh->GetMaterialResource( section.m_materialIndex );
 	if ( materialResource )
 	{
-		materialResource->TakeSnapShot( snapshot );
+		pipelineState.m_shaderState.m_vertexShader = materialResource->GetVertexShader( );
+		pipelineState.m_shaderState.m_pixelShader = materialResource->GetPixelShader( );
+
+		materialResource->TakeSnapshot( snapshot, pipelineState.m_shaderState );
 	}
 
-	GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 	if ( m_pRenderOption->m_blendOption )
 	{
 		pipelineState.m_blendState = graphicsInterface.FindOrCreate( *m_pRenderOption->m_blendOption );
@@ -137,4 +131,36 @@ std::optional<DrawSnapshot> StaticMeshPrimitiveProxy::TakeSnapshot( uint32 lod, 
 	PreparePipelineStateObject( snapshot );
 
 	return snapshot;
+}
+
+MeshDrawInfo StaticMeshPrimitiveProxy::GatherMeshDrawInfo( uint32 lod, uint32 sectionIndex ) const
+{
+	uint32 lodSize = m_pRenderData->LODSize( );
+	if ( lod >= lodSize )
+	{
+		return {};
+	}
+
+	StaticMeshLODResource& lodResource = m_pRenderData->LODResource( lod );
+	if ( sectionIndex >= lodResource.m_sections.size( ) )
+	{
+		return {};
+	}
+
+	const StaticMeshSection& section = lodResource.m_sections[sectionIndex];
+
+	MeshDrawInfo info;
+
+	info.m_vertexCollection = &lodResource.m_vertexCollection;
+	info.m_indexBuffer = &lodResource.m_ib;
+	info.m_material = m_pStaticMesh->GetMaterialResource( section.m_materialIndex );
+	info.m_renderOption = &*m_pRenderOption;
+
+	info.m_startLocation = section.m_startLocation;
+	info.m_count = section.m_count;
+
+	info.m_lod = lod;
+	info.m_sectionIndex = sectionIndex;
+
+	return info;
 }

@@ -155,15 +155,11 @@ void SortDrawSnapshots( std::vector<VisibleDrawSnapshot>& snapshots, VertexBuffe
 	}
 }
 
-void CommitDrawSnapshots( SceneRenderer& renderer, RenderViewGroup& renderViewGroup, size_t curView, VertexBuffer& primitiveIds )
+void CommitDrawSnapshots( SceneRenderer& renderer, std::vector<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
 {
 	auto commandList = GetInterface<aga::IAga>( )->GetImmediateCommandList( );
 
-	renderer.SetRenderTarget( *commandList, renderViewGroup );
-	renderer.SetViewPort( *commandList, renderViewGroup );
-
-	auto& view = renderViewGroup[curView];
-	std::vector<VisibleDrawSnapshot>& visibleSnapshots = view.m_snapshots;
+	renderer.ApplyOutputContext( *commandList );
 
 	for ( size_t i = 0; i < visibleSnapshots.size( ); )
 	{
@@ -208,11 +204,8 @@ void CommitDrawSnapshot( aga::ICommandList& commandList, VisibleDrawSnapshot& vi
 	}
 }
 
-void ParallelCommitDrawSnapshot( SceneRenderer& renderer, RenderViewGroup& renderViewGroup, size_t curView, VertexBuffer& primitiveIds )
+void ParallelCommitDrawSnapshot( SceneRenderer& renderer, std::vector<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
 {
-	auto& view = renderViewGroup[curView];
-	std::vector<VisibleDrawSnapshot>& visibleSnapshots = view.m_snapshots;
-
 	size_t dc = 0;
 	for ( size_t i = 0; i < visibleSnapshots.size( ); )
 	{
@@ -222,7 +215,7 @@ void ParallelCommitDrawSnapshot( SceneRenderer& renderer, RenderViewGroup& rende
 
 	if ( dc < 64 )
 	{
-		CommitDrawSnapshots( renderer, renderViewGroup, curView, primitiveIds );
+		CommitDrawSnapshots( renderer, visibleSnapshots, primitiveIds );
 	}
 	else
 	{
@@ -254,8 +247,7 @@ void ParallelCommitDrawSnapshot( SceneRenderer& renderer, RenderViewGroup& rende
 
 		for ( size_t i = 0; i < std::extent_v<decltype( deferredCommandLists )>; ++i )
 		{
-			renderer.SetRenderTarget( *deferredCommandLists[i], renderViewGroup );
-			renderer.SetViewPort( *deferredCommandLists[i], renderViewGroup );
+			renderer.ApplyOutputContext( *deferredCommandLists[i] );
 		}
 
 		taskScheduler->Run( taskGroup );

@@ -13,7 +13,6 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Private/GraphicsResource/ConstantBuffer.cpp
 	Private/GraphicsResource/DDSTexture.cpp
 	Private/GraphicsResource/DefaultConstantBuffers.cpp
-	Private/GraphicsResource/DepthStencil.cpp
 	Private/GraphicsResource/DrawSnapshot.cpp
 	Private/GraphicsResource/GlobalShaders.cpp
 	Private/GraphicsResource/GraphicsPipelineState.cpp
@@ -28,7 +27,6 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Public/GraphicsResource/ConstantBuffer.h
 	Public/GraphicsResource/DDSTexture.h
 	Public/GraphicsResource/DefaultConstantBuffers.h
-	Public/GraphicsResource/DepthStencil.h
 	Public/GraphicsResource/DrawSnapshot.h
 	Public/GraphicsResource/GlobalShaders.h
 	Public/GraphicsResource/GraphicsPipelineState.h
@@ -56,9 +54,18 @@ set (MESH_SOURCE
 	Public/Mesh/BaseMesh.h
 	Public/Mesh/CommonMeshDefine.h
 	Public/Mesh/MeshDescription.h
+	Public/Mesh/MeshDrawInfo.h
 	Public/Mesh/StaticMesh.h
 	Public/Mesh/StaticMeshResource.h
 	Public/Mesh/VertexCollection.h)
+
+set (PASS_PROCESSOR
+	Private/PassProcessor/DefaultPassProcessor.cpp
+	Private/PassProcessor/DepthWritePassProcessor.cpp
+	Private/PassProcessor/PassProcessor.cpp
+	Public/PassProcessor/DefaultPassProcessor.h
+	Public/PassProcessor/DepthWritePassProcessor.h
+	Public/PassProcessor/PassProcessor.h)
 
 set (PRECOMPILED
 	Private/Pch/stdafx.cpp
@@ -105,6 +112,7 @@ set (RENDERER_SOURCE
 source_group("GraphicsResource" FILES ${GRAPHICS_RESOURCE_SOURCE})
 source_group("Material" FILES ${MATERIAL_SOURCE})
 source_group("Mesh" FILES ${MESH_SOURCE})
+source_group("PassProcessor" FILES ${PASS_PROCESSOR})
 source_group("Proxies" FILES ${PROXIES_SOURCE})
 source_group("Renderer" FILES ${RENDERER_SOURCE})
 source_group("Scene" FILES ${RENDER_SCENE_SOURCE})
@@ -113,11 +121,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
-add_library(RenderCore SHARED 	${PRECOMPILED}
-								${CORE_SOURCE}
+add_library(RenderCore SHARED 	${CORE_SOURCE}
 								${GRAPHICS_RESOURCE_SOURCE}
 								${MATERIAL_SOURCE}
 								${MESH_SOURCE}
+								${PASS_PROCESSOR}
+								${PRECOMPILED}
 								${PROXIES_SOURCE}
 								${RENDER_SCENE_SOURCE}
 								${RENDER_UTILITY}
@@ -129,6 +138,7 @@ PUBLIC
 	./Public/Core
 	./Public/GraphicsResource
 	./Public/Material
+	./Public/PassProcessor
 	./Public/Renderer
 PRIVATE
 	../Logic/Public

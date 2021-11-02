@@ -39,6 +39,7 @@ namespace aga
 		virtual void SetScissorRects( Viewport** viewPorts, uint32 size ) = 0;
 		virtual void SetScissorRect( uint32 minX, uint32 minY, uint32 maxX, uint32 maxY ) = 0;
 
+		virtual void ClearRenderTarget( Texture* renderTarget, const float( &clearColor )[4] ) = 0;
 		virtual void ClearDepthStencil( Texture* depthStencil, float depthColor, uint8 stencilColor ) = 0;
 
 		virtual void BindShader( ComputeShader* shader ) = 0;

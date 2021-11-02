@@ -3,6 +3,7 @@
 #include "DrawSnapshot.h"
 #include "IScene.h"
 #include "LightSceneInfo.h"
+#include "PassProcessor.h"
 #include "Physics/BoxSphereBounds.h"
 #include "SceneConstantBuffers.h"
 #include "SizedTypes.h"
@@ -72,9 +73,9 @@ public:
 		return m_primitiveBounds;
 	}
 
-	[[nodiscard]] CachedDrawSnapshotInfo AddCachedDrawSnapshot( const DrawSnapshot& snapshot );
+	[[nodiscard]] CachedDrawSnapshotInfo AddCachedDrawSnapshot( RenderPass passType, const DrawSnapshot& snapshot );
 	void RemoveCachedDrawSnapshot( const CachedDrawSnapshotInfo& info );
-	SparseArray<DrawSnapshot>& CachedSnapshots( ) { return m_cachedSnapshots; }
+	SparseArray<DrawSnapshot>& CachedSnapshots( RenderPass passType ) { return m_cachedSnapshots[static_cast<uint32>( passType )]; }
 	 
 	TexturedSkyProxy* TexturedSky( )
 	{
@@ -108,7 +109,7 @@ private:
 
 	SparseArray<LightSceneInfo*> m_lights;
 
-	SparseArray<DrawSnapshot> m_cachedSnapshots;
+	SparseArray<DrawSnapshot> m_cachedSnapshots[RenderPass::Count];
 	CachedDrawSnapshotBucket m_cachedSnapshotBuckect;
 
 	SceneViewConstantBuffer m_viewConstant;

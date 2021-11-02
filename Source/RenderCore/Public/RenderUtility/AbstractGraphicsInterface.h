@@ -96,6 +96,7 @@ public:
 
 	void BindRenderTargets( aga::Texture** pRenderTargets, uint32 renderTargetCount, aga::Texture* depthStencil );
 
+	void ClearRenderTarget( aga::Texture* renderTarget, const float( &clearColor )[4] );
 	void ClearDepthStencil( aga::Texture* depthStencil, float depthColor, UINT8 stencilColor );
 
 	void Dispatch( uint32 x, uint32 y, uint32 z = 1 );

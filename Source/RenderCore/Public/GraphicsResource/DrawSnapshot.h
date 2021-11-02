@@ -16,6 +16,8 @@
 class RenderViewGroup;
 class SceneRenderer;
 
+enum class RenderPass;
+
 class PrimitiveIdVertexBufferPool
 {
 public:
@@ -160,6 +162,7 @@ public:
 
 struct CachedDrawSnapshotInfo
 {
+	RenderPass m_renderPass;
 	size_t m_snapshotIndex;
 	int32 m_snapshotBucketId;
 };
@@ -185,6 +188,6 @@ private:
 
 void PreparePipelineStateObject( DrawSnapshot& snapshot );
 void SortDrawSnapshots( std::vector<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
-void CommitDrawSnapshots( SceneRenderer& renderer, RenderViewGroup& renderViewGroup, size_t curView, VertexBuffer& primitiveIds );
+void CommitDrawSnapshots( SceneRenderer& renderer, std::vector<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
 void CommitDrawSnapshot( aga::ICommandList& commandList, VisibleDrawSnapshot& visibleSnapshot, VertexBuffer& primitiveIds );
-void ParallelCommitDrawSnapshot( SceneRenderer& renderer, RenderViewGroup& renderViewGroup, size_t curView, VertexBuffer& primitiveIds );
+void ParallelCommitDrawSnapshot( SceneRenderer& renderer, std::vector<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );

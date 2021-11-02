@@ -23,6 +23,7 @@ rem fxc /Fo GS_CascadedShadowmap.cso				/Zi /T gs_5_0 /I %IncludePath% /E main P
 
 rem fxc /Fo PS_CascadedShadowmap.cso				/Zi /T ps_5_0 /I %IncludePath% /E main Private/psCascadedShadowmap.fx
 rem fxc /Fo PS_DepthStencil.cso					/Zi /T ps_5_0 /I %IncludePath% /E main Private/psDepthStencil.fx
+fxc /Fo PS_DepthWrite.cso					/Zi /T ps_5_0 /I %IncludePath% /E main Private/PS_DepthWrite.fx
 rem fxc /Fo PS_Shadowmap.cso 					/Zi /T ps_5_0 /I %IncludePath% /E main Private/psShadowmap.fx
 fxc /Fo PS_Skybox.cso 						/Zi /T ps_5_0 /I %IncludePath% /E main Private/psSkybox.fx
 rem fxc /Fo PS_SSR.cso							/Zi /T ps_5_0 /I %IncludePath% /E main Private/psSSR.fx
@@ -42,6 +43,7 @@ rem fxc /Fo PS_DrawAtmosphere.cso				/Zi /T ps_5_0 /I %IncludePath% /E main Priv
 
 rem fxc /Fo VS_CascadedShadowmap.cso				/Zi /T vs_5_0 /I %IncludePath% /E main Private/vsCascadedShadowmap.fx
 rem fxc /Fo VS_DepthStencil.cso 					/Zi /T vs_5_0 /I %IncludePath% /E main Private/vsDepthStencil.fx
+fxc /Fo VS_DepthWrite.cso					/Zi /T vs_5_0 /I %IncludePath% /E main Private/VS_DepthWrite.fx
 rem fxc /Fo VS_ScreenRect.cso 					/Zi /T vs_5_0 /I %IncludePath% /E main Private/vsScreenRect.fx
 rem fxc /Fo VS_SSR.cso 							/Zi /T vs_5_0 /I %IncludePath% /E main Private/vsSSR.fx
 rem fxc /Fo VS_Shadowmap.cso 					/Zi /T vs_5_0 /I %IncludePath% /E main Private/vsShadowmap.fx

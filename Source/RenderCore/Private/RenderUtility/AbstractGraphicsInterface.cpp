@@ -51,6 +51,11 @@ void AbstractGraphicsInterface::BindRenderTargets( aga::Texture** pRenderTargets
 	m_aga->BindRenderTargets( pRenderTargets, renderTargetCount, depthStencil );
 }
 
+void AbstractGraphicsInterface::ClearRenderTarget( aga::Texture* renderTarget, const float( &clearColor )[4] )
+{
+	m_aga->ClearRenderTarget( renderTarget, clearColor );
+}
+
 void AbstractGraphicsInterface::ClearDepthStencil( aga::Texture* depthStencil, float depthColor, UINT8 stencilColor )
 {
 	m_aga->ClearDepthStencil( depthStencil, depthColor, stencilColor );

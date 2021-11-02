@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math/CXMFloat.h"
+#include "Mesh/MeshDrawInfo.h"
 #include "Physics/BoxSphereBounds.h"
 #include "SizedTypes.h"
 
@@ -10,7 +11,6 @@
 
 class DrawSnapshot;
 class PrimitiveSceneInfo;
-class PrimitiveSubMesh;
 class Scene;
 class ScenePrimitiveBuffer;
 class SceneViewConstantBuffer;
@@ -21,9 +21,9 @@ class PrimitiveProxy
 public:
 	virtual void CreateRenderData( ) = 0;
 	virtual void PrepareSubMeshs( ) = 0;
-	virtual void GetSubMeshElement( uint32 lod, uint32 sectionIndex, PrimitiveSubMesh& subMesh ) = 0;
-	virtual void TakeSnapshot( std::deque<DrawSnapshot>& snapshotStorage, SceneViewConstantBuffer& viewConstant, std::vector<VisibleDrawSnapshot>& drawList ) const = 0;
-	virtual std::optional<DrawSnapshot> TakeSnapshot( uint32 lod, uint32 sectionIndex, SceneViewConstantBuffer& viewConstant ) const = 0;
+	virtual void TakeSnapshot( std::deque<DrawSnapshot>& snapshotStorage, std::vector<VisibleDrawSnapshot>& drawList ) const = 0;
+	virtual std::optional<DrawSnapshot> TakeSnapshot( uint32 lod, uint32 sectionIndex ) const = 0;
+	virtual MeshDrawInfo GatherMeshDrawInfo( uint32 lod, uint32 sectionIndex ) const = 0;
 
 	CXMFLOAT4X4& WorldTransform( );
 	const CXMFLOAT4X4& WorldTransform( ) const;

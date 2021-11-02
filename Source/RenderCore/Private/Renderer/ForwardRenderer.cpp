@@ -10,12 +10,88 @@
 #include "Scene/SceneConstantBuffers.h"
 #include "Viewport.h"
 
+void ForwardRendererRenderTargets::UpdateBufferSize( uint32 width, uint32 height )
+{
+	std::pair<uint32, uint32> newBufferSize( width, height );
+	if ( m_bufferSize != newBufferSize )
+	{
+		ReleaseAll( );
+		m_bufferSize = newBufferSize;
+	}
+}
+
+aga::Texture* ForwardRendererRenderTargets::GetDepthStencil( )
+{
+	AllocDepthStencil( );
+	return m_depthStencil;
+}
+
+aga::Texture* ForwardRendererRenderTargets::GetLinearDepth( )
+{
+	AllocLinearDepth( );
+	return m_linearDepth.Get( );
+}
+
+void ForwardRendererRenderTargets::AllocDepthStencil( )
+{
+	if ( m_depthStencil == nullptr )
+	{
+		TEXTURE_TRAIT trait = {
+			m_bufferSize.first,
+			m_bufferSize.second,
+			1,
+			1,
+			0,
+			1,
+			RESOURCE_FORMAT::D24_UNORM_S8_UINT,
+			RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
+			RESOURCE_BIND_TYPE::DEPTH_STENCIL,
+			RESOURCE_MISC::NONE
+		};
+
+		m_depthStencil = aga::Texture::Create( trait );
+		EnqueueRenderTask( [depthStencil = m_depthStencil]( )
+		{
+			depthStencil->Init( );
+		} );
+	}
+}
+
+void ForwardRendererRenderTargets::AllocLinearDepth( )
+{
+	if ( m_linearDepth == nullptr )
+	{
+		TEXTURE_TRAIT trait = {
+			m_bufferSize.first,
+			m_bufferSize.second,
+			1,
+			1,
+			0,
+			1,
+			RESOURCE_FORMAT::R32_FLOAT,
+			RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
+			RESOURCE_BIND_TYPE::RENDER_TARGET | RESOURCE_BIND_TYPE::SHADER_RESOURCE,
+			0
+		};
+
+		m_linearDepth = aga::Texture::Create( trait );
+		EnqueueRenderTask( [linearDepth = m_linearDepth]( )
+		{
+			linearDepth->Init( );
+		} );
+	}
+}
+
+void ForwardRendererRenderTargets::ReleaseAll( )
+{
+	m_depthStencil = nullptr;
+	m_linearDepth = nullptr;
+}
+
 bool ForwardRenderer::PreRender( RenderViewGroup& renderViewGroup )
 {
 	auto rendertargetSize = renderViewGroup.Viewport( ).Size( );
-
-	auto& depthStencil = m_renderTargets.GetDepthStencil( );
-	depthStencil.UpdateBufferSize( rendertargetSize.first, rendertargetSize.second );
+	m_renderTargets.UpdateBufferSize( rendertargetSize.first, rendertargetSize.second );
 
 	IScene& scene = renderViewGroup.Scene( );
 	bool prepared = UpdateGPUPrimitiveInfos( *scene.GetRenderScene( ) );
@@ -38,15 +114,12 @@ bool ForwardRenderer::PreRender( RenderViewGroup& renderViewGroup )
 
 void ForwardRenderer::Render( RenderViewGroup& renderViewGroup )
 {
-	auto& depthStencil = m_renderTargets.GetDepthStencil( );
-	depthStencil.Clear( 1.f, 0 );
-
-	IScene& scene = renderViewGroup.Scene( );
-
-	auto& viewConstant = scene.SceneViewConstant( );
-
-	for ( size_t i = 0; i < renderViewGroup.Size( ); ++i )
+	for ( uint32 i = 0; i < static_cast<uint32>( renderViewGroup.Size( ) ); ++i )
 	{
+		IScene& scene = renderViewGroup.Scene( );
+
+		auto& viewConstant = scene.SceneViewConstant( );
+
 		auto& view = renderViewGroup[i];
 
 		ViewConstantBufferParameters viewConstantParam;
@@ -58,8 +131,8 @@ void ForwardRenderer::Render( RenderViewGroup& renderViewGroup )
 		m_shaderResources.AddResource( "ForwardLightConstant", view.m_forwardLighting->m_lightConstant.Resource( ) );
 		m_shaderResources.AddResource( "ForwardLight", view.m_forwardLighting->m_lightBuffer.SRV( ) );
 
-		RenderTexturedSky( scene, renderViewGroup );
-		RenderMesh( scene, renderViewGroup, i );
+		RenderDepthPass( renderViewGroup, i );
+		RenderDefaultPass( renderViewGroup, i );
 	}
 }
 
@@ -74,12 +147,48 @@ void ForwardRenderer::PostRender( RenderViewGroup& renderViewGroup )
 	}
 }
 
-void ForwardRenderer::SetRenderTarget( aga::ICommandList& commandList, RenderViewGroup& renderViewGroup )
+void ForwardRenderer::RenderDepthPass( RenderViewGroup& renderViewGroup, uint32 curView )
 {
-	auto depthStencil = m_renderTargets.GetDepthStencil( ).Texture( );
-	auto renderTarget = renderViewGroup.Viewport( ).Texture( );
+	auto renderTarget = m_renderTargets.GetLinearDepth( );
+	auto depthStencil = m_renderTargets.GetDepthStencil( );
 
-	commandList.BindRenderTargets( &renderTarget, 1, depthStencil );
+	auto[width, height] = renderViewGroup.Viewport( ).Size( );
+
+	RenderingOutputContext context = {
+		renderTarget,
+		depthStencil,
+		{ 0.f, 0.f, static_cast<float>( width ), static_cast<float>( height ), 0.f, 1.f},
+		{ 0L, 0L, static_cast<int32>( width ), static_cast<int32>( height ) }
+	};
+	StoreOuputContext( context );
+	
+	float clearColor[4] = { };
+	GraphicsInterface( ).ClearRenderTarget( renderTarget, clearColor );
+	GraphicsInterface( ).ClearDepthStencil( depthStencil, 1.f, 0 );
+
+	IScene& scene = renderViewGroup.Scene( );
+	RenderMesh( scene, RenderPass::DepthWrite, renderViewGroup[curView] );
+}
+
+void ForwardRenderer::RenderDefaultPass( RenderViewGroup& renderViewGroup, uint32 curView )
+{
+	auto renderTarget = renderViewGroup.Viewport( ).Texture( );
+	auto depthStencil = m_renderTargets.GetDepthStencil( );
+
+	auto[width, height] = renderViewGroup.Viewport( ).Size( );
+
+	RenderingOutputContext context = {
+		renderTarget,
+		depthStencil,
+		{ 0.f, 0.f, static_cast<float>( width ), static_cast<float>( height ), 0.f, 1.f},
+		{ 0L, 0L, static_cast<int32>( width ), static_cast<int32>( height ) }
+	};
+	StoreOuputContext( context );
+
+	IScene& scene = renderViewGroup.Scene( );
+	RenderTexturedSky( scene );
+
+	RenderMesh( scene, RenderPass::Default, renderViewGroup[curView] );
 }
 
 void ForwardRenderer::UpdateLightResource( RenderViewGroup& renderViewGroup )

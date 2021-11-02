@@ -1,5 +1,6 @@
 #include "constants.fxh"
 
+/*
 cbuffer PS_PASS_CONSTANT : register( b3 )
 {
 	float		g_nearPlaneDist;
@@ -9,3 +10,4 @@ cbuffer PS_PASS_CONSTANT : register( b3 )
 	float2		g_targetSize;
 	float2		g_invTargetSize;
 };
+*/

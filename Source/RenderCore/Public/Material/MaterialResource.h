@@ -13,18 +13,18 @@
 class MaterialResource
 {
 public:
-	void SetMaterial( const std::shared_ptr<Material>& material );
-	void TakeSnapShot( DrawSnapshot& snapShot );
-
-private:
-	void CreateGraphicsResource( );
-	void UpdateToGPU( );
-
 	const VertexShader* GetVertexShader( ) const;
 	VertexShader* GetVertexShader( );
 	const PixelShader* GetPixelShader( ) const;
 	PixelShader* GetPixelShader( );
 	const ShaderBase* GetShader( SHADER_TYPE type ) const;
+
+	void SetMaterial( const std::shared_ptr<Material>& material );
+	void TakeSnapshot( DrawSnapshot& snapShot, const ShaderStates& shaders );
+
+private:
+	void CreateGraphicsResource( );
+	void UpdateToGPU( );
 
 	std::shared_ptr<Material> m_material;
 

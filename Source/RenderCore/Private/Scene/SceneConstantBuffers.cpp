@@ -75,6 +75,9 @@ void FillViewConstantParam( ViewConstantBufferParameters& param, const Scene* sc
 		param.m_hemisphereLightUpperColor = CXMFLOAT4();
 		param.m_hemisphereLightUpVector = CXMFLOAT3();
 	}
+
+	param.m_nearPlaneDist = view.m_nearPlaneDistance;
+	param.m_farPlaneDist = view.m_farPlaneDistance;
 }
 
 PrimitiveSceneData::PrimitiveSceneData( const PrimitiveProxy* proxy )

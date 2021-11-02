@@ -1,46 +1,37 @@
 #pragma once
 
 #include "DrawSnapshot.h"
+#include "MeshDrawInfo.h"
+#include "PassProcessor.h"
 #include "SizedTypes.h"
 
 #include <cstddef>
+#include <optional>
 #include <vector>
 
 class PrimitiveComponent;
 class PrimitiveProxy;
 class Scene;
 
-struct PrimitiveSubMeshInfo
-{
-	uint32 m_snapshotInfoBase = 0;
-};
-
-class PrimitiveSubMesh
+class PrimitiveSubMeshInfo
 {
 public:
-	uint32& Lod( )
-	{
-		return m_lod;
-	}
+	std::optional<uint32> GetCachedDrawSnapshotInfoIndex( RenderPass passType ) const;
+	
+	void OnDrawSnapshotAdded( RenderPass passType );
 
-	const uint32 Lod( ) const
-	{
-		return m_lod;
-	}
-
-	uint32& SectionIndex( )
-	{
-		return m_sectionIndex;
-	}
-
-	const uint32 SectionIndex( ) const
-	{
-		return m_sectionIndex;
-	}
+	uint32& SnapshotInfoBase( );
+	uint32 SnapshotInfoBase( ) const;
 
 private:
-	uint32 m_lod = 0;
-	uint32 m_sectionIndex = 0;
+	uint32 m_snapshotInfoBase = 0;
+	uint32 m_passTypeMask = 0;
+};
+
+struct PrimitiveSubMesh : public MeshDrawInfo
+{
+	explicit PrimitiveSubMesh( const MeshDrawInfo& info ) : MeshDrawInfo( info ) {}
+	PrimitiveSubMesh( ) = default;
 };
 
 class PrimitiveSceneInfo
@@ -63,7 +54,7 @@ public:
 	std::vector<PrimitiveSubMesh>& SubMeshs( );
 	const std::vector<PrimitiveSubMesh>& SubMeshs( ) const;
 
-	const CachedDrawSnapshotInfo& GetCachedDrawSnapshotInfo( uint32 snapshotIndex );
+	const CachedDrawSnapshotInfo& GetCachedDrawSnapshotInfo( uint32 snapshotInfoBase );
 
 	DrawSnapshot& CachedDrawSnapshot( uint32 snapshotIndex );
 

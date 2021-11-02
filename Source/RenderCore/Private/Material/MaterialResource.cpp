@@ -5,20 +5,65 @@
 #include "SizedTypes.h"
 #include "TaskScheduler.h"
 
+const VertexShader* MaterialResource::GetVertexShader( ) const
+{
+	if ( m_material )
+	{
+		return m_material->GetVertexShader( );
+	}
+
+	return nullptr;
+}
+
+VertexShader* MaterialResource::GetVertexShader( )
+{
+	if ( m_material )
+	{
+		return m_material->GetVertexShader( );
+	}
+
+	return nullptr;
+}
+
+const PixelShader* MaterialResource::GetPixelShader( ) const
+{
+	if ( m_material )
+	{
+		return m_material->GetPixelShader( );
+	}
+
+	return nullptr;
+}
+
+PixelShader* MaterialResource::GetPixelShader( )
+{
+	if ( m_material )
+	{
+		return m_material->GetPixelShader( );
+	}
+
+	return nullptr;
+}
+
+const ShaderBase* MaterialResource::GetShader( SHADER_TYPE type ) const
+{
+	if ( m_material )
+	{
+		return m_material->GetShader( type );
+	}
+
+	return nullptr;
+}
+
 void MaterialResource::SetMaterial( const std::shared_ptr<Material>& material )
 {
 	m_material = material;
 	CreateGraphicsResource( );
 }
 
-void MaterialResource::TakeSnapShot( DrawSnapshot& snapShot )
+void MaterialResource::TakeSnapshot( DrawSnapshot& snapShot, const ShaderStates& shaders )
 {
-	GraphicsPipelineState& pipelineState = snapShot.m_pipelineState;
-
-	pipelineState.m_shaderState.m_vertexShader = GetVertexShader( );
-	pipelineState.m_shaderState.m_pixelShader = GetPixelShader( );
-
-	auto initializer = CreateShaderBindingsInitializer( pipelineState.m_shaderState );
+	auto initializer = CreateShaderBindingsInitializer( shaders );
 	snapShot.m_shaderBindings.Initialize( initializer );
 
 	// Bind constant buffer
@@ -254,54 +299,4 @@ void MaterialResource::UpdateToGPU( )
 	};
 
 	EnqueueRenderTask( Update );
-}
-
-const VertexShader* MaterialResource::GetVertexShader( ) const
-{
-	if ( m_material )
-	{
-		return m_material->GetVertexShader( );
-	}
-
-	return nullptr;
-}
-
-VertexShader* MaterialResource::GetVertexShader( )
-{
-	if ( m_material )
-	{
-		return m_material->GetVertexShader( );
-	}
-
-	return nullptr;
-}
-
-const PixelShader* MaterialResource::GetPixelShader( ) const
-{
-	if ( m_material )
-	{
-		return m_material->GetPixelShader( );
-	}
-
-	return nullptr;
-}
-
-PixelShader* MaterialResource::GetPixelShader( )
-{
-	if ( m_material )
-	{
-		return m_material->GetPixelShader( );
-	}
-
-	return nullptr;
-}
-
-const ShaderBase* MaterialResource::GetShader( SHADER_TYPE type ) const
-{
-	if ( m_material )
-	{
-		return m_material->GetShader( type );
-	}
-
-	return nullptr;
 }

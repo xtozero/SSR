@@ -97,10 +97,15 @@ void RenderingShaderResource::ClearResources( )
 	}
 }
 
-void SceneRenderer::SetViewPort( aga::ICommandList& commandList, const RenderViewGroup& renderViewGroup )
+void SceneRenderer::ApplyOutputContext( aga::ICommandList& commandList )
 {
-	const auto& viewport = renderViewGroup.Viewport( );
-	viewport.Bind( commandList );
+	aga::Texture* renderTargets = {
+		m_outputContext.m_renderTargets
+	};
+
+	commandList.BindRenderTargets( &renderTargets, 1, m_outputContext.m_depthStencil );
+	commandList.SetViewports( 1, &m_outputContext.m_viewport );
+	commandList.SetScissorRects( 1, &m_outputContext.m_scissorRects );
 }
 
 void SceneRenderer::WaitUntilRenderingIsFinish( )
@@ -108,7 +113,7 @@ void SceneRenderer::WaitUntilRenderingIsFinish( )
 	PrimitiveIdVertexBufferPool::GetInstance( ).DiscardAll( );
 }
 
-void SceneRenderer::RenderTexturedSky( IScene& scene, RenderViewGroup& renderViewGroup )
+void SceneRenderer::RenderTexturedSky( IScene& scene )
 {
 	Scene* renderScene = scene.GetRenderScene( );
 	if ( renderScene == nullptr )
@@ -129,11 +134,15 @@ void SceneRenderer::RenderTexturedSky( IScene& scene, RenderViewGroup& renderVie
 		return;
 	}
 
-	auto& viewConstant = scene.SceneViewConstant( );
+	ShaderStates shaderState{
+		{},
+		material->GetVertexShader(),
+		material->GetPixelShader(),
+	};
+
 	auto commandList = GetInterface<aga::IAga>( )->GetImmediateCommandList( );
 
-	SetRenderTarget( *commandList, renderViewGroup );
-	SetViewPort( *commandList, renderViewGroup );
+	ApplyOutputContext( *commandList );
 
 	StaticMeshLODResource& lodResource = renderData->LODResource( 0 );
 	const VertexCollection& vertexCollection = lodResource.m_vertexCollection;
@@ -145,9 +154,10 @@ void SceneRenderer::RenderTexturedSky( IScene& scene, RenderViewGroup& renderVie
 		snapshot.m_primitiveIdSlot = -1;
 		snapshot.m_indexBuffer = lodResource.m_ib;
 
-		material->TakeSnapShot( snapshot );
+		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+		pipelineState.m_shaderState = shaderState;
+		material->TakeSnapshot( snapshot, pipelineState.m_shaderState );
 
-		auto& pipelineState = snapshot.m_pipelineState;
 		auto& graphicsInterface = GraphicsInterface( );
 		if ( pipelineState.m_shaderState.m_vertexShader )
 		{
@@ -181,7 +191,7 @@ void SceneRenderer::RenderTexturedSky( IScene& scene, RenderViewGroup& renderVie
 	}
 }
 
-void SceneRenderer::RenderMesh( IScene& scene, RenderViewGroup& renderViewGroup, size_t curView )
+void SceneRenderer::RenderMesh( IScene& scene, RenderPass passType, RenderView& renderView )
 {
 	const auto& primitives = scene.Primitives( );
 	if ( primitives.Size( ) == 0 )
@@ -195,8 +205,7 @@ void SceneRenderer::RenderMesh( IScene& scene, RenderViewGroup& renderViewGroup,
 		return;
 	}
 
-	auto& viewConstant = scene.SceneViewConstant( );
-	auto& view = renderViewGroup[curView];
+	auto& snapshots = renderView.m_snapshots[static_cast<uint32>(passType)];
 
 	std::deque<DrawSnapshot> snapshotStorage;
 
@@ -211,25 +220,33 @@ void SceneRenderer::RenderMesh( IScene& scene, RenderViewGroup& renderViewGroup,
 		{
 			for ( const auto& subMeshInfo : subMeshInfos )
 			{
-				uint32 snapshotIndex = subMeshInfo.m_snapshotInfoBase;
-				const CachedDrawSnapshotInfo& info = primitive->GetCachedDrawSnapshotInfo( snapshotIndex );
-				DrawSnapshot& snapshot = primitive->CachedDrawSnapshot( snapshotIndex );
+				auto snapshotIndex = subMeshInfo.GetCachedDrawSnapshotInfoIndex( passType );
+				if ( snapshotIndex )
+				{
+					const CachedDrawSnapshotInfo& info = primitive->GetCachedDrawSnapshotInfo( *snapshotIndex );
+					DrawSnapshot& snapshot = primitive->CachedDrawSnapshot( *snapshotIndex );
 
-				VisibleDrawSnapshot& visibleSnapshot = view.m_snapshots.emplace_back( );
-				visibleSnapshot.m_snapshotBucketId = info.m_snapshotBucketId;
-				visibleSnapshot.m_drawSnapshot = &snapshot;
-				visibleSnapshot.m_primitiveId = proxy->PrimitiveId( );
-				visibleSnapshot.m_numInstance = 1;
+					VisibleDrawSnapshot& visibleSnapshot = snapshots.emplace_back( );
+					visibleSnapshot.m_snapshotBucketId = info.m_snapshotBucketId;
+					visibleSnapshot.m_drawSnapshot = &snapshot;
+					visibleSnapshot.m_primitiveId = proxy->PrimitiveId( );
+					visibleSnapshot.m_numInstance = 1;
+				}
 			}
 		}
 		else
 		{
-			proxy->TakeSnapshot( snapshotStorage, viewConstant, view.m_snapshots );
+			proxy->TakeSnapshot( snapshotStorage, snapshots );
 		}
 	}
 
+	if ( snapshots.size( ) == 0 )
+	{
+		return;
+	}
+
 	// Update invalidated resources
-	for ( auto& viewDrawSnapshot : view.m_snapshots )
+	for ( auto& viewDrawSnapshot : snapshots )
 	{
 		DrawSnapshot& snapshot = *viewDrawSnapshot.m_drawSnapshot;
 		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
@@ -237,9 +254,14 @@ void SceneRenderer::RenderMesh( IScene& scene, RenderViewGroup& renderViewGroup,
 		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 	}
 
-	VertexBuffer primitiveIds = PrimitiveIdVertexBufferPool::GetInstance( ).Alloc( static_cast<uint32>( view.m_snapshots.size( ) * sizeof( uint32 ) ) );
+	VertexBuffer primitiveIds = PrimitiveIdVertexBufferPool::GetInstance( ).Alloc( static_cast<uint32>( snapshots.size( ) * sizeof( uint32 ) ) );
 
-	SortDrawSnapshots( view.m_snapshots, primitiveIds );
+	SortDrawSnapshots( snapshots, primitiveIds );
 	// CommitDrawSnapshots( *this, renderViewGroup, curView, primitiveIds );
-	ParallelCommitDrawSnapshot( *this, renderViewGroup, curView, primitiveIds );
+	ParallelCommitDrawSnapshot( *this, snapshots, primitiveIds );
+}
+
+void SceneRenderer::StoreOuputContext( const RenderingOutputContext& context )
+{
+	m_outputContext = context;
 }
