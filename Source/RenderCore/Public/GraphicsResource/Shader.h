@@ -65,6 +65,40 @@ private:
 	RefHandle<aga::VertexShader> m_shader;
 };
 
+class GeometryShader : public ShaderBase
+{
+	DECLARE_ASSET( RENDERCORE, GeometryShader );
+public:
+	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
+
+	const std::filesystem::path& Path( ) const { return m_path; }
+	void SetPath( const std::filesystem::path& path ) { m_path = path; }
+
+	bool IsValid( ) const
+	{
+		return m_shader.Get( ) != nullptr;
+	}
+
+	GeometryShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
+	GeometryShader( ) = default;
+
+	aga::GeometryShader* Resource( );
+	const aga::GeometryShader* Resource( ) const;
+
+	friend bool operator==( const GeometryShader& lhs, const GeometryShader& rhs )
+	{
+		return static_cast<const ShaderBase&>( lhs ) == static_cast<const ShaderBase&>( rhs )
+			&& lhs.m_shader == rhs.m_shader;
+	}
+
+protected:
+	RENDERCORE_DLL virtual void PostLoadImpl( ) override;
+
+private:
+	std::filesystem::path m_path;
+	RefHandle<aga::GeometryShader> m_shader;
+};
+
 class PixelShader : public ShaderBase
 {
 	DECLARE_ASSET( RENDERCORE, PixelShader );

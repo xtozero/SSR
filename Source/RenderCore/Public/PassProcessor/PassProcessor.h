@@ -14,6 +14,7 @@ enum class RenderPass
 
 class BlendOption;
 class DepthStencilOption;
+class GeometryShader;
 class MaterialResource;
 class PixelShader;
 class PrimitiveProxy;
@@ -27,6 +28,7 @@ struct PrimitiveSubMesh;
 struct PassShader
 {
 	VertexShader* m_vertexShader = nullptr;
+	GeometryShader* m_geometryShader = nullptr;
 	PixelShader* m_pixelShader = nullptr;
 };
 

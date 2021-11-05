@@ -17,7 +17,21 @@ namespace
 		uint32 assetID = 0;
 		rAr << assetID;
 
-		if ( assetID == PixelShader::ID )
+		if ( assetID == ComputeShader::ID )
+		{
+			ComputeShader cs;
+			cs.Serialize( rAr );
+
+			return ( cs == *reinterpret_cast<const ComputeShader*>( asset ) );
+		}
+		else if ( assetID == GeometryShader::ID )
+		{
+			GeometryShader gs;
+			gs.Serialize( rAr );
+
+			return ( gs == *reinterpret_cast<const GeometryShader*>( asset ) );
+		}
+		else if ( assetID == PixelShader::ID )
 		{
 			PixelShader ps;
 			ps.Serialize( rAr );
@@ -77,6 +91,16 @@ std::optional<Products> ShaderManufacturer::Manufacture( const std::filesystem::
 	ShaderBase* shader = nullptr;
 	switch ( shaderType )
 	{
+	case D3D11_SHVER_COMPUTE_SHADER:
+	{
+		shader = new ComputeShader( std::move( byteCode ) );
+		break;
+	}
+	case D3D11_SHVER_GEOMETRY_SHADER:
+	{
+		shader = new GeometryShader( std::move( byteCode ) );
+		break;
+	}
 	case D3D11_SHVER_PIXEL_SHADER:
 	{
 		shader = new PixelShader( std::move( byteCode ) );
@@ -88,17 +112,10 @@ std::optional<Products> ShaderManufacturer::Manufacture( const std::filesystem::
 		break;
 	}
 	// Reservation
-	//case D3D11_SHVER_GEOMETRY_SHADER:
-	//	break;
 	//case D3D11_SHVER_HULL_SHADER:
 	//	break;
 	//case D3D11_SHVER_DOMAIN_SHADER:
 	//	break;
-	case D3D11_SHVER_COMPUTE_SHADER:
-	{
-		shader = new ComputeShader( std::move( byteCode ) );
-		break;
-	}
 	//case D3D11_SHVER_RESERVED0:
 	//	break;
 	default:

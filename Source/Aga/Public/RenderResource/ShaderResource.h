@@ -12,6 +12,12 @@ namespace aga
 		AGA_DLL static RefHandle<VertexShader> Create( const void* byteCode, size_t byteCodeSize );
 	};
 
+	class GeometryShader : public DeviceDependantResource
+	{
+	public:
+		AGA_DLL static RefHandle<GeometryShader> Create( const void* byteCode, size_t byteCodeSize );
+	};
+
 	class PixelShader : public DeviceDependantResource
 	{
 	public:

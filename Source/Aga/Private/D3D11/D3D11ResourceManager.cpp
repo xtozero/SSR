@@ -92,6 +92,13 @@ namespace aga
 		return newShader;
 	}
 
+	GeometryShader* CD3D11ResourceManager::CreateGeometryShader( const void* byteCode, size_t byteCodeSize )
+	{
+		auto newShader = new D3D11GeometryShader( byteCode, byteCodeSize );
+
+		return newShader;
+	}
+
 	PixelShader* CD3D11ResourceManager::CreatePixelShader( const void* byteCode, size_t byteCodeSize )
 	{
 		auto newShader = new D3D11PixelShader( byteCode, byteCodeSize );

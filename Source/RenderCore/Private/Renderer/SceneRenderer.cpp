@@ -137,6 +137,7 @@ void SceneRenderer::RenderTexturedSky( IScene& scene )
 	ShaderStates shaderState{
 		{},
 		material->GetVertexShader(),
+		nullptr,
 		material->GetPixelShader(),
 	};
 

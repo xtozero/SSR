@@ -64,6 +64,25 @@ namespace aga
 		ID3D11VertexShader* m_pResource = nullptr;
 	};
 
+	class D3D11GeometryShader : public GeometryShader, public D3D11ShaderBase
+	{
+	public:
+		ID3D11GeometryShader* Resource( ) { return m_pResource; }
+
+		D3D11GeometryShader( const void* byteCode, size_t byteCodeSize ) : D3D11ShaderBase( byteCode, byteCodeSize ) {}
+		D3D11GeometryShader( const D3D11GeometryShader& ) = delete;
+		D3D11GeometryShader( D3D11GeometryShader&& ) = default;
+		D3D11GeometryShader& operator=( const D3D11GeometryShader& ) = delete;
+		D3D11GeometryShader& operator=( D3D11GeometryShader&& ) = default;
+		~D3D11GeometryShader( ) = default;
+
+	private:
+		virtual void InitResource( ) override;
+		virtual void FreeResource( ) override;
+
+		ID3D11GeometryShader* m_pResource = nullptr;
+	};
+
 	class D3D11PixelShader : public PixelShader, public D3D11ShaderBase
 	{
 	public:

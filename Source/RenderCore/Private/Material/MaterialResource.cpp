@@ -25,6 +25,26 @@ VertexShader* MaterialResource::GetVertexShader( )
 	return nullptr;
 }
 
+const GeometryShader* MaterialResource::GetGeometryShader( ) const
+{
+	if ( m_material )
+	{
+		return m_material->GetGeometryShader( );
+	}
+
+	return nullptr;
+}
+
+GeometryShader* MaterialResource::GetGeometryShader( )
+{
+	if ( m_material )
+	{
+		return m_material->GetGeometryShader( );
+	}
+
+	return nullptr;
+}
+
 const PixelShader* MaterialResource::GetPixelShader( ) const
 {
 	if ( m_material )
@@ -79,7 +99,7 @@ void MaterialResource::TakeSnapshot( DrawSnapshot& snapShot, const ShaderStates&
 	auto& graphicsInterface = GraphicsInterface( );
 
 	// Bind texture and sampler
-	auto shaderTypes = { SHADER_TYPE::VS, SHADER_TYPE::PS };
+	auto shaderTypes = { SHADER_TYPE::VS, SHADER_TYPE::GS, SHADER_TYPE::PS };
 	for ( auto shaderType : shaderTypes )
 	{
 		auto shader = GetShader( shaderType );
@@ -140,6 +160,7 @@ void MaterialResource::CreateGraphicsResource( )
 
 	auto shaderTypes = {
 		static_cast<uint32>( SHADER_TYPE::VS ), 
+		static_cast<uint32>( SHADER_TYPE::GS ),
 		static_cast<uint32>( SHADER_TYPE::PS ) };
 
 	uint32 materialCbSlotNumbers[MAX_SHADER_TYPE<uint32>];

@@ -96,7 +96,7 @@ struct ShaderStates
 	// Reserved
 	// HullShadaer m_hullShader;
 	// DomainShader m_domainShader;
-	// GeometryShader m_geometryShader;
+	GeometryShader* m_geometryShader = nullptr;
 	PixelShader* m_pixelShader = nullptr;
 };
 
@@ -107,6 +107,11 @@ inline aga::ShaderBindingsInitializer CreateShaderBindingsInitializer( const Sha
 	if ( state.m_vertexShader && state.m_vertexShader->IsValid( ) )
 	{
 		initializer[SHADER_TYPE::VS] = &state.m_vertexShader->ParameterInfo( );
+	}
+
+	if ( state.m_geometryShader && state.m_geometryShader->IsValid( ) )
+	{
+		initializer[SHADER_TYPE::GS] = &state.m_geometryShader->ParameterInfo( );
 	}
 
 	if ( state.m_pixelShader && state.m_pixelShader->IsValid( ) )

@@ -97,6 +97,7 @@ std::optional<DrawSnapshot> StaticMeshPrimitiveProxy::TakeSnapshot( uint32 lod, 
 	if ( materialResource )
 	{
 		pipelineState.m_shaderState.m_vertexShader = materialResource->GetVertexShader( );
+		pipelineState.m_shaderState.m_geometryShader = materialResource->GetGeometryShader( );
 		pipelineState.m_shaderState.m_pixelShader = materialResource->GetPixelShader( );
 
 		materialResource->TakeSnapshot( snapshot, pipelineState.m_shaderState );

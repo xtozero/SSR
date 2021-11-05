@@ -153,6 +153,9 @@ public:
 	RENDERCORE_DLL void SetVertexShader( const std::shared_ptr<VertexShader>& vertexshader );
 	const VertexShader* GetVertexShader( ) const;
 	VertexShader* GetVertexShader( );
+	RENDERCORE_DLL void SetGeometryShader( const std::shared_ptr<GeometryShader>& geometryShader );
+	const GeometryShader* GetGeometryShader( ) const;
+	GeometryShader* GetGeometryShader( );
 	RENDERCORE_DLL void SetPixelShader( const std::shared_ptr<PixelShader>& pixelShader );
 	const PixelShader* GetPixelShader( ) const;
 	PixelShader* GetPixelShader( );
@@ -176,6 +179,7 @@ private:
 
 	std::string m_name;
 	std::shared_ptr<VertexShader> m_vertexShader = nullptr;
+	std::shared_ptr<GeometryShader> m_geometryShader = nullptr;
 	std::shared_ptr<PixelShader> m_pixelShader = nullptr;
 	std::map<std::string, std::unique_ptr<MaterialProperty>> m_properties;
 	std::map<std::string, std::shared_ptr<SamplerOption>> m_samplers;

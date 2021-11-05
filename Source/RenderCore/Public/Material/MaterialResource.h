@@ -15,6 +15,8 @@ class MaterialResource
 public:
 	const VertexShader* GetVertexShader( ) const;
 	VertexShader* GetVertexShader( );
+	const GeometryShader* GetGeometryShader( ) const;
+	GeometryShader* GetGeometryShader( );
 	const PixelShader* GetPixelShader( ) const;
 	PixelShader* GetPixelShader( );
 	const ShaderBase* GetShader( SHADER_TYPE type ) const;

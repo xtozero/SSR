@@ -16,6 +16,7 @@ namespace aga
 	class Buffer;
 	class ComputeShader;
 	class DepthStencilState;
+	class GeometryShader;
 	class PipelineState;
 	class PipelineStateInitializer;
 	class PixelShader;
@@ -38,6 +39,7 @@ namespace aga
 		virtual VertexLayout* CreateVertexLayout( const VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, uint32 size ) = 0;
 		virtual ComputeShader* CreateComputeShader( const void* byteCode, size_t byteCodeSize ) = 0;
 		virtual VertexShader* CreateVertexShader( const void* byteCode, size_t byteCodeSize ) = 0;
+		virtual GeometryShader* CreateGeometryShader( const void* byteCode, size_t byteCodeSize ) = 0;
 		virtual PixelShader* CreatePixelShader( const void* byteCode, size_t byteCodeSize ) = 0;
 
 		virtual BlendState* CreateBlendState( const BLEND_STATE_TRAIT& trait ) = 0;

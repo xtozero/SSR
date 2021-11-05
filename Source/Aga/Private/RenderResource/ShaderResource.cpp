@@ -11,6 +11,11 @@ namespace aga
 		return GetInterface<IResourceManager>( )->CreateVertexShader( byteCode, byteCodeSize );
 	}
 
+	RefHandle<GeometryShader> aga::GeometryShader::Create( const void* byteCode, size_t byteCodeSize )
+	{
+		return GetInterface<IResourceManager>( )->CreateGeometryShader( byteCode, byteCodeSize );
+	}
+
 	RefHandle<PixelShader> PixelShader::Create( const void* byteCode, size_t byteCodeSize )
 	{
 		return GetInterface<IResourceManager>( )->CreatePixelShader( byteCode, byteCodeSize );

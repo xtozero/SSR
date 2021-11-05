@@ -20,6 +20,7 @@ std::optional<DrawSnapshot> DefaultPassProcessor::Process( const PrimitiveProxy&
 
 	PassShader passShader{
 		material.GetVertexShader( ),
+		nullptr,
 		material.GetPixelShader( )
 	};
 

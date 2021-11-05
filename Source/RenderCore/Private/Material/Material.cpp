@@ -343,6 +343,7 @@ const ShaderBase* Material::GetShader( SHADER_TYPE type ) const
 	case SHADER_TYPE::DS:
 		break;
 	case SHADER_TYPE::GS:
+		return m_geometryShader.get( );
 		break;
 	case SHADER_TYPE::PS:
 		return m_pixelShader.get( );
@@ -371,6 +372,21 @@ const VertexShader* Material::GetVertexShader( ) const
 VertexShader* Material::GetVertexShader( )
 {
 	return m_vertexShader.get( );
+}
+
+void Material::SetGeometryShader( const std::shared_ptr<GeometryShader>& geometryShader )
+{
+	m_geometryShader = geometryShader;
+}
+
+const GeometryShader* Material::GetGeometryShader( ) const
+{
+	return m_geometryShader.get( );
+}
+
+GeometryShader* Material::GetGeometryShader( )
+{
+	return m_geometryShader.get( );
 }
 
 void Material::SetPixelShader( const std::shared_ptr<PixelShader>& pixelShader )

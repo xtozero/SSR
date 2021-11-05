@@ -62,6 +62,37 @@ void VertexShader::PostLoadImpl( )
 	} );
 }
 
+REGISTER_ASSET( GeometryShader );
+RENDERCORE_DLL void GeometryShader::Serialize( Archive& ar )
+{
+	if ( ar.IsWriteMode( ) )
+	{
+		ar << ID;
+	}
+
+	ShaderBase::Serialize( ar );
+}
+
+aga::GeometryShader* GeometryShader::Resource( )
+{
+	return m_shader.Get( );
+}
+
+const aga::GeometryShader* GeometryShader::Resource( ) const
+{
+	return m_shader.Get( );
+}
+
+RENDERCORE_DLL void GeometryShader::PostLoadImpl( )
+{
+	m_shader = aga::GeometryShader::Create( m_byteCode.Data( ), m_byteCode.Size( ) );
+	EnqueueRenderTask( [shader = m_shader]( )
+	{
+		shader->Init( );
+	} );
+}
+
+
 REGISTER_ASSET( PixelShader );
 void PixelShader::Serialize( Archive& ar )
 {

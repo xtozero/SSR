@@ -54,6 +54,7 @@ std::optional<DrawSnapshot> DepthWritePassProcessor::Process( const PrimitivePro
 
 	PassShader passShader{
 		DepthWriteVS( ).Shader( ),
+		nullptr,
 		DepthWritePS( ).Shader( )
 	};
 

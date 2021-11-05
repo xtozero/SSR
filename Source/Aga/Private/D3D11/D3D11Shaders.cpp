@@ -179,6 +179,21 @@ namespace aga
 		}
 	}
 
+	void D3D11GeometryShader::InitResource( )
+	{
+		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device( ).CreateGeometryShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
+		assert( result );
+	}
+
+	void D3D11GeometryShader::FreeResource( )
+	{
+		if ( m_pResource )
+		{
+			m_pResource->Release( );
+			m_pResource = nullptr;
+		}
+	}
+
 	void D3D11PixelShader::InitResource( )
 	{
 		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device( ).CreatePixelShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
@@ -208,5 +223,4 @@ namespace aga
 			m_pResource = nullptr;
 		}
 	}
-
 }

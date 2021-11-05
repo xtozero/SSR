@@ -91,6 +91,7 @@ namespace aga
 				case SHADER_TYPE::DS:
 					break;
 				case SHADER_TYPE::GS:
+					context.GSSetConstantBuffers( slot, 1, &buffer );
 					break;
 				case SHADER_TYPE::PS:
 					context.PSSetConstantBuffers( slot, 1, &buffer );
@@ -118,6 +119,7 @@ namespace aga
 				case SHADER_TYPE::DS:
 					break;
 				case SHADER_TYPE::GS:
+					context.GSSetShaderResources( slot, 1, &rawSrv );
 					break;
 				case SHADER_TYPE::PS:
 					context.PSSetShaderResources( slot, 1, &rawSrv );
@@ -163,6 +165,7 @@ namespace aga
 				case SHADER_TYPE::DS:
 					break;
 				case SHADER_TYPE::GS:
+					context.GSSetSamplers( slot, 1, &samplerState );
 					break;
 				case SHADER_TYPE::PS:
 					context.PSSetSamplers( slot, 1, &samplerState );

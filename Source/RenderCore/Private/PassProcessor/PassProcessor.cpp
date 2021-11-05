@@ -25,6 +25,7 @@ std::optional<DrawSnapshot> IPassProcessor::BuildDrawSnapshot( const PrimitiveSu
 
 	GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 	pipelineState.m_shaderState.m_vertexShader = passShader.m_vertexShader;
+	pipelineState.m_shaderState.m_geometryShader = passShader.m_geometryShader;
 	pipelineState.m_shaderState.m_pixelShader = passShader.m_pixelShader;
 
 	auto materialResource = subMesh.m_material;

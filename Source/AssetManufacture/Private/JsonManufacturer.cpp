@@ -244,7 +244,12 @@ namespace
 					case SHADER_TYPE::DS:
 						break;
 					case SHADER_TYPE::GS:
+					{
+						auto gs = std::make_shared<GeometryShader>( );
+						gs->SetPath( shaderPath->AsString( ) );
+						material->SetGeometryShader( gs );
 						break;
+					}
 					case SHADER_TYPE::PS:
 					{
 						auto ps = std::make_shared<PixelShader>( );
