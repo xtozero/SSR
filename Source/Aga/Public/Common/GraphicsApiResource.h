@@ -27,6 +27,7 @@ constexpr T MAX_SHADER_TYPE = static_cast<T>( SHADER_TYPE::Count );
 
 static constexpr uint32 MAX_VERTEX_LAYOUT_SIZE = 32;
 static constexpr uint32 MAX_VERTEX_SLOT = 32;
+static constexpr uint32 MAX_RENDER_TARGET = 8;
 
 inline constexpr char* ToString( SHADER_TYPE shaderType )
 {
@@ -680,7 +681,7 @@ struct BLEND_STATE_TRAIT
 {
 	bool m_alphaToConverageEnable;
 	bool m_independentBlendEnable;
-	RENDER_TARGET_BLEND_TRAIT m_renderTarget[8];
+	RENDER_TARGET_BLEND_TRAIT m_renderTarget[MAX_RENDER_TARGET];
 	uint32 m_sampleMask;
 };
 

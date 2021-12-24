@@ -74,6 +74,7 @@ private:
 enum class VertexStreamLayoutType
 {
 	Default = 0,
+	PositionNormal,
 	PositionOnly,
 };
 
@@ -100,8 +101,9 @@ private:
 	std::vector<VertexStream> m_streams;
 	mutable std::vector<VertexBuffer> m_vbs;
 
-	VertexStreamLayout m_defaultLayout;
 	VertexStreamLayout m_positionLayout;
+	VertexStreamLayout m_positionNormalLayout;
+	VertexStreamLayout m_defaultLayout;
 };
 
 VertexCollection BuildFromMeshDescription( const MeshDescription& desc );

@@ -3,9 +3,10 @@
 #include "DrawSnapshot.h"
 #include "GraphicsApiResource.h"
 #include "PassProcessor.h"
+#include "Scene/ShadowInfo.h"
 #include "Texture.h"
 
-#include <vector>
+#include <map>
 #include <string>
 
 namespace aga
@@ -35,7 +36,7 @@ private:
 
 struct RenderingOutputContext
 {
-	RefHandle<aga::Texture> m_renderTargets;
+	RefHandle<aga::Texture> m_renderTargets[MAX_RENDER_TARGET] = {};
 	RefHandle<aga::Texture> m_depthStencil;
 
 	CubeArea<float> m_viewport;
@@ -45,11 +46,9 @@ struct RenderingOutputContext
 class SceneRenderer
 {
 public:
-	virtual bool PreRender( RenderViewGroup& renderViewGroup ) = 0;
+	virtual bool PreRender( RenderViewGroup& renderViewGroup );
 	virtual void Render( RenderViewGroup& renderViewGroup ) = 0;
-	virtual void PostRender( RenderViewGroup& renderViewGroup ) = 0;
-
-	virtual void RenderDepthPass( RenderViewGroup& renderViewGroup, uint32 curView ) = 0;
+	virtual void PostRender( RenderViewGroup& renderViewGroup );
 
 	virtual void RenderDefaultPass( RenderViewGroup& renderViewGroup, uint32 curView ) = 0;
 
@@ -58,11 +57,21 @@ public:
 	static void WaitUntilRenderingIsFinish( );
 
 protected:
+	void InitDynamicShadows( RenderViewGroup& renderViewGroup );
+	void ClassifyShadowCasterAndReceiver( IScene& scene, const std::vector<ShadowInfo*>& shadows );
+	void SetupShadow( );
+	void AllocateShadowMaps( );
+	void AllocateCascadeShadowMaps( const std::vector<ShadowInfo*>& shadows );
+
+	void RenderShadowDepthPass( );
 	void RenderTexturedSky( IScene& scene );
 	void RenderMesh( IScene& scene, RenderPass passType, RenderView& renderView );
+	void RenderShadow( );
 
 	void StoreOuputContext( const RenderingOutputContext& context );
 
 	RenderingShaderResource m_shaderResources;
 	RenderingOutputContext m_outputContext;
+
+	std::vector<ShadowInfo> m_shadowInfos;
 };

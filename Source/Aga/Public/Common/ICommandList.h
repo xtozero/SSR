@@ -18,8 +18,8 @@ namespace aga
 		
 		virtual void BindPipelineState( PipelineState* pipelineState ) = 0;
 		virtual void BindShaderResources( const ShaderBindings& shaderBindings ) = 0;
-		virtual void Draw( uint32 indexCount, uint32 startIndexLocation, uint32 baseVertexLocation ) = 0;
-		virtual void DrawInstancing( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) = 0;
+		virtual void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation ) = 0;
+		virtual void DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) = 0;
 
 		virtual void SetViewports( uint32 count, const CubeArea<float>* areas ) = 0;
 		virtual void SetScissorRects( uint32 count, const RectangleArea<int32>* areas ) = 0;

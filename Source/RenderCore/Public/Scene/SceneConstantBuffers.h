@@ -8,7 +8,7 @@ class PrimitiveProxy;
 class Scene;
 struct RenderView;
 
-struct alignas(16) ViewConstantBufferParameters
+struct ViewConstantBufferParameters
 {
 	CXMFLOAT4X4 m_viewMatrix;
 	CXMFLOAT4X4 m_projMatrix;
@@ -32,7 +32,6 @@ void FillViewConstantParam( ViewConstantBufferParameters& param, const Scene* sc
 class SceneViewConstantBuffer
 {
 public:
-	void Initialize( );
 	void Update( const ViewConstantBufferParameters& param );
 
 	aga::Buffer* Resource( );

@@ -53,6 +53,11 @@ VertexBuffer PrimitiveIdVertexBufferPool::Alloc( uint32 require )
 	std::optional<size_t> bestMatchIdx;
 	for ( size_t i = 0; i < m_entries.size( ); ++i )
 	{
+		if ( ( m_entries[i].m_lastDiscardId == m_discardId ) || ( m_entries[i].m_vertexBuffer.Size( ) < require ) )
+		{
+			continue;
+		}
+
 		if ( ( bestMatchIdx.has_value( ) == false ) ||
 			( m_entries[i].m_vertexBuffer.Size( ) < m_entries[*bestMatchIdx].m_vertexBuffer.Size() ) )
 		{
@@ -109,6 +114,7 @@ void PreparePipelineStateObject( DrawSnapshot& snapshot )
 	aga::PipelineStateInitializer initializer
 	{
 		shaderState.m_vertexShader ? shaderState.m_vertexShader->Resource( ) : nullptr,
+		shaderState.m_geometryShader ? shaderState.m_geometryShader->Resource( ) : nullptr,
 		shaderState.m_pixelShader ? shaderState.m_pixelShader->Resource( ) : nullptr,
 		pipelineState.m_blendState.Resource( ),
 		pipelineState.m_rasterizerState.Resource( ),
@@ -194,13 +200,13 @@ void CommitDrawSnapshot( aga::ICommandList& commandList, VisibleDrawSnapshot& vi
 	// Set shader resources
 	commandList.BindShaderResources( snapshot.m_shaderBindings );
 
-	if ( visibleSnapshot.m_numInstance > 1 )
+	if ( indexBuffer )
 	{
-		commandList.DrawInstancing( snapshot.m_indexCount, visibleSnapshot.m_numInstance, snapshot.m_startIndexLocation, snapshot.m_baseVertexLocation );
+		commandList.DrawIndexedInstanced( snapshot.m_count, visibleSnapshot.m_numInstance, snapshot.m_startIndexLocation, snapshot.m_baseVertexLocation );
 	}
 	else
 	{
-		commandList.Draw( snapshot.m_indexCount, snapshot.m_startIndexLocation, snapshot.m_baseVertexLocation );
+		commandList.DrawInstanced( snapshot.m_count, visibleSnapshot.m_numInstance, snapshot.m_baseVertexLocation );
 	}
 }
 

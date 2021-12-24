@@ -81,11 +81,8 @@ void MaterialResource::SetMaterial( const std::shared_ptr<Material>& material )
 	CreateGraphicsResource( );
 }
 
-void MaterialResource::TakeSnapshot( DrawSnapshot& snapShot, const ShaderStates& shaders )
+void MaterialResource::TakeSnapshot( DrawSnapshot& snapShot )
 {
-	auto initializer = CreateShaderBindingsInitializer( shaders );
-	snapShot.m_shaderBindings.Initialize( initializer );
-
 	// Bind constant buffer
 	for ( auto& materialConstantBuffer : m_materialConstantBuffers )
 	{

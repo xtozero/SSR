@@ -1,9 +1,8 @@
 #pragma once
 
-#include "Aaboundingbox.h"
 #include "Math/Util.h"
 
-class CFrustum
+class Frustum
 {
 public:
 	enum
@@ -13,7 +12,7 @@ public:
 		Z_MAX = 1 << 2,
 	};
 
-	explicit CFrustum( const CXMFLOAT4X4& projectionMat )
+	explicit Frustum( const CXMFLOAT4X4& projectionMat )
 	{
 		CXMFLOAT4 column[4] = {
 			{ projectionMat( 0, 0 ), projectionMat( 1, 0 ), projectionMat( 2, 0 ), projectionMat( 3, 0 ) },

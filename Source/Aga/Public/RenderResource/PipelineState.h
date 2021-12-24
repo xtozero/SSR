@@ -42,13 +42,14 @@ namespace aga
 	public:
 		friend bool operator<( const PipelineStateInitializer& lhs, const PipelineStateInitializer& rhs )
 		{
-			auto lVariable = std::tie( lhs.m_vertexShader, lhs.m_piexlShader, lhs.m_blendState, lhs.m_rasterizerState, lhs.m_depthStencilState, lhs.m_vertexLayout, lhs.m_primitiveType );
-			auto rVariable = std::tie( rhs.m_vertexShader, rhs.m_piexlShader, rhs.m_blendState, rhs.m_rasterizerState, rhs.m_depthStencilState, rhs.m_vertexLayout, rhs.m_primitiveType );
+			auto lVariable = std::tie( lhs.m_vertexShader, lhs.m_geometryShader, lhs.m_piexlShader, lhs.m_blendState, lhs.m_rasterizerState, lhs.m_depthStencilState, lhs.m_vertexLayout, lhs.m_primitiveType );
+			auto rVariable = std::tie( rhs.m_vertexShader, rhs.m_geometryShader, rhs.m_piexlShader, rhs.m_blendState, rhs.m_rasterizerState, rhs.m_depthStencilState, rhs.m_vertexLayout, rhs.m_primitiveType );
 
 			return lVariable < rVariable;
 		}
 
 		VertexShader* m_vertexShader = nullptr;
+		GeometryShader* m_geometryShader = nullptr;
 		PixelShader* m_piexlShader = nullptr;
 		BlendState* m_blendState = nullptr;
 		RasterizerState* m_rasterizerState = nullptr;

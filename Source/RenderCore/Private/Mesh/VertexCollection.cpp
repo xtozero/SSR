@@ -53,8 +53,9 @@ void VertexStreamLayout::AddLayout( const char* name, uint32 index, RESOURCE_FOR
 void VertexCollection::Serialize( Archive& ar )
 {
 	ar << m_streams;
-	ar << m_defaultLayout;
 	ar << m_positionLayout;
+	ar << m_positionNormalLayout;
+	ar << m_defaultLayout;
 }
 
 void VertexCollection::InitResource( )
@@ -86,6 +87,10 @@ void VertexCollection::InitLayout( const VERTEX_LAYOUT_TRAIT* trait, uint32 coun
 	{
 		m_positionLayout = SetupVertexLayout( trait, count );
 	}
+	else if ( layoutType == VertexStreamLayoutType::PositionNormal )
+	{
+		m_positionNormalLayout = SetupVertexLayout( trait, count );
+	}
 	else
 	{
 		m_defaultLayout = SetupVertexLayout( trait, count );
@@ -98,6 +103,10 @@ const VertexStreamLayout& VertexCollection::VertexLayout( VertexStreamLayoutType
 	{
 		return m_positionLayout;
 	}
+	else if ( layoutType == VertexStreamLayoutType::PositionNormal )
+	{
+		return m_positionNormalLayout;
+	}
 
 	return m_defaultLayout;
 }
@@ -108,6 +117,10 @@ void VertexCollection::Bind( VertexBufferBundle& bundle, VertexStreamLayoutType 
 	if ( layoutType == VertexStreamLayoutType::PositionOnly )
 	{
 		layout = &m_positionLayout;
+	}
+	else if ( layoutType == VertexStreamLayoutType::PositionNormal )
+	{
+		layout = &m_positionNormalLayout;
 	}
 	else
 	{
@@ -201,7 +214,7 @@ VertexCollection BuildFromMeshDescription( const MeshDescription& desc )
 		collection.InitLayout( trait, traitSize, VertexStreamLayoutType::PositionOnly );
 	}
 
-	// Default
+	// Normal
 	{
 		if ( normal.size( ) > 0 )
 		{
@@ -217,14 +230,20 @@ VertexCollection BuildFromMeshDescription( const MeshDescription& desc )
 			collection.AddStream( std::move( normalStream ) );
 
 			trait[traitSize++] = {
-			false,
-			0,
-			RESOURCE_FORMAT::R32G32B32_FLOAT,
-			slot++,
-			0,
-			"NORMAL"
+				false,
+				0,
+				RESOURCE_FORMAT::R32G32B32_FLOAT,
+				slot++,
+				0,
+				"NORMAL"
 			};
+
+			collection.InitLayout( trait, traitSize, VertexStreamLayoutType::PositionNormal );
 		}
+	}
+
+	// Default
+	{
 		
 		if ( texCoord.size( ) > 0 )
 		{

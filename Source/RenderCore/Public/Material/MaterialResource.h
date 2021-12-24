@@ -22,7 +22,7 @@ public:
 	const ShaderBase* GetShader( SHADER_TYPE type ) const;
 
 	void SetMaterial( const std::shared_ptr<Material>& material );
-	void TakeSnapshot( DrawSnapshot& snapShot, const ShaderStates& shaders );
+	void TakeSnapshot( DrawSnapshot& snapShot );
 
 private:
 	void CreateGraphicsResource( );

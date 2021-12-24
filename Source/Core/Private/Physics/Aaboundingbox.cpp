@@ -99,18 +99,18 @@ float CAaboundingbox::Intersect( const CRay& ray ) const
 	return RayAndBox( ray.GetOrigin( ), ray.GetDir( ), m_max, m_min );
 }
 
-uint32 CAaboundingbox::Intersect( const CFrustum& frustum ) const
+uint32 CAaboundingbox::Intersect( const Frustum& frustum ) const
 {
 	using namespace DirectX;
 
-	const CFrustum::LookUpTable& lut = frustum.GetVertexLUT( );
+	const Frustum::LookUpTable& lut = frustum.GetVertexLUT( );
 	const CXMFLOAT4( &planes )[6] = frustum.GetPlanes( );
 
 	uint32 result = COLLISION::INSIDE;
 	for ( uint32 i = 0; i < 6; ++i )
 	{
-		CXMFLOAT3 p( ( lut[i] & CFrustum::X_MAX ) ? m_max.x : m_min.x, ( lut[i] & CFrustum::Y_MAX ) ? m_max.y : m_min.y, ( lut[i] & CFrustum::Z_MAX ) ? m_max.z : m_min.z );
-		CXMFLOAT3 n( ( lut[i] & CFrustum::X_MAX ) ? m_min.x : m_max.x, ( lut[i] & CFrustum::Y_MAX ) ? m_min.y : m_max.y, ( lut[i] & CFrustum::Z_MAX ) ? m_min.z : m_max.z );
+		CXMFLOAT3 p( ( lut[i] & Frustum::X_MAX ) ? m_max.x : m_min.x, ( lut[i] & Frustum::Y_MAX ) ? m_max.y : m_min.y, ( lut[i] & Frustum::Z_MAX ) ? m_max.z : m_min.z );
+		CXMFLOAT3 n( ( lut[i] & Frustum::X_MAX ) ? m_min.x : m_max.x, ( lut[i] & Frustum::Y_MAX ) ? m_min.y : m_max.y, ( lut[i] & Frustum::Z_MAX ) ? m_min.z : m_max.z );
 
 		if ( XMVectorGetX( XMPlaneDotCoord( planes[i], p ) ) < 0 )
 		{

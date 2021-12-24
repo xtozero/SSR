@@ -14,8 +14,8 @@ namespace aga
 		virtual void BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset ) override;
 		virtual void BindPipelineState( PipelineState* pipelineState ) override;
 		virtual void BindShaderResources( const ShaderBindings& shaderBindings ) override;
-		virtual void Draw( uint32 indexCount, uint32 startIndexLocation, uint32 baseVertexLocation ) override;
-		virtual void DrawInstancing( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) override;
+		virtual void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation ) override;
+		virtual void DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) override;
 
 		virtual void SetViewports( uint32 count, const CubeArea<float>* area ) override;
 		virtual void SetScissorRects( uint32 count, const RectangleArea<int32>* area ) override;
@@ -32,8 +32,8 @@ namespace aga
 		virtual void BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset ) override;
 		virtual void BindPipelineState( PipelineState* pipelineState ) override;
 		virtual void BindShaderResources( const ShaderBindings& shaderBindings ) override;
-		virtual void Draw( uint32 indexCount, uint32 startIndexLocation, uint32 baseVertexLocation ) override;
-		virtual void DrawInstancing( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) override;
+		virtual void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation ) override;
+		virtual void DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) override;
 
 		virtual void SetViewports( uint32 count, const CubeArea<float>* areas ) override;
 		virtual void SetScissorRects( uint32 count, const RectangleArea<int32>* areas ) override;

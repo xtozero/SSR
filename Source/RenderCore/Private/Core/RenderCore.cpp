@@ -14,6 +14,8 @@ class RenderCore : public IRenderCore
 {
 public:
 	virtual bool BootUp( ) override;
+	virtual bool IsReady( ) const override;
+
 	virtual void HandleDeviceLost( ) override;
 	virtual void AppSizeChanged( ) override;
 
@@ -27,6 +29,8 @@ public:
 private:
 	void Shutdown( );
 	SceneRenderer* FindAndCreateSceneRenderer( const RenderViewGroup& renderViewGroup );
+
+	mutable bool m_isReady = false;
 
 	HMODULE m_hAga;
 	aga::IAga* m_aga = nullptr;
@@ -67,6 +71,16 @@ bool RenderCore::BootUp( )
 	GraphicsInterface().BootUp( m_aga );
 
 	return true;
+}
+
+bool RenderCore::IsReady( ) const
+{
+	if ( m_isReady == false )
+	{
+		m_isReady = GlobalShader::GetInstance( ).IsReady( );
+	}
+
+	return m_isReady;
 }
 
 void RenderCore::HandleDeviceLost( )

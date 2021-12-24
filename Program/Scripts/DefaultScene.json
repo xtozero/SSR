@@ -12,7 +12,8 @@
 				"Class": "directional_light",
 				"Direction": [ -1, -1, 0 ],
 				"Diffuse": [ 0.5, 0.5, 0.5, 1 ],
-				"Specular": [ 0.8, 0.8, 0.8, 1 ]
+				"Specular": [ 0.8, 0.8, 0.8, 1 ],
+				"CastShadow": true
 			}
 		},
 		{
@@ -49,7 +50,7 @@
 				"Name": "sphere",
 				"Model": "./Assets/Models/Obj/shape_sphere.asset",
 				"RenderOption": "./Assets/RenderOptions/RO_Default.asset",
-				"Position": [ -26.409266, -4.787085, -10.000000 ],
+				"Position": [ -26.409266, -4.487085, -10.000000 ],
 				"Scale": [ 10, 10, 10 ],
 				"ColliderType": "Sphere",
 				"Mass": 10
@@ -155,39 +156,6 @@
 				"Scale": [ 10, 10, 10 ],
 				"ColliderType": "Box",
 				"Mass": 10
-			}
-		},
-		{
-			"Object": {
-				"Class": "displaySRVHelper",
-				"Name": "depthStencilViewer",
-				"RenderOption": "./Assets/RenderOptions/RO_DisplayDepth.asset",
-				"Position": [ 150, 115, 0 ],
-				"TextureName": "DebugDepthStencil",
-				"Width": 300,
-				"Height": 230
-			}
-		},
-		{
-			"Object": {
-				"Class": "displaySRVHelper",
-				"Name": "renderTargetViewer",
-				"RenderOption": "./Assets/RenderOptions/RO_DisplayRenderTarget.asset",
-				"Position": [ 150, 115, 0 ],
-				"TextureName": "DuplicateFrameBuffer",
-				"Width": 300,
-				"Height": 230
-			}
-		},
-		{
-			"Object": {
-				"Class": "displaySRVHelper",
-				"Name": "shadowmapViewer",
-				"RenderOption": "./Assets/RenderOptions/RO_DisplayRenderTarget.asset",
-				"Position": [ 150, 115, 0 ],
-				"TextureName": "DebugShadowMap",
-				"Width": 300,
-				"Height": 230
 			}
 		}
 	]

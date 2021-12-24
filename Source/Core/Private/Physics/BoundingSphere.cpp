@@ -74,7 +74,7 @@ float BoundingSphere::Intersect( const CRay& ray ) const
 	return RayAndSphere( ray.GetOrigin( ), ray.GetDir( ), m_origin, m_radius );
 }
 
-uint32 BoundingSphere::Intersect( const CFrustum& frustum ) const
+uint32 BoundingSphere::Intersect( const Frustum& frustum ) const
 {
 	const CXMFLOAT4( &planes )[6] = frustum.GetPlanes( );
 
@@ -103,7 +103,7 @@ float BoundingSphere::CalcGrowth( const BoundingSphere& sphere ) const
 	return 1.33333f * XM_PI * radiusDiff * radiusDiff * radiusDiff;
 }
 
-bool BoundingSphere::Intersect( const CFrustum& frustum, const CXMFLOAT3& sweepDir )
+bool BoundingSphere::Intersect( const Frustum& frustum, const CXMFLOAT3& sweepDir )
 {
 	float displacement[12];
 	uint32 count = 0;

@@ -48,7 +48,7 @@ DepthWritePS::DepthWritePS( )
 	m_shader = static_cast<PixelShader*>( GetGlobalShader<DepthWritePS>( ) );
 }
 
-std::optional<DrawSnapshot> DepthWritePassProcessor::Process( const PrimitiveProxy& proxy, const PrimitiveSubMesh& subMesh )
+std::optional<DrawSnapshot> DepthWritePassProcessor::Process( const PrimitiveSubMesh& subMesh )
 {
 	assert( IsInRenderThread( ) );
 
@@ -70,7 +70,6 @@ std::optional<DrawSnapshot> DepthWritePassProcessor::Process( const PrimitivePro
 		{
 			passRenderOption.m_depthStencilOption = &(*option->m_depthStencilOption);
 		}
-		
 
 		if ( option->m_rasterizerOption )
 		{
@@ -78,7 +77,16 @@ std::optional<DrawSnapshot> DepthWritePassProcessor::Process( const PrimitivePro
 		}
 	}
 
-	return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::PositionOnly );
+	if ( subMesh.m_vertexCollection )
+	{
+		const VertexStreamLayout& layout = subMesh.m_vertexCollection->VertexLayout( VertexStreamLayoutType::PositionNormal );
+		if ( layout.Size( ) == 0 )
+		{
+			return {};
+		}
+	}
+
+	return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::PositionNormal );
 }
 
 PassProcessorRegister RegisterDepthWritePass( RenderPass::DepthWrite, &CreateDepthWritePassProcessor );

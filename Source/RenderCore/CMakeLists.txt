@@ -63,9 +63,13 @@ set (PASS_PROCESSOR
 	Private/PassProcessor/DefaultPassProcessor.cpp
 	Private/PassProcessor/DepthWritePassProcessor.cpp
 	Private/PassProcessor/PassProcessor.cpp
+	Private/PassProcessor/ShadowDepthPassProcessor.cpp
+	Private/PassProcessor/ShadowDrawPassProcessor.cpp
 	Public/PassProcessor/DefaultPassProcessor.h
 	Public/PassProcessor/DepthWritePassProcessor.h
-	Public/PassProcessor/PassProcessor.h)
+	Public/PassProcessor/PassProcessor.h
+	Public/PassProcessor/ShadowDepthPassProcessor.h
+	Public/PassProcessor/ShadowDrawPassProcessor.h)
 
 set (PRECOMPILED
 	Private/Pch/stdafx.cpp
@@ -87,15 +91,21 @@ set (RENDER_SCENE_SOURCE
 	Private/Scene/PrimitiveSceneInfo.cpp
 	Private/Scene/Scene.cpp
 	Private/Scene/SceneConstantBuffers.cpp
+	Private/Scene/ShadowInfo.cpp
 	Public/Scene/IScene.h
 	Public/Scene/LightSceneInfo.h
 	Public/Scene/PrimitiveSceneInfo.h
 	Public/Scene/Scene.h
-	Public/Scene/SceneConstantBuffers.h)
+	Public/Scene/SceneConstantBuffers.h
+	Public/Scene/ShadowInfo.h)
 
 set (RENDER_UTILITY
 	Private/RenderUtility/AbstractGraphicsInterface.cpp
-	Public/RenderUtility/AbstractGraphicsInterface.h)
+	Private/RenderUtility/CommonRenderResource.cpp
+	Private/RenderUtility/ShadowSetup.cpp
+	Public/RenderUtility/AbstractGraphicsInterface.h
+	Public/RenderUtility/CommonRenderResource.h
+	Public/RenderUtility/ShadowSetup.h)
 	
 set (RENDERER_SOURCE
 	Private/Renderer/ForwardLighting.cpp
@@ -115,6 +125,7 @@ source_group("Mesh" FILES ${MESH_SOURCE})
 source_group("PassProcessor" FILES ${PASS_PROCESSOR})
 source_group("Proxies" FILES ${PROXIES_SOURCE})
 source_group("Renderer" FILES ${RENDERER_SOURCE})
+source_group("RenderUtility" FILES ${RENDER_UTILITY})
 source_group("Scene" FILES ${RENDER_SCENE_SOURCE})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})

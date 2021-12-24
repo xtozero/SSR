@@ -3,11 +3,14 @@
 #include "common.h"
 #include "Math/CXMFloat.h"
 
+class BoxSphereBounds;
 class DirectionalLightComponent;
 class HemisphereLightComponent;
 class LightComponent;
 class LightSceneInfo;
 class Scene;
+
+struct RenderView;
 
 enum class LIGHT_TYPE
 {
@@ -36,6 +39,17 @@ class LightProxy
 public:
 	virtual LIGHT_TYPE LightType( ) const = 0;
 	virtual LightProperty GetLightProperty( ) const = 0;
+	virtual bool AffactsBounds( const BoxSphereBounds& bounds ) const = 0;
+
+	bool& CastShadow( )
+	{
+		return m_castShadow;
+	}
+
+	bool CastShadow( ) const
+	{
+		return m_castShadow;
+	}
 
 	RENDERCORE_DLL LightProxy( const LightComponent& component );
 
@@ -45,6 +59,8 @@ protected:
 
 	CXMFLOAT4 m_diffuse;
 	CXMFLOAT4 m_specular;
+
+	bool m_castShadow = false;
 };
 
 class DirectionalLightProxy : public LightProxy
@@ -55,7 +71,9 @@ public:
 		return LIGHT_TYPE::DIRECTINAL_LIGHT;
 	}
 
-	virtual LightProperty GetLightProperty( ) const;
+	virtual LightProperty GetLightProperty( ) const override;
+
+	virtual bool AffactsBounds( const BoxSphereBounds& bounds ) const override;
 
 	RENDERCORE_DLL DirectionalLightProxy( const DirectionalLightComponent& component );
 

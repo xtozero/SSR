@@ -5,6 +5,29 @@
 #include "Proxies/PrimitiveProxy.h"
 #include "Scene/Scene.h"
 
+void PrimitiveSubMeshInfo::OnDrawSnapshotAdded( RenderPass passType )
+{
+	m_passTypeMask |= 1 << static_cast<uint32>( passType );
+}
+
+uint32& PrimitiveSubMeshInfo::SnapshotInfoBase( )
+{
+	return m_snapshotInfoBase;
+}
+
+uint32 PrimitiveSubMeshInfo::SnapshotInfoBase( ) const
+{
+	return m_snapshotInfoBase;
+}
+
+LightIntersectionInfo::~LightIntersectionInfo( )
+{
+	if ( m_light )
+	{
+		m_light->Primitives( ).RemoveAt( m_infoId );
+	}
+}
+
 PrimitiveProxy*& PrimitiveSceneInfo::Proxy( )
 {
 	return m_sceneProxy;
@@ -32,13 +55,21 @@ void PrimitiveSceneInfo::AddToScene( )
 	m_sceneProxy->PrepareSubMeshs( );
 
 	CacheDrawSnapshot( );
+
+	for ( LightSceneInfo* light : m_scene.Lights( ) )
+	{
+		light->AddPrimitiveIntersectionInfo( *this );
+	}
 }
 
 void PrimitiveSceneInfo::RemoveFromScene( )
 {
 	m_subMeshInfos.clear( );
 	m_subMeshs.clear( );
+	
 	RemoveCachedDrawSnapshot( );
+
+	m_lightList.Clear( );
 }
 
 PrimitiveSubMesh& PrimitiveSceneInfo::AddSubMesh( )
@@ -66,6 +97,16 @@ std::vector<PrimitiveSubMesh>& PrimitiveSceneInfo::SubMeshs( )
 const std::vector<PrimitiveSubMesh>& PrimitiveSceneInfo::SubMeshs( ) const
 {
 	return m_subMeshs;
+}
+
+SparseArray<LightIntersectionInfo>& PrimitiveSceneInfo::Lights( )
+{
+	return m_lightList;
+}
+
+const SparseArray<LightIntersectionInfo>& PrimitiveSceneInfo::Lights( ) const
+{
+	return m_lightList;
 }
 
 const CachedDrawSnapshotInfo& PrimitiveSceneInfo::GetCachedDrawSnapshotInfo( uint32 snapshotInfoBase )
@@ -101,7 +142,7 @@ void PrimitiveSceneInfo::CacheDrawSnapshot( )
 				continue;
 			}
 
-			std::optional<DrawSnapshot> snapshot = processor->Process( *m_sceneProxy, subMesh );
+			std::optional<DrawSnapshot> snapshot = processor->Process( subMesh );
 
 			if ( snapshot )
 			{
@@ -140,19 +181,4 @@ std::optional<uint32> PrimitiveSubMeshInfo::GetCachedDrawSnapshotInfoIndex( Rend
 	}
 
 	return snapshotInfoIndex;
-}
-
-void PrimitiveSubMeshInfo::OnDrawSnapshotAdded( RenderPass passType )
-{
-	m_passTypeMask |= 1 << static_cast<uint32>( passType );
-}
-
-uint32& PrimitiveSubMeshInfo::SnapshotInfoBase( )
-{
-	return m_snapshotInfoBase;
-}
-
-uint32 PrimitiveSubMeshInfo::SnapshotInfoBase( ) const
-{
-	return m_snapshotInfoBase;
 }

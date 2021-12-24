@@ -22,6 +22,16 @@ namespace aga
 		return m_vertexShader;
 	}
 
+	ID3D11GeometryShader* D3D11PipelineState::GeometryShader( )
+	{
+		return m_geometryShader;
+	}
+
+	const ID3D11GeometryShader* D3D11PipelineState::GeometryShader( ) const
+	{
+		return m_geometryShader;
+	}
+
 	ID3D11PixelShader* D3D11PipelineState::PixelShader( )
 	{
 		return m_pixelShader;
@@ -93,6 +103,15 @@ namespace aga
 			}
 		}
 
+		if ( auto gs = static_cast<D3D11GeometryShader*>( initializer.m_geometryShader ) )
+		{
+			m_geometryShader = gs->Resource( );
+			if ( m_geometryShader )
+			{
+				m_geometryShader->AddRef( );
+			}
+		}
+
 		if ( auto ps = static_cast<D3D11PixelShader*>( initializer.m_piexlShader ) )
 		{
 			m_pixelShader = ps->Resource( );
@@ -145,6 +164,12 @@ namespace aga
 		{
 			m_vertexShader->Release( );
 			m_vertexShader = nullptr;
+		}
+
+		if ( m_geometryShader )
+		{
+			m_geometryShader->Release( );
+			m_geometryShader = nullptr;
 		}
 
 		if ( m_pixelShader )

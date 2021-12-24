@@ -2,10 +2,18 @@
 #include "LightProxy.h"
 
 #include "Components/LightComponent.h"
+#include "Physics/Frustum.h"
+#include "Math/CXMFloat.h"
+#include "RenderView.h"
+#include "Scene/LightSceneInfo.h"
+#include "Scene/PrimitiveSceneInfo.h"
+#include "Scene/Scene.h"
+#include "Scene/ShadowInfo.h"
 
 LightProxy::LightProxy( const LightComponent& component ) :
 	m_diffuse( component.DiffuseColor( ) ),
-	m_specular( component.SpecularColor( ) )
+	m_specular( component.SpecularColor( ) ),
+	m_castShadow( component.CastShadow( ) )
 {
 }
 
@@ -25,6 +33,11 @@ LightProperty DirectionalLightProxy::GetLightProperty( ) const
 	};
 
 	return lightProperty;
+}
+
+bool DirectionalLightProxy::AffactsBounds( const BoxSphereBounds& bounds ) const
+{
+	return true;
 }
 
 DirectionalLightProxy::DirectionalLightProxy( const DirectionalLightComponent& component ) :

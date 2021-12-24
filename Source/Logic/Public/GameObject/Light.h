@@ -34,6 +34,7 @@ public:
 	//void SetAttenuation( const CXMFLOAT3& attenuation );
 	void SetDiffuseColor( const CXMFLOAT4& diffuseColor );
 	void SetSpecularColor( const CXMFLOAT4& specularColor );
+	void SetCastShadow( bool castShadow );
 
 	virtual ~Light( ) = default;
 

@@ -16,11 +16,11 @@ public:
 	virtual void Update( const CXMFLOAT3& scaling, const CXMFLOAT4& rotation, const CXMFLOAT3& translation, ICollider* original ) override;
 	virtual void CalcSubMeshBounds( std::vector<std::unique_ptr<ICollider>>& /*subColliders*/ ) override { assert( false && "Not Implemented" ); }
 	virtual float Intersect( const CRay& ray ) const override;
-	virtual uint32 Intersect( const CFrustum& frustum ) const override;
+	virtual uint32 Intersect( const Frustum& frustum ) const override;
 	uint32 Intersect( const BoundingSphere& sphere ) const;
 	float CalcGrowth( const BoundingSphere& sphere ) const;
 
-	bool Intersect( const CFrustum& frustum, const CXMFLOAT3& sweepDir );
+	bool Intersect( const Frustum& frustum, const CXMFLOAT3& sweepDir );
 	const CXMFLOAT3& GetCenter( ) const { return m_origin; }
 	float GetRadius( ) const { return m_radius; }
 	float GetSize( ) const { return 1.33333f * DirectX::XM_PI * m_radius * m_radius * m_radius; /* ( ( 4 / 3 ) * pi * r^3 ) */ }

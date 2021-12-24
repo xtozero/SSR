@@ -193,6 +193,11 @@ SamplerState AbstractGraphicsInterface::FindOrCreate( const SamplerOption& optio
 
 VertexLayout AbstractGraphicsInterface::FindOrCreate( const VertexShader& vs, const VertexLayoutDesc& desc )
 {
+	if ( desc.Size( ) == 0 )
+	{
+		return {};
+	}
+
 	auto found = m_vertexLayouts.find( desc );
 	if ( found == m_vertexLayouts.end( ) )
 	{

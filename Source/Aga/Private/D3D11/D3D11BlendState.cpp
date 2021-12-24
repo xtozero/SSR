@@ -13,7 +13,7 @@ namespace
 		desc.AlphaToCoverageEnable = trait.m_alphaToConverageEnable;
 		desc.IndependentBlendEnable = trait.m_independentBlendEnable;
 
-		for ( uint32 i = 0; i < 8; ++i )
+		for ( uint32 i = 0; i < MAX_RENDER_TARGET; ++i )
 		{
 			desc.RenderTarget[i].BlendEnable = trait.m_renderTarget[i].m_blendEnable;
 			desc.RenderTarget[i].SrcBlend = ConvertToBlend( trait.m_renderTarget[i].m_srcBlend );

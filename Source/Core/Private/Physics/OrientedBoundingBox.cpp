@@ -72,7 +72,7 @@ float COrientedBoundingBox::Intersect( const CRay& ray ) const
 	return RayAndBox( rayOrigin, rayDir, m_halfSize, -m_halfSize );
 }
 
-uint32 COrientedBoundingBox::Intersect( const CFrustum& /*frustum*/ ) const
+uint32 COrientedBoundingBox::Intersect( const Frustum& /*frustum*/ ) const
 {
 	return 0;
 }

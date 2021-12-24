@@ -6,6 +6,7 @@ class BoundingSphere;
 class CAaboundingbox;
 class Contact;
 class COrientedBoundingBox;
+class Frustum;
 class RigidBody;
 
 struct CXMFLOAT3;
@@ -31,12 +32,15 @@ struct CollisionData
 uint32 SphereAndSphere( const BoundingSphere& lhs, RigidBody* lhsBody, const BoundingSphere& rhs, RigidBody* rhsBody, CollisionData* data );
 uint32 SphereAndHalfSpace( const BoundingSphere& sphere, RigidBody* sphereBody, const CXMFLOAT4& plane, CollisionData* data );
 uint32 SphereAndTruePlane( const BoundingSphere& sphere, RigidBody* sphereBody, const CXMFLOAT4& plane, CollisionData* data );
+uint32 SphereAndFrusturm( const CXMFLOAT3& origin, float radius, const Frustum& frustum );
+bool SphereAndFrusturm( const CXMFLOAT3& origin, float radius, const Frustum& frustum, const CXMFLOAT3& sweepDir );
 uint32 BoxAndHalfSpace( const CAaboundingbox& box, RigidBody* boxBody, const CXMFLOAT4& plane, CollisionData* data );
 uint32 BoxAndSphere( const CAaboundingbox& box, RigidBody* boxBody, const BoundingSphere& sphere, RigidBody* sphereBody, CollisionData* data );
 uint32 BoxAndSphere( const COrientedBoundingBox& box, RigidBody* boxBody, const BoundingSphere& sphere, RigidBody* sphereBody, CollisionData* data );
 uint32 BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const CAaboundingbox& rhs, RigidBody* rhsBody, CollisionData* data );
 uint32 BoxAndBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, const COrientedBoundingBox& rhs, RigidBody* rhsBody, CollisionData* data );
 uint32 BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const COrientedBoundingBox& rhs, RigidBody* rhsBody, CollisionData* data );
+uint32 BoxAndFrustum( const CXMFLOAT3& min, const CXMFLOAT3& max, const Frustum& frustum );
 
 float RayAndBox( const CXMFLOAT3& rayOrigin, const CXMFLOAT3& rayDir, const CXMFLOAT3& max, const CXMFLOAT3& min );
 float RayAndSphere( const CXMFLOAT3& rayOrigin, const CXMFLOAT3& rayDir, const CXMFLOAT3& origin, float radius );

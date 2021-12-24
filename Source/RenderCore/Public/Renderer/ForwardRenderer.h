@@ -10,15 +10,18 @@ public:
 
 	aga::Texture* GetDepthStencil( );
 	aga::Texture* GetLinearDepth( );
+	aga::Texture* GetWorldNormal( );
 
 private:
 	void AllocDepthStencil( );
 	void AllocLinearDepth( );
+	void AllocWorldNormal( );
 
 	void ReleaseAll( );
 
 	RefHandle<aga::Texture> m_depthStencil;
 	RefHandle<aga::Texture> m_linearDepth;
+	RefHandle<aga::Texture> m_worldNormal;
 
 	std::pair<uint32, uint32> m_bufferSize;
 };
@@ -30,9 +33,9 @@ public:
 	virtual void Render( RenderViewGroup& renderViewGroup ) override;
 	virtual void PostRender( RenderViewGroup& renderViewGroup ) override;
 
-	virtual void RenderDepthPass( RenderViewGroup& renderViewGroup, uint32 curView ) override;
-
 	virtual void RenderDefaultPass( RenderViewGroup& renderViewGroup, uint32 curView ) override;
+
+	void RenderDepthPass( RenderViewGroup& renderViewGroup, uint32 curView );
 
 private:
 	void UpdateLightResource( RenderViewGroup& renderViewGroup );

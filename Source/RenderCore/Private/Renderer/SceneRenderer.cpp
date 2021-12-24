@@ -3,6 +3,9 @@
 
 #include "Mesh/StaticMeshResource.h"
 #include "Material/MaterialResource.h"
+#include "Physics/CollideNarrow.h"
+#include "Physics/Frustum.h"
+#include "Proxies/LightProxy.h"
 #include "Proxies/PrimitiveProxy.h"
 #include "Proxies/TexturedSkyProxy.h"
 #include "RenderView.h"
@@ -11,6 +14,8 @@
 #include "Scene/Scene.h"
 #include "Scene/SceneConstantBuffers.h"
 #include "ShaderBindings.h"
+#include "ShadowDrawPassProcessor.h"
+#include "ShadowSetup.h"
 #include "Viewport.h"
 
 #include <deque>
@@ -21,7 +26,7 @@ void RenderingShaderResource::BindResources( const ShaderStates& shaders, aga::S
 		shaders.m_vertexShader,
 		nullptr, // HS
 		nullptr, // DS
-		nullptr, // GS					
+		shaders.m_geometryShader,			
 		shaders.m_pixelShader,
 		nullptr, // CS
 	};
@@ -97,13 +102,28 @@ void RenderingShaderResource::ClearResources( )
 	}
 }
 
+bool SceneRenderer::PreRender( RenderViewGroup& renderViewGroup )
+{
+	InitDynamicShadows( renderViewGroup );
+	return true;
+}
+
+void SceneRenderer::PostRender( RenderViewGroup& renderViewGroup )
+{
+	m_shaderResources.ClearResources( );
+	m_shadowInfos.clear( );
+}
+
 void SceneRenderer::ApplyOutputContext( aga::ICommandList& commandList )
 {
-	aga::Texture* renderTargets = {
-		m_outputContext.m_renderTargets
-	};
+	aga::Texture* renderTargets[MAX_RENDER_TARGET] = {};
 
-	commandList.BindRenderTargets( &renderTargets, 1, m_outputContext.m_depthStencil );
+	for ( uint32 i = 0; i < MAX_RENDER_TARGET; ++i )
+	{
+		renderTargets[i] = m_outputContext.m_renderTargets[i];
+	}
+
+	commandList.BindRenderTargets( renderTargets, MAX_RENDER_TARGET, m_outputContext.m_depthStencil );
 	commandList.SetViewports( 1, &m_outputContext.m_viewport );
 	commandList.SetScissorRects( 1, &m_outputContext.m_scissorRects );
 }
@@ -111,6 +131,243 @@ void SceneRenderer::ApplyOutputContext( aga::ICommandList& commandList )
 void SceneRenderer::WaitUntilRenderingIsFinish( )
 {
 	PrimitiveIdVertexBufferPool::GetInstance( ).DiscardAll( );
+}
+
+void SceneRenderer::InitDynamicShadows( RenderViewGroup& renderViewGroup )
+{
+	IScene& scene = renderViewGroup.Scene( );
+	if ( scene.GetRenderScene( ) == nullptr )
+	{
+		return;
+	}
+
+	std::vector<ShadowInfo*> viewDependentShadow;
+
+	Scene& renderScene = *scene.GetRenderScene( );
+	auto lights = renderScene.Lights( );
+
+	for ( const auto& view : renderViewGroup )
+	{
+		for ( LightSceneInfo* light : lights )
+		{
+			LightProxy* proxy = light->Proxy( );
+			if ( proxy->CastShadow( ) )
+			{
+				ShadowInfo& shadowInfo = m_shadowInfos.emplace_back( light, view );
+				viewDependentShadow.push_back( &shadowInfo );
+			}
+		}
+	}
+
+	ClassifyShadowCasterAndReceiver( scene, viewDependentShadow );
+
+	SetupShadow( );
+
+	AllocateShadowMaps( );
+}
+
+void SceneRenderer::ClassifyShadowCasterAndReceiver( IScene& scene, const std::vector<ShadowInfo*>& shadows )
+{
+	using namespace DirectX;
+
+	Scene& renderScene = *scene.GetRenderScene( );
+
+	for ( ShadowInfo* pShadowInfo : shadows )
+	{
+		LightSceneInfo* lightSceneInfo = pShadowInfo->GetLightSceneInfo( );
+		LIGHT_TYPE lightType = lightSceneInfo->Proxy( )->LightType( );
+
+		assert( lightType == LIGHT_TYPE::DIRECTINAL_LIGHT );
+		assert( pShadowInfo->View( ) != nullptr );
+
+		const RenderView& view = *pShadowInfo->View( );
+		CXMFLOAT4X4 viewMat = XMMatrixLookToLH( view.m_viewOrigin, view.m_viewAxis[2], view.m_viewAxis[1] );
+		CXMFLOAT4X4 viewProjectionMat = XMMatrixPerspectiveFovLH( view.m_fov, view.m_aspect, view.m_nearPlaneDistance, view.m_farPlaneDistance );
+		viewProjectionMat = XMMatrixMultiply( viewMat, viewProjectionMat );
+		Frustum frustum( viewProjectionMat );
+
+		CAaboundingbox box;
+
+		CXMFLOAT3 lightDirection = lightSceneInfo->Proxy( )->GetLightProperty( ).m_direction;
+		CXMFLOAT3 sweepDir = XMVector3Normalize( lightDirection );
+
+		const auto& intersectionInfos = lightSceneInfo->Primitives( );
+		for ( const auto& intersectionInfo : intersectionInfos )
+		{
+			PrimitiveSceneInfo* primitive = intersectionInfo.m_primitive;
+			uint32 id = primitive->PrimitiveId( );
+
+			const BoxSphereBounds& bounds = renderScene.PrimitiveBounds( )[id];
+
+			uint32 inFrustum = BoxAndFrustum( bounds.Origin( ) - bounds.HalfSize( ),
+											bounds.Origin( ) + bounds.HalfSize( ),
+											frustum );
+
+			BoxSphereBounds viewspaceBounds = bounds.TransformBy( viewMat );
+
+			switch ( inFrustum )
+			{
+			case COLLISION::OUTSIDE:
+				{
+					bool isIntersected = SphereAndFrusturm( bounds.Origin( ), bounds.Radius( ), frustum, sweepDir );
+					if ( isIntersected )
+					{
+						pShadowInfo->AddCasterPrimitive( primitive, viewspaceBounds );
+					}
+				}
+				break;
+			case COLLISION::INSIDE:
+			case COLLISION::INTERSECTION:
+				{
+					pShadowInfo->AddCasterPrimitive( primitive, viewspaceBounds );
+					pShadowInfo->AddReceiverPrimitive( primitive, viewspaceBounds );
+				}
+				break;
+			}
+		}
+	}
+}
+
+void SceneRenderer::SetupShadow( )
+{
+	for ( ShadowInfo& shadowInfo : m_shadowInfos )
+	{
+		if ( shadowInfo.HasCasterPrimitives( ) == false )
+		{
+			continue;
+		}
+
+		LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo( );
+		LIGHT_TYPE lightType = lightSceneInfo->Proxy( )->LightType( );
+
+		switch ( lightType )
+		{
+		case LIGHT_TYPE::DIRECTINAL_LIGHT:
+		{
+			CascadeShadowSetting& setting = shadowInfo.CascadeSetting( );
+
+			float interval = ( shadowInfo.SubjectFar( ) - shadowInfo.SubjectNear( ) ) / CascadeShadowSetting::MAX_CASCADE_NUM;
+
+			for ( uint32 i = 0; i < CascadeShadowSetting::MAX_CASCADE_NUM; ++i )
+			{
+				setting.m_zClipNear[i] = ( i == 0 ) ? shadowInfo.SubjectNear( ) : setting.m_zClipFar[i - 1];
+				setting.m_zClipFar[i] = ( i == ( CascadeShadowSetting::MAX_CASCADE_NUM - 1 ) ) ? shadowInfo.SubjectFar( ) : setting.m_zClipNear[i] + interval;
+			}
+
+			BuildOrthoShadowProjectionMatrix( shadowInfo );
+			break;
+		}
+		case LIGHT_TYPE::POINT_LIGHT:
+			break;
+		case LIGHT_TYPE::SPOT_LIGHT:
+			break;
+		case LIGHT_TYPE::NONE:
+		default:
+			break;
+		}
+	}
+}
+
+void SceneRenderer::AllocateShadowMaps( )
+{
+	std::vector<ShadowInfo*> cascadeShadows;
+
+	for ( auto& shadowInfo : m_shadowInfos )
+	{
+		LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo( );
+		LIGHT_TYPE lightType = lightSceneInfo->Proxy( )->LightType( );
+
+		switch ( lightType )
+		{
+		case LIGHT_TYPE::NONE:
+			break;
+		case LIGHT_TYPE::DIRECTINAL_LIGHT:
+			cascadeShadows.push_back( &shadowInfo );
+			break;
+		case LIGHT_TYPE::POINT_LIGHT:
+			break;
+		case LIGHT_TYPE::SPOT_LIGHT:
+			break;
+		default:
+			break;
+		}
+	}
+
+	if ( cascadeShadows.size( ) > 0 )
+	{
+		AllocateCascadeShadowMaps( cascadeShadows );
+	}
+}
+
+void SceneRenderer::AllocateCascadeShadowMaps( const std::vector<ShadowInfo*>& shadows )
+{
+	for ( ShadowInfo* shadow : shadows )
+	{
+		auto [width, height] = shadow->ShadowMapSize( );
+
+		TEXTURE_TRAIT trait = { width,
+								height,
+								CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
+								1,
+								0,
+								1,
+								RESOURCE_FORMAT::R32_FLOAT,
+								RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
+								RESOURCE_BIND_TYPE::RENDER_TARGET | RESOURCE_BIND_TYPE::SHADER_RESOURCE,
+								0 };
+
+		shadow->ShadowMap( ).m_shadowMap = aga::Texture::Create( trait );
+
+		TEXTURE_TRAIT depthTrait = { width,
+									height,
+									CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
+									1,
+									0,
+									1,
+									RESOURCE_FORMAT::D24_UNORM_S8_UINT,
+									RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
+									RESOURCE_BIND_TYPE::DEPTH_STENCIL,
+									0 };
+
+		shadow->ShadowMap( ).m_shadowMapDepth = aga::Texture::Create( depthTrait );
+
+		EnqueueRenderTask( [texture = shadow->ShadowMap( ).m_shadowMap,
+							depthTexture = shadow->ShadowMap( ).m_shadowMapDepth]( )
+		{
+			if ( texture )
+			{
+				texture->Init( );
+			}
+
+			if ( depthTexture )
+			{
+				depthTexture->Init( );
+			}
+		} );
+	}
+}
+
+void SceneRenderer::RenderShadowDepthPass( )
+{
+	for ( ShadowInfo& shadowInfo : m_shadowInfos )
+	{
+		ShadowMapRenderTarget& shadowMap = shadowInfo.ShadowMap( );
+		auto [width, height] = shadowInfo.ShadowMapSize( );
+
+		RenderingOutputContext context = {
+			{ shadowMap.m_shadowMap },
+			shadowMap.m_shadowMapDepth,
+			{ 0.f, 0.f, static_cast<float>( width ), static_cast<float>( height ), 0.f, 1.f },
+			{ 0L, 0L, static_cast<int32>( width ), static_cast<int32>( height ) }
+		};
+		StoreOuputContext( context );
+
+		GraphicsInterface( ).ClearRenderTarget( shadowMap.m_shadowMap, { 1, 1, 1, 1 } );
+		GraphicsInterface( ).ClearDepthStencil( shadowMap.m_shadowMapDepth, 1.f, 0 );
+
+		shadowInfo.SetupShadowConstantBuffer( );
+		shadowInfo.RenderDepth( *this, m_shaderResources );
+	}
 }
 
 void SceneRenderer::RenderTexturedSky( IScene& scene )
@@ -142,7 +399,6 @@ void SceneRenderer::RenderTexturedSky( IScene& scene )
 	};
 
 	auto commandList = GetInterface<aga::IAga>( )->GetImmediateCommandList( );
-
 	ApplyOutputContext( *commandList );
 
 	StaticMeshLODResource& lodResource = renderData->LODResource( 0 );
@@ -157,7 +413,11 @@ void SceneRenderer::RenderTexturedSky( IScene& scene )
 
 		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 		pipelineState.m_shaderState = shaderState;
-		material->TakeSnapshot( snapshot, pipelineState.m_shaderState );
+
+		auto initializer = CreateShaderBindingsInitializer( pipelineState.m_shaderState );
+		snapshot.m_shaderBindings.Initialize( initializer );
+
+		material->TakeSnapshot( snapshot );
 
 		auto& graphicsInterface = GraphicsInterface( );
 		if ( pipelineState.m_shaderState.m_vertexShader )
@@ -171,7 +431,7 @@ void SceneRenderer::RenderTexturedSky( IScene& scene )
 
 		pipelineState.m_primitive = RESOURCE_PRIMITIVE::TRIANGLELIST;
 
-		snapshot.m_indexCount = section.m_count;
+		snapshot.m_count = section.m_count;
 		snapshot.m_startIndexLocation = section.m_startLocation;
 		snapshot.m_baseVertexLocation = 0;
 
@@ -260,6 +520,56 @@ void SceneRenderer::RenderMesh( IScene& scene, RenderPass passType, RenderView& 
 	SortDrawSnapshots( snapshots, primitiveIds );
 	// CommitDrawSnapshots( *this, renderViewGroup, curView, primitiveIds );
 	ParallelCommitDrawSnapshot( *this, snapshots, primitiveIds );
+}
+
+void SceneRenderer::RenderShadow( )
+{
+	for ( ShadowInfo& shadowInfo : m_shadowInfos )
+	{
+		ShadowDrawPassProcessor shadowDrawPassProcessor;
+
+		PrimitiveSubMesh meshInfo;
+		meshInfo.m_count = 3;
+
+		auto result = shadowDrawPassProcessor.Process( meshInfo );
+		if ( result.has_value( ) == false )
+		{
+			return;
+		}
+
+		DrawSnapshot& snapshot = *result;
+
+		// Update invalidated resources
+		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+		auto commandList = GetInterface<aga::IAga>( )->GetImmediateCommandList( );
+		ApplyOutputContext( *commandList );
+
+		m_shaderResources.AddResource( "ShadowTexture", shadowInfo.ShadowMap().m_shadowMap->SRV( ) );
+
+		SamplerOption shadowSamplerOption;
+		shadowSamplerOption.m_addressU = TEXTURE_ADDRESS_MODE::BORDER;
+		shadowSamplerOption.m_addressV = TEXTURE_ADDRESS_MODE::BORDER;
+		shadowSamplerOption.m_addressW = TEXTURE_ADDRESS_MODE::BORDER;
+		SamplerState shadowSampler = GraphicsInterface( ).FindOrCreate( shadowSamplerOption );
+		m_shaderResources.AddResource( "ShadowSampler", shadowSampler.Resource( ) );
+
+		m_shaderResources.AddResource( "ShadowDepthPassParameters", shadowInfo.ConstantBuffer( ).Resource( ) );
+
+		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+		VisibleDrawSnapshot visibleSnapshot = {
+				0,
+				0,
+				1,
+				-1,
+				&snapshot,
+		};
+
+		VertexBuffer emptyPrimitiveID;
+		CommitDrawSnapshot( *commandList, visibleSnapshot, emptyPrimitiveID );
+	}
 }
 
 void SceneRenderer::StoreOuputContext( const RenderingOutputContext& context )

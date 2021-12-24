@@ -8,30 +8,46 @@
 
 std::optional<DrawSnapshot> IPassProcessor::BuildDrawSnapshot( const PrimitiveSubMesh& subMesh, const PassShader& passShader, const PassRenderOption& passRenderOption, VertexStreamLayoutType layoutType )
 {
-	VertexStreamLayout vertexlayout = subMesh.m_vertexCollection->VertexLayout( layoutType );
-
-	uint32 primitiveIdSlot = vertexlayout.Size( );
-	vertexlayout.AddLayout( "PRIMITIVEID", 0,
-							RESOURCE_FORMAT::R32_UINT,
-							primitiveIdSlot,
-							true,
-							1,
-							-1 );
-
 	DrawSnapshot snapshot;
-	subMesh.m_vertexCollection->Bind( snapshot.m_vertexStream, layoutType );
-	snapshot.m_primitiveIdSlot = primitiveIdSlot;
-	snapshot.m_indexBuffer = *subMesh.m_indexBuffer;
+
+	VertexStreamLayout vertexlayout;
+	if ( subMesh.m_vertexCollection )
+	{
+		vertexlayout = subMesh.m_vertexCollection->VertexLayout( layoutType );
+
+		uint32 primitiveIdSlot = vertexlayout.Size( );
+		vertexlayout.AddLayout( "PRIMITIVEID", 0,
+			RESOURCE_FORMAT::R32_UINT,
+			primitiveIdSlot,
+			true,
+			1,
+			-1 );
+
+		subMesh.m_vertexCollection->Bind( snapshot.m_vertexStream, layoutType );
+		snapshot.m_primitiveIdSlot = primitiveIdSlot;
+	}
+	else
+	{
+		snapshot.m_primitiveIdSlot = -1;
+	}
+
+	if ( subMesh.m_indexBuffer )
+	{
+		snapshot.m_indexBuffer = *subMesh.m_indexBuffer;
+	}
 
 	GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 	pipelineState.m_shaderState.m_vertexShader = passShader.m_vertexShader;
 	pipelineState.m_shaderState.m_geometryShader = passShader.m_geometryShader;
 	pipelineState.m_shaderState.m_pixelShader = passShader.m_pixelShader;
 
+	auto initializer = CreateShaderBindingsInitializer( pipelineState.m_shaderState );
+	snapshot.m_shaderBindings.Initialize( initializer );
+
 	auto materialResource = subMesh.m_material;
 	if ( materialResource )
 	{
-		materialResource->TakeSnapshot( snapshot, pipelineState.m_shaderState );
+		materialResource->TakeSnapshot( snapshot );
 	}
 
 	auto& graphicsInterface = GraphicsInterface( );
@@ -52,7 +68,7 @@ std::optional<DrawSnapshot> IPassProcessor::BuildDrawSnapshot( const PrimitiveSu
 
 	pipelineState.m_primitive = RESOURCE_PRIMITIVE::TRIANGLELIST;
 
-	snapshot.m_indexCount = subMesh.m_count;
+	snapshot.m_count = subMesh.m_count;
 	snapshot.m_startIndexLocation = subMesh.m_startLocation;
 	snapshot.m_baseVertexLocation = 0;
 

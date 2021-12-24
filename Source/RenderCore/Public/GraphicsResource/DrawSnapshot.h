@@ -54,7 +54,7 @@ public:
 	GraphicsPipelineState m_pipelineState;
 
 	// For Draw method
-	uint32 m_indexCount;
+	uint32 m_count;
 	uint32 m_startIndexLocation;
 	uint32 m_baseVertexLocation;
 
@@ -73,7 +73,7 @@ public:
 			m_indexBuffer = other.m_indexBuffer;
 			m_shaderBindings = other.m_shaderBindings;
 			m_pipelineState = other.m_pipelineState;
-			m_indexCount = other.m_indexCount;
+			m_count = other.m_count;
 			m_startIndexLocation = other.m_startIndexLocation;
 			m_baseVertexLocation = other.m_baseVertexLocation;
 		}
@@ -95,7 +95,7 @@ public:
 			m_indexBuffer = std::move( other.m_indexBuffer );
 			m_shaderBindings = std::move( other.m_shaderBindings );
 			m_pipelineState = std::move( other.m_pipelineState );
-			m_indexCount = other.m_indexCount;
+			m_count = other.m_count;
 			m_startIndexLocation = other.m_startIndexLocation;
 			m_baseVertexLocation = other.m_baseVertexLocation;
 		}
@@ -113,7 +113,7 @@ struct DrawSnapshotDynamicInstancingEqual
 			lhs.m_indexBuffer == rhs.m_indexBuffer &&
 			lhs.m_shaderBindings.MatchsForDynamicInstancing( rhs.m_shaderBindings ) &&
 			lhs.m_pipelineState.m_pso == rhs.m_pipelineState.m_pso &&
-			lhs.m_indexCount == rhs.m_indexCount &&
+			lhs.m_count == rhs.m_count &&
 			lhs.m_startIndexLocation == rhs.m_startIndexLocation &&
 			lhs.m_baseVertexLocation == rhs.m_baseVertexLocation;
 	}
@@ -142,7 +142,7 @@ struct DrawSnapshotDynamicInstancingHasher
 		HashCombine( hash, ds.m_shaderBindings.HashForDynamicInstaning( ) );
 
 		HashCombine( hash, ds.m_pipelineState.m_pso.Get( ) );
-		HashCombine( hash, ds.m_indexCount );
+		HashCombine( hash, ds.m_count );
 		HashCombine( hash, ds.m_startIndexLocation );
 		HashCombine( hash, ds.m_baseVertexLocation );
 

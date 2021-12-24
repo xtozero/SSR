@@ -7,6 +7,13 @@
 class HemisphereLightProxy;
 class LightProxy;
 
+enum class ShadowQuility
+{
+	Low = 0,
+	Mid,
+	High,
+};
+
 class LightComponent : public SceneComponent
 {
 public:
@@ -26,11 +33,29 @@ public:
 		return m_specular;
 	}
 
+	bool& CastShadow( )
+	{
+		return m_castShadow;
+	}
+
+	bool CastShadow() const
+	{
+		return m_castShadow;
+	}
+
+	ShadowQuility GetShadowQuility( ) const
+	{
+		return m_shadowQuility;
+	}
+
 	LightProxy* m_lightProxy = nullptr;
 
 private:
 	CXMFLOAT4 m_diffuse;
 	CXMFLOAT4 m_specular;
+
+	bool m_castShadow = false;
+	ShadowQuility m_shadowQuility = ShadowQuility::High;
 };
 
 class DirectionalLightComponent : public LightComponent

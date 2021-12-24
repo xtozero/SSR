@@ -18,6 +18,7 @@ public:
 	}
 
 	void BootUp( );
+	bool IsReady( ) const;
 
 	bool RegisterShader( std::type_index typeIndex, const std::shared_ptr<ShaderBase>& shader );
 	bool RegisterShaderPath( std::type_index typeIndex, const char* path );

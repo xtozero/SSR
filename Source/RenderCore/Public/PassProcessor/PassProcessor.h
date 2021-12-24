@@ -8,6 +8,7 @@
 enum class RenderPass
 {
 	DepthWrite = 0,
+	CSMShadowDepth,
 	Default,
 	Count,
 };
@@ -42,7 +43,7 @@ struct PassRenderOption
 class IPassProcessor
 {
 public:
-	virtual std::optional<DrawSnapshot> Process( const PrimitiveProxy& proxy, const PrimitiveSubMesh& subMesh ) = 0;
+	virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) = 0;
 
 	~IPassProcessor( ) = default;
 

@@ -12,7 +12,7 @@ public:
 	virtual void Update( const CXMFLOAT3& scaling, const CXMFLOAT4& rotation, const CXMFLOAT3& translation, ICollider* original ) override;
 	virtual void CalcSubMeshBounds( std::vector<std::unique_ptr<ICollider>>& subColliders ) override;
 	virtual float Intersect( const CRay& ray ) const override;
-	virtual uint32 Intersect( const CFrustum& frustum ) const override;
+	virtual uint32 Intersect( const Frustum& frustum ) const override;
 
 	CXMFLOAT3 GetAxisVector( uint32 i ) const;
 	CXMFLOAT3 GetHalfSize( ) const { return m_halfSize; }

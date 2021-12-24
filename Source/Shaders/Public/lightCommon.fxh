@@ -1,5 +1,5 @@
 #include "psCommon.fxh"
-#include "shadowCommon.fxh"
+#include "texCommon.fxh"
 #include "ViewConstant.fxh"
 
 #define MAX_LIGHTS 180
@@ -37,24 +37,6 @@ cbuffer Material : register( b3 )
 	float		SpecularPower;
 	float		pedding[2];
 };
-
-/*
-struct PS_INPUT
-{
-	float4 position : SV_POSITION;
-	float3 worldPos : POSITION0;
-	float3 viewPos : POSITION1;
-	float3 normal : NORMAL;
-	float2 texcoord : TEXCOORD;
-};
-
-struct PS_OUTPUT
-{
-	float4 frame : SV_TARGET0;
-	float4 normal : SV_TARGET1;
-	float4 depth : SV_TARGET2;
-};
-*/
 
 struct GeometryProperty
 {
@@ -169,7 +151,7 @@ LIGHTCOLOR CalcLightProperties( ForwardLightData light, float3 viewDirection, fl
 float3 HemisphereLight( float3 normal )
 {
 	float w = ( dot( normal, g_hemisphereUpVector ) + 1 ) * 0.5;
-	return lerp( g_hemisphereLowerColor, g_hemisphereUpperColor, w );
+	return lerp( g_hemisphereLowerColor, g_hemisphereUpperColor, w ).xyz;
 }
 
 float4 CalcLight( GeometryProperty geometry )

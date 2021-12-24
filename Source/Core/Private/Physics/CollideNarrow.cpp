@@ -3,6 +3,7 @@
 #include "Aaboundingbox.h"
 #include "BoundingSphere.h"
 #include "Contacts.h"
+#include "Frustum.h"
 #include "OrientedBoundingBox.h"
 
 #include <algorithm>
@@ -75,6 +76,32 @@ namespace
 			CXMFLOAT3 cRhs = pRhs + ( dRhs * mub );
 
 			return ( cLhs + cRhs ) * 0.5;
+		}
+	}
+
+	bool SweptSpherePlaneIntersection( float& t0, float& t1, const CXMFLOAT4& plane, const CXMFLOAT3& origin, float radius, const CXMFLOAT3& sweepDir )
+	{
+		float bdotn = XMVectorGetX( XMPlaneDotCoord( plane, origin ) );
+		float ddotn = XMVectorGetX( XMPlaneDotNormal( plane, sweepDir ) );
+
+		if ( ddotn == 0 )
+		{
+			if ( bdotn <= radius )
+			{
+				t0 = 0;
+				t1 = 1e32f;
+				return true;
+			}
+
+			return false;
+		}
+		else
+		{
+			float tmp0 = ( radius - bdotn ) / ddotn;
+			float tmp1 = ( -radius - bdotn ) / ddotn;
+			t0 = std::min( tmp0, tmp1 );
+			t1 = std::max( tmp0, tmp1 );
+			return true;
 		}
 	}
 }
@@ -190,6 +217,56 @@ uint32 SphereAndTruePlane( const BoundingSphere& sphere, RigidBody* sphereBody, 
 
 	data->AddContacts( 1 );
 	return COLLISION::INTERSECTION;
+}
+
+uint32 SphereAndFrusturm( const CXMFLOAT3& origin, float radius, const Frustum& frustum )
+{
+	const CXMFLOAT4( &planes )[6] = frustum.GetPlanes( );
+
+	bool inside = true;
+
+	for ( int i = 0; ( i < 6 ) && inside; i++ )
+	{
+		inside = inside && ( ( XMVectorGetX( XMPlaneDotCoord( planes[i], origin ) ) + radius ) >= 0.f );
+	}
+
+	return inside;
+}
+
+bool SphereAndFrusturm( const CXMFLOAT3& origin, float radius, const Frustum& frustum, const CXMFLOAT3& sweepDir )
+{
+	float displacement[12];
+	uint32 count = 0;
+	float t0 = -1;
+	float t1 = -1;
+	bool inFrustum = false;
+
+	const CXMFLOAT4( &planes )[6] = frustum.GetPlanes( );
+
+	for ( uint32 i = 0; i < 6; ++i )
+	{
+		if ( SweptSpherePlaneIntersection( t0, t1, planes[i], origin, radius, sweepDir ) )
+		{
+			if ( t0 >= 0.f )
+			{
+				displacement[count++] = t0;
+			}
+			if ( t1 >= 0.f )
+			{
+				displacement[count++] = t1;
+			}
+		}
+	}
+
+	for ( uint32 i = 0; i < count; ++i )
+	{
+		float extendRadius = radius * 1.1f;
+		CXMFLOAT3 center( origin + sweepDir * displacement[i] );
+		uint32 result = SphereAndFrusturm( center, extendRadius, frustum );
+		inFrustum |= ( result > COLLISION::OUTSIDE );
+	}
+
+	return inFrustum;
 }
 
 uint32 BoxAndHalfSpace( const CAaboundingbox& box, RigidBody* boxBody, const CXMFLOAT4& plane, CollisionData* data )
@@ -600,6 +677,31 @@ uint32 BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const COriented
 	COrientedBoundingBox lhsOBB( lhs );
 
 	return BoxAndBox( lhsOBB, lhsBody, rhs, rhsBody, data );
+}
+
+uint32 BoxAndFrustum( const CXMFLOAT3& min, const CXMFLOAT3& max, const Frustum& frustum )
+{
+	const Frustum::LookUpTable& lut = frustum.GetVertexLUT( );
+	const CXMFLOAT4( &planes )[6] = frustum.GetPlanes( );
+
+	uint32 result = COLLISION::INSIDE;
+	for ( uint32 i = 0; i < 6; ++i )
+	{
+		CXMFLOAT3 p( ( lut[i] & Frustum::X_MAX ) ? max.x : min.x, ( lut[i] & Frustum::Y_MAX ) ? max.y : min.y, ( lut[i] & Frustum::Z_MAX ) ? max.z : min.z );
+		CXMFLOAT3 n( ( lut[i] & Frustum::X_MAX ) ? min.x : max.x, ( lut[i] & Frustum::Y_MAX ) ? min.y : max.y, ( lut[i] & Frustum::Z_MAX ) ? min.z : max.z );
+
+		if ( XMVectorGetX( XMPlaneDotCoord( planes[i], p ) ) < 0 )
+		{
+			return COLLISION::OUTSIDE;
+		}
+
+		if ( XMVectorGetX( XMPlaneDotCoord( planes[i], n ) ) < 0 )
+		{
+			result = COLLISION::INTERSECTION;
+		}
+	}
+
+	return result;
 }
 
 float RayAndBox( const CXMFLOAT3& rayOrigin, const CXMFLOAT3& rayDir, const CXMFLOAT3& max, const CXMFLOAT3& min )

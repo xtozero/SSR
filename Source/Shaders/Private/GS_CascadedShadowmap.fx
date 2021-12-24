@@ -1,12 +1,4 @@
-#define MAX_CASCADED_NUM 2
-
-cbuffer LIGHT_VIEW_PROJECTION : register(b0)
-{
-	float g_bias;
-	float3 padding;
-	matrix g_lightView[MAX_CASCADED_NUM];
-	matrix g_lightProjection[MAX_CASCADED_NUM];
-};
+#include "ShadowConstant.fxh"
 
 struct GS_INPUT
 {
@@ -29,10 +21,7 @@ void main( triangle GS_INPUT input[3], inout TriangleStream<GS_OUTPUT> triStream
 	{
 		for ( int j = 0; j < 3; ++j )
 		{
-			float4 viewPosition = mul( input[j].position, g_lightView[i] );
-			viewPosition.z += g_bias;
-			
-			output.position = mul( viewPosition, g_lightProjection[i] );
+			output.position = mul( input[j].position, g_shadowViewProjection[i] );
 			output.shadowCoord = output.position.zw;
 			output.rtIndex = i;
 			triStream.Append( output );

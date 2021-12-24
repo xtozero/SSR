@@ -18,8 +18,6 @@ class TexturedSkyProxy;
 class Scene final : public IScene
 {
 public:
-	Scene( );
-
 	virtual void AddPrimitive( PrimitiveComponent* primitive ) override;
 	virtual void RemovePrimitive( PrimitiveComponent* primitive ) override;
 	virtual SparseArray<PrimitiveSceneInfo*>& Primitives( ) override
@@ -69,6 +67,11 @@ public:
 	}
 
 	SparseArray<BoxSphereBounds>& PrimitiveBounds( )
+	{
+		return m_primitiveBounds;
+	}
+
+	const SparseArray<BoxSphereBounds>& PrimitiveBounds( ) const
 	{
 		return m_primitiveBounds;
 	}

@@ -99,6 +99,13 @@ void Light::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 			SetSpecularColor( CXMFLOAT4( r, g, b, a ) );
 		}
 	}
+
+	if ( const JSON::Value* pCastShadow = json.Find( "CastShadow" ) )
+	{
+		const JSON::Value& castShadow = *pCastShadow;
+
+		SetCastShadow( castShadow.AsBool( ) );
+	}
 }
 
 void Light::SetDiffuseColor( const CXMFLOAT4& diffuseColor )
@@ -109,6 +116,11 @@ void Light::SetDiffuseColor( const CXMFLOAT4& diffuseColor )
 void Light::SetSpecularColor( const CXMFLOAT4& specularColor )
 {
 	GetLightComponent( ).SetSpecularColor( specularColor );
+}
+
+void Light::SetCastShadow( bool castShadow )
+{
+	GetLightComponent( ).CastShadow( ) = castShadow;
 }
 
 LightComponent& Light::GetLightComponent( )

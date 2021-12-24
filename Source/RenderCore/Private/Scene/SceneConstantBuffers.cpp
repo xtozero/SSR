@@ -10,13 +10,6 @@
 
 #include <assert.h>
 
-void SceneViewConstantBuffer::Initialize( )
-{
-	assert( IsInRenderThread() );
-
-	m_constantBuffer = TypedConstatBuffer<ViewConstantBufferParameters>( );
-}
-
 void SceneViewConstantBuffer::Update( const ViewConstantBufferParameters& param )
 {
 	assert( IsInRenderThread( ) );

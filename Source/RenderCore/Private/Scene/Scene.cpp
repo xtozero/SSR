@@ -15,14 +15,6 @@
 
 #include <algorithm>
 
-Scene::Scene( )
-{
-	EnqueueRenderTask( [this]
-	{
-		m_viewConstant.Initialize( );
-	} );
-}
-
 void Scene::AddPrimitive( PrimitiveComponent* primitive )
 {
 	PrimitiveProxy* proxy = primitive->CreateProxy( );
@@ -251,12 +243,16 @@ void Scene::AddLightSceneInfo( LightSceneInfo* lightSceneInfo )
 {
 	uint32 id = static_cast<uint32>( m_lights.Add( lightSceneInfo ) );
 	lightSceneInfo->SetID( id );
+
+	lightSceneInfo->AddToScene( );
 }
 
 void Scene::RemoveLightSceneInfo( LightSceneInfo* lightSceneInfo )
 {
 	uint32 id = lightSceneInfo->ID( );
 	m_lights.RemoveAt( id );
+
+	lightSceneInfo->RemoveFromScene( );
 
 	delete lightSceneInfo->Proxy( );
 	delete lightSceneInfo;

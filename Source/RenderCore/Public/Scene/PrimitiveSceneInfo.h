@@ -4,11 +4,13 @@
 #include "MeshDrawInfo.h"
 #include "PassProcessor.h"
 #include "SizedTypes.h"
+#include "SparseArray.h"
 
 #include <cstddef>
 #include <optional>
 #include <vector>
 
+class LightSceneInfo;
 class PrimitiveComponent;
 class PrimitiveProxy;
 class Scene;
@@ -34,6 +36,15 @@ struct PrimitiveSubMesh : public MeshDrawInfo
 	PrimitiveSubMesh( ) = default;
 };
 
+struct LightIntersectionInfo
+{
+	LightSceneInfo* m_light = nullptr;
+	uint32 m_infoId = 0;
+
+	LightIntersectionInfo( LightSceneInfo* light, uint32 infoId ) : m_light( light ), m_infoId( infoId ) {}
+	~LightIntersectionInfo( );
+};
+
 class PrimitiveSceneInfo
 {
 public:
@@ -54,6 +65,9 @@ public:
 	std::vector<PrimitiveSubMesh>& SubMeshs( );
 	const std::vector<PrimitiveSubMesh>& SubMeshs( ) const;
 
+	SparseArray<LightIntersectionInfo>& Lights( );
+	const SparseArray<LightIntersectionInfo>& Lights( ) const;
+
 	const CachedDrawSnapshotInfo& GetCachedDrawSnapshotInfo( uint32 snapshotInfoBase );
 
 	DrawSnapshot& CachedDrawSnapshot( uint32 snapshotIndex );
@@ -73,4 +87,6 @@ private:
 	std::vector<PrimitiveSubMeshInfo> m_subMeshInfos;
 	std::vector<PrimitiveSubMesh> m_subMeshs;
 	std::vector<CachedDrawSnapshotInfo> m_cachedDrawSnapshotInfos;
+
+	SparseArray<LightIntersectionInfo> m_lightList;
 };

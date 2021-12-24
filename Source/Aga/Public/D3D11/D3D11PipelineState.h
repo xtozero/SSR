@@ -12,6 +12,9 @@ namespace aga
 		ID3D11VertexShader* VertexShader( );
 		const ID3D11VertexShader* VertexShader( ) const;
 
+		ID3D11GeometryShader* GeometryShader( );
+		const ID3D11GeometryShader* GeometryShader( ) const;
+
 		ID3D11PixelShader* PixelShader( );
 		const ID3D11PixelShader* PixelShader( ) const;
 		
@@ -42,6 +45,7 @@ namespace aga
 		virtual void FreeResource( ) override;
 
 		ID3D11VertexShader* m_vertexShader = nullptr;
+		ID3D11GeometryShader* m_geometryShader = nullptr;
 		ID3D11PixelShader* m_pixelShader = nullptr;
 		ID3D11BlendState* m_blendState = nullptr;
 		ID3D11RasterizerState* m_rasterizerState = nullptr;

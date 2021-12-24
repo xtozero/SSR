@@ -100,7 +100,10 @@ std::optional<DrawSnapshot> StaticMeshPrimitiveProxy::TakeSnapshot( uint32 lod, 
 		pipelineState.m_shaderState.m_geometryShader = materialResource->GetGeometryShader( );
 		pipelineState.m_shaderState.m_pixelShader = materialResource->GetPixelShader( );
 
-		materialResource->TakeSnapshot( snapshot, pipelineState.m_shaderState );
+		auto initializer = CreateShaderBindingsInitializer( pipelineState.m_shaderState );
+		snapshot.m_shaderBindings.Initialize( initializer );
+
+		materialResource->TakeSnapshot( snapshot );
 	}
 
 	if ( m_pRenderOption->m_blendOption )
@@ -120,7 +123,7 @@ std::optional<DrawSnapshot> StaticMeshPrimitiveProxy::TakeSnapshot( uint32 lod, 
 
 	pipelineState.m_primitive = RESOURCE_PRIMITIVE::TRIANGLELIST;
 
-	snapshot.m_indexCount = section.m_count;
+	snapshot.m_count = section.m_count;
 	snapshot.m_startIndexLocation = section.m_startLocation;
 	snapshot.m_baseVertexLocation = 0;
 

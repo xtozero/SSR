@@ -5,6 +5,11 @@
 class BitArray
 {
 public:
+	void Clear( )
+	{
+		m_bits.clear( );
+	}
+
 	size_t Add( bool value )
 	{
 		size_t index = m_bits.size( );

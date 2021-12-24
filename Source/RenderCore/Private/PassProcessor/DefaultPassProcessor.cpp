@@ -12,7 +12,7 @@ namespace
 	}
 }
 
-std::optional<DrawSnapshot> DefaultPassProcessor::Process( const PrimitiveProxy& proxy, const PrimitiveSubMesh& subMesh )
+std::optional<DrawSnapshot> DefaultPassProcessor::Process( const PrimitiveSubMesh& subMesh )
 {
 	assert( IsInRenderThread( ) );
 

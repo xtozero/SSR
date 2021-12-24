@@ -38,6 +38,11 @@ namespace aga
 				}
 			}
 
+			if ( numBuffers == 0 )
+			{
+				numBuffers = D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT;
+			}
+
 			context.IASetVertexBuffers( startSlot, numBuffers, pBuffers, strides, offsets );
 		}
 
@@ -62,6 +67,7 @@ namespace aga
 				context.IASetInputLayout( d3d11PipelineState->InputLayout( ) );
 				context.IASetPrimitiveTopology( d3d11PipelineState->PrimitiveTopology( ) );
 				context.VSSetShader( d3d11PipelineState->VertexShader( ), nullptr, 0 );
+				context.GSSetShader( d3d11PipelineState->GeometryShader( ), nullptr, 0 );
 				context.PSSetShader( d3d11PipelineState->PixelShader( ), nullptr, 0 );
 
 				float blendFactor[4] = {} /*Temp*/;
@@ -206,12 +212,12 @@ namespace aga
 			}
 		}
 
-		static void Draw( ID3D11DeviceContext& context, uint32 indexCount, uint32 startIndexLocation, uint32 baseVertexLocation )
+		static void DrawInstanced( ID3D11DeviceContext& context, uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
 		{
-			context.DrawIndexed( indexCount, startIndexLocation, baseVertexLocation );
+			context.DrawInstanced( vertexCount, numInstance, baseVertexLocation, 0 );
 		}
 
-		static void DrawInstancing( ID3D11DeviceContext& context, uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
+		static void DrawIndexedInstanced( ID3D11DeviceContext& context, uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
 		{
 			context.DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation, 0 );
 		}
@@ -304,14 +310,14 @@ namespace aga
 		D3D11CommandList::BindShaderResources( D3D11Context( ), shaderBindings );
 	}
 
-	void D3D11ImmediateCommandList::Draw( uint32 indexCount, uint32 startIndexLocation, uint32 baseVertexLocation )
+	void D3D11ImmediateCommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
 	{
-		D3D11CommandList::Draw( D3D11Context( ), indexCount, startIndexLocation, baseVertexLocation );
+		D3D11CommandList::DrawInstanced( D3D11Context( ), vertexCount, numInstance, baseVertexLocation );
 	}
 
-	void D3D11ImmediateCommandList::DrawInstancing( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
+	void D3D11ImmediateCommandList::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
 	{
-		D3D11CommandList::DrawInstancing( D3D11Context( ), indexCount, numInstance, startIndexLocation, baseVertexLocation );
+		D3D11CommandList::DrawIndexedInstanced( D3D11Context( ), indexCount, numInstance, startIndexLocation, baseVertexLocation );
 	}
 
 	void D3D11ImmediateCommandList::SetViewports( uint32 count, const CubeArea<float>* areas )
@@ -335,34 +341,34 @@ namespace aga
 		d3d11DeferredCommandList.RequestExecute( );
 	}
 
-	void D3D11DeferredCommandList::BindVertexBuffer( Buffer * const * vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32 * pOffsets )
+	void D3D11DeferredCommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32 * pOffsets )
 	{
 		D3D11CommandList::BindVertexBuffer( *m_pContext, vertexBuffers, startSlot, numBuffers, pOffsets );
 	}
 
-	void D3D11DeferredCommandList::BindIndexBuffer( Buffer * indexBuffer, uint32 indexOffset )
+	void D3D11DeferredCommandList::BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset )
 	{
 		D3D11CommandList::BindIndexBuffer( *m_pContext, indexBuffer, indexOffset );
 	}
 
-	void D3D11DeferredCommandList::BindPipelineState( PipelineState * pipelineState )
+	void D3D11DeferredCommandList::BindPipelineState( PipelineState* pipelineState )
 	{
 		D3D11CommandList::BindPipelineState( *m_pContext, pipelineState );
 	}
 
-	void D3D11DeferredCommandList::BindShaderResources( const ShaderBindings & shaderBindings )
+	void D3D11DeferredCommandList::BindShaderResources( const ShaderBindings& shaderBindings )
 	{
 		D3D11CommandList::BindShaderResources( *m_pContext, shaderBindings );
 	}
 
-	void D3D11DeferredCommandList::Draw( uint32 indexCount, uint32 startIndexLocation, uint32 baseVertexLocation )
+	void D3D11DeferredCommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
 	{
-		D3D11CommandList::Draw( *m_pContext, indexCount, startIndexLocation, baseVertexLocation );
+		D3D11CommandList::DrawInstanced( *m_pContext, vertexCount, numInstance, baseVertexLocation );
 	}
 
-	void D3D11DeferredCommandList::DrawInstancing( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
+	void D3D11DeferredCommandList::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
 	{
-		D3D11CommandList::DrawInstancing( *m_pContext, indexCount, numInstance, startIndexLocation, baseVertexLocation );
+		D3D11CommandList::DrawIndexedInstanced( *m_pContext, indexCount, numInstance, startIndexLocation, baseVertexLocation );
 	}
 
 	void D3D11DeferredCommandList::SetViewports( uint32 count, const CubeArea<float>* areas )

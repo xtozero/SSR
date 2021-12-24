@@ -26,7 +26,11 @@ void GlobalShader::BootUp( )
 		IAssetLoader::LoadCompletionCallback onLoadComplete;
 		onLoadComplete.BindFunctor( [typeIndex]( const std::shared_ptr<void>& asset )
 		{
-			GlobalShader::GetInstance( ).RegisterShader( typeIndex, std::static_pointer_cast<ShaderBase>( asset ) );
+			EnqueueRenderTask(
+			[typeIndex, asset]( )
+			{
+				GlobalShader::GetInstance( ).RegisterShader( typeIndex, std::static_pointer_cast<ShaderBase>( asset ) );
+			} );
 		} );
 
 		AssetLoaderSharedHandle handle = assetLoader->RequestAsyncLoad( assetPath, onLoadComplete );
@@ -34,6 +38,11 @@ void GlobalShader::BootUp( )
 		assert( handle->IsLoadingInProgress( ) || handle->IsLoadComplete( ) );
 		++m_loadingInProgress;
 	}
+}
+
+bool GlobalShader::IsReady( ) const
+{
+	return m_loadingInProgress == 0;
 }
 
 bool GlobalShader::RegisterShader( std::type_index typeIndex, const std::shared_ptr<ShaderBase>& shader )

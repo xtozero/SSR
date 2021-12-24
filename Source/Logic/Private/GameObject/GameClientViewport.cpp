@@ -32,6 +32,12 @@ void GameClientViewport::Draw( )
 		return;
 	}
 
+	auto renderModule = GetInterface<IRenderCore>( );
+	if ( renderModule->IsReady( ) == false )
+	{
+		return;
+	}
+
 	++m_curDrawFence;
 
 	float clearColor[4] = { m_clearColor[0], m_clearColor[1], m_clearColor[2], m_clearColor[3] };
@@ -42,7 +48,7 @@ void GameClientViewport::Draw( )
 
 	RenderViewGroup renderViewGroup( *GetWorld()->Scene(), *m_viewport );
 	InitView( renderViewGroup );
-	EnqueueRenderTask( [renderModule = GetInterface<IRenderCore>( ), renderViewGroup]( ) mutable
+	EnqueueRenderTask( [renderModule, renderViewGroup]( ) mutable
 	{
 		if ( renderModule )
 		{

@@ -2,6 +2,7 @@
 
 #include "BitArray.h"
 
+#include <cassert>
 #include <optional>
 #include <type_traits>
 
@@ -21,6 +22,15 @@ template <typename T>
 class SparseArray
 {
 public:
+	void Clear( )
+	{
+		m_data.clear( );
+		m_allocationFlag.Clear( );
+
+		m_firstFreeIndex = {};
+		m_size = 0;
+	}
+
 	size_t AddUninitialized( )
 	{
 		size_t index = 0;
@@ -47,6 +57,7 @@ public:
 			m_allocationFlag.Add( false );
 		}
 
+		++m_size;
 		m_allocationFlag[index] = true;
 		return index;
 	}
@@ -55,8 +66,6 @@ public:
 	{
 		size_t index = AddUninitialized( );
 		new ( m_data[index].m_data )T( element );
-
-		++m_size;
 
 		return index;
 	}
@@ -72,8 +81,6 @@ public:
 		( (T&)data.m_data ).~T( );
 
 		RemoveUninitialized( index );
-
-		--m_size;
 	}
 
 	size_t Size( ) const
@@ -181,6 +188,8 @@ private:
 
 		elem.m_node.m_next = m_firstFreeIndex ? m_firstFreeIndex.value() : index;
 		m_firstFreeIndex = index;
+
+		--m_size;
 		m_allocationFlag[index] = false;
 	}
 
