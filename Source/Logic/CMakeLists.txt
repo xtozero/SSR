@@ -122,14 +122,12 @@ set (SCENE
 	Private/Scene/DebugOverlayManager.cpp
 	Private/Scene/DynamicBuffer.cpp
 	Private/Scene/ScreenBlurManager.cpp
-	Private/Scene/ShadowManager.cpp
 	Private/Scene/SSRManager.cpp
 	Public/Scene/AtmosphereScattering.h
 	Public/Scene/DebugOverlayManager.h
 	Public/Scene/DynamicBuffer.h
 	Public/Scene/INotifyGraphicsDevice.h
 	Public/Scene/ScreenBlurManager.h
-	Public/Scene/ShadowManager.h
 	Public/Scene/SSRManager.h)
 	
 set (TEST_SCENE_OBJECT

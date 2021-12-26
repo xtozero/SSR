@@ -229,9 +229,8 @@ void ForwardRenderer::RenderDepthPass( RenderViewGroup& renderViewGroup, uint32 
 	};
 	StoreOuputContext( context );
 
-	float clearColor[4] = { };
-	GraphicsInterface( ).ClearRenderTarget( renderTarget, clearColor );
-	GraphicsInterface( ).ClearRenderTarget( worldNormal, clearColor );
+	GraphicsInterface( ).ClearRenderTarget( renderTarget, { 1, 1, 1, 1 } );
+	GraphicsInterface( ).ClearRenderTarget( worldNormal, { } );
 	GraphicsInterface( ).ClearDepthStencil( depthStencil, 1.f, 0 );
 
 	IScene& scene = renderViewGroup.Scene( );

@@ -1,6 +1,5 @@
 #pragma once
 #include "math/CXMFLOAT.h"
-#include "physics/Aaboundingbox.h"
 
 #include <vector>
 
@@ -14,8 +13,8 @@ public:
 	CXMFLOAT4X4 GetLookAt( ) const { return m_lookAt; }
 
 	CBoundingCone( ) = default;
-	CBoundingCone( const std::vector<CAaboundingbox>& boxes, const CXMFLOAT4X4& projection, const CXMFLOAT3& apex );
-	CBoundingCone( const std::vector<CAaboundingbox>& boxes, const CXMFLOAT4X4& projection, const CXMFLOAT3& apex, const CXMFLOAT3& dir );
+	CBoundingCone( const std::vector<CXMFLOAT3>& points, const CXMFLOAT4X4& projection, const CXMFLOAT3& apex );
+	CBoundingCone( const std::vector<CXMFLOAT3>& points, const CXMFLOAT4X4& projection, const CXMFLOAT3& apex, const CXMFLOAT3& dir );
 	~CBoundingCone( ) = default;
 
 private:

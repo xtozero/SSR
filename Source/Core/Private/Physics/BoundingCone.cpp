@@ -5,12 +5,12 @@
 
 #include <algorithm>
 
-CBoundingCone::CBoundingCone( const std::vector<CAaboundingbox>& boxes, const CXMFLOAT4X4& projection, const CXMFLOAT3& apex )
+CBoundingCone::CBoundingCone( const std::vector<CXMFLOAT3>& points, const CXMFLOAT4X4& projection, const CXMFLOAT3& apex )
 	: m_apex( apex )
 {
 	using namespace DirectX;
 
-	switch ( boxes.size() )
+	switch ( points.size() )
 	{
 	case 0:
 	{
@@ -22,18 +22,10 @@ CBoundingCone::CBoundingCone( const std::vector<CAaboundingbox>& boxes, const CX
 	}
 	default:
 	{
-		std::vector<CXMFLOAT3> points;
-		points.resize( boxes.size( ) * 8 );
-
-		uint32 j = 0;
-		for ( const auto& box : boxes )
+		std::vector<CXMFLOAT3> projectedPoints = points;
+		for ( auto& point : projectedPoints )
 		{
-			for ( uint32 i = 0; i < 8; ++i )
-			{
-				points[j] = XMVector3TransformCoord( box.Point( i ), projection );
-
-				++j;
-			}
+			point = XMVector3TransformCoord( point, projection );
 		}
 
 		BoundingSphere sphere( points );
@@ -71,7 +63,7 @@ CBoundingCone::CBoundingCone( const std::vector<CAaboundingbox>& boxes, const CX
 	}
 }
 
-CBoundingCone::CBoundingCone( const std::vector<CAaboundingbox>& boxes, const CXMFLOAT4X4& projection, const CXMFLOAT3& apex, const CXMFLOAT3& dir ) :
+CBoundingCone::CBoundingCone( const std::vector<CXMFLOAT3>& points, const CXMFLOAT4X4& projection, const CXMFLOAT3& apex, const CXMFLOAT3& dir ) :
 	m_apex( apex )
 {
 	using namespace DirectX;
@@ -94,18 +86,14 @@ CBoundingCone::CBoundingCone( const std::vector<CAaboundingbox>& boxes, const CX
 	m_near = FLT_MAX;
 	m_far = -FLT_MAX;
 
-	for ( size_t i = 0; i < boxes.size( ); ++i )
+	for ( const CXMFLOAT3& point : points )
 	{
-		const CAaboundingbox& box = boxes[i];
-		for ( uint32 j = 0; j < 8; ++j )
-		{
-			CXMFLOAT3 point = XMVector3TransformCoord( box.Point( j ), concatMatrix );
+		CXMFLOAT3 newPoint = XMVector3TransformCoord( point, concatMatrix );
 
-			maxTanX = std::max( maxTanX, abs( point.x / point.z ) );
-			maxTanY = std::max( maxTanY, abs( point.y / point.z ) );
-			m_near = std::min( m_near, point.z );
-			m_far = std::max( m_far, point.z );
-		}
+		maxTanX = std::max( maxTanX, abs( newPoint.x / newPoint.z ) );
+		maxTanY = std::max( maxTanY, abs( newPoint.y / newPoint.z ) );
+		m_near = std::min( m_near, newPoint.z );
+		m_far = std::max( m_far, newPoint.z );
 	}
 
 	m_fovX = atanf( maxTanX );

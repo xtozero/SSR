@@ -225,7 +225,7 @@ uint32 SphereAndFrusturm( const CXMFLOAT3& origin, float radius, const Frustum& 
 
 	bool inside = true;
 
-	for ( int i = 0; ( i < 6 ) && inside; i++ )
+	for ( uint32 i = 0; ( i < 6 ) && inside; i++ )
 	{
 		inside = inside && ( ( XMVectorGetX( XMPlaneDotCoord( planes[i], origin ) ) + radius ) >= 0.f );
 	}

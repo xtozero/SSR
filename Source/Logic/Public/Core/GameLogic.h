@@ -14,7 +14,6 @@
 // #include "Render/Resource.h"
 #include "Scene/AtmosphereScattering.h"
 #include "Scene/DebugOverlayManager.h"
-#include "Scene/ShadowManager.h"
 #include "Scene/SSRManager.h"
 #include "SizedTypes.h"
 #include "Timer.h"
@@ -52,7 +51,6 @@ public:
 	void SpawnObject( Owner<CGameObject*> object );
 
 	//IRenderer& GetRenderer( ) const { return *m_pRenderer; }
-	//CShadowManager& GetShadowManager( ) { return m_shadowManager; }
 	//CModelManager& GetModelManager( ) { return m_modelManager; }
 	//ImUI& GetUIManager( ) { return m_ui; }
 	//RE_HANDLE GetCommonConstantBuffer( uint32 purpose ) { return m_commonConstantBuffer[purpose]; }
@@ -100,7 +98,6 @@ private:
 	CTimer m_clock;
 	std::unique_ptr<InputController> m_inputController;
 	//CPickingManager m_pickingManager;
-	//CShadowManager m_shadowManager;
 	//CSSRManager m_ssrManager;
 	//CAtmosphericScatteringManager m_atmosphereManager;
 	//CModelManager m_modelManager;
