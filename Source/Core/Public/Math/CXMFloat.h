@@ -4,6 +4,9 @@
 
 #include <DirectXMath.h>
 
+struct CXMFLOAT4X4;
+struct CXMFLOAT4;
+
 //------------------------------
 // 2D Vector : simple wrapper struct for support operation
 struct CXMFLOAT2 : public DirectX::XMFLOAT2
@@ -168,6 +171,7 @@ struct CXMFLOAT3 : public DirectX::XMFLOAT3
 	CXMFLOAT3( ) : XMFLOAT3{} {}
 	CXMFLOAT3( float x, float y, float z ) : XMFLOAT3( x, y, z ) {}
 	explicit CXMFLOAT3( const float *pArray ) : XMFLOAT3( pArray ) {}
+	explicit CXMFLOAT3( const CXMFLOAT4& other );
 
 	CXMFLOAT3( const DirectX::FXMVECTOR vec )
 	{
@@ -321,6 +325,7 @@ struct CXMFLOAT4 : public DirectX::XMFLOAT4
 	CXMFLOAT4( ) : XMFLOAT4{} {}
 	CXMFLOAT4( float x, float y, float z, float w ) : XMFLOAT4( x, y, z, w ) {}
 	explicit CXMFLOAT4( const float *pArray ) : XMFLOAT4( pArray ) {}
+	explicit CXMFLOAT4( const CXMFLOAT3& other );
 
 	CXMFLOAT4( const DirectX::FXMVECTOR vec )
 	{
@@ -498,6 +503,8 @@ struct CXMFLOAT3X3 : public DirectX::XMFLOAT3X3
 		XMFLOAT3X3( row1.x, row1.y, row1.z,
 		row2.x, row2.y, row2.z,
 		row3.x, row3.y, row3.z ) {}
+	explicit CXMFLOAT3X3( const CXMFLOAT4X4& other );
+
 	explicit CXMFLOAT3X3( const float *pArray ) : XMFLOAT3X3( pArray ) {}
 
 	CXMFLOAT3X3( const DirectX::CXMMATRIX mat )

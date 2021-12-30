@@ -142,13 +142,13 @@ public:
 	class Iterator : public IteratorBase<false>
 	{
 	public:
-		using IteratorBase::IteratorBase;
+		using IteratorBase<false>::IteratorBase;
 	};
 
 	class ConstIterator : public IteratorBase<true>
 	{
 	public:
-		using IteratorBase::IteratorBase;
+		using IteratorBase<true>::IteratorBase;
 	};
 
 	Iterator begin( ) noexcept

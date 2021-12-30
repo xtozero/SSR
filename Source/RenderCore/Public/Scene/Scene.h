@@ -112,7 +112,7 @@ private:
 
 	SparseArray<LightSceneInfo*> m_lights;
 
-	SparseArray<DrawSnapshot> m_cachedSnapshots[RenderPass::Count];
+	SparseArray<DrawSnapshot> m_cachedSnapshots[static_cast<uint32>( RenderPass::Count )];
 	CachedDrawSnapshotBucket m_cachedSnapshotBuckect;
 
 	SceneViewConstantBuffer m_viewConstant;

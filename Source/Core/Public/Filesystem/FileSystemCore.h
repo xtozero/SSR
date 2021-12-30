@@ -78,7 +78,7 @@ public:
 	{
 		if ( handle.IsValid( ) == false )
 		{
-			return false;
+			return nullptr;
 		}
 
 		HANDLE hFile = handle.m_handle;
@@ -86,7 +86,7 @@ public:
 		if ( hPort == nullptr || hPort != m_completionPort )
 		{
 			assert( false );
-			return false;
+			return nullptr;
 		}
 
 		OverlappedType* overlapped = m_overlappedPool.Allocate( 1 );

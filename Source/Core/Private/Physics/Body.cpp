@@ -306,7 +306,7 @@ void RigidBody::CalculateDerivedData( )
 	m_transformMatrix = XMMatrixMultiply( rotateMatrix, XMMatrixTranslationFromVector( m_position ) );
 
 	// M^-1 * I * M
-	CXMFLOAT3X3 transformMat3x3 = m_transformMatrix;
+	auto transformMat3x3 = CXMFLOAT3X3( m_transformMatrix );
 	m_inverseInertiaTenserWorld = XMMatrixMultiply( XMMatrixTranspose( transformMat3x3 ), m_inverseInertiaTensor );
 	m_inverseInertiaTenserWorld = XMMatrixMultiply( m_inverseInertiaTenserWorld, transformMat3x3 );
 }

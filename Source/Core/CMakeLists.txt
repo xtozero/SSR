@@ -49,6 +49,7 @@ set (LIBRARY_TOOL
 	Public/LibraryTool/Interfacefactories.h)
 
 set (Math
+	Private/Math/CXMFloat.cpp
 	Public/Math/CXMFloat.h
 	Public/Math/Util.h)
 

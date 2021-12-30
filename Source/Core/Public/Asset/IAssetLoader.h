@@ -4,6 +4,7 @@
 #include "SizedTypes.h"
 
 #include <memory>
+#include <string>
 
 class AssetLoaderHandle;
 

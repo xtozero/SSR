@@ -163,7 +163,7 @@ void BuildOrthoShadowProjectionMatrix( ShadowInfo& shadowInfo )
 	CRay ray( rayOrigin, viewLightDir );
 	float t = casterAABB.Intersect( ray );
 
-	CXMFLOAT3 lightPosition = lightProperty.m_position;
+	auto lightPosition = CXMFLOAT3( lightProperty.m_position );
 	if ( t > 0.f )
 	{
 		CXMFLOAT3 collsionPos = rayOrigin;
@@ -326,7 +326,7 @@ void BuildPSMProjectionMatrix( ShadowInfo& shadowInfo )
 	}
 	else
 	{
-		CXMFLOAT3 ppLightPos = lightPos / lightPos.w;
+		auto ppLightPos = CXMFLOAT3( lightPos / lightPos.w );
 
 		CXMFLOAT4X4 eyeToPostProjectiveVirtualCamera;
 		eyeToPostProjectiveVirtualCamera = XMMatrixMultiply( virtualCameraView, virtualCameraProjection );

@@ -24,7 +24,7 @@ namespace aga
 
 		~D3D11ViewBase( )
 		{
-			Free( );
+			this->Free( );
 		}
 
 		D3D11ViewBase( const D3D11ViewBase& other )
@@ -57,7 +57,7 @@ namespace aga
 
 				if ( m_view )
 				{
-					m_srv->AddRef( );
+					this->m_srv->AddRef( );
 				}
 			}
 

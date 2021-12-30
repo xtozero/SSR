@@ -30,7 +30,7 @@ struct RenderView
 	float m_aspect = 0.f;
 	float m_fov = 0.f;
 
-	std::vector<VisibleDrawSnapshot> m_snapshots[RenderPass::Count];
+	std::vector<VisibleDrawSnapshot> m_snapshots[static_cast<uint32>(RenderPass::Count)];
 
 	ForwardLightingResource* m_forwardLighting = nullptr;
 };

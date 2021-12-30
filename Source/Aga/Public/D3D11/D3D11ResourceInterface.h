@@ -35,7 +35,7 @@ public:
 	{
 		if ( m_pResource.Get( ) == nullptr )
 		{
-			Init( );
+			this->Init( );
 		}
 
 		return m_pResource.Get( );

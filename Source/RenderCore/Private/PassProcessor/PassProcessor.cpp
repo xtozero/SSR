@@ -106,5 +106,5 @@ PassProcessorRegister::PassProcessorRegister( RenderPass passType, PassProcessor
 	PassProcessorManager::RegisterCreateFunction( passType, createFunction );
 }
 
-std::unique_ptr<IPassProcessor> PassProcessorManager::m_passProcessors[RenderPass::Count] = {};
-PassProcessorCreateFunction PassProcessorManager::m_createFunctions[RenderPass::Count] = {};
+std::unique_ptr<IPassProcessor> PassProcessorManager::m_passProcessors[static_cast<uint32>(RenderPass::Count)] = {};
+PassProcessorCreateFunction PassProcessorManager::m_createFunctions[static_cast<uint32>(RenderPass::Count)] = {};

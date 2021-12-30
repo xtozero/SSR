@@ -53,12 +53,12 @@ public:
 	~DelegateStorage( ) = default;
 	DelegateStorage( const DelegateStorage& ) = delete;
 	DelegateStorage& operator=( const DelegateStorage& ) = delete;
-	DelegateStorage( DelegateStorage&& other )
+	DelegateStorage( DelegateStorage&& other ) noexcept
 	{
 		*this = std::move( other );
 	}
 
-	DelegateStorage& operator=( DelegateStorage&& other )
+	DelegateStorage& operator=( DelegateStorage&& other ) noexcept
 	{
 		if ( &other != this )
 		{
@@ -90,13 +90,10 @@ inline void operator delete( void* pMem, [[maybe_unused]] DelegateStorage& stora
 class DelegateHandle
 {
 public:
-	enum GenerateNewHandleType
-	{
-		GenerateNewHandle
-	};
+	struct GenerateNewHandle {};
 
 	DelegateHandle( ) : m_id( 0 ) { }
-	DelegateHandle( GenerateNewHandleType ) : m_id( GenerateNewID() ) { }
+	DelegateHandle( GenerateNewHandle ) : m_id( GenerateNewID() ) { }
 
 	friend bool operator==( const DelegateHandle& lhs, const DelegateHandle& rhs )
 	{
@@ -159,7 +156,7 @@ public:
 		new ( storage )FunctionDelegate( func );
 	}
 
-	FunctionDelegate( const FunctionPointer func ) : m_func( func ), m_handle( DelegateHandle::GenerateNewHandle ) {}
+	FunctionDelegate( const FunctionPointer func ) : m_func( func ), m_handle( DelegateHandle::GenerateNewHandle{} ) {}
 
 private:
 	FunctionPointer m_func;
@@ -194,7 +191,7 @@ public:
 		new ( storage )MemberFunctionDelegate( instance, func );
 	}
 
-	MemberFunctionDelegate( ClassType* instance, const MemberFunctionPointer func ) : m_instance( instance ), m_func( func ), m_handle( DelegateHandle::GenerateNewHandle ) {}
+	MemberFunctionDelegate( ClassType* instance, const MemberFunctionPointer func ) : m_instance( instance ), m_func( func ), m_handle( DelegateHandle::GenerateNewHandle{} ) {}
 
 private:
 	ClassType* m_instance;
@@ -239,8 +236,8 @@ public:
 		new ( storage )FunctorDelegate( std::move( func ) );
 	}
 
-	FunctorDelegate( const FunctorType& func ) : m_func( func ), m_handle(DelegateHandle::GenerateNewHandle) {}
-	FunctorDelegate( FunctorType&& func ) : m_func( std::move( func ) ), m_handle( DelegateHandle::GenerateNewHandle ) {}
+	FunctorDelegate( const FunctorType& func ) : m_func( func ), m_handle( DelegateHandle::GenerateNewHandle{} ) {}
+	FunctorDelegate( FunctorType&& func ) : m_func( std::move( func ) ), m_handle( DelegateHandle::GenerateNewHandle{} ) {}
 
 private:
 	FunctorType m_func;

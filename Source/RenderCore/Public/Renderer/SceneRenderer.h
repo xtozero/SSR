@@ -56,6 +56,7 @@ public:
 
 	static void WaitUntilRenderingIsFinish( );
 
+	virtual ~SceneRenderer() = default;
 protected:
 	void InitDynamicShadows( RenderViewGroup& renderViewGroup );
 	void ClassifyShadowCasterAndReceiver( IScene& scene, const std::vector<ShadowInfo*>& shadows );

@@ -270,7 +270,7 @@ void Contact::ApplyPositionChange( CXMFLOAT3 linearChange[2], CXMFLOAT3 angularC
 			m_body[i]->SetPosition( pos );
 
 			// quaternion differentiation
-			CXMFLOAT4 dq = angularChange[i];
+			auto dq = CXMFLOAT4( angularChange[i] );
 			CXMFLOAT4 q = m_body[i]->GetOrientation( );
 			dq = XMQuaternionMultiply( q, dq ) * 0.5f;
 			q += dq;

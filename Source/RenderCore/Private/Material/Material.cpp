@@ -326,7 +326,7 @@ bool Material::HasProperty( const char* key ) const
 		return found->second != nullptr;
 	}
 
-	return nullptr;
+	return false;
 }
 
 const ShaderBase* Material::GetShader( SHADER_TYPE type ) const

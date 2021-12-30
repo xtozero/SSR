@@ -527,8 +527,8 @@ namespace Wavefront
 		}
 
 	private:
-		static constexpr char* DefaultObjectName = "default";
-		static constexpr char* DefaultMaterialName = "default";
+		static constexpr const char* DefaultObjectName = "default";
+		static constexpr const char* DefaultMaterialName = "default";
 		void CreateMesh( ObjModel& mesh )
 		{
 			if ( m_curObject == nullptr )

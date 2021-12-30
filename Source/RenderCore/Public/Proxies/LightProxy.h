@@ -52,6 +52,7 @@ public:
 	}
 
 	RENDERCORE_DLL LightProxy( const LightComponent& component );
+	virtual ~LightProxy() = default;
 
 protected:
 	friend Scene;

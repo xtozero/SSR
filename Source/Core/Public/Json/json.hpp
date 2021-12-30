@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cassert>
 #include <filesystem>
 #include <fstream>
@@ -68,10 +70,7 @@ namespace JSON
 		EMPTY	// null
 	};
 
-	class Value;
-	using ObjectType = std::unordered_map<std::string, Value>;
-
-	template <typename T>
+	template <typename T, typename ObjectType>
 	class ValueIteratorBase
 	{
 	public:
@@ -83,7 +82,7 @@ namespace JSON
 			return m_otherType ? "" : m_mapType->first;
 		}
 
-		friend bool operator==( const ValueIteratorBase<T>& lhs, const ValueIteratorBase<T>& rhs )
+		friend bool operator==( const ValueIteratorBase<T, ObjectType>& lhs, const ValueIteratorBase<T, ObjectType>& rhs )
 		{
 			if ( lhs.m_otherType )
 			{
@@ -93,7 +92,7 @@ namespace JSON
 			return lhs.m_mapType == rhs.m_mapType;
 		}
 
-		friend bool operator!=( const ValueIteratorBase<T>& lhs, const ValueIteratorBase<T>& rhs )
+		friend bool operator!=( const ValueIteratorBase<T, ObjectType>& lhs, const ValueIteratorBase<T, ObjectType>& rhs )
 		{
 			return !( lhs == rhs );
 		}
@@ -129,8 +128,8 @@ namespace JSON
 		pointer m_otherType = nullptr;
 	};
 
-	template <typename T>
-	class ValueIterator : public ValueIteratorBase<T>
+	template <typename T, typename ObjectType>
+	class ValueIterator : public ValueIteratorBase<T, ObjectType>
 	{
 	public:
 		using iterator_category = std::bidirectional_iterator_tag;
@@ -141,23 +140,23 @@ namespace JSON
 
 		explicit ValueIterator( ObjectType::iterator iterator ) noexcept
 		{
-			m_mapType = iterator;
+			this->m_mapType = iterator;
 		}
 
 		explicit ValueIterator( pointer pValue ) noexcept
 		{
-			m_otherType = pValue;
+			this->m_otherType = pValue;
 		}
 
 		ValueIterator& operator++( )
 		{
-			Increment( );
+			this->Increment( );
 			return *this;
 		}
 
 		ValueIterator& operator--( )
 		{
-			Decrement( );
+			this->Decrement( );
 			return *this;
 		}
 
@@ -177,17 +176,17 @@ namespace JSON
 
 		reference operator*( )
 		{
-			return Dereference( );
+			return this->Dereference( );
 		}
 
 		pointer operator->( )
 		{
-			return &Dereference( );
+			return &this->Dereference( );
 		}
 	};
 
-	template <typename T>
-	class ConstValueIterator : public ValueIteratorBase<const T>
+	template <typename T, typename ObjectType>
+	class ConstValueIterator : public ValueIteratorBase<const T, ObjectType>
 	{
 	public:
 		using iterator_category = std::bidirectional_iterator_tag;
@@ -198,23 +197,23 @@ namespace JSON
 
 		explicit ConstValueIterator( ObjectType::iterator iterator ) noexcept
 		{
-			m_mapType = iterator;
+			this->m_mapType = iterator;
 		}
 
 		explicit ConstValueIterator( pointer pValue ) noexcept
 		{
-			m_otherType = pValue;
+			this->m_otherType = pValue;
 		}
 
 		ConstValueIterator& operator++( )
 		{
-			Increment( );
+			this->Increment( );
 			return *this;
 		}
 
 		ConstValueIterator& operator--( )
 		{
-			Decrement( );
+			this->Decrement( );
 			return *this;
 		}
 
@@ -234,18 +233,20 @@ namespace JSON
 
 		reference operator*( )
 		{
-			return Dereference( );
+			return this->Dereference( );
 		}
 
 		pointer operator->( )
 		{
-			return &Dereference( );
+			return &this->Dereference( );
 		}
 	};
 
 	class Value
 	{
 	public:
+		using ObjectType = std::unordered_map<std::string, Value>;
+
 		DataType Type( ) const { return m_type; }
 
 		const std::string AsString( ) const
@@ -440,81 +441,81 @@ namespace JSON
 			return size;
 		}
 
-		ConstValueIterator<Value> begin() const noexcept
+		ConstValueIterator<Value, ObjectType> begin() const noexcept
 		{
 			switch ( Type( ) )
 			{
 			case JSON::DataType::OBJECT:
 				[[fallthrough]];
 			case JSON::DataType::ARRAY:
-				return ConstValueIterator<Value>( m_data.m_object->begin() );
+				return ConstValueIterator<Value, ObjectType>( m_data.m_object->begin() );
 			default:
-				return ConstValueIterator<Value>( this );
+				return ConstValueIterator<Value, ObjectType>( this );
 			}
 		}
 
-		ConstValueIterator<Value> end( ) const noexcept
+		ConstValueIterator<Value, ObjectType> end( ) const noexcept
 		{
 			switch ( Type( ) )
 			{
 			case JSON::DataType::OBJECT:
 				[[fallthrough]];
 			case JSON::DataType::ARRAY:
-				return ConstValueIterator<Value>( m_data.m_object->end( ) );
+				return ConstValueIterator<Value, ObjectType>( m_data.m_object->end( ) );
 			default:
-				return ConstValueIterator<Value>( nullptr );
+				return ConstValueIterator<Value, ObjectType>( nullptr );
 			}
 		}
 
-		ValueIterator<Value> begin( ) noexcept
+		ValueIterator<Value, ObjectType> begin( ) noexcept
 		{
 			switch ( Type( ) )
 			{
 			case JSON::DataType::OBJECT:
 				[[fallthrough]];
 			case JSON::DataType::ARRAY:
-				return ValueIterator<Value>( m_data.m_object->begin( ) );
+				return ValueIterator<Value, ObjectType>( m_data.m_object->begin( ) );
 			default:
-				return ValueIterator<Value>( this );
+				return ValueIterator<Value, ObjectType>( this );
 			}
 		}
 
-		ValueIterator<Value> end( ) noexcept
+		ValueIterator<Value, ObjectType> end( ) noexcept
 		{
 			switch ( Type( ) )
 			{
 			case JSON::DataType::OBJECT:
 				[[fallthrough]];
 			case JSON::DataType::ARRAY:
-				return ValueIterator<Value>( m_data.m_object->end( ) );
+				return ValueIterator<Value, ObjectType>( m_data.m_object->end( ) );
 			default:
-				return ValueIterator<Value>( nullptr );
+				return ValueIterator<Value, ObjectType>( nullptr );
 			}
 		}
 
-		ConstValueIterator<Value> cbegin( ) const noexcept
+		ConstValueIterator<Value, ObjectType> cbegin( ) const noexcept
 		{
 			switch ( Type( ) )
 			{
 			case JSON::DataType::OBJECT:
 				[[fallthrough]];
 			case JSON::DataType::ARRAY:
-				return ConstValueIterator<Value>( m_data.m_object->begin( ) );
+				return ConstValueIterator<Value, ObjectType>( m_data.m_object->begin( ) );
 			default:
-				return ConstValueIterator<Value>( this );
+				return ConstValueIterator<Value, ObjectType>( this );
 			}
 		}
 
-		ConstValueIterator<Value> cend( ) const noexcept
+		ConstValueIterator<Value, ObjectType> cend( ) const noexcept
 		{
 			switch ( Type( ) )
 			{
 			case JSON::DataType::OBJECT:
 				[[fallthrough]];
 			case JSON::DataType::ARRAY:
-				return ConstValueIterator<Value>( m_data.m_object->end( ) );
+				return ConstValueIterator<Value, ObjectType>( m_data.m_object->end( ) );
 			default:
-				return ConstValueIterator<Value>( nullptr );
+				return ConstValueIterator<Value, ObjectType>( nullptr );
 			}
 		}
 

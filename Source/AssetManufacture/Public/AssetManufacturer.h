@@ -16,6 +16,8 @@ class IManufacturer
 public:
 	virtual bool IsSuitable( const std::filesystem::path& srcPath ) const = 0;
 	virtual std::optional<Products> Manufacture( const std::filesystem::path& srcPath, const std::filesystem::path& destPath ) const = 0;
+
+	virtual ~IManufacturer() = default;
 };
 
 class AssetManufacturer

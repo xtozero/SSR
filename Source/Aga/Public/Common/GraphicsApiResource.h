@@ -29,9 +29,9 @@ static constexpr uint32 MAX_VERTEX_LAYOUT_SIZE = 32;
 static constexpr uint32 MAX_VERTEX_SLOT = 32;
 static constexpr uint32 MAX_RENDER_TARGET = 8;
 
-inline constexpr char* ToString( SHADER_TYPE shaderType )
+inline const char* ToString( SHADER_TYPE shaderType )
 {
-	constexpr char* shaderTypeStr[] = {
+	const char* shaderTypeStr[] = {
 		"VS",
 		"HS",
 		"DS",

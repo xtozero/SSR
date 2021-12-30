@@ -45,7 +45,7 @@ class IPassProcessor
 public:
 	virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) = 0;
 
-	~IPassProcessor( ) = default;
+	virtual ~IPassProcessor( ) = default;
 
 protected:
 	std::optional<DrawSnapshot> BuildDrawSnapshot( const PrimitiveSubMesh& subMesh, const PassShader& passShader, const PassRenderOption& passRenderOption, VertexStreamLayoutType layoutType );
@@ -61,8 +61,8 @@ public:
 	static void RegisterCreateFunction( RenderPass passType, PassProcessorCreateFunction createFunction );
 
 private:
-	static std::unique_ptr<IPassProcessor> m_passProcessors[RenderPass::Count];
-	static PassProcessorCreateFunction m_createFunctions[RenderPass::Count];
+	static std::unique_ptr<IPassProcessor> m_passProcessors[static_cast<uint32>( RenderPass::Count )];
+	static PassProcessorCreateFunction m_createFunctions[static_cast<uint32>( RenderPass::Count )];
 };
 
 class PassProcessorRegister

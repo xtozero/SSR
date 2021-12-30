@@ -106,7 +106,7 @@ int32 main( int32 argc, const char* argv[] )
 			}
 			else
 			{
-				std::cerr << "Failed to process asset (" + p.path( ).u8string( ) + ")" << std::endl;
+				std::cerr << "Failed to process asset (" + p.path( ).generic_string( ) + ")" << std::endl;
 			}
 		}
 	}

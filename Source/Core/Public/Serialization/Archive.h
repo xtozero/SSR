@@ -50,12 +50,12 @@ public:
 		return *this;
 	}
 
-	BinaryChunk( BinaryChunk&& other )
+	BinaryChunk( BinaryChunk&& other ) noexcept
 	{
 		( *this ) = std::move( other );
 	}
 
-	BinaryChunk& operator=( BinaryChunk&& other )
+	BinaryChunk& operator=( BinaryChunk&& other ) noexcept
 	{
 		if ( this != &other )
 		{
@@ -378,7 +378,7 @@ private:
 
 	void WriteData( const std::filesystem::path& path )
 	{
-		WriteData( path.u8string( ) );
+		WriteData( path.generic_string( ) );
 	}
 
 	void WriteData( const BinaryChunk& chunk )
