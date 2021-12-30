@@ -1,5 +1,6 @@
 #include "Aaboundingbox.h"
 
+#include "BoxSphereBounds.h"
 #include "CollideNarrow.h"
 #include "Frustum.h"
 #include "Ray.h"
@@ -155,9 +156,15 @@ CAaboundingbox::CAaboundingbox( const std::vector<CAaboundingbox>& boxes )
 	}
 }
 
-CAaboundingbox::CAaboundingbox( const CXMFLOAT3* points, int32 numPoints )
+CAaboundingbox::CAaboundingbox( const BoxSphereBounds& bounds )
 {
-	for ( int32 i = 0; i < numPoints; ++i )
+	Merge( bounds.Origin( ) - bounds.HalfSize( ) );
+	Merge( bounds.Origin( ) + bounds.HalfSize( ) );
+}
+
+CAaboundingbox::CAaboundingbox( const CXMFLOAT3* points, uint32 numPoints )
+{
+	for ( uint32 i = 0; i < numPoints; ++i )
 	{
 		Merge( points[i] );
 	}

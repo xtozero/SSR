@@ -6,6 +6,8 @@
 
 #include <vector>
 
+class BoxSphereBounds;
+
 class CAaboundingbox : public ICollider
 {
 public:
@@ -18,7 +20,8 @@ public:
 
 	CAaboundingbox( ) = default;
 	explicit CAaboundingbox( const std::vector<CAaboundingbox>& boxes );
-	CAaboundingbox( const CXMFLOAT3* points, int32 numPoints );
+	explicit CAaboundingbox( const BoxSphereBounds& bounds );
+	CAaboundingbox( const CXMFLOAT3* points, uint32 numPoints );
 
 	void Merge( const CXMFLOAT3& vec );
 	CXMFLOAT3 Size( ) const

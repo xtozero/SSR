@@ -14,5 +14,5 @@ cbuffer ShadowDepthPassParameters : register( b0 )
 	float2 m_padding1;
 
 	CascadeConstant g_cascadeConstant[MAX_CASCADED_NUM];
-	matrix g_shadowViewProjection[MAX_CASCADED_NUM];
+	matrix g_shadowViewProjection[6];
 };

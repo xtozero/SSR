@@ -60,12 +60,17 @@ void ShadowInfo::SetupShadowConstantBuffer( )
 	LightProperty lightProperty = m_lightSceneInfo->Proxy( )->GetLightProperty( );
 	params.m_lightPosOrDir = ( lightProperty.m_type == LIGHT_TYPE::DIRECTINAL_LIGHT ) ? 
 		CXMFLOAT4( lightProperty.m_direction.x, lightProperty.m_direction.y, lightProperty.m_direction.z, 0.f ) : lightProperty.m_position;
-	params.m_slopeBiasScale = 0.4f;
+	params.m_slopeBiasScale = 0.2f;
 	params.m_constantBias = 0.05f;
 
 	for ( uint32 i = 0; i < CascadeShadowSetting::MAX_CASCADE_NUM; ++i )
 	{
-		params.m_cascadeFar[i].x = m_cacadeSetting.m_zClipFar[i];
+		params.m_cascadeFar[i].x = m_cacadeSetting.m_splitDistance[i + 1];
+		params.m_shadowViewProjection[i] = XMMatrixTranspose( m_shadowViewProjections[i] );
+	}
+
+	for ( uint32 i = CascadeShadowSetting::MAX_CASCADE_NUM; i < 6; ++i )
+	{
 		params.m_shadowViewProjection[i] = XMMatrixTranspose( m_shadowViewProjections[i] );
 	}
 

@@ -17,9 +17,7 @@ struct RenderView;
 struct CascadeShadowSetting
 {
 	static constexpr uint32 MAX_CASCADE_NUM = 2;
-
-	float m_zClipNear[MAX_CASCADE_NUM] = { -FLT_MAX, -FLT_MAX };
-	float m_zClipFar[MAX_CASCADE_NUM] = { FLT_MAX, FLT_MAX };
+	float m_splitDistance[MAX_CASCADE_NUM + 1] = {};
 };
 
 struct ShadowDepthPassParameters
@@ -30,7 +28,7 @@ struct ShadowDepthPassParameters
 	float m_padding1[2];
 
 	CXMFLOAT4 m_cascadeFar[CascadeShadowSetting::MAX_CASCADE_NUM];
-	CXMFLOAT4X4 m_shadowViewProjection[CascadeShadowSetting::MAX_CASCADE_NUM];
+	CXMFLOAT4X4 m_shadowViewProjection[6];
 };
 
 struct ShadowMapRenderTarget

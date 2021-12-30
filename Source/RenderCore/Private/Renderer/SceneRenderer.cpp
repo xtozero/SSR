@@ -244,16 +244,6 @@ void SceneRenderer::SetupShadow( )
 		{
 		case LIGHT_TYPE::DIRECTINAL_LIGHT:
 		{
-			CascadeShadowSetting& setting = shadowInfo.CascadeSetting( );
-
-			float interval = ( shadowInfo.SubjectFar( ) - shadowInfo.SubjectNear( ) ) / CascadeShadowSetting::MAX_CASCADE_NUM;
-
-			for ( uint32 i = 0; i < CascadeShadowSetting::MAX_CASCADE_NUM; ++i )
-			{
-				setting.m_zClipNear[i] = ( i == 0 ) ? shadowInfo.SubjectNear( ) : setting.m_zClipFar[i - 1];
-				setting.m_zClipFar[i] = ( i == ( CascadeShadowSetting::MAX_CASCADE_NUM - 1 ) ) ? shadowInfo.SubjectFar( ) : setting.m_zClipNear[i] + interval;
-			}
-
 			BuildOrthoShadowProjectionMatrix( shadowInfo );
 			break;
 		}
