@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Core/IListener.h"
-#include "Math/CXMFloat.h"
+#include "Math/Matrix.h"
+#include "Math/Vector2.h"
 #include "Physics/Ray.h"
 #include "SizedTypes.h"
 
@@ -55,12 +56,12 @@ private:
 
 	std::vector<VIEWPORT> m_viewports;
 	std::vector<CameraComponent*> m_cameras;
-	std::vector<CXMFLOAT4X4> m_InvProjections;
+	std::vector<Matrix> m_InvProjections;
 
 	CGameObject* m_curSelectedObject = nullptr;
 	int32 m_curSelectedIdx = -1;
 
-	CXMFLOAT2 m_curMousePos;
+	Point2 m_curMousePos;
 
 	float m_closestHitDist = FLT_MAX;
 

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Math/CXMFloat.h"
+#include "Math/Vector.h"
+#include "Math/Vector2.h"
 #include "SizedTypes.h"
 
 #include <string>
@@ -43,9 +44,9 @@ struct MeshPolygon
 
 struct MeshDescription
 {
-	std::vector<CXMFLOAT3> m_positions;
-	std::vector<CXMFLOAT3> m_normals;
-	std::vector<CXMFLOAT2> m_texCoords;
+	std::vector<Vector> m_positions;
+	std::vector<Vector> m_normals;
+	std::vector<Vector2> m_texCoords;
 
 	std::vector<MeshVertexInstance> m_vertexInstances;
 	std::vector<MeshTriangle> m_triangles;

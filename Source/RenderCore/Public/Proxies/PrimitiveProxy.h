@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math/CXMFloat.h"
+#include "Math/Matrix.h"
 #include "Mesh/MeshDrawInfo.h"
 #include "Physics/BoxSphereBounds.h"
 #include "SizedTypes.h"
@@ -25,8 +25,8 @@ public:
 	virtual std::optional<DrawSnapshot> TakeSnapshot( uint32 lod, uint32 sectionIndex ) const = 0;
 	virtual MeshDrawInfo GatherMeshDrawInfo( uint32 lod, uint32 sectionIndex ) const = 0;
 
-	CXMFLOAT4X4& WorldTransform( );
-	const CXMFLOAT4X4& WorldTransform( ) const;
+	Matrix& WorldTransform( );
+	const Matrix& WorldTransform( ) const;
 
 	BoxSphereBounds& Bounds( );
 	const BoxSphereBounds& Bounds( ) const;
@@ -41,7 +41,7 @@ protected:
 	friend Scene;
 
 	PrimitiveSceneInfo* m_primitiveSceneInfo = nullptr;
-	CXMFLOAT4X4 m_worldTransform;
+	Matrix m_worldTransform;
 	BoxSphereBounds m_bounds;
 	BoxSphereBounds m_localBounds;
 };

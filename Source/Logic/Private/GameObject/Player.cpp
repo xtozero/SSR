@@ -27,9 +27,9 @@ void CPlayer::Think( float elapsedTime )
 {
 	CGameObject::Think( elapsedTime );
 
-	CXMFLOAT3 force( static_cast<float>( m_inputDirection[2] - m_inputDirection[0] ),
-		0.f,
-		static_cast<float>( m_inputDirection[1] - m_inputDirection[3] ) );
+	Vector force( static_cast<float>( m_inputDirection[2] - m_inputDirection[0] ),
+				0.f,
+				static_cast<float>( m_inputDirection[1] - m_inputDirection[3] ) );
 
 	force *= m_kineticForceScale;
 	m_movement.Update( force, elapsedTime );
@@ -56,7 +56,7 @@ void CPlayer::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 
 		if ( friction.Size( ) == 2 )
 		{
-			m_movement.SetFriction( CXMFLOAT2( static_cast<float>( friction[0].AsReal( ) ), static_cast<float>( friction[1].AsReal( ) ) ) );
+			m_movement.SetFriction( { static_cast<float>( friction[0].AsReal() ), static_cast<float>( friction[1].AsReal() ) } );
 		}
 	}
 

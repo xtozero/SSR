@@ -3,7 +3,6 @@
 #include "common.h"
 #include "GraphicsApiResource.h"
 #include "IndexBuffer.h"
-#include "Math/CXMFloat.h"
 #include "SizedTypes.h"
 #include "TypedBuffer.h"
 #include "VertexCollection.h"

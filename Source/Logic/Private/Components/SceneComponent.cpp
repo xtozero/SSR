@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Components/SceneComponent.h"
 
+#include "Math/TransformationMatrix.h"
+
 using namespace DirectX;
 
 void SceneComponent::SetPosition( const float x, const float y, const float z )
@@ -10,11 +12,11 @@ void SceneComponent::SetPosition( const float x, const float y, const float z )
 		return;
 	}
 
-	m_vecPos = CXMFLOAT3( x, y, z );
+	m_vecPos = Vector( x, y, z );
 	m_needRebuildTransform = true;
 }
 
-void SceneComponent::SetPosition( const CXMFLOAT3& pos )
+void SceneComponent::SetPosition( const Vector& pos )
 {
 	SetPosition( pos.x, pos.y, pos.z );
 }
@@ -26,11 +28,11 @@ void SceneComponent::SetScale( const float xScale, const float yScale, const flo
 		return;
 	}
 
-	m_vecScale = CXMFLOAT3( xScale, yScale, zScale );
+	m_vecScale = Vector( xScale, yScale, zScale );
 	m_needRebuildTransform = true;
 }
 
-void SceneComponent::SetRotate( const CXMFLOAT4& rotate )
+void SceneComponent::SetRotate( const Quaternion& rotate )
 {
 	if ( m_vecRotate == rotate )
 	{
@@ -41,46 +43,36 @@ void SceneComponent::SetRotate( const CXMFLOAT4& rotate )
 	m_needRebuildTransform = true;
 }
 
-void SceneComponent::SetRotate( const float pitch, const float yaw, const float roll )
-{
-	SetRotate( static_cast<CXMFLOAT4>( XMQuaternionRotationRollPitchYaw( pitch, yaw, roll ) ) );
-}
-
-void SceneComponent::SetRotate( const CXMFLOAT3& pitchYawRoll )
-{
-	SetRotate( static_cast<CXMFLOAT4>( XMQuaternionRotationRollPitchYaw( pitchYawRoll.x, pitchYawRoll.y, pitchYawRoll.z ) ) );
-}
-
-const CXMFLOAT3& SceneComponent::GetPosition( ) const
+const Vector& SceneComponent::GetPosition( ) const
 {
 	return m_vecPos;
 }
 
-const CXMFLOAT3& SceneComponent::GetScale( ) const
+const Vector& SceneComponent::GetScale( ) const
 {
 	return m_vecScale;
 }
 
-const CXMFLOAT4& SceneComponent::GetRotate( ) const
+const Quaternion& SceneComponent::GetRotate( ) const
 {
 	return m_vecRotate;
 }
 
-const CXMFLOAT4X4& SceneComponent::GetTransformMatrix( )
+const Matrix& SceneComponent::GetTransformMatrix( )
 {
 	RebuildTransform( );
 	return m_matTransform;
 }
 
-const CXMFLOAT4X4& SceneComponent::GetInvTransformMatrix( )
+const Matrix& SceneComponent::GetInvTransformMatrix( )
 {
 	RebuildTransform( );
 	return m_invMatTransform;
 }
 
-BoxSphereBounds SceneComponent::CalcBounds( [[maybe_unused]] const CXMFLOAT4X4& transform )
+BoxSphereBounds SceneComponent::CalcBounds( [[maybe_unused]] const Matrix& transform )
 {
-	return BoxSphereBounds( CXMFLOAT3( 0, 0, 0 ), CXMFLOAT3( 0, 0, 0 ), 0.f );
+	return BoxSphereBounds( Vector( 0, 0, 0 ), Vector( 0, 0, 0 ), 0.f );
 }
 
 void SceneComponent::UpdateBounds( )
@@ -93,11 +85,8 @@ void SceneComponent::RebuildTransform( )
 	if ( m_needRebuildTransform )
 	{
 		//STR
-		XMMATRIX scale;
-		XMMATRIX rotate;
-
-		scale = XMMatrixScaling( m_vecScale.x, m_vecScale.y, m_vecScale.z );
-		rotate = XMMatrixRotationQuaternion( m_vecRotate );
+		auto scale = ScaleMatrix( m_vecScale );
+		auto rotate = RotateMatrix( m_vecRotate );
 
 		m_matTransform = scale * rotate;
 
@@ -105,7 +94,7 @@ void SceneComponent::RebuildTransform( )
 		m_matTransform._42 = m_vecPos.y;
 		m_matTransform._43 = m_vecPos.z;
 
-		m_invMatTransform = XMMatrixInverse( nullptr, m_matTransform );
+		m_invMatTransform = m_matTransform.Inverse();
 
 		m_needRebuildTransform = false;
 	}

@@ -73,7 +73,7 @@ bool CGameLogic::BootUp( IPlatform& platform )
 	m_pickingManager.PushViewport( 0.0f, 0.0f, static_cast<float>( m_appSize.first ), static_cast<float>( m_appSize.second ) );
 	*/
 
-	m_uiProjMat = CXMFLOAT4X4(
+	m_uiProjMat = Matrix(
 		2.0f / m_appSize.first,	0.f,						0.f,	0.f,
 		0.f,					-2.0f / m_appSize.second,	0.f,	0.f,
 		0.f,					0.f,						0.5f,	0.f,
@@ -186,7 +186,7 @@ void CGameLogic::AppSizeChanged( IPlatform& platform )
 	m_pickingManager.PushViewport( 0.0f, 0.0f, fSizeX, fSizeY );
 	*/
 
-	m_uiProjMat = CXMFLOAT4X4(
+	m_uiProjMat = Matrix(
 		2.0f / fSizeX,	0.f,			0.f,	0.f,
 		0.f,			-2.0f / fSizeY,	0.f,	0.f,
 		0.f,			0.f,			0.5f,	0.f,

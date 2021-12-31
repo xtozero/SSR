@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <memory>
 #include <optional>
 #include <vector>
 
@@ -416,7 +417,7 @@ namespace aga
 				for ( size_t offset = 0; offset < m_size; offset += sizeof( RefHandle<GraphicsApiResource> ) )
 				{
 					RefHandle<GraphicsApiResource>* handle = reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + offset );
-					new ( handle )RefHandle<GraphicsApiResource>( );
+					std::construct_at( handle );
 				}
 			}
 		}

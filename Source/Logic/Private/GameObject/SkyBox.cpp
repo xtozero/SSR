@@ -44,14 +44,14 @@ CSkyBox::CSkyBox( )
 	MeshDescription& boxDesc = descs[0];
 
 	boxDesc.m_positions.resize( 8 );
-	boxDesc.m_positions[0] = CXMFLOAT3( -SKYBOX_LENGTH, -SKYBOX_LENGTH, -SKYBOX_LENGTH );
-	boxDesc.m_positions[1] = CXMFLOAT3( -SKYBOX_LENGTH, -SKYBOX_LENGTH, SKYBOX_LENGTH );
-	boxDesc.m_positions[2] = CXMFLOAT3( -SKYBOX_LENGTH, SKYBOX_LENGTH, -SKYBOX_LENGTH );
-	boxDesc.m_positions[3] = CXMFLOAT3( -SKYBOX_LENGTH, SKYBOX_LENGTH, SKYBOX_LENGTH );
-	boxDesc.m_positions[4] = CXMFLOAT3( SKYBOX_LENGTH, -SKYBOX_LENGTH, -SKYBOX_LENGTH );
-	boxDesc.m_positions[5] = CXMFLOAT3( SKYBOX_LENGTH, -SKYBOX_LENGTH, SKYBOX_LENGTH );
-	boxDesc.m_positions[6] = CXMFLOAT3( SKYBOX_LENGTH, SKYBOX_LENGTH, -SKYBOX_LENGTH );
-	boxDesc.m_positions[7] = CXMFLOAT3( SKYBOX_LENGTH, SKYBOX_LENGTH, SKYBOX_LENGTH );
+	boxDesc.m_positions[0] = Vector( -SKYBOX_LENGTH, -SKYBOX_LENGTH, -SKYBOX_LENGTH );
+	boxDesc.m_positions[1] = Vector( -SKYBOX_LENGTH, -SKYBOX_LENGTH, SKYBOX_LENGTH );
+	boxDesc.m_positions[2] = Vector( -SKYBOX_LENGTH, SKYBOX_LENGTH, -SKYBOX_LENGTH );
+	boxDesc.m_positions[3] = Vector( -SKYBOX_LENGTH, SKYBOX_LENGTH, SKYBOX_LENGTH );
+	boxDesc.m_positions[4] = Vector( SKYBOX_LENGTH, -SKYBOX_LENGTH, -SKYBOX_LENGTH );
+	boxDesc.m_positions[5] = Vector( SKYBOX_LENGTH, -SKYBOX_LENGTH, SKYBOX_LENGTH );
+	boxDesc.m_positions[6] = Vector( SKYBOX_LENGTH, SKYBOX_LENGTH, -SKYBOX_LENGTH );
+	boxDesc.m_positions[7] = Vector( SKYBOX_LENGTH, SKYBOX_LENGTH, SKYBOX_LENGTH );
 
 	for ( int32 i = 0; i < static_cast<int32>( boxDesc.m_positions.size( ) ); ++i )
 	{

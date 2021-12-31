@@ -1,6 +1,7 @@
 #include "WavefrontObjManufacturer.h"
 
 #include "Material/Material.h"
+#include "Math/Vector4.h"
 #include "Mesh/MeshDescription.h"
 #include "Mesh/StaticMesh.h"
 #include "SizedTypes.h"
@@ -17,23 +18,17 @@ namespace
 	{
 		using namespace DirectX;
 
-		XMFLOAT3A f0( std::get<0>( v0 ), std::get<1>( v0 ), std::get<2>( v0 ) );
-		XMFLOAT3A f1( std::get<0>( v1 ), std::get<1>( v1 ), std::get<2>( v1 ) );
-		XMFLOAT3A f2( std::get<0>( v2 ), std::get<1>( v2 ), std::get<2>( v2 ) );
+		Vector f0( std::get<0>( v0 ), std::get<1>( v0 ), std::get<2>( v0 ) );
+		Vector f1( std::get<0>( v1 ), std::get<1>( v1 ), std::get<2>( v1 ) );
+		Vector f2( std::get<0>( v2 ), std::get<1>( v2 ), std::get<2>( v2 ) );
 
-		XMVECTOR xv0 = XMLoadFloat3A( &f0 );
-		XMVECTOR xv1 = XMLoadFloat3A( &f1 );
-		XMVECTOR xv2 = XMLoadFloat3A( &f2 );
+		auto e0 = (f1 - f0).GetNormalized();
+		auto e1 = (f2 - f0).GetNormalized();
 
-		XMVECTOR e0 = XMVector3Normalize( XMVectorSubtract( xv1, xv0 ) );
-		XMVECTOR e1 = XMVector3Normalize( XMVectorSubtract( xv2, xv0 ) );
+		auto n = e0 ^ e1;
+		n = n.GetNormalized();
 
-		XMVECTOR n = XMVector3Cross( e0, e1 );
-		n = XMVector3Normalize( n );
-
-		XMFLOAT3A normal;
-		XMStoreFloat3A( &normal, n );
-
+		Vector normal = n;
 		return { normal.x, normal.y, normal.z };
 	}
 
@@ -67,12 +62,8 @@ namespace
 		// Normalize vector
 		for ( auto& normal : normals )
 		{
-			XMFLOAT3A n( std::get<0>( normal ), std::get<1>( normal ), std::get<2>( normal ) );
-
-			XMVECTOR xn = XMLoadFloat3A( &n );
-			xn = XMVector3Normalize( xn );
-			XMStoreFloat3A( &n, xn );
-
+			Vector n( std::get<0>( normal ), std::get<1>( normal ), std::get<2>( normal ) );
+			n = n.GetNormalized();
 			normal = { n.x, n.y, n.z };
 		}
 
@@ -237,21 +228,21 @@ namespace
 		if ( material.m_ambient )
 		{
 			const auto& ambientValue = material.m_ambient.value( );
-			CXMFLOAT4 ambient( std::get<0>( ambientValue ), std::get<1>( ambientValue ), std::get<2>( ambientValue ), 1.f );
+			ColorF ambient( std::get<0>( ambientValue ), std::get<1>( ambientValue ), std::get<2>( ambientValue ), 1.f );
 			assetMaterial.AddProperty( "Ambient", ambient );
 		}
 
 		if ( material.m_diffuse )
 		{
 			const auto& diffuseValue = material.m_diffuse.value( );
-			CXMFLOAT4 diffuse( std::get<0>( diffuseValue ), std::get<1>( diffuseValue ), std::get<2>( diffuseValue ), 1.f );
+			ColorF diffuse( std::get<0>( diffuseValue ), std::get<1>( diffuseValue ), std::get<2>( diffuseValue ), 1.f );
 			assetMaterial.AddProperty( "Diffuse", diffuse );
 		}
 		
 		if ( material.m_specular )
 		{
 			const auto& specularValue = material.m_specular.value( );
-			CXMFLOAT4 specular( std::get<0>( specularValue ), std::get<1>( specularValue ), std::get<2>( specularValue ), 1.f );
+			ColorF specular( std::get<0>( specularValue ), std::get<1>( specularValue ), std::get<2>( specularValue ), 1.f );
 			assetMaterial.AddProperty( "Specular", specular );
 		}
 		

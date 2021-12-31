@@ -118,7 +118,7 @@ private:
 
 	//ImUiDrawBuffer m_uiDrawBuffer[2];
 	//Material m_uiMaterial = INVALID_MATERIAL;
-	CXMFLOAT4X4 m_uiProjMat;
+	Matrix m_uiProjMat;
 
 	CDebugOverlayManager m_debugOverlay;
 

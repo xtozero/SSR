@@ -4,13 +4,13 @@
 #include "Scene/PrimitiveSceneInfo.h"
 #include "TaskScheduler.h"
 
-CXMFLOAT4X4& PrimitiveProxy::WorldTransform( )
+Matrix& PrimitiveProxy::WorldTransform( )
 {
 	assert( IsInRenderThread( ) );
 	return m_worldTransform;
 }
 
-const CXMFLOAT4X4& PrimitiveProxy::WorldTransform( ) const
+const Matrix& PrimitiveProxy::WorldTransform( ) const
 {
 	assert( IsInRenderThread( ) );
 	return m_worldTransform;

@@ -58,20 +58,19 @@ void ShadowInfo::SetupShadowConstantBuffer( )
 
 	ShadowDepthPassParameters params = {};
 	LightProperty lightProperty = m_lightSceneInfo->Proxy( )->GetLightProperty( );
-	params.m_lightPosOrDir = ( lightProperty.m_type == LIGHT_TYPE::DIRECTINAL_LIGHT ) ? 
-		CXMFLOAT4( lightProperty.m_direction.x, lightProperty.m_direction.y, lightProperty.m_direction.z, 0.f ) : lightProperty.m_position;
+	params.m_lightPosOrDir = ( lightProperty.m_type == LIGHT_TYPE::DIRECTINAL_LIGHT ) ? Vector4( lightProperty.m_direction ) : lightProperty.m_position;
 	params.m_slopeBiasScale = 0.2f;
 	params.m_constantBias = 0.05f;
 
 	for ( uint32 i = 0; i < CascadeShadowSetting::MAX_CASCADE_NUM; ++i )
 	{
 		params.m_cascadeFar[i].x = m_cacadeSetting.m_splitDistance[i + 1];
-		params.m_shadowViewProjection[i] = XMMatrixTranspose( m_shadowViewProjections[i] );
+		params.m_shadowViewProjection[i] = m_shadowViewProjections[i].GetTrasposed();
 	}
 
 	for ( uint32 i = CascadeShadowSetting::MAX_CASCADE_NUM; i < 6; ++i )
 	{
-		params.m_shadowViewProjection[i] = XMMatrixTranspose( m_shadowViewProjections[i] );
+		params.m_shadowViewProjection[i] = m_shadowViewProjections[i].GetTrasposed();
 	}
 
 	m_shadowConstantBuffer.Update( params );
@@ -142,8 +141,8 @@ void ShadowInfo::AddCachedDrawSnapshotForPass( PrimitiveSceneInfo& primitiveScen
 
 void ShadowInfo::UpdateSubjectNearAndFar( const BoxSphereBounds& viewspaceBounds )
 {
-	CXMFLOAT3 min = ( viewspaceBounds.Origin( ) - viewspaceBounds.HalfSize( ) );
-	CXMFLOAT3 max = ( viewspaceBounds.Origin( ) + viewspaceBounds.HalfSize( ) );
+	Vector min = ( viewspaceBounds.Origin( ) - viewspaceBounds.HalfSize( ) );
+	Vector max = ( viewspaceBounds.Origin( ) + viewspaceBounds.HalfSize( ) );
 
 	m_subjectNear = std::min( m_subjectNear, min.z );
 	m_subjectFar = std::max( m_subjectFar, max.z );

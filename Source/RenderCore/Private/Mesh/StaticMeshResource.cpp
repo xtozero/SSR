@@ -3,7 +3,6 @@
 
 #include "Archive.h"
 #include "ArchiveUtility.h"
-#include "Math/CXMFloat.h"
 #include "TaskScheduler.h"
 
 #include <cassert>

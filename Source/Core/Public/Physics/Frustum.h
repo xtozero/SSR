@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Math/Plane.h"
 #include "Math/Util.h"
 
 class Frustum
@@ -12,9 +13,9 @@ public:
 		Z_MAX = 1 << 2,
 	};
 
-	explicit Frustum( const CXMFLOAT4X4& projectionMat )
+	explicit Frustum( const Matrix& projectionMat )
 	{
-		CXMFLOAT4 column[4] = {
+		Vector4 column[4] = {
 			{ projectionMat( 0, 0 ), projectionMat( 1, 0 ), projectionMat( 2, 0 ), projectionMat( 3, 0 ) },
 			{ projectionMat( 0, 1 ), projectionMat( 1, 1 ), projectionMat( 2, 1 ), projectionMat( 3, 1 ) },
 			{ projectionMat( 0, 2 ), projectionMat( 1, 2 ), projectionMat( 2, 2 ), projectionMat( 3, 2 ) },
@@ -32,7 +33,7 @@ public:
 
 		for ( auto& plane : m_plane )
 		{
-			plane = DirectX::XMPlaneNormalize( plane );
+			plane = plane.GetNormalized();
 		}
 
 		// http://old.cescg.org/CESCG-2002/DSykoraJJelinek/
@@ -46,9 +47,9 @@ public:
 
 		for ( uint32 i = 0; i < 8; ++i )
 		{
-			const CXMFLOAT4& p0 = ( i & 1 ) ? m_plane[4] : m_plane[5];
-			const CXMFLOAT4& p1 = ( i & 2 ) ? m_plane[3] : m_plane[2];
-			const CXMFLOAT4& p2 = ( i & 4 ) ? m_plane[0] : m_plane[1];
+			const Plane& p0 = ( i & 1 ) ? m_plane[4] : m_plane[5];
+			const Plane& p1 = ( i & 2 ) ? m_plane[3] : m_plane[2];
+			const Plane& p2 = ( i & 4 ) ? m_plane[0] : m_plane[1];
 
 			PlanesIntersection( p0, p1, p2, m_vertices[i] );
 		}
@@ -57,11 +58,11 @@ public:
 	using LookUpTable = uint32[6];
 	const LookUpTable& GetVertexLUT( ) const { return m_vertexLUT; }
 
-	const CXMFLOAT4( &GetPlanes( ) const )[6]{ return m_plane; }
-	const CXMFLOAT3( &GetVertices( ) const )[8]{ return m_vertices; }
+	const Plane( &GetPlanes( ) const )[6]{ return m_plane; }
+	const Point( &GetVertices( ) const )[8]{ return m_vertices; }
 
 private:
-	CXMFLOAT4 m_plane[6];
-	CXMFLOAT3 m_vertices[8];
+	Plane m_plane[6];
+	Point m_vertices[8];
 	uint32 m_vertexLUT[6];
 };

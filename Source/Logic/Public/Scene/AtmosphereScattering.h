@@ -1,7 +1,8 @@
 #pragma once
 
 #include "INotifyGraphicsDevice.h"
-#include "Math/CXMFloat.h"
+#include "Math/Vector.h"
+#include "Math/Vector4.h"
 //#include "Render/Resource.h"
 
 class CGameLogic;
@@ -15,7 +16,7 @@ public:
 	bool Init( CGameLogic& gameLogic );
 
 	void Precompute( IRenderer& renderer );
-	void Render( IRenderer& renderer, CXMFLOAT3 cameraPos, CXMFLOAT3 sunDir );
+	void Render( IRenderer& renderer, Point cameraPos, Vector sunDir );
 
 private:
 	bool CreateDeviceDependendResource( IRenderer& renderer );
@@ -35,8 +36,8 @@ private:
 	// Constant Buffer
 	struct AtmophericScatteringParameter
 	{
-		CXMFLOAT4 m_cameraPos;
-		CXMFLOAT4 m_sunDir;
+		Vector4 m_cameraPos;
+		Vector4 m_sunDir;
 		float m_exposure;
 		float m_padding[3];
 	};

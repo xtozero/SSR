@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Math\CXMFloat.h"
+#include "Math/Matrix3X3.h"
+#include "Math/Vector.h"
 #include "SizedTypes.h"
 
 class RigidBody;
@@ -10,20 +11,20 @@ class ContactResolver;
 class Contact
 {
 public:
-	void SetContactPoint( const CXMFLOAT3& contactPoint ) { m_contactPoint = contactPoint; }
-	void SetContactNormal( const CXMFLOAT3& contactNormal ) { m_contactNormal = contactNormal; }
+	void SetContactPoint( const Point& contactPoint ) { m_contactPoint = contactPoint; }
+	void SetContactNormal( const Vector& contactNormal ) { m_contactNormal = contactNormal; }
 	void SetPenetration( float penetration ) { m_penetration = penetration; }
 	void SetBodyData( RigidBody* one, RigidBody* two, float friction, float restitution );
 
 	void CalculateContactBasis( );
-	CXMFLOAT3 CalculateLocalVelocity( uint32 bodyIndex, float duration );
+	Vector CalculateLocalVelocity( uint32 bodyIndex, float duration );
 	void CalculateDesiredDeltaVelocity( float duration );
 	void CalculateInternals( float duration );
-	CXMFLOAT3 CalculateFrictionlessImpulse( const CXMFLOAT3X3* inverseInertiaTensor );
-	CXMFLOAT3 CalculateFrictionImpulse( const CXMFLOAT3X3* inverseInertiaTensor );
+	Vector CalculateFrictionlessImpulse( const Matrix3X3* inverseInertiaTensor );
+	Vector CalculateFrictionImpulse( const Matrix3X3* inverseInertiaTensor );
 
-	void ApplyPositionChange( CXMFLOAT3 linearChange[2], CXMFLOAT3 angularChange[2], float penetration );
-	void ApplyVelocityChange( CXMFLOAT3 velocityChange[2], CXMFLOAT3 rotationChange[2] );
+	void ApplyPositionChange( Vector linearChange[2], Vector angularChange[2], float penetration );
+	void ApplyVelocityChange( Vector velocityChange[2], Vector rotationChange[2] );
 
 	friend ContactResolver;
 private:
@@ -31,16 +32,16 @@ private:
 	void MatchAwakeState( );
 
 	RigidBody* m_body[2] = { nullptr, nullptr };
-	CXMFLOAT3 m_contactPoint;
-	CXMFLOAT3 m_contactNormal;
+	Point m_contactPoint;
+	Vector m_contactNormal;
 	float m_penetration;
 	float m_friction;
 	float m_restitution;
 
-	CXMFLOAT3X3 m_contactToWorld;
-	CXMFLOAT3 m_contactVelocity;
+	Matrix3X3 m_contactToWorld;
+	Vector m_contactVelocity;
 	float m_desiredDeltaVelocity;
-	CXMFLOAT3 m_relativeContactPosition[2];
+	Point m_relativeContactPosition[2];
 };
 
 class ContactResolver

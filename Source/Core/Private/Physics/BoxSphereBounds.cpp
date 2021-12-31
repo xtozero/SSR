@@ -1,21 +1,21 @@
 #include "BoxSphereBounds.h"
 
-CXMFLOAT3& BoxSphereBounds::Origin( )
+Vector& BoxSphereBounds::Origin( )
 {
 	return m_origin;
 }
 
-const CXMFLOAT3& BoxSphereBounds::Origin( ) const
+const Vector& BoxSphereBounds::Origin( ) const
 {
 	return m_origin;
 }
 
-CXMFLOAT3& BoxSphereBounds::HalfSize( )
+Vector& BoxSphereBounds::HalfSize( )
 {
 	return m_halfSize;
 }
 
-const CXMFLOAT3& BoxSphereBounds::HalfSize( ) const
+const Vector& BoxSphereBounds::HalfSize( ) const
 {
 	return m_halfSize;
 }
@@ -30,24 +30,22 @@ float BoxSphereBounds::Radius( ) const
 	return m_radius;
 }
 
-BoxSphereBounds BoxSphereBounds::TransformBy( const CXMFLOAT4X4& m ) const
+BoxSphereBounds BoxSphereBounds::TransformBy( const Matrix& m ) const
 {
 	using namespace DirectX;
 
-	CXMFLOAT3 newOrigin = XMVector3TransformCoord( m_origin, m );
+	Vector newOrigin = m.TransformPosition( m_origin );
+	
+	Vector halfSizeX( m_halfSize.x, m_halfSize.x, m_halfSize.x );
+	Vector halfSizeY( m_halfSize.y, m_halfSize.y, m_halfSize.y );
+	Vector halfSizeZ( m_halfSize.z, m_halfSize.z, m_halfSize.z );
 
-	CXMFLOAT3 halfSizeX( m_halfSize.x, m_halfSize.x, m_halfSize.x );
-	CXMFLOAT3 halfSizeY( m_halfSize.y, m_halfSize.y, m_halfSize.y );
-	CXMFLOAT3 halfSizeZ( m_halfSize.z, m_halfSize.z, m_halfSize.z );
+	Vector m0( m._11, m._12, m._13 );
+	Vector m1( m._21, m._22, m._23 );
+	Vector m2( m._31, m._32, m._33 );
 
-	CXMFLOAT3 m0( m._11, m._12, m._13 );
-	CXMFLOAT3 m1( m._21, m._22, m._23 );
-	CXMFLOAT3 m2( m._31, m._32, m._33 );
+	Vector newHalfSize = ( halfSizeX * m0 ).GetAbs() + ( halfSizeY * m1 ).GetAbs() + ( halfSizeZ * m2 ).GetAbs();
 
-	CXMFLOAT3 newHalfSize = XMVectorAbs( halfSizeX * m0 ) +
-							XMVectorAbs( halfSizeY * m1 ) +
-							XMVectorAbs( halfSizeZ * m2 );
-
-	float newRadius = XMVectorGetX( XMVector3Length( newHalfSize ) );
+	float newRadius = newHalfSize.Length( );
 	return BoxSphereBounds( newOrigin, newHalfSize, newRadius );
 }

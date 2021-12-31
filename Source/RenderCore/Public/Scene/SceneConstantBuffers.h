@@ -1,7 +1,9 @@
 #pragma once
 
 #include "TypedBuffer.h"
-#include "Math/CXMFloat.h"
+#include "Math/Matrix.h"
+#include "Math/Vector.h"
+#include "Math/Vector4.h"
 #include "SizedTypes.h"
 
 class PrimitiveProxy;
@@ -10,21 +12,21 @@ struct RenderView;
 
 struct ViewConstantBufferParameters
 {
-	CXMFLOAT4X4 m_viewMatrix;
-	CXMFLOAT4X4 m_projMatrix;
-	CXMFLOAT4X4 m_viewProjMatrix;
+	Matrix m_viewMatrix;
+	Matrix m_projMatrix;
+	Matrix m_viewProjMatrix;
 
-	CXMFLOAT4X4 m_invViewMatrix;
-	CXMFLOAT4X4 m_invProjMatrix;
-	CXMFLOAT4X4 m_invViewProjMatrix;
+	Matrix m_invViewMatrix;
+	Matrix m_invProjMatrix;
+	Matrix m_invViewProjMatrix;
 
-	CXMFLOAT4 m_hemisphereLightUpperColor;
-	CXMFLOAT4 m_hemisphereLightLowerColor;
-	CXMFLOAT3 m_hemisphereLightUpVector;
+	ColorF m_hemisphereLightUpperColor;
+	ColorF m_hemisphereLightLowerColor;
+	Vector m_hemisphereLightUpVector;
 	float padding1;
 	float m_nearPlaneDist;
 	float m_farPlaneDist;
-	CXMFLOAT2 padding2;
+	float padding2[2];
 };
 
 void FillViewConstantParam( ViewConstantBufferParameters& param, const Scene* scene, const RenderView& view );
@@ -46,8 +48,8 @@ class PrimitiveSceneData
 public:
 	explicit PrimitiveSceneData( const PrimitiveProxy* proxy );
 
-	CXMFLOAT4X4 m_worldMatrix;
-	CXMFLOAT4X4 m_invWorldMatrix;
+	Matrix m_worldMatrix;
+	Matrix m_invWorldMatrix;
 };
 
 class ScenePrimitiveBuffer
@@ -62,5 +64,5 @@ public:
 	const aga::Buffer* Resource( ) const;
 
 private:
-	TypedBuffer<CXMFLOAT4> m_buffer;
+	TypedBuffer<Vector4> m_buffer;
 };

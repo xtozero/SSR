@@ -3,6 +3,7 @@
 
 #include "AbstractGraphicsInterface.h"
 #include "ForwardLighting.h"
+#include "Math/Vector.h"
 #include "Proxies/LightProxy.h"
 #include "RenderView.h"
 #include "Scene/LightSceneInfo.h"
@@ -256,8 +257,8 @@ void ForwardRenderer::UpdateLightResource( RenderViewGroup& renderViewGroup )
 	{
 		ForwardLightBuffer& lightBuffer = view.m_forwardLighting->m_lightBuffer;
 
-		uint32 numElement = static_cast<uint32>( ( sizeof( ForwardLightData ) / sizeof( CXMFLOAT4 ) ) * validLights.size( ) );
-		lightBuffer.Initialize( sizeof( CXMFLOAT4 ), numElement, RESOURCE_FORMAT::R32G32B32A32_FLOAT );
+		uint32 numElement = static_cast<uint32>( ( sizeof( ForwardLightData ) / sizeof( Vector4 ) ) * validLights.size( ) );
+		lightBuffer.Initialize( sizeof( Vector4 ), numElement, RESOURCE_FORMAT::R32G32B32A32_FLOAT );
 
 		auto lightData = static_cast<ForwardLightData*>( lightBuffer.Lock( ) );
 		if ( lightData == nullptr )
@@ -270,12 +271,12 @@ void ForwardRenderer::UpdateLightResource( RenderViewGroup& renderViewGroup )
 			LightProxy* proxy = light->Proxy( );
 			LightProperty property = proxy->GetLightProperty( );
 
-			lightData->m_positionAndRange = CXMFLOAT4( property.m_position[0], property.m_position[1], property.m_position[2], property.m_range );
+			lightData->m_positionAndRange = Vector4( property.m_position[0], property.m_position[1], property.m_position[2], property.m_range );
 			lightData->m_diffuse = property.m_diffuse;
 			lightData->m_specular = property.m_specular;
-			lightData->m_attenuationAndFalloff = CXMFLOAT4( property.m_attenuation[0], property.m_attenuation[1], property.m_attenuation[2], property.m_fallOff );
-			lightData->m_directionAndType = CXMFLOAT4( property.m_direction[0], property.m_direction[1], property.m_direction[2], static_cast<float>( property.m_type ) );
-			lightData->m_spotAngles = CXMFLOAT4( property.m_theta, property.m_phi, 0.f, 0.f );
+			lightData->m_attenuationAndFalloff = Vector4( property.m_attenuation[0], property.m_attenuation[1], property.m_attenuation[2], property.m_fallOff );
+			lightData->m_directionAndType = Vector4( property.m_direction[0], property.m_direction[1], property.m_direction[2], static_cast<float>( property.m_type ) );
+			lightData->m_spotAngles = Vector4( property.m_theta, property.m_phi, 0.f, 0.f );
 
 			++lightData;
 		}

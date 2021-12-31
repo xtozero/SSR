@@ -4,31 +4,33 @@
 #include "ArchiveUtility.h"
 #include "Aaboundingbox.h"
 #include "BoundingSphere.h"
+#include "Math/Matrix.h"
+#include "Math/Vector.h"
 
 class BoxSphereBounds
 {
 public:
-	CXMFLOAT3& Origin( );
-	const CXMFLOAT3& Origin( ) const;
+	Vector& Origin( );
+	const Vector& Origin( ) const;
 
-	CXMFLOAT3& HalfSize( );
-	const CXMFLOAT3& HalfSize( ) const;
+	Vector& HalfSize( );
+	const Vector& HalfSize( ) const;
 
 	float& Radius( );
 	float Radius( ) const;
 
-	BoxSphereBounds TransformBy( const CXMFLOAT4X4& m ) const;
+	BoxSphereBounds TransformBy( const Matrix& m ) const;
 
 	BoxSphereBounds( ) = default;
-	BoxSphereBounds( const CXMFLOAT3& origin, const CXMFLOAT3& halfSize, float radius ) : m_origin( origin ), m_halfSize( halfSize ), m_radius( radius ) {}
-	BoxSphereBounds( const CXMFLOAT3* points, int32 numPoints )
+	BoxSphereBounds( const Vector& origin, const Vector& halfSize, float radius ) : m_origin( origin ), m_halfSize( halfSize ), m_radius( radius ) {}
+	BoxSphereBounds( const Vector* points, int32 numPoints )
 	{
 		CAaboundingbox box( points, numPoints );
 
 		m_halfSize = box.Size( ) * 0.5;
 		m_origin = box.GetMin( ) + m_halfSize;
 
-		m_radius = DirectX::XMVectorGetX( DirectX::XMVector3Length( m_halfSize ) );
+		m_radius = m_halfSize.Length( );
 	}
 
 	friend Archive& operator<<( Archive& ar, BoxSphereBounds& bounds )
@@ -38,7 +40,7 @@ public:
 	}
 
 private:
-	CXMFLOAT3 m_origin;
-	CXMFLOAT3 m_halfSize;
+	Vector m_origin;
+	Vector m_halfSize;
 	float m_radius = 0.f;
 };

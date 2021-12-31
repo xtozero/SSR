@@ -1,7 +1,9 @@
 #pragma once
 
 #include "GameObjectProperty.h"
-#include "Math/CXMFloat.h"
+#include "Math/Matrix.h"
+#include "Math/Quaternion.h"
+#include "Math/Vector.h"
 #include "Physics/Body.h"
 #include "Physics/ColliderManager.h"
 //#include "Render/Resource.h"
@@ -59,21 +61,19 @@ public:
 	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
 	virtual void Initialize( CGameLogic& gameLogic, World& world );
 	void SetPosition( const float x, const float y, const float z );
-	void SetPosition( const CXMFLOAT3& pos );
+	void SetPosition( const Vector& pos );
 	void SetScale( const float xScale, const float yScale, const float zScale );
-	void SetRotate( const CXMFLOAT4& rotate );
-	void SetRotate( const float pitch, const float yaw, const float roll );
-	void SetRotate( const CXMFLOAT3& pitchYawRoll );
+	void SetRotate( const Quaternion& rotate );
 
 	size_t GetID( ) const { return m_id; }
 	void SetID( size_t id ) { m_id = id; }
 
-	const CXMFLOAT3& GetPosition( );
-	const CXMFLOAT3& GetScale( );
-	const CXMFLOAT4& GetRotate( );
+	const Vector& GetPosition( );
+	const Vector& GetScale( );
+	const Quaternion& GetRotate( );
 
-	const CXMFLOAT4X4& GetTransformMatrix( );
-	const CXMFLOAT4X4& GetInvTransformMatrix( );
+	const Matrix& GetTransformMatrix( );
+	const Matrix& GetInvTransformMatrix( );
 
 	void UpdateTransform( CGameLogic& gameLogic );
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "EnumStringMap.h"
-#include "Math/CXMFloat.h"
+#include "Math/Vector2.h"
 #include "SizedTypes.h"
 #include "UICMap.h"
 
@@ -33,5 +33,5 @@ private:
 	UserInput Convert( uint32 msg );
 	WindowPlatformInputMap m_inputMap;
 
-	CXMFLOAT2 m_prevMousePos = { 0.f, 0.f };
+	Vector2 m_prevMousePos;
 };

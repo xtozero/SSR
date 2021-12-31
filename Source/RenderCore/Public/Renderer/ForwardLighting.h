@@ -2,7 +2,8 @@
 
 #include "Buffer.h"
 #include "GraphicsApiResource.h"
-#include "Math/CXMFloat.h"
+#include "Math/Vector.h"
+#include "Math/Vector4.h"
 #include "SizedTypes.h"
 #include "TypedBuffer.h"
 
@@ -26,18 +27,18 @@ private:
 
 struct ForwardLightData
 {
-	CXMFLOAT4 m_positionAndRange;
-	CXMFLOAT4 m_diffuse;
-	CXMFLOAT4 m_specular;
-	CXMFLOAT4 m_attenuationAndFalloff;
-	CXMFLOAT4 m_directionAndType;
-	CXMFLOAT4 m_spotAngles;
+	Vector4 m_positionAndRange;
+	ColorF m_diffuse;
+	ColorF m_specular;
+	Vector4 m_attenuationAndFalloff;
+	Vector4 m_directionAndType;
+	Vector4 m_spotAngles;
 };
 
 struct ForwardLightConstant
 {
 	uint32 m_numLight = 0;
-	CXMFLOAT3 m_cameraPos;
+	Vector m_cameraPos;
 };
 
 struct ForwardLightingResource

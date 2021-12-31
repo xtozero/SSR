@@ -2,6 +2,8 @@
 
 #include "DrawSnapshot.h"
 #include "GraphicsApiResource.h"
+#include "Math/Vector4.h"
+#include "Math/Matrix.h"
 #include "Physics/BoxSphereBounds.h"
 #include "SizedTypes.h"
 #include "Texture.h"
@@ -22,13 +24,13 @@ struct CascadeShadowSetting
 
 struct ShadowDepthPassParameters
 {
-	CXMFLOAT4 m_lightPosOrDir;
+	Vector4 m_lightPosOrDir;
 	float m_slopeBiasScale;
 	float m_constantBias;
 	float m_padding1[2];
 
-	CXMFLOAT4 m_cascadeFar[CascadeShadowSetting::MAX_CASCADE_NUM];
-	CXMFLOAT4X4 m_shadowViewProjection[6];
+	Vector4 m_cascadeFar[CascadeShadowSetting::MAX_CASCADE_NUM];
+	Matrix m_shadowViewProjection[6];
 };
 
 struct ShadowMapRenderTarget
@@ -85,7 +87,7 @@ public:
 		return m_subjectFar;
 	}
 
-	CXMFLOAT4X4( &ShadowViewProjections( ) )[6]
+	Matrix( &ShadowViewProjections( ) )[6]
 	{
 		return m_shadowViewProjections;
 	}
@@ -129,7 +131,7 @@ private:
 
 	std::vector<VisibleDrawSnapshot> m_snapshots;
 
-	CXMFLOAT4X4 m_shadowViewProjections[6];
+	Matrix m_shadowViewProjections[6];
 
 	CascadeShadowSetting m_cacadeSetting;
 

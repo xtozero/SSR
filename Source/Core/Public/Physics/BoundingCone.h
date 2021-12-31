@@ -1,5 +1,7 @@
 #pragma once
-#include "math/CXMFLOAT.h"
+
+#include "Math/Matrix.h"
+#include "Math/Vector.h"
 
 #include <vector>
 
@@ -10,20 +12,20 @@ public:
 	float GetFovY( ) const { return m_fovY; }
 	float GetNear( ) const { return m_near; }
 	float GetFar( ) const { return m_far; }
-	CXMFLOAT4X4 GetLookAt( ) const { return m_lookAt; }
+	Matrix GetLookAt( ) const { return m_lookAt; }
 
 	CBoundingCone( ) = default;
-	CBoundingCone( const std::vector<CXMFLOAT3>& points, const CXMFLOAT4X4& projection, const CXMFLOAT3& apex );
-	CBoundingCone( const std::vector<CXMFLOAT3>& points, const CXMFLOAT4X4& projection, const CXMFLOAT3& apex, const CXMFLOAT3& dir );
+	CBoundingCone( const std::vector<Vector>& points, const Matrix& projection, const Vector& apex );
+	CBoundingCone( const std::vector<Vector>& points, const Matrix& projection, const Vector& apex, const Vector& dir );
 	~CBoundingCone( ) = default;
 
 private:
-	CXMFLOAT3 m_direction = { 0.f, 0.f, 1.f };
-	CXMFLOAT3 m_apex = { 0.f, 0.f, 0.f };
+	Vector m_direction = Vector::ZAxisVector;
+	Vector m_apex;
 	float m_fovY = 0.f;
 	float m_fovX = 0.f;
 	float m_near = 0.001f;
 	float m_far = 1,f;
-	CXMFLOAT4X4 m_lookAt;
+	Matrix m_lookAt;
 };
 

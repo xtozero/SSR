@@ -18,49 +18,49 @@ void ParticleGravity::UpdateForce( Particle* particle, float /*duration*/ )
 
 void ParticleDrag::UpdateForce( Particle* particle, float /*duration*/ )
 {
-	CXMFLOAT3 force = particle->GetVelocity( );
+	Vector force = particle->GetVelocity( );
 
-	float dragCoeff = XMVectorGetX( XMVector3Length( force ) );
+	float dragCoeff = force.Length();
 	dragCoeff = m_k1 * dragCoeff + m_k2 * dragCoeff * dragCoeff;
 
-	force = XMVector3Normalize( force );
+	force = force.GetNormalized();
 	force *= -dragCoeff;
 	particle->AddForce( force );
 }
 
 void ParticleSpring::UpdateForce( Particle* particle, float /*duration*/ )
 {
-	CXMFLOAT3 force = particle->GetPosition( );
+	Vector force = particle->GetPosition( );
 	force -= m_other->GetPosition( );
 
-	float magnitude = XMVectorGetX( XMVector3Length( force ) );
+	float magnitude = force.Length();
 	magnitude = fabsf( magnitude - m_restLength );
 	magnitude *= m_springConstant;
 
-	force = XMVector3Normalize( force );
+	force = force.GetNormalized();
 	force *= -magnitude;
 	particle->AddForce( force );
 }
 
 void ParticleAnchoredSpring::UpdateForce( Particle* particle, float /*duration*/ )
 {
-	CXMFLOAT3 force = particle->GetPosition( );
+	Vector force = particle->GetPosition( );
 	force -= *m_anchor;
 
-	float magnitude = XMVectorGetX( XMVector3Length( force ) );
+	float magnitude = force.Length();
 	magnitude = ( m_restLength - magnitude ) * m_springConstant;
 
-	force = XMVector3Normalize( force );
+	force = force.GetNormalized();
 	force *= magnitude;
 	particle->AddForce( force );
 }
 
 void ParticleBungee::UpdateForce( Particle* particle, float /*duration*/ )
 {
-	CXMFLOAT3 force = particle->GetPosition( );
+	Vector force = particle->GetPosition( );
 	force -= m_other->GetPosition( );
 
-	float magnitude = XMVectorGetX( XMVector3Length( force ) );
+	float magnitude = force.Length();
 	if ( magnitude <= m_restLength )
 	{
 		return;
@@ -68,7 +68,7 @@ void ParticleBungee::UpdateForce( Particle* particle, float /*duration*/ )
 
 	magnitude = ( m_restLength - magnitude ) * m_springConstant;
 
-	force = XMVector3Normalize( force );
+	force = force.GetNormalized();
 	force *= magnitude;
 	particle->AddForce( force );
 }
@@ -82,7 +82,7 @@ void ParticleBuoyancy::UpdateForce( Particle* particle, float /*duration*/ )
 		return;
 	}
 
-	CXMFLOAT3 force( 0.f, 0.f, 0.f );
+	Vector force;
 
 	if ( depth <= m_waterHeight - m_maxDepth )
 	{
@@ -102,7 +102,7 @@ void ParticleFakeSpring::UpdateForce( Particle* particle, float duration )
 		return;
 	}
 
-	CXMFLOAT3 position = particle->GetPosition( );
+	Point position = particle->GetPosition( );
 	position -= *m_anchor;
 
 	float gamma = 0.5f * sqrtf( 4 * m_springConstant - m_damping * m_damping );
@@ -111,11 +111,11 @@ void ParticleFakeSpring::UpdateForce( Particle* particle, float duration )
 		return;
 	}
 
-	CXMFLOAT3 c = position * ( m_damping / ( 2.f * gamma ) ) + particle->GetVelocity( ) * ( 1.f / gamma );
-	CXMFLOAT3 target = position * cosf( gamma * duration ) + c * sinf( gamma * duration );
+	Vector c = position * ( m_damping / ( 2.f * gamma ) ) + particle->GetVelocity( ) * ( 1.f / gamma );
+	Vector target = position * cosf( gamma * duration ) + c * sinf( gamma * duration );
 	target *= expf( -0.5f * duration * m_damping );
 
-	CXMFLOAT3 accel = ( target - position ) * ( 1.f / duration * duration ) - particle->GetVelocity( ) * duration;
+	Vector accel = ( target - position ) * ( 1.f / duration * duration ) - particle->GetVelocity( ) * duration;
 	particle->AddForce( accel * particle->GetMass( ) );
 }
 

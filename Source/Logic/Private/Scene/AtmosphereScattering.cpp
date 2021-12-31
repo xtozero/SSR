@@ -435,7 +435,7 @@ void CAtmosphericScatteringManager::Precompute( IRenderer& renderer )
 	//renderer.BindRandomAccessResource( 0, 1, nullptr );
 }
 
-void CAtmosphericScatteringManager::Render( IRenderer& renderer, CXMFLOAT3 cameraPos, CXMFLOAT3 sunDir )
+void CAtmosphericScatteringManager::Render( IRenderer& renderer, Point cameraPos, Vector sunDir )
 {
 	//renderer.BindShader( SHADER_TYPE::VS, m_atmosphericVs );
 	//renderer.BindShader( SHADER_TYPE::PS, m_atmosphericPs );

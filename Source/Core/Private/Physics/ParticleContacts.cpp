@@ -12,12 +12,12 @@ void ParticleContact::Resolve( float duration )
 
 float ParticleContact::CalculateSeparatingVelocity( ) const
 {
-	CXMFLOAT3 relativeVelocity = m_particle[0]->GetVelocity( );
+	Vector relativeVelocity = m_particle[0]->GetVelocity( );
 	if ( m_particle[1] )
 	{
 		relativeVelocity -= m_particle[1]->GetVelocity( );
 	}
-	return XMVectorGetX( XMVector3Dot( relativeVelocity, m_contactNormal ) );
+	return relativeVelocity | m_contactNormal;
 }
 
 void ParticleContact::ResolveVelocity( float duration )
@@ -31,13 +31,13 @@ void ParticleContact::ResolveVelocity( float duration )
 
 	float newSepVelocity = -separatingVelocity * m_restitution;
 	
-	CXMFLOAT3 accCausedVelocity = m_particle[0]->GetAcceleration( );
+	Vector accCausedVelocity = m_particle[0]->GetAcceleration( );
 	if ( m_particle[1] )
 	{
 		accCausedVelocity -= m_particle[1]->GetAcceleration( );
 	}
 
-	float accCausedSepVelocity = XMVectorGetX( XMVector3Dot( accCausedVelocity, m_contactNormal ) ) * duration;
+	float accCausedSepVelocity = ( accCausedVelocity | m_contactNormal ) * duration;
 	if ( accCausedSepVelocity < 0 )
 	{
 		newSepVelocity += m_restitution * accCausedSepVelocity;
@@ -62,12 +62,12 @@ void ParticleContact::ResolveVelocity( float duration )
 	}
 
 	float impuse = deltaVelocity / totalInverseMass;
-	CXMFLOAT3 impusePerIMass = m_contactNormal * impuse;
+	Vector impusePerIMass = m_contactNormal * impuse;
 
-	m_particle[0]->SetVelocity( m_particle[0]->GetVelocity( ) + CXMFLOAT3( impusePerIMass * m_particle[0]->GetInverseMass( ) ) );
+	m_particle[0]->SetVelocity( m_particle[0]->GetVelocity( ) + impusePerIMass * m_particle[0]->GetInverseMass( ) );
 	if ( m_particle[1] )
 	{
-		m_particle[1]->SetVelocity( m_particle[1]->GetVelocity( ) + CXMFLOAT3( impusePerIMass * -m_particle[1]->GetInverseMass( ) ) );
+		m_particle[1]->SetVelocity( m_particle[1]->GetVelocity( ) + impusePerIMass * -m_particle[1]->GetInverseMass( ) );
 	}
 }
 
@@ -89,7 +89,7 @@ void ParticleContact::ResolveInterpenetration( float /*duration*/ )
 		return;
 	}
 
-	CXMFLOAT3 movePerIMass = m_contactNormal * ( m_penetration / totalInverseMass );
+	Vector movePerIMass = m_contactNormal * ( m_penetration / totalInverseMass );
 
 	m_particleMovement[0] = movePerIMass * m_particle[0]->GetInverseMass( );
 	if ( m_particle[1] )
@@ -98,7 +98,7 @@ void ParticleContact::ResolveInterpenetration( float /*duration*/ )
 	}
 	else
 	{
-		m_particleMovement[1] = { 0.f, 0.f, 0.f };
+		m_particleMovement[1] = Vector::ZeroVector;
 	}
 
 	m_particle[0]->SetPosition( m_particle[0]->GetPosition( ) + m_particleMovement[0] );

@@ -3,7 +3,6 @@
 
 #include "Components/LightComponent.h"
 #include "Physics/Frustum.h"
-#include "Math/CXMFloat.h"
 #include "RenderView.h"
 #include "Scene/LightSceneInfo.h"
 #include "Scene/PrimitiveSceneInfo.h"
@@ -26,7 +25,7 @@ LightProperty DirectionalLightProxy::GetLightProperty( ) const
 		m_direction,
 		std::numeric_limits<float>::max( ),
 		0.f,
-		CXMFLOAT3( ),
+		Vector::ZeroVector,
 		-m_direction * std::numeric_limits<float>::max( ),
 		m_diffuse,
 		m_specular
@@ -46,7 +45,7 @@ DirectionalLightProxy::DirectionalLightProxy( const DirectionalLightComponent& c
 {
 }
 
-HemisphereLightProxy::HemisphereLightProxy( const CXMFLOAT4& lowerColor, const CXMFLOAT4& upperColor, const CXMFLOAT3& upVector ) :
+HemisphereLightProxy::HemisphereLightProxy( const ColorF& lowerColor, const ColorF& upperColor, const Vector& upVector ) :
 	m_lowerHemisphereColor( lowerColor ),
 	m_upperHemisphereColor( upperColor ),
 	m_upVector( upVector )

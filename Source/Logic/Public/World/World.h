@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GameObject/GameObject.h"
-#include "Math/CXMFloat.h"
+#include "Math/Vector.h"
 #include "Physics/BoundingSphere.h"
 #include "Physics/CollideBroad.h"
 #include "Physics/CollideNarrow.h"
@@ -65,7 +65,7 @@ private:
 	ContactResolver m_resolver;
 	CollisionData m_collisionData;
 
-	Gravity m_gravity = Gravity( CXMFLOAT3( 0.f, -9.8f, 0.f ) );
+	Gravity m_gravity = Gravity( Vector( 0.f, -9.8f, 0.f ) );
 
 	IScene* m_scene = nullptr;
 };

@@ -114,9 +114,9 @@ void GameClientViewport::InitView( RenderViewGroup& views )
 	RenderView& localPlayerView = views.AddRenderView( );
 
 	localPlayerView.m_viewOrigin = cameraComponent->GetPosition( );
-	localPlayerView.m_viewAxis = CXMFLOAT3X3( cameraComponent->GetRightVector( ),
-		cameraComponent->GetUpVector( ),
-		cameraComponent->GetForwardVector( ) );
+	localPlayerView.m_viewAxis = BasisVectorMatrix( cameraComponent->GetRightVector( ),
+												cameraComponent->GetUpVector( ),
+												cameraComponent->GetForwardVector( ) );
 
 	localPlayerView.m_nearPlaneDistance = 1.f;
 	localPlayerView.m_farPlaneDistance = 1500.f;

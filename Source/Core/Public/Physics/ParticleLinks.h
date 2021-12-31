@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Math/CXMFloat.h"
 #include "ParticleContacts.h"
 #include "SizedTypes.h"
 

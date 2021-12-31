@@ -3,6 +3,7 @@
 #include "EnumStringMap.h"
 #include "Json/json.hpp"
 #include "Material/Material.h"
+#include "Math/Vector.h"
 #include "PathEnvironment.h"
 #include "RenderOption.h"
 #include "SizedTypes.h"
@@ -298,7 +299,7 @@ namespace
 						}
 						case JSON::DataType::ARRAY:
 						{
-							CXMFLOAT4 vector( 1.f, 1.f, 1.f, 1.f );
+							Vector4 vector( 1.f, 1.f, 1.f, 1.f );
 
 							for ( size_t i = 0; i < property->Size( ) && i < 4; ++i )
 							{

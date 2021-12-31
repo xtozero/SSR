@@ -1,7 +1,8 @@
 #pragma once
 
 #include "INotifyGraphicsDevice.h"
-#include "Math/CXMFloat.h"
+#include "Math/Matrix.h"
+#include "Math/Vector.h"
 //#include "Render/Resource.h"
 #include "ScreenBlurManager.h"
 #include "SizedTypes.h"
@@ -39,9 +40,9 @@ private:
 
 	struct SSRConstantBuffer
 	{
-		CXMFLOAT4X4 projectionMatrix;
+		Matrix projectionMatrix;
 		SSRProperties properties;
-		CXMFLOAT3 pedding;
+		Vector pedding;
 	};
 
 	BaseMesh* m_pScreenRect = nullptr;

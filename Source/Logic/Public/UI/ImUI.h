@@ -1,8 +1,10 @@
 #pragma once
 
 #include "common.h"
-#include "Math/CXMFloat.h"
+#include "Math/Rect.h"
 #include "Math/Util.h"
+#include "Math/Vector2.h"
+#include "Math/Vector4.h"
 //#include "Render/Resource.h"
 #include "SizedTypes.h"
 #include "UserInput/UserInput.h"
@@ -22,9 +24,9 @@ class CTextAtlas;
 
 struct ImUiVertex
 {
-	CXMFLOAT2 m_pos;
-	CXMFLOAT2 m_uv = { 1.1f, 1.1f };
-	CXMFLOAT4 m_color;
+	Point2 m_pos;
+	Point2 m_uv = { 1.1f, 1.1f };
+	ColorF m_color;
 };
 
 namespace ImUiColor
@@ -139,13 +141,13 @@ struct ImUiStyle
 	float m_popupRounding = 0.f;
 	float m_grabMinSize = 10.f;
 	float m_frameRounding = 0.f;
-	CXMFLOAT2 m_windowPadding = { 8, 8 };
-	CXMFLOAT2 m_windowMinSize = { 32, 32 };
-	CXMFLOAT2 m_framePadding = { 4, 3 };
-	CXMFLOAT2 m_itemSpacing = { 8, 4 };
-	CXMFLOAT2 m_itemInnerSpacing = { 4, 4 };
-	CXMFLOAT2 m_displaySafeAreaPadding = { 4, 4 };
-	CXMFLOAT4 m_colors[ImUiColor::Count];
+	Vector2 m_windowPadding = { 8, 8 };
+	Vector2 m_windowMinSize = { 32, 32 };
+	Vector2 m_framePadding = { 4, 3 };
+	Vector2 m_itemSpacing = { 8, 4 };
+	Vector2 m_itemInnerSpacing = { 4, 4 };
+	Vector2 m_displaySafeAreaPadding = { 4, 4 };
+	ColorF m_colors[ImUiColor::Count];
 };
 
 struct ImDrawCmd
@@ -157,10 +159,10 @@ struct ImDrawCmd
 
 struct ImUiDrawContext
 {
-	CXMFLOAT2 m_prevCursorPos;
-	CXMFLOAT2 m_cursorPos;
-	CXMFLOAT2 m_cursorStartPos;
-	CXMFLOAT2 m_cursorMaxPos;
+	Point2 m_prevCursorPos;
+	Point2 m_cursorPos;
+	Point2 m_cursorStartPos;
+	Point2 m_cursorMaxPos;
 
 	float m_currentLineHeight;
 	float m_currentLineTextBaseOffset;
@@ -178,21 +180,21 @@ struct ImDrawList
 	void UpdateClipRect( );
 	void UpdateTextAtlas( );
 
-	void AddFilledRect( const CXMFLOAT2& pos, const CXMFLOAT2& size, const CXMFLOAT4& color, float rounding = 0.f, int32 reoundingFlag = ImDrawCorner::All );
-	void AddConvexPolyFilled( const CXMFLOAT2* points, const int32 count, const CXMFLOAT4& color );
-	void AddText( CTextAtlas& font, const CXMFLOAT2& pos, const CXMFLOAT4& color, const char* text, uint32 count );
-	void AddTriangleFilled( const CXMFLOAT2& v0, const CXMFLOAT2& v1, const CXMFLOAT2& v2, const CXMFLOAT4& color );
+	void AddFilledRect( const Point2& pos, const Vector2& size, const ColorF& color, float rounding = 0.f, int32 reoundingFlag = ImDrawCorner::All );
+	void AddConvexPolyFilled( const Point2* points, const int32 count, const ColorF& color );
+	void AddText( CTextAtlas& font, const Point2& pos, const ColorF& color, const char* text, uint32 count );
+	void AddTriangleFilled( const Point2& v0, const Point2& v1, const Point2& v2, const ColorF& color );
 
 	void BufferReserve( int32 vertexCount, int32 indexCount );
-	void DrawRect( const CXMFLOAT2& pos, const CXMFLOAT2& size, const CXMFLOAT4& color );
+	void DrawRect( const Point2& pos, const Vector2& size, const ColorF& color );
 
 	void PathClear( ) { m_path.clear( ); }
-	void PathLineTo( const CXMFLOAT2& pos );
-	void PathFillConvex( const CXMFLOAT4& color );
-	void PathArcToFast( const CXMFLOAT2& centre, float radius, int32 minOf12, int32 maxOf12 );
-	void PathRect( const CXMFLOAT2& pos, const CXMFLOAT2& size, float rounding = 0.f, int32 reoundingFlag = ImDrawCorner::All );
+	void PathLineTo( const Point2& pos );
+	void PathFillConvex( const ColorF& color );
+	void PathArcToFast( const Point2& centre, float radius, int32 minOf12, int32 maxOf12 );
+	void PathRect( const Point2& pos, const Vector2& size, float rounding = 0.f, int32 reoundingFlag = ImDrawCorner::All );
 
-	std::vector<CXMFLOAT2> m_path;
+	std::vector<Point2> m_path;
 	std::vector<ImDrawCmd> m_cmdBuffer;
 	std::stack<Rect> m_clipRect;
 	//std::stack<RE_HANDLE> m_textAtlas;
@@ -224,13 +226,13 @@ struct ImUiWindow
 
 	int32 m_id = -1;
 	ImUiWindowFlags::Type m_flag = static_cast<ImUiWindowFlags::Type>( 0 );
-	CXMFLOAT2 m_pos = { 0.f, 0.f };
-	CXMFLOAT2 m_size = { 0.f, 0.f };
-	CXMFLOAT2 m_sizeNonCollapsed = { 0.f, 0.f };
-	CXMFLOAT2 m_contentsSize = { 0.f, 0.f };
-	CXMFLOAT2 m_explicitContentsSize = { 0.f, 0.f };
+	Point2 m_pos;
+	Vector2 m_size;
+	Vector2 m_sizeNonCollapsed;
+	Vector2 m_contentsSize;
+	Vector2 m_explicitContentsSize;
 	Rect m_contentsRegionRect;
-	CXMFLOAT2 m_windowPadding = { 0.f, 0.f };
+	Vector2 m_windowPadding;
 	float m_windowRounding = 0.f;
 	bool m_visible = false;
 	bool m_wasVisible = false;
@@ -257,14 +259,14 @@ struct ImUiWindow
 	const ImUI& m_imUi;
 	ImGUID m_moveID;
 
-	void SetPos( const CXMFLOAT2& pos );
+	void SetPos( const Point2& pos );
 };
 
 struct ImGuiIO
 {
-	CXMFLOAT2 m_displaySize = { -1.f, -1.f };
-	CXMFLOAT2 m_mousePos = { 0.f, 0.f };
-	CXMFLOAT2 m_mouseClickedPos[5];
+	Vector2 m_displaySize = { -1.f, -1.f };
+	Point2 m_mousePos;
+	Point2 m_mouseClickedPos[5];
 	float m_mouseClickedTime[5];
 	bool m_mouseClicked[5];
 	bool m_mouseDown[5];
@@ -275,20 +277,20 @@ struct ImGuiIO
 	float m_mouseDoubleDownTime = 0.3f;
 	float m_mouseDoubleDownMaxDist = 6.f;
 
-	CXMFLOAT2 m_prevMousePos = { 0.f, 0.f };
+	Point2 m_prevMousePos;
 };
 
 struct FontUV
 {
-	CXMFLOAT2 m_u;
-	CXMFLOAT2 m_v;
+	Point2 m_u;
+	Point2 m_v;
 	float m_size;
 };
 
 class CTextAtlas
 {
 public:
-	CXMFLOAT2 CalcTextSize( const char* text, uint32 count ) const;
+	Vector2 CalcTextSize( const char* text, uint32 count ) const;
 	FontUV* FindGlyph( char ch );
 
 	//RE_HANDLE m_texture = RE_HANDLE::InValidHandle( );
@@ -296,15 +298,15 @@ public:
 	std::map<char, FontUV> m_fontInfo;
 	float m_fontHeight = 0.f;
 	float m_fontSpacing = 0.f;
-	CXMFLOAT2 m_displayOffset = { 0.f, 0.f };
+	Vector2 m_displayOffset;
 };
 
 struct ImUiWindowSetting
 {
 	std::string m_name;
 	ImGUID m_id;
-	CXMFLOAT2 m_pos;
-	CXMFLOAT2 m_size;
+	Point2 m_pos;
+	Vector2 m_size;
 	bool m_collapsed;
 };
 
@@ -317,9 +319,9 @@ struct ImUiSettingHandler
 struct ImUiSizeCallbackData
 {
 	void* m_userData;
-	CXMFLOAT2 m_pos;
-	CXMFLOAT2 m_currentSize;
-	CXMFLOAT2 m_desiredSize;
+	Point2 m_pos;
+	Vector2 m_currentSize;
+	Vector2 m_desiredSize;
 };
 
 namespace ImUiCond
@@ -345,11 +347,11 @@ struct ImUiNextWindowData
 	ImUiCond::Type m_focusCond = ImUiCond::None;
 	ImUiCond::Type m_bgAlphaCond = ImUiCond::None;
 	ImUiCond::Type m_collapsedCond = ImUiCond::None;
-	CXMFLOAT2 m_pos = { 0.f, 0.f };
-	CXMFLOAT2 m_posPivot = { 0.f, 0.f };
-	CXMFLOAT2 m_size = { 0.f, 0.f };
-	CXMFLOAT2 m_contentSize = { 0.f, 0.f };
-	Rect m_constraintSizeRect = { 0.f, 0.f, 0.f, 0.f };
+	Point2 m_pos;
+	Point2 m_posPivot;
+	Vector2 m_size;
+	Vector2 m_contentSize;
+	Rect m_constraintSizeRect;
 	ImUiSizeCallBack m_sizeCallback = nullptr;
 	void* m_sizeCallbackUserData = nullptr;
 	float m_bgAlpha = FLT_MAX;
@@ -372,7 +374,7 @@ public:
 	void EndFrame( );
 	bool Window( const char* name, ImUiWindowFlags::Type flags = ImUiWindowFlags::None );
 	void EndWindow( );
-	bool Button( const char* label, const CXMFLOAT2& size = { 0.f, 0.f } );
+	bool Button( const char* label, const Vector2& size = Vector2::ZeroVector );
 	bool SliderFloat( const char* label, float* v, float min, float max, const char* displayFormat = nullptr );
 	bool SliderInt( const char* label, int32* v, int32 min, int32 max, const char* displayFormat = nullptr );
 	
@@ -381,7 +383,7 @@ public:
 	bool Combo( const char* label, int32* currentItem, const char* const items[], int32 itemsCount, int32 heightInItem = -1 );
 	bool Combo( const char* label, int32* currentItem, bool( *itemsGettter )( void* data, int32 idx, const char** outText ), void* data, int32 itemCount, int32 heightInItem = -1 );
 	
-	bool Selectable( const char* label, bool selected = false, ImUiSelectableFlags::Type flags = static_cast<ImUiSelectableFlags::Type>( 0 ), const CXMFLOAT2& sizeArg = { 0.f, 0.f } );
+	bool Selectable( const char* label, bool selected = false, ImUiSelectableFlags::Type flags = static_cast<ImUiSelectableFlags::Type>( 0 ), const Vector2& sizeArg = Vector2::ZeroVector );
 
 	template <typename... T>
 	void Text( const char* format, T... args );
@@ -397,39 +399,39 @@ public:
 	const ImUiStyle& GetCurStyle( ) const { return m_curStyle; }
 	const Rect& GetClientRect( ) const { return m_clientRect; }
 
-	CXMFLOAT2 CalcTextSize( const char* text, uint32 count ) const;
-	CXMFLOAT2 GetWindowContextRegionMax( );
+	Vector2 CalcTextSize( const char* text, uint32 count ) const;
+	Vector2 GetWindowContextRegionMax( );
 	float GetFontHeight( ) const;
 	float GetFrameHeight( ) const;
 
 	ImUiWindowSetting* FindWindowSettings( const char* name );
 	ImUiWindowSetting* AddWindowSettings( const char* name );
 
-	CXMFLOAT2 m_circleVertex[12];
+	Point2 m_circleVertex[12];
 private:
 	ImUiWindow* FindWindow( const char* name );
 	ImUiWindow* FindMouseOverWindow( );
-	ImUiWindow* CreateImUiWindow( const char* name, const CXMFLOAT2& size );
-	CXMFLOAT2 CalcItemSize( const CXMFLOAT2& size );
+	ImUiWindow* CreateImUiWindow( const char* name, const Vector2& size );
+	Vector2 CalcItemSize( const Vector2& size );
 	float CalcItemWidth( );
 	float CalcMaxPopupHeightFromItemCount( int32 itemCount );
-	bool ButtonEX( const char* label, const CXMFLOAT2& size = { 0.f, 0.f } );
+	bool ButtonEX( const char* label, const Vector2& size = { 0.f, 0.f } );
 	bool ButtonBehavior( const Rect& boundingbox, ImGUID id, bool& mouseOvered, bool& mouseHeld );
 
 	bool SliderBehavior( const Rect& boundingbox, ImGUID id, float* v, float min, float max );
 	float SliderBehaviorCalcRatioFromValue( float v, float min, float max, float linearZeroPos );
 
-	void RenderFrame( const CXMFLOAT2& pos, const CXMFLOAT2& size, const CXMFLOAT4& color, float rounding = 0.f );
-	void RenderText( const CXMFLOAT2& pos, const char* text, int32 count );
-	void RenderClippedText( const CXMFLOAT2& posMin, const CXMFLOAT2& posMax, const char* text, uint32 count, const CXMFLOAT2& align );
-	void RenderArrow( const CXMFLOAT2& pos, ImDir::Type dir, float scale = 1.f );
+	void RenderFrame( const Point2& pos, const Vector2& size, const ColorF& color, float rounding = 0.f );
+	void RenderText( const Point2& pos, const char* text, int32 count );
+	void RenderClippedText( const Point2& posMin, const Point2& posMax, const char* text, uint32 count, const Vector2& align );
+	void RenderArrow( const Point2& pos, ImDir::Type dir, float scale = 1.f );
 	void PushClipRect( const Rect& clipRect );
 
-	void ItemSize( const CXMFLOAT2& size, float textOffsetY = 0.f );
+	void ItemSize( const Vector2& size, float textOffsetY = 0.f );
 	bool MouseOveredItem( const Rect& boundingbox, ImGUID id );
 	bool IsWindowContentMouseOverable( ImUiWindow* window );
 
-	CXMFLOAT4 GetItemColor( ImUiColor::Type colorId, float alphaMul = 1.f );
+	ColorF GetItemColor( ImUiColor::Type colorId, float alphaMul = 1.f );
 
 	void SetActiveItemID( ImGUID id );
 	void SetMouseOveredID( ImGUID id );
@@ -449,11 +451,11 @@ private:
 	void CloseCurrentPopup( );
 	bool IsPopupOpen( ImGUID id );
 
-	CXMFLOAT2 CalcAfterConstraintSize( ImUiWindow* window, const CXMFLOAT2& size );
-	CXMFLOAT2 CalcAutoFitSize( ImUiWindow* window, const CXMFLOAT2& contentsSize );
-	CXMFLOAT2 FindBestWindowPosForPopup( const CXMFLOAT2& refPos, const CXMFLOAT2& size, ImDir::Type& lastDir, const Rect& avoid, ImUiPopupPositionPolicy::Type policy = ImUiPopupPositionPolicy::Default );
+	Vector2 CalcAfterConstraintSize( ImUiWindow* window, const Vector2& size );
+	Vector2 CalcAutoFitSize( ImUiWindow* window, const Vector2& contentsSize );
+	Point2 FindBestWindowPosForPopup( const Point2& refPos, const Vector2& size, ImDir::Type& lastDir, const Rect& avoid, ImUiPopupPositionPolicy::Type policy = ImUiPopupPositionPolicy::Default );
 
-	void SetNextWindowPos( const CXMFLOAT2& pos, ImUiCond::Type cond = ImUiCond::None, const CXMFLOAT2& pivot = { 0.f, 0.f } );
+	void SetNextWindowPos( const Point2& pos, ImUiCond::Type cond = ImUiCond::None, const Point2& pivot = Point2::ZeroVector );
 	void SetNextWindowConstraintSize( const Rect& constraintSize, ImUiSizeCallBack callback = nullptr, void* callbackData = nullptr );
 
 	int32 m_frameCount = 0;
@@ -475,7 +477,7 @@ private:
 
 	ImGuiIO m_io;
 
-	CXMFLOAT2 m_activeIDClickOffset = { -1, -1 };
+	Vector2 m_activeIDClickOffset = { -1, -1 };
 
 	std::map<std::string, int32> m_textAtlasLUT;
 	std::vector<CTextAtlas> m_textAtlas;
@@ -491,8 +493,8 @@ private:
 		ImUiWindow* m_parentWindow;
 		int32 m_openFrameCount;
 		ImGUID m_openParentID;
-		CXMFLOAT2 m_openPopupPos;
-		CXMFLOAT2 m_openMousePos;
+		Point2 m_openPopupPos;
+		Point2 m_openMousePos;
 	};
 
 	std::vector<ImUIPopupRef> m_openPopupStack;

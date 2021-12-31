@@ -2,7 +2,7 @@
 
 #include "common.h"
 #include "Components/SceneComponent.h"
-#include "Math/CXMFloat.h"
+#include "Math/Vector4.h"
 
 class HemisphereLightProxy;
 class LightProxy;
@@ -21,14 +21,14 @@ public:
 
 	virtual LightProxy* CreateProxy( ) const = 0;
 
-	void SetDiffuseColor( const CXMFLOAT4& diffuseColor );
-	const CXMFLOAT4& DiffuseColor( ) const
+	void SetDiffuseColor( const ColorF& diffuseColor );
+	const ColorF& DiffuseColor( ) const
 	{
 		return m_diffuse;
 	}
 
-	void SetSpecularColor( const CXMFLOAT4& specularColor );
-	const CXMFLOAT4& SpecularColor( ) const
+	void SetSpecularColor( const ColorF& specularColor );
+	const ColorF& SpecularColor( ) const
 	{
 		return m_specular;
 	}
@@ -51,8 +51,8 @@ public:
 	LightProxy* m_lightProxy = nullptr;
 
 private:
-	CXMFLOAT4 m_diffuse;
-	CXMFLOAT4 m_specular;
+	ColorF m_diffuse;
+	ColorF m_specular;
 
 	bool m_castShadow = false;
 	ShadowQuility m_shadowQuility = ShadowQuility::High;
@@ -65,8 +65,8 @@ public:
 
 	virtual LightProxy* CreateProxy( ) const override;
 
-	void SetDirection( const CXMFLOAT3& direction );
-	const CXMFLOAT3& Direction( ) const
+	void SetDirection( const Vector& direction );
+	const Vector& Direction( ) const
 	{
 		return m_direction;
 	}
@@ -77,7 +77,7 @@ protected:
 	virtual void RemoveRenderState( ) override;
 
 private:
-	CXMFLOAT3 m_direction;
+	Vector m_direction;
 };
 
 class HemisphereLightComponent : public SceneComponent
@@ -87,27 +87,27 @@ public:
 
 	virtual HemisphereLightProxy* CreateProxy( ) const;
 
-	void SetLowerColor( const CXMFLOAT4& color )
+	void SetLowerColor( const ColorF& color )
 	{
 		m_lowerHemisphereColor = color;
 	}
 
-	const CXMFLOAT4& LowerColor( ) const
+	const ColorF& LowerColor( ) const
 	{
 		return m_lowerHemisphereColor;
 	}
 
-	void SetUpperColor( const CXMFLOAT4& color )
+	void SetUpperColor( const ColorF& color )
 	{
 		m_upperHemisphereColor = color;
 	}
 
-	const CXMFLOAT4& UpperColor( ) const
+	const ColorF& UpperColor( ) const
 	{
 		return m_upperHemisphereColor;
 	}
 
-	CXMFLOAT3 UpVector( ) const;
+	Vector UpVector( ) const;
 
 	HemisphereLightProxy*& Proxy( )
 	{
@@ -121,6 +121,6 @@ protected:
 
 private:
 	HemisphereLightProxy* m_proxy = nullptr;
-	CXMFLOAT4 m_lowerHemisphereColor;
-	CXMFLOAT4 m_upperHemisphereColor;
+	ColorF m_lowerHemisphereColor;
+	ColorF m_upperHemisphereColor;
 };

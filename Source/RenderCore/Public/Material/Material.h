@@ -5,7 +5,7 @@
 #include "DDSTexture.h"
 #include "GraphicsApiResource.h"
 #include "IAsyncLoadableAsset.h"
-#include "Math/CXMFloat.h"
+#include "Math/Vector4.h"
 #include "RenderOption.h"
 #include "SizedTypes.h"
 
@@ -72,13 +72,13 @@ public:
 
 	virtual void CopyValue( void* dest ) const override;
 
-	const CXMFLOAT4& Value( ) const { return m_value; }
+	const Vector4& Value( ) const { return m_value; }
 
-	explicit Float4Property( const CXMFLOAT4& value ) : m_value( value ) {}
+	explicit Float4Property( const Vector4& value ) : m_value( value ) {}
 	Float4Property( ) = default;
 
 private:
-	CXMFLOAT4 m_value;
+	Vector4 m_value;
 };
 
 class IntProperty : public MaterialProperty
@@ -132,13 +132,13 @@ public:
 
 	RENDERCORE_DLL void AddProperty( const char* key, int32 value );
 	RENDERCORE_DLL void AddProperty( const char* key, float value );
-	RENDERCORE_DLL void AddProperty( const char* key, const CXMFLOAT4& value );
+	RENDERCORE_DLL void AddProperty( const char* key, const Vector4& value );
 	RENDERCORE_DLL void AddProperty( const char* key, const std::shared_ptr<Texture>& value );
 
 	const MaterialProperty* AsProperty( const char* key ) const;
 	int32 AsInteger( const char* key ) const;
 	float AsFloat( const char* key ) const;
-	const CXMFLOAT4& AsVector( const char* key ) const;
+	const Vector4& AsVector( const char* key ) const;
 	Texture* AsTexture( const char* key ) const;
 	SamplerOption* AsSampelrOption( const char* key ) const;
 

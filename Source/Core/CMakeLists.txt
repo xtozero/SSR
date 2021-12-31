@@ -49,9 +49,27 @@ set (LIBRARY_TOOL
 	Public/LibraryTool/Interfacefactories.h)
 
 set (Math
-	Private/Math/CXMFloat.cpp
-	Public/Math/CXMFloat.h
-	Public/Math/Util.h)
+	Private/Math/Matrix.cpp
+	Private/Math/Matrix3X3.cpp
+	Private/Math/Plane.cpp
+	Private/Math/Quaternion.cpp
+	Private/Math/Vector.cpp
+	Private/Math/Vector2.cpp
+	Private/Math/Vector4.cpp
+	Private/Math/XMMatrix.cpp
+	Private/Math/XMVector.cpp
+	Public/Math/Matrix.h
+	Public/Math/Matrix3X3.h
+	Public/Math/Plane.h
+	Public/Math/Quaternion.h
+	Public/Math/Rect.h
+	Public/Math/TransformationMatrix.h
+	Public/Math/Util.h
+	Public/Math/Vector.h
+	Public/Math/Vector2.h
+	Public/Math/Vector4.h
+	Public/Math/XMMatrix.h
+	Public/Math/XMVector.h)
 
 set (MEMORY
 	Public/Memory/FixedBlockMemoryPool.h
@@ -79,7 +97,6 @@ set (PHYSICS
 	Private/Physics/ParticleForceGenerator.cpp
 	Private/Physics/ParticleLinks.cpp
 	Private/Physics/ParticleWorld.cpp
-	Private/Physics/Ray.cpp
 	Private/Physics/ColliderManager.cpp
 	Public/Physics/Aaboundingbox.h
 	Public/Physics/Body.h
@@ -156,5 +173,6 @@ PUBLIC
 	./Public/Serialization
 PRIVATE
 	./Public/Physics
+	./Public/Math
 )
 							

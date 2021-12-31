@@ -3,6 +3,7 @@
 #include "BoxSphereBounds.h"
 #include "CollideNarrow.h"
 #include "Frustum.h"
+#include "Math/TransformationMatrix.h"
 #include "Ray.h"
 
 #include <algorithm> 
@@ -35,7 +36,7 @@ void CAaboundingbox::CalcMeshBounds( const MeshData& mesh )
 //#endif
 }
 
-void CAaboundingbox::Update( const CXMFLOAT3& scaling, const CXMFLOAT4& rotation, const CXMFLOAT3& translation, ICollider* original )
+void CAaboundingbox::Update( const Vector& scaling, const Quaternion& rotation, const Vector& translation, ICollider* original )
 {
 	CAaboundingbox* orig = dynamic_cast<CAaboundingbox*>( original );
 	if ( orig == nullptr )
@@ -43,26 +44,26 @@ void CAaboundingbox::Update( const CXMFLOAT3& scaling, const CXMFLOAT4& rotation
 		return;
 	}
 
-	CXMFLOAT3 v[8] = {
-		CXMFLOAT3( orig->m_max.x, orig->m_max.y, orig->m_max.z ),
-		CXMFLOAT3( orig->m_max.x, orig->m_min.y, orig->m_max.z ),
-		CXMFLOAT3( orig->m_max.x, orig->m_max.y, orig->m_min.z ),
-		CXMFLOAT3( orig->m_min.x, orig->m_max.y, orig->m_max.z ),
-		CXMFLOAT3( orig->m_min.x, orig->m_max.y, orig->m_min.z ),
-		CXMFLOAT3( orig->m_min.x, orig->m_min.y, orig->m_max.z ),
-		CXMFLOAT3( orig->m_max.x, orig->m_min.y, orig->m_min.z ),
-		CXMFLOAT3( orig->m_min.x, orig->m_min.y, orig->m_min.z ),
+	Vector v[8] = {
+		Vector( orig->m_max.x, orig->m_max.y, orig->m_max.z ),
+		Vector( orig->m_max.x, orig->m_min.y, orig->m_max.z ),
+		Vector( orig->m_max.x, orig->m_max.y, orig->m_min.z ),
+		Vector( orig->m_min.x, orig->m_max.y, orig->m_max.z ),
+		Vector( orig->m_min.x, orig->m_max.y, orig->m_min.z ),
+		Vector( orig->m_min.x, orig->m_min.y, orig->m_max.z ),
+		Vector( orig->m_max.x, orig->m_min.y, orig->m_min.z ),
+		Vector( orig->m_min.x, orig->m_min.y, orig->m_min.z ),
 	};
 	
-	CXMFLOAT4X4 matrix = XMMatrixAffineTransformation( scaling, g_XMZero, rotation, translation );
+	Matrix matrix = ScaleRotationTranslationMatrix( scaling, rotation, translation );
 
 	for ( uint32 i = 0; i < 8; ++i )
 	{
-		v[i] = XMVector3TransformCoord( v[i], matrix );
+		v[i] = matrix.TransformPosition( v[i] );
 	}
 
-	m_min = CXMFLOAT3( FLT_MAX, FLT_MAX, FLT_MAX );
-	m_max = CXMFLOAT3( -FLT_MAX, -FLT_MAX, -FLT_MAX );
+	m_min = Vector( FLT_MAX, FLT_MAX, FLT_MAX );
+	m_max = Vector( -FLT_MAX, -FLT_MAX, -FLT_MAX );
 
 	for ( uint32 i = 0; i < 8; ++i )
 	{
@@ -79,7 +80,7 @@ void CAaboundingbox::CalcSubMeshBounds( std::vector<std::unique_ptr<ICollider>>&
 {
 	subColliders.clear( );
 
-	CXMFLOAT3 length = m_max - m_min;
+	Vector length = m_max - m_min;
 
 	for ( uint32 i = 0; i < 8 * 8 * 8; ++i )
 	{
@@ -105,20 +106,20 @@ uint32 CAaboundingbox::Intersect( const Frustum& frustum ) const
 	using namespace DirectX;
 
 	const Frustum::LookUpTable& lut = frustum.GetVertexLUT( );
-	const CXMFLOAT4( &planes )[6] = frustum.GetPlanes( );
+	const Plane( &planes )[6] = frustum.GetPlanes( );
 
 	uint32 result = COLLISION::INSIDE;
 	for ( uint32 i = 0; i < 6; ++i )
 	{
-		CXMFLOAT3 p( ( lut[i] & Frustum::X_MAX ) ? m_max.x : m_min.x, ( lut[i] & Frustum::Y_MAX ) ? m_max.y : m_min.y, ( lut[i] & Frustum::Z_MAX ) ? m_max.z : m_min.z );
-		CXMFLOAT3 n( ( lut[i] & Frustum::X_MAX ) ? m_min.x : m_max.x, ( lut[i] & Frustum::Y_MAX ) ? m_min.y : m_max.y, ( lut[i] & Frustum::Z_MAX ) ? m_min.z : m_max.z );
+		Vector p( ( lut[i] & Frustum::X_MAX ) ? m_max.x : m_min.x, ( lut[i] & Frustum::Y_MAX ) ? m_max.y : m_min.y, ( lut[i] & Frustum::Z_MAX ) ? m_max.z : m_min.z );
+		Vector n( ( lut[i] & Frustum::X_MAX ) ? m_min.x : m_max.x, ( lut[i] & Frustum::Y_MAX ) ? m_min.y : m_max.y, ( lut[i] & Frustum::Z_MAX ) ? m_min.z : m_max.z );
 
-		if ( XMVectorGetX( XMPlaneDotCoord( planes[i], p ) ) < 0 )
+		if ( planes[i].PlaneDot( p ) < 0 )
 		{
 			return COLLISION::OUTSIDE;
 		}
 
-		if ( XMVectorGetX( XMPlaneDotCoord( planes[i], n ) ) < 0 )
+		if ( planes[i].PlaneDot( n ) < 0 )
 		{
 			result = COLLISION::INTERSECTION;
 		}
@@ -162,7 +163,7 @@ CAaboundingbox::CAaboundingbox( const BoxSphereBounds& bounds )
 	Merge( bounds.Origin( ) + bounds.HalfSize( ) );
 }
 
-CAaboundingbox::CAaboundingbox( const CXMFLOAT3* points, uint32 numPoints )
+CAaboundingbox::CAaboundingbox( const Vector* points, uint32 numPoints )
 {
 	for ( uint32 i = 0; i < numPoints; ++i )
 	{
@@ -170,7 +171,7 @@ CAaboundingbox::CAaboundingbox( const CXMFLOAT3* points, uint32 numPoints )
 	}
 }
 
-void CAaboundingbox::Merge( const CXMFLOAT3& vec )
+void CAaboundingbox::Merge( const Vector& vec )
 {
 	m_max.x = std::max( m_max.x, vec.x );
 	m_max.y = std::max( m_max.y, vec.y );
@@ -180,9 +181,9 @@ void CAaboundingbox::Merge( const CXMFLOAT3& vec )
 	m_min.z = std::min( m_min.z, vec.z );
 }
 
-void TransformAABB( CAaboundingbox& result, const CAaboundingbox& src, const CXMFLOAT4X4& mat )
+void TransformAABB( CAaboundingbox& result, const CAaboundingbox& src, const Matrix& mat )
 {
-	CXMFLOAT3 point[8];
+	Vector point[8];
 	for ( uint32 i = 0; i < 8; ++i )
 	{
 		point[i] = src.Point( i );
@@ -192,7 +193,7 @@ void TransformAABB( CAaboundingbox& result, const CAaboundingbox& src, const CXM
 
 	for ( uint32 i = 0; i < 8; ++i )
 	{
-		point[i] = XMVector3TransformCoord( point[i], mat );
+		point[i] = mat.TransformPosition( point[i] );
 		result.Merge( point[i] );
 	}
 }

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Renderer/SceneRenderer.h"
 
+#include "Math/TransformationMatrix.h"
 #include "Mesh/StaticMeshResource.h"
 #include "Material/MaterialResource.h"
 #include "Physics/CollideNarrow.h"
@@ -181,15 +182,15 @@ void SceneRenderer::ClassifyShadowCasterAndReceiver( IScene& scene, const std::v
 		assert( pShadowInfo->View( ) != nullptr );
 
 		const RenderView& view = *pShadowInfo->View( );
-		CXMFLOAT4X4 viewMat = XMMatrixLookToLH( view.m_viewOrigin, view.m_viewAxis[2], view.m_viewAxis[1] );
-		CXMFLOAT4X4 viewProjectionMat = XMMatrixPerspectiveFovLH( view.m_fov, view.m_aspect, view.m_nearPlaneDistance, view.m_farPlaneDistance );
-		viewProjectionMat = XMMatrixMultiply( viewMat, viewProjectionMat );
+		auto viewMat = LookFromMatrix( view.m_viewOrigin, view.m_viewAxis[2], view.m_viewAxis[1] );
+		auto viewProjectionMat = PerspectiveMatrix( view.m_fov, view.m_aspect, view.m_nearPlaneDistance, view.m_farPlaneDistance );
+		viewProjectionMat = viewMat * viewProjectionMat;
 		Frustum frustum( viewProjectionMat );
 
 		CAaboundingbox box;
 
-		CXMFLOAT3 lightDirection = lightSceneInfo->Proxy( )->GetLightProperty( ).m_direction;
-		CXMFLOAT3 sweepDir = XMVector3Normalize( lightDirection );
+		const Vector& lightDirection = lightSceneInfo->Proxy( )->GetLightProperty( ).m_direction;
+		Vector sweepDir = lightDirection.GetNormalized();
 
 		const auto& intersectionInfos = lightSceneInfo->Primitives( );
 		for ( const auto& intersectionInfo : intersectionInfos )

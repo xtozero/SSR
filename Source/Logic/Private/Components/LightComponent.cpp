@@ -1,16 +1,17 @@
 #include "stdafx.h"
 #include "Components/LightComponent.h"
 
+#include "Math/TransformationMatrix.h"
 #include "Proxies/LightProxy.h"
 #include "Scene/IScene.h"
 #include "World/World.h"
 
-void LightComponent::SetDiffuseColor( const CXMFLOAT4& diffuseColor )
+void LightComponent::SetDiffuseColor( const ColorF& diffuseColor )
 {
 	m_diffuse = diffuseColor;
 }
 
-void LightComponent::SetSpecularColor( const CXMFLOAT4& specularColor )
+void LightComponent::SetSpecularColor( const ColorF& specularColor )
 {
 	m_specular = specularColor;
 }
@@ -20,7 +21,7 @@ LightProxy* DirectionalLightComponent::CreateProxy( ) const
 	return new DirectionalLightProxy( *this );
 }
 
-void DirectionalLightComponent::SetDirection( const CXMFLOAT3& direction )
+void DirectionalLightComponent::SetDirection( const Vector& direction )
 {
 	m_direction = direction;
 }
@@ -47,12 +48,12 @@ HemisphereLightProxy* HemisphereLightComponent::CreateProxy( ) const
 	return new HemisphereLightProxy( LowerColor( ), UpperColor( ), UpVector( ) );
 }
 
-CXMFLOAT3 HemisphereLightComponent::UpVector( ) const
+Vector HemisphereLightComponent::UpVector( ) const
 {
 	using namespace DirectX;
 
-	XMMATRIX rotate = XMMatrixRotationQuaternion( GetRotate( ) );
-	return XMVector3TransformCoord( g_XMIdentityR1, rotate );
+	RotateMatrix rotate( GetRotate( ) );
+	return rotate.TransformVector( Vector::UpVector );
 }
 
 bool HemisphereLightComponent::ShouldCreateRenderState( ) const

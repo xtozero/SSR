@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "ShadowSetup.h"
 
-#include "Math/CXMFloat.h"
+#include "Math/TransformationMatrix.h"
+#include "Math/Vector.h"
+#include "Math/Vector4.h"
 #include "Physics/Aaboundingbox.h"
 #include "Physics/BoundingCone.h"
 #include "Physics/Frustum.h"
@@ -13,10 +15,10 @@
 
 namespace
 {
-	CXMFLOAT4X4 CreateCropMatrix( const BoxSphereBounds& bounds )
+	Matrix CreateCropMatrix( const BoxSphereBounds& bounds )
 	{
-		CXMFLOAT3 max = bounds.Origin( ) + bounds.HalfSize( );
-		CXMFLOAT3 min = bounds.Origin( ) - bounds.HalfSize( );
+		Vector max = bounds.Origin( ) + bounds.HalfSize( );
+		Vector min = bounds.Origin( ) - bounds.HalfSize( );
 
 		float scaleX = 2.0f / ( max.x - min.x );
 		float scaleY = 2.0f / ( max.y - min.y );
@@ -29,13 +31,13 @@ namespace
 		scaleX = std::max( 1.f, scaleX );
 		scaleY = std::max( 1.f, scaleY );
 
-		return CXMFLOAT4X4( scaleX, 0.f, 0.f, 0.f,
-							0.f, scaleY, 0.f, 0.f,
-							0.f, 0.f, scaleZ, 0.f,
-							offsetX, offsetY, offsetZ, 1.f);
+		return Matrix( scaleX, 0.f, 0.f, 0.f,
+						0.f, scaleY, 0.f, 0.f,
+						0.f, 0.f, scaleZ, 0.f,
+						offsetX, offsetY, offsetZ, 1.f);
 	}
 
-	BoxSphereBounds CalcFrustumBounds( const CXMFLOAT3& viewOrigin, const CXMFLOAT3X3& viewAxis, float nearPlane, float farPlane, float aspect, float fov, const CXMFLOAT4X4& shadowMat )
+	BoxSphereBounds CalcFrustumBounds( const Vector& viewOrigin, const BasisVectorMatrix& viewAxis, float nearPlane, float farPlane, float aspect, float fov, const Matrix& shadowMat )
 	{
 		float nearPlaneHalfHeight = std::tanf( fov * 0.5f ) * nearPlane;
 		float nearPlaneHalfWidth = nearPlaneHalfHeight * aspect;
@@ -43,33 +45,33 @@ namespace
 		float farPlaneHalfHeight = std::tanf( fov * 0.5f ) * farPlane;
 		float farPlaneHalfWidth = farPlaneHalfHeight * aspect;
 
-		const CXMFLOAT3& look = viewAxis[2];
-		const CXMFLOAT3& up = viewAxis[1];
-		const CXMFLOAT3& right = viewAxis[0];
+		const Vector& look = viewAxis[2];
+		const Vector& up = viewAxis[1];
+		const Vector& right = viewAxis[0];
 
-		CXMFLOAT3 nearPlaneCenter = viewOrigin + look * nearPlane;
-		CXMFLOAT3 farPlaneCenter = viewOrigin + look * farPlane;
+		Vector nearPlaneCenter = viewOrigin + look * nearPlane;
+		Vector farPlaneCenter = viewOrigin + look * farPlane;
 
-		CXMFLOAT3 corners[8] = {
-			{ nearPlaneCenter - CXMFLOAT3( right * nearPlaneHalfWidth ) - CXMFLOAT3( up * nearPlaneHalfHeight ) },
-			{ nearPlaneCenter - CXMFLOAT3( right * nearPlaneHalfWidth ) + CXMFLOAT3( up * nearPlaneHalfHeight ) },
-			{ nearPlaneCenter + CXMFLOAT3( right * nearPlaneHalfWidth ) + CXMFLOAT3( up * nearPlaneHalfHeight ) },
-			{ nearPlaneCenter + CXMFLOAT3( right * nearPlaneHalfWidth ) - CXMFLOAT3( up * nearPlaneHalfHeight ) },
-			{ farPlaneCenter - CXMFLOAT3( right * farPlaneHalfWidth ) - CXMFLOAT3( up * farPlaneHalfHeight ) },
-			{ farPlaneCenter - CXMFLOAT3( right * farPlaneHalfWidth ) + CXMFLOAT3( up * farPlaneHalfHeight ) },
-			{ farPlaneCenter + CXMFLOAT3( right * farPlaneHalfWidth ) + CXMFLOAT3( up * farPlaneHalfHeight ) },
-			{ farPlaneCenter + CXMFLOAT3( right * farPlaneHalfWidth ) - CXMFLOAT3( up * farPlaneHalfHeight ) }
+		Vector corners[8] = {
+			{ nearPlaneCenter - right * nearPlaneHalfWidth - up * nearPlaneHalfHeight },
+			{ nearPlaneCenter - right * nearPlaneHalfWidth + up * nearPlaneHalfHeight },
+			{ nearPlaneCenter + right * nearPlaneHalfWidth + up * nearPlaneHalfHeight },
+			{ nearPlaneCenter + right * nearPlaneHalfWidth - up * nearPlaneHalfHeight },
+			{ farPlaneCenter - right * farPlaneHalfWidth - up * farPlaneHalfHeight },
+			{ farPlaneCenter - right * farPlaneHalfWidth + up * farPlaneHalfHeight },
+			{ farPlaneCenter + right * farPlaneHalfWidth + up * farPlaneHalfHeight },
+			{ farPlaneCenter + right * farPlaneHalfWidth - up * farPlaneHalfHeight }
 		};
 
-		for ( CXMFLOAT3& corner : corners )
+		for ( Vector& corner : corners )
 		{
-			corner = DirectX::XMVector3TransformCoord( corner, shadowMat );
+			corner = shadowMat.TransformPosition( corner );
 		}
 
 		return BoxSphereBounds( corners, std::extent_v<decltype( corners )> );
 	}
 
-	void SplitShadowProjectionMatrix( ShadowInfo& shadowInfo, const RenderView& view, const CXMFLOAT4X4& shadowViewProjMat, const CXMFLOAT4X4& shadowMat )
+	void SplitShadowProjectionMatrix( ShadowInfo& shadowInfo, const RenderView& view, const Matrix& shadowViewProjMat, const Matrix& shadowMat )
 	{
 		CalculateSplitPositions( shadowInfo, shadowInfo.SubjectFar( ) );
 
@@ -90,7 +92,7 @@ namespace
 		{
 			BoxSphereBounds bounds = CalcFrustumBounds( view.m_viewOrigin, view.m_viewAxis, splitDistance[cascadeLevel], splitDistance[cascadeLevel + 1], view.m_aspect, view.m_fov, shadowMat );
 
-			CXMFLOAT3 frustumMinMax[2] = { bounds.Origin( ) - bounds.HalfSize( ), bounds.Origin( ) + bounds.HalfSize( ) };
+			Vector frustumMinMax[2] = { bounds.Origin( ) - bounds.HalfSize( ), bounds.Origin( ) + bounds.HalfSize( ) };
 
 			frustumMinMax[0].x = std::max( frustumMinMax[0].x, casterAABB.GetMin( ).x ) - extend;
 			frustumMinMax[0].y = std::max( frustumMinMax[0].y, casterAABB.GetMin( ).y ) - extend;
@@ -100,9 +102,9 @@ namespace
 			frustumMinMax[1].z = std::min( frustumMinMax[1].z, casterAABB.GetMax( ).z ) + extend;
 
 			bounds = BoxSphereBounds( frustumMinMax, 2 );
-			CXMFLOAT4X4 cropMat = CreateCropMatrix( bounds );
+			Matrix cropMat = CreateCropMatrix( bounds );
 
-			shadowInfo.ShadowViewProjections( )[cascadeLevel] = XMMatrixMultiply( shadowMat, cropMat );
+			shadowInfo.ShadowViewProjections( )[cascadeLevel] = shadowMat * cropMat;
 		}
 	}
 }
@@ -115,20 +117,20 @@ void BuildOrthoShadowProjectionMatrix( ShadowInfo& shadowInfo )
 	LightProperty lightProperty = lightSceneInfo->Proxy( )->GetLightProperty( );
 
 	const RenderView& view = *shadowInfo.View( );
-	auto viewMatrix = XMMatrixLookToLH( view.m_viewOrigin,
+	auto viewMatrix = LookFromMatrix( view.m_viewOrigin,
 										view.m_viewAxis[2],
 										view.m_viewAxis[1] );
 
-	CXMFLOAT3 viewLightDir = XMVector3TransformNormal( lightProperty.m_direction, viewMatrix );
-	viewLightDir = XMVector3Normalize( viewLightDir );
+	auto viewLightDir = viewMatrix.TransformVector( lightProperty.m_direction );
+	viewLightDir = viewLightDir.GetNormalized();
 
 	CAaboundingbox frustumAABB;
 	if ( true /*m_isUnitClipCube*/ )
 	{
 		for ( const BoxSphereBounds& bounds : shadowInfo.ShadowReceiversViewSpaceBounds( ) )
 		{
-			CXMFLOAT3 max = bounds.Origin( ) + bounds.HalfSize( );
-			CXMFLOAT3 min = bounds.Origin( ) - bounds.HalfSize( );
+			Vector max = bounds.Origin( ) + bounds.HalfSize( );
+			Vector min = bounds.Origin( ) - bounds.HalfSize( );
 
 			frustumAABB.Merge( max );
 			frustumAABB.Merge( min );
@@ -148,28 +150,28 @@ void BuildOrthoShadowProjectionMatrix( ShadowInfo& shadowInfo )
 	CAaboundingbox casterAABB;
 	for ( const BoxSphereBounds& bounds : shadowInfo.ShadowCastersViewSpaceBounds( ) )
 	{
-		CXMFLOAT3 max = bounds.Origin( ) + bounds.HalfSize( );
-		CXMFLOAT3 min = bounds.Origin( ) - bounds.HalfSize( );
+		Vector max = bounds.Origin( ) + bounds.HalfSize( );
+		Vector min = bounds.Origin( ) - bounds.HalfSize( );
 
 		casterAABB.Merge( max );
 		casterAABB.Merge( min );
 	}
 
-	CXMFLOAT3 center = frustumAABB.Centroid( );
+	const Vector& center = frustumAABB.Centroid( );
 
-	CXMFLOAT3 rayOrigin = -viewLightDir * view.m_farPlaneDistance;
+	auto rayOrigin = -viewLightDir * view.m_farPlaneDistance;
 	rayOrigin += center;
 
 	CRay ray( rayOrigin, viewLightDir );
 	float t = casterAABB.Intersect( ray );
 
-	auto lightPosition = CXMFLOAT3( lightProperty.m_position );
+	auto lightPosition = Vector( lightProperty.m_position );
 	if ( t > 0.f )
 	{
-		CXMFLOAT3 collsionPos = rayOrigin;
+		Vector collsionPos = rayOrigin;
 		collsionPos += viewLightDir * t;
 
-		float distance = XMVectorGetX( XMVector3Length( center - collsionPos ) );
+		float distance = ( center - collsionPos ).Length();
 		lightPosition = center;
 		lightPosition -= viewLightDir * distance * 2.f;
 	}
@@ -178,28 +180,27 @@ void BuildOrthoShadowProjectionMatrix( ShadowInfo& shadowInfo )
 		assert( false );
 	}
 
-	CXMFLOAT3 axis = { 0.f, 1.f, 0.f };
-
-	if ( fabsf( XMVectorGetX( XMVector3Dot( viewLightDir, axis ) ) ) > 0.99f )
+	Vector axis = Vector::YAxisVector;
+	if ( fabsf( viewLightDir | axis ) > 0.99f )
 	{
-		axis = { 0.f, 0.f, 1.f };
+		axis = Vector::ZAxisVector;
 	}
 
-	CXMFLOAT4X4 lightView = XMMatrixLookAtLH( lightPosition, center, axis );
+	Matrix lightView = LookAtMatrix( lightPosition, center, axis );
 
 	TransformAABB( frustumAABB, frustumAABB, lightView );
 	TransformAABB( casterAABB, casterAABB, lightView );
 
-	const CXMFLOAT3& frustumMin = frustumAABB.GetMin( );
-	const CXMFLOAT3& frustumMax = frustumAABB.GetMax( );
-	const CXMFLOAT3& casterMin = casterAABB.GetMin( );
+	const Vector& frustumMin = frustumAABB.GetMin( );
+	const Vector& frustumMax = frustumAABB.GetMax( );
+	const Vector& casterMin = casterAABB.GetMin( );
 
-	CXMFLOAT4X4 shadowProjection = XMMatrixOrthographicOffCenterLH( frustumMin.x, frustumMax.x,
-		frustumMin.y, frustumMax.y,
-		casterMin.z, frustumMax.z );
+	Matrix shadowProjection = OrthoMatrix( frustumMin.x, frustumMax.x,
+											frustumMin.y, frustumMax.y,
+											casterMin.z, frustumMax.z );
 
-	CXMFLOAT4X4 shadowViewProjMat = XMMatrixMultiply( lightView, shadowProjection );
-	CXMFLOAT4X4 shadowMat = XMMatrixMultiply( viewMatrix, shadowViewProjMat );
+	auto shadowViewProjMat = lightView * shadowProjection;
+	auto shadowMat = viewMatrix * shadowViewProjMat;
 
 	SplitShadowProjectionMatrix( shadowInfo, view, shadowViewProjMat, shadowMat );
 }
@@ -212,17 +213,17 @@ void BuildPSMProjectionMatrix( ShadowInfo& shadowInfo )
 	LightProperty lightProperty = lightSceneInfo->Proxy( )->GetLightProperty( );
 
 	const RenderView& view = *shadowInfo.View( );
-	auto viewMatrix = XMMatrixLookToLH( view.m_viewOrigin,
-										view.m_viewAxis[2],
-										view.m_viewAxis[1] );
+	auto viewMatrix = LookFromMatrix( view.m_viewOrigin,
+									view.m_viewAxis[2],
+									view.m_viewAxis[1] );
 
-	std::vector<CXMFLOAT3> clipedResivePoints;
+	std::vector<Vector> clipedResivePoints;
 	clipedResivePoints.reserve( shadowInfo.ShadowReceiversViewSpaceBounds( ).size( ) * 8 );
 
 	for ( const BoxSphereBounds& bounds : shadowInfo.ShadowReceiversViewSpaceBounds( ) )
 	{
-		CXMFLOAT3 max = bounds.Origin( ) + bounds.HalfSize( );
-		CXMFLOAT3 min = bounds.Origin( ) - bounds.HalfSize( );
+		Vector max = bounds.Origin( ) + bounds.HalfSize( );
+		Vector min = bounds.Origin( ) - bounds.HalfSize( );
 
 		for ( uint32 i = 0; i < 8; ++i )
 		{
@@ -244,15 +245,15 @@ void BuildPSMProjectionMatrix( ShadowInfo& shadowInfo )
 		zClipNear += slideBack;
 	}
 
-	CXMFLOAT4X4 virtualCameraView = XMMatrixTranslation( 0.f, 0.f, slideBack );
-	CXMFLOAT4X4 virtualCameraProjection;
+	Matrix virtualCameraView = TranslationMatrix( 0.f, 0.f, slideBack );
+	Matrix virtualCameraProjection;
 
 	if ( true /*m_isSlideBack*/ )
 	{
 		if ( true /*m_isUnitClipCube*/ )
 		{
-			CBoundingCone cone( clipedResivePoints, virtualCameraView, CXMFLOAT3( 0.f, 0.f, 0.f ), CXMFLOAT3( 0.f, 0.f, 1.f ) );
-			virtualCameraProjection = XMMatrixPerspectiveLH( 2.f * tanf( cone.GetFovX( ) ) * zClipNear, 2.f * tanf( cone.GetFovY( ) ) * zClipNear, zClipNear, zClipFar );
+			CBoundingCone cone( clipedResivePoints, virtualCameraView, Vector::ZeroVector, Vector::ForwardVector );
+			virtualCameraProjection = PerspectiveMatrix( { 2.f * tanf( cone.GetFovX() ) * zClipNear, 2.f * tanf( cone.GetFovY() ) * zClipNear }, zClipNear, zClipFar );
 		}
 		else
 		{
@@ -262,45 +263,45 @@ void BuildPSMProjectionMatrix( ShadowInfo& shadowInfo )
 			float halfFovy = atanf( viewHeight / ( view.m_farPlaneDistance + slideBack ) );
 			float halfFovx = atanf( viewWidth / ( view.m_farPlaneDistance + slideBack ) );
 
-			virtualCameraProjection = XMMatrixPerspectiveLH( 2.f * tanf( halfFovx ) * zClipNear, 2.f * tanf( halfFovy ) * zClipNear, zClipNear, zClipFar );
+			virtualCameraProjection = PerspectiveMatrix( { 2.f * tanf( halfFovx ) * zClipNear, 2.f * tanf( halfFovy ) * zClipNear }, zClipNear, zClipFar );
 		}
 	}
 	else
 	{
-		virtualCameraView = XMMatrixIdentity( );
-		virtualCameraProjection = XMMatrixPerspectiveFovLH( view.m_fov, view.m_aspect, zClipNear, zClipFar );
+		virtualCameraView = Matrix::Identity;
+		virtualCameraProjection = PerspectiveMatrix( view.m_fov, view.m_aspect, zClipNear, zClipFar );
 	}
 
-	CXMFLOAT4 lightPos = XMVector3TransformNormal( -lightProperty.m_direction, viewMatrix );
-	lightPos = XMVector3TransformNormal( lightPos, virtualCameraProjection );
+	Vector4 lightPos = viewMatrix.TransformVector( -lightProperty.m_direction );
+	lightPos = virtualCameraProjection.TransformVector( lightPos );
 
-	CXMFLOAT4X4 lightView;
-	CXMFLOAT4X4 lightProjection;
+	Matrix lightView;
+	Matrix lightProjection;
 
 	if ( fabsf( lightPos.w ) <= 0.001f )
 	{
-		CXMFLOAT3 ppLightDir( lightPos.x, lightPos.y, lightPos.z );
-		ppLightDir = XMVector3Normalize( ppLightDir );
+		Vector ppLightDir( lightPos.x, lightPos.y, lightPos.z );
+		ppLightDir = ppLightDir.GetNormalized();
 
 		CAaboundingbox ppUnitBox;
 		ppUnitBox.SetMax( 1, 1, 1 );
 		ppUnitBox.SetMin( -1, -1, 0 );
 
-		CXMFLOAT3 cubeCenter = ppUnitBox.Centroid( );
+		Vector cubeCenter = ppUnitBox.Centroid( );
 
-		CXMFLOAT3 rayOrigin = ppLightDir * 2.f;
+		Vector rayOrigin = ppLightDir * 2.f;
 		rayOrigin += cubeCenter;
 
 		CRay ray( rayOrigin, -ppLightDir );
 		float t = ppUnitBox.Intersect( ray );
 
-		CXMFLOAT3 lightPosition;
+		Vector lightPosition;
 		if ( t > 0.f )
 		{
-			CXMFLOAT3 collsionPos = rayOrigin;
+			Vector collsionPos = rayOrigin;
 			collsionPos -= ppLightDir * t;
 
-			float distance = XMVectorGetX( XMVector3Length( cubeCenter - collsionPos ) );
+			float distance = ( cubeCenter - collsionPos ).Length();
 			lightPosition = cubeCenter;
 			lightPosition += ppLightDir * distance * 2.f;
 		}
@@ -309,27 +310,26 @@ void BuildPSMProjectionMatrix( ShadowInfo& shadowInfo )
 			assert( false );
 		}
 
-		CXMFLOAT3 axis = { 0.f, 1.f, 0.f };
-
-		if ( fabsf( XMVectorGetX( XMVector3Dot( ppLightDir, axis ) ) ) > 0.99f )
+		Vector axis = Vector::YAxisVector;
+		if ( fabsf( ppLightDir | axis ) > 0.99f )
 		{
-			axis = { 0.f, 0.f, 1.f };
+			axis = Vector::ZAxisVector;
 		}
 
-		lightView = XMMatrixLookAtLH( lightPosition, cubeCenter, axis );
+		lightView = LookAtMatrix( lightPosition, cubeCenter, axis );
 
 		TransformAABB( ppUnitBox, ppUnitBox, lightView );
-		const CXMFLOAT3& unitBoxMin = ppUnitBox.GetMin( );
-		const CXMFLOAT3& unitBoxMax = ppUnitBox.GetMax( );
+		const Vector& unitBoxMin = ppUnitBox.GetMin( );
+		const Vector& unitBoxMax = ppUnitBox.GetMax( );
 
-		lightProjection = XMMatrixOrthographicOffCenterLH( unitBoxMin.x, unitBoxMax.x, unitBoxMin.y, unitBoxMax.y, unitBoxMin.z, unitBoxMax.z );
+		lightProjection = OrthoMatrix( unitBoxMin.x, unitBoxMax.x, unitBoxMin.y, unitBoxMax.y, unitBoxMin.z, unitBoxMax.z );
 	}
 	else
 	{
-		auto ppLightPos = CXMFLOAT3( lightPos / lightPos.w );
+		Vector ppLightPos = lightPos / lightPos.w;
 
-		CXMFLOAT4X4 eyeToPostProjectiveVirtualCamera;
-		eyeToPostProjectiveVirtualCamera = XMMatrixMultiply( virtualCameraView, virtualCameraProjection );
+		Matrix eyeToPostProjectiveVirtualCamera;
+		eyeToPostProjectiveVirtualCamera = virtualCameraView * virtualCameraProjection;
 
 		bool isShadowTestInverted = ( lightPos.w < 0.f );
 		if ( isShadowTestInverted )
@@ -341,13 +341,13 @@ void BuildPSMProjectionMatrix( ShadowInfo& shadowInfo )
 			}
 			else
 			{
-				std::vector<CXMFLOAT3> ndcBox;
+				std::vector<Vector> ndcBox;
 				ndcBox.reserve( 8 );
 				for ( uint32 i = 0; i < 8; ++i )
 				{
 					ndcBox.emplace_back( ( i & 1 ) ? -1.f : 1.f, ( i & 2 ) ? -1.f : 1.f, ( i & 4 ) ? 0.f : 1.f );
 				}
-				viewCone = CBoundingCone( ndcBox, XMMatrixIdentity( ), ppLightPos );
+				viewCone = CBoundingCone( ndcBox, Matrix::Identity, ppLightPos );
 			}
 			lightView = viewCone.GetLookAt( );
 
@@ -355,10 +355,10 @@ void BuildPSMProjectionMatrix( ShadowInfo& shadowInfo )
 			float width = 2.f * tanf( viewCone.GetFovX( ) ) * -fNear;
 			float height = 2.f * tanf( viewCone.GetFovY( ) ) * -fNear;
 
-			lightProjection = CXMFLOAT4X4( ( -2.f * fNear ) / width, 0, 0, 0,
-				0, ( -2.f * fNear ) / height, 0, 0,
-				0, 0, fNear / ( 2.f * fNear ), 1,
-				0, 0, ( fNear * fNear ) / ( 2.f * fNear ), 0 );
+			lightProjection = Matrix( ( -2.f * fNear ) / width, 0, 0, 0,
+									0, ( -2.f * fNear ) / height, 0, 0,
+									0, 0, fNear / ( 2.f * fNear ), 1,
+									0, 0, ( fNear * fNear ) / ( 2.f * fNear ), 0 );
 		}
 		else
 		{
@@ -379,19 +379,18 @@ void BuildPSMProjectionMatrix( ShadowInfo& shadowInfo )
 			}
 			else
 			{
-				CXMFLOAT3 lookAt = CXMFLOAT3( 0.f, 0.f, 0.5f ) - ppLightPos;
+				Vector lookAt = Vector( 0.f, 0.f, 0.5f ) - ppLightPos;
 
-				float distance = XMVectorGetX( XMVector3Length( lookAt ) );
+				float distance = lookAt.Length();
 				lookAt /= distance;
 
-				CXMFLOAT3 axis = { 0.f, 1.f, 0.f };
-
-				if ( fabsf( XMVectorGetX( XMVector3Dot( lookAt, axis ) ) ) > 0.99f )
+				Vector axis = Vector::YAxisVector;
+				if ( fabsf( lookAt | axis ) > 0.99f )
 				{
-					axis = { 0.f, 0.f, 1.f };
+					axis = Vector::ZAxisVector;
 				}
 
-				lightView = XMMatrixLookAtLH( ppLightPos, CXMFLOAT3( 0.f, 0.f, 0.5f ), axis );
+				lightView = LookAtMatrix( ppLightPos, Vector( 0.f, 0.f, 0.5f ), axis );
 
 				constexpr float ppCubeRadius = 1.5f;  // the post-projective view box radius is 1.5
 				fFovy = 2.f * atanf( ppCubeRadius / distance );
@@ -401,14 +400,14 @@ void BuildPSMProjectionMatrix( ShadowInfo& shadowInfo )
 			}
 
 			fNear = std::max( 0.001f, fNear );
-			lightProjection = XMMatrixPerspectiveFovLH( fFovy, fAspect, fNear, fFar );
+			lightProjection = PerspectiveMatrix( fFovy, fAspect, fNear, fFar );
 		}
 	}
 
-	CXMFLOAT4X4 shadowViewProjMat = XMMatrixMultiply( virtualCameraView, virtualCameraProjection );
-	shadowViewProjMat = XMMatrixMultiply( shadowViewProjMat, lightView );
-	shadowViewProjMat = XMMatrixMultiply( shadowViewProjMat, lightProjection );
-	CXMFLOAT4X4 shadowMat = XMMatrixMultiply( viewMatrix, shadowViewProjMat );
+	auto shadowViewProjMat = virtualCameraView * virtualCameraProjection;
+	shadowViewProjMat *= lightView;
+	shadowViewProjMat *= lightProjection;
+	auto shadowMat = viewMatrix * shadowViewProjMat;
 
 	SplitShadowProjectionMatrix( shadowInfo, view, shadowViewProjMat, shadowMat );
 }
@@ -421,11 +420,11 @@ void BuildLSPSMProjectionMatrix( ShadowInfo& shadowInfo )
 	LightProperty lightProperty = lightSceneInfo->Proxy( )->GetLightProperty( );
 
 	const RenderView& view = *shadowInfo.View( );
-	CXMFLOAT4X4 viewMatrix = XMMatrixLookToLH( view.m_viewOrigin,
-												view.m_viewAxis[2],
-												view.m_viewAxis[1] );
+	Matrix viewMatrix = LookFromMatrix( view.m_viewOrigin,
+										view.m_viewAxis[2],
+										view.m_viewAxis[1] );
 
-	float cosGamma = XMVectorGetX( XMVector3Dot( -lightProperty.m_direction, CXMFLOAT3( viewMatrix._13, viewMatrix._23, viewMatrix._33 ) ) );
+	float cosGamma = -lightProperty.m_direction | Vector( viewMatrix._13, viewMatrix._23, viewMatrix._33 );
 
 	if ( abs( cosGamma ) >= 0.999f )
 	{
@@ -433,13 +432,13 @@ void BuildLSPSMProjectionMatrix( ShadowInfo& shadowInfo )
 	}
 	else
 	{
-		std::vector<CXMFLOAT3> bodyB;
+		std::vector<Vector> bodyB;
 		bodyB.reserve( shadowInfo.ShadowCastersViewSpaceBounds( ).size( ) * 8 + 8 );
 
 		for ( const BoxSphereBounds& bounds : shadowInfo.ShadowCastersViewSpaceBounds( ) )
 		{
-			CXMFLOAT3 max = bounds.Origin( ) + bounds.HalfSize( );
-			CXMFLOAT3 min = bounds.Origin( ) - bounds.HalfSize( );
+			Vector max = bounds.Origin( ) + bounds.HalfSize( );
+			Vector min = bounds.Origin( ) - bounds.HalfSize( );
 
 			for ( uint32 i = 0; i < 8; ++i )
 			{
@@ -447,31 +446,30 @@ void BuildLSPSMProjectionMatrix( ShadowInfo& shadowInfo )
 			}
 		}
 
-		CXMFLOAT3 upVector = XMVector3Normalize( XMVector3TransformNormal( -lightProperty.m_direction, viewMatrix ) );
+		Vector upVector = viewMatrix.TransformVector( -lightProperty.m_direction ).GetNormalized();
 
-		const CXMFLOAT3 eyeVector( 0.f, 0.f, 1.f );
-		CXMFLOAT3 rightVector = XMVector3Normalize( XMVector3Cross( upVector, eyeVector ) );
-		CXMFLOAT3 lookVector = XMVector3Normalize( XMVector3Cross( rightVector, upVector ) );
+		Vector rightVector = ( upVector ^ Vector::ForwardVector ).GetNormalized();
+		Vector lookVector = ( rightVector ^ upVector ).GetNormalized();
 
-		CXMFLOAT4X4 lightSpaceBasis(
+		Matrix lightSpaceBasis(
 			rightVector.x, upVector.x, lookVector.x, 0.f,
 			rightVector.y, upVector.y, lookVector.y, 0.f,
 			rightVector.z, upVector.z, lookVector.z, 0.f,
 			0.f, 0.f, 0.f, 1.f
 		);
 
-		XMVector3TransformCoordStream( bodyB.data( ), sizeof( CXMFLOAT3 ), bodyB.data( ), sizeof( CXMFLOAT3 ), bodyB.size( ), lightSpaceBasis );
+		lightSpaceBasis.TransformPosition( bodyB.data(), bodyB.data(), static_cast<uint32>( bodyB.size() ) );
 
 		CAaboundingbox lightSpaceBox( bodyB.data( ), static_cast<uint32>( bodyB.size( ) ) );
-		CXMFLOAT3 lightSpaceOrigin = lightSpaceBox.Centroid( );
+		Vector lightSpaceOrigin = lightSpaceBox.Centroid( );
 		float sinGamma = sqrtf( 1.f - cosGamma * cosGamma );
 
 		float receiversNear = -FLT_MAX;
 		float receiversFar = FLT_MAX;
 		for ( const BoxSphereBounds& bounds : shadowInfo.ShadowReceiversViewSpaceBounds( ) )
 		{
-			CXMFLOAT3 max = bounds.Origin( ) + bounds.HalfSize( );
-			CXMFLOAT3 min = bounds.Origin( ) - bounds.HalfSize( );
+			Vector max = bounds.Origin( ) + bounds.HalfSize( );
+			Vector min = bounds.Origin( ) - bounds.HalfSize( );
 
 			receiversNear = std::max( receiversNear, min.z );
 			receiversFar = std::min( receiversFar, max.z );
@@ -492,7 +490,7 @@ void BuildLSPSMProjectionMatrix( ShadowInfo& shadowInfo )
 
 		float maxX = -FLT_MAX, maxY = -FLT_MAX, maxZ = -FLT_MAX;
 
-		CXMFLOAT3 tmp;
+		Vector tmp;
 		for ( const auto& point : bodyB )
 		{
 			tmp = point - lightSpaceOrigin;
@@ -502,33 +500,33 @@ void BuildLSPSMProjectionMatrix( ShadowInfo& shadowInfo )
 			maxZ = std::max( maxZ, tmp.z );
 		}
 
-		CXMFLOAT4X4 translate = XMMatrixTranslation( -lightSpaceOrigin.x, -lightSpaceOrigin.y, -lightSpaceOrigin.z );
-		CXMFLOAT4X4 perspective = XMMatrixPerspectiveLH( 2.f * maxX * nOpt, 2.f * maxY * nOpt, nOpt, maxZ );
+		Matrix translate = TranslationMatrix( -lightSpaceOrigin.x, -lightSpaceOrigin.y, -lightSpaceOrigin.z );
+		Matrix perspective = PerspectiveMatrix( { 2.f * maxX * nOpt, 2.f * maxY * nOpt }, nOpt, maxZ );
 
-		lightSpaceBasis = XMMatrixMultiply( lightSpaceBasis, translate );
-		lightSpaceBasis = XMMatrixMultiply( lightSpaceBasis, perspective );
+		lightSpaceBasis *= translate;
+		lightSpaceBasis *= perspective;
 
-		CXMFLOAT4X4 permute(
+		Matrix permute(
 			1.f, 0.f, 0.f, 0.f,
 			0.f, 0.f, -1.f, 0.f,
 			0.f, 1.f, 0.f, 0.f,
 			0.f, -0.5f, 1.5f, 1.f
 		);
 
-		CXMFLOAT4X4 ortho = XMMatrixOrthographicLH( 2.f, 1.f, 0.5f, 2.5f );
+		Matrix ortho = OrthoMatrix( { 2.f, 1.f }, 0.5f, 2.5f );
 
-		lightSpaceBasis = XMMatrixMultiply( lightSpaceBasis, permute );
-		CXMFLOAT4X4 lightProjection = ortho;
+		lightSpaceBasis = lightSpaceBasis * permute;
+		Matrix lightProjection = ortho;
 
 		if ( false /*m_isUnitClipCube*/ && ( shadowInfo.ShadowReceiversViewSpaceBounds( ).size( ) > 0 ) )
 		{
-			std::vector<CXMFLOAT3> receiverPoints;
+			std::vector<Vector> receiverPoints;
 			receiverPoints.reserve( shadowInfo.ShadowReceiversViewSpaceBounds( ).size( ) * 8 );
 
 			for ( const BoxSphereBounds& bounds : shadowInfo.ShadowReceiversViewSpaceBounds( ) )
 			{
-				CXMFLOAT3 max = bounds.Origin( ) + bounds.HalfSize( );
-				CXMFLOAT3 min = bounds.Origin( ) - bounds.HalfSize( );
+				Vector max = bounds.Origin( ) + bounds.HalfSize( );
+				Vector min = bounds.Origin( ) - bounds.HalfSize( );
 
 				for ( uint32 i = 0; i < 8; ++i )
 				{
@@ -536,8 +534,7 @@ void BuildLSPSMProjectionMatrix( ShadowInfo& shadowInfo )
 				}
 			}
 
-			XMVector3TransformCoordStream( receiverPoints.data( ), sizeof( CXMFLOAT3 ), receiverPoints.data( ), sizeof( CXMFLOAT3 ), receiverPoints.size( ), lightSpaceBasis );
-
+			lightSpaceBasis.TransformPosition( receiverPoints.data(), receiverPoints.data(), static_cast<uint32>( receiverPoints.size() ) );
 			CAaboundingbox receiverBox( receiverPoints.data( ), static_cast<uint32>( receiverPoints.size( ) ) );
 
 			float minX = std::min( -1.f, receiverBox.GetMin( ).x );
@@ -553,19 +550,19 @@ void BuildLSPSMProjectionMatrix( ShadowInfo& shadowInfo )
 				float boxX = ( minX + maxX ) * 0.5f;
 				float boxY = ( minY + maxY ) * 0.5f;
 
-				CXMFLOAT4X4 clip(
+				Matrix clip(
 					2.f / boxWidth, 0.f, 0.f, 0.f,
 					0.f, 2.f / boxHeight, 0.f, 0.f,
 					0.f, 0.f, 1.f, 0.f,
 					-2.f * boxX / boxWidth, -2.f * boxY / boxHeight, 0.f, 1.f
 				);
 
-				lightProjection = XMMatrixMultiply( lightProjection, clip );
+				lightProjection = lightProjection * clip;
 			}
 		}
 
-		CXMFLOAT4X4 shadowViewProjMat = XMMatrixMultiply( lightSpaceBasis, lightProjection );
-		CXMFLOAT4X4 shadowMat = XMMatrixMultiply( viewMatrix, shadowViewProjMat );
+		auto shadowViewProjMat = lightSpaceBasis * lightProjection;
+		auto shadowMat = viewMatrix * shadowViewProjMat;
 
 		SplitShadowProjectionMatrix( shadowInfo, view, shadowViewProjMat, shadowMat );
 	}

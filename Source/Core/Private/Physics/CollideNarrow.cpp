@@ -8,50 +8,48 @@
 
 #include <algorithm>
 
-using namespace DirectX;
-
 namespace
 {
-	void FillPointFaceBoxBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, const COrientedBoundingBox& rhs, RigidBody* rhsBody, const CXMFLOAT3& toCentre, CollisionData* data, uint32 best, float pen )
+	void FillPointFaceBoxBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, const COrientedBoundingBox& rhs, RigidBody* rhsBody, const Vector& toCentre, CollisionData* data, uint32 best, float pen )
 	{
 		Contact* contact = data->m_contacts;
 
-		CXMFLOAT3 normal = lhs.GetAxisVector( best );
+		Vector normal = lhs.GetAxisVector( best );
 
-		if ( XMVectorGetX( XMVector3Dot( normal, toCentre ) ) > 0 )
+		if ( ( normal | toCentre ) > 0 )
 		{
 			normal = -normal;
 		}
 
-		CXMFLOAT3 vertex = rhs.GetHalfSize( );
-		if ( XMVectorGetX( XMVector3Dot( rhs.GetAxisVector( 0 ), normal ) ) < 0 )
+		Vector vertex = rhs.GetHalfSize( );
+		if ( ( rhs.GetAxisVector( 0 ) | normal ) < 0 )
 		{
 			vertex.x = -vertex.x;
 		}
-		if ( XMVectorGetX( XMVector3Dot( rhs.GetAxisVector( 1 ), normal ) ) < 0 )
+		if ( ( rhs.GetAxisVector( 1 ) | normal ) < 0 )
 		{
 			vertex.y = -vertex.y;
 		}
-		if ( XMVectorGetX( XMVector3Dot( rhs.GetAxisVector( 2 ), normal ) ) < 0 )
+		if ( ( rhs.GetAxisVector( 2 ) | normal ) < 0 )
 		{
 			vertex.z = -vertex.z;
 		}
 
 		contact->SetContactNormal( normal );
 		contact->SetPenetration( pen );
-		contact->SetContactPoint( XMVector3TransformCoord( vertex, rhs.GetTransform( ) ) );
+		contact->SetContactPoint( rhs.GetTransform().TransformPosition( vertex ) );
 		contact->SetBodyData( lhsBody, rhsBody, data->m_friction, data->m_restitution );
 	}
 
-	CXMFLOAT3 CalcEdgeContactPoint( const CXMFLOAT3& pLhs, const CXMFLOAT3& dLhs, float lhsSize, const CXMFLOAT3& pRhs, const CXMFLOAT3& dRhs, float rhsSize, bool useLhs )
+	Point CalcEdgeContactPoint( const Point& pLhs, const Point& dLhs, float lhsSize, const Vector& pRhs, const Vector& dRhs, float rhsSize, bool useLhs )
 	{
-		float smLhs = XMVectorGetX( XMVector3LengthSq( dLhs ) );
-		float smRhs = XMVectorGetX( XMVector3LengthSq( dRhs ) );
-		float dpLhsRhs = XMVectorGetX( XMVector3Dot( dLhs, dRhs ) );
+		float smLhs = dLhs.LengthSqrt();
+		float smRhs = dRhs.LengthSqrt();
+		float dpLhsRhs = dLhs | dRhs;
 
-		CXMFLOAT3 toSt = pLhs - pRhs;
-		float dpStaLhs = XMVectorGetX( XMVector3Dot( toSt, dLhs ) );
-		float dpStaRhs = XMVectorGetX( XMVector3Dot( toSt, dRhs ) );
+		Vector toSt = pLhs - pRhs;
+		float dpStaLhs = toSt | dLhs;
+		float dpStaRhs = toSt | dRhs;
 
 		float denom = smLhs * smRhs - dpLhsRhs * dpLhsRhs;
 
@@ -72,17 +70,17 @@ namespace
 		}
 		else
 		{
-			CXMFLOAT3 cLhs = pLhs + ( dLhs * mua );
-			CXMFLOAT3 cRhs = pRhs + ( dRhs * mub );
+			Point cLhs = pLhs + ( dLhs * mua );
+			Point cRhs = pRhs + ( dRhs * mub );
 
 			return ( cLhs + cRhs ) * 0.5;
 		}
 	}
 
-	bool SweptSpherePlaneIntersection( float& t0, float& t1, const CXMFLOAT4& plane, const CXMFLOAT3& origin, float radius, const CXMFLOAT3& sweepDir )
+	bool SweptSpherePlaneIntersection( float& t0, float& t1, const Plane& plane, const Point& origin, float radius, const Vector& sweepDir )
 	{
-		float bdotn = XMVectorGetX( XMPlaneDotCoord( plane, origin ) );
-		float ddotn = XMVectorGetX( XMPlaneDotNormal( plane, sweepDir ) );
+		float bdotn = plane.PlaneDot( origin );
+		float ddotn = plane.PlaneDotNormal( sweepDir );
 
 		if ( ddotn == 0 )
 		{
@@ -134,22 +132,22 @@ uint32 SphereAndSphere( const BoundingSphere& lhs, RigidBody* lhsBody, const Bou
 		return COLLISION::OUTSIDE;
 	}
 
-	const CXMFLOAT3& lhsPos = lhs.GetCenter( );
-	const CXMFLOAT3& rhsPos = rhs.GetCenter( );
+	const Point& lhsPos = lhs.GetCenter( );
+	const Point& rhsPos = rhs.GetCenter( );
 
-	CXMFLOAT3 midline = lhsPos - rhsPos;
-	float size = XMVectorGetX( XMVector3Length( midline ) );
+	Vector midline = lhsPos - rhsPos;
+	float size = midline.Length();
 
 	if ( size <= 0.f || size >= lhs.GetRadius( ) + rhs.GetRadius( ) )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	CXMFLOAT3 normal = midline / size;
+	Vector normal = midline / size;
 
 	Contact* contact = data->m_contacts;
 	contact->SetContactNormal( normal );
-	contact->SetContactPoint( lhsPos - CXMFLOAT3( midline * 0.5f ) );
+	contact->SetContactPoint( lhsPos - ( midline * 0.5f ) );
 	contact->SetPenetration( lhs.GetRadius( ) + rhs.GetRadius( ) - size );
 	contact->SetBodyData( lhsBody, rhsBody, data->m_friction, data->m_restitution );
 
@@ -157,16 +155,16 @@ uint32 SphereAndSphere( const BoundingSphere& lhs, RigidBody* lhsBody, const Bou
 	return COLLISION::INTERSECTION;
 }
 
-uint32 SphereAndHalfSpace( const BoundingSphere& sphere, RigidBody* sphereBody, const CXMFLOAT4& plane, CollisionData* data )
+uint32 SphereAndHalfSpace( const BoundingSphere& sphere, RigidBody* sphereBody, const Plane& plane, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	const CXMFLOAT3& pos = sphere.GetCenter( );
+	const Point& pos = sphere.GetCenter( );
 
-	float ballDistance = XMVectorGetX( XMPlaneDotCoord( plane, pos ) ) - sphere.GetRadius();
+	float ballDistance = plane.PlaneDot( pos ) - sphere.GetRadius();
 
 	if ( ballDistance >= 0 )
 	{
@@ -174,9 +172,9 @@ uint32 SphereAndHalfSpace( const BoundingSphere& sphere, RigidBody* sphereBody, 
 	}
 
 	Contact* contact = data->m_contacts;
-	CXMFLOAT3 planeDir( plane.x, plane.y, plane.z );
+	Vector planeDir = plane.GetNormal();
 	contact->SetContactNormal( planeDir );
-	contact->SetContactPoint( pos - CXMFLOAT3( planeDir * ( ballDistance + sphere.GetRadius( ) ) ) );
+	contact->SetContactPoint( pos - ( planeDir * ( ballDistance + sphere.GetRadius( ) ) ) );
 	contact->SetPenetration( -ballDistance );
 	contact->SetBodyData( sphereBody, nullptr, data->m_friction, data->m_restitution );
 
@@ -184,23 +182,23 @@ uint32 SphereAndHalfSpace( const BoundingSphere& sphere, RigidBody* sphereBody, 
 	return COLLISION::INTERSECTION;
 }
 
-uint32 SphereAndTruePlane( const BoundingSphere& sphere, RigidBody* sphereBody, const CXMFLOAT4& plane, CollisionData* data )
+uint32 SphereAndTruePlane( const BoundingSphere& sphere, RigidBody* sphereBody, const Plane& plane, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	const CXMFLOAT3& pos = sphere.GetCenter( );
+	const Point& pos = sphere.GetCenter( );
 
-	float centerDistance = XMVectorGetX( XMPlaneDotCoord( plane, pos ) );
+	float centerDistance = plane.PlaneDot( pos );
 
 	if ( centerDistance > sphere.GetRadius() )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	CXMFLOAT3 normal( plane.x, plane.y, plane.z );
+	Vector normal = plane.GetNormal();
 	float penetration = -centerDistance;
 	if ( centerDistance < 0 )
 	{
@@ -211,7 +209,7 @@ uint32 SphereAndTruePlane( const BoundingSphere& sphere, RigidBody* sphereBody, 
 
 	Contact* contact = data->m_contacts;
 	contact->SetContactNormal( normal );
-	contact->SetContactPoint( pos - CXMFLOAT3( normal * centerDistance ) );
+	contact->SetContactPoint( pos - ( normal * centerDistance ) );
 	contact->SetPenetration( penetration );
 	contact->SetBodyData( sphereBody, nullptr, data->m_friction, data->m_restitution );
 
@@ -219,21 +217,21 @@ uint32 SphereAndTruePlane( const BoundingSphere& sphere, RigidBody* sphereBody, 
 	return COLLISION::INTERSECTION;
 }
 
-uint32 SphereAndFrusturm( const CXMFLOAT3& origin, float radius, const Frustum& frustum )
+uint32 SphereAndFrusturm( const Point& origin, float radius, const Frustum& frustum )
 {
-	const CXMFLOAT4( &planes )[6] = frustum.GetPlanes( );
+	const Plane( &planes )[6] = frustum.GetPlanes( );
 
 	bool inside = true;
 
 	for ( uint32 i = 0; ( i < 6 ) && inside; i++ )
 	{
-		inside = inside && ( ( XMVectorGetX( XMPlaneDotCoord( planes[i], origin ) ) + radius ) >= 0.f );
+		inside = inside && ( ( planes[i].PlaneDot( origin ) + radius ) >= 0.f );
 	}
 
 	return inside;
 }
 
-bool SphereAndFrusturm( const CXMFLOAT3& origin, float radius, const Frustum& frustum, const CXMFLOAT3& sweepDir )
+bool SphereAndFrusturm( const Point& origin, float radius, const Frustum& frustum, const Vector& sweepDir )
 {
 	float displacement[12];
 	uint32 count = 0;
@@ -241,7 +239,7 @@ bool SphereAndFrusturm( const CXMFLOAT3& origin, float radius, const Frustum& fr
 	float t1 = -1;
 	bool inFrustum = false;
 
-	const CXMFLOAT4( &planes )[6] = frustum.GetPlanes( );
+	const Plane( &planes )[6] = frustum.GetPlanes( );
 
 	for ( uint32 i = 0; i < 6; ++i )
 	{
@@ -261,7 +259,7 @@ bool SphereAndFrusturm( const CXMFLOAT3& origin, float radius, const Frustum& fr
 	for ( uint32 i = 0; i < count; ++i )
 	{
 		float extendRadius = radius * 1.1f;
-		CXMFLOAT3 center( origin + sweepDir * displacement[i] );
+		Point center( origin + sweepDir * displacement[i] );
 		uint32 result = SphereAndFrusturm( center, extendRadius, frustum );
 		inFrustum |= ( result > COLLISION::OUTSIDE );
 	}
@@ -269,7 +267,7 @@ bool SphereAndFrusturm( const CXMFLOAT3& origin, float radius, const Frustum& fr
 	return inFrustum;
 }
 
-uint32 BoxAndHalfSpace( const CAaboundingbox& box, RigidBody* boxBody, const CXMFLOAT4& plane, CollisionData* data )
+uint32 BoxAndHalfSpace( const CAaboundingbox& box, RigidBody* boxBody, const Plane& plane, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
@@ -281,14 +279,14 @@ uint32 BoxAndHalfSpace( const CAaboundingbox& box, RigidBody* boxBody, const CXM
 
 	for ( uint32 i = 0; i < 8; ++i )
 	{
-		CXMFLOAT3 vertexPos = box.Point( i );
+		Point vertexPos = box.Point( i );
 
-		float vertexDistance = XMVectorGetX( XMPlaneDotNormal( plane, vertexPos ) );
+		float vertexDistance = plane.PlaneDotNormal( vertexPos );
 		if ( vertexDistance + plane.w <= 0.f )
 		{
-			CXMFLOAT3 normal( plane.x, plane.y, plane.z );
+			Vector normal = plane.GetNormal();
 			contact->SetContactNormal( normal );
-			contact->SetContactPoint( vertexPos + CXMFLOAT3( normal * ( vertexDistance + plane.w ) ) );
+			contact->SetContactPoint( vertexPos + ( normal * ( vertexDistance + plane.w ) ) );
 			contact->SetPenetration( vertexDistance + plane.w );
 			contact->SetBodyData( boxBody, nullptr, data->m_friction, data->m_restitution );
 
@@ -319,11 +317,11 @@ uint32 BoxAndSphere( const CAaboundingbox& box, RigidBody* boxBody, const Boundi
 		return COLLISION::OUTSIDE;
 	}
 
-	const CXMFLOAT3& center = sphere.GetCenter( );
-	CXMFLOAT3 closestPoint = center;
+	const Point& center = sphere.GetCenter( );
+	Point closestPoint = center;
 
-	const CXMFLOAT3& boxMax = box.GetMax( );
-	const CXMFLOAT3& boxMin = box.GetMin( );
+	const Point& boxMax = box.GetMax( );
+	const Point& boxMin = box.GetMin( );
 	if ( closestPoint.x > boxMax.x )
 	{
 		closestPoint.x = boxMax.x;
@@ -351,14 +349,14 @@ uint32 BoxAndSphere( const CAaboundingbox& box, RigidBody* boxBody, const Boundi
 		closestPoint.z = boxMin.z;
 	}
 
-	float dist = XMVectorGetX( XMVector3LengthSq( closestPoint - center ) );
+	float dist = ( closestPoint - center ).LengthSqrt();
 	if ( dist > sphere.GetRadius( ) * sphere.GetRadius( ) )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
 	Contact* contact = data->m_contacts;
-	contact->SetContactNormal( XMVector3Normalize( closestPoint - center ) );
+	contact->SetContactNormal( ( closestPoint - center ).GetNormalized() );
 	contact->SetContactPoint( closestPoint );
 	contact->SetPenetration( sphere.GetRadius( ) - sqrtf( dist ) );
 	contact->SetBodyData( boxBody, sphereBody, data->m_friction, data->m_restitution );
@@ -374,11 +372,11 @@ uint32 BoxAndSphere( const COrientedBoundingBox& box, RigidBody* boxBody, const 
 		return COLLISION::OUTSIDE;
 	}
 
-	const CXMFLOAT3& centre = sphere.GetCenter( );
-	CXMFLOAT3 relCentre = XMVector3TransformCoord( centre, XMMatrixInverse( nullptr, box.GetTransform( ) ) );
+	const Point& centre = sphere.GetCenter( );
+	Point relCentre = box.GetTransform().Inverse().TransformPosition( centre );
 
 	float radius = sphere.GetRadius( );
-	const CXMFLOAT3& halfSize = box.GetHalfSize( );
+	const Vector& halfSize = box.GetHalfSize( );
 	if ( fabsf( relCentre.x ) - radius > halfSize.x ||
 		fabsf( relCentre.y ) - radius > halfSize.y || 
 		fabsf( relCentre.z ) - radius > halfSize.z )
@@ -386,7 +384,7 @@ uint32 BoxAndSphere( const COrientedBoundingBox& box, RigidBody* boxBody, const 
 		return COLLISION::OUTSIDE;
 	}
 
-	CXMFLOAT3 closestPoint( relCentre );
+	Point closestPoint( relCentre );
 
 	if ( relCentre.x > halfSize.x )
 	{
@@ -415,16 +413,16 @@ uint32 BoxAndSphere( const COrientedBoundingBox& box, RigidBody* boxBody, const 
 		closestPoint.z = -halfSize.z;
 	}
 
-	float dist = XMVectorGetX( XMVector3LengthSq( closestPoint - relCentre ) );
+	float dist = ( closestPoint - relCentre ).LengthSqrt();
 	if ( dist > ( sphere.GetRadius( ) * sphere.GetRadius( ) ) )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	closestPoint = XMVector3TransformCoord( closestPoint, box.GetTransform( ) );
+	closestPoint = box.GetTransform().TransformPosition( closestPoint );
 
 	Contact* contact = data->m_contacts;
-	contact->SetContactNormal( XMVector3Normalize( closestPoint - centre ) );
+	contact->SetContactNormal( ( closestPoint - centre ).GetNormalized() );
 	contact->SetContactPoint( closestPoint );
 	contact->SetPenetration( sphere.GetRadius( ) - sqrtf( dist ) );
 	contact->SetBodyData( boxBody, sphereBody, data->m_friction, data->m_restitution );
@@ -445,16 +443,13 @@ uint32 BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const CAaboundi
 		return COLLISION::OUTSIDE;
 	}
 
-	const CXMFLOAT3& lhsMin = lhs.GetMin();
-	const CXMFLOAT3& lhsMax = lhs.GetMax();
-	const CXMFLOAT3& rhsMin = rhs.GetMin();
-	const CXMFLOAT3& rhsMax = rhs.GetMax();
+	const Point& lhsMin = lhs.GetMin();
+	const Point& lhsMax = lhs.GetMax();
+	const Point& rhsMin = rhs.GetMin();
+	const Point& rhsMax = rhs.GetMax();
 
-	CXMFLOAT3 totalSize;
-	totalSize = lhs.Size( );
-
-	CXMFLOAT3 rhsSize;
-	rhsSize = rhs.Size( );
+	Vector totalSize = lhs.Size( );
+	Vector rhsSize = rhs.Size( );
 	totalSize += rhsSize;
 
 	float bestOverlap = FLT_MAX;
@@ -471,36 +466,34 @@ uint32 BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const CAaboundi
 		}
 	}
 
-	CXMFLOAT3 axis[3] = {
+	Vector axis[3] = {
 		{ 1.f, 0.f, 0.f },
 		{ 0.f, 1.f, 0.f },
 		{ 0.f, 0.f, 1.f}
 	};
 
-	CXMFLOAT3 normal = axis[bestAxis];
-	CXMFLOAT3 lhsCentre;
-	lhsCentre = lhs.Centroid( );
-	CXMFLOAT3 rhsCentre;
-	rhsCentre = rhs.Centroid( );
+	Vector normal = axis[bestAxis];
+	Point lhsCentre = lhs.Centroid( );
+	Point rhsCentre = rhs.Centroid( );
 
-	CXMFLOAT3 toCentre = XMVector3Normalize( rhsCentre - lhsCentre );
-	if ( XMVectorGetX( XMVector3Dot( normal, toCentre ) ) > 0 )
+	Vector toCentre = ( rhsCentre - lhsCentre ).GetNormalized();
+	if ( ( normal | toCentre ) > 0 )
 	{
 		normal *= -1.f;
 	}
 
-	CXMFLOAT3 vertex = rhsMax;
-	if ( XMVectorGetX( XMVector3Dot( axis[0], toCentre ) ) >= 0 )
+	Vector vertex = rhsMax;
+	if ( ( axis[0] | toCentre ) >= 0 )
 	{
 		vertex.x = rhsMin.x;
 	}
 
-	if ( XMVectorGetX( XMVector3Dot( axis[1], toCentre ) ) >= 0 )
+	if ( ( axis[1] | toCentre ) >= 0 )
 	{
 		vertex.y = rhsMin.y;
 	}
 
-	if ( XMVectorGetX( XMVector3Dot( axis[2], toCentre ) ) >= 0 )
+	if ( ( axis[2] | toCentre ) >= 0 )
 	{
 		vertex.z = rhsMin.z;
 	}
@@ -522,7 +515,7 @@ uint32 BoxAndBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, const COr
 		return COLLISION::OUTSIDE;
 	}
 
-	CXMFLOAT3 toCentre = rhs.GetAxisVector( 3 ) - lhs.GetAxisVector( 3 );
+	Vector toCentre = rhs.GetAxisVector( 3 ) - lhs.GetAxisVector( 3 );
 
 	float pen = FLT_MAX;
 	uint32 best = UINT_MAX;
@@ -559,47 +552,47 @@ uint32 BoxAndBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, const COr
 
 	uint32 bestSingleAxis = best;
 
-	if ( TryAxis( lhs, rhs, XMVector3Normalize( XMVector3Cross( lhs.GetAxisVector( 0 ), rhs.GetAxisVector( 0 ) ) ), toCentre, 6, pen, best ) == false )
+	if ( TryAxis( lhs, rhs, ( lhs.GetAxisVector( 0 ) ^ rhs.GetAxisVector( 0 ) ).GetNormalized(), toCentre, 6, pen, best) == false)
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	if ( TryAxis( lhs, rhs, XMVector3Normalize( XMVector3Cross( lhs.GetAxisVector( 0 ), rhs.GetAxisVector( 1 ) ) ), toCentre, 7, pen, best ) == false )
+	if ( TryAxis( lhs, rhs, ( lhs.GetAxisVector( 0 ) ^ rhs.GetAxisVector( 1 ) ).GetNormalized(), toCentre, 7, pen, best) == false)
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	if ( TryAxis( lhs, rhs, XMVector3Normalize( XMVector3Cross( lhs.GetAxisVector( 0 ), rhs.GetAxisVector( 2 ) ) ), toCentre, 8, pen, best ) == false )
+	if ( TryAxis( lhs, rhs, ( lhs.GetAxisVector( 0 ) ^ rhs.GetAxisVector( 2 ) ).GetNormalized(), toCentre, 8, pen, best ) == false )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	if ( TryAxis( lhs, rhs, XMVector3Normalize( XMVector3Cross( lhs.GetAxisVector( 1 ), rhs.GetAxisVector( 0 ) ) ), toCentre, 9, pen, best ) == false )
+	if ( TryAxis( lhs, rhs, ( lhs.GetAxisVector( 1 ) ^ rhs.GetAxisVector( 0 ) ).GetNormalized(), toCentre, 9, pen, best ) == false )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	if ( TryAxis( lhs, rhs, XMVector3Normalize( XMVector3Cross( lhs.GetAxisVector( 1 ), rhs.GetAxisVector( 1 ) ) ), toCentre, 10, pen, best ) == false )
+	if ( TryAxis( lhs, rhs, ( lhs.GetAxisVector( 1 ) ^ rhs.GetAxisVector( 1 ) ).GetNormalized(), toCentre, 10, pen, best ) == false )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	if ( TryAxis( lhs, rhs, XMVector3Normalize( XMVector3Cross( lhs.GetAxisVector( 1 ), rhs.GetAxisVector( 2 ) ) ), toCentre, 11, pen, best ) == false )
+	if ( TryAxis( lhs, rhs, ( lhs.GetAxisVector( 1 ) ^ rhs.GetAxisVector( 2 ) ).GetNormalized(), toCentre, 11, pen, best ) == false )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	if ( TryAxis( lhs, rhs, XMVector3Normalize( XMVector3Cross( lhs.GetAxisVector( 2 ), rhs.GetAxisVector( 0 ) ) ), toCentre, 12, pen, best ) == false )
+	if ( TryAxis( lhs, rhs, ( lhs.GetAxisVector( 2 ) ^ rhs.GetAxisVector( 0 ) ).GetNormalized(), toCentre, 12, pen, best ) == false )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	if ( TryAxis( lhs, rhs, XMVector3Normalize( XMVector3Cross( lhs.GetAxisVector( 2 ), rhs.GetAxisVector( 1 ) ) ), toCentre, 13, pen, best ) == false )
+	if ( TryAxis( lhs, rhs, ( lhs.GetAxisVector( 2 ) ^ rhs.GetAxisVector( 1 ) ).GetNormalized(), toCentre, 13, pen, best) == false)
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	if ( TryAxis( lhs, rhs, XMVector3Normalize( XMVector3Cross( lhs.GetAxisVector( 2 ), rhs.GetAxisVector( 2 ) ) ), toCentre, 14, pen, best ) == false )
+	if ( TryAxis( lhs, rhs, ( lhs.GetAxisVector( 2 ) ^ rhs.GetAxisVector( 2 ) ).GetNormalized(), toCentre, 14, pen, best) == false)
 	{
 		return COLLISION::OUTSIDE;
 	}
@@ -621,17 +614,17 @@ uint32 BoxAndBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, const COr
 		best -= 6;
 		uint32 lhsAxisIndex = best / 3;
 		uint32 rhsAxisIndex = best % 3;
-		CXMFLOAT3 lhsAxis = lhs.GetAxisVector( lhsAxisIndex );
-		CXMFLOAT3 rhsAxis = rhs.GetAxisVector( rhsAxisIndex );
-		CXMFLOAT3 axis = XMVector3Normalize( XMVector3Cross( lhsAxis, rhsAxis ) );
+		Vector lhsAxis = lhs.GetAxisVector( lhsAxisIndex );
+		Vector rhsAxis = rhs.GetAxisVector( rhsAxisIndex );
+		Vector axis = ( lhsAxis ^ rhsAxis ).GetNormalized();
 
-		if ( XMVectorGetX( XMVector3Dot( axis, toCentre ) ) > 0 )
+		if ( ( axis | toCentre ) > 0 )
 		{
 			axis = -axis;
 		}
 
-		CXMFLOAT3 ptOnLhsEdge = lhs.GetHalfSize( );
-		CXMFLOAT3 ptOnRhsEdge = rhs.GetHalfSize( );
+		Vector ptOnLhsEdge = lhs.GetHalfSize( );
+		Vector ptOnRhsEdge = rhs.GetHalfSize( );
 
 		for ( uint32 i = 0; i < 3; ++i )
 		{
@@ -639,7 +632,7 @@ uint32 BoxAndBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, const COr
 			{
 				ptOnLhsEdge[i] = 0;
 			}
-			else if ( XMVectorGetX( XMVector3Dot( lhs.GetAxisVector( i ), axis ) ) > 0 )
+			else if ( ( lhs.GetAxisVector( i ) | axis ) > 0 )
 			{
 				ptOnLhsEdge[i] = -ptOnLhsEdge[i];
 			}
@@ -648,18 +641,18 @@ uint32 BoxAndBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, const COr
 			{
 				ptOnRhsEdge[i] = 0;
 			}
-			else if ( XMVectorGetX( XMVector3Dot( rhs.GetAxisVector( i ), axis ) ) < 0 )
+			else if ( ( rhs.GetAxisVector( i ) | axis ) < 0 )
 			{
 				ptOnRhsEdge[i] = -ptOnRhsEdge[i];
 			}
 		}
 
-		ptOnLhsEdge = XMVector3TransformCoord( ptOnLhsEdge, lhs.GetTransform( ) );
-		ptOnRhsEdge = XMVector3TransformCoord( ptOnRhsEdge, rhs.GetTransform( ) );
+		ptOnLhsEdge = lhs.GetTransform().TransformPosition( ptOnLhsEdge );
+		ptOnRhsEdge = lhs.GetTransform().TransformPosition( ptOnRhsEdge );
 
-		CXMFLOAT3 vertex = CalcEdgeContactPoint( ptOnLhsEdge, lhsAxis, lhs.GetHalfSize( )[lhsAxisIndex],
-												ptOnRhsEdge, rhsAxis, rhs.GetHalfSize( )[rhsAxisIndex],
-												bestSingleAxis > 2 );
+		Point vertex = CalcEdgeContactPoint( ptOnLhsEdge, lhsAxis, lhs.GetHalfSize( )[lhsAxisIndex],
+											ptOnRhsEdge, rhsAxis, rhs.GetHalfSize( )[rhsAxisIndex],
+											bestSingleAxis > 2 );
 
 		Contact* contact = data->m_contacts;
 
@@ -679,23 +672,23 @@ uint32 BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const COriented
 	return BoxAndBox( lhsOBB, lhsBody, rhs, rhsBody, data );
 }
 
-uint32 BoxAndFrustum( const CXMFLOAT3& min, const CXMFLOAT3& max, const Frustum& frustum )
+uint32 BoxAndFrustum( const Point& min, const Point& max, const Frustum& frustum )
 {
 	const Frustum::LookUpTable& lut = frustum.GetVertexLUT( );
-	const CXMFLOAT4( &planes )[6] = frustum.GetPlanes( );
+	const Plane( &planes )[6] = frustum.GetPlanes( );
 
 	uint32 result = COLLISION::INSIDE;
 	for ( uint32 i = 0; i < 6; ++i )
 	{
-		CXMFLOAT3 p( ( lut[i] & Frustum::X_MAX ) ? max.x : min.x, ( lut[i] & Frustum::Y_MAX ) ? max.y : min.y, ( lut[i] & Frustum::Z_MAX ) ? max.z : min.z );
-		CXMFLOAT3 n( ( lut[i] & Frustum::X_MAX ) ? min.x : max.x, ( lut[i] & Frustum::Y_MAX ) ? min.y : max.y, ( lut[i] & Frustum::Z_MAX ) ? min.z : max.z );
+		Vector p( ( lut[i] & Frustum::X_MAX ) ? max.x : min.x, ( lut[i] & Frustum::Y_MAX ) ? max.y : min.y, ( lut[i] & Frustum::Z_MAX ) ? max.z : min.z );
+		Vector n( ( lut[i] & Frustum::X_MAX ) ? min.x : max.x, ( lut[i] & Frustum::Y_MAX ) ? min.y : max.y, ( lut[i] & Frustum::Z_MAX ) ? min.z : max.z );
 
-		if ( XMVectorGetX( XMPlaneDotCoord( planes[i], p ) ) < 0 )
+		if ( planes[i].PlaneDot( p ) < 0 )
 		{
 			return COLLISION::OUTSIDE;
 		}
 
-		if ( XMVectorGetX( XMPlaneDotCoord( planes[i], n ) ) < 0 )
+		if ( planes[i].PlaneDot( n ) < 0 )
 		{
 			result = COLLISION::INTERSECTION;
 		}
@@ -704,7 +697,7 @@ uint32 BoxAndFrustum( const CXMFLOAT3& min, const CXMFLOAT3& max, const Frustum&
 	return result;
 }
 
-float RayAndBox( const CXMFLOAT3& rayOrigin, const CXMFLOAT3& rayDir, const CXMFLOAT3& max, const CXMFLOAT3& min )
+float RayAndBox( const Point& rayOrigin, const Vector& rayDir, const Point& max, const Point& min )
 {
 	float t_min = 0;
 	float t_max = FLT_MAX;
@@ -742,12 +735,12 @@ float RayAndBox( const CXMFLOAT3& rayOrigin, const CXMFLOAT3& rayDir, const CXMF
 	return t_min;
 }
 
-float RayAndSphere( const CXMFLOAT3& rayOrigin, const CXMFLOAT3& rayDir, const CXMFLOAT3& origin, float radius )
+float RayAndSphere( const Point& rayOrigin, const Vector& rayDir, const Point& origin, float radius )
 {
-	XMVECTOR toShpere = origin - rayOrigin;
+	Vector toShpere = origin - rayOrigin;
 
-	float toShpereSqr = XMVectorGetX( XMVector3LengthSq( toShpere ) );
-	float tangentSqr = XMVectorGetX( XMVector3Dot( toShpere, rayDir ) );
+	float toShpereSqr = toShpere.LengthSqrt();
+	float tangentSqr = toShpere | rayDir;
 	tangentSqr *= tangentSqr;
 
 	float normalVectorSqr = toShpereSqr - tangentSqr;

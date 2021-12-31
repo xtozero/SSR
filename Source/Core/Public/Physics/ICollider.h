@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Math/CXMFloat.h"
 #include "SizedTypes.h"
 
 #include <memory>
@@ -9,6 +8,8 @@
 class Frustum;
 class CRay;
 struct MeshData;
+struct Quaternion;
+struct Vector;
 
 namespace COLLISION
 {
@@ -24,7 +25,7 @@ class ICollider
 {
 public:
 	virtual void CalcMeshBounds( const MeshData& mesh ) = 0;
-	virtual void Update( const CXMFLOAT3& scaling, const CXMFLOAT4& rotation, const CXMFLOAT3& translation, ICollider* original ) = 0;
+	virtual void Update( const Vector& scaling, const Quaternion& rotation, const Vector& translation, ICollider* original ) = 0;
 	virtual void CalcSubMeshBounds( std::vector<std::unique_ptr<ICollider>>& subColliders ) = 0;
 	virtual float Intersect( const CRay& ray ) const = 0;
 	virtual uint32 Intersect( const Frustum& frustum ) const = 0;

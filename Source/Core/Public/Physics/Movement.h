@@ -1,15 +1,15 @@
 #pragma once
 
-#include "Math/CXMFloat.h"
+#include "Math/Vector.h"
 
 #include <utility>
 
 class CGroundMovement
 {
 public:
-	void Update( CXMFLOAT3& force, float elapsedTime )
+	void Update( Vector& force, float elapsedTime )
 	{
-		float magnitude = DirectX::XMVectorGetX( DirectX::XMVector3Length( force ) );
+		float magnitude = force.Length();
 		if ( magnitude > m_maxForceMag )
 		{
 			force *= m_maxForceMag / magnitude;
@@ -18,7 +18,7 @@ public:
 
 		if ( m_isMoving == false )
 		{
-			if ( m_friction.x <= magnitude )
+			if ( m_friction.first <= magnitude )
 			{
 				m_isMoving = true;
 			}
@@ -28,30 +28,30 @@ public:
 			}
 		}
 
-		CXMFLOAT3 moveDir = DirectX::XMVector3Normalize( m_velocity );
+		Vector moveDir = m_velocity.GetNormalized();
 		if ( m_isMoving )
 		{
 			// calculate net force
-			force -= ( moveDir * m_friction.y );
+			force -= ( moveDir * m_friction.second );
 		}
 
 		assert( m_mass != 0.f );
-		CXMFLOAT3 acceleration = force / m_mass;
+		Vector acceleration = force / m_mass;
 		m_velocity += acceleration * elapsedTime;
 
-		if ( DirectX::XMVectorGetX( DirectX::XMVector3Dot( moveDir, m_velocity ) ) < 0.f )
+		if ( ( moveDir | m_velocity ) < 0.f )
 		{
 			m_isMoving = false;
-			m_velocity = CXMFLOAT3( 0.f, 0.f, 0.f );
+			m_velocity = Vector::ZeroVector;
 		}
 	}
 
-	CXMFLOAT3 GetDelta( float elapsedTime ) const
+	Vector GetDelta( float elapsedTime ) const
 	{
 		return m_velocity * elapsedTime;
 	}
 
-	void SetFriction( const CXMFLOAT2& friction )
+	void SetFriction( const std::pair<float, float>& friction )
 	{
 		m_friction = friction;
 	}
@@ -60,11 +60,11 @@ public:
 
 private:
 	float m_mass = 1.f;
-	CXMFLOAT3 m_velocity;
+	Vector m_velocity;
 
 	float m_maxForceMag = FLT_MAX;
 
-	CXMFLOAT2 m_friction; // static, kinetic
+	std::pair<float, float> m_friction; // static, kinetic
 
 	bool m_isMoving = false;
 };

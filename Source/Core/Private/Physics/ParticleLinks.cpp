@@ -6,8 +6,8 @@ using namespace DirectX;
 
 float ParticleLink::CurrentLength( ) const
 {
-	CXMFLOAT3 relativePos = m_particle[0]->GetPosition( ) - m_particle[1]->GetPosition( );
-	return XMVectorGetX( XMVector3Length( relativePos ) );
+	Vector relativePos = m_particle[0]->GetPosition( ) - m_particle[1]->GetPosition( );
+	return relativePos.Length();
 }
 
 uint32 ParticleCable::AddContact( ParticleContact* contact, uint32 /*limit*/ ) const
@@ -21,8 +21,8 @@ uint32 ParticleCable::AddContact( ParticleContact* contact, uint32 /*limit*/ ) c
 	contact->m_particle[0] = m_particle[0];
 	contact->m_particle[1] = m_particle[1];
 
-	CXMFLOAT3 normal = m_particle[1]->GetPosition( ) - m_particle[0]->GetPosition( );
-	contact->m_contactNormal = XMVector3Normalize( normal );
+	Vector normal = m_particle[1]->GetPosition( ) - m_particle[0]->GetPosition( );
+	contact->m_contactNormal = normal.GetNormalized();
 	contact->m_penetration = length - m_maxLength;
 	contact->m_restitution = m_restitution;
 
@@ -40,17 +40,16 @@ uint32 ParticleRod::AddContact( ParticleContact* contact, uint32 /*limit*/ ) con
 	contact->m_particle[0] = m_particle[0];
 	contact->m_particle[1] = m_particle[1];
 
-	CXMFLOAT3 normal = m_particle[1]->GetPosition( ) - m_particle[0]->GetPosition( );
-	
+	Vector normal = m_particle[1]->GetPosition( ) - m_particle[0]->GetPosition( );
 	
 	if ( currentlength > m_length )
 	{
-		contact->m_contactNormal = XMVector3Normalize( normal );
+		contact->m_contactNormal = normal.GetNormalized();
 		contact->m_penetration = currentlength - m_length;
 	}
 	else
 	{
-		contact->m_contactNormal = -XMVector3Normalize( normal );
+		contact->m_contactNormal = -normal.GetNormalized();
 		contact->m_penetration = m_length - currentlength;
 	}
 

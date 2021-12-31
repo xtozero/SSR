@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math/CXMFloat.h"
+#include "Math/Matrix.h"
 #include "Physics/Body.h"
 #include "SceneComponent.h"
 
@@ -16,7 +16,7 @@ public:
 	void SetLinearDamping( float linearDamping );
 	void SetAngularDamping( float angularDamping );
 
-	virtual const CXMFLOAT4X4& GetRenderMatrix( );
+	virtual const Matrix& GetRenderMatrix( );
 	virtual PrimitiveProxy* CreateProxy( ) const = 0;
 
 	PrimitiveProxy* m_sceneProxy = nullptr;

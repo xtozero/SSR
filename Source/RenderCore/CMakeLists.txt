@@ -112,7 +112,6 @@ set (RENDERER_SOURCE
 	Private/Renderer/ForwardRenderer.cpp
 	Private/Renderer/RenderView.cpp
 	Private/Renderer/SceneRenderer.cpp
-	Public/Renderer/ConstantSlotDefine.h
 	Public/Renderer/ForwardLighting.h
 	Public/Renderer/ForwardRenderer.h
 	Public/Renderer/IRenderCore.h

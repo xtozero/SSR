@@ -169,7 +169,7 @@ void Material::AddProperty( const char* key, float value )
 	new ( found->second.get( ) )FloatProperty( value );
 }
 
-void Material::AddProperty( const char* key, const CXMFLOAT4& value )
+void Material::AddProperty( const char* key, const Vector4& value )
 {
 	auto found = m_properties.find( key );
 	if ( found != m_properties.end( ) )
@@ -260,7 +260,7 @@ float Material::AsFloat( const char* key ) const
 	return 0.f;
 }
 
-const CXMFLOAT4& Material::AsVector( const char* key ) const
+const Vector4& Material::AsVector( const char* key ) const
 {
 	auto found = m_properties.find( key );
 
@@ -274,8 +274,7 @@ const CXMFLOAT4& Material::AsVector( const char* key ) const
 		}
 	}
 
-	static CXMFLOAT4 zeroVector( 0.f, 0.f, 0.f, 0.f );
-	return zeroVector;
+	return Vector4::ZeroVector;
 }
 
 Texture* Material::AsTexture( const char* key ) const

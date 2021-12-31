@@ -1,7 +1,8 @@
 #pragma once
 
 #include "common.h"
-#include "Math/CXMFloat.h"
+#include "Math/Vector.h"
+#include "Math/Vector4.h"
 
 class BoxSphereBounds;
 class DirectionalLightComponent;
@@ -25,13 +26,13 @@ struct LightProperty
 	LIGHT_TYPE				m_type = LIGHT_TYPE::NONE;
 	float					m_theta = 0.f;
 	float					m_phi = 0.f;
-	CXMFLOAT3				m_direction;
+	Vector					m_direction;
 	float					m_range = 0.f;
 	float					m_fallOff = 0.f;
-	CXMFLOAT3				m_attenuation;
-	CXMFLOAT4				m_position;
-	CXMFLOAT4				m_diffuse;
-	CXMFLOAT4				m_specular;
+	Vector					m_attenuation;
+	Vector4					m_position;
+	ColorF					m_diffuse;
+	ColorF					m_specular;
 };
 
 class LightProxy
@@ -58,8 +59,8 @@ protected:
 	friend Scene;
 	LightSceneInfo* m_lightSceneInfo = nullptr;
 
-	CXMFLOAT4 m_diffuse;
-	CXMFLOAT4 m_specular;
+	ColorF m_diffuse;
+	ColorF m_specular;
 
 	bool m_castShadow = false;
 };
@@ -79,31 +80,31 @@ public:
 	RENDERCORE_DLL DirectionalLightProxy( const DirectionalLightComponent& component );
 
 private:
-	CXMFLOAT3 m_direction;
+	Vector m_direction;
 };
 
 class HemisphereLightProxy
 {
 public:
-	RENDERCORE_DLL HemisphereLightProxy( const CXMFLOAT4& lowerColor, const CXMFLOAT4& upperColor, const CXMFLOAT3& upVector );
+	RENDERCORE_DLL HemisphereLightProxy( const ColorF& lowerColor, const ColorF& upperColor, const Vector& upVector );
 
-	const CXMFLOAT4& LowerColor( ) const
+	const ColorF& LowerColor( ) const
 	{
 		return m_lowerHemisphereColor;
 	}
 
-	const CXMFLOAT4& UpperColor( ) const
+	const ColorF& UpperColor( ) const
 	{
 		return m_upperHemisphereColor;
 	}
 
-	const CXMFLOAT3& UpVector( ) const
+	const Vector& UpVector( ) const
 	{
 		return m_upVector;
 	}
 
 private:
-	CXMFLOAT4 m_lowerHemisphereColor;
-	CXMFLOAT4 m_upperHemisphereColor;
-	CXMFLOAT3 m_upVector;
+	ColorF m_lowerHemisphereColor;
+	ColorF m_upperHemisphereColor;
+	Vector m_upVector;
 };

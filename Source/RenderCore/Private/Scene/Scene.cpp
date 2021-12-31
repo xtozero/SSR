@@ -31,14 +31,14 @@ void Scene::AddPrimitive( PrimitiveComponent* primitive )
 
 	struct AddPrimitiveSceneInfoParam
 	{
-		CXMFLOAT4X4 m_worldTransform;
+		Matrix m_worldTransform;
 		BoxSphereBounds m_worldBounds;
 		BoxSphereBounds m_localBounds;
 	};
 	AddPrimitiveSceneInfoParam param = {
 		primitive->GetRenderMatrix( ),
 		primitive->Bounds(),
-		primitive->CalcBounds( DirectX::XMMatrixIdentity( ) ),
+		primitive->CalcBounds( Matrix::Identity ),
 	};
 
 	EnqueueRenderTask( [this, param, primitiveSceneInfo]( )
@@ -277,7 +277,7 @@ bool UpdateGPUPrimitiveInfos( Scene& scene )
 	uint32 totalPrimitives = static_cast<uint32>( scene.m_primitives.Size( ) );
 	scene.m_gpuPrimitiveInfos.Resize( totalPrimitives );
 
-	GpuMemcpy gpuMemcpy( updateSize, sizeof( PrimitiveSceneData ) / sizeof( CXMFLOAT4 ), scene.m_uploadPrimitiveBuffer, scene.m_distributionBuffer );
+	GpuMemcpy gpuMemcpy( updateSize, sizeof( PrimitiveSceneData ) / sizeof( Vector4 ), scene.m_uploadPrimitiveBuffer, scene.m_distributionBuffer );
 
 	for ( auto index : scene.m_primitiveToUpdate )
 	{

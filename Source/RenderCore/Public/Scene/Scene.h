@@ -120,7 +120,7 @@ private:
 	std::vector<uint32> m_primitiveToUpdate;
 	ScenePrimitiveBuffer m_gpuPrimitiveInfos;
 
-	TypedUploadBuffer<CXMFLOAT4> m_uploadPrimitiveBuffer;
+	TypedUploadBuffer<Vector4> m_uploadPrimitiveBuffer;
 	TypedUploadBuffer<uint32> m_distributionBuffer;
 
 	friend bool UpdateGPUPrimitiveInfos( Scene& scene );

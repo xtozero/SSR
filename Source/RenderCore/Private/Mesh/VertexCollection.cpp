@@ -1,7 +1,6 @@
 #include "VertexCollection.h"
 
 #include "ArchiveUtility.h"
-#include "Math/CXMFloat.h"
 #include "MeshDescription.h"
 #include "VertexBufferBundle.h"
 
@@ -179,9 +178,9 @@ VertexCollection BuildFromMeshDescription( const MeshDescription& desc )
 {
 	VertexCollection collection;
 
-	const std::vector<CXMFLOAT3>& pos = desc.m_positions;
-	const std::vector<CXMFLOAT3>& normal = desc.m_normals;
-	const std::vector<CXMFLOAT2>& texCoord = desc.m_texCoords;
+	const std::vector<Vector>& pos = desc.m_positions;
+	const std::vector<Vector>& normal = desc.m_normals;
+	const std::vector<Vector2>& texCoord = desc.m_texCoords;
 	const std::vector<MeshVertexInstance>& vertexInstances = desc.m_vertexInstances;
 	uint32 vertexInstanceCount = static_cast<uint32>( vertexInstances.size( ) );
 
@@ -193,7 +192,7 @@ VertexCollection BuildFromMeshDescription( const MeshDescription& desc )
 	{
 		VertexStream posStream( "POSITION", RESOURCE_FORMAT::R32G32B32_FLOAT, vertexInstanceCount );
 
-		CXMFLOAT3* data = reinterpret_cast<CXMFLOAT3*>( posStream.Data( ) );
+		auto data = reinterpret_cast<Vector*>( posStream.Data( ) );
 		for ( size_t i = 0; i < vertexInstances.size( ); ++i )
 		{
 			const MeshVertexInstance& instance = vertexInstances[i];
@@ -220,7 +219,7 @@ VertexCollection BuildFromMeshDescription( const MeshDescription& desc )
 		{
 			VertexStream normalStream( "NORMAL", RESOURCE_FORMAT::R32G32B32_FLOAT, vertexInstanceCount );
 
-			CXMFLOAT3* data = reinterpret_cast<CXMFLOAT3*>( normalStream.Data( ) );
+			auto data = reinterpret_cast<Vector*>( normalStream.Data( ) );
 			for ( size_t i = 0; i < vertexInstances.size( ); ++i )
 			{
 				const MeshVertexInstance& instance = vertexInstances[i];
@@ -249,7 +248,7 @@ VertexCollection BuildFromMeshDescription( const MeshDescription& desc )
 		{
 			VertexStream texCoordStream( "TEXCOORD", RESOURCE_FORMAT::R32G32_FLOAT, vertexInstanceCount );
 			
-			CXMFLOAT2* data = reinterpret_cast<CXMFLOAT2*>( texCoordStream.Data( ) );
+			auto data = reinterpret_cast<Vector2*>( texCoordStream.Data( ) );
 			for ( size_t i = 0; i < vertexInstances.size( ); ++i )
 			{
 				const MeshVertexInstance& instance = vertexInstances[i];

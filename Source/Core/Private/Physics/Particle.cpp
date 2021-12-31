@@ -11,7 +11,7 @@ void Particle::Integrate( float duration )
 
 	m_position += m_velocity * duration;
 
-	CXMFLOAT3 resultingAcc = m_acceleration;
+	Vector resultingAcc = m_acceleration;
 	resultingAcc += m_forceAccum * m_inverseMass;
 
 	m_velocity += resultingAcc * duration;
@@ -21,32 +21,32 @@ void Particle::Integrate( float duration )
 	ClearAccumulator( );
 }
 
-void Particle::SetPosition( const CXMFLOAT3& position )
+void Particle::SetPosition( const Point& position )
 {
 	m_position = position;
 }
 
-CXMFLOAT3 Particle::GetPosition( ) const
+Point Particle::GetPosition( ) const
 {
 	return m_position;
 }
 
-void Particle::SetVelocity( const CXMFLOAT3& velocity )
+void Particle::SetVelocity( const Vector& velocity )
 {
 	m_velocity = velocity;
 }
 
-CXMFLOAT3 Particle::GetVelocity( ) const
+Vector Particle::GetVelocity( ) const
 {
 	return m_velocity;
 }
 
-void Particle::SetAcceleration( const CXMFLOAT3 acceleration )
+void Particle::SetAcceleration( const Vector acceleration )
 {
 	m_acceleration = acceleration;
 }
 
-CXMFLOAT3 Particle::GetAcceleration( ) const
+Vector Particle::GetAcceleration( ) const
 {
 	return m_acceleration;
 }
@@ -89,12 +89,12 @@ float Particle::GetInverseMass( ) const
 	return m_inverseMass;
 }
 
-void Particle::AddForce( const CXMFLOAT3& force )
+void Particle::AddForce( const Vector& force )
 {
 	m_forceAccum += force;
 }
 
 void Particle::ClearAccumulator( )
 {
-	m_forceAccum = { 0.f, 0.f, 0.f };
+	m_forceAccum = Vector::ZeroVector;
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math/CXMFloat.h"
+#include "Math/Vector.h"
 
 #include <vector>
 
@@ -15,11 +15,11 @@ public:
 class ParticleGravity : public ParticleForceGenerator
 {
 public:
-	explicit ParticleGravity( const CXMFLOAT3& gravity ) : m_gravity( gravity ) {}
+	explicit ParticleGravity( const Vector& gravity ) : m_gravity( gravity ) {}
 	virtual void UpdateForce( Particle* particle, float duration ) override;
 
 private:
-	CXMFLOAT3 m_gravity;
+	Vector m_gravity;
 };
 
 class ParticleDrag : public ParticleForceGenerator
@@ -48,11 +48,11 @@ private:
 class ParticleAnchoredSpring : public ParticleForceGenerator
 {
 public:
-	ParticleAnchoredSpring( CXMFLOAT3* anchor, float springConstant, float restLength ) : m_anchor( anchor ), m_springConstant( springConstant ), m_restLength( restLength ) {}
+	ParticleAnchoredSpring( Point* anchor, float springConstant, float restLength ) : m_anchor( anchor ), m_springConstant( springConstant ), m_restLength( restLength ) {}
 	virtual void UpdateForce( Particle* particle, float duration ) override;
 
 private:
-	CXMFLOAT3* m_anchor;
+	Point* m_anchor;
 	float m_springConstant;
 	float m_restLength;
 };
@@ -85,11 +85,11 @@ private:
 class ParticleFakeSpring : public ParticleForceGenerator
 {
 public:
-	ParticleFakeSpring( CXMFLOAT3* anchor, float springConstant, float damping ) : m_anchor( anchor ), m_springConstant( springConstant ), m_damping( damping ) {}
+	ParticleFakeSpring( Point* anchor, float springConstant, float damping ) : m_anchor( anchor ), m_springConstant( springConstant ), m_damping( damping ) {}
 	virtual void UpdateForce( Particle* particle, float duration ) override;
 
 private:
-	CXMFLOAT3* m_anchor;
+	Point* m_anchor;
 	float m_springConstant;
 	float m_damping;
 };

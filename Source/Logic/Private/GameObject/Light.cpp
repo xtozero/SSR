@@ -9,65 +9,6 @@
 
 using namespace DirectX;
 
-//const bool CLight::IsOn( ) const
-//{
-//	if ( m_property )
-//	{
-//		return m_property->m_isOn;
-//	}
-//
-//	return false;
-//}
-
-//void CLight::SetOnOff( const bool on )
-//{
-//	if ( m_property )
-//	{
-//		m_property->m_isOn = on;
-//	}
-//}
-
-//void CLight::SetRange( const float range )
-//{
-//	if ( m_property )
-//	{
-//		m_property->m_range = range;
-//	}
-//}
-
-//void CLight::SetFallOff( const float fallOff )
-//{
-//	if ( m_property )
-//	{
-//		m_property->m_fallOff = fallOff;
-//	}
-//}
-
-//void CLight::SetConeProperty( const float theta, const float phi )
-//{
-//	if ( m_property )
-//	{
-//		m_property->m_theta = theta;
-//		m_property->m_phi = phi;
-//	}
-//}
-
-//void CLight::SetDiection( const CXMFLOAT3& direction )
-//{
-//	if ( m_property )
-//	{
-//		m_property->m_direction = XMVector3Normalize( direction );
-//	}
-//}
-
-//void CLight::SetAttenuation( const CXMFLOAT3& attenuation )
-//{
-//	if ( m_property )
-//	{
-//		m_property->m_attenuation = attenuation;
-//	}
-//}
-
 void Light::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 {
 	if ( const JSON::Value* pDiffuse = json.Find( "Diffuse" ) )
@@ -81,7 +22,7 @@ void Light::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 			float b = static_cast<float>( diffuse[2].AsReal( ) );
 			float a = static_cast<float>( diffuse[3].AsReal( ) );
 
-			SetDiffuseColor( CXMFLOAT4( r, g, b, a ) );
+			SetDiffuseColor( ColorF( r, g, b, a ) );
 		}
 	}
 
@@ -96,7 +37,7 @@ void Light::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 			float b = static_cast<float>( specluar[2].AsReal( ) );
 			float a = static_cast<float>( specluar[3].AsReal( ) );
 
-			SetSpecularColor( CXMFLOAT4( r, g, b, a ) );
+			SetSpecularColor( ColorF( r, g, b, a ) );
 		}
 	}
 
@@ -108,12 +49,12 @@ void Light::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 	}
 }
 
-void Light::SetDiffuseColor( const CXMFLOAT4& diffuseColor )
+void Light::SetDiffuseColor( const ColorF& diffuseColor )
 {
 	GetLightComponent( ).SetDiffuseColor( diffuseColor );
 }
 
-void Light::SetSpecularColor( const CXMFLOAT4& specularColor )
+void Light::SetSpecularColor( const ColorF& specularColor )
 {
 	GetLightComponent( ).SetSpecularColor( specularColor );
 }
@@ -154,15 +95,13 @@ void DirectionalLight::LoadProperty( CGameLogic& gameLogic, const JSON::Value& j
 			float y = static_cast<float>( direction[1].AsReal( ) );
 			float z = static_cast<float>( direction[2].AsReal( ) );
 
-			CXMFLOAT3 vDir( x, y, z );
-			vDir = XMVector3Normalize( vDir );
-
-			m_directionalLightComponent->SetDirection( vDir );
+			Vector vDir( x, y, z );
+			m_directionalLightComponent->SetDirection( vDir.GetNormalized() );
 		}
 	}
 }
 
-const CXMFLOAT3& DirectionalLight::Direction( ) const
+const Vector& DirectionalLight::Direction( ) const
 {
 	return m_directionalLightComponent->Direction( );
 }
@@ -188,7 +127,7 @@ void HemisphereLight::LoadProperty( CGameLogic& gameLogic, const JSON::Value& js
 			float b = static_cast<float>( lowerColor[2].AsReal( ) );
 			float a = static_cast<float>( lowerColor[3].AsReal( ) );
 
-			SetLowerColor( CXMFLOAT4( r, g, b, a ) );
+			SetLowerColor( ColorF( r, g, b, a ) );
 		}
 	}
 
@@ -203,12 +142,12 @@ void HemisphereLight::LoadProperty( CGameLogic& gameLogic, const JSON::Value& js
 			float b = static_cast<float>( upperColor[2].AsReal( ) );
 			float a = static_cast<float>( upperColor[3].AsReal( ) );
 
-			SetUpperColor( CXMFLOAT4( r, g, b, a ) );
+			SetUpperColor( ColorF( r, g, b, a ) );
 		}
 	}
 }
 
-void HemisphereLight::SetLowerColor( const CXMFLOAT4& color )
+void HemisphereLight::SetLowerColor( const ColorF& color )
 {
 	if ( m_hemisphereLightComponent )
 	{
@@ -216,7 +155,7 @@ void HemisphereLight::SetLowerColor( const CXMFLOAT4& color )
 	}
 }
 
-void HemisphereLight::SetUpperColor( const CXMFLOAT4& color )
+void HemisphereLight::SetUpperColor( const ColorF& color )
 {
 	if ( m_hemisphereLightComponent )
 	{

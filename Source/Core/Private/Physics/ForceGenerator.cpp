@@ -5,8 +5,6 @@
 
 #include <algorithm>
 
-using namespace DirectX;
-
 void Gravity::UpdateForce( RigidBody* body, float /*duration*/ )
 {
 	if ( body->HasFiniteMass() == false )
@@ -19,16 +17,16 @@ void Gravity::UpdateForce( RigidBody* body, float /*duration*/ )
 
 void Spring::UpdateForce( RigidBody* body, float /*duration*/ )
 {
-	CXMFLOAT3 lws = body->GetPointInWorldSpace( m_connectionPoint );
-	CXMFLOAT3 ows = m_other->GetPointInWorldSpace( m_otherConnectionPoint );
+	Point lws = body->GetPointInWorldSpace( m_connectionPoint );
+	Point ows = m_other->GetPointInWorldSpace( m_otherConnectionPoint );
 
-	CXMFLOAT3 force = lws - ows;
+	Vector force = lws - ows;
 
-	float magnitude = XMVectorGetX( XMVector3Length( force ) );
+	float magnitude = force.Length();
 	magnitude = fabsf( magnitude - m_restLength );
 	magnitude *= m_springConstant;
 
-	force = XMVector3Normalize( force );
+	force = force.GetNormalized();
 	force *= -magnitude;
 	body->AddForceAtPoint( force, lws );
 }
@@ -38,28 +36,28 @@ void Aero::UpdateForce( RigidBody* body, float duration )
 	UpdateForceFromTensor( body, duration, m_tensor );
 }
 
-void Aero::UpdateForceFromTensor( RigidBody* body, float /*duration*/, const CXMFLOAT3X3& tensor )
+void Aero::UpdateForceFromTensor( RigidBody* body, float /*duration*/, const Matrix3X3& tensor )
 {
-	CXMFLOAT3 velocity = body->GetVelocity( );
+	Vector velocity = body->GetVelocity( );
 	velocity += m_windSpeed;
 
-	const CXMFLOAT4X4& transform = body->GetTransform();
+	const Matrix& transform = body->GetTransform();
 
-	CXMFLOAT3 bodyVel = XMVector3TransformNormal( velocity, XMMatrixInverse( nullptr, transform ) );
+	Vector bodyVel = transform.Inverse().TransformVector( velocity );
 
-	CXMFLOAT3 force = XMVector3TransformNormal( bodyVel, tensor );
-	force = XMVector3TransformNormal( force, transform );
+	Vector force = tensor.Transform( bodyVel );
+	force = transform.TransformVector( force );
 
 	body->AddForceAtBodyPoint( force, m_position );
 }
 
 void AeroControl::UpdateForce( RigidBody* body, float duration )
 {
-	CXMFLOAT3X3 tensor = GetTensor( );
+	Matrix3X3 tensor = GetTensor( );
 	UpdateForceFromTensor( body, duration, tensor );
 }
 
-CXMFLOAT3X3 AeroControl::GetTensor( )
+Matrix3X3 AeroControl::GetTensor( )
 {
 	if ( m_controlSetting <= -1.f )
 	{
@@ -83,7 +81,7 @@ CXMFLOAT3X3 AeroControl::GetTensor( )
 
 void Buoyancy::UpdateForce( RigidBody* body, float /*duration*/ )
 {
-	CXMFLOAT3 pointInWorld = body->GetPointInWorldSpace( m_centreOfBuoyancy );
+	Point pointInWorld = body->GetPointInWorldSpace( m_centreOfBuoyancy );
 	float depth = m_centreOfBuoyancy.y;
 
 	if ( depth >= m_waterHeight + m_maxDepth )
@@ -91,8 +89,7 @@ void Buoyancy::UpdateForce( RigidBody* body, float /*duration*/ )
 		return;
 	}
 
-	CXMFLOAT3 force( 0.f, 0.f, 0.f );
-
+	Vector force;
 	if ( depth <= m_waterHeight - m_maxDepth )
 	{
 		force.y = m_liquidDensity * m_volume;	

@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "GameObject.h"
+#include "Math/Vector4.h"
 
 #include <array>
 
@@ -23,17 +24,9 @@ public:
 	virtual const LIGHT_TYPE GetType( ) const = 0;
 
 	virtual void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json ) override;
-	//const bool IsOn( ) const;
-	//CXMFLOAT3 GetDirection( ) const;
 
-	//void SetOnOff( const bool on );
-	//void SetRange( const float range );
-	//void SetFallOff( const float fallOff );
-	//void SetConeProperty( const float theta, const float phi );
-	//void SetDiection( const CXMFLOAT3& direction );
-	//void SetAttenuation( const CXMFLOAT3& attenuation );
-	void SetDiffuseColor( const CXMFLOAT4& diffuseColor );
-	void SetSpecularColor( const CXMFLOAT4& specularColor );
+	void SetDiffuseColor( const ColorF& diffuseColor );
+	void SetSpecularColor( const ColorF& specularColor );
 	void SetCastShadow( bool castShadow );
 
 	virtual ~Light( ) = default;
@@ -51,7 +44,7 @@ public:
 
 	virtual void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json ) override;
 
-	const CXMFLOAT3& Direction( ) const;
+	const Vector& Direction( ) const;
 
 	DirectionalLight( );
 
@@ -64,8 +57,8 @@ class HemisphereLight : public CGameObject
 public:
 	virtual void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json ) override;
 
-	void SetLowerColor( const CXMFLOAT4& color );
-	void SetUpperColor( const CXMFLOAT4& color );
+	void SetLowerColor( const ColorF& color );
+	void SetUpperColor( const ColorF& color );
 
 	HemisphereLight( );
 

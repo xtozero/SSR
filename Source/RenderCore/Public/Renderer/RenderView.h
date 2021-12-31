@@ -3,7 +3,7 @@
 #include "common.h"
 #include "DrawSnapshot.h"
 #include "GraphicsApiResource.h"
-#include "Math/CXMFloat.h"
+#include "Math/Matrix3X3.h"
 #include "PassProcessor.h"
 #include "SizedTypes.h"
 
@@ -21,8 +21,8 @@ struct ForwardLightingResource;
 struct RenderView
 {
 	// for view
-	CXMFLOAT3 m_viewOrigin = {};
-	CXMFLOAT3X3 m_viewAxis = {};
+	Vector m_viewOrigin = {};
+	BasisVectorMatrix m_viewAxis = {};
 
 	// for projection
 	float m_nearPlaneDistance = 0.f;

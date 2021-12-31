@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Scene/SceneConstantBuffers.h"
 
-#include "ConstantSlotDefine.h"
+#include "Math/TransformationMatrix.h"
 #include "Proxies/LightProxy.h"
 #include "Proxies/PrimitiveProxy.h"
 #include "RenderView.h"
@@ -31,28 +31,28 @@ void FillViewConstantParam( ViewConstantBufferParameters& param, const Scene* sc
 {
 	using namespace DirectX;
 
-	auto viewMatrix = XMMatrixLookToLH( view.m_viewOrigin, 
-										view.m_viewAxis[2],
-										view.m_viewAxis[1] );
-	param.m_viewMatrix = XMMatrixTranspose( viewMatrix );
+	auto viewMatrix = LookFromMatrix( view.m_viewOrigin, 
+									view.m_viewAxis[2],
+									view.m_viewAxis[1] );
+	param.m_viewMatrix = viewMatrix.GetTrasposed();
 
-	auto projMatrix = XMMatrixPerspectiveFovLH( view.m_fov, 
-												view.m_aspect, 
-												view.m_nearPlaneDistance, 
-												view.m_farPlaneDistance );
-	param.m_projMatrix = XMMatrixTranspose( projMatrix );
+	auto projMatrix = PerspectiveMatrix( view.m_fov, 
+										view.m_aspect, 
+										view.m_nearPlaneDistance, 
+										view.m_farPlaneDistance );
+	param.m_projMatrix = projMatrix.GetTrasposed();
 
-	auto viewProjMatrix = XMMatrixMultiply( viewMatrix, projMatrix );
-	param.m_viewProjMatrix = XMMatrixTranspose( viewProjMatrix );
+	auto viewProjMatrix = viewMatrix * projMatrix;
+	param.m_viewProjMatrix = viewProjMatrix.GetTrasposed();
 
-	auto invViewMatrix = XMMatrixInverse( nullptr, viewMatrix );
-	param.m_invViewMatrix = XMMatrixTranspose( invViewMatrix );
+	auto invViewMatrix = viewMatrix.Inverse();
+	param.m_invViewMatrix = invViewMatrix.GetTrasposed();
 
-	auto invProjMatrix = XMMatrixInverse( nullptr, projMatrix );
-	param.m_invProjMatrix = XMMatrixTranspose( invProjMatrix );
+	auto invProjMatrix = projMatrix.Inverse();
+	param.m_invProjMatrix = invProjMatrix.GetTrasposed();
 
-	auto invViewProjMatrix = XMMatrixInverse( nullptr, viewProjMatrix );
-	param.m_invViewProjMatrix = XMMatrixTranspose( invViewProjMatrix );
+	auto invViewProjMatrix = viewProjMatrix.Inverse();
+	param.m_invViewProjMatrix = invViewProjMatrix.GetTrasposed();
 
 	if ( scene && scene->HemisphereLight( ) )
 	{
@@ -64,9 +64,9 @@ void FillViewConstantParam( ViewConstantBufferParameters& param, const Scene* sc
 	}
 	else
 	{
-		param.m_hemisphereLightLowerColor = CXMFLOAT4();
-		param.m_hemisphereLightUpperColor = CXMFLOAT4();
-		param.m_hemisphereLightUpVector = CXMFLOAT3();
+		param.m_hemisphereLightLowerColor = Vector::ZeroVector;
+		param.m_hemisphereLightUpperColor = Vector::ZeroVector;
+		param.m_hemisphereLightUpVector = Vector::ZeroVector;
 	}
 
 	param.m_nearPlaneDist = view.m_nearPlaneDistance;
@@ -79,14 +79,14 @@ PrimitiveSceneData::PrimitiveSceneData( const PrimitiveProxy* proxy )
 
 	if ( proxy )
 	{
-		m_worldMatrix = proxy->WorldTransform( );
-		m_invWorldMatrix = XMMatrixInverse( nullptr, m_worldMatrix );
+		m_worldMatrix = proxy->WorldTransform();
+		m_invWorldMatrix = m_worldMatrix.Inverse();
 	}
 }
 
 void ScenePrimitiveBuffer::Resize( uint32 size )
 {
-	m_buffer.Resize( size * sizeof( PrimitiveSceneData ) / sizeof( CXMFLOAT4 ), true );
+	m_buffer.Resize( size * sizeof( PrimitiveSceneData ) / sizeof( Vector4 ), true );
 }
 
 aga::ShaderResourceView* ScenePrimitiveBuffer::SRV( )

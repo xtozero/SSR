@@ -12,7 +12,7 @@ class StaticMeshComponent : public PrimitiveComponent
 public:
 	using PrimitiveComponent::PrimitiveComponent;
 
-	virtual BoxSphereBounds CalcBounds( const CXMFLOAT4X4& transform ) override;
+	virtual BoxSphereBounds CalcBounds( const Matrix& transform ) override;
 
 	virtual PrimitiveProxy* CreateProxy( ) const override;
 

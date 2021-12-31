@@ -5,8 +5,6 @@
 
 #include <utility>
 
-using namespace DirectX;
-
 void Contact::SetBodyData( RigidBody* one, RigidBody* two, float friction, float restitution )
 {
 	m_body[0] = one->HasFiniteMass() ? one : nullptr;
@@ -18,7 +16,7 @@ void Contact::SetBodyData( RigidBody* one, RigidBody* two, float friction, float
 
 void Contact::CalculateContactBasis( )
 {
-	CXMFLOAT3 contactTangent[2];
+	Vector contactTangent[2];
 
 	if ( fabsf( m_contactNormal.x ) > fabsf( m_contactNormal.y ) )
 	{
@@ -46,21 +44,21 @@ void Contact::CalculateContactBasis( )
 	}
 
 
-	m_contactToWorld = CXMFLOAT3X3( m_contactNormal, contactTangent[0], contactTangent[1] );
+	m_contactToWorld = Matrix3X3( m_contactNormal, contactTangent[0], contactTangent[1] );
 }
 
-CXMFLOAT3 Contact::CalculateLocalVelocity( uint32 bodyIndex, float duration )
+Vector Contact::CalculateLocalVelocity( uint32 bodyIndex, float duration )
 {
 	RigidBody* thisBody = m_body[bodyIndex];
 
-	CXMFLOAT3 velocity = XMVector3Cross( thisBody->GetRotation( ), m_relativeContactPosition[bodyIndex] );
+	Vector velocity = thisBody->GetRotation() ^ m_relativeContactPosition[bodyIndex];
 	velocity += thisBody->GetVelocity( );
 
-	CXMFLOAT3 contactVelocity = XMVector3TransformNormal( velocity, XMMatrixTranspose( m_contactToWorld ) );
+	Vector contactVelocity = m_contactToWorld.GetTrasposed().TransformVector( velocity );
 
-	CXMFLOAT3 accVelocity = thisBody->GetLastFrameAcceleration( ) * duration;
+	Vector accVelocity = thisBody->GetLastFrameAcceleration( ) * duration;
 
-	accVelocity = XMVector3TransformNormal( accVelocity, XMMatrixTranspose( m_contactToWorld ) );
+	accVelocity = m_contactToWorld.GetTrasposed().TransformVector( accVelocity );
 
 	accVelocity.x = 0;
 
@@ -77,12 +75,12 @@ void Contact::CalculateDesiredDeltaVelocity( float duration )
 
 	if ( m_body[0]->IsAwake( ) )
 	{
-		velocityFromAcc += XMVectorGetX( XMVector3Dot( m_body[0]->GetLastFrameAcceleration( ) * duration, m_contactNormal ) );
+		velocityFromAcc += ( m_body[0]->GetLastFrameAcceleration( ) * duration ) | m_contactNormal;
 	}
 
 	if ( m_body[1] && m_body[1]->IsAwake( ) )
 	{
-		velocityFromAcc -= XMVectorGetX( XMVector3Dot( m_body[1]->GetLastFrameAcceleration( ) * duration, m_contactNormal ) );
+		velocityFromAcc -= ( m_body[1]->GetLastFrameAcceleration( ) * duration ) | m_contactNormal;
 	}
 
 	float thisRestitution = m_restitution;
@@ -119,70 +117,70 @@ void Contact::CalculateInternals( float duration )
 	CalculateDesiredDeltaVelocity( duration );
 }
 
-CXMFLOAT3 Contact::CalculateFrictionlessImpulse( const CXMFLOAT3X3* inverseInertiaTensor )
+Vector Contact::CalculateFrictionlessImpulse( const Matrix3X3* inverseInertiaTensor )
 {
-	CXMFLOAT3 deltaVelWorld = XMVector3Cross( m_relativeContactPosition[0], m_contactNormal );
-	deltaVelWorld = XMVector3TransformNormal( deltaVelWorld, inverseInertiaTensor[0] );
-	deltaVelWorld = XMVector3Cross( deltaVelWorld, m_relativeContactPosition[0] );
+	Vector deltaVelWorld = m_relativeContactPosition[0] ^ m_contactNormal;
+	deltaVelWorld = inverseInertiaTensor[0].Transform( deltaVelWorld );
+	deltaVelWorld = deltaVelWorld ^ m_relativeContactPosition[0];
 
-	float deltaVelocity = XMVectorGetX( XMVector3Dot( deltaVelWorld, m_contactNormal ) );
+	float deltaVelocity = deltaVelWorld | m_contactNormal;
 
 	deltaVelocity += m_body[0]->GetInverseMass( );
 
 	if ( m_body[1] )
 	{
-		deltaVelWorld = XMVector3Cross( m_relativeContactPosition[1], m_contactNormal );
-		deltaVelWorld = XMVector3TransformNormal( deltaVelWorld, inverseInertiaTensor[1] );
-		deltaVelWorld = XMVector3Cross( deltaVelWorld, m_relativeContactPosition[1] );
+		deltaVelWorld = m_relativeContactPosition[1] ^ m_contactNormal;
+		deltaVelWorld = inverseInertiaTensor[1].Transform( deltaVelWorld );
+		deltaVelWorld = deltaVelWorld ^ m_relativeContactPosition[1];
 
-		deltaVelocity += XMVectorGetX( XMVector3Dot( deltaVelWorld, m_contactNormal ) );
+		deltaVelocity += deltaVelWorld | m_contactNormal;
 
 		deltaVelocity += m_body[1]->GetInverseMass( );
 	}
 
-	return CXMFLOAT3( m_desiredDeltaVelocity / deltaVelocity, 0.f, 0.f );
+	return Vector( m_desiredDeltaVelocity / deltaVelocity, 0.f, 0.f );
 }
 
-CXMFLOAT3 Contact::CalculateFrictionImpulse( const CXMFLOAT3X3* inverseInertiaTensor )
+Vector Contact::CalculateFrictionImpulse( const Matrix3X3* inverseInertiaTensor )
 {
-	XMMATRIX negativeOne( g_XMNegIdentityR0, g_XMNegIdentityR1, g_XMNegIdentityR2, g_XMZero );
+	Matrix3X3 negativeOne( -Vector::RightVector, -Vector::UpVector, -Vector::ForwardVector );
 	float inverseMass = 0;
 
 	inverseMass = m_body[0]->GetInverseMass( );
 
-	CXMFLOAT3X3 impulseToTorque = MakeSkewSymmetric( m_relativeContactPosition[0] );
+	Matrix3X3 impulseToTorque = MakeSkewSymmetric( m_relativeContactPosition[0] );
 
-	CXMFLOAT3X3 deltaVelWorld = negativeOne;
-	deltaVelWorld = XMMatrixMultiply( deltaVelWorld, impulseToTorque );
-	deltaVelWorld = XMMatrixMultiply( deltaVelWorld, inverseInertiaTensor[0] );
-	deltaVelWorld = XMMatrixMultiply( deltaVelWorld, impulseToTorque );
+	Matrix3X3 deltaVelWorld = negativeOne;
+	deltaVelWorld *= impulseToTorque;
+	deltaVelWorld *= inverseInertiaTensor[0];
+	deltaVelWorld *= impulseToTorque;
 
 	if ( m_body[1] )
 	{
 		impulseToTorque = MakeSkewSymmetric( m_relativeContactPosition[1] );
 
-		CXMFLOAT3X3 deltaVelWorld2 = negativeOne;
-		deltaVelWorld2 = XMMatrixMultiply( deltaVelWorld2, impulseToTorque );
-		deltaVelWorld2 = XMMatrixMultiply( deltaVelWorld2, inverseInertiaTensor[1] );
-		deltaVelWorld2 = XMMatrixMultiply( deltaVelWorld2, impulseToTorque );
+		Matrix3X3 deltaVelWorld2 = negativeOne;
+		deltaVelWorld2 *= impulseToTorque;
+		deltaVelWorld2 *= inverseInertiaTensor[1];
+		deltaVelWorld2 *= impulseToTorque;
 
 		deltaVelWorld += deltaVelWorld2;
 
 		inverseMass += m_body[1]->GetInverseMass( );
 	}
 
-	CXMFLOAT3X3 deltaVelocity = XMMatrixMultiply( m_contactToWorld, deltaVelWorld );
-	deltaVelocity = XMMatrixMultiply( deltaVelocity, XMMatrixTranspose( m_contactToWorld ) );
+	Matrix3X3 deltaVelocity = m_contactToWorld * deltaVelWorld;
+	deltaVelocity *= m_contactToWorld.GetTrasposed();
 
 	deltaVelocity._11 += inverseMass;
 	deltaVelocity._22 += inverseMass;
 	deltaVelocity._33 += inverseMass;
 
-	CXMFLOAT3X3 impulseMatrix = XMMatrixInverse( nullptr, deltaVelocity );
+	Matrix3X3 impulseMatrix = deltaVelocity.Inverse();
 
-	CXMFLOAT3 velKill( m_desiredDeltaVelocity, -m_contactVelocity.y, -m_contactVelocity.z );
+	Vector velKill( m_desiredDeltaVelocity, -m_contactVelocity.y, -m_contactVelocity.z );
 
-	CXMFLOAT3 impulseContact = XMVector3TransformNormal( velKill, impulseMatrix );
+	Vector impulseContact = impulseMatrix.Transform( velKill );
 
 	float planarImpulse = sqrtf( impulseContact.y * impulseContact.y + impulseContact.z * impulseContact.z );
 
@@ -199,7 +197,7 @@ CXMFLOAT3 Contact::CalculateFrictionImpulse( const CXMFLOAT3X3* inverseInertiaTe
 	return impulseContact;
 }
 
-void Contact::ApplyPositionChange( CXMFLOAT3 linearChange[2], CXMFLOAT3 angularChange[2], float penetration )
+void Contact::ApplyPositionChange( Vector linearChange[2], Vector angularChange[2], float penetration )
 {
 	constexpr float angularLimit = 0.2f;
 	float angularMove[2];
@@ -213,12 +211,12 @@ void Contact::ApplyPositionChange( CXMFLOAT3 linearChange[2], CXMFLOAT3 angularC
 	{
 		if ( m_body[i] )
 		{
-			CXMFLOAT3X3 inverseInertiaTensor = m_body[i]->GetInverseInertiaTensorWorld( );
+			Matrix3X3 inverseInertiaTensor = m_body[i]->GetInverseInertiaTensorWorld( );
 
-			CXMFLOAT3 angularInertiaWorld = XMVector3Cross( m_relativeContactPosition[i], m_contactNormal );
-			angularInertiaWorld = XMVector3TransformNormal( angularInertiaWorld, inverseInertiaTensor );
-			angularInertiaWorld = XMVector3Cross( angularInertiaWorld, m_relativeContactPosition[i] );
-			angularInertia[i] = XMVectorGetX( XMVector3Dot( angularInertiaWorld, m_contactNormal ) );
+			Vector angularInertiaWorld = m_relativeContactPosition[i] ^ m_contactNormal;
+			angularInertiaWorld = inverseInertiaTensor.Transform( angularInertiaWorld );
+			angularInertiaWorld = angularInertiaWorld ^ m_relativeContactPosition[i];
+			angularInertia[i] = angularInertiaWorld | m_contactNormal;
 
 			linearInertia[i] = m_body[i]->GetInverseMass( );
 
@@ -235,9 +233,9 @@ void Contact::ApplyPositionChange( CXMFLOAT3 linearChange[2], CXMFLOAT3 angularC
 			angularMove[i] = sign * penetration * ( angularInertia[i] / totalInertia );
 			linearMove[i] = sign * penetration * ( linearInertia[i] / totalInertia );
 
-			CXMFLOAT3 projection = m_contactNormal * -XMVectorGetX( XMVector3Dot( m_relativeContactPosition[i], m_contactNormal ) ) + m_relativeContactPosition[i];
+			Vector projection = m_contactNormal * -( m_relativeContactPosition[i] | m_contactNormal ) + m_relativeContactPosition[i];
 
-			float maxMagnitude = angularLimit * XMVectorGetX( XMVector3Length( projection ) );
+			float maxMagnitude = angularLimit * projection.Length();
 
 			float totalMove = angularMove[i] + linearMove[i];
 			if ( angularMove[i] < -maxMagnitude )
@@ -253,26 +251,26 @@ void Contact::ApplyPositionChange( CXMFLOAT3 linearChange[2], CXMFLOAT3 angularC
 
 			if ( angularMove[i] == 0 )
 			{
-				angularChange[i] = CXMFLOAT3( 0.f, 0.f, 0.f );
+				angularChange[i] = Vector::ZeroVector;
 			}
 			else
 			{
-				CXMFLOAT3 targetAngularDirection = XMVector3Cross( m_relativeContactPosition[i], m_contactNormal );
+				Vector targetAngularDirection = m_relativeContactPosition[i] ^ m_contactNormal;
 
-				CXMFLOAT3X3 inverseInertiaTensor = m_body[i]->GetInverseInertiaTensorWorld( );
+				Matrix3X3 inverseInertiaTensor = m_body[i]->GetInverseInertiaTensorWorld( );
 
-				angularChange[i] = XMVector3TransformNormal( targetAngularDirection, inverseInertiaTensor ) * ( angularMove[i] / angularInertia[i] );
+				angularChange[i] = inverseInertiaTensor.Transform( targetAngularDirection ) * ( angularMove[i] / angularInertia[i] );
 			}
 
 			linearChange[i] = m_contactNormal * linearMove[i];
 
-			CXMFLOAT3 pos = ( m_contactNormal * linearMove[i] ) + m_body[i]->GetPosition( );
+			Point pos = ( m_contactNormal * linearMove[i] ) + m_body[i]->GetPosition( );
 			m_body[i]->SetPosition( pos );
 
 			// quaternion differentiation
-			auto dq = CXMFLOAT4( angularChange[i] );
-			CXMFLOAT4 q = m_body[i]->GetOrientation( );
-			dq = XMQuaternionMultiply( q, dq ) * 0.5f;
+			auto dq = Quaternion( angularChange[i] );
+			Quaternion q = m_body[i]->GetOrientation( );
+			dq = ( dq * q ) * 0.5f;
 			q += dq;
 
 			m_body[i]->SetOrientation( q );
@@ -285,9 +283,9 @@ void Contact::ApplyPositionChange( CXMFLOAT3 linearChange[2], CXMFLOAT3 angularC
 	}
 }
 
-void Contact::ApplyVelocityChange( CXMFLOAT3 velocityChange[2], CXMFLOAT3 rotationChange[2] )
+void Contact::ApplyVelocityChange( Vector velocityChange[2], Vector rotationChange[2] )
 {
-	CXMFLOAT3X3 inverseInertiaTensor[2];
+	Matrix3X3 inverseInertiaTensor[2];
 
 	inverseInertiaTensor[0] = m_body[0]->GetInverseInertiaTensorWorld();
 	if ( m_body[1] )
@@ -295,7 +293,7 @@ void Contact::ApplyVelocityChange( CXMFLOAT3 velocityChange[2], CXMFLOAT3 rotati
 		inverseInertiaTensor[1] = m_body[1]->GetInverseInertiaTensorWorld( );
 	}
 
-	CXMFLOAT3 impulseContact;
+	Vector impulseContact;
 
 	if ( m_friction == 0.f )
 	{
@@ -306,10 +304,10 @@ void Contact::ApplyVelocityChange( CXMFLOAT3 velocityChange[2], CXMFLOAT3 rotati
 		impulseContact = CalculateFrictionImpulse( inverseInertiaTensor );
 	}
 
-	CXMFLOAT3 impulse = XMVector3TransformCoord( impulseContact, m_contactToWorld );
+	Vector impulse = m_contactToWorld.Transform( impulseContact );
 
-	CXMFLOAT3 impulsiveTorque = XMVector3Cross( m_relativeContactPosition[0], impulse );
-	rotationChange[0] = XMVector3TransformCoord( impulsiveTorque, inverseInertiaTensor[0] );
+	Vector impulsiveTorque = m_relativeContactPosition[0] ^ impulse;
+	rotationChange[0] = inverseInertiaTensor[0].Transform( impulsiveTorque );
 	velocityChange[0] = impulse * m_body[0]->GetInverseMass( );
 
 	m_body[0]->AddVelocity( velocityChange[0] );
@@ -317,8 +315,8 @@ void Contact::ApplyVelocityChange( CXMFLOAT3 velocityChange[2], CXMFLOAT3 rotati
 
 	if ( m_body[1] )
 	{
-		impulsiveTorque = XMVector3Cross( impulse, m_relativeContactPosition[1] );
-		rotationChange[1] = XMVector3TransformCoord( impulsiveTorque, inverseInertiaTensor[1] );
+		impulsiveTorque = impulse ^ m_relativeContactPosition[1];
+		rotationChange[1] = inverseInertiaTensor[1].Transform( impulsiveTorque );
 		velocityChange[1] = impulse * -m_body[1]->GetInverseMass( );
 
 		m_body[1]->AddVelocity( velocityChange[1] );
@@ -387,9 +385,9 @@ void ContactResolver::PrepareContacts( Contact* contactArray, uint32 numContacts
 
 void ContactResolver::AdjustPositions( Contact* contactArray, uint32 numContacts, float /*duration*/ )
 {
-	CXMFLOAT3 linearChange[2];
-	CXMFLOAT3 angularChange[2];
-	CXMFLOAT3 deltaPosition;
+	Vector linearChange[2];
+	Vector angularChange[2];
+	Vector deltaPosition;
 
 	m_positionIterationsUsed = 0;
 	while ( m_positionIterationsUsed < m_positionIterations )
@@ -427,8 +425,8 @@ void ContactResolver::AdjustPositions( Contact* contactArray, uint32 numContacts
 					{
 						if ( contactArray[i].m_body[b] == contactArray[index].m_body[d] )
 						{
-							deltaPosition = XMVector3Cross( angularChange[d], contactArray[i].m_relativeContactPosition[b] ) + linearChange[d];
-							contactArray[i].m_penetration += XMVectorGetX( XMVector3Dot( contactArray[i].m_contactNormal, deltaPosition ) ) * ( b ? 1.f : -1.f );
+							deltaPosition = ( angularChange[d] ^ contactArray[i].m_relativeContactPosition[b] ) + linearChange[d];
+							contactArray[i].m_penetration += ( contactArray[i].m_contactNormal | deltaPosition ) * ( b ? 1.f : -1.f );
 						}
 					}
 				}
@@ -441,9 +439,9 @@ void ContactResolver::AdjustPositions( Contact* contactArray, uint32 numContacts
 
 void ContactResolver::AdjustVelocities( Contact* contactArray, uint32 numContacts, float duration )
 {
-	CXMFLOAT3 velocityChange[2];
-	CXMFLOAT3 rotationChange[2];
-	CXMFLOAT3 deltaVel;
+	Vector velocityChange[2];
+	Vector rotationChange[2];
+	Vector deltaVel;
 
 	m_velocityIterationsUsed = 0;
 	while ( m_velocityIterationsUsed < m_velocityIterations )
@@ -481,8 +479,8 @@ void ContactResolver::AdjustVelocities( Contact* contactArray, uint32 numContact
 					{
 						if ( contactArray[i].m_body[b] == contactArray[index].m_body[d] )
 						{
-							deltaVel = XMVector3Cross( rotationChange[d], contactArray[i].m_relativeContactPosition[b] ) + velocityChange[d];
-							contactArray[i].m_contactVelocity += XMVector3TransformNormal( deltaVel, XMMatrixTranspose( contactArray[i].m_contactToWorld ) ) * ( b ? -1.f : 1.f );
+							deltaVel = ( rotationChange[d] ^ contactArray[i].m_relativeContactPosition[b] ) + velocityChange[d];
+							contactArray[i].m_contactVelocity += contactArray[i].m_contactToWorld.GetTrasposed().TransformVector( deltaVel ) * ( b ? -1.f : 1.f );
 							contactArray[i].CalculateDesiredDeltaVelocity( duration );
 						}
 					}

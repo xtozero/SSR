@@ -6,7 +6,7 @@
 
 #include <cassert>
 
-BoxSphereBounds StaticMeshComponent::CalcBounds( const CXMFLOAT4X4& transform )
+BoxSphereBounds StaticMeshComponent::CalcBounds( const Matrix& transform )
 {
 	if ( m_pStaticMesh )
 	{
@@ -14,8 +14,8 @@ BoxSphereBounds StaticMeshComponent::CalcBounds( const CXMFLOAT4X4& transform )
 		return bounds;
 	}
 
-	CXMFLOAT3 position( transform._41, transform._42, transform._43 );
-	return BoxSphereBounds( position, CXMFLOAT3( 0, 0, 0 ), 0.f );
+	Vector position( transform._41, transform._42, transform._43 );
+	return BoxSphereBounds( position, Vector( 0, 0, 0 ), 0.f );
 }
 
 PrimitiveProxy* StaticMeshComponent::CreateProxy( ) const

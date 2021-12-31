@@ -1,20 +1,20 @@
 #pragma once
 
-#include "Math/CXMFloat.h"
+#include "Math/Vector.h"
 
 class Particle
 {
 public:
 	void Integrate( float duration );
 
-	void SetPosition( const CXMFLOAT3& position );
-	CXMFLOAT3 GetPosition( ) const;
+	void SetPosition( const Point& position );
+	Point GetPosition( ) const;
 
-	void SetVelocity( const CXMFLOAT3& velocity );
-	CXMFLOAT3 GetVelocity( ) const;
+	void SetVelocity( const Vector& velocity );
+	Vector GetVelocity( ) const;
 
-	void SetAcceleration( const CXMFLOAT3 acceleration );
-	CXMFLOAT3 GetAcceleration( ) const;
+	void SetAcceleration( const Vector acceleration );
+	Vector GetAcceleration( ) const;
 
 	void SetDamping( float damping );
 	float GetDamping( ) const;
@@ -25,16 +25,16 @@ public:
 	void SetInverseMass( float inverseMass );
 	float GetInverseMass( ) const;
 
-	void AddForce( const CXMFLOAT3& force );
+	void AddForce( const Vector& force );
 	void ClearAccumulator( );
 
 	bool HasFiniteMass( ) const { return m_inverseMass > 0.f; }
 
 protected:
-	CXMFLOAT3 m_position;
-	CXMFLOAT3 m_velocity;
-	CXMFLOAT3 m_acceleration;
-	CXMFLOAT3 m_forceAccum;
+	Point m_position;
+	Vector m_velocity;
+	Vector m_acceleration;
+	Vector m_forceAccum;
 
 	float m_damping = 0.999f;
 

@@ -1,7 +1,8 @@
 #pragma once
 
 #include "INotifyGraphicsDevice.h"
-#include "Math/CXMFloat.h"
+#include "Math/Matrix.h"
+#include "Math/Vector.h"
 #include "Scene/DynamicBuffer.h"
 #include "SizedTypes.h"
 
@@ -30,19 +31,19 @@ public:
 class DebugLine : public BaseDebugPrimitive
 {
 public:
-	CXMFLOAT3 m_from;
-	CXMFLOAT3 m_to;
+	Point m_from;
+	Point m_to;
 
-	DebugLine( const CXMFLOAT3& from, const CXMFLOAT3& to, uint32 color, float life ) :
+	DebugLine( const Point& from, const Point& to, uint32 color, float life ) :
 		m_from( from ), m_to( to ), BaseDebugPrimitive( color, life ) {}
 };
 
 class DebugTriangle : public BaseDebugPrimitive
 {
 public:
-	CXMFLOAT3 m_vertices[3];
+	Point m_vertices[3];
 
-	DebugTriangle( const CXMFLOAT3& p0, const CXMFLOAT3& p1, const CXMFLOAT3& p2, uint32 color, float life ) :
+	DebugTriangle( const Point& p0, const Point& p1, const Point& p2, uint32 color, float life ) :
 		m_vertices{ p0, p1, p2 }, BaseDebugPrimitive( color, life ) {}
 };
 
@@ -54,12 +55,12 @@ public:
 
 	void DrawPrimitive( IRenderer& renderer, float deltaTime );
 
-	void AddDebugLine( const CXMFLOAT3& from, const CXMFLOAT3& to, uint32 color, float life );
-	void AddDebugTriangle( const CXMFLOAT3& p0, const CXMFLOAT3& p1, const CXMFLOAT3& p2, uint32 color, float life );
-	void AddDebugCube( const CXMFLOAT3& min, const CXMFLOAT3& max, uint32 color, float life );
-	void AddDebugCube( const CXMFLOAT3& halfSize, const CXMFLOAT4X4& transform, uint32 color, float life );
-	void AddDebugSolidCube( const CXMFLOAT3& min, const CXMFLOAT3& max, uint32 color, float life );
-	void AddDebugSphere( const CXMFLOAT3& center, float radius, uint32 color, float life );
+	void AddDebugLine( const Point& from, const Point& to, uint32 color, float life );
+	void AddDebugTriangle( const Point& p0, const Point& p1, const Point& p2, uint32 color, float life );
+	void AddDebugCube( const Point& min, const Point& max, uint32 color, float life );
+	void AddDebugCube( const Vector& halfSize, const Matrix& transform, uint32 color, float life );
+	void AddDebugSolidCube( const Point& min, const Point& max, uint32 color, float life );
+	void AddDebugSphere( const Point& center, float radius, uint32 color, float life );
 
 private:
 	std::vector<DebugLine> m_debugLine;

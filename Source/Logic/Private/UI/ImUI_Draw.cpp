@@ -68,7 +68,7 @@ void ImDrawList::UpdateTextAtlas( )
 	//}
 }
 
-void ImDrawList::AddFilledRect( const CXMFLOAT2& pos, const CXMFLOAT2& size, const CXMFLOAT4& color, float rounding, int32 roundingFlag )
+void ImDrawList::AddFilledRect( const Point2& pos, const Vector2& size, const ColorF& color, float rounding, int32 roundingFlag )
 {
 	if ( color.w == 0.f )
 	{
@@ -87,7 +87,7 @@ void ImDrawList::AddFilledRect( const CXMFLOAT2& pos, const CXMFLOAT2& size, con
 	}
 }
 
-void ImDrawList::AddConvexPolyFilled( const CXMFLOAT2* points, const int32 count, const CXMFLOAT4& color )
+void ImDrawList::AddConvexPolyFilled( const Point2* points, const int32 count, const ColorF& color )
 {
 	if ( color.w == 0.f )
 	{
@@ -116,7 +116,7 @@ void ImDrawList::AddConvexPolyFilled( const CXMFLOAT2* points, const int32 count
 	m_curIndex += static_cast<uint32>( vertexCount );
 }
 
-void ImDrawList::AddText( CTextAtlas& font, const CXMFLOAT2& pos, const CXMFLOAT4& color, const char* text, uint32 count )
+void ImDrawList::AddText( CTextAtlas& font, const Point2& pos, const ColorF& color, const char* text, uint32 count )
 {
 	if ( color.w == 0.f )
 	{
@@ -175,7 +175,7 @@ void ImDrawList::AddText( CTextAtlas& font, const CXMFLOAT2& pos, const CXMFLOAT
 	}
 }
 
-void ImDrawList::AddTriangleFilled( const CXMFLOAT2& v0, const CXMFLOAT2& v1, const CXMFLOAT2& v2, const CXMFLOAT4& color )
+void ImDrawList::AddTriangleFilled( const Point2& v0, const Point2& v1, const Point2& v2, const ColorF& color )
 {
 	if ( color.w == 0.f )
 	{
@@ -204,12 +204,12 @@ void ImDrawList::BufferReserve( int32 vertexCount, int32 indexCount )
 	m_pIndexWriter = m_indices.data( ) + oldIndicesSize;
 }
 
-void ImDrawList::DrawRect( const CXMFLOAT2& pos, const CXMFLOAT2& size, const CXMFLOAT4& color )
+void ImDrawList::DrawRect( const Point2& pos, const Vector2& size, const ColorF& color )
 {
-	CXMFLOAT2 lt = pos;
-	CXMFLOAT2 rt( pos.x + size.x, pos.y );
-	CXMFLOAT2 lb( pos.x, pos.y + size.y );
-	CXMFLOAT2 rb( pos + size );
+	Point2 lt = pos;
+	Point2 rt( pos.x + size.x, pos.y );
+	Point2 lb( pos.x, pos.y + size.y );
+	Point2 rb( pos + size );
 
 	m_pIndexWriter[0] = m_curIndex; m_pIndexWriter[1] = m_curIndex + 1; m_pIndexWriter[2] = m_curIndex + 2;
 	m_pIndexWriter[3] = m_curIndex; m_pIndexWriter[4] = m_curIndex + 2; m_pIndexWriter[5] = m_curIndex + 3;
@@ -224,18 +224,18 @@ void ImDrawList::DrawRect( const CXMFLOAT2& pos, const CXMFLOAT2& size, const CX
 	m_pVertexWriter += 4;
 }
 
-void ImDrawList::PathLineTo( const CXMFLOAT2& pos )
+void ImDrawList::PathLineTo( const Point2& pos )
 {
 	m_path.emplace_back( pos );
 }
 
-void ImDrawList::PathFillConvex( const CXMFLOAT4& color )
+void ImDrawList::PathFillConvex( const ColorF& color )
 {
 	AddConvexPolyFilled( m_path.data( ), static_cast<int32>( m_path.size( ) ), color );
 	PathClear( );
 }
 
-void ImDrawList::PathArcToFast( const CXMFLOAT2& centre, float radius, int32 minOf12, int32 maxOf12 )
+void ImDrawList::PathArcToFast( const Point2& centre, float radius, int32 minOf12, int32 maxOf12 )
 {
 	if ( radius == 0.f || minOf12 > maxOf12 )
 	{
@@ -245,25 +245,25 @@ void ImDrawList::PathArcToFast( const CXMFLOAT2& centre, float radius, int32 min
 	m_path.reserve( m_path.size( ) + ( maxOf12 - minOf12 + 1 ) );
 	for ( int32 i = minOf12; i <= maxOf12; ++i )
 	{
-		const CXMFLOAT2& c = m_imUi->m_circleVertex[i % _countof( m_imUi->m_circleVertex )];
+		const Point2& c = m_imUi->m_circleVertex[i % _countof( m_imUi->m_circleVertex )];
 		m_path.emplace_back( centre.x + c.x * radius, centre.y + c.y * radius );
 	}
 }
 
-void ImDrawList::PathRect( const CXMFLOAT2& pos, const CXMFLOAT2& size, float rounding, int32 roundingFlag )
+void ImDrawList::PathRect( const Point2& pos, const Vector2& size, float rounding, int32 roundingFlag )
 {
 	rounding = std::min( rounding, size.x * ( ( ( roundingFlag & ImDrawCorner::Top ) == ImDrawCorner::Top ) || ( ( roundingFlag & ImDrawCorner::Bottom ) == ImDrawCorner::Bottom ) ? 0.5f : 1.0f ) - 1.0f );
 	rounding = std::min( rounding, size.y * ( ( ( roundingFlag & ImDrawCorner::Left ) == ImDrawCorner::Left ) || ( ( roundingFlag & ImDrawCorner::Right ) == ImDrawCorner::Right ) ? 0.5f : 1.0f ) - 1.0f );
 
-	const CXMFLOAT2& a = pos;
-	const CXMFLOAT2& b = pos + size;
+	const Point2& a = pos;
+	const Point2& b = pos + size;
 
 	const float roundingTopLeft = ( roundingFlag & ImDrawCorner::TopLeft ) ? rounding : 0.f;
 	const float roundingTopRight = ( roundingFlag & ImDrawCorner::TopRight ) ? rounding : 0.f;
 	const float roundingBottomLeft = ( roundingFlag & ImDrawCorner::BottomLeft ) ? rounding : 0.f;
 	const float roundingBottomRight = ( roundingFlag & ImDrawCorner::BottomRight ) ? rounding : 0.f;
-	PathArcToFast( CXMFLOAT2( a.x + roundingTopLeft, a.y + roundingTopLeft ), roundingTopLeft, 6, 9 );
-	PathArcToFast( CXMFLOAT2( b.x - roundingTopRight, a.y + roundingTopRight ), roundingTopRight, 9, 12 );
-	PathArcToFast( CXMFLOAT2( b.x - roundingBottomRight, b.y - roundingBottomRight ), roundingBottomRight, 0, 3 );
-	PathArcToFast( CXMFLOAT2( a.x + roundingBottomLeft, b.y - roundingBottomLeft ), roundingBottomLeft, 3, 6 );
+	PathArcToFast( Point2( a.x + roundingTopLeft, a.y + roundingTopLeft ), roundingTopLeft, 6, 9 );
+	PathArcToFast( Point2( b.x - roundingTopRight, a.y + roundingTopRight ), roundingTopRight, 9, 12 );
+	PathArcToFast( Point2( b.x - roundingBottomRight, b.y - roundingBottomRight ), roundingBottomRight, 0, 3 );
+	PathArcToFast( Point2( a.x + roundingBottomLeft, b.y - roundingBottomLeft ), roundingBottomLeft, 3, 6 );
 }

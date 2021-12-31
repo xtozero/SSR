@@ -19,7 +19,7 @@ void PrimitiveComponent::SetAngularDamping( float angularDamping )
 	m_rigidBody.SetAngularDamping( angularDamping );
 }
 
-const CXMFLOAT4X4& PrimitiveComponent::GetRenderMatrix( )
+const Matrix& PrimitiveComponent::GetRenderMatrix( )
 {
 	return GetTransformMatrix( );
 }

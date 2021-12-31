@@ -126,41 +126,41 @@ void CDebugOverlayManager::DrawPrimitive( IRenderer& renderer, float deltaTime )
 	//renderer.Draw( RESOURCE_PRIMITIVE::TRIANGLELIST, static_cast<uint32>( m_debugTriangle.size() * 3 ), debugLineSize );
 }
 
-void CDebugOverlayManager::AddDebugLine( const CXMFLOAT3& from, const CXMFLOAT3& to, uint32 color, float life )
+void CDebugOverlayManager::AddDebugLine( const Point& from, const Point& to, uint32 color, float life )
 {
 	m_debugLine.emplace_back( from, to, color, life );
 }
 
-void CDebugOverlayManager::AddDebugTriangle( const CXMFLOAT3& p0, const CXMFLOAT3& p1, const CXMFLOAT3& p2, uint32 color, float life )
+void CDebugOverlayManager::AddDebugTriangle( const Point& p0, const Point& p1, const Point& p2, uint32 color, float life )
 {
 	m_debugTriangle.emplace_back( p0, p1, p2, color, life );
 }
 
-void CDebugOverlayManager::AddDebugCube( const CXMFLOAT3& min, const CXMFLOAT3& max, uint32 color, float life )
+void CDebugOverlayManager::AddDebugCube( const Point& min, const Point& max, uint32 color, float life )
 {
-	CXMFLOAT3 from = min;
-	CXMFLOAT3 to = min;
+	Point from = min;
+	Point to = min;
 	to.x = max.x;
 	AddDebugLine( from, to, color, life );
-	from = CXMFLOAT3( to.x, to.y, max.z );
+	from = Point( to.x, to.y, max.z );
 	AddDebugLine( from, to, color, life );
-	to = CXMFLOAT3( min.x, from.y, from.z );
+	to = Point( min.x, from.y, from.z );
 	AddDebugLine( from, to, color, life );
-	from = CXMFLOAT3( to.x, to.y, min.z );
+	from = Point( to.x, to.y, min.z );
 	AddDebugLine( from, to, color, life );
 
-	from = CXMFLOAT3( min.x, max.y, min.z );
-	to = CXMFLOAT3( max.x, from.y, from.z );
+	from = Point( min.x, max.y, min.z );
+	to = Point( max.x, from.y, from.z );
 	AddDebugLine( from, to, color, life );
-	from = CXMFLOAT3( to.x, to.y, max.z );
+	from = Point( to.x, to.y, max.z );
 	AddDebugLine( from, to, color, life );
-	to = CXMFLOAT3( min.x, from.y, from.z );
+	to = Point( min.x, from.y, from.z );
 	AddDebugLine( from, to, color, life );
-	from = CXMFLOAT3( to.x, to.y, min.z );
+	from = Point( to.x, to.y, min.z );
 	AddDebugLine( from, to, color, life );
 
 	from = min;
-	to = CXMFLOAT3( from.x, max.y, from.z );
+	to = Point( from.x, max.y, from.z );
 	AddDebugLine( from, to, color, life );
 	from.x = max.x;
 	to.x = max.x;
@@ -173,22 +173,22 @@ void CDebugOverlayManager::AddDebugCube( const CXMFLOAT3& min, const CXMFLOAT3& 
 	AddDebugLine( from, to, color, life );
 }
 
-void CDebugOverlayManager::AddDebugCube( const CXMFLOAT3& halfSize, const CXMFLOAT4X4& transform, uint32 color, float life )
+void CDebugOverlayManager::AddDebugCube( const Vector& halfSize, const Matrix& transform, uint32 color, float life )
 {
-	CXMFLOAT3 vertex[8] = {
-		CXMFLOAT3( -halfSize.x, -halfSize.y, -halfSize.z ),
-		CXMFLOAT3( halfSize.x, -halfSize.y, -halfSize.z ),
-		CXMFLOAT3( halfSize.x, halfSize.y, -halfSize.z ),
-		CXMFLOAT3( -halfSize.x, halfSize.y, -halfSize.z ),
-		CXMFLOAT3( -halfSize.x, -halfSize.y, halfSize.z ),
-		CXMFLOAT3( halfSize.x, -halfSize.y, halfSize.z ),
-		CXMFLOAT3( halfSize.x, halfSize.y, halfSize.z ),
-		CXMFLOAT3( -halfSize.x, halfSize.y, halfSize.z )
+	Point vertex[8] = {
+		Point( -halfSize.x, -halfSize.y, -halfSize.z ),
+		Point( halfSize.x, -halfSize.y, -halfSize.z ),
+		Point( halfSize.x, halfSize.y, -halfSize.z ),
+		Point( -halfSize.x, halfSize.y, -halfSize.z ),
+		Point( -halfSize.x, -halfSize.y, halfSize.z ),
+		Point( halfSize.x, -halfSize.y, halfSize.z ),
+		Point( halfSize.x, halfSize.y, halfSize.z ),
+		Point( -halfSize.x, halfSize.y, halfSize.z )
 	};
 
 	for ( uint32 i = 0; i < 8; ++i )
 	{
-		vertex[i] = XMVector3TransformCoord( vertex[i], transform );
+		vertex[i] = transform.TransformPosition( vertex[i] );
 	}
 
 	AddDebugLine( vertex[0], vertex[1], color, life );
@@ -207,11 +207,11 @@ void CDebugOverlayManager::AddDebugCube( const CXMFLOAT3& halfSize, const CXMFLO
 	AddDebugLine( vertex[3], vertex[7], color, life );
 }
 
-void CDebugOverlayManager::AddDebugSolidCube( const CXMFLOAT3& min, const CXMFLOAT3& max, uint32 color, float life )
+void CDebugOverlayManager::AddDebugSolidCube( const Point& min, const Point& max, uint32 color, float life )
 {
-	CXMFLOAT3 a = min;
-	CXMFLOAT3 b( max.x, min.y, min.z );
-	CXMFLOAT3 c( max.x, max.y, min.z );
+	Point a = min;
+	Point b( max.x, min.y, min.z );
+	Point c( max.x, max.y, min.z );
 
 	AddDebugTriangle( a, c, b, color, life );
 	b.x = min.x;
@@ -219,23 +219,23 @@ void CDebugOverlayManager::AddDebugSolidCube( const CXMFLOAT3& min, const CXMFLO
 	AddDebugTriangle( a, b, c, color, life );
 
 	a.z = max.z;
-	b = CXMFLOAT3( max.x, min.y, max.z );
-	c = CXMFLOAT3( max.x, max.y, max.z );
+	b = Point( max.x, min.y, max.z );
+	c = Point( max.x, max.y, max.z );
 	AddDebugTriangle( a, b, c, color, life );
 	b.x = min.x;
 	b.y = max.y;
 	AddDebugTriangle( a, c, b, color, life );
 
 	a = min;
-	b = CXMFLOAT3( max.x, min.y, min.z );
-	c = CXMFLOAT3( max.x, min.y, max.z );
+	b = Point( max.x, min.y, min.z );
+	c = Point( max.x, min.y, max.z );
 	AddDebugTriangle( a, b, c, color, life );
 	b.x = min.x;
 	b.z = max.z;
 	AddDebugTriangle( a, c, b, color, life );
 
 	a.y = max.y;
-	b = CXMFLOAT3( max.x, max.y, min.z );
+	b = Point( max.x, max.y, min.z );
 	c = max;
 	AddDebugTriangle( a, c, b, color, life );
 	b.x = min.x;
@@ -243,15 +243,15 @@ void CDebugOverlayManager::AddDebugSolidCube( const CXMFLOAT3& min, const CXMFLO
 	AddDebugTriangle( a, b, c, color, life );
 
 	a = min;
-	b = CXMFLOAT3( min.x, max.y, min.z );
-	c = CXMFLOAT3( min.x, max.y, max.z );
+	b = Point( min.x, max.y, min.z );
+	c = Point( min.x, max.y, max.z );
 	AddDebugTriangle( a, c, b, color, life );
 	b.y = min.y;
 	b.z = max.z;
 	AddDebugTriangle( a, b, c, color, life );
 
 	a.x = max.x;
-	b = CXMFLOAT3( max.x, max.y, min.z );
+	b = Point( max.x, max.y, min.z );
 	c = max;
 	AddDebugTriangle( a, b, c, color, life );
 	b.y = min.y;
@@ -259,7 +259,7 @@ void CDebugOverlayManager::AddDebugSolidCube( const CXMFLOAT3& min, const CXMFLO
 	AddDebugTriangle( a, c, b, color, life );
 }
 
-void CDebugOverlayManager::AddDebugSphere( const CXMFLOAT3& center, float radius, uint32 color, float life )
+void CDebugOverlayManager::AddDebugSphere( const Point& center, float radius, uint32 color, float life )
 {
 	constexpr int32 COLS = 36;
 	constexpr int32 ROWS = COLS >> 1;
@@ -279,14 +279,14 @@ void CDebugOverlayManager::AddDebugSphere( const CXMFLOAT3& center, float radius
 		{
 			float ci = cos( i * STEP );
 			float si = sin( i * STEP );
-			AddDebugLine( CXMFLOAT3( center.x + radius * ci * cy, center.y + radius * sy, center.z + radius * si * cy ),
-				CXMFLOAT3( center.x + radius * ci * cy1, center.y + radius * sy1, center.z + radius * si * cy1 ),
+			AddDebugLine( Point( center.x + radius * ci * cy, center.y + radius * sy, center.z + radius * si * cy ),
+				Point( center.x + radius * ci * cy1, center.y + radius * sy1, center.z + radius * si * cy1 ),
 				color, life );
-			AddDebugLine( CXMFLOAT3( center.x + radius * ci * cy, center.y + radius * sy, center.z + radius * si * cy ),
-				CXMFLOAT3( center.x + radius * prev_ci * cy, center.y + radius * sy, center.z + radius * prev_si * cy ),
+			AddDebugLine( Point( center.x + radius * ci * cy, center.y + radius * sy, center.z + radius * si * cy ),
+				Point( center.x + radius * prev_ci * cy, center.y + radius * sy, center.z + radius * prev_si * cy ),
 				color, life );
-			AddDebugLine( CXMFLOAT3( center.x + radius * prev_ci * cy1, center.y + radius * sy1, center.z + radius * prev_si * cy1 ),
-				CXMFLOAT3( center.x + radius * ci * cy1, center.y + radius * sy1, center.z + radius * si * cy1 ),
+			AddDebugLine( Point( center.x + radius * prev_ci * cy1, center.y + radius * sy1, center.z + radius * prev_si * cy1 ),
+				Point( center.x + radius * ci * cy1, center.y + radius * sy1, center.z + radius * si * cy1 ),
 				color, life );
 			prev_ci = ci;
 			prev_si = si;

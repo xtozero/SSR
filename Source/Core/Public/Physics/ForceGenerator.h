@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Math/CXMFloat.h"
+#include "Math/Vector.h"
+#include "Math/Matrix3X3.h"
 
 #include <vector>
 
@@ -15,23 +16,23 @@ public:
 class Gravity : public ForceGenerator
 {
 public:
-	explicit Gravity( const CXMFLOAT3& gravity ) : m_gravity( gravity ) {}
+	explicit Gravity( const Vector& gravity ) : m_gravity( gravity ) {}
 	virtual void UpdateForce( RigidBody* body, float duration ) override;
 
 private:
-	CXMFLOAT3 m_gravity;
+	Vector m_gravity;
 };
 
 class Spring : public ForceGenerator
 {
 public:
-	Spring( const CXMFLOAT3& localConnectionPt, RigidBody* other, const CXMFLOAT3& otherConnectionPt, float springConstant, float restLength ) :
+	Spring( const Vector& localConnectionPt, RigidBody* other, const Vector& otherConnectionPt, float springConstant, float restLength ) :
 		m_connectionPoint( localConnectionPt ), m_other( other ), m_otherConnectionPoint( otherConnectionPt ), m_springConstant( springConstant ), m_restLength( restLength ) {}
 	virtual void UpdateForce( RigidBody* body, float duration ) override;
 	
 private:
-	CXMFLOAT3 m_connectionPoint;
-	CXMFLOAT3 m_otherConnectionPoint;
+	Vector m_connectionPoint;
+	Vector m_otherConnectionPoint;
 	RigidBody* m_other;
 
 	float m_springConstant;
@@ -41,39 +42,39 @@ private:
 class Aero : public ForceGenerator
 {
 public:
-	Aero( const CXMFLOAT3X3& tensor, const CXMFLOAT3 position, const CXMFLOAT3& windSpeed ) :
+	Aero( const Matrix3X3& tensor, const Point position, const Vector& windSpeed ) :
 		m_tensor( tensor ), m_position( position ), m_windSpeed( windSpeed ) {}
 	virtual void UpdateForce( RigidBody* body, float duration ) override;
 
 protected:
-	void UpdateForceFromTensor( RigidBody* body, float duration, const CXMFLOAT3X3& tensor );
-	CXMFLOAT3X3 m_tensor;
+	void UpdateForceFromTensor( RigidBody* body, float duration, const Matrix3X3& tensor );
+	Matrix3X3 m_tensor;
 
 private:
-	CXMFLOAT3 m_position;
-	const CXMFLOAT3& m_windSpeed;
+	Point m_position;
+	const Vector& m_windSpeed;
 };
 
 class AeroControl : public Aero
 {
 public:
-	AeroControl( const CXMFLOAT3X3& base, const CXMFLOAT3X3& min, const CXMFLOAT3X3& max, const CXMFLOAT3& position, const CXMFLOAT3& windSpeed ) :
+	AeroControl( const Matrix3X3& base, const Matrix3X3& min, const Matrix3X3& max, const Vector& position, const Vector& windSpeed ) :
 	Aero( base, position, windSpeed ), m_maxTensor( max ), m_minTensor( min ) {}
 	virtual void UpdateForce( RigidBody* body, float duration ) override;
 	void SetControl( float value ) { m_controlSetting = value; }
 
 private:
-	CXMFLOAT3X3 GetTensor( );
+	Matrix3X3 GetTensor( );
 
-	CXMFLOAT3X3 m_maxTensor;
-	CXMFLOAT3X3 m_minTensor;
+	Matrix3X3 m_maxTensor;
+	Matrix3X3 m_minTensor;
 	float m_controlSetting = 0;
 };
 
 class Buoyancy : public ForceGenerator
 {
 public:
-	Buoyancy( const CXMFLOAT3& cOfB, float maxDepth, float volume, float waterHeight, float liquidDensity = 1000.f ) :
+	Buoyancy( const Point& cOfB, float maxDepth, float volume, float waterHeight, float liquidDensity = 1000.f ) :
 		m_centreOfBuoyancy( cOfB ), m_maxDepth( maxDepth ), m_volume( volume ), m_waterHeight( waterHeight ), m_liquidDensity( liquidDensity ) {}
 	virtual void UpdateForce( RigidBody* body, float duration ) override;
 
@@ -82,7 +83,7 @@ private:
 	float m_volume;
 	float m_waterHeight;
 	float m_liquidDensity;
-	CXMFLOAT3 m_centreOfBuoyancy;
+	Point m_centreOfBuoyancy;
 };
 
 class ForceRegistry

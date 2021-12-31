@@ -275,7 +275,7 @@ bool WindowPlatformInputConvertor::ProcessInput( ILogic& logic, const MSG& wndMs
 				ScreenToClient( hWnd, &pt );
 			}
 
-			CXMFLOAT2 curMousePos = { static_cast<float>( pt.x ), static_cast<float>( pt.y ) };
+			Vector2 curMousePos( static_cast<float>( pt.x ), static_cast<float>( pt.y ) );
 			
 			if ( message == WM_MOUSEMOVE )
 			{

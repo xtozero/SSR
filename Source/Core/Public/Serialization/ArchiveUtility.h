@@ -1,27 +1,29 @@
 #pragma once
 
-#include "Math/CXMFloat.h"
+#include "Math/Vector.h"
+#include "Math/Vector2.h"
+#include "Math/Vector4.h"
 
 #include <map>
 #include <vector>
 
 class Archive;
 
-inline Archive& operator<<( Archive& ar, CXMFLOAT4& v )
-{
-	ar << v[0] << v[1] << v[2] << v[3];
-	return ar;
-}
-
-inline Archive& operator<<( Archive& ar, CXMFLOAT3& v )
+inline Archive& operator<<( Archive& ar, Vector& v )
 {
 	ar << v[0] << v[1] << v[2];
 	return ar;
 }
 
-inline Archive& operator<<( Archive& ar, CXMFLOAT2& v )
+inline Archive& operator<<( Archive& ar, Vector2& v )
 {
 	ar << v[0] << v[1];
+	return ar;
+}
+
+inline Archive& operator<<( Archive& ar, Vector4& v )
+{
+	ar << v[0] << v[1] << v[2] << v[3];
 	return ar;
 }
 

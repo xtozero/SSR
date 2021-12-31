@@ -95,7 +95,7 @@ void CGameObject::SetPosition( const float x, const float y, const float z )
 	}
 }
 
-void CGameObject::SetPosition( const CXMFLOAT3& pos )
+void CGameObject::SetPosition( const Vector& pos )
 {
 	SetPosition( pos.x, pos.y, pos.z );
 }
@@ -110,7 +110,7 @@ void CGameObject::SetScale( const float xScale, const float yScale, const float 
 	// m_body.SetDirty( DF_SCALING );
 }
 
-void CGameObject::SetRotate( const CXMFLOAT4& rotate )
+void CGameObject::SetRotate( const Quaternion& rotate )
 {
 	if ( m_rootComponent )
 	{
@@ -121,64 +121,54 @@ void CGameObject::SetRotate( const CXMFLOAT4& rotate )
 	// m_body.SetDirty( DF_ROTATION );
 }
 
-void CGameObject::SetRotate( const float pitch, const float yaw, const float roll )
-{
-	SetRotate( static_cast<CXMFLOAT4>( XMQuaternionRotationRollPitchYaw( pitch, yaw, roll ) ) );
-}
-
-void CGameObject::SetRotate( const CXMFLOAT3& pitchYawRoll )
-{
-	SetRotate( static_cast<CXMFLOAT4>( XMQuaternionRotationRollPitchYaw( pitchYawRoll.x, pitchYawRoll.y, pitchYawRoll.z ) ) );
-}
-
-const CXMFLOAT3& CGameObject::GetPosition( )
+const Vector& CGameObject::GetPosition( )
 {
 	if ( m_rootComponent )
 	{
 		return m_rootComponent->GetPosition( );
 	}
 
-	return vec3_zero;
+	return Vector::ZeroVector;
 }
 
-const CXMFLOAT3& CGameObject::GetScale( )
+const Vector& CGameObject::GetScale( )
 {
 	if ( m_rootComponent )
 	{
 		return m_rootComponent->GetScale( );
 	}
 
-	return vec3_zero;
+	return Vector::OneVector;
 }
 
-const CXMFLOAT4& CGameObject::GetRotate( )
+const Quaternion& CGameObject::GetRotate( )
 {
 	if ( m_rootComponent )
 	{
 		return m_rootComponent->GetRotate( );
 	}
 
-	return quat_zero;
+	return Quaternion::Identity;
 }
 
-const CXMFLOAT4X4& CGameObject::GetTransformMatrix( )
+const Matrix& CGameObject::GetTransformMatrix( )
 {
 	if ( m_rootComponent )
 	{
 		return m_rootComponent->GetTransformMatrix( );
 	}
 
-	return mat4x4_identity;
+	return Matrix::Identity;
 }
 
-const CXMFLOAT4X4& CGameObject::GetInvTransformMatrix( )
+const Matrix& CGameObject::GetInvTransformMatrix( )
 {
 	if ( m_rootComponent )
 	{
 		return m_rootComponent->GetInvTransformMatrix( );
 	}
 
-	return mat4x4_identity;
+	return Matrix::Identity;
 }
 
 void CGameObject::UpdateTransform( CGameLogic& gameLogic )
@@ -313,7 +303,7 @@ void CGameObject::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 			float roll = static_cast<float>( rotate[2].AsReal( ) );
 			roll = XMConvertToRadians( roll );
 
-			SetRotate( pitch, yaw, roll );
+			SetRotate( Quaternion( pitch, yaw, roll ) );
 		}
 	}
 	

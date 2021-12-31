@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math/CXMFloat.h"
+#include "Math/Vector.h"
 #include "SizedTypes.h"
 
 class Particle;
@@ -15,11 +15,11 @@ public:
 
 	float m_restitution;
 
-	CXMFLOAT3 m_contactNormal;
+	Vector m_contactNormal;
 
 	float m_penetration;
 
-	CXMFLOAT3 m_particleMovement[2];
+	Vector m_particleMovement[2];
 
 private:
 	void ResolveVelocity( float duration );

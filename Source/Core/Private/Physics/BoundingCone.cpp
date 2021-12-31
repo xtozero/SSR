@@ -2,10 +2,11 @@
 
 #include "BoundingSphere.h"
 #include "SizedTypes.h"
+#include "TransformationMatrix.h"
 
 #include <algorithm>
 
-CBoundingCone::CBoundingCone( const std::vector<CXMFLOAT3>& points, const CXMFLOAT4X4& projection, const CXMFLOAT3& apex )
+CBoundingCone::CBoundingCone( const std::vector<Vector>& points, const Matrix& projection, const Vector& apex )
 	: m_apex( apex )
 {
 	using namespace DirectX;
@@ -14,32 +15,31 @@ CBoundingCone::CBoundingCone( const std::vector<CXMFLOAT3>& points, const CXMFLO
 	{
 	case 0:
 	{
-		m_direction = CXMFLOAT3( 0.f, 0.f, -1.f );
+		m_direction = -Vector::ZAxisVector;
 		m_fovX = 0.f;
 		m_fovY = 0.f;
-		m_lookAt = XMMatrixIdentity( );
+		m_lookAt = Matrix::Identity;
 		break;
 	}
 	default:
 	{
-		std::vector<CXMFLOAT3> projectedPoints = points;
+		std::vector<Vector> projectedPoints = points;
 		for ( auto& point : projectedPoints )
 		{
-			point = XMVector3TransformCoord( point, projection );
+			point = projection.TransformPosition( point );
 		}
 
 		BoundingSphere sphere( points );
 
-		m_direction = XMVector3Normalize( sphere.GetCenter( ) - m_apex );
+		m_direction = ( sphere.GetCenter( ) - m_apex ).GetNormalized();
 
-		CXMFLOAT3 axis( 0.f, 1.f, 0.f );
-
-		if ( fabsf( XMVectorGetX( XMVector3Dot( axis, m_direction ) ) ) > 0.99f )
+		Vector axis = Vector::YAxisVector;
+		if ( fabsf( axis | m_direction ) > 0.99f )
 		{
-			axis = { 0.f, 0.f, 1.f };
+			axis = Vector::ZAxisVector;
 		}
 
-		m_lookAt = XMMatrixLookAtLH( m_apex, m_apex + m_direction, axis );
+		m_lookAt = LookAtMatrix( m_apex, m_apex + m_direction, axis );
 
 		float maxTanX = 0.f;
 		float maxTanY = 0.f;
@@ -48,7 +48,7 @@ CBoundingCone::CBoundingCone( const std::vector<CXMFLOAT3>& points, const CXMFLO
 
 		for ( const auto& point : points )
 		{
-			CXMFLOAT3 tmp = XMVector3TransformCoord( point, m_lookAt );
+			Vector tmp = m_lookAt.TransformPosition( point );
 
 			maxTanX = std::max( maxTanX, abs( tmp.x / tmp.z ) );
 			maxTanY = std::max( maxTanY, abs( tmp.y / tmp.z ) );
@@ -63,32 +63,31 @@ CBoundingCone::CBoundingCone( const std::vector<CXMFLOAT3>& points, const CXMFLO
 	}
 }
 
-CBoundingCone::CBoundingCone( const std::vector<CXMFLOAT3>& points, const CXMFLOAT4X4& projection, const CXMFLOAT3& apex, const CXMFLOAT3& dir ) :
+CBoundingCone::CBoundingCone( const std::vector<Vector>& points, const Matrix& projection, const Vector& apex, const Vector& dir ) :
 	m_apex( apex )
 {
 	using namespace DirectX;
 
-	m_direction = XMVector3Normalize( dir );
+	m_direction = dir.GetNormalized();
 
-	CXMFLOAT3 axis( 0.f, 1.f, 0.f );
-
-	if ( fabsf( XMVectorGetX( XMVector3Dot( axis, m_direction ) ) ) > 0.99f )
+	Vector axis = Vector::YAxisVector;
+	if ( fabsf( axis | m_direction ) > 0.99f )
 	{
-		axis = { 0.f, 0.f, 1.f };
+		axis = Vector::ZAxisVector;
 	}
 
-	m_lookAt = XMMatrixLookAtLH( m_apex, m_apex + m_direction, axis );
+	m_lookAt = LookAtMatrix( m_apex, m_apex + m_direction, axis );
 
-	CXMFLOAT4X4 concatMatrix = XMMatrixMultiply( projection, m_lookAt );
+	Matrix concatMatrix = projection * m_lookAt;
 
 	float maxTanX = 0.f;
 	float maxTanY = 0.f;
 	m_near = FLT_MAX;
 	m_far = -FLT_MAX;
 
-	for ( const CXMFLOAT3& point : points )
+	for ( const Vector& point : points )
 	{
-		CXMFLOAT3 newPoint = XMVector3TransformCoord( point, concatMatrix );
+		Vector newPoint = concatMatrix.TransformPosition( point );
 
 		maxTanX = std::max( maxTanX, abs( newPoint.x / newPoint.z ) );
 		maxTanY = std::max( maxTanY, abs( newPoint.y / newPoint.z ) );

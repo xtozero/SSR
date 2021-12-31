@@ -12,10 +12,10 @@ using namespace DirectX;
 
 namespace
 {
-	bool SweptSpherePlaneIntersection( float& t0, float& t1, const CXMFLOAT4& plane, const BoundingSphere& sphere, const CXMFLOAT3& sweepDir )
+	bool SweptSpherePlaneIntersection( float& t0, float& t1, const Plane& plane, const BoundingSphere& sphere, const Vector& sweepDir )
 	{
-		float bdotn = XMVectorGetX( XMPlaneDotCoord( plane, sphere.GetCenter() ) );
-		float ddotn = XMVectorGetX( XMPlaneDotNormal( plane, sweepDir ) );
+		float bdotn = plane.PlaneDot( sphere.GetCenter() );
+		float ddotn = plane.PlaneDotNormal( sweepDir );
 
 		float radius = sphere.GetRadius( );
 
@@ -60,7 +60,7 @@ void BoundingSphere::CalcMeshBounds( const MeshData& mesh )
 	//m_radius = sqrtf( maxRadiusSqr );
 }
 
-void BoundingSphere::Update( const CXMFLOAT3& scaling, const CXMFLOAT4& /*rotation*/, const CXMFLOAT3& translation, ICollider* original )
+void BoundingSphere::Update( const Vector& scaling, const Quaternion& /*rotation*/, const Vector& translation, ICollider* original )
 {
 	BoundingSphere* orig = dynamic_cast<BoundingSphere*>( original );
 	m_origin = translation;
@@ -76,19 +76,21 @@ float BoundingSphere::Intersect( const CRay& ray ) const
 
 uint32 BoundingSphere::Intersect( const Frustum& frustum ) const
 {
-	const CXMFLOAT4( &planes )[6] = frustum.GetPlanes( );
+	const Plane( &planes )[6] = frustum.GetPlanes( );
 
 	bool inside = true;
 
-	for ( uint32 i = 0; ( i<6 ) && inside; i++ )
-		inside &= ( ( XMVectorGetX( XMPlaneDotCoord( planes[i], m_origin ) ) + m_radius ) >= 0.f );
+	for ( uint32 i = 0; ( i < 6 ) && inside; i++ )
+	{
+		inside = inside && ( ( planes[i].PlaneDot( m_origin ) + m_radius ) >= 0.f );
+	}
 
 	return inside;
 }
 
 uint32 BoundingSphere::Intersect( const BoundingSphere& sphere ) const
 {
-	float distance = XMVectorGetX( XMVector3LengthSq( m_origin - sphere.m_origin ) );
+	float distance = ( m_origin - sphere.m_origin ).LengthSqrt();
 
 	return ( distance < ( m_radius + sphere.m_radius ) * ( m_radius + sphere.m_radius ) ) ? 1 : 0;
 }
@@ -103,7 +105,7 @@ float BoundingSphere::CalcGrowth( const BoundingSphere& sphere ) const
 	return 1.33333f * XM_PI * radiusDiff * radiusDiff * radiusDiff;
 }
 
-bool BoundingSphere::Intersect( const Frustum& frustum, const CXMFLOAT3& sweepDir )
+bool BoundingSphere::Intersect( const Frustum& frustum, const Vector& sweepDir )
 {
 	float displacement[12];
 	uint32 count = 0;
@@ -111,7 +113,7 @@ bool BoundingSphere::Intersect( const Frustum& frustum, const CXMFLOAT3& sweepDi
 	float t1 = -1;
 	bool inFrustum = false;
 
-	const CXMFLOAT4(&planes)[6] = frustum.GetPlanes( );
+	const Plane(&planes)[6] = frustum.GetPlanes( );
 
 	for ( uint32 i = 0; i < 6; ++i )
 	{
@@ -131,7 +133,7 @@ bool BoundingSphere::Intersect( const Frustum& frustum, const CXMFLOAT3& sweepDi
 	for ( uint32 i = 0; i < count; ++i )
 	{
 		float radius = m_radius * 1.1f;
-		CXMFLOAT3 center( m_origin );
+		Vector center( m_origin );
 		center += sweepDir * displacement[i];
 		BoundingSphere sphere( center, radius );
 		inFrustum |= ( sphere.Intersect( frustum ) > COLLISION::OUTSIDE );
@@ -143,16 +145,16 @@ bool BoundingSphere::Intersect( const Frustum& frustum, const CXMFLOAT3& sweepDi
 BoundingSphere::BoundingSphere( const CAaboundingbox& box )
 {
 	m_origin = box.Centroid( );
-	m_radius = XMVectorGetX( XMVector3Length( m_origin - box.GetMax( ) ) );
+	m_radius = ( m_origin - box.GetMax() ).Length();
 }
 
 BoundingSphere::BoundingSphere( const COrientedBoundingBox& box )
 {
 	m_origin = box.GetAxisVector( 3 );
-	m_radius = XMVectorGetX( XMVector3Length( box.GetHalfSize( ) ) );
+	m_radius = box.GetHalfSize().Length();
 }
 
-BoundingSphere::BoundingSphere( const std::vector<CXMFLOAT3>& points )
+BoundingSphere::BoundingSphere( const std::vector<Vector>& points )
 {
 	auto iter = points.begin( );
 
@@ -161,9 +163,9 @@ BoundingSphere::BoundingSphere( const std::vector<CXMFLOAT3>& points )
 
 	while ( iter != points.end( ) )
 	{
-		const CXMFLOAT3 tmp = *iter++;
-		CXMFLOAT3 toPoint = tmp - m_origin;
-		float d = XMVectorGetX( XMVector3Dot( toPoint, toPoint ) );
+		const Vector tmp = *iter++;
+		Vector toPoint = tmp - m_origin;
+		float d = toPoint | toPoint;
 		if ( d > m_radius * m_radius )
 		{
 			d = sqrtf( d );
@@ -177,8 +179,8 @@ BoundingSphere::BoundingSphere( const std::vector<CXMFLOAT3>& points )
 
 BoundingSphere::BoundingSphere( const BoundingSphere& one, const BoundingSphere& two )
 {
-	CXMFLOAT3 centerOffset = two.m_origin - one.m_origin;
-	float distance = XMVectorGetX( XMVector3LengthSq( centerOffset ) );
+	Vector centerOffset = two.m_origin - one.m_origin;
+	float distance = centerOffset.LengthSqrt();
 
 	float radiusDiff = two.m_radius - one.m_radius;
 
