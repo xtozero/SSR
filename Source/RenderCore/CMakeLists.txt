@@ -10,6 +10,7 @@ set (CORE_SOURCE
 
 set (GRAPHICS_RESOURCE_SOURCE
 	Private/GraphicsResource/ByteBuffer.cpp
+	Private/GraphicsResource/CommandList.cpp
 	Private/GraphicsResource/ConstantBuffer.cpp
 	Private/GraphicsResource/DDSTexture.cpp
 	Private/GraphicsResource/DefaultConstantBuffers.cpp
@@ -24,6 +25,7 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Private/GraphicsResource/VertexLayout.cpp
 	Private/GraphicsResource/Viewport.cpp
 	Public/GraphicsResource/ByteBuffer.h
+	Public/GraphicsResource/CommandList.h
 	Public/GraphicsResource/ConstantBuffer.h
 	Public/GraphicsResource/DDSTexture.h
 	Public/GraphicsResource/DefaultConstantBuffers.h
@@ -105,6 +107,7 @@ set (RENDER_UTILITY
 	Private/RenderUtility/ShadowSetup.cpp
 	Public/RenderUtility/AbstractGraphicsInterface.h
 	Public/RenderUtility/CommonRenderResource.h
+	Public/RenderUtility/ShaderParameterUtils.h
 	Public/RenderUtility/ShadowSetup.h)
 	
 set (RENDERER_SOURCE

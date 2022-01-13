@@ -3,6 +3,7 @@
 
 #include "AbstractGraphicsInterface.h"
 #include "common.h"
+#include "DefaultConstantBuffers.h"
 #include "ForwardRenderer.h"
 #include "GlobalShaders.h"
 #include "IAga.h"
@@ -13,21 +14,21 @@
 class RenderCore : public IRenderCore
 {
 public:
-	virtual bool BootUp( ) override;
-	virtual bool IsReady( ) const override;
+	virtual bool BootUp() override;
+	virtual bool IsReady() const override;
 
-	virtual void HandleDeviceLost( ) override;
-	virtual void AppSizeChanged( ) override;
+	virtual void HandleDeviceLost() override;
+	virtual void AppSizeChanged() override;
 
-	virtual IScene* CreateScene( ) override;
+	virtual IScene* CreateScene() override;
 	virtual void RemoveScene( IScene* scene ) override;
 
 	virtual void BeginRenderingViewGroup( RenderViewGroup& renderViewGroup ) override;
 
-	~RenderCore( );
+	~RenderCore();
 
 private:
-	void Shutdown( );
+	void Shutdown();
 	SceneRenderer* FindAndCreateSceneRenderer( const RenderViewGroup& renderViewGroup );
 
 	mutable bool m_isReady = false;
@@ -38,9 +39,9 @@ private:
 	std::map<SHADING_METHOD, std::unique_ptr<SceneRenderer>> m_sceneRenderer;
 };
 
-Owner<IRenderCore*> CreateRenderCore( )
+Owner<IRenderCore*> CreateRenderCore()
 {
-	return new RenderCore( );
+	return new RenderCore();
 }
 
 void DestoryRenderCore( Owner<IRenderCore*> pRenderCore )
@@ -48,7 +49,7 @@ void DestoryRenderCore( Owner<IRenderCore*> pRenderCore )
 	delete pRenderCore;
 }
 
-bool RenderCore::BootUp( )
+bool RenderCore::BootUp()
 {
 	m_hAga = LoadModule( "Aga.dll" );
 	if ( m_hAga == nullptr )
@@ -62,47 +63,50 @@ bool RenderCore::BootUp( )
 		return false;
 	}
 
-	if ( m_aga->BootUp( ) == false )
+	if ( m_aga->BootUp() == false )
 	{
 		return false;
 	}
 
-	GlobalShader::GetInstance( ).BootUp( );
 	GraphicsInterface().BootUp( m_aga );
+
+	DefaultConstantBuffers::GetInstance().BootUp();
+
+	GlobalShader::GetInstance().BootUp();
 
 	return true;
 }
 
-bool RenderCore::IsReady( ) const
+bool RenderCore::IsReady() const
 {
 	if ( m_isReady == false )
 	{
-		m_isReady = GlobalShader::GetInstance( ).IsReady( );
+		m_isReady = GlobalShader::GetInstance().IsReady();
 	}
 
 	return m_isReady;
 }
 
-void RenderCore::HandleDeviceLost( )
+void RenderCore::HandleDeviceLost()
 {
 }
 
-void RenderCore::AppSizeChanged( )
+void RenderCore::AppSizeChanged()
 {
-	m_aga->AppSizeChanged( );
+	m_aga->AppSizeChanged();
 }
 
-IScene* RenderCore::CreateScene( )
+IScene* RenderCore::CreateScene()
 {
 	return new Scene();
 }
 
 void RenderCore::RemoveScene( IScene* scene )
 {
-	EnqueueRenderTask( [scene]( )
-	{
-		delete scene;
-	});
+	EnqueueRenderTask( [scene]()
+		{
+			delete scene;
+		} );
 }
 
 void RenderCore::BeginRenderingViewGroup( RenderViewGroup& renderViewGroup )
@@ -119,35 +123,39 @@ void RenderCore::BeginRenderingViewGroup( RenderViewGroup& renderViewGroup )
 		pSceneRenderer->PostRender( renderViewGroup );
 	}
 
-	SceneRenderer::WaitUntilRenderingIsFinish( );
+	SceneRenderer::WaitUntilRenderingIsFinish();
 }
 
-RenderCore::~RenderCore( )
+RenderCore::~RenderCore()
 {
-	Shutdown( );
+	Shutdown();
 }
 
-void RenderCore::Shutdown( )
+void RenderCore::Shutdown()
 {
-	m_sceneRenderer.clear( );
+	m_sceneRenderer.clear();
 
-	GraphicsInterface().Shutdown( );
+	GlobalShader::GetInstance().Shutdown();
+
+	DefaultConstantBuffers::GetInstance().Shutdown();
+
+	GraphicsInterface().Shutdown();
 
 	ShutdownModule( m_hAga );
 }
 
 SceneRenderer* RenderCore::FindAndCreateSceneRenderer( const RenderViewGroup& renderViewGroup )
 {
-	SHADING_METHOD shadingMethod = renderViewGroup.Scene( ).ShadingMethod( );
+	SHADING_METHOD shadingMethod = renderViewGroup.Scene().ShadingMethod();
 
 	auto& sceneRenderer = m_sceneRenderer[shadingMethod];
-	if ( sceneRenderer.get( ) == nullptr )
+	if ( sceneRenderer.get() == nullptr )
 	{
 		switch ( shadingMethod )
 		{
 		case SHADING_METHOD::Forward:
 		{
-			sceneRenderer = std::make_unique<ForwardRenderer>( );
+			sceneRenderer = std::make_unique<ForwardRenderer>();
 			break;
 		}
 		default:
@@ -155,5 +163,5 @@ SceneRenderer* RenderCore::FindAndCreateSceneRenderer( const RenderViewGroup& re
 		}
 	}
 
-	return sceneRenderer.get( );
+	return sceneRenderer.get();
 }

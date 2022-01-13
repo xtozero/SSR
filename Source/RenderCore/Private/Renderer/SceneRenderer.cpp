@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Renderer/SceneRenderer.h"
 
+#include "CommandList.h"
 #include "Math/TransformationMatrix.h"
 #include "Mesh/StaticMeshResource.h"
 #include "Material/MaterialResource.h"
@@ -27,7 +28,7 @@ void RenderingShaderResource::BindResources( const ShaderStates& shaders, aga::S
 		shaders.m_vertexShader,
 		nullptr, // HS
 		nullptr, // DS
-		shaders.m_geometryShader,			
+		shaders.m_geometryShader,
 		shaders.m_pixelShader,
 		nullptr, // CS
 	};
@@ -41,14 +42,14 @@ void RenderingShaderResource::BindResources( const ShaderStates& shaders, aga::S
 
 		aga::SingleShaderBindings singleBinding = bindings.GetSingleShaderBindings( static_cast<SHADER_TYPE>( shaderType ) );
 
-		if ( singleBinding.ShaderType( ) == SHADER_TYPE::NONE )
+		if ( singleBinding.ShaderType() == SHADER_TYPE::NONE )
 		{
 			continue;
 		}
 
-		const auto& parameterMap = shaderArray[shaderType]->ParameterMap( );
+		const auto& parameterMap = shaderArray[shaderType]->ParameterMap();
 
-		for ( size_t i = 0; i < m_parameterNames.size( ); ++i )
+		for ( size_t i = 0; i < m_parameterNames.size(); ++i )
 		{
 			GraphicsApiResource* resource = m_resources[i];
 			if ( resource == nullptr )
@@ -56,8 +57,8 @@ void RenderingShaderResource::BindResources( const ShaderStates& shaders, aga::S
 				continue;
 			}
 
-			aga::ShaderParameter parameter = parameterMap.GetParameter( m_parameterNames[i].c_str( ) );
-			
+			aga::ShaderParameter parameter = parameterMap.GetParameter( m_parameterNames[i].c_str() );
+
 			switch ( parameter.m_type )
 			{
 			case aga::ShaderParameterType::ConstantBuffer:
@@ -95,7 +96,7 @@ void RenderingShaderResource::AddResource( const std::string& parameterName, Gra
 	}
 }
 
-void RenderingShaderResource::ClearResources( )
+void RenderingShaderResource::ClearResources()
 {
 	for ( auto& resource : m_resources )
 	{
@@ -111,48 +112,34 @@ bool SceneRenderer::PreRender( RenderViewGroup& renderViewGroup )
 
 void SceneRenderer::PostRender( RenderViewGroup& renderViewGroup )
 {
-	m_shaderResources.ClearResources( );
-	m_shadowInfos.clear( );
+	m_shaderResources.ClearResources();
+	m_shadowInfos.clear();
 }
 
-void SceneRenderer::ApplyOutputContext( aga::ICommandList& commandList )
+void SceneRenderer::WaitUntilRenderingIsFinish()
 {
-	aga::Texture* renderTargets[MAX_RENDER_TARGET] = {};
-
-	for ( uint32 i = 0; i < MAX_RENDER_TARGET; ++i )
-	{
-		renderTargets[i] = m_outputContext.m_renderTargets[i];
-	}
-
-	commandList.BindRenderTargets( renderTargets, MAX_RENDER_TARGET, m_outputContext.m_depthStencil );
-	commandList.SetViewports( 1, &m_outputContext.m_viewport );
-	commandList.SetScissorRects( 1, &m_outputContext.m_scissorRects );
-}
-
-void SceneRenderer::WaitUntilRenderingIsFinish( )
-{
-	PrimitiveIdVertexBufferPool::GetInstance( ).DiscardAll( );
+	PrimitiveIdVertexBufferPool::GetInstance().DiscardAll();
 }
 
 void SceneRenderer::InitDynamicShadows( RenderViewGroup& renderViewGroup )
 {
-	IScene& scene = renderViewGroup.Scene( );
-	if ( scene.GetRenderScene( ) == nullptr )
+	IScene& scene = renderViewGroup.Scene();
+	if ( scene.GetRenderScene() == nullptr )
 	{
 		return;
 	}
 
 	std::vector<ShadowInfo*> viewDependentShadow;
 
-	Scene& renderScene = *scene.GetRenderScene( );
-	auto lights = renderScene.Lights( );
+	Scene& renderScene = *scene.GetRenderScene();
+	auto lights = renderScene.Lights();
 
 	for ( const auto& view : renderViewGroup )
 	{
 		for ( LightSceneInfo* light : lights )
 		{
-			LightProxy* proxy = light->Proxy( );
-			if ( proxy->CastShadow( ) )
+			LightProxy* proxy = light->Proxy();
+			if ( proxy->CastShadow() )
 			{
 				ShadowInfo& shadowInfo = m_shadowInfos.emplace_back( light, view );
 				viewDependentShadow.push_back( &shadowInfo );
@@ -162,26 +149,26 @@ void SceneRenderer::InitDynamicShadows( RenderViewGroup& renderViewGroup )
 
 	ClassifyShadowCasterAndReceiver( scene, viewDependentShadow );
 
-	SetupShadow( );
+	SetupShadow();
 
-	AllocateShadowMaps( );
+	AllocateShadowMaps();
 }
 
 void SceneRenderer::ClassifyShadowCasterAndReceiver( IScene& scene, const std::vector<ShadowInfo*>& shadows )
 {
 	using namespace DirectX;
 
-	Scene& renderScene = *scene.GetRenderScene( );
+	Scene& renderScene = *scene.GetRenderScene();
 
 	for ( ShadowInfo* pShadowInfo : shadows )
 	{
-		LightSceneInfo* lightSceneInfo = pShadowInfo->GetLightSceneInfo( );
-		LIGHT_TYPE lightType = lightSceneInfo->Proxy( )->LightType( );
+		LightSceneInfo* lightSceneInfo = pShadowInfo->GetLightSceneInfo();
+		LIGHT_TYPE lightType = lightSceneInfo->Proxy()->LightType();
 
 		assert( lightType == LIGHT_TYPE::DIRECTINAL_LIGHT );
-		assert( pShadowInfo->View( ) != nullptr );
+		assert( pShadowInfo->View() != nullptr );
 
-		const RenderView& view = *pShadowInfo->View( );
+		const RenderView& view = *pShadowInfo->View();
 		auto viewMat = LookFromMatrix( view.m_viewOrigin, view.m_viewAxis[2], view.m_viewAxis[1] );
 		auto viewProjectionMat = PerspectiveMatrix( view.m_fov, view.m_aspect, view.m_nearPlaneDistance, view.m_farPlaneDistance );
 		viewProjectionMat = viewMat * viewProjectionMat;
@@ -189,57 +176,57 @@ void SceneRenderer::ClassifyShadowCasterAndReceiver( IScene& scene, const std::v
 
 		CAaboundingbox box;
 
-		const Vector& lightDirection = lightSceneInfo->Proxy( )->GetLightProperty( ).m_direction;
+		const Vector& lightDirection = lightSceneInfo->Proxy()->GetLightProperty().m_direction;
 		Vector sweepDir = lightDirection.GetNormalized();
 
-		const auto& intersectionInfos = lightSceneInfo->Primitives( );
+		const auto& intersectionInfos = lightSceneInfo->Primitives();
 		for ( const auto& intersectionInfo : intersectionInfos )
 		{
 			PrimitiveSceneInfo* primitive = intersectionInfo.m_primitive;
-			uint32 id = primitive->PrimitiveId( );
+			uint32 id = primitive->PrimitiveId();
 
-			const BoxSphereBounds& bounds = renderScene.PrimitiveBounds( )[id];
+			const BoxSphereBounds& bounds = renderScene.PrimitiveBounds()[id];
 
-			uint32 inFrustum = BoxAndFrustum( bounds.Origin( ) - bounds.HalfSize( ),
-											bounds.Origin( ) + bounds.HalfSize( ),
-											frustum );
+			uint32 inFrustum = BoxAndFrustum( bounds.Origin() - bounds.HalfSize(),
+				bounds.Origin() + bounds.HalfSize(),
+				frustum );
 
 			BoxSphereBounds viewspaceBounds = bounds.TransformBy( viewMat );
 
 			switch ( inFrustum )
 			{
 			case COLLISION::OUTSIDE:
-				{
-					bool isIntersected = SphereAndFrusturm( bounds.Origin( ), bounds.Radius( ), frustum, sweepDir );
-					if ( isIntersected )
-					{
-						pShadowInfo->AddCasterPrimitive( primitive, viewspaceBounds );
-					}
-				}
-				break;
-			case COLLISION::INSIDE:
-			case COLLISION::INTERSECTION:
+			{
+				bool isIntersected = SphereAndFrusturm( bounds.Origin(), bounds.Radius(), frustum, sweepDir );
+				if ( isIntersected )
 				{
 					pShadowInfo->AddCasterPrimitive( primitive, viewspaceBounds );
-					pShadowInfo->AddReceiverPrimitive( primitive, viewspaceBounds );
 				}
-				break;
+			}
+			break;
+			case COLLISION::INSIDE:
+			case COLLISION::INTERSECTION:
+			{
+				pShadowInfo->AddCasterPrimitive( primitive, viewspaceBounds );
+				pShadowInfo->AddReceiverPrimitive( primitive, viewspaceBounds );
+			}
+			break;
 			}
 		}
 	}
 }
 
-void SceneRenderer::SetupShadow( )
+void SceneRenderer::SetupShadow()
 {
 	for ( ShadowInfo& shadowInfo : m_shadowInfos )
 	{
-		if ( shadowInfo.HasCasterPrimitives( ) == false )
+		if ( shadowInfo.HasCasterPrimitives() == false )
 		{
 			continue;
 		}
 
-		LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo( );
-		LIGHT_TYPE lightType = lightSceneInfo->Proxy( )->LightType( );
+		LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo();
+		LIGHT_TYPE lightType = lightSceneInfo->Proxy()->LightType();
 
 		switch ( lightType )
 		{
@@ -259,14 +246,14 @@ void SceneRenderer::SetupShadow( )
 	}
 }
 
-void SceneRenderer::AllocateShadowMaps( )
+void SceneRenderer::AllocateShadowMaps()
 {
 	std::vector<ShadowInfo*> cascadeShadows;
 
 	for ( auto& shadowInfo : m_shadowInfos )
 	{
-		LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo( );
-		LIGHT_TYPE lightType = lightSceneInfo->Proxy( )->LightType( );
+		LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo();
+		LIGHT_TYPE lightType = lightSceneInfo->Proxy()->LightType();
 
 		switch ( lightType )
 		{
@@ -284,7 +271,7 @@ void SceneRenderer::AllocateShadowMaps( )
 		}
 	}
 
-	if ( cascadeShadows.size( ) > 0 )
+	if ( cascadeShadows.size() > 0 )
 	{
 		AllocateCascadeShadowMaps( cascadeShadows );
 	}
@@ -294,7 +281,7 @@ void SceneRenderer::AllocateCascadeShadowMaps( const std::vector<ShadowInfo*>& s
 {
 	for ( ShadowInfo* shadow : shadows )
 	{
-		auto [width, height] = shadow->ShadowMapSize( );
+		auto [width, height] = shadow->ShadowMapSize();
 
 		TEXTURE_TRAIT trait = { width,
 								height,
@@ -307,7 +294,7 @@ void SceneRenderer::AllocateCascadeShadowMaps( const std::vector<ShadowInfo*>& s
 								RESOURCE_BIND_TYPE::RENDER_TARGET | RESOURCE_BIND_TYPE::SHADER_RESOURCE,
 								0 };
 
-		shadow->ShadowMap( ).m_shadowMap = aga::Texture::Create( trait );
+		shadow->ShadowMap().m_shadowMap = aga::Texture::Create( trait );
 
 		TEXTURE_TRAIT depthTrait = { width,
 									height,
@@ -320,30 +307,30 @@ void SceneRenderer::AllocateCascadeShadowMaps( const std::vector<ShadowInfo*>& s
 									RESOURCE_BIND_TYPE::DEPTH_STENCIL,
 									0 };
 
-		shadow->ShadowMap( ).m_shadowMapDepth = aga::Texture::Create( depthTrait );
+		shadow->ShadowMap().m_shadowMapDepth = aga::Texture::Create( depthTrait );
 
-		EnqueueRenderTask( [texture = shadow->ShadowMap( ).m_shadowMap,
-							depthTexture = shadow->ShadowMap( ).m_shadowMapDepth]( )
+		EnqueueRenderTask( [texture = shadow->ShadowMap().m_shadowMap,
+			depthTexture = shadow->ShadowMap().m_shadowMapDepth]()
 		{
 			if ( texture )
 			{
-				texture->Init( );
+				texture->Init();
 			}
 
 			if ( depthTexture )
 			{
-				depthTexture->Init( );
+				depthTexture->Init();
 			}
 		} );
 	}
 }
 
-void SceneRenderer::RenderShadowDepthPass( )
+void SceneRenderer::RenderShadowDepthPass()
 {
 	for ( ShadowInfo& shadowInfo : m_shadowInfos )
 	{
-		ShadowMapRenderTarget& shadowMap = shadowInfo.ShadowMap( );
-		auto [width, height] = shadowInfo.ShadowMapSize( );
+		ShadowMapRenderTarget& shadowMap = shadowInfo.ShadowMap();
+		auto [width, height] = shadowInfo.ShadowMapSize();
 
 		RenderingOutputContext context = {
 			{ shadowMap.m_shadowMap },
@@ -353,31 +340,32 @@ void SceneRenderer::RenderShadowDepthPass( )
 		};
 		StoreOuputContext( context );
 
-		GraphicsInterface( ).ClearRenderTarget( shadowMap.m_shadowMap, { 1, 1, 1, 1 } );
-		GraphicsInterface( ).ClearDepthStencil( shadowMap.m_shadowMapDepth, 1.f, 0 );
+		auto commandList = rendercore::GetImmediateCommandList();
+		commandList.ClearRenderTarget( shadowMap.m_shadowMap, { 1, 1, 1, 1 } );
+		commandList.ClearDepthStencil( shadowMap.m_shadowMapDepth, 1.f, 0 );
 
-		shadowInfo.SetupShadowConstantBuffer( );
+		shadowInfo.SetupShadowConstantBuffer();
 		shadowInfo.RenderDepth( *this, m_shaderResources );
 	}
 }
 
 void SceneRenderer::RenderTexturedSky( IScene& scene )
 {
-	Scene* renderScene = scene.GetRenderScene( );
+	Scene* renderScene = scene.GetRenderScene();
 	if ( renderScene == nullptr )
 	{
 		return;
 	}
 
-	TexturedSkyProxy* proxy = renderScene->TexturedSky( );
+	TexturedSkyProxy* proxy = renderScene->TexturedSky();
 	if ( proxy == nullptr )
 	{
 		return;
 	}
 
-	StaticMeshRenderData* renderData = proxy->GetRenderData( );
-	MaterialResource* material = proxy->GetMaterialResource( );
-	if ( ( renderData == nullptr ) || ( renderData->LODSize( ) == 0 || ( material == nullptr ) ) )
+	StaticMeshRenderData* renderData = proxy->GetRenderData();
+	MaterialResource* material = proxy->GetMaterialResource();
+	if ( ( renderData == nullptr ) || ( renderData->LODSize() == 0 || ( material == nullptr ) ) )
 	{
 		return;
 	}
@@ -389,8 +377,8 @@ void SceneRenderer::RenderTexturedSky( IScene& scene )
 		material->GetPixelShader(),
 	};
 
-	auto commandList = GetInterface<aga::IAga>( )->GetImmediateCommandList( );
-	ApplyOutputContext( *commandList );
+	auto commandList = rendercore::GetImmediateCommandList();
+	ApplyOutputContext( commandList );
 
 	StaticMeshLODResource& lodResource = renderData->LODResource( 0 );
 	const VertexCollection& vertexCollection = lodResource.m_vertexCollection;
@@ -410,15 +398,15 @@ void SceneRenderer::RenderTexturedSky( IScene& scene )
 
 		material->TakeSnapshot( snapshot );
 
-		auto& graphicsInterface = GraphicsInterface( );
+		auto& graphicsInterface = GraphicsInterface();
 		if ( pipelineState.m_shaderState.m_vertexShader )
 		{
 			VertexStreamLayout vertexlayout = vertexCollection.VertexLayout( VertexStreamLayoutType::PositionOnly );
 			pipelineState.m_shaderState.m_vertexLayout = graphicsInterface.FindOrCreate( *pipelineState.m_shaderState.m_vertexShader, vertexlayout );
 		}
 
-		pipelineState.m_depthStencilState = graphicsInterface.FindOrCreate( proxy->GetDepthStencilOption( ) );
-		pipelineState.m_rasterizerState = graphicsInterface.FindOrCreate( proxy->GetRasterizerOption( ) );
+		pipelineState.m_depthStencilState = graphicsInterface.FindOrCreate( proxy->GetDepthStencilOption() );
+		pipelineState.m_rasterizerState = graphicsInterface.FindOrCreate( proxy->GetRasterizerOption() );
 
 		pipelineState.m_primitive = RESOURCE_PRIMITIVE::TRIANGLELIST;
 
@@ -439,36 +427,36 @@ void SceneRenderer::RenderTexturedSky( IScene& scene )
 		};
 
 		VertexBuffer emptyPrimitiveID;
-		CommitDrawSnapshot( *commandList, visibleSnapshot, emptyPrimitiveID );
+		CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
 	}
 }
 
 void SceneRenderer::RenderMesh( IScene& scene, RenderPass passType, RenderView& renderView )
 {
-	const auto& primitives = scene.Primitives( );
-	if ( primitives.Size( ) == 0 )
+	const auto& primitives = scene.Primitives();
+	if ( primitives.Size() == 0 )
 	{
 		return;
 	}
 
-	auto* renderScene = scene.GetRenderScene( );
+	auto* renderScene = scene.GetRenderScene();
 	if ( renderScene == nullptr )
 	{
 		return;
 	}
 
-	auto& snapshots = renderView.m_snapshots[static_cast<uint32>(passType)];
+	auto& snapshots = renderView.m_snapshots[static_cast<uint32>( passType )];
 
 	std::deque<DrawSnapshot> snapshotStorage;
 
 	// Create DrawSnapshot
 	for ( auto primitive : primitives )
 	{
-		PrimitiveProxy* proxy = primitive->Proxy( );
+		PrimitiveProxy* proxy = primitive->Proxy();
 
-		const std::vector<PrimitiveSubMeshInfo>& subMeshInfos = primitive->SubMeshInfos( );
+		const std::vector<PrimitiveSubMeshInfo>& subMeshInfos = primitive->SubMeshInfos();
 
-		if ( subMeshInfos.size( ) > 0 )
+		if ( subMeshInfos.size() > 0 )
 		{
 			for ( const auto& subMeshInfo : subMeshInfos )
 			{
@@ -478,10 +466,10 @@ void SceneRenderer::RenderMesh( IScene& scene, RenderPass passType, RenderView& 
 					const CachedDrawSnapshotInfo& info = primitive->GetCachedDrawSnapshotInfo( *snapshotIndex );
 					DrawSnapshot& snapshot = primitive->CachedDrawSnapshot( *snapshotIndex );
 
-					VisibleDrawSnapshot& visibleSnapshot = snapshots.emplace_back( );
+					VisibleDrawSnapshot& visibleSnapshot = snapshots.emplace_back();
 					visibleSnapshot.m_snapshotBucketId = info.m_snapshotBucketId;
 					visibleSnapshot.m_drawSnapshot = &snapshot;
-					visibleSnapshot.m_primitiveId = proxy->PrimitiveId( );
+					visibleSnapshot.m_primitiveId = proxy->PrimitiveId();
 					visibleSnapshot.m_numInstance = 1;
 				}
 			}
@@ -492,7 +480,7 @@ void SceneRenderer::RenderMesh( IScene& scene, RenderPass passType, RenderView& 
 		}
 	}
 
-	if ( snapshots.size( ) == 0 )
+	if ( snapshots.size() == 0 )
 	{
 		return;
 	}
@@ -506,14 +494,14 @@ void SceneRenderer::RenderMesh( IScene& scene, RenderPass passType, RenderView& 
 		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 	}
 
-	VertexBuffer primitiveIds = PrimitiveIdVertexBufferPool::GetInstance( ).Alloc( static_cast<uint32>( snapshots.size( ) * sizeof( uint32 ) ) );
+	VertexBuffer primitiveIds = PrimitiveIdVertexBufferPool::GetInstance().Alloc( static_cast<uint32>( snapshots.size() * sizeof( uint32 ) ) );
 
 	SortDrawSnapshots( snapshots, primitiveIds );
 	// CommitDrawSnapshots( *this, renderViewGroup, curView, primitiveIds );
 	ParallelCommitDrawSnapshot( *this, snapshots, primitiveIds );
 }
 
-void SceneRenderer::RenderShadow( )
+void SceneRenderer::RenderShadow()
 {
 	for ( ShadowInfo& shadowInfo : m_shadowInfos )
 	{
@@ -523,7 +511,7 @@ void SceneRenderer::RenderShadow( )
 		meshInfo.m_count = 3;
 
 		auto result = shadowDrawPassProcessor.Process( meshInfo );
-		if ( result.has_value( ) == false )
+		if ( result.has_value() == false )
 		{
 			return;
 		}
@@ -534,19 +522,19 @@ void SceneRenderer::RenderShadow( )
 		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
-		auto commandList = GetInterface<aga::IAga>( )->GetImmediateCommandList( );
-		ApplyOutputContext( *commandList );
+		auto commandList = rendercore::GetImmediateCommandList();
+		ApplyOutputContext( commandList );
 
-		m_shaderResources.AddResource( "ShadowTexture", shadowInfo.ShadowMap().m_shadowMap->SRV( ) );
+		m_shaderResources.AddResource( "ShadowTexture", shadowInfo.ShadowMap().m_shadowMap->SRV() );
 
 		SamplerOption shadowSamplerOption;
 		shadowSamplerOption.m_addressU = TEXTURE_ADDRESS_MODE::BORDER;
 		shadowSamplerOption.m_addressV = TEXTURE_ADDRESS_MODE::BORDER;
 		shadowSamplerOption.m_addressW = TEXTURE_ADDRESS_MODE::BORDER;
-		SamplerState shadowSampler = GraphicsInterface( ).FindOrCreate( shadowSamplerOption );
-		m_shaderResources.AddResource( "ShadowSampler", shadowSampler.Resource( ) );
+		SamplerState shadowSampler = GraphicsInterface().FindOrCreate( shadowSamplerOption );
+		m_shaderResources.AddResource( "ShadowSampler", shadowSampler.Resource() );
 
-		m_shaderResources.AddResource( "ShadowDepthPassParameters", shadowInfo.ConstantBuffer( ).Resource( ) );
+		m_shaderResources.AddResource( "ShadowDepthPassParameters", shadowInfo.ConstantBuffer().Resource() );
 
 		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
@@ -559,7 +547,7 @@ void SceneRenderer::RenderShadow( )
 		};
 
 		VertexBuffer emptyPrimitiveID;
-		CommitDrawSnapshot( *commandList, visibleSnapshot, emptyPrimitiveID );
+		CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
 	}
 }
 

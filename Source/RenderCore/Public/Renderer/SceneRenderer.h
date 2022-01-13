@@ -27,7 +27,7 @@ class RenderingShaderResource
 public:
 	void BindResources( const ShaderStates& shaders, aga::ShaderBindings& bindings );
 	void AddResource( const std::string& parameterName, GraphicsApiResource* resource );
-	void ClearResources( );
+	void ClearResources();
 
 private:
 	std::vector<std::string> m_parameterNames;
@@ -52,22 +52,35 @@ public:
 
 	virtual void RenderDefaultPass( RenderViewGroup& renderViewGroup, uint32 curView ) = 0;
 
-	void ApplyOutputContext( aga::ICommandList& commandList );
+	template <typename CommandList>
+	void ApplyOutputContext( CommandList& commandList )
+	{
+		aga::Texture* renderTargets[MAX_RENDER_TARGET] = {};
 
-	static void WaitUntilRenderingIsFinish( );
+		for ( uint32 i = 0; i < MAX_RENDER_TARGET; ++i )
+		{
+			renderTargets[i] = m_outputContext.m_renderTargets[i];
+		}
+
+		commandList.BindRenderTargets( renderTargets, MAX_RENDER_TARGET, m_outputContext.m_depthStencil );
+		commandList.SetViewports( 1, &m_outputContext.m_viewport );
+		commandList.SetScissorRects( 1, &m_outputContext.m_scissorRects );
+	}
+
+	static void WaitUntilRenderingIsFinish();
 
 	virtual ~SceneRenderer() = default;
 protected:
 	void InitDynamicShadows( RenderViewGroup& renderViewGroup );
 	void ClassifyShadowCasterAndReceiver( IScene& scene, const std::vector<ShadowInfo*>& shadows );
-	void SetupShadow( );
-	void AllocateShadowMaps( );
+	void SetupShadow();
+	void AllocateShadowMaps();
 	void AllocateCascadeShadowMaps( const std::vector<ShadowInfo*>& shadows );
 
-	void RenderShadowDepthPass( );
+	void RenderShadowDepthPass();
 	void RenderTexturedSky( IScene& scene );
 	void RenderMesh( IScene& scene, RenderPass passType, RenderView& renderView );
-	void RenderShadow( );
+	void RenderShadow();
 
 	void StoreOuputContext( const RenderingOutputContext& context );
 

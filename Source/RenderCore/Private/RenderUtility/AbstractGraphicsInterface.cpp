@@ -8,12 +8,10 @@ AbstractGraphicsInterface g_abstractGraphicsInterface;
 void AbstractGraphicsInterface::BootUp( aga::IAga* pAga )
 {
 	m_aga = pAga;
-	m_defaultConstants.BootUp( );
 }
 
-void AbstractGraphicsInterface::Shutdown( )
+void AbstractGraphicsInterface::Shutdown()
 {
-	m_defaultConstants.Shutdown( );
 }
 
 void* AbstractGraphicsInterface::Lock( aga::Buffer* buffer, uint32 lockFlag, uint32 subResource )
@@ -26,60 +24,25 @@ void AbstractGraphicsInterface::UnLock( aga::Buffer* buffer, uint32 subResource 
 	m_aga->UnLock( buffer, subResource );
 }
 
-void AbstractGraphicsInterface::SetViewports( aga::Viewport** pViewPorts, uint32 size )
-{
-	m_aga->SetViewports( pViewPorts, size );
-}
-
-void AbstractGraphicsInterface::SetViewport( uint32 minX, uint32 minY, float minZ, uint32 maxX, uint32 maxY, float maxZ )
-{
-	m_aga->SetViewport( minX, minY, minZ, maxX, maxY, maxZ );
-}
-
-void AbstractGraphicsInterface::SetScissorRects( aga::Viewport** pViewPorts, uint32 size )
-{
-	m_aga->SetScissorRects( pViewPorts, size );
-}
-
-void AbstractGraphicsInterface::SetScissorRect( uint32 minX, uint32 minY, uint32 maxX, uint32 maxY )
-{
-	m_aga->SetScissorRect( minX, minY, maxX, maxY );
-}
-
-void AbstractGraphicsInterface::BindRenderTargets( aga::Texture** pRenderTargets, uint32 renderTargetCount, aga::Texture* depthStencil )
-{
-	m_aga->BindRenderTargets( pRenderTargets, renderTargetCount, depthStencil );
-}
-
-void AbstractGraphicsInterface::ClearRenderTarget( aga::Texture* renderTarget, const float( &clearColor )[4] )
-{
-	m_aga->ClearRenderTarget( renderTarget, clearColor );
-}
-
-void AbstractGraphicsInterface::ClearDepthStencil( aga::Texture* depthStencil, float depthColor, UINT8 stencilColor )
-{
-	m_aga->ClearDepthStencil( depthStencil, depthColor, stencilColor );
-}
-
-void AbstractGraphicsInterface::Dispatch( uint32 x, uint32 y, uint32 z )
-{
-	ComputeShader empty;
-	m_defaultConstants.Commit( empty );
-
-	m_aga->Dispatch( x, y, z );
-
-	BindShader( empty );
-}
-
 void AbstractGraphicsInterface::Copy( aga::Buffer* dst, aga::Buffer* src, uint32 size )
 {
 	m_aga->Copy( dst, src, size );
 }
 
+std::unique_ptr<aga::IDeferredCommandList> AbstractGraphicsInterface::CreateDeferredCommandList() const
+{
+	return m_aga->CreateDeferredCommandList();
+}
+
+aga::IImmediateCommandList* AbstractGraphicsInterface::GetImmediateCommandList()
+{
+	return m_aga->GetImmediateCommandList();
+}
+
 BlendState AbstractGraphicsInterface::FindOrCreate( const BlendOption& option )
 {
 	auto found = m_blendStates.find( option );
-	if ( found == m_blendStates.end( ) )
+	if ( found == m_blendStates.end() )
 	{
 		BLEND_STATE_TRAIT trait;
 		trait.m_alphaToConverageEnable = option.m_alphaToConverageEnable;
@@ -115,7 +78,7 @@ BlendState AbstractGraphicsInterface::FindOrCreate( const BlendOption& option )
 DepthStencilState AbstractGraphicsInterface::FindOrCreate( const DepthStencilOption& option )
 {
 	auto found = m_depthStencilStates.find( option );
-	if ( found == m_depthStencilStates.end( ) )
+	if ( found == m_depthStencilStates.end() )
 	{
 		DEPTH_STENCIL_STATE_TRAIT trait = {
 			option.m_depth.m_enable,
@@ -140,7 +103,7 @@ DepthStencilState AbstractGraphicsInterface::FindOrCreate( const DepthStencilOpt
 RasterizerState AbstractGraphicsInterface::FindOrCreate( const RasterizerOption& option )
 {
 	auto found = m_rasterizerStates.find( option );
-	if ( found == m_rasterizerStates.end( ) )
+	if ( found == m_rasterizerStates.end() )
 	{
 		RASTERIZER_STATE_TRAIT trait = {
 			option.m_isWireframe ? FILL_MODE::WIREFRAME : FILL_MODE::SOLID,
@@ -160,14 +123,14 @@ RasterizerState AbstractGraphicsInterface::FindOrCreate( const RasterizerOption&
 
 		return state;
 	}
-	
+
 	return found->second;
 }
 
 SamplerState AbstractGraphicsInterface::FindOrCreate( const SamplerOption& option )
 {
 	auto found = m_samplerStates.find( option );
-	if ( found == m_samplerStates.end( ) )
+	if ( found == m_samplerStates.end() )
 	{
 		SAMPLER_STATE_TRAIT trait = {
 			static_cast<TEXTURE_FILTER::Type>( option.m_filter ),
@@ -193,13 +156,13 @@ SamplerState AbstractGraphicsInterface::FindOrCreate( const SamplerOption& optio
 
 VertexLayout AbstractGraphicsInterface::FindOrCreate( const VertexShader& vs, const VertexLayoutDesc& desc )
 {
-	if ( desc.Size( ) == 0 )
+	if ( desc.Size() == 0 )
 	{
 		return {};
 	}
 
 	auto found = m_vertexLayouts.find( desc );
-	if ( found == m_vertexLayouts.end( ) )
+	if ( found == m_vertexLayouts.end() )
 	{
 		VertexLayout vertexLayout( vs, desc );
 		m_vertexLayouts.emplace( desc, vertexLayout );
@@ -210,7 +173,7 @@ VertexLayout AbstractGraphicsInterface::FindOrCreate( const VertexShader& vs, co
 	return found->second;
 }
 
-AbstractGraphicsInterface& GraphicsInterface( )
+AbstractGraphicsInterface& GraphicsInterface()
 {
 	return g_abstractGraphicsInterface;
 }

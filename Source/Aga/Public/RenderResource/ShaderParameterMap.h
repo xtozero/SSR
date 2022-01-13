@@ -30,7 +30,7 @@ namespace aga
 		uint32 m_offset = 0;
 		uint32 m_sizeInByte = 0;
 
-		AGA_DLL size_t GetHash( ) const;
+		AGA_DLL size_t GetHash() const;
 		AGA_DLL void Bind( const ShaderParameterMap& parameterMap, const char* variableName );
 
 		friend bool operator<( const ShaderParameter& lhs, const ShaderParameter& rhs )
@@ -63,21 +63,21 @@ namespace aga
 			m_parameters.emplace( variableName, parameter );
 		}
 
-		const std::map<std::string, ShaderParameter>& GetParameterMap( ) const
+		const std::map<std::string, ShaderParameter>& GetParameterMap() const
 		{
 			return m_parameters;
 		}
 
-		std::map<std::string, ShaderParameter>& GetParameterMap( )
+		std::map<std::string, ShaderParameter>& GetParameterMap()
 		{
 			return m_parameters;
 		}
 
 		AGA_DLL ShaderParameter GetParameter( const char* name ) const;
 
-		uint32 Size( ) const
+		uint32 Size() const
 		{
-			return static_cast<uint32>( m_parameters.size( ) );
+			return static_cast<uint32>( m_parameters.size() );
 		}
 
 	private:

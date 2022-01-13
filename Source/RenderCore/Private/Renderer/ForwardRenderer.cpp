@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ForwardRenderer.h"
 
-#include "AbstractGraphicsInterface.h"
+#include "CommandList.h"
 #include "ForwardLighting.h"
 #include "Math/Vector.h"
 #include "Proxies/LightProxy.h"
@@ -16,30 +16,30 @@ void ForwardRendererRenderTargets::UpdateBufferSize( uint32 width, uint32 height
 	std::pair<uint32, uint32> newBufferSize( width, height );
 	if ( m_bufferSize != newBufferSize )
 	{
-		ReleaseAll( );
+		ReleaseAll();
 		m_bufferSize = newBufferSize;
 	}
 }
 
-aga::Texture* ForwardRendererRenderTargets::GetDepthStencil( )
+aga::Texture* ForwardRendererRenderTargets::GetDepthStencil()
 {
-	AllocDepthStencil( );
+	AllocDepthStencil();
 	return m_depthStencil;
 }
 
-aga::Texture* ForwardRendererRenderTargets::GetLinearDepth( )
+aga::Texture* ForwardRendererRenderTargets::GetLinearDepth()
 {
-	AllocLinearDepth( );
+	AllocLinearDepth();
 	return m_linearDepth;
 }
 
-aga::Texture* ForwardRendererRenderTargets::GetWorldNormal( )
+aga::Texture* ForwardRendererRenderTargets::GetWorldNormal()
 {
-	AllocWorldNormal( );
+	AllocWorldNormal();
 	return m_worldNormal;
 }
 
-void ForwardRendererRenderTargets::AllocDepthStencil( )
+void ForwardRendererRenderTargets::AllocDepthStencil()
 {
 	if ( m_depthStencil == nullptr )
 	{
@@ -57,14 +57,14 @@ void ForwardRendererRenderTargets::AllocDepthStencil( )
 		};
 
 		m_depthStencil = aga::Texture::Create( trait );
-		EnqueueRenderTask( [depthStencil = m_depthStencil]( )
-		{
-			depthStencil->Init( );
-		} );
+		EnqueueRenderTask( [depthStencil = m_depthStencil]()
+			{
+				depthStencil->Init();
+			} );
 	}
 }
 
-void ForwardRendererRenderTargets::AllocLinearDepth( )
+void ForwardRendererRenderTargets::AllocLinearDepth()
 {
 	if ( m_linearDepth == nullptr )
 	{
@@ -82,14 +82,14 @@ void ForwardRendererRenderTargets::AllocLinearDepth( )
 		};
 
 		m_linearDepth = aga::Texture::Create( trait );
-		EnqueueRenderTask( [linearDepth = m_linearDepth]( )
-		{
-			linearDepth->Init( );
-		} );
+		EnqueueRenderTask( [linearDepth = m_linearDepth]()
+			{
+				linearDepth->Init();
+			} );
 	}
 }
 
-void ForwardRendererRenderTargets::AllocWorldNormal( )
+void ForwardRendererRenderTargets::AllocWorldNormal()
 {
 	if ( m_worldNormal == nullptr )
 	{
@@ -107,14 +107,14 @@ void ForwardRendererRenderTargets::AllocWorldNormal( )
 		};
 
 		m_worldNormal = aga::Texture::Create( trait );
-		EnqueueRenderTask( [worldNormal = m_worldNormal]( )
-		{
-			worldNormal->Init( );
-		} );
+		EnqueueRenderTask( [worldNormal = m_worldNormal]()
+			{
+				worldNormal->Init();
+			} );
 	}
 }
 
-void ForwardRendererRenderTargets::ReleaseAll( )
+void ForwardRendererRenderTargets::ReleaseAll()
 {
 	m_depthStencil = nullptr;
 	m_linearDepth = nullptr;
@@ -125,27 +125,27 @@ bool ForwardRenderer::PreRender( RenderViewGroup& renderViewGroup )
 {
 	SceneRenderer::PreRender( renderViewGroup );
 
-	auto rendertargetSize = renderViewGroup.Viewport( ).Size( );
+	auto rendertargetSize = renderViewGroup.Viewport().Size();
 	m_renderTargets.UpdateBufferSize( rendertargetSize.first, rendertargetSize.second );
 
-	IScene& scene = renderViewGroup.Scene( );
-	bool prepared = UpdateGPUPrimitiveInfos( *scene.GetRenderScene( ) );
+	IScene& scene = renderViewGroup.Scene();
+	bool prepared = UpdateGPUPrimitiveInfos( *scene.GetRenderScene() );
 
-	auto& gpuPrimitiveInfo = scene.GpuPrimitiveInfo( );
-	m_shaderResources.AddResource( "primitiveInfo", gpuPrimitiveInfo.SRV( ) );
-	m_shaderResources.AddResource( "SceneDepth", m_renderTargets.GetLinearDepth()->SRV( ) );
-	m_shaderResources.AddResource( "WorldNormal", m_renderTargets.GetWorldNormal( )->SRV( ) );
+	auto& gpuPrimitiveInfo = scene.GpuPrimitiveInfo();
+	m_shaderResources.AddResource( "primitiveInfo", gpuPrimitiveInfo.SRV() );
+	m_shaderResources.AddResource( "SceneDepth", m_renderTargets.GetLinearDepth()->SRV() );
+	m_shaderResources.AddResource( "WorldNormal", m_renderTargets.GetWorldNormal()->SRV() );
 
 	SamplerOption defaultSamplerOption;
-	SamplerState defaultSampler = GraphicsInterface( ).FindOrCreate( defaultSamplerOption );
-	m_shaderResources.AddResource( "SceneDepthSampler", defaultSampler.Resource( ) );
-	m_shaderResources.AddResource( "WorldNormalSampler", defaultSampler.Resource( ) );
+	SamplerState defaultSampler = GraphicsInterface().FindOrCreate( defaultSamplerOption );
+	m_shaderResources.AddResource( "SceneDepthSampler", defaultSampler.Resource() );
+	m_shaderResources.AddResource( "WorldNormalSampler", defaultSampler.Resource() );
 
 	if ( prepared )
 	{
 		for ( auto& view : renderViewGroup )
 		{
-			view.m_forwardLighting = new ForwardLightingResource( );
+			view.m_forwardLighting = new ForwardLightingResource();
 		}
 
 		UpdateLightResource( renderViewGroup );
@@ -156,29 +156,29 @@ bool ForwardRenderer::PreRender( RenderViewGroup& renderViewGroup )
 
 void ForwardRenderer::Render( RenderViewGroup& renderViewGroup )
 {
-	RenderShadowDepthPass( );
+	RenderShadowDepthPass();
 
-	for ( uint32 i = 0; i < static_cast<uint32>( renderViewGroup.Size( ) ); ++i )
+	for ( uint32 i = 0; i < static_cast<uint32>( renderViewGroup.Size() ); ++i )
 	{
-		IScene& scene = renderViewGroup.Scene( );
+		IScene& scene = renderViewGroup.Scene();
 
-		auto& viewConstant = scene.SceneViewConstant( );
+		auto& viewConstant = scene.SceneViewConstant();
 
 		auto& view = renderViewGroup[i];
 
 		ViewConstantBufferParameters viewConstantParam;
-		FillViewConstantParam( viewConstantParam, scene.GetRenderScene( ), view );
+		FillViewConstantParam( viewConstantParam, scene.GetRenderScene(), view );
 
 		viewConstant.Update( viewConstantParam );
 
-		m_shaderResources.AddResource( "VEIW_PROJECTION", viewConstant.Resource( ) );
-		m_shaderResources.AddResource( "ForwardLightConstant", view.m_forwardLighting->m_lightConstant.Resource( ) );
-		m_shaderResources.AddResource( "ForwardLight", view.m_forwardLighting->m_lightBuffer.SRV( ) );
+		m_shaderResources.AddResource( "VEIW_PROJECTION", viewConstant.Resource() );
+		m_shaderResources.AddResource( "ForwardLightConstant", view.m_forwardLighting->m_lightConstant.Resource() );
+		m_shaderResources.AddResource( "ForwardLight", view.m_forwardLighting->m_lightBuffer.SRV() );
 
 		RenderDepthPass( renderViewGroup, i );
 		RenderDefaultPass( renderViewGroup, i );
 
-		RenderShadow( );
+		RenderShadow();
 	}
 }
 
@@ -195,10 +195,10 @@ void ForwardRenderer::PostRender( RenderViewGroup& renderViewGroup )
 
 void ForwardRenderer::RenderDefaultPass( RenderViewGroup& renderViewGroup, uint32 curView )
 {
-	auto renderTarget = renderViewGroup.Viewport( ).Texture( );
-	auto depthStencil = m_renderTargets.GetDepthStencil( );
+	auto renderTarget = renderViewGroup.Viewport().Texture();
+	auto depthStencil = m_renderTargets.GetDepthStencil();
 
-	auto [width, height] = renderViewGroup.Viewport( ).Size( );
+	auto [width, height] = renderViewGroup.Viewport().Size();
 
 	RenderingOutputContext context = {
 		{ renderTarget },
@@ -208,7 +208,7 @@ void ForwardRenderer::RenderDefaultPass( RenderViewGroup& renderViewGroup, uint3
 	};
 	StoreOuputContext( context );
 
-	IScene& scene = renderViewGroup.Scene( );
+	IScene& scene = renderViewGroup.Scene();
 	RenderTexturedSky( scene );
 
 	RenderMesh( scene, RenderPass::Default, renderViewGroup[curView] );
@@ -216,11 +216,11 @@ void ForwardRenderer::RenderDefaultPass( RenderViewGroup& renderViewGroup, uint3
 
 void ForwardRenderer::RenderDepthPass( RenderViewGroup& renderViewGroup, uint32 curView )
 {
-	auto renderTarget = m_renderTargets.GetLinearDepth( );
-	auto worldNormal = m_renderTargets.GetWorldNormal( );
-	auto depthStencil = m_renderTargets.GetDepthStencil( );
+	auto renderTarget = m_renderTargets.GetLinearDepth();
+	auto worldNormal = m_renderTargets.GetWorldNormal();
+	auto depthStencil = m_renderTargets.GetDepthStencil();
 
-	auto[width, height] = renderViewGroup.Viewport( ).Size( );
+	auto [width, height] = renderViewGroup.Viewport().Size();
 
 	RenderingOutputContext context = {
 		{ renderTarget, worldNormal },
@@ -230,37 +230,38 @@ void ForwardRenderer::RenderDepthPass( RenderViewGroup& renderViewGroup, uint32 
 	};
 	StoreOuputContext( context );
 
-	GraphicsInterface( ).ClearRenderTarget( renderTarget, { 1, 1, 1, 1 } );
-	GraphicsInterface( ).ClearRenderTarget( worldNormal, { } );
-	GraphicsInterface( ).ClearDepthStencil( depthStencil, 1.f, 0 );
+	auto commandList = rendercore::GetImmediateCommandList();
+	commandList.ClearRenderTarget( renderTarget, { 1, 1, 1, 1 } );
+	commandList.ClearRenderTarget( worldNormal, { } );
+	commandList.ClearDepthStencil( depthStencil, 1.f, 0 );
 
-	IScene& scene = renderViewGroup.Scene( );
+	IScene& scene = renderViewGroup.Scene();
 	RenderMesh( scene, RenderPass::DepthWrite, renderViewGroup[curView] );
 }
 
 void ForwardRenderer::UpdateLightResource( RenderViewGroup& renderViewGroup )
 {
-	Scene* scene = renderViewGroup.Scene( ).GetRenderScene( );
+	Scene* scene = renderViewGroup.Scene().GetRenderScene();
 	if ( scene == nullptr )
 	{
 		return;
 	}
 
 	std::vector<LightSceneInfo*> validLights;
-	const SparseArray<LightSceneInfo*>& lights = scene->Lights( );
+	const SparseArray<LightSceneInfo*>& lights = scene->Lights();
 	for ( auto light : lights )
 	{
 		validLights.emplace_back( light );
 	}
- 
+
 	for ( auto& view : renderViewGroup )
 	{
 		ForwardLightBuffer& lightBuffer = view.m_forwardLighting->m_lightBuffer;
 
-		uint32 numElement = static_cast<uint32>( ( sizeof( ForwardLightData ) / sizeof( Vector4 ) ) * validLights.size( ) );
+		uint32 numElement = static_cast<uint32>( ( sizeof( ForwardLightData ) / sizeof( Vector4 ) ) * validLights.size() );
 		lightBuffer.Initialize( sizeof( Vector4 ), numElement, RESOURCE_FORMAT::R32G32B32A32_FLOAT );
 
-		auto lightData = static_cast<ForwardLightData*>( lightBuffer.Lock( ) );
+		auto lightData = static_cast<ForwardLightData*>( lightBuffer.Lock() );
 		if ( lightData == nullptr )
 		{
 			continue;
@@ -268,8 +269,8 @@ void ForwardRenderer::UpdateLightResource( RenderViewGroup& renderViewGroup )
 
 		for ( auto light : validLights )
 		{
-			LightProxy* proxy = light->Proxy( );
-			LightProperty property = proxy->GetLightProperty( );
+			LightProxy* proxy = light->Proxy();
+			LightProperty property = proxy->GetLightProperty();
 
 			lightData->m_positionAndRange = Vector4( property.m_position[0], property.m_position[1], property.m_position[2], property.m_range );
 			lightData->m_diffuse = property.m_diffuse;
@@ -281,10 +282,10 @@ void ForwardRenderer::UpdateLightResource( RenderViewGroup& renderViewGroup )
 			++lightData;
 		}
 
-		lightBuffer.Unlock( );
+		lightBuffer.Unlock();
 
 		ForwardLightConstant lightConstant = {
-			static_cast<uint32>( validLights.size( ) ),
+			static_cast<uint32>( validLights.size() ),
 			view.m_viewOrigin
 		};
 

@@ -2,7 +2,6 @@
 
 #include "GraphicsApiResource.h"
 #include "GraphicsPipelineState.h"
-#include "ICommandList.h"
 #include "IndexBuffer.h"
 #include "PipelineState.h"
 #include "ShaderBindings.h"
@@ -21,13 +20,13 @@ enum class RenderPass;
 class PrimitiveIdVertexBufferPool
 {
 public:
-	static PrimitiveIdVertexBufferPool& GetInstance( );
+	static PrimitiveIdVertexBufferPool& GetInstance();
 
 	VertexBuffer Alloc( uint32 require );
-	void DiscardAll( );
+	void DiscardAll();
 
 protected:
-	PrimitiveIdVertexBufferPool( ) = default;
+	PrimitiveIdVertexBufferPool() = default;
 
 private:
 	struct PrimitiveIdVertexBufferPoolEntry
@@ -58,7 +57,7 @@ public:
 	uint32 m_startIndexLocation;
 	uint32 m_baseVertexLocation;
 
-	DrawSnapshot( ) = default;
+	DrawSnapshot() = default;
 	DrawSnapshot( const DrawSnapshot& other )
 	{
 		( *this ) = other;
@@ -123,12 +122,12 @@ struct DrawSnapshotDynamicInstancingHasher
 {
 	size_t operator()( const DrawSnapshot& ds ) const
 	{
-		static size_t typeHash = typeid( DrawSnapshotDynamicInstancingHasher ).hash_code( );
+		static size_t typeHash = typeid( DrawSnapshotDynamicInstancingHasher ).hash_code();
 		size_t hash = typeHash;
 
-		const aga::Buffer* const* vertexBuffers = ds.m_vertexStream.VertexBuffers( );
-		const uint32* const offsets = ds.m_vertexStream.Offsets( );
-		for ( uint32 i = 0; i < ds.m_vertexStream.NumBuffer( ); ++i )
+		const aga::Buffer* const* vertexBuffers = ds.m_vertexStream.VertexBuffers();
+		const uint32* const offsets = ds.m_vertexStream.Offsets();
+		for ( uint32 i = 0; i < ds.m_vertexStream.NumBuffer(); ++i )
 		{
 			HashCombine( hash, i );
 			HashCombine( hash, offsets[i] );
@@ -137,11 +136,11 @@ struct DrawSnapshotDynamicInstancingHasher
 
 		HashCombine( hash, ds.m_primitiveIdSlot );
 
-		HashCombine( hash, ds.m_indexBuffer.Resource( ) );
+		HashCombine( hash, ds.m_indexBuffer.Resource() );
 
-		HashCombine( hash, ds.m_shaderBindings.HashForDynamicInstaning( ) );
+		HashCombine( hash, ds.m_shaderBindings.HashForDynamicInstaning() );
 
-		HashCombine( hash, ds.m_pipelineState.m_pso.Get( ) );
+		HashCombine( hash, ds.m_pipelineState.m_pso.Get() );
 		HashCombine( hash, ds.m_count );
 		HashCombine( hash, ds.m_startIndexLocation );
 		HashCombine( hash, ds.m_baseVertexLocation );
@@ -186,8 +185,44 @@ private:
 	SparseArray<DrawSnapshot> m_snapshots;
 };
 
+template <typename CommandList>
+void CommitDrawSnapshot( CommandList& commandList, VisibleDrawSnapshot& visibleSnapshot, VertexBuffer& primitiveIds )
+{
+	DrawSnapshot& snapshot = *visibleSnapshot.m_drawSnapshot;
+
+	// Set vertex buffer
+	VertexBufferBundle vertexStream = snapshot.m_vertexStream;
+	if ( snapshot.m_primitiveIdSlot != -1 )
+	{
+		vertexStream.Bind( primitiveIds, static_cast<uint32>( snapshot.m_primitiveIdSlot ), visibleSnapshot.m_primitiveIdOffset * sizeof( uint32 ) );
+	}
+
+	uint32 numVB = vertexStream.NumBuffer();
+	aga::Buffer* const* vertexBuffers = vertexStream.VertexBuffers();
+	const uint32* vertexOffsets = vertexStream.Offsets();
+	commandList.BindVertexBuffer( vertexBuffers, 0, numVB, vertexOffsets );
+
+	// Set index buffer
+	aga::Buffer* indexBuffer = snapshot.m_indexBuffer.Resource();
+	commandList.BindIndexBuffer( indexBuffer, 0 );
+
+	// Set pipeline state
+	commandList.BindPipelineState( snapshot.m_pipelineState.m_pso );
+
+	// Set shader resources
+	commandList.BindShaderResources( snapshot.m_shaderBindings );
+
+	if ( indexBuffer )
+	{
+		commandList.DrawIndexedInstanced( snapshot.m_count, visibleSnapshot.m_numInstance, snapshot.m_startIndexLocation, snapshot.m_baseVertexLocation );
+	}
+	else
+	{
+		commandList.DrawInstanced( snapshot.m_count, visibleSnapshot.m_numInstance, snapshot.m_baseVertexLocation );
+	}
+}
+
 void PreparePipelineStateObject( DrawSnapshot& snapshot );
 void SortDrawSnapshots( std::vector<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
 void CommitDrawSnapshots( SceneRenderer& renderer, std::vector<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
-void CommitDrawSnapshot( aga::ICommandList& commandList, VisibleDrawSnapshot& visibleSnapshot, VertexBuffer& primitiveIds );
 void ParallelCommitDrawSnapshot( SceneRenderer& renderer, std::vector<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );

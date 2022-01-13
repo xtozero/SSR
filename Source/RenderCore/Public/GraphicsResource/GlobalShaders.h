@@ -11,14 +11,15 @@
 class GlobalShader
 {
 public:
-	static GlobalShader& GetInstance( )
+	static GlobalShader& GetInstance()
 	{
 		static GlobalShader globalShader;
 		return globalShader;
 	}
 
-	void BootUp( );
-	bool IsReady( ) const;
+	void BootUp();
+	void Shutdown();
+	bool IsReady() const;
 
 	bool RegisterShader( std::type_index typeIndex, const std::shared_ptr<ShaderBase>& shader );
 	bool RegisterShaderPath( std::type_index typeIndex, const char* path );
@@ -26,7 +27,7 @@ public:
 	ShaderBase* GetShader( std::type_index typeIndex );
 
 private:
-	GlobalShader( ) = default;
+	GlobalShader() = default;
 
 	std::map<std::type_index, std::shared_ptr<ShaderBase>> m_shaders;
 	std::map<std::type_index, const char*> m_shaderAssetPaths;
@@ -46,7 +47,7 @@ GlobalShaderRegister type##_register( typeid( type ), shaderPath );
 ShaderBase* GetGlobalShaderImpl( std::type_index typeIndex );
 
 template <typename T>
-ShaderBase* GetGlobalShader( )
+ShaderBase* GetGlobalShader()
 {
 	return GetGlobalShaderImpl( typeid( T ) );
 }

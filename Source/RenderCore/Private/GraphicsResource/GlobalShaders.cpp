@@ -6,9 +6,9 @@
 #include <cassert>
 #include <memory>
 
-void GlobalShader::BootUp( )
+void GlobalShader::BootUp()
 {
-	IAssetLoader* assetLoader = GetInterface<IAssetLoader>( );
+	IAssetLoader* assetLoader = GetInterface<IAssetLoader>();
 	if ( assetLoader == nullptr )
 	{
 		return;
@@ -16,7 +16,7 @@ void GlobalShader::BootUp( )
 
 	for ( const auto& pathPair : m_shaderAssetPaths )
 	{
-		auto[typeIndex, assetPath] = pathPair;
+		auto [typeIndex, assetPath] = pathPair;
 
 		if ( m_shaders.find( typeIndex ) != std::end( m_shaders ) )
 		{
@@ -25,22 +25,27 @@ void GlobalShader::BootUp( )
 
 		IAssetLoader::LoadCompletionCallback onLoadComplete;
 		onLoadComplete.BindFunctor( [typeIndex]( const std::shared_ptr<void>& asset )
-		{
-			EnqueueRenderTask(
-			[typeIndex, asset]( )
 			{
-				GlobalShader::GetInstance( ).RegisterShader( typeIndex, std::static_pointer_cast<ShaderBase>( asset ) );
+				EnqueueRenderTask(
+					[typeIndex, asset]()
+					{
+						GlobalShader::GetInstance().RegisterShader( typeIndex, std::static_pointer_cast<ShaderBase>( asset ) );
+					} );
 			} );
-		} );
 
 		AssetLoaderSharedHandle handle = assetLoader->RequestAsyncLoad( assetPath, onLoadComplete );
 
-		assert( handle->IsLoadingInProgress( ) || handle->IsLoadComplete( ) );
+		assert( handle->IsLoadingInProgress() || handle->IsLoadComplete() );
 		++m_loadingInProgress;
 	}
 }
 
-bool GlobalShader::IsReady( ) const
+void GlobalShader::Shutdown()
+{
+	m_shaders.clear();
+}
+
+bool GlobalShader::IsReady() const
 {
 	return m_loadingInProgress == 0;
 }
@@ -81,10 +86,10 @@ ShaderBase* GlobalShader::GetShader( std::type_index typeIndex )
 
 GlobalShaderRegister::GlobalShaderRegister( std::type_index typeIndex, const char* assetPath )
 {
-	GlobalShader::GetInstance( ).RegisterShaderPath( typeIndex, assetPath );
+	GlobalShader::GetInstance().RegisterShaderPath( typeIndex, assetPath );
 }
 
 ShaderBase* GetGlobalShaderImpl( std::type_index typeIndex )
 {
-	return GlobalShader::GetInstance( ).GetShader( typeIndex );
+	return GlobalShader::GetInstance().GetShader( typeIndex );
 }

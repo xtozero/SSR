@@ -1,0 +1,500 @@
+#include "stdafx.h"
+#include "D3D11StateCache.h"
+
+#include "D3D11BaseTexture.h"
+#include "D3D11Buffer.h"
+#include "D3D11PipelineState.h"
+#include "D3D11ResourceViews.h"
+#include "D3D11SamplerState.h"
+#include "D3D11Shaders.h"
+#include "ShaderBindings.h"
+
+#include <algorithm>
+
+namespace aga
+{
+	void D3D11PipelineCache::BindVertexBuffer( ID3D11DeviceContext& context, Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
+	{
+		ID3D11Buffer* pBuffers[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
+		uint32 strides[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
+		uint32 offsets[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
+
+		if ( vertexBuffers )
+		{
+			assert( pOffsets != nullptr );
+			for ( uint32 i = 0; i < numBuffers; ++i )
+			{
+				auto d3d11buffer = static_cast<D3D11Buffer*>( vertexBuffers[i] );
+				if ( d3d11buffer )
+				{
+					pBuffers[i] = d3d11buffer->Resource();
+					strides[i] = d3d11buffer->Stride();
+					offsets[i] = pOffsets[i];
+				}
+			}
+		}
+
+		static_assert( sizeof( pBuffers ) == sizeof( m_vertexBuffers ) );
+		static_assert( sizeof( strides ) == sizeof( m_vertexStrides ) );
+		static_assert( sizeof( offsets ) == sizeof( m_vertexOffsets ) );
+		if ( std::equal( std::begin( pBuffers ), std::end( pBuffers ), std::begin( m_vertexBuffers ) ) &&
+			std::equal( std::begin( strides ), std::end( strides ), std::begin( m_vertexStrides ) ) &&
+			std::equal( std::begin( offsets ), std::end( offsets ), std::begin( m_vertexOffsets ) ) )
+		{
+			return;
+		}
+
+		if ( numBuffers == 0 )
+		{
+			numBuffers = D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT;
+		}
+
+		std::copy( std::begin( pBuffers ), std::end( pBuffers ), std::begin( m_vertexBuffers ) );
+		std::copy( std::begin( strides ), std::end( strides ), std::begin( m_vertexStrides ) );
+		std::copy( std::begin( offsets ), std::end( offsets ), std::begin( m_vertexOffsets ) );
+		context.IASetVertexBuffers( startSlot, numBuffers, pBuffers, strides, offsets );
+	}
+
+	void D3D11PipelineCache::BindIndexBuffer( ID3D11DeviceContext& context, Buffer* indexBuffer, uint32 indexOffset )
+	{
+		ID3D11Buffer* buffer = nullptr;
+		DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
+		if ( auto d3d11buffer = static_cast<D3D11Buffer*>( indexBuffer ) )
+		{
+			buffer = d3d11buffer->Resource();
+			format = ( d3d11buffer->Stride() == 4 ) ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT;
+		}
+
+		if ( m_indexBuffer == buffer && m_indexBufferFormat == format )
+		{
+			return;
+		}
+
+		m_indexBuffer = buffer;
+		m_indexBufferFormat = format;
+		context.IASetIndexBuffer( buffer, format, indexOffset );
+	}
+
+	void D3D11PipelineCache::BindPipelineState( ID3D11DeviceContext& context, PipelineState* pipelineState )
+	{
+		ID3D11InputLayout* inputLayout = nullptr;
+		D3D11_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
+		ID3D11VertexShader* vertexShader = nullptr;
+		ID3D11GeometryShader* geometryShader = nullptr;
+		ID3D11PixelShader* pixelShader = nullptr;
+		ID3D11BlendState* blendState = nullptr;
+		uint32 blendSampleMask = 0;
+		ID3D11RasterizerState* rasterizerState = nullptr;
+		ID3D11DepthStencilState* depthStencilState = nullptr;
+
+		if ( auto d3d11PipelineState = static_cast<D3D11PipelineState*>( pipelineState ) )
+		{
+			inputLayout = d3d11PipelineState->InputLayout();
+			topology = d3d11PipelineState->PrimitiveTopology();
+			vertexShader = d3d11PipelineState->VertexShader();
+			geometryShader = d3d11PipelineState->GeometryShader();
+			pixelShader = d3d11PipelineState->PixelShader();
+			blendState = d3d11PipelineState->BlendState();
+			blendSampleMask = d3d11PipelineState->SampleMask();
+			rasterizerState = d3d11PipelineState->RasterizerState();
+			depthStencilState = d3d11PipelineState->DepthStencilState();
+		}
+
+		if ( inputLayout != m_inputLayout )
+		{
+			m_inputLayout = inputLayout;
+			context.IASetInputLayout( inputLayout );
+		}
+
+		if ( topology != m_primitiveTopology )
+		{
+			m_primitiveTopology = topology;
+			context.IASetPrimitiveTopology( topology );
+		}
+
+		if ( vertexShader != m_vertexShader )
+		{
+			m_vertexShader = vertexShader;
+			context.VSSetShader( vertexShader, nullptr, 0 );
+		}
+
+		if ( geometryShader != m_geometryShader )
+		{
+			m_geometryShader = geometryShader;
+			context.GSSetShader( geometryShader, nullptr, 0 );
+		}
+
+		if ( pixelShader != m_pixelShader )
+		{
+			m_pixelShader = pixelShader;
+			context.PSSetShader( pixelShader, nullptr, 0 );
+		}
+
+		if ( blendState != m_blendState ||
+			blendSampleMask != m_blendSampleMask )
+		{
+			m_blendState = blendState;
+			m_blendSampleMask = blendSampleMask;
+			float blendFactor[4] = {} /*Temp*/;
+			context.OMSetBlendState( blendState, blendFactor, blendSampleMask );
+		}
+
+		if ( rasterizerState != m_rasterizerState )
+		{
+			m_rasterizerState = rasterizerState;
+			context.RSSetState( rasterizerState );
+		}
+
+		if ( depthStencilState != m_depthStencilState )
+		{
+			m_depthStencilState = depthStencilState;
+			context.OMSetDepthStencilState( depthStencilState, 0/*Temp*/ );
+		}
+	}
+
+	void D3D11PipelineCache::BindShader( ID3D11DeviceContext& context, VertexShader* vs )
+	{
+		ID3D11VertexShader* vertexShader = nullptr;
+
+		if ( auto d3d11VS = static_cast<D3D11VertexShader*>( vs ) )
+		{
+			vertexShader = d3d11VS->Resource();
+		}
+
+		if ( vertexShader != m_vertexShader )
+		{
+			m_vertexShader = vertexShader;
+			context.VSSetShader( vertexShader, nullptr, 0 );
+		}
+	}
+
+	void D3D11PipelineCache::BindShader( ID3D11DeviceContext& context, GeometryShader* gs )
+	{
+		ID3D11GeometryShader* geometryShader = nullptr;
+
+		if ( auto d3d11GS = static_cast<D3D11GeometryShader*>( gs ) )
+		{
+			geometryShader = d3d11GS->Resource();
+		}
+
+		if ( geometryShader != m_geometryShader )
+		{
+			m_geometryShader = geometryShader;
+			context.GSSetShader( geometryShader, nullptr, 0 );
+		}
+	}
+
+	void D3D11PipelineCache::BindShader( ID3D11DeviceContext& context, PixelShader* ps )
+	{
+		ID3D11PixelShader* pixelShader = nullptr;
+
+		if ( auto d3d11PS = static_cast<D3D11PixelShader*>( ps ) )
+		{
+			pixelShader = d3d11PS->Resource();
+		}
+
+		if ( pixelShader != m_pixelShader )
+		{
+			m_pixelShader = pixelShader;
+			context.PSSetShader( pixelShader, nullptr, 0 );
+		}
+	}
+
+	void D3D11PipelineCache::BindShader( ID3D11DeviceContext& context, ComputeShader* cs )
+	{
+		ID3D11ComputeShader* computeShader = nullptr;
+
+		if ( auto d3d11CS = static_cast<D3D11ComputeShader*>( cs ) )
+		{
+			computeShader = d3d11CS->Resource();
+		}
+
+		if ( computeShader != m_computeShader )
+		{
+			m_computeShader = computeShader;
+			context.CSSetShader( computeShader, nullptr, 0 );
+		}
+	}
+
+	void D3D11PipelineCache::BindShaderResources( ID3D11DeviceContext& context, const ShaderBindings& shaderBindings )
+	{
+		for ( uint32 shaderType = 0; shaderType < MAX_SHADER_TYPE<uint32>; ++shaderType )
+		{
+			SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<SHADER_TYPE>( shaderType ) );
+
+			const ShaderParameterInfo& parameterInfo = binding.ParameterInfo();
+			for ( size_t i = 0; i < parameterInfo.m_constantBuffers.size(); ++i )
+			{
+				const ShaderParameter& param = parameterInfo.m_constantBuffers[i];
+				BindConstantBuffer( context, param.m_shader, param.m_bindPoint, binding.GetConstantBufferStart()[i] );
+			}
+
+			for ( size_t i = 0; i < parameterInfo.m_srvs.size(); ++i )
+			{
+				const ShaderParameter& param = parameterInfo.m_srvs[i];
+				BindSRV( context, param.m_shader, param.m_bindPoint, binding.GetSRVStart()[i] );
+			}
+
+			for ( size_t i = 0; i < parameterInfo.m_uavs.size(); ++i )
+			{
+				const ShaderParameter& param = parameterInfo.m_uavs[i];
+				BindUAV( context, param.m_shader, param.m_bindPoint, binding.GetUAVStart()[i] );
+			}
+
+			for ( size_t i = 0; i < parameterInfo.m_samplers.size(); ++i )
+			{
+				const ShaderParameter& param = parameterInfo.m_samplers[i];
+				BindSampler( context, param.m_shader, param.m_bindPoint, binding.GetSamplerStart()[i] );
+			}
+		}
+	}
+
+	void D3D11PipelineCache::BindConstantBuffer( ID3D11DeviceContext& context, SHADER_TYPE shader, uint32 slot, const RefHandle<GraphicsApiResource>& cb )
+	{
+		ID3D11Buffer* buffer = nullptr;
+		if ( auto d3d11Buffer = static_cast<D3D11Buffer*>( cb.Get() ) )
+		{
+			buffer = d3d11Buffer->Resource();
+		}
+
+		uint32 nShader = static_cast<int>( shader );
+		if ( m_constantBuffers[nShader][slot] == buffer )
+		{
+			return;
+		}
+
+		m_constantBuffers[nShader][slot] = buffer;
+		switch ( shader )
+		{
+		case SHADER_TYPE::VS:
+			context.VSSetConstantBuffers( slot, 1, &buffer );
+			break;
+		case SHADER_TYPE::HS:
+			break;
+		case SHADER_TYPE::DS:
+			break;
+		case SHADER_TYPE::GS:
+			context.GSSetConstantBuffers( slot, 1, &buffer );
+			break;
+		case SHADER_TYPE::PS:
+			context.PSSetConstantBuffers( slot, 1, &buffer );
+			break;
+		case SHADER_TYPE::CS:
+			context.CSSetConstantBuffers( slot, 1, &buffer );
+			break;
+		default:
+			break;
+		}
+	}
+
+	void D3D11PipelineCache::BindSRV( ID3D11DeviceContext& context, SHADER_TYPE shader, uint32 slot, const RefHandle<GraphicsApiResource>& srv )
+	{
+		ID3D11ShaderResourceView* rawSrv = nullptr;
+		if ( auto d3d11Srv = reinterpret_cast<D3D11ShaderResourceView*>( srv.Get() ) )
+		{
+			rawSrv = d3d11Srv->Resource();
+		}
+
+		uint32 nShader = static_cast<int>( shader );
+		if ( m_srvs[nShader][slot] == rawSrv )
+		{
+			return;
+		}
+
+		m_srvs[nShader][slot] = rawSrv;
+		switch ( shader )
+		{
+		case SHADER_TYPE::VS:
+			context.VSSetShaderResources( slot, 1, &rawSrv );
+			break;
+		case SHADER_TYPE::HS:
+			break;
+		case SHADER_TYPE::DS:
+			break;
+		case SHADER_TYPE::GS:
+			context.GSSetShaderResources( slot, 1, &rawSrv );
+			break;
+		case SHADER_TYPE::PS:
+			context.PSSetShaderResources( slot, 1, &rawSrv );
+			break;
+		case SHADER_TYPE::CS:
+			context.CSSetShaderResources( slot, 1, &rawSrv );
+			break;
+		default:
+			break;
+		}
+	}
+
+	void D3D11PipelineCache::BindUAV( ID3D11DeviceContext& context, SHADER_TYPE shader, uint32 slot, const RefHandle<GraphicsApiResource>& uav )
+	{
+		ID3D11UnorderedAccessView* rawUav = nullptr;
+		if ( auto d3d11Uav = reinterpret_cast<D3D11UnorderedAccessView*>( uav.Get() ) )
+		{
+			rawUav = d3d11Uav->Resource();
+		}
+
+		if ( m_uavs[slot] == rawUav )
+		{
+			return;
+		}
+
+		m_uavs[slot] = rawUav;
+		switch ( shader )
+		{
+		case SHADER_TYPE::CS:
+			context.CSSetUnorderedAccessViews( slot, 1, &rawUav, nullptr );
+			break;
+		default:
+			break;
+		}
+	}
+
+	void D3D11PipelineCache::BindSampler( ID3D11DeviceContext& context, SHADER_TYPE shader, uint32 slot, const RefHandle<GraphicsApiResource>& sampler )
+	{
+		ID3D11SamplerState* samplerState = nullptr;
+		if ( auto d3d11Sampler = static_cast<D3D11SamplerState*>( sampler.Get() ) )
+		{
+			samplerState = d3d11Sampler->Resource();
+		}
+
+		uint32 nShader = static_cast<int>( shader );
+		if ( m_samplerStates[nShader][slot] == samplerState )
+		{
+			return;
+		}
+
+		m_samplerStates[nShader][slot] = samplerState;
+		switch ( shader )
+		{
+		case SHADER_TYPE::VS:
+			context.VSSetSamplers( slot, 1, &samplerState );
+			break;
+		case SHADER_TYPE::HS:
+			break;
+		case SHADER_TYPE::DS:
+			break;
+		case SHADER_TYPE::GS:
+			context.GSSetSamplers( slot, 1, &samplerState );
+			break;
+		case SHADER_TYPE::PS:
+			context.PSSetSamplers( slot, 1, &samplerState );
+			break;
+		default:
+			break;
+		}
+	}
+
+	void D3D11PipelineCache::SetViewports( ID3D11DeviceContext& context, uint32 count, const CubeArea<float>* area )
+	{
+		D3D11_VIEWPORT viewports[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE] = {};
+
+		for ( uint32 i = 0; i < count; ++i )
+		{
+			viewports[i] = {
+				area[i].m_left,
+				area[i].m_top,
+				area[i].m_right - area[i].m_left,
+				area[i].m_bottom - area[i].m_top,
+				area[i].m_back,
+				area[i].m_front
+			};
+		}
+
+		static_assert( sizeof( viewports ) == sizeof( m_viewports ) );
+		if ( std::equal( std::begin( viewports ), std::end( viewports ), std::begin( m_viewports ) ) )
+		{
+			return;
+		}
+
+		std::copy( std::begin( viewports ), std::end( viewports ), std::begin( m_viewports ) );
+		context.RSSetViewports( count, viewports );
+	}
+
+	void D3D11PipelineCache::SetScissorRects( ID3D11DeviceContext& context, uint32 count, const RectangleArea<int32>* area )
+	{
+		D3D11_RECT rects[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE] = {};
+
+		for ( uint32 i = 0; i < count; ++i )
+		{
+			rects[i] = {
+				area[i].m_left,
+				area[i].m_top,
+				area[i].m_right,
+				area[i].m_bottom
+			};
+		}
+
+		static_assert( sizeof( rects ) == sizeof( m_siccorRects ) );
+		if ( std::equal( std::begin( rects ), std::end( rects ), std::begin( m_siccorRects ) ) )
+		{
+			return;
+		}
+
+		std::copy( std::begin( rects ), std::end( rects ), std::begin( m_siccorRects ) );
+		context.RSSetScissorRects( count, rects );
+	}
+
+	void D3D11PipelineCache::BindRenderTargets( ID3D11DeviceContext& context, Texture** pRenderTargets, uint32 renderTargetCount, Texture* depthStencil )
+	{
+		ID3D11RenderTargetView* rtvs[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = {};
+
+		for ( uint32 i = 0; i < renderTargetCount; ++i )
+		{
+			auto rtTex = static_cast<D3D11BaseTexture*>( pRenderTargets[i] );
+			if ( rtTex == nullptr )
+			{
+				continue;
+			}
+
+			if ( auto d3d11RTV = static_cast<D3D11RenderTargetView*>( rtTex->RTV() ) )
+			{
+				rtvs[i] = d3d11RTV->Resource();
+			}
+
+			if ( auto d3d11SRV = static_cast<D3D11ShaderResourceView*>( rtTex->SRV() ) )
+			{
+				UnBindSRV( context, d3d11SRV->Resource() );
+			}
+		}
+
+		ID3D11DepthStencilView* dsv = nullptr;
+
+		if ( auto dsTex = static_cast<D3D11BaseTexture*>( depthStencil ) )
+		{
+			if ( auto d3d11DSV = static_cast<D3D11DepthStencilView*>( dsTex->DSV() ) )
+			{
+				dsv = d3d11DSV->Resource();
+			}
+
+			if ( auto d3d11SRV = static_cast<D3D11ShaderResourceView*>( dsTex->SRV() ) )
+			{
+				UnBindSRV( context, d3d11SRV->Resource() );
+			}
+		}
+
+		static_assert( sizeof( rtvs ) == sizeof( m_rtvs ) );
+		if ( dsv == m_dsv &&
+			std::equal( std::begin( rtvs ), std::end( rtvs ), std::begin( m_rtvs ) ) )
+		{
+			return;
+		}
+
+		std::copy( std::begin( rtvs ), std::end( rtvs ), std::begin( m_rtvs ) );
+		m_dsv = dsv;
+		context.OMSetRenderTargets( renderTargetCount, rtvs, dsv );
+	}
+
+	void D3D11PipelineCache::UnBindSRV( ID3D11DeviceContext& context, ID3D11ShaderResourceView* srv )
+	{
+		for ( uint32 shader = 0; shader < MAX_SHADER_TYPE<uint32>; ++shader )
+		{
+			for ( uint32 slot = 0; slot < D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT; ++slot )
+			{
+				if ( m_srvs[shader][slot] == srv )
+				{
+					BindSRV( context, static_cast<SHADER_TYPE>( shader ), slot, RefHandle<GraphicsApiResource>() );
+				}
+			}
+		}
+	}
+}

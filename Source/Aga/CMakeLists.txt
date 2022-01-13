@@ -28,6 +28,7 @@ set (D3D11_RENDER_RESOURCE_SOURCE
 	Private/D3D11/D3D11ResourceViews.cpp
 	Private/D3D11/D3D11SamplerState.cpp
 	Private/D3D11/D3D11Shaders.cpp
+	Private/D3D11/D3D11StateCache.cpp
 	Private/D3D11/D3D11VetexLayout.cpp
 	Private/D3D11/D3D11Viewport.cpp
 	Public/D3D11/D3D11BaseTexture.h
@@ -42,6 +43,7 @@ set (D3D11_RENDER_RESOURCE_SOURCE
 	Public/D3D11/D3D11ResourceViews.h
 	Public/D3D11/D3D11SamplerState.h
 	Public/D3D11/D3D11Shaders.h
+	Public/D3D11/D3D11StateCache.h
 	Public/D3D11/D3D11VetexLayout.h
 	Public/D3D11/D3D11Viewport.h)
 
@@ -61,7 +63,7 @@ set (RENDER_RESOURCE_SOURCE
 	Private/RenderResource/Buffer.cpp
 	Private/RenderResource/PipelineState.cpp
 	Private/RenderResource/ResourceViews.cpp
-	Private/RenderResource/ShaderPrameterMap.cpp
+	Private/RenderResource/ShaderParameterMap.cpp
 	Private/RenderResource/ShaderResource.cpp
 	Private/RenderResource/Texture.cpp
 	Private/RenderResource/Viewport.cpp
@@ -69,8 +71,8 @@ set (RENDER_RESOURCE_SOURCE
 	Public/RenderResource/PipelineState.h
 	Public/RenderResource/ResourceViews.h
 	Public/RenderResource/ShaderBindings.h
-	Public/RenderResource/ShaderPrameterInfo.h
-	Public/RenderResource/ShaderPrameterMap.h
+	Public/RenderResource/ShaderParameterInfo.h
+	Public/RenderResource/ShaderParameterMap.h
 	Public/RenderResource/ShaderResource.h
 	Public/RenderResource/Texture.h
 	Public/RenderResource/Viewport.h)

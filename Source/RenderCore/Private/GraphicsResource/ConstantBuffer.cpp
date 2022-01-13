@@ -6,37 +6,37 @@
 
 void ConstantBuffer::Update( const void* data, uint32 size )
 {
-	assert( IsInRenderThread( ) );
+	assert( IsInRenderThread() );
 
 	assert( data != nullptr );
-	void* dst = GraphicsInterface( ).Lock( m_buffer );
+	void* dst = GraphicsInterface().Lock( m_buffer );
 	if ( dst )
 	{
 		std::memcpy( dst, data, size );
 	}
-	GraphicsInterface( ).UnLock( m_buffer );
+	GraphicsInterface().UnLock( m_buffer );
 }
 
-void* ConstantBuffer::Lock( )
+void* ConstantBuffer::Lock()
 {
-	assert( IsInRenderThread( ) );
-	return  GraphicsInterface( ).Lock( m_buffer );
+	assert( IsInRenderThread() );
+	return  GraphicsInterface().Lock( m_buffer );
 }
 
-void ConstantBuffer::Unlock( )
+void ConstantBuffer::Unlock()
 {
-	assert( IsInRenderThread( ) );
-	GraphicsInterface( ).UnLock( m_buffer );
+	assert( IsInRenderThread() );
+	GraphicsInterface().UnLock( m_buffer );
 }
 
-aga::Buffer* ConstantBuffer::Resource( )
+aga::Buffer* ConstantBuffer::Resource()
 {
-	return m_buffer.Get( );
+	return m_buffer.Get();
 }
 
-const aga::Buffer* ConstantBuffer::Resource( ) const
+const aga::Buffer* ConstantBuffer::Resource() const
 {
-	return m_buffer.Get( );
+	return m_buffer.Get();
 }
 
 ConstantBuffer::ConstantBuffer( uint32 size )
@@ -56,26 +56,8 @@ void ConstantBuffer::InitResource( uint32 size )
 	};
 
 	m_buffer = aga::Buffer::Create( trait );
-	EnqueueRenderTask( [buffer = m_buffer]( )
-	{
-		buffer->Init( );
-	} );
-}
-
-void ConstantBuffer::BindImple( VertexShader& shader, uint32 slot )
-{
-	aga::Buffer* buffers[] = { m_buffer };
-	GraphicsInterface( ).BindConstant( shader, slot, 1, buffers );
-}
-
-void ConstantBuffer::BindImple( PixelShader& shader, uint32 slot )
-{
-	aga::Buffer* buffers[] = { m_buffer };
-	GraphicsInterface( ).BindConstant( shader, slot, 1, buffers );
-}
-
-void ConstantBuffer::BindImple( ComputeShader& shader, uint32 slot )
-{
-	aga::Buffer* buffers[] = { m_buffer };
-	GraphicsInterface( ).BindConstant( shader, slot, 1, buffers );
+	EnqueueRenderTask( [buffer = m_buffer]()
+		{
+			buffer->Init();
+		} );
 }

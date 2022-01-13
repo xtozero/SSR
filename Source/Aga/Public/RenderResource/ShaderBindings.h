@@ -6,7 +6,7 @@
 #include "IAga.h"
 #include "PipelineState.h"
 #include "ResourceViews.h"
-#include "ShaderPrameterInfo.h"
+#include "ShaderParameterInfo.h"
 #include "ShaderResource.h"
 #include "SizedTypes.h"
 
@@ -21,33 +21,33 @@ namespace aga
 	class ShaderBindingLayout
 	{
 	public:
-		size_t GetDataSize( ) const
+		size_t GetDataSize() const
 		{
-			return ( m_parameterInfo.m_constantBuffers.size( ) + m_parameterInfo.m_srvs.size( ) + m_parameterInfo.m_uavs.size( ) + m_parameterInfo.m_samplers.size( ) ) * sizeof( RefHandle<GraphicsApiResource> );
+			return ( m_parameterInfo.m_constantBuffers.size() + m_parameterInfo.m_srvs.size() + m_parameterInfo.m_uavs.size() + m_parameterInfo.m_samplers.size() ) * sizeof( RefHandle<GraphicsApiResource> );
 		}
 
-		const ShaderParameterInfo& ParameterInfo( ) const
+		const ShaderParameterInfo& ParameterInfo() const
 		{
 			return m_parameterInfo;
 		}
 
-		SHADER_TYPE ShaderType( ) const
+		SHADER_TYPE ShaderType() const
 		{
 			return m_shaderType;
 		}
 
-		size_t GetHash( ) const
+		size_t GetHash() const
 		{
-			static size_t typeHash = typeid( ShaderBindingLayout ).hash_code( );
+			static size_t typeHash = typeid( ShaderBindingLayout ).hash_code();
 			size_t hash = typeHash;
 
 			HashCombine( hash, m_shaderType );
-			HashCombine( hash, m_parameterInfo.GetHash( ) );
+			HashCombine( hash, m_parameterInfo.GetHash() );
 
 			return hash;
 		}
 
-		ShaderBindingLayout( ) = default;
+		ShaderBindingLayout() = default;
 		ShaderBindingLayout( SHADER_TYPE type, const ShaderParameterInfo& parameterInfo ) : m_shaderType( type ), m_parameterInfo( parameterInfo ) {}
 		ShaderBindingLayout( const ShaderBindingLayout& other )
 		{
@@ -91,24 +91,24 @@ namespace aga
 		}
 
 	protected:
-		size_t GetConstantBufferOffset( ) const
+		size_t GetConstantBufferOffset() const
 		{
 			return 0;
 		}
 
-		size_t GetSRVOffset( ) const
+		size_t GetSRVOffset() const
 		{
-			return m_parameterInfo.m_constantBuffers.size( ) * sizeof( RefHandle<GraphicsApiResource> );
+			return m_parameterInfo.m_constantBuffers.size() * sizeof( RefHandle<GraphicsApiResource> );
 		}
 
-		size_t GetUAVOffset( ) const
+		size_t GetUAVOffset() const
 		{
-			return GetSRVOffset( ) + m_parameterInfo.m_srvs.size( ) * sizeof( RefHandle<GraphicsApiResource> );
+			return GetSRVOffset() + m_parameterInfo.m_srvs.size() * sizeof( RefHandle<GraphicsApiResource> );
 		}
 
-		size_t GetSamplerOffset( ) const
+		size_t GetSamplerOffset() const
 		{
-			return GetUAVOffset( ) + m_parameterInfo.m_uavs.size( ) * sizeof( RefHandle<GraphicsApiResource> );
+			return GetUAVOffset() + m_parameterInfo.m_uavs.size() * sizeof( RefHandle<GraphicsApiResource> );
 		}
 
 		SHADER_TYPE m_shaderType = SHADER_TYPE::NONE;
@@ -127,7 +127,7 @@ namespace aga
 
 			std::optional<uint32> foundSlot;
 
-			for ( size_t i = 0; i < m_parameterInfo.m_constantBuffers.size( ); ++i )
+			for ( size_t i = 0; i < m_parameterInfo.m_constantBuffers.size(); ++i )
 			{
 				if ( m_parameterInfo.m_constantBuffers[i].m_bindPoint == param.m_bindPoint )
 				{
@@ -137,7 +137,7 @@ namespace aga
 
 			if ( foundSlot )
 			{
-				GetConstantBufferStart( )[*foundSlot] = buffer;
+				GetConstantBufferStart()[*foundSlot] = buffer;
 			}
 		}
 
@@ -150,7 +150,7 @@ namespace aga
 
 			std::optional<uint32> foundSlot;
 
-			for ( size_t i = 0; i < m_parameterInfo.m_srvs.size( ); ++i )
+			for ( size_t i = 0; i < m_parameterInfo.m_srvs.size(); ++i )
 			{
 				if ( m_parameterInfo.m_srvs[i].m_bindPoint == param.m_bindPoint )
 				{
@@ -160,7 +160,7 @@ namespace aga
 
 			if ( foundSlot )
 			{
-				GetSRVStart( )[*foundSlot] = srv;
+				GetSRVStart()[*foundSlot] = srv;
 			}
 		}
 
@@ -173,7 +173,7 @@ namespace aga
 
 			std::optional<uint32> foundSlot;
 
-			for ( size_t i = 0; i < m_parameterInfo.m_uavs.size( ); ++i )
+			for ( size_t i = 0; i < m_parameterInfo.m_uavs.size(); ++i )
 			{
 				if ( m_parameterInfo.m_uavs[i].m_bindPoint == param.m_bindPoint )
 				{
@@ -183,7 +183,7 @@ namespace aga
 
 			if ( foundSlot )
 			{
-				GetUAVStart( )[*foundSlot] = uav;
+				GetUAVStart()[*foundSlot] = uav;
 			}
 		}
 
@@ -196,7 +196,7 @@ namespace aga
 
 			std::optional<uint32> foundSlot;
 
-			for ( size_t i = 0; i < m_parameterInfo.m_samplers.size( ); ++i )
+			for ( size_t i = 0; i < m_parameterInfo.m_samplers.size(); ++i )
 			{
 				if ( m_parameterInfo.m_samplers[i].m_bindPoint == param.m_bindPoint )
 				{
@@ -206,28 +206,28 @@ namespace aga
 
 			if ( foundSlot )
 			{
-				GetSamplerStart( )[*foundSlot] = sampler;
+				GetSamplerStart()[*foundSlot] = sampler;
 			}
 		}
 
-		RefHandle<GraphicsApiResource>* GetConstantBufferStart( ) const
+		RefHandle<GraphicsApiResource>* GetConstantBufferStart() const
 		{
-			return reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + GetConstantBufferOffset( ) );
+			return reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + GetConstantBufferOffset() );
 		}
 
-		RefHandle<GraphicsApiResource>* GetSRVStart( ) const
+		RefHandle<GraphicsApiResource>* GetSRVStart() const
 		{
-			return reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + GetSRVOffset( ) );
+			return reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + GetSRVOffset() );
 		}
 
-		RefHandle<GraphicsApiResource>* GetUAVStart( ) const
+		RefHandle<GraphicsApiResource>* GetUAVStart() const
 		{
-			return reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + GetUAVOffset( ) );
+			return reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + GetUAVOffset() );
 		}
 
-		RefHandle<GraphicsApiResource>* GetSamplerStart( ) const
+		RefHandle<GraphicsApiResource>* GetSamplerStart() const
 		{
-			return reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + GetSamplerOffset( ) );
+			return reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + GetSamplerOffset() );
 		}
 
 		SingleShaderBindings( const ShaderBindingLayout& bindingLayout, unsigned char* data ) : ShaderBindingLayout( bindingLayout ), m_data( data ) {}
@@ -239,25 +239,25 @@ namespace aga
 	class ShaderBindingsInitializer
 	{
 	public:
-		size_t NumShaders( ) const
+		size_t NumShaders() const
 		{
 			auto pred = []( const ShaderParameterInfo* info )
-						{
-							return info != nullptr;
-						};
+			{
+				return info != nullptr;
+			};
 
 			return std::count_if( std::begin( m_shaderParameterInfos ), std::end( m_shaderParameterInfos ), pred );
 		}
 
 		const ShaderParameterInfo*& operator[]( SHADER_TYPE type )
 		{
-			assert( SHADER_TYPE::NONE < type && type < SHADER_TYPE::Count );
+			assert( SHADER_TYPE::NONE < type&& type < SHADER_TYPE::Count );
 			return m_shaderParameterInfos[static_cast<uint32>( type )];
 		}
 
 		const ShaderParameterInfo* operator[]( SHADER_TYPE type ) const
 		{
-			assert( SHADER_TYPE::NONE < type && type < SHADER_TYPE::Count );
+			assert( SHADER_TYPE::NONE < type&& type < SHADER_TYPE::Count );
 			return m_shaderParameterInfos[static_cast<uint32>( type )];
 		}
 
@@ -270,7 +270,7 @@ namespace aga
 	public:
 		void Initialize( const ShaderBindingsInitializer& initializer )
 		{
-			size_t numShaders = initializer.NumShaders( );
+			size_t numShaders = initializer.NumShaders();
 
 			size_t shaderBindsDataSize = 0;
 			m_shaderLayouts = new ShaderBindingLayout[numShaders];
@@ -281,7 +281,7 @@ namespace aga
 				if ( initializer[shaderType] )
 				{
 					new ( &m_shaderLayouts[m_shaderLayoutSize] )ShaderBindingLayout( shaderType, *initializer[shaderType] );
-					shaderBindsDataSize += m_shaderLayouts[m_shaderLayoutSize].GetDataSize( );
+					shaderBindsDataSize += m_shaderLayouts[m_shaderLayoutSize].GetDataSize();
 					++m_shaderLayoutSize;
 				}
 			}
@@ -294,12 +294,12 @@ namespace aga
 			size_t dataOffset = 0;
 			for ( uint32 i = 0; i < m_shaderLayoutSize; ++i )
 			{
-				if ( m_shaderLayouts[i].ShaderType( ) == shaderType )
+				if ( m_shaderLayouts[i].ShaderType() == shaderType )
 				{
 					return SingleShaderBindings( m_shaderLayouts[i], m_data + dataOffset );
 				}
 
-				dataOffset += m_shaderLayouts[i].GetDataSize( );
+				dataOffset += m_shaderLayouts[i].GetDataSize();
 			}
 
 			static ShaderParameterInfo emptyParameterInfo;
@@ -307,7 +307,7 @@ namespace aga
 			return SingleShaderBindings( emptyLayout, nullptr );
 		}
 
-		ShaderBindings( ) = default;
+		ShaderBindings() = default;
 		ShaderBindings( const ShaderBindings& other )
 		{
 			( *this ) = other;
@@ -316,7 +316,7 @@ namespace aga
 		{
 			if ( this != &other )
 			{
-				Free( );
+				Free();
 
 				m_shaderLayouts = new ShaderBindingLayout[other.m_shaderLayoutSize];
 				m_shaderLayoutSize = other.m_shaderLayoutSize;
@@ -343,7 +343,7 @@ namespace aga
 		{
 			if ( this != &other )
 			{
-				Free( );
+				Free();
 
 				m_shaderLayouts = other.m_shaderLayouts;
 				m_shaderLayoutSize = other.m_shaderLayoutSize;
@@ -359,9 +359,9 @@ namespace aga
 			return *this;
 		}
 
-		~ShaderBindings( )
+		~ShaderBindings()
 		{
-			Free( );
+			Free();
 		}
 
 		bool MatchsForDynamicInstancing( const ShaderBindings& other ) const
@@ -383,22 +383,22 @@ namespace aga
 			return std::memcmp( m_data, other.m_data, m_size ) == 0;
 		}
 
-		size_t HashForDynamicInstaning( ) const
+		size_t HashForDynamicInstaning() const
 		{
-			static size_t typeHash = typeid( ShaderBindings ).hash_code( );
+			static size_t typeHash = typeid( ShaderBindings ).hash_code();
 			size_t hash = typeHash;
 
 			HashCombine( hash, m_size );
 
 			for ( uint32 i = 0; i < m_shaderLayoutSize; ++i )
 			{
-				HashCombine( hash, m_shaderLayouts[i].GetHash( ) );
+				HashCombine( hash, m_shaderLayouts[i].GetHash() );
 			}
 
 			for ( size_t offset = 0; offset < m_size; offset += sizeof( RefHandle<GraphicsApiResource> ) )
 			{
 				auto handle = reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + offset );
-				HashCombine( hash, handle->Get( ) );
+				HashCombine( hash, handle->Get() );
 			}
 
 			return hash;
@@ -422,7 +422,7 @@ namespace aga
 			}
 		}
 
-		void Free( )
+		void Free()
 		{
 			delete[] m_shaderLayouts;
 			m_shaderLayouts = nullptr;
@@ -433,7 +433,7 @@ namespace aga
 				for ( size_t offset = 0; offset < m_size; offset += sizeof( RefHandle<GraphicsApiResource> ) )
 				{
 					auto handle = reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + offset );
-					handle->~RefHandle<GraphicsApiResource>( );
+					handle->~RefHandle<GraphicsApiResource>();
 				}
 			}
 

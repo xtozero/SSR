@@ -3,7 +3,7 @@
 
 #include "D3D11Api.h"
 
-#include "ShaderPrameterMap.h"
+#include "ShaderParameterMap.h"
 
 #include <d3dcompiler.h>
 
@@ -65,7 +65,7 @@ void ExtractShaderParameters( const void* byteCode, size_t byteCodeSize, aga::Sh
 		{
 			parameterType = aga::ShaderParameterType::ConstantBuffer;
 
-			ID3D11ShaderReflectionConstantBuffer *constBufferReflection = pReflector->GetConstantBufferByName( bindDesc.Name );
+			ID3D11ShaderReflectionConstantBuffer* constBufferReflection = pReflector->GetConstantBufferByName( bindDesc.Name );
 			if ( constBufferReflection )
 			{
 				D3D11_SHADER_BUFFER_DESC shaderBuffDesc;
@@ -109,7 +109,7 @@ void ExtractShaderParameters( const void* byteCode, size_t byteCodeSize, aga::Sh
 		parameterMap.AddParameter( bindDesc.Name, shaderType, parameterType, bindDesc.BindPoint, 0, parameterSize );
 	}
 
-	pReflector->Release( );
+	pReflector->Release();
 }
 
 void BuildShaderParameterInfo( const std::map<std::string, aga::ShaderParameter>& parameterMap, aga::ShaderParameterInfo& parameterInfo )
@@ -119,7 +119,7 @@ void BuildShaderParameterInfo( const std::map<std::string, aga::ShaderParameter>
 		auto curParameterType = static_cast<aga::ShaderParameterType>( i );
 		size_t count = 0;
 
-		for ( auto iter = parameterMap.begin( ); iter != parameterMap.end( ); ++iter )
+		for ( auto iter = parameterMap.begin(); iter != parameterMap.end(); ++iter )
 		{
 			if ( iter->second.m_type == curParameterType )
 			{
@@ -152,7 +152,7 @@ void BuildShaderParameterInfo( const std::map<std::string, aga::ShaderParameter>
 
 		shaderParameters->reserve( count );
 
-		for ( auto iter = parameterMap.begin( ); iter != parameterMap.end( ); ++iter )
+		for ( auto iter = parameterMap.begin(); iter != parameterMap.end(); ++iter )
 		{
 			if ( iter->second.m_type == curParameterType )
 			{
@@ -164,62 +164,62 @@ void BuildShaderParameterInfo( const std::map<std::string, aga::ShaderParameter>
 
 namespace aga
 {
-	void D3D11VertexShader::InitResource( )
+	void D3D11VertexShader::InitResource()
 	{
-		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device( ).CreateVertexShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
+		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device().CreateVertexShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
 		assert( result );
 	}
 
-	void D3D11VertexShader::FreeResource( )
+	void D3D11VertexShader::FreeResource()
 	{
 		if ( m_pResource )
 		{
-			m_pResource->Release( );
+			m_pResource->Release();
 			m_pResource = nullptr;
 		}
 	}
 
-	void D3D11GeometryShader::InitResource( )
+	void D3D11GeometryShader::InitResource()
 	{
-		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device( ).CreateGeometryShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
+		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device().CreateGeometryShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
 		assert( result );
 	}
 
-	void D3D11GeometryShader::FreeResource( )
+	void D3D11GeometryShader::FreeResource()
 	{
 		if ( m_pResource )
 		{
-			m_pResource->Release( );
+			m_pResource->Release();
 			m_pResource = nullptr;
 		}
 	}
 
-	void D3D11PixelShader::InitResource( )
+	void D3D11PixelShader::InitResource()
 	{
-		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device( ).CreatePixelShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
+		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device().CreatePixelShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
 		assert( result );
 	}
 
-	void D3D11PixelShader::FreeResource( )
+	void D3D11PixelShader::FreeResource()
 	{
 		if ( m_pResource )
 		{
-			m_pResource->Release( );
+			m_pResource->Release();
 			m_pResource = nullptr;
 		}
 	}
 
-	void D3D11ComputeShader::InitResource( )
+	void D3D11ComputeShader::InitResource()
 	{
-		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device( ).CreateComputeShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
+		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device().CreateComputeShader( m_byteCode, m_byteCodeSize, nullptr, &m_pResource ) );
 		assert( result );
 	}
 
-	void D3D11ComputeShader::FreeResource( )
+	void D3D11ComputeShader::FreeResource()
 	{
 		if ( m_pResource )
 		{
-			m_pResource->Release( );
+			m_pResource->Release();
 			m_pResource = nullptr;
 		}
 	}

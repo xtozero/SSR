@@ -1,7 +1,7 @@
 #pragma once
 
 #include "HashUtil.h"
-#include "ShaderPrameterMap.h"
+#include "ShaderParameterMap.h"
 #include "SizedTypes.h"
 
 #include <vector>
@@ -16,29 +16,29 @@ namespace aga
 		std::vector<ShaderParameter> m_uavs;
 		std::vector<ShaderParameter> m_samplers;
 
-		size_t GetHash( ) const
+		size_t GetHash() const
 		{
-			static size_t typeHash = typeid( ShaderParameterInfo ).hash_code( );
+			static size_t typeHash = typeid( ShaderParameterInfo ).hash_code();
 			size_t hash = typeHash;
 
 			for ( const auto& param : m_constantBuffers )
 			{
-				HashCombine( hash, param.GetHash( ) );
+				HashCombine( hash, param.GetHash() );
 			}
 
 			for ( const auto& param : m_srvs )
 			{
-				HashCombine( hash, param.GetHash( ) );
+				HashCombine( hash, param.GetHash() );
 			}
 
 			for ( const auto& param : m_uavs )
 			{
-				HashCombine( hash, param.GetHash( ) );
+				HashCombine( hash, param.GetHash() );
 			}
 
 			for ( const auto& param : m_samplers )
 			{
-				HashCombine( hash, param.GetHash( ) );
+				HashCombine( hash, param.GetHash() );
 			}
 
 			return hash;
