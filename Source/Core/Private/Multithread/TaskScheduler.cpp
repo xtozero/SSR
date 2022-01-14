@@ -4,23 +4,37 @@
 
 #include <cstddef>
 
+namespace
+{
+	const char* WorkerNames[] = {
+		"FileSystemThread",
+		"WorkerThread0",
+		"WorkerThread1",
+		"WorkerThread2",
+		"WorkerThread3",
+		// if add new thread type, insert here
+		"RenderThread",
+		"GameThread",
+	};
+}
+
 class TaskSchedulerImpl : public ITaskScheduler
 {
 public:
-	[[nodiscard]] virtual TaskHandle GetTaskGroup( ) override;
+	[[nodiscard]] virtual TaskHandle GetTaskGroup() override;
 
 	virtual bool Run( TaskHandle handle ) override;
 
 	virtual bool Wait( TaskHandle handle ) override;
 
-	virtual void ProcessThisThreadTask( ) override;
+	virtual void ProcessThisThreadTask() override;
 
-	virtual size_t GetThisThreadType( ) const override;
+	virtual size_t GetThisThreadType() const override;
 
 	[[nodiscard]] TaskHandle GetExclusiveTaskGroup( size_t threadType );
 
-	TaskSchedulerImpl( );
-	~TaskSchedulerImpl( ) = default;
+	TaskSchedulerImpl();
+	~TaskSchedulerImpl() = default;
 	TaskSchedulerImpl( const TaskSchedulerImpl& ) = delete;
 	TaskSchedulerImpl& operator=( const TaskSchedulerImpl& ) = delete;
 	TaskSchedulerImpl( TaskSchedulerImpl&& ) = delete;
@@ -32,9 +46,9 @@ private:
 	TaskScheduler m_taskScheduler;
 };
 
-TaskHandle TaskSchedulerImpl::GetTaskGroup( )
+TaskHandle TaskSchedulerImpl::GetTaskGroup()
 {
-	return m_taskScheduler.GetTaskGroup( );
+	return m_taskScheduler.GetTaskGroup();
 }
 
 bool TaskSchedulerImpl::Run( TaskHandle handle )
@@ -47,14 +61,14 @@ bool TaskSchedulerImpl::Wait( TaskHandle handle )
 	return m_taskScheduler.Wait( handle );
 }
 
-void TaskSchedulerImpl::ProcessThisThreadTask( )
+void TaskSchedulerImpl::ProcessThisThreadTask()
 {
-	m_taskScheduler.ProcessThisThreadTask( );
+	m_taskScheduler.ProcessThisThreadTask();
 }
 
-size_t TaskSchedulerImpl::GetThisThreadType( ) const
+size_t TaskSchedulerImpl::GetThisThreadType() const
 {
-	return m_taskScheduler.GetThisThreadType( );
+	return m_taskScheduler.GetThisThreadType();
 }
 
 TaskHandle TaskSchedulerImpl::GetExclusiveTaskGroup( size_t threadType )
@@ -62,10 +76,16 @@ TaskHandle TaskSchedulerImpl::GetExclusiveTaskGroup( size_t threadType )
 	return m_taskScheduler.GetExclusiveTaskGroup( threadType );
 }
 
-TaskSchedulerImpl::TaskSchedulerImpl( ) : m_taskScheduler( MAX_ENGINE_THREAD_GROUP, ThreadType::WorkerThreadCount )
-{ }
+TaskSchedulerImpl::TaskSchedulerImpl() : m_taskScheduler( MAX_ENGINE_THREAD_GROUP, ThreadType::WorkerThreadCount )
+{ 
+	static_assert( ( ThreadType::WorkerThreadCount + 1 ) == std::extent_v<decltype( WorkerNames )> );
+	for ( uint32 i = 0; i < ThreadType::WorkerThreadCount; ++i )
+	{
+		m_taskScheduler.SetWorkerNameForDebugging( i, WorkerNames[i] );
+	}
+}
 
-ITaskScheduler* CreateTaskScheduler( )
+ITaskScheduler* CreateTaskScheduler()
 {
 	return new TaskSchedulerImpl();
 }
@@ -75,33 +95,33 @@ void DestroyTaskScheduler( ITaskScheduler* taskScheduler )
 	delete taskScheduler;
 }
 
-bool IsInGameThread( )
+bool IsInGameThread()
 {
-	if ( GetInterface<ITaskScheduler>( ) )
+	if ( GetInterface<ITaskScheduler>() )
 	{
-		return GetInterface<ITaskScheduler>( )->GetThisThreadType( ) == ThreadType::GameThread;
+		return GetInterface<ITaskScheduler>()->GetThisThreadType() == ThreadType::GameThread;
 	}
 
 	return true;
 }
 
-bool IsInRenderThread( )
+bool IsInRenderThread()
 {
-	return GetInterface<ITaskScheduler>( )->GetThisThreadType( ) == ThreadType::RenderThread;
+	return GetInterface<ITaskScheduler>()->GetThisThreadType() == ThreadType::RenderThread;
 }
 
 void EnqueueRenderTask( TaskBase* task )
 {
-	assert( task->WorkerAffinity( ) == WorkerAffinityMask<ThreadType::RenderThread>( ) );
-	auto taskScheduler = static_cast<TaskSchedulerImpl*>( GetInterface<ITaskScheduler>( ) );
+	assert( task->WorkerAffinity() == WorkerAffinityMask<ThreadType::RenderThread>() );
+	auto taskScheduler = static_cast<TaskSchedulerImpl*>( GetInterface<ITaskScheduler>() );
 	TaskHandle taskGroup = taskScheduler->GetExclusiveTaskGroup( ThreadType::RenderThread );
 	taskGroup.AddTask( task );
 	[[maybe_unused]] bool success = taskScheduler->Run( taskGroup );
 	assert( success );
 }
 
-void WaitRenderThread( )
+void WaitRenderThread()
 {
-	TaskHandle handle = EnqueueThreadTask<ThreadType::RenderThread>( []( ) {} );
-	GetInterface<ITaskScheduler>( )->Wait( handle );
+	TaskHandle handle = EnqueueThreadTask<ThreadType::RenderThread>( []() {} );
+	GetInterface<ITaskScheduler>()->Wait( handle );
 }

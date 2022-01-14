@@ -19,16 +19,16 @@ struct TaskHandleControlBlock
 class TaskBase
 {
 public:
-	virtual void Execute( ) = 0;
+	virtual void Execute() = 0;
 
-	size_t WorkerAffinity( ) const
+	size_t WorkerAffinity() const
 	{
 		return m_workerAffinity;
 	}
 
 protected:
 	explicit TaskBase( size_t workerAffinity ) : m_workerAffinity( workerAffinity ) {}
-	virtual ~TaskBase( ) = default;
+	virtual ~TaskBase() = default;
 	TaskBase( const TaskBase& ) = delete;
 	TaskBase& operator=( const TaskBase& ) = delete;
 	TaskBase( TaskBase&& ) = delete;
@@ -53,25 +53,25 @@ public:
 		tasks.push_back( task );
 	}
 
-	bool IsCompleted( ) const
+	bool IsCompleted() const
 	{
-		if ( IsSubmitted( ) == false )
+		if ( IsSubmitted() == false )
 		{
 			return false;
 		}
 
-		size_t totalTask = m_controlBlock->m_tasks.size( );
+		size_t totalTask = m_controlBlock->m_tasks.size();
 		return totalTask == m_controlBlock->m_executed;
 	}
 
-	bool IsSubmitted( ) const
+	bool IsSubmitted() const
 	{
 		return m_controlBlock->m_submitted;
 	}
 
 	explicit TaskHandle( size_t queueId );
-	TaskHandle( ) = default;
-	~TaskHandle( ) = default;
+	TaskHandle() = default;
+	~TaskHandle() = default;
 	TaskHandle( const TaskHandle& ) = default;
 	TaskHandle& operator=( const TaskHandle& ) = default;
 	TaskHandle( TaskHandle&& ) = default;
@@ -85,9 +85,9 @@ template <typename TaskStorageType>
 class Task final : public TaskBase
 {
 public:
-	virtual void Execute( ) override
+	virtual void Execute() override
 	{
-		reinterpret_cast<TaskStorageType*>( m_storage )->DoTask( );
+		reinterpret_cast<TaskStorageType*>( m_storage )->DoTask();
 		++m_controlBlock->m_executed;
 		delete this;
 	}
@@ -98,7 +98,7 @@ public:
 		return new Task( workerAffinity, args... );
 	}
 
-	TaskStorageType& Element( )
+	TaskStorageType& Element()
 	{
 		return *reinterpret_cast<TaskStorageType*>( m_storage );
 	}
@@ -110,9 +110,9 @@ protected:
 		new ( &m_storage )TaskStorageType( args... );
 	}
 
-	~Task( )
+	~Task()
 	{
-		reinterpret_cast<TaskStorageType*>( m_storage )->~TaskStorageType( );
+		reinterpret_cast<TaskStorageType*>( m_storage )->~TaskStorageType();
 	}
 
 	Task( const Task& ) = delete;
@@ -133,21 +133,23 @@ void WorkerThread( TaskScheduler* scheduler, Worker* worker );
 class TaskScheduler
 {
 public:
-	TaskHandle GetTaskGroup( );
+	TaskHandle GetTaskGroup();
 	TaskHandle GetExclusiveTaskGroup( size_t workerId );
 
 	bool Run( TaskHandle handle );
 
 	bool Wait( TaskHandle handle );
 
-	void ProcessThisThreadTask( );
+	void ProcessThisThreadTask();
 
-	size_t GetThisThreadType( ) const;
+	size_t GetThisThreadType() const;
 
-	TaskScheduler( );
+	void SetWorkerNameForDebugging( size_t workerId, const char* name );
+
+	TaskScheduler();
 	TaskScheduler( size_t workerCount );
-	TaskScheduler( size_t groupCount, size_t workerCount );
-	~TaskScheduler( );
+	TaskScheduler( size_t queueCount, size_t workerCount );
+	~TaskScheduler();
 	TaskScheduler( const TaskScheduler& ) = delete;
 	TaskScheduler& operator=( const TaskScheduler& ) = delete;
 	TaskScheduler( TaskScheduler&& ) = delete;

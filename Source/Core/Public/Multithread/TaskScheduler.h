@@ -28,9 +28,9 @@ class ITaskScheduler
 public:
 	[[nodiscard]] virtual TaskHandle GetTaskGroup() = 0;
 
-	virtual bool Run(TaskHandle handle) = 0;
+	virtual bool Run( TaskHandle handle ) = 0;
 
-	virtual bool Wait(TaskHandle handle) = 0;
+	virtual bool Wait( TaskHandle handle ) = 0;
 
 	virtual void ProcessThisThreadTask() = 0;
 
@@ -42,18 +42,18 @@ public:
 #define WorkerThreads ThreadType::WorkerThread0, ThreadType::WorkerThread1, ThreadType::WorkerThread2, ThreadType::WorkerThread3
 
 template <size_t... N>
-constexpr size_t WorkerAffinityMask( )
+constexpr size_t WorkerAffinityMask()
 {
 	return ( ( 1 << N ) | ... );
 }
 
-ITaskScheduler* CreateTaskScheduler( );
+ITaskScheduler* CreateTaskScheduler();
 void DestroyTaskScheduler( ITaskScheduler* taskScheduler );
 
-bool IsInGameThread( );
-bool IsInRenderThread( );
+bool IsInGameThread();
+bool IsInRenderThread();
 void EnqueueRenderTask( TaskBase* task );
-void WaitRenderThread( );
+void WaitRenderThread();
 
 template <typename Lambda>
 class LambdaTask
@@ -64,34 +64,34 @@ public:
 		m_lambda();
 	}
 
-	LambdaTask(const Lambda& lambda) : m_lambda(lambda) {}
+	LambdaTask( const Lambda& lambda ) : m_lambda( lambda ) {}
 
 private:
 	Lambda m_lambda;
 };
 
 template <size_t... N, typename Lambda>
-TaskHandle EnqueueThreadTask(Lambda lambda)
+TaskHandle EnqueueThreadTask( Lambda lambda )
 {
 	ITaskScheduler* taskScheduler = GetInterface<ITaskScheduler>();
 	constexpr size_t affinityMask = WorkerAffinityMask<N...>();
 	TaskHandle taskGroup = taskScheduler->GetTaskGroup();
-	taskGroup.AddTask(Task<LambdaTask<Lambda>>::Create(affinityMask, lambda));
-	[[maybe_unused]] bool success = taskScheduler->Run(taskGroup);
-	assert(success);
+	taskGroup.AddTask( Task<LambdaTask<Lambda>>::Create( affinityMask, lambda ) );
+	[[maybe_unused]] bool success = taskScheduler->Run( taskGroup );
+	assert( success );
 	return taskGroup;
 }
 
 template <typename Lambda>
-void EnqueueRenderTask(Lambda lambda)
+void EnqueueRenderTask( Lambda lambda )
 {
-	if (IsInRenderThread())
+	if ( IsInRenderThread() )
 	{
 		lambda();
 	}
 	else
 	{
-		auto* task = Task<LambdaTask<Lambda>>::Create(WorkerAffinityMask<ThreadType::RenderThread>(), lambda);
-		EnqueueRenderTask(static_cast<TaskBase*>(task));
+		auto* task = Task<LambdaTask<Lambda>>::Create( WorkerAffinityMask<ThreadType::RenderThread>(), lambda );
+		EnqueueRenderTask( static_cast<TaskBase*>( task ) );
 	}
 }
