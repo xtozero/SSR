@@ -34,7 +34,7 @@ LightProperty DirectionalLightProxy::GetLightProperty( ) const
 	return lightProperty;
 }
 
-bool DirectionalLightProxy::AffactsBounds( const BoxSphereBounds& bounds ) const
+bool DirectionalLightProxy::AffactsBounds( [[maybe_unused]] const BoxSphereBounds& bounds ) const
 {
 	return true;
 }

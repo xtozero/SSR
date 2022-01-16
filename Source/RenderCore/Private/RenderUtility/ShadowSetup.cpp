@@ -17,8 +17,8 @@ namespace
 {
 	Matrix CreateCropMatrix( const BoxSphereBounds& bounds )
 	{
-		Vector max = bounds.Origin( ) + bounds.HalfSize( );
-		Vector min = bounds.Origin( ) - bounds.HalfSize( );
+		Vector max = bounds.Origin() + bounds.HalfSize();
+		Vector min = bounds.Origin() - bounds.HalfSize();
 
 		float scaleX = 2.0f / ( max.x - min.x );
 		float scaleY = 2.0f / ( max.y - min.y );
@@ -32,9 +32,9 @@ namespace
 		scaleY = std::max( 1.f, scaleY );
 
 		return Matrix( scaleX, 0.f, 0.f, 0.f,
-						0.f, scaleY, 0.f, 0.f,
-						0.f, 0.f, scaleZ, 0.f,
-						offsetX, offsetY, offsetZ, 1.f);
+			0.f, scaleY, 0.f, 0.f,
+			0.f, 0.f, scaleZ, 0.f,
+			offsetX, offsetY, offsetZ, 1.f );
 	}
 
 	BoxSphereBounds CalcFrustumBounds( const Vector& viewOrigin, const BasisVectorMatrix& viewAxis, float nearPlane, float farPlane, float aspect, float fov, const Matrix& shadowMat )
@@ -73,38 +73,38 @@ namespace
 
 	void SplitShadowProjectionMatrix( ShadowInfo& shadowInfo, const RenderView& view, const Matrix& shadowViewProjMat, const Matrix& shadowMat )
 	{
-		CalculateSplitPositions( shadowInfo, shadowInfo.SubjectFar( ) );
+		CalculateSplitPositions( shadowInfo, shadowInfo.SubjectFar() );
 
 		CAaboundingbox casterAABB;
-		for ( const BoxSphereBounds& bounds : shadowInfo.ShadowCastersViewSpaceBounds( ) )
+		for ( const BoxSphereBounds& bounds : shadowInfo.ShadowCastersViewSpaceBounds() )
 		{
 			CAaboundingbox aabb( bounds );
 			TransformAABB( aabb, aabb, shadowViewProjMat );
 
-			casterAABB.Merge( aabb.GetMin( ) );
-			casterAABB.Merge( aabb.GetMax( ) );
+			casterAABB.Merge( aabb.GetMin() );
+			casterAABB.Merge( aabb.GetMax() );
 		}
 
-		CascadeShadowSetting& cascadeSetting = shadowInfo.CascadeSetting( );
+		CascadeShadowSetting& cascadeSetting = shadowInfo.CascadeSetting();
 		const float* splitDistance = cascadeSetting.m_splitDistance;
-		float extend = 10.f / shadowInfo.ShadowMapSize( ).first;
+		float extend = 10.f / shadowInfo.ShadowMapSize().first;
 		for ( uint32 cascadeLevel = 0; cascadeLevel < CascadeShadowSetting::MAX_CASCADE_NUM; ++cascadeLevel )
 		{
 			BoxSphereBounds bounds = CalcFrustumBounds( view.m_viewOrigin, view.m_viewAxis, splitDistance[cascadeLevel], splitDistance[cascadeLevel + 1], view.m_aspect, view.m_fov, shadowMat );
 
-			Vector frustumMinMax[2] = { bounds.Origin( ) - bounds.HalfSize( ), bounds.Origin( ) + bounds.HalfSize( ) };
+			Vector frustumMinMax[2] = { bounds.Origin() - bounds.HalfSize(), bounds.Origin() + bounds.HalfSize() };
 
-			frustumMinMax[0].x = std::max( frustumMinMax[0].x, casterAABB.GetMin( ).x ) - extend;
-			frustumMinMax[0].y = std::max( frustumMinMax[0].y, casterAABB.GetMin( ).y ) - extend;
-			frustumMinMax[0].z = casterAABB.GetMin( ).z - extend;
-			frustumMinMax[1].x = std::min( frustumMinMax[1].x, casterAABB.GetMax( ).x ) + extend;
-			frustumMinMax[1].y = std::min( frustumMinMax[1].y, casterAABB.GetMax( ).y ) + extend;
-			frustumMinMax[1].z = std::min( frustumMinMax[1].z, casterAABB.GetMax( ).z ) + extend;
+			frustumMinMax[0].x = std::max( frustumMinMax[0].x, casterAABB.GetMin().x ) - extend;
+			frustumMinMax[0].y = std::max( frustumMinMax[0].y, casterAABB.GetMin().y ) - extend;
+			frustumMinMax[0].z = casterAABB.GetMin().z - extend;
+			frustumMinMax[1].x = std::min( frustumMinMax[1].x, casterAABB.GetMax().x ) + extend;
+			frustumMinMax[1].y = std::min( frustumMinMax[1].y, casterAABB.GetMax().y ) + extend;
+			frustumMinMax[1].z = std::min( frustumMinMax[1].z, casterAABB.GetMax().z ) + extend;
 
 			bounds = BoxSphereBounds( frustumMinMax, 2 );
 			Matrix cropMat = CreateCropMatrix( bounds );
 
-			shadowInfo.ShadowViewProjections( )[cascadeLevel] = shadowMat * cropMat;
+			shadowInfo.ShadowViewProjections()[cascadeLevel] = shadowMat * cropMat;
 		}
 	}
 }
@@ -113,13 +113,13 @@ void BuildOrthoShadowProjectionMatrix( ShadowInfo& shadowInfo )
 {
 	using namespace DirectX;
 
-	const LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo( );
-	LightProperty lightProperty = lightSceneInfo->Proxy( )->GetLightProperty( );
+	const LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo();
+	LightProperty lightProperty = lightSceneInfo->Proxy()->GetLightProperty();
 
-	const RenderView& view = *shadowInfo.View( );
+	const RenderView& view = *shadowInfo.View();
 	auto viewMatrix = LookFromMatrix( view.m_viewOrigin,
-										view.m_viewAxis[2],
-										view.m_viewAxis[1] );
+		view.m_viewAxis[2],
+		view.m_viewAxis[1] );
 
 	auto viewLightDir = viewMatrix.TransformVector( lightProperty.m_direction );
 	viewLightDir = viewLightDir.GetNormalized();
@@ -127,10 +127,10 @@ void BuildOrthoShadowProjectionMatrix( ShadowInfo& shadowInfo )
 	CAaboundingbox frustumAABB;
 	if ( true /*m_isUnitClipCube*/ )
 	{
-		for ( const BoxSphereBounds& bounds : shadowInfo.ShadowReceiversViewSpaceBounds( ) )
+		for ( const BoxSphereBounds& bounds : shadowInfo.ShadowReceiversViewSpaceBounds() )
 		{
-			Vector max = bounds.Origin( ) + bounds.HalfSize( );
-			Vector min = bounds.Origin( ) - bounds.HalfSize( );
+			Vector max = bounds.Origin() + bounds.HalfSize();
+			Vector min = bounds.Origin() - bounds.HalfSize();
 
 			frustumAABB.Merge( max );
 			frustumAABB.Merge( min );
@@ -148,16 +148,16 @@ void BuildOrthoShadowProjectionMatrix( ShadowInfo& shadowInfo )
 	}
 
 	CAaboundingbox casterAABB;
-	for ( const BoxSphereBounds& bounds : shadowInfo.ShadowCastersViewSpaceBounds( ) )
+	for ( const BoxSphereBounds& bounds : shadowInfo.ShadowCastersViewSpaceBounds() )
 	{
-		Vector max = bounds.Origin( ) + bounds.HalfSize( );
-		Vector min = bounds.Origin( ) - bounds.HalfSize( );
+		Vector max = bounds.Origin() + bounds.HalfSize();
+		Vector min = bounds.Origin() - bounds.HalfSize();
 
 		casterAABB.Merge( max );
 		casterAABB.Merge( min );
 	}
 
-	const Vector& center = frustumAABB.Centroid( );
+	const Vector& center = frustumAABB.Centroid();
 
 	auto rayOrigin = -viewLightDir * view.m_farPlaneDistance;
 	rayOrigin += center;
@@ -191,13 +191,13 @@ void BuildOrthoShadowProjectionMatrix( ShadowInfo& shadowInfo )
 	TransformAABB( frustumAABB, frustumAABB, lightView );
 	TransformAABB( casterAABB, casterAABB, lightView );
 
-	const Vector& frustumMin = frustumAABB.GetMin( );
-	const Vector& frustumMax = frustumAABB.GetMax( );
-	const Vector& casterMin = casterAABB.GetMin( );
+	const Vector& frustumMin = frustumAABB.GetMin();
+	const Vector& frustumMax = frustumAABB.GetMax();
+	const Vector& casterMin = casterAABB.GetMin();
 
 	Matrix shadowProjection = OrthoMatrix( frustumMin.x, frustumMax.x,
-											frustumMin.y, frustumMax.y,
-											casterMin.z, frustumMax.z );
+		frustumMin.y, frustumMax.y,
+		casterMin.z, frustumMax.z );
 
 	auto shadowViewProjMat = lightView * shadowProjection;
 	auto shadowMat = viewMatrix * shadowViewProjMat;
@@ -209,21 +209,21 @@ void BuildPSMProjectionMatrix( ShadowInfo& shadowInfo )
 {
 	using namespace DirectX;
 
-	const LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo( );
-	LightProperty lightProperty = lightSceneInfo->Proxy( )->GetLightProperty( );
+	const LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo();
+	LightProperty lightProperty = lightSceneInfo->Proxy()->GetLightProperty();
 
-	const RenderView& view = *shadowInfo.View( );
+	const RenderView& view = *shadowInfo.View();
 	auto viewMatrix = LookFromMatrix( view.m_viewOrigin,
-									view.m_viewAxis[2],
-									view.m_viewAxis[1] );
+		view.m_viewAxis[2],
+		view.m_viewAxis[1] );
 
-	std::vector<Vector> clipedResivePoints;
-	clipedResivePoints.reserve( shadowInfo.ShadowReceiversViewSpaceBounds( ).size( ) * 8 );
+	rendercore::VectorSingleFrame<Vector> clipedResivePoints;
+	clipedResivePoints.reserve( shadowInfo.ShadowReceiversViewSpaceBounds().size() * 8 );
 
-	for ( const BoxSphereBounds& bounds : shadowInfo.ShadowReceiversViewSpaceBounds( ) )
+	for ( const BoxSphereBounds& bounds : shadowInfo.ShadowReceiversViewSpaceBounds() )
 	{
-		Vector max = bounds.Origin( ) + bounds.HalfSize( );
-		Vector min = bounds.Origin( ) - bounds.HalfSize( );
+		Vector max = bounds.Origin() + bounds.HalfSize();
+		Vector min = bounds.Origin() - bounds.HalfSize();
 
 		for ( uint32 i = 0; i < 8; ++i )
 		{
@@ -252,7 +252,7 @@ void BuildPSMProjectionMatrix( ShadowInfo& shadowInfo )
 	{
 		if ( true /*m_isUnitClipCube*/ )
 		{
-			CBoundingCone cone( clipedResivePoints, virtualCameraView, Vector::ZeroVector, Vector::ForwardVector );
+			CBoundingCone cone( clipedResivePoints.data(), clipedResivePoints.size(), virtualCameraView, Vector::ZeroVector, Vector::ForwardVector );
 			virtualCameraProjection = PerspectiveMatrix( { 2.f * tanf( cone.GetFovX() ) * zClipNear, 2.f * tanf( cone.GetFovY() ) * zClipNear }, zClipNear, zClipFar );
 		}
 		else
@@ -287,7 +287,7 @@ void BuildPSMProjectionMatrix( ShadowInfo& shadowInfo )
 		ppUnitBox.SetMax( 1, 1, 1 );
 		ppUnitBox.SetMin( -1, -1, 0 );
 
-		Vector cubeCenter = ppUnitBox.Centroid( );
+		Vector cubeCenter = ppUnitBox.Centroid();
 
 		Vector rayOrigin = ppLightDir * 2.f;
 		rayOrigin += cubeCenter;
@@ -319,8 +319,8 @@ void BuildPSMProjectionMatrix( ShadowInfo& shadowInfo )
 		lightView = LookAtMatrix( lightPosition, cubeCenter, axis );
 
 		TransformAABB( ppUnitBox, ppUnitBox, lightView );
-		const Vector& unitBoxMin = ppUnitBox.GetMin( );
-		const Vector& unitBoxMax = ppUnitBox.GetMax( );
+		const Vector& unitBoxMin = ppUnitBox.GetMin();
+		const Vector& unitBoxMax = ppUnitBox.GetMax();
 
 		lightProjection = OrthoMatrix( unitBoxMin.x, unitBoxMax.x, unitBoxMin.y, unitBoxMax.y, unitBoxMin.z, unitBoxMax.z );
 	}
@@ -337,28 +337,28 @@ void BuildPSMProjectionMatrix( ShadowInfo& shadowInfo )
 			CBoundingCone viewCone;
 			if ( false /*m_isUnitClipCube*/ )
 			{
-				viewCone = CBoundingCone( clipedResivePoints, eyeToPostProjectiveVirtualCamera, ppLightPos );
+				viewCone = CBoundingCone( clipedResivePoints.data(), clipedResivePoints.size(), eyeToPostProjectiveVirtualCamera, ppLightPos );
 			}
 			else
 			{
-				std::vector<Vector> ndcBox;
+				rendercore::VectorSingleFrame<Vector> ndcBox;
 				ndcBox.reserve( 8 );
 				for ( uint32 i = 0; i < 8; ++i )
 				{
 					ndcBox.emplace_back( ( i & 1 ) ? -1.f : 1.f, ( i & 2 ) ? -1.f : 1.f, ( i & 4 ) ? 0.f : 1.f );
 				}
-				viewCone = CBoundingCone( ndcBox, Matrix::Identity, ppLightPos );
+				viewCone = CBoundingCone( ndcBox.data(), ndcBox.size(), Matrix::Identity, ppLightPos );
 			}
-			lightView = viewCone.GetLookAt( );
+			lightView = viewCone.GetLookAt();
 
-			float fNear = std::max( 0.001f, viewCone.GetNear( ) * 0.3f );
-			float width = 2.f * tanf( viewCone.GetFovX( ) ) * -fNear;
-			float height = 2.f * tanf( viewCone.GetFovY( ) ) * -fNear;
+			float fNear = std::max( 0.001f, viewCone.GetNear() * 0.3f );
+			float width = 2.f * tanf( viewCone.GetFovX() ) * -fNear;
+			float height = 2.f * tanf( viewCone.GetFovY() ) * -fNear;
 
 			lightProjection = Matrix( ( -2.f * fNear ) / width, 0, 0, 0,
-									0, ( -2.f * fNear ) / height, 0, 0,
-									0, 0, fNear / ( 2.f * fNear ), 1,
-									0, 0, ( fNear * fNear ) / ( 2.f * fNear ), 0 );
+				0, ( -2.f * fNear ) / height, 0, 0,
+				0, 0, fNear / ( 2.f * fNear ), 1,
+				0, 0, ( fNear * fNear ) / ( 2.f * fNear ), 0 );
 		}
 		else
 		{
@@ -369,13 +369,13 @@ void BuildPSMProjectionMatrix( ShadowInfo& shadowInfo )
 
 			if ( false /*m_isUnitClipCube*/ )
 			{
-				CBoundingCone viewCone( clipedResivePoints, eyeToPostProjectiveVirtualCamera, ppLightPos );
-				lightView = viewCone.GetLookAt( );
+				CBoundingCone viewCone( clipedResivePoints.data(), clipedResivePoints.size(), eyeToPostProjectiveVirtualCamera, ppLightPos );
+				lightView = viewCone.GetLookAt();
 
-				fFovy = viewCone.GetFovY( ) * 2.f;
-				fAspect = viewCone.GetFovX( ) / viewCone.GetFovY( );
-				fFar = viewCone.GetFar( );
-				fNear = viewCone.GetNear( );
+				fFovy = viewCone.GetFovY() * 2.f;
+				fAspect = viewCone.GetFovX() / viewCone.GetFovY();
+				fFar = viewCone.GetFar();
+				fNear = viewCone.GetNear();
 			}
 			else
 			{
@@ -416,13 +416,13 @@ void BuildLSPSMProjectionMatrix( ShadowInfo& shadowInfo )
 {
 	using namespace DirectX;
 
-	const LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo( );
-	LightProperty lightProperty = lightSceneInfo->Proxy( )->GetLightProperty( );
+	const LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo();
+	LightProperty lightProperty = lightSceneInfo->Proxy()->GetLightProperty();
 
-	const RenderView& view = *shadowInfo.View( );
+	const RenderView& view = *shadowInfo.View();
 	Matrix viewMatrix = LookFromMatrix( view.m_viewOrigin,
-										view.m_viewAxis[2],
-										view.m_viewAxis[1] );
+		view.m_viewAxis[2],
+		view.m_viewAxis[1] );
 
 	float cosGamma = -lightProperty.m_direction | Vector( viewMatrix._13, viewMatrix._23, viewMatrix._33 );
 
@@ -432,13 +432,13 @@ void BuildLSPSMProjectionMatrix( ShadowInfo& shadowInfo )
 	}
 	else
 	{
-		std::vector<Vector> bodyB;
-		bodyB.reserve( shadowInfo.ShadowCastersViewSpaceBounds( ).size( ) * 8 + 8 );
+		rendercore::VectorSingleFrame<Vector> bodyB;
+		bodyB.reserve( shadowInfo.ShadowCastersViewSpaceBounds().size() * 8 + 8 );
 
-		for ( const BoxSphereBounds& bounds : shadowInfo.ShadowCastersViewSpaceBounds( ) )
+		for ( const BoxSphereBounds& bounds : shadowInfo.ShadowCastersViewSpaceBounds() )
 		{
-			Vector max = bounds.Origin( ) + bounds.HalfSize( );
-			Vector min = bounds.Origin( ) - bounds.HalfSize( );
+			Vector max = bounds.Origin() + bounds.HalfSize();
+			Vector min = bounds.Origin() - bounds.HalfSize();
 
 			for ( uint32 i = 0; i < 8; ++i )
 			{
@@ -460,16 +460,16 @@ void BuildLSPSMProjectionMatrix( ShadowInfo& shadowInfo )
 
 		lightSpaceBasis.TransformPosition( bodyB.data(), bodyB.data(), static_cast<uint32>( bodyB.size() ) );
 
-		CAaboundingbox lightSpaceBox( bodyB.data( ), static_cast<uint32>( bodyB.size( ) ) );
-		Vector lightSpaceOrigin = lightSpaceBox.Centroid( );
+		CAaboundingbox lightSpaceBox( bodyB.data(), static_cast<uint32>( bodyB.size() ) );
+		Vector lightSpaceOrigin = lightSpaceBox.Centroid();
 		float sinGamma = sqrtf( 1.f - cosGamma * cosGamma );
 
 		float receiversNear = -FLT_MAX;
 		float receiversFar = FLT_MAX;
-		for ( const BoxSphereBounds& bounds : shadowInfo.ShadowReceiversViewSpaceBounds( ) )
+		for ( const BoxSphereBounds& bounds : shadowInfo.ShadowReceiversViewSpaceBounds() )
 		{
-			Vector max = bounds.Origin( ) + bounds.HalfSize( );
-			Vector min = bounds.Origin( ) - bounds.HalfSize( );
+			Vector max = bounds.Origin() + bounds.HalfSize();
+			Vector min = bounds.Origin() - bounds.HalfSize();
 
 			receiversNear = std::max( receiversNear, min.z );
 			receiversFar = std::min( receiversFar, max.z );
@@ -486,7 +486,7 @@ void BuildLSPSMProjectionMatrix( ShadowInfo& shadowInfo )
 		constexpr float OptWeight = 1.f;
 		float nOpt = 0.1f + OptWeight * ( lspsmNopt - 0.1f );
 
-		lightSpaceOrigin.z = lightSpaceBox.GetMin( ).z - nOpt;
+		lightSpaceOrigin.z = lightSpaceBox.GetMin().z - nOpt;
 
 		float maxX = -FLT_MAX, maxY = -FLT_MAX, maxZ = -FLT_MAX;
 
@@ -518,15 +518,15 @@ void BuildLSPSMProjectionMatrix( ShadowInfo& shadowInfo )
 		lightSpaceBasis = lightSpaceBasis * permute;
 		Matrix lightProjection = ortho;
 
-		if ( false /*m_isUnitClipCube*/ && ( shadowInfo.ShadowReceiversViewSpaceBounds( ).size( ) > 0 ) )
+		if ( false /*m_isUnitClipCube*/ && ( shadowInfo.ShadowReceiversViewSpaceBounds().size() > 0 ) )
 		{
-			std::vector<Vector> receiverPoints;
-			receiverPoints.reserve( shadowInfo.ShadowReceiversViewSpaceBounds( ).size( ) * 8 );
+			rendercore::VectorSingleFrame<Vector> receiverPoints;
+			receiverPoints.reserve( shadowInfo.ShadowReceiversViewSpaceBounds().size() * 8 );
 
-			for ( const BoxSphereBounds& bounds : shadowInfo.ShadowReceiversViewSpaceBounds( ) )
+			for ( const BoxSphereBounds& bounds : shadowInfo.ShadowReceiversViewSpaceBounds() )
 			{
-				Vector max = bounds.Origin( ) + bounds.HalfSize( );
-				Vector min = bounds.Origin( ) - bounds.HalfSize( );
+				Vector max = bounds.Origin() + bounds.HalfSize();
+				Vector min = bounds.Origin() - bounds.HalfSize();
 
 				for ( uint32 i = 0; i < 8; ++i )
 				{
@@ -535,12 +535,12 @@ void BuildLSPSMProjectionMatrix( ShadowInfo& shadowInfo )
 			}
 
 			lightSpaceBasis.TransformPosition( receiverPoints.data(), receiverPoints.data(), static_cast<uint32>( receiverPoints.size() ) );
-			CAaboundingbox receiverBox( receiverPoints.data( ), static_cast<uint32>( receiverPoints.size( ) ) );
+			CAaboundingbox receiverBox( receiverPoints.data(), static_cast<uint32>( receiverPoints.size() ) );
 
-			float minX = std::min( -1.f, receiverBox.GetMin( ).x );
-			float minY = std::min( -1.f, receiverBox.GetMin( ).y );
-			maxX = std::max( 1.f, receiverBox.GetMax( ).x );
-			maxY = std::max( 1.f, receiverBox.GetMax( ).y );
+			float minX = std::min( -1.f, receiverBox.GetMin().x );
+			float minY = std::min( -1.f, receiverBox.GetMin().y );
+			maxX = std::max( 1.f, receiverBox.GetMax().x );
+			maxY = std::max( 1.f, receiverBox.GetMax().y );
 
 			float boxWidth = maxX - minX;
 			float boxHeight = maxY - minY;
@@ -570,14 +570,14 @@ void BuildLSPSMProjectionMatrix( ShadowInfo& shadowInfo )
 
 void CalculateSplitPositions( ShadowInfo& shadowInfo, float casterFar, float lamda )
 {
-	const RenderView& view = *shadowInfo.View( );
+	const RenderView& view = *shadowInfo.View();
 
 	float invM = 1.f / CascadeShadowSetting::MAX_CASCADE_NUM;
 	float farPlaneDistance = std::min( view.m_farPlaneDistance, casterFar );
 	float fDivN = farPlaneDistance / view.m_nearPlaneDistance;
 	float fSubN = farPlaneDistance - view.m_nearPlaneDistance;
 
-	CascadeShadowSetting& cascadeSetting = shadowInfo.CascadeSetting( );
+	CascadeShadowSetting& cascadeSetting = shadowInfo.CascadeSetting();
 	for ( int i = 0; i <= CascadeShadowSetting::MAX_CASCADE_NUM; ++i )
 	{
 		float CiLog = view.m_nearPlaneDistance * std::powf( fDivN, invM * i );

@@ -8,10 +8,6 @@ namespace SLinkedList
 	inline void Init( T*& head, T* node )
 	{
 		head = node;
-		if ( node )
-		{
-			node->m_next = nullptr;
-		}
 	}
 
 	template <typename T>
@@ -68,21 +64,21 @@ namespace SLinkedList
 	{
 		assert( target != nullptr );
 
-		if ( target->m_prev )
+		if ( head == target )
 		{
-			target->m_prev->m_next = target->m_next;
-			if ( target->m_next )
-			{
-				target->m_next->m_prev = target->m_prev;
-			}
+			head = target->m_next;
 		}
 		else
 		{
-			// Update head
-			head = target->m_next;
-			if ( head )
+			T* prev = head;
+			while ( prev && prev->m_next != target )
 			{
-				head->m_prev = nullptr;
+				prev = prev->m_next;
+			}
+
+			if ( prev )
+			{
+				prev->m_next = target->m_next;
 			}
 		}
 	}
@@ -93,6 +89,7 @@ namespace SLinkedList
 		while ( head )
 		{
 			pred( head );
+			head = head->m_next;
 		}
 	}
 }

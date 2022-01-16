@@ -11,13 +11,13 @@ class StaticMeshRenderData;
 class StaticMeshPrimitiveProxy : public PrimitiveProxy
 {
 public:
-	 RENDERCORE_DLL StaticMeshPrimitiveProxy( const StaticMeshComponent& component );
+	RENDERCORE_DLL StaticMeshPrimitiveProxy( const StaticMeshComponent& component );
 
-	 virtual void CreateRenderData( ) override;
-	 virtual void PrepareSubMeshs( ) override;
-	 virtual void TakeSnapshot( std::deque<DrawSnapshot>& snapshotStorage, std::vector<VisibleDrawSnapshot>& drawList ) const override;
-	 virtual std::optional<DrawSnapshot> TakeSnapshot( uint32 lod, uint32 sectionIndex ) const override;
-	 virtual MeshDrawInfo GatherMeshDrawInfo( uint32 lod, uint32 sectionIndex ) const override;
+	virtual void CreateRenderData() override;
+	virtual void PrepareSubMeshs() override;
+	virtual void TakeSnapshot( std::deque<DrawSnapshot>& snapshotStorage, rendercore::VectorSingleFrame<VisibleDrawSnapshot>& drawList ) const override;
+	virtual std::optional<DrawSnapshot> TakeSnapshot( uint32 lod, uint32 sectionIndex ) const override;
+	virtual MeshDrawInfo GatherMeshDrawInfo( uint32 lod, uint32 sectionIndex ) const override;
 
 private:
 

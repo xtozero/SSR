@@ -6,12 +6,12 @@
 
 #include <algorithm>
 
-CBoundingCone::CBoundingCone( const std::vector<Vector>& points, const Matrix& projection, const Vector& apex )
+CBoundingCone::CBoundingCone( const Vector* points, size_t count, const Matrix& projection, const Vector& apex )
 	: m_apex( apex )
 {
 	using namespace DirectX;
 
-	switch ( points.size() )
+	switch ( count )
 	{
 	case 0:
 	{
@@ -23,15 +23,15 @@ CBoundingCone::CBoundingCone( const std::vector<Vector>& points, const Matrix& p
 	}
 	default:
 	{
-		std::vector<Vector> projectedPoints = points;
-		for ( auto& point : projectedPoints )
+		std::vector<Vector> projectedPoints( count );
+		for ( size_t i = 0; i < count; ++i )
 		{
-			point = projection.TransformPosition( point );
+			projectedPoints[i] = projection.TransformPosition( points[i] );
 		}
 
-		BoundingSphere sphere( points );
+		BoundingSphere sphere( points, count );
 
-		m_direction = ( sphere.GetCenter( ) - m_apex ).GetNormalized();
+		m_direction = ( sphere.GetCenter() - m_apex ).GetNormalized();
 
 		Vector axis = Vector::YAxisVector;
 		if ( fabsf( axis | m_direction ) > 0.99f )
@@ -46,8 +46,9 @@ CBoundingCone::CBoundingCone( const std::vector<Vector>& points, const Matrix& p
 		m_near = FLT_MAX;
 		m_far = -FLT_MAX;
 
-		for ( const auto& point : points )
+		for ( size_t i = 0; i < count; ++i )
 		{
+			const auto& point = points[i];
 			Vector tmp = m_lookAt.TransformPosition( point );
 
 			maxTanX = std::max( maxTanX, abs( tmp.x / tmp.z ) );
@@ -63,7 +64,7 @@ CBoundingCone::CBoundingCone( const std::vector<Vector>& points, const Matrix& p
 	}
 }
 
-CBoundingCone::CBoundingCone( const std::vector<Vector>& points, const Matrix& projection, const Vector& apex, const Vector& dir ) :
+CBoundingCone::CBoundingCone( const Vector* points, size_t count, const Matrix& projection, const Vector& apex, const Vector& dir ) :
 	m_apex( apex )
 {
 	using namespace DirectX;
@@ -85,8 +86,9 @@ CBoundingCone::CBoundingCone( const std::vector<Vector>& points, const Matrix& p
 	m_near = FLT_MAX;
 	m_far = -FLT_MAX;
 
-	for ( const Vector& point : points )
+	for ( size_t i = 0; i < count; ++i )
 	{
+		const auto& point = points[i];
 		Vector newPoint = concatMatrix.TransformPosition( point );
 
 		maxTanX = std::max( maxTanX, abs( newPoint.x / newPoint.z ) );

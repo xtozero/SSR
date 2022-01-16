@@ -12,7 +12,7 @@
 
 struct FileSystemOverlapped : public OVERLAPPED
 {
-	FileSystemOverlapped( ) : OVERLAPPED{ }
+	FileSystemOverlapped() : OVERLAPPED{ }
 	{ }
 
 	bool m_isIOComplete = false;
@@ -24,7 +24,7 @@ struct [[nodiscard]] FileHandle
 {
 	void* m_handle = nullptr;
 
-	bool IsValid( ) const
+	bool IsValid() const
 	{
 		return m_handle != INVALID_HANDLE_VALUE;
 	}
@@ -76,7 +76,7 @@ public:
 
 	void* ReadAsync( const FileHandle& handle, char* buffer, uint32 size )
 	{
-		if ( handle.IsValid( ) == false )
+		if ( handle.IsValid() == false )
 		{
 			return nullptr;
 		}
@@ -95,7 +95,7 @@ public:
 
 		if ( ::ReadFile( hFile, buffer, size, nullptr, overlapped ) == 0 )
 		{
-			if ( GetLastError( ) != ERROR_IO_PENDING )
+			if ( GetLastError() != ERROR_IO_PENDING )
 			{
 				m_overlappedPool.Deallocate( overlapped, 1 );
 				return nullptr;
@@ -110,7 +110,7 @@ public:
 		CloseHandle( handle.m_handle );
 	}
 
-	OverlappedType* WaitAsyncIO( ) const
+	OverlappedType* WaitAsyncIO() const
 	{
 		DWORD numberOfBytesTransferred = 0;
 		uptrint* requestSize = nullptr;
@@ -137,7 +137,7 @@ public:
 		return nullptr;
 	}
 
-	void SuspendWaitAsyncIO( )
+	void SuspendWaitAsyncIO()
 	{
 		PostQueuedCompletionStatus( m_completionPort, 0, 0, nullptr );
 	}
@@ -147,14 +147,14 @@ public:
 		m_overlappedPool.Deallocate( overlapped, 1 );
 	}
 
-	FileSystem( ) : m_overlappedPool( MAX_CONCURRENT_FILE_READ )
+	FileSystem()
 	{
 		if ( m_completionPort == INVALID_HANDLE_VALUE )
 		{
 			m_completionPort = CreateIoCompletionPort( INVALID_HANDLE_VALUE, NULL, 0, 1 );
 		}
 	}
-	~FileSystem( )
+	~FileSystem()
 	{
 		CloseHandle( m_completionPort );
 		m_completionPort = INVALID_HANDLE_VALUE;

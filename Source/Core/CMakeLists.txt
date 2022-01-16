@@ -72,8 +72,10 @@ set (Math
 	Public/Math/XMVector.h)
 
 set (MEMORY
+	Private/Memory/StackMemoryAllocator.cpp
 	Public/Memory/FixedBlockMemoryPool.h
-	Public/Memory/MemoryPool.h)
+	Public/Memory/MemoryPool.h
+	Public/Memory/StackMemoryAllocator.h)
 
 set (MULTITHREAD
 	Private/Multithread/TaskScheduler.cpp

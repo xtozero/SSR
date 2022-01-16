@@ -42,62 +42,62 @@ struct ShadowMapRenderTarget
 class ShadowInfo
 {
 public:
-	bool HasCasterPrimitives( ) const
+	bool HasCasterPrimitives() const
 	{
-		return m_shadowCasters.size( ) > 0;
+		return m_shadowCasters.size() > 0;
 	}
 
-	ShadowMapRenderTarget& ShadowMap( )
+	ShadowMapRenderTarget& ShadowMap()
 	{
 		return m_shadowMap;
 	}
 
-	LightSceneInfo* GetLightSceneInfo( )
+	LightSceneInfo* GetLightSceneInfo()
 	{
 		return m_lightSceneInfo;
 	}
 
-	const RenderView* View( ) const
+	const RenderView* View() const
 	{
 		return m_view;
 	}
 
-	std::pair<uint32, uint32> ShadowMapSize( ) const
+	std::pair<uint32, uint32> ShadowMapSize() const
 	{
 		return { m_shadowMapWidth, m_shadowMapHeight };
 	}
 
-	const std::vector<BoxSphereBounds>& ShadowCastersViewSpaceBounds( ) const
+	const rendercore::VectorSingleFrame<BoxSphereBounds>& ShadowCastersViewSpaceBounds() const
 	{
 		return m_shadowCastersViewSpaceBounds;
 	}
 
-	const std::vector<BoxSphereBounds>& ShadowReceiversViewSpaceBounds( ) const
+	const rendercore::VectorSingleFrame<BoxSphereBounds>& ShadowReceiversViewSpaceBounds() const
 	{
 		return m_shadowReceiversViewSpaceBounds;
 	}
 
-	float SubjectNear( ) const
+	float SubjectNear() const
 	{
 		return m_subjectNear;
 	}
 
-	float SubjectFar( ) const
+	float SubjectFar() const
 	{
 		return m_subjectFar;
 	}
 
-	Matrix( &ShadowViewProjections( ) )[6]
+	Matrix( &ShadowViewProjections() )[6]
 	{
 		return m_shadowViewProjections;
 	}
 
-	CascadeShadowSetting& CascadeSetting( )
+		CascadeShadowSetting& CascadeSetting()
 	{
 		return m_cacadeSetting;
 	}
 
-	TypedConstatBuffer<ShadowDepthPassParameters>& ConstantBuffer( )
+	TypedConstatBuffer<ShadowDepthPassParameters>& ConstantBuffer()
 	{
 		return m_shadowConstantBuffer;
 	}
@@ -105,7 +105,7 @@ public:
 	void AddCasterPrimitive( PrimitiveSceneInfo* primitiveSceneInfo, const BoxSphereBounds& viewspaceBounds );
 	void AddReceiverPrimitive( PrimitiveSceneInfo* primitiveSceneInfo, const BoxSphereBounds& viewspaceBounds );
 
-	void SetupShadowConstantBuffer( );
+	void SetupShadowConstantBuffer();
 	void RenderDepth( SceneRenderer& renderer, RenderingShaderResource& resources );
 
 	ShadowInfo( LightSceneInfo* lightSceneInfo, const RenderView& view );
@@ -120,16 +120,16 @@ private:
 	uint32 m_shadowMapWidth = 0;
 	uint32 m_shadowMapHeight = 0;
 
-	std::vector<PrimitiveSceneInfo*> m_shadowCasters;
-	std::vector<PrimitiveSceneInfo*> m_shadowReceivers;
+	rendercore::VectorSingleFrame<PrimitiveSceneInfo*> m_shadowCasters;
+	rendercore::VectorSingleFrame<PrimitiveSceneInfo*> m_shadowReceivers;
 
-	std::vector<BoxSphereBounds> m_shadowCastersViewSpaceBounds;
-	std::vector<BoxSphereBounds> m_shadowReceiversViewSpaceBounds;
+	rendercore::VectorSingleFrame<BoxSphereBounds> m_shadowCastersViewSpaceBounds;
+	rendercore::VectorSingleFrame<BoxSphereBounds> m_shadowReceiversViewSpaceBounds;
 
-	float m_subjectNear = std::numeric_limits<float>::max( );
-	float m_subjectFar = std::numeric_limits<float>::min( );
+	float m_subjectNear = std::numeric_limits<float>::max();
+	float m_subjectFar = std::numeric_limits<float>::min();
 
-	std::vector<VisibleDrawSnapshot> m_snapshots;
+	rendercore::VectorSingleFrame<VisibleDrawSnapshot> m_snapshots;
 
 	Matrix m_shadowViewProjections[6];
 

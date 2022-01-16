@@ -17,7 +17,7 @@ namespace
 		float bdotn = plane.PlaneDot( sphere.GetCenter() );
 		float ddotn = plane.PlaneDotNormal( sweepDir );
 
-		float radius = sphere.GetRadius( );
+		float radius = sphere.GetRadius();
 
 		if ( ddotn == 0 )
 		{
@@ -71,12 +71,12 @@ void BoundingSphere::Update( const Vector& scaling, const Quaternion& /*rotation
 
 float BoundingSphere::Intersect( const CRay& ray ) const
 {
-	return RayAndSphere( ray.GetOrigin( ), ray.GetDir( ), m_origin, m_radius );
+	return RayAndSphere( ray.GetOrigin(), ray.GetDir(), m_origin, m_radius );
 }
 
 uint32 BoundingSphere::Intersect( const Frustum& frustum ) const
 {
-	const Plane( &planes )[6] = frustum.GetPlanes( );
+	const Plane( &planes )[6] = frustum.GetPlanes();
 
 	bool inside = true;
 
@@ -99,7 +99,7 @@ float BoundingSphere::CalcGrowth( const BoundingSphere& sphere ) const
 {
 	BoundingSphere newSphere( *this, sphere );
 
-	float radiusDiff = ( newSphere.GetRadius( ) - m_radius );
+	float radiusDiff = ( newSphere.GetRadius() - m_radius );
 
 	// ( ( 4 / 3 ) * pi * r^3 )
 	return 1.33333f * XM_PI * radiusDiff * radiusDiff * radiusDiff;
@@ -113,7 +113,7 @@ bool BoundingSphere::Intersect( const Frustum& frustum, const Vector& sweepDir )
 	float t1 = -1;
 	bool inFrustum = false;
 
-	const Plane(&planes)[6] = frustum.GetPlanes( );
+	const Plane( &planes )[6] = frustum.GetPlanes();
 
 	for ( uint32 i = 0; i < 6; ++i )
 	{
@@ -144,7 +144,7 @@ bool BoundingSphere::Intersect( const Frustum& frustum, const Vector& sweepDir )
 
 BoundingSphere::BoundingSphere( const CAaboundingbox& box )
 {
-	m_origin = box.Centroid( );
+	m_origin = box.Centroid();
 	m_radius = ( m_origin - box.GetMax() ).Length();
 }
 
@@ -154,25 +154,25 @@ BoundingSphere::BoundingSphere( const COrientedBoundingBox& box )
 	m_radius = box.GetHalfSize().Length();
 }
 
-BoundingSphere::BoundingSphere( const std::vector<Vector>& points )
+BoundingSphere::BoundingSphere( const Vector* points, size_t count )
 {
-	auto iter = points.begin( );
-
-	m_radius = 0.f;
-	m_origin = *iter++;
-
-	while ( iter != points.end( ) )
+	if ( count > 1 )
 	{
-		const Vector tmp = *iter++;
-		Vector toPoint = tmp - m_origin;
-		float d = toPoint | toPoint;
-		if ( d > m_radius * m_radius )
+		m_origin = points[0];
+
+		for ( size_t i = 1; i < count; ++i )
 		{
-			d = sqrtf( d );
-			float r = 0.5f * ( d + m_radius );
-			float scale = ( r - m_radius ) / d;
-			m_origin += scale * toPoint;
-			m_radius = r;
+			const Vector& tmp = points[i];
+			Vector toPoint = tmp - m_origin;
+			float d = toPoint | toPoint;
+			if ( d > m_radius * m_radius )
+			{
+				d = sqrtf( d );
+				float r = 0.5f * ( d + m_radius );
+				float scale = ( r - m_radius ) / d;
+				m_origin += scale * toPoint;
+				m_radius = r;
+			}
 		}
 	}
 }

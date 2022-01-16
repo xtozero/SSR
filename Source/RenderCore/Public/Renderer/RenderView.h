@@ -30,7 +30,7 @@ struct RenderView
 	float m_aspect = 0.f;
 	float m_fov = 0.f;
 
-	std::vector<VisibleDrawSnapshot> m_snapshots[static_cast<uint32>(RenderPass::Count)];
+	rendercore::VectorSingleFrame<VisibleDrawSnapshot>* m_snapshots;
 
 	ForwardLightingResource* m_forwardLighting = nullptr;
 };
@@ -41,34 +41,34 @@ public:
 	RENDERCORE_DLL RenderViewGroup( IScene& scene, rendercore::Viewport& viewport ) : m_scene( scene ), m_viewport( viewport )
 	{}
 
-	RENDERCORE_DLL RenderView& AddRenderView( );
+	RENDERCORE_DLL RenderView& AddRenderView();
 
-	size_t Size( ) const
+	size_t Size() const
 	{
-		return m_viewGroup.size( );
+		return m_viewGroup.size();
 	}
 
-	RenderView* begin( )
+	RenderView* begin()
 	{
-		return m_viewGroup.size( ) > 0 ? &m_viewGroup[0] : nullptr;
+		return m_viewGroup.size() > 0 ? &m_viewGroup[0] : nullptr;
 	}
 
-	RenderView* end( )
+	RenderView* end()
 	{
 		RenderView* endIter = nullptr;
-		if ( m_viewGroup.size( ) > 0 )
+		if ( m_viewGroup.size() > 0 )
 		{
-			endIter = &m_viewGroup.back( );
+			endIter = &m_viewGroup.back();
 			++endIter;
 		}
 
 		return endIter;
 	}
 
-	IScene& Scene( ) { return m_scene; }
-	const IScene& Scene( ) const { return m_scene; }
-	rendercore::Viewport& Viewport( ) { return m_viewport; }
-	const rendercore::Viewport& Viewport( ) const { return m_viewport; }
+	IScene& Scene() { return m_scene; }
+	const IScene& Scene() const { return m_scene; }
+	rendercore::Viewport& Viewport() { return m_viewport; }
+	const rendercore::Viewport& Viewport() const { return m_viewport; }
 
 	const RenderView& operator[]( size_t index ) const
 	{

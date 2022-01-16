@@ -3,9 +3,11 @@
 #include "DrawSnapshot.h"
 #include "GraphicsApiResource.h"
 #include "PassProcessor.h"
+#include "RenderCoreAllocator.h"
 #include "Scene/ShadowInfo.h"
 #include "Texture.h"
 
+#include <array>
 #include <map>
 #include <string>
 
@@ -72,10 +74,10 @@ public:
 	virtual ~SceneRenderer() = default;
 protected:
 	void InitDynamicShadows( RenderViewGroup& renderViewGroup );
-	void ClassifyShadowCasterAndReceiver( IScene& scene, const std::vector<ShadowInfo*>& shadows );
+	void ClassifyShadowCasterAndReceiver( IScene& scene, const rendercore::VectorSingleFrame<ShadowInfo*>& shadows );
 	void SetupShadow();
 	void AllocateShadowMaps();
-	void AllocateCascadeShadowMaps( const std::vector<ShadowInfo*>& shadows );
+	void AllocateCascadeShadowMaps( const rendercore::VectorSingleFrame<ShadowInfo*>& shadows );
 
 	void RenderShadowDepthPass();
 	void RenderTexturedSky( IScene& scene );
@@ -87,5 +89,7 @@ protected:
 	RenderingShaderResource m_shaderResources;
 	RenderingOutputContext m_outputContext;
 
-	std::vector<ShadowInfo> m_shadowInfos;
+	rendercore::VectorSingleFrame<ShadowInfo> m_shadowInfos;
+	using PassVisibleSnapshots = std::array<rendercore::VectorSingleFrame<VisibleDrawSnapshot>, static_cast<uint32>( RenderPass::Count )>;
+	rendercore::VectorSingleFrame<PassVisibleSnapshots> m_passSnapshots;
 };

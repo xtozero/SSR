@@ -145,7 +145,8 @@ bool ForwardRenderer::PreRender( RenderViewGroup& renderViewGroup )
 	{
 		for ( auto& view : renderViewGroup )
 		{
-			view.m_forwardLighting = new ForwardLightingResource();
+			view.m_forwardLighting = rendercore::Allocator().Allocate<ForwardLightingResource>( 1 );
+			std::construct_at( view.m_forwardLighting );
 		}
 
 		UpdateLightResource( renderViewGroup );
@@ -184,13 +185,13 @@ void ForwardRenderer::Render( RenderViewGroup& renderViewGroup )
 
 void ForwardRenderer::PostRender( RenderViewGroup& renderViewGroup )
 {
-	SceneRenderer::PostRender( renderViewGroup );
-
 	for ( auto& view : renderViewGroup )
 	{
-		delete view.m_forwardLighting;
+		std::destroy_at( view.m_forwardLighting );
 		view.m_forwardLighting = nullptr;
 	}
+
+	SceneRenderer::PostRender( renderViewGroup );
 }
 
 void ForwardRenderer::RenderDefaultPass( RenderViewGroup& renderViewGroup, uint32 curView )
@@ -247,7 +248,7 @@ void ForwardRenderer::UpdateLightResource( RenderViewGroup& renderViewGroup )
 		return;
 	}
 
-	std::vector<LightSceneInfo*> validLights;
+	rendercore::VectorSingleFrame<LightSceneInfo*> validLights;
 	const SparseArray<LightSceneInfo*>& lights = scene->Lights();
 	for ( auto light : lights )
 	{

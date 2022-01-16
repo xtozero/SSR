@@ -10,142 +10,148 @@
 #include <cstddef>
 #include <Windows.h>
 
-template <typename T, typename = std::enable_if_t<sizeof(T) >= sizeof(void*)>>
+template <typename T>
 class FixedBlockMemoryPool
 {
 public:
 	T* Allocate( size_t n )
 	{
-		if ( m_freeList == nullptr )
+		if ( n == 1 )
 		{
-			assert( false );
-			return nullptr;
-		}
-
-		MemoryChunk* prevChunk = nullptr;
-		MemoryChunk* tailChunk = m_freeList;
-		MemoryChunk* memory = m_freeList;
-		
-		// 1. try allocation
-		while ( memory != nullptr )
-		{
-			size_t continuousChunk = 1;
-			for ( ; ( continuousChunk < n ) && ( tailChunk != nullptr );  )
+			if ( m_freeList == nullptr )
 			{
-				char* nextChunk = reinterpret_cast<char*>( tailChunk->m_next );
-				if ( nextChunk == ( reinterpret_cast<char*>( tailChunk ) + m_blockSize ) )
-				{
-					tailChunk = reinterpret_cast<MemoryChunk*>( nextChunk );
-					++continuousChunk;
-				}
-				else
-				{
-					break;
-				}
+				AllocateChunk( m_nextChunkSize );
+				m_nextChunkSize <<= 1;
 			}
-
-			if ( continuousChunk != n )
-			{
-				prevChunk = tailChunk;
-				memory = prevChunk->m_next;
-				tailChunk = memory;
-			}
-			else
-			{
-				break;
-			}
-		}
-
-		// Allocation fail
-		if ( memory == nullptr )
-		{
-			assert( false );
-			return nullptr;
-		}
-
-		if ( prevChunk == nullptr )
-		{
-			m_freeList = tailChunk->m_next;
 		}
 		else
 		{
-			prevChunk->m_next = tailChunk->m_next;
+			AllocateChunk( n );
+			if ( m_nextChunkSize < n )
+			{
+				m_nextChunkSize = n << 1;
+			}
 		}
 
-		// 2. Return memory
-		return reinterpret_cast<T*>( memory );
+		MemoryBlock* result = m_freeList;
+		for ( size_t i = 0; i < n; ++i )
+		{
+			MemoryBlock* memory = m_freeList;
+			if ( memory == nullptr )
+			{
+				assert( false );
+				return nullptr;
+			}
+
+			++m_size;
+			SLinkedList::Remove( m_freeList, memory );
+		}
+
+		return reinterpret_cast<T*>( result );
 	}
 
 	void Deallocate( T* memory, size_t n )
 	{
-		// 1. Initialize MemoryChunk
-		MemoryChunk* entry = reinterpret_cast<MemoryChunk*>( memory );
-		for ( size_t i = n; i > 1; --i )
+		for ( size_t i = 0; i < n; ++i )
 		{
-			entry->m_next = reinterpret_cast<MemoryChunk*>( reinterpret_cast<char*>( entry ) + m_blockSize );
-			entry = entry->m_next;
-		}
-		entry->m_next = nullptr;
+			auto block = reinterpret_cast<MemoryBlock*>( memory + i );
+			block->m_next = nullptr;
 
-		MemoryChunk* prev = nullptr;
-		MemoryChunk* memoryChunk = reinterpret_cast<MemoryChunk*>( memory );
-		SLinkedList::Find( m_freeList, prev, [memoryChunk]( const MemoryChunk* other ) { return memoryChunk < other; } );
+			if ( m_freeList == nullptr )
+			{
+				m_freeList = block;
+			}
+			else
+			{
+				SLinkedList::AddToTail( m_freeList, block );
+			}
 
-		if ( prev == nullptr )
-		{
-			entry->m_next = m_freeList;
-			m_freeList = memoryChunk;
-		}
-		else 
-		{
-			MemoryChunk* next = prev->m_next;
-			prev->m_next = memoryChunk;
-			entry->m_next = next;
+			--m_size;
 		}
 	}
 
-	explicit FixedBlockMemoryPool( size_t entryCount )
+	FixedBlockMemoryPool() = default;
+	~FixedBlockMemoryPool()
 	{
-		m_capacity = entryCount;
-		m_blockSize = std::max( sizeof( MemoryChunk ), sizeof( T ) );
-		m_poolSize = entryCount * m_blockSize;
-		m_storage = VirtualAlloc( nullptr, m_poolSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE );
-		assert( m_storage != nullptr );
-
-		MemoryChunk* entry = reinterpret_cast<MemoryChunk*>( m_storage );
-		for ( size_t i = entryCount; i > 1; --i )
+		while ( m_chunkList )
 		{
-			entry->m_next = reinterpret_cast<MemoryChunk*>( reinterpret_cast<char*>( entry ) + m_blockSize );
-			entry = entry->m_next;
+			DeallocateChunk( m_chunkList );
 		}
-		entry->m_next = nullptr;
-
-		m_freeList = reinterpret_cast<MemoryChunk*>( m_storage );
-	}
-
-	~FixedBlockMemoryPool( )
-	{
-		int32 ret = VirtualFree( m_storage, m_poolSize, MEM_DECOMMIT );
-		assert( ret != 0 );
-		ret = VirtualFree( m_storage, 0, MEM_RELEASE );
-		assert( ret != 0 );
 	}
 
 	FixedBlockMemoryPool( const FixedBlockMemoryPool& ) = delete;
 	FixedBlockMemoryPool& operator=( const FixedBlockMemoryPool& ) = delete;
-	FixedBlockMemoryPool(  FixedBlockMemoryPool&& ) = delete;
+	FixedBlockMemoryPool( FixedBlockMemoryPool&& ) = delete;
 	FixedBlockMemoryPool& operator=( FixedBlockMemoryPool&& ) = delete;
 
 private:
+	struct MemoryBlock
+	{
+		MemoryBlock* m_next;
+	};
+
 	struct MemoryChunk
 	{
 		MemoryChunk* m_next;
+		size_t m_size = 0;
 	};
 
-	void* m_storage = nullptr;
-	size_t m_poolSize;
-	size_t m_blockSize;
-	size_t m_capacity;
+	void* AllocateChunk( size_t entryCount )
+	{
+		size_t chunkSize = sizeof( MemoryChunk ) + BlockSize * entryCount;
+		auto chunk = reinterpret_cast<MemoryChunk*>( VirtualAlloc( nullptr, chunkSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE ) );
+		chunk->m_size = chunkSize;
 
-	MemoryChunk* m_freeList = nullptr;
+		void* block = reinterpret_cast<void*>( ( (uptrint)chunk ) + sizeof( MemoryChunk ) );
+		MemoryBlock* head = reinterpret_cast<MemoryBlock*>( block );
+		MemoryBlock* entry = head;
+		for ( size_t i = 1; i < entryCount; ++i )
+		{
+			auto next = reinterpret_cast<MemoryBlock*>( ( (uptrint)entry ) + BlockSize );
+			SLinkedList::InsertAfter( entry, next );
+			entry = entry->m_next;
+		}
+		entry->m_next = nullptr;
+
+		m_capacity += entryCount;
+
+		if ( m_freeList == nullptr )
+		{
+			SLinkedList::Init( m_freeList, head );
+		}
+		else
+		{
+			SLinkedList::AddToHead( m_freeList, head );
+		}
+
+		if ( m_chunkList == nullptr )
+		{
+			SLinkedList::Init( m_chunkList, chunk );
+		}
+		else
+		{
+			SLinkedList::AddToHead( m_chunkList, chunk );
+		}
+
+		return head;
+	}
+
+	void DeallocateChunk( MemoryChunk* chunk )
+	{
+		SLinkedList::Remove( m_chunkList, chunk );
+
+		int32 ret = VirtualFree( chunk, chunk->m_size, MEM_DECOMMIT );
+		assert( ret != 0 );
+		ret = VirtualFree( chunk, 0, MEM_RELEASE );
+		assert( ret != 0 );
+	}
+
+	MemoryChunk* m_chunkList = nullptr;
+	size_t m_capacity = 0;
+	size_t m_size = 0;
+	size_t m_nextChunkSize = 1;
+
+	MemoryBlock* m_freeList = nullptr;
+
+	static constexpr size_t BlockSize = std::max( sizeof( MemoryBlock ), sizeof( T ) );
 };

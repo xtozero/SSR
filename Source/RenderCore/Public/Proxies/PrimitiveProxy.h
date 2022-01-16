@@ -1,5 +1,6 @@
 #pragma once
 
+#include "DrawSnapshot.h"
 #include "Math/Matrix.h"
 #include "Mesh/MeshDrawInfo.h"
 #include "Physics/BoxSphereBounds.h"
@@ -14,28 +15,27 @@ class PrimitiveSceneInfo;
 class Scene;
 class ScenePrimitiveBuffer;
 class SceneViewConstantBuffer;
-class VisibleDrawSnapshot;
 
 class PrimitiveProxy
 {
 public:
-	virtual void CreateRenderData( ) = 0;
-	virtual void PrepareSubMeshs( ) = 0;
-	virtual void TakeSnapshot( std::deque<DrawSnapshot>& snapshotStorage, std::vector<VisibleDrawSnapshot>& drawList ) const = 0;
+	virtual void CreateRenderData() = 0;
+	virtual void PrepareSubMeshs() = 0;
+	virtual void TakeSnapshot( std::deque<DrawSnapshot>& snapshotStorage, rendercore::VectorSingleFrame<VisibleDrawSnapshot>& drawList ) const = 0;
 	virtual std::optional<DrawSnapshot> TakeSnapshot( uint32 lod, uint32 sectionIndex ) const = 0;
 	virtual MeshDrawInfo GatherMeshDrawInfo( uint32 lod, uint32 sectionIndex ) const = 0;
 
-	Matrix& WorldTransform( );
-	const Matrix& WorldTransform( ) const;
+	Matrix& WorldTransform();
+	const Matrix& WorldTransform() const;
 
-	BoxSphereBounds& Bounds( );
-	const BoxSphereBounds& Bounds( ) const;
-	
-	BoxSphereBounds& LocalBounds( );
-	const BoxSphereBounds& LocalBounds( ) const;
-	uint32 PrimitiveId( ) const;
+	BoxSphereBounds& Bounds();
+	const BoxSphereBounds& Bounds() const;
 
-	virtual ~PrimitiveProxy( ) = default;
+	BoxSphereBounds& LocalBounds();
+	const BoxSphereBounds& LocalBounds() const;
+	uint32 PrimitiveId() const;
+
+	virtual ~PrimitiveProxy() = default;
 
 protected:
 	friend Scene;

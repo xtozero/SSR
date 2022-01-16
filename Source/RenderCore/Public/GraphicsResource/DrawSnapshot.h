@@ -4,6 +4,7 @@
 #include "GraphicsPipelineState.h"
 #include "IndexBuffer.h"
 #include "PipelineState.h"
+#include "RenderUtility/RenderCoreAllocator.h"
 #include "ShaderBindings.h"
 #include "SparseArray.h"
 #include "SizedTypes.h"
@@ -223,6 +224,6 @@ void CommitDrawSnapshot( CommandList& commandList, VisibleDrawSnapshot& visibleS
 }
 
 void PreparePipelineStateObject( DrawSnapshot& snapshot );
-void SortDrawSnapshots( std::vector<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
-void CommitDrawSnapshots( SceneRenderer& renderer, std::vector<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
-void ParallelCommitDrawSnapshot( SceneRenderer& renderer, std::vector<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
+void SortDrawSnapshots( rendercore::VectorSingleFrame<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
+void CommitDrawSnapshots( SceneRenderer& renderer, rendercore::VectorSingleFrame<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
+void ParallelCommitDrawSnapshot( SceneRenderer& renderer, rendercore::VectorSingleFrame<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );

@@ -127,20 +127,20 @@ void PreparePipelineStateObject( DrawSnapshot& snapshot )
 	pipelineState.m_pso = aga::PipelineState::Create( initializer );
 }
 
-void SortDrawSnapshots( std::vector<VisibleDrawSnapshot>& snapshots, VertexBuffer& primitiveIds )
+void SortDrawSnapshots( rendercore::VectorSingleFrame<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
 {
-	std::sort( std::begin( snapshots ), std::end( snapshots ),
+	std::sort( std::begin( visibleSnapshots ), std::end( visibleSnapshots ),
 		[]( const VisibleDrawSnapshot& lhs, const VisibleDrawSnapshot& rhs )
 		{
 			return lhs.m_snapshotBucketId < rhs.m_snapshotBucketId;
 		} );
 
-	for ( size_t cur = 0, dest = cur + 1; cur < snapshots.size() && dest < snapshots.size(); ++dest )
+	for ( size_t cur = 0, dest = cur + 1; cur < visibleSnapshots.size() && dest < visibleSnapshots.size(); ++dest )
 	{
-		if ( snapshots[cur].m_snapshotBucketId != -1 &&
-			snapshots[cur].m_snapshotBucketId == snapshots[dest].m_snapshotBucketId )
+		if ( visibleSnapshots[cur].m_snapshotBucketId != -1 &&
+			visibleSnapshots[cur].m_snapshotBucketId == visibleSnapshots[dest].m_snapshotBucketId )
 		{
-			++snapshots[cur].m_numInstance;
+			++visibleSnapshots[cur].m_numInstance;
 		}
 		else
 		{
@@ -151,10 +151,10 @@ void SortDrawSnapshots( std::vector<VisibleDrawSnapshot>& snapshots, VertexBuffe
 	uint32* idBuffer = reinterpret_cast<uint32*>( primitiveIds.Lock() );
 	if ( idBuffer )
 	{
-		for ( size_t i = 0; i < snapshots.size(); ++i )
+		for ( size_t i = 0; i < visibleSnapshots.size(); ++i )
 		{
-			snapshots[i].m_primitiveIdOffset = static_cast<uint32>( i );
-			*idBuffer = snapshots[i].m_primitiveId;
+			visibleSnapshots[i].m_primitiveIdOffset = static_cast<uint32>( i );
+			*idBuffer = visibleSnapshots[i].m_primitiveId;
 			++idBuffer;
 		}
 
@@ -162,7 +162,7 @@ void SortDrawSnapshots( std::vector<VisibleDrawSnapshot>& snapshots, VertexBuffe
 	}
 }
 
-void CommitDrawSnapshots( SceneRenderer& renderer, std::vector<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
+void CommitDrawSnapshots( SceneRenderer& renderer, rendercore::VectorSingleFrame<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
 {
 	auto commandList = rendercore::GetImmediateCommandList();
 
@@ -175,7 +175,7 @@ void CommitDrawSnapshots( SceneRenderer& renderer, std::vector<VisibleDrawSnapsh
 	}
 }
 
-void ParallelCommitDrawSnapshot( SceneRenderer& renderer, std::vector<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
+void ParallelCommitDrawSnapshot( SceneRenderer& renderer, rendercore::VectorSingleFrame<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
 {
 	size_t dc = 0;
 	for ( size_t i = 0; i < visibleSnapshots.size(); )

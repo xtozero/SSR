@@ -106,6 +106,15 @@ void RenderingShaderResource::ClearResources()
 
 bool SceneRenderer::PreRender( RenderViewGroup& renderViewGroup )
 {
+	std::construct_at( &m_passSnapshots );
+	std::construct_at( &m_shadowInfos );
+
+	for ( auto& view : renderViewGroup )
+	{
+		PassVisibleSnapshots& passSnapshot = m_passSnapshots.emplace_back();
+		view.m_snapshots = passSnapshot.data();
+	}
+
 	InitDynamicShadows( renderViewGroup );
 	return true;
 }
@@ -113,7 +122,11 @@ bool SceneRenderer::PreRender( RenderViewGroup& renderViewGroup )
 void SceneRenderer::PostRender( RenderViewGroup& renderViewGroup )
 {
 	m_shaderResources.ClearResources();
-	m_shadowInfos.clear();
+
+	std::destroy_at( &m_passSnapshots );
+	std::destroy_at( &m_shadowInfos );
+
+	rendercore::Allocator().Flush();
 }
 
 void SceneRenderer::WaitUntilRenderingIsFinish()
@@ -129,7 +142,7 @@ void SceneRenderer::InitDynamicShadows( RenderViewGroup& renderViewGroup )
 		return;
 	}
 
-	std::vector<ShadowInfo*> viewDependentShadow;
+	rendercore::VectorSingleFrame<ShadowInfo*> viewDependentShadow;
 
 	Scene& renderScene = *scene.GetRenderScene();
 	auto lights = renderScene.Lights();
@@ -154,7 +167,7 @@ void SceneRenderer::InitDynamicShadows( RenderViewGroup& renderViewGroup )
 	AllocateShadowMaps();
 }
 
-void SceneRenderer::ClassifyShadowCasterAndReceiver( IScene& scene, const std::vector<ShadowInfo*>& shadows )
+void SceneRenderer::ClassifyShadowCasterAndReceiver( IScene& scene, const rendercore::VectorSingleFrame<ShadowInfo*>& shadows )
 {
 	using namespace DirectX;
 
@@ -248,7 +261,7 @@ void SceneRenderer::SetupShadow()
 
 void SceneRenderer::AllocateShadowMaps()
 {
-	std::vector<ShadowInfo*> cascadeShadows;
+	rendercore::VectorSingleFrame<ShadowInfo*> cascadeShadows;
 
 	for ( auto& shadowInfo : m_shadowInfos )
 	{
@@ -277,7 +290,7 @@ void SceneRenderer::AllocateShadowMaps()
 	}
 }
 
-void SceneRenderer::AllocateCascadeShadowMaps( const std::vector<ShadowInfo*>& shadows )
+void SceneRenderer::AllocateCascadeShadowMaps( const rendercore::VectorSingleFrame<ShadowInfo*>& shadows )
 {
 	for ( ShadowInfo* shadow : shadows )
 	{

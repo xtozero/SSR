@@ -249,7 +249,11 @@ private:
 			return;
 		}
 
+#if _WIN32
+		strcpy_s( str, stringSize, m_curPos );
+#else
 		std::strcpy( str, m_curPos );
+#endif
 		str[stringSize] = '\0';
 		m_curPos += stringSize;
 	}
