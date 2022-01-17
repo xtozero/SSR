@@ -8,9 +8,11 @@
 #include "Physics/BoxSphereBounds.h"
 #include "Proxies/LightProxy.h"
 #include "Proxies/PrimitiveProxy.h"
+#include "Proxies/SkyAtmosphereProxy.h"
 #include "Proxies/TexturedSkyProxy.h"
 #include "Scene/LightSceneInfo.h"
 #include "Scene/PrimitiveSceneInfo.h"
+#include "SkyAtmosphereRendering.h"
 #include "TaskScheduler.h"
 
 #include <algorithm>
@@ -97,6 +99,34 @@ void Scene::RemoveTexturedSkyComponent( TexturedSkyComponent* texturedSky )
 		EnqueueRenderTask( [this, proxy]()
 			{
 				RemoveTexturedSky( proxy );
+			} );
+	}
+}
+
+void Scene::AddSkyAtmosphere( SkyAtmospherePorxy* skyAtmosphereProxy )
+{
+	if ( skyAtmosphereProxy )
+	{
+		EnqueueRenderTask( [scene = this, skyAtmosphereProxy]()
+			{
+				skyAtmosphereProxy->RenderSceneInfo() = new rendercore::SkyAtmosphereRenderSceneInfo();
+				scene->m_skyAtmosphere = skyAtmosphereProxy->RenderSceneInfo();
+				rendercore::InitAtmosphereForScene( *scene );
+			} );
+	}
+}
+
+void Scene::RemoveAtomosphere( SkyAtmospherePorxy* skyAtmosphereProxy )
+{
+	if ( skyAtmosphereProxy )
+	{
+		EnqueueRenderTask( [this, skyAtmosphereProxy]()
+			{
+				if ( m_skyAtmosphere == skyAtmosphereProxy->RenderSceneInfo() )
+				{
+					delete m_skyAtmosphere;
+					m_skyAtmosphere = nullptr;
+				}
 			} );
 	}
 }
@@ -245,10 +275,14 @@ void Scene::AddLightSceneInfo( LightSceneInfo* lightSceneInfo )
 	lightSceneInfo->SetID( id );
 
 	lightSceneInfo->AddToScene();
+
+	AddSkyAtmosphereLight( lightSceneInfo );
 }
 
 void Scene::RemoveLightSceneInfo( LightSceneInfo* lightSceneInfo )
 {
+	RemoveSkyAtmosphereLight( lightSceneInfo );
+
 	uint32 id = lightSceneInfo->ID();
 	m_lights.RemoveAt( id );
 
@@ -256,6 +290,31 @@ void Scene::RemoveLightSceneInfo( LightSceneInfo* lightSceneInfo )
 
 	delete lightSceneInfo->Proxy();
 	delete lightSceneInfo;
+}
+
+void Scene::AddSkyAtmosphereLight( LightSceneInfo* lightSceneInfo )
+{
+	if ( lightSceneInfo->Proxy()->IsUsedAsAtmosphereSunLight() )
+	{
+		m_skyAtmosphereLight = lightSceneInfo;
+	}
+}
+
+void Scene::RemoveSkyAtmosphereLight( LightSceneInfo* lightSceneInfo )
+{
+	if ( m_skyAtmosphereLight == lightSceneInfo )
+	{
+		m_skyAtmosphereLight = nullptr;
+
+		for ( const auto& light : m_lights )
+		{
+			if ( light != lightSceneInfo 
+				&& light->Proxy()->IsUsedAsAtmosphereSunLight() )
+			{
+				m_skyAtmosphereLight = light;
+			}
+		}
+	}
 }
 
 bool UpdateGPUPrimitiveInfos( Scene& scene )

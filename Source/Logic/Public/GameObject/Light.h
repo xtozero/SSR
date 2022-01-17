@@ -21,7 +21,7 @@ enum class LIGHT_TYPE
 class Light : public CGameObject
 {
 public:
-	virtual const LIGHT_TYPE GetType( ) const = 0;
+	virtual const LIGHT_TYPE GetType() const = 0;
 
 	virtual void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json ) override;
 
@@ -29,10 +29,10 @@ public:
 	void SetSpecularColor( const ColorF& specularColor );
 	void SetCastShadow( bool castShadow );
 
-	virtual ~Light( ) = default;
+	virtual ~Light() = default;
 
 private:
-	LightComponent& GetLightComponent( );
+	LightComponent& GetLightComponent();
 
 	LightComponent* m_component = nullptr;
 };
@@ -40,13 +40,13 @@ private:
 class DirectionalLight : public Light
 {
 public:
-	virtual const LIGHT_TYPE GetType( ) const override;
+	virtual const LIGHT_TYPE GetType() const override;
 
 	virtual void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json ) override;
 
-	const Vector& Direction( ) const;
+	const Vector& Direction() const;
 
-	DirectionalLight( );
+	DirectionalLight();
 
 private:
 	DirectionalLightComponent* m_directionalLightComponent = nullptr;
@@ -60,7 +60,7 @@ public:
 	void SetLowerColor( const ColorF& color );
 	void SetUpperColor( const ColorF& color );
 
-	HemisphereLight( );
+	HemisphereLight();
 
 private:
 	HemisphereLightComponent* m_hemisphereLightComponent = nullptr;

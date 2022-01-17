@@ -620,6 +620,13 @@ struct RESOURCE_INIT_DATA
 	std::vector<RESOURCE_SECTION_DATA> m_sections;
 };
 
+struct LockedResource
+{
+	void* m_data;
+	uint32 m_rowPitch;
+	uint32 m_depthPitch;
+};
+
 struct RESOURCE_REGION
 {
 	uint32 m_subResource;

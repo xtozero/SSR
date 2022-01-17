@@ -45,6 +45,9 @@ namespace aga
 		virtual void ClearRenderTarget( Texture* renderTarget, const float( &clearColor )[4] ) = 0;
 		virtual void ClearDepthStencil( Texture* depthStencil, float depthColor, UINT8 stencilColor ) = 0;
 
+		virtual void CopyResource( Texture* dest, Texture* src ) = 0;
+		virtual void CopyResource( Buffer* dest, Buffer* src ) = 0;
+
 		virtual ~ICommandList() = default;
 	};
 
@@ -57,6 +60,8 @@ namespace aga
 	class IImmediateCommandList : public ICommandList
 	{
 	public:
+		virtual void WaitUntilFlush() = 0;
+
 		virtual void Execute( IDeferredCommandList& commandList ) = 0;
 	};
 }

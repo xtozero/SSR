@@ -14,14 +14,24 @@ void AbstractGraphicsInterface::Shutdown()
 {
 }
 
-void* AbstractGraphicsInterface::Lock( aga::Buffer* buffer, uint32 lockFlag, uint32 subResource )
+LockedResource AbstractGraphicsInterface::Lock( aga::Buffer* buffer, uint32 lockFlag, uint32 subResource )
 {
 	return m_aga->Lock( buffer, lockFlag, subResource );
+}
+
+LockedResource AbstractGraphicsInterface::Lock( aga::Texture* texture, uint32 lockFlag, uint32 subResource )
+{
+	return m_aga->Lock( texture, lockFlag, subResource );
 }
 
 void AbstractGraphicsInterface::UnLock( aga::Buffer* buffer, uint32 subResource )
 {
 	m_aga->UnLock( buffer, subResource );
+}
+
+void AbstractGraphicsInterface::UnLock( aga::Texture* texture, uint32 subResource )
+{
+	m_aga->UnLock( texture, subResource );
 }
 
 void AbstractGraphicsInterface::Copy( aga::Buffer* dst, aga::Buffer* src, uint32 size )

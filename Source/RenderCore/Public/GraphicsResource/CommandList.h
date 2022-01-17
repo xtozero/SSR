@@ -34,6 +34,11 @@ namespace rendercore
 		void ClearRenderTarget( aga::Texture* renderTarget, const float( &clearColor )[4] );
 		void ClearDepthStencil( aga::Texture* depthStencil, float depthColor, UINT8 stencilColor );
 
+		void CopyResource( aga::Texture* dest, aga::Texture* src );
+		void CopyResource( aga::Buffer* dest, aga::Buffer* src );
+
+		void WaitUntilFlush();
+
 		void Execute( aga::IDeferredCommandList& commandList );
 
 		explicit ImmediateCommandList( aga::IImmediateCommandList& imple )

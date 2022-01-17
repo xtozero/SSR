@@ -9,7 +9,7 @@ void ConstantBuffer::Update( const void* data, uint32 size )
 	assert( IsInRenderThread() );
 
 	assert( data != nullptr );
-	void* dst = GraphicsInterface().Lock( m_buffer );
+	void* dst = GraphicsInterface().Lock( m_buffer ).m_data;
 	if ( dst )
 	{
 		std::memcpy( dst, data, size );
@@ -20,7 +20,7 @@ void ConstantBuffer::Update( const void* data, uint32 size )
 void* ConstantBuffer::Lock()
 {
 	assert( IsInRenderThread() );
-	return  GraphicsInterface().Lock( m_buffer );
+	return  GraphicsInterface().Lock( m_buffer ).m_data;
 }
 
 void ConstantBuffer::Unlock()

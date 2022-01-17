@@ -1,13 +1,13 @@
-#include "AtmoshpericScattering/atmosphereCommon.fxh"
+#include "AtmoshpericScattering/AtmosphereCommon.fxh"
 
-RWTexture3D<float4> deltaSRBuffer : register( u0 );
+RWTexture3D<float4> DeltaSR : register( u0 );
 
 float3 Integrand( float r, float mu, float muS, float nu, float t )
 {
 	float ri = sqrt( r * r + t * t + 2.f * r * t * mu );
 	float mui = ( r * mu + t ) / ri;
 	float muSi = ( nu * t + muS * r ) / ri;
-	return Sample4D( deltaJTex, deltaJSampler, ri, mui, muSi, nu ).rgb * Transmittance( r, mu, t );
+	return Sample4D( DeltaJLut, DeltaJLutSampler, ri, mui, muSi, nu ).rgb * Transmittance( r, mu, t );
 }
 
 float3 Inscatter( float r, float mu, float muS, float nu )
@@ -38,5 +38,5 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	float mu, muS, nu;
 	GetMuMuSNu( DTid, r, dhdH, mu, muS, nu );
 
-	deltaSRBuffer[DTid] = float4( Inscatter( r, mu, muS, nu ), 0.f );
+	DeltaSR[DTid] = float4( Inscatter( r, mu, muS, nu ), 0.f );
 }

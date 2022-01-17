@@ -7,7 +7,7 @@
 void* VertexBuffer::Lock( )
 {
 	assert( IsInRenderThread( ) );
-	return GraphicsInterface( ).Lock( m_buffer );
+	return GraphicsInterface( ).Lock( m_buffer ).m_data;
 }
 
 void VertexBuffer::Unlock( )

@@ -1,7 +1,8 @@
-#include "AtmoshpericScattering/atmosphereCommon.fxh"
+#define NO_TRANSMITTANCE_FUNCTION
+#include "AtmoshpericScattering/AtmosphereCommon.fxh"
 
 // RWStructuredBuffer<float4> TransmittanceBuffer : register(u0);
-RWTexture2D<float4> transmittanceBuffer : register(u0);
+RWTexture2D<float4> Transmittance : register(u0);
 
 // H = HR ( thickness of the atmosphere for rayleigh ) or HM ( thickness of the atomosphere for mie )
 // r = radius from earth center
@@ -46,5 +47,5 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	// int index = ( DTid.y * TRANSMITTANCE_W ) + DTid.x;
 	// TransmittanceBuffer[index] = float4( exp( -depth ), 0.f );
 	
-	transmittanceBuffer[DTid.xy] = float4( exp( -depth ), 0.f );
+	Transmittance[DTid.xy] = float4( exp( -depth ), 0.f );
 }

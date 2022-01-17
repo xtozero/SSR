@@ -62,5 +62,5 @@ void UploadBuffer::InitResource( const void* initData )
 
 void* UploadBuffer::LockImple( )
 {
-	return GraphicsInterface( ).Lock( m_buffer );
+	return GraphicsInterface( ).Lock( m_buffer ).m_data;
 }

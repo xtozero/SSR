@@ -25,7 +25,7 @@ void ForwardLightBuffer::Initialize( uint32 bytePerElement, uint32 numElements, 
 void* ForwardLightBuffer::Lock( )
 {
 	assert( IsInRenderThread( ) );
-	return GraphicsInterface( ).Lock( m_buffer );
+	return GraphicsInterface( ).Lock( m_buffer ).m_data;
 }
 
 void ForwardLightBuffer::Unlock( )

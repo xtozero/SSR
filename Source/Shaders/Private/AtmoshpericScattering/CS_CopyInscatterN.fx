@@ -1,6 +1,6 @@
-#include "AtmoshpericScattering/atmosphereCommon.fxh"
+#include "AtmoshpericScattering/AtmosphereCommon.fxh"
 
-RWStructuredBuffer<float4> inscatterBuffer : register( u0 );
+RWStructuredBuffer<float4> Inscatter : register( u0 );
 
 [numthreads( RES_MU_S, RES_MU / INSCATTERN_GROUP_Y, 1 )]
 void main( uint3 DTid : SV_DispatchThreadID )
@@ -16,5 +16,5 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	float pitch = RES_MU_S * RES_NU;
 	float slicePitch = pitch * RES_MU;
 
-	inscatterBuffer[( DTid.z * slicePitch ) + ( DTid.y * pitch ) + DTid.x] += float4( deltaSRTex.SampleLevel( deltaSRSampler, uvw, 0 ).rgb / PhaseFunctionR( nu ), 0.f );
+	Inscatter[( DTid.z * slicePitch ) + ( DTid.y * pitch ) + DTid.x] += float4( DeltaSRLut.SampleLevel( DeltaSRLutSampler, uvw, 0 ).rgb / PhaseFunctionR( nu ), 0.f );
 }

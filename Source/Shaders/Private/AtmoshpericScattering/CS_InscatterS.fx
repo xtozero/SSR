@@ -1,15 +1,15 @@
-#include "AtmoshpericScattering/atmosphereCommon.fxh"
+#include "AtmoshpericScattering/AtmosphereCommon.fxh"
 
 static const float dphi = M_PI / float( INSCATTER_SPHERICAL_INTEGRAL_SAMPLES );
 static const float dtheta = M_PI / float( INSCATTER_SPHERICAL_INTEGRAL_SAMPLES );
 
 cbuffer SCATTERING_ORDER : register( b0 )
 {
-	int g_order : packoffset( c0.x );
-	int g_threadGroupZ : packoffset( c0.y );
+	int Order : packoffset( c0.x );
+	int ThreadGroupZ : packoffset( c0.y );
 }
 
-RWTexture3D<float4> deltaJBuffer : register( u0 );
+RWTexture3D<float4> DeltaJ : register( u0 );
 
 void Inscatter( float r, float mu, float muS, float nu, out float3 raymie )
 {
@@ -65,18 +65,18 @@ void Inscatter( float r, float mu, float muS, float nu, out float3 raymie )
 			float3 raymie1 = greflectance * girradiance * gtransp;
 
 			// second term = inscattered light = deltaS
-			if ( g_order == 2 )
+			if ( Order == 2 )
 			{
 				float pr1 = PhaseFunctionR( nu1 );
 				float pm1 = PhaseFunctionM( nu1 );
-				float3 ray1 = Sample4D( deltaSRTex, deltaSRSampler, r, w.z, muS, nu1 ).rgb;
-				float3 mie1 = Sample4D( deltaSMTex, deltaSMSampler, r, w.z, muS, nu1 ).rgb;
+				float3 ray1 = Sample4D( DeltaSRLut, DeltaSRLutSampler, r, w.z, muS, nu1 ).rgb;
+				float3 mie1 = Sample4D( DeltaSMLut, DeltaSMLutSampler, r, w.z, muS, nu1 ).rgb;
 
 				raymie1 += ray1 * pr1 + mie1 * pm1;
 			}
 			else
 			{
-				raymie1 += Sample4D( deltaSRTex, deltaSRSampler, r, w.z, muS, nu1 ).rgb;
+				raymie1 += Sample4D( DeltaSRLut, DeltaSRLutSampler, r, w.z, muS, nu1 ).rgb;
 			}
 
 			// light coming from direction w and scattered in direction v
@@ -92,13 +92,13 @@ void main( uint3 DTid : SV_DispatchThreadID )
 {
 	float r;
 	float4 dhdH;
-	GetRdhdH( g_threadGroupZ, r, dhdH );
+	GetRdhdH( ThreadGroupZ, r, dhdH );
 
 	float mu, muS, nu;
-	GetMuMuSNu( float3( DTid.xy, g_threadGroupZ ), r, dhdH, mu, muS, nu );
+	GetMuMuSNu( float3( DTid.xy, ThreadGroupZ ), r, dhdH, mu, muS, nu );
 
 	float3 raymie;
 	Inscatter( r, mu, muS, nu, raymie );
 
-	deltaJBuffer[DTid] = float4( raymie, 0.f );
+	DeltaJ[DTid] = float4( raymie, 0.f );
 }

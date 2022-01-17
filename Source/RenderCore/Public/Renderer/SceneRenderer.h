@@ -83,6 +83,7 @@ protected:
 	void RenderTexturedSky( IScene& scene );
 	void RenderMesh( IScene& scene, RenderPass passType, RenderView& renderView );
 	void RenderShadow();
+	void RenderSkyAtmosphere( IScene& scene, RenderView& renderView );
 
 	void StoreOuputContext( const RenderingOutputContext& context );
 

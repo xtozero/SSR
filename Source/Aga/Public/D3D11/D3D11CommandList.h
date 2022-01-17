@@ -35,6 +35,11 @@ namespace aga
 		virtual void ClearRenderTarget( Texture* renderTarget, const float( &clearColor )[4] ) override;
 		virtual void ClearDepthStencil( Texture* depthStencil, float depthColor, UINT8 stencilColor ) override;
 
+		virtual void CopyResource( Texture* dest, Texture* src ) override;
+		virtual void CopyResource( Buffer* dest, Buffer* src ) override;
+
+		virtual void WaitUntilFlush() override;
+
 		virtual void Execute( IDeferredCommandList& commandList ) override;
 
 	private:
@@ -67,6 +72,9 @@ namespace aga
 
 		virtual void ClearRenderTarget( Texture* renderTarget, const float( &clearColor )[4] ) override;
 		virtual void ClearDepthStencil( Texture* depthStencil, float depthColor, UINT8 stencilColor ) override;
+
+		virtual void CopyResource( Texture* dest, Texture* src ) override;
+		virtual void CopyResource( Buffer* dest, Buffer* src ) override;
 
 		virtual void Finish() override;
 

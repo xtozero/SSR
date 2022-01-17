@@ -17,8 +17,10 @@ public:
 	void BootUp( aga::IAga* pAga );
 	void Shutdown();
 
-	void* Lock( aga::Buffer* buffer, uint32 lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, uint32 subResource = 0 );
+	LockedResource Lock( aga::Buffer* buffer, uint32 lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, uint32 subResource = 0 );
+	LockedResource Lock( aga::Texture* texture, uint32 lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, uint32 subResource = 0 );
 	void UnLock( aga::Buffer* buffer, uint32 subResource = 0 );
+	void UnLock( aga::Texture* texture, uint32 subResource = 0 );
 
 	void Copy( aga::Buffer* dst, aga::Buffer* src, uint32 size );
 

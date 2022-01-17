@@ -13,7 +13,13 @@
 				"Direction": [ -1, -1, 0 ],
 				"Diffuse": [ 0.5, 0.5, 0.5, 1 ],
 				"Specular": [ 0.8, 0.8, 0.8, 1 ],
-				"CastShadow": true
+				"CastShadow": true,
+				"UsedAsAtmosphereSunLight": true
+			}
+		},
+		{
+			"Object": {
+				"Class": "sky_atmosphere"
 			}
 		},
 		{

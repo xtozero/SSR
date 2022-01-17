@@ -1,4 +1,4 @@
-#include "vsCommon.fxh"
+#include "ViewConstant.fxh"
 
 struct VS_OUTPUT
 {

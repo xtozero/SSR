@@ -113,7 +113,6 @@ PRIVATE
 set (DIRECT3D_LIBRARY
 	"d3d11.lib"
 	"d3dcompiler.lib"
-	"d3dx11.lib"
 	"dxguid.lib"
 	"dxgi.lib")
 								
@@ -124,8 +123,3 @@ PRIVATE
 
 add_custom_command(TARGET Aga POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/Aga.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/Aga.dll")
-
-if (WIN32)
-	add_custom_command(TARGET Aga POST_BUILD
-	COMMAND cmd /c call ${CMAKE_SOURCE_DIR}/Source/Shaders/make_shader.bat)
-endif()

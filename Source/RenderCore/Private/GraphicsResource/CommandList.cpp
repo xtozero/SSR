@@ -110,6 +110,21 @@ namespace rendercore
 		m_imple.ClearDepthStencil( depthStencil, depthColor, stencilColor );
 	}
 
+	void ImmediateCommandList::CopyResource( aga::Texture* dest, aga::Texture* src )
+	{
+		m_imple.CopyResource( dest, src );
+	}
+
+	void ImmediateCommandList::CopyResource( aga::Buffer* dest, aga::Buffer* src )
+	{
+		m_imple.CopyResource( dest, src );
+	}
+
+	void ImmediateCommandList::WaitUntilFlush()
+	{
+		m_imple.WaitUntilFlush();
+	}
+
 	void ImmediateCommandList::Execute( aga::IDeferredCommandList& commandList )
 	{
 		m_imple.Execute( commandList );

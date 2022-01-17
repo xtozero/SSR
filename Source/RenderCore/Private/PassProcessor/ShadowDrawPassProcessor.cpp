@@ -30,8 +30,6 @@ std::optional<DrawSnapshot> ShadowDrawPassProcessor::Process( const PrimitiveSub
 		DrawCascadeShadowPS( ).Shader( )
 	};
 
-	PassRenderOption passRenderOption;
-
 	BlendOption shadowDrawPassBlendOption;
 	RenderTargetBlendOption& rt0BlendOption = shadowDrawPassBlendOption.m_renderTarget[0];
 	rt0BlendOption.m_blendEnable = true;
@@ -40,7 +38,13 @@ std::optional<DrawSnapshot> ShadowDrawPassProcessor::Process( const PrimitiveSub
 	rt0BlendOption.m_srcBlendAlpha = BLEND::ZERO;
 	rt0BlendOption.m_destBlendAlpha = BLEND::ONE;
 
-	passRenderOption.m_blendOption = &shadowDrawPassBlendOption;
+	DepthStencilOption shadowDrawPassDepthOption;
+	shadowDrawPassDepthOption.m_depth.m_writeDepth = false;
+
+	PassRenderOption passRenderOption = {
+		.m_blendOption = &shadowDrawPassBlendOption,
+		.m_depthStencilOption = &shadowDrawPassDepthOption
+	};
 
 	return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default );
 }

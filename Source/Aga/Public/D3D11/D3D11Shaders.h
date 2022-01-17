@@ -5,8 +5,9 @@
 #include "SizedTypes.h"
 
 #include <d3d11.h>
+#include <d3dcompiler.h>
 
-AGA_DLL void ExtractShaderParameters( const void* byteCode, size_t byteCodeSize, aga::ShaderParameterMap& parameterMap );
+AGA_DLL void ExtractShaderParameters( ID3D11ShaderReflection* pReflector, aga::ShaderParameterMap& parameterMap );
 
 AGA_DLL void BuildShaderParameterInfo( const std::map<std::string, aga::ShaderParameter>& parameterMap, aga::ShaderParameterInfo& parameterInfo );
 

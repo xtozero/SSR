@@ -91,5 +91,6 @@ GlobalShaderRegister::GlobalShaderRegister( std::type_index typeIndex, const cha
 
 ShaderBase* GetGlobalShaderImpl( std::type_index typeIndex )
 {
+	assert( IsInRenderThread() );
 	return GlobalShader::GetInstance().GetShader( typeIndex );
 }

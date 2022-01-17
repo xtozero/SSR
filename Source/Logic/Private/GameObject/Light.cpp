@@ -15,12 +15,12 @@ void Light::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 	{
 		const JSON::Value& diffuse = *pDiffuse;
 
-		if ( diffuse.Size( ) >= 4 )
+		if ( diffuse.Size() >= 4 )
 		{
-			float r = static_cast<float>( diffuse[0].AsReal( ) );
-			float g = static_cast<float>( diffuse[1].AsReal( ) );
-			float b = static_cast<float>( diffuse[2].AsReal( ) );
-			float a = static_cast<float>( diffuse[3].AsReal( ) );
+			float r = static_cast<float>( diffuse[0].AsReal() );
+			float g = static_cast<float>( diffuse[1].AsReal() );
+			float b = static_cast<float>( diffuse[2].AsReal() );
+			float a = static_cast<float>( diffuse[3].AsReal() );
 
 			SetDiffuseColor( ColorF( r, g, b, a ) );
 		}
@@ -30,12 +30,12 @@ void Light::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 	{
 		const JSON::Value& specluar = *pSpecular;
 
-		if ( specluar.Size( ) >= 4 )
+		if ( specluar.Size() >= 4 )
 		{
-			float r = static_cast<float>( specluar[0].AsReal( ) );
-			float g = static_cast<float>( specluar[1].AsReal( ) );
-			float b = static_cast<float>( specluar[2].AsReal( ) );
-			float a = static_cast<float>( specluar[3].AsReal( ) );
+			float r = static_cast<float>( specluar[0].AsReal() );
+			float g = static_cast<float>( specluar[1].AsReal() );
+			float b = static_cast<float>( specluar[2].AsReal() );
+			float a = static_cast<float>( specluar[3].AsReal() );
 
 			SetSpecularColor( ColorF( r, g, b, a ) );
 		}
@@ -45,30 +45,30 @@ void Light::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 	{
 		const JSON::Value& castShadow = *pCastShadow;
 
-		SetCastShadow( castShadow.AsBool( ) );
+		SetCastShadow( castShadow.AsBool() );
 	}
 }
 
 void Light::SetDiffuseColor( const ColorF& diffuseColor )
 {
-	GetLightComponent( ).SetDiffuseColor( diffuseColor );
+	GetLightComponent().SetDiffuseColor( diffuseColor );
 }
 
 void Light::SetSpecularColor( const ColorF& specularColor )
 {
-	GetLightComponent( ).SetSpecularColor( specularColor );
+	GetLightComponent().SetSpecularColor( specularColor );
 }
 
 void Light::SetCastShadow( bool castShadow )
 {
-	GetLightComponent( ).CastShadow( ) = castShadow;
+	GetLightComponent().CastShadow() = castShadow;
 }
 
-LightComponent& Light::GetLightComponent( )
+LightComponent& Light::GetLightComponent()
 {
 	if ( m_component == nullptr )
 	{
-		m_component = GetComponent<LightComponent>( );
+		m_component = GetComponent<LightComponent>();
 	}
 
 	return *m_component;
@@ -76,7 +76,7 @@ LightComponent& Light::GetLightComponent( )
 
 DECLARE_GAME_OBJECT( directional_light, DirectionalLight );
 
-const LIGHT_TYPE DirectionalLight::GetType( ) const
+const LIGHT_TYPE DirectionalLight::GetType() const
 {
 	return LIGHT_TYPE::DIRECTINAL_LIGHT;
 }
@@ -89,24 +89,30 @@ void DirectionalLight::LoadProperty( CGameLogic& gameLogic, const JSON::Value& j
 	{
 		const JSON::Value& direction = *pDirection;
 
-		if ( direction.Size( ) >= 3 )
+		if ( direction.Size() >= 3 )
 		{
-			float x = static_cast<float>( direction[0].AsReal( ) );
-			float y = static_cast<float>( direction[1].AsReal( ) );
-			float z = static_cast<float>( direction[2].AsReal( ) );
+			float x = static_cast<float>( direction[0].AsReal() );
+			float y = static_cast<float>( direction[1].AsReal() );
+			float z = static_cast<float>( direction[2].AsReal() );
 
 			Vector vDir( x, y, z );
 			m_directionalLightComponent->SetDirection( vDir.GetNormalized() );
 		}
 	}
+
+	if ( const JSON::Value* pUsedAsAtmosphereSunLight = json.Find( "UsedAsAtmosphereSunLight" ) )
+	{
+		bool usedAsAtmosphereSunLight = pUsedAsAtmosphereSunLight->AsBool();
+		m_directionalLightComponent->SetUsedAsAtmosphereSunLight( usedAsAtmosphereSunLight );
+	}
 }
 
-const Vector& DirectionalLight::Direction( ) const
+const Vector& DirectionalLight::Direction() const
 {
-	return m_directionalLightComponent->Direction( );
+	return m_directionalLightComponent->Direction();
 }
 
-DirectionalLight::DirectionalLight( )
+DirectionalLight::DirectionalLight()
 {
 	m_directionalLightComponent = CreateComponent<DirectionalLightComponent>( *this );
 	m_rootComponent = m_directionalLightComponent;
@@ -120,12 +126,12 @@ void HemisphereLight::LoadProperty( CGameLogic& gameLogic, const JSON::Value& js
 	{
 		const JSON::Value& lowerColor = *pLowerColor;
 
-		if ( lowerColor.Size( ) >= 4 )
+		if ( lowerColor.Size() >= 4 )
 		{
-			float r = static_cast<float>( lowerColor[0].AsReal( ) );
-			float g = static_cast<float>( lowerColor[1].AsReal( ) );
-			float b = static_cast<float>( lowerColor[2].AsReal( ) );
-			float a = static_cast<float>( lowerColor[3].AsReal( ) );
+			float r = static_cast<float>( lowerColor[0].AsReal() );
+			float g = static_cast<float>( lowerColor[1].AsReal() );
+			float b = static_cast<float>( lowerColor[2].AsReal() );
+			float a = static_cast<float>( lowerColor[3].AsReal() );
 
 			SetLowerColor( ColorF( r, g, b, a ) );
 		}
@@ -135,12 +141,12 @@ void HemisphereLight::LoadProperty( CGameLogic& gameLogic, const JSON::Value& js
 	{
 		const JSON::Value& upperColor = *pUpperColor;
 
-		if ( upperColor.Size( ) >= 4 )
+		if ( upperColor.Size() >= 4 )
 		{
-			float r = static_cast<float>( upperColor[0].AsReal( ) );
-			float g = static_cast<float>( upperColor[1].AsReal( ) );
-			float b = static_cast<float>( upperColor[2].AsReal( ) );
-			float a = static_cast<float>( upperColor[3].AsReal( ) );
+			float r = static_cast<float>( upperColor[0].AsReal() );
+			float g = static_cast<float>( upperColor[1].AsReal() );
+			float b = static_cast<float>( upperColor[2].AsReal() );
+			float a = static_cast<float>( upperColor[3].AsReal() );
 
 			SetUpperColor( ColorF( r, g, b, a ) );
 		}
@@ -163,7 +169,7 @@ void HemisphereLight::SetUpperColor( const ColorF& color )
 	}
 }
 
-HemisphereLight::HemisphereLight( )
+HemisphereLight::HemisphereLight()
 {
 	m_hemisphereLightComponent = CreateComponent<HemisphereLightComponent>( *this );
 	m_rootComponent = m_hemisphereLightComponent;

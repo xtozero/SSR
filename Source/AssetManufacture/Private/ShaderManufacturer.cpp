@@ -13,7 +13,7 @@ namespace
 {
 	bool ValidateShaderAsset( const AsyncLoadableAsset* asset, const Archive& ar )
 	{
-		Archive rAr( ar.Data( ), ar.Size( ) );
+		Archive rAr( ar.Data(), ar.Size() );
 		uint32 assetID = 0;
 		rAr << assetID;
 
@@ -52,7 +52,7 @@ namespace
 
 bool ShaderManufacturer::IsSuitable( const std::filesystem::path& srcPath ) const
 {
-	return srcPath.extension( ) == fs::path( ".cso" );
+	return srcPath.extension() == fs::path( ".cso" );
 }
 
 std::optional<Products> ShaderManufacturer::Manufacture( const std::filesystem::path& srcPath, [[maybe_unused]] const std::filesystem::path& destPath ) const
@@ -63,14 +63,14 @@ std::optional<Products> ShaderManufacturer::Manufacture( const std::filesystem::
 	}
 
 	std::ifstream compiledShader( srcPath, std::ios::ate | std::ios::binary );
-	size_t size = compiledShader.tellg( );
+	size_t size = compiledShader.tellg();
 	compiledShader.seekg( 0 );
 
 	BinaryChunk byteCode( static_cast<uint32>( size ) );
-	compiledShader.read( byteCode.Data( ), size );
+	compiledShader.read( byteCode.Data(), size );
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderReflection> pShaderReflection = nullptr;
-	HRESULT hr = D3DReflect( byteCode.Data( ), size, IID_PPV_ARGS( &pShaderReflection ) );
+	HRESULT hr = D3DReflect( byteCode.Data(), size, IID_PPV_ARGS( &pShaderReflection ) );
 	if ( FAILED( hr ) )
 	{
 		return {};
@@ -86,7 +86,7 @@ std::optional<Products> ShaderManufacturer::Manufacture( const std::filesystem::
 	D3D11_SHADER_VERSION_TYPE shaderType = static_cast<D3D11_SHADER_VERSION_TYPE>( D3D11_SHVER_GET_TYPE( desc.Version ) );
 
 	aga::ShaderParameterMap parameterMap;
-	ExtractShaderParameters( byteCode.Data( ), size, parameterMap );
+	ExtractShaderParameters( pShaderReflection.Get(), parameterMap );
 
 	ShaderBase* shader = nullptr;
 	switch ( shaderType )
@@ -127,8 +127,8 @@ std::optional<Products> ShaderManufacturer::Manufacture( const std::filesystem::
 		return {};
 	}
 
-	BuildShaderParameterInfo( parameterMap.GetParameterMap( ), shader->ParameterInfo( ) );
-	shader->ParameterMap( ) = parameterMap;
+	BuildShaderParameterInfo( parameterMap.GetParameterMap(), shader->ParameterInfo() );
+	shader->ParameterMap() = parameterMap;
 
 	Archive ar;
 	shader->Serialize( ar );
@@ -136,11 +136,11 @@ std::optional<Products> ShaderManufacturer::Manufacture( const std::filesystem::
 #ifdef ASSET_VALIDATE
 	if ( ValidateShaderAsset( shader, ar ) == false )
 	{
-		DebugBreak( );
+		DebugBreak();
 	}
 #endif
 
 	Products products;
-	products.emplace_back( srcPath.filename( ), std::move( ar ) );
+	products.emplace_back( srcPath.filename(), std::move( ar ) );
 	return products;
 }

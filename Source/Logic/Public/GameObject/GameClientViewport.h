@@ -29,5 +29,5 @@ private:
 	uint32 m_drawFence = 0;
 	uint32 m_curDrawFence = 0;
 
-	float m_clearColor[4] = { 0.f, 0.f, 1.f, 1.f };
+	float m_clearColor[4] = { 0.f, 0.f, 0.f, 1.f };
 };

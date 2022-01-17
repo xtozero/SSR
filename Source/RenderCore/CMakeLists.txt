@@ -81,10 +81,12 @@ set (PRECOMPILED
 set (PROXIES_SOURCE
 	Private/Proxies/LightProxy.cpp
 	Private/Proxies/PrimitiveProxy.cpp
+	Private/Proxies/SkyAtmosphereProxy.cpp
 	Private/Proxies/StaticMeshPrimitiveProxy.cpp
 	Private/Proxies/TexturedSkyProxy.cpp
 	Public/Proxies/LightProxy.h
 	Public/Proxies/PrimitiveProxy.h
+	Public/Proxies/SkyAtmosphereProxy.h
 	Public/Proxies/StaticMeshPrimitiveProxy.h
 	Public/Proxies/TexturedSkyProxy.h)
 
@@ -102,6 +104,7 @@ set (RENDER_SCENE_SOURCE
 	Public/Scene/ShadowInfo.h)
 
 set (RENDER_UTILITY
+	../Shaders/Public/AtmoshpericScattering/AtmosphereConstant.h
 	Private/RenderUtility/AbstractGraphicsInterface.cpp
 	Private/RenderUtility/CommonRenderResource.cpp
 	Private/RenderUtility/RenderCoreAllocator.cpp
@@ -117,11 +120,13 @@ set (RENDERER_SOURCE
 	Private/Renderer/ForwardRenderer.cpp
 	Private/Renderer/RenderView.cpp
 	Private/Renderer/SceneRenderer.cpp
+	Private/Renderer/SkyAtmosphereRendering.cpp
 	Public/Renderer/ForwardLighting.h
 	Public/Renderer/ForwardRenderer.h
 	Public/Renderer/IRenderCore.h
 	Public/Renderer/RenderView.h
-	Public/Renderer/SceneRenderer.h)
+	Public/Renderer/SceneRenderer.h
+	Public/Renderer/SkyAtmosphereRendering.h)
 	
 source_group("GraphicsResource" FILES ${GRAPHICS_RESOURCE_SOURCE})
 source_group("Material" FILES ${MATERIAL_SOURCE})
@@ -157,6 +162,7 @@ PUBLIC
 	./Public/Renderer
 PRIVATE
 	../Logic/Public
+	../Shaders/Public/AtmoshpericScattering
 	./Public/Mesh
 	./Public/Pch
 	./Public/Proxies

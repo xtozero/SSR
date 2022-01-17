@@ -34,7 +34,7 @@ namespace aga
 		uint32 bindFlag = ConvertTypeToBind( trait.m_bindType );
 		uint32 cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );
 		uint32 miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
-		
+
 		return D3D11_TEXTURE2D_DESC{
 			trait.m_width,
 			trait.m_height,
@@ -175,6 +175,55 @@ namespace aga
 		return srv;
 	}
 
+	D3D11_UNORDERED_ACCESS_VIEW_DESC ConvertDescToUAV( const D3D11_TEXTURE1D_DESC& desc )
+	{
+		D3D11_UNORDERED_ACCESS_VIEW_DESC uav = {};
+
+		uav.Format = desc.Format;
+
+		if ( desc.ArraySize > 1 )
+		{
+			uav.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE1DARRAY;
+			uav.Texture1DArray.ArraySize = desc.ArraySize;
+		}
+		else
+		{
+			uav.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE1D;
+		}
+
+		return uav;
+	}
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC ConvertDescToUAV( const D3D11_TEXTURE2D_DESC& desc )
+	{
+		D3D11_UNORDERED_ACCESS_VIEW_DESC uav = {};
+
+		uav.Format = desc.Format;
+
+		if ( desc.ArraySize > 1 )
+		{
+			uav.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2DARRAY;
+			uav.Texture2DArray.ArraySize = desc.ArraySize;
+		}
+		else
+		{
+			uav.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+		}
+
+		return uav;
+	}
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC ConvertDescToUAV( const D3D11_TEXTURE3D_DESC& desc )
+	{
+		D3D11_UNORDERED_ACCESS_VIEW_DESC uav = {};
+
+		uav.Format = desc.Format;
+		uav.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE3D;
+		uav.Texture3D.WSize = desc.Depth;
+
+		return uav;
+	}
+
 	D3D11_RENDER_TARGET_VIEW_DESC ConvertDescToRTV( const D3D11_TEXTURE2D_DESC& desc )
 	{
 		D3D11_RENDER_TARGET_VIEW_DESC rtv = {};
@@ -243,27 +292,34 @@ namespace aga
 		return dsv;
 	}
 
-	D3D11BaseTexture1D::D3D11BaseTexture1D( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData ) 
+	D3D11BaseTexture1D::D3D11BaseTexture1D( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
 		: D3D11Texture<ID3D11Texture1D>( trait, initData )
 	{
 	}
 
-	void D3D11BaseTexture1D::CreateTexture( )
+	void D3D11BaseTexture1D::CreateTexture()
 	{
 		m_desc = ConvertTraitTo1DDesc( m_trait );
 
-		[[maybe_unused]] HRESULT hr = D3D11Device( ).CreateTexture1D( &m_desc, m_dataStorage ? m_initData.data( ) : nullptr, &m_texture );
+		[[maybe_unused]] HRESULT hr = D3D11Device().CreateTexture1D( &m_desc, m_dataStorage ? m_initData.data() : nullptr, &m_texture );
 		assert( SUCCEEDED( hr ) );
 	}
 
-	void D3D11BaseTexture1D::CreateShaderResource( )
+	void D3D11BaseTexture1D::CreateShaderResource()
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc );
 		m_srv = new D3D11ShaderResourceView( m_texture, srvDesc );
-		m_srv->Init( );
+		m_srv->Init();
 	}
 
-	D3D11BaseTexture2D::D3D11BaseTexture2D( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData ) 
+	void D3D11BaseTexture1D::CreateUnorderedAccess()
+	{
+		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc );
+		m_uav = new D3D11UnorderedAccessView( m_texture, uavDesc );
+		m_uav->Init();
+	}
+
+	D3D11BaseTexture2D::D3D11BaseTexture2D( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
 		: D3D11Texture<ID3D11Texture2D>( trait, initData )
 	{
 	}
@@ -278,33 +334,40 @@ namespace aga
 		}
 	}
 
-	void D3D11BaseTexture2D::CreateTexture( )
+	void D3D11BaseTexture2D::CreateTexture()
 	{
 		m_desc = ConvertTraitTo2DDesc( m_trait );
 
-		[[maybe_unused]] HRESULT hr = D3D11Device( ).CreateTexture2D( &m_desc, m_dataStorage ? m_initData.data( ) : nullptr, &m_texture );
+		[[maybe_unused]] HRESULT hr = D3D11Device().CreateTexture2D( &m_desc, m_dataStorage ? m_initData.data() : nullptr, &m_texture );
 		assert( SUCCEEDED( hr ) );
 	}
 
-	void D3D11BaseTexture2D::CreateShaderResource( )
+	void D3D11BaseTexture2D::CreateShaderResource()
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc );
 		m_srv = new D3D11ShaderResourceView( m_texture, srvDesc );
-		m_srv->Init( );
+		m_srv->Init();
 	}
 
-	void D3D11BaseTexture2D::CreateRenderTarget( )
+	void D3D11BaseTexture2D::CreateUnorderedAccess()
+	{
+		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc );
+		m_uav = new D3D11UnorderedAccessView( m_texture, uavDesc );
+		m_uav->Init();
+	}
+
+	void D3D11BaseTexture2D::CreateRenderTarget()
 	{
 		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = ConvertDescToRTV( m_desc );
 		m_rtv = new D3D11RenderTargetView( m_texture, rtvDesc );
-		m_rtv->Init( );
+		m_rtv->Init();
 	}
 
-	void D3D11BaseTexture2D::CreateDepthStencil( )
+	void D3D11BaseTexture2D::CreateDepthStencil()
 	{
 		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = ConvertDescToDSV( m_desc );
 		m_dsv = new D3D11DepthStencilView( m_texture, dsvDesc );
-		m_dsv->Init( );
+		m_dsv->Init();
 	}
 
 	D3D11BaseTexture3D::D3D11BaseTexture3D( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
@@ -312,19 +375,26 @@ namespace aga
 	{
 	}
 
-	void D3D11BaseTexture3D::CreateTexture( )
+	void D3D11BaseTexture3D::CreateTexture()
 	{
 		m_desc = ConvertTraitTo3DDesc( m_trait );
 
-		[[maybe_unused]] HRESULT hr = D3D11Device( ).CreateTexture3D( &m_desc, m_dataStorage ? m_initData.data( ) : nullptr, &m_texture );
+		[[maybe_unused]] HRESULT hr = D3D11Device().CreateTexture3D( &m_desc, m_dataStorage ? m_initData.data() : nullptr, &m_texture );
 		assert( SUCCEEDED( hr ) );
 	}
 
-	void D3D11BaseTexture3D::CreateShaderResource( )
+	void D3D11BaseTexture3D::CreateShaderResource()
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc );
 		m_srv = new D3D11ShaderResourceView( m_texture, srvDesc );
-		m_srv->Init( );
+		m_srv->Init();
+	}
+
+	void D3D11BaseTexture3D::CreateUnorderedAccess()
+	{
+		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc );
+		m_uav = new D3D11UnorderedAccessView( m_texture, uavDesc );
+		m_uav->Init();
 	}
 
 	bool IsTexture1D( const TEXTURE_TRAIT& trait )

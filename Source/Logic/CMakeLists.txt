@@ -10,6 +10,7 @@ set (COMPOENETS
 	Private/Components/LightComponent.cpp
 	Private/Components/PrimitiveComponent.cpp
 	Private/Components/SceneComponent.cpp
+	Private/Components/SkyAtmosphereComponent.cpp
 	Private/Components/StaticMeshComponent.cpp
 	Private/Components/TexturedSkyComponent.cpp
 	Public/Components/CameraComponent.h
@@ -18,6 +19,7 @@ set (COMPOENETS
 	Public/Components/LightComponent.h
 	Public/Components/PrimitiveComponent.h
 	Public/Components/SceneComponent.h
+	Public/Components/SkyAtmosphereComponent.h
 	Public/Components/StaticMeshComponent.h
 	Public/Components/TexturedSkyComponent.h)
 	
@@ -42,6 +44,7 @@ set (GAME_OBJECT
 	Private/GameObject/GameObjectFactory.cpp
 	Private/GameObject/Light.cpp
 	Private/GameObject/PickingManager.cpp
+	Private/GameObject/SkyAtmosphere.cpp
 	Private/GameObject/SkyBox.cpp
 	Private/GameObject/StaticMeshGameObject.cpp
 	Public/GameObject/DisplayShaderResourceHelper.h
@@ -51,6 +54,7 @@ set (GAME_OBJECT
 	Public/GameObject/GameObjectProperty.h
 	Public/GameObject/Light.h
 	Public/GameObject/PickingManager.h
+	Public/GameObject/SkyAtmosphere.h
 	Public/GameObject/SkyBox.h
 	Public/GameObject/StaticMeshGameObject.h)
 
@@ -118,12 +122,10 @@ set (PRECOMPILED
 	Public/Pch/targetver.h)
 
 set (SCENE
-	Private/Scene/AtmosphereScattering.cpp
 	Private/Scene/DebugOverlayManager.cpp
 	Private/Scene/DynamicBuffer.cpp
 	Private/Scene/ScreenBlurManager.cpp
 	Private/Scene/SSRManager.cpp
-	Public/Scene/AtmosphereScattering.h
 	Public/Scene/DebugOverlayManager.h
 	Public/Scene/DynamicBuffer.h
 	Public/Scene/INotifyGraphicsDevice.h
@@ -138,10 +140,6 @@ set (UI
 	Private/UI/ImUI.cpp
 	Private/UI/ImUI_Draw.cpp
 	Public/UI/ImUI.h)
-	
-set (UNIT_TEST
-	Private/Scene/ComputeShaderUnitTest.cpp
-	Public/Scene/ComputeShaderUnitTest.h)
 	
 set (USER_INPUT
 	Private/UserInput/Controller.cpp
@@ -162,7 +160,6 @@ source_group("GameObject\\TestScene" FILES ${TEST_SCENE_OBJECT})
 source_group("Physics" FILES ${PHYSICS})
 source_group("Render" FILES ${SCENE})
 source_group("UI" FILES ${UI})
-source_group("UintTest" FILES ${UNIT_TEST})
 source_group("UserInput" FILES ${USER_INPUT})
 source_group("World" FILES ${WORLD})
 

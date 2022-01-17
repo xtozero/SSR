@@ -15,16 +15,21 @@ class HemisphereLightProxy;
 class PrimitiveSceneInfo;
 class TexturedSkyProxy;
 
+namespace rendercore
+{
+	class SkyAtmosphereRenderSceneInfo;
+}
+
 class Scene final : public IScene
 {
 public:
 	virtual void AddPrimitive( PrimitiveComponent* primitive ) override;
 	virtual void RemovePrimitive( PrimitiveComponent* primitive ) override;
-	virtual SparseArray<PrimitiveSceneInfo*>& Primitives( ) override
+	virtual SparseArray<PrimitiveSceneInfo*>& Primitives() override
 	{
 		return m_primitives;
 	}
-	virtual const SparseArray<PrimitiveSceneInfo*>& Primitives( ) const override
+	virtual const SparseArray<PrimitiveSceneInfo*>& Primitives() const override
 	{
 		return m_primitives;
 	}
@@ -32,46 +37,49 @@ public:
 	virtual void AddTexturedSkyComponent( TexturedSkyComponent* texturedSky ) override;
 	virtual void RemoveTexturedSkyComponent( TexturedSkyComponent* texturedSky ) override;
 
+	virtual void AddSkyAtmosphere( SkyAtmospherePorxy* skyAtmosphereProxy ) override;
+	virtual void RemoveAtomosphere( SkyAtmospherePorxy* skyAtmosphereProxy ) override;
+
 	virtual void AddHemisphereLightComponent( HemisphereLightComponent* light ) override;
 	virtual void RemoveHemisphereLightComponent( HemisphereLightComponent* light ) override;
 
 	virtual void AddLight( LightComponent* light ) override;
 	virtual void RemoveLight( LightComponent* light ) override;
 
-	virtual SceneViewConstantBuffer& SceneViewConstant( ) override
+	virtual SceneViewConstantBuffer& SceneViewConstant() override
 	{
 		return m_viewConstant;
 	}
-	virtual const SceneViewConstantBuffer& SceneViewConstant( ) const override
+	virtual const SceneViewConstantBuffer& SceneViewConstant() const override
 	{
 		return m_viewConstant;
 	}
 
-	virtual ScenePrimitiveBuffer& GpuPrimitiveInfo( ) override
+	virtual ScenePrimitiveBuffer& GpuPrimitiveInfo() override
 	{
 		return m_gpuPrimitiveInfos;
 	}
 
-	virtual const ScenePrimitiveBuffer& GpuPrimitiveInfo( ) const override
+	virtual const ScenePrimitiveBuffer& GpuPrimitiveInfo() const override
 	{
 		return m_gpuPrimitiveInfos;
 	}
 
-	virtual SHADING_METHOD ShadingMethod( ) const override;
+	virtual SHADING_METHOD ShadingMethod() const override;
 
-	virtual Scene* GetRenderScene( ) { return this; };
+	virtual Scene* GetRenderScene() { return this; };
 
-	const SparseArray<LightSceneInfo*>& Lights( ) const
+	const SparseArray<LightSceneInfo*>& Lights() const
 	{
 		return m_lights;
 	}
 
-	SparseArray<BoxSphereBounds>& PrimitiveBounds( )
+	SparseArray<BoxSphereBounds>& PrimitiveBounds()
 	{
 		return m_primitiveBounds;
 	}
 
-	const SparseArray<BoxSphereBounds>& PrimitiveBounds( ) const
+	const SparseArray<BoxSphereBounds>& PrimitiveBounds() const
 	{
 		return m_primitiveBounds;
 	}
@@ -79,15 +87,25 @@ public:
 	[[nodiscard]] CachedDrawSnapshotInfo AddCachedDrawSnapshot( RenderPass passType, const DrawSnapshot& snapshot );
 	void RemoveCachedDrawSnapshot( const CachedDrawSnapshotInfo& info );
 	SparseArray<DrawSnapshot>& CachedSnapshots( RenderPass passType ) { return m_cachedSnapshots[static_cast<uint32>( passType )]; }
-	 
-	TexturedSkyProxy* TexturedSky( )
+
+	TexturedSkyProxy* TexturedSky()
 	{
 		return m_texturedSky;
 	}
 
-	const HemisphereLightProxy* HemisphereLight( ) const
+	const HemisphereLightProxy* HemisphereLight() const
 	{
 		return m_hemisphereLight;
+	}
+
+	rendercore::SkyAtmosphereRenderSceneInfo* SkyAtmosphereSceneInfo()
+	{
+		return m_skyAtmosphere;
+	}
+
+	const LightSceneInfo* SkyAtmosphereSunLight()
+	{
+		return m_skyAtmosphereLight;
 	}
 
 private:
@@ -103,10 +121,16 @@ private:
 	void AddLightSceneInfo( LightSceneInfo* lightSceneInfo );
 	void RemoveLightSceneInfo( LightSceneInfo* lightSceneInfo );
 
+	void AddSkyAtmosphereLight( LightSceneInfo* lightSceneInfo );
+	void RemoveSkyAtmosphereLight( LightSceneInfo* lightSceneInfo );
+
 	SparseArray<PrimitiveSceneInfo*> m_primitives;
 	SparseArray<BoxSphereBounds> m_primitiveBounds;
 
 	TexturedSkyProxy* m_texturedSky = nullptr;
+
+	rendercore::SkyAtmosphereRenderSceneInfo* m_skyAtmosphere = nullptr;
+	LightSceneInfo* m_skyAtmosphereLight = nullptr;
 
 	HemisphereLightProxy* m_hemisphereLight = nullptr;
 

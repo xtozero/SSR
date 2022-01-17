@@ -4,17 +4,17 @@ set IncludePath=Public
 
 echo %IncludePath%
 
-rem fxc /Fo CS_Experimental.cso					/Zi /T cs_5_0 /I %IncludePath% /E main Private/csExperimental.fx
-rem fxc /Fo CS_Transmittance.cso				/Zi /T cs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/csTransmittance.fx
-rem fxc /Fo CS_Irradiance1.cso					/Zi /T cs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/csIrradiance1.fx
-rem fxc /Fo CS_Inscatter1.cso					/Zi /T cs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/csInscatter1.fx
-rem fxc /Fo CS_CopyIrradiance.cso				/Zi /T cs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/csCopyIrradiance.fx
-rem fxc /Fo CS_CopyInscatter1.cso				/Zi /T cs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/csCopyInscatter1.fx
-rem fxc /Fo CS_InscatterS.cso					/Zi /T cs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/csInscatterS.fx
-rem fxc /Fo CS_IrradianceN.cso					/Zi /T cs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/csIrradianceN.fx
-rem fxc /Fo CS_InscatterN.cso					/Zi /T cs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/csInscatterN.fx
-rem fxc /Fo CS_CopyInscatterN.cso				/Zi /T cs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/csCopyInscatterN.fx
-rem fxc /Fo CS_DistributionCopy.cso				/Zi /T cs_5_0 /I %IncludePath% /E main Private/CS_DistributionCopy.fx
+rem fxc /Fo CS_Experimental.cso					/Zi /T cs_5_0 /I %IncludePath% /E main Private/CS_Experimental.fx
+fxc /Fo CS_Transmittance.cso				/Zi /T cs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/CS_Transmittance.fx
+fxc /Fo CS_Irradiance1.cso					/Zi /T cs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/CS_Irradiance1.fx
+fxc /Fo CS_Inscatter1.cso					/Zi /T cs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/CS_Inscatter1.fx
+fxc /Fo CS_CopyIrradiance.cso				/Zi /T cs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/CS_CopyIrradiance.fx
+fxc /Fo CS_CopyInscatter1.cso				/Zi /T cs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/CS_CopyInscatter1.fx
+fxc /Fo CS_InscatterS.cso					/Zi /T cs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/CS_InscatterS.fx
+fxc /Fo CS_IrradianceN.cso					/Zi /T cs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/CS_IrradianceN.fx
+fxc /Fo CS_InscatterN.cso					/Zi /T cs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/CS_InscatterN.fx
+fxc /Fo CS_CopyInscatterN.cso				/Zi /T cs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/CS_CopyInscatterN.fx
+fxc /Fo CS_DistributionCopy.cso				/Zi /T cs_5_0 /I %IncludePath% /E main Private/CS_DistributionCopy.fx
 
 fxc /Fo GS_CascadedShadowmap.cso			/Zi /T gs_5_0 /I %IncludePath% /E main Private/GS_CascadedShadowmap.fx
 
@@ -37,7 +37,7 @@ rem fxc /Fo PS_GaussianBlurY.cso				/Zi /T ps_5_0 /I %IncludePath% /E main Priva
 rem fxc /Fo PS_DrawBackfaceDepth.cso			/Zi /T ps_5_0 /I %IncludePath% /E main Private/psDrawBackfaceDepth.fx
 rem fxc /Fo PS_DrawUI.cso						/Zi /T ps_5_0 /I %IncludePath% /E psMain Private/drawUI.fx
 rem fxc /Fo PS_DebugOverlay.cso					/Zi /T ps_5_0 /I %IncludePath% /E psMain Private/debugOverlay.fx
-rem fxc /Fo PS_DrawAtmosphere.cso				/Zi /T ps_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/psDrawAtmosphere.fx
+fxc /Fo PS_DrawAtmosphere.cso				/Zi /T ps_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/PS_DrawAtmosphere.fx
 
 fxc /Fo VS_CascadedShadowmap.cso			/Zi /T vs_5_0 /I %IncludePath% /E main Private/VS_CascadedShadowmap.fx
 rem fxc /Fo VS_DepthStencil.cso 					/Zi /T vs_5_0 /I %IncludePath% /E main Private/vsDepthStencil.fx
@@ -52,7 +52,7 @@ fxc /Fo VS_Tutorial.cso 					/Zi /T vs_5_0 /I %IncludePath% /E main Private/vsTu
 rem fxc /Fo VS_DrawBackfaceDepth.cso			/Zi /T vs_5_0 /I %IncludePath% /E main Private/vsDrawBackfaceDepth.fx
 rem fxc /Fo VS_DrawUI.cso						/Zi /T vs_5_0 /I %IncludePath% /E vsMain Private/drawUI.fx
 rem fxc /Fo VS_DebugOverlay.cso					/Zi /T vs_5_0 /I %IncludePath% /E vsMain Private/debugOverlay.fx
-rem fxc /Fo VS_DrawAtmosphere.cso				/Zi /T vs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/vsDrawAtmosphere.fx
+fxc /Fo VS_DrawAtmosphere.cso				/Zi /T vs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/VS_DrawAtmosphere.fx
 copy /Y "*.cso" "..\..\RawAssets\Shaders\*.cso"
 DEL "*.cso"
 pause>nul

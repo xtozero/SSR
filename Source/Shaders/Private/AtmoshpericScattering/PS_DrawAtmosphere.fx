@@ -1,11 +1,14 @@
 #define ATMOSPHERE_RENDERING
 
-#include "AtmoshpericScattering/atmosphereCommon.fxh"
+#include "AtmoshpericScattering/AtmosphereCommon.fxh"
+
+Texture2D SceneDepth : register( t3 );
+SamplerState SceneDepthSampler : register( s3 );
 
 static const float ISun = 100.f;
 static const float HeightOffset = 0.01f;
 
-cbuffer ATMOSPHERIC_PARAMETER : register( b4 )
+cbuffer SkyAtmosphereRenderParameter : register( b1 )
 {
 	float4 g_cameraPos : packoffset( c0 );
 	float4 g_sunDir : packoffset( c1 );
@@ -16,7 +19,9 @@ cbuffer ATMOSPHERIC_PARAMETER : register( b4 )
 struct PS_INPUT
 {
 	float4 position : SV_POSITION;
-	float3 wolrdPos : POSITION0;
+	float3 worldPosition : POSITION0;
+	float3 viewRay : POSITION1;
+	float2 uv : TEXCOORD0;
 };
 
 float3 InscatterColor( float3 x, float t, float3 viewRay, float r, float mu, out float3 attenuation )
@@ -24,17 +29,17 @@ float3 InscatterColor( float3 x, float t, float3 viewRay, float r, float mu, out
 	float3 result = 0.f;
 	attenuation = 1.f;
 
-	float d = -r * mu - sqrt( r * r * ( mu * mu - 1.f ) + Rt * Rt );
+	float d = -r * mu - sqrt( r * r * (mu * mu - 1.f) + Rt * Rt );
 	if ( d > 0.f )
 	{
 		x += d * viewRay;
 		t -= d;
-		mu = ( r * mu + d ) / Rt;
+		mu = (r * mu + d) / Rt;
 		r = Rt;
 	}
 
 	static const float EPS = 0.005f;
-
+	/*
 	if ( r < Rg + HeightOffset + EPS )
 	{
 		float diff = ( Rg + HeightOffset + EPS ) - r;
@@ -43,50 +48,50 @@ float3 InscatterColor( float3 x, float t, float3 viewRay, float r, float mu, out
 		mu = dot( x, viewRay ) / r;
 		r = Rg + HeightOffset + EPS;
 	}
+	*/
 
-	if ( r <= Rt )
+	if ( r < Rt )
 	{
 		float nu = dot( viewRay, g_sunDir.xyz );
 		float muS = dot( x, g_sunDir.xyz ) / r;
-		float4 inscatter = max( Sample4D( inscatterTex, inscatterSampler, r, mu, muS, nu ), 0.f );
 
+		float4 inscatter = max( Sample4D( InscatterLut, InscatterLutSampler, r, mu, muS, nu ), 0.f );
+
+		float mu0 = mu;
+		float muS0 = muS;
 		if ( t > 0.f )
 		{
 			float3 x0 = x + t * viewRay;
 			float altitude0 = length( x0 );
-			float mu0 = dot( x0, viewRay ) / altitude0;
-			float muS0 = dot( x0, g_sunDir.xyz ) / altitude0;
+			mu0 = dot( x0, viewRay ) / altitude0;
+			muS0 = dot( x0, g_sunDir.xyz ) / altitude0;
 
 			attenuation = AnalyticTransmittance( r, mu, t );
+			inscatter = max( inscatter - attenuation.rgbr * Sample4D( InscatterLut, InscatterLutSampler, altitude0, mu0, muS0, nu ), 0.f );
+		}
 
-			if ( altitude0 > Rg + HeightOffset )
-			{
-				inscatter = max( inscatter - attenuation.rgbr * Sample4D( inscatterTex, inscatterSampler, altitude0, mu0, muS0, nu ), 0.f );
+		float muHoriz = -sqrt( 1.f - (Rg / r) * (Rg / r) );
+		if ( abs( mu - muHoriz ) < EPS )
+		{
+			float a = ((mu - muHoriz) + EPS) / (2.f * EPS);
 
-				float muHoriz = -sqrt( 1.f - ( Rg / r ) * ( Rg / r ) );
-				if ( abs( mu - muHoriz ) < EPS )
-				{
-					float a = ( ( mu - muHoriz ) + EPS ) / ( 2.f * EPS );
+			mu = muHoriz - EPS;
+			float altitude0 = sqrt( r * r + t * t + 2.f * r * t * mu );
+			mu0 = (r * mu + t) / altitude0;
 
-					mu = muHoriz - EPS;
-					altitude0 = sqrt( r * r + t * t + 2.f * r * t * mu );
-					mu0 = ( r * mu + t ) / altitude0;
+			float4 inscatter0 = Sample4D( InscatterLut, InscatterLutSampler, r, mu, muS, nu );
+			float4 inscatter1 = Sample4D( InscatterLut, InscatterLutSampler, altitude0, mu0, muS0, nu );
+			float4 inscatterA = max( inscatter0 - attenuation.rgbr * inscatter1, 0.f );
 
-					float4 inscatter0 = Sample4D( inscatterTex, inscatterSampler, r, mu, muS, nu );
-					float4 inscatter1 = Sample4D( inscatterTex, inscatterSampler, altitude0, mu0, muS0, nu );
-					float4 inscatterA = max( inscatter0 - attenuation.rgbr * inscatter1, 0.f );
+			mu = muHoriz + EPS;
+			altitude0 = sqrt( r * r + t * t + 2.f * r * t * mu );
+			mu0 = (r * mu + t) / altitude0;
 
-					mu = muHoriz + EPS;
-					altitude0 = sqrt( r * r + t * t + 2.f * r * t * mu );
-					mu0 = ( r * mu + t ) / altitude0;
+			inscatter0 = Sample4D( InscatterLut, InscatterLutSampler, r, mu, muS, nu );
+			inscatter1 = Sample4D( InscatterLut, InscatterLutSampler, altitude0, mu0, muS0, nu );
+			float4 inscatterB = max( inscatter0 - attenuation.rgbr * inscatter1, 0.f );
 
-					inscatter0 = Sample4D( inscatterTex, inscatterSampler, r, mu, muS, nu );
-					inscatter1 = Sample4D( inscatterTex, inscatterSampler, altitude0, mu0, muS0, nu );
-					float4 inscatterB = max( inscatter0 - attenuation.rgbr * inscatter1, 0.f );
-
-					inscatter = lerp( inscatterA, inscatterB, a );
-				}
-			}
+			inscatter = lerp( inscatterA, inscatterB, a );
 		}
 
 		inscatter.w *= smoothstep( 0.f, 0.02f, muS );
@@ -99,7 +104,7 @@ float3 InscatterColor( float3 x, float t, float3 viewRay, float r, float mu, out
 	return result * ISun;
 }
 
-float3 GroundColor( float3 x, float t, float3 viewRay, float r, float mu, float3 attenuation )
+float3 GroundColor( float3 x, float t, float3 viewRay, float r, float mu, float3 attenuation, bool isSceneGeometry )
 {
 	float3 result = 0.f;
 
@@ -110,11 +115,11 @@ float3 GroundColor( float3 x, float t, float3 viewRay, float r, float mu, float3
 		float3 n = x0 / altitude0;
 
 		float muS = dot( n, g_sunDir.xyz );
-		float3 sunLight = TransmittanceWithShadow( altitude0, muS );
+		float3 sunLight = isSceneGeometry ? 0 : TransmittanceWithShadow( altitude0, muS );
 
 		float3 groundSkyLight = Irradiance( altitude0, muS );
 
-		float3 sceneColor = float3( 0.35f, 0.35f, 0.35f );
+		float3 sceneColor = isSceneGeometry ? 0 : float3( 0.35f, 0.35f, 0.35f );
 		float3 reflectance = sceneColor * float3( 0.2f, 0.2f, 0.2f );
 		if ( altitude0 > Rg + HeightOffset ) 
 		{
@@ -129,9 +134,9 @@ float3 GroundColor( float3 x, float t, float3 viewRay, float r, float mu, float3
 	return result;
 }
 
-float3 SunColor( float3 x, float t, float3 viewRay, float r, float mu )
+float3 SunColor( float3 x, float t, float3 viewRay, float r, float mu, bool isSceneGeometry )
 {
-	if ( t > 0.f )
+	if ( isSceneGeometry || t > 0.f )
 	{
 		return 0.f;
 	}
@@ -154,7 +159,7 @@ float3 HDR( float3 l )
 
 float4 main( PS_INPUT input ) : SV_Target
 {
-	float3 viewRay = normalize( input.wolrdPos - g_cameraPos.xyz );
+	float3 viewRay = normalize( input.worldPosition - g_cameraPos.xyz );
 
 	float scale = 0.00001f;
 	float3 viewPos = g_cameraPos.xyz * scale;
@@ -165,10 +170,18 @@ float4 main( PS_INPUT input ) : SV_Target
 	float mu = dot( viewPos, viewRay ) / r;
 	float t = -r * mu - sqrt( r * r * ( mu * mu - 1.f ) + Rg * Rg );
 
+	float sceneDepth = SceneDepth.Sample( SceneDepthSampler, input.uv ).x;
+	bool isSceneGeometry = sceneDepth < 1.f;
+
+	if ( isSceneGeometry )
+	{
+		t = length( input.viewRay * sceneDepth * scale );
+	}
+
 	float3 attenuation;
 	float3 inscatterColor = InscatterColor( viewPos, t, viewRay, r, mu, attenuation );
-	float3 groundColor = GroundColor( viewPos, t, viewRay, r, mu, attenuation );
-	float3 sunColor = SunColor( viewPos, t, viewRay, r, mu );
+	float3 groundColor = GroundColor( viewPos, t, viewRay, r, mu, attenuation, isSceneGeometry );
+	float3 sunColor = SunColor( viewPos, t, viewRay, r, mu, isSceneGeometry );
 
 	return float4( HDR( sunColor + inscatterColor + groundColor ), 1.f );
 }

@@ -18,6 +18,7 @@
 #include "ShaderBindings.h"
 #include "ShadowDrawPassProcessor.h"
 #include "ShadowSetup.h"
+#include "SkyAtmosphereRendering.h"
 #include "Viewport.h"
 
 #include <deque>
@@ -562,6 +563,81 @@ void SceneRenderer::RenderShadow()
 		VertexBuffer emptyPrimitiveID;
 		CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
 	}
+}
+
+void SceneRenderer::RenderSkyAtmosphere( IScene& scene, RenderView& renderView )
+{
+	Scene* renderScene = scene.GetRenderScene();
+	if ( renderScene == nullptr )
+	{
+		return;
+	}
+
+	rendercore::SkyAtmosphereRenderSceneInfo* info = renderScene->SkyAtmosphereSceneInfo();
+	if ( info == nullptr )
+	{
+		return;
+	}
+
+	const LightSceneInfo* skyAtmosphereLight = renderScene->SkyAtmosphereSunLight();
+	if ( skyAtmosphereLight == nullptr )
+	{
+		return;
+	}
+
+	LightProperty lightProperty = skyAtmosphereLight->Proxy()->GetLightProperty();
+
+	auto& skyAtmosphereRenderParameter = info->GetSkyAtmosphereRenderParameter();
+	rendercore::SkyAtmosphereRenderParameter param = {
+		.m_cameraPos = renderView.m_viewOrigin,
+		.m_sunDir = -lightProperty.m_direction,
+		.m_exposure = 0.4f,
+	};
+	skyAtmosphereRenderParameter.Update( param );
+
+	rendercore::SkyAtmosphereDrawPassProcessor skyAtmosphereDrawPassProcessor;
+
+	PrimitiveSubMesh meshInfo;
+	meshInfo.m_count = 3;
+
+	auto result = skyAtmosphereDrawPassProcessor.Process( meshInfo );
+	if ( result.has_value() == false )
+	{
+		return;
+	}
+
+	DrawSnapshot& snapshot = *result;
+
+	// Update invalidated resources
+	GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+	m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+	auto commandList = rendercore::GetImmediateCommandList();
+	ApplyOutputContext( commandList );
+
+	auto defaultSampler = GraphicsInterface().FindOrCreate( SamplerOption() );
+
+	RenderingShaderResource skyAtmosphereDrawResources;
+	skyAtmosphereDrawResources.AddResource( "TransmittanceLut", info->GetTransmittanceLutTexture()->SRV() );
+	skyAtmosphereDrawResources.AddResource( "TransmittanceLutSampler", defaultSampler.Resource() );
+	skyAtmosphereDrawResources.AddResource( "IrradianceLut", info->GetIrradianceLutTexture()->SRV() );
+	skyAtmosphereDrawResources.AddResource( "IrradianceLutSampler" , defaultSampler.Resource() );
+	skyAtmosphereDrawResources.AddResource( "InscatterLut", info->GetInscatterLutTexture()->SRV() );
+	skyAtmosphereDrawResources.AddResource( "InscatterLutSampler", defaultSampler.Resource() );
+	skyAtmosphereDrawResources.AddResource( "SkyAtmosphereRenderParameter", skyAtmosphereRenderParameter.Resource() );
+
+	skyAtmosphereDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+	VisibleDrawSnapshot visibleSnapshot = {
+				0,
+				0,
+				1,
+				-1,
+				&snapshot,
+	};
+
+	VertexBuffer emptyPrimitiveID;
+	CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
 }
 
 void SceneRenderer::StoreOuputContext( const RenderingOutputContext& context )

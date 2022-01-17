@@ -19,21 +19,25 @@ class LightComponent : public SceneComponent
 public:
 	using SceneComponent::SceneComponent;
 
-	virtual LightProxy* CreateProxy( ) const = 0;
+	virtual LightProxy* CreateProxy() const = 0;
+	virtual bool IsUsedAsAtmosphereSunLight() const
+	{
+		return false;
+	}
 
 	void SetDiffuseColor( const ColorF& diffuseColor );
-	const ColorF& DiffuseColor( ) const
+	const ColorF& DiffuseColor() const
 	{
 		return m_diffuse;
 	}
 
 	void SetSpecularColor( const ColorF& specularColor );
-	const ColorF& SpecularColor( ) const
+	const ColorF& SpecularColor() const
 	{
 		return m_specular;
 	}
 
-	bool& CastShadow( )
+	bool& CastShadow()
 	{
 		return m_castShadow;
 	}
@@ -43,7 +47,7 @@ public:
 		return m_castShadow;
 	}
 
-	ShadowQuility GetShadowQuility( ) const
+	ShadowQuility GetShadowQuility() const
 	{
 		return m_shadowQuility;
 	}
@@ -63,21 +67,30 @@ class DirectionalLightComponent : public LightComponent
 public:
 	using LightComponent::LightComponent;
 
-	virtual LightProxy* CreateProxy( ) const override;
+	virtual LightProxy* CreateProxy() const override;
+	virtual bool IsUsedAsAtmosphereSunLight() const override
+	{
+		return m_usedAsAtmosphereSunLight;
+	}
+	void SetUsedAsAtmosphereSunLight( bool on )
+	{
+		m_usedAsAtmosphereSunLight = on;
+	}
 
 	void SetDirection( const Vector& direction );
-	const Vector& Direction( ) const
+	const Vector& Direction() const
 	{
 		return m_direction;
 	}
 
 protected:
-	virtual bool ShouldCreateRenderState( ) const override;
-	virtual void CreateRenderState( ) override;
-	virtual void RemoveRenderState( ) override;
+	virtual bool ShouldCreateRenderState() const override;
+	virtual void CreateRenderState() override;
+	virtual void RemoveRenderState() override;
 
 private:
 	Vector m_direction;
+	bool m_usedAsAtmosphereSunLight = false;
 };
 
 class HemisphereLightComponent : public SceneComponent
@@ -85,14 +98,14 @@ class HemisphereLightComponent : public SceneComponent
 public:
 	using SceneComponent::SceneComponent;
 
-	virtual HemisphereLightProxy* CreateProxy( ) const;
+	virtual HemisphereLightProxy* CreateProxy() const;
 
 	void SetLowerColor( const ColorF& color )
 	{
 		m_lowerHemisphereColor = color;
 	}
 
-	const ColorF& LowerColor( ) const
+	const ColorF& LowerColor() const
 	{
 		return m_lowerHemisphereColor;
 	}
@@ -102,22 +115,22 @@ public:
 		m_upperHemisphereColor = color;
 	}
 
-	const ColorF& UpperColor( ) const
+	const ColorF& UpperColor() const
 	{
 		return m_upperHemisphereColor;
 	}
 
-	Vector UpVector( ) const;
+	Vector UpVector() const;
 
-	HemisphereLightProxy*& Proxy( )
+	HemisphereLightProxy*& Proxy()
 	{
 		return m_proxy;
 	}
 
 protected:
-	virtual bool ShouldCreateRenderState( ) const override;
-	virtual void CreateRenderState( ) override;
-	virtual void RemoveRenderState( ) override;
+	virtual bool ShouldCreateRenderState() const override;
+	virtual void CreateRenderState() override;
+	virtual void RemoveRenderState() override;
 
 private:
 	HemisphereLightProxy* m_proxy = nullptr;

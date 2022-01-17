@@ -52,6 +52,16 @@ public:
 		return m_castShadow;
 	}
 
+	bool& IsUsedAsAtmosphereSunLight()
+	{
+		return m_usedAsAtmosphereSunLight;
+	}
+
+	bool IsUsedAsAtmosphereSunLight() const
+	{
+		return m_usedAsAtmosphereSunLight;
+	}
+
 	RENDERCORE_DLL LightProxy( const LightComponent& component );
 	virtual ~LightProxy() = default;
 
@@ -63,6 +73,7 @@ protected:
 	ColorF m_specular;
 
 	bool m_castShadow = false;
+	bool m_usedAsAtmosphereSunLight = false;
 };
 
 class DirectionalLightProxy : public LightProxy

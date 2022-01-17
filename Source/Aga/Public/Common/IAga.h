@@ -10,6 +10,7 @@
 namespace aga
 {
 	class Buffer;
+	class Texture;
 
 	class IAga
 	{
@@ -19,8 +20,10 @@ namespace aga
 		virtual void AppSizeChanged() = 0;
 		virtual void WaitGPU() = 0;
 
-		virtual void* Lock( Buffer* buffer, uint32 lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, uint32 subResource = 0 ) = 0;
+		virtual LockedResource Lock( Buffer* buffer, uint32 lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, uint32 subResource = 0 ) = 0;
+		virtual LockedResource Lock( Texture* texture, uint32 lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, uint32 subResource = 0 ) = 0;
 		virtual void UnLock( Buffer* buffer, uint32 subResource = 0 ) = 0;
+		virtual void UnLock( Texture* texture, uint32 subResource = 0 ) = 0;
 
 		virtual void Copy( Buffer* dst, Buffer* src, uint32 size ) = 0;
 

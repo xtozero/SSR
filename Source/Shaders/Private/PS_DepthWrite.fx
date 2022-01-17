@@ -13,7 +13,7 @@ struct Output
 	float2 packedNormal : SV_Target1;
 };
 
-Output main( PS_INPUT input ) : SV_Target
+Output main( PS_INPUT input )
 {
 	Output output = (Output)0;
 	output.depth = input.position.w / g_FarPlaneDist;

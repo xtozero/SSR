@@ -47,8 +47,10 @@ namespace aga
 		virtual void AppSizeChanged() override;
 		virtual void WaitGPU() override;
 
-		virtual void* Lock( Buffer* buffer, uint32 lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, uint32 subResource = 0 ) override;
+		virtual LockedResource Lock( Buffer* buffer, uint32 lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, uint32 subResource = 0 ) override;
+		virtual LockedResource Lock( Texture* texture, uint32 lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, uint32 subResource = 0 ) override;
 		virtual void UnLock( Buffer* buffer, uint32 subResource = 0 ) override;
+		virtual void UnLock( Texture* texture, uint32 subResource = 0 ) override;
 
 		virtual void Copy( Buffer* dst, Buffer* src, uint32 size ) override;
 
@@ -158,11 +160,11 @@ namespace aga
 		}
 	}
 
-	void* CDirect3D11::Lock( Buffer* buffer, uint32 lockFlag, uint32 subResource )
+	LockedResource CDirect3D11::Lock( Buffer* buffer, uint32 lockFlag, uint32 subResource )
 	{
 		if ( buffer == nullptr )
 		{
-			return nullptr;
+			return {};
 		}
 
 		auto d3d11buffer = static_cast<D3D11Buffer*>( buffer );
@@ -174,7 +176,36 @@ namespace aga
 			__debugbreak();
 		}
 
-		return resource.pData;
+		LockedResource result = {
+			.m_data = resource.pData,
+			.m_rowPitch = resource.RowPitch,
+			.m_depthPitch = resource.DepthPitch
+		};
+		return result;
+	}
+
+	LockedResource CDirect3D11::Lock( Texture* texture, uint32 lockFlag, uint32 subResource )
+	{
+		if ( texture == nullptr )
+		{
+			return {};
+		}
+
+		auto d3d11Texture = static_cast<D3D11BaseTexture*>( texture );
+		D3D11_MAPPED_SUBRESOURCE resource;
+
+		HRESULT hr = m_pd3d11DeviceContext->Map( d3d11Texture->Resource(), subResource, ConvertLockFlagToD3D11Map( lockFlag ), 0, &resource );
+		if ( FAILED( hr ) )
+		{
+			__debugbreak();
+		}
+
+		LockedResource result = {
+			.m_data = resource.pData,
+			.m_rowPitch = resource.RowPitch,
+			.m_depthPitch = resource.DepthPitch
+		};
+		return result;
 	}
 
 	void CDirect3D11::UnLock( Buffer* buffer, uint32 subResource )
@@ -187,6 +218,18 @@ namespace aga
 		auto d3d11buffer = static_cast<D3D11Buffer*>( buffer );
 
 		m_pd3d11DeviceContext->Unmap( d3d11buffer->Resource(), subResource );
+	}
+
+	void CDirect3D11::UnLock( Texture* texture, uint32 subResource )
+	{
+		if ( texture == nullptr )
+		{
+			return;
+		}
+
+		auto d3d11Texture = static_cast<D3D11BaseTexture*>( texture );
+
+		m_pd3d11DeviceContext->Unmap( d3d11Texture->Resource(), subResource );
 	}
 
 	void CDirect3D11::EnumerateSampleCountAndQuality( int32* size, DXGI_SAMPLE_DESC* pSamples )

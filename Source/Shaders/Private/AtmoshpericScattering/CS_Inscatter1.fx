@@ -1,7 +1,7 @@
-#include "AtmoshpericScattering/atmosphereCommon.fxh"
+#include "AtmoshpericScattering/AtmosphereCommon.fxh"
 
-RWTexture3D<float4> deltaSRBuffer : register( u0 );
-RWTexture3D<float4> deltaSMBuffer : register( u1 );
+RWTexture3D<float4> DeltaSR : register( u0 );
+RWTexture3D<float4> DeltaSM : register( u1 );
 
 void Integrand( float r, float mu, float muS, float nu, float t, out float3 ray, out float3 mie )
 {
@@ -57,6 +57,6 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	float3 ray, mie;
 	Inscatter( r, mu, muS, nu, ray, mie );
 
-	deltaSRBuffer[DTid] = float4( ray, 0.f );
-	deltaSMBuffer[DTid] = float4( mie, 0.f );
+	DeltaSR[DTid] = float4( ray, 0.f );
+	DeltaSM[DTid] = float4( mie, 0.f );
 }

@@ -24,25 +24,25 @@ static const int INSCATTER_SPHERICAL_INTEGRAL_SAMPLES = 16;
 static const float M_PI = 3.141592657;
 
 #ifdef ATMOSPHERE_RENDERING
-Texture2D transmittanceTex : register( t0 );
-Texture2D irradianceTex : register( t1 );
-Texture3D inscatterTex : register( t2 );
+Texture2D TransmittanceLut : register( t0 );
+Texture2D IrradianceLut : register( t1 );
+Texture3D InscatterLut : register( t2 );
 
-SamplerState transmittanceSampler : register( s0 );
-SamplerState irradianceSampler : register( s1 );
-SamplerState inscatterSampler : register( s2 );
+SamplerState TransmittanceLutSampler : register( s0 );
+SamplerState IrradianceLutSampler : register( s1 );
+SamplerState InscatterLutSampler : register( s2 );
 #else
-Texture2D transmittanceTex : register( t0 );
-Texture2D deltaETex : register( t1 );
-Texture3D deltaSRTex : register( t2 );
-Texture3D deltaSMTex : register( t3 );
-Texture3D deltaJTex : register( t4 );
+Texture2D TransmittanceLut : register( t0 );
+Texture2D DeltaELut : register( t1 );
+Texture3D DeltaSRLut : register( t2 );
+Texture3D DeltaSMLut : register( t3 );
+Texture3D DeltaJLut : register( t4 );
 
-SamplerState transmittanceSampler : register( s0 );
-SamplerState deltaESampler : register( s1 );
-SamplerState deltaSRSampler : register( s2 );
-SamplerState deltaSMSampler : register( s3 );
-SamplerState deltaJSampler : register( s4 );
+SamplerState TransmittanceLutSampler : register( s0 );
+SamplerState DeltaELutSampler : register( s1 );
+SamplerState DeltaSRLutSampler : register( s2 );
+SamplerState DeltaSMLutSampler : register( s3 );
+SamplerState DeltaJLutSampler : register( s4 );
 #endif
 
 #define TRANSMITTANCE_NON_LINEAR
@@ -65,6 +65,7 @@ float limit( float r, float mu )
 	return dout;
 }
 
+#ifndef NO_TRANSMITTANCE_FUNCTION
 float2 GetTransmittanceUV( float r, float mu )
 {
 	float uR, uMu;
@@ -81,7 +82,7 @@ float2 GetTransmittanceUV( float r, float mu )
 float3 Transmittance( float r, float mu )
 {
 	float2 uv = GetTransmittanceUV(r, mu);
-	return transmittanceTex.SampleLevel( transmittanceSampler, uv, 0 ).rgb;
+	return TransmittanceLut.SampleLevel( TransmittanceLutSampler, uv, 0 ).rgb;
 }
 
 float3 TransmittanceWithShadow( float r, float mu )
@@ -106,6 +107,7 @@ float3 Transmittance( float r, float mu, float d )
 	}
 	return result;
 }
+#endif
 
 void GetRdhdH( int layer, out float r, out float4 dhdH )
 {
@@ -210,18 +212,20 @@ float3 AnalyticTransmittance( float r, float mu, float d )
 	return exp( -betaR * OpticalDepth( HR, r, mu, d ) - betaMEx * OpticalDepth( HM, r, mu, d ) );
 }
 
+#ifndef NO_IRRADIANCE_FUNCTION
 #ifdef ATMOSPHERE_RENDERING
 float3 Irradiance( float r, float muS )
 {
 	float2 uv = GetIrradianceUV( r, muS );
-	return irradianceTex.SampleLevel( irradianceSampler, uv, 0 ).rgb;
+	return IrradianceLut.SampleLevel( IrradianceLutSampler, uv, 0 ).rgb;
 }
 #else
 float3 Irradiance( float r, float muS )
 {
 	float2 uv = GetIrradianceUV( r, muS );
-	return deltaETex.SampleLevel( deltaESampler, uv, 0 ).rgb;
+	return DeltaELut.SampleLevel( DeltaELutSampler, uv, 0 ).rgb;
 }
+#endif
 #endif
 
 float PhaseFunctionR( float mu )

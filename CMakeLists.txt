@@ -13,6 +13,7 @@ add_subdirectory(Source/Engine)
 add_subdirectory(Source/RenderCore)
 add_subdirectory(Source/Logic)
 add_subdirectory(Source/ScreenSpaceReflection)
+add_subdirectory(Source/Shaders)
 
 option(BUILD_TOOLS "I don't need command-line tools" OFF)
 add_subdirectory(ThirdParty/DirectXTex)

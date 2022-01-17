@@ -12,7 +12,8 @@
 LightProxy::LightProxy( const LightComponent& component ) :
 	m_diffuse( component.DiffuseColor( ) ),
 	m_specular( component.SpecularColor( ) ),
-	m_castShadow( component.CastShadow( ) )
+	m_castShadow( component.CastShadow( ) ),
+	m_usedAsAtmosphereSunLight( component.IsUsedAsAtmosphereSunLight() )
 {
 }
 

@@ -9,6 +9,7 @@
 #include "Scene/LightSceneInfo.h"
 #include "Scene/Scene.h"
 #include "Scene/SceneConstantBuffers.h"
+#include "SkyAtmosphereRendering.h"
 #include "Viewport.h"
 
 void ForwardRendererRenderTargets::UpdateBufferSize( uint32 width, uint32 height )
@@ -159,10 +160,14 @@ void ForwardRenderer::Render( RenderViewGroup& renderViewGroup )
 {
 	RenderShadowDepthPass();
 
+	IScene& scene = renderViewGroup.Scene();
+	if ( Scene* renderScene = scene.GetRenderScene() )
+	{
+		rendercore::RenderAtmosphereLookUpTables( *renderScene );
+	}
+
 	for ( uint32 i = 0; i < static_cast<uint32>( renderViewGroup.Size() ); ++i )
 	{
-		IScene& scene = renderViewGroup.Scene();
-
 		auto& viewConstant = scene.SceneViewConstant();
 
 		auto& view = renderViewGroup[i];
@@ -180,6 +185,8 @@ void ForwardRenderer::Render( RenderViewGroup& renderViewGroup )
 		RenderDefaultPass( renderViewGroup, i );
 
 		RenderShadow();
+
+		RenderSkyAtmosphere( scene, view );
 	}
 }
 

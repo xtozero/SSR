@@ -379,6 +379,9 @@ namespace aga
 		case SHADER_TYPE::PS:
 			context.PSSetSamplers( slot, 1, &samplerState );
 			break;
+		case SHADER_TYPE::CS:
+			context.CSSetSamplers( slot, 1, &samplerState );
+			break;
 		default:
 			break;
 		}

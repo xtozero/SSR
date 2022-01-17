@@ -145,6 +145,59 @@ namespace aga
 		D3D11Context().ClearDepthStencilView( dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthColor, stencilColor );
 	}
 
+	void D3D11ImmediateCommandList::CopyResource( Texture* dest, Texture* src )
+	{
+		if ( dest == nullptr || src == nullptr )
+		{
+			assert( "Can't copy with null resource" );
+			return;
+		}
+
+		ID3D11Resource* destResource = nullptr;
+		ID3D11Resource* srcResource = nullptr;
+
+		if ( auto destTexture = static_cast<D3D11BaseTexture*>( dest ) )
+		{
+			destResource = destTexture->Resource();
+		}
+
+		if ( auto srcTexture = static_cast<D3D11BaseTexture*>( src ) )
+		{
+			srcResource = srcTexture->Resource();
+		}
+
+		D3D11Context().CopyResource( destResource, srcResource );
+	}
+
+	void D3D11ImmediateCommandList::CopyResource( Buffer* dest, Buffer* src )
+	{
+		if ( dest == nullptr || src == nullptr )
+		{
+			assert( "Can't copy with null resource" );
+			return;
+		}
+
+		ID3D11Resource* destResource = nullptr;
+		ID3D11Resource* srcResource = nullptr;
+
+		if ( auto destBuffer = static_cast<D3D11Buffer*>( dest ) )
+		{
+			destResource = destBuffer->Resource();
+		}
+
+		if ( auto srcBuffer = static_cast<D3D11Buffer*>( src ) )
+		{
+			srcResource = srcBuffer->Resource();
+		}
+
+		D3D11Context().CopyResource( destResource, srcResource );
+	}
+
+	void D3D11ImmediateCommandList::WaitUntilFlush()
+	{
+		D3D11Context().Flush();
+	}
+
 	void D3D11ImmediateCommandList::Execute( IDeferredCommandList& commandList )
 	{
 		D3D11DeferredCommandList& d3d11DeferredCommandList = static_cast<D3D11DeferredCommandList&>( commandList );
@@ -279,6 +332,54 @@ namespace aga
 		}
 
 		m_pContext->ClearDepthStencilView( dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthColor, stencilColor );
+	}
+
+	void D3D11DeferredCommandList::CopyResource( Texture* dest, Texture* src )
+	{
+		if ( dest == nullptr || src == nullptr )
+		{
+			assert( "Can't copy with null resource" );
+			return;
+		}
+
+		ID3D11Resource* destResource = nullptr;
+		ID3D11Resource* srcResource = nullptr;
+
+		if ( auto destTexture = static_cast<D3D11BaseTexture*>( dest ) )
+		{
+			destResource = destTexture->Resource();
+		}
+
+		if ( auto srcTexture = static_cast<D3D11BaseTexture*>( src ) )
+		{
+			srcResource = srcTexture->Resource();
+		}
+
+		m_pContext->CopyResource( destResource, srcResource );
+	}
+
+	void D3D11DeferredCommandList::CopyResource( Buffer* dest, Buffer* src )
+	{
+		if ( dest == nullptr || src == nullptr )
+		{
+			assert( "Can't copy with null resource" );
+			return;
+		}
+
+		ID3D11Resource* destResource = nullptr;
+		ID3D11Resource* srcResource = nullptr;
+
+		if ( auto destBuffer = static_cast<D3D11Buffer*>( dest ) )
+		{
+			destResource = destBuffer->Resource();
+		}
+
+		if ( auto srcBuffer = static_cast<D3D11Buffer*>( src ) )
+		{
+			srcResource = srcBuffer->Resource();
+		}
+
+		m_pContext->CopyResource( destResource, srcResource );
 	}
 
 	void D3D11DeferredCommandList::Finish()

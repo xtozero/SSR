@@ -5,8 +5,6 @@
 
 #include "ShaderParameterMap.h"
 
-#include <d3dcompiler.h>
-
 SHADER_TYPE ConvertShaderVersionToType( uint32 shaderVersion )
 {
 	D3D11_SHADER_VERSION_TYPE shaderType = static_cast<D3D11_SHADER_VERSION_TYPE>( D3D11_SHVER_GET_TYPE( shaderVersion ) );
@@ -38,15 +36,10 @@ SHADER_TYPE ConvertShaderVersionToType( uint32 shaderVersion )
 	return SHADER_TYPE::NONE;
 }
 
-void ExtractShaderParameters( const void* byteCode, size_t byteCodeSize, aga::ShaderParameterMap& parameterMap )
+void ExtractShaderParameters( ID3D11ShaderReflection* pReflector, aga::ShaderParameterMap& parameterMap )
 {
-	ID3D11ShaderReflection* pReflector = nullptr;
-
-	HRESULT hResult = D3DReflect( byteCode, byteCodeSize, IID_ID3D11ShaderReflection, reinterpret_cast<void**>( &pReflector ) );
-	assert( SUCCEEDED( hResult ) );
-
 	D3D11_SHADER_DESC shaderDesc = {};
-	hResult = pReflector->GetDesc( &shaderDesc );
+	HRESULT hResult = pReflector->GetDesc( &shaderDesc );
 	assert( SUCCEEDED( hResult ) );
 
 	SHADER_TYPE shaderType = ConvertShaderVersionToType( shaderDesc.Version );
@@ -108,8 +101,6 @@ void ExtractShaderParameters( const void* byteCode, size_t byteCodeSize, aga::Sh
 
 		parameterMap.AddParameter( bindDesc.Name, shaderType, parameterType, bindDesc.BindPoint, 0, parameterSize );
 	}
-
-	pReflector->Release();
 }
 
 void BuildShaderParameterInfo( const std::map<std::string, aga::ShaderParameter>& parameterMap, aga::ShaderParameterInfo& parameterInfo )
