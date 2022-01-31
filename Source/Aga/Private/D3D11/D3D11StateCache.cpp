@@ -257,7 +257,7 @@ namespace aga
 			buffer = d3d11Buffer->Resource();
 		}
 
-		uint32 nShader = static_cast<int>( shader );
+		auto nShader = static_cast<uint32>( shader );
 		if ( m_constantBuffers[nShader][slot] == buffer )
 		{
 			return;
@@ -303,7 +303,7 @@ namespace aga
 			}
 		}
 
-		uint32 nShader = static_cast<int>( shader );
+		auto nShader = static_cast<uint32>( shader );
 		if ( m_srvs[nShader][slot] == rawSrv )
 		{
 			return;
@@ -373,7 +373,7 @@ namespace aga
 			samplerState = d3d11Sampler->Resource();
 		}
 
-		uint32 nShader = static_cast<int>( shader );
+		auto nShader = static_cast<uint32>( shader );
 		if ( m_samplerStates[nShader][slot] == samplerState )
 		{
 			return;

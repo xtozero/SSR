@@ -36,9 +36,9 @@ namespace UTIL
 
 	inline void SplitByBracket( const std::string& string, std::vector<std::string>& params, const char startToken, const char endToken )
 	{
-		std::size_t curIdx = 0;
-		std::size_t startPos = string.find( startToken, curIdx );
-		std::size_t endPos = string.find( endToken, ++startPos );
+		size_t curIdx = 0;
+		size_t startPos = string.find( startToken, curIdx );
+		size_t endPos = string.find( endToken, ++startPos );
 
 		while ( startPos != std::string::npos && endPos != std::string::npos )
 		{
@@ -109,7 +109,7 @@ namespace UTIL
 
 	inline void ReplaceChar( char* dest, const char* src, char find, char replace, std::size_t destSize, std::size_t srcSize )
 	{
-		for ( int i = 0; i < destSize && i < srcSize; ++i )
+		for ( uint32 i = 0; i < destSize && i < srcSize; ++i )
 		{
 			dest[i] = ( src[i] == find ) ? replace : src[i];
 		}

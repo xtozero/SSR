@@ -49,7 +49,7 @@ inline XMMatrix XM_CALLCONV lerp( const XMMatrix& a, const XMMatrix& b, float pr
 	__m128 p = _mm_set1_ps( prop );
 	__m128 o = _mm_set1_ps( omp );
 
-	for ( int i = 0; i < 4; ++i )
+	for ( uint32 i = 0; i < 4; ++i )
 	{
 		result.r[i] = _mm_add_ps(
 			_mm_mul_ps( a.r[i], o ), 

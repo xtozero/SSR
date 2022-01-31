@@ -583,7 +583,7 @@ void CalculateSplitPositions( ShadowInfo& shadowInfo, float casterFar, float lam
 	float fSubN = farPlaneDistance - view.m_nearPlaneDistance;
 
 	CascadeShadowSetting& cascadeSetting = shadowInfo.CascadeSetting();
-	for ( int i = 0; i <= CascadeShadowSetting::MAX_CASCADE_NUM; ++i )
+	for ( uint32 i = 0; i <= CascadeShadowSetting::MAX_CASCADE_NUM; ++i )
 	{
 		float CiLog = view.m_nearPlaneDistance * std::powf( fDivN, invM * i );
 		float CiUni = view.m_nearPlaneDistance * fSubN * i * invM;
