@@ -72,7 +72,5 @@ void GpuMemcpy::Upload( aga::Buffer* destBuffer )
 	uint32 threadGroup = ( ( m_distributionCount + DistributionCopyCS::ThreadGroupX - 1 ) / DistributionCopyCS::ThreadGroupX );
 
 	commandList.Dispatch( threadGroup, 1 );
-
-	rendercore::BindShaderParameter( commandList, computeShader.m_dest, nullptr );
 }
 

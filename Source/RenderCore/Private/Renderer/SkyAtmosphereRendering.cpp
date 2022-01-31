@@ -429,8 +429,6 @@ namespace rendercore
 
 		commandList.Dispatch( TRANSMITTANCE_GROUP_X, TRANSMITTANCE_GROUP_Y );
 
-		rendercore::BindShaderParameter( commandList, transmittanceCS.TransmittanceLut(), nullptr );
-
 		// 2. Ground irradiance due to direct sunlight
 		TEXTURE_TRAIT deltaE = {
 			.m_width = IRRADIANCE_W,
@@ -455,8 +453,6 @@ namespace rendercore
 		rendercore::BindShaderParameter( commandList, irradianceOneCS.DeltaE(), deltaETexture );
 
 		commandList.Dispatch( IRRADIANCE_GROUP_X, IRRADIANCE_GROUP_Y );
-
-		rendercore::BindShaderParameter( commandList, irradianceOneCS.DeltaE(), nullptr );
 
 		// 3. Compute single scattering texture deltaS
 		TEXTURE_TRAIT deltaS = {
@@ -487,9 +483,6 @@ namespace rendercore
 
 		commandList.Dispatch( INSCATTER1_GROUP_X, INSCATTER1_GROUP_Y, INSCATTER1_GROUP_Z );
 
-		rendercore::BindShaderParameter( commandList, inscatterOneCS.DeltaSR(), nullptr );
-		rendercore::BindShaderParameter( commandList, inscatterOneCS.DeltaSM(), nullptr );
-
 		// 4. Copy deltaS into inscatter texture S
 		BUFFER_TRAIT inscatter = {
 			.m_stride = sizeof( Vector4 ),
@@ -512,8 +505,6 @@ namespace rendercore
 		rendercore::BindShaderParameter( commandList, copyInscatterOneCS.Inscatter(), inscatterBuffer );
 
 		commandList.Dispatch( INSCATTER1_GROUP_X, INSCATTER1_GROUP_Y, INSCATTER1_GROUP_Z );
-
-		rendercore::BindShaderParameter( commandList, copyInscatterOneCS.Inscatter(), nullptr );
 
 		RefHandle<aga::Texture> deltaJTex = aga::Texture::Create( deltaS );
 		deltaJTex->Init();
@@ -556,8 +547,6 @@ namespace rendercore
 				commandList.WaitUntilFlush();
 			}
 
-			rendercore::BindShaderParameter( commandList, inscatterSCS.DeltaELut(), nullptr );
-
 			// Compute deltaE
 			IrradianceNCS irradianceNCS;
 			commandList.BindShader( irradianceNCS.Shader()->Resource() );
@@ -570,9 +559,6 @@ namespace rendercore
 
 			commandList.Dispatch( IRRADIANCE_GROUP_X, IRRADIANCE_GROUP_Y );
 
-			rendercore::BindShaderParameter( commandList, irradianceNCS.DeltaSRLut(), nullptr );
-			rendercore::BindShaderParameter( commandList, irradianceNCS.Irradiance(), nullptr );
-
 			// Compute deltaS
 			InscatterNCS inscatterNCS;
 			commandList.BindShader( inscatterNCS.Shader()->Resource() );
@@ -581,9 +567,6 @@ namespace rendercore
 			rendercore::BindShaderParameter( commandList, inscatterNCS.DeltaSR(), deltaSRTexture );
 
 			commandList.Dispatch( INSCATTERN_GROUP_X, INSCATTERN_GROUP_Y, INSCATTERN_GROUP_Z );
-
-			rendercore::BindShaderParameter( commandList, inscatterNCS.DeltaJLut(), nullptr );
-			rendercore::BindShaderParameter( commandList, inscatterNCS.DeltaSR(), nullptr );
 
 			// Add deltaE into irradiance textrue E
 			CopyIrradianceCS copyIrradianceCS;

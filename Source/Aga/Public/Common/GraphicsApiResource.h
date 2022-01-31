@@ -43,30 +43,6 @@ inline const char* ToString( SHADER_TYPE shaderType )
 	return shaderTypeStr[static_cast<uint32>( shaderType )];
 }
 
-enum class GraphicsResourceType
-{
-	BUFFER = 0,
-	TEXTURE1D,
-	TEXTURE2D,
-	TEXTURE3D,
-	SHADER_RESOURCE,
-	RANDOM_ACCESS,
-	RENDER_TARGET,
-	DEPTH_STENCIL,
-	VERTEX_LAYOUT,
-	VERTEX_SHADER,
-	HULL_SHADER,
-	DOMAIN_SHADER,
-	GEOMETRY_SHADER,
-	PIXEL_SHADER,
-	COMPUTE_SHADER,
-	SAMPLER_STATE,
-	RASTERIZER_STATE,
-	BLEND_STATE,
-	DEPTH_STENCIL_STATE,
-	COUNT,
-};
-
 class GraphicsApiResource
 {
 public:

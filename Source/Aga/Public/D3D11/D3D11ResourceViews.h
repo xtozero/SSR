@@ -10,21 +10,25 @@ namespace aga
 	class D3D11ViewBase : public BaseClass
 	{
 	public:
-		ViewType Resource( ) { return m_view; }
-		const ViewType Resource( ) const { return m_view; }
+		ViewType Resource() { return m_resource; }
+		const ViewType Resource() const { return m_resource; }
 
-		D3D11ViewBase( ) = default;
-		D3D11ViewBase( ID3D11Resource* resource, const DescType& desc ) : m_resourceRef( resource ), m_desc( desc )
+		const IResourceViews* ViewHolder() const { return m_viewHolder; }
+
+		D3D11ViewBase( IResourceViews* viewHolder, ID3D11Resource* d3d11Resource, const DescType& desc ) :
+			m_viewHolder( viewHolder ),
+			m_d3d11Resource( d3d11Resource ),
+			m_desc( desc )
 		{
-			if ( m_resourceRef )
+			if ( m_d3d11Resource )
 			{
-				m_resourceRef->AddRef( );
+				m_d3d11Resource->AddRef();
 			}
 		}
 
-		~D3D11ViewBase( )
+		~D3D11ViewBase()
 		{
-			this->Free( );
+			this->Free();
 		}
 
 		D3D11ViewBase( const D3D11ViewBase& other )
@@ -36,28 +40,29 @@ namespace aga
 		{
 			if ( this != &other )
 			{
-				if ( m_view )
+				if ( m_resource )
 				{
-					m_view->Release( );
+					m_resource->Release();
 				}
 
-				if ( m_resourceRef )
+				if ( m_d3d11Resource )
 				{
-					m_resourceRef->Release( );
+					m_d3d11Resource->Release();
 				}
 
-				m_resourceRef = other.m_resourceRef;
-				m_view = other.m_view;
+				m_viewHolder = other.m_viewHolder;
+				m_d3d11Resource = other.m_d3d11Resource;
+				m_resource = other.m_resource;
 				m_desc = other.m_desc;
 
-				if ( m_resourceRef )
+				if ( m_d3d11Resource )
 				{
-					m_resourceRef->AddRef( );
+					m_d3d11Resource->AddRef();
 				}
 
-				if ( m_view )
+				if ( m_resource )
 				{
-					this->m_srv->AddRef( );
+					m_resource->AddRef();
 				}
 			}
 
@@ -73,22 +78,24 @@ namespace aga
 		{
 			if ( this != &other )
 			{
-				if ( m_view )
+				if ( m_resource )
 				{
-					m_view->Release( );
+					m_resource->Release();
 				}
 
-				if ( m_resourceRef )
+				if ( m_d3d11Resource )
 				{
-					m_resourceRef->Release( );
+					m_d3d11Resource->Release();
 				}
 
-				m_resourceRef = other.m_resourceRef;
-				m_view = other.m_view;
+				m_viewHolder = other.m_viewHolder;
+				m_d3d11Resource = other.m_d3d11Resource;
+				m_resource = other.m_resource;
 				m_desc = other.m_desc;
 
-				other.m_resourceRef = nullptr;
-				other.m_view = nullptr;
+				other.m_viewHolder = nullptr;
+				other.m_d3d11Resource = nullptr;
+				other.m_resource = nullptr;
 				other.m_desc = {};
 			}
 
@@ -96,23 +103,26 @@ namespace aga
 		}
 
 	protected:
-		virtual void FreeResource( ) override
+		virtual void FreeResource() override
 		{
-			if ( m_resourceRef )
+			m_viewHolder = nullptr;
+
+			if ( m_d3d11Resource )
 			{
-				m_resourceRef->Release( );
-				m_resourceRef = nullptr;
+				m_d3d11Resource->Release();
+				m_d3d11Resource = nullptr;
 			}
 
-			if ( m_view )
+			if ( m_resource )
 			{
-				m_view->Release( );
-				m_view = nullptr;
+				m_resource->Release();
+				m_resource = nullptr;
 			}
 		}
 
-		ID3D11Resource* m_resourceRef = nullptr;
-		ViewType m_view = nullptr;
+		IResourceViews* m_viewHolder = nullptr;
+		ID3D11Resource* m_d3d11Resource = nullptr;
+		ViewType m_resource = nullptr;
 		DescType m_desc = {};
 	};
 
@@ -125,7 +135,7 @@ namespace aga
 		using BaseClass::operator=;
 
 	protected:
-		virtual void InitResource( ) override;
+		virtual void InitResource() override;
 	};
 
 	class D3D11UnorderedAccessView : public D3D11ViewBase<UnorderedAccessView, ID3D11UnorderedAccessView*, D3D11_UNORDERED_ACCESS_VIEW_DESC>
@@ -137,7 +147,7 @@ namespace aga
 		using BaseClass::operator=;
 
 	protected:
-		virtual void InitResource( ) override;
+		virtual void InitResource() override;
 	};
 
 	class D3D11RenderTargetView : public D3D11ViewBase<RenderTargetView, ID3D11RenderTargetView*, D3D11_RENDER_TARGET_VIEW_DESC>
@@ -149,7 +159,7 @@ namespace aga
 		using BaseClass::operator=;
 
 	protected:
-		virtual void InitResource( ) override;
+		virtual void InitResource() override;
 	};
 
 	class D3D11DepthStencilView : public D3D11ViewBase<DepthStencilView, ID3D11DepthStencilView*, D3D11_DEPTH_STENCIL_VIEW_DESC>
@@ -161,6 +171,6 @@ namespace aga
 		using BaseClass::operator=;
 
 	protected:
-		virtual void InitResource( ) override;
+		virtual void InitResource() override;
 	};
 }

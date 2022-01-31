@@ -29,10 +29,10 @@ namespace rendercore
 		void SetViewports( uint32 count, const CubeArea<float>* areas );
 		void SetScissorRects( uint32 count, const RectangleArea<int32>* areas );
 
-		void BindRenderTargets( aga::Texture** pRenderTargets, uint32 renderTargetCount, aga::Texture* depthStencil );
+		void BindRenderTargets( aga::RenderTargetView** pRenderTargets, uint32 renderTargetCount, aga::DepthStencilView* depthStencil );
 
-		void ClearRenderTarget( aga::Texture* renderTarget, const float( &clearColor )[4] );
-		void ClearDepthStencil( aga::Texture* depthStencil, float depthColor, UINT8 stencilColor );
+		void ClearRenderTarget( aga::RenderTargetView* renderTarget, const float( &clearColor )[4] );
+		void ClearDepthStencil( aga::DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor );
 
 		void CopyResource( aga::Texture* dest, aga::Texture* src );
 		void CopyResource( aga::Buffer* dest, aga::Buffer* src );

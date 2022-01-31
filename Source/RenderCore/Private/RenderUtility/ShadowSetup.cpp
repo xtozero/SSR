@@ -113,6 +113,11 @@ void BuildOrthoShadowProjectionMatrix( ShadowInfo& shadowInfo )
 {
 	using namespace DirectX;
 
+	if ( shadowInfo.ShadowReceiversViewSpaceBounds().size() == 0 )
+	{
+		return;
+	}
+
 	const LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo();
 	LightProperty lightProperty = lightSceneInfo->Proxy()->GetLightProperty();
 
@@ -177,7 +182,7 @@ void BuildOrthoShadowProjectionMatrix( ShadowInfo& shadowInfo )
 	}
 	else
 	{
-		assert( false );
+		return;
 	}
 
 	Vector axis = Vector::YAxisVector;

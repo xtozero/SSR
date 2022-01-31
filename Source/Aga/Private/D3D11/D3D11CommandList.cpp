@@ -100,21 +100,18 @@ namespace aga
 		m_stateCache.SetScissorRects( D3D11Context(), count, areas );
 	}
 
-	void D3D11ImmediateCommandList::BindRenderTargets( aga::Texture** pRenderTargets, uint32 renderTargetCount, aga::Texture* depthStencil )
+	void D3D11ImmediateCommandList::BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil )
 	{
 		m_stateCache.BindRenderTargets( D3D11Context(), pRenderTargets, renderTargetCount, depthStencil );
 	}
 
-	void D3D11ImmediateCommandList::ClearRenderTarget( Texture* renderTarget, const float( &clearColor )[4] )
+	void D3D11ImmediateCommandList::ClearRenderTarget( RenderTargetView* renderTarget, const float( &clearColor )[4] )
 	{
 		ID3D11RenderTargetView* rtvs = nullptr;
 
-		if ( auto rtTex = static_cast<D3D11BaseTexture*>( renderTarget ) )
+		if ( auto d3d11RTV = static_cast<D3D11RenderTargetView*>( renderTarget ) )
 		{
-			if ( auto d3d11RTV = static_cast<D3D11RenderTargetView*>( rtTex->RTV() ) )
-			{
-				rtvs = d3d11RTV->Resource();
-			}
+			rtvs = d3d11RTV->Resource();
 		}
 
 		if ( rtvs == nullptr )
@@ -125,16 +122,13 @@ namespace aga
 		D3D11Context().ClearRenderTargetView( rtvs, clearColor );
 	}
 
-	void D3D11ImmediateCommandList::ClearDepthStencil( Texture* depthStencil, float depthColor, UINT8 stencilColor )
+	void D3D11ImmediateCommandList::ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor )
 	{
 		ID3D11DepthStencilView* dsv = nullptr;
 
-		if ( auto dsTex = static_cast<D3D11BaseTexture*>( depthStencil ) )
+		if ( auto d3d11DSV = static_cast<D3D11DepthStencilView*>( depthStencil ) )
 		{
-			if ( auto d3d11DSV = static_cast<D3D11DepthStencilView*>( dsTex->DSV() ) )
-			{
-				dsv = d3d11DSV->Resource();
-			}
+			dsv = d3d11DSV->Resource();
 		}
 
 		if ( dsv == nullptr )
@@ -289,21 +283,18 @@ namespace aga
 		m_stateCache.SetScissorRects( *m_pContext, count, areas );
 	}
 
-	void D3D11DeferredCommandList::BindRenderTargets( aga::Texture** pRenderTargets, uint32 renderTargetCount, aga::Texture* depthStencil )
+	void D3D11DeferredCommandList::BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil )
 	{
 		m_stateCache.BindRenderTargets( *m_pContext, pRenderTargets, renderTargetCount, depthStencil );
 	}
 
-	void D3D11DeferredCommandList::ClearRenderTarget( Texture* renderTarget, const float( &clearColor )[4] )
+	void D3D11DeferredCommandList::ClearRenderTarget( RenderTargetView* renderTarget, const float( &clearColor )[4] )
 	{
 		ID3D11RenderTargetView* rtvs = nullptr;
 
-		if ( auto rtTex = static_cast<D3D11BaseTexture*>( renderTarget ) )
+		if ( auto d3d11RTV = static_cast<D3D11RenderTargetView*>( renderTarget ) )
 		{
-			if ( auto d3d11RTV = static_cast<D3D11RenderTargetView*>( rtTex->RTV() ) )
-			{
-				rtvs = d3d11RTV->Resource();
-			}
+			rtvs = d3d11RTV->Resource();
 		}
 
 		if ( rtvs == nullptr )
@@ -314,16 +305,13 @@ namespace aga
 		m_pContext->ClearRenderTargetView( rtvs, clearColor );
 	}
 
-	void D3D11DeferredCommandList::ClearDepthStencil( Texture* depthStencil, float depthColor, UINT8 stencilColor )
+	void D3D11DeferredCommandList::ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor )
 	{
 		ID3D11DepthStencilView* dsv = nullptr;
 
-		if ( auto dsTex = static_cast<D3D11BaseTexture*>( depthStencil ) )
+		if ( auto d3d11DSV = static_cast<D3D11DepthStencilView*>( depthStencil ) )
 		{
-			if ( auto d3d11DSV = static_cast<D3D11DepthStencilView*>( dsTex->DSV() ) )
-			{
-				dsv = d3d11DSV->Resource();
-			}
+			dsv = d3d11DSV->Resource();
 		}
 
 		if ( dsv == nullptr )

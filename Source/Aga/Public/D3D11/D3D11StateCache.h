@@ -23,16 +23,17 @@ namespace aga
 		void BindShader( ID3D11DeviceContext& context, PixelShader* ps );
 		void BindShader( ID3D11DeviceContext& context, ComputeShader* cs );
 		void BindShaderResources( ID3D11DeviceContext& context, const ShaderBindings& shaderBindings );
-		void BindConstantBuffer( ID3D11DeviceContext& context, SHADER_TYPE shader, uint32 slot, const RefHandle<GraphicsApiResource>& cb );
-		void BindSRV( ID3D11DeviceContext& context, SHADER_TYPE shader, uint32 slot, const RefHandle<GraphicsApiResource>& srv );
-		void BindUAV( ID3D11DeviceContext& context, SHADER_TYPE shader, uint32 slot, const RefHandle<GraphicsApiResource>& uav );
-		void BindSampler( ID3D11DeviceContext& context, SHADER_TYPE shader, uint32 slot, const RefHandle<GraphicsApiResource>& sampler );
+		void BindConstantBuffer( ID3D11DeviceContext& context, SHADER_TYPE shader, uint32 slot, Buffer* cb );
+		void BindSRV( ID3D11DeviceContext& context, SHADER_TYPE shader, uint32 slot, ShaderResourceView* srv );
+		void BindUAV( ID3D11DeviceContext& context, SHADER_TYPE shader, uint32 slot, UnorderedAccessView* uav );
+		void BindSampler( ID3D11DeviceContext& context, SHADER_TYPE shader, uint32 slot, SamplerState* sampler );
 		void SetViewports( ID3D11DeviceContext& context, uint32 count, const CubeArea<float>* area );
 		void SetScissorRects( ID3D11DeviceContext& context, uint32 count, const RectangleArea<int32>* area );
-		void BindRenderTargets( ID3D11DeviceContext& context, Texture** pRenderTargets, uint32 renderTargetCount, Texture* depthStencil );
+		void BindRenderTargets( ID3D11DeviceContext& context, RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil );
 
 	private:
-		void UnBindSRV( ID3D11DeviceContext& context, ID3D11ShaderResourceView* srv );
+		void UnbindExistingSRV( ID3D11DeviceContext& context, ID3D11ShaderResourceView* srv );
+		void UnbindExistingUAV( ID3D11DeviceContext& context, ID3D11UnorderedAccessView* uav );
 
 		ID3D11VertexShader* m_vertexShader = nullptr;
 		ID3D11GeometryShader* m_geometryShader = nullptr;

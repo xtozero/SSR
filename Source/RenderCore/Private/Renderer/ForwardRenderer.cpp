@@ -239,9 +239,15 @@ void ForwardRenderer::RenderDepthPass( RenderViewGroup& renderViewGroup, uint32 
 	StoreOuputContext( context );
 
 	auto commandList = rendercore::GetImmediateCommandList();
-	commandList.ClearRenderTarget( renderTarget, { 1, 1, 1, 1 } );
-	commandList.ClearRenderTarget( worldNormal, { } );
-	commandList.ClearDepthStencil( depthStencil, 1.f, 0 );
+
+	aga::RenderTargetView* rtv0 = renderTarget != nullptr ? renderTarget->RTV() : nullptr;
+	commandList.ClearRenderTarget( rtv0, { 1, 1, 1, 1 } );
+
+	aga::RenderTargetView* rtv1 = worldNormal != nullptr ? worldNormal->RTV() : nullptr;
+	commandList.ClearRenderTarget( rtv1, { } );
+
+	aga::DepthStencilView* dsv = depthStencil != nullptr ? depthStencil->DSV() : nullptr;
+	commandList.ClearDepthStencil( dsv, 1.f, 0 );
 
 	IScene& scene = renderViewGroup.Scene();
 	RenderMesh( scene, RenderPass::DepthWrite, renderViewGroup[curView] );

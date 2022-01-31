@@ -95,17 +95,17 @@ namespace rendercore
 		m_imple.SetScissorRects( count, areas );
 	}
 
-	void ImmediateCommandList::BindRenderTargets( aga::Texture** pRenderTargets, uint32 renderTargetCount, aga::Texture* depthStencil )
+	void ImmediateCommandList::BindRenderTargets( aga::RenderTargetView** pRenderTargets, uint32 renderTargetCount, aga::DepthStencilView* depthStencil )
 	{
 		m_imple.BindRenderTargets( pRenderTargets, renderTargetCount, depthStencil );
 	}
 
-	void ImmediateCommandList::ClearRenderTarget( aga::Texture* renderTarget, const float( &clearColor )[4] )
+	void ImmediateCommandList::ClearRenderTarget( aga::RenderTargetView* renderTarget, const float( &clearColor )[4] )
 	{
 		m_imple.ClearRenderTarget( renderTarget, clearColor );
 	}
 
-	void ImmediateCommandList::ClearDepthStencil( aga::Texture* depthStencil, float depthColor, UINT8 stencilColor )
+	void ImmediateCommandList::ClearDepthStencil( aga::DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor )
 	{
 		m_imple.ClearDepthStencil( depthStencil, depthColor, stencilColor );
 	}

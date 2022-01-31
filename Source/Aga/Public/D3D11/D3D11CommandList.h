@@ -30,10 +30,10 @@ namespace aga
 		virtual void SetViewports( uint32 count, const CubeArea<float>* area ) override;
 		virtual void SetScissorRects( uint32 count, const RectangleArea<int32>* area ) override;
 
-		virtual void BindRenderTargets( aga::Texture** pRenderTargets, uint32 renderTargetCount, aga::Texture* depthStencil ) override;
+		virtual void BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil ) override;
 
-		virtual void ClearRenderTarget( Texture* renderTarget, const float( &clearColor )[4] ) override;
-		virtual void ClearDepthStencil( Texture* depthStencil, float depthColor, UINT8 stencilColor ) override;
+		virtual void ClearRenderTarget( RenderTargetView* renderTarget, const float( &clearColor )[4] ) override;
+		virtual void ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor ) override;
 
 		virtual void CopyResource( Texture* dest, Texture* src ) override;
 		virtual void CopyResource( Buffer* dest, Buffer* src ) override;
@@ -68,10 +68,10 @@ namespace aga
 		virtual void SetViewports( uint32 count, const CubeArea<float>* areas ) override;
 		virtual void SetScissorRects( uint32 count, const RectangleArea<int32>* areas ) override;
 
-		virtual void BindRenderTargets( aga::Texture** pRenderTargets, uint32 renderTargetCount, aga::Texture* depthStencil ) override;
+		virtual void BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil ) override;
 
-		virtual void ClearRenderTarget( Texture* renderTarget, const float( &clearColor )[4] ) override;
-		virtual void ClearDepthStencil( Texture* depthStencil, float depthColor, UINT8 stencilColor ) override;
+		virtual void ClearRenderTarget( RenderTargetView* renderTarget, const float( &clearColor )[4] ) override;
+		virtual void ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor ) override;
 
 		virtual void CopyResource( Texture* dest, Texture* src ) override;
 		virtual void CopyResource( Buffer* dest, Buffer* src ) override;

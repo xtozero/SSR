@@ -6,16 +6,22 @@
 
 namespace aga
 {
-	class Buffer : public DeviceDependantResource
+	class Buffer : public DeviceDependantResource, public IResourceViews
 	{
 	public:
 		AGA_DLL static RefHandle<Buffer> Create( const BUFFER_TRAIT& trait, const void* initData = nullptr );
 
-		ShaderResourceView* SRV( ) { return m_srv.Get( ); }
-		const ShaderResourceView* SRV( ) const { return m_srv.Get( ); }
+		virtual ShaderResourceView* SRV( ) override { return m_srv.Get( ); }
+		virtual const ShaderResourceView* SRV( ) const override { return m_srv.Get( ); }
 
-		UnorderedAccessView* UAV( ) { return m_uav.Get( ); }
-		const UnorderedAccessView* UAV( ) const { return m_uav.Get( ); }
+		virtual UnorderedAccessView* UAV( ) override { return m_uav.Get( ); }
+		virtual const UnorderedAccessView* UAV( ) const override { return m_uav.Get( ); }
+
+		virtual RenderTargetView* RTV() override { return nullptr; }
+		virtual const RenderTargetView * RTV() const override { return nullptr; }
+
+		virtual DepthStencilView* DSV() override { return nullptr; }
+		virtual const DepthStencilView* DSV() const override { return nullptr; }
 
 	protected:
 		RefHandle<ShaderResourceView> m_srv;

@@ -139,14 +139,14 @@ namespace aga
 		if ( m_desc.BindFlags & D3D11_BIND_SHADER_RESOURCE )
 		{
 			D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc, m_format );
-			m_srv = new D3D11ShaderResourceView( m_buffer, srvDesc );
+			m_srv = new D3D11ShaderResourceView( this, m_buffer, srvDesc );
 			m_srv->Init( );
 		}
 
 		if ( m_desc.BindFlags & D3D11_BIND_UNORDERED_ACCESS )
 		{
 			D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc, m_format );
-			m_uav = new D3D11UnorderedAccessView( m_buffer, uavDesc );
+			m_uav = new D3D11UnorderedAccessView( this, m_buffer, uavDesc );
 			m_uav->Init( );
 		}
 	}

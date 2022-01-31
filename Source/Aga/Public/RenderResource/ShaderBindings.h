@@ -210,24 +210,24 @@ namespace aga
 			}
 		}
 
-		RefHandle<GraphicsApiResource>* GetConstantBufferStart() const
+		RefHandle<Buffer>* GetConstantBufferStart() const
 		{
-			return reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + GetConstantBufferOffset() );
+			return reinterpret_cast<RefHandle<Buffer>*>( m_data + GetConstantBufferOffset() );
 		}
 
-		RefHandle<GraphicsApiResource>* GetSRVStart() const
+		RefHandle<ShaderResourceView>* GetSRVStart() const
 		{
-			return reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + GetSRVOffset() );
+			return reinterpret_cast<RefHandle<ShaderResourceView>*>( m_data + GetSRVOffset() );
 		}
 
-		RefHandle<GraphicsApiResource>* GetUAVStart() const
+		RefHandle<UnorderedAccessView>* GetUAVStart() const
 		{
-			return reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + GetUAVOffset() );
+			return reinterpret_cast<RefHandle<UnorderedAccessView>*>( m_data + GetUAVOffset() );
 		}
 
-		RefHandle<GraphicsApiResource>* GetSamplerStart() const
+		RefHandle<SamplerState>* GetSamplerStart() const
 		{
-			return reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + GetSamplerOffset() );
+			return reinterpret_cast<RefHandle<SamplerState>*>( m_data + GetSamplerOffset() );
 		}
 
 		SingleShaderBindings( const ShaderBindingLayout& bindingLayout, unsigned char* data ) : ShaderBindingLayout( bindingLayout ), m_data( data ) {}

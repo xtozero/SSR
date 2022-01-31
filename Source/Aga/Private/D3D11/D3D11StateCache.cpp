@@ -249,10 +249,10 @@ namespace aga
 		}
 	}
 
-	void D3D11PipelineCache::BindConstantBuffer( ID3D11DeviceContext& context, SHADER_TYPE shader, uint32 slot, const RefHandle<GraphicsApiResource>& cb )
+	void D3D11PipelineCache::BindConstantBuffer( ID3D11DeviceContext& context, SHADER_TYPE shader, uint32 slot, Buffer* cb )
 	{
 		ID3D11Buffer* buffer = nullptr;
-		if ( auto d3d11Buffer = static_cast<D3D11Buffer*>( cb.Get() ) )
+		if ( auto d3d11Buffer = static_cast<D3D11Buffer*>( cb ) )
 		{
 			buffer = d3d11Buffer->Resource();
 		}
@@ -287,12 +287,20 @@ namespace aga
 		}
 	}
 
-	void D3D11PipelineCache::BindSRV( ID3D11DeviceContext& context, SHADER_TYPE shader, uint32 slot, const RefHandle<GraphicsApiResource>& srv )
+	void D3D11PipelineCache::BindSRV( ID3D11DeviceContext& context, SHADER_TYPE shader, uint32 slot, ShaderResourceView* srv )
 	{
 		ID3D11ShaderResourceView* rawSrv = nullptr;
-		if ( auto d3d11Srv = reinterpret_cast<D3D11ShaderResourceView*>( srv.Get() ) )
+		if ( auto d3d11Srv = static_cast<D3D11ShaderResourceView*>( srv ) )
 		{
 			rawSrv = d3d11Srv->Resource();
+
+			if ( const IResourceViews* sibiling = d3d11Srv->ViewHolder() )
+			{
+				if ( auto d3d11Uav = static_cast<const D3D11UnorderedAccessView*>(sibiling->UAV()) )
+				{
+					UnbindExistingUAV( context, d3d11Uav->Resource() );
+				}
+			}
 		}
 
 		uint32 nShader = static_cast<int>( shader );
@@ -325,12 +333,20 @@ namespace aga
 		}
 	}
 
-	void D3D11PipelineCache::BindUAV( ID3D11DeviceContext& context, SHADER_TYPE shader, uint32 slot, const RefHandle<GraphicsApiResource>& uav )
+	void D3D11PipelineCache::BindUAV( ID3D11DeviceContext& context, SHADER_TYPE shader, uint32 slot, UnorderedAccessView* uav )
 	{
 		ID3D11UnorderedAccessView* rawUav = nullptr;
-		if ( auto d3d11Uav = reinterpret_cast<D3D11UnorderedAccessView*>( uav.Get() ) )
+		if ( auto d3d11Uav = static_cast<D3D11UnorderedAccessView*>( uav ) )
 		{
 			rawUav = d3d11Uav->Resource();
+
+			if ( const IResourceViews* sibiling = d3d11Uav->ViewHolder() )
+			{
+				if ( auto d3d11Srv = static_cast<const D3D11ShaderResourceView*>(sibiling->SRV()) )
+				{
+					UnbindExistingSRV( context, d3d11Srv->Resource() );
+				}
+			}
 		}
 
 		if ( m_uavs[slot] == rawUav )
@@ -349,10 +365,10 @@ namespace aga
 		}
 	}
 
-	void D3D11PipelineCache::BindSampler( ID3D11DeviceContext& context, SHADER_TYPE shader, uint32 slot, const RefHandle<GraphicsApiResource>& sampler )
+	void D3D11PipelineCache::BindSampler( ID3D11DeviceContext& context, SHADER_TYPE shader, uint32 slot, SamplerState* sampler )
 	{
 		ID3D11SamplerState* samplerState = nullptr;
-		if ( auto d3d11Sampler = static_cast<D3D11SamplerState*>( sampler.Get() ) )
+		if ( auto d3d11Sampler = static_cast<D3D11SamplerState*>( sampler ) )
 		{
 			samplerState = d3d11Sampler->Resource();
 		}
@@ -437,41 +453,53 @@ namespace aga
 		context.RSSetScissorRects( count, rects );
 	}
 
-	void D3D11PipelineCache::BindRenderTargets( ID3D11DeviceContext& context, Texture** pRenderTargets, uint32 renderTargetCount, Texture* depthStencil )
+	void D3D11PipelineCache::BindRenderTargets( ID3D11DeviceContext& context, RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil )
 	{
 		ID3D11RenderTargetView* rtvs[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = {};
 
 		for ( uint32 i = 0; i < renderTargetCount; ++i )
 		{
-			auto rtTex = static_cast<D3D11BaseTexture*>( pRenderTargets[i] );
-			if ( rtTex == nullptr )
+			auto d3d11Rtv = static_cast<D3D11RenderTargetView*>( pRenderTargets[i] );
+			if ( d3d11Rtv )
+			{
+				rtvs[i] = d3d11Rtv->Resource();
+			}
+			else
 			{
 				continue;
 			}
 
-			if ( auto d3d11RTV = static_cast<D3D11RenderTargetView*>( rtTex->RTV() ) )
+			if ( const IResourceViews* sibiling = d3d11Rtv->ViewHolder() )
 			{
-				rtvs[i] = d3d11RTV->Resource();
-			}
+				if ( auto d3d11Srv = static_cast<const D3D11ShaderResourceView*>( sibiling->SRV() ) )
+				{
+					UnbindExistingSRV( context, d3d11Srv->Resource() );
+				}
 
-			if ( auto d3d11SRV = static_cast<D3D11ShaderResourceView*>( rtTex->SRV() ) )
-			{
-				UnBindSRV( context, d3d11SRV->Resource() );
+				if ( auto d3d11Uav = static_cast<const D3D11UnorderedAccessView*>( sibiling->UAV() ) )
+				{
+					UnbindExistingUAV( context, d3d11Uav->Resource() );
+				}
 			}
 		}
 
 		ID3D11DepthStencilView* dsv = nullptr;
 
-		if ( auto dsTex = static_cast<D3D11BaseTexture*>( depthStencil ) )
+		if ( auto d3d11DSV = static_cast<D3D11DepthStencilView*>( depthStencil ) )
 		{
-			if ( auto d3d11DSV = static_cast<D3D11DepthStencilView*>( dsTex->DSV() ) )
-			{
-				dsv = d3d11DSV->Resource();
-			}
+			dsv = d3d11DSV->Resource();
 
-			if ( auto d3d11SRV = static_cast<D3D11ShaderResourceView*>( dsTex->SRV() ) )
+			if ( const IResourceViews* sibiling = d3d11DSV->ViewHolder() )
 			{
-				UnBindSRV( context, d3d11SRV->Resource() );
+				if ( auto d3d11SRV = static_cast<const D3D11ShaderResourceView*>( sibiling->SRV() ) )
+				{
+					UnbindExistingSRV( context, d3d11SRV->Resource() );
+				}
+
+				if ( auto d3d11Uav = static_cast<const D3D11UnorderedAccessView*>( sibiling->UAV() ) )
+				{
+					UnbindExistingUAV( context, d3d11Uav->Resource() );
+				}
 			}
 		}
 
@@ -487,7 +515,7 @@ namespace aga
 		context.OMSetRenderTargets( renderTargetCount, rtvs, dsv );
 	}
 
-	void D3D11PipelineCache::UnBindSRV( ID3D11DeviceContext& context, ID3D11ShaderResourceView* srv )
+	void D3D11PipelineCache::UnbindExistingSRV( ID3D11DeviceContext& context, ID3D11ShaderResourceView* srv )
 	{
 		for ( uint32 shader = 0; shader < MAX_SHADER_TYPE<uint32>; ++shader )
 		{
@@ -495,8 +523,19 @@ namespace aga
 			{
 				if ( m_srvs[shader][slot] == srv )
 				{
-					BindSRV( context, static_cast<SHADER_TYPE>( shader ), slot, RefHandle<GraphicsApiResource>() );
+					BindSRV( context, static_cast<SHADER_TYPE>( shader ), slot, RefHandle<ShaderResourceView>() );
 				}
+			}
+		}
+	}
+
+	void D3D11PipelineCache::UnbindExistingUAV( ID3D11DeviceContext& context, ID3D11UnorderedAccessView* uav )
+	{
+		for ( uint32 slot = 0; slot < D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT; ++slot )
+		{
+			if ( m_uavs[slot] == uav )
+			{
+				BindUAV( context, SHADER_TYPE::CS, slot, RefHandle<UnorderedAccessView>() );
 			}
 		}
 	}

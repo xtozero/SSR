@@ -270,7 +270,7 @@ void TaskScheduler::SetWorkerNameForDebugging( size_t workerId, const char* name
 	{
 		wchar_t threadDescription[128] = {};
 		auto bufferSize = static_cast<uint32>( std::extent_v<decltype( threadDescription )> );
-		int result = MultiByteToWideChar( CP_ACP, 0, name, std::strlen( name ), threadDescription, bufferSize );
+		int32 result = MultiByteToWideChar( CP_ACP, 0, name, static_cast<int32>( std::strlen( name ) ), threadDescription, bufferSize );
 		if ( result > 0 )
 		{
 			SetThreadDescription( m_workers[workerId].m_thread.native_handle(), threadDescription );

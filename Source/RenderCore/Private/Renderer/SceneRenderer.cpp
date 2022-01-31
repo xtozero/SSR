@@ -355,8 +355,12 @@ void SceneRenderer::RenderShadowDepthPass()
 		StoreOuputContext( context );
 
 		auto commandList = rendercore::GetImmediateCommandList();
-		commandList.ClearRenderTarget( shadowMap.m_shadowMap, { 1, 1, 1, 1 } );
-		commandList.ClearDepthStencil( shadowMap.m_shadowMapDepth, 1.f, 0 );
+
+		aga::RenderTargetView* rtv = shadowMap.m_shadowMap.Get() ? shadowMap.m_shadowMap->RTV() : nullptr;
+		commandList.ClearRenderTarget( rtv, { 1, 1, 1, 1 } );
+
+		aga::DepthStencilView* dsv = shadowMap.m_shadowMapDepth.Get() ? shadowMap.m_shadowMapDepth->DSV() : nullptr;
+		commandList.ClearDepthStencil( dsv, 1.f, 0 );
 
 		shadowInfo.SetupShadowConstantBuffer();
 		shadowInfo.RenderDepth( *this, m_shaderResources );

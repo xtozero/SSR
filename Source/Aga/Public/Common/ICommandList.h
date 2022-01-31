@@ -7,9 +7,11 @@ namespace aga
 {
 	class Buffer;
 	class ComputeShader;
+	class DepthStencilView;
 	class GeometryShader;
 	class PipelineState;
 	class PixelShader;
+	class RenderTargetView;
 	class SamplerState;
 	class ShaderBindings;
 	class ShaderResourceView;
@@ -40,10 +42,10 @@ namespace aga
 		virtual void SetViewports( uint32 count, const CubeArea<float>* areas ) = 0;
 		virtual void SetScissorRects( uint32 count, const RectangleArea<int32>* areas ) = 0;
 
-		virtual void BindRenderTargets( Texture** pRenderTargets, uint32 renderTargetCount, Texture* depthStencil ) = 0;
+		virtual void BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil ) = 0;
 
-		virtual void ClearRenderTarget( Texture* renderTarget, const float( &clearColor )[4] ) = 0;
-		virtual void ClearDepthStencil( Texture* depthStencil, float depthColor, UINT8 stencilColor ) = 0;
+		virtual void ClearRenderTarget( RenderTargetView* renderTarget, const float( &clearColor )[4] ) = 0;
+		virtual void ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor ) = 0;
 
 		virtual void CopyResource( Texture* dest, Texture* src ) = 0;
 		virtual void CopyResource( Buffer* dest, Buffer* src ) = 0;

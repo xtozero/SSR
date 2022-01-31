@@ -57,14 +57,23 @@ public:
 	template <typename CommandList>
 	void ApplyOutputContext( CommandList& commandList )
 	{
-		aga::Texture* renderTargets[MAX_RENDER_TARGET] = {};
+		aga::RenderTargetView* renderTargets[MAX_RENDER_TARGET] = {};
+		aga::DepthStencilView* depthStencil = nullptr;
 
 		for ( uint32 i = 0; i < MAX_RENDER_TARGET; ++i )
 		{
-			renderTargets[i] = m_outputContext.m_renderTargets[i];
+			if ( m_outputContext.m_renderTargets[i] )
+			{
+				renderTargets[i] = m_outputContext.m_renderTargets[i]->RTV();
+			}
 		}
 
-		commandList.BindRenderTargets( renderTargets, MAX_RENDER_TARGET, m_outputContext.m_depthStencil );
+		if ( m_outputContext.m_depthStencil )
+		{
+			depthStencil = m_outputContext.m_depthStencil->DSV();
+		}
+
+		commandList.BindRenderTargets( renderTargets, MAX_RENDER_TARGET, depthStencil );
 		commandList.SetViewports( 1, &m_outputContext.m_viewport );
 		commandList.SetScissorRects( 1, &m_outputContext.m_scissorRects );
 	}

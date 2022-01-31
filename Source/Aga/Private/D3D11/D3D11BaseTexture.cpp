@@ -308,14 +308,14 @@ namespace aga
 	void D3D11BaseTexture1D::CreateShaderResource()
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc );
-		m_srv = new D3D11ShaderResourceView( m_texture, srvDesc );
+		m_srv = new D3D11ShaderResourceView( this, m_texture, srvDesc );
 		m_srv->Init();
 	}
 
 	void D3D11BaseTexture1D::CreateUnorderedAccess()
 	{
 		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc );
-		m_uav = new D3D11UnorderedAccessView( m_texture, uavDesc );
+		m_uav = new D3D11UnorderedAccessView( this, m_texture, uavDesc );
 		m_uav->Init();
 	}
 
@@ -345,28 +345,28 @@ namespace aga
 	void D3D11BaseTexture2D::CreateShaderResource()
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc );
-		m_srv = new D3D11ShaderResourceView( m_texture, srvDesc );
+		m_srv = new D3D11ShaderResourceView( this, m_texture, srvDesc );
 		m_srv->Init();
 	}
 
 	void D3D11BaseTexture2D::CreateUnorderedAccess()
 	{
 		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc );
-		m_uav = new D3D11UnorderedAccessView( m_texture, uavDesc );
+		m_uav = new D3D11UnorderedAccessView( this, m_texture, uavDesc );
 		m_uav->Init();
 	}
 
 	void D3D11BaseTexture2D::CreateRenderTarget()
 	{
 		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = ConvertDescToRTV( m_desc );
-		m_rtv = new D3D11RenderTargetView( m_texture, rtvDesc );
+		m_rtv = new D3D11RenderTargetView( this, m_texture, rtvDesc );
 		m_rtv->Init();
 	}
 
 	void D3D11BaseTexture2D::CreateDepthStencil()
 	{
 		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = ConvertDescToDSV( m_desc );
-		m_dsv = new D3D11DepthStencilView( m_texture, dsvDesc );
+		m_dsv = new D3D11DepthStencilView( this, m_texture, dsvDesc );
 		m_dsv->Init();
 	}
 
@@ -386,14 +386,14 @@ namespace aga
 	void D3D11BaseTexture3D::CreateShaderResource()
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc );
-		m_srv = new D3D11ShaderResourceView( m_texture, srvDesc );
+		m_srv = new D3D11ShaderResourceView( this, m_texture, srvDesc );
 		m_srv->Init();
 	}
 
 	void D3D11BaseTexture3D::CreateUnorderedAccess()
 	{
 		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc );
-		m_uav = new D3D11UnorderedAccessView( m_texture, uavDesc );
+		m_uav = new D3D11UnorderedAccessView( this, m_texture, uavDesc );
 		m_uav->Init();
 	}
 
