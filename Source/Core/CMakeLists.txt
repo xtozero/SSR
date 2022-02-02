@@ -122,6 +122,16 @@ set (PHYSICS
 	Public/Physics/Ray.h
 	Public/Physics/ColliderManager.h)
 
+set (REFLECTION
+	Private/Reflection/TypeInfo.cpp
+	Public/Reflection/Method.h
+	Public/Reflection/MethodMacros.h
+	Public/Reflection/Property.h
+	Public/Reflection/PropertyMacros.h
+	Public/Reflection/Reflection.h
+	Public/Reflection/TypeInfo.h
+	Public/Reflection/TypeInfoMacros.h)
+
 set (SERIALIZATION
 	Public/Serialization/Archive.h
 	Public/Serialization/ArchiveUtility.h)
@@ -140,6 +150,7 @@ source_group("Math" FILES ${Math})
 source_group("Memory" FILES ${MEMORY})
 source_group("MultiThread" FILES ${MULTITHREAD})
 source_group("Physics" FILES ${PHYSICS})
+source_group("Reflection" FILES ${REFLECTION})
 source_group("Serialization" FILES ${SERIALIZATION})
 
 add_library(Core STATIC	${ASSET}
@@ -155,8 +166,9 @@ add_library(Core STATIC	${ASSET}
 						${Math}
 						${MEMORY}
 						${MULTITHREAD}
-						${SERIALIZATION}
-						${PHYSICS})
+						${PHYSICS}
+						${REFLECTION}
+						${SERIALIZATION})
 
 target_include_directories(Core
 PUBLIC
@@ -172,6 +184,7 @@ PUBLIC
 	./Public/LibraryTool
 	./Public/Memory
 	./Public/Multithread
+	./Public/Reflection
 	./Public/Serialization
 PRIVATE
 	./Public/Physics

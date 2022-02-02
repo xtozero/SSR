@@ -5,7 +5,6 @@
 #include "Core/Timer.h"
 #include "Json/json.hpp"
 #include "Math/TransformationMatrix.h"
-#include "UserInput/UserInput.h"
 
 #include <type_traits>
 

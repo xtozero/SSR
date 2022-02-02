@@ -92,8 +92,8 @@ public:
 		delete this;
 	}
 
-	template <typename... Args>
-	static Task* Create( size_t workerAffinity, Args&&... args )
+	template <typename... TArgs>
+	static Task* Create( size_t workerAffinity, TArgs&&... args )
 	{
 		return new Task( workerAffinity, args... );
 	}
@@ -104,8 +104,8 @@ public:
 	}
 
 protected:
-	template <typename... Args>
-	Task( size_t workerAffinity, Args&&... args ) : TaskBase( workerAffinity )
+	template <typename... TArgs>
+	Task( size_t workerAffinity, TArgs&&... args ) : TaskBase( workerAffinity )
 	{
 		new ( &m_storage )TaskStorageType( args... );
 	}

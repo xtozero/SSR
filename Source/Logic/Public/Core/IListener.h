@@ -1,7 +1,8 @@
 #pragma once
 
+#include "UserInput/UserInput.h"
+
 class CGameLogic;
-struct UserInput;
 
 class IListener
 {
