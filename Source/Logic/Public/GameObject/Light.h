@@ -20,6 +20,8 @@ enum class LIGHT_TYPE
 
 class Light : public CGameObject
 {
+	GENERATE_CLASS_TYPE_INFO( Light )
+
 public:
 	virtual const LIGHT_TYPE GetType() const = 0;
 
@@ -54,6 +56,8 @@ private:
 
 class HemisphereLight : public CGameObject
 {
+	GENERATE_CLASS_TYPE_INFO( HemisphereLight )
+
 public:
 	virtual void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json ) override;
 

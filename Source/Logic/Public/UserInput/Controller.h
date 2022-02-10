@@ -9,6 +9,8 @@ struct UserInput;
 
 class InputController : public CGameObject
 {
+	GENERATE_CLASS_TYPE_INFO( InputController )
+
 public:
 	virtual void ProcessInput( const UserInput& input ) = 0;
 

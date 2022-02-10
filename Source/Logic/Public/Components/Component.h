@@ -1,10 +1,14 @@
 #pragma once
 
+#include "Reflection.h"
+
 class CGameObject;
 class World;
 
 class Component
 {
+	GENERATE_CLASS_TYPE_INFO( Component )
+
 public:
 	void RegisterComponent( );
 	void UnregisterComponent( );

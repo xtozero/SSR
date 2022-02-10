@@ -6,6 +6,8 @@ class SkyAtmospherePorxy;
 
 class SkyAtmosphereComponent : public SceneComponent
 {
+	GENERATE_CLASS_TYPE_INFO( SkyAtmosphereComponent )
+
 public:
 	using SceneComponent::SceneComponent;
 

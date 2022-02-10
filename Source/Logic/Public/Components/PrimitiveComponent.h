@@ -8,6 +8,8 @@ class PrimitiveProxy;
 
 class PrimitiveComponent : public SceneComponent
 {
+	GENERATE_CLASS_TYPE_INFO( PrimitiveComponent )
+
 public:
 	using SceneComponent::SceneComponent;
 

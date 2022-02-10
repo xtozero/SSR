@@ -9,6 +9,8 @@ class CameraComponent;
 
 class CPlayer : public CGameObject, public IListener
 {
+	GENERATE_CLASS_TYPE_INFO( CPlayer )
+
 public:
 	virtual void Initialize( CGameLogic& gameLogic, World& world ) override;
 	virtual void Think( float elapsedTime );

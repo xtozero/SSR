@@ -6,6 +6,8 @@ class SkyAtmosphereComponent;
 
 class SkyAtmosphere : public CGameObject
 {
+	GENERATE_CLASS_TYPE_INFO( SkyAtmosphere )
+
 public:
 	virtual void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json ) override;
 

@@ -8,6 +8,8 @@ class CGameLogic;
 
 class StaticMeshGameObject : public CGameObject
 {
+	GENERATE_CLASS_TYPE_INFO( StaticMeshGameObject )
+
 public:
 	virtual void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json ) override;
 

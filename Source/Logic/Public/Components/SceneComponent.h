@@ -8,6 +8,8 @@
 
 class SceneComponent : public Component
 {
+	GENERATE_CLASS_TYPE_INFO( SceneComponent )
+
 public:
 	using Component::Component;
 

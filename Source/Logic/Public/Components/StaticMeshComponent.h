@@ -9,6 +9,8 @@ class RenderOption;
 
 class StaticMeshComponent : public PrimitiveComponent
 {
+	GENERATE_CLASS_TYPE_INFO( StaticMeshComponent )
+
 public:
 	using PrimitiveComponent::PrimitiveComponent;
 

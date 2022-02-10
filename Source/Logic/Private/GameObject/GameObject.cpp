@@ -344,7 +344,7 @@ void CGameObject::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 	{
 		float mass = static_cast<float>( pMass->AsReal( ) );
 		assert( ( m_colliderType != COLLIDER::AABB ) || ( mass == FLT_MAX ) );
-		if ( PrimitiveComponent* primitiveComponent = dynamic_cast<PrimitiveComponent*>( m_rootComponent ) )
+		if ( PrimitiveComponent* primitiveComponent = Cast<PrimitiveComponent>( m_rootComponent ) )
 		{
 			primitiveComponent->SetMass( mass );
 		}
@@ -356,7 +356,7 @@ void CGameObject::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 
 		if ( damping.Size( ) == 2 )
 		{
-			if ( PrimitiveComponent* primitiveComponent = dynamic_cast<PrimitiveComponent*>( m_rootComponent ) )
+			if ( PrimitiveComponent* primitiveComponent = Cast<PrimitiveComponent>( m_rootComponent ) )
 			{
 				primitiveComponent->SetLinearDamping( static_cast<float>( damping[0].AsReal( ) ) );
 				primitiveComponent->SetAngularDamping( static_cast<float>( damping[1].AsReal( ) ) );

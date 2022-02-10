@@ -6,12 +6,13 @@ class TexturedSkyComponent;
 
 class CSkyBox : public CGameObject
 {
+	GENERATE_CLASS_TYPE_INFO( CSkyBox )
+
 public:
 	virtual void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json ) override;
 
 	virtual bool IgnorePicking( ) const override { return true; }
 
-public:
 	CSkyBox( );
 	~CSkyBox( ) = default;
 

@@ -14,6 +14,8 @@ namespace JSON
 
 class CameraComponent : public SceneComponent
 {
+	GENERATE_CLASS_TYPE_INFO( CameraComponent )
+
 public:
 	const Vector& GetForwardVector( ) const { return m_lookVector; }
 	const Vector& GetRightVector( ) const { return m_rightVector; }

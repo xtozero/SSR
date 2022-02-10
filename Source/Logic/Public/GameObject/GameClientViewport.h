@@ -12,6 +12,8 @@ class RenderViewGroup;
 
 class GameClientViewport : public CGameObject
 {
+	GENERATE_CLASS_TYPE_INFO( GameClientViewport )
+
 public:
 	void Draw( );
 

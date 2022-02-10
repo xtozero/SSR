@@ -16,6 +16,8 @@ enum class ShadowQuility
 
 class LightComponent : public SceneComponent
 {
+	GENERATE_CLASS_TYPE_INFO( LightComponent )
+
 public:
 	using SceneComponent::SceneComponent;
 
@@ -64,6 +66,8 @@ private:
 
 class DirectionalLightComponent : public LightComponent
 {
+	GENERATE_CLASS_TYPE_INFO( DirectionalLightComponent )
+
 public:
 	using LightComponent::LightComponent;
 
@@ -95,6 +99,8 @@ private:
 
 class HemisphereLightComponent : public SceneComponent
 {
+	GENERATE_CLASS_TYPE_INFO( HemisphereLightComponent )
+
 public:
 	using SceneComponent::SceneComponent;
 

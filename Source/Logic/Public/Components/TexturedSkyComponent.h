@@ -10,6 +10,8 @@ class TexturedSkyProxy;
 
 class TexturedSkyComponent : public Component
 {
+	GENERATE_CLASS_TYPE_INFO( TexturedSkyComponent )
+
 public:
 	using Component::Component;
 

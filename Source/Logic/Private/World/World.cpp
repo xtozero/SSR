@@ -193,7 +193,7 @@ CPlayer* GetLocalPlayer( World& w )
 	const auto& gameObjects = w.GameObjects( );
 	for ( const auto& gameObject : gameObjects )
 	{
-		if ( CPlayer* player = dynamic_cast<CPlayer*>( gameObject.get( ) ) )
+		if ( CPlayer* player = Cast<CPlayer>( gameObject.get( ) ) )
 		{
 			localPlayer = player;
 			break;

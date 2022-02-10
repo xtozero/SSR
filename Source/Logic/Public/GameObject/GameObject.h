@@ -7,6 +7,7 @@
 #include "Physics/Body.h"
 #include "Physics/ColliderManager.h"
 //#include "Render/Resource.h"
+#include "Reflection.h"
 #include "Scene/INotifyGraphicsDevice.h"
 
 #include <cstddef>
@@ -57,6 +58,8 @@ private:
 
 class CGameObject : IGraphicsDeviceNotify
 {
+	GENERATE_CLASS_TYPE_INFO( CGameObject )
+
 public:
 	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
 	virtual void Initialize( CGameLogic& gameLogic, World& world );
@@ -138,7 +141,7 @@ protected:
 	{
 		for ( Component* component : m_components )
 		{
-			if ( T* concrete = dynamic_cast<T*>( component ) )
+			if ( auto concrete = Cast<T>( component ) )
 			{
 				return concrete;
 			}

@@ -9,6 +9,8 @@ using InputDelegate = Delegate<void, const UserInput&>;
 
 class InputComponent : public Component
 {
+	GENERATE_CLASS_TYPE_INFO( InputComponent )
+
 public:
 	using Component::Component;
 
