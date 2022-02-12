@@ -1,3 +1,5 @@
+#include "constants.fxh"
+
 float2 SpheremapEncode( float3 normal )
 {
 	float f = sqrt( 8.f * normal.z + 8.f );
@@ -67,4 +69,32 @@ float3 PackedSpheremapDecode( float packed )
 	float3 decode = SpheremapDecode( bit7 );
 	decode.z *= zSign;
 	return decode;
+}
+
+// http://johnwhite3d.blogspot.com/2017/10/signed-octahedron-normal-encoding.html
+float3 SignedOctEncode( float3 n )
+{
+	float3 OutN;
+
+	n /= ( abs( n.x ) + abs( n.y ) + abs( n.z ) );
+
+	OutN.y = n.y * 0.5f + 0.5f;
+	OutN.x = n.x * 0.5f + OutN.y;
+	OutN.y = n.x * -0.5f + OutN.y;
+
+	OutN.z = saturate( n.z * FLT_MAX );
+	return OutN;
+}
+
+float3 SignedOctDecode( float3 n )
+{
+	float3 OutN;
+
+	OutN.x = ( n.x - n.y );
+	OutN.y = ( n.x + n.y) - 1.f;
+	OutN.z = n.z * 2.f - 1.f;
+	OutN.z = OutN.z * ( 1.f - abs( OutN.x ) - abs( OutN.y ) );
+
+	OutN = normalize( OutN );
+	return OutN;
 }

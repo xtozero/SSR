@@ -26,10 +26,10 @@ float4 main( PS_INPUT input ) : SV_TARGET
 	float4 worldPosition = mul( float4( viewPosition, 1 ), g_invViewMatrix );
 	worldPosition /= worldPosition.w;
 	
-	float2 packedNormal = WorldNormal.Sample( WorldNormalSampler, input.uv ).xy;
-	float3 worldNormal = SpheremapDecode( packedNormal );
+	float3 packedNormal = WorldNormal.Sample( WorldNormalSampler, input.uv ).yzw;
+	float3 worldNormal = SignedOctDecode( packedNormal );
 	
 	float visibility = CalcShadowVisibility( worldPosition.xyz, worldNormal, viewPosition );
 	
-	return visibility;
+	return lerp( 0.5f, 1, visibility );
 }

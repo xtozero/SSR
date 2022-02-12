@@ -546,9 +546,11 @@ void SceneRenderer::RenderShadow()
 		m_shaderResources.AddResource( "ShadowTexture", shadowInfo.ShadowMap().m_shadowMap->SRV() );
 
 		SamplerOption shadowSamplerOption;
+		shadowSamplerOption.m_filter |= TEXTURE_FILTER::COMPARISON;
 		shadowSamplerOption.m_addressU = TEXTURE_ADDRESS_MODE::BORDER;
 		shadowSamplerOption.m_addressV = TEXTURE_ADDRESS_MODE::BORDER;
 		shadowSamplerOption.m_addressW = TEXTURE_ADDRESS_MODE::BORDER;
+		shadowSamplerOption.m_comparisonFunc = COMPARISON_FUNC::LESS_EQUAL;
 		SamplerState shadowSampler = GraphicsInterface().FindOrCreate( shadowSamplerOption );
 		m_shaderResources.AddResource( "ShadowSampler", shadowSampler.Resource() );
 

@@ -2,30 +2,42 @@
 #include "texCommon.fxh"
 
 Texture2DArray ShadowTexture : register( t2 );
-SamplerState ShadowSampler : register( s2 );
+SamplerComparisonState ShadowSampler : register( s2 );
 
-float SampleShadow( float3 uv_depth, int cascadeIndex )
+float SampleShadow( float3 uv_depth, int cascadeIndex, float depth )
 {
 	float2 samplePos = uv_depth.xy;
 	
-	return ShadowTexture.Sample( ShadowSampler, float3( samplePos, cascadeIndex ) ).x;
+	return ShadowTexture.SampleCmpLevelZero( ShadowSampler, float3( samplePos, cascadeIndex ), depth );
 }
 
-float PoissonDiskSampleShadow( float3 uv_depth, uint i, int cascadeIndex )
+float PoissonDiskSampleShadow( float3 uv_depth, uint i, int cascadeIndex, float depth )
 {
-	float2 offset = PoissonDiskSample( i ) * 0.00048828125f;
+	float2 shadowTextureSize;
+	float elements;
+	
+	ShadowTexture.GetDimensions( shadowTextureSize.x, shadowTextureSize.y, elements );
+	float2 sampleScale = 0.5f / shadowTextureSize;
+
+	float2 offset = PoissonDiskSample( i ) * sampleScale;
 	float2 samplePos = uv_depth.xy + offset;
 
-	return ShadowTexture.Sample( ShadowSampler, float3( samplePos, cascadeIndex ) ).x;
+	return ShadowTexture.SampleCmpLevelZero( ShadowSampler, float3( samplePos, cascadeIndex ), depth );
 }
 
 
-float RotatePoissonDiskSampleShadow( float3 uv_depth, float2 sin_cos, uint i, int cascadeIndex )
+float RotatePoissonDiskSampleShadow( float3 uv_depth, float2 sin_cos, uint i, int cascadeIndex, float depth )
 {
-	float2 offset = RotatePoissonDiskSample( sin_cos.x, sin_cos.y, i ) * 0.00048828125f;
+	float2 shadowTextureSize;
+	float elements;
+	
+	ShadowTexture.GetDimensions( shadowTextureSize.x, shadowTextureSize.y, elements );
+	float2 sampleScale = 0.5f / shadowTextureSize;
+
+	float2 offset = RotatePoissonDiskSample( sin_cos.x, sin_cos.y, i ) * sampleScale;
 	float2 samplePos = uv_depth.xy + offset;
 	
-	return ShadowTexture.Sample( ShadowSampler, float3( samplePos, cascadeIndex ) ).x;
+	return ShadowTexture.SampleCmpLevelZero( ShadowSampler, float3( samplePos, cascadeIndex ), depth );
 }
 
 int SearchCascadeIndex( float dist )
@@ -76,13 +88,12 @@ float CalcShadowVisibility( float3 worldPos, float3 worldNormal, float3 viewPos 
 	float2 sin_cos = float2( sin(angle), cos(angle) );
 
 	float visibility = 1.0f;
+	float sum = 0.f;
 	for ( uint i = 0; i < 64; ++i )
 	{
-		if ( RotatePoissonDiskSampleShadow( uv_depth, sin_cos, i, cascadeIndex ) < uv_depth.z )
-		{
-			visibility -= ( 0.5f / 64.f );
-		}
+		sum += ( RotatePoissonDiskSampleShadow( uv_depth, sin_cos, i, cascadeIndex, uv_depth.z ) > 0 ) ? 1 : 0;
 	}
 
+	visibility = sum / 64.f;
 	return visibility;
 }
