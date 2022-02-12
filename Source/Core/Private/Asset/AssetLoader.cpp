@@ -37,6 +37,7 @@ void AssetLoaderHandle::ExecuteCompletionCallback( )
 	if ( m_loadCompletionCallback.IsBound( ) )
 	{
 		m_loadCompletionCallback( m_loadedAsset );
+		m_loadCompletionCallback.Unbind();
 	}
 
 	for ( const auto& subSequent : m_subSequentList )
