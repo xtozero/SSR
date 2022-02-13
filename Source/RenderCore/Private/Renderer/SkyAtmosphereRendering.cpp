@@ -410,6 +410,11 @@ namespace rendercore
 
 	void RenderAtmosphereLookUpTables( Scene& scene )
 	{
+		if ( scene.SkyAtmosphereSceneInfo() == nullptr )
+		{
+			return;
+		}
+
 		SkyAtmosphereRenderSceneInfo& info = *scene.SkyAtmosphereSceneInfo();
 		if ( info.RebuildLookUpTables() == false )
 		{

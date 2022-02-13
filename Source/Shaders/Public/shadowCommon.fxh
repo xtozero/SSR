@@ -83,6 +83,7 @@ float CalcShadowVisibility( float3 worldPos, float3 worldNormal, float3 viewPos 
 	float3 uv_depth = shadowCoord.xyz / shadowCoord.w;
 	uv_depth.y = -uv_depth.y;
 	uv_depth.xy = uv_depth.xy * 0.5f + 0.5f;
+	uv_depth.z = saturate( uv_depth.z );
 
 	float angle = random( worldPos ) % 360.f;
 	float2 sin_cos = float2( sin(angle), cos(angle) );
