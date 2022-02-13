@@ -4,10 +4,12 @@
 #include "PathEnvironment.h"
 #include "SizedTypes.h"
 
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <thread>
 
 namespace fs = std::filesystem;
 
@@ -40,11 +42,35 @@ bool LoadModules( )
 	return true;
 }
 
-void PrepareDestinationDirectories( const fs::path& destRoot, const fs::path& srcRoot )
+bool PrepareDestinationDirectories( const fs::path& destRoot, const fs::path& srcRoot )
 {
-	if ( fs::exists( destRoot ) && fs::is_directory( destRoot ) )
+	uint32 trial = 0;
+	constexpr uint32 maxTrial = 5;
+	while ( trial < maxTrial )
 	{
-		fs::remove_all( destRoot );
+		if ( fs::exists( destRoot ) && fs::is_directory( destRoot ) )
+		{
+			try
+			{
+				fs::remove_all( destRoot );
+				break;
+			}
+			catch ( fs::filesystem_error& err )
+			{
+				++trial;
+				std::cout << err.what() << " ( " << trial << " / " << maxTrial << " )\n";
+
+				if ( trial < maxTrial )
+				{
+					std::cout << "Retry after 1 second\n";
+					std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
+				}
+				else
+				{
+					return false;
+				}
+			}
+		}
 	}
 
 	for ( const auto& p : fs::recursive_directory_iterator( srcRoot ) )
@@ -55,6 +81,8 @@ void PrepareDestinationDirectories( const fs::path& destRoot, const fs::path& sr
 			fs::create_directories( destRoot / rel );
 		}
 	}
+
+	return true;
 }
 
 int32 main( int32 argc, const char* argv[] )
@@ -79,7 +107,10 @@ int32 main( int32 argc, const char* argv[] )
 		return EXIT_FAILURE;
 	}
 
-	PrepareDestinationDirectories( destDirectory, srcDirectory );
+	if ( PrepareDestinationDirectories( destDirectory, srcDirectory ) == false )
+	{
+		return EXIT_FAILURE;
+	}
 
 	fs::current_path( srcDirectory );
 
