@@ -6,7 +6,6 @@ Texture2D SceneDepth : register( t3 );
 SamplerState SceneDepthSampler : register( s3 );
 
 static const float ISun = 100.f;
-static const float HeightOffset = 0.01f;
 
 cbuffer SkyAtmosphereRenderParameter : register( b1 )
 {
@@ -21,6 +20,7 @@ struct PS_INPUT
 	float4 position : SV_POSITION;
 	float3 worldPosition : POSITION0;
 	float3 viewRay : POSITION1;
+	float3 worldRay : POSITION2;
 	float2 uv : TEXCOORD0;
 };
 

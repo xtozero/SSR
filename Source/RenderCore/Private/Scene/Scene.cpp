@@ -5,13 +5,16 @@
 #include "Components/LightComponent.h"
 #include "Components/PrimitiveComponent.h"
 #include "Components/TexturedSkyComponent.h"
+#include "Components/VolumetricCloudComponent.h"
 #include "Physics/BoxSphereBounds.h"
 #include "Proxies/LightProxy.h"
 #include "Proxies/PrimitiveProxy.h"
 #include "Proxies/SkyAtmosphereProxy.h"
 #include "Proxies/TexturedSkyProxy.h"
+#include "Proxies/VolumetricCloudProxy.h"
 #include "Scene/LightSceneInfo.h"
 #include "Scene/PrimitiveSceneInfo.h"
+#include "Scene/VolumetricCloudSceneInfo.h"
 #include "SkyAtmosphereRendering.h"
 #include "TaskScheduler.h"
 
@@ -127,6 +130,44 @@ void Scene::RemoveAtomosphere( SkyAtmospherePorxy* skyAtmosphereProxy )
 					delete m_skyAtmosphere;
 					m_skyAtmosphere = nullptr;
 				}
+			} );
+	}
+}
+
+void Scene::AddVolumetricCloud( VolumetricCloudComponent* volumetricCloud )
+{
+	VolumetricCloudProxy* proxy = volumetricCloud->CreateProxy();
+	volumetricCloud->Proxy() = proxy;
+
+	if ( proxy == nullptr )
+	{
+		return;
+	}
+
+	auto volumetricCloudSceneInfo = new rendercore::VolumetricCloudSceneInfo( proxy );
+
+	proxy->m_volumetricCloudSceneInfo = volumetricCloudSceneInfo;
+
+	EnqueueRenderTask( [this, volumetricCloudSceneInfo]
+		{
+			volumetricCloudSceneInfo->CreateRenderData();
+
+			AddVolumetricCloud( volumetricCloudSceneInfo );
+		} );
+}
+
+void Scene::RemoveVolumetricCloud( VolumetricCloudComponent* volumetricCloud )
+{
+	VolumetricCloudProxy* proxy = volumetricCloud->Proxy();
+
+	if ( proxy )
+	{
+		rendercore::VolumetricCloudSceneInfo* volumetricCloudSceneInfo = proxy->m_volumetricCloudSceneInfo;
+		volumetricCloud->Proxy() = nullptr;
+
+		EnqueueRenderTask( [this, volumetricCloudSceneInfo]
+			{
+				RemoveVolumetricCloud( volumetricCloudSceneInfo );
 			} );
 	}
 }
@@ -256,6 +297,23 @@ void Scene::RemoveTexturedSky( [[maybe_unused]] TexturedSkyProxy* texturedSky )
 {
 	delete m_texturedSky;
 	m_texturedSky = nullptr;
+}
+
+void Scene::AddVolumetricCloud( rendercore::VolumetricCloudSceneInfo* volumetricCloudSceneInfo )
+{
+	assert( m_volumetricCloud == nullptr );
+
+	m_volumetricCloud = volumetricCloudSceneInfo;
+}
+
+void Scene::RemoveVolumetricCloud( [[maybe_unused]] rendercore::VolumetricCloudSceneInfo* volumetricCloudSceneInfo )
+{
+	assert( m_volumetricCloud == volumetricCloudSceneInfo );
+
+	m_volumetricCloud = nullptr;
+
+	delete volumetricCloudSceneInfo->Proxy();
+	delete volumetricCloudSceneInfo;
 }
 
 void Scene::AddHemisphereLight( HemisphereLightProxy* hemisphereLight )

@@ -5,6 +5,7 @@ struct VS_OUTPUT
 	float4 position : SV_POSITION;
 	float3 worldPosition : POSITION0;
 	float3 viewRay : POSITION1;
+	float3 worldRay : POSITION2;
 	float2 uv : TEXCOORD0;
 };
 
@@ -21,6 +22,10 @@ VS_OUTPUT main( uint vertexId : SV_VertexID )
 	float4 viewRay = mul( float4( output.position.xy, 1, 1 ), g_invProjectionMatrix );
 	viewRay /= viewRay.w;
 	output.viewRay = viewRay.xyz;
+
+	float4 worldRay = mul( float4( output.position.xy, 1, 1 ), g_invViewProjectionMatrix );
+	worldRay /= worldRay.w;
+	output.worldRay = worldRay.xyz;
 
 	return output;
 }

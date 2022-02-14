@@ -13,6 +13,7 @@ struct PS_INPUT
 	float4 position : SV_POSITION;
 	float3 worldPosition : POSITION0;
 	float3 viewRay : POSITION1;
+	float3 worldRay : POSITION2;
 	float2 uv : TEXCOORD0;
 };
 

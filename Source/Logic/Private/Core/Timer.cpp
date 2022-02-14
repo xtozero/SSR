@@ -8,16 +8,16 @@
 
 using namespace std::chrono;
 
-void CTimer::Tick ( )
+void Timer::Tick()
 {
 	++m_frame;
 
-	time_point<steady_clock> curTime = steady_clock::now( );
+	time_point<steady_clock> curTime = steady_clock::now();
 
-	m_elapsedTime = duration_cast<duration<float>>( curTime - m_lastTime ).count();
+	m_elapsedTime = curTime - m_lastTime;
 	m_lastTime = curTime;
 
-	m_frameCheckInterval += m_elapsedTime;
+	m_frameCheckInterval += duration_cast<duration<float>>( m_elapsedTime ).count();
 	
 	if ( m_frameCheckInterval > 1.0f )
 	{
@@ -26,11 +26,12 @@ void CTimer::Tick ( )
 		m_frame = 0;
 	}
 
-	m_elapsedTime *= m_timeScale;
+	auto scaledTime = duration_cast<duration<float>>( m_elapsedTime ) * m_timeScale;
+	m_elapsedTime = round<nanoseconds>( scaledTime );
 
 	if ( m_isPaused )
 	{
-		m_elapsedTime = 0;
+		m_elapsedTime = nanoseconds::zero();
 	}
 	else
 	{
@@ -38,17 +39,27 @@ void CTimer::Tick ( )
 	}
 }
 
-void CTimer::Pause( )
+void Timer::Pause()
 {
 	m_isPaused = true;
 }
 
-void CTimer::Resume( )
+void Timer::Resume()
 {
 	m_isPaused = false;
 }
 
-CTimer::CTimer ( )
+float Timer::GetElapsedTime() const
+{
+	return duration_cast<duration<float>>( m_elapsedTime ).count();
+}
+
+float Timer::GetTotalTime() const
+{
+	return duration_cast<duration<float>>( m_totalTime ).count();
+}
+
+Timer::Timer()
 {
 	m_lastTime = steady_clock::now( );
 }

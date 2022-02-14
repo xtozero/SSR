@@ -15,6 +15,14 @@ fxc /Fo CS_IrradianceN.cso					/Zi /T cs_5_0 /I %IncludePath% /E main Private/At
 fxc /Fo CS_InscatterN.cso					/Zi /T cs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/CS_InscatterN.fx
 fxc /Fo CS_CopyInscatterN.cso				/Zi /T cs_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/CS_CopyInscatterN.fx
 fxc /Fo CS_DistributionCopy.cso				/Zi /T cs_5_0 /I %IncludePath% /E main Private/CS_DistributionCopy.fx
+rem fxc /Fo CS_WorleyNoise.cso					/Zi /T cs_5_0 /I %IncludePath% /E main Private/Noise/CS_WorleyNoise.fx
+rem fxc /Fo CS_NormalizeNoise.cso				/Zi /T cs_5_0 /I %IncludePath% /E main Private/Noise/CS_NormalizeNoise.fx
+rem fxc /Fo CS_PerlinNoise.cso					/Zi /T cs_5_0 /I %IncludePath% /E main Private/Noise/CS_PerlinNoise.fx
+rem fxc /Fo CS_FbmNoise.cso						/Zi /T cs_5_0 /I %IncludePath% /E main Private/Noise/CS_FbmNoise.fx
+rem fxc /Fo CS_GatherNoise.cso					/Zi /T cs_5_0 /I %IncludePath% /E main Private/Cloud/CS_GatherNoise.fx
+fxc /Fo CS_WeatherMap.cso					/Zi /T cs_5_0 /I %IncludePath% /E main Private/Cloud/CS_WeatherMap.fx
+fxc /Fo CS_PerlinWorley.cso					/Zi /T cs_5_0 /I %IncludePath% /E main Private/Cloud/CS_PerlinWorley.fx
+fxc /Fo CS_Worley.cso						/Zi /T cs_5_0 /I %IncludePath% /E main Private/Cloud/CS_Worley.fx
 
 fxc /Fo GS_CascadedShadowmap.cso			/Zi /T gs_5_0 /I %IncludePath% /E main Private/GS_CascadedShadowmap.fx
 
@@ -38,6 +46,7 @@ rem fxc /Fo PS_DrawBackfaceDepth.cso			/Zi /T ps_5_0 /I %IncludePath% /E main Pr
 rem fxc /Fo PS_DrawUI.cso						/Zi /T ps_5_0 /I %IncludePath% /E psMain Private/drawUI.fx
 rem fxc /Fo PS_DebugOverlay.cso					/Zi /T ps_5_0 /I %IncludePath% /E psMain Private/debugOverlay.fx
 fxc /Fo PS_DrawAtmosphere.cso				/Zi /T ps_5_0 /I %IncludePath% /E main Private/AtmoshpericScattering/PS_DrawAtmosphere.fx
+fxc /Fo PS_DrawVolumetricCloud.cso			/Zi /T ps_5_0 /I %IncludePath% /E main Private/PS_DrawVolumetricCloud.fx
 
 fxc /Fo VS_CascadedShadowmap.cso			/Zi /T vs_5_0 /I %IncludePath% /E main Private/VS_CascadedShadowmap.fx
 rem fxc /Fo VS_DepthStencil.cso 					/Zi /T vs_5_0 /I %IncludePath% /E main Private/vsDepthStencil.fx

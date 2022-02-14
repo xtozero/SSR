@@ -12,6 +12,7 @@ class ScenePrimitiveBuffer;
 class SceneViewConstantBuffer;
 class SkyAtmospherePorxy;
 class TexturedSkyComponent;
+class VolumetricCloudComponent;
 
 enum class SHADING_METHOD
 {
@@ -31,6 +32,9 @@ public:
 
 	virtual void AddSkyAtmosphere( SkyAtmospherePorxy* skyAtmosphereProxy ) = 0;
 	virtual void RemoveAtomosphere( SkyAtmospherePorxy* skyAtmosphereProxy ) = 0;
+
+	virtual void AddVolumetricCloud( VolumetricCloudComponent* volumetricCloud ) = 0;
+	virtual void RemoveVolumetricCloud( VolumetricCloudComponent* volumetricCloud ) = 0;
 
 	virtual void AddHemisphereLightComponent( HemisphereLightComponent* light ) = 0;
 	virtual void RemoveHemisphereLightComponent( HemisphereLightComponent* light ) = 0;

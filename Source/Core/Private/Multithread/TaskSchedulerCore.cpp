@@ -156,8 +156,6 @@ bool TaskScheduler::Wait( TaskHandle handle )
 		return false;
 	}
 
-	TaskQueue& queue = m_taskQueues[handle.m_queueId];
-
 	if ( handle.IsSubmitted() == false )
 	{
 		return false;
@@ -168,35 +166,12 @@ bool TaskScheduler::Wait( TaskHandle handle )
 		return false;
 	}
 
-	while ( true )
+	while ( handle.IsCompleted() == false )
 	{
-		TaskBase* task = nullptr;
-		{
-			std::unique_lock taskLock( queue.m_taskLock );
-			if ( queue.m_tasks.empty() == false )
-			{
-				task = queue.m_tasks.front();
-
-				if ( CheckWorkerAffinity( GetThisThreadType(), task->WorkerAffinity() ) == false )
-				{
-					break;
-				}
-
-				queue.m_tasks.pop();
-			}
-		}
-
-		if ( task )
-		{
-			task->Execute();
-			--queue.m_reference;
-		}
-		else
-		{
-			break;
-		}
+		ProcessThisThreadTask();
 	}
 
+	TaskQueue& queue = m_taskQueues[handle.m_queueId];
 	while ( queue.m_reference > 0 )
 	{
 		std::this_thread::yield();

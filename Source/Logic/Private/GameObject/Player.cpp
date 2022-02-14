@@ -68,7 +68,8 @@ void CPlayer::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 
 void CPlayer::ProcessInput( const UserInput& input, CGameLogic& gameLogic )
 {
-	const CTimer& timer = gameLogic.GetTimer( );
+	assert( GetWorld() != nullptr );
+	const Timer& timer = GetWorld()->GetTimer();
 	constexpr float angleInterval = DirectX::XMConvertToRadians( 30 );
 
 	switch ( input.m_code )

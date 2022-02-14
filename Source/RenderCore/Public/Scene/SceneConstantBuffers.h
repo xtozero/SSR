@@ -7,8 +7,8 @@
 #include "SizedTypes.h"
 
 class PrimitiveProxy;
+class RenderViewGroup;
 class Scene;
-struct RenderView;
 
 struct ViewConstantBufferParameters
 {
@@ -26,10 +26,11 @@ struct ViewConstantBufferParameters
 	float padding1;
 	float m_nearPlaneDist;
 	float m_farPlaneDist;
-	float padding2[2];
+	float m_elapsedTime;
+	float m_totalTime;
 };
 
-void FillViewConstantParam( ViewConstantBufferParameters& param, const Scene* scene, const RenderView& view );
+void FillViewConstantParam( ViewConstantBufferParameters& param, const Scene* scene, const RenderViewGroup& renderViewGroup, size_t viewIndex );
 
 class SceneViewConstantBuffer
 {

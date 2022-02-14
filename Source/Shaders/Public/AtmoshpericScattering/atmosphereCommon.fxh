@@ -3,6 +3,7 @@
 static const float Rg = 6360.f;	// Altitude ground( km ) 
 static const float Rt = 6420.f;	// Altitude atmosphere( km )
 static const float RL = 6421.f;	// Altitude limit( km )
+static const float HeightOffset = 0.01f;
 
 static const float AVERAGE_GROUND_REFLECTANCE = 0.1;
 

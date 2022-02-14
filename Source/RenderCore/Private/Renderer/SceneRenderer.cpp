@@ -10,16 +10,19 @@
 #include "Proxies/LightProxy.h"
 #include "Proxies/PrimitiveProxy.h"
 #include "Proxies/TexturedSkyProxy.h"
+#include "Proxies/VolumetricCloudProxy.h"
 #include "RenderView.h"
 #include "Scene/IScene.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "Scene/Scene.h"
 #include "Scene/SceneConstantBuffers.h"
+#include "Scene/VolumetricCloudSceneInfo.h"
 #include "ShaderBindings.h"
 #include "ShadowDrawPassProcessor.h"
 #include "ShadowSetup.h"
 #include "SkyAtmosphereRendering.h"
 #include "Viewport.h"
+#include "VolumetricCloudPassProcessor.h"
 
 #include <deque>
 
@@ -177,7 +180,7 @@ void SceneRenderer::ClassifyShadowCasterAndReceiver( IScene& scene, const render
 	for ( ShadowInfo* pShadowInfo : shadows )
 	{
 		LightSceneInfo* lightSceneInfo = pShadowInfo->GetLightSceneInfo();
-		LIGHT_TYPE lightType = lightSceneInfo->Proxy()->LightType();
+		[[maybe_unused]] LIGHT_TYPE lightType = lightSceneInfo->Proxy()->LightType();
 
 		assert( lightType == LIGHT_TYPE::DIRECTINAL_LIGHT );
 		assert( pShadowInfo->View() != nullptr );
@@ -633,6 +636,106 @@ void SceneRenderer::RenderSkyAtmosphere( IScene& scene, RenderView& renderView )
 	skyAtmosphereDrawResources.AddResource( "SkyAtmosphereRenderParameter", skyAtmosphereRenderParameter.Resource() );
 
 	skyAtmosphereDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+	VisibleDrawSnapshot visibleSnapshot = {
+				0,
+				0,
+				1,
+				-1,
+				&snapshot,
+	};
+
+	VertexBuffer emptyPrimitiveID;
+	CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
+}
+
+void SceneRenderer::RenderVolumetricCloud( IScene& scene, RenderView& renderView )
+{
+	Scene* renderScene = scene.GetRenderScene();
+	if ( renderScene == nullptr )
+	{
+		return;
+	}
+
+	rendercore::VolumetricCloudSceneInfo* info = renderScene->VolumetricCloud();
+	if ( info == nullptr )
+	{
+		return;
+	}
+
+	info->CreateRenderData();
+
+	const LightSceneInfo* skyAtmosphereLight = renderScene->SkyAtmosphereSunLight();
+	if ( skyAtmosphereLight == nullptr )
+	{
+		return;
+	}
+
+	rendercore::VolumetricCloundDrawPassProcessor volumetricCloundDrawPassProcessor;
+	
+	PrimitiveSubMesh meshInfo;
+	meshInfo.m_count = 3;
+
+	auto result = volumetricCloundDrawPassProcessor.Process( meshInfo );
+	if ( result.has_value() == false )
+	{
+		return;
+	}
+
+	Vector4 lightPosOrDir;
+	LightProperty lightProperty = skyAtmosphereLight->Proxy()->GetLightProperty();
+	if ( lightProperty.m_type == LIGHT_TYPE::DIRECTINAL_LIGHT )
+	{
+		lightPosOrDir = Vector4( -lightProperty.m_direction.x, -lightProperty.m_direction.y, -lightProperty.m_direction.z, 0.f );
+	}
+	else
+	{
+		lightPosOrDir = Vector4( lightProperty.m_position.x, lightProperty.m_position.y, lightProperty.m_position.z, 1.f );
+	}
+
+	const VolumetricCloudProxy& proxy = *info->Proxy();
+	rendercore::VolumetricCloudRenderParameter param = {
+		.m_sphereRadius = Vector( proxy.EarthRadius(), proxy.InnerRadius(), proxy.OuterRadius() ),
+		.m_lightAbsorption = proxy.LightAbsorption(),
+		.m_cameraPos = renderView.m_viewOrigin,
+		.m_densityScale = proxy.DensityScale(),
+		.m_lightPosOrDir = lightPosOrDir,
+		.m_cloudColor = proxy.CloudColor(),
+		.m_windDirection = Vector( 0.5f, 0.f, 0.1f ).GetNormalized(),
+		.m_windSpeed = 450.f,
+		.m_crispiness = proxy.Crispiness(),
+		.m_curliness = proxy.Curliness(),
+		.m_densityFactor = proxy.DensityFactor(),
+	};
+
+	auto& volumetricCloudRenderParameter = info->GetVolumetricCloudRenderParameter();
+	volumetricCloudRenderParameter.Update( param );
+
+	DrawSnapshot& snapshot = *result;
+
+	// Update invalidated resources
+	GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+	m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+	auto commandList = rendercore::GetImmediateCommandList();
+	ApplyOutputContext( commandList );
+
+	SamplerOption samplerOption;
+	samplerOption.m_addressU =
+	samplerOption.m_addressV =
+	samplerOption.m_addressW = TEXTURE_ADDRESS_MODE::WRAP;
+	SamplerState cloudSampler = GraphicsInterface().FindOrCreate( samplerOption );
+	SamplerState weatherSampler = GraphicsInterface().FindOrCreate( samplerOption );
+
+	RenderingShaderResource volumetricCloundDrawResources;
+	volumetricCloundDrawResources.AddResource( "VolumetricCloudRenderParameter", volumetricCloudRenderParameter.Resource() );
+	volumetricCloundDrawResources.AddResource( "BaseCloudShape", info->BaseCloudShape()->SRV() );
+	volumetricCloundDrawResources.AddResource( "DetailCloudShape", info->DetailCloudShape()->SRV() );
+	volumetricCloundDrawResources.AddResource( "WeatherMap", info->WeatherMap()->SRV() );
+	volumetricCloundDrawResources.AddResource( "BaseCloudSampler", cloudSampler.Resource() );
+	volumetricCloundDrawResources.AddResource( "WeatherSampler", weatherSampler.Resource() );
+
+	volumetricCloundDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
 	VisibleDrawSnapshot visibleSnapshot = {
 				0,

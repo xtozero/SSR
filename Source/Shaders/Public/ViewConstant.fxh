@@ -12,5 +12,6 @@ cbuffer VEIW_PROJECTION : register( b1 )
 	float g_padding1 : packoffset(c26.w);
 	float g_nearPlaneDist : packoffset(c27.x);
 	float g_FarPlaneDist : packoffset(c27.y);
-	float2 g_padding2 : packoffset(c27.z);
+	float ElapsedTime : packoffset(c27.z);
+	float TotalTime : packoffset(c27.w);
 };

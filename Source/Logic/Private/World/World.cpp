@@ -32,6 +32,16 @@ void World::CleanUp( )
 	WaitRenderThread( );
 }
 
+void World::Pause()
+{
+	m_clock.Pause();
+}
+
+void World::Resume()
+{
+	m_clock.Resume();
+}
+
 void World::PreparePhysics( )
 {
 	m_collisionData.Reset( m_contacts, MAX_CONTACTS );
@@ -78,8 +88,10 @@ void World::RunPhysics( float duration )
 	m_resolver.ResolveContacts( m_contacts, usedContacts, duration );
 }
 
-void World::BeginFrame( )
+void World::BeginFrame()
 {
+	m_clock.Tick();
+
 	for ( auto object = m_gameObjects.begin( ); object != m_gameObjects.end( ); )
 	{
 		CGameObject* candidate = object->get( );
@@ -95,19 +107,21 @@ void World::BeginFrame( )
 	}
 }
 
-void World::RunFrame( float duration )
+void World::RunFrame()
 {
+	float elapsedTime = GetTimer().GetElapsedTime();
 	for ( auto& object : m_gameObjects )
 	{
-		object->Think( duration );
+		object->Think( elapsedTime );
 	}
 }
 
-void World::EndFrame( float duration )
+void World::EndFrame()
 {
+	float elapsedTime = GetTimer().GetElapsedTime();
 	for ( auto& object : m_gameObjects )
 	{
-		object->PostThink( duration );
+		object->PostThink( elapsedTime );
 	}
 }
 

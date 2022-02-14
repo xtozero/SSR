@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/Timer.h"
 #include "GameObject/GameObject.h"
 #include "Math/Vector.h"
 #include "Physics/BoundingSphere.h"
@@ -23,15 +24,19 @@ class World : public IGraphicsDeviceNotify
 public:
 	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
 
-	void Initialize( );
-	void CleanUp( );
+	void Initialize();
+	void CleanUp();
 
-	void PreparePhysics( );
+	const Timer& GetTimer() const { return m_clock; }
+	void Pause();
+	void Resume();
+
+	void PreparePhysics();
 	void RunPhysics( float duration );
 
-	void BeginFrame( );
-	void RunFrame( float duration );
-	void EndFrame( float duration );
+	void BeginFrame();
+	void RunFrame();
+	void EndFrame();
 
 	void SpawnObject( CGameLogic& gameLogic, Owner<CGameObject*> object );
 
@@ -43,13 +48,13 @@ public:
 		return m_gameObjects;
 	}
 
-	IScene* Scene( ) const
+	IScene* Scene() const
 	{
 		return m_scene;
 	}
 
 private:
-	int32 GenerateContacts( );
+	int32 GenerateContacts();
 	void OnObjectSpawned( ObjectRelatedRigidBody* body, const BoundingSphere& volume );
 	void OnObjectRemoved( ObjectRelatedRigidBody* body );
 
@@ -68,6 +73,8 @@ private:
 	Gravity m_gravity = Gravity( Vector( 0.f, -9.8f, 0.f ) );
 
 	IScene* m_scene = nullptr;
+
+	Timer m_clock;
 };
 
 CPlayer* GetLocalPlayer( World& w );

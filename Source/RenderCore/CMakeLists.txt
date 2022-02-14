@@ -67,11 +67,13 @@ set (PASS_PROCESSOR
 	Private/PassProcessor/PassProcessor.cpp
 	Private/PassProcessor/ShadowDepthPassProcessor.cpp
 	Private/PassProcessor/ShadowDrawPassProcessor.cpp
+	Private/PassProcessor/VolumetricCloudPassProcessor.cpp
 	Public/PassProcessor/DefaultPassProcessor.h
 	Public/PassProcessor/DepthWritePassProcessor.h
 	Public/PassProcessor/PassProcessor.h
 	Public/PassProcessor/ShadowDepthPassProcessor.h
-	Public/PassProcessor/ShadowDrawPassProcessor.h)
+	Public/PassProcessor/ShadowDrawPassProcessor.h
+	Public/PassProcessor/VolumetricCloudPassProcessor.h)
 
 set (PRECOMPILED
 	Private/Pch/stdafx.cpp
@@ -84,11 +86,13 @@ set (PROXIES_SOURCE
 	Private/Proxies/SkyAtmosphereProxy.cpp
 	Private/Proxies/StaticMeshPrimitiveProxy.cpp
 	Private/Proxies/TexturedSkyProxy.cpp
+	Private/Proxies/VolumetricCloudProxy.cpp
 	Public/Proxies/LightProxy.h
 	Public/Proxies/PrimitiveProxy.h
 	Public/Proxies/SkyAtmosphereProxy.h
 	Public/Proxies/StaticMeshPrimitiveProxy.h
-	Public/Proxies/TexturedSkyProxy.h)
+	Public/Proxies/TexturedSkyProxy.h
+	Public/Proxies/VolumetricCloudProxy.h)
 
 set (RENDER_SCENE_SOURCE
 	Private/Scene/LightSceneInfo.cpp
@@ -96,12 +100,14 @@ set (RENDER_SCENE_SOURCE
 	Private/Scene/Scene.cpp
 	Private/Scene/SceneConstantBuffers.cpp
 	Private/Scene/ShadowInfo.cpp
+	Private/Scene/VolumetricCloudSceneInfo.cpp
 	Public/Scene/IScene.h
 	Public/Scene/LightSceneInfo.h
 	Public/Scene/PrimitiveSceneInfo.h
 	Public/Scene/Scene.h
 	Public/Scene/SceneConstantBuffers.h
-	Public/Scene/ShadowInfo.h)
+	Public/Scene/ShadowInfo.h
+	Public/Scene/VolumetricCloudSceneInfo.h)
 
 set (RENDER_UTILITY
 	../Shaders/Public/AtmoshpericScattering/AtmosphereConstant.h

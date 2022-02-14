@@ -15,7 +15,6 @@
 #include "Scene/DebugOverlayManager.h"
 #include "Scene/SSRManager.h"
 #include "SizedTypes.h"
-#include "Timer.h"
 #include "UI/ImUI.h"
 #include "UserInput/Controller.h"
 #include "World/World.h"
@@ -54,7 +53,6 @@ public:
 	//ImUI& GetUIManager( ) { return m_ui; }
 	//RE_HANDLE GetCommonConstantBuffer( uint32 purpose ) { return m_commonConstantBuffer[purpose]; }
 	const std::pair<uint32, uint32>& GetAPPSize( ) { return m_appSize; }
-	const CTimer& GetTimer( ) const { return m_clock; }
 
 	InputController* GetInputController( );
 
@@ -94,7 +92,6 @@ private:
 	HWND	m_wndHwnd;
 	std::pair<uint32, uint32> m_appSize;
 
-	CTimer m_clock;
 	std::unique_ptr<InputController> m_inputController;
 	//CPickingManager m_pickingManager;
 	//CSSRManager m_ssrManager;

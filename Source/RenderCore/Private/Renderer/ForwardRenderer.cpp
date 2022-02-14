@@ -170,12 +170,12 @@ void ForwardRenderer::Render( RenderViewGroup& renderViewGroup )
 	{
 		auto& viewConstant = scene.SceneViewConstant();
 
-		auto& view = renderViewGroup[i];
-
 		ViewConstantBufferParameters viewConstantParam;
-		FillViewConstantParam( viewConstantParam, scene.GetRenderScene(), view );
+		FillViewConstantParam( viewConstantParam, scene.GetRenderScene(), renderViewGroup, i );
 
 		viewConstant.Update( viewConstantParam );
+
+		auto& view = renderViewGroup[i];
 
 		m_shaderResources.AddResource( "VEIW_PROJECTION", viewConstant.Resource() );
 		m_shaderResources.AddResource( "ForwardLightConstant", view.m_forwardLighting->m_lightConstant.Resource() );
@@ -187,6 +187,8 @@ void ForwardRenderer::Render( RenderViewGroup& renderViewGroup )
 		RenderShadow();
 
 		RenderSkyAtmosphere( scene, view );
+
+		RenderVolumetricCloud( scene, view );
 	}
 }
 

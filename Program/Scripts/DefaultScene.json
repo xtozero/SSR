@@ -24,6 +24,20 @@
 		},
 		{
 			"Object": {
+				"Class": "volumetric_cloud",
+				"EarthRadius": 600000,
+				"InnerRadius": 5000,
+				"OuterRadius": 17000,
+				"LightAbsorption": 0.0035,
+				"DensityScale": 0.45,
+				"CloudColor": [ 0.38235, 0.41176, 0.47059 ],
+				"Crispiness": 40,
+				"Curliness": 0.1,
+				"DensityFactor": 0.2
+			}
+		},
+		{
+			"Object": {
 				"Class": "player",
 				"Camera": {
 					"Position": [ 0, 0, -60 ]

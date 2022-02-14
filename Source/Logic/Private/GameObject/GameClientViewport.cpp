@@ -10,14 +10,14 @@
 #include "TaskScheduler.h"
 #include "World/World.h"
 
-void GameClientViewport::Draw( )
+void GameClientViewport::Draw()
 {
-	if ( GetWorld( ) == nullptr )
+	if ( GetWorld() == nullptr )
 	{
 		return;
 	}
 
-	if ( GetWorld( )->Scene( ) == nullptr )
+	if ( GetWorld()->Scene() == nullptr )
 	{
 		return;
 	}
@@ -32,8 +32,8 @@ void GameClientViewport::Draw( )
 		return;
 	}
 
-	auto renderModule = GetInterface<IRenderCore>( );
-	if ( renderModule->IsReady( ) == false )
+	auto renderModule = GetInterface<IRenderCore>();
+	if ( renderModule->IsReady() == false )
 	{
 		return;
 	}
@@ -41,14 +41,22 @@ void GameClientViewport::Draw( )
 	++m_curDrawFence;
 
 	float clearColor[4] = { m_clearColor[0], m_clearColor[1], m_clearColor[2], m_clearColor[3] };
-	EnqueueRenderTask( [viewport = m_viewport, clearColor]( )
+	EnqueueRenderTask( [viewport = m_viewport, clearColor]()
 	{
 		viewport->Clear( clearColor );
 	} );
 
-	RenderViewGroup renderViewGroup( *GetWorld()->Scene(), *m_viewport );
+	const auto& timer = GetWorld()->GetTimer();
+	RenderViewGroupInitializer initializer = {
+		.m_scene = *GetWorld()->Scene(),
+		.m_viewport = *m_viewport,
+		.m_elapsedTime = timer.GetElapsedTime(),
+		.m_totalTime = timer.GetTotalTime(),
+	};
+
+	RenderViewGroup renderViewGroup( initializer );
 	InitView( renderViewGroup );
-	EnqueueRenderTask( [renderModule, renderViewGroup]( ) mutable
+	EnqueueRenderTask( [renderModule, renderViewGroup]() mutable
 	{
 		if ( renderModule )
 		{
@@ -56,7 +64,7 @@ void GameClientViewport::Draw( )
 		}
 	} );
 
-	EnqueueRenderTask( [this, viewport = m_viewport]( )
+	EnqueueRenderTask( [this, viewport = m_viewport]()
 	{
 		viewport->Present( false );
 		++m_drawFence;

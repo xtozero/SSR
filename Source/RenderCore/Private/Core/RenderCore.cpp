@@ -68,11 +68,16 @@ bool RenderCore::BootUp()
 		return false;
 	}
 
+	GlobalShader::GetInstance().BootUp();
+
 	GraphicsInterface().BootUp( m_aga );
 
 	DefaultConstantBuffers::GetInstance().BootUp();
 
-	GlobalShader::GetInstance().BootUp();
+	while ( IsReady() == false )
+	{
+		GetInterface<ITaskScheduler>()->ProcessThisThreadTask();
+	}
 
 	return true;
 }

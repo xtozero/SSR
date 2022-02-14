@@ -8,7 +8,7 @@
 #include "Scene/Scene.h"
 #include "TaskScheduler.h"
 
-#include <assert.h>
+#include <cassert>
 
 void SceneViewConstantBuffer::Update( const ViewConstantBufferParameters& param )
 {
@@ -27,9 +27,10 @@ const aga::Buffer* SceneViewConstantBuffer::Resource( ) const
 	return m_constantBuffer.Resource( );
 }
 
-void FillViewConstantParam( ViewConstantBufferParameters& param, const Scene* scene, const RenderView& view )
+void FillViewConstantParam( ViewConstantBufferParameters& param, const Scene* scene, const RenderViewGroup& renderViewGroup, size_t viewIndex )
 {
 	using namespace DirectX;
+	const RenderView& view = renderViewGroup[viewIndex];
 
 	auto viewMatrix = LookFromMatrix( view.m_viewOrigin, 
 									view.m_viewAxis[2],
@@ -71,6 +72,9 @@ void FillViewConstantParam( ViewConstantBufferParameters& param, const Scene* sc
 
 	param.m_nearPlaneDist = view.m_nearPlaneDistance;
 	param.m_farPlaneDist = view.m_farPlaneDistance;
+
+	param.m_elapsedTime = renderViewGroup.ElapsedTime();
+	param.m_totalTime = renderViewGroup.TotalTime();
 }
 
 PrimitiveSceneData::PrimitiveSceneData( const PrimitiveProxy* proxy )

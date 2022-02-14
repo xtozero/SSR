@@ -4,24 +4,24 @@
 
 #include <chrono>
 
-class CTimer
+class Timer
 {
 public:
 	void Tick( );
 	void Pause( );
 	void Resume( );
 
-	float GetElapsedTime( ) const { return m_elapsedTime; }
-	float GetTotalTime( ) const { return m_totalTime; }
+	float GetElapsedTime() const;
+	float GetTotalTime() const;
 	float GetFps( ) const { return m_fps; }
 
 	bool IsPaused( ) const { return m_isPaused; }
 
-	CTimer( );
+	Timer( );
 
 private:
-	float m_totalTime = 0.f;
-	float m_elapsedTime = 0.f;
+	std::chrono::nanoseconds m_totalTime = std::chrono::nanoseconds::zero();
+	std::chrono::nanoseconds m_elapsedTime = std::chrono::nanoseconds::zero();
 	float m_timeScale = 1.f;
 
 	std::chrono::time_point<std::chrono::steady_clock> m_lastTime;

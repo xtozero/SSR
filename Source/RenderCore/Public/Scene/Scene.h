@@ -18,6 +18,7 @@ class TexturedSkyProxy;
 namespace rendercore
 {
 	class SkyAtmosphereRenderSceneInfo;
+	class VolumetricCloudSceneInfo;
 }
 
 class Scene final : public IScene
@@ -39,6 +40,9 @@ public:
 
 	virtual void AddSkyAtmosphere( SkyAtmospherePorxy* skyAtmosphereProxy ) override;
 	virtual void RemoveAtomosphere( SkyAtmospherePorxy* skyAtmosphereProxy ) override;
+
+	virtual void AddVolumetricCloud( VolumetricCloudComponent* volumetricCloud ) override;
+	virtual void RemoveVolumetricCloud( VolumetricCloudComponent* volumetricCloud ) override;
 
 	virtual void AddHemisphereLightComponent( HemisphereLightComponent* light ) override;
 	virtual void RemoveHemisphereLightComponent( HemisphereLightComponent* light ) override;
@@ -103,6 +107,11 @@ public:
 		return m_skyAtmosphere;
 	}
 
+	rendercore::VolumetricCloudSceneInfo* VolumetricCloud()
+	{
+		return m_volumetricCloud;
+	}
+
 	const LightSceneInfo* SkyAtmosphereSunLight()
 	{
 		return m_skyAtmosphereLight;
@@ -114,6 +123,9 @@ private:
 
 	void AddTexturedSky( TexturedSkyProxy* texturedSky );
 	void RemoveTexturedSky( TexturedSkyProxy* texturedSky );
+
+	void AddVolumetricCloud( rendercore::VolumetricCloudSceneInfo* volumetricCloudSceneInfo );
+	void RemoveVolumetricCloud( rendercore::VolumetricCloudSceneInfo* volumetricCloudSceneInfo );
 
 	void AddHemisphereLight( HemisphereLightProxy* hemisphereLight );
 	void RemoveHemisphereLight( HemisphereLightProxy* hemisphereLight );
@@ -130,6 +142,8 @@ private:
 	TexturedSkyProxy* m_texturedSky = nullptr;
 
 	rendercore::SkyAtmosphereRenderSceneInfo* m_skyAtmosphere = nullptr;
+	rendercore::VolumetricCloudSceneInfo* m_volumetricCloud = nullptr;
+
 	LightSceneInfo* m_skyAtmosphereLight = nullptr;
 
 	HemisphereLightProxy* m_hemisphereLight = nullptr;

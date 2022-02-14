@@ -97,11 +97,6 @@ bool CGameLogic::BootUp( IPlatform& platform )
 	//	__debugbreak( );
 	//}
 
-	//if ( m_atmosphereManager.Init( *this ) == false )
-	//{
-	//	__debugbreak( );
-	//}
-
 	//if ( m_ui.Initialize( ) == false )
 	//{
 	//	__debugbreak( );
@@ -120,7 +115,6 @@ bool CGameLogic::BootUp( IPlatform& platform )
 void CGameLogic::Update( )
 {
 	// 한 프레임의 시작 ElapsedTime 갱신
-	m_clock.Tick( );
 	StartLogic( );
 	ProcessLogic( );
 	EndLogic( );
@@ -128,12 +122,12 @@ void CGameLogic::Update( )
 
 void CGameLogic::Pause( )
 {
-	m_clock.Pause( );
+	m_world.Pause( );
 }
 
 void CGameLogic::Resume( )
 {
-	m_clock.Resume( );
+	m_world.Resume( );
 }
 
 void CGameLogic::HandleUserInput( const UserInput& input )
@@ -233,13 +227,13 @@ void CGameLogic::StartLogic( )
 
 void CGameLogic::ProcessLogic( )
 {
-	if ( m_clock.IsPaused() == false )
+	if ( m_world.GetTimer().IsPaused() == false )
 	{
 		// 게임 로직 수행
-		m_world.RunFrame( m_clock.GetElapsedTime( ) );
+		m_world.RunFrame();
 
 		const float SIMULATE_INTERVAL = 0.016f;
-		m_remainPhysicsSimulateTime += m_clock.GetElapsedTime( );
+		m_remainPhysicsSimulateTime += m_world.GetTimer().GetElapsedTime();
 		while ( m_remainPhysicsSimulateTime >= SIMULATE_INTERVAL )
 		{
 			m_world.PreparePhysics( );
@@ -252,7 +246,7 @@ void CGameLogic::ProcessLogic( )
 void CGameLogic::EndLogic( )
 {
 	// 물리 시뮬레이션 결과를 반영
-	m_world.EndFrame( m_clock.GetElapsedTime( ) );
+	m_world.EndFrame();
 
 	//// 게임 로직 수행 후처리
 	//BuildRenderableList( );
