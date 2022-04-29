@@ -170,14 +170,14 @@ void ForwardRenderer::Render( RenderViewGroup& renderViewGroup )
 	{
 		auto& viewConstant = scene.SceneViewConstant();
 
-		ViewConstantBufferParameters viewConstantParam;
+		SceneViewParameters viewConstantParam;
 		FillViewConstantParam( viewConstantParam, scene.GetRenderScene(), renderViewGroup, i );
 
 		viewConstant.Update( viewConstantParam );
 
 		auto& view = renderViewGroup[i];
 
-		m_shaderResources.AddResource( "VEIW_PROJECTION", viewConstant.Resource() );
+		m_shaderResources.AddResource( "SceneViewParameters", viewConstant.Resource() );
 		m_shaderResources.AddResource( "ForwardLightConstant", view.m_forwardLighting->m_lightConstant.Resource() );
 		m_shaderResources.AddResource( "ForwardLight", view.m_forwardLighting->m_lightBuffer.SRV() );
 

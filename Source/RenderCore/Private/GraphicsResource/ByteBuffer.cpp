@@ -15,10 +15,10 @@ DistributionCopyCS::DistributionCopyCS()
 
 	if ( m_shader )
 	{
-		m_numDistribution.Bind( m_shader->ParameterMap(), "numDistribution" );
-		m_src.Bind( m_shader->ParameterMap(), "src" );
-		m_distributer.Bind( m_shader->ParameterMap(), "distributer" );
-		m_dest.Bind( m_shader->ParameterMap(), "dest" );
+		m_numDistribution.Bind( m_shader->ParameterMap(), "NumDistribution" );
+		m_src.Bind( m_shader->ParameterMap(), "Src" );
+		m_distributer.Bind( m_shader->ParameterMap(), "Distributer" );
+		m_dest.Bind( m_shader->ParameterMap(), "Dest" );
 	}
 }
 

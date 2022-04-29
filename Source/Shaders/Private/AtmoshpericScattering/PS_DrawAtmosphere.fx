@@ -9,10 +9,9 @@ static const float ISun = 100.f;
 
 cbuffer SkyAtmosphereRenderParameter : register( b1 )
 {
-	float4 g_cameraPos : packoffset( c0 );
-	float4 g_sunDir : packoffset( c1 );
-	float g_exposure : packoffset( c2 );
-	float3 padding : packoffset( c2.y );
+	float4 CameraPos : packoffset( c0 );
+	float4 SunDir : packoffset( c1 );
+	float Exposure : packoffset( c2 );
 };
 
 struct PS_INPUT
@@ -52,8 +51,8 @@ float3 InscatterColor( float3 x, float t, float3 viewRay, float r, float mu, out
 
 	if ( r < Rt )
 	{
-		float nu = dot( viewRay, g_sunDir.xyz );
-		float muS = dot( x, g_sunDir.xyz ) / r;
+		float nu = dot( viewRay, SunDir.xyz );
+		float muS = dot( x, SunDir.xyz ) / r;
 
 		float4 inscatter = max( Sample4D( InscatterLut, InscatterLutSampler, r, mu, muS, nu ), 0.f );
 
@@ -64,7 +63,7 @@ float3 InscatterColor( float3 x, float t, float3 viewRay, float r, float mu, out
 			float3 x0 = x + t * viewRay;
 			float altitude0 = length( x0 );
 			mu0 = dot( x0, viewRay ) / altitude0;
-			muS0 = dot( x0, g_sunDir.xyz ) / altitude0;
+			muS0 = dot( x0, SunDir.xyz ) / altitude0;
 
 			attenuation = AnalyticTransmittance( r, mu, t );
 			inscatter = max( inscatter - attenuation.rgbr * Sample4D( InscatterLut, InscatterLutSampler, altitude0, mu0, muS0, nu ), 0.f );
@@ -114,7 +113,7 @@ float3 GroundColor( float3 x, float t, float3 viewRay, float r, float mu, float3
 		float altitude0 = length( x0 );
 		float3 n = x0 / altitude0;
 
-		float muS = dot( n, g_sunDir.xyz );
+		float muS = dot( n, SunDir.xyz );
 		float3 sunLight = isSceneGeometry ? 0 : TransmittanceWithShadow( altitude0, muS );
 
 		float3 groundSkyLight = Irradiance( altitude0, muS );
@@ -140,14 +139,14 @@ float3 SunColor( float3 x, float t, float3 viewRay, float r, float mu, bool isSc
 	else
 	{
 		float3 transmittance = r <= Rt ? TransmittanceWithShadow( r, mu ) : 1.f;
-		float isun = step( cos( M_PI / 180 ), dot( viewRay, g_sunDir.xyz ) ) * ISun;
+		float isun = step( cos( M_PI / 180 ), dot( viewRay, SunDir.xyz ) ) * ISun;
 		return transmittance * isun;
 	}
 }
 
 float3 HDR( float3 l )
 {
-	l = l * g_exposure;
+	l = l * Exposure;
 	l.r = l.r < 1.413f ? pow( abs( l.r * 0.38317f ), 1.f / 2.2f ) : 1.f - exp( -l.r );
 	l.g = l.g < 1.413f ? pow( abs( l.g * 0.38317f ), 1.f / 2.2f ) : 1.f - exp( -l.g );
 	l.b = l.b < 1.413f ? pow( abs( l.b * 0.38317f ), 1.f / 2.2f ) : 1.f - exp( -l.b );
@@ -156,10 +155,10 @@ float3 HDR( float3 l )
 
 float4 main( PS_INPUT input ) : SV_Target
 {
-	float3 viewRay = normalize( input.worldPosition - g_cameraPos.xyz );
+	float3 viewRay = normalize( input.worldPosition - CameraPos.xyz );
 
 	float scale = 0.00001f;
-	float3 viewPos = g_cameraPos.xyz * scale;
+	float3 viewPos = CameraPos.xyz * scale;
 	viewPos.y += Rg + HeightOffset;
 
 	float r = length( viewPos );

@@ -30,7 +30,6 @@ fxc /Fo PS_CascadedShadowmap.cso			/Zi /T ps_5_0 /I %IncludePath% /E main Privat
 rem fxc /Fo PS_DepthStencil.cso					/Zi /T ps_5_0 /I %IncludePath% /E main Private/psDepthStencil.fx
 fxc /Fo PS_DrawCascadeShadow.cso			/Zi	/T ps_5_0 /I %IncludePath% /E main Private/PS_DrawCascadeShadow.fx
 fxc /Fo PS_DepthWrite.cso					/Zi /T ps_5_0 /I %IncludePath% /E main Private/PS_DepthWrite.fx
-rem fxc /Fo PS_Shadowmap.cso 					/Zi /T ps_5_0 /I %IncludePath% /E main Private/psShadowmap.fx
 fxc /Fo PS_Skybox.cso 						/Zi /T ps_5_0 /I %IncludePath% /E main Private/psSkybox.fx
 rem fxc /Fo PS_SSR.cso							/Zi /T ps_5_0 /I %IncludePath% /E main Private/psSSR.fx
 rem fxc /Fo PS_DdaSSR.cso						/Zi /T ps_5_0 /I %IncludePath% /E main Private/psDdaSSR.fx
@@ -54,7 +53,6 @@ fxc /Fo VS_DepthWrite.cso					/Zi /T vs_5_0 /I %IncludePath% /E main Private/VS_
 fxc /Fo VS_FullScreenQuad.cso			/Zi /T vs_5_0 /I %IncludePath% /E main Private/VS_FullScreenQuad.fx
 rem fxc /Fo VS_ScreenRect.cso 					/Zi /T vs_5_0 /I %IncludePath% /E main Private/vsScreenRect.fx
 rem fxc /Fo VS_SSR.cso 							/Zi /T vs_5_0 /I %IncludePath% /E main Private/vsSSR.fx
-rem fxc /Fo VS_Shadowmap.cso 					/Zi /T vs_5_0 /I %IncludePath% /E main Private/vsShadowmap.fx
 fxc /Fo VS_Skybox.cso 						/Zi /T vs_5_0 /I %IncludePath% /E main Private/vsSkybox.fx
 rem fxc /Fo VS_Texture.cso 						/Zi /T vs_5_0 /I %IncludePath% /E main Private/vsTexture.fx
 fxc /Fo VS_Tutorial.cso 					/Zi /T vs_5_0 /I %IncludePath% /E main Private/vsTutorial.fx

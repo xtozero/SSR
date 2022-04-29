@@ -36,7 +36,7 @@ float Noise( float2 seed )
 
 bool TraceScreenSpaceRay( float3 dir, float3 viewPos, out float3 hitPixel_alpha  )
 {
-	float rayLength = ( viewPos.z + dir.z * g_maxRayLength ) < g_nearPlaneDist ? ( g_nearPlaneDist - viewPos.z ) / dir.z : g_maxRayLength;
+	float rayLength = ( viewPos.z + dir.z * g_maxRayLength ) < NearPlaneDist ? ( NearPlaneDist - viewPos.z ) / dir.z : g_maxRayLength;
 
 	hitPixel_alpha = float3( -1, -1, 1 );
 
@@ -102,8 +102,8 @@ bool TraceScreenSpaceRay( float3 dir, float3 viewPos, out float3 hitPixel_alpha 
 		rayZ = 1 / Pk.z;
 
 		sceneZMax = depthbufferTex.SampleLevel( baseSampler, hitPixel_alpha.xy, 0 ).x;
-		thickness = backfaceDepthBufferTex.SampleLevel( baseSampler, hitPixel_alpha.xy, 0 ).x * g_FarPlaneDist;
-		sceneZMax *= g_FarPlaneDist;
+		thickness = backfaceDepthBufferTex.SampleLevel( baseSampler, hitPixel_alpha.xy, 0 ).x * FarPlaneDist;
+		sceneZMax *= FarPlaneDist;
 		thickness -= sceneZMax;
 		sceneZMax += g_depthbias;
 	}

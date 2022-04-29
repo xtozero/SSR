@@ -2,7 +2,7 @@ RWTexture2D<float4> WeatherTex : register( u0 );
 
 float Random2D( float2 v )
 {
-	return frac( sin( dot( v.xy, float2( 12.9898, 78.233 ) ) ) * 43758.5453123 );
+	return frac( sin( dot( v.xy, float2( 12.9898f, 78.233f ) ) ) * 43758.5453123f );
 }
 
 float Noise( float2 uv, float size )
@@ -54,13 +54,13 @@ void main( uint3 DTid : SV_DispatchThreadID )
 		float2 uv = float2( float( DTid.x + 2.f ) / dims.x, float( DTid.y ) / dims.y );
 		float2 suv = float2( uv.x + 5.5f, uv.y + 5.5f );
 
-		float perlinAmplitude = 0.5;
-		float perlinFrecuency = 0.8;
-		float perlinScale = 100.0;
+		float perlinAmplitude = 0.5f;
+		float perlinFrecuency = 0.8f;
+		float perlinScale = 100.f;
 		int perlinOctaves = 4;
 
 		float coverage = saturate( PerlinNoise( uv, perlinScale * 0.95f, perlinFrecuency, perlinAmplitude, perlinOctaves ) );
-		float cloudType = saturate( PerlinNoise( suv, perlinScale * 3.0, 0.3f, 0.7f, 10.f ) );
-		WeatherTex[DTid.xy] = float4( coverage, cloudType, 0, 1 );
+		float cloudType = saturate( PerlinNoise( suv, perlinScale * 3.f, 0.3f, 0.7f, 10.f ) );
+		WeatherTex[DTid.xy] = float4( coverage, cloudType, 0.f, 1.f );
 	}
 }

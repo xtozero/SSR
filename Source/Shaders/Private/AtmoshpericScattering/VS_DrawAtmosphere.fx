@@ -15,7 +15,7 @@ VS_OUTPUT main( uint vertexID : SV_VertexID )
 	
 	output.position = pos;
 
-	float4x4 invVewProjection = mul( g_invProjectionMatrix, g_invViewMatrix );
+	float4x4 invVewProjection = mul( InvProjectionMatrix, InvViewMatrix );
 	float4 worldPos = mul( float4( pos.xy, 1.f, 1.f ), invVewProjection );
 	output.worldPos = worldPos.xyz / worldPos.w;
 

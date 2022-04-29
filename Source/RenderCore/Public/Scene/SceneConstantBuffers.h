@@ -10,7 +10,7 @@ class PrimitiveProxy;
 class RenderViewGroup;
 class Scene;
 
-struct ViewConstantBufferParameters
+struct SceneViewParameters
 {
 	Matrix m_viewMatrix;
 	Matrix m_projMatrix;
@@ -22,26 +22,25 @@ struct ViewConstantBufferParameters
 
 	ColorF m_hemisphereLightUpperColor;
 	ColorF m_hemisphereLightLowerColor;
-	Vector m_hemisphereLightUpVector;
-	float padding1;
+	Vector4 m_hemisphereLightUpVector;
 	float m_nearPlaneDist;
 	float m_farPlaneDist;
 	float m_elapsedTime;
 	float m_totalTime;
 };
 
-void FillViewConstantParam( ViewConstantBufferParameters& param, const Scene* scene, const RenderViewGroup& renderViewGroup, size_t viewIndex );
+void FillViewConstantParam( SceneViewParameters& param, const Scene* scene, const RenderViewGroup& renderViewGroup, size_t viewIndex );
 
 class SceneViewConstantBuffer
 {
 public:
-	void Update( const ViewConstantBufferParameters& param );
+	void Update( const SceneViewParameters& param );
 
 	aga::Buffer* Resource( );
 	const aga::Buffer* Resource( ) const;
 
 private:
-	TypedConstatBuffer<ViewConstantBufferParameters> m_constantBuffer;
+	TypedConstatBuffer<SceneViewParameters> m_constantBuffer;
 };
 
 class PrimitiveSceneData

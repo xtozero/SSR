@@ -24,7 +24,7 @@ float4 main( PS_INPUT input ) : SV_TARGET
 	float depth = SceneDepth.Sample( SceneDepthSampler, input.uv ).x;
 	viewPosition *= depth;
 	
-	float4 worldPosition = mul( float4( viewPosition, 1 ), g_invViewMatrix );
+	float4 worldPosition = mul( float4( viewPosition, 1 ), InvViewMatrix );
 	worldPosition /= worldPosition.w;
 	
 	float3 packedNormal = WorldNormal.Sample( WorldNormalSampler, input.uv ).yzw;

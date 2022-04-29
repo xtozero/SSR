@@ -16,7 +16,7 @@ struct Output
 Output main( PS_INPUT input )
 {
 	Output output = (Output)0;
-	output.depth = input.position.w / g_FarPlaneDist;
+	output.depth = input.position.w / FarPlaneDist;
 	float3 enc = SignedOctEncode( normalize( input.worldNormal ) );
 	output.packedNormal = float4( 0.f, enc );
 	

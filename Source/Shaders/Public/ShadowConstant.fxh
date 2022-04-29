@@ -8,11 +8,10 @@ struct CascadeConstant
 
 cbuffer ShadowDepthPassParameters : register( b0 )
 {
-	float4 g_lightPosOrDir;
-	float g_slopeBiasScale;
-	float g_constantBias;
-	float2 m_padding1;
+	float4 LightPosOrDir : packoffset( c0 );
+	float SlopeBiasScale : packoffset( c1 );
+	float ConstantBias : packoffset( c1.y );
 
-	CascadeConstant g_cascadeConstant[MAX_CASCADED_NUM];
-	matrix g_shadowViewProjection[6];
+	CascadeConstant CascadeConstants[MAX_CASCADED_NUM] : packoffset( c2 );
+	matrix ShadowViewProjection[6]: packoffset( c4 );
 };

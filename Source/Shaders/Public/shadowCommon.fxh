@@ -45,7 +45,7 @@ int SearchCascadeIndex( float dist )
 	int index = MAX_CASCADED_NUM - 1;
 	for ( int i = 0; i < MAX_CASCADED_NUM; ++i )
 	{
-		if ( dist <= g_cascadeConstant[i].m_zFar )
+		if ( dist <= CascadeConstants[i].m_zFar )
 		{
 			index = i;
 			break;
@@ -67,18 +67,18 @@ float3 GetNormalOffset( float nDotL, float3 normal )
 
 	float normalOffsetScale = saturate( 1.0f - nDotL );
 
-	// return normal *( g_constantBias + g_slopeBiasScale * texelSize * normalOffsetScale );
-	return normal *( g_constantBias + g_slopeBiasScale * normalOffsetScale );
+	// return normal *( ConstantBias + SlopeBiasScale * texelSize * normalOffsetScale );
+	return normal *( ConstantBias + SlopeBiasScale * normalOffsetScale );
 }
 
 float CalcShadowVisibility( float3 worldPos, float3 worldNormal, float3 viewPos )
 {
 	int cascadeIndex = SearchCascadeIndex( viewPos.z );
 	
-	float nDotL = saturate( dot( -g_lightPosOrDir.xyz, worldNormal ) );
+	float nDotL = saturate( dot( -LightPosOrDir.xyz, worldNormal ) );
 	float3 offset = GetNormalOffset( nDotL, worldNormal );
 	
-	float4 shadowCoord = mul( float4(worldPos + offset, 1.0f), g_shadowViewProjection[cascadeIndex] );
+	float4 shadowCoord = mul( float4(worldPos + offset, 1.0f), ShadowViewProjection[cascadeIndex] );
 	
 	float3 uv_depth = shadowCoord.xyz / shadowCoord.w;
 	uv_depth.y = -uv_depth.y;

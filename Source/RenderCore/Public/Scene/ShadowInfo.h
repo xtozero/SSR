@@ -27,7 +27,7 @@ struct ShadowDepthPassParameters
 	Vector4 m_lightPosOrDir;
 	float m_slopeBiasScale;
 	float m_constantBias;
-	float m_padding1[2];
+	float padding[2];
 
 	Vector4 m_cascadeFar[CascadeShadowSetting::MAX_CASCADE_NUM];
 	Matrix m_shadowViewProjection[6];

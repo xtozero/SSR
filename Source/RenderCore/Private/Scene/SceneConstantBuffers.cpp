@@ -10,7 +10,7 @@
 
 #include <cassert>
 
-void SceneViewConstantBuffer::Update( const ViewConstantBufferParameters& param )
+void SceneViewConstantBuffer::Update( const SceneViewParameters& param )
 {
 	assert( IsInRenderThread( ) );
 
@@ -27,7 +27,7 @@ const aga::Buffer* SceneViewConstantBuffer::Resource( ) const
 	return m_constantBuffer.Resource( );
 }
 
-void FillViewConstantParam( ViewConstantBufferParameters& param, const Scene* scene, const RenderViewGroup& renderViewGroup, size_t viewIndex )
+void FillViewConstantParam( SceneViewParameters& param, const Scene* scene, const RenderViewGroup& renderViewGroup, size_t viewIndex )
 {
 	using namespace DirectX;
 	const RenderView& view = renderViewGroup[viewIndex];
@@ -55,19 +55,19 @@ void FillViewConstantParam( ViewConstantBufferParameters& param, const Scene* sc
 	auto invViewProjMatrix = viewProjMatrix.Inverse();
 	param.m_invViewProjMatrix = invViewProjMatrix.GetTrasposed();
 
-	if ( scene && scene->HemisphereLight( ) )
+	if ( scene && scene->HemisphereLight() )
 	{
-		const HemisphereLightProxy& hemisphereLight = *scene->HemisphereLight( );
+		const HemisphereLightProxy& hemisphereLight = *scene->HemisphereLight();
 
-		param.m_hemisphereLightLowerColor = hemisphereLight.LowerColor( );
-		param.m_hemisphereLightUpperColor = hemisphereLight.UpperColor( );
-		param.m_hemisphereLightUpVector = hemisphereLight.UpVector( );
+		param.m_hemisphereLightLowerColor = hemisphereLight.LowerColor();
+		param.m_hemisphereLightUpperColor = hemisphereLight.UpperColor();
+		param.m_hemisphereLightUpVector = hemisphereLight.UpVector();
 	}
 	else
 	{
 		param.m_hemisphereLightLowerColor = Vector::ZeroVector;
 		param.m_hemisphereLightUpperColor = Vector::ZeroVector;
-		param.m_hemisphereLightUpVector = Vector::ZeroVector;
+		param.m_hemisphereLightUpVector = Vector4::ZeroVector;
 	}
 
 	param.m_nearPlaneDist = view.m_nearPlaneDistance;

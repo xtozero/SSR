@@ -7,6 +7,6 @@ PS_OUTPUT main( PS_INPUT input )
 
 	output.frame = CalcLight( input, Sample( input.texcoord ) );
 	output.normal.x = PackedSpheremapEncode( normalize( input.normal ) );
-	output.depth.x = input.viewPos.z / g_FarPlaneDist;
+	output.depth.x = input.viewPos.z / FarPlaneDist;
 	return output;
 }

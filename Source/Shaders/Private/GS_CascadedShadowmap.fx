@@ -21,7 +21,7 @@ void main( triangle GS_INPUT input[3], inout TriangleStream<GS_OUTPUT> triStream
 	{
 		for ( int j = 0; j < 3; ++j )
 		{
-			output.position = mul( input[j].position, g_shadowViewProjection[i] );
+			output.position = mul( input[j].position, ShadowViewProjection[i] );
 			output.shadowCoord = output.position.zw;
 			output.rtIndex = i;
 			triStream.Append( output );

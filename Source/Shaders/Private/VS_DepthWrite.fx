@@ -20,8 +20,8 @@ VS_OUTPUT main( VS_INPUT input )
 
 	PrimitiveSceneData primitiveData = GetPrimitiveData( input.primitiveId );
 	output.position = mul( float4( input.position, 1.0f ), primitiveData.m_worldMatrix );
-	output.position = mul( float4( output.position.xyz, 1.0f ), g_viewMatrix );
-	output.position = mul( float4( output.position.xyz, 1.0f ), g_projectionMatrix );
+	output.position = mul( float4( output.position.xyz, 1.0f ), ViewMatrix );
+	output.position = mul( float4( output.position.xyz, 1.0f ), ProjectionMatrix );
 	output.worldNormal = mul( float4( input.normal, 0.f ), transpose( primitiveData.m_invWorldMatrix ) ).xyz;
 	
 	return output;

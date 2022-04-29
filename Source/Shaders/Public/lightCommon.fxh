@@ -150,8 +150,8 @@ LIGHTCOLOR CalcLightProperties( ForwardLightData light, float3 viewDirection, fl
 
 float3 HemisphereLight( float3 normal )
 {
-	float w = ( dot( normal, g_hemisphereUpVector ) + 1 ) * 0.5;
-	return lerp( g_hemisphereLowerColor, g_hemisphereUpperColor, w ).xyz;
+	float w = ( dot( normal, HemisphereUpVector.xyz ) + 1 ) * 0.5;
+	return lerp( HemisphereLowerColor, HemisphereUpperColor, w ).xyz;
 }
 
 float4 CalcLight( GeometryProperty geometry )

@@ -205,7 +205,7 @@ float Perlin4D( float4 Position, float4 rep )
 	float4 n_zw = lerp( n_0w, n_1w, fade_xyzw.z );
 	float2 n_yzw = lerp( float2( n_zw.x, n_zw.y ), float2( n_zw.z, n_zw.w ), fade_xyzw.y );
 	float n_xyzw = lerp( n_yzw.x, n_yzw.y, fade_xyzw.x );
-	return 2.2 * n_xyzw;
+	return 2.2f * n_xyzw;
 }
 
 float WorleyNoise3D( float3 p, float cellCount )
@@ -233,7 +233,7 @@ float PerlinNoise3D( float3 pIn, float frequency, int octaveCount )
 	}
 
 	float noise = ( sum / weightSum );
-	noise = min( noise, 1.0f );
-	noise = max( noise, 0.0f );
+	noise = min( noise, 1.f );
+	noise = max( noise, 0.f );
 	return noise;
 }

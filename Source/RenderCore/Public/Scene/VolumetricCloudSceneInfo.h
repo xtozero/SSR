@@ -24,7 +24,7 @@ namespace rendercore
 		float m_crispiness = 40.f;
 		float m_curliness = 0.1f;
 		float m_densityFactor = 0.2f;
-		float padding1;
+		float padding;
 	};
 
 	class VolumetricCloudSceneInfo

@@ -17,7 +17,7 @@ namespace rendercore
 		Vector4 m_cameraPos;
 		Vector4 m_sunDir;
 		float m_exposure;
-		float m_padding[3];
+		float padding[3];
 	};
 
 	class SkyAtmosphereRenderSceneInfo

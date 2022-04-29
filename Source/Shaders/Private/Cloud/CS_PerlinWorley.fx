@@ -22,7 +22,7 @@ float4 PerlinWorley( float3 uvw )
 
 		float worleyFBM = worleyNoise0 * 0.625f + worleyNoise1 * 0.25f + worleyNoise2 * 0.125f;
 
-		perlinWorleyNoise = Remap( perlinNoise, 0.0, 1.0, worleyFBM, 1.0 );
+		perlinWorleyNoise = Remap( perlinNoise, 0.f, 1.f, worleyFBM, 1.f );
 	}
 
 	float cellCount = 4.f;

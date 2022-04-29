@@ -24,12 +24,4 @@ PrimitiveSceneData GetPrimitiveData( uint primitiveId )
 	primitiveData.m_invWorldMatrix[3] = primitiveInfo[baseOffset + 7];
 
 	return primitiveData;
-}
-
-cbuffer SHADOW_VIEW_PROJECTION : register(b3)
-{
-	float g_zBias;
-	float3 padding;
-	matrix g_lightViewMatrix;
-	matrix g_lightProjectionMatrix;
-};
+}	

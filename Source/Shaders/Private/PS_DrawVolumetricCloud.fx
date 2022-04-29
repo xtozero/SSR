@@ -7,21 +7,21 @@ static const float4 CumulusGradient = float4( 0.f, 0.1625f, 0.88f, 0.98f );
 static const float CloudTopOffset = 750.f;
 
 float3 NoiseKernel[6] = {
-	float3( 0.38051305,  0.92453449, -0.02111345 ),
-	float3( -0.50625799, -0.03590792, -0.86163418 ),
-	float3( -0.32509218, -0.94557439,  0.01428793 ),
-	float3( 0.09026238, -0.27376545,  0.95755165 ),
-	float3( 0.28128598,  0.42443639, -0.86065785 ),
-	float3( -0.16852403,  0.14748697,  0.97460106 )
+	float3( 0.38051305f,  0.92453449f, -0.02111345f ),
+	float3( -0.50625799f, -0.03590792f, -0.86163418f ),
+	float3( -0.32509218f, -0.94557439f,  0.01428793f ),
+	float3( 0.09026238f, -0.27376545f,  0.95755165f ),
+	float3( 0.28128598f,  0.42443639f, -0.86065785f ),
+	float3( -0.16852403f,  0.14748697f,  0.97460106f )
 };
 
 static const float BayerFactor = 1.f / 16.f;
 
 static const float BayerFilter[16] = {
-	0.0 * BayerFactor, 8.0 * BayerFactor, 2.0 * BayerFactor, 10.0 * BayerFactor,
-	12.0 * BayerFactor, 4.0 * BayerFactor, 14.0 * BayerFactor, 6.0 * BayerFactor,
-	3.0 * BayerFactor, 11.0 * BayerFactor, 1.0 * BayerFactor, 9.0 * BayerFactor,
-	15.0 * BayerFactor, 7.0 * BayerFactor, 13.0 * BayerFactor, 5.0 * BayerFactor
+	0.f * BayerFactor, 8.f * BayerFactor, 2.f * BayerFactor, 10.f * BayerFactor,
+	12.f * BayerFactor, 4.f * BayerFactor, 14.f * BayerFactor, 6.f * BayerFactor,
+	3.f * BayerFactor, 11.f * BayerFactor, 1.f * BayerFactor, 9.f * BayerFactor,
+	15.f * BayerFactor, 7.f * BayerFactor, 13.f * BayerFactor, 5.f * BayerFactor
 };
 
 Texture2D SceneDepth : register( t3 );
@@ -233,7 +233,7 @@ float Powder( float density )
 
 float LightEnergy( float cosAngle, float density )
 {
-	return 2 * Beer( density ) * Powder( density ) * HenyeyGreensteinPhase( cosAngle, 0.2f );
+	return 2.f * Beer( density ) * Powder( density ) * HenyeyGreensteinPhase( cosAngle, 0.2f );
 }
 
 float RaymarchToLight( float3 pos, float3 dir, float3 lightDir, float stepSize )
@@ -276,7 +276,7 @@ float Raymarch( PS_INPUT input, float3 startPos, float3 endPos, out float3 color
 {
 	float3 path = endPos - startPos;
 
-	int sampleCount = 64; //int( ceil( lerp( 48.f, 96.f, saturate( length( path ) / ( SphereRadius.y - SphereRadius.x ) ) ) ) );
+	int sampleCount = 64;
 
 	float stepSize = length( path ) / sampleCount;
 	float3 pathDir = normalize( path );
@@ -353,7 +353,7 @@ float4 main( PS_INPUT input ) : SV_Target0
 		return float4( 0.f, 0.f, 0.f, 0.f );
 	}
 	
-	float3 cloudColor = 0;
+	float3 cloudColor = 0.f;
 	float3 startPos = CameraPos + rayDir * tMinMax.x;
 	float3 endPos = CameraPos + rayDir * tMinMax.y;
 	float density = Raymarch( input, startPos, endPos, cloudColor );
