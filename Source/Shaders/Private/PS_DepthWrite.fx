@@ -1,5 +1,5 @@
-#include "ViewConstant.fxh"
-#include "NormalCompression.fxh"
+#include "Common/ViewConstant.fxh"
+#include "Common/NormalCompression.fxh"
 
 struct PS_INPUT
 {

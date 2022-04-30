@@ -7,7 +7,7 @@
 #include "TaskScheduler.h"
 #include "UploadBuffer.h"
 
-REGISTER_GLOBAL_SHADER( DistributionCopyCS, "./Assets/Shaders/CS_DistributionCopy.asset" );
+REGISTER_GLOBAL_SHADER( DistributionCopyCS, "./Assets/Shaders/Common/CS_DistributionCopy.asset" );
 
 DistributionCopyCS::DistributionCopyCS()
 {

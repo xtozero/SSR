@@ -1,4 +1,4 @@
-#include "psCommon.fxh"
+#include "Common/PsCommon.fxh"
 
 struct PS_INPUT
 {

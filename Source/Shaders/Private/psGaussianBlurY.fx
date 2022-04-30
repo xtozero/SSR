@@ -1,5 +1,5 @@
-#include "psCommon.fxh"
-#include "texCommon.fxh"
+#include "Common/PsCommon.fxh"
+#include "Common/TexCommon.fxh"
 
 Texture2D srcTex : register(t1);
 

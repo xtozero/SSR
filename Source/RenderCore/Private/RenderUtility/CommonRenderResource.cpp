@@ -3,7 +3,7 @@
 
 #include "GlobalShaders.h"
 
-REGISTER_GLOBAL_SHADER( FullScreenQuadVS, "./Assets/Shaders/VS_FullScreenQuad.asset" );
+REGISTER_GLOBAL_SHADER( FullScreenQuadVS, "./Assets/Shaders/Common/VS_FullScreenQuad.asset" );
 
 FullScreenQuadVS::FullScreenQuadVS( )
 {

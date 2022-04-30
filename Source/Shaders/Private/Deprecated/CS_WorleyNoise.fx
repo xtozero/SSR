@@ -1,4 +1,4 @@
-#include "constants.fxh"
+#include "Common/Constants.fxh"
 
 StructuredBuffer<float3> SeedPoints : register( t0 );
 RWTexture3D<float> NoiseTex : register( u0 );

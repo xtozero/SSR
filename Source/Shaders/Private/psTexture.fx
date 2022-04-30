@@ -1,5 +1,5 @@
-#include "lightCommon.fxh"
-#include "normalCompression.fxh"
+#include "Common/LightCommon.fxh"
+#include "Common/NormalCompression.fxh"
 
 PS_OUTPUT main( PS_INPUT input )
 {

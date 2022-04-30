@@ -15,7 +15,7 @@ private:
 	PixelShader* m_shader = nullptr;
 };
 
-REGISTER_GLOBAL_SHADER( DrawCascadeShadowPS, "./Assets/Shaders/PS_DrawCascadeShadow.asset" );
+REGISTER_GLOBAL_SHADER( DrawCascadeShadowPS, "./Assets/Shaders/Shadow/PS_DrawCascadeShadow.asset" );
 
 DrawCascadeShadowPS::DrawCascadeShadowPS( )
 {

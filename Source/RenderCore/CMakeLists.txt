@@ -110,7 +110,7 @@ set (RENDER_SCENE_SOURCE
 	Public/Scene/VolumetricCloudSceneInfo.h)
 
 set (RENDER_UTILITY
-	../Shaders/Public/AtmoshpericScattering/AtmosphereConstant.h
+	../Shaders/Public/Atmosphere/AtmosphereConstant.h
 	Private/RenderUtility/AbstractGraphicsInterface.cpp
 	Private/RenderUtility/CommonRenderResource.cpp
 	Private/RenderUtility/RenderCoreAllocator.cpp
@@ -168,7 +168,7 @@ PUBLIC
 	./Public/Renderer
 PRIVATE
 	../Logic/Public
-	../Shaders/Public/AtmoshpericScattering
+	../Shaders/Public/Atmosphere
 	./Public/Mesh
 	./Public/Pch
 	./Public/Proxies

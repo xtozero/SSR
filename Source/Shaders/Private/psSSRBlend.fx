@@ -1,4 +1,4 @@
-#include "texCommon.fxh"
+#include "Common/TexCommon.fxh"
 
 Texture2D ssrTex : register(t1);
 

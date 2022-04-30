@@ -1,4 +1,4 @@
-#include "texCommon.fxh"
+#include "Common/TexCommon.fxh"
 
 cbuffer VIEW_PORJECTION : register(b1)
 {

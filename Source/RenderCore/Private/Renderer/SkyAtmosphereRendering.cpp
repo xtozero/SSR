@@ -308,16 +308,16 @@ namespace rendercore
 		PixelShader* m_shader = nullptr;
 	};
 
-	REGISTER_GLOBAL_SHADER( TransmittanceCS, "./Assets/Shaders/CS_Transmittance.asset" );
-	REGISTER_GLOBAL_SHADER( IrradianceOneCS, "./Assets/Shaders/CS_Irradiance1.asset" );
-	REGISTER_GLOBAL_SHADER( InscatterOneCS, "./Assets/Shaders/CS_Inscatter1.asset" );
-	REGISTER_GLOBAL_SHADER( CopyInscatterOneCS, "./Assets/Shaders/CS_CopyInscatter1.asset" );
-	REGISTER_GLOBAL_SHADER( InscatterSCS, "./Assets/Shaders/CS_InscatterS.asset" );
-	REGISTER_GLOBAL_SHADER( IrradianceNCS, "./Assets/Shaders/CS_IrradianceN.asset" );
-	REGISTER_GLOBAL_SHADER( InscatterNCS, "./Assets/Shaders/CS_InscatterN.asset" );
-	REGISTER_GLOBAL_SHADER( CopyIrradianceCS, "./Assets/Shaders/CS_CopyIrradiance.asset" );
-	REGISTER_GLOBAL_SHADER( CopyInscatterNCS, "./Assets/Shaders/CS_CopyInscatterN.asset" );
-	REGISTER_GLOBAL_SHADER( DrawAtmospherePS, "./Assets/Shaders/PS_DrawAtmosphere.asset" );
+	REGISTER_GLOBAL_SHADER( TransmittanceCS, "./Assets/Shaders/Atmosphere/CS_Transmittance.asset" );
+	REGISTER_GLOBAL_SHADER( IrradianceOneCS, "./Assets/Shaders/Atmosphere/CS_Irradiance1.asset" );
+	REGISTER_GLOBAL_SHADER( InscatterOneCS, "./Assets/Shaders/Atmosphere/CS_Inscatter1.asset" );
+	REGISTER_GLOBAL_SHADER( CopyInscatterOneCS, "./Assets/Shaders/Atmosphere/CS_CopyInscatter1.asset" );
+	REGISTER_GLOBAL_SHADER( InscatterSCS, "./Assets/Shaders/Atmosphere/CS_InscatterS.asset" );
+	REGISTER_GLOBAL_SHADER( IrradianceNCS, "./Assets/Shaders/Atmosphere/CS_IrradianceN.asset" );
+	REGISTER_GLOBAL_SHADER( InscatterNCS, "./Assets/Shaders/Atmosphere/CS_InscatterN.asset" );
+	REGISTER_GLOBAL_SHADER( CopyIrradianceCS, "./Assets/Shaders/Atmosphere/CS_CopyIrradiance.asset" );
+	REGISTER_GLOBAL_SHADER( CopyInscatterNCS, "./Assets/Shaders/Atmosphere/CS_CopyInscatterN.asset" );
+	REGISTER_GLOBAL_SHADER( DrawAtmospherePS, "./Assets/Shaders/Atmosphere/PS_DrawAtmosphere.asset" );
 
 	std::optional<DrawSnapshot> SkyAtmosphereDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
 	{

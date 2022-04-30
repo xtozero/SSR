@@ -1,5 +1,5 @@
-#include "ViewConstant.fxh"
-#include "vsCommon.fxh"
+#include "Common/ViewConstant.fxh"
+#include "Common/VsCommon.fxh"
 
 struct VS_INPUT
 {

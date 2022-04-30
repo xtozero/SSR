@@ -45,9 +45,9 @@ private:
 	PixelShader* m_shader = nullptr;
 };
 
-REGISTER_GLOBAL_SHADER( ShadowDepthVS, "./Assets/Shaders/VS_CascadedShadowmap.asset" );
-REGISTER_GLOBAL_SHADER( ShadowDepthGS, "./Assets/Shaders/GS_CascadedShadowmap.asset" );
-REGISTER_GLOBAL_SHADER( ShadowDepthPS, "./Assets/Shaders/PS_CascadedShadowmap.asset" );
+REGISTER_GLOBAL_SHADER( ShadowDepthVS, "./Assets/Shaders/Shadow/VS_CascadedShadowmap.asset" );
+REGISTER_GLOBAL_SHADER( ShadowDepthGS, "./Assets/Shaders/Shadow/GS_CascadedShadowmap.asset" );
+REGISTER_GLOBAL_SHADER( ShadowDepthPS, "./Assets/Shaders/Shadow/PS_CascadedShadowmap.asset" );
 
 ShadowDepthVS::ShadowDepthVS( )
 {

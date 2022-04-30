@@ -1,4 +1,4 @@
-#include "texCommon.fxh"
+#include "Common/TexCommon.fxh"
 
 struct PS_INPUT
 {

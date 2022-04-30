@@ -21,7 +21,7 @@ namespace rendercore
 		PixelShader* m_shader = nullptr;
 	};
 
-	REGISTER_GLOBAL_SHADER( DrawVolumetricCloudPS, "./Assets/Shaders/PS_DrawVolumetricCloud.asset" );
+	REGISTER_GLOBAL_SHADER( DrawVolumetricCloudPS, "./Assets/Shaders/Cloud/PS_DrawVolumetricCloud.asset" );
 
 	std::optional<DrawSnapshot> VolumetricCloundDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
 	{

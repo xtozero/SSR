@@ -61,9 +61,9 @@ namespace rendercore
 		ComputeShader* m_shader = nullptr;
 	};
 
-	REGISTER_GLOBAL_SHADER( PerlinWorleyCS, "./Assets/Shaders/CS_PerlinWorley.asset" );
-	REGISTER_GLOBAL_SHADER( WorleyCS, "./Assets/Shaders/CS_Worley.asset" );
-	REGISTER_GLOBAL_SHADER( WeatherMapCS, "./Assets/Shaders/CS_WeatherMap.asset" );
+	REGISTER_GLOBAL_SHADER( PerlinWorleyCS, "./Assets/Shaders/Cloud/CS_PerlinWorley.asset" );
+	REGISTER_GLOBAL_SHADER( WorleyCS, "./Assets/Shaders/Cloud/CS_Worley.asset" );
+	REGISTER_GLOBAL_SHADER( WeatherMapCS, "./Assets/Shaders/Cloud/CS_WeatherMap.asset" );
 
 	void VolumetricCloudSceneInfo::CreateRenderData()
 	{

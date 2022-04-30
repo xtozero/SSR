@@ -1,4 +1,4 @@
-#include "constants.fxh"
+#include "Common/Constants.fxh"
 
 RWTexture3D<float> NoiseTex : register( u0 );
 float NoiseScale;
