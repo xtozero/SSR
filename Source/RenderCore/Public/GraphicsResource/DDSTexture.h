@@ -12,7 +12,7 @@ struct TextureSection
 {
 	TextureSection( uint32 rowPitch, uint32 slicePitch, uint32 offset ) : m_rowPitch( rowPitch ), m_slicePitch( slicePitch ), m_offset( offset )
 	{}
-	TextureSection( ) = default;
+	TextureSection() = default;
 
 	uint32 m_rowPitch;
 	uint32 m_slicePitch;
@@ -21,18 +21,17 @@ struct TextureSection
 
 class Texture : public AsyncLoadableAsset
 {
+	GENERATE_CLASS_TYPE_INFO( Texture );
 	DECLARE_ASSET( RENDERCORE, Texture );
+
 public:
 	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
 
-	const std::filesystem::path& Path( ) const { return m_path; }
-	void SetPath( const std::filesystem::path& path ) { m_path = path; }
-
-	aga::Texture* Resource( );
-	const aga::Texture* Resource( ) const;
+	aga::Texture* Resource();
+	const aga::Texture* Resource() const;
 
 protected:
-	RENDERCORE_DLL virtual void PostLoadImpl( ) override;
+	RENDERCORE_DLL virtual void PostLoadImpl() override;
 
 	uint32 m_width = 0;
 	uint32 m_height = 0;
@@ -49,30 +48,23 @@ protected:
 	std::vector<TextureSection> m_sections;
 
 	RefHandle<aga::Texture> m_texture;
-
-private:
-	std::filesystem::path m_path;
 };
 
 struct DDSTextureInitializer;
 
 class DDSTexture : public Texture
 {
+	GENERATE_CLASS_TYPE_INFO( DDSTexture );
 	DECLARE_ASSET( RENDERCORE, DDSTexture );
+
 public:
 	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
 
-	const std::filesystem::path& Path( ) const { return m_path; }
-	void SetPath( const std::filesystem::path& path ) { m_path = path; }
-
-	DDSTexture( ) = default;
+	DDSTexture() = default;
 	RENDERCORE_DLL explicit DDSTexture( const DDSTextureInitializer& initializer );
 
 protected:
-	RENDERCORE_DLL virtual void PostLoadImpl( ) override;
-
-private:
-	std::filesystem::path m_path;
+	RENDERCORE_DLL virtual void PostLoadImpl() override;
 };
 
 struct DDSTextureInitializer

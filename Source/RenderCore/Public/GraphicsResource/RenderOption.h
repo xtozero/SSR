@@ -36,7 +36,7 @@ struct RenderTargetBlendOptionHasher
 {
 	size_t operator()( const RenderTargetBlendOption& option ) const
 	{
-		static size_t typeHash = typeid( RenderTargetBlendOption ).hash_code( );
+		static size_t typeHash = typeid( RenderTargetBlendOption ).hash_code();
 		size_t hash = typeHash;
 		HashCombine( hash, option.m_blendEnable );
 		HashCombine( hash, option.m_srcBlend );
@@ -53,12 +53,11 @@ struct RenderTargetBlendOptionHasher
 
 class BlendOption : public AsyncLoadableAsset
 {
+	GENERATE_CLASS_TYPE_INFO( BlendOption );
 	DECLARE_ASSET( RENDERCORE, BlendOption );
+
 public:
 	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
-
-	const std::filesystem::path& Path( ) const { return m_path; }
-	void SetPath( const std::filesystem::path& path ) { m_path = path; }
 
 	friend bool operator==( const BlendOption& lhs, const BlendOption& rhs )
 	{
@@ -78,20 +77,17 @@ public:
 	bool m_alphaToConverageEnable = false;
 	bool m_independentBlendEnable = false;
 	RenderTargetBlendOption m_renderTarget[8];
-	uint32 m_sampleMask = (std::numeric_limits<uint32>::max)( );
+	uint32 m_sampleMask = (std::numeric_limits<uint32>::max)();
 
 protected:
-	RENDERCORE_DLL virtual void PostLoadImpl( ) override;
-
-private:
-	std::filesystem::path m_path;
+	RENDERCORE_DLL virtual void PostLoadImpl() override;
 };
 
 struct BlendOptionHasher
 {
 	size_t operator()( const BlendOption& option ) const
 	{
-		static size_t typeHash = typeid( BlendOption ).hash_code( );
+		static size_t typeHash = typeid( BlendOption ).hash_code();
 		size_t hash = typeHash;
 		HashCombine( hash, option.m_alphaToConverageEnable );
 		HashCombine( hash, option.m_independentBlendEnable );
@@ -100,7 +96,7 @@ struct BlendOptionHasher
 		for ( uint32 i = 0; i < size; ++i )
 		{
 			HashCombine( hash, i );
-			HashCombine( hash, RenderTargetBlendOptionHasher( )( option.m_renderTarget[i] ) );
+			HashCombine( hash, RenderTargetBlendOptionHasher()( option.m_renderTarget[i] ) );
 		}
 
 		HashCombine( hash, option.m_sampleMask );
@@ -127,7 +123,7 @@ struct DepthOptionHasher
 {
 	size_t operator()( const DepthOption& option ) const
 	{
-		static size_t typeHash = typeid( DepthOption ).hash_code( );
+		static size_t typeHash = typeid( DepthOption ).hash_code();
 		size_t hash = typeHash;
 		HashCombine( hash, option.m_enable );
 		HashCombine( hash, option.m_writeDepth );
@@ -167,7 +163,7 @@ struct StencilOptionHasher
 {
 	size_t operator()( const StencilOption& option ) const
 	{
-		static size_t typeHash = typeid( StencilOption ).hash_code( );
+		static size_t typeHash = typeid( StencilOption ).hash_code();
 		size_t hash = typeHash;
 		HashCombine( hash, option.m_enable );
 		HashCombine( hash, option.m_readMask );
@@ -188,12 +184,11 @@ struct StencilOptionHasher
 
 class DepthStencilOption : public AsyncLoadableAsset
 {
+	GENERATE_CLASS_TYPE_INFO( DepthStencilOption );
 	DECLARE_ASSET( RENDERCORE, DepthStencilOption );
+
 public:
 	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
-
-	const std::filesystem::path& Path( ) const { return m_path; }
-	void SetPath( const std::filesystem::path& path ) { m_path = path; }
 
 	friend bool operator==( const DepthStencilOption& lhs, const DepthStencilOption& rhs )
 	{
@@ -205,20 +200,17 @@ public:
 	StencilOption m_stencil;
 
 protected:
-	RENDERCORE_DLL virtual void PostLoadImpl( ) override;
-
-private:
-	std::filesystem::path m_path;
+	RENDERCORE_DLL virtual void PostLoadImpl() override;
 };
 
 struct DepthStencilOptionHasher
 {
 	size_t operator()( const DepthStencilOption& option ) const
 	{
-		static size_t typeHash = typeid( DepthStencilOption ).hash_code( );
+		static size_t typeHash = typeid( DepthStencilOption ).hash_code();
 		size_t hash = typeHash; 
-		HashCombine( hash, DepthOptionHasher( )( option.m_depth ) );
-		HashCombine( hash, StencilOptionHasher( )( option.m_stencil ) );
+		HashCombine( hash, DepthOptionHasher()( option.m_depth ) );
+		HashCombine( hash, StencilOptionHasher()( option.m_stencil ) );
 
 		return hash;
 	}
@@ -226,12 +218,11 @@ struct DepthStencilOptionHasher
 
 class RasterizerOption : public AsyncLoadableAsset
 {
+	GENERATE_CLASS_TYPE_INFO( RasterizerOption );
 	DECLARE_ASSET( RENDERCORE, RasterizerOption );
+
 public:
 	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
-
-	const std::filesystem::path& Path( ) const { return m_path; }
-	void SetPath( const std::filesystem::path& path ) { m_path = path; }
 
 	friend bool operator==( const RasterizerOption& lhs, const RasterizerOption& rhs )
 	{
@@ -255,17 +246,14 @@ public:
 	bool m_antialiasedLineEnable = false;
 
 protected:
-	RENDERCORE_DLL virtual void PostLoadImpl( ) override;
-
-private:
-	std::filesystem::path m_path;
+	RENDERCORE_DLL virtual void PostLoadImpl() override;
 };
 
 struct RasterizerOptionHasher
 {
 	size_t operator()( const RasterizerOption& option ) const
 	{
-		static size_t typeHash = typeid( RasterizerOption ).hash_code( );
+		static size_t typeHash = typeid( RasterizerOption ).hash_code();
 		size_t hash = typeHash;
 		HashCombine( hash, option.m_isWireframe );
 		HashCombine( hash, option.m_cullMode );
@@ -282,12 +270,11 @@ struct RasterizerOptionHasher
 
 class SamplerOption : public AsyncLoadableAsset
 {
+	GENERATE_CLASS_TYPE_INFO( SamplerOption );
 	DECLARE_ASSET( RENDERCORE, SamplerOption );
+
 public:
 	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
-
-	const std::filesystem::path& Path( ) const { return m_path; }
-	void SetPath( const std::filesystem::path& path ) { m_path = path; }
 
 	friend bool operator==( const SamplerOption& lhs, const SamplerOption& rhs )
 	{
@@ -307,17 +294,14 @@ public:
 	COMPARISON_FUNC m_comparisonFunc = COMPARISON_FUNC::NEVER;
 
 protected:
-	RENDERCORE_DLL virtual void PostLoadImpl( ) override;
-
-private:
-	std::filesystem::path m_path;
+	RENDERCORE_DLL virtual void PostLoadImpl() override;
 };
 
 struct SamplerOptionHasher
 {
 	size_t operator()( const SamplerOption& option ) const
 	{
-		static size_t typeHash = typeid( SamplerOption ).hash_code( );
+		static size_t typeHash = typeid( SamplerOption ).hash_code();
 		size_t hash = typeHash;
 		HashCombine( hash, option.m_filter );
 		HashCombine( hash, option.m_addressU );
@@ -332,7 +316,9 @@ struct SamplerOptionHasher
 
 class RenderOption : public AsyncLoadableAsset
 {
+	GENERATE_CLASS_TYPE_INFO( RenderOption );
 	DECLARE_ASSET( RENDERCORE, RenderOption );
+
 public:
 	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
 
@@ -352,5 +338,5 @@ public:
 	std::shared_ptr<RasterizerOption> m_rasterizerOption = nullptr;
 
 protected:
-	RENDERCORE_DLL virtual void PostLoadImpl( ) override;
+	RENDERCORE_DLL virtual void PostLoadImpl() override;
 };

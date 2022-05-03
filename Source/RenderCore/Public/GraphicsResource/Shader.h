@@ -8,6 +8,8 @@
 
 class ShaderBase : public AsyncLoadableAsset
 {
+	GENERATE_CLASS_TYPE_INFO( ShaderBase );
+
 public:
 	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
 
@@ -33,12 +35,11 @@ protected:
 
 class VertexShader : public ShaderBase
 {
+	GENERATE_CLASS_TYPE_INFO( VertexShader );
 	DECLARE_ASSET( RENDERCORE, VertexShader );
+
 public:
 	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
-
-	const std::filesystem::path& Path() const { return m_path; }
-	void SetPath( const std::filesystem::path& path ) { m_path = path; }
 
 	bool IsValid() const
 	{
@@ -61,18 +62,16 @@ protected:
 	RENDERCORE_DLL virtual void PostLoadImpl() override;
 
 private:
-	std::filesystem::path m_path;
 	RefHandle<aga::VertexShader> m_shader;
 };
 
 class GeometryShader : public ShaderBase
 {
+	GENERATE_CLASS_TYPE_INFO( GeometryShader );
 	DECLARE_ASSET( RENDERCORE, GeometryShader );
+
 public:
 	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
-
-	const std::filesystem::path& Path() const { return m_path; }
-	void SetPath( const std::filesystem::path& path ) { m_path = path; }
 
 	bool IsValid() const
 	{
@@ -95,18 +94,16 @@ protected:
 	RENDERCORE_DLL virtual void PostLoadImpl() override;
 
 private:
-	std::filesystem::path m_path;
 	RefHandle<aga::GeometryShader> m_shader;
 };
 
 class PixelShader : public ShaderBase
 {
+	GENERATE_CLASS_TYPE_INFO( PixelShader );
 	DECLARE_ASSET( RENDERCORE, PixelShader );
+
 public:
 	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
-
-	const std::filesystem::path& Path() const { return m_path; }
-	void SetPath( const std::filesystem::path& path ) { m_path = path; }
 
 	bool IsValid() const
 	{
@@ -129,18 +126,16 @@ protected:
 	RENDERCORE_DLL virtual void PostLoadImpl() override;
 
 private:
-	std::filesystem::path m_path;
 	RefHandle<aga::PixelShader> m_shader;
 };
 
 class ComputeShader : public ShaderBase
 {
+	GENERATE_CLASS_TYPE_INFO( ComputeShader );
 	DECLARE_ASSET( RENDERCORE, ComputeShader );
+
 public:
 	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
-
-	const std::filesystem::path& Path() const { return m_path; }
-	void SetPath( const std::filesystem::path& path ) { m_path = path; }
 
 	ComputeShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
 	ComputeShader() = default;
@@ -158,6 +153,5 @@ protected:
 	RENDERCORE_DLL virtual void PostLoadImpl() override;
 
 private:
-	std::filesystem::path m_path;
 	RefHandle<aga::ComputeShader> m_shader;
 };

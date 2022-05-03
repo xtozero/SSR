@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SizedTypes.h"
+
 #include <cassert>
 #include <cstddef>
 #include <sstream>
@@ -26,7 +28,7 @@ namespace UTIL
 	{
 		std::stringstream ss( string );
 		std::string subString;
-		subString.reserve( string.length( ) );
+		subString.reserve( string.length() );
 
 		while ( std::getline( ss, subString, token ) )
 		{
@@ -107,7 +109,7 @@ namespace UTIL
 		printf_s( "%s", buf );
 	}
 
-	inline void ReplaceChar( char* dest, const char* src, char find, char replace, std::size_t destSize, std::size_t srcSize )
+	inline void ReplaceChar( char* dest, const char* src, char find, char replace, size_t destSize, size_t srcSize )
 	{
 		for ( uint32 i = 0; i < destSize && i < srcSize; ++i )
 		{

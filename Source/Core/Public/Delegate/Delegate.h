@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SizedTypes.h"
+
 #include <algorithm>
 #include <atomic>
 #include <cassert>
@@ -10,22 +12,22 @@
 
 struct IDelegateInstance
 {
-	virtual ~IDelegateInstance( ) {}
+	virtual ~IDelegateInstance() {}
 };
 
 class DelegateStorage
 {
 public:
-	void* GetRaw( ) const
+	void* GetRaw() const
 	{
 		return m_storage;
 	}
 
-	void* Allocate( std::size_t size )
+	void* Allocate( size_t size )
 	{
 		if ( IDelegateInstance* pInstance = static_cast<IDelegateInstance*>( m_storage ) )
 		{
-			pInstance->~IDelegateInstance( );
+			pInstance->~IDelegateInstance();
 		}
 
 		if ( m_size < size )
@@ -38,19 +40,19 @@ public:
 		return m_storage;
 	}
 
-	void Unbind( )
+	void Unbind()
 	{
 		if ( IDelegateInstance* pInstance = static_cast<IDelegateInstance*>( m_storage ) )
 		{
-			pInstance->~IDelegateInstance( );
+			pInstance->~IDelegateInstance();
 			std::free( m_storage );
 			m_storage = nullptr;
 			m_size = 0;
 		}
 	}
 
-	DelegateStorage( ) = default;
-	~DelegateStorage( ) = default;
+	DelegateStorage() = default;
+	~DelegateStorage() = default;
 	DelegateStorage( const DelegateStorage& ) = delete;
 	DelegateStorage& operator=( const DelegateStorage& ) = delete;
 	DelegateStorage( DelegateStorage&& other ) noexcept
@@ -74,10 +76,10 @@ public:
 
 private:
 	void* m_storage = nullptr;
-	std::size_t m_size = 0;
+	size_t m_size = 0;
 };
 
-inline void* operator new( std::size_t count, DelegateStorage& storage )
+inline void* operator new( size_t count, DelegateStorage& storage )
 {
 	return storage.Allocate( count );
 }
@@ -92,7 +94,7 @@ class DelegateHandle
 public:
 	struct GenerateNewHandle {};
 
-	DelegateHandle( ) : m_id( 0 ) { }
+	DelegateHandle() : m_id( 0 ) { }
 	DelegateHandle( GenerateNewHandle ) : m_id( GenerateNewID() ) { }
 
 	friend bool operator==( const DelegateHandle& lhs, const DelegateHandle& rhs )
@@ -106,9 +108,9 @@ public:
 	}
 
 private:
-	static int GenerateNewID( )
+	static int32 GenerateNewID()
 	{
-		int newID = ++m_nextID;
+		int32 newID = ++m_nextID;
 
 		if ( newID == 0 )
 		{
@@ -118,8 +120,8 @@ private:
 		return newID;
 	}
 
-	int m_id = 0;
-	inline static std::atomic<int> m_nextID = 1;
+	int32 m_id = 0;
+	inline static std::atomic<int32> m_nextID = 1;
 };
 
 template <typename RetType, typename... ArgTypes>
@@ -127,7 +129,7 @@ struct IDelegateInterface : public IDelegateInstance
 {
 	virtual void Clone( DelegateStorage& storage ) const = 0;
 	virtual RetType Execute( ArgTypes... ) const = 0;
-	virtual DelegateHandle GetHandle( ) const = 0;
+	virtual DelegateHandle GetHandle() const = 0;
 };
 
 template <typename RetType, typename... ArgTypes>
@@ -146,7 +148,7 @@ public:
 		return m_func( std::forward<ArgTypes>( args )... );
 	}
 
-	virtual DelegateHandle GetHandle( ) const override final
+	virtual DelegateHandle GetHandle() const override final
 	{
 		return m_handle;
 	}
@@ -181,7 +183,7 @@ public:
 		return ( m_instance->*m_func )( std::forward<ArgTypes>( args )... );
 	}
 
-	virtual DelegateHandle GetHandle( ) const override final
+	virtual DelegateHandle GetHandle() const override final
 	{
 		return m_handle;
 	}
@@ -221,7 +223,7 @@ public:
 		return m_func( std::forward<ArgTypes>( args )... );
 	}
 
-	virtual DelegateHandle GetHandle( ) const override final
+	virtual DelegateHandle GetHandle() const override final
 	{
 		return m_handle;
 	}
@@ -250,23 +252,23 @@ class Delegate
 	using DelegateInterface = IDelegateInterface<RetType, ArgTypes...>;
 
 public:
-	void Unbind( )
+	void Unbind()
 	{
-		m_storage.Unbind( );
+		m_storage.Unbind();
 	}
 
-	bool IsBound( ) const
+	bool IsBound() const
 	{
-		return m_storage.GetRaw( ) != nullptr;
+		return m_storage.GetRaw() != nullptr;
 	}
 	
-	DelegateHandle GetHandle( ) const
+	DelegateHandle GetHandle() const
 	{
 		DelegateHandle handle;
 
-		if ( DelegateInterface* pInstance = static_cast<DelegateInterface*>( m_storage.GetRaw( ) ) )
+		if ( DelegateInterface* pInstance = static_cast<DelegateInterface*>( m_storage.GetRaw() ) )
 		{
-			handle = pInstance->GetHandle( );
+			handle = pInstance->GetHandle();
 		}
 
 		return handle;
@@ -276,21 +278,21 @@ public:
 	DelegateHandle BindFunction( FunctionPointer func )
 	{
 		FunctionDelegate<RetType, ArgTypes...>::Create( m_storage, func );
-		return GetHandle( );
+		return GetHandle();
 	}
 
 	template <typename ClassType>
 	DelegateHandle BindMemberFunction( ClassType* instance, RetType ( ClassType::*func )( ArgTypes... ) )
 	{
 		MemberFunctionDelegate<false, ClassType, RetType, ArgTypes...>::Create( m_storage, instance, func );
-		return GetHandle( );
+		return GetHandle();
 	}
 
 	template <typename ClassType>
 	DelegateHandle BindMemberFunction( ClassType* instance, RetType ( ClassType::*func )( ArgTypes... ) const )
 	{
 		MemberFunctionDelegate<true, ClassType, RetType, ArgTypes...>::Create( m_storage, instance, func );
-		return GetHandle( );
+		return GetHandle();
 	}
 
 	template <typename FunctorType>
@@ -298,12 +300,12 @@ public:
 	{
 		using UnwarpFunctorType = std::remove_cv_t<std::remove_reference_t<FunctorType>>;
 		FunctorDelegate<UnwarpFunctorType, ArgTypes...>::Create( m_storage, std::forward<FunctorType>( func ) );
-		return GetHandle( );
+		return GetHandle();
 	}
 
 	RetType Execute( ArgTypes... args ) const
 	{
-		DelegateInterface* pInstance = static_cast<DelegateInterface*>( m_storage.GetRaw( ) );
+		DelegateInterface* pInstance = static_cast<DelegateInterface*>( m_storage.GetRaw() );
 		
 		assert( pInstance != nullptr );
 
@@ -315,11 +317,11 @@ public:
 		return Execute( std::forward<ArgTypes>( args )... );
 	}
 
-	Delegate( ) = default;
+	Delegate() = default;
 
-	~Delegate( )
+	~Delegate()
 	{
-		Unbind( );
+		Unbind();
 	}
 
 	Delegate( const Delegate& other )
@@ -331,7 +333,7 @@ public:
 	{
 		if ( &other != this )
 		{
-			DelegateInterface* pInstance = static_cast<DelegateInterface*>( other.m_storage.GetRaw( ) );
+			DelegateInterface* pInstance = static_cast<DelegateInterface*>( other.m_storage.GetRaw() );
 
 			if ( pInstance )
 			{
@@ -339,7 +341,7 @@ public:
 			}
 			else
 			{
-				Unbind( );
+				Unbind();
 			}
 		}
 
@@ -371,55 +373,55 @@ class MulticastDelegate
 	using DelegateType = Delegate<void, ArgTypes...>;
 
 public:
-	void RemoveAll( )
+	void RemoveAll()
 	{
-		m_invocationList.clear( );
+		m_invocationList.clear();
 	}
 
 	using FunctionPointer = void (*)( ArgTypes... );
 	DelegateHandle AddFunction( FunctionPointer func )
 	{
-		return m_invocationList.emplace_back( ).BindFunction( func );
+		return m_invocationList.emplace_back().BindFunction( func );
 	}
 
 	template <typename ClassType>
 	DelegateHandle AddMemberFunction( ClassType* instance, void ( ClassType::*func )( ArgTypes... ) )
 	{
-		return m_invocationList.emplace_back( ).BindMemberFunction( instance, func );
+		return m_invocationList.emplace_back().BindMemberFunction( instance, func );
 	}
 
 	template <typename ClassType>
 	DelegateHandle AddMemberFunction( ClassType* instance, void ( ClassType::*func )( ArgTypes... ) const )
 	{
-		return m_invocationList.emplace_back( ).BindMemberFunction( instance, func );
+		return m_invocationList.emplace_back().BindMemberFunction( instance, func );
 	}
 
 	template <typename FunctorType>
 	DelegateHandle AddFunctor( FunctorType&& func )
 	{
-		return m_invocationList.emplace_back( ).BindFunctor( std::forward<FunctorType>( func ) );
+		return m_invocationList.emplace_back().BindFunctor( std::forward<FunctorType>( func ) );
 	}
 
 	bool Remove( DelegateHandle handle )
 	{
-		std::size_t oldSize = m_invocationList.size( );
+		size_t oldSize = m_invocationList.size();
 
-		m_invocationList.erase( std::remove_if( m_invocationList.begin( ),
-								m_invocationList.end( ), 
+		m_invocationList.erase( std::remove_if( m_invocationList.begin(),
+								m_invocationList.end(), 
 								[handle]( const DelegateType& delegate ) 
 								{ 
-									return handle == delegate.GetHandle( ); 
+									return handle == delegate.GetHandle(); 
 								} ), 
 								m_invocationList.end() );
 
-		return oldSize != m_invocationList.size( );;
+		return oldSize != m_invocationList.size();;
 	}
 
 	void Boardcast( ArgTypes... args )
 	{
 		for ( auto& invocation : m_invocationList )
 		{
-			if ( invocation.IsBound( ) )
+			if ( invocation.IsBound() )
 			{
 				invocation.Execute( std::forward<ArgTypes>( args )... );
 			}

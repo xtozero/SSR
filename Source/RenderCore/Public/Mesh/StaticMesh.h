@@ -17,14 +17,16 @@ class StaticMeshRenderData;
 struct StaticMeshMaterial
 {
 	explicit StaticMeshMaterial( const std::shared_ptr<Material>& mateiral ) : m_mateiral( mateiral ) {}
-	StaticMeshMaterial( ) = default;
+	StaticMeshMaterial() = default;
 
 	std::shared_ptr<Material> m_mateiral;
 };
 
 class StaticMesh : public AsyncLoadableAsset, BaseMesh
 {
+	GENERATE_CLASS_TYPE_INFO( StaticMesh );
 	DECLARE_ASSET( RENDERCORE, StaticMesh );
+
 public:
 	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
 
@@ -34,8 +36,8 @@ public:
 	RENDERCORE_DLL MaterialResource* GetMaterialResource( size_t idx ) const;
 	RENDERCORE_DLL void AddMaterial( const std::shared_ptr<Material>& mateiral );
 
-	RENDERCORE_DLL StaticMesh( ) = default;
-	RENDERCORE_DLL ~StaticMesh( );
+	RENDERCORE_DLL StaticMesh() = default;
+	RENDERCORE_DLL ~StaticMesh();
 	RENDERCORE_DLL StaticMesh( const StaticMesh& ) = delete;
 	RENDERCORE_DLL StaticMesh( StaticMesh&& other ) noexcept
 	{
@@ -55,18 +57,18 @@ public:
 		return *this;
 	}
 
-	StaticMeshRenderData* RenderData( ) const
+	StaticMeshRenderData* RenderData() const
 	{
 		return m_renderData;
 	}
 
-	BoxSphereBounds& Bounds( )
+	BoxSphereBounds& Bounds()
 	{
 		return m_bounds;
 	}
 
 protected:
-	RENDERCORE_DLL virtual void PostLoadImpl( ) override;
+	RENDERCORE_DLL virtual void PostLoadImpl() override;
 
 private:
 	StaticMeshRenderData* m_renderData = nullptr;
