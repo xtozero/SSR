@@ -1,5 +1,6 @@
 #pragma once
 
+#include "NameTypes.h"
 #include "ShaderResource.h"
 #include "ShaderParameterInfo.h"
 #include "SizedTypes.h"
@@ -9,7 +10,7 @@
 
 AGA_DLL void ExtractShaderParameters( ID3D11ShaderReflection* pReflector, aga::ShaderParameterMap& parameterMap );
 
-AGA_DLL void BuildShaderParameterInfo( const std::map<std::string, aga::ShaderParameter>& parameterMap, aga::ShaderParameterInfo& parameterInfo );
+AGA_DLL void BuildShaderParameterInfo( const std::map<Name, aga::ShaderParameter>& parameterMap, aga::ShaderParameterInfo& parameterInfo );
 
 namespace aga
 {

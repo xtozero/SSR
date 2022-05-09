@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "GraphicsApiResource.h"
+#include "NameTypes.h"
 #include "SizedTypes.h"
 
 #include <map>
@@ -63,12 +64,12 @@ namespace aga
 			m_parameters.emplace( variableName, parameter );
 		}
 
-		const std::map<std::string, ShaderParameter>& GetParameterMap() const
+		const std::map<Name, ShaderParameter>& GetParameterMap() const
 		{
 			return m_parameters;
 		}
 
-		std::map<std::string, ShaderParameter>& GetParameterMap()
+		std::map<Name, ShaderParameter>& GetParameterMap()
 		{
 			return m_parameters;
 		}
@@ -81,6 +82,6 @@ namespace aga
 		}
 
 	private:
-		std::map<std::string, ShaderParameter> m_parameters;
+		std::map<Name, ShaderParameter> m_parameters;
 	};
 }

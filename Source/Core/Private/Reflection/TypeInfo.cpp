@@ -51,11 +51,11 @@ const Property* TypeInfo::GetProperty( const char* name ) const
 void TypeInfo::AddProperty( const Property* property )
 {
 	m_properties.emplace_back( property );
-	m_propertyMap.emplace( property->Name(), property );
+	m_propertyMap.emplace( property->GetName(), property );
 }
 
 void TypeInfo::AddMethod( const Method* method )
 {
 	m_methods.emplace_back( method );
-	m_methodMap.emplace( method->Name(), method );
+	m_methodMap.emplace( method->GetName(), method );
 }

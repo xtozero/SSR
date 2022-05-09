@@ -1,5 +1,7 @@
 #include "EnumStringMap.h"
 
+#include "NameTypes.h"
+
 #include <map>
 
 class CEnumStringMap : public IEnumStringMap
@@ -9,20 +11,20 @@ public:
 	virtual int32 GetEnum( const std::string& enumName, const int32 defaultValue ) const override;
 
 private:
-	std::map<std::string, int32> m_enumString;
+	std::map<Name, int32> m_enumString;
 };
 
 
 void CEnumStringMap::RegisterEnumString( const std::string& enumString, const int32 enumValue )
 {
-	m_enumString.emplace( enumString, enumValue );
+	m_enumString.emplace( Name( enumString ), enumValue );
 }
 
 int32 CEnumStringMap::GetEnum( const std::string& enumName, const int32 defaultValue ) const
 {
-	auto found = m_enumString.find( enumName );
+	auto found = m_enumString.find( Name( enumName ) );
 
-	if ( found != m_enumString.end( ) )
+	if ( found != m_enumString.end() )
 	{
 		return found->second;
 	}
@@ -30,7 +32,7 @@ int32 CEnumStringMap::GetEnum( const std::string& enumName, const int32 defaultV
 	return defaultValue;
 }
 
-void* GetEnumStringMap( )
+void* GetEnumStringMap()
 {
 	static CEnumStringMap gEnumStringMap;
 	return &gEnumStringMap;

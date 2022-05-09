@@ -79,7 +79,7 @@ struct PropertyInitializer
 class Property
 {
 public:
-	const char* Name() const
+	const char* GetName() const
 	{
 		return m_name;
 	}

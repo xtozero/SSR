@@ -76,7 +76,7 @@ private:
 class Method
 {
 public:
-	const char* Name() const
+	const char* GetName() const
 	{
 		return m_name;
 	}

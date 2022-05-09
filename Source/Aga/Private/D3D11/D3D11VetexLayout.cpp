@@ -7,16 +7,16 @@
 
 namespace
 {
-	void ConvertVertexLayoutToInputLayout( std::vector<std::string>& namePool, std::vector<D3D11_INPUT_ELEMENT_DESC>& descs, const VERTEX_LAYOUT_TRAIT* trait, uint32 size )
+	void ConvertVertexLayoutToInputLayout( std::vector<Name>& namePool, std::vector<D3D11_INPUT_ELEMENT_DESC>& descs, const VERTEX_LAYOUT_TRAIT* trait, uint32 size )
 	{
 		for ( uint32 i = 0; i < size; ++i )
 		{
-			namePool.emplace_back( trait[i].m_name );
-			descs.emplace_back( );
+			namePool.emplace_back( Name( trait[i].m_name ) );
+			descs.emplace_back();
 
-			D3D11_INPUT_ELEMENT_DESC& desc = descs.back( );
+			D3D11_INPUT_ELEMENT_DESC& desc = descs.back();
 
-			desc.SemanticName = namePool[i].c_str( );
+			desc.SemanticName = namePool[i].Str().data();
 			desc.SemanticIndex = trait[i].m_index;
 			desc.Format = ConvertFormatToDxgiFormat( trait[i].m_format );
 			desc.InputSlot = trait[i].m_slot;
@@ -29,12 +29,12 @@ namespace
 
 namespace aga
 {
-	ID3D11InputLayout* D3D11VertexLayout::Resource( )
+	ID3D11InputLayout* D3D11VertexLayout::Resource()
 	{
 		return m_pInputLayout;
 	}
 
-	const ID3D11InputLayout* D3D11VertexLayout::Resource( ) const
+	const ID3D11InputLayout* D3D11VertexLayout::Resource() const
 	{
 		return m_pInputLayout;
 	}
@@ -45,15 +45,15 @@ namespace aga
 		m_inputDesc.reserve( size );
 		ConvertVertexLayoutToInputLayout( m_namePool, m_inputDesc, trait, size );
 
-		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device( ).CreateInputLayout( m_inputDesc.data( ), size, vs->ByteCode( ), vs->ByteCodeSize( ), &m_pInputLayout ) );
+		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device().CreateInputLayout( m_inputDesc.data(), size, vs->ByteCode(), vs->ByteCodeSize(), &m_pInputLayout ) );
 		assert( result );
 	}
 
-	void D3D11VertexLayout::FreeResource( )
+	void D3D11VertexLayout::FreeResource()
 	{
 		if ( m_pInputLayout )
 		{
-			m_pInputLayout->Release( );
+			m_pInputLayout->Release();
 			m_pInputLayout = nullptr;
 		}
 	}

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "NameTypes.h"
 #include "PipelineState.h"
 #include "SizedTypes.h"
 
@@ -26,7 +27,7 @@ namespace aga
 		virtual void InitResource( ) override { }
 		virtual void FreeResource( ) override;
 		
-		std::vector<std::string> m_namePool;
+		std::vector<Name> m_namePool;
 		std::vector<D3D11_INPUT_ELEMENT_DESC> m_inputDesc;
 		ID3D11InputLayout* m_pInputLayout = nullptr;
 	};

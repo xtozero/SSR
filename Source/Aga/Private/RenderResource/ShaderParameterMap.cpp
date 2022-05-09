@@ -26,7 +26,7 @@ namespace aga
 
 	ShaderParameter ShaderParameterMap::GetParameter( const char* name ) const
 	{
-		auto found = m_parameters.find( name );
+		auto found = m_parameters.find( Name( name ) );
 		if ( found != m_parameters.end() )
 		{
 			return found->second;

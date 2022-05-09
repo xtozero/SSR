@@ -14,7 +14,6 @@ void HashCombine( std::uint32_t& seed, const T& val )
 	seed ^= std::hash<T>{}(val)+0x9e3779b9U + ( seed << 6 ) + ( seed >> 2 );
 }
 
-
 template <typename T>
 void HashCombine( std::uint64_t& seed, const T& val )
 {

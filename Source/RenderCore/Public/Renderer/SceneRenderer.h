@@ -2,6 +2,7 @@
 
 #include "DrawSnapshot.h"
 #include "GraphicsApiResource.h"
+#include "NameTypes.h"
 #include "PassProcessor.h"
 #include "RenderCoreAllocator.h"
 #include "Scene/ShadowInfo.h"
@@ -32,7 +33,7 @@ public:
 	void ClearResources();
 
 private:
-	std::vector<std::string> m_parameterNames;
+	std::vector<Name> m_parameterNames;
 	std::vector<GraphicsApiResource*> m_resources;
 };
 

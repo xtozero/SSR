@@ -2,6 +2,7 @@
 
 #include "Math/Vector.h"
 #include "Math/Vector2.h"
+#include "NameTypes.h"
 #include "SizedTypes.h"
 
 #include <string>
@@ -51,5 +52,5 @@ struct MeshDescription
 	std::vector<MeshVertexInstance> m_vertexInstances;
 	std::vector<MeshTriangle> m_triangles;
 	std::vector<MeshPolygon> m_polygons;
-	std::vector<std::string> m_polygonMaterialName;
+	std::vector<Name> m_polygonMaterialName;
 };

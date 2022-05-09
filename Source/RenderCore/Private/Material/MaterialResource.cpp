@@ -5,61 +5,61 @@
 #include "SizedTypes.h"
 #include "TaskScheduler.h"
 
-const VertexShader* MaterialResource::GetVertexShader( ) const
+const VertexShader* MaterialResource::GetVertexShader() const
 {
 	if ( m_material )
 	{
-		return m_material->GetVertexShader( );
+		return m_material->GetVertexShader();
 	}
 
 	return nullptr;
 }
 
-VertexShader* MaterialResource::GetVertexShader( )
+VertexShader* MaterialResource::GetVertexShader()
 {
 	if ( m_material )
 	{
-		return m_material->GetVertexShader( );
+		return m_material->GetVertexShader();
 	}
 
 	return nullptr;
 }
 
-const GeometryShader* MaterialResource::GetGeometryShader( ) const
+const GeometryShader* MaterialResource::GetGeometryShader() const
 {
 	if ( m_material )
 	{
-		return m_material->GetGeometryShader( );
+		return m_material->GetGeometryShader();
 	}
 
 	return nullptr;
 }
 
-GeometryShader* MaterialResource::GetGeometryShader( )
+GeometryShader* MaterialResource::GetGeometryShader()
 {
 	if ( m_material )
 	{
-		return m_material->GetGeometryShader( );
+		return m_material->GetGeometryShader();
 	}
 
 	return nullptr;
 }
 
-const PixelShader* MaterialResource::GetPixelShader( ) const
+const PixelShader* MaterialResource::GetPixelShader() const
 {
 	if ( m_material )
 	{
-		return m_material->GetPixelShader( );
+		return m_material->GetPixelShader();
 	}
 
 	return nullptr;
 }
 
-PixelShader* MaterialResource::GetPixelShader( )
+PixelShader* MaterialResource::GetPixelShader()
 {
 	if ( m_material )
 	{
-		return m_material->GetPixelShader( );
+		return m_material->GetPixelShader();
 	}
 
 	return nullptr;
@@ -78,7 +78,7 @@ const ShaderBase* MaterialResource::GetShader( SHADER_TYPE type ) const
 void MaterialResource::SetMaterial( const std::shared_ptr<Material>& material )
 {
 	m_material = material;
-	CreateGraphicsResource( );
+	CreateGraphicsResource();
 }
 
 void MaterialResource::TakeSnapshot( DrawSnapshot& snapShot )
@@ -90,10 +90,10 @@ void MaterialResource::TakeSnapshot( DrawSnapshot& snapShot )
 
 		aga::SingleShaderBindings binding = snapShot.m_shaderBindings.GetSingleShaderBindings( cbParam.m_shader );
 
-		binding.AddConstantBuffer( cbParam, cb.Resource( ) );
+		binding.AddConstantBuffer( cbParam, cb.Resource() );
 	}
 
-	auto& graphicsInterface = GraphicsInterface( );
+	auto& graphicsInterface = GraphicsInterface();
 
 	// Bind texture and sampler
 	auto shaderTypes = { SHADER_TYPE::VS, SHADER_TYPE::GS, SHADER_TYPE::PS };
@@ -107,45 +107,45 @@ void MaterialResource::TakeSnapshot( DrawSnapshot& snapShot )
 
 		aga::SingleShaderBindings binding = snapShot.m_shaderBindings.GetSingleShaderBindings( shaderType );
 
-		const auto& parameterMap = shader->ParameterMap( ).GetParameterMap( );
+		const auto& parameterMap = shader->ParameterMap().GetParameterMap();
 		for ( const auto& pair : parameterMap )
 		{
-			const auto&[name, param] = pair;
+			const auto& [name, param] = pair;
 
 			if ( param.m_type == aga::ShaderParameterType::SRV ||
 				param.m_type == aga::ShaderParameterType::UAV )
 			{
-				auto texture = m_material->AsTexture( name.c_str( ) );
+				auto texture = m_material->AsTexture( name.Str().data() );
 				if ( texture == nullptr )
 				{
 					continue;
 				}
 
-				aga::Texture* resource = texture->Resource( );
+				aga::Texture* resource = texture->Resource();
 				if ( param.m_type == aga::ShaderParameterType::SRV )
 				{
-					auto srv = resource ? resource->SRV( ) : nullptr;
+					auto srv = resource ? resource->SRV() : nullptr;
 					binding.AddSRV( param, srv );
 				}
 				else
 				{
-					auto uav = resource ? resource->UAV( ) : nullptr;
+					auto uav = resource ? resource->UAV() : nullptr;
 					binding.AddUAV( param, uav );
 				}
 			}
 			else if ( param.m_type == aga::ShaderParameterType::Sampler )
 			{
-				if ( auto samplerOption = m_material->AsSampelrOption( name.c_str( ) ) )
+				if ( auto samplerOption = m_material->AsSampelrOption( name.Str().data() ) )
 				{
 					auto sampler = graphicsInterface.FindOrCreate( *samplerOption );
-					binding.AddSampler( param, sampler.Resource( ) );
+					binding.AddSampler( param, sampler.Resource() );
 				}
 			}
 		}
 	}
 }
 
-void MaterialResource::CreateGraphicsResource( )
+void MaterialResource::CreateGraphicsResource()
 {
 	if ( m_material == nullptr )
 	{
@@ -156,7 +156,7 @@ void MaterialResource::CreateGraphicsResource( )
 	size_t constantValueNameSize = 0;
 
 	auto shaderTypes = {
-		static_cast<uint32>( SHADER_TYPE::VS ), 
+		static_cast<uint32>( SHADER_TYPE::VS ),
 		static_cast<uint32>( SHADER_TYPE::GS ),
 		static_cast<uint32>( SHADER_TYPE::PS ) };
 
@@ -177,12 +177,12 @@ void MaterialResource::CreateGraphicsResource( )
 	{
 		if ( auto shader = shaders[shaderType] )
 		{
-			const auto& parameterMap = shader->ParameterMap( ).GetParameterMap( );
+			const auto& parameterMap = shader->ParameterMap().GetParameterMap();
 			for ( const auto& pair : parameterMap )
 			{
-				const auto&[name, param] = pair;
+				const auto& [name, param] = pair;
 				if ( ( param.m_type == aga::ShaderParameterType::ConstantBuffer ) &&
-					( name == "Material" ) )
+					( name == Name( "Material" ) ) )
 				{
 					assert( materialCbSlotNumbers[shaderType] == invalidSlot );
 					if ( materialCbSlotNumbers[shaderType] == invalidSlot )
@@ -205,10 +205,10 @@ void MaterialResource::CreateGraphicsResource( )
 
 		if ( auto shader = shaders[shaderType] )
 		{
-			const auto& parameterMap = shader->ParameterMap( ).GetParameterMap( );
+			const auto& parameterMap = shader->ParameterMap().GetParameterMap();
 			for ( const auto& pair : parameterMap )
 			{
-				const auto&[name, param] = pair;
+				const auto& [name, param] = pair;
 				if ( param.m_bindPoint != materialCbSlot )
 				{
 					continue;
@@ -244,10 +244,10 @@ void MaterialResource::CreateGraphicsResource( )
 
 		if ( auto shader = shaders[shaderType] )
 		{
-			const auto& parameterMap = shader->ParameterMap( ).GetParameterMap( );
+			const auto& parameterMap = shader->ParameterMap().GetParameterMap();
 			for ( const auto& pair : parameterMap )
 			{
-				const auto&[name, param] = pair;
+				const auto& [name, param] = pair;
 				if ( param.m_bindPoint != materialCbSlot )
 				{
 					continue;
@@ -267,10 +267,10 @@ void MaterialResource::CreateGraphicsResource( )
 
 	std::sort( std::begin( m_materialConstantValueNames ), std::end( m_materialConstantValueNames ) );
 
-	UpdateToGPU( );
+	UpdateToGPU();
 }
 
-void MaterialResource::UpdateToGPU( )
+void MaterialResource::UpdateToGPU()
 {
 	auto Update = [this, material = m_material]
 	{
@@ -278,7 +278,7 @@ void MaterialResource::UpdateToGPU( )
 		{
 			const auto& cbParam = materialConstantBuffer.first;
 			auto& cb = materialConstantBuffer.second;
-			char* buffer = static_cast<char*>( cb.Lock( ) );
+			char* buffer = static_cast<char*>( cb.Lock() );
 
 			if ( buffer )
 			{
@@ -291,7 +291,7 @@ void MaterialResource::UpdateToGPU( )
 
 						return lVariable < rVariable;
 					}
-					
+
 					bool operator()( const aga::ShaderParameter& lhs, const NamedShaderParameter& rhs )
 					{
 						auto lVariable = std::tie( lhs.m_shader, lhs.m_bindPoint );
@@ -308,11 +308,11 @@ void MaterialResource::UpdateToGPU( )
 					const auto& [param, variableName] = *i;
 					char* dest = buffer + param.m_offset;
 
-					material->CopyProperty( variableName.c_str( ), dest );
+					material->CopyProperty( variableName.Str().data(), dest);
 				}
 			}
 
-			cb.Unlock( );
+			cb.Unlock();
 		}
 	};
 

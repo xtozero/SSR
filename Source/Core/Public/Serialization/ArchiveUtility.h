@@ -1,5 +1,6 @@
 #pragma once
 
+#include "NameTypes.h"
 #include "Math/Vector.h"
 #include "Math/Vector2.h"
 #include "Math/Vector4.h"
@@ -27,12 +28,31 @@ inline Archive& operator<<( Archive& ar, Vector4& v )
 	return ar;
 }
 
+inline Archive& operator<<( Archive& ar, const Name& name )
+{
+	assert( ar.IsWriteMode() );
+
+	ar << name.Str();
+	return ar;
+}
+
+inline Archive& operator<<( Archive& ar, Name& name )
+{
+	assert( !ar.IsWriteMode() );
+
+	char buf[NameSize] = {};
+	ar << buf;
+	std::construct_at( &name, buf );
+
+	return ar;
+}
+
 template <typename Type, typename Alloc>
 Archive& operator<<( Archive& ar, std::vector<Type, Alloc>& v )
 {
-	if ( ar.IsWriteMode( ) )
+	if ( ar.IsWriteMode() )
 	{
-		ar << static_cast<uint32>( v.size( ) );
+		ar << static_cast<uint32>( v.size() );
 	}
 	else
 	{
@@ -52,9 +72,9 @@ Archive& operator<<( Archive& ar, std::vector<Type, Alloc>& v )
 template <typename KeyType, typename ValueType, typename Pred, typename Alloc>
 Archive& operator<<( Archive& ar, std::map<KeyType, ValueType, Pred, Alloc>& v )
 {
-	if ( ar.IsWriteMode( ) )
+	if ( ar.IsWriteMode() )
 	{
-		ar << static_cast<uint32>( v.size( ) );
+		ar << static_cast<uint32>( v.size() );
 		for ( auto& elem : v )
 		{
 			ar << elem.first << elem.second;

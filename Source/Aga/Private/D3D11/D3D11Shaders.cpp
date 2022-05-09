@@ -103,7 +103,7 @@ void ExtractShaderParameters( ID3D11ShaderReflection* pReflector, aga::ShaderPar
 	}
 }
 
-void BuildShaderParameterInfo( const std::map<std::string, aga::ShaderParameter>& parameterMap, aga::ShaderParameterInfo& parameterInfo )
+void BuildShaderParameterInfo( const std::map<Name, aga::ShaderParameter>& parameterMap, aga::ShaderParameterInfo& parameterInfo )
 {
 	for ( uint32 i = 0; i < static_cast<uint32>( aga::ShaderParameterType::Count ); ++i )
 	{

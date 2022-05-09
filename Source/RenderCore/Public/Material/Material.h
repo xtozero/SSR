@@ -6,6 +6,7 @@
 #include "GraphicsApiResource.h"
 #include "IAsyncLoadableAsset.h"
 #include "Math/Vector4.h"
+#include "NameTypes.h"
 #include "RenderOption.h"
 #include "SizedTypes.h"
 
@@ -145,7 +146,7 @@ public:
 
 	bool HasProperty( const char* key ) const;
 
-	const std::string& Name() const { return m_name; }
+	const std::string& GetName() const { return m_name; }
 
 	const ShaderBase* GetShader( SHADER_TYPE type ) const;
 
@@ -178,8 +179,8 @@ private:
 	std::shared_ptr<VertexShader> m_vertexShader = nullptr;
 	std::shared_ptr<GeometryShader> m_geometryShader = nullptr;
 	std::shared_ptr<PixelShader> m_pixelShader = nullptr;
-	std::map<std::string, std::unique_ptr<MaterialProperty>> m_properties;
-	std::map<std::string, std::shared_ptr<SamplerOption>> m_samplers;
+	std::map<Name, std::unique_ptr<MaterialProperty>> m_properties;
+	std::map<Name, std::shared_ptr<SamplerOption>> m_samplers;
 
 	std::unique_ptr<MaterialResource> m_materialResource;
 };

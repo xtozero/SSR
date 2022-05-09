@@ -93,7 +93,7 @@ void Material::Serialize( Archive& ar )
 		ar << static_cast<uint32>( m_properties.size() );
 		for ( auto& p : m_properties )
 		{
-			const std::string& propertyName = p.first;
+			const std::string_view& propertyName = p.first.Str();
 			const std::unique_ptr<MaterialProperty>& property = p.second;
 
 			ar << propertyName;
@@ -107,7 +107,7 @@ void Material::Serialize( Archive& ar )
 		ar << size;
 		for ( uint32 i = 0; i < size; ++i )
 		{
-			std::string propertyName;
+			char propertyName[NameSize];
 			MaterialPropertyType type;
 			MaterialProperty* property;
 
@@ -116,7 +116,7 @@ void Material::Serialize( Archive& ar )
 			property = CreateMaterialPropertyByType( type );
 			property->Serialize( ar );
 
-			m_properties.emplace( std::move( propertyName ), std::move( property ) );
+			m_properties.emplace( Name( propertyName ), std::move(property));
 		}
 	}
 
@@ -125,7 +125,7 @@ void Material::Serialize( Archive& ar )
 
 void Material::AddProperty( const char* key, int32 value )
 {
-	auto found = m_properties.find( key );
+	auto found = m_properties.find( Name( key ) );
 	if ( found != m_properties.end() )
 	{
 		const std::unique_ptr<MaterialProperty>& property = found->second;
@@ -148,7 +148,7 @@ void Material::AddProperty( const char* key, int32 value )
 
 void Material::AddProperty( const char* key, float value )
 {
-	auto found = m_properties.find( key );
+	auto found = m_properties.find( Name( key ) );
 	if ( found != m_properties.end() )
 	{
 		const std::unique_ptr<MaterialProperty>& property = found->second;
@@ -171,7 +171,7 @@ void Material::AddProperty( const char* key, float value )
 
 void Material::AddProperty( const char* key, const Vector4& value )
 {
-	auto found = m_properties.find( key );
+	auto found = m_properties.find( Name( key ) );
 	if ( found != m_properties.end() )
 	{
 		const std::unique_ptr<MaterialProperty>& property = found->second;
@@ -194,7 +194,7 @@ void Material::AddProperty( const char* key, const Vector4& value )
 
 void Material::AddProperty( const char* key, const std::shared_ptr<Texture>& value )
 {
-	auto found = m_properties.find( key );
+	auto found = m_properties.find( Name( key ) );
 	if ( found != m_properties.end() )
 	{
 		const std::unique_ptr<MaterialProperty>& property = found->second;
@@ -217,7 +217,7 @@ void Material::AddProperty( const char* key, const std::shared_ptr<Texture>& val
 
 const MaterialProperty* Material::AsProperty( const char* key ) const
 {
-	auto found = m_properties.find( key );
+	auto found = m_properties.find( Name( key ) );
 	if ( found != m_properties.end() )
 	{
 		return found->second.get();
@@ -228,7 +228,7 @@ const MaterialProperty* Material::AsProperty( const char* key ) const
 
 int32 Material::AsInteger( const char* key ) const
 {
-	auto found = m_properties.find( key );
+	auto found = m_properties.find( Name( key ) );
 
 	if ( found != m_properties.end() )
 	{
@@ -245,7 +245,7 @@ int32 Material::AsInteger( const char* key ) const
 
 float Material::AsFloat( const char* key ) const
 {
-	auto found = m_properties.find( key );
+	auto found = m_properties.find( Name( key ) );
 
 	if ( found != m_properties.end() )
 	{
@@ -262,7 +262,7 @@ float Material::AsFloat( const char* key ) const
 
 const Vector4& Material::AsVector( const char* key ) const
 {
-	auto found = m_properties.find( key );
+	auto found = m_properties.find( Name( key ) );
 
 	if ( found != m_properties.end() )
 	{
@@ -279,7 +279,7 @@ const Vector4& Material::AsVector( const char* key ) const
 
 Texture* Material::AsTexture( const char* key ) const
 {
-	auto found = m_properties.find( key );
+	auto found = m_properties.find( Name( key ) );
 
 	if ( found != m_properties.end() )
 	{
@@ -296,7 +296,7 @@ Texture* Material::AsTexture( const char* key ) const
 
 SamplerOption* Material::AsSampelrOption( const char* key ) const
 {
-	auto found = m_samplers.find( key );
+	auto found = m_samplers.find( Name( key ) );
 
 	if ( found != m_samplers.end() )
 	{
@@ -308,7 +308,7 @@ SamplerOption* Material::AsSampelrOption( const char* key ) const
 
 void Material::CopyProperty( const char* key, void* dest ) const
 {
-	auto found = m_properties.find( key );
+	auto found = m_properties.find( Name( key ) );
 
 	if ( found != m_properties.end() )
 	{
@@ -319,7 +319,7 @@ void Material::CopyProperty( const char* key, void* dest ) const
 
 bool Material::HasProperty( const char* key ) const
 {
-	auto found = m_properties.find( key );
+	auto found = m_properties.find( Name( key ) );
 	if ( found != m_properties.end() )
 	{
 		return found->second != nullptr;
@@ -405,7 +405,7 @@ PixelShader* Material::GetPixelShader()
 
 void Material::AddSampler( const std::string& key, const std::shared_ptr<SamplerOption>& samplerOption )
 {
-	m_samplers.emplace( key, samplerOption );
+	m_samplers.emplace( Name( key ), samplerOption );
 }
 
 MaterialResource* Material::GetMaterialResource() const

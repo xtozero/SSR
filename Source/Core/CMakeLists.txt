@@ -22,7 +22,9 @@ set (DATA_STRUCTURE
 	Public/DataStructure/SingleLInkedList.h)
 	
 set (DATA_TYPE
-	public/DataType/GuideTypes.h
+	Private/DataType/Nametypes.cpp
+	Public/DataType/GuideTypes.h
+	Public/DataType/Nametypes.h
 	Public/DataType/SizedTypes.h)
 
 set (DEBUG_TOOL
@@ -38,6 +40,7 @@ set (FILESYSTEM
 
 set (HASH
 	Public/Hash/Crc32Hash.h
+	Public/Hash/Crc64Hash.h
 	Public/Hash/HashUtil.h)
 
 set (JSON

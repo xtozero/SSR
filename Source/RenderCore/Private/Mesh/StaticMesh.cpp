@@ -20,14 +20,14 @@ Archive& operator<<( Archive& ar, StaticMeshMaterial& m )
 REGISTER_ASSET( StaticMesh );
 void StaticMesh::Serialize( Archive& ar )
 {
-	if ( ar.IsWriteMode( ) )
+	if ( ar.IsWriteMode() )
 	{
 		ar << ID;
 	}
 
 	if ( m_renderData == nullptr )
 	{
-		m_renderData = new StaticMeshRenderData( );
+		m_renderData = new StaticMeshRenderData();
 	}
 	m_renderData->Serialize( ar );
 
@@ -39,8 +39,8 @@ void StaticMesh::Serialize( Archive& ar )
 void StaticMesh::BuildMeshFromMeshDescriptions( const std::vector<MeshDescription>& meshDescriptions )
 {
 	delete m_renderData;
-	m_renderData = new StaticMeshRenderData( );
-	m_renderData->AllocateLODResources( static_cast<uint32>( meshDescriptions.size( ) ) );
+	m_renderData = new StaticMeshRenderData();
+	m_renderData->AllocateLODResources( static_cast<uint32>( meshDescriptions.size() ) );
 
 	uint32 lodIndex = 0;
 	for ( const auto& meshDescription : meshDescriptions )
@@ -62,18 +62,18 @@ void StaticMesh::BuildMeshFromMeshDescription( const MeshDescription& meshDescri
 	size_t indexCount = 0;
 	for ( const MeshPolygon& polygon : polygons )
 	{
-		indexCount += polygon.m_triangleID.size( ) * 3;
+		indexCount += polygon.m_triangleID.size() * 3;
 	}
 
 	std::vector<size_t> indices;
 	indices.reserve( indexCount );
 
-	for ( size_t i = 0; i < polygons.size( ); ++i )
+	for ( size_t i = 0; i < polygons.size(); ++i )
 	{
 		const MeshPolygon& polygon = polygons[i];
 
-		StaticMeshSection& section = lodResource.m_sections.emplace_back( );
-		section.m_startLocation = static_cast<uint32>( indices.size( ) );
+		StaticMeshSection& section = lodResource.m_sections.emplace_back();
+		section.m_startLocation = static_cast<uint32>( indices.size() );
 
 		for ( size_t triangleID : polygon.m_triangleID )
 		{
@@ -83,13 +83,13 @@ void StaticMesh::BuildMeshFromMeshDescription( const MeshDescription& meshDescri
 			}
 		}
 
-		section.m_count = static_cast<uint32>( indices.size( ) ) - section.m_startLocation;
+		section.m_count = static_cast<uint32>( indices.size() ) - section.m_startLocation;
 
-		const std::string& polygonMaterialName = meshDescription.m_polygonMaterialName[i];
-		for ( uint32 j = 0; j < static_cast<uint32>( m_materials.size( ) ); ++j )
+		const Name& polygonMaterialName = meshDescription.m_polygonMaterialName[i];
+		for ( uint32 j = 0; j < static_cast<uint32>( m_materials.size() ); ++j )
 		{
 			const auto material = m_materials[j].m_mateiral;
-			if ( polygonMaterialName == material->Path().stem() )
+			if ( polygonMaterialName == Name( material->Path().stem().generic_string() ) )
 			{
 				section.m_materialIndex = j;
 				break;
@@ -97,30 +97,30 @@ void StaticMesh::BuildMeshFromMeshDescription( const MeshDescription& meshDescri
 		}
 	}
 
-	lodResource.m_isDWORD = ( vertexInstances.size( ) > std::numeric_limits<DWORD>::max( ) );
+	lodResource.m_isDWORD = ( vertexInstances.size() > std::numeric_limits<DWORD>::max() );
 
 	size_t indexStride = lodResource.m_isDWORD ? sizeof( DWORD ) : sizeof( WORD );
 	lodResource.m_indexData.resize( indices.size() * indexStride );
 
 	if ( lodResource.m_isDWORD )
 	{
-		for ( size_t i = 0; i < indices.size( ); ++i )
+		for ( size_t i = 0; i < indices.size(); ++i )
 		{
-			reinterpret_cast<DWORD*>( lodResource.m_indexData.data( ) )[i] = static_cast<DWORD>( indices[i] );
+			reinterpret_cast<DWORD*>( lodResource.m_indexData.data() )[i] = static_cast<DWORD>( indices[i] );
 		}
 	}
 	else
 	{
-		for ( size_t i = 0; i < indices.size( ); ++i )
+		for ( size_t i = 0; i < indices.size(); ++i )
 		{
-			reinterpret_cast<WORD*>( lodResource.m_indexData.data( ) )[i] = static_cast<WORD>( indices[i] );
+			reinterpret_cast<WORD*>( lodResource.m_indexData.data() )[i] = static_cast<WORD>( indices[i] );
 		}
 	}
 }
 
 MaterialResource* StaticMesh::GetMaterialResource( size_t idx ) const
 {
-	assert( idx < m_materials.size( ) );
+	assert( idx < m_materials.size() );
 	if ( m_materials[idx].m_mateiral == nullptr )
 	{
 		return nullptr;
@@ -134,14 +134,14 @@ void StaticMesh::AddMaterial( const std::shared_ptr<Material>& mateiral )
 	m_materials.emplace_back( mateiral );
 }
 
-StaticMesh::~StaticMesh( )
+StaticMesh::~StaticMesh()
 {
 	delete m_renderData;
 }
 
-void StaticMesh::PostLoadImpl( )
+void StaticMesh::PostLoadImpl()
 {
-	EnqueueRenderTask( [this]( ) {
-		m_renderData->Init( );
-	} );
+	EnqueueRenderTask( [this]() {
+		m_renderData->Init();
+		} );
 }

@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "GameObject/GameObjectFactory.h"
 
+#include "NameTypes.h"
+
 class CGameObjectFactory : public IGameObjectFactory
 {
 public:
@@ -11,11 +13,10 @@ public:
 
 	virtual Owner<CGameObject*> CreateGameObjectByClassName( const std::string& className ) const override
 	{
-		auto found = m_createHelpers.find( className );
-
-		if ( found != m_createHelpers.end( ) )
+		auto found = m_createHelpers.find( Name( className ) );
+		if ( found != m_createHelpers.end() )
 		{
-			return found->second->Create( );
+			return found->second->Create();
 		}
 		else
 		{
@@ -24,10 +25,10 @@ public:
 	}
 
 private:
-	std::map<std::string, CCreateGameObjectHelper*> m_createHelpers;
+	std::map<Name, CCreateGameObjectHelper*> m_createHelpers;
 };
 
-IGameObjectFactory& GetGameObjectFactory( )
+IGameObjectFactory& GetGameObjectFactory()
 {
 	static CGameObjectFactory factory;
 	return factory;

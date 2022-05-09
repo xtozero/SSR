@@ -61,7 +61,7 @@ void RenderingShaderResource::BindResources( const ShaderStates& shaders, aga::S
 				continue;
 			}
 
-			aga::ShaderParameter parameter = parameterMap.GetParameter( m_parameterNames[i].c_str() );
+			aga::ShaderParameter parameter = parameterMap.GetParameter( m_parameterNames[i].Str().data() );
 
 			switch ( parameter.m_type )
 			{
@@ -86,7 +86,7 @@ void RenderingShaderResource::BindResources( const ShaderStates& shaders, aga::S
 
 void RenderingShaderResource::AddResource( const std::string& parameterName, GraphicsApiResource* resource )
 {
-	auto found = std::find( std::begin( m_parameterNames ), std::end( m_parameterNames ), parameterName );
+	auto found = std::find( std::begin( m_parameterNames ), std::end( m_parameterNames ), Name( parameterName ) );
 
 	if ( found == std::end( m_parameterNames ) )
 	{
@@ -630,7 +630,7 @@ void SceneRenderer::RenderSkyAtmosphere( IScene& scene, RenderView& renderView )
 	skyAtmosphereDrawResources.AddResource( "TransmittanceLut", info->GetTransmittanceLutTexture()->SRV() );
 	skyAtmosphereDrawResources.AddResource( "TransmittanceLutSampler", defaultSampler.Resource() );
 	skyAtmosphereDrawResources.AddResource( "IrradianceLut", info->GetIrradianceLutTexture()->SRV() );
-	skyAtmosphereDrawResources.AddResource( "IrradianceLutSampler" , defaultSampler.Resource() );
+	skyAtmosphereDrawResources.AddResource( "IrradianceLutSampler", defaultSampler.Resource() );
 	skyAtmosphereDrawResources.AddResource( "InscatterLut", info->GetInscatterLutTexture()->SRV() );
 	skyAtmosphereDrawResources.AddResource( "InscatterLutSampler", defaultSampler.Resource() );
 	skyAtmosphereDrawResources.AddResource( "SkyAtmosphereRenderParameter", skyAtmosphereRenderParameter.Resource() );

@@ -11,26 +11,27 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <vector>
 
 class BinaryChunk
 {
 public:
-	uint32 Size( ) const { return m_size; }
-	char* Data( ) { return m_data; }
-	const char* Data( ) const { return m_data; }
+	uint32 Size() const { return m_size; }
+	char* Data() { return m_data; }
+	const char* Data() const { return m_data; }
 
-	BinaryChunk( ) = default;
+	BinaryChunk() = default;
 
 	explicit BinaryChunk( uint32 size )
 	{
 		Alloc( size );
 	}
 
-	~BinaryChunk( )
+	~BinaryChunk()
 	{
-		Purge( );
+		Purge();
 	}
 
 	BinaryChunk( const BinaryChunk& other )
@@ -42,7 +43,7 @@ public:
 	{
 		if ( this != &other )
 		{
-			Purge( );
+			Purge();
 			Alloc( other.m_size );
 			std::memcpy( m_data, other.m_data, m_size );
 		}
@@ -59,7 +60,7 @@ public:
 	{
 		if ( this != &other )
 		{
-			Purge( );
+			Purge();
 			m_data = other.m_data;
 			m_size = other.m_size;
 			other.m_data = nullptr;
@@ -82,7 +83,7 @@ public:
 private:
 	void Alloc( uint32 size )
 	{
-		Purge( );
+		Purge();
 		m_size = size;
 
 		if ( size > 0 )
@@ -91,7 +92,7 @@ private:
 		}
 	}
 
-	void Purge( )
+	void Purge()
 	{
 		delete[] m_data;
 		m_data = nullptr;
@@ -105,10 +106,10 @@ private:
 class Archive
 {
 public:
-	Archive( ) = default;
+	Archive() = default;
 	Archive( const char* begin, const char* end ) : m_curPos( begin ), m_endPos( end ) {}
 	Archive( const char* begin, size_t size ) : m_curPos( begin ), m_endPos( begin + size ) {}
-	~Archive( ) = default;
+	~Archive() = default;
 	Archive( const Archive& ) = default;
 	Archive& operator=( const Archive& ) = default;
 	Archive( Archive&& ) = default;
@@ -117,7 +118,7 @@ public:
 	template <typename T>
 	Archive& operator<<( T& value )
 	{
-		if ( IsWriteMode( ) )
+		if ( IsWriteMode() )
 		{
 			WriteData( value );
 		}
@@ -125,38 +126,38 @@ public:
 		{
 			ReadData( value );
 		}
-		
+
 		return *this;
 	}
 
 	template <typename T>
 	Archive& operator<<( const T& value )
 	{
-		assert( IsWriteMode( ) );
+		assert( IsWriteMode() );
 		WriteData( value );
 		return *this;
 	}
 
-	size_t Size( ) const
+	size_t Size() const
 	{
-		return m_buffer.size( );
+		return m_buffer.size();
 	}
 
-	const char* Data( ) const
+	const char* Data() const
 	{
-		return m_buffer.data( );
+		return m_buffer.data();
 	}
 
 	void WriteToFile( const std::filesystem::path& dstFile ) const
 	{
 		std::ofstream outputFile( dstFile, std::ios::binary | std::ios::trunc );
-		if ( outputFile.good( ) )
+		if ( outputFile.good() )
 		{
-			outputFile.write( m_buffer.data( ), m_buffer.size( ) );
+			outputFile.write( m_buffer.data(), m_buffer.size() );
 		}
 	}
 
-	bool IsWriteMode( ) const
+	bool IsWriteMode() const
 	{
 		return m_curPos == nullptr;
 	}
@@ -180,28 +181,28 @@ private:
 	template <typename AssetType, typename T>
 	void RequestLoadAsset( std::string&& path, T& value )
 	{
-		auto assetLoader = GetInterface<IAssetLoader>( );
-		auto subSequentHandle = assetLoader->HandleInProcess( );
-		subSequentHandle->IncreasePrerequisite( );
+		auto assetLoader = GetInterface<IAssetLoader>();
+		auto subSequentHandle = assetLoader->HandleInProcess();
+		subSequentHandle->IncreasePrerequisite();
 
 		EnqueueThreadTask<ThreadType::GameThread>(
-			[&value, subSequentHandle, assetPath = std::move( path )]( )
-			{
-				subSequentHandle->DecreasePrerequisite( );
+			[&value, subSequentHandle, assetPath = std::move( path )]()
+		{
+			subSequentHandle->DecreasePrerequisite();
 
-				IAssetLoader::LoadCompletionCallback onLoadComplete;
-				onLoadComplete.BindFunctor( [&value, subSequentHandle]( const std::shared_ptr<void>& asset )
+			IAssetLoader::LoadCompletionCallback onLoadComplete;
+			onLoadComplete.BindFunctor( [&value, subSequentHandle]( const std::shared_ptr<void>& asset )
 				{
 					value = std::reinterpret_pointer_cast<AssetType>( asset );
 				} );
 
-				auto assetLoader = GetInterface<IAssetLoader>( );
-				assetLoader->SetHandleInProcess( subSequentHandle );
-				AssetLoaderSharedHandle handle = assetLoader->RequestAsyncLoad( assetPath, onLoadComplete );
-				assetLoader->SetHandleInProcess( nullptr );
+			auto assetLoader = GetInterface<IAssetLoader>();
+			assetLoader->SetHandleInProcess( subSequentHandle );
+			AssetLoaderSharedHandle handle = assetLoader->RequestAsyncLoad( assetPath, onLoadComplete );
+			assetLoader->SetHandleInProcess( nullptr );
 
-				assert( handle->IsLoadingInProgress( ) || handle->IsLoadComplete( ) );
-			} );
+			assert( handle->IsLoadingInProgress() || handle->IsLoadComplete() );
+		} );
 	}
 
 	template <typename T>
@@ -210,7 +211,7 @@ private:
 		std::string path;
 		ReadData( path );
 
-		if ( path.empty( ) )
+		if ( path.empty() )
 		{
 			return;
 		}
@@ -224,7 +225,7 @@ private:
 		std::string path;
 		ReadData( path );
 
-		if ( path.empty( ) )
+		if ( path.empty() )
 		{
 			return;
 		}
@@ -232,9 +233,9 @@ private:
 		RequestLoadAsset<T>( std::move( path ), value );
 	}
 
-	void ReadData( char* str )
+	template <int Len>
+	void ReadData( char( &str )[Len] )
 	{
-		assert( str );
 		if ( CanRead( sizeof( uint32 ) ) == false )
 		{
 			return;
@@ -250,7 +251,7 @@ private:
 		}
 
 #if _WIN32
-		strcpy_s( str, stringSize, m_curPos );
+		strcpy_s( str, Len, m_curPos );
 #else
 		std::strcpy( str, m_curPos );
 #endif
@@ -302,7 +303,7 @@ private:
 		}
 
 		BinaryChunk temp( size );
-		std::memcpy( temp.Data( ), m_curPos, size );
+		std::memcpy( temp.Data(), m_curPos, size );
 		chunk = std::move( temp );
 		m_curPos += size;
 	}
@@ -335,7 +336,7 @@ private:
 		}
 		else
 		{
-			WriteData( value->Path( ).generic_string( ) );
+			WriteData( value->Path().generic_string() );
 		}
 	}
 
@@ -349,24 +350,27 @@ private:
 		}
 		else
 		{
-			WriteData( value->Path( ).generic_string( ) );
+			WriteData( value->Path().generic_string() );
 		}
 	}
 
 	template <typename T>
 	void WriteData( std::shared_ptr<T>& value )
 	{
-		WriteData( value.get( ) );
+		WriteData( value.get() );
 	}
-	
+
 	void WriteData( char* str )
 	{
 		WriteData( static_cast<const char*>( str ) );
 	}
 
-	void WriteData( const char* str )
+	void WriteData( const char* str, uint32 len = 0 )
 	{
-		uint32 len = static_cast<uint32>( std::strlen( str ) );
+		if ( len == 0 )
+		{
+			len = static_cast<uint32>( std::strlen( str ) );
+		}
 		( *this ) << len;
 
 		for ( uint32 i = 0; i < len; ++i )
@@ -377,20 +381,25 @@ private:
 
 	void WriteData( const std::string& str )
 	{
-		WriteData( str.data( ) );
+		WriteData( str.data(), static_cast<uint32>( str.length() ) );
+	}
+
+	void WriteData( const std::string_view& str )
+	{
+		WriteData( str.data(), static_cast<uint32>( str.length() ) );
 	}
 
 	void WriteData( const std::filesystem::path& path )
 	{
-		WriteData( path.generic_string( ) );
+		WriteData( path.generic_string() );
 	}
 
 	void WriteData( const BinaryChunk& chunk )
 	{
-		uint32 size = chunk.Size( );
+		uint32 size = chunk.Size();
 		( *this ) << size;
 
-		const char* data = chunk.Data( );
+		const char* data = chunk.Data();
 		for ( uint32 i = 0; i < size; ++i )
 		{
 			m_buffer.push_back( data[i] );

@@ -4,6 +4,7 @@
 #include "ConstantBuffer.h"
 #include "DrawSnapshot.h"
 #include "Material/Material.h"
+#include "NameTypes.h"
 #include "ShaderParameterMap.h"
 
 #include <memory>
@@ -33,6 +34,6 @@ private:
 	using ConstantBufferParameter = std::pair<aga::ShaderParameter, ConstantBuffer>;
 	std::vector<ConstantBufferParameter> m_materialConstantBuffers;
 
-	using NamedShaderParameter = std::pair<aga::ShaderParameter, std::string>;
+	using NamedShaderParameter = std::pair<aga::ShaderParameter, Name>;
 	std::vector<NamedShaderParameter> m_materialConstantValueNames;
 };
