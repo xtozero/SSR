@@ -30,6 +30,8 @@ struct RenderTargetBlendOption
 			&& lhs.m_blendOpAlpha == rhs.m_blendOpAlpha
 			&& lhs.m_renderTargetWriteMask == rhs.m_renderTargetWriteMask;
 	}
+
+	friend RENDERCORE_DLL Archive& operator<<( Archive& ar, RenderTargetBlendOption& option );
 };
 
 struct RenderTargetBlendOptionHasher
@@ -57,8 +59,6 @@ class BlendOption : public AsyncLoadableAsset
 	DECLARE_ASSET( RENDERCORE, BlendOption );
 
 public:
-	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
-
 	friend bool operator==( const BlendOption& lhs, const BlendOption& rhs )
 	{
 		bool ret = true;
@@ -74,9 +74,16 @@ public:
 		return ret;
 	}
 
+	PROPERTY( alphaToConverageEnable )
 	bool m_alphaToConverageEnable = false;
+
+	PROPERTY( independentBlendEnable )
 	bool m_independentBlendEnable = false;
+
+	PROPERTY( renderTarget )
 	RenderTargetBlendOption m_renderTarget[8];
+
+	PROPERTY( sampleMask )
 	uint32 m_sampleMask = (std::numeric_limits<uint32>::max)();
 
 protected:
@@ -117,6 +124,8 @@ struct DepthOption
 			&& lhs.m_writeDepth == rhs.m_writeDepth
 			&& lhs.m_depthFunc == rhs.m_depthFunc;
 	}
+
+	friend RENDERCORE_DLL Archive& operator<<( Archive& ar, DepthOption depthOption );
 };
 
 struct DepthOptionHasher
@@ -157,6 +166,8 @@ struct StencilOption
 			&& lhs.m_backFace == rhs.m_backFace
 			&& lhs.m_ref == rhs.m_ref;
 	}
+
+	friend RENDERCORE_DLL Archive& operator<<( Archive& ar, StencilOption stencilOption );
 };
 
 struct StencilOptionHasher
@@ -188,15 +199,16 @@ class DepthStencilOption : public AsyncLoadableAsset
 	DECLARE_ASSET( RENDERCORE, DepthStencilOption );
 
 public:
-	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
-
 	friend bool operator==( const DepthStencilOption& lhs, const DepthStencilOption& rhs )
 	{
 		return lhs.m_depth == rhs.m_depth
 			&& lhs.m_stencil == rhs.m_stencil;
 	}
 
+	PROPERTY( depth )
 	DepthOption m_depth;
+
+	PROPERTY( stencil )
 	StencilOption m_stencil;
 
 protected:
@@ -222,8 +234,6 @@ class RasterizerOption : public AsyncLoadableAsset
 	DECLARE_ASSET( RENDERCORE, RasterizerOption );
 
 public:
-	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
-
 	friend bool operator==( const RasterizerOption& lhs, const RasterizerOption& rhs )
 	{
 		return lhs.m_isWireframe == rhs.m_isWireframe
@@ -236,13 +246,28 @@ public:
 			&& lhs.m_antialiasedLineEnable == rhs.m_antialiasedLineEnable;
 	}
 
+	PROPERTY( isWireframe )
 	bool m_isWireframe = false;
+
+	PROPERTY( cullMode )
 	CULL_MODE m_cullMode = CULL_MODE::BACK;
+
+	PROPERTY( counterClockwise )
 	bool m_counterClockwise = false;
+
+	PROPERTY( depthBias )
 	int32 m_depthBias = 0;
+
+	PROPERTY( depthClipEnable )
 	bool m_depthClipEnable = true;
+
+	PROPERTY( scissorEnable )
 	bool m_scissorEnable = false;
+
+	PROPERTY( multisampleEnalbe )
 	bool m_multisampleEnalbe = false;
+
+	PROPERTY( antialiasedLineEnable )
 	bool m_antialiasedLineEnable = false;
 
 protected:
@@ -274,8 +299,6 @@ class SamplerOption : public AsyncLoadableAsset
 	DECLARE_ASSET( RENDERCORE, SamplerOption );
 
 public:
-	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
-
 	friend bool operator==( const SamplerOption& lhs, const SamplerOption& rhs )
 	{
 		return lhs.m_filter == rhs.m_filter
@@ -286,11 +309,22 @@ public:
 			&& lhs.m_comparisonFunc == rhs.m_comparisonFunc;
 	}
 
+	PROPERTY( filter )
 	uint32 m_filter = TEXTURE_FILTER::MIN_LINEAR | TEXTURE_FILTER::MAG_LINEAR | TEXTURE_FILTER::MIP_LINEAR;
+
+	PROPERTY( addressU )
 	TEXTURE_ADDRESS_MODE m_addressU = TEXTURE_ADDRESS_MODE::CLAMP;
+
+	PROPERTY( addressV )
 	TEXTURE_ADDRESS_MODE m_addressV = TEXTURE_ADDRESS_MODE::CLAMP;
+
+	PROPERTY( addressW )
 	TEXTURE_ADDRESS_MODE m_addressW = TEXTURE_ADDRESS_MODE::CLAMP;
+
+	PROPERTY( mipLODBias )
 	float m_mipLODBias = 0.f;
+
+	PROPERTY( comparisonFunc )
 	COMPARISON_FUNC m_comparisonFunc = COMPARISON_FUNC::NEVER;
 
 protected:
@@ -320,8 +354,6 @@ class RenderOption : public AsyncLoadableAsset
 	DECLARE_ASSET( RENDERCORE, RenderOption );
 
 public:
-	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
-
 	friend bool operator==( const RenderOption& lhs, const RenderOption& rhs )
 	{
 		bool ret = true;
@@ -333,8 +365,13 @@ public:
 		return ret;
 	}
 
+	PROPERTY( blendOption )
 	std::shared_ptr<BlendOption> m_blendOption = nullptr;
+
+	PROPERTY( depthStencilOption )
 	std::shared_ptr<DepthStencilOption> m_depthStencilOption = nullptr;
+
+	PROPERTY( rasterizerOption )
 	std::shared_ptr<RasterizerOption> m_rasterizerOption = nullptr;
 
 protected:

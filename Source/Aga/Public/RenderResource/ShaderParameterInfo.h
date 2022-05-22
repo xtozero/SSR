@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Archive.h"
+#include "ArchiveUtility.h"
 #include "HashUtil.h"
 #include "ShaderParameterMap.h"
 #include "SizedTypes.h"
@@ -50,6 +52,16 @@ namespace aga
 				lhs.m_srvs == rhs.m_srvs &&
 				lhs.m_uavs == rhs.m_uavs &&
 				lhs.m_samplers == rhs.m_samplers;
+		}
+
+		friend Archive& operator<<( Archive& ar, aga::ShaderParameterInfo& shaderParamInfo )
+		{
+			ar << shaderParamInfo.m_constantBuffers;
+			ar << shaderParamInfo.m_srvs;
+			ar << shaderParamInfo.m_uavs;
+			ar << shaderParamInfo.m_samplers;
+
+			return ar;
 		}
 	};
 }

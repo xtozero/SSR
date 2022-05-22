@@ -1,8 +1,12 @@
 #pragma once
 
+#include "Archive.h"
+#include "ArchiveUtility.h"
 #include "TypeInfoMacros.h"
 
 #include <cassert>
+
+using SerializeFunc = void (*)( void* object, Archive& ar );
 
 class PropertyHandlerBase
 {
@@ -16,10 +20,11 @@ template <typename T>
 class IPropertyHandler : public PropertyHandlerBase
 {
 	GENERATE_CLASS_TYPE_INFO( IPropertyHandler )
+	using ElementType = std::remove_all_extents_t<T>;
 
 public:
-	virtual T& Get( void* object ) const = 0;
-	virtual void Set( void* object, const T& value ) const = 0;
+	virtual ElementType& Get( void* object, size_t index = 0 ) const = 0;
+	virtual void Set( void* object, const ElementType& value, size_t index = 0 ) const = 0;
 };
 
 template <typename TClass, typename T>
@@ -27,16 +32,31 @@ class PropertyHandler : public IPropertyHandler<T>
 {
 	GENERATE_CLASS_TYPE_INFO( PropertyHandler )
 	using MemberPtr = T TClass::*;
+	using ElementType = std::remove_all_extents_t<T>;
 
 public:
-	virtual T& Get( void* object ) const override
+	virtual ElementType& Get( void* object, size_t index = 0 ) const override
 	{
-		return static_cast<TClass*>( object )->*m_ptr;
+		if constexpr ( std::is_array_v<T> )
+		{
+			return ( static_cast<TClass*>( object )->*m_ptr )[index];
+		}
+		else
+		{
+			return static_cast<TClass*>( object )->*m_ptr;
+		}
 	}
 
-	virtual void Set( void* object, const T& value ) const override
+	virtual void Set( void* object, const ElementType& value, size_t index = 0 ) const override
 	{
-		static_cast<TClass*>( object )->*m_ptr = value;
+		if constexpr ( std::is_array_v<T> )
+		{
+			( static_cast<TClass*>( object )->*m_ptr )[index] = value;
+		}
+		else
+		{
+			static_cast<TClass*>( object )->*m_ptr = value;
+		}
 	}
 
 	explicit PropertyHandler( MemberPtr ptr ) :
@@ -50,16 +70,31 @@ template <typename TClass, typename T>
 class StaticPropertyHandler : public IPropertyHandler<T>
 {
 	GENERATE_CLASS_TYPE_INFO( StaticPropertyHandler )
+	using ElementType = std::remove_all_extents_t<T>;
 
 public:
-	virtual T& Get( [[maybe_unused]] void* object ) const override
+	virtual ElementType& Get( [[maybe_unused]] void* object, size_t index = 0 ) const override
 	{
-		return *m_ptr;
+		if constexpr ( std::is_array_v<T> )
+		{
+			return ( *m_ptr )[index];
+		}
+		else
+		{
+			return *m_ptr;
+		}
 	}
 
-	virtual void Set( [[maybe_unused]] void* object, const T& value ) const override
+	virtual void Set( [[maybe_unused]] void* object, const ElementType& value, size_t index = 0 ) const override
 	{
-		*m_ptr = value;
+		if constexpr ( std::is_array_v<T> )
+		{
+			( *m_ptr )[index] = value;
+		}
+		else
+		{
+			*m_ptr = value;
+		}
 	}
 
 	explicit StaticPropertyHandler( T* ptr ) :
@@ -74,6 +109,7 @@ struct PropertyInitializer
 	const char* m_name = nullptr;
 	const TypeInfo& m_type;
 	const PropertyHandlerBase& m_handler;
+	const SerializeFunc m_serializer = nullptr;
 };
 
 class Property
@@ -177,10 +213,16 @@ public:
 		}
 	}
 
+	void Serialize( void* object, Archive& ar ) const
+	{
+		m_serializer( object, ar );
+	}
+
 	Property( TypeInfo& owner, const PropertyInitializer& initializer ) :
 		m_name( initializer.m_name ),
 		m_type( initializer.m_type ),
-		m_handler( initializer.m_handler )
+		m_handler( initializer.m_handler ),
+		m_serializer( initializer.m_serializer )
 	{
 		owner.AddProperty( this );
 	}
@@ -189,7 +231,20 @@ private:
 	const char* m_name = nullptr;
 	const TypeInfo& m_type;
 	const PropertyHandlerBase& m_handler;
+	const SerializeFunc m_serializer = nullptr;
 };
+
+template <typename T, size_t N>
+constexpr size_t SizeOfArray( const T( & )[N] )
+{
+	return N * SizeOfArray( T{} );
+}
+
+template <typename T>
+constexpr size_t SizeOfArray( const T& )
+{
+	return 1;
+}
 
 template <typename TClass, typename T, typename TPtr, TPtr ptr>
 class PropertyRegister
@@ -203,7 +258,24 @@ public:
 			static PropertyInitializer intializer = {
 			.m_name = name,
 			.m_type = TypeInfo::GetStaticTypeInfo<T>(),
-			.m_handler = handler
+			.m_handler = handler,
+			.m_serializer = +[]( void* object, Archive& ar )
+				{
+					if constexpr ( std::is_array_v<T> )
+					{
+						using ElementType = std::remove_all_extents_t<T>;
+						auto elem = reinterpret_cast<ElementType*>( &( static_cast<TClass*>( object )->*ptr ) );
+
+						for ( size_t i = 0; i < SizeOfArray( T{} ); ++i )
+						{
+							ar << *elem++;
+						}
+					}
+					else
+					{
+						ar << static_cast<TClass*>( object )->*ptr;
+					}
+				}
 			};
 			static Property property( typeInfo, intializer );
 		}
@@ -213,7 +285,24 @@ public:
 			static PropertyInitializer intializer = {
 			.m_name = name,
 			.m_type = TypeInfo::GetStaticTypeInfo<T>(),
-			.m_handler = handler
+			.m_handler = handler,
+			.m_serializer = +[]( void* object, Archive& ar )
+				{
+					if constexpr ( std::is_array_v<T> )
+					{
+						using ElementType = std::remove_all_extents_t<T>;
+						auto elem = reinterpret_cast<ElementType*>( &*ptr );
+
+						for ( size_t i = 0; i < SizeOfArray( T{} ); ++i )
+						{
+							ar << *elem++;
+						}
+					}
+					else
+					{
+						ar << *ptr;
+					}
+				}
 			};
 			static Property property( typeInfo, intializer );
 		}

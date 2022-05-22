@@ -14,26 +14,20 @@
 Archive& operator<<( Archive& ar, StaticMeshMaterial& m )
 {
 	ar << m.m_mateiral;
+	
 	return ar;
 }
 
 REGISTER_ASSET( StaticMesh );
 void StaticMesh::Serialize( Archive& ar )
 {
-	if ( ar.IsWriteMode() )
-	{
-		ar << ID;
-	}
+	Super::Serialize( ar );
 
 	if ( m_renderData == nullptr )
 	{
 		m_renderData = new StaticMeshRenderData();
 	}
-	m_renderData->Serialize( ar );
-
-	ar << m_materials;
-
-	ar << m_bounds;
+	ar << *m_renderData;
 }
 
 void StaticMesh::BuildMeshFromMeshDescriptions( const std::vector<MeshDescription>& meshDescriptions )

@@ -3,28 +3,30 @@
 
 #include "TaskScheduler.h"
 
-void VertexLayoutDesc::Serialize( Archive& ar )
+Archive& operator<<( Archive& ar, VertexLayoutDesc& desc )
 {
-	ar << m_size;
-	for ( uint32 i = 0; i < Size( ); ++i )
+	ar << desc.m_size;
+	for ( uint32 i = 0; i < desc.Size(); ++i )
 	{
-		ar << m_layoutData[i].m_isInstanceData;
-		ar << m_layoutData[i].m_index;
-		ar << m_layoutData[i].m_format;
-		ar << m_layoutData[i].m_slot;
-		ar << m_layoutData[i].m_instanceDataStep;
-		ar << m_layoutData[i].m_name;
+		ar << desc.m_layoutData[i].m_isInstanceData;
+		ar << desc.m_layoutData[i].m_index;
+		ar << desc.m_layoutData[i].m_format;
+		ar << desc.m_layoutData[i].m_slot;
+		ar << desc.m_layoutData[i].m_instanceDataStep;
+		ar << desc.m_layoutData[i].m_name;
 	}
+
+	return ar;
 }
 
-aga::VertexLayout* VertexLayout::Resource( )
+aga::VertexLayout* VertexLayout::Resource()
 {
-	return m_layout.Get( );
+	return m_layout.Get();
 }
 
-const aga::VertexLayout* VertexLayout::Resource( ) const
+const aga::VertexLayout* VertexLayout::Resource() const
 {
-	return m_layout.Get( );
+	return m_layout.Get();
 }
 
 VertexLayout::VertexLayout( const VertexShader& vs, const VertexLayoutDesc& desc )
@@ -34,6 +36,6 @@ VertexLayout::VertexLayout( const VertexShader& vs, const VertexLayoutDesc& desc
 
 void VertexLayout::InitResource( const VertexShader& vs, const VertexLayoutDesc& desc )
 {
-	assert( IsInRenderThread( ) );
-	m_layout = aga::VertexLayout::Create( vs.Resource( ), desc.Data( ), desc.Size( ) );
+	assert( IsInRenderThread() );
+	m_layout = aga::VertexLayout::Create( vs.Resource(), desc.Data(), desc.Size() );
 }

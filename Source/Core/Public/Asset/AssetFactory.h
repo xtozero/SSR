@@ -11,7 +11,7 @@
 #include <typeindex>
 #include <vector>
 
-using AssetCreateFunctionPtr = IAsyncLoadableAsset * (*)( );
+using AssetCreateFunctionPtr = IAsyncLoadableAsset* (*)();
 
 class IAssetFactory
 {
@@ -26,14 +26,14 @@ public:
 
 	virtual IAsyncLoadableAsset* CreateAsset( uint32 assetID ) const = 0;
 
-	virtual ~IAssetFactory( ) = default;
+	virtual ~IAssetFactory() = default;
 
 protected:
 	virtual void AddCreateFunction( uint32 assetID, Delegate<IAsyncLoadableAsset*>&& func ) = 0;
 };
 
 template <typename T>
-IAsyncLoadableAsset* NewAsset( )
+IAsyncLoadableAsset* NewAsset()
 {
 	return new T();
 }
@@ -41,15 +41,15 @@ IAsyncLoadableAsset* NewAsset( )
 class DeferredAssetRegister
 {
 public:
-	static DeferredAssetRegister& GetInstance( )
+	static DeferredAssetRegister& GetInstance()
 	{
 		static DeferredAssetRegister deferredAssetRegister;
 		return deferredAssetRegister;
 	}
 
-	void Register( ) const
+	void Register() const
 	{
-		auto* assetFactory = GetInterface<IAssetFactory>( );
+		auto* assetFactory = GetInterface<IAssetFactory>();
 		for ( const auto& pair : m_functionPairs )
 		{
 			auto& [id, createFunction] = pair;
@@ -75,16 +75,23 @@ class AssetFactoryRegister
 public:
 	AssetFactoryRegister( const char* assetType )
 	{
-		DeferredAssetRegister::GetInstance( ).AddCreateFunction<T>( assetType );
+		DeferredAssetRegister::GetInstance().AddCreateFunction<T>( assetType );
 	}
 };
 
-Owner<IAssetFactory*> CreateAssetFactory( );
+Owner<IAssetFactory*> CreateAssetFactory();
 void DestoryAssetFactory( Owner<IAssetFactory*> pAssetFactory );
 
 #define DECLARE_ASSET( dllName, type ) \
 public : \
-	dllName##_DLL static uint32 ID
+	virtual uint32 GetID() const override \
+	{ \
+		return type::ID;\
+	} \
+\
+	dllName##_DLL static uint32 ID;\
+private : \
+\
 
 #define REGISTER_ASSET( type ) \
 	uint32 type::ID = 0; \

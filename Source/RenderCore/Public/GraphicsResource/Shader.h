@@ -11,8 +11,6 @@ class ShaderBase : public AsyncLoadableAsset
 	GENERATE_CLASS_TYPE_INFO( ShaderBase );
 
 public:
-	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
-
 	ShaderBase( BinaryChunk&& byteCode ) : m_byteCode( std::move( byteCode ) ) {}
 	ShaderBase() = default;
 
@@ -28,8 +26,13 @@ public:
 	const aga::ShaderParameterInfo& ParameterInfo() const { return m_parameterInfo; }
 
 protected:
+	PROPERTY( byteCode )
 	BinaryChunk m_byteCode{ 0 };
+
+	PROPERTY( parameterMap )
 	aga::ShaderParameterMap m_parameterMap;
+
+	PROPERTY( parameterInfo )
 	aga::ShaderParameterInfo m_parameterInfo;
 };
 
@@ -39,8 +42,6 @@ class VertexShader : public ShaderBase
 	DECLARE_ASSET( RENDERCORE, VertexShader );
 
 public:
-	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
-
 	bool IsValid() const
 	{
 		return m_shader.Get() != nullptr;
@@ -71,8 +72,6 @@ class GeometryShader : public ShaderBase
 	DECLARE_ASSET( RENDERCORE, GeometryShader );
 
 public:
-	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
-
 	bool IsValid() const
 	{
 		return m_shader.Get() != nullptr;
@@ -103,8 +102,6 @@ class PixelShader : public ShaderBase
 	DECLARE_ASSET( RENDERCORE, PixelShader );
 
 public:
-	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
-
 	bool IsValid() const
 	{
 		return m_shader.Get() != nullptr;
@@ -135,8 +132,6 @@ class ComputeShader : public ShaderBase
 	DECLARE_ASSET( RENDERCORE, ComputeShader );
 
 public:
-	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
-
 	ComputeShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
 	ComputeShader() = default;
 

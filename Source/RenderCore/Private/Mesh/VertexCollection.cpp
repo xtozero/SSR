@@ -4,43 +4,21 @@
 #include "MeshDescription.h"
 #include "VertexBufferBundle.h"
 
-Archive& operator<<( Archive& ar, VertexStream& stream )
-{
-	stream.Serialize( ar );
-	return ar;
-}
-
-Archive& operator<<( Archive& ar, VertexStreamLayout& inputLayout )
-{
-	inputLayout.Serialize( ar );
-	return ar;
-}
-
-Archive& operator<<( Archive& ar, VertexCollection& vertexCollection )
-{
-	vertexCollection.Serialize( ar );
-	return ar;
-}
-
-void VertexStream::Serialize( Archive& ar )
-{
-	ar << m_name << m_format << m_stride << m_count << m_data;
-}
-
 VertexStream::VertexStream( const char* name, RESOURCE_FORMAT format, uint32 count ) : m_name( name ), m_format( format ), m_count( count )
 {
 	m_stride = ResourceFormatSize( format );
 	m_data.resize( m_stride * m_count );
 }
 
-void VertexStreamLayout::Serialize( Archive& ar )
+Archive& operator<<( Archive& ar, VertexStream& stream )
 {
-	VertexLayoutDesc::Serialize( ar );
+	ar << stream.m_name
+		<< stream.m_format
+		<< stream.m_stride
+		<< stream.m_count
+		<< stream.m_data;
 
-	for ( uint32 i = 0; i < Size( ); ++i )
-	{
-		ar << m_streamIndices[i];
-	}
+	return ar;
 }
 
 void VertexStreamLayout::AddLayout( const char* name, uint32 index, RESOURCE_FORMAT format, uint32 slot, bool isInstanceData, uint32 instanceDataStep, int32 streamIndex )
@@ -49,22 +27,26 @@ void VertexStreamLayout::AddLayout( const char* name, uint32 index, RESOURCE_FOR
 	VertexLayoutDesc::AddLayout( name, index, format, slot, isInstanceData, instanceDataStep );
 }
 
-void VertexCollection::Serialize( Archive& ar )
+Archive& operator<<( Archive& ar, VertexStreamLayout& layout )
 {
-	ar << m_streams;
-	ar << m_positionLayout;
-	ar << m_positionNormalLayout;
-	ar << m_defaultLayout;
+	ar << static_cast<VertexLayoutDesc&>( layout );
+
+	for ( uint32 i = 0; i < layout.Size(); ++i )
+	{
+		ar << layout.m_streamIndices[i];
+	}
+
+	return ar;
 }
 
-void VertexCollection::InitResource( )
+void VertexCollection::InitResource()
 {
-	m_vbs.resize( m_streams.size( ) );
+	m_vbs.resize( m_streams.size() );
 
 	uint32 i = 0;
 	for ( const auto& stream : m_streams )
 	{
-		m_vbs[i++] = VertexBuffer( stream.Stride( ), stream.Count( ), stream.Data( ) );
+		m_vbs[i++] = VertexBuffer( stream.Stride(), stream.Count(), stream.Data() );
 	}
 }
 
@@ -77,7 +59,7 @@ uint32 VertexCollection::AddStream( const VertexStream& stream )
 uint32 VertexCollection::AddStream( VertexStream&& stream )
 {
 	m_streams.emplace_back( std::move( stream ) );
-	return static_cast<uint32>( m_streams.size( ) );
+	return static_cast<uint32>( m_streams.size() );
 }
 
 void VertexCollection::InitLayout( const VERTEX_LAYOUT_TRAIT* trait, uint32 count, VertexStreamLayoutType layoutType )
@@ -126,10 +108,10 @@ void VertexCollection::Bind( VertexBufferBundle& bundle, VertexStreamLayoutType 
 		layout = &m_defaultLayout;
 	}
 
-	for ( uint32 i = 0; i < layout->Size( ); ++i )
+	for ( uint32 i = 0; i < layout->Size(); ++i )
 	{
 		int32 streamIndex = layout->StreamIndex( i );
-		uint32 slot = layout->Data( )[i].m_slot;
+		uint32 slot = layout->Data()[i].m_slot;
 
 		if ( streamIndex != -1 )
 		{
@@ -138,11 +120,21 @@ void VertexCollection::Bind( VertexBufferBundle& bundle, VertexStreamLayoutType 
 	}
 }
 
-std::optional<uint32> VertexCollection::FindStream( const std::string& name ) const
+Archive& operator<<( Archive& ar, VertexCollection& collection )
 {
-	for ( uint32 i = 0; i < m_streams.size( ); ++i )
+	ar << collection.m_streams
+		<< collection.m_positionLayout
+		<< collection.m_positionNormalLayout
+		<< collection.m_defaultLayout;
+
+	return ar;
+}
+
+std::optional<uint32> VertexCollection::FindStream( const Name& name ) const
+{
+	for ( uint32 i = 0; i < m_streams.size(); ++i )
 	{
-		if ( m_streams[i].Name( ) == name )
+		if ( m_streams[i].GetName() == name )
 		{
 			return i;
 		}
@@ -161,13 +153,13 @@ VertexStreamLayout VertexCollection::SetupVertexLayout( const VERTEX_LAYOUT_TRAI
 		auto streamIndex = FindStream( trait.m_name );
 		if ( streamIndex )
 		{
-			layout.AddLayout( trait.m_name.c_str( ),
-							trait.m_index,
-							trait.m_format,
-							trait.m_slot,
-							trait.m_isInstanceData,
-							trait.m_instanceDataStep,
-							*streamIndex );
+			layout.AddLayout( trait.m_name.Str().data(),
+				trait.m_index,
+				trait.m_format,
+				trait.m_slot,
+				trait.m_isInstanceData,
+				trait.m_instanceDataStep,
+				*streamIndex );
 		}
 	}
 
@@ -182,7 +174,7 @@ VertexCollection BuildFromMeshDescription( const MeshDescription& desc )
 	const std::vector<Vector>& normal = desc.m_normals;
 	const std::vector<Vector2>& texCoord = desc.m_texCoords;
 	const std::vector<MeshVertexInstance>& vertexInstances = desc.m_vertexInstances;
-	uint32 vertexInstanceCount = static_cast<uint32>( vertexInstances.size( ) );
+	uint32 vertexInstanceCount = static_cast<uint32>( vertexInstances.size() );
 
 	VERTEX_LAYOUT_TRAIT trait[MAX_VERTEX_LAYOUT_SIZE] = {};
 	uint32 traitSize = 0;
@@ -192,8 +184,8 @@ VertexCollection BuildFromMeshDescription( const MeshDescription& desc )
 	{
 		VertexStream posStream( "POSITION", RESOURCE_FORMAT::R32G32B32_FLOAT, vertexInstanceCount );
 
-		auto data = reinterpret_cast<Vector*>( posStream.Data( ) );
-		for ( size_t i = 0; i < vertexInstances.size( ); ++i )
+		auto data = reinterpret_cast<Vector*>( posStream.Data() );
+		for ( size_t i = 0; i < vertexInstances.size(); ++i )
 		{
 			const MeshVertexInstance& instance = vertexInstances[i];
 			data[i] = pos[instance.m_positionID];
@@ -207,7 +199,7 @@ VertexCollection BuildFromMeshDescription( const MeshDescription& desc )
 			RESOURCE_FORMAT::R32G32B32_FLOAT,
 			slot++,
 			0,
-			"POSITION"
+			Name( "POSITION" )
 		};
 
 		collection.InitLayout( trait, traitSize, VertexStreamLayoutType::PositionOnly );
@@ -215,12 +207,12 @@ VertexCollection BuildFromMeshDescription( const MeshDescription& desc )
 
 	// Normal
 	{
-		if ( normal.size( ) > 0 )
+		if ( normal.size() > 0 )
 		{
 			VertexStream normalStream( "NORMAL", RESOURCE_FORMAT::R32G32B32_FLOAT, vertexInstanceCount );
 
-			auto data = reinterpret_cast<Vector*>( normalStream.Data( ) );
-			for ( size_t i = 0; i < vertexInstances.size( ); ++i )
+			auto data = reinterpret_cast<Vector*>( normalStream.Data() );
+			for ( size_t i = 0; i < vertexInstances.size(); ++i )
 			{
 				const MeshVertexInstance& instance = vertexInstances[i];
 				data[i] = normal[instance.m_normalID];
@@ -234,7 +226,7 @@ VertexCollection BuildFromMeshDescription( const MeshDescription& desc )
 				RESOURCE_FORMAT::R32G32B32_FLOAT,
 				slot++,
 				0,
-				"NORMAL"
+				Name( "NORMAL" )
 			};
 
 			collection.InitLayout( trait, traitSize, VertexStreamLayoutType::PositionNormal );
@@ -243,13 +235,13 @@ VertexCollection BuildFromMeshDescription( const MeshDescription& desc )
 
 	// Default
 	{
-		
-		if ( texCoord.size( ) > 0 )
+
+		if ( texCoord.size() > 0 )
 		{
 			VertexStream texCoordStream( "TEXCOORD", RESOURCE_FORMAT::R32G32_FLOAT, vertexInstanceCount );
-			
-			auto data = reinterpret_cast<Vector2*>( texCoordStream.Data( ) );
-			for ( size_t i = 0; i < vertexInstances.size( ); ++i )
+
+			auto data = reinterpret_cast<Vector2*>( texCoordStream.Data() );
+			for ( size_t i = 0; i < vertexInstances.size(); ++i )
 			{
 				const MeshVertexInstance& instance = vertexInstances[i];
 				data[i] = texCoord[instance.m_texCoordID];
@@ -258,17 +250,17 @@ VertexCollection BuildFromMeshDescription( const MeshDescription& desc )
 			collection.AddStream( std::move( texCoordStream ) );
 
 			trait[traitSize++] = {
-			false,
-			0,
-			RESOURCE_FORMAT::R32G32_FLOAT,
-			slot++,
-			0,
-			"TEXCOORD"
+				false,
+				0,
+				RESOURCE_FORMAT::R32G32_FLOAT,
+				slot++,
+				0,
+				Name( "TEXCOORD" )
 			};
 		}
 
 		collection.InitLayout( trait, traitSize, VertexStreamLayoutType::Default );
 	}
-	
+
 	return collection;
 }

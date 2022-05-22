@@ -146,7 +146,10 @@ public:
 
 	bool HasProperty( const char* key ) const;
 
-	const std::string& GetName() const { return m_name; }
+	const Name& GetName() const
+	{ 
+		return m_name; 
+	}
 
 	const ShaderBase* GetShader( SHADER_TYPE type ) const;
 
@@ -175,11 +178,21 @@ protected:
 	RENDERCORE_DLL virtual void PostLoadImpl() override;
 
 private:
-	std::string m_name;
+	PROPERTY( name )
+	Name m_name;
+
+	PROPERTY( vertexShader )
 	std::shared_ptr<VertexShader> m_vertexShader = nullptr;
+
+	PROPERTY( geometryShader )
 	std::shared_ptr<GeometryShader> m_geometryShader = nullptr;
+
+	PROPERTY( pixelShader )
 	std::shared_ptr<PixelShader> m_pixelShader = nullptr;
+
 	std::map<Name, std::unique_ptr<MaterialProperty>> m_properties;
+
+	PROPERTY( samplers )
 	std::map<Name, std::shared_ptr<SamplerOption>> m_samplers;
 
 	std::unique_ptr<MaterialResource> m_materialResource;

@@ -67,7 +67,12 @@ public:
 
 		assert( view.length() < NameSize );
 		entry.m_len = static_cast<uint16>( view.length() );
+
+#ifdef _WIN32
+		strncpy_s( entry.m_str, view.data(), view.length() );
+#else
 		std::strncpy( entry.m_str, view.data(), view.length() );
+#endif
 		entry.m_str[view.length()] = '\0';
 
 		return handle;
@@ -245,7 +250,11 @@ protected:
 	static bool EntryEqualsValue( const NameEntry& entry, const NameValue& value )
 	{
 		return ( entry.m_len == value.m_view.length() ) &&
+#ifdef _WIN32
+		( _strnicmp( entry.m_str, value.m_view.data(), value.m_view.length() ) == 0 );
+#else
 		( strnicmp( entry.m_str, value.m_view.data(), value.m_view.length() ) == 0 );
+#endif
 	}
 
 	static constexpr uint32 LoadFactorQuotient = 9;

@@ -78,15 +78,7 @@ void TextureProperty::CopyValue( void* dest ) const
 REGISTER_ASSET( Material );
 void Material::Serialize( Archive& ar )
 {
-	if ( ar.IsWriteMode() )
-	{
-		ar << ID;
-	}
-
-	ar << m_name;
-
-	ar << m_vertexShader;
-	ar << m_pixelShader;
+	Super::Serialize( ar );
 
 	if ( ar.IsWriteMode() )
 	{
@@ -119,8 +111,6 @@ void Material::Serialize( Archive& ar )
 			m_properties.emplace( Name( propertyName ), std::move(property));
 		}
 	}
-
-	ar << m_samplers;
 }
 
 void Material::AddProperty( const char* key, int32 value )

@@ -19,6 +19,8 @@ struct StaticMeshMaterial
 	explicit StaticMeshMaterial( const std::shared_ptr<Material>& mateiral ) : m_mateiral( mateiral ) {}
 	StaticMeshMaterial() = default;
 
+	friend RENDERCORE_DLL Archive& operator<<( Archive& ar, StaticMeshMaterial& m );
+
 	std::shared_ptr<Material> m_mateiral;
 };
 
@@ -72,7 +74,10 @@ protected:
 
 private:
 	StaticMeshRenderData* m_renderData = nullptr;
+
+	PROPERTY( materials )
 	std::vector<StaticMeshMaterial> m_materials;
 
+	PROPERTY( bounds )
 	BoxSphereBounds m_bounds;
 };

@@ -6,54 +6,27 @@
 Archive& operator<<( Archive& ar, TextureSection& section )
 {
 	ar << section.m_rowPitch << section.m_slicePitch << section.m_offset;
+	
 	return ar;
 }
 
 REGISTER_ASSET( Texture );
-void Texture::Serialize( [[maybe_unused]] Archive& ar )
+aga::Texture* Texture::Resource()
 {
-	// Do nothing
+	return m_texture.Get();
 }
 
-aga::Texture* Texture::Resource( )
+const aga::Texture* Texture::Resource() const
 {
-	return m_texture.Get( );
+	return m_texture.Get();
 }
 
-const aga::Texture* Texture::Resource( ) const
-{
-	return m_texture.Get( );
-}
-
-void Texture::PostLoadImpl( )
+void Texture::PostLoadImpl()
 {
 	// Do nothing
 }
 
 REGISTER_ASSET( DDSTexture );
-void DDSTexture::Serialize( Archive& ar )
-{
-	if ( ar.IsWriteMode( ) )
-	{
-		ar << ID;
-	}
-
-	ar << m_width;
-	ar << m_height;
-	ar << m_depth;
-	ar << m_arraySize;
-	ar << m_mipLevels;
-
-	ar << m_isCubeMap;
-	ar << m_demension;
-
-	ar << m_format;
-
-	ar << m_memory;
-
-	ar << m_sections;
-}
-
 DDSTexture::DDSTexture( const DDSTextureInitializer& initializer )
 {
 	m_width = initializer.m_width;
@@ -68,12 +41,12 @@ DDSTexture::DDSTexture( const DDSTextureInitializer& initializer )
 	m_format = initializer.m_format;
 
 	new ( &m_memory ) BinaryChunk( initializer.m_size );
-	std::memcpy( m_memory.Data( ), initializer.m_memory, initializer.m_size );
+	std::memcpy( m_memory.Data(), initializer.m_memory, initializer.m_size );
 
 	m_sections = initializer.m_sections;
 }
 
-void DDSTexture::PostLoadImpl( )
+void DDSTexture::PostLoadImpl()
 {
 	uint32 misc = 0;
 	misc |= m_isCubeMap ? RESOURCE_MISC::TEXTURECUBE : 0;
@@ -94,11 +67,11 @@ void DDSTexture::PostLoadImpl( )
 	};
 
 	RESOURCE_INIT_DATA initData;
-	initData.m_sections.resize( m_sections.size( ) );
-	initData.m_srcData = m_memory.Data( );
-	initData.m_srcSize = m_memory.Size( );
+	initData.m_sections.resize( m_sections.size() );
+	initData.m_srcData = m_memory.Data();
+	initData.m_srcSize = m_memory.Size();
 
-	for ( size_t i = 0; i < initData.m_sections.size( ); ++i )
+	for ( size_t i = 0; i < initData.m_sections.size(); ++i )
 	{
 		initData.m_sections[i].m_offset = m_sections[i].m_offset;
 		initData.m_sections[i].m_pitch = m_sections[i].m_rowPitch;
@@ -107,7 +80,7 @@ void DDSTexture::PostLoadImpl( )
 
 	m_texture = aga::Texture::Create( tarit, &initData );
 
-	EnqueueRenderTask( [this]( ) {
-		m_texture->Init( );
+	EnqueueRenderTask( [this]() {
+		m_texture->Init();
 	} );
 }

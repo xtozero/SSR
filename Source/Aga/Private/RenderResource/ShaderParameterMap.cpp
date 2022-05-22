@@ -1,10 +1,23 @@
 #include "stdafx.h"
 #include "ShaderParameterMap.h"
 
+#include "Archive.h"
+#include "ArchiveUtility.h"
 #include "HashUtil.h"
 
 namespace aga
 {
+	Archive& operator<<( Archive& ar, ShaderParameter& shaderParam )
+	{
+		ar << shaderParam.m_shader
+			<< shaderParam.m_type
+			<< shaderParam.m_bindPoint
+			<< shaderParam.m_offset
+			<< shaderParam.m_sizeInByte;
+
+		return ar;
+	}
+
 	size_t ShaderParameter::GetHash() const
 	{
 		static size_t typeHash = typeid( ShaderParameter ).hash_code();
@@ -33,5 +46,12 @@ namespace aga
 		}
 
 		return {};
+	}
+
+	Archive& operator<<( Archive& ar, ShaderParameterMap& shaderParamMap )
+	{
+		ar << shaderParamMap.GetParameterMap();
+
+		return ar;
 	}
 }

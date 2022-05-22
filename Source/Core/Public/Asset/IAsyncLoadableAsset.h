@@ -14,6 +14,7 @@ class IAsyncLoadableAsset : public std::enable_shared_from_this<IAsyncLoadableAs
 
 public:
 	virtual ~IAsyncLoadableAsset() = default;
+	virtual uint32 GetID() const = 0;
 	virtual void SetPath( const std::filesystem::path& path ) = 0;
 	virtual void Serialize( Archive& ar ) = 0;
 
@@ -31,14 +32,12 @@ class AsyncLoadableAsset : public IAsyncLoadableAsset
 	GENERATE_CLASS_TYPE_INFO( AsyncLoadableAsset );
 
 public:
+	virtual void SetPath( const std::filesystem::path& path ) override;
+	virtual void Serialize( Archive& ar ) override;
+
 	const std::filesystem::path& Path() const 
 	{ 
 		return m_path; 
-	}
-
-	virtual void SetPath( const std::filesystem::path& path ) override
-	{ 
-		m_path = path; 
 	}
 
 	void PostLoad()

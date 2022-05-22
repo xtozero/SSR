@@ -13,36 +13,36 @@ class Archive;
 inline Archive& operator<<( Archive& ar, Vector& v )
 {
 	ar << v[0] << v[1] << v[2];
+
 	return ar;
 }
 
 inline Archive& operator<<( Archive& ar, Vector2& v )
 {
 	ar << v[0] << v[1];
+
 	return ar;
 }
 
 inline Archive& operator<<( Archive& ar, Vector4& v )
 {
 	ar << v[0] << v[1] << v[2] << v[3];
-	return ar;
-}
 
-inline Archive& operator<<( Archive& ar, const Name& name )
-{
-	assert( ar.IsWriteMode() );
-
-	ar << name.Str();
 	return ar;
 }
 
 inline Archive& operator<<( Archive& ar, Name& name )
 {
-	assert( !ar.IsWriteMode() );
-
-	char buf[NameSize] = {};
-	ar << buf;
-	std::construct_at( &name, buf );
+	if ( ar.IsWriteMode() )
+	{
+		ar << name.Str();
+	}
+	else
+	{
+		char buf[NameSize] = {};
+		ar << buf;
+		std::construct_at( &name, buf );
+	}
 
 	return ar;
 }
@@ -77,7 +77,8 @@ Archive& operator<<( Archive& ar, std::map<KeyType, ValueType, Pred, Alloc>& v )
 		ar << static_cast<uint32>( v.size() );
 		for ( auto& elem : v )
 		{
-			ar << elem.first << elem.second;
+			KeyType key = elem.first;
+			ar << key << elem.second;
 		}
 	}
 	else

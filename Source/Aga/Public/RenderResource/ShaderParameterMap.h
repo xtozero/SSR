@@ -7,6 +7,8 @@
 
 #include <map>
 
+class Archive;
+
 namespace aga
 {
 	enum class ShaderParameterType
@@ -33,6 +35,8 @@ namespace aga
 
 		AGA_DLL size_t GetHash() const;
 		AGA_DLL void Bind( const ShaderParameterMap& parameterMap, const char* variableName );
+
+		friend AGA_DLL Archive& operator<<( Archive& ar, ShaderParameter& shaderParam );
 
 		friend bool operator<( const ShaderParameter& lhs, const ShaderParameter& rhs )
 		{
@@ -80,6 +84,8 @@ namespace aga
 		{
 			return static_cast<uint32>( m_parameters.size() );
 		}
+
+		friend AGA_DLL Archive& operator<<( Archive& ar, ShaderParameterMap& shaderParamMap );
 
 	private:
 		std::map<Name, ShaderParameter> m_parameters;

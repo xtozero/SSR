@@ -36,6 +36,7 @@ public:
 	friend Archive& operator<<( Archive& ar, BoxSphereBounds& bounds )
 	{
 		ar << bounds.m_origin << bounds.m_halfSize << bounds.m_radius;
+
 		return ar;
 	}
 

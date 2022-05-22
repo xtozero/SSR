@@ -18,7 +18,7 @@ struct MeshDescription;
 class StaticMeshSection
 {
 public:
-	void Serialize( Archive& ar );
+	friend Archive& operator<<( Archive& ar, StaticMeshSection& section );
 
 	uint32 m_startLocation;
 	uint32 m_count;
@@ -28,7 +28,7 @@ public:
 class StaticMeshLODResource
 {
 public:
-	void Serialize( Archive& ar );
+	friend Archive& operator<<( Archive& ar, StaticMeshLODResource& lodResource );
 
 	VertexCollection m_vertexCollection;
 	bool m_isDWORD = false;
@@ -41,18 +41,19 @@ class StaticMeshRenderData
 {
 public:
 	RENDERCORE_DLL void AllocateLODResources( uint32 numLOD );
-	RENDERCORE_DLL void Init( );
-	RENDERCORE_DLL void Serialize( Archive& ar );
+	RENDERCORE_DLL void Init();
 
 	StaticMeshLODResource& LODResource( uint32 index ) { return m_lodResources[index]; };
 	const StaticMeshLODResource& LODResource( uint32 index ) const { return m_lodResources[index]; };
-	uint32 LODSize( ) const { return static_cast<uint32>( m_lodResources.size( ) ); }
+	uint32 LODSize() const { return static_cast<uint32>( m_lodResources.size() ); }
 
-	void CreateRenderResource( );
+	void CreateRenderResource();
 
-	bool Initialized( ) const { return m_initialized; }
+	bool Initialized() const { return m_initialized; }
 
-	RENDERCORE_DLL StaticMeshRenderData( ) = default;
+	RENDERCORE_DLL StaticMeshRenderData() = default;
+
+	friend Archive& operator<<( Archive& ar, StaticMeshRenderData& renderData );
 
 private:
 	std::vector<StaticMeshLODResource> m_lodResources;

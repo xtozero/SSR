@@ -63,6 +63,11 @@ public:
 		m_fullName( typeid( T ).name() ),
 		m_super( initializer.m_super )
 	{
+		if constexpr ( HasSuper<T> )
+		{
+			CollectSuperMethods();
+			CollectSuperProperties();
+		}
 	}
 
 	const TypeInfo* GetSuper() const;
@@ -120,6 +125,9 @@ public:
 	const Property* GetProperty( const char* name ) const;
 
 private:
+	void CollectSuperMethods();
+	void CollectSuperProperties();
+
 	friend Method;
 	friend Property;
 	using MethodMap = std::map<std::string_view, const Method*>;

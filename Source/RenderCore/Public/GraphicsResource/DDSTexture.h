@@ -17,6 +17,8 @@ struct TextureSection
 	uint32 m_rowPitch;
 	uint32 m_slicePitch;
 	uint32 m_offset;
+
+	friend RENDERCORE_DLL Archive& operator<<( Archive& ar, TextureSection& section );
 };
 
 class Texture : public AsyncLoadableAsset
@@ -25,26 +27,40 @@ class Texture : public AsyncLoadableAsset
 	DECLARE_ASSET( RENDERCORE, Texture );
 
 public:
-	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
-
 	aga::Texture* Resource();
 	const aga::Texture* Resource() const;
 
 protected:
 	RENDERCORE_DLL virtual void PostLoadImpl() override;
 
+	PROPERTY( width )
 	uint32 m_width = 0;
+
+	PROPERTY( height )
 	uint32 m_height = 0;
+
+	PROPERTY( depth )
 	uint32 m_depth = 0;
+
+	PROPERTY( arraySize )
 	uint32 m_arraySize = 0;
+
+	PROPERTY( mipLevels )
 	uint32 m_mipLevels = 0;
 
+	PROPERTY( isCubeMap )
 	bool m_isCubeMap = false;
+
+	PROPERTY( demension )
 	uint32 m_demension = 0;
 
+	PROPERTY( format )
 	RESOURCE_FORMAT m_format = RESOURCE_FORMAT::UNKNOWN;
 
+	PROPERTY( memory )
 	BinaryChunk m_memory;
+
+	PROPERTY( sections )
 	std::vector<TextureSection> m_sections;
 
 	RefHandle<aga::Texture> m_texture;
@@ -58,8 +74,6 @@ class DDSTexture : public Texture
 	DECLARE_ASSET( RENDERCORE, DDSTexture );
 
 public:
-	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
-
 	DDSTexture() = default;
 	RENDERCORE_DLL explicit DDSTexture( const DDSTextureInitializer& initializer );
 

@@ -12,14 +12,12 @@
 class VertexLayoutDesc
 {
 public:
-	virtual void Serialize( Archive& ar );
-
-	const VERTEX_LAYOUT_TRAIT* Data( ) const
+	const VERTEX_LAYOUT_TRAIT* Data() const
 	{
 		return m_layoutData;
 	}
 
-	uint32 Size( ) const
+	uint32 Size() const
 	{
 		return m_size;
 	}
@@ -29,7 +27,7 @@ public:
 		assert( m_size < MAX_VERTEX_LAYOUT_SIZE );
 		VERTEX_LAYOUT_TRAIT& trait = m_layoutData[m_size];
 
-		trait.m_name = name;
+		trait.m_name = Name( name );
 		trait.m_isInstanceData = isInstanceData;
 		trait.m_index = index;
 		trait.m_format = format;
@@ -41,9 +39,9 @@ public:
 
 	friend bool operator==( const VertexLayoutDesc& lhs, const VertexLayoutDesc& rhs )
 	{
-		if ( lhs.Size( ) == rhs.Size( ) )
+		if ( lhs.Size() == rhs.Size() )
 		{
-			for ( uint32 i = 0; i < lhs.Size( ); ++i )
+			for ( uint32 i = 0; i < lhs.Size(); ++i )
 			{
 				if ( lhs.m_layoutData[i] != rhs.m_layoutData[i] )
 				{
@@ -57,12 +55,14 @@ public:
 		return false;
 	}
 
-	virtual ~VertexLayoutDesc( ) = default;
+	virtual ~VertexLayoutDesc() = default;
+
+	friend Archive& operator<<( Archive& ar, VertexLayoutDesc& desc );
 
 protected:
 	uint32 m_size = 0;
 
-private: 
+private:
 	VERTEX_LAYOUT_TRAIT m_layoutData[MAX_VERTEX_LAYOUT_SIZE] = {};
 };
 
@@ -70,12 +70,12 @@ struct VertexLayoutDescHasher
 {
 	size_t operator()( const VertexLayoutDesc& desc ) const
 	{
-		static size_t typeHash = typeid( VertexLayoutDesc ).hash_code( );
+		static size_t typeHash = typeid( VertexLayoutDesc ).hash_code();
 		size_t hash = typeHash;
-		const VERTEX_LAYOUT_TRAIT* data = desc.Data( );
-		for ( uint32 i = 0; i < desc.Size( ); ++i )
+		const VERTEX_LAYOUT_TRAIT* data = desc.Data();
+		for ( uint32 i = 0; i < desc.Size(); ++i )
 		{
-			HashCombine( hash, std::hash<std::string>()( data[i].m_name ) );
+			HashCombine( hash, std::hash<std::string_view>()( data[i].m_name.Str() ) );
 			HashCombine( hash, data[i].m_isInstanceData );
 			HashCombine( hash, data[i].m_index );
 			HashCombine( hash, data[i].m_format );
@@ -90,13 +90,13 @@ struct VertexLayoutDescHasher
 class VertexLayout
 {
 public:
-	aga::VertexLayout* Resource( );
-	const aga::VertexLayout* Resource( ) const;
+	aga::VertexLayout* Resource();
+	const aga::VertexLayout* Resource() const;
 
 	VertexLayout( const VertexShader& vs, const VertexLayoutDesc& desc );
 
-	VertexLayout( ) = default;
-	~VertexLayout( ) = default;
+	VertexLayout() = default;
+	~VertexLayout() = default;
 	VertexLayout( const VertexLayout& ) = default;
 	VertexLayout& operator=( const VertexLayout& ) = default;
 	VertexLayout( VertexLayout&& ) = default;

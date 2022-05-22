@@ -6,6 +6,7 @@ add_definitions(-DNOMINMAX=1)
 set (ASSET
 	Private/Asset/AssetFactory.cpp
 	Private/Asset/AssetLoader.cpp
+	Private/Asset/IAsyncLoadableAsset.cpp
 	Public/Asset/AssetFactory.h
 	Public/Asset/IAssetLoader.h
 	Public/Asset/IAssetLoader.h

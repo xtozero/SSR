@@ -11,12 +11,11 @@ namespace
 	{
 		for ( uint32 i = 0; i < size; ++i )
 		{
-			namePool.emplace_back( Name( trait[i].m_name ) );
 			descs.emplace_back();
 
 			D3D11_INPUT_ELEMENT_DESC& desc = descs.back();
 
-			desc.SemanticName = namePool[i].Str().data();
+			desc.SemanticName = trait[i].m_name.Str().data();
 			desc.SemanticIndex = trait[i].m_index;
 			desc.Format = ConvertFormatToDxgiFormat( trait[i].m_format );
 			desc.InputSlot = trait[i].m_slot;

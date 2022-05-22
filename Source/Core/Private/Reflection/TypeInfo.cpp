@@ -48,6 +48,24 @@ const Property* TypeInfo::GetProperty( const char* name ) const
 	return ( iter != std::end( m_propertyMap ) ) ? iter->second : nullptr;
 }
 
+void TypeInfo::CollectSuperMethods()
+{
+	const std::vector<const Method*>& methods = m_super->GetMethods();
+	for ( const Method* method : methods )
+	{
+		AddMethod( method );
+	}
+}
+
+void TypeInfo::CollectSuperProperties()
+{
+	const std::vector<const Property*>& properties = m_super->GetProperties();
+	for ( const Property* property : properties )
+	{
+		AddProperty( property );
+	}
+}
+
 void TypeInfo::AddProperty( const Property* property )
 {
 	m_properties.emplace_back( property );

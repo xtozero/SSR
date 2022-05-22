@@ -9,123 +9,71 @@
 
 namespace fs = std::filesystem;
 
-REGISTER_ASSET( BlendOption );
-void BlendOption::Serialize( Archive& ar )
+Archive& operator<<( Archive& ar, RenderTargetBlendOption& option )
 {
-	if ( ar.IsWriteMode( ) )
-	{
-		ar << ID;
-	}
+	ar << option.m_blendEnable;
+	ar << option.m_srcBlend;
+	ar << option.m_destBlend;
+	ar << option.m_blendOp;
+	ar << option.m_srcBlendAlpha;
+	ar << option.m_destBlendAlpha;
+	ar << option.m_blendOpAlpha;
+	ar << option.m_renderTargetWriteMask;
 
-	ar << m_alphaToConverageEnable;
-	ar << m_independentBlendEnable;
-	for ( const RenderTargetBlendOption& rt : m_renderTarget )
-	{
-		ar << rt.m_blendEnable;
-		ar << rt.m_srcBlend;
-		ar << rt.m_destBlend;
-		ar << rt.m_blendOp;
-		ar << rt.m_srcBlendAlpha;
-		ar << rt.m_destBlendAlpha;
-		ar << rt.m_blendOpAlpha;
-		ar << rt.m_renderTargetWriteMask;
-	}
-
-	ar << m_sampleMask;
+	return ar;
 }
 
-void BlendOption::PostLoadImpl( )
+REGISTER_ASSET( BlendOption );
+void BlendOption::PostLoadImpl()
 {
+}
+
+Archive& operator<<( Archive& ar, DepthOption depthOption )
+{
+	ar << depthOption.m_enable;
+	ar << depthOption.m_writeDepth;
+	ar << depthOption.m_depthFunc;
+
+	return ar;
+}
+
+Archive& operator<<( Archive& ar, StencilOption stencilOption )
+{
+	ar << stencilOption.m_enable;
+	ar << stencilOption.m_readMask;
+	ar << stencilOption.m_writeMask;
+
+	ar << stencilOption.m_frontFace.m_failOp;
+	ar << stencilOption.m_frontFace.m_depthFailOp;
+	ar << stencilOption.m_frontFace.m_passOp;
+	ar << stencilOption.m_frontFace.m_func;
+
+	ar << stencilOption.m_backFace.m_failOp;
+	ar << stencilOption.m_backFace.m_depthFailOp;
+	ar << stencilOption.m_backFace.m_passOp;
+	ar << stencilOption.m_backFace.m_func;
+
+	ar << stencilOption.m_ref;
+
+	return ar;
 }
 
 REGISTER_ASSET( DepthStencilOption );
-void DepthStencilOption::Serialize( Archive& ar )
-{
-	if ( ar.IsWriteMode( ) )
-	{
-		ar << ID;
-	}
-
-	ar << m_depth.m_enable;
-	ar << m_depth.m_writeDepth;
-	ar << m_depth.m_depthFunc;
-
-	ar << m_stencil.m_enable;
-	ar << m_stencil.m_readMask;
-	ar << m_stencil.m_writeMask;
-
-	ar << m_stencil.m_frontFace.m_failOp;
-	ar << m_stencil.m_frontFace.m_depthFailOp;
-	ar << m_stencil.m_frontFace.m_passOp;
-	ar << m_stencil.m_frontFace.m_func;
-
-	ar << m_stencil.m_backFace.m_failOp;
-	ar << m_stencil.m_backFace.m_depthFailOp;
-	ar << m_stencil.m_backFace.m_passOp;
-	ar << m_stencil.m_backFace.m_func;
-
-	ar << m_stencil.m_ref;
-}
-
-void DepthStencilOption::PostLoadImpl( )
+void DepthStencilOption::PostLoadImpl()
 {
 }
 
 REGISTER_ASSET( RasterizerOption );
-void RasterizerOption::Serialize( Archive& ar )
-{
-	if ( ar.IsWriteMode( ) )
-	{
-		ar << ID;
-	}
-
-	ar << m_isWireframe;
-	ar << m_cullMode;
-	ar << m_counterClockwise;
-	ar << m_depthBias;
-	ar << m_depthClipEnable;
-	ar << m_scissorEnable;
-	ar << m_multisampleEnalbe;
-	ar << m_antialiasedLineEnable;
-}
-
-void RasterizerOption::PostLoadImpl( )
+void RasterizerOption::PostLoadImpl()
 {
 }
 
 REGISTER_ASSET( SamplerOption );
-void SamplerOption::Serialize( Archive& ar )
-{
-	if ( ar.IsWriteMode( ) )
-	{
-		ar << ID;
-	}
-
-	ar << m_filter;
-	ar << m_addressU;
-	ar << m_addressV;
-	ar << m_addressW;
-	ar << m_mipLODBias;
-	ar << m_comparisonFunc;
-}
-
-void SamplerOption::PostLoadImpl( )
+void SamplerOption::PostLoadImpl()
 {
 }
 
 REGISTER_ASSET( RenderOption );
-void RenderOption::Serialize( Archive& ar )
-{
-	if ( ar.IsWriteMode( ) )
-	{
-		ar << ID;
-	}
-
-	ar << m_blendOption;
-	ar << m_depthStencilOption;
-	ar << m_rasterizerOption;
-}
-
-void RenderOption::PostLoadImpl( )
+void RenderOption::PostLoadImpl()
 {
 }

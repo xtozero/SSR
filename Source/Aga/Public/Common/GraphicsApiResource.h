@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "RefHandle.h"
+#include "NameTypes.h"
 #include "SizedTypes.h"
 
 #include <atomic>
@@ -703,7 +704,7 @@ struct VERTEX_LAYOUT_TRAIT
 	RESOURCE_FORMAT m_format;
 	uint32 m_slot;
 	uint32 m_instanceDataStep;
-	std::string m_name;
+	Name m_name;
 
 	friend bool operator==( const VERTEX_LAYOUT_TRAIT& lhs, const VERTEX_LAYOUT_TRAIT& rhs )
 	{
