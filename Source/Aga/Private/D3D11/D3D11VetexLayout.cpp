@@ -7,7 +7,7 @@
 
 namespace
 {
-	void ConvertVertexLayoutToInputLayout( std::vector<Name>& namePool, std::vector<D3D11_INPUT_ELEMENT_DESC>& descs, const VERTEX_LAYOUT_TRAIT* trait, uint32 size )
+	void ConvertVertexLayoutToInputLayout( std::vector<D3D11_INPUT_ELEMENT_DESC>& descs, const VERTEX_LAYOUT_TRAIT* trait, uint32 size )
 	{
 		for ( uint32 i = 0; i < size; ++i )
 		{
@@ -40,9 +40,8 @@ namespace aga
 
 	D3D11VertexLayout::D3D11VertexLayout( const D3D11VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, uint32 size )
 	{
-		m_namePool.reserve( size );
 		m_inputDesc.reserve( size );
-		ConvertVertexLayoutToInputLayout( m_namePool, m_inputDesc, trait, size );
+		ConvertVertexLayoutToInputLayout( m_inputDesc, trait, size );
 
 		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device().CreateInputLayout( m_inputDesc.data(), size, vs->ByteCode(), vs->ByteCodeSize(), &m_pInputLayout ) );
 		assert( result );
