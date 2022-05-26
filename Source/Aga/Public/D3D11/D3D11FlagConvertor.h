@@ -5,20 +5,20 @@
 
 #include <d3d11.h>
 
-inline D3D11_USAGE ConvertAccessFlagToUsage( uint32 accessFlag )
+inline D3D11_USAGE ConvertAccessFlagToUsage( RESOURCE_ACCESS_FLAG accessFlag )
 {
-	using namespace RESOURCE_ACCESS_FLAG;
-
-	switch ( accessFlag )
+	switch ( static_cast<int>( accessFlag ) )
 	{
-	case ( GPU_READ | GPU_WRITE ):
+	case static_cast<int>( RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE ):
 		return D3D11_USAGE_DEFAULT;
-	case ( GPU_READ | CPU_WRITE ):
+	case static_cast<int>( RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE ):
 		return D3D11_USAGE_DYNAMIC;
-	case GPU_READ:
+	case static_cast<int>( RESOURCE_ACCESS_FLAG::GPU_READ ):
 		return D3D11_USAGE_IMMUTABLE;
-	case ( GPU_READ | GPU_WRITE | CPU_READ | CPU_WRITE ):
-	case ( GPU_READ | GPU_WRITE | CPU_READ ):
+	case static_cast<int>( RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE
+		| RESOURCE_ACCESS_FLAG::CPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE ):
+	case static_cast<int>( RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE
+		| RESOURCE_ACCESS_FLAG::CPU_READ ):
 		return D3D11_USAGE_STAGING;
 	default:
 		assert( false );
@@ -26,68 +26,65 @@ inline D3D11_USAGE ConvertAccessFlagToUsage( uint32 accessFlag )
 	}
 }
 
-inline uint32 ConvertUsageToAccessFlag( D3D11_USAGE accessFlag )
+inline RESOURCE_ACCESS_FLAG ConvertUsageToAccessFlag( D3D11_USAGE accessFlag )
 {
-	using namespace RESOURCE_ACCESS_FLAG;
-
 	switch ( accessFlag )
 	{
 	case D3D11_USAGE_DEFAULT:
-		return GPU_READ | GPU_WRITE;
+		return RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE;
 	case D3D11_USAGE_DYNAMIC:
-		return GPU_READ | CPU_WRITE;
+		return RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE;
 	case D3D11_USAGE_IMMUTABLE:
-		return GPU_READ;
+		return RESOURCE_ACCESS_FLAG::GPU_READ;
 	case D3D11_USAGE_STAGING:
-		return GPU_READ | GPU_WRITE | CPU_READ | CPU_WRITE;
+		return RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE
+			| RESOURCE_ACCESS_FLAG::CPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE;
 	default:
 		assert( false );
-		return 0;
+		return RESOURCE_ACCESS_FLAG::NONE;
 	}
 }
 
-inline uint32 ConvertTypeToBind( uint32 type )
+inline uint32 ConvertTypeToBind( RESOURCE_BIND_TYPE type )
 {
-	using namespace RESOURCE_BIND_TYPE;
-
 	uint32 ret = 0;
 
-	if ( type & VERTEX_BUFFER )
+	if ( HasAnyFlags( type, RESOURCE_BIND_TYPE::VERTEX_BUFFER ) )
 	{
 		ret |= D3D11_BIND_VERTEX_BUFFER;
 	}
 
-	if ( type & INDEX_BUFFER )
+	if ( HasAnyFlags( type, RESOURCE_BIND_TYPE::INDEX_BUFFER ) )
 	{
 		ret |= D3D11_BIND_INDEX_BUFFER;
 	}
 
-	if ( type & CONSTANT_BUFFER )
+	if ( HasAnyFlags( type, RESOURCE_BIND_TYPE::CONSTANT_BUFFER ) )
 	{
 		ret |= D3D11_BIND_CONSTANT_BUFFER;
 	}
 
-	if ( type & SHADER_RESOURCE )
+	if ( HasAnyFlags( type, RESOURCE_BIND_TYPE::SHADER_RESOURCE ) )
 	{
 		ret |= D3D11_BIND_SHADER_RESOURCE;
 	}
 
-	if ( type & STREAM_OUTPUT )
+	if ( HasAnyFlags( type, RESOURCE_BIND_TYPE::STREAM_OUTPUT ) )
 	{
 		ret |= D3D11_BIND_STREAM_OUTPUT;
 	}
 
-	if ( type & RENDER_TARGET )
+	if ( HasAnyFlags( type, RESOURCE_BIND_TYPE::RENDER_TARGET ) )
 	{
 		ret |= D3D11_BIND_RENDER_TARGET;
 	}
 
-	if ( type & DEPTH_STENCIL )
+	if ( HasAnyFlags( type, RESOURCE_BIND_TYPE::DEPTH_STENCIL ) )
 	{
 		ret |= D3D11_BIND_DEPTH_STENCIL;
 	}
 
-	if ( type & RANDOM_ACCESS )
+	if ( HasAnyFlags( type, RESOURCE_BIND_TYPE::RANDOM_ACCESS ) )
 	{
 		ret |= D3D11_BIND_UNORDERED_ACCESS;
 	}
@@ -95,104 +92,100 @@ inline uint32 ConvertTypeToBind( uint32 type )
 	return ret;
 }
 
-inline uint32 ConvertBindToType( uint32 type )
+inline RESOURCE_BIND_TYPE ConvertBindToType( uint32 type )
 {
-	using namespace RESOURCE_BIND_TYPE;
-
-	uint32 ret = 0;
+	RESOURCE_BIND_TYPE ret = RESOURCE_BIND_TYPE::NONE;
 
 	if ( type & D3D11_BIND_VERTEX_BUFFER )
 	{
-		ret |= VERTEX_BUFFER;
+		ret |= RESOURCE_BIND_TYPE::VERTEX_BUFFER;
 	}
 
 	if ( type & D3D11_BIND_INDEX_BUFFER )
 	{
-		ret |= INDEX_BUFFER;
+		ret |= RESOURCE_BIND_TYPE::INDEX_BUFFER;
 	}
 
 	if ( type & D3D11_BIND_CONSTANT_BUFFER )
 	{
-		ret |= CONSTANT_BUFFER;
+		ret |= RESOURCE_BIND_TYPE::CONSTANT_BUFFER;
 	}
 
 	if ( type & D3D11_BIND_SHADER_RESOURCE )
 	{
-		ret |= SHADER_RESOURCE;
+		ret |= RESOURCE_BIND_TYPE::SHADER_RESOURCE;
 	}
 
 	if ( type & D3D11_BIND_STREAM_OUTPUT )
 	{
-		ret |= STREAM_OUTPUT;
+		ret |= RESOURCE_BIND_TYPE::STREAM_OUTPUT;
 	}
 
 	if ( type & D3D11_BIND_RENDER_TARGET )
 	{
-		ret |= RENDER_TARGET;
+		ret |= RESOURCE_BIND_TYPE::RENDER_TARGET;
 	}
 
 	if ( type & D3D11_BIND_DEPTH_STENCIL )
 	{
-		ret |= DEPTH_STENCIL;
+		ret |= RESOURCE_BIND_TYPE::DEPTH_STENCIL;
 	}
 
 	if ( type & D3D11_BIND_UNORDERED_ACCESS )
 	{
-		ret |= RANDOM_ACCESS;
+		ret |= RESOURCE_BIND_TYPE::RANDOM_ACCESS;
 	}
 
 	return ret;
 }
 
-inline uint32 ConvertMicsToDXMisc( uint32 miscFlag )
+inline uint32 ConvertMicsToDXMisc( RESOURCE_MISC miscFlag )
 {
-	using namespace RESOURCE_MISC;
-
 	uint32 ret = 0;
 
-	if ( miscFlag & GENERATE_MIPS )
+	if ( HasAnyFlags( miscFlag, RESOURCE_MISC::GENERATE_MIPS ) )
 	{
 		ret |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
 	}
 
-	if ( miscFlag & SHARED )
+	if ( HasAnyFlags( miscFlag, RESOURCE_MISC::SHARED ) )
 	{
 		ret |= D3D11_RESOURCE_MISC_SHARED;
 	}
 
-	if ( miscFlag & TEXTURECUBE )
+	if ( HasAnyFlags( miscFlag, RESOURCE_MISC::TEXTURECUBE ) )
 	{
 		ret |= D3D11_RESOURCE_MISC_TEXTURECUBE;
 	}
 
-	if ( miscFlag & DRAWINDIRECT_ARGS )
+	if ( HasAnyFlags( miscFlag, RESOURCE_MISC::DRAWINDIRECT_ARGS ) )
 	{
 		ret |= D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS;
 	}
 
-	if ( miscFlag & BUFFER_ALLOW_RAW_VIEWS )
+	if ( HasAnyFlags( miscFlag, RESOURCE_MISC::BUFFER_ALLOW_RAW_VIEWS ) )
 	{
-		assert( ( miscFlag & BUFFER_STRUCTURED ) == 0 );
+		assert( ( miscFlag & RESOURCE_MISC::BUFFER_STRUCTURED ) == RESOURCE_MISC::NONE );
 		ret |= D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
 	}
 
-	if ( miscFlag & BUFFER_STRUCTURED )
+	if ( HasAnyFlags( miscFlag, RESOURCE_MISC::BUFFER_STRUCTURED ) )
 	{
-		assert( ( miscFlag & BUFFER_ALLOW_RAW_VIEWS ) == 0 );
+		assert( ( miscFlag & RESOURCE_MISC::BUFFER_ALLOW_RAW_VIEWS ) == RESOURCE_MISC::NONE );
 		ret |= D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 	}
 
-	if ( miscFlag & RESOURCE_CLAMP )
+	if ( HasAnyFlags( miscFlag, RESOURCE_MISC::RESOURCE_CLAMP ) )
 	{
 		ret |= D3D11_RESOURCE_MISC_RESOURCE_CLAMP;
 	}
 
-	if ( miscFlag & SHARED_KEYEDMUTEX )
+	if ( HasAnyFlags( miscFlag, RESOURCE_MISC::SHARED_KEYEDMUTEX ) )
 	{
 		ret |= D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX;
 	}
 
-	if ( miscFlag & GDI_COMPATIBLE )
+	if ( HasAnyFlags( miscFlag, RESOURCE_MISC::GDI_COMPATIBLE ) )
 	{
 		ret |= D3D11_RESOURCE_MISC_GDI_COMPATIBLE;
 	}
@@ -200,72 +193,68 @@ inline uint32 ConvertMicsToDXMisc( uint32 miscFlag )
 	return ret;
 }
 
-inline uint32 ConvertDXMiscToMisc( uint32 miscFlag )
+inline RESOURCE_MISC ConvertDXMiscToMisc( uint32 miscFlag )
 {
-	using namespace RESOURCE_MISC;
-
-	uint32 ret = 0;
+	RESOURCE_MISC ret = RESOURCE_MISC::NONE;
 
 	if ( miscFlag & D3D11_RESOURCE_MISC_GENERATE_MIPS )
 	{
-		ret |= GENERATE_MIPS;
+		ret |= RESOURCE_MISC::GENERATE_MIPS;
 	}
 
 	if ( miscFlag & D3D11_RESOURCE_MISC_SHARED )
 	{
-		ret |= SHARED;
+		ret |= RESOURCE_MISC::SHARED;
 	}
 
 	if ( miscFlag & D3D11_RESOURCE_MISC_TEXTURECUBE )
 	{
-		ret |= TEXTURECUBE;
+		ret |= RESOURCE_MISC::TEXTURECUBE;
 	}
 
 	if ( miscFlag & D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS )
 	{
-		ret |= DRAWINDIRECT_ARGS;
+		ret |= RESOURCE_MISC::DRAWINDIRECT_ARGS;
 	}
 
 	if ( miscFlag & D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS )
 	{
-		ret |= BUFFER_ALLOW_RAW_VIEWS;
+		ret |= RESOURCE_MISC::BUFFER_ALLOW_RAW_VIEWS;
 	}
 
 	if ( miscFlag & D3D11_RESOURCE_MISC_BUFFER_STRUCTURED )
 	{
-		ret |= BUFFER_STRUCTURED;
+		ret |= RESOURCE_MISC::BUFFER_STRUCTURED;
 	}
 
 	if ( miscFlag & D3D11_RESOURCE_MISC_RESOURCE_CLAMP )
 	{
-		ret |= RESOURCE_CLAMP;
+		ret |= RESOURCE_MISC::RESOURCE_CLAMP;
 	}
 
 	if ( miscFlag & D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX )
 	{
-		ret |= SHARED_KEYEDMUTEX;
+		ret |= RESOURCE_MISC::SHARED_KEYEDMUTEX;
 	}
 
 	if ( miscFlag & D3D11_RESOURCE_MISC_GDI_COMPATIBLE )
 	{
-		ret |= GDI_COMPATIBLE;
+		ret |= RESOURCE_MISC::GDI_COMPATIBLE;
 	}
 
 	return ret;
 }
 
-inline uint32 ConvertAccessFlagToCpuFlag( uint32 accessFlag )
+inline uint32 ConvertAccessFlagToCpuFlag( RESOURCE_ACCESS_FLAG accessFlag )
 {
-	using namespace RESOURCE_ACCESS_FLAG;
-
 	uint32 ret = 0;
 
-	if ( accessFlag & CPU_READ )
+	if ( HasAnyFlags( accessFlag, RESOURCE_ACCESS_FLAG::CPU_READ ) )
 	{
 		ret |= D3D11_CPU_ACCESS_READ;
 	}
 
-	if ( accessFlag & CPU_WRITE )
+	if ( HasAnyFlags( accessFlag, RESOURCE_ACCESS_FLAG::CPU_WRITE ) )
 	{
 		ret |= D3D11_CPU_ACCESS_WRITE;
 	}

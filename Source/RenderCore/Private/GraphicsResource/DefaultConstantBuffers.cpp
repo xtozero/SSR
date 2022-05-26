@@ -27,7 +27,8 @@ void DefaultConstantBuffers::BootUp()
 		}
 	};
 
-	EnqueueRenderTask( [SetDefaultConstant]()
+	EnqueueRenderTask(
+		[SetDefaultConstant]()
 		{
 			SetDefaultConstant();
 		} );

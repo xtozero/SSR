@@ -85,6 +85,11 @@ private:
 	static Name Make( const std::string_view& view );
 
 	NameEntryId m_id;
+
+#ifdef _DEBUG
+public:
+	const char* m_str = nullptr;
+#endif
 };
 
 Owner<INamePool*> CreateNamePool();

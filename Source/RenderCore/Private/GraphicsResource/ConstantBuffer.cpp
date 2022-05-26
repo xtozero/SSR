@@ -51,12 +51,13 @@ void ConstantBuffer::InitResource( uint32 size )
 		1,
 		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
 		RESOURCE_BIND_TYPE::CONSTANT_BUFFER,
-		0,
+		RESOURCE_MISC::NONE,
 		RESOURCE_FORMAT::UNKNOWN
 	};
 
 	m_buffer = aga::Buffer::Create( trait );
-	EnqueueRenderTask( [buffer = m_buffer]()
+	EnqueueRenderTask(
+		[buffer = m_buffer]()
 		{
 			buffer->Init();
 		} );

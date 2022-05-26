@@ -14,7 +14,7 @@
 Archive& operator<<( Archive& ar, StaticMeshMaterial& m )
 {
 	ar << m.m_mateiral;
-	
+
 	return ar;
 }
 
@@ -135,7 +135,9 @@ StaticMesh::~StaticMesh()
 
 void StaticMesh::PostLoadImpl()
 {
-	EnqueueRenderTask( [this]() {
-		m_renderData->Init();
+	EnqueueRenderTask(
+		[this]()
+		{
+			m_renderData->Init();
 		} );
 }

@@ -48,9 +48,9 @@ DDSTexture::DDSTexture( const DDSTextureInitializer& initializer )
 
 void DDSTexture::PostLoadImpl()
 {
-	uint32 misc = 0;
-	misc |= m_isCubeMap ? RESOURCE_MISC::TEXTURECUBE : 0;
-	misc |= ( m_depth > 1 ) ? RESOURCE_MISC::TEXTURE3D : 0;
+	RESOURCE_MISC misc = RESOURCE_MISC::NONE;
+	misc |= m_isCubeMap ? RESOURCE_MISC::TEXTURECUBE : RESOURCE_MISC::NONE;
+	misc |= ( m_depth > 1 ) ? RESOURCE_MISC::TEXTURE3D : RESOURCE_MISC::NONE;
 
 	TEXTURE_TRAIT tarit =
 	{
@@ -80,7 +80,9 @@ void DDSTexture::PostLoadImpl()
 
 	m_texture = aga::Texture::Create( tarit, &initData );
 
-	EnqueueRenderTask( [this]() {
-		m_texture->Init();
-	} );
+	EnqueueRenderTask( 
+		[this]() 
+		{
+			m_texture->Init();
+		} );
 }

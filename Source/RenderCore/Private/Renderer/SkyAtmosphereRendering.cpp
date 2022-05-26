@@ -360,14 +360,15 @@ namespace rendercore
 			.m_format = RESOURCE_FORMAT::R32G32B32A32_FLOAT,
 			.m_access = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
 			.m_bindType = RESOURCE_BIND_TYPE::SHADER_RESOURCE | RESOURCE_BIND_TYPE::RANDOM_ACCESS,
-			.m_miscFlag = 0,
+			.m_miscFlag = RESOURCE_MISC::NONE,
 		};
 
 		info.GetTransmittanceLutTexture() = aga::Texture::Create( transmittanceLut );
-		EnqueueRenderTask( [texture = info.GetTransmittanceLutTexture()]()
-		{
-			texture->Init();
-		} );
+		EnqueueRenderTask(
+			[texture = info.GetTransmittanceLutTexture()]()
+			{
+				texture->Init();
+			} );
 
 		TEXTURE_TRAIT irradianceLut = {
 			.m_width = IRRADIANCE_W,
@@ -379,14 +380,15 @@ namespace rendercore
 			.m_format = RESOURCE_FORMAT::R32G32B32A32_FLOAT,
 			.m_access = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
 			.m_bindType = RESOURCE_BIND_TYPE::SHADER_RESOURCE,
-			.m_miscFlag = 0,
+			.m_miscFlag = RESOURCE_MISC::NONE,
 		};
 
 		info.GetIrradianceLutTexture() = aga::Texture::Create( irradianceLut );
-		EnqueueRenderTask( [texture = info.GetIrradianceLutTexture()]()
-		{
-			texture->Init();
-		} );
+		EnqueueRenderTask(
+			[texture = info.GetIrradianceLutTexture()]()
+			{
+				texture->Init();
+			} );
 
 		TEXTURE_TRAIT inscatterLut = {
 			.m_width = RES_MU_S * RES_NU,
@@ -402,10 +404,11 @@ namespace rendercore
 		};
 
 		info.GetInscatterLutTexture() = aga::Texture::Create( inscatterLut );
-		EnqueueRenderTask( [texture = info.GetInscatterLutTexture()]()
-		{
-			texture->Init();
-		} );
+		EnqueueRenderTask(
+			[texture = info.GetInscatterLutTexture()]()
+			{
+				texture->Init();
+			} );
 	}
 
 	void RenderAtmosphereLookUpTables( Scene& scene )
@@ -445,7 +448,7 @@ namespace rendercore
 			.m_format = RESOURCE_FORMAT::R32G32B32A32_FLOAT,
 			.m_access = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
 			.m_bindType = RESOURCE_BIND_TYPE::SHADER_RESOURCE | RESOURCE_BIND_TYPE::RANDOM_ACCESS,
-			.m_miscFlag = 0
+			.m_miscFlag = RESOURCE_MISC::NONE
 		};
 
 		RefHandle<aga::Texture> deltaETexture = aga::Texture::Create( deltaE );
@@ -595,12 +598,12 @@ namespace rendercore
 		// copy irradiance buffer to texture
 		{
 			BUFFER_TRAIT readBack = {
-			.m_stride = sizeof( Vector4 ),
-			.m_count = IRRADIANCE_W * IRRADIANCE_H,
-			.m_access = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE | RESOURCE_ACCESS_FLAG::CPU_READ,
-			.m_bindType = 0,
-			.m_miscFlag = 0,
-			.m_format = RESOURCE_FORMAT::UNKNOWN
+				.m_stride = sizeof( Vector4 ),
+				.m_count = IRRADIANCE_W * IRRADIANCE_H,
+				.m_access = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE | RESOURCE_ACCESS_FLAG::CPU_READ,
+				.m_bindType = RESOURCE_BIND_TYPE::NONE,
+				.m_miscFlag = RESOURCE_MISC::NONE,
+				.m_format = RESOURCE_FORMAT::UNKNOWN
 			};
 
 			RefHandle<aga::Buffer> irradianceReadBack = aga::Buffer::Create( readBack );
@@ -609,19 +612,19 @@ namespace rendercore
 			commandList.CopyResource( irradianceReadBack, irradianceBuffer );
 
 			TEXTURE_TRAIT intermediate = {
-			.m_width = IRRADIANCE_W,
-			.m_height = IRRADIANCE_H,
-			.m_depth = 1,
-			.m_sampleCount = 1,
-			.m_sampleQuality = 0,
-			.m_mipLevels = 1,
-			.m_format = RESOURCE_FORMAT::R32G32B32A32_FLOAT,
-			.m_access = RESOURCE_ACCESS_FLAG::GPU_READ
-						| RESOURCE_ACCESS_FLAG::GPU_WRITE
-						| RESOURCE_ACCESS_FLAG::CPU_READ
-						| RESOURCE_ACCESS_FLAG::CPU_WRITE,
-			.m_bindType = 0,
-			.m_miscFlag = 0
+				.m_width = IRRADIANCE_W,
+				.m_height = IRRADIANCE_H,
+				.m_depth = 1,
+				.m_sampleCount = 1,
+				.m_sampleQuality = 0,
+				.m_mipLevels = 1,
+				.m_format = RESOURCE_FORMAT::R32G32B32A32_FLOAT,
+				.m_access = RESOURCE_ACCESS_FLAG::GPU_READ
+							| RESOURCE_ACCESS_FLAG::GPU_WRITE
+							| RESOURCE_ACCESS_FLAG::CPU_READ
+							| RESOURCE_ACCESS_FLAG::CPU_WRITE,
+				.m_bindType = RESOURCE_BIND_TYPE::NONE,
+				.m_miscFlag = RESOURCE_MISC::NONE
 			};
 
 			RefHandle<aga::Texture> irradianceIntermedicate = aga::Texture::Create( intermediate );
@@ -649,12 +652,12 @@ namespace rendercore
 		// copy inscatter buffer to texture
 		{
 			BUFFER_TRAIT readBack = {
-			.m_stride = sizeof( Vector4 ),
-			.m_count = RES_MU_S * RES_NU * RES_MU * RES_R,
-			.m_access = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE | RESOURCE_ACCESS_FLAG::CPU_READ,
-			.m_bindType = 0,
-			.m_miscFlag = 0,
-			.m_format = RESOURCE_FORMAT::UNKNOWN
+				.m_stride = sizeof( Vector4 ),
+				.m_count = RES_MU_S * RES_NU * RES_MU * RES_R,
+				.m_access = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE | RESOURCE_ACCESS_FLAG::CPU_READ,
+				.m_bindType = RESOURCE_BIND_TYPE::NONE,
+				.m_miscFlag = RESOURCE_MISC::NONE,
+				.m_format = RESOURCE_FORMAT::UNKNOWN
 			};
 
 			RefHandle<aga::Buffer> inscatterReadBack = aga::Buffer::Create( readBack );
@@ -663,19 +666,19 @@ namespace rendercore
 			commandList.CopyResource( inscatterReadBack, inscatterBuffer );
 
 			TEXTURE_TRAIT intermediate = {
-			.m_width = RES_MU_S * RES_NU,
-			.m_height = RES_MU,
-			.m_depth = RES_R,
-			.m_sampleCount = 1,
-			.m_sampleQuality = 0,
-			.m_mipLevels = 1,
-			.m_format = RESOURCE_FORMAT::R32G32B32A32_FLOAT,
-			.m_access = RESOURCE_ACCESS_FLAG::GPU_READ
-						| RESOURCE_ACCESS_FLAG::GPU_WRITE
-						| RESOURCE_ACCESS_FLAG::CPU_READ
-						| RESOURCE_ACCESS_FLAG::CPU_WRITE,
-			.m_bindType = 0,
-			.m_miscFlag = RESOURCE_MISC::TEXTURE3D
+				.m_width = RES_MU_S * RES_NU,
+				.m_height = RES_MU,
+				.m_depth = RES_R,
+				.m_sampleCount = 1,
+				.m_sampleQuality = 0,
+				.m_mipLevels = 1,
+				.m_format = RESOURCE_FORMAT::R32G32B32A32_FLOAT,
+				.m_access = RESOURCE_ACCESS_FLAG::GPU_READ
+							| RESOURCE_ACCESS_FLAG::GPU_WRITE
+							| RESOURCE_ACCESS_FLAG::CPU_READ
+							| RESOURCE_ACCESS_FLAG::CPU_WRITE,
+				.m_bindType = RESOURCE_BIND_TYPE::NONE,
+				.m_miscFlag = RESOURCE_MISC::TEXTURE3D
 			};
 
 			RefHandle<aga::Texture> inscatterIntermedicate = aga::Texture::Create( intermediate );

@@ -79,7 +79,7 @@ namespace rendercore
 	void VolumetricCloudSceneInfo::SetupCloudTexture()
 	{
 		m_baseCloudShape = CreateCloudTexture( 128 );
-		
+
 		PerlinWorleyCS perlinWorleyCS;
 		auto threadGroupCount = static_cast<uint32>( std::ceilf( 128 / 8.f ) );
 
@@ -113,7 +113,7 @@ namespace rendercore
 			.m_format = RESOURCE_FORMAT::R32G32B32A32_FLOAT,
 			.m_access = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
 			.m_bindType = RESOURCE_BIND_TYPE::SHADER_RESOURCE | RESOURCE_BIND_TYPE::RANDOM_ACCESS,
-			.m_miscFlag = 0
+			.m_miscFlag = RESOURCE_MISC::NONE,
 		};
 
 		m_weatherMap = aga::Texture::Create( trait );

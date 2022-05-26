@@ -18,10 +18,11 @@ const aga::VertexShader* VertexShader::Resource() const
 void VertexShader::PostLoadImpl()
 {
 	m_shader = aga::VertexShader::Create( m_byteCode.Data(), m_byteCode.Size() );
-	EnqueueRenderTask( [shader = m_shader]()
-	{
-		shader->Init();
-	} );
+	EnqueueRenderTask(
+		[shader = m_shader]()
+		{
+			shader->Init();
+		} );
 }
 
 REGISTER_ASSET( GeometryShader );
@@ -38,10 +39,11 @@ const aga::GeometryShader* GeometryShader::Resource() const
 RENDERCORE_DLL void GeometryShader::PostLoadImpl()
 {
 	m_shader = aga::GeometryShader::Create( m_byteCode.Data(), m_byteCode.Size() );
-	EnqueueRenderTask( [shader = m_shader]()
-	{
-		shader->Init();
-	} );
+	EnqueueRenderTask(
+		[shader = m_shader]()
+		{
+			shader->Init();
+		} );
 }
 
 
@@ -59,10 +61,11 @@ const aga::PixelShader* PixelShader::Resource() const
 void PixelShader::PostLoadImpl()
 {
 	m_shader = aga::PixelShader::Create( m_byteCode.Data(), m_byteCode.Size() );
-	EnqueueRenderTask( [shader = m_shader]()
-	{
-		shader->Init();
-	} );
+	EnqueueRenderTask(
+		[shader = m_shader]()
+		{
+			shader->Init();
+		} );
 }
 
 REGISTER_ASSET( ComputeShader );
@@ -79,8 +82,9 @@ const aga::ComputeShader* ComputeShader::Resource() const
 void ComputeShader::PostLoadImpl()
 {
 	m_shader = aga::ComputeShader::Create( m_byteCode.Data(), m_byteCode.Size() );
-	EnqueueRenderTask( [shader = m_shader]()
-	{
-		shader->Init();
-	} );
+	EnqueueRenderTask(
+		[shader = m_shader]()
+		{
+			shader->Init();
+		} );
 }

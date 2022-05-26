@@ -22,7 +22,8 @@ void SkyAtmosphereComponent::RemoveRenderState()
 	SceneComponent::RemoveRenderState();
 
 	m_pWorld->Scene()->RemoveAtomosphere( m_skyAtmosphereProxy );
-	EnqueueRenderTask( [proxy = m_skyAtmosphereProxy]()
+	EnqueueRenderTask(
+		[proxy = m_skyAtmosphereProxy]()
 		{
 			delete proxy;
 		} );

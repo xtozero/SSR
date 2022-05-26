@@ -46,7 +46,8 @@ void Scene::AddPrimitive( PrimitiveComponent* primitive )
 		primitive->CalcBounds( Matrix::Identity ),
 	};
 
-	EnqueueRenderTask( [this, param, primitiveSceneInfo]()
+	EnqueueRenderTask(
+		[this, param, primitiveSceneInfo]()
 		{
 			PrimitiveProxy* sceneProxy = primitiveSceneInfo->Proxy();
 
@@ -68,7 +69,8 @@ void Scene::RemovePrimitive( PrimitiveComponent* primitive )
 		PrimitiveSceneInfo* primitiveSceneInfo = proxy->m_primitiveSceneInfo;
 		primitive->m_sceneProxy = nullptr;
 
-		EnqueueRenderTask( [this, primitiveSceneInfo]()
+		EnqueueRenderTask(
+			[this, primitiveSceneInfo]()
 			{
 				RemovePrimitiveSceneInfo( primitiveSceneInfo );
 			} );
@@ -82,7 +84,8 @@ void Scene::AddTexturedSkyComponent( TexturedSkyComponent* texturedSky )
 
 	if ( proxy )
 	{
-		EnqueueRenderTask( [this, proxy]
+		EnqueueRenderTask(
+			[this, proxy]
 			{
 				proxy->CreateRenderData();
 
@@ -99,7 +102,8 @@ void Scene::RemoveTexturedSkyComponent( TexturedSkyComponent* texturedSky )
 	{
 		texturedSky->m_texturedSkyProxy = nullptr;
 
-		EnqueueRenderTask( [this, proxy]()
+		EnqueueRenderTask(
+			[this, proxy]()
 			{
 				RemoveTexturedSky( proxy );
 			} );
@@ -110,7 +114,8 @@ void Scene::AddSkyAtmosphere( SkyAtmospherePorxy* skyAtmosphereProxy )
 {
 	if ( skyAtmosphereProxy )
 	{
-		EnqueueRenderTask( [scene = this, skyAtmosphereProxy]()
+		EnqueueRenderTask(
+			[scene = this, skyAtmosphereProxy]()
 			{
 				skyAtmosphereProxy->RenderSceneInfo() = new rendercore::SkyAtmosphereRenderSceneInfo();
 				scene->m_skyAtmosphere = skyAtmosphereProxy->RenderSceneInfo();
@@ -123,7 +128,8 @@ void Scene::RemoveAtomosphere( SkyAtmospherePorxy* skyAtmosphereProxy )
 {
 	if ( skyAtmosphereProxy )
 	{
-		EnqueueRenderTask( [this, skyAtmosphereProxy]()
+		EnqueueRenderTask(
+			[this, skyAtmosphereProxy]()
 			{
 				if ( m_skyAtmosphere == skyAtmosphereProxy->RenderSceneInfo() )
 				{
@@ -148,7 +154,8 @@ void Scene::AddVolumetricCloud( VolumetricCloudComponent* volumetricCloud )
 
 	proxy->m_volumetricCloudSceneInfo = volumetricCloudSceneInfo;
 
-	EnqueueRenderTask( [this, volumetricCloudSceneInfo]
+	EnqueueRenderTask(
+		[this, volumetricCloudSceneInfo]
 		{
 			volumetricCloudSceneInfo->CreateRenderData();
 
@@ -165,7 +172,8 @@ void Scene::RemoveVolumetricCloud( VolumetricCloudComponent* volumetricCloud )
 		rendercore::VolumetricCloudSceneInfo* volumetricCloudSceneInfo = proxy->m_volumetricCloudSceneInfo;
 		volumetricCloud->Proxy() = nullptr;
 
-		EnqueueRenderTask( [this, volumetricCloudSceneInfo]
+		EnqueueRenderTask(
+			[this, volumetricCloudSceneInfo]
 			{
 				RemoveVolumetricCloud( volumetricCloudSceneInfo );
 			} );
@@ -179,7 +187,8 @@ void Scene::AddHemisphereLightComponent( HemisphereLightComponent* light )
 
 	if ( proxy )
 	{
-		EnqueueRenderTask( [this, proxy]
+		EnqueueRenderTask(
+			[this, proxy]
 			{
 				AddHemisphereLight( proxy );
 			} );
@@ -194,7 +203,8 @@ void Scene::RemoveHemisphereLightComponent( HemisphereLightComponent* light )
 	{
 		light->Proxy() = nullptr;
 
-		EnqueueRenderTask( [this, proxy]()
+		EnqueueRenderTask(
+			[this, proxy]()
 			{
 				RemoveHemisphereLight( proxy );
 			} );
@@ -215,7 +225,8 @@ void Scene::AddLight( LightComponent* light )
 
 	proxy->m_lightSceneInfo = lightsceneInfo;
 
-	EnqueueRenderTask( [this, lightsceneInfo]
+	EnqueueRenderTask(
+		[this, lightsceneInfo]
 		{
 			AddLightSceneInfo( lightsceneInfo );
 		} );
@@ -230,7 +241,8 @@ void Scene::RemoveLight( LightComponent* light )
 		LightSceneInfo* lightSceneInfo = proxy->m_lightSceneInfo;
 		light->m_lightProxy = nullptr;
 
-		EnqueueRenderTask( [this, lightSceneInfo]()
+		EnqueueRenderTask(
+			[this, lightSceneInfo]()
 			{
 				RemoveLightSceneInfo( lightSceneInfo );
 			} );
@@ -366,7 +378,7 @@ void Scene::RemoveSkyAtmosphereLight( LightSceneInfo* lightSceneInfo )
 
 		for ( const auto& light : m_lights )
 		{
-			if ( light != lightSceneInfo 
+			if ( light != lightSceneInfo
 				&& light->Proxy()->IsUsedAsAtmosphereSunLight() )
 			{
 				m_skyAtmosphereLight = light;

@@ -68,11 +68,7 @@ public:
 		assert( view.length() < NameSize );
 		entry.m_len = static_cast<uint16>( view.length() );
 
-#ifdef _WIN32
-		strncpy_s( entry.m_str, view.data(), view.length() );
-#else
 		std::strncpy( entry.m_str, view.data(), view.length() );
-#endif
 		entry.m_str[view.length()] = '\0';
 
 		return handle;
@@ -416,7 +412,16 @@ Name Name::Make( const std::string_view& view )
 	INamePool& pool = GetNamePool();
 	NameEntryId id = pool.Store( view );
 
-	return Name( id );
+	Name name( id );
+#ifdef _DEBUG
+	name.m_str = name.Str().data();
+	if ( name.Str() != view )
+	{
+		assert( false );
+	}
+#endif
+
+	return name;
 }
 
 Owner<INamePool*> CreateNamePool()

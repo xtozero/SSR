@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.h"
+#include "EnumClassFlags.h"
 #include "RefHandle.h"
 #include "NameTypes.h"
 #include "SizedTypes.h"
@@ -82,55 +83,50 @@ class DeviceDependantResource : public GraphicsApiResource
 {
 };
 
-namespace RESOURCE_BIND_TYPE
+enum class RESOURCE_BIND_TYPE : uint8
 {
-	enum
-	{
-		// from D3D11
-		VERTEX_BUFFER = 0x01,
-		INDEX_BUFFER = 0x02,
-		CONSTANT_BUFFER = 0x04,
-		SHADER_RESOURCE = 0x08,
-		STREAM_OUTPUT = 0x10,
-		RENDER_TARGET = 0x20,
-		DEPTH_STENCIL = 0x40,
-		RANDOM_ACCESS = 0x80,
-	};
-}
+	// from D3D11
+	NONE = 0x00,
+	VERTEX_BUFFER = 0x01,
+	INDEX_BUFFER = 0x02,
+	CONSTANT_BUFFER = 0x04,
+	SHADER_RESOURCE = 0x08,
+	STREAM_OUTPUT = 0x10,
+	RENDER_TARGET = 0x20,
+	DEPTH_STENCIL = 0x40,
+	RANDOM_ACCESS = 0x80,
+};
+ENUM_CLASS_FLAGS( RESOURCE_BIND_TYPE );
 
-namespace RESOURCE_MISC
+enum class RESOURCE_MISC : uint16
 {
-	enum
-	{
-		NONE = 0x00,
-		// from D3D11
-		GENERATE_MIPS = 0x01,
-		SHARED = 0x02,
-		TEXTURECUBE = 0x04,
-		DRAWINDIRECT_ARGS = 0x08,
-		BUFFER_ALLOW_RAW_VIEWS = 0x10,
-		BUFFER_STRUCTURED = 0x20,
-		RESOURCE_CLAMP = 0x40,
-		SHARED_KEYEDMUTEX = 0x80,
-		GDI_COMPATIBLE = 0x100,
+	NONE = 0x00,
+	// from D3D11
+	GENERATE_MIPS = 0x01,
+	SHARED = 0x02,
+	TEXTURECUBE = 0x04,
+	DRAWINDIRECT_ARGS = 0x08,
+	BUFFER_ALLOW_RAW_VIEWS = 0x10,
+	BUFFER_STRUCTURED = 0x20,
+	RESOURCE_CLAMP = 0x40,
+	SHARED_KEYEDMUTEX = 0x80,
+	GDI_COMPATIBLE = 0x100,
 
-		// Custom
-		APP_SIZE_DEPENDENT = 0x200,
-		TEXTURE3D = 0x400,
-	};
-}
+	// Custom
+	APP_SIZE_DEPENDENT = 0x200,
+	TEXTURE3D = 0x400,
+};
+ENUM_CLASS_FLAGS( RESOURCE_MISC );
 
-namespace RESOURCE_ACCESS_FLAG
+enum class RESOURCE_ACCESS_FLAG : uint8
 {
-	enum
-	{
-		NONE = 0x00,
-		GPU_READ = 0x01,
-		GPU_WRITE = 0x02,
-		CPU_READ = 0x04,
-		CPU_WRITE = 0x08,
-	};
-}
+	NONE = 0x00,
+	GPU_READ = 0x01,
+	GPU_WRITE = 0x02,
+	CPU_READ = 0x04,
+	CPU_WRITE = 0x08,
+};
+ENUM_CLASS_FLAGS( RESOURCE_ACCESS_FLAG );
 
 enum class RESOURCE_FORMAT
 {
@@ -563,9 +559,9 @@ struct BUFFER_TRAIT
 {
 	uint32 m_stride;
 	uint32 m_count;
-	uint32 m_access;
-	uint32 m_bindType;
-	uint32 m_miscFlag;
+	RESOURCE_ACCESS_FLAG m_access;
+	RESOURCE_BIND_TYPE m_bindType;
+	RESOURCE_MISC m_miscFlag;
 	RESOURCE_FORMAT m_format;
 };
 
@@ -578,9 +574,9 @@ struct TEXTURE_TRAIT
 	uint32 m_sampleQuality;
 	uint32 m_mipLevels;
 	RESOURCE_FORMAT m_format;
-	uint32 m_access;
-	uint32 m_bindType;
-	uint32 m_miscFlag;
+	RESOURCE_ACCESS_FLAG m_access;
+	RESOURCE_BIND_TYPE m_bindType;
+	RESOURCE_MISC m_miscFlag;
 };
 
 struct RESOURCE_SECTION_DATA

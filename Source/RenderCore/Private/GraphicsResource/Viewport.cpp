@@ -11,7 +11,7 @@ namespace rendercore
 {
 	DEVICE_ERROR Viewport::Present( bool vSync )
 	{
-		if ( m_pViewport.Get( ) )
+		if ( m_pViewport.Get() )
 		{
 			return m_pViewport->Present( vSync );
 		}
@@ -21,7 +21,7 @@ namespace rendercore
 
 	void Viewport::Clear( const float( &color )[4] )
 	{
-		if ( m_pViewport.Get( ) )
+		if ( m_pViewport.Get() )
 		{
 			m_pViewport->Clear( color );
 		}
@@ -29,27 +29,27 @@ namespace rendercore
 
 	void Viewport::Bind( aga::ICommandList& commandList ) const
 	{
-		if ( m_pViewport.Get( ) )
+		if ( m_pViewport.Get() )
 		{
 			m_pViewport->Bind( commandList );
 		}
 	}
 
-	void* Viewport::Handle( ) const
+	void* Viewport::Handle() const
 	{
-		if ( m_pViewport.Get( ) )
+		if ( m_pViewport.Get() )
 		{
-			return m_pViewport->Handle( );
+			return m_pViewport->Handle();
 		}
 
 		return nullptr;
 	}
 
-	std::pair<uint32, uint32> Viewport::Size( ) const
+	std::pair<uint32, uint32> Viewport::Size() const
 	{
-		if ( m_pViewport.Get( ) )
+		if ( m_pViewport.Get() )
 		{
-			return m_pViewport->Size( );
+			return m_pViewport->Size();
 		}
 
 		return {};
@@ -57,17 +57,17 @@ namespace rendercore
 
 	void Viewport::Resize( const std::pair<uint32, uint32>& newSize )
 	{
-		if ( m_pViewport.Get( ) )
+		if ( m_pViewport.Get() )
 		{
 			m_pViewport->Resize( newSize );
 		}
 	}
 
-	aga::Texture* Viewport::Texture( )
+	aga::Texture* Viewport::Texture()
 	{
-		if ( m_pViewport.Get( ) )
+		if ( m_pViewport.Get() )
 		{
-			return m_pViewport->Texture( );
+			return m_pViewport->Texture();
 		}
 
 		return nullptr;
@@ -76,13 +76,14 @@ namespace rendercore
 	Viewport::Viewport( uint32 width, uint32 height, HWND hWnd, RESOURCE_FORMAT format )
 	{
 		m_pViewport = aga::Viewport::Create( width, height, hWnd, format );
-		EnqueueRenderTask( [viewport = m_pViewport]( )
-		{
-			viewport->Init( );
-		} );
+		EnqueueRenderTask(
+			[viewport = m_pViewport]()
+			{
+				viewport->Init();
+			} );
 	}
 
-	Viewport::~Viewport( )
+	Viewport::~Viewport()
 	{
 	}
 }

@@ -58,7 +58,8 @@ void ForwardRendererRenderTargets::AllocDepthStencil()
 		};
 
 		m_depthStencil = aga::Texture::Create( trait );
-		EnqueueRenderTask( [depthStencil = m_depthStencil]()
+		EnqueueRenderTask(
+			[depthStencil = m_depthStencil]()
 			{
 				depthStencil->Init();
 			} );
@@ -79,11 +80,12 @@ void ForwardRendererRenderTargets::AllocLinearDepth()
 			RESOURCE_FORMAT::R32_FLOAT,
 			RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
 			RESOURCE_BIND_TYPE::RENDER_TARGET | RESOURCE_BIND_TYPE::SHADER_RESOURCE,
-			0
+			RESOURCE_MISC::NONE
 		};
 
 		m_linearDepth = aga::Texture::Create( trait );
-		EnqueueRenderTask( [linearDepth = m_linearDepth]()
+		EnqueueRenderTask(
+			[linearDepth = m_linearDepth]()
 			{
 				linearDepth->Init();
 			} );
@@ -104,11 +106,12 @@ void ForwardRendererRenderTargets::AllocWorldNormal()
 			RESOURCE_FORMAT::R10G10B10A2_UNORM,
 			RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
 			RESOURCE_BIND_TYPE::RENDER_TARGET | RESOURCE_BIND_TYPE::SHADER_RESOURCE,
-			0
+			RESOURCE_MISC::NONE
 		};
 
 		m_worldNormal = aga::Texture::Create( trait );
-		EnqueueRenderTask( [worldNormal = m_worldNormal]()
+		EnqueueRenderTask(
+			[worldNormal = m_worldNormal]()
 			{
 				worldNormal->Init();
 			} );

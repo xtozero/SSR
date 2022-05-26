@@ -4,14 +4,14 @@
 #include "PipelineState.h"
 #include "TaskScheduler.h"
 
-aga::BlendState* BlendState::Resource( )
+aga::BlendState* BlendState::Resource()
 {
-	return m_state.Get( );
+	return m_state.Get();
 }
 
-const aga::BlendState* BlendState::Resource( ) const
+const aga::BlendState* BlendState::Resource() const
 {
-	return m_state.Get( );
+	return m_state.Get();
 }
 
 BlendState::BlendState( const BLEND_STATE_TRAIT& trait )
@@ -22,20 +22,21 @@ BlendState::BlendState( const BLEND_STATE_TRAIT& trait )
 void BlendState::InitResource( const BLEND_STATE_TRAIT& trait )
 {
 	m_state = aga::BlendState::Create( trait );
-	EnqueueRenderTask( [state = m_state]( )
-	{
-		state->Init( );
-	} );
+	EnqueueRenderTask(
+		[state = m_state]()
+		{
+			state->Init();
+		} );
 }
 
-aga::DepthStencilState* DepthStencilState::Resource( )
+aga::DepthStencilState* DepthStencilState::Resource()
 {
-	return m_state.Get( );
+	return m_state.Get();
 }
 
-const aga::DepthStencilState* DepthStencilState::Resource( ) const
+const aga::DepthStencilState* DepthStencilState::Resource() const
 {
-	return m_state.Get( );
+	return m_state.Get();
 }
 
 DepthStencilState::DepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait )
@@ -46,20 +47,20 @@ DepthStencilState::DepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait )
 void DepthStencilState::InitResource( const DEPTH_STENCIL_STATE_TRAIT& trait )
 {
 	m_state = aga::DepthStencilState::Create( trait );
-	EnqueueRenderTask( [state = m_state]( )
-	{
-		state->Init( );
-	} );
+	EnqueueRenderTask( [state = m_state]()
+		{
+			state->Init();
+		} );
 }
 
-aga::RasterizerState* RasterizerState::Resource( )
+aga::RasterizerState* RasterizerState::Resource()
 {
-	return m_state.Get( );
+	return m_state.Get();
 }
 
-const aga::RasterizerState* RasterizerState::Resource( ) const
+const aga::RasterizerState* RasterizerState::Resource() const
 {
-	return m_state.Get( );
+	return m_state.Get();
 }
 
 RasterizerState::RasterizerState( const RASTERIZER_STATE_TRAIT& trait )
@@ -70,20 +71,21 @@ RasterizerState::RasterizerState( const RASTERIZER_STATE_TRAIT& trait )
 void RasterizerState::InitResource( const RASTERIZER_STATE_TRAIT& trait )
 {
 	m_state = aga::RasterizerState::Create( trait );
-	EnqueueRenderTask( [state = m_state]( )
-	{
-		state->Init( );
-	} );
+	EnqueueRenderTask(
+		[state = m_state]()
+		{
+			state->Init();
+		} );
 }
 
-aga::SamplerState* SamplerState::Resource( )
+aga::SamplerState* SamplerState::Resource()
 {
-	return m_state.Get( );
+	return m_state.Get();
 }
 
-const aga::SamplerState* SamplerState::Resource( ) const
+const aga::SamplerState* SamplerState::Resource() const
 {
-	return m_state.Get( );
+	return m_state.Get();
 }
 
 SamplerState::SamplerState( const SAMPLER_STATE_TRAIT& trait )
@@ -94,8 +96,9 @@ SamplerState::SamplerState( const SAMPLER_STATE_TRAIT& trait )
 void SamplerState::InitResource( const SAMPLER_STATE_TRAIT& trait )
 {
 	m_state = aga::SamplerState::Create( trait );
-	EnqueueRenderTask( [state = m_state]( )
-	{
-		state->Init( );
-	} );
+	EnqueueRenderTask(
+		[state = m_state]()
+		{
+			state->Init();
+		} );
 }

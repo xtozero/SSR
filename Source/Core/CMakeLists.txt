@@ -52,7 +52,7 @@ set (LIBRARY_TOOL
 	Public/LibraryTool/common.h
 	Public/LibraryTool/Interfacefactories.h)
 
-set (Math
+set (MATH
 	Private/Math/Matrix.cpp
 	Private/Math/Matrix3X3.cpp
 	Private/Math/Plane.cpp
@@ -80,6 +80,9 @@ set (MEMORY
 	Public/Memory/FixedBlockMemoryPool.h
 	Public/Memory/MemoryPool.h
 	Public/Memory/StackMemoryAllocator.h)
+
+set (MISC
+	Public/Misc/EnumClassFlags.h)
 
 set (MULTITHREAD
 	Private/Multithread/TaskScheduler.cpp
@@ -150,7 +153,8 @@ source_group("Filesystem" FILES ${FILESYSTEM})
 source_group("Hash" FILES ${HASH})
 source_group("Json" FILES ${JSON})
 source_group("LibraryTool" FILES ${LIBRARY_TOOL})
-source_group("Math" FILES ${Math})
+source_group("Math" FILES ${MATH})
+source_group("Misc" FILES ${MISC})
 source_group("Memory" FILES ${MEMORY})
 source_group("MultiThread" FILES ${MULTITHREAD})
 source_group("Physics" FILES ${PHYSICS})
@@ -167,8 +171,9 @@ add_library(Core STATIC	${ASSET}
 						${HASH}
 						${JSON}
 						${LIBRARY_TOOL}
-						${Math}
+						${MATH}
 						${MEMORY}
+						${MISC}
 						${MULTITHREAD}
 						${PHYSICS}
 						${REFLECTION}
@@ -187,6 +192,7 @@ PUBLIC
 	./Public/Hash
 	./Public/LibraryTool
 	./Public/Memory
+	./Public/Misc
 	./Public/Multithread
 	./Public/Reflection
 	./Public/Serialization

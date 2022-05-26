@@ -102,22 +102,22 @@ namespace aga
 
 			if ( m_texture )
 			{
-				if ( ( m_trait.m_bindType & RESOURCE_BIND_TYPE::SHADER_RESOURCE ) > 0 )
+				if ( HasAnyFlags( m_trait.m_bindType, RESOURCE_BIND_TYPE::SHADER_RESOURCE ) )
 				{
 					CreateShaderResource();
 				}
 
-				if ( ( m_trait.m_bindType & RESOURCE_BIND_TYPE::RANDOM_ACCESS ) > 0 )
+				if ( HasAnyFlags( m_trait.m_bindType, RESOURCE_BIND_TYPE::RANDOM_ACCESS ) )
 				{
 					CreateUnorderedAccess();
 				}
 
-				if ( ( m_trait.m_bindType & RESOURCE_BIND_TYPE::RENDER_TARGET ) > 0 )
+				if ( HasAnyFlags( m_trait.m_bindType, RESOURCE_BIND_TYPE::RENDER_TARGET ) )
 				{
 					CreateRenderTarget();
 				}
 
-				if ( ( m_trait.m_bindType & RESOURCE_BIND_TYPE::DEPTH_STENCIL ) > 0 )
+				if ( HasAnyFlags( m_trait.m_bindType, RESOURCE_BIND_TYPE::DEPTH_STENCIL ) )
 				{
 					CreateDepthStencil();
 				}

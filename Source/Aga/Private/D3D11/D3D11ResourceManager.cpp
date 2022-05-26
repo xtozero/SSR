@@ -28,14 +28,14 @@ namespace aga
 {
 	IResourceManager* g_resourceManager = nullptr;
 
-	void CD3D11ResourceManager::Shutdown( )
+	void CD3D11ResourceManager::Shutdown()
 	{
-		m_pipelineStateCache.clear( );
+		m_pipelineStateCache.clear();
 	}
 
 	Texture* CD3D11ResourceManager::CreateTexture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
 	{
-		if ( trait.m_miscFlag & RESOURCE_MISC::APP_SIZE_DEPENDENT )
+		if ( HasAnyFlags( trait.m_miscFlag, RESOURCE_MISC::APP_SIZE_DEPENDENT ) )
 		{
 			// TODO : 텍스쳐 리사이즈 로직필요
 			//trait.m_width = m_frameBufferSize.first;
@@ -137,7 +137,7 @@ namespace aga
 	PipelineState* CD3D11ResourceManager::CreatePipelineState( const PipelineStateInitializer& initializer )
 	{
 		auto cached = m_pipelineStateCache.find( initializer );
-		if ( cached != m_pipelineStateCache.end( ) )
+		if ( cached != m_pipelineStateCache.end() )
 		{
 			return cached->second;
 		}
@@ -155,9 +155,9 @@ namespace aga
 		return viewport;
 	}
 
-	CD3D11ResourceManager::~CD3D11ResourceManager( )
+	CD3D11ResourceManager::~CD3D11ResourceManager()
 	{
-		Shutdown( );
+		Shutdown();
 	}
 
 	//void CD3D11ResourceManager::CopyResource( RE_HANDLE dest, const RESOURCE_REGION* destRegionOrNull, RE_HANDLE src, const RESOURCE_REGION* srcRegionOrNull )
@@ -197,17 +197,17 @@ namespace aga
 	//	m_pDeviceContext->UpdateSubresource( pDest, destSubresouce, destRegionOrNull ? &destBox : nullptr, src, srcRowPitch, srcDepthPitch );
 	//}
 
-	void CreateD3D11ResourceManager( )
+	void CreateD3D11ResourceManager()
 	{
-		g_resourceManager = new CD3D11ResourceManager( );
+		g_resourceManager = new CD3D11ResourceManager();
 	}
 
-	void DestoryD3D11ResourceManager( )
+	void DestoryD3D11ResourceManager()
 	{
 		delete g_resourceManager;
 	}
 
-	void* GetD3D11ResourceManager( )
+	void* GetD3D11ResourceManager()
 	{
 		return g_resourceManager;
 	}

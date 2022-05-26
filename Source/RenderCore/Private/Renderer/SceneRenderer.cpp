@@ -301,44 +301,44 @@ void SceneRenderer::AllocateCascadeShadowMaps( const rendercore::VectorSingleFra
 		auto [width, height] = shadow->ShadowMapSize();
 
 		TEXTURE_TRAIT trait = { width,
-								height,
-								CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
-								1,
-								0,
-								1,
-								RESOURCE_FORMAT::R32_FLOAT,
-								RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
-								RESOURCE_BIND_TYPE::RENDER_TARGET | RESOURCE_BIND_TYPE::SHADER_RESOURCE,
-								0 };
+			height,
+			CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
+			1,
+			0,
+			1,
+			RESOURCE_FORMAT::R32_FLOAT,
+			RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
+			RESOURCE_BIND_TYPE::RENDER_TARGET | RESOURCE_BIND_TYPE::SHADER_RESOURCE,
+			RESOURCE_MISC::NONE };
 
 		shadow->ShadowMap().m_shadowMap = aga::Texture::Create( trait );
 
 		TEXTURE_TRAIT depthTrait = { width,
-									height,
-									CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
-									1,
-									0,
-									1,
-									RESOURCE_FORMAT::D24_UNORM_S8_UINT,
-									RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
-									RESOURCE_BIND_TYPE::DEPTH_STENCIL,
-									0 };
+			height,
+			CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
+			1,
+			0,
+			1,
+			RESOURCE_FORMAT::D24_UNORM_S8_UINT,
+			RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
+			RESOURCE_BIND_TYPE::DEPTH_STENCIL,
+			RESOURCE_MISC::NONE };
 
 		shadow->ShadowMap().m_shadowMapDepth = aga::Texture::Create( depthTrait );
 
-		EnqueueRenderTask( [texture = shadow->ShadowMap().m_shadowMap,
-			depthTexture = shadow->ShadowMap().m_shadowMapDepth]()
-		{
-			if ( texture )
+		EnqueueRenderTask(
+			[texture = shadow->ShadowMap().m_shadowMap, depthTexture = shadow->ShadowMap().m_shadowMapDepth]()
 			{
-				texture->Init();
-			}
+				if ( texture )
+				{
+					texture->Init();
+				}
 
-			if ( depthTexture )
-			{
-				depthTexture->Init();
-			}
-		} );
+				if ( depthTexture )
+				{
+					depthTexture->Init();
+				}
+			} );
 	}
 }
 
@@ -562,11 +562,11 @@ void SceneRenderer::RenderShadow()
 		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
 		VisibleDrawSnapshot visibleSnapshot = {
-				0,
-				0,
-				1,
-				-1,
-				&snapshot,
+			0,
+			0,
+			1,
+			-1,
+			&snapshot,
 		};
 
 		VertexBuffer emptyPrimitiveID;
@@ -638,11 +638,11 @@ void SceneRenderer::RenderSkyAtmosphere( IScene& scene, RenderView& renderView )
 	skyAtmosphereDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
 	VisibleDrawSnapshot visibleSnapshot = {
-				0,
-				0,
-				1,
-				-1,
-				&snapshot,
+		0,
+		0,
+		1,
+		-1,
+		&snapshot,
 	};
 
 	VertexBuffer emptyPrimitiveID;
@@ -672,7 +672,7 @@ void SceneRenderer::RenderVolumetricCloud( IScene& scene, RenderView& renderView
 	}
 
 	rendercore::VolumetricCloundDrawPassProcessor volumetricCloundDrawPassProcessor;
-	
+
 	PrimitiveSubMesh meshInfo;
 	meshInfo.m_count = 3;
 
@@ -722,8 +722,8 @@ void SceneRenderer::RenderVolumetricCloud( IScene& scene, RenderView& renderView
 
 	SamplerOption samplerOption;
 	samplerOption.m_addressU =
-	samplerOption.m_addressV =
-	samplerOption.m_addressW = TEXTURE_ADDRESS_MODE::WRAP;
+		samplerOption.m_addressV =
+		samplerOption.m_addressW = TEXTURE_ADDRESS_MODE::WRAP;
 	SamplerState cloudSampler = GraphicsInterface().FindOrCreate( samplerOption );
 	SamplerState weatherSampler = GraphicsInterface().FindOrCreate( samplerOption );
 
@@ -738,11 +738,11 @@ void SceneRenderer::RenderVolumetricCloud( IScene& scene, RenderView& renderView
 	volumetricCloundDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
 	VisibleDrawSnapshot visibleSnapshot = {
-				0,
-				0,
-				1,
-				-1,
-				&snapshot,
+		0,
+		0,
+		1,
+		-1,
+		&snapshot,
 	};
 
 	VertexBuffer emptyPrimitiveID;

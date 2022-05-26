@@ -73,9 +73,9 @@ namespace aga
 	TEXTURE_TRAIT ConvertDescToTrait( const D3D11_TEXTURE2D_DESC& desc )
 	{
 		RESOURCE_FORMAT format = ConvertDxgiFormatToFormat( desc.Format );
-		uint32 access = ConvertUsageToAccessFlag( desc.Usage );
-		uint32 bindType = ConvertBindToType( desc.BindFlags );
-		uint32 miscFlag = ConvertDXMiscToMisc( desc.MiscFlags );
+		RESOURCE_ACCESS_FLAG access = ConvertUsageToAccessFlag( desc.Usage );
+		RESOURCE_BIND_TYPE bindType = ConvertBindToType( desc.BindFlags );
+		RESOURCE_MISC miscFlag = ConvertDXMiscToMisc( desc.MiscFlags );
 
 
 		return TEXTURE_TRAIT{
@@ -399,16 +399,16 @@ namespace aga
 
 	bool IsTexture1D( const TEXTURE_TRAIT& trait )
 	{
-		return ( trait.m_height <= 1 ) && ( ( trait.m_miscFlag & RESOURCE_MISC::APP_SIZE_DEPENDENT ) == 0 );
+		return ( trait.m_height <= 1 ) && ( ( trait.m_miscFlag & RESOURCE_MISC::APP_SIZE_DEPENDENT ) == RESOURCE_MISC::NONE );
 	}
 
 	bool IsTexture2D( const TEXTURE_TRAIT& trait )
 	{
-		return ( trait.m_height > 1 ) && ( ( trait.m_miscFlag & RESOURCE_MISC::TEXTURE3D ) == 0 );
+		return ( trait.m_height > 1 ) && ( ( trait.m_miscFlag & RESOURCE_MISC::TEXTURE3D ) == RESOURCE_MISC::NONE );
 	}
 
 	bool IsTexture3D( const TEXTURE_TRAIT& trait )
 	{
-		return ( trait.m_miscFlag & RESOURCE_MISC::TEXTURE3D ) > 0;
+		return ( trait.m_miscFlag & RESOURCE_MISC::TEXTURE3D ) != RESOURCE_MISC::NONE;
 	}
 }

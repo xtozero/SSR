@@ -17,19 +17,19 @@ void UploadBuffer::Resize( uint32 numElement, const void* initData )
 	}
 }
 
-void UploadBuffer::Unlock( )
+void UploadBuffer::Unlock()
 {
-	GraphicsInterface( ).UnLock( m_buffer );
+	GraphicsInterface().UnLock( m_buffer );
 }
 
-aga::Buffer* UploadBuffer::Resource( )
+aga::Buffer* UploadBuffer::Resource()
 {
-	return m_buffer.Get( );
+	return m_buffer.Get();
 }
 
-const aga::Buffer* UploadBuffer::Resource( ) const
+const aga::Buffer* UploadBuffer::Resource() const
 {
-	return m_buffer.Get( );
+	return m_buffer.Get();
 }
 
 UploadBuffer::UploadBuffer( uint32 elementSize, uint32 numElement, const void* initData ) :
@@ -53,14 +53,15 @@ void UploadBuffer::InitResource( const void* initData )
 		};
 
 		m_buffer = aga::Buffer::Create( trait, initData );
-		EnqueueRenderTask( [buffer = m_buffer]( )
-		{
-			buffer->Init( );
-		} );
+		EnqueueRenderTask(
+			[buffer = m_buffer]()
+			{
+				buffer->Init();
+			} );
 	}
 }
 
-void* UploadBuffer::LockImple( )
+void* UploadBuffer::LockImple()
 {
-	return GraphicsInterface( ).Lock( m_buffer ).m_data;
+	return GraphicsInterface().Lock( m_buffer ).m_data;
 }

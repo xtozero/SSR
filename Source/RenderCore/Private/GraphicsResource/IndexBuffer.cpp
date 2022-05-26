@@ -3,14 +3,14 @@
 
 #include "TaskScheduler.h"
 
-aga::Buffer* IndexBuffer::Resource( )
+aga::Buffer* IndexBuffer::Resource()
 {
-	return m_buffer.Get( );
+	return m_buffer.Get();
 }
 
-const aga::Buffer* IndexBuffer::Resource( ) const
+const aga::Buffer* IndexBuffer::Resource() const
 {
-	return m_buffer.Get( );
+	return m_buffer.Get();
 }
 
 IndexBuffer::IndexBuffer( uint32 numElement, const void* initData, bool isDWORD ) : m_numElement( numElement ), m_isDWORD( isDWORD )
@@ -25,13 +25,14 @@ void IndexBuffer::InitResource( const void* initData )
 		m_numElement,
 		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
 		RESOURCE_BIND_TYPE::INDEX_BUFFER,
-		0,
+		RESOURCE_MISC::NONE,
 		RESOURCE_FORMAT::UNKNOWN
 	};
 
 	m_buffer = aga::Buffer::Create( trait, initData );
-	EnqueueRenderTask( [buffer = m_buffer]( )
-	{
-		buffer->Init( );
-	} );
+	EnqueueRenderTask( 
+		[buffer = m_buffer]()
+		{
+			buffer->Init();
+		} );
 }

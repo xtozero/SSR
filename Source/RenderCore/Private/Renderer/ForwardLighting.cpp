@@ -11,45 +11,46 @@ void ForwardLightBuffer::Initialize( uint32 bytePerElement, uint32 numElements, 
 		numElements,
 		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
 		RESOURCE_BIND_TYPE::SHADER_RESOURCE,
-		0,
+		RESOURCE_MISC::NONE,
 		format
 	};
 
 	m_buffer = aga::Buffer::Create( trait );
-	EnqueueRenderTask( [buffer = m_buffer]( )
-	{
-		buffer->Init( );
-	} );
+	EnqueueRenderTask(
+		[buffer = m_buffer]()
+		{
+			buffer->Init();
+		} );
 }
 
-void* ForwardLightBuffer::Lock( )
+void* ForwardLightBuffer::Lock()
 {
-	assert( IsInRenderThread( ) );
-	return GraphicsInterface( ).Lock( m_buffer ).m_data;
+	assert( IsInRenderThread() );
+	return GraphicsInterface().Lock( m_buffer ).m_data;
 }
 
-void ForwardLightBuffer::Unlock( )
+void ForwardLightBuffer::Unlock()
 {
-	assert( IsInRenderThread( ) );
-	GraphicsInterface( ).UnLock( m_buffer );
+	assert( IsInRenderThread() );
+	GraphicsInterface().UnLock( m_buffer );
 }
 
-aga::ShaderResourceView* ForwardLightBuffer::SRV( )
+aga::ShaderResourceView* ForwardLightBuffer::SRV()
 {
-	return m_buffer ? m_buffer->SRV( ) : nullptr;
+	return m_buffer ? m_buffer->SRV() : nullptr;
 }
 
-const aga::ShaderResourceView* ForwardLightBuffer::SRV( ) const
+const aga::ShaderResourceView* ForwardLightBuffer::SRV() const
 {
-	return m_buffer ? m_buffer->SRV( ) : nullptr;
+	return m_buffer ? m_buffer->SRV() : nullptr;
 }
 
-aga::Buffer* ForwardLightBuffer::Resource( )
+aga::Buffer* ForwardLightBuffer::Resource()
 {
 	return m_buffer;
 }
 
-const aga::Buffer* ForwardLightBuffer::Resource( ) const
+const aga::Buffer* ForwardLightBuffer::Resource() const
 {
 	return m_buffer;
 }
