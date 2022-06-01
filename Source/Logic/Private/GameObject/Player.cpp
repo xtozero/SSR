@@ -15,9 +15,9 @@ DECLARE_GAME_OBJECT( player, CPlayer );
 
 void CPlayer::Initialize( CGameLogic& gameLogic, World& world )
 {
-	CGameObject::Initialize( gameLogic, world );
+	Super::Initialize( gameLogic, world );
 
-	if ( InputController* inputController = gameLogic.GetInputController( ) )
+	if ( InputController* inputController = gameLogic.GetInputController() )
 	{
 		inputController->Control( this );
 	}
@@ -25,11 +25,11 @@ void CPlayer::Initialize( CGameLogic& gameLogic, World& world )
 
 void CPlayer::Think( float elapsedTime )
 {
-	CGameObject::Think( elapsedTime );
+	Super::Think( elapsedTime );
 
 	Vector force( static_cast<float>( m_inputDirection[2] - m_inputDirection[0] ),
-				0.f,
-				static_cast<float>( m_inputDirection[1] - m_inputDirection[3] ) );
+				  0.f,
+				  static_cast<float>( m_inputDirection[1] - m_inputDirection[3] ) );
 
 	force *= m_kineticForceScale;
 	m_movement.Update( force, elapsedTime );
@@ -38,7 +38,7 @@ void CPlayer::Think( float elapsedTime )
 
 void CPlayer::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 {
-	CGameObject::LoadProperty( gameLogic, json );
+	Super::LoadProperty( gameLogic, json );
 
 	if ( const JSON::Value* pCamera = json.Find( "Camera" ) )
 	{
@@ -47,14 +47,14 @@ void CPlayer::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 
 	if ( const JSON::Value* pMaxForce = json.Find( "Max_Force" ) )
 	{
-		m_movement.SetMaxForceMagnitude( static_cast<float>( pMaxForce->AsReal( ) ) );
+		m_movement.SetMaxForceMagnitude( static_cast<float>( pMaxForce->AsReal() ) );
 	}
 
 	if ( const JSON::Value* pFriction = json.Find( "Friction" ) )
 	{
 		const JSON::Value& friction = *pFriction;
 
-		if ( friction.Size( ) == 2 )
+		if ( friction.Size() == 2 )
 		{
 			m_movement.SetFriction( { static_cast<float>( friction[0].AsReal() ), static_cast<float>( friction[1].AsReal() ) } );
 		}
@@ -62,7 +62,7 @@ void CPlayer::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 
 	if ( const JSON::Value* pForceScale = json.Find( "Kinetic_Force_Scale" ) )
 	{
-		m_kineticForceScale = static_cast<float>( pForceScale->AsReal( ) );
+		m_kineticForceScale = static_cast<float>( pForceScale->AsReal() );
 	}
 }
 
@@ -78,29 +78,31 @@ void CPlayer::ProcessInput( const UserInput& input, CGameLogic& gameLogic )
 		OnMouseLButton( input, gameLogic );
 		break;
 	case UIC_U:
-		RotatePrimaryLightDir( gameLogic, angleInterval * timer.GetElapsedTime( ), 0.f );
+		RotatePrimaryLightDir( gameLogic, angleInterval * timer.GetElapsedTime(), 0.f );
 		break;
 	case UIC_J:
-		RotatePrimaryLightDir( gameLogic, -angleInterval * timer.GetElapsedTime( ), 0.f );
+		RotatePrimaryLightDir( gameLogic, -angleInterval * timer.GetElapsedTime(), 0.f );
 		break;
 	case UIC_I:
-		RotatePrimaryLightDir( gameLogic, 0.f, angleInterval * timer.GetElapsedTime( ) );
+		RotatePrimaryLightDir( gameLogic, 0.f, angleInterval * timer.GetElapsedTime() );
 		break;
 	case UIC_K:
-		RotatePrimaryLightDir( gameLogic, 0.f, -angleInterval * timer.GetElapsedTime( ) );
+		RotatePrimaryLightDir( gameLogic, 0.f, -angleInterval * timer.GetElapsedTime() );
 		break;
 	}
 }
 
-CPlayer::CPlayer( )
+CPlayer::CPlayer()
 {
 	m_cameraComponent = CreateComponent<CameraComponent>( *this );
 	m_rootComponent = m_cameraComponent;
+
+	m_think.m_canEverTick = true;
 }
 
-void CPlayer::SetupInputComponent( )
+void CPlayer::SetupInputComponent()
 {
-	CGameObject::SetupInputComponent( );
+	Super::SetupInputComponent();
 
 	m_inputComponent->BindInput( UIC_MOUSE_MOVE, this, &CPlayer::OnMouseMove );
 	m_inputComponent->BindInput( UIC_MOUSE_LEFT, this, &CPlayer::OnMouseLButton );
@@ -116,10 +118,10 @@ void CPlayer::OnMouseLButton( const UserInput& input, CGameLogic& gameLogic )
 {
 	if ( input.m_axis[UserInput::Z_AXIS] >= 1 )
 	{
-		if ( Owner<CGameObject*> newObject = GetGameObjectFactory( ).CreateGameObjectByClassName( "ball_projectile" ) )
+		if ( Owner<CGameObject*> newObject = GetGameObjectFactory().CreateGameObjectByClassName( "ball_projectile" ) )
 		{
 			newObject->SetName( "ball" );
-			newObject->SetPosition( m_cameraComponent->GetPosition( ) );
+			newObject->SetPosition( m_cameraComponent->GetPosition() );
 			newObject->SetScale( 5, 5, 5 );
 			newObject->SetColliderType( COLLIDER::SPHERE );
 			//newObject->GetRigidBody( )->SetMass( 10 );
@@ -178,7 +180,7 @@ void CPlayer::OnWheelMove( const UserInput& input )
 	m_cameraComponent->Move( 0, 0, static_cast<float>( input.m_axis[UserInput::Z_AXIS] ) );
 }
 
-void CPlayer::OnMoveKey( const UserInput & input )
+void CPlayer::OnMoveKey( const UserInput& input )
 {
 	if ( input.m_code == USER_INPUT_CODE::UIC_LEFT )
 	{

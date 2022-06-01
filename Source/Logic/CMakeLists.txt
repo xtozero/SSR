@@ -31,11 +31,15 @@ set (CORE
 	Private/Core/GameLogic.cpp
 	Private/Core/Logic.cpp
 	Private/Core/ModuleInit.cpp
+	Private/Core/ThinkFunction.cpp
+	Private/Core/ThinkTaskManager.cpp
 	Private/Core/Timer.cpp
 	Public/Core/DebugConsole.h
 	Public/Core/GameLogic.h
 	Public/Core/IListener.h
 	Public/Core/ILogic.h
+	Public/Core/ThinkFunction.h
+	Public/Core/ThinkTaskManager.h
 	Public/Core/Timer.h
 	Public/Core/UtilWindowInfo.h)
 	

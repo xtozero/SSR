@@ -19,17 +19,17 @@ void World::OnDeviceRestore( CGameLogic& gameLogic )
 	}
 }
 
-void World::Initialize( )
+void World::Initialize()
 {
-	m_scene = GetInterface<IRenderCore>( )->CreateScene( );
+	m_scene = GetInterface<IRenderCore>()->CreateScene();
 }
 
-void World::CleanUp( )
+void World::CleanUp()
 {
-	m_gameObjects.clear( );
-	GetInterface<IRenderCore>( )->RemoveScene( m_scene );
+	m_gameObjects.clear();
+	GetInterface<IRenderCore>()->RemoveScene( m_scene );
 
-	WaitRenderThread( );
+	WaitRenderThread();
 }
 
 void World::Pause()
@@ -42,17 +42,17 @@ void World::Resume()
 	m_clock.Resume();
 }
 
-void World::PreparePhysics( )
+void World::PreparePhysics()
 {
 	m_collisionData.Reset( m_contacts, MAX_CONTACTS );
 	m_resolver.Initialize( MAX_CONTACTS * 8 );
 
 	for ( auto& node : m_bvhTree )
 	{
-		if ( node.IsLeaf( ) )
+		if ( node.IsLeaf() )
 		{
-			node.m_body->ClearAccumulators( );
-			node.m_body->CalculateDerivedData( );
+			node.m_body->ClearAccumulators();
+			node.m_body->CalculateDerivedData();
 		}
 	}
 }
@@ -60,16 +60,16 @@ void World::PreparePhysics( )
 void World::RunPhysics( float duration )
 {
 	m_registry.UpdateForces( duration );
-	
+
 	std::vector<ObjectRelatedRigidBody*> dirtyBody;
 	for ( auto& node : m_bvhTree )
 	{
-		if ( node.IsLeaf( ) )
+		if ( node.IsLeaf() )
 		{
 			if ( node.m_body->Integrate( duration ) || node.m_body->GetDirty() )
 			{
 				dirtyBody.push_back( node.m_body );
-				node.m_body->ResetDirty( );
+				node.m_body->ResetDirty();
 			}
 		}
 	}
@@ -83,7 +83,7 @@ void World::RunPhysics( float duration )
 		}
 	}
 
-	int32 usedContacts = GenerateContacts( );
+	int32 usedContacts = GenerateContacts();
 
 	m_resolver.ResolveContacts( m_contacts, usedContacts, duration );
 }
@@ -92,10 +92,10 @@ void World::BeginFrame()
 {
 	m_clock.Tick();
 
-	for ( auto object = m_gameObjects.begin( ); object != m_gameObjects.end( ); )
+	for ( auto object = m_gameObjects.begin(); object != m_gameObjects.end(); )
 	{
-		CGameObject* candidate = object->get( );
-		if ( candidate->WillRemove( ) )
+		CGameObject* candidate = object->get();
+		if ( candidate->WillRemove() )
 		{
 			// OnObjectRemoved( candidate->GetRigidBody( ) );
 			object = m_gameObjects.erase( object );
@@ -105,30 +105,28 @@ void World::BeginFrame()
 			++object;
 		}
 	}
+
+	float totalTime = GetTimer().GetTotalTime();
+	m_thinkTaskManager.BeginFrame( totalTime );
 }
 
 void World::RunFrame()
 {
-	float elapsedTime = GetTimer().GetElapsedTime();
-	for ( auto& object : m_gameObjects )
-	{
-		object->Think( elapsedTime );
-	}
+	RunThinkGroup( ThinkingGroup::PrePhysics );
+	RunThinkGroup( ThinkingGroup::StartPhysics );
+	RunThinkGroup( ThinkingGroup::DuringPhysics );
+	RunThinkGroup( ThinkingGroup::EndPhysics );
 }
 
 void World::EndFrame()
 {
-	float elapsedTime = GetTimer().GetElapsedTime();
-	for ( auto& object : m_gameObjects )
-	{
-		object->PostThink( elapsedTime );
-	}
+	RunThinkGroup( ThinkingGroup::PostPhysics );
 }
 
 void World::SpawnObject( CGameLogic& gameLogic, Owner<CGameObject*> object )
 {
 	object->Initialize( gameLogic, *this );
-	object->SetID( m_gameObjects.size( ) );
+	object->SetID( m_gameObjects.size() );
 	m_gameObjects.emplace_back( object );
 
 	const BoundingSphere* sphere = reinterpret_cast<const BoundingSphere*>( object->GetCollider( COLLIDER::SPHERE ) );
@@ -148,11 +146,16 @@ void World::DebugDrawBVH( CDebugOverlayManager& debugOverlay, uint32 color, floa
 {
 	for ( auto node : m_bvhTree )
 	{
-		debugOverlay.AddDebugSphere( node.m_volume.GetCenter( ), node.m_volume.GetRadius( ), color, duration );
+		debugOverlay.AddDebugSphere( node.m_volume.GetCenter(), node.m_volume.GetRadius(), color, duration );
 	}
 }
 
-int32 World::GenerateContacts( )
+ThinkTaskManager& World::GetThinkTaskManager()
+{
+	return m_thinkTaskManager;
+}
+
+int32 World::GenerateContacts()
 {
 	m_collisionData.m_friction = 0.9f;
 	m_collisionData.m_restitution = 0.1f;
@@ -163,25 +166,25 @@ int32 World::GenerateContacts( )
 
 	for ( uint32 i = 0; i < nPotentialContact; ++i )
 	{
-		CGameObject* gameobject[] = { candidate[i].m_body[0]->GetGameObject( ), candidate[i].m_body[1]->GetGameObject( ) };
+		CGameObject* gameobject[] = { candidate[i].m_body[0]->GetGameObject(), candidate[i].m_body[1]->GetGameObject() };
 
 		assert( gameobject[0] != nullptr && gameobject[1] != nullptr );
 
-		if ( gameobject[0]->WillRemove( ) || gameobject[1]->WillRemove( ) )
+		if ( gameobject[0]->WillRemove() || gameobject[1]->WillRemove() )
 		{
 			continue;
 		}
 
 		// if collide between immovable object skip generate contacts
-		if ( ( candidate[i].m_body[0]->GetInverseMass( ) == 0 ) && ( candidate[i].m_body[1]->GetInverseMass( ) == 0 ) )
+		if ( ( candidate[i].m_body[0]->GetInverseMass() == 0 ) && ( candidate[i].m_body[1]->GetInverseMass() == 0 ) )
 		{
 			continue;
 		}
 
-		COLLISION_UTIL::DetectCollisionObjectAndObject( candidate[i].m_body[0]->GetGameObject( ),
-														candidate[i].m_body[0], 
-														candidate[i].m_body[1]->GetGameObject( ),
-														candidate[i].m_body[1], 
+		COLLISION_UTIL::DetectCollisionObjectAndObject( candidate[i].m_body[0]->GetGameObject(),
+														candidate[i].m_body[0],
+														candidate[i].m_body[1]->GetGameObject(),
+														candidate[i].m_body[1],
 														&m_collisionData );
 	}
 
@@ -200,14 +203,20 @@ void World::OnObjectRemoved( ObjectRelatedRigidBody* body )
 	m_bvhTree.Remove( body );
 }
 
+void World::RunThinkGroup( ThinkingGroup group )
+{
+	float elapsedTime = GetTimer().GetElapsedTime();
+	m_thinkTaskManager.RunThinkGroup( group, elapsedTime );
+}
+
 CPlayer* GetLocalPlayer( World& w )
 {
 	CPlayer* localPlayer = nullptr;
 
-	const auto& gameObjects = w.GameObjects( );
+	const auto& gameObjects = w.GameObjects();
 	for ( const auto& gameObject : gameObjects )
 	{
-		if ( CPlayer* player = Cast<CPlayer>( gameObject.get( ) ) )
+		if ( CPlayer* player = Cast<CPlayer>( gameObject.get() ) )
 		{
 			localPlayer = player;
 			break;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/ThinkTaskManager.h"
 #include "Core/Timer.h"
 #include "GameObject/GameObject.h"
 #include "Math/Vector.h"
@@ -43,7 +44,9 @@ public:
 	void UpdateObjectMovement( ObjectRelatedRigidBody* body, const BoundingSphere& volume );
 	void DebugDrawBVH( CDebugOverlayManager& debugOverlay, uint32 color, float duration );
 
-	const std::vector<std::unique_ptr<CGameObject>>& GameObjects( )
+	ThinkTaskManager& GetThinkTaskManager();
+
+	const std::vector<std::unique_ptr<CGameObject>>& GameObjects() const
 	{
 		return m_gameObjects;
 	}
@@ -57,6 +60,8 @@ private:
 	int32 GenerateContacts();
 	void OnObjectSpawned( ObjectRelatedRigidBody* body, const BoundingSphere& volume );
 	void OnObjectRemoved( ObjectRelatedRigidBody* body );
+
+	void RunThinkGroup( ThinkingGroup group );
 
 	std::vector<std::unique_ptr<CGameObject>> m_gameObjects;
 
@@ -75,6 +80,8 @@ private:
 	IScene* m_scene = nullptr;
 
 	Timer m_clock;
+
+	ThinkTaskManager m_thinkTaskManager;
 };
 
 CPlayer* GetLocalPlayer( World& w );

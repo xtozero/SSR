@@ -42,7 +42,14 @@ void CGameObject::Initialize( CGameLogic& gameLogic, World& world )
 
 	for ( Component* component : m_components )
 	{
-		component->RegisterComponent( );
+		component->RegisterComponent();
+	}
+
+	RegisterThinkFunction();
+
+	for ( Component* component : m_components )
+	{
+		component->RegisterThinkFunction();
 	}
 
 	//if ( LoadMaterial( gameLogic ) == false )
@@ -121,51 +128,51 @@ void CGameObject::SetRotate( const Quaternion& rotate )
 	// m_body.SetDirty( DF_ROTATION );
 }
 
-const Vector& CGameObject::GetPosition( )
+const Vector& CGameObject::GetPosition()
 {
 	if ( m_rootComponent )
 	{
-		return m_rootComponent->GetPosition( );
+		return m_rootComponent->GetPosition();
 	}
 
 	return Vector::ZeroVector;
 }
 
-const Vector& CGameObject::GetScale( )
+const Vector& CGameObject::GetScale()
 {
 	if ( m_rootComponent )
 	{
-		return m_rootComponent->GetScale( );
+		return m_rootComponent->GetScale();
 	}
 
 	return Vector::OneVector;
 }
 
-const Quaternion& CGameObject::GetRotate( )
+const Quaternion& CGameObject::GetRotate()
 {
 	if ( m_rootComponent )
 	{
-		return m_rootComponent->GetRotate( );
+		return m_rootComponent->GetRotate();
 	}
 
 	return Quaternion::Identity;
 }
 
-const Matrix& CGameObject::GetTransformMatrix( )
+const Matrix& CGameObject::GetTransformMatrix()
 {
 	if ( m_rootComponent )
 	{
-		return m_rootComponent->GetTransformMatrix( );
+		return m_rootComponent->GetTransformMatrix();
 	}
 
 	return Matrix::Identity;
 }
 
-const Matrix& CGameObject::GetInvTransformMatrix( )
+const Matrix& CGameObject::GetInvTransformMatrix()
 {
 	if ( m_rootComponent )
 	{
-		return m_rootComponent->GetInvTransformMatrix( );
+		return m_rootComponent->GetInvTransformMatrix();
 	}
 
 	return Matrix::Identity;
@@ -200,30 +207,6 @@ void CGameObject::Think( float elapsedTime )
 		//m_body.SetVelocity( CXMFLOAT3( 0.f, 0.f, 0.f ) );
 		//m_body.SetRotation( CXMFLOAT3( 0.f, 0.f, 0.f ) );
 	}
-
-	for ( Component* component : m_components )
-	{
-		component->ThinkComponent( elapsedTime );
-	}
-}
-
-void CGameObject::PostThink( float /*elapsedTime*/ )
-{
-	//const CXMFLOAT3& newPos = m_body.GetPosition( );
-	//const CXMFLOAT4& newRot = m_body.GetOrientation( );
-
-	//bool needUpdatePos = m_vecPos != newPos;
-	//bool needUpdateRot = m_vecRotate != newRot;
-
-	//if ( needUpdatePos )
-	//{
-	//	m_vecPos = newPos;
-	//}
-
-	//if ( needUpdateRot )
-	//{
-	//	m_vecRotate = newRot;
-	//}
 }
 
 void CGameObject::SetMaterialName( const std::string& pMaterialName )
@@ -231,7 +214,7 @@ void CGameObject::SetMaterialName( const std::string& pMaterialName )
 	m_materialName = pMaterialName;
 }
 
-const ICollider* CGameObject::GetDefaultCollider( )
+const ICollider* CGameObject::GetDefaultCollider()
 {
 	return GetCollider( m_colliderType );
 }
@@ -244,7 +227,7 @@ const ICollider* CGameObject::GetCollider( int32 type )
 	}
 
 	UpdateCollider( static_cast<COLLIDER::TYPE>( type ) );
-	return m_colliders[type].get( );
+	return m_colliders[type].get();
 }
 
 const std::vector<std::unique_ptr<ICollider>>& CGameObject::GetSubColliders( int32 type )
@@ -257,32 +240,32 @@ void CGameObject::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 {
 	if ( const JSON::Value* pName = json.Find( "Name" ) )
 	{
-		SetName( pName->AsString( ) );
+		SetName( pName->AsString() );
 	}
-	
+
 	if ( const JSON::Value* pPos = json.Find( "Position" ) )
 	{
 		const JSON::Value& pos = *pPos;
 
-		if ( pos.Size( ) == 3 )
+		if ( pos.Size() == 3 )
 		{
-			float x = static_cast<float>( pos[0].AsReal( ) );
-			float y = static_cast<float>( pos[1].AsReal( ) );
-			float z = static_cast<float>( pos[2].AsReal( ) );
+			float x = static_cast<float>( pos[0].AsReal() );
+			float y = static_cast<float>( pos[1].AsReal() );
+			float z = static_cast<float>( pos[2].AsReal() );
 
 			SetPosition( x, y, z );
 		}
 	}
-	
+
 	if ( const JSON::Value* pScale = json.Find( "Scale" ) )
 	{
 		const JSON::Value& scale = *pScale;
 
-		if ( scale.Size( ) == 3 )
+		if ( scale.Size() == 3 )
 		{
-			float x = static_cast<float>( scale[0].AsReal( ) );
-			float y = static_cast<float>( scale[1].AsReal( ) );
-			float z = static_cast<float>( scale[2].AsReal( ) );
+			float x = static_cast<float>( scale[0].AsReal() );
+			float y = static_cast<float>( scale[1].AsReal() );
+			float z = static_cast<float>( scale[2].AsReal() );
 
 			SetScale( x, y, z );
 		}
@@ -292,33 +275,33 @@ void CGameObject::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 	{
 		const JSON::Value& rotate = *pRotate;
 
-		if ( rotate.Size( ) == 3 )
+		if ( rotate.Size() == 3 )
 		{
-			float pitch = static_cast<float>( rotate[0].AsReal( ) );
+			float pitch = static_cast<float>( rotate[0].AsReal() );
 			pitch = XMConvertToRadians( pitch );
 
-			float yaw = static_cast<float>( rotate[1].AsReal( ) );
+			float yaw = static_cast<float>( rotate[1].AsReal() );
 			yaw = XMConvertToRadians( yaw );
 
-			float roll = static_cast<float>( rotate[2].AsReal( ) );
+			float roll = static_cast<float>( rotate[2].AsReal() );
 			roll = XMConvertToRadians( roll );
 
 			SetRotate( Quaternion( pitch, yaw, roll ) );
 		}
 	}
-	
+
 	//if ( const JSON::Value* pRenderOption = json.Find( "RenderOption" ) )
 	//{
 	//	// SetMaterialName( pMat->AsString( ) );
 	//	m_pRenderOption = GetInterface<IAssetLoader>( )->GetRenderOption( pRenderOption->AsString() );
 	//}
-	
+
 	if ( const JSON::Value* pReflectable = json.Find( "Reflectable" ) )
 	{
-		AddProperty( REFLECTABLE_OBJECT );
+		AddProperty( GAMEOBJECT_PROPERTY::REFLECTABLE_OBJECT );
 	}
 
-	if ( const JSON::Value* pColliderType = json.Find(  "ColliderType" ) )
+	if ( const JSON::Value* pColliderType = json.Find( "ColliderType" ) )
 	{
 		const std::string& type = pColliderType->AsString();
 
@@ -336,13 +319,13 @@ void CGameObject::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 		}
 		else
 		{
-			__debugbreak( );
+			__debugbreak();
 		}
 	}
 
 	if ( const JSON::Value* pMass = json.Find( "Mass" ) )
 	{
-		float mass = static_cast<float>( pMass->AsReal( ) );
+		float mass = static_cast<float>( pMass->AsReal() );
 		assert( ( m_colliderType != COLLIDER::AABB ) || ( mass == FLT_MAX ) );
 		if ( PrimitiveComponent* primitiveComponent = Cast<PrimitiveComponent>( m_rootComponent ) )
 		{
@@ -354,12 +337,12 @@ void CGameObject::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
 	{
 		const JSON::Value& damping = *pDamping;
 
-		if ( damping.Size( ) == 2 )
+		if ( damping.Size() == 2 )
 		{
 			if ( PrimitiveComponent* primitiveComponent = Cast<PrimitiveComponent>( m_rootComponent ) )
 			{
-				primitiveComponent->SetLinearDamping( static_cast<float>( damping[0].AsReal( ) ) );
-				primitiveComponent->SetAngularDamping( static_cast<float>( damping[1].AsReal( ) ) );
+				primitiveComponent->SetLinearDamping( static_cast<float>( damping[0].AsReal() ) );
+				primitiveComponent->SetAngularDamping( static_cast<float>( damping[1].AsReal() ) );
 			}
 		}
 	}
@@ -370,22 +353,26 @@ void CGameObject::SetInputController( InputController* inputController )
 	m_inputController = inputController;
 }
 
-InputComponent* CGameObject::GetInputComponent( )
+InputComponent* CGameObject::GetInputComponent()
 {
 	return m_inputComponent;
 }
 
-void CGameObject::InitializeInputComponent( )
+void CGameObject::InitializeInputComponent()
 {
 	if ( m_inputComponent == nullptr )
 	{
 		m_inputComponent = CreateComponent<InputComponent>( *this );
-		SetupInputComponent( );
+		SetupInputComponent();
 	}
 }
 
-CGameObject::CGameObject( )
+CGameObject::CGameObject()
 {
+	m_think.m_thinkGroup = ThinkingGroup::PrePhysics;
+	m_think.m_canEverTick = false;
+	m_think.m_thinkInterval = 0.f;
+
 	for ( uint32 i = 0; i < COLLIDER::COUNT; ++i )
 	{
 		m_originalColliders[i] = nullptr;
@@ -393,16 +380,23 @@ CGameObject::CGameObject( )
 	}
 }
 
-CGameObject::~CGameObject( )
+CGameObject::~CGameObject()
 {
 	if ( m_inputController )
 	{
-		m_inputController->Abandon( );
+		m_inputController->Abandon();
 	}
 
 	for ( Component* component : m_components )
 	{
-		component->UnregisterComponent( );
+		component->UnRegisterThinkFunction();
+	}
+
+	UnRegisterThinkFunction();
+
+	for ( Component* component : m_components )
+	{
+		component->UnregisterComponent();
 		delete component;
 	}
 }
@@ -428,7 +422,7 @@ CGameObject::~CGameObject( )
 //	return true;
 //}
 
-void CGameObject::CalcOriginalCollider( )
+void CGameObject::CalcOriginalCollider()
 {
 	//if ( m_pModel == nullptr )
 	//{
@@ -441,7 +435,7 @@ void CGameObject::CalcOriginalCollider( )
 	//}
 }
 
-void CGameObject::SetupInputComponent( )
+void CGameObject::SetupInputComponent()
 {
 }
 
@@ -458,7 +452,7 @@ void CGameObject::UpdateCollider( COLLIDER::TYPE type )
 	//}
 }
 
-void CGameObject::UpdateAllCollider( )
+void CGameObject::UpdateAllCollider()
 {
 	for ( uint32 i = 0; i < COLLIDER::COUNT; ++i )
 	{
@@ -473,10 +467,26 @@ void CGameObject::UpdateSubCollider( COLLIDER::TYPE type )
 {
 	UpdateCollider( type );
 
-	if ( m_colliders[type].get( ) )
+	if ( m_colliders[type].get() )
 	{
 		m_colliders[type]->CalcSubMeshBounds( m_subColliders[type] );
 	}
+}
+
+void CGameObject::RegisterThinkFunction()
+{
+	if ( m_think.m_canEverTick )
+	{
+		assert( GetWorld() != nullptr );
+
+		m_think.m_target = this;
+		m_think.RegisterThinkFunction( *GetWorld() );
+	}
+}
+
+void CGameObject::UnRegisterThinkFunction()
+{
+	m_think.UnRegisterThinkFunction();
 }
 
 void RemoveObject( CGameObject& object )

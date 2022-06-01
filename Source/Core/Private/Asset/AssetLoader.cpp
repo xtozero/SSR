@@ -181,10 +181,10 @@ AssetLoaderSharedHandle AssetLoader::LoadAsset( const char* assetPath, LoadCompl
 						{
 							EnqueueThreadTask<ThreadType::GameThread>(
 								[handle, newAsset]()
-							{
-								assert( IsInGameThread() );
-								handle->ExecuteCompletionCallback();
-							} );
+								{
+									assert( IsInGameThread() );
+									handle->ExecuteCompletionCallback();
+								} );
 						}
 					}
 					else // Fail...

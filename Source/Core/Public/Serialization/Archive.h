@@ -187,22 +187,22 @@ private:
 
 		EnqueueThreadTask<ThreadType::GameThread>(
 			[&value, subSequentHandle, assetPath = std::move( path )]()
-		{
-			subSequentHandle->DecreasePrerequisite();
+			{
+				subSequentHandle->DecreasePrerequisite();
 
-			IAssetLoader::LoadCompletionCallback onLoadComplete;
-			onLoadComplete.BindFunctor( [&value, subSequentHandle]( const std::shared_ptr<void>& asset )
-				{
-					value = std::reinterpret_pointer_cast<AssetType>( asset );
-				} );
+				IAssetLoader::LoadCompletionCallback onLoadComplete;
+				onLoadComplete.BindFunctor( [&value, subSequentHandle]( const std::shared_ptr<void>& asset )
+					{
+						value = std::reinterpret_pointer_cast<AssetType>( asset );
+					} );
 
-			auto assetLoader = GetInterface<IAssetLoader>();
-			assetLoader->SetHandleInProcess( subSequentHandle );
-			AssetLoaderSharedHandle handle = assetLoader->RequestAsyncLoad( assetPath, onLoadComplete );
-			assetLoader->SetHandleInProcess( nullptr );
+				auto assetLoader = GetInterface<IAssetLoader>();
+				assetLoader->SetHandleInProcess( subSequentHandle );
+				AssetLoaderSharedHandle handle = assetLoader->RequestAsyncLoad( assetPath, onLoadComplete );
+				assetLoader->SetHandleInProcess( nullptr );
 
-			assert( handle->IsLoadingInProgress() || handle->IsLoadComplete() );
-		} );
+				assert( handle->IsLoadingInProgress() || handle->IsLoadComplete() );
+			} );
 	}
 
 	template <typename T>

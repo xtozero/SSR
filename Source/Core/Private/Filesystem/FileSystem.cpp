@@ -7,7 +7,7 @@
 
 struct FileSystemImplOverlapped : public FileSystemOverlapped
 {
-	FileSystemImplOverlapped( ) : FileSystemOverlapped{ }
+	FileSystemImplOverlapped() : FileSystemOverlapped{ }
 	{ }
 
 	IFileSystem::IOCompletionCallback m_callback;
@@ -21,8 +21,8 @@ public:
 	virtual uint32 GetFileSize( const FileHandle& handle ) const override;
 	virtual bool ReadAsync( const FileHandle& handle, char* buffer, uint32 size, IOCompletionCallback* callback = nullptr ) override;
 
-	FileSystemImpl( );
-	virtual ~FileSystemImpl( );
+	FileSystemImpl();
+	virtual ~FileSystemImpl();
 	FileSystemImpl( const FileSystemImpl& ) = delete;
 	FileSystemImpl& operator=( const FileSystemImpl& ) = delete;
 	FileSystemImpl( FileSystemImpl&& ) = delete;
@@ -51,7 +51,7 @@ uint32 FileSystemImpl::GetFileSize( const FileHandle& handle ) const
 
 bool FileSystemImpl::ReadAsync( const FileHandle& handle, char* buffer, uint32 size, IOCompletionCallback* callback )
 {
-	if ( handle.IsValid( ) == false )
+	if ( handle.IsValid() == false )
 	{
 		return false;
 	}
@@ -66,42 +66,43 @@ bool FileSystemImpl::ReadAsync( const FileHandle& handle, char* buffer, uint32 s
 	return ( o != nullptr );
 }
 
-FileSystemImpl::FileSystemImpl( )
+FileSystemImpl::FileSystemImpl()
 {
-	auto waitIO = [this]( ) {
+	auto waitIO = [this]() {
 		while ( true )
 		{
-			FileSystemImplOverlapped* o = m_fileSystem.WaitAsyncIO( );
+			FileSystemImplOverlapped* o = m_fileSystem.WaitAsyncIO();
 			if ( o == nullptr )
 			{
 				break;
 			}
 
-			EnqueueThreadTask<ThreadType::GameThread>( [this, o]( )
-			{
-				if ( o->m_callback.IsBound( ) )
+			EnqueueThreadTask<ThreadType::GameThread>(
+				[this, o]()
 				{
-					o->m_callback( o->m_buffer, o->m_bufferSize );
-				}
+					if ( o->m_callback.IsBound() )
+					{
+						o->m_callback( o->m_buffer, o->m_bufferSize );
+					}
 
-				delete[] o->m_buffer;
-				m_fileSystem.CleanUpIORequest( o );
-			} );
+					delete[] o->m_buffer;
+					m_fileSystem.CleanUpIORequest( o );
+				} );
 		}
 	};
 
 	m_hWaitIO = EnqueueThreadTask<ThreadType::FileSystemThread>( waitIO );
 }
 
-FileSystemImpl::~FileSystemImpl( )
+FileSystemImpl::~FileSystemImpl()
 {
-	m_fileSystem.SuspendWaitAsyncIO( );
-	GetInterface<ITaskScheduler>( )->Wait( m_hWaitIO );
+	m_fileSystem.SuspendWaitAsyncIO();
+	GetInterface<ITaskScheduler>()->Wait( m_hWaitIO );
 }
 
-IFileSystem* CreateFileSystem( )
-{ 
-	return new FileSystemImpl( );
+IFileSystem* CreateFileSystem()
+{
+	return new FileSystemImpl();
 }
 
 void DestroyFileSystem( IFileSystem* fileSystem )

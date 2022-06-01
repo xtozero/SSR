@@ -17,14 +17,16 @@ namespace
 
 void CBallProjectile::Think( float /*elapsedTime*/ )
 {
-	if ( GetPosition( ).y < PROJECTILE_HEIGHT_LOWER_LIMIT )
+	if ( GetPosition().y < PROJECTILE_HEIGHT_LOWER_LIMIT )
 	{
 		RemoveObject( *this );
 	}
 }
 
-CBallProjectile::CBallProjectile( )
+CBallProjectile::CBallProjectile()
 {
+	m_think.m_canEverTick = true;
+
 	SetMaterialName( "mat_default" );
 }
 
