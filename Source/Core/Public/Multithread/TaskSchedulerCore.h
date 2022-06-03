@@ -107,7 +107,7 @@ protected:
 	template <typename... TArgs>
 	Task( size_t workerAffinity, TArgs&&... args ) : TaskBase( workerAffinity )
 	{
-		new ( &m_storage )TaskStorageType( args... );
+		std::construct_at( reinterpret_cast<TaskStorageType*>( &m_storage ), args... );
 	}
 
 	~Task()

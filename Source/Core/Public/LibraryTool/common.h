@@ -75,7 +75,7 @@ void PopFrontInPlaceList( unsigned char** head, T** dest )
 	*dest = reinterpret_cast<T*>( *head );
 	InPlaceListNode* node = reinterpret_cast<InPlaceListNode*>( *head );
 	*head = node->m_next;
-	*dest = new ( *dest )T;
+	std::construct_at( *dest );
 }
 
 template <typename T>
@@ -87,7 +87,7 @@ void ClearFreeList( unsigned char** head )
 		T* elem = reinterpret_cast<T*>( *head );
 		InPlaceListNode* node = reinterpret_cast<InPlaceListNode*>( *head );
 		*head = node->m_next;
-		elem = new ( elem )T;
+		std::construct_at( elem );
 	}
 }
 

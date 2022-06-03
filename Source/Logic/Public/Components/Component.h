@@ -17,9 +17,12 @@ public:
 	virtual void ThinkComponent( [[maybe_unused]] float elapsedTime ) {};
 
 	void RecreateRenderState();
+	virtual void SendRenderTransform();
 
 	void UpdateState();
 	void MarkRenderStateDirty();
+
+	void MarkRenderTransformDirty();
 
 	void RegisterThinkFunction();
 	void UnRegisterThinkFunction();
@@ -41,7 +44,9 @@ private:
 
 	bool m_renderStateCreated = false;
 	bool m_renderStateDirty = false;
+	bool m_renderTransformDirty = false;
 	bool m_markForUpdateState = false;
+	bool m_markForSendRenderTransform = false;
 
 	ComponentThinkFunction m_think;
 };

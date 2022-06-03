@@ -280,7 +280,7 @@ namespace aga
 				auto shaderType = static_cast<SHADER_TYPE>( i );
 				if ( initializer[shaderType] )
 				{
-					new ( &m_shaderLayouts[m_shaderLayoutSize] )ShaderBindingLayout( shaderType, *initializer[shaderType] );
+					std::construct_at( &m_shaderLayouts[m_shaderLayoutSize], shaderType, *initializer[shaderType] );
 					shaderBindsDataSize += m_shaderLayouts[m_shaderLayoutSize].GetDataSize();
 					++m_shaderLayoutSize;
 				}

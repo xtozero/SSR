@@ -22,22 +22,27 @@ template <typename T>
 class SparseArray
 {
 public:
-	void Clear( )
+	void Clear()
 	{
-		m_data.clear( );
-		m_allocationFlag.Clear( );
+		for ( size_t i = 0; i < Size(); ++i )
+		{
+			( (T&)GetData( i ).m_data ).~T();
+		}
+
+		m_data.clear();
+		m_allocationFlag.Clear();
 
 		m_firstFreeIndex = {};
 		m_size = 0;
 	}
 
-	size_t AddUninitialized( )
+	size_t AddUninitialized()
 	{
 		size_t index = 0;
 
 		if ( m_firstFreeIndex )
 		{
-			index = m_firstFreeIndex.value( );
+			index = m_firstFreeIndex.value();
 			size_t nextIndex = GetData( index ).m_node.m_next;
 
 			if ( nextIndex != index )
@@ -52,8 +57,8 @@ public:
 		}
 		else
 		{
-			index = m_data.size( );
-			m_data.emplace_back( );
+			index = m_data.size();
+			m_data.emplace_back();
 			m_allocationFlag.Add( false );
 		}
 
@@ -64,8 +69,8 @@ public:
 
 	size_t Add( const T& element )
 	{
-		size_t index = AddUninitialized( );
-		new ( m_data[index].m_data )T( element );
+		size_t index = AddUninitialized();
+		std::construct_at( reinterpret_cast<T*>( &m_data[index].m_data ), element );
 
 		return index;
 	}
@@ -78,12 +83,12 @@ public:
 		}
 
 		Element& data = GetData( index );
-		( (T&)data.m_data ).~T( );
+		( (T&)data.m_data ).~T();
 
 		RemoveUninitialized( index );
 	}
 
-	size_t Size( ) const
+	size_t Size() const
 	{
 		return m_size;
 	}
@@ -110,13 +115,13 @@ public:
 
 		using ArrayType = std::conditional_t<IsConst, const SparseArray, SparseArray>;
 
-		IteratorBase& operator++( )
+		IteratorBase& operator++()
 		{
 			++m_bitIter;
 			return *this;
 		}
 
-		reference operator*( ) const
+		reference operator*() const
 		{
 			return m_array[*m_bitIter];
 		}
@@ -151,24 +156,24 @@ public:
 		using IteratorBase<true>::IteratorBase;
 	};
 
-	Iterator begin( ) noexcept
+	Iterator begin() noexcept
 	{
 		return Iterator( *this, 0 );
 	}
 
-	ConstIterator begin( ) const noexcept
+	ConstIterator begin() const noexcept
 	{
 		return ConstIterator( *this, 0 );
 	}
 
-	Iterator end( ) noexcept
+	Iterator end() noexcept
 	{
-		return Iterator( *this, m_allocationFlag.Size( ) );
+		return Iterator( *this, m_size );
 	}
 
-	ConstIterator end( ) const noexcept
+	ConstIterator end() const noexcept
 	{
-		return ConstIterator( *this, m_allocationFlag.Size( ) );
+		return ConstIterator( *this, m_size );
 	}
 
 private:
@@ -183,7 +188,7 @@ private:
 
 		if ( m_firstFreeIndex )
 		{
-			GetData( m_firstFreeIndex.value( ) ).m_node.m_prev = index;
+			GetData( m_firstFreeIndex.value() ).m_node.m_prev = index;
 		}
 
 		elem.m_node.m_next = m_firstFreeIndex ? m_firstFreeIndex.value() : index;

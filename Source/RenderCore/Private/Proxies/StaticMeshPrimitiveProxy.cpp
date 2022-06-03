@@ -36,7 +36,7 @@ void StaticMeshPrimitiveProxy::PrepareSubMeshs()
 		for ( uint32 sectionIndex = 0; sectionIndex < sectionSize; ++sectionIndex )
 		{
 			PrimitiveSubMesh& subMesh = m_primitiveSceneInfo->AddSubMesh();
-			new ( &subMesh ) PrimitiveSubMesh( GatherMeshDrawInfo( lod, sectionIndex ) );
+			std::construct_at( &subMesh, GatherMeshDrawInfo( lod, sectionIndex ) );
 		}
 	}
 }

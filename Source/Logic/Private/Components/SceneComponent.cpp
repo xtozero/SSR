@@ -14,6 +14,8 @@ void SceneComponent::SetPosition( const float x, const float y, const float z )
 
 	m_vecPos = Vector( x, y, z );
 	m_needRebuildTransform = true;
+
+	MarkRenderTransformDirty();
 }
 
 void SceneComponent::SetPosition( const Vector& pos )
@@ -30,6 +32,8 @@ void SceneComponent::SetScale( const float xScale, const float yScale, const flo
 
 	m_vecScale = Vector( xScale, yScale, zScale );
 	m_needRebuildTransform = true;
+
+	MarkRenderTransformDirty();
 }
 
 void SceneComponent::SetRotate( const Quaternion& rotate )
@@ -41,32 +45,34 @@ void SceneComponent::SetRotate( const Quaternion& rotate )
 
 	m_vecRotate = rotate;
 	m_needRebuildTransform = true;
+
+	MarkRenderTransformDirty();
 }
 
-const Vector& SceneComponent::GetPosition( ) const
+const Vector& SceneComponent::GetPosition() const
 {
 	return m_vecPos;
 }
 
-const Vector& SceneComponent::GetScale( ) const
+const Vector& SceneComponent::GetScale() const
 {
 	return m_vecScale;
 }
 
-const Quaternion& SceneComponent::GetRotate( ) const
+const Quaternion& SceneComponent::GetRotate() const
 {
 	return m_vecRotate;
 }
 
-const Matrix& SceneComponent::GetTransformMatrix( )
+const Matrix& SceneComponent::GetTransformMatrix()
 {
-	RebuildTransform( );
+	RebuildTransform();
 	return m_matTransform;
 }
 
-const Matrix& SceneComponent::GetInvTransformMatrix( )
+const Matrix& SceneComponent::GetInvTransformMatrix()
 {
-	RebuildTransform( );
+	RebuildTransform();
 	return m_invMatTransform;
 }
 
@@ -75,12 +81,12 @@ BoxSphereBounds SceneComponent::CalcBounds( [[maybe_unused]] const Matrix& trans
 	return BoxSphereBounds( Vector( 0, 0, 0 ), Vector( 0, 0, 0 ), 0.f );
 }
 
-void SceneComponent::UpdateBounds( )
+void SceneComponent::UpdateBounds()
 {
-	m_bounds = CalcBounds( GetTransformMatrix( ) );
+	m_bounds = CalcBounds( GetTransformMatrix() );
 }
 
-void SceneComponent::RebuildTransform( )
+void SceneComponent::RebuildTransform()
 {
 	if ( m_needRebuildTransform )
 	{

@@ -77,6 +77,40 @@ void Scene::RemovePrimitive( PrimitiveComponent* primitive )
 	}
 }
 
+void Scene::UpdatePrimitiveTransform( PrimitiveComponent* primitive )
+{
+	PrimitiveProxy* proxy = primitive->m_sceneProxy;
+
+	if ( proxy )
+	{
+		struct PrimitiveUpdateParam
+		{
+			Matrix m_worldTransform;
+			BoxSphereBounds m_worldBounds;
+			BoxSphereBounds m_localBounds;
+		};
+		PrimitiveUpdateParam param = {
+			primitive->GetRenderMatrix(),
+			primitive->Bounds(),
+			primitive->CalcBounds( Matrix::Identity ),
+		};
+
+		EnqueueRenderTask(
+			[this, param, proxy]()
+			{
+				proxy->WorldTransform() = param.m_worldTransform;
+				proxy->Bounds() = param.m_worldBounds;
+				proxy->LocalBounds() = param.m_localBounds;
+
+				m_primitiveToUpdate.push_back( proxy->PrimitiveId() );
+			} );
+	}
+	else
+	{
+		AddPrimitive( primitive );
+	}
+}
+
 void Scene::AddTexturedSkyComponent( TexturedSkyComponent* texturedSky )
 {
 	TexturedSkyProxy* proxy = texturedSky->CreateProxy();

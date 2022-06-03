@@ -17,31 +17,31 @@ void StaticMeshGameObject::LoadProperty( CGameLogic& gameLogic, const JSON::Valu
 
 	if ( const JSON::Value* pModel = json.Find( "Model" ) )
 	{
-		LoadModelMesh( gameLogic, pModel->AsString( ) );
+		LoadModelMesh( gameLogic, pModel->AsString() );
 	}
 
 	if ( const JSON::Value* pRenderOption = json.Find( "RenderOption" ) )
 	{
-		LoadRenderOption( gameLogic, pRenderOption->AsString( ) );
+		LoadRenderOption( gameLogic, pRenderOption->AsString() );
 	}
 }
 
-StaticMeshGameObject::StaticMeshGameObject( )
+StaticMeshGameObject::StaticMeshGameObject()
 {
 	m_rootComponent = CreateComponent<StaticMeshComponent>( *this );
 }
 
 bool StaticMeshGameObject::LoadModelMesh( CGameLogic& gameLogic, const std::string& assetPath )
 {
-	if ( assetPath.length( ) > 0 )
+	if ( assetPath.length() > 0 )
 	{
 		// ¸ðµ¨·Îµå
 		IAssetLoader::LoadCompletionCallback onLoadComplete;
 		onLoadComplete.BindMemberFunction( this, &StaticMeshGameObject::OnModelLoadFinished );
 
-		AssetLoaderSharedHandle handle = GetInterface<IAssetLoader>( )->RequestAsyncLoad( assetPath, onLoadComplete );
+		AssetLoaderSharedHandle handle = GetInterface<IAssetLoader>()->RequestAsyncLoad( assetPath, onLoadComplete );
 
-		return handle->IsLoadingInProgress( ) || handle->IsLoadComplete( );
+		return handle->IsLoadingInProgress() || handle->IsLoadComplete();
 	}
 
 	return false;
@@ -49,14 +49,14 @@ bool StaticMeshGameObject::LoadModelMesh( CGameLogic& gameLogic, const std::stri
 
 bool StaticMeshGameObject::LoadRenderOption( CGameLogic& gameLogic, const std::string& assetPath )
 {
-	if ( assetPath.length( ) > 0 )
+	if ( assetPath.length() > 0 )
 	{
 		IAssetLoader::LoadCompletionCallback onLoadComplete;
 		onLoadComplete.BindMemberFunction( this, &StaticMeshGameObject::OnRenderOptionLoadFinished );
 
-		AssetLoaderSharedHandle handle = GetInterface<IAssetLoader>( )->RequestAsyncLoad( assetPath, onLoadComplete );
+		AssetLoaderSharedHandle handle = GetInterface<IAssetLoader>()->RequestAsyncLoad( assetPath, onLoadComplete );
 
-		return handle->IsLoadingInProgress( ) || handle->IsLoadComplete( );
+		return handle->IsLoadingInProgress() || handle->IsLoadComplete();
 	}
 
 	return false;
@@ -64,7 +64,7 @@ bool StaticMeshGameObject::LoadRenderOption( CGameLogic& gameLogic, const std::s
 
 void StaticMeshGameObject::OnModelLoadFinished( const std::shared_ptr<void>& model )
 {
-	StaticMeshComponent* staticMeshComponent = GetComponent<StaticMeshComponent>( );
+	StaticMeshComponent* staticMeshComponent = GetComponent<StaticMeshComponent>();
 
 	if ( staticMeshComponent )
 	{
@@ -74,7 +74,7 @@ void StaticMeshGameObject::OnModelLoadFinished( const std::shared_ptr<void>& mod
 
 void StaticMeshGameObject::OnRenderOptionLoadFinished( const std::shared_ptr<void>& renderOption )
 {
-	StaticMeshComponent* staticMeshComponent = GetComponent<StaticMeshComponent>( );
+	StaticMeshComponent* staticMeshComponent = GetComponent<StaticMeshComponent>();
 
 	if ( staticMeshComponent )
 	{

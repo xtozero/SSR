@@ -4,6 +4,15 @@
 #include "Scene/IScene.h"
 #include "World/World.h"
 
+void PrimitiveComponent::SendRenderTransform()
+{
+	UpdateBounds();
+
+	m_pWorld->Scene()->UpdatePrimitiveTransform( this );
+
+	Super::SendRenderTransform();
+}
+
 void PrimitiveComponent::SetMass( float mass )
 {
 	m_rigidBody.SetMass( mass );
@@ -19,24 +28,24 @@ void PrimitiveComponent::SetAngularDamping( float angularDamping )
 	m_rigidBody.SetAngularDamping( angularDamping );
 }
 
-const Matrix& PrimitiveComponent::GetRenderMatrix( )
+const Matrix& PrimitiveComponent::GetRenderMatrix()
 {
-	return GetTransformMatrix( );
+	return GetTransformMatrix();
 }
 
-bool PrimitiveComponent::ShouldCreateRenderState( ) const
+bool PrimitiveComponent::ShouldCreateRenderState() const
 {
 	return true;
 }
 
-void PrimitiveComponent::CreateRenderState( )
+void PrimitiveComponent::CreateRenderState()
 {
-	SceneComponent::CreateRenderState( );
-	m_pWorld->Scene( )->AddPrimitive( this );
+	Super::CreateRenderState();
+	m_pWorld->Scene()->AddPrimitive( this );
 }
 
-void PrimitiveComponent::RemoveRenderState( )
+void PrimitiveComponent::RemoveRenderState()
 {
-	SceneComponent::RemoveRenderState( );
-	m_pWorld->Scene( )->RemovePrimitive( this );
+	Super::RemoveRenderState();
+	m_pWorld->Scene()->RemovePrimitive( this );
 }

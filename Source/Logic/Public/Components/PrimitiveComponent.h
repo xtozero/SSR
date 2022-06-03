@@ -12,21 +12,22 @@ class PrimitiveComponent : public SceneComponent
 
 public:
 	using SceneComponent::SceneComponent;
+	virtual void SendRenderTransform() override;
 
 	void SetMass( float mass );
 
 	void SetLinearDamping( float linearDamping );
 	void SetAngularDamping( float angularDamping );
 
-	virtual const Matrix& GetRenderMatrix( );
-	virtual PrimitiveProxy* CreateProxy( ) const = 0;
+	virtual const Matrix& GetRenderMatrix();
+	virtual PrimitiveProxy* CreateProxy() const = 0;
 
 	PrimitiveProxy* m_sceneProxy = nullptr;
 
 protected:
-	virtual bool ShouldCreateRenderState( ) const override;
-	virtual void CreateRenderState( ) override;
-	virtual void RemoveRenderState( ) override;
+	virtual bool ShouldCreateRenderState() const override;
+	virtual void CreateRenderState() override;
+	virtual void RemoveRenderState() override;
 
 private:
 	RigidBody m_rigidBody;

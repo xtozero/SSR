@@ -10,101 +10,98 @@ void PrimitiveSubMeshInfo::OnDrawSnapshotAdded( RenderPass passType )
 	m_passTypeMask |= 1 << static_cast<uint32>( passType );
 }
 
-uint32& PrimitiveSubMeshInfo::SnapshotInfoBase( )
+uint32& PrimitiveSubMeshInfo::SnapshotInfoBase()
 {
 	return m_snapshotInfoBase;
 }
 
-uint32 PrimitiveSubMeshInfo::SnapshotInfoBase( ) const
+uint32 PrimitiveSubMeshInfo::SnapshotInfoBase() const
 {
 	return m_snapshotInfoBase;
 }
 
-LightIntersectionInfo::~LightIntersectionInfo( )
-{
-	if ( m_light )
-	{
-		m_light->Primitives( ).RemoveAt( m_infoId );
-	}
-}
-
-PrimitiveProxy*& PrimitiveSceneInfo::Proxy( )
+PrimitiveProxy*& PrimitiveSceneInfo::Proxy()
 {
 	return m_sceneProxy;
 }
 
-const PrimitiveProxy* PrimitiveSceneInfo::Proxy( ) const
+const PrimitiveProxy* PrimitiveSceneInfo::Proxy() const
 {
 	return m_sceneProxy;
 }
 
-uint32& PrimitiveSceneInfo::PrimitiveId( )
+uint32& PrimitiveSceneInfo::PrimitiveId()
 {
 	return m_primitiveId;
 }
 
-uint32 PrimitiveSceneInfo::PrimitiveId( ) const
+uint32 PrimitiveSceneInfo::PrimitiveId() const
 {
 	return m_primitiveId;
 }
 
-void PrimitiveSceneInfo::AddToScene( )
+void PrimitiveSceneInfo::AddToScene()
 {
-	m_scene.PrimitiveBounds( )[m_primitiveId] = m_sceneProxy->Bounds( );
+	m_scene.PrimitiveBounds()[m_primitiveId] = m_sceneProxy->Bounds();
 
-	m_sceneProxy->PrepareSubMeshs( );
+	m_sceneProxy->PrepareSubMeshs();
 
-	CacheDrawSnapshot( );
+	CacheDrawSnapshot();
 
-	for ( LightSceneInfo* light : m_scene.Lights( ) )
+	for ( LightSceneInfo* light : m_scene.Lights() )
 	{
 		light->AddPrimitiveIntersectionInfo( *this );
 	}
 }
 
-void PrimitiveSceneInfo::RemoveFromScene( )
+void PrimitiveSceneInfo::RemoveFromScene()
 {
-	m_subMeshInfos.clear( );
-	m_subMeshs.clear( );
-	
-	RemoveCachedDrawSnapshot( );
+	m_subMeshInfos.clear();
+	m_subMeshs.clear();
 
-	m_lightList.Clear( );
+	RemoveCachedDrawSnapshot();
+
+	for ( LightSceneInfo* light : m_scene.Lights() )
+	{
+		light->RemovePrimitiveIntersectionInfo( *this );
+	}
+
+	assert( m_lightList.Size() == 0 );
 }
 
-PrimitiveSubMesh& PrimitiveSceneInfo::AddSubMesh( )
+PrimitiveSubMesh& PrimitiveSceneInfo::AddSubMesh()
 {
-	m_subMeshInfos.emplace_back( );
-	PrimitiveSubMesh& subMesh = m_subMeshs.emplace_back( );
+	m_subMeshInfos.emplace_back();
+	PrimitiveSubMesh& subMesh = m_subMeshs.emplace_back();
 	return subMesh;
 }
 
-std::vector<PrimitiveSubMeshInfo>& PrimitiveSceneInfo::SubMeshInfos( )
+std::vector<PrimitiveSubMeshInfo>& PrimitiveSceneInfo::SubMeshInfos()
 {
 	return m_subMeshInfos;
 }
 
-const std::vector<PrimitiveSubMeshInfo>& PrimitiveSceneInfo::SubMeshInfos( ) const
+const std::vector<PrimitiveSubMeshInfo>& PrimitiveSceneInfo::SubMeshInfos() const
 {
 	return m_subMeshInfos;
 }
 
-std::vector<PrimitiveSubMesh>& PrimitiveSceneInfo::SubMeshs( )
+std::vector<PrimitiveSubMesh>& PrimitiveSceneInfo::SubMeshs()
 {
 	return m_subMeshs;
 }
 
-const std::vector<PrimitiveSubMesh>& PrimitiveSceneInfo::SubMeshs( ) const
+const std::vector<PrimitiveSubMesh>& PrimitiveSceneInfo::SubMeshs() const
 {
 	return m_subMeshs;
 }
 
-SparseArray<LightIntersectionInfo>& PrimitiveSceneInfo::Lights( )
+SparseArray<LightIntersectionInfo>& PrimitiveSceneInfo::Lights()
 {
 	return m_lightList;
 }
 
-const SparseArray<LightIntersectionInfo>& PrimitiveSceneInfo::Lights( ) const
+const SparseArray<LightIntersectionInfo>& PrimitiveSceneInfo::Lights() const
 {
 	return m_lightList;
 }
@@ -125,13 +122,13 @@ PrimitiveSceneInfo::PrimitiveSceneInfo( PrimitiveComponent* component, Scene& sc
 {
 }
 
-void PrimitiveSceneInfo::CacheDrawSnapshot( )
+void PrimitiveSceneInfo::CacheDrawSnapshot()
 {
-	for ( size_t i = 0; i < m_subMeshs.size( ); ++i )
+	for ( size_t i = 0; i < m_subMeshs.size(); ++i )
 	{
 		const PrimitiveSubMesh& subMesh = m_subMeshs[i];
 		PrimitiveSubMeshInfo& subMeshInfo = m_subMeshInfos[i];
-		subMeshInfo.SnapshotInfoBase( ) = static_cast<uint32>( m_cachedDrawSnapshotInfos.size( ) );
+		subMeshInfo.SnapshotInfoBase() = static_cast<uint32>( m_cachedDrawSnapshotInfos.size() );
 
 		for ( uint32 j = 0; j < static_cast<uint32>( RenderPass::Count ); ++j )
 		{
@@ -146,7 +143,7 @@ void PrimitiveSceneInfo::CacheDrawSnapshot( )
 
 			if ( snapshot )
 			{
-				CachedDrawSnapshotInfo cachedDrawSnapshotInfo = m_scene.AddCachedDrawSnapshot( passType, snapshot.value( ) );
+				CachedDrawSnapshotInfo cachedDrawSnapshotInfo = m_scene.AddCachedDrawSnapshot( passType, snapshot.value() );
 
 				m_cachedDrawSnapshotInfos.emplace_back( cachedDrawSnapshotInfo );
 				subMeshInfo.OnDrawSnapshotAdded( passType );
@@ -155,7 +152,7 @@ void PrimitiveSceneInfo::CacheDrawSnapshot( )
 	}
 }
 
-void PrimitiveSceneInfo::RemoveCachedDrawSnapshot( )
+void PrimitiveSceneInfo::RemoveCachedDrawSnapshot()
 {
 	for ( CachedDrawSnapshotInfo& cachedDrawSnapshotInfo : m_cachedDrawSnapshotInfos )
 	{

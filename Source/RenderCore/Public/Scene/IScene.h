@@ -24,6 +24,7 @@ class IScene
 public:
 	virtual void AddPrimitive( PrimitiveComponent* primitive ) = 0;
 	virtual void RemovePrimitive( PrimitiveComponent* primitive ) = 0;
+	virtual void UpdatePrimitiveTransform( PrimitiveComponent* primitive ) = 0;
 	virtual SparseArray<PrimitiveSceneInfo*>& Primitives() = 0;
 	virtual const SparseArray<PrimitiveSceneInfo*>& Primitives() const = 0;
 

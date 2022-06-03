@@ -23,23 +23,23 @@ namespace aga
 		return DEVICE_ERROR::NONE;
 	}
 
-	void D3D11Viewport::Clear( const float( &clearColor )[4] )
+	void D3D11Viewport::Clear( const float (&clearColor)[4] )
 	{
-		if ( m_backBuffer.Get( ) == nullptr )
+		if ( m_backBuffer.Get() == nullptr )
 		{
 			return;
 		}
 
-		auto d3d11RTV = static_cast<D3D11RenderTargetView*>( m_backBuffer->RTV( ) );
+		auto d3d11RTV = static_cast<D3D11RenderTargetView*>( m_backBuffer->RTV() );
 		if ( d3d11RTV == nullptr )
 		{
 			return;
 		}
 
-		ID3D11RenderTargetView* rtv = d3d11RTV->Resource( );
+		ID3D11RenderTargetView* rtv = d3d11RTV->Resource();
 		if ( rtv )
 		{
-			D3D11Context( ).ClearRenderTargetView( rtv, clearColor );
+			D3D11Context().ClearRenderTargetView( rtv, clearColor );
 		}
 	}
 
@@ -52,7 +52,7 @@ namespace aga
 		commandList.SetScissorRects( 1, &rect );
 	}
 
-	std::pair<uint32, uint32> D3D11Viewport::Size( ) const
+	std::pair<uint32, uint32> D3D11Viewport::Size() const
 	{
 		return { m_width, m_height };
 	}
@@ -62,7 +62,7 @@ namespace aga
 		m_width = newSize.first;
 		m_height = newSize.second;
 
-		m_backBuffer->Free( );
+		m_backBuffer->Free();
 
 		HRESULT hr = m_pSwapChain->ResizeBuffers( 1, m_width, m_height, m_format, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH );
 		assert( SUCCEEDED( hr ) );
@@ -71,8 +71,8 @@ namespace aga
 		hr = m_pSwapChain->GetBuffer( 0, IID_PPV_ARGS( &backBuffer ) );
 
 		assert( SUCCEEDED( hr ) );
-		new ( m_backBuffer.Get( ) )D3D11BaseTexture2D( backBuffer );
-		m_backBuffer->Init( );
+		std::construct_at( m_backBuffer.Get(), backBuffer );
+		m_backBuffer->Init();
 	}
 
 	D3D11Viewport::D3D11Viewport( uint32 width, uint32 height, void* hWnd, DXGI_FORMAT format ) :
@@ -80,12 +80,12 @@ namespace aga
 	{
 	}
 
-	Texture* D3D11Viewport::Texture( )
+	Texture* D3D11Viewport::Texture()
 	{
-		return m_backBuffer.Get( );
+		return m_backBuffer.Get();
 	}
 
-	void D3D11Viewport::InitResource( )
+	void D3D11Viewport::InitResource()
 	{
 		DXGI_SWAP_CHAIN_DESC dxgiSwapchainDesc = {};
 
@@ -96,15 +96,15 @@ namespace aga
 		dxgiSwapchainDesc.BufferDesc.RefreshRate.Denominator = 1;
 		dxgiSwapchainDesc.BufferDesc.RefreshRate.Numerator = 60;
 		dxgiSwapchainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
-		dxgiSwapchainDesc.OutputWindow = static_cast<HWND>(m_hWnd);
+		dxgiSwapchainDesc.OutputWindow = static_cast<HWND>( m_hWnd );
 		dxgiSwapchainDesc.SampleDesc.Count = 1;
 		dxgiSwapchainDesc.SampleDesc.Quality = 0;
 		dxgiSwapchainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 		dxgiSwapchainDesc.Windowed = true;
 		dxgiSwapchainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-		auto& device = D3D11Device( );
-		auto& factory = D3D11Factory( );
+		auto& device = D3D11Device();
+		auto& factory = D3D11Factory();
 		HRESULT hr = factory.CreateSwapChain( &device, &dxgiSwapchainDesc, &m_pSwapChain );
 
 		assert( SUCCEEDED( hr ) );
@@ -114,12 +114,12 @@ namespace aga
 
 		assert( SUCCEEDED( hr ) );
 		m_backBuffer = new D3D11BaseTexture2D( backBuffer );
-		m_backBuffer->Init( );
+		m_backBuffer->Init();
 	}
 
-	void D3D11Viewport::FreeResource( )
+	void D3D11Viewport::FreeResource()
 	{
 		m_backBuffer = nullptr;
-		m_pSwapChain.Reset( );
+		m_pSwapChain.Reset();
 	}
 }

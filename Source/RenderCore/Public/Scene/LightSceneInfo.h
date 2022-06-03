@@ -16,23 +16,22 @@ struct PrimitiveIntersectionInfo
 	uint32 m_infoId = 0;
 
 	PrimitiveIntersectionInfo( PrimitiveSceneInfo* primitive, uint32 infoId ) : m_primitive( primitive ), m_infoId( infoId ) {}
-	~PrimitiveIntersectionInfo( );
 };
 
 class LightSceneInfo
 {
 public:
-	const LightProxy* Proxy( ) const
+	const LightProxy* Proxy() const
 	{
 		return m_lightProxy;
 	}
 
-	LightProxy*& Proxy( )
+	LightProxy*& Proxy()
 	{
 		return m_lightProxy;
 	}
 
-	uint32 ID( ) const
+	uint32 ID() const
 	{
 		return m_id;
 	}
@@ -42,18 +41,19 @@ public:
 		m_id = id;
 	}
 
-	uint32 GetShadowQuility( ) const
+	uint32 GetShadowQuility() const
 	{
 		return m_shadowQuility;
 	}
 
-	SparseArray<PrimitiveIntersectionInfo>& Primitives( );
-	const SparseArray<PrimitiveIntersectionInfo>& Primitives( ) const;
+	SparseArray<PrimitiveIntersectionInfo>& Primitives();
+	const SparseArray<PrimitiveIntersectionInfo>& Primitives() const;
 
-	void AddToScene( );
-	void RemoveFromScene( );
+	void AddToScene();
+	void RemoveFromScene();
 	void AddPrimitiveIntersectionInfo( PrimitiveSceneInfo& primitive );
-
+	void RemovePrimitiveIntersectionInfo( PrimitiveSceneInfo& primitive );
+	
 	LightSceneInfo( LightComponent& component, Scene& scene );
 
 private:

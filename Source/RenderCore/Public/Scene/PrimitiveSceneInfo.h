@@ -19,11 +19,11 @@ class PrimitiveSubMeshInfo
 {
 public:
 	std::optional<uint32> GetCachedDrawSnapshotInfoIndex( RenderPass passType ) const;
-	
+
 	void OnDrawSnapshotAdded( RenderPass passType );
 
-	uint32& SnapshotInfoBase( );
-	uint32 SnapshotInfoBase( ) const;
+	uint32& SnapshotInfoBase();
+	uint32 SnapshotInfoBase() const;
 
 private:
 	uint32 m_snapshotInfoBase = 0;
@@ -33,7 +33,7 @@ private:
 struct PrimitiveSubMesh : public MeshDrawInfo
 {
 	explicit PrimitiveSubMesh( const MeshDrawInfo& info ) : MeshDrawInfo( info ) {}
-	PrimitiveSubMesh( ) = default;
+	PrimitiveSubMesh() = default;
 };
 
 struct LightIntersectionInfo
@@ -42,31 +42,30 @@ struct LightIntersectionInfo
 	uint32 m_infoId = 0;
 
 	LightIntersectionInfo( LightSceneInfo* light, uint32 infoId ) : m_light( light ), m_infoId( infoId ) {}
-	~LightIntersectionInfo( );
 };
 
 class PrimitiveSceneInfo
 {
 public:
-	PrimitiveProxy*& Proxy( );
-	const PrimitiveProxy* Proxy( ) const;
+	PrimitiveProxy*& Proxy();
+	const PrimitiveProxy* Proxy() const;
 
-	uint32& PrimitiveId( );
-	uint32 PrimitiveId( ) const;
+	uint32& PrimitiveId();
+	uint32 PrimitiveId() const;
 
-	void AddToScene( );
-	void RemoveFromScene( );
+	void AddToScene();
+	void RemoveFromScene();
 
-	PrimitiveSubMesh& AddSubMesh( );
+	PrimitiveSubMesh& AddSubMesh();
 
-	std::vector<PrimitiveSubMeshInfo>& SubMeshInfos( );
-	const std::vector<PrimitiveSubMeshInfo>& SubMeshInfos( ) const;
+	std::vector<PrimitiveSubMeshInfo>& SubMeshInfos();
+	const std::vector<PrimitiveSubMeshInfo>& SubMeshInfos() const;
 
-	std::vector<PrimitiveSubMesh>& SubMeshs( );
-	const std::vector<PrimitiveSubMesh>& SubMeshs( ) const;
+	std::vector<PrimitiveSubMesh>& SubMeshs();
+	const std::vector<PrimitiveSubMesh>& SubMeshs() const;
 
-	SparseArray<LightIntersectionInfo>& Lights( );
-	const SparseArray<LightIntersectionInfo>& Lights( ) const;
+	SparseArray<LightIntersectionInfo>& Lights();
+	const SparseArray<LightIntersectionInfo>& Lights() const;
 
 	const CachedDrawSnapshotInfo& GetCachedDrawSnapshotInfo( uint32 snapshotInfoBase );
 
@@ -75,8 +74,8 @@ public:
 	PrimitiveSceneInfo( PrimitiveComponent* component, Scene& scene );
 
 private:
-	void CacheDrawSnapshot( );
-	void RemoveCachedDrawSnapshot( );
+	void CacheDrawSnapshot();
+	void RemoveCachedDrawSnapshot();
 
 	Scene& m_scene;
 

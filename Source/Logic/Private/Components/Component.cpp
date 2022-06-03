@@ -27,6 +27,12 @@ void Component::RecreateRenderState()
 	CreateRenderState();
 }
 
+void Component::SendRenderTransform()
+{
+	m_markForSendRenderTransform = false;
+	m_renderTransformDirty = false;
+}
+
 void Component::UpdateState()
 {
 	m_markForUpdateState = false;
@@ -54,6 +60,25 @@ void Component::MarkRenderStateDirty()
 		}
 
 		m_markForUpdateState = true;
+	}
+}
+
+void Component::MarkRenderTransformDirty()
+{
+	if ( m_renderStateCreated && ( m_renderTransformDirty == false ) )
+	{
+		m_renderTransformDirty = true;
+
+		if ( m_markForSendRenderTransform == false )
+		{
+			EnqueueThreadTask<ThreadType::GameThread>(
+				[this]()
+				{
+					SendRenderTransform();
+				} );
+		}
+
+		m_markForSendRenderTransform = true;
 	}
 }
 

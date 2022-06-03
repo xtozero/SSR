@@ -13,7 +13,7 @@ class StaticMeshGameObject : public CGameObject
 public:
 	virtual void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json ) override;
 
-	StaticMeshGameObject( );
+	StaticMeshGameObject();
 
 private:
 	bool LoadModelMesh( CGameLogic& gameLogic, const std::string& assetPath );

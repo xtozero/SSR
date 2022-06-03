@@ -133,7 +133,7 @@ void Material::AddProperty( const char* key, int32 value )
 		return;
 	}
 
-	new ( found->second.get() )IntProperty( value );
+	std::construct_at( static_cast<IntProperty*>( found->second.get() ), value );
 }
 
 void Material::AddProperty( const char* key, float value )
@@ -156,7 +156,7 @@ void Material::AddProperty( const char* key, float value )
 		return;
 	}
 
-	new ( found->second.get() )FloatProperty( value );
+	std::construct_at( static_cast<FloatProperty*>( found->second.get() ), value );
 }
 
 void Material::AddProperty( const char* key, const Vector4& value )
@@ -179,7 +179,7 @@ void Material::AddProperty( const char* key, const Vector4& value )
 		return;
 	}
 
-	new ( found->second.get() )Float4Property( value );
+	std::construct_at( static_cast<Float4Property*>( found->second.get() ), value );
 }
 
 void Material::AddProperty( const char* key, const std::shared_ptr<Texture>& value )
@@ -202,7 +202,7 @@ void Material::AddProperty( const char* key, const std::shared_ptr<Texture>& val
 		return;
 	}
 
-	new ( found->second.get() )TextureProperty( value );
+	std::construct_at( static_cast<TextureProperty*>( found->second.get() ), value );
 }
 
 const MaterialProperty* Material::AsProperty( const char* key ) const

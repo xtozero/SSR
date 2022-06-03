@@ -26,6 +26,7 @@ class Scene final : public IScene
 public:
 	virtual void AddPrimitive( PrimitiveComponent* primitive ) override;
 	virtual void RemovePrimitive( PrimitiveComponent* primitive ) override;
+	virtual void UpdatePrimitiveTransform( PrimitiveComponent* primitive ) override;
 	virtual SparseArray<PrimitiveSceneInfo*>& Primitives() override
 	{
 		return m_primitives;

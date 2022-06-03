@@ -40,7 +40,7 @@ DDSTexture::DDSTexture( const DDSTextureInitializer& initializer )
 
 	m_format = initializer.m_format;
 
-	new ( &m_memory ) BinaryChunk( initializer.m_size );
+	std::construct_at( &m_memory, initializer.m_size );
 	std::memcpy( m_memory.Data(), initializer.m_memory, initializer.m_size );
 
 	m_sections = initializer.m_sections;
