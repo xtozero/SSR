@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Math/Matrix.h"
-#include "Physics/Body.h"
+#include "Physics/BodyInstance.h"
 #include "SceneComponent.h"
 
 class PrimitiveProxy;
@@ -14,6 +14,8 @@ public:
 	using SceneComponent::SceneComponent;
 	virtual void SendRenderTransform() override;
 
+	virtual void LoadProperty( const JSON::Value& json ) override;
+
 	void SetMass( float mass );
 
 	void SetLinearDamping( float linearDamping );
@@ -21,6 +23,7 @@ public:
 
 	virtual const Matrix& GetRenderMatrix();
 	virtual PrimitiveProxy* CreateProxy() const = 0;
+	virtual BodySetup* GetBodySetup() = 0;
 
 	PrimitiveProxy* m_sceneProxy = nullptr;
 
@@ -29,6 +32,9 @@ protected:
 	virtual void CreateRenderState() override;
 	virtual void RemoveRenderState() override;
 
-private:
-	RigidBody m_rigidBody;
+	virtual bool ShouldCreatePhysicsState() const;
+	virtual void OnCreatePhysicsState() override;
+	virtual void OnDestroyPhysicsState() override;
+
+	BodyInstance m_bodyInstance;
 };

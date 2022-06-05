@@ -6,17 +6,18 @@
 
 #include <vector>
 
-class CAaboundingbox;
-class COrientedBoundingBox;
+class AxisAlignedBox;
+class OrientedBox;
 
 class BoundingSphere : public ICollider
 {
 public:
-	virtual void CalcMeshBounds( const MeshData& mesh ) override;
 	virtual void Update( const Vector& scaling, const Quaternion& rotation, const Vector& translation, ICollider* original ) override;
-	virtual void CalcSubMeshBounds( std::vector<std::unique_ptr<ICollider>>& /*subColliders*/ ) override { assert( false && "Not Implemented" ); }
 	virtual float Intersect( const CRay& ray ) const override;
 	virtual uint32 Intersect( const Frustum& frustum ) const override;
+	virtual BoxSphereBounds Bounds() const override;
+	virtual Collider GetType() const override;
+
 	uint32 Intersect( const BoundingSphere& sphere ) const;
 	float CalcGrowth( const BoundingSphere& sphere ) const;
 
@@ -26,8 +27,8 @@ public:
 	float GetSize() const { return 1.33333f * DirectX::XM_PI * m_radius * m_radius * m_radius; /* ( ( 4 / 3 ) * pi * r^3 ) */ }
 
 	BoundingSphere() = default;
-	explicit BoundingSphere( const CAaboundingbox& box );
-	explicit BoundingSphere( const COrientedBoundingBox& box );
+	explicit BoundingSphere( const AxisAlignedBox& box );
+	explicit BoundingSphere( const OrientedBox& box );
 	BoundingSphere( const Vector* points, size_t count );
 	BoundingSphere( const Vector& center, float radius ) : m_origin( center ), m_radius( radius ) {}
 	BoundingSphere( const BoundingSphere& one, const BoundingSphere& two );

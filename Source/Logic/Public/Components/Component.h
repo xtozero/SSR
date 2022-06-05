@@ -6,6 +6,11 @@
 class CGameObject;
 class World;
 
+namespace JSON
+{
+	class Value;
+}
+
 class Component
 {
 	GENERATE_CLASS_TYPE_INFO( Component )
@@ -14,7 +19,7 @@ public:
 	void RegisterComponent();
 	void UnregisterComponent();
 
-	virtual void ThinkComponent( [[maybe_unused]] float elapsedTime ) {};
+	virtual void ThinkComponent( [[maybe_unused]] float elapsedTime ) {}
 
 	void RecreateRenderState();
 	virtual void SendRenderTransform();
@@ -27,7 +32,13 @@ public:
 	void RegisterThinkFunction();
 	void UnRegisterThinkFunction();
 
-	explicit Component( CGameObject* pOwner );
+	CGameObject* GetOwner() const;
+
+	virtual void DestroyComponent();
+
+	virtual void LoadProperty( [[maybe_unused]] const JSON::Value& json ) {}
+
+	Component( CGameObject* pOwner, const char* name );
 	virtual ~Component() = default;
 
 protected:
@@ -35,7 +46,16 @@ protected:
 	virtual void CreateRenderState();
 	virtual void RemoveRenderState();
 
+	bool PhysicsStateCreated() const;
+	void CreatePhysicsState();
+	void DestroyPhysicsState();
+	virtual bool ShouldCreatePhysicsState() const;
+	virtual void OnCreatePhysicsState();
+	virtual void OnDestroyPhysicsState();
+
 	World* m_pWorld = nullptr;
+
+	ComponentThinkFunction m_think;
 
 private:
 	void RegisterComponent( World* pWorld );
@@ -47,6 +67,5 @@ private:
 	bool m_renderTransformDirty = false;
 	bool m_markForUpdateState = false;
 	bool m_markForSendRenderTransform = false;
-
-	ComponentThinkFunction m_think;
+	bool m_physicsStateCreated = false;
 };

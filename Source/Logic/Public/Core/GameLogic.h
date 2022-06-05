@@ -41,51 +41,49 @@ class CGameLogic : public ILogic
 public:
 	virtual bool BootUp( IPlatform& platform ) override;
 	virtual void Update() override;
-	virtual void Pause( ) override;
-	virtual void Resume( ) override;
+	virtual void Pause() override;
+	virtual void Resume() override;
 	virtual void HandleUserInput( const UserInput& input ) override;
 	virtual void AppSizeChanged( IPlatform& platform ) override;
-	
+
 	void SpawnObject( Owner<CGameObject*> object );
 
 	//IRenderer& GetRenderer( ) const { return *m_pRenderer; }
 	//CModelManager& GetModelManager( ) { return m_modelManager; }
 	//ImUI& GetUIManager( ) { return m_ui; }
 	//RE_HANDLE GetCommonConstantBuffer( uint32 purpose ) { return m_commonConstantBuffer[purpose]; }
-	const std::pair<uint32, uint32>& GetAPPSize( ) { return m_appSize; }
+	const std::pair<uint32, uint32>& GetAPPSize() { return m_appSize; }
 
-	InputController* GetInputController( );
+	InputController* GetInputController();
 
 private:
-	void Shutdown( );
+	void Shutdown();
 
-	void StartLogic ( );
-	void ProcessLogic ( );
-	void EndLogic ( );
+	void StartLogic();
+	void ProcessLogic();
+	void EndLogic();
 
 	bool LoadWorld( const char* filePath );
 
-	void DrawScene( );
-	void DrawForDebug( );
-	void DrawDebugOverlay( );
-	void DrawUI( );
-	void SceneEnd( );
+	void DrawScene();
+	void DrawForDebug();
+	void DrawDebugOverlay();
+	void DrawUI();
+	void SceneEnd();
 
-	void BuildRenderableList( );
-	void DrawOpaqueRenderable( );
-	void DrawTransparentRenderable( );
-	void DrawReflectRenderable( );
+	void BuildRenderableList();
+	void DrawReflectRenderable();
 
-	void HandleDeviceLost( );
-	bool CreateDeviceDependentResource( );
-	bool CreateDefaultFontResource( );
+	void HandleDeviceLost();
+	bool CreateDeviceDependentResource();
+	bool CreateDefaultFontResource();
 
 public:
 	CGameLogic();
 	~CGameLogic();
 
 private:
-	void CreateGameViewport( );
+	void CreateGameViewport();
 
 	HMODULE m_renderCoreDll;
 
@@ -119,7 +117,6 @@ private:
 	CDebugOverlayManager m_debugOverlay;
 
 	World m_world;
-	float m_remainPhysicsSimulateTime = 0.f;
 
 	std::unique_ptr<rendercore::Viewport> m_primayViewport;
 	GameClientViewport* m_gameViewport;

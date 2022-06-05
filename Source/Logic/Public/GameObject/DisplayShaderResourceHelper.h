@@ -9,7 +9,7 @@ public:
 	//virtual void Render( CGameLogic& gameLogic ) override;
 	virtual void Think( float elapsedTime ) override;
 
-	virtual void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json ) override;
+	//virtual void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json ) override;
 
 	//virtual bool IgnorePicking( ) const override { return ShouldDraw( ); }
 
@@ -21,12 +21,12 @@ protected:
 private:
 	float m_width;
 	float m_height;
-	
+
 	std::string m_textureName;
 
 public:
-	CDisplayShaderResourceHelper( );
-	~CDisplayShaderResourceHelper( ) = default;
+	CDisplayShaderResourceHelper();
+	~CDisplayShaderResourceHelper() = default;
 };
 
 

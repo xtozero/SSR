@@ -1,6 +1,5 @@
-#include "Aaboundingbox.h"
+#include "AxisAlignedBox.h"
 
-#include "BoxSphereBounds.h"
 #include "CollideNarrow.h"
 #include "Frustum.h"
 #include "Math/TransformationMatrix.h"
@@ -10,35 +9,9 @@
 
 using namespace DirectX;
 
-void CAaboundingbox::CalcMeshBounds( const MeshData& mesh )
+void AxisAlignedBox::Update( const Vector& scaling, const Quaternion& rotation, const Vector& translation, ICollider* original )
 {
-//	m_min = CXMFLOAT3( FLT_MAX, FLT_MAX, FLT_MAX );
-//	m_max = CXMFLOAT3( -FLT_MAX, -FLT_MAX, -FLT_MAX );
-//
-//	uint32 verticesCount = mesh.m_vertices;
-//	const MeshVertex* pVertices = static_cast<const MeshVertex*>( mesh.m_pVertexData );
-//
-//	for ( uint32 i = 0; i < verticesCount; ++i )
-//	{
-//		m_min.x = m_min.x > pVertices[i].m_position.x ? pVertices[i].m_position.x : m_min.x;
-//		m_min.y = m_min.y > pVertices[i].m_position.y ? pVertices[i].m_position.y : m_min.y;
-//		m_min.z = m_min.z > pVertices[i].m_position.z ? pVertices[i].m_position.z : m_min.z;
-//		m_max.x = m_max.x < pVertices[i].m_position.x ? pVertices[i].m_position.x : m_max.x;
-//		m_max.y = m_max.y < pVertices[i].m_position.y ? pVertices[i].m_position.y : m_max.y;
-//		m_max.z = m_max.z < pVertices[i].m_position.z ? pVertices[i].m_position.z : m_max.z;
-//	}
-//
-//#ifdef TEST_CODE
-//	DebugMsg( "-------------------AABB-------------------\n" );
-//	DebugMsg( "max %f, %f, %f\n", m_max.x, m_max.y, m_max.z );
-//	DebugMsg( "min %f, %f, %f\n", m_min.x, m_min.y, m_min.z );
-//	DebugMsg( "------------------------------------------\n" );
-//#endif
-}
-
-void CAaboundingbox::Update( const Vector& scaling, const Quaternion& rotation, const Vector& translation, ICollider* original )
-{
-	CAaboundingbox* orig = dynamic_cast<CAaboundingbox*>( original );
+	AxisAlignedBox* orig = dynamic_cast<AxisAlignedBox*>( original );
 	if ( orig == nullptr )
 	{
 		return;
@@ -76,32 +49,12 @@ void CAaboundingbox::Update( const Vector& scaling, const Quaternion& rotation, 
 	}
 }
 
-void CAaboundingbox::CalcSubMeshBounds( std::vector<std::unique_ptr<ICollider>>& subColliders )
-{
-	subColliders.clear( );
-
-	Vector length = m_max - m_min;
-
-	for ( uint32 i = 0; i < 8 * 8 * 8; ++i )
-	{
-		float ix = static_cast<float>( i & 0x7 );
-		float iy = static_cast<float>( ( i >> 3 ) & 0x7 );
-		float iz = static_cast<float>( ( i >> 6 ) & 0x7 );
-
-		CAaboundingbox* subBox = new CAaboundingbox;
-		subBox->SetMin( m_min.x + ( ix / 8.f ) * length.x, m_min.y + ( iy / 8.f ) * length.y, m_min.z + ( iz / 8.f ) * length.z );
-		subBox->SetMax( m_min.x + ( ( ix + 1 ) / 8.f ) * length.x, m_min.y + ( ( iy + 1 ) / 8.f ) * length.y, m_min.z + ( ( iz + 1 ) / 8.f ) * length.z );
-
-		subColliders.emplace_back( subBox );
-	}
-}
-
-float CAaboundingbox::Intersect( const CRay& ray ) const
+float AxisAlignedBox::Intersect( const CRay& ray ) const
 {
 	return RayAndBox( ray.GetOrigin( ), ray.GetDir( ), m_max, m_min );
 }
 
-uint32 CAaboundingbox::Intersect( const Frustum& frustum ) const
+uint32 AxisAlignedBox::Intersect( const Frustum& frustum ) const
 {
 	using namespace DirectX;
 
@@ -128,7 +81,22 @@ uint32 CAaboundingbox::Intersect( const Frustum& frustum ) const
 	return result;
 }
 
-uint32 CAaboundingbox::Intersect( const CAaboundingbox& box ) const
+BoxSphereBounds AxisAlignedBox::Bounds() const
+{
+	Vector points[] = {
+		m_min,
+		m_max,
+	};
+
+	return BoxSphereBounds( points, std::extent_v<decltype( points )> );
+}
+
+Collider AxisAlignedBox::GetType() const
+{
+	return Collider::Aabb;
+}
+
+uint32 AxisAlignedBox::Intersect( const AxisAlignedBox& box ) const
 {
 	for ( uint32 i = 0; i < 3; ++i )
 	{
@@ -148,7 +116,7 @@ uint32 CAaboundingbox::Intersect( const CAaboundingbox& box ) const
 	return COLLISION::INTERSECTION;
 }
 
-CAaboundingbox::CAaboundingbox( const std::vector<CAaboundingbox>& boxes )
+AxisAlignedBox::AxisAlignedBox( const std::vector<AxisAlignedBox>& boxes )
 {
 	for ( const auto& box : boxes )
 	{
@@ -157,13 +125,13 @@ CAaboundingbox::CAaboundingbox( const std::vector<CAaboundingbox>& boxes )
 	}
 }
 
-CAaboundingbox::CAaboundingbox( const BoxSphereBounds& bounds )
+AxisAlignedBox::AxisAlignedBox( const BoxSphereBounds& bounds )
 {
 	Merge( bounds.Origin( ) - bounds.HalfSize( ) );
 	Merge( bounds.Origin( ) + bounds.HalfSize( ) );
 }
 
-CAaboundingbox::CAaboundingbox( const Vector* points, uint32 numPoints )
+AxisAlignedBox::AxisAlignedBox( const Vector* points, uint32 numPoints )
 {
 	for ( uint32 i = 0; i < numPoints; ++i )
 	{
@@ -171,7 +139,7 @@ CAaboundingbox::CAaboundingbox( const Vector* points, uint32 numPoints )
 	}
 }
 
-void CAaboundingbox::Merge( const Vector& vec )
+void AxisAlignedBox::Merge( const Vector& vec )
 {
 	m_max.x = std::max( m_max.x, vec.x );
 	m_max.y = std::max( m_max.y, vec.y );
@@ -181,7 +149,7 @@ void CAaboundingbox::Merge( const Vector& vec )
 	m_min.z = std::min( m_min.z, vec.z );
 }
 
-void TransformAABB( CAaboundingbox& result, const CAaboundingbox& src, const Matrix& mat )
+void TransformAABB( AxisAlignedBox& result, const AxisAlignedBox& src, const Matrix& mat )
 {
 	Vector point[8];
 	for ( uint32 i = 0; i < 8; ++i )

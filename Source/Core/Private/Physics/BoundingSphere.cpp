@@ -1,9 +1,9 @@
 #include "BoundingSphere.h"
 
-#include "Aaboundingbox.h"
+#include "AxisAlignedBox.h"
 #include "CollideNarrow.h"
 #include "Frustum.h"
-#include "OrientedBoundingBox.h"
+#include "OrientedBox.h"
 #include "Ray.h"
 
 #include <algorithm>
@@ -41,25 +41,6 @@ namespace
 	}
 }
 
-void BoundingSphere::CalcMeshBounds( const MeshData& mesh )
-{
-	//uint32 verticesCount = mesh.m_vertices;
-	//const MeshVertex* pVertices = static_cast<const MeshVertex*>( mesh.m_pVertexData );
-
-	//float maxRadiusSqr = -FLT_MAX;
-	//for ( uint32 i = 0; i < verticesCount; ++i )
-	//{
-	//	float radiusSqr = XMVectorGetX( XMVector3LengthSq( pVertices[i].m_position ) );
-
-	//	if ( radiusSqr > maxRadiusSqr )
-	//	{
-	//		maxRadiusSqr = radiusSqr;
-	//	}
-	//}
-
-	//m_radius = sqrtf( maxRadiusSqr );
-}
-
 void BoundingSphere::Update( const Vector& scaling, const Quaternion& /*rotation*/, const Vector& translation, ICollider* original )
 {
 	BoundingSphere* orig = dynamic_cast<BoundingSphere*>( original );
@@ -86,6 +67,16 @@ uint32 BoundingSphere::Intersect( const Frustum& frustum ) const
 	}
 
 	return inside;
+}
+
+BoxSphereBounds BoundingSphere::Bounds() const
+{
+	return BoxSphereBounds( m_origin, Vector( m_radius, m_radius, m_radius ), m_radius );
+}
+
+Collider BoundingSphere::GetType() const
+{
+	return Collider::Sphere;
 }
 
 uint32 BoundingSphere::Intersect( const BoundingSphere& sphere ) const
@@ -142,13 +133,13 @@ bool BoundingSphere::Intersect( const Frustum& frustum, const Vector& sweepDir )
 	return inFrustum;
 }
 
-BoundingSphere::BoundingSphere( const CAaboundingbox& box )
+BoundingSphere::BoundingSphere( const AxisAlignedBox& box )
 {
 	m_origin = box.Centroid();
 	m_radius = ( m_origin - box.GetMax() ).Length();
 }
 
-BoundingSphere::BoundingSphere( const COrientedBoundingBox& box )
+BoundingSphere::BoundingSphere( const OrientedBox& box )
 {
 	m_origin = box.GetAxisVector( 3 );
 	m_radius = box.GetHalfSize().Length();

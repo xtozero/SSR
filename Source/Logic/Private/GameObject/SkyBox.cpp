@@ -18,26 +18,9 @@ namespace
 	constexpr float SKYBOX_LENGTH = 10.f;
 }
 
-void CSkyBox::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
-{
-	CGameObject::LoadProperty( gameLogic, json );
-
-	if ( const JSON::Value* pTexture = json.Find( "Material" ) )
-	{
-		const std::string& assetPath = pTexture->AsString( );
-
-		IAssetLoader::LoadCompletionCallback onLoadComplete;
-		onLoadComplete.BindMemberFunction( this, &CSkyBox::OnMaterialLoadFinished );
-
-		AssetLoaderSharedHandle handle = GetInterface<IAssetLoader>( )->RequestAsyncLoad( assetPath, onLoadComplete );
-
-		assert( handle->IsLoadingInProgress( ) || handle->IsLoadComplete( ) );
-	}
-}
-
 CSkyBox::CSkyBox( )
 {
-	m_pTexturedSkyComponent = CreateComponent<TexturedSkyComponent>( *this );
+	m_pTexturedSkyComponent = CreateComponent<TexturedSkyComponent>( *this, "TexturedSkyComponent" );
 	auto pStaticMesh = std::make_shared<StaticMesh>( );
 
 	std::vector<MeshDescription> descs( 1 );
@@ -82,9 +65,4 @@ CSkyBox::CSkyBox( )
 	pStaticMesh->BuildMeshFromMeshDescriptions( descs );
 	pStaticMesh->PostLoad( );
 	m_pTexturedSkyComponent->SetStaticMesh( pStaticMesh );
-}
-
-void CSkyBox::OnMaterialLoadFinished( const std::shared_ptr<void>& material )
-{
-	m_pTexturedSkyComponent->SetMaterial( std::static_pointer_cast<Material>( material ) );
 }

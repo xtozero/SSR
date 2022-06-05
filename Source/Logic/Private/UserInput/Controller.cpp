@@ -18,7 +18,7 @@ void InputController::SetGameObject( CGameObject* gameObject )
 
 InputController::InputController( )
 {
-	m_rootComponent = CreateComponent<SceneComponent>( *this );
+	m_rootComponent = CreateComponent<SceneComponent>( *this, "Dummy" );
 }
 
 void PlayerController::ProcessInput( const UserInput& input )

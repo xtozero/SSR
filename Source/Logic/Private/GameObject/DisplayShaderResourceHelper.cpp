@@ -44,25 +44,25 @@ void CDisplayShaderResourceHelper::Think( float /*elapsedTime*/ )
 {
 }
 
-void CDisplayShaderResourceHelper::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
-{
-	CGameObject::LoadProperty( gameLogic, json );
-
-	if ( const JSON::Value* pTexName = json.Find( "TextureName" ) )
-	{
-		m_textureName = pTexName->AsString( );
-	}
-	
-	if ( const JSON::Value* pTexWidth = json.Find( "Width" ) )
-	{
-		m_width = static_cast<float>( pTexWidth->AsReal( ) );
-	}
-	
-	if ( const JSON::Value* pTexHeight = json.Find( "Height" ) )
-	{
-		m_height = static_cast<float>( pTexHeight->AsReal( ) );
-	}
-}
+//void CDisplayShaderResourceHelper::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
+//{
+//	CGameObject::LoadProperty( gameLogic, json );
+//
+//	if ( const JSON::Value* pTexName = json.Find( "TextureName" ) )
+//	{
+//		m_textureName = pTexName->AsString( );
+//	}
+//	
+//	if ( const JSON::Value* pTexWidth = json.Find( "Width" ) )
+//	{
+//		m_width = static_cast<float>( pTexWidth->AsReal( ) );
+//	}
+//	
+//	if ( const JSON::Value* pTexHeight = json.Find( "Height" ) )
+//	{
+//		m_height = static_cast<float>( pTexHeight->AsReal( ) );
+//	}
+//}
 
 //bool CDisplayShaderResourceHelper::ShouldDraw( ) const
 //{
@@ -105,7 +105,7 @@ void CDisplayShaderResourceHelper::LoadProperty( CGameLogic& gameLogic, const JS
 //	return true;
 //}
 
-CDisplayShaderResourceHelper::CDisplayShaderResourceHelper( ) :
+CDisplayShaderResourceHelper::CDisplayShaderResourceHelper() :
 	m_width( 1.0f ),
 	m_height( 1.0f )
 {}

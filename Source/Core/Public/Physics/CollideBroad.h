@@ -10,23 +10,23 @@ struct PotentialContact
 	RigidBody* m_body[2];
 };
 
-template <typename BoundingVolumeClass, typename RigidBody>
+template <typename BoundingVolume, typename RigidBody>
 class BVHNode
 {
 public:
-	bool IsLeaf( ) const
+	bool IsLeaf() const
 	{
 		return m_body != nullptr;
 	}
 
-	bool Overlaps( const BVHNode<BoundingVolumeClass, RigidBody>* other ) const;
+	bool Overlaps( const BVHNode<BoundingVolume, RigidBody>* other ) const;
 	uint32 GetPotentialContacts( PotentialContact<RigidBody>* contacts, uint32 limit ) const;
-	uint32 GetPotentialContactsWith( const BVHNode<BoundingVolumeClass, RigidBody>* other, PotentialContact<RigidBody>* contacts, uint32 limit ) const;
-	void Insert( RigidBody* body, const BoundingVolumeClass& volume );
+	uint32 GetPotentialContactsWith( const BVHNode<BoundingVolume, RigidBody>* other, PotentialContact<RigidBody>* contacts, uint32 limit ) const;
+	void Insert( RigidBody* body, const BoundingVolume& volume );
 
-	BVHNode( ) = default;
-	BVHNode( BVHNode<BoundingSphere, RigidBody>* parent, const BoundingVolumeClass& volume, RigidBody* body );
-	~BVHNode( );
+	BVHNode() = default;
+	BVHNode( BVHNode<BoundingVolume, RigidBody>* parent, const BoundingVolume& volume, RigidBody* body );
+	~BVHNode();
 	BVHNode( const BVHNode& ) = default;
 	BVHNode& operator=( const BVHNode& ) = default;
 	BVHNode( BVHNode&& ) = default;
@@ -34,23 +34,23 @@ public:
 
 	BVHNode* m_parent = nullptr;
 	BVHNode* m_children[2] = { nullptr, nullptr };
-	BoundingVolumeClass m_volume;
+	BoundingVolume m_boundingVolume;
 	RigidBody* m_body = nullptr;
 
 private:
-	void RecalculateBoundingVolume( );
+	void RecalculateBoundingVolume();
 };
 
-template <typename BoundingVolumeClass, typename RigidBody>
-bool BVHNode<BoundingVolumeClass, RigidBody>::Overlaps( const BVHNode<BoundingVolumeClass, RigidBody>* other ) const
+template <typename BoundingVolume, typename RigidBody>
+bool BVHNode<BoundingVolume, RigidBody>::Overlaps( const BVHNode<BoundingVolume, RigidBody>* other ) const
 {
-	return ( m_volume.Intersect( other->m_volume ) > COLLISION::OUTSIDE );
+	return ( m_boundingVolume.Overlapped( other->m_boundingVolume ) > COLLISION::OUTSIDE );
 }
 
-template <typename BoundingVolumeClass, typename RigidBody>
-uint32 BVHNode<BoundingVolumeClass, RigidBody>::GetPotentialContacts( PotentialContact<RigidBody>* contacts, uint32 limit ) const
+template <typename BoundingVolume, typename RigidBody>
+uint32 BVHNode<BoundingVolume, RigidBody>::GetPotentialContacts( PotentialContact<RigidBody>* contacts, uint32 limit ) const
 {
-	if ( IsLeaf( ) || limit == 0 )
+	if ( IsLeaf() || limit == 0 )
 	{
 		return 0;
 	}
@@ -58,35 +58,35 @@ uint32 BVHNode<BoundingVolumeClass, RigidBody>::GetPotentialContacts( PotentialC
 	return m_children[0]->GetPotentialContactsWith( m_children[1], contacts, limit );
 }
 
-template <typename BoundingVolumeClass, typename RigidBody>
-uint32 BVHNode<BoundingVolumeClass, RigidBody>::GetPotentialContactsWith( const BVHNode<BoundingVolumeClass, RigidBody>* other, PotentialContact<RigidBody>* contacts, uint32 limit ) const
+template <typename BoundingVolume, typename RigidBody>
+uint32 BVHNode<BoundingVolume, RigidBody>::GetPotentialContactsWith( const BVHNode<BoundingVolume, RigidBody>* other, PotentialContact<RigidBody>* contacts, uint32 limit ) const
 {
 	if ( Overlaps( other ) == false || limit == 0 )
 	{
 		return 0;
 	}
 
-	if ( IsLeaf( ) && other->IsLeaf( ) )
+	if ( IsLeaf() && other->IsLeaf() )
 	{
 		contacts->m_body[0] = m_body;
 		contacts->m_body[1] = other->m_body;
 		return 1;
 	}
 
-	if ( other->IsLeaf( ) || ( ( IsLeaf( ) == false ) && m_volume.GetSize( ) >= other->m_volume.GetSize( ) ) )
+	if ( other->IsLeaf() || ( ( IsLeaf() == false ) && m_boundingVolume.Volume() >= other->m_boundingVolume.Volume() ) )
 	{
 		uint32 count = m_children[0]->GetPotentialContactsWith( m_children[1], contacts, limit );
-		
+
 		if ( limit > count )
 		{
 			count += m_children[0]->GetPotentialContactsWith( other, contacts + count, limit - count );
 		}
-		
+
 		if ( limit > count )
 		{
 			count += m_children[1]->GetPotentialContactsWith( other, contacts + count, limit - count );
 		}
-		
+
 		return count;
 	}
 	else
@@ -107,23 +107,23 @@ uint32 BVHNode<BoundingVolumeClass, RigidBody>::GetPotentialContactsWith( const 
 	}
 }
 
-template<typename BoundingVolumeClass, typename RigidBody>
-void BVHNode<BoundingVolumeClass, RigidBody>::Insert( RigidBody* body, const BoundingVolumeClass& volume )
+template<typename BoundingVolume, typename RigidBody>
+void BVHNode<BoundingVolume, RigidBody>::Insert( RigidBody* body, const BoundingVolume& volume )
 {
-	if ( IsLeaf( ) )
+	if ( IsLeaf() )
 	{
-		m_children[0] = new BVHNode<BoundingVolumeClass, RigidBody>( this, m_volume, m_body );
+		m_children[0] = new BVHNode<BoundingVolume, RigidBody>( this, m_boundingVolume, m_body );
 
-		m_children[1] = new BVHNode<BoundingVolumeClass, RigidBody>( this, volume, body );
+		m_children[1] = new BVHNode<BoundingVolume, RigidBody>( this, volume, body );
 
 		this->m_body = nullptr;
 
-		RecalculateBoundingVolume( );
+		RecalculateBoundingVolume();
 	}
 	else
 	{
-		float growth1 = m_children[0]->m_volume.CalcGrowth( volume );
-		float growth2 = m_children[1]->m_volume.CalcGrowth( volume );
+		float growth1 = CalcGrowth( m_children[0]->m_boundingVolume, volume );
+		float growth2 = CalcGrowth( m_children[1]->m_boundingVolume, volume );
 
 		if ( growth1 == 0.f )
 		{
@@ -146,18 +146,19 @@ void BVHNode<BoundingVolumeClass, RigidBody>::Insert( RigidBody* body, const Bou
 	}
 }
 
-template<typename BoundingVolumeClass, typename RigidBody>
-inline BVHNode<BoundingVolumeClass, RigidBody>::BVHNode( BVHNode<BoundingSphere, RigidBody>* parent, const BoundingVolumeClass& volume, RigidBody* body ) :
-	m_parent( parent ), m_volume( volume ), m_body( body )
-{
-}
+template<typename BoundingVolume, typename RigidBody>
+inline BVHNode<BoundingVolume, RigidBody>::BVHNode( BVHNode<BoundingVolume, RigidBody>* parent, const BoundingVolume& volume, RigidBody* body )
+	: m_parent( parent )
+	, m_boundingVolume( volume )
+	, m_body( body )
+{}
 
-template<typename BoundingVolumeClass, typename RigidBody>
-inline BVHNode<BoundingVolumeClass, RigidBody>::~BVHNode( )
+template<typename BoundingVolume, typename RigidBody>
+inline BVHNode<BoundingVolume, RigidBody>::~BVHNode()
 {
 	if ( m_parent )
 	{
-		BVHNode<BoundingVolumeClass, RigidBody>* sibling;
+		BVHNode<BoundingVolume, RigidBody>* sibling;
 		if ( m_parent->m_children[0] == this )
 		{
 			sibling = m_parent->m_children[1];
@@ -167,7 +168,7 @@ inline BVHNode<BoundingVolumeClass, RigidBody>::~BVHNode( )
 			sibling = m_parent->m_children[0];
 		}
 
-		m_parent->m_volume = sibling->m_volume;
+		m_parent->m_boundingVolume = sibling->m_boundingVolume;
 		m_parent->m_body = sibling->m_body;
 		m_parent->m_children[0] = sibling->m_children[0];
 		m_parent->m_children[1] = sibling->m_children[1];
@@ -188,7 +189,7 @@ inline BVHNode<BoundingVolumeClass, RigidBody>::~BVHNode( )
 		sibling->m_children[1] = nullptr;
 		delete sibling;
 
-		m_parent->RecalculateBoundingVolume( );
+		m_parent->RecalculateBoundingVolume();
 	}
 
 	if ( m_children[0] )
@@ -204,19 +205,19 @@ inline BVHNode<BoundingVolumeClass, RigidBody>::~BVHNode( )
 	}
 }
 
-template<typename BoundingVolumeClass, typename RigidBody>
-void BVHNode<BoundingVolumeClass, RigidBody>::RecalculateBoundingVolume( )
+template<typename BoundingVolume, typename RigidBody>
+void BVHNode<BoundingVolume, RigidBody>::RecalculateBoundingVolume()
 {
-	if ( IsLeaf( ) || m_parent == nullptr )
+	if ( IsLeaf() || m_parent == nullptr )
 	{
 		return;
 	}
 
-	m_volume = BoundingVolumeClass( m_children[0]->m_volume, m_children[1]->m_volume );
+	m_boundingVolume = m_children[0]->m_boundingVolume + m_children[1]->m_boundingVolume;
 
 	if ( m_parent )
 	{
-		m_parent->RecalculateBoundingVolume( );
+		m_parent->RecalculateBoundingVolume();
 	}
 }
 
@@ -236,7 +237,7 @@ public:
 	{
 		m_cur = pNode;
 	}
-	~BVHTreeIterater( ) = default;
+	~BVHTreeIterater() = default;
 	BVHTreeIterater( const BVHTreeIterater<T>& ) = default;
 	BVHTreeIterater<T>& operator=( const BVHTreeIterater<T>& ) = default;
 	BVHTreeIterater( BVHTreeIterater<T>&& ) = default;
@@ -249,7 +250,7 @@ public:
 		return prev;
 	}
 
-	BVHTreeIterater<T>& operator++( )
+	BVHTreeIterater<T>& operator++()
 	{
 		if ( m_cur == nullptr )
 		{
@@ -287,12 +288,12 @@ public:
 		return !( *this == other );
 	}
 
-	Node* operator->( ) const
+	Node* operator->() const
 	{
 		return m_cur;
 	}
 
-	Node& operator*( ) const
+	Node& operator*() const
 	{
 		return *m_cur;
 	}
@@ -301,34 +302,35 @@ private:
 	Node* m_cur = nullptr;
 };
 
-template <typename BoundingVolumeClass, typename RigidBody>
+template <typename BoundingVolume, typename RigidBody>
 class BVHTree
 {
 public:
-	using NodeType = BVHNode<BoundingVolumeClass, RigidBody>;
+	using NodeType = BVHNode<BoundingVolume, RigidBody>;
 
-	void Insert( RigidBody* body, const BoundingVolumeClass& volume );
+	void Insert( RigidBody* body, const BoundingVolume& volume );
 	void Remove( RigidBody* body );
-	BVHNode<BoundingVolumeClass, RigidBody>* Find( RigidBody* body );
+	void Clear();
+	BVHNode<BoundingVolume, RigidBody>* Find( RigidBody* body );
+	
+	BVHTreeIterater<BVHTree<BoundingVolume, RigidBody>> begin();
+	BVHTreeIterater<BVHTree<BoundingVolume, RigidBody>> end();
 
-	BVHTreeIterater<BVHTree<BoundingVolumeClass, RigidBody>> begin( );
-	BVHTreeIterater<BVHTree<BoundingVolumeClass, RigidBody>> end( );
-
-	size_t LeafSize( ) const { return m_leafSize; }
+	size_t LeafSize() const { return m_leafSize; }
 
 	uint32 GetPotentialContacts( PotentialContact<RigidBody>* contacts, uint32 limit ) const;
 
 private:
-	BVHNode<BoundingVolumeClass, RigidBody> m_root;
+	BVHNode<BoundingVolume, RigidBody> m_root;
 	size_t m_leafSize = 0;
 };
 
-template<typename BoundingVolumeClass, typename RigidBody>
-void BVHTree<BoundingVolumeClass, RigidBody>::Insert( RigidBody* body, const BoundingVolumeClass& volume )
+template<typename BoundingVolume, typename RigidBody>
+void BVHTree<BoundingVolume, RigidBody>::Insert( RigidBody* body, const BoundingVolume& volume )
 {
 	if ( m_root.m_children[0] == nullptr )
 	{
-		m_root.m_children[0] = new BVHNode<BoundingVolumeClass, RigidBody>( &m_root, volume, body );
+		m_root.m_children[0] = new BVHNode<BoundingVolume, RigidBody>( &m_root, volume, body );
 	}
 	else
 	{
@@ -338,8 +340,8 @@ void BVHTree<BoundingVolumeClass, RigidBody>::Insert( RigidBody* body, const Bou
 	++m_leafSize;
 }
 
-template<typename BoundingVolumeClass, typename RigidBody>
-void BVHTree<BoundingVolumeClass, RigidBody>::Remove( RigidBody* body )
+template<typename BoundingVolume, typename RigidBody>
+void BVHTree<BoundingVolume, RigidBody>::Remove( RigidBody* body )
 {
 	if ( auto found = Find( body ) )
 	{
@@ -348,25 +350,25 @@ void BVHTree<BoundingVolumeClass, RigidBody>::Remove( RigidBody* body )
 	}
 }
 
-template<typename BoundingVolumeClass, typename RigidBody>
-BVHNode<BoundingVolumeClass, RigidBody>* BVHTree<BoundingVolumeClass, RigidBody>::Find( RigidBody* body )
+template<typename BoundingVolume, typename RigidBody>
+BVHNode<BoundingVolume, RigidBody>* BVHTree<BoundingVolume, RigidBody>::Find( RigidBody* body )
 {
 	if ( m_root.m_children[0] == nullptr )
 	{
 		return nullptr;
 	}
 
-	BVHNode<BoundingVolumeClass, RigidBody>* found = nullptr;
-	std::stack<BVHNode<BoundingVolumeClass, RigidBody>*> visit;
+	BVHNode<BoundingVolume, RigidBody>* found = nullptr;
+	std::stack<BVHNode<BoundingVolume, RigidBody>*> visit;
 
 	visit.push( m_root.m_children[0] );
 
-	while ( visit.empty( ) == false )
+	while ( visit.empty() == false )
 	{
-		BVHNode<BoundingVolumeClass, RigidBody>* cur = visit.top( );
-		visit.pop( );
-		
-		if ( cur->IsLeaf( ) && cur->m_body == body )
+		BVHNode<BoundingVolume, RigidBody>* cur = visit.top();
+		visit.pop();
+
+		if ( cur->IsLeaf() && cur->m_body == body )
 		{
 			found = cur;
 			break;
@@ -388,26 +390,41 @@ BVHNode<BoundingVolumeClass, RigidBody>* BVHTree<BoundingVolumeClass, RigidBody>
 	return found;
 }
 
-template<typename BoundingVolumeClass, typename RigidBody>
-BVHTreeIterater<BVHTree<BoundingVolumeClass, RigidBody>> BVHTree<BoundingVolumeClass, RigidBody>::begin( )
+template<typename BoundingVolume, typename RigidBody>
+void BVHTree<BoundingVolume, RigidBody>::Clear()
 {
-	BVHNode<BoundingVolumeClass, RigidBody>* pNode = &m_root;
+	for ( BVHNode<BoundingVolume, RigidBody>*& child : m_root.m_children )
+	{
+		if ( child != nullptr )
+		{
+			child->m_parent = nullptr;
+			delete child;
+		}
+	}
+
+	std::construct_at( &m_root );
+}
+
+template<typename BoundingVolume, typename RigidBody>
+BVHTreeIterater<BVHTree<BoundingVolume, RigidBody>> BVHTree<BoundingVolume, RigidBody>::begin()
+{
+	BVHNode<BoundingVolume, RigidBody>* pNode = &m_root;
 	while ( pNode->m_children[0] )
 	{
 		pNode = pNode->m_children[0];
 	}
 
-	return BVHTreeIterater<BVHTree<BoundingVolumeClass, RigidBody>>( pNode );
+	return BVHTreeIterater<BVHTree<BoundingVolume, RigidBody>>( pNode );
 }
 
-template<typename BoundingVolumeClass, typename RigidBody>
-BVHTreeIterater<BVHTree<BoundingVolumeClass, RigidBody>> BVHTree<BoundingVolumeClass, RigidBody>::end( )
+template<typename BoundingVolume, typename RigidBody>
+BVHTreeIterater<BVHTree<BoundingVolume, RigidBody>> BVHTree<BoundingVolume, RigidBody>::end()
 {
-	return BVHTreeIterater<BVHTree<BoundingVolumeClass, RigidBody>>( &m_root );
+	return BVHTreeIterater<BVHTree<BoundingVolume, RigidBody>>( &m_root );
 }
 
-template<typename BoundingVolumeClass, typename RigidBody>
-inline uint32 BVHTree<BoundingVolumeClass, RigidBody>::GetPotentialContacts( PotentialContact<RigidBody>* contacts, uint32 limit ) const
+template<typename BoundingVolume, typename RigidBody>
+inline uint32 BVHTree<BoundingVolume, RigidBody>::GetPotentialContacts( PotentialContact<RigidBody>* contacts, uint32 limit ) const
 {
 	if ( m_root.m_children[0] == nullptr )
 	{

@@ -13,7 +13,7 @@ void RigidBody::SetMass( float mass )
 	m_inverseMass = 1.f / mass;
 }
 
-float RigidBody::GetMass( ) const
+float RigidBody::GetMass() const
 {
 	if ( m_inverseMass == 0 )
 	{
@@ -30,12 +30,12 @@ void RigidBody::SetInverseMass( float inverseMass )
 	m_inverseMass = inverseMass;
 }
 
-float RigidBody::GetInverseMass( ) const
+float RigidBody::GetInverseMass() const
 {
 	return m_inverseMass;
 }
 
-bool RigidBody::HasFiniteMass( ) const
+bool RigidBody::HasFiniteMass() const
 {
 	return m_inverseMass > 0.f;
 }
@@ -51,7 +51,7 @@ void RigidBody::SetLinearDamping( float linearDamping )
 	m_linearDamping = linearDamping;
 }
 
-float RigidBody::GetLinearDamping( ) const
+float RigidBody::GetLinearDamping() const
 {
 	return m_linearDamping;
 }
@@ -61,7 +61,7 @@ void RigidBody::SetAngularDamping( float angularDamping )
 	m_angularDamping = angularDamping;
 }
 
-float RigidBody::GetAngularDamping( ) const
+float RigidBody::GetAngularDamping() const
 {
 	return m_angularDamping;
 }
@@ -71,7 +71,7 @@ void RigidBody::SetPosition( const Point& position )
 	m_position = position;
 }
 
-Point RigidBody::GetPosition( ) const
+Point RigidBody::GetPosition() const
 {
 	return m_position;
 }
@@ -86,7 +86,7 @@ void RigidBody::SetOrientation( float pitch, float yaw, float roll )
 	SetOrientation( Quaternion( pitch, yaw, roll ) );
 }
 
-Quaternion RigidBody::GetOrientation( ) const
+Quaternion RigidBody::GetOrientation() const
 {
 	return m_orientation;
 }
@@ -96,7 +96,7 @@ void RigidBody::SetVelocity( const Vector& velocity )
 	m_velocity = velocity;
 }
 
-Vector RigidBody::GetVelocity( ) const
+Vector RigidBody::GetVelocity() const
 {
 	return m_velocity;
 }
@@ -111,7 +111,7 @@ void RigidBody::SetRotation( const Vector& rotation )
 	m_rotation = rotation;
 }
 
-Vector RigidBody::GetRotation( ) const
+Vector RigidBody::GetRotation() const
 {
 	return m_rotation;
 }
@@ -142,11 +142,11 @@ void RigidBody::SetCanSleep( bool canSleep )
 
 	if ( m_canSleep == false && m_isAwake == false )
 	{
-		SetAwake( );
+		SetAwake();
 	}
 }
 
-Matrix RigidBody::GetTransform( ) const
+Matrix RigidBody::GetTransform() const
 {
 	return m_transformMatrix;
 }
@@ -161,7 +161,7 @@ void RigidBody::SetInertiaTensor( const Matrix3X3& inertiaTensor )
 	}
 }
 
-Matrix3X3 RigidBody::GetInertiaTensor( ) const
+Matrix3X3 RigidBody::GetInertiaTensor() const
 {
 	return m_inverseInertiaTensor.Inverse();
 }
@@ -171,17 +171,17 @@ void RigidBody::SetInverseInertiaTensor( const Matrix3X3& inverseInertiaTensor )
 	m_inverseInertiaTensor = inverseInertiaTensor;
 }
 
-Matrix3X3 RigidBody::GetInverseInertiaTensor( ) const
+Matrix3X3 RigidBody::GetInverseInertiaTensor() const
 {
 	return m_inverseInertiaTensor;
 }
 
-Matrix3X3 RigidBody::GetInertiaTensorWorld( ) const
+Matrix3X3 RigidBody::GetInertiaTensorWorld() const
 {
 	return m_inverseInertiaTenserWorld.Inverse();
 }
 
-Matrix3X3 RigidBody::GetInverseInertiaTensorWorld( ) const
+Matrix3X3 RigidBody::GetInverseInertiaTensorWorld() const
 {
 	return m_inverseInertiaTenserWorld;
 }
@@ -223,17 +223,17 @@ void RigidBody::SetAcceleration( const Vector& acceleration )
 	m_acceleration = acceleration;
 }
 
-Vector RigidBody::GetAcceleration( )
+Vector RigidBody::GetAcceleration()
 {
 	return m_acceleration;
 }
 
-Vector RigidBody::GetLastFrameAcceleration( )
+Vector RigidBody::GetLastFrameAcceleration()
 {
 	return m_lastFrameAcceleration;
 }
 
-void RigidBody::ClearAccumulators( )
+void RigidBody::ClearAccumulators()
 {
 	m_forceAccum = Vector::ZeroVector;
 	m_torqueAccum = Vector::ZeroVector;
@@ -246,7 +246,7 @@ bool RigidBody::Integrate( float duration )
 		return false;
 	}
 
-	if ( HasFiniteMass( ) == false ) 
+	if ( HasFiniteMass() == false )
 	{
 		SetAwake( false );
 		return false;
@@ -271,8 +271,8 @@ bool RigidBody::Integrate( float duration )
 	dq = ( dq * m_orientation ) * 0.5f;
 	m_orientation += dq;
 
-	CalculateDerivedData( );
-	ClearAccumulators( );
+	CalculateDerivedData();
+	ClearAccumulators();
 
 	if ( m_canSleep )
 	{
@@ -296,12 +296,12 @@ bool RigidBody::Integrate( float duration )
 	return ( prevPos != m_position ) || ( prevOrient != m_orientation );
 }
 
-void RigidBody::CalculateDerivedData( )
+void RigidBody::CalculateDerivedData()
 {
 	m_orientation = m_orientation.GetNormalized();
 
-	Matrix rotateMatrix = RotateMatrix( m_orientation );
-	m_transformMatrix = rotateMatrix * TranslationMatrix( m_position );
+	Matrix rotationMat = RotationMatrix( m_orientation );
+	m_transformMatrix = rotationMat * TranslationMatrix( m_position );
 
 	// M^-1 * I * M
 	auto transformMat3x3 = Matrix3X3( m_transformMatrix );

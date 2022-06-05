@@ -5,9 +5,9 @@
 #include "SizedTypes.h"
 
 class BoundingSphere;
-class CAaboundingbox;
+class AxisAlignedBox;
 class Contact;
-class COrientedBoundingBox;
+class OrientedBox;
 class Frustum;
 class RigidBody;
 
@@ -33,12 +33,12 @@ uint32 SphereAndHalfSpace( const BoundingSphere& sphere, RigidBody* sphereBody, 
 uint32 SphereAndTruePlane( const BoundingSphere& sphere, RigidBody* sphereBody, const Plane& plane, CollisionData* data );
 uint32 SphereAndFrusturm( const Point& origin, float radius, const Frustum& frustum );
 bool SphereAndFrusturm( const Point& origin, float radius, const Frustum& frustum, const Vector& sweepDir );
-uint32 BoxAndHalfSpace( const CAaboundingbox& box, RigidBody* boxBody, const Plane& plane, CollisionData* data );
-uint32 BoxAndSphere( const CAaboundingbox& box, RigidBody* boxBody, const BoundingSphere& sphere, RigidBody* sphereBody, CollisionData* data );
-uint32 BoxAndSphere( const COrientedBoundingBox& box, RigidBody* boxBody, const BoundingSphere& sphere, RigidBody* sphereBody, CollisionData* data );
-uint32 BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const CAaboundingbox& rhs, RigidBody* rhsBody, CollisionData* data );
-uint32 BoxAndBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, const COrientedBoundingBox& rhs, RigidBody* rhsBody, CollisionData* data );
-uint32 BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const COrientedBoundingBox& rhs, RigidBody* rhsBody, CollisionData* data );
+uint32 BoxAndHalfSpace( const AxisAlignedBox& box, RigidBody* boxBody, const Plane& plane, CollisionData* data );
+uint32 BoxAndSphere( const AxisAlignedBox& box, RigidBody* boxBody, const BoundingSphere& sphere, RigidBody* sphereBody, CollisionData* data );
+uint32 BoxAndSphere( const OrientedBox& box, RigidBody* boxBody, const BoundingSphere& sphere, RigidBody* sphereBody, CollisionData* data );
+uint32 BoxAndBox( const AxisAlignedBox& lhs, RigidBody* lhsBody, const AxisAlignedBox& rhs, RigidBody* rhsBody, CollisionData* data );
+uint32 BoxAndBox( const OrientedBox& lhs, RigidBody* lhsBody, const OrientedBox& rhs, RigidBody* rhsBody, CollisionData* data );
+uint32 BoxAndBox( const AxisAlignedBox& lhs, RigidBody* lhsBody, const OrientedBox& rhs, RigidBody* rhsBody, CollisionData* data );
 uint32 BoxAndFrustum( const Point& min, const Point& max, const Frustum& frustum );
 
 float RayAndBox( const Point& rayOrigin, const Vector& rayDir, const Point& max, const Point& min );

@@ -68,38 +68,6 @@ inline Matrix3X3 MakeSkewSymmetric( const Vector& v )
 		-v.y, v.x, 0.f );
 }
 
-inline Matrix3X3 MakeInertiaTensorCoeffs( float ix, float iy, float iz, float ixy = 0, float iyz = 0, float ixz = 0 )
-{
-	return Matrix3X3(
-		ix, -ixy, -ixz,
-		-ixy, iy, -iyz,
-		-ixz, -iyz, iz );
-}
-
-inline Matrix3X3 MakeBlockInertiaTensor( const Vector& halfSizes, float mass )
-{
-	if ( mass == FLT_MAX )
-	{
-		return Matrix3X3( 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f );
-	}
-
-	Vector squares = halfSizes * halfSizes;
-	return MakeInertiaTensorCoeffs( 0.3f * mass * ( squares.y + squares.z ),
-		0.3f * mass * ( squares.x + squares.z ),
-		0.3f * mass * ( squares.x + squares.y ) );
-}
-
-inline Matrix3X3 MakeSphereInertiaTensor( const float radius, float mass )
-{
-	if ( mass == FLT_MAX )
-	{
-		return Matrix3X3( 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f );
-	}
-
-	float coeff = 0.4f * mass * radius * radius;
-	return MakeInertiaTensorCoeffs( coeff, coeff, coeff );
-}
-
 inline Vector SphericalToCartesian( float inclination, float azimuth )
 {
 	float sinTheta = sin( inclination );

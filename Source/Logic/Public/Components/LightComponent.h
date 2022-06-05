@@ -21,6 +21,8 @@ class LightComponent : public SceneComponent
 public:
 	using SceneComponent::SceneComponent;
 
+	virtual void LoadProperty( const JSON::Value& json ) override;
+
 	virtual LightProxy* CreateProxy() const = 0;
 	virtual bool IsUsedAsAtmosphereSunLight() const
 	{
@@ -71,6 +73,8 @@ class DirectionalLightComponent : public LightComponent
 public:
 	using LightComponent::LightComponent;
 
+	virtual void LoadProperty( const JSON::Value& json ) override;
+
 	virtual LightProxy* CreateProxy() const override;
 	virtual bool IsUsedAsAtmosphereSunLight() const override
 	{
@@ -103,6 +107,8 @@ class HemisphereLightComponent : public SceneComponent
 
 public:
 	using SceneComponent::SceneComponent;
+
+	virtual void LoadProperty( const JSON::Value& json ) override;
 
 	virtual HemisphereLightProxy* CreateProxy() const;
 

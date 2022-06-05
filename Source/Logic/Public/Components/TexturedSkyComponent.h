@@ -15,22 +15,26 @@ class TexturedSkyComponent : public Component
 public:
 	using Component::Component;
 
-	virtual TexturedSkyProxy* CreateProxy( ) const;
+	virtual void LoadProperty( const JSON::Value& json ) override;
+
+	virtual TexturedSkyProxy* CreateProxy() const;
 
 	void SetStaticMesh( const std::shared_ptr<StaticMesh>& pStaticMesh );
-	std::shared_ptr<StaticMesh> GetStaticMesh( ) const { return m_pStaticMesh; }
+	std::shared_ptr<StaticMesh> GetStaticMesh() const { return m_pStaticMesh; }
 
 	void SetMaterial( const std::shared_ptr<Material>& pMaterial );
-	std::shared_ptr<Material> GetMaterial( ) const { return m_pMaterial; }
+	std::shared_ptr<Material> GetMaterial() const { return m_pMaterial; }
 
 	TexturedSkyProxy* m_texturedSkyProxy = nullptr;
 
 protected:
-	virtual bool ShouldCreateRenderState( ) const override;
-	virtual void CreateRenderState( ) override;
-	virtual void RemoveRenderState( ) override;
+	virtual bool ShouldCreateRenderState() const override;
+	virtual void CreateRenderState() override;
+	virtual void RemoveRenderState() override;
 
 private:
+	void OnMaterialLoadFinished( const std::shared_ptr<void>& material );
+
 	std::shared_ptr<StaticMesh> m_pStaticMesh = nullptr;
 	std::shared_ptr<Material> m_pMaterial = nullptr;
 };

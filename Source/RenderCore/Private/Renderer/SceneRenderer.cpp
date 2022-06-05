@@ -7,6 +7,7 @@
 #include "Material/MaterialResource.h"
 #include "Physics/CollideNarrow.h"
 #include "Physics/Frustum.h"
+#include "Physics/ICollider.h"
 #include "Proxies/LightProxy.h"
 #include "Proxies/PrimitiveProxy.h"
 #include "Proxies/TexturedSkyProxy.h"
@@ -190,8 +191,6 @@ void SceneRenderer::ClassifyShadowCasterAndReceiver( IScene& scene, const render
 		auto viewProjectionMat = PerspectiveMatrix( view.m_fov, view.m_aspect, view.m_nearPlaneDistance, view.m_farPlaneDistance );
 		viewProjectionMat = viewMat * viewProjectionMat;
 		Frustum frustum( viewProjectionMat );
-
-		CAaboundingbox box;
 
 		const Vector& lightDirection = lightSceneInfo->Proxy()->GetLightProperty().m_direction;
 		Vector sweepDir = lightDirection.GetNormalized();

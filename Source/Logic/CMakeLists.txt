@@ -4,23 +4,31 @@ add_definitions(-D_UNICODE=1)
 add_definitions(-DNOMINMAX=1)
 	
 set (COMPOENETS
+	Private/Components/BoxComponent.cpp
 	Private/Components/CameraComponent.cpp
 	Private/Components/Component.cpp
+	Private/Components/GroundMovementComponent.cpp
 	Private/Components/InputComponent.cpp
 	Private/Components/LightComponent.cpp
 	Private/Components/PrimitiveComponent.cpp
 	Private/Components/SceneComponent.cpp
+	Private/Components/ShapeComponent.cpp
 	Private/Components/SkyAtmosphereComponent.cpp
+	Private/Components/SphereComponent.cpp
 	Private/Components/StaticMeshComponent.cpp
 	Private/Components/TexturedSkyComponent.cpp
 	Private/Components/VolumetricCloudComponent.cpp
+	Public/Components/BoxComponent.h
 	Public/Components/CameraComponent.h
 	Public/Components/Component.h
+	Public/Components/GroundMovementComponent.h
 	Public/Components/InputComponent.h
 	Public/Components/LightComponent.h
 	Public/Components/PrimitiveComponent.h
 	Public/Components/SceneComponent.h
+	Public/Components/ShapeComponent.h
 	Public/Components/SkyAtmosphereComponent.h
+	Public/Components/SphereComponent.h
 	Public/Components/StaticMeshComponent.h
 	Public/Components/TexturedSkyComponent.h
 	Public/Components/VolumetricCloudComponent.h)
@@ -34,6 +42,7 @@ set (CORE
 	Private/Core/ThinkFunction.cpp
 	Private/Core/ThinkTaskManager.cpp
 	Private/Core/Timer.cpp
+	Private/Core/WeldingTransformRules.cpp
 	Public/Core/DebugConsole.h
 	Public/Core/GameLogic.h
 	Public/Core/IListener.h
@@ -41,7 +50,8 @@ set (CORE
 	Public/Core/ThinkFunction.h
 	Public/Core/ThinkTaskManager.h
 	Public/Core/Timer.h
-	Public/Core/UtilWindowInfo.h)
+	Public/Core/UtilWindowInfo.h
+	Public/Core/WeldingTransformRules.h)
 	
 set (GAME_OBJECT
 	Private/GameObject/DisplayShaderResourceHelper.cpp
@@ -83,42 +93,12 @@ set (GAME_OBJECT
 #	"Public/Model/Surface.h")
 
 set (PHYSICS
-	Private/Physics/Aaboundingbox.cpp
-	Private/Physics/Body.cpp
-	Private/Physics/BoundingCone.cpp
-	Private/Physics/BoundingSphere.cpp
-	Private/Physics/CollisionUtil.cpp
-	Private/Physics/CollideNarrow.cpp
-	Private/Physics/Contacts.cpp
-	Private/Physics/ForceGenerator.cpp
-	Private/Physics/OrientedBoundingBox.cpp
-	Private/Physics/Particle.cpp
-	Private/Physics/ParticleContacts.cpp
-	Private/Physics/ParticleForceGenerator.cpp
-	Private/Physics/ParticleLinks.cpp
-	Private/Physics/ParticleWorld.cpp
-	Private/Physics/Ray.cpp
-	Private/Physics/ColliderManager.cpp
-	Public/Physics/Aaboundingbox.h
-	Public/Physics/Body.h
-	Public/Physics/BoundingCone.h
-	Public/Physics/BoundingSphere.h
-	Public/Physics/CollideBroad.h
-	Public/Physics/CollisionUtil.h
-	Public/Physics/CollideNarrow.h
-	Public/Physics/Contacts.h
-	Public/Physics/ForceGenerator.h
-	Public/Physics/Frustum.h
-	Public/Physics/ICollider.h
-	Public/Physics/Movement.h
-	Public/Physics/OrientedBoundingBox.h
-	Public/Physics/Particle.h
-	Public/Physics/ParticleContacts.h
-	Public/Physics/ParticleForceGenerator.h
-	Public/Physics/ParticleLinks.h
-	Public/Physics/ParticleWorld.h
-	Public/Physics/Ray.h
-	Public/Physics/ColliderManager.h)
+	Private/Physics/BodyInstance.cpp
+	Private/Physics/BodySetup.cpp
+	Private/Physics/PhysicsScene.cpp
+	Public/Physics/BodyInstance.h
+	Public/Physics/BodySetup.h
+	Public/Physics/PhysicsScene.h)
 
 set (PLAYER_OBJECT
 	Private/GameObject/Player.cpp
@@ -142,7 +122,9 @@ set (SCENE
 	
 set (TEST_SCENE_OBJECT
 	Private/GameObject/BallProjectile.cpp
-	Public/GameObject/BallProjectile.h)
+	Private/GameObject/PhysicsObjects.cpp
+	Public/GameObject/BallProjectile.h
+	Public/GameObject/PhysicsObjects.h)
 	
 set (UI
 	Private/UI/ImUI.cpp
@@ -164,7 +146,7 @@ source_group("Core" FILES ${CORE})
 source_group("GameObject" FILES ${GAME_OBJECT})
 source_group("GameObject\\Player" FILES ${PLAYER_OBJECT})
 source_group("GameObject\\TestScene" FILES ${TEST_SCENE_OBJECT})
-#source_group("Model" FILES ${MODEL})
+source_group("Model" FILES ${MODEL})
 source_group("Physics" FILES ${PHYSICS})
 source_group("Render" FILES ${SCENE})
 source_group("UI" FILES ${UI})
@@ -180,7 +162,7 @@ add_library(Logic SHARED 	${COMPOENETS}
 							${GAME_OBJECT}
 #							${MATERIAL}
 #							${MODEL}
-#							${PHYSICS}
+							${PHYSICS}
 							${PLAYER_OBJECT}
 							${PRECOMPILED}
 							${PROXIES}

@@ -1,16 +1,17 @@
 #include "CollideNarrow.h"
 
-#include "Aaboundingbox.h"
+#include "AxisAlignedBox.h"
+#include "Body.h"
 #include "BoundingSphere.h"
 #include "Contacts.h"
 #include "Frustum.h"
-#include "OrientedBoundingBox.h"
+#include "OrientedBox.h"
 
 #include <algorithm>
 
 namespace
 {
-	void FillPointFaceBoxBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, const COrientedBoundingBox& rhs, RigidBody* rhsBody, const Vector& toCentre, CollisionData* data, uint32 best, float pen )
+	void FillPointFaceBoxBox( const OrientedBox& lhs, RigidBody* lhsBody, const OrientedBox& rhs, RigidBody* rhsBody, const Vector& toCentre, CollisionData* data, uint32 best, float pen )
 	{
 		Contact* contact = data->m_contacts;
 
@@ -21,7 +22,7 @@ namespace
 			normal = -normal;
 		}
 
-		Vector vertex = rhs.GetHalfSize( );
+		Vector vertex = rhs.GetHalfSize();
 		if ( ( rhs.GetAxisVector( 0 ) | normal ) < 0 )
 		{
 			vertex.x = -vertex.x;
@@ -120,7 +121,7 @@ void CollisionData::Reset( Contact* contactArray, int32 maxContacts )
 	m_contacts = m_contactArray;
 }
 
-bool CollisionData::HasMoreContact( ) const
+bool CollisionData::HasMoreContact() const
 {
 	return m_contactsLeft > 0;
 }
@@ -132,13 +133,16 @@ uint32 SphereAndSphere( const BoundingSphere& lhs, RigidBody* lhsBody, const Bou
 		return COLLISION::OUTSIDE;
 	}
 
-	const Point& lhsPos = lhs.GetCenter( );
-	const Point& rhsPos = rhs.GetCenter( );
+	BoundingSphere lhsWS( lhsBody->GetTransform().TransformPosition( lhs.GetCenter() ), lhs.GetRadius());
+	BoundingSphere rhsWS( rhsBody->GetTransform().TransformPosition( rhs.GetCenter() ), rhs.GetRadius());
+
+	const Point& lhsPos = lhsWS.GetCenter();
+	const Point& rhsPos = rhsWS.GetCenter();
 
 	Vector midline = lhsPos - rhsPos;
 	float size = midline.Length();
 
-	if ( size <= 0.f || size >= lhs.GetRadius( ) + rhs.GetRadius( ) )
+	if ( size <= 0.f || size >= lhsWS.GetRadius() + rhsWS.GetRadius() )
 	{
 		return COLLISION::OUTSIDE;
 	}
@@ -148,7 +152,7 @@ uint32 SphereAndSphere( const BoundingSphere& lhs, RigidBody* lhsBody, const Bou
 	Contact* contact = data->m_contacts;
 	contact->SetContactNormal( normal );
 	contact->SetContactPoint( lhsPos - ( midline * 0.5f ) );
-	contact->SetPenetration( lhs.GetRadius( ) + rhs.GetRadius( ) - size );
+	contact->SetPenetration( lhsWS.GetRadius() + rhsWS.GetRadius() - size );
 	contact->SetBodyData( lhsBody, rhsBody, data->m_friction, data->m_restitution );
 
 	data->AddContacts( 1 );
@@ -162,9 +166,10 @@ uint32 SphereAndHalfSpace( const BoundingSphere& sphere, RigidBody* sphereBody, 
 		return COLLISION::OUTSIDE;
 	}
 
-	const Point& pos = sphere.GetCenter( );
+	BoundingSphere sphereWS( sphereBody->GetTransform().TransformPosition( sphere.GetCenter() ), sphere.GetRadius() );
+	const Point& pos = sphereWS.GetCenter();
 
-	float ballDistance = plane.PlaneDot( pos ) - sphere.GetRadius();
+	float ballDistance = plane.PlaneDot( pos ) - sphereWS.GetRadius();
 
 	if ( ballDistance >= 0 )
 	{
@@ -174,7 +179,7 @@ uint32 SphereAndHalfSpace( const BoundingSphere& sphere, RigidBody* sphereBody, 
 	Contact* contact = data->m_contacts;
 	Vector planeDir = plane.GetNormal();
 	contact->SetContactNormal( planeDir );
-	contact->SetContactPoint( pos - ( planeDir * ( ballDistance + sphere.GetRadius( ) ) ) );
+	contact->SetContactPoint( pos - ( planeDir * ( ballDistance + sphereWS.GetRadius() ) ) );
 	contact->SetPenetration( -ballDistance );
 	contact->SetBodyData( sphereBody, nullptr, data->m_friction, data->m_restitution );
 
@@ -189,11 +194,12 @@ uint32 SphereAndTruePlane( const BoundingSphere& sphere, RigidBody* sphereBody, 
 		return COLLISION::OUTSIDE;
 	}
 
-	const Point& pos = sphere.GetCenter( );
+	BoundingSphere sphereWS( sphereBody->GetTransform().TransformPosition( sphere.GetCenter() ), sphere.GetRadius() );
+	const Point& pos = sphereWS.GetCenter();
 
 	float centerDistance = plane.PlaneDot( pos );
 
-	if ( centerDistance > sphere.GetRadius() )
+	if ( centerDistance > sphereWS.GetRadius() )
 	{
 		return COLLISION::OUTSIDE;
 	}
@@ -205,7 +211,7 @@ uint32 SphereAndTruePlane( const BoundingSphere& sphere, RigidBody* sphereBody, 
 		normal *= -1;
 		penetration = -penetration;
 	}
-	penetration += sphere.GetRadius( );
+	penetration += sphereWS.GetRadius();
 
 	Contact* contact = data->m_contacts;
 	contact->SetContactNormal( normal );
@@ -219,7 +225,7 @@ uint32 SphereAndTruePlane( const BoundingSphere& sphere, RigidBody* sphereBody, 
 
 uint32 SphereAndFrusturm( const Point& origin, float radius, const Frustum& frustum )
 {
-	const Plane( &planes )[6] = frustum.GetPlanes( );
+	const Plane( &planes )[6] = frustum.GetPlanes();
 
 	bool inside = true;
 
@@ -239,7 +245,7 @@ bool SphereAndFrusturm( const Point& origin, float radius, const Frustum& frustu
 	float t1 = -1;
 	bool inFrustum = false;
 
-	const Plane( &planes )[6] = frustum.GetPlanes( );
+	const Plane( &planes )[6] = frustum.GetPlanes();
 
 	for ( uint32 i = 0; i < 6; ++i )
 	{
@@ -267,19 +273,27 @@ bool SphereAndFrusturm( const Point& origin, float radius, const Frustum& frustu
 	return inFrustum;
 }
 
-uint32 BoxAndHalfSpace( const CAaboundingbox& box, RigidBody* boxBody, const Plane& plane, CollisionData* data )
+uint32 BoxAndHalfSpace( const AxisAlignedBox& box, RigidBody* boxBody, const Plane& plane, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
+	Vector point[8];
+	for ( uint32 i = 0; i < 8; ++i )
+	{
+		point[i] = boxBody->GetTransform().TransformPosition( box.Point( i ) );
+	}
+
+	AxisAlignedBox boxWS( point, std::extent_v<decltype( point )> );
+
 	Contact* contact = data->m_contacts;
 	int32 contactsUsed = 0;
 
 	for ( uint32 i = 0; i < 8; ++i )
 	{
-		Point vertexPos = box.Point( i );
+		Point vertexPos = boxWS.Point( i );
 
 		float vertexDistance = plane.PlaneDotNormal( vertexPos );
 		if ( vertexDistance + plane.w <= 0.f )
@@ -303,25 +317,33 @@ uint32 BoxAndHalfSpace( const CAaboundingbox& box, RigidBody* boxBody, const Pla
 	return contactsUsed;
 }
 
-uint32 BoxAndSphere( const CAaboundingbox& box, RigidBody* boxBody, const BoundingSphere& sphere, RigidBody* sphereBody, CollisionData* data )
+uint32 BoxAndSphere( const AxisAlignedBox& box, RigidBody* boxBody, const BoundingSphere& sphere, RigidBody* sphereBody, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	BoundingSphere boxSphere( box );
+	Vector point[8];
+	for ( uint32 i = 0; i < 8; ++i )
+	{
+		point[i] = boxBody->GetTransform().TransformPosition( box.Point( i ) );
+	}
+
+	AxisAlignedBox boxWS( point, std::extent_v<decltype( point )> );
+
+	BoundingSphere boxSphere( boxWS );
 
 	if ( boxSphere.Intersect( sphere ) == COLLISION::OUTSIDE )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	const Point& center = sphere.GetCenter( );
+	const Point& center = sphere.GetCenter();
 	Point closestPoint = center;
 
-	const Point& boxMax = box.GetMax( );
-	const Point& boxMin = box.GetMin( );
+	const Point& boxMax = boxWS.GetMax();
+	const Point& boxMin = boxWS.GetMin();
 	if ( closestPoint.x > boxMax.x )
 	{
 		closestPoint.x = boxMax.x;
@@ -350,7 +372,7 @@ uint32 BoxAndSphere( const CAaboundingbox& box, RigidBody* boxBody, const Boundi
 	}
 
 	float dist = ( closestPoint - center ).LengthSqrt();
-	if ( dist > sphere.GetRadius( ) * sphere.GetRadius( ) )
+	if ( dist > sphere.GetRadius() * sphere.GetRadius() )
 	{
 		return COLLISION::OUTSIDE;
 	}
@@ -358,27 +380,30 @@ uint32 BoxAndSphere( const CAaboundingbox& box, RigidBody* boxBody, const Boundi
 	Contact* contact = data->m_contacts;
 	contact->SetContactNormal( ( closestPoint - center ).GetNormalized() );
 	contact->SetContactPoint( closestPoint );
-	contact->SetPenetration( sphere.GetRadius( ) - sqrtf( dist ) );
+	contact->SetPenetration( sphere.GetRadius() - sqrtf( dist ) );
 	contact->SetBodyData( boxBody, sphereBody, data->m_friction, data->m_restitution );
 
 	data->AddContacts( 1 );
 	return COLLISION::INTERSECTION;
 }
 
-uint32 BoxAndSphere( const COrientedBoundingBox& box, RigidBody* boxBody, const BoundingSphere& sphere, RigidBody* sphereBody, CollisionData* data )
+uint32 BoxAndSphere( const OrientedBox& box, RigidBody* boxBody, const BoundingSphere& sphere, RigidBody* sphereBody, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	const Point& centre = sphere.GetCenter( );
-	Point relCentre = box.GetTransform().Inverse().TransformPosition( centre );
+	OrientedBox boxWS( box.GetHalfSize(), boxBody->GetTransform() * box.GetTransform() );
+	BoundingSphere sphereWS( sphereBody->GetTransform().TransformPosition( sphere.GetCenter() ), sphere.GetRadius());
 
-	float radius = sphere.GetRadius( );
-	const Vector& halfSize = box.GetHalfSize( );
+	const Point& centre = sphereWS.GetCenter();
+	Point relCentre = boxWS.GetTransform().Inverse().TransformPosition( centre );
+
+	float radius = sphereWS.GetRadius();
+	const Vector& halfSize = boxWS.GetHalfSize();
 	if ( fabsf( relCentre.x ) - radius > halfSize.x ||
-		fabsf( relCentre.y ) - radius > halfSize.y || 
+		fabsf( relCentre.y ) - radius > halfSize.y ||
 		fabsf( relCentre.z ) - radius > halfSize.z )
 	{
 		return COLLISION::OUTSIDE;
@@ -414,42 +439,57 @@ uint32 BoxAndSphere( const COrientedBoundingBox& box, RigidBody* boxBody, const 
 	}
 
 	float dist = ( closestPoint - relCentre ).LengthSqrt();
-	if ( dist > ( sphere.GetRadius( ) * sphere.GetRadius( ) ) )
+	if ( dist > ( sphereWS.GetRadius() * sphereWS.GetRadius() ) )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	closestPoint = box.GetTransform().TransformPosition( closestPoint );
+	closestPoint = boxWS.GetTransform().TransformPosition( closestPoint );
 
 	Contact* contact = data->m_contacts;
 	contact->SetContactNormal( ( closestPoint - centre ).GetNormalized() );
 	contact->SetContactPoint( closestPoint );
-	contact->SetPenetration( sphere.GetRadius( ) - sqrtf( dist ) );
+	contact->SetPenetration( sphereWS.GetRadius() - sqrtf( dist ) );
 	contact->SetBodyData( boxBody, sphereBody, data->m_friction, data->m_restitution );
 
 	data->AddContacts( 1 );
 	return COLLISION::INTERSECTION;
 }
 
-uint32 BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const CAaboundingbox& rhs, RigidBody* rhsBody, CollisionData* data )
+uint32 BoxAndBox( const AxisAlignedBox& lhs, RigidBody* lhsBody, const AxisAlignedBox& rhs, RigidBody* rhsBody, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	if ( lhs.Intersect( rhs ) == COLLISION::OUTSIDE )
+	Vector point[8];
+	for ( uint32 i = 0; i < 8; ++i )
+	{
+		point[i] = lhsBody->GetTransform().TransformPosition( lhs.Point( i ) );
+	}
+
+	AxisAlignedBox lhsWS( point, std::extent_v<decltype( point )> );
+
+	for ( uint32 i = 0; i < 8; ++i )
+	{
+		point[i] = rhsBody->GetTransform().TransformPosition( rhs.Point( i ) );
+	}
+
+	AxisAlignedBox rhsWS( point, std::extent_v<decltype( point )> );
+
+	if ( lhsWS.Intersect( rhsWS ) == COLLISION::OUTSIDE )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	const Point& lhsMin = lhs.GetMin();
-	const Point& lhsMax = lhs.GetMax();
-	const Point& rhsMin = rhs.GetMin();
-	const Point& rhsMax = rhs.GetMax();
+	const Point& lhsMin = lhsWS.GetMin();
+	const Point& lhsMax = lhsWS.GetMax();
+	const Point& rhsMin = rhsWS.GetMin();
+	const Point& rhsMax = rhsWS.GetMax();
 
-	Vector totalSize = lhs.Size( );
-	Vector rhsSize = rhs.Size( );
+	Vector totalSize = lhsWS.Size();
+	Vector rhsSize = rhsWS.Size();
 	totalSize += rhsSize;
 
 	float bestOverlap = FLT_MAX;
@@ -458,7 +498,7 @@ uint32 BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const CAaboundi
 	for ( uint32 i = 0; i < 3; ++i )
 	{
 		float overlap = ( totalSize[i] - fabsf( std::max( lhsMax[i], rhsMax[i] ) - std::min( lhsMin[i], rhsMin[i] ) ) ) * 0.5f;
-		
+
 		if ( overlap < bestOverlap )
 		{
 			bestOverlap = overlap;
@@ -473,8 +513,8 @@ uint32 BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const CAaboundi
 	};
 
 	Vector normal = axis[bestAxis];
-	Point lhsCentre = lhs.Centroid( );
-	Point rhsCentre = rhs.Centroid( );
+	Point lhsCentre = lhsWS.Centroid();
+	Point rhsCentre = rhsWS.Centroid();
 
 	Vector toCentre = ( rhsCentre - lhsCentre ).GetNormalized();
 	if ( ( normal | toCentre ) > 0 )
@@ -508,104 +548,107 @@ uint32 BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const CAaboundi
 	return COLLISION::INTERSECTION;
 }
 
-uint32 BoxAndBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, const COrientedBoundingBox& rhs, RigidBody* rhsBody, CollisionData* data )
+uint32 BoxAndBox( const OrientedBox& lhs, RigidBody* lhsBody, const OrientedBox& rhs, RigidBody* rhsBody, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	Vector toCentre = rhs.GetAxisVector( 3 ) - lhs.GetAxisVector( 3 );
+	OrientedBox lhsWS( lhs.GetHalfSize(), lhsBody->GetTransform() * lhs.GetTransform());
+	OrientedBox rhsWS( rhs.GetHalfSize(), rhsBody->GetTransform() * rhs.GetTransform());
+
+	Vector toCentre = rhsWS.GetAxisVector( 3 ) - lhsWS.GetAxisVector( 3 );
 
 	float pen = FLT_MAX;
 	uint32 best = UINT_MAX;
 
-	if ( TryAxis( lhs, rhs, lhs.GetAxisVector( 0 ), toCentre, 0, pen, best ) == false )
+	if ( TryAxis( lhsWS, rhsWS, lhsWS.GetAxisVector( 0 ), toCentre, 0, pen, best ) == false )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	if ( TryAxis( lhs, rhs, lhs.GetAxisVector( 1 ), toCentre, 1, pen, best ) == false )
+	if ( TryAxis( lhsWS, rhsWS, lhsWS.GetAxisVector( 1 ), toCentre, 1, pen, best ) == false )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	if ( TryAxis( lhs, rhs, lhs.GetAxisVector( 2 ), toCentre, 2, pen, best ) == false )
+	if ( TryAxis( lhsWS, rhsWS, lhsWS.GetAxisVector( 2 ), toCentre, 2, pen, best ) == false )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	if ( TryAxis( lhs, rhs, rhs.GetAxisVector( 0 ), toCentre, 3, pen, best ) == false )
+	if ( TryAxis( lhsWS, rhsWS, rhsWS.GetAxisVector( 0 ), toCentre, 3, pen, best ) == false )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	if ( TryAxis( lhs, rhs, rhs.GetAxisVector( 1 ), toCentre, 4, pen, best ) == false )
+	if ( TryAxis( lhsWS, rhsWS, rhsWS.GetAxisVector( 1 ), toCentre, 4, pen, best ) == false )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	if ( TryAxis( lhs, rhs, rhs.GetAxisVector( 2 ), toCentre, 5, pen, best ) == false )
+	if ( TryAxis( lhsWS, rhsWS, rhsWS.GetAxisVector( 2 ), toCentre, 5, pen, best ) == false )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
 	uint32 bestSingleAxis = best;
 
-	if ( TryAxis( lhs, rhs, ( lhs.GetAxisVector( 0 ) ^ rhs.GetAxisVector( 0 ) ).GetNormalized(), toCentre, 6, pen, best) == false)
+	if ( TryAxis( lhsWS, rhsWS, ( lhsWS.GetAxisVector( 0 ) ^ rhsWS.GetAxisVector( 0 ) ).GetNormalized(), toCentre, 6, pen, best ) == false )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	if ( TryAxis( lhs, rhs, ( lhs.GetAxisVector( 0 ) ^ rhs.GetAxisVector( 1 ) ).GetNormalized(), toCentre, 7, pen, best) == false)
+	if ( TryAxis( lhsWS, rhsWS, ( lhsWS.GetAxisVector( 0 ) ^ rhsWS.GetAxisVector( 1 ) ).GetNormalized(), toCentre, 7, pen, best ) == false )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	if ( TryAxis( lhs, rhs, ( lhs.GetAxisVector( 0 ) ^ rhs.GetAxisVector( 2 ) ).GetNormalized(), toCentre, 8, pen, best ) == false )
+	if ( TryAxis( lhsWS, rhsWS, ( lhsWS.GetAxisVector( 0 ) ^ rhsWS.GetAxisVector( 2 ) ).GetNormalized(), toCentre, 8, pen, best ) == false )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	if ( TryAxis( lhs, rhs, ( lhs.GetAxisVector( 1 ) ^ rhs.GetAxisVector( 0 ) ).GetNormalized(), toCentre, 9, pen, best ) == false )
+	if ( TryAxis( lhsWS, rhsWS, ( lhsWS.GetAxisVector( 1 ) ^ rhsWS.GetAxisVector( 0 ) ).GetNormalized(), toCentre, 9, pen, best ) == false )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	if ( TryAxis( lhs, rhs, ( lhs.GetAxisVector( 1 ) ^ rhs.GetAxisVector( 1 ) ).GetNormalized(), toCentre, 10, pen, best ) == false )
+	if ( TryAxis( lhsWS, rhsWS, ( lhsWS.GetAxisVector( 1 ) ^ rhsWS.GetAxisVector( 1 ) ).GetNormalized(), toCentre, 10, pen, best ) == false )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	if ( TryAxis( lhs, rhs, ( lhs.GetAxisVector( 1 ) ^ rhs.GetAxisVector( 2 ) ).GetNormalized(), toCentre, 11, pen, best ) == false )
+	if ( TryAxis( lhsWS, rhsWS, ( lhsWS.GetAxisVector( 1 ) ^ rhsWS.GetAxisVector( 2 ) ).GetNormalized(), toCentre, 11, pen, best ) == false )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	if ( TryAxis( lhs, rhs, ( lhs.GetAxisVector( 2 ) ^ rhs.GetAxisVector( 0 ) ).GetNormalized(), toCentre, 12, pen, best ) == false )
+	if ( TryAxis( lhsWS, rhsWS, ( lhsWS.GetAxisVector( 2 ) ^ rhsWS.GetAxisVector( 0 ) ).GetNormalized(), toCentre, 12, pen, best ) == false )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	if ( TryAxis( lhs, rhs, ( lhs.GetAxisVector( 2 ) ^ rhs.GetAxisVector( 1 ) ).GetNormalized(), toCentre, 13, pen, best) == false)
+	if ( TryAxis( lhsWS, rhsWS, ( lhsWS.GetAxisVector( 2 ) ^ rhsWS.GetAxisVector( 1 ) ).GetNormalized(), toCentre, 13, pen, best ) == false )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
-	if ( TryAxis( lhs, rhs, ( lhs.GetAxisVector( 2 ) ^ rhs.GetAxisVector( 2 ) ).GetNormalized(), toCentre, 14, pen, best) == false)
+	if ( TryAxis( lhsWS, rhsWS, ( lhsWS.GetAxisVector( 2 ) ^ rhsWS.GetAxisVector( 2 ) ).GetNormalized(), toCentre, 14, pen, best ) == false )
 	{
 		return COLLISION::OUTSIDE;
 	}
 
 	if ( best < 3 )
 	{
-		FillPointFaceBoxBox( lhs, lhsBody, rhs, rhsBody, toCentre, data, best, pen );
+		FillPointFaceBoxBox( lhsWS, lhsBody, rhsWS, rhsBody, toCentre, data, best, pen );
 		data->AddContacts( 1 );
 		return COLLISION::INTERSECTION;
 	}
 	else if ( best < 6 )
 	{
-		FillPointFaceBoxBox( rhs, rhsBody, lhs, lhsBody, -toCentre, data, best - 3, pen );
+		FillPointFaceBoxBox( rhsWS, rhsBody, lhsWS, lhsBody, -toCentre, data, best - 3, pen );
 		data->AddContacts( 1 );
 		return COLLISION::INTERSECTION;
 	}
@@ -614,8 +657,8 @@ uint32 BoxAndBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, const COr
 		best -= 6;
 		uint32 lhsAxisIndex = best / 3;
 		uint32 rhsAxisIndex = best % 3;
-		Vector lhsAxis = lhs.GetAxisVector( lhsAxisIndex );
-		Vector rhsAxis = rhs.GetAxisVector( rhsAxisIndex );
+		Vector lhsAxis = lhsWS.GetAxisVector( lhsAxisIndex );
+		Vector rhsAxis = rhsWS.GetAxisVector( rhsAxisIndex );
 		Vector axis = ( lhsAxis ^ rhsAxis ).GetNormalized();
 
 		if ( ( axis | toCentre ) > 0 )
@@ -623,8 +666,8 @@ uint32 BoxAndBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, const COr
 			axis = -axis;
 		}
 
-		Vector ptOnLhsEdge = lhs.GetHalfSize( );
-		Vector ptOnRhsEdge = rhs.GetHalfSize( );
+		Vector ptOnLhsEdge = lhsWS.GetHalfSize();
+		Vector ptOnRhsEdge = rhsWS.GetHalfSize();
 
 		for ( uint32 i = 0; i < 3; ++i )
 		{
@@ -632,7 +675,7 @@ uint32 BoxAndBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, const COr
 			{
 				ptOnLhsEdge[i] = 0;
 			}
-			else if ( ( lhs.GetAxisVector( i ) | axis ) > 0 )
+			else if ( ( lhsWS.GetAxisVector( i ) | axis ) > 0 )
 			{
 				ptOnLhsEdge[i] = -ptOnLhsEdge[i];
 			}
@@ -641,18 +684,18 @@ uint32 BoxAndBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, const COr
 			{
 				ptOnRhsEdge[i] = 0;
 			}
-			else if ( ( rhs.GetAxisVector( i ) | axis ) < 0 )
+			else if ( ( rhsWS.GetAxisVector( i ) | axis ) < 0 )
 			{
 				ptOnRhsEdge[i] = -ptOnRhsEdge[i];
 			}
 		}
 
-		ptOnLhsEdge = lhs.GetTransform().TransformPosition( ptOnLhsEdge );
-		ptOnRhsEdge = lhs.GetTransform().TransformPosition( ptOnRhsEdge );
+		ptOnLhsEdge = lhsWS.GetTransform().TransformPosition( ptOnLhsEdge );
+		ptOnRhsEdge = rhsWS.GetTransform().TransformPosition( ptOnRhsEdge );
 
-		Point vertex = CalcEdgeContactPoint( ptOnLhsEdge, lhsAxis, lhs.GetHalfSize( )[lhsAxisIndex],
-											ptOnRhsEdge, rhsAxis, rhs.GetHalfSize( )[rhsAxisIndex],
-											bestSingleAxis > 2 );
+		Point vertex = CalcEdgeContactPoint( ptOnLhsEdge, lhsAxis, lhsWS.GetHalfSize()[lhsAxisIndex],
+			ptOnRhsEdge, rhsAxis, rhsWS.GetHalfSize()[rhsAxisIndex],
+			bestSingleAxis > 2 );
 
 		Contact* contact = data->m_contacts;
 
@@ -665,17 +708,17 @@ uint32 BoxAndBox( const COrientedBoundingBox& lhs, RigidBody* lhsBody, const COr
 	}
 }
 
-uint32 BoxAndBox( const CAaboundingbox& lhs, RigidBody* lhsBody, const COrientedBoundingBox& rhs, RigidBody* rhsBody, CollisionData* data )
+uint32 BoxAndBox( const AxisAlignedBox& lhs, RigidBody* lhsBody, const OrientedBox& rhs, RigidBody* rhsBody, CollisionData* data )
 {
-	COrientedBoundingBox lhsOBB( lhs );
+	OrientedBox lhsOBB( lhs );
 
 	return BoxAndBox( lhsOBB, lhsBody, rhs, rhsBody, data );
 }
 
 uint32 BoxAndFrustum( const Point& min, const Point& max, const Frustum& frustum )
 {
-	const Frustum::LookUpTable& lut = frustum.GetVertexLUT( );
-	const Plane( &planes )[6] = frustum.GetPlanes( );
+	const Frustum::LookUpTable& lut = frustum.GetVertexLUT();
+	const Plane( &planes )[6] = frustum.GetPlanes();
 
 	uint32 result = COLLISION::INSIDE;
 	for ( uint32 i = 0; i < 6; ++i )

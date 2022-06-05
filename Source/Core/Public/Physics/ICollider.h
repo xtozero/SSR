@@ -1,5 +1,6 @@
 #pragma once
 
+#include "BoxSphereBounds.h"
 #include "SizedTypes.h"
 
 #include <memory>
@@ -21,14 +22,23 @@ namespace COLLISION
 	};
 }
 
+enum class Collider
+{
+	None = -1,
+	Sphere,
+	Aabb,
+	Obb,
+	Count,
+};
+
 class ICollider
 {
 public:
-	virtual void CalcMeshBounds( const MeshData& mesh ) = 0;
 	virtual void Update( const Vector& scaling, const Quaternion& rotation, const Vector& translation, ICollider* original ) = 0;
-	virtual void CalcSubMeshBounds( std::vector<std::unique_ptr<ICollider>>& subColliders ) = 0;
 	virtual float Intersect( const CRay& ray ) const = 0;
 	virtual uint32 Intersect( const Frustum& frustum ) const = 0;
+	virtual BoxSphereBounds Bounds() const = 0;
+	virtual Collider GetType() const = 0;
 
 	virtual ~ICollider( ) = default;
 };

@@ -29,7 +29,7 @@ bool CWorldLoader::Load( CGameLogic& gameLogic, const char* worldAsset, size_t a
 
 				if ( newObject )
 				{
-					newObject->LoadProperty( gameLogic, *pObject );
+					newObject->LoadProperty( *pObject );
 					gameLogic.SpawnObject( newObject );
 				}
 			}

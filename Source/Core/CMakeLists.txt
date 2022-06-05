@@ -57,6 +57,7 @@ set (MATH
 	Private/Math/Matrix3X3.cpp
 	Private/Math/Plane.cpp
 	Private/Math/Quaternion.cpp
+	Private/Math/Transform.cpp
 	Private/Math/Vector.cpp
 	Private/Math/Vector2.cpp
 	Private/Math/Vector4.cpp
@@ -67,6 +68,7 @@ set (MATH
 	Public/Math/Plane.h
 	Public/Math/Quaternion.h
 	Public/Math/Rect.h
+	Public/Math/Transform.h
 	Public/Math/TransformationMatrix.h
 	Public/Math/Util.h
 	Public/Math/Vector.h
@@ -91,7 +93,7 @@ set (MULTITHREAD
 	Public/Multithread/TaskSchedulerCore.h)
 
 set (PHYSICS
-	Private/Physics/Aaboundingbox.cpp
+	Private/Physics/AxisAlignedBox.cpp
 	Private/Physics/Body.cpp
 	Private/Physics/BoundingCone.cpp
 	Private/Physics/BoundingSphere.cpp
@@ -100,14 +102,13 @@ set (PHYSICS
 	Private/Physics/CollideNarrow.cpp
 	Private/Physics/Contacts.cpp
 	Private/Physics/ForceGenerator.cpp
-	Private/Physics/OrientedBoundingBox.cpp
+	Private/Physics/OrientedBox.cpp
 	Private/Physics/Particle.cpp
 	Private/Physics/ParticleContacts.cpp
 	Private/Physics/ParticleForceGenerator.cpp
 	Private/Physics/ParticleLinks.cpp
 	Private/Physics/ParticleWorld.cpp
-	Private/Physics/ColliderManager.cpp
-	Public/Physics/Aaboundingbox.h
+	Public/Physics/AxisAlignedBox.h
 	Public/Physics/Body.h
 	Public/Physics/BoundingCone.h
 	Public/Physics/BoundingSphere.h
@@ -119,15 +120,13 @@ set (PHYSICS
 	Public/Physics/ForceGenerator.h
 	Public/Physics/Frustum.h
 	Public/Physics/ICollider.h
-	Public/Physics/Movement.h
-	Public/Physics/OrientedBoundingBox.h
+	Public/Physics/OrientedBox.h
 	Public/Physics/Particle.h
 	Public/Physics/ParticleContacts.h
 	Public/Physics/ParticleForceGenerator.h
 	Public/Physics/ParticleLinks.h
 	Public/Physics/ParticleWorld.h
-	Public/Physics/Ray.h
-	Public/Physics/ColliderManager.h)
+	Public/Physics/Ray.h)
 
 set (REFLECTION
 	Private/Reflection/TypeInfo.cpp

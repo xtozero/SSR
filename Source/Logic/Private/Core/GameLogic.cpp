@@ -40,24 +40,24 @@ bool CGameLogic::BootUp( IPlatform& platform )
 		return false;
 	}
 
-	m_pRenderCore = GetInterface<IRenderCore>( );
+	m_pRenderCore = GetInterface<IRenderCore>();
 	if ( m_pRenderCore == nullptr )
 	{
 		return false;
 	}
 
 	m_wndHwnd = platform.GetRawHandle<HWND>();
-	srand( static_cast<uint32>(time( nullptr )) );
-	
-	m_appSize = platform.GetSize( );
-	CUtilWindowInfo::GetInstance( ).SetRect( m_appSize.first, m_appSize.second );
+	srand( static_cast<uint32>( time( nullptr ) ) );
 
-	if ( m_pRenderCore->BootUp( ) == false )
+	m_appSize = platform.GetSize();
+	CUtilWindowInfo::GetInstance().SetRect( m_appSize.first, m_appSize.second );
+
+	if ( m_pRenderCore->BootUp() == false )
 	{
 		return false;
 	}
 
-	m_inputController = std::make_unique<PlayerController>( );
+	m_inputController = std::make_unique<PlayerController>();
 
 	//m_view.CreatePerspectiveFovLHMatrix( XMConvertToRadians( 60 ),
 	//	static_cast<float>( m_appSize.first ) / m_appSize.second,
@@ -77,17 +77,16 @@ bool CGameLogic::BootUp( IPlatform& platform )
 		2.0f / m_appSize.first,	0.f,						0.f,	0.f,
 		0.f,					-2.0f / m_appSize.second,	0.f,	0.f,
 		0.f,					0.f,						0.5f,	0.f,
-		-1.f,					1.f,						0.5f,	1.f
-	);
+		-1.f,					1.f,						0.5f,	1.f );
 
 	// m_pickingManager.PushCamera( &GetLocalPlayer()->GetCamera() );
 	// m_inputBroadCaster.AddListener( &m_pickingManager );
 
-	CreateGameViewport( );
+	CreateGameViewport();
 
 	if ( LoadWorld( "./Scripts/DefaultScene.json" ) == false )
 	{
-		__debugbreak( );
+		__debugbreak();
 	}
 
 	//m_shadowManager.Init( *this );
@@ -104,30 +103,30 @@ bool CGameLogic::BootUp( IPlatform& platform )
 
 	if ( m_debugOverlay.Init( *this ) == false )
 	{
-		__debugbreak( );
+		__debugbreak();
 	}
 
-	m_world.Initialize( );
+	m_world.Initialize();
 
-	return CreateDeviceDependentResource( );
+	return CreateDeviceDependentResource();
 }
 
-void CGameLogic::Update( )
+void CGameLogic::Update()
 {
 	// 한 프레임의 시작 ElapsedTime 갱신
-	StartLogic( );
-	ProcessLogic( );
-	EndLogic( );
+	StartLogic();
+	ProcessLogic();
+	EndLogic();
 }
 
-void CGameLogic::Pause( )
+void CGameLogic::Pause()
 {
-	m_world.Pause( );
+	m_world.Pause();
 }
 
-void CGameLogic::Resume( )
+void CGameLogic::Resume()
 {
-	m_world.Resume( );
+	m_world.Resume();
 }
 
 void CGameLogic::HandleUserInput( const UserInput& input )
@@ -145,7 +144,7 @@ void CGameLogic::HandleUserInput( const UserInput& input )
 
 void CGameLogic::AppSizeChanged( IPlatform& platform )
 {
-	const std::pair<uint32, uint32>& newAppSize = platform.GetSize( );
+	const std::pair<uint32, uint32>& newAppSize = platform.GetSize();
 
 	if ( m_appSize == newAppSize )
 	{
@@ -153,9 +152,9 @@ void CGameLogic::AppSizeChanged( IPlatform& platform )
 	}
 
 	m_appSize = newAppSize;
-	CUtilWindowInfo::GetInstance( ).SetRect( m_appSize.first, m_appSize.second );
+	CUtilWindowInfo::GetInstance().SetRect( m_appSize.first, m_appSize.second );
 
-	m_gameViewport->AppSizeChanged( platform.GetRawHandle<void*>( ), newAppSize );
+	m_gameViewport->AppSizeChanged( platform.GetRawHandle<void*>(), newAppSize );
 
 	//m_pRenderer->AppSizeChanged( m_appSize.first, m_appSize.second );
 
@@ -184,8 +183,7 @@ void CGameLogic::AppSizeChanged( IPlatform& platform )
 		2.0f / fSizeX,	0.f,			0.f,	0.f,
 		0.f,			-2.0f / fSizeY,	0.f,	0.f,
 		0.f,			0.f,			0.5f,	0.f,
-		-1.f,			1.f,			0.5f,	1.f
-	);
+		-1.f,			1.f,			0.5f,	1.f );
 }
 
 void CGameLogic::SpawnObject( Owner<CGameObject*> object )
@@ -193,25 +191,25 @@ void CGameLogic::SpawnObject( Owner<CGameObject*> object )
 	m_world.SpawnObject( *this, object );
 }
 
-InputController* CGameLogic::GetInputController( )
+InputController* CGameLogic::GetInputController()
 {
-	return m_inputController.get( );
+	return m_inputController.get();
 }
 
-void CGameLogic::Shutdown( )
+void CGameLogic::Shutdown()
 {
-	m_world.CleanUp( );
-	m_primayViewport.reset( );
+	m_world.CleanUp();
+	m_primayViewport.reset();
 
 	ShutdownModule( m_renderCoreDll );
 }
 
-void CGameLogic::StartLogic( )
+void CGameLogic::StartLogic()
 {
 	//게임 로직 수행 전처리
-	GetConsoleMessageExecutor( ).Execute( );
+	GetConsoleMessageExecutor().Execute();
 
-	m_world.BeginFrame( );
+	m_world.BeginFrame();
 
 	//Rect clientRect( 0.f, 0.f, static_cast<float>( m_appSize.first ), static_cast<float>( m_appSize.second ) );
 	//m_ui.BeginFrame( clientRect, m_clock.GetElapsedTime(), m_clock.GetTotalTime() );
@@ -225,25 +223,16 @@ void CGameLogic::StartLogic( )
 	//}
 }
 
-void CGameLogic::ProcessLogic( )
+void CGameLogic::ProcessLogic()
 {
 	if ( m_world.GetTimer().IsPaused() == false )
 	{
 		// 게임 로직 수행
 		m_world.RunFrame();
-
-		const float SIMULATE_INTERVAL = 0.016f;
-		m_remainPhysicsSimulateTime += m_world.GetTimer().GetElapsedTime();
-		while ( m_remainPhysicsSimulateTime >= SIMULATE_INTERVAL )
-		{
-			m_world.PreparePhysics( );
-			m_world.RunPhysics( SIMULATE_INTERVAL );
-			m_remainPhysicsSimulateTime -= SIMULATE_INTERVAL;
-		}
 	}
 }
 
-void CGameLogic::EndLogic( )
+void CGameLogic::EndLogic()
 {
 	// 물리 시뮬레이션 결과를 반영
 	m_world.EndFrame();
@@ -289,7 +278,7 @@ void CGameLogic::EndLogic( )
 
 	//InitView( views );
 
-	DrawScene( );
+	DrawScene();
 
 	//DrawForDebug( );
 	//DrawDebugOverlay( );
@@ -299,39 +288,39 @@ void CGameLogic::EndLogic( )
 
 bool CGameLogic::LoadWorld( const char* filePath )
 {
-	IFileSystem* fileSystem = GetInterface<IFileSystem>( );
+	IFileSystem* fileSystem = GetInterface<IFileSystem>();
 	FileHandle worldAsset = fileSystem->OpenFile( filePath );
 
-	if ( worldAsset.IsValid( ) == false )
+	if ( worldAsset.IsValid() == false )
 	{
 		return false;
 	}
 
-	unsigned long fileSize = fileSystem->GetFileSize( worldAsset ); 
+	unsigned long fileSize = fileSystem->GetFileSize( worldAsset );
 	char* buffer = new char[fileSize];
 
 	IFileSystem::IOCompletionCallback ParseWorldAsset;
-	ParseWorldAsset.BindFunctor( 
+	ParseWorldAsset.BindFunctor(
 		[this, worldAsset]( const char* buffer, unsigned long bufferSize )
-		{
-			CWorldLoader::Load( *this, buffer, static_cast<size_t>( bufferSize ) );
-			GetInterface<IFileSystem>( )->CloseFile( worldAsset );
-		}
+	{
+		CWorldLoader::Load( *this, buffer, static_cast<size_t>( bufferSize ) );
+		GetInterface<IFileSystem>()->CloseFile( worldAsset );
+	}
 	);
 
 	bool result = fileSystem->ReadAsync( worldAsset, buffer, fileSize, &ParseWorldAsset );
 	if ( result == false )
 	{
 		delete[] buffer;
-		GetInterface<IFileSystem>( )->CloseFile( worldAsset );
+		GetInterface<IFileSystem>()->CloseFile( worldAsset );
 	}
 
 	return result;
 }
 
-void CGameLogic::DrawScene( )
+void CGameLogic::DrawScene()
 {
-	m_gameViewport->Draw( );
+	m_gameViewport->Draw();
 	//IScene* scene = m_world.Scene( );
 	//if ( scene )
 	//{
@@ -353,7 +342,7 @@ void CGameLogic::DrawScene( )
 	//DrawReflectRenderable( );
 }
 
-void CGameLogic::DrawForDebug( )
+void CGameLogic::DrawForDebug()
 {
 	//m_ui.Window( "Debug Control" );
 
@@ -375,12 +364,12 @@ void CGameLogic::DrawForDebug( )
 	//m_ui.EndWindow( );
 }
 
-void CGameLogic::DrawDebugOverlay( )
+void CGameLogic::DrawDebugOverlay()
 {
 	//m_debugOverlay.DrawPrimitive( *m_pRenderer, m_clock.GetElapsedTime() );
 }
 
-void CGameLogic::DrawUI( )
+void CGameLogic::DrawUI()
 {
 	//m_ui.EndFrame( );
 
@@ -499,7 +488,7 @@ void CGameLogic::DrawUI( )
 	//}
 }
 
-void CGameLogic::SceneEnd( )
+void CGameLogic::SceneEnd()
 {
 	//BYTE errorCode = m_pRenderer->SceneEnd( );
 	//if ( errorCode == DEVICE_ERROR::DEVICE_LOST )
@@ -508,11 +497,11 @@ void CGameLogic::SceneEnd( )
 	//}
 }
 
-void CGameLogic::BuildRenderableList( )
+void CGameLogic::BuildRenderableList()
 {
 	for ( auto& list : m_renderableList )
 	{
-		list.clear( );
+		list.clear();
 	}
 
 	//for ( auto& object : m_gameObjects )
@@ -534,29 +523,13 @@ void CGameLogic::BuildRenderableList( )
 	//}
 }
 
-void CGameLogic::DrawOpaqueRenderable( )
-{
-	for ( auto& object : m_renderableList[OPAQUE_RENDERABLE] )
-	{
-		object->UpdateTransform( *this );
-	}
-}
-
-void CGameLogic::DrawTransparentRenderable( )
-{
-	for ( auto& object : m_renderableList[TRANSPARENT_RENDERABLE] )
-	{
-		object->UpdateTransform( *this );
-	}
-}
-
-void CGameLogic::DrawReflectRenderable( )
+void CGameLogic::DrawReflectRenderable()
 {
 	//m_pRenderer->ForwardRenderEnd( );
 	//m_ssrManager.Process( *this, m_renderableList );
 }
 
-void CGameLogic::HandleDeviceLost( )
+void CGameLogic::HandleDeviceLost()
 {
 	//m_pRenderer->HandleDeviceLost( m_wndHwnd, m_appSize.first, m_appSize.second );
 
@@ -577,7 +550,7 @@ void CGameLogic::HandleDeviceLost( )
 	m_world.OnDeviceRestore( *this );
 }
 
-bool CGameLogic::CreateDeviceDependentResource( )
+bool CGameLogic::CreateDeviceDependentResource()
 {
 	//BUFFER_TRAIT trait = { sizeof( GeometryTransform ),
 	//	1,
@@ -634,7 +607,7 @@ bool CGameLogic::CreateDeviceDependentResource( )
 	return true;
 }
 
-bool CGameLogic::CreateDefaultFontResource( )
+bool CGameLogic::CreateDefaultFontResource()
 {
 	//constexpr char* defaultFontData = "./Scripts/Fontdata.txt";
 
@@ -681,7 +654,7 @@ bool CGameLogic::CreateDefaultFontResource( )
 	return true;
 }
 
-CGameLogic::CGameLogic( ) // : m_pickingManager( &m_gameObjects )
+CGameLogic::CGameLogic() // : m_pickingManager( &m_gameObjects )
 {
 	// for ( int32 i = 0; i < SHARED_CONSTANT_BUFFER::Count; ++i )
 	// {
@@ -689,26 +662,26 @@ CGameLogic::CGameLogic( ) // : m_pickingManager( &m_gameObjects )
 	// }
 }
 
-CGameLogic::~CGameLogic( )
+CGameLogic::~CGameLogic()
 {
-	Shutdown( );
+	Shutdown();
 }
 
-void CGameLogic::CreateGameViewport( )
+void CGameLogic::CreateGameViewport()
 {
-	m_primayViewport = std::make_unique<rendercore::Viewport>( 
-		m_appSize.first, 
-		m_appSize.second, 
+	m_primayViewport = std::make_unique<rendercore::Viewport>(
+		m_appSize.first,
+		m_appSize.second,
 		m_wndHwnd,
 		RESOURCE_FORMAT::R8G8B8A8_UNORM_SRGB );
 
-	m_gameViewport = new GameClientViewport( m_primayViewport.get( ) );
+	m_gameViewport = new GameClientViewport( m_primayViewport.get() );
 	SpawnObject( m_gameViewport );
 }
 
-Owner<ILogic*> CreateGameLogic( )
+Owner<ILogic*> CreateGameLogic()
 {
-	return new CGameLogic( );
+	return new CGameLogic();
 }
 
 void DestroyGameLogic( Owner<ILogic*> pGameLogic )

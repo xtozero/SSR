@@ -1,8 +1,68 @@
 #include "Components/VolumetricCloudComponent.h"
 
+#include "Json/Json.hpp"
 #include "Proxies/VolumetricCloudProxy.h"
 #include "Scene/IScene.h"
 #include "World/World.h"
+
+void VolumetricCloudComponent::LoadProperty( const JSON::Value& json )
+{
+	Super::LoadProperty( json );
+
+	if ( const JSON::Value* pEarthRadius = json.Find( "EarthRadius" ) )
+	{
+		SetEarthRadius( static_cast<float>( pEarthRadius->AsReal() ) );
+	}
+
+	if ( const JSON::Value* pInnerRadius = json.Find( "InnerRadius" ) )
+	{
+		SetInnerRadius( static_cast<float>( pInnerRadius->AsReal() ) );
+	}
+
+	if ( const JSON::Value* pOuterRadius = json.Find( "OuterRadius" ) )
+	{
+		SetOuterRadius( static_cast<float>( pOuterRadius->AsReal() ) );
+	}
+
+	if ( const JSON::Value* pLightAbsorption = json.Find( "LightAbsorption" ) )
+	{
+		SetLightAbsorption( static_cast<float>( pLightAbsorption->AsReal() ) );
+	}
+
+	if ( const JSON::Value* pDensityScale = json.Find( "DensityScale" ) )
+	{
+		SetDensityScale( static_cast<float>( pDensityScale->AsReal() ) );
+	}
+
+	if ( const JSON::Value* pCloudColor = json.Find( "CloudColor" ) )
+	{
+		const JSON::Value& cloudColor = *pCloudColor;
+
+		if ( cloudColor.Size() == 3 )
+		{
+			SetCloudColor( 
+				ColorF( static_cast<float>( cloudColor[0].AsReal() )
+					, static_cast<float>( cloudColor[1].AsReal() )
+					, static_cast<float>( cloudColor[2].AsReal() )
+					, 1.f ) );
+		}
+	}
+
+	if ( const JSON::Value* pCrispiness = json.Find( "Crispiness" ) )
+	{
+		SetCrispiness( static_cast<float>( pCrispiness->AsReal() ) );
+	}
+
+	if ( const JSON::Value* pCurliness = json.Find( "Curliness" ) )
+	{
+		SetCurliness( static_cast<float>( pCurliness->AsReal() ) );
+	}
+
+	if ( const JSON::Value* pDensityFactor = json.Find( "DensityFactor" ) )
+	{
+		SetDensityFactor( static_cast<float>( pDensityFactor->AsReal() ) );
+	}
+}
 
 BoxSphereBounds VolumetricCloudComponent::CalcBounds( const Matrix& transform )
 {

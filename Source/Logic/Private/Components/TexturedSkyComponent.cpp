@@ -1,9 +1,28 @@
 #include "stdafx.h"
 #include "Components/TexturedSkyComponent.h"
 
+#include "AssetLoader.h"
+#include "Json/Json.hpp"
 #include "Proxies/TexturedSkyProxy.h"
 #include "Scene/IScene.h"
 #include "World/World.h"
+
+void TexturedSkyComponent::LoadProperty( const JSON::Value& json )
+{
+	Super::LoadProperty( json );
+
+	if ( const JSON::Value* pTexture = json.Find( "Material" ) )
+	{
+		const std::string& assetPath = pTexture->AsString();
+
+		IAssetLoader::LoadCompletionCallback onLoadComplete;
+		onLoadComplete.BindMemberFunction( this, &TexturedSkyComponent::OnMaterialLoadFinished );
+
+		AssetLoaderSharedHandle handle = GetInterface<IAssetLoader>()->RequestAsyncLoad( assetPath, onLoadComplete );
+
+		assert( handle->IsLoadingInProgress() || handle->IsLoadComplete() );
+	}
+}
 
 TexturedSkyProxy* TexturedSkyComponent::CreateProxy( ) const
 {
@@ -47,4 +66,9 @@ void TexturedSkyComponent::RemoveRenderState( )
 {
 	Component::RemoveRenderState( );
 	m_pWorld->Scene( )->RemoveTexturedSkyComponent( this );
+}
+
+void TexturedSkyComponent::OnMaterialLoadFinished( const std::shared_ptr<void>& material )
+{
+	SetMaterial( std::static_pointer_cast<Material>( material ) );
 }

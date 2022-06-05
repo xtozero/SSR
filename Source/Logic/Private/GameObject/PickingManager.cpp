@@ -145,40 +145,40 @@ bool CPickingManager::PickingObject( float x, float y )
 {
 	assert( m_pGameObjects != nullptr );
 
-	CRay ray;
-	if ( CreateWorldSpaceRay( ray, x, y ) )
-	{
-		m_curSelectedObject = nullptr;
-		m_closestHitDist = FLT_MAX;
+	//CRay ray;
+	//if ( CreateWorldSpaceRay( ray, x, y ) )
+	//{
+	//	m_curSelectedObject = nullptr;
+	//	m_closestHitDist = FLT_MAX;
 
-		for ( auto& object : *m_pGameObjects )
-		{
-			if ( object == nullptr || object->IgnorePicking() )
-			{
-				continue;
-			}
+	//	for ( auto& object : *m_pGameObjects )
+	//	{
+	//		if ( object == nullptr || object->IgnorePicking() )
+	//		{
+	//			continue;
+	//		}
 
-			if ( const ICollider* pCollider = object->GetCollider( COLLIDER::AABB ) )
-			{
-				float hitDist = pCollider->Intersect( ray );
+	//		if ( const ICollider* pCollider = object->GetCollider( COLLIDER::AABB ) )
+	//		{
+	//			float hitDist = pCollider->Intersect( ray );
 
-				if ( hitDist >= 0 && m_closestHitDist > hitDist )
-				{
-					m_closestHitDist = hitDist;
-					m_curSelectedObject = object.get( );
-				}
-			}
-		}
+	//			if ( hitDist >= 0 && m_closestHitDist > hitDist )
+	//			{
+	//				m_closestHitDist = hitDist;
+	//				m_curSelectedObject = object.get( );
+	//			}
+	//		}
+	//	}
 
-		if ( m_curSelectedObject )
-		{
-			if ( picked_object_name.GetBool( ) )
-			{
-				DebugMsg( "Object Selected - %s\n", m_curSelectedObject->GetName( ).c_str( ) );
-			}
-			return true;
-		}
-	}
+	//	if ( m_curSelectedObject )
+	//	{
+	//		if ( picked_object_name.GetBool( ) )
+	//		{
+	//			DebugMsg( "Object Selected - %s\n", m_curSelectedObject->GetName( ).c_str( ) );
+	//		}
+	//		return true;
+	//	}
+	//}
 
 	return false;
 }
@@ -196,7 +196,7 @@ void CPickingManager::ReleasePickingObject( )
 	{
 		if ( CameraComponent* curCamera = m_cameras.at( m_curSelectedIdx ) )
 		{
-			curCamera->SetEnableRotate( true );
+			curCamera->SetEnableRotation( true );
 		}
 	}
 }
@@ -222,7 +222,7 @@ void CPickingManager::OnMouseLButton( const UserInput& input )
 		{
 			if ( CameraComponent* curCamera = m_cameras.at( m_curSelectedIdx ) )
 			{
-				curCamera->SetEnableRotate( false );
+				curCamera->SetEnableRotation( false );
 			}
 		}
 	}
@@ -234,56 +234,56 @@ void CPickingManager::OnMouseLButton( const UserInput& input )
 
 void CPickingManager::OnMouseMove( const UserInput& input )
 {
-	Vector2 prevMousePos = m_curMousePos;
-	m_curMousePos += { input.m_axis[UserInput::X_AXIS], input.m_axis[UserInput::Y_AXIS] };
+	//Vector2 prevMousePos = m_curMousePos;
+	//m_curMousePos += { input.m_axis[UserInput::X_AXIS], input.m_axis[UserInput::Y_AXIS] };
 
-	if ( m_curSelectedObject && m_curSelectedIdx > -1 )
-	{
-		VIEWPORT& curViewport = m_viewports.at( m_curSelectedIdx );
+	//if ( m_curSelectedObject && m_curSelectedIdx > -1 )
+	//{
+	//	VIEWPORT& curViewport = m_viewports.at( m_curSelectedIdx );
 
-		if ( !curViewport.IsContain( m_curMousePos.x, m_curMousePos.y ) )
-		{
-			//뷰포트를 벗어 났으면 픽킹 해제
-			ReleasePickingObject( );
-		}
-		else if ( CameraComponent* curCamera = m_cameras.at( m_curSelectedIdx ) )
-		{
-			Vector curPos( m_curMousePos.x, m_curMousePos.y, 1.f );
-			Vector prevPos( prevMousePos.x, prevMousePos.y, 1.f );
+	//	if ( !curViewport.IsContain( m_curMousePos.x, m_curMousePos.y ) )
+	//	{
+	//		//뷰포트를 벗어 났으면 픽킹 해제
+	//		ReleasePickingObject( );
+	//	}
+	//	else if ( CameraComponent* curCamera = m_cameras.at( m_curSelectedIdx ) )
+	//	{
+	//		Vector curPos( m_curMousePos.x, m_curMousePos.y, 1.f );
+	//		Vector prevPos( prevMousePos.x, prevMousePos.y, 1.f );
 
-			//NDC공간으로 변환
-			WindowSpace2NDCSpace( curPos, curViewport );
-			WindowSpace2NDCSpace( prevPos, curViewport );
+	//		//NDC공간으로 변환
+	//		WindowSpace2NDCSpace( curPos, curViewport );
+	//		WindowSpace2NDCSpace( prevPos, curViewport );
 
-			//카메라 공간으로 변환
-			Matrix& curInvProjection = m_InvProjections.at( m_curSelectedIdx );
-			curPos = curInvProjection.TransformPosition( curPos );
-			prevPos = curInvProjection.TransformPosition( prevPos );
+	//		//카메라 공간으로 변환
+	//		Matrix& curInvProjection = m_InvProjections.at( m_curSelectedIdx );
+	//		curPos = curInvProjection.TransformPosition( curPos );
+	//		prevPos = curInvProjection.TransformPosition( prevPos );
 
-			//월드 공간으로 변환
-			curPos = curCamera->GetInvViewMatrix().TransformPosition( curPos );
-			prevPos = curCamera->GetInvViewMatrix().TransformPosition( prevPos );
+	//		//월드 공간으로 변환
+	//		curPos = curCamera->GetInvViewMatrix().TransformPosition( curPos );
+	//		prevPos = curCamera->GetInvViewMatrix().TransformPosition( prevPos );
 
-			//삼각형 닮음을 이용한 월드 공간 이동 벡터 계산
-			const Vector& origin = curCamera->GetPosition( );
-			auto rayDir = prevPos - origin;
-			float farPlaneRayDist = rayDir.Length();
-			rayDir = rayDir.GetNormalized();
+	//		//삼각형 닮음을 이용한 월드 공간 이동 벡터 계산
+	//		const Vector& origin = curCamera->GetPosition( );
+	//		auto rayDir = prevPos - origin;
+	//		float farPlaneRayDist = rayDir.Length();
+	//		rayDir = rayDir.GetNormalized();
 
-			CRay pickingRay( origin, rayDir );
-			float hitDist = m_curSelectedObject->GetCollider( COLLIDER::AABB )->Intersect( pickingRay );
+	//		CRay pickingRay( origin, rayDir );
+	//		float hitDist = m_curSelectedObject->GetCollider( COLLIDER::AABB )->Intersect( pickingRay );
 
-			if ( hitDist >= 0.f )
-			{
-				Vector curPosition = m_curSelectedObject->GetPosition( );
+	//		if ( hitDist >= 0.f )
+	//		{
+	//			Vector curPosition = m_curSelectedObject->GetPosition( );
 
-				curPosition += ( ( curPos - prevPos ) * hitDist ) / farPlaneRayDist;
-				m_curSelectedObject->SetPosition( curPosition );
-			}
-			else
-			{
-				ReleasePickingObject( );
-			}
-		}
-	}
+	//			curPosition += ( ( curPos - prevPos ) * hitDist ) / farPlaneRayDist;
+	//			m_curSelectedObject->SetPosition( curPosition );
+	//		}
+	//		else
+	//		{
+	//			ReleasePickingObject( );
+	//		}
+	//	}
+	//}
 }

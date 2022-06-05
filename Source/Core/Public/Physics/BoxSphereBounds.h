@@ -2,36 +2,34 @@
 
 #include "Archive.h"
 #include "ArchiveUtility.h"
-#include "Aaboundingbox.h"
-#include "BoundingSphere.h"
 #include "Math/Matrix.h"
 #include "Math/Vector.h"
 
 class BoxSphereBounds
 {
 public:
-	Vector& Origin( );
-	const Vector& Origin( ) const;
+	Vector& Origin();
+	const Vector& Origin() const;
 
-	Vector& HalfSize( );
-	const Vector& HalfSize( ) const;
+	Vector& HalfSize();
+	const Vector& HalfSize() const;
 
-	float& Radius( );
-	float Radius( ) const;
+	float& Radius();
+	float Radius() const;
+
+	float Volume() const;
 
 	BoxSphereBounds TransformBy( const Matrix& m ) const;
 
-	BoxSphereBounds( ) = default;
+	uint32 Overlapped( const BoxSphereBounds& other ) const;
+
+	BoxSphereBounds() = default;
 	BoxSphereBounds( const Vector& origin, const Vector& halfSize, float radius ) : m_origin( origin ), m_halfSize( halfSize ), m_radius( radius ) {}
-	BoxSphereBounds( const Vector* points, int32 numPoints )
-	{
-		CAaboundingbox box( points, numPoints );
+	BoxSphereBounds( const Vector* points, int32 numPoints );
 
-		m_halfSize = box.Size( ) * 0.5;
-		m_origin = box.GetMin( ) + m_halfSize;
+	BoxSphereBounds& operator+=( const BoxSphereBounds& other );
 
-		m_radius = m_halfSize.Length( );
-	}
+	friend BoxSphereBounds operator+( const BoxSphereBounds& lhs, const BoxSphereBounds& rhs );
 
 	friend Archive& operator<<( Archive& ar, BoxSphereBounds& bounds )
 	{
@@ -40,8 +38,10 @@ public:
 		return ar;
 	}
 
+	friend float CalcGrowth( const BoxSphereBounds& bounds, const BoxSphereBounds& other );
+
 private:
-	Vector m_origin;
-	Vector m_halfSize;
+	Vector m_origin = Vector::ZeroVector;
+	Vector m_halfSize = Vector::ZeroVector;
 	float m_radius = 0.f;
 };

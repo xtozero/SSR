@@ -10,14 +10,30 @@
 
 using namespace DirectX;
 
+void CameraComponent::LoadProperty( const JSON::Value& json )
+{
+	if ( const JSON::Value* pPos = json.Find( "Position" ) )
+	{
+		const JSON::Value& pos = *pPos;
+
+		if ( pos.Size() == 3 )
+		{
+			Vector origin( static_cast<float>( pos[0].AsReal() ),
+						static_cast<float>( pos[1].AsReal() ),
+						static_cast<float>( pos[2].AsReal() ) );
+			SetRelativePosition( origin );
+		}
+	}
+}
+
 void CameraComponent::Move( const float right, const float up, const float look )
 {
 	if ( right != 0.f || up != 0.f || look != 0.f )
 	{
 		Vector deltaMove = ( right * m_rightVector + up * m_upVector + look * m_lookVector );
-		const Vector& curPos = GetPosition( );
+		const Vector& curPos = GetPosition();
 		SetPosition( curPos + deltaMove );
-		MarkCameraTransformDirty( );
+		MarkCameraTransformDirty();
 	}
 }
 
@@ -28,20 +44,20 @@ void CameraComponent::Move( Vector delta )
 
 void CameraComponent::Rotate( const float pitch, const float yaw, const float roll )
 {
-	if ( m_enableRotate )
+	if ( m_enableRotation )
 	{
 		if ( pitch != 0.f || yaw != 0.f || roll != 0.f )
 		{
-			const Quaternion& curRotate = GetRotate( );
-			Quaternion deltaRotate = Quaternion( pitch, yaw, roll );
-			Quaternion newRotate = curRotate * deltaRotate;
-			SetRotate( newRotate );
+			const Quaternion& curRotation = GetRotation();
+			Quaternion deltaRotation = Quaternion( pitch, yaw, roll );
+			Quaternion newRotation = curRotation * deltaRotation;
+			SetRotation( newRotation );
 
-			RotateMatrix rotateMat( GetRotate() );
+			RotationMatrix rotationMat( GetRotation() );
 
-			m_rightVector = rotateMat.TransformVector( Vector::RightVector );
-			m_upVector = rotateMat.TransformVector( Vector::UpVector );
-			m_lookVector = rotateMat.TransformVector( Vector::ForwardVector );
+			m_rightVector = rotationMat.TransformVector( Vector::RightVector );
+			m_upVector = rotationMat.TransformVector( Vector::UpVector );
+			m_lookVector = rotationMat.TransformVector( Vector::ForwardVector );
 
 			m_lookVector = m_lookVector.GetNormalized();
 
@@ -51,46 +67,24 @@ void CameraComponent::Rotate( const float pitch, const float yaw, const float ro
 			m_rightVector = m_upVector ^ m_lookVector;
 			m_rightVector = m_rightVector.GetNormalized();
 
-			MarkCameraTransformDirty( );
+			MarkCameraTransformDirty();
 		}
 	}
 }
 
-const Matrix& CameraComponent::GetViewMatrix( ) const
+const Matrix& CameraComponent::GetViewMatrix() const
 {
-	ReCalcViewMatrix( );
+	ReCalcViewMatrix();
 	return m_viewMatrix;
 }
 
-const Matrix& CameraComponent::GetInvViewMatrix( ) const
+const Matrix& CameraComponent::GetInvViewMatrix() const
 {
-	ReCalcViewMatrix( );
+	ReCalcViewMatrix();
 	return m_invViewMatrix;
 }
 
-void CameraComponent::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
-{
-	if ( const JSON::Value* pPos = json.Find( "Position" ) )
-	{
-		const JSON::Value& pos = *pPos;
-
-		if ( pos.Size( ) == 3 )
-		{
-			Vector origin( static_cast<float>( pos[0].AsReal( ) ),
-						static_cast<float>( pos[1].AsReal( ) ),
-						static_cast<float>( pos[2].AsReal( ) ) );
-			SetPosition( origin );
-		}
-	}
-}
-
-CameraComponent::CameraComponent( CGameObject* pOwner ) : SceneComponent( pOwner )
-{
-	m_viewMatrix = Matrix::Identity;
-	m_invViewMatrix = Matrix::Identity;
-}
-
-void CameraComponent::ReCalcViewMatrix( ) const
+void CameraComponent::ReCalcViewMatrix() const
 {
 	if ( m_needRecalc )
 	{

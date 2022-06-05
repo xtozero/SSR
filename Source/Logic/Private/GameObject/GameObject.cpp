@@ -11,21 +11,15 @@
 #include "InterfaceFactories.h"
 #include "Json/json.hpp"
 #include "Math/Util.h"
-#include "Physics/Aaboundingbox.h"
+#include "Physics/AxisAlignedBox.h"
 #include "Physics/BoundingSphere.h"
-#include "Physics/OrientedBoundingBox.h"
+#include "Physics/OrientedBox.h"
 //#include "Render/IRenderer.h"
 #include "Scene/DebugOverlayManager.h"
 
 #include <tchar.h>
 
 using namespace DirectX;
-
-const ICollider* ObjectRelatedRigidBody::GetCollider( int32 type )
-{
-	assert( m_gameObject != nullptr );
-	return m_gameObject->GetCollider( type );
-}
 
 void CGameObject::OnDeviceRestore( CGameLogic& gameLogic )
 {
@@ -40,95 +34,73 @@ void CGameObject::Initialize( CGameLogic& gameLogic, World& world )
 {
 	m_pWorld = &world;
 
-	for ( Component* component : m_components )
+	for ( std::unique_ptr<Component>& component : m_components )
 	{
 		component->RegisterComponent();
 	}
 
 	RegisterThinkFunction();
 
-	for ( Component* component : m_components )
+	for ( std::unique_ptr<Component>& component : m_components )
 	{
 		component->RegisterThinkFunction();
 	}
-
-	//if ( LoadMaterial( gameLogic ) == false )
-	//{
-	//	__debugbreak( );
-	//}
-
-	//CalcOriginalCollider( );
-
-	//if ( const ICollider* defaultCollider = GetDefaultCollider( ) )
-	//{
-	//	CXMFLOAT3X3 inertiaTensor;
-
-	//	switch ( m_colliderType )
-	//	{
-	//	case COLLIDER::SPHERE:
-	//	{
-	//		const BoundingSphere* sphereCollider = static_cast<const BoundingSphere*>( defaultCollider );
-	//		inertiaTensor = MakeSphereInertiaTensor( sphereCollider->GetRadius( ), m_body.GetMass( ) );
-	//	}
-	//	break;
-	//	case COLLIDER::AABB:
-	//	{
-	//		const CAaboundingbox* boxCollider = static_cast<const CAaboundingbox*>( defaultCollider );
-	//		CXMFLOAT3 halfSize;
-	//		boxCollider->Size( halfSize );
-	//		halfSize *= 0.5f;
-	//		inertiaTensor = MakeBlockInertiaTensor( halfSize, m_body.GetMass( ) );
-	//	}
-	//	break;
-	//	case COLLIDER::OBB:
-	//	{
-	//		const COrientedBoundingBox* boxCollider = static_cast<const COrientedBoundingBox*>( defaultCollider );
-	//		inertiaTensor = MakeBlockInertiaTensor( boxCollider->GetHalfSize( ), m_body.GetMass( ) );
-	//	}
-	//	break;
-	//	}
-
-	//	m_body.SetInertiaTensor( inertiaTensor );
-	//}
-
-	// SetID( id );
 }
 
-void CGameObject::SetPosition( const float x, const float y, const float z )
+void CGameObject::SetPosition( const Vector& translation )
 {
 	if ( m_rootComponent )
 	{
-		m_rootComponent->SetPosition( x, y, z );
+		m_rootComponent->SetPosition( translation );
 	}
 }
 
-void CGameObject::SetPosition( const Vector& pos )
-{
-	SetPosition( pos.x, pos.y, pos.z );
-}
-
-void CGameObject::SetScale( const float xScale, const float yScale, const float zScale )
+void CGameObject::SetScale3D( const Vector& scale3D )
 {
 	if ( m_rootComponent )
 	{
-		m_rootComponent->SetScale( xScale, yScale, zScale );
+		m_rootComponent->SetScale3D( scale3D );
 	}
 
 	// m_body.SetDirty( DF_SCALING );
 }
 
-void CGameObject::SetRotate( const Quaternion& rotate )
+void CGameObject::SetRotation( const Quaternion& rotation )
 {
 	if ( m_rootComponent )
 	{
-		m_rootComponent->SetRotate( rotate );
+		m_rootComponent->SetRotation( rotation );
 	}
 
 	// m_body.SetOrientation( m_vecRotate );
 	// m_body.SetDirty( DF_ROTATION );
 }
 
-const Vector& CGameObject::GetPosition()
+void CGameObject::SetRelativePosition( const Vector& translation )
+{
+	if ( m_rootComponent )
+	{
+		m_rootComponent->SetRelativePosition( translation );
+	}
+}
+
+void CGameObject::SetRelativeScale3D( const Vector& scale3D )
+{
+	if ( m_rootComponent )
+	{
+		m_rootComponent->SetRelativeScale3D( scale3D );
+	}
+}
+
+void CGameObject::SetRelativeRotation( const Quaternion& rotation )
+{
+	if ( m_rootComponent )
+	{
+		m_rootComponent->SetRelativeRotation( rotation );
+	}
+}
+
+const Vector& CGameObject::GetPosition() const
 {
 	if ( m_rootComponent )
 	{
@@ -138,24 +110,84 @@ const Vector& CGameObject::GetPosition()
 	return Vector::ZeroVector;
 }
 
-const Vector& CGameObject::GetScale()
+const Vector& CGameObject::GetScale3D() const
 {
 	if ( m_rootComponent )
 	{
-		return m_rootComponent->GetScale();
+		return m_rootComponent->GetScale3D();
 	}
 
 	return Vector::OneVector;
 }
 
-const Quaternion& CGameObject::GetRotate()
+const Quaternion& CGameObject::GetRotation() const
 {
 	if ( m_rootComponent )
 	{
-		return m_rootComponent->GetRotate();
+		return m_rootComponent->GetRotation();
 	}
 
 	return Quaternion::Identity;
+}
+
+const Vector& CGameObject::GetRelativePosition() const
+{
+	if ( m_rootComponent )
+	{
+		return m_rootComponent->GetRelativePosition();
+	}
+
+	return Vector::ZeroVector;
+}
+
+const Vector& CGameObject::GetRelativeScale3D() const
+{
+	if ( m_rootComponent )
+	{
+		return m_rootComponent->GetRelativeScale3D();
+	}
+
+	return Vector::OneVector;
+}
+
+const Quaternion& CGameObject::GetRelativeRotation() const
+{
+	if ( m_rootComponent )
+	{
+		return m_rootComponent->GetRelativeRotation();
+	}
+
+	return Quaternion::Identity;
+}
+
+Vector CGameObject::GetForwardVector() const
+{
+	if ( m_rootComponent )
+	{
+		return m_rootComponent->GetForwardVector();
+	}
+
+	return Vector::ForwardVector;
+}
+
+Vector CGameObject::GetRightVector() const
+{
+	if ( m_rootComponent )
+	{
+		return m_rootComponent->GetRightVector();
+	}
+
+	return Vector::RightVector;
+}
+
+Vector CGameObject::GetUpVector() const
+{
+	if ( m_rootComponent )
+	{
+		return m_rootComponent->GetUpVector();
+	}
+
+	return Vector::UpVector;
 }
 
 const Matrix& CGameObject::GetTransformMatrix()
@@ -178,28 +210,6 @@ const Matrix& CGameObject::GetInvTransformMatrix()
 	return Matrix::Identity;
 }
 
-void CGameObject::UpdateTransform( CGameLogic& gameLogic )
-{
-	//using namespace SHARED_CONSTANT_BUFFER;
-	//RE_HANDLE geometryBuffer = gameLogic.GetCommonConstantBuffer( VS_GEOMETRY );
-	//IRenderer& renderer = gameLogic.GetRenderer( );
-
-	//GeometryTransform* pDest = static_cast<GeometryTransform*>( renderer.LockBuffer( geometryBuffer ) );
-
-	//if ( pDest )
-	//{
-	//	pDest->m_world = XMMatrixTranspose( GetTransformMatrix() );
-	//	pDest->m_invWorld = XMMatrixTranspose( GetInvTransformMatrix() );
-
-	//	renderer.UnLockBuffer( geometryBuffer );
-	//	renderer.BindConstantBuffer( SHADER_TYPE::VS, VS_CONSTANT_BUFFER::GEOMETRY, 1, &geometryBuffer );
-	//}
-	//else
-	//{
-	//	__debugbreak( );
-	//}
-}
-
 void CGameObject::Think( float elapsedTime )
 {
 	if ( m_isPicked )
@@ -214,138 +224,51 @@ void CGameObject::SetMaterialName( const std::string& pMaterialName )
 	m_materialName = pMaterialName;
 }
 
-const ICollider* CGameObject::GetDefaultCollider()
-{
-	return GetCollider( m_colliderType );
-}
-
-const ICollider* CGameObject::GetCollider( int32 type )
-{
-	if ( ( m_colliderType == COLLIDER::NONE ) || ( type == COLLIDER::NONE ) )
-	{
-		return nullptr;
-	}
-
-	UpdateCollider( static_cast<COLLIDER::TYPE>( type ) );
-	return m_colliders[type].get();
-}
-
-const std::vector<std::unique_ptr<ICollider>>& CGameObject::GetSubColliders( int32 type )
-{
-	UpdateSubCollider( static_cast<COLLIDER::TYPE>( type ) );
-	return m_subColliders[type];
-}
-
-void CGameObject::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
+void CGameObject::LoadProperty( const JSON::Value& json )
 {
 	if ( const JSON::Value* pName = json.Find( "Name" ) )
 	{
 		SetName( pName->AsString() );
 	}
 
-	if ( const JSON::Value* pPos = json.Find( "Position" ) )
+	if ( m_rootComponent )
 	{
-		const JSON::Value& pos = *pPos;
-
-		if ( pos.Size() == 3 )
-		{
-			float x = static_cast<float>( pos[0].AsReal() );
-			float y = static_cast<float>( pos[1].AsReal() );
-			float z = static_cast<float>( pos[2].AsReal() );
-
-			SetPosition( x, y, z );
-		}
+		m_rootComponent->LoadProperty( json );
 	}
 
-	if ( const JSON::Value* pScale = json.Find( "Scale" ) )
+	if ( const JSON::Value* pCompoenetPropertyArray = json.Find( "Components" ) )
 	{
-		const JSON::Value& scale = *pScale;
-
-		if ( scale.Size() == 3 )
+		std::vector<const char*> componentNames = pCompoenetPropertyArray->GetMemberNames();
+		for ( const char* componentName : componentNames )
 		{
-			float x = static_cast<float>( scale[0].AsReal() );
-			float y = static_cast<float>( scale[1].AsReal() );
-			float z = static_cast<float>( scale[2].AsReal() );
-
-			SetScale( x, y, z );
-		}
-	}
-
-	if ( const JSON::Value* pRotate = json.Find( "Rotate" ) )
-	{
-		const JSON::Value& rotate = *pRotate;
-
-		if ( rotate.Size() == 3 )
-		{
-			float pitch = static_cast<float>( rotate[0].AsReal() );
-			pitch = XMConvertToRadians( pitch );
-
-			float yaw = static_cast<float>( rotate[1].AsReal() );
-			yaw = XMConvertToRadians( yaw );
-
-			float roll = static_cast<float>( rotate[2].AsReal() );
-			roll = XMConvertToRadians( roll );
-
-			SetRotate( Quaternion( pitch, yaw, roll ) );
-		}
-	}
-
-	//if ( const JSON::Value* pRenderOption = json.Find( "RenderOption" ) )
-	//{
-	//	// SetMaterialName( pMat->AsString( ) );
-	//	m_pRenderOption = GetInterface<IAssetLoader>( )->GetRenderOption( pRenderOption->AsString() );
-	//}
-
-	if ( const JSON::Value* pReflectable = json.Find( "Reflectable" ) )
-	{
-		AddProperty( GAMEOBJECT_PROPERTY::REFLECTABLE_OBJECT );
-	}
-
-	if ( const JSON::Value* pColliderType = json.Find( "ColliderType" ) )
-	{
-		const std::string& type = pColliderType->AsString();
-
-		if ( type == "Sphere" )
-		{
-			m_colliderType = COLLIDER::SPHERE;
-		}
-		else if ( type == "AlignedBox" )
-		{
-			m_colliderType = COLLIDER::AABB;
-		}
-		else if ( type == "Box" )
-		{
-			m_colliderType = COLLIDER::OBB;
-		}
-		else
-		{
-			__debugbreak();
-		}
-	}
-
-	if ( const JSON::Value* pMass = json.Find( "Mass" ) )
-	{
-		float mass = static_cast<float>( pMass->AsReal() );
-		assert( ( m_colliderType != COLLIDER::AABB ) || ( mass == FLT_MAX ) );
-		if ( PrimitiveComponent* primitiveComponent = Cast<PrimitiveComponent>( m_rootComponent ) )
-		{
-			primitiveComponent->SetMass( mass );
-		}
-	}
-
-	if ( const JSON::Value* pDamping = json.Find( "Damping" ) )
-	{
-		const JSON::Value& damping = *pDamping;
-
-		if ( damping.Size() == 2 )
-		{
-			if ( PrimitiveComponent* primitiveComponent = Cast<PrimitiveComponent>( m_rootComponent ) )
+			Component* pComponent = GetComponent( Name( componentName ) );
+			if ( pComponent == nullptr )
 			{
-				primitiveComponent->SetLinearDamping( static_cast<float>( damping[0].AsReal() ) );
-				primitiveComponent->SetAngularDamping( static_cast<float>( damping[1].AsReal() ) );
+				continue;
 			}
+
+			pComponent->LoadProperty( *pCompoenetPropertyArray->Find( componentName ) );
 		}
 	}
+}
+
+void CGameObject::SetRootComponent( SceneComponent* component )
+{
+	if ( component == nullptr || component->GetOwner() == this )
+	{
+		m_rootComponent = component;
+	}
+}
+
+void CGameObject::RemoveComponent( const Component* component )
+{
+	auto iter = std::remove_if( std::begin( m_components ), std::end( m_components ),
+		[component]( std::unique_ptr<Component>& elem )
+		{
+			return elem.get() == component;
+		} );
+
+	m_components.erase( iter, std::end( m_components ) );
 }
 
 void CGameObject::SetInputController( InputController* inputController )
@@ -362,7 +285,7 @@ void CGameObject::InitializeInputComponent()
 {
 	if ( m_inputComponent == nullptr )
 	{
-		m_inputComponent = CreateComponent<InputComponent>( *this );
+		m_inputComponent = CreateComponent<InputComponent>( *this, "InputComponent" );
 		SetupInputComponent();
 	}
 }
@@ -372,12 +295,6 @@ CGameObject::CGameObject()
 	m_think.m_thinkGroup = ThinkingGroup::PrePhysics;
 	m_think.m_canEverTick = false;
 	m_think.m_thinkInterval = 0.f;
-
-	for ( uint32 i = 0; i < COLLIDER::COUNT; ++i )
-	{
-		m_originalColliders[i] = nullptr;
-		m_colliders[i] = nullptr;
-	}
 }
 
 CGameObject::~CGameObject()
@@ -387,90 +304,26 @@ CGameObject::~CGameObject()
 		m_inputController->Abandon();
 	}
 
-	for ( Component* component : m_components )
-	{
-		component->UnRegisterThinkFunction();
-	}
-
 	UnRegisterThinkFunction();
 
-	for ( Component* component : m_components )
+	std::vector<std::unique_ptr<Component>> willRemove;
+	willRemove.swap( m_components );
+
+	for ( std::unique_ptr<Component>& component : willRemove )
 	{
-		component->UnregisterComponent();
-		delete component;
+		component->DestroyComponent();
 	}
-}
-
-//bool CGameObject::LoadMaterial( CGameLogic& gameLogic )
-//{
-	//if ( m_pModel )
-	//{
-	//	IRenderer& renderer = gameLogic.GetRenderer( );
-
-	//	if ( m_materialName.length( ) > 0 )
-	//	{
-	//		m_material = renderer.SearchMaterial( m_materialName.c_str( ) );
-	//	}
-	//	else
-	//	{
-	//		m_material = renderer.SearchMaterial( "wireframe" );
-	//	}
-	//}
-
-	//return ( m_material != INVALID_MATERIAL ) ? true : false;
-
-//	return true;
-//}
-
-void CGameObject::CalcOriginalCollider()
-{
-	//if ( m_pModel == nullptr )
-	//{
-	//	return;
-	//}
-
-	//for ( uint32 i = 0; i < COLLIDER::COUNT; ++i )
-	//{
-	//	m_originalColliders[i] = GetColliderManager( ).GetCollider( *m_pModel, static_cast<COLLIDER::TYPE>( i ) );
-	//}
 }
 
 void CGameObject::SetupInputComponent()
 {
 }
 
-void CGameObject::UpdateCollider( COLLIDER::TYPE type )
+Component* CGameObject::GetComponent( const Name& name )
 {
-	//if ( m_originalColliders[type] )
-	//{
-	//	if ( m_colliders[type].get( ) == nullptr )
-	//	{
-	//		m_colliders[type].reset( GetColliderManager( ).CreateCollider( type ) );
-	//	}
+	auto found = m_componentMap.find( name );
 
-	//	m_colliders[type]->Update( m_vecScale, m_body.GetOrientation(), m_body.GetPosition(), m_originalColliders[type] );
-	//}
-}
-
-void CGameObject::UpdateAllCollider()
-{
-	for ( uint32 i = 0; i < COLLIDER::COUNT; ++i )
-	{
-		if ( m_originalColliders[i] )
-		{
-			UpdateCollider( static_cast<COLLIDER::TYPE>( i ) );
-		}
-	}
-}
-
-void CGameObject::UpdateSubCollider( COLLIDER::TYPE type )
-{
-	UpdateCollider( type );
-
-	if ( m_colliders[type].get() )
-	{
-		m_colliders[type]->CalcSubMeshBounds( m_subColliders[type] );
-	}
+	return ( found != std::end( m_componentMap ) ) ? found->second : nullptr;
 }
 
 void CGameObject::RegisterThinkFunction()

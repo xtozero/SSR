@@ -2,7 +2,6 @@
 
 #include "Core/IListener.h"
 #include "GameObject.h"
-#include "Physics/Movement.h"
 #include "Scene/INotifyGraphicsDevice.h"
 
 class CameraComponent;
@@ -14,16 +13,15 @@ class CPlayer : public CGameObject, public IListener
 public:
 	virtual void Initialize( CGameLogic& gameLogic, World& world ) override;
 	virtual void Think( float elapsedTime );
-	virtual void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json ) override;
 	virtual void ProcessInput( const UserInput& input, CGameLogic& gameLogic ) override;
 
-	const CameraComponent* GetCameraComponent( ) const { return m_cameraComponent; }
+	const CameraComponent* GetCameraComponent() const { return m_cameraComponent; }
 
-	CPlayer( );
+	CPlayer();
 
 protected:
-	virtual void SetupInputComponent( ) override;
-	
+	virtual void SetupInputComponent() override;
+
 private:
 	void OnMouseLButton( const UserInput& input, CGameLogic& gameLogic );
 	void RotatePrimaryLightDir( CGameLogic& gameLogic, float deltaTheta, float deltaPhi );
@@ -36,11 +34,9 @@ private:
 
 	CameraComponent* m_cameraComponent = nullptr;
 
-	bool m_cameraRotateEnable = false;
-	bool m_cameraTranslateEnable = false;
+	bool m_cameraRotationEnabled = false;
+	bool m_cameraTranslationEnabled = false;
 	float m_mouseSensitivity = 0.01f;
 
-	CGroundMovement m_movement;
-	float m_kineticForceScale = 1.f;
 	bool m_inputDirection[4] = { false, false, false, false };
 };

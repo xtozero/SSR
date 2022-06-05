@@ -23,7 +23,8 @@ struct TaskQueue
 {
 	std::queue<TaskBase*> m_tasks;
 	std::mutex m_taskLock;
-	std::atomic<size_t> m_reference;
+	bool m_exclusiveQueue;
+	std::atomic<bool> m_free;
 };
 
 struct Worker
@@ -61,7 +62,10 @@ void WorkerThread( TaskScheduler* scheduler, Worker* worker )
 				; ++i )
 			{
 				queue = &scheduler->m_taskQueues[i];
-				if ( queue->m_reference == 0 )
+				bool sharedQueue = ( queue->m_exclusiveQueue == false );
+				bool expected = true;
+				if ( sharedQueue
+					&& queue->m_free.compare_exchange_strong( expected, true ) )
 				{
 					continue;
 				}
@@ -78,6 +82,12 @@ void WorkerThread( TaskScheduler* scheduler, Worker* worker )
 					}
 
 					queue->m_tasks.pop();
+					if ( sharedQueue
+						&& queue->m_tasks.empty() )
+					{
+						expected = false;
+						queue->m_free.compare_exchange_strong( expected, true );
+					}
 					break;
 				}
 			}
@@ -88,7 +98,6 @@ void WorkerThread( TaskScheduler* scheduler, Worker* worker )
 			}
 
 			task->Execute();
-			--queue->m_reference;
 		}
 	}
 }
@@ -96,14 +105,15 @@ void WorkerThread( TaskScheduler* scheduler, Worker* worker )
 TaskHandle TaskScheduler::GetTaskGroup()
 {
 	size_t workerId = m_workerCount;
-	size_t minReference = ( std::numeric_limits<size_t>::max )( );
 	for ( size_t i = m_workerCount; i < m_maxTaskQueue; ++i )
 	{
-		const TaskQueue& queue = m_taskQueues[i];
-		if ( queue.m_reference < minReference )
+		TaskQueue& queue = m_taskQueues[i];
+		bool expected = true;
+		
+		if ( queue.m_free.compare_exchange_strong( expected, false ) )
 		{
 			workerId = i;
-			minReference = queue.m_reference;
+			break;
 		}
 	}
 
@@ -129,20 +139,24 @@ bool TaskScheduler::Run( TaskHandle handle )
 		return false;
 	}
 
+	size_t workerAffinity = 0;
 	{
 		std::unique_lock taskLock( queue.m_taskLock );
 		for ( auto task : handle.m_controlBlock->m_tasks )
 		{
+			workerAffinity |= task->WorkerAffinity();
 			queue.m_tasks.push( task );
-			++queue.m_reference;
 		}
 	}
 
 	for ( size_t i = 0; i < m_workerCount; ++i )
 	{
-		std::unique_lock<std::mutex> lock( m_workers[i].m_lock );
-		m_workers[i].m_wakeup = true;
-		m_workers[i].m_cv.notify_one();
+		if ( CheckWorkerAffinity( i, workerAffinity ) )
+		{
+			std::unique_lock<std::mutex> lock( m_workers[i].m_lock );
+			m_workers[i].m_wakeup = true;
+			m_workers[i].m_cv.notify_one();
+		}
 	}
 
 	handle.m_controlBlock->m_submitted = true;
@@ -171,8 +185,7 @@ bool TaskScheduler::Wait( TaskHandle handle )
 		ProcessThisThreadTask();
 	}
 
-	TaskQueue& queue = m_taskQueues[handle.m_queueId];
-	while ( queue.m_reference > 0 )
+	while ( handle.IsCompleted() == false )
 	{
 		std::this_thread::yield();
 	}
@@ -187,7 +200,10 @@ void TaskScheduler::ProcessThisThreadTask()
 	for ( size_t i = 0; i < m_maxTaskQueue; ++i )
 	{
 		TaskQueue& queue = m_taskQueues[i];
-		if ( queue.m_reference == 0 )
+		bool sharedQueue = ( queue.m_exclusiveQueue == false );
+		bool expected = true;
+		if ( sharedQueue
+			&& queue.m_free.compare_exchange_strong( expected, true ) )
 		{
 			continue;
 		}
@@ -208,13 +224,18 @@ void TaskScheduler::ProcessThisThreadTask()
 					}
 
 					queue.m_tasks.pop();
+					if ( sharedQueue
+						&& queue.m_tasks.empty() )
+					{
+						expected = false;
+						queue.m_free.compare_exchange_strong( expected, true );
+					}
 				}
 			}
 
 			if ( task )
 			{
 				task->Execute();
-				--queue.m_reference;
 			}
 			else
 			{
@@ -297,14 +318,15 @@ TaskScheduler::~TaskScheduler()
 void TaskScheduler::Initialize( size_t queueCount, size_t workerCount )
 {
 	m_maxTaskQueue = queueCount;
+	m_workerCount = workerCount;
 	m_taskQueues = new TaskQueue[m_maxTaskQueue];
 
 	for ( size_t i = 0; i < m_maxTaskQueue; ++i )
 	{
-		m_taskQueues[i].m_reference = 0;
+		m_taskQueues[i].m_exclusiveQueue = ( i < m_workerCount );
+		m_taskQueues[i].m_free = ( i >= m_workerCount );
 	}
 
-	m_workerCount = workerCount;
 	m_workers = new Worker[m_workerCount];
 	m_workerid = new std::thread::id[m_workerCount];
 

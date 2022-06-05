@@ -12,6 +12,8 @@ class VolumetricCloudComponent : public SceneComponent
 public:
 	using SceneComponent::SceneComponent;
 
+	virtual void LoadProperty( const JSON::Value& json ) override;
+
 	virtual BoxSphereBounds CalcBounds( const Matrix& transform ) override;
 
 	VolumetricCloudProxy*& Proxy()

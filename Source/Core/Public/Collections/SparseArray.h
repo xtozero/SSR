@@ -88,6 +88,15 @@ public:
 		RemoveUninitialized( index );
 	}
 
+	void Remove( const T& element )
+	{
+		auto found = Find( element );
+		if ( found != end() )
+		{
+			RemoveAt( found.Index() );
+		}
+	}
+
 	size_t Size() const
 	{
 		return m_size;
@@ -114,6 +123,11 @@ public:
 		using reference = std::conditional_t<IsConst, const value_type&, value_type&>;
 
 		using ArrayType = std::conditional_t<IsConst, const SparseArray, SparseArray>;
+
+		size_t Index() const
+		{
+			return *m_bitIter;
+		}
 
 		IteratorBase& operator++()
 		{
@@ -174,6 +188,19 @@ public:
 	ConstIterator end() const noexcept
 	{
 		return ConstIterator( *this, m_size );
+	}
+
+	Iterator Find( const T& element )
+	{
+		for ( auto iter = begin(); iter != end(); ++iter )
+		{
+			if ( *iter == element )
+			{
+				return iter;
+			}
+		}
+
+		return end();
 	}
 
 private:

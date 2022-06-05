@@ -25,8 +25,6 @@ class Light : public CGameObject
 public:
 	virtual const LIGHT_TYPE GetType() const = 0;
 
-	virtual void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json ) override;
-
 	void SetDiffuseColor( const ColorF& diffuseColor );
 	void SetSpecularColor( const ColorF& specularColor );
 	void SetCastShadow( bool castShadow );
@@ -44,8 +42,6 @@ class DirectionalLight : public Light
 public:
 	virtual const LIGHT_TYPE GetType() const override;
 
-	virtual void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json ) override;
-
 	const Vector& Direction() const;
 
 	DirectionalLight();
@@ -59,8 +55,6 @@ class HemisphereLight : public CGameObject
 	GENERATE_CLASS_TYPE_INFO( HemisphereLight )
 
 public:
-	virtual void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json ) override;
-
 	void SetLowerColor( const ColorF& color );
 	void SetUpperColor( const ColorF& color );
 

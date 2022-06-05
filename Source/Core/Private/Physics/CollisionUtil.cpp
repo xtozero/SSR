@@ -1,8 +1,45 @@
 #include "CollisionUtil.h"
 
-#include "ColliderManager.h"
+#include "AxisAlignedBox.h"
+#include "BoundingSphere.h"
 #include "CollideNarrow.h"
 #include "ICollider.h"
+#include "OrientedBox.h"
+
+namespace
+{
+	Matrix3X3 MakeInertiaTensorCoeffs( float ix, float iy, float iz, float ixy = 0, float iyz = 0, float ixz = 0 )
+	{
+		return Matrix3X3(
+			ix, -ixy, -ixz,
+			-ixy, iy, -iyz,
+			-ixz, -iyz, iz );
+	}
+
+	Matrix3X3 MakeBlockInertiaTensor( const Vector& halfSizes, float mass )
+	{
+		if ( mass == FLT_MAX )
+		{
+			return Matrix3X3( 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f );
+		}
+
+		Vector squares = halfSizes * halfSizes;
+		return MakeInertiaTensorCoeffs( 0.3f * mass * ( squares.y + squares.z ),
+			0.3f * mass * ( squares.x + squares.z ),
+			0.3f * mass * ( squares.x + squares.y ) );
+	}
+
+	Matrix3X3 MakeSphereInertiaTensor( const float radius, float mass )
+	{
+		if ( mass == FLT_MAX )
+		{
+			return Matrix3X3( 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f );
+		}
+
+		float coeff = 0.4f * mass * radius * radius;
+		return MakeInertiaTensorCoeffs( coeff, coeff, coeff );
+	}
+}
 
 namespace COLLISION_UTIL
 {
@@ -11,88 +48,100 @@ namespace COLLISION_UTIL
 		return collider.Intersect( ray );
 	}
 
-	uint32 DetectCollisionObjectAndObject( CGameObject* lhs, RigidBody* lhsBody, CGameObject* rhs, RigidBody* rhsBody, CollisionData* data )
+	uint32 DetectCollisionObjectAndObject( const ICollider* lhsCollider, RigidBody* lhsBody, const ICollider* rhsCollider, RigidBody* rhsBody, CollisionData* data )
 	{
-		/*assert( lhs && rhs && lhsBody && rhsBody && data );
-		COLLIDER::TYPE lhsType = lhs->GetColliderType( );
-		COLLIDER::TYPE rhsType = rhs->GetColliderType( );
+		Collider lhsType = lhsCollider->GetType();
+		Collider rhsType = rhsCollider->GetType();
 
 		if ( lhsType > rhsType )
 		{
 			std::swap( lhsType, rhsType );
-			std::swap( lhs, rhs );
+			std::swap( lhsCollider, rhsCollider );
 			std::swap( lhsBody, rhsBody );
 		}
 
-		if ( lhsType == COLLIDER::SPHERE )
+		if ( lhsType == Collider::Sphere )
 		{
-			const BoundingSphere* lhsCollider = reinterpret_cast<const BoundingSphere*>( lhs->GetDefaultCollider( ) );
+			const BoundingSphere* sphereCollider1 = reinterpret_cast<const BoundingSphere*>( lhsCollider );
 
-			if ( rhsType == COLLIDER::SPHERE )
+			if ( rhsType == Collider::Sphere )
 			{
-				const BoundingSphere* rhsCollider = reinterpret_cast<const BoundingSphere*>( rhs->GetDefaultCollider( ) );
-				return SphereAndSphere( *lhsCollider, lhsBody, *rhsCollider, rhsBody, data );
+				const BoundingSphere* sphereCollider2 = reinterpret_cast<const BoundingSphere*>( rhsCollider );
+				return SphereAndSphere( *sphereCollider1, lhsBody, *sphereCollider2, rhsBody, data );
 			}
-			else if ( rhsType == COLLIDER::AABB )
+			else if ( rhsType == Collider::Aabb )
 			{
-				const CAaboundingbox* boxCollider = reinterpret_cast<const CAaboundingbox*>( rhs->GetDefaultCollider( ) );
-				return BoxAndSphere( *boxCollider, rhsBody, *lhsCollider , lhsBody, data );
+				const AxisAlignedBox* boxCollider = reinterpret_cast<const AxisAlignedBox*>( rhsCollider );
+				return BoxAndSphere( *boxCollider, rhsBody, *sphereCollider1, lhsBody, data );
 			}
-			else if ( rhsType == COLLIDER::OBB )
+			else if ( rhsType == Collider::Obb )
 			{
-				const COrientedBoundingBox* boxCollider = reinterpret_cast<const COrientedBoundingBox*>( rhs->GetDefaultCollider( ) );
-				return BoxAndSphere( *boxCollider, rhsBody, *lhsCollider, lhsBody, data );
+				const OrientedBox* boxCollider = reinterpret_cast<const OrientedBox*>( rhsCollider );
+				return BoxAndSphere( *boxCollider, rhsBody, *sphereCollider1, lhsBody, data );
 			}
 		}
-		else if ( lhsType == COLLIDER::AABB )
+		else if ( lhsType == Collider::Aabb )
 		{
-			const CAaboundingbox* boxCollider1 = reinterpret_cast<const CAaboundingbox*>( lhs->GetDefaultCollider( ) );
+			const AxisAlignedBox* boxCollider1 = reinterpret_cast<const AxisAlignedBox*>( lhsCollider );
 
-			if ( rhsType == COLLIDER::AABB )
+			if ( rhsType == Collider::Aabb )
 			{
-				const CAaboundingbox* boxCollider2 = reinterpret_cast<const CAaboundingbox*>( rhs->GetDefaultCollider( ) );
+				const AxisAlignedBox* boxCollider2 = reinterpret_cast<const AxisAlignedBox*>( rhsCollider );
 				return BoxAndBox( *boxCollider1, lhsBody, *boxCollider2, rhsBody, data );
 			}
-			else if ( rhsType == COLLIDER::OBB )
+			else if ( rhsType == Collider::Obb )
 			{
-				const COrientedBoundingBox* boxCollider2 = reinterpret_cast<const COrientedBoundingBox*>( rhs->GetDefaultCollider( ) );
+				const OrientedBox* boxCollider2 = reinterpret_cast<const OrientedBox*>( rhsCollider );
 				return BoxAndBox( *boxCollider1, lhsBody, *boxCollider2, rhsBody, data );
 			}
 		}
-		else if ( lhsType == COLLIDER::OBB )
+		else if ( lhsType == Collider::Obb )
 		{
-			const COrientedBoundingBox* boxCollider1 = reinterpret_cast<const COrientedBoundingBox*>( lhs->GetDefaultCollider( ) );
+			const OrientedBox* boxCollider1 = reinterpret_cast<const OrientedBox*>( lhsCollider );
 
-			if ( rhsType == COLLIDER::OBB )
+			if ( rhsType == Collider::Obb )
 			{
-				const COrientedBoundingBox* boxCollider2 = reinterpret_cast<const COrientedBoundingBox*>( rhs->GetDefaultCollider( ) );
+				const OrientedBox* boxCollider2 = reinterpret_cast<const OrientedBox*>( rhsCollider );
 				return BoxAndBox( *boxCollider1, lhsBody, *boxCollider2, rhsBody, data );
 			}
-		}*/
+		}
 
 		return 0;
 	}
 
-	float IntersectWithRay( CGameObject& object, const CRay& ray, COLLIDER::TYPE type )
+	Matrix3X3 CalcInertiaTensor( const ICollider* collider, float mass )
 	{
-		/*if ( type >= COLLIDER::COUNT || type < COLLIDER::SPHERE )
-		{
-			for ( uint32 i = 0; i < COLLIDER::COUNT; ++i )
-			{
-				if ( const ICollider* pCollider = object.GetCollider( i ) )
-				{
-					return IntersectWithRay( *pCollider, ray );
-				}
-			}
-		}
-		else
-		{
-			if ( const ICollider* pCollider = object.GetCollider( type ) )
-			{
-				return IntersectWithRay( *pCollider, ray );
-			}
-		}*/
+		Collider type = collider->GetType();
 
-		return -1.f;
+		switch ( type )
+		{
+		case Collider::None:
+			break;
+		case Collider::Sphere:
+		{
+			auto sphere = static_cast<const BoundingSphere*>( collider );
+			return MakeSphereInertiaTensor( sphere->GetRadius(), mass);
+			break;
+		}
+		case Collider::Aabb:
+		{
+			auto aabb = static_cast<const AxisAlignedBox*>( collider );
+			Vector halfSize = ( aabb->GetMax() - aabb->GetMin() ) * 0.5f;
+			return MakeBlockInertiaTensor( halfSize, mass );
+			break;
+		}
+		case Collider::Obb:
+		{
+			auto obb = static_cast<const OrientedBox*>( collider );
+			return MakeBlockInertiaTensor( obb->GetHalfSize(), mass);
+			break;
+		}
+		case Collider::Count:
+			break;
+		default:
+			break;
+		}
+
+		return Matrix3X3( 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f );
 	}
 }

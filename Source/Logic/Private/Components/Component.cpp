@@ -3,6 +3,9 @@
 
 #include "GameObject/GameObject.h"
 #include "TaskScheduler.h"
+#include "World/World.h"
+
+#include <cassert>
 
 void Component::RegisterComponent()
 {
@@ -11,6 +14,8 @@ void Component::RegisterComponent()
 
 void Component::UnregisterComponent()
 {
+	DestroyPhysicsState();
+
 	if ( m_renderStateCreated )
 	{
 		RemoveRenderState();
@@ -98,9 +103,29 @@ void Component::UnRegisterThinkFunction()
 	m_think.UnRegisterThinkFunction();
 }
 
-Component::Component( CGameObject* pOwner ) : m_pOwner( pOwner )
+CGameObject* Component::GetOwner() const
 {
+	return m_pOwner;
+}
+
+void Component::DestroyComponent()
+{
+	UnRegisterThinkFunction();
+	UnregisterComponent();
+
+	if ( CGameObject* owner = GetOwner() )
+	{
+		owner->RemoveComponent( this );
+	}
+}
+
+Component::Component( CGameObject* pOwner, const char* name ) : m_pOwner( pOwner )
+{
+	assert( pOwner != nullptr && "Owner can not be nullptr" );
+
 	pOwner->m_components.emplace_back( this );
+	auto result = pOwner->m_componentMap.emplace( Name( name ), this );
+	assert( result.second && "Component's name duplicated" );
 
 	m_think.m_thinkGroup = ThinkingGroup::DuringPhysics;
 	m_think.m_canEverTick = false;
@@ -121,6 +146,44 @@ void Component::RemoveRenderState()
 	m_renderStateCreated = false;
 }
 
+bool Component::PhysicsStateCreated() const
+{
+	return m_physicsStateCreated;
+}
+
+void Component::CreatePhysicsState()
+{
+	if ( m_physicsStateCreated == false && m_pWorld->GetPhysicsScene() && ShouldCreatePhysicsState() )
+	{
+		OnCreatePhysicsState();
+	}
+}
+
+void Component::DestroyPhysicsState()
+{
+	if ( m_physicsStateCreated )
+	{
+		OnDestroyPhysicsState();
+	}
+}
+
+bool Component::ShouldCreatePhysicsState() const
+{
+	return false;
+}
+
+void Component::OnCreatePhysicsState()
+{
+	assert( m_physicsStateCreated == false );
+	m_physicsStateCreated = true;
+}
+
+void Component::OnDestroyPhysicsState()
+{
+	assert( m_physicsStateCreated );
+	m_physicsStateCreated = false;
+}
+
 void Component::RegisterComponent( World* pWorld )
 {
 	m_pWorld = pWorld;
@@ -129,4 +192,6 @@ void Component::RegisterComponent( World* pWorld )
 	{
 		CreateRenderState();
 	}
+
+	CreatePhysicsState();
 }

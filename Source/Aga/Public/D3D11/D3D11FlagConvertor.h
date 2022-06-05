@@ -7,17 +7,17 @@
 
 inline D3D11_USAGE ConvertAccessFlagToUsage( RESOURCE_ACCESS_FLAG accessFlag )
 {
-	switch ( static_cast<int>( accessFlag ) )
+	switch ( static_cast<uint8>( accessFlag ) )
 	{
-	case static_cast<int>( RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE ):
+	case static_cast<uint8>( RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE ):
 		return D3D11_USAGE_DEFAULT;
-	case static_cast<int>( RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE ):
+	case static_cast<uint8>( RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE ):
 		return D3D11_USAGE_DYNAMIC;
-	case static_cast<int>( RESOURCE_ACCESS_FLAG::GPU_READ ):
+	case static_cast<uint8>( RESOURCE_ACCESS_FLAG::GPU_READ ):
 		return D3D11_USAGE_IMMUTABLE;
-	case static_cast<int>( RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE
+	case static_cast<uint8>( RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE
 		| RESOURCE_ACCESS_FLAG::CPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE ):
-	case static_cast<int>( RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE
+	case static_cast<uint8>( RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE
 		| RESOURCE_ACCESS_FLAG::CPU_READ ):
 		return D3D11_USAGE_STAGING;
 	default:

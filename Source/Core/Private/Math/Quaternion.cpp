@@ -31,6 +31,55 @@ Quaternion::Quaternion( const XMVector& v )
 	XMStoreFloat4( this, v.m_xmmReg );
 }
 
+Quaternion::Quaternion( const Matrix& m )
+{
+	// Algorithm in Ken Shoemake's article in 1987 SIGGRAPH course notes
+	// article "TQuaternion Calculus and Fast Animation".
+
+	const float tr = m.m[0][0] + m.m[1][1] + m.m[2][2];
+
+	if ( tr > 0 )
+	{
+		float root = sqrtf( tr + 1.f );
+		w = 0.5f * root;
+		root = 0.5f / root;
+
+		x = ( m.m[1][2] - m.m[2][1] ) * root;
+		y = ( m.m[2][0] - m.m[0][2] ) * root;
+		z = ( m.m[0][1] - m.m[1][0] ) * root;
+	}
+	else
+	{
+		uint32 i = 0;
+
+		if ( m.m[1][1] > m.m[0][0] )
+		{
+			i = 1;
+		}
+
+		if ( m.m[2][2] > m.m[i][i] )
+		{
+			i = 2;
+		}
+
+		static constexpr uint32 nxt[3] = { 1, 2, 0 };
+		const uint32 j = nxt[i];
+		const uint32 k = nxt[j];
+
+		float root = sqrtf( m.m[i][i] - m.m[j][j] - m.m[k][k] + 1 );
+
+		float* qt[3] = { &x, &y, &z };
+		*qt[i] = 0.5f * root;
+
+		root = 0.5f / root;
+
+		*qt[j] = ( m.m[i][j] - m.m[j][i] ) * root;
+		*qt[k] = ( m.m[i][k] - m.m[k][i] ) * root;
+
+		w = ( m.m[j][k] - m.m[k][j] ) * root;
+	}
+}
+
 Quaternion& Quaternion::operator=( const XMVector& v )
 {
 	XMStoreFloat4( this, v.m_xmmReg );

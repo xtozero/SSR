@@ -1,10 +1,13 @@
 #pragma once
 
 #include "Component.h"
+#include "Core/WeldingTransformRules.h"
 #include "Math/Matrix.h"
 #include "Math/Quaternion.h"
+#include "Math/Transform.h"
 #include "Math/Vector.h"
 #include "Physics/BoxSphereBounds.h"
+#include "SparseArray.h"
 
 class SceneComponent : public Component
 {
@@ -13,36 +16,64 @@ class SceneComponent : public Component
 public:
 	using Component::Component;
 
-	void SetPosition( const float x, const float y, const float z );
-	void SetPosition( const Vector& pos );
-	void SetScale( const float xScale, const float yScale, const float zScale );
-	void SetRotate( const Quaternion& rotate );
+	virtual void DestroyComponent() override;
 
-	const Vector& GetPosition( ) const;
-	const Vector& GetScale( ) const;
-	const Quaternion& GetRotate( ) const;
+	virtual void LoadProperty( const JSON::Value& json ) override;
 
-	const Matrix& GetTransformMatrix( );
-	const Matrix& GetInvTransformMatrix( );
+	void SetPosition( const Vector& translation );
+	void SetScale3D( const Vector& scale3D );
+	void SetRotation( const Quaternion& rotation );
+
+	void SetRelativePosition( const Vector& translation );
+	void SetRelativeScale3D( const Vector& scale3D );
+	void SetRelativeRotation( const Quaternion& rotation );
+
+	const Vector& GetPosition() const;
+	const Vector& GetScale3D() const;
+	const Quaternion& GetRotation() const;
+
+	const Vector& GetRelativePosition() const;
+	const Vector& GetRelativeScale3D() const;
+	const Quaternion& GetRelativeRotation() const;
+
+	Vector GetForwardVector() const;
+	Vector GetRightVector() const;
+	Vector GetUpVector() const;
+
+	const Transform& GetTransform() const;
+
+	const Matrix& GetTransformMatrix();
+	const Matrix& GetInvTransformMatrix();
 
 	virtual BoxSphereBounds CalcBounds( const Matrix& transform );
-	void UpdateBounds( );
-	const BoxSphereBounds& Bounds( ) const
+	void UpdateBounds();
+	const BoxSphereBounds& Bounds() const
 	{
 		return m_bounds;
 	}
 
-private:
-	void RebuildTransform( );
+	SceneComponent* GetAttachParent() const;
+	bool IsAttachedTo( const SceneComponent& component ) const;
+	bool AttachToComponent( SceneComponent* parent, const AttachmentTrasformRules& attachmentRules );
+	void DetachFromComponent( const DetachmentTrasformRules& detachmentRules );
 
-	Vector m_vecPos = Vector::ZeroVector;
-	Vector m_vecScale = Vector::OneVector;
-	Quaternion m_vecRotate = Quaternion::Identity;
+private:
+	void RebuildTransformMatrix();
+	void UpdateTransform();
+	void UpdateRelativeTransform();
+	void UpdateChildTransform();
+	void PropagateTransformUpdate();
+
+	SceneComponent* m_attachParent = nullptr;
+	SparseArray<SceneComponent*> m_attachedChildren;
+
+	Transform m_transform;
+	Transform m_relativeTransform;
 
 	Matrix m_matTransform;
 	Matrix m_invMatTransform;
 
 	BoxSphereBounds m_bounds;
 
-	bool m_needRebuildTransform = true;
+	bool m_needRebuildTransformMatrix = true;
 };

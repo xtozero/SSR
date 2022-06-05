@@ -4,7 +4,7 @@
 #include "Math/TransformationMatrix.h"
 #include "Math/Vector.h"
 #include "Math/Vector4.h"
-#include "Physics/Aaboundingbox.h"
+#include "Physics/AxisAlignedBox.h"
 #include "Physics/BoundingCone.h"
 #include "Physics/Frustum.h"
 #include "Physics/Ray.h"
@@ -75,10 +75,10 @@ namespace
 	{
 		CalculateSplitPositions( shadowInfo, shadowInfo.SubjectFar() );
 
-		CAaboundingbox casterAABB;
+		AxisAlignedBox casterAABB;
 		for ( const BoxSphereBounds& bounds : shadowInfo.ShadowCastersViewSpaceBounds() )
 		{
-			CAaboundingbox aabb( bounds );
+			AxisAlignedBox aabb( bounds );
 			TransformAABB( aabb, aabb, shadowViewProjMat );
 
 			casterAABB.Merge( aabb.GetMin() );
@@ -129,7 +129,7 @@ void BuildOrthoShadowProjectionMatrix( ShadowInfo& shadowInfo )
 	auto viewLightDir = viewMatrix.TransformVector( lightProperty.m_direction );
 	viewLightDir = viewLightDir.GetNormalized();
 
-	CAaboundingbox frustumAABB;
+	AxisAlignedBox frustumAABB;
 	if ( true /*m_isUnitClipCube*/ )
 	{
 		for ( const BoxSphereBounds& bounds : shadowInfo.ShadowReceiversViewSpaceBounds() )
@@ -152,7 +152,7 @@ void BuildOrthoShadowProjectionMatrix( ShadowInfo& shadowInfo )
 		frustumAABB.SetMin( -width * zFar, -height * zFar, zNear );
 	}
 
-	CAaboundingbox casterAABB;
+	AxisAlignedBox casterAABB;
 	for ( const BoxSphereBounds& bounds : shadowInfo.ShadowCastersViewSpaceBounds() )
 	{
 		Vector max = bounds.Origin() + bounds.HalfSize();
@@ -288,7 +288,7 @@ void BuildPSMProjectionMatrix( ShadowInfo& shadowInfo )
 		Vector ppLightDir( lightPos.x, lightPos.y, lightPos.z );
 		ppLightDir = ppLightDir.GetNormalized();
 
-		CAaboundingbox ppUnitBox;
+		AxisAlignedBox ppUnitBox;
 		ppUnitBox.SetMax( 1, 1, 1 );
 		ppUnitBox.SetMin( -1, -1, 0 );
 
@@ -465,7 +465,7 @@ void BuildLSPSMProjectionMatrix( ShadowInfo& shadowInfo )
 
 		lightSpaceBasis.TransformPosition( bodyB.data(), bodyB.data(), static_cast<uint32>( bodyB.size() ) );
 
-		CAaboundingbox lightSpaceBox( bodyB.data(), static_cast<uint32>( bodyB.size() ) );
+		AxisAlignedBox lightSpaceBox( bodyB.data(), static_cast<uint32>( bodyB.size() ) );
 		Vector lightSpaceOrigin = lightSpaceBox.Centroid();
 		float sinGamma = sqrtf( 1.f - cosGamma * cosGamma );
 
@@ -540,7 +540,7 @@ void BuildLSPSMProjectionMatrix( ShadowInfo& shadowInfo )
 			}
 
 			lightSpaceBasis.TransformPosition( receiverPoints.data(), receiverPoints.data(), static_cast<uint32>( receiverPoints.size() ) );
-			CAaboundingbox receiverBox( receiverPoints.data(), static_cast<uint32>( receiverPoints.size() ) );
+			AxisAlignedBox receiverBox( receiverPoints.data(), static_cast<uint32>( receiverPoints.size() ) );
 
 			float minX = std::min( -1.f, receiverBox.GetMin().x );
 			float minY = std::min( -1.f, receiverBox.GetMin().y );

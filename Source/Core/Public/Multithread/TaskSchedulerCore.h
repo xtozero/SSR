@@ -66,6 +66,11 @@ public:
 
 	bool IsSubmitted() const
 	{
+		if ( m_controlBlock == nullptr )
+		{
+			return false;
+		}
+
 		return m_controlBlock->m_submitted;
 	}
 

@@ -10,31 +10,32 @@ class BoxSphereBounds;
 
 struct Matrix;
 
-class CAaboundingbox : public ICollider
+class AxisAlignedBox : public ICollider
 {
 public:
-	virtual void CalcMeshBounds( const MeshData& mesh ) override;
 	virtual void Update( const Vector& scaling, const Quaternion& rotation, const Vector& translation, ICollider* original ) override;
-	virtual void CalcSubMeshBounds( std::vector<std::unique_ptr<ICollider>>& subColliders ) override;
 	virtual float Intersect( const CRay& ray ) const override;
 	virtual uint32 Intersect( const Frustum& frustum ) const override;
-	uint32 Intersect( const CAaboundingbox& box ) const;
+	virtual BoxSphereBounds Bounds() const override;
+	virtual Collider GetType() const override;
 
-	CAaboundingbox( ) = default;
-	explicit CAaboundingbox( const std::vector<CAaboundingbox>& boxes );
-	explicit CAaboundingbox( const BoxSphereBounds& bounds );
-	CAaboundingbox( const Vector* points, uint32 numPoints );
+	uint32 Intersect( const AxisAlignedBox& box ) const;
+
+	AxisAlignedBox() = default;
+	explicit AxisAlignedBox( const std::vector<AxisAlignedBox>& boxes );
+	explicit AxisAlignedBox( const BoxSphereBounds& bounds );
+	AxisAlignedBox( const Vector* points, uint32 numPoints );
 
 	void Merge( const Vector& vec );
-	Vector Size( ) const
+	Vector Size() const
 	{
 		return m_max - m_min;
 	}
-	Vector Centroid( ) const
+	Vector Centroid() const
 	{
-		return ( m_max + m_min ) * 0.5f; 
+		return ( m_max + m_min ) * 0.5f;
 	}
-	void Reset( )
+	void Reset()
 	{
 		m_max = { -FLT_MAX, -FLT_MAX, -FLT_MAX };
 		m_min = { FLT_MAX, FLT_MAX, FLT_MAX };
@@ -46,11 +47,11 @@ public:
 	void SetMax( float x, float y, float z ) { m_max = { x, y, z }; }
 	void SetMin( float x, float y, float z ) { m_min = { x, y, z }; }
 
-	const Vector& GetMax( ) const { return m_max; }
-	const Vector& GetMin( ) const { return m_min; }
-	float GetSize( ) const 
+	const Vector& GetMax() const { return m_max; }
+	const Vector& GetMin() const { return m_min; }
+	float GetSize() const
 	{
-		Vector size = Size( );
+		Vector size = Size();
 		return size.x * size.y * size.z; // l * w * h
 	}
 
@@ -59,4 +60,4 @@ private:
 	Vector m_min = { FLT_MAX, FLT_MAX, FLT_MAX };
 };
 
-void TransformAABB( CAaboundingbox& result, const CAaboundingbox& src, const Matrix& mat );
+void TransformAABB( AxisAlignedBox& result, const AxisAlignedBox& src, const Matrix& mat );

@@ -22,16 +22,16 @@ public:
 	using Matrix::Matrix;
 };
 
-struct RotateMatrix : public Matrix
+struct RotationMatrix : public Matrix
 {
 public:
-	RotateMatrix( float pitch, float yaw, float roll ) :
+	RotationMatrix( float pitch, float yaw, float roll ) :
 		Matrix( XMMatrix( DirectX::XMMatrixRotationRollPitchYaw( pitch, yaw, roll ) ) ) {}
 
-	RotateMatrix( const Vector& rotate ) :
-		Matrix( XMMatrix( DirectX::XMMatrixRotationRollPitchYawFromVector( XMVector( rotate ) ) ) ) {}
+	RotationMatrix( const Vector& rotation ) :
+		Matrix( XMMatrix( DirectX::XMMatrixRotationRollPitchYawFromVector( XMVector( rotation ) ) ) ) {}
 
-	RotateMatrix( const Quaternion& quat ) :
+	RotationMatrix( const Quaternion& quat ) :
 		Matrix( XMMatrix( DirectX::XMMatrixRotationQuaternion( XMVector( quat ) ) ) ) {}
 
 	using Matrix::Matrix;
@@ -52,8 +52,8 @@ public:
 struct ScaleRotationTranslationMatrix : public Matrix
 {
 public:
-	ScaleRotationTranslationMatrix( const Vector& scale, const Quaternion& rotate, const Vector& delta ) :
-		Matrix( XMMatrix( DirectX::XMMatrixAffineTransformation( XMVector( scale ), XMVector( Vector::ZeroVector ), XMVector( rotate ), XMVector( delta ) ) ) ) {}
+	ScaleRotationTranslationMatrix( const Vector& scale, const Quaternion& rotation, const Vector& delta ) :
+		Matrix( XMMatrix( DirectX::XMMatrixAffineTransformation( XMVector( scale ), XMVector( Vector::ZeroVector ), XMVector( rotation ), XMVector( delta ) ) ) ) {}
 
 	using Matrix::Matrix;
 };

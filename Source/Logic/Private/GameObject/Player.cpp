@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Components/CameraComponent.h"
+#include "Components/GroundMovementComponent.h"
 #include "Components/InputComponent.h"
 #include "Core/GameLogic.h"
 #include "GameObject/GameObject.h"
@@ -31,38 +32,9 @@ void CPlayer::Think( float elapsedTime )
 				  0.f,
 				  static_cast<float>( m_inputDirection[1] - m_inputDirection[3] ) );
 
-	force *= m_kineticForceScale;
-	m_movement.Update( force, elapsedTime );
-	m_cameraComponent->Move( m_movement.GetDelta( elapsedTime ) );
-}
-
-void CPlayer::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
-{
-	Super::LoadProperty( gameLogic, json );
-
-	if ( const JSON::Value* pCamera = json.Find( "Camera" ) )
+	if ( auto* pMovementComponent = GetComponent<GroundMovementComponent>() )
 	{
-		m_cameraComponent->LoadProperty( gameLogic, *pCamera );
-	}
-
-	if ( const JSON::Value* pMaxForce = json.Find( "Max_Force" ) )
-	{
-		m_movement.SetMaxForceMagnitude( static_cast<float>( pMaxForce->AsReal() ) );
-	}
-
-	if ( const JSON::Value* pFriction = json.Find( "Friction" ) )
-	{
-		const JSON::Value& friction = *pFriction;
-
-		if ( friction.Size() == 2 )
-		{
-			m_movement.SetFriction( { static_cast<float>( friction[0].AsReal() ), static_cast<float>( friction[1].AsReal() ) } );
-		}
-	}
-
-	if ( const JSON::Value* pForceScale = json.Find( "Kinetic_Force_Scale" ) )
-	{
-		m_kineticForceScale = static_cast<float>( pForceScale->AsReal() );
+		pMovementComponent->Update( force, elapsedTime );
 	}
 }
 
@@ -94,8 +66,10 @@ void CPlayer::ProcessInput( const UserInput& input, CGameLogic& gameLogic )
 
 CPlayer::CPlayer()
 {
-	m_cameraComponent = CreateComponent<CameraComponent>( *this );
+	m_cameraComponent = CreateComponent<CameraComponent>( *this, "CameraComponent" );
 	m_rootComponent = m_cameraComponent;
+
+	CreateComponent<GroundMovementComponent>( *this, "GroundMovementComponent" );
 
 	m_think.m_canEverTick = true;
 }
@@ -122,8 +96,7 @@ void CPlayer::OnMouseLButton( const UserInput& input, CGameLogic& gameLogic )
 		{
 			newObject->SetName( "ball" );
 			newObject->SetPosition( m_cameraComponent->GetPosition() );
-			newObject->SetScale( 5, 5, 5 );
-			newObject->SetColliderType( COLLIDER::SPHERE );
+			newObject->SetScale3D( Vector( 5, 5, 5 ) );
 			//newObject->GetRigidBody( )->SetMass( 10 );
 			//newObject->GetRigidBody( )->SetVelocity( m_camera.GetForwardVector() * 200.f );
 
@@ -149,12 +122,12 @@ void CPlayer::RotatePrimaryLightDir( CGameLogic& gameLogic, float deltaTheta, fl
 
 void CPlayer::OnMouseLButton( const UserInput& input )
 {
-	m_cameraRotateEnable = input.m_axis[UserInput::Z_AXIS] < 0;
+	m_cameraRotationEnabled = input.m_axis[UserInput::Z_AXIS] < 0;
 }
 
 void CPlayer::OnMouseRButton( const UserInput& input )
 {
-	m_cameraTranslateEnable = input.m_axis[UserInput::Z_AXIS] < 0;
+	m_cameraTranslationEnabled = input.m_axis[UserInput::Z_AXIS] < 0;
 }
 
 void CPlayer::OnMouseMove( const UserInput& input )
@@ -165,11 +138,11 @@ void CPlayer::OnMouseMove( const UserInput& input )
 	dx *= m_mouseSensitivity;
 	dy *= m_mouseSensitivity;
 
-	if ( m_cameraRotateEnable )
+	if ( m_cameraRotationEnabled )
 	{
 		m_cameraComponent->Rotate( dy, dx, 0 );
 	}
-	else if ( m_cameraTranslateEnable )
+	else if ( m_cameraTranslationEnabled )
 	{
 		m_cameraComponent->Move( dx, dy, 0 );
 	}

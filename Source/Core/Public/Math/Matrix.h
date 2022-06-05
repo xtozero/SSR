@@ -19,6 +19,8 @@ public:
 	XMVector TransformVector( const Vector& v ) const;
 	void TransformVector( Vector* dest, Vector* src, uint32 size ) const;
 
+	XMVector ExtractScaling( float tolerance = 1.e-8 );
+
 	using DirectX::XMFLOAT4X4::XMFLOAT4X4;
 	Matrix( const XMMatrix& m );
 	Matrix() : DirectX::XMFLOAT4X4() {}

@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Components/PrimitiveComponent.h"
 
+#include "Json/Json.hpp"
+#include "Physics/BodySetup.h"
 #include "Scene/IScene.h"
 #include "World/World.h"
 
@@ -13,19 +15,41 @@ void PrimitiveComponent::SendRenderTransform()
 	Super::SendRenderTransform();
 }
 
+void PrimitiveComponent::LoadProperty( const JSON::Value& json )
+{
+	Super::LoadProperty( json );
+
+	if ( const JSON::Value* pMass = json.Find( "Mass" ) )
+	{
+		float mass = static_cast<float>( pMass->AsReal() );
+		SetMass( mass );
+	}
+
+	if ( const JSON::Value* pDamping = json.Find( "Damping" ) )
+	{
+		const JSON::Value& damping = *pDamping;
+
+		if ( damping.Size() == 2 )
+		{
+			SetLinearDamping( static_cast<float>( damping[0].AsReal() ) );
+			SetAngularDamping( static_cast<float>( damping[1].AsReal() ) );
+		}
+	}
+}
+
 void PrimitiveComponent::SetMass( float mass )
 {
-	m_rigidBody.SetMass( mass );
+	m_bodyInstance.SetMass( mass );
 }
 
 void PrimitiveComponent::SetLinearDamping( float linearDamping )
 {
-	m_rigidBody.SetLinearDamping( linearDamping );
+	m_bodyInstance.SetLinearDamping( linearDamping );
 }
 
 void PrimitiveComponent::SetAngularDamping( float angularDamping )
 {
-	m_rigidBody.SetAngularDamping( angularDamping );
+	m_bodyInstance.SetAngularDamping( angularDamping );
 }
 
 const Matrix& PrimitiveComponent::GetRenderMatrix()
@@ -48,4 +72,33 @@ void PrimitiveComponent::RemoveRenderState()
 {
 	Super::RemoveRenderState();
 	m_pWorld->Scene()->RemovePrimitive( this );
+}
+
+bool PrimitiveComponent::ShouldCreatePhysicsState() const
+{
+	return true;
+}
+
+void PrimitiveComponent::OnCreatePhysicsState()
+{
+	Super::OnCreatePhysicsState();
+
+	if ( m_bodyInstance.IsValid() == false )
+	{
+		BodySetup* bodySetup = GetBodySetup();
+		if ( bodySetup )
+		{
+			m_bodyInstance.InitBody( *this, *bodySetup, GetTransform(), *m_pWorld->GetPhysicsScene());
+		}
+	}
+}
+
+void PrimitiveComponent::OnDestroyPhysicsState()
+{
+	if ( m_bodyInstance.IsValid() )
+	{
+		m_bodyInstance.TermBody();
+	}
+
+	Super::OnDestroyPhysicsState();
 }

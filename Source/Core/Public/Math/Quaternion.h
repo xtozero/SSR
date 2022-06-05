@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Math/Matrix.h"
 #include "Math/XMVector.h"
 
 struct Quaternion : public DirectX::XMFLOAT4
@@ -11,6 +12,7 @@ public:
 
 	Quaternion( float pitch, float yaw, float roll );
 	Quaternion( const XMVector& v );
+	explicit Quaternion( const Matrix& m );
 	Quaternion() : DirectX::XMFLOAT4() {}
 	using DirectX::XMFLOAT4::XMFLOAT4;
 
