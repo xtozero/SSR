@@ -75,6 +75,7 @@ public:
 	explicit Name( NameEntryId id ) : m_id( id ) {}
 	explicit Name( const char* str ) : Name( Make( str ) ) {}
 	explicit Name( const std::string& str ) : Name( Make( str ) ) {}
+	explicit Name( const std::string_view& str ) : Name( Make( str ) ) {}
 	Name() = default;
 
 	std::string_view Str() const;

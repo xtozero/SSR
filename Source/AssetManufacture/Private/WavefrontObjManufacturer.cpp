@@ -1,5 +1,6 @@
 #include "WavefrontObjManufacturer.h"
 
+#include "ManufactureConfig.h"
 #include "Material/Material.h"
 #include "Math/Vector4.h"
 #include "Mesh/MeshDescription.h"
@@ -291,16 +292,16 @@ bool WavefrontObjManufacturer::IsSuitable( const std::filesystem::path& srcPath 
 	return srcPath.extension() == fs::path( ".obj" );
 }
 
-std::optional<Products> WavefrontObjManufacturer::Manufacture( const std::filesystem::path& srcPath, const std::filesystem::path& destPath ) const
+std::optional<Products> WavefrontObjManufacturer::Manufacture( const PathEnvironment& env, const std::filesystem::path& path ) const
 {
-	if ( fs::exists( srcPath ) == false )
+	if ( fs::exists( path ) == false )
 	{
 		return { };
 	}
 
 	Wavefront::ObjModel model;
 	Wavefront::ObjParser parser;
-	if ( parser.Parse( srcPath, model ) == false )
+	if ( parser.Parse( path, model ) == false )
 	{
 		return { };
 	}
@@ -317,7 +318,7 @@ std::optional<Products> WavefrontObjManufacturer::Manufacture( const std::filesy
 		}
 	}
 
-	fs::path destRootPath = "." / fs::relative( destPath, destPath.parent_path() );
+	fs::path destRootPath = "." / fs::relative( env.m_destination, env.m_destination.parent_path() );
 	fs::path assetsRootPath = destRootPath / fs::path( "Material" );
 
 	Archive ar;
@@ -325,7 +326,7 @@ std::optional<Products> WavefrontObjManufacturer::Manufacture( const std::filesy
 	staticMesh.Serialize( ar );
 
 	Products products;
-	products.emplace_back( srcPath.filename(), std::move( ar ) );
+	products.emplace_back( path.filename(), std::move( ar ) );
 	return products;
 }
 
@@ -334,21 +335,21 @@ bool WavefrontMtlManufacturer::IsSuitable( const std::filesystem::path& srcPath 
 	return srcPath.extension() == fs::path( ".mtl" );
 }
 
-std::optional<Products> WavefrontMtlManufacturer::Manufacture( const std::filesystem::path& srcPath, const std::filesystem::path& destPath ) const
+std::optional<Products> WavefrontMtlManufacturer::Manufacture( const PathEnvironment& env, const std::filesystem::path& path ) const
 {
-	if ( fs::exists( srcPath ) == false )
+	if ( fs::exists( path ) == false )
 	{
 		return { };
 	}
 
 	Wavefront::ObjMaterialLibrary mtl;
 	Wavefront::ObjMtlParser parser;
-	if ( parser.Parse( srcPath, mtl ) == false )
+	if ( parser.Parse( path, mtl ) == false )
 	{
 		return { };
 	}
 
-	const std::string& mtlFileName = srcPath.stem().generic_string();
+	const std::string& mtlFileName = path.stem().generic_string();
 
 	Products products;
 	for ( const auto& namedMaterial : mtl.m_materials )
@@ -356,7 +357,7 @@ std::optional<Products> WavefrontMtlManufacturer::Manufacture( const std::filesy
 		Archive ar;
 		const auto& materialName = namedMaterial.first;
 		const auto& material = namedMaterial.second;
-		Material assetMaterial = CreateMaterialFromWavefrontMaterial( mtlFileName, materialName, material, destPath );
+		Material assetMaterial = CreateMaterialFromWavefrontMaterial( mtlFileName, materialName, material, env.m_destination );
 		assetMaterial.Serialize( ar );
 
 		fs::path assetMaterialFileName( "M_" + mtlFileName + "_" + materialName + ".asset" );

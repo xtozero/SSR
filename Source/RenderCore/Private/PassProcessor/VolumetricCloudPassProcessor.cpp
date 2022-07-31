@@ -12,7 +12,7 @@ namespace rendercore
 	public:
 		DrawVolumetricCloudPS()
 		{
-			m_shader = static_cast<PixelShader*>( GetGlobalShader<DrawVolumetricCloudPS>() );
+			m_shader = static_cast<PixelShader*>( GetGlobalShader<DrawVolumetricCloudPS>()->CompileShader( {} ) );
 		}
 
 		PixelShader* Shader() { return m_shader; }

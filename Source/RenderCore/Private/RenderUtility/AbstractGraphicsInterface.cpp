@@ -183,6 +183,16 @@ VertexLayout AbstractGraphicsInterface::FindOrCreate( const VertexShader& vs, co
 	return found->second;
 }
 
+BinaryChunk AbstractGraphicsInterface::CompieShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const
+{
+	return m_aga->CompileShader( source, defines, profile );
+}
+
+bool AbstractGraphicsInterface::BuildShaderMetaData( const BinaryChunk& byteCode, aga::ShaderParameterMap& outParameterMap, aga::ShaderParameterInfo& outParameterInfo ) const
+{
+	return m_aga->BuildShaderMetaData( byteCode, outParameterMap, outParameterInfo );
+}
+
 AbstractGraphicsInterface& GraphicsInterface()
 {
 	return g_abstractGraphicsInterface;

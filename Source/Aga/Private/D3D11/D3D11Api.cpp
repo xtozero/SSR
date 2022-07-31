@@ -29,6 +29,7 @@
 
 #include <array>
 #include <d3d11.h>
+#include <d3dcompiler.h>
 #include <dxgi.h>
 #include <map>
 #include <memory>
@@ -58,6 +59,9 @@ namespace aga
 
 		virtual IImmediateCommandList* GetImmediateCommandList() override;
 		virtual std::unique_ptr<IDeferredCommandList> CreateDeferredCommandList() const override;
+
+		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const override;
+		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const override;
 
 		IDXGIFactory1& GetFactory() const
 		{
@@ -299,6 +303,61 @@ namespace aga
 	std::unique_ptr<IDeferredCommandList> CDirect3D11::CreateDeferredCommandList() const
 	{
 		return std::make_unique<D3D11DeferredCommandList>();
+	}
+
+	BinaryChunk CDirect3D11::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const
+	{
+		Microsoft::WRL::ComPtr<ID3DBlob> byteCode = nullptr;
+		Microsoft::WRL::ComPtr<ID3DBlob> errorMsg = nullptr;
+
+		std::vector<D3D_SHADER_MACRO> macros;
+
+		macros.resize( ( defines.size() >> 1 ) + 1 );
+		D3D_SHADER_MACRO* macro = macros.data();
+		for ( uint32 i = 0; i < defines.size(); )
+		{
+			macro->Name = defines[i++];
+			macro->Definition = defines[i++];
+			++macro;
+		}
+		macros.back().Name = nullptr;
+		macros.back().Definition = nullptr;
+
+		HRESULT result = D3DCompile( source.Data(),
+			source.Size(),
+			nullptr,
+			macros.data(),
+			nullptr,
+			"main",
+			profile,
+			D3DCOMPILE_ENABLE_STRICTNESS,
+			0,
+			&byteCode,
+			&errorMsg );
+
+		if ( SUCCEEDED( result ) )
+		{
+			BinaryChunk compiled( static_cast<uint32>( byteCode->GetBufferSize() ) );
+			std::memcpy( compiled.Data(), byteCode->GetBufferPointer(), byteCode->GetBufferSize() );
+			return compiled;
+		}
+
+		return {};
+	}
+
+	bool CDirect3D11::BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const
+	{
+		Microsoft::WRL::ComPtr<ID3D11ShaderReflection> pShaderReflection = nullptr;
+		HRESULT hr = D3DReflect( byteCode.Data(), byteCode.Size(), IID_PPV_ARGS(&pShaderReflection));
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
+
+		ExtractShaderParameters( pShaderReflection.Get(), outParameterMap );
+		BuildShaderParameterInfo( outParameterMap.GetParameterMap(), outParameterInfo );
+
+		return true;
 	}
 
 	CDirect3D11::CDirect3D11()

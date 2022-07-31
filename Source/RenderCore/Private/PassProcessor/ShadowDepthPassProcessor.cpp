@@ -9,17 +9,17 @@
 
 namespace
 {
-	IPassProcessor* CreateShadowDepthPassProcessor( )
+	IPassProcessor* CreateShadowDepthPassProcessor()
 	{
-		return new ShadowDepthPassProcessor( );
+		return new ShadowDepthPassProcessor();
 	}
 }
 
 class ShadowDepthVS
 {
 public:
-	ShadowDepthVS( );
-	VertexShader* Shader( ) { return m_shader; }
+	ShadowDepthVS();
+	VertexShader* Shader() { return m_shader; }
 
 private:
 	VertexShader* m_shader = nullptr;
@@ -28,8 +28,8 @@ private:
 class ShadowDepthGS
 {
 public:
-	ShadowDepthGS( );
-	GeometryShader* Shader( ) { return m_shader; }
+	ShadowDepthGS();
+	GeometryShader* Shader() { return m_shader; }
 
 private:
 	GeometryShader* m_shader = nullptr;
@@ -38,8 +38,8 @@ private:
 class ShadowDepthPS
 {
 public:
-	ShadowDepthPS( );
-	PixelShader* Shader( ) { return m_shader; }
+	ShadowDepthPS();
+	PixelShader* Shader() { return m_shader; }
 
 private:
 	PixelShader* m_shader = nullptr;
@@ -49,29 +49,29 @@ REGISTER_GLOBAL_SHADER( ShadowDepthVS, "./Assets/Shaders/Shadow/VS_CascadedShado
 REGISTER_GLOBAL_SHADER( ShadowDepthGS, "./Assets/Shaders/Shadow/GS_CascadedShadowmap.asset" );
 REGISTER_GLOBAL_SHADER( ShadowDepthPS, "./Assets/Shaders/Shadow/PS_CascadedShadowmap.asset" );
 
-ShadowDepthVS::ShadowDepthVS( )
+ShadowDepthVS::ShadowDepthVS()
 {
-	m_shader = static_cast<VertexShader*>( GetGlobalShader<ShadowDepthVS>( ) );
+	m_shader = static_cast<VertexShader*>( GetGlobalShader<ShadowDepthVS>()->CompileShader( {} ) );
 }
 
-ShadowDepthGS::ShadowDepthGS( )
+ShadowDepthGS::ShadowDepthGS()
 {
-	m_shader = static_cast<GeometryShader*>( GetGlobalShader<ShadowDepthGS>( ) );
+	m_shader = static_cast<GeometryShader*>( GetGlobalShader<ShadowDepthGS>()->CompileShader( {} ) );
 }
 
-ShadowDepthPS::ShadowDepthPS( )
+ShadowDepthPS::ShadowDepthPS()
 {
-	m_shader = static_cast<PixelShader*>( GetGlobalShader<ShadowDepthPS>( ) );
+	m_shader = static_cast<PixelShader*>( GetGlobalShader<ShadowDepthPS>()->CompileShader( {} ) );
 }
 
 std::optional<DrawSnapshot> ShadowDepthPassProcessor::Process( const PrimitiveSubMesh& subMesh )
 {
-	assert( IsInRenderThread( ) );
+	assert( IsInRenderThread() );
 
 	PassShader passShader{
-		ShadowDepthVS( ).Shader( ),
-		ShadowDepthGS( ).Shader( ),
-		ShadowDepthPS( ).Shader( )
+		ShadowDepthVS().Shader(),
+		ShadowDepthGS().Shader(),
+		ShadowDepthPS().Shader()
 	};
 
 	PassRenderOption passRenderOption;

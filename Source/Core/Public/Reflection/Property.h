@@ -234,17 +234,17 @@ private:
 	const SerializeFunc m_serializer = nullptr;
 };
 
-template <typename T, size_t N>
-constexpr size_t SizeOfArray( const T( & )[N] )
-{
-	return N * SizeOfArray( T{} );
-}
-
 template <typename T>
-constexpr size_t SizeOfArray( const T& )
+struct SizeOfArray
 {
-	return 1;
-}
+	constexpr static uint32 value = 1;
+};
+
+template <typename T, size_t N>
+struct SizeOfArray<T[N]>
+{
+	constexpr static uint32 value = SizeOfArray<T>::value * N;
+};
 
 template <typename TClass, typename T, typename TPtr, TPtr ptr>
 class PropertyRegister
@@ -266,7 +266,7 @@ public:
 						using ElementType = std::remove_all_extents_t<T>;
 						auto elem = reinterpret_cast<ElementType*>( &( static_cast<TClass*>( object )->*ptr ) );
 
-						for ( size_t i = 0; i < SizeOfArray( T{} ); ++i )
+						for ( size_t i = 0; i < SizeOfArray<T>::value; ++i )
 						{
 							ar << *elem++;
 						}
@@ -293,7 +293,7 @@ public:
 						using ElementType = std::remove_all_extents_t<T>;
 						auto elem = reinterpret_cast<ElementType*>( &*ptr );
 
-						for ( size_t i = 0; i < SizeOfArray( T{} ); ++i )
+						for ( size_t i = 0; i < SizeOfArray<T>::value; ++i )
 						{
 							ar << *elem++;
 						}

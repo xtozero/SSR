@@ -7,6 +7,7 @@
 
 #include <map>
 #include <vector>
+#include <utility>
 
 class Archive;
 
@@ -93,5 +94,12 @@ Archive& operator<<( Archive& ar, std::map<KeyType, ValueType, Pred, Alloc>& v )
 		}
 	}
 
+	return ar;
+}
+
+template <typename First, typename Second>
+Archive& operator<<( Archive& ar, std::pair<First, Second>& v )
+{
+	ar << v.first << v.second;
 	return ar;
 }

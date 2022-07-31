@@ -9,17 +9,17 @@
 
 namespace
 {
-	IPassProcessor* CreateDepthWritePassProcessor( )
+	IPassProcessor* CreateDepthWritePassProcessor()
 	{
-		return new DepthWritePassProcessor( );
+		return new DepthWritePassProcessor();
 	}
 }
 
 class DepthWriteVS
 {
 public:
-	DepthWriteVS( );
-	VertexShader* Shader( ) { return m_shader; }
+	DepthWriteVS();
+	VertexShader* Shader() { return m_shader; }
 
 private:
 	VertexShader* m_shader = nullptr;
@@ -28,8 +28,8 @@ private:
 class DepthWritePS
 {
 public:
-	DepthWritePS( );
-	PixelShader* Shader( ) { return m_shader; }
+	DepthWritePS();
+	PixelShader* Shader() { return m_shader; }
 
 private:
 	PixelShader* m_shader = nullptr;
@@ -38,24 +38,24 @@ private:
 REGISTER_GLOBAL_SHADER( DepthWriteVS, "./Assets/Shaders/VS_DepthWrite.asset" );
 REGISTER_GLOBAL_SHADER( DepthWritePS, "./Assets/Shaders/PS_DepthWrite.asset" );
 
-DepthWriteVS::DepthWriteVS( )
+DepthWriteVS::DepthWriteVS()
 {
-	m_shader = static_cast<VertexShader*>( GetGlobalShader<DepthWriteVS>( ) );
+	m_shader = static_cast<VertexShader*>( GetGlobalShader<DepthWriteVS>()->CompileShader( {} ) );
 }
 
-DepthWritePS::DepthWritePS( )
+DepthWritePS::DepthWritePS()
 {
-	m_shader = static_cast<PixelShader*>( GetGlobalShader<DepthWritePS>( ) );
+	m_shader = static_cast<PixelShader*>( GetGlobalShader<DepthWritePS>()->CompileShader( {} ) );
 }
 
 std::optional<DrawSnapshot> DepthWritePassProcessor::Process( const PrimitiveSubMesh& subMesh )
 {
-	assert( IsInRenderThread( ) );
+	assert( IsInRenderThread() );
 
 	PassShader passShader{
-		DepthWriteVS( ).Shader( ),
+		DepthWriteVS().Shader(),
 		nullptr,
-		DepthWritePS( ).Shader( )
+		DepthWritePS().Shader()
 	};
 
 	PassRenderOption passRenderOption;
@@ -63,24 +63,24 @@ std::optional<DrawSnapshot> DepthWritePassProcessor::Process( const PrimitiveSub
 	{
 		if ( option->m_blendOption )
 		{
-			passRenderOption.m_blendOption = &(*option->m_blendOption);
+			passRenderOption.m_blendOption = &( *option->m_blendOption );
 		}
 
 		if ( option->m_depthStencilOption )
 		{
-			passRenderOption.m_depthStencilOption = &(*option->m_depthStencilOption);
+			passRenderOption.m_depthStencilOption = &( *option->m_depthStencilOption );
 		}
 
 		if ( option->m_rasterizerOption )
 		{
-			passRenderOption.m_rasterizerOption = &(*option->m_rasterizerOption);
+			passRenderOption.m_rasterizerOption = &( *option->m_rasterizerOption );
 		}
 	}
 
 	if ( subMesh.m_vertexCollection )
 	{
 		const VertexStreamLayout& layout = subMesh.m_vertexCollection->VertexLayout( VertexStreamLayoutType::PositionNormal );
-		if ( layout.Size( ) == 0 )
+		if ( layout.Size() == 0 )
 		{
 			return {};
 		}

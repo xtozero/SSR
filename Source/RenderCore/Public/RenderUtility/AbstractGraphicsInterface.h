@@ -33,6 +33,9 @@ public:
 	SamplerState FindOrCreate( const SamplerOption& option );
 	VertexLayout FindOrCreate( const VertexShader& vs, const VertexLayoutDesc& desc );
 
+	BinaryChunk CompieShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const;
+	bool BuildShaderMetaData( const BinaryChunk& byteCode, aga::ShaderParameterMap& outParameterMap, aga::ShaderParameterInfo& outParameterInfo ) const;
+
 private:
 	aga::IAga* m_aga = nullptr;
 

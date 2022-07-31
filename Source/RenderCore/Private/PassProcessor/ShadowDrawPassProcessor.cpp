@@ -8,8 +8,8 @@
 class DrawCascadeShadowPS
 {
 public:
-	DrawCascadeShadowPS( );
-	PixelShader* Shader( ) { return m_shader; }
+	DrawCascadeShadowPS();
+	PixelShader* Shader() { return m_shader; }
 
 private:
 	PixelShader* m_shader = nullptr;
@@ -17,17 +17,17 @@ private:
 
 REGISTER_GLOBAL_SHADER( DrawCascadeShadowPS, "./Assets/Shaders/Shadow/PS_DrawCascadeShadow.asset" );
 
-DrawCascadeShadowPS::DrawCascadeShadowPS( )
+DrawCascadeShadowPS::DrawCascadeShadowPS()
 {
-	m_shader = static_cast<PixelShader*>( GetGlobalShader<DrawCascadeShadowPS>( ) );
+	m_shader = static_cast<PixelShader*>( GetGlobalShader<DrawCascadeShadowPS>()->CompileShader( {} ) );
 }
 
 std::optional<DrawSnapshot> ShadowDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
 {
 	PassShader passShader{
-		FullScreenQuadVS( ).Shader( ),
+		FullScreenQuadVS().Shader(),
 		nullptr,
-		DrawCascadeShadowPS( ).Shader( )
+		DrawCascadeShadowPS().Shader()
 	};
 
 	BlendOption shadowDrawPassBlendOption;

@@ -5,14 +5,14 @@
 #include "ShaderManufacturer.h"
 #include "WavefrontObjManufacturer.h"
 
-std::optional<Products> AssetManufacturer::Manufacture( const std::filesystem::path& srcPath, const std::filesystem::path& destPath )
+std::optional<Products> AssetManufacturer::Manufacture( const PathEnvironment& env, const std::filesystem::path& path )
 {
 	IManufacturer* representative = nullptr;
 	for ( const std::unique_ptr<IManufacturer>& manufacturer : m_manufacturers )
 	{
-		if ( manufacturer->IsSuitable( srcPath ) )
+		if ( manufacturer->IsSuitable( path ) )
 		{
-			representative = manufacturer.get( );
+			representative = manufacturer.get();
 			break;
 		}
 	}
@@ -22,14 +22,14 @@ std::optional<Products> AssetManufacturer::Manufacture( const std::filesystem::p
 		return {};
 	}
 
-	return representative->Manufacture( srcPath, destPath );
+	return representative->Manufacture( env, path );
 }
 
-AssetManufacturer::AssetManufacturer( )
+AssetManufacturer::AssetManufacturer()
 {
-	m_manufacturers.emplace_back( std::make_unique<DDSManufacturer>( ) );
-	m_manufacturers.emplace_back( std::make_unique<JsonManufacturer>( ) );
-	m_manufacturers.emplace_back( std::make_unique<ShaderManufacturer>( ) );
-	// m_manufacturers.emplace_back( std::make_unique<WavefrontMtlManufacturer>( ) );
-	m_manufacturers.emplace_back( std::make_unique<WavefrontObjManufacturer>( ) );
+	m_manufacturers.emplace_back( std::make_unique<DDSManufacturer>() );
+	m_manufacturers.emplace_back( std::make_unique<JsonManufacturer>() );
+	m_manufacturers.emplace_back( std::make_unique<ShaderManufacturer>() );
+	// m_manufacturers.emplace_back( std::make_unique<WavefrontMtlManufacturer>() );
+	m_manufacturers.emplace_back( std::make_unique<WavefrontObjManufacturer>() );
 }

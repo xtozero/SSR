@@ -17,7 +17,7 @@ namespace rendercore
 	public:
 		TransmittanceCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<TransmittanceCS>() );
+			m_shader = static_cast<ComputeShader*>( GetGlobalShader<TransmittanceCS>()->CompileShader( {} ) );
 
 			if ( m_shader )
 			{
@@ -39,7 +39,7 @@ namespace rendercore
 	public:
 		IrradianceOneCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<IrradianceOneCS>() );
+			m_shader = static_cast<ComputeShader*>( GetGlobalShader<IrradianceOneCS>()->CompileShader( {} ) );
 
 			if ( m_shader )
 			{
@@ -67,7 +67,7 @@ namespace rendercore
 	public:
 		InscatterOneCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<InscatterOneCS>() );
+			m_shader = static_cast<ComputeShader*>( GetGlobalShader<InscatterOneCS>()->CompileShader( {} ) );
 
 			if ( m_shader )
 			{
@@ -98,7 +98,7 @@ namespace rendercore
 	public:
 		CopyInscatterOneCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<CopyInscatterOneCS>() );
+			m_shader = static_cast<ComputeShader*>( GetGlobalShader<CopyInscatterOneCS>()->CompileShader( {} ) );
 
 			if ( m_shader )
 			{
@@ -132,7 +132,7 @@ namespace rendercore
 	public:
 		InscatterSCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<InscatterSCS>() );
+			m_shader = static_cast<ComputeShader*>( GetGlobalShader<InscatterSCS>()->CompileShader( {} ) );
 
 			if ( m_shader )
 			{
@@ -178,7 +178,7 @@ namespace rendercore
 	public:
 		IrradianceNCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<IrradianceNCS>() );
+			m_shader = static_cast<ComputeShader*>( GetGlobalShader<IrradianceNCS>()->CompileShader( {} ) );
 
 			if ( m_shader )
 			{
@@ -215,7 +215,7 @@ namespace rendercore
 	public:
 		InscatterNCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<InscatterNCS>() );
+			m_shader = static_cast<ComputeShader*>( GetGlobalShader<InscatterNCS>()->CompileShader( {} ) );
 
 			if ( m_shader )
 			{
@@ -243,7 +243,7 @@ namespace rendercore
 	public:
 		CopyIrradianceCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<CopyIrradianceCS>() );
+			m_shader = static_cast<ComputeShader*>( GetGlobalShader<CopyIrradianceCS>()->CompileShader( {} ) );
 
 			if ( m_shader )
 			{
@@ -271,7 +271,7 @@ namespace rendercore
 	public:
 		CopyInscatterNCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<CopyInscatterNCS>() );
+			m_shader = static_cast<ComputeShader*>( GetGlobalShader<CopyInscatterNCS>()->CompileShader( {} ) );
 
 			if ( m_shader )
 			{
@@ -299,7 +299,7 @@ namespace rendercore
 	public:
 		DrawAtmospherePS()
 		{
-			m_shader = static_cast<PixelShader*>( GetGlobalShader<DrawAtmospherePS>() );
+			m_shader = static_cast<PixelShader*>( GetGlobalShader<DrawAtmospherePS>()->CompileShader( {} ) );
 		}
 
 		PixelShader* Shader() { return m_shader; }

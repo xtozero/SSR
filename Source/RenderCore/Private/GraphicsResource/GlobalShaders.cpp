@@ -73,7 +73,7 @@ bool GlobalShader::RegisterShaderPath( std::type_index typeIndex, const char* pa
 	return true;
 }
 
-ShaderBase* GlobalShader::GetShader( std::type_index typeIndex )
+IShader* GlobalShader::GetShader( std::type_index typeIndex )
 {
 	auto found = m_shaders.find( typeIndex );
 	if ( found == std::end( m_shaders ) )
@@ -89,7 +89,7 @@ GlobalShaderRegister::GlobalShaderRegister( std::type_index typeIndex, const cha
 	GlobalShader::GetInstance().RegisterShaderPath( typeIndex, assetPath );
 }
 
-ShaderBase* GetGlobalShaderImpl( std::type_index typeIndex )
+IShader* GetGlobalShaderImpl( std::type_index typeIndex )
 {
 	assert( IsInRenderThread() );
 	return GlobalShader::GetInstance().GetShader( typeIndex );

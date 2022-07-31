@@ -2,9 +2,9 @@
 
 #include "EnumStringMap.h"
 #include "Json/json.hpp"
+#include "ManufactureConfig.h"
 #include "Material/Material.h"
 #include "Math/Vector.h"
-#include "PathEnvironment.h"
 #include "RenderOption.h"
 #include "SizedTypes.h"
 
@@ -17,7 +17,7 @@ namespace
 		const JSON::Value* type = root.Find( "Type" );
 		if ( type != nullptr )
 		{
-			const std::string& assetType = type->AsString( );
+			const std::string& assetType = type->AsString();
 			if ( assetType == "BlendOption" )
 			{
 				return BlendOption::ID;
@@ -53,59 +53,59 @@ namespace
 
 		if ( assetID == BlendOption::ID )
 		{
-			auto blendOption = std::make_unique<BlendOption>( );
+			auto blendOption = std::make_unique<BlendOption>();
 			blendOption->SetPath( assetPath );
 
 			if ( const JSON::Value* alphaToConverage = root.Find( "AlphaToConverage" ) )
 			{
-				blendOption->m_alphaToConverageEnable = alphaToConverage->AsBool( );
+				blendOption->m_alphaToConverageEnable = alphaToConverage->AsBool();
 			}
 
 			if ( const JSON::Value* independentBlendEnable = root.Find( "IndependentBlendEnable" ) )
 			{
-				blendOption->m_independentBlendEnable = independentBlendEnable->AsBool( );
+				blendOption->m_independentBlendEnable = independentBlendEnable->AsBool();
 			}
 
 			if ( const JSON::Value* pRenderTargets = root.Find( "RenderTargets" ) )
 			{
 				const JSON::Value& renderTargets = *pRenderTargets;
 
-				for ( size_t i = 0; i < renderTargets.Size( ); ++i )
+				for ( size_t i = 0; i < renderTargets.Size(); ++i )
 				{
 					auto& rt = blendOption->m_renderTarget[i];
 					if ( const JSON::Value* blendEnable = renderTargets[i].Find( "BlendEnable" ) )
 					{
-						rt.m_blendEnable = blendEnable->AsBool( );
+						rt.m_blendEnable = blendEnable->AsBool();
 					}
 
 					if ( const JSON::Value* srcBlend = renderTargets[i].Find( "SrcBlend" ) )
 					{
-						rt.m_srcBlend = GetEnum( srcBlend->AsString( ), BLEND::ONE );
+						rt.m_srcBlend = GetEnum( srcBlend->AsString(), BLEND::ONE );
 					}
 
 					if ( const JSON::Value* destBlend = renderTargets[i].Find( "DestBlend" ) )
 					{
-						rt.m_destBlend = GetEnum( destBlend->AsString( ), BLEND::ZERO );
+						rt.m_destBlend = GetEnum( destBlend->AsString(), BLEND::ZERO );
 					}
 
 					if ( const JSON::Value* blendOp = renderTargets[i].Find( "BlendOp" ) )
 					{
-						rt.m_blendOp = GetEnum( blendOp->AsString( ), BLEND_OP::ADD );
+						rt.m_blendOp = GetEnum( blendOp->AsString(), BLEND_OP::ADD );
 					}
 
 					if ( const JSON::Value* srcBlendAlpha = renderTargets[i].Find( "SrcBlendAlpha" ) )
 					{
-						rt.m_srcBlendAlpha = GetEnum( srcBlendAlpha->AsString( ), BLEND::ONE );
+						rt.m_srcBlendAlpha = GetEnum( srcBlendAlpha->AsString(), BLEND::ONE );
 					}
 
 					if ( const JSON::Value* destBlendAlpha = renderTargets[i].Find( "DestBlendAlpha" ) )
 					{
-						rt.m_destBlendAlpha = GetEnum( destBlendAlpha->AsString( ), BLEND::ZERO );
+						rt.m_destBlendAlpha = GetEnum( destBlendAlpha->AsString(), BLEND::ZERO );
 					}
 
 					if ( const JSON::Value* blendOpAlpha = renderTargets[i].Find( "BlendOpAlpha" ) )
 					{
-						rt.m_blendOpAlpha = GetEnum( blendOpAlpha->AsString( ), BLEND_OP::ADD );
+						rt.m_blendOpAlpha = GetEnum( blendOpAlpha->AsString(), BLEND_OP::ADD );
 					}
 
 					if ( const JSON::Value* renderTargetWriteMask = renderTargets[i].Find( "RenderTargetWriteMask" ) )
@@ -114,7 +114,7 @@ namespace
 
 						for ( const JSON::Value& mask : *renderTargetWriteMask )
 						{
-							writeMask |= GetEnum( mask.AsString( ), 0 );
+							writeMask |= GetEnum( mask.AsString(), 0 );
 						}
 
 						rt.m_renderTargetWriteMask = static_cast<COLOR_WRITE_ENABLE>( writeMask );
@@ -124,100 +124,100 @@ namespace
 
 			if ( const JSON::Value* sampleMask = root.Find( "SampleMask" ) )
 			{
-				blendOption->m_sampleMask = static_cast<uint32>( sampleMask->AsInt( ) );
+				blendOption->m_sampleMask = static_cast<uint32>( sampleMask->AsInt() );
 			}
 
 			asset = std::move( blendOption );
 		}
 		else if ( assetID == DepthStencilOption::ID )
 		{
-			auto depthStencilOption = std::make_unique<DepthStencilOption>( );
+			auto depthStencilOption = std::make_unique<DepthStencilOption>();
 			depthStencilOption->SetPath( assetPath );
 
 			auto& depthOption = depthStencilOption->m_depth;
 			if ( const JSON::Value* depthEnable = root.Find( "DepthEnable" ) )
 			{
-				depthOption.m_enable = depthEnable->AsBool( );
+				depthOption.m_enable = depthEnable->AsBool();
 			}
 
 			if ( const JSON::Value* depthWriteEnable = root.Find( "DepthWriteEnable" ) )
 			{
-				depthOption.m_writeDepth = depthWriteEnable->AsBool( );
+				depthOption.m_writeDepth = depthWriteEnable->AsBool();
 			}
 
 			if ( const JSON::Value* depthFunc = root.Find( "DepthFunc" ) )
 			{
-				depthOption.m_depthFunc = GetEnum( depthFunc->AsString( ), COMPARISON_FUNC::LESS );
+				depthOption.m_depthFunc = GetEnum( depthFunc->AsString(), COMPARISON_FUNC::LESS );
 			}
 
 			auto stencilOption = depthStencilOption->m_stencil;
 			if ( const JSON::Value* stencilEnable = root.Find( "StencilEnable" ) )
 			{
-				stencilOption.m_enable = stencilEnable->AsBool( );
+				stencilOption.m_enable = stencilEnable->AsBool();
 			}
 
 			if ( const JSON::Value* stencilReadMask = root.Find( "StencilReadMask" ) )
 			{
-				stencilOption.m_readMask = static_cast<unsigned char>( stencilReadMask->AsInt( ) );
+				stencilOption.m_readMask = static_cast<unsigned char>( stencilReadMask->AsInt() );
 			}
 
 			if ( const JSON::Value* stencilWriteMask = root.Find( "StencilWriteMask" ) )
 			{
-				stencilOption.m_writeMask = static_cast<unsigned char>( stencilWriteMask->AsInt( ) );
+				stencilOption.m_writeMask = static_cast<unsigned char>( stencilWriteMask->AsInt() );
 			}
 
 			if ( const JSON::Value* stencilRef = root.Find( "StencilRef" ) )
 			{
-				stencilOption.m_ref = static_cast<uint32>( stencilRef->AsInt( ) );
+				stencilOption.m_ref = static_cast<uint32>( stencilRef->AsInt() );
 			}
 
 			auto& front = stencilOption.m_frontFace;
 			if ( const JSON::Value* frontFaceStencilFunc = root.Find( "FrontFace.StencilFunc" ) )
 			{
-				front.m_func = GetEnum( frontFaceStencilFunc->AsString( ), COMPARISON_FUNC::ALWAYS );
+				front.m_func = GetEnum( frontFaceStencilFunc->AsString(), COMPARISON_FUNC::ALWAYS );
 			}
 
 			if ( const JSON::Value* frontFaceStencilDepthFailOp = root.Find( "FrontFace.StencilDepthFailOp" ) )
 			{
-				front.m_depthFailOp = GetEnum( frontFaceStencilDepthFailOp->AsString( ), STENCIL_OP::KEEP );
+				front.m_depthFailOp = GetEnum( frontFaceStencilDepthFailOp->AsString(), STENCIL_OP::KEEP );
 			}
 
 			if ( const JSON::Value* frontFaceStencilPassOp = root.Find( "FrontFace.StencilPassOp" ) )
 			{
-				front.m_passOp = GetEnum( frontFaceStencilPassOp->AsString( ), STENCIL_OP::KEEP );
+				front.m_passOp = GetEnum( frontFaceStencilPassOp->AsString(), STENCIL_OP::KEEP );
 			}
 
 			if ( const JSON::Value* frontFaceStencilFailOp = root.Find( "FrontFace.StencilFailOp" ) )
 			{
-				front.m_failOp = GetEnum( frontFaceStencilFailOp->AsString( ), STENCIL_OP::KEEP );
+				front.m_failOp = GetEnum( frontFaceStencilFailOp->AsString(), STENCIL_OP::KEEP );
 			}
 
 			auto& back = stencilOption.m_backFace;
 			if ( const JSON::Value* backFaceStencilFunc = root.Find( "BackFace.StencilFunc" ) )
 			{
-				back.m_func = GetEnum( backFaceStencilFunc->AsString( ), COMPARISON_FUNC::ALWAYS );
+				back.m_func = GetEnum( backFaceStencilFunc->AsString(), COMPARISON_FUNC::ALWAYS );
 			}
 
 			if ( const JSON::Value* backFaceStencilDepthFailOp = root.Find( "BackFace.StencilDepthFailOp" ) )
 			{
-				back.m_depthFailOp = GetEnum( backFaceStencilDepthFailOp->AsString( ), STENCIL_OP::KEEP );
+				back.m_depthFailOp = GetEnum( backFaceStencilDepthFailOp->AsString(), STENCIL_OP::KEEP );
 			}
 
 			if ( const JSON::Value* backFaceStencilPassOp = root.Find( "BackFace.StencilPassOp" ) )
 			{
-				back.m_passOp = GetEnum( backFaceStencilPassOp->AsString( ), STENCIL_OP::KEEP );
+				back.m_passOp = GetEnum( backFaceStencilPassOp->AsString(), STENCIL_OP::KEEP );
 			}
 
 			if ( const JSON::Value* backFaceStencilFailOp = root.Find( "BackFace.StencilFailOp" ) )
 			{
-				back.m_failOp = GetEnum( backFaceStencilFailOp->AsString( ), STENCIL_OP::KEEP );
+				back.m_failOp = GetEnum( backFaceStencilFailOp->AsString(), STENCIL_OP::KEEP );
 			}
 
 			asset = std::move( depthStencilOption );
 		}
 		else if ( assetID == Material::ID )
 		{
-			auto material = std::make_unique<Material>( );
+			auto material = std::make_unique<Material>();
 			material->SetPath( assetPath );
 
 			if ( const JSON::Value* shaderKeys = root.Find( "Shader" ) )
@@ -235,8 +235,8 @@ namespace
 					{
 					case SHADER_TYPE::VS:
 					{
-						auto vs = std::make_shared<VertexShader>( );
-						vs->SetPath( shaderPath->AsString( ) );
+						auto vs = std::make_shared<VertexShader>();
+						vs->SetPath( shaderPath->AsString() );
 						material->SetVertexShader( vs );
 						break;
 					}
@@ -246,15 +246,15 @@ namespace
 						break;
 					case SHADER_TYPE::GS:
 					{
-						auto gs = std::make_shared<GeometryShader>( );
-						gs->SetPath( shaderPath->AsString( ) );
+						auto gs = std::make_shared<GeometryShader>();
+						gs->SetPath( shaderPath->AsString() );
 						material->SetGeometryShader( gs );
 						break;
 					}
 					case SHADER_TYPE::PS:
 					{
-						auto ps = std::make_shared<PixelShader>( );
-						ps->SetPath( shaderPath->AsString( ) );
+						auto ps = std::make_shared<PixelShader>();
+						ps->SetPath( shaderPath->AsString() );
 						material->SetPixelShader( ps );
 						break;
 					}
@@ -272,38 +272,38 @@ namespace
 
 			if ( const JSON::Value* surface = root.Find( "Surface" ) )
 			{
-				auto memberNames = surface->GetMemberNames( );
+				auto memberNames = surface->GetMemberNames();
 				for ( auto name : memberNames )
 				{
 					if ( const JSON::Value* property = surface->Find( name ) )
 					{
-						switch ( property->Type( ) )
+						switch ( property->Type() )
 						{
 						case JSON::DataType::STRING:
 						{
-							auto texture = std::make_shared<Texture>( );
-							texture->SetPath( property->AsString( ) );
-							
+							auto texture = std::make_shared<Texture>();
+							texture->SetPath( property->AsString() );
+
 							material->AddProperty( name, texture );
 							break;
 						}
 						case JSON::DataType::INTERGER:
 						{
-							material->AddProperty( name, property->AsInt( ) );
+							material->AddProperty( name, property->AsInt() );
 							break;
 						}
 						case JSON::DataType::REAL:
 						{
-							material->AddProperty( name, static_cast<float>( property->AsReal( ) ) );
+							material->AddProperty( name, static_cast<float>( property->AsReal() ) );
 							break;
 						}
 						case JSON::DataType::ARRAY:
 						{
 							Vector4 vector( 1.f, 1.f, 1.f, 1.f );
 
-							for ( size_t i = 0; i < property->Size( ) && i < 4; ++i )
+							for ( size_t i = 0; i < property->Size() && i < 4; ++i )
 							{
-								vector[i] = static_cast<float>( (*property)[i].AsReal( ) );
+								vector[i] = static_cast<float>( ( *property )[i].AsReal() );
 							}
 
 							material->AddProperty( name, vector );
@@ -324,14 +324,14 @@ namespace
 
 			if ( const JSON::Value* sampler = root.Find( "Sampler" ) )
 			{
-				auto memberNames = sampler->GetMemberNames( );
+				auto memberNames = sampler->GetMemberNames();
 				for ( auto name : memberNames )
 				{
 					if ( const JSON::Value* path = sampler->Find( name ) )
 					{
-						auto samplerOption = std::make_shared<SamplerOption>( );
-						samplerOption->SetPath( path->AsString( ) );
-						
+						auto samplerOption = std::make_shared<SamplerOption>();
+						samplerOption->SetPath( path->AsString() );
+
 						material->AddSampler( name, samplerOption );
 					}
 				}
@@ -341,54 +341,54 @@ namespace
 		}
 		else if ( assetID == RasterizerOption::ID )
 		{
-			auto rasterizerOption = std::make_unique<RasterizerOption>( );
+			auto rasterizerOption = std::make_unique<RasterizerOption>();
 			rasterizerOption->SetPath( assetPath );
 
 			if ( const JSON::Value* wireframe = root.Find( "Wireframe" ) )
 			{
-				rasterizerOption->m_isWireframe = wireframe->AsBool( );
+				rasterizerOption->m_isWireframe = wireframe->AsBool();
 			}
 
 			if ( const JSON::Value* cullMode = root.Find( "CullMode" ) )
 			{
-				rasterizerOption->m_cullMode = GetEnum( cullMode->AsString( ), CULL_MODE::BACK );
+				rasterizerOption->m_cullMode = GetEnum( cullMode->AsString(), CULL_MODE::BACK );
 			}
 
 			if ( const JSON::Value* counterClockwise = root.Find( "CounterClockwise" ) )
 			{
-				rasterizerOption->m_counterClockwise = counterClockwise->AsBool( );
+				rasterizerOption->m_counterClockwise = counterClockwise->AsBool();
 			}
 
 			if ( const JSON::Value* depthBias = root.Find( "DepthBias" ) )
 			{
-				rasterizerOption->m_depthBias = depthBias->AsInt( );
+				rasterizerOption->m_depthBias = depthBias->AsInt();
 			}
 
 			if ( const JSON::Value* depthClipEnable = root.Find( "DepthClipEnable" ) )
 			{
-				rasterizerOption->m_depthClipEnable = depthClipEnable->AsBool( );
+				rasterizerOption->m_depthClipEnable = depthClipEnable->AsBool();
 			}
 
 			if ( const JSON::Value* scissorEnable = root.Find( "ScissorEnable" ) )
 			{
-				rasterizerOption->m_scissorEnable = scissorEnable->AsBool( );
+				rasterizerOption->m_scissorEnable = scissorEnable->AsBool();
 			}
 
 			if ( const JSON::Value* multisampleEnalbe = root.Find( "MultisampleEnable" ) )
 			{
-				rasterizerOption->m_multisampleEnalbe = multisampleEnalbe->AsBool( );
+				rasterizerOption->m_multisampleEnalbe = multisampleEnalbe->AsBool();
 			}
 
 			if ( const JSON::Value* antialiasedLineEnable = root.Find( "AntialiasedLineEnable" ) )
 			{
-				rasterizerOption->m_antialiasedLineEnable = antialiasedLineEnable->AsInt( );
+				rasterizerOption->m_antialiasedLineEnable = antialiasedLineEnable->AsInt();
 			}
 
 			asset = std::move( rasterizerOption );
 		}
 		else if ( assetID == SamplerOption::ID )
 		{
-			auto samplerOption = std::make_unique<SamplerOption>( );
+			auto samplerOption = std::make_unique<SamplerOption>();
 			samplerOption->SetPath( assetPath );
 
 			if ( const JSON::Value* filter = root.Find( "Filter" ) )
@@ -396,59 +396,59 @@ namespace
 				samplerOption->m_filter = 0;
 				for ( auto option : *filter )
 				{
-					samplerOption->m_filter |= GetEnum( option.AsString( ), 0 );
+					samplerOption->m_filter |= GetEnum( option.AsString(), 0 );
 				}
 			}
 
 			if ( const JSON::Value* addressU = root.Find( "AddressU" ) )
 			{
-				samplerOption->m_addressU = GetEnum( addressU->AsString( ), TEXTURE_ADDRESS_MODE::CLAMP );
+				samplerOption->m_addressU = GetEnum( addressU->AsString(), TEXTURE_ADDRESS_MODE::CLAMP );
 			}
 
 			if ( const JSON::Value* addressV = root.Find( "AddressV" ) )
 			{
-				samplerOption->m_addressV = GetEnum( addressV->AsString( ), TEXTURE_ADDRESS_MODE::CLAMP );
+				samplerOption->m_addressV = GetEnum( addressV->AsString(), TEXTURE_ADDRESS_MODE::CLAMP );
 			}
 
 			if ( const JSON::Value* addressW = root.Find( "AddressW" ) )
 			{
-				samplerOption->m_addressW = GetEnum( addressW->AsString( ), TEXTURE_ADDRESS_MODE::CLAMP );
+				samplerOption->m_addressW = GetEnum( addressW->AsString(), TEXTURE_ADDRESS_MODE::CLAMP );
 			}
 
 			if ( const JSON::Value* mipLODBias = root.Find( "MipLODBias" ) )
 			{
-				samplerOption->m_mipLODBias = static_cast<float>( mipLODBias->AsReal( ) );
+				samplerOption->m_mipLODBias = static_cast<float>( mipLODBias->AsReal() );
 			}
 
 			if ( const JSON::Value* comparisonFunc = root.Find( "ComparisonFunc" ) )
 			{
-				samplerOption->m_comparisonFunc = GetEnum( comparisonFunc->AsString( ), COMPARISON_FUNC::NEVER );
+				samplerOption->m_comparisonFunc = GetEnum( comparisonFunc->AsString(), COMPARISON_FUNC::NEVER );
 			}
 
 			asset = std::move( samplerOption );
 		}
 		else if ( assetID == RenderOption::ID )
 		{
-			auto renderOption = std::make_unique<RenderOption>( );
+			auto renderOption = std::make_unique<RenderOption>();
 
 			if ( const JSON::Value* blendOptionPath = root.Find( "Blend" ) )
 			{
-				auto blendOption = std::make_shared<BlendOption>( );
-				blendOption->SetPath( fs::path( blendOptionPath->AsString( ) ) );
+				auto blendOption = std::make_shared<BlendOption>();
+				blendOption->SetPath( fs::path( blendOptionPath->AsString() ) );
 				renderOption->m_blendOption = blendOption;
 			}
 
 			if ( const JSON::Value* depthStencilOptionPath = root.Find( "DS_State" ) )
 			{
-				auto depthStencilOption = std::make_shared<DepthStencilOption>( );
-				depthStencilOption->SetPath( fs::path( depthStencilOptionPath->AsString( ) ) );
+				auto depthStencilOption = std::make_shared<DepthStencilOption>();
+				depthStencilOption->SetPath( fs::path( depthStencilOptionPath->AsString() ) );
 				renderOption->m_depthStencilOption = depthStencilOption;
 			}
 
 			if ( const JSON::Value* rasterizerOptionPath = root.Find( "RS_State" ) )
 			{
-				auto rasterizerOption = std::make_shared<RasterizerOption>( );
-				rasterizerOption->SetPath( fs::path( rasterizerOptionPath->AsString( ) ) );
+				auto rasterizerOption = std::make_shared<RasterizerOption>();
+				rasterizerOption->SetPath( fs::path( rasterizerOptionPath->AsString() ) );
 				renderOption->m_rasterizerOption = rasterizerOption;
 			}
 
@@ -460,7 +460,7 @@ namespace
 
 	bool ValidateJsonAsset( const AsyncLoadableAsset* asset, const Archive& ar )
 	{
-		Archive rAr( ar.Data( ), ar.Size( ) );
+		Archive rAr( ar.Data(), ar.Size() );
 		uint32 assetID = 0;
 		rAr << assetID;
 
@@ -509,16 +509,16 @@ bool JsonManufacturer::IsSuitable( const std::filesystem::path& srcPath ) const
 	return srcPath.extension() == fs::path( ".json" );
 }
 
-std::optional<Products> JsonManufacturer::Manufacture( const std::filesystem::path& srcPath, const std::filesystem::path& destPath ) const
+std::optional<Products> JsonManufacturer::Manufacture( const PathEnvironment& env, const std::filesystem::path& path ) const
 {
-	if ( fs::exists( srcPath ) == false )
+	if ( fs::exists( path ) == false )
 	{
 		return { };
 	}
 
 	JSON::Value root;
 	JSON::Reader reader;
-	if ( reader.Parse( srcPath, root ) == false )
+	if ( reader.Parse( path, root ) == false )
 	{
 		return { };
 	}
@@ -529,10 +529,10 @@ std::optional<Products> JsonManufacturer::Manufacture( const std::filesystem::pa
 		return { };
 	}
 
-	fs::path assetPath = "." / fs::relative( destPath, destPath.parent_path( ) );
-	assetPath /= fs::relative( srcPath, PathEnvironment::Instance().SrcAssetRoot() );
+	fs::path assetPath = "." / fs::relative( env.m_destination, env.m_destination.parent_path() );
+	assetPath /= fs::relative( path, env.m_source );
 	assetPath.replace_extension( ".Asset" );
-	std::unique_ptr<AsyncLoadableAsset> asset = CreateAssetByAssetID( assetID.value( ), assetPath, root );
+	std::unique_ptr<AsyncLoadableAsset> asset = CreateAssetByAssetID( assetID.value(), assetPath, root );
 	if ( asset == nullptr )
 	{
 		return { };
@@ -542,13 +542,13 @@ std::optional<Products> JsonManufacturer::Manufacture( const std::filesystem::pa
 	asset->Serialize( ar );
 
 #ifdef ASSET_VALIDATE
-	if ( ValidateJsonAsset( asset.get( ), ar ) == false )
+	if ( ValidateJsonAsset( asset.get(), ar ) == false )
 	{
-		DebugBreak( );
+		DebugBreak();
 	}
 #endif
 
 	Products products;
-	products.emplace_back( srcPath.filename( ), std::move( ar ) );
+	products.emplace_back( path.filename(), std::move( ar ) );
 	return products;
 }

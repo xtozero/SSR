@@ -7,9 +7,13 @@
 
 #include <memory>
 
+class BinaryChunk;
+
 namespace aga
 {
 	class Buffer;
+	class ShaderParameterInfo;
+	class ShaderParameterMap;
 	class Texture;
 
 	class IAga
@@ -31,6 +35,9 @@ namespace aga
 
 		virtual IImmediateCommandList* GetImmediateCommandList() = 0;
 		virtual std::unique_ptr<IDeferredCommandList> CreateDeferredCommandList() const = 0;
+
+		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const = 0;
+		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const = 0;
 
 		virtual ~IAga() = default;
 

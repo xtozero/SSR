@@ -4,6 +4,16 @@
 #include "ArchiveUtility.h"
 #include "TaskScheduler.h"
 
+ShaderBase* ShaderBase::CompileShader( [[maybe_unused]] const rendercore::StaticShaderSwitches& switches )
+{
+	return this;
+}
+
+RENDERCORE_DLL void ShaderBase::PostLoadImpl()
+{
+	CreateShader();
+}
+
 REGISTER_ASSET( VertexShader );
 aga::VertexShader* VertexShader::Resource()
 {
@@ -15,7 +25,7 @@ const aga::VertexShader* VertexShader::Resource() const
 	return m_shader.Get();
 }
 
-void VertexShader::PostLoadImpl()
+void VertexShader::CreateShader()
 {
 	m_shader = aga::VertexShader::Create( m_byteCode.Data(), m_byteCode.Size() );
 	EnqueueRenderTask(
@@ -36,7 +46,7 @@ const aga::GeometryShader* GeometryShader::Resource() const
 	return m_shader.Get();
 }
 
-RENDERCORE_DLL void GeometryShader::PostLoadImpl()
+void GeometryShader::CreateShader()
 {
 	m_shader = aga::GeometryShader::Create( m_byteCode.Data(), m_byteCode.Size() );
 	EnqueueRenderTask(
@@ -58,7 +68,7 @@ const aga::PixelShader* PixelShader::Resource() const
 	return m_shader.Get();
 }
 
-void PixelShader::PostLoadImpl()
+void PixelShader::CreateShader()
 {
 	m_shader = aga::PixelShader::Create( m_byteCode.Data(), m_byteCode.Size() );
 	EnqueueRenderTask(
@@ -79,7 +89,7 @@ const aga::ComputeShader* ComputeShader::Resource() const
 	return m_shader.Get();
 }
 
-void ComputeShader::PostLoadImpl()
+void ComputeShader::CreateShader()
 {
 	m_shader = aga::ComputeShader::Create( m_byteCode.Data(), m_byteCode.Size() );
 	EnqueueRenderTask(

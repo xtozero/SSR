@@ -35,24 +35,24 @@ namespace
 	{
 		DDSTextureInitializer initializer;
 
-		const DirectX::TexMetadata& meta = image.GetMetadata( );
+		const DirectX::TexMetadata& meta = image.GetMetadata();
 		initializer.m_width = static_cast<uint32>( meta.width );
 		initializer.m_height = static_cast<uint32>( meta.height );
 		initializer.m_depth = static_cast<uint32>( meta.depth );
 		initializer.m_arraySize = static_cast<uint32>( meta.arraySize );
 		initializer.m_mipLevels = static_cast<uint32>( meta.mipLevels );
 
-		initializer.m_isCubeMap = meta.IsCubemap( );
+		initializer.m_isCubeMap = meta.IsCubemap();
 		initializer.m_demension = ConvertToBCTextureDemension( meta.dimension );
 
 		initializer.m_format = ConvertDxgiFormatToFormat( meta.format );
 
-		initializer.m_size = static_cast<uint32>( image.GetPixelsSize( ) );
-		initializer.m_memory = image.GetPixels( );
+		initializer.m_size = static_cast<uint32>( image.GetPixelsSize() );
+		initializer.m_memory = image.GetPixels();
 
-		for ( size_t i = 0; i < image.GetImageCount( ); ++i )
+		for ( size_t i = 0; i < image.GetImageCount(); ++i )
 		{
-			auto subresources = image.GetImages( );
+			auto subresources = image.GetImages();
 
 			uint32 rowPitch = static_cast<uint32>( subresources[i].rowPitch );
 			uint32 slicePitch = static_cast<uint32>( subresources[i].slicePitch );
@@ -70,17 +70,17 @@ bool DDSManufacturer::IsSuitable( const std::filesystem::path& srcPath ) const
 	return srcPath.extension() == fs::path( ".dds" );
 }
 
-std::optional<Products> DDSManufacturer::Manufacture( const std::filesystem::path& srcPath, [[maybe_unused]] const std::filesystem::path& destPath ) const
+std::optional<Products> DDSManufacturer::Manufacture( [[maybe_unused]] const PathEnvironment& env, const std::filesystem::path& path ) const
 {
-	if ( fs::exists( srcPath ) == false )
+	if ( fs::exists( path ) == false )
 	{
 		return { };
 	}
 
 	std::ifstream ddsFile;
-	ddsFile.open( srcPath, std::ios::binary | std::ios::ate );
+	ddsFile.open( path, std::ios::binary | std::ios::ate );
 
-	size_t fileSize = ddsFile.tellg( );
+	size_t fileSize = ddsFile.tellg();
 	ddsFile.seekg( 0, std::ios::beg );
 
 	if ( fileSize == 0 )
@@ -89,11 +89,11 @@ std::optional<Products> DDSManufacturer::Manufacture( const std::filesystem::pat
 	}
 
 	std::vector<char> buff( fileSize );
-	ddsFile.read( buff.data( ), fileSize );
+	ddsFile.read( buff.data(), fileSize );
 
 	DirectX::TexMetadata meta;
 	DirectX::ScratchImage image;
-	HRESULT hr = DirectX::LoadFromDDSMemory( buff.data( ), fileSize, DirectX::DDS_FLAGS_NONE, &meta, image );
+	HRESULT hr = DirectX::LoadFromDDSMemory( buff.data(), fileSize, DirectX::DDS_FLAGS_NONE, &meta, image );
 
 	if ( FAILED( hr ) )
 	{
@@ -108,6 +108,6 @@ std::optional<Products> DDSManufacturer::Manufacture( const std::filesystem::pat
 	asset.Serialize( ar );
 
 	Products products;
-	products.emplace_back( srcPath.filename( ), std::move( ar ) );
+	products.emplace_back( path.filename(), std::move( ar ) );
 	return products;
 }

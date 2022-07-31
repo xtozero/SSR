@@ -6,14 +6,16 @@ set (MANUFACTURER
 	Public/AssetManufacturer.h
 	Public/DDSManufacturer.h
 	Public/JsonManufacturer.h
-	Public/PathEnvironment.h
+	Public/ManufactureConfig.h
 	Public/ShaderManufacturer.h
+	Public/ShaderFileMerger.h
 	Public/WavefrontObjManufacturer.h
 	Public/WavefrontObjParser.hpp
 	Private/AssetManufacturer.cpp
 	Private/DDSManufacturer.cpp
 	Private/JsonManufacturer.cpp
 	Private/ShaderManufacturer.cpp
+	Private/ShaderFileMerger.cpp
 	Private/WavefrontObjManufacturer.cpp
 )
 
@@ -36,3 +38,5 @@ PRIVATE
 	Logic
 	RenderCore
 	d3dcompiler)
+
+set_target_properties( AssetManufacture PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/AssetManufacture" )

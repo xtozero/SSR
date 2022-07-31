@@ -181,14 +181,13 @@ private:
 	PROPERTY( name )
 	Name m_name;
 
-	PROPERTY( vertexShader )
-	std::shared_ptr<VertexShader> m_vertexShader = nullptr;
+	PROPERTY( shaders )
+	std::shared_ptr<ShaderBase> m_shaders[MAX_SHADER_TYPE<uint32>];
 
-	PROPERTY( geometryShader )
-	std::shared_ptr<GeometryShader> m_geometryShader = nullptr;
+	rendercore::StaticShaderSwitches m_shaderSwitches[MAX_SHADER_TYPE<uint32>];
 
-	PROPERTY( pixelShader )
-	std::shared_ptr<PixelShader> m_pixelShader = nullptr;
+	PROPERTY( defines )
+	std::vector<std::pair<Name, int32>> m_defines[MAX_SHADER_TYPE<uint32>];
 
 	std::map<Name, std::unique_ptr<MaterialProperty>> m_properties;
 

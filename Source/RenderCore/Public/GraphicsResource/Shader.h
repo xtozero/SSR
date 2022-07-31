@@ -5,12 +5,25 @@
 #include "ShaderParameterInfo.h"
 #include "ShaderParameterMap.h"
 #include "ShaderResource.h"
+#include "StaticShaderSwitch.h"
 
-class ShaderBase : public AsyncLoadableAsset
+class ShaderBase;
+
+class IShader : public AsyncLoadableAsset
+{
+	GENERATE_CLASS_TYPE_INFO( IShader );
+
+public:
+	RENDERCORE_DLL virtual ShaderBase* CompileShader( const rendercore::StaticShaderSwitches& switches ) = 0;
+};
+
+class ShaderBase : public IShader
 {
 	GENERATE_CLASS_TYPE_INFO( ShaderBase );
 
 public:
+	RENDERCORE_DLL virtual ShaderBase* CompileShader( const rendercore::StaticShaderSwitches& switches ) override;
+
 	ShaderBase( BinaryChunk&& byteCode ) : m_byteCode( std::move( byteCode ) ) {}
 	ShaderBase() = default;
 
@@ -19,13 +32,22 @@ public:
 		return lhs.m_byteCode == rhs.m_byteCode;
 	}
 
+	const BinaryChunk& ByteCode() const
+	{
+		return m_byteCode;
+	}
+
 	aga::ShaderParameterMap& ParameterMap() { return m_parameterMap; }
 	const aga::ShaderParameterMap& ParameterMap() const { return m_parameterMap; }
 
 	aga::ShaderParameterInfo& ParameterInfo() { return m_parameterInfo; }
 	const aga::ShaderParameterInfo& ParameterInfo() const { return m_parameterInfo; }
 
+	RENDERCORE_DLL virtual void CreateShader() = 0;
+
 protected:
+	RENDERCORE_DLL virtual void PostLoadImpl() override;
+
 	PROPERTY( byteCode )
 	BinaryChunk m_byteCode{ 0 };
 
@@ -59,8 +81,7 @@ public:
 			&& lhs.m_shader == rhs.m_shader;
 	}
 
-protected:
-	RENDERCORE_DLL virtual void PostLoadImpl() override;
+	RENDERCORE_DLL virtual void CreateShader() override;
 
 private:
 	RefHandle<aga::VertexShader> m_shader;
@@ -89,8 +110,7 @@ public:
 			&& lhs.m_shader == rhs.m_shader;
 	}
 
-protected:
-	RENDERCORE_DLL virtual void PostLoadImpl() override;
+	RENDERCORE_DLL virtual void CreateShader() override;
 
 private:
 	RefHandle<aga::GeometryShader> m_shader;
@@ -119,8 +139,7 @@ public:
 			&& lhs.m_shader == rhs.m_shader;
 	}
 
-protected:
-	RENDERCORE_DLL virtual void PostLoadImpl() override;
+	RENDERCORE_DLL virtual void CreateShader() override;
 
 private:
 	RefHandle<aga::PixelShader> m_shader;
@@ -144,8 +163,7 @@ public:
 			&& lhs.m_shader == rhs.m_shader;
 	}
 
-protected:
-	RENDERCORE_DLL virtual void PostLoadImpl() override;
+	RENDERCORE_DLL virtual void CreateShader() override;
 
 private:
 	RefHandle<aga::ComputeShader> m_shader;

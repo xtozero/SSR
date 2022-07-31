@@ -5,7 +5,7 @@
 
 REGISTER_GLOBAL_SHADER( FullScreenQuadVS, "./Assets/Shaders/Common/VS_FullScreenQuad.asset" );
 
-FullScreenQuadVS::FullScreenQuadVS( )
+FullScreenQuadVS::FullScreenQuadVS()
 {
-	m_shader = static_cast<VertexShader*>( GetGlobalShader<FullScreenQuadVS>( ) );
+	m_shader = static_cast<VertexShader*>( GetGlobalShader<FullScreenQuadVS>()->CompileShader( {} ) );
 }

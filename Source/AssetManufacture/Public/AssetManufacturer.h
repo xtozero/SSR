@@ -11,11 +11,13 @@
 using Product = std::pair<std::filesystem::path, Archive>;
 using Products = std::vector<Product>;
 
+struct PathEnvironment;
+
 class IManufacturer
 {
 public:
 	virtual bool IsSuitable( const std::filesystem::path& srcPath ) const = 0;
-	virtual std::optional<Products> Manufacture( const std::filesystem::path& srcPath, const std::filesystem::path& destPath ) const = 0;
+	virtual std::optional<Products> Manufacture( const PathEnvironment& env, const std::filesystem::path& path ) const = 0;
 
 	virtual ~IManufacturer() = default;
 };
@@ -23,7 +25,7 @@ public:
 class AssetManufacturer
 {
 public:
-	std::optional<Products> Manufacture( const std::filesystem::path& srcPath, const std::filesystem::path& destPath );
+	std::optional<Products> Manufacture( const PathEnvironment& env, const std::filesystem::path& path );
 
 	AssetManufacturer( );
 	~AssetManufacturer( ) = default;

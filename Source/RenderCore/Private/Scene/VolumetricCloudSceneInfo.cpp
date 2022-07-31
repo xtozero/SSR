@@ -12,7 +12,7 @@ namespace rendercore
 	public:
 		PerlinWorleyCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<PerlinWorleyCS>() );
+			m_shader = static_cast<ComputeShader*>( GetGlobalShader<PerlinWorleyCS>()->CompileShader( {} ) );
 
 			m_noiseTex.Bind( m_shader->ParameterMap(), "NoiseTex" );
 		}
@@ -30,7 +30,7 @@ namespace rendercore
 	public:
 		WorleyCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<WorleyCS>() );
+			m_shader = static_cast<ComputeShader*>( GetGlobalShader<WorleyCS>()->CompileShader( {} ) );
 
 			m_noiseTex.Bind( m_shader->ParameterMap(), "NoiseTex" );
 		}
@@ -48,7 +48,7 @@ namespace rendercore
 	public:
 		WeatherMapCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<WeatherMapCS>() );
+			m_shader = static_cast<ComputeShader*>( GetGlobalShader<WeatherMapCS>()->CompileShader( {} ) );
 
 			m_weatherTex.Bind( m_shader->ParameterMap(), "WeatherTex" );
 		}

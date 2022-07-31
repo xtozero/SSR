@@ -11,7 +11,7 @@ REGISTER_GLOBAL_SHADER( DistributionCopyCS, "./Assets/Shaders/Common/CS_Distribu
 
 DistributionCopyCS::DistributionCopyCS()
 {
-	m_shader = static_cast<ComputeShader*>( GetGlobalShader<DistributionCopyCS>() );
+	m_shader = static_cast<ComputeShader*>( GetGlobalShader<DistributionCopyCS>()->CompileShader( {} ) );
 
 	if ( m_shader )
 	{

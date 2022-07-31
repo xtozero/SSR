@@ -4,6 +4,7 @@
 #include "Archive.h"
 #include "ArchiveUtility.h"
 #include "Material/MaterialResource.h"
+#include "UberShader.h"
 
 #include <cassert>
 
@@ -325,17 +326,17 @@ const ShaderBase* Material::GetShader( SHADER_TYPE type ) const
 	case SHADER_TYPE::NONE:
 		break;
 	case SHADER_TYPE::VS:
-		return m_vertexShader.get();
+		return GetVertexShader();
 		break;
 	case SHADER_TYPE::HS:
 		break;
 	case SHADER_TYPE::DS:
 		break;
 	case SHADER_TYPE::GS:
-		return m_geometryShader.get();
+		return GetGeometryShader();
 		break;
 	case SHADER_TYPE::PS:
-		return m_pixelShader.get();
+		return GetPixelShader();
 		break;
 	case SHADER_TYPE::CS:
 		break;
@@ -350,47 +351,89 @@ const ShaderBase* Material::GetShader( SHADER_TYPE type ) const
 
 void Material::SetVertexShader( const std::shared_ptr<VertexShader>& vertexshader )
 {
-	m_vertexShader = vertexshader;
+	m_shaders[static_cast<uint32>( SHADER_TYPE::VS )] = vertexshader;
 }
 
 const VertexShader* Material::GetVertexShader() const
 {
-	return m_vertexShader.get();
+	auto& vertexShader = m_shaders[static_cast<uint32>( SHADER_TYPE::VS )];
+	if ( vertexShader == nullptr )
+	{
+		return nullptr;
+	}
+
+	const ShaderBase* compiled = vertexShader->CompileShader( m_shaderSwitches[static_cast<uint32>( SHADER_TYPE::VS )] );
+	return static_cast<const VertexShader*>( compiled );
 }
 
 VertexShader* Material::GetVertexShader()
 {
-	return m_vertexShader.get();
+	auto& vertexShader = m_shaders[static_cast<uint32>( SHADER_TYPE::VS )];
+	if ( vertexShader == nullptr )
+	{
+		return nullptr;
+	}
+
+	ShaderBase* compiled = vertexShader->CompileShader( m_shaderSwitches[static_cast<uint32>( SHADER_TYPE::VS )] );
+	return static_cast<VertexShader*>( compiled );
 }
 
 void Material::SetGeometryShader( const std::shared_ptr<GeometryShader>& geometryShader )
 {
-	m_geometryShader = geometryShader;
+	m_shaders[static_cast<uint32>( SHADER_TYPE::GS )] = geometryShader;
 }
 
 const GeometryShader* Material::GetGeometryShader() const
 {
-	return m_geometryShader.get();
+	auto& geometryShader = m_shaders[static_cast<uint32>( SHADER_TYPE::GS )];
+	if ( geometryShader == nullptr )
+	{
+		return nullptr;
+	}
+
+	const ShaderBase* compiled = geometryShader->CompileShader( m_shaderSwitches[static_cast<uint32>( SHADER_TYPE::GS )] );
+	return static_cast<const GeometryShader*>( compiled );
 }
 
 GeometryShader* Material::GetGeometryShader()
 {
-	return m_geometryShader.get();
+	auto& geometryShader = m_shaders[static_cast<uint32>( SHADER_TYPE::GS )];
+	if ( geometryShader == nullptr )
+	{
+		return nullptr;
+	}
+
+	ShaderBase* compiled = geometryShader->CompileShader( m_shaderSwitches[static_cast<uint32>( SHADER_TYPE::GS )] );
+	return static_cast<GeometryShader*>( compiled );
 }
 
 void Material::SetPixelShader( const std::shared_ptr<PixelShader>& pixelShader )
 {
-	m_pixelShader = pixelShader;
+	m_shaders[static_cast<uint32>( SHADER_TYPE::PS )] = pixelShader;
 }
 
 const PixelShader* Material::GetPixelShader() const
 {
-	return m_pixelShader.get();
+	auto& pixelShader = m_shaders[static_cast<uint32>( SHADER_TYPE::PS )];
+	if ( pixelShader == nullptr )
+	{
+		return nullptr;
+	}
+
+	const ShaderBase* compiled = pixelShader->CompileShader( m_shaderSwitches[static_cast<uint32>( SHADER_TYPE::PS )] );
+	return static_cast<const PixelShader*>( compiled );
 }
 
 PixelShader* Material::GetPixelShader()
 {
-	return m_pixelShader.get();
+	auto& pixelShader = m_shaders[static_cast<uint32>( SHADER_TYPE::PS )];
+	if ( pixelShader == nullptr )
+	{
+		return nullptr;
+	}
+
+	ShaderBase* compiled = pixelShader->CompileShader( m_shaderSwitches[static_cast<uint32>( SHADER_TYPE::PS )] );
+	return static_cast<PixelShader*>( compiled );
 }
 
 void Material::AddSampler( const std::string& key, const std::shared_ptr<SamplerOption>& samplerOption )
@@ -417,6 +460,19 @@ Material& Material::operator=( Material&& other ) = default;
 
 void Material::PostLoadImpl()
 {
+	for ( int i = 0; i < MAX_SHADER_TYPE<uint32>; ++i )
+	{
+		if ( auto uberShader = Cast<rendercore::UberShader>( m_shaders[i].get() ) )
+		{
+			m_shaderSwitches[i] = uberShader->Switches();
+		}
+
+		for ( const auto& define : m_defines[i] )
+		{
+			m_shaderSwitches[i].On( define.first, define.second );
+		}
+	}
+
 	m_materialResource = std::make_unique<MaterialResource>();
 	m_materialResource->SetMaterial( std::static_pointer_cast<Material>( SharedThis() ) );
 }
