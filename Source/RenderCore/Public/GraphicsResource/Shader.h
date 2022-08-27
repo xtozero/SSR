@@ -32,6 +32,8 @@ public:
 		return lhs.m_byteCode == rhs.m_byteCode;
 	}
 
+	friend Archive& operator<<( Archive& ar, ShaderBase& shaderBase );
+
 	const BinaryChunk& ByteCode() const
 	{
 		return m_byteCode;

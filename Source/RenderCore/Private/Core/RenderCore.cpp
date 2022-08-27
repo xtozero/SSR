@@ -10,6 +10,7 @@
 #include "RenderView.h"
 #include "TaskScheduler.h"
 #include "Scene/Scene.h"
+#include "ShaderCache.h"
 
 class RenderCore : public IRenderCore
 {
@@ -70,6 +71,8 @@ bool RenderCore::BootUp()
 
 	GlobalShader::GetInstance().BootUp();
 
+	ShaderCache::LoadFromFile();
+
 	GraphicsInterface().BootUp( m_aga );
 
 	DefaultConstantBuffers::GetInstance().BootUp();
@@ -86,7 +89,8 @@ bool RenderCore::IsReady() const
 {
 	if ( m_isReady == false )
 	{
-		m_isReady = GlobalShader::GetInstance().IsReady();
+		m_isReady = GlobalShader::GetInstance().IsReady()
+			&& ShaderCache::IsLoaded();
 	}
 
 	return m_isReady;
@@ -140,6 +144,8 @@ RenderCore::~RenderCore()
 void RenderCore::Shutdown()
 {
 	m_sceneRenderer.clear();
+
+	ShaderCache::SaveToFile();
 
 	GlobalShader::GetInstance().Shutdown();
 

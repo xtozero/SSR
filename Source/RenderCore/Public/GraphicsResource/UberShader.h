@@ -4,6 +4,7 @@
 #include "Shader.h"
 
 #include <memory>
+#include <set>
 
 namespace rendercore
 {
@@ -24,13 +25,16 @@ namespace rendercore
 				&& lhs.m_profile == rhs.m_profile
 				&& lhs.m_shaderCode == rhs.m_shaderCode
 				&& lhs.m_switches == rhs.m_switches
-				&& lhs.m_compiledShader == rhs.m_compiledShader;
+				&& lhs.m_validVariation == rhs.m_validVariation;
 		}
 
 	protected:
 		RENDERCORE_DLL virtual void PostLoadImpl() override;
 
 	private:
+		PROPERTY( name )
+		std::string m_name;
+
 		PROPERTY( type )
 		SHADER_TYPE m_type;
 
@@ -43,6 +47,7 @@ namespace rendercore
 		PROPERTY( switches )
 		StaticShaderSwitches m_switches;
 
-		std::map<uint32, std::unique_ptr<ShaderBase>> m_compiledShader;
+		PROPERTY( validVariation )
+		std::set<uint32> m_validVariation;
 	};
 }

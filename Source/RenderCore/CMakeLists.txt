@@ -20,6 +20,7 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Private/GraphicsResource/IndexBuffer.cpp
 	Private/GraphicsResource/RenderOption.cpp
 	Private/GraphicsResource/Shader.cpp
+	Private/GraphicsResource/ShaderCache.cpp
 	Private/GraphicsResource/StaticShaderSwitch.cpp
 	Private/GraphicsResource/UberShader.cpp
 	Private/GraphicsResource/UploadBuffer.cpp
@@ -37,6 +38,7 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Public/GraphicsResource/IndexBuffer.h
 	Public/GraphicsResource/RenderOption.h
 	Public/GraphicsResource/Shader.h
+	Public/GraphicsResource/ShaderCache.h
 	Public/GraphicsResource/StaticShaderSwitch.h
 	Public/GraphicsResource/TypedBuffer.h
 	Public/GraphicsResource/UberShader.h

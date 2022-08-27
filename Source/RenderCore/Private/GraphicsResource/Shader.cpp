@@ -4,6 +4,12 @@
 #include "ArchiveUtility.h"
 #include "TaskScheduler.h"
 
+Archive& operator<<( Archive& ar, ShaderBase& shaderBase )
+{
+	shaderBase.Serialize( ar );
+	return ar;
+}
+
 ShaderBase* ShaderBase::CompileShader( [[maybe_unused]] const rendercore::StaticShaderSwitches& switches )
 {
 	return this;

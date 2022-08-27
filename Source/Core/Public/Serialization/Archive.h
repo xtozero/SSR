@@ -164,10 +164,9 @@ public:
 
 private:
 	// Read
-	template <typename T>
+	template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T> || std::is_enum_v<T>>>
 	void ReadData( T& value )
 	{
-		static_assert( std::is_arithmetic_v<T> || std::is_enum_v<T> );
 		if ( CanRead( sizeof( T ) ) == false )
 		{
 			return;
@@ -222,15 +221,17 @@ private:
 	template <typename T>
 	void ReadData( T*& value )
 	{
-		std::string path;
-		ReadData( path );
+		uint8 nullFlag = 0;
+		ReadData( nullFlag );
 
-		if ( path.empty() )
+		if ( nullFlag == 0 )
 		{
-			return;
-		}
+			uint32 assetID = 0;
+			ReadData( assetID );
 
-		RequestLoadAsset<T>( std::move( path ), value );
+			value = Cast<T>( GetInterface<class IAssetFactory>()->CreateAsset( assetID ) );
+			value->Serialize( *this );
+		}
 	}
 
 	template <int Len>
@@ -314,10 +315,9 @@ private:
 	}
 
 	// Write
-	template <typename T>
+	template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T> || std::is_enum_v<T>>>
 	void WriteData( const T& value )
 	{
-		static_assert( std::is_arithmetic_v<T> || std::is_enum_v<T> );
 		char* cur = (char*)( &value );
 
 		for ( size_t i = 0; i < sizeof( T ); ++i )
@@ -327,7 +327,7 @@ private:
 	}
 
 	template <typename T>
-	void WriteData( const T* value )
+	void WriteData( const std::shared_ptr<T>& value )
 	{
 		if ( value == nullptr )
 		{
@@ -345,19 +345,13 @@ private:
 	{
 		if ( value == nullptr )
 		{
-			// Empty path for placeholder
-			WriteData( "" );
+			WriteData( static_cast<uint8>( 1 ) );
 		}
 		else
 		{
-			WriteData( value->Path().generic_string() );
+			WriteData( static_cast<uint8>( 0 ) );
+			value->Serialize( *this );
 		}
-	}
-
-	template <typename T>
-	void WriteData( std::shared_ptr<T>& value )
-	{
-		WriteData( value.get() );
 	}
 
 	void WriteData( char* str )

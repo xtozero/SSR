@@ -1,18 +1,40 @@
 #include "UberShader.h"
 
 #include "AbstractGraphicsInterface.h"
+#include "Crc64Hash.h"
+#include "ShaderCache.h"
 
 #include <array>
+
+namespace
+{
+	uint64 ShaderHash( const std::string& name, const rendercore::StaticShaderSwitches& switches )
+	{
+		char buf[1024] = {};
+		int32 len = sprintf_s( buf, "%s_%d", name.c_str(), switches.GetID() );
+
+		return Crc64Hash( buf, len );
+	}
+}
 
 namespace rendercore
 {
 	REGISTER_ASSET( UberShader );
 	ShaderBase* UberShader::CompileShader( const StaticShaderSwitches& switches )
 	{
-		auto compiled = m_compiledShader.find( switches.GetID() );
-		if ( compiled != std::end( m_compiledShader ) )
+#ifdef _DEBUG
+		if ( m_validVariation.find( switches.GetID() ) == std::end( m_validVariation ) )
 		{
-			return compiled->second.get();
+			assert( false && "Invalid shader variation" );
+			return nullptr;
+		}
+#endif
+
+		uint64 shaderHash = ShaderHash( m_name, switches );
+		ShaderBase* cache = ShaderCache::GetCachedShader( shaderHash );
+		if ( cache != nullptr )
+		{
+			return cache;
 		}
 
 		std::vector<const char*> defines;
@@ -38,20 +60,20 @@ namespace rendercore
 
 		BinaryChunk byteCode = GraphicsInterface().CompieShader( m_shaderCode, defines, m_profile.Str().data() );
 
-		std::unique_ptr<ShaderBase> shader;
+		ShaderBase* shader = nullptr;
 		switch ( m_type )
 		{
 		case SHADER_TYPE::VS:
-			shader = std::make_unique<VertexShader>( std::move( byteCode ) );
+			shader = new VertexShader( std::move( byteCode ) );
 			break;
 		case SHADER_TYPE::GS:
-			shader = std::make_unique<GeometryShader>( std::move( byteCode ) );
+			shader = new GeometryShader( std::move( byteCode ) );
 			break;
 		case SHADER_TYPE::PS:
-			shader = std::make_unique<PixelShader>( std::move( byteCode ) );
+			shader = new PixelShader( std::move( byteCode ) );
 			break;
 		case SHADER_TYPE::CS:
-			shader = std::make_unique<ComputeShader>( std::move( byteCode ) );
+			shader = new ComputeShader( std::move( byteCode ) );
 			break;
 		default:
 			assert( false && "Invalid shader type" );
@@ -61,8 +83,8 @@ namespace rendercore
 		GraphicsInterface().BuildShaderMetaData( shader->ByteCode(), shader->ParameterMap(), shader->ParameterInfo());
 		shader->CreateShader();
 
-		auto result = m_compiledShader.emplace( switches.GetID(), std::move( shader ) );
-		return result.first->second.get();
+		ShaderCache::UpdateCache( shaderHash, shader );
+		return shader;
 	}
 
 	const StaticShaderSwitches& UberShader::Switches() const

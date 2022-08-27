@@ -6,6 +6,7 @@
 #include "Math/Vector4.h"
 
 #include <map>
+#include <set>
 #include <vector>
 #include <utility>
 
@@ -101,5 +102,31 @@ template <typename First, typename Second>
 Archive& operator<<( Archive& ar, std::pair<First, Second>& v )
 {
 	ar << v.first << v.second;
+	return ar;
+}
+
+template <typename KeyType, typename Pred, typename Alloc>
+Archive& operator<<( Archive& ar, std::set<KeyType, Pred, Alloc>& v )
+{
+	if ( ar.IsWriteMode() )
+	{
+		ar << static_cast<uint32>( v.size() );
+		for ( auto& elem : v )
+		{
+			ar << elem;
+		}
+	}
+	else
+	{
+		uint32 size = 0;
+		ar << size;
+		for ( uint32 i = 0; i < size; ++i )
+		{
+			KeyType elem;
+			ar << elem;
+			v.emplace( elem );
+		}
+	}
+
 	return ar;
 }
