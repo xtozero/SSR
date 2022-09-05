@@ -5,6 +5,8 @@
 #include "Math/Vector2.h"
 #include "Math/Vector4.h"
 
+#include <chrono>
+#include <filesystem>
 #include <map>
 #include <set>
 #include <vector>
@@ -44,6 +46,24 @@ inline Archive& operator<<( Archive& ar, Name& name )
 		char buf[NameSize] = {};
 		ar << buf;
 		std::construct_at( &name, buf );
+	}
+
+	return ar;
+}
+
+inline Archive& operator<<( Archive& ar, std::filesystem::file_time_type& lastWriteTime )
+{
+	if ( ar.IsWriteMode() )
+	{
+		uint64 count = lastWriteTime.time_since_epoch().count();
+		ar << count;
+	}
+	else
+	{
+		uint64 count = 0;
+		ar << count;
+		std::filesystem::file_time_type::duration duration( count );
+		std::construct_at( &lastWriteTime, duration );
 	}
 
 	return ar;

@@ -458,6 +458,8 @@ std::optional<Products> ShaderManufacturer::Manufacture( const PathEnvironment& 
 			shader.m_validVariation.emplace( id );
 		}
 
+		shader.LastWriteTime() = fs::last_write_time( path );
+
 		Archive ar;
 		shader.Serialize( ar );
 

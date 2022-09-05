@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Archive.h"
+#include "ArchiveUtility.h"
 #include "AssetLoader.h"
 #include "common.h"
 #include "Reflection.h"
@@ -40,6 +41,11 @@ public:
 		return m_path; 
 	}
 
+	std::filesystem::file_time_type& LastWriteTime()
+	{
+		return m_lastWriteTime;
+	}
+
 	void PostLoad()
 	{
 		PostLoadImpl();
@@ -47,4 +53,5 @@ public:
 
 private:
 	std::filesystem::path m_path;
+	std::filesystem::file_time_type m_lastWriteTime;
 };

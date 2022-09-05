@@ -15,6 +15,8 @@ void AsyncLoadableAsset::Serialize( Archive& ar )
 		ar << GetID();
 	}
 
+	ar << m_lastWriteTime;
+
 	for ( const auto& property : properties )
 	{
 		property->Serialize( this, ar );

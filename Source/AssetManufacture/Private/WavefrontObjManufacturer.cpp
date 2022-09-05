@@ -323,6 +323,7 @@ std::optional<Products> WavefrontObjManufacturer::Manufacture( const PathEnviron
 
 	Archive ar;
 	StaticMesh staticMesh = CreateStaticMeshFromWavefrontObj( model, assetsRootPath );
+	staticMesh.LastWriteTime() = fs::last_write_time( path );
 	staticMesh.Serialize( ar );
 
 	Products products;

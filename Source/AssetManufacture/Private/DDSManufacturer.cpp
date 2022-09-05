@@ -103,6 +103,7 @@ std::optional<Products> DDSManufacturer::Manufacture( [[maybe_unused]] const Pat
 	DDSTextureInitializer initializer = ConvertToBCTextureInitializer( image );
 
 	DDSTexture asset( initializer );
+	asset.LastWriteTime() = fs::last_write_time( path );
 
 	Archive ar;
 	asset.Serialize( ar );
