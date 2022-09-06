@@ -22,3 +22,8 @@ void AsyncLoadableAsset::Serialize( Archive& ar )
 		property->Serialize( this, ar );
 	}
 }
+
+void AsyncLoadableAsset::SetLastWriteTime( std::filesystem::file_time_type lastWriteTime )
+{
+	m_lastWriteTime = lastWriteTime;
+}

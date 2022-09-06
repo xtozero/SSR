@@ -23,11 +23,9 @@ public:
 	static ShaderBase* GetCachedShader( uint64 shaderHash );
 	static void UpdateCache( uint64 shaderHash, ShaderBase* shader );
 
-	~ShaderCache();
-
 private:
 	static std::shared_ptr<ShaderCache> m_shaderCache;
 
 	PROPERTY( shaders )
-	std::map<uint64, ShaderBase*> m_shaders;
+	std::map<uint64, std::unique_ptr<ShaderBase>> m_shaders;
 };

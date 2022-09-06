@@ -41,10 +41,12 @@ public:
 		return m_path; 
 	}
 
-	std::filesystem::file_time_type& LastWriteTime()
+	std::filesystem::file_time_type LastWriteTime() const
 	{
 		return m_lastWriteTime;
 	}
+
+	void SetLastWriteTime( std::filesystem::file_time_type lastWriteTime );
 
 	void PostLoad()
 	{

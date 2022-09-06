@@ -11,6 +11,7 @@ namespace
 
 std::shared_ptr<ShaderCache> ShaderCache::m_shaderCache;
 
+REGISTER_ASSET( ShaderCache );
 bool ShaderCache::IsLoaded()
 {
 	return m_shaderCache != nullptr;
@@ -60,7 +61,7 @@ ShaderBase* ShaderCache::GetCachedShader( uint64 shaderHash )
 		return nullptr;
 	}
 	
-	return found->second;
+	return found->second.get();
 }
 
 void ShaderCache::UpdateCache( uint64 shaderHash, ShaderBase* shader )
@@ -70,22 +71,13 @@ void ShaderCache::UpdateCache( uint64 shaderHash, ShaderBase* shader )
 		return;
 	}
 
-	m_shaderCache->m_shaders[shaderHash] = shader;
+	m_shaderCache->m_shaders[shaderHash].reset( shader );
 }
 
-REGISTER_ASSET( ShaderCache );
 void ShaderCache::PostLoadImpl()
 {
 	for ( auto& [key, shader] : m_shaders )
 	{
 		shader->CreateShader();
-	}
-}
-
-ShaderCache::~ShaderCache()
-{
-	for ( auto& [key, shader] : m_shaders )
-	{
-		delete shader;
 	}
 }

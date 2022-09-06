@@ -538,7 +538,7 @@ std::optional<Products> JsonManufacturer::Manufacture( const PathEnvironment& en
 		return { };
 	}
 
-	asset->LastWriteTime() = fs::last_write_time( path );
+	asset->SetLastWriteTime( fs::last_write_time( path ) );
 
 	Archive ar;
 	asset->Serialize( ar );

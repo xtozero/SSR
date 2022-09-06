@@ -219,7 +219,7 @@ private:
 	}
 
 	template <typename T>
-	void ReadData( T*& value )
+	void ReadData( std::unique_ptr<T>& value )
 	{
 		uint8 nullFlag = 0;
 		ReadData( nullFlag );
@@ -229,7 +229,7 @@ private:
 			uint32 assetID = 0;
 			ReadData( assetID );
 
-			value = Cast<T>( GetInterface<class IAssetFactory>()->CreateAsset( assetID ) );
+			value.reset( Cast<T>( GetInterface<class IAssetFactory>()->CreateAsset( assetID ) ) );
 			value->Serialize( *this );
 		}
 	}
@@ -341,7 +341,7 @@ private:
 	}
 
 	template <typename T>
-	void WriteData( T* value )
+	void WriteData( const std::unique_ptr<T>& value )
 	{
 		if ( value == nullptr )
 		{

@@ -51,11 +51,11 @@ public:
 	{
 		if constexpr ( std::is_array_v<T> )
 		{
-			( static_cast<TClass*>( object )->*m_ptr )[index] = value;
+			Set( ( static_cast<TClass*>( object )->*m_ptr )[index], value );
 		}
 		else
 		{
-			static_cast<TClass*>( object )->*m_ptr = value;
+			Set( static_cast<TClass*>( object )->*m_ptr, value );
 		}
 	}
 
@@ -63,6 +63,21 @@ public:
 		m_ptr( ptr ) {}
 
 private:
+	template <typename T>
+	void Set( T& dest, const T& src ) const
+	{
+		dest = src;
+	}
+
+	template <typename KeyType, typename ValueType, typename Pred, typename Alloc>
+	void Set( std::map<KeyType, ValueType, Pred, Alloc>& dest, const std::map<KeyType, ValueType, Pred, Alloc>& src ) const
+	{
+		if constexpr ( std::is_copy_assignable_v<KeyType> && std::is_copy_assignable_v<ValueType> )
+		{
+			dest = src;
+		}
+	}
+
 	MemberPtr m_ptr = nullptr;
 };
 

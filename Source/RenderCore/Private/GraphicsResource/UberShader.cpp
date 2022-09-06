@@ -34,7 +34,10 @@ namespace rendercore
 		ShaderBase* cache = ShaderCache::GetCachedShader( shaderHash );
 		if ( cache != nullptr )
 		{
-			return cache;
+			if ( cache->LastWriteTime() == LastWriteTime() )
+			{
+				return cache;
+			}
 		}
 
 		std::vector<const char*> defines;
@@ -82,6 +85,8 @@ namespace rendercore
 
 		GraphicsInterface().BuildShaderMetaData( shader->ByteCode(), shader->ParameterMap(), shader->ParameterInfo());
 		shader->CreateShader();
+		shader->SetPath( Path() );
+		shader->SetLastWriteTime( LastWriteTime() );
 
 		ShaderCache::UpdateCache( shaderHash, shader );
 		return shader;
