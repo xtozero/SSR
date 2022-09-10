@@ -2,6 +2,7 @@
 #include "WindowPlatformEngine.h"
 
 #include "common.h"
+#include "CommandLine.h"
 #include "Core/ILogic.h"
 #include "FileSystem.h"
 #include "GuideTypes.h"
@@ -11,8 +12,15 @@
 
 #include <Windows.h>
 
-bool WindowPlatformEngine::BootUp( IPlatform& platform )
+bool WindowPlatformEngine::BootUp( IPlatform& platform, char* argv )
 {
+	if ( GetInterface<CommandLine>() == nullptr )
+	{
+		return false;
+	}
+
+	GetInterface<CommandLine>()->Parse( argv );
+
 	if ( !m_inputConvertor.Initialize( ) )
 	{
 		return false;

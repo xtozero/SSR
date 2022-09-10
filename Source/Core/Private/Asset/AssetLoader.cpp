@@ -248,7 +248,7 @@ Owner<IAssetLoader*> CreateAssetLoader()
 	return new AssetLoader();
 }
 
-void DestoryAssetLoader( Owner<IAssetLoader*> pAssetLoader )
+void DestroyAssetLoader( Owner<IAssetLoader*> pAssetLoader )
 {
 	delete pAssetLoader;
 }

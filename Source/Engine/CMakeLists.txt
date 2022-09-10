@@ -19,8 +19,10 @@ set (CORE_SOURCE
 	Public/Core/IEngine.h)
 	
 set (PLATFORM_SOURCE
+	Private/Platform/CommandLine.cpp
 	Private/Platform/WindowPlatformEngine.cpp
 	Private/Platform/WindowPlatformInputConvertor.cpp
+	Public/Platform/CommandLine.h
 	Public/Platform/IPlatform.h
 	Public/Platform/WindowPlatformEngine.h
 	Public/Platform/WindowPlatformInputConvertor.h)

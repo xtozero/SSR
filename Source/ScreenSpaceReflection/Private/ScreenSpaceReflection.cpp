@@ -15,7 +15,7 @@ LRESULT CALLBACK WndProc( HWND, uint32, WPARAM, LPARAM );
 
 IEngine* g_engine = nullptr;
 
-int32 APIENTRY WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int32 )
+int32 APIENTRY WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR lpszCmdParam, _In_ int32 )
 {
 	CWindowSetup setup( hInstance, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT );
 	Window mainWindow( "Screen Space Reflection" );
@@ -31,18 +31,18 @@ int32 APIENTRY WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR
 		return false;
 	}
 
-	g_engine = GetInterface<IEngine>( );
+	g_engine = GetInterface<IEngine>();
 	if ( g_engine == nullptr )
 	{
 		return false;
 	}
 
-	if ( !g_engine->BootUp( mainWindow ) )
+	if ( !g_engine->BootUp( mainWindow, lpszCmdParam ) )
 	{
 		return false;
 	}
 
-	g_engine->Run( );
+	g_engine->Run();
 
 	ShutdownModule( engineDll );
 

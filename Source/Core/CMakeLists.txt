@@ -84,7 +84,9 @@ set (MEMORY
 	Public/Memory/StackMemoryAllocator.h)
 
 set (MISC
+	Private/Misc/StringUtility.cpp
 	Public/Misc/EnumClassFlags.h
+	Public/Misc/StringUtility.h
 	Public/Misc/TextTokenaizer.h)
 
 set (MULTITHREAD

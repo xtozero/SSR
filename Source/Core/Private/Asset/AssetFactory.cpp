@@ -29,7 +29,7 @@ Owner<IAssetFactory*> CreateAssetFactory( )
 	return new AssetFactory( );
 }
 
-void DestoryAssetFactory( Owner<IAssetFactory*> pAssetFactory )
+void DestroyAssetFactory( Owner<IAssetFactory*> pAssetFactory )
 {
 	delete pAssetFactory;
 }

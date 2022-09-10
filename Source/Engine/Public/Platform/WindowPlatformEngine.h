@@ -13,7 +13,7 @@ class ITaskScheduler;
 class WindowPlatformEngine : public IEngine
 {
 public:
-	virtual bool BootUp( IPlatform& ) override;
+	virtual bool BootUp( IPlatform& platform, char* argv ) override;
 
 	virtual void Run( ) override;
 

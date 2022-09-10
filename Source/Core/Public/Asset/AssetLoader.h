@@ -7,4 +7,4 @@
 #include <string>
 
 Owner<IAssetLoader*> CreateAssetLoader( );
-void DestoryAssetLoader( Owner<IAssetLoader*> pRenderOptionManager );
+void DestroyAssetLoader( Owner<IAssetLoader*> pRenderOptionManager );

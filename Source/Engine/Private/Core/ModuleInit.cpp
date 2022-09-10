@@ -2,6 +2,7 @@
 
 #include "AssetFactory.h"
 #include "AssetLoader.h"
+#include "CommandLine.h"
 #include "FileSystem.h"
 #include "EnumStringMap.h"
 #include "IEngine.h"
@@ -13,6 +14,7 @@ namespace
 {
 	IAssetFactory* g_assetFactory = nullptr;
 	IAssetLoader* g_assetLoader = nullptr;
+	CommandLine* g_commandLine = nullptr;
 	IFileSystem* g_fileSystem = nullptr;
 	IEngine* g_gameEngine = nullptr;
 	INamePool* g_namePool = nullptr;
@@ -26,6 +28,11 @@ namespace
 	void* GetAssetLoader()
 	{
 		return g_assetLoader;
+	}
+
+	void* GetCommandLineOption()
+	{
+		return g_commandLine;
 	}
 
 	void* GetFileSystem()
@@ -53,6 +60,7 @@ ENGINE_FUNC_DLL void BootUpModules( )
 {
 	RegisterFactory<IAssetFactory>( &GetAssetFactory );
 	RegisterFactory<IAssetLoader>( &GetAssetLoader );
+	RegisterFactory<CommandLine>( &GetCommandLineOption );
 	RegisterFactory<IEngine>( &GetGameEngine );
 	RegisterFactory<IEnumStringMap>( &GetEnumStringMap );
 	RegisterFactory<IFileSystem>( &GetFileSystem );
@@ -63,14 +71,16 @@ ENGINE_FUNC_DLL void BootUpModules( )
 	g_fileSystem = CreateFileSystem();
 	g_assetFactory = CreateAssetFactory();
 	g_assetLoader = CreateAssetLoader();
+	g_commandLine = CreateCommandLine();
 	g_gameEngine = CreatePlatformEngine();
 	g_namePool = CreateNamePool();
 }
 
 ENGINE_FUNC_DLL void ShutdownModules()
 {
-	DestoryAssetLoader( g_assetLoader );
-	DestoryAssetFactory( g_assetFactory );
+	DestroyAssetLoader( g_assetLoader );
+	DestroyAssetFactory( g_assetFactory );
+	DestroyCommandLine( g_commandLine );
 	DestroyFileSystem( g_fileSystem );
 	DestroyPlatformEngine( g_gameEngine );
 	DestroyNamePool( g_namePool );
@@ -78,6 +88,7 @@ ENGINE_FUNC_DLL void ShutdownModules()
 
 	UnregisterFactory<IAssetFactory>();
 	UnregisterFactory<IAssetLoader>();
+	UnregisterFactory<CommandLine>();
 	UnregisterFactory<IEngine>();
 	UnregisterFactory<IEnumStringMap>();
 	UnregisterFactory<IFileSystem>();

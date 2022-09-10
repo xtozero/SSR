@@ -80,7 +80,7 @@ public:
 };
 
 Owner<IAssetFactory*> CreateAssetFactory();
-void DestoryAssetFactory( Owner<IAssetFactory*> pAssetFactory );
+void DestroyAssetFactory( Owner<IAssetFactory*> pAssetFactory );
 
 #define DECLARE_ASSET( dllName, type ) \
 public : \
