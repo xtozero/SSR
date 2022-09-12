@@ -1,10 +1,13 @@
 #include "SkyAtmosphereProxy.h"
 
-SkyAtmospherePorxy::SkyAtmospherePorxy( const SkyAtmosphereComponent& component )
+namespace rendercore
 {
-}
+	SkyAtmospherePorxy::SkyAtmospherePorxy( const SkyAtmosphereComponent& component )
+	{
+	}
 
-rendercore::SkyAtmosphereRenderSceneInfo*& SkyAtmospherePorxy::RenderSceneInfo()
-{
-	return m_renderSceneInfo;
+	SkyAtmosphereRenderSceneInfo*& SkyAtmospherePorxy::RenderSceneInfo()
+	{
+		return m_renderSceneInfo;
+	}
 }

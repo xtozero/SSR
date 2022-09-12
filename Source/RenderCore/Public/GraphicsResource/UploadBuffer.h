@@ -5,39 +5,42 @@
 
 #include <cstddef>
 
-class UploadBuffer
+namespace rendercore
 {
-public:
-	void Resize( uint32 numElement, const void* initData );
-	uint32 ElementSize( ) const { return m_elementSize; }
-
-	template <typename T>
-	T* Lock( )
+	class UploadBuffer
 	{
-		return static_cast<T*>( LockImple( ) );
-	}
+	public:
+		void Resize( uint32 numElement, const void* initData );
+		uint32 ElementSize() const { return m_elementSize; }
 
-	void Unlock( );
+		template <typename T>
+		T* Lock()
+		{
+			return static_cast<T*>( LockImple() );
+		}
 
-	aga::Buffer* Resource( );
-	const aga::Buffer* Resource( ) const;
+		void Unlock();
 
-	UploadBuffer( uint32 elementSize, uint32 numElement, const void* initData );
+		aga::Buffer* Resource();
+		const aga::Buffer* Resource() const;
 
-	UploadBuffer( ) = default;
-	~UploadBuffer( ) = default;
-	UploadBuffer( const UploadBuffer& ) = default;
-	UploadBuffer& operator=( const UploadBuffer& ) = default;
-	UploadBuffer( UploadBuffer&& ) = default;
-	UploadBuffer& operator=( UploadBuffer&& ) = default;
+		UploadBuffer( uint32 elementSize, uint32 numElement, const void* initData );
 
-protected:
-	void InitResource( const void* initData );
+		UploadBuffer() = default;
+		~UploadBuffer() = default;
+		UploadBuffer( const UploadBuffer& ) = default;
+		UploadBuffer& operator=( const UploadBuffer& ) = default;
+		UploadBuffer( UploadBuffer&& ) = default;
+		UploadBuffer& operator=( UploadBuffer&& ) = default;
 
-	RefHandle<aga::Buffer> m_buffer;
-	uint32 m_elementSize = 0;
-	uint32 m_numElement = 0;
+	protected:
+		void InitResource( const void* initData );
 
-private:
-	void* LockImple( );
-};
+		RefHandle<aga::Buffer> m_buffer;
+		uint32 m_elementSize = 0;
+		uint32 m_numElement = 0;
+
+	private:
+		void* LockImple();
+	};
+}

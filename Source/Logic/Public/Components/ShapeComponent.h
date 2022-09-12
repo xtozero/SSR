@@ -12,7 +12,7 @@ class ShapeComponent : public PrimitiveComponent
 public:
 	using PrimitiveComponent::PrimitiveComponent;
 
-	virtual PrimitiveProxy* CreateProxy() const override;
+	virtual rendercore::PrimitiveProxy* CreateProxy() const override;
 	virtual BodySetup* GetBodySetup() override;
 	virtual void UpdateBodySetup();
 

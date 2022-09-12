@@ -10,82 +10,86 @@
 #include <optional>
 #include <vector>
 
-class LightSceneInfo;
 class PrimitiveComponent;
-class PrimitiveProxy;
-class Scene;
 
-class PrimitiveSubMeshInfo
+namespace rendercore
 {
-public:
-	std::optional<uint32> GetCachedDrawSnapshotInfoIndex( RenderPass passType ) const;
+	class LightSceneInfo;
+	class PrimitiveProxy;
+	class Scene;
 
-	void OnDrawSnapshotAdded( RenderPass passType );
+	class PrimitiveSubMeshInfo
+	{
+	public:
+		std::optional<uint32> GetCachedDrawSnapshotInfoIndex( RenderPass passType ) const;
 
-	uint32& SnapshotInfoBase();
-	uint32 SnapshotInfoBase() const;
+		void OnDrawSnapshotAdded( RenderPass passType );
 
-private:
-	uint32 m_snapshotInfoBase = 0;
-	uint32 m_passTypeMask = 0;
-};
+		uint32& SnapshotInfoBase();
+		uint32 SnapshotInfoBase() const;
 
-struct PrimitiveSubMesh : public MeshDrawInfo
-{
-	explicit PrimitiveSubMesh( const MeshDrawInfo& info ) : MeshDrawInfo( info ) {}
-	PrimitiveSubMesh() = default;
-};
+	private:
+		uint32 m_snapshotInfoBase = 0;
+		uint32 m_passTypeMask = 0;
+	};
 
-struct LightIntersectionInfo
-{
-	LightSceneInfo* m_light = nullptr;
-	uint32 m_infoId = 0;
+	struct PrimitiveSubMesh : public MeshDrawInfo
+	{
+		explicit PrimitiveSubMesh( const MeshDrawInfo& info ) : MeshDrawInfo( info ) {}
+		PrimitiveSubMesh() = default;
+	};
 
-	LightIntersectionInfo( LightSceneInfo* light, uint32 infoId ) : m_light( light ), m_infoId( infoId ) {}
-};
+	struct LightIntersectionInfo
+	{
+		LightSceneInfo* m_light = nullptr;
+		uint32 m_infoId = 0;
 
-class PrimitiveSceneInfo
-{
-public:
-	PrimitiveProxy*& Proxy();
-	const PrimitiveProxy* Proxy() const;
+		LightIntersectionInfo( LightSceneInfo* light, uint32 infoId ) : m_light( light ), m_infoId( infoId ) {}
+	};
 
-	uint32& PrimitiveId();
-	uint32 PrimitiveId() const;
+	class PrimitiveSceneInfo
+	{
+	public:
+		PrimitiveProxy*& Proxy();
+		const PrimitiveProxy* Proxy() const;
 
-	void AddToScene();
-	void RemoveFromScene();
+		uint32& PrimitiveId();
+		uint32 PrimitiveId() const;
 
-	PrimitiveSubMesh& AddSubMesh();
+		void AddToScene();
+		void RemoveFromScene();
 
-	std::vector<PrimitiveSubMeshInfo>& SubMeshInfos();
-	const std::vector<PrimitiveSubMeshInfo>& SubMeshInfos() const;
+		PrimitiveSubMesh& AddSubMesh();
 
-	std::vector<PrimitiveSubMesh>& SubMeshs();
-	const std::vector<PrimitiveSubMesh>& SubMeshs() const;
+		std::vector<PrimitiveSubMeshInfo>& SubMeshInfos();
+		const std::vector<PrimitiveSubMeshInfo>& SubMeshInfos() const;
 
-	SparseArray<LightIntersectionInfo>& Lights();
-	const SparseArray<LightIntersectionInfo>& Lights() const;
+		std::vector<PrimitiveSubMesh>& SubMeshs();
+		const std::vector<PrimitiveSubMesh>& SubMeshs() const;
 
-	const CachedDrawSnapshotInfo& GetCachedDrawSnapshotInfo( uint32 snapshotInfoBase );
+		SparseArray<LightIntersectionInfo>& Lights();
+		const SparseArray<LightIntersectionInfo>& Lights() const;
 
-	DrawSnapshot& CachedDrawSnapshot( uint32 snapshotIndex );
+		const CachedDrawSnapshotInfo& GetCachedDrawSnapshotInfo( uint32 snapshotInfoBase );
 
-	PrimitiveSceneInfo( PrimitiveComponent* component, Scene& scene );
+		DrawSnapshot& CachedDrawSnapshot( uint32 snapshotIndex );
 
-private:
-	void CacheDrawSnapshot();
-	void RemoveCachedDrawSnapshot();
+		PrimitiveSceneInfo( PrimitiveComponent* component, Scene& scene );
 
-	Scene& m_scene;
+	private:
+		void CacheDrawSnapshot();
+		void RemoveCachedDrawSnapshot();
 
-	PrimitiveProxy* m_sceneProxy = nullptr;
+		Scene& m_scene;
 
-	uint32 m_primitiveId = 0;
+		PrimitiveProxy* m_sceneProxy = nullptr;
 
-	std::vector<PrimitiveSubMeshInfo> m_subMeshInfos;
-	std::vector<PrimitiveSubMesh> m_subMeshs;
-	std::vector<CachedDrawSnapshotInfo> m_cachedDrawSnapshotInfos;
+		uint32 m_primitiveId = 0;
 
-	SparseArray<LightIntersectionInfo> m_lightList;
-};
+		std::vector<PrimitiveSubMeshInfo> m_subMeshInfos;
+		std::vector<PrimitiveSubMesh> m_subMeshs;
+		std::vector<CachedDrawSnapshotInfo> m_cachedDrawSnapshotInfos;
+
+		SparseArray<LightIntersectionInfo> m_lightList;
+	};
+}

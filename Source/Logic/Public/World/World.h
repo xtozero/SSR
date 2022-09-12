@@ -13,8 +13,12 @@
 
 class CDebugOverlayManager;
 class CPlayer;
-class IScene;
 class PhysicsScene;
+
+namespace rendercore
+{
+	class IScene;
+}
 
 class StartPhysicsThinkFunction : public ThinkFunction
 {
@@ -62,7 +66,7 @@ public:
 		return m_gameObjects;
 	}
 
-	IScene* Scene() const
+	rendercore::IScene* Scene() const
 	{
 		return m_scene;
 	}
@@ -86,7 +90,7 @@ private:
 	EndPhysicsThinkFunction m_endPhysicsThinkFunction;
 	TaskHandle m_hRunPhysics;
 
-	IScene* m_scene = nullptr;
+	rendercore::IScene* m_scene = nullptr;
 	PhysicsScene* m_physicsScene = nullptr;
 
 	Timer m_clock;

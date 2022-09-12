@@ -83,7 +83,7 @@ namespace rendercore
 		PerlinWorleyCS perlinWorleyCS;
 		auto threadGroupCount = static_cast<uint32>( std::ceilf( 128 / 8.f ) );
 
-		auto commandList = rendercore::GetImmediateCommandList();
+		auto commandList = GetImmediateCommandList();
 
 		commandList.BindShader( perlinWorleyCS.Shader()->Resource() );
 		BindShaderParameter( commandList, perlinWorleyCS.m_noiseTex, m_baseCloudShape );
@@ -128,7 +128,7 @@ namespace rendercore
 
 		auto threadGroupCount = static_cast<uint32>( std::ceilf( 1024.f / 8.f ) );
 
-		auto commandList = rendercore::GetImmediateCommandList();
+		auto commandList = GetImmediateCommandList();
 
 		commandList.BindShader( weatherMapCS.Shader()->Resource() );
 		BindShaderParameter( commandList, weatherMapCS.m_weatherTex, m_weatherMap );

@@ -13,50 +13,53 @@
 
 class Archive;
 
-struct MeshDescription;
-
-class StaticMeshSection
+namespace rendercore
 {
-public:
-	friend Archive& operator<<( Archive& ar, StaticMeshSection& section );
+	struct MeshDescription;
 
-	uint32 m_startLocation;
-	uint32 m_count;
-	uint32 m_materialIndex;
-};
+	class StaticMeshSection
+	{
+	public:
+		friend Archive& operator<<( Archive& ar, StaticMeshSection& section );
 
-class StaticMeshLODResource
-{
-public:
-	friend Archive& operator<<( Archive& ar, StaticMeshLODResource& lodResource );
+		uint32 m_startLocation;
+		uint32 m_count;
+		uint32 m_materialIndex;
+	};
 
-	VertexCollection m_vertexCollection;
-	bool m_isDWORD = false;
-	std::vector<unsigned char> m_indexData;
-	IndexBuffer m_ib;
-	std::vector<StaticMeshSection> m_sections;
-};
+	class StaticMeshLODResource
+	{
+	public:
+		friend Archive& operator<<( Archive& ar, StaticMeshLODResource& lodResource );
 
-class StaticMeshRenderData
-{
-public:
-	RENDERCORE_DLL void AllocateLODResources( uint32 numLOD );
-	RENDERCORE_DLL void Init();
+		VertexCollection m_vertexCollection;
+		bool m_isDWORD = false;
+		std::vector<unsigned char> m_indexData;
+		IndexBuffer m_ib;
+		std::vector<StaticMeshSection> m_sections;
+	};
 
-	StaticMeshLODResource& LODResource( uint32 index ) { return m_lodResources[index]; };
-	const StaticMeshLODResource& LODResource( uint32 index ) const { return m_lodResources[index]; };
-	uint32 LODSize() const { return static_cast<uint32>( m_lodResources.size() ); }
+	class StaticMeshRenderData
+	{
+	public:
+		RENDERCORE_DLL void AllocateLODResources( uint32 numLOD );
+		RENDERCORE_DLL void Init();
 
-	void CreateRenderResource();
+		StaticMeshLODResource& LODResource( uint32 index ) { return m_lodResources[index]; };
+		const StaticMeshLODResource& LODResource( uint32 index ) const { return m_lodResources[index]; };
+		uint32 LODSize() const { return static_cast<uint32>( m_lodResources.size() ); }
 
-	bool Initialized() const { return m_initialized; }
+		void CreateRenderResource();
 
-	RENDERCORE_DLL StaticMeshRenderData() = default;
+		bool Initialized() const { return m_initialized; }
 
-	friend Archive& operator<<( Archive& ar, StaticMeshRenderData& renderData );
+		RENDERCORE_DLL StaticMeshRenderData() = default;
 
-private:
-	std::vector<StaticMeshLODResource> m_lodResources;
+		friend Archive& operator<<( Archive& ar, StaticMeshRenderData& renderData );
 
-	bool m_initialized = false;
-};
+	private:
+		std::vector<StaticMeshLODResource> m_lodResources;
+
+		bool m_initialized = false;
+	};
+}

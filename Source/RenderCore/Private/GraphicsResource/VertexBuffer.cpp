@@ -4,58 +4,61 @@
 #include "AbstractGraphicsInterface.h"
 #include "TaskScheduler.h"
 
-void* VertexBuffer::Lock()
+namespace rendercore
 {
-	assert( IsInRenderThread() );
-	return GraphicsInterface().Lock( m_buffer ).m_data;
-}
-
-void VertexBuffer::Unlock()
-{
-	assert( IsInRenderThread() );
-	GraphicsInterface().UnLock( m_buffer );
-}
-
-aga::Buffer* VertexBuffer::Resource()
-{
-	return m_buffer.Get();
-}
-
-const aga::Buffer* VertexBuffer::Resource() const
-{
-	return m_buffer.Get();
-}
-
-VertexBuffer::VertexBuffer( uint32 elementSize, uint32 numElement, const void* initData, bool isDynamic ) : m_size( elementSize* numElement ), m_isDynamic( isDynamic )
-{
-	InitResource( elementSize, numElement, initData );
-}
-
-void VertexBuffer::InitResource( uint32 elementSize, uint32 numElement, const void* initData )
-{
-	RESOURCE_ACCESS_FLAG accessFlag = RESOURCE_ACCESS_FLAG::NONE;
-	if ( m_isDynamic )
+	void* VertexBuffer::Lock()
 	{
-		accessFlag = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE;
-	}
-	else
-	{
-		accessFlag = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE;
+		assert( IsInRenderThread() );
+		return GraphicsInterface().Lock( m_buffer ).m_data;
 	}
 
-	BUFFER_TRAIT trait = {
-		elementSize,
-		numElement,
-		accessFlag,
-		RESOURCE_BIND_TYPE::VERTEX_BUFFER,
-		RESOURCE_MISC::NONE,
-		RESOURCE_FORMAT::UNKNOWN
-	};
+	void VertexBuffer::Unlock()
+	{
+		assert( IsInRenderThread() );
+		GraphicsInterface().UnLock( m_buffer );
+	}
 
-	m_buffer = aga::Buffer::Create( trait, initData );
-	EnqueueRenderTask( 
-		[buffer = m_buffer]()
+	aga::Buffer* VertexBuffer::Resource()
+	{
+		return m_buffer.Get();
+	}
+
+	const aga::Buffer* VertexBuffer::Resource() const
+	{
+		return m_buffer.Get();
+	}
+
+	VertexBuffer::VertexBuffer( uint32 elementSize, uint32 numElement, const void* initData, bool isDynamic ) : m_size( elementSize* numElement ), m_isDynamic( isDynamic )
+	{
+		InitResource( elementSize, numElement, initData );
+	}
+
+	void VertexBuffer::InitResource( uint32 elementSize, uint32 numElement, const void* initData )
+	{
+		RESOURCE_ACCESS_FLAG accessFlag = RESOURCE_ACCESS_FLAG::NONE;
+		if ( m_isDynamic )
 		{
-			buffer->Init();
-		} );
+			accessFlag = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE;
+		}
+		else
+		{
+			accessFlag = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE;
+		}
+
+		BUFFER_TRAIT trait = {
+			elementSize,
+			numElement,
+			accessFlag,
+			RESOURCE_BIND_TYPE::VERTEX_BUFFER,
+			RESOURCE_MISC::NONE,
+			RESOURCE_FORMAT::UNKNOWN
+		};
+
+		m_buffer = aga::Buffer::Create( trait, initData );
+		EnqueueRenderTask(
+			[buffer = m_buffer]()
+			{
+				buffer->Init();
+			} );
+	}
 }

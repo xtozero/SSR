@@ -5,46 +5,49 @@
 
 #include <type_traits>
 
-class ComputeShader;
-class PixelShader;
-class VertexShader;
-
-class DefaultConstantBuffers
+namespace rendercore
 {
-public:
-	static DefaultConstantBuffers& GetInstance()
+	class ComputeShader;
+	class PixelShader;
+	class VertexShader;
+
+	class DefaultConstantBuffers
 	{
-		static DefaultConstantBuffers defaultConstantBuffers;
-		return defaultConstantBuffers;
-	}
+	public:
+		static DefaultConstantBuffers& GetInstance()
+		{
+			static DefaultConstantBuffers defaultConstantBuffers;
+			return defaultConstantBuffers;
+		}
 
-	void BootUp();
-	void Shutdown();
+		void BootUp();
+		void Shutdown();
 
-	void SetShaderValue( SHADER_TYPE shader, uint32 offset, uint32 numBytes, const void* value );
-	void Commit( SHADER_TYPE shader );
-	void CommitAll();
+		void SetShaderValue( SHADER_TYPE shader, uint32 offset, uint32 numBytes, const void* value );
+		void Commit( SHADER_TYPE shader );
+		void CommitAll();
 
-	DefaultConstantBuffers() = default;
-	DefaultConstantBuffers( const DefaultConstantBuffers& ) = delete;
-	DefaultConstantBuffers& operator=( const DefaultConstantBuffers& ) = delete;
-	DefaultConstantBuffers( DefaultConstantBuffers&& ) = delete;
-	DefaultConstantBuffers& operator=( DefaultConstantBuffers&& ) = delete;
-	~DefaultConstantBuffers()
-	{
-		Shutdown();
-	}
+		DefaultConstantBuffers() = default;
+		DefaultConstantBuffers( const DefaultConstantBuffers& ) = delete;
+		DefaultConstantBuffers& operator=( const DefaultConstantBuffers& ) = delete;
+		DefaultConstantBuffers( DefaultConstantBuffers&& ) = delete;
+		DefaultConstantBuffers& operator=( DefaultConstantBuffers&& ) = delete;
+		~DefaultConstantBuffers()
+		{
+			Shutdown();
+		}
 
-private:
-	void SetShaderValueInternal( uint32 ctxIndex, uint32 offset, uint32 numBytes, const void* value );
-	void CommitInternal( uint32 ctxIndex );
+	private:
+		void SetShaderValueInternal( uint32 ctxIndex, uint32 offset, uint32 numBytes, const void* value );
+		void CommitInternal( uint32 ctxIndex );
 
-	static constexpr uint32 BUFFER_SIZE = 2048;
+		static constexpr uint32 BUFFER_SIZE = 2048;
 
-	struct ConstantBufferContext
-	{
-		ConstantBuffer m_buffer;
-		unsigned char* m_dataStorage = nullptr;
-		uint32 m_invalidRangeEnd = 0;
-	} m_contexts[MAX_SHADER_TYPE<uint32>];
-};
+		struct ConstantBufferContext
+		{
+			ConstantBuffer m_buffer;
+			unsigned char* m_dataStorage = nullptr;
+			uint32 m_invalidRangeEnd = 0;
+		} m_contexts[MAX_SHADER_TYPE<uint32>];
+	};
+}

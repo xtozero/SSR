@@ -1,13 +1,16 @@
 #pragma once
 
-class VertexShader;
-
-class FullScreenQuadVS
+namespace rendercore
 {
-public:
-	FullScreenQuadVS( );
-	VertexShader* Shader( ) { return m_shader; }
+	class VertexShader;
 
-private:
-	VertexShader* m_shader = nullptr;
-};
+	class FullScreenQuadVS
+	{
+	public:
+		FullScreenQuadVS();
+		VertexShader* Shader() { return m_shader; }
+
+	private:
+		VertexShader* m_shader = nullptr;
+	};
+}

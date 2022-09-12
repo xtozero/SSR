@@ -5,32 +5,35 @@
 #include "GraphicsApiResource.h"
 #include "SizedTypes.h"
 
-class ComputeShader;
-class PixelShader;
-class VertexShader;
-
-class ConstantBuffer
+namespace rendercore
 {
-public:
-	void Update( const void* data, uint32 size );
-	void* Lock();
-	void Unlock();
+	class ComputeShader;
+	class PixelShader;
+	class VertexShader;
 
-	aga::Buffer* Resource();
-	const aga::Buffer* Resource() const;
+	class ConstantBuffer
+	{
+	public:
+		void Update( const void* data, uint32 size );
+		void* Lock();
+		void Unlock();
 
-	ConstantBuffer( uint32 size );
+		aga::Buffer* Resource();
+		const aga::Buffer* Resource() const;
 
-	ConstantBuffer() = default;
-	~ConstantBuffer() = default;
-	ConstantBuffer( const ConstantBuffer& ) = default;
-	ConstantBuffer& operator=( const ConstantBuffer& ) = default;
-	ConstantBuffer( ConstantBuffer&& ) = default;
-	ConstantBuffer& operator=( ConstantBuffer&& ) = default;
+		ConstantBuffer( uint32 size );
 
-protected:
-	void InitResource( uint32 size );
+		ConstantBuffer() = default;
+		~ConstantBuffer() = default;
+		ConstantBuffer( const ConstantBuffer& ) = default;
+		ConstantBuffer& operator=( const ConstantBuffer& ) = default;
+		ConstantBuffer( ConstantBuffer&& ) = default;
+		ConstantBuffer& operator=( ConstantBuffer&& ) = default;
 
-private:
-	RefHandle<aga::Buffer> m_buffer;
-};
+	protected:
+		void InitResource( uint32 size );
+
+	private:
+		RefHandle<aga::Buffer> m_buffer;
+	};
+}

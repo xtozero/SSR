@@ -431,9 +431,9 @@ namespace rendercore
 		// 1. Transmittance Table
 		TransmittanceCS transmittanceCS;
 
-		auto commandList = rendercore::GetImmediateCommandList();
+		auto commandList = GetImmediateCommandList();
 		commandList.BindShader( transmittanceCS.Shader()->Resource() );
-		rendercore::BindShaderParameter( commandList, transmittanceCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
+		BindShaderParameter( commandList, transmittanceCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
 
 		commandList.Dispatch( TRANSMITTANCE_GROUP_X, TRANSMITTANCE_GROUP_Y );
 
@@ -456,9 +456,9 @@ namespace rendercore
 
 		IrradianceOneCS irradianceOneCS;
 		commandList.BindShader( irradianceOneCS.Shader()->Resource() );
-		rendercore::BindShaderParameter( commandList, irradianceOneCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
-		rendercore::BindShaderParameter( commandList, irradianceOneCS.TransmittanceLutSampler(), pointSampler.Resource() );
-		rendercore::BindShaderParameter( commandList, irradianceOneCS.DeltaE(), deltaETexture );
+		BindShaderParameter( commandList, irradianceOneCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
+		BindShaderParameter( commandList, irradianceOneCS.TransmittanceLutSampler(), pointSampler.Resource() );
+		BindShaderParameter( commandList, irradianceOneCS.DeltaE(), deltaETexture );
 
 		commandList.Dispatch( IRRADIANCE_GROUP_X, IRRADIANCE_GROUP_Y );
 
@@ -484,10 +484,10 @@ namespace rendercore
 
 		InscatterOneCS inscatterOneCS;
 		commandList.BindShader( inscatterOneCS.Shader()->Resource() );
-		rendercore::BindShaderParameter( commandList, inscatterOneCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
-		rendercore::BindShaderParameter( commandList, inscatterOneCS.TransmittanceLutSampler(), pointSampler.Resource() );
-		rendercore::BindShaderParameter( commandList, inscatterOneCS.DeltaSR(), deltaSRTexture );
-		rendercore::BindShaderParameter( commandList, inscatterOneCS.DeltaSM(), deltaSMTexture );
+		BindShaderParameter( commandList, inscatterOneCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
+		BindShaderParameter( commandList, inscatterOneCS.TransmittanceLutSampler(), pointSampler.Resource() );
+		BindShaderParameter( commandList, inscatterOneCS.DeltaSR(), deltaSRTexture );
+		BindShaderParameter( commandList, inscatterOneCS.DeltaSM(), deltaSMTexture );
 
 		commandList.Dispatch( INSCATTER1_GROUP_X, INSCATTER1_GROUP_Y, INSCATTER1_GROUP_Z );
 
@@ -506,11 +506,11 @@ namespace rendercore
 
 		CopyInscatterOneCS copyInscatterOneCS;
 		commandList.BindShader( copyInscatterOneCS.Shader()->Resource() );
-		rendercore::BindShaderParameter( commandList, copyInscatterOneCS.DeltaSRLut(), deltaSRTexture );
-		rendercore::BindShaderParameter( commandList, copyInscatterOneCS.DeltaSRLutSampler(), pointSampler.Resource() );
-		rendercore::BindShaderParameter( commandList, copyInscatterOneCS.DeltaSMLut(), deltaSMTexture );
-		rendercore::BindShaderParameter( commandList, copyInscatterOneCS.DeltaSMLutSampler(), pointSampler.Resource() );
-		rendercore::BindShaderParameter( commandList, copyInscatterOneCS.Inscatter(), inscatterBuffer );
+		BindShaderParameter( commandList, copyInscatterOneCS.DeltaSRLut(), deltaSRTexture );
+		BindShaderParameter( commandList, copyInscatterOneCS.DeltaSRLutSampler(), pointSampler.Resource() );
+		BindShaderParameter( commandList, copyInscatterOneCS.DeltaSMLut(), deltaSMTexture );
+		BindShaderParameter( commandList, copyInscatterOneCS.DeltaSMLutSampler(), pointSampler.Resource() );
+		BindShaderParameter( commandList, copyInscatterOneCS.Inscatter(), inscatterBuffer );
 
 		commandList.Dispatch( INSCATTER1_GROUP_X, INSCATTER1_GROUP_Y, INSCATTER1_GROUP_Z );
 
@@ -538,18 +538,18 @@ namespace rendercore
 			InscatterSCS inscatterSCS;
 			commandList.BindShader( inscatterSCS.Shader()->Resource() );
 
-			rendercore::BindShaderParameter( commandList, inscatterSCS.DeltaELut(), deltaETexture );
-			rendercore::BindShaderParameter( commandList, inscatterSCS.DeltaELutSampler(), pointSampler.Resource() );
-			rendercore::BindShaderParameter( commandList, inscatterSCS.DeltaSRLut(), deltaSRTexture );
-			rendercore::BindShaderParameter( commandList, inscatterSCS.DeltaSRLutSampler(), pointSampler.Resource() );
-			rendercore::BindShaderParameter( commandList, inscatterSCS.DeltaSMLut(), deltaSMTexture );
-			rendercore::BindShaderParameter( commandList, inscatterSCS.DeltaSMLutSampler(), pointSampler.Resource() );
-			rendercore::BindShaderParameter( commandList, inscatterSCS.DeltaJ(), deltaJTex );
+			BindShaderParameter( commandList, inscatterSCS.DeltaELut(), deltaETexture );
+			BindShaderParameter( commandList, inscatterSCS.DeltaELutSampler(), pointSampler.Resource() );
+			BindShaderParameter( commandList, inscatterSCS.DeltaSRLut(), deltaSRTexture );
+			BindShaderParameter( commandList, inscatterSCS.DeltaSRLutSampler(), pointSampler.Resource() );
+			BindShaderParameter( commandList, inscatterSCS.DeltaSMLut(), deltaSMTexture );
+			BindShaderParameter( commandList, inscatterSCS.DeltaSMLutSampler(), pointSampler.Resource() );
+			BindShaderParameter( commandList, inscatterSCS.DeltaJ(), deltaJTex );
 
 			for ( uint32 i = 0; i < INSCATTERS_GROUP_Z; ++i )
 			{
-				rendercore::SetShaderValue( inscatterSCS.Order(), order );
-				rendercore::SetShaderValue( inscatterSCS.ThreadGroupZ(), i );
+				SetShaderValue( inscatterSCS.Order(), order );
+				SetShaderValue( inscatterSCS.ThreadGroupZ(), i );
 
 				commandList.Dispatch( INSCATTERS_GROUP_X, INSCATTERS_GROUP_Y );
 				commandList.WaitUntilFlush();
@@ -558,39 +558,39 @@ namespace rendercore
 			// Compute deltaE
 			IrradianceNCS irradianceNCS;
 			commandList.BindShader( irradianceNCS.Shader()->Resource() );
-			rendercore::BindShaderParameter( commandList, irradianceNCS.DeltaSRLut(), deltaSRTexture );
-			rendercore::BindShaderParameter( commandList, irradianceNCS.DeltaSRLutSampler(), pointSampler.Resource() );
-			rendercore::BindShaderParameter( commandList, irradianceNCS.DeltaSMLut(), deltaSMTexture );
-			rendercore::BindShaderParameter( commandList, irradianceNCS.DeltaSMLutSampler(), pointSampler.Resource() );
-			rendercore::BindShaderParameter( commandList, irradianceNCS.Irradiance(), deltaETexture );
-			rendercore::SetShaderValue( irradianceNCS.Order(), order );
+			BindShaderParameter( commandList, irradianceNCS.DeltaSRLut(), deltaSRTexture );
+			BindShaderParameter( commandList, irradianceNCS.DeltaSRLutSampler(), pointSampler.Resource() );
+			BindShaderParameter( commandList, irradianceNCS.DeltaSMLut(), deltaSMTexture );
+			BindShaderParameter( commandList, irradianceNCS.DeltaSMLutSampler(), pointSampler.Resource() );
+			BindShaderParameter( commandList, irradianceNCS.Irradiance(), deltaETexture );
+			SetShaderValue( irradianceNCS.Order(), order );
 
 			commandList.Dispatch( IRRADIANCE_GROUP_X, IRRADIANCE_GROUP_Y );
 
 			// Compute deltaS
 			InscatterNCS inscatterNCS;
 			commandList.BindShader( inscatterNCS.Shader()->Resource() );
-			rendercore::BindShaderParameter( commandList, inscatterNCS.DeltaJLut(), deltaJTex );
-			rendercore::BindShaderParameter( commandList, inscatterNCS.DeltaJLutSampler(), pointSampler.Resource() );
-			rendercore::BindShaderParameter( commandList, inscatterNCS.DeltaSR(), deltaSRTexture );
+			BindShaderParameter( commandList, inscatterNCS.DeltaJLut(), deltaJTex );
+			BindShaderParameter( commandList, inscatterNCS.DeltaJLutSampler(), pointSampler.Resource() );
+			BindShaderParameter( commandList, inscatterNCS.DeltaSR(), deltaSRTexture );
 
 			commandList.Dispatch( INSCATTERN_GROUP_X, INSCATTERN_GROUP_Y, INSCATTERN_GROUP_Z );
 
 			// Add deltaE into irradiance textrue E
 			CopyIrradianceCS copyIrradianceCS;
 			commandList.BindShader( copyIrradianceCS.Shader()->Resource() );
-			rendercore::BindShaderParameter( commandList, copyIrradianceCS.DeltaELut(), deltaETexture );
-			rendercore::BindShaderParameter( commandList, copyIrradianceCS.DeltaELutSampler(), pointSampler.Resource() );
-			rendercore::BindShaderParameter( commandList, copyIrradianceCS.Irradiance(), irradianceBuffer );
+			BindShaderParameter( commandList, copyIrradianceCS.DeltaELut(), deltaETexture );
+			BindShaderParameter( commandList, copyIrradianceCS.DeltaELutSampler(), pointSampler.Resource() );
+			BindShaderParameter( commandList, copyIrradianceCS.Irradiance(), irradianceBuffer );
 
 			commandList.Dispatch( IRRADIANCE_GROUP_X, IRRADIANCE_GROUP_Y );
 
 			// Add deltaS info inscatter texture S
 			CopyInscatterNCS copyInscatterNCS;
 			commandList.BindShader( copyInscatterNCS.Shader()->Resource() );
-			rendercore::BindShaderParameter( commandList, copyInscatterNCS.DeltaSRLut(), deltaSRTexture );
-			rendercore::BindShaderParameter( commandList, copyInscatterNCS.DeltaSRLutSampler(), pointSampler.Resource() );
-			rendercore::BindShaderParameter( commandList, copyInscatterNCS.Irradiance(), inscatterBuffer );
+			BindShaderParameter( commandList, copyInscatterNCS.DeltaSRLut(), deltaSRTexture );
+			BindShaderParameter( commandList, copyInscatterNCS.DeltaSRLutSampler(), pointSampler.Resource() );
+			BindShaderParameter( commandList, copyInscatterNCS.Irradiance(), inscatterBuffer );
 
 			commandList.Dispatch( INSCATTERN_GROUP_X, INSCATTERN_GROUP_Y, INSCATTERN_GROUP_Z );
 		}

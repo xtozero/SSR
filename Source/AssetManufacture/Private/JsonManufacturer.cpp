@@ -20,27 +20,27 @@ namespace
 			const std::string& assetType = type->AsString();
 			if ( assetType == "BlendOption" )
 			{
-				return BlendOption::ID;
+				return rendercore::BlendOption::ID;
 			}
 			else if ( assetType == "DepthStencilOption" )
 			{
-				return DepthStencilOption::ID;
+				return rendercore::DepthStencilOption::ID;
 			}
 			else if ( assetType == "Material" )
 			{
-				return Material::ID;
+				return rendercore::Material::ID;
 			}
 			else if ( assetType == "RasterizerOption" )
 			{
-				return RasterizerOption::ID;
+				return rendercore::RasterizerOption::ID;
 			}
 			else if ( assetType == "RenderOption" )
 			{
-				return RenderOption::ID;
+				return rendercore::RenderOption::ID;
 			}
 			else if ( assetType == "SamplerOption" )
 			{
-				return SamplerOption::ID;
+				return rendercore::SamplerOption::ID;
 			}
 		}
 
@@ -51,9 +51,9 @@ namespace
 	{
 		std::unique_ptr<AsyncLoadableAsset> asset = nullptr;
 
-		if ( assetID == BlendOption::ID )
+		if ( assetID == rendercore::BlendOption::ID )
 		{
-			auto blendOption = std::make_unique<BlendOption>();
+			auto blendOption = std::make_unique<rendercore::BlendOption>();
 			blendOption->SetPath( assetPath );
 
 			if ( const JSON::Value* alphaToConverage = root.Find( "AlphaToConverage" ) )
@@ -129,9 +129,9 @@ namespace
 
 			asset = std::move( blendOption );
 		}
-		else if ( assetID == DepthStencilOption::ID )
+		else if ( assetID == rendercore::DepthStencilOption::ID )
 		{
-			auto depthStencilOption = std::make_unique<DepthStencilOption>();
+			auto depthStencilOption = std::make_unique<rendercore::DepthStencilOption>();
 			depthStencilOption->SetPath( assetPath );
 
 			auto& depthOption = depthStencilOption->m_depth;
@@ -215,9 +215,9 @@ namespace
 
 			asset = std::move( depthStencilOption );
 		}
-		else if ( assetID == Material::ID )
+		else if ( assetID == rendercore::Material::ID )
 		{
-			auto material = std::make_unique<Material>();
+			auto material = std::make_unique<rendercore::Material>();
 			material->SetPath( assetPath );
 
 			if ( const JSON::Value* shaderKeys = root.Find( "Shader" ) )
@@ -235,7 +235,7 @@ namespace
 					{
 					case SHADER_TYPE::VS:
 					{
-						auto vs = std::make_shared<VertexShader>();
+						auto vs = std::make_shared<rendercore::VertexShader>();
 						vs->SetPath( shaderPath->AsString() );
 						material->SetVertexShader( vs );
 						break;
@@ -246,14 +246,14 @@ namespace
 						break;
 					case SHADER_TYPE::GS:
 					{
-						auto gs = std::make_shared<GeometryShader>();
+						auto gs = std::make_shared<rendercore::GeometryShader>();
 						gs->SetPath( shaderPath->AsString() );
 						material->SetGeometryShader( gs );
 						break;
 					}
 					case SHADER_TYPE::PS:
 					{
-						auto ps = std::make_shared<PixelShader>();
+						auto ps = std::make_shared<rendercore::PixelShader>();
 						ps->SetPath( shaderPath->AsString() );
 						material->SetPixelShader( ps );
 						break;
@@ -281,7 +281,7 @@ namespace
 						{
 						case JSON::DataType::STRING:
 						{
-							auto texture = std::make_shared<Texture>();
+							auto texture = std::make_shared<rendercore::Texture>();
 							texture->SetPath( property->AsString() );
 
 							material->AddProperty( name, texture );
@@ -329,7 +329,7 @@ namespace
 				{
 					if ( const JSON::Value* path = sampler->Find( name ) )
 					{
-						auto samplerOption = std::make_shared<SamplerOption>();
+						auto samplerOption = std::make_shared<rendercore::SamplerOption>();
 						samplerOption->SetPath( path->AsString() );
 
 						material->AddSampler( name, samplerOption );
@@ -339,9 +339,9 @@ namespace
 
 			asset = std::move( material );
 		}
-		else if ( assetID == RasterizerOption::ID )
+		else if ( assetID == rendercore::RasterizerOption::ID )
 		{
-			auto rasterizerOption = std::make_unique<RasterizerOption>();
+			auto rasterizerOption = std::make_unique<rendercore::RasterizerOption>();
 			rasterizerOption->SetPath( assetPath );
 
 			if ( const JSON::Value* wireframe = root.Find( "Wireframe" ) )
@@ -386,9 +386,9 @@ namespace
 
 			asset = std::move( rasterizerOption );
 		}
-		else if ( assetID == SamplerOption::ID )
+		else if ( assetID == rendercore::SamplerOption::ID )
 		{
-			auto samplerOption = std::make_unique<SamplerOption>();
+			auto samplerOption = std::make_unique<rendercore::SamplerOption>();
 			samplerOption->SetPath( assetPath );
 
 			if ( const JSON::Value* filter = root.Find( "Filter" ) )
@@ -427,27 +427,27 @@ namespace
 
 			asset = std::move( samplerOption );
 		}
-		else if ( assetID == RenderOption::ID )
+		else if ( assetID == rendercore::RenderOption::ID )
 		{
-			auto renderOption = std::make_unique<RenderOption>();
+			auto renderOption = std::make_unique<rendercore::RenderOption>();
 
 			if ( const JSON::Value* blendOptionPath = root.Find( "Blend" ) )
 			{
-				auto blendOption = std::make_shared<BlendOption>();
+				auto blendOption = std::make_shared<rendercore::BlendOption>();
 				blendOption->SetPath( fs::path( blendOptionPath->AsString() ) );
 				renderOption->m_blendOption = blendOption;
 			}
 
 			if ( const JSON::Value* depthStencilOptionPath = root.Find( "DS_State" ) )
 			{
-				auto depthStencilOption = std::make_shared<DepthStencilOption>();
+				auto depthStencilOption = std::make_shared<rendercore::DepthStencilOption>();
 				depthStencilOption->SetPath( fs::path( depthStencilOptionPath->AsString() ) );
 				renderOption->m_depthStencilOption = depthStencilOption;
 			}
 
 			if ( const JSON::Value* rasterizerOptionPath = root.Find( "RS_State" ) )
 			{
-				auto rasterizerOption = std::make_shared<RasterizerOption>();
+				auto rasterizerOption = std::make_shared<rendercore::RasterizerOption>();
 				rasterizerOption->SetPath( fs::path( rasterizerOptionPath->AsString() ) );
 				renderOption->m_rasterizerOption = rasterizerOption;
 			}
@@ -464,40 +464,40 @@ namespace
 		uint32 assetID = 0;
 		rAr << assetID;
 
-		if ( assetID == BlendOption::ID )
+		if ( assetID == rendercore::BlendOption::ID )
 		{
-			BlendOption blendOption;
+			rendercore::BlendOption blendOption;
 			blendOption.Serialize( rAr );
 
-			return ( blendOption == ( *reinterpret_cast<const BlendOption*>( asset ) ) );
+			return ( blendOption == ( *reinterpret_cast<const rendercore::BlendOption*>( asset ) ) );
 		}
-		else if ( assetID == DepthStencilOption::ID )
+		else if ( assetID == rendercore::DepthStencilOption::ID )
 		{
-			DepthStencilOption depthStencilOption;
+			rendercore::DepthStencilOption depthStencilOption;
 			depthStencilOption.Serialize( rAr );
 
-			return ( depthStencilOption == ( *reinterpret_cast<const DepthStencilOption*>( asset ) ) );
+			return ( depthStencilOption == ( *reinterpret_cast<const rendercore::DepthStencilOption*>( asset ) ) );
 		}
-		else if ( assetID == RasterizerOption::ID )
+		else if ( assetID == rendercore::RasterizerOption::ID )
 		{
-			RasterizerOption rasterizerOption;
+			rendercore::RasterizerOption rasterizerOption;
 			rasterizerOption.Serialize( rAr );
 
-			return ( rasterizerOption == ( *reinterpret_cast<const RasterizerOption*>( asset ) ) );
+			return ( rasterizerOption == ( *reinterpret_cast<const rendercore::RasterizerOption*>( asset ) ) );
 		}
-		else if ( assetID == SamplerOption::ID )
+		else if ( assetID == rendercore::SamplerOption::ID )
 		{
-			SamplerOption samplerOption;
+			rendercore::SamplerOption samplerOption;
 			samplerOption.Serialize( rAr );
 
-			return ( samplerOption == ( *reinterpret_cast<const SamplerOption*>( asset ) ) );
+			return ( samplerOption == ( *reinterpret_cast<const rendercore::SamplerOption*>( asset ) ) );
 		}
-		else if ( assetID == RenderOption::ID )
+		else if ( assetID == rendercore::RenderOption::ID )
 		{
-			RenderOption renderOption;
+			rendercore::RenderOption renderOption;
 			renderOption.Serialize( rAr );
 
-			return ( renderOption == ( *reinterpret_cast<const RenderOption*>( asset ) ) );
+			return ( renderOption == ( *reinterpret_cast<const rendercore::RenderOption*>( asset ) ) );
 		}
 
 		return false;

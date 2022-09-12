@@ -10,7 +10,7 @@ public:
 	using ShapeComponent::ShapeComponent;
 
 	virtual BoxSphereBounds CalcBounds( const Matrix& transform ) override;
-	virtual PrimitiveProxy* CreateProxy() const override;
+	virtual rendercore::PrimitiveProxy* CreateProxy() const override;
 	virtual void UpdateBodySetup() override;
 
 	void SetRadius( float radius );

@@ -27,510 +27,590 @@
 
 #include <deque>
 
-void RenderingShaderResource::BindResources( const ShaderStates& shaders, aga::ShaderBindings& bindings )
+namespace rendercore
 {
-	const ShaderBase* shaderArray[] = {
-		shaders.m_vertexShader,
-		nullptr, // HS
-		nullptr, // DS
-		shaders.m_geometryShader,
-		shaders.m_pixelShader,
-		nullptr, // CS
-	};
-
-	for ( uint32 shaderType = 0; shaderType < MAX_SHADER_TYPE<uint32>; ++shaderType )
+	void RenderingShaderResource::BindResources( const ShaderStates& shaders, aga::ShaderBindings& bindings )
 	{
-		if ( shaderArray[shaderType] == nullptr )
+		const ShaderBase* shaderArray[] = {
+			shaders.m_vertexShader,
+			nullptr, // HS
+			nullptr, // DS
+			shaders.m_geometryShader,
+			shaders.m_pixelShader,
+			nullptr, // CS
+		};
+
+		for ( uint32 shaderType = 0; shaderType < MAX_SHADER_TYPE<uint32>; ++shaderType )
 		{
-			continue;
-		}
-
-		aga::SingleShaderBindings singleBinding = bindings.GetSingleShaderBindings( static_cast<SHADER_TYPE>( shaderType ) );
-
-		if ( singleBinding.ShaderType() == SHADER_TYPE::NONE )
-		{
-			continue;
-		}
-
-		const auto& parameterMap = shaderArray[shaderType]->ParameterMap();
-
-		for ( size_t i = 0; i < m_parameterNames.size(); ++i )
-		{
-			GraphicsApiResource* resource = m_resources[i];
-			if ( resource == nullptr )
+			if ( shaderArray[shaderType] == nullptr )
 			{
 				continue;
 			}
 
-			aga::ShaderParameter parameter = parameterMap.GetParameter( m_parameterNames[i].Str().data() );
+			aga::SingleShaderBindings singleBinding = bindings.GetSingleShaderBindings( static_cast<SHADER_TYPE>( shaderType ) );
 
-			switch ( parameter.m_type )
+			if ( singleBinding.ShaderType() == SHADER_TYPE::NONE )
 			{
-			case aga::ShaderParameterType::ConstantBuffer:
-				singleBinding.AddConstantBuffer( parameter, reinterpret_cast<aga::Buffer*>( m_resources[i] ) );
+				continue;
+			}
+
+			const auto& parameterMap = shaderArray[shaderType]->ParameterMap();
+
+			for ( size_t i = 0; i < m_parameterNames.size(); ++i )
+			{
+				GraphicsApiResource* resource = m_resources[i];
+				if ( resource == nullptr )
+				{
+					continue;
+				}
+
+				aga::ShaderParameter parameter = parameterMap.GetParameter( m_parameterNames[i].Str().data() );
+
+				switch ( parameter.m_type )
+				{
+				case aga::ShaderParameterType::ConstantBuffer:
+					singleBinding.AddConstantBuffer( parameter, reinterpret_cast<aga::Buffer*>( m_resources[i] ) );
+					break;
+				case aga::ShaderParameterType::SRV:
+					singleBinding.AddSRV( parameter, reinterpret_cast<aga::ShaderResourceView*>( m_resources[i] ) );
+					break;
+				case aga::ShaderParameterType::UAV:
+					singleBinding.AddUAV( parameter, reinterpret_cast<aga::UnorderedAccessView*>( m_resources[i] ) );
+					break;
+				case aga::ShaderParameterType::Sampler:
+					singleBinding.AddSampler( parameter, reinterpret_cast<aga::SamplerState*>( m_resources[i] ) );
+					break;
+				default:
+					break;
+				}
+			}
+		}
+	}
+
+	void RenderingShaderResource::AddResource( const std::string& parameterName, GraphicsApiResource* resource )
+	{
+		auto found = std::find( std::begin( m_parameterNames ), std::end( m_parameterNames ), Name( parameterName ) );
+
+		if ( found == std::end( m_parameterNames ) )
+		{
+			m_parameterNames.emplace_back( parameterName );
+			m_resources.emplace_back( resource );
+		}
+		else
+		{
+			size_t idx = std::distance( std::begin( m_parameterNames ), found );
+			m_resources[idx] = resource;
+		}
+	}
+
+	void RenderingShaderResource::ClearResources()
+	{
+		for ( auto& resource : m_resources )
+		{
+			resource = nullptr;
+		}
+	}
+
+	bool SceneRenderer::PreRender( RenderViewGroup& renderViewGroup )
+	{
+		std::construct_at( &m_passSnapshots );
+		std::construct_at( &m_shadowInfos );
+
+		for ( auto& view : renderViewGroup )
+		{
+			PassVisibleSnapshots& passSnapshot = m_passSnapshots.emplace_back();
+			view.m_snapshots = passSnapshot.data();
+		}
+
+		InitDynamicShadows( renderViewGroup );
+		return true;
+	}
+
+	void SceneRenderer::PostRender( RenderViewGroup& renderViewGroup )
+	{
+		m_shaderResources.ClearResources();
+
+		std::destroy_at( &m_passSnapshots );
+		std::destroy_at( &m_shadowInfos );
+
+		Allocator().Flush();
+	}
+
+	void SceneRenderer::WaitUntilRenderingIsFinish()
+	{
+		PrimitiveIdVertexBufferPool::GetInstance().DiscardAll();
+	}
+
+	void SceneRenderer::InitDynamicShadows( RenderViewGroup& renderViewGroup )
+	{
+		IScene& scene = renderViewGroup.Scene();
+		if ( scene.GetRenderScene() == nullptr )
+		{
+			return;
+		}
+
+		VectorSingleFrame<ShadowInfo*> viewDependentShadow;
+
+		Scene& renderScene = *scene.GetRenderScene();
+		auto lights = renderScene.Lights();
+
+		for ( const auto& view : renderViewGroup )
+		{
+			for ( LightSceneInfo* light : lights )
+			{
+				LightProxy* proxy = light->Proxy();
+				if ( proxy->CastShadow() )
+				{
+					ShadowInfo& shadowInfo = m_shadowInfos.emplace_back( light, view );
+					viewDependentShadow.push_back( &shadowInfo );
+				}
+			}
+		}
+
+		ClassifyShadowCasterAndReceiver( scene, viewDependentShadow );
+
+		SetupShadow();
+
+		AllocateShadowMaps();
+	}
+
+	void SceneRenderer::ClassifyShadowCasterAndReceiver( IScene& scene, const VectorSingleFrame<ShadowInfo*>& shadows )
+	{
+		using namespace DirectX;
+
+		Scene& renderScene = *scene.GetRenderScene();
+
+		for ( ShadowInfo* pShadowInfo : shadows )
+		{
+			LightSceneInfo* lightSceneInfo = pShadowInfo->GetLightSceneInfo();
+			[[maybe_unused]] LIGHT_TYPE lightType = lightSceneInfo->Proxy()->LightType();
+
+			assert( lightType == LIGHT_TYPE::DIRECTINAL_LIGHT );
+			assert( pShadowInfo->View() != nullptr );
+
+			const RenderView& view = *pShadowInfo->View();
+			auto viewMat = LookFromMatrix( view.m_viewOrigin, view.m_viewAxis[2], view.m_viewAxis[1] );
+			auto viewProjectionMat = PerspectiveMatrix( view.m_fov, view.m_aspect, view.m_nearPlaneDistance, view.m_farPlaneDistance );
+			viewProjectionMat = viewMat * viewProjectionMat;
+			Frustum frustum( viewProjectionMat );
+
+			const Vector& lightDirection = lightSceneInfo->Proxy()->GetLightProperty().m_direction;
+			Vector sweepDir = lightDirection.GetNormalized();
+
+			const auto& intersectionInfos = lightSceneInfo->Primitives();
+			for ( const auto& intersectionInfo : intersectionInfos )
+			{
+				PrimitiveSceneInfo* primitive = intersectionInfo.m_primitive;
+				uint32 id = primitive->PrimitiveId();
+
+				const BoxSphereBounds& bounds = renderScene.PrimitiveBounds()[id];
+
+				uint32 inFrustum = BoxAndFrustum( bounds.Origin() - bounds.HalfSize(),
+					bounds.Origin() + bounds.HalfSize(),
+					frustum );
+
+				BoxSphereBounds viewspaceBounds = bounds.TransformBy( viewMat );
+
+				switch ( inFrustum )
+				{
+				case COLLISION::OUTSIDE:
+				{
+					bool isIntersected = SphereAndFrusturm( bounds.Origin(), bounds.Radius(), frustum, sweepDir );
+					if ( isIntersected )
+					{
+						pShadowInfo->AddCasterPrimitive( primitive, viewspaceBounds );
+					}
+				}
 				break;
-			case aga::ShaderParameterType::SRV:
-				singleBinding.AddSRV( parameter, reinterpret_cast<aga::ShaderResourceView*>( m_resources[i] ) );
+				case COLLISION::INSIDE:
+				case COLLISION::INTERSECTION:
+				{
+					pShadowInfo->AddCasterPrimitive( primitive, viewspaceBounds );
+					pShadowInfo->AddReceiverPrimitive( primitive, viewspaceBounds );
+				}
 				break;
-			case aga::ShaderParameterType::UAV:
-				singleBinding.AddUAV( parameter, reinterpret_cast<aga::UnorderedAccessView*>( m_resources[i] ) );
+				}
+			}
+		}
+	}
+
+	void SceneRenderer::SetupShadow()
+	{
+		for ( ShadowInfo& shadowInfo : m_shadowInfos )
+		{
+			if ( shadowInfo.HasCasterPrimitives() == false )
+			{
+				continue;
+			}
+
+			LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo();
+			LIGHT_TYPE lightType = lightSceneInfo->Proxy()->LightType();
+
+			switch ( lightType )
+			{
+			case LIGHT_TYPE::DIRECTINAL_LIGHT:
+			{
+				BuildOrthoShadowProjectionMatrix( shadowInfo );
 				break;
-			case aga::ShaderParameterType::Sampler:
-				singleBinding.AddSampler( parameter, reinterpret_cast<aga::SamplerState*>( m_resources[i] ) );
+			}
+			case LIGHT_TYPE::POINT_LIGHT:
 				break;
+			case LIGHT_TYPE::SPOT_LIGHT:
+				break;
+			case LIGHT_TYPE::NONE:
 			default:
 				break;
 			}
 		}
 	}
-}
 
-void RenderingShaderResource::AddResource( const std::string& parameterName, GraphicsApiResource* resource )
-{
-	auto found = std::find( std::begin( m_parameterNames ), std::end( m_parameterNames ), Name( parameterName ) );
-
-	if ( found == std::end( m_parameterNames ) )
+	void SceneRenderer::AllocateShadowMaps()
 	{
-		m_parameterNames.emplace_back( parameterName );
-		m_resources.emplace_back( resource );
-	}
-	else
-	{
-		size_t idx = std::distance( std::begin( m_parameterNames ), found );
-		m_resources[idx] = resource;
-	}
-}
+		VectorSingleFrame<ShadowInfo*> cascadeShadows;
 
-void RenderingShaderResource::ClearResources()
-{
-	for ( auto& resource : m_resources )
-	{
-		resource = nullptr;
-	}
-}
-
-bool SceneRenderer::PreRender( RenderViewGroup& renderViewGroup )
-{
-	std::construct_at( &m_passSnapshots );
-	std::construct_at( &m_shadowInfos );
-
-	for ( auto& view : renderViewGroup )
-	{
-		PassVisibleSnapshots& passSnapshot = m_passSnapshots.emplace_back();
-		view.m_snapshots = passSnapshot.data();
-	}
-
-	InitDynamicShadows( renderViewGroup );
-	return true;
-}
-
-void SceneRenderer::PostRender( RenderViewGroup& renderViewGroup )
-{
-	m_shaderResources.ClearResources();
-
-	std::destroy_at( &m_passSnapshots );
-	std::destroy_at( &m_shadowInfos );
-
-	rendercore::Allocator().Flush();
-}
-
-void SceneRenderer::WaitUntilRenderingIsFinish()
-{
-	PrimitiveIdVertexBufferPool::GetInstance().DiscardAll();
-}
-
-void SceneRenderer::InitDynamicShadows( RenderViewGroup& renderViewGroup )
-{
-	IScene& scene = renderViewGroup.Scene();
-	if ( scene.GetRenderScene() == nullptr )
-	{
-		return;
-	}
-
-	rendercore::VectorSingleFrame<ShadowInfo*> viewDependentShadow;
-
-	Scene& renderScene = *scene.GetRenderScene();
-	auto lights = renderScene.Lights();
-
-	for ( const auto& view : renderViewGroup )
-	{
-		for ( LightSceneInfo* light : lights )
+		for ( auto& shadowInfo : m_shadowInfos )
 		{
-			LightProxy* proxy = light->Proxy();
-			if ( proxy->CastShadow() )
+			LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo();
+			LIGHT_TYPE lightType = lightSceneInfo->Proxy()->LightType();
+
+			switch ( lightType )
 			{
-				ShadowInfo& shadowInfo = m_shadowInfos.emplace_back( light, view );
-				viewDependentShadow.push_back( &shadowInfo );
+			case LIGHT_TYPE::NONE:
+				break;
+			case LIGHT_TYPE::DIRECTINAL_LIGHT:
+				cascadeShadows.push_back( &shadowInfo );
+				break;
+			case LIGHT_TYPE::POINT_LIGHT:
+				break;
+			case LIGHT_TYPE::SPOT_LIGHT:
+				break;
+			default:
+				break;
 			}
+		}
+
+		if ( cascadeShadows.size() > 0 )
+		{
+			AllocateCascadeShadowMaps( cascadeShadows );
 		}
 	}
 
-	ClassifyShadowCasterAndReceiver( scene, viewDependentShadow );
-
-	SetupShadow();
-
-	AllocateShadowMaps();
-}
-
-void SceneRenderer::ClassifyShadowCasterAndReceiver( IScene& scene, const rendercore::VectorSingleFrame<ShadowInfo*>& shadows )
-{
-	using namespace DirectX;
-
-	Scene& renderScene = *scene.GetRenderScene();
-
-	for ( ShadowInfo* pShadowInfo : shadows )
+	void SceneRenderer::AllocateCascadeShadowMaps( const VectorSingleFrame<ShadowInfo*>& shadows )
 	{
-		LightSceneInfo* lightSceneInfo = pShadowInfo->GetLightSceneInfo();
-		[[maybe_unused]] LIGHT_TYPE lightType = lightSceneInfo->Proxy()->LightType();
-
-		assert( lightType == LIGHT_TYPE::DIRECTINAL_LIGHT );
-		assert( pShadowInfo->View() != nullptr );
-
-		const RenderView& view = *pShadowInfo->View();
-		auto viewMat = LookFromMatrix( view.m_viewOrigin, view.m_viewAxis[2], view.m_viewAxis[1] );
-		auto viewProjectionMat = PerspectiveMatrix( view.m_fov, view.m_aspect, view.m_nearPlaneDistance, view.m_farPlaneDistance );
-		viewProjectionMat = viewMat * viewProjectionMat;
-		Frustum frustum( viewProjectionMat );
-
-		const Vector& lightDirection = lightSceneInfo->Proxy()->GetLightProperty().m_direction;
-		Vector sweepDir = lightDirection.GetNormalized();
-
-		const auto& intersectionInfos = lightSceneInfo->Primitives();
-		for ( const auto& intersectionInfo : intersectionInfos )
+		for ( ShadowInfo* shadow : shadows )
 		{
-			PrimitiveSceneInfo* primitive = intersectionInfo.m_primitive;
-			uint32 id = primitive->PrimitiveId();
+			auto [width, height] = shadow->ShadowMapSize();
 
-			const BoxSphereBounds& bounds = renderScene.PrimitiveBounds()[id];
+			TEXTURE_TRAIT trait = { width,
+				height,
+				CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
+				1,
+				0,
+				1,
+				RESOURCE_FORMAT::R32_FLOAT,
+				RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
+				RESOURCE_BIND_TYPE::RENDER_TARGET | RESOURCE_BIND_TYPE::SHADER_RESOURCE,
+				RESOURCE_MISC::NONE };
 
-			uint32 inFrustum = BoxAndFrustum( bounds.Origin() - bounds.HalfSize(),
-				bounds.Origin() + bounds.HalfSize(),
-				frustum );
+			shadow->ShadowMap().m_shadowMap = aga::Texture::Create( trait );
 
-			BoxSphereBounds viewspaceBounds = bounds.TransformBy( viewMat );
+			TEXTURE_TRAIT depthTrait = { width,
+				height,
+				CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
+				1,
+				0,
+				1,
+				RESOURCE_FORMAT::D24_UNORM_S8_UINT,
+				RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
+				RESOURCE_BIND_TYPE::DEPTH_STENCIL,
+				RESOURCE_MISC::NONE };
 
-			switch ( inFrustum )
-			{
-			case COLLISION::OUTSIDE:
-			{
-				bool isIntersected = SphereAndFrusturm( bounds.Origin(), bounds.Radius(), frustum, sweepDir );
-				if ( isIntersected )
+			shadow->ShadowMap().m_shadowMapDepth = aga::Texture::Create( depthTrait );
+
+			EnqueueRenderTask(
+				[texture = shadow->ShadowMap().m_shadowMap, depthTexture = shadow->ShadowMap().m_shadowMapDepth]()
 				{
-					pShadowInfo->AddCasterPrimitive( primitive, viewspaceBounds );
-				}
-			}
-			break;
-			case COLLISION::INSIDE:
-			case COLLISION::INTERSECTION:
-			{
-				pShadowInfo->AddCasterPrimitive( primitive, viewspaceBounds );
-				pShadowInfo->AddReceiverPrimitive( primitive, viewspaceBounds );
-			}
-			break;
-			}
+					if ( texture )
+					{
+						texture->Init();
+					}
+
+					if ( depthTexture )
+					{
+						depthTexture->Init();
+					}
+				} );
 		}
 	}
-}
 
-void SceneRenderer::SetupShadow()
-{
-	for ( ShadowInfo& shadowInfo : m_shadowInfos )
+	void SceneRenderer::RenderShadowDepthPass()
 	{
-		if ( shadowInfo.HasCasterPrimitives() == false )
+		for ( ShadowInfo& shadowInfo : m_shadowInfos )
 		{
-			continue;
+			ShadowMapRenderTarget& shadowMap = shadowInfo.ShadowMap();
+			auto [width, height] = shadowInfo.ShadowMapSize();
+
+			RenderingOutputContext context = {
+				{ shadowMap.m_shadowMap },
+				shadowMap.m_shadowMapDepth,
+				{ 0.f, 0.f, static_cast<float>( width ), static_cast<float>( height ), 0.f, 1.f },
+				{ 0L, 0L, static_cast<int32>( width ), static_cast<int32>( height ) }
+			};
+			StoreOuputContext( context );
+
+			auto commandList = GetImmediateCommandList();
+
+			aga::RenderTargetView* rtv = shadowMap.m_shadowMap.Get() ? shadowMap.m_shadowMap->RTV() : nullptr;
+			commandList.ClearRenderTarget( rtv, { 1, 1, 1, 1 } );
+
+			aga::DepthStencilView* dsv = shadowMap.m_shadowMapDepth.Get() ? shadowMap.m_shadowMapDepth->DSV() : nullptr;
+			commandList.ClearDepthStencil( dsv, 1.f, 0 );
+
+			shadowInfo.SetupShadowConstantBuffer();
+			shadowInfo.RenderDepth( *this, m_shaderResources );
 		}
+	}
 
-		LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo();
-		LIGHT_TYPE lightType = lightSceneInfo->Proxy()->LightType();
-
-		switch ( lightType )
+	void SceneRenderer::RenderTexturedSky( IScene& scene )
+	{
+		Scene* renderScene = scene.GetRenderScene();
+		if ( renderScene == nullptr )
 		{
-		case LIGHT_TYPE::DIRECTINAL_LIGHT:
+			return;
+		}
+
+		TexturedSkyProxy* proxy = renderScene->TexturedSky();
+		if ( proxy == nullptr )
 		{
-			BuildOrthoShadowProjectionMatrix( shadowInfo );
-			break;
+			return;
 		}
-		case LIGHT_TYPE::POINT_LIGHT:
-			break;
-		case LIGHT_TYPE::SPOT_LIGHT:
-			break;
-		case LIGHT_TYPE::NONE:
-		default:
-			break;
-		}
-	}
-}
 
-void SceneRenderer::AllocateShadowMaps()
-{
-	rendercore::VectorSingleFrame<ShadowInfo*> cascadeShadows;
-
-	for ( auto& shadowInfo : m_shadowInfos )
-	{
-		LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo();
-		LIGHT_TYPE lightType = lightSceneInfo->Proxy()->LightType();
-
-		switch ( lightType )
+		StaticMeshRenderData* renderData = proxy->GetRenderData();
+		MaterialResource* material = proxy->GetMaterialResource();
+		if ( ( renderData == nullptr ) || ( renderData->LODSize() == 0 || ( material == nullptr ) ) )
 		{
-		case LIGHT_TYPE::NONE:
-			break;
-		case LIGHT_TYPE::DIRECTINAL_LIGHT:
-			cascadeShadows.push_back( &shadowInfo );
-			break;
-		case LIGHT_TYPE::POINT_LIGHT:
-			break;
-		case LIGHT_TYPE::SPOT_LIGHT:
-			break;
-		default:
-			break;
-		}
-	}
-
-	if ( cascadeShadows.size() > 0 )
-	{
-		AllocateCascadeShadowMaps( cascadeShadows );
-	}
-}
-
-void SceneRenderer::AllocateCascadeShadowMaps( const rendercore::VectorSingleFrame<ShadowInfo*>& shadows )
-{
-	for ( ShadowInfo* shadow : shadows )
-	{
-		auto [width, height] = shadow->ShadowMapSize();
-
-		TEXTURE_TRAIT trait = { width,
-			height,
-			CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
-			1,
-			0,
-			1,
-			RESOURCE_FORMAT::R32_FLOAT,
-			RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
-			RESOURCE_BIND_TYPE::RENDER_TARGET | RESOURCE_BIND_TYPE::SHADER_RESOURCE,
-			RESOURCE_MISC::NONE };
-
-		shadow->ShadowMap().m_shadowMap = aga::Texture::Create( trait );
-
-		TEXTURE_TRAIT depthTrait = { width,
-			height,
-			CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
-			1,
-			0,
-			1,
-			RESOURCE_FORMAT::D24_UNORM_S8_UINT,
-			RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
-			RESOURCE_BIND_TYPE::DEPTH_STENCIL,
-			RESOURCE_MISC::NONE };
-
-		shadow->ShadowMap().m_shadowMapDepth = aga::Texture::Create( depthTrait );
-
-		EnqueueRenderTask(
-			[texture = shadow->ShadowMap().m_shadowMap, depthTexture = shadow->ShadowMap().m_shadowMapDepth]()
-			{
-				if ( texture )
-				{
-					texture->Init();
-				}
-
-				if ( depthTexture )
-				{
-					depthTexture->Init();
-				}
-			} );
-	}
-}
-
-void SceneRenderer::RenderShadowDepthPass()
-{
-	for ( ShadowInfo& shadowInfo : m_shadowInfos )
-	{
-		ShadowMapRenderTarget& shadowMap = shadowInfo.ShadowMap();
-		auto [width, height] = shadowInfo.ShadowMapSize();
-
-		RenderingOutputContext context = {
-			{ shadowMap.m_shadowMap },
-			shadowMap.m_shadowMapDepth,
-			{ 0.f, 0.f, static_cast<float>( width ), static_cast<float>( height ), 0.f, 1.f },
-			{ 0L, 0L, static_cast<int32>( width ), static_cast<int32>( height ) }
-		};
-		StoreOuputContext( context );
-
-		auto commandList = rendercore::GetImmediateCommandList();
-
-		aga::RenderTargetView* rtv = shadowMap.m_shadowMap.Get() ? shadowMap.m_shadowMap->RTV() : nullptr;
-		commandList.ClearRenderTarget( rtv, { 1, 1, 1, 1 } );
-
-		aga::DepthStencilView* dsv = shadowMap.m_shadowMapDepth.Get() ? shadowMap.m_shadowMapDepth->DSV() : nullptr;
-		commandList.ClearDepthStencil( dsv, 1.f, 0 );
-
-		shadowInfo.SetupShadowConstantBuffer();
-		shadowInfo.RenderDepth( *this, m_shaderResources );
-	}
-}
-
-void SceneRenderer::RenderTexturedSky( IScene& scene )
-{
-	Scene* renderScene = scene.GetRenderScene();
-	if ( renderScene == nullptr )
-	{
-		return;
-	}
-
-	TexturedSkyProxy* proxy = renderScene->TexturedSky();
-	if ( proxy == nullptr )
-	{
-		return;
-	}
-
-	StaticMeshRenderData* renderData = proxy->GetRenderData();
-	MaterialResource* material = proxy->GetMaterialResource();
-	if ( ( renderData == nullptr ) || ( renderData->LODSize() == 0 || ( material == nullptr ) ) )
-	{
-		return;
-	}
-
-	ShaderStates shaderState{
-		{},
-		material->GetVertexShader(),
-		nullptr,
-		material->GetPixelShader(),
-	};
-
-	auto commandList = rendercore::GetImmediateCommandList();
-	ApplyOutputContext( commandList );
-
-	StaticMeshLODResource& lodResource = renderData->LODResource( 0 );
-	const VertexCollection& vertexCollection = lodResource.m_vertexCollection;
-
-	for ( const auto& section : lodResource.m_sections )
-	{
-		DrawSnapshot snapshot;
-		vertexCollection.Bind( snapshot.m_vertexStream, VertexStreamLayoutType::PositionOnly );
-		snapshot.m_primitiveIdSlot = -1;
-		snapshot.m_indexBuffer = lodResource.m_ib;
-
-		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
-		pipelineState.m_shaderState = shaderState;
-
-		auto initializer = CreateShaderBindingsInitializer( pipelineState.m_shaderState );
-		snapshot.m_shaderBindings.Initialize( initializer );
-
-		material->TakeSnapshot( snapshot );
-
-		auto& graphicsInterface = GraphicsInterface();
-		if ( pipelineState.m_shaderState.m_vertexShader )
-		{
-			VertexStreamLayout vertexlayout = vertexCollection.VertexLayout( VertexStreamLayoutType::PositionOnly );
-			pipelineState.m_shaderState.m_vertexLayout = graphicsInterface.FindOrCreate( *pipelineState.m_shaderState.m_vertexShader, vertexlayout );
+			return;
 		}
 
-		pipelineState.m_depthStencilState = graphicsInterface.FindOrCreate( proxy->GetDepthStencilOption() );
-		pipelineState.m_rasterizerState = graphicsInterface.FindOrCreate( proxy->GetRasterizerOption() );
-
-		pipelineState.m_primitive = RESOURCE_PRIMITIVE::TRIANGLELIST;
-
-		snapshot.m_count = section.m_count;
-		snapshot.m_startIndexLocation = section.m_startLocation;
-		snapshot.m_baseVertexLocation = 0;
-
-		PreparePipelineStateObject( snapshot );
-
-		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
-
-		VisibleDrawSnapshot visibleSnapshot = {
-			0,
-			0,
-			1,
-			-1,
-			&snapshot,
+		ShaderStates shaderState{
+			{},
+			material->GetVertexShader(),
+			nullptr,
+			material->GetPixelShader(),
 		};
 
-		VertexBuffer emptyPrimitiveID;
-		CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
-	}
-}
+		auto commandList = GetImmediateCommandList();
+		ApplyOutputContext( commandList );
 
-void SceneRenderer::RenderMesh( IScene& scene, RenderPass passType, RenderView& renderView )
-{
-	const auto& primitives = scene.Primitives();
-	if ( primitives.Size() == 0 )
-	{
-		return;
-	}
+		StaticMeshLODResource& lodResource = renderData->LODResource( 0 );
+		const VertexCollection& vertexCollection = lodResource.m_vertexCollection;
 
-	auto* renderScene = scene.GetRenderScene();
-	if ( renderScene == nullptr )
-	{
-		return;
-	}
-
-	auto& snapshots = renderView.m_snapshots[static_cast<uint32>( passType )];
-
-	std::deque<DrawSnapshot> snapshotStorage;
-
-	// Create DrawSnapshot
-	for ( auto primitive : primitives )
-	{
-		PrimitiveProxy* proxy = primitive->Proxy();
-
-		const std::vector<PrimitiveSubMeshInfo>& subMeshInfos = primitive->SubMeshInfos();
-
-		if ( subMeshInfos.size() > 0 )
+		for ( const auto& section : lodResource.m_sections )
 		{
-			for ( const auto& subMeshInfo : subMeshInfos )
-			{
-				auto snapshotIndex = subMeshInfo.GetCachedDrawSnapshotInfoIndex( passType );
-				if ( snapshotIndex )
-				{
-					const CachedDrawSnapshotInfo& info = primitive->GetCachedDrawSnapshotInfo( *snapshotIndex );
-					DrawSnapshot& snapshot = primitive->CachedDrawSnapshot( *snapshotIndex );
+			DrawSnapshot snapshot;
+			vertexCollection.Bind( snapshot.m_vertexStream, VertexStreamLayoutType::PositionOnly );
+			snapshot.m_primitiveIdSlot = -1;
+			snapshot.m_indexBuffer = lodResource.m_ib;
 
-					VisibleDrawSnapshot& visibleSnapshot = snapshots.emplace_back();
-					visibleSnapshot.m_snapshotBucketId = info.m_snapshotBucketId;
-					visibleSnapshot.m_drawSnapshot = &snapshot;
-					visibleSnapshot.m_primitiveId = proxy->PrimitiveId();
-					visibleSnapshot.m_numInstance = 1;
+			GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+			pipelineState.m_shaderState = shaderState;
+
+			auto initializer = CreateShaderBindingsInitializer( pipelineState.m_shaderState );
+			snapshot.m_shaderBindings.Initialize( initializer );
+
+			material->TakeSnapshot( snapshot );
+
+			auto& graphicsInterface = GraphicsInterface();
+			if ( pipelineState.m_shaderState.m_vertexShader )
+			{
+				VertexStreamLayout vertexlayout = vertexCollection.VertexLayout( VertexStreamLayoutType::PositionOnly );
+				pipelineState.m_shaderState.m_vertexLayout = graphicsInterface.FindOrCreate( *pipelineState.m_shaderState.m_vertexShader, vertexlayout );
+			}
+
+			pipelineState.m_depthStencilState = graphicsInterface.FindOrCreate( proxy->GetDepthStencilOption() );
+			pipelineState.m_rasterizerState = graphicsInterface.FindOrCreate( proxy->GetRasterizerOption() );
+
+			pipelineState.m_primitive = RESOURCE_PRIMITIVE::TRIANGLELIST;
+
+			snapshot.m_count = section.m_count;
+			snapshot.m_startIndexLocation = section.m_startLocation;
+			snapshot.m_baseVertexLocation = 0;
+
+			PreparePipelineStateObject( snapshot );
+
+			m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+			VisibleDrawSnapshot visibleSnapshot = {
+				0,
+				0,
+				1,
+				-1,
+				&snapshot,
+			};
+
+			VertexBuffer emptyPrimitiveID;
+			CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
+		}
+	}
+
+	void SceneRenderer::RenderMesh( IScene& scene, RenderPass passType, RenderView& renderView )
+	{
+		const auto& primitives = scene.Primitives();
+		if ( primitives.Size() == 0 )
+		{
+			return;
+		}
+
+		auto* renderScene = scene.GetRenderScene();
+		if ( renderScene == nullptr )
+		{
+			return;
+		}
+
+		auto& snapshots = renderView.m_snapshots[static_cast<uint32>( passType )];
+
+		std::deque<DrawSnapshot> snapshotStorage;
+
+		// Create DrawSnapshot
+		for ( auto primitive : primitives )
+		{
+			PrimitiveProxy* proxy = primitive->Proxy();
+
+			const std::vector<PrimitiveSubMeshInfo>& subMeshInfos = primitive->SubMeshInfos();
+
+			if ( subMeshInfos.size() > 0 )
+			{
+				for ( const auto& subMeshInfo : subMeshInfos )
+				{
+					auto snapshotIndex = subMeshInfo.GetCachedDrawSnapshotInfoIndex( passType );
+					if ( snapshotIndex )
+					{
+						const CachedDrawSnapshotInfo& info = primitive->GetCachedDrawSnapshotInfo( *snapshotIndex );
+						DrawSnapshot& snapshot = primitive->CachedDrawSnapshot( *snapshotIndex );
+
+						VisibleDrawSnapshot& visibleSnapshot = snapshots.emplace_back();
+						visibleSnapshot.m_snapshotBucketId = info.m_snapshotBucketId;
+						visibleSnapshot.m_drawSnapshot = &snapshot;
+						visibleSnapshot.m_primitiveId = proxy->PrimitiveId();
+						visibleSnapshot.m_numInstance = 1;
+					}
 				}
 			}
+			else
+			{
+				proxy->TakeSnapshot( snapshotStorage, snapshots );
+			}
 		}
-		else
+
+		if ( snapshots.size() == 0 )
 		{
-			proxy->TakeSnapshot( snapshotStorage, snapshots );
+			return;
+		}
+
+		// Update invalidated resources
+		for ( auto& viewDrawSnapshot : snapshots )
+		{
+			DrawSnapshot& snapshot = *viewDrawSnapshot.m_drawSnapshot;
+			GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+
+			m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+		}
+
+		VertexBuffer primitiveIds = PrimitiveIdVertexBufferPool::GetInstance().Alloc( static_cast<uint32>( snapshots.size() * sizeof( uint32 ) ) );
+
+		SortDrawSnapshots( snapshots, primitiveIds );
+		// CommitDrawSnapshots( *this, renderViewGroup, curView, primitiveIds );
+		ParallelCommitDrawSnapshot( *this, snapshots, primitiveIds );
+	}
+
+	void SceneRenderer::RenderShadow()
+	{
+		for ( ShadowInfo& shadowInfo : m_shadowInfos )
+		{
+			ShadowDrawPassProcessor shadowDrawPassProcessor;
+
+			PrimitiveSubMesh meshInfo;
+			meshInfo.m_count = 3;
+
+			auto result = shadowDrawPassProcessor.Process( meshInfo );
+			if ( result.has_value() == false )
+			{
+				return;
+			}
+
+			DrawSnapshot& snapshot = *result;
+
+			// Update invalidated resources
+			GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+			m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+			auto commandList = GetImmediateCommandList();
+			ApplyOutputContext( commandList );
+
+			m_shaderResources.AddResource( "ShadowTexture", shadowInfo.ShadowMap().m_shadowMap->SRV() );
+
+			SamplerOption shadowSamplerOption;
+			shadowSamplerOption.m_filter |= TEXTURE_FILTER::COMPARISON;
+			shadowSamplerOption.m_addressU = TEXTURE_ADDRESS_MODE::BORDER;
+			shadowSamplerOption.m_addressV = TEXTURE_ADDRESS_MODE::BORDER;
+			shadowSamplerOption.m_addressW = TEXTURE_ADDRESS_MODE::BORDER;
+			shadowSamplerOption.m_comparisonFunc = COMPARISON_FUNC::LESS_EQUAL;
+			SamplerState shadowSampler = GraphicsInterface().FindOrCreate( shadowSamplerOption );
+			m_shaderResources.AddResource( "ShadowSampler", shadowSampler.Resource() );
+
+			m_shaderResources.AddResource( "ShadowDepthPassParameters", shadowInfo.ConstantBuffer().Resource() );
+
+			m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+			VisibleDrawSnapshot visibleSnapshot = {
+				0,
+				0,
+				1,
+				-1,
+				&snapshot,
+			};
+
+			VertexBuffer emptyPrimitiveID;
+			CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
 		}
 	}
 
-	if ( snapshots.size() == 0 )
+	void SceneRenderer::RenderSkyAtmosphere( IScene& scene, RenderView& renderView )
 	{
-		return;
-	}
+		Scene* renderScene = scene.GetRenderScene();
+		if ( renderScene == nullptr )
+		{
+			return;
+		}
 
-	// Update invalidated resources
-	for ( auto& viewDrawSnapshot : snapshots )
-	{
-		DrawSnapshot& snapshot = *viewDrawSnapshot.m_drawSnapshot;
-		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+		SkyAtmosphereRenderSceneInfo* info = renderScene->SkyAtmosphereSceneInfo();
+		if ( info == nullptr )
+		{
+			return;
+		}
 
-		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
-	}
+		const LightSceneInfo* skyAtmosphereLight = renderScene->SkyAtmosphereSunLight();
+		if ( skyAtmosphereLight == nullptr )
+		{
+			return;
+		}
 
-	VertexBuffer primitiveIds = PrimitiveIdVertexBufferPool::GetInstance().Alloc( static_cast<uint32>( snapshots.size() * sizeof( uint32 ) ) );
+		LightProperty lightProperty = skyAtmosphereLight->Proxy()->GetLightProperty();
 
-	SortDrawSnapshots( snapshots, primitiveIds );
-	// CommitDrawSnapshots( *this, renderViewGroup, curView, primitiveIds );
-	ParallelCommitDrawSnapshot( *this, snapshots, primitiveIds );
-}
+		auto& skyAtmosphereRenderParameter = info->GetSkyAtmosphereRenderParameter();
+		SkyAtmosphereRenderParameter param = {
+			.m_cameraPos = renderView.m_viewOrigin,
+			.m_sunDir = -lightProperty.m_direction,
+			.m_exposure = 0.4f,
+		};
+		skyAtmosphereRenderParameter.Update( param );
 
-void SceneRenderer::RenderShadow()
-{
-	for ( ShadowInfo& shadowInfo : m_shadowInfos )
-	{
-		ShadowDrawPassProcessor shadowDrawPassProcessor;
+		SkyAtmosphereDrawPassProcessor skyAtmosphereDrawPassProcessor;
 
 		PrimitiveSubMesh meshInfo;
 		meshInfo.m_count = 3;
 
-		auto result = shadowDrawPassProcessor.Process( meshInfo );
+		auto result = skyAtmosphereDrawPassProcessor.Process( meshInfo );
 		if ( result.has_value() == false )
 		{
 			return;
@@ -542,23 +622,21 @@ void SceneRenderer::RenderShadow()
 		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
-		auto commandList = rendercore::GetImmediateCommandList();
+		auto commandList = GetImmediateCommandList();
 		ApplyOutputContext( commandList );
 
-		m_shaderResources.AddResource( "ShadowTexture", shadowInfo.ShadowMap().m_shadowMap->SRV() );
+		auto defaultSampler = GraphicsInterface().FindOrCreate( SamplerOption() );
 
-		SamplerOption shadowSamplerOption;
-		shadowSamplerOption.m_filter |= TEXTURE_FILTER::COMPARISON;
-		shadowSamplerOption.m_addressU = TEXTURE_ADDRESS_MODE::BORDER;
-		shadowSamplerOption.m_addressV = TEXTURE_ADDRESS_MODE::BORDER;
-		shadowSamplerOption.m_addressW = TEXTURE_ADDRESS_MODE::BORDER;
-		shadowSamplerOption.m_comparisonFunc = COMPARISON_FUNC::LESS_EQUAL;
-		SamplerState shadowSampler = GraphicsInterface().FindOrCreate( shadowSamplerOption );
-		m_shaderResources.AddResource( "ShadowSampler", shadowSampler.Resource() );
+		RenderingShaderResource skyAtmosphereDrawResources;
+		skyAtmosphereDrawResources.AddResource( "TransmittanceLut", info->GetTransmittanceLutTexture()->SRV() );
+		skyAtmosphereDrawResources.AddResource( "TransmittanceLutSampler", defaultSampler.Resource() );
+		skyAtmosphereDrawResources.AddResource( "IrradianceLut", info->GetIrradianceLutTexture()->SRV() );
+		skyAtmosphereDrawResources.AddResource( "IrradianceLutSampler", defaultSampler.Resource() );
+		skyAtmosphereDrawResources.AddResource( "InscatterLut", info->GetInscatterLutTexture()->SRV() );
+		skyAtmosphereDrawResources.AddResource( "InscatterLutSampler", defaultSampler.Resource() );
+		skyAtmosphereDrawResources.AddResource( "SkyAtmosphereRenderParameter", skyAtmosphereRenderParameter.Resource() );
 
-		m_shaderResources.AddResource( "ShadowDepthPassParameters", shadowInfo.ConstantBuffer().Resource() );
-
-		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+		skyAtmosphereDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
 		VisibleDrawSnapshot visibleSnapshot = {
 			0,
@@ -571,184 +649,109 @@ void SceneRenderer::RenderShadow()
 		VertexBuffer emptyPrimitiveID;
 		CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
 	}
-}
 
-void SceneRenderer::RenderSkyAtmosphere( IScene& scene, RenderView& renderView )
-{
-	Scene* renderScene = scene.GetRenderScene();
-	if ( renderScene == nullptr )
+	void SceneRenderer::RenderVolumetricCloud( IScene& scene, RenderView& renderView )
 	{
-		return;
+		Scene* renderScene = scene.GetRenderScene();
+		if ( renderScene == nullptr )
+		{
+			return;
+		}
+
+		VolumetricCloudSceneInfo* info = renderScene->VolumetricCloud();
+		if ( info == nullptr )
+		{
+			return;
+		}
+
+		info->CreateRenderData();
+
+		const LightSceneInfo* skyAtmosphereLight = renderScene->SkyAtmosphereSunLight();
+		if ( skyAtmosphereLight == nullptr )
+		{
+			return;
+		}
+
+		VolumetricCloundDrawPassProcessor volumetricCloundDrawPassProcessor;
+
+		PrimitiveSubMesh meshInfo;
+		meshInfo.m_count = 3;
+
+		auto result = volumetricCloundDrawPassProcessor.Process( meshInfo );
+		if ( result.has_value() == false )
+		{
+			return;
+		}
+
+		Vector4 lightPosOrDir;
+		LightProperty lightProperty = skyAtmosphereLight->Proxy()->GetLightProperty();
+		if ( lightProperty.m_type == LIGHT_TYPE::DIRECTINAL_LIGHT )
+		{
+			lightPosOrDir = Vector4( -lightProperty.m_direction.x, -lightProperty.m_direction.y, -lightProperty.m_direction.z, 0.f );
+		}
+		else
+		{
+			lightPosOrDir = Vector4( lightProperty.m_position.x, lightProperty.m_position.y, lightProperty.m_position.z, 1.f );
+		}
+
+		const VolumetricCloudProxy& proxy = *info->Proxy();
+		VolumetricCloudRenderParameter param = {
+			.m_sphereRadius = Vector( proxy.EarthRadius(), proxy.InnerRadius(), proxy.OuterRadius() ),
+			.m_lightAbsorption = proxy.LightAbsorption(),
+			.m_cameraPos = renderView.m_viewOrigin,
+			.m_densityScale = proxy.DensityScale(),
+			.m_lightPosOrDir = lightPosOrDir,
+			.m_cloudColor = proxy.CloudColor(),
+			.m_windDirection = Vector( 0.5f, 0.f, 0.1f ).GetNormalized(),
+			.m_windSpeed = 450.f,
+			.m_crispiness = proxy.Crispiness(),
+			.m_curliness = proxy.Curliness(),
+			.m_densityFactor = proxy.DensityFactor(),
+		};
+
+		auto& volumetricCloudRenderParameter = info->GetVolumetricCloudRenderParameter();
+		volumetricCloudRenderParameter.Update( param );
+
+		DrawSnapshot& snapshot = *result;
+
+		// Update invalidated resources
+		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+		auto commandList = GetImmediateCommandList();
+		ApplyOutputContext( commandList );
+
+		SamplerOption samplerOption;
+		samplerOption.m_addressU =
+			samplerOption.m_addressV =
+			samplerOption.m_addressW = TEXTURE_ADDRESS_MODE::WRAP;
+		SamplerState cloudSampler = GraphicsInterface().FindOrCreate( samplerOption );
+		SamplerState weatherSampler = GraphicsInterface().FindOrCreate( samplerOption );
+
+		RenderingShaderResource volumetricCloundDrawResources;
+		volumetricCloundDrawResources.AddResource( "VolumetricCloudRenderParameter", volumetricCloudRenderParameter.Resource() );
+		volumetricCloundDrawResources.AddResource( "BaseCloudShape", info->BaseCloudShape()->SRV() );
+		volumetricCloundDrawResources.AddResource( "DetailCloudShape", info->DetailCloudShape()->SRV() );
+		volumetricCloundDrawResources.AddResource( "WeatherMap", info->WeatherMap()->SRV() );
+		volumetricCloundDrawResources.AddResource( "BaseCloudSampler", cloudSampler.Resource() );
+		volumetricCloundDrawResources.AddResource( "WeatherSampler", weatherSampler.Resource() );
+
+		volumetricCloundDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+		VisibleDrawSnapshot visibleSnapshot = {
+			0,
+			0,
+			1,
+			-1,
+			&snapshot,
+		};
+
+		VertexBuffer emptyPrimitiveID;
+		CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
 	}
 
-	rendercore::SkyAtmosphereRenderSceneInfo* info = renderScene->SkyAtmosphereSceneInfo();
-	if ( info == nullptr )
+	void SceneRenderer::StoreOuputContext( const RenderingOutputContext& context )
 	{
-		return;
+		m_outputContext = context;
 	}
-
-	const LightSceneInfo* skyAtmosphereLight = renderScene->SkyAtmosphereSunLight();
-	if ( skyAtmosphereLight == nullptr )
-	{
-		return;
-	}
-
-	LightProperty lightProperty = skyAtmosphereLight->Proxy()->GetLightProperty();
-
-	auto& skyAtmosphereRenderParameter = info->GetSkyAtmosphereRenderParameter();
-	rendercore::SkyAtmosphereRenderParameter param = {
-		.m_cameraPos = renderView.m_viewOrigin,
-		.m_sunDir = -lightProperty.m_direction,
-		.m_exposure = 0.4f,
-	};
-	skyAtmosphereRenderParameter.Update( param );
-
-	rendercore::SkyAtmosphereDrawPassProcessor skyAtmosphereDrawPassProcessor;
-
-	PrimitiveSubMesh meshInfo;
-	meshInfo.m_count = 3;
-
-	auto result = skyAtmosphereDrawPassProcessor.Process( meshInfo );
-	if ( result.has_value() == false )
-	{
-		return;
-	}
-
-	DrawSnapshot& snapshot = *result;
-
-	// Update invalidated resources
-	GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
-	m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
-
-	auto commandList = rendercore::GetImmediateCommandList();
-	ApplyOutputContext( commandList );
-
-	auto defaultSampler = GraphicsInterface().FindOrCreate( SamplerOption() );
-
-	RenderingShaderResource skyAtmosphereDrawResources;
-	skyAtmosphereDrawResources.AddResource( "TransmittanceLut", info->GetTransmittanceLutTexture()->SRV() );
-	skyAtmosphereDrawResources.AddResource( "TransmittanceLutSampler", defaultSampler.Resource() );
-	skyAtmosphereDrawResources.AddResource( "IrradianceLut", info->GetIrradianceLutTexture()->SRV() );
-	skyAtmosphereDrawResources.AddResource( "IrradianceLutSampler", defaultSampler.Resource() );
-	skyAtmosphereDrawResources.AddResource( "InscatterLut", info->GetInscatterLutTexture()->SRV() );
-	skyAtmosphereDrawResources.AddResource( "InscatterLutSampler", defaultSampler.Resource() );
-	skyAtmosphereDrawResources.AddResource( "SkyAtmosphereRenderParameter", skyAtmosphereRenderParameter.Resource() );
-
-	skyAtmosphereDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
-
-	VisibleDrawSnapshot visibleSnapshot = {
-		0,
-		0,
-		1,
-		-1,
-		&snapshot,
-	};
-
-	VertexBuffer emptyPrimitiveID;
-	CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
-}
-
-void SceneRenderer::RenderVolumetricCloud( IScene& scene, RenderView& renderView )
-{
-	Scene* renderScene = scene.GetRenderScene();
-	if ( renderScene == nullptr )
-	{
-		return;
-	}
-
-	rendercore::VolumetricCloudSceneInfo* info = renderScene->VolumetricCloud();
-	if ( info == nullptr )
-	{
-		return;
-	}
-
-	info->CreateRenderData();
-
-	const LightSceneInfo* skyAtmosphereLight = renderScene->SkyAtmosphereSunLight();
-	if ( skyAtmosphereLight == nullptr )
-	{
-		return;
-	}
-
-	rendercore::VolumetricCloundDrawPassProcessor volumetricCloundDrawPassProcessor;
-
-	PrimitiveSubMesh meshInfo;
-	meshInfo.m_count = 3;
-
-	auto result = volumetricCloundDrawPassProcessor.Process( meshInfo );
-	if ( result.has_value() == false )
-	{
-		return;
-	}
-
-	Vector4 lightPosOrDir;
-	LightProperty lightProperty = skyAtmosphereLight->Proxy()->GetLightProperty();
-	if ( lightProperty.m_type == LIGHT_TYPE::DIRECTINAL_LIGHT )
-	{
-		lightPosOrDir = Vector4( -lightProperty.m_direction.x, -lightProperty.m_direction.y, -lightProperty.m_direction.z, 0.f );
-	}
-	else
-	{
-		lightPosOrDir = Vector4( lightProperty.m_position.x, lightProperty.m_position.y, lightProperty.m_position.z, 1.f );
-	}
-
-	const VolumetricCloudProxy& proxy = *info->Proxy();
-	rendercore::VolumetricCloudRenderParameter param = {
-		.m_sphereRadius = Vector( proxy.EarthRadius(), proxy.InnerRadius(), proxy.OuterRadius() ),
-		.m_lightAbsorption = proxy.LightAbsorption(),
-		.m_cameraPos = renderView.m_viewOrigin,
-		.m_densityScale = proxy.DensityScale(),
-		.m_lightPosOrDir = lightPosOrDir,
-		.m_cloudColor = proxy.CloudColor(),
-		.m_windDirection = Vector( 0.5f, 0.f, 0.1f ).GetNormalized(),
-		.m_windSpeed = 450.f,
-		.m_crispiness = proxy.Crispiness(),
-		.m_curliness = proxy.Curliness(),
-		.m_densityFactor = proxy.DensityFactor(),
-	};
-
-	auto& volumetricCloudRenderParameter = info->GetVolumetricCloudRenderParameter();
-	volumetricCloudRenderParameter.Update( param );
-
-	DrawSnapshot& snapshot = *result;
-
-	// Update invalidated resources
-	GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
-	m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
-
-	auto commandList = rendercore::GetImmediateCommandList();
-	ApplyOutputContext( commandList );
-
-	SamplerOption samplerOption;
-	samplerOption.m_addressU =
-		samplerOption.m_addressV =
-		samplerOption.m_addressW = TEXTURE_ADDRESS_MODE::WRAP;
-	SamplerState cloudSampler = GraphicsInterface().FindOrCreate( samplerOption );
-	SamplerState weatherSampler = GraphicsInterface().FindOrCreate( samplerOption );
-
-	RenderingShaderResource volumetricCloundDrawResources;
-	volumetricCloundDrawResources.AddResource( "VolumetricCloudRenderParameter", volumetricCloudRenderParameter.Resource() );
-	volumetricCloundDrawResources.AddResource( "BaseCloudShape", info->BaseCloudShape()->SRV() );
-	volumetricCloundDrawResources.AddResource( "DetailCloudShape", info->DetailCloudShape()->SRV() );
-	volumetricCloundDrawResources.AddResource( "WeatherMap", info->WeatherMap()->SRV() );
-	volumetricCloundDrawResources.AddResource( "BaseCloudSampler", cloudSampler.Resource() );
-	volumetricCloundDrawResources.AddResource( "WeatherSampler", weatherSampler.Resource() );
-
-	volumetricCloundDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
-
-	VisibleDrawSnapshot visibleSnapshot = {
-		0,
-		0,
-		1,
-		-1,
-		&snapshot,
-	};
-
-	VertexBuffer emptyPrimitiveID;
-	CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
-}
-
-void SceneRenderer::StoreOuputContext( const RenderingOutputContext& context )
-{
-	m_outputContext = context;
 }

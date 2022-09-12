@@ -2,7 +2,10 @@
 
 #include "SceneComponent.h"
 
-class SkyAtmospherePorxy;
+namespace rendercore
+{
+	class SkyAtmospherePorxy;
+}
 
 class SkyAtmosphereComponent : public SceneComponent
 {
@@ -17,5 +20,5 @@ protected:
 	virtual void RemoveRenderState() override;
 
 private:
-	SkyAtmospherePorxy* m_skyAtmosphereProxy = nullptr;
+	rendercore::SkyAtmospherePorxy* m_skyAtmosphereProxy = nullptr;
 };

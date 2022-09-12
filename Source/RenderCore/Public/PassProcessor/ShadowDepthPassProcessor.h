@@ -2,8 +2,11 @@
 
 #include "PassProcessor.h"
 
-class ShadowDepthPassProcessor : public IPassProcessor
+namespace rendercore
 {
-public:
-	virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) override;
-};
+	class ShadowDepthPassProcessor : public IPassProcessor
+	{
+	public:
+		virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) override;
+	};
+}

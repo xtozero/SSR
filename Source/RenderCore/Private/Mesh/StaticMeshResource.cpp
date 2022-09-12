@@ -8,83 +8,86 @@
 #include <cassert>
 #include <vector>
 
-Archive& operator<<( Archive& ar, StaticMeshSection& section )
+namespace rendercore
 {
-	ar << section.m_startLocation
-		<< section.m_count
-		<< section.m_materialIndex;
-
-	return ar;
-}
-
-Archive& operator<<( Archive& ar, StaticMeshLODResource& lodResource )
-{
-	ar << lodResource.m_vertexCollection;
-
-	if ( ar.IsWriteMode() )
+	Archive& operator<<( Archive& ar, StaticMeshSection& section )
 	{
-		ar << static_cast<uint32>( lodResource.m_indexData.size() );
-	}
-	else
-	{
-		uint32 size = 0;
-		ar << size;
-		lodResource.m_indexData.resize( size );
+		ar << section.m_startLocation
+			<< section.m_count
+			<< section.m_materialIndex;
+
+		return ar;
 	}
 
-	ar << lodResource.m_isDWORD;
-	if ( lodResource.m_isDWORD )
+	Archive& operator<<( Archive& ar, StaticMeshLODResource& lodResource )
 	{
-		for ( size_t i = 0; i < lodResource.m_indexData.size(); i += sizeof( DWORD ) )
+		ar << lodResource.m_vertexCollection;
+
+		if ( ar.IsWriteMode() )
 		{
-			ar << *reinterpret_cast<DWORD*>( lodResource.m_indexData.data() + i );
+			ar << static_cast<uint32>( lodResource.m_indexData.size() );
 		}
-	}
-	else
-	{
-		for ( size_t i = 0; i < lodResource.m_indexData.size(); i += sizeof( WORD ) )
+		else
 		{
-			ar << *reinterpret_cast<WORD*>( lodResource.m_indexData.data() + i );
+			uint32 size = 0;
+			ar << size;
+			lodResource.m_indexData.resize( size );
 		}
+
+		ar << lodResource.m_isDWORD;
+		if ( lodResource.m_isDWORD )
+		{
+			for ( size_t i = 0; i < lodResource.m_indexData.size(); i += sizeof( DWORD ) )
+			{
+				ar << *reinterpret_cast<DWORD*>( lodResource.m_indexData.data() + i );
+			}
+		}
+		else
+		{
+			for ( size_t i = 0; i < lodResource.m_indexData.size(); i += sizeof( WORD ) )
+			{
+				ar << *reinterpret_cast<WORD*>( lodResource.m_indexData.data() + i );
+			}
+		}
+
+		ar << lodResource.m_sections;
+
+		return ar;
 	}
 
-	ar << lodResource.m_sections;
-
-	return ar;
-}
-
-void StaticMeshRenderData::AllocateLODResources( uint32 numLOD )
-{
-	m_lodResources.resize( numLOD );
-}
-
-void StaticMeshRenderData::Init()
-{
-	assert( IsInRenderThread() );
-}
-
-void StaticMeshRenderData::CreateRenderResource()
-{
-	if ( Initialized() )
+	void StaticMeshRenderData::AllocateLODResources( uint32 numLOD )
 	{
-		return;
+		m_lodResources.resize( numLOD );
 	}
 
-	for ( StaticMeshLODResource& lodResource : m_lodResources )
+	void StaticMeshRenderData::Init()
 	{
-		lodResource.m_vertexCollection.InitResource();
-
-		uint32 stride = lodResource.m_isDWORD ? sizeof( DWORD ) : sizeof( WORD );
-		uint32 size = static_cast<uint32>( lodResource.m_indexData.size() ) / stride;
-		lodResource.m_ib = IndexBuffer( size, lodResource.m_indexData.data(), lodResource.m_isDWORD );
+		assert( IsInRenderThread() );
 	}
 
-	m_initialized = true;
-}
+	void StaticMeshRenderData::CreateRenderResource()
+	{
+		if ( Initialized() )
+		{
+			return;
+		}
 
-Archive& operator<<( Archive& ar, StaticMeshRenderData& renderData )
-{
-	ar << renderData.m_lodResources;
+		for ( StaticMeshLODResource& lodResource : m_lodResources )
+		{
+			lodResource.m_vertexCollection.InitResource();
 
-	return ar;
+			uint32 stride = lodResource.m_isDWORD ? sizeof( DWORD ) : sizeof( WORD );
+			uint32 size = static_cast<uint32>( lodResource.m_indexData.size() ) / stride;
+			lodResource.m_ib = IndexBuffer( size, lodResource.m_indexData.data(), lodResource.m_isDWORD );
+		}
+
+		m_initialized = true;
+	}
+
+	Archive& operator<<( Archive& ar, StaticMeshRenderData& renderData )
+	{
+		ar << renderData.m_lodResources;
+
+		return ar;
+	}
 }

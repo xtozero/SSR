@@ -24,33 +24,33 @@ namespace
 		uint32 assetID = 0;
 		rAr << assetID;
 
-		if ( assetID == ComputeShader::ID )
+		if ( assetID == rendercore::ComputeShader::ID )
 		{
-			ComputeShader cs;
+			rendercore::ComputeShader cs;
 			cs.Serialize( rAr );
 
-			return ( cs == *reinterpret_cast<const ComputeShader*>( asset ) );
+			return ( cs == *reinterpret_cast<const rendercore::ComputeShader*>( asset ) );
 		}
-		else if ( assetID == GeometryShader::ID )
+		else if ( assetID == rendercore::GeometryShader::ID )
 		{
-			GeometryShader gs;
+			rendercore::GeometryShader gs;
 			gs.Serialize( rAr );
 
-			return ( gs == *reinterpret_cast<const GeometryShader*>( asset ) );
+			return ( gs == *reinterpret_cast<const rendercore::GeometryShader*>( asset ) );
 		}
-		else if ( assetID == PixelShader::ID )
+		else if ( assetID == rendercore::PixelShader::ID )
 		{
-			PixelShader ps;
+			rendercore::PixelShader ps;
 			ps.Serialize( rAr );
 
-			return ( ps == *reinterpret_cast<const PixelShader*>( asset ) );
+			return ( ps == *reinterpret_cast<const rendercore::PixelShader*>( asset ) );
 		}
-		else if ( assetID == VertexShader::ID )
+		else if ( assetID == rendercore::VertexShader::ID )
 		{
-			VertexShader vs;
+			rendercore::VertexShader vs;
 			vs.Serialize( rAr );
 
-			return ( vs == *reinterpret_cast<const VertexShader*>( asset ) );
+			return ( vs == *reinterpret_cast<const rendercore::VertexShader*>( asset ) );
 		}
 		else if ( assetID == rendercore::UberShader::ID )
 		{
@@ -441,9 +441,7 @@ std::optional<Products> ShaderManufacturer::Manufacture( const PathEnvironment& 
 		CombinationStaticSwitches( shaderFile, std::string( shaderFeatureLevel.Str() ).c_str(), compiledShader, shaderSwitches);
 		assert( compiledShader.size() != 0 );
 
-		using namespace rendercore;
-
-		UberShader shader;
+		rendercore::UberShader shader;
 		shader.m_name = path.filename().generic_string();
 		shader.m_type = GetShaderType( path.filename() );
 		shader.m_profile = shaderFeatureLevel;

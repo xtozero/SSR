@@ -5,42 +5,45 @@
 #include "Shader.h"
 #include "SizedTypes.h"
 
-class UploadBuffer;
-
-class DistributionCopyCS
+namespace rendercore
 {
-public:
-	DistributionCopyCS( );
-	ComputeShader* Shader( ) { return m_shader; }
+	class UploadBuffer;
 
-	static constexpr uint32 ThreadGroupX = 64;
+	class DistributionCopyCS
+	{
+	public:
+		DistributionCopyCS();
+		ComputeShader* Shader() { return m_shader; }
 
-	aga::ShaderParameter m_numDistribution;
-	aga::ShaderParameter m_src;
-	aga::ShaderParameter m_distributer;
-	aga::ShaderParameter m_dest;
+		static constexpr uint32 ThreadGroupX = 64;
 
-private:
-	ComputeShader* m_shader = nullptr;
-};
+		aga::ShaderParameter m_numDistribution;
+		aga::ShaderParameter m_src;
+		aga::ShaderParameter m_distributer;
+		aga::ShaderParameter m_dest;
 
-class GpuMemcpy
-{
-public:
-	GpuMemcpy( uint32 numUpload, uint32 sizePerFloat4, UploadBuffer& src, UploadBuffer& distributer );
+	private:
+		ComputeShader* m_shader = nullptr;
+	};
 
-	void Add( const char* data, uint32 dstIndex );
+	class GpuMemcpy
+	{
+	public:
+		GpuMemcpy( uint32 numUpload, uint32 sizePerFloat4, UploadBuffer& src, UploadBuffer& distributer );
 
-	void Upload( aga::Buffer* destBuffer );
+		void Add( const char* data, uint32 dstIndex );
 
-private:
-	UploadBuffer& m_src;
-	UploadBuffer& m_distributer;
+		void Upload( aga::Buffer* destBuffer );
 
-	char* m_pUploadData = nullptr;
-	uint32* m_pDistributionData = nullptr;
+	private:
+		UploadBuffer& m_src;
+		UploadBuffer& m_distributer;
 
-	uint32 m_distributionCount = 0;
+		char* m_pUploadData = nullptr;
+		uint32* m_pDistributionData = nullptr;
 
-	uint32 m_sizePerFloat4 = 0;
-};
+		uint32 m_distributionCount = 0;
+
+		uint32 m_sizePerFloat4 = 0;
+	};
+}

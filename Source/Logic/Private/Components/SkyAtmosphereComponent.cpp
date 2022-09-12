@@ -13,7 +13,7 @@ void SkyAtmosphereComponent::CreateRenderState()
 {
 	SceneComponent::CreateRenderState();
 
-	m_skyAtmosphereProxy = new SkyAtmospherePorxy( *this );
+	m_skyAtmosphereProxy = new rendercore::SkyAtmospherePorxy( *this );
 	m_pWorld->Scene()->AddSkyAtmosphere( m_skyAtmosphereProxy );
 }
 

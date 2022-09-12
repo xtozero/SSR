@@ -5,65 +5,69 @@
 
 #include <cstddef>
 
-class LightProxy;
 class LightComponent;
-class PrimitiveSceneInfo;
-class Scene;
 
-struct PrimitiveIntersectionInfo
+namespace rendercore
 {
-	PrimitiveSceneInfo* m_primitive = nullptr;
-	uint32 m_infoId = 0;
+	class LightProxy;
+	class PrimitiveSceneInfo;
+	class Scene;
 
-	PrimitiveIntersectionInfo( PrimitiveSceneInfo* primitive, uint32 infoId ) : m_primitive( primitive ), m_infoId( infoId ) {}
-};
-
-class LightSceneInfo
-{
-public:
-	const LightProxy* Proxy() const
+	struct PrimitiveIntersectionInfo
 	{
-		return m_lightProxy;
-	}
+		PrimitiveSceneInfo* m_primitive = nullptr;
+		uint32 m_infoId = 0;
 
-	LightProxy*& Proxy()
+		PrimitiveIntersectionInfo( PrimitiveSceneInfo* primitive, uint32 infoId ) : m_primitive( primitive ), m_infoId( infoId ) {}
+	};
+
+	class LightSceneInfo
 	{
-		return m_lightProxy;
-	}
+	public:
+		const LightProxy* Proxy() const
+		{
+			return m_lightProxy;
+		}
 
-	uint32 ID() const
-	{
-		return m_id;
-	}
+		LightProxy*& Proxy()
+		{
+			return m_lightProxy;
+		}
 
-	void SetID( uint32 id )
-	{
-		m_id = id;
-	}
+		uint32 ID() const
+		{
+			return m_id;
+		}
 
-	uint32 GetShadowQuility() const
-	{
-		return m_shadowQuility;
-	}
+		void SetID( uint32 id )
+		{
+			m_id = id;
+		}
 
-	SparseArray<PrimitiveIntersectionInfo>& Primitives();
-	const SparseArray<PrimitiveIntersectionInfo>& Primitives() const;
+		uint32 GetShadowQuility() const
+		{
+			return m_shadowQuility;
+		}
 
-	void AddToScene();
-	void RemoveFromScene();
-	void AddPrimitiveIntersectionInfo( PrimitiveSceneInfo& primitive );
-	void RemovePrimitiveIntersectionInfo( PrimitiveSceneInfo& primitive );
-	
-	LightSceneInfo( LightComponent& component, Scene& scene );
+		SparseArray<PrimitiveIntersectionInfo>& Primitives();
+		const SparseArray<PrimitiveIntersectionInfo>& Primitives() const;
 
-private:
-	bool AffactsPrimitive( PrimitiveSceneInfo& primitive );
+		void AddToScene();
+		void RemoveFromScene();
+		void AddPrimitiveIntersectionInfo( PrimitiveSceneInfo& primitive );
+		void RemovePrimitiveIntersectionInfo( PrimitiveSceneInfo& primitive );
 
-	uint32 m_id = 0;
-	LightProxy* m_lightProxy = nullptr;
-	Scene& m_scene;
+		LightSceneInfo( LightComponent& component, Scene& scene );
 
-	uint32 m_shadowQuility = 0;
+	private:
+		bool AffactsPrimitive( PrimitiveSceneInfo& primitive );
 
-	SparseArray<PrimitiveIntersectionInfo> m_primitiveList;
-};
+		uint32 m_id = 0;
+		LightProxy* m_lightProxy = nullptr;
+		Scene& m_scene;
+
+		uint32 m_shadowQuility = 0;
+
+		SparseArray<PrimitiveIntersectionInfo> m_primitiveList;
+	};
+}

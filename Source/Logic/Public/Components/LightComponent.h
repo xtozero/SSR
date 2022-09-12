@@ -4,8 +4,11 @@
 #include "Components/SceneComponent.h"
 #include "Math/Vector4.h"
 
-class HemisphereLightProxy;
-class LightProxy;
+namespace rendercore
+{
+	class HemisphereLightProxy;
+	class LightProxy;
+}
 
 enum class ShadowQuility
 {
@@ -23,7 +26,7 @@ public:
 
 	virtual void LoadProperty( const JSON::Value& json ) override;
 
-	virtual LightProxy* CreateProxy() const = 0;
+	virtual rendercore::LightProxy* CreateProxy() const = 0;
 	virtual bool IsUsedAsAtmosphereSunLight() const
 	{
 		return false;
@@ -56,7 +59,7 @@ public:
 		return m_shadowQuility;
 	}
 
-	LightProxy* m_lightProxy = nullptr;
+	rendercore::LightProxy* m_lightProxy = nullptr;
 
 private:
 	ColorF m_diffuse;
@@ -75,7 +78,7 @@ public:
 
 	virtual void LoadProperty( const JSON::Value& json ) override;
 
-	virtual LightProxy* CreateProxy() const override;
+	virtual rendercore::LightProxy* CreateProxy() const override;
 	virtual bool IsUsedAsAtmosphereSunLight() const override
 	{
 		return m_usedAsAtmosphereSunLight;
@@ -110,7 +113,7 @@ public:
 
 	virtual void LoadProperty( const JSON::Value& json ) override;
 
-	virtual HemisphereLightProxy* CreateProxy() const;
+	virtual rendercore::HemisphereLightProxy* CreateProxy() const;
 
 	void SetLowerColor( const ColorF& color )
 	{
@@ -134,7 +137,7 @@ public:
 
 	Vector UpVector() const;
 
-	HemisphereLightProxy*& Proxy()
+	rendercore::HemisphereLightProxy*& Proxy()
 	{
 		return m_proxy;
 	}
@@ -145,7 +148,7 @@ protected:
 	virtual void RemoveRenderState() override;
 
 private:
-	HemisphereLightProxy* m_proxy = nullptr;
+	rendercore::HemisphereLightProxy* m_proxy = nullptr;
 	ColorF m_lowerHemisphereColor;
 	ColorF m_upperHemisphereColor;
 };

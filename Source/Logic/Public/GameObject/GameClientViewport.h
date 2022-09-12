@@ -6,9 +6,8 @@
 namespace rendercore
 {
 	class Viewport;
+	class RenderViewGroup;
 }
-
-class RenderViewGroup;
 
 class GameClientViewport : public CGameObject
 {
@@ -24,7 +23,7 @@ public:
 	explicit GameClientViewport( rendercore::Viewport* viewport ) : m_viewport( viewport ) { }
 
 private:
-	void InitView( RenderViewGroup& views );
+	void InitView( rendercore::RenderViewGroup& views );
 
 	rendercore::Viewport* m_viewport = nullptr;
 

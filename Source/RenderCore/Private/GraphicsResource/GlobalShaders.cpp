@@ -6,91 +6,94 @@
 #include <cassert>
 #include <memory>
 
-void GlobalShader::BootUp()
+namespace rendercore
 {
-	IAssetLoader* assetLoader = GetInterface<IAssetLoader>();
-	if ( assetLoader == nullptr )
+	void GlobalShader::BootUp()
 	{
-		return;
-	}
-
-	for ( const auto& pathPair : m_shaderAssetPaths )
-	{
-		auto [typeIndex, assetPath] = pathPair;
-
-		if ( m_shaders.find( typeIndex ) != std::end( m_shaders ) )
+		IAssetLoader* assetLoader = GetInterface<IAssetLoader>();
+		if ( assetLoader == nullptr )
 		{
-			continue;
+			return;
 		}
 
-		IAssetLoader::LoadCompletionCallback onLoadComplete;
-		onLoadComplete.BindFunctor( [typeIndex]( const std::shared_ptr<void>& asset )
+		for ( const auto& pathPair : m_shaderAssetPaths )
+		{
+			auto [typeIndex, assetPath] = pathPair;
+
+			if ( m_shaders.find( typeIndex ) != std::end( m_shaders ) )
 			{
-				EnqueueRenderTask(
-					[typeIndex, asset]()
-					{
-						GlobalShader::GetInstance().RegisterShader( typeIndex, std::static_pointer_cast<ShaderBase>( asset ) );
-					} );
-			} );
+				continue;
+			}
 
-		AssetLoaderSharedHandle handle = assetLoader->RequestAsyncLoad( assetPath, onLoadComplete );
+			IAssetLoader::LoadCompletionCallback onLoadComplete;
+			onLoadComplete.BindFunctor( [typeIndex]( const std::shared_ptr<void>& asset )
+				{
+					EnqueueRenderTask(
+						[typeIndex, asset]()
+						{
+							GlobalShader::GetInstance().RegisterShader( typeIndex, std::static_pointer_cast<ShaderBase>( asset ) );
+						} );
+				} );
 
-		assert( handle->IsLoadingInProgress() || handle->IsLoadComplete() );
-		++m_loadingInProgress;
+			AssetLoaderSharedHandle handle = assetLoader->RequestAsyncLoad( assetPath, onLoadComplete );
+
+			assert( handle->IsLoadingInProgress() || handle->IsLoadComplete() );
+			++m_loadingInProgress;
+		}
 	}
-}
 
-void GlobalShader::Shutdown()
-{
-	m_shaders.clear();
-}
-
-bool GlobalShader::IsReady() const
-{
-	return m_loadingInProgress == 0;
-}
-
-bool GlobalShader::RegisterShader( std::type_index typeIndex, const std::shared_ptr<ShaderBase>& shader )
-{
-	auto found = m_shaders.find( typeIndex );
-	assert( found == std::end( m_shaders ) );
-
-	m_shaders[typeIndex] = shader;
-	--m_loadingInProgress;
-
-	return true;
-}
-
-bool GlobalShader::RegisterShaderPath( std::type_index typeIndex, const char* path )
-{
-	auto found = m_shaderAssetPaths.find( typeIndex );
-	if ( found != std::end( m_shaderAssetPaths ) )
+	void GlobalShader::Shutdown()
 	{
-		return false;
+		m_shaders.clear();
 	}
 
-	m_shaderAssetPaths[typeIndex] = path;
-	return true;
-}
-
-IShader* GlobalShader::GetShader( std::type_index typeIndex )
-{
-	auto found = m_shaders.find( typeIndex );
-	if ( found == std::end( m_shaders ) )
+	bool GlobalShader::IsReady() const
 	{
-		return nullptr;
+		return m_loadingInProgress == 0;
 	}
 
-	return &( *found->second );
-}
+	bool GlobalShader::RegisterShader( std::type_index typeIndex, const std::shared_ptr<ShaderBase>& shader )
+	{
+		auto found = m_shaders.find( typeIndex );
+		assert( found == std::end( m_shaders ) );
 
-GlobalShaderRegister::GlobalShaderRegister( std::type_index typeIndex, const char* assetPath )
-{
-	GlobalShader::GetInstance().RegisterShaderPath( typeIndex, assetPath );
-}
+		m_shaders[typeIndex] = shader;
+		--m_loadingInProgress;
 
-IShader* GetGlobalShaderImpl( std::type_index typeIndex )
-{
-	assert( IsInRenderThread() );
-	return GlobalShader::GetInstance().GetShader( typeIndex );
+		return true;
+	}
+
+	bool GlobalShader::RegisterShaderPath( std::type_index typeIndex, const char* path )
+	{
+		auto found = m_shaderAssetPaths.find( typeIndex );
+		if ( found != std::end( m_shaderAssetPaths ) )
+		{
+			return false;
+		}
+
+		m_shaderAssetPaths[typeIndex] = path;
+		return true;
+	}
+
+	IShader* GlobalShader::GetShader( std::type_index typeIndex )
+	{
+		auto found = m_shaders.find( typeIndex );
+		if ( found == std::end( m_shaders ) )
+		{
+			return nullptr;
+		}
+
+		return &( *found->second );
+	}
+
+	GlobalShaderRegister::GlobalShaderRegister( std::type_index typeIndex, const char* assetPath )
+	{
+		GlobalShader::GetInstance().RegisterShaderPath( typeIndex, assetPath );
+	}
+
+	IShader* GetGlobalShaderImpl( std::type_index typeIndex )
+	{
+		assert( IsInRenderThread() );
+		return GlobalShader::GetInstance().GetShader( typeIndex );
+	}
 }

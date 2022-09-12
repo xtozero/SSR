@@ -70,9 +70,9 @@ BoxSphereBounds VolumetricCloudComponent::CalcBounds( const Matrix& transform )
 	return bounds.TransformBy( transform );
 }
 
-VolumetricCloudProxy* VolumetricCloudComponent::CreateProxy()
+rendercore::VolumetricCloudProxy* VolumetricCloudComponent::CreateProxy()
 {
-	return new VolumetricCloudProxy( *this );
+	return new rendercore::VolumetricCloudProxy( *this );
 }
 
 void VolumetricCloudComponent::SetEarthRadius( float earthRadius )

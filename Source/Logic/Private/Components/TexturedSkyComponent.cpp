@@ -24,7 +24,7 @@ void TexturedSkyComponent::LoadProperty( const JSON::Value& json )
 	}
 }
 
-TexturedSkyProxy* TexturedSkyComponent::CreateProxy( ) const
+rendercore::TexturedSkyProxy* TexturedSkyComponent::CreateProxy( ) const
 {
 	if ( m_pStaticMesh == nullptr ||
 		m_pMaterial == nullptr )
@@ -32,10 +32,10 @@ TexturedSkyProxy* TexturedSkyComponent::CreateProxy( ) const
 		return nullptr;
 	}
 
-	return new TexturedSkyProxy( *this );
+	return new rendercore::TexturedSkyProxy( *this );
 }
 
-void TexturedSkyComponent::SetStaticMesh( const std::shared_ptr<StaticMesh>& pStaticMesh )
+void TexturedSkyComponent::SetStaticMesh( const std::shared_ptr<rendercore::StaticMesh>& pStaticMesh )
 {
 	assert( pStaticMesh != nullptr );
 	m_pStaticMesh = pStaticMesh;
@@ -43,7 +43,7 @@ void TexturedSkyComponent::SetStaticMesh( const std::shared_ptr<StaticMesh>& pSt
 	MarkRenderStateDirty( );
 }
 
-void TexturedSkyComponent::SetMaterial( const std::shared_ptr<Material>& pMaterial )
+void TexturedSkyComponent::SetMaterial( const std::shared_ptr<rendercore::Material>& pMaterial )
 {
 	assert( pMaterial != nullptr );
 	m_pMaterial = pMaterial;
@@ -70,5 +70,5 @@ void TexturedSkyComponent::RemoveRenderState( )
 
 void TexturedSkyComponent::OnMaterialLoadFinished( const std::shared_ptr<void>& material )
 {
-	SetMaterial( std::static_pointer_cast<Material>( material ) );
+	SetMaterial( std::static_pointer_cast<rendercore::Material>( material ) );
 }

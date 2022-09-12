@@ -20,7 +20,7 @@ namespace rendercore
 		return std::abs( m_max - m_min ) + 2;
 	}
 
-	Archive& rendercore::operator<<( Archive& ar, StaticShaderSwitch& shaderSwitch )
+	Archive& operator<<( Archive& ar, StaticShaderSwitch& shaderSwitch )
 	{
 		ar << shaderSwitch.m_on << shaderSwitch.m_current << shaderSwitch.m_min << shaderSwitch.m_max;
 		return ar;

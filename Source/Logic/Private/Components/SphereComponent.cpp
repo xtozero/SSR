@@ -19,7 +19,7 @@ BoxSphereBounds SphereComponent::CalcBounds( const Matrix& transform )
 	return BoxSphereBounds( Vector::ZeroVector, Vector( m_radius, m_radius, m_radius ), m_radius ).TransformBy( transform );
 }
 
-PrimitiveProxy* SphereComponent::CreateProxy() const
+rendercore::PrimitiveProxy* SphereComponent::CreateProxy() const
 {
 	return nullptr;
 }

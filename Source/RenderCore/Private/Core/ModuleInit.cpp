@@ -4,6 +4,8 @@
 #include "InterfaceFactories.h"
 #include "Renderer/IRenderCore.h"
 
+using namespace rendercore;
+
 namespace
 {
 	Owner<IRenderCore*> g_renderer = nullptr;

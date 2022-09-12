@@ -7,10 +7,10 @@
 #include "Texture.h"
 #include "TypedBuffer.h"
 
-class VolumetricCloudProxy;
-
 namespace rendercore
 {
+	class VolumetricCloudProxy;
+
 	struct VolumetricCloudRenderParameter
 	{
 		Vector m_sphereRadius;

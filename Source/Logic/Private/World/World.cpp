@@ -31,7 +31,7 @@ void World::OnDeviceRestore( CGameLogic& gameLogic )
 
 void World::Initialize()
 {
-	m_scene = GetInterface<IRenderCore>()->CreateScene();
+	m_scene = GetInterface<rendercore::IRenderCore>()->CreateScene();
 
 	CreatePhysicsScene();
 }
@@ -42,7 +42,7 @@ void World::CleanUp()
 
 	ReleasePhysicsScene();
 
-	GetInterface<IRenderCore>()->RemoveScene( m_scene );
+	GetInterface<rendercore::IRenderCore>()->RemoveScene( m_scene );
 	WaitRenderThread();
 }
 

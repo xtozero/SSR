@@ -10,38 +10,41 @@
 #include <optional>
 #include <vector>
 
-class DrawSnapshot;
-class PrimitiveSceneInfo;
-class Scene;
-class ScenePrimitiveBuffer;
-class SceneViewConstantBuffer;
-
-class PrimitiveProxy
+namespace rendercore
 {
-public:
-	virtual void CreateRenderData() = 0;
-	virtual void PrepareSubMeshs() = 0;
-	virtual void TakeSnapshot( std::deque<DrawSnapshot>& snapshotStorage, rendercore::VectorSingleFrame<VisibleDrawSnapshot>& drawList ) const = 0;
-	virtual std::optional<DrawSnapshot> TakeSnapshot( uint32 lod, uint32 sectionIndex ) const = 0;
-	virtual MeshDrawInfo GatherMeshDrawInfo( uint32 lod, uint32 sectionIndex ) const = 0;
+	class DrawSnapshot;
+	class PrimitiveSceneInfo;
+	class Scene;
+	class ScenePrimitiveBuffer;
+	class SceneViewConstantBuffer;
 
-	Matrix& WorldTransform();
-	const Matrix& WorldTransform() const;
+	class PrimitiveProxy
+	{
+	public:
+		virtual void CreateRenderData() = 0;
+		virtual void PrepareSubMeshs() = 0;
+		virtual void TakeSnapshot( std::deque<DrawSnapshot>& snapshotStorage, VectorSingleFrame<VisibleDrawSnapshot>& drawList ) const = 0;
+		virtual std::optional<DrawSnapshot> TakeSnapshot( uint32 lod, uint32 sectionIndex ) const = 0;
+		virtual MeshDrawInfo GatherMeshDrawInfo( uint32 lod, uint32 sectionIndex ) const = 0;
 
-	BoxSphereBounds& Bounds();
-	const BoxSphereBounds& Bounds() const;
+		Matrix& WorldTransform();
+		const Matrix& WorldTransform() const;
 
-	BoxSphereBounds& LocalBounds();
-	const BoxSphereBounds& LocalBounds() const;
-	uint32 PrimitiveId() const;
+		BoxSphereBounds& Bounds();
+		const BoxSphereBounds& Bounds() const;
 
-	virtual ~PrimitiveProxy() = default;
+		BoxSphereBounds& LocalBounds();
+		const BoxSphereBounds& LocalBounds() const;
+		uint32 PrimitiveId() const;
 
-protected:
-	friend Scene;
+		virtual ~PrimitiveProxy() = default;
 
-	PrimitiveSceneInfo* m_primitiveSceneInfo = nullptr;
-	Matrix m_worldTransform;
-	BoxSphereBounds m_bounds;
-	BoxSphereBounds m_localBounds;
-};
+	protected:
+		friend Scene;
+
+		PrimitiveSceneInfo* m_primitiveSceneInfo = nullptr;
+		Matrix m_worldTransform;
+		BoxSphereBounds m_bounds;
+		BoxSphereBounds m_localBounds;
+	};
+}

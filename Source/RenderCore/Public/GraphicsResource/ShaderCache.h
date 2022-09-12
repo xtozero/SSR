@@ -8,24 +8,27 @@
 #include <map>
 #include <memory>
 
-class ShaderCache : public AsyncLoadableAsset
+namespace rendercore
 {
-	GENERATE_CLASS_TYPE_INFO( ShaderCache );
-	DECLARE_ASSET( RENDERCORE, ShaderCache );
+	class ShaderCache : public AsyncLoadableAsset
+	{
+		GENERATE_CLASS_TYPE_INFO( ShaderCache );
+		DECLARE_ASSET( RENDERCORE, ShaderCache );
 
-public:
-	RENDERCORE_DLL virtual void PostLoadImpl() override;
+	public:
+		RENDERCORE_DLL virtual void PostLoadImpl() override;
 
-	static bool IsLoaded();
-	static void LoadFromFile();
-	static void SaveToFile();
-	static void OnLoadFinished( const std::shared_ptr<void>& shaderCache );
-	static ShaderBase* GetCachedShader( uint64 shaderHash );
-	static void UpdateCache( uint64 shaderHash, ShaderBase* shader );
+		static bool IsLoaded();
+		static void LoadFromFile();
+		static void SaveToFile();
+		static void OnLoadFinished( const std::shared_ptr<void>& shaderCache );
+		static ShaderBase* GetCachedShader( uint64 shaderHash );
+		static void UpdateCache( uint64 shaderHash, ShaderBase* shader );
 
-private:
-	static std::shared_ptr<ShaderCache> m_shaderCache;
+	private:
+		static std::shared_ptr<ShaderCache> m_shaderCache;
 
-	PROPERTY( shaders )
-	std::map<uint64, std::unique_ptr<ShaderBase>> m_shaders;
-};
+		PROPERTY( shaders )
+		std::map<uint64, std::unique_ptr<ShaderBase>> m_shaders;
+	};
+}

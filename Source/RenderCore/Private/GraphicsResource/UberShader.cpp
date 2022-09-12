@@ -6,9 +6,11 @@
 
 #include <array>
 
+using namespace rendercore;
+
 namespace
 {
-	uint64 ShaderHash( const std::string& name, const rendercore::StaticShaderSwitches& switches )
+	uint64 ShaderHash( const std::string& name, const StaticShaderSwitches& switches )
 	{
 		char buf[1024] = {};
 		int32 len = sprintf_s( buf, "%s_%d", name.c_str(), switches.GetID() );

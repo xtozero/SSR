@@ -1,9 +1,11 @@
 #include "stdafx.h"
 #include "Renderer/RenderView.h"
 
-RenderView& RenderViewGroup::AddRenderView( )
+namespace rendercore
 {
-	m_viewGroup.emplace_back( );
-	return m_viewGroup.back( );
+	RenderView& RenderViewGroup::AddRenderView()
+	{
+		m_viewGroup.emplace_back();
+		return m_viewGroup.back();
+	}
 }
-

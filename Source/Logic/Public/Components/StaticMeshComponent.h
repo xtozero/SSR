@@ -4,8 +4,11 @@
 
 #include <memory>
 
-class StaticMesh;
-class RenderOption;
+namespace rendercore
+{
+	class StaticMesh;
+	class RenderOption;
+}
 
 class StaticMeshComponent : public PrimitiveComponent
 {
@@ -18,14 +21,14 @@ public:
 
 	virtual BoxSphereBounds CalcBounds( const Matrix& transform ) override;
 
-	virtual PrimitiveProxy* CreateProxy() const override;
+	virtual rendercore::PrimitiveProxy* CreateProxy() const override;
 	virtual BodySetup* GetBodySetup() override;
 
-	void SetStaticMesh( const std::shared_ptr<StaticMesh>& pStaticMesh );
-	std::shared_ptr<StaticMesh> GetStaticMesh() const { return m_pStaticMesh; }
+	void SetStaticMesh( const std::shared_ptr<rendercore::StaticMesh>& pStaticMesh );
+	std::shared_ptr<rendercore::StaticMesh> GetStaticMesh() const { return m_pStaticMesh; }
 
-	void SetRenderOption( const std::shared_ptr<RenderOption>& pRenderOption );
-	std::shared_ptr<RenderOption> GetRenderOption() const { return m_pRenderOption; }
+	void SetRenderOption( const std::shared_ptr<rendercore::RenderOption>& pRenderOption );
+	std::shared_ptr<rendercore::RenderOption> GetRenderOption() const { return m_pRenderOption; }
 
 private:
 	bool LoadModelMesh( const std::string& assetPath );
@@ -34,6 +37,6 @@ private:
 	void OnModelLoadFinished( const std::shared_ptr<void>& model );
 	void OnRenderOptionLoadFinished( const std::shared_ptr<void>& renderOption );
 
-	std::shared_ptr<StaticMesh> m_pStaticMesh = nullptr;
-	std::shared_ptr<RenderOption> m_pRenderOption = nullptr;
+	std::shared_ptr<rendercore::StaticMesh> m_pStaticMesh = nullptr;
+	std::shared_ptr<rendercore::RenderOption> m_pRenderOption = nullptr;
 };

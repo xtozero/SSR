@@ -85,9 +85,9 @@ void DirectionalLightComponent::LoadProperty( const JSON::Value& json )
 	}
 }
 
-LightProxy* DirectionalLightComponent::CreateProxy() const
+rendercore::LightProxy* DirectionalLightComponent::CreateProxy() const
 {
-	return new DirectionalLightProxy( *this );
+	return new rendercore::DirectionalLightProxy( *this );
 }
 
 void DirectionalLightComponent::SetDirection( const Vector& direction )
@@ -147,9 +147,9 @@ void HemisphereLightComponent::LoadProperty( const JSON::Value& json )
 	}
 }
 
-HemisphereLightProxy* HemisphereLightComponent::CreateProxy() const
+rendercore::HemisphereLightProxy* HemisphereLightComponent::CreateProxy() const
 {
-	return new HemisphereLightProxy( LowerColor(), UpperColor(), UpVector() );
+	return new rendercore::HemisphereLightProxy( LowerColor(), UpperColor(), UpVector() );
 }
 
 Vector HemisphereLightComponent::UpVector() const

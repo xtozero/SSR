@@ -4,7 +4,10 @@
 #include "Physics/BodyInstance.h"
 #include "SceneComponent.h"
 
-class PrimitiveProxy;
+namespace rendercore
+{
+	class PrimitiveProxy;
+}
 
 class PrimitiveComponent : public SceneComponent
 {
@@ -22,10 +25,10 @@ public:
 	void SetAngularDamping( float angularDamping );
 
 	virtual const Matrix& GetRenderMatrix();
-	virtual PrimitiveProxy* CreateProxy() const = 0;
+	virtual rendercore::PrimitiveProxy* CreateProxy() const = 0;
 	virtual BodySetup* GetBodySetup() = 0;
 
-	PrimitiveProxy* m_sceneProxy = nullptr;
+	rendercore::PrimitiveProxy* m_sceneProxy = nullptr;
 
 protected:
 	virtual bool ShouldCreateRenderState() const override;

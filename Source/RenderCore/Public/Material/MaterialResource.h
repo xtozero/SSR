@@ -11,29 +11,32 @@
 #include <utility>
 #include <vector>
 
-class MaterialResource
+namespace rendercore
 {
-public:
-	const VertexShader* GetVertexShader() const;
-	VertexShader* GetVertexShader();
-	const GeometryShader* GetGeometryShader() const;
-	GeometryShader* GetGeometryShader();
-	const PixelShader* GetPixelShader() const;
-	PixelShader* GetPixelShader();
-	const ShaderBase* GetShader( SHADER_TYPE type ) const;
+	class MaterialResource
+	{
+	public:
+		const VertexShader* GetVertexShader() const;
+		VertexShader* GetVertexShader();
+		const GeometryShader* GetGeometryShader() const;
+		GeometryShader* GetGeometryShader();
+		const PixelShader* GetPixelShader() const;
+		PixelShader* GetPixelShader();
+		const ShaderBase* GetShader( SHADER_TYPE type ) const;
 
-	void SetMaterial( const std::shared_ptr<Material>& material );
-	void TakeSnapshot( DrawSnapshot& snapShot );
+		void SetMaterial( const std::shared_ptr<Material>& material );
+		void TakeSnapshot( DrawSnapshot& snapShot );
 
-private:
-	void CreateGraphicsResource();
-	void UpdateToGPU();
+	private:
+		void CreateGraphicsResource();
+		void UpdateToGPU();
 
-	std::shared_ptr<Material> m_material;
+		std::shared_ptr<Material> m_material;
 
-	using ConstantBufferParameter = std::pair<aga::ShaderParameter, ConstantBuffer>;
-	std::vector<ConstantBufferParameter> m_materialConstantBuffers;
+		using ConstantBufferParameter = std::pair<aga::ShaderParameter, ConstantBuffer>;
+		std::vector<ConstantBufferParameter> m_materialConstantBuffers;
 
-	using NamedShaderParameter = std::pair<aga::ShaderParameter, Name>;
-	std::vector<NamedShaderParameter> m_materialConstantValueNames;
-};
+		using NamedShaderParameter = std::pair<aga::ShaderParameter, Name>;
+		std::vector<NamedShaderParameter> m_materialConstantValueNames;
+	};
+}

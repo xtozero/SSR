@@ -21,10 +21,10 @@ namespace
 CSkyBox::CSkyBox( )
 {
 	m_pTexturedSkyComponent = CreateComponent<TexturedSkyComponent>( *this, "TexturedSkyComponent" );
-	auto pStaticMesh = std::make_shared<StaticMesh>( );
+	auto pStaticMesh = std::make_shared<rendercore::StaticMesh>( );
 
-	std::vector<MeshDescription> descs( 1 );
-	MeshDescription& boxDesc = descs[0];
+	std::vector<rendercore::MeshDescription> descs( 1 );
+	rendercore::MeshDescription& boxDesc = descs[0];
 
 	boxDesc.m_positions.resize( 8 );
 	boxDesc.m_positions[0] = Vector( -SKYBOX_LENGTH, -SKYBOX_LENGTH, -SKYBOX_LENGTH );

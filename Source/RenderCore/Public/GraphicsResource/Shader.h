@@ -7,166 +7,169 @@
 #include "ShaderResource.h"
 #include "StaticShaderSwitch.h"
 
-class ShaderBase;
-
-class IShader : public AsyncLoadableAsset
+namespace rendercore
 {
-	GENERATE_CLASS_TYPE_INFO( IShader );
+	class ShaderBase;
 
-public:
-	RENDERCORE_DLL virtual ShaderBase* CompileShader( const rendercore::StaticShaderSwitches& switches ) = 0;
-};
-
-class ShaderBase : public IShader
-{
-	GENERATE_CLASS_TYPE_INFO( ShaderBase );
-
-public:
-	RENDERCORE_DLL virtual ShaderBase* CompileShader( const rendercore::StaticShaderSwitches& switches ) override;
-
-	ShaderBase( BinaryChunk&& byteCode ) : m_byteCode( std::move( byteCode ) ) {}
-	ShaderBase() = default;
-
-	friend bool operator==( const ShaderBase& lhs, const ShaderBase& rhs )
+	class IShader : public AsyncLoadableAsset
 	{
-		return lhs.m_byteCode == rhs.m_byteCode;
-	}
+		GENERATE_CLASS_TYPE_INFO( IShader );
 
-	friend Archive& operator<<( Archive& ar, ShaderBase& shaderBase );
+	public:
+		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) = 0;
+	};
 
-	const BinaryChunk& ByteCode() const
+	class ShaderBase : public IShader
 	{
-		return m_byteCode;
-	}
+		GENERATE_CLASS_TYPE_INFO( ShaderBase );
 
-	aga::ShaderParameterMap& ParameterMap() { return m_parameterMap; }
-	const aga::ShaderParameterMap& ParameterMap() const { return m_parameterMap; }
+	public:
+		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
 
-	aga::ShaderParameterInfo& ParameterInfo() { return m_parameterInfo; }
-	const aga::ShaderParameterInfo& ParameterInfo() const { return m_parameterInfo; }
+		ShaderBase( BinaryChunk&& byteCode ) : m_byteCode( std::move( byteCode ) ) {}
+		ShaderBase() = default;
 
-	RENDERCORE_DLL virtual void CreateShader() = 0;
+		friend bool operator==( const ShaderBase& lhs, const ShaderBase& rhs )
+		{
+			return lhs.m_byteCode == rhs.m_byteCode;
+		}
 
-protected:
-	RENDERCORE_DLL virtual void PostLoadImpl() override;
+		friend Archive& operator<<( Archive& ar, ShaderBase& shaderBase );
 
-	PROPERTY( byteCode )
-	BinaryChunk m_byteCode{ 0 };
+		const BinaryChunk& ByteCode() const
+		{
+			return m_byteCode;
+		}
 
-	PROPERTY( parameterMap )
-	aga::ShaderParameterMap m_parameterMap;
+		aga::ShaderParameterMap& ParameterMap() { return m_parameterMap; }
+		const aga::ShaderParameterMap& ParameterMap() const { return m_parameterMap; }
 
-	PROPERTY( parameterInfo )
-	aga::ShaderParameterInfo m_parameterInfo;
-};
+		aga::ShaderParameterInfo& ParameterInfo() { return m_parameterInfo; }
+		const aga::ShaderParameterInfo& ParameterInfo() const { return m_parameterInfo; }
 
-class VertexShader : public ShaderBase
-{
-	GENERATE_CLASS_TYPE_INFO( VertexShader );
-	DECLARE_ASSET( RENDERCORE, VertexShader );
+		RENDERCORE_DLL virtual void CreateShader() = 0;
 
-public:
-	bool IsValid() const
+	protected:
+		RENDERCORE_DLL virtual void PostLoadImpl() override;
+
+		PROPERTY( byteCode )
+		BinaryChunk m_byteCode { 0 };
+
+		PROPERTY( parameterMap )
+		aga::ShaderParameterMap m_parameterMap;
+
+		PROPERTY( parameterInfo )
+		aga::ShaderParameterInfo m_parameterInfo;
+	};
+
+	class VertexShader : public ShaderBase
 	{
-		return m_shader.Get() != nullptr;
-	}
+		GENERATE_CLASS_TYPE_INFO( VertexShader );
+		DECLARE_ASSET( RENDERCORE, VertexShader );
 
-	VertexShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
-	VertexShader() = default;
+	public:
+		bool IsValid() const
+		{
+			return m_shader.Get() != nullptr;
+		}
 
-	aga::VertexShader* Resource();
-	const aga::VertexShader* Resource() const;
+		VertexShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
+		VertexShader() = default;
 
-	friend bool operator==( const VertexShader& lhs, const VertexShader& rhs )
+		aga::VertexShader* Resource();
+		const aga::VertexShader* Resource() const;
+
+		friend bool operator==( const VertexShader& lhs, const VertexShader& rhs )
+		{
+			return static_cast<const ShaderBase&>( lhs ) == static_cast<const ShaderBase&>( rhs )
+				&& lhs.m_shader == rhs.m_shader;
+		}
+
+		RENDERCORE_DLL virtual void CreateShader() override;
+
+	private:
+		RefHandle<aga::VertexShader> m_shader;
+	};
+
+	class GeometryShader : public ShaderBase
 	{
-		return static_cast<const ShaderBase&>( lhs ) == static_cast<const ShaderBase&>( rhs )
-			&& lhs.m_shader == rhs.m_shader;
-	}
+		GENERATE_CLASS_TYPE_INFO( GeometryShader );
+		DECLARE_ASSET( RENDERCORE, GeometryShader );
 
-	RENDERCORE_DLL virtual void CreateShader() override;
+	public:
+		bool IsValid() const
+		{
+			return m_shader.Get() != nullptr;
+		}
 
-private:
-	RefHandle<aga::VertexShader> m_shader;
-};
+		GeometryShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
+		GeometryShader() = default;
 
-class GeometryShader : public ShaderBase
-{
-	GENERATE_CLASS_TYPE_INFO( GeometryShader );
-	DECLARE_ASSET( RENDERCORE, GeometryShader );
+		aga::GeometryShader* Resource();
+		const aga::GeometryShader* Resource() const;
 
-public:
-	bool IsValid() const
+		friend bool operator==( const GeometryShader& lhs, const GeometryShader& rhs )
+		{
+			return static_cast<const ShaderBase&>( lhs ) == static_cast<const ShaderBase&>( rhs )
+				&& lhs.m_shader == rhs.m_shader;
+		}
+
+		RENDERCORE_DLL virtual void CreateShader() override;
+
+	private:
+		RefHandle<aga::GeometryShader> m_shader;
+	};
+
+	class PixelShader : public ShaderBase
 	{
-		return m_shader.Get() != nullptr;
-	}
+		GENERATE_CLASS_TYPE_INFO( PixelShader );
+		DECLARE_ASSET( RENDERCORE, PixelShader );
 
-	GeometryShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
-	GeometryShader() = default;
+	public:
+		bool IsValid() const
+		{
+			return m_shader.Get() != nullptr;
+		}
 
-	aga::GeometryShader* Resource();
-	const aga::GeometryShader* Resource() const;
+		PixelShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
+		PixelShader() = default;
 
-	friend bool operator==( const GeometryShader& lhs, const GeometryShader& rhs )
+		aga::PixelShader* Resource();
+		const aga::PixelShader* Resource() const;
+
+		friend bool operator==( const PixelShader& lhs, const PixelShader& rhs )
+		{
+			return static_cast<const ShaderBase&>( lhs ) == static_cast<const ShaderBase&>( rhs )
+				&& lhs.m_shader == rhs.m_shader;
+		}
+
+		RENDERCORE_DLL virtual void CreateShader() override;
+
+	private:
+		RefHandle<aga::PixelShader> m_shader;
+	};
+
+	class ComputeShader : public ShaderBase
 	{
-		return static_cast<const ShaderBase&>( lhs ) == static_cast<const ShaderBase&>( rhs )
-			&& lhs.m_shader == rhs.m_shader;
-	}
+		GENERATE_CLASS_TYPE_INFO( ComputeShader );
+		DECLARE_ASSET( RENDERCORE, ComputeShader );
 
-	RENDERCORE_DLL virtual void CreateShader() override;
+	public:
+		ComputeShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
+		ComputeShader() = default;
 
-private:
-	RefHandle<aga::GeometryShader> m_shader;
-};
+		aga::ComputeShader* Resource();
+		const aga::ComputeShader* Resource() const;
 
-class PixelShader : public ShaderBase
-{
-	GENERATE_CLASS_TYPE_INFO( PixelShader );
-	DECLARE_ASSET( RENDERCORE, PixelShader );
+		friend bool operator==( const ComputeShader& lhs, const ComputeShader& rhs )
+		{
+			return static_cast<const ShaderBase&>( lhs ) == static_cast<const ShaderBase&>( rhs )
+				&& lhs.m_shader == rhs.m_shader;
+		}
 
-public:
-	bool IsValid() const
-	{
-		return m_shader.Get() != nullptr;
-	}
+		RENDERCORE_DLL virtual void CreateShader() override;
 
-	PixelShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
-	PixelShader() = default;
-
-	aga::PixelShader* Resource();
-	const aga::PixelShader* Resource() const;
-
-	friend bool operator==( const PixelShader& lhs, const PixelShader& rhs )
-	{
-		return static_cast<const ShaderBase&>( lhs ) == static_cast<const ShaderBase&>( rhs )
-			&& lhs.m_shader == rhs.m_shader;
-	}
-
-	RENDERCORE_DLL virtual void CreateShader() override;
-
-private:
-	RefHandle<aga::PixelShader> m_shader;
-};
-
-class ComputeShader : public ShaderBase
-{
-	GENERATE_CLASS_TYPE_INFO( ComputeShader );
-	DECLARE_ASSET( RENDERCORE, ComputeShader );
-
-public:
-	ComputeShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
-	ComputeShader() = default;
-
-	aga::ComputeShader* Resource();
-	const aga::ComputeShader* Resource() const;
-
-	friend bool operator==( const ComputeShader& lhs, const ComputeShader& rhs )
-	{
-		return static_cast<const ShaderBase&>( lhs ) == static_cast<const ShaderBase&>( rhs )
-			&& lhs.m_shader == rhs.m_shader;
-	}
-
-	RENDERCORE_DLL virtual void CreateShader() override;
-
-private:
-	RefHandle<aga::ComputeShader> m_shader;
-};
+	private:
+		RefHandle<aga::ComputeShader> m_shader;
+	};
+}

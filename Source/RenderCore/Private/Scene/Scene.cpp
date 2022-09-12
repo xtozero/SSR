@@ -20,439 +20,442 @@
 
 #include <algorithm>
 
-void Scene::AddPrimitive( PrimitiveComponent* primitive )
+namespace rendercore
 {
-	PrimitiveProxy* proxy = primitive->CreateProxy();
-	primitive->m_sceneProxy = proxy;
-
-	if ( proxy == nullptr )
+	void Scene::AddPrimitive( PrimitiveComponent* primitive )
 	{
-		return;
-	}
+		PrimitiveProxy* proxy = primitive->CreateProxy();
+		primitive->m_sceneProxy = proxy;
 
-	PrimitiveSceneInfo* primitiveSceneInfo = new PrimitiveSceneInfo( primitive, *this );
-
-	proxy->m_primitiveSceneInfo = primitiveSceneInfo;
-
-	struct AddPrimitiveSceneInfoParam
-	{
-		Matrix m_worldTransform;
-		BoxSphereBounds m_worldBounds;
-		BoxSphereBounds m_localBounds;
-	};
-	AddPrimitiveSceneInfoParam param = {
-		primitive->GetRenderMatrix(),
-		primitive->Bounds(),
-		primitive->CalcBounds( Matrix::Identity ),
-	};
-
-	EnqueueRenderTask(
-		[this, param, primitiveSceneInfo]()
+		if ( proxy == nullptr )
 		{
-			PrimitiveProxy* sceneProxy = primitiveSceneInfo->Proxy();
+			return;
+		}
 
-			sceneProxy->WorldTransform() = param.m_worldTransform;
-			sceneProxy->Bounds() = param.m_worldBounds;
-			sceneProxy->LocalBounds() = param.m_localBounds;
-			sceneProxy->CreateRenderData();
+		PrimitiveSceneInfo* primitiveSceneInfo = new PrimitiveSceneInfo( primitive, *this );
 
-			AddPrimitiveSceneInfo( primitiveSceneInfo );
-		} );
-}
+		proxy->m_primitiveSceneInfo = primitiveSceneInfo;
 
-void Scene::RemovePrimitive( PrimitiveComponent* primitive )
-{
-	PrimitiveProxy* proxy = primitive->m_sceneProxy;
-
-	if ( proxy )
-	{
-		PrimitiveSceneInfo* primitiveSceneInfo = proxy->m_primitiveSceneInfo;
-		primitive->m_sceneProxy = nullptr;
-
-		EnqueueRenderTask(
-			[this, primitiveSceneInfo]()
-			{
-				RemovePrimitiveSceneInfo( primitiveSceneInfo );
-			} );
-	}
-}
-
-void Scene::UpdatePrimitiveTransform( PrimitiveComponent* primitive )
-{
-	PrimitiveProxy* proxy = primitive->m_sceneProxy;
-
-	if ( proxy )
-	{
-		struct PrimitiveUpdateParam
+		struct AddPrimitiveSceneInfoParam
 		{
 			Matrix m_worldTransform;
 			BoxSphereBounds m_worldBounds;
 			BoxSphereBounds m_localBounds;
 		};
-		PrimitiveUpdateParam param = {
+		AddPrimitiveSceneInfoParam param = {
 			primitive->GetRenderMatrix(),
 			primitive->Bounds(),
 			primitive->CalcBounds( Matrix::Identity ),
 		};
 
 		EnqueueRenderTask(
-			[this, param, proxy]()
+			[this, param, primitiveSceneInfo]()
 			{
-				proxy->WorldTransform() = param.m_worldTransform;
-				proxy->Bounds() = param.m_worldBounds;
-				proxy->LocalBounds() = param.m_localBounds;
+				PrimitiveProxy* sceneProxy = primitiveSceneInfo->Proxy();
 
-				m_primitiveToUpdate.push_back( proxy->PrimitiveId() );
+				sceneProxy->WorldTransform() = param.m_worldTransform;
+				sceneProxy->Bounds() = param.m_worldBounds;
+				sceneProxy->LocalBounds() = param.m_localBounds;
+				sceneProxy->CreateRenderData();
+
+				AddPrimitiveSceneInfo( primitiveSceneInfo );
 			} );
 	}
-	else
+
+	void Scene::RemovePrimitive( PrimitiveComponent* primitive )
 	{
-		AddPrimitive( primitive );
-	}
-}
+		PrimitiveProxy* proxy = primitive->m_sceneProxy;
 
-void Scene::AddTexturedSkyComponent( TexturedSkyComponent* texturedSky )
-{
-	TexturedSkyProxy* proxy = texturedSky->CreateProxy();
-	texturedSky->m_texturedSkyProxy = proxy;
-
-	if ( proxy )
-	{
-		EnqueueRenderTask(
-			[this, proxy]
-			{
-				proxy->CreateRenderData();
-
-				AddTexturedSky( proxy );
-			} );
-	}
-}
-
-void Scene::RemoveTexturedSkyComponent( TexturedSkyComponent* texturedSky )
-{
-	TexturedSkyProxy* proxy = texturedSky->m_texturedSkyProxy;
-
-	if ( proxy )
-	{
-		texturedSky->m_texturedSkyProxy = nullptr;
-
-		EnqueueRenderTask(
-			[this, proxy]()
-			{
-				RemoveTexturedSky( proxy );
-			} );
-	}
-}
-
-void Scene::AddSkyAtmosphere( SkyAtmospherePorxy* skyAtmosphereProxy )
-{
-	if ( skyAtmosphereProxy )
-	{
-		EnqueueRenderTask(
-			[scene = this, skyAtmosphereProxy]()
-			{
-				skyAtmosphereProxy->RenderSceneInfo() = new rendercore::SkyAtmosphereRenderSceneInfo();
-				scene->m_skyAtmosphere = skyAtmosphereProxy->RenderSceneInfo();
-				rendercore::InitAtmosphereForScene( *scene );
-			} );
-	}
-}
-
-void Scene::RemoveAtomosphere( SkyAtmospherePorxy* skyAtmosphereProxy )
-{
-	if ( skyAtmosphereProxy )
-	{
-		EnqueueRenderTask(
-			[this, skyAtmosphereProxy]()
-			{
-				if ( m_skyAtmosphere == skyAtmosphereProxy->RenderSceneInfo() )
-				{
-					delete m_skyAtmosphere;
-					m_skyAtmosphere = nullptr;
-				}
-			} );
-	}
-}
-
-void Scene::AddVolumetricCloud( VolumetricCloudComponent* volumetricCloud )
-{
-	VolumetricCloudProxy* proxy = volumetricCloud->CreateProxy();
-	volumetricCloud->Proxy() = proxy;
-
-	if ( proxy == nullptr )
-	{
-		return;
-	}
-
-	auto volumetricCloudSceneInfo = new rendercore::VolumetricCloudSceneInfo( proxy );
-
-	proxy->m_volumetricCloudSceneInfo = volumetricCloudSceneInfo;
-
-	EnqueueRenderTask(
-		[this, volumetricCloudSceneInfo]
+		if ( proxy )
 		{
-			volumetricCloudSceneInfo->CreateRenderData();
+			PrimitiveSceneInfo* primitiveSceneInfo = proxy->m_primitiveSceneInfo;
+			primitive->m_sceneProxy = nullptr;
 
-			AddVolumetricCloud( volumetricCloudSceneInfo );
-		} );
-}
+			EnqueueRenderTask(
+				[this, primitiveSceneInfo]()
+				{
+					RemovePrimitiveSceneInfo( primitiveSceneInfo );
+				} );
+		}
+	}
 
-void Scene::RemoveVolumetricCloud( VolumetricCloudComponent* volumetricCloud )
-{
-	VolumetricCloudProxy* proxy = volumetricCloud->Proxy();
-
-	if ( proxy )
+	void Scene::UpdatePrimitiveTransform( PrimitiveComponent* primitive )
 	{
-		rendercore::VolumetricCloudSceneInfo* volumetricCloudSceneInfo = proxy->m_volumetricCloudSceneInfo;
-		volumetricCloud->Proxy() = nullptr;
+		PrimitiveProxy* proxy = primitive->m_sceneProxy;
+
+		if ( proxy )
+		{
+			struct PrimitiveUpdateParam
+			{
+				Matrix m_worldTransform;
+				BoxSphereBounds m_worldBounds;
+				BoxSphereBounds m_localBounds;
+			};
+			PrimitiveUpdateParam param = {
+				primitive->GetRenderMatrix(),
+				primitive->Bounds(),
+				primitive->CalcBounds( Matrix::Identity ),
+			};
+
+			EnqueueRenderTask(
+				[this, param, proxy]()
+				{
+					proxy->WorldTransform() = param.m_worldTransform;
+					proxy->Bounds() = param.m_worldBounds;
+					proxy->LocalBounds() = param.m_localBounds;
+
+					m_primitiveToUpdate.push_back( proxy->PrimitiveId() );
+				} );
+		}
+		else
+		{
+			AddPrimitive( primitive );
+		}
+	}
+
+	void Scene::AddTexturedSkyComponent( TexturedSkyComponent* texturedSky )
+	{
+		TexturedSkyProxy* proxy = texturedSky->CreateProxy();
+		texturedSky->m_texturedSkyProxy = proxy;
+
+		if ( proxy )
+		{
+			EnqueueRenderTask(
+				[this, proxy]
+				{
+					proxy->CreateRenderData();
+
+					AddTexturedSky( proxy );
+				} );
+		}
+	}
+
+	void Scene::RemoveTexturedSkyComponent( TexturedSkyComponent* texturedSky )
+	{
+		TexturedSkyProxy* proxy = texturedSky->m_texturedSkyProxy;
+
+		if ( proxy )
+		{
+			texturedSky->m_texturedSkyProxy = nullptr;
+
+			EnqueueRenderTask(
+				[this, proxy]()
+				{
+					RemoveTexturedSky( proxy );
+				} );
+		}
+	}
+
+	void Scene::AddSkyAtmosphere( SkyAtmospherePorxy* skyAtmosphereProxy )
+	{
+		if ( skyAtmosphereProxy )
+		{
+			EnqueueRenderTask(
+				[scene = this, skyAtmosphereProxy]()
+				{
+					skyAtmosphereProxy->RenderSceneInfo() = new SkyAtmosphereRenderSceneInfo();
+					scene->m_skyAtmosphere = skyAtmosphereProxy->RenderSceneInfo();
+					InitAtmosphereForScene( *scene );
+				} );
+		}
+	}
+
+	void Scene::RemoveAtomosphere( SkyAtmospherePorxy* skyAtmosphereProxy )
+	{
+		if ( skyAtmosphereProxy )
+		{
+			EnqueueRenderTask(
+				[this, skyAtmosphereProxy]()
+				{
+					if ( m_skyAtmosphere == skyAtmosphereProxy->RenderSceneInfo() )
+					{
+						delete m_skyAtmosphere;
+						m_skyAtmosphere = nullptr;
+					}
+				} );
+		}
+	}
+
+	void Scene::AddVolumetricCloud( VolumetricCloudComponent* volumetricCloud )
+	{
+		VolumetricCloudProxy* proxy = volumetricCloud->CreateProxy();
+		volumetricCloud->Proxy() = proxy;
+
+		if ( proxy == nullptr )
+		{
+			return;
+		}
+
+		auto volumetricCloudSceneInfo = new VolumetricCloudSceneInfo( proxy );
+
+		proxy->m_volumetricCloudSceneInfo = volumetricCloudSceneInfo;
 
 		EnqueueRenderTask(
 			[this, volumetricCloudSceneInfo]
 			{
-				RemoveVolumetricCloud( volumetricCloudSceneInfo );
+				volumetricCloudSceneInfo->CreateRenderData();
+
+				AddVolumetricCloud( volumetricCloudSceneInfo );
 			} );
 	}
-}
 
-void Scene::AddHemisphereLightComponent( HemisphereLightComponent* light )
-{
-	HemisphereLightProxy* proxy = light->CreateProxy();
-	light->Proxy() = proxy;
-
-	if ( proxy )
+	void Scene::RemoveVolumetricCloud( VolumetricCloudComponent* volumetricCloud )
 	{
-		EnqueueRenderTask(
-			[this, proxy]
-			{
-				AddHemisphereLight( proxy );
-			} );
-	}
-}
+		VolumetricCloudProxy* proxy = volumetricCloud->Proxy();
 
-void Scene::RemoveHemisphereLightComponent( HemisphereLightComponent* light )
-{
-	HemisphereLightProxy* proxy = light->Proxy();
-
-	if ( proxy )
-	{
-		light->Proxy() = nullptr;
-
-		EnqueueRenderTask(
-			[this, proxy]()
-			{
-				RemoveHemisphereLight( proxy );
-			} );
-	}
-}
-
-void Scene::AddLight( LightComponent* light )
-{
-	LightProxy* proxy = light->CreateProxy();
-	light->m_lightProxy = proxy;
-
-	if ( proxy == nullptr )
-	{
-		return;
-	}
-
-	LightSceneInfo* lightsceneInfo = new LightSceneInfo( *light, *this );
-
-	proxy->m_lightSceneInfo = lightsceneInfo;
-
-	EnqueueRenderTask(
-		[this, lightsceneInfo]
+		if ( proxy )
 		{
-			AddLightSceneInfo( lightsceneInfo );
-		} );
-}
+			VolumetricCloudSceneInfo* volumetricCloudSceneInfo = proxy->m_volumetricCloudSceneInfo;
+			volumetricCloud->Proxy() = nullptr;
 
-void Scene::RemoveLight( LightComponent* light )
-{
-	LightProxy* proxy = light->m_lightProxy;
+			EnqueueRenderTask(
+				[this, volumetricCloudSceneInfo]
+				{
+					RemoveVolumetricCloud( volumetricCloudSceneInfo );
+				} );
+		}
+	}
 
-	if ( proxy )
+	void Scene::AddHemisphereLightComponent( HemisphereLightComponent* light )
 	{
-		LightSceneInfo* lightSceneInfo = proxy->m_lightSceneInfo;
-		light->m_lightProxy = nullptr;
+		HemisphereLightProxy* proxy = light->CreateProxy();
+		light->Proxy() = proxy;
+
+		if ( proxy )
+		{
+			EnqueueRenderTask(
+				[this, proxy]
+				{
+					AddHemisphereLight( proxy );
+				} );
+		}
+	}
+
+	void Scene::RemoveHemisphereLightComponent( HemisphereLightComponent* light )
+	{
+		HemisphereLightProxy* proxy = light->Proxy();
+
+		if ( proxy )
+		{
+			light->Proxy() = nullptr;
+
+			EnqueueRenderTask(
+				[this, proxy]()
+				{
+					RemoveHemisphereLight( proxy );
+				} );
+		}
+	}
+
+	void Scene::AddLight( LightComponent* light )
+	{
+		LightProxy* proxy = light->CreateProxy();
+		light->m_lightProxy = proxy;
+
+		if ( proxy == nullptr )
+		{
+			return;
+		}
+
+		LightSceneInfo* lightsceneInfo = new LightSceneInfo( *light, *this );
+
+		proxy->m_lightSceneInfo = lightsceneInfo;
 
 		EnqueueRenderTask(
-			[this, lightSceneInfo]()
+			[this, lightsceneInfo]
 			{
-				RemoveLightSceneInfo( lightSceneInfo );
+				AddLightSceneInfo( lightsceneInfo );
 			} );
 	}
-}
 
-SHADING_METHOD Scene::ShadingMethod() const
-{
-	return SHADING_METHOD::Forward;
-}
-
-CachedDrawSnapshotInfo Scene::AddCachedDrawSnapshot( RenderPass passType, const DrawSnapshot& snapshot )
-{
-	CachedDrawSnapshotInfo info;
-	info.m_renderPass = passType;
-	info.m_snapshotBucketId = m_cachedSnapshotBuckect.Add( snapshot );
-	info.m_snapshotIndex = m_cachedSnapshots[static_cast<uint32>( passType )].Add( snapshot );
-
-	return info;
-}
-
-void Scene::RemoveCachedDrawSnapshot( const CachedDrawSnapshotInfo& info )
-{
-	uint32 passType = static_cast<uint32>( info.m_renderPass );
-	m_cachedSnapshotBuckect.Remove( info.m_snapshotBucketId );
-	m_cachedSnapshots[passType].RemoveAt( info.m_snapshotIndex );
-}
-
-void Scene::AddPrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo )
-{
-	assert( IsInRenderThread() );
-	assert( primitiveSceneInfo );
-
-	uint32 primitiveId = static_cast<uint32>( m_primitives.Add( primitiveSceneInfo ) );
-	primitiveSceneInfo->PrimitiveId() = primitiveId;
-	m_primitiveBounds.AddUninitialized();
-
-	m_primitiveToUpdate.push_back( primitiveId );
-
-	primitiveSceneInfo->AddToScene();
-}
-
-void Scene::RemovePrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo )
-{
-	assert( IsInRenderThread() );
-
-	uint32 primitiveId = primitiveSceneInfo->PrimitiveId();
-
-	m_primitives.RemoveAt( primitiveId );
-	m_primitiveBounds.RemoveAt( primitiveId );
-	m_primitiveToUpdate.erase( std::remove( m_primitiveToUpdate.begin(), m_primitiveToUpdate.end(), primitiveId ), m_primitiveToUpdate.end() );
-
-	primitiveSceneInfo->RemoveFromScene();
-	delete primitiveSceneInfo->Proxy();
-	delete primitiveSceneInfo;
-}
-
-void Scene::AddTexturedSky( TexturedSkyProxy* texturedSky )
-{
-	m_texturedSky = texturedSky;
-}
-
-void Scene::RemoveTexturedSky( [[maybe_unused]] TexturedSkyProxy* texturedSky )
-{
-	delete m_texturedSky;
-	m_texturedSky = nullptr;
-}
-
-void Scene::AddVolumetricCloud( rendercore::VolumetricCloudSceneInfo* volumetricCloudSceneInfo )
-{
-	assert( m_volumetricCloud == nullptr );
-
-	m_volumetricCloud = volumetricCloudSceneInfo;
-}
-
-void Scene::RemoveVolumetricCloud( [[maybe_unused]] rendercore::VolumetricCloudSceneInfo* volumetricCloudSceneInfo )
-{
-	assert( m_volumetricCloud == volumetricCloudSceneInfo );
-
-	m_volumetricCloud = nullptr;
-
-	delete volumetricCloudSceneInfo->Proxy();
-	delete volumetricCloudSceneInfo;
-}
-
-void Scene::AddHemisphereLight( HemisphereLightProxy* hemisphereLight )
-{
-	m_hemisphereLight = hemisphereLight;
-}
-
-void Scene::RemoveHemisphereLight( HemisphereLightProxy* hemisphereLight )
-{
-	delete hemisphereLight;
-	m_hemisphereLight = nullptr;
-}
-
-void Scene::AddLightSceneInfo( LightSceneInfo* lightSceneInfo )
-{
-	uint32 id = static_cast<uint32>( m_lights.Add( lightSceneInfo ) );
-	lightSceneInfo->SetID( id );
-
-	lightSceneInfo->AddToScene();
-
-	AddSkyAtmosphereLight( lightSceneInfo );
-}
-
-void Scene::RemoveLightSceneInfo( LightSceneInfo* lightSceneInfo )
-{
-	RemoveSkyAtmosphereLight( lightSceneInfo );
-
-	uint32 id = lightSceneInfo->ID();
-	m_lights.RemoveAt( id );
-
-	lightSceneInfo->RemoveFromScene();
-
-	delete lightSceneInfo->Proxy();
-	delete lightSceneInfo;
-}
-
-void Scene::AddSkyAtmosphereLight( LightSceneInfo* lightSceneInfo )
-{
-	if ( lightSceneInfo->Proxy()->IsUsedAsAtmosphereSunLight() )
+	void Scene::RemoveLight( LightComponent* light )
 	{
-		m_skyAtmosphereLight = lightSceneInfo;
-	}
-}
+		LightProxy* proxy = light->m_lightProxy;
 
-void Scene::RemoveSkyAtmosphereLight( LightSceneInfo* lightSceneInfo )
-{
-	if ( m_skyAtmosphereLight == lightSceneInfo )
-	{
-		m_skyAtmosphereLight = nullptr;
-
-		for ( const auto& light : m_lights )
+		if ( proxy )
 		{
-			if ( light != lightSceneInfo
-				&& light->Proxy()->IsUsedAsAtmosphereSunLight() )
+			LightSceneInfo* lightSceneInfo = proxy->m_lightSceneInfo;
+			light->m_lightProxy = nullptr;
+
+			EnqueueRenderTask(
+				[this, lightSceneInfo]()
+				{
+					RemoveLightSceneInfo( lightSceneInfo );
+				} );
+		}
+	}
+
+	SHADING_METHOD Scene::ShadingMethod() const
+	{
+		return SHADING_METHOD::Forward;
+	}
+
+	CachedDrawSnapshotInfo Scene::AddCachedDrawSnapshot( RenderPass passType, const DrawSnapshot& snapshot )
+	{
+		CachedDrawSnapshotInfo info;
+		info.m_renderPass = passType;
+		info.m_snapshotBucketId = m_cachedSnapshotBuckect.Add( snapshot );
+		info.m_snapshotIndex = m_cachedSnapshots[static_cast<uint32>( passType )].Add( snapshot );
+
+		return info;
+	}
+
+	void Scene::RemoveCachedDrawSnapshot( const CachedDrawSnapshotInfo& info )
+	{
+		uint32 passType = static_cast<uint32>( info.m_renderPass );
+		m_cachedSnapshotBuckect.Remove( info.m_snapshotBucketId );
+		m_cachedSnapshots[passType].RemoveAt( info.m_snapshotIndex );
+	}
+
+	void Scene::AddPrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo )
+	{
+		assert( IsInRenderThread() );
+		assert( primitiveSceneInfo );
+
+		uint32 primitiveId = static_cast<uint32>( m_primitives.Add( primitiveSceneInfo ) );
+		primitiveSceneInfo->PrimitiveId() = primitiveId;
+		m_primitiveBounds.AddUninitialized();
+
+		m_primitiveToUpdate.push_back( primitiveId );
+
+		primitiveSceneInfo->AddToScene();
+	}
+
+	void Scene::RemovePrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo )
+	{
+		assert( IsInRenderThread() );
+
+		uint32 primitiveId = primitiveSceneInfo->PrimitiveId();
+
+		m_primitives.RemoveAt( primitiveId );
+		m_primitiveBounds.RemoveAt( primitiveId );
+		m_primitiveToUpdate.erase( std::remove( m_primitiveToUpdate.begin(), m_primitiveToUpdate.end(), primitiveId ), m_primitiveToUpdate.end() );
+
+		primitiveSceneInfo->RemoveFromScene();
+		delete primitiveSceneInfo->Proxy();
+		delete primitiveSceneInfo;
+	}
+
+	void Scene::AddTexturedSky( TexturedSkyProxy* texturedSky )
+	{
+		m_texturedSky = texturedSky;
+	}
+
+	void Scene::RemoveTexturedSky( [[maybe_unused]] TexturedSkyProxy* texturedSky )
+	{
+		delete m_texturedSky;
+		m_texturedSky = nullptr;
+	}
+
+	void Scene::AddVolumetricCloud( VolumetricCloudSceneInfo* volumetricCloudSceneInfo )
+	{
+		assert( m_volumetricCloud == nullptr );
+
+		m_volumetricCloud = volumetricCloudSceneInfo;
+	}
+
+	void Scene::RemoveVolumetricCloud( [[maybe_unused]] VolumetricCloudSceneInfo* volumetricCloudSceneInfo )
+	{
+		assert( m_volumetricCloud == volumetricCloudSceneInfo );
+
+		m_volumetricCloud = nullptr;
+
+		delete volumetricCloudSceneInfo->Proxy();
+		delete volumetricCloudSceneInfo;
+	}
+
+	void Scene::AddHemisphereLight( HemisphereLightProxy* hemisphereLight )
+	{
+		m_hemisphereLight = hemisphereLight;
+	}
+
+	void Scene::RemoveHemisphereLight( HemisphereLightProxy* hemisphereLight )
+	{
+		delete hemisphereLight;
+		m_hemisphereLight = nullptr;
+	}
+
+	void Scene::AddLightSceneInfo( LightSceneInfo* lightSceneInfo )
+	{
+		uint32 id = static_cast<uint32>( m_lights.Add( lightSceneInfo ) );
+		lightSceneInfo->SetID( id );
+
+		lightSceneInfo->AddToScene();
+
+		AddSkyAtmosphereLight( lightSceneInfo );
+	}
+
+	void Scene::RemoveLightSceneInfo( LightSceneInfo* lightSceneInfo )
+	{
+		RemoveSkyAtmosphereLight( lightSceneInfo );
+
+		uint32 id = lightSceneInfo->ID();
+		m_lights.RemoveAt( id );
+
+		lightSceneInfo->RemoveFromScene();
+
+		delete lightSceneInfo->Proxy();
+		delete lightSceneInfo;
+	}
+
+	void Scene::AddSkyAtmosphereLight( LightSceneInfo* lightSceneInfo )
+	{
+		if ( lightSceneInfo->Proxy()->IsUsedAsAtmosphereSunLight() )
+		{
+			m_skyAtmosphereLight = lightSceneInfo;
+		}
+	}
+
+	void Scene::RemoveSkyAtmosphereLight( LightSceneInfo* lightSceneInfo )
+	{
+		if ( m_skyAtmosphereLight == lightSceneInfo )
+		{
+			m_skyAtmosphereLight = nullptr;
+
+			for ( const auto& light : m_lights )
 			{
-				m_skyAtmosphereLight = light;
+				if ( light != lightSceneInfo
+					&& light->Proxy()->IsUsedAsAtmosphereSunLight() )
+				{
+					m_skyAtmosphereLight = light;
+				}
 			}
 		}
 	}
-}
 
-bool UpdateGPUPrimitiveInfos( Scene& scene )
-{
-	assert( IsInRenderThread() );
-	uint32 updateSize = static_cast<uint32>( scene.m_primitiveToUpdate.size() );
-	if ( updateSize == 0 )
+	bool UpdateGPUPrimitiveInfos( Scene& scene )
 	{
+		assert( IsInRenderThread() );
+		uint32 updateSize = static_cast<uint32>( scene.m_primitiveToUpdate.size() );
+		if ( updateSize == 0 )
+		{
+			return true;
+		}
+
+		DistributionCopyCS computeShader;
+		ComputeShader* cs = computeShader.Shader();
+		if ( cs == nullptr )
+		{
+			return false;
+		}
+
+		uint32 totalPrimitives = static_cast<uint32>( scene.m_primitives.Size() );
+		scene.m_gpuPrimitiveInfos.Resize( totalPrimitives );
+
+		GpuMemcpy gpuMemcpy( updateSize, sizeof( PrimitiveSceneData ) / sizeof( Vector4 ), scene.m_uploadPrimitiveBuffer, scene.m_distributionBuffer );
+
+		for ( auto index : scene.m_primitiveToUpdate )
+		{
+			PrimitiveProxy* proxy = scene.m_primitives[index]->Proxy();
+
+			PrimitiveSceneData param( proxy );
+			gpuMemcpy.Add( (const char*)( &param ), index );
+		}
+
+		aga::Buffer* gpuPrimitiveInfos = scene.m_gpuPrimitiveInfos.Resource();
+		gpuMemcpy.Upload( gpuPrimitiveInfos );
+
+		scene.m_primitiveToUpdate.clear();
 		return true;
 	}
-
-	DistributionCopyCS computeShader;
-	ComputeShader* cs = computeShader.Shader();
-	if ( cs == nullptr )
-	{
-		return false;
-	}
-
-	uint32 totalPrimitives = static_cast<uint32>( scene.m_primitives.Size() );
-	scene.m_gpuPrimitiveInfos.Resize( totalPrimitives );
-
-	GpuMemcpy gpuMemcpy( updateSize, sizeof( PrimitiveSceneData ) / sizeof( Vector4 ), scene.m_uploadPrimitiveBuffer, scene.m_distributionBuffer );
-
-	for ( auto index : scene.m_primitiveToUpdate )
-	{
-		PrimitiveProxy* proxy = scene.m_primitives[index]->Proxy();
-
-		PrimitiveSceneData param( proxy );
-		gpuMemcpy.Add( (const char*)( &param ), index );
-	}
-
-	aga::Buffer* gpuPrimitiveInfos = scene.m_gpuPrimitiveInfos.Resource();
-	gpuMemcpy.Upload( gpuPrimitiveInfos );
-
-	scene.m_primitiveToUpdate.clear();
-	return true;
 }

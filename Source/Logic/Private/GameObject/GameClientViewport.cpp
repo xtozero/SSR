@@ -32,7 +32,7 @@ void GameClientViewport::Draw()
 		return;
 	}
 
-	auto renderModule = GetInterface<IRenderCore>();
+	auto renderModule = GetInterface<rendercore::IRenderCore>();
 	if ( renderModule->IsReady() == false )
 	{
 		return;
@@ -48,14 +48,14 @@ void GameClientViewport::Draw()
 		} );
 
 	const auto& timer = GetWorld()->GetTimer();
-	RenderViewGroupInitializer initializer = {
+	rendercore::RenderViewGroupInitializer initializer = {
 		.m_scene = *GetWorld()->Scene(),
 		.m_viewport = *m_viewport,
 		.m_elapsedTime = timer.GetElapsedTime(),
 		.m_totalTime = timer.GetTotalTime(),
 	};
 
-	RenderViewGroup renderViewGroup( initializer );
+	rendercore::RenderViewGroup renderViewGroup( initializer );
 	InitView( renderViewGroup );
 	EnqueueRenderTask(
 		[renderModule, renderViewGroup]() mutable
@@ -101,7 +101,7 @@ void GameClientViewport::AppSizeChanged( void* handle, const std::pair<uint32, u
 		} );
 }
 
-void GameClientViewport::InitView( RenderViewGroup& views )
+void GameClientViewport::InitView( rendercore::RenderViewGroup& views )
 {
 	using namespace DirectX;
 
@@ -123,7 +123,7 @@ void GameClientViewport::InitView( RenderViewGroup& views )
 		return;
 	}
 
-	RenderView& localPlayerView = views.AddRenderView();
+	rendercore::RenderView& localPlayerView = views.AddRenderView();
 
 	localPlayerView.m_viewOrigin = cameraComponent->GetPosition();
 	localPlayerView.m_viewAxis = BasisVectorMatrix( cameraComponent->GetRightVector(),

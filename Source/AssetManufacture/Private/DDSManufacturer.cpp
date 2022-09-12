@@ -31,9 +31,9 @@ namespace
 		return 0;
 	}
 
-	DDSTextureInitializer ConvertToBCTextureInitializer( const DirectX::ScratchImage& image )
+	rendercore::DDSTextureInitializer ConvertToBCTextureInitializer( const DirectX::ScratchImage& image )
 	{
-		DDSTextureInitializer initializer;
+		rendercore::DDSTextureInitializer initializer;
 
 		const DirectX::TexMetadata& meta = image.GetMetadata();
 		initializer.m_width = static_cast<uint32>( meta.width );
@@ -100,9 +100,9 @@ std::optional<Products> DDSManufacturer::Manufacture( [[maybe_unused]] const Pat
 		return { };
 	}
 
-	DDSTextureInitializer initializer = ConvertToBCTextureInitializer( image );
+	rendercore::DDSTextureInitializer initializer = ConvertToBCTextureInitializer( image );
 
-	DDSTexture asset( initializer );
+	rendercore::DDSTexture asset( initializer );
 	asset.SetLastWriteTime( fs::last_write_time( path ) );
 
 	Archive ar;

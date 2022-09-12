@@ -1,6 +1,6 @@
 #include "Components/ShapeComponent.h"
 
-PrimitiveProxy* ShapeComponent::CreateProxy() const
+rendercore::PrimitiveProxy* ShapeComponent::CreateProxy() const
 {
 	assert( false && "Derived class needs to Implement this" );
 	return nullptr;

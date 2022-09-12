@@ -3,7 +3,10 @@
 #include "Math/Vector4.h"
 #include "SceneComponent.h"
 
-class VolumetricCloudProxy;
+namespace rendercore
+{
+	class VolumetricCloudProxy;
+}
 
 class VolumetricCloudComponent : public SceneComponent
 {
@@ -16,12 +19,12 @@ public:
 
 	virtual BoxSphereBounds CalcBounds( const Matrix& transform ) override;
 
-	VolumetricCloudProxy*& Proxy()
+	rendercore::VolumetricCloudProxy*& Proxy()
 	{
 		return m_proxy;
 	}
 
-	virtual VolumetricCloudProxy* CreateProxy();
+	virtual rendercore::VolumetricCloudProxy* CreateProxy();
 
 	float EarthRadius() const
 	{
@@ -92,7 +95,7 @@ protected:
 	virtual void RemoveRenderState() override;
 
 private:
-	VolumetricCloudProxy* m_proxy = nullptr;
+	rendercore::VolumetricCloudProxy* m_proxy = nullptr;
 	float m_earthRadius = 0.f;
 	float m_innerRadius = 0.f;
 	float m_outerRadius = 0.f;

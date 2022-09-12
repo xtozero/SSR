@@ -11,39 +11,42 @@
 
 class VertexShader;
 
-class AbstractGraphicsInterface
+namespace rendercore
 {
-public:
-	void BootUp( aga::IAga* pAga );
-	void Shutdown();
+	class AbstractGraphicsInterface
+	{
+	public:
+		void BootUp( aga::IAga* pAga );
+		void Shutdown();
 
-	LockedResource Lock( aga::Buffer* buffer, uint32 lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, uint32 subResource = 0 );
-	LockedResource Lock( aga::Texture* texture, uint32 lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, uint32 subResource = 0 );
-	void UnLock( aga::Buffer* buffer, uint32 subResource = 0 );
-	void UnLock( aga::Texture* texture, uint32 subResource = 0 );
+		LockedResource Lock( aga::Buffer* buffer, uint32 lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, uint32 subResource = 0 );
+		LockedResource Lock( aga::Texture* texture, uint32 lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, uint32 subResource = 0 );
+		void UnLock( aga::Buffer* buffer, uint32 subResource = 0 );
+		void UnLock( aga::Texture* texture, uint32 subResource = 0 );
 
-	void Copy( aga::Buffer* dst, aga::Buffer* src, uint32 size );
+		void Copy( aga::Buffer* dst, aga::Buffer* src, uint32 size );
 
-	std::unique_ptr<aga::IDeferredCommandList> CreateDeferredCommandList() const;
-	aga::IImmediateCommandList* GetImmediateCommandList();
+		std::unique_ptr<aga::IDeferredCommandList> CreateDeferredCommandList() const;
+		aga::IImmediateCommandList* GetImmediateCommandList();
 
-	BlendState FindOrCreate( const BlendOption& option );
-	DepthStencilState FindOrCreate( const DepthStencilOption& option );
-	RasterizerState FindOrCreate( const RasterizerOption& option );
-	SamplerState FindOrCreate( const SamplerOption& option );
-	VertexLayout FindOrCreate( const VertexShader& vs, const VertexLayoutDesc& desc );
+		BlendState FindOrCreate( const BlendOption& option );
+		DepthStencilState FindOrCreate( const DepthStencilOption& option );
+		RasterizerState FindOrCreate( const RasterizerOption& option );
+		SamplerState FindOrCreate( const SamplerOption& option );
+		VertexLayout FindOrCreate( const VertexShader& vs, const VertexLayoutDesc& desc );
 
-	BinaryChunk CompieShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const;
-	bool BuildShaderMetaData( const BinaryChunk& byteCode, aga::ShaderParameterMap& outParameterMap, aga::ShaderParameterInfo& outParameterInfo ) const;
+		BinaryChunk CompieShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const;
+		bool BuildShaderMetaData( const BinaryChunk& byteCode, aga::ShaderParameterMap& outParameterMap, aga::ShaderParameterInfo& outParameterInfo ) const;
 
-private:
-	aga::IAga* m_aga = nullptr;
+	private:
+		aga::IAga* m_aga = nullptr;
 
-	std::unordered_map<BlendOption, BlendState, BlendOptionHasher> m_blendStates;
-	std::unordered_map<DepthStencilOption, DepthStencilState, DepthStencilOptionHasher> m_depthStencilStates;
-	std::unordered_map<RasterizerOption, RasterizerState, RasterizerOptionHasher> m_rasterizerStates;
-	std::unordered_map<SamplerOption, SamplerState, SamplerOptionHasher> m_samplerStates;
-	std::unordered_map<VertexLayoutDesc, VertexLayout, VertexLayoutDescHasher> m_vertexLayouts;
-};
+		std::unordered_map<BlendOption, BlendState, BlendOptionHasher> m_blendStates;
+		std::unordered_map<DepthStencilOption, DepthStencilState, DepthStencilOptionHasher> m_depthStencilStates;
+		std::unordered_map<RasterizerOption, RasterizerState, RasterizerOptionHasher> m_rasterizerStates;
+		std::unordered_map<SamplerOption, SamplerState, SamplerOptionHasher> m_samplerStates;
+		std::unordered_map<VertexLayoutDesc, VertexLayout, VertexLayoutDescHasher> m_vertexLayouts;
+	};
 
-AbstractGraphicsInterface& GraphicsInterface();
+	AbstractGraphicsInterface& GraphicsInterface();
+}

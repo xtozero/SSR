@@ -16,183 +16,187 @@
 #include <string>
 
 class Archive;
-class MaterialResource;
 
-enum class MaterialPropertyType
+namespace rendercore
 {
-	Float = 0,
-	Float4,
-	Int,
-	Texture,
-};
+	class MaterialResource;
 
-class IMaterialProperty
-{
-public:
-	virtual void Serialize( Archive& ar ) = 0;
-	virtual MaterialPropertyType Type() const = 0;
-
-	virtual void CopyValue( void* dest ) const = 0;
-
-	virtual ~IMaterialProperty() = default;
-};
-
-class MaterialProperty : public IMaterialProperty
-{
-public:
-};
-
-class FloatProperty : public MaterialProperty
-{
-public:
-	virtual void Serialize( Archive& ar );
-	virtual MaterialPropertyType Type() const override
+	enum class MaterialPropertyType
 	{
-		return MaterialPropertyType::Float;
-	}
+		Float = 0,
+		Float4,
+		Int,
+		Texture,
+	};
 
-	virtual void CopyValue( void* dest ) const override;
-
-	float Value() const { return m_value; }
-
-	explicit FloatProperty( float value ) : m_value( value ) {}
-	FloatProperty() = default;
-
-private:
-	float m_value;
-};
-
-class Float4Property : public MaterialProperty
-{
-public:
-	virtual void Serialize( Archive& ar );
-	virtual MaterialPropertyType Type() const override
+	class IMaterialProperty
 	{
-		return MaterialPropertyType::Float4;
-	}
+	public:
+		virtual void Serialize( Archive& ar ) = 0;
+		virtual MaterialPropertyType Type() const = 0;
 
-	virtual void CopyValue( void* dest ) const override;
+		virtual void CopyValue( void* dest ) const = 0;
 
-	const Vector4& Value() const { return m_value; }
+		virtual ~IMaterialProperty() = default;
+	};
 
-	explicit Float4Property( const Vector4& value ) : m_value( value ) {}
-	Float4Property() = default;
-
-private:
-	Vector4 m_value;
-};
-
-class IntProperty : public MaterialProperty
-{
-public:
-	virtual void Serialize( Archive& ar );
-	virtual MaterialPropertyType Type() const override
+	class MaterialProperty : public IMaterialProperty
 	{
-		return MaterialPropertyType::Int;
-	}
+	public:
+	};
 
-	virtual void CopyValue( void* dest ) const override;
-
-	int32 Value() const { return m_value; }
-
-	explicit IntProperty( int32 value ) : m_value( value ) {}
-	IntProperty() = default;
-
-private:
-	int32 m_value;
-};
-
-class TextureProperty : public MaterialProperty
-{
-public:
-	virtual void Serialize( Archive& ar );
-	virtual MaterialPropertyType Type() const override
+	class FloatProperty : public MaterialProperty
 	{
-		return MaterialPropertyType::Texture;
-	}
+	public:
+		virtual void Serialize( Archive& ar );
+		virtual MaterialPropertyType Type() const override
+		{
+			return MaterialPropertyType::Float;
+		}
 
-	virtual void CopyValue( void* dest ) const override;
+		virtual void CopyValue( void* dest ) const override;
 
-	std::shared_ptr<Texture> Value() const { return m_value; }
+		float Value() const { return m_value; }
 
-	explicit TextureProperty( const std::shared_ptr<Texture>& value ) : m_value( value ) {}
-	TextureProperty() = default;
+		explicit FloatProperty( float value ) : m_value( value ) {}
+		FloatProperty() = default;
 
-private:
-	std::shared_ptr<Texture> m_value;
-};
+	private:
+		float m_value;
+	};
 
-class Material : public AsyncLoadableAsset
-{
-	GENERATE_CLASS_TYPE_INFO( Material );
-	DECLARE_ASSET( RENDERCORE, Material );
+	class Float4Property : public MaterialProperty
+	{
+	public:
+		virtual void Serialize( Archive& ar );
+		virtual MaterialPropertyType Type() const override
+		{
+			return MaterialPropertyType::Float4;
+		}
 
-public:
-	RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
+		virtual void CopyValue( void* dest ) const override;
 
-	RENDERCORE_DLL void AddProperty( const char* key, int32 value );
-	RENDERCORE_DLL void AddProperty( const char* key, float value );
-	RENDERCORE_DLL void AddProperty( const char* key, const Vector4& value );
-	RENDERCORE_DLL void AddProperty( const char* key, const std::shared_ptr<Texture>& value );
+		const Vector4& Value() const { return m_value; }
 
-	const MaterialProperty* AsProperty( const char* key ) const;
-	int32 AsInteger( const char* key ) const;
-	float AsFloat( const char* key ) const;
-	const Vector4& AsVector( const char* key ) const;
-	Texture* AsTexture( const char* key ) const;
-	SamplerOption* AsSampelrOption( const char* key ) const;
+		explicit Float4Property( const Vector4& value ) : m_value( value ) {}
+		Float4Property() = default;
 
-	void CopyProperty( const char* key, void* dest ) const;
+	private:
+		Vector4 m_value;
+	};
 
-	bool HasProperty( const char* key ) const;
+	class IntProperty : public MaterialProperty
+	{
+	public:
+		virtual void Serialize( Archive& ar );
+		virtual MaterialPropertyType Type() const override
+		{
+			return MaterialPropertyType::Int;
+		}
 
-	const Name& GetName() const
-	{ 
-		return m_name; 
-	}
+		virtual void CopyValue( void* dest ) const override;
 
-	const ShaderBase* GetShader( SHADER_TYPE type ) const;
+		int32 Value() const { return m_value; }
 
-	RENDERCORE_DLL void SetVertexShader( const std::shared_ptr<VertexShader>& vertexshader );
-	const VertexShader* GetVertexShader() const;
-	VertexShader* GetVertexShader();
-	RENDERCORE_DLL void SetGeometryShader( const std::shared_ptr<GeometryShader>& geometryShader );
-	const GeometryShader* GetGeometryShader() const;
-	GeometryShader* GetGeometryShader();
-	RENDERCORE_DLL void SetPixelShader( const std::shared_ptr<PixelShader>& pixelShader );
-	const PixelShader* GetPixelShader() const;
-	PixelShader* GetPixelShader();
-	RENDERCORE_DLL void AddSampler( const std::string& key, const  std::shared_ptr<SamplerOption>& samplerOption );
+		explicit IntProperty( int32 value ) : m_value( value ) {}
+		IntProperty() = default;
 
-	RENDERCORE_DLL MaterialResource* GetMaterialResource() const;
+	private:
+		int32 m_value;
+	};
 
-	RENDERCORE_DLL Material( const char* name );
-	RENDERCORE_DLL Material();
-	RENDERCORE_DLL ~Material();
-	Material( const Material& ) = delete;
-	Material& operator=( const Material& ) = delete;
-	RENDERCORE_DLL Material( Material&& );
-	RENDERCORE_DLL Material& operator=( Material&& );
+	class TextureProperty : public MaterialProperty
+	{
+	public:
+		virtual void Serialize( Archive& ar );
+		virtual MaterialPropertyType Type() const override
+		{
+			return MaterialPropertyType::Texture;
+		}
 
-protected:
-	RENDERCORE_DLL virtual void PostLoadImpl() override;
+		virtual void CopyValue( void* dest ) const override;
 
-private:
-	PROPERTY( name )
-	Name m_name;
+		std::shared_ptr<Texture> Value() const { return m_value; }
 
-	PROPERTY( shaders )
-	std::shared_ptr<ShaderBase> m_shaders[MAX_SHADER_TYPE<uint32>];
+		explicit TextureProperty( const std::shared_ptr<Texture>& value ) : m_value( value ) {}
+		TextureProperty() = default;
 
-	rendercore::StaticShaderSwitches m_shaderSwitches[MAX_SHADER_TYPE<uint32>];
+	private:
+		std::shared_ptr<Texture> m_value;
+	};
 
-	PROPERTY( defines )
-	std::vector<std::pair<Name, int32>> m_defines[MAX_SHADER_TYPE<uint32>];
+	class Material : public AsyncLoadableAsset
+	{
+		GENERATE_CLASS_TYPE_INFO( Material );
+		DECLARE_ASSET( RENDERCORE, Material );
 
-	std::map<Name, std::unique_ptr<MaterialProperty>> m_properties;
+	public:
+		RENDERCORE_DLL virtual void Serialize( Archive& ar ) override;
 
-	PROPERTY( samplers )
-	std::map<Name, std::shared_ptr<SamplerOption>> m_samplers;
+		RENDERCORE_DLL void AddProperty( const char* key, int32 value );
+		RENDERCORE_DLL void AddProperty( const char* key, float value );
+		RENDERCORE_DLL void AddProperty( const char* key, const Vector4& value );
+		RENDERCORE_DLL void AddProperty( const char* key, const std::shared_ptr<Texture>& value );
 
-	std::unique_ptr<MaterialResource> m_materialResource;
-};
+		const MaterialProperty* AsProperty( const char* key ) const;
+		int32 AsInteger( const char* key ) const;
+		float AsFloat( const char* key ) const;
+		const Vector4& AsVector( const char* key ) const;
+		Texture* AsTexture( const char* key ) const;
+		SamplerOption* AsSampelrOption( const char* key ) const;
+
+		void CopyProperty( const char* key, void* dest ) const;
+
+		bool HasProperty( const char* key ) const;
+
+		const Name& GetName() const
+		{
+			return m_name;
+		}
+
+		const ShaderBase* GetShader( SHADER_TYPE type ) const;
+
+		RENDERCORE_DLL void SetVertexShader( const std::shared_ptr<VertexShader>& vertexshader );
+		const VertexShader* GetVertexShader() const;
+		VertexShader* GetVertexShader();
+		RENDERCORE_DLL void SetGeometryShader( const std::shared_ptr<GeometryShader>& geometryShader );
+		const GeometryShader* GetGeometryShader() const;
+		GeometryShader* GetGeometryShader();
+		RENDERCORE_DLL void SetPixelShader( const std::shared_ptr<PixelShader>& pixelShader );
+		const PixelShader* GetPixelShader() const;
+		PixelShader* GetPixelShader();
+		RENDERCORE_DLL void AddSampler( const std::string& key, const  std::shared_ptr<SamplerOption>& samplerOption );
+
+		RENDERCORE_DLL MaterialResource* GetMaterialResource() const;
+
+		RENDERCORE_DLL Material( const char* name );
+		RENDERCORE_DLL Material();
+		RENDERCORE_DLL ~Material();
+		Material( const Material& ) = delete;
+		Material& operator=( const Material& ) = delete;
+		RENDERCORE_DLL Material( Material&& );
+		RENDERCORE_DLL Material& operator=( Material&& );
+
+	protected:
+		RENDERCORE_DLL virtual void PostLoadImpl() override;
+
+	private:
+		PROPERTY( name )
+		Name m_name;
+
+		PROPERTY( shaders )
+		std::shared_ptr<ShaderBase> m_shaders[MAX_SHADER_TYPE<uint32>];
+
+		StaticShaderSwitches m_shaderSwitches[MAX_SHADER_TYPE<uint32>];
+
+		PROPERTY( defines )
+		std::vector<std::pair<Name, int32>> m_defines[MAX_SHADER_TYPE<uint32>];
+
+		std::map<Name, std::unique_ptr<MaterialProperty>> m_properties;
+
+		PROPERTY( samplers )
+		std::map<Name, std::shared_ptr<SamplerOption>> m_samplers;
+
+		std::unique_ptr<MaterialResource> m_materialResource;
+	};
+}

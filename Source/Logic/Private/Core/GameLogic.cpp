@@ -40,7 +40,7 @@ bool CGameLogic::BootUp( IPlatform& platform )
 		return false;
 	}
 
-	m_pRenderCore = GetInterface<IRenderCore>();
+	m_pRenderCore = GetInterface<rendercore::IRenderCore>();
 	if ( m_pRenderCore == nullptr )
 	{
 		return false;

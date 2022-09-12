@@ -11,100 +11,104 @@
 #include <vector>
 
 class Archive;
-class VertexBufferBundle;
-struct MeshDescription;
 
-class VertexStream
+namespace rendercore
 {
-public:
-	uint8* Data()
+	class VertexBufferBundle;
+	struct MeshDescription;
+
+	class VertexStream
 	{
-		return m_data.data();
-	}
+	public:
+		uint8* Data()
+		{
+			return m_data.data();
+		}
 
-	const uint8* Data() const
+		const uint8* Data() const
+		{
+			return m_data.data();
+		}
+
+		const Name& GetName() const
+		{
+			return m_name;
+		}
+
+		uint32 Stride() const
+		{
+			return m_stride;
+		}
+
+		uint32 Count() const
+		{
+			return m_count;
+		}
+
+		VertexStream( const char* name, RESOURCE_FORMAT format, uint32 count );
+		VertexStream() = default;
+
+		friend Archive& operator<<( Archive& ar, VertexStream& stream );
+
+	private:
+		Name m_name;
+		RESOURCE_FORMAT m_format = RESOURCE_FORMAT::UNKNOWN;
+		uint32 m_stride = 0;
+		uint32 m_count = 0;
+
+		std::vector<uint8> m_data;
+	};
+
+	class VertexStreamLayout : public VertexLayoutDesc
 	{
-		return m_data.data();
-	}
+	public:
+		void AddLayout( const char* name, uint32 index, RESOURCE_FORMAT format, uint32 slot, bool isInstanceData, uint32 instanceDataStep, int32 streamIndex );
 
-	const Name& GetName() const
+		int32 StreamIndex( uint32 index ) const
+		{
+			return m_streamIndices[index];
+		}
+
+		friend Archive& operator<<( Archive& ar, VertexStreamLayout& layout );
+
+	private:
+		int32 m_streamIndices[MAX_VERTEX_LAYOUT_SIZE] = {};
+	};
+
+	enum class VertexStreamLayoutType
 	{
-		return m_name;
-	}
+		Default = 0,
+		PositionNormal,
+		PositionOnly,
+	};
 
-	uint32 Stride() const
+	class VertexCollection
 	{
-		return m_stride;
-	}
+	public:
+		void InitResource();
 
-	uint32 Count() const
-	{
-		return m_count;
-	}
+		uint32 AddStream( const VertexStream& stream );
+		uint32 AddStream( VertexStream&& stream );
 
-	VertexStream( const char* name, RESOURCE_FORMAT format, uint32 count );
-	VertexStream() = default;
+		void InitLayout( const VERTEX_LAYOUT_TRAIT* traits, uint32 count, VertexStreamLayoutType layoutType );
 
-	friend Archive& operator<<( Archive& ar, VertexStream& stream );
+		const VertexStreamLayout& VertexLayout( VertexStreamLayoutType layoutType ) const;
 
-private:
-	Name m_name;
-	RESOURCE_FORMAT m_format = RESOURCE_FORMAT::UNKNOWN;
-	uint32 m_stride = 0;
-	uint32 m_count = 0;
+		void Bind( VertexBufferBundle& bundle, VertexStreamLayoutType layoutType ) const;
 
-	std::vector<uint8> m_data;
-};
+		friend Archive& operator<<( Archive& ar, VertexCollection& collection );
 
-class VertexStreamLayout : public VertexLayoutDesc
-{
-public:
-	void AddLayout( const char* name, uint32 index, RESOURCE_FORMAT format, uint32 slot, bool isInstanceData, uint32 instanceDataStep, int32 streamIndex );
+	private:
+		std::optional<uint32> FindStream( const Name& name ) const;
+		VertexStreamLayout SetupVertexLayout( const VERTEX_LAYOUT_TRAIT* trait, uint32 count );
 
-	int32 StreamIndex( uint32 index ) const
-	{
-		return m_streamIndices[index];
-	}
+		std::vector<VertexStream> m_streams;
+		mutable std::vector<VertexBuffer> m_vbs;
 
-	friend Archive& operator<<( Archive& ar, VertexStreamLayout& layout );
+		VertexStreamLayout m_positionLayout;
+		VertexStreamLayout m_positionNormalLayout;
+		VertexStreamLayout m_defaultLayout;
+	};
 
-private:
-	int32 m_streamIndices[MAX_VERTEX_LAYOUT_SIZE] = {};
-};
-
-enum class VertexStreamLayoutType
-{
-	Default = 0,
-	PositionNormal,
-	PositionOnly,
-};
-
-class VertexCollection
-{
-public:
-	void InitResource();
-
-	uint32 AddStream( const VertexStream& stream );
-	uint32 AddStream( VertexStream&& stream );
-
-	void InitLayout( const VERTEX_LAYOUT_TRAIT* traits, uint32 count, VertexStreamLayoutType layoutType );
-
-	const VertexStreamLayout& VertexLayout( VertexStreamLayoutType layoutType ) const;
-
-	void Bind( VertexBufferBundle& bundle, VertexStreamLayoutType layoutType ) const;
-
-	friend Archive& operator<<( Archive& ar, VertexCollection& collection );
-
-private:
-	std::optional<uint32> FindStream( const Name& name ) const;
-	VertexStreamLayout SetupVertexLayout( const VERTEX_LAYOUT_TRAIT* trait, uint32 count );
-
-	std::vector<VertexStream> m_streams;
-	mutable std::vector<VertexBuffer> m_vbs;
-
-	VertexStreamLayout m_positionLayout;
-	VertexStreamLayout m_positionNormalLayout;
-	VertexStreamLayout m_defaultLayout;
-};
-
-VertexCollection BuildFromMeshDescription( const MeshDescription& desc );
+	VertexCollection BuildFromMeshDescription( const MeshDescription& desc );
+}

@@ -35,7 +35,7 @@ BoxSphereBounds StaticMeshComponent::CalcBounds( const Matrix& transform )
 	return BoxSphereBounds( position, Vector( 0, 0, 0 ), 0.f );
 }
 
-PrimitiveProxy* StaticMeshComponent::CreateProxy() const
+rendercore::PrimitiveProxy* StaticMeshComponent::CreateProxy() const
 {
 	if ( m_pStaticMesh == nullptr
 		 || m_pStaticMesh->RenderData() == nullptr
@@ -44,7 +44,7 @@ PrimitiveProxy* StaticMeshComponent::CreateProxy() const
 		return nullptr;
 	}
 
-	return new StaticMeshPrimitiveProxy( *this );
+	return new rendercore::StaticMeshPrimitiveProxy( *this );
 }
 
 BodySetup* StaticMeshComponent::GetBodySetup()
@@ -52,7 +52,7 @@ BodySetup* StaticMeshComponent::GetBodySetup()
 	return nullptr;
 }
 
-void StaticMeshComponent::SetStaticMesh( const std::shared_ptr<StaticMesh>& pStaticMesh )
+void StaticMeshComponent::SetStaticMesh( const std::shared_ptr<rendercore::StaticMesh>& pStaticMesh )
 {
 	assert( pStaticMesh != nullptr );
 	m_pStaticMesh = pStaticMesh;
@@ -62,7 +62,7 @@ void StaticMeshComponent::SetStaticMesh( const std::shared_ptr<StaticMesh>& pSta
 	UpdateBounds();
 }
 
-void StaticMeshComponent::SetRenderOption( const std::shared_ptr<RenderOption>& pRenderOption )
+void StaticMeshComponent::SetRenderOption( const std::shared_ptr<rendercore::RenderOption>& pRenderOption )
 {
 	assert( pRenderOption != nullptr );
 	m_pRenderOption = pRenderOption;
@@ -103,10 +103,10 @@ bool StaticMeshComponent::LoadRenderOption( const std::string& assetPath )
 
 void StaticMeshComponent::OnModelLoadFinished( const std::shared_ptr<void>& model )
 {
-	SetStaticMesh( std::static_pointer_cast<StaticMesh>( model ) );
+	SetStaticMesh( std::static_pointer_cast<rendercore::StaticMesh>( model ) );
 }
 
 void StaticMeshComponent::OnRenderOptionLoadFinished( const std::shared_ptr<void>& renderOption )
 {
-	SetRenderOption( std::static_pointer_cast<RenderOption>( renderOption ) );
+	SetRenderOption( std::static_pointer_cast<rendercore::RenderOption>( renderOption ) );
 }

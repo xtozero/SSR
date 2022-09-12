@@ -24,9 +24,13 @@
 #include <minwindef.h>
 #include <vector>
 
+namespace rendercore
+{
+	class IRenderCore;
+}
+
 class CGameObject;
 class GameClientViewport;
-class IRenderCore;
 
 enum RENDERABLE_TYPE
 {
@@ -95,7 +99,7 @@ private:
 	//CSSRManager m_ssrManager;
 	//CAtmosphericScatteringManager m_atmosphereManager;
 	//CModelManager m_modelManager;
-	IRenderCore* m_pRenderCore = nullptr;
+	rendercore::IRenderCore* m_pRenderCore = nullptr;
 
 	std::list<CGameObject*> m_renderableList[RENDERABLE_TYPE_COUNT];
 

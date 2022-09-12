@@ -8,94 +8,97 @@
 
 #include <vector>
 
-struct TextureSection
+namespace rendercore
 {
-	TextureSection( uint32 rowPitch, uint32 slicePitch, uint32 offset ) : m_rowPitch( rowPitch ), m_slicePitch( slicePitch ), m_offset( offset )
-	{}
-	TextureSection() = default;
+	struct TextureSection
+	{
+		TextureSection( uint32 rowPitch, uint32 slicePitch, uint32 offset ) : m_rowPitch( rowPitch ), m_slicePitch( slicePitch ), m_offset( offset )
+		{}
+		TextureSection() = default;
 
-	uint32 m_rowPitch;
-	uint32 m_slicePitch;
-	uint32 m_offset;
+		uint32 m_rowPitch;
+		uint32 m_slicePitch;
+		uint32 m_offset;
 
-	friend RENDERCORE_DLL Archive& operator<<( Archive& ar, TextureSection& section );
-};
+		friend RENDERCORE_DLL Archive& operator<<( Archive& ar, TextureSection& section );
+	};
 
-class Texture : public AsyncLoadableAsset
-{
-	GENERATE_CLASS_TYPE_INFO( Texture );
-	DECLARE_ASSET( RENDERCORE, Texture );
+	class Texture : public AsyncLoadableAsset
+	{
+		GENERATE_CLASS_TYPE_INFO( Texture );
+		DECLARE_ASSET( RENDERCORE, Texture );
 
-public:
-	aga::Texture* Resource();
-	const aga::Texture* Resource() const;
+	public:
+		aga::Texture* Resource();
+		const aga::Texture* Resource() const;
 
-protected:
-	RENDERCORE_DLL virtual void PostLoadImpl() override;
+	protected:
+		RENDERCORE_DLL virtual void PostLoadImpl() override;
 
-	PROPERTY( width )
-	uint32 m_width = 0;
+		PROPERTY( width )
+		uint32 m_width = 0;
 
-	PROPERTY( height )
-	uint32 m_height = 0;
+		PROPERTY( height )
+		uint32 m_height = 0;
 
-	PROPERTY( depth )
-	uint32 m_depth = 0;
+		PROPERTY( depth )
+		uint32 m_depth = 0;
 
-	PROPERTY( arraySize )
-	uint32 m_arraySize = 0;
+		PROPERTY( arraySize )
+		uint32 m_arraySize = 0;
 
-	PROPERTY( mipLevels )
-	uint32 m_mipLevels = 0;
+		PROPERTY( mipLevels )
+		uint32 m_mipLevels = 0;
 
-	PROPERTY( isCubeMap )
-	bool m_isCubeMap = false;
+		PROPERTY( isCubeMap )
+		bool m_isCubeMap = false;
 
-	PROPERTY( demension )
-	uint32 m_demension = 0;
+		PROPERTY( demension )
+		uint32 m_demension = 0;
 
-	PROPERTY( format )
-	RESOURCE_FORMAT m_format = RESOURCE_FORMAT::UNKNOWN;
+		PROPERTY( format )
+		RESOURCE_FORMAT m_format = RESOURCE_FORMAT::UNKNOWN;
 
-	PROPERTY( memory )
-	BinaryChunk m_memory;
+		PROPERTY( memory )
+		BinaryChunk m_memory;
 
-	PROPERTY( sections )
-	std::vector<TextureSection> m_sections;
+		PROPERTY( sections )
+		std::vector<TextureSection> m_sections;
 
-	RefHandle<aga::Texture> m_texture;
-};
+		RefHandle<aga::Texture> m_texture;
+	};
 
-struct DDSTextureInitializer;
+	struct DDSTextureInitializer;
 
-class DDSTexture : public Texture
-{
-	GENERATE_CLASS_TYPE_INFO( DDSTexture );
-	DECLARE_ASSET( RENDERCORE, DDSTexture );
+	class DDSTexture : public Texture
+	{
+		GENERATE_CLASS_TYPE_INFO( DDSTexture );
+		DECLARE_ASSET( RENDERCORE, DDSTexture );
 
-public:
-	DDSTexture() = default;
-	RENDERCORE_DLL explicit DDSTexture( const DDSTextureInitializer& initializer );
+	public:
+		DDSTexture() = default;
+		RENDERCORE_DLL explicit DDSTexture( const DDSTextureInitializer& initializer );
 
-protected:
-	RENDERCORE_DLL virtual void PostLoadImpl() override;
-};
+	protected:
+		RENDERCORE_DLL virtual void PostLoadImpl() override;
+	};
 
-struct DDSTextureInitializer
-{
-	uint32 m_width = 0;
-	uint32 m_height = 0;
-	uint32 m_depth = 0;
-	uint32 m_arraySize = 0;
-	uint32 m_mipLevels = 0;
+	struct DDSTextureInitializer
+	{
+		uint32 m_width = 0;
+		uint32 m_height = 0;
+		uint32 m_depth = 0;
+		uint32 m_arraySize = 0;
+		uint32 m_mipLevels = 0;
 
-	bool m_isCubeMap = false;
-	uint32 m_demension = 0;
+		bool m_isCubeMap = false;
+		uint32 m_demension = 0;
 
-	RESOURCE_FORMAT m_format;
+		RESOURCE_FORMAT m_format;
 
-	uint32 m_size = 0;
-	const uint8* m_memory = nullptr;
+		uint32 m_size = 0;
+		const uint8* m_memory = nullptr;
 
-	std::vector<TextureSection> m_sections;
-};
+		std::vector<TextureSection> m_sections;
+	};
+}

@@ -9,75 +9,78 @@ namespace
 	static const std::string cachePath = "./Assets/Shaders/ShaderCache.asset";
 }
 
-std::shared_ptr<ShaderCache> ShaderCache::m_shaderCache;
-
-REGISTER_ASSET( ShaderCache );
-bool ShaderCache::IsLoaded()
+namespace rendercore
 {
-	return m_shaderCache != nullptr;
-}
+	std::shared_ptr<ShaderCache> ShaderCache::m_shaderCache;
 
-void ShaderCache::LoadFromFile()
-{
-	if ( fs::exists( cachePath ) )
+	REGISTER_ASSET( ShaderCache );
+	bool ShaderCache::IsLoaded()
 	{
-		IAssetLoader::LoadCompletionCallback onLoadComplete;
-		onLoadComplete.BindFunction( &ShaderCache::OnLoadFinished );
-
-		GetInterface<IAssetLoader>()->RequestAsyncLoad( cachePath, onLoadComplete );
-	}
-	else
-	{
-		m_shaderCache = std::make_shared<ShaderCache>();
-	}
-}
-
-void ShaderCache::SaveToFile()
-{
-	if ( m_shaderCache != nullptr )
-	{
-		Archive ar;
-		m_shaderCache->Serialize( ar );
-
-		ar.WriteToFile( cachePath );
-	}
-}
-
-void ShaderCache::OnLoadFinished( const std::shared_ptr<void>& shaderCache )
-{
-	m_shaderCache = std::reinterpret_pointer_cast<ShaderCache>( shaderCache );
-}
-
-ShaderBase* ShaderCache::GetCachedShader( uint64 shaderHash )
-{
-	if ( m_shaderCache == nullptr )
-	{
-		return nullptr;
+		return m_shaderCache != nullptr;
 	}
 
-	auto found = m_shaderCache->m_shaders.find( shaderHash );
-	if ( found == std::end( m_shaderCache->m_shaders ) )
+	void ShaderCache::LoadFromFile()
 	{
-		return nullptr;
+		if ( fs::exists( cachePath ) )
+		{
+			IAssetLoader::LoadCompletionCallback onLoadComplete;
+			onLoadComplete.BindFunction( &ShaderCache::OnLoadFinished );
+
+			GetInterface<IAssetLoader>()->RequestAsyncLoad( cachePath, onLoadComplete );
+		}
+		else
+		{
+			m_shaderCache = std::make_shared<ShaderCache>();
+		}
 	}
-	
-	return found->second.get();
-}
 
-void ShaderCache::UpdateCache( uint64 shaderHash, ShaderBase* shader )
-{
-	if ( m_shaderCache == nullptr )
+	void ShaderCache::SaveToFile()
 	{
-		return;
+		if ( m_shaderCache != nullptr )
+		{
+			Archive ar;
+			m_shaderCache->Serialize( ar );
+
+			ar.WriteToFile( cachePath );
+		}
 	}
 
-	m_shaderCache->m_shaders[shaderHash].reset( shader );
-}
-
-void ShaderCache::PostLoadImpl()
-{
-	for ( auto& [key, shader] : m_shaders )
+	void ShaderCache::OnLoadFinished( const std::shared_ptr<void>& shaderCache )
 	{
-		shader->CreateShader();
+		m_shaderCache = std::reinterpret_pointer_cast<ShaderCache>( shaderCache );
+	}
+
+	ShaderBase* ShaderCache::GetCachedShader( uint64 shaderHash )
+	{
+		if ( m_shaderCache == nullptr )
+		{
+			return nullptr;
+		}
+
+		auto found = m_shaderCache->m_shaders.find( shaderHash );
+		if ( found == std::end( m_shaderCache->m_shaders ) )
+		{
+			return nullptr;
+		}
+
+		return found->second.get();
+	}
+
+	void ShaderCache::UpdateCache( uint64 shaderHash, ShaderBase* shader )
+	{
+		if ( m_shaderCache == nullptr )
+		{
+			return;
+		}
+
+		m_shaderCache->m_shaders[shaderHash].reset( shader );
+	}
+
+	void ShaderCache::PostLoadImpl()
+	{
+		for ( auto& [key, shader] : m_shaders )
+		{
+			shader->CreateShader();
+		}
 	}
 }

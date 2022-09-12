@@ -25,7 +25,7 @@ BoxSphereBounds BoxComponent::CalcBounds( const Matrix& transform )
 	return BoxSphereBounds( points, std::extent_v<decltype( points )> ).TransformBy( transform );
 }
 
-PrimitiveProxy* BoxComponent::CreateProxy() const
+rendercore::PrimitiveProxy* BoxComponent::CreateProxy() const
 {
 	return nullptr;
 }

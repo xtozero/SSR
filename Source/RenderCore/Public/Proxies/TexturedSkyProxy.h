@@ -6,30 +6,34 @@
 
 #include <memory>
 
-class Material;
-class MaterialResource;
-class StaticMesh;
-class StaticMeshRenderData;
 class TexturedSkyComponent;
 
-class TexturedSkyProxy
+namespace rendercore
 {
-public:
-	RENDERCORE_DLL TexturedSkyProxy( const TexturedSkyComponent& component );
+	class Material;
+	class MaterialResource;
+	class StaticMesh;
+	class StaticMeshRenderData;
 
-	void CreateRenderData( );
+	class TexturedSkyProxy
+	{
+	public:
+		RENDERCORE_DLL TexturedSkyProxy( const TexturedSkyComponent& component );
 
-	StaticMeshRenderData* GetRenderData( );
-	MaterialResource* GetMaterialResource( );
-	const DepthStencilOption& GetDepthStencilOption( ) const;
-	const RasterizerOption& GetRasterizerOption( ) const;
+		void CreateRenderData();
 
-private:
-	std::shared_ptr<const StaticMesh> m_pStaticMesh = nullptr;
-	StaticMeshRenderData* m_pRenderData = nullptr;
+		StaticMeshRenderData* GetRenderData();
+		MaterialResource* GetMaterialResource();
+		const DepthStencilOption& GetDepthStencilOption() const;
+		const RasterizerOption& GetRasterizerOption() const;
 
-	std::shared_ptr<const Material> m_pMaterial = nullptr;
+	private:
+		std::shared_ptr<const StaticMesh> m_pStaticMesh = nullptr;
+		StaticMeshRenderData* m_pRenderData = nullptr;
 
-	DepthStencilOption m_depthStencilOption;
-	RasterizerOption m_rasterizerOption;
-};
+		std::shared_ptr<const Material> m_pMaterial = nullptr;
+
+		DepthStencilOption m_depthStencilOption;
+		RasterizerOption m_rasterizerOption;
+	};
+}

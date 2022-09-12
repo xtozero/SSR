@@ -3,9 +3,12 @@
 
 #include "GlobalShaders.h"
 
-REGISTER_GLOBAL_SHADER( FullScreenQuadVS, "./Assets/Shaders/Common/VS_FullScreenQuad.asset" );
-
-FullScreenQuadVS::FullScreenQuadVS()
+namespace rendercore
 {
-	m_shader = static_cast<VertexShader*>( GetGlobalShader<FullScreenQuadVS>()->CompileShader( {} ) );
+	REGISTER_GLOBAL_SHADER( FullScreenQuadVS, "./Assets/Shaders/Common/VS_FullScreenQuad.asset" );
+
+	FullScreenQuadVS::FullScreenQuadVS()
+	{
+		m_shader = static_cast<VertexShader*>( GetGlobalShader<FullScreenQuadVS>()->CompileShader( {} ) );
+	}
 }

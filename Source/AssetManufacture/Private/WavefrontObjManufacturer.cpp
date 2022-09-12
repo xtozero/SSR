@@ -71,11 +71,11 @@ namespace
 		return normals;
 	}
 
-	StaticMesh CreateStaticMeshFromWavefrontObj( const Wavefront::ObjModel& model, const fs::path& assetsRootPath )
+	rendercore::StaticMesh CreateStaticMeshFromWavefrontObj( const Wavefront::ObjModel& model, const fs::path& assetsRootPath )
 	{
-		std::vector<MeshDescription> meshDescriptions;
+		std::vector<rendercore::MeshDescription> meshDescriptions;
 		meshDescriptions.emplace_back();
-		MeshDescription& meshDescription = meshDescriptions.back();
+		rendercore::MeshDescription& meshDescription = meshDescriptions.back();
 
 		auto& pos = meshDescription.m_positions;
 		pos.reserve( model.m_vertices.size() );
@@ -119,7 +119,7 @@ namespace
 
 		auto& vertexInstances = meshDescription.m_vertexInstances;
 		vertexInstances.reserve( totalTriangle * 3 );
-		std::map<MeshVertexInstance, size_t> viLut;
+		std::map<rendercore::MeshVertexInstance, size_t> viLut;
 
 		for ( const auto& mesh : model.m_meshs )
 		{
@@ -137,7 +137,7 @@ namespace
 
 			for ( const auto& face : mesh.m_faces )
 			{
-				MeshTriangle triangle;
+				rendercore::MeshTriangle triangle;
 
 				size_t vertexSize = face.m_vertices.size();
 				// Only support triangle list
@@ -152,7 +152,7 @@ namespace
 					int32 texIdx = ( texcoordSize == 0 ) ? -1 : face.m_texcoords[i];
 
 					size_t vertexInstanceID = 0;
-					MeshVertexInstance vi( posIdx, normalIdx, texIdx );
+					rendercore::MeshVertexInstance vi( posIdx, normalIdx, texIdx );
 					auto found = viLut.find( vi );
 
 					if ( found == viLut.end() )
@@ -174,7 +174,7 @@ namespace
 			}
 		}
 
-		StaticMesh staticMesh;
+		rendercore::StaticMesh staticMesh;
 		std::set<std::string> uniqueMaterial;
 		for ( const auto& mesh : model.m_meshs )
 		{
@@ -191,7 +191,7 @@ namespace
 				std::string prefix = mesh.m_materialLibraryName.empty() ? "M_" : "M_" + mesh.m_materialLibraryName + "_";
 				fs::path materialAsset( prefix + mesh.m_materialName + ".asset" );
 
-				auto mat = std::make_shared<Material>( mesh.m_materialName.c_str() );
+				auto mat = std::make_shared<rendercore::Material>( mesh.m_materialName.c_str() );
 				mat->SetPath( assetsRootPath / materialAsset );
 				staticMesh.AddMaterial( mat );
 			}
@@ -222,9 +222,9 @@ namespace
 		return {};
 	}
 
-	Material CreateMaterialFromWavefrontMaterial( const std::string& mtlFileName, const std::string& materialName, const Wavefront::ObjMaterial& material, const fs::path& destPath )
+	rendercore::Material CreateMaterialFromWavefrontMaterial( const std::string& mtlFileName, const std::string& materialName, const Wavefront::ObjMaterial& material, const fs::path& destPath )
 	{
-		Material assetMaterial( materialName.c_str() );
+		rendercore::Material assetMaterial( materialName.c_str() );
 
 		if ( material.m_ambient )
 		{
@@ -253,7 +253,7 @@ namespace
 
 			if ( ambientTex.has_relative_path() )
 			{
-				auto ambient = std::make_shared<Texture>();
+				auto ambient = std::make_shared<rendercore::Texture>();
 				ambient->SetPath( material.m_ambientTex );
 				assetMaterial.AddProperty( "AmbientMap", ambient );
 			}
@@ -265,7 +265,7 @@ namespace
 
 			if ( diffuseTex.has_relative_path() )
 			{
-				auto diffuse = std::make_shared<Texture>();
+				auto diffuse = std::make_shared<rendercore::Texture>();
 				diffuse->SetPath( material.m_diffuseTex );
 				assetMaterial.AddProperty( "DiffuseMap", diffuse );
 			}
@@ -277,7 +277,7 @@ namespace
 
 			if ( specularTex.has_relative_path() )
 			{
-				auto specular = std::make_shared<Texture>();
+				auto specular = std::make_shared<rendercore::Texture>();
 				specular->SetPath( material.m_specularTex );
 				assetMaterial.AddProperty( "SpecularMap", specular );
 			}
@@ -322,7 +322,7 @@ std::optional<Products> WavefrontObjManufacturer::Manufacture( const PathEnviron
 	fs::path assetsRootPath = destRootPath / fs::path( "Material" );
 
 	Archive ar;
-	StaticMesh staticMesh = CreateStaticMeshFromWavefrontObj( model, assetsRootPath );
+	rendercore::StaticMesh staticMesh = CreateStaticMeshFromWavefrontObj( model, assetsRootPath );
 	staticMesh.SetLastWriteTime( fs::last_write_time( path ) );
 	staticMesh.Serialize( ar );
 
@@ -358,7 +358,7 @@ std::optional<Products> WavefrontMtlManufacturer::Manufacture( const PathEnviron
 		Archive ar;
 		const auto& materialName = namedMaterial.first;
 		const auto& material = namedMaterial.second;
-		Material assetMaterial = CreateMaterialFromWavefrontMaterial( mtlFileName, materialName, material, env.m_destination );
+		rendercore::Material assetMaterial = CreateMaterialFromWavefrontMaterial( mtlFileName, materialName, material, env.m_destination );
 		assetMaterial.Serialize( ar );
 
 		fs::path assetMaterialFileName( "M_" + mtlFileName + "_" + materialName + ".asset" );
