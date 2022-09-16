@@ -9,7 +9,8 @@
 #include <optional>
 #include <type_traits>
 
-using namespace rendercore;
+using rendercore::VertexBuffer;
+using rendercore::VisibleDrawSnapshot;
 
 namespace
 {

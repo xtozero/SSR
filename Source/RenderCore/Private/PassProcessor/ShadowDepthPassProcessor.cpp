@@ -7,13 +7,11 @@
 #include "Scene/PrimitiveSceneInfo.h"
 #include "VertexCollection.h"
 
-using namespace rendercore;
-
 namespace
 {
-	IPassProcessor* CreateShadowDepthPassProcessor()
+	rendercore::IPassProcessor* CreateShadowDepthPassProcessor()
 	{
-		return new ShadowDepthPassProcessor();
+		return new rendercore::ShadowDepthPassProcessor();
 	}
 }
 

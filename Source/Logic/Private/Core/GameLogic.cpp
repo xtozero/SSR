@@ -25,8 +25,6 @@
 #include <ctime>
 #include <tchar.h>
 
-using namespace DirectX;
-
 namespace
 {
 	ConVar( showFps, "1", "Show Fps" );

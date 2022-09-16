@@ -31,7 +31,6 @@ namespace rendercore
 
 	void FillViewConstantParam( SceneViewParameters& param, const Scene* scene, const RenderViewGroup& renderViewGroup, size_t viewIndex )
 	{
-		using namespace DirectX;
 		const RenderView& view = renderViewGroup[viewIndex];
 
 		auto viewMatrix = LookFromMatrix( view.m_viewOrigin,
@@ -81,8 +80,6 @@ namespace rendercore
 
 	PrimitiveSceneData::PrimitiveSceneData( const PrimitiveProxy* proxy )
 	{
-		using namespace DirectX;
-
 		if ( proxy )
 		{
 			m_worldMatrix = proxy->WorldTransform();

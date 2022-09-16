@@ -14,8 +14,6 @@
 // Intersection of 3 Planes
 inline bool PlanesIntersection( const Plane& p0, const Plane& p1, const Plane& p2, Point& point )
 {
-	using namespace DirectX;
-
 	Vector n0( p0.x, p0.y, p0.z );
 	Vector n1( p1.x, p1.y, p1.z );
 	Vector n2( p2.x, p2.y, p2.z );
@@ -80,8 +78,6 @@ inline Vector SphericalToCartesian( float inclination, float azimuth )
 
 inline std::pair<float, float> CartesianToSpherical( const Vector& cartesian )
 {
-	using namespace DirectX;
-
 	float theta = acos( cartesian.y / cartesian.Length() );
 	float phi = atan2( cartesian.x, -cartesian.z );
 

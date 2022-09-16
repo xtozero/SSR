@@ -4,21 +4,19 @@
 
 #include <algorithm>
 
-using namespace DirectX;
-
 void ParticleGravity::UpdateForce( Particle* particle, float /*duration*/ )
 {
 	if ( particle->HasFiniteMass() == false )
 	{
 		return;
 	}
-	
-	particle->AddForce( m_gravity * particle->GetMass( ) );
+
+	particle->AddForce( m_gravity * particle->GetMass() );
 }
 
 void ParticleDrag::UpdateForce( Particle* particle, float /*duration*/ )
 {
-	Vector force = particle->GetVelocity( );
+	Vector force = particle->GetVelocity();
 
 	float dragCoeff = force.Length();
 	dragCoeff = m_k1 * dragCoeff + m_k2 * dragCoeff * dragCoeff;
@@ -30,8 +28,8 @@ void ParticleDrag::UpdateForce( Particle* particle, float /*duration*/ )
 
 void ParticleSpring::UpdateForce( Particle* particle, float /*duration*/ )
 {
-	Vector force = particle->GetPosition( );
-	force -= m_other->GetPosition( );
+	Vector force = particle->GetPosition();
+	force -= m_other->GetPosition();
 
 	float magnitude = force.Length();
 	magnitude = fabsf( magnitude - m_restLength );
@@ -44,7 +42,7 @@ void ParticleSpring::UpdateForce( Particle* particle, float /*duration*/ )
 
 void ParticleAnchoredSpring::UpdateForce( Particle* particle, float /*duration*/ )
 {
-	Vector force = particle->GetPosition( );
+	Vector force = particle->GetPosition();
 	force -= *m_anchor;
 
 	float magnitude = force.Length();
@@ -57,8 +55,8 @@ void ParticleAnchoredSpring::UpdateForce( Particle* particle, float /*duration*/
 
 void ParticleBungee::UpdateForce( Particle* particle, float /*duration*/ )
 {
-	Vector force = particle->GetPosition( );
-	force -= m_other->GetPosition( );
+	Vector force = particle->GetPosition();
+	force -= m_other->GetPosition();
 
 	float magnitude = force.Length();
 	if ( magnitude <= m_restLength )
@@ -75,7 +73,7 @@ void ParticleBungee::UpdateForce( Particle* particle, float /*duration*/ )
 
 void ParticleBuoyancy::UpdateForce( Particle* particle, float /*duration*/ )
 {
-	float depth = particle->GetPosition( ).y;
+	float depth = particle->GetPosition().y;
 
 	if ( depth >= m_waterHeight + m_maxDepth )
 	{
@@ -97,12 +95,12 @@ void ParticleBuoyancy::UpdateForce( Particle* particle, float /*duration*/ )
 
 void ParticleFakeSpring::UpdateForce( Particle* particle, float duration )
 {
-	if ( particle->HasFiniteMass( ) == false )
+	if ( particle->HasFiniteMass() == false )
 	{
 		return;
 	}
 
-	Point position = particle->GetPosition( );
+	Point position = particle->GetPosition();
 	position -= *m_anchor;
 
 	float gamma = 0.5f * sqrtf( 4 * m_springConstant - m_damping * m_damping );
@@ -111,12 +109,12 @@ void ParticleFakeSpring::UpdateForce( Particle* particle, float duration )
 		return;
 	}
 
-	Vector c = position * ( m_damping / ( 2.f * gamma ) ) + particle->GetVelocity( ) * ( 1.f / gamma );
+	Vector c = position * ( m_damping / ( 2.f * gamma ) ) + particle->GetVelocity() * ( 1.f / gamma );
 	Vector target = position * cosf( gamma * duration ) + c * sinf( gamma * duration );
 	target *= expf( -0.5f * duration * m_damping );
 
-	Vector accel = ( target - position ) * ( 1.f / duration * duration ) - particle->GetVelocity( ) * duration;
-	particle->AddForce( accel * particle->GetMass( ) );
+	Vector accel = ( target - position ) * ( 1.f / duration * duration ) - particle->GetVelocity() * duration;
+	particle->AddForce( accel * particle->GetMass() );
 }
 
 void ParticleForceRegistry::Add( Particle* particle, ParticleForceGenerator* fg )
@@ -127,21 +125,21 @@ void ParticleForceRegistry::Add( Particle* particle, ParticleForceGenerator* fg 
 void ParticleForceRegistry::Remove( Particle* particle, ParticleForceGenerator* fg )
 {
 	auto pred = [particle, fg]( const ParticleForceRegistration& value )
-				{
-					return value.m_particle == particle && value.m_fg == fg;
-				};
+	{
+		return value.m_particle == particle && value.m_fg == fg;
+	};
 
-	m_registrations.erase( std::remove_if( m_registrations.begin( ), m_registrations.end( ), pred ), m_registrations.end( ) );
+	m_registrations.erase( std::remove_if( m_registrations.begin(), m_registrations.end(), pred ), m_registrations.end() );
 }
 
-void ParticleForceRegistry::Clear( )
+void ParticleForceRegistry::Clear()
 {
-	m_registrations.clear( );
+	m_registrations.clear();
 }
 
 void ParticleForceRegistry::UpdateForces( float duration )
 {
-	for ( auto i = m_registrations.begin( ); i != m_registrations.end( ); ++i )
+	for ( auto i = m_registrations.begin(); i != m_registrations.end(); ++i )
 	{
 		i->m_fg->UpdateForce( i->m_particle, duration );
 	}

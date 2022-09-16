@@ -8,7 +8,12 @@
 
 #include <cassert>
 
-using namespace rendercore;
+using rendercore::FloatProperty;
+using rendercore::Float4Property;
+using rendercore::IntProperty;
+using rendercore::MaterialProperty;
+using rendercore::MaterialPropertyType;
+using rendercore::TextureProperty;
 
 namespace
 {

@@ -7,8 +7,6 @@
 //#include "Render/IRenderer.h"
 //#include "Render/IRenderResourceManager.h"
 
-using namespace DirectX;
-
 void CSSRManager::OnDeviceRestore( CGameLogic& gameLogic )
 {
 	CreateDeviceDependendResource( gameLogic );

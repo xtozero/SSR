@@ -3,21 +3,19 @@
 
 #include <algorithm>
 
-using namespace std::rel_ops;
-
-void ImDrawList::Clear( )
+void ImDrawList::Clear()
 {
-	m_path.clear( );
-	m_cmdBuffer.clear( );
+	m_path.clear();
+	m_cmdBuffer.clear();
 	m_curIndex = 0;
-	m_indices.clear( );
+	m_indices.clear();
 	m_pIndexWriter = nullptr;
-	m_vertices.clear( );
+	m_vertices.clear();
 	m_pVertexWriter = nullptr;
-	
-	for ( size_t i = 0, end = m_clipRect.size( ); i < end; ++i )
+
+	for ( size_t i = 0, end = m_clipRect.size(); i < end; ++i )
 	{
-		m_clipRect.pop( );
+		m_clipRect.pop();
 	}
 
 	//for ( size_t i = 0, end = m_textAtlas.size( ); i < end; ++i )
@@ -26,20 +24,20 @@ void ImDrawList::Clear( )
 	//}
 }
 
-void ImDrawList::AddDrawCmd( )
+void ImDrawList::AddDrawCmd()
 {
-	m_cmdBuffer.emplace_back( );
-	ImDrawCmd& cmd = m_cmdBuffer.back( );
-	
+	m_cmdBuffer.emplace_back();
+	ImDrawCmd& cmd = m_cmdBuffer.back();
+
 	cmd.m_indicesCount = 0;
-	cmd.m_clipRect = m_clipRect.size() ? m_clipRect.top( ) : m_imUi->GetClientRect();
+	cmd.m_clipRect = m_clipRect.size() ? m_clipRect.top() : m_imUi->GetClientRect();
 	//cmd.m_textAtlas = m_textAtlas.size() ? m_textAtlas.top( ) : RE_HANDLE::InValidHandle( );
 }
 
 void ImDrawList::PushClipRect( const Rect& clipRect )
 {
 	m_clipRect.push( clipRect );
-	UpdateClipRect( );
+	UpdateClipRect();
 }
 
 //void ImDrawList::PushTextAtlas( RE_HANDLE texHandle )
@@ -48,17 +46,17 @@ void ImDrawList::PushClipRect( const Rect& clipRect )
 //	UpdateTextAtlas( );
 //}
 
-void ImDrawList::UpdateClipRect( )
+void ImDrawList::UpdateClipRect()
 {
-	ImDrawCmd* curCmd = m_cmdBuffer.empty( ) ? nullptr : &m_cmdBuffer.back( );
+	ImDrawCmd* curCmd = m_cmdBuffer.empty() ? nullptr : &m_cmdBuffer.back();
 	if ( curCmd == nullptr || ( curCmd->m_clipRect != m_clipRect.top() ) )
 	{
-		AddDrawCmd( );
+		AddDrawCmd();
 		return;
 	}
 }
 
-void ImDrawList::UpdateTextAtlas( )
+void ImDrawList::UpdateTextAtlas()
 {
 	//ImDrawCmd* curCmd = m_cmdBuffer.empty( ) ? nullptr : &m_cmdBuffer.back( );
 	//if ( curCmd == nullptr || ( curCmd->m_textAtlas != m_textAtlas.top( ) ) )
@@ -96,7 +94,7 @@ void ImDrawList::AddConvexPolyFilled( const Point2* points, const int32 count, c
 
 	int32 indexCount = ( count - 2 ) * 3;
 	int32 vertexCount = count;
-	
+
 	BufferReserve( vertexCount, indexCount );
 	for ( int32 i = 0; i < vertexCount; ++i )
 	{
@@ -190,18 +188,18 @@ void ImDrawList::AddTriangleFilled( const Point2& v0, const Point2& v1, const Po
 
 void ImDrawList::BufferReserve( int32 vertexCount, int32 indexCount )
 {
-	assert( m_cmdBuffer.size( ) > 0 );
-	ImDrawCmd& cmd = m_cmdBuffer.back( );
+	assert( m_cmdBuffer.size() > 0 );
+	ImDrawCmd& cmd = m_cmdBuffer.back();
 
 	cmd.m_indicesCount += indexCount;
 
-	size_t oldVerticesSize = m_vertices.size( );
+	size_t oldVerticesSize = m_vertices.size();
 	m_vertices.resize( oldVerticesSize + vertexCount );
-	m_pVertexWriter = m_vertices.data( ) + oldVerticesSize;
+	m_pVertexWriter = m_vertices.data() + oldVerticesSize;
 
-	size_t oldIndicesSize = m_indices.size( );
+	size_t oldIndicesSize = m_indices.size();
 	m_indices.resize( oldIndicesSize + indexCount );
-	m_pIndexWriter = m_indices.data( ) + oldIndicesSize;
+	m_pIndexWriter = m_indices.data() + oldIndicesSize;
 }
 
 void ImDrawList::DrawRect( const Point2& pos, const Vector2& size, const ColorF& color )
@@ -231,8 +229,8 @@ void ImDrawList::PathLineTo( const Point2& pos )
 
 void ImDrawList::PathFillConvex( const ColorF& color )
 {
-	AddConvexPolyFilled( m_path.data( ), static_cast<int32>( m_path.size( ) ), color );
-	PathClear( );
+	AddConvexPolyFilled( m_path.data(), static_cast<int32>( m_path.size() ), color );
+	PathClear();
 }
 
 void ImDrawList::PathArcToFast( const Point2& centre, float radius, int32 minOf12, int32 maxOf12 )
@@ -242,7 +240,7 @@ void ImDrawList::PathArcToFast( const Point2& centre, float radius, int32 minOf1
 		m_path.emplace_back( centre );
 		return;
 	}
-	m_path.reserve( m_path.size( ) + ( maxOf12 - minOf12 + 1 ) );
+	m_path.reserve( m_path.size() + ( maxOf12 - minOf12 + 1 ) );
 	for ( int32 i = minOf12; i <= maxOf12; ++i )
 	{
 		const Point2& c = m_imUi->m_circleVertex[i % _countof( m_imUi->m_circleVertex )];

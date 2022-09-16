@@ -5,8 +5,6 @@
 
 #include <memory>
 
-using namespace DirectX;
-
 XMMatrix XMMatrix::GetTrasposed() const
 {
 	return XMMatrix( XMMatrixTranspose( *this ) );

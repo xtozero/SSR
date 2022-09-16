@@ -7,13 +7,11 @@
 #include "Scene/PrimitiveSceneInfo.h"
 #include "VertexCollection.h"
 
-using namespace rendercore;
-
 namespace
 {
-	IPassProcessor* CreateDepthWritePassProcessor()
+	rendercore::IPassProcessor* CreateDepthWritePassProcessor()
 	{
-		return new DepthWritePassProcessor();
+		return new rendercore::DepthWritePassProcessor();
 	}
 }
 

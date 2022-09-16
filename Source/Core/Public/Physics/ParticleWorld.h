@@ -13,14 +13,14 @@ class ParticleWorld
 {
 public:
 	explicit ParticleWorld( uint32 iteration = 0 );
-	
+
 	void BootUp( int32 maxContacts );
 
-	void PreparePhysics( );
+	void PreparePhysics();
 	void RunPhysics( float duration );
 
 private:
-	int32 GenerateContacts( );
+	int32 GenerateContacts();
 	void Integrate( float duration );
 
 	using Particles = std::vector<Particle*>;

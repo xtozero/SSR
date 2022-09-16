@@ -11,7 +11,7 @@ public:
 	Particle* m_particle[2];
 
 protected:
-	float CurrentLength( ) const;
+	float CurrentLength() const;
 };
 
 class ParticleCable : public ParticleLink

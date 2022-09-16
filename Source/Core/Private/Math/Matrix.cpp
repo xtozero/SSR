@@ -2,8 +2,6 @@
 
 #include "Vector.h"
 
-using namespace DirectX;
-
 XMMatrix Matrix::GetTrasposed() const
 {
 	return XMMatrix( *this ).GetTrasposed();

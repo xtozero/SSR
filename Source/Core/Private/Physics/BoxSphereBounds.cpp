@@ -2,8 +2,6 @@
 
 #include "AxisAlignedBox.h"
 
-using namespace DirectX;
-
 Vector& BoxSphereBounds::Origin()
 {
 	return m_origin;

@@ -6,13 +6,11 @@
 #include "Math/TransformationMatrix.h"
 #include "Ray.h"
 
-using namespace DirectX;
-
 namespace
 {
 	float TransformToAxis( const OrientedBox& box, const Vector& axis )
 	{
-		const Vector& halfSize = box.GetHalfSize( );
+		const Vector& halfSize = box.GetHalfSize();
 
 		return halfSize.x * fabsf( axis | box.GetAxisVector( 0 ) ) +
 			halfSize.y * fabsf( axis | box.GetAxisVector( 1 ) ) +
@@ -75,7 +73,7 @@ BoxSphereBounds OrientedBox::Bounds() const
 	};
 
 	m_matTransform.TransformPosition( points, points, std::extent_v<decltype( points )> );
-	return BoxSphereBounds( points, std::extent_v<decltype( points )>);
+	return BoxSphereBounds( points, std::extent_v<decltype( points )> );
 }
 
 Collider OrientedBox::GetType() const

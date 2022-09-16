@@ -7,8 +7,6 @@
 
 #include <algorithm> 
 
-using namespace DirectX;
-
 void AxisAlignedBox::Update( const Vector& scaling, const Quaternion& rotation, const Vector& translation, ICollider* original )
 {
 	AxisAlignedBox* orig = dynamic_cast<AxisAlignedBox*>( original );
@@ -27,7 +25,7 @@ void AxisAlignedBox::Update( const Vector& scaling, const Quaternion& rotation, 
 		Vector( orig->m_max.x, orig->m_min.y, orig->m_min.z ),
 		Vector( orig->m_min.x, orig->m_min.y, orig->m_min.z ),
 	};
-	
+
 	Matrix matrix = ScaleRotationTranslationMatrix( scaling, rotation, translation );
 
 	for ( uint32 i = 0; i < 8; ++i )
@@ -51,15 +49,13 @@ void AxisAlignedBox::Update( const Vector& scaling, const Quaternion& rotation, 
 
 float AxisAlignedBox::Intersect( const CRay& ray ) const
 {
-	return RayAndBox( ray.GetOrigin( ), ray.GetDir( ), m_max, m_min );
+	return RayAndBox( ray.GetOrigin(), ray.GetDir(), m_max, m_min );
 }
 
 uint32 AxisAlignedBox::Intersect( const Frustum& frustum ) const
 {
-	using namespace DirectX;
-
-	const Frustum::LookUpTable& lut = frustum.GetVertexLUT( );
-	const Plane( &planes )[6] = frustum.GetPlanes( );
+	const Frustum::LookUpTable& lut = frustum.GetVertexLUT();
+	const Plane( &planes )[6] = frustum.GetPlanes();
 
 	uint32 result = COLLISION::INSIDE;
 	for ( uint32 i = 0; i < 6; ++i )
@@ -127,8 +123,8 @@ AxisAlignedBox::AxisAlignedBox( const std::vector<AxisAlignedBox>& boxes )
 
 AxisAlignedBox::AxisAlignedBox( const BoxSphereBounds& bounds )
 {
-	Merge( bounds.Origin( ) - bounds.HalfSize( ) );
-	Merge( bounds.Origin( ) + bounds.HalfSize( ) );
+	Merge( bounds.Origin() - bounds.HalfSize() );
+	Merge( bounds.Origin() + bounds.HalfSize() );
 }
 
 AxisAlignedBox::AxisAlignedBox( const Vector* points, uint32 numPoints )
@@ -157,7 +153,7 @@ void TransformAABB( AxisAlignedBox& result, const AxisAlignedBox& src, const Mat
 		point[i] = src.Point( i );
 	}
 
-	result.Reset( );
+	result.Reset();
 
 	for ( uint32 i = 0; i < 8; ++i )
 	{

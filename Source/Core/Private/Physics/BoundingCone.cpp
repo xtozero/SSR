@@ -9,8 +9,6 @@
 CBoundingCone::CBoundingCone( const Vector* points, size_t count, const Matrix& projection, const Vector& apex )
 	: m_apex( apex )
 {
-	using namespace DirectX;
-
 	switch ( count )
 	{
 	case 0:
@@ -67,8 +65,6 @@ CBoundingCone::CBoundingCone( const Vector* points, size_t count, const Matrix& 
 CBoundingCone::CBoundingCone( const Vector* points, size_t count, const Matrix& projection, const Vector& apex, const Vector& dir ) :
 	m_apex( apex )
 {
-	using namespace DirectX;
-
 	m_direction = dir.GetNormalized();
 
 	Vector axis = Vector::YAxisVector;

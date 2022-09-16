@@ -176,8 +176,6 @@ namespace rendercore
 
 	void SceneRenderer::ClassifyShadowCasterAndReceiver( IScene& scene, const VectorSingleFrame<ShadowInfo*>& shadows )
 	{
-		using namespace DirectX;
-
 		Scene& renderScene = *scene.GetRenderScene();
 
 		for ( ShadowInfo* pShadowInfo : shadows )

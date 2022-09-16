@@ -5,7 +5,24 @@
 #include "Vector2.h"
 #include "Vector4.h"
 
-using namespace DirectX;
+using DirectX::operator+;
+using DirectX::operator-;
+using DirectX::operator*;
+using DirectX::operator/;
+using DirectX::operator+=;
+using DirectX::operator-=;
+using DirectX::operator*=;
+using DirectX::operator/=;
+using DirectX::XMFLOAT4;
+using DirectX::XMStoreFloat4;
+using DirectX::XMVectorAbs;
+using DirectX::XMVectorEqual;
+using DirectX::XMVectorGetX;
+using DirectX::XMVector3Cross;
+using DirectX::XMVector4Dot;
+using DirectX::XMVector4Length;
+using DirectX::XMVector4LengthSq;
+using DirectX::XMVector4Normalize;
 
 float XMVector::Length() const
 {

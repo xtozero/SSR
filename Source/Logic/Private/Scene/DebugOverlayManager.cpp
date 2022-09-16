@@ -6,8 +6,6 @@
 
 #include <cassert>
 
-using namespace DirectX;
-
 void CDebugOverlayManager::OnDeviceRestore( CGameLogic& gameLogic )
 {
 	m_dynamicVB.OnDeviceRestore( gameLogic );

@@ -38,7 +38,7 @@ class ParticleSpring : public ParticleForceGenerator
 public:
 	ParticleSpring( Particle* other, float springConstant, float restLength ) : m_other( other ), m_springConstant( springConstant ), m_restLength( restLength ) {}
 	virtual void UpdateForce( Particle* particle, float duration ) override;
-	
+
 private:
 	Particle* m_other;
 	float m_springConstant;
@@ -100,7 +100,7 @@ public:
 	void Add( Particle* particle, ParticleForceGenerator* fg );
 	void Remove( Particle* particle, ParticleForceGenerator* fg );
 
-	void Clear( );
+	void Clear();
 
 	void UpdateForces( float duration );
 

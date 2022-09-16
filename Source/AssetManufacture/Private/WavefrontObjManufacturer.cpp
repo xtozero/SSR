@@ -17,8 +17,6 @@ namespace
 {
 	Wavefront::Vec3 CalcTriangleNormal( Wavefront::Vec3 v0, Wavefront::Vec3 v1, Wavefront::Vec3 v2 )
 	{
-		using namespace DirectX;
-
 		Vector f0( std::get<0>( v0 ), std::get<1>( v0 ), std::get<2>( v0 ) );
 		Vector f1( std::get<0>( v1 ), std::get<1>( v1 ), std::get<2>( v1 ) );
 		Vector f2( std::get<0>( v2 ), std::get<1>( v2 ), std::get<2>( v2 ) );
@@ -35,8 +33,6 @@ namespace
 
 	std::vector<Wavefront::Vec3> CreateSmoothNormal( const Wavefront::ObjModel& model )
 	{
-		using namespace DirectX;
-
 		std::vector<Wavefront::Vec3> normals( model.m_vertices.size() );
 
 		for ( const auto& mesh : model.m_meshs )

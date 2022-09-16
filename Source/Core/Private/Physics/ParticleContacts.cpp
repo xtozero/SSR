@@ -2,39 +2,37 @@
 
 #include "Particle.h"
 
-using namespace DirectX;
-
 void ParticleContact::Resolve( float duration )
 {
 	ResolveVelocity( duration );
 	ResolveInterpenetration( duration );
 }
 
-float ParticleContact::CalculateSeparatingVelocity( ) const
+float ParticleContact::CalculateSeparatingVelocity() const
 {
-	Vector relativeVelocity = m_particle[0]->GetVelocity( );
+	Vector relativeVelocity = m_particle[0]->GetVelocity();
 	if ( m_particle[1] )
 	{
-		relativeVelocity -= m_particle[1]->GetVelocity( );
+		relativeVelocity -= m_particle[1]->GetVelocity();
 	}
 	return relativeVelocity | m_contactNormal;
 }
 
 void ParticleContact::ResolveVelocity( float duration )
 {
-	float separatingVelocity = CalculateSeparatingVelocity( );
-	
+	float separatingVelocity = CalculateSeparatingVelocity();
+
 	if ( separatingVelocity > 0.f )
 	{
 		return;
 	}
 
 	float newSepVelocity = -separatingVelocity * m_restitution;
-	
-	Vector accCausedVelocity = m_particle[0]->GetAcceleration( );
+
+	Vector accCausedVelocity = m_particle[0]->GetAcceleration();
 	if ( m_particle[1] )
 	{
-		accCausedVelocity -= m_particle[1]->GetAcceleration( );
+		accCausedVelocity -= m_particle[1]->GetAcceleration();
 	}
 
 	float accCausedSepVelocity = ( accCausedVelocity | m_contactNormal ) * duration;
@@ -47,13 +45,13 @@ void ParticleContact::ResolveVelocity( float duration )
 			newSepVelocity = 0;
 		}
 	}
-	
+
 	float deltaVelocity = newSepVelocity - separatingVelocity;
 
-	float totalInverseMass = m_particle[0]->GetInverseMass( );
+	float totalInverseMass = m_particle[0]->GetInverseMass();
 	if ( m_particle[1] )
 	{
-		totalInverseMass += m_particle[1]->GetInverseMass( );
+		totalInverseMass += m_particle[1]->GetInverseMass();
 	}
 
 	if ( totalInverseMass <= 0 )
@@ -64,10 +62,10 @@ void ParticleContact::ResolveVelocity( float duration )
 	float impuse = deltaVelocity / totalInverseMass;
 	Vector impusePerIMass = m_contactNormal * impuse;
 
-	m_particle[0]->SetVelocity( m_particle[0]->GetVelocity( ) + impusePerIMass * m_particle[0]->GetInverseMass( ) );
+	m_particle[0]->SetVelocity( m_particle[0]->GetVelocity() + impusePerIMass * m_particle[0]->GetInverseMass() );
 	if ( m_particle[1] )
 	{
-		m_particle[1]->SetVelocity( m_particle[1]->GetVelocity( ) + impusePerIMass * -m_particle[1]->GetInverseMass( ) );
+		m_particle[1]->SetVelocity( m_particle[1]->GetVelocity() + impusePerIMass * -m_particle[1]->GetInverseMass() );
 	}
 }
 
@@ -78,10 +76,10 @@ void ParticleContact::ResolveInterpenetration( float /*duration*/ )
 		return;
 	}
 
-	float totalInverseMass = m_particle[0]->GetInverseMass( );
+	float totalInverseMass = m_particle[0]->GetInverseMass();
 	if ( m_particle[1] )
 	{
-		totalInverseMass += m_particle[1]->GetInverseMass( );
+		totalInverseMass += m_particle[1]->GetInverseMass();
 	}
 
 	if ( totalInverseMass <= 0 )
@@ -91,20 +89,20 @@ void ParticleContact::ResolveInterpenetration( float /*duration*/ )
 
 	Vector movePerIMass = m_contactNormal * ( m_penetration / totalInverseMass );
 
-	m_particleMovement[0] = movePerIMass * m_particle[0]->GetInverseMass( );
+	m_particleMovement[0] = movePerIMass * m_particle[0]->GetInverseMass();
 	if ( m_particle[1] )
 	{
-		m_particleMovement[1] = movePerIMass * m_particle[1]->GetInverseMass( );
+		m_particleMovement[1] = movePerIMass * m_particle[1]->GetInverseMass();
 	}
 	else
 	{
 		m_particleMovement[1] = Vector::ZeroVector;
 	}
 
-	m_particle[0]->SetPosition( m_particle[0]->GetPosition( ) + m_particleMovement[0] );
+	m_particle[0]->SetPosition( m_particle[0]->GetPosition() + m_particleMovement[0] );
 	if ( m_particle[1] )
 	{
-		m_particle[1]->SetPosition( m_particle[1]->GetPosition( ) + m_particleMovement[1] );
+		m_particle[1]->SetPosition( m_particle[1]->GetPosition() + m_particleMovement[1] );
 	}
 }
 
@@ -116,7 +114,7 @@ void ParticleContactResolver::ResolveContacts( ParticleContact* contactArray, ui
 		uint32 maxIndex = numContacts;
 		for ( uint32 i = 0; i < numContacts; ++i )
 		{
-			float sepVel = contactArray[i].CalculateSeparatingVelocity( );
+			float sepVel = contactArray[i].CalculateSeparatingVelocity();
 			if ( sepVel < max && ( sepVel < 0 || contactArray[i].m_penetration > 0 ) )
 			{
 				max = sepVel;

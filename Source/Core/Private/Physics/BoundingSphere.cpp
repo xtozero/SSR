@@ -8,8 +8,6 @@
 
 #include <algorithm>
 
-using namespace DirectX;
-
 namespace
 {
 	bool SweptSpherePlaneIntersection( float& t0, float& t1, const Plane& plane, const BoundingSphere& sphere, const Vector& sweepDir )
@@ -93,7 +91,7 @@ float BoundingSphere::CalcGrowth( const BoundingSphere& sphere ) const
 	float radiusDiff = ( newSphere.GetRadius() - m_radius );
 
 	// ( ( 4 / 3 ) * pi * r^3 )
-	return 1.33333f * XM_PI * radiusDiff * radiusDiff * radiusDiff;
+	return 1.33333f * DirectX::XM_PI * radiusDiff * radiusDiff * radiusDiff;
 }
 
 bool BoundingSphere::Intersect( const Frustum& frustum, const Vector& sweepDir )

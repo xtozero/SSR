@@ -7,8 +7,6 @@
 
 #include <cassert>
 
-using namespace DirectX;
-
 void Light::SetDiffuseColor( const ColorF& diffuseColor )
 {
 	GetLightComponent().SetDiffuseColor( diffuseColor );

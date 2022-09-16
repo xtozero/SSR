@@ -4,28 +4,30 @@
 #include "InterfaceFactories.h"
 #include "Renderer/IRenderCore.h"
 
-using namespace rendercore;
+using rendercore::CreateRenderCore;
+using rendercore::DestoryRenderCore;
+using rendercore::IRenderCore;
 
 namespace
 {
 	Owner<IRenderCore*> g_renderer = nullptr;
 
-	void* GetRenderer( )
+	void* GetRenderer()
 	{
 		return g_renderer;
 	}
 }
 
-RENDERCORE_FUNC_DLL void BootUpModules( )
+RENDERCORE_FUNC_DLL void BootUpModules()
 {
 	RegisterFactory<IRenderCore>( &GetRenderer );
-	g_renderer = CreateRenderCore( );
+	g_renderer = CreateRenderCore();
 
-	DeferredAssetRegister::GetInstance( ).Register( );
+	DeferredAssetRegister::GetInstance().Register();
 }
 
-RENDERCORE_FUNC_DLL void ShutdownModules( )
+RENDERCORE_FUNC_DLL void ShutdownModules()
 {
 	DestoryRenderCore( g_renderer );
-	UnregisterFactory<IRenderCore>( );
+	UnregisterFactory<IRenderCore>();
 }

@@ -56,8 +56,6 @@ namespace rendercore
 
 	void ShadowInfo::SetupShadowConstantBuffer()
 	{
-		using namespace DirectX;
-
 		ShadowDepthPassParameters params = {};
 		LightProperty lightProperty = m_lightSceneInfo->Proxy()->GetLightProperty();
 		params.m_lightPosOrDir = ( lightProperty.m_type == LIGHT_TYPE::DIRECTINAL_LIGHT ) ? Vector4( lightProperty.m_direction ) : lightProperty.m_position;

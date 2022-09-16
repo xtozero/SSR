@@ -4,13 +4,11 @@
 #include "Scene/PrimitiveSceneInfo.h"
 #include "VertexCollection.h"
 
-using namespace rendercore;
-
 namespace
 {
-	IPassProcessor* CreateDefaultPassProcessor( )
+	rendercore::IPassProcessor* CreateDefaultPassProcessor()
 	{
-		return new DefaultPassProcessor( );
+		return new rendercore::DefaultPassProcessor();
 	}
 }
 

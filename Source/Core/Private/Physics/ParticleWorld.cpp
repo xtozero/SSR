@@ -2,8 +2,6 @@
 
 #include "Particle.h"
 
-using namespace DirectX;
-
 ParticleWorld::ParticleWorld( uint32 iteration ) : m_resolver( iteration )
 {
 	m_calculateIterations = ( iteration == 0 );
@@ -15,11 +13,11 @@ void ParticleWorld::BootUp( int32 maxContacts )
 	m_contacts = std::make_unique<ParticleContact[]>( m_maxContacts );
 }
 
-void ParticleWorld::PreparePhysics( )
+void ParticleWorld::PreparePhysics()
 {
 	for ( Particle* p : m_particles )
 	{
-		p->ClearAccumulator( );
+		p->ClearAccumulator();
 	}
 }
 
@@ -29,7 +27,7 @@ void ParticleWorld::RunPhysics( float duration )
 
 	Integrate( duration );
 
-	int32 usedContacts = GenerateContacts( );
+	int32 usedContacts = GenerateContacts();
 
 	if ( usedContacts > 0 )
 	{
@@ -41,7 +39,7 @@ void ParticleWorld::RunPhysics( float duration )
 	}
 }
 
-int32 ParticleWorld::GenerateContacts( )
+int32 ParticleWorld::GenerateContacts()
 {
 	int32 limit = m_maxContacts;
 	ParticleContact* nextContact = m_contacts.get();

@@ -5,7 +5,7 @@
 #include "Json/Json.hpp"
 #include "Math/TransformationMatrix.h"
 
-using namespace DirectX;
+using DirectX::XMConvertToRadians;
 
 void SceneComponent::DestroyComponent()
 {

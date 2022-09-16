@@ -9,7 +9,7 @@ class ParticleContact
 {
 public:
 	void Resolve( float duration );
-	float CalculateSeparatingVelocity( ) const;
+	float CalculateSeparatingVelocity() const;
 
 	Particle* m_particle[2];
 

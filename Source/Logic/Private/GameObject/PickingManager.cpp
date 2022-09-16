@@ -9,8 +9,6 @@
 #include "Physics/CollisionUtil.h"
 #include "UserInput/UserInput.h"
 
-using namespace DirectX;
-
 namespace
 {
 	void WindowSpace2NDCSpace( Vector& pos, const VIEWPORT& veiwport )

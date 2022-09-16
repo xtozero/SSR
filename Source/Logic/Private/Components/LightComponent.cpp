@@ -154,8 +154,6 @@ rendercore::HemisphereLightProxy* HemisphereLightComponent::CreateProxy() const
 
 Vector HemisphereLightComponent::UpVector() const
 {
-	using namespace DirectX;
-
 	RotationMatrix rotation( GetRotation() );
 	return rotation.TransformVector( Vector::UpVector );
 }

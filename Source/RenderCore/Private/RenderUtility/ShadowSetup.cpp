@@ -13,7 +13,9 @@
 #include "Scene/LightSceneInfo.h"
 #include "Scene/ShadowInfo.h"
 
-using namespace rendercore;
+using rendercore::CascadeShadowSetting;
+using rendercore::RenderView;
+using rendercore::ShadowInfo;
 
 namespace
 {
@@ -115,8 +117,6 @@ namespace rendercore
 {
 	void BuildOrthoShadowProjectionMatrix( ShadowInfo& shadowInfo )
 	{
-		using namespace DirectX;
-
 		if ( shadowInfo.ShadowReceiversViewSpaceBounds().size() == 0 )
 		{
 			return;
@@ -216,8 +216,6 @@ namespace rendercore
 
 	void BuildPSMProjectionMatrix( ShadowInfo& shadowInfo )
 	{
-		using namespace DirectX;
-
 		const LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo();
 		LightProperty lightProperty = lightSceneInfo->Proxy()->GetLightProperty();
 
@@ -423,8 +421,6 @@ namespace rendercore
 
 	void BuildLSPSMProjectionMatrix( ShadowInfo& shadowInfo )
 	{
-		using namespace DirectX;
-
 		const LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo();
 		LightProperty lightProperty = lightSceneInfo->Proxy()->GetLightProperty();
 

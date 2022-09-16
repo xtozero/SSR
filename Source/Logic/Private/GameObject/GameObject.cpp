@@ -19,8 +19,6 @@
 
 #include <tchar.h>
 
-using namespace DirectX;
-
 void CGameObject::OnDeviceRestore( CGameLogic& gameLogic )
 {
 	//m_material = INVALID_MATERIAL;

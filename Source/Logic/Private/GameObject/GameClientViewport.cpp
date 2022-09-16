@@ -10,6 +10,8 @@
 #include "TaskScheduler.h"
 #include "World/World.h"
 
+using DirectX::XMConvertToRadians;
+
 void GameClientViewport::Draw()
 {
 	if ( GetWorld() == nullptr )
@@ -103,8 +105,6 @@ void GameClientViewport::AppSizeChanged( void* handle, const std::pair<uint32, u
 
 void GameClientViewport::InitView( rendercore::RenderViewGroup& views )
 {
-	using namespace DirectX;
-
 	auto pWorld = GetWorld();
 	if ( pWorld == nullptr )
 	{

@@ -9,8 +9,6 @@
 #include "Scene/IScene.h"
 #include "TaskScheduler.h"
 
-using namespace DirectX;
-
 void StartPhysicsThinkFunction::ExecuteThink( float elapsedTime )
 {
 	m_target->BeginPhysicsFrame( elapsedTime );

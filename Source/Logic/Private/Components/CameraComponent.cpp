@@ -8,8 +8,6 @@
 
 #include <type_traits>
 
-using namespace DirectX;
-
 void CameraComponent::LoadProperty( const JSON::Value& json )
 {
 	if ( const JSON::Value* pPos = json.Find( "Position" ) )
