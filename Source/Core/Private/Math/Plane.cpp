@@ -3,11 +3,11 @@
 #include "Matrix.h"
 #include "Vector4.h"
 
-using DirectX::XMPlaneDot;
-using DirectX::XMPlaneDotCoord;
-using DirectX::XMPlaneDotNormal;
-using DirectX::XMPlaneNormalize;
-using DirectX::XMVectorGetX;
+using ::DirectX::XMPlaneDot;
+using ::DirectX::XMPlaneDotCoord;
+using ::DirectX::XMPlaneDotNormal;
+using ::DirectX::XMPlaneNormalize;
+using ::DirectX::XMVectorGetX;
 
 Vector Plane::GetNormal() const
 {

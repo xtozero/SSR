@@ -6,10 +6,10 @@
 
 #include <windows.h>
 
-using std::chrono::duration;
-using std::chrono::nanoseconds;
-using std::chrono::steady_clock;
-using std::chrono::time_point;
+using ::std::chrono::duration;
+using ::std::chrono::nanoseconds;
+using ::std::chrono::steady_clock;
+using ::std::chrono::time_point;
 
 void Timer::Tick()
 {

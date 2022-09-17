@@ -1,7 +1,10 @@
 #pragma once
 
-class BaseMesh
+namespace rendercore
 {
-public:
-	virtual ~BaseMesh( ) = default;
-};
+	class BaseMesh
+	{
+	public:
+		virtual ~BaseMesh() = default;
+	};
+}

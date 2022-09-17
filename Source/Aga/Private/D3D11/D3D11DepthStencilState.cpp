@@ -4,6 +4,10 @@
 #include "D3D11Api.h"
 #include "D3D11FlagConvertor.h"
 
+using ::aga::ConvertToComparisionFunc;
+using ::aga::ConvertToStencilOp;
+using ::aga::ConvertToDepthWriteMask;
+
 namespace
 {
 	D3D11_DEPTH_STENCIL_DESC ConvertTraitToDesc( const DEPTH_STENCIL_STATE_TRAIT& trait )

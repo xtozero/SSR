@@ -21,9 +21,9 @@ namespace rendercore
 
 		void ReleaseAll();
 
-		RefHandle<aga::Texture> m_depthStencil;
-		RefHandle<aga::Texture> m_linearDepth;
-		RefHandle<aga::Texture> m_worldNormal;
+		aga::RefHandle<aga::Texture> m_depthStencil;
+		aga::RefHandle<aga::Texture> m_linearDepth;
+		aga::RefHandle<aga::Texture> m_worldNormal;
 
 		std::pair<uint32, uint32> m_bufferSize;
 	};

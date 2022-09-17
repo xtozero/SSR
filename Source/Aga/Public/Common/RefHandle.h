@@ -1,106 +1,109 @@
 #pragma once
 
-template <typename ReferencedType>
-class RefHandle
+namespace aga
 {
-public:
-	ReferencedType* Get( ) const
+	template <typename ReferencedType>
+	class RefHandle
 	{
-		return m_reference;
-	}
-
-	RefHandle( ) = default;
-	RefHandle( ReferencedType* reference ) : m_reference( reference )
-	{
-		if ( m_reference )
+	public:
+		ReferencedType* Get() const
 		{
-			m_reference->AddRef( );
+			return m_reference;
 		}
-	}
 
-	~RefHandle( )
-	{
-		if ( m_reference )
-		{
-			m_reference->ReleaseRef( );
-		}
-	}
-
-	RefHandle( const RefHandle& other )
-	{
-		*this = other;
-	}
-
-	RefHandle& operator=( const RefHandle& other )
-	{
-		if ( this != &other )
+		RefHandle() = default;
+		RefHandle( ReferencedType* reference ) : m_reference( reference )
 		{
 			if ( m_reference )
 			{
-				m_reference->ReleaseRef( );
-			}
-
-			m_reference = other.m_reference;
-			if ( m_reference )
-			{
-				m_reference->AddRef( );
+				m_reference->AddRef();
 			}
 		}
 
-		return *this;
-	}
-
-	RefHandle( RefHandle&& other )
-	{
-		*this = std::move( other );
-	}
-
-	RefHandle& operator=( RefHandle&& other )
-	{
-		if ( this != &other )
+		~RefHandle()
 		{
 			if ( m_reference )
 			{
-				m_reference->ReleaseRef( );
+				m_reference->ReleaseRef();
 			}
-
-			m_reference = other.m_reference;
-			other.m_reference = nullptr;
 		}
 
-		return *this;
-	}
+		RefHandle( const RefHandle& other )
+		{
+			*this = other;
+		}
 
-	operator ReferencedType*( ) const
-	{
-		return m_reference;
-	}
+		RefHandle& operator=( const RefHandle& other )
+		{
+			if ( this != &other )
+			{
+				if ( m_reference )
+				{
+					m_reference->ReleaseRef();
+				}
 
-	ReferencedType* operator->( ) const
-	{
-		return m_reference;
-	}
+				m_reference = other.m_reference;
+				if ( m_reference )
+				{
+					m_reference->AddRef();
+				}
+			}
 
-	friend bool operator==( const RefHandle& lhs, const ReferencedType* rhs )
-	{
-		return lhs.m_reference == rhs;
-	}
+			return *this;
+		}
 
-	friend bool operator==( const ReferencedType* lhs, const RefHandle& rhs )
-	{
-		return lhs == rhs.m_reference;
-	}
+		RefHandle( RefHandle&& other )
+		{
+			*this = std::move( other );
+		}
 
-	friend bool operator==( const RefHandle& lhs, const RefHandle& rhs )
-	{
-		return lhs.m_reference == rhs.m_reference;
-	}
+		RefHandle& operator=( RefHandle&& other )
+		{
+			if ( this != &other )
+			{
+				if ( m_reference )
+				{
+					m_reference->ReleaseRef();
+				}
 
-	friend bool operator<( const RefHandle& lhs, const RefHandle& rhs )
-	{
-		return lhs.m_reference < rhs.m_reference;
-	}
+				m_reference = other.m_reference;
+				other.m_reference = nullptr;
+			}
 
-private:
-	ReferencedType* m_reference = nullptr;
-};
+			return *this;
+		}
+
+		operator ReferencedType* ( ) const
+		{
+			return m_reference;
+		}
+
+		ReferencedType* operator->() const
+		{
+			return m_reference;
+		}
+
+		friend bool operator==( const RefHandle& lhs, const ReferencedType* rhs )
+		{
+			return lhs.m_reference == rhs;
+		}
+
+		friend bool operator==( const ReferencedType* lhs, const RefHandle& rhs )
+		{
+			return lhs == rhs.m_reference;
+		}
+
+		friend bool operator==( const RefHandle& lhs, const RefHandle& rhs )
+		{
+			return lhs.m_reference == rhs.m_reference;
+		}
+
+		friend bool operator<( const RefHandle& lhs, const RefHandle& rhs )
+		{
+			return lhs.m_reference < rhs.m_reference;
+		}
+
+	private:
+		ReferencedType* m_reference = nullptr;
+	};
+}

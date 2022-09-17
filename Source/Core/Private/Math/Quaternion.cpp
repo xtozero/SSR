@@ -4,13 +4,13 @@
 
 #include <memory>
 
-using DirectX::XMQuaternionDot;
-using DirectX::XMQuaternionEqual;
-using DirectX::XMQuaternionInverse;
-using DirectX::XMQuaternionMultiply;
-using DirectX::XMQuaternionNormalize;
-using DirectX::XMQuaternionRotationRollPitchYaw;
-using DirectX::XMVectorGetX;
+using ::DirectX::XMQuaternionDot;
+using ::DirectX::XMQuaternionEqual;
+using ::DirectX::XMQuaternionInverse;
+using ::DirectX::XMQuaternionMultiply;
+using ::DirectX::XMQuaternionNormalize;
+using ::DirectX::XMQuaternionRotationRollPitchYaw;
+using ::DirectX::XMVectorGetX;
 
 float Quaternion::Length() const
 {

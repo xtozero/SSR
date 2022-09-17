@@ -36,7 +36,7 @@ namespace rendercore
 	protected:
 		void InitResource( const void* initData );
 
-		RefHandle<aga::Buffer> m_buffer;
+		aga::RefHandle<aga::Buffer> m_buffer;
 		uint32 m_elementSize = 0;
 		uint32 m_numElement = 0;
 

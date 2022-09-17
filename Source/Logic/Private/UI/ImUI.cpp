@@ -7,8 +7,8 @@
 #include <algorithm>
 #include <fstream>
 
-using DirectX::XMVectorGetX;
-using DirectX::XMVector2LengthSq;
+using ::DirectX::XMVectorGetX;
+using ::DirectX::XMVector2LengthSq;
 
 namespace
 {

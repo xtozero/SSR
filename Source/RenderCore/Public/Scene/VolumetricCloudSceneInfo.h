@@ -66,13 +66,13 @@ namespace rendercore
 	private:
 		void SetupCloudTexture();
 		void GenerateWeatherMap();
-		RefHandle<aga::Texture> CreateCloudTexture( uint32 texSize );
+		aga::RefHandle<aga::Texture> CreateCloudTexture( uint32 texSize );
 
 		VolumetricCloudProxy* m_cloudProxy = nullptr;
 		TypedConstatBuffer<VolumetricCloudRenderParameter> m_renderParameter;
 
-		RefHandle<aga::Texture> m_baseCloudShape;
-		RefHandle<aga::Texture> m_detailCloudShape;
-		RefHandle<aga::Texture> m_weatherMap;
+		aga::RefHandle<aga::Texture> m_baseCloudShape;
+		aga::RefHandle<aga::Texture> m_detailCloudShape;
+		aga::RefHandle<aga::Texture> m_weatherMap;
 	};
 }

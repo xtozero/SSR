@@ -4,6 +4,10 @@
 #include "D3D11Api.h"
 #include "D3D11FlagConvertor.h"
 
+using ::aga::ConvertToBlend;
+using ::aga::ConvertToBlendOp;
+using ::aga::ConvertToColorWriteEnable;
+
 namespace
 {
 	D3D11_BLEND_DESC ConvertTraitToDesc( const BLEND_STATE_TRAIT& trait )

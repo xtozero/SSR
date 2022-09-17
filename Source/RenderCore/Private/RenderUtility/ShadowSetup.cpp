@@ -13,9 +13,9 @@
 #include "Scene/LightSceneInfo.h"
 #include "Scene/ShadowInfo.h"
 
-using rendercore::CascadeShadowSetting;
-using rendercore::RenderView;
-using rendercore::ShadowInfo;
+using ::rendercore::CascadeShadowSetting;
+using ::rendercore::RenderView;
+using ::rendercore::ShadowInfo;
 
 namespace
 {

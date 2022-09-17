@@ -34,6 +34,6 @@ namespace rendercore
 		void InitResource( uint32 size );
 
 	private:
-		RefHandle<aga::Buffer> m_buffer;
+		aga::RefHandle<aga::Buffer> m_buffer;
 	};
 }

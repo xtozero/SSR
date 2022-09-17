@@ -24,7 +24,7 @@ namespace rendercore
 		const aga::Buffer* Resource() const;
 
 	private:
-		RefHandle<aga::Buffer> m_buffer;
+		aga::RefHandle<aga::Buffer> m_buffer;
 	};
 
 	struct ForwardLightData

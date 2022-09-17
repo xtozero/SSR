@@ -5,6 +5,8 @@
 #include "D3D11FlagConvertor.h"
 #include "D3D11Shaders.h"
 
+using ::aga::ConvertFormatToDxgiFormat;
+
 namespace
 {
 	void ConvertVertexLayoutToInputLayout( std::vector<D3D11_INPUT_ELEMENT_DESC>& descs, const VERTEX_LAYOUT_TRAIT* trait, uint32 size )

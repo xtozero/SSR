@@ -33,6 +33,6 @@ namespace rendercore
 
 		uint32 m_numElement = 0;
 		bool m_isDWORD = false;
-		RefHandle<aga::Buffer> m_buffer;
+		aga::RefHandle<aga::Buffer> m_buffer;
 	};
 }

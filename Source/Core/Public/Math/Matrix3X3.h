@@ -18,7 +18,7 @@ public:
 	XMVector Transform( const Vector& v ) const;
 	void Transform( Vector* dest, Vector* src, uint32 size ) const;
 
-	using DirectX::XMFLOAT3X3::XMFLOAT3X3;
+	using ::DirectX::XMFLOAT3X3::XMFLOAT3X3;
 	Matrix3X3( const XMMatrix& m );
 	Matrix3X3() : DirectX::XMFLOAT3X3() {}
 	Matrix3X3( const Vector& row1, const Vector& row2, const Vector& row3 );

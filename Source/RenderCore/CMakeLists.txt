@@ -60,7 +60,6 @@ set (MESH_SOURCE
 	Private/Mesh/StaticMeshResource.cpp
 	Private/Mesh/VertexCollection.cpp
 	Public/Mesh/BaseMesh.h
-	Public/Mesh/CommonMeshDefine.h
 	Public/Mesh/MeshDescription.h
 	Public/Mesh/MeshDrawInfo.h
 	Public/Mesh/StaticMesh.h

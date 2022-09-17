@@ -4,9 +4,9 @@
 #include "InterfaceFactories.h"
 #include "Renderer/IRenderCore.h"
 
-using rendercore::CreateRenderCore;
-using rendercore::DestoryRenderCore;
-using rendercore::IRenderCore;
+using ::rendercore::CreateRenderCore;
+using ::rendercore::DestoryRenderCore;
+using ::rendercore::IRenderCore;
 
 namespace
 {

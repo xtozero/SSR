@@ -42,8 +42,8 @@ namespace rendercore
 
 	struct RenderingOutputContext
 	{
-		RefHandle<aga::Texture> m_renderTargets[MAX_RENDER_TARGET] = {};
-		RefHandle<aga::Texture> m_depthStencil;
+		aga::RefHandle<aga::Texture> m_renderTargets[MAX_RENDER_TARGET] = {};
+		aga::RefHandle<aga::Texture> m_depthStencil;
 
 		CubeArea<float> m_viewport;
 		RectangleArea<int32> m_scissorRects;

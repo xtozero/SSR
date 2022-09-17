@@ -6,7 +6,7 @@
 
 #include <array>
 
-using rendercore::StaticShaderSwitches;
+using ::rendercore::StaticShaderSwitches;
 
 namespace
 {

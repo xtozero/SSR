@@ -12,7 +12,7 @@ public:
 	XMVector GetAbs() const;
 	XMVector GetNormalized() const;
 
-	using DirectX::XMFLOAT4::XMFLOAT4;
+	using ::DirectX::XMFLOAT4::XMFLOAT4;
 	Vector4( const XMVector& v );
 	Vector4( const Vector& v );
 	Vector4() : DirectX::XMFLOAT4() {}

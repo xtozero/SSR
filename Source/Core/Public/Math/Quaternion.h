@@ -14,7 +14,7 @@ public:
 	Quaternion( const XMVector& v );
 	explicit Quaternion( const Matrix& m );
 	Quaternion() : DirectX::XMFLOAT4() {}
-	using DirectX::XMFLOAT4::XMFLOAT4;
+	using ::DirectX::XMFLOAT4::XMFLOAT4;
 
 	Quaternion& operator=( const XMVector& v );
 

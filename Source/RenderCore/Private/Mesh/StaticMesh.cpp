@@ -3,7 +3,6 @@
 
 #include "ArchiveUtility.h"
 #include "common.h"
-#include "CommonMeshDefine.h"
 #include "Material/Material.h"
 #include "Material/MaterialResource.h"
 #include "MeshDescription.h"

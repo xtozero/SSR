@@ -65,7 +65,7 @@ namespace rendercore
 		PROPERTY( sections )
 		std::vector<TextureSection> m_sections;
 
-		RefHandle<aga::Texture> m_texture;
+		aga::RefHandle<aga::Texture> m_texture;
 	};
 
 	struct DDSTextureInitializer;

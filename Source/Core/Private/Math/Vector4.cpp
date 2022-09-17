@@ -2,13 +2,13 @@
 
 #include "Vector.h"
 
-using DirectX::XMVectorGetX;
-using DirectX::XMVector3Cross;
-using DirectX::XMVector4Dot;
-using DirectX::XMVector4Equal;
-using DirectX::XMVector4Length;
-using DirectX::XMVector4LengthSq;
-using DirectX::XMVector4Normalize;
+using ::DirectX::XMVectorGetX;
+using ::DirectX::XMVector3Cross;
+using ::DirectX::XMVector4Dot;
+using ::DirectX::XMVector4Equal;
+using ::DirectX::XMVector4Length;
+using ::DirectX::XMVector4LengthSq;
+using ::DirectX::XMVector4Normalize;
 
 float Vector4::Length() const
 {

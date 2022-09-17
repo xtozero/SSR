@@ -21,7 +21,7 @@ public:
 
 	XMVector ExtractScaling( float tolerance = 1.e-8 );
 
-	using DirectX::XMFLOAT4X4::XMFLOAT4X4;
+	using ::DirectX::XMFLOAT4X4::XMFLOAT4X4;
 	Matrix( const XMMatrix& m );
 	Matrix() : DirectX::XMFLOAT4X4() {}
 

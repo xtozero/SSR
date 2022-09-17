@@ -19,7 +19,7 @@ public:
 	float PlaneDotNormal( const Vector& v ) const;
 	float PlaneDotNormal( const XMVector& v ) const;
 
-	using DirectX::XMFLOAT4::XMFLOAT4;
+	using ::DirectX::XMFLOAT4::XMFLOAT4;
 	Plane( const XMVector& v );
 	Plane( const Vector4& v );
 	Plane() : DirectX::XMFLOAT4() {}

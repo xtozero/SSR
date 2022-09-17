@@ -5,6 +5,8 @@
 #include "ShaderParameterMap.h"
 #include "ShaderParameterUtils.h"
 
+using ::aga::RefHandle;
+
 namespace rendercore
 {
 	class PerlinWorleyCS

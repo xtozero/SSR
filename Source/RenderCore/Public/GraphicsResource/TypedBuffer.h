@@ -123,7 +123,7 @@ namespace rendercore
 		}
 
 	private:
-		RefHandle<aga::Buffer> m_buffer;
+		aga::RefHandle<aga::Buffer> m_buffer;
 		uint32 m_numElement = 0;
 	};
 

@@ -5,6 +5,11 @@
 #include "D3D11FlagConvertor.h"
 #include "D3D11ResourceViews.h"
 
+using ::aga::ConvertAccessFlagToCpuFlag;
+using ::aga::ConvertAccessFlagToUsage;
+using ::aga::ConvertMicsToDXMisc;
+using ::aga::ConvertTypeToBind;
+
 namespace
 {
 	D3D11_BUFFER_DESC ConvertTraitToDesc( const BUFFER_TRAIT& trait )

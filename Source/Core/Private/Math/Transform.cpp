@@ -2,10 +2,10 @@
 
 #include "TransformationMatrix.h"
 
-using DirectX::XMVectorAbs;
-using DirectX::XMVector3LessOrEqual;
-using DirectX::XMVector4LessOrEqual;
-using DirectX::XMVector3Rotate;
+using ::DirectX::XMVectorAbs;
+using ::DirectX::XMVector3LessOrEqual;
+using ::DirectX::XMVector4LessOrEqual;
+using ::DirectX::XMVector3Rotate;
 
 Matrix Transform::ToMatrix() const
 {

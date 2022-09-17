@@ -4,6 +4,10 @@
 #include "D3D11Api.h"
 #include "D3D11FlagConvertor.h"
 
+using ::aga::ConvertToComparisionFunc;
+using ::aga::ConvertToFilter;
+using ::aga::ConvertToTextureAddress;
+
 namespace
 {
 	D3D11_SAMPLER_DESC ConvertTraitToDesc( const SAMPLER_STATE_TRAIT& trait )

@@ -7,6 +7,8 @@
 #include <fstream>
 #include <vector>
 
+using ::aga::ConvertDxgiFormatToFormat;
+
 namespace fs = std::filesystem;
 
 namespace

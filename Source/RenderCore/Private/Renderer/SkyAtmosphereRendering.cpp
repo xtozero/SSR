@@ -10,6 +10,8 @@
 #include "ShaderParameterUtils.h"
 #include "VertexCollection.h"
 
+using ::aga::RefHandle;
+
 namespace rendercore
 {
 	class TransmittanceCS

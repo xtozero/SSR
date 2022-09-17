@@ -25,7 +25,7 @@ namespace rendercore
 	private:
 		void InitResource( const BLEND_STATE_TRAIT& trait );
 
-		RefHandle<aga::BlendState> m_state;
+		aga::RefHandle<aga::BlendState> m_state;
 	};
 
 	class DepthStencilState
@@ -46,7 +46,7 @@ namespace rendercore
 	private:
 		void InitResource( const DEPTH_STENCIL_STATE_TRAIT& trait );
 
-		RefHandle<aga::DepthStencilState> m_state;
+		aga::RefHandle<aga::DepthStencilState> m_state;
 	};
 
 	class RasterizerState
@@ -67,7 +67,7 @@ namespace rendercore
 	private:
 		void InitResource( const RASTERIZER_STATE_TRAIT& trait );
 
-		RefHandle<aga::RasterizerState> m_state;
+		aga::RefHandle<aga::RasterizerState> m_state;
 	};
 
 	class SamplerState
@@ -88,7 +88,7 @@ namespace rendercore
 	private:
 		void InitResource( const SAMPLER_STATE_TRAIT& trait );
 
-		RefHandle<aga::SamplerState> m_state;
+		aga::RefHandle<aga::SamplerState> m_state;
 	};
 
 	struct ShaderStates
@@ -132,6 +132,6 @@ namespace rendercore
 		BlendState m_blendState;
 		RESOURCE_PRIMITIVE m_primitive;
 
-		RefHandle<aga::PipelineState> m_pso;
+		aga::RefHandle<aga::PipelineState> m_pso;
 	};
 }

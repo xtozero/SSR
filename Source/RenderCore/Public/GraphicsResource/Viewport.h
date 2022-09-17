@@ -30,6 +30,6 @@ namespace rendercore
 		RENDERCORE_DLL ~Viewport( );
 
 	private:
-		RefHandle<aga::Viewport> m_pViewport;
+		aga::RefHandle<aga::Viewport> m_pViewport;
 	};
 }

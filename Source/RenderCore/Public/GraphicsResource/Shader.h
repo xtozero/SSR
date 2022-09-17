@@ -88,7 +88,7 @@ namespace rendercore
 		RENDERCORE_DLL virtual void CreateShader() override;
 
 	private:
-		RefHandle<aga::VertexShader> m_shader;
+		aga::RefHandle<aga::VertexShader> m_shader;
 	};
 
 	class GeometryShader : public ShaderBase
@@ -117,7 +117,7 @@ namespace rendercore
 		RENDERCORE_DLL virtual void CreateShader() override;
 
 	private:
-		RefHandle<aga::GeometryShader> m_shader;
+		aga::RefHandle<aga::GeometryShader> m_shader;
 	};
 
 	class PixelShader : public ShaderBase
@@ -146,7 +146,7 @@ namespace rendercore
 		RENDERCORE_DLL virtual void CreateShader() override;
 
 	private:
-		RefHandle<aga::PixelShader> m_shader;
+		aga::RefHandle<aga::PixelShader> m_shader;
 	};
 
 	class ComputeShader : public ShaderBase
@@ -170,6 +170,6 @@ namespace rendercore
 		RENDERCORE_DLL virtual void CreateShader() override;
 
 	private:
-		RefHandle<aga::ComputeShader> m_shader;
+		aga::RefHandle<aga::ComputeShader> m_shader;
 	};
 }

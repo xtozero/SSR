@@ -10,7 +10,7 @@
 #include "TaskScheduler.h"
 #include "World/World.h"
 
-using DirectX::XMConvertToRadians;
+using ::DirectX::XMConvertToRadians;
 
 void GameClientViewport::Draw()
 {

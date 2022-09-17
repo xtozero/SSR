@@ -4,6 +4,9 @@
 #include "D3D11Api.h"
 #include "D3D11FlagConvertor.h"
 
+using ::aga::ConvertToCullMode;
+using ::aga::ConvertToFillMode;
+
 namespace
 {
 	D3D11_RASTERIZER_DESC ConvertTraitToDesc( const RASTERIZER_STATE_TRAIT& trait )
