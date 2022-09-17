@@ -10,7 +10,7 @@
 
 bool CWorldLoader::Load( CGameLogic& gameLogic, const char* worldAsset, size_t assetSize )
 {
-	JSON::Value root( JSON::DataType::EMPTY );
+	JSON::Value root( JSON::DataType::Empty );
 	JSON::Reader reader;
 
 	if ( reader.Parse( worldAsset, assetSize, root ) )

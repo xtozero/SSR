@@ -34,10 +34,10 @@ namespace rendercore
 		BlendOption volumetricCloundDrawPassBlendOption;
 		RenderTargetBlendOption& rt0BlendOption = volumetricCloundDrawPassBlendOption.m_renderTarget[0];
 		rt0BlendOption.m_blendEnable = true;
-		rt0BlendOption.m_srcBlend = BLEND::ONE;
-		rt0BlendOption.m_destBlend = BLEND::INV_SRC_ALPHA;
-		rt0BlendOption.m_srcBlendAlpha = BLEND::ZERO;
-		rt0BlendOption.m_destBlendAlpha = BLEND::ONE;
+		rt0BlendOption.m_srcBlend = agl::Blend::One;
+		rt0BlendOption.m_destBlend = agl::Blend::InvSrcAlpha;
+		rt0BlendOption.m_srcBlendAlpha = agl::Blend::Zero;
+		rt0BlendOption.m_destBlendAlpha = agl::Blend::One;
 
 		PassRenderOption passRenderOption = {
 			.m_blendOption = &volumetricCloundDrawPassBlendOption,

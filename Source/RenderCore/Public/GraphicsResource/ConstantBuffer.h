@@ -18,8 +18,8 @@ namespace rendercore
 		void* Lock();
 		void Unlock();
 
-		aga::Buffer* Resource();
-		const aga::Buffer* Resource() const;
+		agl::Buffer* Resource();
+		const agl::Buffer* Resource() const;
 
 		ConstantBuffer( uint32 size );
 
@@ -34,6 +34,6 @@ namespace rendercore
 		void InitResource( uint32 size );
 
 	private:
-		aga::RefHandle<aga::Buffer> m_buffer;
+		agl::RefHandle<agl::Buffer> m_buffer;
 	};
 }

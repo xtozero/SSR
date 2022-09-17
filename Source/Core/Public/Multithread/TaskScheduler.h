@@ -1,27 +1,26 @@
 #pragma once
 
 #include "common.h"
+#include "EnumClassFlags.h"
 #include "InterfaceFactories.h"
 #include "SizedTypes.h"
 #include "TaskSchedulerCore.h"
 
 #include <limits>
 
-namespace ThreadType
+enum class ThreadType : uint8
 {
-	enum
-	{
-		FileSystemThread,
-		WorkerThread0,
-		WorkerThread1,
-		WorkerThread2,
-		WorkerThread3,
-		// if add new thread type, insert here
-		RenderThread,
-		GameThread,
-		WorkerThreadCount = GameThread,
-	};
-}
+	FileSystemThread,
+	WorkerThread0,
+	WorkerThread1,
+	WorkerThread2,
+	WorkerThread3,
+	// if add new thread type, insert here
+	RenderThread,
+	GameThread,
+	WorkerThreadCount = GameThread,
+};
+ENUM_CLASS_FLAGS( ThreadType );
 
 class ITaskScheduler
 {
@@ -41,10 +40,10 @@ public:
 
 #define WorkerThreads ThreadType::WorkerThread0, ThreadType::WorkerThread1, ThreadType::WorkerThread2, ThreadType::WorkerThread3
 
-template <size_t... N>
+template <ThreadType... N>
 constexpr size_t WorkerAffinityMask()
 {
-	return ( ( 1 << N ) | ... );
+	return ( ( 1 << static_cast<uint8>( N ) ) | ... );
 }
 
 ITaskScheduler* CreateTaskScheduler();
@@ -70,7 +69,7 @@ private:
 	Lambda m_lambda;
 };
 
-template <size_t... N, typename Lambda>
+template <ThreadType... N, typename Lambda>
 TaskHandle EnqueueThreadTask( Lambda lambda )
 {
 	ITaskScheduler* taskScheduler = GetInterface<ITaskScheduler>();

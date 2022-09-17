@@ -1,6 +1,8 @@
 #pragma once
 
-enum class WeldingRule
+#include "SizedTypes.h"
+
+enum class WeldingRule : uint8
 {
 	KeepRelative,
 	KeepWorld

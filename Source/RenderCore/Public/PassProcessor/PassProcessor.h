@@ -7,7 +7,7 @@
 
 namespace rendercore
 {
-	enum class RenderPass
+	enum class RenderPass : uint8
 	{
 		DepthWrite = 0,
 		CSMShadowDepth,
@@ -24,7 +24,7 @@ namespace rendercore
 	class RasterizerOption;
 	class VertexShader;
 
-	enum class VertexStreamLayoutType;
+	enum class VertexStreamLayoutType : uint8;
 
 	struct PrimitiveSubMesh;
 

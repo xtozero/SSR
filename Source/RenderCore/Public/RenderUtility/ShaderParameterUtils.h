@@ -9,17 +9,17 @@
 namespace rendercore
 {
 	template <typename CommandList>
-	void BindShaderParameter( CommandList& commandList, const aga::ShaderParameter& parameter, aga::Buffer* buffer )
+	void BindShaderParameter( CommandList& commandList, const agl::ShaderParameter& parameter, agl::Buffer* buffer )
 	{
 		switch ( parameter.m_type )
 		{
-		case aga::ShaderParameterType::ConstantBuffer:
+		case agl::ShaderParameterType::ConstantBuffer:
 			commandList.BindConstantBuffer( parameter.m_shader, parameter.m_bindPoint, buffer );
 			break;
-		case aga::ShaderParameterType::SRV:
+		case agl::ShaderParameterType::SRV:
 			commandList.BindSRV( parameter.m_shader, parameter.m_bindPoint, buffer ? buffer->SRV() : nullptr );
 			break;
-		case aga::ShaderParameterType::UAV:
+		case agl::ShaderParameterType::UAV:
 			commandList.BindUAV( parameter.m_shader, parameter.m_bindPoint, buffer ? buffer->UAV() : nullptr );
 			break;
 		default:
@@ -29,14 +29,14 @@ namespace rendercore
 	}
 
 	template <typename CommandList>
-	void BindShaderParameter( CommandList& commandList, const aga::ShaderParameter& parameter, aga::Texture* texture )
+	void BindShaderParameter( CommandList& commandList, const agl::ShaderParameter& parameter, agl::Texture* texture )
 	{
 		switch ( parameter.m_type )
 		{
-		case aga::ShaderParameterType::SRV:
+		case agl::ShaderParameterType::SRV:
 			commandList.BindSRV( parameter.m_shader, parameter.m_bindPoint, texture ? texture->SRV() : nullptr );
 			break;
-		case aga::ShaderParameterType::UAV:
+		case agl::ShaderParameterType::UAV:
 			commandList.BindUAV( parameter.m_shader, parameter.m_bindPoint, texture ? texture->UAV() : nullptr );
 			break;
 		default:
@@ -46,11 +46,11 @@ namespace rendercore
 	}
 
 	template <typename CommandList>
-	void BindShaderParameter( CommandList& commandList, const aga::ShaderParameter& parameter, aga::SamplerState* samplerState )
+	void BindShaderParameter( CommandList& commandList, const agl::ShaderParameter& parameter, agl::SamplerState* samplerState )
 	{
 		switch ( parameter.m_type )
 		{
-		case aga::ShaderParameterType::Sampler:
+		case agl::ShaderParameterType::Sampler:
 			commandList.BindSampler( parameter.m_shader, parameter.m_bindPoint, samplerState );
 			break;
 		default:
@@ -60,30 +60,30 @@ namespace rendercore
 	}
 
 	template <typename CommandList>
-	void BindShaderParameter( CommandList& commandList, const aga::ShaderParameter& parameter, std::nullptr_t )
+	void BindShaderParameter( CommandList& commandList, const agl::ShaderParameter& parameter, std::nullptr_t )
 	{
 		switch ( parameter.m_type )
 		{
-		case aga::ShaderParameterType::ConstantBuffer:
+		case agl::ShaderParameterType::ConstantBuffer:
 			commandList.BindConstantBuffer( parameter.m_shader, parameter.m_bindPoint, nullptr );
 			break;
-		case aga::ShaderParameterType::SRV:
+		case agl::ShaderParameterType::SRV:
 			commandList.BindSRV( parameter.m_shader, parameter.m_bindPoint, nullptr );
 			break;
-		case aga::ShaderParameterType::UAV:
+		case agl::ShaderParameterType::UAV:
 			commandList.BindUAV( parameter.m_shader, parameter.m_bindPoint, nullptr );
 			break;
-		case aga::ShaderParameterType::Sampler:
+		case agl::ShaderParameterType::Sampler:
 			commandList.BindSampler( parameter.m_shader, parameter.m_bindPoint, nullptr );
 			break;
 		}
 	}
 
 	template <typename ValueType>
-	void SetShaderValue( const aga::ShaderParameter& parameter, ValueType value )
+	void SetShaderValue( const agl::ShaderParameter& parameter, ValueType value )
 	{
 		assert( parameter.m_bindPoint == 0 );
-		assert( parameter.m_type == aga::ShaderParameterType::ConstantBufferValue );
+		assert( parameter.m_type == agl::ShaderParameterType::ConstantBufferValue );
 		DefaultConstantBuffers::GetInstance().SetShaderValue( parameter.m_shader, parameter.m_offset, sizeof( ValueType ), &value );
 	}
 }

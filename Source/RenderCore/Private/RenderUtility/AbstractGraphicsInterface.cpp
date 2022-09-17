@@ -7,48 +7,48 @@ namespace rendercore
 {
 	AbstractGraphicsInterface g_abstractGraphicsInterface;
 
-	void AbstractGraphicsInterface::BootUp( aga::IAga* pAga )
+	void AbstractGraphicsInterface::BootUp( agl::IAgl* pAgl )
 	{
-		m_aga = pAga;
+		m_agl = pAgl;
 	}
 
 	void AbstractGraphicsInterface::Shutdown()
 	{
 	}
 
-	LockedResource AbstractGraphicsInterface::Lock( aga::Buffer* buffer, uint32 lockFlag, uint32 subResource )
+	agl::LockedResource AbstractGraphicsInterface::Lock( agl::Buffer* buffer, agl::ResourceLockFlag lockFlag, uint32 subResource )
 	{
-		return m_aga->Lock( buffer, lockFlag, subResource );
+		return m_agl->Lock( buffer, lockFlag, subResource );
 	}
 
-	LockedResource AbstractGraphicsInterface::Lock( aga::Texture* texture, uint32 lockFlag, uint32 subResource )
+	agl::LockedResource AbstractGraphicsInterface::Lock( agl::Texture* texture, agl::ResourceLockFlag lockFlag, uint32 subResource )
 	{
-		return m_aga->Lock( texture, lockFlag, subResource );
+		return m_agl->Lock( texture, lockFlag, subResource );
 	}
 
-	void AbstractGraphicsInterface::UnLock( aga::Buffer* buffer, uint32 subResource )
+	void AbstractGraphicsInterface::UnLock( agl::Buffer* buffer, uint32 subResource )
 	{
-		m_aga->UnLock( buffer, subResource );
+		m_agl->UnLock( buffer, subResource );
 	}
 
-	void AbstractGraphicsInterface::UnLock( aga::Texture* texture, uint32 subResource )
+	void AbstractGraphicsInterface::UnLock( agl::Texture* texture, uint32 subResource )
 	{
-		m_aga->UnLock( texture, subResource );
+		m_agl->UnLock( texture, subResource );
 	}
 
-	void AbstractGraphicsInterface::Copy( aga::Buffer* dst, aga::Buffer* src, uint32 size )
+	void AbstractGraphicsInterface::Copy( agl::Buffer* dst, agl::Buffer* src, uint32 size )
 	{
-		m_aga->Copy( dst, src, size );
+		m_agl->Copy( dst, src, size );
 	}
 
-	std::unique_ptr<aga::IDeferredCommandList> AbstractGraphicsInterface::CreateDeferredCommandList() const
+	std::unique_ptr<agl::IDeferredCommandList> AbstractGraphicsInterface::CreateDeferredCommandList() const
 	{
-		return m_aga->CreateDeferredCommandList();
+		return m_agl->CreateDeferredCommandList();
 	}
 
-	aga::IImmediateCommandList* AbstractGraphicsInterface::GetImmediateCommandList()
+	agl::IImmediateCommandList* AbstractGraphicsInterface::GetImmediateCommandList()
 	{
-		return m_aga->GetImmediateCommandList();
+		return m_agl->GetImmediateCommandList();
 	}
 
 	BlendState AbstractGraphicsInterface::FindOrCreate( const BlendOption& option )
@@ -56,7 +56,7 @@ namespace rendercore
 		auto found = m_blendStates.find( option );
 		if ( found == m_blendStates.end() )
 		{
-			BLEND_STATE_TRAIT trait;
+			agl::BLEND_STATE_TRAIT trait;
 			trait.m_alphaToConverageEnable = option.m_alphaToConverageEnable;
 			trait.m_independentBlendEnable = option.m_independentBlendEnable;
 
@@ -92,9 +92,9 @@ namespace rendercore
 		auto found = m_depthStencilStates.find( option );
 		if ( found == m_depthStencilStates.end() )
 		{
-			DEPTH_STENCIL_STATE_TRAIT trait = {
+			agl::DEPTH_STENCIL_STATE_TRAIT trait = {
 				option.m_depth.m_enable,
-				option.m_depth.m_writeDepth ? DEPTH_WRITE_MODE::ALL : DEPTH_WRITE_MODE::ZERO,
+				option.m_depth.m_writeDepth ? agl::DepthWriteMode::All : agl::DepthWriteMode::Zero,
 				option.m_depth.m_depthFunc,
 				option.m_stencil.m_enable,
 				option.m_stencil.m_readMask,
@@ -117,8 +117,8 @@ namespace rendercore
 		auto found = m_rasterizerStates.find( option );
 		if ( found == m_rasterizerStates.end() )
 		{
-			RASTERIZER_STATE_TRAIT trait = {
-				option.m_isWireframe ? FILL_MODE::WIREFRAME : FILL_MODE::SOLID,
+			agl::RASTERIZER_STATE_TRAIT trait = {
+				option.m_isWireframe ? agl::FillMode::Wireframe : agl::FillMode::Solid,
 				option.m_cullMode,
 				option.m_counterClockwise,
 				option.m_depthBias,
@@ -144,8 +144,8 @@ namespace rendercore
 		auto found = m_samplerStates.find( option );
 		if ( found == m_samplerStates.end() )
 		{
-			SAMPLER_STATE_TRAIT trait = {
-				static_cast<TEXTURE_FILTER::Type>( option.m_filter ),
+			agl::SAMPLER_STATE_TRAIT trait = {
+				option.m_filter,
 				option.m_addressU,
 				option.m_addressV,
 				option.m_addressW,
@@ -187,12 +187,12 @@ namespace rendercore
 
 	BinaryChunk AbstractGraphicsInterface::CompieShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const
 	{
-		return m_aga->CompileShader( source, defines, profile );
+		return m_agl->CompileShader( source, defines, profile );
 	}
 
-	bool AbstractGraphicsInterface::BuildShaderMetaData( const BinaryChunk& byteCode, aga::ShaderParameterMap& outParameterMap, aga::ShaderParameterInfo& outParameterInfo ) const
+	bool AbstractGraphicsInterface::BuildShaderMetaData( const BinaryChunk& byteCode, agl::ShaderParameterMap& outParameterMap, agl::ShaderParameterInfo& outParameterInfo ) const
 	{
-		return m_aga->BuildShaderMetaData( byteCode, outParameterMap, outParameterInfo );
+		return m_agl->BuildShaderMetaData( byteCode, outParameterMap, outParameterInfo );
 	}
 
 	AbstractGraphicsInterface& GraphicsInterface()

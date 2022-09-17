@@ -29,8 +29,8 @@ namespace rendercore
 		DECLARE_ASSET( RENDERCORE, Texture );
 
 	public:
-		aga::Texture* Resource();
-		const aga::Texture* Resource() const;
+		agl::Texture* Resource();
+		const agl::Texture* Resource() const;
 
 	protected:
 		RENDERCORE_DLL virtual void PostLoadImpl() override;
@@ -57,7 +57,7 @@ namespace rendercore
 		uint32 m_demension = 0;
 
 		PROPERTY( format )
-		RESOURCE_FORMAT m_format = RESOURCE_FORMAT::UNKNOWN;
+		agl::ResourceFormat m_format = agl::ResourceFormat::Unknown;
 
 		PROPERTY( memory )
 		BinaryChunk m_memory;
@@ -65,7 +65,7 @@ namespace rendercore
 		PROPERTY( sections )
 		std::vector<TextureSection> m_sections;
 
-		aga::RefHandle<aga::Texture> m_texture;
+		agl::RefHandle<agl::Texture> m_texture;
 	};
 
 	struct DDSTextureInitializer;
@@ -94,7 +94,7 @@ namespace rendercore
 		bool m_isCubeMap = false;
 		uint32 m_demension = 0;
 
-		RESOURCE_FORMAT m_format;
+		agl::ResourceFormat m_format;
 
 		uint32 m_size = 0;
 		const uint8* m_memory = nullptr;

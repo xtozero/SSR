@@ -24,19 +24,19 @@ namespace rendercore
 		}
 	}
 
-	aga::Texture* ForwardRendererRenderTargets::GetDepthStencil()
+	agl::Texture* ForwardRendererRenderTargets::GetDepthStencil()
 	{
 		AllocDepthStencil();
 		return m_depthStencil;
 	}
 
-	aga::Texture* ForwardRendererRenderTargets::GetLinearDepth()
+	agl::Texture* ForwardRendererRenderTargets::GetLinearDepth()
 	{
 		AllocLinearDepth();
 		return m_linearDepth;
 	}
 
-	aga::Texture* ForwardRendererRenderTargets::GetWorldNormal()
+	agl::Texture* ForwardRendererRenderTargets::GetWorldNormal()
 	{
 		AllocWorldNormal();
 		return m_worldNormal;
@@ -46,20 +46,20 @@ namespace rendercore
 	{
 		if ( m_depthStencil == nullptr )
 		{
-			TEXTURE_TRAIT trait = {
+			agl::TEXTURE_TRAIT trait = {
 				m_bufferSize.first,
 				m_bufferSize.second,
 				1,
 				1,
 				0,
 				1,
-				RESOURCE_FORMAT::D24_UNORM_S8_UINT,
-				RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
-				RESOURCE_BIND_TYPE::DEPTH_STENCIL,
-				RESOURCE_MISC::NONE
+				agl::ResourceFormat::D24_UNORM_S8_UINT,
+				agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+				agl::ResourceBindType::DepthStencil,
+				agl::ResourceMisc::None
 			};
 
-			m_depthStencil = aga::Texture::Create( trait );
+			m_depthStencil = agl::Texture::Create( trait );
 			EnqueueRenderTask(
 				[depthStencil = m_depthStencil]()
 				{
@@ -72,20 +72,20 @@ namespace rendercore
 	{
 		if ( m_linearDepth == nullptr )
 		{
-			TEXTURE_TRAIT trait = {
+			agl::TEXTURE_TRAIT trait = {
 				m_bufferSize.first,
 				m_bufferSize.second,
 				1,
 				1,
 				0,
 				1,
-				RESOURCE_FORMAT::R32_FLOAT,
-				RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
-				RESOURCE_BIND_TYPE::RENDER_TARGET | RESOURCE_BIND_TYPE::SHADER_RESOURCE,
-				RESOURCE_MISC::NONE
+				agl::ResourceFormat::R32_FLOAT,
+				agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+				agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
+				agl::ResourceMisc::None
 			};
 
-			m_linearDepth = aga::Texture::Create( trait );
+			m_linearDepth = agl::Texture::Create( trait );
 			EnqueueRenderTask(
 				[linearDepth = m_linearDepth]()
 				{
@@ -98,20 +98,20 @@ namespace rendercore
 	{
 		if ( m_worldNormal == nullptr )
 		{
-			TEXTURE_TRAIT trait = {
+			agl::TEXTURE_TRAIT trait = {
 				m_bufferSize.first,
 				m_bufferSize.second,
 				1,
 				1,
 				0,
 				1,
-				RESOURCE_FORMAT::R10G10B10A2_UNORM,
-				RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
-				RESOURCE_BIND_TYPE::RENDER_TARGET | RESOURCE_BIND_TYPE::SHADER_RESOURCE,
-				RESOURCE_MISC::NONE
+				agl::ResourceFormat::R10G10B10A2_UNORM,
+				agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+				agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
+				agl::ResourceMisc::None
 			};
 
-			m_worldNormal = aga::Texture::Create( trait );
+			m_worldNormal = agl::Texture::Create( trait );
 			EnqueueRenderTask(
 				[worldNormal = m_worldNormal]()
 				{
@@ -247,13 +247,13 @@ namespace rendercore
 
 		auto commandList = GetImmediateCommandList();
 
-		aga::RenderTargetView* rtv0 = renderTarget != nullptr ? renderTarget->RTV() : nullptr;
+		agl::RenderTargetView* rtv0 = renderTarget != nullptr ? renderTarget->RTV() : nullptr;
 		commandList.ClearRenderTarget( rtv0, { 1, 1, 1, 1 } );
 
-		aga::RenderTargetView* rtv1 = worldNormal != nullptr ? worldNormal->RTV() : nullptr;
+		agl::RenderTargetView* rtv1 = worldNormal != nullptr ? worldNormal->RTV() : nullptr;
 		commandList.ClearRenderTarget( rtv1, { } );
 
-		aga::DepthStencilView* dsv = depthStencil != nullptr ? depthStencil->DSV() : nullptr;
+		agl::DepthStencilView* dsv = depthStencil != nullptr ? depthStencil->DSV() : nullptr;
 		commandList.ClearDepthStencil( dsv, 1.f, 0 );
 
 		IScene& scene = renderViewGroup.Scene();
@@ -280,7 +280,7 @@ namespace rendercore
 			ForwardLightBuffer& lightBuffer = view.m_forwardLighting->m_lightBuffer;
 
 			uint32 numElement = static_cast<uint32>( ( sizeof( ForwardLightData ) / sizeof( Vector4 ) ) * validLights.size() );
-			lightBuffer.Initialize( sizeof( Vector4 ), numElement, RESOURCE_FORMAT::R32G32B32A32_FLOAT );
+			lightBuffer.Initialize( sizeof( Vector4 ), numElement, agl::ResourceFormat::R32G32B32A32_FLOAT );
 
 			auto lightData = static_cast<ForwardLightData*>( lightBuffer.Lock() );
 			if ( lightData == nullptr )

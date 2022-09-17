@@ -66,18 +66,18 @@ namespace rendercore
 		BinaryChunk byteCode = GraphicsInterface().CompieShader( m_shaderCode, defines, m_profile.Str().data() );
 
 		ShaderBase* shader = nullptr;
-		switch ( m_type )
+		switch ( static_cast<agl::ShaderType>( m_type ) )
 		{
-		case SHADER_TYPE::VS:
+		case agl::ShaderType::VS:
 			shader = new VertexShader( std::move( byteCode ) );
 			break;
-		case SHADER_TYPE::GS:
+		case agl::ShaderType::GS:
 			shader = new GeometryShader( std::move( byteCode ) );
 			break;
-		case SHADER_TYPE::PS:
+		case agl::ShaderType::PS:
 			shader = new PixelShader( std::move( byteCode ) );
 			break;
-		case SHADER_TYPE::CS:
+		case agl::ShaderType::CS:
 			shader = new ComputeShader( std::move( byteCode ) );
 			break;
 		default:

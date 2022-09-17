@@ -29,7 +29,7 @@
 
 namespace rendercore
 {
-	void RenderingShaderResource::BindResources( const ShaderStates& shaders, aga::ShaderBindings& bindings )
+	void RenderingShaderResource::BindResources( const ShaderStates& shaders, agl::ShaderBindings& bindings )
 	{
 		const ShaderBase* shaderArray[] = {
 			shaders.m_vertexShader,
@@ -40,16 +40,16 @@ namespace rendercore
 			nullptr, // CS
 		};
 
-		for ( uint32 shaderType = 0; shaderType < MAX_SHADER_TYPE<uint32>; ++shaderType )
+		for ( uint32 shaderType = 0; shaderType < agl::MAX_SHADER_TYPE<uint32>; ++shaderType )
 		{
 			if ( shaderArray[shaderType] == nullptr )
 			{
 				continue;
 			}
 
-			aga::SingleShaderBindings singleBinding = bindings.GetSingleShaderBindings( static_cast<SHADER_TYPE>( shaderType ) );
+			agl::SingleShaderBindings singleBinding = bindings.GetSingleShaderBindings( static_cast<agl::ShaderType>( shaderType ) );
 
-			if ( singleBinding.ShaderType() == SHADER_TYPE::NONE )
+			if ( singleBinding.GetShaderType() == agl::ShaderType::None )
 			{
 				continue;
 			}
@@ -58,27 +58,27 @@ namespace rendercore
 
 			for ( size_t i = 0; i < m_parameterNames.size(); ++i )
 			{
-				GraphicsApiResource* resource = m_resources[i];
+				agl::GraphicsApiResource* resource = m_resources[i];
 				if ( resource == nullptr )
 				{
 					continue;
 				}
 
-				aga::ShaderParameter parameter = parameterMap.GetParameter( m_parameterNames[i].Str().data() );
+				agl::ShaderParameter parameter = parameterMap.GetParameter( m_parameterNames[i].Str().data() );
 
 				switch ( parameter.m_type )
 				{
-				case aga::ShaderParameterType::ConstantBuffer:
-					singleBinding.AddConstantBuffer( parameter, reinterpret_cast<aga::Buffer*>( m_resources[i] ) );
+				case agl::ShaderParameterType::ConstantBuffer:
+					singleBinding.AddConstantBuffer( parameter, reinterpret_cast<agl::Buffer*>( m_resources[i] ) );
 					break;
-				case aga::ShaderParameterType::SRV:
-					singleBinding.AddSRV( parameter, reinterpret_cast<aga::ShaderResourceView*>( m_resources[i] ) );
+				case agl::ShaderParameterType::SRV:
+					singleBinding.AddSRV( parameter, reinterpret_cast<agl::ShaderResourceView*>( m_resources[i] ) );
 					break;
-				case aga::ShaderParameterType::UAV:
-					singleBinding.AddUAV( parameter, reinterpret_cast<aga::UnorderedAccessView*>( m_resources[i] ) );
+				case agl::ShaderParameterType::UAV:
+					singleBinding.AddUAV( parameter, reinterpret_cast<agl::UnorderedAccessView*>( m_resources[i] ) );
 					break;
-				case aga::ShaderParameterType::Sampler:
-					singleBinding.AddSampler( parameter, reinterpret_cast<aga::SamplerState*>( m_resources[i] ) );
+				case agl::ShaderParameterType::Sampler:
+					singleBinding.AddSampler( parameter, reinterpret_cast<agl::SamplerState*>( m_resources[i] ) );
 					break;
 				default:
 					break;
@@ -87,7 +87,7 @@ namespace rendercore
 		}
 	}
 
-	void RenderingShaderResource::AddResource( const std::string& parameterName, GraphicsApiResource* resource )
+	void RenderingShaderResource::AddResource( const std::string& parameterName, agl::GraphicsApiResource* resource )
 	{
 		auto found = std::find( std::begin( m_parameterNames ), std::end( m_parameterNames ), Name( parameterName ) );
 
@@ -181,9 +181,9 @@ namespace rendercore
 		for ( ShadowInfo* pShadowInfo : shadows )
 		{
 			LightSceneInfo* lightSceneInfo = pShadowInfo->GetLightSceneInfo();
-			[[maybe_unused]] LIGHT_TYPE lightType = lightSceneInfo->Proxy()->LightType();
+			[[maybe_unused]] LightType lightType = lightSceneInfo->Proxy()->GetLightType();
 
-			assert( lightType == LIGHT_TYPE::DIRECTINAL_LIGHT );
+			assert( lightType == LightType::Directional );
 			assert( pShadowInfo->View() != nullptr );
 
 			const RenderView& view = *pShadowInfo->View();
@@ -203,7 +203,7 @@ namespace rendercore
 
 				const BoxSphereBounds& bounds = renderScene.PrimitiveBounds()[id];
 
-				uint32 inFrustum = BoxAndFrustum( bounds.Origin() - bounds.HalfSize(),
+				CollisionResult inFrustum = BoxAndFrustum( bounds.Origin() - bounds.HalfSize(),
 					bounds.Origin() + bounds.HalfSize(),
 					frustum );
 
@@ -211,17 +211,17 @@ namespace rendercore
 
 				switch ( inFrustum )
 				{
-				case COLLISION::OUTSIDE:
+				case CollisionResult::Outside:
 				{
-					bool isIntersected = SphereAndFrusturm( bounds.Origin(), bounds.Radius(), frustum, sweepDir );
-					if ( isIntersected )
+					CollisionResult sweepResult = SphereAndFrusturm( bounds.Origin(), bounds.Radius(), frustum, sweepDir );
+					if ( sweepResult > CollisionResult::Outside )
 					{
 						pShadowInfo->AddCasterPrimitive( primitive, viewspaceBounds );
 					}
 				}
 				break;
-				case COLLISION::INSIDE:
-				case COLLISION::INTERSECTION:
+				case CollisionResult::Inside:
+				case CollisionResult::Intersection:
 				{
 					pShadowInfo->AddCasterPrimitive( primitive, viewspaceBounds );
 					pShadowInfo->AddReceiverPrimitive( primitive, viewspaceBounds );
@@ -242,20 +242,20 @@ namespace rendercore
 			}
 
 			LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo();
-			LIGHT_TYPE lightType = lightSceneInfo->Proxy()->LightType();
+			LightType lightType = lightSceneInfo->Proxy()->GetLightType();
 
 			switch ( lightType )
 			{
-			case LIGHT_TYPE::DIRECTINAL_LIGHT:
+			case LightType::Directional:
 			{
 				BuildOrthoShadowProjectionMatrix( shadowInfo );
 				break;
 			}
-			case LIGHT_TYPE::POINT_LIGHT:
+			case LightType::Point:
 				break;
-			case LIGHT_TYPE::SPOT_LIGHT:
+			case LightType::Spot:
 				break;
-			case LIGHT_TYPE::NONE:
+			case LightType::None:
 			default:
 				break;
 			}
@@ -269,18 +269,18 @@ namespace rendercore
 		for ( auto& shadowInfo : m_shadowInfos )
 		{
 			LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo();
-			LIGHT_TYPE lightType = lightSceneInfo->Proxy()->LightType();
+			LightType lightType = lightSceneInfo->Proxy()->GetLightType();
 
 			switch ( lightType )
 			{
-			case LIGHT_TYPE::NONE:
+			case LightType::None:
 				break;
-			case LIGHT_TYPE::DIRECTINAL_LIGHT:
+			case LightType::Directional:
 				cascadeShadows.push_back( &shadowInfo );
 				break;
-			case LIGHT_TYPE::POINT_LIGHT:
+			case LightType::Point:
 				break;
-			case LIGHT_TYPE::SPOT_LIGHT:
+			case LightType::Spot:
 				break;
 			default:
 				break;
@@ -299,31 +299,31 @@ namespace rendercore
 		{
 			auto [width, height] = shadow->ShadowMapSize();
 
-			TEXTURE_TRAIT trait = { width,
+			agl::TEXTURE_TRAIT trait = { width,
 				height,
 				CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
 				1,
 				0,
 				1,
-				RESOURCE_FORMAT::R32_FLOAT,
-				RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
-				RESOURCE_BIND_TYPE::RENDER_TARGET | RESOURCE_BIND_TYPE::SHADER_RESOURCE,
-				RESOURCE_MISC::NONE };
+				agl::ResourceFormat::R32_FLOAT,
+				agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+				agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
+				agl::ResourceMisc::None };
 
-			shadow->ShadowMap().m_shadowMap = aga::Texture::Create( trait );
+			shadow->ShadowMap().m_shadowMap = agl::Texture::Create( trait );
 
-			TEXTURE_TRAIT depthTrait = { width,
+			agl::TEXTURE_TRAIT depthTrait = { width,
 				height,
 				CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
 				1,
 				0,
 				1,
-				RESOURCE_FORMAT::D24_UNORM_S8_UINT,
-				RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
-				RESOURCE_BIND_TYPE::DEPTH_STENCIL,
-				RESOURCE_MISC::NONE };
+				agl::ResourceFormat::D24_UNORM_S8_UINT,
+				agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+				agl::ResourceBindType::DepthStencil,
+				agl::ResourceMisc::None };
 
-			shadow->ShadowMap().m_shadowMapDepth = aga::Texture::Create( depthTrait );
+			shadow->ShadowMap().m_shadowMapDepth = agl::Texture::Create( depthTrait );
 
 			EnqueueRenderTask(
 				[texture = shadow->ShadowMap().m_shadowMap, depthTexture = shadow->ShadowMap().m_shadowMapDepth]()
@@ -358,10 +358,10 @@ namespace rendercore
 
 			auto commandList = GetImmediateCommandList();
 
-			aga::RenderTargetView* rtv = shadowMap.m_shadowMap.Get() ? shadowMap.m_shadowMap->RTV() : nullptr;
+			agl::RenderTargetView* rtv = shadowMap.m_shadowMap.Get() ? shadowMap.m_shadowMap->RTV() : nullptr;
 			commandList.ClearRenderTarget( rtv, { 1, 1, 1, 1 } );
 
-			aga::DepthStencilView* dsv = shadowMap.m_shadowMapDepth.Get() ? shadowMap.m_shadowMapDepth->DSV() : nullptr;
+			agl::DepthStencilView* dsv = shadowMap.m_shadowMapDepth.Get() ? shadowMap.m_shadowMapDepth->DSV() : nullptr;
 			commandList.ClearDepthStencil( dsv, 1.f, 0 );
 
 			shadowInfo.SetupShadowConstantBuffer();
@@ -428,7 +428,7 @@ namespace rendercore
 			pipelineState.m_depthStencilState = graphicsInterface.FindOrCreate( proxy->GetDepthStencilOption() );
 			pipelineState.m_rasterizerState = graphicsInterface.FindOrCreate( proxy->GetRasterizerOption() );
 
-			pipelineState.m_primitive = RESOURCE_PRIMITIVE::TRIANGLELIST;
+			pipelineState.m_primitive = agl::ResourcePrimitive::Trianglelist;
 
 			snapshot.m_count = section.m_count;
 			snapshot.m_startIndexLocation = section.m_startLocation;
@@ -548,11 +548,11 @@ namespace rendercore
 			m_shaderResources.AddResource( "ShadowTexture", shadowInfo.ShadowMap().m_shadowMap->SRV() );
 
 			SamplerOption shadowSamplerOption;
-			shadowSamplerOption.m_filter |= TEXTURE_FILTER::COMPARISON;
-			shadowSamplerOption.m_addressU = TEXTURE_ADDRESS_MODE::BORDER;
-			shadowSamplerOption.m_addressV = TEXTURE_ADDRESS_MODE::BORDER;
-			shadowSamplerOption.m_addressW = TEXTURE_ADDRESS_MODE::BORDER;
-			shadowSamplerOption.m_comparisonFunc = COMPARISON_FUNC::LESS_EQUAL;
+			shadowSamplerOption.m_filter |= agl::TextureFilter::Comparison;
+			shadowSamplerOption.m_addressU = agl::TextureAddressMode::Border;
+			shadowSamplerOption.m_addressV = agl::TextureAddressMode::Border;
+			shadowSamplerOption.m_addressW = agl::TextureAddressMode::Border;
+			shadowSamplerOption.m_comparisonFunc = agl::ComparisonFunc::LessEqual;
 			SamplerState shadowSampler = GraphicsInterface().FindOrCreate( shadowSamplerOption );
 			m_shaderResources.AddResource( "ShadowSampler", shadowSampler.Resource() );
 
@@ -683,7 +683,7 @@ namespace rendercore
 
 		Vector4 lightPosOrDir;
 		LightProperty lightProperty = skyAtmosphereLight->Proxy()->GetLightProperty();
-		if ( lightProperty.m_type == LIGHT_TYPE::DIRECTINAL_LIGHT )
+		if ( lightProperty.m_type == LightType::Directional )
 		{
 			lightPosOrDir = Vector4( -lightProperty.m_direction.x, -lightProperty.m_direction.y, -lightProperty.m_direction.z, 0.f );
 		}
@@ -722,7 +722,7 @@ namespace rendercore
 		SamplerOption samplerOption;
 		samplerOption.m_addressU =
 			samplerOption.m_addressV =
-			samplerOption.m_addressW = TEXTURE_ADDRESS_MODE::WRAP;
+			samplerOption.m_addressW = agl::TextureAddressMode::Wrap;
 		SamplerState cloudSampler = GraphicsInterface().FindOrCreate( samplerOption );
 		SamplerState weatherSampler = GraphicsInterface().FindOrCreate( samplerOption );
 

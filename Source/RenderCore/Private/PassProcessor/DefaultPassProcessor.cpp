@@ -48,7 +48,7 @@ namespace rendercore
 			}
 		}
 
-		depthStencilOption.m_depth.m_depthFunc = COMPARISON_FUNC::LESS_EQUAL;
+		depthStencilOption.m_depth.m_depthFunc = agl::ComparisonFunc::LessEqual;
 		depthStencilOption.m_depth.m_writeDepth = false;
 		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default );
 	}

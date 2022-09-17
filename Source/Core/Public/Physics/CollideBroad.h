@@ -44,7 +44,7 @@ private:
 template <typename BoundingVolume, typename RigidBody>
 bool BVHNode<BoundingVolume, RigidBody>::Overlaps( const BVHNode<BoundingVolume, RigidBody>* other ) const
 {
-	return ( m_boundingVolume.Overlapped( other->m_boundingVolume ) > COLLISION::OUTSIDE );
+	return ( m_boundingVolume.Overlapped( other->m_boundingVolume ) > CollisionResult::Outside );
 }
 
 template <typename BoundingVolume, typename RigidBody>

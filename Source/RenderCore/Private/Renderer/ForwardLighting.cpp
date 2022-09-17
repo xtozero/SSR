@@ -6,18 +6,18 @@
 
 namespace rendercore
 {
-	void ForwardLightBuffer::Initialize( uint32 bytePerElement, uint32 numElements, RESOURCE_FORMAT format )
+	void ForwardLightBuffer::Initialize( uint32 bytePerElement, uint32 numElements, agl::ResourceFormat format )
 	{
-		BUFFER_TRAIT trait = {
+		agl::BUFFER_TRAIT trait = {
 			bytePerElement,
 			numElements,
-			RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
-			RESOURCE_BIND_TYPE::SHADER_RESOURCE,
-			RESOURCE_MISC::NONE,
+			agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::CpuWrite,
+			agl::ResourceBindType::ShaderResource,
+			agl::ResourceMisc::None,
 			format
 		};
 
-		m_buffer = aga::Buffer::Create( trait );
+		m_buffer = agl::Buffer::Create( trait );
 		EnqueueRenderTask(
 			[buffer = m_buffer]()
 			{
@@ -37,22 +37,22 @@ namespace rendercore
 		GraphicsInterface().UnLock( m_buffer );
 	}
 
-	aga::ShaderResourceView* ForwardLightBuffer::SRV()
+	agl::ShaderResourceView* ForwardLightBuffer::SRV()
 	{
 		return m_buffer ? m_buffer->SRV() : nullptr;
 	}
 
-	const aga::ShaderResourceView* ForwardLightBuffer::SRV() const
+	const agl::ShaderResourceView* ForwardLightBuffer::SRV() const
 	{
 		return m_buffer ? m_buffer->SRV() : nullptr;
 	}
 
-	aga::Buffer* ForwardLightBuffer::Resource()
+	agl::Buffer* ForwardLightBuffer::Resource()
 	{
 		return m_buffer;
 	}
 
-	const aga::Buffer* ForwardLightBuffer::Resource() const
+	const agl::Buffer* ForwardLightBuffer::Resource() const
 	{
 		return m_buffer;
 	}

@@ -1,10 +1,12 @@
 #pragma once
 
-enum USER_INPUT_CODE
+#include "SizedTypes.h"
+
+enum UserInputCode : uint8
 {
-	UIC_UNKNOWN = -1,
+	UIC_UNKNOWN = 0,
 	// Character Keys
-	UIC_A = 0,
+	UIC_A,
 	UIC_B,
 	UIC_C,
 	UIC_D,
@@ -139,6 +141,6 @@ struct UserInput
 		INPUT_AXIS_COUNT
 	};
 
-	USER_INPUT_CODE m_code = UIC_UNKNOWN;
+	UserInputCode m_code = UIC_UNKNOWN;
 	float m_axis[INPUT_AXIS_COUNT] = { 0.f, 0.f, 0.f };
 };

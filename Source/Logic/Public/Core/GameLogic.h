@@ -32,14 +32,6 @@ namespace rendercore
 class CGameObject;
 class GameClientViewport;
 
-enum RENDERABLE_TYPE
-{
-	OPAQUE_RENDERABLE = 0,
-	TRANSPARENT_RENDERABLE,
-	REFLECT_RENDERABLE,
-	RENDERABLE_TYPE_COUNT,
-};
-
 class CGameLogic : public ILogic
 {
 public:
@@ -100,8 +92,6 @@ private:
 	//CAtmosphericScatteringManager m_atmosphereManager;
 	//CModelManager m_modelManager;
 	rendercore::IRenderCore* m_pRenderCore = nullptr;
-
-	std::list<CGameObject*> m_renderableList[RENDERABLE_TYPE_COUNT];
 
 	//RE_HANDLE m_commonConstantBuffer[SHARED_CONSTANT_BUFFER::Count];
 

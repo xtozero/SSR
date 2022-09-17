@@ -23,8 +23,8 @@ namespace rendercore
 		void BootUp();
 		void Shutdown();
 
-		void SetShaderValue( SHADER_TYPE shader, uint32 offset, uint32 numBytes, const void* value );
-		void Commit( SHADER_TYPE shader );
+		void SetShaderValue( agl::ShaderType shader, uint32 offset, uint32 numBytes, const void* value );
+		void Commit( agl::ShaderType shader );
 		void CommitAll();
 
 		DefaultConstantBuffers() = default;
@@ -48,6 +48,6 @@ namespace rendercore
 			ConstantBuffer m_buffer;
 			unsigned char* m_dataStorage = nullptr;
 			uint32 m_invalidRangeEnd = 0;
-		} m_contexts[MAX_SHADER_TYPE<uint32>];
+		} m_contexts[agl::MAX_SHADER_TYPE<uint32>];
 	};
 }

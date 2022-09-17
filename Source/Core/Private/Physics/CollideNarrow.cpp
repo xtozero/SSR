@@ -5,6 +5,7 @@
 #include "BoundingSphere.h"
 #include "Contacts.h"
 #include "Frustum.h"
+#include "ICollider.h"
 #include "OrientedBox.h"
 
 #include <algorithm>
@@ -126,11 +127,11 @@ bool CollisionData::HasMoreContact() const
 	return m_contactsLeft > 0;
 }
 
-uint32 SphereAndSphere( const BoundingSphere& lhs, RigidBody* lhsBody, const BoundingSphere& rhs, RigidBody* rhsBody, CollisionData* data )
+CollisionResult SphereAndSphere( const BoundingSphere& lhs, RigidBody* lhsBody, const BoundingSphere& rhs, RigidBody* rhsBody, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	BoundingSphere lhsWS( lhsBody->GetTransform().TransformPosition( lhs.GetCenter() ), lhs.GetRadius());
@@ -144,7 +145,7 @@ uint32 SphereAndSphere( const BoundingSphere& lhs, RigidBody* lhsBody, const Bou
 
 	if ( size <= 0.f || size >= lhsWS.GetRadius() + rhsWS.GetRadius() )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	Vector normal = midline / size;
@@ -156,14 +157,14 @@ uint32 SphereAndSphere( const BoundingSphere& lhs, RigidBody* lhsBody, const Bou
 	contact->SetBodyData( lhsBody, rhsBody, data->m_friction, data->m_restitution );
 
 	data->AddContacts( 1 );
-	return COLLISION::INTERSECTION;
+	return CollisionResult::Intersection;
 }
 
-uint32 SphereAndHalfSpace( const BoundingSphere& sphere, RigidBody* sphereBody, const Plane& plane, CollisionData* data )
+CollisionResult SphereAndHalfSpace( const BoundingSphere& sphere, RigidBody* sphereBody, const Plane& plane, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	BoundingSphere sphereWS( sphereBody->GetTransform().TransformPosition( sphere.GetCenter() ), sphere.GetRadius() );
@@ -173,7 +174,7 @@ uint32 SphereAndHalfSpace( const BoundingSphere& sphere, RigidBody* sphereBody, 
 
 	if ( ballDistance >= 0 )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	Contact* contact = data->m_contacts;
@@ -184,14 +185,14 @@ uint32 SphereAndHalfSpace( const BoundingSphere& sphere, RigidBody* sphereBody, 
 	contact->SetBodyData( sphereBody, nullptr, data->m_friction, data->m_restitution );
 
 	data->AddContacts( 1 );
-	return COLLISION::INTERSECTION;
+	return CollisionResult::Intersection;
 }
 
-uint32 SphereAndTruePlane( const BoundingSphere& sphere, RigidBody* sphereBody, const Plane& plane, CollisionData* data )
+CollisionResult SphereAndTruePlane( const BoundingSphere& sphere, RigidBody* sphereBody, const Plane& plane, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	BoundingSphere sphereWS( sphereBody->GetTransform().TransformPosition( sphere.GetCenter() ), sphere.GetRadius() );
@@ -201,7 +202,7 @@ uint32 SphereAndTruePlane( const BoundingSphere& sphere, RigidBody* sphereBody, 
 
 	if ( centerDistance > sphereWS.GetRadius() )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	Vector normal = plane.GetNormal();
@@ -220,30 +221,30 @@ uint32 SphereAndTruePlane( const BoundingSphere& sphere, RigidBody* sphereBody, 
 	contact->SetBodyData( sphereBody, nullptr, data->m_friction, data->m_restitution );
 
 	data->AddContacts( 1 );
-	return COLLISION::INTERSECTION;
+	return CollisionResult::Intersection;
 }
 
-uint32 SphereAndFrusturm( const Point& origin, float radius, const Frustum& frustum )
+CollisionResult SphereAndFrusturm( const Point& origin, float radius, const Frustum& frustum )
 {
 	const Plane( &planes )[6] = frustum.GetPlanes();
 
-	bool inside = true;
+	bool intersection = true;
 
-	for ( uint32 i = 0; ( i < 6 ) && inside; i++ )
+	for ( uint32 i = 0; ( i < 6 ) && intersection; i++ )
 	{
-		inside = inside && ( ( planes[i].PlaneDot( origin ) + radius ) >= 0.f );
+		intersection = intersection && ( ( planes[i].PlaneDot( origin ) + radius ) >= 0.f );
 	}
 
-	return inside;
+	return intersection ? CollisionResult::Intersection : CollisionResult::Outside;
 }
 
-bool SphereAndFrusturm( const Point& origin, float radius, const Frustum& frustum, const Vector& sweepDir )
+CollisionResult SphereAndFrusturm( const Point& origin, float radius, const Frustum& frustum, const Vector& sweepDir )
 {
 	float displacement[12];
 	uint32 count = 0;
 	float t0 = -1;
 	float t1 = -1;
-	bool inFrustum = false;
+	bool intersection = false;
 
 	const Plane( &planes )[6] = frustum.GetPlanes();
 
@@ -266,18 +267,18 @@ bool SphereAndFrusturm( const Point& origin, float radius, const Frustum& frustu
 	{
 		float extendRadius = radius * 1.1f;
 		Point center( origin + sweepDir * displacement[i] );
-		uint32 result = SphereAndFrusturm( center, extendRadius, frustum );
-		inFrustum |= ( result > COLLISION::OUTSIDE );
+		CollisionResult result = SphereAndFrusturm( center, extendRadius, frustum );
+		intersection |= ( result > CollisionResult::Outside );
 	}
 
-	return inFrustum;
+	return intersection ? CollisionResult::Intersection : CollisionResult::Outside;
 }
 
-uint32 BoxAndHalfSpace( const AxisAlignedBox& box, RigidBody* boxBody, const Plane& plane, CollisionData* data )
+CollisionResult BoxAndHalfSpace( const AxisAlignedBox& box, RigidBody* boxBody, const Plane& plane, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	Vector point[8];
@@ -308,20 +309,20 @@ uint32 BoxAndHalfSpace( const AxisAlignedBox& box, RigidBody* boxBody, const Pla
 			++contactsUsed;
 			if ( contactsUsed == data->m_contactsLeft )
 			{
-				return contactsUsed;
+				return CollisionResult::Intersection;
 			}
 		}
 	}
 
 	data->AddContacts( contactsUsed );
-	return contactsUsed;
+	return ( contactsUsed > 0 ) ? CollisionResult::Intersection : CollisionResult::Outside;
 }
 
-uint32 BoxAndSphere( const AxisAlignedBox& box, RigidBody* boxBody, const BoundingSphere& sphere, RigidBody* sphereBody, CollisionData* data )
+CollisionResult BoxAndSphere( const AxisAlignedBox& box, RigidBody* boxBody, const BoundingSphere& sphere, RigidBody* sphereBody, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	Vector point[8];
@@ -334,9 +335,9 @@ uint32 BoxAndSphere( const AxisAlignedBox& box, RigidBody* boxBody, const Boundi
 
 	BoundingSphere boxSphere( boxWS );
 
-	if ( boxSphere.Intersect( sphere ) == COLLISION::OUTSIDE )
+	if ( boxSphere.Intersect( sphere ) == CollisionResult::Outside )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	const Point& center = sphere.GetCenter();
@@ -374,7 +375,7 @@ uint32 BoxAndSphere( const AxisAlignedBox& box, RigidBody* boxBody, const Boundi
 	float dist = ( closestPoint - center ).LengthSqrt();
 	if ( dist > sphere.GetRadius() * sphere.GetRadius() )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	Contact* contact = data->m_contacts;
@@ -384,14 +385,14 @@ uint32 BoxAndSphere( const AxisAlignedBox& box, RigidBody* boxBody, const Boundi
 	contact->SetBodyData( boxBody, sphereBody, data->m_friction, data->m_restitution );
 
 	data->AddContacts( 1 );
-	return COLLISION::INTERSECTION;
+	return CollisionResult::Intersection;
 }
 
-uint32 BoxAndSphere( const OrientedBox& box, RigidBody* boxBody, const BoundingSphere& sphere, RigidBody* sphereBody, CollisionData* data )
+CollisionResult BoxAndSphere( const OrientedBox& box, RigidBody* boxBody, const BoundingSphere& sphere, RigidBody* sphereBody, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	OrientedBox boxWS( box.GetHalfSize(), boxBody->GetTransform() * box.GetTransform() );
@@ -406,7 +407,7 @@ uint32 BoxAndSphere( const OrientedBox& box, RigidBody* boxBody, const BoundingS
 		fabsf( relCentre.y ) - radius > halfSize.y ||
 		fabsf( relCentre.z ) - radius > halfSize.z )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	Point closestPoint( relCentre );
@@ -441,7 +442,7 @@ uint32 BoxAndSphere( const OrientedBox& box, RigidBody* boxBody, const BoundingS
 	float dist = ( closestPoint - relCentre ).LengthSqrt();
 	if ( dist > ( sphereWS.GetRadius() * sphereWS.GetRadius() ) )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	closestPoint = boxWS.GetTransform().TransformPosition( closestPoint );
@@ -453,14 +454,14 @@ uint32 BoxAndSphere( const OrientedBox& box, RigidBody* boxBody, const BoundingS
 	contact->SetBodyData( boxBody, sphereBody, data->m_friction, data->m_restitution );
 
 	data->AddContacts( 1 );
-	return COLLISION::INTERSECTION;
+	return CollisionResult::Intersection;
 }
 
-uint32 BoxAndBox( const AxisAlignedBox& lhs, RigidBody* lhsBody, const AxisAlignedBox& rhs, RigidBody* rhsBody, CollisionData* data )
+CollisionResult BoxAndBox( const AxisAlignedBox& lhs, RigidBody* lhsBody, const AxisAlignedBox& rhs, RigidBody* rhsBody, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	Vector point[8];
@@ -478,9 +479,9 @@ uint32 BoxAndBox( const AxisAlignedBox& lhs, RigidBody* lhsBody, const AxisAlign
 
 	AxisAlignedBox rhsWS( point, std::extent_v<decltype( point )> );
 
-	if ( lhsWS.Intersect( rhsWS ) == COLLISION::OUTSIDE )
+	if ( lhsWS.Intersect( rhsWS ) == CollisionResult::Outside )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	const Point& lhsMin = lhsWS.GetMin();
@@ -545,14 +546,14 @@ uint32 BoxAndBox( const AxisAlignedBox& lhs, RigidBody* lhsBody, const AxisAlign
 	contact->SetBodyData( lhsBody, rhsBody, data->m_friction, data->m_restitution );
 
 	data->AddContacts( 1 );
-	return COLLISION::INTERSECTION;
+	return CollisionResult::Intersection;
 }
 
-uint32 BoxAndBox( const OrientedBox& lhs, RigidBody* lhsBody, const OrientedBox& rhs, RigidBody* rhsBody, CollisionData* data )
+CollisionResult BoxAndBox( const OrientedBox& lhs, RigidBody* lhsBody, const OrientedBox& rhs, RigidBody* rhsBody, CollisionData* data )
 {
 	if ( data->m_contactsLeft <= 0 )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	OrientedBox lhsWS( lhs.GetHalfSize(), lhsBody->GetTransform() * lhs.GetTransform());
@@ -565,92 +566,92 @@ uint32 BoxAndBox( const OrientedBox& lhs, RigidBody* lhsBody, const OrientedBox&
 
 	if ( TryAxis( lhsWS, rhsWS, lhsWS.GetAxisVector( 0 ), toCentre, 0, pen, best ) == false )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	if ( TryAxis( lhsWS, rhsWS, lhsWS.GetAxisVector( 1 ), toCentre, 1, pen, best ) == false )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	if ( TryAxis( lhsWS, rhsWS, lhsWS.GetAxisVector( 2 ), toCentre, 2, pen, best ) == false )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	if ( TryAxis( lhsWS, rhsWS, rhsWS.GetAxisVector( 0 ), toCentre, 3, pen, best ) == false )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	if ( TryAxis( lhsWS, rhsWS, rhsWS.GetAxisVector( 1 ), toCentre, 4, pen, best ) == false )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	if ( TryAxis( lhsWS, rhsWS, rhsWS.GetAxisVector( 2 ), toCentre, 5, pen, best ) == false )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	uint32 bestSingleAxis = best;
 
 	if ( TryAxis( lhsWS, rhsWS, ( lhsWS.GetAxisVector( 0 ) ^ rhsWS.GetAxisVector( 0 ) ).GetNormalized(), toCentre, 6, pen, best ) == false )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	if ( TryAxis( lhsWS, rhsWS, ( lhsWS.GetAxisVector( 0 ) ^ rhsWS.GetAxisVector( 1 ) ).GetNormalized(), toCentre, 7, pen, best ) == false )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	if ( TryAxis( lhsWS, rhsWS, ( lhsWS.GetAxisVector( 0 ) ^ rhsWS.GetAxisVector( 2 ) ).GetNormalized(), toCentre, 8, pen, best ) == false )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	if ( TryAxis( lhsWS, rhsWS, ( lhsWS.GetAxisVector( 1 ) ^ rhsWS.GetAxisVector( 0 ) ).GetNormalized(), toCentre, 9, pen, best ) == false )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	if ( TryAxis( lhsWS, rhsWS, ( lhsWS.GetAxisVector( 1 ) ^ rhsWS.GetAxisVector( 1 ) ).GetNormalized(), toCentre, 10, pen, best ) == false )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	if ( TryAxis( lhsWS, rhsWS, ( lhsWS.GetAxisVector( 1 ) ^ rhsWS.GetAxisVector( 2 ) ).GetNormalized(), toCentre, 11, pen, best ) == false )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	if ( TryAxis( lhsWS, rhsWS, ( lhsWS.GetAxisVector( 2 ) ^ rhsWS.GetAxisVector( 0 ) ).GetNormalized(), toCentre, 12, pen, best ) == false )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	if ( TryAxis( lhsWS, rhsWS, ( lhsWS.GetAxisVector( 2 ) ^ rhsWS.GetAxisVector( 1 ) ).GetNormalized(), toCentre, 13, pen, best ) == false )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	if ( TryAxis( lhsWS, rhsWS, ( lhsWS.GetAxisVector( 2 ) ^ rhsWS.GetAxisVector( 2 ) ).GetNormalized(), toCentre, 14, pen, best ) == false )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
 	if ( best < 3 )
 	{
 		FillPointFaceBoxBox( lhsWS, lhsBody, rhsWS, rhsBody, toCentre, data, best, pen );
 		data->AddContacts( 1 );
-		return COLLISION::INTERSECTION;
+		return CollisionResult::Intersection;
 	}
 	else if ( best < 6 )
 	{
 		FillPointFaceBoxBox( rhsWS, rhsBody, lhsWS, lhsBody, -toCentre, data, best - 3, pen );
 		data->AddContacts( 1 );
-		return COLLISION::INTERSECTION;
+		return CollisionResult::Intersection;
 	}
 	else
 	{
@@ -704,23 +705,23 @@ uint32 BoxAndBox( const OrientedBox& lhs, RigidBody* lhsBody, const OrientedBox&
 		contact->SetContactPoint( vertex );
 		contact->SetBodyData( lhsBody, rhsBody, data->m_friction, data->m_restitution );
 		data->AddContacts( 1 );
-		return COLLISION::INTERSECTION;
+		return CollisionResult::Intersection;
 	}
 }
 
-uint32 BoxAndBox( const AxisAlignedBox& lhs, RigidBody* lhsBody, const OrientedBox& rhs, RigidBody* rhsBody, CollisionData* data )
+CollisionResult BoxAndBox( const AxisAlignedBox& lhs, RigidBody* lhsBody, const OrientedBox& rhs, RigidBody* rhsBody, CollisionData* data )
 {
 	OrientedBox lhsOBB( lhs );
 
 	return BoxAndBox( lhsOBB, lhsBody, rhs, rhsBody, data );
 }
 
-uint32 BoxAndFrustum( const Point& min, const Point& max, const Frustum& frustum )
+CollisionResult BoxAndFrustum( const Point& min, const Point& max, const Frustum& frustum )
 {
 	const Frustum::LookUpTable& lut = frustum.GetVertexLUT();
 	const Plane( &planes )[6] = frustum.GetPlanes();
 
-	uint32 result = COLLISION::INSIDE;
+	CollisionResult result = CollisionResult::Inside;
 	for ( uint32 i = 0; i < 6; ++i )
 	{
 		Vector p( ( lut[i] & Frustum::X_MAX ) ? max.x : min.x, ( lut[i] & Frustum::Y_MAX ) ? max.y : min.y, ( lut[i] & Frustum::Z_MAX ) ? max.z : min.z );
@@ -728,12 +729,12 @@ uint32 BoxAndFrustum( const Point& min, const Point& max, const Frustum& frustum
 
 		if ( planes[i].PlaneDot( p ) < 0 )
 		{
-			return COLLISION::OUTSIDE;
+			return CollisionResult::Outside;
 		}
 
 		if ( planes[i].PlaneDot( n ) < 0 )
 		{
-			result = COLLISION::INTERSECTION;
+			result = CollisionResult::Intersection;
 		}
 	}
 

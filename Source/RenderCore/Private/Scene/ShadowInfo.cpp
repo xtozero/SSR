@@ -58,7 +58,7 @@ namespace rendercore
 	{
 		ShadowDepthPassParameters params = {};
 		LightProperty lightProperty = m_lightSceneInfo->Proxy()->GetLightProperty();
-		params.m_lightPosOrDir = ( lightProperty.m_type == LIGHT_TYPE::DIRECTINAL_LIGHT ) ? Vector4( lightProperty.m_direction ) : lightProperty.m_position;
+		params.m_lightPosOrDir = ( lightProperty.m_type == LightType::Directional ) ? Vector4( lightProperty.m_direction ) : lightProperty.m_position;
 		params.m_slopeBiasScale = 0.2f;
 		params.m_constantBias = 0.05f;
 

@@ -3,6 +3,7 @@
 #include "common.h"
 #include "Math/Vector.h"
 #include "Math/Vector4.h"
+#include "SizedTypes.h"
 
 class BoxSphereBounds;
 class DirectionalLightComponent;
@@ -16,17 +17,17 @@ namespace rendercore
 
 	struct RenderView;
 
-	enum class LIGHT_TYPE
+	enum class LightType : uint8
 	{
-		NONE = -1,
-		DIRECTINAL_LIGHT,
-		POINT_LIGHT,
-		SPOT_LIGHT
+		None = 0,
+		Directional,
+		Point,
+		Spot
 	};
 
 	struct LightProperty
 	{
-		LIGHT_TYPE				m_type = LIGHT_TYPE::NONE;
+		LightType				m_type = LightType::None;
 		float					m_theta = 0.f;
 		float					m_phi = 0.f;
 		Vector					m_direction;
@@ -41,7 +42,7 @@ namespace rendercore
 	class LightProxy
 	{
 	public:
-		virtual LIGHT_TYPE LightType() const = 0;
+		virtual LightType GetLightType() const = 0;
 		virtual LightProperty GetLightProperty() const = 0;
 		virtual bool AffactsBounds( const BoxSphereBounds& bounds ) const = 0;
 
@@ -82,9 +83,9 @@ namespace rendercore
 	class DirectionalLightProxy : public LightProxy
 	{
 	public:
-		virtual LIGHT_TYPE LightType() const override
+		virtual LightType GetLightType() const override
 		{
-			return LIGHT_TYPE::DIRECTINAL_LIGHT;
+			return LightType::Directional;
 		}
 
 		virtual LightProperty GetLightProperty() const override;

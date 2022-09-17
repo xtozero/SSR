@@ -13,13 +13,13 @@ namespace rendercore
 	struct RenderTargetBlendOption
 	{
 		bool m_blendEnable = false;
-		BLEND m_srcBlend = BLEND::ONE;
-		BLEND m_destBlend = BLEND::ZERO;
-		BLEND_OP m_blendOp = BLEND_OP::ADD;
-		BLEND m_srcBlendAlpha = BLEND::ONE;
-		BLEND m_destBlendAlpha = BLEND::ZERO;
-		BLEND_OP m_blendOpAlpha = BLEND_OP::ADD;
-		COLOR_WRITE_ENABLE m_renderTargetWriteMask = COLOR_WRITE_ENABLE::ALL;
+		agl::Blend m_srcBlend = agl::Blend::One;
+		agl::Blend m_destBlend = agl::Blend::Zero;
+		agl::BlendOp m_blendOp = agl::BlendOp::Add;
+		agl::Blend m_srcBlendAlpha = agl::Blend::One;
+		agl::Blend m_destBlendAlpha = agl::Blend::Zero;
+		agl::BlendOp m_blendOpAlpha = agl::BlendOp::Add;
+		agl::ColorWriteEnable m_renderTargetWriteMask = agl::ColorWriteEnable::All;
 
 		friend bool operator==( const RenderTargetBlendOption& lhs, const RenderTargetBlendOption& rhs )
 		{
@@ -118,7 +118,7 @@ namespace rendercore
 	{
 		bool m_enable = true;
 		bool m_writeDepth = true;
-		COMPARISON_FUNC m_depthFunc = COMPARISON_FUNC::LESS;
+		agl::ComparisonFunc m_depthFunc = agl::ComparisonFunc::Less;
 
 		friend bool operator==( const DepthOption& lhs, const DepthOption& rhs )
 		{
@@ -149,14 +149,14 @@ namespace rendercore
 		bool m_enable = false;
 		unsigned char m_readMask = 255;
 		unsigned char m_writeMask = 255;
-		STENCIL_OP_TRAIT m_frontFace = { STENCIL_OP::KEEP,
-										STENCIL_OP::KEEP,
-										STENCIL_OP::KEEP,
-										COMPARISON_FUNC::ALWAYS };
-		STENCIL_OP_TRAIT m_backFace = { STENCIL_OP::KEEP,
-										STENCIL_OP::KEEP,
-										STENCIL_OP::KEEP,
-										COMPARISON_FUNC::ALWAYS };
+		agl::STENCIL_OP_TRAIT m_frontFace = { agl::StencilOp::Keep,
+											agl::StencilOp::Keep,
+											agl::StencilOp::Keep,
+											agl::ComparisonFunc::Always };
+		agl::STENCIL_OP_TRAIT m_backFace = { agl::StencilOp::Keep,
+											agl::StencilOp::Keep,
+											agl::StencilOp::Keep,
+											agl::ComparisonFunc::Always };
 		uint32 m_ref = 0;
 
 		friend bool operator==( const StencilOption& lhs, const StencilOption& rhs )
@@ -252,7 +252,7 @@ namespace rendercore
 		bool m_isWireframe = false;
 
 		PROPERTY( cullMode )
-		CULL_MODE m_cullMode = CULL_MODE::BACK;
+		agl::CullMode m_cullMode = agl::CullMode::Back;
 
 		PROPERTY( counterClockwise )
 		bool m_counterClockwise = false;
@@ -312,22 +312,22 @@ namespace rendercore
 		}
 
 		PROPERTY( filter )
-		uint32 m_filter = TEXTURE_FILTER::MIN_LINEAR | TEXTURE_FILTER::MAG_LINEAR | TEXTURE_FILTER::MIP_LINEAR;
+		agl::TextureFilter m_filter = agl::TextureFilter::MinLinear | agl::TextureFilter::MagLinear | agl::TextureFilter::MipLinear;
 
 		PROPERTY( addressU )
-		TEXTURE_ADDRESS_MODE m_addressU = TEXTURE_ADDRESS_MODE::CLAMP;
+		agl::TextureAddressMode m_addressU = agl::TextureAddressMode::Clamp;
 
 		PROPERTY( addressV )
-		TEXTURE_ADDRESS_MODE m_addressV = TEXTURE_ADDRESS_MODE::CLAMP;
+		agl::TextureAddressMode m_addressV = agl::TextureAddressMode::Clamp;
 
 		PROPERTY( addressW )
-		TEXTURE_ADDRESS_MODE m_addressW = TEXTURE_ADDRESS_MODE::CLAMP;
+		agl::TextureAddressMode m_addressW = agl::TextureAddressMode::Clamp;
 
 		PROPERTY( mipLODBias )
 		float m_mipLODBias = 0.f;
 
 		PROPERTY( comparisonFunc )
-		COMPARISON_FUNC m_comparisonFunc = COMPARISON_FUNC::NEVER;
+		agl::ComparisonFunc m_comparisonFunc = agl::ComparisonFunc::Never;
 
 	protected:
 		RENDERCORE_DLL virtual void PostLoadImpl() override;

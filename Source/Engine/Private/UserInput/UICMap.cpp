@@ -117,7 +117,7 @@ void UICMap::Initialize( )
 	REGISTER_ENUM_STRING( UIC_MOUSE_MIDDLE );
 }
 
-USER_INPUT_CODE UICMap::Convert( uint32 code )
+UserInputCode UICMap::Convert( uint32 code )
 {
 	auto found = std::lower_bound( m_codeMap.begin( ), m_codeMap.end( ), code,
 		[]( const CodePair& codePair, uint32 code )
@@ -167,7 +167,7 @@ bool UICMap::LoadConfig( const char* fileName )
 
 void UICMap::LoadKeyCode( const char* uicAsset, size_t assetSize )
 {
-	JSON::Value root( JSON::DataType::EMPTY );
+	JSON::Value root( JSON::DataType::Empty );
 	JSON::Reader reader;
 
 	if ( reader.Parse( uicAsset, assetSize, root ) )

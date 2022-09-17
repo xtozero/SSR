@@ -48,7 +48,7 @@ namespace COLLISION_UTIL
 		return collider.Intersect( ray );
 	}
 
-	uint32 DetectCollisionObjectAndObject( const ICollider* lhsCollider, RigidBody* lhsBody, const ICollider* rhsCollider, RigidBody* rhsBody, CollisionData* data )
+	CollisionResult DetectCollisionObjectAndObject( const ICollider* lhsCollider, RigidBody* lhsBody, const ICollider* rhsCollider, RigidBody* rhsBody, CollisionData* data )
 	{
 		Collider lhsType = lhsCollider->GetType();
 		Collider rhsType = rhsCollider->GetType();
@@ -106,7 +106,7 @@ namespace COLLISION_UTIL
 			}
 		}
 
-		return 0;
+		return CollisionResult::Outside;
 	}
 
 	Matrix3X3 CalcInertiaTensor( const ICollider* collider, float mass )

@@ -8,7 +8,7 @@ class CGameObject;
 class Component;
 class World;
 
-enum class ThinkingGroup
+enum class ThinkingGroup : uint8
 {
 	PrePhysics = 0,
 	StartPhysics,

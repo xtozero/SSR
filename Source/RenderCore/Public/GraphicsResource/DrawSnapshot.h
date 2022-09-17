@@ -18,7 +18,7 @@ namespace rendercore
 	class RenderViewGroup;
 	class SceneRenderer;
 
-	enum class RenderPass;
+	enum class RenderPass : uint8;
 
 	class PrimitiveIdVertexBufferPool
 	{
@@ -50,7 +50,7 @@ namespace rendercore
 
 		IndexBuffer m_indexBuffer;
 
-		aga::ShaderBindings m_shaderBindings;
+		agl::ShaderBindings m_shaderBindings;
 
 		// Pipeline State
 		GraphicsPipelineState m_pipelineState;
@@ -128,7 +128,7 @@ namespace rendercore
 			static size_t typeHash = typeid( DrawSnapshotDynamicInstancingHasher ).hash_code();
 			size_t hash = typeHash;
 
-			const aga::Buffer* const* vertexBuffers = ds.m_vertexStream.VertexBuffers();
+			const agl::Buffer* const* vertexBuffers = ds.m_vertexStream.VertexBuffers();
 			const uint32* const offsets = ds.m_vertexStream.Offsets();
 			for ( uint32 i = 0; i < ds.m_vertexStream.NumBuffer(); ++i )
 			{
@@ -201,12 +201,12 @@ namespace rendercore
 		}
 
 		uint32 numVB = vertexStream.NumBuffer();
-		aga::Buffer* const* vertexBuffers = vertexStream.VertexBuffers();
+		agl::Buffer* const* vertexBuffers = vertexStream.VertexBuffers();
 		const uint32* vertexOffsets = vertexStream.Offsets();
 		commandList.BindVertexBuffer( vertexBuffers, 0, numVB, vertexOffsets );
 
 		// Set index buffer
-		aga::Buffer* indexBuffer = snapshot.m_indexBuffer.Resource();
+		agl::Buffer* indexBuffer = snapshot.m_indexBuffer.Resource();
 		commandList.BindIndexBuffer( indexBuffer, 0 );
 
 		// Set pipeline state

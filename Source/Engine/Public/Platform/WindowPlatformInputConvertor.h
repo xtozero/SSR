@@ -14,7 +14,7 @@ class WindowPlatformInputMap
 public:
 	bool Initialize( );
 
-	USER_INPUT_CODE Convert( uint32 code )
+	UserInputCode Convert( uint32 code )
 	{
 		return m_userInputMap.Convert( code );
 	}

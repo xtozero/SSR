@@ -53,18 +53,18 @@ float BoundingSphere::Intersect( const CRay& ray ) const
 	return RayAndSphere( ray.GetOrigin(), ray.GetDir(), m_origin, m_radius );
 }
 
-uint32 BoundingSphere::Intersect( const Frustum& frustum ) const
+CollisionResult BoundingSphere::Intersect( const Frustum& frustum ) const
 {
 	const Plane( &planes )[6] = frustum.GetPlanes();
 
-	bool inside = true;
+	bool intersection = true;
 
-	for ( uint32 i = 0; ( i < 6 ) && inside; i++ )
+	for ( uint32 i = 0; ( i < 6 ) && intersection; i++ )
 	{
-		inside = inside && ( ( planes[i].PlaneDot( m_origin ) + m_radius ) >= 0.f );
+		intersection = intersection && ( ( planes[i].PlaneDot( m_origin ) + m_radius ) >= 0.f );
 	}
 
-	return inside;
+	return intersection ? CollisionResult::Intersection : CollisionResult::Outside;
 }
 
 BoxSphereBounds BoundingSphere::Bounds() const
@@ -77,11 +77,11 @@ Collider BoundingSphere::GetType() const
 	return Collider::Sphere;
 }
 
-uint32 BoundingSphere::Intersect( const BoundingSphere& sphere ) const
+CollisionResult BoundingSphere::Intersect( const BoundingSphere& sphere ) const
 {
 	float distance = ( m_origin - sphere.m_origin ).LengthSqrt();
 
-	return ( distance < ( m_radius + sphere.m_radius ) * ( m_radius + sphere.m_radius ) ) ? 1 : 0;
+	return ( distance <= ( m_radius + sphere.m_radius ) * ( m_radius + sphere.m_radius ) ) ? CollisionResult::Intersection : CollisionResult::Outside;
 }
 
 float BoundingSphere::CalcGrowth( const BoundingSphere& sphere ) const
@@ -125,7 +125,7 @@ bool BoundingSphere::Intersect( const Frustum& frustum, const Vector& sweepDir )
 		Vector center( m_origin );
 		center += sweepDir * displacement[i];
 		BoundingSphere sphere( center, radius );
-		inFrustum |= ( sphere.Intersect( frustum ) > COLLISION::OUTSIDE );
+		inFrustum |= ( sphere.Intersect( frustum ) > CollisionResult::Outside );
 	}
 
 	return inFrustum;

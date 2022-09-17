@@ -31,7 +31,7 @@ public:
 
 	virtual size_t GetThisThreadType() const override;
 
-	[[nodiscard]] TaskHandle GetExclusiveTaskGroup( size_t threadType );
+	[[nodiscard]] TaskHandle GetExclusiveTaskGroup( ThreadType threadType );
 
 	TaskSchedulerImpl();
 	~TaskSchedulerImpl() = default;
@@ -71,15 +71,15 @@ size_t TaskSchedulerImpl::GetThisThreadType() const
 	return m_taskScheduler.GetThisThreadType();
 }
 
-TaskHandle TaskSchedulerImpl::GetExclusiveTaskGroup( size_t threadType )
+TaskHandle TaskSchedulerImpl::GetExclusiveTaskGroup( ThreadType threadType )
 {
-	return m_taskScheduler.GetExclusiveTaskGroup( threadType );
+	return m_taskScheduler.GetExclusiveTaskGroup( static_cast<size_t>( threadType ) );
 }
 
-TaskSchedulerImpl::TaskSchedulerImpl() : m_taskScheduler( MAX_ENGINE_THREAD_GROUP, ThreadType::WorkerThreadCount )
+TaskSchedulerImpl::TaskSchedulerImpl() : m_taskScheduler( MAX_ENGINE_THREAD_GROUP, static_cast<size_t>( ThreadType::WorkerThreadCount ) )
 { 
-	static_assert( ( ThreadType::WorkerThreadCount + 1 ) == std::extent_v<decltype( WorkerNames )> );
-	for ( uint32 i = 0; i < ThreadType::WorkerThreadCount; ++i )
+	static_assert( ( static_cast<uint32>( ThreadType::WorkerThreadCount ) + 1 ) == std::extent_v<decltype( WorkerNames )> );
+	for ( uint32 i = 0; i < static_cast<uint32>( ThreadType::WorkerThreadCount ); ++i )
 	{
 		m_taskScheduler.SetWorkerNameForDebugging( i, WorkerNames[i] );
 	}
@@ -99,7 +99,7 @@ bool IsInGameThread()
 {
 	if ( GetInterface<ITaskScheduler>() )
 	{
-		return GetInterface<ITaskScheduler>()->GetThisThreadType() == ThreadType::GameThread;
+		return static_cast<ThreadType>( GetInterface<ITaskScheduler>()->GetThisThreadType() ) == ThreadType::GameThread;
 	}
 
 	return true;
@@ -107,7 +107,7 @@ bool IsInGameThread()
 
 bool IsInRenderThread()
 {
-	return GetInterface<ITaskScheduler>()->GetThisThreadType() == ThreadType::RenderThread;
+	return static_cast<ThreadType>( GetInterface<ITaskScheduler>()->GetThisThreadType() ) == ThreadType::RenderThread;
 }
 
 void EnqueueRenderTask( TaskBase* task )

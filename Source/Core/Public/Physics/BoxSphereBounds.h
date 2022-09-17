@@ -5,6 +5,8 @@
 #include "Math/Matrix.h"
 #include "Math/Vector.h"
 
+enum class CollisionResult : uint8;
+
 class BoxSphereBounds
 {
 public:
@@ -21,7 +23,7 @@ public:
 
 	BoxSphereBounds TransformBy( const Matrix& m ) const;
 
-	uint32 Overlapped( const BoxSphereBounds& other ) const;
+	CollisionResult Overlapped( const BoxSphereBounds& other ) const;
 
 	BoxSphereBounds() = default;
 	BoxSphereBounds( const Vector& origin, const Vector& halfSize, float radius ) : m_origin( origin ), m_halfSize( halfSize ), m_radius( radius ) {}

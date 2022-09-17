@@ -23,19 +23,19 @@ namespace rendercore
 	}
 
 	REGISTER_ASSET( VertexShader );
-	aga::VertexShader* VertexShader::Resource()
+	agl::VertexShader* VertexShader::Resource()
 	{
 		return m_shader.Get();
 	}
 
-	const aga::VertexShader* VertexShader::Resource() const
+	const agl::VertexShader* VertexShader::Resource() const
 	{
 		return m_shader.Get();
 	}
 
 	void VertexShader::CreateShader()
 	{
-		m_shader = aga::VertexShader::Create( m_byteCode.Data(), m_byteCode.Size() );
+		m_shader = agl::VertexShader::Create( m_byteCode.Data(), m_byteCode.Size() );
 		EnqueueRenderTask(
 			[shader = m_shader]()
 			{
@@ -44,19 +44,19 @@ namespace rendercore
 	}
 
 	REGISTER_ASSET( GeometryShader );
-	aga::GeometryShader* GeometryShader::Resource()
+	agl::GeometryShader* GeometryShader::Resource()
 	{
 		return m_shader.Get();
 	}
 
-	const aga::GeometryShader* GeometryShader::Resource() const
+	const agl::GeometryShader* GeometryShader::Resource() const
 	{
 		return m_shader.Get();
 	}
 
 	void GeometryShader::CreateShader()
 	{
-		m_shader = aga::GeometryShader::Create( m_byteCode.Data(), m_byteCode.Size() );
+		m_shader = agl::GeometryShader::Create( m_byteCode.Data(), m_byteCode.Size() );
 		EnqueueRenderTask(
 			[shader = m_shader]()
 			{
@@ -66,19 +66,19 @@ namespace rendercore
 
 
 	REGISTER_ASSET( PixelShader );
-	aga::PixelShader* PixelShader::Resource()
+	agl::PixelShader* PixelShader::Resource()
 	{
 		return m_shader.Get();
 	}
 
-	const aga::PixelShader* PixelShader::Resource() const
+	const agl::PixelShader* PixelShader::Resource() const
 	{
 		return m_shader.Get();
 	}
 
 	void PixelShader::CreateShader()
 	{
-		m_shader = aga::PixelShader::Create( m_byteCode.Data(), m_byteCode.Size() );
+		m_shader = agl::PixelShader::Create( m_byteCode.Data(), m_byteCode.Size() );
 		EnqueueRenderTask(
 			[shader = m_shader]()
 			{
@@ -87,19 +87,19 @@ namespace rendercore
 	}
 
 	REGISTER_ASSET( ComputeShader );
-	aga::ComputeShader* ComputeShader::Resource()
+	agl::ComputeShader* ComputeShader::Resource()
 	{
 		return m_shader.Get();
 	}
 
-	const aga::ComputeShader* ComputeShader::Resource() const
+	const agl::ComputeShader* ComputeShader::Resource() const
 	{
 		return m_shader.Get();
 	}
 
 	void ComputeShader::CreateShader()
 	{
-		m_shader = aga::ComputeShader::Create( m_byteCode.Data(), m_byteCode.Size() );
+		m_shader = agl::ComputeShader::Create( m_byteCode.Data(), m_byteCode.Size() );
 		EnqueueRenderTask(
 			[shader = m_shader]()
 			{

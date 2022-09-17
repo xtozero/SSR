@@ -9,14 +9,14 @@
 
 namespace rendercore
 {
-	DEVICE_ERROR Viewport::Present( bool vSync )
+	agl::DeviceError Viewport::Present( bool vSync )
 	{
 		if ( m_pViewport.Get() )
 		{
 			return m_pViewport->Present( vSync );
 		}
 
-		return DEVICE_ERROR::DEVICE_LOST;
+		return agl::DeviceError::DeviceLost;
 	}
 
 	void Viewport::Clear( const float( &color )[4] )
@@ -27,7 +27,7 @@ namespace rendercore
 		}
 	}
 
-	void Viewport::Bind( aga::ICommandList& commandList ) const
+	void Viewport::Bind( agl::ICommandList& commandList ) const
 	{
 		if ( m_pViewport.Get() )
 		{
@@ -63,7 +63,7 @@ namespace rendercore
 		}
 	}
 
-	aga::Texture* Viewport::Texture()
+	agl::Texture* Viewport::Texture()
 	{
 		if ( m_pViewport.Get() )
 		{
@@ -73,9 +73,9 @@ namespace rendercore
 		return nullptr;
 	}
 
-	Viewport::Viewport( uint32 width, uint32 height, HWND hWnd, RESOURCE_FORMAT format )
+	Viewport::Viewport( uint32 width, uint32 height, HWND hWnd, agl::ResourceFormat format )
 	{
-		m_pViewport = aga::Viewport::Create( width, height, hWnd, format );
+		m_pViewport = agl::Viewport::Create( width, height, hWnd, format );
 		EnqueueRenderTask(
 			[viewport = m_pViewport]()
 			{

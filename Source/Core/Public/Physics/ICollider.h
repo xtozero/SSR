@@ -12,17 +12,14 @@ struct MeshData;
 struct Quaternion;
 struct Vector;
 
-namespace COLLISION
+enum class CollisionResult : uint8
 {
-	enum TYPE
-	{
-		OUTSIDE = 0,
-		INSIDE,
-		INTERSECTION,
-	};
-}
+	Outside = 0,
+	Inside,
+	Intersection,
+};
 
-enum class Collider
+enum class Collider : int8
 {
 	None = -1,
 	Sphere,
@@ -36,7 +33,7 @@ class ICollider
 public:
 	virtual void Update( const Vector& scaling, const Quaternion& rotation, const Vector& translation, ICollider* original ) = 0;
 	virtual float Intersect( const CRay& ray ) const = 0;
-	virtual uint32 Intersect( const Frustum& frustum ) const = 0;
+	virtual CollisionResult Intersect( const Frustum& frustum ) const = 0;
 	virtual BoxSphereBounds Bounds() const = 0;
 	virtual Collider GetType() const = 0;
 

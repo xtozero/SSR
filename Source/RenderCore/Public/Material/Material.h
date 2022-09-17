@@ -21,7 +21,7 @@ namespace rendercore
 {
 	class MaterialResource;
 
-	enum class MaterialPropertyType
+	enum class MaterialPropertyType : uint8
 	{
 		Float = 0,
 		Float4,
@@ -154,7 +154,7 @@ namespace rendercore
 			return m_name;
 		}
 
-		const ShaderBase* GetShader( SHADER_TYPE type ) const;
+		const ShaderBase* GetShader( agl::ShaderType type ) const;
 
 		RENDERCORE_DLL void SetVertexShader( const std::shared_ptr<VertexShader>& vertexshader );
 		const VertexShader* GetVertexShader() const;
@@ -185,12 +185,12 @@ namespace rendercore
 		Name m_name;
 
 		PROPERTY( shaders )
-		std::shared_ptr<ShaderBase> m_shaders[MAX_SHADER_TYPE<uint32>];
+		std::shared_ptr<ShaderBase> m_shaders[agl::MAX_SHADER_TYPE<uint32>];
 
-		StaticShaderSwitches m_shaderSwitches[MAX_SHADER_TYPE<uint32>];
+		StaticShaderSwitches m_shaderSwitches[agl::MAX_SHADER_TYPE<uint32>];
 
 		PROPERTY( defines )
-		std::vector<std::pair<Name, int32>> m_defines[MAX_SHADER_TYPE<uint32>];
+		std::vector<std::pair<Name, int32>> m_defines[agl::MAX_SHADER_TYPE<uint32>];
 
 		std::map<Name, std::unique_ptr<MaterialProperty>> m_properties;
 

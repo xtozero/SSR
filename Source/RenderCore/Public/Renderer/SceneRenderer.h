@@ -12,10 +12,9 @@
 #include <map>
 #include <string>
 
-class GraphicsApiResource;
-
-namespace aga
+namespace agl
 {
+	class GraphicsApiResource;
 	class ShaderBindings;
 	class ICommandList;
 }
@@ -31,22 +30,22 @@ namespace rendercore
 	class RenderingShaderResource
 	{
 	public:
-		void BindResources( const ShaderStates& shaders, aga::ShaderBindings& bindings );
-		void AddResource( const std::string& parameterName, GraphicsApiResource* resource );
+		void BindResources( const ShaderStates& shaders, agl::ShaderBindings& bindings );
+		void AddResource( const std::string& parameterName, agl::GraphicsApiResource* resource );
 		void ClearResources();
 
 	private:
 		std::vector<Name> m_parameterNames;
-		std::vector<GraphicsApiResource*> m_resources;
+		std::vector<agl::GraphicsApiResource*> m_resources;
 	};
 
 	struct RenderingOutputContext
 	{
-		aga::RefHandle<aga::Texture> m_renderTargets[MAX_RENDER_TARGET] = {};
-		aga::RefHandle<aga::Texture> m_depthStencil;
+		agl::RefHandle<agl::Texture> m_renderTargets[agl::MAX_RENDER_TARGET] = {};
+		agl::RefHandle<agl::Texture> m_depthStencil;
 
-		CubeArea<float> m_viewport;
-		RectangleArea<int32> m_scissorRects;
+		agl::CubeArea<float> m_viewport;
+		agl::RectangleArea<int32> m_scissorRects;
 	};
 
 	class SceneRenderer
@@ -61,10 +60,10 @@ namespace rendercore
 		template <typename CommandList>
 		void ApplyOutputContext( CommandList& commandList )
 		{
-			aga::RenderTargetView* renderTargets[MAX_RENDER_TARGET] = {};
-			aga::DepthStencilView* depthStencil = nullptr;
+			agl::RenderTargetView* renderTargets[agl::MAX_RENDER_TARGET] = {};
+			agl::DepthStencilView* depthStencil = nullptr;
 
-			for ( uint32 i = 0; i < MAX_RENDER_TARGET; ++i )
+			for ( uint32 i = 0; i < agl::MAX_RENDER_TARGET; ++i )
 			{
 				if ( m_outputContext.m_renderTargets[i] )
 				{
@@ -77,7 +76,7 @@ namespace rendercore
 				depthStencil = m_outputContext.m_depthStencil->DSV();
 			}
 
-			commandList.BindRenderTargets( renderTargets, MAX_RENDER_TARGET, depthStencil );
+			commandList.BindRenderTargets( renderTargets, agl::MAX_RENDER_TARGET, depthStencil );
 			commandList.SetViewports( 1, &m_outputContext.m_viewport );
 			commandList.SetScissorRects( 1, &m_outputContext.m_scissorRects );
 		}

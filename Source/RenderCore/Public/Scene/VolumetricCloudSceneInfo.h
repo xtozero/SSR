@@ -46,17 +46,17 @@ namespace rendercore
 		}
 
 		void CreateRenderData();
-		aga::Texture* BaseCloudShape()
+		agl::Texture* BaseCloudShape()
 		{
 			return m_baseCloudShape;
 		}
 
-		aga::Texture* DetailCloudShape()
+		agl::Texture* DetailCloudShape()
 		{
 			return m_detailCloudShape;
 		}
 
-		aga::Texture* WeatherMap()
+		agl::Texture* WeatherMap()
 		{
 			return m_weatherMap;
 		}
@@ -66,13 +66,13 @@ namespace rendercore
 	private:
 		void SetupCloudTexture();
 		void GenerateWeatherMap();
-		aga::RefHandle<aga::Texture> CreateCloudTexture( uint32 texSize );
+		agl::RefHandle<agl::Texture> CreateCloudTexture( uint32 texSize );
 
 		VolumetricCloudProxy* m_cloudProxy = nullptr;
 		TypedConstatBuffer<VolumetricCloudRenderParameter> m_renderParameter;
 
-		aga::RefHandle<aga::Texture> m_baseCloudShape;
-		aga::RefHandle<aga::Texture> m_detailCloudShape;
-		aga::RefHandle<aga::Texture> m_weatherMap;
+		agl::RefHandle<agl::Texture> m_baseCloudShape;
+		agl::RefHandle<agl::Texture> m_detailCloudShape;
+		agl::RefHandle<agl::Texture> m_weatherMap;
 	};
 }

@@ -9,7 +9,7 @@ namespace rendercore
 {
 	void DefaultConstantBuffers::BootUp()
 	{
-		for ( uint32 i = 0; i < MAX_SHADER_TYPE<uint32>; ++i )
+		for ( uint32 i = 0; i < agl::MAX_SHADER_TYPE<uint32>; ++i )
 		{
 			ConstantBufferContext& context = m_contexts[i];
 
@@ -22,9 +22,9 @@ namespace rendercore
 		{
 			auto commandList = GetImmediateCommandList();
 
-			for ( uint32 i = 0; i < MAX_SHADER_TYPE<uint32>; ++i )
+			for ( uint32 i = 0; i < agl::MAX_SHADER_TYPE<uint32>; ++i )
 			{
-				auto shaderType = static_cast<SHADER_TYPE>( i );
+				auto shaderType = static_cast<agl::ShaderType>( i );
 				commandList.BindConstantBuffer( shaderType, 0, contexts[i].m_buffer.Resource() );
 			}
 		};
@@ -38,7 +38,7 @@ namespace rendercore
 
 	void DefaultConstantBuffers::Shutdown()
 	{
-		for ( uint32 i = 0; i < MAX_SHADER_TYPE<uint32>; ++i )
+		for ( uint32 i = 0; i < agl::MAX_SHADER_TYPE<uint32>; ++i )
 		{
 			ConstantBufferContext& context = m_contexts[i];
 			context.m_dataStorage = {};
@@ -48,21 +48,21 @@ namespace rendercore
 		}
 	}
 
-	void DefaultConstantBuffers::SetShaderValue( SHADER_TYPE shader, uint32 offset, uint32 numBytes, const void* value )
+	void DefaultConstantBuffers::SetShaderValue( agl::ShaderType shader, uint32 offset, uint32 numBytes, const void* value )
 	{
-		assert( ( SHADER_TYPE::NONE < shader&& shader < SHADER_TYPE::Count ) && "Invalid shader type" );
+		assert( ( agl::ShaderType::None < shader&& shader < agl::ShaderType::Count ) && "Invalid shader type" );
 		SetShaderValueInternal( static_cast<uint32>( shader ), offset, numBytes, value );
 	}
 
-	void DefaultConstantBuffers::Commit( SHADER_TYPE shader )
+	void DefaultConstantBuffers::Commit( agl::ShaderType shader )
 	{
-		assert( ( SHADER_TYPE::NONE < shader&& shader < SHADER_TYPE::Count ) && "Invalid shader type" );
+		assert( ( agl::ShaderType::None < shader&& shader < agl::ShaderType::Count ) && "Invalid shader type" );
 		CommitInternal( static_cast<uint32>( shader ) );
 	}
 
 	void DefaultConstantBuffers::CommitAll()
 	{
-		for ( uint32 i = 0; i < MAX_SHADER_TYPE<uint32>; ++i )
+		for ( uint32 i = 0; i < agl::MAX_SHADER_TYPE<uint32>; ++i )
 		{
 			CommitInternal( i );
 		}

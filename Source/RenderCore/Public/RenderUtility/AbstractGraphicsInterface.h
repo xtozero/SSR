@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IAga.h"
+#include "IAgl.h"
 #include "GraphicsPipelineState.h"
 #include "RenderOption.h"
 #include "ShaderParameterMap.h"
@@ -16,18 +16,18 @@ namespace rendercore
 	class AbstractGraphicsInterface
 	{
 	public:
-		void BootUp( aga::IAga* pAga );
+		void BootUp( agl::IAgl* pAgl );
 		void Shutdown();
 
-		LockedResource Lock( aga::Buffer* buffer, uint32 lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, uint32 subResource = 0 );
-		LockedResource Lock( aga::Texture* texture, uint32 lockFlag = BUFFER_LOCKFLAG::WRITE_DISCARD, uint32 subResource = 0 );
-		void UnLock( aga::Buffer* buffer, uint32 subResource = 0 );
-		void UnLock( aga::Texture* texture, uint32 subResource = 0 );
+		agl::LockedResource Lock( agl::Buffer* buffer, agl::ResourceLockFlag lockFlag = agl::ResourceLockFlag::WriteDiscard, uint32 subResource = 0 );
+		agl::LockedResource Lock( agl::Texture* texture, agl::ResourceLockFlag lockFlag = agl::ResourceLockFlag::WriteDiscard, uint32 subResource = 0 );
+		void UnLock( agl::Buffer* buffer, uint32 subResource = 0 );
+		void UnLock( agl::Texture* texture, uint32 subResource = 0 );
 
-		void Copy( aga::Buffer* dst, aga::Buffer* src, uint32 size );
+		void Copy( agl::Buffer* dst, agl::Buffer* src, uint32 size );
 
-		std::unique_ptr<aga::IDeferredCommandList> CreateDeferredCommandList() const;
-		aga::IImmediateCommandList* GetImmediateCommandList();
+		std::unique_ptr<agl::IDeferredCommandList> CreateDeferredCommandList() const;
+		agl::IImmediateCommandList* GetImmediateCommandList();
 
 		BlendState FindOrCreate( const BlendOption& option );
 		DepthStencilState FindOrCreate( const DepthStencilOption& option );
@@ -36,10 +36,10 @@ namespace rendercore
 		VertexLayout FindOrCreate( const VertexShader& vs, const VertexLayoutDesc& desc );
 
 		BinaryChunk CompieShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const;
-		bool BuildShaderMetaData( const BinaryChunk& byteCode, aga::ShaderParameterMap& outParameterMap, aga::ShaderParameterInfo& outParameterInfo ) const;
+		bool BuildShaderMetaData( const BinaryChunk& byteCode, agl::ShaderParameterMap& outParameterMap, agl::ShaderParameterInfo& outParameterInfo ) const;
 
 	private:
-		aga::IAga* m_aga = nullptr;
+		agl::IAgl* m_agl = nullptr;
 
 		std::unordered_map<BlendOption, BlendState, BlendOptionHasher> m_blendStates;
 		std::unordered_map<DepthStencilOption, DepthStencilState, DepthStencilOptionHasher> m_depthStencilStates;

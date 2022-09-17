@@ -19,12 +19,12 @@ namespace rendercore
 		m_constantBuffer.Update( param );
 	}
 
-	aga::Buffer* SceneViewConstantBuffer::Resource()
+	agl::Buffer* SceneViewConstantBuffer::Resource()
 	{
 		return m_constantBuffer.Resource();
 	}
 
-	const aga::Buffer* SceneViewConstantBuffer::Resource() const
+	const agl::Buffer* SceneViewConstantBuffer::Resource() const
 	{
 		return m_constantBuffer.Resource();
 	}
@@ -92,22 +92,22 @@ namespace rendercore
 		m_buffer.Resize( size * sizeof( PrimitiveSceneData ) / sizeof( Vector4 ), true );
 	}
 
-	aga::ShaderResourceView* ScenePrimitiveBuffer::SRV()
+	agl::ShaderResourceView* ScenePrimitiveBuffer::SRV()
 	{
 		return m_buffer.SRV();
 	}
 
-	const aga::ShaderResourceView* ScenePrimitiveBuffer::SRV() const
+	const agl::ShaderResourceView* ScenePrimitiveBuffer::SRV() const
 	{
 		return m_buffer.SRV();
 	}
 
-	aga::Buffer* ScenePrimitiveBuffer::Resource()
+	agl::Buffer* ScenePrimitiveBuffer::Resource()
 	{
 		return m_buffer.Resource();
 	}
 
-	const aga::Buffer* ScenePrimitiveBuffer::Resource() const
+	const agl::Buffer* ScenePrimitiveBuffer::Resource() const
 	{
 		return m_buffer.Resource();
 	}

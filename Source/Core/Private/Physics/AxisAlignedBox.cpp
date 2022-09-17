@@ -52,12 +52,12 @@ float AxisAlignedBox::Intersect( const CRay& ray ) const
 	return RayAndBox( ray.GetOrigin(), ray.GetDir(), m_max, m_min );
 }
 
-uint32 AxisAlignedBox::Intersect( const Frustum& frustum ) const
+CollisionResult AxisAlignedBox::Intersect( const Frustum& frustum ) const
 {
 	const Frustum::LookUpTable& lut = frustum.GetVertexLUT();
 	const Plane( &planes )[6] = frustum.GetPlanes();
 
-	uint32 result = COLLISION::INSIDE;
+	CollisionResult result = CollisionResult::Inside;
 	for ( uint32 i = 0; i < 6; ++i )
 	{
 		Vector p( ( lut[i] & Frustum::X_MAX ) ? m_max.x : m_min.x, ( lut[i] & Frustum::Y_MAX ) ? m_max.y : m_min.y, ( lut[i] & Frustum::Z_MAX ) ? m_max.z : m_min.z );
@@ -65,12 +65,12 @@ uint32 AxisAlignedBox::Intersect( const Frustum& frustum ) const
 
 		if ( planes[i].PlaneDot( p ) < 0 )
 		{
-			return COLLISION::OUTSIDE;
+			return CollisionResult::Outside;
 		}
 
 		if ( planes[i].PlaneDot( n ) < 0 )
 		{
-			result = COLLISION::INTERSECTION;
+			result = CollisionResult::Intersection;
 		}
 	}
 
@@ -92,13 +92,13 @@ Collider AxisAlignedBox::GetType() const
 	return Collider::Aabb;
 }
 
-uint32 AxisAlignedBox::Intersect( const AxisAlignedBox& box ) const
+CollisionResult AxisAlignedBox::Intersect( const AxisAlignedBox& box ) const
 {
 	for ( uint32 i = 0; i < 3; ++i )
 	{
 		if ( m_max[i] < box.m_min[i] || m_min[i] > box.m_max[i] )
 		{
-			return COLLISION::OUTSIDE;
+			return CollisionResult::Outside;
 		}
 	}
 
@@ -106,10 +106,10 @@ uint32 AxisAlignedBox::Intersect( const AxisAlignedBox& box ) const
 		m_min.y <= box.m_min.y && box.m_max.y <= m_max.y &&
 		m_min.z <= box.m_min.z && box.m_max.z <= m_max.z )
 	{
-		return COLLISION::INSIDE;
+		return CollisionResult::Inside;
 	}
 
-	return COLLISION::INTERSECTION;
+	return CollisionResult::Intersection;
 }
 
 AxisAlignedBox::AxisAlignedBox( const std::vector<AxisAlignedBox>& boxes )

@@ -15,7 +15,7 @@ public:
 	using Component::Component;
 
 	template <typename T>
-	void BindInput( USER_INPUT_CODE code, T* object, void (T::*memberFunc)( const UserInput& ) )
+	void BindInput( UserInputCode code, T* object, void (T::*memberFunc)( const UserInput& ) )
 	{
 		InputDelegate delegate;
 		delegate.BindMemberFunction( object, memberFunc );
@@ -26,5 +26,5 @@ public:
 	void ProcessInput( const UserInput& input );
 
 private:
-	std::unordered_map<USER_INPUT_CODE, InputDelegate> m_inputBinding;
+	std::unordered_map<UserInputCode, InputDelegate> m_inputBinding;
 };

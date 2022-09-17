@@ -35,10 +35,10 @@ namespace rendercore
 		BlendOption shadowDrawPassBlendOption;
 		RenderTargetBlendOption& rt0BlendOption = shadowDrawPassBlendOption.m_renderTarget[0];
 		rt0BlendOption.m_blendEnable = true;
-		rt0BlendOption.m_srcBlend = BLEND::ZERO;
-		rt0BlendOption.m_destBlend = BLEND::SRC_COLOR;
-		rt0BlendOption.m_srcBlendAlpha = BLEND::ZERO;
-		rt0BlendOption.m_destBlendAlpha = BLEND::ONE;
+		rt0BlendOption.m_srcBlend = agl::Blend::Zero;
+		rt0BlendOption.m_destBlend = agl::Blend::SrcColor;
+		rt0BlendOption.m_srcBlendAlpha = agl::Blend::Zero;
+		rt0BlendOption.m_destBlendAlpha = agl::Blend::One;
 
 		DepthStencilOption shadowDrawPassDepthOption;
 		shadowDrawPassDepthOption.m_depth.m_writeDepth = false;

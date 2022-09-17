@@ -181,7 +181,7 @@ PRIVATE
 	
 target_link_libraries(RenderCore 
 PUBLIC
-	Aga
+	Agl
 PRIVATE
 	Core)
 

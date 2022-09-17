@@ -38,8 +38,8 @@ namespace rendercore
 	public:
 		void Update( const SceneViewParameters& param );
 
-		aga::Buffer* Resource();
-		const aga::Buffer* Resource() const;
+		agl::Buffer* Resource();
+		const agl::Buffer* Resource() const;
 
 	private:
 		TypedConstatBuffer<SceneViewParameters> m_constantBuffer;
@@ -59,11 +59,11 @@ namespace rendercore
 	public:
 		void Resize( uint32 size );
 
-		aga::ShaderResourceView* SRV();
-		const aga::ShaderResourceView* SRV() const;
+		agl::ShaderResourceView* SRV();
+		const agl::ShaderResourceView* SRV() const;
 
-		aga::Buffer* Resource();
-		const aga::Buffer* Resource() const;
+		agl::Buffer* Resource();
+		const agl::Buffer* Resource() const;
 
 	private:
 		TypedBuffer<Vector4> m_buffer;

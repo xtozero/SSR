@@ -19,7 +19,7 @@ namespace rendercore
 
 			uint32 primitiveIdSlot = vertexlayout.Size();
 			vertexlayout.AddLayout( "PRIMITIVEID", 0,
-				RESOURCE_FORMAT::R32_UINT,
+				agl::ResourceFormat::R32_UINT,
 				primitiveIdSlot,
 				true,
 				1,
@@ -68,7 +68,7 @@ namespace rendercore
 			pipelineState.m_rasterizerState = graphicsInterface.FindOrCreate( *passRenderOption.m_rasterizerOption );
 		}
 
-		pipelineState.m_primitive = RESOURCE_PRIMITIVE::TRIANGLELIST;
+		pipelineState.m_primitive = agl::ResourcePrimitive::Trianglelist;
 
 		snapshot.m_count = subMesh.m_count;
 		snapshot.m_startIndexLocation = subMesh.m_startLocation;

@@ -15,11 +15,11 @@ class AxisAlignedBox : public ICollider
 public:
 	virtual void Update( const Vector& scaling, const Quaternion& rotation, const Vector& translation, ICollider* original ) override;
 	virtual float Intersect( const CRay& ray ) const override;
-	virtual uint32 Intersect( const Frustum& frustum ) const override;
+	virtual CollisionResult Intersect( const Frustum& frustum ) const override;
 	virtual BoxSphereBounds Bounds() const override;
 	virtual Collider GetType() const override;
 
-	uint32 Intersect( const AxisAlignedBox& box ) const;
+	CollisionResult Intersect( const AxisAlignedBox& box ) const;
 
 	AxisAlignedBox() = default;
 	explicit AxisAlignedBox( const std::vector<AxisAlignedBox>& boxes );

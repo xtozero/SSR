@@ -2,10 +2,10 @@
 
 #include "EnumClassFlags.h"
 
-enum class GAMEOBJECT_PROPERTY
+enum class GameobjectProperty : uint8
 {
-	NONE = 0,
-	REFLECTABLE_OBJECT = 1 << 0,
-	REMOVE_ME = 1 << 1,
+	None = 0,
+	ReflectableObject = 1 << 0,
+	RemoveMe = 1 << 1,
 };
-ENUM_CLASS_FLAGS( GAMEOBJECT_PROPERTY );
+ENUM_CLASS_FLAGS( GameobjectProperty );

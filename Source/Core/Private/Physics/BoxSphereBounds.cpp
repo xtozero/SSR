@@ -1,6 +1,7 @@
 #include "BoxSphereBounds.h"
 
 #include "AxisAlignedBox.h"
+#include "ICollider.h"
 
 Vector& BoxSphereBounds::Origin()
 {
@@ -67,7 +68,7 @@ BoxSphereBounds BoxSphereBounds::TransformBy( const Matrix& m ) const
 	return BoxSphereBounds( newOrigin, newHalfSize, newRadius );
 }
 
-uint32 BoxSphereBounds::Overlapped( const BoxSphereBounds& other ) const
+CollisionResult BoxSphereBounds::Overlapped( const BoxSphereBounds& other ) const
 {
 	const Point& lhsPos = Origin();
 	const Point& rhsPos = other.Origin();
@@ -77,10 +78,10 @@ uint32 BoxSphereBounds::Overlapped( const BoxSphereBounds& other ) const
 
 	if ( size <= 0.f || size >= Radius() + other.Radius() )
 	{
-		return COLLISION::OUTSIDE;
+		return CollisionResult::Outside;
 	}
 
-	return COLLISION::INTERSECTION;
+	return CollisionResult::Intersection;
 }
 
 BoxSphereBounds::BoxSphereBounds( const Vector* points, int32 numPoints )

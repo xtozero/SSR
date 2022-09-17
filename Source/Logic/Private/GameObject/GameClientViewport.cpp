@@ -4,7 +4,7 @@
 #include "Components/CameraComponent.h"
 #include "GameObject/Player.h"
 #include "GraphicsResource/Viewport.h"
-#include "IAga.h"
+#include "IAgl.h"
 #include "Renderer/IRenderCore.h"
 #include "Renderer/RenderView.h"
 #include "TaskScheduler.h"

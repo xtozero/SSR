@@ -80,32 +80,32 @@ namespace
 
 					if ( const JSON::Value* srcBlend = renderTargets[i].Find( "SrcBlend" ) )
 					{
-						rt.m_srcBlend = GetEnum( srcBlend->AsString(), BLEND::ONE );
+						rt.m_srcBlend = GetEnum( srcBlend->AsString(), agl::Blend::One );
 					}
 
 					if ( const JSON::Value* destBlend = renderTargets[i].Find( "DestBlend" ) )
 					{
-						rt.m_destBlend = GetEnum( destBlend->AsString(), BLEND::ZERO );
+						rt.m_destBlend = GetEnum( destBlend->AsString(), agl::Blend::Zero );
 					}
 
 					if ( const JSON::Value* blendOp = renderTargets[i].Find( "BlendOp" ) )
 					{
-						rt.m_blendOp = GetEnum( blendOp->AsString(), BLEND_OP::ADD );
+						rt.m_blendOp = GetEnum( blendOp->AsString(), agl::BlendOp::Add );
 					}
 
 					if ( const JSON::Value* srcBlendAlpha = renderTargets[i].Find( "SrcBlendAlpha" ) )
 					{
-						rt.m_srcBlendAlpha = GetEnum( srcBlendAlpha->AsString(), BLEND::ONE );
+						rt.m_srcBlendAlpha = GetEnum( srcBlendAlpha->AsString(), agl::Blend::One );
 					}
 
 					if ( const JSON::Value* destBlendAlpha = renderTargets[i].Find( "DestBlendAlpha" ) )
 					{
-						rt.m_destBlendAlpha = GetEnum( destBlendAlpha->AsString(), BLEND::ZERO );
+						rt.m_destBlendAlpha = GetEnum( destBlendAlpha->AsString(), agl::Blend::Zero );
 					}
 
 					if ( const JSON::Value* blendOpAlpha = renderTargets[i].Find( "BlendOpAlpha" ) )
 					{
-						rt.m_blendOpAlpha = GetEnum( blendOpAlpha->AsString(), BLEND_OP::ADD );
+						rt.m_blendOpAlpha = GetEnum( blendOpAlpha->AsString(), agl::BlendOp::Add );
 					}
 
 					if ( const JSON::Value* renderTargetWriteMask = renderTargets[i].Find( "RenderTargetWriteMask" ) )
@@ -117,7 +117,7 @@ namespace
 							writeMask |= GetEnum( mask.AsString(), 0 );
 						}
 
-						rt.m_renderTargetWriteMask = static_cast<COLOR_WRITE_ENABLE>( writeMask );
+						rt.m_renderTargetWriteMask = static_cast<agl::ColorWriteEnable>( writeMask );
 					}
 				}
 			}
@@ -147,7 +147,7 @@ namespace
 
 			if ( const JSON::Value* depthFunc = root.Find( "DepthFunc" ) )
 			{
-				depthOption.m_depthFunc = GetEnum( depthFunc->AsString(), COMPARISON_FUNC::LESS );
+				depthOption.m_depthFunc = GetEnum( depthFunc->AsString(), agl::ComparisonFunc::Less );
 			}
 
 			auto stencilOption = depthStencilOption->m_stencil;
@@ -174,43 +174,43 @@ namespace
 			auto& front = stencilOption.m_frontFace;
 			if ( const JSON::Value* frontFaceStencilFunc = root.Find( "FrontFace.StencilFunc" ) )
 			{
-				front.m_func = GetEnum( frontFaceStencilFunc->AsString(), COMPARISON_FUNC::ALWAYS );
+				front.m_func = GetEnum( frontFaceStencilFunc->AsString(), agl::ComparisonFunc::Always );
 			}
 
 			if ( const JSON::Value* frontFaceStencilDepthFailOp = root.Find( "FrontFace.StencilDepthFailOp" ) )
 			{
-				front.m_depthFailOp = GetEnum( frontFaceStencilDepthFailOp->AsString(), STENCIL_OP::KEEP );
+				front.m_depthFailOp = GetEnum( frontFaceStencilDepthFailOp->AsString(), agl::StencilOp::Keep );
 			}
 
 			if ( const JSON::Value* frontFaceStencilPassOp = root.Find( "FrontFace.StencilPassOp" ) )
 			{
-				front.m_passOp = GetEnum( frontFaceStencilPassOp->AsString(), STENCIL_OP::KEEP );
+				front.m_passOp = GetEnum( frontFaceStencilPassOp->AsString(), agl::StencilOp::Keep );
 			}
 
 			if ( const JSON::Value* frontFaceStencilFailOp = root.Find( "FrontFace.StencilFailOp" ) )
 			{
-				front.m_failOp = GetEnum( frontFaceStencilFailOp->AsString(), STENCIL_OP::KEEP );
+				front.m_failOp = GetEnum( frontFaceStencilFailOp->AsString(), agl::StencilOp::Keep );
 			}
 
 			auto& back = stencilOption.m_backFace;
 			if ( const JSON::Value* backFaceStencilFunc = root.Find( "BackFace.StencilFunc" ) )
 			{
-				back.m_func = GetEnum( backFaceStencilFunc->AsString(), COMPARISON_FUNC::ALWAYS );
+				back.m_func = GetEnum( backFaceStencilFunc->AsString(), agl::ComparisonFunc::Always );
 			}
 
 			if ( const JSON::Value* backFaceStencilDepthFailOp = root.Find( "BackFace.StencilDepthFailOp" ) )
 			{
-				back.m_depthFailOp = GetEnum( backFaceStencilDepthFailOp->AsString(), STENCIL_OP::KEEP );
+				back.m_depthFailOp = GetEnum( backFaceStencilDepthFailOp->AsString(), agl::StencilOp::Keep );
 			}
 
 			if ( const JSON::Value* backFaceStencilPassOp = root.Find( "BackFace.StencilPassOp" ) )
 			{
-				back.m_passOp = GetEnum( backFaceStencilPassOp->AsString(), STENCIL_OP::KEEP );
+				back.m_passOp = GetEnum( backFaceStencilPassOp->AsString(), agl::StencilOp::Keep );
 			}
 
 			if ( const JSON::Value* backFaceStencilFailOp = root.Find( "BackFace.StencilFailOp" ) )
 			{
-				back.m_failOp = GetEnum( backFaceStencilFailOp->AsString(), STENCIL_OP::KEEP );
+				back.m_failOp = GetEnum( backFaceStencilFailOp->AsString(), agl::StencilOp::Keep );
 			}
 
 			asset = std::move( depthStencilOption );
@@ -222,9 +222,9 @@ namespace
 
 			if ( const JSON::Value* shaderKeys = root.Find( "Shader" ) )
 			{
-				for ( uint32 i = 0; i < static_cast<uint32>( SHADER_TYPE::Count ); ++i )
+				for ( uint32 i = 0; i < static_cast<uint32>( agl::ShaderType::Count ); ++i )
 				{
-					auto shaderType = static_cast<SHADER_TYPE>( i );
+					auto shaderType = static_cast<agl::ShaderType>( i );
 					const JSON::Value* shaderPath = shaderKeys->Find( ToString( shaderType ) );
 					if ( shaderPath == nullptr )
 					{
@@ -233,36 +233,36 @@ namespace
 
 					switch ( shaderType )
 					{
-					case SHADER_TYPE::VS:
+					case agl::ShaderType::VS:
 					{
 						auto vs = std::make_shared<rendercore::VertexShader>();
 						vs->SetPath( shaderPath->AsString() );
 						material->SetVertexShader( vs );
 						break;
 					}
-					case SHADER_TYPE::HS:
+					case agl::ShaderType::HS:
 						break;
-					case SHADER_TYPE::DS:
+					case agl::ShaderType::DS:
 						break;
-					case SHADER_TYPE::GS:
+					case agl::ShaderType::GS:
 					{
 						auto gs = std::make_shared<rendercore::GeometryShader>();
 						gs->SetPath( shaderPath->AsString() );
 						material->SetGeometryShader( gs );
 						break;
 					}
-					case SHADER_TYPE::PS:
+					case agl::ShaderType::PS:
 					{
 						auto ps = std::make_shared<rendercore::PixelShader>();
 						ps->SetPath( shaderPath->AsString() );
 						material->SetPixelShader( ps );
 						break;
 					}
-					case SHADER_TYPE::CS:
+					case agl::ShaderType::CS:
 						break;
-					case SHADER_TYPE::Count:
+					case agl::ShaderType::Count:
 						[[fallthrough]];
-					case SHADER_TYPE::NONE:
+					case agl::ShaderType::None:
 						[[fallthrough]];
 					default:
 						break;
@@ -279,7 +279,7 @@ namespace
 					{
 						switch ( property->Type() )
 						{
-						case JSON::DataType::STRING:
+						case JSON::DataType::String:
 						{
 							auto texture = std::make_shared<rendercore::Texture>();
 							texture->SetPath( property->AsString() );
@@ -287,17 +287,17 @@ namespace
 							material->AddProperty( name, texture );
 							break;
 						}
-						case JSON::DataType::INTERGER:
+						case JSON::DataType::Interger:
 						{
 							material->AddProperty( name, property->AsInt() );
 							break;
 						}
-						case JSON::DataType::REAL:
+						case JSON::DataType::Real:
 						{
 							material->AddProperty( name, static_cast<float>( property->AsReal() ) );
 							break;
 						}
-						case JSON::DataType::ARRAY:
+						case JSON::DataType::Array:
 						{
 							Vector4 vector( 1.f, 1.f, 1.f, 1.f );
 
@@ -309,11 +309,11 @@ namespace
 							material->AddProperty( name, vector );
 							break;
 						}
-						case JSON::DataType::OBJECT:
+						case JSON::DataType::Object:
 							[[fallthrough]];
-						case JSON::DataType::BOOLEAN:
+						case JSON::DataType::Boolean:
 							[[fallthrough]];
-						case JSON::DataType::EMPTY:
+						case JSON::DataType::Empty:
 							[[fallthrough]];
 						default:
 							break;
@@ -351,7 +351,7 @@ namespace
 
 			if ( const JSON::Value* cullMode = root.Find( "CullMode" ) )
 			{
-				rasterizerOption->m_cullMode = GetEnum( cullMode->AsString(), CULL_MODE::BACK );
+				rasterizerOption->m_cullMode = GetEnum( cullMode->AsString(), agl::CullMode::Back );
 			}
 
 			if ( const JSON::Value* counterClockwise = root.Find( "CounterClockwise" ) )
@@ -393,26 +393,26 @@ namespace
 
 			if ( const JSON::Value* filter = root.Find( "Filter" ) )
 			{
-				samplerOption->m_filter = 0;
+				samplerOption->m_filter = agl::TextureFilter::Point;
 				for ( auto option : *filter )
 				{
-					samplerOption->m_filter |= GetEnum( option.AsString(), 0 );
+					samplerOption->m_filter |= GetEnum( option.AsString(), agl::TextureFilter::Point );
 				}
 			}
 
 			if ( const JSON::Value* addressU = root.Find( "AddressU" ) )
 			{
-				samplerOption->m_addressU = GetEnum( addressU->AsString(), TEXTURE_ADDRESS_MODE::CLAMP );
+				samplerOption->m_addressU = GetEnum( addressU->AsString(), agl::TextureAddressMode::Clamp );
 			}
 
 			if ( const JSON::Value* addressV = root.Find( "AddressV" ) )
 			{
-				samplerOption->m_addressV = GetEnum( addressV->AsString(), TEXTURE_ADDRESS_MODE::CLAMP );
+				samplerOption->m_addressV = GetEnum( addressV->AsString(), agl::TextureAddressMode::Clamp );
 			}
 
 			if ( const JSON::Value* addressW = root.Find( "AddressW" ) )
 			{
-				samplerOption->m_addressW = GetEnum( addressW->AsString(), TEXTURE_ADDRESS_MODE::CLAMP );
+				samplerOption->m_addressW = GetEnum( addressW->AsString(), agl::TextureAddressMode::Clamp );
 			}
 
 			if ( const JSON::Value* mipLODBias = root.Find( "MipLODBias" ) )
@@ -422,7 +422,7 @@ namespace
 
 			if ( const JSON::Value* comparisonFunc = root.Find( "ComparisonFunc" ) )
 			{
-				samplerOption->m_comparisonFunc = GetEnum( comparisonFunc->AsString(), COMPARISON_FUNC::NEVER );
+				samplerOption->m_comparisonFunc = GetEnum( comparisonFunc->AsString(), agl::ComparisonFunc::Never );
 			}
 
 			asset = std::move( samplerOption );

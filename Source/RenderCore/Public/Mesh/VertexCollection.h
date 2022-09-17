@@ -45,14 +45,14 @@ namespace rendercore
 			return m_count;
 		}
 
-		VertexStream( const char* name, RESOURCE_FORMAT format, uint32 count );
+		VertexStream( const char* name, agl::ResourceFormat format, uint32 count );
 		VertexStream() = default;
 
 		friend Archive& operator<<( Archive& ar, VertexStream& stream );
 
 	private:
 		Name m_name;
-		RESOURCE_FORMAT m_format = RESOURCE_FORMAT::UNKNOWN;
+		agl::ResourceFormat m_format = agl::ResourceFormat::Unknown;
 		uint32 m_stride = 0;
 		uint32 m_count = 0;
 
@@ -62,7 +62,7 @@ namespace rendercore
 	class VertexStreamLayout : public VertexLayoutDesc
 	{
 	public:
-		void AddLayout( const char* name, uint32 index, RESOURCE_FORMAT format, uint32 slot, bool isInstanceData, uint32 instanceDataStep, int32 streamIndex );
+		void AddLayout( const char* name, uint32 index, agl::ResourceFormat format, uint32 slot, bool isInstanceData, uint32 instanceDataStep, int32 streamIndex );
 
 		int32 StreamIndex( uint32 index ) const
 		{
@@ -72,10 +72,10 @@ namespace rendercore
 		friend Archive& operator<<( Archive& ar, VertexStreamLayout& layout );
 
 	private:
-		int32 m_streamIndices[MAX_VERTEX_LAYOUT_SIZE] = {};
+		int32 m_streamIndices[agl::MAX_VERTEX_LAYOUT_SIZE] = {};
 	};
 
-	enum class VertexStreamLayoutType
+	enum class VertexStreamLayoutType : uint8
 	{
 		Default = 0,
 		PositionNormal,
@@ -90,7 +90,7 @@ namespace rendercore
 		uint32 AddStream( const VertexStream& stream );
 		uint32 AddStream( VertexStream&& stream );
 
-		void InitLayout( const VERTEX_LAYOUT_TRAIT* traits, uint32 count, VertexStreamLayoutType layoutType );
+		void InitLayout( const agl::VERTEX_LAYOUT_TRAIT* traits, uint32 count, VertexStreamLayoutType layoutType );
 
 		const VertexStreamLayout& VertexLayout( VertexStreamLayoutType layoutType ) const;
 
@@ -100,7 +100,7 @@ namespace rendercore
 
 	private:
 		std::optional<uint32> FindStream( const Name& name ) const;
-		VertexStreamLayout SetupVertexLayout( const VERTEX_LAYOUT_TRAIT* trait, uint32 count );
+		VertexStreamLayout SetupVertexLayout( const agl::VERTEX_LAYOUT_TRAIT* trait, uint32 count );
 
 		std::vector<VertexStream> m_streams;
 		mutable std::vector<VertexBuffer> m_vbs;

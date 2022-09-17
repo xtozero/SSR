@@ -17,10 +17,10 @@ namespace rendercore
 
 		static constexpr uint32 ThreadGroupX = 64;
 
-		aga::ShaderParameter m_numDistribution;
-		aga::ShaderParameter m_src;
-		aga::ShaderParameter m_distributer;
-		aga::ShaderParameter m_dest;
+		agl::ShaderParameter m_numDistribution;
+		agl::ShaderParameter m_src;
+		agl::ShaderParameter m_distributer;
+		agl::ShaderParameter m_dest;
 
 	private:
 		ComputeShader* m_shader = nullptr;
@@ -33,7 +33,7 @@ namespace rendercore
 
 		void Add( const char* data, uint32 dstIndex );
 
-		void Upload( aga::Buffer* destBuffer );
+		void Upload( agl::Buffer* destBuffer );
 
 	private:
 		UploadBuffer& m_src;

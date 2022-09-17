@@ -9,8 +9,8 @@ namespace rendercore
 	class IndexBuffer
 	{
 	public:
-		aga::Buffer* Resource();
-		const aga::Buffer* Resource() const;
+		agl::Buffer* Resource();
+		const agl::Buffer* Resource() const;
 
 		IndexBuffer( uint32 numElement, const void* initData, bool isDWORD );
 
@@ -33,6 +33,6 @@ namespace rendercore
 
 		uint32 m_numElement = 0;
 		bool m_isDWORD = false;
-		aga::RefHandle<aga::Buffer> m_buffer;
+		agl::RefHandle<agl::Buffer> m_buffer;
 	};
 }

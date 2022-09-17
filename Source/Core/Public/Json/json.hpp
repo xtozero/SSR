@@ -59,15 +59,15 @@ namespace JSON
 		}
 	}
 
-	enum class DataType
+	enum class DataType : uint8
 	{
-		STRING = 0,
-		INTERGER,
-		REAL,
-		OBJECT,
-		ARRAY,
-		BOOLEAN,
-		EMPTY	// null
+		String = 0,
+		Interger,
+		Real,
+		Object,
+		Array,
+		Boolean,
+		Empty	// null
 	};
 
 	template <typename T, typename ObjectType>
@@ -253,18 +253,18 @@ namespace JSON
 		{
 			switch ( Type( ) )
 			{
-			case DataType::STRING:
+			case DataType::String:
 				return *( m_data.m_string );
 				break;
-			case DataType::INTERGER:
+			case DataType::Interger:
 				return std::to_string( m_data.m_integer );
 				break;
-			case DataType::REAL:
+			case DataType::Real:
 				return std::to_string( m_data.m_real );
 				break;
-			case DataType::BOOLEAN:
+			case DataType::Boolean:
 				return m_data.m_boolean ? "true" : "false";
-			case DataType::EMPTY:
+			case DataType::Empty:
 				return "null";
 			default:
 				break;
@@ -278,15 +278,15 @@ namespace JSON
 		{
 			switch ( Type( ) )
 			{
-			case DataType::STRING:
+			case DataType::String:
 				return std::stoi( *( m_data.m_string ) );
-			case DataType::INTERGER:
+			case DataType::Interger:
 				return m_data.m_integer;
-			case DataType::REAL:
+			case DataType::Real:
 				return static_cast<int>( m_data.m_real );
-			case DataType::BOOLEAN:
+			case DataType::Boolean:
 				return m_data.m_boolean ? 1 : 0;
-			case DataType::EMPTY:
+			case DataType::Empty:
 				return 0;
 			default:
 				break;
@@ -300,13 +300,13 @@ namespace JSON
 		{
 			switch ( Type( ) )
 			{
-			case DataType::INTERGER:
+			case DataType::Interger:
 				return m_data.m_integer ? true : false;
-			case DataType::REAL:
+			case DataType::Real:
 				return ( m_data.m_real != 0. ) ? true : false;
-			case DataType::BOOLEAN:
+			case DataType::Boolean:
 				return m_data.m_boolean;
-			case DataType::EMPTY:
+			case DataType::Empty:
 				return false;
 			default:
 				break;
@@ -320,18 +320,18 @@ namespace JSON
 		{
 			switch ( Type( ) )
 			{
-			case DataType::STRING:
+			case DataType::String:
 				return std::stod( *( m_data.m_string ) );
 				break;
-			case DataType::INTERGER:
+			case DataType::Interger:
 				return static_cast<double>( m_data.m_integer );
 				break;
-			case DataType::REAL:
+			case DataType::Real:
 				return m_data.m_real;
 				break;
-			case DataType::BOOLEAN:
+			case DataType::Boolean:
 				return m_data.m_boolean ? 1. : 0.;
-			case DataType::EMPTY:
+			case DataType::Empty:
 				return 0.;
 			default:
 				break;
@@ -343,8 +343,8 @@ namespace JSON
 
 		const Value* Find( const std::string& key ) const
 		{
-			assert( Type( ) == DataType::OBJECT || Type( ) == DataType::EMPTY );
-			if ( Type( ) == DataType::EMPTY )
+			assert( Type( ) == DataType::Object || Type( ) == DataType::Empty );
+			if ( Type( ) == DataType::Empty )
 			{
 				return nullptr;
 			}
@@ -355,7 +355,7 @@ namespace JSON
 
 		std::vector<const char*> GetMemberNames( ) const
 		{
-			if ( Type( ) == DataType::OBJECT || Type( ) == DataType::ARRAY )
+			if ( Type( ) == DataType::Object || Type( ) == DataType::Array )
 			{
 				std::vector<const char*> members;
 				members.reserve( m_data.m_object->size( ) );
@@ -375,11 +375,11 @@ namespace JSON
 		{
 			switch ( Type( ) )
 			{
-			case DataType::OBJECT:
+			case DataType::Object:
 				[[fallthrough]];
-			case DataType::ARRAY:
+			case DataType::Array:
 				return m_data.m_object->size( );
-			case DataType::EMPTY:
+			case DataType::Empty:
 				return 0;
 			default:
 				return 1;
@@ -392,18 +392,18 @@ namespace JSON
 
 			switch ( Type( ) )
 			{
-			case DataType::STRING:
+			case DataType::String:
 				size += 2; // ""
-			case DataType::INTERGER:
+			case DataType::Interger:
 				[[fallthrough]];
-			case DataType::REAL:
+			case DataType::Real:
 				[[fallthrough]];
-			case DataType::BOOLEAN:
+			case DataType::Boolean:
 				[[fallthrough]];
-			case DataType::EMPTY:
+			case DataType::Empty:
 				size += AsString( ).size( );
 				break;
-			case DataType::OBJECT:
+			case DataType::Object:
 				{
 					size += 2; // {}
 					const ObjectType& map = *m_data.m_object;
@@ -419,7 +419,7 @@ namespace JSON
 					}
 				}
 				break;
-			case DataType::ARRAY:
+			case DataType::Array:
 				{
 					size += 2; // []
 					const ObjectType& array = *m_data.m_object;
@@ -445,9 +445,9 @@ namespace JSON
 		{
 			switch ( Type( ) )
 			{
-			case JSON::DataType::OBJECT:
+			case JSON::DataType::Object:
 				[[fallthrough]];
-			case JSON::DataType::ARRAY:
+			case JSON::DataType::Array:
 				return ConstValueIterator<Value, ObjectType>( m_data.m_object->begin() );
 			default:
 				return ConstValueIterator<Value, ObjectType>( this );
@@ -458,9 +458,9 @@ namespace JSON
 		{
 			switch ( Type( ) )
 			{
-			case JSON::DataType::OBJECT:
+			case JSON::DataType::Object:
 				[[fallthrough]];
-			case JSON::DataType::ARRAY:
+			case JSON::DataType::Array:
 				return ConstValueIterator<Value, ObjectType>( m_data.m_object->end( ) );
 			default:
 				return ConstValueIterator<Value, ObjectType>( nullptr );
@@ -471,9 +471,9 @@ namespace JSON
 		{
 			switch ( Type( ) )
 			{
-			case JSON::DataType::OBJECT:
+			case JSON::DataType::Object:
 				[[fallthrough]];
-			case JSON::DataType::ARRAY:
+			case JSON::DataType::Array:
 				return ValueIterator<Value, ObjectType>( m_data.m_object->begin( ) );
 			default:
 				return ValueIterator<Value, ObjectType>( this );
@@ -484,9 +484,9 @@ namespace JSON
 		{
 			switch ( Type( ) )
 			{
-			case JSON::DataType::OBJECT:
+			case JSON::DataType::Object:
 				[[fallthrough]];
-			case JSON::DataType::ARRAY:
+			case JSON::DataType::Array:
 				return ValueIterator<Value, ObjectType>( m_data.m_object->end( ) );
 			default:
 				return ValueIterator<Value, ObjectType>( nullptr );
@@ -497,9 +497,9 @@ namespace JSON
 		{
 			switch ( Type( ) )
 			{
-			case JSON::DataType::OBJECT:
+			case JSON::DataType::Object:
 				[[fallthrough]];
-			case JSON::DataType::ARRAY:
+			case JSON::DataType::Array:
 				return ConstValueIterator<Value, ObjectType>( m_data.m_object->begin( ) );
 			default:
 				return ConstValueIterator<Value, ObjectType>( this );
@@ -510,9 +510,9 @@ namespace JSON
 		{
 			switch ( Type( ) )
 			{
-			case JSON::DataType::OBJECT:
+			case JSON::DataType::Object:
 				[[fallthrough]];
-			case JSON::DataType::ARRAY:
+			case JSON::DataType::Array:
 				return ConstValueIterator<Value, ObjectType>( m_data.m_object->end( ) );
 			default:
 				return ConstValueIterator<Value, ObjectType>( nullptr );
@@ -523,7 +523,7 @@ namespace JSON
 		{
 			switch ( Type( ) )
 			{
-			case DataType::STRING:
+			case DataType::String:
 				*( m_data.m_string ) = string;
 				break;
 			default:
@@ -538,7 +538,7 @@ namespace JSON
 		{
 			switch ( Type( ) )
 			{
-			case DataType::STRING:
+			case DataType::String:
 				*( m_data.m_string ) = std::move( string );
 				break;
 			default:
@@ -553,16 +553,16 @@ namespace JSON
 		{
 			switch ( Type( ) )
 			{
-			case DataType::STRING:
+			case DataType::String:
 				*( m_data.m_string ) = std::to_string( integer );
 				break;
-			case DataType::INTERGER:
+			case DataType::Interger:
 				m_data.m_integer = integer;
 				break;
-			case DataType::REAL:
+			case DataType::Real:
 				m_data.m_real = static_cast<float>( integer );
 				break;
-			case DataType::BOOLEAN:
+			case DataType::Boolean:
 				m_data.m_boolean = integer ? true : false;
 				break;
 			default:
@@ -577,16 +577,16 @@ namespace JSON
 		{
 			switch ( Type( ) )
 			{
-			case DataType::STRING:
+			case DataType::String:
 				*( m_data.m_string ) = std::to_string( real );
 				break;
-			case DataType::INTERGER:
+			case DataType::Interger:
 				m_data.m_integer = static_cast<int>( real );
 				break;
-			case DataType::REAL:
+			case DataType::Real:
 				m_data.m_real = real;
 				break;
-			case DataType::BOOLEAN:
+			case DataType::Boolean:
 				m_data.m_boolean = ( real != 1. ) ? true : false;
 				break;
 			default:
@@ -599,13 +599,13 @@ namespace JSON
 
 		Value& operator[]( size_t index ) const
 		{
-			assert( ( Type() == DataType::ARRAY ) );
+			assert( ( Type() == DataType::Array ) );
 			ObjectType& array = *m_data.m_object;
 			std::string indexString = std::to_string( index );
 			auto found = array.find( indexString );
 			if ( found == array.end( ) )
 			{
-				auto result = array.emplace( std::to_string( index ), Value( DataType::EMPTY ) );
+				auto result = array.emplace( std::to_string( index ), Value( DataType::Empty ) );
 				return result.first->second;
 			}
 
@@ -614,12 +614,12 @@ namespace JSON
 
 		Value& operator[]( const std::string& key ) const
 		{
-			assert( ( Type( ) == DataType::OBJECT ) );
+			assert( ( Type( ) == DataType::Object ) );
 			ObjectType& array = *m_data.m_object;
 			auto found = array.find( key );
 			if ( found == array.end( ) )
 			{
-				auto result = array.emplace( key, Value( DataType::EMPTY ) );
+				auto result = array.emplace( key, Value( DataType::Empty ) );
 				return result.first->second;
 			}
 
@@ -632,12 +632,12 @@ namespace JSON
 
 			switch ( Type( ) )
 			{
-			case DataType::STRING:
+			case DataType::String:
 				*( m_data.m_string ) = *( rhs.m_data.m_string );
 				break;
-			case DataType::ARRAY:
+			case DataType::Array:
 				[[fallthrough]];
-			case DataType::OBJECT:
+			case DataType::Object:
 				*( m_data.m_object ) = *( rhs.m_data.m_object );
 				break;
 			default:
@@ -656,29 +656,29 @@ namespace JSON
 			}
 
 			m_type = rhs.Type( );
-			rhs.m_type = DataType::EMPTY;
+			rhs.m_type = DataType::Empty;
 
 			switch ( Type( ) )
 			{
-			case DataType::STRING:
+			case DataType::String:
 				m_data.m_string = rhs.m_data.m_string;
 				rhs.m_data.m_string = nullptr;
 				break;
-			case DataType::INTERGER:
+			case DataType::Interger:
 				m_data.m_integer = rhs.m_data.m_integer;
 				rhs.m_data.m_integer = 0;
 				break;
-			case DataType::REAL:
+			case DataType::Real:
 				m_data.m_real = rhs.m_data.m_real;
 				rhs.m_data.m_real = 0.f;
 				break;
-			case DataType::OBJECT:
+			case DataType::Object:
 				[[fallthrough]];
-			case DataType::ARRAY:
+			case DataType::Array:
 				m_data.m_object = rhs.m_data.m_object;
 				rhs.m_data.m_object = nullptr;
 				break;
-			case DataType::BOOLEAN:
+			case DataType::Boolean:
 				m_data.m_boolean = rhs.m_data.m_boolean;
 				rhs.m_data.m_boolean = false;
 				break;
@@ -687,7 +687,7 @@ namespace JSON
 			return *this;
 		}
 		
-		Value( ) : m_type( DataType::EMPTY )
+		Value( ) : m_type( DataType::Empty )
 		{
 
 		}
@@ -729,12 +729,12 @@ namespace JSON
 		{
 			switch ( type )
 			{
-			case DataType::STRING:
+			case DataType::String:
 				m_data.m_string = new std::string( );
 				break;
-			case DataType::OBJECT:
+			case DataType::Object:
 				[[fallthrough]];
-			case DataType::ARRAY:
+			case DataType::Array:
 				m_data.m_object = new ObjectType( );
 				break;
 			default:
@@ -746,12 +746,12 @@ namespace JSON
 		{
 			switch ( type )
 			{
-			case DataType::STRING:
+			case DataType::String:
 				delete m_data.m_string;
 				break;
-			case DataType::OBJECT:
+			case DataType::Object:
 				[[fallthrough]];
-			case DataType::ARRAY:
+			case DataType::Array:
 				delete m_data.m_object;
 				break;
 			default:
@@ -761,7 +761,7 @@ namespace JSON
 
 		void PrintArrayTypeValue( std::ostream& os ) const
 		{
-			assert( ( Type( ) == DataType::ARRAY ) );
+			assert( ( Type( ) == DataType::Array ) );
 			ObjectType& array = *m_data.m_object;
 			os << '[';
 			for ( size_t i = 0; i < array.size(); ++i )
@@ -780,7 +780,7 @@ namespace JSON
 
 		void PrintObjectTypeValue( std::ostream& os ) const
 		{
-			assert( ( Type( ) == DataType::OBJECT ) );
+			assert( ( Type( ) == DataType::Object ) );
 			const ObjectType& map = *m_data.m_object;
 			os << '{';
 			for ( auto iter = map.begin( ); iter != map.end( ); ++iter )
@@ -795,7 +795,7 @@ namespace JSON
 			os << '}';
 		}
 
-		DataType m_type = DataType::EMPTY;
+		DataType m_type = DataType::Empty;
 		union Data
 		{
 			int m_integer;
@@ -809,22 +809,22 @@ namespace JSON
 		{
 			switch ( value.Type( ) )
 			{
-			case DataType::STRING:
+			case DataType::String:
 				os << '"' << value.AsString( ) << '"';
 				break;
-			case DataType::OBJECT:
+			case DataType::Object:
 				value.PrintObjectTypeValue( os );
 				break;
-			case DataType::ARRAY:
+			case DataType::Array:
 				value.PrintArrayTypeValue( os );
 				break;
-			case DataType::INTERGER:
+			case DataType::Interger:
 				[[fallthrough]];
-			case DataType::REAL:
+			case DataType::Real:
 				[[fallthrough]];
-			case DataType::BOOLEAN:
+			case DataType::Boolean:
 				[[fallthrough]];
-			case DataType::EMPTY:
+			case DataType::Empty:
 				os << value.AsString( );
 				break;
 			default:
@@ -884,19 +884,19 @@ namespace JSON
 		}
 
 	private:
-		enum class TokenType
+		enum class TokenType : uint8
 		{
-			BRACE_OPEN = 1,			// {
-			BRACE_CLOSE,			// }
-			COLON,					
-			SQUARE_BRACKET_OPEN,	// [
-			SQUARE_BRACKET_CLOSE,	// ]
-			COMMA,					// ,
-			NUMBER,
-			STRING,
-			TRUE,					// true
-			FALSE,					// false
-			EMPTY					// null
+			BraceOpen = 1,			// {
+			BraceClose,			// }
+			Colon,					
+			SquareBracketOpen,	// [
+			SquareBracketClose,	// ]
+			Comma,					// ,
+			Number,
+			String,
+			True,					// true
+			False,					// false
+			Empty					// null
 		};
 
 		struct Token
@@ -916,22 +916,22 @@ namespace JSON
 			switch ( GetNextChar( ) )
 			{
 			case '{':
-				token.m_type = TokenType::BRACE_OPEN;
+				token.m_type = TokenType::BraceOpen;
 				break;
 			case '}':
-				token.m_type = TokenType::BRACE_CLOSE;
+				token.m_type = TokenType::BraceClose;
 				break;
 			case ':':
-				token.m_type = TokenType::COLON;
+				token.m_type = TokenType::Colon;
 				break;
 			case '[':
-				token.m_type = TokenType::SQUARE_BRACKET_OPEN;
+				token.m_type = TokenType::SquareBracketOpen;
 				break;
 			case ']':
-				token.m_type = TokenType::SQUARE_BRACKET_CLOSE;
+				token.m_type = TokenType::SquareBracketClose;
 				break;
 			case ',':
-				token.m_type = TokenType::COMMA;
+				token.m_type = TokenType::Comma;
 				break;
 			case '0':
 				[[fallthrough]];
@@ -954,29 +954,29 @@ namespace JSON
 			case '9':
 				[[fallthrough]];
 			case '-':
-				token.m_type = TokenType::NUMBER;
+				token.m_type = TokenType::Number;
 				ReadNumber( );
 				break;
 			case '"':
-				token.m_type = TokenType::STRING;
+				token.m_type = TokenType::String;
 				ReadString( );
 				break;
 			case 't':
 				if ( MatchNextString( "rue", 3 ) )
 				{
-					token.m_type = TokenType::TRUE;
+					token.m_type = TokenType::True;
 				}
 				break;
 			case 'f':
 				if ( MatchNextString( "alse", 4 ) )
 				{
-					token.m_type = TokenType::FALSE;
+					token.m_type = TokenType::False;
 				}
 				break;
 			case 'n':
 				if ( MatchNextString( "ull", 3 ) )
 				{
-					token.m_type = TokenType::EMPTY;
+					token.m_type = TokenType::Empty;
 				}
 				break;
 			default:
@@ -1034,34 +1034,34 @@ namespace JSON
 
 			switch ( token.m_type )
 			{
-			case TokenType::BRACE_OPEN:
+			case TokenType::BraceOpen:
 				ReadObject( );
 				break;
-			case TokenType::SQUARE_BRACKET_OPEN:
+			case TokenType::SquareBracketOpen:
 				ReadArray( );
 				break;
-			case TokenType::NUMBER:
+			case TokenType::Number:
 				CurrentValue( ) = DecodeNumberValue( token );
 				break;
-			case TokenType::STRING:
+			case TokenType::String:
 				CurrentValue( ) = DecodeStringValue( token );
 				break;
-			case TokenType::TRUE:
+			case TokenType::True:
 				{
-					Value value( DataType::BOOLEAN );
+					Value value( DataType::Boolean );
 					value = true;
 					CurrentValue( ) = value;
 				}
 				break;
-			case TokenType::FALSE:
+			case TokenType::False:
 				{
-					Value value( DataType::BOOLEAN );
+					Value value( DataType::Boolean );
 					value = false;
 					CurrentValue( ) = value;
 				}
 				break;
-			case TokenType::EMPTY:
-				CurrentValue( ) = Value( DataType::EMPTY );
+			case TokenType::Empty:
+				CurrentValue( ) = Value( DataType::Empty );
 				break;
 			default:
 				__debugbreak( );
@@ -1136,7 +1136,7 @@ namespace JSON
 
 		void ReadObject( )
 		{
-			Value init( DataType::OBJECT );
+			Value init( DataType::Object );
 			CurrentValue( ) = init;
 
 			SkipWhiteSpace( );
@@ -1151,7 +1151,7 @@ namespace JSON
 			{
 				Token keyString = ReadToken( );
 
-				if ( keyString.m_type != TokenType::STRING )
+				if ( keyString.m_type != TokenType::String )
 				{
 					__debugbreak( );
 				}
@@ -1160,7 +1160,7 @@ namespace JSON
 
 				Token colon = ReadToken( );
 
-				if ( colon.m_type != TokenType::COLON )
+				if ( colon.m_type != TokenType::Colon )
 				{
 					__debugbreak( );
 				}
@@ -1173,13 +1173,13 @@ namespace JSON
 
 				Token nextToken = ReadToken( );
 
-				if ( nextToken.m_type != TokenType::BRACE_CLOSE &&
-					nextToken.m_type != TokenType::COMMA )
+				if ( nextToken.m_type != TokenType::BraceClose &&
+					nextToken.m_type != TokenType::Comma )
 				{
 					__debugbreak( );
 				}
 
-				if ( nextToken.m_type == TokenType::BRACE_CLOSE )
+				if ( nextToken.m_type == TokenType::BraceClose )
 				{
 					break;
 				}
@@ -1188,7 +1188,7 @@ namespace JSON
 
 		void ReadArray( )
 		{
-			Value init( DataType::ARRAY );
+			Value init( DataType::Array );
 			CurrentValue( ) = init;
 			
 			SkipWhiteSpace( );
@@ -1211,13 +1211,13 @@ namespace JSON
 
 				Token nextToken = ReadToken( );
 
-				if ( nextToken.m_type != TokenType::SQUARE_BRACKET_CLOSE &&
-					nextToken.m_type != TokenType::COMMA )
+				if ( nextToken.m_type != TokenType::SquareBracketClose &&
+					nextToken.m_type != TokenType::Comma )
 				{
 					__debugbreak( );
 				}
 
-				if ( nextToken.m_type == TokenType::SQUARE_BRACKET_CLOSE )
+				if ( nextToken.m_type == TokenType::SquareBracketClose )
 				{
 					break;
 				}
@@ -1244,7 +1244,7 @@ namespace JSON
 				value = value * 10 + digit;
 			}
 
-			Value decoded( DataType::INTERGER );
+			Value decoded( DataType::Interger );
 			decoded = isNegative ? -value : value;
 			
 			return decoded;
@@ -1258,14 +1258,14 @@ namespace JSON
 
 			ss >> value;
 
-			Value decoded( DataType::REAL );
+			Value decoded( DataType::Real );
 			decoded = value;
 			return decoded;
 		}
 
 		Value DecodeStringValue( const Token& token )
 		{
-			Value decoded( DataType::STRING );
+			Value decoded( DataType::String );
 			decoded = std::move( DecodeString( token ) );
 			return decoded;
 		}

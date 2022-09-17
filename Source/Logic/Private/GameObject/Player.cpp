@@ -155,19 +155,19 @@ void CPlayer::OnWheelMove( const UserInput& input )
 
 void CPlayer::OnMoveKey( const UserInput& input )
 {
-	if ( input.m_code == USER_INPUT_CODE::UIC_LEFT )
+	if ( input.m_code == UserInputCode::UIC_LEFT )
 	{
 		m_inputDirection[0] = ( input.m_axis[UserInput::Z_AXIS] < 0 );
 	}
-	else if ( input.m_code == USER_INPUT_CODE::UIC_UP )
+	else if ( input.m_code == UserInputCode::UIC_UP )
 	{
 		m_inputDirection[1] = ( input.m_axis[UserInput::Z_AXIS] < 0 );
 	}
-	else if ( input.m_code == USER_INPUT_CODE::UIC_RIGHT )
+	else if ( input.m_code == UserInputCode::UIC_RIGHT )
 	{
 		m_inputDirection[2] = ( input.m_axis[UserInput::Z_AXIS] < 0 );
 	}
-	else if ( input.m_code == USER_INPUT_CODE::UIC_DOWN )
+	else if ( input.m_code == UserInputCode::UIC_DOWN )
 	{
 		m_inputDirection[3] = ( input.m_axis[UserInput::Z_AXIS] < 0 );
 	}

@@ -926,14 +926,14 @@ bool ImUI::HandleUserInput( const UserInput& input )
 
 	switch ( input.m_code )
 	{
-	case USER_INPUT_CODE::UIC_MOUSE_MOVE:
+	case UserInputCode::UIC_MOUSE_MOVE:
 		m_io.m_mousePos.x += input.m_axis[UserInput::X_AXIS];
 		m_io.m_mousePos.y += input.m_axis[UserInput::Y_AXIS];
 		break;
-	case USER_INPUT_CODE::UIC_MOUSE_LEFT:
-	case USER_INPUT_CODE::UIC_MOUSE_RIGHT:
-	case USER_INPUT_CODE::UIC_MOUSE_MIDDLE:
-		m_io.m_mouseDown[input.m_code - USER_INPUT_CODE::UIC_MOUSE_LEFT] = input.m_axis[UserInput::Z_AXIS] < 0;
+	case UserInputCode::UIC_MOUSE_LEFT:
+	case UserInputCode::UIC_MOUSE_RIGHT:
+	case UserInputCode::UIC_MOUSE_MIDDLE:
+		m_io.m_mouseDown[input.m_code - UserInputCode::UIC_MOUSE_LEFT] = input.m_axis[UserInput::Z_AXIS] < 0;
 	}
 
 	return FindMouseOverWindow() != nullptr;

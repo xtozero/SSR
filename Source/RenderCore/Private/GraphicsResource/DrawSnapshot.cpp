@@ -31,13 +31,13 @@ namespace
 			m_drawSnapshot.push_back( snapshot );
 		}
 
-		CommitDrawSnapshotTask( size_t reserveSize, aga::IDeferredCommandList& commandList, VertexBuffer& primitiveIds ) : m_commandList( commandList ), m_primitiveIds( primitiveIds )
+		CommitDrawSnapshotTask( size_t reserveSize, agl::IDeferredCommandList& commandList, VertexBuffer& primitiveIds ) : m_commandList( commandList ), m_primitiveIds( primitiveIds )
 		{
 			m_drawSnapshot.reserve( reserveSize );
 		}
 
 	private:
-		aga::IDeferredCommandList& m_commandList;
+		agl::IDeferredCommandList& m_commandList;
 		VertexBuffer& m_primitiveIds;
 		std::vector<VisibleDrawSnapshot*> m_drawSnapshot;
 	};
@@ -117,7 +117,7 @@ namespace rendercore
 		auto& pipelineState = snapshot.m_pipelineState;
 		auto& shaderState = pipelineState.m_shaderState;
 
-		aga::PipelineStateInitializer initializer
+		agl::PipelineStateInitializer initializer
 		{
 			shaderState.m_vertexShader ? shaderState.m_vertexShader->Resource() : nullptr,
 			shaderState.m_geometryShader ? shaderState.m_geometryShader->Resource() : nullptr,
@@ -129,7 +129,7 @@ namespace rendercore
 			pipelineState.m_primitive,
 		};
 
-		pipelineState.m_pso = aga::PipelineState::Create( initializer );
+		pipelineState.m_pso = agl::PipelineState::Create( initializer );
 	}
 
 	void SortDrawSnapshots( VectorSingleFrame<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
@@ -200,7 +200,7 @@ namespace rendercore
 			TaskHandle taskGroup = taskScheduler->GetTaskGroup();
 
 			CommitDrawSnapshotTask* commitTasks[2] = {};
-			std::unique_ptr<aga::IDeferredCommandList> deferredCommandLists[2] = {};
+			std::unique_ptr<agl::IDeferredCommandList> deferredCommandLists[2] = {};
 
 			for ( size_t i = 0, j = 0; i < std::extent_v<decltype( commitTasks )>; ++i )
 			{

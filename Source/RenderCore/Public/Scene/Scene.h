@@ -68,7 +68,7 @@ namespace rendercore
 			return m_gpuPrimitiveInfos;
 		}
 
-		virtual SHADING_METHOD ShadingMethod() const override;
+		virtual ShadingMethod GetShadingMethod() const override;
 
 		virtual Scene* GetRenderScene() { return this; };
 

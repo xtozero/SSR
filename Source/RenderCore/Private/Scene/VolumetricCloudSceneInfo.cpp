@@ -5,8 +5,6 @@
 #include "ShaderParameterMap.h"
 #include "ShaderParameterUtils.h"
 
-using ::aga::RefHandle;
-
 namespace rendercore
 {
 	class PerlinWorleyCS
@@ -21,7 +19,7 @@ namespace rendercore
 
 		ComputeShader* Shader() { return m_shader; }
 
-		aga::ShaderParameter m_noiseTex;
+		agl::ShaderParameter m_noiseTex;
 
 	private:
 		ComputeShader* m_shader = nullptr;
@@ -39,7 +37,7 @@ namespace rendercore
 
 		ComputeShader* Shader() { return m_shader; }
 
-		aga::ShaderParameter m_noiseTex;
+		agl::ShaderParameter m_noiseTex;
 
 	private:
 		ComputeShader* m_shader = nullptr;
@@ -57,7 +55,7 @@ namespace rendercore
 
 		ComputeShader* Shader() { return m_shader; }
 
-		aga::ShaderParameter m_weatherTex;
+		agl::ShaderParameter m_weatherTex;
 
 	private:
 		ComputeShader* m_shader = nullptr;
@@ -105,20 +103,20 @@ namespace rendercore
 
 	void VolumetricCloudSceneInfo::GenerateWeatherMap()
 	{
-		TEXTURE_TRAIT trait = {
+		agl::TEXTURE_TRAIT trait = {
 			.m_width = 1024,
 			.m_height = 1024,
 			.m_depth = 1,
 			.m_sampleCount = 1,
 			.m_sampleQuality = 0,
 			.m_mipLevels = 1,
-			.m_format = RESOURCE_FORMAT::R32G32B32A32_FLOAT,
-			.m_access = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
-			.m_bindType = RESOURCE_BIND_TYPE::SHADER_RESOURCE | RESOURCE_BIND_TYPE::RANDOM_ACCESS,
-			.m_miscFlag = RESOURCE_MISC::NONE,
+			.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
+			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+			.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess,
+			.m_miscFlag = agl::ResourceMisc::None,
 		};
 
-		m_weatherMap = aga::Texture::Create( trait );
+		m_weatherMap = agl::Texture::Create( trait );
 		EnqueueRenderTask(
 			[texture = m_weatherMap]()
 			{
@@ -138,22 +136,22 @@ namespace rendercore
 		commandList.Dispatch( threadGroupCount, threadGroupCount );
 	}
 
-	RefHandle<aga::Texture> VolumetricCloudSceneInfo::CreateCloudTexture( uint32 texSize )
+	agl::RefHandle<agl::Texture> VolumetricCloudSceneInfo::CreateCloudTexture( uint32 texSize )
 	{
-		TEXTURE_TRAIT trait = {
+		agl::TEXTURE_TRAIT trait = {
 			.m_width = texSize,
 			.m_height = texSize,
 			.m_depth = texSize,
 			.m_sampleCount = 1,
 			.m_sampleQuality = 0,
 			.m_mipLevels = 1,
-			.m_format = RESOURCE_FORMAT::R8G8B8A8_UNORM,
-			.m_access = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
-			.m_bindType = RESOURCE_BIND_TYPE::SHADER_RESOURCE | RESOURCE_BIND_TYPE::RANDOM_ACCESS,
-			.m_miscFlag = RESOURCE_MISC::TEXTURE3D
+			.m_format = agl::ResourceFormat::R8G8B8A8_UNORM,
+			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+			.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess,
+			.m_miscFlag = agl::ResourceMisc::Texture3D
 		};
 
-		RefHandle<aga::Texture> cloudTex = aga::Texture::Create( trait );
+		agl::RefHandle<agl::Texture> cloudTex = agl::Texture::Create( trait );
 		EnqueueRenderTask(
 			[texture = cloudTex]()
 			{

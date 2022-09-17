@@ -285,9 +285,9 @@ namespace rendercore
 		}
 	}
 
-	SHADING_METHOD Scene::ShadingMethod() const
+	ShadingMethod Scene::GetShadingMethod() const
 	{
-		return SHADING_METHOD::Forward;
+		return ShadingMethod::Forward;
 	}
 
 	CachedDrawSnapshotInfo Scene::AddCachedDrawSnapshot( RenderPass passType, const DrawSnapshot& snapshot )
@@ -452,7 +452,7 @@ namespace rendercore
 			gpuMemcpy.Add( (const char*)( &param ), index );
 		}
 
-		aga::Buffer* gpuPrimitiveInfos = scene.m_gpuPrimitiveInfos.Resource();
+		agl::Buffer* gpuPrimitiveInfos = scene.m_gpuPrimitiveInfos.Resource();
 		gpuMemcpy.Upload( gpuPrimitiveInfos );
 
 		scene.m_primitiveToUpdate.clear();

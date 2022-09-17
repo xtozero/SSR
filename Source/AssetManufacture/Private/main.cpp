@@ -35,8 +35,8 @@ bool LoadModules()
 		return false;
 	}
 
-	HMODULE agaDll = LoadModule( "Aga.dll" );
-	if ( agaDll == nullptr )
+	HMODULE aglDll = LoadModule( "Agl.dll" );
+	if ( aglDll == nullptr )
 	{
 		return false;
 	}

@@ -21,12 +21,12 @@ namespace rendercore
 		return ar;
 	}
 
-	aga::VertexLayout* VertexLayout::Resource()
+	agl::VertexLayout* VertexLayout::Resource()
 	{
 		return m_layout.Get();
 	}
 
-	const aga::VertexLayout* VertexLayout::Resource() const
+	const agl::VertexLayout* VertexLayout::Resource() const
 	{
 		return m_layout.Get();
 	}
@@ -39,6 +39,6 @@ namespace rendercore
 	void VertexLayout::InitResource( const VertexShader& vs, const VertexLayoutDesc& desc )
 	{
 		assert( IsInRenderThread() );
-		m_layout = aga::VertexLayout::Create( vs.Resource(), desc.Data(), desc.Size() );
+		m_layout = agl::VertexLayout::Create( vs.Resource(), desc.Data(), desc.Size() );
 	}
 }

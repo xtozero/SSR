@@ -34,9 +34,9 @@ LightComponent& Light::GetLightComponent()
 
 DECLARE_GAME_OBJECT( directional_light, DirectionalLight );
 
-const LIGHT_TYPE DirectionalLight::GetType() const
+const LightType DirectionalLight::GetType() const
 {
-	return LIGHT_TYPE::DIRECTINAL_LIGHT;
+	return LightType::Directional;
 }
 
 const Vector& DirectionalLight::Direction() const

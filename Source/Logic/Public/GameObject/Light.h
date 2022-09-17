@@ -10,12 +10,12 @@ class DirectionalLightComponent;
 class HemisphereLightComponent;
 class LightComponent;
 
-enum class LIGHT_TYPE
+enum class LightType : uint8
 {
-	NONE = -1,
-	DIRECTINAL_LIGHT,
-	POINT_LIGHT,
-	SPOT_LIGHT
+	None = 0,
+	Directional,
+	Point,
+	Spot
 };
 
 class Light : public CGameObject
@@ -23,7 +23,7 @@ class Light : public CGameObject
 	GENERATE_CLASS_TYPE_INFO( Light )
 
 public:
-	virtual const LIGHT_TYPE GetType() const = 0;
+	virtual const LightType GetType() const = 0;
 
 	void SetDiffuseColor( const ColorF& diffuseColor );
 	void SetSpecularColor( const ColorF& specularColor );
@@ -40,7 +40,7 @@ private:
 class DirectionalLight : public Light
 {
 public:
-	virtual const LIGHT_TYPE GetType() const override;
+	virtual const LightType GetType() const override;
 
 	const Vector& Direction() const;
 

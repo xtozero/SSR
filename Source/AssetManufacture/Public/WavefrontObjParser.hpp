@@ -279,7 +279,7 @@ namespace Wavefront
 			std::get<2>( rgb ) = b;
 		}
 
-		enum class TokenType
+		enum class TokenType : uint8
 		{
 			Error = 0,
 			Comment,			// #
@@ -562,7 +562,7 @@ namespace Wavefront
 			CreateMesh( mesh );
 		}
 
-		enum class TokenType
+		enum class TokenType : uint8
 		{
 			Error = 0,
 			Comment,			// #

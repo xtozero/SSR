@@ -6,9 +6,9 @@
 
 namespace rendercore
 {
-	VertexStream::VertexStream( const char* name, RESOURCE_FORMAT format, uint32 count ) : m_name( name ), m_format( format ), m_count( count )
+	VertexStream::VertexStream( const char* name, agl::ResourceFormat format, uint32 count ) : m_name( name ), m_format( format ), m_count( count )
 	{
-		m_stride = ResourceFormatSize( format );
+		m_stride = agl::ResourceFormatSize( format );
 		m_data.resize( m_stride * m_count );
 	}
 
@@ -23,7 +23,7 @@ namespace rendercore
 		return ar;
 	}
 
-	void VertexStreamLayout::AddLayout( const char* name, uint32 index, RESOURCE_FORMAT format, uint32 slot, bool isInstanceData, uint32 instanceDataStep, int32 streamIndex )
+	void VertexStreamLayout::AddLayout( const char* name, uint32 index, agl::ResourceFormat format, uint32 slot, bool isInstanceData, uint32 instanceDataStep, int32 streamIndex )
 	{
 		m_streamIndices[m_size] = streamIndex;
 		VertexLayoutDesc::AddLayout( name, index, format, slot, isInstanceData, instanceDataStep );
@@ -64,7 +64,7 @@ namespace rendercore
 		return static_cast<uint32>( m_streams.size() );
 	}
 
-	void VertexCollection::InitLayout( const VERTEX_LAYOUT_TRAIT* trait, uint32 count, VertexStreamLayoutType layoutType )
+	void VertexCollection::InitLayout( const agl::VERTEX_LAYOUT_TRAIT* trait, uint32 count, VertexStreamLayoutType layoutType )
 	{
 		if ( layoutType == VertexStreamLayoutType::PositionOnly )
 		{
@@ -145,13 +145,13 @@ namespace rendercore
 		return { };
 	}
 
-	VertexStreamLayout VertexCollection::SetupVertexLayout( const VERTEX_LAYOUT_TRAIT* traits, uint32 count )
+	VertexStreamLayout VertexCollection::SetupVertexLayout( const agl::VERTEX_LAYOUT_TRAIT* traits, uint32 count )
 	{
 		VertexStreamLayout layout;
 
 		for ( uint32 i = 0; i < count; ++i )
 		{
-			const VERTEX_LAYOUT_TRAIT& trait = traits[i];
+			const agl::VERTEX_LAYOUT_TRAIT& trait = traits[i];
 			auto streamIndex = FindStream( trait.m_name );
 			if ( streamIndex )
 			{
@@ -178,13 +178,13 @@ namespace rendercore
 		const std::vector<MeshVertexInstance>& vertexInstances = desc.m_vertexInstances;
 		uint32 vertexInstanceCount = static_cast<uint32>( vertexInstances.size() );
 
-		VERTEX_LAYOUT_TRAIT trait[MAX_VERTEX_LAYOUT_SIZE] = {};
+		agl::VERTEX_LAYOUT_TRAIT trait[agl::MAX_VERTEX_LAYOUT_SIZE] = {};
 		uint32 traitSize = 0;
 		uint32 slot = 0;
 
 		// Only Position
 		{
-			VertexStream posStream( "POSITION", RESOURCE_FORMAT::R32G32B32_FLOAT, vertexInstanceCount );
+			VertexStream posStream( "POSITION", agl::ResourceFormat::R32G32B32_FLOAT, vertexInstanceCount );
 
 			auto data = reinterpret_cast<Vector*>( posStream.Data() );
 			for ( size_t i = 0; i < vertexInstances.size(); ++i )
@@ -198,7 +198,7 @@ namespace rendercore
 			trait[traitSize++] = {
 				false,
 				0,
-				RESOURCE_FORMAT::R32G32B32_FLOAT,
+				agl::ResourceFormat::R32G32B32_FLOAT,
 				slot++,
 				0,
 				Name( "POSITION" )
@@ -211,7 +211,7 @@ namespace rendercore
 		{
 			if ( normal.size() > 0 )
 			{
-				VertexStream normalStream( "NORMAL", RESOURCE_FORMAT::R32G32B32_FLOAT, vertexInstanceCount );
+				VertexStream normalStream( "NORMAL", agl::ResourceFormat::R32G32B32_FLOAT, vertexInstanceCount );
 
 				auto data = reinterpret_cast<Vector*>( normalStream.Data() );
 				for ( size_t i = 0; i < vertexInstances.size(); ++i )
@@ -225,7 +225,7 @@ namespace rendercore
 				trait[traitSize++] = {
 					false,
 					0,
-					RESOURCE_FORMAT::R32G32B32_FLOAT,
+					agl::ResourceFormat::R32G32B32_FLOAT,
 					slot++,
 					0,
 					Name( "NORMAL" )
@@ -240,7 +240,7 @@ namespace rendercore
 
 			if ( texCoord.size() > 0 )
 			{
-				VertexStream texCoordStream( "TEXCOORD", RESOURCE_FORMAT::R32G32_FLOAT, vertexInstanceCount );
+				VertexStream texCoordStream( "TEXCOORD", agl::ResourceFormat::R32G32_FLOAT, vertexInstanceCount );
 
 				auto data = reinterpret_cast<Vector2*>( texCoordStream.Data() );
 				for ( size_t i = 0; i < vertexInstances.size(); ++i )
@@ -254,7 +254,7 @@ namespace rendercore
 				trait[traitSize++] = {
 					false,
 					0,
-					RESOURCE_FORMAT::R32G32_FLOAT,
+					agl::ResourceFormat::R32G32_FLOAT,
 					slot++,
 					0,
 					Name( "TEXCOORD" )

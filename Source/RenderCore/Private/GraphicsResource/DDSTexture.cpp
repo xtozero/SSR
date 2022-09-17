@@ -13,12 +13,12 @@ namespace rendercore
 	}
 
 	REGISTER_ASSET( Texture );
-	aga::Texture* Texture::Resource()
+	agl::Texture* Texture::Resource()
 	{
 		return m_texture.Get();
 	}
 
-	const aga::Texture* Texture::Resource() const
+	const agl::Texture* Texture::Resource() const
 	{
 		return m_texture.Get();
 	}
@@ -50,11 +50,11 @@ namespace rendercore
 
 	void DDSTexture::PostLoadImpl()
 	{
-		RESOURCE_MISC misc = RESOURCE_MISC::NONE;
-		misc |= m_isCubeMap ? RESOURCE_MISC::TEXTURECUBE : RESOURCE_MISC::NONE;
-		misc |= ( m_depth > 1 ) ? RESOURCE_MISC::TEXTURE3D : RESOURCE_MISC::NONE;
+		agl::ResourceMisc misc = agl::ResourceMisc::None;
+		misc |= m_isCubeMap ? agl::ResourceMisc::TextureCube : agl::ResourceMisc::None;
+		misc |= ( m_depth > 1 ) ? agl::ResourceMisc::Texture3D : agl::ResourceMisc::None;
 
-		TEXTURE_TRAIT tarit =
+		agl::TEXTURE_TRAIT tarit =
 		{
 			m_width,
 			m_height,
@@ -63,12 +63,12 @@ namespace rendercore
 			0,
 			m_mipLevels,
 			m_format,
-			RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
-			RESOURCE_BIND_TYPE::SHADER_RESOURCE,
+			agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+			agl::ResourceBindType::ShaderResource,
 			misc
 		};
 
-		RESOURCE_INIT_DATA initData;
+		agl::RESOURCE_INIT_DATA initData;
 		initData.m_sections.resize( m_sections.size() );
 		initData.m_srcData = m_memory.Data();
 		initData.m_srcSize = m_memory.Size();
@@ -80,7 +80,7 @@ namespace rendercore
 			initData.m_sections[i].m_slicePitch = m_sections[i].m_slicePitch;
 		}
 
-		m_texture = aga::Texture::Create( tarit, &initData );
+		m_texture = agl::Texture::Create( tarit, &initData );
 
 		EnqueueRenderTask(
 			[this]()

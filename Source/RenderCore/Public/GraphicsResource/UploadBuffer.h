@@ -21,8 +21,8 @@ namespace rendercore
 
 		void Unlock();
 
-		aga::Buffer* Resource();
-		const aga::Buffer* Resource() const;
+		agl::Buffer* Resource();
+		const agl::Buffer* Resource() const;
 
 		UploadBuffer( uint32 elementSize, uint32 numElement, const void* initData );
 
@@ -36,7 +36,7 @@ namespace rendercore
 	protected:
 		void InitResource( const void* initData );
 
-		aga::RefHandle<aga::Buffer> m_buffer;
+		agl::RefHandle<agl::Buffer> m_buffer;
 		uint32 m_elementSize = 0;
 		uint32 m_numElement = 0;
 

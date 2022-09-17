@@ -24,12 +24,12 @@ namespace rendercore
 		GraphicsInterface().UnLock( m_buffer );
 	}
 
-	aga::Buffer* UploadBuffer::Resource()
+	agl::Buffer* UploadBuffer::Resource()
 	{
 		return m_buffer.Get();
 	}
 
-	const aga::Buffer* UploadBuffer::Resource() const
+	const agl::Buffer* UploadBuffer::Resource() const
 	{
 		return m_buffer.Get();
 	}
@@ -44,17 +44,17 @@ namespace rendercore
 	{
 		if ( m_elementSize > 0 && m_numElement > 0 )
 		{
-			BUFFER_TRAIT trait = {
+			agl::BUFFER_TRAIT trait = {
 				m_elementSize,
 				m_numElement,
-				RESOURCE_ACCESS_FLAG::GPU_READ |
-				RESOURCE_ACCESS_FLAG::CPU_WRITE,
-				RESOURCE_BIND_TYPE::SHADER_RESOURCE,
-				RESOURCE_MISC::BUFFER_STRUCTURED,
-				RESOURCE_FORMAT::UNKNOWN
+				agl::ResourceAccessFlag::GpuRead |
+				agl::ResourceAccessFlag::CpuWrite,
+				agl::ResourceBindType::ShaderResource,
+				agl::ResourceMisc::BufferStructured,
+				agl::ResourceFormat::Unknown
 			};
 
-			m_buffer = aga::Buffer::Create( trait, initData );
+			m_buffer = agl::Buffer::Create( trait, initData );
 			EnqueueRenderTask(
 				[buffer = m_buffer]()
 				{

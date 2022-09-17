@@ -7,8 +7,6 @@
 #include <fstream>
 #include <vector>
 
-using ::aga::ConvertDxgiFormatToFormat;
-
 namespace fs = std::filesystem;
 
 namespace
@@ -47,7 +45,7 @@ namespace
 		initializer.m_isCubeMap = meta.IsCubemap();
 		initializer.m_demension = ConvertToBCTextureDemension( meta.dimension );
 
-		initializer.m_format = ConvertDxgiFormatToFormat( meta.format );
+		initializer.m_format = agl::ConvertDxgiFormatToFormat( meta.format );
 
 		initializer.m_size = static_cast<uint32>( image.GetPixelsSize() );
 		initializer.m_memory = image.GetPixels();

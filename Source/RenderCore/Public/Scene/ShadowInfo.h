@@ -37,8 +37,8 @@ namespace rendercore
 
 	struct ShadowMapRenderTarget
 	{
-		aga::RefHandle<aga::Texture> m_shadowMap;
-		aga::RefHandle<aga::Texture> m_shadowMapDepth;
+		agl::RefHandle<agl::Texture> m_shadowMap;
+		agl::RefHandle<agl::Texture> m_shadowMapDepth;
 	};
 
 	class ShadowInfo

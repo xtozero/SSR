@@ -342,5 +342,5 @@ void CGameObject::UnRegisterThinkFunction()
 
 void RemoveObject( CGameObject& object )
 {
-	object.AddProperty( GAMEOBJECT_PROPERTY::REMOVE_ME );
+	object.AddProperty( GameobjectProperty::RemoveMe );
 }

@@ -22,7 +22,7 @@ namespace rendercore
 		GeometryShader* GetGeometryShader();
 		const PixelShader* GetPixelShader() const;
 		PixelShader* GetPixelShader();
-		const ShaderBase* GetShader( SHADER_TYPE type ) const;
+		const ShaderBase* GetShader( agl::ShaderType type ) const;
 
 		void SetMaterial( const std::shared_ptr<Material>& material );
 		void TakeSnapshot( DrawSnapshot& snapShot );
@@ -33,10 +33,10 @@ namespace rendercore
 
 		std::shared_ptr<Material> m_material;
 
-		using ConstantBufferParameter = std::pair<aga::ShaderParameter, ConstantBuffer>;
+		using ConstantBufferParameter = std::pair<agl::ShaderParameter, ConstantBuffer>;
 		std::vector<ConstantBufferParameter> m_materialConstantBuffers;
 
-		using NamedShaderParameter = std::pair<aga::ShaderParameter, Name>;
+		using NamedShaderParameter = std::pair<agl::ShaderParameter, Name>;
 		std::vector<NamedShaderParameter> m_materialConstantValueNames;
 	};
 }

@@ -10,10 +10,10 @@ namespace rendercore
 	class BlendState
 	{
 	public:
-		aga::BlendState* Resource();
-		const aga::BlendState* Resource() const;
+		agl::BlendState* Resource();
+		const agl::BlendState* Resource() const;
 
-		explicit BlendState( const BLEND_STATE_TRAIT& trait );
+		explicit BlendState( const agl::BLEND_STATE_TRAIT& trait );
 
 		BlendState() = default;
 		~BlendState() = default;
@@ -23,18 +23,18 @@ namespace rendercore
 		BlendState& operator=( BlendState&& ) = default;
 
 	private:
-		void InitResource( const BLEND_STATE_TRAIT& trait );
+		void InitResource( const agl::BLEND_STATE_TRAIT& trait );
 
-		aga::RefHandle<aga::BlendState> m_state;
+		agl::RefHandle<agl::BlendState> m_state;
 	};
 
 	class DepthStencilState
 	{
 	public:
-		aga::DepthStencilState* Resource();
-		const aga::DepthStencilState* Resource() const;
+		agl::DepthStencilState* Resource();
+		const agl::DepthStencilState* Resource() const;
 
-		explicit DepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait );
+		explicit DepthStencilState( const agl::DEPTH_STENCIL_STATE_TRAIT& trait );
 
 		DepthStencilState() = default;
 		~DepthStencilState() = default;
@@ -44,18 +44,18 @@ namespace rendercore
 		DepthStencilState& operator=( DepthStencilState&& ) = default;
 
 	private:
-		void InitResource( const DEPTH_STENCIL_STATE_TRAIT& trait );
+		void InitResource( const agl::DEPTH_STENCIL_STATE_TRAIT& trait );
 
-		aga::RefHandle<aga::DepthStencilState> m_state;
+		agl::RefHandle<agl::DepthStencilState> m_state;
 	};
 
 	class RasterizerState
 	{
 	public:
-		aga::RasterizerState* Resource();
-		const aga::RasterizerState* Resource() const;
+		agl::RasterizerState* Resource();
+		const agl::RasterizerState* Resource() const;
 
-		explicit RasterizerState( const RASTERIZER_STATE_TRAIT& trait );
+		explicit RasterizerState( const agl::RASTERIZER_STATE_TRAIT& trait );
 
 		RasterizerState() = default;
 		~RasterizerState() = default;
@@ -65,18 +65,18 @@ namespace rendercore
 		RasterizerState& operator=( RasterizerState&& ) = default;
 
 	private:
-		void InitResource( const RASTERIZER_STATE_TRAIT& trait );
+		void InitResource( const agl::RASTERIZER_STATE_TRAIT& trait );
 
-		aga::RefHandle<aga::RasterizerState> m_state;
+		agl::RefHandle<agl::RasterizerState> m_state;
 	};
 
 	class SamplerState
 	{
 	public:
-		aga::SamplerState* Resource();
-		const aga::SamplerState* Resource() const;
+		agl::SamplerState* Resource();
+		const agl::SamplerState* Resource() const;
 
-		explicit SamplerState( const SAMPLER_STATE_TRAIT& trait );
+		explicit SamplerState( const agl::SAMPLER_STATE_TRAIT& trait );
 
 		SamplerState() = default;
 		~SamplerState() = default;
@@ -86,9 +86,9 @@ namespace rendercore
 		SamplerState& operator=( SamplerState&& ) = default;
 
 	private:
-		void InitResource( const SAMPLER_STATE_TRAIT& trait );
+		void InitResource( const agl::SAMPLER_STATE_TRAIT& trait );
 
-		aga::RefHandle<aga::SamplerState> m_state;
+		agl::RefHandle<agl::SamplerState> m_state;
 	};
 
 	struct ShaderStates
@@ -102,23 +102,23 @@ namespace rendercore
 		PixelShader* m_pixelShader = nullptr;
 	};
 
-	inline aga::ShaderBindingsInitializer CreateShaderBindingsInitializer( const ShaderStates& state )
+	inline agl::ShaderBindingsInitializer CreateShaderBindingsInitializer( const ShaderStates& state )
 	{
-		aga::ShaderBindingsInitializer initializer;
+		agl::ShaderBindingsInitializer initializer;
 
 		if ( state.m_vertexShader && state.m_vertexShader->IsValid() )
 		{
-			initializer[SHADER_TYPE::VS] = &state.m_vertexShader->ParameterInfo();
+			initializer[agl::ShaderType::VS] = &state.m_vertexShader->ParameterInfo();
 		}
 
 		if ( state.m_geometryShader && state.m_geometryShader->IsValid() )
 		{
-			initializer[SHADER_TYPE::GS] = &state.m_geometryShader->ParameterInfo();
+			initializer[agl::ShaderType::GS] = &state.m_geometryShader->ParameterInfo();
 		}
 
 		if ( state.m_pixelShader && state.m_pixelShader->IsValid() )
 		{
-			initializer[SHADER_TYPE::PS] = &state.m_pixelShader->ParameterInfo();
+			initializer[agl::ShaderType::PS] = &state.m_pixelShader->ParameterInfo();
 		}
 
 		return initializer;
@@ -130,8 +130,8 @@ namespace rendercore
 		RasterizerState m_rasterizerState;
 		DepthStencilState m_depthStencilState;
 		BlendState m_blendState;
-		RESOURCE_PRIMITIVE m_primitive;
+		agl::ResourcePrimitive m_primitive;
 
-		aga::RefHandle<aga::PipelineState> m_pso;
+		agl::RefHandle<agl::PipelineState> m_pso;
 	};
 }

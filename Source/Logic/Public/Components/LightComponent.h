@@ -10,7 +10,7 @@ namespace rendercore
 	class LightProxy;
 }
 
-enum class ShadowQuility
+enum class ShadowQuility : uint8
 {
 	Low = 0,
 	Mid,

@@ -6,24 +6,24 @@
 
 namespace rendercore
 {
-	aga::BlendState* BlendState::Resource()
+	agl::BlendState* BlendState::Resource()
 	{
 		return m_state.Get();
 	}
 
-	const aga::BlendState* BlendState::Resource() const
+	const agl::BlendState* BlendState::Resource() const
 	{
 		return m_state.Get();
 	}
 
-	BlendState::BlendState( const BLEND_STATE_TRAIT& trait )
+	BlendState::BlendState( const agl::BLEND_STATE_TRAIT& trait )
 	{
 		InitResource( trait );
 	}
 
-	void BlendState::InitResource( const BLEND_STATE_TRAIT& trait )
+	void BlendState::InitResource( const agl::BLEND_STATE_TRAIT& trait )
 	{
-		m_state = aga::BlendState::Create( trait );
+		m_state = agl::BlendState::Create( trait );
 		EnqueueRenderTask(
 			[state = m_state]()
 			{
@@ -31,48 +31,48 @@ namespace rendercore
 			} );
 	}
 
-	aga::DepthStencilState* DepthStencilState::Resource()
+	agl::DepthStencilState* DepthStencilState::Resource()
 	{
 		return m_state.Get();
 	}
 
-	const aga::DepthStencilState* DepthStencilState::Resource() const
+	const agl::DepthStencilState* DepthStencilState::Resource() const
 	{
 		return m_state.Get();
 	}
 
-	DepthStencilState::DepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait )
+	DepthStencilState::DepthStencilState( const agl::DEPTH_STENCIL_STATE_TRAIT& trait )
 	{
 		InitResource( trait );
 	}
 
-	void DepthStencilState::InitResource( const DEPTH_STENCIL_STATE_TRAIT& trait )
+	void DepthStencilState::InitResource( const agl::DEPTH_STENCIL_STATE_TRAIT& trait )
 	{
-		m_state = aga::DepthStencilState::Create( trait );
+		m_state = agl::DepthStencilState::Create( trait );
 		EnqueueRenderTask( [state = m_state]()
 			{
 				state->Init();
 			} );
 	}
 
-	aga::RasterizerState* RasterizerState::Resource()
+	agl::RasterizerState* RasterizerState::Resource()
 	{
 		return m_state.Get();
 	}
 
-	const aga::RasterizerState* RasterizerState::Resource() const
+	const agl::RasterizerState* RasterizerState::Resource() const
 	{
 		return m_state.Get();
 	}
 
-	RasterizerState::RasterizerState( const RASTERIZER_STATE_TRAIT& trait )
+	RasterizerState::RasterizerState( const agl::RASTERIZER_STATE_TRAIT& trait )
 	{
 		InitResource( trait );
 	}
 
-	void RasterizerState::InitResource( const RASTERIZER_STATE_TRAIT& trait )
+	void RasterizerState::InitResource( const agl::RASTERIZER_STATE_TRAIT& trait )
 	{
-		m_state = aga::RasterizerState::Create( trait );
+		m_state = agl::RasterizerState::Create( trait );
 		EnqueueRenderTask(
 			[state = m_state]()
 			{
@@ -80,24 +80,24 @@ namespace rendercore
 			} );
 	}
 
-	aga::SamplerState* SamplerState::Resource()
+	agl::SamplerState* SamplerState::Resource()
 	{
 		return m_state.Get();
 	}
 
-	const aga::SamplerState* SamplerState::Resource() const
+	const agl::SamplerState* SamplerState::Resource() const
 	{
 		return m_state.Get();
 	}
 
-	SamplerState::SamplerState( const SAMPLER_STATE_TRAIT& trait )
+	SamplerState::SamplerState( const agl::SAMPLER_STATE_TRAIT& trait )
 	{
 		InitResource( trait );
 	}
 
-	void SamplerState::InitResource( const SAMPLER_STATE_TRAIT& trait )
+	void SamplerState::InitResource( const agl::SAMPLER_STATE_TRAIT& trait )
 	{
-		m_state = aga::SamplerState::Create( trait );
+		m_state = agl::SamplerState::Create( trait );
 		EnqueueRenderTask(
 			[state = m_state]()
 			{

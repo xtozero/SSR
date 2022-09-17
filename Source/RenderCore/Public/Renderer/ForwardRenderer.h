@@ -10,9 +10,9 @@ namespace rendercore
 	public:
 		void UpdateBufferSize( uint32 width, uint32 height );
 
-		aga::Texture* GetDepthStencil();
-		aga::Texture* GetLinearDepth();
-		aga::Texture* GetWorldNormal();
+		agl::Texture* GetDepthStencil();
+		agl::Texture* GetLinearDepth();
+		agl::Texture* GetWorldNormal();
 
 	private:
 		void AllocDepthStencil();
@@ -21,9 +21,9 @@ namespace rendercore
 
 		void ReleaseAll();
 
-		aga::RefHandle<aga::Texture> m_depthStencil;
-		aga::RefHandle<aga::Texture> m_linearDepth;
-		aga::RefHandle<aga::Texture> m_worldNormal;
+		agl::RefHandle<agl::Texture> m_depthStencil;
+		agl::RefHandle<agl::Texture> m_linearDepth;
+		agl::RefHandle<agl::Texture> m_worldNormal;
 
 		std::pair<uint32, uint32> m_bufferSize;
 	};

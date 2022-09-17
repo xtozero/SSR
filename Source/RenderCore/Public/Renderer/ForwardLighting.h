@@ -12,19 +12,19 @@ namespace rendercore
 	class ForwardLightBuffer
 	{
 	public:
-		void Initialize( uint32 bytePerElement, uint32 numElements, RESOURCE_FORMAT format );
+		void Initialize( uint32 bytePerElement, uint32 numElements, agl::ResourceFormat format );
 
 		void* Lock();
 		void Unlock();
 
-		aga::ShaderResourceView* SRV();
-		const aga::ShaderResourceView* SRV() const;
+		agl::ShaderResourceView* SRV();
+		const agl::ShaderResourceView* SRV() const;
 
-		aga::Buffer* Resource();
-		const aga::Buffer* Resource() const;
+		agl::Buffer* Resource();
+		const agl::Buffer* Resource() const;
 
 	private:
-		aga::RefHandle<aga::Buffer> m_buffer;
+		agl::RefHandle<agl::Buffer> m_buffer;
 	};
 
 	struct ForwardLightData

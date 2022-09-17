@@ -15,11 +15,11 @@
 #include <memory>
 #include <vector>
 
-enum DIRTY_FLAG
+enum Dirtyflag : uint8
 {
-	DF_POSITION = 1 << 0,
-	DF_ROTATION = 1 << 1,
-	DF_SCALING = 1 << 2,
+	Position = 1 << 0,
+	Rotation = 1 << 1,
+	Scaling = 1 << 2,
 };
 
 class BaseMesh;
@@ -81,11 +81,11 @@ public:
 	bool IsPicked() const { return m_isPicked; }
 	void SetPicked( bool isPicked ) { m_isPicked = isPicked; }
 
-	GAMEOBJECT_PROPERTY GetProperty() const { return m_property; }
-	void AddProperty( GAMEOBJECT_PROPERTY property ) { m_property |= property; }
-	void RemoveProperty( GAMEOBJECT_PROPERTY property ) { m_property &= ~property; }
+	GameobjectProperty GetProperty() const { return m_property; }
+	void AddProperty( GameobjectProperty property ) { m_property |= property; }
+	void RemoveProperty( GameobjectProperty property ) { m_property &= ~property; }
 
-	bool WillRemove() const { return HasAnyFlags( m_property, GAMEOBJECT_PROPERTY::REMOVE_ME ); }
+	bool WillRemove() const { return HasAnyFlags( m_property, GameobjectProperty::RemoveMe ); }
 
 	void LoadProperty( const JSON::Value& json );
 
@@ -142,7 +142,7 @@ private:
 
 	bool m_isPicked = false;
 
-	GAMEOBJECT_PROPERTY m_property = GAMEOBJECT_PROPERTY::NONE;
+	GameobjectProperty m_property = GameobjectProperty::None;
 
 	std::vector<std::unique_ptr<Component>> m_components;
 	std::map<Name, Component*> m_componentMap;

@@ -6,7 +6,7 @@
 #include "DefaultConstantBuffers.h"
 #include "ForwardRenderer.h"
 #include "GlobalShaders.h"
-#include "IAga.h"
+#include "IAgl.h"
 #include "RenderView.h"
 #include "TaskScheduler.h"
 #include "Scene/Scene.h"
@@ -36,10 +36,10 @@ namespace rendercore
 
 		mutable bool m_isReady = false;
 
-		HMODULE m_hAga;
-		aga::IAga* m_aga = nullptr;
+		HMODULE m_hAgl;
+		agl::IAgl* m_agl = nullptr;
 
-		std::map<SHADING_METHOD, std::unique_ptr<SceneRenderer>> m_sceneRenderer;
+		std::map<ShadingMethod, std::unique_ptr<SceneRenderer>> m_sceneRenderer;
 	};
 
 	Owner<IRenderCore*> CreateRenderCore()
@@ -54,19 +54,19 @@ namespace rendercore
 
 	bool RenderCore::BootUp()
 	{
-		m_hAga = LoadModule( "Aga.dll" );
-		if ( m_hAga == nullptr )
+		m_hAgl = LoadModule( "Agl.dll" );
+		if ( m_hAgl == nullptr )
 		{
 			return false;
 		}
 
-		m_aga = GetInterface<aga::IAga>();
-		if ( m_aga == nullptr )
+		m_agl = GetInterface<agl::IAgl>();
+		if ( m_agl == nullptr )
 		{
 			return false;
 		}
 
-		if ( m_aga->BootUp() == false )
+		if ( m_agl->BootUp() == false )
 		{
 			return false;
 		}
@@ -75,7 +75,7 @@ namespace rendercore
 
 		ShaderCache::LoadFromFile();
 
-		GraphicsInterface().BootUp( m_aga );
+		GraphicsInterface().BootUp( m_agl );
 
 		DefaultConstantBuffers::GetInstance().BootUp();
 
@@ -104,7 +104,7 @@ namespace rendercore
 
 	void RenderCore::AppSizeChanged()
 	{
-		m_aga->AppSizeChanged();
+		m_agl->AppSizeChanged();
 	}
 
 	IScene* RenderCore::CreateScene()
@@ -155,19 +155,19 @@ namespace rendercore
 
 		GraphicsInterface().Shutdown();
 
-		ShutdownModule( m_hAga );
+		ShutdownModule( m_hAgl );
 	}
 
 	SceneRenderer* RenderCore::FindAndCreateSceneRenderer( const RenderViewGroup& renderViewGroup )
 	{
-		SHADING_METHOD shadingMethod = renderViewGroup.Scene().ShadingMethod();
+		ShadingMethod shadingMethod = renderViewGroup.Scene().GetShadingMethod();
 
 		auto& sceneRenderer = m_sceneRenderer[shadingMethod];
 		if ( sceneRenderer.get() == nullptr )
 		{
 			switch ( shadingMethod )
 			{
-			case SHADING_METHOD::Forward:
+			case ShadingMethod::Forward:
 			{
 				sceneRenderer = std::make_unique<ForwardRenderer>();
 				break;

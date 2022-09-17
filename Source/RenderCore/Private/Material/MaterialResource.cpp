@@ -67,7 +67,7 @@ namespace rendercore
 		return nullptr;
 	}
 
-	const ShaderBase* MaterialResource::GetShader( SHADER_TYPE type ) const
+	const ShaderBase* MaterialResource::GetShader( agl::ShaderType type ) const
 	{
 		if ( m_material )
 		{
@@ -90,7 +90,7 @@ namespace rendercore
 		{
 			auto& [cbParam, cb] = materialConstantBuffer;
 
-			aga::SingleShaderBindings binding = snapShot.m_shaderBindings.GetSingleShaderBindings( cbParam.m_shader );
+			agl::SingleShaderBindings binding = snapShot.m_shaderBindings.GetSingleShaderBindings( cbParam.m_shader );
 
 			binding.AddConstantBuffer( cbParam, cb.Resource() );
 		}
@@ -98,7 +98,7 @@ namespace rendercore
 		auto& graphicsInterface = GraphicsInterface();
 
 		// Bind texture and sampler
-		auto shaderTypes = { SHADER_TYPE::VS, SHADER_TYPE::GS, SHADER_TYPE::PS };
+		auto shaderTypes = { agl::ShaderType::VS, agl::ShaderType::GS, agl::ShaderType::PS };
 		for ( auto shaderType : shaderTypes )
 		{
 			auto shader = GetShader( shaderType );
@@ -107,15 +107,15 @@ namespace rendercore
 				continue;
 			}
 
-			aga::SingleShaderBindings binding = snapShot.m_shaderBindings.GetSingleShaderBindings( shaderType );
+			agl::SingleShaderBindings binding = snapShot.m_shaderBindings.GetSingleShaderBindings( shaderType );
 
 			const auto& parameterMap = shader->ParameterMap().GetParameterMap();
 			for ( const auto& pair : parameterMap )
 			{
 				const auto& [name, param] = pair;
 
-				if ( param.m_type == aga::ShaderParameterType::SRV ||
-					param.m_type == aga::ShaderParameterType::UAV )
+				if ( param.m_type == agl::ShaderParameterType::SRV ||
+					param.m_type == agl::ShaderParameterType::UAV )
 				{
 					auto texture = m_material->AsTexture( name.Str().data() );
 					if ( texture == nullptr )
@@ -123,8 +123,8 @@ namespace rendercore
 						continue;
 					}
 
-					aga::Texture* resource = texture->Resource();
-					if ( param.m_type == aga::ShaderParameterType::SRV )
+					agl::Texture* resource = texture->Resource();
+					if ( param.m_type == agl::ShaderParameterType::SRV )
 					{
 						auto srv = resource ? resource->SRV() : nullptr;
 						binding.AddSRV( param, srv );
@@ -135,7 +135,7 @@ namespace rendercore
 						binding.AddUAV( param, uav );
 					}
 				}
-				else if ( param.m_type == aga::ShaderParameterType::Sampler )
+				else if ( param.m_type == agl::ShaderParameterType::Sampler )
 				{
 					if ( auto samplerOption = m_material->AsSampelrOption( name.Str().data() ) )
 					{
@@ -158,20 +158,20 @@ namespace rendercore
 		size_t constantValueNameSize = 0;
 
 		auto shaderTypes = {
-			static_cast<uint32>( SHADER_TYPE::VS ),
-			static_cast<uint32>( SHADER_TYPE::GS ),
-			static_cast<uint32>( SHADER_TYPE::PS ) };
+			static_cast<uint32>( agl::ShaderType::VS ),
+			static_cast<uint32>( agl::ShaderType::GS ),
+			static_cast<uint32>( agl::ShaderType::PS ) };
 
-		uint32 materialCbSlotNumbers[MAX_SHADER_TYPE<uint32>];
+		uint32 materialCbSlotNumbers[agl::MAX_SHADER_TYPE<uint32>];
 		constexpr uint32 invalidSlot = std::numeric_limits<uint32>::max();
 		std::fill( std::begin( materialCbSlotNumbers ), std::end( materialCbSlotNumbers ), invalidSlot );
 
-		const ShaderBase* shaders[MAX_SHADER_TYPE<uint32>] = {};
+		const ShaderBase* shaders[agl::MAX_SHADER_TYPE<uint32>] = {};
 
 		// cache shader
 		for ( auto shaderType : shaderTypes )
 		{
-			shaders[shaderType] = GetShader( static_cast<SHADER_TYPE>( shaderType ) );
+			shaders[shaderType] = GetShader( static_cast<agl::ShaderType>( shaderType ) );
 		}
 
 		// find material constant buffer slot
@@ -183,7 +183,7 @@ namespace rendercore
 				for ( const auto& pair : parameterMap )
 				{
 					const auto& [name, param] = pair;
-					if ( ( param.m_type == aga::ShaderParameterType::ConstantBuffer ) &&
+					if ( ( param.m_type == agl::ShaderParameterType::ConstantBuffer ) &&
 						( name == Name( "Material" ) ) )
 					{
 						assert( materialCbSlotNumbers[shaderType] == invalidSlot );
@@ -216,11 +216,11 @@ namespace rendercore
 						continue;
 					}
 
-					if ( param.m_type == aga::ShaderParameterType::ConstantBuffer )
+					if ( param.m_type == agl::ShaderParameterType::ConstantBuffer )
 					{
 						++constantBufferSize;
 					}
-					else if ( param.m_type == aga::ShaderParameterType::ConstantBufferValue )
+					else if ( param.m_type == agl::ShaderParameterType::ConstantBufferValue )
 					{
 						++constantValueNameSize;
 					}
@@ -255,11 +255,11 @@ namespace rendercore
 						continue;
 					}
 
-					if ( param.m_type == aga::ShaderParameterType::ConstantBuffer )
+					if ( param.m_type == agl::ShaderParameterType::ConstantBuffer )
 					{
 						m_materialConstantBuffers.emplace_back( param, ConstantBuffer( param.m_sizeInByte ) );
 					}
-					else if ( param.m_type == aga::ShaderParameterType::ConstantBufferValue )
+					else if ( param.m_type == agl::ShaderParameterType::ConstantBufferValue )
 					{
 						m_materialConstantValueNames.emplace_back( param, name );
 					}
@@ -286,7 +286,7 @@ namespace rendercore
 				{
 					struct Comp
 					{
-						bool operator()( const NamedShaderParameter& lhs, const aga::ShaderParameter& rhs )
+						bool operator()( const NamedShaderParameter& lhs, const agl::ShaderParameter& rhs )
 						{
 							auto lVariable = std::tie( lhs.first.m_shader, lhs.first.m_bindPoint );
 							auto rVariable = std::tie( rhs.m_shader, rhs.m_bindPoint );
@@ -294,7 +294,7 @@ namespace rendercore
 							return lVariable < rVariable;
 						}
 
-						bool operator()( const aga::ShaderParameter& lhs, const NamedShaderParameter& rhs )
+						bool operator()( const agl::ShaderParameter& lhs, const NamedShaderParameter& rhs )
 						{
 							auto lVariable = std::tie( lhs.m_shader, lhs.m_bindPoint );
 							auto rVariable = std::tie( rhs.first.m_shader, rhs.first.m_bindPoint );

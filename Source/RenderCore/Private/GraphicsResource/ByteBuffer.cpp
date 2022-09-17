@@ -49,7 +49,7 @@ namespace rendercore
 		m_distributionCount += m_sizePerFloat4;
 	}
 
-	void GpuMemcpy::Upload( aga::Buffer* destBuffer )
+	void GpuMemcpy::Upload( agl::Buffer* destBuffer )
 	{
 		assert( IsInRenderThread() );
 

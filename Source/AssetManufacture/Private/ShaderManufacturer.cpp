@@ -94,7 +94,7 @@ namespace
 		return "";
 	}
 
-	SHADER_TYPE GetShaderType( const fs::path& fileName )
+	agl::ShaderType GetShaderType( const fs::path& fileName )
 	{
 		std::string name = fileName.filename().generic_string();
 
@@ -106,23 +106,23 @@ namespace
 
 		if ( name.starts_with( "vs" ) )
 		{
-			return SHADER_TYPE::VS;
+			return agl::ShaderType::VS;
 		}
 		else if ( name.starts_with( "gs" ) )
 		{
-			return SHADER_TYPE::GS;
+			return agl::ShaderType::GS;
 		}
 		else if ( name.starts_with( "ps" ) )
 		{
-			return SHADER_TYPE::PS;
+			return agl::ShaderType::PS;
 		}
 		else if ( name.starts_with( "cs" ) )
 		{
-			return SHADER_TYPE::CS;
+			return agl::ShaderType::CS;
 		}
 
 		assert( false && "Invalid shader file name" );
-		return SHADER_TYPE::NONE;
+		return agl::ShaderType::None;
 	}
 
 	class StaticSwitchParser : TextTokenaizer
@@ -133,7 +133,7 @@ namespace
 		StaticSwitchParser( const char* contents, size_t size );
 
 	private:
-		enum class TokenType
+		enum class TokenType : uint8
 		{
 			Error = 0,
 			If,

@@ -18,8 +18,8 @@ namespace rendercore
 			return m_size;
 		}
 
-		aga::Buffer* Resource();
-		const aga::Buffer* Resource() const;
+		agl::Buffer* Resource();
+		const agl::Buffer* Resource() const;
 
 		VertexBuffer( uint32 elementSize, uint32 numElement, const void* initData, bool isDynamic = false );
 
@@ -33,7 +33,7 @@ namespace rendercore
 	protected:
 		void InitResource( uint32 elementSize, uint32 numElement, const void* initData );
 
-		aga::RefHandle<aga::Buffer> m_buffer;
+		agl::RefHandle<agl::Buffer> m_buffer;
 		uint32 m_size = 0;
 		bool m_isDynamic = false;
 	};

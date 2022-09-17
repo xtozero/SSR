@@ -12,7 +12,7 @@ namespace rendercore
 	public:
 		void Bind( VertexBuffer& vertexBuffer, uint32 slot, uint32 offset = 0 )
 		{
-			if ( slot >= MAX_VERTEX_SLOT )
+			if ( slot >= agl::MAX_VERTEX_SLOT )
 			{
 				return;
 			}
@@ -41,12 +41,12 @@ namespace rendercore
 			return m_numBuffers;
 		}
 
-		aga::Buffer** VertexBuffers()
+		agl::Buffer** VertexBuffers()
 		{
 			return m_vertexBuffers;
 		}
 
-		aga::Buffer* const* VertexBuffers() const
+		agl::Buffer* const* VertexBuffers() const
 		{
 			return m_vertexBuffers;
 		}
@@ -60,7 +60,7 @@ namespace rendercore
 
 		~VertexBufferBundle()
 		{
-			for ( aga::Buffer* vertexBuffer : m_vertexBuffers )
+			for ( agl::Buffer* vertexBuffer : m_vertexBuffers )
 			{
 				if ( vertexBuffer )
 				{
@@ -86,7 +86,7 @@ namespace rendercore
 					}
 				}
 
-				for ( uint32 i = 0; i < MAX_VERTEX_SLOT; ++i )
+				for ( uint32 i = 0; i < agl::MAX_VERTEX_SLOT; ++i )
 				{
 					m_vertexBuffers[i] = other.m_vertexBuffers[i];
 
@@ -119,7 +119,7 @@ namespace rendercore
 					}
 				}
 
-				for ( uint32 i = 0; i < MAX_VERTEX_SLOT; ++i )
+				for ( uint32 i = 0; i < agl::MAX_VERTEX_SLOT; ++i )
 				{
 					m_vertexBuffers[i] = other.m_vertexBuffers[i];
 					other.m_vertexBuffers[i] = nullptr;
@@ -152,8 +152,8 @@ namespace rendercore
 			return true;
 		}
 
-		aga::Buffer* m_vertexBuffers[MAX_VERTEX_SLOT] = {};
-		uint32 m_offset[MAX_VERTEX_SLOT] = {};
+		agl::Buffer* m_vertexBuffers[agl::MAX_VERTEX_SLOT] = {};
+		uint32 m_offset[agl::MAX_VERTEX_SLOT] = {};
 		uint32 m_numBuffers = 0;
 	};
 }

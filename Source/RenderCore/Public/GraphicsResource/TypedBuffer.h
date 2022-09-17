@@ -61,22 +61,22 @@ namespace rendercore
 
 		uint32 Size() const { return sizeof( T ) * m_numElement; }
 
-		aga::Buffer* Resource()
+		agl::Buffer* Resource()
 		{
 			return m_buffer.Get();
 		}
 
-		const aga::Buffer* Resource() const
+		const agl::Buffer* Resource() const
 		{
 			return m_buffer.Get();
 		}
 
-		aga::ShaderResourceView* SRV()
+		agl::ShaderResourceView* SRV()
 		{
 			return m_buffer.Get() ? m_buffer->SRV() : nullptr;
 		}
 
-		const aga::ShaderResourceView* SRV() const
+		const agl::ShaderResourceView* SRV() const
 		{
 			return m_buffer.Get() ? m_buffer->SRV() : nullptr;
 		}
@@ -94,7 +94,7 @@ namespace rendercore
 		TypedBuffer( TypedBuffer&& ) = default;
 		TypedBuffer& operator=( TypedBuffer&& ) = default;
 
-		operator aga::Buffer* ( ) const
+		operator agl::Buffer* ( ) const
 		{
 			return m_buffer.Get();
 		}
@@ -104,16 +104,16 @@ namespace rendercore
 		{
 			if ( m_numElement > 0 )
 			{
-				BUFFER_TRAIT trait = {
+				agl::BUFFER_TRAIT trait = {
 				static_cast<uint32>( sizeof( T ) ),
 				m_numElement,
-				RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
-				RESOURCE_BIND_TYPE::SHADER_RESOURCE | RESOURCE_BIND_TYPE::RANDOM_ACCESS,
-				RESOURCE_MISC::BUFFER_STRUCTURED,
-				RESOURCE_FORMAT::UNKNOWN
+				agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+				agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess,
+				agl::ResourceMisc::BufferStructured,
+				agl::ResourceFormat::Unknown
 				};
 
-				m_buffer = aga::Buffer::Create( trait, initData );
+				m_buffer = agl::Buffer::Create( trait, initData );
 				EnqueueRenderTask(
 					[buffer = m_buffer]()
 					{
@@ -123,7 +123,7 @@ namespace rendercore
 		}
 
 	private:
-		aga::RefHandle<aga::Buffer> m_buffer;
+		agl::RefHandle<agl::Buffer> m_buffer;
 		uint32 m_numElement = 0;
 	};
 

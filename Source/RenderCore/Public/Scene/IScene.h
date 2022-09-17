@@ -17,7 +17,7 @@ namespace rendercore
 	class SceneViewConstantBuffer;
 	class SkyAtmospherePorxy;
 
-	enum class SHADING_METHOD
+	enum class ShadingMethod : uint8
 	{
 		Forward,
 	};
@@ -52,7 +52,7 @@ namespace rendercore
 		virtual ScenePrimitiveBuffer& GpuPrimitiveInfo() = 0;
 		virtual const ScenePrimitiveBuffer& GpuPrimitiveInfo() const = 0;
 
-		virtual SHADING_METHOD ShadingMethod() const = 0;
+		virtual ShadingMethod GetShadingMethod() const = 0;
 
 		virtual Scene* GetRenderScene() = 0;
 

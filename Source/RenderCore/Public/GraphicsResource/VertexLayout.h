@@ -14,7 +14,7 @@ namespace rendercore
 	class VertexLayoutDesc
 	{
 	public:
-		const VERTEX_LAYOUT_TRAIT* Data() const
+		const agl::VERTEX_LAYOUT_TRAIT* Data() const
 		{
 			return m_layoutData;
 		}
@@ -24,10 +24,10 @@ namespace rendercore
 			return m_size;
 		}
 
-		void AddLayout( const char* name, uint32 index, RESOURCE_FORMAT format, uint32 slot, bool isInstanceData, uint32 instanceDataStep )
+		void AddLayout( const char* name, uint32 index, agl::ResourceFormat format, uint32 slot, bool isInstanceData, uint32 instanceDataStep )
 		{
-			assert( m_size < MAX_VERTEX_LAYOUT_SIZE );
-			VERTEX_LAYOUT_TRAIT& trait = m_layoutData[m_size];
+			assert( m_size < agl::MAX_VERTEX_LAYOUT_SIZE );
+			agl::VERTEX_LAYOUT_TRAIT& trait = m_layoutData[m_size];
 
 			trait.m_name = Name( name );
 			trait.m_isInstanceData = isInstanceData;
@@ -65,7 +65,7 @@ namespace rendercore
 		uint32 m_size = 0;
 
 	private:
-		VERTEX_LAYOUT_TRAIT m_layoutData[MAX_VERTEX_LAYOUT_SIZE] = {};
+		agl::VERTEX_LAYOUT_TRAIT m_layoutData[agl::MAX_VERTEX_LAYOUT_SIZE] = {};
 	};
 
 	struct VertexLayoutDescHasher
@@ -74,7 +74,7 @@ namespace rendercore
 		{
 			static size_t typeHash = typeid( VertexLayoutDesc ).hash_code();
 			size_t hash = typeHash;
-			const VERTEX_LAYOUT_TRAIT* data = desc.Data();
+			const agl::VERTEX_LAYOUT_TRAIT* data = desc.Data();
 			for ( uint32 i = 0; i < desc.Size(); ++i )
 			{
 				HashCombine( hash, std::hash<std::string_view>()( data[i].m_name.Str() ) );
@@ -92,8 +92,8 @@ namespace rendercore
 	class VertexLayout
 	{
 	public:
-		aga::VertexLayout* Resource();
-		const aga::VertexLayout* Resource() const;
+		agl::VertexLayout* Resource();
+		const agl::VertexLayout* Resource() const;
 
 		VertexLayout( const VertexShader& vs, const VertexLayoutDesc& desc );
 
@@ -107,6 +107,6 @@ namespace rendercore
 	private:
 		void InitResource( const VertexShader& vs, const VertexLayoutDesc& desc );
 
-		aga::RefHandle<aga::VertexLayout> m_layout;
+		agl::RefHandle<agl::VertexLayout> m_layout;
 	};
 }

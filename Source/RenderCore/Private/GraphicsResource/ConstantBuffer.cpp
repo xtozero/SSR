@@ -31,12 +31,12 @@ namespace rendercore
 		GraphicsInterface().UnLock( m_buffer );
 	}
 
-	aga::Buffer* ConstantBuffer::Resource()
+	agl::Buffer* ConstantBuffer::Resource()
 	{
 		return m_buffer.Get();
 	}
 
-	const aga::Buffer* ConstantBuffer::Resource() const
+	const agl::Buffer* ConstantBuffer::Resource() const
 	{
 		return m_buffer.Get();
 	}
@@ -48,16 +48,16 @@ namespace rendercore
 
 	void ConstantBuffer::InitResource( uint32 size )
 	{
-		BUFFER_TRAIT trait = {
+		agl::BUFFER_TRAIT trait = {
 			size,
 			1,
-			RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
-			RESOURCE_BIND_TYPE::CONSTANT_BUFFER,
-			RESOURCE_MISC::NONE,
-			RESOURCE_FORMAT::UNKNOWN
+			agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::CpuWrite,
+			agl::ResourceBindType::ConstantBuffer,
+			agl::ResourceMisc::None,
+			agl::ResourceFormat::Unknown
 		};
 
-		m_buffer = aga::Buffer::Create( trait );
+		m_buffer = agl::Buffer::Create( trait );
 		EnqueueRenderTask(
 			[buffer = m_buffer]()
 			{

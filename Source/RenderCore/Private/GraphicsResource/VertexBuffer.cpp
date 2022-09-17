@@ -18,12 +18,12 @@ namespace rendercore
 		GraphicsInterface().UnLock( m_buffer );
 	}
 
-	aga::Buffer* VertexBuffer::Resource()
+	agl::Buffer* VertexBuffer::Resource()
 	{
 		return m_buffer.Get();
 	}
 
-	const aga::Buffer* VertexBuffer::Resource() const
+	const agl::Buffer* VertexBuffer::Resource() const
 	{
 		return m_buffer.Get();
 	}
@@ -35,26 +35,26 @@ namespace rendercore
 
 	void VertexBuffer::InitResource( uint32 elementSize, uint32 numElement, const void* initData )
 	{
-		RESOURCE_ACCESS_FLAG accessFlag = RESOURCE_ACCESS_FLAG::NONE;
+		agl::ResourceAccessFlag accessFlag = agl::ResourceAccessFlag::None;
 		if ( m_isDynamic )
 		{
-			accessFlag = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE;
+			accessFlag = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::CpuWrite;
 		}
 		else
 		{
-			accessFlag = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE;
+			accessFlag = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite;
 		}
 
-		BUFFER_TRAIT trait = {
+		agl::BUFFER_TRAIT trait = {
 			elementSize,
 			numElement,
 			accessFlag,
-			RESOURCE_BIND_TYPE::VERTEX_BUFFER,
-			RESOURCE_MISC::NONE,
-			RESOURCE_FORMAT::UNKNOWN
+			agl::ResourceBindType::VertexBuffer,
+			agl::ResourceMisc::None,
+			agl::ResourceFormat::Unknown
 		};
 
-		m_buffer = aga::Buffer::Create( trait, initData );
+		m_buffer = agl::Buffer::Create( trait, initData );
 		EnqueueRenderTask(
 			[buffer = m_buffer]()
 			{

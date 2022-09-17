@@ -10,8 +10,6 @@
 #include "ShaderParameterUtils.h"
 #include "VertexCollection.h"
 
-using ::aga::RefHandle;
-
 namespace rendercore
 {
 	class TransmittanceCS
@@ -28,12 +26,12 @@ namespace rendercore
 		}
 
 		ComputeShader* Shader() { return m_shader; }
-		const aga::ShaderParameter& TransmittanceLut() const { return m_transmittance; }
+		const agl::ShaderParameter& TransmittanceLut() const { return m_transmittance; }
 
 	private:
 		ComputeShader* m_shader = nullptr;
 
-		aga::ShaderParameter m_transmittance;
+		agl::ShaderParameter m_transmittance;
 	};
 
 	class IrradianceOneCS
@@ -52,16 +50,16 @@ namespace rendercore
 		}
 
 		ComputeShader* Shader() { return m_shader; }
-		const aga::ShaderParameter& TransmittanceLut() const { return m_transmittanceLut; }
-		const aga::ShaderParameter& TransmittanceLutSampler() const { return m_transmittanceLutSampler; }
-		const aga::ShaderParameter& DeltaE() const { return m_deltaE; }
+		const agl::ShaderParameter& TransmittanceLut() const { return m_transmittanceLut; }
+		const agl::ShaderParameter& TransmittanceLutSampler() const { return m_transmittanceLutSampler; }
+		const agl::ShaderParameter& DeltaE() const { return m_deltaE; }
 
 	private:
 		ComputeShader* m_shader = nullptr;
 
-		aga::ShaderParameter m_transmittanceLut;
-		aga::ShaderParameter m_transmittanceLutSampler;
-		aga::ShaderParameter m_deltaE;
+		agl::ShaderParameter m_transmittanceLut;
+		agl::ShaderParameter m_transmittanceLutSampler;
+		agl::ShaderParameter m_deltaE;
 	};
 
 	class InscatterOneCS
@@ -81,18 +79,18 @@ namespace rendercore
 		}
 
 		ComputeShader* Shader() { return m_shader; }
-		const aga::ShaderParameter& TransmittanceLut() const { return m_transmittanceLut; }
-		const aga::ShaderParameter& TransmittanceLutSampler() const { return m_transmittanceLutSampler; }
-		const aga::ShaderParameter& DeltaSR() const { return m_deltaSR; }
-		const aga::ShaderParameter& DeltaSM() const { return m_deltaSM; }
+		const agl::ShaderParameter& TransmittanceLut() const { return m_transmittanceLut; }
+		const agl::ShaderParameter& TransmittanceLutSampler() const { return m_transmittanceLutSampler; }
+		const agl::ShaderParameter& DeltaSR() const { return m_deltaSR; }
+		const agl::ShaderParameter& DeltaSM() const { return m_deltaSM; }
 
 	private:
 		ComputeShader* m_shader = nullptr;
 
-		aga::ShaderParameter m_transmittanceLut;
-		aga::ShaderParameter m_transmittanceLutSampler;
-		aga::ShaderParameter m_deltaSR;
-		aga::ShaderParameter m_deltaSM;
+		agl::ShaderParameter m_transmittanceLut;
+		agl::ShaderParameter m_transmittanceLutSampler;
+		agl::ShaderParameter m_deltaSR;
+		agl::ShaderParameter m_deltaSM;
 	};
 
 	class CopyInscatterOneCS
@@ -113,20 +111,20 @@ namespace rendercore
 		}
 
 		ComputeShader* Shader() { return m_shader; }
-		const aga::ShaderParameter& DeltaSRLut() const { return m_deltaSRLut; }
-		const aga::ShaderParameter& DeltaSRLutSampler() const { return m_deltaSRLutSampler; }
-		const aga::ShaderParameter& DeltaSMLut() const { return m_deltaSMLut; }
-		const aga::ShaderParameter& DeltaSMLutSampler() const { return m_deltaSMLutSampler; }
-		const aga::ShaderParameter& Inscatter() const { return m_inscatter; }
+		const agl::ShaderParameter& DeltaSRLut() const { return m_deltaSRLut; }
+		const agl::ShaderParameter& DeltaSRLutSampler() const { return m_deltaSRLutSampler; }
+		const agl::ShaderParameter& DeltaSMLut() const { return m_deltaSMLut; }
+		const agl::ShaderParameter& DeltaSMLutSampler() const { return m_deltaSMLutSampler; }
+		const agl::ShaderParameter& Inscatter() const { return m_inscatter; }
 
 	private:
 		ComputeShader* m_shader = nullptr;
 
-		aga::ShaderParameter m_deltaSRLut;
-		aga::ShaderParameter m_deltaSRLutSampler;
-		aga::ShaderParameter m_deltaSMLut;
-		aga::ShaderParameter m_deltaSMLutSampler;
-		aga::ShaderParameter m_inscatter;
+		agl::ShaderParameter m_deltaSRLut;
+		agl::ShaderParameter m_deltaSRLutSampler;
+		agl::ShaderParameter m_deltaSMLut;
+		agl::ShaderParameter m_deltaSMLutSampler;
+		agl::ShaderParameter m_inscatter;
 	};
 
 	class InscatterSCS
@@ -151,28 +149,28 @@ namespace rendercore
 		}
 
 		ComputeShader* Shader() { return m_shader; }
-		const aga::ShaderParameter& DeltaELut() const { return m_deltaELut; }
-		const aga::ShaderParameter& DeltaELutSampler() const { return m_deltaELutSampler; }
-		const aga::ShaderParameter& DeltaSRLut() const { return m_deltaSRLut; }
-		const aga::ShaderParameter& DeltaSRLutSampler() const { return m_deltaSRLutSampler; }
-		const aga::ShaderParameter& DeltaSMLut() const { return m_deltaSMLut; }
-		const aga::ShaderParameter& DeltaSMLutSampler() const { return m_deltaSMLutSampler; }
-		const aga::ShaderParameter& Order() const { return m_order; }
-		const aga::ShaderParameter& ThreadGroupZ() const { return m_threadGroupZ; }
-		const aga::ShaderParameter& DeltaJ() const { return m_deltaJ; }
+		const agl::ShaderParameter& DeltaELut() const { return m_deltaELut; }
+		const agl::ShaderParameter& DeltaELutSampler() const { return m_deltaELutSampler; }
+		const agl::ShaderParameter& DeltaSRLut() const { return m_deltaSRLut; }
+		const agl::ShaderParameter& DeltaSRLutSampler() const { return m_deltaSRLutSampler; }
+		const agl::ShaderParameter& DeltaSMLut() const { return m_deltaSMLut; }
+		const agl::ShaderParameter& DeltaSMLutSampler() const { return m_deltaSMLutSampler; }
+		const agl::ShaderParameter& Order() const { return m_order; }
+		const agl::ShaderParameter& ThreadGroupZ() const { return m_threadGroupZ; }
+		const agl::ShaderParameter& DeltaJ() const { return m_deltaJ; }
 
 	private:
 		ComputeShader* m_shader = nullptr;
 
-		aga::ShaderParameter m_deltaELut;
-		aga::ShaderParameter m_deltaELutSampler;
-		aga::ShaderParameter m_deltaSRLut;
-		aga::ShaderParameter m_deltaSRLutSampler;
-		aga::ShaderParameter m_deltaSMLut;
-		aga::ShaderParameter m_deltaSMLutSampler;
-		aga::ShaderParameter m_order;
-		aga::ShaderParameter m_threadGroupZ;
-		aga::ShaderParameter m_deltaJ;
+		agl::ShaderParameter m_deltaELut;
+		agl::ShaderParameter m_deltaELutSampler;
+		agl::ShaderParameter m_deltaSRLut;
+		agl::ShaderParameter m_deltaSRLutSampler;
+		agl::ShaderParameter m_deltaSMLut;
+		agl::ShaderParameter m_deltaSMLutSampler;
+		agl::ShaderParameter m_order;
+		agl::ShaderParameter m_threadGroupZ;
+		agl::ShaderParameter m_deltaJ;
 	};
 
 	class IrradianceNCS
@@ -194,22 +192,22 @@ namespace rendercore
 		}
 
 		ComputeShader* Shader() { return m_shader; }
-		const aga::ShaderParameter& DeltaSRLut() const { return m_deltaSRLut; }
-		const aga::ShaderParameter& DeltaSRLutSampler() const { return m_deltaSRLutSampler; }
-		const aga::ShaderParameter& DeltaSMLut() const { return m_deltaSMLut; }
-		const aga::ShaderParameter& DeltaSMLutSampler() const { return m_deltaSMLutSampler; }
-		const aga::ShaderParameter& Order() const { return m_order; }
-		const aga::ShaderParameter& Irradiance() const { return m_irradiance; }
+		const agl::ShaderParameter& DeltaSRLut() const { return m_deltaSRLut; }
+		const agl::ShaderParameter& DeltaSRLutSampler() const { return m_deltaSRLutSampler; }
+		const agl::ShaderParameter& DeltaSMLut() const { return m_deltaSMLut; }
+		const agl::ShaderParameter& DeltaSMLutSampler() const { return m_deltaSMLutSampler; }
+		const agl::ShaderParameter& Order() const { return m_order; }
+		const agl::ShaderParameter& Irradiance() const { return m_irradiance; }
 
 	private:
 		ComputeShader* m_shader = nullptr;
 
-		aga::ShaderParameter m_deltaSRLut;
-		aga::ShaderParameter m_deltaSRLutSampler;
-		aga::ShaderParameter m_deltaSMLut;
-		aga::ShaderParameter m_deltaSMLutSampler;
-		aga::ShaderParameter m_order;
-		aga::ShaderParameter m_irradiance;
+		agl::ShaderParameter m_deltaSRLut;
+		agl::ShaderParameter m_deltaSRLutSampler;
+		agl::ShaderParameter m_deltaSMLut;
+		agl::ShaderParameter m_deltaSMLutSampler;
+		agl::ShaderParameter m_order;
+		agl::ShaderParameter m_irradiance;
 	};
 
 	class InscatterNCS
@@ -228,16 +226,16 @@ namespace rendercore
 		}
 
 		ComputeShader* Shader() { return m_shader; }
-		const aga::ShaderParameter& DeltaJLut() const { return m_deltaJLut; }
-		const aga::ShaderParameter& DeltaJLutSampler() const { return m_deltaJLutSampler; }
-		const aga::ShaderParameter& DeltaSR() const { return m_deltaSR; }
+		const agl::ShaderParameter& DeltaJLut() const { return m_deltaJLut; }
+		const agl::ShaderParameter& DeltaJLutSampler() const { return m_deltaJLutSampler; }
+		const agl::ShaderParameter& DeltaSR() const { return m_deltaSR; }
 
 	private:
 		ComputeShader* m_shader = nullptr;
 
-		aga::ShaderParameter m_deltaJLut;
-		aga::ShaderParameter m_deltaJLutSampler;
-		aga::ShaderParameter m_deltaSR;
+		agl::ShaderParameter m_deltaJLut;
+		agl::ShaderParameter m_deltaJLutSampler;
+		agl::ShaderParameter m_deltaSR;
 	};
 
 	class CopyIrradianceCS
@@ -256,16 +254,16 @@ namespace rendercore
 		}
 
 		ComputeShader* Shader() { return m_shader; }
-		const aga::ShaderParameter& DeltaELut() const { return m_deltaELut; }
-		const aga::ShaderParameter& DeltaELutSampler() const { return m_deltaELutSampler; }
-		const aga::ShaderParameter& Irradiance() const { return m_irradiance; }
+		const agl::ShaderParameter& DeltaELut() const { return m_deltaELut; }
+		const agl::ShaderParameter& DeltaELutSampler() const { return m_deltaELutSampler; }
+		const agl::ShaderParameter& Irradiance() const { return m_irradiance; }
 
 	private:
 		ComputeShader* m_shader = nullptr;
 
-		aga::ShaderParameter m_deltaELut;
-		aga::ShaderParameter m_deltaELutSampler;
-		aga::ShaderParameter m_irradiance;
+		agl::ShaderParameter m_deltaELut;
+		agl::ShaderParameter m_deltaELutSampler;
+		agl::ShaderParameter m_irradiance;
 	};
 
 	class CopyInscatterNCS
@@ -284,16 +282,16 @@ namespace rendercore
 		}
 
 		ComputeShader* Shader() { return m_shader; }
-		const aga::ShaderParameter& DeltaSRLut() const { return m_deltaSRLut; }
-		const aga::ShaderParameter& DeltaSRLutSampler() const { return m_deltaSRLutSampler; }
-		const aga::ShaderParameter& Irradiance() const { return m_inscatter; }
+		const agl::ShaderParameter& DeltaSRLut() const { return m_deltaSRLut; }
+		const agl::ShaderParameter& DeltaSRLutSampler() const { return m_deltaSRLutSampler; }
+		const agl::ShaderParameter& Irradiance() const { return m_inscatter; }
 
 	private:
 		ComputeShader* m_shader = nullptr;
 
-		aga::ShaderParameter m_deltaSRLut;
-		aga::ShaderParameter m_deltaSRLutSampler;
-		aga::ShaderParameter m_inscatter;
+		agl::ShaderParameter m_deltaSRLut;
+		agl::ShaderParameter m_deltaSRLutSampler;
+		agl::ShaderParameter m_inscatter;
 	};
 
 	class DrawAtmospherePS
@@ -332,10 +330,10 @@ namespace rendercore
 		BlendOption skyAtmosphereDrawPassBlendOption;
 		RenderTargetBlendOption& rt0BlendOption = skyAtmosphereDrawPassBlendOption.m_renderTarget[0];
 		rt0BlendOption.m_blendEnable = true;
-		rt0BlendOption.m_srcBlend = BLEND::ONE;
-		rt0BlendOption.m_destBlend = BLEND::ONE;
-		rt0BlendOption.m_srcBlendAlpha = BLEND::ZERO;
-		rt0BlendOption.m_destBlendAlpha = BLEND::ONE;
+		rt0BlendOption.m_srcBlend = agl::Blend::One;
+		rt0BlendOption.m_destBlend = agl::Blend::One;
+		rt0BlendOption.m_srcBlendAlpha = agl::Blend::Zero;
+		rt0BlendOption.m_destBlendAlpha = agl::Blend::One;
 
 		DepthStencilOption skyAtmosphereDrawPassDepthOption;
 		skyAtmosphereDrawPassDepthOption.m_depth.m_writeDepth = false;
@@ -352,60 +350,60 @@ namespace rendercore
 	{
 		SkyAtmosphereRenderSceneInfo& info = *scene.SkyAtmosphereSceneInfo();
 
-		TEXTURE_TRAIT transmittanceLut = {
+		agl::TEXTURE_TRAIT transmittanceLut = {
 			.m_width = TRANSMITTANCE_W,
 			.m_height = TRANSMITTANCE_H,
 			.m_depth = 1,
 			.m_sampleCount = 1,
 			.m_sampleQuality = 0,
 			.m_mipLevels = 1,
-			.m_format = RESOURCE_FORMAT::R32G32B32A32_FLOAT,
-			.m_access = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
-			.m_bindType = RESOURCE_BIND_TYPE::SHADER_RESOURCE | RESOURCE_BIND_TYPE::RANDOM_ACCESS,
-			.m_miscFlag = RESOURCE_MISC::NONE,
+			.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
+			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+			.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess,
+			.m_miscFlag = agl::ResourceMisc::None,
 		};
 
-		info.GetTransmittanceLutTexture() = aga::Texture::Create( transmittanceLut );
+		info.GetTransmittanceLutTexture() = agl::Texture::Create( transmittanceLut );
 		EnqueueRenderTask(
 			[texture = info.GetTransmittanceLutTexture()]()
 			{
 				texture->Init();
 			} );
 
-		TEXTURE_TRAIT irradianceLut = {
+		agl::TEXTURE_TRAIT irradianceLut = {
 			.m_width = IRRADIANCE_W,
 			.m_height = IRRADIANCE_H,
 			.m_depth = 1,
 			.m_sampleCount = 1,
 			.m_sampleQuality = 0,
 			.m_mipLevels = 1,
-			.m_format = RESOURCE_FORMAT::R32G32B32A32_FLOAT,
-			.m_access = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
-			.m_bindType = RESOURCE_BIND_TYPE::SHADER_RESOURCE,
-			.m_miscFlag = RESOURCE_MISC::NONE,
+			.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
+			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+			.m_bindType = agl::ResourceBindType::ShaderResource,
+			.m_miscFlag = agl::ResourceMisc::None,
 		};
 
-		info.GetIrradianceLutTexture() = aga::Texture::Create( irradianceLut );
+		info.GetIrradianceLutTexture() = agl::Texture::Create( irradianceLut );
 		EnqueueRenderTask(
 			[texture = info.GetIrradianceLutTexture()]()
 			{
 				texture->Init();
 			} );
 
-		TEXTURE_TRAIT inscatterLut = {
+		agl::TEXTURE_TRAIT inscatterLut = {
 			.m_width = RES_MU_S * RES_NU,
 			.m_height = RES_MU,
 			.m_depth = RES_R,
 			.m_sampleCount = 1,
 			.m_sampleQuality = 0,
 			.m_mipLevels = 1,
-			.m_format = RESOURCE_FORMAT::R32G32B32A32_FLOAT,
-			.m_access = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
-			.m_bindType = RESOURCE_BIND_TYPE::SHADER_RESOURCE,
-			.m_miscFlag = RESOURCE_MISC::TEXTURE3D,
+			.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
+			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+			.m_bindType = agl::ResourceBindType::ShaderResource,
+			.m_miscFlag = agl::ResourceMisc::Texture3D,
 		};
 
-		info.GetInscatterLutTexture() = aga::Texture::Create( inscatterLut );
+		info.GetInscatterLutTexture() = agl::Texture::Create( inscatterLut );
 		EnqueueRenderTask(
 			[texture = info.GetInscatterLutTexture()]()
 			{
@@ -427,7 +425,7 @@ namespace rendercore
 		}
 
 		SamplerOption pointSamperOption;
-		pointSamperOption.m_filter = TEXTURE_FILTER::POINT;
+		pointSamperOption.m_filter = agl::TextureFilter::Point;
 		auto pointSampler = GraphicsInterface().FindOrCreate( pointSamperOption );
 
 		// 1. Transmittance Table
@@ -440,20 +438,20 @@ namespace rendercore
 		commandList.Dispatch( TRANSMITTANCE_GROUP_X, TRANSMITTANCE_GROUP_Y );
 
 		// 2. Ground irradiance due to direct sunlight
-		TEXTURE_TRAIT deltaE = {
+		agl::TEXTURE_TRAIT deltaE = {
 			.m_width = IRRADIANCE_W,
 			.m_height = IRRADIANCE_H,
 			.m_depth = 1,
 			.m_sampleCount = 1,
 			.m_sampleQuality = 0,
 			.m_mipLevels = 1,
-			.m_format = RESOURCE_FORMAT::R32G32B32A32_FLOAT,
-			.m_access = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
-			.m_bindType = RESOURCE_BIND_TYPE::SHADER_RESOURCE | RESOURCE_BIND_TYPE::RANDOM_ACCESS,
-			.m_miscFlag = RESOURCE_MISC::NONE
+			.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
+			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+			.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess,
+			.m_miscFlag = agl::ResourceMisc::None
 		};
 
-		RefHandle<aga::Texture> deltaETexture = aga::Texture::Create( deltaE );
+		agl::RefHandle<agl::Texture> deltaETexture = agl::Texture::Create( deltaE );
 		deltaETexture->Init();
 
 		IrradianceOneCS irradianceOneCS;
@@ -465,23 +463,23 @@ namespace rendercore
 		commandList.Dispatch( IRRADIANCE_GROUP_X, IRRADIANCE_GROUP_Y );
 
 		// 3. Compute single scattering texture deltaS
-		TEXTURE_TRAIT deltaS = {
+		agl::TEXTURE_TRAIT deltaS = {
 			.m_width = RES_MU_S * RES_NU,
 			.m_height = RES_MU,
 			.m_depth = RES_R,
 			.m_sampleCount = 1,
 			.m_sampleQuality = 0,
 			.m_mipLevels = 1,
-			.m_format = RESOURCE_FORMAT::R32G32B32A32_FLOAT,
-			.m_access = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
-			.m_bindType = RESOURCE_BIND_TYPE::SHADER_RESOURCE | RESOURCE_BIND_TYPE::RANDOM_ACCESS,
-			.m_miscFlag = RESOURCE_MISC::TEXTURE3D
+			.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
+			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+			.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess,
+			.m_miscFlag = agl::ResourceMisc::Texture3D
 		};
 
-		RefHandle<aga::Texture> deltaSRTexture = aga::Texture::Create( deltaS );
+		agl::RefHandle<agl::Texture> deltaSRTexture = agl::Texture::Create( deltaS );
 		deltaSRTexture->Init();
 
-		RefHandle<aga::Texture> deltaSMTexture = aga::Texture::Create( deltaS );
+		agl::RefHandle<agl::Texture> deltaSMTexture = agl::Texture::Create( deltaS );
 		deltaSMTexture->Init();
 
 		InscatterOneCS inscatterOneCS;
@@ -494,16 +492,16 @@ namespace rendercore
 		commandList.Dispatch( INSCATTER1_GROUP_X, INSCATTER1_GROUP_Y, INSCATTER1_GROUP_Z );
 
 		// 4. Copy deltaS into inscatter texture S
-		BUFFER_TRAIT inscatter = {
+		agl::BUFFER_TRAIT inscatter = {
 			.m_stride = sizeof( Vector4 ),
 			.m_count = RES_MU_S * RES_NU * RES_MU * RES_R,
-			.m_access = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
-			.m_bindType = RESOURCE_BIND_TYPE::RANDOM_ACCESS,
-			.m_miscFlag = RESOURCE_MISC::BUFFER_STRUCTURED,
-			.m_format = RESOURCE_FORMAT::UNKNOWN
+			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+			.m_bindType = agl::ResourceBindType::RandomAccess,
+			.m_miscFlag = agl::ResourceMisc::BufferStructured,
+			.m_format = agl::ResourceFormat::Unknown
 		};
 
-		RefHandle<aga::Buffer> inscatterBuffer = aga::Buffer::Create( inscatter );
+		agl::RefHandle<agl::Buffer> inscatterBuffer = agl::Buffer::Create( inscatter );
 		inscatterBuffer->Init();
 
 		CopyInscatterOneCS copyInscatterOneCS;
@@ -516,21 +514,21 @@ namespace rendercore
 
 		commandList.Dispatch( INSCATTER1_GROUP_X, INSCATTER1_GROUP_Y, INSCATTER1_GROUP_Z );
 
-		RefHandle<aga::Texture> deltaJTex = aga::Texture::Create( deltaS );
+		agl::RefHandle<agl::Texture> deltaJTex = agl::Texture::Create( deltaS );
 		deltaJTex->Init();
 
 		// Irradiance
-		BUFFER_TRAIT irradiance = {
+		agl::BUFFER_TRAIT irradiance = {
 			.m_stride = sizeof( Vector4 ),
 			.m_count = IRRADIANCE_W * IRRADIANCE_H,
-			.m_access = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE,
-			.m_bindType = RESOURCE_BIND_TYPE::RANDOM_ACCESS,
-			.m_miscFlag = RESOURCE_MISC::BUFFER_STRUCTURED,
-			.m_format = RESOURCE_FORMAT::UNKNOWN
+			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+			.m_bindType = agl::ResourceBindType::RandomAccess,
+			.m_miscFlag = agl::ResourceMisc::BufferStructured,
+			.m_format = agl::ResourceFormat::Unknown
 		};
 
 		Vector4 irradianceData[IRRADIANCE_W * IRRADIANCE_H] = {};
-		RefHandle<aga::Buffer> irradianceBuffer = aga::Buffer::Create( irradiance, irradianceData );
+		agl::RefHandle<agl::Buffer> irradianceBuffer = agl::Buffer::Create( irradiance, irradianceData );
 		irradianceBuffer->Init();
 
 		// loop for each scattering order
@@ -599,41 +597,41 @@ namespace rendercore
 
 		// copy irradiance buffer to texture
 		{
-			BUFFER_TRAIT readBack = {
+			agl::BUFFER_TRAIT readBack = {
 				.m_stride = sizeof( Vector4 ),
 				.m_count = IRRADIANCE_W * IRRADIANCE_H,
-				.m_access = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE | RESOURCE_ACCESS_FLAG::CPU_READ,
-				.m_bindType = RESOURCE_BIND_TYPE::NONE,
-				.m_miscFlag = RESOURCE_MISC::NONE,
-				.m_format = RESOURCE_FORMAT::UNKNOWN
+				.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite | agl::ResourceAccessFlag::CpuRead,
+				.m_bindType = agl::ResourceBindType::None,
+				.m_miscFlag = agl::ResourceMisc::None,
+				.m_format = agl::ResourceFormat::Unknown
 			};
 
-			RefHandle<aga::Buffer> irradianceReadBack = aga::Buffer::Create( readBack );
+			agl::RefHandle<agl::Buffer> irradianceReadBack = agl::Buffer::Create( readBack );
 			irradianceReadBack->Init();
 
 			commandList.CopyResource( irradianceReadBack, irradianceBuffer );
 
-			TEXTURE_TRAIT intermediate = {
+			agl::TEXTURE_TRAIT intermediate = {
 				.m_width = IRRADIANCE_W,
 				.m_height = IRRADIANCE_H,
 				.m_depth = 1,
 				.m_sampleCount = 1,
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
-				.m_format = RESOURCE_FORMAT::R32G32B32A32_FLOAT,
-				.m_access = RESOURCE_ACCESS_FLAG::GPU_READ
-							| RESOURCE_ACCESS_FLAG::GPU_WRITE
-							| RESOURCE_ACCESS_FLAG::CPU_READ
-							| RESOURCE_ACCESS_FLAG::CPU_WRITE,
-				.m_bindType = RESOURCE_BIND_TYPE::NONE,
-				.m_miscFlag = RESOURCE_MISC::NONE
+				.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
+				.m_access = agl::ResourceAccessFlag::GpuRead
+							| agl::ResourceAccessFlag::GpuWrite
+							| agl::ResourceAccessFlag::CpuRead
+							| agl::ResourceAccessFlag::CpuWrite,
+				.m_bindType = agl::ResourceBindType::None,
+				.m_miscFlag = agl::ResourceMisc::None
 			};
 
-			RefHandle<aga::Texture> irradianceIntermedicate = aga::Texture::Create( intermediate );
+			agl::RefHandle<agl::Texture> irradianceIntermedicate = agl::Texture::Create( intermediate );
 			irradianceIntermedicate->Init();
 
-			auto src = GraphicsInterface().Lock( irradianceReadBack, BUFFER_LOCKFLAG::READ );
-			auto dest = GraphicsInterface().Lock( irradianceIntermedicate, BUFFER_LOCKFLAG::WRITE );
+			auto src = GraphicsInterface().Lock( irradianceReadBack, agl::ResourceLockFlag::Read );
+			auto dest = GraphicsInterface().Lock( irradianceIntermedicate, agl::ResourceLockFlag::Write );
 
 			auto srcData = static_cast<uint8*>( src.m_data );
 			auto destData = static_cast<uint8*>( dest.m_data );
@@ -653,41 +651,41 @@ namespace rendercore
 
 		// copy inscatter buffer to texture
 		{
-			BUFFER_TRAIT readBack = {
+			agl::BUFFER_TRAIT readBack = {
 				.m_stride = sizeof( Vector4 ),
 				.m_count = RES_MU_S * RES_NU * RES_MU * RES_R,
-				.m_access = RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::GPU_WRITE | RESOURCE_ACCESS_FLAG::CPU_READ,
-				.m_bindType = RESOURCE_BIND_TYPE::NONE,
-				.m_miscFlag = RESOURCE_MISC::NONE,
-				.m_format = RESOURCE_FORMAT::UNKNOWN
+				.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite | agl::ResourceAccessFlag::CpuRead,
+				.m_bindType = agl::ResourceBindType::None,
+				.m_miscFlag = agl::ResourceMisc::None,
+				.m_format = agl::ResourceFormat::Unknown
 			};
 
-			RefHandle<aga::Buffer> inscatterReadBack = aga::Buffer::Create( readBack );
+			agl::RefHandle<agl::Buffer> inscatterReadBack = agl::Buffer::Create( readBack );
 			inscatterReadBack->Init();
 
 			commandList.CopyResource( inscatterReadBack, inscatterBuffer );
 
-			TEXTURE_TRAIT intermediate = {
+			agl::TEXTURE_TRAIT intermediate = {
 				.m_width = RES_MU_S * RES_NU,
 				.m_height = RES_MU,
 				.m_depth = RES_R,
 				.m_sampleCount = 1,
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
-				.m_format = RESOURCE_FORMAT::R32G32B32A32_FLOAT,
-				.m_access = RESOURCE_ACCESS_FLAG::GPU_READ
-							| RESOURCE_ACCESS_FLAG::GPU_WRITE
-							| RESOURCE_ACCESS_FLAG::CPU_READ
-							| RESOURCE_ACCESS_FLAG::CPU_WRITE,
-				.m_bindType = RESOURCE_BIND_TYPE::NONE,
-				.m_miscFlag = RESOURCE_MISC::TEXTURE3D
+				.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
+				.m_access = agl::ResourceAccessFlag::GpuRead
+							| agl::ResourceAccessFlag::GpuWrite
+							| agl::ResourceAccessFlag::CpuRead
+							| agl::ResourceAccessFlag::CpuWrite,
+				.m_bindType = agl::ResourceBindType::None,
+				.m_miscFlag = agl::ResourceMisc::Texture3D
 			};
 
-			RefHandle<aga::Texture> inscatterIntermedicate = aga::Texture::Create( intermediate );
+			agl::RefHandle<agl::Texture> inscatterIntermedicate = agl::Texture::Create( intermediate );
 			inscatterIntermedicate->Init();
 
-			auto src = GraphicsInterface().Lock( inscatterReadBack, BUFFER_LOCKFLAG::READ );
-			auto dest = GraphicsInterface().Lock( inscatterIntermedicate, BUFFER_LOCKFLAG::WRITE );
+			auto src = GraphicsInterface().Lock( inscatterReadBack, agl::ResourceLockFlag::Read );
+			auto dest = GraphicsInterface().Lock( inscatterIntermedicate, agl::ResourceLockFlag::Write );
 
 			auto srcData = static_cast<uint8*>( src.m_data );
 			auto destData = static_cast<uint8*>( dest.m_data );

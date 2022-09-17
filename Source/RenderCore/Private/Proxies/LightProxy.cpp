@@ -22,7 +22,7 @@ namespace rendercore
 	LightProperty DirectionalLightProxy::GetLightProperty() const
 	{
 		LightProperty lightProperty = {
-			LIGHT_TYPE::DIRECTINAL_LIGHT,
+			LightType::Directional,
 			0.f,
 			0.f,
 			m_direction,

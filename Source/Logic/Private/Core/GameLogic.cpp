@@ -497,10 +497,10 @@ void CGameLogic::SceneEnd()
 
 void CGameLogic::BuildRenderableList()
 {
-	for ( auto& list : m_renderableList )
-	{
-		list.clear();
-	}
+	//for ( auto& list : m_renderableList )
+	//{
+	//	list.clear();
+	//}
 
 	//for ( auto& object : m_gameObjects )
 	//{
@@ -671,7 +671,7 @@ void CGameLogic::CreateGameViewport()
 		m_appSize.first,
 		m_appSize.second,
 		m_wndHwnd,
-		RESOURCE_FORMAT::R8G8B8A8_UNORM_SRGB );
+		agl::ResourceFormat::R8G8B8A8_UNORM_SRGB );
 
 	m_gameViewport = new GameClientViewport( m_primayViewport.get() );
 	SpawnObject( m_gameViewport );

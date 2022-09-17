@@ -23,17 +23,17 @@ namespace rendercore
 	class SkyAtmosphereRenderSceneInfo
 	{
 	public:
-		aga::RefHandle<aga::Texture>& GetTransmittanceLutTexture()
+		agl::RefHandle<agl::Texture>& GetTransmittanceLutTexture()
 		{
 			return m_transmittanceLutTexture;
 		}
 
-		aga::RefHandle<aga::Texture>& GetIrradianceLutTexture()
+		agl::RefHandle<agl::Texture>& GetIrradianceLutTexture()
 		{
 			return m_irradianceLutTexture;
 		}
 
-		aga::RefHandle<aga::Texture>& GetInscatterLutTexture()
+		agl::RefHandle<agl::Texture>& GetInscatterLutTexture()
 		{
 			return m_inscatterLutTexture;
 		}
@@ -49,9 +49,9 @@ namespace rendercore
 		}
 
 	private:
-		aga::RefHandle<aga::Texture> m_transmittanceLutTexture;
-		aga::RefHandle<aga::Texture> m_irradianceLutTexture;
-		aga::RefHandle<aga::Texture> m_inscatterLutTexture;
+		agl::RefHandle<agl::Texture> m_transmittanceLutTexture;
+		agl::RefHandle<agl::Texture> m_irradianceLutTexture;
+		agl::RefHandle<agl::Texture> m_inscatterLutTexture;
 		TypedConstatBuffer<SkyAtmosphereRenderParameter> m_skyAtmosphereRenderParameter;
 		bool m_rebuildLuts = true;
 	};

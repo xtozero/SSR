@@ -6,62 +6,62 @@
 
 namespace rendercore
 {
-	void ImmediateCommandList::BindVertexBuffer( aga::Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
+	void ImmediateCommandList::BindVertexBuffer( agl::Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
 	{
 		m_imple.BindVertexBuffer( vertexBuffers, startSlot, numBuffers, pOffsets );
 	}
 
-	void ImmediateCommandList::BindIndexBuffer( aga::Buffer* indexBuffer, uint32 indexOffset )
+	void ImmediateCommandList::BindIndexBuffer( agl::Buffer* indexBuffer, uint32 indexOffset )
 	{
 		m_imple.BindIndexBuffer( indexBuffer, indexOffset );
 	}
 
-	void ImmediateCommandList::BindPipelineState( aga::PipelineState* pipelineState )
+	void ImmediateCommandList::BindPipelineState( agl::PipelineState* pipelineState )
 	{
 		m_imple.BindPipelineState( pipelineState );
 	}
 
-	void ImmediateCommandList::BindShader( aga::VertexShader* vs )
+	void ImmediateCommandList::BindShader( agl::VertexShader* vs )
 	{
 		m_imple.BindShader( vs );
 	}
 
-	void ImmediateCommandList::BindShader( aga::GeometryShader* gs )
+	void ImmediateCommandList::BindShader( agl::GeometryShader* gs )
 	{
 		m_imple.BindShader( gs );
 	}
 
-	void ImmediateCommandList::BindShader( aga::PixelShader* ps )
+	void ImmediateCommandList::BindShader( agl::PixelShader* ps )
 	{
 		m_imple.BindShader( ps );
 	}
 
-	void ImmediateCommandList::BindShader( aga::ComputeShader* cs )
+	void ImmediateCommandList::BindShader( agl::ComputeShader* cs )
 	{
 		m_imple.BindShader( cs );
 	}
 
-	void ImmediateCommandList::BindShaderResources( const aga::ShaderBindings& shaderBindings )
+	void ImmediateCommandList::BindShaderResources( const agl::ShaderBindings& shaderBindings )
 	{
 		m_imple.BindShaderResources( shaderBindings );
 	}
 
-	void ImmediateCommandList::BindConstantBuffer( SHADER_TYPE shader, uint32 slot, aga::Buffer* buffer )
+	void ImmediateCommandList::BindConstantBuffer( agl::ShaderType shader, uint32 slot, agl::Buffer* buffer )
 	{
 		m_imple.BindConstantBuffer( shader, slot, buffer );
 	}
 
-	void ImmediateCommandList::BindSRV( SHADER_TYPE shader, uint32 slot, aga::ShaderResourceView* srv )
+	void ImmediateCommandList::BindSRV( agl::ShaderType shader, uint32 slot, agl::ShaderResourceView* srv )
 	{
 		m_imple.BindSRV( shader, slot, srv );
 	}
 
-	void ImmediateCommandList::BindUAV( SHADER_TYPE shader, uint32 slot, aga::UnorderedAccessView* uav )
+	void ImmediateCommandList::BindUAV( agl::ShaderType shader, uint32 slot, agl::UnorderedAccessView* uav )
 	{
 		m_imple.BindUAV( shader, slot, uav );
 	}
 
-	void ImmediateCommandList::BindSampler( SHADER_TYPE shader, uint32 slot, aga::SamplerState* sampler )
+	void ImmediateCommandList::BindSampler( agl::ShaderType shader, uint32 slot, agl::SamplerState* sampler )
 	{
 		m_imple.BindSampler( shader, slot, sampler );
 	}
@@ -80,42 +80,42 @@ namespace rendercore
 
 	void ImmediateCommandList::Dispatch( uint32 x, uint32 y, uint32 z )
 	{
-		DefaultConstantBuffers::GetInstance().Commit( SHADER_TYPE::CS );
+		DefaultConstantBuffers::GetInstance().Commit( agl::ShaderType::CS );
 		m_imple.Dispatch( x, y, z );
-		BindShader( static_cast<aga::ComputeShader*>( nullptr ) );
+		BindShader( static_cast<agl::ComputeShader*>( nullptr ) );
 	}
 
-	void ImmediateCommandList::SetViewports( uint32 count, const CubeArea<float>* areas )
+	void ImmediateCommandList::SetViewports( uint32 count, const agl::CubeArea<float>* areas )
 	{
 		m_imple.SetViewports( count, areas );
 	}
 
-	void ImmediateCommandList::SetScissorRects( uint32 count, const RectangleArea<int32>* areas )
+	void ImmediateCommandList::SetScissorRects( uint32 count, const agl::RectangleArea<int32>* areas )
 	{
 		m_imple.SetScissorRects( count, areas );
 	}
 
-	void ImmediateCommandList::BindRenderTargets( aga::RenderTargetView** pRenderTargets, uint32 renderTargetCount, aga::DepthStencilView* depthStencil )
+	void ImmediateCommandList::BindRenderTargets( agl::RenderTargetView** pRenderTargets, uint32 renderTargetCount, agl::DepthStencilView* depthStencil )
 	{
 		m_imple.BindRenderTargets( pRenderTargets, renderTargetCount, depthStencil );
 	}
 
-	void ImmediateCommandList::ClearRenderTarget( aga::RenderTargetView* renderTarget, const float( &clearColor )[4] )
+	void ImmediateCommandList::ClearRenderTarget( agl::RenderTargetView* renderTarget, const float( &clearColor )[4] )
 	{
 		m_imple.ClearRenderTarget( renderTarget, clearColor );
 	}
 
-	void ImmediateCommandList::ClearDepthStencil( aga::DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor )
+	void ImmediateCommandList::ClearDepthStencil( agl::DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor )
 	{
 		m_imple.ClearDepthStencil( depthStencil, depthColor, stencilColor );
 	}
 
-	void ImmediateCommandList::CopyResource( aga::Texture* dest, aga::Texture* src )
+	void ImmediateCommandList::CopyResource( agl::Texture* dest, agl::Texture* src )
 	{
 		m_imple.CopyResource( dest, src );
 	}
 
-	void ImmediateCommandList::CopyResource( aga::Buffer* dest, aga::Buffer* src )
+	void ImmediateCommandList::CopyResource( agl::Buffer* dest, agl::Buffer* src )
 	{
 		m_imple.CopyResource( dest, src );
 	}
@@ -125,7 +125,7 @@ namespace rendercore
 		m_imple.WaitUntilFlush();
 	}
 
-	void ImmediateCommandList::Execute( aga::IDeferredCommandList& commandList )
+	void ImmediateCommandList::Execute( agl::IDeferredCommandList& commandList )
 	{
 		m_imple.Execute( commandList );
 	}

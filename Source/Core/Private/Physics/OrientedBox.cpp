@@ -53,10 +53,10 @@ float OrientedBox::Intersect( const CRay& ray ) const
 	return RayAndBox( rayOrigin, rayDir, m_halfSize, -m_halfSize );
 }
 
-uint32 OrientedBox::Intersect( const Frustum& /*frustum*/ ) const
+CollisionResult OrientedBox::Intersect( const Frustum& /*frustum*/ ) const
 {
 	assert( false && "Not Implemented" );
-	return 0;
+	return CollisionResult::Outside;
 }
 
 BoxSphereBounds OrientedBox::Bounds() const

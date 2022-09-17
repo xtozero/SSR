@@ -41,11 +41,11 @@ namespace rendercore
 			return m_byteCode;
 		}
 
-		aga::ShaderParameterMap& ParameterMap() { return m_parameterMap; }
-		const aga::ShaderParameterMap& ParameterMap() const { return m_parameterMap; }
+		agl::ShaderParameterMap& ParameterMap() { return m_parameterMap; }
+		const agl::ShaderParameterMap& ParameterMap() const { return m_parameterMap; }
 
-		aga::ShaderParameterInfo& ParameterInfo() { return m_parameterInfo; }
-		const aga::ShaderParameterInfo& ParameterInfo() const { return m_parameterInfo; }
+		agl::ShaderParameterInfo& ParameterInfo() { return m_parameterInfo; }
+		const agl::ShaderParameterInfo& ParameterInfo() const { return m_parameterInfo; }
 
 		RENDERCORE_DLL virtual void CreateShader() = 0;
 
@@ -56,10 +56,10 @@ namespace rendercore
 		BinaryChunk m_byteCode { 0 };
 
 		PROPERTY( parameterMap )
-		aga::ShaderParameterMap m_parameterMap;
+		agl::ShaderParameterMap m_parameterMap;
 
 		PROPERTY( parameterInfo )
-		aga::ShaderParameterInfo m_parameterInfo;
+		agl::ShaderParameterInfo m_parameterInfo;
 	};
 
 	class VertexShader : public ShaderBase
@@ -76,8 +76,8 @@ namespace rendercore
 		VertexShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
 		VertexShader() = default;
 
-		aga::VertexShader* Resource();
-		const aga::VertexShader* Resource() const;
+		agl::VertexShader* Resource();
+		const agl::VertexShader* Resource() const;
 
 		friend bool operator==( const VertexShader& lhs, const VertexShader& rhs )
 		{
@@ -88,7 +88,7 @@ namespace rendercore
 		RENDERCORE_DLL virtual void CreateShader() override;
 
 	private:
-		aga::RefHandle<aga::VertexShader> m_shader;
+		agl::RefHandle<agl::VertexShader> m_shader;
 	};
 
 	class GeometryShader : public ShaderBase
@@ -105,8 +105,8 @@ namespace rendercore
 		GeometryShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
 		GeometryShader() = default;
 
-		aga::GeometryShader* Resource();
-		const aga::GeometryShader* Resource() const;
+		agl::GeometryShader* Resource();
+		const agl::GeometryShader* Resource() const;
 
 		friend bool operator==( const GeometryShader& lhs, const GeometryShader& rhs )
 		{
@@ -117,7 +117,7 @@ namespace rendercore
 		RENDERCORE_DLL virtual void CreateShader() override;
 
 	private:
-		aga::RefHandle<aga::GeometryShader> m_shader;
+		agl::RefHandle<agl::GeometryShader> m_shader;
 	};
 
 	class PixelShader : public ShaderBase
@@ -134,8 +134,8 @@ namespace rendercore
 		PixelShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
 		PixelShader() = default;
 
-		aga::PixelShader* Resource();
-		const aga::PixelShader* Resource() const;
+		agl::PixelShader* Resource();
+		const agl::PixelShader* Resource() const;
 
 		friend bool operator==( const PixelShader& lhs, const PixelShader& rhs )
 		{
@@ -146,7 +146,7 @@ namespace rendercore
 		RENDERCORE_DLL virtual void CreateShader() override;
 
 	private:
-		aga::RefHandle<aga::PixelShader> m_shader;
+		agl::RefHandle<agl::PixelShader> m_shader;
 	};
 
 	class ComputeShader : public ShaderBase
@@ -158,8 +158,8 @@ namespace rendercore
 		ComputeShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
 		ComputeShader() = default;
 
-		aga::ComputeShader* Resource();
-		const aga::ComputeShader* Resource() const;
+		agl::ComputeShader* Resource();
+		const agl::ComputeShader* Resource() const;
 
 		friend bool operator==( const ComputeShader& lhs, const ComputeShader& rhs )
 		{
@@ -170,6 +170,6 @@ namespace rendercore
 		RENDERCORE_DLL virtual void CreateShader() override;
 
 	private:
-		aga::RefHandle<aga::ComputeShader> m_shader;
+		agl::RefHandle<agl::ComputeShader> m_shader;
 	};
 }
