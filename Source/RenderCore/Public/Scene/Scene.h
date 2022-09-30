@@ -6,10 +6,11 @@
 #include "PassProcessor.h"
 #include "Physics/BoxSphereBounds.h"
 #include "SceneConstantBuffers.h"
+#include "SceneVelocityData.h"
 #include "SizedTypes.h"
 #include "UploadBuffer.h"
 
-#include <vector>
+#include <set>
 
 namespace rendercore
 {
@@ -70,7 +71,19 @@ namespace rendercore
 
 		virtual ShadingMethod GetShadingMethod() const override;
 
-		virtual Scene* GetRenderScene() { return this; };
+		virtual Scene* GetRenderScene() override
+		{ 
+			return this; 
+		};
+
+		virtual void OnBeginSceneRendering() override;
+
+		virtual uint64 GetNumFrame() const override
+		{
+			return m_internalNumFrame;
+		}
+
+		void AddPrimitiveToUpdate( uint32 primitiveId );
 
 		const SparseArray<LightSceneInfo*>& Lights() const
 		{
@@ -116,6 +129,8 @@ namespace rendercore
 			return m_skyAtmosphereLight;
 		}
 
+		std::optional<Matrix> GetPreviousTransform( uint32 primitiveId ) const;
+
 	private:
 		void AddPrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo );
 		void RemovePrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo );
@@ -154,11 +169,15 @@ namespace rendercore
 
 		SceneViewConstantBuffer m_viewConstant;
 
-		std::vector<uint32> m_primitiveToUpdate;
+		std::set<uint32> m_primitiveToUpdate;
 		ScenePrimitiveBuffer m_gpuPrimitiveInfos;
 
 		TypedUploadBuffer<Vector4> m_uploadPrimitiveBuffer;
 		TypedUploadBuffer<uint32> m_distributionBuffer;
+
+		uint64 m_internalNumFrame = 0;
+
+		SceneVelocityData m_velocityData;
 
 		friend bool UpdateGPUPrimitiveInfos( Scene& scene );
 	};

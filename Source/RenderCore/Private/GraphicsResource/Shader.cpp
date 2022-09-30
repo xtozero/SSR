@@ -12,12 +12,17 @@ namespace rendercore
 		return ar;
 	}
 
+	StaticShaderSwitches ShaderBase::GetStaticSwitches() const
+	{
+		return StaticShaderSwitches();
+	}
+
 	ShaderBase* ShaderBase::CompileShader( [[maybe_unused]] const StaticShaderSwitches& switches )
 	{
 		return this;
 	}
 
-	RENDERCORE_DLL void ShaderBase::PostLoadImpl()
+	void ShaderBase::PostLoadImpl()
 	{
 		CreateShader();
 	}

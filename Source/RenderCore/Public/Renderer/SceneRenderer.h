@@ -5,7 +5,9 @@
 #include "NameTypes.h"
 #include "PassProcessor.h"
 #include "RenderCoreAllocator.h"
+#include "Scene/SceneConstantBuffers.h"
 #include "Scene/ShadowInfo.h"
+#include "TemporalAntiAliasingRendering.h"
 #include "Texture.h"
 
 #include <array>
@@ -26,6 +28,17 @@ namespace rendercore
 
 	struct RenderView;
 	struct ShaderStates;
+
+	class IRendererRenderTargets
+	{
+	public:
+		virtual agl::Texture* GetDepthStencil() = 0;
+		virtual agl::Texture* GetLinearDepth() = 0;
+		virtual agl::Texture* GetTAAHistory() = 0;
+		virtual agl::Texture* GetTAAResolve() = 0;
+		virtual agl::Texture* GetWorldNormal() = 0;
+		virtual agl::Texture* GetVelocity() = 0;
+	};
 
 	class RenderingShaderResource
 	{
@@ -81,6 +94,8 @@ namespace rendercore
 			commandList.SetScissorRects( 1, &m_outputContext.m_scissorRects );
 		}
 
+		virtual IRendererRenderTargets& GetRenderRenderTargets() = 0;
+
 		static void WaitUntilRenderingIsFinish();
 
 		virtual ~SceneRenderer() = default;
@@ -97,6 +112,7 @@ namespace rendercore
 		void RenderShadow();
 		void RenderSkyAtmosphere( IScene& scene, RenderView& renderView );
 		void RenderVolumetricCloud( IScene& scene, RenderView& renderView );
+		void RenderTemporalAntiAliasing( RenderViewGroup& renderViewGroup );
 
 		void StoreOuputContext( const RenderingOutputContext& context );
 
@@ -106,5 +122,10 @@ namespace rendercore
 		VectorSingleFrame<ShadowInfo> m_shadowInfos;
 		using PassVisibleSnapshots = std::array<VectorSingleFrame<VisibleDrawSnapshot>, static_cast<uint32>( RenderPass::Count )>;
 		VectorSingleFrame<PassVisibleSnapshots> m_passSnapshots;
+
+		std::vector<PreviousFrameContext> m_prevFrameContext;
+
+	private:
+		TAARenderer m_taa;
 	};
 }

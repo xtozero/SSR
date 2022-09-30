@@ -16,8 +16,8 @@ namespace rendercore
 	public:
 		friend class ShaderManufacturer;
 		
+		RENDERCORE_DLL virtual StaticShaderSwitches GetStaticSwitches() const override;
 		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
-		const StaticShaderSwitches& Switches() const;
 
 		friend bool operator==( const UberShader& lhs, const UberShader& rhs )
 		{

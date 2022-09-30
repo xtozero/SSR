@@ -22,6 +22,11 @@ namespace
 namespace rendercore
 {
 	REGISTER_ASSET( UberShader );
+	StaticShaderSwitches UberShader::GetStaticSwitches() const
+	{
+		return m_switches;
+	}
+
 	ShaderBase* UberShader::CompileShader( const StaticShaderSwitches& switches )
 	{
 #ifdef _DEBUG
@@ -43,11 +48,11 @@ namespace rendercore
 		}
 
 		std::vector<const char*> defines;
-		defines.reserve( ( m_switches.Configs().size() + 1 ) << 1 );
+		defines.reserve( ( switches.Configs().size() + 1 ) << 1 );
 
 		std::array<char, 1024> valueBuffer{ '\0' };
 		char* value = valueBuffer.data();
-		for ( auto& [name, shaderSwitch] : m_switches.Configs() )
+		for ( auto& [name, shaderSwitch] : switches.Configs() )
 		{
 			if ( shaderSwitch.m_on == false )
 			{
@@ -57,7 +62,7 @@ namespace rendercore
 			defines.emplace_back( name.Str().data() );
 			defines.emplace_back( value );
 
-			sprintf_s( value, &*std::end( valueBuffer ) - value, "%d", shaderSwitch.m_current);
+			sprintf_s( value, valueBuffer.size(), "%d", shaderSwitch.m_current);
 			value += ( std::strlen( value ) + 1 );
 		}
 		defines.emplace_back( nullptr );
@@ -92,11 +97,6 @@ namespace rendercore
 
 		ShaderCache::UpdateCache( shaderHash, shader );
 		return shader;
-	}
-
-	const StaticShaderSwitches& UberShader::Switches() const
-	{
-		return m_switches;
 	}
 
 	void UberShader::PostLoadImpl()

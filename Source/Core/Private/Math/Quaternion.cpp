@@ -10,6 +10,8 @@ using ::DirectX::XMQuaternionInverse;
 using ::DirectX::XMQuaternionMultiply;
 using ::DirectX::XMQuaternionNormalize;
 using ::DirectX::XMQuaternionRotationRollPitchYaw;
+using ::DirectX::XMVector4LessOrEqual;
+using ::DirectX::XMVectorAbs;
 using ::DirectX::XMVectorGetX;
 
 float Quaternion::Length() const
@@ -25,6 +27,15 @@ XMVector Quaternion::GetNormalized() const
 XMVector Quaternion::Inverse() const
 {
 	return XMQuaternionInverse( XMVector( *this ) );
+}
+
+bool Quaternion::Equals( const Quaternion& other, float tolerance ) const
+{
+	XMVector toleranceVec = Vector4( tolerance, tolerance, tolerance, tolerance );
+	XMVector rotationSub = XMVectorAbs( *this - other );
+	XMVector rotationAdd = XMVectorAbs( *this + other );
+
+	return XMVector4LessOrEqual( rotationSub, toleranceVec ) || XMVector4LessOrEqual( rotationAdd, toleranceVec );
 }
 
 Quaternion::Quaternion( float pitch, float yaw, float roll )

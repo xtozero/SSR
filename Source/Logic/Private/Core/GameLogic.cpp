@@ -87,8 +87,6 @@ bool CGameLogic::BootUp( IPlatform& platform )
 		__debugbreak();
 	}
 
-	//m_shadowManager.Init( *this );
-
 	//if ( m_ssrManager.Init( *this ) == false )
 	//{
 	//	__debugbreak( );
@@ -241,12 +239,7 @@ void CGameLogic::EndLogic()
 	//CameraComponent& playerCamera = GetLocalPlayer( )->GetCamera( );
 	//playerCamera.UpdateToRenderer( m_view );
 
-	//m_shadowManager.BuildShadowProjectionMatrix( *this, m_gameObjects );
-
 	//m_view.UpdataView( *this, m_commonConstantBuffer[VS_VIEW_PROJECTION] );
-
-	//// ±×¸²ÀÚ ¸Ê ·»´õ¸µ
-	//m_shadowManager.DrawShadowMap( *this );
 
 	//float wndWidth = static_cast<float>( m_appSize.first );
 	//float wndHeight = static_cast<float>( m_appSize.second );
@@ -318,26 +311,16 @@ bool CGameLogic::LoadWorld( const char* filePath )
 
 void CGameLogic::DrawScene()
 {
+	rendercore::IScene* scene = m_world.Scene();
+	if ( scene )
+	{
+		EnqueueRenderTask( [scene]()
+			{
+				scene->OnBeginSceneRendering();
+			} );
+	}
+
 	m_gameViewport->Draw();
-	//IScene* scene = m_world.Scene( );
-	//if ( scene )
-	//{
-	//	scene->DrawScene( views );
-	//}
-
-	//CXMFLOAT3 sunDir( 0.f, 1.0f, 0.f );
-	//if ( CLight* pLight = m_lightManager.GetPrimaryLight( ) )
-	//{
-	//	sunDir = -pLight->GetDirection( );
-	//}
-
-	//CameraComponent& playerCamera = GetLocalPlayer( )->GetCamera( );
-	//m_atmosphereManager.Render( GetRenderer( ), playerCamera.GetOrigin(), sunDir );
-	//m_shadowManager.PrepareBeforeRenderScene( GetRenderer() );
-
-	//DrawOpaqueRenderable( );
-	//DrawTransparentRenderable( );
-	//DrawReflectRenderable( );
 }
 
 void CGameLogic::DrawForDebug()
@@ -540,7 +523,6 @@ void CGameLogic::HandleDeviceLost()
 	//CreateDeviceDependentResource( );
 
 	//m_modelManager.OnDeviceRestore( *this );
-	//m_shadowManager.OnDeviceRestore( *this );
 	//m_ssrManager.OnDeviceRestore( *this );
 	//m_debugOverlay.OnDeviceRestore( *this );
 	//m_atmosphereManager.OnDeviceRestore( *this );

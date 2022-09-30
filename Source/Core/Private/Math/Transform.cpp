@@ -254,7 +254,7 @@ bool AreRotationsEqual( const Transform& lhs, const Transform& rhs, float tolera
 	XMVector rotationSub = XMVectorAbs( lhs.m_rotation - rhs.m_rotation );
 	XMVector rotationAdd = XMVectorAbs( lhs.m_rotation + rhs.m_rotation );
 
-	return XMVector4LessOrEqual( rotationSub, toleranceVec ) || XMVector3LessOrEqual( rotationAdd, toleranceVec );
+	return XMVector4LessOrEqual( rotationSub, toleranceVec ) || XMVector4LessOrEqual( rotationAdd, toleranceVec );
 }
 
 bool AreTranslationsEqual( const Transform& lhs, const Transform& rhs, float tolerance )

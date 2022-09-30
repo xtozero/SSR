@@ -13,6 +13,7 @@ public:
 	float LengthSqrt() const;
 	XMVector GetAbs() const;
 	XMVector GetNormalized() const;
+	bool Equals( const Vector& other, float tolerance = 1.e-4 ) const;
 
 	using ::DirectX::XMFLOAT3::XMFLOAT3;
 	Vector( const XMVector& v );

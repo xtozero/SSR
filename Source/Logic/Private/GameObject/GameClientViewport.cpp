@@ -54,7 +54,7 @@ void GameClientViewport::Draw()
 		.m_scene = *GetWorld()->Scene(),
 		.m_viewport = *m_viewport,
 		.m_elapsedTime = timer.GetElapsedTime(),
-		.m_totalTime = timer.GetTotalTime(),
+		.m_totalTime = timer.GetTotalTime()
 	};
 
 	rendercore::RenderViewGroup renderViewGroup( initializer );

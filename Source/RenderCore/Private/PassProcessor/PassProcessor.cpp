@@ -2,12 +2,27 @@
 #include "PassProcessor.h"
 
 #include "AbstractGraphicsInterface.h"
+#include "GraphicsApiResource.h"
 #include "MaterialResource.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "VertexCollection.h"
 
 namespace rendercore
 {
+	PassShader IPassProcessor::CollectPassShader( MaterialResource& material ) const
+	{
+		StaticShaderSwitches switches = material.GetShaderSwitches( agl::ShaderType::VS );
+		switches.On( Name( "TAA" ), 1 );
+
+		PassShader passShader{
+			material.GetVertexShader( &switches ),
+			nullptr,
+			material.GetPixelShader()
+		};
+
+		return passShader;
+	}
+
 	std::optional<DrawSnapshot> IPassProcessor::BuildDrawSnapshot( const PrimitiveSubMesh& subMesh, const PassShader& passShader, const PassRenderOption& passRenderOption, VertexStreamLayoutType layoutType )
 	{
 		DrawSnapshot snapshot;

@@ -25,6 +25,8 @@ VS_OUTPUT main( VS_INPUT input )
 	output.viewPos = mul( float4( output.worldPos, 1.0f ), ViewMatrix ).xyz;
 	output.position = mul( float4( output.viewPos, 1.0f ), ProjectionMatrix );
 	output.normal = mul( float4( input.normal, 0.f ), transpose( primitiveData.m_invWorldMatrix ) ).xyz;
+
+	output.position = ApplyTAAJittering( output.position );
 	
 	return output;
 }

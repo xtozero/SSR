@@ -100,11 +100,13 @@ namespace rendercore
 			EnqueueRenderTask(
 				[this, param, proxy]()
 				{
+					m_velocityData.UpdateTransform( GetNumFrame(), proxy->PrimitiveId(), proxy->WorldTransform() );
+
 					proxy->WorldTransform() = param.m_worldTransform;
 					proxy->Bounds() = param.m_worldBounds;
 					proxy->LocalBounds() = param.m_localBounds;
 
-					m_primitiveToUpdate.push_back( proxy->PrimitiveId() );
+					AddPrimitiveToUpdate( proxy->PrimitiveId() );
 				} );
 		}
 		else
@@ -290,6 +292,18 @@ namespace rendercore
 		return ShadingMethod::Forward;
 	}
 
+	void Scene::OnBeginSceneRendering()
+	{
+		++m_internalNumFrame;
+
+		m_velocityData.StartFrame( *this );
+	}
+
+	void Scene::AddPrimitiveToUpdate( uint32 primitiveId )
+	{
+		m_primitiveToUpdate.emplace( primitiveId );
+	}
+
 	CachedDrawSnapshotInfo Scene::AddCachedDrawSnapshot( RenderPass passType, const DrawSnapshot& snapshot )
 	{
 		CachedDrawSnapshotInfo info;
@@ -307,6 +321,12 @@ namespace rendercore
 		m_cachedSnapshots[passType].RemoveAt( info.m_snapshotIndex );
 	}
 
+	std::optional<Matrix> Scene::GetPreviousTransform( uint32 primitiveId ) const
+	{
+		assert( IsInRenderThread() );
+		return m_velocityData.GetPreviousTransform( primitiveId );
+	}
+
 	void Scene::AddPrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo )
 	{
 		assert( IsInRenderThread() );
@@ -316,7 +336,9 @@ namespace rendercore
 		primitiveSceneInfo->PrimitiveId() = primitiveId;
 		m_primitiveBounds.AddUninitialized();
 
-		m_primitiveToUpdate.push_back( primitiveId );
+		AddPrimitiveToUpdate( primitiveId );
+
+		m_velocityData.UpdateTransform( GetNumFrame(), primitiveId, primitiveSceneInfo->Proxy()->WorldTransform() );
 
 		primitiveSceneInfo->AddToScene();
 	}
@@ -329,7 +351,9 @@ namespace rendercore
 
 		m_primitives.RemoveAt( primitiveId );
 		m_primitiveBounds.RemoveAt( primitiveId );
-		m_primitiveToUpdate.erase( std::remove( m_primitiveToUpdate.begin(), m_primitiveToUpdate.end(), primitiveId ), m_primitiveToUpdate.end() );
+		m_primitiveToUpdate.erase( primitiveId );
+
+		m_velocityData.RemoveFromScene( primitiveId );
 
 		primitiveSceneInfo->RemoveFromScene();
 		delete primitiveSceneInfo->Proxy();
@@ -444,12 +468,11 @@ namespace rendercore
 
 		GpuMemcpy gpuMemcpy( updateSize, sizeof( PrimitiveSceneData ) / sizeof( Vector4 ), scene.m_uploadPrimitiveBuffer, scene.m_distributionBuffer );
 
-		for ( auto index : scene.m_primitiveToUpdate )
+		for ( auto primitiveId : scene.m_primitiveToUpdate )
 		{
-			PrimitiveProxy* proxy = scene.m_primitives[index]->Proxy();
+			PrimitiveSceneData param( scene, primitiveId );
 
-			PrimitiveSceneData param( proxy );
-			gpuMemcpy.Add( (const char*)( &param ), index );
+			gpuMemcpy.Add( (const char*)( &param ), primitiveId );
 		}
 
 		agl::Buffer* gpuPrimitiveInfos = scene.m_gpuPrimitiveInfos.Resource();

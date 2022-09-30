@@ -9,6 +9,7 @@ public:
 	float Length() const;
 	XMVector GetNormalized() const;
 	XMVector Inverse() const;
+	bool Equals( const Quaternion& other, float tolerance = 1.e-4 ) const;
 
 	Quaternion( float pitch, float yaw, float roll );
 	Quaternion( const XMVector& v );

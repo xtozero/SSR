@@ -363,7 +363,7 @@ namespace rendercore
 		m_shaders[static_cast<uint32>( agl::ShaderType::VS )] = vertexshader;
 	}
 
-	const VertexShader* Material::GetVertexShader() const
+	const VertexShader* Material::GetVertexShader( const StaticShaderSwitches* switches ) const
 	{
 		auto& vertexShader = m_shaders[static_cast<uint32>( agl::ShaderType::VS )];
 		if ( vertexShader == nullptr )
@@ -371,11 +371,13 @@ namespace rendercore
 			return nullptr;
 		}
 
-		const ShaderBase* compiled = vertexShader->CompileShader( m_shaderSwitches[static_cast<uint32>( agl::ShaderType::VS )] );
+		const StaticShaderSwitches& compileOption = switches ? *switches : m_shaderSwitches[static_cast<uint32>( agl::ShaderType::VS )];
+
+		const ShaderBase* compiled = vertexShader->CompileShader( compileOption );
 		return static_cast<const VertexShader*>( compiled );
 	}
 
-	VertexShader* Material::GetVertexShader()
+	VertexShader* Material::GetVertexShader( const StaticShaderSwitches* switches )
 	{
 		auto& vertexShader = m_shaders[static_cast<uint32>( agl::ShaderType::VS )];
 		if ( vertexShader == nullptr )
@@ -383,7 +385,9 @@ namespace rendercore
 			return nullptr;
 		}
 
-		ShaderBase* compiled = vertexShader->CompileShader( m_shaderSwitches[static_cast<uint32>( agl::ShaderType::VS )] );
+		const StaticShaderSwitches& compileOption = switches ? *switches : m_shaderSwitches[static_cast<uint32>( agl::ShaderType::VS )];
+
+		ShaderBase* compiled = vertexShader->CompileShader( compileOption );
 		return static_cast<VertexShader*>( compiled );
 	}
 
@@ -392,7 +396,7 @@ namespace rendercore
 		m_shaders[static_cast<uint32>( agl::ShaderType::GS )] = geometryShader;
 	}
 
-	const GeometryShader* Material::GetGeometryShader() const
+	const GeometryShader* Material::GetGeometryShader( const StaticShaderSwitches* switches ) const
 	{
 		auto& geometryShader = m_shaders[static_cast<uint32>( agl::ShaderType::GS )];
 		if ( geometryShader == nullptr )
@@ -400,11 +404,13 @@ namespace rendercore
 			return nullptr;
 		}
 
-		const ShaderBase* compiled = geometryShader->CompileShader( m_shaderSwitches[static_cast<uint32>( agl::ShaderType::GS )] );
+		const StaticShaderSwitches& compileOption = switches ? *switches : m_shaderSwitches[static_cast<uint32>( agl::ShaderType::GS )];
+
+		const ShaderBase* compiled = geometryShader->CompileShader( compileOption );
 		return static_cast<const GeometryShader*>( compiled );
 	}
 
-	GeometryShader* Material::GetGeometryShader()
+	GeometryShader* Material::GetGeometryShader( const StaticShaderSwitches* switches )
 	{
 		auto& geometryShader = m_shaders[static_cast<uint32>( agl::ShaderType::GS )];
 		if ( geometryShader == nullptr )
@@ -412,7 +418,9 @@ namespace rendercore
 			return nullptr;
 		}
 
-		ShaderBase* compiled = geometryShader->CompileShader( m_shaderSwitches[static_cast<uint32>( agl::ShaderType::GS )] );
+		const StaticShaderSwitches& compileOption = switches ? *switches : m_shaderSwitches[static_cast<uint32>( agl::ShaderType::GS )];
+
+		ShaderBase* compiled = geometryShader->CompileShader( compileOption );
 		return static_cast<GeometryShader*>( compiled );
 	}
 
@@ -421,7 +429,7 @@ namespace rendercore
 		m_shaders[static_cast<uint32>( agl::ShaderType::PS )] = pixelShader;
 	}
 
-	const PixelShader* Material::GetPixelShader() const
+	const PixelShader* Material::GetPixelShader( const StaticShaderSwitches* switches ) const
 	{
 		auto& pixelShader = m_shaders[static_cast<uint32>( agl::ShaderType::PS )];
 		if ( pixelShader == nullptr )
@@ -429,11 +437,13 @@ namespace rendercore
 			return nullptr;
 		}
 
-		const ShaderBase* compiled = pixelShader->CompileShader( m_shaderSwitches[static_cast<uint32>( agl::ShaderType::PS )] );
+		const StaticShaderSwitches& compileOption = switches ? *switches : m_shaderSwitches[static_cast<uint32>( agl::ShaderType::PS )];
+
+		const ShaderBase* compiled = pixelShader->CompileShader( compileOption );
 		return static_cast<const PixelShader*>( compiled );
 	}
 
-	PixelShader* Material::GetPixelShader()
+	PixelShader* Material::GetPixelShader( const StaticShaderSwitches* switches )
 	{
 		auto& pixelShader = m_shaders[static_cast<uint32>( agl::ShaderType::PS )];
 		if ( pixelShader == nullptr )
@@ -441,13 +451,26 @@ namespace rendercore
 			return nullptr;
 		}
 
-		ShaderBase* compiled = pixelShader->CompileShader( m_shaderSwitches[static_cast<uint32>( agl::ShaderType::PS )] );
+		const StaticShaderSwitches& compileOption = switches ? *switches : m_shaderSwitches[static_cast<uint32>( agl::ShaderType::PS )];
+
+		ShaderBase* compiled = pixelShader->CompileShader( compileOption );
 		return static_cast<PixelShader*>( compiled );
 	}
 
 	void Material::AddSampler( const std::string& key, const std::shared_ptr<SamplerOption>& samplerOption )
 	{
 		m_samplers.emplace( Name( key ), samplerOption );
+	}
+
+	StaticShaderSwitches Material::GetShaderSwitches( agl::ShaderType type )
+	{
+		auto& shader = m_shaders[static_cast<uint32>( type )];
+		if ( shader != nullptr )
+		{
+			return shader->GetStaticSwitches();
+		}
+
+		return StaticShaderSwitches();
 	}
 
 	MaterialResource* Material::GetMaterialResource() const
@@ -471,9 +494,9 @@ namespace rendercore
 	{
 		for ( int i = 0; i < agl::MAX_SHADER_TYPE<uint32>; ++i )
 		{
-			if ( auto uberShader = Cast<UberShader>( m_shaders[i].get() ) )
+			if ( auto shader = m_shaders[i].get() )
 			{
-				m_shaderSwitches[i] = uberShader->Switches();
+				m_shaderSwitches[i] = shader->GetStaticSwitches();
 			}
 
 			for ( const auto& define : m_defines[i] )

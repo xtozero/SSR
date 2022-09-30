@@ -152,7 +152,7 @@ namespace
 			int m_integer;
 		};
 
-		std::optional<int> ReadInteger();
+		std::optional<Token> ReadInteger();
 		Token ReadToken();
 		bool IsReservedKeyword( std::string_view& keyword ) const;
 
@@ -247,7 +247,7 @@ namespace
 		TextTokenaizer::Parse( contents, length );
 	}
 
-	std::optional<int> StaticSwitchParser::ReadInteger()
+	std::optional<StaticSwitchParser::Token> StaticSwitchParser::ReadInteger()
 	{
 		SkipWhiteSpace();
 
@@ -258,10 +258,18 @@ namespace
 
 		if ( result.ec == std::errc() )
 		{
-			return {};
+			Token token =
+			{
+				.m_type = TokenType::Integer,
+				.m_str = word,
+				.m_integer = integer
+
+			};
+
+			return token;
 		}
 
-		return integer;
+		return {};
 	}
 
 	StaticSwitchParser::Token StaticSwitchParser::ReadToken()
@@ -325,7 +333,7 @@ namespace
 			auto integer = ReadInteger();
 			if ( integer.has_value() )
 			{
-				token.m_integer = integer.value();
+				token = integer.value();
 			}
 			break;
 		}

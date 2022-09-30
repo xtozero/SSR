@@ -104,6 +104,7 @@ set (RENDER_SCENE_SOURCE
 	Private/Scene/PrimitiveSceneInfo.cpp
 	Private/Scene/Scene.cpp
 	Private/Scene/SceneConstantBuffers.cpp
+	Private/Scene/SceneVelocityData.cpp
 	Private/Scene/ShadowInfo.cpp
 	Private/Scene/VolumetricCloudSceneInfo.cpp
 	Public/Scene/IScene.h
@@ -111,6 +112,7 @@ set (RENDER_SCENE_SOURCE
 	Public/Scene/PrimitiveSceneInfo.h
 	Public/Scene/Scene.h
 	Public/Scene/SceneConstantBuffers.h
+	Public/Scene/SceneVelocityData.h
 	Public/Scene/ShadowInfo.h
 	Public/Scene/VolumetricCloudSceneInfo.h)
 
@@ -132,12 +134,14 @@ set (RENDERER_SOURCE
 	Private/Renderer/RenderView.cpp
 	Private/Renderer/SceneRenderer.cpp
 	Private/Renderer/SkyAtmosphereRendering.cpp
+	Private/Renderer/TemporalAntiAliasingRendering.cpp
 	Public/Renderer/ForwardLighting.h
 	Public/Renderer/ForwardRenderer.h
 	Public/Renderer/IRenderCore.h
 	Public/Renderer/RenderView.h
 	Public/Renderer/SceneRenderer.h
-	Public/Renderer/SkyAtmosphereRendering.h)
+	Public/Renderer/SkyAtmosphereRendering.h
+	Public/Renderer/TemporalAntiAliasingRendering.h)
 	
 source_group("GraphicsResource" FILES ${GRAPHICS_RESOURCE_SOURCE})
 source_group("Material" FILES ${MATERIAL_SOURCE})

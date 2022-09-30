@@ -77,7 +77,7 @@ void SceneComponent::LoadProperty( const JSON::Value& json )
 
 void SceneComponent::SetPosition( const Vector& translation )
 {
-	if ( m_transform.GetTranslation() == translation )
+	if ( m_transform.GetTranslation().Equals( translation ) )
 	{
 		return;
 	}
@@ -90,7 +90,7 @@ void SceneComponent::SetPosition( const Vector& translation )
 
 void SceneComponent::SetScale3D( const Vector& scale3D )
 {
-	if ( m_transform.GetScale3D() == scale3D )
+	if ( m_transform.GetScale3D().Equals( scale3D ) )
 	{
 		return;
 	}
@@ -103,7 +103,7 @@ void SceneComponent::SetScale3D( const Vector& scale3D )
 
 void SceneComponent::SetRotation( const Quaternion& rotation )
 {
-	if ( m_transform.GetRotation() == rotation )
+	if ( m_transform.GetRotation().Equals( rotation ) )
 	{
 		return;
 	}
@@ -116,7 +116,7 @@ void SceneComponent::SetRotation( const Quaternion& rotation )
 
 void SceneComponent::SetRelativePosition( const Vector& translation )
 {
-	if ( m_relativeTransform.GetTranslation() == translation )
+	if ( m_relativeTransform.GetTranslation().Equals( translation ) )
 	{
 		return;
 	}
@@ -129,7 +129,7 @@ void SceneComponent::SetRelativePosition( const Vector& translation )
 
 void SceneComponent::SetRelativeScale3D( const Vector& scale3D )
 {
-	if ( m_relativeTransform.GetScale3D() == scale3D )
+	if ( m_relativeTransform.GetScale3D().Equals( scale3D ) )
 	{
 		return;
 	}
@@ -142,7 +142,7 @@ void SceneComponent::SetRelativeScale3D( const Vector& scale3D )
 
 void SceneComponent::SetRelativeRotation( const Quaternion& rotation )
 {
-	if ( m_relativeTransform.GetRotation() == rotation )
+	if ( m_relativeTransform.GetRotation().Equals( rotation ) )
 	{
 		return;
 	}

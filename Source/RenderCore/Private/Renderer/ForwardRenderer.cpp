@@ -36,10 +36,28 @@ namespace rendercore
 		return m_linearDepth;
 	}
 
+	agl::Texture* ForwardRendererRenderTargets::GetTAAHistory()
+	{
+		AllocTAARenderTargets();
+		return m_taaHistory;
+	}
+
+	agl::Texture* ForwardRendererRenderTargets::GetTAAResolve()
+	{
+		AllocTAARenderTargets();
+		return m_taaResolve;
+	}
+
 	agl::Texture* ForwardRendererRenderTargets::GetWorldNormal()
 	{
 		AllocWorldNormal();
 		return m_worldNormal;
+	}
+
+	agl::Texture* ForwardRendererRenderTargets::GetVelocity()
+	{
+		AllocVelocity();
+		return m_velocity;
 	}
 
 	void ForwardRendererRenderTargets::AllocDepthStencil()
@@ -94,6 +112,57 @@ namespace rendercore
 		}
 	}
 
+	void ForwardRendererRenderTargets::AllocTAARenderTargets()
+	{
+		if ( m_taaHistory == nullptr )
+		{
+			agl::TEXTURE_TRAIT trait =
+			{
+				.m_width = m_bufferSize.first,
+				.m_height = m_bufferSize.second,
+				.m_depth = 1,
+				.m_sampleCount = 1,
+				.m_sampleQuality = 0,
+				.m_mipLevels = 1,
+				.m_format = agl::ResourceFormat::R8G8B8A8_UNORM_SRGB,
+				.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
+				.m_miscFlag = agl::ResourceMisc::None
+			};
+
+			m_taaHistory = agl::Texture::Create( trait );
+			EnqueueRenderTask(
+				[taaHistory = m_taaHistory]()
+				{
+					taaHistory->Init();
+				} );
+		}
+
+		if ( m_taaResolve == nullptr )
+		{
+			agl::TEXTURE_TRAIT trait =
+			{
+				.m_width = m_bufferSize.first,
+				.m_height = m_bufferSize.second,
+				.m_depth = 1,
+				.m_sampleCount = 1,
+				.m_sampleQuality = 0,
+				.m_mipLevels = 1,
+				.m_format = agl::ResourceFormat::R8G8B8A8_UNORM_SRGB,
+				.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
+				.m_miscFlag = agl::ResourceMisc::None
+			};
+
+			m_taaResolve = agl::Texture::Create( trait );
+			EnqueueRenderTask(
+				[taaResolve = m_taaResolve]()
+				{
+					taaResolve->Init();
+				} );
+		}
+	}
+
 	void ForwardRendererRenderTargets::AllocWorldNormal()
 	{
 		if ( m_worldNormal == nullptr )
@@ -120,11 +189,40 @@ namespace rendercore
 		}
 	}
 
+	void ForwardRendererRenderTargets::AllocVelocity()
+	{
+		if ( m_velocity == nullptr )
+		{
+			agl::TEXTURE_TRAIT trait = {
+				m_bufferSize.first,
+				m_bufferSize.second,
+				1,
+				1,
+				0,
+				1,
+				agl::ResourceFormat::R16G16_FLOAT,
+				agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+				agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
+				agl::ResourceMisc::None
+			};
+
+			m_velocity = agl::Texture::Create( trait );
+			EnqueueRenderTask(
+				[velocity = m_velocity]()
+				{
+					velocity->Init();
+				} );
+		}
+	}
+
 	void ForwardRendererRenderTargets::ReleaseAll()
 	{
 		m_depthStencil = nullptr;
 		m_linearDepth = nullptr;
+		m_taaHistory = nullptr;
+		m_taaResolve = nullptr;
 		m_worldNormal = nullptr;
+		m_velocity = nullptr;
 	}
 
 	bool ForwardRenderer::PreRender( RenderViewGroup& renderViewGroup )
@@ -175,8 +273,9 @@ namespace rendercore
 		{
 			auto& viewConstant = scene.SceneViewConstant();
 
-			SceneViewParameters viewConstantParam;
-			FillViewConstantParam( viewConstantParam, scene.GetRenderScene(), renderViewGroup, i );
+			SceneViewParameters viewConstantParam = FillViewConstantParam( scene.GetRenderScene()
+				, ( i < m_prevFrameContext.size() ) ? &m_prevFrameContext[i] : nullptr
+				, renderViewGroup, i );
 
 			viewConstant.Update( viewConstantParam );
 
@@ -229,16 +328,22 @@ namespace rendercore
 		RenderMesh( scene, RenderPass::Default, renderViewGroup[curView] );
 	}
 
+	IRendererRenderTargets& ForwardRenderer::GetRenderRenderTargets()
+	{
+		return m_renderTargets;
+	}
+
 	void ForwardRenderer::RenderDepthPass( RenderViewGroup& renderViewGroup, uint32 curView )
 	{
 		auto renderTarget = m_renderTargets.GetLinearDepth();
 		auto worldNormal = m_renderTargets.GetWorldNormal();
+		auto velocity = m_renderTargets.GetVelocity();
 		auto depthStencil = m_renderTargets.GetDepthStencil();
 
 		auto [width, height] = renderViewGroup.GetViewport().Size();
 
 		RenderingOutputContext context = {
-			{ renderTarget, worldNormal },
+			{ renderTarget, worldNormal, velocity },
 			depthStencil,
 			{ 0.f, 0.f, static_cast<float>( width ), static_cast<float>( height ), 0.f, 1.f },
 			{ 0L, 0L, static_cast<int32>( width ), static_cast<int32>( height ) }
@@ -252,6 +357,9 @@ namespace rendercore
 
 		agl::RenderTargetView* rtv1 = worldNormal != nullptr ? worldNormal->RTV() : nullptr;
 		commandList.ClearRenderTarget( rtv1, { } );
+
+		agl::RenderTargetView* rtv2 = velocity != nullptr ? velocity->RTV() : nullptr;
+		commandList.ClearRenderTarget( rtv2, { } );
 
 		agl::DepthStencilView* dsv = depthStencil != nullptr ? depthStencil->DSV() : nullptr;
 		commandList.ClearDepthStencil( dsv, 1.f, 0 );

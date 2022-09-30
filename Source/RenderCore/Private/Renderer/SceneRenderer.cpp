@@ -128,7 +128,29 @@ namespace rendercore
 
 	void SceneRenderer::PostRender( RenderViewGroup& renderViewGroup )
 	{
+		RenderTemporalAntiAliasing( renderViewGroup );
+
 		m_shaderResources.ClearResources();
+
+		m_prevFrameContext.resize( renderViewGroup.Size() );
+		for ( size_t i = 0; i < m_prevFrameContext.size(); ++i )
+		{
+			const RenderView& view = renderViewGroup[i];
+
+			auto viewMatrix = LookFromMatrix( view.m_viewOrigin
+				, view.m_viewAxis[2]
+				, view.m_viewAxis[1] );
+			m_prevFrameContext[i].m_viewMatrix = viewMatrix;
+
+			auto projMatrix = PerspectiveMatrix( view.m_fov
+				, view.m_aspect
+				, view.m_nearPlaneDistance
+				, view.m_farPlaneDistance );
+			m_prevFrameContext[i].m_projMatrix = projMatrix;
+
+			auto viewProjMatrix = viewMatrix * projMatrix;
+			m_prevFrameContext[i].m_viewProjMatrix = viewProjMatrix;
+		}
 
 		std::destroy_at( &m_passSnapshots );
 		std::destroy_at( &m_shadowInfos );
@@ -746,6 +768,11 @@ namespace rendercore
 
 		VertexBuffer emptyPrimitiveID;
 		CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
+	}
+
+	void SceneRenderer::RenderTemporalAntiAliasing( RenderViewGroup& renderViewGroup )
+	{
+		m_taa.Render( GetRenderRenderTargets(), renderViewGroup );
 	}
 
 	void SceneRenderer::StoreOuputContext( const RenderingOutputContext& context )

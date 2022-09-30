@@ -7,61 +7,61 @@
 
 namespace rendercore
 {
-	const VertexShader* MaterialResource::GetVertexShader() const
+	const VertexShader* MaterialResource::GetVertexShader( const StaticShaderSwitches* switches ) const
 	{
 		if ( m_material )
 		{
-			return m_material->GetVertexShader();
+			return m_material->GetVertexShader( switches );
 		}
 
 		return nullptr;
 	}
 
-	VertexShader* MaterialResource::GetVertexShader()
+	VertexShader* MaterialResource::GetVertexShader( const StaticShaderSwitches* switches )
 	{
 		if ( m_material )
 		{
-			return m_material->GetVertexShader();
+			return m_material->GetVertexShader( switches );
 		}
 
 		return nullptr;
 	}
 
-	const GeometryShader* MaterialResource::GetGeometryShader() const
+	const GeometryShader* MaterialResource::GetGeometryShader( const StaticShaderSwitches* switches ) const
 	{
 		if ( m_material )
 		{
-			return m_material->GetGeometryShader();
+			return m_material->GetGeometryShader( switches );
 		}
 
 		return nullptr;
 	}
 
-	GeometryShader* MaterialResource::GetGeometryShader()
+	GeometryShader* MaterialResource::GetGeometryShader( const StaticShaderSwitches* switches )
 	{
 		if ( m_material )
 		{
-			return m_material->GetGeometryShader();
+			return m_material->GetGeometryShader( switches );
 		}
 
 		return nullptr;
 	}
 
-	const PixelShader* MaterialResource::GetPixelShader() const
+	const PixelShader* MaterialResource::GetPixelShader( const StaticShaderSwitches* switches ) const
 	{
 		if ( m_material )
 		{
-			return m_material->GetPixelShader();
+			return m_material->GetPixelShader( switches );
 		}
 
 		return nullptr;
 	}
 
-	PixelShader* MaterialResource::GetPixelShader()
+	PixelShader* MaterialResource::GetPixelShader( const StaticShaderSwitches* switches )
 	{
 		if ( m_material )
 		{
-			return m_material->GetPixelShader();
+			return m_material->GetPixelShader( switches );
 		}
 
 		return nullptr;
@@ -75,6 +75,16 @@ namespace rendercore
 		}
 
 		return nullptr;
+	}
+
+	StaticShaderSwitches MaterialResource::GetShaderSwitches( agl::ShaderType type )
+	{
+		if ( m_material )
+		{
+			return m_material->GetShaderSwitches( type );
+		}
+
+		return StaticShaderSwitches();
 	}
 
 	void MaterialResource::SetMaterial( const std::shared_ptr<Material>& material )

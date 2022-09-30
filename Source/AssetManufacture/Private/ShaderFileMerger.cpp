@@ -8,6 +8,9 @@ namespace fs = std::filesystem;
 
 std::optional<std::string> ShaderFileMerger::Merge( const std::filesystem::path& shaderFile )
 {
+    m_buffer.clear();
+    m_mergedFiles.clear();
+
     constexpr size_t MB = 1024 * 1024;
     m_buffer.reserve( 2 * MB );
 
@@ -70,8 +73,10 @@ void ShaderFileMerger::MergeRecursive( const std::filesystem::path& shaderFile )
                         for ( const fs::path& directory : candidateDirectories )
                         {
                             fs::path fullPath = directory / trim;
-                            if ( fs::exists( fullPath ) )
+                            bool notMerged = m_mergedFiles.find( fullPath ) == std::end( m_mergedFiles );
+                            if ( notMerged && fs::exists( fullPath ) )
                             {
+                                m_mergedFiles.emplace( fullPath );
                                 MergeRecursive( fullPath );
                                 break;
                             }

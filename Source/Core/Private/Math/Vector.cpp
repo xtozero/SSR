@@ -2,13 +2,15 @@
 
 #include "Vector4.h"
 
-using ::DirectX::XMVectorGetX;
 using ::DirectX::XMVector3Cross;
 using ::DirectX::XMVector3Dot;
 using ::DirectX::XMVector3Equal;
 using ::DirectX::XMVector3Length;
 using ::DirectX::XMVector3LengthSq;
+using ::DirectX::XMVector3LessOrEqual;
 using ::DirectX::XMVector3Normalize;
+using ::DirectX::XMVectorAbs;
+using ::DirectX::XMVectorGetX;
 
 float Vector::Length() const
 {
@@ -28,6 +30,14 @@ XMVector Vector::GetAbs() const
 XMVector Vector::GetNormalized() const
 {
 	return XMVector3Normalize( XMVector( *this ) );
+}
+
+bool Vector::Equals( const Vector& other, float tolerance ) const
+{
+	XMVector toleranceVec = Vector4( tolerance, tolerance, tolerance, 0 );
+	XMVector diff = XMVectorAbs( *this - other );
+
+	return XMVector3LessOrEqual( diff, toleranceVec );
 }
 
 Vector::Vector( const XMVector& v )

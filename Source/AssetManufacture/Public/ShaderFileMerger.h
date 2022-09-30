@@ -17,4 +17,6 @@ public:
 
 	std::filesystem::path m_includeFileDirectory;
 	std::string m_buffer;
+
+	std::set<std::filesystem::path> m_mergedFiles;
 };

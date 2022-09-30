@@ -6,7 +6,7 @@ static const float4 StratocumulusGradient = float4( 0.02f, 0.2f, 0.48f, 0.625f )
 static const float4 CumulusGradient = float4( 0.f, 0.1625f, 0.88f, 0.98f );
 static const float CloudTopOffset = 750.f;
 
-float3 NoiseKernel[6] = {
+static const float3 NoiseKernel[6] = {
 	float3( 0.38051305f,  0.92453449f, -0.02111345f ),
 	float3( -0.50625799f, -0.03590792f, -0.86163418f ),
 	float3( -0.32509218f, -0.94557439f,  0.01428793f ),

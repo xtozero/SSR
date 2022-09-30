@@ -56,6 +56,10 @@ namespace rendercore
 
 		virtual Scene* GetRenderScene() = 0;
 
+		virtual void OnBeginSceneRendering() = 0;
+
+		virtual uint64 GetNumFrame() const = 0;
+
 		virtual ~IScene() = default;
 	};
 }

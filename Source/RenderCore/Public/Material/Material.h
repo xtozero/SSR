@@ -157,15 +157,17 @@ namespace rendercore
 		const ShaderBase* GetShader( agl::ShaderType type ) const;
 
 		RENDERCORE_DLL void SetVertexShader( const std::shared_ptr<VertexShader>& vertexshader );
-		const VertexShader* GetVertexShader() const;
-		VertexShader* GetVertexShader();
+		const VertexShader* GetVertexShader( const StaticShaderSwitches* switches = nullptr ) const;
+		VertexShader* GetVertexShader( const StaticShaderSwitches* switches = nullptr );
 		RENDERCORE_DLL void SetGeometryShader( const std::shared_ptr<GeometryShader>& geometryShader );
-		const GeometryShader* GetGeometryShader() const;
-		GeometryShader* GetGeometryShader();
+		const GeometryShader* GetGeometryShader( const StaticShaderSwitches* switches = nullptr ) const;
+		GeometryShader* GetGeometryShader( const StaticShaderSwitches* switches = nullptr );
 		RENDERCORE_DLL void SetPixelShader( const std::shared_ptr<PixelShader>& pixelShader );
-		const PixelShader* GetPixelShader() const;
-		PixelShader* GetPixelShader();
+		const PixelShader* GetPixelShader( const StaticShaderSwitches* switches = nullptr ) const;
+		PixelShader* GetPixelShader( const StaticShaderSwitches* switches = nullptr );
 		RENDERCORE_DLL void AddSampler( const std::string& key, const  std::shared_ptr<SamplerOption>& samplerOption );
+
+		StaticShaderSwitches GetShaderSwitches( agl::ShaderType type );
 
 		RENDERCORE_DLL MaterialResource* GetMaterialResource() const;
 

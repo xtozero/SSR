@@ -16,6 +16,7 @@ namespace rendercore
 		GENERATE_CLASS_TYPE_INFO( IShader );
 
 	public:
+		RENDERCORE_DLL virtual StaticShaderSwitches GetStaticSwitches() const = 0;
 		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) = 0;
 	};
 
@@ -24,6 +25,7 @@ namespace rendercore
 		GENERATE_CLASS_TYPE_INFO( ShaderBase );
 
 	public:
+		RENDERCORE_DLL virtual StaticShaderSwitches GetStaticSwitches() const override;
 		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
 
 		ShaderBase( BinaryChunk&& byteCode ) : m_byteCode( std::move( byteCode ) ) {}

@@ -20,11 +20,7 @@ namespace rendercore
 
 		MaterialResource& material = *subMesh.m_material;
 
-		PassShader passShader{
-			material.GetVertexShader(),
-			nullptr,
-			material.GetPixelShader()
-		};
+		PassShader passShader = CollectPassShader( material );
 
 		PassRenderOption passRenderOption;
 		DepthStencilOption depthStencilOption;

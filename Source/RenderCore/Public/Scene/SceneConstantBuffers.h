@@ -22,6 +22,10 @@ namespace rendercore
 		Matrix m_invProjMatrix;
 		Matrix m_invViewProjMatrix;
 
+		Matrix m_prevViewMatrix;
+		Matrix m_prevProjMatrix;
+		Matrix m_prevViewProjMatrix;
+
 		ColorF m_hemisphereLightUpperColor;
 		ColorF m_hemisphereLightLowerColor;
 		Vector4 m_hemisphereLightUpVector;
@@ -29,9 +33,19 @@ namespace rendercore
 		float m_farPlaneDist;
 		float m_elapsedTime;
 		float m_totalTime;
+		uint32 m_frameCount;
+		Vector2 m_viewportDimensions;
+		uint32 padding;
 	};
 
-	void FillViewConstantParam( SceneViewParameters& param, const Scene* scene, const RenderViewGroup& renderViewGroup, size_t viewIndex );
+	struct PreviousFrameContext
+	{
+		Matrix m_viewMatrix;
+		Matrix m_projMatrix;
+		Matrix m_viewProjMatrix;
+	};
+
+	SceneViewParameters FillViewConstantParam( const Scene* scene, const PreviousFrameContext* prevFrameContext, const RenderViewGroup& renderViewGroup, size_t viewIndex );
 
 	class SceneViewConstantBuffer
 	{
@@ -48,9 +62,10 @@ namespace rendercore
 	class PrimitiveSceneData
 	{
 	public:
-		explicit PrimitiveSceneData( const PrimitiveProxy* proxy );
+		PrimitiveSceneData( const Scene& scene, uint32 primitiveId );
 
 		Matrix m_worldMatrix;
+		Matrix m_prevWorldMatrix;
 		Matrix m_invWorldMatrix;
 	};
 

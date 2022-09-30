@@ -725,8 +725,12 @@ namespace agl
 	};
 
 	template<typename T>
-	struct CubeArea : public RectangleArea<T>
+	struct CubeArea
 	{
+		T m_left;
+		T m_top;
+		T m_right;
+		T m_bottom;
 		T m_back;
 		T m_front;
 	};

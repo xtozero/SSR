@@ -44,11 +44,11 @@ namespace rendercore
 	class RenderViewGroup
 	{
 	public:
-		RENDERCORE_DLL RenderViewGroup( RenderViewGroupInitializer& initializer ) :
-			m_scene( initializer.m_scene ),
-			m_viewport( initializer.m_viewport ),
-			m_elapsedTime( initializer.m_elapsedTime ),
-			m_totalTime( initializer.m_totalTime )
+		RENDERCORE_DLL RenderViewGroup( RenderViewGroupInitializer& initializer ) 
+			: m_scene( initializer.m_scene )
+			, m_viewport( initializer.m_viewport )
+			, m_elapsedTime( initializer.m_elapsedTime )
+			, m_totalTime( initializer.m_totalTime )
 		{}
 
 		RENDERCORE_DLL RenderView& AddRenderView();
@@ -79,8 +79,8 @@ namespace rendercore
 		const IScene& Scene() const { return m_scene; }
 		Viewport& GetViewport() { return m_viewport; }
 		const Viewport& GetViewport() const { return m_viewport; }
-		float ElapsedTime() const { return m_elapsedTime; }
-		float TotalTime() const { return m_totalTime; }
+		float GetElapsedTime() const { return m_elapsedTime; }
+		float GetTotalTime() const { return m_totalTime; }
 
 		const RenderView& operator[]( size_t index ) const
 		{

@@ -14,6 +14,7 @@ using ::std::chrono::time_point;
 void Timer::Tick()
 {
 	++m_frame;
+	++m_totalFrameCount;
 
 	time_point<steady_clock> curTime = steady_clock::now();
 
@@ -60,6 +61,11 @@ float Timer::GetElapsedTime() const
 float Timer::GetTotalTime() const
 {
 	return duration_cast<duration<float>>( m_totalTime ).count();
+}
+
+uint32 Timer::GetTotalFrameCount() const
+{
+	return m_totalFrameCount;
 }
 
 Timer::Timer()

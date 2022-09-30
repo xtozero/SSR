@@ -16,13 +16,15 @@ namespace rendercore
 	class MaterialResource
 	{
 	public:
-		const VertexShader* GetVertexShader() const;
-		VertexShader* GetVertexShader();
-		const GeometryShader* GetGeometryShader() const;
-		GeometryShader* GetGeometryShader();
-		const PixelShader* GetPixelShader() const;
-		PixelShader* GetPixelShader();
+		const VertexShader* GetVertexShader( const StaticShaderSwitches* switches = nullptr ) const;
+		VertexShader* GetVertexShader( const StaticShaderSwitches* switches = nullptr );
+		const GeometryShader* GetGeometryShader( const StaticShaderSwitches* switches = nullptr ) const;
+		GeometryShader* GetGeometryShader( const StaticShaderSwitches* switches = nullptr );
+		const PixelShader* GetPixelShader( const StaticShaderSwitches* switches = nullptr ) const;
+		PixelShader* GetPixelShader( const StaticShaderSwitches* switches = nullptr );
 		const ShaderBase* GetShader( agl::ShaderType type ) const;
+
+		StaticShaderSwitches GetShaderSwitches( agl::ShaderType type );
 
 		void SetMaterial( const std::shared_ptr<Material>& material );
 		void TakeSnapshot( DrawSnapshot& snapShot );

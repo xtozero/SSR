@@ -50,6 +50,8 @@ namespace rendercore
 		virtual ~IPassProcessor() = default;
 
 	protected:
+		virtual PassShader CollectPassShader( MaterialResource& material ) const;
+
 		std::optional<DrawSnapshot> BuildDrawSnapshot( const PrimitiveSubMesh& subMesh, const PassShader& passShader, const PassRenderOption& passRenderOption, VertexStreamLayoutType layoutType );
 	};
 

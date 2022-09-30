@@ -226,7 +226,11 @@ namespace agl
 			for ( size_t i = 0; i < parameterInfo.m_constantBuffers.size(); ++i )
 			{
 				const ShaderParameter& param = parameterInfo.m_constantBuffers[i];
-				BindConstantBuffer( context, param.m_shader, param.m_bindPoint, binding.GetConstantBufferStart()[i] );
+
+				if ( param.m_bindPoint != 0 )
+				{
+					BindConstantBuffer( context, param.m_shader, param.m_bindPoint, binding.GetConstantBufferStart()[i] );
+				}
 			}
 
 			for ( size_t i = 0; i < parameterInfo.m_srvs.size(); ++i )

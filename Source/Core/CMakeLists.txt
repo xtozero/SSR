@@ -53,6 +53,7 @@ set (LIBRARY_TOOL
 	Public/LibraryTool/Interfacefactories.h)
 
 set (MATH
+	Private/Math/Halton.cpp
 	Private/Math/Matrix.cpp
 	Private/Math/Matrix3X3.cpp
 	Private/Math/Plane.cpp
@@ -63,6 +64,7 @@ set (MATH
 	Private/Math/Vector4.cpp
 	Private/Math/XMMatrix.cpp
 	Private/Math/XMVector.cpp
+	Public/Math/Halton.h
 	Public/Math/Matrix.h
 	Public/Math/Matrix3X3.h
 	Public/Math/Plane.h
