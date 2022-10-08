@@ -7,28 +7,17 @@
 
 namespace rendercore
 {
-	class DrawVolumetricCloudPS
-	{
-	public:
-		DrawVolumetricCloudPS()
-		{
-			m_shader = static_cast<PixelShader*>( GetGlobalShader<DrawVolumetricCloudPS>()->CompileShader( {} ) );
-		}
-
-		PixelShader* Shader() { return m_shader; }
-
-	private:
-		PixelShader* m_shader = nullptr;
-	};
+	class DrawVolumetricCloudPS : public GlobalShaderCommon<PixelShader, DrawVolumetricCloudPS>
+	{};
 
 	REGISTER_GLOBAL_SHADER( DrawVolumetricCloudPS, "./Assets/Shaders/Cloud/PS_DrawVolumetricCloud.asset" );
 
 	std::optional<DrawSnapshot> VolumetricCloundDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
 	{
 		PassShader passShader{
-					FullScreenQuadVS().Shader(),
+					FullScreenQuadVS().GetShader(),
 					nullptr,
-					DrawVolumetricCloudPS().Shader()
+					DrawVolumetricCloudPS().GetShader()
 		};
 
 		BlendOption volumetricCloundDrawPassBlendOption;

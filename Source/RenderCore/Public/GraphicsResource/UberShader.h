@@ -19,6 +19,12 @@ namespace rendercore
 		RENDERCORE_DLL virtual StaticShaderSwitches GetStaticSwitches() const override;
 		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
 
+		RENDERCORE_DLL virtual agl::ShaderParameterMap& ParameterMap() override;
+		RENDERCORE_DLL virtual const agl::ShaderParameterMap& ParameterMap() const override;
+
+		RENDERCORE_DLL virtual agl::ShaderParameterInfo& ParameterInfo() override;
+		RENDERCORE_DLL virtual const agl::ShaderParameterInfo& ParameterInfo() const override;
+
 		friend bool operator==( const UberShader& lhs, const UberShader& rhs )
 		{
 			return lhs.m_type == rhs.m_type
@@ -49,5 +55,8 @@ namespace rendercore
 
 		PROPERTY( validVariation )
 		std::set<uint32> m_validVariation;
+
+		static agl::ShaderParameterMap m_emptyParameterMap;
+		static agl::ShaderParameterInfo m_emptyParameterInfo;
 	};
 }

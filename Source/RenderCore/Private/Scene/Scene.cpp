@@ -457,7 +457,7 @@ namespace rendercore
 		}
 
 		DistributionCopyCS computeShader;
-		ComputeShader* cs = computeShader.Shader();
+		ComputeShader* cs = computeShader.GetShader();
 		if ( cs == nullptr )
 		{
 			return false;

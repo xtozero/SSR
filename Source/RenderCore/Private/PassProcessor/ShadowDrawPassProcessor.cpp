@@ -7,29 +7,17 @@
 
 namespace rendercore
 {
-	class DrawCascadeShadowPS
-	{
-	public:
-		DrawCascadeShadowPS();
-		PixelShader* Shader() { return m_shader; }
-
-	private:
-		PixelShader* m_shader = nullptr;
-	};
+	class DrawCascadeShadowPS : public GlobalShaderCommon<PixelShader, DrawCascadeShadowPS>
+	{};
 
 	REGISTER_GLOBAL_SHADER( DrawCascadeShadowPS, "./Assets/Shaders/Shadow/PS_DrawCascadeShadow.asset" );
-
-	DrawCascadeShadowPS::DrawCascadeShadowPS()
-	{
-		m_shader = static_cast<PixelShader*>( GetGlobalShader<DrawCascadeShadowPS>()->CompileShader( {} ) );
-	}
 
 	std::optional<DrawSnapshot> ShadowDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
 	{
 		PassShader passShader{
-			FullScreenQuadVS().Shader(),
+			FullScreenQuadVS().GetShader(),
 			nullptr,
-			DrawCascadeShadowPS().Shader()
+			DrawCascadeShadowPS().GetShader()
 		};
 
 		BlendOption shadowDrawPassBlendOption;

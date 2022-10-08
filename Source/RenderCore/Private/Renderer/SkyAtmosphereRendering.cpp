@@ -12,105 +12,75 @@
 
 namespace rendercore
 {
-	class TransmittanceCS
+	class TransmittanceCS : public GlobalShaderCommon<ComputeShader, TransmittanceCS>
 	{
 	public:
 		TransmittanceCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<TransmittanceCS>()->CompileShader( {} ) );
-
-			if ( m_shader )
-			{
-				m_transmittance.Bind( m_shader->ParameterMap(), "Transmittance" );
-			}
+			m_transmittance.Bind( GetShader()->ParameterMap(), "Transmittance" );
 		}
 
-		ComputeShader* Shader() { return m_shader; }
 		const agl::ShaderParameter& TransmittanceLut() const { return m_transmittance; }
 
 	private:
-		ComputeShader* m_shader = nullptr;
-
 		agl::ShaderParameter m_transmittance;
 	};
 
-	class IrradianceOneCS
+	class IrradianceOneCS : public GlobalShaderCommon<ComputeShader, IrradianceOneCS>
 	{
 	public:
 		IrradianceOneCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<IrradianceOneCS>()->CompileShader( {} ) );
-
-			if ( m_shader )
-			{
-				m_transmittanceLut.Bind( m_shader->ParameterMap(), "TransmittanceLut" );
-				m_transmittanceLutSampler.Bind( m_shader->ParameterMap(), "TransmittanceLutSampler" );
-				m_deltaE.Bind( m_shader->ParameterMap(), "DeltaE" );
-			}
+			m_transmittanceLut.Bind( GetShader()->ParameterMap(), "TransmittanceLut" );
+			m_transmittanceLutSampler.Bind( GetShader()->ParameterMap(), "TransmittanceLutSampler" );
+			m_deltaE.Bind( GetShader()->ParameterMap(), "DeltaE" );
 		}
 
-		ComputeShader* Shader() { return m_shader; }
 		const agl::ShaderParameter& TransmittanceLut() const { return m_transmittanceLut; }
 		const agl::ShaderParameter& TransmittanceLutSampler() const { return m_transmittanceLutSampler; }
 		const agl::ShaderParameter& DeltaE() const { return m_deltaE; }
 
 	private:
-		ComputeShader* m_shader = nullptr;
-
 		agl::ShaderParameter m_transmittanceLut;
 		agl::ShaderParameter m_transmittanceLutSampler;
 		agl::ShaderParameter m_deltaE;
 	};
 
-	class InscatterOneCS
+	class InscatterOneCS : public GlobalShaderCommon<ComputeShader, InscatterOneCS>
 	{
 	public:
 		InscatterOneCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<InscatterOneCS>()->CompileShader( {} ) );
-
-			if ( m_shader )
-			{
-				m_transmittanceLut.Bind( m_shader->ParameterMap(), "TransmittanceLut" );
-				m_transmittanceLutSampler.Bind( m_shader->ParameterMap(), "TransmittanceLutSampler" );
-				m_deltaSR.Bind( m_shader->ParameterMap(), "DeltaSR" );
-				m_deltaSM.Bind( m_shader->ParameterMap(), "DeltaSM" );
-			}
+			m_transmittanceLut.Bind( GetShader()->ParameterMap(), "TransmittanceLut" );
+			m_transmittanceLutSampler.Bind( GetShader()->ParameterMap(), "TransmittanceLutSampler" );
+			m_deltaSR.Bind( GetShader()->ParameterMap(), "DeltaSR" );
+			m_deltaSM.Bind( GetShader()->ParameterMap(), "DeltaSM" );
 		}
 
-		ComputeShader* Shader() { return m_shader; }
 		const agl::ShaderParameter& TransmittanceLut() const { return m_transmittanceLut; }
 		const agl::ShaderParameter& TransmittanceLutSampler() const { return m_transmittanceLutSampler; }
 		const agl::ShaderParameter& DeltaSR() const { return m_deltaSR; }
 		const agl::ShaderParameter& DeltaSM() const { return m_deltaSM; }
 
 	private:
-		ComputeShader* m_shader = nullptr;
-
 		agl::ShaderParameter m_transmittanceLut;
 		agl::ShaderParameter m_transmittanceLutSampler;
 		agl::ShaderParameter m_deltaSR;
 		agl::ShaderParameter m_deltaSM;
 	};
 
-	class CopyInscatterOneCS
+	class CopyInscatterOneCS : public GlobalShaderCommon<ComputeShader, CopyInscatterOneCS>
 	{
 	public:
 		CopyInscatterOneCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<CopyInscatterOneCS>()->CompileShader( {} ) );
-
-			if ( m_shader )
-			{
-				m_deltaSRLut.Bind( m_shader->ParameterMap(), "DeltaSRLut" );
-				m_deltaSRLutSampler.Bind( m_shader->ParameterMap(), "DeltaSRLutSampler" );
-				m_deltaSMLut.Bind( m_shader->ParameterMap(), "DeltaSMLut" );
-				m_deltaSMLutSampler.Bind( m_shader->ParameterMap(), "DeltaSMLutSampler" );
-				m_inscatter.Bind( m_shader->ParameterMap(), "Inscatter" );
-			}
+			m_deltaSRLut.Bind( GetShader()->ParameterMap(), "DeltaSRLut" );
+			m_deltaSRLutSampler.Bind( GetShader()->ParameterMap(), "DeltaSRLutSampler" );
+			m_deltaSMLut.Bind( GetShader()->ParameterMap(), "DeltaSMLut" );
+			m_deltaSMLutSampler.Bind( GetShader()->ParameterMap(), "DeltaSMLutSampler" );
+			m_inscatter.Bind( GetShader()->ParameterMap(), "Inscatter" );
 		}
 
-		ComputeShader* Shader() { return m_shader; }
 		const agl::ShaderParameter& DeltaSRLut() const { return m_deltaSRLut; }
 		const agl::ShaderParameter& DeltaSRLutSampler() const { return m_deltaSRLutSampler; }
 		const agl::ShaderParameter& DeltaSMLut() const { return m_deltaSMLut; }
@@ -118,8 +88,6 @@ namespace rendercore
 		const agl::ShaderParameter& Inscatter() const { return m_inscatter; }
 
 	private:
-		ComputeShader* m_shader = nullptr;
-
 		agl::ShaderParameter m_deltaSRLut;
 		agl::ShaderParameter m_deltaSRLutSampler;
 		agl::ShaderParameter m_deltaSMLut;
@@ -127,28 +95,22 @@ namespace rendercore
 		agl::ShaderParameter m_inscatter;
 	};
 
-	class InscatterSCS
+	class InscatterSCS : public GlobalShaderCommon<ComputeShader, InscatterSCS>
 	{
 	public:
 		InscatterSCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<InscatterSCS>()->CompileShader( {} ) );
-
-			if ( m_shader )
-			{
-				m_deltaELut.Bind( m_shader->ParameterMap(), "DeltaELut" );
-				m_deltaELutSampler.Bind( m_shader->ParameterMap(), "DeltaELutSampler" );
-				m_deltaSRLut.Bind( m_shader->ParameterMap(), "DeltaSRLut" );
-				m_deltaSRLutSampler.Bind( m_shader->ParameterMap(), "DeltaSRLutSampler" );
-				m_deltaSMLut.Bind( m_shader->ParameterMap(), "DeltaSMLut" );
-				m_deltaSMLutSampler.Bind( m_shader->ParameterMap(), "DeltaSMLutSampler" );
-				m_order.Bind( m_shader->ParameterMap(), "Order" );
-				m_threadGroupZ.Bind( m_shader->ParameterMap(), "ThreadGroupZ" );
-				m_deltaJ.Bind( m_shader->ParameterMap(), "DeltaJ" );
-			}
+			m_deltaELut.Bind( GetShader()->ParameterMap(), "DeltaELut" );
+			m_deltaELutSampler.Bind( GetShader()->ParameterMap(), "DeltaELutSampler" );
+			m_deltaSRLut.Bind( GetShader()->ParameterMap(), "DeltaSRLut" );
+			m_deltaSRLutSampler.Bind( GetShader()->ParameterMap(), "DeltaSRLutSampler" );
+			m_deltaSMLut.Bind( GetShader()->ParameterMap(), "DeltaSMLut" );
+			m_deltaSMLutSampler.Bind( GetShader()->ParameterMap(), "DeltaSMLutSampler" );
+			m_order.Bind( GetShader()->ParameterMap(), "Order" );
+			m_threadGroupZ.Bind( GetShader()->ParameterMap(), "ThreadGroupZ" );
+			m_deltaJ.Bind( GetShader()->ParameterMap(), "DeltaJ" );
 		}
 
-		ComputeShader* Shader() { return m_shader; }
 		const agl::ShaderParameter& DeltaELut() const { return m_deltaELut; }
 		const agl::ShaderParameter& DeltaELutSampler() const { return m_deltaELutSampler; }
 		const agl::ShaderParameter& DeltaSRLut() const { return m_deltaSRLut; }
@@ -160,8 +122,6 @@ namespace rendercore
 		const agl::ShaderParameter& DeltaJ() const { return m_deltaJ; }
 
 	private:
-		ComputeShader* m_shader = nullptr;
-
 		agl::ShaderParameter m_deltaELut;
 		agl::ShaderParameter m_deltaELutSampler;
 		agl::ShaderParameter m_deltaSRLut;
@@ -173,25 +133,19 @@ namespace rendercore
 		agl::ShaderParameter m_deltaJ;
 	};
 
-	class IrradianceNCS
+	class IrradianceNCS : public GlobalShaderCommon<ComputeShader, IrradianceNCS>
 	{
 	public:
 		IrradianceNCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<IrradianceNCS>()->CompileShader( {} ) );
-
-			if ( m_shader )
-			{
-				m_deltaSRLut.Bind( m_shader->ParameterMap(), "DeltaSRLut" );
-				m_deltaSRLutSampler.Bind( m_shader->ParameterMap(), "DeltaSRLutSampler" );
-				m_deltaSMLut.Bind( m_shader->ParameterMap(), "DeltaSMLut" );
-				m_deltaSMLutSampler.Bind( m_shader->ParameterMap(), "DeltaSMLutSampler" );
-				m_order.Bind( m_shader->ParameterMap(), "Order" );
-				m_irradiance.Bind( m_shader->ParameterMap(), "Irradiance" );
-			}
+			m_deltaSRLut.Bind( GetShader()->ParameterMap(), "DeltaSRLut" );
+			m_deltaSRLutSampler.Bind( GetShader()->ParameterMap(), "DeltaSRLutSampler" );
+			m_deltaSMLut.Bind( GetShader()->ParameterMap(), "DeltaSMLut" );
+			m_deltaSMLutSampler.Bind( GetShader()->ParameterMap(), "DeltaSMLutSampler" );
+			m_order.Bind( GetShader()->ParameterMap(), "Order" );
+			m_irradiance.Bind( GetShader()->ParameterMap(), "Irradiance" );
 		}
 
-		ComputeShader* Shader() { return m_shader; }
 		const agl::ShaderParameter& DeltaSRLut() const { return m_deltaSRLut; }
 		const agl::ShaderParameter& DeltaSRLutSampler() const { return m_deltaSRLutSampler; }
 		const agl::ShaderParameter& DeltaSMLut() const { return m_deltaSMLut; }
@@ -200,8 +154,6 @@ namespace rendercore
 		const agl::ShaderParameter& Irradiance() const { return m_irradiance; }
 
 	private:
-		ComputeShader* m_shader = nullptr;
-
 		agl::ShaderParameter m_deltaSRLut;
 		agl::ShaderParameter m_deltaSRLutSampler;
 		agl::ShaderParameter m_deltaSMLut;
@@ -210,103 +162,68 @@ namespace rendercore
 		agl::ShaderParameter m_irradiance;
 	};
 
-	class InscatterNCS
+	class InscatterNCS : public GlobalShaderCommon<ComputeShader, InscatterNCS>
 	{
 	public:
 		InscatterNCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<InscatterNCS>()->CompileShader( {} ) );
-
-			if ( m_shader )
-			{
-				m_deltaJLut.Bind( m_shader->ParameterMap(), "DeltaJLut" );
-				m_deltaJLutSampler.Bind( m_shader->ParameterMap(), "DeltaJLutSampler" );
-				m_deltaSR.Bind( m_shader->ParameterMap(), "DeltaSR" );
-			}
+			m_deltaJLut.Bind( GetShader()->ParameterMap(), "DeltaJLut" );
+			m_deltaJLutSampler.Bind( GetShader()->ParameterMap(), "DeltaJLutSampler" );
+			m_deltaSR.Bind( GetShader()->ParameterMap(), "DeltaSR" );
 		}
 
-		ComputeShader* Shader() { return m_shader; }
 		const agl::ShaderParameter& DeltaJLut() const { return m_deltaJLut; }
 		const agl::ShaderParameter& DeltaJLutSampler() const { return m_deltaJLutSampler; }
 		const agl::ShaderParameter& DeltaSR() const { return m_deltaSR; }
 
 	private:
-		ComputeShader* m_shader = nullptr;
-
 		agl::ShaderParameter m_deltaJLut;
 		agl::ShaderParameter m_deltaJLutSampler;
 		agl::ShaderParameter m_deltaSR;
 	};
 
-	class CopyIrradianceCS
+	class CopyIrradianceCS : public GlobalShaderCommon<ComputeShader, CopyIrradianceCS>
 	{
 	public:
 		CopyIrradianceCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<CopyIrradianceCS>()->CompileShader( {} ) );
-
-			if ( m_shader )
-			{
-				m_deltaELut.Bind( m_shader->ParameterMap(), "DeltaELut" );
-				m_deltaELutSampler.Bind( m_shader->ParameterMap(), "DeltaELutSampler" );
-				m_irradiance.Bind( m_shader->ParameterMap(), "Irradiance" );
-			}
+			m_deltaELut.Bind( GetShader()->ParameterMap(), "DeltaELut" );
+			m_deltaELutSampler.Bind( GetShader()->ParameterMap(), "DeltaELutSampler" );
+			m_irradiance.Bind( GetShader()->ParameterMap(), "Irradiance" );
 		}
 
-		ComputeShader* Shader() { return m_shader; }
 		const agl::ShaderParameter& DeltaELut() const { return m_deltaELut; }
 		const agl::ShaderParameter& DeltaELutSampler() const { return m_deltaELutSampler; }
 		const agl::ShaderParameter& Irradiance() const { return m_irradiance; }
 
 	private:
-		ComputeShader* m_shader = nullptr;
-
 		agl::ShaderParameter m_deltaELut;
 		agl::ShaderParameter m_deltaELutSampler;
 		agl::ShaderParameter m_irradiance;
 	};
 
-	class CopyInscatterNCS
+	class CopyInscatterNCS : public GlobalShaderCommon<ComputeShader, CopyInscatterNCS>
 	{
 	public:
 		CopyInscatterNCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<CopyInscatterNCS>()->CompileShader( {} ) );
-
-			if ( m_shader )
-			{
-				m_deltaSRLut.Bind( m_shader->ParameterMap(), "DeltaSRLut" );
-				m_deltaSRLutSampler.Bind( m_shader->ParameterMap(), "DeltaSRLutSampler" );
-				m_inscatter.Bind( m_shader->ParameterMap(), "Inscatter" );
-			}
+			m_deltaSRLut.Bind( GetShader()->ParameterMap(), "DeltaSRLut" );
+			m_deltaSRLutSampler.Bind( GetShader()->ParameterMap(), "DeltaSRLutSampler" );
+			m_inscatter.Bind( GetShader()->ParameterMap(), "Inscatter" );
 		}
 
-		ComputeShader* Shader() { return m_shader; }
 		const agl::ShaderParameter& DeltaSRLut() const { return m_deltaSRLut; }
 		const agl::ShaderParameter& DeltaSRLutSampler() const { return m_deltaSRLutSampler; }
 		const agl::ShaderParameter& Irradiance() const { return m_inscatter; }
 
 	private:
-		ComputeShader* m_shader = nullptr;
-
 		agl::ShaderParameter m_deltaSRLut;
 		agl::ShaderParameter m_deltaSRLutSampler;
 		agl::ShaderParameter m_inscatter;
 	};
 
-	class DrawAtmospherePS
-	{
-	public:
-		DrawAtmospherePS()
-		{
-			m_shader = static_cast<PixelShader*>( GetGlobalShader<DrawAtmospherePS>()->CompileShader( {} ) );
-		}
-
-		PixelShader* Shader() { return m_shader; }
-
-	private:
-		PixelShader* m_shader = nullptr;
-	};
+	class DrawAtmospherePS : public GlobalShaderCommon<PixelShader, DrawAtmospherePS>
+	{};
 
 	REGISTER_GLOBAL_SHADER( TransmittanceCS, "./Assets/Shaders/Atmosphere/CS_Transmittance.asset" );
 	REGISTER_GLOBAL_SHADER( IrradianceOneCS, "./Assets/Shaders/Atmosphere/CS_Irradiance1.asset" );
@@ -322,9 +239,9 @@ namespace rendercore
 	std::optional<DrawSnapshot> SkyAtmosphereDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
 	{
 		PassShader passShader{
-				FullScreenQuadVS().Shader(),
+				FullScreenQuadVS().GetShader(),
 				nullptr,
-				DrawAtmospherePS().Shader()
+				DrawAtmospherePS().GetShader()
 		};
 
 		BlendOption skyAtmosphereDrawPassBlendOption;
@@ -432,7 +349,7 @@ namespace rendercore
 		TransmittanceCS transmittanceCS;
 
 		auto commandList = GetImmediateCommandList();
-		commandList.BindShader( transmittanceCS.Shader()->Resource() );
+		commandList.BindShader( transmittanceCS.GetShader()->Resource() );
 		BindShaderParameter( commandList, transmittanceCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
 
 		commandList.Dispatch( TRANSMITTANCE_GROUP_X, TRANSMITTANCE_GROUP_Y );
@@ -455,7 +372,7 @@ namespace rendercore
 		deltaETexture->Init();
 
 		IrradianceOneCS irradianceOneCS;
-		commandList.BindShader( irradianceOneCS.Shader()->Resource() );
+		commandList.BindShader( irradianceOneCS.GetShader()->Resource() );
 		BindShaderParameter( commandList, irradianceOneCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
 		BindShaderParameter( commandList, irradianceOneCS.TransmittanceLutSampler(), pointSampler.Resource() );
 		BindShaderParameter( commandList, irradianceOneCS.DeltaE(), deltaETexture );
@@ -483,7 +400,7 @@ namespace rendercore
 		deltaSMTexture->Init();
 
 		InscatterOneCS inscatterOneCS;
-		commandList.BindShader( inscatterOneCS.Shader()->Resource() );
+		commandList.BindShader( inscatterOneCS.GetShader()->Resource() );
 		BindShaderParameter( commandList, inscatterOneCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
 		BindShaderParameter( commandList, inscatterOneCS.TransmittanceLutSampler(), pointSampler.Resource() );
 		BindShaderParameter( commandList, inscatterOneCS.DeltaSR(), deltaSRTexture );
@@ -505,7 +422,7 @@ namespace rendercore
 		inscatterBuffer->Init();
 
 		CopyInscatterOneCS copyInscatterOneCS;
-		commandList.BindShader( copyInscatterOneCS.Shader()->Resource() );
+		commandList.BindShader( copyInscatterOneCS.GetShader()->Resource() );
 		BindShaderParameter( commandList, copyInscatterOneCS.DeltaSRLut(), deltaSRTexture );
 		BindShaderParameter( commandList, copyInscatterOneCS.DeltaSRLutSampler(), pointSampler.Resource() );
 		BindShaderParameter( commandList, copyInscatterOneCS.DeltaSMLut(), deltaSMTexture );
@@ -536,7 +453,7 @@ namespace rendercore
 		{
 			// Compute deltaJ
 			InscatterSCS inscatterSCS;
-			commandList.BindShader( inscatterSCS.Shader()->Resource() );
+			commandList.BindShader( inscatterSCS.GetShader()->Resource() );
 
 			BindShaderParameter( commandList, inscatterSCS.DeltaELut(), deltaETexture );
 			BindShaderParameter( commandList, inscatterSCS.DeltaELutSampler(), pointSampler.Resource() );
@@ -557,7 +474,7 @@ namespace rendercore
 
 			// Compute deltaE
 			IrradianceNCS irradianceNCS;
-			commandList.BindShader( irradianceNCS.Shader()->Resource() );
+			commandList.BindShader( irradianceNCS.GetShader()->Resource() );
 			BindShaderParameter( commandList, irradianceNCS.DeltaSRLut(), deltaSRTexture );
 			BindShaderParameter( commandList, irradianceNCS.DeltaSRLutSampler(), pointSampler.Resource() );
 			BindShaderParameter( commandList, irradianceNCS.DeltaSMLut(), deltaSMTexture );
@@ -569,7 +486,7 @@ namespace rendercore
 
 			// Compute deltaS
 			InscatterNCS inscatterNCS;
-			commandList.BindShader( inscatterNCS.Shader()->Resource() );
+			commandList.BindShader( inscatterNCS.GetShader()->Resource() );
 			BindShaderParameter( commandList, inscatterNCS.DeltaJLut(), deltaJTex );
 			BindShaderParameter( commandList, inscatterNCS.DeltaJLutSampler(), pointSampler.Resource() );
 			BindShaderParameter( commandList, inscatterNCS.DeltaSR(), deltaSRTexture );
@@ -578,7 +495,7 @@ namespace rendercore
 
 			// Add deltaE into irradiance textrue E
 			CopyIrradianceCS copyIrradianceCS;
-			commandList.BindShader( copyIrradianceCS.Shader()->Resource() );
+			commandList.BindShader( copyIrradianceCS.GetShader()->Resource() );
 			BindShaderParameter( commandList, copyIrradianceCS.DeltaELut(), deltaETexture );
 			BindShaderParameter( commandList, copyIrradianceCS.DeltaELutSampler(), pointSampler.Resource() );
 			BindShaderParameter( commandList, copyIrradianceCS.Irradiance(), irradianceBuffer );
@@ -587,7 +504,7 @@ namespace rendercore
 
 			// Add deltaS info inscatter texture S
 			CopyInscatterNCS copyInscatterNCS;
-			commandList.BindShader( copyInscatterNCS.Shader()->Resource() );
+			commandList.BindShader( copyInscatterNCS.GetShader()->Resource() );
 			BindShaderParameter( commandList, copyInscatterNCS.DeltaSRLut(), deltaSRTexture );
 			BindShaderParameter( commandList, copyInscatterNCS.DeltaSRLutSampler(), pointSampler.Resource() );
 			BindShaderParameter( commandList, copyInscatterNCS.Irradiance(), inscatterBuffer );

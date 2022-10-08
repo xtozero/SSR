@@ -71,7 +71,7 @@ namespace rendercore
 			return false;
 		}
 
-		GlobalShader::GetInstance().BootUp();
+		GlobalShaders::GetInstance().BootUp();
 
 		ShaderCache::LoadFromFile();
 
@@ -91,7 +91,7 @@ namespace rendercore
 	{
 		if ( m_isReady == false )
 		{
-			m_isReady = GlobalShader::GetInstance().IsReady()
+			m_isReady = GlobalShaders::GetInstance().IsReady()
 				&& ShaderCache::IsLoaded();
 		}
 
@@ -149,7 +149,7 @@ namespace rendercore
 
 		ShaderCache::SaveToFile();
 
-		GlobalShader::GetInstance().Shutdown();
+		GlobalShaders::GetInstance().Shutdown();
 
 		DefaultConstantBuffers::GetInstance().Shutdown();
 

@@ -17,63 +17,27 @@ namespace
 
 namespace rendercore
 {
-	class ShadowDepthVS
-	{
-	public:
-		ShadowDepthVS();
-		VertexShader* Shader() { return m_shader; }
+	class ShadowDepthVS : public GlobalShaderCommon<VertexShader, ShadowDepthVS>
+	{};
 
-	private:
-		VertexShader* m_shader = nullptr;
-	};
+	class ShadowDepthGS : public GlobalShaderCommon<GeometryShader, ShadowDepthGS>
+	{};
 
-	class ShadowDepthGS
-	{
-	public:
-		ShadowDepthGS();
-		GeometryShader* Shader() { return m_shader; }
-
-	private:
-		GeometryShader* m_shader = nullptr;
-	};
-
-	class ShadowDepthPS
-	{
-	public:
-		ShadowDepthPS();
-		PixelShader* Shader() { return m_shader; }
-
-	private:
-		PixelShader* m_shader = nullptr;
-	};
+	class ShadowDepthPS : public GlobalShaderCommon<PixelShader, ShadowDepthPS>
+	{};
 
 	REGISTER_GLOBAL_SHADER( ShadowDepthVS, "./Assets/Shaders/Shadow/VS_CascadedShadowmap.asset" );
 	REGISTER_GLOBAL_SHADER( ShadowDepthGS, "./Assets/Shaders/Shadow/GS_CascadedShadowmap.asset" );
 	REGISTER_GLOBAL_SHADER( ShadowDepthPS, "./Assets/Shaders/Shadow/PS_CascadedShadowmap.asset" );
-
-	ShadowDepthVS::ShadowDepthVS()
-	{
-		m_shader = static_cast<VertexShader*>( GetGlobalShader<ShadowDepthVS>()->CompileShader( {} ) );
-	}
-
-	ShadowDepthGS::ShadowDepthGS()
-	{
-		m_shader = static_cast<GeometryShader*>( GetGlobalShader<ShadowDepthGS>()->CompileShader( {} ) );
-	}
-
-	ShadowDepthPS::ShadowDepthPS()
-	{
-		m_shader = static_cast<PixelShader*>( GetGlobalShader<ShadowDepthPS>()->CompileShader( {} ) );
-	}
 
 	std::optional<DrawSnapshot> ShadowDepthPassProcessor::Process( const PrimitiveSubMesh& subMesh )
 	{
 		assert( IsInRenderThread() );
 
 		PassShader passShader{
-			ShadowDepthVS().Shader(),
-			ShadowDepthGS().Shader(),
-			ShadowDepthPS().Shader()
+			ShadowDepthVS().GetShader(),
+			ShadowDepthGS().GetShader(),
+			ShadowDepthPS().GetShader()
 		};
 
 		PassRenderOption passRenderOption;

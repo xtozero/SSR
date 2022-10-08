@@ -17,65 +17,14 @@ namespace
 
 namespace rendercore
 {
-	class DepthWriteVS
-	{
-	public:
-		DepthWriteVS();
+	class DepthWriteVS : public GlobalShaderCommon<VertexShader, DepthWriteVS>
+	{};
 
-		StaticShaderSwitches GetShaderSwitches()
-		{
-			if ( m_shader )
-			{
-				return m_shader->GetStaticSwitches();
-			}
-
-			return {};
-		}
-
-		VertexShader* Shader( const StaticShaderSwitches& switches )
-		{
-			if ( m_shader )
-			{
-				return static_cast<VertexShader*>( m_shader->CompileShader( switches ) );
-			}
-
-			return nullptr;
-		}
-
-	private:
-		IShader* m_shader = nullptr;
-	};
-
-	class DepthWritePS
-	{
-	public:
-		DepthWritePS();
-		PixelShader* Shader( const StaticShaderSwitches& switches )
-		{ 
-			if ( m_shader )
-			{
-				return static_cast<PixelShader*>( m_shader->CompileShader( switches ) );
-			}
-
-			return nullptr;
-		}
-
-	private:
-		IShader* m_shader = nullptr;
-	};
+	class DepthWritePS : public GlobalShaderCommon<PixelShader, DepthWritePS>
+	{};
 
 	REGISTER_GLOBAL_SHADER( DepthWriteVS, "./Assets/Shaders/VS_DepthWrite.asset" );
 	REGISTER_GLOBAL_SHADER( DepthWritePS, "./Assets/Shaders/PS_DepthWrite.asset" );
-
-	DepthWriteVS::DepthWriteVS()
-	{
-		m_shader = GetGlobalShader<DepthWriteVS>();
-	}
-
-	DepthWritePS::DepthWritePS()
-	{
-		m_shader = GetGlobalShader<DepthWritePS>();
-	}
 
 	std::optional<DrawSnapshot> DepthWritePassProcessor::Process( const PrimitiveSubMesh& subMesh )
 	{
@@ -116,13 +65,13 @@ namespace rendercore
 
 	PassShader DepthWritePassProcessor::CollectPassShader( [[maybe_unused]] MaterialResource& material ) const
 	{
-		StaticShaderSwitches switches = DepthWriteVS().GetShaderSwitches();
+		StaticShaderSwitches switches = DepthWriteVS().GetSwitches();
 		switches.On( Name( "TAA" ), 1 );
 
 		PassShader passShader{
-			DepthWriteVS().Shader( switches ),
+			DepthWriteVS().GetShader( switches ),
 			nullptr,
-			DepthWritePS().Shader( {} )
+			DepthWritePS().GetShader( {} )
 		};
 
 		return passShader;

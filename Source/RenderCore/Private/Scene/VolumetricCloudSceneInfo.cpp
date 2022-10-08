@@ -7,58 +7,55 @@
 
 namespace rendercore
 {
-	class PerlinWorleyCS
+	class PerlinWorleyCS : public GlobalShaderCommon<ComputeShader, PerlinWorleyCS>
 	{
 	public:
 		PerlinWorleyCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<PerlinWorleyCS>()->CompileShader( {} ) );
-
-			m_noiseTex.Bind( m_shader->ParameterMap(), "NoiseTex" );
+			m_noiseTex.Bind( GetShader()->ParameterMap(), "NoiseTex");
 		}
 
-		ComputeShader* Shader() { return m_shader; }
-
-		agl::ShaderParameter m_noiseTex;
+		const agl::ShaderParameter& NoiseTex() const
+		{
+			return m_noiseTex;
+		}
 
 	private:
-		ComputeShader* m_shader = nullptr;
+		agl::ShaderParameter m_noiseTex;
 	};
 
-	class WorleyCS
+	class WorleyCS : public GlobalShaderCommon<ComputeShader, WorleyCS>
 	{
 	public:
 		WorleyCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<WorleyCS>()->CompileShader( {} ) );
-
-			m_noiseTex.Bind( m_shader->ParameterMap(), "NoiseTex" );
+			m_noiseTex.Bind( GetShader()->ParameterMap(), "NoiseTex");
 		}
 
-		ComputeShader* Shader() { return m_shader; }
-
-		agl::ShaderParameter m_noiseTex;
+		const agl::ShaderParameter& NoiseTex() const
+		{
+			return m_noiseTex;
+		}
 
 	private:
-		ComputeShader* m_shader = nullptr;
+		agl::ShaderParameter m_noiseTex;
 	};
 
-	class WeatherMapCS
+	class WeatherMapCS : public GlobalShaderCommon<ComputeShader, WeatherMapCS>
 	{
 	public:
 		WeatherMapCS()
 		{
-			m_shader = static_cast<ComputeShader*>( GetGlobalShader<WeatherMapCS>()->CompileShader( {} ) );
-
-			m_weatherTex.Bind( m_shader->ParameterMap(), "WeatherTex" );
+			m_weatherTex.Bind( GetShader()->ParameterMap(), "WeatherTex");
 		}
 
-		ComputeShader* Shader() { return m_shader; }
-
-		agl::ShaderParameter m_weatherTex;
+		const agl::ShaderParameter& WeatherTex() const
+		{
+			return m_weatherTex;
+		}
 
 	private:
-		ComputeShader* m_shader = nullptr;
+		agl::ShaderParameter m_weatherTex;
 	};
 
 	REGISTER_GLOBAL_SHADER( PerlinWorleyCS, "./Assets/Shaders/Cloud/CS_PerlinWorley.asset" );
@@ -85,8 +82,8 @@ namespace rendercore
 
 		auto commandList = GetImmediateCommandList();
 
-		commandList.BindShader( perlinWorleyCS.Shader()->Resource() );
-		BindShaderParameter( commandList, perlinWorleyCS.m_noiseTex, m_baseCloudShape );
+		commandList.BindShader( perlinWorleyCS.GetShader()->Resource() );
+		BindShaderParameter( commandList, perlinWorleyCS.NoiseTex(), m_baseCloudShape);
 
 		commandList.Dispatch( threadGroupCount, threadGroupCount, threadGroupCount );
 
@@ -95,8 +92,8 @@ namespace rendercore
 		WorleyCS worleyCS;
 		threadGroupCount = static_cast<uint32>( std::ceilf( 32 / 8.f ) );
 
-		commandList.BindShader( worleyCS.Shader()->Resource() );
-		BindShaderParameter( commandList, worleyCS.m_noiseTex, m_detailCloudShape );
+		commandList.BindShader( worleyCS.GetShader()->Resource() );
+		BindShaderParameter( commandList, worleyCS.NoiseTex(), m_detailCloudShape);
 
 		commandList.Dispatch( threadGroupCount, threadGroupCount, threadGroupCount );
 	}
@@ -130,8 +127,8 @@ namespace rendercore
 
 		auto commandList = GetImmediateCommandList();
 
-		commandList.BindShader( weatherMapCS.Shader()->Resource() );
-		BindShaderParameter( commandList, weatherMapCS.m_weatherTex, m_weatherMap );
+		commandList.BindShader( weatherMapCS.GetShader()->Resource() );
+		BindShaderParameter( commandList, weatherMapCS.WeatherTex(), m_weatherMap);
 
 		commandList.Dispatch( threadGroupCount, threadGroupCount );
 	}

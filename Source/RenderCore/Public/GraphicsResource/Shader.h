@@ -18,6 +18,12 @@ namespace rendercore
 	public:
 		RENDERCORE_DLL virtual StaticShaderSwitches GetStaticSwitches() const = 0;
 		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) = 0;
+
+		RENDERCORE_DLL virtual agl::ShaderParameterMap& ParameterMap() = 0;
+		RENDERCORE_DLL virtual const agl::ShaderParameterMap& ParameterMap() const = 0;
+
+		RENDERCORE_DLL virtual agl::ShaderParameterInfo& ParameterInfo() = 0;
+		RENDERCORE_DLL virtual const agl::ShaderParameterInfo& ParameterInfo() const = 0;
 	};
 
 	class ShaderBase : public IShader
@@ -43,11 +49,23 @@ namespace rendercore
 			return m_byteCode;
 		}
 
-		agl::ShaderParameterMap& ParameterMap() { return m_parameterMap; }
-		const agl::ShaderParameterMap& ParameterMap() const { return m_parameterMap; }
+		RENDERCORE_DLL virtual agl::ShaderParameterMap& ParameterMap() override
+		{
+			return m_parameterMap;
+		}
+		RENDERCORE_DLL virtual const agl::ShaderParameterMap& ParameterMap() const override
+		{
+			return m_parameterMap;
+		}
 
-		agl::ShaderParameterInfo& ParameterInfo() { return m_parameterInfo; }
-		const agl::ShaderParameterInfo& ParameterInfo() const { return m_parameterInfo; }
+		RENDERCORE_DLL virtual agl::ShaderParameterInfo& ParameterInfo() override
+		{
+			return m_parameterInfo;
+		}
+		RENDERCORE_DLL virtual const agl::ShaderParameterInfo& ParameterInfo() const override
+		{
+			return m_parameterInfo;
+		}
 
 		RENDERCORE_DLL virtual void CreateShader() = 0;
 

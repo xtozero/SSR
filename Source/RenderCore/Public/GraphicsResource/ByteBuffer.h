@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Buffer.h"
+#include "GlobalShaders.h"
 #include "GraphicsApiResource.h"
 #include "Shader.h"
 #include "SizedTypes.h"
@@ -9,11 +10,10 @@ namespace rendercore
 {
 	class UploadBuffer;
 
-	class DistributionCopyCS
+	class DistributionCopyCS : public GlobalShaderCommon<ComputeShader, DistributionCopyCS>
 	{
 	public:
 		DistributionCopyCS();
-		ComputeShader* Shader() { return m_shader; }
 
 		static constexpr uint32 ThreadGroupX = 64;
 
@@ -21,9 +21,6 @@ namespace rendercore
 		agl::ShaderParameter m_src;
 		agl::ShaderParameter m_distributer;
 		agl::ShaderParameter m_dest;
-
-	private:
-		ComputeShader* m_shader = nullptr;
 	};
 
 	class GpuMemcpy

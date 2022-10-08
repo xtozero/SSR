@@ -7,29 +7,30 @@
 #include <map>
 #include <string>
 #include <typeindex>
+#include <type_traits>
 
 namespace rendercore
 {
-	class GlobalShader
+	class GlobalShaders
 	{
 	public:
-		static GlobalShader& GetInstance()
+		static GlobalShaders& GetInstance()
 		{
-			static GlobalShader globalShader;
-			return globalShader;
+			static GlobalShaders globalShaders;
+			return globalShaders;
 		}
 
 		void BootUp();
 		void Shutdown();
 		bool IsReady() const;
 
-		bool RegisterShader( std::type_index typeIndex, const std::shared_ptr<ShaderBase>& shader );
+		bool RegisterShader( std::type_index typeIndex, const std::shared_ptr<IShader>& shader );
 		bool RegisterShaderPath( std::type_index typeIndex, const char* path );
 
 		IShader* GetShader( std::type_index typeIndex );
 
 	private:
-		GlobalShader() = default;
+		GlobalShaders() = default;
 
 		std::map<std::type_index, std::shared_ptr<IShader>> m_shaders;
 		std::map<std::type_index, const char*> m_shaderAssetPaths;
@@ -50,7 +51,51 @@ namespace rendercore
 	{
 		return GetGlobalShaderImpl( typeid( T ) );
 	}
+
+	class GlobalShaderBase
+	{
+	public:
+		virtual ~GlobalShaderBase() = default;
+	};
+
+	template <typename ShaderType, typename DerivedType>
+	class GlobalShaderCommon : public GlobalShaderBase
+	{
+	public:
+		const StaticShaderSwitches& GetSwitches() const
+		{
+			return m_switches;
+		}
+
+		ShaderType* GetShader( const StaticShaderSwitches& switches )
+		{
+			return Cast<ShaderType>( m_shader->CompileShader( switches ) );
+		}
+
+		ShaderType* GetShader()
+		{
+			return Cast<ShaderType>( m_shader->CompileShader( {} ) );
+		}
+
+		GlobalShaderCommon()
+		{
+			m_shader = GetGlobalShader<DerivedType>();
+			assert( m_shader != nullptr );
+
+			m_switches = m_shader->GetStaticSwitches();
+		}
+		virtual ~GlobalShaderCommon() = default;
+		GlobalShaderCommon( const GlobalShaderCommon& ) = default;
+		GlobalShaderCommon( GlobalShaderCommon&& ) = default;
+		GlobalShaderCommon& operator=( const GlobalShaderCommon& ) = default;
+		GlobalShaderCommon& operator=( GlobalShaderCommon&& ) = default;
+
+	protected:
+		IShader* m_shader = nullptr;
+		StaticShaderSwitches m_switches;
+	};
 }
 
 #define REGISTER_GLOBAL_SHADER( type, shaderPath ) \
+static_assert( std::is_base_of_v<GlobalShaderBase, type>, "GlobalShader must inherit GlobalShaderBase" ); \
 GlobalShaderRegister type##_register( typeid( type ), shaderPath );

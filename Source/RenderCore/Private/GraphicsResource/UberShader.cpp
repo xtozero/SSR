@@ -21,6 +21,9 @@ namespace
 
 namespace rendercore
 {
+	agl::ShaderParameterMap UberShader::m_emptyParameterMap;
+	agl::ShaderParameterInfo UberShader::m_emptyParameterInfo;
+
 	REGISTER_ASSET( UberShader );
 	StaticShaderSwitches UberShader::GetStaticSwitches() const
 	{
@@ -97,6 +100,26 @@ namespace rendercore
 
 		ShaderCache::UpdateCache( shaderHash, shader );
 		return shader;
+	}
+
+	agl::ShaderParameterMap& UberShader::ParameterMap()
+	{
+		return m_emptyParameterMap;
+	}
+
+	const agl::ShaderParameterMap& UberShader::ParameterMap() const
+	{
+		return m_emptyParameterMap;
+	}
+
+	agl::ShaderParameterInfo& UberShader::ParameterInfo()
+	{
+		return m_emptyParameterInfo;
+	}
+
+	const agl::ShaderParameterInfo& UberShader::ParameterInfo() const
+	{
+		return m_emptyParameterInfo;
 	}
 
 	void UberShader::PostLoadImpl()

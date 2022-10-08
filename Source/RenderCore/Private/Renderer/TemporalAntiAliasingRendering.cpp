@@ -14,19 +14,8 @@
 
 namespace rendercore
 {
-	class TAAResolvePS
-	{
-	public:
-		TAAResolvePS()
-		{
-			m_shader = static_cast<PixelShader*>( GetGlobalShader<TAAResolvePS>()->CompileShader( {} ) );
-		}
-
-		PixelShader* Shader() { return m_shader; }
-
-	private:
-		PixelShader* m_shader = nullptr;
-	};
+	class TAAResolvePS : public GlobalShaderCommon<PixelShader, TAAResolvePS>
+	{};
 
 	REGISTER_GLOBAL_SHADER( TAAResolvePS, "./Assets/Shaders/TemporalAntiAliasing/PS_TAAResolve.asset" );
 
@@ -35,9 +24,9 @@ namespace rendercore
 		TAAResolvePS resolvePS;
 
 		PassShader passShader{
-				FullScreenQuadVS().Shader(),
+				FullScreenQuadVS().GetShader(),
 				nullptr,
-				resolvePS.Shader()
+				resolvePS.GetShader()
 		};
 
 		PassRenderOption passRenderOption = {};

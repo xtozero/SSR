@@ -13,15 +13,10 @@ namespace rendercore
 
 	DistributionCopyCS::DistributionCopyCS()
 	{
-		m_shader = static_cast<ComputeShader*>( GetGlobalShader<DistributionCopyCS>()->CompileShader( {} ) );
-
-		if ( m_shader )
-		{
-			m_numDistribution.Bind( m_shader->ParameterMap(), "NumDistribution" );
-			m_src.Bind( m_shader->ParameterMap(), "Src" );
-			m_distributer.Bind( m_shader->ParameterMap(), "Distributer" );
-			m_dest.Bind( m_shader->ParameterMap(), "Dest" );
-		}
+		m_numDistribution.Bind( GetShader()->ParameterMap(), "NumDistribution" );
+		m_src.Bind( GetShader()->ParameterMap(), "Src" );
+		m_distributer.Bind( GetShader()->ParameterMap(), "Distributer" );
+		m_dest.Bind( GetShader()->ParameterMap(), "Dest" );
 	}
 
 	GpuMemcpy::GpuMemcpy( uint32 numUpload, uint32 sizePerFloat4, UploadBuffer& src, UploadBuffer& distributer ) : m_sizePerFloat4( sizePerFloat4 ), m_src( src ), m_distributer( distributer )
@@ -60,7 +55,7 @@ namespace rendercore
 		m_pDistributionData = nullptr;
 
 		DistributionCopyCS computeShader;
-		ComputeShader& cs = *computeShader.Shader();
+		ComputeShader& cs = *computeShader.GetShader();
 
 		auto commandList = GetImmediateCommandList();
 
