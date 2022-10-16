@@ -82,6 +82,7 @@ set (MATH
 set (MEMORY
 	Private/Memory/StackMemoryAllocator.cpp
 	Public/Memory/FixedBlockMemoryPool.h
+	Public/Memory/InlineMemoryAllocator.h
 	Public/Memory/MemoryPool.h
 	Public/Memory/StackMemoryAllocator.h)
 

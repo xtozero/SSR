@@ -19,7 +19,7 @@ namespace rendercore
 		using difference_type = uptrint;
 		using propagate_on_container_move_assignment = std::false_type;
 
-		T* allocate( size_t n )
+		[[nodiscard]] constexpr T* allocate( size_t n )
 		{
 			assert( IsInRenderThread() );
 			return Allocator().Allocate<T>( n );
