@@ -124,6 +124,11 @@ public:
 
 	const Property* GetProperty( const char* name ) const;
 
+	const char* GetName() const
+	{
+		return m_name;
+	}
+
 private:
 	void CollectSuperMethods();
 	void CollectSuperProperties();

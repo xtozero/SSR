@@ -233,6 +233,11 @@ public:
 		m_serializer( object, ar );
 	}
 
+	const TypeInfo& GetTypeInfo() const
+	{
+		return m_type;
+	}
+
 	Property( TypeInfo& owner, const PropertyInitializer& initializer ) :
 		m_name( initializer.m_name ),
 		m_type( initializer.m_type ),

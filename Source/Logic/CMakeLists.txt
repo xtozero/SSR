@@ -32,6 +32,10 @@ set (COMPOENETS
 	Public/Components/StaticMeshComponent.h
 	Public/Components/TexturedSkyComponent.h
 	Public/Components/VolumetricCloudComponent.h)
+
+set (CONFIG
+	Private/Config/DefaultEngineConfig.cpp
+	Public/Config/DefaultEngineConfig.h)
 	
 set (CORE
 	Private/Core/DebugConsole.cpp
@@ -142,6 +146,7 @@ set (WORLD
 	Public/World/WorldLoader.h)
 
 source_group("Components" FILES ${COMPOENETS})
+source_group("Config" FILES ${CONFIG})
 source_group("Core" FILES ${CORE})
 source_group("GameObject" FILES ${GAME_OBJECT})
 source_group("GameObject\\Player" FILES ${PLAYER_OBJECT})
@@ -158,6 +163,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 add_library(Logic SHARED 	${COMPOENETS}
+							${CONFIG}
 							${CORE}
 							${GAME_OBJECT}
 #							${MATERIAL}

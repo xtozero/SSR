@@ -11,6 +11,10 @@ set (COMMON_SOURCE
 	Public/Common/IRenderResourceManager.h
 	Public/Common/RefHandle.h)
 
+set (CONFIG_SOURCE
+	Private/Config/DefaultAglConfig.cpp
+	Public/Config/DefaultAglConfig.h)
+
 set (CORE_SOURCE
 	Private/Core/Agl.cpp
 	Private/Core/dllmain.cpp
@@ -76,6 +80,7 @@ set (RENDER_RESOURCE_SOURCE
 	Public/RenderResource/Texture.h
 	Public/RenderResource/Viewport.h)
 
+source_group("Config" FILES ${CONFIG_SOURCE})
 source_group("Direct11\\RenderResource" FILES ${D3D11_RENDER_RESOURCE_SOURCE})
 source_group("Direct11" FILES ${D3D11_SOURCE})	
 source_group("Direct11\\Utility" FILES ${D3D11_UTILITY})
@@ -92,7 +97,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
-add_library(Agl SHARED 	${COMMON_SOURCE}
+add_library(Agl SHARED 	${CONFIG_SOURCE}
+						${COMMON_SOURCE}
 						${CORE_SOURCE}
 						${D3D11_RENDER_RESOURCE_SOURCE}
 						${D3D11_SOURCE}

@@ -26,8 +26,6 @@
 
 namespace agl
 {
-	IResourceManager* g_resourceManager = nullptr;
-
 	void CD3D11ResourceManager::Shutdown()
 	{
 		m_pipelineStateCache.clear();
@@ -197,18 +195,8 @@ namespace agl
 	//	m_pDeviceContext->UpdateSubresource( pDest, destSubresouce, destRegionOrNull ? &destBox : nullptr, src, srcRowPitch, srcDepthPitch );
 	//}
 
-	void CreateD3D11ResourceManager()
+	Owner<IResourceManager*> CreateD3D11ResourceManager()
 	{
-		g_resourceManager = new CD3D11ResourceManager();
-	}
-
-	void DestoryD3D11ResourceManager()
-	{
-		delete g_resourceManager;
-	}
-
-	void* GetD3D11ResourceManager()
-	{
-		return g_resourceManager;
+		return new CD3D11ResourceManager();
 	}
 }

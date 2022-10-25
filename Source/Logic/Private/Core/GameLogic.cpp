@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "Components/CameraComponent.h"
+#include "Config/DefaultEngineConfig.h"
 #include "ConsoleMessage/ConCommand.h"
 #include "ConsoleMessage/ConsoleMessageExecutor.h"
 #include "ConsoleMessage/ConVar.h"
@@ -82,7 +83,7 @@ bool CGameLogic::BootUp( IPlatform& platform )
 
 	CreateGameViewport();
 
-	if ( LoadWorld( "./Scripts/DefaultScene.json" ) == false )
+	if ( LoadWorld( DefaultEngine::GetInstance().GetDefaultWorld() ) == false )
 	{
 		__debugbreak();
 	}

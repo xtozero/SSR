@@ -3,6 +3,10 @@ add_definitions(-DUNICODE=1)
 add_definitions(-D_UNICODE=1)
 add_definitions(-DNOMINMAX=1)
 
+set (APP_CONFIG
+	Private/AppConfig/AppConfig.cpp
+	Public/AppConfig/AppConfig.h)
+
 set (ASSET
 	Private/Asset/AssetFactory.cpp
 	Private/Asset/AssetLoader.cpp
@@ -43,6 +47,10 @@ set (HASH
 	Public/Hash/Crc32Hash.h
 	Public/Hash/Crc64Hash.h
 	Public/Hash/HashUtil.h)
+
+set (INI
+	Private/Ini/Ini.cpp
+	Public/Ini/Ini.h)
 
 set (JSON
 	Public/JSON/json.hpp)
@@ -148,14 +156,16 @@ set (SERIALIZATION
 	Public/Serialization/Archive.h
 	Public/Serialization/ArchiveUtility.h)
 
+source_group("AppConfig" FILES ${APP_CONFIG})
 source_group("Asset" FILES ${ASSET})
-source_group("Collections" FILES ${COLLECTIONS} )		
+source_group("Collections" FILES ${COLLECTIONS} )	
 source_group("DataStructure" FILES ${DATA_STRUCTURE})
 source_group("DataType" FILES ${DATA_TYPE})
 source_group("DebugTool" FILES ${DEBUG_TOOL})
 source_group("Delegate" FILES ${DELEGATE})
 source_group("Filesystem" FILES ${FILESYSTEM})
 source_group("Hash" FILES ${HASH})
+source_group("INI" FILES ${INI})
 source_group("Json" FILES ${JSON})
 source_group("LibraryTool" FILES ${LIBRARY_TOOL})
 source_group("Math" FILES ${MATH})
@@ -166,7 +176,8 @@ source_group("Physics" FILES ${PHYSICS})
 source_group("Reflection" FILES ${REFLECTION})
 source_group("Serialization" FILES ${SERIALIZATION})
 
-add_library(Core STATIC	${ASSET}
+add_library(Core STATIC	${APP_CONFIG}
+						${ASSET}
 						${COLLECTIONS}
 						${DATA_STRUCTURE}
 						${DATA_TYPE}
@@ -174,6 +185,7 @@ add_library(Core STATIC	${ASSET}
 						${DELEGATE}
 						${FILESYSTEM}
 						${HASH}
+						${INI}
 						${JSON}
 						${LIBRARY_TOOL}
 						${MATH}
