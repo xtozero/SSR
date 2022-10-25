@@ -415,10 +415,14 @@ Name Name::Make( const std::string_view& view )
 	Name name( id );
 #ifdef _DEBUG
 	name.m_str = name.Str().data();
-	if ( name.Str() != view )
-	{
-		assert( false );
-	}
+
+#ifdef _WIN32
+	bool cmp = ( _strnicmp( name.Str().data(), view.data(), view.length()) == 0);
+#else
+	bool cmp = ( strnicmp( ( name.Str().data(), view.data(), view.length() ) == 0 );
+#endif
+
+	assert( cmp );
 #endif
 
 	return name;

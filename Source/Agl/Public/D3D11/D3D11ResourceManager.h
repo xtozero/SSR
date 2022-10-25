@@ -1,6 +1,7 @@
 #pragma once
 
 #include "D3D11VetexLayout.h"
+#include "GuideTypes.h"
 #include "IRenderResourceManager.h"
 #include "RefHandle.h"
 #include "SizedTypes.h"
@@ -20,7 +21,7 @@ namespace agl
 	class CD3D11ResourceManager final : public IResourceManager
 	{
 	public:
-		virtual void Shutdown( ) override;
+		virtual void Shutdown() override;
 
 		// Texture
 		virtual Texture* CreateTexture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
@@ -49,8 +50,8 @@ namespace agl
 		// virtual void CopyResource( RE_HANDLE dest, const RESOURCE_REGION* destRegionOrNull, RE_HANDLE src, const RESOURCE_REGION* srcRegionOrNull ) override;
 		// virtual void UpdateResourceFromMemory( RE_HANDLE dest, void* src, uint32 srcRowPitch, uint32 srcDepthPitch, const RESOURCE_REGION* destRegionOrNull = nullptr ) override;
 
-		CD3D11ResourceManager( ) = default;
-		~CD3D11ResourceManager( );
+		CD3D11ResourceManager() = default;
+		~CD3D11ResourceManager();
 		CD3D11ResourceManager( const CD3D11ResourceManager& ) = delete;
 		CD3D11ResourceManager( CD3D11ResourceManager&& ) = delete;
 		CD3D11ResourceManager& operator=( const CD3D11ResourceManager& ) = delete;
@@ -60,7 +61,5 @@ namespace agl
 		std::map<PipelineStateInitializer, RefHandle<PipelineState>> m_pipelineStateCache;
 	};
 
-	void CreateD3D11ResourceManager( );
-	void DestoryD3D11ResourceManager( );
-	void* GetD3D11ResourceManager( );
+	Owner<IResourceManager*> CreateD3D11ResourceManager();
 }

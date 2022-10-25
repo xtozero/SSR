@@ -14,6 +14,12 @@
 
 namespace agl
 {
+	enum class AglType : uint8
+	{
+		D3D11 = 0,
+		D3D12
+	};
+
 	enum class ShaderType : int8
 	{
 		None = -1,

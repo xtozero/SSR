@@ -38,8 +38,6 @@
 
 namespace agl
 {
-	IAgl* g_AbstractGraphicsLibrary = nullptr;
-
 	class CDirect3D11 : public IAgl
 	{
 	public:
@@ -499,34 +497,24 @@ namespace agl
 
 	ID3D11Device& D3D11Device()
 	{
-		auto d3d11Api = static_cast<CDirect3D11*>( GetD3D11GraphicsLibrary() );
+		auto d3d11Api = static_cast<CDirect3D11*>( GetInterface<IAgl>() );
 		return d3d11Api->GetDevice();
 	}
 
 	ID3D11DeviceContext& D3D11Context()
 	{
-		auto d3d11Api = static_cast<CDirect3D11*>( GetD3D11GraphicsLibrary() );
+		auto d3d11Api = static_cast<CDirect3D11*>( GetInterface<IAgl>() );
 		return d3d11Api->GetDeviceContext();
 	}
 
 	IDXGIFactory1& D3D11Factory()
 	{
-		auto d3d11Api = static_cast<CDirect3D11*>( GetD3D11GraphicsLibrary() );
+		auto d3d11Api = static_cast<CDirect3D11*>( GetInterface<IAgl>() );
 		return d3d11Api->GetFactory();
 	}
 
-	void CreateD3D11GraphicsApi()
+	Owner<IAgl*> CreateD3D11GraphicsApi()
 	{
-		g_AbstractGraphicsLibrary = new CDirect3D11();
-	}
-
-	void DestoryD3D11GraphicsApi()
-	{
-		delete g_AbstractGraphicsLibrary;
-	}
-
-	void* GetD3D11GraphicsLibrary()
-	{
-		return g_AbstractGraphicsLibrary;
+		return new CDirect3D11();
 	}
 }

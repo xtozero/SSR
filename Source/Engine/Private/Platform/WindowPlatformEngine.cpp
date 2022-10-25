@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "WindowPlatformEngine.h"
 
+#include "AppConfig/AppConfig.h"
 #include "common.h"
 #include "CommandLine.h"
 #include "Core/ILogic.h"
@@ -21,21 +22,35 @@ bool WindowPlatformEngine::BootUp( IPlatform& platform, char* argv )
 
 	GetInterface<CommandLine>()->Parse( argv );
 
-	if ( !m_inputConvertor.Initialize( ) )
+	if ( !m_inputConvertor.Initialize() )
 	{
 		return false;
 	}
 
-	m_fileSystem = GetInterface<IFileSystem>( );
+	m_fileSystem = GetInterface<IFileSystem>();
 	if ( m_fileSystem == nullptr )
 	{
 		return false;
 	}
 
-	m_taskScheduler = GetInterface<ITaskScheduler>( );
+	m_taskScheduler = GetInterface<ITaskScheduler>();
 	if ( m_taskScheduler == nullptr )
 	{
 		return false;
+	}
+
+	auto appConfig = GetInterface<IAppConfig>();
+	if ( appConfig == nullptr )
+	{
+		return false;
+	}
+
+	std::atomic<int> iniWorkInProgress;
+	appConfig->BootUp( iniWorkInProgress );
+	
+	while ( iniWorkInProgress != 0 )
+	{
+		GetInterface<ITaskScheduler>()->ProcessThisThreadTask();
 	}
 
 	m_logicDll = LoadModule( "Logic.dll" );
@@ -44,7 +59,7 @@ bool WindowPlatformEngine::BootUp( IPlatform& platform, char* argv )
 		return false;
 	}
 
-	m_logic = GetInterface<ILogic>( );
+	m_logic = GetInterface<ILogic>();
 
 	if ( m_logic )
 	{
@@ -56,24 +71,24 @@ bool WindowPlatformEngine::BootUp( IPlatform& platform, char* argv )
 	return m_isAvailable;
 }
 
-void WindowPlatformEngine::Shutdown( )
+void WindowPlatformEngine::Shutdown()
 {
 	m_logic = nullptr;
 	m_isAvailable = false;
 	ShutdownModule( m_logicDll );
 }
 
-void WindowPlatformEngine::Run( )
+void WindowPlatformEngine::Run()
 {
 	while ( IsAvailable() )
 	{
-		ProcessInput( );
-		m_taskScheduler->ProcessThisThreadTask( );
-		m_logic->Update( );
+		ProcessInput();
+		m_taskScheduler->ProcessThisThreadTask();
+		m_logic->Update();
 	}
 }
 
-void WindowPlatformEngine::ProcessInput( )
+void WindowPlatformEngine::ProcessInput()
 {
 	MSG msg;
 	if ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
@@ -97,21 +112,24 @@ LRESULT WindowPlatformEngine::MsgProc( HWND hWnd, uint32 message, WPARAM wParam,
 	switch ( message )
 	{
 	case WM_ACTIVATE:
-		if ( LOWORD( wParam ) == WA_INACTIVE )
+		if ( m_logic )
 		{
-			m_logic->Pause( );
-		}
-		else
-		{
-			m_logic->Resume( );
+			if ( LOWORD( wParam ) == WA_INACTIVE )
+			{
+				m_logic->Pause();
+			}
+			else
+			{
+				m_logic->Resume();
+			}
 		}
 		return 0;
 	case WM_ENTERSIZEMOVE:
-		m_logic->Pause( );
+		m_logic->Pause();
 		m_resizing = true;
 		return 0;
 	case WM_EXITSIZEMOVE:
-		m_logic->Resume( );
+		m_logic->Resume();
 		m_resizing = false;
 		m_logic->AppSizeChanged( *m_platform );
 		return 0;
@@ -120,7 +138,7 @@ LRESULT WindowPlatformEngine::MsgProc( HWND hWnd, uint32 message, WPARAM wParam,
 
 		if ( wParam == SIZE_MINIMIZED )
 		{
-			m_logic->Pause( );
+			m_logic->Pause();
 			m_maximized = false;
 			m_minimized = true;
 		}
@@ -133,11 +151,11 @@ LRESULT WindowPlatformEngine::MsgProc( HWND hWnd, uint32 message, WPARAM wParam,
 		{
 			if ( m_minimized )
 			{
-				m_logic->Resume( );
+				m_logic->Resume();
 			}
 			else if ( m_maximized )
 			{
-				m_logic->Resume( );
+				m_logic->Resume();
 			}
 			else if ( m_resizing )
 			{
@@ -157,14 +175,14 @@ LRESULT WindowPlatformEngine::MsgProc( HWND hWnd, uint32 message, WPARAM wParam,
 	}
 }
 
-WindowPlatformEngine::~WindowPlatformEngine( )
+WindowPlatformEngine::~WindowPlatformEngine()
 {
-	Shutdown( );
+	Shutdown();
 }
 
-Owner<IEngine*> CreatePlatformEngine( )
+Owner<IEngine*> CreatePlatformEngine()
 {
-	return new WindowPlatformEngine( );
+	return new WindowPlatformEngine();
 }
 
 void DestroyPlatformEngine( Owner<IEngine*> pEngine )

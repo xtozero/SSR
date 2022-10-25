@@ -1,11 +1,13 @@
 #include "stdafx.h"
 
+#include "Config/DefaultAglConfig.h"
 #include "D3D11Api.h"
 #include "D3D11ResourceManager.h"
 #include "EnumStringMap.h"
 #include "IAgl.h"
 #include "InterfaceFactories.h"
 
+using ::agl::AglType;
 using ::agl::Blend;
 using ::agl::BlendOp;
 using ::agl::ColorWriteEnable;
@@ -21,10 +23,62 @@ using ::agl::StencilOp;
 using ::agl::TextureFilter;
 using ::agl::TextureAddressMode;
 
-void RegisterResourceEnumString( )
+namespace
+{
+	agl::IAgl* g_abstractGraphicsLibrary = nullptr;
+	agl::IResourceManager* g_resourceManager = nullptr;
+
+	void CreateGraphicsApi()
+	{
+		if ( agl::DefaultAgl::GetInstance().GetType() == AglType::D3D12 )
+		{
+
+		}
+		else
+		{
+			g_abstractGraphicsLibrary = agl::CreateD3D11GraphicsApi();
+		}
+	}
+
+	void CreateResourceManager()
+	{
+		if ( agl::DefaultAgl::GetInstance().GetType() == AglType::D3D12 )
+		{
+
+		}
+		else
+		{
+			g_resourceManager = agl::CreateD3D11ResourceManager();
+		}
+	}
+
+	void DestoryResourceManager()
+	{
+		delete g_resourceManager;
+	}
+
+	void* GetResourceManager()
+	{
+		return g_resourceManager;
+	}
+
+	void DestoryGraphicsApi()
+	{
+		delete g_abstractGraphicsLibrary;
+	}
+
+	void* GetGraphicsApi()
+	{
+		return g_abstractGraphicsLibrary;
+	}
+}
+
+void RegisterResourceEnumString()
 {
 	// Register enum string
-	
+	REGISTER_ENUM_STRING( AglType::D3D11 );
+	REGISTER_ENUM_STRING( AglType::D3D12 );
+
 	// Blend
 	REGISTER_ENUM_STRING( Blend::Zero );
 	REGISTER_ENUM_STRING( Blend::One );
@@ -96,7 +150,7 @@ void RegisterResourceEnumString( )
 	REGISTER_ENUM_STRING( ResourceBindType::RenderTarget );
 	REGISTER_ENUM_STRING( ResourceBindType::DepthStencil );
 	REGISTER_ENUM_STRING( ResourceBindType::RandomAccess );
-	
+
 	// Resource format
 	REGISTER_ENUM_STRING( ResourceFormat::Unknown );
 	REGISTER_ENUM_STRING( ResourceFormat::R32G32B32A32_TYPELESS );
@@ -238,22 +292,22 @@ void RegisterResourceEnumString( )
 	REGISTER_ENUM_STRING( TextureAddressMode::MirrorOnce );
 }
 
-AGL_FUNC_DLL void BootUpModules( )
+AGL_FUNC_DLL void BootUpModules()
 {
-	RegisterFactory<agl::IAgl>( &agl::GetD3D11GraphicsLibrary );
-	RegisterFactory<agl::IResourceManager>( &agl::GetD3D11ResourceManager );
+	RegisterResourceEnumString();
 
-	agl::CreateD3D11GraphicsApi( );
-	agl::CreateD3D11ResourceManager( );
+	RegisterFactory<agl::IAgl>( &GetGraphicsApi );
+	RegisterFactory<agl::IResourceManager>( &GetResourceManager );
 
-	RegisterResourceEnumString( );
+	CreateGraphicsApi();
+	CreateResourceManager();
 }
 
-AGL_FUNC_DLL void ShutdownModules( )
+AGL_FUNC_DLL void ShutdownModules()
 {
-	agl::DestoryD3D11ResourceManager( );
-	agl::DestoryD3D11GraphicsApi( );
+	DestoryResourceManager();
+	DestoryGraphicsApi();
 
-	UnregisterFactory<agl::IResourceManager>( );
-	UnregisterFactory<agl::IAgl>( );
+	UnregisterFactory<agl::IResourceManager>();
+	UnregisterFactory<agl::IAgl>();
 }

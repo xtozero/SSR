@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include "AppConfig/AppConfig.h"
 #include "AssetFactory.h"
 #include "AssetLoader.h"
 #include "CommandLine.h"
@@ -12,6 +13,7 @@
 
 namespace
 {
+	IAppConfig* g_appConfig = nullptr;
 	IAssetFactory* g_assetFactory = nullptr;
 	IAssetLoader* g_assetLoader = nullptr;
 	CommandLine* g_commandLine = nullptr;
@@ -20,6 +22,11 @@ namespace
 	INamePool* g_namePool = nullptr;
 	ITaskScheduler* g_taskScheduler = nullptr;
 	
+	void* GetAppConfig()
+	{
+		return g_appConfig;
+	}
+
 	void* GetAssetFactory()
 	{
 		return g_assetFactory;
@@ -58,9 +65,10 @@ namespace
 
 ENGINE_FUNC_DLL void BootUpModules( )
 {
+	RegisterFactory<CommandLine>( &GetCommandLineOption );
+	RegisterFactory<IAppConfig>( &GetAppConfig );
 	RegisterFactory<IAssetFactory>( &GetAssetFactory );
 	RegisterFactory<IAssetLoader>( &GetAssetLoader );
-	RegisterFactory<CommandLine>( &GetCommandLineOption );
 	RegisterFactory<IEngine>( &GetGameEngine );
 	RegisterFactory<IEnumStringMap>( &GetEnumStringMap );
 	RegisterFactory<IFileSystem>( &GetFileSystem );
@@ -69,6 +77,7 @@ ENGINE_FUNC_DLL void BootUpModules( )
 
 	g_taskScheduler = CreateTaskScheduler();
 	g_fileSystem = CreateFileSystem();
+	g_appConfig = CreateAppConfig();
 	g_assetFactory = CreateAssetFactory();
 	g_assetLoader = CreateAssetLoader();
 	g_commandLine = CreateCommandLine();
@@ -78,6 +87,7 @@ ENGINE_FUNC_DLL void BootUpModules( )
 
 ENGINE_FUNC_DLL void ShutdownModules()
 {
+	DestroyAppConfig( g_appConfig );
 	DestroyAssetLoader( g_assetLoader );
 	DestroyAssetFactory( g_assetFactory );
 	DestroyCommandLine( g_commandLine );
@@ -86,9 +96,10 @@ ENGINE_FUNC_DLL void ShutdownModules()
 	DestroyNamePool( g_namePool );
 	DestroyTaskScheduler( g_taskScheduler );
 
+	UnregisterFactory<CommandLine>();
+	UnregisterFactory<IAppConfig>();
 	UnregisterFactory<IAssetFactory>();
 	UnregisterFactory<IAssetLoader>();
-	UnregisterFactory<CommandLine>();
 	UnregisterFactory<IEngine>();
 	UnregisterFactory<IEnumStringMap>();
 	UnregisterFactory<IFileSystem>();

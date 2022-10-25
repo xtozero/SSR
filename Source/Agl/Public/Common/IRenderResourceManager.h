@@ -30,7 +30,7 @@ namespace agl
 	class IResourceManager
 	{
 	public:
-		virtual void Shutdown( ) = 0;
+		virtual void Shutdown() = 0;
 
 		virtual Texture* CreateTexture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) = 0;
 
@@ -53,6 +53,6 @@ namespace agl
 		// virtual void CopyResource( RE_HANDLE dest, const RESOURCE_REGION* destRegionOrNull, RE_HANDLE src, const RESOURCE_REGION* srcRegionOrNull ) = 0;
 		// virtual void UpdateResourceFromMemory( RE_HANDLE dest, void* src, uint32 srcRowPitch, uint32 srcDepthPitch, const RESOURCE_REGION* destRegionOrNull = nullptr ) = 0;
 
-		virtual ~IResourceManager( ) = default;
+		virtual ~IResourceManager() = default;
 	};
 }
