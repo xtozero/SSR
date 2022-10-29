@@ -87,7 +87,7 @@ namespace agl
 		ID3D11RasterizerState* rasterizerState = nullptr;
 		ID3D11DepthStencilState* depthStencilState = nullptr;
 
-		if ( auto d3d11PipelineState = static_cast<D3D11PipelineState*>( pipelineState ) )
+		if ( auto d3d11PipelineState = static_cast<D3D11GraphicsPipelineState*>( pipelineState ) )
 		{
 			inputLayout = d3d11PipelineState->InputLayout();
 			topology = d3d11PipelineState->PrimitiveTopology();

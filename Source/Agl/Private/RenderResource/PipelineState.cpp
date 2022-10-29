@@ -31,7 +31,7 @@ namespace agl
 		return GetInterface<IResourceManager>( )->CreateVertexLayout( vs, trait, size );
 	}
 
-	RefHandle<PipelineState> PipelineState::Create( const PipelineStateInitializer& initializer )
+	RefHandle<PipelineState> PipelineState::Create( const GraphicsPipelineStateInitializer& initializer )
 	{
 		return GetInterface<IResourceManager>( )->CreatePipelineState( initializer );
 	}

@@ -3,6 +3,10 @@ add_definitions(-DUNICODE=1)
 add_definitions(-D_UNICODE=1)
 add_definitions(-DNOMINMAX=1)
 
+set (CONFIG_SOURCE
+	Private/Config/DefaultRenderCoreConfig.cpp
+	Public/Config/DefaultRenderCoreConfig.h)
+
 set (CORE_SOURCE
 	Private/Core/dllmain.cpp
 	Private/Core/ModuleInit.cpp
@@ -142,7 +146,8 @@ set (RENDERER_SOURCE
 	Public/Renderer/SceneRenderer.h
 	Public/Renderer/SkyAtmosphereRendering.h
 	Public/Renderer/TemporalAntiAliasingRendering.h)
-	
+
+source_group("CONFIG_SOURCE" FILES ${CONFIG_SOURCE})
 source_group("GraphicsResource" FILES ${GRAPHICS_RESOURCE_SOURCE})
 source_group("Material" FILES ${MATERIAL_SOURCE})
 source_group("Mesh" FILES ${MESH_SOURCE})
@@ -156,7 +161,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
-add_library(RenderCore SHARED 	${CORE_SOURCE}
+add_library(RenderCore SHARED 	${CONFIG_SOURCE}
+								${CORE_SOURCE}
 								${GRAPHICS_RESOURCE_SOURCE}
 								${MATERIAL_SOURCE}
 								${MESH_SOURCE}

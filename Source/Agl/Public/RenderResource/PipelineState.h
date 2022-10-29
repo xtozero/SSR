@@ -37,10 +37,10 @@ namespace agl
 		AGL_DLL static RefHandle<VertexLayout> Create( const VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, uint32 size );
 	};
 
-	class PipelineStateInitializer
+	class GraphicsPipelineStateInitializer
 	{
 	public:
-		friend bool operator<( const PipelineStateInitializer& lhs, const PipelineStateInitializer& rhs )
+		friend bool operator<( const GraphicsPipelineStateInitializer& lhs, const GraphicsPipelineStateInitializer& rhs )
 		{
 			auto lVariable = std::tie( lhs.m_vertexShader, lhs.m_geometryShader, lhs.m_piexlShader, lhs.m_blendState, lhs.m_rasterizerState, lhs.m_depthStencilState, lhs.m_vertexLayout, lhs.m_primitiveType );
 			auto rVariable = std::tie( rhs.m_vertexShader, rhs.m_geometryShader, rhs.m_piexlShader, rhs.m_blendState, rhs.m_rasterizerState, rhs.m_depthStencilState, rhs.m_vertexLayout, rhs.m_primitiveType );
@@ -58,9 +58,23 @@ namespace agl
 		ResourcePrimitive m_primitiveType = ResourcePrimitive::Undefined;
 	};
 
+	class ComputePipelineStateInitializer
+	{
+	public:
+		friend bool operator<( const ComputePipelineStateInitializer& lhs, const ComputePipelineStateInitializer& rhs )
+		{
+			auto lVariable = std::tie( lhs.m_computeShader );
+			auto rVariable = std::tie( rhs.m_computeShader );
+
+			return lVariable < rVariable;
+		}
+
+		ComputeShader* m_computeShader = nullptr;
+	};
+
 	class PipelineState : public DeviceDependantResource
 	{
 	public:
-		AGL_DLL static RefHandle<PipelineState> Create( const PipelineStateInitializer& initializer );
+		AGL_DLL static RefHandle<PipelineState> Create( const GraphicsPipelineStateInitializer& initializer );
 	};
 }

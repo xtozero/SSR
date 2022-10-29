@@ -6,43 +6,43 @@
 
 namespace agl
 {
-	class D3D11PipelineState : public PipelineState
+	class D3D11GraphicsPipelineState : public PipelineState
 	{
 	public:
-		ID3D11VertexShader* VertexShader( );
-		const ID3D11VertexShader* VertexShader( ) const;
+		ID3D11VertexShader* VertexShader();
+		const ID3D11VertexShader* VertexShader() const;
 
-		ID3D11GeometryShader* GeometryShader( );
-		const ID3D11GeometryShader* GeometryShader( ) const;
+		ID3D11GeometryShader* GeometryShader();
+		const ID3D11GeometryShader* GeometryShader() const;
 
-		ID3D11PixelShader* PixelShader( );
-		const ID3D11PixelShader* PixelShader( ) const;
-		
-		ID3D11BlendState* BlendState( );
-		const ID3D11BlendState* BlendState( ) const;
+		ID3D11PixelShader* PixelShader();
+		const ID3D11PixelShader* PixelShader() const;
 
-		ID3D11RasterizerState* RasterizerState( );
-		const ID3D11RasterizerState* RasterizerState( ) const;
+		ID3D11BlendState* BlendState();
+		const ID3D11BlendState* BlendState() const;
 
-		ID3D11DepthStencilState* DepthStencilState( );
-		const ID3D11DepthStencilState* DepthStencilState( ) const;
+		ID3D11RasterizerState* RasterizerState();
+		const ID3D11RasterizerState* RasterizerState() const;
 
-		ID3D11InputLayout* InputLayout( );
-		const ID3D11InputLayout* InputLayout( ) const;
+		ID3D11DepthStencilState* DepthStencilState();
+		const ID3D11DepthStencilState* DepthStencilState() const;
 
-		D3D11_PRIMITIVE_TOPOLOGY PrimitiveTopology( ) const;
+		ID3D11InputLayout* InputLayout();
+		const ID3D11InputLayout* InputLayout() const;
 
-		uint32 SampleMask( ) const;
+		D3D11_PRIMITIVE_TOPOLOGY PrimitiveTopology() const;
 
-		explicit D3D11PipelineState( const PipelineStateInitializer& initializer );
-		D3D11PipelineState( const D3D11PipelineState& ) = delete;
-		D3D11PipelineState( D3D11PipelineState&& ) = delete;
-		D3D11PipelineState& operator=( const D3D11PipelineState& ) = delete;
-		D3D11PipelineState& operator=( D3D11PipelineState&& ) = delete;
+		uint32 SampleMask() const;
+
+		explicit D3D11GraphicsPipelineState( const GraphicsPipelineStateInitializer& initializer );
+		D3D11GraphicsPipelineState( const D3D11GraphicsPipelineState& ) = delete;
+		D3D11GraphicsPipelineState( D3D11GraphicsPipelineState&& ) = delete;
+		D3D11GraphicsPipelineState& operator=( const D3D11GraphicsPipelineState& ) = delete;
+		D3D11GraphicsPipelineState& operator=( D3D11GraphicsPipelineState&& ) = delete;
 
 	private:
-		virtual void InitResource( ) override { }
-		virtual void FreeResource( ) override;
+		virtual void InitResource() override {}
+		virtual void FreeResource() override;
 
 		ID3D11VertexShader* m_vertexShader = nullptr;
 		ID3D11GeometryShader* m_geometryShader = nullptr;
@@ -53,5 +53,21 @@ namespace agl
 		ID3D11InputLayout* m_inputLayout = nullptr;
 		D3D11_PRIMITIVE_TOPOLOGY m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
 		uint32 m_sampleMask = D3D11_DEFAULT_SAMPLE_MASK;
+	};
+
+	class D3D11ComputePipelineState : public PipelineState
+	{
+	public:
+		explicit D3D11ComputePipelineState( const ComputePipelineStateInitializer& initializer );
+		D3D11ComputePipelineState( const D3D11ComputePipelineState& ) = delete;
+		D3D11ComputePipelineState( D3D11ComputePipelineState&& ) = delete;
+		D3D11ComputePipelineState& operator=( const D3D11ComputePipelineState& ) = delete;
+		D3D11ComputePipelineState& operator=( D3D11ComputePipelineState&& ) = delete;
+
+	private:
+		virtual void InitResource() override {}
+		virtual void FreeResource() override;
+
+		ID3D11ComputeShader* m_computeShader = nullptr;
 	};
 }

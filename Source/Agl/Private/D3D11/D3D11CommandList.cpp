@@ -150,14 +150,14 @@ namespace agl
 		ID3D11Resource* destResource = nullptr;
 		ID3D11Resource* srcResource = nullptr;
 
-		if ( auto destTexture = static_cast<D3D11BaseTexture*>( dest ) )
+		if ( auto destTexture = static_cast<TextureBase*>( dest ) )
 		{
-			destResource = destTexture->Resource();
+			destResource = static_cast<ID3D11Resource*>( destTexture->Resource() );
 		}
 
-		if ( auto srcTexture = static_cast<D3D11BaseTexture*>( src ) )
+		if ( auto srcTexture = static_cast<TextureBase*>( src ) )
 		{
-			srcResource = srcTexture->Resource();
+			srcResource = static_cast<ID3D11Resource*>( srcTexture->Resource() );
 		}
 
 		D3D11Context().CopyResource( destResource, srcResource );
@@ -333,14 +333,14 @@ namespace agl
 		ID3D11Resource* destResource = nullptr;
 		ID3D11Resource* srcResource = nullptr;
 
-		if ( auto destTexture = static_cast<D3D11BaseTexture*>( dest ) )
+		if ( auto destTexture = static_cast<TextureBase*>( dest ) )
 		{
-			destResource = destTexture->Resource();
+			destResource = static_cast<ID3D11Resource*>( destTexture->Resource() );
 		}
 
-		if ( auto srcTexture = static_cast<D3D11BaseTexture*>( src ) )
+		if ( auto srcTexture = static_cast<TextureBase*>( src ) )
 		{
-			srcResource = srcTexture->Resource();
+			srcResource = static_cast<ID3D11Resource*>( srcTexture->Resource() );
 		}
 
 		m_pContext->CopyResource( destResource, srcResource );

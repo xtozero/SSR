@@ -1,6 +1,6 @@
 #include "DDSManufacturer.h"
 
-#include "D3D11FlagConvertor.h"
+#include "../DXGI/DxgiFlagConvertor.h"
 #include "DDSTexture.h"
 #include "DirectXTex.h"
 

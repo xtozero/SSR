@@ -2,8 +2,8 @@
 
 namespace agl
 {
-	AglType DefaultAgl::GetType() const
+	AglType DefaultAgl::GetType()
 	{
-		return static_cast<AglType>( m_type );
+		return static_cast<AglType>( GetInstance().m_type );
 	}
 }
