@@ -193,10 +193,10 @@ namespace agl
 			return {};
 		}
 
-		auto d3d11Texture = static_cast<D3D11BaseTexture*>( texture );
+		auto d3d11Texture = static_cast<TextureBase*>( texture );
 		D3D11_MAPPED_SUBRESOURCE resource;
 
-		HRESULT hr = m_pd3d11DeviceContext->Map( d3d11Texture->Resource(), subResource, ConvertLockFlagToD3D11Map( lockFlag ), 0, &resource );
+		HRESULT hr = m_pd3d11DeviceContext->Map( static_cast<ID3D11Resource*>( d3d11Texture->Resource() ), subResource, ConvertLockFlagToD3D11Map(lockFlag), 0, &resource);
 		if ( FAILED( hr ) )
 		{
 			__debugbreak();
@@ -229,9 +229,9 @@ namespace agl
 			return;
 		}
 
-		auto d3d11Texture = static_cast<D3D11BaseTexture*>( texture );
+		auto d3d11Texture = static_cast<TextureBase*>( texture );
 
-		m_pd3d11DeviceContext->Unmap( d3d11Texture->Resource(), subResource );
+		m_pd3d11DeviceContext->Unmap( static_cast<ID3D11Resource*>( d3d11Texture->Resource() ), subResource );
 	}
 
 	void CDirect3D11::EnumerateSampleCountAndQuality( int32* size, DXGI_SAMPLE_DESC* pSamples )

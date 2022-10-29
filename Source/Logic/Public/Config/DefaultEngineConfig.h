@@ -9,7 +9,7 @@ class DefaultEngine : public ConfigBase<DefaultEngine, "default_engine">
 	GENERATE_CLASS_TYPE_INFO( DefaultEngine );
 
 public:
-	const char* GetDefaultWorld() const;
+	static const char* GetDefaultWorld();
 
 private:
 	PROPERTY( defaultWorld );

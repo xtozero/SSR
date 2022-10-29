@@ -117,16 +117,16 @@ namespace rendercore
 		auto& pipelineState = snapshot.m_pipelineState;
 		auto& shaderState = pipelineState.m_shaderState;
 
-		agl::PipelineStateInitializer initializer
+		agl::GraphicsPipelineStateInitializer initializer
 		{
-			shaderState.m_vertexShader ? shaderState.m_vertexShader->Resource() : nullptr,
-			shaderState.m_geometryShader ? shaderState.m_geometryShader->Resource() : nullptr,
-			shaderState.m_pixelShader ? shaderState.m_pixelShader->Resource() : nullptr,
-			pipelineState.m_blendState.Resource(),
-			pipelineState.m_rasterizerState.Resource(),
-			pipelineState.m_depthStencilState.Resource(),
-			shaderState.m_vertexLayout.Resource(),
-			pipelineState.m_primitive,
+			.m_vertexShader = shaderState.m_vertexShader ? shaderState.m_vertexShader->Resource() : nullptr,
+			.m_geometryShader = shaderState.m_geometryShader ? shaderState.m_geometryShader->Resource() : nullptr,
+			.m_piexlShader = shaderState.m_pixelShader ? shaderState.m_pixelShader->Resource() : nullptr,
+			.m_blendState = pipelineState.m_blendState.Resource(),
+			.m_rasterizerState = pipelineState.m_rasterizerState.Resource(),
+			.m_depthStencilState = pipelineState.m_depthStencilState.Resource(),
+			.m_vertexLayout = shaderState.m_vertexLayout.Resource(),
+			.m_primitiveType = pipelineState.m_primitive,
 		};
 
 		pipelineState.m_pso = agl::PipelineState::Create( initializer );

@@ -34,4 +34,55 @@ namespace agl
 		RefHandle<RenderTargetView> m_rtv;
 		RefHandle<DepthStencilView> m_dsv;
 	};
+
+	class TextureBase : public Texture
+	{
+	public:
+		virtual std::pair<uint32, uint32> Size() const override
+		{
+			return { m_trait.m_width, m_trait.m_height };
+		}
+
+		virtual void* Resource() const = 0;
+
+		TextureBase( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData ) : m_trait( trait )
+		{
+			if ( initData )
+			{
+				m_dataStorage = new unsigned char[initData->m_srcSize];
+				std::memcpy( m_dataStorage, initData->m_srcData, initData->m_srcSize );
+			}
+		}
+		TextureBase() = default;
+		TextureBase( const TextureBase& ) = delete;
+		TextureBase& operator=( const TextureBase& ) = delete;
+		TextureBase( TextureBase&& ) = delete;
+		TextureBase& operator=( TextureBase&& ) = delete;
+		~TextureBase()
+		{
+			Free();
+
+			delete[] m_dataStorage;
+			m_dataStorage = nullptr;
+		}
+
+	protected:
+		virtual void FreeResource() override
+		{
+			m_srv = nullptr;
+			m_uav = nullptr;
+			m_rtv = nullptr;
+			m_dsv = nullptr;
+		}
+
+		virtual void CreateTexture() = 0;
+
+		TEXTURE_TRAIT m_trait = {};
+
+		void* m_dataStorage = nullptr;
+	};
+
+	bool IsTexture1D( const TEXTURE_TRAIT& trait );
+	bool IsTexture2D( const TEXTURE_TRAIT& trait );
+	bool IsTexture3D( const TEXTURE_TRAIT& trait );
 }

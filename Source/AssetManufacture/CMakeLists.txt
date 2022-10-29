@@ -27,7 +27,6 @@ add_executable(AssetManufacture		${ENTRY_POINT}
 
 target_include_directories(AssetManufacture
 PRIVATE
-	../Agl/Public/D3D11
 	./Public)
 
 target_link_libraries(AssetManufacture

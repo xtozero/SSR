@@ -1,6 +1,6 @@
 #include "ShaderManufacturer.h"
 
-#include "D3D11Shaders.h"
+#include "../D3D11/D3D11Shaders.h"
 #include "ManufactureConfig.h"
 #include "ShaderFileMerger.h"
 #include "StaticShaderSwitch.h"

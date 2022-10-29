@@ -2,6 +2,7 @@
 #include "PassProcessor.h"
 
 #include "AbstractGraphicsInterface.h"
+#include "Config/DefaultRenderCoreConfig.h"
 #include "GraphicsApiResource.h"
 #include "MaterialResource.h"
 #include "Scene/PrimitiveSceneInfo.h"
@@ -12,7 +13,11 @@ namespace rendercore
 	PassShader IPassProcessor::CollectPassShader( MaterialResource& material ) const
 	{
 		StaticShaderSwitches switches = material.GetShaderSwitches( agl::ShaderType::VS );
-		switches.On( Name( "TAA" ), 1 );
+
+		if ( DefaultRenderCore::IsTaaEnabled() )
+		{
+			switches.On( Name( "TAA" ), 1 );
+		}
 
 		PassShader passShader{
 			material.GetVertexShader( &switches ),

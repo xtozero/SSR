@@ -2,6 +2,7 @@
 #include "DepthWritePassProcessor.h"
 
 #include "AbstractGraphicsInterface.h"
+#include "Config/DefaultRenderCoreConfig.h"
 #include "GlobalShaders.h"
 #include "PrimitiveProxy.h"
 #include "Scene/PrimitiveSceneInfo.h"
@@ -66,7 +67,11 @@ namespace rendercore
 	PassShader DepthWritePassProcessor::CollectPassShader( [[maybe_unused]] MaterialResource& material ) const
 	{
 		StaticShaderSwitches switches = DepthWriteVS().GetSwitches();
-		switches.On( Name( "TAA" ), 1 );
+		
+		if ( DefaultRenderCore::IsTaaEnabled() )
+		{
+			switches.On( Name( "TAA" ), 1 );
+		}
 
 		PassShader passShader{
 			DepthWriteVS().GetShader( switches ),

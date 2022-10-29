@@ -83,7 +83,7 @@ bool CGameLogic::BootUp( IPlatform& platform )
 
 	CreateGameViewport();
 
-	if ( LoadWorld( DefaultEngine::GetInstance().GetDefaultWorld() ) == false )
+	if ( LoadWorld( DefaultEngine::GetDefaultWorld() ) == false )
 	{
 		__debugbreak();
 	}

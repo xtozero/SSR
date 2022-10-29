@@ -2,6 +2,7 @@
 #include "Renderer/SceneRenderer.h"
 
 #include "CommandList.h"
+#include "Config/DefaultRenderCoreConfig.h"
 #include "Math/TransformationMatrix.h"
 #include "Mesh/StaticMeshResource.h"
 #include "Material/MaterialResource.h"
@@ -128,7 +129,10 @@ namespace rendercore
 
 	void SceneRenderer::PostRender( RenderViewGroup& renderViewGroup )
 	{
-		RenderTemporalAntiAliasing( renderViewGroup );
+		if ( DefaultRenderCore::IsTaaEnabled() )
+		{
+			RenderTemporalAntiAliasing( renderViewGroup );
+		}
 
 		m_shaderResources.ClearResources();
 

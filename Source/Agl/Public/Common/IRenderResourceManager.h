@@ -14,11 +14,12 @@ namespace agl
 {
 	class BlendState;
 	class Buffer;
+	class ComputePipelineStateInitializer;
 	class ComputeShader;
 	class DepthStencilState;
 	class GeometryShader;
 	class PipelineState;
-	class PipelineStateInitializer;
+	class GraphicsPipelineStateInitializer;
 	class PixelShader;
 	class RasterizerState;
 	class SamplerState;
@@ -46,7 +47,8 @@ namespace agl
 		virtual DepthStencilState* CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) = 0;
 		virtual RasterizerState* CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) = 0;
 		virtual SamplerState* CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) = 0;
-		virtual PipelineState* CreatePipelineState( const PipelineStateInitializer& initializer ) = 0;
+		virtual PipelineState* CreatePipelineState( const GraphicsPipelineStateInitializer& initializer ) = 0;
+		virtual PipelineState* CreatePipelineState( const ComputePipelineStateInitializer& initializer ) = 0;
 
 		virtual Viewport* CreateViewport( uint32 width, uint32 height, void* hWnd, ResourceFormat format ) = 0;
 

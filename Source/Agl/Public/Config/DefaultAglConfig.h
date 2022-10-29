@@ -11,7 +11,7 @@ namespace agl
 		GENERATE_CLASS_TYPE_INFO( DefaultAgl );
 
 	public:
-		AglType GetType() const;
+		static AglType GetType();
 		
 	private:
 		PROPERTY( type )

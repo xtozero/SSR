@@ -2,7 +2,9 @@
 
 #include "Config/DefaultAglConfig.h"
 #include "D3D11Api.h"
+#include "D3D12Api.h"
 #include "D3D11ResourceManager.h"
+#include "D3D12ResourceManager.h"
 #include "EnumStringMap.h"
 #include "IAgl.h"
 #include "InterfaceFactories.h"
@@ -30,9 +32,9 @@ namespace
 
 	void CreateGraphicsApi()
 	{
-		if ( agl::DefaultAgl::GetInstance().GetType() == AglType::D3D12 )
+		if ( agl::DefaultAgl::GetType() == AglType::D3D12 )
 		{
-
+			g_abstractGraphicsLibrary = agl::CreateD3D12GraphicsApi();
 		}
 		else
 		{
@@ -42,9 +44,9 @@ namespace
 
 	void CreateResourceManager()
 	{
-		if ( agl::DefaultAgl::GetInstance().GetType() == AglType::D3D12 )
+		if ( agl::DefaultAgl::GetType() == AglType::D3D12 )
 		{
-
+			g_resourceManager = agl::CreateD3D12ResourceManager();
 		}
 		else
 		{

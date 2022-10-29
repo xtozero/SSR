@@ -9,83 +9,41 @@
 
 namespace agl
 {
-	class D3D11BaseTexture : public Texture
-	{
-	public:
-		virtual std::pair<uint32, uint32> Size() const override
-		{
-			return { m_trait.m_width, m_trait.m_height };
-		}
-
-		virtual ID3D11Resource* Resource() = 0;
-
-		D3D11BaseTexture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData ) : m_trait( trait )
-		{
-			if ( initData )
-			{
-				m_dataStorage = new unsigned char[initData->m_srcSize];
-				std::memcpy( m_dataStorage, initData->m_srcData, initData->m_srcSize );
-
-				m_initData.resize( initData->m_sections.size() );
-
-				for ( size_t i = 0; i < initData->m_sections.size(); ++i )
-				{
-					const RESOURCE_SECTION_DATA& section = initData->m_sections[i];
-
-					m_initData[i].pSysMem = static_cast<unsigned char*>( m_dataStorage ) + section.m_offset;
-					m_initData[i].SysMemPitch = section.m_pitch;
-					m_initData[i].SysMemSlicePitch = section.m_slicePitch;
-				}
-			}
-		}
-		D3D11BaseTexture() = default;
-		D3D11BaseTexture( const D3D11BaseTexture& ) = delete;
-		D3D11BaseTexture& operator=( const D3D11BaseTexture& ) = delete;
-		D3D11BaseTexture( D3D11BaseTexture&& ) = delete;
-		D3D11BaseTexture& operator=( D3D11BaseTexture&& ) = delete;
-		~D3D11BaseTexture()
-		{
-			Free();
-
-			delete[] m_dataStorage;
-			m_dataStorage = nullptr;
-		}
-
-	protected:
-		virtual void FreeResource() override
-		{
-			m_srv = nullptr;
-			m_uav = nullptr;
-			m_rtv = nullptr;
-			m_dsv = nullptr;
-		}
-
-		virtual void CreateTexture() = 0;
-
-		TEXTURE_TRAIT m_trait = {};
-
-		void* m_dataStorage = nullptr;
-		std::vector<D3D11_SUBRESOURCE_DATA> m_initData = {};
-	};
-
 	template <typename T>
-	class D3D11Texture : public D3D11BaseTexture
+	class D3D11Texture : public TextureBase
 	{
 	public:
-		virtual ID3D11Resource* Resource() override
+		virtual void* Resource() const
 		{
 			return m_texture;
 		}
 
-		D3D11Texture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData ) : D3D11BaseTexture( trait, initData ) { }
+		D3D11Texture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData ) : TextureBase( trait, initData ) 
+		{
+			if ( initData )
+			{
+				size_t numSections = initData->m_sections.size();
+
+				m_initData.resize( numSections );
+				for ( size_t i = 0; i < numSections; ++i )
+				{
+					const RESOURCE_SECTION_DATA& section = initData->m_sections[i];
+
+					m_initData[i].pSysMem = static_cast<unsigned char*>( m_dataStorage ) + section.m_offset;
+					m_initData[i].SysMemPitch = static_cast<uint32>( section.m_pitch );
+					m_initData[i].SysMemSlicePitch = static_cast<uint32>( section.m_slicePitch );
+				}
+			}
+		}
 		D3D11Texture() = default;
-		D3D11Texture( const D3D11BaseTexture& ) = delete;
-		D3D11Texture& operator=( const D3D11BaseTexture& ) = delete;
-		D3D11Texture( D3D11BaseTexture&& ) = delete;
-		D3D11Texture& operator=( D3D11BaseTexture&& ) = delete;
+		D3D11Texture( const D3D11Texture& ) = delete;
+		D3D11Texture& operator=( const D3D11Texture& ) = delete;
+		D3D11Texture( D3D11Texture&& ) = delete;
+		D3D11Texture& operator=( D3D11Texture&& ) = delete;
 
 	protected:
 		T* m_texture = nullptr;
+		std::vector<D3D11_SUBRESOURCE_DATA> m_initData;
 
 		virtual void CreateShaderResource() = 0;
 		virtual void CreateUnorderedAccess() = 0;
@@ -126,7 +84,7 @@ namespace agl
 
 		virtual void FreeResource() override
 		{
-			D3D11BaseTexture::FreeResource();
+			TextureBase::FreeResource();
 
 			if ( m_texture )
 			{
@@ -187,8 +145,4 @@ namespace agl
 	private:
 		D3D11_TEXTURE3D_DESC m_desc = {};
 	};
-
-	bool IsTexture1D( const TEXTURE_TRAIT& trait );
-	bool IsTexture2D( const TEXTURE_TRAIT& trait );
-	bool IsTexture3D( const TEXTURE_TRAIT& trait );
 }

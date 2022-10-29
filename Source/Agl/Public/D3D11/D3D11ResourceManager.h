@@ -11,11 +11,6 @@
 #include <set>
 #include <vector>
 
-struct ID3D11Device;
-struct ID3D11DeviceContext;
-struct ID3D11Resource;
-struct ID3D11ShaderResourceView;
-
 namespace agl
 {
 	class CD3D11ResourceManager final : public IResourceManager
@@ -41,14 +36,11 @@ namespace agl
 		virtual DepthStencilState* CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) override;
 		virtual RasterizerState* CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) override;
 		virtual SamplerState* CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) override;
-		virtual PipelineState* CreatePipelineState( const PipelineStateInitializer& initializer ) override;
+		virtual PipelineState* CreatePipelineState( const GraphicsPipelineStateInitializer& initializer ) override;
+		virtual PipelineState* CreatePipelineState( const ComputePipelineStateInitializer& initializer ) override;
 
 		// Viewport
 		virtual Viewport* CreateViewport( uint32 width, uint32 height, void* hWnd, ResourceFormat format ) override;
-
-		// UTIL
-		// virtual void CopyResource( RE_HANDLE dest, const RESOURCE_REGION* destRegionOrNull, RE_HANDLE src, const RESOURCE_REGION* srcRegionOrNull ) override;
-		// virtual void UpdateResourceFromMemory( RE_HANDLE dest, void* src, uint32 srcRowPitch, uint32 srcDepthPitch, const RESOURCE_REGION* destRegionOrNull = nullptr ) override;
 
 		CD3D11ResourceManager() = default;
 		~CD3D11ResourceManager();
@@ -58,7 +50,8 @@ namespace agl
 		CD3D11ResourceManager& operator=( CD3D11ResourceManager&& ) = delete;
 
 	private:
-		std::map<PipelineStateInitializer, RefHandle<PipelineState>> m_pipelineStateCache;
+		std::map<GraphicsPipelineStateInitializer, RefHandle<PipelineState>> m_graphicsPipelineStateCache;
+		std::map<ComputePipelineStateInitializer, RefHandle<PipelineState>> m_computePipelineStateCache;
 	};
 
 	Owner<IResourceManager*> CreateD3D11ResourceManager();

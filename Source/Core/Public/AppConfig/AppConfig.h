@@ -66,6 +66,12 @@ public:
 			{
 				property->Set( this, *value );
 			}
+			else if ( &propertyType == &TypeInfo::GetStaticTypeInfo<bool>() )
+			{
+				bool boolean = std::strcmp( value->c_str(), "true" ) == 0
+							|| std::strcmp( value->c_str(), "True" ) == 0;
+				property->Set( this, boolean );
+			}
 			else if ( std::strstr(value->c_str(), "::") != nullptr )
 			{
 				if ( &propertyType == &TypeInfo::GetStaticTypeInfo<uint8>() )

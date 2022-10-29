@@ -396,19 +396,4 @@ namespace agl
 		m_uav = new D3D11UnorderedAccessView( this, m_texture, uavDesc );
 		m_uav->Init();
 	}
-
-	bool IsTexture1D( const TEXTURE_TRAIT& trait )
-	{
-		return ( trait.m_height <= 1 ) && ( ( trait.m_miscFlag & ResourceMisc::AppSizeDependent ) == ResourceMisc::None );
-	}
-
-	bool IsTexture2D( const TEXTURE_TRAIT& trait )
-	{
-		return ( trait.m_height > 1 ) && ( ( trait.m_miscFlag & ResourceMisc::Texture3D ) == ResourceMisc::None );
-	}
-
-	bool IsTexture3D( const TEXTURE_TRAIT& trait )
-	{
-		return ( trait.m_miscFlag & ResourceMisc::Texture3D ) != ResourceMisc::None;
-	}
 }

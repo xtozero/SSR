@@ -57,6 +57,42 @@ set (D3D11_SOURCE
 set (D3D11_UTILITY
 	Public/D3D11/D3D11FlagConvertor.h)
 
+set (D3D12_RENDER_RESOURCE_SOURCE
+	Private/D3D12/D3D12BaseTexture.cpp
+	Private/D3D12/D3D12BlendState.cpp
+	Private/D3D12/D3D12Buffer.cpp
+	Private/D3D12/D3D12CommandList.cpp
+	Private/D3D12/D3D12DepthStencilState.cpp
+	Private/D3D12/D3D12PipelineState.cpp
+	Private/D3D12/D3D12RasterizerState.cpp
+	Private/D3D12/D3D12ResourceManager.cpp
+	Private/D3D12/D3D12SamplerState.cpp
+	Private/D3D12/D3D12Shaders.cpp
+	Private/D3D12/D3D12VertexLayout.cpp
+	Private/D3D12/D3D12Viewport.cpp
+	Public/D3D12/D3D12BaseTexture.h
+	Public/D3D12/D3D12BlendState.h
+	Public/D3D12/D3D12Buffer.h
+	Public/D3D12/D3D12CommandList.h
+	Public/D3D12/D3D12DepthStencilState.h
+	Public/D3D12/D3D12PipelineState.h
+	Public/D3D12/D3D12RasterizerState.h
+	Public/D3D12/D3D12ResourceManager.h
+	Public/D3D12/D3D12SamplerState.h
+	Public/D3D12/D3D12Shaders.h
+	Public/D3D12/D3D12VertexLayout.h
+	Public/D3D12/D3D12Viewport.h)
+
+set (D3D12_SOURCE
+	Private/D3D12/D3D12Api.cpp
+	Public/D3D12/D3D12Api.h)
+
+set (D3D12_UTILITY
+	Public/D3D12/D3D12FlagConvertor.h)
+
+set (DXGI_SOURCE
+	Public/DXGI/DxgiFlagConvertor.h)
+
 set (PRECOMPILED
 	Private/Pch/stdafx.cpp
 	Public/Pch/stdafx.h
@@ -84,6 +120,10 @@ source_group("Config" FILES ${CONFIG_SOURCE})
 source_group("Direct11\\RenderResource" FILES ${D3D11_RENDER_RESOURCE_SOURCE})
 source_group("Direct11" FILES ${D3D11_SOURCE})	
 source_group("Direct11\\Utility" FILES ${D3D11_UTILITY})
+source_group("Direct12\\RenderResource" FILES ${D3D12_RENDER_RESOURCE_SOURCE})
+source_group("Direct12" FILES ${D3D12_SOURCE})
+source_group("Direct12\\Utility" FILES ${D3D12_UTILITY})
+source_group("DXGI" FILES ${DXGI_SOURCE})
 source_group("RenderCommon" FILES ${COMMON_SOURCE})
 source_group("RenderResource" FILES ${RENDER_RESOURCE_SOURCE})
 
@@ -103,6 +143,10 @@ add_library(Agl SHARED 	${CONFIG_SOURCE}
 						${D3D11_RENDER_RESOURCE_SOURCE}
 						${D3D11_SOURCE}
 						${D3D11_UTILITY}
+						${D3D12_RENDER_RESOURCE_SOURCE}
+						${D3D12_SOURCE}
+						${D3D12_UTILITY}
+						${DXGI_SOURCE}
 						${PRECOMPILED}
 						${RENDER_RESOURCE_SOURCE})
 
@@ -113,6 +157,8 @@ PUBLIC
 PRIVATE
 	./Public
 	./Public/D3D11
+	./Public/D3D12
+	./Public/DXGI
 	./Public/Pch)
 
 set (DIRECT3D_LIBRARY

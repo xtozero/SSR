@@ -28,7 +28,7 @@ namespace agl
 {
 	void CD3D11ResourceManager::Shutdown()
 	{
-		m_pipelineStateCache.clear();
+		m_graphicsPipelineStateCache.clear();
 	}
 
 	Texture* CD3D11ResourceManager::CreateTexture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
@@ -132,16 +132,30 @@ namespace agl
 		return samplerState;
 	}
 
-	PipelineState* CD3D11ResourceManager::CreatePipelineState( const PipelineStateInitializer& initializer )
+	PipelineState* CD3D11ResourceManager::CreatePipelineState( const GraphicsPipelineStateInitializer& initializer )
 	{
-		auto cached = m_pipelineStateCache.find( initializer );
-		if ( cached != m_pipelineStateCache.end() )
+		auto cached = m_graphicsPipelineStateCache.find( initializer );
+		if ( cached != m_graphicsPipelineStateCache.end() )
 		{
 			return cached->second;
 		}
 
-		auto pipelineState = new D3D11PipelineState( initializer );
-		m_pipelineStateCache.emplace( initializer, pipelineState );
+		auto pipelineState = new D3D11GraphicsPipelineState( initializer );
+		m_graphicsPipelineStateCache.emplace( initializer, pipelineState );
+
+		return pipelineState;
+	}
+
+	PipelineState* CD3D11ResourceManager::CreatePipelineState( const ComputePipelineStateInitializer& initializer )
+	{
+		auto cached = m_computePipelineStateCache.find( initializer );
+		if ( cached != m_computePipelineStateCache.end() )
+		{
+			return cached->second;
+		}
+
+		auto pipelineState = new D3D11ComputePipelineState( initializer );
+		m_computePipelineStateCache.emplace( initializer, pipelineState );
 
 		return pipelineState;
 	}
@@ -157,43 +171,6 @@ namespace agl
 	{
 		Shutdown();
 	}
-
-	//void CD3D11ResourceManager::CopyResource( RE_HANDLE dest, const RESOURCE_REGION* destRegionOrNull, RE_HANDLE src, const RESOURCE_REGION* srcRegionOrNull )
-	//{
-	//	ID3D11Resource* pDest = nullptr/*GetD3D11ResourceGeneric( dest )*/;
-	//	ID3D11Resource* pSrc = nullptr /*GetD3D11ResourceGeneric( src )*/;
-	//
-	//	assert( pDest != nullptr && pSrc != nullptr );
-	//
-	//	if ( destRegionOrNull == nullptr || srcRegionOrNull == nullptr )
-	//	{
-	//		m_pDeviceContext->CopyResource( pDest, pSrc );
-	//	}
-	//	else
-	//	{
-	//		const RESOURCE_REGION& destRegion = *destRegionOrNull;
-	//		const RESOURCE_REGION& srcRegion = *srcRegionOrNull;
-	//
-	//		D3D11_BOX box = { srcRegion.m_left,  srcRegion.m_top,  srcRegion.m_front,  srcRegion.m_right,  srcRegion.m_bottom,  srcRegion.m_back };
-	//
-	//		m_pDeviceContext->CopySubresourceRegion( pDest, destRegion.m_subResource, destRegion.m_left, destRegion.m_top, destRegion.m_front, pSrc, srcRegion.m_subResource, &box );
-	//	}
-	//}
-
-	//void CD3D11ResourceManager::UpdateResourceFromMemory( RE_HANDLE dest, void* src, uint32 srcRowPitch, uint32 srcDepthPitch, const RESOURCE_REGION* destRegionOrNull )
-	//{
-	//	ID3D11Resource* pDest = nullptr;/*GetD3D11ResourceGeneric( dest )*/;
-	//
-	//	D3D11_BOX destBox = {};
-	//	uint32 destSubresouce = 0;
-	//	if ( destRegionOrNull != nullptr )
-	//	{
-	//		destBox = { destRegionOrNull->m_left, destRegionOrNull->m_top, destRegionOrNull->m_front, destRegionOrNull->m_right, destRegionOrNull->m_bottom, destRegionOrNull->m_back };
-	//		destSubresouce = destRegionOrNull->m_subResource;
-	//	}
-	//
-	//	m_pDeviceContext->UpdateSubresource( pDest, destSubresouce, destRegionOrNull ? &destBox : nullptr, src, srcRowPitch, srcDepthPitch );
-	//}
 
 	Owner<IResourceManager*> CreateD3D11ResourceManager()
 	{

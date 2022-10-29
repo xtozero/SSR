@@ -9,7 +9,7 @@
 using ::ini::Ini;
 using ::ini::Section;
 
-const char* DefaultEngine::GetDefaultWorld() const
+const char* DefaultEngine::GetDefaultWorld()
 {
-	return m_defaultWorld.c_str();
+	return GetInstance().m_defaultWorld.c_str();
 }

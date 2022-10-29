@@ -585,8 +585,8 @@ namespace agl
 	struct RESOURCE_SECTION_DATA
 	{
 		size_t m_offset;
-		uint32 m_pitch;
-		uint32 m_slicePitch;
+		uint64 m_pitch;
+		uint64 m_slicePitch;
 	};
 
 	struct RESOURCE_INIT_DATA
@@ -599,8 +599,8 @@ namespace agl
 	struct LockedResource
 	{
 		void* m_data;
-		uint32 m_rowPitch;
-		uint32 m_depthPitch;
+		uint64 m_rowPitch;
+		uint64 m_depthPitch;
 	};
 
 	struct RESOURCE_REGION
