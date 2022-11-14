@@ -517,7 +517,7 @@ namespace rendercore
 			agl::BUFFER_TRAIT readBack = {
 				.m_stride = sizeof( Vector4 ),
 				.m_count = IRRADIANCE_W * IRRADIANCE_H,
-				.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite | agl::ResourceAccessFlag::CpuRead,
+				.m_access = agl::ResourceAccessFlag::CpuRead,
 				.m_bindType = agl::ResourceBindType::None,
 				.m_miscFlag = agl::ResourceMisc::None,
 				.m_format = agl::ResourceFormat::Unknown
@@ -536,19 +536,16 @@ namespace rendercore
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
 				.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
-				.m_access = agl::ResourceAccessFlag::GpuRead
-							| agl::ResourceAccessFlag::GpuWrite
-							| agl::ResourceAccessFlag::CpuRead
-							| agl::ResourceAccessFlag::CpuWrite,
+				.m_access = agl::ResourceAccessFlag::CpuWrite,
 				.m_bindType = agl::ResourceBindType::None,
-				.m_miscFlag = agl::ResourceMisc::None
+				.m_miscFlag = agl::ResourceMisc::Intermediate
 			};
 
 			agl::RefHandle<agl::Texture> irradianceIntermedicate = agl::Texture::Create( intermediate );
 			irradianceIntermedicate->Init();
 
 			auto src = GraphicsInterface().Lock( irradianceReadBack, agl::ResourceLockFlag::Read );
-			auto dest = GraphicsInterface().Lock( irradianceIntermedicate, agl::ResourceLockFlag::Write );
+			auto dest = GraphicsInterface().Lock( irradianceIntermedicate, agl::ResourceLockFlag::WriteDiscard );
 
 			auto srcData = static_cast<uint8*>( src.m_data );
 			auto destData = static_cast<uint8*>( dest.m_data );
@@ -571,7 +568,7 @@ namespace rendercore
 			agl::BUFFER_TRAIT readBack = {
 				.m_stride = sizeof( Vector4 ),
 				.m_count = RES_MU_S * RES_NU * RES_MU * RES_R,
-				.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite | agl::ResourceAccessFlag::CpuRead,
+				.m_access = agl::ResourceAccessFlag::CpuRead,
 				.m_bindType = agl::ResourceBindType::None,
 				.m_miscFlag = agl::ResourceMisc::None,
 				.m_format = agl::ResourceFormat::Unknown
@@ -590,19 +587,16 @@ namespace rendercore
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
 				.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
-				.m_access = agl::ResourceAccessFlag::GpuRead
-							| agl::ResourceAccessFlag::GpuWrite
-							| agl::ResourceAccessFlag::CpuRead
-							| agl::ResourceAccessFlag::CpuWrite,
+				.m_access = agl::ResourceAccessFlag::CpuWrite,
 				.m_bindType = agl::ResourceBindType::None,
-				.m_miscFlag = agl::ResourceMisc::Texture3D
+				.m_miscFlag = agl::ResourceMisc::Texture3D | agl::ResourceMisc::Intermediate
 			};
 
 			agl::RefHandle<agl::Texture> inscatterIntermedicate = agl::Texture::Create( intermediate );
 			inscatterIntermedicate->Init();
 
 			auto src = GraphicsInterface().Lock( inscatterReadBack, agl::ResourceLockFlag::Read );
-			auto dest = GraphicsInterface().Lock( inscatterIntermedicate, agl::ResourceLockFlag::Write );
+			auto dest = GraphicsInterface().Lock( inscatterIntermedicate, agl::ResourceLockFlag::WriteDiscard );
 
 			auto srcData = static_cast<uint8*>( src.m_data );
 			auto destData = static_cast<uint8*>( dest.m_data );

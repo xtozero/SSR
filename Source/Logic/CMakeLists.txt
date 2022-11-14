@@ -34,8 +34,8 @@ set (COMPOENETS
 	Public/Components/VolumetricCloudComponent.h)
 
 set (CONFIG
-	Private/Config/DefaultEngineConfig.cpp
-	Public/Config/DefaultEngineConfig.h)
+	Private/Config/DefaultLogicConfig.cpp
+	Public/Config/DefaultLogicConfig.h)
 	
 set (CORE
 	Private/Core/DebugConsole.cpp

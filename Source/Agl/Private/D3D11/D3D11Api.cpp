@@ -44,6 +44,7 @@ namespace agl
 		virtual bool BootUp() override;
 		virtual void HandleDeviceLost() override;
 		virtual void AppSizeChanged() override;
+		virtual void OnEndFrameRendering( uint32 oldFrameIndex, uint32 newFrameIndex ) override;
 		virtual void WaitGPU() override;
 
 		virtual LockedResource Lock( Buffer* buffer, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard, uint32 subResource = 0 ) override;
@@ -57,6 +58,7 @@ namespace agl
 
 		virtual IImmediateCommandList* GetImmediateCommandList() override;
 		virtual std::unique_ptr<IDeferredCommandList> CreateDeferredCommandList() const override;
+		virtual GraphicsCommandListsBase& GetGraphicsCommandLists() override;
 
 		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const override;
 		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const override;
@@ -87,14 +89,16 @@ namespace agl
 		void ReportLiveDevice();
 		void EnumerateSampleCountAndQuality( int32* size, DXGI_SAMPLE_DESC* pSamples );
 
-		Microsoft::WRL::ComPtr<IDXGIFactory1>					m_pdxgiFactory;
+		Microsoft::WRL::ComPtr<IDXGIFactory1> m_pdxgiFactory;
 
-		Microsoft::WRL::ComPtr<ID3D11Device>					m_pd3d11Device;
-		Microsoft::WRL::ComPtr<ID3D11DeviceContext>				m_pd3d11DeviceContext;
+		Microsoft::WRL::ComPtr<ID3D11Device> m_pd3d11Device;
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_pd3d11DeviceContext;
 
-		DXGI_SAMPLE_DESC										m_multiSampleOption = { 1, 0 };
+		DXGI_SAMPLE_DESC m_multiSampleOption = { 1, 0 };
 
-		D3D11ImmediateCommandList								m_immediateCommandList;
+		D3D11ImmediateCommandList m_immediateCommandList;
+
+		D3D11GraphicsCommandLists m_commandLists;
 	};
 
 	bool CDirect3D11::BootUp()
@@ -137,6 +141,10 @@ namespace agl
 		{
 			__debugbreak();
 		}
+	}
+
+	void CDirect3D11::OnEndFrameRendering( [[maybe_unused]] uint32 oldFrameIndex, [[maybe_unused]] uint32 newFrameIndex )
+	{
 	}
 
 	void CDirect3D11::Shutdown()
@@ -301,6 +309,11 @@ namespace agl
 	std::unique_ptr<IDeferredCommandList> CDirect3D11::CreateDeferredCommandList() const
 	{
 		return std::make_unique<D3D11DeferredCommandList>();
+	}
+
+	GraphicsCommandListsBase& CDirect3D11::GetGraphicsCommandLists()
+	{
+		return m_commandLists;
 	}
 
 	BinaryChunk CDirect3D11::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const

@@ -58,6 +58,11 @@ namespace agl
 				CreateTexture();
 			}
 
+			if ( HasAnyFlags( m_trait.m_miscFlag, ResourceMisc::Intermediate ) )
+			{
+				return;
+			}
+
 			if ( m_texture )
 			{
 				if ( HasAnyFlags( m_trait.m_bindType, ResourceBindType::ShaderResource ) )

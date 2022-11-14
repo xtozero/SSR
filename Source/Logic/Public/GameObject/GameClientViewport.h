@@ -14,7 +14,7 @@ class GameClientViewport : public CGameObject
 	GENERATE_CLASS_TYPE_INFO( GameClientViewport )
 
 public:
-	void Draw( );
+	void Draw();
 
 	void SetViewPort( rendercore::Viewport* viewport );
 
@@ -29,6 +29,4 @@ private:
 
 	uint32 m_drawFence = 0;
 	uint32 m_curDrawFence = 0;
-
-	float m_clearColor[4] = { 0.f, 0.f, 0.f, 1.f };
 };

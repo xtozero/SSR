@@ -1,7 +1,7 @@
 #pragma once
 
+#include "CommandLists.h"
 #include "D3D11StateCache.h"
-#include "ICommandList.h"
 
 struct ID3D11DeviceContext;
 struct ID3D11CommandList;
@@ -87,5 +87,14 @@ namespace agl
 		ID3D11DeviceContext* m_pContext = nullptr;
 		ID3D11CommandList* m_pCommandList = nullptr;
 		D3D11PipelineCache m_stateCache;
+	};
+
+	class D3D11GraphicsCommandLists : public GraphicsCommandListsBase
+	{
+	public:
+		virtual Owner<IGraphicsCommandList*> CreateCommandList() override;
+
+		virtual void Prepare() override;
+		virtual void Commit() override;
 	};
 }

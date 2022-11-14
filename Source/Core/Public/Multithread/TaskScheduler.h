@@ -52,7 +52,6 @@ void DestroyTaskScheduler( ITaskScheduler* taskScheduler );
 bool IsInGameThread();
 bool IsInRenderThread();
 void EnqueueRenderTask( TaskBase* task );
-void WaitRenderThread();
 
 template <typename Lambda>
 class LambdaTask

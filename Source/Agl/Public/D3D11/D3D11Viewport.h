@@ -14,6 +14,8 @@ namespace agl
 	class D3D11Viewport : public Viewport
 	{
 	public:
+		virtual void OnBeginFrameRendering() override {};
+		virtual void OnEndFrameRendering() override {};
 		virtual DeviceError Present( bool vSync = false ) override;
 		virtual void Clear( const float (&clearColor)[4] ) override;
 		virtual void Bind( ICommandList& commandList ) const override;
@@ -24,9 +26,7 @@ namespace agl
 		}
 
 		virtual std::pair<uint32, uint32> Size() const override;
-
 		virtual void Resize( const std::pair<uint32, uint32>& newSize ) override;
-
 		virtual agl::Texture* Texture() override;
 
 		D3D11Viewport( uint32 width, uint32 height, void* hWnd, DXGI_FORMAT format );

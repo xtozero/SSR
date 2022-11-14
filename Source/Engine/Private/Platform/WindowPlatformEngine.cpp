@@ -45,7 +45,7 @@ bool WindowPlatformEngine::BootUp( IPlatform& platform, char* argv )
 		return false;
 	}
 
-	std::atomic<int> iniWorkInProgress;
+	std::atomic<int32> iniWorkInProgress;
 	appConfig->BootUp( iniWorkInProgress );
 	
 	while ( iniWorkInProgress != 0 )

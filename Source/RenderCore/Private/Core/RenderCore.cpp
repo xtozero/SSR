@@ -3,9 +3,11 @@
 
 #include "AbstractGraphicsInterface.h"
 #include "common.h"
+#include "CommandLists.h"
 #include "DefaultConstantBuffers.h"
 #include "ForwardRenderer.h"
 #include "GlobalShaders.h"
+#include "GraphicsResource/Viewport.h"
 #include "IAgl.h"
 #include "RenderView.h"
 #include "TaskScheduler.h"
@@ -123,6 +125,14 @@ namespace rendercore
 
 	void RenderCore::BeginRenderingViewGroup( RenderViewGroup& renderViewGroup )
 	{
+		Viewport& viewport = renderViewGroup.GetViewport();
+
+		viewport.OnBeginFrameRendering();
+
+		const ColorF& bgColor = renderViewGroup.GetBackgroundColor();
+		float clearColor[4] = { bgColor[0], bgColor[1], bgColor[2], bgColor[3] };
+		viewport.Clear( clearColor );
+
 		SceneRenderer* pSceneRenderer = FindAndCreateSceneRenderer( renderViewGroup );
 		if ( pSceneRenderer )
 		{
@@ -134,6 +144,13 @@ namespace rendercore
 			pSceneRenderer->Render( renderViewGroup );
 			pSceneRenderer->PostRender( renderViewGroup );
 		}
+
+		viewport.OnEndFrameRendering();
+
+		agl::GraphicsCommandListsBase& commandLists = m_agl->GetGraphicsCommandLists();
+		commandLists.Commit();
+
+		viewport.Present();
 
 		SceneRenderer::WaitUntilRenderingIsFinish();
 	}

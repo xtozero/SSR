@@ -10,20 +10,21 @@ namespace agl
 {
 	inline D3D11_USAGE ConvertAccessFlagToUsage( ResourceAccessFlag accessFlag )
 	{
-		switch ( static_cast<uint8>( accessFlag ) )
+		if ( HasAnyFlags( accessFlag, ResourceAccessFlag::CpuRead ) )
 		{
-		case static_cast<uint8>( ResourceAccessFlag::GpuRead | ResourceAccessFlag::GpuWrite ):
-			return D3D11_USAGE_DEFAULT;
-		case static_cast<uint8>( ResourceAccessFlag::GpuRead | ResourceAccessFlag::CpuWrite ):
-			return D3D11_USAGE_DYNAMIC;
-		case static_cast<uint8>( ResourceAccessFlag::GpuRead ):
-			return D3D11_USAGE_IMMUTABLE;
-		case static_cast<uint8>( ResourceAccessFlag::GpuRead | ResourceAccessFlag::GpuWrite | ResourceAccessFlag::CpuRead | ResourceAccessFlag::CpuWrite ):
-		case static_cast<uint8>( ResourceAccessFlag::GpuRead | ResourceAccessFlag::GpuWrite | ResourceAccessFlag::CpuRead ):
 			return D3D11_USAGE_STAGING;
-		default:
-			assert( false );
+		}
+		else if ( HasAnyFlags( accessFlag, ResourceAccessFlag::CpuWrite ) )
+		{
+			return D3D11_USAGE_DYNAMIC;
+		}
+		else if ( HasAnyFlags( accessFlag, ResourceAccessFlag::GpuWrite ) )
+		{
 			return D3D11_USAGE_DEFAULT;
+		}
+		else
+		{
+			return D3D11_USAGE_IMMUTABLE;
 		}
 	}
 
@@ -32,14 +33,18 @@ namespace agl
 		switch ( accessFlag )
 		{
 		case D3D11_USAGE_DEFAULT:
-			return ResourceAccessFlag::GpuRead | ResourceAccessFlag::GpuWrite;
+			return ResourceAccessFlag::GpuRead 
+				| ResourceAccessFlag::GpuWrite;
 		case D3D11_USAGE_DYNAMIC:
-			return ResourceAccessFlag::GpuRead | ResourceAccessFlag::CpuWrite;
+			return ResourceAccessFlag::GpuRead 
+				| ResourceAccessFlag::CpuWrite;
 		case D3D11_USAGE_IMMUTABLE:
 			return ResourceAccessFlag::GpuRead;
 		case D3D11_USAGE_STAGING:
-			return ResourceAccessFlag::GpuRead | ResourceAccessFlag::GpuWrite
-				| ResourceAccessFlag::CpuRead | ResourceAccessFlag::CpuWrite;
+			return ResourceAccessFlag::GpuRead
+				| ResourceAccessFlag::GpuWrite
+				| ResourceAccessFlag::CpuRead
+				| ResourceAccessFlag::CpuWrite;
 		default:
 			assert( false );
 			return ResourceAccessFlag::None;
@@ -252,12 +257,11 @@ namespace agl
 
 		if ( HasAnyFlags( accessFlag, ResourceAccessFlag::CpuRead ) )
 		{
-			ret |= D3D11_CPU_ACCESS_READ;
+			ret = D3D11_CPU_ACCESS_READ;
 		}
-
-		if ( HasAnyFlags( accessFlag, ResourceAccessFlag::CpuWrite ) )
+		else if ( HasAnyFlags( accessFlag, ResourceAccessFlag::CpuWrite ) )
 		{
-			ret |= D3D11_CPU_ACCESS_WRITE;
+			ret = D3D11_CPU_ACCESS_WRITE;
 		}
 
 		return ret;

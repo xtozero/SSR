@@ -38,7 +38,7 @@ namespace rendercore
 		agl::ResourceAccessFlag accessFlag = agl::ResourceAccessFlag::None;
 		if ( m_isDynamic )
 		{
-			accessFlag = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::CpuWrite;
+			accessFlag = agl::ResourceAccessFlag::CpuWrite;
 		}
 		else
 		{

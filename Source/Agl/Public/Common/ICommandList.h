@@ -66,4 +66,10 @@ namespace agl
 
 		virtual void Execute( IDeferredCommandList& commandList ) = 0;
 	};
+
+	class IGraphicsCommandList : public ICommandList
+	{
+	public:
+		virtual void Transition( uint32 numTransitions, const ResourceTransition* transitions ) = 0;
+	};
 }

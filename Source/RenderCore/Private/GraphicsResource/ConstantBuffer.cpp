@@ -51,7 +51,7 @@ namespace rendercore
 		agl::BUFFER_TRAIT trait = {
 			size,
 			1,
-			agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::CpuWrite,
+			agl::ResourceAccessFlag::CpuWrite,
 			agl::ResourceBindType::ConstantBuffer,
 			agl::ResourceMisc::None,
 			agl::ResourceFormat::Unknown

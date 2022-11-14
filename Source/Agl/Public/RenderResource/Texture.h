@@ -9,12 +9,15 @@
 
 namespace agl
 {
+	class IGraphicsCommandList;
+
 	class Texture : public DeviceDependantResource, public IResourceViews
 	{
 	public:
 		AGL_DLL static RefHandle<Texture> Create( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr );
 
 		virtual std::pair<uint32, uint32> Size() const = 0;
+		virtual void* Resource() const = 0;
 
 		virtual ShaderResourceView* SRV() override { return m_srv.Get(); }
 		virtual const ShaderResourceView* SRV() const override { return m_srv.Get(); }
@@ -28,11 +31,15 @@ namespace agl
 		virtual DepthStencilView* DSV() override { return m_dsv.Get(); }
 		virtual const DepthStencilView* DSV() const override { return m_dsv.Get(); }
 
+		void Transition( IGraphicsCommandList& commandList, ResourceState state );
+
 	protected:
 		RefHandle<ShaderResourceView> m_srv;
 		RefHandle<UnorderedAccessView> m_uav;
 		RefHandle<RenderTargetView> m_rtv;
 		RefHandle<DepthStencilView> m_dsv;
+
+		ResourceState m_state = ResourceState::Common;
 	};
 
 	class TextureBase : public Texture
@@ -42,8 +49,6 @@ namespace agl
 		{
 			return { m_trait.m_width, m_trait.m_height };
 		}
-
-		virtual void* Resource() const = 0;
 
 		TextureBase( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData ) : m_trait( trait )
 		{

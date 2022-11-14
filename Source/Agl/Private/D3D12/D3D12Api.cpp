@@ -3,6 +3,7 @@
 #include "Archive.h"
 
 #include "common.h"
+#include "Config/DefaultAglConfig.h"
 
 #include "D3D12CommandList.h"
 
@@ -10,6 +11,7 @@
 
 #include "IAgl.h"
 #include "LibraryTool/InterfaceFactories.h"
+#include "Memory/InlineMemoryAllocator.h"
 
 #include "PipelineState.h"
 
@@ -18,6 +20,7 @@
 #include "Texture.h"
 
 #include <d3d12.h>
+#include <dxgi1_6.h>
 #include <wrl/client.h>
 
 using namespace ::Microsoft::WRL;
@@ -30,6 +33,7 @@ namespace agl
 		virtual bool BootUp() override;
 		virtual void HandleDeviceLost() override;
 		virtual void AppSizeChanged() override;
+		virtual void OnEndFrameRendering( uint32 curFrameIndex, uint32 nextFrameIndex ) override;
 		virtual void WaitGPU() override;
 
 		virtual LockedResource Lock( Buffer* buffer, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard, uint32 subResource = 0 ) override;
@@ -43,23 +47,52 @@ namespace agl
 
 		virtual IImmediateCommandList* GetImmediateCommandList() override;
 		virtual std::unique_ptr<IDeferredCommandList> CreateDeferredCommandList() const override;
+		virtual GraphicsCommandListsBase& GetGraphicsCommandLists() override;
 
 		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const override;
 		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const override;
 
-		ID3D12Device& GetDevice() const
-		{
-			return *m_pD3D12Device.Get();
-		}
+		ID3D12Device& GetDevice() const;
+		IDXGIFactory7& GetFactory() const;
+		ID3D12CommandQueue& GetDirectCommandQueue() const;
+
+		~Direct3D12();
 
 	private:
-		ComPtr<ID3D12Device> m_pD3D12Device;
+		bool CreateDeviceDependentResource();
+		bool CreateDeviceIndependentResource();
+
+#ifdef _DEBUG
+		ComPtr<ID3D12Debug> m_debugLayer;
+#endif
+
+		ComPtr<IDXGIFactory7> m_factory;
+
+		ComPtr<ID3D12Device> m_device;
+		ComPtr<ID3D12CommandQueue> m_directCommandQueue;
+
+		ComPtr<ID3D12Fence> m_fence;
+		std::vector<uint64, InlineAllocator<uint64, 2>> m_fenceValue;
+		HANDLE m_fenceEvent;
+
+		uint32 m_frameIndex = 0;
 
 		D3D12CommandList m_commandList;
+		std::vector<D3D12GraphicsCommandLists, InlineAllocator<D3D12GraphicsCommandLists, 2>> m_commandLists;
 	};
 
 	bool Direct3D12::BootUp()
 	{
+		if ( CreateDeviceIndependentResource() == false )
+		{
+			return false;
+		}
+
+		if ( CreateDeviceDependentResource() == false )
+		{
+			return false;
+		}
+
 		return true;
 	}
 
@@ -71,8 +104,39 @@ namespace agl
 	{
 	}
 
+	void Direct3D12::OnEndFrameRendering( uint32 oldFrameIndex, uint32 newFrameIndex )
+	{
+		uint64 fence = m_fenceValue[oldFrameIndex];
+		[[maybe_unused]] HRESULT hr = m_directCommandQueue->Signal( m_fence.Get(), fence );
+		assert( SUCCEEDED( hr ) );
+
+		if ( m_fence->GetCompletedValue() < fence )
+		{
+			hr = m_fence->SetEventOnCompletion( fence, m_fenceEvent );
+			assert( SUCCEEDED( hr ) );
+			WaitForSingleObject( m_fenceEvent, INFINITE );
+		}
+
+		m_fenceValue[newFrameIndex] = fence + 1;
+		m_frameIndex = newFrameIndex;
+
+		m_commandLists[m_frameIndex].Prepare();
+	}
+
 	void Direct3D12::WaitGPU()
 	{
+		uint64 fence = m_fenceValue[m_frameIndex];
+		[[maybe_unused]] HRESULT hr = m_directCommandQueue->Signal( m_fence.Get(), fence );
+		assert( SUCCEEDED( hr ) );
+
+		if ( m_fence->GetCompletedValue() < fence )
+		{
+			hr = m_fence->SetEventOnCompletion( fence, m_fenceEvent );
+			assert( SUCCEEDED( hr ) );
+			WaitForSingleObject( m_fenceEvent, INFINITE );
+		}
+
+		++m_fenceValue[m_frameIndex];
 	}
 
 	LockedResource Direct3D12::Lock( Buffer* buffer, ResourceLockFlag lockFlag, uint32 subResource )
@@ -111,6 +175,11 @@ namespace agl
 		return std::make_unique<D3D12DeferredCommandList>();
 	}
 
+	GraphicsCommandListsBase& Direct3D12::GetGraphicsCommandLists()
+	{
+		return m_commandLists[m_frameIndex];
+	}
+
 	BinaryChunk Direct3D12::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const
 	{
 		return BinaryChunk();
@@ -121,10 +190,134 @@ namespace agl
 		return false;
 	}
 
+	ID3D12Device& Direct3D12::GetDevice() const
+	{
+		return *m_device.Get();
+	}
+
+	IDXGIFactory7& Direct3D12::GetFactory() const
+	{
+		return *m_factory.Get();
+	}
+
+	ID3D12CommandQueue& Direct3D12::GetDirectCommandQueue() const
+	{
+		return *m_directCommandQueue.Get();
+	}
+
+	Direct3D12::~Direct3D12()
+	{
+		CloseHandle( m_fenceEvent );
+	}
+
+	bool Direct3D12::CreateDeviceDependentResource()
+	{
+		D3D_FEATURE_LEVEL d3dFeatureLevel[] = {
+			D3D_FEATURE_LEVEL_12_1,
+			D3D_FEATURE_LEVEL_12_0,
+			D3D_FEATURE_LEVEL_11_1,
+			D3D_FEATURE_LEVEL_11_0,
+			D3D_FEATURE_LEVEL_10_1,
+			D3D_FEATURE_LEVEL_10_0
+		};
+
+		HRESULT hr = E_FAIL;
+
+#ifdef _DEBUG
+		hr = D3D12GetDebugInterface( IID_PPV_ARGS( &m_debugLayer ) );
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
+
+		m_debugLayer->EnableDebugLayer();
+#endif
+
+		for ( uint32 i = 0; i < _countof( d3dFeatureLevel ); ++i )
+		{
+			hr = D3D12CreateDevice( nullptr
+				, d3dFeatureLevel[i]
+				, IID_PPV_ARGS( m_device.GetAddressOf() ) );
+
+			if ( SUCCEEDED( hr ) )
+			{
+				break;
+			}
+		}
+
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
+
+		D3D12_COMMAND_QUEUE_DESC desc = {
+				.Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
+				.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
+				.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,
+				.NodeMask = 0
+		};
+
+		hr = m_device->CreateCommandQueue( &desc, IID_PPV_ARGS( m_directCommandQueue.GetAddressOf() ) );
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
+
+		hr = m_device->CreateFence( m_fenceValue[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence));
+		++m_fenceValue[m_frameIndex];
+
+		return true;
+	}
+
+	bool Direct3D12::CreateDeviceIndependentResource()
+	{
+		ComPtr<IDXGIFactory2> factory;
+
+		uint32 factoryFlag = 0;
+#ifdef _DEBUG
+		factoryFlag = DXGI_CREATE_FACTORY_DEBUG;
+#endif
+		HRESULT hr = CreateDXGIFactory2( factoryFlag, IID_PPV_ARGS( factory.GetAddressOf() ) );
+
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
+
+		hr = factory.As( &m_factory );
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
+
+		m_fenceEvent = CreateEvent( nullptr, FALSE, FALSE, nullptr );
+		if ( m_fenceEvent == nullptr )
+		{
+			return false;
+		}
+
+		m_fenceValue.resize( DefaultAgl::GetBufferCount(), 0);
+		m_commandLists.resize( DefaultAgl::GetBufferCount() );
+
+		return true;
+	}
+
+	ID3D12CommandQueue& D3D12DirectCommandQueue()
+	{
+		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
+		return d3d12Api->GetDirectCommandQueue();
+	}
+
 	ID3D12Device& D3D12Device()
 	{
 		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
 		return d3d12Api->GetDevice();
+	}
+
+	IDXGIFactory7& D3D12Factory()
+	{
+		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
+		return d3d12Api->GetFactory();
 	}
 
 	Owner<IAgl*> CreateD3D12GraphicsApi()

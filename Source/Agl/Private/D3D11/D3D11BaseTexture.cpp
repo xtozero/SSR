@@ -14,6 +14,11 @@ namespace agl
 		uint32 cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );
 		uint32 miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
 
+		if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Intermediate ) )
+		{
+			bindFlag |= D3D11_BIND_SHADER_RESOURCE;
+		}
+
 		return D3D11_TEXTURE1D_DESC{
 			trait.m_width,
 			trait.m_mipLevels,
@@ -34,6 +39,11 @@ namespace agl
 		uint32 bindFlag = ConvertTypeToBind( trait.m_bindType );
 		uint32 cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );
 		uint32 miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
+
+		if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Intermediate ) )
+		{
+			bindFlag |= D3D11_BIND_SHADER_RESOURCE;
+		}
 
 		return D3D11_TEXTURE2D_DESC{
 			trait.m_width,
@@ -57,6 +67,11 @@ namespace agl
 		uint32 cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );
 		uint32 miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
 
+		if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Intermediate ) )
+		{
+			bindFlag |= D3D11_BIND_SHADER_RESOURCE;
+		}
+
 		return D3D11_TEXTURE3D_DESC{
 			trait.m_width,
 			trait.m_height,
@@ -76,7 +91,6 @@ namespace agl
 		ResourceAccessFlag access = ConvertUsageToAccessFlag( desc.Usage );
 		ResourceBindType bindType = ConvertBindToType( desc.BindFlags );
 		ResourceMisc miscFlag = ConvertDXMiscToMisc( desc.MiscFlags );
-
 
 		return TEXTURE_TRAIT{
 			desc.Width,

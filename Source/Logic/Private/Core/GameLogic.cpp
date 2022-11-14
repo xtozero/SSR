@@ -3,7 +3,7 @@
 
 #include "common.h"
 #include "Components/CameraComponent.h"
-#include "Config/DefaultEngineConfig.h"
+#include "Config/DefaultLogicConfig.h"
 #include "ConsoleMessage/ConCommand.h"
 #include "ConsoleMessage/ConsoleMessageExecutor.h"
 #include "ConsoleMessage/ConVar.h"
@@ -83,7 +83,7 @@ bool CGameLogic::BootUp( IPlatform& platform )
 
 	CreateGameViewport();
 
-	if ( LoadWorld( DefaultEngine::GetDefaultWorld() ) == false )
+	if ( LoadWorld( DefaultLogic::GetDefaultWorld() ) == false )
 	{
 		__debugbreak();
 	}
@@ -313,13 +313,15 @@ bool CGameLogic::LoadWorld( const char* filePath )
 void CGameLogic::DrawScene()
 {
 	rendercore::IScene* scene = m_world.Scene();
-	if ( scene )
+	if ( scene == nullptr )
 	{
-		EnqueueRenderTask( [scene]()
-			{
-				scene->OnBeginSceneRendering();
-			} );
+		return;
 	}
+
+	EnqueueRenderTask( [scene]()
+		{
+			scene->OnBeginSceneRendering();
+		} );
 
 	m_gameViewport->Draw();
 }

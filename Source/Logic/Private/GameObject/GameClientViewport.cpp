@@ -2,6 +2,7 @@
 #include "GameObject/GameClientViewport.h"
 
 #include "Components/CameraComponent.h"
+#include "Config/DefaultLogicConfig.h"
 #include "GameObject/Player.h"
 #include "GraphicsResource/Viewport.h"
 #include "IAgl.h"
@@ -42,37 +43,27 @@ void GameClientViewport::Draw()
 
 	++m_curDrawFence;
 
-	float clearColor[4] = { m_clearColor[0], m_clearColor[1], m_clearColor[2], m_clearColor[3] };
-	EnqueueRenderTask(
-		[viewport = m_viewport, clearColor]()
-		{
-			viewport->Clear( clearColor );
-		} );
+	const float4& bgColor = DefaultLogic::GetDefaultBackgroundColor();
 
 	const auto& timer = GetWorld()->GetTimer();
 	rendercore::RenderViewGroupInitializer initializer = {
 		.m_scene = *GetWorld()->Scene(),
 		.m_viewport = *m_viewport,
 		.m_elapsedTime = timer.GetElapsedTime(),
-		.m_totalTime = timer.GetTotalTime()
+		.m_totalTime = timer.GetTotalTime(),
+		.m_backgroundColor = { bgColor[0], bgColor[1], bgColor[2], bgColor[3] }
 	};
 
 	rendercore::RenderViewGroup renderViewGroup( initializer );
 	InitView( renderViewGroup );
 	EnqueueRenderTask(
-		[renderModule, renderViewGroup]() mutable
+		[this, renderModule, renderViewGroup]() mutable
 		{
 			if ( renderModule )
 			{
 				renderModule->BeginRenderingViewGroup( renderViewGroup );
+				++m_drawFence;
 			}
-		} );
-
-	EnqueueRenderTask(
-		[this, viewport = m_viewport]()
-		{
-			viewport->Present( false );
-			++m_drawFence;
 		} );
 }
 

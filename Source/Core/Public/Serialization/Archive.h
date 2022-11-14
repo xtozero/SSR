@@ -234,7 +234,7 @@ private:
 		}
 	}
 
-	template <int Len>
+	template <int32 Len>
 	void ReadData( char( &str )[Len] )
 	{
 		if ( CanRead( sizeof( uint32 ) ) == false )

@@ -12,6 +12,7 @@ class BinaryChunk;
 namespace agl
 {
 	class Buffer;
+	class GraphicsCommandListsBase;
 	class ShaderParameterInfo;
 	class ShaderParameterMap;
 	class Texture;
@@ -22,6 +23,7 @@ namespace agl
 		virtual bool BootUp() = 0;
 		virtual void HandleDeviceLost() = 0;
 		virtual void AppSizeChanged() = 0;
+		virtual void OnEndFrameRendering( uint32 oldFrameIndex, uint32 newFrameIndex ) = 0;
 		virtual void WaitGPU() = 0;
 
 		virtual LockedResource Lock( Buffer* buffer, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard, uint32 subResource = 0 ) = 0;
@@ -35,6 +37,7 @@ namespace agl
 
 		virtual IImmediateCommandList* GetImmediateCommandList() = 0;
 		virtual std::unique_ptr<IDeferredCommandList> CreateDeferredCommandList() const = 0;
+		virtual GraphicsCommandListsBase& GetGraphicsCommandLists() = 0;
 
 		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const = 0;
 		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const = 0;

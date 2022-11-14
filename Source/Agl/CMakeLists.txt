@@ -66,6 +66,7 @@ set (D3D12_RENDER_RESOURCE_SOURCE
 	Private/D3D12/D3D12PipelineState.cpp
 	Private/D3D12/D3D12RasterizerState.cpp
 	Private/D3D12/D3D12ResourceManager.cpp
+	Private/D3D12/D3D12ResourceViews.cpp
 	Private/D3D12/D3D12SamplerState.cpp
 	Private/D3D12/D3D12Shaders.cpp
 	Private/D3D12/D3D12VertexLayout.cpp
@@ -78,6 +79,7 @@ set (D3D12_RENDER_RESOURCE_SOURCE
 	Public/D3D12/D3D12PipelineState.h
 	Public/D3D12/D3D12RasterizerState.h
 	Public/D3D12/D3D12ResourceManager.h
+	Public/D3D12/D3D12ResourceViews.h
 	Public/D3D12/D3D12SamplerState.h
 	Public/D3D12/D3D12Shaders.h
 	Public/D3D12/D3D12VertexLayout.h
@@ -100,6 +102,7 @@ set (PRECOMPILED
 
 set (RENDER_RESOURCE_SOURCE
 	Private/RenderResource/Buffer.cpp
+	Private/RenderResource/CommandLists.cpp
 	Private/RenderResource/PipelineState.cpp
 	Private/RenderResource/ResourceViews.cpp
 	Private/RenderResource/ShaderParameterMap.cpp
@@ -107,6 +110,7 @@ set (RENDER_RESOURCE_SOURCE
 	Private/RenderResource/Texture.cpp
 	Private/RenderResource/Viewport.cpp
 	Public/RenderResource/Buffer.h
+	Public/RenderResource/CommandLists.h
 	Public/RenderResource/PipelineState.h
 	Public/RenderResource/ResourceViews.h
 	Public/RenderResource/ShaderBindings.h
@@ -163,6 +167,7 @@ PRIVATE
 
 set (DIRECT3D_LIBRARY
 	"d3d11.lib"
+	"d3d12.lib"
 	"d3dcompiler.lib"
 	"dxguid.lib"
 	"dxgi.lib")

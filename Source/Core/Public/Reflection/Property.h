@@ -2,11 +2,14 @@
 
 #include "Archive.h"
 #include "ArchiveUtility.h"
+#include "PropertyParser.h"
 #include "TypeInfoMacros.h"
 
 #include <cassert>
+#include <string>
 
 using SerializeFunc = void (*)( void* object, Archive& ar );
+using ParseFunc = void ( * )( void* object, const std::string& s );
 
 class PropertyHandlerBase
 {
@@ -125,6 +128,7 @@ struct PropertyInitializer
 	const TypeInfo& m_type;
 	const PropertyHandlerBase& m_handler;
 	const SerializeFunc m_serializer = nullptr;
+	const ParseFunc m_parser = nullptr;
 };
 
 class Property
@@ -228,6 +232,14 @@ public:
 		}
 	}
 
+	void Parse( void* object, const std::string& s ) const
+	{
+		if ( m_parser )
+		{
+			m_parser( object, s );
+		}
+	}
+
 	void Serialize( void* object, Archive& ar ) const
 	{
 		m_serializer( object, ar );
@@ -238,11 +250,12 @@ public:
 		return m_type;
 	}
 
-	Property( TypeInfo& owner, const PropertyInitializer& initializer ) :
-		m_name( initializer.m_name ),
-		m_type( initializer.m_type ),
-		m_handler( initializer.m_handler ),
-		m_serializer( initializer.m_serializer )
+	Property( TypeInfo& owner, const PropertyInitializer& initializer )
+		: m_name( initializer.m_name )
+		, m_type( initializer.m_type )
+		, m_handler( initializer.m_handler )
+		, m_serializer( initializer.m_serializer )
+		, m_parser( initializer.m_parser )
 	{
 		owner.AddProperty( this );
 	}
@@ -252,6 +265,7 @@ private:
 	const TypeInfo& m_type;
 	const PropertyHandlerBase& m_handler;
 	const SerializeFunc m_serializer = nullptr;
+	const ParseFunc m_parser = nullptr;
 };
 
 template <typename T>
@@ -295,6 +309,20 @@ public:
 					{
 						ar << static_cast<TClass*>( object )->*ptr;
 					}
+				},
+			.m_parser = +[]( void* object, const std::string& s )
+				{
+					if constexpr ( std::is_array_v<T> )
+					{
+						using ElementType = std::remove_all_extents_t<T>;
+						auto elem = reinterpret_cast<ElementType*>( &( static_cast<TClass*>( object )->*ptr ) );
+
+						ParseArray( elem, SizeOfArray<T>::value, s );
+					}
+					else
+					{
+						Parse( static_cast<TClass*>( object )->*ptr, s );
+					}
 				}
 			};
 			static Property property( typeInfo, intializer );
@@ -321,6 +349,20 @@ public:
 					else
 					{
 						ar << *ptr;
+					}
+				},
+			.m_parser = +[]( void* object, const std::string& s )
+				{
+					if constexpr ( std::is_array_v<T> )
+					{
+						using ElementType = std::remove_all_extents_t<T>;
+						auto elem = reinterpret_cast<ElementType*>( &*ptr );
+
+						ParseArray( elem, SizeOfArray<T>::value, s );
+					}
+					else
+					{
+						Parse( *ptr, s );
 					}
 				}
 			};

@@ -24,6 +24,8 @@ namespace agl
 		virtual const DepthStencilView* DSV() const override { return nullptr; }
 
 	protected:
+		BUFFER_TRAIT m_trait;
+
 		RefHandle<ShaderResourceView> m_srv;
 		RefHandle<UnorderedAccessView> m_uav;
 	};
