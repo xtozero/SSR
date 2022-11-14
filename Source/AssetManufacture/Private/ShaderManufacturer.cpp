@@ -149,7 +149,7 @@ namespace
 		{
 			TokenType m_type;
 			std::string_view m_str;
-			int m_integer;
+			int32 m_integer;
 		};
 
 		std::optional<Token> ReadInteger();
@@ -253,7 +253,7 @@ namespace
 
 		std::string_view word = ReadWord();
 		
-		int integer = 0;
+		int32 integer = 0;
 		std::from_chars_result result = std::from_chars( word.data(), word.data() + word.size(), integer );
 
 		if ( result.ec == std::errc() )
@@ -490,7 +490,7 @@ void ShaderManufacturer::CombinationStaticSwitches( const std::string& shaderFil
 	CombinationStaticSwitchesRecursive( shaderFile, featureLevel, outCompiledShaders, copySwitches, 0 );
 }
 
-void ShaderManufacturer::CombinationStaticSwitchesRecursive( const std::string& shaderFile, const char* featureLevel, std::map<uint32, Microsoft::WRL::ComPtr<ID3DBlob>>& outCompiledShaders, rendercore::StaticShaderSwitches& switches, int depth ) const
+void ShaderManufacturer::CombinationStaticSwitchesRecursive( const std::string& shaderFile, const char* featureLevel, std::map<uint32, Microsoft::WRL::ComPtr<ID3DBlob>>& outCompiledShaders, rendercore::StaticShaderSwitches& switches, int32 depth ) const
 {
 	if ( switches.m_configs.size() == depth )
 	{
@@ -512,7 +512,7 @@ void ShaderManufacturer::CombinationStaticSwitchesRecursive( const std::string& 
 	switches.Off( iter->first );
 	CombinationStaticSwitchesRecursive( shaderFile, featureLevel, outCompiledShaders, switches, depth + 1 );
 
-	for ( int i = curSwitch.m_min; i <= curSwitch.m_max; ++i )
+	for ( int32 i = curSwitch.m_min; i <= curSwitch.m_max; ++i )
 	{
 		switches.On( iter->first, i );
 		CombinationStaticSwitchesRecursive( shaderFile, featureLevel, outCompiledShaders, switches, depth + 1 );

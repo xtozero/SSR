@@ -492,7 +492,7 @@ namespace rendercore
 
 	void Material::PostLoadImpl()
 	{
-		for ( int i = 0; i < agl::MAX_SHADER_TYPE<uint32>; ++i )
+		for ( uint32 i = 0; i < agl::MAX_SHADER_TYPE<uint32>; ++i )
 		{
 			if ( auto shader = m_shaders[i].get() )
 			{

@@ -17,3 +17,5 @@ struct StringLiteral
 
 	char m_str[N] = {};
 };
+
+using float4 = float[4];

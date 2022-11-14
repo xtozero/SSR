@@ -399,4 +399,17 @@ namespace agl
 			m_pContext = nullptr;
 		}
 	}
+
+	Owner<IGraphicsCommandList*> D3D11GraphicsCommandLists::CreateCommandList()
+	{
+		return nullptr;
+	}
+
+	void D3D11GraphicsCommandLists::Prepare()
+	{
+	}
+
+	void D3D11GraphicsCommandLists::Commit()
+	{
+	}
 }

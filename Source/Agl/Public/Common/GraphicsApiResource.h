@@ -121,8 +121,8 @@ namespace agl
 		GdiCompatible = 0x100,
 
 		// Custom
-		AppSizeDependent = 0x200,
-		Texture3D = 0x400,
+		Texture3D = 0x200,
+		Intermediate = 0x400,
 	};
 	ENUM_CLASS_FLAGS( ResourceMisc );
 
@@ -556,6 +556,47 @@ namespace agl
 		Blue = 4,
 		Alpha = 8,
 		All = ( ( ( Red | Green ) | Blue ) | Alpha )
+	};
+
+	enum class ResourceState : uint32
+	{
+		Common = 0,
+		VertexAndConstantBuffer = 0x1,
+		Indexbuffer = 0x2,
+		RenderTarget = 0x4,
+		UnorderedAccess = 0x8,
+		DepthWrite = 0x10,
+		DepthRead = 0x20,
+		NonPixelShaderResource = 0x40,
+		PixelShaderResource = 0x80,
+		StreamOut = 0x100,
+		IndirectArgument = 0x200,
+		CopyDest = 0x400,
+		CopySource = 0x800,
+		ResolveDest = 0x1000,
+		ResolveSource = 0x2000,
+		RaytracingAccelerationStructure = 0x400000,
+		ShadingRateSource = 0x1000000,
+		GenericRead = ( ( ( ( ( 0x1 | 0x2 ) | 0x40 ) | 0x80 ) | 0x200 ) | 0x800 ),
+		Present = 0,
+		Predication = 0x200,
+		VideoDecodeRead = 0x10000,
+		VideoDecodeWrite = 0x20000,
+		VideoProcessRead = 0x40000,
+		VideoProecssWrite = 0x80000,
+		VideoEncodeRead = 0x200000,
+		VideoEncodeWrite = 0x800000
+	};
+	ENUM_CLASS_FLAGS( ResourceState );
+
+	constexpr uint32 AllSubResource = 0xffffffff;
+
+	struct ResourceTransition
+	{
+		void* m_pResource;
+		uint32 m_subResource;
+		ResourceState m_before;
+		ResourceState m_after;
 	};
 
 	struct BUFFER_TRAIT

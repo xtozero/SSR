@@ -148,6 +148,7 @@ set (REFLECTION
 	Public/Reflection/MethodMacros.h
 	Public/Reflection/Property.h
 	Public/Reflection/PropertyMacros.h
+	Public/Reflection/PropertyParser.h
 	Public/Reflection/Reflection.h
 	Public/Reflection/TypeInfo.h
 	Public/Reflection/TypeInfoMacros.h)

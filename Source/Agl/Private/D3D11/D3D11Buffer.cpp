@@ -10,6 +10,7 @@ using ::agl::ConvertAccessFlagToCpuFlag;
 using ::agl::ConvertAccessFlagToUsage;
 using ::agl::ConvertMicsToDXMisc;
 using ::agl::ConvertTypeToBind;
+using ::agl::ResourceMisc;
 
 namespace
 {
@@ -21,6 +22,11 @@ namespace
 		uint32 cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );
 		uint32 miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
 		uint32 structureByteStride = trait.m_stride;
+
+		if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Intermediate ) )
+		{
+			bindFlag |= D3D11_BIND_SHADER_RESOURCE;
+		}
 
 		return D3D11_BUFFER_DESC{
 			byteWidth,
@@ -104,8 +110,9 @@ namespace agl
 
 	D3D11Buffer::D3D11Buffer( const BUFFER_TRAIT& trait, const void* initData )
 	{
-		m_desc = ConvertTraitToDesc( trait );
-		m_format = ConvertFormatToDxgiFormat( trait.m_format );
+		m_trait = trait;
+		m_desc = ConvertTraitToDesc( m_trait );
+		m_format = ConvertFormatToDxgiFormat( m_trait.m_format );
 		m_dataStorage = new unsigned char[m_desc.ByteWidth];
 		m_initData.pSysMem = m_dataStorage;
 		m_initData.SysMemPitch = m_desc.ByteWidth;
@@ -141,6 +148,11 @@ namespace agl
 		D3D11_SUBRESOURCE_DATA* initData = m_hasInitData ? &m_initData : nullptr;
 		[[maybe_unused]] HRESULT hr = D3D11Device( ).CreateBuffer( &m_desc, initData, &m_buffer );
 		assert( SUCCEEDED( hr ) );
+
+		if ( HasAnyFlags( m_trait.m_miscFlag, ResourceMisc::Intermediate ) )
+		{
+			return;
+		}
 
 		if ( m_desc.BindFlags & D3D11_BIND_SHADER_RESOURCE )
 		{

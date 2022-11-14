@@ -15,6 +15,9 @@ namespace rendercore
 	class Viewport
 	{
 	public:
+		RENDERCORE_DLL void OnBeginFrameRendering();
+		RENDERCORE_DLL void OnEndFrameRendering();
+
 		RENDERCORE_DLL agl::DeviceError Present( bool vSync = false );
 		RENDERCORE_DLL void Clear( const float (&color)[4] );
 		RENDERCORE_DLL void Bind( agl::ICommandList& commandList ) const;

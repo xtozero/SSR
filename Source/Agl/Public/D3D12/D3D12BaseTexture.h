@@ -42,6 +42,9 @@ namespace agl
 
 	protected:
 		T* m_texture = nullptr;
+		D3D12_RESOURCE_DESC m_desc;
+		D3D12_HEAP_PROPERTIES m_heapProperties;
+		D3D12_HEAP_FLAGS m_heapFlags;
 		std::vector<D3D12_SUBRESOURCE_DATA> m_initData;
 
 		virtual void CreateShaderResource() = 0;
@@ -55,6 +58,11 @@ namespace agl
 			if ( m_texture == nullptr )
 			{
 				CreateTexture();
+			}
+
+			if ( HasAnyFlags( m_trait.m_miscFlag, ResourceMisc::Intermediate ) )
+			{
+				return;
 			}
 
 			if ( m_texture )
@@ -113,7 +121,7 @@ namespace agl
 	{
 	public:
 		D3D12BaseTexture2D( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData );
-		explicit D3D12BaseTexture2D( ID3D12Resource* texture );
+		D3D12BaseTexture2D( ID3D12Resource* texture, const D3D12_RESOURCE_DESC* desc = nullptr );
 
 	protected:
 		virtual void CreateTexture() override;

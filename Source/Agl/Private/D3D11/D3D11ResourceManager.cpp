@@ -33,13 +33,6 @@ namespace agl
 
 	Texture* CD3D11ResourceManager::CreateTexture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
 	{
-		if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::AppSizeDependent ) )
-		{
-			// TODO : 텍스쳐 리사이즈 로직필요
-			//trait.m_width = m_frameBufferSize.first;
-			//trait.m_height = m_frameBufferSize.second;
-		}
-
 		Texture* newTexture = nullptr;
 		if ( IsTexture1D( trait ) )
 		{

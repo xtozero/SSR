@@ -9,6 +9,22 @@
 
 namespace rendercore
 {
+	void Viewport::OnBeginFrameRendering()
+	{
+		if ( m_pViewport.Get() )
+		{
+			m_pViewport->OnBeginFrameRendering();
+		}
+	}
+
+	void Viewport::OnEndFrameRendering()
+	{
+		if ( m_pViewport.Get() )
+		{
+			m_pViewport->OnEndFrameRendering();
+		}
+	}
+
 	agl::DeviceError Viewport::Present( bool vSync )
 	{
 		if ( m_pViewport.Get() )

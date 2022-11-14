@@ -15,7 +15,7 @@ namespace
 class AppConfig : public IAppConfig
 {
 public:
-	virtual void BootUp( std::atomic<int>& workInProgress );
+	virtual void BootUp( std::atomic<int32>& workInProgress );
 	virtual const ini::Ini* GetConfig( const Name& configName ) const;
 
 private:
@@ -23,7 +23,7 @@ private:
 	std::map<Name, ini::Ini> m_configs;
 };
 
-void AppConfig::BootUp( std::atomic<int>& workInProgress )
+void AppConfig::BootUp( std::atomic<int32>& workInProgress )
 {
 	auto filesystem = GetInterface<IFileSystem>();
 

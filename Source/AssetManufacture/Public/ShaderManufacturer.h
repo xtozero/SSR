@@ -19,5 +19,5 @@ public:
 
 private:
 	void CombinationStaticSwitches( const std::string& shaderFile, const char* featureLevel, std::map<uint32, Microsoft::WRL::ComPtr<ID3DBlob>>& outCompiledShaders, const rendercore::StaticShaderSwitches& switches ) const;
-	void CombinationStaticSwitchesRecursive( const std::string& shaderFile, const char* featureLevel, std::map<uint32, Microsoft::WRL::ComPtr<ID3DBlob>>& outCompiledShaders, rendercore::StaticShaderSwitches& switches, int depth ) const;
+	void CombinationStaticSwitchesRecursive( const std::string& shaderFile, const char* featureLevel, std::map<uint32, Microsoft::WRL::ComPtr<ID3DBlob>>& outCompiledShaders, rendercore::StaticShaderSwitches& switches, int32 depth ) const;
 };

@@ -40,8 +40,8 @@ struct SuperClassTypeDeduction<T, std::void_t<typename T::ThisType>>
 template <typename T>
 struct TypeInfoInitializer
 {
-	TypeInfoInitializer( const char* name ) :
-		m_name( name )
+	TypeInfoInitializer( const char* name )
+		: m_name( name )
 	{
 		if constexpr ( HasSuper<T> )
 		{
@@ -57,11 +57,12 @@ class TypeInfo
 {
 public:
 	template <typename T>
-	explicit TypeInfo( const TypeInfoInitializer<T>& initializer ) :
-		m_typeHash( typeid( T ).hash_code() ),
-		m_name( initializer.m_name ),
-		m_fullName( typeid( T ).name() ),
-		m_super( initializer.m_super )
+	explicit TypeInfo( const TypeInfoInitializer<T>& initializer ) 
+		: m_typeHash( typeid( T ).hash_code() )
+		, m_name( initializer.m_name )
+		, m_fullName( typeid( T ).name() )
+		, m_super( initializer.m_super )
+		, m_isArray( std::is_array_v<T> )
 	{
 		if constexpr ( HasSuper<T> )
 		{
@@ -129,6 +130,11 @@ public:
 		return m_name;
 	}
 
+	bool IsArray() const
+	{
+		return m_isArray;
+	}
+
 private:
 	void CollectSuperMethods();
 	void CollectSuperProperties();
@@ -145,6 +151,8 @@ private:
 	const char* m_name = nullptr;
 	std::string m_fullName;
 	const TypeInfo* m_super = nullptr;
+
+	bool m_isArray = false;
 
 	std::vector<const Method*> m_methods;
 	MethodMap m_methodMap;

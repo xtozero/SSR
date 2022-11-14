@@ -39,6 +39,7 @@ namespace rendercore
 		Viewport& m_viewport;
 		float m_elapsedTime = 0.f;
 		float m_totalTime = 0.f;
+		ColorF m_backgroundColor;
 	};
 
 	class RenderViewGroup
@@ -49,7 +50,9 @@ namespace rendercore
 			, m_viewport( initializer.m_viewport )
 			, m_elapsedTime( initializer.m_elapsedTime )
 			, m_totalTime( initializer.m_totalTime )
-		{}
+			, m_backgroundColor( initializer.m_backgroundColor )
+		{
+		}
 
 		RENDERCORE_DLL RenderView& AddRenderView();
 
@@ -81,6 +84,7 @@ namespace rendercore
 		const Viewport& GetViewport() const { return m_viewport; }
 		float GetElapsedTime() const { return m_elapsedTime; }
 		float GetTotalTime() const { return m_totalTime; }
+		const ColorF& GetBackgroundColor() const { return m_backgroundColor; }
 
 		const RenderView& operator[]( size_t index ) const
 		{
@@ -98,5 +102,6 @@ namespace rendercore
 		Viewport& m_viewport;
 		float m_elapsedTime = 0.f;
 		float m_totalTime = 0.f;
+		ColorF m_backgroundColor;
 	};
 }

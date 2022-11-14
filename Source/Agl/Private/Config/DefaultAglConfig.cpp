@@ -6,4 +6,9 @@ namespace agl
 	{
 		return static_cast<AglType>( GetInstance().m_type );
 	}
+
+	uint32 DefaultAgl::GetBufferCount()
+	{
+		return GetInstance().m_bufferCount;
+	}
 }

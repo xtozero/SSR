@@ -1,5 +1,7 @@
 #include "D3D12ResourceManager.h"
 
+#include "Config/DefaultAglConfig.h"
+
 #include "D3D11FlagConvertor.h"
 #include "D3D12BaseTexture.h"
 #include "D3D12BlendState.h"
@@ -105,7 +107,8 @@ namespace agl
 
 	Viewport* D3D12ResourceManager::CreateViewport( uint32 width, uint32 height, void* hWnd, ResourceFormat format )
 	{
-		return new D3D12Viewport( width, height, hWnd, ConvertFormatToDxgiFormat( format ) );
+		uint32 bufferCount = DefaultAgl::GetBufferCount();
+		return new D3D12Viewport( width, height, bufferCount, hWnd, ConvertFormatToDxgiFormat( format ) );
 	}
 
 	D3D12ResourceManager::~D3D12ResourceManager()

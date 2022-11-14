@@ -13,6 +13,8 @@ namespace agl
 	public:
 		AGL_DLL static RefHandle<Viewport> Create( uint32 width, uint32 height, void* hWnd, ResourceFormat format );
 
+		virtual void OnBeginFrameRendering() = 0;
+		virtual void OnEndFrameRendering() = 0;
 		virtual DeviceError Present( bool vSync = false ) = 0;
 		virtual void Clear( const float( &clearColor )[4] ) = 0;
 		virtual void Bind( ICommandList& commandList ) const = 0;

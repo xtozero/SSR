@@ -13,7 +13,7 @@
 class IAppConfig
 {
 public:
-	virtual void BootUp( std::atomic<int>& workInProgress ) = 0;
+	virtual void BootUp( std::atomic<int32>& workInProgress ) = 0;
 	virtual const ini::Ini* GetConfig( const Name& configName ) const = 0;
 
 	virtual ~IAppConfig() = default;
@@ -72,6 +72,12 @@ public:
 							|| std::strcmp( value->c_str(), "True" ) == 0;
 				property->Set( this, boolean );
 			}
+			else if ( &propertyType == &TypeInfo::GetStaticTypeInfo<uint32>() )
+			{
+				uint32 integer = 0;
+				std::from_chars( value->data(), value->data() + value->size(), integer );
+				property->Set( this, integer );
+			}
 			else if ( std::strstr(value->c_str(), "::") != nullptr )
 			{
 				if ( &propertyType == &TypeInfo::GetStaticTypeInfo<uint8>() )
@@ -98,6 +104,10 @@ public:
 				{
 					property->Set( this, GetEnum<int32>( *value, 0 ) );
 				}
+			}
+			else if ( propertyType.IsArray() )
+			{
+				property->Parse( this, *value );
 			}
 			else
 			{

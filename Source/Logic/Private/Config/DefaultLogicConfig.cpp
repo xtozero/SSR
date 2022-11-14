@@ -1,4 +1,4 @@
-#include "Config/DefaultEngineConfig.h"
+#include "Config/DefaultLogicConfig.h"
 
 #include "AppConfig/AppConfig.h"
 #include "Ini/Ini.h"
@@ -9,7 +9,12 @@
 using ::ini::Ini;
 using ::ini::Section;
 
-const char* DefaultEngine::GetDefaultWorld()
+const char* DefaultLogic::GetDefaultWorld()
 {
 	return GetInstance().m_defaultWorld.c_str();
+}
+
+const float4& DefaultLogic::GetDefaultBackgroundColor()
+{
+	return GetInstance().m_defaultBackgroundColor;
 }
