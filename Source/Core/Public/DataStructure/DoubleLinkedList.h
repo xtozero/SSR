@@ -23,6 +23,10 @@ namespace DLinkedList
 
 		successor->m_prev = predecessor;
 		successor->m_next = predecessor->m_next;
+		if ( predecessor->m_next )
+		{
+			predecessor->m_next->m_prev = successor;
+		}
 		predecessor->m_next = successor;
 	}
 
