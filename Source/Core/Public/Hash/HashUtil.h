@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <type_traits>
 
 template <typename T>
 void HashCombine( std::uint16_t& seed, const T& val )

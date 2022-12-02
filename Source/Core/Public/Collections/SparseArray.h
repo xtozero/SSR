@@ -67,6 +67,14 @@ public:
 		return index;
 	}
 
+	size_t AddZeroed()
+	{
+		size_t index = AddUninitialized();
+		std::construct_at( reinterpret_cast<T*>( &m_data[index].m_data ), T{} );
+
+		return index;
+	}
+
 	size_t Add( const T& element )
 	{
 		size_t index = AddUninitialized();

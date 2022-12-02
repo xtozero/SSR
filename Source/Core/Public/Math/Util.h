@@ -5,6 +5,7 @@
 #include "Math/Plane.h"
 #include "Math/Vector.h"
 #include "Math/Vector4.h"
+#include "SizedTypes.h"
 
 #include <cmath>
 #include <utility>
@@ -83,3 +84,15 @@ inline std::pair<float, float> CartesianToSpherical( const Vector& cartesian )
 
 	return std::make_pair( theta, phi );
 }
+
+template <typename T>
+T CalcAlignment( T value, T alignment )
+{
+	T mask = alignment - 1;
+	return ( value + mask ) & ~mask;
+}
+
+template uint32 CalcAlignment<uint32>( uint32 value, uint32 alignment );
+template uint64 CalcAlignment<uint64>( uint64 value, uint64 alignment );
+template int32 CalcAlignment<int32>( int32 value, int32 alignment );
+template int64 CalcAlignment<int64>( int64 value, int64 alignment );

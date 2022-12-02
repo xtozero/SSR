@@ -63,8 +63,10 @@ set (D3D12_RENDER_RESOURCE_SOURCE
 	Private/D3D12/D3D12Buffer.cpp
 	Private/D3D12/D3D12CommandList.cpp
 	Private/D3D12/D3D12DepthStencilState.cpp
+	Private/D3D12/D3D12HeapAllocator.cpp
 	Private/D3D12/D3D12PipelineState.cpp
 	Private/D3D12/D3D12RasterizerState.cpp
+	Private/D3D12/D3D12ResourceAllocator.cpp
 	Private/D3D12/D3D12ResourceManager.cpp
 	Private/D3D12/D3D12ResourceViews.cpp
 	Private/D3D12/D3D12SamplerState.cpp
@@ -76,8 +78,10 @@ set (D3D12_RENDER_RESOURCE_SOURCE
 	Public/D3D12/D3D12Buffer.h
 	Public/D3D12/D3D12CommandList.h
 	Public/D3D12/D3D12DepthStencilState.h
+	Public/D3D12/D3D12HeapAllocator.h
 	Public/D3D12/D3D12PipelineState.h
 	Public/D3D12/D3D12RasterizerState.h
+	Public/D3D12/D3D12ResourceAllocator.h
 	Public/D3D12/D3D12ResourceManager.h
 	Public/D3D12/D3D12ResourceViews.h
 	Public/D3D12/D3D12SamplerState.h

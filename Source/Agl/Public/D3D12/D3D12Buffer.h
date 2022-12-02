@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Buffer.h"
+#include "D3D12ResourceAllocator.h"
 #include "SizedTypes.h"
 
 #include <d3d12.h>
@@ -31,5 +32,7 @@ namespace agl
 
 		void* m_dataStorage = nullptr;
 		bool m_hasInitData = false;
+
+		AllocatedResourceInfo m_resourceInfo;
 	};
 }
