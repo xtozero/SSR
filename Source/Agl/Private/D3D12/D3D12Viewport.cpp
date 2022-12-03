@@ -142,9 +142,6 @@ namespace agl
 		m_bufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 		m_backBuffers.resize( m_bufferCount );
 
-		GraphicsCommandListsBase& comandLists = GetInterface<IAgl>()->GetGraphicsCommandLists();
-		IGraphicsCommandList* commandList = comandLists.GetCommandList( 0 );
-
 		for ( uint32 i = 0; i < m_bufferCount; ++i )
 		{
 			ID3D12Resource* backBuffer = nullptr;

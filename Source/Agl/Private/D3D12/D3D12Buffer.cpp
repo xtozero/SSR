@@ -1,5 +1,6 @@
 #include "D3D12Buffer.h"
 
+#include "D3D12ResourceViews.h"
 #include "D3D12FlagConvertor.h"
 #include "Math/Util.h"
 #include "Multithread/TaskScheduler.h"
@@ -104,10 +105,25 @@ namespace agl
 			desc,
 			states
 		);
+
+		if ( HasAnyFlags( m_trait.m_bindType, ResourceBindType::ConstantBuffer ) )
+		{
+			D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {
+				.BufferLocation = Resource()->GetGPUVirtualAddress(),
+				.SizeInBytes = static_cast<uint32>( desc.Width )
+			};
+
+			m_cbv = new D3D12ConstantBufferView( this, Resource(), cbvDesc );
+			m_cbv->Init();
+		}
 	}
 
 	void D3D12Buffer::DestroyBuffer()
 	{
+		m_srv = nullptr;
+		m_uav = nullptr;
+		m_cbv = nullptr;
+
 		EnqueueRenderTask(
 			[resourceInfo = m_resourceInfo]()
 			{

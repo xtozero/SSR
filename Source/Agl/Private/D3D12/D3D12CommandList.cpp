@@ -284,7 +284,7 @@ namespace agl
 		}
 
 		auto d3d12Rtv = static_cast<D3D12RenderTargetView*>( renderTarget );
-		D3D12_CPU_DESCRIPTOR_HANDLE handle = d3d12Rtv->Resource()->GetCPUDescriptorHandleForHeapStart();
+		D3D12_CPU_DESCRIPTOR_HANDLE handle = d3d12Rtv->GetCpuHandle().At();
 		m_commandList->ClearRenderTargetView( handle, clearColor, 0, nullptr );
 	}
 
