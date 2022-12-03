@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <charconv>
 #include <compare>
+#include <format>
 #include <fstream>
 #include <map>
 #include <set>
@@ -416,6 +417,27 @@ namespace
 
 		return byteCode;
 	}
+
+	void ModifyShaderFileForD2D12( std::string& shaderFile, agl::ShaderType shaderType )
+	{
+		// Replace register( -> Register(
+		char* pos = std::strstr( shaderFile.data(), "register(" );
+		while ( pos != nullptr )
+		{
+			*pos = 'R';
+			pos = std::strstr( pos, "register(" );
+		}
+
+		/* Sample
+		* #if D3D12 == 1
+		* #define Register(x) register(x, space{shaderType})
+		* #else
+		* #define Register(x) register(x)
+		* #endif
+		*/
+		std::string macroStrForD3D12 = std::format( "#if D3D12 == 1\n#define Register(x) register(x, space{})\n#else\n#define Register(x) register(x)\n#endif\n\n", static_cast<int32>( shaderType ) );
+		shaderFile = macroStrForD3D12 + shaderFile;
+	}
 }
 
 bool ShaderManufacturer::IsSuitable( const std::filesystem::path& srcPath ) const
@@ -437,7 +459,10 @@ std::optional<Products> ShaderManufacturer::Manufacture( const PathEnvironment& 
 	auto merged = merger.Merge( path );
 	if ( merged )
 	{
-		const std::string& shaderFile = merged.value();
+		std::string shaderFile = std::move( merged.value() );
+
+		agl::ShaderType shaderType = GetShaderType( path.filename() );
+		ModifyShaderFileForD2D12( shaderFile, shaderType );
 
 		StaticSwitchParser parser( shaderFile.data(), shaderFile.length() );
 		rendercore::StaticShaderSwitches shaderSwitches;
@@ -451,7 +476,7 @@ std::optional<Products> ShaderManufacturer::Manufacture( const PathEnvironment& 
 
 		rendercore::UberShader shader;
 		shader.m_name = path.filename().generic_string();
-		shader.m_type = GetShaderType( path.filename() );
+		shader.m_type = shaderType;
 		shader.m_profile = shaderFeatureLevel;
 
 		std::construct_at( &shader.m_shaderCode, static_cast<uint32>( shaderFile.length() ) );
