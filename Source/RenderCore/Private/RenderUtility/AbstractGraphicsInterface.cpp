@@ -14,6 +14,12 @@ namespace rendercore
 
 	void AbstractGraphicsInterface::Shutdown()
 	{
+		m_agl = nullptr;
+		m_blendStates.clear();
+		m_depthStencilStates.clear();
+		m_rasterizerStates.clear();
+		m_samplerStates.clear();
+		m_vertexLayouts.clear();
 	}
 
 	agl::LockedResource AbstractGraphicsInterface::Lock( agl::Buffer* buffer, agl::ResourceLockFlag lockFlag, uint32 subResource )

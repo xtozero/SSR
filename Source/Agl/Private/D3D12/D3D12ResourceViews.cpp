@@ -6,16 +6,13 @@ namespace agl
 {
 	void D3D12RenderTargetView::InitResource()
 	{
-		D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {
-			.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
-			.NumDescriptors = 1,
-			.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
-			.NodeMask = 0
-		};
-		[[maybe_unused]] HRESULT hr = D3D12Device().CreateDescriptorHeap( &heapDesc, IID_PPV_ARGS( &m_resource ) );
-		assert( SUCCEEDED( hr ) );
+		m_descriptorHeap = D3D12DescriptorHeapAllocator::GetInstance().AllocCpuDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 1 );
+		D3D12Device().CreateRenderTargetView( m_d3d12Resource, &m_desc, m_descriptorHeap.GetCpuHandle().At() );
+	}
 
-		m_cpuHandle = m_resource->GetCPUDescriptorHandleForHeapStart();
-		D3D12Device().CreateRenderTargetView( m_d3d12Resource, &m_desc, m_cpuHandle );
+	void D3D12ConstantBufferView::InitResource()
+	{
+		m_descriptorHeap = D3D12DescriptorHeapAllocator::GetInstance().AllocCpuDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1 );
+		D3D12Device().CreateConstantBufferView( &m_desc, m_descriptorHeap.GetCpuHandle().At() );
 	}
 }

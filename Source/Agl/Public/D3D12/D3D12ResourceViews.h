@@ -1,17 +1,35 @@
 #pragma once
 
+#include "D3D12DescriptorHeapAllocator.h"
 #include "ResourceViews.h"
 
 #include <d3d12.h>
 
 namespace agl
 {
-	template <typename BaseClass, typename ViewType, typename DescType>
+	template <typename BaseClass, typename DescType>
 	class D3D12ViewBase : public BaseClass
 	{
 	public:
-		ViewType Resource() { return m_resource; }
-		const ViewType Resource() const { return m_resource; }
+		ID3D12DescriptorHeap* Resource() 
+		{ 
+			return m_descriptorHeap.GetHeap();
+		}
+
+		const ID3D12DescriptorHeap* Resource() const 
+		{ 
+			return m_descriptorHeap.GetHeap();
+		}
+
+		const D3D12CpuDescriptorHandle& GetCpuHandle() const
+		{
+			return m_descriptorHeap.GetCpuHandle();
+		}
+
+		const D3D12GpuDescriptorHandle& GetGpuHandle() const
+		{
+			return m_descriptorHeap.GetGpuHandle();
+		}
 
 		const IResourceViews* ViewHolder() const { return m_viewHolder; }
 
@@ -40,11 +58,6 @@ namespace agl
 		{
 			if ( this != &other )
 			{
-				if ( m_resource )
-				{
-					m_resource->Release();
-				}
-
 				if ( m_d3d12Resource )
 				{
 					m_d3d12Resource->Release();
@@ -52,17 +65,12 @@ namespace agl
 
 				m_viewHolder = other.m_viewHolder;
 				m_d3d12Resource = other.m_d3d12Resource;
-				m_resource = other.m_resource;
+				m_descriptorHeap = other.m_descriptorHeap;
 				m_desc = other.m_desc;
 
 				if ( m_d3d12Resource )
 				{
 					m_d3d12Resource->AddRef();
-				}
-
-				if ( m_resource )
-				{
-					m_resource->AddRef();
 				}
 			}
 
@@ -78,11 +86,6 @@ namespace agl
 		{
 			if ( this != &other )
 			{
-				if ( m_resource )
-				{
-					m_resource->Release();
-				}
-
 				if ( m_d3d12Resource )
 				{
 					m_d3d12Resource->Release();
@@ -90,12 +93,11 @@ namespace agl
 
 				m_viewHolder = other.m_viewHolder;
 				m_d3d12Resource = other.m_d3d12Resource;
-				m_resource = other.m_resource;
+				m_descriptorHeap = std::move( other.m_descriptorHeap );
 				m_desc = other.m_desc;
 
 				other.m_viewHolder = nullptr;
 				other.m_d3d12Resource = nullptr;
-				other.m_resource = nullptr;
 				other.m_desc = {};
 			}
 
@@ -113,22 +115,18 @@ namespace agl
 				m_d3d12Resource = nullptr;
 			}
 
-			if ( m_resource )
-			{
-				m_resource->Release();
-				m_resource = nullptr;
-			}
+			std::construct_at( &m_descriptorHeap );
 		}
 
 		IResourceViews* m_viewHolder = nullptr;
 		ID3D12Resource* m_d3d12Resource = nullptr;
-		ViewType m_resource = nullptr;
+		D3D12DescriptorHeap m_descriptorHeap;
 		DescType m_desc = {};
 	};
 
-	class D3D12RenderTargetView : public D3D12ViewBase<RenderTargetView, ID3D12DescriptorHeap*, D3D12_RENDER_TARGET_VIEW_DESC>
+	class D3D12RenderTargetView : public D3D12ViewBase<RenderTargetView, D3D12_RENDER_TARGET_VIEW_DESC>
 	{
-		using BaseClass = D3D12ViewBase<RenderTargetView, ID3D12DescriptorHeap*, D3D12_RENDER_TARGET_VIEW_DESC>;
+		using BaseClass = D3D12ViewBase<RenderTargetView, D3D12_RENDER_TARGET_VIEW_DESC>;
 
 	public:
 		using BaseClass::BaseClass;
@@ -136,8 +134,17 @@ namespace agl
 
 	protected:
 		virtual void InitResource() override;
+	};
 
-	private:
-		D3D12_CPU_DESCRIPTOR_HANDLE	m_cpuHandle;
+	class D3D12ConstantBufferView : public D3D12ViewBase<ConstantBufferView, D3D12_CONSTANT_BUFFER_VIEW_DESC>
+	{
+		using BaseClass = D3D12ViewBase<ConstantBufferView, D3D12_CONSTANT_BUFFER_VIEW_DESC>;
+
+	public:
+		using BaseClass::BaseClass;
+		using BaseClass::operator=;
+
+	protected:
+		virtual void InitResource() override;
 	};
 }

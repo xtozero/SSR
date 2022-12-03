@@ -13,7 +13,7 @@ namespace rendercore
 		{
 			ConstantBufferContext& context = m_contexts[i];
 
-			context.m_buffer = ConstantBuffer( BUFFER_SIZE );
+			std::construct_at( &context.m_buffer, BUFFER_SIZE );
 			context.m_dataStorage = new unsigned char[BUFFER_SIZE];
 			context.m_invalidRangeEnd = 0;
 		}
@@ -41,6 +41,7 @@ namespace rendercore
 		for ( uint32 i = 0; i < agl::MAX_SHADER_TYPE<uint32>; ++i )
 		{
 			ConstantBufferContext& context = m_contexts[i];
+			std::destroy_at( &context.m_buffer );
 			context.m_dataStorage = {};
 			delete[] context.m_dataStorage;
 			context.m_dataStorage = nullptr;
