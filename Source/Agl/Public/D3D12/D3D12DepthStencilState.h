@@ -9,6 +9,11 @@ namespace agl
 	class D3D12DepthStencilState : public DepthStencilState
 	{
 	public:
+		const D3D12_DEPTH_STENCIL_DESC& GetDesc() const
+		{
+			return m_desc;
+		}
+
 		D3D12DepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait );
 		D3D12DepthStencilState( const D3D12DepthStencilState& ) = default;
 		D3D12DepthStencilState( D3D12DepthStencilState&& ) = default;
