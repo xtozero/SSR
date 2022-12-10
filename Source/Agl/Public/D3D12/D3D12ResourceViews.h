@@ -115,7 +115,7 @@ namespace agl
 				m_d3d12Resource = nullptr;
 			}
 
-			std::construct_at( &m_descriptorHeap );
+			std::destroy_at( &m_descriptorHeap );
 		}
 
 		IResourceViews* m_viewHolder = nullptr;

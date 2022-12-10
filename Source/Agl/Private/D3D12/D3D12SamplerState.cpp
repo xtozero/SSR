@@ -34,13 +34,19 @@ namespace
 
 namespace agl
 {
-	D3D12SamplerState::D3D12SamplerState( const SAMPLER_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
+	D3D12SamplerState::D3D12SamplerState( const SAMPLER_STATE_TRAIT& trait ) 
+		: m_desc( ConvertTraitToDesc( trait ) ) 
+	{
+	}
 
 	void D3D12SamplerState::InitResource()
 	{
+		m_samplerState = D3D12DescriptorHeapAllocator::GetInstance().AllocCpuDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, 1 );
+		D3D12Device().CreateSampler( &m_desc, m_samplerState.GetCpuHandle().At() );
 	}
 
 	void D3D12SamplerState::FreeResource()
 	{
+		std::destroy_at( &m_samplerState );
 	}
 }

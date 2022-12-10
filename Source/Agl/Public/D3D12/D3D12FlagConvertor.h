@@ -45,6 +45,20 @@ namespace agl
 		}
 	}
 
+	inline D3D12_DEPTH_WRITE_MASK ConvertToDepthWriteMask( DepthWriteMode depthWriteMode )
+	{
+		switch ( depthWriteMode )
+		{
+		case DepthWriteMode::Zero:
+			return D3D12_DEPTH_WRITE_MASK_ZERO;
+		case DepthWriteMode::All:
+			return D3D12_DEPTH_WRITE_MASK_ALL;
+		default:
+			assert( false );
+			return D3D12_DEPTH_WRITE_MASK_ZERO;
+		}
+	}
+
 	inline D3D12_COMPARISON_FUNC ConvertToComparisionFunc( ComparisonFunc comparisonFunc )
 	{
 		switch ( comparisonFunc )
@@ -71,6 +85,62 @@ namespace agl
 		}
 	}
 
+	inline D3D12_STENCIL_OP ConvertToStencilOp( StencilOp stencilOp )
+	{
+		switch ( stencilOp )
+		{
+		case StencilOp::Keep:
+			return D3D12_STENCIL_OP_KEEP;
+		case StencilOp::Zero:
+			return D3D12_STENCIL_OP_ZERO;
+		case StencilOp::Replace:
+			return D3D12_STENCIL_OP_REPLACE;
+		case StencilOp::IncrSat:
+			return D3D12_STENCIL_OP_INCR_SAT;
+		case StencilOp::DecrSat:
+			return D3D12_STENCIL_OP_DECR_SAT;
+		case StencilOp::Invert:
+			return D3D12_STENCIL_OP_INVERT;
+		case StencilOp::Incr:
+			return D3D12_STENCIL_OP_INCR;
+		case StencilOp::Decr:
+			return D3D12_STENCIL_OP_DECR;
+		default:
+			assert( false );
+			return D3D12_STENCIL_OP_KEEP;
+		}
+	}
+
+	inline D3D12_FILL_MODE ConvertToFillMode( FillMode fillMode )
+	{
+		switch ( fillMode )
+		{
+		case FillMode::Wireframe:
+			return D3D12_FILL_MODE_WIREFRAME;
+		case FillMode::Solid:
+			return D3D12_FILL_MODE_SOLID;
+		default:
+			assert( false );
+			return D3D12_FILL_MODE_WIREFRAME;
+		}
+	}
+
+	inline D3D12_CULL_MODE ConvertToCullMode( CullMode cullMode )
+	{
+		switch ( cullMode )
+		{
+		case CullMode::None:
+			return D3D12_CULL_MODE_NONE;
+		case CullMode::Front:
+			return D3D12_CULL_MODE_FRONT;
+		case CullMode::Back:
+			return D3D12_CULL_MODE_BACK;
+		default:
+			assert( false );
+			return D3D12_CULL_MODE_NONE;
+		}
+	}
+
 	inline D3D12_FILTER ConvertToFilter( TextureFilter filter )
 	{
 		return static_cast<D3D12_FILTER>( filter );
@@ -94,6 +164,75 @@ namespace agl
 			assert( false );
 			return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 		}
+	}
+
+	inline D3D12_BLEND ConvertToBlend( Blend blend )
+	{
+		switch ( blend )
+		{
+		case Blend::Zero:
+			return D3D12_BLEND_ZERO;
+		case Blend::One:
+			return D3D12_BLEND_ONE;
+		case Blend::SrcColor:
+			return D3D12_BLEND_SRC_COLOR;
+		case Blend::InvSrcColor:
+			return D3D12_BLEND_INV_SRC_COLOR;
+		case Blend::SrcAlpha:
+			return D3D12_BLEND_SRC_ALPHA;
+		case Blend::InvSrcAlpha:
+			return D3D12_BLEND_INV_SRC_ALPHA;
+		case Blend::DestAlpha:
+			return D3D12_BLEND_DEST_ALPHA;
+		case Blend::InvDestAlpha:
+			return D3D12_BLEND_INV_DEST_ALPHA;
+		case Blend::DestColor:
+			return D3D12_BLEND_DEST_COLOR;
+		case Blend::InvDestColor:
+			return D3D12_BLEND_INV_DEST_COLOR;
+		case Blend::SrcAlphaSat:
+			return D3D12_BLEND_SRC_ALPHA_SAT;
+		case Blend::BlendFactor:
+			return D3D12_BLEND_BLEND_FACTOR;
+		case Blend::InvBlendFactor:
+			return D3D12_BLEND_INV_BLEND_FACTOR;
+		case Blend::Src1Color:
+			return D3D12_BLEND_SRC1_COLOR;
+		case Blend::InvSrc1Color:
+			return D3D12_BLEND_INV_SRC1_COLOR;
+		case Blend::Src1Alpha:
+			return D3D12_BLEND_SRC1_ALPHA;
+		case Blend::InvSrc1Alpha:
+			return D3D12_BLEND_INV_SRC1_ALPHA;
+		default:
+			assert( false );
+			return D3D12_BLEND_ZERO;
+		}
+	}
+
+	inline D3D12_BLEND_OP ConvertToBlendOp( BlendOp blendOp )
+	{
+		switch ( blendOp )
+		{
+		case BlendOp::Add:
+			return D3D12_BLEND_OP_ADD;
+		case BlendOp::Subtract:
+			return D3D12_BLEND_OP_SUBTRACT;
+		case BlendOp::ReverseSubtract:
+			return D3D12_BLEND_OP_REV_SUBTRACT;
+		case BlendOp::Min:
+			return D3D12_BLEND_OP_MIN;
+		case BlendOp::Max:
+			return D3D12_BLEND_OP_MAX;
+		default:
+			assert( false );
+			return D3D12_BLEND_OP_ADD;
+		}
+	}
+
+	inline unsigned char ConvertToColorWriteEnable( ColorWriteEnable colorWriteEnable )
+	{
+		return static_cast<unsigned char>( colorWriteEnable );
 	}
 
 	inline ResourceBindType ConvertResourceFlagsToBindType( D3D12_RESOURCE_FLAGS flags )

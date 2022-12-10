@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PipelineState.h"
+#include "D3D12DescriptorHeapAllocator.h"
 
 #include <d3d12.h>
 
@@ -19,6 +20,8 @@ namespace agl
 	private:
 		virtual void InitResource() override;
 		virtual void FreeResource() override;
+
+		D3D12DescriptorHeap m_samplerState;
 
 		D3D12_SAMPLER_DESC m_desc;
 	};

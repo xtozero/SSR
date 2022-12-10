@@ -9,6 +9,11 @@ namespace agl
 	class D3D12RasterizerState : public RasterizerState
 	{
 	public:
+		const D3D12_RASTERIZER_DESC& GetDesc() const
+		{
+			return m_desc;
+		}
+
 		D3D12RasterizerState( const RASTERIZER_STATE_TRAIT& trait );
 		D3D12RasterizerState( const D3D12RasterizerState& ) = default;
 		D3D12RasterizerState( D3D12RasterizerState&& ) = default;
