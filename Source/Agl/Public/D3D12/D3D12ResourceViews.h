@@ -136,9 +136,9 @@ namespace agl
 		virtual void InitResource() override;
 	};
 
-	class D3D12ConstantBufferView : public D3D12ViewBase<ConstantBufferView, D3D12_CONSTANT_BUFFER_VIEW_DESC>
+	class D3D12ConstantBufferView : public D3D12ViewBase<DeviceDependantResource, D3D12_CONSTANT_BUFFER_VIEW_DESC>
 	{
-		using BaseClass = D3D12ViewBase<ConstantBufferView, D3D12_CONSTANT_BUFFER_VIEW_DESC>;
+		using BaseClass = D3D12ViewBase<DeviceDependantResource, D3D12_CONSTANT_BUFFER_VIEW_DESC>;
 
 	public:
 		using BaseClass::BaseClass;

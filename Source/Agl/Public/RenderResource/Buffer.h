@@ -23,14 +23,10 @@ namespace agl
 		virtual DepthStencilView* DSV() override { return nullptr; }
 		virtual const DepthStencilView* DSV() const override { return nullptr; }
 
-		virtual ConstantBufferView* CBV() override { return nullptr; }
-		virtual const ConstantBufferView* CBV() const override { return nullptr; }
-
 	protected:
 		BUFFER_TRAIT m_trait;
 
 		RefHandle<ShaderResourceView> m_srv;
 		RefHandle<UnorderedAccessView> m_uav;
-		RefHandle<ConstantBufferView> m_cbv;
 	};
 }
