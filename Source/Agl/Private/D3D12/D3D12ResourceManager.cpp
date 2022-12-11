@@ -45,7 +45,23 @@ namespace agl
 
 	Buffer* D3D12ResourceManager::CreateBuffer( const BUFFER_TRAIT& trait, const void* initData )
 	{
-		Buffer* newBuffer = new D3D12Buffer( trait, initData );
+		Buffer* newBuffer = nullptr;
+		if ( HasAnyFlags( trait.m_bindType, ResourceBindType::ConstantBuffer ) )
+		{
+			newBuffer = new D3D12ConstantBuffer( trait, initData );
+		}
+		else if ( HasAnyFlags( trait.m_bindType, ResourceBindType::IndexBuffer ) )
+		{
+			newBuffer = new D3D12IndexBuffer( trait, initData );
+		}
+		else if ( HasAnyFlags( trait.m_bindType, ResourceBindType::VertexBuffer ) )
+		{
+			newBuffer = new D3D12VertexBuffer( trait, initData );
+		} 
+		else
+		{
+			newBuffer = new D3D12Buffer( trait, initData );
+		}
 
 		return newBuffer;
 	}
