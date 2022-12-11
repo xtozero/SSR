@@ -50,7 +50,7 @@ namespace
 		return desc;
 	}
 
-	D3D12_RESOURCE_STATES ConvertToStates( const BUFFER_TRAIT& trait )
+	D3D12_RESOURCE_STATES ConvertToStates( [[maybe_unused]] const BUFFER_TRAIT& trait )
 	{
 		D3D12_RESOURCE_STATES states = D3D12_RESOURCE_STATE_GENERIC_READ;
 		return states;
@@ -71,16 +71,13 @@ namespace agl
 
 	uint32 D3D12Buffer::Stride() const
 	{
-		return uint32();
+		return m_trait.m_stride;
 	}
 
 	D3D12Buffer::D3D12Buffer( const BUFFER_TRAIT& trait, const void* initData )
+		: m_desc( ConvertToDesc( trait ) )
 	{
 		m_trait = trait;
-	}
-
-	D3D12Buffer::~D3D12Buffer()
-	{
 	}
 
 	void D3D12Buffer::InitResource()
@@ -96,33 +93,20 @@ namespace agl
 	void D3D12Buffer::CreateBuffer()
 	{
 		D3D12HeapProperties properties = ConvertToHeapProperties( m_trait );
-		D3D12_RESOURCE_DESC desc = ConvertToDesc( m_trait );
 		D3D12_RESOURCE_STATES states = ConvertToStates( m_trait );
 
 		D3D12ResourceAllocator& allocator = D3D12ResourceAllocator::GetInstance();
 		m_resourceInfo = allocator.AllocateResource(
 			properties,
-			desc,
+			m_desc,
 			states
 		);
-
-		if ( HasAnyFlags( m_trait.m_bindType, ResourceBindType::ConstantBuffer ) )
-		{
-			D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {
-				.BufferLocation = Resource()->GetGPUVirtualAddress(),
-				.SizeInBytes = static_cast<uint32>( desc.Width )
-			};
-
-			m_cbv = new D3D12ConstantBufferView( this, Resource(), cbvDesc );
-			m_cbv->Init();
-		}
 	}
 
 	void D3D12Buffer::DestroyBuffer()
 	{
 		m_srv = nullptr;
 		m_uav = nullptr;
-		m_cbv = nullptr;
 
 		EnqueueRenderTask(
 			[resourceInfo = m_resourceInfo]()
@@ -130,5 +114,62 @@ namespace agl
 				D3D12ResourceAllocator& allocator = D3D12ResourceAllocator::GetInstance();
 				allocator.DeallocateResource( resourceInfo );
 			} );
+	}
+
+	D3D12ConstantBuffer::D3D12ConstantBuffer( const BUFFER_TRAIT& trait, const void* initData )
+		: D3D12Buffer( trait, initData )
+	{
+	}
+
+	void D3D12ConstantBuffer::CreateBuffer()
+	{
+		D3D12Buffer::CreateBuffer();
+
+		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {
+			.BufferLocation = Resource()->GetGPUVirtualAddress(),
+			.SizeInBytes = static_cast<uint32>( m_desc.Width )
+		};
+
+		m_cbv = new D3D12ConstantBufferView( this, Resource(), cbvDesc );
+		m_cbv->Init();
+	}
+
+	void D3D12ConstantBuffer::DestroyBuffer()
+	{
+		m_cbv = nullptr;
+
+		D3D12Buffer::DestroyBuffer();
+	}
+
+	D3D12IndexBuffer::D3D12IndexBuffer( const BUFFER_TRAIT& trait, const void* initData )
+		: D3D12Buffer( trait, initData )
+	{
+	}
+
+	void D3D12IndexBuffer::CreateBuffer()
+	{
+		D3D12Buffer::CreateBuffer();
+
+		m_view = {
+			.BufferLocation = Resource()->GetGPUVirtualAddress(),
+			.SizeInBytes = static_cast<uint32>( m_desc.Width ),
+			.Format = ( Stride() == sizeof(uint16) ) ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT
+		};
+	}
+
+	D3D12VertexBuffer::D3D12VertexBuffer( const BUFFER_TRAIT& trait, const void* initData )
+		: D3D12Buffer( trait, initData )
+	{
+	}
+
+	void D3D12VertexBuffer::CreateBuffer()
+	{
+		D3D12Buffer::CreateBuffer();
+
+		m_view = {
+			.BufferLocation = Resource()->GetGPUVirtualAddress(),
+			.SizeInBytes = static_cast<uint32>( m_desc.Width ),
+			.StrideInBytes = Stride()
+		};
 	}
 }

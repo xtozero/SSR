@@ -31,9 +31,6 @@ namespace agl
 		virtual DepthStencilView* DSV() override { return m_dsv.Get(); }
 		virtual const DepthStencilView* DSV() const override { return m_dsv.Get(); }
 
-		virtual ConstantBufferView* CBV() override { return nullptr; }
-		virtual const ConstantBufferView* CBV() const override { return nullptr; }
-
 		void Transition( IGraphicsCommandList& commandList, ResourceState state );
 
 	protected:
