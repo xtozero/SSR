@@ -2,26 +2,12 @@
 #include "World/World.h"
 
 #include "GameObject/Player.h"
-#include "IAgl.h"
 #include "InterfaceFactories.h"
 #include "Physics/PhysicsScene.h"
 #include "Renderer/IRenderCore.h"
 #include "Scene/DebugOverlayManager.h"
 #include "Scene/IScene.h"
 #include "TaskScheduler.h"
-
-namespace
-{
-	void WaitRenderThread()
-	{
-		TaskHandle handle = EnqueueThreadTask<ThreadType::RenderThread>(
-			[]()
-			{
-				GetInterface<agl::IAgl>()->WaitGPU();
-			} );
-		GetInterface<ITaskScheduler>()->Wait( handle );
-	}
-}
 
 void StartPhysicsThinkFunction::ExecuteThink( float elapsedTime )
 {
@@ -55,7 +41,6 @@ void World::CleanUp()
 	ReleasePhysicsScene();
 
 	GetInterface<rendercore::IRenderCore>()->RemoveScene( m_scene );
-	WaitRenderThread();
 }
 
 void World::Pause()

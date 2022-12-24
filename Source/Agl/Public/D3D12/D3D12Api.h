@@ -1,5 +1,6 @@
 #pragma once
 
+#include "D3D12ResourceUploader.h"
 #include "GuideTypes.h"
 
 struct ID3D12CommandQueue;
@@ -13,6 +14,8 @@ namespace agl
 	ID3D12CommandQueue& D3D12DirectCommandQueue();
 	ID3D12Device& D3D12Device();
 	IDXGIFactory7& D3D12Factory();
+
+	D3D12ResourceUploader& D3D12Uploader();
 
 	Owner<IAgl*> CreateD3D12GraphicsApi();
 }

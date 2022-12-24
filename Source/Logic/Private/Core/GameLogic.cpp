@@ -13,6 +13,7 @@
 #include "FileSystem.h"
 #include "GameObject/GameObject.h"
 #include "GameObject/GameClientViewport.h"
+#include "IAgl.h"
 #include "InterfaceFactories.h"
 #include "Json/json.hpp"
 #include "Platform/IPlatform.h"
@@ -29,6 +30,17 @@
 namespace
 {
 	ConVar( showFps, "1", "Show Fps" );
+
+	void WaitRenderThreadForShutdown()
+	{
+		TaskHandle handle = EnqueueThreadTask<ThreadType::RenderThread>(
+			[]()
+			{
+				GetInterface<agl::IAgl>()->WaitGPU();
+				GetInterface<agl::IAgl>()->OnShutdown();
+			} );
+		GetInterface<ITaskScheduler>()->Wait( handle );
+	}
 }
 
 bool CGameLogic::BootUp( IPlatform& platform )
@@ -195,6 +207,8 @@ InputController* CGameLogic::GetInputController()
 
 void CGameLogic::Shutdown()
 {
+	WaitRenderThreadForShutdown();
+
 	m_world.CleanUp();
 	m_primayViewport.reset();
 

@@ -129,8 +129,6 @@ namespace agl
 	{
 		delete[] m_dataStorage;
 		m_dataStorage = nullptr;
-
-		Free( );
 	}
 
 	void D3D11Buffer::InitResource( )

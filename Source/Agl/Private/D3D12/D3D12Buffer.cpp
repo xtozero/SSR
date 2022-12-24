@@ -1,5 +1,6 @@
 #include "D3D12Buffer.h"
 
+#include "D3D12Api.h"
 #include "D3D12ResourceViews.h"
 #include "D3D12FlagConvertor.h"
 #include "Math/Util.h"
@@ -74,10 +75,30 @@ namespace agl
 		return m_trait.m_stride;
 	}
 
+	uint32 D3D12Buffer::Size() const
+	{
+		return m_trait.m_stride * m_trait.m_count;
+	}
+
 	D3D12Buffer::D3D12Buffer( const BUFFER_TRAIT& trait, const void* initData )
 		: m_desc( ConvertToDesc( trait ) )
 	{
 		m_trait = trait;
+
+		if ( initData != nullptr )
+		{
+			m_hasInitData = true;
+
+			uint32 dataSize = Size();
+			m_dataStorage = new unsigned char[dataSize];
+			std::memcpy( m_dataStorage, initData, dataSize );
+		}
+	}
+
+	D3D12Buffer::~D3D12Buffer()
+	{
+		delete[] m_dataStorage;
+		m_dataStorage = nullptr;
 	}
 
 	void D3D12Buffer::InitResource()
@@ -94,6 +115,10 @@ namespace agl
 	{
 		D3D12HeapProperties properties = ConvertToHeapProperties( m_trait );
 		D3D12_RESOURCE_STATES states = ConvertToStates( m_trait );
+		if ( m_hasInitData && ( properties.m_heapType != D3D12_HEAP_TYPE_UPLOAD ) )
+		{
+			states = D3D12_RESOURCE_STATE_COPY_DEST;
+		}
 
 		D3D12ResourceAllocator& allocator = D3D12ResourceAllocator::GetInstance();
 		m_resourceInfo = allocator.AllocateResource(
@@ -101,6 +126,24 @@ namespace agl
 			m_desc,
 			states
 		);
+
+		if ( m_hasInitData )
+		{
+			if ( properties.m_heapType == D3D12_HEAP_TYPE_UPLOAD )
+			{
+				void* data = nullptr;
+				[[maybe_unused]] HRESULT hr = Resource()->Map( 0, nullptr, &data );
+				assert( SUCCEEDED( hr ) );
+
+				std::memcpy( data, m_dataStorage, Size() );
+
+				Resource()->Unmap( 0, nullptr );
+			}
+			else
+			{
+				D3D12Uploader().Upload(*this, m_dataStorage, Size() );
+			}
+		}
 	}
 
 	void D3D12Buffer::DestroyBuffer()

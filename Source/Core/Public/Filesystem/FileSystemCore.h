@@ -89,7 +89,9 @@ public:
 			return nullptr;
 		}
 
-		OverlappedType* overlapped = m_overlappedPool.Allocate( 1 );
+		OverlappedType* overlapped = m_overlappedPool.Allocate();
+		std::construct_at( overlapped );
+
 		overlapped->m_buffer = buffer;
 		overlapped->m_bufferSize = size;
 
@@ -97,7 +99,7 @@ public:
 		{
 			if ( GetLastError() != ERROR_IO_PENDING )
 			{
-				m_overlappedPool.Deallocate( overlapped, 1 );
+				CleanUpIORequest( overlapped );
 				return nullptr;
 			}
 		}
@@ -144,7 +146,8 @@ public:
 
 	void CleanUpIORequest( OverlappedType* overlapped )
 	{
-		m_overlappedPool.Deallocate( overlapped, 1 );
+		std::destroy_at( overlapped );
+		m_overlappedPool.Deallocate( overlapped );
 	}
 
 	FileSystem()

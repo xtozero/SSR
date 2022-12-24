@@ -2,10 +2,10 @@
 
 MemoryPage* PageAllocator::Allocate()
 {
-	return m_allocator.Allocate( 1 );
+	return m_allocator.Allocate();
 }
 
 void PageAllocator::Deallocate( MemoryPage* memory )
 {
-	m_allocator.Deallocate( memory, 1 );
+	m_allocator.Deallocate( memory );
 }
