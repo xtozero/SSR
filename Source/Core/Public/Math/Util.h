@@ -86,7 +86,7 @@ inline std::pair<float, float> CartesianToSpherical( const Vector& cartesian )
 }
 
 template <typename T>
-T CalcAlignment( T value, T alignment )
+constexpr T CalcAlignment( T value, T alignment )
 {
 	T mask = alignment - 1;
 	return ( value + mask ) & ~mask;

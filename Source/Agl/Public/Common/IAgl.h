@@ -21,8 +21,11 @@ namespace agl
 	{
 	public:
 		virtual bool BootUp() = 0;
+		virtual void OnShutdown() = 0;
+
 		virtual void HandleDeviceLost() = 0;
 		virtual void AppSizeChanged() = 0;
+		virtual void OnBeginFrameRendering() = 0;
 		virtual void OnEndFrameRendering( uint32 oldFrameIndex, uint32 newFrameIndex ) = 0;
 		virtual void WaitGPU() = 0;
 

@@ -69,6 +69,7 @@ set (D3D12_RENDER_RESOURCE_SOURCE
 	Private/D3D12/D3D12RasterizerState.cpp
 	Private/D3D12/D3D12ResourceAllocator.cpp
 	Private/D3D12/D3D12ResourceManager.cpp
+	Private/D3D12/D3D12ResourceUploader.cpp
 	Private/D3D12/D3D12ResourceViews.cpp
 	Private/D3D12/D3D12SamplerState.cpp
 	Private/D3D12/D3D12Shaders.cpp
@@ -85,6 +86,7 @@ set (D3D12_RENDER_RESOURCE_SOURCE
 	Public/D3D12/D3D12RasterizerState.h
 	Public/D3D12/D3D12ResourceAllocator.h
 	Public/D3D12/D3D12ResourceManager.h
+	Public/D3D12/D3D12ResourceUploader.h
 	Public/D3D12/D3D12ResourceViews.h
 	Public/D3D12/D3D12SamplerState.h
 	Public/D3D12/D3D12Shaders.h

@@ -2,6 +2,7 @@
 
 #define NOMINMAX 1
 
+#include "Math/Util.h"
 #include "SingleLinkedList.h"
 #include "SizedTypes.h"
 
@@ -14,63 +15,45 @@ template <typename T>
 class FixedBlockMemoryPool
 {
 public:
-	T* Allocate( size_t n )
+	T* Allocate()
 	{
-		if ( n == 1 )
+		if ( ( m_capacity - m_size ) == 0 )
 		{
-			if ( m_freeList == nullptr )
-			{
-				AllocateChunk( m_nextChunkSize );
-				m_nextChunkSize <<= 1;
-			}
+			AllocateChunk( m_nextChunkSize );
+			m_nextChunkSize <<= 1;
+		}
+
+		MemoryBlock* memory = m_freeList;
+		if ( memory == nullptr )
+		{
+			assert( false );
+			return nullptr;
+		}
+
+		++m_size;
+		SLinkedList::Remove( m_freeList, memory );
+
+		return reinterpret_cast<T*>( memory );
+	}
+
+	void Deallocate( T* memory )
+	{
+		auto block = reinterpret_cast<MemoryBlock*>( memory );
+		block->m_next = nullptr;
+
+		if ( m_freeList == nullptr )
+		{
+			SLinkedList::Init( m_freeList, block );
 		}
 		else
 		{
-			AllocateChunk( n );
-			if ( m_nextChunkSize < n )
-			{
-				m_nextChunkSize = n << 1;
-			}
+			SLinkedList::AddToTail( m_freeList, block );
 		}
 
-		MemoryBlock* result = m_freeList;
-		for ( size_t i = 0; i < n; ++i )
-		{
-			MemoryBlock* memory = m_freeList;
-			if ( memory == nullptr )
-			{
-				assert( false );
-				return nullptr;
-			}
-
-			++m_size;
-			SLinkedList::Remove( m_freeList, memory );
-		}
-
-		return reinterpret_cast<T*>( result );
+		--m_size;
 	}
 
-	void Deallocate( T* memory, size_t n )
-	{
-		for ( size_t i = 0; i < n; ++i )
-		{
-			auto block = reinterpret_cast<MemoryBlock*>( memory + i );
-			block->m_next = nullptr;
-
-			if ( m_freeList == nullptr )
-			{
-				m_freeList = block;
-			}
-			else
-			{
-				SLinkedList::AddToTail( m_freeList, block );
-			}
-
-			--m_size;
-		}
-	}
-
-	FixedBlockMemoryPool() = default;
+	FixedBlockMemoryPool() noexcept = default;
 	~FixedBlockMemoryPool()
 	{
 		while ( m_chunkList )
@@ -81,8 +64,8 @@ public:
 
 	FixedBlockMemoryPool( const FixedBlockMemoryPool& ) = delete;
 	FixedBlockMemoryPool& operator=( const FixedBlockMemoryPool& ) = delete;
-	FixedBlockMemoryPool( FixedBlockMemoryPool&& ) = delete;
-	FixedBlockMemoryPool& operator=( FixedBlockMemoryPool&& ) = delete;
+	FixedBlockMemoryPool( FixedBlockMemoryPool&& ) = default;
+	FixedBlockMemoryPool& operator=( FixedBlockMemoryPool&& ) = default;
 
 private:
 	struct MemoryBlock
@@ -96,9 +79,11 @@ private:
 		size_t m_size = 0;
 	};
 
-	void* AllocateChunk( size_t entryCount )
+	void* AllocateChunk( size_t chunkSize )
 	{
-		size_t chunkSize = sizeof( MemoryChunk ) + BlockSize * entryCount;
+		chunkSize = CalcAlignment<size_t>( chunkSize, 4096 );
+		size_t entryCount = ( chunkSize - sizeof( MemoryChunk ) ) / BlockSize;
+
 		auto chunk = reinterpret_cast<MemoryChunk*>( VirtualAlloc( nullptr, chunkSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE ) );
 		chunk->m_size = chunkSize;
 
@@ -149,7 +134,7 @@ private:
 	MemoryChunk* m_chunkList = nullptr;
 	size_t m_capacity = 0;
 	size_t m_size = 0;
-	size_t m_nextChunkSize = 1;
+	size_t m_nextChunkSize = CalcAlignment<size_t>( BlockSize, 4096 );
 
 	MemoryBlock* m_freeList = nullptr;
 

@@ -31,8 +31,11 @@ namespace agl
 	{
 	public:
 		virtual bool BootUp() override;
+		virtual void OnShutdown() override;
+
 		virtual void HandleDeviceLost() override;
 		virtual void AppSizeChanged() override;
+		virtual void OnBeginFrameRendering() override;
 		virtual void OnEndFrameRendering( uint32 curFrameIndex, uint32 nextFrameIndex ) override;
 		virtual void WaitGPU() override;
 
@@ -55,6 +58,8 @@ namespace agl
 		ID3D12Device& GetDevice() const;
 		IDXGIFactory7& GetFactory() const;
 		ID3D12CommandQueue& GetDirectCommandQueue() const;
+
+		D3D12ResourceUploader& GetUploader();
 
 		~Direct3D12();
 
@@ -79,6 +84,8 @@ namespace agl
 
 		D3D12CommandList m_commandList;
 		std::vector<D3D12GraphicsCommandLists, InlineAllocator<D3D12GraphicsCommandLists, 2>> m_commandLists;
+
+		D3D12ResourceUploader m_uploader;
 	};
 
 	bool Direct3D12::BootUp()
@@ -96,6 +103,11 @@ namespace agl
 		return true;
 	}
 
+	void Direct3D12::OnShutdown()
+	{
+		m_uploader.WaitUntilCopyCompleted();
+	}
+
 	void Direct3D12::HandleDeviceLost()
 	{
 	}
@@ -104,9 +116,14 @@ namespace agl
 	{
 	}
 
-	void Direct3D12::OnEndFrameRendering( uint32 oldFrameIndex, uint32 newFrameIndex )
+	void Direct3D12::OnBeginFrameRendering()
 	{
-		uint64 fence = m_fenceValue[oldFrameIndex];
+		m_uploader.WaitUntilCopyCompleted();
+	}
+
+	void Direct3D12::OnEndFrameRendering( uint32 curFrameIndex, uint32 nextFrameIndex )
+	{
+		uint64 fence = m_fenceValue[curFrameIndex];
 		[[maybe_unused]] HRESULT hr = m_directCommandQueue->Signal( m_fence.Get(), fence );
 		assert( SUCCEEDED( hr ) );
 
@@ -117,8 +134,8 @@ namespace agl
 			WaitForSingleObject( m_fenceEvent, INFINITE );
 		}
 
-		m_fenceValue[newFrameIndex] = fence + 1;
-		m_frameIndex = newFrameIndex;
+		m_fenceValue[nextFrameIndex] = fence + 1;
+		m_frameIndex = nextFrameIndex;
 
 		m_commandLists[m_frameIndex].Prepare();
 	}
@@ -205,6 +222,11 @@ namespace agl
 		return *m_directCommandQueue.Get();
 	}
 
+	D3D12ResourceUploader& Direct3D12::GetUploader()
+	{
+		return m_uploader;
+	}
+
 	Direct3D12::~Direct3D12()
 	{
 		CloseHandle( m_fenceEvent );
@@ -266,6 +288,11 @@ namespace agl
 		hr = m_device->CreateFence( m_fenceValue[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence));
 		++m_fenceValue[m_frameIndex];
 
+		if ( m_uploader.Initialize() == false )
+		{
+			return false;
+		}
+
 		return true;
 	}
 
@@ -318,6 +345,12 @@ namespace agl
 	{
 		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
 		return d3d12Api->GetFactory();
+	}
+
+	D3D12ResourceUploader& D3D12Uploader()
+	{
+		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
+		return d3d12Api->GetUploader();
 	}
 
 	Owner<IAgl*> CreateD3D12GraphicsApi()

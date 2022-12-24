@@ -42,9 +42,12 @@ namespace agl
 	{
 	public:
 		virtual bool BootUp() override;
+		virtual void OnShutdown() override {}
+
 		virtual void HandleDeviceLost() override;
 		virtual void AppSizeChanged() override;
-		virtual void OnEndFrameRendering( uint32 oldFrameIndex, uint32 newFrameIndex ) override;
+		virtual void OnBeginFrameRendering() override {}
+		virtual void OnEndFrameRendering( [[maybe_unused]] uint32 oldFrameIndex, [[maybe_unused]] uint32 newFrameIndex ) override {}
 		virtual void WaitGPU() override;
 
 		virtual LockedResource Lock( Buffer* buffer, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard, uint32 subResource = 0 ) override;
@@ -141,10 +144,6 @@ namespace agl
 		{
 			__debugbreak();
 		}
-	}
-
-	void CDirect3D11::OnEndFrameRendering( [[maybe_unused]] uint32 oldFrameIndex, [[maybe_unused]] uint32 newFrameIndex )
-	{
 	}
 
 	void CDirect3D11::Shutdown()
