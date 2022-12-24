@@ -1,5 +1,6 @@
 #pragma once
 
+#include "FixedBlockMemoryPool.h"
 #include "SizedTypes.h"
 #include "SparseArray.h"
 #include "HashUtil.h"
@@ -49,7 +50,7 @@ namespace agl
 		D3D12HeapSubAllocation* AllocateSubAllocationNode();
 		void DeallocateSubAllocationNode( D3D12HeapSubAllocation* subAllocation );
 
-		void AddToFreeList( uint64 offset, uint64 size );
+		void AddToFreeList( D3D12HeapSubAllocation* prev, uint64 offset, uint64 size );
 		void AddToAllocationList( uint64 offset, uint64 size );
 
 		void RemoveFromFreeList( D3D12HeapSubAllocation& node );
@@ -65,6 +66,8 @@ namespace agl
 
 		D3D12HeapSubAllocation* m_freeList = nullptr;
 		D3D12HeapSubAllocation* m_allocationList = nullptr;
+
+		FixedBlockMemoryPool<D3D12HeapSubAllocation> m_subAllocationNodePool;
 	};
 
 	class D3D12HeapBudget
@@ -73,7 +76,7 @@ namespace agl
 		AllocatedHeapInfo Allocate( uint64 size );
 		void Deallocate( const AllocatedHeapInfo& info );
 
-		explicit D3D12HeapBudget( const D3D12HeapProperties& properties ) :
+		explicit D3D12HeapBudget( const D3D12HeapProperties& properties ) noexcept :
 			m_properties( properties ) {}
 
 	private:

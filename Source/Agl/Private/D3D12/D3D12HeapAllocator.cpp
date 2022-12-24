@@ -34,7 +34,7 @@ namespace agl
 
 		assert( SUCCEEDED( hr ) );
 
-		AddToFreeList( 0, m_size );
+		AddToFreeList( nullptr, 0, m_size );
 	}
 
 	bool D3D12HeapBlock::CanAllocate( uint64 size ) const
@@ -69,7 +69,7 @@ namespace agl
 		uint64 freeMemorySize = node->m_size - alignedSize;
 		if ( freeMemorySize > 0 )
 		{
-			AddToFreeList( freeMemoryOffset, freeMemorySize );
+			AddToFreeList( node, freeMemoryOffset, freeMemorySize );
 		}
 
 		RemoveFromFreeList( *node );
@@ -92,40 +92,27 @@ namespace agl
 		D3D12HeapSubAllocation* prevNode = DLinkedList::Find( m_freeList,
 			[&info]( const D3D12HeapSubAllocation* node )
 			{
-				return ( node->m_offset + node->m_size ) == info.m_offset;
+				return node->m_offset < info.m_offset;
 			});
 
-		D3D12HeapSubAllocation* nextNode = DLinkedList::Find( m_freeList,
-			[&info, size = node->m_size]( const D3D12HeapSubAllocation* node )
-			{
-				return ( info.m_offset + size ) == node->m_offset;
-			} );
-		
+		AddToFreeList( prevNode, node->m_offset, node->m_size );
 
-		if ( prevNode == nullptr && nextNode == nullptr )
+		D3D12HeapSubAllocation* iter = ( prevNode == nullptr ) ? m_freeList : prevNode;
+		while ( iter != nullptr )
 		{
-			AddToFreeList( node->m_offset, node->m_size );
-		}
-		else
-		{
-			if ( prevNode )
+			D3D12HeapSubAllocation* iterNext = iter->m_next;
+			if ( iterNext == nullptr )
 			{
-				prevNode->m_size += node->m_size;
+				break;
 			}
 
-			if ( nextNode )
+			if ( ( iter->m_offset + iter->m_size ) != iterNext->m_offset )
 			{
-				if ( prevNode == nullptr )
-				{
-					nextNode->m_offset -= node->m_size;
-					nextNode->m_size += node->m_size;
-				}
-				else
-				{
-					prevNode->m_size += nextNode->m_size;
-					RemoveFromFreeList( *nextNode );
-				}
+				break;
 			}
+
+			iter->m_size += iterNext->m_size;
+			RemoveFromFreeList( *iterNext );
 		}
 		
 		RemoveFromAllocationList( *node );
@@ -138,27 +125,38 @@ namespace agl
 
 	D3D12HeapSubAllocation* D3D12HeapBlock::AllocateSubAllocationNode()
 	{
-		return new D3D12HeapSubAllocation;
+		D3D12HeapSubAllocation* subAllocation = m_subAllocationNodePool.Allocate();
+		std::construct_at( subAllocation );
+
+		return subAllocation;
 	}
 
 	void D3D12HeapBlock::DeallocateSubAllocationNode( D3D12HeapSubAllocation* subAllocation )
 	{
-		delete subAllocation;
+		std::destroy_at( subAllocation );
+		m_subAllocationNodePool.Deallocate( subAllocation );
 	}
 
-	void D3D12HeapBlock::AddToFreeList( uint64 offset, uint64 size )
+	void D3D12HeapBlock::AddToFreeList( D3D12HeapSubAllocation* prev, uint64 offset, uint64 size )
 	{
 		D3D12HeapSubAllocation* node = AllocateSubAllocationNode();
 		node->m_offset = offset;
 		node->m_size = size;
 
-		if ( m_freeList == nullptr )
+		if ( prev == nullptr )
 		{
-			DLinkedList::Init( m_freeList, node );
+			if ( m_freeList == nullptr )
+			{
+				DLinkedList::Init( m_freeList, node );
+			}
+			else
+			{
+				DLinkedList::InsertBefore( m_freeList, m_freeList, node );
+			}
 		}
-		else 
+		else
 		{
-			DLinkedList::InsertAfter( m_freeList, node );
+			DLinkedList::InsertAfter( prev, node );
 		}
 	}
 

@@ -22,6 +22,8 @@ namespace agl
 			return;
 		}
 
+		GetInterface<IAgl>()->OnBeginFrameRendering();
+
 		GraphicsCommandListsBase& comandLists = GetInterface<IAgl>()->GetGraphicsCommandLists();
 		IGraphicsCommandList* commandList = comandLists.GetCommandList( 0 );
 

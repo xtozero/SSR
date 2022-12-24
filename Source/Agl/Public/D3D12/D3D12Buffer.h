@@ -16,9 +16,10 @@ namespace agl
 		const ID3D12Resource* Resource() const;
 
 		uint32 Stride() const;
+		uint32 Size() const;
 
 		D3D12Buffer( const BUFFER_TRAIT& trait, const void* initData );
-		virtual ~D3D12Buffer() override = default;
+		virtual ~D3D12Buffer() override;
 		D3D12Buffer( const D3D12Buffer& ) = delete;
 		D3D12Buffer& operator=( const D3D12Buffer& ) = delete;
 		D3D12Buffer( D3D12Buffer&& ) = delete;
