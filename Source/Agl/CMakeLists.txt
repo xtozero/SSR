@@ -177,13 +177,15 @@ set (DIRECT3D_LIBRARY
 	"d3d11.lib"
 	"d3d12.lib"
 	"d3dcompiler.lib"
+	"dxcompiler.lib"
 	"dxguid.lib"
 	"dxgi.lib")
 								
-target_link_libraries(Agl 
+target_link_libraries(Agl
 PRIVATE 
-	Core 
+	Core
 	${DIRECT3D_LIBRARY})
 
 add_custom_command(TARGET Agl POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/Agl.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/Agl.dll")
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/Agl.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/Agl.dll"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/Program/Binaries/dxcompiler.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/dxcompiler.dll")
