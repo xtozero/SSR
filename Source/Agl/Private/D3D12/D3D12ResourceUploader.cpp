@@ -55,6 +55,19 @@ namespace agl
 		resource->Unmap( 0, nullptr );
 
 		m_uploadCommandList->CopyBufferRegion( dest.Resource(), 0, resource, 0, size);
+
+		D3D12_RESOURCE_BARRIER transition = {
+			.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+			.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE,
+			.Transition = {
+				.pResource = dest.Resource(),
+				.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
+				.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST,
+				.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ,
+			}
+		};
+		m_uploadCommandList->ResourceBarrier( 1, &transition );
+
 		m_uploadCommandList->Close();
 	}
 

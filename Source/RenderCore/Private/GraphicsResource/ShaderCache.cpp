@@ -1,12 +1,26 @@
 #include "ShaderCache.h"
 
+#include "IAgl.h"
+
 #include <filesystem>
 
 namespace fs = std::filesystem;
 
 namespace
 {
-	static const std::string cachePath = "./Assets/Shaders/ShaderCache.asset";
+	const char* GetShaderCachePath()
+	{
+		agl::AglType type = GetInterface<agl::IAgl>()->GetType();
+		switch ( type )
+		{
+		case agl::AglType::D3D11:
+			return "./Assets/Shaders/ShaderCache.asset";
+			break;
+		case agl::AglType::D3D12:
+			return "./Assets/Shaders/ShaderCache-d3d12.asset";
+			break;
+		}
+	}
 }
 
 namespace rendercore
@@ -21,6 +35,8 @@ namespace rendercore
 
 	void ShaderCache::LoadFromFile()
 	{
+		const std::string cachePath = GetShaderCachePath();
+
 		if ( fs::exists( cachePath ) )
 		{
 			IAssetLoader::LoadCompletionCallback onLoadComplete;
@@ -41,7 +57,7 @@ namespace rendercore
 			Archive ar;
 			m_shaderCache->Serialize( ar );
 
-			ar.WriteToFile( cachePath );
+			ar.WriteToFile( GetShaderCachePath() );
 		}
 	}
 

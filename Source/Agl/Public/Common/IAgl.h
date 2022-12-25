@@ -20,6 +20,8 @@ namespace agl
 	class IAgl
 	{
 	public:
+		virtual AglType GetType() const = 0;
+
 		virtual bool BootUp() = 0;
 		virtual void OnShutdown() = 0;
 

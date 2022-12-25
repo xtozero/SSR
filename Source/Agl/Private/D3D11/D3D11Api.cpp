@@ -41,6 +41,8 @@ namespace agl
 	class CDirect3D11 : public IAgl
 	{
 	public:
+		virtual AglType GetType() const override;
+
 		virtual bool BootUp() override;
 		virtual void OnShutdown() override {}
 
@@ -103,6 +105,11 @@ namespace agl
 
 		D3D11GraphicsCommandLists m_commandLists;
 	};
+
+	AglType CDirect3D11::GetType() const
+	{
+		return AglType::D3D11;
+	}
 
 	bool CDirect3D11::BootUp()
 	{

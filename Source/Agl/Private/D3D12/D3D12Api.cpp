@@ -19,17 +19,48 @@
 
 #include "Texture.h"
 
+#include <array>
+#include <cstdlib>
 #include <d3d12.h>
+#include <dxcapi.h>
 #include <dxgi1_6.h>
 #include <wrl/client.h>
 
 using namespace ::Microsoft::WRL;
+
+namespace
+{
+	const wchar_t* GetProperProfile( const char* profile )
+	{
+		if ( std::strncmp( profile, "vs", 2 ) == 0 )
+		{
+			return L"vs_6_0";
+		}
+		else if ( std::strncmp( profile, "gs", 2 ) == 0 )
+		{
+			return L"gs_6_0";
+		}
+		else if ( std::strncmp( profile, "ps", 2 ) == 0 )
+		{
+			return L"ps_6_0";
+		}
+		else if ( std::strncmp( profile, "cs", 2 ) == 0 )
+		{
+			return L"cs_6_0";
+		}
+
+		assert( false && "Invalid shader profile" );
+		return L"";
+	}
+}
 
 namespace agl
 {
 	class Direct3D12 : public IAgl
 	{
 	public:
+		virtual AglType GetType() const override;
+
 		virtual bool BootUp() override;
 		virtual void OnShutdown() override;
 
@@ -80,6 +111,8 @@ namespace agl
 		std::vector<uint64, InlineAllocator<uint64, 2>> m_fenceValue;
 		HANDLE m_fenceEvent;
 
+		ComPtr<IDxcCompiler3> m_compiler;
+
 		uint32 m_frameIndex = 0;
 
 		D3D12CommandList m_commandList;
@@ -87,6 +120,11 @@ namespace agl
 
 		D3D12ResourceUploader m_uploader;
 	};
+
+	AglType Direct3D12::GetType() const
+	{
+		return AglType::D3D12;
+	}
 
 	bool Direct3D12::BootUp()
 	{
@@ -199,7 +237,83 @@ namespace agl
 
 	BinaryChunk Direct3D12::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const
 	{
-		return BinaryChunk();
+		DxcBuffer buffer = {
+			.Ptr = source.Data(),
+			.Size = source.Size(),
+			.Encoding = DXC_CP_ACP
+		};
+
+		std::vector<const wchar_t*> args;
+
+		// entry point
+		args.push_back( L"-E" );
+		args.push_back( L"main" );
+
+		// target profile
+		args.push_back( L"-T" );
+		args.push_back( GetProperProfile( profile ) );
+
+#if _DEBUG
+		args.push_back( L"-Zs" );
+#endif
+
+		// defines
+		args.push_back( L"-D" );
+		args.push_back( L"D3D12=1");
+
+		constexpr int MaxDefineLen = 256;
+		std::vector<std::array<wchar_t, MaxDefineLen>> defineStorage;
+		for ( uint32 i = 0; i < defines.size(); i += 2 )
+		{
+			if ( defines[i] == nullptr || defines[i + 1] == nullptr )
+			{
+				continue;
+			}
+
+			std::array<char, MaxDefineLen> define;
+
+#if _WIN32
+			sprintf_s( define.data(), MaxDefineLen, "%s=%s", defines[i], defines[i + 1] );
+#else
+			std::sprintf( define.data(), "%s=%s", defines[i], defines[i + 1] );
+#endif
+
+			defineStorage.emplace_back();
+			std::array<wchar_t, MaxDefineLen>& wDefine = defineStorage.back();
+
+#if _WIN32
+			size_t numConverted = 0;
+			mbstowcs_s( &numConverted, wDefine.data(), MaxDefineLen, define.data(), MaxDefineLen );
+#else
+			std::mbstowcs( wDefine.data(), define.data(), MaxDefineLen );
+#endif
+
+			args.push_back( L"-D" );
+			args.push_back( wDefine.data() );
+		}
+
+		ComPtr<IDxcResult> results;
+		m_compiler->Compile( &buffer
+			, args.data()
+			, static_cast<uint32>( args.size() )
+			, nullptr
+			, IID_PPV_ARGS( results.GetAddressOf() ) );
+
+		HRESULT hResult = S_OK;
+		results->GetStatus( &hResult );
+
+		assert( SUCCEEDED( hResult ) );
+
+		ComPtr<IDxcBlob> compiledBinary = nullptr;
+		ComPtr<IDxcBlobUtf16> shaderName = nullptr;
+		results->GetOutput( DXC_OUT_OBJECT, IID_PPV_ARGS( compiledBinary.GetAddressOf() ), shaderName.GetAddressOf() );
+		
+		assert( compiledBinary.Get() != nullptr );
+
+		BinaryChunk binary( compiledBinary->GetBufferSize() );
+		std::memcpy( binary.Data(), compiledBinary->GetBufferPointer(), compiledBinary->GetBufferSize() );
+
+		return binary;
 	}
 
 	bool Direct3D12::BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const
@@ -285,7 +399,7 @@ namespace agl
 			return false;
 		}
 
-		hr = m_device->CreateFence( m_fenceValue[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence));
+		hr = m_device->CreateFence( m_fenceValue[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS( &m_fence ) );
 		++m_fenceValue[m_frameIndex];
 
 		if ( m_uploader.Initialize() == false )
@@ -323,8 +437,14 @@ namespace agl
 			return false;
 		}
 
-		m_fenceValue.resize( DefaultAgl::GetBufferCount(), 0);
+		m_fenceValue.resize( DefaultAgl::GetBufferCount(), 0 );
 		m_commandLists.resize( DefaultAgl::GetBufferCount() );
+
+		hr = DxcCreateInstance( CLSID_DxcCompiler, IID_PPV_ARGS( m_compiler.GetAddressOf() ) );
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
 
 		return true;
 	}
