@@ -34,14 +34,14 @@ namespace rendercore
 
 	private:
 		void Shutdown();
-		SceneRenderer* FindAndCreateSceneRenderer( const RenderViewGroup& renderViewGroup );
+		Owner<SceneRenderer*> FindAndCreateSceneRenderer( const RenderViewGroup& renderViewGroup );
 
 		mutable bool m_isReady = false;
 
 		HMODULE m_hAgl;
 		agl::IAgl* m_agl = nullptr;
 
-		std::map<ShadingMethod, std::unique_ptr<SceneRenderer>> m_sceneRenderer;
+		std::map<ShadingMethod, SceneRenderer*> m_sceneRenderer;
 	};
 
 	Owner<IRenderCore*> CreateRenderCore()
@@ -162,6 +162,14 @@ namespace rendercore
 
 	void RenderCore::Shutdown()
 	{
+		for ( auto& kv : m_sceneRenderer )
+		{
+			EnqueueRenderTask( [sceneRenderer = kv.second]()
+				{
+					delete sceneRenderer;
+				} );
+		}
+
 		m_sceneRenderer.clear();
 
 		ShaderCache::SaveToFile();
@@ -175,18 +183,18 @@ namespace rendercore
 		ShutdownModule( m_hAgl );
 	}
 
-	SceneRenderer* RenderCore::FindAndCreateSceneRenderer( const RenderViewGroup& renderViewGroup )
+	Owner<SceneRenderer*> RenderCore::FindAndCreateSceneRenderer( const RenderViewGroup& renderViewGroup )
 	{
 		ShadingMethod shadingMethod = renderViewGroup.Scene().GetShadingMethod();
 
 		auto& sceneRenderer = m_sceneRenderer[shadingMethod];
-		if ( sceneRenderer.get() == nullptr )
+		if ( sceneRenderer == nullptr )
 		{
 			switch ( shadingMethod )
 			{
 			case ShadingMethod::Forward:
 			{
-				sceneRenderer = std::make_unique<ForwardRenderer>();
+				sceneRenderer = new ForwardRenderer;
 				break;
 			}
 			default:
@@ -194,6 +202,6 @@ namespace rendercore
 			}
 		}
 
-		return sceneRenderer.get();
+		return sceneRenderer;
 	}
 }

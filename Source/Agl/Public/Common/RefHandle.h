@@ -26,6 +26,8 @@ namespace agl
 			{
 				m_reference->ReleaseRef();
 			}
+
+			m_reference = nullptr;
 		}
 
 		RefHandle( const RefHandle& other )

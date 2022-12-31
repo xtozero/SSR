@@ -28,6 +28,11 @@ namespace agl
 			info.m_resource->Release();
 		}
 
+		if ( info.m_heap == nullptr )
+		{
+			return;
+		}
+
 		m_heapAllocator.Deallocate( info );
 	}
 }
