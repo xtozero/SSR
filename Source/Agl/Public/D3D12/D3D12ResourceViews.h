@@ -33,7 +33,7 @@ namespace agl
 
 		const IResourceViews* ViewHolder() const { return m_viewHolder; }
 
-		D3D12ViewBase( IResourceViews* viewHolder, ID3D12Resource* d3d11Resource, const DescType& desc ) :
+		D3D12ViewBase( IResourceViews* viewHolder, ID3D12Resource* d3d11Resource, const DescType& desc ) noexcept :
 			m_viewHolder( viewHolder ),
 			m_d3d12Resource( d3d11Resource ),
 			m_desc( desc )
@@ -124,9 +124,45 @@ namespace agl
 		DescType m_desc = {};
 	};
 
+	class D3D12ShaderResourceView : public D3D12ViewBase<ShaderResourceView, D3D12_SHADER_RESOURCE_VIEW_DESC>
+	{
+		using BaseClass = D3D12ViewBase<ShaderResourceView, D3D12_SHADER_RESOURCE_VIEW_DESC>;
+
+	public:
+		using BaseClass::BaseClass;
+		using BaseClass::operator=;
+
+	protected:
+		virtual void InitResource() override;
+	};
+
+	class D3D12UnorderedAccessView : public D3D12ViewBase<UnorderedAccessView, D3D12_UNORDERED_ACCESS_VIEW_DESC>
+	{
+		using BaseClass = D3D12ViewBase<UnorderedAccessView, D3D12_UNORDERED_ACCESS_VIEW_DESC>;
+
+	public:
+		using BaseClass::BaseClass;
+		using BaseClass::operator=;
+
+	protected:
+		virtual void InitResource() override;
+	};
+
 	class D3D12RenderTargetView : public D3D12ViewBase<RenderTargetView, D3D12_RENDER_TARGET_VIEW_DESC>
 	{
 		using BaseClass = D3D12ViewBase<RenderTargetView, D3D12_RENDER_TARGET_VIEW_DESC>;
+
+	public:
+		using BaseClass::BaseClass;
+		using BaseClass::operator=;
+
+	protected:
+		virtual void InitResource() override;
+	};
+
+	class D3D12DepthStencilView : public D3D12ViewBase<DepthStencilView, D3D12_DEPTH_STENCIL_VIEW_DESC>
+	{
+		using BaseClass = D3D12ViewBase<DepthStencilView, D3D12_DEPTH_STENCIL_VIEW_DESC>;
 
 	public:
 		using BaseClass::BaseClass;

@@ -10,6 +10,7 @@ using ::agl::BUFFER_TRAIT;
 using ::agl::ConvertAccessFlagToHeapType;
 using ::agl::D3D12HeapProperties;
 using ::agl::ResourceBindType;
+using ::agl::ResourceMisc;
 
 namespace
 {
@@ -51,6 +52,64 @@ namespace
 		return desc;
 	}
 
+	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertDescToSRV( const BUFFER_TRAIT& trait, DXGI_FORMAT format )
+	{
+		bool bStructured = HasAnyFlags( trait.m_miscFlag, ResourceMisc::BufferStructured );
+		bool bAllowRawViews = HasAnyFlags( trait.m_miscFlag, ResourceMisc::BufferAllowRawViews );
+
+		DXGI_FORMAT actualFormat = bStructured ? DXGI_FORMAT_UNKNOWN : ( bAllowRawViews ? DXGI_FORMAT_R32_TYPELESS : format );
+
+		D3D12_SHADER_RESOURCE_VIEW_DESC srv = {
+			.Format = actualFormat,
+			.ViewDimension = D3D12_SRV_DIMENSION_BUFFER,
+			.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+			.Buffer = {
+				.FirstElement = 0,
+				.NumElements = trait.m_count,
+				.StructureByteStride = bStructured ? trait.m_stride : 0,
+				.Flags = bAllowRawViews ? D3D12_BUFFER_SRV_FLAG_RAW : D3D12_BUFFER_SRV_FLAG_NONE
+			}
+		};
+
+#if _DEBUG
+		if ( bAllowRawViews )
+		{
+			assert( ( ( trait.m_stride % 4 ) == 0 ) );
+		}
+#endif
+
+		return srv;
+	}
+
+	D3D12_UNORDERED_ACCESS_VIEW_DESC ConvertDescToUAV( const BUFFER_TRAIT& trait, DXGI_FORMAT format )
+	{
+		bool bStructured = HasAnyFlags( trait.m_miscFlag, ResourceMisc::BufferStructured );
+		bool bAllowRawViews = HasAnyFlags( trait.m_miscFlag, ResourceMisc::BufferAllowRawViews );
+
+		DXGI_FORMAT actualFormat = bStructured ? DXGI_FORMAT_UNKNOWN : ( bAllowRawViews ? DXGI_FORMAT_R32_TYPELESS : format );
+
+		D3D12_UNORDERED_ACCESS_VIEW_DESC uav = {
+			.Format = actualFormat,
+			.ViewDimension = D3D12_UAV_DIMENSION_BUFFER,
+			.Buffer = {
+				.FirstElement = 0,
+				.NumElements = trait.m_count,
+				.StructureByteStride = bStructured ? trait.m_stride : 0,
+				.CounterOffsetInBytes = 0,
+				.Flags = bAllowRawViews ? D3D12_BUFFER_UAV_FLAG_RAW : D3D12_BUFFER_UAV_FLAG_NONE
+			}
+		};
+
+#if _DEBUG
+		if ( bAllowRawViews )
+		{
+			assert( ( ( trait.m_stride % 4 ) == 0 ) );
+		}
+#endif
+
+		return uav;
+	}
+
 	D3D12_RESOURCE_STATES ConvertToStates( [[maybe_unused]] const BUFFER_TRAIT& trait )
 	{
 		D3D12_RESOURCE_STATES states = D3D12_RESOURCE_STATE_GENERIC_READ;
@@ -84,6 +143,7 @@ namespace agl
 		: m_desc( ConvertToDesc( trait ) )
 	{
 		m_trait = trait;
+		m_format = ConvertFormatToDxgiFormat( m_trait.m_format );
 
 		if ( initData != nullptr )
 		{
@@ -143,6 +203,25 @@ namespace agl
 			{
 				D3D12Uploader().Upload(*this, m_dataStorage, Size() );
 			}
+		}
+
+		if ( HasAnyFlags( m_trait.m_miscFlag, ResourceMisc::Intermediate ) )
+		{
+			return;
+		}
+
+		if ( HasAnyFlags( m_trait.m_bindType, ResourceBindType::ShaderResource ) )
+		{
+			D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_trait, m_format );
+			m_srv = new D3D12ShaderResourceView( this, Resource(), srvDesc );
+			m_srv->Init();
+		}
+
+		if ( HasAnyFlags( m_trait.m_bindType, ResourceBindType::RandomAccess ) )
+		{
+			D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_trait, m_format );
+			m_uav = new D3D12UnorderedAccessView( this, Resource(), uavDesc );
+			m_uav->Init();
 		}
 	}
 

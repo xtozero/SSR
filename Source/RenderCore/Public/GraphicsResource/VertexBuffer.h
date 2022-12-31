@@ -24,7 +24,7 @@ namespace rendercore
 		VertexBuffer( uint32 elementSize, uint32 numElement, const void* initData, bool isDynamic = false );
 
 		VertexBuffer() = default;
-		~VertexBuffer() = default;
+		virtual ~VertexBuffer() = default;
 		VertexBuffer( const VertexBuffer& ) = default;
 		VertexBuffer& operator=( const VertexBuffer& ) = default;
 		VertexBuffer( VertexBuffer&& ) = default;

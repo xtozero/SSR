@@ -24,7 +24,7 @@ namespace rendercore
 		ConstantBuffer( uint32 size );
 
 		ConstantBuffer() = default;
-		~ConstantBuffer() = default;
+		virtual ~ConstantBuffer() = default;
 		ConstantBuffer( const ConstantBuffer& ) = default;
 		ConstantBuffer& operator=( const ConstantBuffer& ) = default;
 		ConstantBuffer( ConstantBuffer&& ) = default;

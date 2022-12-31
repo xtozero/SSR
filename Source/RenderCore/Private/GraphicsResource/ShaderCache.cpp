@@ -20,6 +20,9 @@ namespace
 			return "./Assets/Shaders/ShaderCache-d3d12.asset";
 			break;
 		}
+
+		assert( false );
+		return "";
 	}
 }
 
