@@ -37,6 +37,10 @@ namespace agl
 
 		AllocatedResourceInfo m_resourceInfo;
 		D3D12_RESOURCE_DESC m_desc = {};
+		DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
+
+		RefHandle<ShaderResourceView> m_srv;
+		RefHandle<UnorderedAccessView> m_uav;
 	};
 
 	class D3D12ConstantBuffer : public D3D12Buffer

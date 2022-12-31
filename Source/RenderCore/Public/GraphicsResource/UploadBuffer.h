@@ -27,7 +27,7 @@ namespace rendercore
 		UploadBuffer( uint32 elementSize, uint32 numElement, const void* initData );
 
 		UploadBuffer() = default;
-		~UploadBuffer() = default;
+		virtual ~UploadBuffer() = default;
 		UploadBuffer( const UploadBuffer& ) = default;
 		UploadBuffer& operator=( const UploadBuffer& ) = default;
 		UploadBuffer( UploadBuffer&& ) = default;
