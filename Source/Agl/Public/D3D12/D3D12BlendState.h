@@ -28,7 +28,7 @@ namespace agl
 		D3D12BlendState( D3D12BlendState&& ) = default;
 		D3D12BlendState& operator=( const D3D12BlendState& ) = default;
 		D3D12BlendState& operator=( D3D12BlendState&& ) = default;
-		~D3D12BlendState() = default;
+		virtual ~D3D12BlendState() override = default;
 
 	private:
 		virtual void InitResource() override;

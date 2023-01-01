@@ -19,7 +19,7 @@ namespace agl
 		D3D12RasterizerState( D3D12RasterizerState&& ) = default;
 		D3D12RasterizerState& operator=( const D3D12RasterizerState& ) = default;
 		D3D12RasterizerState& operator=( D3D12RasterizerState&& ) = default;
-		~D3D12RasterizerState() = default;
+		virtual ~D3D12RasterizerState() override = default;
 
 	private:
 		virtual void InitResource() override;

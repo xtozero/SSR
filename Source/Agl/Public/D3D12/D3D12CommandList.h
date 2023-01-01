@@ -77,7 +77,7 @@ namespace agl
 		virtual void Finish() override;
 
 		D3D12DeferredCommandList();
-		virtual ~D3D12DeferredCommandList();
+		virtual ~D3D12DeferredCommandList() override;
 
 	private:
 	};

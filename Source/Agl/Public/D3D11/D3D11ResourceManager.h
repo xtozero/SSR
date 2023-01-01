@@ -43,7 +43,7 @@ namespace agl
 		virtual Viewport* CreateViewport( uint32 width, uint32 height, void* hWnd, ResourceFormat format ) override;
 
 		CD3D11ResourceManager() = default;
-		~CD3D11ResourceManager();
+		virtual ~CD3D11ResourceManager() override;
 		CD3D11ResourceManager( const CD3D11ResourceManager& ) = delete;
 		CD3D11ResourceManager( CD3D11ResourceManager&& ) = delete;
 		CD3D11ResourceManager& operator=( const CD3D11ResourceManager& ) = delete;

@@ -35,7 +35,7 @@ namespace agl
 		virtual Viewport* CreateViewport( uint32 width, uint32 height, void* hWnd, ResourceFormat format ) override;
 
 		D3D12ResourceManager() = default;
-		~D3D12ResourceManager();
+		virtual ~D3D12ResourceManager() override;
 		D3D12ResourceManager( const D3D12ResourceManager& ) = delete;
 		D3D12ResourceManager( D3D12ResourceManager&& ) = delete;
 		D3D12ResourceManager& operator=( const D3D12ResourceManager& ) = delete;

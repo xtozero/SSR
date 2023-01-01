@@ -81,7 +81,7 @@ namespace agl
 		void RequestExecute();
 
 		D3D11DeferredCommandList();
-		virtual ~D3D11DeferredCommandList();
+		virtual ~D3D11DeferredCommandList() override;
 
 	private:
 		ID3D11DeviceContext* m_pContext = nullptr;

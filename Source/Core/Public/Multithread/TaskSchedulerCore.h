@@ -115,7 +115,7 @@ protected:
 		std::construct_at( reinterpret_cast<TaskStorageType*>( &m_storage ), args... );
 	}
 
-	~Task()
+	virtual ~Task() override
 	{
 		reinterpret_cast<TaskStorageType*>( m_storage )->~TaskStorageType();
 	}

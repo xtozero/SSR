@@ -14,7 +14,6 @@ class IAsyncLoadableAsset : public std::enable_shared_from_this<IAsyncLoadableAs
 	GENERATE_CLASS_TYPE_INFO( IAsyncLoadableAsset );
 
 public:
-	virtual ~IAsyncLoadableAsset() = default;
 	virtual uint32 GetID() const = 0;
 	virtual void SetPath( const std::filesystem::path& path ) = 0;
 	virtual void Serialize( Archive& ar ) = 0;
@@ -23,6 +22,8 @@ public:
 	{
 		return shared_from_this();
 	}
+
+	virtual ~IAsyncLoadableAsset() = default;
 
 protected:
 	virtual void PostLoadImpl() = 0;

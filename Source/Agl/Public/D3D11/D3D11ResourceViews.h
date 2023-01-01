@@ -26,7 +26,7 @@ namespace agl
 			}
 		}
 
-		~D3D11ViewBase()
+		virtual ~D3D11ViewBase() override
 		{
 			this->Free();
 		}

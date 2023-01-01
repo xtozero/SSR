@@ -76,7 +76,7 @@ private:
 
 public:
 	CGameLogic();
-	~CGameLogic();
+	virtual ~CGameLogic() override;
 
 private:
 	void CreateGameViewport();

@@ -58,7 +58,7 @@ public:
 	virtual void SetHandleInProcess( const AssetLoaderSharedHandle& handle ) override;
 
 	AssetLoader() = default;
-	~AssetLoader() = default;
+	virtual ~AssetLoader() override = default;
 	AssetLoader( const AssetLoader& ) = delete;
 	AssetLoader( AssetLoader&& ) = delete;
 	AssetLoader& operator=( const AssetLoader& ) = delete;

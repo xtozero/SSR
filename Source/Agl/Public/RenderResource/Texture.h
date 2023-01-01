@@ -63,7 +63,7 @@ namespace agl
 		TextureBase& operator=( const TextureBase& ) = delete;
 		TextureBase( TextureBase&& ) = delete;
 		TextureBase& operator=( TextureBase&& ) = delete;
-		~TextureBase()
+		virtual ~TextureBase() override
 		{
 			Free();
 

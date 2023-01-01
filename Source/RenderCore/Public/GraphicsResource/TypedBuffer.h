@@ -19,7 +19,7 @@ namespace rendercore
 		}
 
 		TypedConstatBuffer() : ConstantBuffer( sizeof( T ) ) {}
-		~TypedConstatBuffer() = default;
+		virtual ~TypedConstatBuffer() override = default;
 		TypedConstatBuffer( const TypedConstatBuffer& ) = default;
 		TypedConstatBuffer& operator=( const TypedConstatBuffer& ) = default;
 		TypedConstatBuffer( TypedConstatBuffer&& ) = default;
@@ -33,7 +33,7 @@ namespace rendercore
 		TypedVertexBuffer( uint32 numElement, const void* initData ) : VertexBuffer( sizeof( T ), numElement, initData, false ) { }
 
 		TypedVertexBuffer() = default;
-		~TypedVertexBuffer() = default;
+		virtual ~TypedVertexBuffer() override = default;
 		TypedVertexBuffer( const TypedVertexBuffer& ) = default;
 		TypedVertexBuffer& operator=( const TypedVertexBuffer& ) = default;
 		TypedVertexBuffer( TypedVertexBuffer&& ) = default;
@@ -134,7 +134,7 @@ namespace rendercore
 		TypedUploadBuffer( uint32 numElement, const void* initData ) : UploadBuffer( sizeof( T ), numElement, initData ) {}
 
 		TypedUploadBuffer() : UploadBuffer( sizeof( T ), 0, nullptr ) {}
-		~TypedUploadBuffer() = default;
+		virtual ~TypedUploadBuffer() override = default;
 		TypedUploadBuffer( const TypedUploadBuffer& ) = default;
 		TypedUploadBuffer& operator=( const TypedUploadBuffer& ) = default;
 		TypedUploadBuffer( TypedUploadBuffer&& ) = default;

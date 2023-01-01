@@ -53,7 +53,7 @@ public:
 		--m_size;
 	}
 
-	FixedBlockMemoryPool() noexcept = default;
+	FixedBlockMemoryPool() = default;
 	~FixedBlockMemoryPool()
 	{
 		while ( m_chunkList )

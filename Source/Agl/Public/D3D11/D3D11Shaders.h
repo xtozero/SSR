@@ -23,7 +23,7 @@ namespace agl
 		D3D11VertexShader( D3D11VertexShader&& ) = default;
 		D3D11VertexShader& operator=( const D3D11VertexShader& ) = delete;
 		D3D11VertexShader& operator=( D3D11VertexShader&& ) = default;
-		~D3D11VertexShader() = default;
+		virtual ~D3D11VertexShader() override = default;
 
 	private:
 		virtual void InitResource() override;
@@ -42,7 +42,7 @@ namespace agl
 		D3D11GeometryShader( D3D11GeometryShader&& ) = default;
 		D3D11GeometryShader& operator=( const D3D11GeometryShader& ) = delete;
 		D3D11GeometryShader& operator=( D3D11GeometryShader&& ) = default;
-		~D3D11GeometryShader() = default;
+		virtual ~D3D11GeometryShader() override = default;
 
 	private:
 		virtual void InitResource() override;
@@ -61,7 +61,7 @@ namespace agl
 		D3D11PixelShader( D3D11PixelShader&& ) = default;
 		D3D11PixelShader& operator=( const D3D11PixelShader& ) = delete;
 		D3D11PixelShader& operator=( D3D11PixelShader&& ) = default;
-		~D3D11PixelShader() = default;
+		virtual ~D3D11PixelShader() override = default;
 
 	private:
 		virtual void InitResource() override;
@@ -80,7 +80,7 @@ namespace agl
 		D3D11ComputeShader( D3D11ComputeShader&& ) = default;
 		D3D11ComputeShader& operator=( const D3D11ComputeShader& ) = delete;
 		D3D11ComputeShader& operator=( D3D11ComputeShader&& ) = default;
-		~D3D11ComputeShader() = default;
+		virtual ~D3D11ComputeShader() override = default;
 
 	private:
 		virtual void InitResource() override;

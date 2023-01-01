@@ -10,12 +10,12 @@ namespace agl
 	class D3D11BlendState : public BlendState
 	{
 	public:
-		ID3D11BlendState* Resource( );
-		const ID3D11BlendState* Resource( ) const;
+		ID3D11BlendState* Resource();
+		const ID3D11BlendState* Resource() const;
 
-		const float* GetBlendFactor( ) const;
+		const float* GetBlendFactor() const;
 
-		uint32 SamplerMask( ) const;
+		uint32 SamplerMask() const;
 
 		void SetBlendFactor( const float( &blendFactor )[4] );
 
@@ -26,11 +26,11 @@ namespace agl
 		D3D11BlendState( D3D11BlendState&& ) = default;
 		D3D11BlendState& operator=( const D3D11BlendState& ) = delete;
 		D3D11BlendState& operator=( D3D11BlendState&& ) = default;
-		~D3D11BlendState( ) = default;
+		virtual ~D3D11BlendState() override = default;
 
 	private:
-		virtual void InitResource( ) override;
-		virtual void FreeResource( ) override;
+		virtual void InitResource() override;
+		virtual void FreeResource() override;
 
 		ID3D11BlendState* m_blendState = nullptr;
 

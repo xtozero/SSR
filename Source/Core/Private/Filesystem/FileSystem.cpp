@@ -22,7 +22,7 @@ public:
 	virtual bool ReadAsync( const FileHandle& handle, char* buffer, uint32 size, IOCompletionCallback* callback = nullptr ) override;
 
 	FileSystemImpl();
-	virtual ~FileSystemImpl();
+	virtual ~FileSystemImpl() override;
 	FileSystemImpl( const FileSystemImpl& ) = delete;
 	FileSystemImpl& operator=( const FileSystemImpl& ) = delete;
 	FileSystemImpl( FileSystemImpl&& ) = delete;

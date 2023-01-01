@@ -84,7 +84,7 @@ namespace agl
 		bool m_bShaderVisible = false;
 	};
 
-	class D3D12DescriptorHeapAllocator
+	class D3D12DescriptorHeapAllocator final
 	{
 	public:
 		static D3D12DescriptorHeapAllocator& GetInstance()

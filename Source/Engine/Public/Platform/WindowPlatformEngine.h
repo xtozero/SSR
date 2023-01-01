@@ -15,18 +15,18 @@ class WindowPlatformEngine : public IEngine
 public:
 	virtual bool BootUp( IPlatform& platform, char* argv ) override;
 
-	virtual void Run( ) override;
+	virtual void Run() override;
 
 	virtual LRESULT MsgProc( HWND hWnd, uint32 message, WPARAM wParam, LPARAM lParam );
 
-	~WindowPlatformEngine( );
+	virtual ~WindowPlatformEngine() override;
 
 protected:
-	virtual void ProcessInput( ) override;
-	virtual bool IsAvailable( ) override { return m_isAvailable; }
+	virtual void ProcessInput() override;
+	virtual bool IsAvailable() override { return m_isAvailable; }
 
 private:
-	void Shutdown( );
+	void Shutdown();
 
 	WindowPlatformInputConvertor m_inputConvertor;
 	HMODULE m_logicDll = nullptr;

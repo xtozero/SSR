@@ -41,7 +41,7 @@ namespace rendercore
 		RENDERCORE_DLL void AddMaterial( const std::shared_ptr<Material>& mateiral );
 
 		RENDERCORE_DLL StaticMesh() = default;
-		RENDERCORE_DLL ~StaticMesh();
+		RENDERCORE_DLL virtual ~StaticMesh() override;
 		RENDERCORE_DLL StaticMesh( const StaticMesh& ) = delete;
 		RENDERCORE_DLL StaticMesh( StaticMesh&& other ) noexcept
 		{

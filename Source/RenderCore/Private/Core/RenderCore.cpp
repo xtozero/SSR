@@ -30,7 +30,7 @@ namespace rendercore
 
 		virtual void BeginRenderingViewGroup( RenderViewGroup& renderViewGroup ) override;
 
-		~RenderCore();
+		virtual ~RenderCore() override;
 
 	private:
 		void Shutdown();

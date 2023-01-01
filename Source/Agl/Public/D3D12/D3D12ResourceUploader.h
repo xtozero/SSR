@@ -11,7 +11,7 @@ namespace agl
 {
 	class D3D12ResourceUploader;
 
-	class D3D12UploadContext
+	class D3D12UploadContext final
 	{
 	public:
 		void Prepare();
@@ -35,7 +35,7 @@ namespace agl
 		Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_uploadCommandAllocator;
 	};
 
-	class D3D12ResourceUploader
+	class D3D12ResourceUploader final
 	{
 	public:
 		bool Initialize();
