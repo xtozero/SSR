@@ -34,7 +34,7 @@ public:
 	[[nodiscard]] TaskHandle GetExclusiveTaskGroup( ThreadType threadType );
 
 	TaskSchedulerImpl();
-	~TaskSchedulerImpl() = default;
+	virtual ~TaskSchedulerImpl() override = default;
 	TaskSchedulerImpl( const TaskSchedulerImpl& ) = delete;
 	TaskSchedulerImpl& operator=( const TaskSchedulerImpl& ) = delete;
 	TaskSchedulerImpl( TaskSchedulerImpl&& ) = delete;

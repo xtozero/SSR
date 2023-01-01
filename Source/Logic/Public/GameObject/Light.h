@@ -29,8 +29,6 @@ public:
 	void SetSpecularColor( const ColorF& specularColor );
 	void SetCastShadow( bool castShadow );
 
-	virtual ~Light() = default;
-
 private:
 	LightComponent& GetLightComponent();
 

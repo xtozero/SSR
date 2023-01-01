@@ -26,7 +26,7 @@ private:
 
 public:
 	CDisplayShaderResourceHelper();
-	~CDisplayShaderResourceHelper() = default;
+	virtual ~CDisplayShaderResourceHelper() override = default;
 };
 
 

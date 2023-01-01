@@ -92,7 +92,7 @@ namespace agl
 
 		D3D12ResourceUploader& GetUploader();
 
-		~Direct3D12();
+		virtual ~Direct3D12() override;
 
 	private:
 		bool CreateDeviceDependentResource();

@@ -3,7 +3,7 @@
 namespace agl
 {
 	template <typename ReferencedType>
-	class RefHandle
+	class RefHandle final
 	{
 	public:
 		ReferencedType* Get() const

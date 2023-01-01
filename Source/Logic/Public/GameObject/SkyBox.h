@@ -12,7 +12,7 @@ public:
 	virtual bool IgnorePicking() const override { return true; }
 
 	CSkyBox();
-	~CSkyBox() = default;
+	virtual ~CSkyBox() override = default;
 
 private:
 	TexturedSkyComponent* m_pTexturedSkyComponent = nullptr;

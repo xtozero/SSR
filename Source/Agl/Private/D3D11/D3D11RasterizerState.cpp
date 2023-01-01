@@ -29,29 +29,29 @@ namespace
 
 namespace agl
 {
-	ID3D11RasterizerState* D3D11RasterizerState::Resource( )
+	ID3D11RasterizerState* D3D11RasterizerState::Resource()
 	{
 		return m_rasterizerState;
 	}
 
-	const ID3D11RasterizerState* D3D11RasterizerState::Resource( ) const
+	const ID3D11RasterizerState* D3D11RasterizerState::Resource() const
 	{
 		return m_rasterizerState;
 	}
 
 	D3D11RasterizerState::D3D11RasterizerState( const RASTERIZER_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
 
-	void D3D11RasterizerState::InitResource( )
+	void D3D11RasterizerState::InitResource()
 	{
-		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device( ).CreateRasterizerState( &m_desc, &m_rasterizerState ) );
+		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device().CreateRasterizerState( &m_desc, &m_rasterizerState ) );
 		assert( result );
 	}
 
-	void D3D11RasterizerState::FreeResource( )
+	void D3D11RasterizerState::FreeResource()
 	{
 		if ( m_rasterizerState )
 		{
-			m_rasterizerState->Release( );
+			m_rasterizerState->Release();
 			m_rasterizerState = nullptr;
 		}
 	}
