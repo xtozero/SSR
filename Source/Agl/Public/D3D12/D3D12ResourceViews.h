@@ -44,7 +44,7 @@ namespace agl
 			}
 		}
 
-		virtual ~D3D12ViewBase()
+		virtual ~D3D12ViewBase() override
 		{
 			this->Free();
 		}

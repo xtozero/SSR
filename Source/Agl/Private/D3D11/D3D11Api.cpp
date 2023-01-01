@@ -84,7 +84,7 @@ namespace agl
 		}
 
 		CDirect3D11();
-		virtual ~CDirect3D11();
+		virtual ~CDirect3D11() override;
 
 	private:
 		void Shutdown();

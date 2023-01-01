@@ -35,29 +35,29 @@ namespace
 
 namespace agl
 {
-	ID3D11SamplerState* D3D11SamplerState::Resource( )
+	ID3D11SamplerState* D3D11SamplerState::Resource()
 	{
 		return m_samplerState;
 	}
 
-	const ID3D11SamplerState* D3D11SamplerState::Resource( ) const
+	const ID3D11SamplerState* D3D11SamplerState::Resource() const
 	{
 		return m_samplerState;
 	}
 
 	D3D11SamplerState::D3D11SamplerState( const SAMPLER_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
 
-	void D3D11SamplerState::InitResource( )
+	void D3D11SamplerState::InitResource()
 	{
-		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device( ).CreateSamplerState( &m_desc, &m_samplerState ) );
+		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device().CreateSamplerState( &m_desc, &m_samplerState ) );
 		assert( result );
 	}
 
-	void D3D11SamplerState::FreeResource( )
+	void D3D11SamplerState::FreeResource()
 	{
 		if ( m_samplerState )
 		{
-			m_samplerState->Release( );
+			m_samplerState->Release();
 			m_samplerState = nullptr;
 		}
 	}

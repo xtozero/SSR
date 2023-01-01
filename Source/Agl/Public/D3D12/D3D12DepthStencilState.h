@@ -19,7 +19,7 @@ namespace agl
 		D3D12DepthStencilState( D3D12DepthStencilState&& ) = default;
 		D3D12DepthStencilState& operator=( const D3D12DepthStencilState& ) = default;
 		D3D12DepthStencilState& operator=( D3D12DepthStencilState&& ) = default;
-		~D3D12DepthStencilState() = default;
+		virtual ~D3D12DepthStencilState() override = default;
 
 	private:
 		virtual void InitResource() override;

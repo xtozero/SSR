@@ -103,7 +103,7 @@ public:
 	World* GetWorld() const { return m_pWorld; }
 
 	CGameObject();
-	~CGameObject();
+	virtual ~CGameObject();
 
 protected:
 	virtual void SetupInputComponent();

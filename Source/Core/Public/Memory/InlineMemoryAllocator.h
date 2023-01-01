@@ -77,8 +77,8 @@ public:
 		}
 	}
 
-	constexpr InlineAllocator() noexcept = default;
-	constexpr InlineAllocator( const InlineAllocator& ) noexcept = default;
+	constexpr InlineAllocator() = default;
+	constexpr InlineAllocator( const InlineAllocator& ) = default;
 	template <class Other>
 	constexpr InlineAllocator( const InlineAllocator<Other, NumInlineElements, SecondAlloc>& ) noexcept {}
 	~InlineAllocator() = default;

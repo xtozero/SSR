@@ -27,8 +27,8 @@ namespace rendercore
 
 		void deallocate( [[maybe_unused]] T* p, [[maybe_unused]] size_t n ) { /*Do Nothing*/ }
 
-		constexpr RenderCoreAllocator() noexcept {}
-		constexpr RenderCoreAllocator( const RenderCoreAllocator& ) noexcept = default;
+		constexpr RenderCoreAllocator() = default;
+		constexpr RenderCoreAllocator( const RenderCoreAllocator& ) = default;
 		template <class Other>
 		constexpr RenderCoreAllocator( const RenderCoreAllocator<Other>& ) noexcept {}
 		~RenderCoreAllocator() = default;

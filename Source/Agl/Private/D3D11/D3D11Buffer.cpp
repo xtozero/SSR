@@ -42,11 +42,11 @@ namespace
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
 
-		if ( desc.MiscFlags == D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS )
+		if ( ( desc.MiscFlags & D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS ) > 0 )
 		{
 			if ( ( desc.ByteWidth % 4 ) != 0 )
 			{
-				__debugbreak( );
+				__debugbreak();
 			}
 
 			srv.Format = DXGI_FORMAT_R32_TYPELESS;
@@ -69,11 +69,11 @@ namespace
 		D3D11_UNORDERED_ACCESS_VIEW_DESC uav = {};
 		uav.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
 
-		if ( desc.MiscFlags == D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS )
+		if ( ( desc.MiscFlags & D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS ) > 0 )
 		{
 			if ( ( desc.ByteWidth % 4 ) != 0 )
 			{
-				__debugbreak( );
+				__debugbreak();
 			}
 
 			uav.Format = DXGI_FORMAT_R32_TYPELESS;
@@ -93,17 +93,17 @@ namespace
 
 namespace agl
 {
-	ID3D11Buffer* D3D11Buffer::Resource( )
+	ID3D11Buffer* D3D11Buffer::Resource()
 	{
 		return m_buffer;
 	}
 
-	const ID3D11Buffer* D3D11Buffer::Resource( ) const
+	const ID3D11Buffer* D3D11Buffer::Resource() const
 	{
 		return m_buffer;
 	}
 
-	uint32 D3D11Buffer::Stride( ) const
+	uint32 D3D11Buffer::Stride() const
 	{
 		return m_desc.StructureByteStride;
 	}
@@ -125,26 +125,26 @@ namespace agl
 		}
 	}
 
-	D3D11Buffer::~D3D11Buffer( )
+	D3D11Buffer::~D3D11Buffer()
 	{
 		delete[] m_dataStorage;
 		m_dataStorage = nullptr;
 	}
 
-	void D3D11Buffer::InitResource( )
+	void D3D11Buffer::InitResource()
 	{
-		CreateBuffer( );
+		CreateBuffer();
 	}
 
-	void D3D11Buffer::FreeResource( )
+	void D3D11Buffer::FreeResource()
 	{
-		DestroyBuffer( );
+		DestroyBuffer();
 	}
 
-	void D3D11Buffer::CreateBuffer( )
+	void D3D11Buffer::CreateBuffer()
 	{
 		D3D11_SUBRESOURCE_DATA* initData = m_hasInitData ? &m_initData : nullptr;
-		[[maybe_unused]] HRESULT hr = D3D11Device( ).CreateBuffer( &m_desc, initData, &m_buffer );
+		[[maybe_unused]] HRESULT hr = D3D11Device().CreateBuffer( &m_desc, initData, &m_buffer );
 		assert( SUCCEEDED( hr ) );
 
 		if ( HasAnyFlags( m_trait.m_miscFlag, ResourceMisc::Intermediate ) )
@@ -156,25 +156,25 @@ namespace agl
 		{
 			D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc, m_format );
 			m_srv = new D3D11ShaderResourceView( this, m_buffer, srvDesc );
-			m_srv->Init( );
+			m_srv->Init();
 		}
 
 		if ( m_desc.BindFlags & D3D11_BIND_UNORDERED_ACCESS )
 		{
 			D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc, m_format );
 			m_uav = new D3D11UnorderedAccessView( this, m_buffer, uavDesc );
-			m_uav->Init( );
+			m_uav->Init();
 		}
 	}
 
-	void D3D11Buffer::DestroyBuffer( )
+	void D3D11Buffer::DestroyBuffer()
 	{
 		m_srv = nullptr;
 		m_uav = nullptr;
 
 		if ( m_buffer )
 		{
-			[[maybe_unused]] uint32 ref = m_buffer->Release( );
+			[[maybe_unused]] uint32 ref = m_buffer->Release();
 			m_buffer = nullptr;
 		}
 	}

@@ -15,7 +15,7 @@ namespace agl
 		D3D12SamplerState( D3D12SamplerState&& ) = default;
 		D3D12SamplerState& operator=( const D3D12SamplerState& ) = default;
 		D3D12SamplerState& operator=( D3D12SamplerState&& ) = default;
-		~D3D12SamplerState() = default;
+		virtual ~D3D12SamplerState() override = default;
 
 	private:
 		virtual void InitResource() override;

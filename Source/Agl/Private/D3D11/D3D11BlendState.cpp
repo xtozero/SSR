@@ -37,22 +37,22 @@ namespace
 
 namespace agl
 {
-	ID3D11BlendState* D3D11BlendState::Resource( )
+	ID3D11BlendState* D3D11BlendState::Resource()
 	{
 		return m_blendState;
 	}
 
-	const ID3D11BlendState* D3D11BlendState::Resource( ) const
+	const ID3D11BlendState* D3D11BlendState::Resource() const
 	{
 		return m_blendState;
 	}
 
-	const float* D3D11BlendState::GetBlendFactor( ) const
+	const float* D3D11BlendState::GetBlendFactor() const
 	{
 		return m_blendFactor;
 	}
 
-	uint32 D3D11BlendState::SamplerMask( ) const
+	uint32 D3D11BlendState::SamplerMask() const
 	{
 		return m_sampleMask;
 	}
@@ -73,17 +73,17 @@ namespace agl
 
 	D3D11BlendState::D3D11BlendState( const BLEND_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ), m_sampleMask( trait.m_sampleMask ) {}
 
-	void D3D11BlendState::InitResource( )
+	void D3D11BlendState::InitResource()
 	{
-		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device( ).CreateBlendState( &m_desc, &m_blendState ) );
+		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device().CreateBlendState( &m_desc, &m_blendState ) );
 		assert( result );
 	}
 
-	void D3D11BlendState::FreeResource( )
+	void D3D11BlendState::FreeResource()
 	{
 		if ( m_blendState )
 		{
-			m_blendState->Release( );
+			m_blendState->Release();
 			m_blendState = nullptr;
 		}
 	}
