@@ -12,16 +12,10 @@ namespace rendercore
 		void BindVertexBuffer( agl::Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets );
 		void BindIndexBuffer( agl::Buffer* indexBuffer, uint32 indexOffset );
 
-		void BindPipelineState( agl::PipelineState* pipelineState );
-		void BindShader( agl::VertexShader* vs );
-		void BindShader( agl::GeometryShader* gs );
-		void BindShader( agl::PixelShader* ps );
-		void BindShader( agl::ComputeShader* cs );
+		void BindPipelineState( agl::GraphicsPipelineState* pipelineState );
+		void BindPipelineState( agl::ComputePipelineState* pipelineState );
 		void BindShaderResources( const agl::ShaderBindings& shaderBindings );
 		void BindConstantBuffer( agl::ShaderType shader, uint32 slot, agl::Buffer* buffer );
-		void BindSRV( agl::ShaderType shader, uint32 slot, agl::ShaderResourceView* srv );
-		void BindUAV( agl::ShaderType shader, uint32 slot, agl::UnorderedAccessView* uav );
-		void BindSampler( agl::ShaderType shader, uint32 slot, agl::SamplerState* sampler );
 		void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation );
 		void DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation );
 		void Dispatch( uint32 x, uint32 y, uint32 z = 1 );

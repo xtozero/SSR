@@ -175,6 +175,11 @@ namespace rendercore
 		DECLARE_ASSET( RENDERCORE, ComputeShader );
 
 	public:
+		bool IsValid() const
+		{
+			return m_shader.Get() != nullptr;
+		}
+
 		ComputeShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
 		ComputeShader() = default;
 

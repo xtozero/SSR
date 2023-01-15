@@ -12,16 +12,10 @@ namespace agl
 	public:
 		virtual void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets ) override;
 		virtual void BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset ) override;
-		virtual void BindPipelineState( PipelineState* pipelineState ) override;
-		virtual void BindShader( VertexShader* vs ) override;
-		virtual void BindShader( GeometryShader* gs ) override;
-		virtual void BindShader( PixelShader* ps ) override;
-		virtual void BindShader( ComputeShader* cs ) override;
+		virtual void BindPipelineState( GraphicsPipelineState* pipelineState ) override;
+		virtual void BindPipelineState( ComputePipelineState* pipelineState ) override;
 		virtual void BindShaderResources( const ShaderBindings& shaderBindings ) override;
 		virtual void BindConstantBuffer( ShaderType shader, uint32 slot, Buffer* buffer ) override;
-		virtual void BindSRV( ShaderType shader, uint32 slot, ShaderResourceView* srv ) override;
-		virtual void BindUAV( ShaderType shader, uint32 slot, UnorderedAccessView* uav ) override;
-		virtual void BindSampler( ShaderType shader, uint32 slot, SamplerState* sampler ) override;
 		virtual void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation ) override;
 		virtual void DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) override;
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) override;
@@ -49,16 +43,10 @@ namespace agl
 	public:
 		virtual void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets ) override;
 		virtual void BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset ) override;
-		virtual void BindPipelineState( PipelineState* pipelineState ) override;
-		virtual void BindShader( VertexShader* vs ) override;
-		virtual void BindShader( GeometryShader* gs ) override;
-		virtual void BindShader( PixelShader* ps ) override;
-		virtual void BindShader( ComputeShader* cs ) override;
+		virtual void BindPipelineState( GraphicsPipelineState* pipelineState ) override;
+		virtual void BindPipelineState( ComputePipelineState* pipelineState ) override;
 		virtual void BindShaderResources( const ShaderBindings& shaderBindings ) override;
 		virtual void BindConstantBuffer( ShaderType shader, uint32 slot, Buffer* buffer ) override;
-		virtual void BindSRV( ShaderType shader, uint32 slot, ShaderResourceView* srv ) override;
-		virtual void BindUAV( ShaderType shader, uint32 slot, UnorderedAccessView* uav ) override;
-		virtual void BindSampler( ShaderType shader, uint32 slot, SamplerState* sampler ) override;
 		virtual void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation ) override;
 		virtual void DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) override;
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) override;
@@ -87,16 +75,10 @@ namespace agl
 	public:
 		virtual void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets ) override;
 		virtual void BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset ) override;
-		virtual void BindPipelineState( PipelineState* pipelineState ) override;
-		virtual void BindShader( VertexShader* vs ) override;
-		virtual void BindShader( GeometryShader* gs ) override;
-		virtual void BindShader( PixelShader* ps ) override;
-		virtual void BindShader( ComputeShader* cs ) override;
+		virtual void BindPipelineState( GraphicsPipelineState* pipelineState ) override;
+		virtual void BindPipelineState( ComputePipelineState* pipelineState ) override;
 		virtual void BindShaderResources( const ShaderBindings& shaderBindings ) override;
 		virtual void BindConstantBuffer( ShaderType shader, uint32 slot, Buffer* buffer ) override;
-		virtual void BindSRV( ShaderType shader, uint32 slot, ShaderResourceView* srv ) override;
-		virtual void BindUAV( ShaderType shader, uint32 slot, UnorderedAccessView* uav ) override;
-		virtual void BindSampler( ShaderType shader, uint32 slot, SamplerState* sampler ) override;
 		virtual void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation ) override;
 		virtual void DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) override;
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) override;

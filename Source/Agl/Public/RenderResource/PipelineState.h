@@ -72,9 +72,15 @@ namespace agl
 		ComputeShader* m_computeShader = nullptr;
 	};
 
-	class PipelineState : public DeviceDependantResource
+	class GraphicsPipelineState : public DeviceDependantResource
 	{
 	public:
-		AGL_DLL static RefHandle<PipelineState> Create( const GraphicsPipelineStateInitializer& initializer );
+		AGL_DLL static RefHandle<GraphicsPipelineState> Create( const GraphicsPipelineStateInitializer& initializer );
+	};
+
+	class ComputePipelineState : public DeviceDependantResource
+	{
+	public:
+		AGL_DLL static RefHandle<ComputePipelineState> Create( const ComputePipelineStateInitializer& initializer );
 	};
 }

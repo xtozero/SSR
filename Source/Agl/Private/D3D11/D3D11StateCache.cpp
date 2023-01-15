@@ -75,7 +75,7 @@ namespace agl
 		context.IASetIndexBuffer( buffer, format, indexOffset );
 	}
 
-	void D3D11PipelineCache::BindPipelineState( ID3D11DeviceContext& context, PipelineState* pipelineState )
+	void D3D11PipelineCache::BindPipelineState( ID3D11DeviceContext& context, GraphicsPipelineState* pipelineState )
 	{
 		ID3D11InputLayout* inputLayout = nullptr;
 		D3D11_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
@@ -149,6 +149,22 @@ namespace agl
 		{
 			m_depthStencilState = depthStencilState;
 			context.OMSetDepthStencilState( depthStencilState, 0/*Temp*/ );
+		}
+	}
+
+	void D3D11PipelineCache::BindPipelineState( ID3D11DeviceContext& context, ComputePipelineState* pipelineState )
+	{
+		ID3D11ComputeShader* computeShader = nullptr;
+
+		if ( auto d3d11PipelineState = static_cast<D3D11ComputePipelineState*>( pipelineState ) )
+		{
+			computeShader = d3d11PipelineState->ComputeShader();
+		}
+
+		if ( computeShader != m_computeShader )
+		{
+			m_computeShader = computeShader;
+			context.CSSetShader( computeShader, nullptr, 0 );
 		}
 	}
 
@@ -291,122 +307,6 @@ namespace agl
 		}
 	}
 
-	void D3D11PipelineCache::BindSRV( ID3D11DeviceContext& context, ShaderType shader, uint32 slot, ShaderResourceView* srv )
-	{
-		ID3D11ShaderResourceView* rawSrv = nullptr;
-		if ( auto d3d11Srv = static_cast<D3D11ShaderResourceView*>( srv ) )
-		{
-			rawSrv = d3d11Srv->Resource();
-
-			if ( const IResourceViews* sibiling = d3d11Srv->ViewHolder() )
-			{
-				if ( auto d3d11Uav = static_cast<const D3D11UnorderedAccessView*>(sibiling->UAV()) )
-				{
-					UnbindExistingUAV( context, d3d11Uav->Resource() );
-				}
-			}
-		}
-
-		auto nShader = static_cast<uint32>( shader );
-		if ( m_srvs[nShader][slot] == rawSrv )
-		{
-			return;
-		}
-
-		m_srvs[nShader][slot] = rawSrv;
-		switch ( shader )
-		{
-		case ShaderType::VS:
-			context.VSSetShaderResources( slot, 1, &rawSrv );
-			break;
-		case ShaderType::HS:
-			break;
-		case ShaderType::DS:
-			break;
-		case ShaderType::GS:
-			context.GSSetShaderResources( slot, 1, &rawSrv );
-			break;
-		case ShaderType::PS:
-			context.PSSetShaderResources( slot, 1, &rawSrv );
-			break;
-		case ShaderType::CS:
-			context.CSSetShaderResources( slot, 1, &rawSrv );
-			break;
-		default:
-			break;
-		}
-	}
-
-	void D3D11PipelineCache::BindUAV( ID3D11DeviceContext& context, ShaderType shader, uint32 slot, UnorderedAccessView* uav )
-	{
-		ID3D11UnorderedAccessView* rawUav = nullptr;
-		if ( auto d3d11Uav = static_cast<D3D11UnorderedAccessView*>( uav ) )
-		{
-			rawUav = d3d11Uav->Resource();
-
-			if ( const IResourceViews* sibiling = d3d11Uav->ViewHolder() )
-			{
-				if ( auto d3d11Srv = static_cast<const D3D11ShaderResourceView*>(sibiling->SRV()) )
-				{
-					UnbindExistingSRV( context, d3d11Srv->Resource() );
-				}
-			}
-		}
-
-		if ( m_uavs[slot] == rawUav )
-		{
-			return;
-		}
-
-		m_uavs[slot] = rawUav;
-		switch ( shader )
-		{
-		case ShaderType::CS:
-			context.CSSetUnorderedAccessViews( slot, 1, &rawUav, nullptr );
-			break;
-		default:
-			break;
-		}
-	}
-
-	void D3D11PipelineCache::BindSampler( ID3D11DeviceContext& context, ShaderType shader, uint32 slot, SamplerState* sampler )
-	{
-		ID3D11SamplerState* samplerState = nullptr;
-		if ( auto d3d11Sampler = static_cast<D3D11SamplerState*>( sampler ) )
-		{
-			samplerState = d3d11Sampler->Resource();
-		}
-
-		auto nShader = static_cast<uint32>( shader );
-		if ( m_samplerStates[nShader][slot] == samplerState )
-		{
-			return;
-		}
-
-		m_samplerStates[nShader][slot] = samplerState;
-		switch ( shader )
-		{
-		case ShaderType::VS:
-			context.VSSetSamplers( slot, 1, &samplerState );
-			break;
-		case ShaderType::HS:
-			break;
-		case ShaderType::DS:
-			break;
-		case ShaderType::GS:
-			context.GSSetSamplers( slot, 1, &samplerState );
-			break;
-		case ShaderType::PS:
-			context.PSSetSamplers( slot, 1, &samplerState );
-			break;
-		case ShaderType::CS:
-			context.CSSetSamplers( slot, 1, &samplerState );
-			break;
-		default:
-			break;
-		}
-	}
-
 	void D3D11PipelineCache::SetViewports( ID3D11DeviceContext& context, uint32 count, const CubeArea<float>* area )
 	{
 		D3D11_VIEWPORT viewports[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE] = {};
@@ -541,6 +441,122 @@ namespace agl
 			{
 				BindUAV( context, ShaderType::CS, slot, RefHandle<UnorderedAccessView>() );
 			}
+		}
+	}
+
+	void D3D11PipelineCache::BindSRV( ID3D11DeviceContext& context, ShaderType shader, uint32 slot, ShaderResourceView* srv )
+	{
+		ID3D11ShaderResourceView* rawSrv = nullptr;
+		if ( auto d3d11Srv = static_cast<D3D11ShaderResourceView*>( srv ) )
+		{
+			rawSrv = d3d11Srv->Resource();
+
+			if ( const IResourceViews* sibiling = d3d11Srv->ViewHolder() )
+			{
+				if ( auto d3d11Uav = static_cast<const D3D11UnorderedAccessView*>( sibiling->UAV() ) )
+				{
+					UnbindExistingUAV( context, d3d11Uav->Resource() );
+				}
+			}
+		}
+
+		auto nShader = static_cast<uint32>( shader );
+		if ( m_srvs[nShader][slot] == rawSrv )
+		{
+			return;
+		}
+
+		m_srvs[nShader][slot] = rawSrv;
+		switch ( shader )
+		{
+		case ShaderType::VS:
+			context.VSSetShaderResources( slot, 1, &rawSrv );
+			break;
+		case ShaderType::HS:
+			break;
+		case ShaderType::DS:
+			break;
+		case ShaderType::GS:
+			context.GSSetShaderResources( slot, 1, &rawSrv );
+			break;
+		case ShaderType::PS:
+			context.PSSetShaderResources( slot, 1, &rawSrv );
+			break;
+		case ShaderType::CS:
+			context.CSSetShaderResources( slot, 1, &rawSrv );
+			break;
+		default:
+			break;
+		}
+	}
+
+	void D3D11PipelineCache::BindUAV( ID3D11DeviceContext& context, ShaderType shader, uint32 slot, UnorderedAccessView* uav )
+	{
+		ID3D11UnorderedAccessView* rawUav = nullptr;
+		if ( auto d3d11Uav = static_cast<D3D11UnorderedAccessView*>( uav ) )
+		{
+			rawUav = d3d11Uav->Resource();
+
+			if ( const IResourceViews* sibiling = d3d11Uav->ViewHolder() )
+			{
+				if ( auto d3d11Srv = static_cast<const D3D11ShaderResourceView*>( sibiling->SRV() ) )
+				{
+					UnbindExistingSRV( context, d3d11Srv->Resource() );
+				}
+			}
+		}
+
+		if ( m_uavs[slot] == rawUav )
+		{
+			return;
+		}
+
+		m_uavs[slot] = rawUav;
+		switch ( shader )
+		{
+		case ShaderType::CS:
+			context.CSSetUnorderedAccessViews( slot, 1, &rawUav, nullptr );
+			break;
+		default:
+			break;
+		}
+	}
+
+	void D3D11PipelineCache::BindSampler( ID3D11DeviceContext& context, ShaderType shader, uint32 slot, SamplerState* sampler )
+	{
+		ID3D11SamplerState* samplerState = nullptr;
+		if ( auto d3d11Sampler = static_cast<D3D11SamplerState*>( sampler ) )
+		{
+			samplerState = d3d11Sampler->Resource();
+		}
+
+		auto nShader = static_cast<uint32>( shader );
+		if ( m_samplerStates[nShader][slot] == samplerState )
+		{
+			return;
+		}
+
+		m_samplerStates[nShader][slot] = samplerState;
+		switch ( shader )
+		{
+		case ShaderType::VS:
+			context.VSSetSamplers( slot, 1, &samplerState );
+			break;
+		case ShaderType::HS:
+			break;
+		case ShaderType::DS:
+			break;
+		case ShaderType::GS:
+			context.GSSetSamplers( slot, 1, &samplerState );
+			break;
+		case ShaderType::PS:
+			context.PSSetSamplers( slot, 1, &samplerState );
+			break;
+		case ShaderType::CS:
+			context.CSSetSamplers( slot, 1, &samplerState );
+			break;
+		default:
+			break;
 		}
 	}
 }

@@ -16,23 +16,11 @@ namespace agl
 	{
 	}
 
-	void D3D12CommandList::BindPipelineState( PipelineState* pipelineState )
+	void D3D12CommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
 	{
 	}
 
-	void D3D12CommandList::BindShader( VertexShader* vs )
-	{
-	}
-
-	void D3D12CommandList::BindShader( GeometryShader* gs )
-	{
-	}
-
-	void D3D12CommandList::BindShader( PixelShader* ps )
-	{
-	}
-
-	void D3D12CommandList::BindShader( ComputeShader* cs )
+	void D3D12CommandList::BindPipelineState( ComputePipelineState* pipelineState )
 	{
 	}
 
@@ -41,18 +29,6 @@ namespace agl
 	}
 
 	void D3D12CommandList::BindConstantBuffer( ShaderType shader, uint32 slot, Buffer* buffer )
-	{
-	}
-
-	void D3D12CommandList::BindSRV( ShaderType shader, uint32 slot, ShaderResourceView* srv )
-	{
-	}
-
-	void D3D12CommandList::BindUAV( ShaderType shader, uint32 slot, UnorderedAccessView* uav )
-	{
-	}
-
-	void D3D12CommandList::BindSampler( ShaderType shader, uint32 slot, SamplerState* sampler )
 	{
 	}
 
@@ -112,23 +88,11 @@ namespace agl
 	{
 	}
 
-	void D3D12DeferredCommandList::BindPipelineState( PipelineState* pipelineState )
+	void D3D12DeferredCommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
 	{
 	}
 
-	void D3D12DeferredCommandList::BindShader( VertexShader* vs )
-	{
-	}
-
-	void D3D12DeferredCommandList::BindShader( GeometryShader* gs )
-	{
-	}
-
-	void D3D12DeferredCommandList::BindShader( PixelShader* ps )
-	{
-	}
-
-	void D3D12DeferredCommandList::BindShader( ComputeShader* cs )
+	void D3D12DeferredCommandList::BindPipelineState( ComputePipelineState* pipelineState )
 	{
 	}
 
@@ -137,18 +101,6 @@ namespace agl
 	}
 
 	void D3D12DeferredCommandList::BindConstantBuffer( ShaderType shader, uint32 slot, Buffer* buffer )
-	{
-	}
-
-	void D3D12DeferredCommandList::BindSRV( ShaderType shader, uint32 slot, ShaderResourceView* srv )
-	{
-	}
-
-	void D3D12DeferredCommandList::BindUAV( ShaderType shader, uint32 slot, UnorderedAccessView* uav )
-	{
-	}
-
-	void D3D12DeferredCommandList::BindSampler( ShaderType shader, uint32 slot, SamplerState* sampler )
 	{
 	}
 
@@ -212,23 +164,11 @@ namespace agl
 	{
 	}
 
-	void D3D12GraphicsCommandList::BindPipelineState( PipelineState* pipelineState )
+	void D3D12GraphicsCommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
 	{
 	}
 
-	void D3D12GraphicsCommandList::BindShader( VertexShader* vs )
-	{
-	}
-
-	void D3D12GraphicsCommandList::BindShader( GeometryShader* gs )
-	{
-	}
-
-	void D3D12GraphicsCommandList::BindShader( PixelShader* ps )
-	{
-	}
-
-	void D3D12GraphicsCommandList::BindShader( ComputeShader* cs )
+	void D3D12GraphicsCommandList::BindPipelineState( ComputePipelineState* pipelineState )
 	{
 	}
 
@@ -237,18 +177,6 @@ namespace agl
 	}
 
 	void D3D12GraphicsCommandList::BindConstantBuffer( ShaderType shader, uint32 slot, Buffer* buffer )
-	{
-	}
-
-	void D3D12GraphicsCommandList::BindSRV( ShaderType shader, uint32 slot, ShaderResourceView* srv )
-	{
-	}
-
-	void D3D12GraphicsCommandList::BindUAV( ShaderType shader, uint32 slot, UnorderedAccessView* uav )
-	{
-	}
-
-	void D3D12GraphicsCommandList::BindSampler( ShaderType shader, uint32 slot, SamplerState* sampler )
 	{
 	}
 

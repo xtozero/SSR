@@ -16,29 +16,14 @@ namespace rendercore
 		m_imple.BindIndexBuffer( indexBuffer, indexOffset );
 	}
 
-	void ImmediateCommandList::BindPipelineState( agl::PipelineState* pipelineState )
+	void ImmediateCommandList::BindPipelineState( agl::GraphicsPipelineState* pipelineState )
 	{
 		m_imple.BindPipelineState( pipelineState );
 	}
 
-	void ImmediateCommandList::BindShader( agl::VertexShader* vs )
+	void ImmediateCommandList::BindPipelineState( agl::ComputePipelineState* pipelineState )
 	{
-		m_imple.BindShader( vs );
-	}
-
-	void ImmediateCommandList::BindShader( agl::GeometryShader* gs )
-	{
-		m_imple.BindShader( gs );
-	}
-
-	void ImmediateCommandList::BindShader( agl::PixelShader* ps )
-	{
-		m_imple.BindShader( ps );
-	}
-
-	void ImmediateCommandList::BindShader( agl::ComputeShader* cs )
-	{
-		m_imple.BindShader( cs );
+		m_imple.BindPipelineState( pipelineState );
 	}
 
 	void ImmediateCommandList::BindShaderResources( const agl::ShaderBindings& shaderBindings )
@@ -49,21 +34,6 @@ namespace rendercore
 	void ImmediateCommandList::BindConstantBuffer( agl::ShaderType shader, uint32 slot, agl::Buffer* buffer )
 	{
 		m_imple.BindConstantBuffer( shader, slot, buffer );
-	}
-
-	void ImmediateCommandList::BindSRV( agl::ShaderType shader, uint32 slot, agl::ShaderResourceView* srv )
-	{
-		m_imple.BindSRV( shader, slot, srv );
-	}
-
-	void ImmediateCommandList::BindUAV( agl::ShaderType shader, uint32 slot, agl::UnorderedAccessView* uav )
-	{
-		m_imple.BindUAV( shader, slot, uav );
-	}
-
-	void ImmediateCommandList::BindSampler( agl::ShaderType shader, uint32 slot, agl::SamplerState* sampler )
-	{
-		m_imple.BindSampler( shader, slot, sampler );
 	}
 
 	void ImmediateCommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
@@ -82,7 +52,7 @@ namespace rendercore
 	{
 		DefaultConstantBuffers::GetInstance().Commit( agl::ShaderType::CS );
 		m_imple.Dispatch( x, y, z );
-		BindShader( static_cast<agl::ComputeShader*>( nullptr ) );
+		BindPipelineState( static_cast<agl::ComputePipelineState*>( nullptr ) );
 	}
 
 	void ImmediateCommandList::SetViewports( uint32 count, const agl::CubeArea<float>* areas )
