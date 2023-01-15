@@ -36,8 +36,8 @@ namespace agl
 		virtual DepthStencilState* CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) override;
 		virtual RasterizerState* CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) override;
 		virtual SamplerState* CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) override;
-		virtual PipelineState* CreatePipelineState( const GraphicsPipelineStateInitializer& initializer ) override;
-		virtual PipelineState* CreatePipelineState( const ComputePipelineStateInitializer& initializer ) override;
+		virtual GraphicsPipelineState* CreatePipelineState( const GraphicsPipelineStateInitializer& initializer ) override;
+		virtual ComputePipelineState* CreatePipelineState( const ComputePipelineStateInitializer& initializer ) override;
 
 		// Viewport
 		virtual Viewport* CreateViewport( uint32 width, uint32 height, void* hWnd, ResourceFormat format ) override;
@@ -50,8 +50,8 @@ namespace agl
 		CD3D11ResourceManager& operator=( CD3D11ResourceManager&& ) = delete;
 
 	private:
-		std::map<GraphicsPipelineStateInitializer, RefHandle<PipelineState>> m_graphicsPipelineStateCache;
-		std::map<ComputePipelineStateInitializer, RefHandle<PipelineState>> m_computePipelineStateCache;
+		std::map<GraphicsPipelineStateInitializer, RefHandle<GraphicsPipelineState>> m_graphicsPipelineStateCache;
+		std::map<ComputePipelineStateInitializer, RefHandle<ComputePipelineState>> m_computePipelineStateCache;
 	};
 
 	Owner<IResourceManager*> CreateD3D11ResourceManager();

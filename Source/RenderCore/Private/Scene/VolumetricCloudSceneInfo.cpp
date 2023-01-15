@@ -1,6 +1,7 @@
 #include "Scene/VolumetricCloudSceneInfo.h"
 
 #include "CommandList.h"
+#include "ComputePipelineState.h"
 #include "GlobalShaders.h"
 #include "ShaderParameterMap.h"
 #include "ShaderParameterUtils.h"
@@ -82,8 +83,13 @@ namespace rendercore
 
 		auto commandList = GetImmediateCommandList();
 
-		commandList.BindShader( perlinWorleyCS.GetShader()->Resource() );
-		BindShaderParameter( commandList, perlinWorleyCS.NoiseTex(), m_baseCloudShape);
+		agl::RefHandle<agl::ComputePipelineState> perlinWorleyPSO = PrepareComputePipelineState( perlinWorleyCS.GetShader()->Resource() );
+		commandList.BindPipelineState( perlinWorleyPSO );
+
+		agl::ShaderBindings shaderBindings = CreateShaderBindings( perlinWorleyCS.GetShader() );
+		BindResource( shaderBindings, perlinWorleyCS.NoiseTex(), m_baseCloudShape);
+
+		commandList.BindShaderResources( shaderBindings );
 
 		commandList.Dispatch( threadGroupCount, threadGroupCount, threadGroupCount );
 
@@ -92,8 +98,13 @@ namespace rendercore
 		WorleyCS worleyCS;
 		threadGroupCount = static_cast<uint32>( std::ceilf( 32 / 8.f ) );
 
-		commandList.BindShader( worleyCS.GetShader()->Resource() );
-		BindShaderParameter( commandList, worleyCS.NoiseTex(), m_detailCloudShape);
+		agl::RefHandle<agl::ComputePipelineState> worleyPSO = PrepareComputePipelineState( perlinWorleyCS.GetShader()->Resource() );
+		commandList.BindPipelineState( worleyPSO );
+
+		shaderBindings = CreateShaderBindings( perlinWorleyCS.GetShader() );
+		BindResource( shaderBindings, worleyCS.NoiseTex(), m_detailCloudShape);
+
+		commandList.BindShaderResources( shaderBindings );
 
 		commandList.Dispatch( threadGroupCount, threadGroupCount, threadGroupCount );
 	}
@@ -127,8 +138,13 @@ namespace rendercore
 
 		auto commandList = GetImmediateCommandList();
 
-		commandList.BindShader( weatherMapCS.GetShader()->Resource() );
-		BindShaderParameter( commandList, weatherMapCS.WeatherTex(), m_weatherMap);
+		agl::RefHandle<agl::ComputePipelineState> weatherMapPSO = PrepareComputePipelineState( weatherMapCS.GetShader()->Resource() );
+		commandList.BindPipelineState( weatherMapPSO );
+
+		agl::ShaderBindings shaderBindings = CreateShaderBindings( weatherMapCS.GetShader() );
+		BindResource( shaderBindings, weatherMapCS.WeatherTex(), m_weatherMap);
+
+		commandList.BindShaderResources( shaderBindings );
 
 		commandList.Dispatch( threadGroupCount, threadGroupCount );
 	}

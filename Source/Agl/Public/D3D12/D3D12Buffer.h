@@ -3,9 +3,11 @@
 #include "Buffer.h"
 #include "D3D12ResourceAllocator.h"
 #include "D3D12ResourceViews.h"
+#include "InlineMemoryAllocator.h"
 #include "SizedTypes.h"
 
 #include <d3d12.h>
+#include <vector>
 
 namespace agl
 {
@@ -46,6 +48,8 @@ namespace agl
 	class D3D12ConstantBuffer : public D3D12Buffer
 	{
 	public:
+		D3D12ConstantBufferView* CBV() const;
+
 		D3D12ConstantBuffer( const BUFFER_TRAIT& trait, const void* initData );
 		virtual ~D3D12ConstantBuffer() override = default;
 		D3D12ConstantBuffer( const D3D12ConstantBuffer& ) = delete;
@@ -58,7 +62,7 @@ namespace agl
 		virtual void DestroyBuffer();
 
 	private:
-		RefHandle<D3D12ConstantBufferView> m_cbv;
+		std::vector<RefHandle<D3D12ConstantBufferView>, InlineAllocator<RefHandle<D3D12ConstantBufferView>, 2>> m_cbv;
 	};
 
 	class D3D12IndexBuffer : public D3D12Buffer

@@ -25,29 +25,14 @@ namespace agl
 		m_stateCache.BindIndexBuffer( D3D11Context(), indexBuffer, indexOffset );
 	}
 
-	void D3D11ImmediateCommandList::BindPipelineState( PipelineState* pipelineState )
+	void D3D11ImmediateCommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
 	{
 		m_stateCache.BindPipelineState( D3D11Context(), pipelineState );
 	}
 
-	void D3D11ImmediateCommandList::BindShader( VertexShader* vs )
+	void D3D11ImmediateCommandList::BindPipelineState( ComputePipelineState* pipelineState )
 	{
-		m_stateCache.BindShader( D3D11Context(), vs );
-	}
-
-	void D3D11ImmediateCommandList::BindShader( GeometryShader* gs )
-	{
-		m_stateCache.BindShader( D3D11Context(), gs );
-	}
-
-	void D3D11ImmediateCommandList::BindShader( PixelShader* ps )
-	{
-		m_stateCache.BindShader( D3D11Context(), ps );
-	}
-
-	void D3D11ImmediateCommandList::BindShader( ComputeShader* cs )
-	{
-		m_stateCache.BindShader( D3D11Context(), cs );
+		m_stateCache.BindPipelineState( D3D11Context(), pipelineState );
 	}
 
 	void D3D11ImmediateCommandList::BindShaderResources( const ShaderBindings& shaderBindings )
@@ -58,21 +43,6 @@ namespace agl
 	void D3D11ImmediateCommandList::BindConstantBuffer( ShaderType shader, uint32 slot, Buffer* buffer )
 	{
 		m_stateCache.BindConstantBuffer( D3D11Context(), shader, slot, buffer );
-	}
-
-	void D3D11ImmediateCommandList::BindSRV( ShaderType shader, uint32 slot, ShaderResourceView* srv )
-	{
-		m_stateCache.BindSRV( D3D11Context(), shader, slot, srv );
-	}
-
-	void D3D11ImmediateCommandList::BindUAV( ShaderType shader, uint32 slot, UnorderedAccessView* uav )
-	{
-		m_stateCache.BindUAV( D3D11Context(), shader, slot, uav );
-	}
-
-	void D3D11ImmediateCommandList::BindSampler( ShaderType shader, uint32 slot, SamplerState* sampler )
-	{
-		m_stateCache.BindSampler( D3D11Context(), shader, slot, sampler );
 	}
 
 	void D3D11ImmediateCommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
@@ -208,29 +178,14 @@ namespace agl
 		m_stateCache.BindIndexBuffer( *m_pContext, indexBuffer, indexOffset );
 	}
 
-	void D3D11DeferredCommandList::BindPipelineState( PipelineState* pipelineState )
+	void D3D11DeferredCommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
 	{
 		m_stateCache.BindPipelineState( *m_pContext, pipelineState );
 	}
 
-	void D3D11DeferredCommandList::BindShader( VertexShader* vs )
+	void D3D11DeferredCommandList::BindPipelineState( ComputePipelineState* pipelineState )
 	{
-		m_stateCache.BindShader( *m_pContext, vs );
-	}
-
-	void D3D11DeferredCommandList::BindShader( GeometryShader* gs )
-	{
-		m_stateCache.BindShader( *m_pContext, gs );
-	}
-
-	void D3D11DeferredCommandList::BindShader( PixelShader* ps )
-	{
-		m_stateCache.BindShader( *m_pContext, ps );
-	}
-
-	void D3D11DeferredCommandList::BindShader( ComputeShader* cs )
-	{
-		m_stateCache.BindShader( *m_pContext, cs );
+		m_stateCache.BindPipelineState( *m_pContext, pipelineState );
 	}
 
 	void D3D11DeferredCommandList::BindShaderResources( const ShaderBindings& shaderBindings )
@@ -241,21 +196,6 @@ namespace agl
 	void D3D11DeferredCommandList::BindConstantBuffer( ShaderType shader, uint32 slot, Buffer* buffer )
 	{
 		m_stateCache.BindConstantBuffer( *m_pContext, shader, slot, buffer );
-	}
-
-	void D3D11DeferredCommandList::BindSRV( ShaderType shader, uint32 slot, ShaderResourceView* srv )
-	{
-		m_stateCache.BindSRV( *m_pContext, shader, slot, srv );
-	}
-
-	void D3D11DeferredCommandList::BindUAV( ShaderType shader, uint32 slot, UnorderedAccessView* uav )
-	{
-		m_stateCache.BindUAV( *m_pContext, shader, slot, uav );
-	}
-
-	void D3D11DeferredCommandList::BindSampler( ShaderType shader, uint32 slot, SamplerState* sampler )
-	{
-		m_stateCache.BindSampler( *m_pContext, shader, slot, sampler );
 	}
 
 	void D3D11DeferredCommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )

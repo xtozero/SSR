@@ -125,7 +125,7 @@ namespace agl
 		return samplerState;
 	}
 
-	PipelineState* CD3D11ResourceManager::CreatePipelineState( const GraphicsPipelineStateInitializer& initializer )
+	GraphicsPipelineState* CD3D11ResourceManager::CreatePipelineState( const GraphicsPipelineStateInitializer& initializer )
 	{
 		auto cached = m_graphicsPipelineStateCache.find( initializer );
 		if ( cached != m_graphicsPipelineStateCache.end() )
@@ -139,7 +139,7 @@ namespace agl
 		return pipelineState;
 	}
 
-	PipelineState* CD3D11ResourceManager::CreatePipelineState( const ComputePipelineStateInitializer& initializer )
+	ComputePipelineState* CD3D11ResourceManager::CreatePipelineState( const ComputePipelineStateInitializer& initializer )
 	{
 		auto cached = m_computePipelineStateCache.find( initializer );
 		if ( cached != m_computePipelineStateCache.end() )

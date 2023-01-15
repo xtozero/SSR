@@ -203,6 +203,16 @@ namespace agl
 		}
 	}
 
+	ID3D11ComputeShader* D3D11ComputePipelineState::ComputeShader()
+	{
+		return m_computeShader;
+	}
+
+	const ID3D11ComputeShader* D3D11ComputePipelineState::ComputeShader() const
+	{
+		return m_computeShader;
+	}
+
 	D3D11ComputePipelineState::D3D11ComputePipelineState( const ComputePipelineStateInitializer& initializer )
 	{
 		if ( auto cs = static_cast<D3D11ComputeShader*>( initializer.m_computeShader ) )

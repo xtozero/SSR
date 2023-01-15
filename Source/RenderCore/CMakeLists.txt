@@ -15,6 +15,7 @@ set (CORE_SOURCE
 set (GRAPHICS_RESOURCE_SOURCE
 	Private/GraphicsResource/ByteBuffer.cpp
 	Private/GraphicsResource/CommandList.cpp
+	Private/GraphicsResource/ComputePipelineState.cpp
 	Private/GraphicsResource/ConstantBuffer.cpp
 	Private/GraphicsResource/DDSTexture.cpp
 	Private/GraphicsResource/DefaultConstantBuffers.cpp
@@ -33,6 +34,7 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Private/GraphicsResource/Viewport.cpp
 	Public/GraphicsResource/ByteBuffer.h
 	Public/GraphicsResource/CommandList.h
+	Public/GraphicsResource/ComputePipelineState.h
 	Public/GraphicsResource/ConstantBuffer.h
 	Public/GraphicsResource/DDSTexture.h
 	Public/GraphicsResource/DefaultConstantBuffers.h

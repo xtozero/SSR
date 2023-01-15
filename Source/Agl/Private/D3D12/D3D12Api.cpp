@@ -56,7 +56,7 @@ namespace
 
 namespace agl
 {
-	class Direct3D12 : public IAgl
+	class Direct3D12 final : public IAgl
 	{
 	public:
 		virtual AglType GetType() const override;
@@ -91,6 +91,11 @@ namespace agl
 		ID3D12CommandQueue& GetDirectCommandQueue() const;
 
 		D3D12ResourceUploader& GetUploader();
+
+		uint32 GetFrameIndex() const
+		{
+			return m_frameIndex;
+		}
 
 		virtual ~Direct3D12() override;
 
@@ -476,5 +481,11 @@ namespace agl
 	Owner<IAgl*> CreateD3D12GraphicsApi()
 	{
 		return new Direct3D12();
+	}
+
+	uint32 GetFrameIndex()
+	{
+		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
+		return d3d12Api->GetFrameIndex();
 	}
 }

@@ -132,6 +132,6 @@ namespace rendercore
 		BlendState m_blendState;
 		agl::ResourcePrimitive m_primitive;
 
-		agl::RefHandle<agl::PipelineState> m_pso;
+		agl::RefHandle<agl::GraphicsPipelineState> m_pso;
 	};
 }

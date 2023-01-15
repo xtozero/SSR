@@ -111,14 +111,32 @@ namespace agl
 		return new D3D12SamplerState( trait );
 	}
 
-	PipelineState* D3D12ResourceManager::CreatePipelineState( const GraphicsPipelineStateInitializer& initializer )
+	GraphicsPipelineState* D3D12ResourceManager::CreatePipelineState( const GraphicsPipelineStateInitializer& initializer )
 	{
-		return new D3D12GraphicsPipelineState( initializer );
+		auto cached = m_graphicsPipelineStateCache.find( initializer );
+		if ( cached != m_graphicsPipelineStateCache.end() )
+		{
+			return cached->second;
+		}
+
+		auto pipelineState = new D3D12GraphicsPipelineState( initializer );
+		m_graphicsPipelineStateCache.emplace( initializer, pipelineState );
+
+		return pipelineState;
 	}
 
-	PipelineState* D3D12ResourceManager::CreatePipelineState( const ComputePipelineStateInitializer& initializer )
+	ComputePipelineState* D3D12ResourceManager::CreatePipelineState( const ComputePipelineStateInitializer& initializer )
 	{
-		return new D3D12ComputePipelineState( initializer );
+		auto cached = m_computePipelineStateCache.find( initializer );
+		if ( cached != m_computePipelineStateCache.end() )
+		{
+			return cached->second;
+		}
+
+		auto pipelineState = new D3D12ComputePipelineState( initializer );
+		m_computePipelineStateCache.emplace( initializer, pipelineState );
+
+		return pipelineState;
 	}
 
 	Viewport* D3D12ResourceManager::CreateViewport( uint32 width, uint32 height, void* hWnd, ResourceFormat format )

@@ -2,6 +2,7 @@
 #include "ByteBuffer.h"
 
 #include "CommandList.h"
+#include "ComputePipelineState.h"
 #include "GlobalShaders.h"
 #include "ShaderParameterUtils.h"
 #include "TaskScheduler.h"
@@ -59,12 +60,17 @@ namespace rendercore
 
 		auto commandList = GetImmediateCommandList();
 
-		commandList.BindShader( cs.Resource() );
+		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( cs.Resource() );
 
+		commandList.BindPipelineState( pso.Get() );
+
+		agl::ShaderBindings shaderBindings = CreateShaderBindings( &cs );
 		SetShaderValue( computeShader.m_numDistribution, m_distributionCount );
-		BindShaderParameter( commandList, computeShader.m_src, m_src.Resource() );
-		BindShaderParameter( commandList, computeShader.m_distributer, m_distributer.Resource() );
-		BindShaderParameter( commandList, computeShader.m_dest, destBuffer );
+		BindResource( shaderBindings, computeShader.m_src, m_src.Resource() );
+		BindResource( shaderBindings, computeShader.m_distributer, m_distributer.Resource() );
+		BindResource( shaderBindings, computeShader.m_dest, destBuffer );
+
+		commandList.BindShaderResources( shaderBindings );
 
 		uint32 threadGroup = ( ( m_distributionCount + DistributionCopyCS::ThreadGroupX - 1 ) / DistributionCopyCS::ThreadGroupX );
 
