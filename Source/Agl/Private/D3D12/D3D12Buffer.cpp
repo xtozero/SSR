@@ -1,5 +1,6 @@
 #include "D3D12Buffer.h"
 
+#include "Config/DefaultAglConfig.h"
 #include "D3D12Api.h"
 #include "D3D12ResourceViews.h"
 #include "D3D12FlagConvertor.h"
@@ -28,11 +29,7 @@ namespace
 	D3D12_RESOURCE_DESC ConvertToDesc( const BUFFER_TRAIT& trait )
 	{
 		uint64 bufferSize = trait.m_stride * trait.m_count;
-		if ( trait.m_bindType == ResourceBindType::ConstantBuffer )
-		{
-			bufferSize = CalcAlignment( bufferSize, static_cast<uint64>( D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT ) );
-		}
-
+		
 		D3D12_RESOURCE_DESC desc = {
 			.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER,
 			.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT,
@@ -238,27 +235,42 @@ namespace agl
 			} );
 	}
 
+	D3D12ConstantBufferView* D3D12ConstantBuffer::CBV() const
+	{
+		assert( IsInRenderThread() );
+
+		return m_cbv[GetFrameIndex()].Get();
+	}
+
 	D3D12ConstantBuffer::D3D12ConstantBuffer( const BUFFER_TRAIT& trait, const void* initData )
 		: D3D12Buffer( trait, initData )
 	{
+		m_desc.Width = CalcAlignment<uint64>( m_desc.Width, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT );
+		m_desc.Width *= DefaultAgl::GetBufferCount();
 	}
 
 	void D3D12ConstantBuffer::CreateBuffer()
 	{
 		D3D12Buffer::CreateBuffer();
 
-		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {
-			.BufferLocation = Resource()->GetGPUVirtualAddress(),
-			.SizeInBytes = static_cast<uint32>( m_desc.Width )
-		};
+		uint32 alignedSize = CalcAlignment<uint32>( m_trait.m_count * m_trait.m_stride, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT );
+		
+		m_cbv.resize( DefaultAgl::GetBufferCount() );
+		for ( uint32 i = 0; i < DefaultAgl::GetBufferCount(); ++i )
+		{
+			D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {
+				.BufferLocation = Resource()->GetGPUVirtualAddress() + alignedSize,
+				.SizeInBytes = alignedSize
+			};
 
-		m_cbv = new D3D12ConstantBufferView( this, Resource(), cbvDesc );
-		m_cbv->Init();
+			m_cbv[i] = new D3D12ConstantBufferView(this, Resource(), cbvDesc);
+			m_cbv[i]->Init();
+		}
 	}
 
 	void D3D12ConstantBuffer::DestroyBuffer()
 	{
-		m_cbv = nullptr;
+		m_cbv.clear();
 
 		D3D12Buffer::DestroyBuffer();
 	}

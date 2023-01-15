@@ -8,19 +8,26 @@
 
 namespace rendercore
 {
-	template <typename CommandList>
-	void BindShaderParameter( CommandList& commandList, const agl::ShaderParameter& parameter, agl::Buffer* buffer )
+	inline void BindResource( agl::ShaderBindings& bindings,
+		const agl::ShaderParameter& parameter, agl::Buffer* buffer )
 	{
+		agl::SingleShaderBindings singleBinding = bindings.GetSingleShaderBindings( parameter.m_shader );
+
+		if ( singleBinding.GetShaderType() == agl::ShaderType::None )
+		{
+			return;
+		}
+
 		switch ( parameter.m_type )
 		{
 		case agl::ShaderParameterType::ConstantBuffer:
-			commandList.BindConstantBuffer( parameter.m_shader, parameter.m_bindPoint, buffer );
+			singleBinding.AddConstantBuffer( parameter, buffer );
 			break;
 		case agl::ShaderParameterType::SRV:
-			commandList.BindSRV( parameter.m_shader, parameter.m_bindPoint, buffer ? buffer->SRV() : nullptr );
+			singleBinding.AddSRV( parameter, buffer ? buffer->SRV() : nullptr );
 			break;
 		case agl::ShaderParameterType::UAV:
-			commandList.BindUAV( parameter.m_shader, parameter.m_bindPoint, buffer ? buffer->UAV() : nullptr );
+			singleBinding.AddUAV( parameter, buffer ? buffer->UAV() : nullptr );
 			break;
 		default:
 			assert( false && "Invalid parameter type" );
@@ -28,16 +35,23 @@ namespace rendercore
 		}
 	}
 
-	template <typename CommandList>
-	void BindShaderParameter( CommandList& commandList, const agl::ShaderParameter& parameter, agl::Texture* texture )
+	inline void BindResource( agl::ShaderBindings& bindings,
+		const agl::ShaderParameter& parameter, agl::Texture* texture )
 	{
+		agl::SingleShaderBindings singleBinding = bindings.GetSingleShaderBindings( parameter.m_shader );
+
+		if ( singleBinding.GetShaderType() == agl::ShaderType::None )
+		{
+			return;
+		}
+
 		switch ( parameter.m_type )
 		{
 		case agl::ShaderParameterType::SRV:
-			commandList.BindSRV( parameter.m_shader, parameter.m_bindPoint, texture ? texture->SRV() : nullptr );
+			singleBinding.AddSRV( parameter, texture ? texture->SRV() : nullptr );
 			break;
 		case agl::ShaderParameterType::UAV:
-			commandList.BindUAV( parameter.m_shader, parameter.m_bindPoint, texture ? texture->UAV() : nullptr );
+			singleBinding.AddUAV( parameter, texture ? texture->UAV() : nullptr );
 			break;
 		default:
 			assert( false && "Invalid parameter type" );
@@ -45,13 +59,20 @@ namespace rendercore
 		}
 	}
 
-	template <typename CommandList>
-	void BindShaderParameter( CommandList& commandList, const agl::ShaderParameter& parameter, agl::SamplerState* samplerState )
+	inline void BindResource( agl::ShaderBindings& bindings,
+		const agl::ShaderParameter& parameter, agl::SamplerState* samplerState )
 	{
+		agl::SingleShaderBindings singleBinding = bindings.GetSingleShaderBindings( parameter.m_shader );
+
+		if ( singleBinding.GetShaderType() == agl::ShaderType::None )
+		{
+			return;
+		}
+
 		switch ( parameter.m_type )
 		{
 		case agl::ShaderParameterType::Sampler:
-			commandList.BindSampler( parameter.m_shader, parameter.m_bindPoint, samplerState );
+			singleBinding.AddSampler( parameter, samplerState );
 			break;
 		default:
 			assert( false && "Invalid parameter type" );
@@ -59,22 +80,32 @@ namespace rendercore
 		}
 	}
 
-	template <typename CommandList>
-	void BindShaderParameter( CommandList& commandList, const agl::ShaderParameter& parameter, std::nullptr_t )
+	inline void BindResource( agl::ShaderBindings& bindings,
+		const agl::ShaderParameter& parameter, std::nullptr_t )
 	{
+		agl::SingleShaderBindings singleBinding = bindings.GetSingleShaderBindings( parameter.m_shader );
+
+		if ( singleBinding.GetShaderType() == agl::ShaderType::None )
+		{
+			return;
+		}
+
 		switch ( parameter.m_type )
 		{
 		case agl::ShaderParameterType::ConstantBuffer:
-			commandList.BindConstantBuffer( parameter.m_shader, parameter.m_bindPoint, nullptr );
+			singleBinding.AddConstantBuffer( parameter, nullptr );
 			break;
 		case agl::ShaderParameterType::SRV:
-			commandList.BindSRV( parameter.m_shader, parameter.m_bindPoint, nullptr );
+			singleBinding.AddSRV( parameter, nullptr );
 			break;
 		case agl::ShaderParameterType::UAV:
-			commandList.BindUAV( parameter.m_shader, parameter.m_bindPoint, nullptr );
+			singleBinding.AddUAV( parameter, nullptr );
 			break;
 		case agl::ShaderParameterType::Sampler:
-			commandList.BindSampler( parameter.m_shader, parameter.m_bindPoint, nullptr );
+			singleBinding.AddSampler( parameter, nullptr );
+			break;
+		default:
+			assert( false && "Invalid parameter type" );
 			break;
 		}
 	}

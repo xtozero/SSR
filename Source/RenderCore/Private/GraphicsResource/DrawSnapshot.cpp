@@ -129,7 +129,7 @@ namespace rendercore
 			.m_primitiveType = pipelineState.m_primitive,
 		};
 
-		pipelineState.m_pso = agl::PipelineState::Create( initializer );
+		pipelineState.m_pso = agl::GraphicsPipelineState::Create( initializer );
 	}
 
 	void SortDrawSnapshots( VectorSingleFrame<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )

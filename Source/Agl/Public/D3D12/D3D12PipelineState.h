@@ -6,7 +6,7 @@
 
 namespace agl
 {
-	class D3D12GraphicsPipelineState : public PipelineState
+	class D3D12GraphicsPipelineState : public GraphicsPipelineState
 	{
 	public:
 		explicit D3D12GraphicsPipelineState( const GraphicsPipelineStateInitializer& initializer );
@@ -23,7 +23,7 @@ namespace agl
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC m_desc = {};
 	};
 
-	class D3D12ComputePipelineState : public PipelineState
+	class D3D12ComputePipelineState : public ComputePipelineState
 	{
 	public:
 		explicit D3D12ComputePipelineState( const ComputePipelineStateInitializer& initializer );

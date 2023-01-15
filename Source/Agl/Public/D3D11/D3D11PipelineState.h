@@ -6,7 +6,7 @@
 
 namespace agl
 {
-	class D3D11GraphicsPipelineState : public PipelineState
+	class D3D11GraphicsPipelineState : public GraphicsPipelineState
 	{
 	public:
 		ID3D11VertexShader* VertexShader();
@@ -55,9 +55,12 @@ namespace agl
 		uint32 m_sampleMask = D3D11_DEFAULT_SAMPLE_MASK;
 	};
 
-	class D3D11ComputePipelineState : public PipelineState
+	class D3D11ComputePipelineState : public ComputePipelineState
 	{
 	public:
+		ID3D11ComputeShader* ComputeShader();
+		const ID3D11ComputeShader* ComputeShader() const;
+
 		explicit D3D11ComputePipelineState( const ComputePipelineStateInitializer& initializer );
 		D3D11ComputePipelineState( const D3D11ComputePipelineState& ) = delete;
 		D3D11ComputePipelineState( D3D11ComputePipelineState&& ) = delete;

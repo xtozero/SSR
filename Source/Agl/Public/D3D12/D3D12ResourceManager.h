@@ -3,6 +3,8 @@
 #include "GuideTypes.h"
 #include "IRenderResourceManager.h"
 
+#include <map>
+
 namespace agl
 {
 	class D3D12ResourceManager final : public IResourceManager
@@ -28,8 +30,8 @@ namespace agl
 		virtual DepthStencilState* CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) override;
 		virtual RasterizerState* CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) override;
 		virtual SamplerState* CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) override;
-		virtual PipelineState* CreatePipelineState( const GraphicsPipelineStateInitializer& initializer ) override;
-		virtual PipelineState* CreatePipelineState( const ComputePipelineStateInitializer& initializer ) override;
+		virtual GraphicsPipelineState* CreatePipelineState( const GraphicsPipelineStateInitializer& initializer ) override;
+		virtual ComputePipelineState* CreatePipelineState( const ComputePipelineStateInitializer& initializer ) override;
 
 		// Viewport
 		virtual Viewport* CreateViewport( uint32 width, uint32 height, void* hWnd, ResourceFormat format ) override;
@@ -40,6 +42,10 @@ namespace agl
 		D3D12ResourceManager( D3D12ResourceManager&& ) = delete;
 		D3D12ResourceManager& operator=( const D3D12ResourceManager& ) = delete;
 		D3D12ResourceManager& operator=( D3D12ResourceManager&& ) = delete;
+
+	private:
+		std::map<GraphicsPipelineStateInitializer, RefHandle<GraphicsPipelineState>> m_graphicsPipelineStateCache;
+		std::map<ComputePipelineStateInitializer, RefHandle<ComputePipelineState>> m_computePipelineStateCache;
 	};
 
 	Owner<IResourceManager*> CreateD3D12ResourceManager();
