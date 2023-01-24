@@ -15,6 +15,7 @@ namespace agl
 	class RenderTargetView;
 	class SamplerState;
 	class ShaderBindings;
+	class ShaderParameter;
 	class ShaderResourceView;
 	class Texture;
 	class UnorderedAccessView;
@@ -23,13 +24,16 @@ namespace agl
 	class ICommandList
 	{
 	public:
+		virtual void Prepare() = 0;
+
 		virtual void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets ) = 0;
 		virtual void BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset ) = 0;
 
 		virtual void BindPipelineState( GraphicsPipelineState* pipelineState ) = 0;
 		virtual void BindPipelineState( ComputePipelineState* pipelineState ) = 0;
-		virtual void BindShaderResources( const ShaderBindings& shaderBindings ) = 0;
-		virtual void BindConstantBuffer( ShaderType shader, uint32 slot, Buffer* buffer ) = 0;
+		virtual void BindShaderResources( ShaderBindings& shaderBindings ) = 0;
+		virtual void SetShaderValue( const ShaderParameter& parameter, const void* value ) = 0;
+
 		virtual void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation ) = 0;
 		virtual void DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) = 0;
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) = 0;

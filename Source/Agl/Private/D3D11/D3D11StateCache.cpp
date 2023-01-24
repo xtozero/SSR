@@ -242,11 +242,7 @@ namespace agl
 			for ( size_t i = 0; i < parameterInfo.m_constantBuffers.size(); ++i )
 			{
 				const ShaderParameter& param = parameterInfo.m_constantBuffers[i];
-
-				if ( param.m_bindPoint != 0 )
-				{
-					BindConstantBuffer( context, param.m_shader, param.m_bindPoint, binding.GetConstantBufferStart()[i] );
-				}
+				BindConstantBuffer( context, param.m_shader, param.m_bindPoint, binding.GetConstantBufferStart()[i] );
 			}
 
 			for ( size_t i = 0; i < parameterInfo.m_srvs.size(); ++i )
@@ -266,44 +262,6 @@ namespace agl
 				const ShaderParameter& param = parameterInfo.m_samplers[i];
 				BindSampler( context, param.m_shader, param.m_bindPoint, binding.GetSamplerStart()[i] );
 			}
-		}
-	}
-
-	void D3D11PipelineCache::BindConstantBuffer( ID3D11DeviceContext& context, ShaderType shader, uint32 slot, Buffer* cb )
-	{
-		ID3D11Buffer* buffer = nullptr;
-		if ( auto d3d11Buffer = static_cast<D3D11Buffer*>( cb ) )
-		{
-			buffer = d3d11Buffer->Resource();
-		}
-
-		auto nShader = static_cast<uint32>( shader );
-		if ( m_constantBuffers[nShader][slot] == buffer )
-		{
-			return;
-		}
-
-		m_constantBuffers[nShader][slot] = buffer;
-		switch ( shader )
-		{
-		case ShaderType::VS:
-			context.VSSetConstantBuffers( slot, 1, &buffer );
-			break;
-		case ShaderType::HS:
-			break;
-		case ShaderType::DS:
-			break;
-		case ShaderType::GS:
-			context.GSSetConstantBuffers( slot, 1, &buffer );
-			break;
-		case ShaderType::PS:
-			context.PSSetConstantBuffers( slot, 1, &buffer );
-			break;
-		case ShaderType::CS:
-			context.CSSetConstantBuffers( slot, 1, &buffer );
-			break;
-		default:
-			break;
 		}
 	}
 
@@ -441,6 +399,44 @@ namespace agl
 			{
 				BindUAV( context, ShaderType::CS, slot, RefHandle<UnorderedAccessView>() );
 			}
+		}
+	}
+
+	void D3D11PipelineCache::BindConstantBuffer( ID3D11DeviceContext& context, ShaderType shader, uint32 slot, Buffer* cb )
+	{
+		ID3D11Buffer* buffer = nullptr;
+		if ( auto d3d11Buffer = static_cast<D3D11Buffer*>( cb ) )
+		{
+			buffer = d3d11Buffer->Resource();
+		}
+
+		auto nShader = static_cast<uint32>( shader );
+		if ( m_constantBuffers[nShader][slot] == buffer )
+		{
+			return;
+		}
+
+		m_constantBuffers[nShader][slot] = buffer;
+		switch ( shader )
+		{
+		case ShaderType::VS:
+			context.VSSetConstantBuffers( slot, 1, &buffer );
+			break;
+		case ShaderType::HS:
+			break;
+		case ShaderType::DS:
+			break;
+		case ShaderType::GS:
+			context.GSSetConstantBuffers( slot, 1, &buffer );
+			break;
+		case ShaderType::PS:
+			context.PSSetConstantBuffers( slot, 1, &buffer );
+			break;
+		case ShaderType::CS:
+			context.CSSetConstantBuffers( slot, 1, &buffer );
+			break;
+		default:
+			break;
 		}
 	}
 

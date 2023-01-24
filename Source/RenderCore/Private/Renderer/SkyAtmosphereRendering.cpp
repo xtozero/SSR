@@ -486,12 +486,12 @@ namespace rendercore
 			BindResource( shaderBindings, inscatterSCS.DeltaSMLutSampler(), pointSampler.Resource() );
 			BindResource( shaderBindings, inscatterSCS.DeltaJ(), deltaJTex );
 
-			commandList.BindShaderResources( shaderBindings );
 			for ( uint32 i = 0; i < INSCATTERS_GROUP_Z; ++i )
 			{
-				SetShaderValue( inscatterSCS.Order(), order );
-				SetShaderValue( inscatterSCS.ThreadGroupZ(), i );
+				SetShaderValue( commandList, inscatterSCS.Order(), order );
+				SetShaderValue( commandList, inscatterSCS.ThreadGroupZ(), i );
 
+				commandList.BindShaderResources( shaderBindings );
 				commandList.Dispatch( INSCATTERS_GROUP_X, INSCATTERS_GROUP_Y );
 				commandList.WaitUntilFlush();
 			}
@@ -508,7 +508,7 @@ namespace rendercore
 			BindResource( shaderBindings, irradianceNCS.DeltaSMLut(), deltaSMTexture );
 			BindResource( shaderBindings, irradianceNCS.DeltaSMLutSampler(), pointSampler.Resource() );
 			BindResource( shaderBindings, irradianceNCS.Irradiance(), deltaETexture );
-			SetShaderValue( irradianceNCS.Order(), order );
+			SetShaderValue( commandList, irradianceNCS.Order(), order );
 
 			commandList.BindShaderResources( shaderBindings );
 			commandList.Dispatch( IRRADIANCE_GROUP_X, IRRADIANCE_GROUP_Y );

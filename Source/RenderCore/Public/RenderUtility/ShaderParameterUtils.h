@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Buffer.h"
-#include "DefaultConstantBuffers.h"
 #include "ICommandList.h"
 #include "ShaderParameterMap.h"
 #include "Texture.h"
@@ -110,11 +109,11 @@ namespace rendercore
 		}
 	}
 
-	template <typename ValueType>
-	void SetShaderValue( const agl::ShaderParameter& parameter, ValueType value )
+	template <typename CommandList, typename ValueType>
+	void SetShaderValue( CommandList& commandList, const agl::ShaderParameter& parameter, const ValueType& value )
 	{
 		assert( parameter.m_bindPoint == 0 );
 		assert( parameter.m_type == agl::ShaderParameterType::ConstantBufferValue );
-		DefaultConstantBuffers::GetInstance().SetShaderValue( parameter.m_shader, parameter.m_offset, sizeof( ValueType ), &value );
+		commandList.SetShaderValue( parameter, &value );
 	}
 }

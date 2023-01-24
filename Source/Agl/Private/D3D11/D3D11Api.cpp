@@ -48,7 +48,7 @@ namespace agl
 
 		virtual void HandleDeviceLost() override;
 		virtual void AppSizeChanged() override;
-		virtual void OnBeginFrameRendering() override {}
+		virtual void OnBeginFrameRendering() override;
 		virtual void OnEndFrameRendering( [[maybe_unused]] uint32 oldFrameIndex, [[maybe_unused]] uint32 newFrameIndex ) override {}
 		virtual void WaitGPU() override;
 
@@ -151,6 +151,12 @@ namespace agl
 		{
 			__debugbreak();
 		}
+	}
+
+	void CDirect3D11::OnBeginFrameRendering()
+	{
+		m_immediateCommandList.Prepare();
+		m_commandLists.Prepare();
 	}
 
 	void CDirect3D11::Shutdown()
@@ -476,6 +482,7 @@ namespace agl
 
 				m_backBuffer = m_resourceManager.AddTexture2D( backBuffer, true );*/
 
+				std::destroy_at( &m_immediateCommandList );
 				std::construct_at( &m_immediateCommandList );
 
 				return true;

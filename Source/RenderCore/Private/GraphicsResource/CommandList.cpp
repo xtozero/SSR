@@ -1,7 +1,6 @@
 #include "CommandList.h"
 
 #include "AbstractGraphicsInterface.h"
-#include "DefaultConstantBuffers.h"
 #include "InterfaceFactories.h"
 
 namespace rendercore
@@ -26,31 +25,28 @@ namespace rendercore
 		m_imple.BindPipelineState( pipelineState );
 	}
 
-	void ImmediateCommandList::BindShaderResources( const agl::ShaderBindings& shaderBindings )
+	void ImmediateCommandList::BindShaderResources( agl::ShaderBindings& shaderBindings )
 	{
 		m_imple.BindShaderResources( shaderBindings );
 	}
 
-	void ImmediateCommandList::BindConstantBuffer( agl::ShaderType shader, uint32 slot, agl::Buffer* buffer )
+	void ImmediateCommandList::SetShaderValue( const agl::ShaderParameter& parameter, const void* value )
 	{
-		m_imple.BindConstantBuffer( shader, slot, buffer );
+		m_imple.SetShaderValue( parameter, value );
 	}
 
 	void ImmediateCommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
 	{
-		DefaultConstantBuffers::GetInstance().CommitAll();
 		m_imple.DrawInstanced( vertexCount, numInstance, baseVertexLocation );
 	}
 
 	void ImmediateCommandList::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
 	{
-		DefaultConstantBuffers::GetInstance().CommitAll();
 		m_imple.DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation );
 	}
 
 	void ImmediateCommandList::Dispatch( uint32 x, uint32 y, uint32 z )
 	{
-		DefaultConstantBuffers::GetInstance().Commit( agl::ShaderType::CS );
 		m_imple.Dispatch( x, y, z );
 		BindPipelineState( static_cast<agl::ComputePipelineState*>( nullptr ) );
 	}
