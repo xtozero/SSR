@@ -14,8 +14,8 @@ namespace rendercore
 
 		void BindPipelineState( agl::GraphicsPipelineState* pipelineState );
 		void BindPipelineState( agl::ComputePipelineState* pipelineState );
-		void BindShaderResources( const agl::ShaderBindings& shaderBindings );
-		void BindConstantBuffer( agl::ShaderType shader, uint32 slot, agl::Buffer* buffer );
+		void BindShaderResources( agl::ShaderBindings& shaderBindings );
+		void SetShaderValue( const agl::ShaderParameter& parameter, const void* value );
 		void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation );
 		void DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation );
 		void Dispatch( uint32 x, uint32 y, uint32 z = 1 );

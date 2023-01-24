@@ -162,6 +162,8 @@ namespace agl
 	void Direct3D12::OnBeginFrameRendering()
 	{
 		m_uploader.WaitUntilCopyCompleted();
+
+		m_commandLists[m_frameIndex].Prepare();
 	}
 
 	void Direct3D12::OnEndFrameRendering( uint32 curFrameIndex, uint32 nextFrameIndex )
@@ -179,8 +181,6 @@ namespace agl
 
 		m_fenceValue[nextFrameIndex] = fence + 1;
 		m_frameIndex = nextFrameIndex;
-
-		m_commandLists[m_frameIndex].Prepare();
 	}
 
 	void Direct3D12::WaitGPU()

@@ -24,6 +24,7 @@ namespace rendercore
 		static void OnLoadFinished( const std::shared_ptr<void>& shaderCache );
 		static ShaderBase* GetCachedShader( uint64 shaderHash );
 		static void UpdateCache( uint64 shaderHash, ShaderBase* shader );
+		static void Shutdown();
 
 	private:
 		static std::shared_ptr<ShaderCache> m_shaderCache;

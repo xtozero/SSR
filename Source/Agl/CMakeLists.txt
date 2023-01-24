@@ -111,6 +111,7 @@ set (PRECOMPILED
 set (RENDER_RESOURCE_SOURCE
 	Private/RenderResource/Buffer.cpp
 	Private/RenderResource/CommandLists.cpp
+	Private/RenderResource/GlobalConstantBuffers.cpp
 	Private/RenderResource/PipelineState.cpp
 	Private/RenderResource/ResourceViews.cpp
 	Private/RenderResource/ShaderParameterMap.cpp
@@ -119,6 +120,7 @@ set (RENDER_RESOURCE_SOURCE
 	Private/RenderResource/Viewport.cpp
 	Public/RenderResource/Buffer.h
 	Public/RenderResource/CommandLists.h
+	Public/RenderResource/GlobalConstantBuffers.h
 	Public/RenderResource/PipelineState.h
 	Public/RenderResource/ResourceViews.h
 	Public/RenderResource/ShaderBindings.h

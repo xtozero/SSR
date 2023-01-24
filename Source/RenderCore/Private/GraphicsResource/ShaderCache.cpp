@@ -95,6 +95,17 @@ namespace rendercore
 		m_shaderCache->m_shaders[shaderHash].reset( shader );
 	}
 
+	void ShaderCache::Shutdown()
+	{
+		if ( m_shaderCache == nullptr )
+		{
+			return;
+		}
+
+		m_shaderCache->m_shaders.clear();
+		m_shaderCache = nullptr;
+	}
+
 	void ShaderCache::PostLoadImpl()
 	{
 		for ( auto& [key, shader] : m_shaders )

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CommandLists.h"
+#include "GlobalConstantBuffers.h"
 
 #include <wrl/client.h>
 #include <d3d12.h>
@@ -10,12 +11,14 @@ namespace agl
 	class D3D12CommandList : public IImmediateCommandList
 	{
 	public:
+		virtual void Prepare() override;
+
 		virtual void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets ) override;
 		virtual void BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset ) override;
 		virtual void BindPipelineState( GraphicsPipelineState* pipelineState ) override;
 		virtual void BindPipelineState( ComputePipelineState* pipelineState ) override;
-		virtual void BindShaderResources( const ShaderBindings& shaderBindings ) override;
-		virtual void BindConstantBuffer( ShaderType shader, uint32 slot, Buffer* buffer ) override;
+		virtual void BindShaderResources( ShaderBindings& shaderBindings ) override;
+		virtual void SetShaderValue( const ShaderParameter& parameter, const void* value ) override;
 		virtual void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation ) override;
 		virtual void DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) override;
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) override;
@@ -41,12 +44,14 @@ namespace agl
 	class D3D12DeferredCommandList : public IDeferredCommandList
 	{
 	public:
+		virtual void Prepare() override;
+
 		virtual void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets ) override;
 		virtual void BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset ) override;
 		virtual void BindPipelineState( GraphicsPipelineState* pipelineState ) override;
 		virtual void BindPipelineState( ComputePipelineState* pipelineState ) override;
-		virtual void BindShaderResources( const ShaderBindings& shaderBindings ) override;
-		virtual void BindConstantBuffer( ShaderType shader, uint32 slot, Buffer* buffer ) override;
+		virtual void BindShaderResources( ShaderBindings& shaderBindings ) override;
+		virtual void SetShaderValue( const ShaderParameter& parameter, const void* value ) override;
 		virtual void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation ) override;
 		virtual void DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) override;
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) override;
@@ -73,12 +78,14 @@ namespace agl
 	class D3D12GraphicsCommandList : public IGraphicsCommandList
 	{
 	public:
+		virtual void Prepare() override;
+
 		virtual void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets ) override;
 		virtual void BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset ) override;
 		virtual void BindPipelineState( GraphicsPipelineState* pipelineState ) override;
 		virtual void BindPipelineState( ComputePipelineState* pipelineState ) override;
-		virtual void BindShaderResources( const ShaderBindings& shaderBindings ) override;
-		virtual void BindConstantBuffer( ShaderType shader, uint32 slot, Buffer* buffer ) override;
+		virtual void BindShaderResources( ShaderBindings& shaderBindings ) override;
+		virtual void SetShaderValue( const ShaderParameter& parameter, const void* value ) override;
 		virtual void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation ) override;
 		virtual void DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) override;
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) override;
@@ -97,14 +104,16 @@ namespace agl
 		virtual void Transition( uint32 numTransitions, const ResourceTransition* transitions ) override;
 
 		void Initialize();
-		void OnRecordBegin();
-		void OnRecordEnd();
+		void Reset();
+		void Close();
 
 		ID3D12CommandList* Resource();
 
 	private:
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> m_commandList;
 		Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_commandAllocator;
+		
+		GlobalAsyncConstantBuffers m_globalConstantBuffers;
 	};
 
 	class D3D12GraphicsCommandLists : public GraphicsCommandListsBase
