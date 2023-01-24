@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CommandLists.h"
+#include "GlobalConstantBuffers.h"
 #include "D3D11StateCache.h"
 
 struct ID3D11DeviceContext;
@@ -11,12 +12,14 @@ namespace agl
 	class D3D11ImmediateCommandList : public IImmediateCommandList
 	{
 	public:
+		virtual void Prepare() override;
+
 		virtual void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets ) override;
 		virtual void BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset ) override;
 		virtual void BindPipelineState( GraphicsPipelineState* pipelineState ) override;
 		virtual void BindPipelineState( ComputePipelineState* pipelineState ) override;
-		virtual void BindShaderResources( const ShaderBindings& shaderBindings ) override;
-		virtual void BindConstantBuffer( ShaderType shader, uint32 slot, Buffer* buffer ) override;
+		virtual void BindShaderResources( ShaderBindings& shaderBindings ) override;
+		virtual void SetShaderValue( const ShaderParameter& parameter, const void* value ) override;
 		virtual void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation ) override;
 		virtual void DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) override;
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) override;
@@ -36,19 +39,24 @@ namespace agl
 
 		virtual void Execute( IDeferredCommandList& commandList ) override;
 
+		D3D11ImmediateCommandList();
+
 	private:
 		D3D11PipelineCache m_stateCache;
+		GlobalSyncConstantBuffers m_globalConstantBuffers;
 	};
 
 	class D3D11DeferredCommandList : public IDeferredCommandList
 	{
 	public:
+		virtual void Prepare() override;
+
 		virtual void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets ) override;
 		virtual void BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset ) override;
 		virtual void BindPipelineState( GraphicsPipelineState* pipelineState ) override;
 		virtual void BindPipelineState( ComputePipelineState* pipelineState ) override;
-		virtual void BindShaderResources( const ShaderBindings& shaderBindings ) override;
-		virtual void BindConstantBuffer( ShaderType shader, uint32 slot, Buffer* buffer ) override;
+		virtual void BindShaderResources( ShaderBindings& shaderBindings ) override;
+		virtual void SetShaderValue( const ShaderParameter& parameter, const void* value ) override;
 		virtual void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation ) override;
 		virtual void DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) override;
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) override;
@@ -75,6 +83,7 @@ namespace agl
 		ID3D11DeviceContext* m_pContext = nullptr;
 		ID3D11CommandList* m_pCommandList = nullptr;
 		D3D11PipelineCache m_stateCache;
+		GlobalAsyncConstantBuffers m_globalConstantBuffers;
 	};
 
 	class D3D11GraphicsCommandLists : public GraphicsCommandListsBase

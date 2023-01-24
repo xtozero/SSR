@@ -65,7 +65,7 @@ namespace rendercore
 		commandList.BindPipelineState( pso.Get() );
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( &cs );
-		SetShaderValue( computeShader.m_numDistribution, m_distributionCount );
+		SetShaderValue( commandList, computeShader.m_numDistribution, m_distributionCount );
 		BindResource( shaderBindings, computeShader.m_src, m_src.Resource() );
 		BindResource( shaderBindings, computeShader.m_distributer, m_distributer.Resource() );
 		BindResource( shaderBindings, computeShader.m_dest, destBuffer );

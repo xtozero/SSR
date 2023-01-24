@@ -8,6 +8,10 @@ using ::Microsoft::WRL::ComPtr;
 
 namespace agl
 {
+	void D3D12CommandList::Prepare()
+	{
+	}
+
 	void D3D12CommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
 	{
 	}
@@ -24,11 +28,11 @@ namespace agl
 	{
 	}
 
-	void D3D12CommandList::BindShaderResources( const ShaderBindings& shaderBindings )
+	void D3D12CommandList::BindShaderResources( ShaderBindings& shaderBindings )
 	{
 	}
 
-	void D3D12CommandList::BindConstantBuffer( ShaderType shader, uint32 slot, Buffer* buffer )
+	void D3D12CommandList::SetShaderValue( const ShaderParameter& parameter, const void* value )
 	{
 	}
 
@@ -80,6 +84,10 @@ namespace agl
 	{
 	}
 
+	void D3D12DeferredCommandList::Prepare()
+	{
+	}
+
 	void D3D12DeferredCommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
 	{
 	}
@@ -96,11 +104,11 @@ namespace agl
 	{
 	}
 
-	void D3D12DeferredCommandList::BindShaderResources( const ShaderBindings& shaderBindings )
+	void D3D12DeferredCommandList::BindShaderResources( ShaderBindings& shaderBindings )
 	{
 	}
 
-	void D3D12DeferredCommandList::BindConstantBuffer( ShaderType shader, uint32 slot, Buffer* buffer )
+	void D3D12DeferredCommandList::SetShaderValue( const ShaderParameter& parameter, const void* value )
 	{
 	}
 
@@ -156,6 +164,11 @@ namespace agl
 	{
 	}
 
+	void D3D12GraphicsCommandList::Prepare()
+	{
+		m_globalConstantBuffers.Prepare();
+	}
+
 	void D3D12GraphicsCommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
 	{
 	}
@@ -166,30 +179,37 @@ namespace agl
 
 	void D3D12GraphicsCommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
 	{
+		m_globalConstantBuffers.Reset( false );
 	}
 
 	void D3D12GraphicsCommandList::BindPipelineState( ComputePipelineState* pipelineState )
 	{
+		m_globalConstantBuffers.Reset( true );
 	}
 
-	void D3D12GraphicsCommandList::BindShaderResources( const ShaderBindings& shaderBindings )
+	void D3D12GraphicsCommandList::BindShaderResources( ShaderBindings& shaderBindings )
 	{
+		m_globalConstantBuffers.AddGlobalConstantBuffers( shaderBindings );
 	}
 
-	void D3D12GraphicsCommandList::BindConstantBuffer( ShaderType shader, uint32 slot, Buffer* buffer )
+	void D3D12GraphicsCommandList::SetShaderValue( const ShaderParameter& parameter, const void* value )
 	{
+		m_globalConstantBuffers.SetShaderValue( parameter, value );
 	}
 
 	void D3D12GraphicsCommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
 	{
+		m_globalConstantBuffers.CommitShaderValue( false );
 	}
 
 	void D3D12GraphicsCommandList::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
 	{
+		m_globalConstantBuffers.CommitShaderValue( false );
 	}
 
 	void D3D12GraphicsCommandList::Dispatch( uint32 x, uint32 y, uint32 z )
 	{
+		m_globalConstantBuffers.CommitShaderValue( true );
 	}
 
 	void D3D12GraphicsCommandList::SetViewports( uint32 count, const CubeArea<float>* area )
@@ -242,6 +262,8 @@ namespace agl
 
 	void D3D12GraphicsCommandList::Initialize()
 	{
+		m_globalConstantBuffers.Initialize();
+
 		[[maybe_unused]] HRESULT hr = D3D12Device().CreateCommandAllocator( D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS( &m_commandAllocator ) );
 		assert( SUCCEEDED( hr ) );
 
@@ -253,7 +275,7 @@ namespace agl
 		commandList.As( &m_commandList );
 	}
 
-	void D3D12GraphicsCommandList::OnRecordBegin()
+	void D3D12GraphicsCommandList::Reset()
 	{
 		if ( ( m_commandAllocator != nullptr ) && ( m_commandList != nullptr ) )
 		{
@@ -262,7 +284,7 @@ namespace agl
 		}
 	}
 
-	void D3D12GraphicsCommandList::OnRecordEnd()
+	void D3D12GraphicsCommandList::Close()
 	{
 		if ( m_commandList != nullptr )
 		{
@@ -287,7 +309,8 @@ namespace agl
 		for ( auto commandList : m_commandLists )
 		{
 			auto d3d12CommandList = static_cast<D3D12GraphicsCommandList*>( commandList );
-			d3d12CommandList->OnRecordBegin();
+			d3d12CommandList->Prepare();
+			d3d12CommandList->Reset();
 		}
 	}
 
@@ -297,11 +320,12 @@ namespace agl
 		for ( auto commandList : m_commandLists )
 		{
 			auto d3d12CommandList = static_cast<D3D12GraphicsCommandList*>( commandList );
-			d3d12CommandList->OnRecordEnd();
+			d3d12CommandList->Close();
 
 			commandLists.push_back( d3d12CommandList->Resource() );
 		}
 
-		D3D12DirectCommandQueue().ExecuteCommandLists( commandLists.size(), commandLists.data() );
+		auto numCommandList = static_cast<uint32>( commandLists.size() );
+		D3D12DirectCommandQueue().ExecuteCommandLists( numCommandList, commandLists.data() );
 	}
 }

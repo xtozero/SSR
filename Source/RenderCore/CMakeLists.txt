@@ -18,7 +18,6 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Private/GraphicsResource/ComputePipelineState.cpp
 	Private/GraphicsResource/ConstantBuffer.cpp
 	Private/GraphicsResource/DDSTexture.cpp
-	Private/GraphicsResource/DefaultConstantBuffers.cpp
 	Private/GraphicsResource/DrawSnapshot.cpp
 	Private/GraphicsResource/GlobalShaders.cpp
 	Private/GraphicsResource/GraphicsPipelineState.cpp
@@ -37,7 +36,6 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Public/GraphicsResource/ComputePipelineState.h
 	Public/GraphicsResource/ConstantBuffer.h
 	Public/GraphicsResource/DDSTexture.h
-	Public/GraphicsResource/DefaultConstantBuffers.h
 	Public/GraphicsResource/DrawSnapshot.h
 	Public/GraphicsResource/GlobalShaders.h
 	Public/GraphicsResource/GraphicsPipelineState.h

@@ -4,7 +4,6 @@
 #include "AbstractGraphicsInterface.h"
 #include "common.h"
 #include "CommandLists.h"
-#include "DefaultConstantBuffers.h"
 #include "ForwardRenderer.h"
 #include "GlobalShaders.h"
 #include "GraphicsResource/Viewport.h"
@@ -78,8 +77,6 @@ namespace rendercore
 		ShaderCache::LoadFromFile();
 
 		GraphicsInterface().BootUp( m_agl );
-
-		DefaultConstantBuffers::GetInstance().BootUp();
 
 		while ( IsReady() == false )
 		{
@@ -173,10 +170,9 @@ namespace rendercore
 		m_sceneRenderer.clear();
 
 		ShaderCache::SaveToFile();
+		ShaderCache::Shutdown();
 
 		GlobalShaders::GetInstance().Shutdown();
-
-		DefaultConstantBuffers::GetInstance().Shutdown();
 
 		GraphicsInterface().Shutdown();
 

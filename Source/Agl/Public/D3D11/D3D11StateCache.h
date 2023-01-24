@@ -24,7 +24,6 @@ namespace agl
 		void BindShader( ID3D11DeviceContext& context, PixelShader* ps );
 		void BindShader( ID3D11DeviceContext& context, ComputeShader* cs );
 		void BindShaderResources( ID3D11DeviceContext& context, const ShaderBindings& shaderBindings );
-		void BindConstantBuffer( ID3D11DeviceContext& context, ShaderType shader, uint32 slot, Buffer* cb );
 		void SetViewports( ID3D11DeviceContext& context, uint32 count, const CubeArea<float>* area );
 		void SetScissorRects( ID3D11DeviceContext& context, uint32 count, const RectangleArea<int32>* area );
 		void BindRenderTargets( ID3D11DeviceContext& context, RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil );
@@ -32,6 +31,7 @@ namespace agl
 	private:
 		void UnbindExistingSRV( ID3D11DeviceContext& context, ID3D11ShaderResourceView* srv );
 		void UnbindExistingUAV( ID3D11DeviceContext& context, ID3D11UnorderedAccessView* uav );
+		void BindConstantBuffer( ID3D11DeviceContext& context, ShaderType shader, uint32 slot, Buffer* cb );
 		void BindSRV( ID3D11DeviceContext& context, ShaderType shader, uint32 slot, ShaderResourceView* srv );
 		void BindUAV( ID3D11DeviceContext& context, ShaderType shader, uint32 slot, UnorderedAccessView* uav );
 		void BindSampler( ID3D11DeviceContext& context, ShaderType shader, uint32 slot, SamplerState* sampler );

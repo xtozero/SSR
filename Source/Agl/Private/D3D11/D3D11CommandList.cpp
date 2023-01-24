@@ -15,6 +15,11 @@
 
 namespace agl
 {
+	void D3D11ImmediateCommandList::Prepare()
+	{
+		m_globalConstantBuffers.Prepare();
+	}
+
 	void D3D11ImmediateCommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
 	{
 		m_stateCache.BindVertexBuffer( D3D11Context(), vertexBuffers, startSlot, numBuffers, pOffsets );
@@ -27,36 +32,42 @@ namespace agl
 
 	void D3D11ImmediateCommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
 	{
+		m_globalConstantBuffers.Reset( false );
 		m_stateCache.BindPipelineState( D3D11Context(), pipelineState );
 	}
 
 	void D3D11ImmediateCommandList::BindPipelineState( ComputePipelineState* pipelineState )
 	{
+		m_globalConstantBuffers.Reset( true );
 		m_stateCache.BindPipelineState( D3D11Context(), pipelineState );
 	}
 
-	void D3D11ImmediateCommandList::BindShaderResources( const ShaderBindings& shaderBindings )
+	void D3D11ImmediateCommandList::BindShaderResources( ShaderBindings& shaderBindings )
 	{
+		m_globalConstantBuffers.AddGlobalConstantBuffers( shaderBindings );
 		m_stateCache.BindShaderResources( D3D11Context(), shaderBindings );
 	}
 
-	void D3D11ImmediateCommandList::BindConstantBuffer( ShaderType shader, uint32 slot, Buffer* buffer )
+	void D3D11ImmediateCommandList::SetShaderValue( const ShaderParameter& parameter, const void* value )
 	{
-		m_stateCache.BindConstantBuffer( D3D11Context(), shader, slot, buffer );
+		m_globalConstantBuffers.SetShaderValue( parameter, value );
 	}
 
 	void D3D11ImmediateCommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
 	{
+		m_globalConstantBuffers.CommitShaderValue( false );
 		D3D11Context().DrawInstanced( vertexCount, numInstance, baseVertexLocation, 0 );
 	}
 
 	void D3D11ImmediateCommandList::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
 	{
+		m_globalConstantBuffers.CommitShaderValue( false );
 		D3D11Context().DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation, 0 );
 	}
 
 	void D3D11ImmediateCommandList::Dispatch( uint32 x, uint32 y, uint32 z )
 	{
+		m_globalConstantBuffers.CommitShaderValue( true );
 		D3D11Context().Dispatch( x, y, z );
 	}
 
@@ -168,6 +179,16 @@ namespace agl
 		d3d11DeferredCommandList.RequestExecute();
 	}
 
+	D3D11ImmediateCommandList::D3D11ImmediateCommandList()
+	{
+		m_globalConstantBuffers.Initialize();
+	}
+
+	void D3D11DeferredCommandList::Prepare()
+	{
+		m_globalConstantBuffers.Prepare();
+	}
+
 	void D3D11DeferredCommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
 	{
 		m_stateCache.BindVertexBuffer( *m_pContext, vertexBuffers, startSlot, numBuffers, pOffsets );
@@ -180,36 +201,41 @@ namespace agl
 
 	void D3D11DeferredCommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
 	{
+		m_globalConstantBuffers.Reset( false );
 		m_stateCache.BindPipelineState( *m_pContext, pipelineState );
 	}
 
 	void D3D11DeferredCommandList::BindPipelineState( ComputePipelineState* pipelineState )
 	{
+		m_globalConstantBuffers.Reset( true );
 		m_stateCache.BindPipelineState( *m_pContext, pipelineState );
 	}
 
-	void D3D11DeferredCommandList::BindShaderResources( const ShaderBindings& shaderBindings )
+	void D3D11DeferredCommandList::BindShaderResources( ShaderBindings& shaderBindings )
 	{
 		m_stateCache.BindShaderResources( *m_pContext, shaderBindings );
 	}
 
-	void D3D11DeferredCommandList::BindConstantBuffer( ShaderType shader, uint32 slot, Buffer* buffer )
+	void D3D11DeferredCommandList::SetShaderValue( const ShaderParameter& parameter, const void* value )
 	{
-		m_stateCache.BindConstantBuffer( *m_pContext, shader, slot, buffer );
+		m_globalConstantBuffers.SetShaderValue( parameter, value );
 	}
 
 	void D3D11DeferredCommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
 	{
+		m_globalConstantBuffers.CommitShaderValue( false );
 		m_pContext->DrawInstanced( vertexCount, numInstance, baseVertexLocation, 0 );
 	}
 
 	void D3D11DeferredCommandList::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
 	{
+		m_globalConstantBuffers.CommitShaderValue( false );
 		m_pContext->DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation, 0 );
 	}
 
 	void D3D11DeferredCommandList::Dispatch( uint32 x, uint32 y, uint32 z )
 	{
+		m_globalConstantBuffers.CommitShaderValue( true );
 		m_pContext->Dispatch( x, y, z );
 	}
 
@@ -329,6 +355,8 @@ namespace agl
 	{
 		[[maybe_unused]] HRESULT hr = D3D11Device().CreateDeferredContext( 0, &m_pContext );
 		assert( SUCCEEDED( hr ) );
+
+		m_globalConstantBuffers.Initialize();
 	}
 
 	D3D11DeferredCommandList::~D3D11DeferredCommandList()
