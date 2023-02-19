@@ -64,8 +64,32 @@ public:
 
 	FixedBlockMemoryPool( const FixedBlockMemoryPool& ) = delete;
 	FixedBlockMemoryPool& operator=( const FixedBlockMemoryPool& ) = delete;
-	FixedBlockMemoryPool( FixedBlockMemoryPool&& ) = default;
-	FixedBlockMemoryPool& operator=( FixedBlockMemoryPool&& ) = default;
+	FixedBlockMemoryPool( FixedBlockMemoryPool&& other )
+	{
+		*this = std::move( other );
+	}
+
+	FixedBlockMemoryPool& operator=( FixedBlockMemoryPool&& other )
+	{
+		if ( this == &other )
+		{
+			return *this;
+		}
+
+		m_chunkList = other.m_chunkList;
+		m_capacity = other.m_capacity;
+		m_size = other.m_size;
+		m_nextChunkSize = other.m_nextChunkSize;
+		m_freeList = other.m_freeList;
+
+		other.m_chunkList = nullptr;
+		other.m_capacity = 0;
+		other.m_size = 0;
+		other.m_nextChunkSize = CalcAlignment<size_t>( BlockSize, ChunkAlignment );
+		other.m_freeList = nullptr;
+
+		return *this;
+	}
 
 private:
 	struct MemoryBlock
@@ -81,7 +105,7 @@ private:
 
 	void* AllocateChunk( size_t chunkSize )
 	{
-		chunkSize = CalcAlignment<size_t>( chunkSize, 4096 );
+		chunkSize = CalcAlignment<size_t>( chunkSize, ChunkAlignment );
 		size_t entryCount = ( chunkSize - sizeof( MemoryChunk ) ) / BlockSize;
 
 		auto chunk = reinterpret_cast<MemoryChunk*>( VirtualAlloc( nullptr, chunkSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE ) );
@@ -134,9 +158,10 @@ private:
 	MemoryChunk* m_chunkList = nullptr;
 	size_t m_capacity = 0;
 	size_t m_size = 0;
-	size_t m_nextChunkSize = CalcAlignment<size_t>( BlockSize, 4096 );
+	size_t m_nextChunkSize = CalcAlignment<size_t>( BlockSize, ChunkAlignment );
 
 	MemoryBlock* m_freeList = nullptr;
 
 	static constexpr size_t BlockSize = std::max( sizeof( MemoryBlock ), sizeof( T ) );
+	static constexpr size_t ChunkAlignment = 4096;
 };
