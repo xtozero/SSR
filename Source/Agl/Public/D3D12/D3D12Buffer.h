@@ -20,6 +20,8 @@ namespace agl
 		uint32 Stride() const;
 		uint32 Size() const;
 
+		const D3D12_RESOURCE_DESC& Desc() const;
+
 		D3D12Buffer( const BUFFER_TRAIT& trait, const void* initData );
 		virtual ~D3D12Buffer() override;
 		D3D12Buffer( const D3D12Buffer& ) = delete;

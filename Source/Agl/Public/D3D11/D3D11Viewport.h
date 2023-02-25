@@ -41,6 +41,6 @@ namespace agl
 		DXGI_FORMAT m_format;
 		Microsoft::WRL::ComPtr<IDXGISwapChain> m_pSwapChain;
 
-		RefHandle<D3D11BaseTexture2D> m_backBuffer = nullptr;
+		RefHandle<D3D11BaseTexture2D> m_backBuffer;
 	};
 }

@@ -20,10 +20,10 @@ namespace agl
 
 		// Shader
 		virtual VertexLayout* CreateVertexLayout( const VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, uint32 size ) override;
-		virtual ComputeShader* CreateComputeShader( const void* byteCode, size_t byteCodeSize ) override;
-		virtual VertexShader* CreateVertexShader( const void* byteCode, size_t byteCodeSize ) override;
-		virtual GeometryShader* CreateGeometryShader( const void* byteCode, size_t byteCodeSize ) override;
-		virtual PixelShader* CreatePixelShader( const void* byteCode, size_t byteCodeSize ) override;
+		virtual ComputeShader* CreateComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) override;
+		virtual VertexShader* CreateVertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) override;
+		virtual GeometryShader* CreateGeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) override;
+		virtual PixelShader* CreatePixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) override;
 
 		// RenderState
 		virtual BlendState* CreateBlendState( const BLEND_STATE_TRAIT& trait ) override;

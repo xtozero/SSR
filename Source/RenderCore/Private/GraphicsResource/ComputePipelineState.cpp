@@ -10,7 +10,13 @@ namespace rendercore
 			.m_computeShader = cs
 		};
 
-		return agl::ComputePipelineState::Create( initializer );
+		auto pipelineState = agl::ComputePipelineState::Create( initializer );
+		EnqueueRenderTask( [state = pipelineState]()
+			{
+				state->Init();
+			} );
+
+		return pipelineState;
 	}
 
 	agl::ShaderBindingsInitializer CreateShaderBindingsInitializer( const ComputeShader* computeShader )

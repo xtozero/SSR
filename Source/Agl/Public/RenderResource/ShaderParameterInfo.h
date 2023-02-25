@@ -64,4 +64,54 @@ namespace agl
 			return ar;
 		}
 	};
+
+	inline void BuildShaderParameterInfo( const std::map<Name, ShaderParameter>& parameterMap, ShaderParameterInfo& parameterInfo )
+	{
+		for ( uint32 i = 0; i < static_cast<uint32>( ShaderParameterType::Count ); ++i )
+		{
+			auto curParameterType = static_cast<ShaderParameterType>( i );
+			size_t count = 0;
+
+			for ( auto iter = parameterMap.begin(); iter != parameterMap.end(); ++iter )
+			{
+				if ( iter->second.m_type == curParameterType )
+				{
+					++count;
+				}
+			}
+
+			std::vector<ShaderParameter>* shaderParameters = nullptr;
+
+			if ( curParameterType == ShaderParameterType::ConstantBuffer )
+			{
+				shaderParameters = &parameterInfo.m_constantBuffers;
+			}
+			else if ( curParameterType == ShaderParameterType::SRV )
+			{
+				shaderParameters = &parameterInfo.m_srvs;
+			}
+			else if ( curParameterType == ShaderParameterType::UAV )
+			{
+				shaderParameters = &parameterInfo.m_uavs;
+			}
+			else if ( curParameterType == ShaderParameterType::Sampler )
+			{
+				shaderParameters = &parameterInfo.m_samplers;
+			}
+			else
+			{
+				continue;
+			}
+
+			shaderParameters->reserve( count );
+
+			for ( auto iter = parameterMap.begin(); iter != parameterMap.end(); ++iter )
+			{
+				if ( iter->second.m_type == curParameterType )
+				{
+					shaderParameters->push_back( iter->second );
+				}
+			}
+		}
+	}
 }

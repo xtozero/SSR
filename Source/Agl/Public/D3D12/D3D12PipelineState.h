@@ -1,5 +1,12 @@
 #pragma once
 
+#include "D3D12BlendState.h"
+#include "D3D12DepthStencilState.h"
+#include "D3D12RasterizerState.h"
+#include "D3D12RootSignature.h"
+#include "D3D12VertexLayout.h"
+#include "D3D12Shaders.h"
+#include "GraphicsApiResource.h"
 #include "PipelineState.h"
 
 #include <d3d12.h>
@@ -19,6 +26,18 @@ namespace agl
 		virtual void InitResource() override;
 		virtual void FreeResource() override;
 
+		RefHandle<D3D12RootSignature> m_rootSignature;
+		RefHandle<D3D12VertexShader> m_vertexShader;
+		RefHandle<D3D12PixelShader> m_pixelShader;
+		// Reserved
+		// RefHandle<D3D12VertexShader> m_domainShader;
+		// RefHandle<D3D12VertexShader> m_hullShader;
+		RefHandle<D3D12GeometryShader> m_geometryShader;
+		RefHandle<D3D12BlendState> m_blendState;
+		RefHandle<D3D12RasterizerState> m_rasterizerState;
+		RefHandle<D3D12DepthStencilState> m_depthStencilState;
+		RefHandle<D3D12VertexLayout> m_vertexLayout;
+
 		ID3D12PipelineState* m_pipelineState = nullptr;
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC m_desc = {};
 	};
@@ -35,6 +54,9 @@ namespace agl
 	private:
 		virtual void InitResource() override;
 		virtual void FreeResource() override;
+
+		RefHandle<D3D12RootSignature> m_rootSignature;
+		RefHandle<D3D12ComputeShader> m_computeShader;
 
 		ID3D12PipelineState* m_pipelineState = nullptr;
 		D3D12_COMPUTE_PIPELINE_STATE_DESC m_desc = {};

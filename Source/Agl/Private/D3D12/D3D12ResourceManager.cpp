@@ -71,24 +71,24 @@ namespace agl
 		return new D3D12VertexLayout( trait, size );
 	}
 
-	ComputeShader* D3D12ResourceManager::CreateComputeShader( const void* byteCode, size_t byteCodeSize )
+	ComputeShader* D3D12ResourceManager::CreateComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		return new D3D12ComputeShader( byteCode, byteCodeSize );
+		return new D3D12ComputeShader( byteCode, byteCodeSize, paramInfo );
 	}
 
-	VertexShader* D3D12ResourceManager::CreateVertexShader( const void* byteCode, size_t byteCodeSize )
+	VertexShader* D3D12ResourceManager::CreateVertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		return new D3D12VertexShader( byteCode, byteCodeSize );
+		return new D3D12VertexShader( byteCode, byteCodeSize, paramInfo );
 	}
 
-	GeometryShader* D3D12ResourceManager::CreateGeometryShader( const void* byteCode, size_t byteCodeSize )
+	GeometryShader* D3D12ResourceManager::CreateGeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		return new D3D12GeometryShader( byteCode, byteCodeSize );
+		return new D3D12GeometryShader( byteCode, byteCodeSize, paramInfo );
 	}
 
-	PixelShader* D3D12ResourceManager::CreatePixelShader( const void* byteCode, size_t byteCodeSize )
+	PixelShader* D3D12ResourceManager::CreatePixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		return new D3D12PixelShader( byteCode, byteCodeSize );
+		return new D3D12PixelShader( byteCode, byteCodeSize, paramInfo );
 	}
 
 	BlendState* D3D12ResourceManager::CreateBlendState( const BLEND_STATE_TRAIT& trait )

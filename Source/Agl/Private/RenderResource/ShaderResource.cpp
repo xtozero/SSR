@@ -6,23 +6,23 @@
 
 namespace agl
 {
-	RefHandle<VertexShader> VertexShader::Create( const void* byteCode, size_t byteCodeSize )
+	RefHandle<VertexShader> VertexShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		return GetInterface<IResourceManager>( )->CreateVertexShader( byteCode, byteCodeSize );
+		return GetInterface<IResourceManager>( )->CreateVertexShader( byteCode, byteCodeSize, paramInfo );
 	}
 
-	RefHandle<GeometryShader> GeometryShader::Create( const void* byteCode, size_t byteCodeSize )
+	RefHandle<GeometryShader> GeometryShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		return GetInterface<IResourceManager>( )->CreateGeometryShader( byteCode, byteCodeSize );
+		return GetInterface<IResourceManager>( )->CreateGeometryShader( byteCode, byteCodeSize, paramInfo );
 	}
 
-	RefHandle<PixelShader> PixelShader::Create( const void* byteCode, size_t byteCodeSize )
+	RefHandle<PixelShader> PixelShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		return GetInterface<IResourceManager>( )->CreatePixelShader( byteCode, byteCodeSize );
+		return GetInterface<IResourceManager>( )->CreatePixelShader( byteCode, byteCodeSize, paramInfo );
 	}
 
-	RefHandle<ComputeShader> ComputeShader::Create( const void* byteCode, size_t byteCodeSize )
+	RefHandle<ComputeShader> ComputeShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		return GetInterface<IResourceManager>( )->CreateComputeShader( byteCode, byteCodeSize );
+		return GetInterface<IResourceManager>( )->CreateComputeShader( byteCode, byteCodeSize, paramInfo );
 	}
 }
