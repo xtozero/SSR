@@ -71,6 +71,7 @@ set (D3D12_RENDER_RESOURCE_SOURCE
 	Private/D3D12/D3D12ResourceManager.cpp
 	Private/D3D12/D3D12ResourceUploader.cpp
 	Private/D3D12/D3D12ResourceViews.cpp
+	Private/D3D12/D3D12RootSignature.cpp
 	Private/D3D12/D3D12SamplerState.cpp
 	Private/D3D12/D3D12Shaders.cpp
 	Private/D3D12/D3D12VertexLayout.cpp
@@ -88,6 +89,7 @@ set (D3D12_RENDER_RESOURCE_SOURCE
 	Public/D3D12/D3D12ResourceManager.h
 	Public/D3D12/D3D12ResourceUploader.h
 	Public/D3D12/D3D12ResourceViews.h
+	Public/D3D12/D3D12RootSignature.h
 	Public/D3D12/D3D12SamplerState.h
 	Public/D3D12/D3D12Shaders.h
 	Public/D3D12/D3D12VertexLayout.h
@@ -99,6 +101,12 @@ set (D3D12_SOURCE
 
 set (D3D12_UTILITY
 	Public/D3D12/D3D12FlagConvertor.h)
+
+set (DXC_SOURCE
+	../../ThirdParty/DXC/inc/d3d12shader.h
+	../../ThirdParty/DXC/inc/dxcapi.h
+	../../ThirdParty/DXC/inc/dxcerrors.h
+	../../ThirdParty/DXC/inc/dxcisense.h)
 
 set (DXGI_SOURCE
 	Public/DXGI/DxgiFlagConvertor.h)
@@ -137,15 +145,10 @@ source_group("Direct11\\Utility" FILES ${D3D11_UTILITY})
 source_group("Direct12\\RenderResource" FILES ${D3D12_RENDER_RESOURCE_SOURCE})
 source_group("Direct12" FILES ${D3D12_SOURCE})
 source_group("Direct12\\Utility" FILES ${D3D12_UTILITY})
+source_group("DXC" FILES ${DXC_SOURCE})
 source_group("DXGI" FILES ${DXGI_SOURCE})
 source_group("RenderCommon" FILES ${COMMON_SOURCE})
 source_group("RenderResource" FILES ${RENDER_RESOURCE_SOURCE})
-
-if (CMAKE_SIZEOF_VOID_P EQUAL 4)
-link_directories($ENV{DXSDK_DIR}lib/x86)
-else()
-link_directories($ENV{DXSDK_DIR}lib/x64)
-endif()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -160,6 +163,7 @@ add_library(Agl SHARED 	${CONFIG_SOURCE}
 						${D3D12_RENDER_RESOURCE_SOURCE}
 						${D3D12_SOURCE}
 						${D3D12_UTILITY}
+						${DXC_SOURCE}
 						${DXGI_SOURCE}
 						${PRECOMPILED}
 						${RENDER_RESOURCE_SOURCE})
@@ -169,11 +173,24 @@ PUBLIC
 	./Public/RenderResource
 	./Public/Common
 PRIVATE
+	./../ThirdParty/inc
 	./Public
 	./Public/D3D11
 	./Public/D3D12
 	./Public/DXGI
 	./Public/Pch)
+
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+target_link_directories(Agl
+PRIVATE
+	./../ThirdParty/DXC/lib/x64
+	$ENV{DXSDK_DIR}lib/x64)
+elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+target_link_directories(Agl
+PRIVATE
+	./../ThirdParty/DXC/lib/x86
+	$ENV{DXSDK_DIR}lib/x86)
+endif()
 
 set (DIRECT3D_LIBRARY
 	"d3d11.lib"
@@ -188,6 +205,14 @@ PRIVATE
 	Core
 	${DIRECT3D_LIBRARY})
 
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 add_custom_command(TARGET Agl POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/Agl.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/Agl.dll"
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/Program/Binaries/dxcompiler.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/dxcompiler.dll")
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/ThirdParty/DXC/bin/x64/dxcompiler.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/dxcompiler.dll"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/ThirdParty/DXC/bin/x64/dxil.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/dxil.dll")
+elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+add_custom_command(TARGET Agl POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/Agl.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/Agl.dll"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/ThirdParty/DXC/bin/x86/dxcompiler.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/dxcompiler.dll"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/ThirdParty/DXC/bin/x86/dxil.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/dxil.dll")
+endif()

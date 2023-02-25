@@ -19,10 +19,12 @@
 
 #include "Texture.h"
 
+#include "d3d12shader.h"
+#include "dxcapi.h"
+
 #include <array>
 #include <cstdlib>
 #include <d3d12.h>
-#include <dxcapi.h>
 #include <dxgi1_6.h>
 #include <wrl/client.h>
 
@@ -30,6 +32,39 @@ using namespace ::Microsoft::WRL;
 
 namespace
 {
+	using ::agl::ShaderType;
+
+	ShaderType ConvertShaderVersionToType( uint32 shaderVersion )
+	{
+		D3D12_SHADER_VERSION_TYPE shaderType = static_cast<D3D12_SHADER_VERSION_TYPE>( D3D12_SHVER_GET_TYPE( shaderVersion ) );
+
+		switch ( shaderType )
+		{
+		case D3D12_SHVER_PIXEL_SHADER:
+			return ShaderType::PS;
+			break;
+		case D3D12_SHVER_VERTEX_SHADER:
+			return ShaderType::VS;
+			break;
+		case D3D12_SHVER_GEOMETRY_SHADER:
+			return ShaderType::GS;
+			break;
+		case D3D12_SHVER_HULL_SHADER:
+			return ShaderType::HS;
+			break;
+		case D3D12_SHVER_DOMAIN_SHADER:
+			return ShaderType::DS;
+			break;
+		case D3D12_SHVER_COMPUTE_SHADER:
+			return ShaderType::CS;
+			break;
+		default:
+			break;
+		}
+
+		return ShaderType::None;
+	}
+
 	const wchar_t* GetProperProfile( const char* profile )
 	{
 		if ( std::strncmp( profile, "vs", 2 ) == 0 )
@@ -56,6 +91,73 @@ namespace
 
 namespace agl
 {
+	void ExtractShaderParameters( ID3D12ShaderReflection* pReflector, ShaderParameterMap& parameterMap )
+	{
+		D3D12_SHADER_DESC shaderDesc = {};
+		HRESULT hResult = pReflector->GetDesc( &shaderDesc );
+		assert( SUCCEEDED( hResult ) );
+
+		ShaderType shaderType = ConvertShaderVersionToType( shaderDesc.Version );
+
+		// Get the resources
+		for ( uint32 i = 0; i < shaderDesc.BoundResources; ++i )
+		{
+			D3D12_SHADER_INPUT_BIND_DESC bindDesc = {};
+			hResult = pReflector->GetResourceBindingDesc( i, &bindDesc );
+			assert( SUCCEEDED( hResult ) );
+
+			ShaderParameterType parameterType = ShaderParameterType::ConstantBuffer;
+			uint32 parameterSize = 0;
+
+			if ( bindDesc.Type == D3D_SIT_CBUFFER || bindDesc.Type == D3D_SIT_TBUFFER )
+			{
+				parameterType = ShaderParameterType::ConstantBuffer;
+
+				ID3D12ShaderReflectionConstantBuffer* constBufferReflection = pReflector->GetConstantBufferByName( bindDesc.Name );
+				if ( constBufferReflection )
+				{
+					D3D12_SHADER_BUFFER_DESC shaderBuffDesc;
+					constBufferReflection->GetDesc( &shaderBuffDesc );
+
+					parameterSize = shaderBuffDesc.Size;
+
+					for ( uint32 j = 0; j < shaderBuffDesc.Variables; ++j )
+					{
+						ID3D12ShaderReflectionVariable* variableReflection = constBufferReflection->GetVariableByIndex( j );
+						D3D12_SHADER_VARIABLE_DESC shaderVarDesc;
+						variableReflection->GetDesc( &shaderVarDesc );
+
+						parameterMap.AddParameter( shaderVarDesc.Name, shaderType, ShaderParameterType::ConstantBufferValue, bindDesc.BindPoint, shaderVarDesc.StartOffset, shaderVarDesc.Size );
+					}
+				}
+			}
+			else if ( bindDesc.Type == D3D_SIT_TEXTURE )
+			{
+				parameterType = ShaderParameterType::SRV;
+			}
+			else if ( bindDesc.Type == D3D_SIT_SAMPLER )
+			{
+				parameterType = ShaderParameterType::Sampler;
+			}
+			else if ( bindDesc.Type == D3D_SIT_UAV_RWTYPED || bindDesc.Type == D3D_SIT_UAV_RWSTRUCTURED ||
+				bindDesc.Type == D3D_SIT_UAV_RWBYTEADDRESS || bindDesc.Type == D3D_SIT_UAV_APPEND_STRUCTURED ||
+				bindDesc.Type == D3D_SIT_UAV_CONSUME_STRUCTURED || bindDesc.Type == D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER )
+			{
+				parameterType = ShaderParameterType::UAV;
+			}
+			else if ( bindDesc.Type == D3D_SIT_STRUCTURED || bindDesc.Type == D3D_SIT_BYTEADDRESS )
+			{
+				parameterType = ShaderParameterType::SRV;
+			}
+			else
+			{
+				assert( false && "Unexpected case" );
+			}
+
+			parameterMap.AddParameter( bindDesc.Name, shaderType, parameterType, bindDesc.BindPoint, 0, parameterSize );
+		}
+	}
+
 	class Direct3D12 final : public IAgl
 	{
 	public:
@@ -117,6 +219,8 @@ namespace agl
 		HANDLE m_fenceEvent;
 
 		ComPtr<IDxcCompiler3> m_compiler;
+		ComPtr<IDxcLibrary> m_dxcLibrary;
+		ComPtr<IDxcContainerReflection> m_reflection;
 
 		uint32 m_frameIndex = 0;
 
@@ -201,7 +305,35 @@ namespace agl
 
 	LockedResource Direct3D12::Lock( Buffer* buffer, ResourceLockFlag lockFlag, uint32 subResource )
 	{
-		return LockedResource();
+		if ( buffer == nullptr )
+		{
+			return {};
+		}
+
+		auto d3d12Buffer = static_cast<D3D12Buffer*>( buffer );
+
+		ID3D12Resource* resource = d3d12Buffer->Resource();
+		if ( resource == nullptr )
+		{
+			return {};
+		}
+
+		void* mappedData = nullptr;
+		HRESULT hr = resource->Map( subResource, nullptr, &mappedData );
+
+		D3D12_PLACED_SUBRESOURCE_FOOTPRINT footPrint;
+		uint32 rows = 0;
+		uint64 rowSize = 0;
+		uint64 totalSize = 0;
+
+		D3D12Device().GetCopyableFootprints( &d3d12Buffer->Desc(), subResource, 1, 0, &footPrint, &rows, &rowSize, &totalSize);
+
+		LockedResource result = {
+			.m_data = mappedData,
+			.m_rowPitch = footPrint.Footprint.RowPitch,
+			.m_depthPitch = footPrint.Footprint.RowPitch * rows
+		};
+		return result;
 	}
 
 	LockedResource Direct3D12::Lock( Texture* texture, ResourceLockFlag lockFlag, uint32 subResource )
@@ -211,6 +343,15 @@ namespace agl
 
 	void Direct3D12::UnLock( Buffer* buffer, uint32 subResource )
 	{
+		if ( buffer == nullptr )
+		{
+			return;
+		}
+
+		auto d3d12Buffer = static_cast<D3D12Buffer*>( buffer );
+
+		ID3D12Resource* resource = d3d12Buffer->Resource();
+		resource->Unmap( subResource, nullptr );
 	}
 
 	void Direct3D12::UnLock( Texture* texture, uint32 subResource )
@@ -323,7 +464,41 @@ namespace agl
 
 	bool Direct3D12::BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const
 	{
-		return false;
+		ComPtr<IDxcBlobEncoding> binaryBlob;
+		HRESULT hr = m_dxcLibrary->CreateBlobWithEncodingOnHeapCopy( byteCode.Data(), byteCode.Size(), CP_ACP, binaryBlob.GetAddressOf() );
+		if ( FAILED( hr ) )
+		{
+			assert(false && "CreateBlobWithEncodingOnHeapCopy was Failed");
+			return false;
+		}
+
+		hr = m_reflection->Load( binaryBlob.Get() );
+		if ( FAILED( hr ) )
+		{
+			assert( false && "Binary Loading was Failed" );
+			return false;
+		}
+
+		uint32 shaderIndex = 0;
+		hr = m_reflection->FindFirstPartKind( DXC_FOURCC( 'D', 'X', 'I', 'L' ), &shaderIndex );
+		if ( FAILED( hr ) )
+		{
+			assert( false && "DXIL Searchint was Failed" );
+			return false;
+		}
+
+		ComPtr<ID3D12ShaderReflection> shaderReflection;
+		hr = m_reflection->GetPartReflection( shaderIndex, IID_PPV_ARGS( shaderReflection.GetAddressOf() ) );
+		if ( FAILED( hr ) )
+		{
+			assert( false && "GetPartReflection was Failed" );
+			return false;
+		}
+
+		ExtractShaderParameters( shaderReflection.Get(), outParameterMap );
+		BuildShaderParameterInfo( outParameterMap.GetParameterMap(), outParameterInfo );
+
+		return true;
 	}
 
 	ID3D12Device& Direct3D12::GetDevice() const
@@ -446,6 +621,18 @@ namespace agl
 		m_commandLists.resize( DefaultAgl::GetBufferCount() );
 
 		hr = DxcCreateInstance( CLSID_DxcCompiler, IID_PPV_ARGS( m_compiler.GetAddressOf() ) );
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
+
+		hr = DxcCreateInstance( CLSID_DxcLibrary, IID_PPV_ARGS( m_dxcLibrary.GetAddressOf() ) );
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
+
+		hr = DxcCreateInstance( CLSID_DxcContainerReflection, IID_PPV_ARGS( m_reflection.GetAddressOf() ) );
 		if ( FAILED( hr ) )
 		{
 			return false;

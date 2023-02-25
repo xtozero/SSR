@@ -40,7 +40,7 @@ namespace rendercore
 
 	void VertexShader::CreateShader()
 	{
-		m_shader = agl::VertexShader::Create( m_byteCode.Data(), m_byteCode.Size() );
+		m_shader = agl::VertexShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo );
 		EnqueueRenderTask(
 			[shader = m_shader]()
 			{
@@ -61,7 +61,7 @@ namespace rendercore
 
 	void GeometryShader::CreateShader()
 	{
-		m_shader = agl::GeometryShader::Create( m_byteCode.Data(), m_byteCode.Size() );
+		m_shader = agl::GeometryShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo );
 		EnqueueRenderTask(
 			[shader = m_shader]()
 			{
@@ -83,7 +83,7 @@ namespace rendercore
 
 	void PixelShader::CreateShader()
 	{
-		m_shader = agl::PixelShader::Create( m_byteCode.Data(), m_byteCode.Size() );
+		m_shader = agl::PixelShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo );
 		EnqueueRenderTask(
 			[shader = m_shader]()
 			{
@@ -104,7 +104,7 @@ namespace rendercore
 
 	void ComputeShader::CreateShader()
 	{
-		m_shader = agl::ComputeShader::Create( m_byteCode.Data(), m_byteCode.Size() );
+		m_shader = agl::ComputeShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo );
 		EnqueueRenderTask(
 			[shader = m_shader]()
 			{
