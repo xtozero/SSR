@@ -24,6 +24,7 @@ namespace agl
 	class PixelShader;
 	class RasterizerState;
 	class SamplerState;
+	class ShaderParameterInfo;
 	class Texture;
 	class VertexLayout;
 	class VertexShader;
@@ -39,10 +40,10 @@ namespace agl
 		virtual Buffer* CreateBuffer( const BUFFER_TRAIT& trait, const void* initData = nullptr ) = 0;
 
 		virtual VertexLayout* CreateVertexLayout( const VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, uint32 size ) = 0;
-		virtual ComputeShader* CreateComputeShader( const void* byteCode, size_t byteCodeSize ) = 0;
-		virtual VertexShader* CreateVertexShader( const void* byteCode, size_t byteCodeSize ) = 0;
-		virtual GeometryShader* CreateGeometryShader( const void* byteCode, size_t byteCodeSize ) = 0;
-		virtual PixelShader* CreatePixelShader( const void* byteCode, size_t byteCodeSize ) = 0;
+		virtual ComputeShader* CreateComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) = 0;
+		virtual VertexShader* CreateVertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) = 0;
+		virtual GeometryShader* CreateGeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) = 0;
+		virtual PixelShader* CreatePixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) = 0;
 
 		virtual BlendState* CreateBlendState( const BLEND_STATE_TRAIT& trait ) = 0;
 		virtual DepthStencilState* CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) = 0;

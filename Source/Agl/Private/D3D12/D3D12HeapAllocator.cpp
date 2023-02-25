@@ -125,6 +125,8 @@ namespace agl
 
 	D3D12HeapSubAllocation* D3D12HeapBlock::AllocateSubAllocationNode()
 	{
+		assert( IsInRenderThread() );
+
 		D3D12HeapSubAllocation* subAllocation = m_subAllocationNodePool.Allocate();
 		std::construct_at( subAllocation );
 
@@ -133,6 +135,8 @@ namespace agl
 
 	void D3D12HeapBlock::DeallocateSubAllocationNode( D3D12HeapSubAllocation* subAllocation )
 	{
+		assert( IsInRenderThread() );
+
 		std::destroy_at( subAllocation );
 		m_subAllocationNodePool.Deallocate( subAllocation );
 	}

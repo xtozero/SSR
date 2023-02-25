@@ -15,10 +15,12 @@ namespace agl
 
 		const ShaderParameterInfo& GetParameterInfo() const
 		{
-			return m_parameterInfo;
+			return *m_parameterInfo;
 		}
 
-		ShaderBase( const void* byteCode, size_t byteCodeSize ) : m_byteCodeSize( byteCodeSize )
+		ShaderBase( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+			: m_byteCodeSize( byteCodeSize )
+			, m_parameterInfo( &paramInfo )
 		{
 			m_byteCode = new unsigned char[m_byteCodeSize];
 			std::memcpy( m_byteCode, byteCode, m_byteCodeSize );
@@ -37,30 +39,30 @@ namespace agl
 	protected:
 		void* m_byteCode = nullptr;
 		size_t m_byteCodeSize = 0;
-		ShaderParameterInfo m_parameterInfo;
+		const ShaderParameterInfo* m_parameterInfo = nullptr;
 	};
 
 	class VertexShader : public DeviceDependantResource
 	{
 	public:
-		AGL_DLL static RefHandle<VertexShader> Create( const void* byteCode, size_t byteCodeSize );
+		AGL_DLL static RefHandle<VertexShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
 	};
 
 	class GeometryShader : public DeviceDependantResource
 	{
 	public:
-		AGL_DLL static RefHandle<GeometryShader> Create( const void* byteCode, size_t byteCodeSize );
+		AGL_DLL static RefHandle<GeometryShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
 	};
 
 	class PixelShader : public DeviceDependantResource
 	{
 	public:
-		AGL_DLL static RefHandle<PixelShader> Create( const void* byteCode, size_t byteCodeSize );
+		AGL_DLL static RefHandle<PixelShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
 	};
 
 	class ComputeShader : public DeviceDependantResource
 	{
 	public:
-		AGL_DLL static RefHandle<ComputeShader> Create( const void* byteCode, size_t byteCodeSize );
+		AGL_DLL static RefHandle<ComputeShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
 	};
 }

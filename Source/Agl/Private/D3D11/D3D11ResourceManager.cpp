@@ -69,30 +69,30 @@ namespace agl
 		return newVertexLayout;
 	}
 
-	ComputeShader * CD3D11ResourceManager::CreateComputeShader( const void* byteCode, size_t byteCodeSize )
+	ComputeShader * CD3D11ResourceManager::CreateComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		auto newShader = new D3D11ComputeShader( byteCode, byteCodeSize );
+		auto newShader = new D3D11ComputeShader( byteCode, byteCodeSize, paramInfo );
 
 		return newShader;
 	}
 
-	VertexShader* CD3D11ResourceManager::CreateVertexShader( const void* byteCode, size_t byteCodeSize )
+	VertexShader* CD3D11ResourceManager::CreateVertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		auto newShader = new D3D11VertexShader( byteCode, byteCodeSize );
+		auto newShader = new D3D11VertexShader( byteCode, byteCodeSize, paramInfo );
 
 		return newShader;
 	}
 
-	GeometryShader* CD3D11ResourceManager::CreateGeometryShader( const void* byteCode, size_t byteCodeSize )
+	GeometryShader* CD3D11ResourceManager::CreateGeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		auto newShader = new D3D11GeometryShader( byteCode, byteCodeSize );
+		auto newShader = new D3D11GeometryShader( byteCode, byteCodeSize, paramInfo );
 
 		return newShader;
 	}
 
-	PixelShader* CD3D11ResourceManager::CreatePixelShader( const void* byteCode, size_t byteCodeSize )
+	PixelShader* CD3D11ResourceManager::CreatePixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		auto newShader = new D3D11PixelShader( byteCode, byteCodeSize );
+		auto newShader = new D3D11PixelShader( byteCode, byteCodeSize, paramInfo );
 
 		return newShader;
 	}

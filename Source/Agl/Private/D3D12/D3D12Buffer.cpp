@@ -26,7 +26,19 @@ namespace
 		return properties;
 	}
 
-	D3D12_RESOURCE_DESC ConvertToDesc( const BUFFER_TRAIT& trait )
+	D3D12_RESOURCE_FLAGS GetResourceFlags( const BUFFER_TRAIT& trait )
+	{
+		D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE;
+
+		if ( HasAnyFlags( trait.m_bindType, ResourceBindType::RandomAccess ) )
+		{
+			flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+		}
+
+		return flags;
+	}
+
+	D3D12_RESOURCE_DESC ConvertTraitToDesc( const BUFFER_TRAIT& trait )
 	{
 		uint64 bufferSize = trait.m_stride * trait.m_count;
 		
@@ -43,7 +55,7 @@ namespace
 				.Quality = 0
 			},
 			.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
-			.Flags = D3D12_RESOURCE_FLAG_NONE
+			.Flags = GetResourceFlags( trait )
 		};
 
 		return desc;
@@ -136,8 +148,13 @@ namespace agl
 		return m_trait.m_stride * m_trait.m_count;
 	}
 
+	const D3D12_RESOURCE_DESC& D3D12Buffer::Desc() const
+	{
+		return m_desc;
+	}
+
 	D3D12Buffer::D3D12Buffer( const BUFFER_TRAIT& trait, const void* initData )
-		: m_desc( ConvertToDesc( trait ) )
+		: m_desc( ConvertTraitToDesc( trait ) )
 	{
 		m_trait = trait;
 		m_format = ConvertFormatToDxgiFormat( m_trait.m_format );
