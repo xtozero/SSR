@@ -81,7 +81,7 @@ namespace rendercore
 		PerlinWorleyCS perlinWorleyCS;
 		auto threadGroupCount = static_cast<uint32>( std::ceilf( 128 / 8.f ) );
 
-		auto commandList = GetImmediateCommandList();
+		auto commandList = GetCommandList();
 
 		agl::RefHandle<agl::ComputePipelineState> perlinWorleyPSO = PrepareComputePipelineState( perlinWorleyCS.GetShader()->Resource() );
 		commandList.BindPipelineState( perlinWorleyPSO );
@@ -136,7 +136,7 @@ namespace rendercore
 
 		auto threadGroupCount = static_cast<uint32>( std::ceilf( 1024.f / 8.f ) );
 
-		auto commandList = GetImmediateCommandList();
+		auto commandList = GetCommandList();
 
 		agl::RefHandle<agl::ComputePipelineState> weatherMapPSO = PrepareComputePipelineState( weatherMapCS.GetShader()->Resource() );
 		commandList.BindPipelineState( weatherMapPSO );

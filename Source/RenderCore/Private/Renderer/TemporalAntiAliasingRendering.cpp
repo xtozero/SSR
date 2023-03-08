@@ -48,7 +48,7 @@ namespace rendercore
 		if ( scene.GetNumFrame() == 1 )
 		{
 			agl::Texture* sceneTex = renderViewGroup.GetViewport().Texture();
-			GetImmediateCommandList().CopyResource( historyTex, sceneTex );
+			GetCommandList().CopyResource( historyTex, sceneTex );
 		}
 		else
 		{
@@ -112,7 +112,7 @@ namespace rendercore
 
 		agl::RenderTargetView* resolveRt = resolveTex->RTV();
 
-		auto commandList = GetImmediateCommandList();
+		auto commandList = GetCommandList();
 		commandList.BindRenderTargets( &resolveRt, 1, nullptr );
 
 		VisibleDrawSnapshot visibleSnapshot = {
@@ -129,7 +129,7 @@ namespace rendercore
 
 	void TAARenderer::UpdateHistory( IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup )
 	{
-		auto commandList = GetImmediateCommandList();
+		auto commandList = GetCommandList();
 
 		agl::Texture* historyTex = renderTargets.GetTAAHistory();
 		agl::Texture* resolveTex = renderTargets.GetTAAResolve();

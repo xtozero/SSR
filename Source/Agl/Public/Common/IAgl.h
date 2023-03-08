@@ -12,7 +12,6 @@ class BinaryChunk;
 namespace agl
 {
 	class Buffer;
-	class GraphicsCommandListsBase;
 	class ShaderParameterInfo;
 	class ShaderParameterMap;
 	class Texture;
@@ -40,9 +39,8 @@ namespace agl
 
 		virtual void GetRendererMultiSampleOption( MULTISAMPLE_OPTION* option ) = 0;
 
-		virtual IImmediateCommandList* GetImmediateCommandList() = 0;
-		virtual std::unique_ptr<IDeferredCommandList> CreateDeferredCommandList() const = 0;
-		virtual GraphicsCommandListsBase& GetGraphicsCommandLists() = 0;
+		virtual ICommandList* GetCommandList() = 0;
+		virtual IParallelCommandList* GetParallelCommandList() = 0;
 
 		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const = 0;
 		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const = 0;

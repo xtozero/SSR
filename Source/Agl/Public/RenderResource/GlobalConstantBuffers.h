@@ -66,13 +66,18 @@ namespace agl
 		void CommitShaderValue( bool bCompute );
 		void AddGlobalConstantBuffers( ShaderBindings& shaderBindings );
 
-		virtual ~GlobalConstantBuffers() = default;
+		GlobalConstantBuffers() = default;
+		GlobalConstantBuffers( const GlobalConstantBuffers& other ) = delete;
+		GlobalConstantBuffers& operator=( const GlobalConstantBuffers& other ) = delete;
+		GlobalConstantBuffers( GlobalConstantBuffers&& other ) noexcept;
+		GlobalConstantBuffers& operator=( GlobalConstantBuffers&& other ) noexcept;
+		virtual ~GlobalConstantBuffers();
 
 	protected:
 		virtual GlobalConstantBuffer* CreateGlobalConstantBuffer() const = 0;
 		GlobalConstantBuffer& GetGlobalConstantBuffer( ShaderType shaderType );
 
-		std::unique_ptr<GlobalConstantBuffer> m_constantBuffers[MAX_SHADER_TYPE<uint32>] = {};
+		GlobalConstantBuffer* m_constantBuffers[MAX_SHADER_TYPE<uint32>] = {};
 	};
 
 	class GlobalSyncConstantBuffers : public GlobalConstantBuffers

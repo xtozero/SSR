@@ -1,15 +1,18 @@
 #pragma once
 
-#include "CommandLists.h"
-#include "GlobalConstantBuffers.h"
 #include "D3D11StateCache.h"
+#include "GlobalConstantBuffers.h"
+#include "ICommandList.h"
+#include "Memory/InlineMemoryAllocator.h"
+
+#include <wrl/client.h>
 
 struct ID3D11DeviceContext;
 struct ID3D11CommandList;
 
 namespace agl
 {
-	class D3D11ImmediateCommandList : public IImmediateCommandList
+	class D3D11CommandList : public ICommandList
 	{
 	public:
 		virtual void Prepare() override;
@@ -35,18 +38,32 @@ namespace agl
 		virtual void CopyResource( Texture* dest, Texture* src ) override;
 		virtual void CopyResource( Buffer* dest, Buffer* src ) override;
 
+		virtual void Transition( uint32 numTransitions, const ResourceTransition* transitions ) override;
+
 		virtual void WaitUntilFlush() override;
 
-		virtual void Execute( IDeferredCommandList& commandList ) override;
+		virtual void Commit() override;
 
-		D3D11ImmediateCommandList();
+		void Initialize();
+
+		IParallelCommandList& GetParallelCommandList();
+
+		D3D11CommandList() = default;
+		D3D11CommandList( const D3D11CommandList& ) = delete;
+		D3D11CommandList& operator=( const D3D11CommandList& ) = delete;
+		D3D11CommandList( D3D11CommandList&& other ) noexcept;
+		D3D11CommandList& operator=( D3D11CommandList&& other ) noexcept;
+		virtual ~D3D11CommandList();
 
 	private:
 		D3D11PipelineCache m_stateCache;
 		GlobalSyncConstantBuffers m_globalConstantBuffers;
+
+		uint32 m_numUsedParallelCommandList = 0;
+		std::vector<IParallelCommandList*, InlineAllocator<IParallelCommandList*, 1>> m_parallelCommandLists;
 	};
 
-	class D3D11DeferredCommandList : public IDeferredCommandList
+	class D3D11ParallelCommandList : public IParallelCommandList
 	{
 	public:
 		virtual void Prepare() override;
@@ -72,26 +89,18 @@ namespace agl
 		virtual void CopyResource( Texture* dest, Texture* src ) override;
 		virtual void CopyResource( Buffer* dest, Buffer* src ) override;
 
-		virtual void Finish() override;
+		virtual void Transition( uint32 numTransitions, const ResourceTransition* transitions ) override;
 
-		void RequestExecute();
+		void Close();
 
-		D3D11DeferredCommandList();
-		virtual ~D3D11DeferredCommandList() override;
+		void Commit();
+
+		void Initialize();
 
 	private:
-		ID3D11DeviceContext* m_pContext = nullptr;
-		ID3D11CommandList* m_pCommandList = nullptr;
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_pContext;
+		Microsoft::WRL::ComPtr<ID3D11CommandList> m_pCommandList;
 		D3D11PipelineCache m_stateCache;
 		GlobalAsyncConstantBuffers m_globalConstantBuffers;
-	};
-
-	class D3D11GraphicsCommandLists : public GraphicsCommandListsBase
-	{
-	public:
-		virtual Owner<IGraphicsCommandList*> CreateCommandList() override;
-
-		virtual void Prepare() override;
-		virtual void Commit() override;
 	};
 }

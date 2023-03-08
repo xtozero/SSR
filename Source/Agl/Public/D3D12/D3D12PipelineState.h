@@ -16,6 +16,9 @@ namespace agl
 	class D3D12GraphicsPipelineState : public GraphicsPipelineState
 	{
 	public:
+		void SetRTVFormat( const DXGI_FORMAT* formats, uint32 numFormat );
+		void SetDSVFormat( DXGI_FORMAT format );
+
 		explicit D3D12GraphicsPipelineState( const GraphicsPipelineStateInitializer& initializer );
 		D3D12GraphicsPipelineState( const D3D12GraphicsPipelineState& ) = delete;
 		D3D12GraphicsPipelineState( D3D12GraphicsPipelineState&& ) = delete;

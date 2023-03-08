@@ -91,16 +91,19 @@ namespace rendercore
 		if ( m_linearDepth == nullptr )
 		{
 			agl::TEXTURE_TRAIT trait = {
-				m_bufferSize.first,
-				m_bufferSize.second,
-				1,
-				1,
-				0,
-				1,
-				agl::ResourceFormat::R32_FLOAT,
-				agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
-				agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
-				agl::ResourceMisc::None
+				.m_width = m_bufferSize.first,
+				.m_height = m_bufferSize.second,
+				.m_depth = 1,
+				.m_sampleCount = 1,
+				.m_sampleQuality = 0,
+				.m_mipLevels = 1,
+				.m_format = agl::ResourceFormat::R32_FLOAT,
+				.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
+				.m_miscFlag = agl::ResourceMisc::None,
+				.m_clearValue = agl::ResourceClearValue{
+					.m_color = { 1.f, 1.f, 1.f, 1.f }
+				}
 			};
 
 			m_linearDepth = agl::Texture::Create( trait );
@@ -168,16 +171,19 @@ namespace rendercore
 		if ( m_worldNormal == nullptr )
 		{
 			agl::TEXTURE_TRAIT trait = {
-				m_bufferSize.first,
-				m_bufferSize.second,
-				1,
-				1,
-				0,
-				1,
-				agl::ResourceFormat::R10G10B10A2_UNORM,
-				agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
-				agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
-				agl::ResourceMisc::None
+				.m_width = m_bufferSize.first,
+				.m_height = m_bufferSize.second,
+				.m_depth = 1,
+				.m_sampleCount = 1,
+				.m_sampleQuality = 0,
+				.m_mipLevels = 1,
+				.m_format = agl::ResourceFormat::R10G10B10A2_UNORM,
+				.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
+				.m_miscFlag = agl::ResourceMisc::None,
+				.m_clearValue = agl::ResourceClearValue{
+					.m_color = { 0.f, 0.f, 0.f, 0.f }
+				}
 			};
 
 			m_worldNormal = agl::Texture::Create( trait );
@@ -194,16 +200,19 @@ namespace rendercore
 		if ( m_velocity == nullptr )
 		{
 			agl::TEXTURE_TRAIT trait = {
-				m_bufferSize.first,
-				m_bufferSize.second,
-				1,
-				1,
-				0,
-				1,
-				agl::ResourceFormat::R16G16_FLOAT,
-				agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
-				agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
-				agl::ResourceMisc::None
+				.m_width = m_bufferSize.first,
+				.m_height = m_bufferSize.second,
+				.m_depth = 1,
+				.m_sampleCount = 1,
+				.m_sampleQuality = 0,
+				.m_mipLevels = 1,
+				.m_format = agl::ResourceFormat::R16G16_FLOAT,
+				.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
+				.m_miscFlag = agl::ResourceMisc::None,
+				.m_clearValue = agl::ResourceClearValue{
+					.m_color = { 0.f, 0.f, 0.f, 0.f }
+				}
 			};
 
 			m_velocity = agl::Texture::Create( trait );
@@ -350,7 +359,7 @@ namespace rendercore
 		};
 		StoreOuputContext( context );
 
-		auto commandList = GetImmediateCommandList();
+		auto commandList = GetCommandList();
 
 		agl::RenderTargetView* rtv0 = renderTarget != nullptr ? renderTarget->RTV() : nullptr;
 		commandList.ClearRenderTarget( rtv0, { 1, 1, 1, 1 } );

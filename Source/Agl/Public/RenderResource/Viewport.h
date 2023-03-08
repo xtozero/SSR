@@ -5,7 +5,7 @@
 
 namespace agl
 {
-	class ICommandList;
+	class ICommandListBase;
 	class Texture;
 
 	class Viewport : public DeviceDependantResource
@@ -17,7 +17,7 @@ namespace agl
 		virtual void OnEndFrameRendering() = 0;
 		virtual DeviceError Present( bool vSync = false ) = 0;
 		virtual void Clear( const float( &clearColor )[4] ) = 0;
-		virtual void Bind( ICommandList& commandList ) const = 0;
+		virtual void Bind( ICommandListBase& commandList ) const = 0;
 		virtual void* Handle( ) const = 0;
 		virtual std::pair<uint32, uint32> Size( ) const = 0;
 		virtual void Resize( const std::pair<uint32, uint32>& newSize ) = 0;

@@ -164,9 +164,8 @@ namespace agl
 
 		virtual void GetRendererMultiSampleOption( MULTISAMPLE_OPTION* option ) override;
 
-		virtual IImmediateCommandList* GetImmediateCommandList() override;
-		virtual std::unique_ptr<IDeferredCommandList> CreateDeferredCommandList() const override;
-		virtual GraphicsCommandListsBase& GetGraphicsCommandLists() override;
+		virtual ICommandList* GetCommandList() override;
+		virtual IParallelCommandList* GetParallelCommandList() override;
 
 		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const override;
 		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const override;
@@ -204,9 +203,7 @@ namespace agl
 
 		DXGI_SAMPLE_DESC m_multiSampleOption = { 1, 0 };
 
-		D3D11ImmediateCommandList m_immediateCommandList;
-
-		D3D11GraphicsCommandLists m_commandLists;
+		D3D11CommandList m_commandList;
 	};
 
 	AglType CDirect3D11::GetType() const
@@ -258,8 +255,7 @@ namespace agl
 
 	void CDirect3D11::OnBeginFrameRendering()
 	{
-		m_immediateCommandList.Prepare();
-		m_commandLists.Prepare();
+		m_commandList.Prepare();
 	}
 
 	void CDirect3D11::Shutdown()
@@ -416,19 +412,14 @@ namespace agl
 		option->m_quality = m_multiSampleOption.Quality;
 	}
 
-	IImmediateCommandList* CDirect3D11::GetImmediateCommandList()
+	ICommandList* CDirect3D11::GetCommandList()
 	{
-		return &m_immediateCommandList;
+		return &m_commandList;
 	}
 
-	std::unique_ptr<IDeferredCommandList> CDirect3D11::CreateDeferredCommandList() const
+	IParallelCommandList* CDirect3D11::GetParallelCommandList()
 	{
-		return std::make_unique<D3D11DeferredCommandList>();
-	}
-
-	GraphicsCommandListsBase& CDirect3D11::GetGraphicsCommandLists()
-	{
-		return m_commandLists;
+		return &m_commandList.GetParallelCommandList();
 	}
 
 	BinaryChunk CDirect3D11::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const
@@ -585,8 +576,9 @@ namespace agl
 
 				m_backBuffer = m_resourceManager.AddTexture2D( backBuffer, true );*/
 
-				std::destroy_at( &m_immediateCommandList );
-				std::construct_at( &m_immediateCommandList );
+				std::destroy_at( &m_commandList );
+				std::construct_at( &m_commandList );
+				m_commandList.Initialize();
 
 				return true;
 			}

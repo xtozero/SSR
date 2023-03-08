@@ -43,7 +43,7 @@ namespace agl
 		}
 	}
 
-	void D3D11Viewport::Bind( ICommandList& commandList ) const
+	void D3D11Viewport::Bind( ICommandListBase& commandList ) const
 	{
 		CubeArea<float> viewport{ 0.f, 0.f, static_cast<float>( m_width ), static_cast<float>( m_height ), 0.f, 1.f };
 		commandList.SetViewports( 1, &viewport );
