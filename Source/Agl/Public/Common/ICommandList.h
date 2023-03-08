@@ -21,7 +21,7 @@ namespace agl
 	class UnorderedAccessView;
 	class VertexShader;
 
-	class ICommandList
+	class ICommandListBase
 	{
 	public:
 		virtual void Prepare() = 0;
@@ -49,26 +49,20 @@ namespace agl
 		virtual void CopyResource( Texture* dest, Texture* src ) = 0;
 		virtual void CopyResource( Buffer* dest, Buffer* src ) = 0;
 
-		virtual ~ICommandList() = default;
+		virtual void Transition( uint32 numTransitions, const ResourceTransition* transitions ) = 0;
+
+		virtual ~ICommandListBase() = default;
 	};
 
-	class IDeferredCommandList : public ICommandList
-	{
-	public:
-		virtual void Finish() = 0;
-	};
-
-	class IImmediateCommandList : public ICommandList
+	class ICommandList : public ICommandListBase
 	{
 	public:
 		virtual void WaitUntilFlush() = 0;
 
-		virtual void Execute( IDeferredCommandList& commandList ) = 0;
+		virtual void Commit() = 0;
 	};
 
-	class IGraphicsCommandList : public ICommandList
+	class IParallelCommandList : public ICommandListBase
 	{
-	public:
-		virtual void Transition( uint32 numTransitions, const ResourceTransition* transitions ) = 0;
 	};
 }

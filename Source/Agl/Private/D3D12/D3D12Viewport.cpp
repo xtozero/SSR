@@ -1,6 +1,5 @@
 #include "D3D12Viewport.h"
 
-#include "CommandLists.h"
 #include "D3D12Api.h"
 #include "D3D12ResourceViews.h"
 #include "DXGIFlagConvertor.h"
@@ -24,9 +23,7 @@ namespace agl
 
 		GetInterface<IAgl>()->OnBeginFrameRendering();
 
-		GraphicsCommandListsBase& comandLists = GetInterface<IAgl>()->GetGraphicsCommandLists();
-		IGraphicsCommandList* commandList = comandLists.GetCommandList( 0 );
-
+		ICommandList* commandList = GetInterface<IAgl>()->GetCommandList();
 		backBuffer->Transition( *commandList, ResourceState::RenderTarget );
 	}
 
@@ -38,9 +35,7 @@ namespace agl
 			return;
 		}
 
-		GraphicsCommandListsBase& comandLists = GetInterface<IAgl>()->GetGraphicsCommandLists();
-		IGraphicsCommandList* commandList = comandLists.GetCommandList( 0 );
-
+		ICommandList* commandList = GetInterface<IAgl>()->GetCommandList();
 		backBuffer->Transition( *commandList, ResourceState::Present );
 	}
 
@@ -73,13 +68,11 @@ namespace agl
 			return;
 		}
 
-		GraphicsCommandListsBase& comandLists = GetInterface<IAgl>()->GetGraphicsCommandLists();
-		IGraphicsCommandList* commandList = comandLists.GetCommandList( 0 );
-
+		ICommandList* commandList = GetInterface<IAgl>()->GetCommandList();
 		commandList->ClearRenderTarget( d3d12RTV, clearColor);
 	}
 
-	void D3D12Viewport::Bind( ICommandList& commandList ) const
+	void D3D12Viewport::Bind( ICommandListBase& commandList ) const
 	{
 		CubeArea<float> viewport{ 0.f, 0.f, static_cast<float>( m_width ), static_cast<float>( m_height ), 0.f, 1.f };
 		commandList.SetViewports( 1, &viewport );

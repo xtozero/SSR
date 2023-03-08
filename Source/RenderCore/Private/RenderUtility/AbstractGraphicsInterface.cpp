@@ -47,14 +47,14 @@ namespace rendercore
 		m_agl->Copy( dst, src, size );
 	}
 
-	std::unique_ptr<agl::IDeferredCommandList> AbstractGraphicsInterface::CreateDeferredCommandList() const
+	agl::ICommandList* AbstractGraphicsInterface::GetCommandList()
 	{
-		return m_agl->CreateDeferredCommandList();
+		return m_agl->GetCommandList();
 	}
 
-	agl::IImmediateCommandList* AbstractGraphicsInterface::GetImmediateCommandList()
+	agl::IParallelCommandList* AbstractGraphicsInterface::GetParallelCommandList()
 	{
-		return m_agl->GetImmediateCommandList();
+		return m_agl->GetParallelCommandList();
 	}
 
 	BlendState AbstractGraphicsInterface::FindOrCreate( const BlendOption& option )
@@ -132,7 +132,7 @@ namespace rendercore
 				0.f,
 				option.m_depthClipEnable,
 				option.m_scissorEnable,
-				option.m_multisampleEnalbe,
+				option.m_multisampleEnable,
 				option.m_antialiasedLineEnable
 			};
 

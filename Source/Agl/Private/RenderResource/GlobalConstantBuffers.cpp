@@ -118,7 +118,8 @@ namespace agl
 	{
 		for ( uint32 i = 0; i < MAX_SHADER_TYPE<uint32>; ++i )
 		{
-			m_constantBuffers[i].reset( CreateGlobalConstantBuffer() );
+			delete m_constantBuffers[i];
+			m_constantBuffers[i] = CreateGlobalConstantBuffer();
 		}
 	}
 
@@ -188,6 +189,34 @@ namespace agl
 
 				m_constantBuffers[i]->AddGlobalConstantBuffer( parameter, binding );
 			}
+		}
+	}
+
+	GlobalConstantBuffers::GlobalConstantBuffers( GlobalConstantBuffers&& other ) noexcept
+	{
+		*this = std::move( other );
+	}
+
+	GlobalConstantBuffers& GlobalConstantBuffers::operator=( GlobalConstantBuffers&& other ) noexcept
+	{
+		if ( this != &other )
+		{
+			for ( uint32 i = 0; i < MAX_SHADER_TYPE<uint32>; ++i )
+			{
+				delete m_constantBuffers[i];
+				m_constantBuffers[i] = other.m_constantBuffers[i];
+				other.m_constantBuffers[i] = nullptr;
+			}
+		}
+
+		return *this;
+	}
+
+	GlobalConstantBuffers::~GlobalConstantBuffers()
+	{
+		for ( GlobalConstantBuffer* constantBuffer : m_constantBuffers )
+		{
+			delete constantBuffer;
 		}
 	}
 

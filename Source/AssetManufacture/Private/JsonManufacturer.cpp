@@ -374,9 +374,9 @@ namespace
 				rasterizerOption->m_scissorEnable = scissorEnable->AsBool();
 			}
 
-			if ( const JSON::Value* multisampleEnalbe = root.Find( "MultisampleEnable" ) )
+			if ( const JSON::Value* multisampleEnable = root.Find( "MultisampleEnable" ) )
 			{
-				rasterizerOption->m_multisampleEnalbe = multisampleEnalbe->AsBool();
+				rasterizerOption->m_multisampleEnable = multisampleEnable->AsBool();
 			}
 
 			if ( const JSON::Value* antialiasedLineEnable = root.Find( "AntialiasedLineEnable" ) )

@@ -5,7 +5,7 @@
 
 namespace agl
 {
-	class ICommandList;
+	class ICommandListBase;
 	class Texture;
 	class Viewport;
 }
@@ -20,7 +20,7 @@ namespace rendercore
 
 		RENDERCORE_DLL agl::DeviceError Present( bool vSync = false );
 		RENDERCORE_DLL void Clear( const float (&color)[4] );
-		RENDERCORE_DLL void Bind( agl::ICommandList& commandList ) const;
+		RENDERCORE_DLL void Bind( agl::ICommandListBase& commandList ) const;
 
 		RENDERCORE_DLL void* Handle( ) const;
 		RENDERCORE_DLL std::pair<uint32, uint32> Size( ) const;

@@ -58,7 +58,7 @@ namespace rendercore
 		DistributionCopyCS computeShader;
 		ComputeShader& cs = *computeShader.GetShader();
 
-		auto commandList = GetImmediateCommandList();
+		auto commandList = GetCommandList();
 
 		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( cs.Resource() );
 

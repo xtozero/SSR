@@ -181,9 +181,8 @@ namespace agl
 
 		virtual void GetRendererMultiSampleOption( MULTISAMPLE_OPTION* option ) override;
 
-		virtual IImmediateCommandList* GetImmediateCommandList() override;
-		virtual std::unique_ptr<IDeferredCommandList> CreateDeferredCommandList() const override;
-		virtual GraphicsCommandListsBase& GetGraphicsCommandLists() override;
+		virtual ICommandList* GetCommandList() override;
+		virtual IParallelCommandList* GetParallelCommandList() override;
 
 		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const override;
 		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const override;
@@ -224,8 +223,7 @@ namespace agl
 
 		uint32 m_frameIndex = 0;
 
-		D3D12CommandList m_commandList;
-		std::vector<D3D12GraphicsCommandLists, InlineAllocator<D3D12GraphicsCommandLists, 2>> m_commandLists;
+		std::vector<D3D12CommandList, InlineAllocator<D3D12CommandList, 2>> m_commandList;
 
 		D3D12ResourceUploader m_uploader;
 	};
@@ -267,7 +265,7 @@ namespace agl
 	{
 		m_uploader.WaitUntilCopyCompleted();
 
-		m_commandLists[m_frameIndex].Prepare();
+		m_commandList[m_frameIndex].Prepare();
 	}
 
 	void Direct3D12::OnEndFrameRendering( uint32 curFrameIndex, uint32 nextFrameIndex )
@@ -366,19 +364,14 @@ namespace agl
 	{
 	}
 
-	IImmediateCommandList* Direct3D12::GetImmediateCommandList()
+	ICommandList* Direct3D12::GetCommandList()
 	{
-		return &m_commandList;
+		return &m_commandList[m_frameIndex];
 	}
 
-	std::unique_ptr<IDeferredCommandList> Direct3D12::CreateDeferredCommandList() const
+	IParallelCommandList* Direct3D12::GetParallelCommandList()
 	{
-		return std::make_unique<D3D12DeferredCommandList>();
-	}
-
-	GraphicsCommandListsBase& Direct3D12::GetGraphicsCommandLists()
-	{
-		return m_commandLists[m_frameIndex];
+		return &m_commandList[m_frameIndex].GetParallelCommandList();
 	}
 
 	BinaryChunk Direct3D12::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const
@@ -582,6 +575,12 @@ namespace agl
 		hr = m_device->CreateFence( m_fenceValue[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS( &m_fence ) );
 		++m_fenceValue[m_frameIndex];
 
+		m_commandList.resize( DefaultAgl::GetBufferCount() );
+		for ( D3D12CommandList& frameCommandList : m_commandList )
+		{
+			frameCommandList.Initialize();
+		}
+
 		if ( m_uploader.Initialize() == false )
 		{
 			return false;
@@ -618,7 +617,6 @@ namespace agl
 		}
 
 		m_fenceValue.resize( DefaultAgl::GetBufferCount(), 0 );
-		m_commandLists.resize( DefaultAgl::GetBufferCount() );
 
 		hr = DxcCreateInstance( CLSID_DxcCompiler, IID_PPV_ARGS( m_compiler.GetAddressOf() ) );
 		if ( FAILED( hr ) )

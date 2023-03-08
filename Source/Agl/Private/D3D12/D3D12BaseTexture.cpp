@@ -10,6 +10,7 @@ using ::agl::ConvertResourceFlagsToBindType;
 using ::agl::D3D12HeapProperties;
 using ::agl::ResourceAccessFlag;
 using ::agl::ResourceBindType;
+using ::agl::ResourceClearValue;
 using ::agl::ResourceFormat;
 using ::agl::ResourceMisc;
 using ::agl::TEXTURE_TRAIT;
@@ -500,6 +501,38 @@ namespace
 		D3D12_RESOURCE_STATES states = D3D12_RESOURCE_STATE_COMMON;
 		return states;
 	}
+
+	D3D12_CLEAR_VALUE ConvertToClearValue( const TEXTURE_TRAIT& trait )
+	{
+		if ( trait.m_clearValue.has_value() == false )
+		{
+			return {};
+		}
+
+		const ResourceClearValue& clearValue = trait.m_clearValue.value();
+
+		D3D12_CLEAR_VALUE ret;
+		ret.Format = ConvertFormatToDxgiFormat( trait.m_format );
+
+		if ( HasAnyFlags( trait.m_bindType, ResourceBindType::RenderTarget ) )
+		{
+			ret.Color[0] = clearValue.m_color[0];
+			ret.Color[1] = clearValue.m_color[1];
+			ret.Color[2] = clearValue.m_color[2];
+			ret.Color[3] = clearValue.m_color[3];
+
+			return ret;
+		}
+		else if ( HasAnyFlags( trait.m_bindType, ResourceBindType::DepthStencil ) )
+		{
+			ret.DepthStencil.Depth = clearValue.m_depth;
+			ret.DepthStencil.Stencil = clearValue.m_stencil;
+
+			return ret;
+		}
+
+		return {};
+	}
 }
 
 namespace agl
@@ -533,11 +566,14 @@ namespace agl
 			states = D3D12_RESOURCE_STATE_COPY_DEST;
 		}
 
+		D3D12_CLEAR_VALUE clearValue = ConvertToClearValue( m_trait );
+
 		D3D12ResourceAllocator& allocator = D3D12ResourceAllocator::GetInstance();
 		m_resourceInfo = allocator.AllocateResource(
 			properties,
 			m_desc,
-			states
+			states,
+			clearValue.Format == DXGI_FORMAT_UNKNOWN ? nullptr : &clearValue
 		);
 	}
 

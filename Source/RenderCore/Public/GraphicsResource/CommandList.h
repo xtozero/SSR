@@ -6,7 +6,7 @@
 
 namespace rendercore
 {
-	class ImmediateCommandList
+	class CommandList
 	{
 	public:
 		void BindVertexBuffer( agl::Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets );
@@ -33,14 +33,14 @@ namespace rendercore
 
 		void WaitUntilFlush();
 
-		void Execute( agl::IDeferredCommandList& commandList );
+		void Commit();
 
-		explicit ImmediateCommandList( agl::IImmediateCommandList& imple )
+		explicit CommandList( agl::ICommandList& imple )
 			: m_imple( imple ) {}
 
 	private:
-		agl::IImmediateCommandList& m_imple;
+		agl::ICommandList& m_imple;
 	};
 
-	ImmediateCommandList GetImmediateCommandList();
+	CommandList GetCommandList();
 }

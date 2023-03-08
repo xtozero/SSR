@@ -26,8 +26,8 @@ namespace rendercore
 
 		void Copy( agl::Buffer* dst, agl::Buffer* src, uint32 size );
 
-		std::unique_ptr<agl::IDeferredCommandList> CreateDeferredCommandList() const;
-		agl::IImmediateCommandList* GetImmediateCommandList();
+		agl::ICommandList* GetCommandList();
+		agl::IParallelCommandList* GetParallelCommandList();
 
 		BlendState FindOrCreate( const BlendOption& option );
 		DepthStencilState FindOrCreate( const DepthStencilOption& option );

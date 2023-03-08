@@ -9,6 +9,7 @@
 #include <atomic>
 #include <cstddef>
 #include <limits>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -599,6 +600,13 @@ namespace agl
 		ResourceState m_after;
 	};
 
+	union ResourceClearValue
+	{
+		float m_color[4];
+		float m_depth;
+		uint8 m_stencil;
+	};
+
 	struct BUFFER_TRAIT
 	{
 		uint32 m_stride;
@@ -621,6 +629,7 @@ namespace agl
 		ResourceAccessFlag m_access;
 		ResourceBindType m_bindType;
 		ResourceMisc m_miscFlag;
+		std::optional<ResourceClearValue> m_clearValue;
 	};
 
 	struct RESOURCE_SECTION_DATA
@@ -685,7 +694,7 @@ namespace agl
 		float m_slopeScaleDepthBias;
 		bool m_depthClipEnable;
 		bool m_scissorEnable;
-		bool m_multisampleEnalbe;
+		bool m_multisampleEnable;
 		bool m_antialiasedLineEnable;
 	};
 

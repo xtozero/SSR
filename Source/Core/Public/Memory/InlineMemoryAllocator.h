@@ -83,6 +83,16 @@ public:
 	constexpr InlineAllocator( const InlineAllocator<Other, NumInlineElements, SecondAlloc>& ) noexcept {}
 	~InlineAllocator() = default;
 	InlineAllocator& operator=( const InlineAllocator& ) = default;
+	
+	friend bool operator==( const InlineAllocator<T, NumInlineElements, SecondAlloc, OriginalT>& lhs, const InlineAllocator<T, NumInlineElements, SecondAlloc, OriginalT>& rhs )
+	{
+		return &lhs.m_inlineMemory == &rhs.m_inlineMemory;
+	}
+
+	friend bool operator!=( const InlineAllocator<T, NumInlineElements, SecondAlloc, OriginalT>& lhs, const InlineAllocator<T, NumInlineElements, SecondAlloc, OriginalT>& rhs )
+	{
+		return !( lhs == rhs );
+	}
 
 private:
 	bool IsSecondAllocatorMemoryArea( const T* p ) const

@@ -17,8 +17,8 @@
 namespace agl
 {
 	class GraphicsApiResource;
+	class ICommandListBase;
 	class ShaderBindings;
-	class ICommandList;
 }
 
 namespace rendercore

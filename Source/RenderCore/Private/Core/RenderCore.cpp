@@ -2,8 +2,8 @@
 #include "Renderer/IRenderCore.h"
 
 #include "AbstractGraphicsInterface.h"
+#include "CommandList.h"
 #include "common.h"
-#include "CommandLists.h"
 #include "ForwardRenderer.h"
 #include "GlobalShaders.h"
 #include "GraphicsResource/Viewport.h"
@@ -143,9 +143,7 @@ namespace rendercore
 		}
 
 		viewport.OnEndFrameRendering();
-
-		agl::GraphicsCommandListsBase& commandLists = m_agl->GetGraphicsCommandLists();
-		commandLists.Commit();
+		GetCommandList().Commit();
 
 		viewport.Present();
 

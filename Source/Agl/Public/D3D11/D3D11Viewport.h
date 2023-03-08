@@ -18,7 +18,7 @@ namespace agl
 		virtual void OnEndFrameRendering() override {};
 		virtual DeviceError Present( bool vSync = false ) override;
 		virtual void Clear( const float (&clearColor)[4] ) override;
-		virtual void Bind( ICommandList& commandList ) const override;
+		virtual void Bind( ICommandListBase& commandList ) const override;
 
 		virtual void* Handle() const override
 		{

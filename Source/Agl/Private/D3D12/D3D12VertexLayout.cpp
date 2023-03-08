@@ -28,6 +28,11 @@ namespace
 
 namespace agl
 {
+	const std::vector<D3D12_INPUT_ELEMENT_DESC>& D3D12VertexLayout::GetDesc() const
+	{
+		return m_inputDesc;
+	}
+
 	D3D12VertexLayout::D3D12VertexLayout( const VERTEX_LAYOUT_TRAIT* trait, uint32 size )
 	{
 		m_inputDesc.reserve( size );
