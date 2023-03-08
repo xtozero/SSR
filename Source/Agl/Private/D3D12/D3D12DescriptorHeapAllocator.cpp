@@ -62,12 +62,20 @@ namespace agl
 
 	D3D12DescriptorHeap D3D12DescriptorHeapAllocator::AllocCpuDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE type, uint32 num )
 	{
+		assert( type < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES );
 		return D3D12DescriptorHeap( AllocDescriptorHeap( type, num, D3D12_DESCRIPTOR_HEAP_FLAG_NONE ), m_descriptorHandleIncreamentSize[type], false );
 	}
 
 	D3D12DescriptorHeap D3D12DescriptorHeapAllocator::AllocGpuDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE type, uint32 num )
 	{
+		assert( type < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES );
 		return D3D12DescriptorHeap( AllocDescriptorHeap( type, num, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE ), m_descriptorHandleIncreamentSize[type], true );
+	}
+
+	uint32 D3D12DescriptorHeapAllocator::GetIncrementSize( D3D12_DESCRIPTOR_HEAP_TYPE type ) const
+	{
+		assert( type < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES );
+		return m_descriptorHandleIncreamentSize[type];
 	}
 
 	D3D12DescriptorHeapAllocator::D3D12DescriptorHeapAllocator()

@@ -21,7 +21,7 @@ namespace
 			trait.m_slopeScaleDepthBias,
 			trait.m_depthClipEnable,
 			trait.m_scissorEnable,
-			trait.m_multisampleEnalbe,
+			trait.m_multisampleEnable,
 			trait.m_antialiasedLineEnable
 		};
 	}

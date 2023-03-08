@@ -18,7 +18,7 @@ namespace
 			.DepthBiasClamp = trait.m_depthBiasClamp,
 			.SlopeScaledDepthBias = trait.m_slopeScaleDepthBias,
 			.DepthClipEnable = trait.m_depthClipEnable,
-			.MultisampleEnable = trait.m_multisampleEnalbe,
+			.MultisampleEnable = trait.m_multisampleEnable,
 			.AntialiasedLineEnable = trait.m_antialiasedLineEnable,
 			.ForcedSampleCount = 0,
 			.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF

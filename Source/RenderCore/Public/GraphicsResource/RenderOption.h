@@ -244,7 +244,7 @@ namespace rendercore
 				&& lhs.m_depthBias == rhs.m_depthBias
 				&& lhs.m_depthClipEnable == rhs.m_depthClipEnable
 				&& lhs.m_scissorEnable == rhs.m_scissorEnable
-				&& lhs.m_multisampleEnalbe == rhs.m_multisampleEnalbe
+				&& lhs.m_multisampleEnable == rhs.m_multisampleEnable
 				&& lhs.m_antialiasedLineEnable == rhs.m_antialiasedLineEnable;
 		}
 
@@ -266,8 +266,8 @@ namespace rendercore
 		PROPERTY( scissorEnable )
 		bool m_scissorEnable = false;
 
-		PROPERTY( multisampleEnalbe )
-		bool m_multisampleEnalbe = false;
+		PROPERTY( multisampleEnable)
+		bool m_multisampleEnable = false;
 
 		PROPERTY( antialiasedLineEnable )
 		bool m_antialiasedLineEnable = false;
@@ -288,7 +288,7 @@ namespace rendercore
 			HashCombine( hash, option.m_depthBias );
 			HashCombine( hash, option.m_depthClipEnable );
 			HashCombine( hash, option.m_scissorEnable );
-			HashCombine( hash, option.m_multisampleEnalbe );
+			HashCombine( hash, option.m_multisampleEnable );
 			HashCombine( hash, option.m_antialiasedLineEnable );
 
 			return hash;

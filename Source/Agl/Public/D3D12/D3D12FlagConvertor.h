@@ -45,6 +45,100 @@ namespace agl
 		}
 	}
 
+	inline D3D12_PRIMITIVE_TOPOLOGY_TYPE ConvertPrimToD3D12PrimType( ResourcePrimitive primitive )
+	{
+		switch ( primitive )
+		{
+		case ResourcePrimitive::Undefined:
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
+		case ResourcePrimitive::Pointlist:
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+		case ResourcePrimitive::Linelist:
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+		case ResourcePrimitive::Linestrip:
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+		case ResourcePrimitive::Trianglelist:
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		case ResourcePrimitive::TriangleStrip:
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		case ResourcePrimitive::LinelistAdj:
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+		case ResourcePrimitive::LinestripAdj:
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+		case ResourcePrimitive::TrianglelistAdj:
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		case ResourcePrimitive::TriangleStripAdj:
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		case ResourcePrimitive::ControlPointPatchlist1:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist2:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist3:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist4:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist5:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist6:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist7:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist8:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist9:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist10:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist11:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist12:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist13:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist14:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist15:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist16:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist17:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist18:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist19:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist20:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist21:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist22:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist23:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist24:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist25:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist26:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist27:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist28:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist29:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist30:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist31:
+			[[fallthrough]];
+		case ResourcePrimitive::ControlPointPatchlist32:
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
+		}
+
+		assert( false );
+		return D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
+	}
+
 	inline D3D12_DEPTH_WRITE_MASK ConvertToDepthWriteMask( DepthWriteMode depthWriteMode )
 	{
 		switch ( depthWriteMode )

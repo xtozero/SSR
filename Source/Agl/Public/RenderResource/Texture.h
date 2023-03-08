@@ -9,7 +9,7 @@
 
 namespace agl
 {
-	class IGraphicsCommandList;
+	class ICommandListBase;
 
 	class Texture : public DeviceDependantResource, public IResourceViews
 	{
@@ -31,7 +31,7 @@ namespace agl
 		virtual DepthStencilView* DSV() override { return m_dsv.Get(); }
 		virtual const DepthStencilView* DSV() const override { return m_dsv.Get(); }
 
-		void Transition( IGraphicsCommandList& commandList, ResourceState state );
+		void Transition( ICommandListBase& commandList, ResourceState state );
 
 	protected:
 		RefHandle<ShaderResourceView> m_srv;

@@ -349,7 +349,7 @@ namespace rendercore
 		// 1. Transmittance Table
 		TransmittanceCS transmittanceCS;
 
-		auto commandList = GetImmediateCommandList();
+		auto commandList = GetCommandList();
 		agl::RefHandle<agl::ComputePipelineState> transmittancePSO = PrepareComputePipelineState( transmittanceCS.GetShader()->Resource() );
 		commandList.BindPipelineState( transmittancePSO );
 

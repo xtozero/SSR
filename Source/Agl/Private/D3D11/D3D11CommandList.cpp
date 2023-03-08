@@ -15,78 +15,86 @@
 
 namespace agl
 {
-	void D3D11ImmediateCommandList::Prepare()
+	void D3D11CommandList::Prepare()
 	{
 		m_globalConstantBuffers.Prepare();
+
+		for ( auto commandList : m_parallelCommandLists )
+		{
+			auto d3d12CommandList = static_cast<D3D11ParallelCommandList*>( commandList );
+			d3d12CommandList->Prepare();
+		}
+
+		m_numUsedParallelCommandList = 0;
 	}
 
-	void D3D11ImmediateCommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
+	void D3D11CommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
 	{
 		m_stateCache.BindVertexBuffer( D3D11Context(), vertexBuffers, startSlot, numBuffers, pOffsets );
 	}
 
-	void D3D11ImmediateCommandList::BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset )
+	void D3D11CommandList::BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset )
 	{
 		m_stateCache.BindIndexBuffer( D3D11Context(), indexBuffer, indexOffset );
 	}
 
-	void D3D11ImmediateCommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
+	void D3D11CommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
 	{
 		m_globalConstantBuffers.Reset( false );
 		m_stateCache.BindPipelineState( D3D11Context(), pipelineState );
 	}
 
-	void D3D11ImmediateCommandList::BindPipelineState( ComputePipelineState* pipelineState )
+	void D3D11CommandList::BindPipelineState( ComputePipelineState* pipelineState )
 	{
 		m_globalConstantBuffers.Reset( true );
 		m_stateCache.BindPipelineState( D3D11Context(), pipelineState );
 	}
 
-	void D3D11ImmediateCommandList::BindShaderResources( ShaderBindings& shaderBindings )
+	void D3D11CommandList::BindShaderResources( ShaderBindings& shaderBindings )
 	{
 		m_globalConstantBuffers.AddGlobalConstantBuffers( shaderBindings );
 		m_stateCache.BindShaderResources( D3D11Context(), shaderBindings );
 	}
 
-	void D3D11ImmediateCommandList::SetShaderValue( const ShaderParameter& parameter, const void* value )
+	void D3D11CommandList::SetShaderValue( const ShaderParameter& parameter, const void* value )
 	{
 		m_globalConstantBuffers.SetShaderValue( parameter, value );
 	}
 
-	void D3D11ImmediateCommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
+	void D3D11CommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
 	{
 		m_globalConstantBuffers.CommitShaderValue( false );
 		D3D11Context().DrawInstanced( vertexCount, numInstance, baseVertexLocation, 0 );
 	}
 
-	void D3D11ImmediateCommandList::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
+	void D3D11CommandList::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
 	{
 		m_globalConstantBuffers.CommitShaderValue( false );
 		D3D11Context().DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation, 0 );
 	}
 
-	void D3D11ImmediateCommandList::Dispatch( uint32 x, uint32 y, uint32 z )
+	void D3D11CommandList::Dispatch( uint32 x, uint32 y, uint32 z )
 	{
 		m_globalConstantBuffers.CommitShaderValue( true );
 		D3D11Context().Dispatch( x, y, z );
 	}
 
-	void D3D11ImmediateCommandList::SetViewports( uint32 count, const CubeArea<float>* areas )
+	void D3D11CommandList::SetViewports( uint32 count, const CubeArea<float>* areas )
 	{
 		m_stateCache.SetViewports( D3D11Context(), count, areas );
 	}
 
-	void D3D11ImmediateCommandList::SetScissorRects( uint32 count, const RectangleArea<int32>* areas )
+	void D3D11CommandList::SetScissorRects( uint32 count, const RectangleArea<int32>* areas )
 	{
 		m_stateCache.SetScissorRects( D3D11Context(), count, areas );
 	}
 
-	void D3D11ImmediateCommandList::BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil )
+	void D3D11CommandList::BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil )
 	{
 		m_stateCache.BindRenderTargets( D3D11Context(), pRenderTargets, renderTargetCount, depthStencil );
 	}
 
-	void D3D11ImmediateCommandList::ClearRenderTarget( RenderTargetView* renderTarget, const float( &clearColor )[4] )
+	void D3D11CommandList::ClearRenderTarget( RenderTargetView* renderTarget, const float( &clearColor )[4] )
 	{
 		ID3D11RenderTargetView* rtvs = nullptr;
 
@@ -103,7 +111,7 @@ namespace agl
 		D3D11Context().ClearRenderTargetView( rtvs, clearColor );
 	}
 
-	void D3D11ImmediateCommandList::ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor )
+	void D3D11CommandList::ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor )
 	{
 		ID3D11DepthStencilView* dsv = nullptr;
 
@@ -120,7 +128,7 @@ namespace agl
 		D3D11Context().ClearDepthStencilView( dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthColor, stencilColor );
 	}
 
-	void D3D11ImmediateCommandList::CopyResource( Texture* dest, Texture* src )
+	void D3D11CommandList::CopyResource( Texture* dest, Texture* src )
 	{
 		if ( dest == nullptr || src == nullptr )
 		{
@@ -144,7 +152,7 @@ namespace agl
 		D3D11Context().CopyResource( destResource, srcResource );
 	}
 
-	void D3D11ImmediateCommandList::CopyResource( Buffer* dest, Buffer* src )
+	void D3D11CommandList::CopyResource( Buffer* dest, Buffer* src )
 	{
 		if ( dest == nullptr || src == nullptr )
 		{
@@ -168,93 +176,145 @@ namespace agl
 		D3D11Context().CopyResource( destResource, srcResource );
 	}
 
-	void D3D11ImmediateCommandList::WaitUntilFlush()
+	void D3D11CommandList::Transition( [[maybe_unused]] uint32 numTransitions, [[maybe_unused]] const ResourceTransition* transitions )
+	{
+		// Do Nothing
+	}
+
+	void D3D11CommandList::WaitUntilFlush()
 	{
 		D3D11Context().Flush();
 	}
 
-	void D3D11ImmediateCommandList::Execute( IDeferredCommandList& commandList )
+	void D3D11CommandList::Commit()
 	{
-		D3D11DeferredCommandList& d3d11DeferredCommandList = static_cast<D3D11DeferredCommandList&>( commandList );
-		d3d11DeferredCommandList.RequestExecute();
-	}
+		for ( size_t i = 0; i < m_parallelCommandLists.size(); ++i )
+		{
+			auto d3d12CommandList = static_cast<D3D11ParallelCommandList*>( m_parallelCommandLists[i] );
+			d3d12CommandList->Close();
 
-	D3D11ImmediateCommandList::D3D11ImmediateCommandList()
+			d3d12CommandList->Commit();
+		}
+	}
+	
+	void D3D11CommandList::Initialize()
 	{
 		m_globalConstantBuffers.Initialize();
 	}
 
-	void D3D11DeferredCommandList::Prepare()
+	IParallelCommandList& D3D11CommandList::GetParallelCommandList()
+	{
+		if ( m_numUsedParallelCommandList >= m_parallelCommandLists.size() )
+		{
+			auto newCommandList = new D3D11ParallelCommandList();
+			newCommandList->Initialize();
+			newCommandList->Prepare();
+
+			m_parallelCommandLists.push_back( newCommandList );
+		}
+
+		return *m_parallelCommandLists[m_numUsedParallelCommandList++];
+	}
+
+	D3D11CommandList::D3D11CommandList( D3D11CommandList&& other ) noexcept
+	{
+		*this = std::move( other );
+	}
+
+	D3D11CommandList& D3D11CommandList::operator=( D3D11CommandList&& other ) noexcept
+	{
+		if ( this != &other )
+		{
+			m_stateCache = std::move( other.m_stateCache );
+			m_globalConstantBuffers = std::move( other.m_globalConstantBuffers );
+			m_numUsedParallelCommandList = other.m_numUsedParallelCommandList;
+			m_parallelCommandLists = std::move( other.m_parallelCommandLists );
+		}
+
+		return *this;
+	}
+
+	D3D11CommandList::~D3D11CommandList()
+	{
+		for ( IParallelCommandList* commandList : m_parallelCommandLists )
+		{
+			delete commandList;
+		}
+		m_parallelCommandLists.clear();
+	}
+
+	void D3D11ParallelCommandList::Prepare()
 	{
 		m_globalConstantBuffers.Prepare();
 	}
 
-	void D3D11DeferredCommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
+	void D3D11ParallelCommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
 	{
-		m_stateCache.BindVertexBuffer( *m_pContext, vertexBuffers, startSlot, numBuffers, pOffsets );
+		m_stateCache.BindVertexBuffer( *m_pContext.Get(), vertexBuffers, startSlot, numBuffers, pOffsets);
 	}
 
-	void D3D11DeferredCommandList::BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset )
+	void D3D11ParallelCommandList::BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset )
 	{
-		m_stateCache.BindIndexBuffer( *m_pContext, indexBuffer, indexOffset );
+		m_stateCache.BindIndexBuffer( *m_pContext.Get(), indexBuffer, indexOffset );
 	}
 
-	void D3D11DeferredCommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
+	void D3D11ParallelCommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
 	{
 		m_globalConstantBuffers.Reset( false );
-		m_stateCache.BindPipelineState( *m_pContext, pipelineState );
+		m_stateCache.BindPipelineState( *m_pContext.Get(), pipelineState );
 	}
 
-	void D3D11DeferredCommandList::BindPipelineState( ComputePipelineState* pipelineState )
+	void D3D11ParallelCommandList::BindPipelineState( ComputePipelineState* pipelineState )
 	{
 		m_globalConstantBuffers.Reset( true );
-		m_stateCache.BindPipelineState( *m_pContext, pipelineState );
+		m_stateCache.BindPipelineState( *m_pContext.Get(), pipelineState );
 	}
 
-	void D3D11DeferredCommandList::BindShaderResources( ShaderBindings& shaderBindings )
+	void D3D11ParallelCommandList::BindShaderResources( ShaderBindings& shaderBindings )
 	{
-		m_stateCache.BindShaderResources( *m_pContext, shaderBindings );
+		m_globalConstantBuffers.AddGlobalConstantBuffers( shaderBindings );
+		m_stateCache.BindShaderResources( *m_pContext.Get(), shaderBindings );
 	}
 
-	void D3D11DeferredCommandList::SetShaderValue( const ShaderParameter& parameter, const void* value )
+	void D3D11ParallelCommandList::SetShaderValue( const ShaderParameter& parameter, const void* value )
 	{
 		m_globalConstantBuffers.SetShaderValue( parameter, value );
 	}
 
-	void D3D11DeferredCommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
+	void D3D11ParallelCommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
 	{
 		m_globalConstantBuffers.CommitShaderValue( false );
 		m_pContext->DrawInstanced( vertexCount, numInstance, baseVertexLocation, 0 );
 	}
 
-	void D3D11DeferredCommandList::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
+	void D3D11ParallelCommandList::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
 	{
 		m_globalConstantBuffers.CommitShaderValue( false );
 		m_pContext->DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation, 0 );
 	}
 
-	void D3D11DeferredCommandList::Dispatch( uint32 x, uint32 y, uint32 z )
+	void D3D11ParallelCommandList::Dispatch( uint32 x, uint32 y, uint32 z )
 	{
 		m_globalConstantBuffers.CommitShaderValue( true );
 		m_pContext->Dispatch( x, y, z );
 	}
 
-	void D3D11DeferredCommandList::SetViewports( uint32 count, const CubeArea<float>* areas )
+	void D3D11ParallelCommandList::SetViewports( uint32 count, const CubeArea<float>* areas )
 	{
-		m_stateCache.SetViewports( *m_pContext, count, areas );
+		m_stateCache.SetViewports( *m_pContext.Get(), count, areas );
 	}
 
-	void D3D11DeferredCommandList::SetScissorRects( uint32 count, const RectangleArea<int32>* areas )
+	void D3D11ParallelCommandList::SetScissorRects( uint32 count, const RectangleArea<int32>* areas )
 	{
-		m_stateCache.SetScissorRects( *m_pContext, count, areas );
+		m_stateCache.SetScissorRects( *m_pContext.Get(), count, areas );
 	}
 
-	void D3D11DeferredCommandList::BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil )
+	void D3D11ParallelCommandList::BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil )
 	{
-		m_stateCache.BindRenderTargets( *m_pContext, pRenderTargets, renderTargetCount, depthStencil );
+		m_stateCache.BindRenderTargets( *m_pContext.Get(), pRenderTargets, renderTargetCount, depthStencil );
 	}
 
-	void D3D11DeferredCommandList::ClearRenderTarget( RenderTargetView* renderTarget, const float( &clearColor )[4] )
+	void D3D11ParallelCommandList::ClearRenderTarget( RenderTargetView* renderTarget, const float( &clearColor )[4] )
 	{
 		ID3D11RenderTargetView* rtvs = nullptr;
 
@@ -271,7 +331,7 @@ namespace agl
 		m_pContext->ClearRenderTargetView( rtvs, clearColor );
 	}
 
-	void D3D11DeferredCommandList::ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor )
+	void D3D11ParallelCommandList::ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor )
 	{
 		ID3D11DepthStencilView* dsv = nullptr;
 
@@ -288,7 +348,7 @@ namespace agl
 		m_pContext->ClearDepthStencilView( dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthColor, stencilColor );
 	}
 
-	void D3D11DeferredCommandList::CopyResource( Texture* dest, Texture* src )
+	void D3D11ParallelCommandList::CopyResource( Texture* dest, Texture* src )
 	{
 		if ( dest == nullptr || src == nullptr )
 		{
@@ -312,7 +372,7 @@ namespace agl
 		m_pContext->CopyResource( destResource, srcResource );
 	}
 
-	void D3D11DeferredCommandList::CopyResource( Buffer* dest, Buffer* src )
+	void D3D11ParallelCommandList::CopyResource( Buffer* dest, Buffer* src )
 	{
 		if ( dest == nullptr || src == nullptr )
 		{
@@ -322,7 +382,7 @@ namespace agl
 
 		ID3D11Resource* destResource = nullptr;
 		ID3D11Resource* srcResource = nullptr;
-
+		
 		if ( auto destBuffer = static_cast<D3D11Buffer*>( dest ) )
 		{
 			destResource = destBuffer->Resource();
@@ -336,48 +396,30 @@ namespace agl
 		m_pContext->CopyResource( destResource, srcResource );
 	}
 
-	void D3D11DeferredCommandList::Finish()
+	void D3D11ParallelCommandList::Transition( [[maybe_unused]] uint32 numTransitions, [[maybe_unused]] const ResourceTransition* transitions )
 	{
-		m_pContext->FinishCommandList( false, &m_pCommandList );
+		// Do Nothing
 	}
 
-	void D3D11DeferredCommandList::RequestExecute()
+	void D3D11ParallelCommandList::Close()
+	{
+		m_pContext->FinishCommandList( false, m_pCommandList.GetAddressOf() );
+	}
+
+	void D3D11ParallelCommandList::Commit()
 	{
 		if ( m_pCommandList )
 		{
-			D3D11Context().ExecuteCommandList( m_pCommandList, false );
-			m_pCommandList->Release();
+			D3D11Context().ExecuteCommandList( m_pCommandList.Get(), false);
 			m_pCommandList = nullptr;
 		}
 	}
 
-	D3D11DeferredCommandList::D3D11DeferredCommandList()
+	void D3D11ParallelCommandList::Initialize()
 	{
 		[[maybe_unused]] HRESULT hr = D3D11Device().CreateDeferredContext( 0, &m_pContext );
 		assert( SUCCEEDED( hr ) );
 
 		m_globalConstantBuffers.Initialize();
-	}
-
-	D3D11DeferredCommandList::~D3D11DeferredCommandList()
-	{
-		if ( m_pContext )
-		{
-			m_pContext->Release();
-			m_pContext = nullptr;
-		}
-	}
-
-	Owner<IGraphicsCommandList*> D3D11GraphicsCommandLists::CreateCommandList()
-	{
-		return nullptr;
-	}
-
-	void D3D11GraphicsCommandLists::Prepare()
-	{
-	}
-
-	void D3D11GraphicsCommandLists::Commit()
-	{
 	}
 }

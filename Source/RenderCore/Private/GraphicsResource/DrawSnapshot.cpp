@@ -23,7 +23,6 @@ namespace
 			{
 				CommitDrawSnapshot( m_commandList, *drawSnapshot, m_primitiveIds );
 			}
-			m_commandList.Finish();
 		}
 
 		void AddSnapshot( VisibleDrawSnapshot* snapshot )
@@ -31,13 +30,13 @@ namespace
 			m_drawSnapshot.push_back( snapshot );
 		}
 
-		CommitDrawSnapshotTask( size_t reserveSize, agl::IDeferredCommandList& commandList, VertexBuffer& primitiveIds ) : m_commandList( commandList ), m_primitiveIds( primitiveIds )
+		CommitDrawSnapshotTask( size_t reserveSize, agl::IParallelCommandList& commandList, VertexBuffer& primitiveIds ) : m_commandList( commandList ), m_primitiveIds( primitiveIds )
 		{
 			m_drawSnapshot.reserve( reserveSize );
 		}
 
 	private:
-		agl::IDeferredCommandList& m_commandList;
+		agl::IParallelCommandList& m_commandList;
 		VertexBuffer& m_primitiveIds;
 		std::vector<VisibleDrawSnapshot*> m_drawSnapshot;
 	};
@@ -169,7 +168,7 @@ namespace rendercore
 
 	void CommitDrawSnapshots( SceneRenderer& renderer, VectorSingleFrame<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
 	{
-		auto commandList = GetImmediateCommandList();
+		auto commandList = GetCommandList();
 
 		renderer.ApplyOutputContext( commandList );
 
@@ -200,11 +199,11 @@ namespace rendercore
 			TaskHandle taskGroup = taskScheduler->GetTaskGroup();
 
 			CommitDrawSnapshotTask* commitTasks[2] = {};
-			std::unique_ptr<agl::IDeferredCommandList> deferredCommandLists[2] = {};
+			agl::IParallelCommandList* deferredCommandLists[2] = {};
 
 			for ( size_t i = 0, j = 0; i < std::extent_v<decltype( commitTasks )>; ++i )
 			{
-				deferredCommandLists[i] = GraphicsInterface().CreateDeferredCommandList();
+				deferredCommandLists[i] = GraphicsInterface().GetParallelCommandList();
 
 				size_t count = ( dc + 1 ) / 2;
 				auto task = Task<CommitDrawSnapshotTask>::Create( affinityMask, count, *deferredCommandLists[i], primitiveIds );
@@ -228,13 +227,6 @@ namespace rendercore
 
 			taskScheduler->Run( taskGroup );
 			taskScheduler->Wait( taskGroup );
-
-			auto commandList = GetImmediateCommandList();
-
-			for ( size_t i = 0; i < std::extent_v<decltype( deferredCommandLists )>; ++i )
-			{
-				commandList.Execute( *deferredCommandLists[i] );
-			}
 		}
 	}
 

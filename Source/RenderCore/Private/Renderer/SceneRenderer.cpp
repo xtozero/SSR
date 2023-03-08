@@ -325,16 +325,21 @@ namespace rendercore
 		{
 			auto [width, height] = shadow->ShadowMapSize();
 
-			agl::TEXTURE_TRAIT trait = { width,
-				height,
-				CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
-				1,
-				0,
-				1,
-				agl::ResourceFormat::R32_FLOAT,
-				agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
-				agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
-				agl::ResourceMisc::None };
+			agl::TEXTURE_TRAIT trait = { 
+				.m_width = width,
+				.m_height = height,
+				.m_depth = CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
+				.m_sampleCount = 1,
+				.m_sampleQuality = 0,
+				.m_mipLevels = 1,
+				.m_format = agl::ResourceFormat::R32_FLOAT,
+				.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
+				.m_miscFlag = agl::ResourceMisc::None,
+				.m_clearValue = agl::ResourceClearValue{
+					.m_color = { 1.f, 1.f, 1.f, 1.f }
+				}
+			};
 
 			shadow->ShadowMap().m_shadowMap = agl::Texture::Create( trait );
 
@@ -382,7 +387,7 @@ namespace rendercore
 			};
 			StoreOuputContext( context );
 
-			auto commandList = GetImmediateCommandList();
+			auto commandList = GetCommandList();
 
 			agl::RenderTargetView* rtv = shadowMap.m_shadowMap.Get() ? shadowMap.m_shadowMap->RTV() : nullptr;
 			commandList.ClearRenderTarget( rtv, { 1, 1, 1, 1 } );
@@ -423,7 +428,7 @@ namespace rendercore
 			material->GetPixelShader(),
 		};
 
-		auto commandList = GetImmediateCommandList();
+		auto commandList = GetCommandList();
 		ApplyOutputContext( commandList );
 
 		StaticMeshLODResource& lodResource = renderData->LODResource( 0 );
@@ -568,7 +573,7 @@ namespace rendercore
 			GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 			m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
-			auto commandList = GetImmediateCommandList();
+			auto commandList = GetCommandList();
 			ApplyOutputContext( commandList );
 
 			m_shaderResources.AddResource( "ShadowTexture", shadowInfo.ShadowMap().m_shadowMap->SRV() );
@@ -646,7 +651,7 @@ namespace rendercore
 		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
-		auto commandList = GetImmediateCommandList();
+		auto commandList = GetCommandList();
 		ApplyOutputContext( commandList );
 
 		auto defaultSampler = GraphicsInterface().FindOrCreate( SamplerOption() );
@@ -742,7 +747,7 @@ namespace rendercore
 		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
-		auto commandList = GetImmediateCommandList();
+		auto commandList = GetCommandList();
 		ApplyOutputContext( commandList );
 
 		SamplerOption samplerOption;

@@ -283,6 +283,11 @@ namespace agl
 					std::construct_at( &m_shaderLayouts[m_shaderLayoutSize], shaderType, *initializer[shaderType] );
 					shaderBindsDataSize += m_shaderLayouts[m_shaderLayoutSize].GetDataSize();
 					++m_shaderLayoutSize;
+
+					m_numCBV += static_cast<uint32>( initializer[shaderType]->m_constantBuffers.size() );
+					m_numSRV += static_cast<uint32>( initializer[shaderType]->m_srvs.size() );
+					m_numUAV += static_cast<uint32>( initializer[shaderType]->m_uavs.size() );
+					m_numSampler += static_cast<uint32>( initializer[shaderType]->m_samplers.size() );
 				}
 			}
 
@@ -347,11 +352,19 @@ namespace agl
 
 				m_shaderLayouts = other.m_shaderLayouts;
 				m_shaderLayoutSize = other.m_shaderLayoutSize;
+				m_numSRV = other.m_numSRV;
+				m_numUAV = other.m_numUAV;
+				m_numCBV = other.m_numCBV;
+				m_numSampler = other.m_numSampler;
 				m_data = other.m_data;
 				m_size = other.m_size;
 
 				other.m_shaderLayouts = nullptr;
 				other.m_shaderLayoutSize = 0;
+				other.m_numSRV = 0;
+				other.m_numUAV = 0;
+				other.m_numCBV = 0;
+				other.m_numSampler = 0;
 				other.m_data = nullptr;
 				other.m_size = 0;
 			}
@@ -366,8 +379,12 @@ namespace agl
 
 		bool MatchsForDynamicInstancing( const ShaderBindings& other ) const
 		{
-			if ( ( m_shaderLayoutSize != other.m_shaderLayoutSize ) ||
-				( m_size != other.m_size ) )
+			if ( ( m_shaderLayoutSize != other.m_shaderLayoutSize )
+				|| ( m_size != other.m_size )
+				|| ( m_numSRV != other.m_numSRV )
+				|| ( m_numUAV != other.m_numUAV )
+				|| ( m_numCBV != other.m_numCBV )
+				|| ( m_numSampler != other.m_numSampler ) )
 			{
 				return false;
 			}
@@ -437,6 +454,11 @@ namespace agl
 				}
 			}
 
+			m_numSRV = 0;
+			m_numUAV = 0;
+			m_numCBV = 0;
+			m_numSampler = 0;
+
 			delete[] m_data;
 			m_data = nullptr;
 			m_size = 0;
@@ -444,6 +466,11 @@ namespace agl
 
 		ShaderBindingLayout* m_shaderLayouts = nullptr;
 		uint32 m_shaderLayoutSize = 0;
+
+		uint32 m_numSRV = 0;
+		uint32 m_numUAV = 0;
+		uint32 m_numCBV = 0;
+		uint32 m_numSampler = 0;
 
 		unsigned char* m_data = nullptr;
 		size_t m_size = 0;
