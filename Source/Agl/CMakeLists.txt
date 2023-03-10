@@ -173,7 +173,7 @@ PUBLIC
 	./Public/RenderResource
 	./Public/Common
 PRIVATE
-	./../ThirdParty/inc
+	./../../ThirdParty/DXC/inc
 	./Public
 	./Public/D3D11
 	./Public/D3D12
@@ -183,12 +183,12 @@ PRIVATE
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 target_link_directories(Agl
 PRIVATE
-	./../ThirdParty/DXC/lib/x64
+	./../../ThirdParty/DXC/lib/x64
 	$ENV{DXSDK_DIR}lib/x64)
 elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
 target_link_directories(Agl
 PRIVATE
-	./../ThirdParty/DXC/lib/x86
+	./../../ThirdParty/DXC/lib/x86
 	$ENV{DXSDK_DIR}lib/x86)
 endif()
 
