@@ -12,6 +12,11 @@ namespace agl
 		return GetInterface<IResourceManager>( )->CreateTexture( trait, initData );
 	}
 
+	const TEXTURE_TRAIT& Texture::GetTrait() const
+	{
+		return m_trait;
+	}
+
 	void Texture::Transition( ICommandListBase& commandList, ResourceState state )
 	{
 		if ( m_state == state )

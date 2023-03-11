@@ -125,10 +125,12 @@ set (RENDER_UTILITY
 	Private/RenderUtility/AbstractGraphicsInterface.cpp
 	Private/RenderUtility/CommonRenderResource.cpp
 	Private/RenderUtility/RenderCoreAllocator.cpp
+	Private/RenderUtility/RenderTargetPool.cpp
 	Private/RenderUtility/ShadowSetup.cpp
 	Public/RenderUtility/AbstractGraphicsInterface.h
 	Public/RenderUtility/CommonRenderResource.h
 	Public/RenderUtility/RenderCoreAllocator.h
+	Public/RenderUtility/RenderTargetPool.h
 	Public/RenderUtility/ShaderParameterUtils.h
 	Public/RenderUtility/ShadowSetup.h)
 	
