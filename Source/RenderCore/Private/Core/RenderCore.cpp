@@ -177,6 +177,9 @@ namespace rendercore
 
 		GraphicsInterface().Shutdown();
 
+		TaskHandle handle = EnqueueThreadTask<ThreadType::RenderThread>( [](){} );
+		GetInterface<ITaskScheduler>()->Wait( handle );
+
 		ShutdownModule( m_hAgl );
 	}
 

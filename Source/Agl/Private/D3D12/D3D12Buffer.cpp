@@ -133,7 +133,7 @@ namespace agl
 		return m_resourceInfo.m_resource;
 	}
 
-	const ID3D12Resource* D3D12Buffer::Resource() const
+	void* D3D12Buffer::Resource() const
 	{
 		return m_resourceInfo.m_resource;
 	}

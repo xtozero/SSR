@@ -16,6 +16,10 @@ namespace rendercore
 		agl::RefHandle<agl::Texture> Get() const;
 
 		explicit PooledRenderTarget( agl::Texture& texture );
+		PooledRenderTarget( const PooledRenderTarget& other ) noexcept;
+		PooledRenderTarget& operator=( const PooledRenderTarget& other ) noexcept;
+		PooledRenderTarget( PooledRenderTarget&& other ) noexcept;
+		PooledRenderTarget& operator=( PooledRenderTarget&& other ) noexcept;
 
 	private:
 		agl::TEXTURE_TRAIT m_trait;

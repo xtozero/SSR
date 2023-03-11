@@ -69,7 +69,7 @@ public:
 	{
 		if constexpr ( std::is_same_v<T, OriginalT> )
 		{
-			return ( m_size >= NumInlineElements ) ? ( std::allocator_traits<SecondAlloc>::max_size( m_secondAlloc ) ) : NumInlineElements;
+			return std::allocator_traits<SecondAlloc>::max_size( m_secondAlloc );
 		}
 		else
 		{

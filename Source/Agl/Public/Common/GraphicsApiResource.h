@@ -593,12 +593,19 @@ namespace agl
 
 	constexpr uint32 AllSubResource = 0xffffffff;
 
+	class ITransitionable
+	{
+	public:
+		virtual ResourceState GetState() const = 0;
+		virtual void SetState( ResourceState state ) = 0;
+	};
+
 	struct ResourceTransition
 	{
 		void* m_pResource;
+		ITransitionable& m_pTransitionable;
 		uint32 m_subResource;
-		ResourceState m_before;
-		ResourceState m_after;
+		ResourceState m_state;
 	};
 
 	union ResourceClearValue
@@ -620,16 +627,16 @@ namespace agl
 
 	struct TEXTURE_TRAIT
 	{
-		uint32 m_width;
-		uint32 m_height;
-		uint32 m_depth;
-		uint32 m_sampleCount;
-		uint32 m_sampleQuality;
-		uint32 m_mipLevels;
-		ResourceFormat m_format;
-		ResourceAccessFlag m_access;
-		ResourceBindType m_bindType;
-		ResourceMisc m_miscFlag;
+		uint32 m_width = 0;
+		uint32 m_height = 0;
+		uint32 m_depth = 0;
+		uint32 m_sampleCount = 0;
+		uint32 m_sampleQuality = 0;
+		uint32 m_mipLevels = 0;
+		ResourceFormat m_format = ResourceFormat::Unknown;
+		ResourceAccessFlag m_access = ResourceAccessFlag::None;
+		ResourceBindType m_bindType = ResourceBindType::None;
+		ResourceMisc m_miscFlag = ResourceMisc::None;
 		std::optional<ResourceClearValue> m_clearValue;
 
 		AGL_DLL size_t GetHash() const;

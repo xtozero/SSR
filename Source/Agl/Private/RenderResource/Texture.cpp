@@ -12,6 +12,16 @@ namespace agl
 		return GetInterface<IResourceManager>( )->CreateTexture( trait, initData );
 	}
 
+	ResourceState Texture::GetState() const
+	{
+		return m_state;
+	}
+
+	void Texture::SetState( ResourceState state )
+	{
+		m_state = state;
+	}
+
 	const TEXTURE_TRAIT& Texture::GetTrait() const
 	{
 		return m_trait;
@@ -26,12 +36,11 @@ namespace agl
 
 		ResourceTransition transition = {
 			.m_pResource = Resource(),
+			.m_pTransitionable = *this,
 			.m_subResource = AllSubResource,
-			.m_before = m_state,
-			.m_after = state
+			.m_state = state
 		};
 
-		m_state = state;
 		commandList.Transition( 1, &transition );
 	}
 

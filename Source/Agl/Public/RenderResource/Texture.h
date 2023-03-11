@@ -11,7 +11,7 @@ namespace agl
 {
 	class ICommandListBase;
 
-	class Texture : public DeviceDependantResource, public IResourceViews
+	class Texture : public DeviceDependantResource, public IResourceViews, public ITransitionable
 	{
 	public:
 		AGL_DLL static RefHandle<Texture> Create( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr );
@@ -30,6 +30,9 @@ namespace agl
 
 		virtual DepthStencilView* DSV() override { return m_dsv.Get(); }
 		virtual const DepthStencilView* DSV() const override { return m_dsv.Get(); }
+
+		virtual ResourceState GetState() const override;
+		virtual void SetState( ResourceState state ) override;
 
 		AGL_DLL const TEXTURE_TRAIT& GetTrait() const;
 
