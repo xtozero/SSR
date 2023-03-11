@@ -8,6 +8,7 @@
 #include "GlobalShaders.h"
 #include "GraphicsResource/Viewport.h"
 #include "IAgl.h"
+#include "RenderTargetPool.h"
 #include "RenderView.h"
 #include "TaskScheduler.h"
 #include "Scene/Scene.h"
@@ -159,7 +160,8 @@ namespace rendercore
 	{
 		for ( auto& kv : m_sceneRenderer )
 		{
-			EnqueueRenderTask( [sceneRenderer = kv.second]()
+			EnqueueRenderTask( 
+				[sceneRenderer = kv.second]()
 				{
 					delete sceneRenderer;
 				} );
@@ -171,6 +173,7 @@ namespace rendercore
 		ShaderCache::Shutdown();
 
 		GlobalShaders::GetInstance().Shutdown();
+		RenderTargetPool::GetInstance().Shutdown();
 
 		GraphicsInterface().Shutdown();
 
