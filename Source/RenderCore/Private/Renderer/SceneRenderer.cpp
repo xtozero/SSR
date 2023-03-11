@@ -13,6 +13,7 @@
 #include "Proxies/PrimitiveProxy.h"
 #include "Proxies/TexturedSkyProxy.h"
 #include "Proxies/VolumetricCloudProxy.h"
+#include "RenderTargetPool.h"
 #include "RenderView.h"
 #include "Scene/IScene.h"
 #include "Scene/PrimitiveSceneInfo.h"
@@ -341,7 +342,7 @@ namespace rendercore
 				}
 			};
 
-			shadow->ShadowMap().m_shadowMap = agl::Texture::Create( trait );
+			shadow->ShadowMap().m_shadowMap = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait );
 
 			agl::TEXTURE_TRAIT depthTrait = { width,
 				height,
@@ -354,7 +355,7 @@ namespace rendercore
 				agl::ResourceBindType::DepthStencil,
 				agl::ResourceMisc::None };
 
-			shadow->ShadowMap().m_shadowMapDepth = agl::Texture::Create( depthTrait );
+			shadow->ShadowMap().m_shadowMapDepth = RenderTargetPool::GetInstance().FindFreeRenderTarget( depthTrait );
 
 			EnqueueRenderTask(
 				[texture = shadow->ShadowMap().m_shadowMap, depthTexture = shadow->ShadowMap().m_shadowMapDepth]()

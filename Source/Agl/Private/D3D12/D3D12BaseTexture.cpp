@@ -483,6 +483,18 @@ namespace
 		}
 	}
 
+	D3D12_HEAP_FLAGS ConvertToTextureHeapFlags( const ResourceBindType bindType )
+	{
+		if ( HasAnyFlags( bindType, ResourceBindType::RenderTarget | ResourceBindType::DepthStencil ) )
+		{
+			return D3D12_HEAP_FLAG_ALLOW_ONLY_RT_DS_TEXTURES;
+		}
+		else
+		{
+			return D3D12_HEAP_FLAG_ALLOW_ONLY_NON_RT_DS_TEXTURES;
+		}
+	}
+
 	D3D12HeapProperties ConvertToHeapProperties( const TEXTURE_TRAIT& trait )
 	{
 		uint64 alignment = ( trait.m_sampleCount > 1 ) ? D3D12_DEFAULT_MSAA_RESOURCE_PLACEMENT_ALIGNMENT : D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
@@ -490,7 +502,7 @@ namespace
 		D3D12HeapProperties properties = {
 			.m_alignment = alignment,
 			.m_heapType = ConvertAccessFlagToHeapType( trait.m_access ),
-			.m_heapFlags = D3D12_HEAP_FLAG_NONE
+			.m_heapFlags = ConvertToTextureHeapFlags( trait.m_bindType )
 		};
 
 		return properties;

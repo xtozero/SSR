@@ -79,6 +79,7 @@ namespace agl
 
 		AGL_DLL int32 AddRef();
 		AGL_DLL int32 ReleaseRef();
+		AGL_DLL int32 GetRefCount() const;
 
 	private:
 		virtual void InitResource() = 0;
@@ -630,6 +631,8 @@ namespace agl
 		ResourceBindType m_bindType;
 		ResourceMisc m_miscFlag;
 		std::optional<ResourceClearValue> m_clearValue;
+
+		AGL_DLL size_t GetHash() const;
 	};
 
 	struct RESOURCE_SECTION_DATA

@@ -31,9 +31,17 @@ namespace agl
 		virtual DepthStencilView* DSV() override { return m_dsv.Get(); }
 		virtual const DepthStencilView* DSV() const override { return m_dsv.Get(); }
 
+		AGL_DLL const TEXTURE_TRAIT& GetTrait() const;
+
 		void Transition( ICommandListBase& commandList, ResourceState state );
 
+		Texture( const TEXTURE_TRAIT& trait )
+			: m_trait( trait ) {}
+		Texture() = default;
+
 	protected:
+		TEXTURE_TRAIT m_trait = {};
+
 		RefHandle<ShaderResourceView> m_srv;
 		RefHandle<UnorderedAccessView> m_uav;
 		RefHandle<RenderTargetView> m_rtv;
@@ -50,7 +58,8 @@ namespace agl
 			return { m_trait.m_width, m_trait.m_height };
 		}
 
-		TextureBase( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData ) : m_trait( trait )
+		TextureBase( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData ) 
+			: Texture( trait )
 		{
 			if ( initData )
 			{
@@ -81,8 +90,6 @@ namespace agl
 		}
 
 		virtual void CreateTexture() = 0;
-
-		TEXTURE_TRAIT m_trait = {};
 
 		void* m_dataStorage = nullptr;
 	};
