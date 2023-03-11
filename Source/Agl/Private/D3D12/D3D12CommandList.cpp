@@ -128,13 +128,25 @@ namespace agl
 	void D3D12CommandListImpl::Transition( uint32 numTransitions, const ResourceTransition* transitions )
 	{
 		std::vector<D3D12_RESOURCE_BARRIER, InlineAllocator<D3D12_RESOURCE_BARRIER, 1>> d3d12Barriers;
-		d3d12Barriers.resize( numTransitions );
+		d3d12Barriers.reserve( numTransitions );
 		for ( uint32 i = 0; i < numTransitions; ++i )
 		{
-			d3d12Barriers[i] = ConvertToResourceBarrier( transitions[i] );
+			ResourceState beforeState = transitions[i].m_pTransitionable.GetState();
+			ResourceState afterState = transitions[i].m_state;
+
+			if ( beforeState != afterState )
+			{
+				d3d12Barriers.emplace_back( ConvertToResourceBarrier( transitions[i] ) );
+				transitions[i].m_pTransitionable.SetState( transitions[i].m_state );
+			}
 		}
 
-		m_commandList->ResourceBarrier( numTransitions, d3d12Barriers.data() );
+		if ( d3d12Barriers.empty() )
+		{
+			return;
+		}
+
+		m_commandList->ResourceBarrier( static_cast<uint32>( d3d12Barriers.size() ), d3d12Barriers.data() );
 	}
 
 	void D3D12CommandListImpl::Close()

@@ -449,7 +449,7 @@ namespace agl
 		
 		assert( compiledBinary.Get() != nullptr );
 
-		BinaryChunk binary( compiledBinary->GetBufferSize() );
+		BinaryChunk binary( static_cast<uint32>( compiledBinary->GetBufferSize() ) );
 		std::memcpy( binary.Data(), compiledBinary->GetBufferPointer(), compiledBinary->GetBufferSize() );
 
 		return binary;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "D3D12ResourceAllocator.h"
+#include "Multithread/TaskScheduler.h"
 #include "Texture.h"
 
 #include <d3d12.h>
@@ -79,11 +80,12 @@ namespace agl
 		{
 			TextureBase::FreeResource();
 
-			if ( Resource() )
-			{
-				D3D12ResourceAllocator().GetInstance().DeallocateResource( m_resourceInfo );
-				std::construct_at( &m_resourceInfo );
-			}
+			EnqueueRenderTask(
+				[resourceInfo = m_resourceInfo]()
+				{
+					D3D12ResourceAllocator& allocator = D3D12ResourceAllocator::GetInstance();
+					allocator.DeallocateResource( resourceInfo );
+				} );
 		}
 	};
 

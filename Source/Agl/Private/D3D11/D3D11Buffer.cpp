@@ -98,7 +98,7 @@ namespace agl
 		return m_buffer;
 	}
 
-	const ID3D11Buffer* D3D11Buffer::Resource() const
+	void* D3D11Buffer::Resource() const
 	{
 		return m_buffer;
 	}

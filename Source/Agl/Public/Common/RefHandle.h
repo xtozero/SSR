@@ -30,12 +30,12 @@ namespace agl
 			m_reference = nullptr;
 		}
 
-		RefHandle( const RefHandle& other )
+		RefHandle( const RefHandle& other ) noexcept
 		{
 			*this = other;
 		}
 
-		RefHandle& operator=( const RefHandle& other )
+		RefHandle& operator=( const RefHandle& other ) noexcept
 		{
 			if ( this != &other )
 			{
@@ -54,12 +54,12 @@ namespace agl
 			return *this;
 		}
 
-		RefHandle( RefHandle&& other )
+		RefHandle( RefHandle&& other ) noexcept
 		{
 			*this = std::move( other );
 		}
 
-		RefHandle& operator=( RefHandle&& other )
+		RefHandle& operator=( RefHandle&& other ) noexcept
 		{
 			if ( this != &other )
 			{

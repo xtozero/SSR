@@ -132,7 +132,8 @@ set (RENDER_UTILITY
 	Public/RenderUtility/RenderCoreAllocator.h
 	Public/RenderUtility/RenderTargetPool.h
 	Public/RenderUtility/ShaderParameterUtils.h
-	Public/RenderUtility/ShadowSetup.h)
+	Public/RenderUtility/ShadowSetup.h
+	Public/RenderUtility/TransitionUtils.h)
 	
 set (RENDERER_SOURCE
 	Private/Renderer/ForwardLighting.cpp
