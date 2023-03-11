@@ -25,6 +25,38 @@ namespace rendercore
 		, m_trait( texture.GetTrait() )
 	{
 	}
+	PooledRenderTarget::PooledRenderTarget( const PooledRenderTarget& other ) noexcept
+	{
+		*this = other;
+	}
+
+	PooledRenderTarget& PooledRenderTarget::operator=( const PooledRenderTarget& other ) noexcept
+	{
+		if ( this != &other )
+		{
+			m_trait = other.m_trait;
+			m_texture = other.m_texture;
+		}
+
+		return *this;
+	}
+
+	PooledRenderTarget::PooledRenderTarget( PooledRenderTarget&& other ) noexcept
+	{
+		*this = std::move( other );
+	}
+
+	PooledRenderTarget& PooledRenderTarget::operator=( PooledRenderTarget&& other ) noexcept
+	{
+		if ( this != &other )
+		{
+			m_trait = std::move( other.m_trait );
+			m_texture = std::move( other.m_texture );
+		}
+
+		return *this;
+	}
+
 	agl::RefHandle<agl::Texture> RenderTargetPool::FindFreeRenderTarget( const agl::TEXTURE_TRAIT& trait )
 	{
 		for ( PooledRenderTarget& renderTarget : m_pooledRenderTargets )
@@ -54,9 +86,6 @@ namespace rendercore
 
 	void RenderTargetPool::Shutdown()
 	{
-		EnqueueRenderTask( 
-			[renderTargets = std::move( m_pooledRenderTargets )]()
-			{
-			} );
+		m_pooledRenderTargets.clear();
 	}
 }

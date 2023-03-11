@@ -86,6 +86,11 @@ namespace rendercore
 		m_imple.CopyResource( dest, src );
 	}
 
+	void CommandList::Transition( uint32 numTransitions, const agl::ResourceTransition* transitions )
+	{
+		m_imple.Transition( numTransitions, transitions );
+	}
+
 	void CommandList::WaitUntilFlush()
 	{
 		m_imple.WaitUntilFlush();

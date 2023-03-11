@@ -10,4 +10,14 @@ namespace agl
 	{
 		return GetInterface<IResourceManager>()->CreateBuffer( trait, initData );
 	}
+
+	ResourceState Buffer::GetState() const
+	{
+		return m_state;
+	}
+
+	void Buffer::SetState( ResourceState state )
+	{
+		m_state = state;
+	}
 }

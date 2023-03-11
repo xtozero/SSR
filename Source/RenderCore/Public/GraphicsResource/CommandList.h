@@ -31,6 +31,8 @@ namespace rendercore
 		void CopyResource( agl::Texture* dest, agl::Texture* src );
 		void CopyResource( agl::Buffer* dest, agl::Buffer* src );
 
+		void Transition( uint32 numTransitions, const agl::ResourceTransition* transitions );
+
 		void WaitUntilFlush();
 
 		void Commit();

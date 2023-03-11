@@ -24,6 +24,7 @@
 #include "ShadowDrawPassProcessor.h"
 #include "ShadowSetup.h"
 #include "SkyAtmosphereRendering.h"
+#include "TransitionUtils.h"
 #include "Viewport.h"
 #include "VolumetricCloudPassProcessor.h"
 
@@ -378,6 +379,8 @@ namespace rendercore
 		for ( ShadowInfo& shadowInfo : m_shadowInfos )
 		{
 			ShadowMapRenderTarget& shadowMap = shadowInfo.ShadowMap();
+			assert( ( shadowMap.m_shadowMap != nullptr ) && ( shadowMap.m_shadowMapDepth != nullptr ) );
+
 			auto [width, height] = shadowInfo.ShadowMapSize();
 
 			RenderingOutputContext context = {
@@ -390,10 +393,17 @@ namespace rendercore
 
 			auto commandList = GetCommandList();
 
-			agl::RenderTargetView* rtv = shadowMap.m_shadowMap.Get() ? shadowMap.m_shadowMap->RTV() : nullptr;
+			agl::ResourceTransition transitions[] = {
+				Transition( *shadowMap.m_shadowMap.Get(),agl::ResourceState::RenderTarget ),
+				Transition( *shadowMap.m_shadowMapDepth.Get(), agl::ResourceState::DepthWrite )
+			};
+
+			commandList.Transition( std::extent_v<decltype( transitions )>, transitions);
+
+			agl::RenderTargetView* rtv = shadowMap.m_shadowMap->RTV();
 			commandList.ClearRenderTarget( rtv, { 1, 1, 1, 1 } );
 
-			agl::DepthStencilView* dsv = shadowMap.m_shadowMapDepth.Get() ? shadowMap.m_shadowMapDepth->DSV() : nullptr;
+			agl::DepthStencilView* dsv = shadowMap.m_shadowMapDepth->DSV();
 			commandList.ClearDepthStencil( dsv, 1.f, 0 );
 
 			shadowInfo.SetupShadowConstantBuffer();

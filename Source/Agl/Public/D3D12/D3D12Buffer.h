@@ -15,7 +15,7 @@ namespace agl
 	{
 	public:
 		ID3D12Resource* Resource();
-		const ID3D12Resource* Resource() const;
+		virtual void* Resource() const override;
 
 		uint32 Stride() const;
 		uint32 Size() const;

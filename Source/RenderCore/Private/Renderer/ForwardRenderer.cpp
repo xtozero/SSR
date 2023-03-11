@@ -10,6 +10,7 @@
 #include "Scene/Scene.h"
 #include "Scene/SceneConstantBuffers.h"
 #include "SkyAtmosphereRendering.h"
+#include "TransitionUtils.h"
 #include "Viewport.h"
 
 namespace rendercore
@@ -349,6 +350,8 @@ namespace rendercore
 		auto velocity = m_renderTargets.GetVelocity();
 		auto depthStencil = m_renderTargets.GetDepthStencil();
 
+		assert( ( renderTarget != nullptr ) && ( worldNormal != nullptr ) && ( velocity != nullptr ) && ( depthStencil != nullptr ) );
+
 		auto [width, height] = renderViewGroup.GetViewport().Size();
 
 		RenderingOutputContext context = {
@@ -361,16 +364,25 @@ namespace rendercore
 
 		auto commandList = GetCommandList();
 
-		agl::RenderTargetView* rtv0 = renderTarget != nullptr ? renderTarget->RTV() : nullptr;
+		agl::ResourceTransition transitions[] = {
+			Transition( *renderTarget, agl::ResourceState::RenderTarget ),
+			Transition( *worldNormal, agl::ResourceState::RenderTarget ),
+			Transition( *velocity, agl::ResourceState::RenderTarget ),
+			Transition( *depthStencil, agl::ResourceState::DepthWrite )
+		};
+
+		commandList.Transition( std::extent_v<decltype( transitions )>, transitions );
+
+		agl::RenderTargetView* rtv0 = renderTarget->RTV();
 		commandList.ClearRenderTarget( rtv0, { 1, 1, 1, 1 } );
 
-		agl::RenderTargetView* rtv1 = worldNormal != nullptr ? worldNormal->RTV() : nullptr;
+		agl::RenderTargetView* rtv1 = worldNormal->RTV();
 		commandList.ClearRenderTarget( rtv1, { } );
 
-		agl::RenderTargetView* rtv2 = velocity != nullptr ? velocity->RTV() : nullptr;
+		agl::RenderTargetView* rtv2 = velocity->RTV();
 		commandList.ClearRenderTarget( rtv2, { } );
 
-		agl::DepthStencilView* dsv = depthStencil != nullptr ? depthStencil->DSV() : nullptr;
+		agl::DepthStencilView* dsv = depthStencil->DSV();
 		commandList.ClearDepthStencil( dsv, 1.f, 0 );
 
 		IScene& scene = renderViewGroup.Scene();
