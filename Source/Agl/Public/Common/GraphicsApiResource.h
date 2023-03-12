@@ -663,7 +663,7 @@ namespace agl
 		uint64 m_depthPitch;
 	};
 
-	struct RESOURCE_REGION
+	struct ResourceRegion
 	{
 		uint32 m_subResource;
 		uint32 m_left;
