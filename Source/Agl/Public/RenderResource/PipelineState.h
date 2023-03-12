@@ -22,7 +22,7 @@ namespace agl
 	class RasterizerState : public DeviceDependantResource
 	{
 	public:
-		AGL_DLL static RefHandle<RasterizerState> Create( const RASTERIZER_STATE_TRAIT& trait );
+		AGL_DLL static RefHandle<RasterizerState> Create( const RasterizerStateTrait& trait );
 	};
 
 	class SamplerState : public DeviceDependantResource

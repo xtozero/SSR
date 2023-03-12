@@ -123,7 +123,7 @@ namespace rendercore
 		auto found = m_rasterizerStates.find( option );
 		if ( found == m_rasterizerStates.end() )
 		{
-			agl::RASTERIZER_STATE_TRAIT trait = {
+			agl::RasterizerStateTrait trait = {
 				option.m_isWireframe ? agl::FillMode::Wireframe : agl::FillMode::Solid,
 				option.m_cullMode,
 				option.m_counterClockwise,

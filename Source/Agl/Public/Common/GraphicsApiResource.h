@@ -694,7 +694,7 @@ namespace agl
 		float m_maxLOD;
 	};
 
-	struct RASTERIZER_STATE_TRAIT
+	struct RasterizerStateTrait
 	{
 		FillMode m_fillMode;
 		CullMode m_cullMode;

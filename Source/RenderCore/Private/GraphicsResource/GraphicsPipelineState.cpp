@@ -65,12 +65,12 @@ namespace rendercore
 		return m_state.Get();
 	}
 
-	RasterizerState::RasterizerState( const agl::RASTERIZER_STATE_TRAIT& trait )
+	RasterizerState::RasterizerState( const agl::RasterizerStateTrait& trait )
 	{
 		InitResource( trait );
 	}
 
-	void RasterizerState::InitResource( const agl::RASTERIZER_STATE_TRAIT& trait )
+	void RasterizerState::InitResource( const agl::RasterizerStateTrait& trait )
 	{
 		m_state = agl::RasterizerState::Create( trait );
 		EnqueueRenderTask(
