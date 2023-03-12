@@ -708,7 +708,7 @@ namespace agl
 		bool m_antialiasedLineEnable;
 	};
 
-	struct RENDER_TARGET_BLEND_TRAIT
+	struct RenderTargetBlendTrait
 	{
 		bool m_blendEnable;
 		Blend m_srcBlend;
@@ -724,7 +724,7 @@ namespace agl
 	{
 		bool m_alphaToConverageEnable;
 		bool m_independentBlendEnable;
-		RENDER_TARGET_BLEND_TRAIT m_renderTarget[MAX_RENDER_TARGET];
+		RenderTargetBlendTrait m_renderTarget[MAX_RENDER_TARGET];
 		uint32 m_sampleMask;
 	};
 
