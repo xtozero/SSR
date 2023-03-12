@@ -16,7 +16,7 @@ namespace agl
 	class DepthStencilState : public DeviceDependantResource
 	{
 	public:
-		AGL_DLL static RefHandle<DepthStencilState> Create( const DEPTH_STENCIL_STATE_TRAIT& trait );
+		AGL_DLL static RefHandle<DepthStencilState> Create( const DepthStencilStateTrait& trait );
 	};
 
 	class RasterizerState : public DeviceDependantResource

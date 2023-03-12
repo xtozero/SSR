@@ -98,7 +98,7 @@ namespace rendercore
 		auto found = m_depthStencilStates.find( option );
 		if ( found == m_depthStencilStates.end() )
 		{
-			agl::DEPTH_STENCIL_STATE_TRAIT trait = {
+			agl::DepthStencilStateTrait trait = {
 				option.m_depth.m_enable,
 				option.m_depth.m_writeDepth ? agl::DepthWriteMode::All : agl::DepthWriteMode::Zero,
 				option.m_depth.m_depthFunc,

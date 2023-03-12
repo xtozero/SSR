@@ -11,7 +11,7 @@ namespace agl
 		return GetInterface<IResourceManager>()->CreateBlendState( trait );
 	}
 
-	RefHandle<DepthStencilState> DepthStencilState::Create( const DEPTH_STENCIL_STATE_TRAIT& trait )
+	RefHandle<DepthStencilState> DepthStencilState::Create( const DepthStencilStateTrait& trait )
 	{
 		return GetInterface<IResourceManager>()->CreateDepthStencilState( trait );
 	}
