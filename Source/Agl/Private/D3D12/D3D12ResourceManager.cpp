@@ -43,7 +43,7 @@ namespace agl
 		return newTexture;
 	}
 
-	Buffer* D3D12ResourceManager::CreateBuffer( const BUFFER_TRAIT& trait, const void* initData )
+	Buffer* D3D12ResourceManager::CreateBuffer( const BufferTrait& trait, const void* initData )
 	{
 		Buffer* newBuffer = nullptr;
 		if ( HasAnyFlags( trait.m_bindType, ResourceBindType::ConstantBuffer ) )

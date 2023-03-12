@@ -424,7 +424,7 @@ namespace rendercore
 		commandList.Dispatch( INSCATTER1_GROUP_X, INSCATTER1_GROUP_Y, INSCATTER1_GROUP_Z );
 
 		// 4. Copy deltaS into inscatter texture S
-		agl::BUFFER_TRAIT inscatter = {
+		agl::BufferTrait inscatter = {
 			.m_stride = sizeof( Vector4 ),
 			.m_count = RES_MU_S * RES_NU * RES_MU * RES_R,
 			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
@@ -455,7 +455,7 @@ namespace rendercore
 		deltaJTex->Init();
 
 		// Irradiance
-		agl::BUFFER_TRAIT irradiance = {
+		agl::BufferTrait irradiance = {
 			.m_stride = sizeof( Vector4 ),
 			.m_count = IRRADIANCE_W * IRRADIANCE_H,
 			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
@@ -558,7 +558,7 @@ namespace rendercore
 
 		// copy irradiance buffer to texture
 		{
-			agl::BUFFER_TRAIT readBack = {
+			agl::BufferTrait readBack = {
 				.m_stride = sizeof( Vector4 ),
 				.m_count = IRRADIANCE_W * IRRADIANCE_H,
 				.m_access = agl::ResourceAccessFlag::CpuRead,
@@ -609,7 +609,7 @@ namespace rendercore
 
 		// copy inscatter buffer to texture
 		{
-			agl::BUFFER_TRAIT readBack = {
+			agl::BufferTrait readBack = {
 				.m_stride = sizeof( Vector4 ),
 				.m_count = RES_MU_S * RES_NU * RES_MU * RES_R,
 				.m_access = agl::ResourceAccessFlag::CpuRead,

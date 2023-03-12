@@ -392,7 +392,7 @@ void CGameLogic::DrawUI()
 	//		}
 	//	}
 
-	//	BUFFER_TRAIT trait = { sizeof( ImUiVertex ),
+	//	BufferTrait trait = { sizeof( ImUiVertex ),
 	//		static_cast<uint32>( drawData.m_totalVertexCount ),
 	//		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
 	//		RESOURCE_BIND_TYPE::VERTEX_BUFFER,
@@ -549,7 +549,7 @@ void CGameLogic::HandleDeviceLost()
 
 bool CGameLogic::CreateDeviceDependentResource()
 {
-	//BUFFER_TRAIT trait = { sizeof( GeometryTransform ),
+	//BufferTrait trait = { sizeof( GeometryTransform ),
 	//	1,
 	//	RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
 	//	RESOURCE_BIND_TYPE::CONSTANT_BUFFER,
