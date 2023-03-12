@@ -66,7 +66,7 @@ namespace agl
 		return newBuffer;
 	}
 
-	VertexLayout* D3D12ResourceManager::CreateVertexLayout( [[maybe_unused]] const VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, uint32 size )
+	VertexLayout* D3D12ResourceManager::CreateVertexLayout( [[maybe_unused]] const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size )
 	{
 		return new D3D12VertexLayout( trait, size );
 	}

@@ -26,7 +26,7 @@ namespace agl
 		return GetInterface<IResourceManager>()->CreateSamplerState( trait );
 	}
 
-	RefHandle<VertexLayout> VertexLayout::Create( const VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, uint32 size )
+	RefHandle<VertexLayout> VertexLayout::Create( const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size )
 	{
 		return GetInterface<IResourceManager>()->CreateVertexLayout( vs, trait, size );
 	}

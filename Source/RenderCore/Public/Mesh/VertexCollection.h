@@ -90,7 +90,7 @@ namespace rendercore
 		uint32 AddStream( const VertexStream& stream );
 		uint32 AddStream( VertexStream&& stream );
 
-		void InitLayout( const agl::VERTEX_LAYOUT_TRAIT* traits, uint32 count, VertexStreamLayoutType layoutType );
+		void InitLayout( const agl::VertexLayoutTrait* traits, uint32 count, VertexStreamLayoutType layoutType );
 
 		const VertexStreamLayout& VertexLayout( VertexStreamLayoutType layoutType ) const;
 
@@ -100,7 +100,7 @@ namespace rendercore
 
 	private:
 		std::optional<uint32> FindStream( const Name& name ) const;
-		VertexStreamLayout SetupVertexLayout( const agl::VERTEX_LAYOUT_TRAIT* trait, uint32 count );
+		VertexStreamLayout SetupVertexLayout( const agl::VertexLayoutTrait* trait, uint32 count );
 
 		std::vector<VertexStream> m_streams;
 		mutable std::vector<VertexBuffer> m_vbs;

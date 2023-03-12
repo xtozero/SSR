@@ -61,7 +61,7 @@ namespace agl
 		return newBuffer;
 	}
 
-	VertexLayout* CD3D11ResourceManager::CreateVertexLayout( const VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, uint32 size )
+	VertexLayout* CD3D11ResourceManager::CreateVertexLayout( const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size )
 	{
 		auto d3d11VS = static_cast<const D3D11VertexShader*>( vs );
 		auto newVertexLayout = new D3D11VertexLayout( d3d11VS, trait, size );

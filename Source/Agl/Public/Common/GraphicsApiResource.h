@@ -756,7 +756,7 @@ namespace agl
 		STENCIL_OP_TRAIT m_backFace;
 	};
 
-	struct VERTEX_LAYOUT_TRAIT
+	struct VertexLayoutTrait
 	{
 		bool m_isInstanceData;
 		uint32 m_index;
@@ -765,7 +765,7 @@ namespace agl
 		uint32 m_instanceDataStep;
 		Name m_name;
 
-		friend bool operator==( const VERTEX_LAYOUT_TRAIT& lhs, const VERTEX_LAYOUT_TRAIT& rhs )
+		friend bool operator==( const VertexLayoutTrait& lhs, const VertexLayoutTrait& rhs )
 		{
 			return  lhs.m_isInstanceData == rhs.m_isInstanceData
 				&& lhs.m_index == rhs.m_index
@@ -775,7 +775,7 @@ namespace agl
 				&& lhs.m_name == rhs.m_name;
 		}
 
-		friend bool operator!=( const VERTEX_LAYOUT_TRAIT& lhs, const VERTEX_LAYOUT_TRAIT& rhs )
+		friend bool operator!=( const VertexLayoutTrait& lhs, const VertexLayoutTrait& rhs )
 		{
 			return !( lhs == rhs );
 		}

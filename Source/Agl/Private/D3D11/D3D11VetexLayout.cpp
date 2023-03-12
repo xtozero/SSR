@@ -6,11 +6,11 @@
 #include "D3D11Shaders.h"
 
 using ::agl::ConvertFormatToDxgiFormat;
-using ::agl::VERTEX_LAYOUT_TRAIT;
+using ::agl::VertexLayoutTrait;
 
 namespace
 {
-	void ConvertVertexLayoutToInputLayout( std::vector<D3D11_INPUT_ELEMENT_DESC>& descs, const VERTEX_LAYOUT_TRAIT* trait, uint32 size )
+	void ConvertVertexLayoutToInputLayout( std::vector<D3D11_INPUT_ELEMENT_DESC>& descs, const VertexLayoutTrait* trait, uint32 size )
 	{
 		for ( uint32 i = 0; i < size; ++i )
 		{
@@ -41,7 +41,7 @@ namespace agl
 		return m_pInputLayout;
 	}
 
-	D3D11VertexLayout::D3D11VertexLayout( const D3D11VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, uint32 size )
+	D3D11VertexLayout::D3D11VertexLayout( const D3D11VertexShader* vs, const VertexLayoutTrait* trait, uint32 size )
 	{
 		m_inputDesc.reserve( size );
 		ConvertVertexLayoutToInputLayout( m_inputDesc, trait, size );
