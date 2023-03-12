@@ -306,7 +306,7 @@ namespace agl
 		return dsv;
 	}
 
-	D3D11BaseTexture1D::D3D11BaseTexture1D( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
+	D3D11BaseTexture1D::D3D11BaseTexture1D( const TEXTURE_TRAIT& trait, const ResourceInitData* initData )
 		: D3D11Texture<ID3D11Texture1D>( trait, initData )
 	{
 	}
@@ -333,7 +333,7 @@ namespace agl
 		m_uav->Init();
 	}
 
-	D3D11BaseTexture2D::D3D11BaseTexture2D( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
+	D3D11BaseTexture2D::D3D11BaseTexture2D( const TEXTURE_TRAIT& trait, const ResourceInitData* initData )
 		: D3D11Texture<ID3D11Texture2D>( trait, initData )
 	{
 	}
@@ -384,7 +384,7 @@ namespace agl
 		m_dsv->Init();
 	}
 
-	D3D11BaseTexture3D::D3D11BaseTexture3D( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
+	D3D11BaseTexture3D::D3D11BaseTexture3D( const TEXTURE_TRAIT& trait, const ResourceInitData* initData )
 		: D3D11Texture<ID3D11Texture3D>( trait, initData )
 	{
 	}

@@ -649,7 +649,7 @@ namespace agl
 		uint64 m_slicePitch;
 	};
 
-	struct RESOURCE_INIT_DATA
+	struct ResourceInitData
 	{
 		void* m_srcData;
 		size_t m_srcSize;

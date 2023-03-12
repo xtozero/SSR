@@ -13,7 +13,7 @@ namespace agl
 		virtual void Shutdown() override;
 
 		// Texture
-		virtual Texture* CreateTexture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) override;
+		virtual Texture* CreateTexture( const TEXTURE_TRAIT& trait, const ResourceInitData* initData = nullptr ) override;
 
 		// Buffer
 		virtual Buffer* CreateBuffer( const BUFFER_TRAIT& trait, const void* initData = nullptr ) override;
