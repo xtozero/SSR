@@ -162,7 +162,7 @@ namespace agl
 
 		virtual void Copy( Buffer* dst, Buffer* src, uint32 size ) override;
 
-		virtual void GetRendererMultiSampleOption( MULTISAMPLE_OPTION* option ) override;
+		virtual void GetRendererMultiSampleOption( MultiSampleOption* option ) override;
 
 		virtual ICommandList* GetCommandList() override;
 		virtual IParallelCommandList* GetParallelCommandList() override;
@@ -405,7 +405,7 @@ namespace agl
 		m_pd3d11DeviceContext->CopySubresourceRegion( dstBuffer, 0, 0, 0, 0, srcBuffer, 0, &srcBox );
 	}
 
-	void CDirect3D11::GetRendererMultiSampleOption( MULTISAMPLE_OPTION* option )
+	void CDirect3D11::GetRendererMultiSampleOption( MultiSampleOption* option )
 	{
 		assert( option != nullptr );
 		option->m_count = m_multiSampleOption.Count;
