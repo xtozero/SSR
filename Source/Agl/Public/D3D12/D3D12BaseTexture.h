@@ -17,7 +17,7 @@ namespace agl
 			return m_resourceInfo.m_resource;
 		}
 
-		D3D12Texture( const TEXTURE_TRAIT& trait, const ResourceInitData* initData );
+		D3D12Texture( const TextureTrait& trait, const ResourceInitData* initData );
 		D3D12Texture() = default;
 		D3D12Texture( const D3D12Texture& ) = delete;
 		D3D12Texture& operator=( const D3D12Texture& ) = delete;
@@ -92,7 +92,7 @@ namespace agl
 	class D3D12BaseTexture1D final : public D3D12Texture
 	{
 	public:
-		D3D12BaseTexture1D( const TEXTURE_TRAIT& trait, const ResourceInitData* initData );
+		D3D12BaseTexture1D( const TextureTrait& trait, const ResourceInitData* initData );
 
 	protected:
 		virtual void CreateRenderTarget() override {};
@@ -104,7 +104,7 @@ namespace agl
 	class D3D12BaseTexture2D final : public D3D12Texture
 	{
 	public:
-		D3D12BaseTexture2D( const TEXTURE_TRAIT& trait, const ResourceInitData* initData );
+		D3D12BaseTexture2D( const TextureTrait& trait, const ResourceInitData* initData );
 		D3D12BaseTexture2D( ID3D12Resource* texture, const D3D12_RESOURCE_DESC* desc = nullptr );
 
 	protected:
@@ -117,7 +117,7 @@ namespace agl
 	class D3D12BaseTexture3D final : public D3D12Texture
 	{
 	public:
-		D3D12BaseTexture3D( const TEXTURE_TRAIT& trait, const ResourceInitData* initData );
+		D3D12BaseTexture3D( const TextureTrait& trait, const ResourceInitData* initData );
 
 	protected:
 		virtual void CreateRenderTarget() override {};

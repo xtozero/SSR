@@ -7,7 +7,7 @@
 
 namespace agl
 {
-	RefHandle<Texture> Texture::Create( const TEXTURE_TRAIT& trait, const ResourceInitData* initData )
+	RefHandle<Texture> Texture::Create( const TextureTrait& trait, const ResourceInitData* initData )
 	{
 		return GetInterface<IResourceManager>( )->CreateTexture( trait, initData );
 	}
@@ -22,7 +22,7 @@ namespace agl
 		m_state = state;
 	}
 
-	const TEXTURE_TRAIT& Texture::GetTrait() const
+	const TextureTrait& Texture::GetTrait() const
 	{
 		return m_trait;
 	}
@@ -44,17 +44,17 @@ namespace agl
 		commandList.Transition( 1, &transition );
 	}
 
-	bool IsTexture1D( const TEXTURE_TRAIT& trait )
+	bool IsTexture1D( const TextureTrait& trait )
 	{
 		return trait.m_height <= 1;
 	}
 
-	bool IsTexture2D( const TEXTURE_TRAIT& trait )
+	bool IsTexture2D( const TextureTrait& trait )
 	{
 		return ( trait.m_height > 1 ) && ( ( trait.m_miscFlag & ResourceMisc::Texture3D ) == ResourceMisc::None );
 	}
 
-	bool IsTexture3D( const TEXTURE_TRAIT& trait )
+	bool IsTexture3D( const TextureTrait& trait )
 	{
 		return ( trait.m_miscFlag & ResourceMisc::Texture3D ) != ResourceMisc::None;
 	}

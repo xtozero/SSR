@@ -327,7 +327,7 @@ namespace rendercore
 		{
 			auto [width, height] = shadow->ShadowMapSize();
 
-			agl::TEXTURE_TRAIT trait = { 
+			agl::TextureTrait trait = { 
 				.m_width = width,
 				.m_height = height,
 				.m_depth = CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
@@ -345,7 +345,7 @@ namespace rendercore
 
 			shadow->ShadowMap().m_shadowMap = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait );
 
-			agl::TEXTURE_TRAIT depthTrait = { width,
+			agl::TextureTrait depthTrait = { width,
 				height,
 				CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
 				1,

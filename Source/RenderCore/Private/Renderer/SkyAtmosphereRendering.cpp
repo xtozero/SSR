@@ -268,7 +268,7 @@ namespace rendercore
 	{
 		SkyAtmosphereRenderSceneInfo& info = *scene.SkyAtmosphereSceneInfo();
 
-		agl::TEXTURE_TRAIT transmittanceLut = {
+		agl::TextureTrait transmittanceLut = {
 			.m_width = TRANSMITTANCE_W,
 			.m_height = TRANSMITTANCE_H,
 			.m_depth = 1,
@@ -288,7 +288,7 @@ namespace rendercore
 				texture->Init();
 			} );
 
-		agl::TEXTURE_TRAIT irradianceLut = {
+		agl::TextureTrait irradianceLut = {
 			.m_width = IRRADIANCE_W,
 			.m_height = IRRADIANCE_H,
 			.m_depth = 1,
@@ -308,7 +308,7 @@ namespace rendercore
 				texture->Init();
 			} );
 
-		agl::TEXTURE_TRAIT inscatterLut = {
+		agl::TextureTrait inscatterLut = {
 			.m_width = RES_MU_S * RES_NU,
 			.m_height = RES_MU,
 			.m_depth = RES_R,
@@ -360,7 +360,7 @@ namespace rendercore
 		commandList.Dispatch( TRANSMITTANCE_GROUP_X, TRANSMITTANCE_GROUP_Y );
 
 		// 2. Ground irradiance due to direct sunlight
-		agl::TEXTURE_TRAIT deltaE = {
+		agl::TextureTrait deltaE = {
 			.m_width = IRRADIANCE_W,
 			.m_height = IRRADIANCE_H,
 			.m_depth = 1,
@@ -390,7 +390,7 @@ namespace rendercore
 		commandList.Dispatch( IRRADIANCE_GROUP_X, IRRADIANCE_GROUP_Y );
 
 		// 3. Compute single scattering texture deltaS
-		agl::TEXTURE_TRAIT deltaS = {
+		agl::TextureTrait deltaS = {
 			.m_width = RES_MU_S * RES_NU,
 			.m_height = RES_MU,
 			.m_depth = RES_R,
@@ -572,7 +572,7 @@ namespace rendercore
 
 			commandList.CopyResource( irradianceReadBack, irradianceBuffer );
 
-			agl::TEXTURE_TRAIT intermediate = {
+			agl::TextureTrait intermediate = {
 				.m_width = IRRADIANCE_W,
 				.m_height = IRRADIANCE_H,
 				.m_depth = 1,
@@ -623,7 +623,7 @@ namespace rendercore
 
 			commandList.CopyResource( inscatterReadBack, inscatterBuffer );
 
-			agl::TEXTURE_TRAIT intermediate = {
+			agl::TextureTrait intermediate = {
 				.m_width = RES_MU_S * RES_NU,
 				.m_height = RES_MU,
 				.m_depth = RES_R,

@@ -18,7 +18,7 @@ namespace agl
 			return m_texture;
 		}
 
-		D3D11Texture( const TEXTURE_TRAIT& trait, const ResourceInitData* initData ) : TextureBase( trait, initData ) 
+		D3D11Texture( const TextureTrait& trait, const ResourceInitData* initData ) : TextureBase( trait, initData ) 
 		{
 			if ( initData )
 			{
@@ -102,7 +102,7 @@ namespace agl
 	class D3D11BaseTexture1D final : public D3D11Texture<ID3D11Texture1D>
 	{
 	public:
-		D3D11BaseTexture1D( const TEXTURE_TRAIT& trait, const ResourceInitData* initData );
+		D3D11BaseTexture1D( const TextureTrait& trait, const ResourceInitData* initData );
 
 	protected:
 		virtual void CreateTexture() override;
@@ -119,7 +119,7 @@ namespace agl
 	class D3D11BaseTexture2D final : public D3D11Texture<ID3D11Texture2D>
 	{
 	public:
-		D3D11BaseTexture2D( const TEXTURE_TRAIT& trait, const ResourceInitData* initData );
+		D3D11BaseTexture2D( const TextureTrait& trait, const ResourceInitData* initData );
 		explicit D3D11BaseTexture2D( ID3D11Texture2D* texture );
 
 	protected:
@@ -137,7 +137,7 @@ namespace agl
 	class D3D11BaseTexture3D final : public D3D11Texture<ID3D11Texture3D>
 	{
 	public:
-		D3D11BaseTexture3D( const TEXTURE_TRAIT& trait, const ResourceInitData* initData );
+		D3D11BaseTexture3D( const TextureTrait& trait, const ResourceInitData* initData );
 
 	protected:
 		virtual void CreateTexture() override;

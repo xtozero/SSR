@@ -20,7 +20,7 @@ namespace agl
 	{
 	}
 
-	Texture* D3D12ResourceManager::CreateTexture( const TEXTURE_TRAIT& trait, const ResourceInitData* initData )
+	Texture* D3D12ResourceManager::CreateTexture( const TextureTrait& trait, const ResourceInitData* initData )
 	{
 		Texture* newTexture = nullptr;
 		if ( IsTexture1D( trait ) )

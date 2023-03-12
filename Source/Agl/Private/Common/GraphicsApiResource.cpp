@@ -30,9 +30,9 @@ namespace agl
 		return m_refCount;
 	}
 
-	size_t TEXTURE_TRAIT::GetHash() const
+	size_t TextureTrait::GetHash() const
 	{
-		static size_t typeHash = typeid( TEXTURE_TRAIT ).hash_code();
+		static size_t typeHash = typeid( TextureTrait ).hash_code();
 		size_t hash = typeHash;
 
 		HashCombine( hash, m_width );

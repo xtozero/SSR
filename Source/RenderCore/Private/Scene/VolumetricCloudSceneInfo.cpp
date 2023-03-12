@@ -111,7 +111,7 @@ namespace rendercore
 
 	void VolumetricCloudSceneInfo::GenerateWeatherMap()
 	{
-		agl::TEXTURE_TRAIT trait = {
+		agl::TextureTrait trait = {
 			.m_width = 1024,
 			.m_height = 1024,
 			.m_depth = 1,
@@ -151,7 +151,7 @@ namespace rendercore
 
 	agl::RefHandle<agl::Texture> VolumetricCloudSceneInfo::CreateCloudTexture( uint32 texSize )
 	{
-		agl::TEXTURE_TRAIT trait = {
+		agl::TextureTrait trait = {
 			.m_width = texSize,
 			.m_height = texSize,
 			.m_depth = texSize,

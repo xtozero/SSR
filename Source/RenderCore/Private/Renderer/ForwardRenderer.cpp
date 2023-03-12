@@ -65,7 +65,7 @@ namespace rendercore
 	{
 		if ( m_depthStencil == nullptr )
 		{
-			agl::TEXTURE_TRAIT trait = {
+			agl::TextureTrait trait = {
 				m_bufferSize.first,
 				m_bufferSize.second,
 				1,
@@ -91,7 +91,7 @@ namespace rendercore
 	{
 		if ( m_linearDepth == nullptr )
 		{
-			agl::TEXTURE_TRAIT trait = {
+			agl::TextureTrait trait = {
 				.m_width = m_bufferSize.first,
 				.m_height = m_bufferSize.second,
 				.m_depth = 1,
@@ -120,7 +120,7 @@ namespace rendercore
 	{
 		if ( m_taaHistory == nullptr )
 		{
-			agl::TEXTURE_TRAIT trait =
+			agl::TextureTrait trait =
 			{
 				.m_width = m_bufferSize.first,
 				.m_height = m_bufferSize.second,
@@ -144,7 +144,7 @@ namespace rendercore
 
 		if ( m_taaResolve == nullptr )
 		{
-			agl::TEXTURE_TRAIT trait =
+			agl::TextureTrait trait =
 			{
 				.m_width = m_bufferSize.first,
 				.m_height = m_bufferSize.second,
@@ -171,7 +171,7 @@ namespace rendercore
 	{
 		if ( m_worldNormal == nullptr )
 		{
-			agl::TEXTURE_TRAIT trait = {
+			agl::TextureTrait trait = {
 				.m_width = m_bufferSize.first,
 				.m_height = m_bufferSize.second,
 				.m_depth = 1,
@@ -200,7 +200,7 @@ namespace rendercore
 	{
 		if ( m_velocity == nullptr )
 		{
-			agl::TEXTURE_TRAIT trait = {
+			agl::TextureTrait trait = {
 				.m_width = m_bufferSize.first,
 				.m_height = m_bufferSize.second,
 				.m_depth = 1,

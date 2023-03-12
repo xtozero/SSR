@@ -6,7 +6,7 @@
 
 namespace agl
 {
-	D3D11_TEXTURE1D_DESC ConvertTraitTo1DDesc( const TEXTURE_TRAIT& trait )
+	D3D11_TEXTURE1D_DESC ConvertTraitTo1DDesc( const TextureTrait& trait )
 	{
 		DXGI_FORMAT format = ConvertFormatToDxgiFormat( trait.m_format );
 		D3D11_USAGE usage = ConvertAccessFlagToUsage( trait.m_access );
@@ -31,7 +31,7 @@ namespace agl
 		};
 	}
 
-	D3D11_TEXTURE2D_DESC ConvertTraitTo2DDesc( const TEXTURE_TRAIT& trait )
+	D3D11_TEXTURE2D_DESC ConvertTraitTo2DDesc( const TextureTrait& trait )
 	{
 		DXGI_FORMAT format = ConvertFormatToDxgiFormat( trait.m_format );
 		DXGI_SAMPLE_DESC SampleDesc = { trait.m_sampleCount, trait.m_sampleQuality };
@@ -59,7 +59,7 @@ namespace agl
 		};
 	}
 
-	D3D11_TEXTURE3D_DESC ConvertTraitTo3DDesc( const TEXTURE_TRAIT& trait )
+	D3D11_TEXTURE3D_DESC ConvertTraitTo3DDesc( const TextureTrait& trait )
 	{
 		DXGI_FORMAT format = ConvertFormatToDxgiFormat( trait.m_format );
 		D3D11_USAGE usage = ConvertAccessFlagToUsage( trait.m_access );
@@ -85,14 +85,14 @@ namespace agl
 		};
 	}
 
-	TEXTURE_TRAIT ConvertDescToTrait( const D3D11_TEXTURE2D_DESC& desc )
+	TextureTrait ConvertDescToTrait( const D3D11_TEXTURE2D_DESC& desc )
 	{
 		ResourceFormat format = ConvertDxgiFormatToFormat( desc.Format );
 		ResourceAccessFlag access = ConvertUsageToAccessFlag( desc.Usage );
 		ResourceBindType bindType = ConvertBindToType( desc.BindFlags );
 		ResourceMisc miscFlag = ConvertDXMiscToMisc( desc.MiscFlags );
 
-		return TEXTURE_TRAIT{
+		return TextureTrait{
 			desc.Width,
 			desc.Height,
 			desc.ArraySize,
@@ -306,7 +306,7 @@ namespace agl
 		return dsv;
 	}
 
-	D3D11BaseTexture1D::D3D11BaseTexture1D( const TEXTURE_TRAIT& trait, const ResourceInitData* initData )
+	D3D11BaseTexture1D::D3D11BaseTexture1D( const TextureTrait& trait, const ResourceInitData* initData )
 		: D3D11Texture<ID3D11Texture1D>( trait, initData )
 	{
 	}
@@ -333,7 +333,7 @@ namespace agl
 		m_uav->Init();
 	}
 
-	D3D11BaseTexture2D::D3D11BaseTexture2D( const TEXTURE_TRAIT& trait, const ResourceInitData* initData )
+	D3D11BaseTexture2D::D3D11BaseTexture2D( const TextureTrait& trait, const ResourceInitData* initData )
 		: D3D11Texture<ID3D11Texture2D>( trait, initData )
 	{
 	}
@@ -384,7 +384,7 @@ namespace agl
 		m_dsv->Init();
 	}
 
-	D3D11BaseTexture3D::D3D11BaseTexture3D( const TEXTURE_TRAIT& trait, const ResourceInitData* initData )
+	D3D11BaseTexture3D::D3D11BaseTexture3D( const TextureTrait& trait, const ResourceInitData* initData )
 		: D3D11Texture<ID3D11Texture3D>( trait, initData )
 	{
 	}
