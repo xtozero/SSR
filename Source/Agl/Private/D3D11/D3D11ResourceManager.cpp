@@ -111,7 +111,7 @@ namespace agl
 		return depthStencilState;
 	}
 
-	RasterizerState* CD3D11ResourceManager::CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait )
+	RasterizerState* CD3D11ResourceManager::CreateRasterizerState( const RasterizerStateTrait& trait )
 	{
 		auto rasterizerState = new D3D11RasterizerState( trait );
 

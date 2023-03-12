@@ -16,7 +16,7 @@ namespace agl
 		return GetInterface<IResourceManager>()->CreateDepthStencilState( trait );
 	}
 
-	RefHandle<RasterizerState> RasterizerState::Create( const RASTERIZER_STATE_TRAIT& trait )
+	RefHandle<RasterizerState> RasterizerState::Create( const RasterizerStateTrait& trait )
 	{
 		return GetInterface<IResourceManager>()->CreateRasterizerState( trait );
 	}
