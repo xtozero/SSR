@@ -34,7 +34,7 @@ namespace agl
 	class VertexLayout : public DeviceDependantResource
 	{
 	public:
-		AGL_DLL static RefHandle<VertexLayout> Create( const VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, uint32 size );
+		AGL_DLL static RefHandle<VertexLayout> Create( const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size );
 	};
 
 	class GraphicsPipelineStateInitializer

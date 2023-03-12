@@ -12,7 +12,7 @@ namespace agl
 	public:
 		const std::vector<D3D12_INPUT_ELEMENT_DESC>& GetDesc() const;
 
-		D3D12VertexLayout( const VERTEX_LAYOUT_TRAIT* trait, uint32 size );
+		D3D12VertexLayout( const VertexLayoutTrait* trait, uint32 size );
 		D3D12VertexLayout( const D3D12VertexLayout& ) = delete;
 		D3D12VertexLayout( D3D12VertexLayout&& ) = delete;
 		D3D12VertexLayout& operator=( const D3D12VertexLayout& ) = delete;
