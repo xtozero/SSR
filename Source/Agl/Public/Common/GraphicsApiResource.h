@@ -615,7 +615,7 @@ namespace agl
 		uint8 m_stencil;
 	};
 
-	struct BUFFER_TRAIT
+	struct BufferTrait
 	{
 		uint32 m_stride;
 		uint32 m_count;

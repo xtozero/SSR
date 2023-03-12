@@ -54,7 +54,7 @@ namespace agl
 		return newTexture;
 	}
 
-	Buffer* CD3D11ResourceManager::CreateBuffer( const BUFFER_TRAIT& trait, const void* initData )
+	Buffer* CD3D11ResourceManager::CreateBuffer( const BufferTrait& trait, const void* initData )
 	{
 		Buffer* newBuffer = new D3D11Buffer( trait, initData );
 

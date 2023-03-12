@@ -34,7 +34,7 @@ void CDynamicBuffer::OnDeviceRestore( CGameLogic& gameLogic )
 //{
 //	using namespace RESOURCE_ACCESS_FLAG;
 //
-//	BUFFER_TRAIT trait = {
+//	BufferTrait trait = {
 //		bufferSize,
 //		1U,
 //		GPU_READ | CPU_WRITE,

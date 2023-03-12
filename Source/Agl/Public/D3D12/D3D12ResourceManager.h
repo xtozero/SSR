@@ -16,7 +16,7 @@ namespace agl
 		virtual Texture* CreateTexture( const TextureTrait& trait, const ResourceInitData* initData = nullptr ) override;
 
 		// Buffer
-		virtual Buffer* CreateBuffer( const BUFFER_TRAIT& trait, const void* initData = nullptr ) override;
+		virtual Buffer* CreateBuffer( const BufferTrait& trait, const void* initData = nullptr ) override;
 
 		// Shader
 		virtual VertexLayout* CreateVertexLayout( const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size ) override;

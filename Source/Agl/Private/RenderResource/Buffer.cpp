@@ -6,7 +6,7 @@
 
 namespace agl
 {
-	RefHandle<Buffer> Buffer::Create( const BUFFER_TRAIT& trait, const void* initData )
+	RefHandle<Buffer> Buffer::Create( const BufferTrait& trait, const void* initData )
 	{
 		return GetInterface<IResourceManager>()->CreateBuffer( trait, initData );
 	}

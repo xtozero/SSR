@@ -44,7 +44,7 @@ namespace rendercore
 	{
 		if ( m_elementSize > 0 && m_numElement > 0 )
 		{
-			agl::BUFFER_TRAIT trait = {
+			agl::BufferTrait trait = {
 				m_elementSize,
 				m_numElement,
 				agl::ResourceAccessFlag::GpuRead |

@@ -9,7 +9,7 @@ namespace agl
 	class Buffer : public DeviceDependantResource, public IResourceViews, public ITransitionable
 	{
 	public:
-		AGL_DLL static RefHandle<Buffer> Create( const BUFFER_TRAIT& trait, const void* initData = nullptr );
+		AGL_DLL static RefHandle<Buffer> Create( const BufferTrait& trait, const void* initData = nullptr );
 
 		virtual void* Resource() const = 0;
 
@@ -29,7 +29,7 @@ namespace agl
 		virtual void SetState( ResourceState state ) override;
 
 	protected:
-		BUFFER_TRAIT m_trait;
+		BufferTrait m_trait;
 
 		RefHandle<ShaderResourceView> m_srv;
 		RefHandle<UnorderedAccessView> m_uav;

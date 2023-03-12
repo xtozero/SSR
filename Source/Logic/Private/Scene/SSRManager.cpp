@@ -205,7 +205,7 @@ bool CSSRManager::CreateAppSizeDependentResource( IRenderer& renderer )
 bool CSSRManager::CreateDeviceDependendResource( CGameLogic& gameLogic )
 {
 	//// Create Constant Buffer
-	//BUFFER_TRAIT trait = { sizeof( SSRConstantBuffer ),
+	//BufferTrait trait = { sizeof( SSRConstantBuffer ),
 	//	1,
 	//	RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
 	//	RESOURCE_BIND_TYPE::CONSTANT_BUFFER,

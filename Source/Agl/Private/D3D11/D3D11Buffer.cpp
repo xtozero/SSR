@@ -5,7 +5,7 @@
 #include "D3D11FlagConvertor.h"
 #include "D3D11ResourceViews.h"
 
-using ::agl::BUFFER_TRAIT;
+using ::agl::BufferTrait;
 using ::agl::ConvertAccessFlagToCpuFlag;
 using ::agl::ConvertAccessFlagToUsage;
 using ::agl::ConvertMicsToDXMisc;
@@ -14,7 +14,7 @@ using ::agl::ResourceMisc;
 
 namespace
 {
-	D3D11_BUFFER_DESC ConvertTraitToDesc( const BUFFER_TRAIT& trait )
+	D3D11_BUFFER_DESC ConvertTraitToDesc( const BufferTrait& trait )
 	{
 		uint32 byteWidth = trait.m_count * trait.m_stride;
 		D3D11_USAGE usage = ConvertAccessFlagToUsage( trait.m_access );
@@ -108,7 +108,7 @@ namespace agl
 		return m_desc.StructureByteStride;
 	}
 
-	D3D11Buffer::D3D11Buffer( const BUFFER_TRAIT& trait, const void* initData )
+	D3D11Buffer::D3D11Buffer( const BufferTrait& trait, const void* initData )
 	{
 		m_trait = trait;
 		m_desc = ConvertTraitToDesc( m_trait );

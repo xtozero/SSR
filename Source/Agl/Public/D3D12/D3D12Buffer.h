@@ -22,7 +22,7 @@ namespace agl
 
 		const D3D12_RESOURCE_DESC& Desc() const;
 
-		D3D12Buffer( const BUFFER_TRAIT& trait, const void* initData );
+		D3D12Buffer( const BufferTrait& trait, const void* initData );
 		virtual ~D3D12Buffer() override;
 		D3D12Buffer( const D3D12Buffer& ) = delete;
 		D3D12Buffer& operator=( const D3D12Buffer& ) = delete;
@@ -52,7 +52,7 @@ namespace agl
 	public:
 		D3D12ConstantBufferView* CBV() const;
 
-		D3D12ConstantBuffer( const BUFFER_TRAIT& trait, const void* initData );
+		D3D12ConstantBuffer( const BufferTrait& trait, const void* initData );
 		virtual ~D3D12ConstantBuffer() override = default;
 		D3D12ConstantBuffer( const D3D12ConstantBuffer& ) = delete;
 		D3D12ConstantBuffer& operator=( const D3D12ConstantBuffer& ) = delete;
@@ -70,7 +70,7 @@ namespace agl
 	class D3D12IndexBuffer : public D3D12Buffer
 	{
 	public:
-		D3D12IndexBuffer( const BUFFER_TRAIT& trait, const void* initData );
+		D3D12IndexBuffer( const BufferTrait& trait, const void* initData );
 		virtual ~D3D12IndexBuffer() override = default;
 		D3D12IndexBuffer( const D3D12IndexBuffer& ) = delete;
 		D3D12IndexBuffer& operator=( const D3D12IndexBuffer& ) = delete;
@@ -87,7 +87,7 @@ namespace agl
 	class D3D12VertexBuffer : public D3D12Buffer
 	{
 	public:
-		D3D12VertexBuffer( const BUFFER_TRAIT& trait, const void* initData );
+		D3D12VertexBuffer( const BufferTrait& trait, const void* initData );
 		virtual ~D3D12VertexBuffer() override = default;
 		D3D12VertexBuffer( const D3D12VertexBuffer& ) = delete;
 		D3D12VertexBuffer& operator=( const D3D12VertexBuffer& ) = delete;

@@ -22,7 +22,7 @@ namespace rendercore
 
 	void IndexBuffer::InitResource( const void* initData )
 	{
-		agl::BUFFER_TRAIT trait = {
+		agl::BufferTrait trait = {
 			m_isDWORD ? sizeof( uint32 ) : sizeof( uint16 ),
 			m_numElement,
 			agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,

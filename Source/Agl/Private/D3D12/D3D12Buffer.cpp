@@ -7,7 +7,7 @@
 #include "Math/Util.h"
 #include "Multithread/TaskScheduler.h"
 
-using ::agl::BUFFER_TRAIT;
+using ::agl::BufferTrait;
 using ::agl::ConvertAccessFlagToHeapType;
 using ::agl::D3D12HeapProperties;
 using ::agl::ResourceBindType;
@@ -15,7 +15,7 @@ using ::agl::ResourceMisc;
 
 namespace
 {
-	D3D12HeapProperties ConvertToHeapProperties( const BUFFER_TRAIT& trait )
+	D3D12HeapProperties ConvertToHeapProperties( const BufferTrait& trait )
 	{
 		D3D12HeapProperties properties = {
 			.m_alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT,
@@ -26,7 +26,7 @@ namespace
 		return properties;
 	}
 
-	D3D12_RESOURCE_FLAGS GetResourceFlags( const BUFFER_TRAIT& trait )
+	D3D12_RESOURCE_FLAGS GetResourceFlags( const BufferTrait& trait )
 	{
 		D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE;
 
@@ -38,7 +38,7 @@ namespace
 		return flags;
 	}
 
-	D3D12_RESOURCE_DESC ConvertTraitToDesc( const BUFFER_TRAIT& trait )
+	D3D12_RESOURCE_DESC ConvertTraitToDesc( const BufferTrait& trait )
 	{
 		uint64 bufferSize = trait.m_stride * trait.m_count;
 		
@@ -61,7 +61,7 @@ namespace
 		return desc;
 	}
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertDescToSRV( const BUFFER_TRAIT& trait, DXGI_FORMAT format )
+	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertDescToSRV( const BufferTrait& trait, DXGI_FORMAT format )
 	{
 		bool bStructured = HasAnyFlags( trait.m_miscFlag, ResourceMisc::BufferStructured );
 		bool bAllowRawViews = HasAnyFlags( trait.m_miscFlag, ResourceMisc::BufferAllowRawViews );
@@ -90,7 +90,7 @@ namespace
 		return srv;
 	}
 
-	D3D12_UNORDERED_ACCESS_VIEW_DESC ConvertDescToUAV( const BUFFER_TRAIT& trait, DXGI_FORMAT format )
+	D3D12_UNORDERED_ACCESS_VIEW_DESC ConvertDescToUAV( const BufferTrait& trait, DXGI_FORMAT format )
 	{
 		bool bStructured = HasAnyFlags( trait.m_miscFlag, ResourceMisc::BufferStructured );
 		bool bAllowRawViews = HasAnyFlags( trait.m_miscFlag, ResourceMisc::BufferAllowRawViews );
@@ -119,7 +119,7 @@ namespace
 		return uav;
 	}
 
-	D3D12_RESOURCE_STATES ConvertToStates( [[maybe_unused]] const BUFFER_TRAIT& trait )
+	D3D12_RESOURCE_STATES ConvertToStates( [[maybe_unused]] const BufferTrait& trait )
 	{
 		D3D12_RESOURCE_STATES states = D3D12_RESOURCE_STATE_GENERIC_READ;
 		return states;
@@ -153,7 +153,7 @@ namespace agl
 		return m_desc;
 	}
 
-	D3D12Buffer::D3D12Buffer( const BUFFER_TRAIT& trait, const void* initData )
+	D3D12Buffer::D3D12Buffer( const BufferTrait& trait, const void* initData )
 		: m_desc( ConvertTraitToDesc( trait ) )
 	{
 		m_trait = trait;
@@ -259,7 +259,7 @@ namespace agl
 		return m_cbv[GetFrameIndex()].Get();
 	}
 
-	D3D12ConstantBuffer::D3D12ConstantBuffer( const BUFFER_TRAIT& trait, const void* initData )
+	D3D12ConstantBuffer::D3D12ConstantBuffer( const BufferTrait& trait, const void* initData )
 		: D3D12Buffer( trait, initData )
 	{
 		m_desc.Width = CalcAlignment<uint64>( m_desc.Width, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT );
@@ -292,7 +292,7 @@ namespace agl
 		D3D12Buffer::DestroyBuffer();
 	}
 
-	D3D12IndexBuffer::D3D12IndexBuffer( const BUFFER_TRAIT& trait, const void* initData )
+	D3D12IndexBuffer::D3D12IndexBuffer( const BufferTrait& trait, const void* initData )
 		: D3D12Buffer( trait, initData )
 	{
 	}
@@ -308,7 +308,7 @@ namespace agl
 		};
 	}
 
-	D3D12VertexBuffer::D3D12VertexBuffer( const BUFFER_TRAIT& trait, const void* initData )
+	D3D12VertexBuffer::D3D12VertexBuffer( const BufferTrait& trait, const void* initData )
 		: D3D12Buffer( trait, initData )
 	{
 	}
