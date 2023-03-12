@@ -150,7 +150,7 @@ bool CSSRManager::CreateAppSizeDependentResource( IRenderer& renderer )
 	//IResourceManager& resourceMgr = renderer.GetResourceManager( );
 
 	//std::string ssrTextureName( "ScreenSpaceReflect" );
-	//TEXTURE_TRAIT ssrTexTrait = {
+	//TextureTrait ssrTexTrait = {
 	//	0U,
 	//	0U,
 	//	1U,

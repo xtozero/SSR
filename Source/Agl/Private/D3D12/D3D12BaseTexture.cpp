@@ -13,11 +13,11 @@ using ::agl::ResourceBindType;
 using ::agl::ResourceClearValue;
 using ::agl::ResourceFormat;
 using ::agl::ResourceMisc;
-using ::agl::TEXTURE_TRAIT;
+using ::agl::TextureTrait;
 
 namespace
 {
-	D3D12_RESOURCE_DIMENSION GetResourceDimension( const TEXTURE_TRAIT& trait )
+	D3D12_RESOURCE_DIMENSION GetResourceDimension( const TextureTrait& trait )
 	{
 		if ( trait.m_miscFlag == ResourceMisc::Texture3D )
 		{
@@ -33,7 +33,7 @@ namespace
 		}
 	}
 
-	D3D12_RESOURCE_FLAGS GetResourceFlags( const TEXTURE_TRAIT& trait )
+	D3D12_RESOURCE_FLAGS GetResourceFlags( const TextureTrait& trait )
 	{
 		D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE;
 
@@ -59,7 +59,7 @@ namespace
 		return flags;
 	}
 
-	D3D12_RESOURCE_DESC ConvertTraitToDesc( const TEXTURE_TRAIT& trait )
+	D3D12_RESOURCE_DESC ConvertTraitToDesc( const TextureTrait& trait )
 	{
 		uint64 alignment = ( trait.m_sampleCount > 1 ) ? D3D12_DEFAULT_MSAA_RESOURCE_PLACEMENT_ALIGNMENT : D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
 
@@ -82,13 +82,13 @@ namespace
 		return desc;
 	}
 
-	TEXTURE_TRAIT ConvertDescToTrait( const D3D12_RESOURCE_DESC& desc, const D3D12_HEAP_PROPERTIES& heapProperties )
+	TextureTrait ConvertDescToTrait( const D3D12_RESOURCE_DESC& desc, const D3D12_HEAP_PROPERTIES& heapProperties )
 	{
 		ResourceFormat format = ConvertDxgiFormatToFormat( desc.Format );
 		ResourceBindType bindType = ConvertResourceFlagsToBindType( desc.Flags );
 		ResourceAccessFlag access = ConvertHeapTypeToAccessFlag( heapProperties.Type );
 
-		return TEXTURE_TRAIT{
+		return TextureTrait{
 			.m_width = static_cast<uint32>( desc.Width ),
 			.m_height = static_cast<uint32>( desc.Height ),
 			.m_depth = static_cast<uint32>( desc.DepthOrArraySize ),
@@ -102,7 +102,7 @@ namespace
 		};
 	}
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertTraitToNonMultiSampleSRV( const TEXTURE_TRAIT& trait )
+	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertTraitToNonMultiSampleSRV( const TextureTrait& trait )
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srv = {};
 		srv.Format = ConvertFormatToDxgiFormat( trait.m_format );
@@ -196,7 +196,7 @@ namespace
 		return srv;
 	}
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertTraitToMultiSampleSRV( const TEXTURE_TRAIT& trait )
+	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertTraitToMultiSampleSRV( const TextureTrait& trait )
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srv = {};
 		srv.Format = ConvertFormatToDxgiFormat( trait.m_format );
@@ -224,7 +224,7 @@ namespace
 		return srv;
 	}
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertTraitToSRV( const TEXTURE_TRAIT& trait )
+	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertTraitToSRV( const TextureTrait& trait )
 	{
 		if ( trait.m_sampleCount <= 1 )
 		{
@@ -236,7 +236,7 @@ namespace
 		}
 	}
 
-	D3D12_UNORDERED_ACCESS_VIEW_DESC ConvertTraitToUAV( const TEXTURE_TRAIT& trait )
+	D3D12_UNORDERED_ACCESS_VIEW_DESC ConvertTraitToUAV( const TextureTrait& trait )
 	{
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uav = {
 			.Format = ConvertFormatToDxgiFormat( trait.m_format )
@@ -295,7 +295,7 @@ namespace
 		return uav;
 	}
 
-	D3D12_RENDER_TARGET_VIEW_DESC ConvertTraitToNonMultiSampleRTV( const TEXTURE_TRAIT& trait )
+	D3D12_RENDER_TARGET_VIEW_DESC ConvertTraitToNonMultiSampleRTV( const TextureTrait& trait )
 	{
 		D3D12_RENDER_TARGET_VIEW_DESC rtv = {
 			.Format = ConvertFormatToDxgiFormat( trait.m_format )
@@ -354,7 +354,7 @@ namespace
 		return rtv;
 	}
 
-	D3D12_RENDER_TARGET_VIEW_DESC ConvertTraitToMultiSampleRTV( const TEXTURE_TRAIT& trait )
+	D3D12_RENDER_TARGET_VIEW_DESC ConvertTraitToMultiSampleRTV( const TextureTrait& trait )
 	{
 		D3D12_RENDER_TARGET_VIEW_DESC rtv = {
 			.Format = ConvertFormatToDxgiFormat( trait.m_format )
@@ -382,7 +382,7 @@ namespace
 		return rtv;
 	}
 
-	D3D12_RENDER_TARGET_VIEW_DESC ConvertTraitToRTV( const TEXTURE_TRAIT& trait )
+	D3D12_RENDER_TARGET_VIEW_DESC ConvertTraitToRTV( const TextureTrait& trait )
 	{
 		if ( trait.m_sampleCount > 1 )
 		{
@@ -394,7 +394,7 @@ namespace
 		}
 	}
 
-	D3D12_DEPTH_STENCIL_VIEW_DESC ConvertTraitToNonMultiSampleDSV( const TEXTURE_TRAIT& trait )
+	D3D12_DEPTH_STENCIL_VIEW_DESC ConvertTraitToNonMultiSampleDSV( const TextureTrait& trait )
 	{
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {
 			.Format = ConvertFormatToDxgiFormat( trait.m_format )
@@ -443,7 +443,7 @@ namespace
 		return dsv;
 	}
 
-	D3D12_DEPTH_STENCIL_VIEW_DESC ConvertTraitToMultiSampleDSV( const TEXTURE_TRAIT& trait )
+	D3D12_DEPTH_STENCIL_VIEW_DESC ConvertTraitToMultiSampleDSV( const TextureTrait& trait )
 	{
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {
 			.Format = ConvertFormatToDxgiFormat( trait.m_format )
@@ -471,7 +471,7 @@ namespace
 		return dsv;
 	}
 
-	D3D12_DEPTH_STENCIL_VIEW_DESC ConvertTraitToDSV( const TEXTURE_TRAIT& trait )
+	D3D12_DEPTH_STENCIL_VIEW_DESC ConvertTraitToDSV( const TextureTrait& trait )
 	{
 		if ( trait.m_sampleCount > 1 )
 		{
@@ -495,7 +495,7 @@ namespace
 		}
 	}
 
-	D3D12HeapProperties ConvertToHeapProperties( const TEXTURE_TRAIT& trait )
+	D3D12HeapProperties ConvertToHeapProperties( const TextureTrait& trait )
 	{
 		uint64 alignment = ( trait.m_sampleCount > 1 ) ? D3D12_DEFAULT_MSAA_RESOURCE_PLACEMENT_ALIGNMENT : D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
 
@@ -508,13 +508,13 @@ namespace
 		return properties;
 	}
 
-	D3D12_RESOURCE_STATES ConvertToStates( [[maybe_unused]] const TEXTURE_TRAIT& trait )
+	D3D12_RESOURCE_STATES ConvertToStates( [[maybe_unused]] const TextureTrait& trait )
 	{
 		D3D12_RESOURCE_STATES states = D3D12_RESOURCE_STATE_COMMON;
 		return states;
 	}
 
-	D3D12_CLEAR_VALUE ConvertToClearValue( const TEXTURE_TRAIT& trait )
+	D3D12_CLEAR_VALUE ConvertToClearValue( const TextureTrait& trait )
 	{
 		if ( trait.m_clearValue.has_value() == false )
 		{
@@ -549,7 +549,7 @@ namespace
 
 namespace agl
 {
-	D3D12Texture::D3D12Texture( const TEXTURE_TRAIT& trait, const ResourceInitData* initData )
+	D3D12Texture::D3D12Texture( const TextureTrait& trait, const ResourceInitData* initData )
 		: TextureBase( trait, initData )
 		, m_desc( ConvertTraitToDesc( trait ) )
 	{
@@ -603,12 +603,12 @@ namespace agl
 		m_uav->Init();
 	}
 
-	D3D12BaseTexture1D::D3D12BaseTexture1D( const TEXTURE_TRAIT& trait, const ResourceInitData* initData )
+	D3D12BaseTexture1D::D3D12BaseTexture1D( const TextureTrait& trait, const ResourceInitData* initData )
 		: D3D12Texture( trait, initData )
 	{
 	}
 
-	D3D12BaseTexture2D::D3D12BaseTexture2D( const TEXTURE_TRAIT& trait, const ResourceInitData* initData )
+	D3D12BaseTexture2D::D3D12BaseTexture2D( const TextureTrait& trait, const ResourceInitData* initData )
 		: D3D12Texture( trait, initData )
 	{
 	}
@@ -648,7 +648,7 @@ namespace agl
 		m_dsv->Init();
 	}
 
-	D3D12BaseTexture3D::D3D12BaseTexture3D( const TEXTURE_TRAIT& trait, const ResourceInitData* initData )
+	D3D12BaseTexture3D::D3D12BaseTexture3D( const TextureTrait& trait, const ResourceInitData* initData )
 		: D3D12Texture( trait, initData )
 	{
 	}

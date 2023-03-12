@@ -7,7 +7,7 @@
 struct BUFFER_TRAIT;
 struct ResourceInitData;
 struct ResourceRegion;
-struct TEXTURE_TRAIT;
+struct TextureTrait;
 struct VertexLayoutTrait;
 
 namespace agl
@@ -35,7 +35,7 @@ namespace agl
 	public:
 		virtual void Shutdown() = 0;
 
-		virtual Texture* CreateTexture( const TEXTURE_TRAIT& trait, const ResourceInitData* initData = nullptr ) = 0;
+		virtual Texture* CreateTexture( const TextureTrait& trait, const ResourceInitData* initData = nullptr ) = 0;
 
 		virtual Buffer* CreateBuffer( const BUFFER_TRAIT& trait, const void* initData = nullptr ) = 0;
 

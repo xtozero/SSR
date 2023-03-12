@@ -57,7 +57,7 @@ namespace rendercore
 		return *this;
 	}
 
-	agl::RefHandle<agl::Texture> RenderTargetPool::FindFreeRenderTarget( const agl::TEXTURE_TRAIT& trait )
+	agl::RefHandle<agl::Texture> RenderTargetPool::FindFreeRenderTarget( const agl::TextureTrait& trait )
 	{
 		for ( PooledRenderTarget& renderTarget : m_pooledRenderTargets )
 		{

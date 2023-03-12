@@ -14,7 +14,7 @@ namespace agl
 	class Texture : public DeviceDependantResource, public IResourceViews, public ITransitionable
 	{
 	public:
-		AGL_DLL static RefHandle<Texture> Create( const TEXTURE_TRAIT& trait, const ResourceInitData* initData = nullptr );
+		AGL_DLL static RefHandle<Texture> Create( const TextureTrait& trait, const ResourceInitData* initData = nullptr );
 
 		virtual std::pair<uint32, uint32> Size() const = 0;
 		virtual void* Resource() const = 0;
@@ -34,16 +34,16 @@ namespace agl
 		virtual ResourceState GetState() const override;
 		virtual void SetState( ResourceState state ) override;
 
-		AGL_DLL const TEXTURE_TRAIT& GetTrait() const;
+		AGL_DLL const TextureTrait& GetTrait() const;
 
 		void Transition( ICommandListBase& commandList, ResourceState state );
 
-		Texture( const TEXTURE_TRAIT& trait )
+		Texture( const TextureTrait& trait )
 			: m_trait( trait ) {}
 		Texture() = default;
 
 	protected:
-		TEXTURE_TRAIT m_trait = {};
+		TextureTrait m_trait = {};
 
 		RefHandle<ShaderResourceView> m_srv;
 		RefHandle<UnorderedAccessView> m_uav;
@@ -61,7 +61,7 @@ namespace agl
 			return { m_trait.m_width, m_trait.m_height };
 		}
 
-		TextureBase( const TEXTURE_TRAIT& trait, const ResourceInitData* initData ) 
+		TextureBase( const TextureTrait& trait, const ResourceInitData* initData ) 
 			: Texture( trait )
 		{
 			if ( initData )
@@ -97,7 +97,7 @@ namespace agl
 		void* m_dataStorage = nullptr;
 	};
 
-	bool IsTexture1D( const TEXTURE_TRAIT& trait );
-	bool IsTexture2D( const TEXTURE_TRAIT& trait );
-	bool IsTexture3D( const TEXTURE_TRAIT& trait );
+	bool IsTexture1D( const TextureTrait& trait );
+	bool IsTexture2D( const TextureTrait& trait );
+	bool IsTexture3D( const TextureTrait& trait );
 }
