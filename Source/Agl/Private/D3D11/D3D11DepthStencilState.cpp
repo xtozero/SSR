@@ -7,11 +7,11 @@
 using ::agl::ConvertToComparisionFunc;
 using ::agl::ConvertToStencilOp;
 using ::agl::ConvertToDepthWriteMask;
-using ::agl::DEPTH_STENCIL_STATE_TRAIT;
+using ::agl::DepthStencilStateTrait;
 
 namespace
 {
-	D3D11_DEPTH_STENCIL_DESC ConvertTraitToDesc( const DEPTH_STENCIL_STATE_TRAIT& trait )
+	D3D11_DEPTH_STENCIL_DESC ConvertTraitToDesc( const DepthStencilStateTrait& trait )
 	{
 		return D3D11_DEPTH_STENCIL_DESC{
 			trait.m_depthEnable,
@@ -58,7 +58,7 @@ namespace agl
 		m_stencilRef = stencilRef;
 	}
 
-	D3D11DepthStencilState::D3D11DepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
+	D3D11DepthStencilState::D3D11DepthStencilState( const DepthStencilStateTrait& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
 
 	void D3D11DepthStencilState::InitResource()
 	{
