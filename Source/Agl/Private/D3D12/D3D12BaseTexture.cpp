@@ -560,7 +560,7 @@ namespace agl
 			m_initData.resize( numSections );
 			for ( size_t i = 0; i < numSections; ++i )
 			{
-				const RESOURCE_SECTION_DATA& section = initData->m_sections[i];
+				const ResourceSectionData& section = initData->m_sections[i];
 
 				m_initData[i].pData = static_cast<unsigned char*>( m_dataStorage ) + section.m_offset;
 				m_initData[i].RowPitch = section.m_pitch;

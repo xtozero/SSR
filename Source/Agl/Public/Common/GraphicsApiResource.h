@@ -642,7 +642,7 @@ namespace agl
 		AGL_DLL size_t GetHash() const;
 	};
 
-	struct RESOURCE_SECTION_DATA
+	struct ResourceSectionData
 	{
 		size_t m_offset;
 		uint64 m_pitch;
@@ -653,7 +653,7 @@ namespace agl
 	{
 		void* m_srcData;
 		size_t m_srcSize;
-		std::vector<RESOURCE_SECTION_DATA> m_sections;
+		std::vector<ResourceSectionData> m_sections;
 	};
 
 	struct LockedResource
