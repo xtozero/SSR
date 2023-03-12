@@ -15,7 +15,7 @@ namespace agl
 
 		uint32 Stride() const;
 
-		D3D11Buffer( const BUFFER_TRAIT& trait, const void* initData );
+		D3D11Buffer( const BufferTrait& trait, const void* initData );
 		virtual ~D3D11Buffer() override;
 		D3D11Buffer( const D3D11Buffer& ) = delete;
 		D3D11Buffer& operator=( const D3D11Buffer& ) = delete;

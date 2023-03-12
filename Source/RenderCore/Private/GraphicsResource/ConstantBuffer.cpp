@@ -48,7 +48,7 @@ namespace rendercore
 
 	void ConstantBuffer::InitResource( uint32 size )
 	{
-		agl::BUFFER_TRAIT trait = {
+		agl::BufferTrait trait = {
 			size,
 			1,
 			agl::ResourceAccessFlag::CpuWrite,

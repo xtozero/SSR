@@ -45,7 +45,7 @@ namespace rendercore
 			accessFlag = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite;
 		}
 
-		agl::BUFFER_TRAIT trait = {
+		agl::BufferTrait trait = {
 			elementSize,
 			numElement,
 			accessFlag,

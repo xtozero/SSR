@@ -104,7 +104,7 @@ namespace rendercore
 		{
 			if ( m_numElement > 0 )
 			{
-				agl::BUFFER_TRAIT trait = {
+				agl::BufferTrait trait = {
 				static_cast<uint32>( sizeof( T ) ),
 				m_numElement,
 				agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,

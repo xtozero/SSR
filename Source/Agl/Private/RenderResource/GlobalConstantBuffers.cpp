@@ -51,7 +51,7 @@ namespace agl
 
 		if ( m_buffer == nullptr )
 		{
-			BUFFER_TRAIT trait = {
+			BufferTrait trait = {
 			   .m_stride = DefaultBufferSize,
 			   .m_count = 1,
 			   .m_access = ResourceAccessFlag::GpuRead | ResourceAccessFlag::CpuWrite,
@@ -97,7 +97,7 @@ namespace agl
 			return;
 		}
 
-		BUFFER_TRAIT trait = {
+		BufferTrait trait = {
 			   .m_stride = m_updateSize,
 			   .m_count = 1,
 			   .m_access = ResourceAccessFlag::GpuRead | ResourceAccessFlag::CpuWrite,
