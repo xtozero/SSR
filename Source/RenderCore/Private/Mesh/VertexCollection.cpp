@@ -64,7 +64,7 @@ namespace rendercore
 		return static_cast<uint32>( m_streams.size() );
 	}
 
-	void VertexCollection::InitLayout( const agl::VERTEX_LAYOUT_TRAIT* trait, uint32 count, VertexStreamLayoutType layoutType )
+	void VertexCollection::InitLayout( const agl::VertexLayoutTrait* trait, uint32 count, VertexStreamLayoutType layoutType )
 	{
 		if ( layoutType == VertexStreamLayoutType::PositionOnly )
 		{
@@ -145,13 +145,13 @@ namespace rendercore
 		return { };
 	}
 
-	VertexStreamLayout VertexCollection::SetupVertexLayout( const agl::VERTEX_LAYOUT_TRAIT* traits, uint32 count )
+	VertexStreamLayout VertexCollection::SetupVertexLayout( const agl::VertexLayoutTrait* traits, uint32 count )
 	{
 		VertexStreamLayout layout;
 
 		for ( uint32 i = 0; i < count; ++i )
 		{
-			const agl::VERTEX_LAYOUT_TRAIT& trait = traits[i];
+			const agl::VertexLayoutTrait& trait = traits[i];
 			auto streamIndex = FindStream( trait.m_name );
 			if ( streamIndex )
 			{
@@ -178,7 +178,7 @@ namespace rendercore
 		const std::vector<MeshVertexInstance>& vertexInstances = desc.m_vertexInstances;
 		uint32 vertexInstanceCount = static_cast<uint32>( vertexInstances.size() );
 
-		agl::VERTEX_LAYOUT_TRAIT trait[agl::MAX_VERTEX_LAYOUT_SIZE] = {};
+		agl::VertexLayoutTrait trait[agl::MAX_VERTEX_LAYOUT_SIZE] = {};
 		uint32 traitSize = 0;
 		uint32 slot = 0;
 

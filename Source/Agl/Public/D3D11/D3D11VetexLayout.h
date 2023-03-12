@@ -17,7 +17,7 @@ namespace agl
 		ID3D11InputLayout* Resource();
 		const ID3D11InputLayout* Resource() const;
 
-		D3D11VertexLayout( const D3D11VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, uint32 size );
+		D3D11VertexLayout( const D3D11VertexShader* vs, const VertexLayoutTrait* trait, uint32 size );
 		D3D11VertexLayout( const D3D11VertexLayout& ) = delete;
 		D3D11VertexLayout( D3D11VertexLayout&& ) = delete;
 		D3D11VertexLayout& operator=( const D3D11VertexLayout& ) = delete;

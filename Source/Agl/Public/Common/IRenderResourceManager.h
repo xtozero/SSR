@@ -8,7 +8,7 @@ struct BUFFER_TRAIT;
 struct RESOURCE_INIT_DATA;
 struct RESOURCE_REGION;
 struct TEXTURE_TRAIT;
-struct VERTEX_LAYOUT_TRAIT;
+struct VertexLayoutTrait;
 
 namespace agl
 {
@@ -39,7 +39,7 @@ namespace agl
 
 		virtual Buffer* CreateBuffer( const BUFFER_TRAIT& trait, const void* initData = nullptr ) = 0;
 
-		virtual VertexLayout* CreateVertexLayout( const VertexShader* vs, const VERTEX_LAYOUT_TRAIT* trait, uint32 size ) = 0;
+		virtual VertexLayout* CreateVertexLayout( const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size ) = 0;
 		virtual ComputeShader* CreateComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) = 0;
 		virtual VertexShader* CreateVertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) = 0;
 		virtual GeometryShader* CreateGeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) = 0;
