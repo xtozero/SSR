@@ -54,7 +54,7 @@ namespace rendercore
 		misc |= m_isCubeMap ? agl::ResourceMisc::TextureCube : agl::ResourceMisc::None;
 		misc |= ( m_depth > 1 ) ? agl::ResourceMisc::Texture3D : agl::ResourceMisc::None;
 
-		agl::TEXTURE_TRAIT tarit =
+		agl::TextureTrait tarit =
 		{
 			m_width,
 			m_height,

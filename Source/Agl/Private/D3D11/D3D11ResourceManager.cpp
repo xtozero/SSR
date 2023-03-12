@@ -31,7 +31,7 @@ namespace agl
 		m_graphicsPipelineStateCache.clear();
 	}
 
-	Texture* CD3D11ResourceManager::CreateTexture( const TEXTURE_TRAIT& trait, const ResourceInitData* initData )
+	Texture* CD3D11ResourceManager::CreateTexture( const TextureTrait& trait, const ResourceInitData* initData )
 	{
 		Texture* newTexture = nullptr;
 		if ( IsTexture1D( trait ) )

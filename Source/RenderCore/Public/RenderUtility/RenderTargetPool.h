@@ -22,7 +22,7 @@ namespace rendercore
 		PooledRenderTarget& operator=( PooledRenderTarget&& other ) noexcept;
 
 	private:
-		agl::TEXTURE_TRAIT m_trait;
+		agl::TextureTrait m_trait;
 		agl::RefHandle<agl::Texture> m_texture;
 	};
 
@@ -35,7 +35,7 @@ namespace rendercore
 			return renderTargetPool;
 		}
 
-		agl::RefHandle<agl::Texture> FindFreeRenderTarget( const agl::TEXTURE_TRAIT& trait );
+		agl::RefHandle<agl::Texture> FindFreeRenderTarget( const agl::TextureTrait& trait );
 		void Shutdown();
 
 	private:
