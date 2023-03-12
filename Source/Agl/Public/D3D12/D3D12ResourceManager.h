@@ -26,7 +26,7 @@ namespace agl
 		virtual PixelShader* CreatePixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) override;
 
 		// RenderState
-		virtual BlendState* CreateBlendState( const BLEND_STATE_TRAIT& trait ) override;
+		virtual BlendState* CreateBlendState( const BlendStateTrait& trait ) override;
 		virtual DepthStencilState* CreateDepthStencilState( const DepthStencilStateTrait& trait ) override;
 		virtual RasterizerState* CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) override;
 		virtual SamplerState* CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) override;

@@ -4,7 +4,7 @@
 #include "D3D11Api.h"
 #include "D3D11FlagConvertor.h"
 
-using ::agl::BLEND_STATE_TRAIT;
+using ::agl::BlendStateTrait;
 using ::agl::ConvertToBlend;
 using ::agl::ConvertToBlendOp;
 using ::agl::ConvertToColorWriteEnable;
@@ -12,7 +12,7 @@ using ::agl::MAX_RENDER_TARGET;
 
 namespace
 {
-	D3D11_BLEND_DESC ConvertTraitToDesc( const BLEND_STATE_TRAIT& trait )
+	D3D11_BLEND_DESC ConvertTraitToDesc( const BlendStateTrait& trait )
 	{
 		D3D11_BLEND_DESC desc;
 
@@ -71,7 +71,7 @@ namespace agl
 		m_sampleMask = sampleMask;
 	}
 
-	D3D11BlendState::D3D11BlendState( const BLEND_STATE_TRAIT& trait ) : m_desc( ConvertTraitToDesc( trait ) ), m_sampleMask( trait.m_sampleMask ) {}
+	D3D11BlendState::D3D11BlendState( const BlendStateTrait& trait ) : m_desc( ConvertTraitToDesc( trait ) ), m_sampleMask( trait.m_sampleMask ) {}
 
 	void D3D11BlendState::InitResource()
 	{

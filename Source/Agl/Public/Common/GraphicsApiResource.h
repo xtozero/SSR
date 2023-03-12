@@ -720,7 +720,7 @@ namespace agl
 		ColorWriteEnable m_renderTargetWriteMask;
 	};
 
-	struct BLEND_STATE_TRAIT
+	struct BlendStateTrait
 	{
 		bool m_alphaToConverageEnable;
 		bool m_independentBlendEnable;

@@ -6,7 +6,7 @@
 
 namespace agl
 {
-	RefHandle<BlendState> BlendState::Create( const BLEND_STATE_TRAIT& trait )
+	RefHandle<BlendState> BlendState::Create( const BlendStateTrait& trait )
 	{
 		return GetInterface<IResourceManager>()->CreateBlendState( trait );
 	}

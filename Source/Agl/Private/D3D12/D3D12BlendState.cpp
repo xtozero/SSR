@@ -2,7 +2,7 @@
 
 #include "D3D12FlagConvertor.h"
 
-using ::agl::BLEND_STATE_TRAIT;
+using ::agl::BlendStateTrait;
 using ::agl::ConvertToBlend;
 using ::agl::ConvertToBlendOp;
 using ::agl::ConvertToColorWriteEnable;
@@ -10,7 +10,7 @@ using ::agl::MAX_RENDER_TARGET;
 
 namespace
 {
-	D3D12_BLEND_DESC ConvertTraitToDesc( const BLEND_STATE_TRAIT& trait )
+	D3D12_BLEND_DESC ConvertTraitToDesc( const BlendStateTrait& trait )
 	{
 		D3D12_BLEND_DESC desc = {
 			.AlphaToCoverageEnable = trait.m_alphaToConverageEnable,
@@ -63,7 +63,7 @@ namespace agl
 		m_sampleMask = sampleMask;
 	}
 
-	D3D12BlendState::D3D12BlendState( const BLEND_STATE_TRAIT& trait ) 
+	D3D12BlendState::D3D12BlendState( const BlendStateTrait& trait ) 
 		: m_sampleMask( trait.m_sampleMask )
 		, m_desc( ConvertTraitToDesc( trait ) )
 	{
