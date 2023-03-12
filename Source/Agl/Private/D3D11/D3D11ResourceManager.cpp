@@ -104,7 +104,7 @@ namespace agl
 		return blendState;
 	}
 
-	DepthStencilState* CD3D11ResourceManager::CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait )
+	DepthStencilState* CD3D11ResourceManager::CreateDepthStencilState( const DepthStencilStateTrait& trait )
 	{
 		auto depthStencilState = new D3D11DepthStencilState( trait );
 

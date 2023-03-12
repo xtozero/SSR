@@ -46,7 +46,7 @@ namespace agl
 		virtual PixelShader* CreatePixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) = 0;
 
 		virtual BlendState* CreateBlendState( const BLEND_STATE_TRAIT& trait ) = 0;
-		virtual DepthStencilState* CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait ) = 0;
+		virtual DepthStencilState* CreateDepthStencilState( const DepthStencilStateTrait& trait ) = 0;
 		virtual RasterizerState* CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait ) = 0;
 		virtual SamplerState* CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) = 0;
 		virtual GraphicsPipelineState* CreatePipelineState( const GraphicsPipelineStateInitializer& initializer ) = 0;

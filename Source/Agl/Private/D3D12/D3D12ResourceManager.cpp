@@ -96,7 +96,7 @@ namespace agl
 		return new D3D12BlendState( trait );
 	}
 
-	DepthStencilState* D3D12ResourceManager::CreateDepthStencilState( const DEPTH_STENCIL_STATE_TRAIT& trait )
+	DepthStencilState* D3D12ResourceManager::CreateDepthStencilState( const DepthStencilStateTrait& trait )
 	{
 		return new D3D12DepthStencilState( trait );
 	}

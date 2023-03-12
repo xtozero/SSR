@@ -744,7 +744,7 @@ namespace agl
 		}
 	};
 
-	struct DEPTH_STENCIL_STATE_TRAIT
+	struct DepthStencilStateTrait
 	{
 		bool m_depthEnable;
 		DepthWriteMode m_depthWriteMode;

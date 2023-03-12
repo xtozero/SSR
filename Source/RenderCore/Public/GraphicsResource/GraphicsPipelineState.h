@@ -34,7 +34,7 @@ namespace rendercore
 		agl::DepthStencilState* Resource();
 		const agl::DepthStencilState* Resource() const;
 
-		explicit DepthStencilState( const agl::DEPTH_STENCIL_STATE_TRAIT& trait );
+		explicit DepthStencilState( const agl::DepthStencilStateTrait& trait );
 
 		DepthStencilState() = default;
 		~DepthStencilState() = default;
@@ -44,7 +44,7 @@ namespace rendercore
 		DepthStencilState& operator=( DepthStencilState&& ) = default;
 
 	private:
-		void InitResource( const agl::DEPTH_STENCIL_STATE_TRAIT& trait );
+		void InitResource( const agl::DepthStencilStateTrait& trait );
 
 		agl::RefHandle<agl::DepthStencilState> m_state;
 	};

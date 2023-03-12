@@ -41,12 +41,12 @@ namespace rendercore
 		return m_state.Get();
 	}
 
-	DepthStencilState::DepthStencilState( const agl::DEPTH_STENCIL_STATE_TRAIT& trait )
+	DepthStencilState::DepthStencilState( const agl::DepthStencilStateTrait& trait )
 	{
 		InitResource( trait );
 	}
 
-	void DepthStencilState::InitResource( const agl::DEPTH_STENCIL_STATE_TRAIT& trait )
+	void DepthStencilState::InitResource( const agl::DepthStencilStateTrait& trait )
 	{
 		m_state = agl::DepthStencilState::Create( trait );
 		EnqueueRenderTask( [state = m_state]()
