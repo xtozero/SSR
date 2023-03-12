@@ -6,7 +6,7 @@
 
 struct BUFFER_TRAIT;
 struct RESOURCE_INIT_DATA;
-struct RESOURCE_REGION;
+struct ResourceRegion;
 struct TEXTURE_TRAIT;
 struct VertexLayoutTrait;
 
@@ -54,8 +54,8 @@ namespace agl
 
 		virtual Viewport* CreateViewport( uint32 width, uint32 height, void* hWnd, ResourceFormat format ) = 0;
 
-		// virtual void CopyResource( RE_HANDLE dest, const RESOURCE_REGION* destRegionOrNull, RE_HANDLE src, const RESOURCE_REGION* srcRegionOrNull ) = 0;
-		// virtual void UpdateResourceFromMemory( RE_HANDLE dest, void* src, uint32 srcRowPitch, uint32 srcDepthPitch, const RESOURCE_REGION* destRegionOrNull = nullptr ) = 0;
+		// virtual void CopyResource( RE_HANDLE dest, const ResourceRegion* destRegionOrNull, RE_HANDLE src, const ResourceRegion* srcRegionOrNull ) = 0;
+		// virtual void UpdateResourceFromMemory( RE_HANDLE dest, void* src, uint32 srcRowPitch, uint32 srcDepthPitch, const ResourceRegion* destRegionOrNull = nullptr ) = 0;
 
 		virtual ~IResourceManager() = default;
 	};
