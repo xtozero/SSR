@@ -28,7 +28,7 @@ namespace agl
 	class SamplerState : public DeviceDependantResource
 	{
 	public:
-		AGL_DLL static RefHandle<SamplerState> Create( const SAMPLER_STATE_TRAIT& trait );
+		AGL_DLL static RefHandle<SamplerState> Create( const SamplerStateTrait& trait );
 	};
 
 	class VertexLayout : public DeviceDependantResource

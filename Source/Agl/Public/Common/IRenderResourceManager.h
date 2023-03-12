@@ -48,7 +48,7 @@ namespace agl
 		virtual BlendState* CreateBlendState( const BlendStateTrait& trait ) = 0;
 		virtual DepthStencilState* CreateDepthStencilState( const DepthStencilStateTrait& trait ) = 0;
 		virtual RasterizerState* CreateRasterizerState( const RasterizerStateTrait& trait ) = 0;
-		virtual SamplerState* CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) = 0;
+		virtual SamplerState* CreateSamplerState( const SamplerStateTrait& trait ) = 0;
 		virtual GraphicsPipelineState* CreatePipelineState( const GraphicsPipelineStateInitializer& initializer ) = 0;
 		virtual ComputePipelineState* CreatePipelineState( const ComputePipelineStateInitializer& initializer ) = 0;
 

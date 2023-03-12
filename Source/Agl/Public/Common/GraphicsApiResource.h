@@ -680,7 +680,7 @@ namespace agl
 		int32 m_quality;
 	};
 
-	struct SAMPLER_STATE_TRAIT
+	struct SamplerStateTrait
 	{
 		TextureFilter m_filter;
 		TextureAddressMode m_addressU;

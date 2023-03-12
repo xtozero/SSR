@@ -35,7 +35,7 @@ namespace agl
 		virtual BlendState* CreateBlendState( const BlendStateTrait& trait ) override;
 		virtual DepthStencilState* CreateDepthStencilState( const DepthStencilStateTrait& trait ) override;
 		virtual RasterizerState* CreateRasterizerState( const RasterizerStateTrait& trait ) override;
-		virtual SamplerState* CreateSamplerState( const SAMPLER_STATE_TRAIT& trait ) override;
+		virtual SamplerState* CreateSamplerState( const SamplerStateTrait& trait ) override;
 		virtual GraphicsPipelineState* CreatePipelineState( const GraphicsPipelineStateInitializer& initializer ) override;
 		virtual ComputePipelineState* CreatePipelineState( const ComputePipelineStateInitializer& initializer ) override;
 

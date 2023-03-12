@@ -118,7 +118,7 @@ namespace agl
 		return rasterizerState;
 	}
 
-	SamplerState* CD3D11ResourceManager::CreateSamplerState( const SAMPLER_STATE_TRAIT& trait )
+	SamplerState* CD3D11ResourceManager::CreateSamplerState( const SamplerStateTrait& trait )
 	{
 		auto samplerState = new D3D11SamplerState( trait );
 

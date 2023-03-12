@@ -150,7 +150,7 @@ namespace rendercore
 		auto found = m_samplerStates.find( option );
 		if ( found == m_samplerStates.end() )
 		{
-			agl::SAMPLER_STATE_TRAIT trait = {
+			agl::SamplerStateTrait trait = {
 				option.m_filter,
 				option.m_addressU,
 				option.m_addressV,
