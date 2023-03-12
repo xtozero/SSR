@@ -97,7 +97,7 @@ namespace agl
 		return newShader;
 	}
 
-	BlendState* CD3D11ResourceManager::CreateBlendState( const BLEND_STATE_TRAIT& trait )
+	BlendState* CD3D11ResourceManager::CreateBlendState( const BlendStateTrait& trait )
 	{
 		auto blendState = new D3D11BlendState( trait );
 

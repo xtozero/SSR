@@ -13,7 +13,7 @@ namespace rendercore
 		agl::BlendState* Resource();
 		const agl::BlendState* Resource() const;
 
-		explicit BlendState( const agl::BLEND_STATE_TRAIT& trait );
+		explicit BlendState( const agl::BlendStateTrait& trait );
 
 		BlendState() = default;
 		~BlendState() = default;
@@ -23,7 +23,7 @@ namespace rendercore
 		BlendState& operator=( BlendState&& ) = default;
 
 	private:
-		void InitResource( const agl::BLEND_STATE_TRAIT& trait );
+		void InitResource( const agl::BlendStateTrait& trait );
 
 		agl::RefHandle<agl::BlendState> m_state;
 	};
