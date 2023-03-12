@@ -674,7 +674,7 @@ namespace agl
 		uint32 m_back;
 	};
 
-	struct MULTISAMPLE_OPTION
+	struct MultiSampleOption
 	{
 		int32 m_count;
 		int32 m_quality;
