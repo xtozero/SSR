@@ -76,7 +76,7 @@ namespace rendercore
 		agl::SamplerState* Resource();
 		const agl::SamplerState* Resource() const;
 
-		explicit SamplerState( const agl::SAMPLER_STATE_TRAIT& trait );
+		explicit SamplerState( const agl::SamplerStateTrait& trait );
 
 		SamplerState() = default;
 		~SamplerState() = default;
@@ -86,7 +86,7 @@ namespace rendercore
 		SamplerState& operator=( SamplerState&& ) = default;
 
 	private:
-		void InitResource( const agl::SAMPLER_STATE_TRAIT& trait );
+		void InitResource( const agl::SamplerStateTrait& trait );
 
 		agl::RefHandle<agl::SamplerState> m_state;
 	};

@@ -10,7 +10,7 @@ namespace agl
 	class D3D12SamplerState : public SamplerState
 	{
 	public:
-		D3D12SamplerState( const SAMPLER_STATE_TRAIT& trait );
+		D3D12SamplerState( const SamplerStateTrait& trait );
 		D3D12SamplerState( const D3D12SamplerState& ) = default;
 		D3D12SamplerState( D3D12SamplerState&& ) = default;
 		D3D12SamplerState& operator=( const D3D12SamplerState& ) = default;

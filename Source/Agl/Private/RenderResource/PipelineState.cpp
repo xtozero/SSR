@@ -21,7 +21,7 @@ namespace agl
 		return GetInterface<IResourceManager>()->CreateRasterizerState( trait );
 	}
 
-	RefHandle<SamplerState> SamplerState::Create( const SAMPLER_STATE_TRAIT& trait )
+	RefHandle<SamplerState> SamplerState::Create( const SamplerStateTrait& trait )
 	{
 		return GetInterface<IResourceManager>()->CreateSamplerState( trait );
 	}
