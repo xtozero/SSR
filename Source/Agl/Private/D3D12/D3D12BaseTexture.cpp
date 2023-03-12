@@ -549,7 +549,7 @@ namespace
 
 namespace agl
 {
-	D3D12Texture::D3D12Texture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
+	D3D12Texture::D3D12Texture( const TEXTURE_TRAIT& trait, const ResourceInitData* initData )
 		: TextureBase( trait, initData )
 		, m_desc( ConvertTraitToDesc( trait ) )
 	{
@@ -603,12 +603,12 @@ namespace agl
 		m_uav->Init();
 	}
 
-	D3D12BaseTexture1D::D3D12BaseTexture1D( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
+	D3D12BaseTexture1D::D3D12BaseTexture1D( const TEXTURE_TRAIT& trait, const ResourceInitData* initData )
 		: D3D12Texture( trait, initData )
 	{
 	}
 
-	D3D12BaseTexture2D::D3D12BaseTexture2D( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
+	D3D12BaseTexture2D::D3D12BaseTexture2D( const TEXTURE_TRAIT& trait, const ResourceInitData* initData )
 		: D3D12Texture( trait, initData )
 	{
 	}
@@ -648,7 +648,7 @@ namespace agl
 		m_dsv->Init();
 	}
 
-	D3D12BaseTexture3D::D3D12BaseTexture3D( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
+	D3D12BaseTexture3D::D3D12BaseTexture3D( const TEXTURE_TRAIT& trait, const ResourceInitData* initData )
 		: D3D12Texture( trait, initData )
 	{
 	}

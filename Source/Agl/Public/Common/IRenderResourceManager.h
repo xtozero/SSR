@@ -5,7 +5,7 @@
 #include "SizedTypes.h"
 
 struct BUFFER_TRAIT;
-struct RESOURCE_INIT_DATA;
+struct ResourceInitData;
 struct ResourceRegion;
 struct TEXTURE_TRAIT;
 struct VertexLayoutTrait;
@@ -35,7 +35,7 @@ namespace agl
 	public:
 		virtual void Shutdown() = 0;
 
-		virtual Texture* CreateTexture( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr ) = 0;
+		virtual Texture* CreateTexture( const TEXTURE_TRAIT& trait, const ResourceInitData* initData = nullptr ) = 0;
 
 		virtual Buffer* CreateBuffer( const BUFFER_TRAIT& trait, const void* initData = nullptr ) = 0;
 
