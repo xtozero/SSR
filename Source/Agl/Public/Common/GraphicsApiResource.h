@@ -728,14 +728,14 @@ namespace agl
 		uint32 m_sampleMask;
 	};
 
-	struct STENCIL_OP_TRAIT
+	struct StencilOpTrait
 	{
 		StencilOp m_failOp;
 		StencilOp m_depthFailOp;
 		StencilOp m_passOp;
 		ComparisonFunc m_func;
 
-		friend bool operator==( const STENCIL_OP_TRAIT& lhs, const STENCIL_OP_TRAIT& rhs )
+		friend bool operator==( const StencilOpTrait& lhs, const StencilOpTrait& rhs )
 		{
 			return lhs.m_failOp == rhs.m_failOp
 				&& lhs.m_depthFailOp == rhs.m_depthFailOp
@@ -752,8 +752,8 @@ namespace agl
 		bool m_stencilEnable;
 		unsigned char m_stencilReadMask;
 		unsigned char m_stencilWriteMask;
-		STENCIL_OP_TRAIT m_frontFace;
-		STENCIL_OP_TRAIT m_backFace;
+		StencilOpTrait m_frontFace;
+		StencilOpTrait m_backFace;
 	};
 
 	struct VertexLayoutTrait
