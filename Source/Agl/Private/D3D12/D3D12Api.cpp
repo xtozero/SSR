@@ -179,7 +179,7 @@ namespace agl
 
 		virtual void Copy( Buffer* dst, Buffer* src, uint32 size ) override;
 
-		virtual void GetRendererMultiSampleOption( MULTISAMPLE_OPTION* option ) override;
+		virtual void GetRendererMultiSampleOption( MultiSampleOption* option ) override;
 
 		virtual ICommandList* GetCommandList() override;
 		virtual IParallelCommandList* GetParallelCommandList() override;
@@ -360,7 +360,7 @@ namespace agl
 	{
 	}
 
-	void Direct3D12::GetRendererMultiSampleOption( MULTISAMPLE_OPTION* option )
+	void Direct3D12::GetRendererMultiSampleOption( MultiSampleOption* option )
 	{
 	}
 

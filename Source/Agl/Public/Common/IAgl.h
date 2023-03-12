@@ -37,7 +37,7 @@ namespace agl
 
 		virtual void Copy( Buffer* dst, Buffer* src, uint32 size ) = 0;
 
-		virtual void GetRendererMultiSampleOption( MULTISAMPLE_OPTION* option ) = 0;
+		virtual void GetRendererMultiSampleOption( MultiSampleOption* option ) = 0;
 
 		virtual ICommandList* GetCommandList() = 0;
 		virtual IParallelCommandList* GetParallelCommandList() = 0;
