@@ -7,7 +7,7 @@
 
 namespace agl
 {
-	RefHandle<Texture> Texture::Create( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData )
+	RefHandle<Texture> Texture::Create( const TEXTURE_TRAIT& trait, const ResourceInitData* initData )
 	{
 		return GetInterface<IResourceManager>( )->CreateTexture( trait, initData );
 	}

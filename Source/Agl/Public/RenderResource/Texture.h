@@ -14,7 +14,7 @@ namespace agl
 	class Texture : public DeviceDependantResource, public IResourceViews, public ITransitionable
 	{
 	public:
-		AGL_DLL static RefHandle<Texture> Create( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData = nullptr );
+		AGL_DLL static RefHandle<Texture> Create( const TEXTURE_TRAIT& trait, const ResourceInitData* initData = nullptr );
 
 		virtual std::pair<uint32, uint32> Size() const = 0;
 		virtual void* Resource() const = 0;
@@ -61,7 +61,7 @@ namespace agl
 			return { m_trait.m_width, m_trait.m_height };
 		}
 
-		TextureBase( const TEXTURE_TRAIT& trait, const RESOURCE_INIT_DATA* initData ) 
+		TextureBase( const TEXTURE_TRAIT& trait, const ResourceInitData* initData ) 
 			: Texture( trait )
 		{
 			if ( initData )

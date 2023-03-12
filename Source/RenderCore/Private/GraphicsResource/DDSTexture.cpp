@@ -68,7 +68,7 @@ namespace rendercore
 			misc
 		};
 
-		agl::RESOURCE_INIT_DATA initData;
+		agl::ResourceInitData initData;
 		initData.m_sections.resize( m_sections.size() );
 		initData.m_srcData = m_memory.Data();
 		initData.m_srcSize = m_memory.Size();
