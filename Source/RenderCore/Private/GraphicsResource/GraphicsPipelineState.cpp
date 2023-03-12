@@ -90,12 +90,12 @@ namespace rendercore
 		return m_state.Get();
 	}
 
-	SamplerState::SamplerState( const agl::SAMPLER_STATE_TRAIT& trait )
+	SamplerState::SamplerState( const agl::SamplerStateTrait& trait )
 	{
 		InitResource( trait );
 	}
 
-	void SamplerState::InitResource( const agl::SAMPLER_STATE_TRAIT& trait )
+	void SamplerState::InitResource( const agl::SamplerStateTrait& trait )
 	{
 		m_state = agl::SamplerState::Create( trait );
 		EnqueueRenderTask(

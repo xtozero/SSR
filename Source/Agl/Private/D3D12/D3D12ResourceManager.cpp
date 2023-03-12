@@ -106,7 +106,7 @@ namespace agl
 		return new D3D12RasterizerState( trait );
 	}
 
-	SamplerState* D3D12ResourceManager::CreateSamplerState( const SAMPLER_STATE_TRAIT& trait )
+	SamplerState* D3D12ResourceManager::CreateSamplerState( const SamplerStateTrait& trait )
 	{
 		return new D3D12SamplerState( trait );
 	}

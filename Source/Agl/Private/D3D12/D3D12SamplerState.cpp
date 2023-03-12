@@ -6,11 +6,11 @@
 using ::agl::ConvertToComparisionFunc;
 using ::agl::ConvertToFilter;
 using ::agl::ConvertToTextureAddress;
-using ::agl::SAMPLER_STATE_TRAIT;
+using ::agl::SamplerStateTrait;
 
 namespace
 {
-	D3D12_SAMPLER_DESC ConvertTraitToDesc( const SAMPLER_STATE_TRAIT& trait )
+	D3D12_SAMPLER_DESC ConvertTraitToDesc( const SamplerStateTrait& trait )
 	{
 		return D3D12_SAMPLER_DESC{
 			.Filter = ConvertToFilter( trait.m_filter ),
@@ -34,7 +34,7 @@ namespace
 
 namespace agl
 {
-	D3D12SamplerState::D3D12SamplerState( const SAMPLER_STATE_TRAIT& trait ) 
+	D3D12SamplerState::D3D12SamplerState( const SamplerStateTrait& trait ) 
 		: m_desc( ConvertTraitToDesc( trait ) ) 
 	{
 	}
