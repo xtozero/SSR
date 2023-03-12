@@ -101,7 +101,7 @@ namespace agl
 		return new D3D12DepthStencilState( trait );
 	}
 
-	RasterizerState* D3D12ResourceManager::CreateRasterizerState( const RASTERIZER_STATE_TRAIT& trait )
+	RasterizerState* D3D12ResourceManager::CreateRasterizerState( const RasterizerStateTrait& trait )
 	{
 		return new D3D12RasterizerState( trait );
 	}

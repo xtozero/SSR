@@ -4,11 +4,11 @@
 
 using ::agl::ConvertToCullMode;
 using ::agl::ConvertToFillMode;
-using ::agl::RASTERIZER_STATE_TRAIT;
+using ::agl::RasterizerStateTrait;
 
 namespace
 {
-	D3D12_RASTERIZER_DESC ConvertTraitToDesc( const RASTERIZER_STATE_TRAIT& trait )
+	D3D12_RASTERIZER_DESC ConvertTraitToDesc( const RasterizerStateTrait& trait )
 	{
 		return D3D12_RASTERIZER_DESC{
 			.FillMode = ConvertToFillMode( trait.m_fillMode ),
@@ -28,7 +28,7 @@ namespace
 
 namespace agl
 {
-	D3D12RasterizerState::D3D12RasterizerState( const RASTERIZER_STATE_TRAIT& trait ) 
+	D3D12RasterizerState::D3D12RasterizerState( const RasterizerStateTrait& trait ) 
 		: m_desc( ConvertTraitToDesc( trait ) )
 	{
 	}

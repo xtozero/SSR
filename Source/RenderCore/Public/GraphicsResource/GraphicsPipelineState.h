@@ -55,7 +55,7 @@ namespace rendercore
 		agl::RasterizerState* Resource();
 		const agl::RasterizerState* Resource() const;
 
-		explicit RasterizerState( const agl::RASTERIZER_STATE_TRAIT& trait );
+		explicit RasterizerState( const agl::RasterizerStateTrait& trait );
 
 		RasterizerState() = default;
 		~RasterizerState() = default;
@@ -65,7 +65,7 @@ namespace rendercore
 		RasterizerState& operator=( RasterizerState&& ) = default;
 
 	private:
-		void InitResource( const agl::RASTERIZER_STATE_TRAIT& trait );
+		void InitResource( const agl::RasterizerStateTrait& trait );
 
 		agl::RefHandle<agl::RasterizerState> m_state;
 	};
