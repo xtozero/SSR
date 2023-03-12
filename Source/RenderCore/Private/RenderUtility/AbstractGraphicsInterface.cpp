@@ -62,7 +62,7 @@ namespace rendercore
 		auto found = m_blendStates.find( option );
 		if ( found == m_blendStates.end() )
 		{
-			agl::BLEND_STATE_TRAIT trait;
+			agl::BlendStateTrait trait;
 			trait.m_alphaToConverageEnable = option.m_alphaToConverageEnable;
 			trait.m_independentBlendEnable = option.m_independentBlendEnable;
 

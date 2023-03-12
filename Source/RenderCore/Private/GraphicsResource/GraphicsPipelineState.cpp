@@ -16,12 +16,12 @@ namespace rendercore
 		return m_state.Get();
 	}
 
-	BlendState::BlendState( const agl::BLEND_STATE_TRAIT& trait )
+	BlendState::BlendState( const agl::BlendStateTrait& trait )
 	{
 		InitResource( trait );
 	}
 
-	void BlendState::InitResource( const agl::BLEND_STATE_TRAIT& trait )
+	void BlendState::InitResource( const agl::BlendStateTrait& trait )
 	{
 		m_state = agl::BlendState::Create( trait );
 		EnqueueRenderTask(

@@ -91,7 +91,7 @@ namespace agl
 		return new D3D12PixelShader( byteCode, byteCodeSize, paramInfo );
 	}
 
-	BlendState* D3D12ResourceManager::CreateBlendState( const BLEND_STATE_TRAIT& trait )
+	BlendState* D3D12ResourceManager::CreateBlendState( const BlendStateTrait& trait )
 	{
 		return new D3D12BlendState( trait );
 	}

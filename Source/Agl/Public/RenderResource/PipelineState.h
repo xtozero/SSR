@@ -10,7 +10,7 @@ namespace agl
 	class BlendState : public DeviceDependantResource
 	{
 	public:
-		AGL_DLL static RefHandle<BlendState> Create( const BLEND_STATE_TRAIT& trait );
+		AGL_DLL static RefHandle<BlendState> Create( const BlendStateTrait& trait );
 	};
 
 	class DepthStencilState : public DeviceDependantResource
