@@ -185,13 +185,21 @@ PUBLIC
 	./Public/PassProcessor
 	./Public/Renderer
 PRIVATE
+	../../ThirdParty/PIX/Include
 	../Logic/Public
 	../Shaders/Public/Atmosphere
 	./Public/Mesh
 	./Public/Pch
 	./Public/Proxies
 	./Public/RenderUtility)
-	
+
+if(WIN32)
+target_link_directories(RenderCore
+PRIVATE
+	../../ThirdParty/PIX/lib/x64
+)
+endif()
+
 target_link_libraries(RenderCore 
 PUBLIC
 	Agl
@@ -199,4 +207,6 @@ PRIVATE
 	Core)
 
 add_custom_command(TARGET RenderCore POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/RenderCore.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/RenderCore.dll")
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/RenderCore.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/RenderCore.dll"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/ThirdParty/PIX/bin/x64/WinPixEventRuntime.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/WinPixEventRuntime.dll"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/ThirdParty/PIX/bin/x64/WinPixEventRuntime.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/WinPixEventRuntime.dll")
