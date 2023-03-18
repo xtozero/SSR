@@ -14,6 +14,46 @@
 #include "Scene/Scene.h"
 #include "ShaderCache.h"
 
+#if _WIN64
+#include <optional>
+#include <shlobj.h>
+#pragma comment(lib, "WinPixEventRuntime.lib")
+#endif
+
+namespace
+{
+#if _WIN64
+	std::wstring GetLatestWinPixGpuCapturerPath()
+	{
+		LPWSTR programFilesPath = nullptr;
+		SHGetKnownFolderPath( FOLDERID_ProgramFiles, KF_FLAG_DEFAULT, NULL, &programFilesPath );
+
+		std::filesystem::path pixInstallationPath = programFilesPath;
+		pixInstallationPath /= "Microsoft PIX";
+
+		std::wstring newestVersionFound;
+
+		for ( auto const& directory_entry : std::filesystem::directory_iterator( pixInstallationPath ) )
+		{
+			if ( directory_entry.is_directory() )
+			{
+				if ( newestVersionFound.empty() || newestVersionFound < directory_entry.path().filename().c_str() )
+				{
+					newestVersionFound = directory_entry.path().filename().c_str();
+				}
+			}
+		}
+
+		if ( newestVersionFound.empty() )
+		{
+			return {};
+		}
+
+		return pixInstallationPath / newestVersionFound / L"WinPixGpuCapturer.dll";
+	}
+#endif
+}
+
 namespace rendercore
 {
 	class RenderCore : public IRenderCore
@@ -38,10 +78,15 @@ namespace rendercore
 
 		mutable bool m_isReady = false;
 
-		HMODULE m_hAgl;
+		HMODULE m_hAgl = nullptr;
 		agl::IAgl* m_agl = nullptr;
 
 		std::map<ShadingMethod, SceneRenderer*> m_sceneRenderer;
+
+#if _WIN64
+		HMODULE m_hWinPixEventRuntime = nullptr;
+		HMODULE m_hWinPixGpuCapturer = nullptr;
+#endif
 	};
 
 	Owner<IRenderCore*> CreateRenderCore()
@@ -56,6 +101,16 @@ namespace rendercore
 
 	bool RenderCore::BootUp()
 	{
+#if _WIN64
+		m_hWinPixEventRuntime = LoadLibrary( _T( "WinPixEventRuntime.dll" ) );
+
+		std::optional<std::wstring> winPixGpuCapturerPath = GetLatestWinPixGpuCapturerPath();
+		if ( winPixGpuCapturerPath )
+		{
+			m_hWinPixGpuCapturer = LoadLibrary( winPixGpuCapturerPath.value().c_str() );
+		}
+#endif
+
 		m_hAgl = LoadModule( "Agl.dll" );
 		if ( m_hAgl == nullptr )
 		{
@@ -181,6 +236,11 @@ namespace rendercore
 		GetInterface<ITaskScheduler>()->Wait( handle );
 
 		ShutdownModule( m_hAgl );
+
+#if _WIN64
+		FreeLibrary( m_hWinPixEventRuntime );
+		FreeLibrary( m_hWinPixGpuCapturer );
+#endif
 	}
 
 	Owner<SceneRenderer*> RenderCore::FindAndCreateSceneRenderer( const RenderViewGroup& renderViewGroup )
