@@ -4,7 +4,6 @@
 #include "GraphicsApiResource.h"
 #include "NameTypes.h"
 #include "PassProcessor.h"
-#include "RenderCoreAllocator.h"
 #include "Scene/SceneConstantBuffers.h"
 #include "Scene/ShadowInfo.h"
 #include "TemporalAntiAliasingRendering.h"
@@ -101,10 +100,10 @@ namespace rendercore
 		virtual ~SceneRenderer() = default;
 	protected:
 		void InitDynamicShadows( RenderViewGroup& renderViewGroup );
-		void ClassifyShadowCasterAndReceiver( IScene& scene, const VectorSingleFrame<ShadowInfo*>& shadows );
+		void ClassifyShadowCasterAndReceiver( IScene& scene, const RenderThreadFrameData<ShadowInfo*>& shadows );
 		void SetupShadow();
 		void AllocateShadowMaps();
-		void AllocateCascadeShadowMaps( const VectorSingleFrame<ShadowInfo*>& shadows );
+		void AllocateCascadeShadowMaps( const RenderThreadFrameData<ShadowInfo*>& shadows );
 
 		void RenderShadowDepthPass();
 		void RenderTexturedSky( IScene& scene );
@@ -119,9 +118,9 @@ namespace rendercore
 		RenderingShaderResource m_shaderResources;
 		RenderingOutputContext m_outputContext;
 
-		VectorSingleFrame<ShadowInfo> m_shadowInfos;
-		using PassVisibleSnapshots = std::array<VectorSingleFrame<VisibleDrawSnapshot>, static_cast<uint32>( RenderPass::Count )>;
-		VectorSingleFrame<PassVisibleSnapshots> m_passSnapshots;
+		RenderThreadFrameData<ShadowInfo> m_shadowInfos;
+		using PassVisibleSnapshots = std::array<RenderThreadFrameData<VisibleDrawSnapshot>, static_cast<uint32>( RenderPass::Count )>;
+		RenderThreadFrameData<PassVisibleSnapshots> m_passSnapshots;
 
 		std::vector<PreviousFrameContext> m_prevFrameContext;
 

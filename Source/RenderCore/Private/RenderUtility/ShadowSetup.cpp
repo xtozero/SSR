@@ -224,7 +224,7 @@ namespace rendercore
 			view.m_viewAxis[2],
 			view.m_viewAxis[1] );
 
-		VectorSingleFrame<Vector> clipedResivePoints;
+		RenderThreadFrameData<Vector> clipedResivePoints;
 		clipedResivePoints.reserve( shadowInfo.ShadowReceiversViewSpaceBounds().size() * 8 );
 
 		for ( const BoxSphereBounds& bounds : shadowInfo.ShadowReceiversViewSpaceBounds() )
@@ -348,7 +348,7 @@ namespace rendercore
 				}
 				else
 				{
-					VectorSingleFrame<Vector> ndcBox;
+					RenderThreadFrameData<Vector> ndcBox;
 					ndcBox.reserve( 8 );
 					for ( uint32 i = 0; i < 8; ++i )
 					{
@@ -437,7 +437,7 @@ namespace rendercore
 		}
 		else
 		{
-			VectorSingleFrame<Vector> bodyB;
+			RenderThreadFrameData<Vector> bodyB;
 			bodyB.reserve( shadowInfo.ShadowCastersViewSpaceBounds().size() * 8 + 8 );
 
 			for ( const BoxSphereBounds& bounds : shadowInfo.ShadowCastersViewSpaceBounds() )
@@ -525,7 +525,7 @@ namespace rendercore
 
 			if ( false /*m_isUnitClipCube*/ && ( shadowInfo.ShadowReceiversViewSpaceBounds().size() > 0 ) )
 			{
-				VectorSingleFrame<Vector> receiverPoints;
+				RenderThreadFrameData<Vector> receiverPoints;
 				receiverPoints.reserve( shadowInfo.ShadowReceiversViewSpaceBounds().size() * 8 );
 
 				for ( const BoxSphereBounds& bounds : shadowInfo.ShadowReceiversViewSpaceBounds() )

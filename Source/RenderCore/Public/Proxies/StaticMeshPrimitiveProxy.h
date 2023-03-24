@@ -18,7 +18,7 @@ namespace rendercore
 
 		virtual void CreateRenderData() override;
 		virtual void PrepareSubMeshs() override;
-		virtual void TakeSnapshot( std::deque<DrawSnapshot>& snapshotStorage, VectorSingleFrame<VisibleDrawSnapshot>& drawList ) const override;
+		virtual void TakeSnapshot( std::deque<DrawSnapshot>& snapshotStorage, RenderThreadFrameData<VisibleDrawSnapshot>& drawList ) const override;
 		virtual std::optional<DrawSnapshot> TakeSnapshot( uint32 lod, uint32 sectionIndex ) const override;
 		virtual MeshDrawInfo GatherMeshDrawInfo( uint32 lod, uint32 sectionIndex ) const override;
 

@@ -69,12 +69,12 @@ namespace rendercore
 			return { m_shadowMapWidth, m_shadowMapHeight };
 		}
 
-		const VectorSingleFrame<BoxSphereBounds>& ShadowCastersViewSpaceBounds() const
+		const RenderThreadFrameData<BoxSphereBounds>& ShadowCastersViewSpaceBounds() const
 		{
 			return m_shadowCastersViewSpaceBounds;
 		}
 
-		const VectorSingleFrame<BoxSphereBounds>& ShadowReceiversViewSpaceBounds() const
+		const RenderThreadFrameData<BoxSphereBounds>& ShadowReceiversViewSpaceBounds() const
 		{
 			return m_shadowReceiversViewSpaceBounds;
 		}
@@ -122,16 +122,16 @@ namespace rendercore
 		uint32 m_shadowMapWidth = 0;
 		uint32 m_shadowMapHeight = 0;
 
-		VectorSingleFrame<PrimitiveSceneInfo*> m_shadowCasters;
-		VectorSingleFrame<PrimitiveSceneInfo*> m_shadowReceivers;
+		RenderThreadFrameData<PrimitiveSceneInfo*> m_shadowCasters;
+		RenderThreadFrameData<PrimitiveSceneInfo*> m_shadowReceivers;
 
-		VectorSingleFrame<BoxSphereBounds> m_shadowCastersViewSpaceBounds;
-		VectorSingleFrame<BoxSphereBounds> m_shadowReceiversViewSpaceBounds;
+		RenderThreadFrameData<BoxSphereBounds> m_shadowCastersViewSpaceBounds;
+		RenderThreadFrameData<BoxSphereBounds> m_shadowReceiversViewSpaceBounds;
 
 		float m_subjectNear = std::numeric_limits<float>::max();
 		float m_subjectFar = std::numeric_limits<float>::min();
 
-		VectorSingleFrame<VisibleDrawSnapshot> m_snapshots;
+		RenderThreadFrameData<VisibleDrawSnapshot> m_snapshots;
 
 		Matrix m_shadowViewProjections[6];
 
