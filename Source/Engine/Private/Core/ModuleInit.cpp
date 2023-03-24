@@ -10,6 +10,7 @@
 #include "InterfaceFactories.h"
 #include "NameTypes.h"
 #include "TaskScheduler.h"
+#include "TransientAllocator.h"
 
 namespace
 {
@@ -21,6 +22,7 @@ namespace
 	IEngine* g_gameEngine = nullptr;
 	INamePool* g_namePool = nullptr;
 	ITaskScheduler* g_taskScheduler = nullptr;
+	TransientAllocators g_transientAllocators;
 	
 	void* GetAppConfig()
 	{
@@ -61,6 +63,11 @@ namespace
 	{
 		return g_taskScheduler;
 	}
+
+	void* GetTransientAllocators()
+	{
+		return &g_transientAllocators;
+	}
 }
 
 ENGINE_FUNC_DLL void BootUpModules( )
@@ -74,6 +81,7 @@ ENGINE_FUNC_DLL void BootUpModules( )
 	RegisterFactory<IFileSystem>( &GetFileSystem );
 	RegisterFactory<INamePool>( &GetNamePool );
 	RegisterFactory<ITaskScheduler>( &GetTaskScheduler );
+	RegisterFactory<TransientAllocators>( &GetTransientAllocators );
 
 	g_taskScheduler = CreateTaskScheduler();
 	g_fileSystem = CreateFileSystem();
@@ -105,4 +113,5 @@ ENGINE_FUNC_DLL void ShutdownModules()
 	UnregisterFactory<IFileSystem>();
 	UnregisterFactory<INamePool>();
 	UnregisterFactory<ITaskScheduler>();
+	UnregisterFactory<TransientAllocators>();
 }

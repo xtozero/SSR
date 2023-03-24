@@ -28,7 +28,7 @@ namespace rendercore
 		float m_aspect = 0.f;
 		float m_fov = 0.f;
 
-		VectorSingleFrame<VisibleDrawSnapshot>* m_snapshots;
+		RenderThreadFrameData<VisibleDrawSnapshot>* m_snapshots;
 
 		ForwardLightingResource* m_forwardLighting = nullptr;
 	};

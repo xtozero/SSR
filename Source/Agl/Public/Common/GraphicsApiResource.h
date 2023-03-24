@@ -611,8 +611,12 @@ namespace agl
 	union ResourceClearValue
 	{
 		float m_color[4];
-		float m_depth;
-		uint8 m_stencil;
+
+		struct DepthStencilClearValue
+		{
+			float m_depth;
+			uint8 m_stencil;
+		} m_depthStencil;
 	};
 
 	struct BufferTrait

@@ -537,8 +537,8 @@ namespace
 		}
 		else if ( HasAnyFlags( trait.m_bindType, ResourceBindType::DepthStencil ) )
 		{
-			ret.DepthStencil.Depth = clearValue.m_depth;
-			ret.DepthStencil.Stencil = clearValue.m_stencil;
+			ret.DepthStencil.Depth = clearValue.m_depthStencil.m_depth;
+			ret.DepthStencil.Stencil = clearValue.m_depthStencil.m_stencil;
 
 			return ret;
 		}
