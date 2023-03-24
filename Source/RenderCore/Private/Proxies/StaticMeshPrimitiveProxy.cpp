@@ -43,7 +43,7 @@ namespace rendercore
 		}
 	}
 
-	void StaticMeshPrimitiveProxy::TakeSnapshot( std::deque<DrawSnapshot>& snapshotStorage, VectorSingleFrame<VisibleDrawSnapshot>& drawList ) const
+	void StaticMeshPrimitiveProxy::TakeSnapshot( std::deque<DrawSnapshot>& snapshotStorage, RenderThreadFrameData<VisibleDrawSnapshot>& drawList ) const
 	{
 		// To Do : will make lod available later
 		StaticMeshLODResource& lodResource = m_pRenderData->LODResource( 0 );

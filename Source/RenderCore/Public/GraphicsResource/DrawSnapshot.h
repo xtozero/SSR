@@ -4,10 +4,10 @@
 #include "GraphicsPipelineState.h"
 #include "IndexBuffer.h"
 #include "PipelineState.h"
-#include "RenderUtility/RenderCoreAllocator.h"
 #include "ShaderBindings.h"
 #include "SparseArray.h"
 #include "SizedTypes.h"
+#include "TransientAllocator.h"
 #include "VertexBufferBundle.h"
 
 #include <map>
@@ -226,7 +226,7 @@ namespace rendercore
 	}
 
 	void PreparePipelineStateObject( DrawSnapshot& snapshot );
-	void SortDrawSnapshots( VectorSingleFrame<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
-	void CommitDrawSnapshots( SceneRenderer& renderer, VectorSingleFrame<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
-	void ParallelCommitDrawSnapshot( SceneRenderer& renderer, VectorSingleFrame<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
+	void SortDrawSnapshots( RenderThreadFrameData<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
+	void CommitDrawSnapshots( SceneRenderer& renderer, RenderThreadFrameData<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
+	void ParallelCommitDrawSnapshot( SceneRenderer& renderer, RenderThreadFrameData<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
 }

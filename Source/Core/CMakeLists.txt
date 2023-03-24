@@ -89,10 +89,12 @@ set (MATH
 
 set (MEMORY
 	Private/Memory/StackMemoryAllocator.cpp
+	Private/Memory/TransientAllocator.cpp
 	Public/Memory/FixedBlockMemoryPool.h
 	Public/Memory/InlineMemoryAllocator.h
 	Public/Memory/MemoryPool.h
-	Public/Memory/StackMemoryAllocator.h)
+	Public/Memory/StackMemoryAllocator.h
+	Public/Memory/TransientAllocator.h)
 
 set (MISC
 	Private/Misc/StringUtility.cpp

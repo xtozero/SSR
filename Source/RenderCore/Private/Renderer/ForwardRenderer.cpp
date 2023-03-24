@@ -66,16 +66,22 @@ namespace rendercore
 		if ( m_depthStencil == nullptr )
 		{
 			agl::TextureTrait trait = {
-				m_bufferSize.first,
-				m_bufferSize.second,
-				1,
-				1,
-				0,
-				1,
-				agl::ResourceFormat::D24_UNORM_S8_UINT,
-				agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
-				agl::ResourceBindType::DepthStencil,
-				agl::ResourceMisc::None
+				.m_width = m_bufferSize.first,
+				.m_height = m_bufferSize.second,
+				.m_depth = 1,
+				.m_sampleCount = 1,
+				.m_sampleQuality = 0,
+				.m_mipLevels = 1,
+				.m_format = agl::ResourceFormat::D24_UNORM_S8_UINT,
+				.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+				.m_bindType = agl::ResourceBindType::DepthStencil,
+				.m_miscFlag = agl::ResourceMisc::None,
+				.m_clearValue = agl::ResourceClearValue{
+					.m_depthStencil = {
+						.m_depth = 1.f,
+						.m_stencil = 0
+					}
+				}
 			};
 
 			m_depthStencil = agl::Texture::Create( trait );
@@ -259,7 +265,7 @@ namespace rendercore
 		{
 			for ( auto& view : renderViewGroup )
 			{
-				view.m_forwardLighting = Allocator().Allocate<ForwardLightingResource>( 1 );
+				view.m_forwardLighting = GetTransientAllocator<ThreadType::RenderThread>().Allocate<ForwardLightingResource>( 1 );
 				std::construct_at( view.m_forwardLighting );
 			}
 
@@ -397,7 +403,7 @@ namespace rendercore
 			return;
 		}
 
-		VectorSingleFrame<LightSceneInfo*> validLights;
+		RenderThreadFrameData<LightSceneInfo*> validLights;
 		const SparseArray<LightSceneInfo*>& lights = scene->Lights();
 		for ( auto light : lights )
 		{

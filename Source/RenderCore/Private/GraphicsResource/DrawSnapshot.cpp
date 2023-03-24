@@ -131,7 +131,7 @@ namespace rendercore
 		pipelineState.m_pso = agl::GraphicsPipelineState::Create( initializer );
 	}
 
-	void SortDrawSnapshots( VectorSingleFrame<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
+	void SortDrawSnapshots( RenderThreadFrameData<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
 	{
 		std::sort( std::begin( visibleSnapshots ), std::end( visibleSnapshots ),
 			[]( const VisibleDrawSnapshot& lhs, const VisibleDrawSnapshot& rhs )
@@ -166,7 +166,7 @@ namespace rendercore
 		}
 	}
 
-	void CommitDrawSnapshots( SceneRenderer& renderer, VectorSingleFrame<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
+	void CommitDrawSnapshots( SceneRenderer& renderer, RenderThreadFrameData<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
 	{
 		auto commandList = GetCommandList();
 
@@ -179,7 +179,7 @@ namespace rendercore
 		}
 	}
 
-	void ParallelCommitDrawSnapshot( SceneRenderer& renderer, VectorSingleFrame<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
+	void ParallelCommitDrawSnapshot( SceneRenderer& renderer, RenderThreadFrameData<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
 	{
 		size_t dc = 0;
 		for ( size_t i = 0; i < visibleSnapshots.size(); )

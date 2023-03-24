@@ -161,7 +161,7 @@ namespace rendercore
 		std::destroy_at( &m_passSnapshots );
 		std::destroy_at( &m_shadowInfos );
 
-		Allocator().Flush();
+		GetTransientAllocator<ThreadType::RenderThread>().Flush();
 	}
 
 	void SceneRenderer::WaitUntilRenderingIsFinish()
@@ -177,7 +177,7 @@ namespace rendercore
 			return;
 		}
 
-		VectorSingleFrame<ShadowInfo*> viewDependentShadow;
+		RenderThreadFrameData<ShadowInfo*> viewDependentShadow;
 
 		Scene& renderScene = *scene.GetRenderScene();
 		auto lights = renderScene.Lights();
@@ -202,7 +202,7 @@ namespace rendercore
 		AllocateShadowMaps();
 	}
 
-	void SceneRenderer::ClassifyShadowCasterAndReceiver( IScene& scene, const VectorSingleFrame<ShadowInfo*>& shadows )
+	void SceneRenderer::ClassifyShadowCasterAndReceiver( IScene& scene, const RenderThreadFrameData<ShadowInfo*>& shadows )
 	{
 		Scene& renderScene = *scene.GetRenderScene();
 
@@ -292,7 +292,7 @@ namespace rendercore
 
 	void SceneRenderer::AllocateShadowMaps()
 	{
-		VectorSingleFrame<ShadowInfo*> cascadeShadows;
+		RenderThreadFrameData<ShadowInfo*> cascadeShadows;
 
 		for ( auto& shadowInfo : m_shadowInfos )
 		{
@@ -321,7 +321,7 @@ namespace rendercore
 		}
 	}
 
-	void SceneRenderer::AllocateCascadeShadowMaps( const VectorSingleFrame<ShadowInfo*>& shadows )
+	void SceneRenderer::AllocateCascadeShadowMaps( const RenderThreadFrameData<ShadowInfo*>& shadows )
 	{
 		for ( ShadowInfo* shadow : shadows )
 		{
@@ -345,16 +345,24 @@ namespace rendercore
 
 			shadow->ShadowMap().m_shadowMap = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait );
 
-			agl::TextureTrait depthTrait = { width,
-				height,
-				CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
-				1,
-				0,
-				1,
-				agl::ResourceFormat::D24_UNORM_S8_UINT,
-				agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
-				agl::ResourceBindType::DepthStencil,
-				agl::ResourceMisc::None };
+			agl::TextureTrait depthTrait = { 
+				.m_width = width,
+				.m_height = height,
+				.m_depth = CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
+				.m_sampleCount = 1,
+				.m_sampleQuality = 0,
+				.m_mipLevels = 1,
+				.m_format = agl::ResourceFormat::D24_UNORM_S8_UINT,
+				.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+				.m_bindType = agl::ResourceBindType::DepthStencil,
+				.m_miscFlag = agl::ResourceMisc::None,
+				.m_clearValue = agl::ResourceClearValue{
+					.m_depthStencil = {
+						.m_depth = 1.f,
+						.m_stencil = 0
+					}
+				}
+			};
 
 			shadow->ShadowMap().m_shadowMapDepth = RenderTargetPool::GetInstance().FindFreeRenderTarget( depthTrait );
 
