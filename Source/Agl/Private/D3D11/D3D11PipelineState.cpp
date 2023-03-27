@@ -82,7 +82,7 @@ namespace agl
 		return m_inputLayout;
 	}
 
-	D3D11_PRIMITIVE_TOPOLOGY D3D11GraphicsPipelineState::PrimitiveTopology() const
+	D3D11_PRIMITIVE_TOPOLOGY D3D11GraphicsPipelineState::GetPrimitiveTopology() const
 	{
 		return m_primitiveTopology;
 	}

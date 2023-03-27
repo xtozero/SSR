@@ -361,7 +361,7 @@ namespace agl
 		}
 	}
 
-	inline D3D_PRIMITIVE_TOPOLOGY ConvertPrimToD3D11Prim( ResourcePrimitive primitive )
+	inline D3D11_PRIMITIVE_TOPOLOGY ConvertPrimToD3D11Prim( ResourcePrimitive primitive )
 	{
 		switch ( primitive )
 		{

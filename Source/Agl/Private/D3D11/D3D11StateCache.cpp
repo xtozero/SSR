@@ -90,7 +90,7 @@ namespace agl
 		if ( auto d3d11PipelineState = static_cast<D3D11GraphicsPipelineState*>( pipelineState ) )
 		{
 			inputLayout = d3d11PipelineState->InputLayout();
-			topology = d3d11PipelineState->PrimitiveTopology();
+			topology = d3d11PipelineState->GetPrimitiveTopology();
 			vertexShader = d3d11PipelineState->VertexShader();
 			geometryShader = d3d11PipelineState->GeometryShader();
 			pixelShader = d3d11PipelineState->PixelShader();
@@ -321,26 +321,26 @@ namespace agl
 
 		for ( uint32 i = 0; i < renderTargetCount; ++i )
 		{
-			auto d3d11Rtv = static_cast<D3D11RenderTargetView*>( pRenderTargets[i] );
-			if ( d3d11Rtv )
+			auto d3d11RTV = static_cast<D3D11RenderTargetView*>( pRenderTargets[i] );
+			if ( d3d11RTV )
 			{
-				rtvs[i] = d3d11Rtv->Resource();
+				rtvs[i] = d3d11RTV->Resource();
 			}
 			else
 			{
 				continue;
 			}
 
-			if ( const IResourceViews* sibiling = d3d11Rtv->ViewHolder() )
+			if ( const IResourceViews* sibiling = d3d11RTV->ViewHolder() )
 			{
-				if ( auto d3d11Srv = static_cast<const D3D11ShaderResourceView*>( sibiling->SRV() ) )
+				if ( auto d3d11SRV = static_cast<const D3D11ShaderResourceView*>( sibiling->SRV() ) )
 				{
-					UnbindExistingSRV( context, d3d11Srv->Resource() );
+					UnbindExistingSRV( context, d3d11SRV->Resource() );
 				}
 
-				if ( auto d3d11Uav = static_cast<const D3D11UnorderedAccessView*>( sibiling->UAV() ) )
+				if ( auto d3d11UAV = static_cast<const D3D11UnorderedAccessView*>( sibiling->UAV() ) )
 				{
-					UnbindExistingUAV( context, d3d11Uav->Resource() );
+					UnbindExistingUAV( context, d3d11UAV->Resource() );
 				}
 			}
 		}
@@ -358,9 +358,9 @@ namespace agl
 					UnbindExistingSRV( context, d3d11SRV->Resource() );
 				}
 
-				if ( auto d3d11Uav = static_cast<const D3D11UnorderedAccessView*>( sibiling->UAV() ) )
+				if ( auto d3d11UAV = static_cast<const D3D11UnorderedAccessView*>( sibiling->UAV() ) )
 				{
-					UnbindExistingUAV( context, d3d11Uav->Resource() );
+					UnbindExistingUAV( context, d3d11UAV->Resource() );
 				}
 			}
 		}

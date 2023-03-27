@@ -1,6 +1,7 @@
 #pragma once
 
 #include "D3D12GlobalDescriptorHeap.h"
+#include "D3D12PipelineCache.h"
 #include "GlobalConstantBuffers.h"
 #include "ICommandList.h"
 #include "Memory/InlineMemoryAllocator.h"
@@ -50,6 +51,8 @@ namespace agl
 
 		GlobalAsyncConstantBuffers m_globalConstantBuffers;
 		D3D12GlobalDescriptorHeap m_globalDescriptorHeap;
+
+		D3D12PipelineCache m_stateCache;
 	};
 
 	class D3D12CommandList : public ICommandList

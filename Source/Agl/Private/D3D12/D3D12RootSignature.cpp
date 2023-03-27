@@ -111,7 +111,7 @@ namespace agl
 		m_desc.pParameters = m_parameters.data();
 		m_desc.NumStaticSamplers = 0;
 		m_desc.pStaticSamplers = nullptr;
-		m_desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
+		m_desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 	}
 
 	D3D12RootSignature::D3D12RootSignature( const ComputePipelineStateInitializer& initializer )
@@ -167,7 +167,7 @@ namespace agl
 			return;
 		}
 
-		D3D12_DESCRIPTOR_RANGE* rangeBegin = m_descritorRange.data() + m_descritorRange.size();
+		size_t rangeBase = m_descritorRange.size();
 
 		for ( const ShaderParameter& srvParam : paramInfo.m_srvs )
 		{
@@ -187,7 +187,7 @@ namespace agl
 		param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		param.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 		param.DescriptorTable.NumDescriptorRanges = static_cast<uint32>( paramInfo.m_srvs.size() );
-		param.DescriptorTable.pDescriptorRanges = rangeBegin;
+		param.DescriptorTable.pDescriptorRanges = &m_descritorRange[rangeBase];
 	}
 
 	void D3D12RootSignature::InitializeUAV( ShaderType shaderType, const ShaderParameterInfo& paramInfo )
@@ -197,7 +197,7 @@ namespace agl
 			return;
 		}
 
-		D3D12_DESCRIPTOR_RANGE* rangeBegin = m_descritorRange.data() + m_descritorRange.size();
+		size_t rangeBase = m_descritorRange.size();
 
 		for ( const ShaderParameter& uavParam : paramInfo.m_uavs )
 		{
@@ -217,7 +217,7 @@ namespace agl
 		param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		param.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 		param.DescriptorTable.NumDescriptorRanges = static_cast<uint32>( paramInfo.m_uavs.size() );
-		param.DescriptorTable.pDescriptorRanges = rangeBegin;
+		param.DescriptorTable.pDescriptorRanges = &m_descritorRange[rangeBase];
 	}
 
 	void D3D12RootSignature::InitializeCB( ShaderType shaderType, const ShaderParameterInfo& paramInfo )
@@ -227,7 +227,7 @@ namespace agl
 			return;
 		}
 
-		D3D12_DESCRIPTOR_RANGE* rangeBegin = m_descritorRange.data() + m_descritorRange.size();
+		size_t rangeBase = m_descritorRange.size();
 
 		for ( const ShaderParameter& constantBufferParam : paramInfo.m_constantBuffers )
 		{
@@ -247,7 +247,7 @@ namespace agl
 		param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		param.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 		param.DescriptorTable.NumDescriptorRanges = static_cast<uint32>( paramInfo.m_constantBuffers.size() );
-		param.DescriptorTable.pDescriptorRanges = rangeBegin;
+		param.DescriptorTable.pDescriptorRanges = &m_descritorRange[rangeBase];
 	}
 
 	void D3D12RootSignature::InitializeSampler( ShaderType shaderType, const ShaderParameterInfo& paramInfo )
@@ -257,7 +257,7 @@ namespace agl
 			return;
 		}
 
-		D3D12_DESCRIPTOR_RANGE* rangeBegin = m_descritorRange.data() + m_descritorRange.size();
+		size_t rangeBase = m_descritorRange.size();
 
 		for ( const ShaderParameter& samplerParam : paramInfo.m_samplers )
 		{
@@ -277,6 +277,6 @@ namespace agl
 		param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		param.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 		param.DescriptorTable.NumDescriptorRanges = static_cast<uint32>( paramInfo.m_samplers.size() );
-		param.DescriptorTable.pDescriptorRanges = rangeBegin;
+		param.DescriptorTable.pDescriptorRanges = &m_descritorRange[rangeBase];
 	}
 }

@@ -33,6 +33,11 @@ namespace agl
 
 		const IResourceViews* ViewHolder() const { return m_viewHolder; }
 
+		const DescType& GetDesc() const
+		{
+			return m_desc;
+		}
+
 		D3D12ViewBase( IResourceViews* viewHolder, ID3D12Resource* d3d11Resource, const DescType& desc ) noexcept :
 			m_viewHolder( viewHolder ),
 			m_d3d12Resource( d3d11Resource ),

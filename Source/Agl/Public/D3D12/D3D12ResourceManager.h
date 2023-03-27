@@ -1,9 +1,14 @@
 #pragma once
 
 #include "GuideTypes.h"
+#include "HashUtil.h"
 #include "IRenderResourceManager.h"
 
+#include <d3d12.h>
 #include <map>
+#include <shared_mutex>
+#include <unordered_map>
+#include <wrl/client.h>
 
 namespace agl
 {
@@ -36,6 +41,8 @@ namespace agl
 		// Viewport
 		virtual Viewport* CreateViewport( uint32 width, uint32 height, void* hWnd, ResourceFormat format ) override;
 
+		ID3D12PipelineState* FindOrCreate( GraphicsPipelineState* pipelineState, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc );
+
 		D3D12ResourceManager() = default;
 		virtual ~D3D12ResourceManager() override;
 		D3D12ResourceManager( const D3D12ResourceManager& ) = delete;
@@ -46,6 +53,54 @@ namespace agl
 	private:
 		std::map<GraphicsPipelineStateInitializer, RefHandle<GraphicsPipelineState>> m_graphicsPipelineStateCache;
 		std::map<ComputePipelineStateInitializer, RefHandle<ComputePipelineState>> m_computePipelineStateCache;
+
+		struct D3D12PipelineStateKey
+		{
+			GraphicsPipelineState* m_state;
+			DXGI_FORMAT m_outputFormats[9] = {};
+
+			D3D12PipelineStateKey( GraphicsPipelineState* state, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc )
+				: m_state( state )
+				, m_outputFormats{ 
+					desc.RTVFormats[0], 
+					desc.RTVFormats[1],
+					desc.RTVFormats[2],
+					desc.RTVFormats[3],
+					desc.RTVFormats[4],
+					desc.RTVFormats[5],
+					desc.RTVFormats[6],
+					desc.RTVFormats[7],
+					desc.DSVFormat }
+			{}
+			D3D12PipelineStateKey() = default;
+
+			friend bool operator==( const D3D12PipelineStateKey& lhs, const D3D12PipelineStateKey& rhs )
+			{
+				return lhs.m_state == rhs.m_state
+					&& std::equal( std::begin( lhs.m_outputFormats ), std::end( lhs.m_outputFormats ), std::begin( rhs.m_outputFormats ) );
+			}
+		};
+
+		struct D3D12PipelineStateKeyHasher
+		{
+			size_t operator()( const D3D12PipelineStateKey& key ) const
+			{
+				static size_t typeHash = typeid( D3D12PipelineStateKeyHasher ).hash_code();
+				size_t hash = typeHash;
+
+				HashCombine( hash, key.m_state );
+
+				for ( DXGI_FORMAT format : key.m_outputFormats )
+				{
+					HashCombine( hash, format );
+				}
+
+				return hash;
+			}
+		};
+
+		std::shared_mutex m_d3d12PipelineMutex;
+		std::unordered_map<D3D12PipelineStateKey, Microsoft::WRL::ComPtr<ID3D12PipelineState>, D3D12PipelineStateKeyHasher> m_d3d12PipelineState;
 	};
 
 	Owner<IResourceManager*> CreateD3D12ResourceManager();
