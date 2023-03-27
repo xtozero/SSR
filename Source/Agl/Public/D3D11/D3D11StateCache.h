@@ -12,7 +12,7 @@ namespace agl
 	class ShaderBindings;
 	class Texture;
 
-	class D3D11PipelineCache
+	class D3D11PipelineCache final
 	{
 	public:
 		void BindVertexBuffer( ID3D11DeviceContext& context, Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets );
@@ -64,9 +64,7 @@ namespace agl
 		ID3D11Buffer* m_constantBuffers[MAX_SHADER_TYPE<uint32>][D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT] = {};
 
 		D3D11_VIEWPORT m_viewports[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE] = {};
-		uint32 m_numViewports = 0;
 
 		D3D11_RECT m_siccorRects[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE] = {};
-		uint32 m_numSiccorRects = 0;
 	};
 }

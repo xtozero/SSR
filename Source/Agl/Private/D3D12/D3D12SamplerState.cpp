@@ -34,7 +34,12 @@ namespace
 
 namespace agl
 {
-	D3D12SamplerState::D3D12SamplerState( const SamplerStateTrait& trait ) 
+	const D3D12DescriptorHeap& D3D12SamplerState::Resource() const
+	{
+		return m_samplerState;
+	}
+
+	D3D12SamplerState::D3D12SamplerState( const SamplerStateTrait& trait )
 		: m_desc( ConvertTraitToDesc( trait ) ) 
 	{
 	}

@@ -2,7 +2,7 @@
 
 #include "Config/DefaultAglConfig.h"
 
-#include "D3D11FlagConvertor.h"
+#include "D3D12Api.h"
 #include "D3D12BaseTexture.h"
 #include "D3D12BlendState.h"
 #include "D3D12Buffer.h"
@@ -13,6 +13,7 @@
 #include "D3D12Shaders.h"
 #include "D3D12VertexLayout.h"
 #include "D3D12Viewport.h"
+#include "DxgiFlagConvertor.h"
 
 namespace agl
 {
@@ -122,6 +123,12 @@ namespace agl
 		auto pipelineState = new D3D12GraphicsPipelineState( initializer );
 		m_graphicsPipelineStateCache.emplace( initializer, pipelineState );
 
+		EnqueueRenderTask(
+			[state = pipelineState]()
+			{
+				state->Init();
+			} );
+
 		return pipelineState;
 	}
 
@@ -136,6 +143,12 @@ namespace agl
 		auto pipelineState = new D3D12ComputePipelineState( initializer );
 		m_computePipelineStateCache.emplace( initializer, pipelineState );
 
+		EnqueueRenderTask(
+			[state = pipelineState]()
+			{
+				state->Init();
+			} );
+
 		return pipelineState;
 	}
 
@@ -143,6 +156,37 @@ namespace agl
 	{
 		uint32 bufferCount = DefaultAgl::GetBufferCount();
 		return new D3D12Viewport( width, height, bufferCount, hWnd, ConvertFormatToDxgiFormat( format ) );
+	}
+
+	ID3D12PipelineState* D3D12ResourceManager::FindOrCreate( GraphicsPipelineState* pipelineState, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc )
+	{
+		D3D12PipelineStateKey key( pipelineState, desc );
+
+		{
+			std::shared_lock<std::shared_mutex> lock( m_d3d12PipelineMutex );
+			auto found = m_d3d12PipelineState.find( key );
+			if ( found != std::end( m_d3d12PipelineState ) )
+			{
+				return found->second.Get();
+			}
+		}
+
+		{
+			std::unique_lock<std::shared_mutex> lock( m_d3d12PipelineMutex );
+			auto found = m_d3d12PipelineState.find( key );
+			if ( found != std::end( m_d3d12PipelineState ) )
+			{
+				return found->second.Get();
+			}
+
+			Microsoft::WRL::ComPtr<ID3D12PipelineState> newPipelineState;
+			[[maybe_unused]] HRESULT hr = D3D12Device().CreateGraphicsPipelineState( &desc, IID_PPV_ARGS( newPipelineState.GetAddressOf() ) );
+			assert( SUCCEEDED( hr ) );
+
+			m_d3d12PipelineState.emplace( key, newPipelineState );
+
+			return newPipelineState.Get();
+		}
 	}
 
 	D3D12ResourceManager::~D3D12ResourceManager()

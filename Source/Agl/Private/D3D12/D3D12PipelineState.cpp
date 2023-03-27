@@ -5,6 +5,21 @@
 
 namespace agl
 {
+	const D3D12_GRAPHICS_PIPELINE_STATE_DESC& D3D12GraphicsPipelineState::GetDesc() const
+	{
+		return m_desc;
+	}
+
+	D3D12RootSignature* D3D12GraphicsPipelineState::GetRootSignature() const
+	{
+		return m_rootSignature;
+	}
+
+	D3D12_PRIMITIVE_TOPOLOGY D3D12GraphicsPipelineState::GetPrimitiveTopology() const
+	{
+		return m_primitiveTopology;
+	}
+
 	void D3D12GraphicsPipelineState::SetRTVFormat( const DXGI_FORMAT* formats, uint32 numFormat )
 	{
 		m_desc.NumRenderTargets = numFormat;
@@ -17,7 +32,8 @@ namespace agl
 	}
 
 	D3D12GraphicsPipelineState::D3D12GraphicsPipelineState( const GraphicsPipelineStateInitializer& initializer )
-		: m_vertexShader( static_cast<D3D12VertexShader*>( initializer.m_vertexShader ) )
+		: m_rootSignature( new D3D12RootSignature( initializer ) )
+		, m_vertexShader( static_cast<D3D12VertexShader*>( initializer.m_vertexShader ) )
 		, m_pixelShader( static_cast<D3D12PixelShader*>( initializer.m_piexlShader ) )
 		// Reserved
 		//, m_domainShader( nullptr )
@@ -27,9 +43,8 @@ namespace agl
 		, m_rasterizerState( static_cast<D3D12RasterizerState*>( initializer.m_rasterizerState ) )
 		, m_depthStencilState( static_cast<D3D12DepthStencilState*>( initializer.m_depthStencilState ) )
 		, m_vertexLayout( static_cast<D3D12VertexLayout*>( initializer.m_vertexLayout ) )
+		, m_primitiveTopology( ConvertPrimToD3D12Prim( initializer.m_primitiveType ) )
 	{
-		m_rootSignature = new D3D12RootSignature( initializer );
-
 		m_desc = {
 			.pRootSignature = nullptr, // Assign later, See D3D12GraphicsPipelineState::InitResource
 			.VS = {
@@ -124,7 +139,7 @@ namespace agl
 			.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED,
 			.PrimitiveTopologyType = ConvertPrimToD3D12PrimType( initializer.m_primitiveType ),
 			.NumRenderTargets = 0,
-			.RTVFormats = 
+			.RTVFormats =
 			{
 				DXGI_FORMAT_UNKNOWN,
 				DXGI_FORMAT_UNKNOWN,
@@ -153,20 +168,21 @@ namespace agl
 	{
 		m_rootSignature->Init();
 		m_desc.pRootSignature = m_rootSignature->Resource();
-
-		HRESULT hr = D3D12Device().CreateGraphicsPipelineState( &m_desc, IID_PPV_ARGS( &m_pipelineState ) );
-		assert( SUCCEEDED( hr ) && "CreateGraphicsPipelineState failed" );
 	}
 
 	void D3D12GraphicsPipelineState::FreeResource()
 	{
-		if ( m_pipelineState )
-		{
-			m_pipelineState->Release();
-			m_pipelineState = nullptr;
-		}
+		m_rootSignature = nullptr;
+	}
 
-		m_rootSignature->Free();
+	ID3D12PipelineState* D3D12ComputePipelineState::Resource() const
+	{
+		return m_pipelineState;
+	}
+
+	D3D12RootSignature* D3D12ComputePipelineState::GetRootSignature() const
+	{
+		return m_rootSignature;
 	}
 
 	D3D12ComputePipelineState::D3D12ComputePipelineState( const ComputePipelineStateInitializer& initializer )

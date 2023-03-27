@@ -139,6 +139,100 @@ namespace agl
 		return D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
 	}
 
+	inline D3D12_PRIMITIVE_TOPOLOGY ConvertPrimToD3D12Prim( ResourcePrimitive primitive )
+	{
+		switch ( primitive )
+		{
+		case ResourcePrimitive::Undefined:
+			return D3D_PRIMITIVE_TOPOLOGY_UNDEFINED;
+		case ResourcePrimitive::Pointlist:
+			return D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+		case ResourcePrimitive::Linelist:
+			return D3D_PRIMITIVE_TOPOLOGY_LINELIST;
+		case ResourcePrimitive::Linestrip:
+			return D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
+		case ResourcePrimitive::Trianglelist:
+			return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		case ResourcePrimitive::TriangleStrip:
+			return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
+		case ResourcePrimitive::LinelistAdj:
+			return D3D_PRIMITIVE_TOPOLOGY_LINELIST_ADJ;
+		case ResourcePrimitive::LinestripAdj:
+			return D3D_PRIMITIVE_TOPOLOGY_LINESTRIP_ADJ;
+		case ResourcePrimitive::TrianglelistAdj:
+			return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ;
+		case ResourcePrimitive::TriangleStripAdj:
+			return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ;
+		case ResourcePrimitive::ControlPointPatchlist1:
+			return D3D_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist2:
+			return D3D_PRIMITIVE_TOPOLOGY_2_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist3:
+			return D3D_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist4:
+			return D3D_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist5:
+			return D3D_PRIMITIVE_TOPOLOGY_5_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist6:
+			return D3D_PRIMITIVE_TOPOLOGY_6_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist7:
+			return D3D_PRIMITIVE_TOPOLOGY_7_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist8:
+			return D3D_PRIMITIVE_TOPOLOGY_8_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist9:
+			return D3D_PRIMITIVE_TOPOLOGY_9_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist10:
+			return D3D_PRIMITIVE_TOPOLOGY_10_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist11:
+			return D3D_PRIMITIVE_TOPOLOGY_11_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist12:
+			return D3D_PRIMITIVE_TOPOLOGY_12_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist13:
+			return D3D_PRIMITIVE_TOPOLOGY_13_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist14:
+			return D3D_PRIMITIVE_TOPOLOGY_14_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist15:
+			return D3D_PRIMITIVE_TOPOLOGY_15_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist16:
+			return D3D_PRIMITIVE_TOPOLOGY_16_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist17:
+			return D3D_PRIMITIVE_TOPOLOGY_17_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist18:
+			return D3D_PRIMITIVE_TOPOLOGY_18_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist19:
+			return D3D_PRIMITIVE_TOPOLOGY_19_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist20:
+			return D3D_PRIMITIVE_TOPOLOGY_20_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist21:
+			return D3D_PRIMITIVE_TOPOLOGY_21_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist22:
+			return D3D_PRIMITIVE_TOPOLOGY_22_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist23:
+			return D3D_PRIMITIVE_TOPOLOGY_23_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist24:
+			return D3D_PRIMITIVE_TOPOLOGY_24_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist25:
+			return D3D_PRIMITIVE_TOPOLOGY_25_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist26:
+			return D3D_PRIMITIVE_TOPOLOGY_26_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist27:
+			return D3D_PRIMITIVE_TOPOLOGY_27_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist28:
+			return D3D_PRIMITIVE_TOPOLOGY_28_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist29:
+			return D3D_PRIMITIVE_TOPOLOGY_29_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist30:
+			return D3D_PRIMITIVE_TOPOLOGY_30_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist31:
+			return D3D_PRIMITIVE_TOPOLOGY_31_CONTROL_POINT_PATCHLIST;
+		case ResourcePrimitive::ControlPointPatchlist32:
+			return D3D_PRIMITIVE_TOPOLOGY_32_CONTROL_POINT_PATCHLIST;
+		default:
+			assert( false );
+			return D3D_PRIMITIVE_TOPOLOGY_UNDEFINED;
+		}
+	}
+
 	inline D3D12_DEPTH_WRITE_MASK ConvertToDepthWriteMask( DepthWriteMode depthWriteMode )
 	{
 		switch ( depthWriteMode )

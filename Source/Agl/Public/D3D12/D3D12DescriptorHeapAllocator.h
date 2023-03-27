@@ -71,6 +71,9 @@ namespace agl
 			return m_gpuHandle;
 		}
 
+		bool IsNull() const;
+		void Free();
+
 		D3D12DescriptorHeap( Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>&& heap, uint32 increamentSize, bool bShaderVisible );
 		D3D12DescriptorHeap() = default;
 

@@ -47,6 +47,26 @@ namespace agl
 			return hash;
 		}
 
+		uint32 NumSRV() const
+		{
+			return static_cast<uint32>( m_parameterInfo->m_srvs.size() );
+		}
+
+		uint32 NumUAV() const
+		{
+			return static_cast<uint32>( m_parameterInfo->m_uavs.size() );
+		}
+
+		uint32 NumCBV() const
+		{
+			return static_cast<uint32>( m_parameterInfo->m_constantBuffers.size() );
+		}
+
+		uint32 NumSampler() const
+		{
+			return static_cast<uint32>( m_parameterInfo->m_samplers.size() );
+		}
+
 		ShaderBindingLayout() = default;
 		ShaderBindingLayout( ShaderType type, const ShaderParameterInfo& parameterInfo ) : m_shaderType( type ), m_parameterInfo( &parameterInfo ) {}
 		ShaderBindingLayout( const ShaderBindingLayout& other )
@@ -251,13 +271,13 @@ namespace agl
 
 		const ShaderParameterInfo*& operator[]( ShaderType type )
 		{
-			assert( ShaderType::None < type&& type < ShaderType::Count );
+			assert( ShaderType::None < type && type < ShaderType::Count );
 			return m_shaderParameterInfos[static_cast<uint32>( type )];
 		}
 
 		const ShaderParameterInfo* operator[]( ShaderType type ) const
 		{
-			assert( ShaderType::None < type&& type < ShaderType::Count );
+			assert( ShaderType::None < type && type < ShaderType::Count );
 			return m_shaderParameterInfos[static_cast<uint32>( type )];
 		}
 
@@ -291,6 +311,8 @@ namespace agl
 				}
 			}
 
+			m_bCompute = ( initializer[ShaderType::CS] != nullptr );
+
 			Allocate( shaderBindsDataSize );
 		}
 
@@ -310,6 +332,11 @@ namespace agl
 			static ShaderParameterInfo emptyParameterInfo;
 			static ShaderBindingLayout emptyLayout( ShaderType::None, emptyParameterInfo );
 			return SingleShaderBindings( emptyLayout, nullptr );
+		}
+
+		bool IsCompute() const
+		{
+			return m_bCompute;
 		}
 
 		ShaderBindings() = default;
@@ -474,5 +501,7 @@ namespace agl
 
 		unsigned char* m_data = nullptr;
 		size_t m_size = 0;
+
+		bool m_bCompute = false;
 	};
 }

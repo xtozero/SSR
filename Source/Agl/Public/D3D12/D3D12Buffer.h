@@ -42,9 +42,6 @@ namespace agl
 		AllocatedResourceInfo m_resourceInfo;
 		D3D12_RESOURCE_DESC m_desc = {};
 		DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
-
-		RefHandle<ShaderResourceView> m_srv;
-		RefHandle<UnorderedAccessView> m_uav;
 	};
 
 	class D3D12ConstantBuffer : public D3D12Buffer
@@ -70,6 +67,8 @@ namespace agl
 	class D3D12IndexBuffer : public D3D12Buffer
 	{
 	public:
+		const D3D12_INDEX_BUFFER_VIEW& GetView() const;
+
 		D3D12IndexBuffer( const BufferTrait& trait, const void* initData );
 		virtual ~D3D12IndexBuffer() override = default;
 		D3D12IndexBuffer( const D3D12IndexBuffer& ) = delete;
@@ -87,6 +86,8 @@ namespace agl
 	class D3D12VertexBuffer : public D3D12Buffer
 	{
 	public:
+		const D3D12_VERTEX_BUFFER_VIEW& GetView() const;
+
 		D3D12VertexBuffer( const BufferTrait& trait, const void* initData );
 		virtual ~D3D12VertexBuffer() override = default;
 		D3D12VertexBuffer( const D3D12VertexBuffer& ) = delete;

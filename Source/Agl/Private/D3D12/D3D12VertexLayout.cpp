@@ -20,7 +20,7 @@ namespace
 			desc.Format = ConvertFormatToDxgiFormat( trait[i].m_format );
 			desc.InputSlot = trait[i].m_slot;
 			desc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-			desc.InputSlotClass = trait[i].m_isInstanceData ? D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA : D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+			desc.InputSlotClass = trait[i].m_isInstanceData ? D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA : D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
 			desc.InstanceDataStepRate = trait[i].m_instanceDataStep;
 		}
 	}

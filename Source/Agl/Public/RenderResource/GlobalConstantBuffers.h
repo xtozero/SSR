@@ -27,7 +27,7 @@ namespace agl
 		virtual ~GlobalConstantBuffer() = default;
 
 	protected:
-		static constexpr int MaxSize = 2048;
+		static constexpr int32 MaxSize = 2048;
 		std::array<char, MaxSize> m_data;
 		uint32 m_updateSize = 0;
 	};

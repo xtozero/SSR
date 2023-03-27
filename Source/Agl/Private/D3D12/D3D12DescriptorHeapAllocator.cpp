@@ -44,6 +44,16 @@ namespace agl
 	{
 	}
 
+	bool D3D12DescriptorHeap::IsNull() const
+	{
+		return m_heap.Get() == nullptr;
+	}
+
+	void D3D12DescriptorHeap::Free()
+	{
+		m_heap = nullptr;
+	}
+
 	D3D12DescriptorHeap::D3D12DescriptorHeap( Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>&& heap, uint32 increamentSize, bool bShaderVisible )
 		: m_heap( std::move( heap ) )
 		, m_increametSize( increamentSize )
