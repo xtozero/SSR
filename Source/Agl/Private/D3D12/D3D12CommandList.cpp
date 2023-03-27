@@ -29,44 +29,44 @@ namespace agl
 
 	void D3D12CommandListImpl::Prepare()
 	{
-		m_globalConstantBuffers.Prepare();
 		if ( ( m_commandAllocator != nullptr ) && ( m_commandList != nullptr ) )
 		{
 			m_commandAllocator->Reset();
 			m_commandList->Reset( m_commandAllocator.Get(), nullptr );
 		}
+
+		m_globalConstantBuffers.Prepare();
+		m_globalDescriptorHeap.Prepare();
+
+		m_stateCache.Prepare();
 	}
 
 	void D3D12CommandListImpl::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
 	{
+		m_stateCache.BindVertexBuffer( *m_commandList.Get(), vertexBuffers, startSlot, numBuffers, pOffsets);
 	}
 
 	void D3D12CommandListImpl::BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset )
 	{
+		m_stateCache.BindIndexBuffer( *m_commandList.Get(), indexBuffer, indexOffset );
 	}
 
 	void D3D12CommandListImpl::BindPipelineState( GraphicsPipelineState* pipelineState )
 	{
 		m_globalConstantBuffers.Reset( false );
+		m_stateCache.BindPipelineState( *m_commandList.Get(), pipelineState );
 	}
 
 	void D3D12CommandListImpl::BindPipelineState( ComputePipelineState* pipelineState )
 	{
 		m_globalConstantBuffers.Reset( true );
-
-		// Test
-		if ( pipelineState )
-		{
-			EnqueueRenderTask( [state = pipelineState]()
-				{
-					state->Init();
-				} );
-		}
+		m_stateCache.BindPipelineState( *m_commandList.Get(), pipelineState );
 	}
 
 	void D3D12CommandListImpl::BindShaderResources( ShaderBindings& shaderBindings )
 	{
 		m_globalConstantBuffers.AddGlobalConstantBuffers( shaderBindings );
+		m_stateCache.BindShaderResources( *m_commandList.Get(), m_globalDescriptorHeap, shaderBindings );
 	}
 
 	void D3D12CommandListImpl::SetShaderValue( const ShaderParameter& parameter, const void* value )
@@ -91,14 +91,17 @@ namespace agl
 
 	void D3D12CommandListImpl::SetViewports( uint32 count, const CubeArea<float>* area )
 	{
+		m_stateCache.SetViewports( *m_commandList.Get(), count, area );
 	}
 
 	void D3D12CommandListImpl::SetScissorRects( uint32 count, const RectangleArea<int32>* area )
 	{
+		m_stateCache.SetScissorRects( *m_commandList.Get(), count, area );
 	}
 
 	void D3D12CommandListImpl::BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil )
 	{
+		m_stateCache.BindRenderTargets( *m_commandList.Get(), pRenderTargets, renderTargetCount, depthStencil );
 	}
 
 	void D3D12CommandListImpl::ClearRenderTarget( RenderTargetView* renderTarget, const float( &clearColor )[4] )
@@ -108,13 +111,21 @@ namespace agl
 			return;
 		}
 
-		auto d3d12Rtv = static_cast<D3D12RenderTargetView*>( renderTarget );
-		D3D12_CPU_DESCRIPTOR_HANDLE handle = d3d12Rtv->GetCpuHandle().At();
+		auto d3d12RTV = static_cast<D3D12RenderTargetView*>( renderTarget );
+		D3D12_CPU_DESCRIPTOR_HANDLE handle = d3d12RTV->GetCpuHandle().At();
 		m_commandList->ClearRenderTargetView( handle, clearColor, 0, nullptr );
 	}
 
 	void D3D12CommandListImpl::ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor )
 	{
+		if ( depthStencil == nullptr )
+		{
+			return;
+		}
+
+		auto d3d12DSV = static_cast<D3D12DepthStencilView*>( depthStencil );
+		D3D12_CPU_DESCRIPTOR_HANDLE handle = d3d12DSV->GetCpuHandle().At();
+		m_commandList->ClearDepthStencilView( handle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, depthColor, stencilColor, 0, nullptr );
 	}
 
 	void D3D12CommandListImpl::CopyResource( Texture* dest, Texture* src )

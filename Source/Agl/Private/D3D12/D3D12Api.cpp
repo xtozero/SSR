@@ -6,6 +6,7 @@
 #include "Config/DefaultAglConfig.h"
 
 #include "D3D12CommandList.h"
+#include "D3D12NullDescriptor.h"
 
 #include "EnumStringMap.h"
 
@@ -251,6 +252,7 @@ namespace agl
 	void Direct3D12::OnShutdown()
 	{
 		m_uploader.WaitUntilCopyCompleted();
+		D3D12NullDescriptorStorage::Clear();
 	}
 
 	void Direct3D12::HandleDeviceLost()
@@ -400,7 +402,7 @@ namespace agl
 		args.push_back( L"-D" );
 		args.push_back( L"D3D12=1");
 
-		constexpr int MaxDefineLen = 256;
+		constexpr int32 MaxDefineLen = 256;
 		std::vector<std::array<wchar_t, MaxDefineLen>> defineStorage;
 		for ( uint32 i = 0; i < defines.size(); i += 2 )
 		{

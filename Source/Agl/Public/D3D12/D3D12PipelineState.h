@@ -16,6 +16,10 @@ namespace agl
 	class D3D12GraphicsPipelineState : public GraphicsPipelineState
 	{
 	public:
+		const D3D12_GRAPHICS_PIPELINE_STATE_DESC& GetDesc() const;
+		D3D12RootSignature* GetRootSignature() const;
+		D3D12_PRIMITIVE_TOPOLOGY GetPrimitiveTopology() const;
+
 		void SetRTVFormat( const DXGI_FORMAT* formats, uint32 numFormat );
 		void SetDSVFormat( DXGI_FORMAT format );
 
@@ -29,6 +33,8 @@ namespace agl
 		virtual void InitResource() override;
 		virtual void FreeResource() override;
 
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC m_desc = {};
+
 		RefHandle<D3D12RootSignature> m_rootSignature;
 		RefHandle<D3D12VertexShader> m_vertexShader;
 		RefHandle<D3D12PixelShader> m_pixelShader;
@@ -40,14 +46,15 @@ namespace agl
 		RefHandle<D3D12RasterizerState> m_rasterizerState;
 		RefHandle<D3D12DepthStencilState> m_depthStencilState;
 		RefHandle<D3D12VertexLayout> m_vertexLayout;
-
-		ID3D12PipelineState* m_pipelineState = nullptr;
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC m_desc = {};
+		D3D12_PRIMITIVE_TOPOLOGY m_primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_UNDEFINED;
 	};
 
 	class D3D12ComputePipelineState : public ComputePipelineState
 	{
 	public:
+		ID3D12PipelineState* Resource() const;
+		D3D12RootSignature* GetRootSignature() const;
+
 		explicit D3D12ComputePipelineState( const ComputePipelineStateInitializer& initializer );
 		D3D12ComputePipelineState( const D3D12ComputePipelineState& ) = delete;
 		D3D12ComputePipelineState( D3D12ComputePipelineState&& ) = delete;

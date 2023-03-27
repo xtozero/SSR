@@ -222,8 +222,8 @@ namespace agl
 
 	GlobalConstantBuffer& GlobalConstantBuffers::GetGlobalConstantBuffer( ShaderType shaderType )
 	{
-		assert( m_constantBuffers[static_cast<int>( shaderType )] );
-		return *m_constantBuffers[static_cast<int>( shaderType )];
+		assert( m_constantBuffers[static_cast<int32>( shaderType )] );
+		return *m_constantBuffers[static_cast<int32>( shaderType )];
 	}
 
 	GlobalConstantBuffer* GlobalSyncConstantBuffers::CreateGlobalConstantBuffer() const

@@ -10,6 +10,8 @@ namespace agl
 	class D3D12SamplerState : public SamplerState
 	{
 	public:
+		const D3D12DescriptorHeap& Resource() const;
+
 		D3D12SamplerState( const SamplerStateTrait& trait );
 		D3D12SamplerState( const D3D12SamplerState& ) = default;
 		D3D12SamplerState( D3D12SamplerState&& ) = default;

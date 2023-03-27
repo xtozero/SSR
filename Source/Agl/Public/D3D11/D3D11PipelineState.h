@@ -30,7 +30,7 @@ namespace agl
 		ID3D11InputLayout* InputLayout();
 		const ID3D11InputLayout* InputLayout() const;
 
-		D3D11_PRIMITIVE_TOPOLOGY PrimitiveTopology() const;
+		D3D11_PRIMITIVE_TOPOLOGY GetPrimitiveTopology() const;
 
 		uint32 SampleMask() const;
 

@@ -292,6 +292,11 @@ namespace agl
 		D3D12Buffer::DestroyBuffer();
 	}
 
+	const D3D12_INDEX_BUFFER_VIEW& D3D12IndexBuffer::GetView() const
+	{
+		return m_view;
+	}
+
 	D3D12IndexBuffer::D3D12IndexBuffer( const BufferTrait& trait, const void* initData )
 		: D3D12Buffer( trait, initData )
 	{
@@ -306,6 +311,11 @@ namespace agl
 			.SizeInBytes = static_cast<uint32>( m_desc.Width ),
 			.Format = ( Stride() == sizeof(uint16) ) ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT
 		};
+	}
+
+	const D3D12_VERTEX_BUFFER_VIEW& D3D12VertexBuffer::GetView() const
+	{
+		return m_view;
 	}
 
 	D3D12VertexBuffer::D3D12VertexBuffer( const BufferTrait& trait, const void* initData )

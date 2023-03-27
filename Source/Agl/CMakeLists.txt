@@ -66,6 +66,8 @@ set (D3D12_RENDER_RESOURCE_SOURCE
 	Private/D3D12/D3D12DescriptorHeapAllocator.cpp
 	Private/D3D12/D3D12GlobalDescriptorHeap.cpp
 	Private/D3D12/D3D12HeapAllocator.cpp
+	Private/D3D12/D3D12NullDescriptor.cpp
+	Private/D3D12/D3D12PipelineCache.cpp
 	Private/D3D12/D3D12PipelineState.cpp
 	Private/D3D12/D3D12RasterizerState.cpp
 	Private/D3D12/D3D12ResourceAllocator.cpp
@@ -85,6 +87,8 @@ set (D3D12_RENDER_RESOURCE_SOURCE
 	Public/D3D12/D3D12DescriptorHeapAllocator.h
 	Public/D3D12/D3D12GlobalDescriptorHeap.h
 	Public/D3D12/D3D12HeapAllocator.h
+	Public/D3D12/D3D12NullDescriptor.h
+	Public/D3D12/D3D12PipelineCache.h
 	Public/D3D12/D3D12PipelineState.h
 	Public/D3D12/D3D12RasterizerState.h
 	Public/D3D12/D3D12ResourceAllocator.h
@@ -208,11 +212,15 @@ PRIVATE
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 add_custom_command(TARGET Agl POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/Agl.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/Agl.dll"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/ThirdParty/DXC/bin/x64/dxcompiler.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/dxcompiler.dll"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/ThirdParty/DXC/bin/x64/dxil.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/dxil.dll"
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/ThirdParty/DXC/bin/x64/dxcompiler.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/dxcompiler.dll"
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/ThirdParty/DXC/bin/x64/dxil.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/dxil.dll")
 elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
 add_custom_command(TARGET Agl POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/Agl.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/Agl.dll"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/ThirdParty/DXC/bin/x86/dxcompiler.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/dxcompiler.dll"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/ThirdParty/DXC/bin/x86/dxil.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/dxil.dll"
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/ThirdParty/DXC/bin/x86/dxcompiler.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/dxcompiler.dll"
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/ThirdParty/DXC/bin/x86/dxil.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/dxil.dll")
 endif()
