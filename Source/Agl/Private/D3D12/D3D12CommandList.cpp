@@ -77,16 +77,19 @@ namespace agl
 	void D3D12CommandListImpl::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
 	{
 		m_globalConstantBuffers.CommitShaderValue( false );
+		m_commandList->DrawInstanced( vertexCount, numInstance, baseVertexLocation, 0 );
 	}
 
 	void D3D12CommandListImpl::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
 	{
 		m_globalConstantBuffers.CommitShaderValue( false );
+		m_commandList->DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation, 0 );
 	}
 
 	void D3D12CommandListImpl::Dispatch( uint32 x, uint32 y, uint32 z )
 	{
 		m_globalConstantBuffers.CommitShaderValue( true );
+		m_commandList->Dispatch( x, y, z );
 	}
 
 	void D3D12CommandListImpl::SetViewports( uint32 count, const CubeArea<float>* area )

@@ -401,12 +401,12 @@ namespace rendercore
 
 			auto commandList = GetCommandList();
 
-			agl::ResourceTransition transitions[] = {
+			agl::ResourceTransition beforeRenderDepth[] = {
 				Transition( *shadowMap.m_shadowMap.Get(),agl::ResourceState::RenderTarget ),
 				Transition( *shadowMap.m_shadowMapDepth.Get(), agl::ResourceState::DepthWrite )
 			};
 
-			commandList.Transition( std::extent_v<decltype( transitions )>, transitions);
+			commandList.Transition( std::extent_v<decltype( beforeRenderDepth )>, beforeRenderDepth );
 
 			agl::RenderTargetView* rtv = shadowMap.m_shadowMap->RTV();
 			commandList.ClearRenderTarget( rtv, { 1, 1, 1, 1 } );
@@ -416,6 +416,12 @@ namespace rendercore
 
 			shadowInfo.SetupShadowConstantBuffer();
 			shadowInfo.RenderDepth( *this, m_shaderResources );
+
+			agl::ResourceTransition afterRenderDepth[] = {
+				Transition( *shadowMap.m_shadowMap.Get(),agl::ResourceState::GenericRead ),
+			};
+
+			commandList.Transition( std::extent_v<decltype( afterRenderDepth )>, afterRenderDepth );
 		}
 	}
 

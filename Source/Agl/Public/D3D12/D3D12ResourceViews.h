@@ -31,15 +31,15 @@ namespace agl
 			return m_descriptorHeap.GetGpuHandle();
 		}
 
-		const IResourceViews* ViewHolder() const { return m_viewHolder; }
+		GraphicsApiResource* GetOwner() const { return m_owner; }
 
 		const DescType& GetDesc() const
 		{
 			return m_desc;
 		}
 
-		D3D12ViewBase( IResourceViews* viewHolder, ID3D12Resource* d3d11Resource, const DescType& desc ) noexcept :
-			m_viewHolder( viewHolder ),
+		D3D12ViewBase( GraphicsApiResource* owner, ID3D12Resource* d3d11Resource, const DescType& desc ) noexcept :
+			m_owner( owner ),
 			m_d3d12Resource( d3d11Resource ),
 			m_desc( desc )
 		{
@@ -68,7 +68,7 @@ namespace agl
 					m_d3d12Resource->Release();
 				}
 
-				m_viewHolder = other.m_viewHolder;
+				m_owner = other.m_owner;
 				m_d3d12Resource = other.m_d3d12Resource;
 				m_descriptorHeap = other.m_descriptorHeap;
 				m_desc = other.m_desc;
@@ -96,12 +96,12 @@ namespace agl
 					m_d3d12Resource->Release();
 				}
 
-				m_viewHolder = other.m_viewHolder;
+				m_owner = other.m_owner;
 				m_d3d12Resource = other.m_d3d12Resource;
 				m_descriptorHeap = std::move( other.m_descriptorHeap );
 				m_desc = other.m_desc;
 
-				other.m_viewHolder = nullptr;
+				other.m_owner = nullptr;
 				other.m_d3d12Resource = nullptr;
 				other.m_desc = {};
 			}
@@ -112,7 +112,7 @@ namespace agl
 	protected:
 		virtual void FreeResource() override
 		{
-			m_viewHolder = nullptr;
+			m_owner = nullptr;
 
 			if ( m_d3d12Resource )
 			{
@@ -123,7 +123,7 @@ namespace agl
 			std::destroy_at( &m_descriptorHeap );
 		}
 
-		IResourceViews* m_viewHolder = nullptr;
+		GraphicsApiResource* m_owner = nullptr;
 		ID3D12Resource* m_d3d12Resource = nullptr;
 		D3D12DescriptorHeap m_descriptorHeap;
 		DescType m_desc = {};
