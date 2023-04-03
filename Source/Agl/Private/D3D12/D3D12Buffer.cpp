@@ -138,6 +138,11 @@ namespace agl
 		return m_resourceInfo.m_resource;
 	}
 
+	uint32 D3D12Buffer::CurFrameOffset() const
+	{
+		return 0;
+	}
+
 	uint32 D3D12Buffer::Stride() const
 	{
 		return m_trait.m_stride;
@@ -252,6 +257,12 @@ namespace agl
 			} );
 	}
 
+	uint32 D3D12ConstantBuffer::CurFrameOffset() const
+	{
+		uint32 alignedSize = CalcAlignment<uint32>( Size(), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+		return alignedSize * GetFrameIndex();
+	}
+
 	D3D12ConstantBufferView* D3D12ConstantBuffer::CBV() const
 	{
 		assert( IsInRenderThread() );
@@ -270,13 +281,13 @@ namespace agl
 	{
 		D3D12Buffer::CreateBuffer();
 
-		uint32 alignedSize = CalcAlignment<uint32>( m_trait.m_count * m_trait.m_stride, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT );
+		uint32 alignedSize = CalcAlignment<uint32>( Size(), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT );
 		
 		m_cbv.resize( DefaultAgl::GetBufferCount() );
 		for ( uint32 i = 0; i < DefaultAgl::GetBufferCount(); ++i )
 		{
 			D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {
-				.BufferLocation = Resource()->GetGPUVirtualAddress() + alignedSize,
+				.BufferLocation = Resource()->GetGPUVirtualAddress() + ( i * alignedSize ),
 				.SizeInBytes = alignedSize
 			};
 

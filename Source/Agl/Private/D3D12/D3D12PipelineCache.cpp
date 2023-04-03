@@ -34,6 +34,10 @@ namespace agl
 
 		std::memset( m_rtvs, 0, sizeof( m_rtvs ) );
 		m_dsv = nullptr;
+
+		m_renderResources.clear();
+		m_renderResourcesAllocator.Flush();
+		std::construct_at( &m_renderResources, m_renderResourcesAllocator );
 	}
 
 	void D3D12PipelineCache::BindVertexBuffer( ID3D12GraphicsCommandList6& commandList, Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
@@ -73,6 +77,11 @@ namespace agl
 			}
 		}
 
+		for ( uint32 i = 0; i < numBuffers; ++i )
+		{
+			RegisterRenderResource( vertexBuffers[i] );
+		}
+
 		std::copy( std::begin( vertexBufferViews ), std::end( vertexBufferViews ), std::begin( m_vertexBufferViews ) );
 		m_numVertexBufferViews = numBuffers;
 
@@ -94,6 +103,8 @@ namespace agl
 		{
 			return;
 		}
+
+		RegisterRenderResource( indexBuffer );
 
 		m_indexBufferView = view;
 		commandList.IASetIndexBuffer( ( view.SizeInBytes == 0 ) ? nullptr : &view );
@@ -131,6 +142,8 @@ namespace agl
 			rootSignature = d3d12RootSignature->Resource();
 		}
 
+		RegisterRenderResource( pipelineState );
+
 		m_pipelineState = graphicsPipelineState;
 		commandList.IASetPrimitiveTopology( d3d12GraphicsPipelineState->GetPrimitiveTopology() );
 		commandList.SetPipelineState( graphicsPipelineState );
@@ -159,6 +172,8 @@ namespace agl
 		{
 			rootSignature = d3d12RootSignature->Resource();
 		}
+
+		RegisterRenderResource( pipelineState );
 
 		m_pipelineState = computePipelineState;
 		commandList.SetPipelineState( computePipelineState );
@@ -205,6 +220,8 @@ namespace agl
 
 				auto d3d12SRV = static_cast<D3D12ShaderResourceView*>( srv.Get() );
 				assert( d3d12SRV != nullptr );
+
+				RegisterRenderResource( d3d12SRV->GetOwner() );
 				
 				D3D12Device().CopyDescriptorsSimple( 1, allocatedInfo[SrvCbvUavHeap].GetCpuHandle( destOffset ), d3d12SRV->GetCpuHandle().At(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
 				++destOffset;
@@ -226,6 +243,8 @@ namespace agl
 				auto d3d12UAV = static_cast<D3D12UnorderedAccessView*>( uav->Get() );
 				assert( d3d12UAV != nullptr );
 
+				RegisterRenderResource( d3d12UAV->GetOwner() );
+
 				D3D12Device().CopyDescriptorsSimple( 1, allocatedInfo[SrvCbvUavHeap].GetCpuHandle( destOffset ), d3d12UAV->GetCpuHandle().At(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
 				++destOffset;
 			}
@@ -245,6 +264,8 @@ namespace agl
 
 				auto d3d12CB = static_cast<D3D12ConstantBuffer*>( cb->Get() );
 				assert( d3d12CB != nullptr );
+
+				RegisterRenderResource( cb->Get() );
 
 				D3D12Device().CopyDescriptorsSimple( 1, allocatedInfo[SrvCbvUavHeap].GetCpuHandle( destOffset ), d3d12CB->CBV()->GetCpuHandle().At(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
 				++destOffset;
@@ -471,7 +492,6 @@ namespace agl
 			else
 			{
 				rtvs[i] = D3D12NullDescriptor<DescriptorType::RenderTargetView, DescriptorUnderlyingType::Texture2D>::Get().GetCpuHandle().At();
-				continue;
 			}
 		}
 
@@ -484,5 +504,23 @@ namespace agl
 		std::copy( pRenderTargets, pRenderTargets + renderTargetCount, std::begin( m_rtvs ) );
 		m_dsv = depthStencil;
 		commandList.OMSetRenderTargets( renderTargetCount, rtvs, false, depthStencil ? &dsv : nullptr );
+	}
+
+	D3D12PipelineCache::D3D12PipelineCache()
+		: m_renderResources( m_renderResourcesAllocator )
+	{
+	}
+
+	void D3D12PipelineCache::RegisterRenderResource( GraphicsApiResource* resource )
+	{
+		if ( resource == nullptr )
+		{
+			return;
+		}
+
+		if ( m_renderResources.find( resource ) == std::end( m_renderResources ) )
+		{
+			m_renderResources.emplace( resource );
+		}
 	}
 }

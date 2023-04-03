@@ -17,6 +17,8 @@ namespace agl
 		ID3D12Resource* Resource();
 		virtual void* Resource() const override;
 
+		virtual uint32 CurFrameOffset() const;
+
 		uint32 Stride() const;
 		uint32 Size() const;
 
@@ -47,6 +49,8 @@ namespace agl
 	class D3D12ConstantBuffer : public D3D12Buffer
 	{
 	public:
+		virtual uint32 CurFrameOffset() const override;
+
 		D3D12ConstantBufferView* CBV() const;
 
 		D3D12ConstantBuffer( const BufferTrait& trait, const void* initData );

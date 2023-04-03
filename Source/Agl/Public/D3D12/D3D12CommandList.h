@@ -6,8 +6,8 @@
 #include "ICommandList.h"
 #include "Memory/InlineMemoryAllocator.h"
 
-#include <wrl/client.h>
 #include <d3d12.h>
+#include <wrl/client.h>
 
 namespace agl
 {

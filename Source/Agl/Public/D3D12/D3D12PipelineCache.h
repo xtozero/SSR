@@ -2,10 +2,12 @@
 
 #include "GraphicsApiResource.h"
 #include "SizedTypes.h"
+#include "StackMemoryAllocator.h"
 #include "TransientAllocator.h"
 
 #include <array>
 #include <d3d12.h>
+#include <set>
 
 namespace agl
 {
@@ -35,7 +37,16 @@ namespace agl
 		void SetScissorRects( ID3D12GraphicsCommandList6& commandList, uint32 count, const RectangleArea<int32>* area );
 		void BindRenderTargets( ID3D12GraphicsCommandList6& commandList, RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil );
 
+		D3D12PipelineCache();
+		~D3D12PipelineCache() = default;
+		D3D12PipelineCache( const D3D12PipelineCache& ) = delete;
+		D3D12PipelineCache& operator=( const D3D12PipelineCache& ) = delete;
+		D3D12PipelineCache( D3D12PipelineCache&& ) = default;
+		D3D12PipelineCache& operator=( D3D12PipelineCache&& ) = default;
+
 	private:
+		void RegisterRenderResource( GraphicsApiResource* resource );
+
 		D3D12_VERTEX_BUFFER_VIEW m_vertexBufferViews[D3D12_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
 		uint32 m_numVertexBufferViews = 0;
 
@@ -51,5 +62,8 @@ namespace agl
 
 		RenderTargetView* m_rtvs[D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT] = {};
 		DepthStencilView* m_dsv = nullptr;
+
+		TypedStackAllocator<RefHandle<GraphicsApiResource>> m_renderResourcesAllocator;
+		std::set<RefHandle<GraphicsApiResource>, std::less<RefHandle<GraphicsApiResource>>, TypedStackAllocator<RefHandle<GraphicsApiResource>>> m_renderResources;
 	};
 }
