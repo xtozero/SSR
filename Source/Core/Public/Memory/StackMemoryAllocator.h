@@ -3,6 +3,8 @@
 
 #include "SizedTypes.h"
 
+#include <memory>
+
 struct MemoryPage
 {
 	uint8 m_data[64 * 1024];
@@ -59,6 +61,36 @@ public:
 		DeallocateChunks();
 	}
 
+	constexpr StackAllocator() = default;
+	constexpr StackAllocator( const StackAllocator& ) = delete;
+	StackAllocator& operator=( const StackAllocator& ) = delete;
+	constexpr StackAllocator( StackAllocator&& other ) noexcept
+	{
+		*this = std::move( other );
+	}
+
+	constexpr StackAllocator& operator=( StackAllocator&& other ) noexcept
+	{
+		if ( this == &other )
+		{
+			return *this;
+		}
+
+		DeallocateChunks();
+
+		m_top = other.m_top;
+		m_end = other.m_end;
+		m_topChunk = other.m_topChunk;
+
+		m_pageAllocator = std::move( other.m_pageAllocator );
+
+		other.m_top = nullptr;
+		other.m_end = nullptr;
+		other.m_topChunk = nullptr;
+
+		return *this;
+	}
+
 private:
 	void DeallocateChunks()
 	{
@@ -92,3 +124,56 @@ private:
 
 	PageAllocator m_pageAllocator;
 };
+
+template <typename T>
+class TypedStackAllocator
+{
+public:
+	using value_type = T;
+	using size_type = size_t;
+	using difference_type = uptrint;
+	using propagate_on_container_move_assignment = std::false_type;
+
+	[[nodiscard]] constexpr T* allocate( size_t n )
+	{
+		return m_allocator->Allocate<T>( n );
+	}
+
+	void deallocate( [[maybe_unused]] T* p, [[maybe_unused]] size_t n ) { /*Do Nothing*/ }
+
+	void Flush()
+	{
+		m_allocator->Flush();
+	}
+
+	std::shared_ptr<StackAllocator> GetStackAllocator() const
+	{
+		return m_allocator;
+	}
+
+	constexpr TypedStackAllocator()
+		: m_allocator( std::make_shared<StackAllocator>() )
+	{
+	}
+
+	constexpr TypedStackAllocator( const TypedStackAllocator& ) = default;
+	constexpr TypedStackAllocator( TypedStackAllocator&& ) = default;
+	template <class Other>
+	constexpr TypedStackAllocator( const TypedStackAllocator<Other>& other ) noexcept 
+		: m_allocator( other.GetStackAllocator() )
+	{
+	}
+
+	~TypedStackAllocator() = default;
+	TypedStackAllocator& operator=( const TypedStackAllocator& ) = default;
+	TypedStackAllocator& operator=( TypedStackAllocator&& ) = default;
+
+private:
+	std::shared_ptr<StackAllocator> m_allocator;
+};
+
+template <typename T1, typename T2>
+constexpr bool operator==( const TypedStackAllocator<T1>& lhs, const TypedStackAllocator<T2>& rhs ) noexcept
+{
+	return &lhs == &rhs;
+}

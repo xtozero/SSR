@@ -321,17 +321,10 @@ namespace agl
 		void* mappedData = nullptr;
 		HRESULT hr = resource->Map( subResource, nullptr, &mappedData );
 
-		D3D12_PLACED_SUBRESOURCE_FOOTPRINT footPrint;
-		uint32 rows = 0;
-		uint64 rowSize = 0;
-		uint64 totalSize = 0;
-
-		D3D12Device().GetCopyableFootprints( &d3d12Buffer->Desc(), subResource, 1, 0, &footPrint, &rows, &rowSize, &totalSize);
-
 		LockedResource result = {
-			.m_data = mappedData,
-			.m_rowPitch = footPrint.Footprint.RowPitch,
-			.m_depthPitch = footPrint.Footprint.RowPitch * rows
+			.m_data = static_cast<char*>( mappedData ) + d3d12Buffer->CurFrameOffset(),
+			.m_rowPitch = d3d12Buffer->Size(),
+			.m_depthPitch = d3d12Buffer->Size()
 		};
 		return result;
 	}
