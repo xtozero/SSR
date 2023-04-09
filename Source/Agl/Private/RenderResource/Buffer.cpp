@@ -20,4 +20,9 @@ namespace agl
 	{
 		m_state = state;
 	}
+	
+	Buffer::Buffer() noexcept
+	{
+		m_isBuffer = true;
+	}
 }

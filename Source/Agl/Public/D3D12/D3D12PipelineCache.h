@@ -1,5 +1,6 @@
 #pragma once
 
+#include "D3D12ResourceAllocator.h"
 #include "GraphicsApiResource.h"
 #include "SizedTypes.h"
 #include "StackMemoryAllocator.h"
@@ -63,7 +64,10 @@ namespace agl
 		RenderTargetView* m_rtvs[D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT] = {};
 		DepthStencilView* m_dsv = nullptr;
 
-		TypedStackAllocator<RefHandle<GraphicsApiResource>> m_renderResourcesAllocator;
-		std::set<RefHandle<GraphicsApiResource>, std::less<RefHandle<GraphicsApiResource>>, TypedStackAllocator<RefHandle<GraphicsApiResource>>> m_renderResources;
+		TypedStackAllocator<const ID3D12Resource*> m_allocatedIdentifierAllocator;
+		std::set<const ID3D12Resource*, std::less<const ID3D12Resource*>, TypedStackAllocator<const ID3D12Resource*>> m_allocatedIdentifiers;
+
+		TypedStackAllocator<AllocatedResourceInfo> m_allocatedInfoAllocator;
+		std::vector<AllocatedResourceInfo, TypedStackAllocator<AllocatedResourceInfo>> m_allocatedInfos;
 	};
 }

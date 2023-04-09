@@ -33,7 +33,7 @@ namespace rendercore
 		void CreateGraphicsResource();
 		void UpdateToGPU();
 
-		std::shared_ptr<Material> m_material;
+		std::weak_ptr<Material> m_material;
 
 		using ConstantBufferParameter = std::pair<agl::ShaderParameter, ConstantBuffer>;
 		std::vector<ConstantBufferParameter> m_materialConstantBuffers;

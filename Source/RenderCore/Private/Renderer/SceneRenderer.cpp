@@ -164,9 +164,14 @@ namespace rendercore
 		GetTransientAllocator<ThreadType::RenderThread>().Flush();
 	}
 
+	PrimitiveIdVertexBufferPool& SceneRenderer::GetPrimitiveIdPool()
+	{
+		return m_primitiveIdBufferPool;
+	}
+
 	void SceneRenderer::WaitUntilRenderingIsFinish()
 	{
-		PrimitiveIdVertexBufferPool::GetInstance().DiscardAll();
+		GetPrimitiveIdPool().DiscardAll();
 	}
 
 	void SceneRenderer::InitDynamicShadows( RenderViewGroup& renderViewGroup )
@@ -570,7 +575,7 @@ namespace rendercore
 			m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 		}
 
-		VertexBuffer primitiveIds = PrimitiveIdVertexBufferPool::GetInstance().Alloc( static_cast<uint32>( snapshots.size() * sizeof( uint32 ) ) );
+		VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc(static_cast<uint32>( snapshots.size() * sizeof(uint32) ));
 
 		SortDrawSnapshots( snapshots, primitiveIds );
 		// CommitDrawSnapshots( *this, renderViewGroup, curView, primitiveIds );

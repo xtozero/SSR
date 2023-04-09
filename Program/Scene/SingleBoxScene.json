@@ -1,0 +1,41 @@
+{
+  "World": [
+    {
+      "Object": {
+        "Class": "directional_light",
+        "Direction": [ -1, -1, 0 ],
+        "Diffuse": [ 0.5, 0.5, 0.5, 1 ],
+        "Specular": [ 0.8, 0.8, 0.8, 1 ],
+        "CastShadow": true,
+        "UsedAsAtmosphereSunLight": true
+      }
+    },
+    {
+      "Object": {
+        "Class": "player",
+        "Position": [ 0, 0, -50 ],
+        "Components": {
+          "GroundMovementComponent": {
+            "Kinetic_Force_Scale": 300,
+            "Friction": [ 300, 200 ]
+          }
+        }
+      }
+    },
+    {
+      "Object": {
+        "Class": "box_object",
+        "Name": "ground",
+        "Position": [ 0, 0, 0 ],
+        "Scale": [ 10, 10, 10 ],
+        "Reflectable": 1,
+        "Components": {
+          "StaticMeshComponent": {
+            "Model": "./Assets/Models/Obj/box.asset",
+            "RenderOption": "./Assets/RenderOptions/RO_Reflectable.asset"
+          }
+        }
+      }
+    }
+  ]
+}

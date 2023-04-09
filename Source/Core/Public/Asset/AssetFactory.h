@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Crc32Hash.h"
-#include "Delegate.h"
 #include "IAsyncLoadableAsset.h"
 #include "InterfaceFactories.h"
 #include "SizedTypes.h"
@@ -18,10 +17,7 @@ class IAssetFactory
 public:
 	void RegisterCreateFunction( uint32 id, AssetCreateFunctionPtr createFunc )
 	{
-		Delegate<IAsyncLoadableAsset*> func;
-		func.BindFunction( createFunc );
-
-		AddCreateFunction( id, std::move( func ) );
+		AddCreateFunction( id, createFunc );
 	}
 
 	virtual IAsyncLoadableAsset* CreateAsset( uint32 assetID ) const = 0;
@@ -29,7 +25,7 @@ public:
 	virtual ~IAssetFactory() = default;
 
 protected:
-	virtual void AddCreateFunction( uint32 assetID, Delegate<IAsyncLoadableAsset*>&& func ) = 0;
+	virtual void AddCreateFunction( uint32 assetID, AssetCreateFunctionPtr func ) = 0;
 };
 
 template <typename T>

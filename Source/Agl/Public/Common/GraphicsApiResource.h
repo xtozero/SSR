@@ -4,6 +4,7 @@
 #include "EnumClassFlags.h"
 #include "RefHandle.h"
 #include "NameTypes.h"
+#include "RefCounterType.h"
 #include "SizedTypes.h"
 
 #include <atomic>
@@ -54,11 +55,9 @@ namespace agl
 		return shaderTypeStr[static_cast<uint32>( shaderType )];
 	}
 
-	class GraphicsApiResource
+	class GraphicsApiResource : public RefCounter
 	{
 	public:
-		virtual ~GraphicsApiResource() = default;
-
 		void Init()
 		{
 			if ( m_isInitialized == false )
@@ -77,15 +76,26 @@ namespace agl
 			}
 		}
 
-		AGL_DLL int32 AddRef();
-		AGL_DLL int32 ReleaseRef();
-		AGL_DLL int32 GetRefCount() const;
+		bool IsBuffer() const
+		{
+			return m_isBuffer;
+		}
+
+		bool IsTexture() const
+		{
+			return m_isTexture;
+		}
+
+	protected:
+		bool m_isBuffer = false;
+		bool m_isTexture = false;
 
 	private:
+		virtual void Finalizer() override;
+
 		virtual void InitResource() = 0;
 		virtual void FreeResource() = 0;
 
-		std::atomic<int32> m_refCount = 0;
 		bool m_isInitialized = false;
 	};
 

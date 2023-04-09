@@ -30,6 +30,7 @@ set (DATA_TYPE
 	Private/DataType/Nametypes.cpp
 	Public/DataType/GuideTypes.h
 	Public/DataType/Nametypes.h
+	Public/DataType/RefCounterType.h
 	Public/DataType/SizedTypes.h)
 
 set (DEBUG_TOOL

@@ -130,12 +130,12 @@ namespace agl
 {
 	ID3D12Resource* D3D12Buffer::Resource()
 	{
-		return m_resourceInfo.m_resource;
+		return m_resourceInfo.GetResource();
 	}
 
 	void* D3D12Buffer::Resource() const
 	{
-		return m_resourceInfo.m_resource;
+		return m_resourceInfo.GetResource();
 	}
 
 	uint32 D3D12Buffer::CurFrameOffset() const
@@ -151,6 +151,11 @@ namespace agl
 	uint32 D3D12Buffer::Size() const
 	{
 		return m_trait.m_stride * m_trait.m_count;
+	}
+
+	const AllocatedResourceInfo& D3D12Buffer::GetResourceInfo() const
+	{
+		return m_resourceInfo;
 	}
 
 	const D3D12_RESOURCE_DESC& D3D12Buffer::Desc() const
@@ -199,7 +204,7 @@ namespace agl
 			states = D3D12_RESOURCE_STATE_COPY_DEST;
 		}
 
-		D3D12ResourceAllocator& allocator = D3D12ResourceAllocator::GetInstance();
+		D3D12ResourceAllocator& allocator = D3D12Allocator();
 		m_resourceInfo = allocator.AllocateResource(
 			properties,
 			m_desc,
@@ -248,13 +253,7 @@ namespace agl
 	{
 		m_srv = nullptr;
 		m_uav = nullptr;
-
-		EnqueueRenderTask(
-			[resourceInfo = m_resourceInfo]()
-			{
-				D3D12ResourceAllocator& allocator = D3D12ResourceAllocator::GetInstance();
-				allocator.DeallocateResource( resourceInfo );
-			} );
+		m_resourceInfo.Release();
 	}
 
 	uint32 D3D12ConstantBuffer::CurFrameOffset() const

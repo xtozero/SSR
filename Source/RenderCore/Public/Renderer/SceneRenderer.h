@@ -95,9 +95,12 @@ namespace rendercore
 
 		virtual IRendererRenderTargets& GetRenderRenderTargets() = 0;
 
-		static void WaitUntilRenderingIsFinish();
+		PrimitiveIdVertexBufferPool& GetPrimitiveIdPool();
+
+		void WaitUntilRenderingIsFinish();
 
 		virtual ~SceneRenderer() = default;
+
 	protected:
 		void InitDynamicShadows( RenderViewGroup& renderViewGroup );
 		void ClassifyShadowCasterAndReceiver( IScene& scene, const RenderThreadFrameData<ShadowInfo*>& shadows );
@@ -125,6 +128,7 @@ namespace rendercore
 		std::vector<PreviousFrameContext> m_prevFrameContext;
 
 	private:
+		PrimitiveIdVertexBufferPool m_primitiveIdBufferPool;
 		TAARenderer m_taa;
 	};
 }

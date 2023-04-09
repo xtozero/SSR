@@ -38,9 +38,8 @@ namespace agl
 
 		void Transition( ICommandListBase& commandList, ResourceState state );
 
-		Texture( const TextureTrait& trait )
-			: m_trait( trait ) {}
-		Texture() = default;
+		Texture( const TextureTrait& trait ) noexcept;
+		Texture() noexcept;
 
 	protected:
 		TextureTrait m_trait = {};

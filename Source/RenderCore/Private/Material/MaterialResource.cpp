@@ -9,9 +9,10 @@ namespace rendercore
 {
 	const VertexShader* MaterialResource::GetVertexShader( const StaticShaderSwitches* switches ) const
 	{
-		if ( m_material )
+		auto material = m_material.lock();
+		if ( material )
 		{
-			return m_material->GetVertexShader( switches );
+			return material->GetVertexShader( switches );
 		}
 
 		return nullptr;
@@ -19,9 +20,10 @@ namespace rendercore
 
 	VertexShader* MaterialResource::GetVertexShader( const StaticShaderSwitches* switches )
 	{
-		if ( m_material )
+		auto material = m_material.lock();
+		if ( material )
 		{
-			return m_material->GetVertexShader( switches );
+			return material->GetVertexShader( switches );
 		}
 
 		return nullptr;
@@ -29,9 +31,10 @@ namespace rendercore
 
 	const GeometryShader* MaterialResource::GetGeometryShader( const StaticShaderSwitches* switches ) const
 	{
-		if ( m_material )
+		auto material = m_material.lock();
+		if ( material )
 		{
-			return m_material->GetGeometryShader( switches );
+			return material->GetGeometryShader( switches );
 		}
 
 		return nullptr;
@@ -39,9 +42,10 @@ namespace rendercore
 
 	GeometryShader* MaterialResource::GetGeometryShader( const StaticShaderSwitches* switches )
 	{
-		if ( m_material )
+		auto material = m_material.lock();
+		if ( material )
 		{
-			return m_material->GetGeometryShader( switches );
+			return material->GetGeometryShader( switches );
 		}
 
 		return nullptr;
@@ -49,9 +53,10 @@ namespace rendercore
 
 	const PixelShader* MaterialResource::GetPixelShader( const StaticShaderSwitches* switches ) const
 	{
-		if ( m_material )
+		auto material = m_material.lock();
+		if ( material )
 		{
-			return m_material->GetPixelShader( switches );
+			return material->GetPixelShader( switches );
 		}
 
 		return nullptr;
@@ -59,9 +64,10 @@ namespace rendercore
 
 	PixelShader* MaterialResource::GetPixelShader( const StaticShaderSwitches* switches )
 	{
-		if ( m_material )
+		auto material = m_material.lock();
+		if ( material )
 		{
-			return m_material->GetPixelShader( switches );
+			return material->GetPixelShader( switches );
 		}
 
 		return nullptr;
@@ -69,9 +75,10 @@ namespace rendercore
 
 	const ShaderBase* MaterialResource::GetShader( agl::ShaderType type ) const
 	{
-		if ( m_material )
+		auto material = m_material.lock();
+		if ( material )
 		{
-			return m_material->GetShader( type );
+			return material->GetShader( type );
 		}
 
 		return nullptr;
@@ -79,9 +86,10 @@ namespace rendercore
 
 	StaticShaderSwitches MaterialResource::GetShaderSwitches( agl::ShaderType type )
 	{
-		if ( m_material )
+		auto material = m_material.lock();
+		if ( material )
 		{
-			return m_material->GetShaderSwitches( type );
+			return material->GetShaderSwitches( type );
 		}
 
 		return StaticShaderSwitches();
@@ -95,6 +103,9 @@ namespace rendercore
 
 	void MaterialResource::TakeSnapshot( DrawSnapshot& snapShot )
 	{
+		auto material = m_material.lock();
+		assert( material );
+
 		// Bind constant buffer
 		for ( auto& materialConstantBuffer : m_materialConstantBuffers )
 		{
@@ -127,7 +138,7 @@ namespace rendercore
 				if ( param.m_type == agl::ShaderParameterType::SRV ||
 					param.m_type == agl::ShaderParameterType::UAV )
 				{
-					auto texture = m_material->AsTexture( name.Str().data() );
+					auto texture = material->AsTexture( name.Str().data() );
 					if ( texture == nullptr )
 					{
 						continue;
@@ -147,7 +158,7 @@ namespace rendercore
 				}
 				else if ( param.m_type == agl::ShaderParameterType::Sampler )
 				{
-					if ( auto samplerOption = m_material->AsSampelrOption( name.Str().data() ) )
+					if ( auto samplerOption = material->AsSampelrOption( name.Str().data() ) )
 					{
 						auto sampler = graphicsInterface.FindOrCreate( *samplerOption );
 						binding.AddSampler( param, sampler.Resource() );
@@ -159,7 +170,8 @@ namespace rendercore
 
 	void MaterialResource::CreateGraphicsResource()
 	{
-		if ( m_material == nullptr )
+		auto material = m_material.lock();
+		if ( material == nullptr )
 		{
 			return;
 		}
@@ -284,7 +296,10 @@ namespace rendercore
 
 	void MaterialResource::UpdateToGPU()
 	{
-		auto Update = [this, material = m_material]
+		auto material = m_material.lock();
+		assert( material );
+
+		auto Update = [this, material]
 		{
 			for ( auto& materialConstantBuffer : m_materialConstantBuffers )
 			{

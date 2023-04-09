@@ -1,6 +1,7 @@
 #include "D3D12PipelineCache.h"
 
 #include "D3D12Api.h"
+#include "D3D12BaseTexture.h"
 #include "D3D12Buffer.h"
 #include "D3D12FlagConvertor.h"
 #include "D3D12GlobalDescriptorHeap.h"
@@ -35,9 +36,19 @@ namespace agl
 		std::memset( m_rtvs, 0, sizeof( m_rtvs ) );
 		m_dsv = nullptr;
 
-		m_renderResources.clear();
-		m_renderResourcesAllocator.Flush();
-		std::construct_at( &m_renderResources, m_renderResourcesAllocator );
+		for ( auto& allocatedInfo : m_allocatedInfos )
+		{
+			allocatedInfo.Release();
+		}
+
+		m_allocatedInfos.clear();
+		m_allocatedIdentifiers.clear();
+
+		m_allocatedIdentifierAllocator.Flush();
+		m_allocatedInfoAllocator.Flush();
+
+		std::construct_at( &m_allocatedIdentifiers, m_allocatedIdentifierAllocator );
+		std::construct_at( &m_allocatedInfos, m_allocatedInfoAllocator );
 	}
 
 	void D3D12PipelineCache::BindVertexBuffer( ID3D12GraphicsCommandList6& commandList, Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
@@ -77,9 +88,12 @@ namespace agl
 			}
 		}
 
-		for ( uint32 i = 0; i < numBuffers; ++i )
+		if ( vertexBuffers != nullptr )
 		{
-			RegisterRenderResource( vertexBuffers[i] );
+			for ( uint32 i = 0; i < numBuffers; ++i )
+			{
+				RegisterRenderResource( vertexBuffers[i] );
+			}
 		}
 
 		std::copy( std::begin( vertexBufferViews ), std::end( vertexBufferViews ), std::begin( m_vertexBufferViews ) );
@@ -507,7 +521,8 @@ namespace agl
 	}
 
 	D3D12PipelineCache::D3D12PipelineCache()
-		: m_renderResources( m_renderResourcesAllocator )
+		: m_allocatedIdentifiers( m_allocatedIdentifierAllocator )
+		, m_allocatedInfos( m_allocatedInfoAllocator )
 	{
 	}
 
@@ -518,9 +533,30 @@ namespace agl
 			return;
 		}
 
-		if ( m_renderResources.find( resource ) == std::end( m_renderResources ) )
+		const AllocatedResourceInfo* resourceInfo = nullptr;
+
+		if ( resource->IsBuffer() )
 		{
-			m_renderResources.emplace( resource );
+			auto d3d12Buffer = static_cast<D3D12Buffer*>( resource );
+			resourceInfo = &d3d12Buffer->GetResourceInfo();
+		}
+		else if ( resource->IsTexture() )
+		{
+			auto d3d12Texture = static_cast<D3D12Texture*>( resource );
+			resourceInfo = &d3d12Texture->GetResourceInfo();
+		}
+
+		if ( ( resourceInfo == nullptr )
+			|| resourceInfo->IsExternalResource() )
+		{
+			return;
+		}
+
+		const ID3D12Resource* d3d12Resource = resourceInfo->GetResource();
+		if ( m_allocatedIdentifiers.find( d3d12Resource ) == std::end( m_allocatedIdentifiers ) )
+		{
+			m_allocatedIdentifiers.insert( d3d12Resource );
+			m_allocatedInfos.emplace_back( *resourceInfo );
 		}
 	}
 }

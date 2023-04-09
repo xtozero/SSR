@@ -14,14 +14,14 @@ public:
 		return nullptr;
 	}
 
-	virtual void AddCreateFunction( uint32 assetID, Delegate<IAsyncLoadableAsset*>&& func ) override
+	virtual void AddCreateFunction( uint32 assetID, AssetCreateFunctionPtr func ) override
 	{
 		assert( m_createfunctions.find( assetID ) == std::end( m_createfunctions ) );
-		m_createfunctions.emplace( assetID, std::move( func ) );
+		m_createfunctions.emplace( assetID, func );
 	}
 
 private:
-	std::map<uint32, Delegate<IAsyncLoadableAsset*>> m_createfunctions;
+	std::map<uint32, AssetCreateFunctionPtr> m_createfunctions;
 };
 
 Owner<IAssetFactory*> CreateAssetFactory( )
