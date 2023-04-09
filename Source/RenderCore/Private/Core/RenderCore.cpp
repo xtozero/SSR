@@ -203,7 +203,10 @@ namespace rendercore
 
 		viewport.Present();
 
-		SceneRenderer::WaitUntilRenderingIsFinish();
+		if ( pSceneRenderer )
+		{
+			pSceneRenderer->WaitUntilRenderingIsFinish();
+		}
 	}
 
 	RenderCore::~RenderCore()

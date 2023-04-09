@@ -42,12 +42,7 @@ namespace agl
 			m_owner( owner ),
 			m_d3d12Resource( d3d11Resource ),
 			m_desc( desc )
-		{
-			if ( m_d3d12Resource )
-			{
-				m_d3d12Resource->AddRef();
-			}
-		}
+		{}
 
 		virtual ~D3D12ViewBase() override
 		{
@@ -63,20 +58,10 @@ namespace agl
 		{
 			if ( this != &other )
 			{
-				if ( m_d3d12Resource )
-				{
-					m_d3d12Resource->Release();
-				}
-
 				m_owner = other.m_owner;
 				m_d3d12Resource = other.m_d3d12Resource;
 				m_descriptorHeap = other.m_descriptorHeap;
 				m_desc = other.m_desc;
-
-				if ( m_d3d12Resource )
-				{
-					m_d3d12Resource->AddRef();
-				}
 			}
 
 			return *this;
@@ -91,11 +76,6 @@ namespace agl
 		{
 			if ( this != &other )
 			{
-				if ( m_d3d12Resource )
-				{
-					m_d3d12Resource->Release();
-				}
-
 				m_owner = other.m_owner;
 				m_d3d12Resource = other.m_d3d12Resource;
 				m_descriptorHeap = std::move( other.m_descriptorHeap );
@@ -113,12 +93,7 @@ namespace agl
 		virtual void FreeResource() override
 		{
 			m_owner = nullptr;
-
-			if ( m_d3d12Resource )
-			{
-				m_d3d12Resource->Release();
-				m_d3d12Resource = nullptr;
-			}
+			m_d3d12Resource = nullptr;
 
 			std::destroy_at( &m_descriptorHeap );
 		}

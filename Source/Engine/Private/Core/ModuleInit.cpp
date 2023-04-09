@@ -89,19 +89,19 @@ ENGINE_FUNC_DLL void BootUpModules( )
 	g_assetFactory = CreateAssetFactory();
 	g_assetLoader = CreateAssetLoader();
 	g_commandLine = CreateCommandLine();
-	g_gameEngine = CreatePlatformEngine();
 	g_namePool = CreateNamePool();
+	g_gameEngine = CreatePlatformEngine();
 }
 
 ENGINE_FUNC_DLL void ShutdownModules()
 {
-	DestroyAppConfig( g_appConfig );
 	DestroyAssetLoader( g_assetLoader );
-	DestroyAssetFactory( g_assetFactory );
-	DestroyCommandLine( g_commandLine );
-	DestroyFileSystem( g_fileSystem );
 	DestroyPlatformEngine( g_gameEngine );
 	DestroyNamePool( g_namePool );
+	DestroyCommandLine( g_commandLine );
+	DestroyAssetFactory( g_assetFactory );
+	DestroyAppConfig( g_appConfig );
+	DestroyFileSystem( g_fileSystem );
 	DestroyTaskScheduler( g_taskScheduler );
 
 	UnregisterFactory<CommandLine>();

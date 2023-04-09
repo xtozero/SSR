@@ -53,6 +53,11 @@ public:
 		--m_size;
 	}
 
+	size_t Size() const
+	{
+		return m_size;
+	}
+
 	FixedBlockMemoryPool() = default;
 	~FixedBlockMemoryPool()
 	{

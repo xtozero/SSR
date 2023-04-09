@@ -17,6 +17,8 @@ namespace agl
 
 	D3D12ResourceUploader& D3D12Uploader();
 
+	D3D12ResourceAllocator& D3D12Allocator();
+
 	Owner<IAgl*> CreateD3D12GraphicsApi();
 
 	uint32 GetFrameIndex();

@@ -28,8 +28,10 @@ namespace agl
 		virtual ResourceState GetState() const override;
 		virtual void SetState( ResourceState state ) override;
 
+		Buffer() noexcept;
+
 	protected:
-		BufferTrait m_trait;
+		BufferTrait m_trait = {};
 
 		RefHandle<ShaderResourceView> m_srv;
 		RefHandle<UnorderedAccessView> m_uav;
