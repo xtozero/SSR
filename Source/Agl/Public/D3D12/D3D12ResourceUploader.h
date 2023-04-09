@@ -42,6 +42,8 @@ namespace agl
 		void Upload( D3D12Buffer& dest, const void* data, size_t size );
 		void WaitUntilCopyCompleted();
 
+		~D3D12ResourceUploader();
+
 	private:
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_uploadQueue;
 		

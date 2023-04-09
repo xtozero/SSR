@@ -1,5 +1,6 @@
 #include "D3D12BaseTexture.h"
 
+#include "D3D12Api.h"
 #include "D3D12FlagConvertor.h"
 #include "D3D12ResourceViews.h"
 
@@ -549,6 +550,11 @@ namespace
 
 namespace agl
 {
+	const AllocatedResourceInfo& D3D12Texture::GetResourceInfo() const
+	{
+		return m_resourceInfo;
+	}
+
 	D3D12Texture::D3D12Texture( const TextureTrait& trait, const ResourceInitData* initData )
 		: TextureBase( trait, initData )
 		, m_desc( ConvertTraitToDesc( trait ) )
@@ -580,7 +586,7 @@ namespace agl
 
 		D3D12_CLEAR_VALUE clearValue = ConvertToClearValue( m_trait );
 
-		D3D12ResourceAllocator& allocator = D3D12ResourceAllocator::GetInstance();
+		D3D12ResourceAllocator& allocator = D3D12Allocator();
 		m_resourceInfo = allocator.AllocateResource(
 			properties,
 			m_desc,
@@ -617,7 +623,7 @@ namespace agl
 	{
 		if ( texture )
 		{
-			m_resourceInfo.m_resource = texture;
+			m_resourceInfo.SetResource( texture );
 			if ( desc == nullptr )
 			{
 				m_desc = texture->GetDesc();

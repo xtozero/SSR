@@ -44,6 +44,17 @@ namespace agl
 		commandList.Transition( 1, &transition );
 	}
 
+	Texture::Texture( const TextureTrait& trait ) noexcept
+		: m_trait( trait )
+	{
+		m_isTexture = true;
+	}
+
+	Texture::Texture() noexcept
+	{
+		m_isTexture = true;
+	}
+
 	bool IsTexture1D( const TextureTrait& trait )
 	{
 		return trait.m_height <= 1;

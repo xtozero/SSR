@@ -14,8 +14,10 @@ namespace agl
 	public:
 		virtual void* Resource() const
 		{
-			return m_resourceInfo.m_resource;
+			return m_resourceInfo.GetResource();
 		}
+
+		const AllocatedResourceInfo& GetResourceInfo() const;
 
 		D3D12Texture( const TextureTrait& trait, const ResourceInitData* initData );
 		D3D12Texture() = default;
@@ -79,13 +81,7 @@ namespace agl
 		virtual void FreeResource() override
 		{
 			TextureBase::FreeResource();
-
-			EnqueueRenderTask(
-				[resourceInfo = m_resourceInfo]()
-				{
-					D3D12ResourceAllocator& allocator = D3D12ResourceAllocator::GetInstance();
-					allocator.DeallocateResource( resourceInfo );
-				} );
+			m_resourceInfo.Release();
 		}
 	};
 

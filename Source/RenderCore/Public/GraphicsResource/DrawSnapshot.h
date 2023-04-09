@@ -23,13 +23,8 @@ namespace rendercore
 	class PrimitiveIdVertexBufferPool
 	{
 	public:
-		static PrimitiveIdVertexBufferPool& GetInstance();
-
 		VertexBuffer Alloc( uint32 require );
 		void DiscardAll();
-
-	protected:
-		PrimitiveIdVertexBufferPool() = default;
 
 	private:
 		struct PrimitiveIdVertexBufferPoolEntry

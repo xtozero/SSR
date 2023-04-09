@@ -22,6 +22,8 @@ namespace agl
 		uint32 Stride() const;
 		uint32 Size() const;
 
+		const AllocatedResourceInfo& GetResourceInfo() const;
+
 		const D3D12_RESOURCE_DESC& Desc() const;
 
 		D3D12Buffer( const BufferTrait& trait, const void* initData );

@@ -194,6 +194,8 @@ namespace agl
 
 		D3D12ResourceUploader& GetUploader();
 
+		D3D12ResourceAllocator& GetAllocator();
+
 		uint32 GetFrameIndex() const
 		{
 			return m_frameIndex;
@@ -227,6 +229,8 @@ namespace agl
 		std::vector<D3D12CommandList, InlineAllocator<D3D12CommandList, 2>> m_commandList;
 
 		D3D12ResourceUploader m_uploader;
+
+		D3D12ResourceAllocator m_allocator;
 	};
 
 	AglType Direct3D12::GetType() const
@@ -252,6 +256,13 @@ namespace agl
 	void Direct3D12::OnShutdown()
 	{
 		m_uploader.WaitUntilCopyCompleted();
+
+		// Dereferencing rendering resources
+		for ( auto& cmdList : m_commandList )
+		{
+			cmdList.Prepare();
+		}
+
 		D3D12NullDescriptorStorage::Clear();
 	}
 
@@ -509,6 +520,11 @@ namespace agl
 		return m_uploader;
 	}
 
+	D3D12ResourceAllocator& Direct3D12::GetAllocator()
+	{
+		return m_allocator;
+	}
+
 	Direct3D12::~Direct3D12()
 	{
 		CloseHandle( m_fenceEvent );
@@ -656,6 +672,12 @@ namespace agl
 	{
 		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
 		return d3d12Api->GetUploader();
+	}
+
+	D3D12ResourceAllocator& D3D12Allocator()
+	{
+		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
+		return d3d12Api->GetAllocator();
 	}
 
 	Owner<IAgl*> CreateD3D12GraphicsApi()

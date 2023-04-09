@@ -42,10 +42,10 @@ namespace agl
 			.Flags = D3D12_RESOURCE_FLAG_NONE
 		};
 
-		D3D12ResourceAllocator& allocator = D3D12ResourceAllocator::GetInstance();
+		D3D12ResourceAllocator& allocator = D3D12Allocator();
 		m_srcResourceInfo = allocator.AllocateResource( heapProperties, desc, D3D12_RESOURCE_STATE_GENERIC_READ );
 
-		ID3D12Resource* resource = m_srcResourceInfo.m_resource;
+		ID3D12Resource* resource = m_srcResourceInfo.GetResource();
 		void* mappedData = nullptr;
 		[[maybe_unused]] HRESULT hr = resource->Map( 0, nullptr, &mappedData );
 		assert( SUCCEEDED( hr ) );
@@ -56,6 +56,8 @@ namespace agl
 
 		m_uploadCommandList->CopyBufferRegion( dest.Resource(), 0, resource, 0, size);
 
+		/* Fix Me
+		컴퓨트 커맨드 리스트가 이해할 수 없는 스테이트로의 변경은 불가
 		D3D12_RESOURCE_BARRIER transition = {
 			.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
 			.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE,
@@ -67,14 +69,14 @@ namespace agl
 			}
 		};
 		m_uploadCommandList->ResourceBarrier( 1, &transition );
+		*/
 
 		m_uploadCommandList->Close();
 	}
 
 	D3D12UploadContext::~D3D12UploadContext()
 	{
-		D3D12ResourceAllocator& allocator = D3D12ResourceAllocator::GetInstance();
-		allocator.DeallocateResource( m_srcResourceInfo );
+		m_srcResourceInfo.Release();
 	}
 
 	bool D3D12ResourceUploader::Initialize()
@@ -145,5 +147,10 @@ namespace agl
 
 			m_contextPool.Deallocate( &context );
 		}
+	}
+
+	D3D12ResourceUploader::~D3D12ResourceUploader()
+	{
+		CloseHandle( m_fenceEvent );
 	}
 }

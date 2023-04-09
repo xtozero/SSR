@@ -44,12 +44,6 @@ namespace
 
 namespace rendercore
 {
-	PrimitiveIdVertexBufferPool& PrimitiveIdVertexBufferPool::GetInstance()
-	{
-		static PrimitiveIdVertexBufferPool primitiveIdVertexBufferPool;
-		return primitiveIdVertexBufferPool;
-	}
-
 	VertexBuffer PrimitiveIdVertexBufferPool::Alloc( uint32 require )
 	{
 		constexpr uint32 minimum = 1024;
