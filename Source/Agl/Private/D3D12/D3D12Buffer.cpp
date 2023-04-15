@@ -41,7 +41,7 @@ namespace
 	D3D12_RESOURCE_DESC ConvertTraitToDesc( const BufferTrait& trait )
 	{
 		uint64 bufferSize = trait.m_stride * trait.m_count;
-		
+
 		D3D12_RESOURCE_DESC desc = {
 			.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER,
 			.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT,
@@ -138,11 +138,6 @@ namespace agl
 		return m_resourceInfo.GetResource();
 	}
 
-	uint32 D3D12Buffer::CurFrameOffset() const
-	{
-		return 0;
-	}
-
 	uint32 D3D12Buffer::Stride() const
 	{
 		return m_trait.m_stride;
@@ -161,6 +156,56 @@ namespace agl
 	const D3D12_RESOURCE_DESC& D3D12Buffer::Desc() const
 	{
 		return m_desc;
+	}
+
+	LockedResource D3D12Buffer::Lock( uint32 subResource )
+	{
+		ID3D12Resource* resource = nullptr;
+
+		if ( IsDynamic() )
+		{
+			if ( m_neverLocked )
+			{
+				resource = Resource();
+				m_neverLocked = false;
+			}
+			else
+			{
+				CreateBuffer();
+				resource = Resource();
+			}
+		}
+		else
+		{
+			// ToDo
+		}
+
+		if ( resource == nullptr )
+		{
+			return {};
+		}
+
+		void* mappedData = nullptr;
+		[[maybe_unused]] HRESULT hr = resource->Map( subResource, nullptr, &mappedData );
+		assert( SUCCEEDED( hr ) );
+
+		LockedResource result = {
+			.m_data = mappedData,
+			.m_rowPitch = Size(),
+			.m_depthPitch = Size()
+		};
+
+		return result;
+	}
+
+	void D3D12Buffer::UnLock( uint32 subResource )
+	{
+		if ( Resource() == nullptr )
+		{
+			return;
+		}
+
+		Resource()->Unmap( subResource, nullptr );
 	}
 
 	D3D12Buffer::D3D12Buffer( const BufferTrait& trait, const void* initData )
@@ -225,7 +270,7 @@ namespace agl
 			}
 			else
 			{
-				D3D12Uploader().Upload(*this, m_dataStorage, Size() );
+				D3D12Uploader().Upload( *this, m_dataStorage, Size() );
 			}
 		}
 
@@ -256,24 +301,17 @@ namespace agl
 		m_resourceInfo.Release();
 	}
 
-	uint32 D3D12ConstantBuffer::CurFrameOffset() const
-	{
-		uint32 alignedSize = CalcAlignment<uint32>( Size(), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
-		return alignedSize * GetFrameIndex();
-	}
-
 	D3D12ConstantBufferView* D3D12ConstantBuffer::CBV() const
 	{
 		assert( IsInRenderThread() );
 
-		return m_cbv[GetFrameIndex()].Get();
+		return m_cbv.Get();
 	}
 
 	D3D12ConstantBuffer::D3D12ConstantBuffer( const BufferTrait& trait, const void* initData )
 		: D3D12Buffer( trait, initData )
 	{
 		m_desc.Width = CalcAlignment<uint64>( m_desc.Width, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT );
-		m_desc.Width *= DefaultAgl::GetBufferCount();
 	}
 
 	void D3D12ConstantBuffer::CreateBuffer()
@@ -281,23 +319,19 @@ namespace agl
 		D3D12Buffer::CreateBuffer();
 
 		uint32 alignedSize = CalcAlignment<uint32>( Size(), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT );
-		
-		m_cbv.resize( DefaultAgl::GetBufferCount() );
-		for ( uint32 i = 0; i < DefaultAgl::GetBufferCount(); ++i )
-		{
-			D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {
-				.BufferLocation = Resource()->GetGPUVirtualAddress() + ( i * alignedSize ),
-				.SizeInBytes = alignedSize
-			};
 
-			m_cbv[i] = new D3D12ConstantBufferView(this, Resource(), cbvDesc);
-			m_cbv[i]->Init();
-		}
+		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {
+			.BufferLocation = Resource()->GetGPUVirtualAddress(),
+			.SizeInBytes = alignedSize
+		};
+
+		m_cbv = new D3D12ConstantBufferView( this, Resource(), cbvDesc );
+		m_cbv->Init();
 	}
 
 	void D3D12ConstantBuffer::DestroyBuffer()
 	{
-		m_cbv.clear();
+		m_cbv = nullptr;
 
 		D3D12Buffer::DestroyBuffer();
 	}
@@ -319,7 +353,7 @@ namespace agl
 		m_view = {
 			.BufferLocation = Resource()->GetGPUVirtualAddress(),
 			.SizeInBytes = static_cast<uint32>( m_desc.Width ),
-			.Format = ( Stride() == sizeof(uint16) ) ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT
+			.Format = ( Stride() == sizeof( uint16 ) ) ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT
 		};
 	}
 
