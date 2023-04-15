@@ -66,7 +66,8 @@ namespace agl
 					D3D12_VERTEX_BUFFER_VIEW& view = vertexBufferViews[i];
 
 					view = vertexBuffer->GetView();
-					view.BufferLocation += pOffsets[i] * view.StrideInBytes;
+					view.BufferLocation += pOffsets[i];
+					view.SizeInBytes -= pOffsets[i];
 				}
 			}
 		}
@@ -109,7 +110,8 @@ namespace agl
 		if ( auto d3d12Buffer = static_cast<D3D12IndexBuffer*>( indexBuffer ) )
 		{
 			view = d3d12Buffer->GetView();
-			view.BufferLocation += indexOffset * view.SizeInBytes;
+			view.BufferLocation += indexOffset;
+			view.SizeInBytes -= indexOffset;
 		}
 
 		bool alreadyBound = ( std::memcmp( &m_indexBufferView, &view, sizeof( D3D12_INDEX_BUFFER_VIEW ) ) == 0 );
