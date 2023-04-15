@@ -316,28 +316,13 @@ namespace agl
 
 	LockedResource Direct3D12::Lock( Buffer* buffer, ResourceLockFlag lockFlag, uint32 subResource )
 	{
-		if ( buffer == nullptr )
-		{
-			return {};
-		}
-
 		auto d3d12Buffer = static_cast<D3D12Buffer*>( buffer );
-
-		ID3D12Resource* resource = d3d12Buffer->Resource();
-		if ( resource == nullptr )
+		if ( d3d12Buffer == nullptr )
 		{
 			return {};
 		}
 
-		void* mappedData = nullptr;
-		HRESULT hr = resource->Map( subResource, nullptr, &mappedData );
-
-		LockedResource result = {
-			.m_data = static_cast<char*>( mappedData ) + d3d12Buffer->CurFrameOffset(),
-			.m_rowPitch = d3d12Buffer->Size(),
-			.m_depthPitch = d3d12Buffer->Size()
-		};
-		return result;
+		return d3d12Buffer->Lock( subResource );
 	}
 
 	LockedResource Direct3D12::Lock( Texture* texture, ResourceLockFlag lockFlag, uint32 subResource )
@@ -347,15 +332,13 @@ namespace agl
 
 	void Direct3D12::UnLock( Buffer* buffer, uint32 subResource )
 	{
-		if ( buffer == nullptr )
+		auto d3d12Buffer = static_cast<D3D12Buffer*>( buffer );
+		if ( d3d12Buffer == nullptr )
 		{
 			return;
 		}
 
-		auto d3d12Buffer = static_cast<D3D12Buffer*>( buffer );
-
-		ID3D12Resource* resource = d3d12Buffer->Resource();
-		resource->Unmap( subResource, nullptr );
+		d3d12Buffer->UnLock( subResource );
 	}
 
 	void Direct3D12::UnLock( Texture* texture, uint32 subResource )
