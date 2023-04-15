@@ -28,6 +28,8 @@ namespace agl
 		virtual ResourceState GetState() const override;
 		virtual void SetState( ResourceState state ) override;
 
+		bool IsDynamic() const;
+
 		Buffer() noexcept;
 
 	protected:

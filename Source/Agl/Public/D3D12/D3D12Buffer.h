@@ -17,14 +17,15 @@ namespace agl
 		ID3D12Resource* Resource();
 		virtual void* Resource() const override;
 
-		virtual uint32 CurFrameOffset() const;
-
 		uint32 Stride() const;
 		uint32 Size() const;
 
 		const AllocatedResourceInfo& GetResourceInfo() const;
 
 		const D3D12_RESOURCE_DESC& Desc() const;
+
+		LockedResource Lock( uint32 subResource = 0 );
+		void UnLock( uint32 subResource = 0 );
 
 		D3D12Buffer( const BufferTrait& trait, const void* initData );
 		virtual ~D3D12Buffer() override;
@@ -43,6 +44,8 @@ namespace agl
 		void* m_dataStorage = nullptr;
 		bool m_hasInitData = false;
 
+		bool m_neverLocked = true;
+
 		AllocatedResourceInfo m_resourceInfo;
 		D3D12_RESOURCE_DESC m_desc = {};
 		DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
@@ -51,8 +54,6 @@ namespace agl
 	class D3D12ConstantBuffer : public D3D12Buffer
 	{
 	public:
-		virtual uint32 CurFrameOffset() const override;
-
 		D3D12ConstantBufferView* CBV() const;
 
 		D3D12ConstantBuffer( const BufferTrait& trait, const void* initData );
@@ -67,7 +68,7 @@ namespace agl
 		virtual void DestroyBuffer();
 
 	private:
-		std::vector<RefHandle<D3D12ConstantBufferView>, InlineAllocator<RefHandle<D3D12ConstantBufferView>, 2>> m_cbv;
+		RefHandle<D3D12ConstantBufferView> m_cbv;
 	};
 
 	class D3D12IndexBuffer : public D3D12Buffer
