@@ -29,7 +29,7 @@ namespace agl
 		D3D12_RESOURCE_DESC desc = {
 			.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER,
 			.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT,
-			.Width = CalcAlignment( size, static_cast<uint64>( D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT ) ),
+			.Width = dest.Size(),
 			.Height = 1,
 			.DepthOrArraySize = 1,
 			.MipLevels = 1,
@@ -55,23 +55,13 @@ namespace agl
 		resource->Unmap( 0, nullptr );
 
 		m_uploadCommandList->CopyBufferRegion( dest.Resource(), 0, resource, 0, size);
-
-		/* Fix Me
-		컴퓨트 커맨드 리스트가 이해할 수 없는 스테이트로의 변경은 불가
-		D3D12_RESOURCE_BARRIER transition = {
-			.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
-			.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE,
-			.Transition = {
-				.pResource = dest.Resource(),
-				.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
-				.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST,
-				.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ,
-			}
-		};
-		m_uploadCommandList->ResourceBarrier( 1, &transition );
-		*/
-
 		m_uploadCommandList->Close();
+	}
+
+	D3D12UploadContext::D3D12UploadContext( D3D12ResourceUploader& uploader ) noexcept
+		: m_uploader( &uploader )
+		, m_fenceValue( uploader.FenceValue() )
+	{
 	}
 
 	D3D12UploadContext::~D3D12UploadContext()
@@ -102,6 +92,8 @@ namespace agl
 			return false;
 		}
 
+		++m_fenceValue;
+
 		m_fenceEvent = CreateEvent( nullptr, false, false, _T( "Uploader Fence Event" ) );
 		if ( m_fenceEvent == nullptr )
 		{
@@ -109,6 +101,41 @@ namespace agl
 		}
 
 		return true;
+	}
+
+	void D3D12ResourceUploader::Prepare()
+	{
+		if ( m_pendingList != nullptr )
+		{
+			uint64 fenceValue = m_fenceValue;
+			++m_fenceValue;
+
+			[[maybe_unused]] HRESULT hr = m_uploadQueue->Signal( m_fence.Get(), fenceValue );
+			assert( SUCCEEDED( hr ) );
+		
+			D3D12DirectCommandQueue().Wait( m_fence.Get(), fenceValue );
+
+			uint64 completedValue = m_fence->GetCompletedValue();
+			D3D12UploadContext* pContext = m_pendingList;
+
+			while ( pContext != nullptr )
+			{
+				if ( pContext->m_fenceValue >= completedValue )
+				{
+					D3D12UploadContext* deleteTarget = pContext;
+					pContext = pContext->m_next;
+
+					SLinkedList::Remove( m_pendingList, deleteTarget );
+					
+					std::destroy_at( deleteTarget );
+					m_contextPool.Deallocate( deleteTarget );
+				}
+				else
+				{
+					pContext = pContext->m_next;
+				}
+			}
+		}
 	}
 
 	void D3D12ResourceUploader::Upload( D3D12Buffer& dest, const void* data, size_t size )
@@ -126,18 +153,18 @@ namespace agl
 
 	void D3D12ResourceUploader::WaitUntilCopyCompleted()
 	{
-		uint64 fence = m_fenceValue;
-		[[maybe_unused]] HRESULT hr = m_uploadQueue->Signal( m_fence.Get(), fence );
+		uint64 fenceValue = m_fenceValue;
+		++m_fenceValue;
+
+		[[maybe_unused]] HRESULT hr = m_uploadQueue->Signal( m_fence.Get(), fenceValue );
 		assert( SUCCEEDED( hr ) );
 
-		if ( m_fence->GetCompletedValue() < fence )
+		if ( m_fence->GetCompletedValue() < fenceValue )
 		{
-			hr = m_fence->SetEventOnCompletion( fence, m_fenceEvent );
+			hr = m_fence->SetEventOnCompletion( fenceValue, m_fenceEvent );
 			assert( SUCCEEDED( hr ) );
 			WaitForSingleObject( m_fenceEvent, INFINITE );
 		}
-
-		++m_fenceValue;
 
 		while ( m_pendingList != nullptr )
 		{
@@ -147,6 +174,11 @@ namespace agl
 
 			m_contextPool.Deallocate( &context );
 		}
+	}
+
+	uint64 D3D12ResourceUploader::FenceValue() const
+	{
+		return m_fenceValue;
 	}
 
 	D3D12ResourceUploader::~D3D12ResourceUploader()

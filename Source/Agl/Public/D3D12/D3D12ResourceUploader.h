@@ -17,14 +17,15 @@ namespace agl
 		void Prepare();
 		void RecordUploadCommand( D3D12Buffer& dest, const void* data, size_t size );
 
-		explicit D3D12UploadContext( D3D12ResourceUploader& uploader ) noexcept
-			: m_uploader( &uploader ) {}
+		explicit D3D12UploadContext( D3D12ResourceUploader& uploader ) noexcept;
 		~D3D12UploadContext();
 
 		D3D12UploadContext* m_next = nullptr;
 
 	private:
 		friend D3D12ResourceUploader;
+
+		uint64 m_fenceValue = 0;
 
 		D3D12ResourceUploader* m_uploader;
 
@@ -39,8 +40,11 @@ namespace agl
 	{
 	public:
 		bool Initialize();
+		void Prepare();
 		void Upload( D3D12Buffer& dest, const void* data, size_t size );
 		void WaitUntilCopyCompleted();
+
+		uint64 FenceValue() const;
 
 		~D3D12ResourceUploader();
 
