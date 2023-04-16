@@ -276,8 +276,7 @@ namespace agl
 
 	void Direct3D12::OnBeginFrameRendering()
 	{
-		m_uploader.WaitUntilCopyCompleted();
-
+		m_uploader.Prepare();
 		m_commandList[m_frameIndex].Prepare();
 	}
 
