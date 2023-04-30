@@ -4,6 +4,7 @@
 #include "D3D12PipelineCache.h"
 #include "GlobalConstantBuffers.h"
 #include "ICommandList.h"
+#include "Memory/FixedBlockMemoryPool.h"
 #include "Memory/InlineMemoryAllocator.h"
 
 #include <d3d12.h>
@@ -11,7 +12,32 @@
 
 namespace agl
 {
-	class D3D12CommandListImpl
+	struct D3D12CommandListResource final
+	{
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> m_commandList;
+		Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_commandAllocator;
+		Microsoft::WRL::ComPtr<ID3D12Fence> m_fence;
+		D3D12CommandListResource* m_next = nullptr;
+	};
+
+	class D3D12CommnadListResourcePool final
+	{
+	public:
+		void Prepare();
+		D3D12CommandListResource& ObtainCommandList();
+
+		D3D12CommnadListResourcePool( D3D12_COMMAND_LIST_TYPE type );
+		~D3D12CommnadListResourcePool();
+
+	private:
+		D3D12_COMMAND_LIST_TYPE m_type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+
+		FixedBlockMemoryPool<D3D12CommandListResource> m_allocator;
+		D3D12CommandListResource* m_freeList = nullptr;
+		D3D12CommandListResource* m_runningList = nullptr;
+	};
+
+	class D3D12CommandListImpl final
 	{
 	public:
 		void Initialize();
@@ -37,17 +63,23 @@ namespace agl
 		void ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor );
 
 		void CopyResource( Texture* dest, Texture* src );
-		void CopyResource( Buffer* dest, Buffer* src );
+		void CopyResource( Buffer* dest, Buffer* src, uint32 numByte );
+
+		void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea, uint32 subresource );
+		void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset, uint32 numByte );
 
 		void Transition( uint32 numTransitions, const ResourceTransition* transitions );
 
 		void Close();
 
+		void OnCommited();
+
 		ID3D12CommandList* Resource() const;
 
 	private:
-		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> m_commandList;
-		Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_commandAllocator;
+		ID3D12GraphicsCommandList6& CommandList();
+
+		D3D12CommandListResource m_cmdListResource;
 
 		GlobalAsyncConstantBuffers m_globalConstantBuffers;
 		D3D12GlobalDescriptorHeap m_globalDescriptorHeap;
@@ -79,7 +111,10 @@ namespace agl
 		virtual void ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor ) override;
 
 		virtual void CopyResource( Texture* dest, Texture* src ) override;
-		virtual void CopyResource( Buffer* dest, Buffer* src ) override;
+		virtual void CopyResource( Buffer* dest, Buffer* src, uint32 numByte ) override;
+
+		virtual void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea = nullptr, uint32 subresource = 0 ) override;
+		virtual void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset = 0, uint32 numByte = 0 ) override;
 
 		virtual void Transition( uint32 numTransitions, const ResourceTransition* transitions ) override;
 
@@ -88,6 +123,8 @@ namespace agl
 		virtual void Commit() override;
 
 		void Initialize();
+
+		void OnCommitted();
 
 		IParallelCommandList& GetParallelCommandList();
 
@@ -129,13 +166,18 @@ namespace agl
 		virtual void ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor ) override;
 
 		virtual void CopyResource( Texture* dest, Texture* src ) override;
-		virtual void CopyResource( Buffer* dest, Buffer* src ) override;
+		virtual void CopyResource( Buffer* dest, Buffer* src, uint32 numByte ) override;
+
+		virtual void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea = nullptr, uint32 subresource = 0 ) override;
+		virtual void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset = 0, uint32 numByte = 0 ) override;
 
 		virtual void Transition( uint32 numTransitions, const ResourceTransition* transitions ) override;
 
 		void Close();
 
 		void Initialize();
+
+		void OnCommitted();
 
 		ID3D12CommandList* Resource() const;
 

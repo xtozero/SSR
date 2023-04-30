@@ -19,6 +19,8 @@ namespace agl
 
 		const AllocatedResourceInfo& GetResourceInfo() const;
 
+		const D3D12_RESOURCE_DESC& GetDesc() const;
+
 		D3D12Texture( const TextureTrait& trait, const ResourceInitData* initData );
 		D3D12Texture() = default;
 		D3D12Texture( const D3D12Texture& ) = delete;

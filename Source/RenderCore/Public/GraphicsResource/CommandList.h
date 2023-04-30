@@ -29,7 +29,10 @@ namespace rendercore
 		void ClearDepthStencil( agl::DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor );
 
 		void CopyResource( agl::Texture* dest, agl::Texture* src );
-		void CopyResource( agl::Buffer* dest, agl::Buffer* src );
+		void CopyResource( agl::Buffer* dest, agl::Buffer* src, uint32 numByte = 0 );
+
+		void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const agl::CubeArea<uint32>* destArea = nullptr, uint32 subresource = 0 );
+		void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset = 0, uint32 numByte = 0 );
 
 		void Transition( uint32 numTransitions, const agl::ResourceTransition* transitions );
 

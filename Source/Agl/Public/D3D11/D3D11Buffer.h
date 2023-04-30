@@ -13,6 +13,8 @@ namespace agl
 		ID3D11Buffer* Resource();
 		virtual void* Resource() const override;
 
+		const D3D11_BUFFER_DESC& GetDesc() const;
+
 		uint32 Stride() const;
 
 		D3D11Buffer( const BufferTrait& trait, const void* initData );

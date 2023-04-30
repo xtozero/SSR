@@ -101,6 +101,8 @@ namespace rendercore
 	public:
 		InscatterSCS()
 		{
+			m_transmittanceLut.Bind( GetShader()->ParameterMap(), "TransmittanceLut" );
+			m_transmittanceLutSampler.Bind( GetShader()->ParameterMap(), "TransmittanceLutSampler" );
 			m_deltaELut.Bind( GetShader()->ParameterMap(), "DeltaELut" );
 			m_deltaELutSampler.Bind( GetShader()->ParameterMap(), "DeltaELutSampler" );
 			m_deltaSRLut.Bind( GetShader()->ParameterMap(), "DeltaSRLut" );
@@ -112,6 +114,8 @@ namespace rendercore
 			m_deltaJ.Bind( GetShader()->ParameterMap(), "DeltaJ" );
 		}
 
+		const agl::ShaderParameter& TransmittanceLut() const { return m_transmittanceLut; }
+		const agl::ShaderParameter& TransmittanceLutSampler() const { return m_transmittanceLutSampler; }
 		const agl::ShaderParameter& DeltaELut() const { return m_deltaELut; }
 		const agl::ShaderParameter& DeltaELutSampler() const { return m_deltaELutSampler; }
 		const agl::ShaderParameter& DeltaSRLut() const { return m_deltaSRLut; }
@@ -123,6 +127,8 @@ namespace rendercore
 		const agl::ShaderParameter& DeltaJ() const { return m_deltaJ; }
 
 	private:
+		agl::ShaderParameter m_transmittanceLut;
+		agl::ShaderParameter m_transmittanceLutSampler;
 		agl::ShaderParameter m_deltaELut;
 		agl::ShaderParameter m_deltaELutSampler;
 		agl::ShaderParameter m_deltaSRLut;
@@ -168,16 +174,22 @@ namespace rendercore
 	public:
 		InscatterNCS()
 		{
+			m_transmittanceLut.Bind( GetShader()->ParameterMap(), "TransmittanceLut" );
+			m_transmittanceLutSampler.Bind( GetShader()->ParameterMap(), "TransmittanceLutSampler" );
 			m_deltaJLut.Bind( GetShader()->ParameterMap(), "DeltaJLut" );
 			m_deltaJLutSampler.Bind( GetShader()->ParameterMap(), "DeltaJLutSampler" );
 			m_deltaSR.Bind( GetShader()->ParameterMap(), "DeltaSR" );
 		}
 
+		const agl::ShaderParameter& TransmittanceLut() const { return m_transmittanceLut; }
+		const agl::ShaderParameter& TransmittanceLutSampler() const { return m_transmittanceLutSampler; }
 		const agl::ShaderParameter& DeltaJLut() const { return m_deltaJLut; }
 		const agl::ShaderParameter& DeltaJLutSampler() const { return m_deltaJLutSampler; }
 		const agl::ShaderParameter& DeltaSR() const { return m_deltaSR; }
 
 	private:
+		agl::ShaderParameter m_transmittanceLut;
+		agl::ShaderParameter m_transmittanceLutSampler;
 		agl::ShaderParameter m_deltaJLut;
 		agl::ShaderParameter m_deltaJLutSampler;
 		agl::ShaderParameter m_deltaSR;
@@ -478,6 +490,8 @@ namespace rendercore
 
 			shaderBindings = CreateShaderBindings( inscatterSCS.GetShader() );
 
+			BindResource( shaderBindings, inscatterSCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
+			BindResource( shaderBindings, inscatterSCS.TransmittanceLutSampler(), pointSampler.Resource() );
 			BindResource( shaderBindings, inscatterSCS.DeltaELut(), deltaETexture );
 			BindResource( shaderBindings, inscatterSCS.DeltaELutSampler(), pointSampler.Resource() );
 			BindResource( shaderBindings, inscatterSCS.DeltaSRLut(), deltaSRTexture );
@@ -493,7 +507,6 @@ namespace rendercore
 
 				commandList.BindShaderResources( shaderBindings );
 				commandList.Dispatch( INSCATTERS_GROUP_X, INSCATTERS_GROUP_Y );
-				commandList.WaitUntilFlush();
 			}
 
 			// Compute deltaE
@@ -520,6 +533,8 @@ namespace rendercore
 
 			shaderBindings = CreateShaderBindings( inscatterNCS.GetShader() );
 
+			BindResource( shaderBindings, inscatterNCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
+			BindResource( shaderBindings, inscatterNCS.TransmittanceLutSampler(), pointSampler.Resource() );
 			BindResource( shaderBindings, inscatterNCS.DeltaJLut(), deltaJTex );
 			BindResource( shaderBindings, inscatterNCS.DeltaJLutSampler(), pointSampler.Resource() );
 			BindResource( shaderBindings, inscatterNCS.DeltaSR(), deltaSRTexture );
@@ -556,6 +571,9 @@ namespace rendercore
 			commandList.Dispatch( INSCATTERN_GROUP_X, INSCATTERN_GROUP_Y, INSCATTERN_GROUP_Z );
 		}
 
+		commandList.Commit();
+		GetInterface<agl::IAgl>()->WaitGPU();
+
 		// copy irradiance buffer to texture
 		{
 			agl::BufferTrait readBack = {
@@ -572,39 +590,13 @@ namespace rendercore
 
 			commandList.CopyResource( irradianceReadBack, irradianceBuffer );
 
-			agl::TextureTrait intermediate = {
-				.m_width = IRRADIANCE_W,
-				.m_height = IRRADIANCE_H,
-				.m_depth = 1,
-				.m_sampleCount = 1,
-				.m_sampleQuality = 0,
-				.m_mipLevels = 1,
-				.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
-				.m_access = agl::ResourceAccessFlag::CpuWrite,
-				.m_bindType = agl::ResourceBindType::None,
-				.m_miscFlag = agl::ResourceMisc::Intermediate
-			};
-
-			agl::RefHandle<agl::Texture> irradianceIntermedicate = agl::Texture::Create( intermediate );
-			irradianceIntermedicate->Init();
-
 			auto src = GraphicsInterface().Lock( irradianceReadBack, agl::ResourceLockFlag::Read );
-			auto dest = GraphicsInterface().Lock( irradianceIntermedicate, agl::ResourceLockFlag::WriteDiscard );
-
 			auto srcData = static_cast<uint8*>( src.m_data );
-			auto destData = static_cast<uint8*>( dest.m_data );
-			for ( uint32 y = 0; y < IRRADIANCE_H; ++y )
-			{
-				constexpr size_t size = sizeof( Vector4 ) * IRRADIANCE_W;
-				std::memcpy( destData, srcData, size );
-				srcData += size;
-				destData += dest.m_rowPitch;
-			}
 
+			constexpr size_t rowSize = sizeof( Vector4 ) * IRRADIANCE_W;
+
+			commandList.UpdateSubresource( info.GetIrradianceLutTexture(), srcData, rowSize);
 			GraphicsInterface().UnLock( irradianceReadBack );
-			GraphicsInterface().UnLock( irradianceIntermedicate );
-
-			commandList.CopyResource( info.GetIrradianceLutTexture(), irradianceIntermedicate );
 		}
 
 		// copy inscatter buffer to texture
@@ -623,44 +615,13 @@ namespace rendercore
 
 			commandList.CopyResource( inscatterReadBack, inscatterBuffer );
 
-			agl::TextureTrait intermediate = {
-				.m_width = RES_MU_S * RES_NU,
-				.m_height = RES_MU,
-				.m_depth = RES_R,
-				.m_sampleCount = 1,
-				.m_sampleQuality = 0,
-				.m_mipLevels = 1,
-				.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
-				.m_access = agl::ResourceAccessFlag::CpuWrite,
-				.m_bindType = agl::ResourceBindType::None,
-				.m_miscFlag = agl::ResourceMisc::Texture3D | agl::ResourceMisc::Intermediate
-			};
-
-			agl::RefHandle<agl::Texture> inscatterIntermedicate = agl::Texture::Create( intermediate );
-			inscatterIntermedicate->Init();
-
 			auto src = GraphicsInterface().Lock( inscatterReadBack, agl::ResourceLockFlag::Read );
-			auto dest = GraphicsInterface().Lock( inscatterIntermedicate, agl::ResourceLockFlag::WriteDiscard );
-
 			auto srcData = static_cast<uint8*>( src.m_data );
-			auto destData = static_cast<uint8*>( dest.m_data );
-			for ( uint32 z = 0; z < RES_R; ++z )
-			{
-				uint8* row = destData;
-				for ( uint32 y = 0; y < RES_MU; ++y )
-				{
-					constexpr size_t size = sizeof( Vector4 ) * RES_MU_S * RES_NU;
-					std::memcpy( row, srcData, size );
-					srcData += size;
-					row += dest.m_rowPitch;
-				}
-				destData += dest.m_depthPitch;
-			}
 
+			constexpr size_t rowSize = sizeof( Vector4 ) * RES_MU_S * RES_NU;
+
+			commandList.UpdateSubresource( info.GetInscatterLutTexture(), srcData, rowSize );
 			GraphicsInterface().UnLock( inscatterReadBack );
-			GraphicsInterface().UnLock( inscatterIntermedicate );
-
-			commandList.CopyResource( info.GetInscatterLutTexture(), inscatterIntermedicate );
 		}
 
 		info.RebuildLookUpTables() = false;
