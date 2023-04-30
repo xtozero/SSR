@@ -36,7 +36,10 @@ namespace agl
 		virtual void ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor ) override;
 
 		virtual void CopyResource( Texture* dest, Texture* src ) override;
-		virtual void CopyResource( Buffer* dest, Buffer* src ) override;
+		virtual void CopyResource( Buffer* dest, Buffer* src, uint32 numByte = 0 ) override;
+
+		virtual void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea = nullptr, uint32 subresource = 0 ) override;
+		virtual void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset = 0, uint32 numByte = 0 ) override;
 
 		virtual void Transition( uint32 numTransitions, const ResourceTransition* transitions ) override;
 
@@ -87,7 +90,10 @@ namespace agl
 		virtual void ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor ) override;
 
 		virtual void CopyResource( Texture* dest, Texture* src ) override;
-		virtual void CopyResource( Buffer* dest, Buffer* src ) override;
+		virtual void CopyResource( Buffer* dest, Buffer* src, uint32 numByte = 0 ) override;
+
+		virtual void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea = nullptr, uint32 subresource = 0 ) override;
+		virtual void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 srcSize, uint32 subresource = 0 ) override;
 
 		virtual void Transition( uint32 numTransitions, const ResourceTransition* transitions ) override;
 

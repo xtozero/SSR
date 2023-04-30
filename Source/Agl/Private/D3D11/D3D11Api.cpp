@@ -156,11 +156,7 @@ namespace agl
 		virtual void WaitGPU() override;
 
 		virtual LockedResource Lock( Buffer* buffer, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard, uint32 subResource = 0 ) override;
-		virtual LockedResource Lock( Texture* texture, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard, uint32 subResource = 0 ) override;
 		virtual void UnLock( Buffer* buffer, uint32 subResource = 0 ) override;
-		virtual void UnLock( Texture* texture, uint32 subResource = 0 ) override;
-
-		virtual void Copy( Buffer* dst, Buffer* src, uint32 size ) override;
 
 		virtual void GetRendererMultiSampleOption( MultiSampleOption* option ) override;
 
@@ -305,30 +301,6 @@ namespace agl
 		return result;
 	}
 
-	LockedResource CDirect3D11::Lock( Texture* texture, ResourceLockFlag lockFlag, uint32 subResource )
-	{
-		if ( texture == nullptr )
-		{
-			return {};
-		}
-
-		auto d3d11Texture = static_cast<TextureBase*>( texture );
-		D3D11_MAPPED_SUBRESOURCE resource;
-
-		HRESULT hr = m_pd3d11DeviceContext->Map( static_cast<ID3D11Resource*>( d3d11Texture->Resource() ), subResource, ConvertLockFlagToD3D11Map(lockFlag), 0, &resource);
-		if ( FAILED( hr ) )
-		{
-			__debugbreak();
-		}
-
-		LockedResource result = {
-			.m_data = resource.pData,
-			.m_rowPitch = resource.RowPitch,
-			.m_depthPitch = resource.DepthPitch
-		};
-		return result;
-	}
-
 	void CDirect3D11::UnLock( Buffer* buffer, uint32 subResource )
 	{
 		if ( buffer == nullptr )
@@ -339,18 +311,6 @@ namespace agl
 		auto d3d11buffer = static_cast<D3D11Buffer*>( buffer );
 
 		m_pd3d11DeviceContext->Unmap( d3d11buffer->Resource(), subResource );
-	}
-
-	void CDirect3D11::UnLock( Texture* texture, uint32 subResource )
-	{
-		if ( texture == nullptr )
-		{
-			return;
-		}
-
-		auto d3d11Texture = static_cast<TextureBase*>( texture );
-
-		m_pd3d11DeviceContext->Unmap( static_cast<ID3D11Resource*>( d3d11Texture->Resource() ), subResource );
 	}
 
 	void CDirect3D11::EnumerateSampleCountAndQuality( int32* size, DXGI_SAMPLE_DESC* pSamples )
@@ -373,36 +333,6 @@ namespace agl
 				++( *size );
 			}
 		}
-	}
-
-	void CDirect3D11::Copy( Buffer* dst, Buffer* src, uint32 size )
-	{
-		auto d3d11Dst = static_cast<D3D11Buffer*>( dst );
-		auto d3d11Src = static_cast<D3D11Buffer*>( src );
-
-		if ( ( d3d11Dst == nullptr ) || ( d3d11Src == nullptr ) )
-		{
-			return;
-		}
-
-		ID3D11Buffer* dstBuffer = d3d11Dst->Resource();
-		ID3D11Buffer* srcBuffer = d3d11Src->Resource();
-
-		if ( ( dstBuffer == nullptr ) || ( srcBuffer == nullptr ) )
-		{
-			return;
-		}
-
-		D3D11_BOX srcBox = {
-			0,
-			0,
-			0,
-			size,
-			1,
-			1,
-		};
-
-		m_pd3d11DeviceContext->CopySubresourceRegion( dstBuffer, 0, 0, 0, 0, srcBuffer, 0, &srcBox );
 	}
 
 	void CDirect3D11::GetRendererMultiSampleOption( MultiSampleOption* option )

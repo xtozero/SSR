@@ -509,9 +509,14 @@ namespace
 		return properties;
 	}
 
-	D3D12_RESOURCE_STATES ConvertToStates( [[maybe_unused]] const TextureTrait& trait )
+	D3D12_RESOURCE_STATES ConvertToStates( const TextureTrait& trait )
 	{
 		D3D12_RESOURCE_STATES states = D3D12_RESOURCE_STATE_COMMON;
+		if ( HasAnyFlags( trait.m_access, ResourceAccessFlag::CpuRead ) )
+		{
+			states = D3D12_RESOURCE_STATE_COPY_DEST;
+		}
+
 		return states;
 	}
 
@@ -553,6 +558,11 @@ namespace agl
 	const AllocatedResourceInfo& D3D12Texture::GetResourceInfo() const
 	{
 		return m_resourceInfo;
+	}
+
+	const D3D12_RESOURCE_DESC& D3D12Texture::GetDesc() const
+	{
+		return m_desc;
 	}
 
 	D3D12Texture::D3D12Texture( const TextureTrait& trait, const ResourceInitData* initData )

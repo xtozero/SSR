@@ -103,6 +103,11 @@ namespace agl
 		return m_buffer;
 	}
 
+	const D3D11_BUFFER_DESC& D3D11Buffer::GetDesc() const
+	{
+		return m_desc;
+	}
+
 	uint32 D3D11Buffer::Stride() const
 	{
 		return m_desc.StructureByteStride;

@@ -20,11 +20,7 @@ namespace rendercore
 		void Shutdown();
 
 		agl::LockedResource Lock( agl::Buffer* buffer, agl::ResourceLockFlag lockFlag = agl::ResourceLockFlag::WriteDiscard, uint32 subResource = 0 );
-		agl::LockedResource Lock( agl::Texture* texture, agl::ResourceLockFlag lockFlag = agl::ResourceLockFlag::WriteDiscard, uint32 subResource = 0 );
 		void UnLock( agl::Buffer* buffer, uint32 subResource = 0 );
-		void UnLock( agl::Texture* texture, uint32 subResource = 0 );
-
-		void Copy( agl::Buffer* dst, agl::Buffer* src, uint32 size );
 
 		agl::ICommandList* GetCommandList();
 		agl::IParallelCommandList* GetParallelCommandList();

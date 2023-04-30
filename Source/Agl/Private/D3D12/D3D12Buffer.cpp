@@ -2,14 +2,19 @@
 
 #include "Config/DefaultAglConfig.h"
 #include "D3D12Api.h"
-#include "D3D12ResourceViews.h"
+
 #include "D3D12FlagConvertor.h"
+
+#include "D3D12ResourceUploader.h"
+#include "D3D12ResourceViews.h"
+
 #include "Math/Util.h"
 #include "Multithread/TaskScheduler.h"
 
 using ::agl::BufferTrait;
 using ::agl::ConvertAccessFlagToHeapType;
 using ::agl::D3D12HeapProperties;
+using ::agl::ResourceAccessFlag;
 using ::agl::ResourceBindType;
 using ::agl::ResourceMisc;
 
@@ -119,9 +124,14 @@ namespace
 		return uav;
 	}
 
-	D3D12_RESOURCE_STATES ConvertToStates( [[maybe_unused]] const BufferTrait& trait )
+	D3D12_RESOURCE_STATES ConvertToStates( const BufferTrait& trait )
 	{
 		D3D12_RESOURCE_STATES states = D3D12_RESOURCE_STATE_GENERIC_READ;
+		if ( HasAnyFlags( trait.m_access, ResourceAccessFlag::CpuRead ) )
+		{
+			states = D3D12_RESOURCE_STATE_COPY_DEST;
+		}
+
 		return states;
 	}
 }
@@ -270,7 +280,7 @@ namespace agl
 			}
 			else
 			{
-				D3D12Uploader().Upload( *this, m_dataStorage, Size() );
+				D3D12Uploader().Upload( *this, m_dataStorage );
 			}
 		}
 

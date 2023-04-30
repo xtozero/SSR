@@ -47,7 +47,10 @@ namespace agl
 		virtual void ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor ) = 0;
 
 		virtual void CopyResource( Texture* dest, Texture* src ) = 0;
-		virtual void CopyResource( Buffer* dest, Buffer* src ) = 0;
+		virtual void CopyResource( Buffer* dest, Buffer* src, uint32 numByte = 0 ) = 0;
+
+		virtual void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea = nullptr, uint32 subresource = 0 ) = 0;
+		virtual void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset = 0, uint32 numByte = 0 ) = 0;
 
 		virtual void Transition( uint32 numTransitions, const ResourceTransition* transitions ) = 0;
 

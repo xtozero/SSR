@@ -7,6 +7,7 @@
 
 #include "D3D12CommandList.h"
 #include "D3D12NullDescriptor.h"
+#include "D3D12ResourceUploader.h"
 
 #include "EnumStringMap.h"
 
@@ -174,11 +175,7 @@ namespace agl
 		virtual void WaitGPU() override;
 
 		virtual LockedResource Lock( Buffer* buffer, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard, uint32 subResource = 0 ) override;
-		virtual LockedResource Lock( Texture* texture, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard, uint32 subResource = 0 ) override;
 		virtual void UnLock( Buffer* buffer, uint32 subResource = 0 ) override;
-		virtual void UnLock( Texture* texture, uint32 subResource = 0 ) override;
-
-		virtual void Copy( Buffer* dst, Buffer* src, uint32 size ) override;
 
 		virtual void GetRendererMultiSampleOption( MultiSampleOption* option ) override;
 
@@ -192,9 +189,9 @@ namespace agl
 		IDXGIFactory7& GetFactory() const;
 		ID3D12CommandQueue& GetDirectCommandQueue() const;
 
-		D3D12ResourceUploader& GetUploader();
-
 		D3D12ResourceAllocator& GetAllocator();
+		D3D12CommnadListResourcePool& GetCmdPool( D3D12_COMMAND_LIST_TYPE type );
+		D3D12ResourceUploader& GetUploader();
 
 		uint32 GetFrameIndex() const
 		{
@@ -228,9 +225,15 @@ namespace agl
 
 		std::vector<D3D12CommandList, InlineAllocator<D3D12CommandList, 2>> m_commandList;
 
-		D3D12ResourceUploader m_uploader;
+		D3D12CommnadListResourcePool m_cmdListResourcePools[3] = {
+			D3D12_COMMAND_LIST_TYPE_DIRECT,
+			D3D12_COMMAND_LIST_TYPE_COMPUTE,
+			D3D12_COMMAND_LIST_TYPE_COPY
+		};
 
 		D3D12ResourceAllocator m_allocator;
+
+		D3D12ResourceUploader m_uploader;
 	};
 
 	AglType Direct3D12::GetType() const
@@ -255,6 +258,7 @@ namespace agl
 
 	void Direct3D12::OnShutdown()
 	{
+		m_uploader.WaitUntilUploadCompleted();
 		m_uploader.WaitUntilCopyCompleted();
 
 		// Dereferencing rendering resources
@@ -276,6 +280,11 @@ namespace agl
 
 	void Direct3D12::OnBeginFrameRendering()
 	{
+		for ( auto& cmdPool : m_cmdListResourcePools )
+		{
+			cmdPool.Prepare();
+		}
+
 		m_uploader.Prepare();
 		m_commandList[m_frameIndex].Prepare();
 	}
@@ -313,7 +322,7 @@ namespace agl
 		++m_fenceValue[m_frameIndex];
 	}
 
-	LockedResource Direct3D12::Lock( Buffer* buffer, ResourceLockFlag lockFlag, uint32 subResource )
+	LockedResource Direct3D12::Lock( Buffer* buffer, [[maybe_unused]] ResourceLockFlag lockFlag, uint32 subResource )
 	{
 		auto d3d12Buffer = static_cast<D3D12Buffer*>( buffer );
 		if ( d3d12Buffer == nullptr )
@@ -322,11 +331,6 @@ namespace agl
 		}
 
 		return d3d12Buffer->Lock( subResource );
-	}
-
-	LockedResource Direct3D12::Lock( Texture* texture, ResourceLockFlag lockFlag, uint32 subResource )
-	{
-		return LockedResource();
 	}
 
 	void Direct3D12::UnLock( Buffer* buffer, uint32 subResource )
@@ -338,14 +342,6 @@ namespace agl
 		}
 
 		d3d12Buffer->UnLock( subResource );
-	}
-
-	void Direct3D12::UnLock( Texture* texture, uint32 subResource )
-	{
-	}
-
-	void Direct3D12::Copy( Buffer* dst, Buffer* src, uint32 size )
-	{
 	}
 
 	void Direct3D12::GetRendererMultiSampleOption( MultiSampleOption* option )
@@ -497,14 +493,35 @@ namespace agl
 		return *m_directCommandQueue.Get();
 	}
 
-	D3D12ResourceUploader& Direct3D12::GetUploader()
-	{
-		return m_uploader;
-	}
-
 	D3D12ResourceAllocator& Direct3D12::GetAllocator()
 	{
 		return m_allocator;
+	}
+
+	D3D12CommnadListResourcePool& Direct3D12::GetCmdPool( D3D12_COMMAND_LIST_TYPE type )
+	{
+		switch ( type )
+		{
+		case D3D12_COMMAND_LIST_TYPE_DIRECT:
+			return m_cmdListResourcePools[0];
+			break;
+		case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+			return m_cmdListResourcePools[1];
+			break;
+		case D3D12_COMMAND_LIST_TYPE_COPY:
+			return m_cmdListResourcePools[2];
+			break;
+		default:
+			break;
+		}
+
+		assert( false );
+		return m_cmdListResourcePools[0];
+	}
+
+	D3D12ResourceUploader& Direct3D12::GetUploader()
+	{
+		return m_uploader;
 	}
 
 	Direct3D12::~Direct3D12()
@@ -650,16 +667,22 @@ namespace agl
 		return d3d12Api->GetFactory();
 	}
 
-	D3D12ResourceUploader& D3D12Uploader()
-	{
-		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
-		return d3d12Api->GetUploader();
-	}
-
 	D3D12ResourceAllocator& D3D12Allocator()
 	{
 		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
 		return d3d12Api->GetAllocator();
+	}
+
+	D3D12CommnadListResourcePool& D3D12CmdPool( D3D12_COMMAND_LIST_TYPE type )
+	{
+		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
+		return d3d12Api->GetCmdPool( type );
+	}
+
+	D3D12ResourceUploader& D3D12Uploader()
+	{
+		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
+		return d3d12Api->GetUploader();
 	}
 
 	Owner<IAgl*> CreateD3D12GraphicsApi()

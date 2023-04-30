@@ -13,6 +13,164 @@
 #include <cassert>
 #include <d3d11.h>
 
+namespace
+{
+	using ::agl::Buffer;
+	using ::agl::BufferTrait;
+	using ::agl::CubeArea;
+	using ::agl::D3D11Buffer;
+	using ::agl::RefHandle;
+	using ::agl::ResourceAccessFlag;
+	using ::agl::ResourceBindType;
+	using ::agl::ResourceMisc;
+	using ::agl::Texture;
+	using ::agl::TextureBase;
+	using ::agl::TextureTrait;
+
+	void UpdateSubresource( ID3D11DeviceContext& context, agl::Buffer* dest, const void* src, uint32 destOffset, uint32 numByte )
+	{
+		auto destBuffer = static_cast<D3D11Buffer*>( dest );
+		if ( destBuffer == nullptr )
+		{
+			return;
+		}
+
+		const BufferTrait& destTrait = destBuffer->GetTrait();
+		if ( numByte == 0 )
+		{
+			numByte = destTrait.m_stride * destTrait.m_count;
+		}
+
+		BufferTrait intermediateTrait = {
+			.m_stride = numByte,
+			.m_count = 1,
+			.m_access = ResourceAccessFlag::GpuRead | ResourceAccessFlag::CpuWrite,
+			.m_bindType = ResourceBindType::None,
+			.m_miscFlag = ResourceMisc::Intermediate,
+			.m_format = destTrait.m_format
+		};
+
+		RefHandle<D3D11Buffer> intermediate = static_cast<D3D11Buffer*>( Buffer::Create( intermediateTrait ).Get() );
+		intermediate->Init();
+
+		D3D11_MAPPED_SUBRESOURCE lockedResource = {};
+		[[maybe_unused]] HRESULT hr = context.Map( static_cast<ID3D11Resource*>( intermediate->Resource() ), 0, D3D11_MAP_WRITE_DISCARD, 0, &lockedResource );
+		assert( SUCCEEDED( hr ) );
+
+		std::memcpy( lockedResource.pData, src, numByte );
+
+		context.Unmap( static_cast<ID3D11Resource*>( intermediate->Resource() ), 0 );
+
+		D3D11_BOX srcRange = {
+			.left = 0,
+			.top = 0,
+			.front = 0,
+			.right = numByte,
+			.bottom = 1,
+			.back = 1
+		};
+
+		context.CopySubresourceRegion(
+			destBuffer->Resource(),
+			0,
+			destOffset,
+			0,
+			0,
+			intermediate->Resource(),
+			0,
+			&srcRange
+		);
+	}
+
+	void UpdateSubresource( ID3D11DeviceContext& context, agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* pDestArea, uint32 subresource )
+	{
+		auto destTexture = static_cast<TextureBase*>( dest );
+		if ( destTexture == nullptr )
+		{
+			return;
+		}
+
+		const TextureTrait& destTrait = destTexture->GetTrait();
+		bool bIsTexture3D = HasAnyFlags( destTrait.m_miscFlag, ResourceMisc::Texture3D );
+
+		CubeArea<uint32> destArea;
+		if ( pDestArea == nullptr )
+		{
+			destArea = {
+				.m_left = 0,
+				.m_top = 0,
+				.m_right = destTrait.m_width,
+				.m_bottom = destTrait.m_height,
+				.m_back = bIsTexture3D ? destTrait.m_depth : 1,
+				.m_front = 0
+			};
+		}
+		else
+		{
+			destArea = *pDestArea;
+		}
+
+		TextureTrait intermediateTrait = {
+			.m_width = destArea.m_right - destArea.m_left,
+			.m_height = destArea.m_bottom - destArea.m_top,
+			.m_depth = bIsTexture3D ? ( destArea.m_back - destArea.m_front ) : 1,
+			.m_sampleCount = destTrait.m_sampleCount,
+			.m_sampleQuality = destTrait.m_sampleQuality,
+			.m_mipLevels = 1,
+			.m_format = destTrait.m_format,
+			.m_access = ResourceAccessFlag::GpuRead | ResourceAccessFlag::CpuWrite,
+			.m_bindType = ResourceBindType::None,
+			.m_miscFlag = bIsTexture3D ? ( ResourceMisc::Texture3D | ResourceMisc::Intermediate ) : ResourceMisc::Intermediate
+		};
+
+		RefHandle<TextureBase> intermediate = static_cast<TextureBase*>( Texture::Create( intermediateTrait ).Get() );
+		intermediate->Init();
+
+		D3D11_MAPPED_SUBRESOURCE lockedResource = {};
+		[[maybe_unused]] HRESULT hr = context.Map( static_cast<ID3D11Resource*>( intermediate->Resource() ), 0, D3D11_MAP_WRITE_DISCARD, 0, &lockedResource );
+		assert( SUCCEEDED( hr ) );
+
+		auto srcData = static_cast<const uint8*>( src );
+		auto destData = static_cast<uint8*>( lockedResource.pData );
+
+		for ( uint32 z = 0; z < destTrait.m_depth; ++z )
+		{
+			uint8* row = destData;
+
+			for ( uint32 y = 0; y < destTrait.m_height; ++y )
+			{
+				std::memcpy( row, srcData, srcRowSize );
+				srcData += srcRowSize;
+				row += lockedResource.RowPitch;
+			}
+
+			destData += lockedResource.DepthPitch;
+		}
+
+		context.Unmap( static_cast<ID3D11Resource*>( intermediate->Resource() ), 0 );
+
+		D3D11_BOX srcRange = {
+			.left = 0,
+			.top = 0,
+			.front = 0,
+			.right = intermediateTrait.m_width,
+			.bottom = intermediateTrait.m_height,
+			.back = intermediateTrait.m_depth
+		};
+
+		context.CopySubresourceRegion(
+			static_cast<ID3D11Resource*>( destTexture->Resource() ),
+			subresource,
+			destArea.m_left,
+			destArea.m_top,
+			destArea.m_front,
+			static_cast<ID3D11Resource*>( intermediate->Resource() ),
+			0,
+			&srcRange
+		);
+	}
+}
+
 namespace agl
 {
 	void D3D11CommandList::Prepare()
@@ -152,7 +310,7 @@ namespace agl
 		D3D11Context().CopyResource( destResource, srcResource );
 	}
 
-	void D3D11CommandList::CopyResource( Buffer* dest, Buffer* src )
+	void D3D11CommandList::CopyResource( Buffer* dest, Buffer* src, uint32 numByte )
 	{
 		if ( dest == nullptr || src == nullptr )
 		{
@@ -173,7 +331,37 @@ namespace agl
 			srcResource = srcBuffer->Resource();
 		}
 
-		D3D11Context().CopyResource( destResource, srcResource );
+		const BufferTrait& destTrait = dest->GetTrait();
+		const BufferTrait& srcTrait = src->GetTrait();
+
+		if ( ( numByte == 0 )
+			|| ( ( destTrait.m_stride * destTrait.m_stride ) == ( srcTrait.m_stride * srcTrait.m_stride ) ) )
+		{
+			D3D11Context().CopyResource( destResource, srcResource );
+		}
+		else
+		{
+			D3D11_BOX srcBox = {
+				.left = 0,
+				.top = 0,
+				.front = 0,
+				.right = numByte,
+				.bottom = 1,
+				.back = 1,
+			};
+
+			D3D11Context().CopySubresourceRegion(destResource, 0, 0, 0, 0, srcResource, 0, &srcBox );
+		}
+	}
+
+	void D3D11CommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea, uint32 subresource )
+	{
+		::UpdateSubresource( D3D11Context(), dest, src, srcRowSize, destArea, subresource );
+	}
+
+	void D3D11CommandList::UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset, uint32 numByte )
+	{
+		::UpdateSubresource( D3D11Context(), dest, src, destOffset, numByte );
 	}
 
 	void D3D11CommandList::Transition( [[maybe_unused]] uint32 numTransitions, [[maybe_unused]] const ResourceTransition* transitions )
@@ -372,7 +560,7 @@ namespace agl
 		m_pContext->CopyResource( destResource, srcResource );
 	}
 
-	void D3D11ParallelCommandList::CopyResource( Buffer* dest, Buffer* src )
+	void D3D11ParallelCommandList::CopyResource( Buffer* dest, Buffer* src, uint32 numByte )
 	{
 		if ( dest == nullptr || src == nullptr )
 		{
@@ -393,7 +581,37 @@ namespace agl
 			srcResource = srcBuffer->Resource();
 		}
 
-		m_pContext->CopyResource( destResource, srcResource );
+		const BufferTrait& destTrait = dest->GetTrait();
+		const BufferTrait& srcTrait = src->GetTrait();
+
+		if ( ( numByte == 0 )
+			|| ( ( destTrait.m_stride * destTrait.m_stride ) == ( srcTrait.m_stride * srcTrait.m_stride ) ) )
+		{
+			m_pContext->CopyResource( destResource, srcResource );
+		}
+		else
+		{
+			D3D11_BOX srcBox = {
+				.left = 0,
+				.top = 0,
+				.front = 0,
+				.right = numByte,
+				.bottom = 1,
+				.back = 1,
+			};
+
+			m_pContext->CopySubresourceRegion( destResource, 0, 0, 0, 0, srcResource, 0, &srcBox );
+		}
+	}
+
+	void D3D11ParallelCommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea, uint32 subresource )
+	{
+		::UpdateSubresource( *m_pContext.Get(), dest, src, srcRowSize, destArea, subresource);
+	}
+
+	void D3D11ParallelCommandList::UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset, uint32 numByte )
+	{
+		::UpdateSubresource( *m_pContext.Get(), dest, src, destOffset, numByte );
 	}
 
 	void D3D11ParallelCommandList::Transition( [[maybe_unused]] uint32 numTransitions, [[maybe_unused]] const ResourceTransition* transitions )

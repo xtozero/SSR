@@ -2,6 +2,9 @@
 
 #include "D3D12Api.h"
 #include "D3D12Shaders.h"
+
+#include "Memory/InlineMemoryAllocator.h"
+
 #include "PipelineState.h"
 
 #include <wrl/client.h>

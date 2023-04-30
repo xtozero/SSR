@@ -31,11 +31,7 @@ namespace agl
 		virtual void WaitGPU() = 0;
 
 		virtual LockedResource Lock( Buffer* buffer, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard, uint32 subResource = 0 ) = 0;
-		virtual LockedResource Lock( Texture* texture, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard, uint32 subResource = 0 ) = 0;
 		virtual void UnLock( Buffer* buffer, uint32 subResource = 0 ) = 0;
-		virtual void UnLock( Texture* texture, uint32 subResource = 0 ) = 0;
-
-		virtual void Copy( Buffer* dst, Buffer* src, uint32 size ) = 0;
 
 		virtual void GetRendererMultiSampleOption( MultiSampleOption* option ) = 0;
 
