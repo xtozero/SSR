@@ -21,9 +21,15 @@ namespace agl
 		m_state = state;
 	}
 
+	const BufferTrait& Buffer::GetTrait() const
+	{
+		return m_trait;
+	}
+
 	bool Buffer::IsDynamic() const
 	{
-		return HasAnyFlags( m_trait.m_access, ResourceAccessFlag::CpuWrite );
+		return HasAnyFlags( m_trait.m_access, ResourceAccessFlag::CpuRead )
+			|| HasAnyFlags( m_trait.m_access, ResourceAccessFlag::CpuWrite );
 	}
 	
 	Buffer::Buffer() noexcept

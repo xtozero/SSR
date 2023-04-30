@@ -81,9 +81,19 @@ namespace rendercore
 		m_imple.CopyResource( dest, src );
 	}
 
-	void CommandList::CopyResource( agl::Buffer* dest, agl::Buffer* src )
+	void CommandList::CopyResource( agl::Buffer* dest, agl::Buffer* src, uint32 numByte )
 	{
-		m_imple.CopyResource( dest, src );
+		m_imple.CopyResource( dest, src, numByte );
+	}
+
+	void CommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const agl::CubeArea<uint32>* destArea, uint32 subresource )
+	{
+		m_imple.UpdateSubresource( dest, src, srcRowSize, destArea, subresource );
+	}
+
+	void CommandList::UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset, uint32 numByte )
+	{
+		m_imple.UpdateSubresource( dest, src, destOffset, numByte );
 	}
 
 	void CommandList::Transition( uint32 numTransitions, const agl::ResourceTransition* transitions )

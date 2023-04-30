@@ -2,6 +2,7 @@
 
 #include "D3D12Api.h"
 #include "D3D12FlagConvertor.h"
+#include "D3D12ResourceUploader.h"
 #include "D3D12ResourceViews.h"
 
 #include "PipelineState.h"
@@ -10,63 +11,131 @@ using ::Microsoft::WRL::ComPtr;
 
 namespace agl
 {
+	void D3D12CommnadListResourcePool::Prepare()
+	{
+		D3D12CommandListResource* iter = m_runningList;
+		while ( iter != nullptr )
+		{
+			D3D12CommandListResource* next = iter->m_next;
+
+			if ( iter->m_fence->GetCompletedValue() > 0 )
+			{
+				SLinkedList::Remove( m_runningList, iter );
+				SLinkedList::AddToHead( m_freeList, iter );
+			}
+
+			iter = next;
+		}
+	}
+
+	D3D12CommandListResource& D3D12CommnadListResourcePool::ObtainCommandList()
+	{
+		D3D12CommandListResource* ret = nullptr;
+		if ( m_freeList == nullptr )
+		{
+			ret = m_allocator.Allocate();
+			std::construct_at( ret );
+
+			[[maybe_unused]] HRESULT hr = D3D12Device().CreateCommandAllocator( m_type, IID_PPV_ARGS( &ret->m_commandAllocator ) );
+			assert( SUCCEEDED( hr ) );
+
+			ComPtr<ID3D12GraphicsCommandList> commandList;
+
+			hr = D3D12Device().CreateCommandList( 0, m_type, ret->m_commandAllocator.Get(), nullptr, IID_PPV_ARGS( &commandList ) );
+			assert( SUCCEEDED( hr ) );
+
+			commandList.As( &ret->m_commandList );
+
+			hr = D3D12Device().CreateFence( 0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS( &ret->m_fence ) );
+			assert( SUCCEEDED( hr ) );
+		}
+		else
+		{
+			ret = m_freeList;
+			SLinkedList::Remove( m_freeList, ret );
+
+			[[maybe_unused]] HRESULT hr = ret->m_commandAllocator->Reset();
+			assert( SUCCEEDED( hr ) );
+
+			hr = ret->m_commandList->Reset( ret->m_commandAllocator.Get(), nullptr );
+			assert( SUCCEEDED( hr ) );
+
+			hr = ret->m_fence->Signal( 0 );
+			assert( SUCCEEDED( hr ) );
+		}
+
+		SLinkedList::AddToHead( m_runningList, ret );
+		return *ret;
+	}
+
+	D3D12CommnadListResourcePool::D3D12CommnadListResourcePool( D3D12_COMMAND_LIST_TYPE type )
+		: m_type( type )
+	{
+	}
+
+	D3D12CommnadListResourcePool::~D3D12CommnadListResourcePool()
+	{
+		D3D12CommandListResource* iter = m_freeList;
+		while ( iter != nullptr )
+		{
+			D3D12CommandListResource* next = iter->m_next;
+			std::destroy_at( iter );
+			iter = next;
+		}
+
+		iter = m_runningList;
+		while ( iter != nullptr )
+		{
+			D3D12CommandListResource* next = iter->m_next;
+			std::destroy_at( iter );
+			iter = next;
+		}
+	}
+
 	void D3D12CommandListImpl::Initialize()
 	{
 		m_globalConstantBuffers.Initialize();
-
-		[[maybe_unused]] HRESULT hr = D3D12Device().CreateCommandAllocator( D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS( &m_commandAllocator ) );
-		assert( SUCCEEDED( hr ) );
-
-		ComPtr<ID3D12GraphicsCommandList> commandList;
-
-		hr = D3D12Device().CreateCommandList( 0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator.Get(), nullptr, IID_PPV_ARGS( &commandList ) );
-		assert( SUCCEEDED( hr ) );
-
-		commandList.As( &m_commandList );
-
-		Close();
+		m_cmdListResource = D3D12CmdPool( D3D12_COMMAND_LIST_TYPE_DIRECT ).ObtainCommandList();
 	}
 
 	void D3D12CommandListImpl::Prepare()
 	{
-		if ( ( m_commandAllocator != nullptr ) && ( m_commandList != nullptr ) )
+		if ( m_cmdListResource.m_fence->GetCompletedValue() > 0 )
 		{
-			m_commandAllocator->Reset();
-			m_commandList->Reset( m_commandAllocator.Get(), nullptr );
+			m_cmdListResource = D3D12CmdPool( D3D12_COMMAND_LIST_TYPE_DIRECT ).ObtainCommandList();
+			m_stateCache.Prepare();
 		}
 
 		m_globalConstantBuffers.Prepare();
 		m_globalDescriptorHeap.Prepare();
-
-		m_stateCache.Prepare();
 	}
 
 	void D3D12CommandListImpl::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
 	{
-		m_stateCache.BindVertexBuffer( *m_commandList.Get(), vertexBuffers, startSlot, numBuffers, pOffsets);
+		m_stateCache.BindVertexBuffer( CommandList(), vertexBuffers, startSlot, numBuffers, pOffsets);
 	}
 
 	void D3D12CommandListImpl::BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset )
 	{
-		m_stateCache.BindIndexBuffer( *m_commandList.Get(), indexBuffer, indexOffset );
+		m_stateCache.BindIndexBuffer( CommandList(), indexBuffer, indexOffset );
 	}
 
 	void D3D12CommandListImpl::BindPipelineState( GraphicsPipelineState* pipelineState )
 	{
 		m_globalConstantBuffers.Reset( false );
-		m_stateCache.BindPipelineState( *m_commandList.Get(), pipelineState );
+		m_stateCache.BindPipelineState( CommandList(), pipelineState );
 	}
 
 	void D3D12CommandListImpl::BindPipelineState( ComputePipelineState* pipelineState )
 	{
 		m_globalConstantBuffers.Reset( true );
-		m_stateCache.BindPipelineState( *m_commandList.Get(), pipelineState );
+		m_stateCache.BindPipelineState( CommandList(), pipelineState );
 	}
 
 	void D3D12CommandListImpl::BindShaderResources( ShaderBindings& shaderBindings )
 	{
 		m_globalConstantBuffers.AddGlobalConstantBuffers( shaderBindings );
-		m_stateCache.BindShaderResources( *m_commandList.Get(), m_globalDescriptorHeap, shaderBindings );
+		m_stateCache.BindShaderResources( CommandList(), m_globalDescriptorHeap, shaderBindings );
 	}
 
 	void D3D12CommandListImpl::SetShaderValue( const ShaderParameter& parameter, const void* value )
@@ -77,34 +146,34 @@ namespace agl
 	void D3D12CommandListImpl::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
 	{
 		m_globalConstantBuffers.CommitShaderValue( false );
-		m_commandList->DrawInstanced( vertexCount, numInstance, baseVertexLocation, 0 );
+		CommandList().DrawInstanced( vertexCount, numInstance, baseVertexLocation, 0 );
 	}
 
 	void D3D12CommandListImpl::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
 	{
 		m_globalConstantBuffers.CommitShaderValue( false );
-		m_commandList->DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation, 0 );
+		CommandList().DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation, 0 );
 	}
 
 	void D3D12CommandListImpl::Dispatch( uint32 x, uint32 y, uint32 z )
 	{
 		m_globalConstantBuffers.CommitShaderValue( true );
-		m_commandList->Dispatch( x, y, z );
+		CommandList().Dispatch( x, y, z );
 	}
 
 	void D3D12CommandListImpl::SetViewports( uint32 count, const CubeArea<float>* area )
 	{
-		m_stateCache.SetViewports( *m_commandList.Get(), count, area );
+		m_stateCache.SetViewports( CommandList(), count, area );
 	}
 
 	void D3D12CommandListImpl::SetScissorRects( uint32 count, const RectangleArea<int32>* area )
 	{
-		m_stateCache.SetScissorRects( *m_commandList.Get(), count, area );
+		m_stateCache.SetScissorRects( CommandList(), count, area );
 	}
 
 	void D3D12CommandListImpl::BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil )
 	{
-		m_stateCache.BindRenderTargets( *m_commandList.Get(), pRenderTargets, renderTargetCount, depthStencil );
+		m_stateCache.BindRenderTargets( CommandList(), pRenderTargets, renderTargetCount, depthStencil );
 	}
 
 	void D3D12CommandListImpl::ClearRenderTarget( RenderTargetView* renderTarget, const float( &clearColor )[4] )
@@ -116,7 +185,7 @@ namespace agl
 
 		auto d3d12RTV = static_cast<D3D12RenderTargetView*>( renderTarget );
 		D3D12_CPU_DESCRIPTOR_HANDLE handle = d3d12RTV->GetCpuHandle().At();
-		m_commandList->ClearRenderTargetView( handle, clearColor, 0, nullptr );
+		CommandList().ClearRenderTargetView( handle, clearColor, 0, nullptr );
 	}
 
 	void D3D12CommandListImpl::ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor )
@@ -128,15 +197,65 @@ namespace agl
 
 		auto d3d12DSV = static_cast<D3D12DepthStencilView*>( depthStencil );
 		D3D12_CPU_DESCRIPTOR_HANDLE handle = d3d12DSV->GetCpuHandle().At();
-		m_commandList->ClearDepthStencilView( handle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, depthColor, stencilColor, 0, nullptr );
+		CommandList().ClearDepthStencilView( handle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, depthColor, stencilColor, 0, nullptr );
 	}
 
 	void D3D12CommandListImpl::CopyResource( Texture* dest, Texture* src )
 	{
+		auto d3d12Dest = static_cast<D3D12Texture*>( dest );
+		auto d3d12Src = static_cast<D3D12Texture*>( src );
+
+		if ( ( d3d12Dest == nullptr ) || ( d3d12Src == nullptr ) )
+		{
+			return;
+		}
+
+		D3D12Uploader().Copy( *d3d12Dest, *d3d12Src );
+
+		if ( HasAnyFlags( d3d12Dest->GetTrait().m_access, ResourceAccessFlag::CpuRead ) )
+		{
+			D3D12Uploader().WaitUntilCopyCompleted();
+		}
 	}
 
-	void D3D12CommandListImpl::CopyResource( Buffer* dest, Buffer* src )
+	void D3D12CommandListImpl::CopyResource( Buffer* dest, Buffer* src, uint32 numByte )
 	{
+		auto d3d12Dest = static_cast<D3D12Buffer*>( dest );
+		auto d3d12Src = static_cast<D3D12Buffer*>( src );
+
+		if ( ( d3d12Dest == nullptr ) || ( d3d12Src == nullptr ) )
+		{
+			return;
+		}
+
+		D3D12Uploader().Copy( *d3d12Dest, *d3d12Src );
+
+		if ( HasAnyFlags( d3d12Dest->GetTrait().m_access, ResourceAccessFlag::CpuRead ) )
+		{
+			D3D12Uploader().WaitUntilCopyCompleted();
+		}
+	}
+
+	void D3D12CommandListImpl::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea, uint32 subresource )
+	{
+		auto d3d12Texture = static_cast<D3D12Texture*>( dest );
+		if ( d3d12Texture == nullptr )
+		{
+			return;
+		}
+
+		D3D12Uploader().Upload( *d3d12Texture, src, srcRowSize, destArea, subresource );
+	}
+
+	void D3D12CommandListImpl::UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset, uint32 numByte )
+	{
+		auto d3d12Buffer = static_cast<D3D12Buffer*>( dest );
+		if ( d3d12Buffer == nullptr )
+		{
+			return;
+		}
+
+		D3D12Uploader().Upload( *d3d12Buffer, src, destOffset, numByte );
 	}
 
 	void D3D12CommandListImpl::Transition( uint32 numTransitions, const ResourceTransition* transitions )
@@ -160,20 +279,30 @@ namespace agl
 			return;
 		}
 
-		m_commandList->ResourceBarrier( static_cast<uint32>( d3d12Barriers.size() ), d3d12Barriers.data() );
+		CommandList().ResourceBarrier( static_cast<uint32>( d3d12Barriers.size() ), d3d12Barriers.data() );
 	}
 
 	void D3D12CommandListImpl::Close()
 	{
-		if ( m_commandList != nullptr )
-		{
-			m_commandList->Close();
-		}
+		CommandList().Close();
+	}
+
+	void D3D12CommandListImpl::OnCommited()
+	{
+		D3D12DirectCommandQueue().Signal( m_cmdListResource.m_fence.Get(), 1 );
+
+		m_cmdListResource = D3D12CmdPool( D3D12_COMMAND_LIST_TYPE_DIRECT ).ObtainCommandList();
+		m_stateCache.Prepare();
 	}
 
 	ID3D12CommandList* D3D12CommandListImpl::Resource() const
 	{
-		return m_commandList.Get();
+		return m_cmdListResource.m_commandList.Get();
+	}
+
+	ID3D12GraphicsCommandList6& D3D12CommandListImpl::CommandList()
+	{
+		return *m_cmdListResource.m_commandList.Get();
 	}
 
 	void D3D12CommandList::Prepare()
@@ -264,9 +393,19 @@ namespace agl
 		m_imple.CopyResource( dest, src );
 	}
 
-	void D3D12CommandList::CopyResource( Buffer* dest, Buffer* src )
+	void D3D12CommandList::CopyResource( Buffer* dest, Buffer* src, uint32 numByte )
 	{
-		m_imple.CopyResource( dest, src );
+		m_imple.CopyResource( dest, src, numByte );
+	}
+
+	void D3D12CommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea, uint32 subresource )
+	{
+		m_imple.UpdateSubresource( dest, src, srcRowSize, destArea, subresource );
+	}
+
+	void D3D12CommandList::UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset, uint32 numByte )
+	{
+		m_imple.UpdateSubresource( dest, src, destOffset, numByte );
 	}
 
 	void D3D12CommandList::Transition( uint32 numTransitions, const ResourceTransition* transitions )
@@ -309,11 +448,23 @@ namespace agl
 
 		auto numCommandList = static_cast<uint32>( commandLists.size() );
 		D3D12DirectCommandQueue().ExecuteCommandLists( numCommandList, commandLists.data() );
+
+		m_imple.OnCommited();
+		for ( size_t i = 0; i < m_parallelCommandLists.size(); ++i )
+		{
+			auto d3d12CommandList = static_cast<D3D12ParallelCommandList*>( m_parallelCommandLists[i] );
+			d3d12CommandList->OnCommitted();
+		}
 	}
 
 	void D3D12CommandList::Initialize()
 	{
 		m_imple.Initialize();
+	}
+
+	void D3D12CommandList::OnCommitted()
+	{
+		m_imple.OnCommited();
 	}
 
 	D3D12CommandList::D3D12CommandList( D3D12CommandList&& other ) noexcept
@@ -422,9 +573,19 @@ namespace agl
 		m_imple.CopyResource( dest, src );
 	}
 
-	void D3D12ParallelCommandList::CopyResource( Buffer* dest, Buffer* src )
+	void D3D12ParallelCommandList::CopyResource( Buffer* dest, Buffer* src, uint32 numByte )
 	{
-		m_imple.CopyResource( dest, src );
+		m_imple.CopyResource( dest, src, numByte );
+	}
+
+	void D3D12ParallelCommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea, uint32 subresource )
+	{
+		m_imple.UpdateSubresource( dest, src, srcRowSize, destArea, subresource );
+	}
+
+	void D3D12ParallelCommandList::UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset, uint32 numByte )
+	{
+		m_imple.UpdateSubresource( dest, src, destOffset, numByte );
 	}
 
 	void D3D12ParallelCommandList::Transition( uint32 numTransitions, const ResourceTransition* transitions )
@@ -440,6 +601,11 @@ namespace agl
 	void D3D12ParallelCommandList::Initialize()
 	{
 		m_imple.Initialize();
+	}
+
+	void D3D12ParallelCommandList::OnCommitted()
+	{
+		m_imple.OnCommited();
 	}
 
 	ID3D12CommandList* D3D12ParallelCommandList::Resource() const

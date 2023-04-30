@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AbstractGraphicsInterface.h"
+#include "CommandList.h"
 #include "ConstantBuffer.h"
 #include "GraphicsApiResource.h"
 #include "SizedTypes.h"
@@ -52,7 +53,8 @@ namespace rendercore
 
 				if ( copyPreviousData )
 				{
-					GraphicsInterface().Copy( newBuffer.m_buffer, m_buffer, Size() );
+					auto commandList = GetCommandList();
+					commandList.CopyResource( newBuffer.m_buffer, m_buffer, Size() );
 				}
 
 				( *this ) = std::move( newBuffer );
