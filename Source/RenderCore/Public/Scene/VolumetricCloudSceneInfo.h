@@ -74,5 +74,7 @@ namespace rendercore
 		agl::RefHandle<agl::Texture> m_baseCloudShape;
 		agl::RefHandle<agl::Texture> m_detailCloudShape;
 		agl::RefHandle<agl::Texture> m_weatherMap;
+
+		bool m_needCreateRenderData = true;
 	};
 }

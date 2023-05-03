@@ -65,12 +65,21 @@ namespace rendercore
 
 	void VolumetricCloudSceneInfo::CreateRenderData()
 	{
-		SetupCloudTexture();
-		GenerateWeatherMap();
+		if ( m_needCreateRenderData )
+		{
+			SetupCloudTexture();
+			GenerateWeatherMap();
+
+			auto commandList = GetCommandList();
+			commandList.Commit();
+			GetInterface<agl::IAgl>()->WaitGPU();
+
+			m_needCreateRenderData = false;
+		}
 	}
 
-	VolumetricCloudSceneInfo::VolumetricCloudSceneInfo( VolumetricCloudProxy* proxy ) :
-		m_cloudProxy( proxy )
+	VolumetricCloudSceneInfo::VolumetricCloudSceneInfo( VolumetricCloudProxy* proxy )
+		: m_cloudProxy( proxy )
 	{
 	}
 
