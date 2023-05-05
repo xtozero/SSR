@@ -76,14 +76,14 @@ namespace rendercore
 		m_imple.ClearDepthStencil( depthStencil, depthColor, stencilColor );
 	}
 
-	void CommandList::CopyResource( agl::Texture* dest, agl::Texture* src )
+	void CommandList::CopyResource( agl::Texture* dest, agl::Texture* src, bool bDirect )
 	{
-		m_imple.CopyResource( dest, src );
+		m_imple.CopyResource( dest, src, bDirect );
 	}
 
-	void CommandList::CopyResource( agl::Buffer* dest, agl::Buffer* src, uint32 numByte )
+	void CommandList::CopyResource( agl::Buffer* dest, agl::Buffer* src, uint32 numByte, bool bDirect )
 	{
-		m_imple.CopyResource( dest, src, numByte );
+		m_imple.CopyResource( dest, src, numByte, bDirect );
 	}
 
 	void CommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const agl::CubeArea<uint32>* destArea, uint32 subresource )

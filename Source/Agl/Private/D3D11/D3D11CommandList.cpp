@@ -286,7 +286,7 @@ namespace agl
 		D3D11Context().ClearDepthStencilView( dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthColor, stencilColor );
 	}
 
-	void D3D11CommandList::CopyResource( Texture* dest, Texture* src )
+	void D3D11CommandList::CopyResource( Texture* dest, Texture* src, [[maybe_unused]] bool bDirect )
 	{
 		if ( dest == nullptr || src == nullptr )
 		{
@@ -310,7 +310,7 @@ namespace agl
 		D3D11Context().CopyResource( destResource, srcResource );
 	}
 
-	void D3D11CommandList::CopyResource( Buffer* dest, Buffer* src, uint32 numByte )
+	void D3D11CommandList::CopyResource( Buffer* dest, Buffer* src, uint32 numByte, [[maybe_unused]] bool bDirect )
 	{
 		if ( dest == nullptr || src == nullptr )
 		{
@@ -536,7 +536,7 @@ namespace agl
 		m_pContext->ClearDepthStencilView( dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthColor, stencilColor );
 	}
 
-	void D3D11ParallelCommandList::CopyResource( Texture* dest, Texture* src )
+	void D3D11ParallelCommandList::CopyResource( Texture* dest, Texture* src, [[maybe_unused]] bool bDirect )
 	{
 		if ( dest == nullptr || src == nullptr )
 		{
@@ -560,7 +560,7 @@ namespace agl
 		m_pContext->CopyResource( destResource, srcResource );
 	}
 
-	void D3D11ParallelCommandList::CopyResource( Buffer* dest, Buffer* src, uint32 numByte )
+	void D3D11ParallelCommandList::CopyResource( Buffer* dest, Buffer* src, uint32 numByte, [[maybe_unused]] bool bDirect )
 	{
 		if ( dest == nullptr || src == nullptr )
 		{

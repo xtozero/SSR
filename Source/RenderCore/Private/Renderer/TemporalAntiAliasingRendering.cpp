@@ -9,6 +9,7 @@
 #include "Scene/PrimitiveSceneInfo.h"
 #include "SceneRenderer.h"
 #include "ShaderParameterUtils.h"
+#include "TransitionUtils.h"
 #include "VertexCollection.h"
 #include "Viewport.h"
 
@@ -29,7 +30,13 @@ namespace rendercore
 				resolvePS.GetShader()
 		};
 
-		PassRenderOption passRenderOption = {};
+		DepthStencilOption depthStencilOption;
+		depthStencilOption.m_depth.m_enable = false;
+		depthStencilOption.m_stencil.m_enable = false;
+
+		PassRenderOption passRenderOption = {
+			.m_depthStencilOption = &depthStencilOption
+		};
 
 		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default );
 	}
@@ -48,7 +55,14 @@ namespace rendercore
 		if ( scene.GetNumFrame() == 1 )
 		{
 			agl::Texture* sceneTex = renderViewGroup.GetViewport().Texture();
-			GetCommandList().CopyResource( historyTex, sceneTex );
+
+			agl::ResourceTransition transitions[] = {
+				Transition( *historyTex, agl::ResourceState::CopyDest ),
+				Transition( *sceneTex, agl::ResourceState::CopySource ),
+			};
+			GetCommandList().Transition( std::extent_v<decltype( transitions )>, transitions );
+
+			GetCommandList().CopyResource( historyTex, sceneTex, true );
 		}
 		else
 		{
@@ -87,6 +101,14 @@ namespace rendercore
 		agl::Texture* sceneTex = renderViewGroup.GetViewport().Texture();
 		agl::Texture* velocityTex = renderTargets.GetVelocity();
 
+		agl::ResourceTransition transitions[] = {
+			Transition( *historyTex, agl::ResourceState::PixelShaderResource ),
+			Transition( *resolveTex, agl::ResourceState::RenderTarget ),
+			Transition( *sceneTex, agl::ResourceState::PixelShaderResource ),
+			Transition( *velocityTex, agl::ResourceState::PixelShaderResource ),
+		};
+		GetCommandList().Transition( std::extent_v<decltype( transitions )>, transitions );
+
 		// Linear Sampler
 		SamplerOption samplerOption;
 		SamplerState historyTexSampler = GraphicsInterface().FindOrCreate( samplerOption );
@@ -98,7 +120,10 @@ namespace rendercore
 		// Point Sampler
 		SamplerState velocityTexSampler = GraphicsInterface().FindOrCreate( samplerOption );
 
+		SceneViewConstantBuffer& viewConstant = renderViewGroup.Scene().SceneViewConstant();
+
 		RenderingShaderResource taaResolveDrawResources;
+		taaResolveDrawResources.AddResource( "SceneViewParameters", viewConstant.Resource() );
 		taaResolveDrawResources.AddResource( "HistoryTex", historyTex->SRV() );
 		taaResolveDrawResources.AddResource( "HistoryTexSampler", historyTexSampler.Resource() );
 		taaResolveDrawResources.AddResource( "SceneTex", sceneTex->SRV() );
@@ -134,14 +159,24 @@ namespace rendercore
 		agl::Texture* historyTex = renderTargets.GetTAAHistory();
 		agl::Texture* resolveTex = renderTargets.GetTAAResolve();
 		agl::Texture* sceneTex = renderViewGroup.GetViewport().Texture();
-		commandList.CopyResource( historyTex, resolveTex );
-		commandList.CopyResource( sceneTex, resolveTex );
+
+		agl::ResourceTransition transitions[] = {
+			Transition( *historyTex, agl::ResourceState::CopyDest ),
+			Transition( *resolveTex, agl::ResourceState::CopySource ),
+			Transition( *sceneTex, agl::ResourceState::CopyDest ),
+		};
+
+		commandList.Transition( std::extent_v<decltype( transitions )>, transitions );
+
+		commandList.CopyResource( historyTex, resolveTex, true );
+		commandList.CopyResource( sceneTex, resolveTex, true );
 
 		agl::Texture* renderTarget = renderViewGroup.GetViewport().Texture();
 		agl::RenderTargetView* rtv = renderTarget != nullptr ? renderTarget->RTV() : nullptr;
 
 		agl::Texture* depthStencil = renderTargets.GetDepthStencil();
 		agl::DepthStencilView* dsv = depthStencil != nullptr ? depthStencil->DSV() : nullptr;
+
 		commandList.BindRenderTargets( &rtv, 1, dsv );
 	}
 
