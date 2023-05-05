@@ -98,7 +98,7 @@ namespace agl
 		intermediateDesc.Height = destArea.m_bottom - destArea.m_top;
 		intermediateDesc.DepthOrArraySize = static_cast<uint16>( destArea.m_back - destArea.m_front );
 
-		D3D12Device().GetCopyableFootprints( &intermediateDesc, subresource, 1, 0, &layout, &numRows, &rowSize, &totalSize);
+		D3D12Device().GetCopyableFootprints( &dest.GetDesc(), subresource, 1, 0, &layout, &numRows, &rowSize, &totalSize);
 
 		D3D12HeapProperties heapProperties = {
 			.m_alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT,
@@ -135,7 +135,7 @@ namespace agl
 		for ( uint32 z = 0, zEnd = destArea.m_back - destArea.m_front; z < zEnd; ++z )
 		{
 			auto row = mappedData;
-			for ( uint32 y = 0, yEnd = destArea.m_bottom - destArea.m_top; y < yEnd; ++y )
+			for ( uint32 y = 0, yEnd = numRows; y < yEnd; ++y )
 			{
 				std::memcpy( row, srcData, srcRowSize );
 				srcData += srcRowSize;
