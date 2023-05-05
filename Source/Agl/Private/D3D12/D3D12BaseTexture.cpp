@@ -1,7 +1,10 @@
 #include "D3D12BaseTexture.h"
 
 #include "D3D12Api.h"
+
 #include "D3D12FlagConvertor.h"
+
+#include "D3D12ResourceUploader.h"
 #include "D3D12ResourceViews.h"
 
 using ::agl::ConvertDxgiFormatToFormat;
@@ -603,6 +606,14 @@ namespace agl
 			states,
 			clearValue.Format == DXGI_FORMAT_UNKNOWN ? nullptr : &clearValue
 		);
+
+		if ( m_initData.empty() == false )
+		{
+			for ( size_t i = 0; i < m_initData.size(); ++i )
+			{
+				D3D12Uploader().Upload( *this, m_initData[i].pData, m_initData[i].RowPitch, nullptr, i);
+			}
+		}
 	}
 
 	void D3D12Texture::CreateShaderResource()
