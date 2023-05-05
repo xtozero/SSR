@@ -62,8 +62,8 @@ namespace agl
 		void ClearRenderTarget( RenderTargetView* renderTarget, const float( &clearColor )[4] );
 		void ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor );
 
-		void CopyResource( Texture* dest, Texture* src );
-		void CopyResource( Buffer* dest, Buffer* src, uint32 numByte );
+		void CopyResource( Texture* dest, Texture* src, bool bDirect );
+		void CopyResource( Buffer* dest, Buffer* src, uint32 numByte, bool bDirect );
 
 		void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea, uint32 subresource );
 		void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset, uint32 numByte );
@@ -110,8 +110,8 @@ namespace agl
 		virtual void ClearRenderTarget( RenderTargetView* renderTarget, const float( &clearColor )[4] ) override;
 		virtual void ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor ) override;
 
-		virtual void CopyResource( Texture* dest, Texture* src ) override;
-		virtual void CopyResource( Buffer* dest, Buffer* src, uint32 numByte ) override;
+		virtual void CopyResource( Texture* dest, Texture* src, bool bDirect = false ) override;
+		virtual void CopyResource( Buffer* dest, Buffer* src, uint32 numByte, bool bDirect = false ) override;
 
 		virtual void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea = nullptr, uint32 subresource = 0 ) override;
 		virtual void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset = 0, uint32 numByte = 0 ) override;
@@ -165,8 +165,8 @@ namespace agl
 		virtual void ClearRenderTarget( RenderTargetView* renderTarget, const float( &clearColor )[4] ) override;
 		virtual void ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor ) override;
 
-		virtual void CopyResource( Texture* dest, Texture* src ) override;
-		virtual void CopyResource( Buffer* dest, Buffer* src, uint32 numByte ) override;
+		virtual void CopyResource( Texture* dest, Texture* src, bool bDirect = false ) override;
+		virtual void CopyResource( Buffer* dest, Buffer* src, uint32 numByte, bool bDirect = false ) override;
 
 		virtual void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea = nullptr, uint32 subresource = 0 ) override;
 		virtual void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset = 0, uint32 numByte = 0 ) override;

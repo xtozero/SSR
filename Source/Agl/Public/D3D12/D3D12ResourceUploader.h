@@ -75,7 +75,7 @@ namespace agl
 
 		void Upload( D3D12Buffer& dest, const void* data, uint32 destOffset = 0, uint32 numByte = 0 );
 		void Upload( D3D12Texture& dest, const void* data, uint32 srcRowSize, const CubeArea<uint32>* pDestArea = nullptr, uint32 subresource = 0 );
-		void Copy( D3D12Buffer& dest, D3D12Buffer& src, uint32 numByte = 0 );
+		void Copy( D3D12Buffer& dest, D3D12Buffer& src, uint32 numByte );
 		void Copy( D3D12Texture& dest, D3D12Texture& src );
 
 		void WaitUntilUploadCompleted();

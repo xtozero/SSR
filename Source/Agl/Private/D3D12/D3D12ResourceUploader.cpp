@@ -401,6 +401,11 @@ namespace agl
 		ID3D12CommandList* commandList[] = { context.CommandList() };
 		m_copyQueue->ExecuteCommandLists( 1, commandList );
 		m_copyQueue->Signal( context.Fence(), 1 );
+
+		if ( HasAnyFlags( dest.GetTrait().m_access, ResourceAccessFlag::CpuRead ) )
+		{
+			WaitUntilCopyCompleted();
+		}
 	}
 
 	void D3D12ResourceUploader::Copy( D3D12Texture& dest, D3D12Texture& src )
@@ -415,6 +420,11 @@ namespace agl
 		ID3D12CommandList* commandList[] = { context.CommandList() };
 		m_copyQueue->ExecuteCommandLists( 1, commandList );
 		m_copyQueue->Signal( context.Fence(), 1);
+
+		if ( HasAnyFlags( dest.GetTrait().m_access, ResourceAccessFlag::CpuRead ) )
+		{
+			WaitUntilCopyCompleted();
+		}
 	}
 
 	void D3D12ResourceUploader::WaitUntilUploadCompleted()

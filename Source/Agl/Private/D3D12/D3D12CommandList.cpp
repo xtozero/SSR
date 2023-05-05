@@ -200,7 +200,7 @@ namespace agl
 		CommandList().ClearDepthStencilView( handle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, depthColor, stencilColor, 0, nullptr );
 	}
 
-	void D3D12CommandListImpl::CopyResource( Texture* dest, Texture* src )
+	void D3D12CommandListImpl::CopyResource( Texture* dest, Texture* src, bool bDirect )
 	{
 		auto d3d12Dest = static_cast<D3D12Texture*>( dest );
 		auto d3d12Src = static_cast<D3D12Texture*>( src );
@@ -210,15 +210,17 @@ namespace agl
 			return;
 		}
 
-		D3D12Uploader().Copy( *d3d12Dest, *d3d12Src );
-
-		if ( HasAnyFlags( d3d12Dest->GetTrait().m_access, ResourceAccessFlag::CpuRead ) )
+		if ( bDirect )
 		{
-			D3D12Uploader().WaitUntilCopyCompleted();
+			CommandList().CopyResource( static_cast<ID3D12Resource*>( d3d12Dest->Resource() ),	static_cast<ID3D12Resource*>( d3d12Src->Resource() ) );
+		}
+		else
+		{
+			D3D12Uploader().Copy( *d3d12Dest, *d3d12Src );
 		}
 	}
 
-	void D3D12CommandListImpl::CopyResource( Buffer* dest, Buffer* src, uint32 numByte )
+	void D3D12CommandListImpl::CopyResource( Buffer* dest, Buffer* src, uint32 numByte, bool bDirect )
 	{
 		auto d3d12Dest = static_cast<D3D12Buffer*>( dest );
 		auto d3d12Src = static_cast<D3D12Buffer*>( src );
@@ -228,11 +230,20 @@ namespace agl
 			return;
 		}
 
-		D3D12Uploader().Copy( *d3d12Dest, *d3d12Src );
-
-		if ( HasAnyFlags( d3d12Dest->GetTrait().m_access, ResourceAccessFlag::CpuRead ) )
+		if ( bDirect )
 		{
-			D3D12Uploader().WaitUntilCopyCompleted();
+			if ( numByte == 0 )
+			{
+				CommandList().CopyResource( d3d12Dest->Resource(), d3d12Src->Resource() );
+			}
+			else
+			{
+				CommandList().CopyBufferRegion( d3d12Dest->Resource(), 0, d3d12Src->Resource(), 0, numByte );
+			}
+		}
+		else
+		{
+			D3D12Uploader().Copy( *d3d12Dest, *d3d12Src, numByte );
 		}
 	}
 
@@ -388,14 +399,14 @@ namespace agl
 		m_imple.ClearDepthStencil( depthStencil, depthColor, stencilColor );
 	}
 
-	void D3D12CommandList::CopyResource( Texture* dest, Texture* src )
+	void D3D12CommandList::CopyResource( Texture* dest, Texture* src, bool bDirect )
 	{
-		m_imple.CopyResource( dest, src );
+		m_imple.CopyResource( dest, src, bDirect );
 	}
 
-	void D3D12CommandList::CopyResource( Buffer* dest, Buffer* src, uint32 numByte )
+	void D3D12CommandList::CopyResource( Buffer* dest, Buffer* src, uint32 numByte, bool bDirect )
 	{
-		m_imple.CopyResource( dest, src, numByte );
+		m_imple.CopyResource( dest, src, numByte, bDirect );
 	}
 
 	void D3D12CommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea, uint32 subresource )
@@ -568,14 +579,14 @@ namespace agl
 		m_imple.ClearDepthStencil( depthStencil, depthColor, stencilColor );
 	}
 
-	void D3D12ParallelCommandList::CopyResource( Texture* dest, Texture* src )
+	void D3D12ParallelCommandList::CopyResource( Texture* dest, Texture* src, bool bDirect )
 	{
-		m_imple.CopyResource( dest, src );
+		m_imple.CopyResource( dest, src, bDirect );
 	}
 
-	void D3D12ParallelCommandList::CopyResource( Buffer* dest, Buffer* src, uint32 numByte )
+	void D3D12ParallelCommandList::CopyResource( Buffer* dest, Buffer* src, uint32 numByte, bool bDirect )
 	{
-		m_imple.CopyResource( dest, src, numByte );
+		m_imple.CopyResource( dest, src, numByte, bDirect );
 	}
 
 	void D3D12ParallelCommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea, uint32 subresource )
