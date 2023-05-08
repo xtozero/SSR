@@ -17,7 +17,6 @@ namespace
 {
 	using ::agl::Buffer;
 	using ::agl::BufferTrait;
-	using ::agl::CubeArea;
 	using ::agl::D3D11Buffer;
 	using ::agl::RefHandle;
 	using ::agl::ResourceAccessFlag;
@@ -99,10 +98,10 @@ namespace
 			destArea = {
 				.m_left = 0,
 				.m_top = 0,
+				.m_front = 0,
 				.m_right = destTrait.m_width,
 				.m_bottom = destTrait.m_height,
 				.m_back = bIsTexture3D ? destTrait.m_depth : 1,
-				.m_front = 0
 			};
 		}
 		else

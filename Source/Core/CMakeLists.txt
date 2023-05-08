@@ -28,6 +28,7 @@ set (DATA_STRUCTURE
 	
 set (DATA_TYPE
 	Private/DataType/Nametypes.cpp
+	Public/DataType/AreaTypes.h
 	Public/DataType/GuideTypes.h
 	Public/DataType/Nametypes.h
 	Public/DataType/RefCounterType.h

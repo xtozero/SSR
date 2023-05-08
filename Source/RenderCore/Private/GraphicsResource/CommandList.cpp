@@ -51,12 +51,12 @@ namespace rendercore
 		BindPipelineState( static_cast<agl::ComputePipelineState*>( nullptr ) );
 	}
 
-	void CommandList::SetViewports( uint32 count, const agl::CubeArea<float>* areas )
+	void CommandList::SetViewports( uint32 count, const CubeArea<float>* areas )
 	{
 		m_imple.SetViewports( count, areas );
 	}
 
-	void CommandList::SetScissorRects( uint32 count, const agl::RectangleArea<int32>* areas )
+	void CommandList::SetScissorRects( uint32 count, const RectangleArea<int32>* areas )
 	{
 		m_imple.SetScissorRects( count, areas );
 	}
@@ -86,7 +86,7 @@ namespace rendercore
 		m_imple.CopyResource( dest, src, numByte, bDirect );
 	}
 
-	void CommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const agl::CubeArea<uint32>* destArea, uint32 subresource )
+	void CommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea, uint32 subresource )
 	{
 		m_imple.UpdateSubresource( dest, src, srcRowSize, destArea, subresource );
 	}

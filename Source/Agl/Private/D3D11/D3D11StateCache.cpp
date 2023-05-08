@@ -272,12 +272,12 @@ namespace agl
 		for ( uint32 i = 0; i < count; ++i )
 		{
 			viewports[i] = {
-				area[i].m_left,
-				area[i].m_top,
-				area[i].m_right - area[i].m_left,
-				area[i].m_bottom - area[i].m_top,
-				area[i].m_back,
-				area[i].m_front
+				.TopLeftX = area[i].m_left,
+				.TopLeftY = area[i].m_top,
+				.Width = area[i].m_right - area[i].m_left,
+				.Height = area[i].m_bottom - area[i].m_top,
+				.MinDepth = area[i].m_front,
+				.MaxDepth = area[i].m_back,
 			};
 		}
 

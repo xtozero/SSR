@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AreaTypes.h"
 #include "DrawSnapshot.h"
 #include "GraphicsApiResource.h"
 #include "NameTypes.h"
@@ -56,8 +57,8 @@ namespace rendercore
 		agl::RefHandle<agl::Texture> m_renderTargets[agl::MAX_RENDER_TARGET] = {};
 		agl::RefHandle<agl::Texture> m_depthStencil;
 
-		agl::CubeArea<float> m_viewport;
-		agl::RectangleArea<int32> m_scissorRects;
+		CubeArea<float> m_viewport;
+		RectangleArea<int32> m_scissorRects;
 	};
 
 	class SceneRenderer

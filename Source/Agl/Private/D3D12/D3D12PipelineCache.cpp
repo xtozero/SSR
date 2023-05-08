@@ -427,8 +427,8 @@ namespace agl
 				.TopLeftY = area[i].m_top,
 				.Width = area[i].m_right - area[i].m_left,
 				.Height = area[i].m_bottom - area[i].m_top,
-				.MinDepth = area[i].m_back,
-				.MaxDepth = area[i].m_front
+				.MinDepth = area[i].m_front,
+				.MaxDepth = area[i].m_back
 			};
 		}
 
