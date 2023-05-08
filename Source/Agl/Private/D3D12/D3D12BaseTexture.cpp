@@ -611,7 +611,7 @@ namespace agl
 		{
 			for ( size_t i = 0; i < m_initData.size(); ++i )
 			{
-				D3D12Uploader().Upload( *this, m_initData[i].pData, m_initData[i].RowPitch, nullptr, i);
+				D3D12Uploader().Upload( *this, m_initData[i].pData, static_cast<uint32>( m_initData[i].RowPitch ), nullptr, static_cast<uint32>( i ) );
 			}
 		}
 	}

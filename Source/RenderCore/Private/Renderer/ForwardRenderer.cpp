@@ -331,10 +331,22 @@ namespace rendercore
 		auto [width, height] = renderViewGroup.GetViewport().Size();
 
 		RenderingOutputContext context = {
-			{ renderTarget },
-			depthStencil,
-			{ 0.f, 0.f, static_cast<float>( width ), static_cast<float>( height ), 0.f, 1.f },
-			{ 0L, 0L, static_cast<int32>( width ), static_cast<int32>( height ) }
+			.m_renderTargets = { renderTarget },
+			.m_depthStencil = depthStencil,
+			.m_viewport = { 
+				.m_left = 0.f, 
+				.m_top = 0.f, 
+				.m_front = 0.f,
+				.m_right = static_cast<float>( width ), 
+				.m_bottom = static_cast<float>( height ), 
+				.m_back = 1.f 
+			},
+			.m_scissorRects = { 
+				.m_left = 0L, 
+				.m_top = 0L,
+				.m_right = static_cast<int32>( width ), 
+				.m_bottom = static_cast<int32>( height )
+			}
 		};
 		StoreOuputContext( context );
 
@@ -361,10 +373,22 @@ namespace rendercore
 		auto [width, height] = renderViewGroup.GetViewport().Size();
 
 		RenderingOutputContext context = {
-			{ renderTarget, worldNormal, velocity },
-			depthStencil,
-			{ 0.f, 0.f, static_cast<float>( width ), static_cast<float>( height ), 0.f, 1.f },
-			{ 0L, 0L, static_cast<int32>( width ), static_cast<int32>( height ) }
+			.m_renderTargets = { renderTarget, worldNormal, velocity },
+			.m_depthStencil = depthStencil,
+			.m_viewport = { 
+				.m_left = 0.f, 
+				.m_top = 0.f, 
+				.m_front = 0.f,
+				.m_right = static_cast<float>( width ), 
+				.m_bottom = static_cast<float>( height ),
+				.m_back = 1.f 
+			},
+			.m_scissorRects = {
+				.m_left = 0L, 
+				.m_top = 0L, 
+				.m_right = static_cast<int32>( width ),
+				.m_bottom = static_cast<int32>( height )
+			}
 		};
 		StoreOuputContext( context );
 

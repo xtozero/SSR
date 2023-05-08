@@ -77,10 +77,10 @@ namespace agl
 			destArea = {
 				.m_left = 0,
 				.m_top = 0,
+				.m_front = 0,
 				.m_right = destTrait.m_width,
 				.m_bottom = destTrait.m_height,
 				.m_back = bIsTexture3D ? destTrait.m_depth : 1,
-				.m_front = 0
 			};
 		}
 		else

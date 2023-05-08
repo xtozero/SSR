@@ -20,8 +20,8 @@ namespace rendercore
 		void DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation );
 		void Dispatch( uint32 x, uint32 y, uint32 z = 1 );
 
-		void SetViewports( uint32 count, const agl::CubeArea<float>* areas );
-		void SetScissorRects( uint32 count, const agl::RectangleArea<int32>* areas );
+		void SetViewports( uint32 count, const CubeArea<float>* areas );
+		void SetScissorRects( uint32 count, const RectangleArea<int32>* areas );
 
 		void BindRenderTargets( agl::RenderTargetView** pRenderTargets, uint32 renderTargetCount, agl::DepthStencilView* depthStencil );
 
@@ -31,7 +31,7 @@ namespace rendercore
 		void CopyResource( agl::Texture* dest, agl::Texture* src, bool bDirect = false );
 		void CopyResource( agl::Buffer* dest, agl::Buffer* src, uint32 numByte = 0, bool bDirect = false );
 
-		void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const agl::CubeArea<uint32>* destArea = nullptr, uint32 subresource = 0 );
+		void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea = nullptr, uint32 subresource = 0 );
 		void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset = 0, uint32 numByte = 0 );
 
 		void Transition( uint32 numTransitions, const agl::ResourceTransition* transitions );

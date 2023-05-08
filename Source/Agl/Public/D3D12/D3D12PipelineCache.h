@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AreaTypes.h"
 #include "D3D12ResourceAllocator.h"
 #include "GraphicsApiResource.h"
 #include "SizedTypes.h"

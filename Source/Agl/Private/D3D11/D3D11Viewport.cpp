@@ -45,10 +45,22 @@ namespace agl
 
 	void D3D11Viewport::Bind( ICommandListBase& commandList ) const
 	{
-		CubeArea<float> viewport{ 0.f, 0.f, static_cast<float>( m_width ), static_cast<float>( m_height ), 0.f, 1.f };
+		CubeArea<float> viewport{ 
+			.m_left = 0.f,
+			.m_top = 0.f,
+			.m_front = 0.f,
+			.m_right = static_cast<float>( m_width ),
+			.m_bottom = static_cast<float>( m_height ),
+			.m_back = 1.f
+		};
 		commandList.SetViewports( 1, &viewport );
 
-		RectangleArea<int32> rect{ 0L, 0L, static_cast<int32>( m_width ), static_cast<int32>( m_height ) };
+		RectangleArea<int32> rect{ 
+			.m_left = 0L, 
+			.m_top = 0L, 
+			.m_right = static_cast<int32>( m_width ), 
+			.m_bottom = static_cast<int32>( m_height ) 
+		};
 		commandList.SetScissorRects( 1, &rect );
 	}
 
