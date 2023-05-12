@@ -352,6 +352,10 @@ namespace agl
 
 				m_shaderLayouts = new ShaderBindingLayout[other.m_shaderLayoutSize];
 				m_shaderLayoutSize = other.m_shaderLayoutSize;
+				m_numSRV = other.m_numSRV;
+				m_numUAV = other.m_numUAV;
+				m_numCBV = other.m_numCBV;
+				m_numSampler = other.m_numSampler;
 				std::copy_n( other.m_shaderLayouts, m_shaderLayoutSize, m_shaderLayouts );
 				Allocate( other.m_size );
 
@@ -362,6 +366,8 @@ namespace agl
 
 					*handle = *otherHandle;
 				}
+
+				m_bCompute = other.m_bCompute;
 			}
 
 			return *this;
@@ -385,6 +391,7 @@ namespace agl
 				m_numSampler = other.m_numSampler;
 				m_data = other.m_data;
 				m_size = other.m_size;
+				m_bCompute = other.m_bCompute;
 
 				other.m_shaderLayouts = nullptr;
 				other.m_shaderLayoutSize = 0;
@@ -394,6 +401,7 @@ namespace agl
 				other.m_numSampler = 0;
 				other.m_data = nullptr;
 				other.m_size = 0;
+				other.m_bCompute = false;
 			}
 
 			return *this;
@@ -411,7 +419,8 @@ namespace agl
 				|| ( m_numSRV != other.m_numSRV )
 				|| ( m_numUAV != other.m_numUAV )
 				|| ( m_numCBV != other.m_numCBV )
-				|| ( m_numSampler != other.m_numSampler ) )
+				|| ( m_numSampler != other.m_numSampler )
+				|| ( m_bCompute != other.m_bCompute ) )
 			{
 				return false;
 			}
@@ -489,6 +498,8 @@ namespace agl
 			delete[] m_data;
 			m_data = nullptr;
 			m_size = 0;
+
+			m_bCompute = false;
 		}
 
 		ShaderBindingLayout* m_shaderLayouts = nullptr;
