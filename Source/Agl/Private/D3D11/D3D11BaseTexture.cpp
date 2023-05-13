@@ -20,14 +20,14 @@ namespace agl
 		}
 
 		return D3D11_TEXTURE1D_DESC{
-			trait.m_width,
-			trait.m_mipLevels,
-			trait.m_depth,
-			format,
-			usage,
-			bindFlag,
-			cpuAccessFlag,
-			miscFlags
+			.Width = trait.m_width,
+			.MipLevels = trait.m_mipLevels,
+			.ArraySize = trait.m_depth,
+			.Format = format,
+			.Usage = usage,
+			.BindFlags = bindFlag,
+			.CPUAccessFlags = cpuAccessFlag,
+			.MiscFlags = miscFlags
 		};
 	}
 
@@ -46,16 +46,16 @@ namespace agl
 		}
 
 		return D3D11_TEXTURE2D_DESC{
-			trait.m_width,
-			trait.m_height,
-			trait.m_mipLevels,
-			trait.m_depth,
-			format,
-			SampleDesc,
-			usage,
-			bindFlag,
-			cpuAccessFlag,
-			miscFlags
+			.Width = trait.m_width,
+			.Height = trait.m_height,
+			.MipLevels = trait.m_mipLevels,
+			.ArraySize = trait.m_depth,
+			.Format = format,
+			.SampleDesc = SampleDesc,
+			.Usage = usage,
+			.BindFlags = bindFlag,
+			.CPUAccessFlags = cpuAccessFlag,
+			.MiscFlags = miscFlags
 		};
 	}
 
@@ -73,15 +73,15 @@ namespace agl
 		}
 
 		return D3D11_TEXTURE3D_DESC{
-			trait.m_width,
-			trait.m_height,
-			trait.m_depth,
-			trait.m_mipLevels,
-			format,
-			usage,
-			bindFlag,
-			cpuAccessFlag,
-			miscFlags
+			.Width = trait.m_width,
+			.Height = trait.m_height,
+			.Depth = trait.m_depth,
+			.MipLevels = trait.m_mipLevels,
+			.Format = format,
+			.Usage = usage,
+			.BindFlags = bindFlag,
+			.CPUAccessFlags = cpuAccessFlag,
+			.MiscFlags = miscFlags
 		};
 	}
 
@@ -93,16 +93,16 @@ namespace agl
 		ResourceMisc miscFlag = ConvertDXMiscToMisc( desc.MiscFlags );
 
 		return TextureTrait{
-			desc.Width,
-			desc.Height,
-			desc.ArraySize,
-			desc.SampleDesc.Count,
-			desc.SampleDesc.Quality,
-			desc.MipLevels,
-			format,
-			access,
-			bindType,
-			miscFlag
+			.m_width = desc.Width,
+			.m_height = desc.Height,
+			.m_depth = desc.ArraySize,
+			.m_sampleCount = desc.SampleDesc.Count,
+			.m_sampleQuality = desc.SampleDesc.Quality,
+			.m_mipLevels = desc.MipLevels,
+			.m_format = format,
+			.m_access = access,
+			.m_bindType = bindType,
+			.m_miscFlag = miscFlag
 		};
 	}
 

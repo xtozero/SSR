@@ -45,13 +45,12 @@ namespace rendercore
 		if ( m_elementSize > 0 && m_numElement > 0 )
 		{
 			agl::BufferTrait trait = {
-				m_elementSize,
-				m_numElement,
-				agl::ResourceAccessFlag::GpuRead |
-				agl::ResourceAccessFlag::CpuWrite,
-				agl::ResourceBindType::ShaderResource,
-				agl::ResourceMisc::BufferStructured,
-				agl::ResourceFormat::Unknown
+				.m_stride = m_elementSize,
+				.m_count = m_numElement,
+				.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::CpuWrite,
+				.m_bindType = agl::ResourceBindType::ShaderResource,
+				.m_miscFlag = agl::ResourceMisc::BufferStructured,
+				.m_format = agl::ResourceFormat::Unknown
 			};
 
 			m_buffer = agl::Buffer::Create( trait, initData );

@@ -46,12 +46,12 @@ namespace rendercore
 		}
 
 		agl::BufferTrait trait = {
-			elementSize,
-			numElement,
-			accessFlag,
-			agl::ResourceBindType::VertexBuffer,
-			agl::ResourceMisc::None,
-			agl::ResourceFormat::Unknown
+			.m_stride = elementSize,
+			.m_count = numElement,
+			.m_access = accessFlag,
+			.m_bindType = agl::ResourceBindType::VertexBuffer,
+			.m_miscFlag = agl::ResourceMisc::None,
+			.m_format = agl::ResourceFormat::Unknown
 		};
 
 		m_buffer = agl::Buffer::Create( trait, initData );

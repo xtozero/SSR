@@ -23,12 +23,12 @@ namespace rendercore
 	void IndexBuffer::InitResource( const void* initData )
 	{
 		agl::BufferTrait trait = {
-			m_isDWORD ? sizeof( uint32 ) : sizeof( uint16 ),
-			m_numElement,
-			agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
-			agl::ResourceBindType::IndexBuffer,
-			agl::ResourceMisc::None,
-			agl::ResourceFormat::Unknown
+			.m_stride = m_isDWORD ? sizeof( uint32 ) : sizeof( uint16 ),
+			.m_count = m_numElement,
+			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+			.m_bindType = agl::ResourceBindType::IndexBuffer,
+			.m_miscFlag = agl::ResourceMisc::None,
+			.m_format = agl::ResourceFormat::Unknown
 		};
 
 		m_buffer = agl::Buffer::Create( trait, initData );

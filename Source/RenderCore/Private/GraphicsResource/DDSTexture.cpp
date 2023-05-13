@@ -54,18 +54,17 @@ namespace rendercore
 		misc |= m_isCubeMap ? agl::ResourceMisc::TextureCube : agl::ResourceMisc::None;
 		misc |= ( m_depth > 1 ) ? agl::ResourceMisc::Texture3D : agl::ResourceMisc::None;
 
-		agl::TextureTrait tarit =
-		{
-			m_width,
-			m_height,
-			m_depth * m_arraySize,
-			1,
-			0,
-			m_mipLevels,
-			m_format,
-			agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
-			agl::ResourceBindType::ShaderResource,
-			misc
+		agl::TextureTrait tarit = {
+			.m_width = m_width,
+			.m_height = m_height,
+			.m_depth = m_depth * m_arraySize,
+			.m_sampleCount = 1,
+			.m_sampleQuality = 0,
+			.m_mipLevels = m_mipLevels,
+			.m_format = m_format,
+			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+			.m_bindType = agl::ResourceBindType::ShaderResource,
+			.m_miscFlag = misc
 		};
 
 		agl::ResourceInitData initData;

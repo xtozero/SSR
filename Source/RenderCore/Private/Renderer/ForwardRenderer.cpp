@@ -126,8 +126,7 @@ namespace rendercore
 	{
 		if ( m_taaHistory == nullptr )
 		{
-			agl::TextureTrait trait =
-			{
+			agl::TextureTrait trait = {
 				.m_width = m_bufferSize.first,
 				.m_height = m_bufferSize.second,
 				.m_depth = 1,
@@ -150,8 +149,7 @@ namespace rendercore
 
 		if ( m_taaResolve == nullptr )
 		{
-			agl::TextureTrait trait =
-			{
+			agl::TextureTrait trait = {
 				.m_width = m_bufferSize.first,
 				.m_height = m_bufferSize.second,
 				.m_depth = 1,

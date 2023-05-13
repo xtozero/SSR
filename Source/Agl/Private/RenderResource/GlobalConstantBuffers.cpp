@@ -98,12 +98,12 @@ namespace agl
 		}
 
 		BufferTrait trait = {
-			   .m_stride = m_updateSize,
-			   .m_count = 1,
-			   .m_access = ResourceAccessFlag::GpuRead | ResourceAccessFlag::CpuWrite,
-			   .m_bindType = ResourceBindType::ConstantBuffer,
-			   .m_miscFlag = ResourceMisc::None,
-			   .m_format = ResourceFormat::Unknown
+			.m_stride = m_updateSize,
+			.m_count = 1,
+			.m_access = ResourceAccessFlag::GpuRead | ResourceAccessFlag::CpuWrite,
+			.m_bindType = ResourceBindType::ConstantBuffer,
+			.m_miscFlag = ResourceMisc::None,
+			.m_format = ResourceFormat::Unknown
 		};
 
 		RefHandle<Buffer> buffer = Buffer::Create( trait );

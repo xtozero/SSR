@@ -9,12 +9,12 @@ namespace rendercore
 	void ForwardLightBuffer::Initialize( uint32 bytePerElement, uint32 numElements, agl::ResourceFormat format )
 	{
 		agl::BufferTrait trait = {
-			bytePerElement,
-			numElements,
-			agl::ResourceAccessFlag::CpuWrite,
-			agl::ResourceBindType::ShaderResource,
-			agl::ResourceMisc::None,
-			format
+			.m_stride = bytePerElement,
+			.m_count = numElements,
+			.m_access = agl::ResourceAccessFlag::CpuWrite,
+			.m_bindType = agl::ResourceBindType::ShaderResource,
+			.m_miscFlag = agl::ResourceMisc::None,
+			.m_format = format
 		};
 
 		m_buffer = agl::Buffer::Create( trait );

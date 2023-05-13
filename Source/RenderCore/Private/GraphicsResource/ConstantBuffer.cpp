@@ -49,12 +49,12 @@ namespace rendercore
 	void ConstantBuffer::InitResource( uint32 size )
 	{
 		agl::BufferTrait trait = {
-			size,
-			1,
-			agl::ResourceAccessFlag::CpuWrite,
-			agl::ResourceBindType::ConstantBuffer,
-			agl::ResourceMisc::None,
-			agl::ResourceFormat::Unknown
+			.m_stride = size,
+			.m_count = 1,
+			.m_access = agl::ResourceAccessFlag::CpuWrite,
+			.m_bindType = agl::ResourceBindType::ConstantBuffer,
+			.m_miscFlag = agl::ResourceMisc::None,
+			.m_format = agl::ResourceFormat::Unknown
 		};
 
 		m_buffer = agl::Buffer::Create( trait );

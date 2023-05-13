@@ -14,23 +14,23 @@ namespace
 	D3D11_DEPTH_STENCIL_DESC ConvertTraitToDesc( const DepthStencilStateTrait& trait )
 	{
 		return D3D11_DEPTH_STENCIL_DESC{
-			trait.m_depthEnable,
-			ConvertToDepthWriteMask( trait.m_depthWriteMode ),
-			ConvertToComparisionFunc( trait.m_depthFunc ),
-			trait.m_stencilEnable,
-			trait.m_stencilReadMask,
-			trait.m_stencilWriteMask,
-			{
-				ConvertToStencilOp( trait.m_frontFace.m_failOp ),
-				ConvertToStencilOp( trait.m_frontFace.m_depthFailOp ),
-				ConvertToStencilOp( trait.m_frontFace.m_passOp ),
-				ConvertToComparisionFunc( trait.m_frontFace.m_func )
+			.DepthEnable = trait.m_depthEnable,
+			.DepthWriteMask = ConvertToDepthWriteMask( trait.m_depthWriteMode ),
+			.DepthFunc = ConvertToComparisionFunc( trait.m_depthFunc ),
+			.StencilEnable = trait.m_stencilEnable,
+			.StencilReadMask = trait.m_stencilReadMask,
+			.StencilWriteMask = trait.m_stencilWriteMask,
+			.FrontFace = {
+				.StencilFailOp = ConvertToStencilOp( trait.m_frontFace.m_failOp ),
+				.StencilDepthFailOp = ConvertToStencilOp( trait.m_frontFace.m_depthFailOp ),
+				.StencilPassOp = ConvertToStencilOp( trait.m_frontFace.m_passOp ),
+				.StencilFunc = ConvertToComparisionFunc( trait.m_frontFace.m_func )
 			},
-			{
-				ConvertToStencilOp( trait.m_backFace.m_failOp ),
-				ConvertToStencilOp( trait.m_backFace.m_depthFailOp ),
-				ConvertToStencilOp( trait.m_backFace.m_passOp ),
-				ConvertToComparisionFunc( trait.m_backFace.m_func )
+			.BackFace = {
+				.StencilFailOp = ConvertToStencilOp( trait.m_backFace.m_failOp ),
+				.StencilDepthFailOp = ConvertToStencilOp( trait.m_backFace.m_depthFailOp ),
+				.StencilPassOp = ConvertToStencilOp( trait.m_backFace.m_passOp ),
+				.StencilFunc = ConvertToComparisionFunc( trait.m_backFace.m_func )
 			}
 		};
 	}

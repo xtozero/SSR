@@ -8,7 +8,7 @@
 
 void CDebugOverlayManager::OnDeviceRestore( CGameLogic& gameLogic )
 {
-	m_dynamicVB.OnDeviceRestore( gameLogic );
+	//m_dynamicVB.OnDeviceRestore( gameLogic );
 	//m_debugMaterial = gameLogic.GetRenderer( ).SearchMaterial( "mat_debugOverlay" );
 }
 

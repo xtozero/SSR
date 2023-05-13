@@ -115,11 +115,9 @@ set (PRECOMPILED
 
 set (SCENE
 	Private/Scene/DebugOverlayManager.cpp
-	Private/Scene/DynamicBuffer.cpp
 	Private/Scene/ScreenBlurManager.cpp
 	Private/Scene/SSRManager.cpp
 	Public/Scene/DebugOverlayManager.h
-	Public/Scene/DynamicBuffer.h
 	Public/Scene/INotifyGraphicsDevice.h
 	Public/Scene/ScreenBlurManager.h
 	Public/Scene/SSRManager.h)

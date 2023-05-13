@@ -196,12 +196,12 @@ namespace rendercore
 			collection.AddStream( std::move( posStream ) );
 
 			trait[traitSize++] = {
-				false,
-				0,
-				agl::ResourceFormat::R32G32B32_FLOAT,
-				slot++,
-				0,
-				Name( "POSITION" )
+				.m_isInstanceData = false,
+				.m_index = 0,
+				.m_format = agl::ResourceFormat::R32G32B32_FLOAT,
+				.m_slot = slot++,
+				.m_instanceDataStep = 0,
+				.m_name = Name( "POSITION" )
 			};
 
 			collection.InitLayout( trait, traitSize, VertexStreamLayoutType::PositionOnly );
@@ -223,12 +223,12 @@ namespace rendercore
 				collection.AddStream( std::move( normalStream ) );
 
 				trait[traitSize++] = {
-					false,
-					0,
-					agl::ResourceFormat::R32G32B32_FLOAT,
-					slot++,
-					0,
-					Name( "NORMAL" )
+					.m_isInstanceData = false,
+					.m_index = 0,
+					.m_format = agl::ResourceFormat::R32G32B32_FLOAT,
+					.m_slot = slot++,
+					.m_instanceDataStep = 0,
+					.m_name = Name( "NORMAL" )
 				};
 
 				collection.InitLayout( trait, traitSize, VertexStreamLayoutType::PositionNormal );
@@ -252,12 +252,12 @@ namespace rendercore
 				collection.AddStream( std::move( texCoordStream ) );
 
 				trait[traitSize++] = {
-					false,
-					0,
-					agl::ResourceFormat::R32G32_FLOAT,
-					slot++,
-					0,
-					Name( "TEXCOORD" )
+					.m_isInstanceData = false,
+					.m_index = 0,
+					.m_format = agl::ResourceFormat::R32G32_FLOAT,
+					.m_slot = slot++,
+					.m_instanceDataStep = 0,
+					.m_name = Name( "TEXCOORD" )
 				};
 			}
 

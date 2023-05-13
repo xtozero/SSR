@@ -14,21 +14,21 @@ namespace
 	D3D11_SAMPLER_DESC ConvertTraitToDesc( const SamplerStateTrait& trait )
 	{
 		return D3D11_SAMPLER_DESC{
-			ConvertToFilter( trait.m_filter ),
-			ConvertToTextureAddress( trait.m_addressU ),
-			ConvertToTextureAddress( trait.m_addressV ),
-			ConvertToTextureAddress( trait.m_addressW ),
-			trait.m_mipLODBias,
-			trait.m_maxAnisotropy,
-			ConvertToComparisionFunc( trait.m_comparisonFunc ),
-			{
+			.Filter = ConvertToFilter( trait.m_filter ),
+			.AddressU = ConvertToTextureAddress( trait.m_addressU ),
+			.AddressV = ConvertToTextureAddress( trait.m_addressV ),
+			.AddressW = ConvertToTextureAddress( trait.m_addressW ),
+			.MipLODBias = trait.m_mipLODBias,
+			.MaxAnisotropy = trait.m_maxAnisotropy,
+			.ComparisonFunc = ConvertToComparisionFunc( trait.m_comparisonFunc ),
+			.BorderColor = {
 				trait.m_borderColor[0],
 				trait.m_borderColor[1],
 				trait.m_borderColor[2],
 				trait.m_borderColor[3]
 			},
-			trait.m_minLOD,
-			trait.m_maxLOD
+			.MinLOD = trait.m_minLOD,
+			.MaxLOD = trait.m_maxLOD
 		};
 	}
 }

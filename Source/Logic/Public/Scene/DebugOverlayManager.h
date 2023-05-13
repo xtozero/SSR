@@ -3,7 +3,6 @@
 #include "INotifyGraphicsDevice.h"
 #include "Math/Matrix.h"
 #include "Math/Vector.h"
-#include "Scene/DynamicBuffer.h"
 #include "SizedTypes.h"
 
 #include <vector>
@@ -66,6 +65,6 @@ private:
 	std::vector<DebugLine> m_debugLine;
 	std::vector<DebugTriangle> m_debugTriangle;
 
-	CDynamicBuffer m_dynamicVB;
+	//CDynamicBuffer m_dynamicVB;
 	//Material m_debugMaterial = INVALID_MATERIAL;
 };

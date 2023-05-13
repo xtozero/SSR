@@ -84,14 +84,14 @@ namespace rendercore
 		if ( found == m_depthStencilStates.end() )
 		{
 			agl::DepthStencilStateTrait trait = {
-				option.m_depth.m_enable,
-				option.m_depth.m_writeDepth ? agl::DepthWriteMode::All : agl::DepthWriteMode::Zero,
-				option.m_depth.m_depthFunc,
-				option.m_stencil.m_enable,
-				option.m_stencil.m_readMask,
-				option.m_stencil.m_writeMask,
-				option.m_stencil.m_frontFace,
-				option.m_stencil.m_backFace
+				.m_depthEnable = option.m_depth.m_enable,
+				.m_depthWriteMode = option.m_depth.m_writeDepth ? agl::DepthWriteMode::All : agl::DepthWriteMode::Zero,
+				.m_depthFunc = option.m_depth.m_depthFunc,
+				.m_stencilEnable = option.m_stencil.m_enable,
+				.m_stencilReadMask = option.m_stencil.m_readMask,
+				.m_stencilWriteMask = option.m_stencil.m_writeMask,
+				.m_frontFace = option.m_stencil.m_frontFace,
+				.m_backFace = option.m_stencil.m_backFace
 			};
 
 			DepthStencilState state( trait );
@@ -109,16 +109,16 @@ namespace rendercore
 		if ( found == m_rasterizerStates.end() )
 		{
 			agl::RasterizerStateTrait trait = {
-				option.m_isWireframe ? agl::FillMode::Wireframe : agl::FillMode::Solid,
-				option.m_cullMode,
-				option.m_counterClockwise,
-				option.m_depthBias,
-				0.f,
-				0.f,
-				option.m_depthClipEnable,
-				option.m_scissorEnable,
-				option.m_multisampleEnable,
-				option.m_antialiasedLineEnable
+				.m_fillMode = option.m_isWireframe ? agl::FillMode::Wireframe : agl::FillMode::Solid,
+				.m_cullMode = option.m_cullMode,
+				.m_frontCounterClockwise = option.m_counterClockwise,
+				.m_depthBias = option.m_depthBias,
+				.m_depthBiasClamp = 0.f,
+				.m_slopeScaleDepthBias = 0.f,
+				.m_depthClipEnable = option.m_depthClipEnable,
+				.m_scissorEnable = option.m_scissorEnable,
+				.m_multisampleEnable = option.m_multisampleEnable,
+				.m_antialiasedLineEnable = option.m_antialiasedLineEnable
 			};
 
 			RasterizerState state( trait );
@@ -136,16 +136,16 @@ namespace rendercore
 		if ( found == m_samplerStates.end() )
 		{
 			agl::SamplerStateTrait trait = {
-				option.m_filter,
-				option.m_addressU,
-				option.m_addressV,
-				option.m_addressW,
-				option.m_mipLODBias,
-				1,	/*anisotropy option set later*/
-				option.m_comparisonFunc,
-				{ 1.f, 1.f, 1.f, 1.f },
-				std::numeric_limits<float>::min(),
-				std::numeric_limits<float>::max()
+				.m_filter = option.m_filter,
+				.m_addressU = option.m_addressU,
+				.m_addressV = option.m_addressV,
+				.m_addressW = option.m_addressW,
+				.m_mipLODBias = option.m_mipLODBias,
+				.m_maxAnisotropy = 1,	/*anisotropy option set later*/
+				.m_comparisonFunc = option.m_comparisonFunc,
+				.m_borderColor = { 1.f, 1.f, 1.f, 1.f },
+				.m_minLOD = std::numeric_limits<float>::min(),
+				.m_maxLOD = std::numeric_limits<float>::max()
 			};
 
 			SamplerState state( trait );

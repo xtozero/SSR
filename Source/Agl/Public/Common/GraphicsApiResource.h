@@ -677,17 +677,6 @@ namespace agl
 		uint64 m_depthPitch;
 	};
 
-	struct ResourceRegion
-	{
-		uint32 m_subResource;
-		uint32 m_left;
-		uint32 m_right;
-		uint32 m_top;
-		uint32 m_bottom;
-		uint32 m_front;
-		uint32 m_back;
-	};
-
 	struct MultiSampleOption
 	{
 		int32 m_count;

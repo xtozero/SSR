@@ -13,16 +13,16 @@ namespace
 	D3D11_RASTERIZER_DESC ConvertTraitToDesc( const RasterizerStateTrait& trait )
 	{
 		return D3D11_RASTERIZER_DESC{
-			ConvertToFillMode( trait.m_fillMode ),
-			ConvertToCullMode( trait.m_cullMode ),
-			trait.m_frontCounterClockwise,
-			trait.m_depthBias,
-			trait.m_depthBiasClamp,
-			trait.m_slopeScaleDepthBias,
-			trait.m_depthClipEnable,
-			trait.m_scissorEnable,
-			trait.m_multisampleEnable,
-			trait.m_antialiasedLineEnable
+			.FillMode = ConvertToFillMode( trait.m_fillMode ),
+			.CullMode = ConvertToCullMode( trait.m_cullMode ),
+			.FrontCounterClockwise = trait.m_frontCounterClockwise,
+			.DepthBias = trait.m_depthBias,
+			.DepthBiasClamp = trait.m_depthBiasClamp,
+			.SlopeScaledDepthBias = trait.m_slopeScaleDepthBias,
+			.DepthClipEnable = trait.m_depthClipEnable,
+			.ScissorEnable = trait.m_scissorEnable,
+			.MultisampleEnable = trait.m_multisampleEnable,
+			.AntialiasedLineEnable = trait.m_antialiasedLineEnable
 		};
 	}
 }

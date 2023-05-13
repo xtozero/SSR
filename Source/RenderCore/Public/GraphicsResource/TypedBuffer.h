@@ -107,12 +107,12 @@ namespace rendercore
 			if ( m_numElement > 0 )
 			{
 				agl::BufferTrait trait = {
-				static_cast<uint32>( sizeof( T ) ),
-				m_numElement,
-				agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
-				agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess,
-				agl::ResourceMisc::BufferStructured,
-				agl::ResourceFormat::Unknown
+					.m_stride = static_cast<uint32>( sizeof( T ) ),
+					.m_count = m_numElement,
+					.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+					.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess,
+					.m_miscFlag = agl::ResourceMisc::BufferStructured,
+					.m_format = agl::ResourceFormat::Unknown
 				};
 
 				m_buffer = agl::Buffer::Create( trait, initData );

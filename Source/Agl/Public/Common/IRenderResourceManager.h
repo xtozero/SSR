@@ -4,12 +4,6 @@
 #include "GraphicsApiResource.h"
 #include "SizedTypes.h"
 
-struct BufferTrait;
-struct ResourceInitData;
-struct ResourceRegion;
-struct TextureTrait;
-struct VertexLayoutTrait;
-
 namespace agl
 {
 	class BlendState;
@@ -53,9 +47,6 @@ namespace agl
 		virtual ComputePipelineState* CreatePipelineState( const ComputePipelineStateInitializer& initializer ) = 0;
 
 		virtual Viewport* CreateViewport( uint32 width, uint32 height, void* hWnd, ResourceFormat format ) = 0;
-
-		// virtual void CopyResource( RE_HANDLE dest, const ResourceRegion* destRegionOrNull, RE_HANDLE src, const ResourceRegion* srcRegionOrNull ) = 0;
-		// virtual void UpdateResourceFromMemory( RE_HANDLE dest, void* src, uint32 srcRowPitch, uint32 srcDepthPitch, const ResourceRegion* destRegionOrNull = nullptr ) = 0;
 
 		virtual ~IResourceManager() = default;
 	};
