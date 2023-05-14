@@ -197,7 +197,10 @@ namespace agl
 		Microsoft::WRL::ComPtr<ID3D11Device> m_pd3d11Device;
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_pd3d11DeviceContext;
 
-		DXGI_SAMPLE_DESC m_multiSampleOption = { 1, 0 };
+		DXGI_SAMPLE_DESC m_multiSampleOption = { 
+			.Count = 1,
+			.Quality = 0
+		};
 
 		D3D11CommandList m_commandList;
 	};
@@ -264,8 +267,8 @@ namespace agl
 	void CDirect3D11::WaitGPU()
 	{
 		D3D11_QUERY_DESC desc = {
-			D3D11_QUERY_EVENT,
-			0U
+			.Query = D3D11_QUERY_EVENT,
+			.MiscFlags = 0U
 		};
 
 		Microsoft::WRL::ComPtr<ID3D11Query> pQuery = nullptr;
@@ -425,6 +428,7 @@ namespace agl
 		};
 
 		D3D_FEATURE_LEVEL d3dFeatureLevel[] = {
+			D3D_FEATURE_LEVEL_11_1,
 			D3D_FEATURE_LEVEL_11_0,
 			D3D_FEATURE_LEVEL_10_1,
 			D3D_FEATURE_LEVEL_10_0
@@ -435,7 +439,7 @@ namespace agl
 		flag |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-		D3D_FEATURE_LEVEL selectedFeature = D3D_FEATURE_LEVEL_11_0;
+		D3D_FEATURE_LEVEL selectedFeature = D3D_FEATURE_LEVEL_11_1;
 		HRESULT hr = E_FAIL;
 
 		for ( uint32 i = 0; i < _countof( d3dDriverTypes ); ++i )

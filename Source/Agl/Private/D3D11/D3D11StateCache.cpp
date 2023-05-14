@@ -298,10 +298,10 @@ namespace agl
 		for ( uint32 i = 0; i < count; ++i )
 		{
 			rects[i] = {
-				area[i].m_left,
-				area[i].m_top,
-				area[i].m_right,
-				area[i].m_bottom
+				.left = area[i].m_left,
+				.top = area[i].m_top,
+				.right = area[i].m_right,
+				.bottom = area[i].m_bottom
 			};
 		}
 

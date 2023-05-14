@@ -259,12 +259,10 @@ namespace
 
 		if ( result.ec == std::errc() )
 		{
-			Token token =
-			{
+			Token token = {
 				.m_type = TokenType::Integer,
 				.m_str = word,
 				.m_integer = integer
-
 			};
 
 			return token;

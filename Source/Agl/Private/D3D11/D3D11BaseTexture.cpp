@@ -34,7 +34,10 @@ namespace agl
 	D3D11_TEXTURE2D_DESC ConvertTraitTo2DDesc( const TextureTrait& trait )
 	{
 		DXGI_FORMAT format = ConvertFormatToDxgiFormat( trait.m_format );
-		DXGI_SAMPLE_DESC SampleDesc = { trait.m_sampleCount, trait.m_sampleQuality };
+		DXGI_SAMPLE_DESC SampleDesc = {
+			.Count = trait.m_sampleCount,
+			.Quality = trait.m_sampleQuality 
+		};
 		D3D11_USAGE usage = ConvertAccessFlagToUsage( trait.m_access );
 		uint32 bindFlag = ConvertTypeToBind( trait.m_bindType );
 		uint32 cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );

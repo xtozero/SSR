@@ -37,9 +37,9 @@ namespace agl
 	D3D12GlobalDescriptorHeap::DescriptorHeapInfo D3D12GlobalDescriptorHeap::AllocateDefaultHeap( D3D12_DESCRIPTOR_HEAP_TYPE type )
 	{
 		DescriptorHeapInfo newHeap = {
-				.m_heap = D3D12DescriptorHeapAllocator::GetInstance().AllocGpuDescriptorHeap( type, DefaultHeapSize ),
-				.m_capacity = DefaultHeapSize,
-				.m_size = 0
+			.m_heap = D3D12DescriptorHeapAllocator::GetInstance().AllocGpuDescriptorHeap( type, DefaultHeapSize ),
+			.m_capacity = DefaultHeapSize,
+			.m_size = 0
 		};
 
 		return newHeap;

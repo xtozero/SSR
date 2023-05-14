@@ -463,8 +463,8 @@ namespace rendercore
 			lightBuffer.Unlock();
 
 			ForwardLightConstant lightConstant = {
-				static_cast<uint32>( validLights.size() ),
-				view.m_viewOrigin
+				.m_numLight = static_cast<uint32>( validLights.size() ),
+				.m_cameraPos = view.m_viewOrigin
 			};
 
 			view.m_forwardLighting->m_lightConstant.Update( lightConstant );

@@ -43,9 +43,9 @@ namespace rendercore
 			BoxSphereBounds m_localBounds;
 		};
 		AddPrimitiveSceneInfoParam param = {
-			primitive->GetRenderMatrix(),
-			primitive->Bounds(),
-			primitive->CalcBounds( Matrix::Identity ),
+			.m_worldTransform = primitive->GetRenderMatrix(),
+			.m_worldBounds = primitive->Bounds(),
+			.m_localBounds = primitive->CalcBounds( Matrix::Identity ),
 		};
 
 		EnqueueRenderTask(
@@ -92,9 +92,9 @@ namespace rendercore
 				BoxSphereBounds m_localBounds;
 			};
 			PrimitiveUpdateParam param = {
-				primitive->GetRenderMatrix(),
-				primitive->Bounds(),
-				primitive->CalcBounds( Matrix::Identity ),
+				.m_worldTransform = primitive->GetRenderMatrix(),
+				.m_worldBounds = primitive->Bounds(),
+				.m_localBounds = primitive->CalcBounds( Matrix::Identity ),
 			};
 
 			EnqueueRenderTask(

@@ -22,16 +22,16 @@ namespace rendercore
 	LightProperty DirectionalLightProxy::GetLightProperty() const
 	{
 		LightProperty lightProperty = {
-			LightType::Directional,
-			0.f,
-			0.f,
-			m_direction,
-			std::numeric_limits<float>::max(),
-			0.f,
-			Vector::ZeroVector,
-			-m_direction * std::numeric_limits<float>::max(),
-			m_diffuse,
-			m_specular
+			.m_type = LightType::Directional,
+			.m_theta = 0.f,
+			.m_phi = 0.f,
+			.m_direction = m_direction,
+			.m_range = std::numeric_limits<float>::max(),
+			.m_fallOff = 0.f,
+			.m_attenuation = Vector::ZeroVector,
+			.m_position = -m_direction * std::numeric_limits<float>::max(),
+			.m_diffuse = m_diffuse,
+			.m_specular = m_specular
 		};
 
 		return lightProperty;

@@ -62,7 +62,13 @@ private:
 	//RE_HANDLE m_backfaceDepthSrv = RE_HANDLE::InValidHandle( );
 
 	ScreenBlurManager m_blur;
-	mutable SSRProperties m_properties = { 0.01f, 3.f, 1.8f, 100.f, 100 };
+	mutable SSRProperties m_properties = { 
+		.depthbias = 0.01f, 
+		.rayStepScale = 3.f, 
+		.maxThickness = 1.8f, 
+		.maxRayLength = 100.f, 
+		.maxRayStep = 100
+	};
 
 	mutable bool m_isEnabled = true;
 };

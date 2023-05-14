@@ -532,6 +532,7 @@ namespace agl
 	bool Direct3D12::CreateDeviceDependentResource()
 	{
 		D3D_FEATURE_LEVEL d3dFeatureLevel[] = {
+			D3D_FEATURE_LEVEL_12_2,
 			D3D_FEATURE_LEVEL_12_1,
 			D3D_FEATURE_LEVEL_12_0,
 			D3D_FEATURE_LEVEL_11_1,
@@ -570,10 +571,10 @@ namespace agl
 		}
 
 		D3D12_COMMAND_QUEUE_DESC desc = {
-				.Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
-				.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
-				.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,
-				.NodeMask = 0
+			.Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
+			.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
+			.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,
+			.NodeMask = 0
 		};
 
 		hr = m_device->CreateCommandQueue( &desc, IID_PPV_ARGS( m_directCommandQueue.GetAddressOf() ) );

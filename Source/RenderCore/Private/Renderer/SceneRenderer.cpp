@@ -512,11 +512,11 @@ namespace rendercore
 			m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
 			VisibleDrawSnapshot visibleSnapshot = {
-				0,
-				0,
-				1,
-				-1,
-				&snapshot,
+				.m_primitiveId = 0,
+				.m_primitiveIdOffset = 0,
+				.m_numInstance = 1,
+				.m_snapshotBucketId = -1,
+				.m_drawSnapshot = &snapshot,
 			};
 
 			VertexBuffer emptyPrimitiveID;
@@ -634,11 +634,11 @@ namespace rendercore
 			m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
 			VisibleDrawSnapshot visibleSnapshot = {
-				0,
-				0,
-				1,
-				-1,
-				&snapshot,
+				.m_primitiveId = 0,
+				.m_primitiveIdOffset = 0,
+				.m_numInstance = 1,
+				.m_snapshotBucketId = -1,
+				.m_drawSnapshot = &snapshot,
 			};
 
 			VertexBuffer emptyPrimitiveID;
@@ -710,11 +710,11 @@ namespace rendercore
 		skyAtmosphereDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
 		VisibleDrawSnapshot visibleSnapshot = {
-			0,
-			0,
-			1,
-			-1,
-			&snapshot,
+			.m_primitiveId = 0,
+			.m_primitiveIdOffset = 0,
+			.m_numInstance = 1,
+			.m_snapshotBucketId = -1,
+			.m_drawSnapshot = &snapshot,
 		};
 
 		VertexBuffer emptyPrimitiveID;
@@ -810,11 +810,11 @@ namespace rendercore
 		volumetricCloundDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
 		VisibleDrawSnapshot visibleSnapshot = {
-			0,
-			0,
-			1,
-			-1,
-			&snapshot,
+			.m_primitiveId = 0,
+			.m_primitiveIdOffset = 0,
+			.m_numInstance = 1,
+			.m_snapshotBucketId = -1,
+			.m_drawSnapshot = &snapshot,
 		};
 
 		VertexBuffer emptyPrimitiveID;
