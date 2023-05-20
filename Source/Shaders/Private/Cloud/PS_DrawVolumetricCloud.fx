@@ -24,8 +24,8 @@ static const float BayerFilter[16] = {
 	15.f * BayerFactor, 7.f * BayerFactor, 13.f * BayerFactor, 5.f * BayerFactor
 };
 
-Texture2D SceneDepth : register( t3 );
-SamplerState SceneDepthSampler : register( s3 );
+Texture2D ViewSpaceDistance : register( t3 );
+SamplerState ViewSpaceDistanceSampler : register( s3 );
 
 Texture3D BaseCloudShape : register( t4 );
 Texture3D DetailCloudShape : register( t5 );
@@ -340,15 +340,15 @@ float4 main( PS_INPUT input ) : SV_Target0
 		return float4( 0.f, 0.f, 0.f, 0.f );
 	}
 
-	float sceneDepth = SceneDepth.Sample( SceneDepthSampler, input.uv ).x;
-	float t = length( input.viewRay * sceneDepth );
+	float viewSpaceDistance = ViewSpaceDistance.Sample( ViewSpaceDistanceSampler, input.uv ).x;
+	float t = viewSpaceDistance;
 
 	float alpha = 1.f;
 	float3 rayDir = normalize( input.worldRay );
 	float2 tMinMax = 0.f;
 	bool intersect = RayAndTroposphere( CameraPos, rayDir, tMinMax );
 
-	if ( ( ( sceneDepth != 1.f ) && ( tMinMax.x > t ) ) || ( intersect == false ) )
+	if ( ( ( viewSpaceDistance != 0.f ) && ( tMinMax.x > t ) ) || ( intersect == false ) )
 	{
 		return float4( 0.f, 0.f, 0.f, 0.f );
 	}

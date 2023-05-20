@@ -6,12 +6,13 @@ struct PS_INPUT
 	float4 position : SV_POSITION;
 	float4 curFramePosition : POSITION0;
 	float4 prevFramePosition : POSITION1;
+	float3 viewPosition : POSITION2;
 	float3 worldNormal : NORMAL;
 };
 
 struct Output
 {
-	float depth : SV_Target0;
+	float viewSpaceDistance : SV_Target0;
 	float4 packedNormal : SV_Target1;
 	float2 velocity : SV_Target2;
 };
@@ -32,7 +33,7 @@ float2 CalcVelocity( float4 curFramePosition, float4 prevFramePosition )
 Output main( PS_INPUT input )
 {
 	Output output = (Output)0;
-	output.depth = input.position.w / FarPlaneDist;
+	output.viewSpaceDistance = length( input.viewPosition );
 	float3 enc = SignedOctEncode( normalize( input.worldNormal ) );
 	output.packedNormal = float4( 0.f, enc );
 	output.velocity = CalcVelocity( input.curFramePosition, input.prevFramePosition );

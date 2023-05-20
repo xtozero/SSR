@@ -2,8 +2,8 @@
 
 #include "Atmosphere/AtmosphereCommon.fxh"
 
-Texture2D SceneDepth : register( t3 );
-SamplerState SceneDepthSampler : register( s3 );
+Texture2D ViewSpaceDistance : register( t3 );
+SamplerState ViewSpaceDistanceSampler : register( s3 );
 
 static const float ISun = 100.f;
 
@@ -166,12 +166,12 @@ float4 main( PS_INPUT input ) : SV_Target
 	float mu = dot( viewPos, viewRay ) / r;
 	float t = -r * mu - sqrt( r * r * ( mu * mu - 1.f ) + Rg * Rg );
 
-	float sceneDepth = SceneDepth.Sample( SceneDepthSampler, input.uv ).x;
-	bool isSceneGeometry = sceneDepth < 1.f;
+	float viewSpaceDistance = ViewSpaceDistance.Sample( ViewSpaceDistanceSampler, input.uv ).x;
+	bool isSceneGeometry = viewSpaceDistance > 0.f;
 
 	if ( isSceneGeometry )
 	{
-		t = length( input.viewRay * sceneDepth * scale );
+		t = length( viewSpaceDistance * scale );
 	}
 
 	float3 attenuation;

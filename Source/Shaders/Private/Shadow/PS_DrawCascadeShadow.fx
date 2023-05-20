@@ -2,8 +2,8 @@
 #include "Common/ViewConstant.fxh"
 #include "Shadow/ShadowCommon.fxh"
 
-Texture2D SceneDepth : register( t1 );
-SamplerState SceneDepthSampler : register( s1 );
+Texture2D ViewSpaceDistance : register( t1 );
+SamplerState ViewSpaceDistanceSampler : register( s1 );
 
 Texture2D WorldNormal : register( t3 );
 SamplerState WorldNormalSampler : register( s3 );
@@ -19,14 +19,12 @@ struct PS_INPUT
 
 float4 main( PS_INPUT input ) : SV_TARGET
 {
-	float3 viewPosition = input.viewRay;
-	
-	float depth = SceneDepth.Sample( SceneDepthSampler, input.uv ).x;
-	viewPosition *= depth;
-	
+	float viewSpaceDistance = ViewSpaceDistance.Sample( ViewSpaceDistanceSampler, input.uv ).x;
+	float3 viewPosition = normalize( input.viewRay ) * viewSpaceDistance;
+
 	float4 worldPosition = mul( float4( viewPosition, 1 ), InvViewMatrix );
 	worldPosition /= worldPosition.w;
-	
+
 	float3 packedNormal = WorldNormal.Sample( WorldNormalSampler, input.uv ).yzw;
 	float3 worldNormal = SignedOctDecode( packedNormal );
 	

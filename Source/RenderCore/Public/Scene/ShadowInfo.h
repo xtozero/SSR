@@ -94,7 +94,7 @@ namespace rendercore
 			return m_shadowViewProjections;
 		}
 
-			CascadeShadowSetting& CascadeSetting()
+		CascadeShadowSetting& CascadeSetting()
 		{
 			return m_cacadeSetting;
 		}

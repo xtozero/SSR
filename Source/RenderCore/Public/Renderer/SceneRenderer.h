@@ -33,7 +33,7 @@ namespace rendercore
 	{
 	public:
 		virtual agl::Texture* GetDepthStencil() = 0;
-		virtual agl::Texture* GetLinearDepth() = 0;
+		virtual agl::Texture* GetViewSpaceDistance() = 0;
 		virtual agl::Texture* GetTAAHistory() = 0;
 		virtual agl::Texture* GetTAAResolve() = 0;
 		virtual agl::Texture* GetWorldNormal() = 0;
