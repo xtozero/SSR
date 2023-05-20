@@ -31,9 +31,9 @@ namespace rendercore
 		return m_depthStencil;
 	}
 
-	agl::Texture* ForwardRendererRenderTargets::GetLinearDepth()
+	agl::Texture* ForwardRendererRenderTargets::GetViewSpaceDistance()
 	{
-		AllocLinearDepth();
+		AllocViewSpaceDistance();
 		return m_linearDepth;
 	}
 
@@ -93,7 +93,7 @@ namespace rendercore
 		}
 	}
 
-	void ForwardRendererRenderTargets::AllocLinearDepth()
+	void ForwardRendererRenderTargets::AllocViewSpaceDistance()
 	{
 		if ( m_linearDepth == nullptr )
 		{
@@ -109,7 +109,7 @@ namespace rendercore
 				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
 				.m_miscFlag = agl::ResourceMisc::None,
 				.m_clearValue = agl::ResourceClearValue{
-					.m_color = { 1.f, 1.f, 1.f, 1.f }
+					.m_color = { 0.f, 0.f, 0.f, 0.f }
 				}
 			};
 
@@ -251,12 +251,12 @@ namespace rendercore
 
 		auto& gpuPrimitiveInfo = scene.GpuPrimitiveInfo();
 		m_shaderResources.AddResource( "primitiveInfo", gpuPrimitiveInfo.SRV() );
-		m_shaderResources.AddResource( "SceneDepth", m_renderTargets.GetLinearDepth()->SRV() );
+		m_shaderResources.AddResource( "ViewSpaceDistance", m_renderTargets.GetViewSpaceDistance()->SRV() );
 		m_shaderResources.AddResource( "WorldNormal", m_renderTargets.GetWorldNormal()->SRV() );
 
 		SamplerOption defaultSamplerOption;
 		SamplerState defaultSampler = GraphicsInterface().FindOrCreate( defaultSamplerOption );
-		m_shaderResources.AddResource( "SceneDepthSampler", defaultSampler.Resource() );
+		m_shaderResources.AddResource( "ViewSpaceDistanceSampler", defaultSampler.Resource() );
 		m_shaderResources.AddResource( "WorldNormalSampler", defaultSampler.Resource() );
 
 		if ( prepared )
@@ -361,7 +361,7 @@ namespace rendercore
 
 	void ForwardRenderer::RenderDepthPass( RenderViewGroup& renderViewGroup, uint32 curView )
 	{
-		auto renderTarget = m_renderTargets.GetLinearDepth();
+		auto renderTarget = m_renderTargets.GetViewSpaceDistance();
 		auto worldNormal = m_renderTargets.GetWorldNormal();
 		auto velocity = m_renderTargets.GetVelocity();
 		auto depthStencil = m_renderTargets.GetDepthStencil();
@@ -402,7 +402,7 @@ namespace rendercore
 		commandList.Transition( std::extent_v<decltype( transitions )>, transitions );
 
 		agl::RenderTargetView* rtv0 = renderTarget->RTV();
-		commandList.ClearRenderTarget( rtv0, { 1, 1, 1, 1 } );
+		commandList.ClearRenderTarget( rtv0, { 0, 0, 0, 0 } );
 
 		agl::RenderTargetView* rtv1 = worldNormal->RTV();
 		commandList.ClearRenderTarget( rtv1, { } );

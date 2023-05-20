@@ -14,6 +14,7 @@ public:
 	XMMatrix Inverse() const;
 	bool IsNaN() const;
 
+	XMVector Transform( const Vector& v ) const;
 	XMVector TransformPosition( const Vector& v ) const;
 	void TransformPosition( Vector* dest, Vector* src, uint32 size ) const;
 	XMVector TransformVector( const Vector& v ) const;

@@ -11,7 +11,7 @@ namespace rendercore
 		void UpdateBufferSize( uint32 width, uint32 height );
 
 		virtual agl::Texture* GetDepthStencil() override;
-		virtual agl::Texture* GetLinearDepth() override;
+		virtual agl::Texture* GetViewSpaceDistance() override;
 		virtual agl::Texture* GetTAAHistory() override;
 		virtual agl::Texture* GetTAAResolve() override;
 		virtual agl::Texture* GetWorldNormal() override;
@@ -19,7 +19,7 @@ namespace rendercore
 
 	private:
 		void AllocDepthStencil();
-		void AllocLinearDepth();
+		void AllocViewSpaceDistance();
 		void AllocTAARenderTargets();
 		void AllocWorldNormal();
 		void AllocVelocity();

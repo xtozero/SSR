@@ -1,6 +1,7 @@
 #include "ShadowDrawPassProcessor.h"
 
 #include "CommonRenderResource.h"
+#include "Config/DefaultRenderCoreConfig.h"
 #include "GlobalShaders.h"
 #include "RenderOption.h"
 #include "VertexCollection.h"
@@ -14,8 +15,15 @@ namespace rendercore
 
 	std::optional<DrawSnapshot> ShadowDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
 	{
+		StaticShaderSwitches switches = FullScreenQuadVS().GetSwitches();
+
+		if ( DefaultRenderCore::IsTaaEnabled() )
+		{
+			switches.On( Name( "TAA" ), 1 );
+		}
+
 		PassShader passShader{
-			FullScreenQuadVS().GetShader(),
+			FullScreenQuadVS().GetShader( switches ),
 			nullptr,
 			DrawCascadeShadowPS().GetShader()
 		};

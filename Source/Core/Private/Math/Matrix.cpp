@@ -17,6 +17,11 @@ bool Matrix::IsNaN() const
 	return XMMatrix( *this ).IsNaN();
 }
 
+XMVector Matrix::Transform( const Vector& v ) const
+{
+	return XMVector3Transform( XMVector( v ), XMMatrix( *this ) );
+}
+
 XMVector Matrix::TransformPosition( const Vector& v ) const
 {
 	return XMVector3TransformCoord( XMVector( v ), XMMatrix( *this ) );
