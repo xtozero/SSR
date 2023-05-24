@@ -9,5 +9,5 @@ DECLARE_GAME_OBJECT( volumetric_cloud, VolumetricCloud )
 VolumetricCloud::VolumetricCloud()
 {
 	m_volumetricCloudComponent = CreateComponent<VolumetricCloudComponent>( *this, "VolumetricCloudComponent" );
-	m_rootComponent = m_volumetricCloudComponent;
+	SetRootComponent( m_volumetricCloudComponent );
 }

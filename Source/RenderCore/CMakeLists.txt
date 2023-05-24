@@ -96,12 +96,14 @@ set (PROXIES_SOURCE
 	Private/Proxies/StaticMeshPrimitiveProxy.cpp
 	Private/Proxies/TexturedSkyProxy.cpp
 	Private/Proxies/VolumetricCloudProxy.cpp
+	Private/Proxies/VolumetricFogProxy.cpp
 	Public/Proxies/LightProxy.h
 	Public/Proxies/PrimitiveProxy.h
 	Public/Proxies/SkyAtmosphereProxy.h
 	Public/Proxies/StaticMeshPrimitiveProxy.h
 	Public/Proxies/TexturedSkyProxy.h
-	Public/Proxies/VolumetricCloudProxy.h)
+	Public/Proxies/VolumetricCloudProxy.h
+	Public/Proxies/VolumetricFogProxy.h)
 
 set (RENDER_SCENE_SOURCE
 	Private/Scene/LightSceneInfo.cpp
@@ -111,6 +113,7 @@ set (RENDER_SCENE_SOURCE
 	Private/Scene/SceneVelocityData.cpp
 	Private/Scene/ShadowInfo.cpp
 	Private/Scene/VolumetricCloudSceneInfo.cpp
+	Private/Scene/VolumetricFogSceneInfo.cpp
 	Public/Scene/IScene.h
 	Public/Scene/LightSceneInfo.h
 	Public/Scene/PrimitiveSceneInfo.h
@@ -118,7 +121,8 @@ set (RENDER_SCENE_SOURCE
 	Public/Scene/SceneConstantBuffers.h
 	Public/Scene/SceneVelocityData.h
 	Public/Scene/ShadowInfo.h
-	Public/Scene/VolumetricCloudSceneInfo.h)
+	Public/Scene/VolumetricCloudSceneInfo.h
+	Public/Scene/VolumetricFogSceneInfo.h)
 
 set (RENDER_UTILITY
 	../Shaders/Public/Atmosphere/AtmosphereConstant.h

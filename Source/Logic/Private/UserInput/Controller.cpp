@@ -16,9 +16,9 @@ void InputController::SetGameObject( CGameObject* gameObject )
 	m_gameObject = gameObject;
 }
 
-InputController::InputController( )
+InputController::InputController()
 {
-	m_rootComponent = CreateComponent<SceneComponent>( *this, "Dummy" );
+	SetRootComponent( CreateComponent<SceneComponent>( *this, "Dummy" ) );
 }
 
 void PlayerController::ProcessInput( const UserInput& input )
@@ -28,7 +28,7 @@ void PlayerController::ProcessInput( const UserInput& input )
 		return;
 	}
 
-	InputComponent* inputComponent = m_gameObject->GetInputComponent( );
+	InputComponent* inputComponent = m_gameObject->GetInputComponent();
 	if ( inputComponent != nullptr )
 	{
 		inputComponent->ProcessInput( input );
@@ -37,17 +37,17 @@ void PlayerController::ProcessInput( const UserInput& input )
 
 void PlayerController::Control( CGameObject* gameObject )
 {
-	Abandon( );
+	Abandon();
 
 	SetGameObject( gameObject );
 	if ( gameObject )
 	{
 		gameObject->SetInputController( this );
-		gameObject->InitializeInputComponent( );
+		gameObject->InitializeInputComponent();
 	}
 }
 
-void PlayerController::Abandon( )
+void PlayerController::Abandon()
 {
 	if ( m_gameObject )
 	{

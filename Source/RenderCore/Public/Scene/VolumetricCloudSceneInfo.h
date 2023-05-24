@@ -46,6 +46,7 @@ namespace rendercore
 		}
 
 		void CreateRenderData();
+
 		agl::Texture* BaseCloudShape()
 		{
 			return m_baseCloudShape;

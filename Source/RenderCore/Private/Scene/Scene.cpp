@@ -6,15 +6,18 @@
 #include "Components/PrimitiveComponent.h"
 #include "Components/TexturedSkyComponent.h"
 #include "Components/VolumetricCloudComponent.h"
+#include "Components/VolumetricFogComponent.h"
 #include "Physics/BoxSphereBounds.h"
 #include "Proxies/LightProxy.h"
 #include "Proxies/PrimitiveProxy.h"
 #include "Proxies/SkyAtmosphereProxy.h"
 #include "Proxies/TexturedSkyProxy.h"
 #include "Proxies/VolumetricCloudProxy.h"
+#include "Proxies/VolumetricFogProxy.h"
 #include "Scene/LightSceneInfo.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "Scene/VolumetricCloudSceneInfo.h"
+#include "Scene/VolumetricFogSceneInfo.h"
 #include "SkyAtmosphereRendering.h"
 #include "TaskScheduler.h"
 
@@ -123,7 +126,7 @@ namespace rendercore
 		if ( proxy )
 		{
 			EnqueueRenderTask(
-				[this, proxy]
+				[this, proxy]()
 				{
 					proxy->CreateRenderData();
 
@@ -193,7 +196,7 @@ namespace rendercore
 		proxy->m_volumetricCloudSceneInfo = volumetricCloudSceneInfo;
 
 		EnqueueRenderTask(
-			[this, volumetricCloudSceneInfo]
+			[this, volumetricCloudSceneInfo]()
 			{
 				volumetricCloudSceneInfo->CreateRenderData();
 
@@ -211,9 +214,48 @@ namespace rendercore
 			volumetricCloud->Proxy() = nullptr;
 
 			EnqueueRenderTask(
-				[this, volumetricCloudSceneInfo]
+				[this, volumetricCloudSceneInfo]()
 				{
 					RemoveVolumetricCloud( volumetricCloudSceneInfo );
+				} );
+		}
+	}
+
+	void Scene::AddVolumetricFog( VolumetricFogComponent* volumetricFog )
+	{
+		VolumetricFogProxy* proxy = volumetricFog->CreateProxy();
+		volumetricFog->Proxy() = proxy;
+
+		if ( proxy == nullptr )
+		{
+			return;
+		}
+
+		auto volumetricFogSceneInfo = new VolumetricFogSceneInfo( proxy );
+		proxy->m_volumetricFogSceneInfo = volumetricFogSceneInfo;
+
+		EnqueueRenderTask(
+			[this, volumetricFogSceneInfo]()
+			{
+				volumetricFogSceneInfo->CreateRenderData();
+
+				AddVolumetricFog( volumetricFogSceneInfo );
+			} );
+	}
+
+	void Scene::RemoveVolumetricFog( VolumetricFogComponent* volumetricFog )
+	{
+		VolumetricFogProxy* proxy = volumetricFog->Proxy();
+
+		if ( proxy )
+		{
+			VolumetricFogSceneInfo* volumetricFogSceneInfo = proxy->m_volumetricFogSceneInfo;
+			volumetricFog->Proxy() = nullptr;
+
+			EnqueueRenderTask(
+				[this, volumetricFogSceneInfo]()
+				{
+					RemoveVolumetricFog( volumetricFogSceneInfo );
 				} );
 		}
 	}
@@ -378,7 +420,7 @@ namespace rendercore
 		m_volumetricCloud = volumetricCloudSceneInfo;
 	}
 
-	void Scene::RemoveVolumetricCloud( [[maybe_unused]] VolumetricCloudSceneInfo* volumetricCloudSceneInfo )
+	void Scene::RemoveVolumetricCloud( VolumetricCloudSceneInfo* volumetricCloudSceneInfo )
 	{
 		assert( m_volumetricCloud == volumetricCloudSceneInfo );
 
@@ -388,13 +430,34 @@ namespace rendercore
 		delete volumetricCloudSceneInfo;
 	}
 
+	void Scene::AddVolumetricFog( VolumetricFogSceneInfo* volumetricFogSceneInfo )
+	{
+		assert( m_volumetricFog == nullptr );
+
+		m_volumetricFog = volumetricFogSceneInfo;
+	}
+
+	void Scene::RemoveVolumetricFog( VolumetricFogSceneInfo* volumetricFogSceneInfo )
+	{
+		assert( m_volumetricFog == volumetricFogSceneInfo );
+
+		m_volumetricFog = nullptr;
+		
+		delete volumetricFogSceneInfo->Proxy();
+		delete volumetricFogSceneInfo;
+	}
+
 	void Scene::AddHemisphereLight( HemisphereLightProxy* hemisphereLight )
 	{
+		assert( m_hemisphereLight == nullptr );
+
 		m_hemisphereLight = hemisphereLight;
 	}
 
 	void Scene::RemoveHemisphereLight( HemisphereLightProxy* hemisphereLight )
 	{
+		assert( m_hemisphereLight == hemisphereLight );
+
 		delete hemisphereLight;
 		m_hemisphereLight = nullptr;
 	}

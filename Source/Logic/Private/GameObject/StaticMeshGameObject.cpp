@@ -14,7 +14,7 @@ DECLARE_GAME_OBJECT( static_mesh, StaticMeshGameObject );
 
 StaticMeshGameObject::StaticMeshGameObject()
 {
-	m_rootComponent = CreateComponent<SphereComponent>( *this, "SphereComponent" );
+	SetRootComponent( CreateComponent<SphereComponent>( *this, "SphereComponent" ) );
 
 	StaticMeshComponent* staticMeshComponent = CreateComponent<StaticMeshComponent>( *this, "StaticMeshComponent" );
 	staticMeshComponent->AttachToComponent( m_rootComponent, AttachmentTrasformRules::KeepRelativeTransform );

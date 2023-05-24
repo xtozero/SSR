@@ -14,7 +14,7 @@ SphereObject::SphereObject()
 
 	staticMeshComponent->AttachToComponent( sphereComponent, AttachmentTrasformRules::KeepRelativeTransform );
 
-	m_rootComponent = sphereComponent;
+	SetRootComponent( sphereComponent );
 }
 
 DECLARE_GAME_OBJECT( box_object, BoxObject );
@@ -26,5 +26,5 @@ BoxObject::BoxObject()
 
 	staticMeshComponent->AttachToComponent( boxComponent, AttachmentTrasformRules::KeepRelativeTransform );
 
-	m_rootComponent = boxComponent;
+	SetRootComponent( boxComponent );
 }

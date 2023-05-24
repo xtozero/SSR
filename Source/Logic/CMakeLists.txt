@@ -18,6 +18,7 @@ set (COMPOENETS
 	Private/Components/StaticMeshComponent.cpp
 	Private/Components/TexturedSkyComponent.cpp
 	Private/Components/VolumetricCloudComponent.cpp
+	Private/Components/VolumetricFogComponent.cpp
 	Public/Components/BoxComponent.h
 	Public/Components/CameraComponent.h
 	Public/Components/Component.h
@@ -31,7 +32,8 @@ set (COMPOENETS
 	Public/Components/SphereComponent.h
 	Public/Components/StaticMeshComponent.h
 	Public/Components/TexturedSkyComponent.h
-	Public/Components/VolumetricCloudComponent.h)
+	Public/Components/VolumetricCloudComponent.h
+	Public/Components/VolumetricFogComponent.h)
 
 set (CONFIG
 	Private/Config/DefaultLogicConfig.cpp
@@ -68,6 +70,7 @@ set (GAME_OBJECT
 	Private/GameObject/SkyBox.cpp
 	Private/GameObject/StaticMeshGameObject.cpp
 	Private/GameObject/VolumetricCloud.cpp
+	Private/GameObject/VolumetricFog.cpp
 	Public/GameObject/DisplayShaderResourceHelper.h
 	Public/GameObject/GameClientViewport.h
 	Public/GameObject/GameObject.h
@@ -78,7 +81,8 @@ set (GAME_OBJECT
 	Public/GameObject/SkyAtmosphere.h
 	Public/GameObject/SkyBox.h
 	Public/GameObject/StaticMeshGameObject.h
-	Public/GameObject/VolumetricCloud.h)
+	Public/GameObject/VolumetricCloud.h
+	Public/GameObject/VolumetricFog.h)
 
 #set (MODEL
 #	"Private/Model/DebugMesh.cpp"

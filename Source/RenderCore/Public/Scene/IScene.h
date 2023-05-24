@@ -7,6 +7,7 @@ class LightComponent;
 class PrimitiveComponent;
 class TexturedSkyComponent;
 class VolumetricCloudComponent;
+class VolumetricFogComponent;
 
 namespace rendercore
 {
@@ -39,6 +40,9 @@ namespace rendercore
 
 		virtual void AddVolumetricCloud( VolumetricCloudComponent* volumetricCloud ) = 0;
 		virtual void RemoveVolumetricCloud( VolumetricCloudComponent* volumetricCloud ) = 0;
+
+		virtual void AddVolumetricFog( VolumetricFogComponent* volumetricFog ) = 0;
+		virtual void RemoveVolumetricFog( VolumetricFogComponent* volumetricFog ) = 0;
 
 		virtual void AddHemisphereLightComponent( HemisphereLightComponent* light ) = 0;
 		virtual void RemoveHemisphereLightComponent( HemisphereLightComponent* light ) = 0;

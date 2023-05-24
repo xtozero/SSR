@@ -67,7 +67,7 @@ void CPlayer::ProcessInput( const UserInput& input, CGameLogic& gameLogic )
 CPlayer::CPlayer()
 {
 	m_cameraComponent = CreateComponent<CameraComponent>( *this, "CameraComponent" );
-	m_rootComponent = m_cameraComponent;
+	SetRootComponent( m_cameraComponent );
 
 	CreateComponent<GroundMovementComponent>( *this, "GroundMovementComponent" );
 

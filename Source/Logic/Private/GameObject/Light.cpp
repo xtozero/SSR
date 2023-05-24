@@ -47,7 +47,7 @@ const Vector& DirectionalLight::Direction() const
 DirectionalLight::DirectionalLight()
 {
 	m_directionalLightComponent = CreateComponent<DirectionalLightComponent>( *this, "DirectionalLightComponent" );
-	m_rootComponent = m_directionalLightComponent;
+	SetRootComponent( m_directionalLightComponent );
 }
 
 DECLARE_GAME_OBJECT( hemisphere_light, HemisphereLight );
@@ -71,5 +71,5 @@ void HemisphereLight::SetUpperColor( const ColorF& color )
 HemisphereLight::HemisphereLight()
 {
 	m_hemisphereLightComponent = CreateComponent<HemisphereLightComponent>( *this, "HemisphereLightComponent" );
-	m_rootComponent = m_hemisphereLightComponent;
+	SetRootComponent( m_hemisphereLightComponent );
 }
