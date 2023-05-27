@@ -115,6 +115,7 @@ namespace rendercore
 		void RenderShadow();
 		void RenderSkyAtmosphere( IScene& scene, RenderView& renderView );
 		void RenderVolumetricCloud( IScene& scene, RenderView& renderView );
+		void RenderVolumetricFog( IScene& scene, RenderView& renderView );
 		void RenderTemporalAntiAliasing( RenderViewGroup& renderViewGroup );
 
 		void StoreOuputContext( const RenderingOutputContext& context );

@@ -20,6 +20,7 @@
 #include "Scene/Scene.h"
 #include "Scene/SceneConstantBuffers.h"
 #include "Scene/VolumetricCloudSceneInfo.h"
+#include "Scene/VolumetricFogSceneInfo.h"
 #include "ShaderBindings.h"
 #include "ShadowDrawPassProcessor.h"
 #include "ShadowSetup.h"
@@ -819,6 +820,24 @@ namespace rendercore
 
 		VertexBuffer emptyPrimitiveID;
 		CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
+	}
+
+	void SceneRenderer::RenderVolumetricFog( IScene& scene, RenderView& renderView )
+	{
+		Scene* renderScene = scene.GetRenderScene();
+		if ( renderScene == nullptr )
+		{
+			return;
+		}
+
+		VolumetricFogSceneInfo* info = renderScene->VolumetricFog();
+		if ( info == nullptr )
+		{
+			return;
+		}
+
+		info->CreateRenderData();
+		info->PrepareFrustumVolume( *renderScene, renderView, m_shadowInfos );
 	}
 
 	void SceneRenderer::RenderTemporalAntiAliasing( RenderViewGroup& renderViewGroup )

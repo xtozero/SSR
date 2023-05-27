@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Renderer\ForwardLighting.h"
+#include "Renderer/ForwardLighting.h"
 
 #include "AbstractGraphicsInterface.h"
 #include "TaskScheduler.h"

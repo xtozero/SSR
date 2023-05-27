@@ -77,12 +77,14 @@ set (PASS_PROCESSOR
 	Private/PassProcessor/ShadowDepthPassProcessor.cpp
 	Private/PassProcessor/ShadowDrawPassProcessor.cpp
 	Private/PassProcessor/VolumetricCloudPassProcessor.cpp
+	Private/PassProcessor/VolumetricFogPassProcessor.cpp
 	Public/PassProcessor/DefaultPassProcessor.h
 	Public/PassProcessor/DepthWritePassProcessor.h
 	Public/PassProcessor/PassProcessor.h
 	Public/PassProcessor/ShadowDepthPassProcessor.h
 	Public/PassProcessor/ShadowDrawPassProcessor.h
-	Public/PassProcessor/VolumetricCloudPassProcessor.h)
+	Public/PassProcessor/VolumetricCloudPassProcessor.h
+	Public/PassProcessor/VolumetricFogPassProcessor.h)
 
 set (PRECOMPILED
 	Private/Pch/stdafx.cpp

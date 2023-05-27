@@ -128,6 +128,11 @@ namespace rendercore
 			return m_volumetricCloud;
 		}
 
+		VolumetricFogSceneInfo* VolumetricFog()
+		{
+			return m_volumetricFog;
+		}
+
 		const LightSceneInfo* SkyAtmosphereSunLight()
 		{
 			return m_skyAtmosphereLight;
