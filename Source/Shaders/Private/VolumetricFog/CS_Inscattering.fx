@@ -20,6 +20,7 @@ void main( uint3 DTid : SV_DispatchThreadId )
 		float3 worldPosition = ConvertThreadIdToWorldPosition( DTid, dims );
 		float3 toCamera = normalize( CameraPos - worldPosition );
 
+		float3 lighting = HemisphereUpperColor.rgb * HemisphereUpperColor.a;
 		[loop]
 		for ( uint i = 0; i < NumLights; ++i )
 		{
@@ -36,9 +37,8 @@ void main( uint3 DTid : SV_DispatchThreadId )
 				lightDirection = normalize( light.m_position - worldPosition );
 			}
 
-			float3 lighting = light.m_diffuse.rgb * light.m_diffuse.a;
 			float phaseFunction = HenyeyGreensteinPhaseFunction( toCamera, lightDirection, AsymmetryParameterG );
-			lighting = lighting * phaseFunction * UniformDensity;
+			lighting += light.m_diffuse.rgb * light.m_diffuse.a * phaseFunction * UniformDensity;
 
 			FrustumVolume[DTid] = float4( lighting, UniformDensity );
 		}

@@ -93,7 +93,25 @@ namespace rendercore
 		agl::ShaderParameter m_shadowDepthPassParameters;
 	};
 
+	class AccumulateScatteringCS : public GlobalShaderCommon<ComputeShader, AccumulateScatteringCS>
+	{
+	public:
+		const agl::ShaderParameter& FrustumVolume() const
+		{
+			return m_frustumVolume;
+		}
+
+		AccumulateScatteringCS()
+		{
+			m_frustumVolume.Bind( GetShader()->ParameterMap(), "FrustumVolume" );
+		}
+
+	private:
+		agl::ShaderParameter m_frustumVolume;
+	};
+
 	REGISTER_GLOBAL_SHADER( InscatteringCS, "./Assets/Shaders/VolumetricFog/CS_Inscattering.asset" );
+	REGISTER_GLOBAL_SHADER( AccumulateScatteringCS, "./Assets/Shaders/VolumetricFog/CS_AccumulateScattering.asset" );
 
 	void VolumetricFogSceneInfo::CreateRenderData()
 	{
@@ -194,5 +212,22 @@ namespace rendercore
 
 	void VolumetricFogSceneInfo::AccumulateScattering( CommandList& commandList )
 	{
+		AccumulateScatteringCS accumulateScatteringCS;
+
+		agl::RefHandle<agl::ComputePipelineState> accumulateScatteringPSO = PrepareComputePipelineState( accumulateScatteringCS.GetShader()->Resource() );
+		commandList.BindPipelineState( accumulateScatteringPSO );
+
+		agl::ShaderBindings shaderBindings = CreateShaderBindings( accumulateScatteringCS.GetShader() );
+
+		BindResource( shaderBindings, accumulateScatteringCS.FrustumVolume(), m_frustumVolume);
+
+		const std::array<uint32, 3>& frustumGridSize = Proxy()->FrustumGridSize();
+		const uint32 threadGroupCount[2] = {
+			static_cast<uint32>( std::ceilf( frustumGridSize[0] / 8.f ) ),
+			static_cast<uint32>( std::ceilf( frustumGridSize[1] / 8.f ) )
+		};
+
+		commandList.BindShaderResources( shaderBindings );
+		commandList.Dispatch( threadGroupCount[0], threadGroupCount[1] );
 	}
 }
