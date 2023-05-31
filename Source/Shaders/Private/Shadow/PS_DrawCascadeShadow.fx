@@ -27,8 +27,8 @@ float4 main( PS_INPUT input ) : SV_TARGET
 
 	float3 packedNormal = WorldNormal.Sample( WorldNormalSampler, input.uv ).yzw;
 	float3 worldNormal = SignedOctDecode( packedNormal );
-	
-	float visibility = CalcShadowVisibility( worldPosition.xyz, worldNormal, viewPosition );
-	
+
+	float visibility = CalcShadowVisibilityWithNormalOffset( worldPosition.xyz, worldNormal, viewPosition );
+
 	return lerp( 0.5f, 1, visibility );
 }

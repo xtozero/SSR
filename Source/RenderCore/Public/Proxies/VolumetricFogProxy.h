@@ -18,6 +18,7 @@ namespace rendercore
 		const std::array<uint32, 3>& FrustumGridSize() const;
 		float G() const;
 		float UniformDensity() const;
+		float Intensity() const;
 
 		RENDERCORE_DLL VolumetricFogProxy( const VolumetricFogComponent& component );
 
@@ -25,8 +26,9 @@ namespace rendercore
 		friend Scene;
 		VolumetricFogSceneInfo* m_volumetricFogSceneInfo = nullptr;
 
-		std::array<uint32, 3> m_frustumGridSize = { 160, 90, 64 };
+		std::array<uint32, 3> m_frustumGridSize = { 160, 90, 128 };
 		float m_g = 0.7f;
-		float m_uniformDensity = 5.f;
+		float m_uniformDensity = 2.f;
+		float m_intensity = 10.f;
 	};
 }

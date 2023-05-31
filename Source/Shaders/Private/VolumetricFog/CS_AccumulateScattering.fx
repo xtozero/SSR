@@ -1,33 +1,35 @@
 RWTexture3D<float4> FrustumVolume : register( u0 );
 
-float4 AccumulateScattering(float4 colorAndDensityFront, float4 colorAndDensityBack)
+float4 ScatterStep( float3 accumulatedLight, float accumulatedTransmittance, float3 sliceLight, float sliceDensity, float numSlice )
 {
-    float3 light = colorAndDensityFront.rgb + saturate(exp(-colorAndDensityFront.a)) * colorAndDensityBack.rgb;
-    return float4(light.rgb, colorAndDensityFront.a + colorAndDensityBack.a);
+	sliceDensity = max( sliceDensity, 0.000001f );
+	float sliceTransmittance = exp( -sliceDensity / numSlice );
+
+	float3 sliceLightIntegral = sliceLight * ( 1.f - sliceTransmittance ) / sliceDensity;
+
+	accumulatedLight += sliceLightIntegral * accumulatedTransmittance;
+	accumulatedTransmittance *= sliceTransmittance;
+
+	return float4( accumulatedLight, accumulatedTransmittance );
 }
 
-void WriteOutput(uint3 uv, float4 colorAndDensity)
+[numthreads( 8, 8, 1 )]
+void main( uint3 DTid : SV_DispatchThreadID )
 {
-    float4 finalColor = float4(colorAndDensity.rgb, exp(-colorAndDensity.a));
-    FrustumVolume[uv] = finalColor;
-}
-
-[numthreads(8, 8, 1)]
-void main(uint3 DTid : SV_DispatchThreadID)
-{
-    uint3 dims;
+	uint3 dims;
 	FrustumVolume.GetDimensions( dims.x, dims.y, dims.z );
 
-    if ( DTid.x < dims.x && DTid.y < dims.y && DTid.z < dims.z )
+	if ( DTid.x < dims.x && DTid.y < dims.y && DTid.z < dims.z )
 	{
-        float4 currentSliceValue = FrustumVolume[uint3(DTid.xy, 0)];
-        WriteOutput( uint3(DTid.xy, 0), currentSliceValue );
+		float4 accum = float4( 0.f, 0.f, 0.f, 1.f );
+		uint3 pos = uint3( DTid.xy, 0 );
 
-        for (uint z = 1; z < dims.z; ++z)
-        {
-            float4 nextSliceValue = FrustumVolume[uint3(DTid.xy, z)];
-            currentSliceValue = AccumulateScattering( currentSliceValue, nextSliceValue );
-            WriteOutput( uint3(DTid.xy, z), currentSliceValue );
-        }
-    }
+		for ( uint z = 0; z < dims.z; ++z )
+		{
+			pos.z = z;
+			float4 slice = FrustumVolume[pos];
+			accum = ScatterStep( accum.rgb, accum.a, slice.rgb, slice.a, dims.z );
+			FrustumVolume[pos] = accum;
+		}
+	}
 }

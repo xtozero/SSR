@@ -28,8 +28,13 @@ namespace rendercore
 		rt0BlendOption.m_srcBlendAlpha = agl::Blend::Zero;
 		rt0BlendOption.m_destBlendAlpha = agl::Blend::One;
 
+		DepthStencilOption depthStencilOption;
+		depthStencilOption.m_depth.m_enable = false;
+		depthStencilOption.m_depth.m_writeDepth = false;
+
 		PassRenderOption passRenderOption = {
 			.m_blendOption = &volumetricCloundDrawPassBlendOption,
+			.m_depthStencilOption = &depthStencilOption
 		};
 
 		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default );

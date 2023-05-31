@@ -28,6 +28,7 @@
 #include "TransitionUtils.h"
 #include "Viewport.h"
 #include "VolumetricCloudPassProcessor.h"
+#include "VolumetricFogPassProcessor.h"
 
 #include <deque>
 
@@ -838,6 +839,49 @@ namespace rendercore
 
 		info->CreateRenderData();
 		info->PrepareFrustumVolume( *renderScene, renderView, m_shadowInfos );
+
+		VolumetricFogDrawPassProcessor volumetricFogDrawPassProcessor;
+
+		PrimitiveSubMesh meshInfo;
+		meshInfo.m_count = 3;
+
+		auto result = volumetricFogDrawPassProcessor.Process( meshInfo );
+		if ( result.has_value() == false )
+		{
+			return;
+		}
+
+		DrawSnapshot& snapshot = *result;
+
+		// Update invalidated resources
+		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+		auto commandList = GetCommandList();
+		ApplyOutputContext( commandList );
+
+		SamplerOption samplerOption;
+		samplerOption.m_addressU =
+			samplerOption.m_addressV =
+			samplerOption.m_addressW = agl::TextureAddressMode::Clamp;
+		SamplerState scatteringTexSampler = GraphicsInterface().FindOrCreate( samplerOption );
+
+		RenderingShaderResource volumetricFogDrawResources;
+		volumetricFogDrawResources.AddResource( "ScatteringTex", info->ScatteringTex()->SRV() );
+		volumetricFogDrawResources.AddResource( "ScatteringTexSampler", scatteringTexSampler.Resource() );
+
+		volumetricFogDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+		VisibleDrawSnapshot visibleSnapshot = {
+			.m_primitiveId = 0,
+			.m_primitiveIdOffset = 0,
+			.m_numInstance = 1,
+			.m_snapshotBucketId = -1,
+			.m_drawSnapshot = &snapshot,
+		};
+
+		VertexBuffer emptyPrimitiveID;
+		CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
 	}
 
 	void SceneRenderer::RenderTemporalAntiAliasing( RenderViewGroup& renderViewGroup )

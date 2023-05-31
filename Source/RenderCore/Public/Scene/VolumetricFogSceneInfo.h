@@ -25,6 +25,11 @@ namespace rendercore
 			return m_volumetricFogProxy;
 		}
 
+		agl::RefHandle<agl::Texture> ScatteringTex() const
+		{
+			return m_frustumVolume;
+		}
+
 		void CreateRenderData();
 		void PrepareFrustumVolume( Scene& scene, RenderView& renderView, RenderThreadFrameData<ShadowInfo>& shadowInfos );
 

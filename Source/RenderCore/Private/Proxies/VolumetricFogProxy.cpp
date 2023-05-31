@@ -17,6 +17,11 @@ namespace rendercore
 		return m_uniformDensity;
 	}
 
+	float VolumetricFogProxy::Intensity() const
+	{
+		return m_intensity;
+	}
+
 	VolumetricFogProxy::VolumetricFogProxy( const VolumetricFogComponent& component )
 	{
 	}

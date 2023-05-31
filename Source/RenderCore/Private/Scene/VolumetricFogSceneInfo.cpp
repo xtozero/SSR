@@ -25,6 +25,11 @@ namespace rendercore
 			return m_uniformDensity;
 		}
 
+		const agl::ShaderParameter& Intensity() const
+		{
+			return m_intensity;
+		}
+
 		const agl::ShaderParameter& FrustumVolume() const
 		{
 			return m_frustumVolume;
@@ -64,6 +69,7 @@ namespace rendercore
 		{
 			m_asymmetryParameterG.Bind( GetShader()->ParameterMap(), "AsymmetryParameterG" );
 			m_uniformDensity.Bind( GetShader()->ParameterMap(), "UniformDensity" );
+			m_intensity.Bind( GetShader()->ParameterMap(), "Intensity" );
 
 			m_frustumVolume.Bind( GetShader()->ParameterMap(), "FrustumVolume" );
 
@@ -80,6 +86,7 @@ namespace rendercore
 	private:
 		agl::ShaderParameter m_asymmetryParameterG;
 		agl::ShaderParameter m_uniformDensity;
+		agl::ShaderParameter m_intensity;
 
 		agl::ShaderParameter m_frustumVolume;
 
@@ -173,6 +180,7 @@ namespace rendercore
 
 		SetShaderValue( commandList, inscatteringCS.AsymmetryParameterG(), Proxy()->G() );
 		SetShaderValue( commandList, inscatteringCS.UniformDensity(), Proxy()->UniformDensity() );
+		SetShaderValue( commandList, inscatteringCS.Intensity(), Proxy()->Intensity() );
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( inscatteringCS.GetShader() );
 		BindResource( shaderBindings, inscatteringCS.FrustumVolume(), m_frustumVolume);

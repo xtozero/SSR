@@ -6,7 +6,7 @@ struct CascadeConstant
 	float3 padding;
 };
 
-cbuffer ShadowDepthPassParameters : register( b2 )
+cbuffer ShadowDepthPassParameters : register( b4 )
 {
 	float4 LightPosOrDir : packoffset( c0 );
 	float SlopeBiasScale : packoffset( c1 );

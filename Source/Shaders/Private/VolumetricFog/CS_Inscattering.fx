@@ -7,6 +7,13 @@ cbuffer InscatteringParameters : register( b0 )
 {
 	float AsymmetryParameterG : packoffset( c0.x );
 	float UniformDensity : packoffset( c0.y );
+	float Intensity : packoffset( c0.z );
+}
+
+float Visibility( float3 worldPos, float3 biasDir )
+{
+	float3 viewPos = mul( float4( worldPos, 1.f ), ViewMatrix ).xyz;
+	return CalcShadowVisibility( worldPos, viewPos, biasDir );
 }
 
 [numthreads( 8, 8, 8 )]
@@ -37,10 +44,11 @@ void main( uint3 DTid : SV_DispatchThreadId )
 				lightDirection = normalize( light.m_position - worldPosition );
 			}
 
+			float visibility = Visibility( worldPosition, lightDirection );
 			float phaseFunction = HenyeyGreensteinPhaseFunction( toCamera, lightDirection, AsymmetryParameterG );
-			lighting += light.m_diffuse.rgb * light.m_diffuse.a * phaseFunction * UniformDensity;
+			lighting += visibility * light.m_diffuse.rgb * light.m_diffuse.a * phaseFunction;
 
-			FrustumVolume[DTid] = float4( lighting, UniformDensity );
+			FrustumVolume[DTid] = float4( lighting * Intensity * UniformDensity, UniformDensity );
 		}
 	}
 }

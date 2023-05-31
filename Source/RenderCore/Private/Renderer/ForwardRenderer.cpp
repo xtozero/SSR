@@ -306,9 +306,9 @@ namespace rendercore
 
 			RenderSkyAtmosphere( scene, view );
 
-			RenderVolumetricFog( scene, view );
-
 			RenderVolumetricCloud( scene, view );
+
+			RenderVolumetricFog( scene, view );
 		}
 	}
 
