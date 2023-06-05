@@ -28,7 +28,7 @@ namespace rendercore
 
 		std::array<uint32, 3> m_frustumGridSize = { 160, 90, 128 };
 		float m_g = 0.7f;
-		float m_uniformDensity = 2.f;
-		float m_intensity = 10.f;
+		float m_uniformDensity = 5.f;
+		float m_intensity = 50.f;
 	};
 }

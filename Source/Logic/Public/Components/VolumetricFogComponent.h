@@ -2,6 +2,8 @@
 
 #include "Components/Component.h"
 
+#include <array>
+
 namespace rendercore
 {
 	class VolumetricFogProxy;
@@ -23,6 +25,26 @@ public:
 
 	virtual rendercore::VolumetricFogProxy* CreateProxy();
 
+	const std::array<uint32, 3>& FrustumGridSize() const
+	{
+		return m_frustumGridSize;
+	}
+
+	float G() const
+	{
+		return m_g;
+	}
+
+	float UniformDensity() const
+	{
+		return m_uniformDensity;
+	}
+
+	float Intensity() const
+	{
+		return m_intensity;
+	}
+
 protected:
 	virtual bool ShouldCreateRenderState() const override;
 	virtual void CreateRenderState() override;
@@ -30,4 +52,9 @@ protected:
 
 private:
 	rendercore::VolumetricFogProxy* m_proxy = nullptr;
+
+	std::array<uint32, 3> m_frustumGridSize = { 160, 90, 128 };
+	float m_g = 0.7f;
+	float m_uniformDensity = 5.f;
+	float m_intensity = 50.f;
 };
