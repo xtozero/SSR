@@ -130,6 +130,20 @@ namespace rendercore
 		}
 	}
 
+	void VolumetricFogSceneInfo::UpdateParameter()
+	{
+		if ( m_needUpdateParameter )
+		{
+			VolumetricFogParameter param = {
+			   .m_exposure = 0.4f,
+			};
+
+			m_volumetricFogParameter.Update( param );
+
+			m_needUpdateParameter = false;
+		}
+	}
+
 	void VolumetricFogSceneInfo::PrepareFrustumVolume( Scene& scene, RenderView& renderView, RenderThreadFrameData<ShadowInfo>& shadowInfos )
 	{
 		auto commandList = GetCommandList();

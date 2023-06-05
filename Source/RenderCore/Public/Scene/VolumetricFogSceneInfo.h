@@ -12,6 +12,12 @@ namespace rendercore
 
 	struct RenderView;
 
+	struct VolumetricFogParameter
+	{
+		float m_exposure = 0.4f;
+		float padding[3];
+	};
+
 	class VolumetricFogSceneInfo
 	{
 	public:
@@ -30,7 +36,13 @@ namespace rendercore
 			return m_frustumVolume;
 		}
 
+		TypedConstatBuffer<VolumetricFogParameter>& GetVolumetricFogParameter()
+		{
+			return m_volumetricFogParameter;
+		}
+
 		void CreateRenderData();
+		void UpdateParameter();
 		void PrepareFrustumVolume( Scene& scene, RenderView& renderView, RenderThreadFrameData<ShadowInfo>& shadowInfos );
 
 		VolumetricFogSceneInfo( VolumetricFogProxy* proxy );
@@ -44,6 +56,9 @@ namespace rendercore
 
 		agl::RefHandle<agl::Texture> m_frustumVolume;
 
+		TypedConstatBuffer<VolumetricFogParameter> m_volumetricFogParameter;
+
 		bool m_needCreateRenderData = true;
+		bool m_needUpdateParameter = true;
 	};
 }

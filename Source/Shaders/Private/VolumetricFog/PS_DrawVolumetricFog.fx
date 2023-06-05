@@ -15,6 +15,15 @@ SamplerState ScatteringTexSampler : register( s0 );
 Texture2D ViewSpaceDistance : register( t1 );
 SamplerState ViewSpaceDistanceSampler : register( s1 );
 
+float3 HDR( float3 l )
+{
+	l = l * Exposure;
+	l.r = l.r < 1.413f ? pow( abs( l.r * 0.38317f ), 1.f / 2.2f ) : 1.f - exp( -l.r );
+	l.g = l.g < 1.413f ? pow( abs( l.g * 0.38317f ), 1.f / 2.2f ) : 1.f - exp( -l.g );
+	l.b = l.b < 1.413f ? pow( abs( l.b * 0.38317f ), 1.f / 2.2f ) : 1.f - exp( -l.b );
+	return l;
+}
+
 float4 main( PS_INPUT input ) : SV_Target0
 {
 	float viewSpaceDistance = ViewSpaceDistance.Sample( ViewSpaceDistanceSampler, input.uv ).x;
@@ -25,17 +34,10 @@ float4 main( PS_INPUT input ) : SV_Target0
 
 	float3 viewPosition = normalize( input.viewRay ) * viewSpaceDistance;
 
-	float4 ndc = mul( float4( viewPosition, 1.f ), ProjectionMatrix );
-	ndc /= ndc.w;
-
-	float3 uv = ndc.xyz;
-	uv.xy = uv.xy * 0.5f + 0.5f;
-	uv.y = 1.f - uv.y;
-
+	float3 uv = float3( input.uv, ConvertDepthToNdcZ( viewPosition.z ) );
 	float4 scatteringColorAndTransmittance = ScatteringTex.Sample( ScatteringTexSampler, uv );
 
-	float3 scatteringColor = scatteringColorAndTransmittance.rgb;
-	scatteringColor /= scatteringColor + 1.f;
+	float3 scatteringColor = HDR( scatteringColorAndTransmittance.rgb );
 
 	return float4( scatteringColor, scatteringColorAndTransmittance.a );
 }

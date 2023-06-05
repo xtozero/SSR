@@ -1,9 +1,11 @@
 RWTexture3D<float4> FrustumVolume : register( u0 );
 
+static const float DensityScale = 0.01f;
+
 float4 ScatterStep( float3 accumulatedLight, float accumulatedTransmittance, float3 sliceLight, float sliceDensity, float numSlice )
 {
 	sliceDensity = max( sliceDensity, 0.000001f );
-	float sliceTransmittance = exp( -sliceDensity / numSlice );
+	float sliceTransmittance = exp( -sliceDensity * DensityScale );
 
 	float3 sliceLightIntegral = sliceLight * ( 1.f - sliceTransmittance ) / sliceDensity;
 

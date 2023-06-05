@@ -21,11 +21,16 @@ void main( uint3 DTid : SV_DispatchThreadId )
 {
 	uint3 dims;
 	FrustumVolume.GetDimensions( dims.x, dims.y, dims.z );
-
+	
 	if ( DTid.x < dims.x && DTid.y < dims.y && DTid.z < dims.z )
 	{
 		float3 worldPosition = ConvertThreadIdToWorldPosition( DTid, dims );
 		float3 toCamera = normalize( CameraPos - worldPosition );
+
+		float ndcZ = ConvertThreadIdToNdc( DTid, dims ).z;
+		float tickness = SliceTickness( ndcZ, dims.z );
+
+		float density = UniformDensity * tickness;
 
 		float3 lighting = HemisphereUpperColor.rgb * HemisphereUpperColor.a;
 		[loop]
@@ -37,18 +42,19 @@ void main( uint3 DTid : SV_DispatchThreadId )
 
 			if ( length( light.m_direction ) > 0.f )
 			{
-				lightDirection = -normalize( light.m_direction );
+				lightDirection = normalize( light.m_direction );
 			}
 			else
 			{
-				lightDirection = normalize( light.m_position - worldPosition );
+				lightDirection = normalize( worldPosition - light.m_position );
 			}
 
-			float visibility = Visibility( worldPosition, lightDirection );
+			float3 toLight = -lightDirection;
+			float visibility = Visibility( worldPosition, toLight );
 			float phaseFunction = HenyeyGreensteinPhaseFunction( toCamera, lightDirection, AsymmetryParameterG );
 			lighting += visibility * light.m_diffuse.rgb * light.m_diffuse.a * phaseFunction;
 
-			FrustumVolume[DTid] = float4( lighting * Intensity * UniformDensity, UniformDensity );
+			FrustumVolume[DTid] = float4( lighting * Intensity * density, density );
 		}
 	}
 }
