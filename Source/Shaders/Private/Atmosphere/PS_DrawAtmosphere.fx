@@ -171,7 +171,7 @@ float4 main( PS_INPUT input ) : SV_Target
 
 	if ( isSceneGeometry )
 	{
-		t = length( viewSpaceDistance * scale );
+		t = max( floor( viewSpaceDistance * scale ), scale );
 	}
 
 	float3 attenuation;
