@@ -50,15 +50,19 @@ namespace
 		initializer.m_size = static_cast<uint32>( image.GetPixelsSize() );
 		initializer.m_memory = image.GetPixels();
 
-		for ( size_t i = 0; i < image.GetImageCount(); ++i )
+		for ( size_t mip = 0; mip < meta.mipLevels; ++mip )
 		{
-			auto subresources = image.GetImages();
+			for ( size_t item = 0; item < meta.arraySize; ++item )
+			{
+				size_t tIdx = meta.ComputeIndex( mip, item, 0 );
+				auto subresources = image.GetImages();
 
-			uint32 rowPitch = static_cast<uint32>( subresources[i].rowPitch );
-			uint32 slicePitch = static_cast<uint32>( subresources[i].slicePitch );
-			uint32 offset = static_cast<uint32>( subresources[i].pixels - initializer.m_memory );
+				uint32 rowPitch = static_cast<uint32>( subresources[tIdx].rowPitch );
+				uint32 slicePitch = static_cast<uint32>( subresources[tIdx].slicePitch );
+				uint32 offset = static_cast<uint32>( subresources[tIdx].pixels - initializer.m_memory );
 
-			initializer.m_sections.emplace_back( rowPitch, slicePitch, offset );
+				initializer.m_sections.emplace_back( rowPitch, slicePitch, offset );
+			}
 		}
 
 		return initializer;
