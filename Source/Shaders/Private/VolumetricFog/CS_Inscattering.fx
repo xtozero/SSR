@@ -1,5 +1,6 @@
-#include "VolumetricFog/VolumetricFogCommon.fxh"
+#include "Constants.fxh"
 #include "Shadow/ShadowCommon.fxh"
+#include "VolumetricFog/VolumetricFogCommon.fxh"
 
 RWTexture3D<float4> FrustumVolume : register( u0 );
 
@@ -24,11 +25,15 @@ void main( uint3 DTid : SV_DispatchThreadId )
 	
 	if ( DTid.x < dims.x && DTid.y < dims.y && DTid.z < dims.z )
 	{
-		float3 worldPosition = ConvertThreadIdToWorldPosition( DTid, dims );
-		float3 toCamera = normalize( CameraPos - worldPosition );
+		float3 jitter = HALTON_SEQUENCE[(FrameCount + DTid.x + DTid.y * 2) % MAX_HALTON_SEQUENCE];
+		jitter.xy -= 0.5f;
 
-		float ndcZ = ConvertThreadIdToNdc( DTid, dims ).z;
-		float tickness = SliceTickness( ndcZ, dims.z );
+		float3 ndc = ConvertThreadIdToNdc( DTid, dims, jitter );
+		float tickness = SliceTickness( ndc.z, dims.z );
+
+		float depth = ConvertNdcZToDepth( ndc.z );
+		float3 worldPosition = ConvertToWorldPosition( ndc, depth );
+		float3 toCamera = normalize( CameraPos - worldPosition );
 
 		float density = UniformDensity * tickness;
 

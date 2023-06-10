@@ -40,7 +40,7 @@ void VolumetricCloudComponent::LoadProperty( const JSON::Value& json )
 
 		if ( cloudColor.Size() == 3 )
 		{
-			SetCloudColor( 
+			SetCloudColor(
 				ColorF( static_cast<float>( cloudColor[0].AsReal() )
 					, static_cast<float>( cloudColor[1].AsReal() )
 					, static_cast<float>( cloudColor[2].AsReal() )

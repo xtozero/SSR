@@ -45,6 +45,21 @@ public:
 		return m_intensity;
 	}
 
+	float DepthPackExponent() const
+	{
+		return m_depthPackExponent;
+	}
+
+	float NearPlaneDist() const
+	{
+		return m_nearPlaneDist;
+	}
+
+	float FarPlaneDist() const
+	{
+		return m_farPlaneDist;
+	}
+
 protected:
 	virtual bool ShouldCreateRenderState() const override;
 	virtual void CreateRenderState() override;
@@ -57,4 +72,7 @@ private:
 	float m_g = 0.7f;
 	float m_uniformDensity = 5.f;
 	float m_intensity = 50.f;
+	float m_depthPackExponent = 2.f;
+	float m_nearPlaneDist = 1.f;
+	float m_farPlaneDist = 300.f;
 };

@@ -48,6 +48,7 @@ float Halton::Sample( uint64 index, uint32 dim ) const
 	{
 	case 0:
 	case 1:
+	case 2:
 		return RadicalInverse( dim, index );
 	default:
 		assert( false );
@@ -62,6 +63,11 @@ Vector2 Halton::Sample2D( uint64 index ) const
 	return Vector2( Sample( index, 0 ), Sample( index, 1 ) );
 }
 
+Vector Halton::Sample3D( uint64 index ) const
+{
+	return Vector( Sample( index, 0 ), Sample( index, 1 ), Sample( index, 2 ) );
+}
+
 float Halton::RadicalInverse( uint32 baseIndex, uint64 a ) const
 {
 	switch ( baseIndex )
@@ -70,6 +76,8 @@ float Halton::RadicalInverse( uint32 baseIndex, uint64 a ) const
 		return static_cast<float>( ReverseBits( a ) * 0x1p-64 );
 	case 1:
 		return ::RadicalInverse<3>( a );
+	case 2:
+		return ::RadicalInverse<5>( a );
 	default:
 		assert( false );
 		break;

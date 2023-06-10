@@ -24,11 +24,29 @@ namespace rendercore
 		return m_intensity;
 	}
 
+	float VolumetricFogProxy::DepthPackExponent() const
+	{
+		return m_depthPackExponent;
+	}
+
+	float VolumetricFogProxy::NearPlaneDist() const
+	{
+		return m_nearPlaneDist;
+	}
+
+	float VolumetricFogProxy::FarPlaneDist() const
+	{
+		return m_farPlaneDist;
+	}
+
 	VolumetricFogProxy::VolumetricFogProxy( const VolumetricFogComponent& component )
 		: m_frustumGridSize( component.FrustumGridSize() )
 		, m_g( component.G() )
 		, m_uniformDensity( component.UniformDensity() )
 		, m_intensity( component.Intensity() )
+		, m_depthPackExponent( component.DepthPackExponent() )
+		, m_nearPlaneDist( component.NearPlaneDist() )
+		, m_farPlaneDist( component.FarPlaneDist() )
 	{
 	}
 }

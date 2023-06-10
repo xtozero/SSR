@@ -65,6 +65,11 @@ namespace rendercore
 			return m_shadowDepthPassParameters;
 		}
 
+		const agl::ShaderParameter& VolumetricFogParameter() const
+		{
+			return m_volumetricFogParameter;
+		}
+
 		InscatteringCS()
 		{
 			m_asymmetryParameterG.Bind( GetShader()->ParameterMap(), "AsymmetryParameterG" );
@@ -75,12 +80,14 @@ namespace rendercore
 
 			m_sceneViewParameters.Bind( GetShader()->ParameterMap(), "SceneViewParameters" );
 
-			m_forwardLightConstant.Bind( GetShader()->ParameterMap(),"ForwardLightConstant" );
+			m_forwardLightConstant.Bind( GetShader()->ParameterMap(), "ForwardLightConstant" );
 			m_forwardLight.Bind( GetShader()->ParameterMap(), "ForwardLight" );
 
 			m_shadowTexture.Bind( GetShader()->ParameterMap(), "ShadowTexture" );
 			m_shadowSampler.Bind( GetShader()->ParameterMap(), "ShadowSampler" );
 			m_shadowDepthPassParameters.Bind( GetShader()->ParameterMap(), "ShadowDepthPassParameters" );
+
+			m_volumetricFogParameter.Bind( GetShader()->ParameterMap(), "VolumetricFogParameterBuffer" );
 		}
 
 	private:
@@ -98,6 +105,8 @@ namespace rendercore
 		agl::ShaderParameter m_shadowTexture;
 		agl::ShaderParameter m_shadowSampler;
 		agl::ShaderParameter m_shadowDepthPassParameters;
+
+		agl::ShaderParameter m_volumetricFogParameter;
 	};
 
 	class AccumulateScatteringCS : public GlobalShaderCommon<ComputeShader, AccumulateScatteringCS>
@@ -136,6 +145,9 @@ namespace rendercore
 		{
 			VolumetricFogParameter param = {
 			   .m_exposure = 0.4f,
+			   .m_depthPackExponent = m_volumetricFogProxy->DepthPackExponent(),
+			   .m_nearPlaneDist = m_volumetricFogProxy->NearPlaneDist(),
+			   .m_farPlaneDist = m_volumetricFogProxy->FarPlaneDist()
 			};
 
 			m_volumetricFogParameter.Update( param );
@@ -178,7 +190,7 @@ namespace rendercore
 		};
 
 		m_frustumVolume = agl::Texture::Create( frustumVolumeTrait );
-		EnqueueRenderTask( 
+		EnqueueRenderTask(
 			[texture = m_frustumVolume]()
 			{
 				texture->Init();
@@ -197,7 +209,7 @@ namespace rendercore
 		SetShaderValue( commandList, inscatteringCS.Intensity(), Proxy()->Intensity() );
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( inscatteringCS.GetShader() );
-		BindResource( shaderBindings, inscatteringCS.FrustumVolume(), m_frustumVolume);
+		BindResource( shaderBindings, inscatteringCS.FrustumVolume(), m_frustumVolume );
 
 		SceneViewConstantBuffer& viewConstant = scene.SceneViewConstant();
 		BindResource( shaderBindings, inscatteringCS.SceneViewParameters(), viewConstant.Resource() );
@@ -205,12 +217,7 @@ namespace rendercore
 		BindResource( shaderBindings, inscatteringCS.ForwardLightConstant(), renderView.m_forwardLighting->m_lightConstant.Resource() );
 		BindResource( shaderBindings, inscatteringCS.ForwardLight(), renderView.m_forwardLighting->m_lightBuffer.Resource() );
 
-		const std::array<uint32, 3>& frustumGridSize = Proxy()->FrustumGridSize();
-		const uint32 threadGroupCount[3] = {
-			static_cast<uint32>( std::ceilf( frustumGridSize[0] / 8.f ) ),
-			static_cast<uint32>( std::ceilf( frustumGridSize[1] / 8.f ) ),
-			static_cast<uint32>( std::ceilf( frustumGridSize[2] / 8.f ) )
-		};
+		BindResource( shaderBindings, inscatteringCS.VolumetricFogParameter(), GetVolumetricFogParameter().Resource() );
 
 		SamplerOption shadowSamplerOption;
 		shadowSamplerOption.m_filter |= agl::TextureFilter::Comparison;
@@ -221,6 +228,13 @@ namespace rendercore
 		SamplerState shadowSampler = GraphicsInterface().FindOrCreate( shadowSamplerOption );
 
 		BindResource( shaderBindings, inscatteringCS.ShadowSampler(), shadowSampler.Resource() );
+
+		const std::array<uint32, 3>& frustumGridSize = Proxy()->FrustumGridSize();
+		const uint32 threadGroupCount[3] = {
+			static_cast<uint32>( std::ceilf( frustumGridSize[0] / 8.f ) ),
+			static_cast<uint32>( std::ceilf( frustumGridSize[1] / 8.f ) ),
+			static_cast<uint32>( std::ceilf( frustumGridSize[2] / 8.f ) )
+		};
 
 		for ( ShadowInfo& shadowInfo : shadowInfos )
 		{
@@ -241,7 +255,7 @@ namespace rendercore
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( accumulateScatteringCS.GetShader() );
 
-		BindResource( shaderBindings, accumulateScatteringCS.FrustumVolume(), m_frustumVolume);
+		BindResource( shaderBindings, accumulateScatteringCS.FrustumVolume(), m_frustumVolume );
 
 		const std::array<uint32, 3>& frustumGridSize = Proxy()->FrustumGridSize();
 		const uint32 threadGroupCount[2] = {

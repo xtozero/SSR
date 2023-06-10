@@ -36,6 +36,21 @@ void VolumetricFogComponent::LoadProperty( const JSON::Value& json )
 	{
 		m_intensity = static_cast<float>( pIntensity->AsReal() );
 	}
+
+	if ( const JSON::Value* pDepthPackExponent = json.Find( "DepthPackExponent" ) )
+	{
+		m_depthPackExponent = static_cast<float>( pDepthPackExponent->AsReal() );
+	}
+
+	if ( const JSON::Value* pNearPlaneDist = json.Find( "NearPlaneDist" ) )
+	{
+		m_nearPlaneDist = static_cast<float>( pNearPlaneDist->AsReal() );
+	}
+
+	if ( const JSON::Value* pFarPlaneDist = json.Find( "FarPlaneDist" ) )
+	{
+		m_farPlaneDist = static_cast<float>( pFarPlaneDist->AsReal() );
+	}
 }
 
 rendercore::VolumetricFogProxy* VolumetricFogComponent::CreateProxy()

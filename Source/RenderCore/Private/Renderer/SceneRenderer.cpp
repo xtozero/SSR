@@ -870,7 +870,7 @@ namespace rendercore
 		RenderingShaderResource volumetricFogDrawResources;
 		volumetricFogDrawResources.AddResource( "ScatteringTex", info->ScatteringTex()->SRV() );
 		volumetricFogDrawResources.AddResource( "ScatteringTexSampler", scatteringTexSampler.Resource() );
-		volumetricFogDrawResources.AddResource( "VolumetricFogParameter", info->GetVolumetricFogParameter().Resource() );
+		volumetricFogDrawResources.AddResource( "VolumetricFogParameterBuffer", info->GetVolumetricFogParameter().Resource() );
 
 		volumetricFogDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
