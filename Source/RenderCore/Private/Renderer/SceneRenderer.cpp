@@ -334,7 +334,7 @@ namespace rendercore
 		{
 			auto [width, height] = shadow->ShadowMapSize();
 
-			agl::TextureTrait trait = { 
+			agl::TextureTrait trait = {
 				.m_width = width,
 				.m_height = height,
 				.m_depth = CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
@@ -352,7 +352,7 @@ namespace rendercore
 
 			shadow->ShadowMap().m_shadowMap = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait );
 
-			agl::TextureTrait depthTrait = { 
+			agl::TextureTrait depthTrait = {
 				.m_width = width,
 				.m_height = height,
 				.m_depth = CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
@@ -401,19 +401,19 @@ namespace rendercore
 			RenderingOutputContext context = {
 				.m_renderTargets = { shadowMap.m_shadowMap },
 				.m_depthStencil = shadowMap.m_shadowMapDepth,
-				.m_viewport = { 
-					.m_left = 0.f, 
-					.m_top = 0.f, 
+				.m_viewport = {
+					.m_left = 0.f,
+					.m_top = 0.f,
 					.m_front = 0.f,
-					.m_right = static_cast<float>( width ), 
-					.m_bottom = static_cast<float>( height ), 
-					.m_back = 1.f 
+					.m_right = static_cast<float>( width ),
+					.m_bottom = static_cast<float>( height ),
+					.m_back = 1.f
 				},
-				.m_scissorRects = { 
-					.m_left = 0L, 
-					.m_top = 0L, 
+				.m_scissorRects = {
+					.m_left = 0L,
+					.m_top = 0L,
 					.m_right = static_cast<int32>( width ),
-					.m_bottom = static_cast<int32>( height ) 
+					.m_bottom = static_cast<int32>( height )
 				}
 			};
 			StoreOuputContext( context );
@@ -589,7 +589,7 @@ namespace rendercore
 			m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 		}
 
-		VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc(static_cast<uint32>( snapshots.size() * sizeof(uint32) ));
+		VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc( static_cast<uint32>( snapshots.size() * sizeof( uint32 ) ) );
 
 		SortDrawSnapshots( snapshots, primitiveIds );
 		// CommitDrawSnapshots( *this, renderViewGroup, curView, primitiveIds );
@@ -862,14 +862,11 @@ namespace rendercore
 		ApplyOutputContext( commandList );
 
 		SamplerOption samplerOption;
-		samplerOption.m_addressU =
-			samplerOption.m_addressV =
-			samplerOption.m_addressW = agl::TextureAddressMode::Clamp;
-		SamplerState scatteringTexSampler = GraphicsInterface().FindOrCreate( samplerOption );
+		SamplerState accumulatedVolumeSampler = GraphicsInterface().FindOrCreate( samplerOption );
 
 		RenderingShaderResource volumetricFogDrawResources;
-		volumetricFogDrawResources.AddResource( "ScatteringTex", info->ScatteringTex()->SRV() );
-		volumetricFogDrawResources.AddResource( "ScatteringTexSampler", scatteringTexSampler.Resource() );
+		volumetricFogDrawResources.AddResource( "AccumulatedVolume", info->AccumulatedVolume()->SRV() );
+		volumetricFogDrawResources.AddResource( "AccumulatedVolumeSampler", accumulatedVolumeSampler.Resource() );
 		volumetricFogDrawResources.AddResource( "VolumetricFogParameterBuffer", info->GetVolumetricFogParameter().Resource() );
 
 		volumetricFogDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );

@@ -9,8 +9,8 @@ struct PS_INPUT
 	float2 uv : TEXCOORD0;
 };
 
-Texture3D ScatteringTex : register( t0 );
-SamplerState ScatteringTexSampler : register( s0 );
+Texture3D AccumulatedVolume : register( t0 );
+SamplerState AccumulatedVolumeSampler : register( s0 );
 
 Texture2D ViewSpaceDistance : register( t1 );
 SamplerState ViewSpaceDistanceSampler : register( s1 );
@@ -26,7 +26,7 @@ float4 main( PS_INPUT input ) : SV_Target0
 	float3 viewPosition = normalize( input.viewRay ) * viewSpaceDistance;
 
 	float3 uv = float3( input.uv, ConvertDepthToNdcZ( viewPosition.z ) );
-	float4 scatteringColorAndTransmittance = ScatteringTex.Sample( ScatteringTexSampler, uv );
+	float4 scatteringColorAndTransmittance = AccumulatedVolume.Sample( AccumulatedVolumeSampler, uv );
 
 	float3 scatteringColor = HDR( scatteringColorAndTransmittance.rgb );
 

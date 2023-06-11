@@ -1,4 +1,6 @@
-RWTexture3D<float4> FrustumVolume : register( u0 );
+Texture3D<float4> FrustumVolume : register( t0 );
+
+RWTexture3D<float4> AccumulatedVolume : register( u0 );
 
 static const float DensityScale = 0.01f;
 
@@ -19,7 +21,7 @@ float4 ScatterStep( float3 accumulatedLight, float accumulatedTransmittance, flo
 void main( uint3 DTid : SV_DispatchThreadID )
 {
 	uint3 dims;
-	FrustumVolume.GetDimensions( dims.x, dims.y, dims.z );
+	AccumulatedVolume.GetDimensions( dims.x, dims.y, dims.z );
 
 	if ( DTid.x < dims.x && DTid.y < dims.y && DTid.z < dims.z )
 	{
@@ -31,7 +33,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
 			pos.z = z;
 			float4 slice = FrustumVolume[pos];
 			accum = ScatterStep( accum.rgb, accum.a, slice.rgb, slice.a, dims.z );
-			FrustumVolume[pos] = accum;
+			AccumulatedVolume[pos] = accum;
 		}
 	}
 }

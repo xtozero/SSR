@@ -30,6 +30,11 @@ namespace rendercore
 			return m_intensity;
 		}
 
+		const agl::ShaderParameter& TemporalAccum() const
+		{
+			return m_temporalAccum;
+		}
+
 		const agl::ShaderParameter& FrustumVolume() const
 		{
 			return m_frustumVolume;
@@ -70,11 +75,22 @@ namespace rendercore
 			return m_volumetricFogParameter;
 		}
 
+		const agl::ShaderParameter& HistoryVolume() const
+		{
+			return m_historyVolume;
+		}
+
+		const agl::ShaderParameter& HistorySampler() const
+		{
+			return m_historySampler;
+		}
+
 		InscatteringCS()
 		{
 			m_asymmetryParameterG.Bind( GetShader()->ParameterMap(), "AsymmetryParameterG" );
 			m_uniformDensity.Bind( GetShader()->ParameterMap(), "UniformDensity" );
 			m_intensity.Bind( GetShader()->ParameterMap(), "Intensity" );
+			m_temporalAccum.Bind( GetShader()->ParameterMap(), "TemporalAccum" );
 
 			m_frustumVolume.Bind( GetShader()->ParameterMap(), "FrustumVolume" );
 
@@ -88,12 +104,16 @@ namespace rendercore
 			m_shadowDepthPassParameters.Bind( GetShader()->ParameterMap(), "ShadowDepthPassParameters" );
 
 			m_volumetricFogParameter.Bind( GetShader()->ParameterMap(), "VolumetricFogParameterBuffer" );
+
+			m_historyVolume.Bind( GetShader()->ParameterMap(), "HistoryVolume" );
+			m_historySampler.Bind( GetShader()->ParameterMap(), "HistorySampler" );
 		}
 
 	private:
 		agl::ShaderParameter m_asymmetryParameterG;
 		agl::ShaderParameter m_uniformDensity;
 		agl::ShaderParameter m_intensity;
+		agl::ShaderParameter m_temporalAccum;
 
 		agl::ShaderParameter m_frustumVolume;
 
@@ -107,6 +127,9 @@ namespace rendercore
 		agl::ShaderParameter m_shadowDepthPassParameters;
 
 		agl::ShaderParameter m_volumetricFogParameter;
+
+		agl::ShaderParameter m_historyVolume;
+		agl::ShaderParameter m_historySampler;
 	};
 
 	class AccumulateScatteringCS : public GlobalShaderCommon<ComputeShader, AccumulateScatteringCS>
@@ -117,13 +140,20 @@ namespace rendercore
 			return m_frustumVolume;
 		}
 
+		const agl::ShaderParameter& AccumulatedVolume() const
+		{
+			return m_accumulatedVolume;
+		}
+
 		AccumulateScatteringCS()
 		{
 			m_frustumVolume.Bind( GetShader()->ParameterMap(), "FrustumVolume" );
+			m_accumulatedVolume.Bind( GetShader()->ParameterMap(), "AccumulatedVolume" );
 		}
 
 	private:
 		agl::ShaderParameter m_frustumVolume;
+		agl::ShaderParameter m_accumulatedVolume;
 	};
 
 	REGISTER_GLOBAL_SHADER( InscatteringCS, "./Assets/Shaders/VolumetricFog/CS_Inscattering.asset" );
@@ -160,6 +190,8 @@ namespace rendercore
 	{
 		auto commandList = GetCommandList();
 
+		++m_numTick;
+
 		CalcInscattering( commandList, scene, renderView, shadowInfos );
 		AccumulateScattering( commandList );
 
@@ -189,9 +221,19 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::Texture3D
 		};
 
-		m_frustumVolume = agl::Texture::Create( frustumVolumeTrait );
+		for ( agl::RefHandle<agl::Texture>& frustumVolume : m_frustumVolume )
+		{
+			frustumVolume = agl::Texture::Create( frustumVolumeTrait );
+			EnqueueRenderTask(
+				[texture = frustumVolume]()
+				{
+					texture->Init();
+				} );
+		}
+
+		m_accumulatedVolume = agl::Texture::Create( frustumVolumeTrait );
 		EnqueueRenderTask(
-			[texture = m_frustumVolume]()
+			[texture = m_accumulatedVolume]()
 			{
 				texture->Init();
 			} );
@@ -207,9 +249,10 @@ namespace rendercore
 		SetShaderValue( commandList, inscatteringCS.AsymmetryParameterG(), Proxy()->G() );
 		SetShaderValue( commandList, inscatteringCS.UniformDensity(), Proxy()->UniformDensity() );
 		SetShaderValue( commandList, inscatteringCS.Intensity(), Proxy()->Intensity() );
+		SetShaderValue( commandList, inscatteringCS.TemporalAccum(), ( m_numTick == 0 ) ? 0.f : 1.f );
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( inscatteringCS.GetShader() );
-		BindResource( shaderBindings, inscatteringCS.FrustumVolume(), m_frustumVolume );
+		BindResource( shaderBindings, inscatteringCS.FrustumVolume(), FrustumVolume() );
 
 		SceneViewConstantBuffer& viewConstant = scene.SceneViewConstant();
 		BindResource( shaderBindings, inscatteringCS.SceneViewParameters(), viewConstant.Resource() );
@@ -228,6 +271,13 @@ namespace rendercore
 		SamplerState shadowSampler = GraphicsInterface().FindOrCreate( shadowSamplerOption );
 
 		BindResource( shaderBindings, inscatteringCS.ShadowSampler(), shadowSampler.Resource() );
+
+		BindResource( shaderBindings, inscatteringCS.HistoryVolume(), HistoryVolume() );
+
+		SamplerOption historySamplerOption;
+		SamplerState historySampler = GraphicsInterface().FindOrCreate( historySamplerOption );
+
+		BindResource( shaderBindings, inscatteringCS.HistorySampler(), historySampler.Resource() );
 
 		const std::array<uint32, 3>& frustumGridSize = Proxy()->FrustumGridSize();
 		const uint32 threadGroupCount[3] = {
@@ -255,7 +305,8 @@ namespace rendercore
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( accumulateScatteringCS.GetShader() );
 
-		BindResource( shaderBindings, accumulateScatteringCS.FrustumVolume(), m_frustumVolume );
+		BindResource( shaderBindings, accumulateScatteringCS.FrustumVolume(), FrustumVolume() );
+		BindResource( shaderBindings, accumulateScatteringCS.AccumulatedVolume(), AccumulatedVolume() );
 
 		const std::array<uint32, 3>& frustumGridSize = Proxy()->FrustumGridSize();
 		const uint32 threadGroupCount[2] = {

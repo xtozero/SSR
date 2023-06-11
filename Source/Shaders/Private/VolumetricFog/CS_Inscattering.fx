@@ -4,11 +4,15 @@
 
 RWTexture3D<float4> FrustumVolume : register( u0 );
 
+Texture3D HistoryVolume : register( t0 );
+SamplerState HistorySampler : register( s0 );
+
 cbuffer InscatteringParameters : register( b0 )
 {
 	float AsymmetryParameterG : packoffset( c0.x );
 	float UniformDensity : packoffset( c0.y );
 	float Intensity : packoffset( c0.z );
+	float TemporalAccum : packoffset( c0.w );
 }
 
 float Visibility( float3 worldPos, float3 biasDir )
@@ -22,10 +26,10 @@ void main( uint3 DTid : SV_DispatchThreadId )
 {
 	uint3 dims;
 	FrustumVolume.GetDimensions( dims.x, dims.y, dims.z );
-	
+
 	if ( DTid.x < dims.x && DTid.y < dims.y && DTid.z < dims.z )
 	{
-		float3 jitter = HALTON_SEQUENCE[(FrameCount + DTid.x + DTid.y * 2) % MAX_HALTON_SEQUENCE];
+		float3 jitter = HALTON_SEQUENCE[( FrameCount + DTid.x + DTid.y * 2 ) % MAX_HALTON_SEQUENCE];
 		jitter.xy -= 0.5f;
 
 		float3 ndc = ConvertThreadIdToNdc( DTid, dims, jitter );
@@ -36,6 +40,8 @@ void main( uint3 DTid : SV_DispatchThreadId )
 		float3 toCamera = normalize( CameraPos - worldPosition );
 
 		float density = UniformDensity * tickness;
+
+		float4 curScattering;
 
 		float3 lighting = HemisphereUpperColor.rgb * HemisphereUpperColor.a;
 		[loop]
@@ -59,7 +65,20 @@ void main( uint3 DTid : SV_DispatchThreadId )
 			float phaseFunction = HenyeyGreensteinPhaseFunction( toCamera, lightDirection, AsymmetryParameterG );
 			lighting += visibility * light.m_diffuse.rgb * light.m_diffuse.a * phaseFunction;
 
-			FrustumVolume[DTid] = float4( lighting * Intensity * density, density );
+			curScattering = float4( lighting * Intensity * density, density );
 		}
+
+		if ( TemporalAccum > 0.f )
+		{
+			float3 worldPosWithoutJitter = ConvertThreadIdToWorldPosition( DTid, dims );
+			float3 prevFrameUV = ConvertWorldPositionToUV( worldPosWithoutJitter, PrevViewProjectionMatrix );
+			if ( all( prevFrameUV <= ( float3 )1.f ) && all( prevFrameUV >= ( float3 )0.f ) )
+			{
+				float4 prevScattering = HistoryVolume.SampleLevel( HistorySampler, prevFrameUV, 0 );
+				curScattering = lerp( prevScattering, curScattering, 0.05f );
+			}
+		}
+
+		FrustumVolume[DTid] = curScattering;
 	}
 }

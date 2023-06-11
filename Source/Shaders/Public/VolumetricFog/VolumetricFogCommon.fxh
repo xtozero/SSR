@@ -26,8 +26,8 @@ float HenyeyGreensteinPhaseFunction( float3 wi, float3 wo, float g )
 float3 ConvertThreadIdToNdc( uint3 id, uint3 dims )
 {
 	float3 ndc = id;
-	ndc *= float3( 2.f / dims.x, -2.f / dims.y, 1.f / dims.z ); // 0 ~ 2
-	ndc += float3( -1.f, 1.f, 0.f ); // -1 ~ 1
+	ndc *= float3( 2.f / dims.x, -2.f / dims.y, 1.f / dims.z );
+	ndc += float3( -1.f, 1.f, 0.f );
 	return ndc;
 }
 
@@ -35,8 +35,8 @@ float3 ConvertThreadIdToNdc( uint3 id, uint3 dims, float3 jitter )
 {
 	float3 ndc = id;
 	ndc += jitter;
-	ndc *= float3( 2.f / dims.x, -2.f / dims.y, 1.f / dims.z ); // 0 ~ 2
-	ndc += float3( -1.f, 1.f, 0.f ); // -1 ~ 1
+	ndc *= float3( 2.f / dims.x, -2.f / dims.y, 1.f / dims.z );
+	ndc += float3( -1.f, 1.f, 0.f );
 	return ndc;
 }
 
@@ -55,17 +55,18 @@ float ConvertDepthToNdcZ( float depth )
 	float nearPlaneDist = VolumetricFogParam.NearPlaneDist;
 	float farPlaneDist = VolumetricFogParam.FarPlaneDist;
 
-	return pow( ( depth - nearPlaneDist ) / ( farPlaneDist - nearPlaneDist ), 1 / depthPackExponent );
+	return pow( saturate( ( depth - nearPlaneDist ) / ( farPlaneDist - nearPlaneDist ) ), 1 / depthPackExponent );
 }
 
 float3 ConvertToWorldPosition( float3 ndc, float depth )
 {
 	// view ray
-	float3 viewRay = mul( float4( ndc.xy, 0.f, 1.f ), InvProjectionMatrix ).xyz;
+	float4 viewRay = mul( float4( ndc, 1.f ), InvProjectionMatrix );
+	viewRay /= viewRay.w;
 	viewRay /= viewRay.z;
 
 	// ndc -> world position
-	float4 worldPosition = mul( float4( viewRay * depth, 1.f ), InvViewMatrix );
+	float4 worldPosition = mul( float4( viewRay.xyz * depth, 1.f ), InvViewMatrix );
 
 	return worldPosition.xyz;
 }
@@ -77,6 +78,17 @@ float3 ConvertThreadIdToWorldPosition( uint3 id, uint3 dims )
 	float depth = ConvertNdcZToDepth( ndc.z );
 
 	return ConvertToWorldPosition( ndc, depth );
+}
+
+float3 ConvertWorldPositionToUV( float3 worldPosition, matrix viewProjectionMatrix )
+{
+	float4 pos = mul( float4( worldPosition, 1.f ), viewProjectionMatrix );
+
+	float3 uv = float3( pos.xy / pos.w, ConvertDepthToNdcZ( pos.w ) );
+	uv.xy *= float2( 0.5f, -0.5f );
+	uv.xy += 0.5f;
+
+	return uv;
 }
 
 float SliceTickness( float ndcZ, uint dimZ )
