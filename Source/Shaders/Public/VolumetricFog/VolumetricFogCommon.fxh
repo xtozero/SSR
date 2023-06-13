@@ -26,6 +26,7 @@ float HenyeyGreensteinPhaseFunction( float3 wi, float3 wo, float g )
 float3 ConvertThreadIdToNdc( uint3 id, uint3 dims )
 {
 	float3 ndc = id;
+	ndc += 0.5f;
 	ndc *= float3( 2.f / dims.x, -2.f / dims.y, 1.f / dims.z );
 	ndc += float3( -1.f, 1.f, 0.f );
 	return ndc;
@@ -34,6 +35,7 @@ float3 ConvertThreadIdToNdc( uint3 id, uint3 dims )
 float3 ConvertThreadIdToNdc( uint3 id, uint3 dims, float3 jitter )
 {
 	float3 ndc = id;
+	ndc += 0.5f;
 	ndc += jitter;
 	ndc *= float3( 2.f / dims.x, -2.f / dims.y, 1.f / dims.z );
 	ndc += float3( -1.f, 1.f, 0.f );

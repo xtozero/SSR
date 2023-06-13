@@ -26,7 +26,12 @@ float4 main( PS_INPUT input ) : SV_Target0
 	float3 viewPosition = normalize( input.viewRay ) * viewSpaceDistance;
 
 	float3 uv = float3( input.uv, ConvertDepthToNdcZ( viewPosition.z ) );
+
+#if TricubicTextureSampling == 1
+	float4 scatteringColorAndTransmittance = Tex3DTricubic( AccumulatedVolume, AccumulatedVolumeSampler, uv);
+#else
 	float4 scatteringColorAndTransmittance = AccumulatedVolume.Sample( AccumulatedVolumeSampler, uv );
+#endif
 
 	float3 scatteringColor = HDR( scatteringColorAndTransmittance.rgb );
 

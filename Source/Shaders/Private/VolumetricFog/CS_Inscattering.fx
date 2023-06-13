@@ -30,7 +30,7 @@ void main( uint3 DTid : SV_DispatchThreadId )
 	if ( DTid.x < dims.x && DTid.y < dims.y && DTid.z < dims.z )
 	{
 		float3 jitter = HALTON_SEQUENCE[( FrameCount + DTid.x + DTid.y * 2 ) % MAX_HALTON_SEQUENCE];
-		jitter.xy -= 0.5f;
+		jitter.xyz -= 0.5f;
 
 		float3 ndc = ConvertThreadIdToNdc( DTid, dims, jitter );
 		float tickness = SliceTickness( ndc.z, dims.z );
