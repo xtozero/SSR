@@ -60,6 +60,11 @@ public:
 		return m_farPlaneDist;
 	}
 
+	float ShadowBias() const
+	{
+		return m_shadowBias;
+	}
+
 protected:
 	virtual bool ShouldCreateRenderState() const override;
 	virtual void CreateRenderState() override;
@@ -75,4 +80,5 @@ private:
 	float m_depthPackExponent = 2.f;
 	float m_nearPlaneDist = 1.f;
 	float m_farPlaneDist = 300.f;
+	float m_shadowBias = 0.0015f;
 };

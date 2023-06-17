@@ -39,6 +39,11 @@ namespace rendercore
 		return m_farPlaneDist;
 	}
 
+	float VolumetricFogProxy::ShadowBias() const
+	{
+		return m_shadowBias;
+	}
+
 	VolumetricFogProxy::VolumetricFogProxy( const VolumetricFogComponent& component )
 		: m_frustumGridSize( component.FrustumGridSize() )
 		, m_g( component.G() )
@@ -47,6 +52,7 @@ namespace rendercore
 		, m_depthPackExponent( component.DepthPackExponent() )
 		, m_nearPlaneDist( component.NearPlaneDist() )
 		, m_farPlaneDist( component.FarPlaneDist() )
+		, m_shadowBias( component.ShadowBias())
 	{
 	}
 }

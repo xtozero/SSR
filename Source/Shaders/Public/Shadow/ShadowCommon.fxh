@@ -99,28 +99,14 @@ float CalcShadowVisibilityWithNormalOffset( float3 worldPos, float3 worldNormal,
 	return visibility;
 }
 
-float CalcShadowVisibility( float3 worldPos, float3 viewPos, float3 biasDir )
+float CalcShadowVisibility( float3 worldPos, float3 viewPos, float depthBias )
 {
 	int cascadeIndex = SearchCascadeIndex( viewPos.z );
-
-	float3 biasedWorldPos = worldPos + ( biasDir * ConstantBias );
-	float4 shadowCoord = mul( float4( biasedWorldPos, 1.0f ), ShadowViewProjection[cascadeIndex] );
+	float4 shadowCoord = mul( float4( worldPos, 1.0f ), ShadowViewProjection[cascadeIndex] );
 	
 	float3 uv_depth = shadowCoord.xyz / shadowCoord.w;
 	uv_depth.y = -uv_depth.y;
 	uv_depth.xy = uv_depth.xy * 0.5f + 0.5f;
-	uv_depth.z = saturate( uv_depth.z );
 
-	float angle = random( worldPos ) % 360.f;
-	float2 sin_cos = float2( sin(angle), cos(angle) );
-
-	float visibility = 1.0f;
-	float sum = 0.f;
-	for ( uint i = 0; i < 64; ++i )
-	{
-		sum += ( RotatePoissonDiskSampleShadow( uv_depth, sin_cos, i, cascadeIndex, uv_depth.z ) > 0 ) ? 1 : 0;
-	}
-
-	visibility = sum / 64.f;
-	return visibility;
+	return ShadowTexture.SampleCmpLevelZero( ShadowSampler, float3( uv_depth.xy, cascadeIndex ), uv_depth.z + depthBias );
 }

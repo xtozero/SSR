@@ -35,6 +35,11 @@ namespace rendercore
 			return m_temporalAccum;
 		}
 
+		const agl::ShaderParameter& ShadowBias() const
+		{
+			return m_shadowBias;
+		}
+
 		const agl::ShaderParameter& FrustumVolume() const
 		{
 			return m_frustumVolume;
@@ -91,6 +96,7 @@ namespace rendercore
 			m_uniformDensity.Bind( GetShader()->ParameterMap(), "UniformDensity" );
 			m_intensity.Bind( GetShader()->ParameterMap(), "Intensity" );
 			m_temporalAccum.Bind( GetShader()->ParameterMap(), "TemporalAccum" );
+			m_shadowBias.Bind( GetShader()->ParameterMap(), "ShadowBias" );
 
 			m_frustumVolume.Bind( GetShader()->ParameterMap(), "FrustumVolume" );
 
@@ -114,6 +120,7 @@ namespace rendercore
 		agl::ShaderParameter m_uniformDensity;
 		agl::ShaderParameter m_intensity;
 		agl::ShaderParameter m_temporalAccum;
+		agl::ShaderParameter m_shadowBias;
 
 		agl::ShaderParameter m_frustumVolume;
 
@@ -250,6 +257,7 @@ namespace rendercore
 		SetShaderValue( commandList, inscatteringCS.UniformDensity(), Proxy()->UniformDensity() );
 		SetShaderValue( commandList, inscatteringCS.Intensity(), Proxy()->Intensity() );
 		SetShaderValue( commandList, inscatteringCS.TemporalAccum(), ( m_numTick == 0 ) ? 0.f : 1.f );
+		SetShaderValue( commandList, inscatteringCS.ShadowBias(), Proxy()->ShadowBias() );
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( inscatteringCS.GetShader() );
 		BindResource( shaderBindings, inscatteringCS.FrustumVolume(), FrustumVolume() );

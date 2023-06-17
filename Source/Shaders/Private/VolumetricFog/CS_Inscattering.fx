@@ -13,12 +13,13 @@ cbuffer InscatteringParameters : register( b0 )
 	float UniformDensity : packoffset( c0.y );
 	float Intensity : packoffset( c0.z );
 	float TemporalAccum : packoffset( c0.w );
+	float ShadowBias : packoffset( c1.x );
 }
 
 float Visibility( float3 worldPos, float3 biasDir )
 {
 	float3 viewPos = mul( float4( worldPos, 1.f ), ViewMatrix ).xyz;
-	return CalcShadowVisibility( worldPos, viewPos, biasDir );
+	return ( CalcShadowVisibility( worldPos, viewPos, ShadowBias ) == 1.f ) ? 1.0f : 0.f;
 }
 
 [numthreads( 8, 8, 8 )]

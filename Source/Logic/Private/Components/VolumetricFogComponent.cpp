@@ -51,6 +51,11 @@ void VolumetricFogComponent::LoadProperty( const JSON::Value& json )
 	{
 		m_farPlaneDist = static_cast<float>( pFarPlaneDist->AsReal() );
 	}
+
+	if ( const JSON::Value* pShadowBias = json.Find( "ShadowBias" ) )
+	{
+		m_shadowBias = static_cast<float>( pShadowBias->AsReal() );
+	}
 }
 
 rendercore::VolumetricFogProxy* VolumetricFogComponent::CreateProxy()

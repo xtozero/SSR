@@ -22,6 +22,7 @@ namespace rendercore
 		float DepthPackExponent() const;
 		float NearPlaneDist() const;
 		float FarPlaneDist() const;
+		float ShadowBias() const;
 
 		RENDERCORE_DLL VolumetricFogProxy( const VolumetricFogComponent& component );
 
@@ -36,5 +37,6 @@ namespace rendercore
 		float m_depthPackExponent = 2.f;
 		float m_nearPlaneDist = 1.f;
 		float m_farPlaneDist = 300.f;
+		float m_shadowBias = 0.0015f;
 	};
 }

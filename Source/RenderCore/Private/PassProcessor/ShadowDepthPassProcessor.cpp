@@ -47,13 +47,15 @@ namespace rendercore
 			{
 				passRenderOption.m_blendOption = &( *option->m_blendOption );
 			}
+
+			if ( option->m_rasterizerOption )
+			{
+				passRenderOption.m_rasterizerOption = &( *option->m_rasterizerOption );
+			}
 		}
 
 		DepthStencilOption shadowDepthPassDepthStencilOption;
 		passRenderOption.m_depthStencilOption = &shadowDepthPassDepthStencilOption;
-
-		RasterizerOption shadowDepthPassRasterizerOption;
-		passRenderOption.m_rasterizerOption = &shadowDepthPassRasterizerOption;
 
 		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::PositionOnly );
 	}
