@@ -39,19 +39,23 @@ namespace
 		{
 			for ( const auto& face : mesh.m_faces )
 			{
-				assert( face.m_vertices.size() == 3 );
-				size_t indicies[3] = {};
-				for ( uint32 i = 0; i < 3; ++i )
+				assert( face.m_vertices.size() > 2 );
+				for ( int32 i = 0; i < face.m_vertices.size() - 2; ++i )
 				{
-					indicies[i] = face.m_vertices[i];
-				}
-				Wavefront::Vec3 normal = CalcTriangleNormal( model.m_vertices[indicies[0]], model.m_vertices[indicies[1]], model.m_vertices[indicies[2]] );
+					int32 indicies[3] = {
+						face.m_vertices[0],
+						face.m_vertices[i + 1],
+						face.m_vertices[i + 2]
+					};
 
-				for ( size_t i : indicies )
-				{
-					std::get<0>( normals[i] ) += std::get<0>( normal );
-					std::get<1>( normals[i] ) += std::get<1>( normal );
-					std::get<2>( normals[i] ) += std::get<2>( normal );
+					Wavefront::Vec3 normal = CalcTriangleNormal( model.m_vertices[indicies[0]], model.m_vertices[indicies[1]], model.m_vertices[indicies[2]] );
+
+					for ( int32 index : indicies )
+					{
+						std::get<0>( normals[index] ) += std::get<0>( normal );
+						std::get<1>( normals[index] ) += std::get<1>( normal );
+						std::get<2>( normals[index] ) += std::get<2>( normal );
+					}
 				}
 			}
 		}
@@ -65,6 +69,26 @@ namespace
 		}
 
 		return normals;
+	}
+
+	size_t FindOrCreateVertexInstance( std::vector<rendercore::MeshVertexInstance>& vertexInstances, std::map<rendercore::MeshVertexInstance, size_t>& viLut, int32 posIdx, int32 normalIdx, int32 texIdx )
+	{
+		size_t vertexInstanceID = 0;
+		rendercore::MeshVertexInstance vi( posIdx, normalIdx, texIdx );
+		auto found = viLut.find( vi );
+
+		if ( found == viLut.end() )
+		{
+			vertexInstanceID = vertexInstances.size();
+			vertexInstances.emplace_back( vi );
+			viLut.emplace( vi, vertexInstanceID );
+		}
+		else
+		{
+			vertexInstanceID = found->second;
+		}
+
+		return vertexInstanceID;
 	}
 
 	rendercore::StaticMesh CreateStaticMeshFromWavefrontObj( const Wavefront::ObjModel& model, const fs::path& assetsRootPath )
@@ -96,8 +120,8 @@ namespace
 
 		auto faceTriFold = []( size_t init, const Wavefront::Face& face )
 		{
-			assert( face.m_vertices.size() == 3 );
-			size_t numTri = face.m_vertices.size() / 3;
+			assert( face.m_vertices.size() > 2 );
+			size_t numTri = face.m_vertices.size() - 2;
 			return init + numTri;
 		};
 
@@ -133,40 +157,43 @@ namespace
 
 			for ( const auto& face : mesh.m_faces )
 			{
-				rendercore::MeshTriangle triangle;
-
 				size_t vertexSize = face.m_vertices.size();
-				// Only support triangle list
-				assert( vertexSize == 3 );
+				assert( vertexSize > 0 );
 				size_t normalSize = face.m_normals.size();
 				size_t texcoordSize = face.m_texcoords.size();
 
-				for ( size_t i = 0; i < vertexSize; ++i )
+				size_t firstVertexInstanceID = FindOrCreateVertexInstance(
+					vertexInstances,
+					viLut,
+					face.m_vertices[0],
+					( normalSize == 0 ) ? -1 : face.m_normals[0],
+					( texcoordSize == 0 ) ? -1 : face.m_texcoords[0] );
+
+				for ( size_t i = 0; i < vertexSize - 2; ++i )
 				{
-					int32 posIdx = face.m_vertices[i];
-					int32 normalIdx = ( normalSize == 0 ) ? -1 : face.m_normals[i];
-					int32 texIdx = ( texcoordSize == 0 ) ? -1 : face.m_texcoords[i];
+					size_t secondVertexInstanceID = FindOrCreateVertexInstance(
+						vertexInstances,
+						viLut,
+						face.m_vertices[i + 1],
+						( normalSize == 0 ) ? -1 : face.m_normals[i + 1],
+						( texcoordSize == 0 ) ? -1 : face.m_texcoords[i + 1] );
 
-					size_t vertexInstanceID = 0;
-					rendercore::MeshVertexInstance vi( posIdx, normalIdx, texIdx );
-					auto found = viLut.find( vi );
+					size_t thirdVertexInstanceID = FindOrCreateVertexInstance(
+						vertexInstances,
+						viLut,
+						face.m_vertices[i + 2],
+						( normalSize == 0 ) ? -1 : face.m_normals[i + 2],
+						( texcoordSize == 0 ) ? -1 : face.m_texcoords[i + 2] );
 
-					if ( found == viLut.end() )
-					{
-						vertexInstanceID = vertexInstances.size();
-						vertexInstances.emplace_back( vi );
-						viLut.emplace( vi, vertexInstanceID );
-					}
-					else
-					{
-						vertexInstanceID = found->second;
-					}
+					rendercore::MeshTriangle triangle = {
+						firstVertexInstanceID,
+						secondVertexInstanceID,
+						thirdVertexInstanceID
+					};
 
-					triangle.m_vertexInstanceID[i] = vertexInstanceID;
+					curPolygon.m_triangleID.emplace_back( triangles.size() );
+					triangles.emplace_back( triangle );
 				}
-
-				curPolygon.m_triangleID.emplace_back( triangles.size() );
-				triangles.emplace_back( triangle );
 			}
 		}
 
