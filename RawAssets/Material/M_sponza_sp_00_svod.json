@@ -1,0 +1,18 @@
+{
+	"Type": "Material",
+	"Shader": {
+		"VS": "./Assets/Shaders/VS_Tutorial.asset",
+		"PS": "./Assets/Shaders/PS_Tutorial.asset"
+	},
+	"Surface": {
+        "Alpha": 1.000000,
+        "Ambient": [ 0.145098, 0.145098, 0.145098 ],
+		"Diffuse": [ 0.941177, 0.866667, 0.737255 ],
+        "Emissive": [ 0.000000, 0.000000, 0.000000 ],
+		"Roughness" : 0.01,
+        "IndexOfRefraction": 1.500000,
+		"Specular": [ 0.034039, 0.032314, 0.029333 ],
+        "SpecularExponent": 1.000000,
+        "Transmission": [ 1.000000, 1.000000, 1.000000 ]
+	}
+}
