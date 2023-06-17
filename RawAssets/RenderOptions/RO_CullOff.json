@@ -1,0 +1,5 @@
+{
+	"Type": "RenderOption",
+	"RS_State": "./Assets/RenderOptions/RS_CullOff.asset",
+	"DS_State": "./Assets/RenderOptions/DS_ObjectDefault.asset"
+}

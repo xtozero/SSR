@@ -1,0 +1,5 @@
+{
+	"Type": "RasterizerOption",
+	"ScissorEnable": true,
+	"CullMode": "CullMode::None"
+}
