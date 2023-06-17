@@ -1,0 +1,54 @@
+{
+  "World": [
+    {
+      "Object": {
+        "Class": "directional_light",
+        "Direction": [ -0.6, -1, 0 ],
+        "Diffuse": [ 0.5, 0.5, 0.5, 1 ],
+        "Specular": [ 0.8, 0.8, 0.8, 1 ],
+        "CastShadow": true
+      }
+    },
+    {
+      "Object": {
+        "Class": "volumetric_fog",
+        "Components": {
+          "VolumetricFogComponent": {
+            "G": 0.7,
+            "UniformDensity": 5,
+            "Intensity": 50,
+            "DepthPackExponent": 2,
+            "FarPlaneDist": 100
+          }
+        }
+      }
+    },
+    {
+      "Object": {
+        "Class": "player",
+        "Position": [ -25, 35, -70 ],
+        "Components": {
+          "GroundMovementComponent": {
+            "Kinetic_Force_Scale": 300,
+            "Friction": [ 300, 200 ]
+          }
+        }
+      }
+    },
+    {
+      "Object": {
+        "Class": "static_mesh",
+        "Name": "sponza",
+        "Position": [ 0, 0, 0 ],
+        "Scale": [ 5, 5, 5 ],
+        "Rotation": [0, 90, 0],
+        "Components": {
+          "StaticMeshComponent": {
+            "Model": "./Assets/Models/Obj/sponza.asset",
+            "RenderOption": "./Assets/RenderOptions/RO_CullOff.asset"
+          }
+        }
+      }
+    }
+  ]
+}
