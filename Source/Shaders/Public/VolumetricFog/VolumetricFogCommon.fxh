@@ -82,6 +82,15 @@ float3 ConvertThreadIdToWorldPosition( uint3 id, uint3 dims )
 	return ConvertToWorldPosition( ndc, depth );
 }
 
+float3 ConvertThreadIdToWorldPosition( uint3 id, uint3 dims, float3 jitter )
+{
+	// id -> ndc
+	float3 ndc = ConvertThreadIdToNdc( id, dims, jitter );
+	float depth = ConvertNdcZToDepth( ndc.z );
+
+	return ConvertToWorldPosition( ndc, depth );
+}
+
 float3 ConvertWorldPositionToUV( float3 worldPosition, matrix viewProjectionMatrix )
 {
 	float4 pos = mul( float4( worldPosition, 1.f ), viewProjectionMatrix );

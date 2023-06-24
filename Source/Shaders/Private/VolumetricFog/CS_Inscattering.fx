@@ -28,19 +28,15 @@ void main( uint3 DTid : SV_DispatchThreadId )
 	uint3 dims;
 	FrustumVolume.GetDimensions( dims.x, dims.y, dims.z );
 
-	if ( DTid.x < dims.x && DTid.y < dims.y && DTid.z < dims.z )
+	if ( all( DTid < dims ) )
 	{
 		float3 jitter = HALTON_SEQUENCE[( FrameCount + DTid.x + DTid.y * 2 ) % MAX_HALTON_SEQUENCE];
 		jitter.xyz -= 0.5f;
 
-		float3 ndc = ConvertThreadIdToNdc( DTid, dims, jitter );
-		float tickness = SliceTickness( ndc.z, dims.z );
-
-		float depth = ConvertNdcZToDepth( ndc.z );
-		float3 worldPosition = ConvertToWorldPosition( ndc, depth );
+		float3 worldPosition = ConvertThreadIdToWorldPosition( DTid, dims, jitter );
 		float3 toCamera = normalize( CameraPos - worldPosition );
 
-		float density = UniformDensity * tickness;
+		float density = UniformDensity;
 
 		float4 curScattering;
 
@@ -63,11 +59,11 @@ void main( uint3 DTid : SV_DispatchThreadId )
 
 			float3 toLight = -lightDirection;
 			float visibility = Visibility( worldPosition, toLight );
-			float phaseFunction = HenyeyGreensteinPhaseFunction( toCamera, lightDirection, AsymmetryParameterG );
+			float phaseFunction = HenyeyGreensteinPhaseFunction( lightDirection, toCamera, AsymmetryParameterG );
 			lighting += visibility * light.m_diffuse.rgb * light.m_diffuse.a * phaseFunction;
-
-			curScattering = float4( lighting * Intensity * density, density );
 		}
+
+		curScattering = float4( lighting * Intensity * density, density );
 
 		if ( TemporalAccum > 0.f )
 		{

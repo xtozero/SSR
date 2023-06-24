@@ -15,7 +15,7 @@ namespace rendercore
     std::optional<DrawSnapshot> VolumetricFogDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
     {
         StaticShaderSwitches switches = DrawVolumetricFogPS().GetSwitches();
-        switches.On( Name( "TricubicTextureSampling" ), 1);
+        switches.On( Name( "TricubicTextureSampling" ), 1 );
 
         PassShader passShader = {
             .m_vertexShader = FullScreenQuadVS().GetShader(),

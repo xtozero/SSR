@@ -16,7 +16,7 @@
           "VolumetricFogComponent": {
             "G": 0.7,
             "UniformDensity": 5,
-            "Intensity": 50,
+            "Intensity": 1,
             "DepthPackExponent": 2,
             "FarPlaneDist": 100
           }
