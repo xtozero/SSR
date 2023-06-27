@@ -22,7 +22,8 @@ public:
 	void Load()
 	{
 		JSON::Reader reader;
-		assert( reader.Parse( "Config/Environment.json", m_configRaw ) );
+		[[maybe_unused]] bool success = reader.Parse( "Config/Environment.json", m_configRaw );
+		assert( success );
 
 		m_workingDirectory = std::filesystem::absolute( std::filesystem::current_path() );
 
