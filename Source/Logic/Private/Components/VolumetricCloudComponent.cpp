@@ -5,38 +5,38 @@
 #include "Scene/IScene.h"
 #include "World/World.h"
 
-void VolumetricCloudComponent::LoadProperty( const JSON::Value& json )
+void VolumetricCloudComponent::LoadProperty( const json::Value& json )
 {
 	Super::LoadProperty( json );
 
-	if ( const JSON::Value* pEarthRadius = json.Find( "EarthRadius" ) )
+	if ( const json::Value* pEarthRadius = json.Find( "EarthRadius" ) )
 	{
 		SetEarthRadius( static_cast<float>( pEarthRadius->AsReal() ) );
 	}
 
-	if ( const JSON::Value* pInnerRadius = json.Find( "InnerRadius" ) )
+	if ( const json::Value* pInnerRadius = json.Find( "InnerRadius" ) )
 	{
 		SetInnerRadius( static_cast<float>( pInnerRadius->AsReal() ) );
 	}
 
-	if ( const JSON::Value* pOuterRadius = json.Find( "OuterRadius" ) )
+	if ( const json::Value* pOuterRadius = json.Find( "OuterRadius" ) )
 	{
 		SetOuterRadius( static_cast<float>( pOuterRadius->AsReal() ) );
 	}
 
-	if ( const JSON::Value* pLightAbsorption = json.Find( "LightAbsorption" ) )
+	if ( const json::Value* pLightAbsorption = json.Find( "LightAbsorption" ) )
 	{
 		SetLightAbsorption( static_cast<float>( pLightAbsorption->AsReal() ) );
 	}
 
-	if ( const JSON::Value* pDensityScale = json.Find( "DensityScale" ) )
+	if ( const json::Value* pDensityScale = json.Find( "DensityScale" ) )
 	{
 		SetDensityScale( static_cast<float>( pDensityScale->AsReal() ) );
 	}
 
-	if ( const JSON::Value* pCloudColor = json.Find( "CloudColor" ) )
+	if ( const json::Value* pCloudColor = json.Find( "CloudColor" ) )
 	{
-		const JSON::Value& cloudColor = *pCloudColor;
+		const json::Value& cloudColor = *pCloudColor;
 
 		if ( cloudColor.Size() == 3 )
 		{
@@ -48,17 +48,17 @@ void VolumetricCloudComponent::LoadProperty( const JSON::Value& json )
 		}
 	}
 
-	if ( const JSON::Value* pCrispiness = json.Find( "Crispiness" ) )
+	if ( const json::Value* pCrispiness = json.Find( "Crispiness" ) )
 	{
 		SetCrispiness( static_cast<float>( pCrispiness->AsReal() ) );
 	}
 
-	if ( const JSON::Value* pCurliness = json.Find( "Curliness" ) )
+	if ( const json::Value* pCurliness = json.Find( "Curliness" ) )
 	{
 		SetCurliness( static_cast<float>( pCurliness->AsReal() ) );
 	}
 
-	if ( const JSON::Value* pDensityFactor = json.Find( "DensityFactor" ) )
+	if ( const json::Value* pDensityFactor = json.Find( "DensityFactor" ) )
 	{
 		SetDensityFactor( static_cast<float>( pDensityFactor->AsReal() ) );
 	}

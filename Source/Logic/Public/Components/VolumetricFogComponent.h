@@ -16,7 +16,7 @@ class VolumetricFogComponent : public Component
 public:
 	using Component::Component;
 
-	virtual void LoadProperty( const JSON::Value& json ) override;
+	virtual void LoadProperty( const json::Value& json ) override;
 
 	rendercore::VolumetricFogProxy*& Proxy()
 	{

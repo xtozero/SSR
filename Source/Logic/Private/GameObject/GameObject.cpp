@@ -222,9 +222,9 @@ void CGameObject::SetMaterialName( const std::string& pMaterialName )
 	m_materialName = pMaterialName;
 }
 
-void CGameObject::LoadProperty( const JSON::Value& json )
+void CGameObject::LoadProperty( const json::Value& json )
 {
-	if ( const JSON::Value* pName = json.Find( "Name" ) )
+	if ( const json::Value* pName = json.Find( "Name" ) )
 	{
 		SetName( pName->AsString() );
 	}
@@ -234,7 +234,7 @@ void CGameObject::LoadProperty( const JSON::Value& json )
 		m_rootComponent->LoadProperty( json );
 	}
 
-	if ( const JSON::Value* pCompoenetPropertyArray = json.Find( "Components" ) )
+	if ( const json::Value* pCompoenetPropertyArray = json.Find( "Components" ) )
 	{
 		std::vector<const char*> componentNames = pCompoenetPropertyArray->GetMemberNames();
 		for ( const char* componentName : componentNames )

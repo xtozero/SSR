@@ -8,16 +8,16 @@
 
 #include <cassert>
 
-void StaticMeshComponent::LoadProperty( const JSON::Value& json )
+void StaticMeshComponent::LoadProperty( const json::Value& json )
 {
 	Super::LoadProperty( json );
 
-	if ( const JSON::Value* pModel = json.Find( "Model" ) )
+	if ( const json::Value* pModel = json.Find( "Model" ) )
 	{
 		LoadModelMesh( pModel->AsString() );
 	}
 
-	if ( const JSON::Value* pRenderOption = json.Find( "RenderOption" ) )
+	if ( const json::Value* pRenderOption = json.Find( "RenderOption" ) )
 	{
 		LoadRenderOption( pRenderOption->AsString() );
 	}

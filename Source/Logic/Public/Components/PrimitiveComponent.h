@@ -17,7 +17,7 @@ public:
 	using SceneComponent::SceneComponent;
 	virtual void SendRenderTransform() override;
 
-	virtual void LoadProperty( const JSON::Value& json ) override;
+	virtual void LoadProperty( const json::Value& json ) override;
 
 	void SetMass( float mass );
 

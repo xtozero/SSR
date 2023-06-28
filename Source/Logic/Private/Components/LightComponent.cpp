@@ -7,13 +7,13 @@
 #include "Scene/IScene.h"
 #include "World/World.h"
 
-void LightComponent::LoadProperty( const JSON::Value& json )
+void LightComponent::LoadProperty( const json::Value& json )
 {
 	Super::LoadProperty( json );
 
-	if ( const JSON::Value* pDiffuse = json.Find( "Diffuse" ) )
+	if ( const json::Value* pDiffuse = json.Find( "Diffuse" ) )
 	{
-		const JSON::Value& diffuse = *pDiffuse;
+		const json::Value& diffuse = *pDiffuse;
 
 		if ( diffuse.Size() >= 4 )
 		{
@@ -26,9 +26,9 @@ void LightComponent::LoadProperty( const JSON::Value& json )
 		}
 	}
 
-	if ( const JSON::Value* pSpecular = json.Find( "Specular" ) )
+	if ( const json::Value* pSpecular = json.Find( "Specular" ) )
 	{
-		const JSON::Value& specluar = *pSpecular;
+		const json::Value& specluar = *pSpecular;
 
 		if ( specluar.Size() >= 4 )
 		{
@@ -41,9 +41,9 @@ void LightComponent::LoadProperty( const JSON::Value& json )
 		}
 	}
 
-	if ( const JSON::Value* pCastShadow = json.Find( "CastShadow" ) )
+	if ( const json::Value* pCastShadow = json.Find( "CastShadow" ) )
 	{
-		const JSON::Value& castShadow = *pCastShadow;
+		const json::Value& castShadow = *pCastShadow;
 
 		CastShadow() = castShadow.AsBool();
 	}
@@ -59,13 +59,13 @@ void LightComponent::SetSpecularColor( const ColorF& specularColor )
 	m_specular = specularColor;
 }
 
-void DirectionalLightComponent::LoadProperty( const JSON::Value& json )
+void DirectionalLightComponent::LoadProperty( const json::Value& json )
 {
 	Super::LoadProperty( json );
 
-	if ( const JSON::Value* pDirection = json.Find( "Direction" ) )
+	if ( const json::Value* pDirection = json.Find( "Direction" ) )
 	{
-		const JSON::Value& direction = *pDirection;
+		const json::Value& direction = *pDirection;
 
 		if ( direction.Size() >= 3 )
 		{
@@ -78,7 +78,7 @@ void DirectionalLightComponent::LoadProperty( const JSON::Value& json )
 		}
 	}
 
-	if ( const JSON::Value* pUsedAsAtmosphereSunLight = json.Find( "UsedAsAtmosphereSunLight" ) )
+	if ( const json::Value* pUsedAsAtmosphereSunLight = json.Find( "UsedAsAtmosphereSunLight" ) )
 	{
 		bool usedAsAtmosphereSunLight = pUsedAsAtmosphereSunLight->AsBool();
 		SetUsedAsAtmosphereSunLight( usedAsAtmosphereSunLight );
@@ -112,13 +112,13 @@ void DirectionalLightComponent::RemoveRenderState()
 	m_pWorld->Scene()->RemoveLight( this );
 }
 
-void HemisphereLightComponent::LoadProperty( const JSON::Value& json )
+void HemisphereLightComponent::LoadProperty( const json::Value& json )
 {
 	Super::LoadProperty( json );
 
-	if ( const JSON::Value* pLowerColor = json.Find( "LowerColor" ) )
+	if ( const json::Value* pLowerColor = json.Find( "LowerColor" ) )
 	{
-		const JSON::Value& lowerColor = *pLowerColor;
+		const json::Value& lowerColor = *pLowerColor;
 
 		if ( lowerColor.Size() >= 4 )
 		{
@@ -131,9 +131,9 @@ void HemisphereLightComponent::LoadProperty( const JSON::Value& json )
 		}
 	}
 
-	if ( const JSON::Value* pUpperColor = json.Find( "UpperColor" ) )
+	if ( const json::Value* pUpperColor = json.Find( "UpperColor" ) )
 	{
-		const JSON::Value& upperColor = *pUpperColor;
+		const json::Value& upperColor = *pUpperColor;
 
 		if ( upperColor.Size() >= 4 )
 		{

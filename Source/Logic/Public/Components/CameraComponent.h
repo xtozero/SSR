@@ -7,7 +7,7 @@
 class CGameLogic;
 class IRenderer;
 
-namespace JSON
+namespace json
 {
 	class Value;
 }
@@ -19,7 +19,7 @@ class CameraComponent : public SceneComponent
 public:
 	using SceneComponent::SceneComponent;
 
-	virtual void LoadProperty( const JSON::Value& json ) override;
+	virtual void LoadProperty( const json::Value& json ) override;
 
 	const Vector& GetForwardVector() const { return m_lookVector; }
 	const Vector& GetRightVector() const { return m_rightVector; }

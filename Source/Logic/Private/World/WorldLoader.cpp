@@ -10,20 +10,20 @@
 
 bool CWorldLoader::Load( CGameLogic& gameLogic, const char* worldAsset, size_t assetSize )
 {
-	JSON::Value root( JSON::DataType::Empty );
-	JSON::Reader reader;
+	json::Value root( json::DataType::Empty );
+	json::Reader reader;
 
 	if ( reader.Parse( worldAsset, assetSize, root ) )
 	{
-		const JSON::Value* pWorld = root.Find( "World" );
+		const json::Value* pWorld = root.Find( "World" );
 		if ( pWorld == nullptr )
 		{
 			return false;
 		}
 
-		for ( const JSON::Value& elem : *pWorld )
+		for ( const json::Value& elem : *pWorld )
 		{
-			if ( const JSON::Value* pObject = elem.Find( "Object" ) )
+			if ( const json::Value* pObject = elem.Find( "Object" ) )
 			{
 				Owner<CGameObject*> newObject = GetGameObjectFactory( ).CreateGameObjectByClassName( ( *pObject )["Class"].AsString( ) );
 

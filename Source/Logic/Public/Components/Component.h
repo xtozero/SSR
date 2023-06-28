@@ -6,7 +6,7 @@
 class CGameObject;
 class World;
 
-namespace JSON
+namespace json
 {
 	class Value;
 }
@@ -36,7 +36,7 @@ public:
 
 	virtual void DestroyComponent();
 
-	virtual void LoadProperty( [[maybe_unused]] const JSON::Value& json ) {}
+	virtual void LoadProperty( [[maybe_unused]] const json::Value& json ) {}
 
 	Component( CGameObject* pOwner, const char* name );
 	virtual ~Component() = default;

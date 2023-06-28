@@ -445,7 +445,7 @@ bool ShaderManufacturer::IsSuitable( const std::filesystem::path& srcPath ) cons
 
 std::optional<Products> ShaderManufacturer::Manufacture( const PathEnvironment& env, const std::filesystem::path& path ) const
 {
-	const JSON::Value* pIncludePath = env.m_orignal->Find( "include_path" );
+	const json::Value* pIncludePath = env.m_orignal->Find( "include_path" );
 	if ( pIncludePath == nullptr )
 	{
 		return {};

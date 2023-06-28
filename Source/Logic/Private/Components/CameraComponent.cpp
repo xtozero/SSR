@@ -8,11 +8,11 @@
 
 #include <type_traits>
 
-void CameraComponent::LoadProperty( const JSON::Value& json )
+void CameraComponent::LoadProperty( const json::Value& json )
 {
-	if ( const JSON::Value* pPos = json.Find( "Position" ) )
+	if ( const json::Value* pPos = json.Find( "Position" ) )
 	{
-		const JSON::Value& pos = *pPos;
+		const json::Value& pos = *pPos;
 
 		if ( pos.Size() == 3 )
 		{

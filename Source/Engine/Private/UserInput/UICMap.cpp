@@ -167,17 +167,17 @@ bool UICMap::LoadConfig( const char* fileName )
 
 void UICMap::LoadKeyCode( const char* uicAsset, size_t assetSize )
 {
-	JSON::Value root( JSON::DataType::Empty );
-	JSON::Reader reader;
+	json::Value root( json::DataType::Empty );
+	json::Reader reader;
 
 	if ( reader.Parse( uicAsset, assetSize, root ) )
 	{
-		if ( const JSON::Value* pKeyCodes = root.Find( "KeyCodes" ) )
+		if ( const json::Value* pKeyCodes = root.Find( "KeyCodes" ) )
 		{
 			std::vector<const char*> members = pKeyCodes->GetMemberNames( );
 			for ( const char* member : members )
 			{
-				if ( const JSON::Value* pUserInputCode = pKeyCodes->Find( member ) )
+				if ( const json::Value* pUserInputCode = pKeyCodes->Find( member ) )
 				{
 					m_codeMap.emplace_back( GetEnum( member, -1 ), GetEnum( pUserInputCode->AsString( ), UIC_UNKNOWN ) );
 				}

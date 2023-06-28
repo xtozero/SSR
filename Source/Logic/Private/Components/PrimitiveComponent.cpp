@@ -15,19 +15,19 @@ void PrimitiveComponent::SendRenderTransform()
 	Super::SendRenderTransform();
 }
 
-void PrimitiveComponent::LoadProperty( const JSON::Value& json )
+void PrimitiveComponent::LoadProperty( const json::Value& json )
 {
 	Super::LoadProperty( json );
 
-	if ( const JSON::Value* pMass = json.Find( "Mass" ) )
+	if ( const json::Value* pMass = json.Find( "Mass" ) )
 	{
 		float mass = static_cast<float>( pMass->AsReal() );
 		SetMass( mass );
 	}
 
-	if ( const JSON::Value* pDamping = json.Find( "Damping" ) )
+	if ( const json::Value* pDamping = json.Find( "Damping" ) )
 	{
-		const JSON::Value& damping = *pDamping;
+		const json::Value& damping = *pDamping;
 
 		if ( damping.Size() == 2 )
 		{

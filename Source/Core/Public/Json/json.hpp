@@ -19,7 +19,7 @@
 #undef TRUE
 #endif
 
-namespace JSON
+namespace json
 {
 	namespace
 	{
@@ -77,7 +77,7 @@ namespace JSON
 		using pointer = T*;
 		using reference = T&;
 
-		std::string Key( ) const
+		std::string Key() const
 		{
 			return m_otherType ? "" : m_mapType->first;
 		}
@@ -98,7 +98,7 @@ namespace JSON
 		}
 
 	protected:
-		void Increment( )
+		void Increment()
 		{
 			if ( m_otherType == nullptr )
 			{
@@ -106,7 +106,7 @@ namespace JSON
 			}
 		}
 
-		void Decrement( )
+		void Decrement()
 		{
 			if ( m_otherType == nullptr )
 			{
@@ -114,7 +114,7 @@ namespace JSON
 			}
 		}
 
-		reference Dereference( )
+		reference Dereference()
 		{
 			if ( m_otherType )
 			{
@@ -148,15 +148,15 @@ namespace JSON
 			this->m_otherType = pValue;
 		}
 
-		ValueIterator& operator++( )
+		ValueIterator& operator++()
 		{
-			this->Increment( );
+			this->Increment();
 			return *this;
 		}
 
-		ValueIterator& operator--( )
+		ValueIterator& operator--()
 		{
-			this->Decrement( );
+			this->Decrement();
 			return *this;
 		}
 
@@ -174,14 +174,14 @@ namespace JSON
 			return temp;
 		}
 
-		reference operator*( )
+		reference operator*()
 		{
-			return this->Dereference( );
+			return this->Dereference();
 		}
 
-		pointer operator->( )
+		pointer operator->()
 		{
-			return &this->Dereference( );
+			return &this->Dereference();
 		}
 	};
 
@@ -205,15 +205,15 @@ namespace JSON
 			this->m_otherType = pValue;
 		}
 
-		ConstValueIterator& operator++( )
+		ConstValueIterator& operator++()
 		{
-			this->Increment( );
+			this->Increment();
 			return *this;
 		}
 
-		ConstValueIterator& operator--( )
+		ConstValueIterator& operator--()
 		{
-			this->Decrement( );
+			this->Decrement();
 			return *this;
 		}
 
@@ -231,14 +231,14 @@ namespace JSON
 			return temp;
 		}
 
-		reference operator*( )
+		reference operator*()
 		{
-			return this->Dereference( );
+			return this->Dereference();
 		}
 
-		pointer operator->( )
+		pointer operator->()
 		{
-			return &this->Dereference( );
+			return &this->Dereference();
 		}
 	};
 
@@ -247,11 +247,11 @@ namespace JSON
 	public:
 		using ObjectType = std::unordered_map<std::string, Value>;
 
-		DataType Type( ) const { return m_type; }
+		DataType Type() const { return m_type; }
 
-		const std::string AsString( ) const
+		const std::string AsString() const
 		{
-			switch ( Type( ) )
+			switch ( Type() )
 			{
 			case DataType::String:
 				return *( m_data.m_string );
@@ -270,13 +270,13 @@ namespace JSON
 				break;
 			}
 
-			__debugbreak( );
+			__debugbreak();
 			return "";
 		}
 
-		int AsInt( ) const
+		int AsInt() const
 		{
-			switch ( Type( ) )
+			switch ( Type() )
 			{
 			case DataType::String:
 				return std::stoi( *( m_data.m_string ) );
@@ -292,13 +292,13 @@ namespace JSON
 				break;
 			}
 
-			__debugbreak( );
+			__debugbreak();
 			return 0;
 		}
 
-		bool AsBool( ) const
+		bool AsBool() const
 		{
-			switch ( Type( ) )
+			switch ( Type() )
 			{
 			case DataType::Interger:
 				return m_data.m_integer ? true : false;
@@ -312,13 +312,13 @@ namespace JSON
 				break;
 			}
 
-			__debugbreak( );
+			__debugbreak();
 			return 0;
 		}
 
-		double AsReal( ) const
+		double AsReal() const
 		{
-			switch ( Type( ) )
+			switch ( Type() )
 			{
 			case DataType::String:
 				return std::stod( *( m_data.m_string ) );
@@ -337,48 +337,48 @@ namespace JSON
 				break;
 			}
 
-			__debugbreak( );
+			__debugbreak();
 			return 0.;
 		}
 
 		const Value* Find( const std::string& key ) const
 		{
-			assert( Type( ) == DataType::Object || Type( ) == DataType::Empty );
-			if ( Type( ) == DataType::Empty )
+			assert( Type() == DataType::Object || Type() == DataType::Empty );
+			if ( Type() == DataType::Empty )
 			{
 				return nullptr;
 			}
-			
+
 			auto found = m_data.m_object->find( key );
-			return ( found == m_data.m_object->end( ) ) ? nullptr : &found->second;
+			return ( found == m_data.m_object->end() ) ? nullptr : &found->second;
 		}
 
-		std::vector<const char*> GetMemberNames( ) const
+		std::vector<const char*> GetMemberNames() const
 		{
-			if ( Type( ) == DataType::Object || Type( ) == DataType::Array )
+			if ( Type() == DataType::Object || Type() == DataType::Array )
 			{
 				std::vector<const char*> members;
-				members.reserve( m_data.m_object->size( ) );
+				members.reserve( m_data.m_object->size() );
 
 				for ( const auto& member : *m_data.m_object )
 				{
-					members.push_back( member.first.c_str( ) );
+					members.push_back( member.first.c_str() );
 				}
 
 				return members;
 			}
 
-			return std::vector<const char*>( );
+			return std::vector<const char*>();
 		}
 
-		size_t Size( ) const
+		size_t Size() const
 		{
-			switch ( Type( ) )
+			switch ( Type() )
 			{
 			case DataType::Object:
 				[[fallthrough]];
 			case DataType::Array:
-				return m_data.m_object->size( );
+				return m_data.m_object->size();
 			case DataType::Empty:
 				return 0;
 			default:
@@ -386,11 +386,11 @@ namespace JSON
 			}
 		}
 
-		size_t QueryRequiredContiguousBufferSize(  ) const
+		size_t QueryRequiredContiguousBufferSize() const
 		{
 			size_t size = 0;
 
-			switch ( Type( ) )
+			switch ( Type() )
 			{
 			case DataType::String:
 				size += 2; // ""
@@ -401,39 +401,39 @@ namespace JSON
 			case DataType::Boolean:
 				[[fallthrough]];
 			case DataType::Empty:
-				size += AsString( ).size( );
+				size += AsString().size();
 				break;
 			case DataType::Object:
+			{
+				size += 2; // {}
+				const ObjectType& map = *m_data.m_object;
+				for ( const auto& iter : map )
 				{
-					size += 2; // {}
-					const ObjectType& map = *m_data.m_object;
-					for ( const auto& iter : map )
-					{
-						size += iter.first.size( ) + 3; // include "":
-						size += iter.second.QueryRequiredContiguousBufferSize( );
-					}
-
-					if ( size_t mapSize = map.size( ) )
-					{
-						size += ( mapSize - 1 );
-					}
+					size += iter.first.size() + 3; // include "":
+					size += iter.second.QueryRequiredContiguousBufferSize();
 				}
-				break;
+
+				if ( size_t mapSize = map.size() )
+				{
+					size += ( mapSize - 1 );
+				}
+			}
+			break;
 			case DataType::Array:
+			{
+				size += 2; // []
+				const ObjectType& array = *m_data.m_object;
+				for ( const auto& iter : array )
 				{
-					size += 2; // []
-					const ObjectType& array = *m_data.m_object;
-					for ( const auto& iter : array )
-					{
-						size += iter.second.QueryRequiredContiguousBufferSize( );
-					}
-
-					if ( size_t arraySize = array.size( ) )
-					{
-						size += ( arraySize - 1 );
-					}
+					size += iter.second.QueryRequiredContiguousBufferSize();
 				}
-				break;
+
+				if ( size_t arraySize = array.size() )
+				{
+					size += ( arraySize - 1 );
+				}
+			}
+			break;
 			default:
 				break;
 			}
@@ -443,77 +443,77 @@ namespace JSON
 
 		ConstValueIterator<Value, ObjectType> begin() const noexcept
 		{
-			switch ( Type( ) )
+			switch ( Type() )
 			{
-			case JSON::DataType::Object:
+			case json::DataType::Object:
 				[[fallthrough]];
-			case JSON::DataType::Array:
+			case json::DataType::Array:
 				return ConstValueIterator<Value, ObjectType>( m_data.m_object->begin() );
 			default:
 				return ConstValueIterator<Value, ObjectType>( this );
 			}
 		}
 
-		ConstValueIterator<Value, ObjectType> end( ) const noexcept
+		ConstValueIterator<Value, ObjectType> end() const noexcept
 		{
-			switch ( Type( ) )
+			switch ( Type() )
 			{
-			case JSON::DataType::Object:
+			case json::DataType::Object:
 				[[fallthrough]];
-			case JSON::DataType::Array:
-				return ConstValueIterator<Value, ObjectType>( m_data.m_object->end( ) );
+			case json::DataType::Array:
+				return ConstValueIterator<Value, ObjectType>( m_data.m_object->end() );
 			default:
 				return ConstValueIterator<Value, ObjectType>( nullptr );
 			}
 		}
 
-		ValueIterator<Value, ObjectType> begin( ) noexcept
+		ValueIterator<Value, ObjectType> begin() noexcept
 		{
-			switch ( Type( ) )
+			switch ( Type() )
 			{
-			case JSON::DataType::Object:
+			case json::DataType::Object:
 				[[fallthrough]];
-			case JSON::DataType::Array:
-				return ValueIterator<Value, ObjectType>( m_data.m_object->begin( ) );
+			case json::DataType::Array:
+				return ValueIterator<Value, ObjectType>( m_data.m_object->begin() );
 			default:
 				return ValueIterator<Value, ObjectType>( this );
 			}
 		}
 
-		ValueIterator<Value, ObjectType> end( ) noexcept
+		ValueIterator<Value, ObjectType> end() noexcept
 		{
-			switch ( Type( ) )
+			switch ( Type() )
 			{
-			case JSON::DataType::Object:
+			case json::DataType::Object:
 				[[fallthrough]];
-			case JSON::DataType::Array:
-				return ValueIterator<Value, ObjectType>( m_data.m_object->end( ) );
+			case json::DataType::Array:
+				return ValueIterator<Value, ObjectType>( m_data.m_object->end() );
 			default:
 				return ValueIterator<Value, ObjectType>( nullptr );
 			}
 		}
 
-		ConstValueIterator<Value, ObjectType> cbegin( ) const noexcept
+		ConstValueIterator<Value, ObjectType> cbegin() const noexcept
 		{
-			switch ( Type( ) )
+			switch ( Type() )
 			{
-			case JSON::DataType::Object:
+			case json::DataType::Object:
 				[[fallthrough]];
-			case JSON::DataType::Array:
-				return ConstValueIterator<Value, ObjectType>( m_data.m_object->begin( ) );
+			case json::DataType::Array:
+				return ConstValueIterator<Value, ObjectType>( m_data.m_object->begin() );
 			default:
 				return ConstValueIterator<Value, ObjectType>( this );
 			}
 		}
 
-		ConstValueIterator<Value, ObjectType> cend( ) const noexcept
+		ConstValueIterator<Value, ObjectType> cend() const noexcept
 		{
-			switch ( Type( ) )
+			switch ( Type() )
 			{
-			case JSON::DataType::Object:
+			case json::DataType::Object:
 				[[fallthrough]];
-			case JSON::DataType::Array:
-				return ConstValueIterator<Value, ObjectType>( m_data.m_object->end( ) );
+			case json::DataType::Array:
+				return ConstValueIterator<Value, ObjectType>( m_data.m_object->end() );
 			default:
 				return ConstValueIterator<Value, ObjectType>( nullptr );
 			}
@@ -521,13 +521,13 @@ namespace JSON
 
 		Value& operator=( const std::string& string )
 		{
-			switch ( Type( ) )
+			switch ( Type() )
 			{
 			case DataType::String:
 				*( m_data.m_string ) = string;
 				break;
 			default:
-				__debugbreak( );
+				__debugbreak();
 				break;
 			}
 
@@ -536,22 +536,22 @@ namespace JSON
 
 		Value& operator=( std::string&& string )
 		{
-			switch ( Type( ) )
+			switch ( Type() )
 			{
 			case DataType::String:
 				*( m_data.m_string ) = std::move( string );
 				break;
 			default:
-				__debugbreak( );
+				__debugbreak();
 				break;
 			}
 
 			return *this;
 		}
-		
+
 		Value& operator=( int integer )
 		{
-			switch ( Type( ) )
+			switch ( Type() )
 			{
 			case DataType::String:
 				*( m_data.m_string ) = std::to_string( integer );
@@ -566,7 +566,7 @@ namespace JSON
 				m_data.m_boolean = integer ? true : false;
 				break;
 			default:
-				__debugbreak( );
+				__debugbreak();
 				break;
 			}
 
@@ -575,7 +575,7 @@ namespace JSON
 
 		Value& operator=( double real )
 		{
-			switch ( Type( ) )
+			switch ( Type() )
 			{
 			case DataType::String:
 				*( m_data.m_string ) = std::to_string( real );
@@ -590,7 +590,7 @@ namespace JSON
 				m_data.m_boolean = ( real != 1. ) ? true : false;
 				break;
 			default:
-				__debugbreak( );
+				__debugbreak();
 				break;
 			}
 
@@ -603,7 +603,7 @@ namespace JSON
 			ObjectType& array = *m_data.m_object;
 			std::string indexString = std::to_string( index );
 			auto found = array.find( indexString );
-			if ( found == array.end( ) )
+			if ( found == array.end() )
 			{
 				auto result = array.emplace( std::to_string( index ), Value( DataType::Empty ) );
 				return result.first->second;
@@ -614,10 +614,10 @@ namespace JSON
 
 		Value& operator[]( const std::string& key ) const
 		{
-			assert( ( Type( ) == DataType::Object ) );
+			assert( ( Type() == DataType::Object ) );
 			ObjectType& array = *m_data.m_object;
 			auto found = array.find( key );
-			if ( found == array.end( ) )
+			if ( found == array.end() )
 			{
 				auto result = array.emplace( key, Value( DataType::Empty ) );
 				return result.first->second;
@@ -628,9 +628,9 @@ namespace JSON
 
 		Value& operator=( const Value& rhs )
 		{
-			ChangeValueType( rhs.Type( ) );
+			ChangeValueType( rhs.Type() );
 
-			switch ( Type( ) )
+			switch ( Type() )
 			{
 			case DataType::String:
 				*( m_data.m_string ) = *( rhs.m_data.m_string );
@@ -650,15 +650,15 @@ namespace JSON
 
 		Value& operator=( Value&& rhs )
 		{
-			if ( Type( ) != rhs.Type( ) )
+			if ( Type() != rhs.Type() )
 			{
-				FreeDataByType( Type( ) );
+				FreeDataByType( Type() );
 			}
 
-			m_type = rhs.Type( );
+			m_type = rhs.Type();
 			rhs.m_type = DataType::Empty;
 
-			switch ( Type( ) )
+			switch ( Type() )
 			{
 			case DataType::String:
 				m_data.m_string = rhs.m_data.m_string;
@@ -686,15 +686,15 @@ namespace JSON
 
 			return *this;
 		}
-		
-		Value( ) : m_type( DataType::Empty )
+
+		Value() : m_type( DataType::Empty )
 		{
 
 		}
 
-		explicit Value( DataType type ) : m_type( type ) 
+		explicit Value( DataType type ) : m_type( type )
 		{
-			AllocDataByType( Type( ) );
+			AllocDataByType( Type() );
 		}
 
 		Value( const Value& other )
@@ -707,22 +707,22 @@ namespace JSON
 			( *this ) = std::move( other );
 		}
 
-		~Value( )
+		~Value()
 		{
-			FreeDataByType( Type( ) );
+			FreeDataByType( Type() );
 		}
 
 	private:
 		void ChangeValueType( DataType newType )
 		{
-			if ( Type( ) == newType )
+			if ( Type() == newType )
 			{
 				return;
 			}
 
-			FreeDataByType( Type( ) );
+			FreeDataByType( Type() );
 			m_type = newType;
-			AllocDataByType( Type( ) );
+			AllocDataByType( Type() );
 		}
 
 		void AllocDataByType( DataType type )
@@ -730,12 +730,12 @@ namespace JSON
 			switch ( type )
 			{
 			case DataType::String:
-				m_data.m_string = new std::string( );
+				m_data.m_string = new std::string();
 				break;
 			case DataType::Object:
 				[[fallthrough]];
 			case DataType::Array:
-				m_data.m_object = new ObjectType( );
+				m_data.m_object = new ObjectType();
 				break;
 			default:
 				break;
@@ -761,7 +761,7 @@ namespace JSON
 
 		void PrintArrayTypeValue( std::ostream& os ) const
 		{
-			assert( ( Type( ) == DataType::Array ) );
+			assert( ( Type() == DataType::Array ) );
 			ObjectType& array = *m_data.m_object;
 			os << '[';
 			for ( size_t i = 0; i < array.size(); ++i )
@@ -772,7 +772,7 @@ namespace JSON
 				}
 
 				auto iter = array.find( std::to_string( i ) );
-				assert( iter != array.end( ) );
+				assert( iter != array.end() );
 				os << iter->second;
 			}
 			os << ']';
@@ -780,12 +780,12 @@ namespace JSON
 
 		void PrintObjectTypeValue( std::ostream& os ) const
 		{
-			assert( ( Type( ) == DataType::Object ) );
+			assert( ( Type() == DataType::Object ) );
 			const ObjectType& map = *m_data.m_object;
 			os << '{';
-			for ( auto iter = map.begin( ); iter != map.end( ); ++iter )
+			for ( auto iter = map.begin(); iter != map.end(); ++iter )
 			{
-				if ( iter != map.begin( ) )
+				if ( iter != map.begin() )
 				{
 					os << ',';
 				}
@@ -807,10 +807,10 @@ namespace JSON
 
 		friend std::ostream& operator<<( std::ostream& os, const Value& value )
 		{
-			switch ( value.Type( ) )
+			switch ( value.Type() )
 			{
 			case DataType::String:
-				os << '"' << value.AsString( ) << '"';
+				os << '"' << value.AsString() << '"';
 				break;
 			case DataType::Object:
 				value.PrintObjectTypeValue( os );
@@ -825,7 +825,7 @@ namespace JSON
 			case DataType::Boolean:
 				[[fallthrough]];
 			case DataType::Empty:
-				os << value.AsString( );
+				os << value.AsString();
 				break;
 			default:
 				break;
@@ -842,7 +842,7 @@ namespace JSON
 		{
 			std::ifstream jsonFile( filePath );
 
-			if ( jsonFile.good( ) )
+			if ( jsonFile.good() )
 			{
 				return Parse( jsonFile, root );
 			}
@@ -864,14 +864,14 @@ namespace JSON
 			m_end = contents + length;
 			m_current = m_begin;
 
-			while ( m_valueStack.empty( ) == false )
+			while ( m_valueStack.empty() == false )
 			{
-				m_valueStack.pop( );
+				m_valueStack.pop();
 			}
 
 			m_valueStack.push( &root );
 
-			ReadValue( );
+			ReadValue();
 
 			return true;
 		}
@@ -888,7 +888,7 @@ namespace JSON
 		{
 			BraceOpen = 1,			// {
 			BraceClose,			// }
-			Colon,					
+			Colon,
 			SquareBracketOpen,	// [
 			SquareBracketClose,	// ]
 			Comma,					// ,
@@ -906,14 +906,14 @@ namespace JSON
 			const char* m_end = nullptr;
 		};
 
-		Token ReadToken( )
+		Token ReadToken()
 		{
-			SkipWhiteSpace( );
+			SkipWhiteSpace();
 
 			Token token;
 			token.m_begin = m_current;
 
-			switch ( GetNextChar( ) )
+			switch ( GetNextChar() )
 			{
 			case '{':
 				token.m_type = TokenType::BraceOpen;
@@ -955,11 +955,11 @@ namespace JSON
 				[[fallthrough]];
 			case '-':
 				token.m_type = TokenType::Number;
-				ReadNumber( );
+				ReadNumber();
 				break;
 			case '"':
 				token.m_type = TokenType::String;
-				ReadString( );
+				ReadString();
 				break;
 			case 't':
 				if ( MatchNextString( "rue", 3 ) )
@@ -980,7 +980,7 @@ namespace JSON
 				}
 				break;
 			default:
-				__debugbreak( );
+				__debugbreak();
 				break;
 			}
 
@@ -988,7 +988,7 @@ namespace JSON
 			return token;
 		}
 
-		char GetNextChar( )
+		char GetNextChar()
 		{
 			return ( m_current == m_end ) ? 0 : *m_current++;
 		}
@@ -1012,7 +1012,7 @@ namespace JSON
 			return true;
 		}
 
-		void SkipWhiteSpace( )
+		void SkipWhiteSpace()
 		{
 			while ( m_current != m_end )
 			{
@@ -1028,48 +1028,48 @@ namespace JSON
 			}
 		}
 
-		void ReadValue( )
+		void ReadValue()
 		{
-			Token token = ReadToken( );
+			Token token = ReadToken();
 
 			switch ( token.m_type )
 			{
 			case TokenType::BraceOpen:
-				ReadObject( );
+				ReadObject();
 				break;
 			case TokenType::SquareBracketOpen:
-				ReadArray( );
+				ReadArray();
 				break;
 			case TokenType::Number:
-				CurrentValue( ) = DecodeNumberValue( token );
+				CurrentValue() = DecodeNumberValue( token );
 				break;
 			case TokenType::String:
-				CurrentValue( ) = DecodeStringValue( token );
+				CurrentValue() = DecodeStringValue( token );
 				break;
 			case TokenType::True:
-				{
-					Value value( DataType::Boolean );
-					value = true;
-					CurrentValue( ) = value;
-				}
-				break;
+			{
+				Value value( DataType::Boolean );
+				value = true;
+				CurrentValue() = value;
+			}
+			break;
 			case TokenType::False:
-				{
-					Value value( DataType::Boolean );
-					value = false;
-					CurrentValue( ) = value;
-				}
-				break;
+			{
+				Value value( DataType::Boolean );
+				value = false;
+				CurrentValue() = value;
+			}
+			break;
 			case TokenType::Empty:
-				CurrentValue( ) = Value( DataType::Empty );
+				CurrentValue() = Value( DataType::Empty );
 				break;
 			default:
-				__debugbreak( );
+				__debugbreak();
 				break;
 			}
 		}
 
-		void ReadNumber( )
+		void ReadNumber()
 		{
 			--m_current;
 			char c = *m_current;
@@ -1116,16 +1116,16 @@ namespace JSON
 			}
 		}
 
-		void ReadString( )
+		void ReadString()
 		{
 			char c = *m_current;
 
 			while ( m_current != m_end )
 			{
-				c = GetNextChar( );
+				c = GetNextChar();
 				if ( c == '\\' )
 				{
-					c = GetNextChar( );
+					c = GetNextChar();
 				}
 				if ( c == '"' )
 				{
@@ -1134,49 +1134,49 @@ namespace JSON
 			}
 		}
 
-		void ReadObject( )
+		void ReadObject()
 		{
 			Value init( DataType::Object );
-			CurrentValue( ) = init;
+			CurrentValue() = init;
 
-			SkipWhiteSpace( );
+			SkipWhiteSpace();
 
 			if ( ( m_current != m_end ) && ( *m_current == '}' ) )
 			{
-				Token endToken = ReadToken( );
+				Token endToken = ReadToken();
 				return;
 			}
 
 			while ( true )
 			{
-				Token keyString = ReadToken( );
+				Token keyString = ReadToken();
 
 				if ( keyString.m_type != TokenType::String )
 				{
-					__debugbreak( );
+					__debugbreak();
 				}
 
-				Value& value = CurrentValue( )[DecodeString( keyString )];
+				Value& value = CurrentValue()[DecodeString( keyString )];
 
-				Token colon = ReadToken( );
+				Token colon = ReadToken();
 
 				if ( colon.m_type != TokenType::Colon )
 				{
-					__debugbreak( );
+					__debugbreak();
 				}
 
 				m_valueStack.push( &value );
 
-				ReadValue( );
+				ReadValue();
 
-				m_valueStack.pop( );
+				m_valueStack.pop();
 
-				Token nextToken = ReadToken( );
+				Token nextToken = ReadToken();
 
 				if ( nextToken.m_type != TokenType::BraceClose &&
 					nextToken.m_type != TokenType::Comma )
 				{
-					__debugbreak( );
+					__debugbreak();
 				}
 
 				if ( nextToken.m_type == TokenType::BraceClose )
@@ -1186,35 +1186,35 @@ namespace JSON
 			}
 		}
 
-		void ReadArray( )
+		void ReadArray()
 		{
 			Value init( DataType::Array );
-			CurrentValue( ) = init;
-			
-			SkipWhiteSpace( );
+			CurrentValue() = init;
+
+			SkipWhiteSpace();
 
 			if ( ( m_current != m_end ) && ( *m_current == ']' ) )
 			{
-				Token endToken = ReadToken( );
+				Token endToken = ReadToken();
 				return;
 			}
 
 			int index = 0;
 			while ( true )
 			{
-				Value& value = CurrentValue( )[index++];
+				Value& value = CurrentValue()[index++];
 				m_valueStack.push( &value );
 
-				ReadValue( );
+				ReadValue();
 
-				m_valueStack.pop( );
+				m_valueStack.pop();
 
-				Token nextToken = ReadToken( );
+				Token nextToken = ReadToken();
 
 				if ( nextToken.m_type != TokenType::SquareBracketClose &&
 					nextToken.m_type != TokenType::Comma )
 				{
-					__debugbreak( );
+					__debugbreak();
 				}
 
 				if ( nextToken.m_type == TokenType::SquareBracketClose )
@@ -1246,7 +1246,7 @@ namespace JSON
 
 			Value decoded( DataType::Interger );
 			decoded = isNegative ? -value : value;
-			
+
 			return decoded;
 		}
 
@@ -1316,13 +1316,13 @@ namespace JSON
 						decoded += '\t';
 						break;
 					case 'u':
-						{
-							unsigned int unicode = decodeUnicodeCodePoint( current, end );
-							decoded += CodePointToUTF8( unicode );
-						}
-						break;
+					{
+						unsigned int unicode = decodeUnicodeCodePoint( current, end );
+						decoded += CodePointToUTF8( unicode );
+					}
+					break;
 					default:
-						__debugbreak( );
+						__debugbreak();
 						break;
 					}
 				}
@@ -1343,7 +1343,7 @@ namespace JSON
 			{
 				if ( end - current < 6 )
 				{
-					__debugbreak( );
+					__debugbreak();
 				}
 
 				if ( *( current++ ) == '\\' && *( current++ ) == 'u' )
@@ -1362,7 +1362,7 @@ namespace JSON
 		{
 			if ( end - current < 4 )
 			{
-				__debugbreak( );
+				__debugbreak();
 			}
 
 			unsigned int unicode = 0;
@@ -1384,16 +1384,16 @@ namespace JSON
 				}
 				else
 				{
-					__debugbreak( );
+					__debugbreak();
 				}
 			}
 
 			return unicode;
 		}
 
-		Value& CurrentValue( )
+		Value& CurrentValue()
 		{
-			return *m_valueStack.top( );
+			return *m_valueStack.top();
 		}
 
 		const char* m_begin = nullptr;
@@ -1401,6 +1401,137 @@ namespace JSON
 		const char* m_current = nullptr;
 
 		std::stack<Value*> m_valueStack;
+	};
+
+	class Writer
+	{
+	public:
+		static std::string ToString( const Value& root )
+		{
+			return ToStringRecursive<false>( root, 0 );
+		}
+
+		static std::string ToStringPretty( const Value& root )
+		{
+			return ToStringRecursive<true>( root, 0 );
+		}
+
+	private:
+		template <bool bPretty>
+		static std::string ToStringRecursive( const Value& value, [[maybe_unused]] uint32 depth )
+		{
+			switch ( value.Type() )
+			{
+			case DataType::String:
+				return "\"" + value.AsString() + "\"";
+				break;
+			case DataType::Interger:
+				return std::to_string( value.AsInt() );
+				break;
+			case DataType::Real:
+				return std::to_string( value.AsReal() );
+				break;
+			case DataType::Object:
+				return ObjectToString<bPretty>( value, depth );
+				break;
+			case DataType::Array:
+				return ArrayToString<bPretty>( value, depth );
+				break;
+			case DataType::Boolean:
+				return value.AsBool() ? "true" : "false";
+				break;
+			case DataType::Empty:
+				[[fallthrough]];
+			default:
+				return "";
+				break;
+			}
+		}
+
+		template <bool bPretty>
+		static std::string ObjectToString( const Value& object, [[maybe_unused]] uint32 depth )
+		{
+			std::string str;
+
+			std::vector<const char*> names = object.GetMemberNames();
+			if constexpr ( bPretty )
+			{
+				str = "{\n";
+
+				for ( size_t i = 0; i < names.size(); ++i )
+				{
+					if ( i > 0 )
+					{
+						str += ",\n";
+					}
+
+					str += std::string( depth + 1, '\t' ) + names[i];
+					str += ": ";
+					str += ToStringRecursive<bPretty>( object[names[i]], depth + 1 );
+				}
+
+				str += "\n" + std::string( depth, '\t' ) + "}";
+			}
+			else
+			{
+				str = "{";
+
+				for ( size_t i = 0; i < names.size(); ++i )
+				{
+					if ( i > 0 )
+					{
+						str += ",";
+					}
+
+					str += names[i];
+					str += ":";
+					str += ToStringRecursive<bPretty>( object[names[i]], depth + 1 );
+				}
+
+				str += "}";
+			}
+
+			return str;
+		}
+
+		template <bool bPretty>
+		static std::string ArrayToString( const Value& array, [[maybe_unused]] uint32 depth )
+		{
+			std::string str;
+
+			if constexpr ( bPretty )
+			{
+				str = "[\n";
+
+				for ( size_t i = 0; i < array.Size(); ++i )
+				{
+					if ( i > 0 )
+					{
+						str += ",\n";
+					}
+					str += std::string( depth + 1, '\t' ) + ToStringRecursive<bPretty>( array[i], depth + 1 );
+				}
+
+				str += "\n" + std::string( depth, '\t' ) + "]";
+			}
+			else
+			{
+				str = "[";
+
+				for ( size_t i = 0; i < array.Size(); ++i )
+				{
+					if ( i > 0 )
+					{
+						str += ",";
+					}
+					str += ToStringRecursive<bPretty>( array[i], depth + 1 );
+				}
+
+				str += "]";
+			}
+
+			return str;
+		}
 	};
 }
 

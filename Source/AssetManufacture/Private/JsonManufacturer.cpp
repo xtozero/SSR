@@ -12,9 +12,9 @@ namespace fs = std::filesystem;
 
 namespace
 {
-	std::optional<uint32> ConvertAssetTypeToAssetID( const JSON::Value& root )
+	std::optional<uint32> ConvertAssetTypeToAssetID( const json::Value& root )
 	{
-		const JSON::Value* type = root.Find( "Type" );
+		const json::Value* type = root.Find( "Type" );
 		if ( type != nullptr )
 		{
 			const std::string& assetType = type->AsString();
@@ -47,7 +47,7 @@ namespace
 		return {};
 	}
 
-	std::unique_ptr<AsyncLoadableAsset> CreateAssetByAssetID( uint32 assetID, const fs::path& assetPath, const JSON::Value& root )
+	std::unique_ptr<AsyncLoadableAsset> CreateAssetByAssetID( uint32 assetID, const fs::path& assetPath, const json::Value& root )
 	{
 		std::unique_ptr<AsyncLoadableAsset> asset = nullptr;
 
@@ -56,63 +56,63 @@ namespace
 			auto blendOption = std::make_unique<rendercore::BlendOption>();
 			blendOption->SetPath( assetPath );
 
-			if ( const JSON::Value* alphaToConverage = root.Find( "AlphaToConverage" ) )
+			if ( const json::Value* alphaToConverage = root.Find( "AlphaToConverage" ) )
 			{
 				blendOption->m_alphaToConverageEnable = alphaToConverage->AsBool();
 			}
 
-			if ( const JSON::Value* independentBlendEnable = root.Find( "IndependentBlendEnable" ) )
+			if ( const json::Value* independentBlendEnable = root.Find( "IndependentBlendEnable" ) )
 			{
 				blendOption->m_independentBlendEnable = independentBlendEnable->AsBool();
 			}
 
-			if ( const JSON::Value* pRenderTargets = root.Find( "RenderTargets" ) )
+			if ( const json::Value* pRenderTargets = root.Find( "RenderTargets" ) )
 			{
-				const JSON::Value& renderTargets = *pRenderTargets;
+				const json::Value& renderTargets = *pRenderTargets;
 
 				for ( size_t i = 0; i < renderTargets.Size(); ++i )
 				{
 					auto& rt = blendOption->m_renderTarget[i];
-					if ( const JSON::Value* blendEnable = renderTargets[i].Find( "BlendEnable" ) )
+					if ( const json::Value* blendEnable = renderTargets[i].Find( "BlendEnable" ) )
 					{
 						rt.m_blendEnable = blendEnable->AsBool();
 					}
 
-					if ( const JSON::Value* srcBlend = renderTargets[i].Find( "SrcBlend" ) )
+					if ( const json::Value* srcBlend = renderTargets[i].Find( "SrcBlend" ) )
 					{
 						rt.m_srcBlend = GetEnum( srcBlend->AsString(), agl::Blend::One );
 					}
 
-					if ( const JSON::Value* destBlend = renderTargets[i].Find( "DestBlend" ) )
+					if ( const json::Value* destBlend = renderTargets[i].Find( "DestBlend" ) )
 					{
 						rt.m_destBlend = GetEnum( destBlend->AsString(), agl::Blend::Zero );
 					}
 
-					if ( const JSON::Value* blendOp = renderTargets[i].Find( "BlendOp" ) )
+					if ( const json::Value* blendOp = renderTargets[i].Find( "BlendOp" ) )
 					{
 						rt.m_blendOp = GetEnum( blendOp->AsString(), agl::BlendOp::Add );
 					}
 
-					if ( const JSON::Value* srcBlendAlpha = renderTargets[i].Find( "SrcBlendAlpha" ) )
+					if ( const json::Value* srcBlendAlpha = renderTargets[i].Find( "SrcBlendAlpha" ) )
 					{
 						rt.m_srcBlendAlpha = GetEnum( srcBlendAlpha->AsString(), agl::Blend::One );
 					}
 
-					if ( const JSON::Value* destBlendAlpha = renderTargets[i].Find( "DestBlendAlpha" ) )
+					if ( const json::Value* destBlendAlpha = renderTargets[i].Find( "DestBlendAlpha" ) )
 					{
 						rt.m_destBlendAlpha = GetEnum( destBlendAlpha->AsString(), agl::Blend::Zero );
 					}
 
-					if ( const JSON::Value* blendOpAlpha = renderTargets[i].Find( "BlendOpAlpha" ) )
+					if ( const json::Value* blendOpAlpha = renderTargets[i].Find( "BlendOpAlpha" ) )
 					{
 						rt.m_blendOpAlpha = GetEnum( blendOpAlpha->AsString(), agl::BlendOp::Add );
 					}
 
-					if ( const JSON::Value* renderTargetWriteMask = renderTargets[i].Find( "RenderTargetWriteMask" ) )
+					if ( const json::Value* renderTargetWriteMask = renderTargets[i].Find( "RenderTargetWriteMask" ) )
 					{
 						int32 writeMask = 0;
 
-						for ( const JSON::Value& mask : *renderTargetWriteMask )
+						for ( const json::Value& mask : *renderTargetWriteMask )
 						{
 							writeMask |= GetEnum( mask.AsString(), 0 );
 						}
@@ -122,7 +122,7 @@ namespace
 				}
 			}
 
-			if ( const JSON::Value* sampleMask = root.Find( "SampleMask" ) )
+			if ( const json::Value* sampleMask = root.Find( "SampleMask" ) )
 			{
 				blendOption->m_sampleMask = static_cast<uint32>( sampleMask->AsInt() );
 			}
@@ -135,80 +135,80 @@ namespace
 			depthStencilOption->SetPath( assetPath );
 
 			auto& depthOption = depthStencilOption->m_depth;
-			if ( const JSON::Value* depthEnable = root.Find( "DepthEnable" ) )
+			if ( const json::Value* depthEnable = root.Find( "DepthEnable" ) )
 			{
 				depthOption.m_enable = depthEnable->AsBool();
 			}
 
-			if ( const JSON::Value* depthWriteEnable = root.Find( "DepthWriteEnable" ) )
+			if ( const json::Value* depthWriteEnable = root.Find( "DepthWriteEnable" ) )
 			{
 				depthOption.m_writeDepth = depthWriteEnable->AsBool();
 			}
 
-			if ( const JSON::Value* depthFunc = root.Find( "DepthFunc" ) )
+			if ( const json::Value* depthFunc = root.Find( "DepthFunc" ) )
 			{
 				depthOption.m_depthFunc = GetEnum( depthFunc->AsString(), agl::ComparisonFunc::Less );
 			}
 
 			auto stencilOption = depthStencilOption->m_stencil;
-			if ( const JSON::Value* stencilEnable = root.Find( "StencilEnable" ) )
+			if ( const json::Value* stencilEnable = root.Find( "StencilEnable" ) )
 			{
 				stencilOption.m_enable = stencilEnable->AsBool();
 			}
 
-			if ( const JSON::Value* stencilReadMask = root.Find( "StencilReadMask" ) )
+			if ( const json::Value* stencilReadMask = root.Find( "StencilReadMask" ) )
 			{
 				stencilOption.m_readMask = static_cast<unsigned char>( stencilReadMask->AsInt() );
 			}
 
-			if ( const JSON::Value* stencilWriteMask = root.Find( "StencilWriteMask" ) )
+			if ( const json::Value* stencilWriteMask = root.Find( "StencilWriteMask" ) )
 			{
 				stencilOption.m_writeMask = static_cast<unsigned char>( stencilWriteMask->AsInt() );
 			}
 
-			if ( const JSON::Value* stencilRef = root.Find( "StencilRef" ) )
+			if ( const json::Value* stencilRef = root.Find( "StencilRef" ) )
 			{
 				stencilOption.m_ref = static_cast<uint32>( stencilRef->AsInt() );
 			}
 
 			auto& front = stencilOption.m_frontFace;
-			if ( const JSON::Value* frontFaceStencilFunc = root.Find( "FrontFace.StencilFunc" ) )
+			if ( const json::Value* frontFaceStencilFunc = root.Find( "FrontFace.StencilFunc" ) )
 			{
 				front.m_func = GetEnum( frontFaceStencilFunc->AsString(), agl::ComparisonFunc::Always );
 			}
 
-			if ( const JSON::Value* frontFaceStencilDepthFailOp = root.Find( "FrontFace.StencilDepthFailOp" ) )
+			if ( const json::Value* frontFaceStencilDepthFailOp = root.Find( "FrontFace.StencilDepthFailOp" ) )
 			{
 				front.m_depthFailOp = GetEnum( frontFaceStencilDepthFailOp->AsString(), agl::StencilOp::Keep );
 			}
 
-			if ( const JSON::Value* frontFaceStencilPassOp = root.Find( "FrontFace.StencilPassOp" ) )
+			if ( const json::Value* frontFaceStencilPassOp = root.Find( "FrontFace.StencilPassOp" ) )
 			{
 				front.m_passOp = GetEnum( frontFaceStencilPassOp->AsString(), agl::StencilOp::Keep );
 			}
 
-			if ( const JSON::Value* frontFaceStencilFailOp = root.Find( "FrontFace.StencilFailOp" ) )
+			if ( const json::Value* frontFaceStencilFailOp = root.Find( "FrontFace.StencilFailOp" ) )
 			{
 				front.m_failOp = GetEnum( frontFaceStencilFailOp->AsString(), agl::StencilOp::Keep );
 			}
 
 			auto& back = stencilOption.m_backFace;
-			if ( const JSON::Value* backFaceStencilFunc = root.Find( "BackFace.StencilFunc" ) )
+			if ( const json::Value* backFaceStencilFunc = root.Find( "BackFace.StencilFunc" ) )
 			{
 				back.m_func = GetEnum( backFaceStencilFunc->AsString(), agl::ComparisonFunc::Always );
 			}
 
-			if ( const JSON::Value* backFaceStencilDepthFailOp = root.Find( "BackFace.StencilDepthFailOp" ) )
+			if ( const json::Value* backFaceStencilDepthFailOp = root.Find( "BackFace.StencilDepthFailOp" ) )
 			{
 				back.m_depthFailOp = GetEnum( backFaceStencilDepthFailOp->AsString(), agl::StencilOp::Keep );
 			}
 
-			if ( const JSON::Value* backFaceStencilPassOp = root.Find( "BackFace.StencilPassOp" ) )
+			if ( const json::Value* backFaceStencilPassOp = root.Find( "BackFace.StencilPassOp" ) )
 			{
 				back.m_passOp = GetEnum( backFaceStencilPassOp->AsString(), agl::StencilOp::Keep );
 			}
 
-			if ( const JSON::Value* backFaceStencilFailOp = root.Find( "BackFace.StencilFailOp" ) )
+			if ( const json::Value* backFaceStencilFailOp = root.Find( "BackFace.StencilFailOp" ) )
 			{
 				back.m_failOp = GetEnum( backFaceStencilFailOp->AsString(), agl::StencilOp::Keep );
 			}
@@ -220,12 +220,12 @@ namespace
 			auto material = std::make_unique<rendercore::Material>();
 			material->SetPath( assetPath );
 
-			if ( const JSON::Value* shaderKeys = root.Find( "Shader" ) )
+			if ( const json::Value* shaderKeys = root.Find( "Shader" ) )
 			{
 				for ( uint32 i = 0; i < static_cast<uint32>( agl::ShaderType::Count ); ++i )
 				{
 					auto shaderType = static_cast<agl::ShaderType>( i );
-					const JSON::Value* shaderPath = shaderKeys->Find( ToString( shaderType ) );
+					const json::Value* shaderPath = shaderKeys->Find( ToString( shaderType ) );
 					if ( shaderPath == nullptr )
 					{
 						continue;
@@ -270,16 +270,16 @@ namespace
 				}
 			}
 
-			if ( const JSON::Value* surface = root.Find( "Surface" ) )
+			if ( const json::Value* surface = root.Find( "Surface" ) )
 			{
 				auto memberNames = surface->GetMemberNames();
 				for ( auto name : memberNames )
 				{
-					if ( const JSON::Value* property = surface->Find( name ) )
+					if ( const json::Value* property = surface->Find( name ) )
 					{
 						switch ( property->Type() )
 						{
-						case JSON::DataType::String:
+						case json::DataType::String:
 						{
 							auto texture = std::make_shared<rendercore::Texture>();
 							texture->SetPath( property->AsString() );
@@ -287,17 +287,17 @@ namespace
 							material->AddProperty( name, texture );
 							break;
 						}
-						case JSON::DataType::Interger:
+						case json::DataType::Interger:
 						{
 							material->AddProperty( name, property->AsInt() );
 							break;
 						}
-						case JSON::DataType::Real:
+						case json::DataType::Real:
 						{
 							material->AddProperty( name, static_cast<float>( property->AsReal() ) );
 							break;
 						}
-						case JSON::DataType::Array:
+						case json::DataType::Array:
 						{
 							Vector4 vector( 1.f, 1.f, 1.f, 1.f );
 
@@ -309,11 +309,11 @@ namespace
 							material->AddProperty( name, vector );
 							break;
 						}
-						case JSON::DataType::Object:
+						case json::DataType::Object:
 							[[fallthrough]];
-						case JSON::DataType::Boolean:
+						case json::DataType::Boolean:
 							[[fallthrough]];
-						case JSON::DataType::Empty:
+						case json::DataType::Empty:
 							[[fallthrough]];
 						default:
 							break;
@@ -322,12 +322,12 @@ namespace
 				}
 			}
 
-			if ( const JSON::Value* sampler = root.Find( "Sampler" ) )
+			if ( const json::Value* sampler = root.Find( "Sampler" ) )
 			{
 				auto memberNames = sampler->GetMemberNames();
 				for ( auto name : memberNames )
 				{
-					if ( const JSON::Value* path = sampler->Find( name ) )
+					if ( const json::Value* path = sampler->Find( name ) )
 					{
 						auto samplerOption = std::make_shared<rendercore::SamplerOption>();
 						samplerOption->SetPath( path->AsString() );
@@ -344,42 +344,42 @@ namespace
 			auto rasterizerOption = std::make_unique<rendercore::RasterizerOption>();
 			rasterizerOption->SetPath( assetPath );
 
-			if ( const JSON::Value* wireframe = root.Find( "Wireframe" ) )
+			if ( const json::Value* wireframe = root.Find( "Wireframe" ) )
 			{
 				rasterizerOption->m_isWireframe = wireframe->AsBool();
 			}
 
-			if ( const JSON::Value* cullMode = root.Find( "CullMode" ) )
+			if ( const json::Value* cullMode = root.Find( "CullMode" ) )
 			{
 				rasterizerOption->m_cullMode = GetEnum( cullMode->AsString(), agl::CullMode::Back );
 			}
 
-			if ( const JSON::Value* counterClockwise = root.Find( "CounterClockwise" ) )
+			if ( const json::Value* counterClockwise = root.Find( "CounterClockwise" ) )
 			{
 				rasterizerOption->m_counterClockwise = counterClockwise->AsBool();
 			}
 
-			if ( const JSON::Value* depthBias = root.Find( "DepthBias" ) )
+			if ( const json::Value* depthBias = root.Find( "DepthBias" ) )
 			{
 				rasterizerOption->m_depthBias = depthBias->AsInt();
 			}
 
-			if ( const JSON::Value* depthClipEnable = root.Find( "DepthClipEnable" ) )
+			if ( const json::Value* depthClipEnable = root.Find( "DepthClipEnable" ) )
 			{
 				rasterizerOption->m_depthClipEnable = depthClipEnable->AsBool();
 			}
 
-			if ( const JSON::Value* scissorEnable = root.Find( "ScissorEnable" ) )
+			if ( const json::Value* scissorEnable = root.Find( "ScissorEnable" ) )
 			{
 				rasterizerOption->m_scissorEnable = scissorEnable->AsBool();
 			}
 
-			if ( const JSON::Value* multisampleEnable = root.Find( "MultisampleEnable" ) )
+			if ( const json::Value* multisampleEnable = root.Find( "MultisampleEnable" ) )
 			{
 				rasterizerOption->m_multisampleEnable = multisampleEnable->AsBool();
 			}
 
-			if ( const JSON::Value* antialiasedLineEnable = root.Find( "AntialiasedLineEnable" ) )
+			if ( const json::Value* antialiasedLineEnable = root.Find( "AntialiasedLineEnable" ) )
 			{
 				rasterizerOption->m_antialiasedLineEnable = antialiasedLineEnable->AsInt();
 			}
@@ -391,7 +391,7 @@ namespace
 			auto samplerOption = std::make_unique<rendercore::SamplerOption>();
 			samplerOption->SetPath( assetPath );
 
-			if ( const JSON::Value* filter = root.Find( "Filter" ) )
+			if ( const json::Value* filter = root.Find( "Filter" ) )
 			{
 				samplerOption->m_filter = agl::TextureFilter::Point;
 				for ( auto option : *filter )
@@ -400,27 +400,27 @@ namespace
 				}
 			}
 
-			if ( const JSON::Value* addressU = root.Find( "AddressU" ) )
+			if ( const json::Value* addressU = root.Find( "AddressU" ) )
 			{
 				samplerOption->m_addressU = GetEnum( addressU->AsString(), agl::TextureAddressMode::Clamp );
 			}
 
-			if ( const JSON::Value* addressV = root.Find( "AddressV" ) )
+			if ( const json::Value* addressV = root.Find( "AddressV" ) )
 			{
 				samplerOption->m_addressV = GetEnum( addressV->AsString(), agl::TextureAddressMode::Clamp );
 			}
 
-			if ( const JSON::Value* addressW = root.Find( "AddressW" ) )
+			if ( const json::Value* addressW = root.Find( "AddressW" ) )
 			{
 				samplerOption->m_addressW = GetEnum( addressW->AsString(), agl::TextureAddressMode::Clamp );
 			}
 
-			if ( const JSON::Value* mipLODBias = root.Find( "MipLODBias" ) )
+			if ( const json::Value* mipLODBias = root.Find( "MipLODBias" ) )
 			{
 				samplerOption->m_mipLODBias = static_cast<float>( mipLODBias->AsReal() );
 			}
 
-			if ( const JSON::Value* comparisonFunc = root.Find( "ComparisonFunc" ) )
+			if ( const json::Value* comparisonFunc = root.Find( "ComparisonFunc" ) )
 			{
 				samplerOption->m_comparisonFunc = GetEnum( comparisonFunc->AsString(), agl::ComparisonFunc::Never );
 			}
@@ -431,21 +431,21 @@ namespace
 		{
 			auto renderOption = std::make_unique<rendercore::RenderOption>();
 
-			if ( const JSON::Value* blendOptionPath = root.Find( "Blend" ) )
+			if ( const json::Value* blendOptionPath = root.Find( "Blend" ) )
 			{
 				auto blendOption = std::make_shared<rendercore::BlendOption>();
 				blendOption->SetPath( fs::path( blendOptionPath->AsString() ) );
 				renderOption->m_blendOption = blendOption;
 			}
 
-			if ( const JSON::Value* depthStencilOptionPath = root.Find( "DS_State" ) )
+			if ( const json::Value* depthStencilOptionPath = root.Find( "DS_State" ) )
 			{
 				auto depthStencilOption = std::make_shared<rendercore::DepthStencilOption>();
 				depthStencilOption->SetPath( fs::path( depthStencilOptionPath->AsString() ) );
 				renderOption->m_depthStencilOption = depthStencilOption;
 			}
 
-			if ( const JSON::Value* rasterizerOptionPath = root.Find( "RS_State" ) )
+			if ( const json::Value* rasterizerOptionPath = root.Find( "RS_State" ) )
 			{
 				auto rasterizerOption = std::make_shared<rendercore::RasterizerOption>();
 				rasterizerOption->SetPath( fs::path( rasterizerOptionPath->AsString() ) );
@@ -516,8 +516,8 @@ std::optional<Products> JsonManufacturer::Manufacture( const PathEnvironment& en
 		return { };
 	}
 
-	JSON::Value root;
-	JSON::Reader reader;
+	json::Value root;
+	json::Reader reader;
 	if ( reader.Parse( path, root ) == false )
 	{
 		return { };

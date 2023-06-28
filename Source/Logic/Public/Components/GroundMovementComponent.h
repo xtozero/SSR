@@ -12,7 +12,7 @@ class GroundMovementComponent : public Component
 public:
 	virtual void ThinkComponent( float elapsedTime ) override;
 
-	virtual void LoadProperty( const JSON::Value& json ) override;
+	virtual void LoadProperty( const json::Value& json ) override;
 
 	void Update( const Vector& force, float elapsedTime );
 

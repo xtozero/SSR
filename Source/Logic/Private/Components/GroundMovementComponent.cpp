@@ -18,18 +18,18 @@ void GroundMovementComponent::ThinkComponent( float elapsedTime )
 	GetOwner()->SetPosition( curLocation + deltaMove );
 }
 
-void GroundMovementComponent::LoadProperty( const JSON::Value& json )
+void GroundMovementComponent::LoadProperty( const json::Value& json )
 {
 	Super::LoadProperty( json );
 
-	if ( const JSON::Value* pMaxForce = json.Find( "Max_Force" ) )
+	if ( const json::Value* pMaxForce = json.Find( "Max_Force" ) )
 	{
 		SetMaxForceMagnitude( static_cast<float>( pMaxForce->AsReal() ) );
 	}
 
-	if ( const JSON::Value* pFriction = json.Find( "Friction" ) )
+	if ( const json::Value* pFriction = json.Find( "Friction" ) )
 	{
-		const JSON::Value& friction = *pFriction;
+		const json::Value& friction = *pFriction;
 
 		if ( friction.Size() == 2 )
 		{
@@ -37,7 +37,7 @@ void GroundMovementComponent::LoadProperty( const JSON::Value& json )
 		}
 	}
 
-	if ( const JSON::Value* pForceScale = json.Find( "Kinetic_Force_Scale" ) )
+	if ( const json::Value* pForceScale = json.Find( "Kinetic_Force_Scale" ) )
 	{
 		m_kineticForceScale = static_cast<float>( pForceScale->AsReal() );
 	}

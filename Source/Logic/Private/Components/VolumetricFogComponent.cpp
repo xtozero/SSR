@@ -5,13 +5,13 @@
 #include "Scene/IScene.h"
 #include "World/World.h"
 
-void VolumetricFogComponent::LoadProperty( const JSON::Value& json )
+void VolumetricFogComponent::LoadProperty( const json::Value& json )
 {
 	Super::LoadProperty( json );
 
-	if ( const JSON::Value* pFrustumGridSize = json.Find( "FrustumGridSize" ) )
+	if ( const json::Value* pFrustumGridSize = json.Find( "FrustumGridSize" ) )
 	{
-		const JSON::Value& frustumGridSize = *pFrustumGridSize;
+		const json::Value& frustumGridSize = *pFrustumGridSize;
 
 		if ( frustumGridSize.Size() == 3 )
 		{
@@ -22,37 +22,37 @@ void VolumetricFogComponent::LoadProperty( const JSON::Value& json )
 		}
 	}
 
-	if ( const JSON::Value* pG = json.Find( "G" ) )
+	if ( const json::Value* pG = json.Find( "G" ) )
 	{
 		m_g = static_cast<float>( pG->AsReal() );
 	}
 
-	if ( const JSON::Value* pUniformDensity = json.Find( "UniformDensity" ) )
+	if ( const json::Value* pUniformDensity = json.Find( "UniformDensity" ) )
 	{
 		m_uniformDensity = static_cast<float>( pUniformDensity->AsReal() );
 	}
 
-	if ( const JSON::Value* pIntensity = json.Find( "Intensity" ) )
+	if ( const json::Value* pIntensity = json.Find( "Intensity" ) )
 	{
 		m_intensity = static_cast<float>( pIntensity->AsReal() );
 	}
 
-	if ( const JSON::Value* pDepthPackExponent = json.Find( "DepthPackExponent" ) )
+	if ( const json::Value* pDepthPackExponent = json.Find( "DepthPackExponent" ) )
 	{
 		m_depthPackExponent = static_cast<float>( pDepthPackExponent->AsReal() );
 	}
 
-	if ( const JSON::Value* pNearPlaneDist = json.Find( "NearPlaneDist" ) )
+	if ( const json::Value* pNearPlaneDist = json.Find( "NearPlaneDist" ) )
 	{
 		m_nearPlaneDist = static_cast<float>( pNearPlaneDist->AsReal() );
 	}
 
-	if ( const JSON::Value* pFarPlaneDist = json.Find( "FarPlaneDist" ) )
+	if ( const json::Value* pFarPlaneDist = json.Find( "FarPlaneDist" ) )
 	{
 		m_farPlaneDist = static_cast<float>( pFarPlaneDist->AsReal() );
 	}
 
-	if ( const JSON::Value* pShadowBias = json.Find( "ShadowBias" ) )
+	if ( const json::Value* pShadowBias = json.Find( "ShadowBias" ) )
 	{
 		m_shadowBias = static_cast<float>( pShadowBias->AsReal() );
 	}

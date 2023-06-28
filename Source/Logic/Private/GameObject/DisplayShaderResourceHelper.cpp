@@ -44,21 +44,21 @@ void CDisplayShaderResourceHelper::Think( float /*elapsedTime*/ )
 {
 }
 
-//void CDisplayShaderResourceHelper::LoadProperty( CGameLogic& gameLogic, const JSON::Value& json )
+//void CDisplayShaderResourceHelper::LoadProperty( CGameLogic& gameLogic, const json::Value& json )
 //{
 //	CGameObject::LoadProperty( gameLogic, json );
 //
-//	if ( const JSON::Value* pTexName = json.Find( "TextureName" ) )
+//	if ( const json::Value* pTexName = json.Find( "TextureName" ) )
 //	{
 //		m_textureName = pTexName->AsString( );
 //	}
 //	
-//	if ( const JSON::Value* pTexWidth = json.Find( "Width" ) )
+//	if ( const json::Value* pTexWidth = json.Find( "Width" ) )
 //	{
 //		m_width = static_cast<float>( pTexWidth->AsReal( ) );
 //	}
 //	
-//	if ( const JSON::Value* pTexHeight = json.Find( "Height" ) )
+//	if ( const json::Value* pTexHeight = json.Find( "Height" ) )
 //	{
 //		m_height = static_cast<float>( pTexHeight->AsReal( ) );
 //	}

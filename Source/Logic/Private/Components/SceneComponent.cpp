@@ -23,13 +23,13 @@ void SceneComponent::DestroyComponent()
 	Super::DestroyComponent();
 }
 
-void SceneComponent::LoadProperty( const JSON::Value& json )
+void SceneComponent::LoadProperty( const json::Value& json )
 {
 	Super::LoadProperty( json );
 
-	if ( const JSON::Value* pPos = json.Find( "Position" ) )
+	if ( const json::Value* pPos = json.Find( "Position" ) )
 	{
-		const JSON::Value& pos = *pPos;
+		const json::Value& pos = *pPos;
 
 		if ( pos.Size() == 3 )
 		{
@@ -41,9 +41,9 @@ void SceneComponent::LoadProperty( const JSON::Value& json )
 		}
 	}
 
-	if ( const JSON::Value* pScale = json.Find( "Scale" ) )
+	if ( const json::Value* pScale = json.Find( "Scale" ) )
 	{
-		const JSON::Value& scale = *pScale;
+		const json::Value& scale = *pScale;
 
 		if ( scale.Size() == 3 )
 		{
@@ -55,9 +55,9 @@ void SceneComponent::LoadProperty( const JSON::Value& json )
 		}
 	}
 
-	if ( const JSON::Value* pRotation = json.Find( "Rotation" ) )
+	if ( const json::Value* pRotation = json.Find( "Rotation" ) )
 	{
-		const JSON::Value& rotation = *pRotation;
+		const json::Value& rotation = *pRotation;
 
 		if ( rotation.Size() == 3 )
 		{

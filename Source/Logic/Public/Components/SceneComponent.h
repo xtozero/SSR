@@ -18,7 +18,7 @@ public:
 
 	virtual void DestroyComponent() override;
 
-	virtual void LoadProperty( const JSON::Value& json ) override;
+	virtual void LoadProperty( const json::Value& json ) override;
 
 	void SetPosition( const Vector& translation );
 	void SetScale3D( const Vector& scale3D );

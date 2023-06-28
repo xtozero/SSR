@@ -9,7 +9,7 @@ public:
 	//virtual void Render( CGameLogic& gameLogic ) override;
 	virtual void Think( float elapsedTime ) override;
 
-	//virtual void LoadProperty( CGameLogic& gameLogic, const JSON::Value& json ) override;
+	//virtual void LoadProperty( CGameLogic& gameLogic, const json::Value& json ) override;
 
 	//virtual bool IgnorePicking( ) const override { return ShouldDraw( ); }
 

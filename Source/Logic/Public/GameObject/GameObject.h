@@ -33,7 +33,7 @@ class RenderOption;
 class SceneComponent;
 class World;
 
-namespace JSON
+namespace json
 {
 	class Value;
 }
@@ -87,7 +87,7 @@ public:
 
 	bool WillRemove() const { return HasAnyFlags( m_property, GameobjectProperty::RemoveMe ); }
 
-	void LoadProperty( const JSON::Value& json );
+	void LoadProperty( const json::Value& json );
 
 	virtual bool IgnorePicking() const { return false; }
 

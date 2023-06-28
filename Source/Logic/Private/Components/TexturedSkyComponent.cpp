@@ -7,11 +7,11 @@
 #include "Scene/IScene.h"
 #include "World/World.h"
 
-void TexturedSkyComponent::LoadProperty( const JSON::Value& json )
+void TexturedSkyComponent::LoadProperty( const json::Value& json )
 {
 	Super::LoadProperty( json );
 
-	if ( const JSON::Value* pTexture = json.Find( "Material" ) )
+	if ( const json::Value* pTexture = json.Find( "Material" ) )
 	{
 		const std::string& assetPath = pTexture->AsString();
 
