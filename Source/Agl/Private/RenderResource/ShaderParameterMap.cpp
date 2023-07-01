@@ -37,6 +37,19 @@ namespace agl
 		( *this ) = parameterMap.GetParameter( variableName );
 	}
 
+	ShaderParameter::ShaderParameter( ShaderType shader, ShaderParameterType type, uint32 bindPoint, uint32 offset, uint32 sizeInByte )
+		: m_shader( shader )
+		, m_type( type )
+		, m_bindPoint( bindPoint )
+		, m_offset( offset )
+		, m_sizeInByte( sizeInByte )
+	{}
+
+	ShaderParameter::ShaderParameter( const ShaderParameterMap& parameterMap, const char* variableName )
+	{
+		Bind( parameterMap, variableName );
+	}
+
 	ShaderParameter ShaderParameterMap::GetParameter( const char* name ) const
 	{
 		auto found = m_parameters.find( Name( name ) );

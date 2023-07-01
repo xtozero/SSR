@@ -12,14 +12,6 @@ namespace rendercore
 {
 	REGISTER_GLOBAL_SHADER( DistributionCopyCS, "./Assets/Shaders/Common/CS_DistributionCopy.asset" );
 
-	DistributionCopyCS::DistributionCopyCS()
-	{
-		m_numDistribution.Bind( GetShader()->ParameterMap(), "NumDistribution" );
-		m_src.Bind( GetShader()->ParameterMap(), "Src" );
-		m_distributer.Bind( GetShader()->ParameterMap(), "Distributer" );
-		m_dest.Bind( GetShader()->ParameterMap(), "Dest" );
-	}
-
 	GpuMemcpy::GpuMemcpy( uint32 numUpload, uint32 sizePerFloat4, UploadBuffer& src, UploadBuffer& distributer ) : m_sizePerFloat4( sizePerFloat4 ), m_src( src ), m_distributer( distributer )
 	{
 		m_src.Resize( m_sizePerFloat4 * numUpload, nullptr );
@@ -65,10 +57,10 @@ namespace rendercore
 		commandList.BindPipelineState( pso.Get() );
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( &cs );
-		SetShaderValue( commandList, computeShader.m_numDistribution, m_distributionCount );
-		BindResource( shaderBindings, computeShader.m_src, m_src.Resource() );
-		BindResource( shaderBindings, computeShader.m_distributer, m_distributer.Resource() );
-		BindResource( shaderBindings, computeShader.m_dest, destBuffer );
+		SetShaderValue( commandList, computeShader.NumDistribution(), m_distributionCount);
+		BindResource( shaderBindings, computeShader.Src(), m_src.Resource());
+		BindResource( shaderBindings, computeShader.Distributer(), m_distributer.Resource());
+		BindResource( shaderBindings, computeShader.Dest(), destBuffer);
 
 		commandList.BindShaderResources( shaderBindings );
 

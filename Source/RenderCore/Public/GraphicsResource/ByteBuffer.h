@@ -4,6 +4,7 @@
 #include "GlobalShaders.h"
 #include "GraphicsApiResource.h"
 #include "Shader.h"
+#include "ShaderParameterUtils.h"
 #include "SizedTypes.h"
 
 namespace rendercore
@@ -13,14 +14,12 @@ namespace rendercore
 	class DistributionCopyCS : public GlobalShaderCommon<ComputeShader, DistributionCopyCS>
 	{
 	public:
-		DistributionCopyCS();
-
 		static constexpr uint32 ThreadGroupX = 64;
 
-		agl::ShaderParameter m_numDistribution;
-		agl::ShaderParameter m_src;
-		agl::ShaderParameter m_distributer;
-		agl::ShaderParameter m_dest;
+		DEFINE_SHADER_PARAM( NumDistribution );
+		DEFINE_SHADER_PARAM( Src );
+		DEFINE_SHADER_PARAM( Distributer );
+		DEFINE_SHADER_PARAM( Dest );
 	};
 
 	class GpuMemcpy

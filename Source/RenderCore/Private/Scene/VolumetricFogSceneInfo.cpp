@@ -14,162 +14,35 @@ namespace rendercore
 {
 	class InscatteringCS : public GlobalShaderCommon<ComputeShader, InscatteringCS>
 	{
-	public:
-		const agl::ShaderParameter& AsymmetryParameterG() const
-		{
-			return m_asymmetryParameterG;
-		}
+		DEFINE_SHADER_PARAM( AsymmetryParameterG );
+		DEFINE_SHADER_PARAM( UniformDensity );
+		DEFINE_SHADER_PARAM( Intensity );
+		DEFINE_SHADER_PARAM( TemporalAccum );
+		DEFINE_SHADER_PARAM( ShadowBias );
 
-		const agl::ShaderParameter& UniformDensity() const
-		{
-			return m_uniformDensity;
-		}
+		DEFINE_SHADER_PARAM( FrustumVolume );
 
-		const agl::ShaderParameter& Intensity() const
-		{
-			return m_intensity;
-		}
+		DEFINE_SHADER_PARAM( SceneViewParameters );
 
-		const agl::ShaderParameter& TemporalAccum() const
-		{
-			return m_temporalAccum;
-		}
+		DEFINE_SHADER_PARAM( ForwardLightConstant );
+		DEFINE_SHADER_PARAM( ForwardLight );
 
-		const agl::ShaderParameter& ShadowBias() const
-		{
-			return m_shadowBias;
-		}
+		DEFINE_SHADER_PARAM( ShadowTexture );
+		DEFINE_SHADER_PARAM( ShadowSampler );
+		DEFINE_SHADER_PARAM( ShadowDepthPassParameters );
 
-		const agl::ShaderParameter& FrustumVolume() const
-		{
-			return m_frustumVolume;
-		}
+		DEFINE_SHADER_PARAM( VolumetricFogParameterBuffer );
 
-		const agl::ShaderParameter& SceneViewParameters() const
-		{
-			return m_sceneViewParameters;
-		}
-
-		const agl::ShaderParameter& ForwardLightConstant() const
-		{
-			return m_forwardLightConstant;
-		}
-
-		const agl::ShaderParameter& ForwardLight() const
-		{
-			return m_forwardLight;
-		}
-
-		const agl::ShaderParameter& ShadowTexture() const
-		{
-			return m_shadowTexture;
-		}
-
-		const agl::ShaderParameter& ShadowSampler() const
-		{
-			return m_shadowSampler;
-		}
-
-		const agl::ShaderParameter& ShadowDepthPassParameters() const
-		{
-			return m_shadowDepthPassParameters;
-		}
-
-		const agl::ShaderParameter& VolumetricFogParameter() const
-		{
-			return m_volumetricFogParameter;
-		}
-
-		const agl::ShaderParameter& HistoryVolume() const
-		{
-			return m_historyVolume;
-		}
-
-		const agl::ShaderParameter& HistorySampler() const
-		{
-			return m_historySampler;
-		}
-
-		InscatteringCS()
-		{
-			m_asymmetryParameterG.Bind( GetShader()->ParameterMap(), "AsymmetryParameterG" );
-			m_uniformDensity.Bind( GetShader()->ParameterMap(), "UniformDensity" );
-			m_intensity.Bind( GetShader()->ParameterMap(), "Intensity" );
-			m_temporalAccum.Bind( GetShader()->ParameterMap(), "TemporalAccum" );
-			m_shadowBias.Bind( GetShader()->ParameterMap(), "ShadowBias" );
-
-			m_frustumVolume.Bind( GetShader()->ParameterMap(), "FrustumVolume" );
-
-			m_sceneViewParameters.Bind( GetShader()->ParameterMap(), "SceneViewParameters" );
-
-			m_forwardLightConstant.Bind( GetShader()->ParameterMap(), "ForwardLightConstant" );
-			m_forwardLight.Bind( GetShader()->ParameterMap(), "ForwardLight" );
-
-			m_shadowTexture.Bind( GetShader()->ParameterMap(), "ShadowTexture" );
-			m_shadowSampler.Bind( GetShader()->ParameterMap(), "ShadowSampler" );
-			m_shadowDepthPassParameters.Bind( GetShader()->ParameterMap(), "ShadowDepthPassParameters" );
-
-			m_volumetricFogParameter.Bind( GetShader()->ParameterMap(), "VolumetricFogParameterBuffer" );
-
-			m_historyVolume.Bind( GetShader()->ParameterMap(), "HistoryVolume" );
-			m_historySampler.Bind( GetShader()->ParameterMap(), "HistorySampler" );
-		}
-
-	private:
-		agl::ShaderParameter m_asymmetryParameterG;
-		agl::ShaderParameter m_uniformDensity;
-		agl::ShaderParameter m_intensity;
-		agl::ShaderParameter m_temporalAccum;
-		agl::ShaderParameter m_shadowBias;
-
-		agl::ShaderParameter m_frustumVolume;
-
-		agl::ShaderParameter m_sceneViewParameters;
-
-		agl::ShaderParameter m_forwardLightConstant;
-		agl::ShaderParameter m_forwardLight;
-
-		agl::ShaderParameter m_shadowTexture;
-		agl::ShaderParameter m_shadowSampler;
-		agl::ShaderParameter m_shadowDepthPassParameters;
-
-		agl::ShaderParameter m_volumetricFogParameter;
-
-		agl::ShaderParameter m_historyVolume;
-		agl::ShaderParameter m_historySampler;
+		DEFINE_SHADER_PARAM( HistoryVolume );
+		DEFINE_SHADER_PARAM( HistorySampler );
 	};
 
 	class AccumulateScatteringCS : public GlobalShaderCommon<ComputeShader, AccumulateScatteringCS>
 	{
-	public:
-		const agl::ShaderParameter& FrustumVolume() const
-		{
-			return m_frustumVolume;
-		}
+		DEFINE_SHADER_PARAM( FrustumVolume );
+		DEFINE_SHADER_PARAM( AccumulatedVolume );
 
-		const agl::ShaderParameter& AccumulatedVolume() const
-		{
-			return m_accumulatedVolume;
-		}
-
-		const agl::ShaderParameter& VolumetricFogParameter() const
-		{
-			return m_volumetricFogParameter;
-		}
-
-		AccumulateScatteringCS()
-		{
-			m_frustumVolume.Bind( GetShader()->ParameterMap(), "FrustumVolume" );
-			m_accumulatedVolume.Bind( GetShader()->ParameterMap(), "AccumulatedVolume" );
-
-			m_volumetricFogParameter.Bind( GetShader()->ParameterMap(), "VolumetricFogParameterBuffer" );
-		}
-
-	private:
-		agl::ShaderParameter m_frustumVolume;
-		agl::ShaderParameter m_accumulatedVolume;
-
-		agl::ShaderParameter m_volumetricFogParameter;
+		DEFINE_SHADER_PARAM( VolumetricFogParameterBuffer );
 	};
 
 	REGISTER_GLOBAL_SHADER( InscatteringCS, "./Assets/Shaders/VolumetricFog/CS_Inscattering.asset" );
@@ -277,7 +150,7 @@ namespace rendercore
 		BindResource( shaderBindings, inscatteringCS.ForwardLightConstant(), renderView.m_forwardLighting->m_lightConstant.Resource() );
 		BindResource( shaderBindings, inscatteringCS.ForwardLight(), renderView.m_forwardLighting->m_lightBuffer.Resource() );
 
-		BindResource( shaderBindings, inscatteringCS.VolumetricFogParameter(), GetVolumetricFogParameter().Resource() );
+		BindResource( shaderBindings, inscatteringCS.VolumetricFogParameterBuffer(), GetVolumetricFogParameter().Resource() );
 
 		SamplerOption shadowSamplerOption;
 		shadowSamplerOption.m_filter |= agl::TextureFilter::Comparison;
@@ -325,7 +198,7 @@ namespace rendercore
 		BindResource( shaderBindings, accumulateScatteringCS.FrustumVolume(), FrustumVolume() );
 		BindResource( shaderBindings, accumulateScatteringCS.AccumulatedVolume(), AccumulatedVolume() );
 
-		BindResource( shaderBindings, accumulateScatteringCS.VolumetricFogParameter(), GetVolumetricFogParameter().Resource() );
+		BindResource( shaderBindings, accumulateScatteringCS.VolumetricFogParameterBuffer(), GetVolumetricFogParameter().Resource() );
 
 		const std::array<uint32, 3>& frustumGridSize = Proxy()->FrustumGridSize();
 		const uint32 threadGroupCount[2] = {

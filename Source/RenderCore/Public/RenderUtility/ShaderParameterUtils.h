@@ -2,6 +2,7 @@
 
 #include "Buffer.h"
 #include "ICommandList.h"
+#include "ShaderBindings.h"
 #include "ShaderParameterMap.h"
 #include "Texture.h"
 
@@ -117,3 +118,12 @@ namespace rendercore
 		commandList.SetShaderValue( parameter, &value );
 	}
 }
+
+#define DEFINE_SHADER_PARAM( paramName ) \
+public:	\
+	const agl::ShaderParameter& paramName##() const \
+	{ \
+		return m_shaderParam##paramName; \
+	} \
+private: \
+	agl::ShaderParameter m_shaderParam##paramName{ GetShader()->ParameterMap(), #paramName }

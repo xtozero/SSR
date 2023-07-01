@@ -10,53 +10,17 @@ namespace rendercore
 {
 	class PerlinWorleyCS : public GlobalShaderCommon<ComputeShader, PerlinWorleyCS>
 	{
-	public:
-		PerlinWorleyCS()
-		{
-			m_noiseTex.Bind( GetShader()->ParameterMap(), "NoiseTex");
-		}
-
-		const agl::ShaderParameter& NoiseTex() const
-		{
-			return m_noiseTex;
-		}
-
-	private:
-		agl::ShaderParameter m_noiseTex;
+		DEFINE_SHADER_PARAM( NoiseTex );
 	};
 
 	class WorleyCS : public GlobalShaderCommon<ComputeShader, WorleyCS>
 	{
-	public:
-		WorleyCS()
-		{
-			m_noiseTex.Bind( GetShader()->ParameterMap(), "NoiseTex");
-		}
-
-		const agl::ShaderParameter& NoiseTex() const
-		{
-			return m_noiseTex;
-		}
-
-	private:
-		agl::ShaderParameter m_noiseTex;
+		DEFINE_SHADER_PARAM( NoiseTex );
 	};
 
 	class WeatherMapCS : public GlobalShaderCommon<ComputeShader, WeatherMapCS>
 	{
-	public:
-		WeatherMapCS()
-		{
-			m_weatherTex.Bind( GetShader()->ParameterMap(), "WeatherTex");
-		}
-
-		const agl::ShaderParameter& WeatherTex() const
-		{
-			return m_weatherTex;
-		}
-
-	private:
-		agl::ShaderParameter m_weatherTex;
+		DEFINE_SHADER_PARAM( WeatherTex );
 	};
 
 	REGISTER_GLOBAL_SHADER( PerlinWorleyCS, "./Assets/Shaders/Cloud/CS_PerlinWorley.asset" );
