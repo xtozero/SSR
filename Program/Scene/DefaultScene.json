@@ -57,7 +57,7 @@
         "Reflectable": 1,
         "Components": {
           "StaticMeshComponent": {
-            "Model": "./Assets/Models/Obj/box.asset",
+            "Model": "./Assets/Models/Obj/Box/box.asset",
             "RenderOption": "./Assets/RenderOptions/RO_Reflectable.asset"
           }
         }
@@ -72,7 +72,7 @@
         "Mass": 10,
         "Components": {
           "StaticMeshComponent": {
-            "Model": "./Assets/Models/Obj/shape_sphere.asset",
+            "Model": "./Assets/Models/Obj/Sphere/sphere.asset",
             "RenderOption": "./Assets/RenderOptions/RO_Default.asset"
           }
         }
@@ -86,7 +86,7 @@
         "Scale": [ 10, 10, 10 ],
         "Components": {
           "StaticMeshComponent": {
-            "Model": "./Assets/Models/Obj/cone.asset",
+            "Model": "./Assets/Models/Obj/Cone/cone.asset",
             "RenderOption": "./Assets/RenderOptions/RO_Default.asset"
           }
         }
@@ -100,7 +100,7 @@
         "Scale": [ 10, 10, 10 ],
         "Components": {
           "StaticMeshComponent": {
-            "Model": "./Assets/Models/Obj/cylinder.asset",
+            "Model": "./Assets/Models/Obj/Cylinder/cylinder.asset",
             "RenderOption": "./Assets/RenderOptions/RO_Default.asset"
           }
         }
@@ -114,7 +114,7 @@
         "Scale": [ 10, 10, 10 ],
         "Components": {
           "StaticMeshComponent": {
-            "Model": "./Assets/Models/Obj/torus.asset",
+            "Model": "./Assets/Models/Obj/Torus/torus.asset",
             "RenderOption": "./Assets/RenderOptions/RO_Default.asset"
           }
         }
@@ -129,7 +129,7 @@
         "Mass": 10,
         "Components": {
           "StaticMeshComponent": {
-            "Model": "./Assets/Models/Obj/dice.asset",
+            "Model": "./Assets/Models/Obj/Dice/dice.asset",
             "RenderOption": "./Assets/RenderOptions/RO_Default.asset"
           }
         }
@@ -144,7 +144,7 @@
         "Mass": 10,
         "Components": {
           "StaticMeshComponent": {
-            "Model": "./Assets/Models/Obj/shape_sphere.asset",
+            "Model": "./Assets/Models/Obj/Sphere/sphere.asset",
             "RenderOption": "./Assets/RenderOptions/RO_Default.asset"
           }
         }
@@ -158,7 +158,7 @@
         "Scale": [ 10, 10, 10 ],
         "Components": {
           "StaticMeshComponent": {
-            "Model": "./Assets/Models/Obj/cone.asset",
+            "Model": "./Assets/Models/Obj/Cone/cone.asset",
             "RenderOption": "./Assets/RenderOptions/RO_Default.asset"
           }
         }
@@ -172,7 +172,7 @@
         "Scale": [ 10, 10, 10 ],
         "Components": {
           "StaticMeshComponent": {
-            "Model": "./Assets/Models/Obj/cylinder.asset",
+            "Model": "./Assets/Models/Obj/Cylinder/cylinder.asset",
             "RenderOption": "./Assets/RenderOptions/RO_Default.asset"
           }
         }
@@ -186,7 +186,7 @@
         "Scale": [ 10, 10, 10 ],
         "Components": {
           "StaticMeshComponent": {
-            "Model": "./Assets/Models/Obj/torus.asset",
+            "Model": "./Assets/Models/Obj/Torus/torus.asset",
             "RenderOption": "./Assets/RenderOptions/RO_Default.asset"
           }
         }
@@ -201,7 +201,7 @@
         "Mass": 10,
         "Components": {
           "StaticMeshComponent": {
-            "Model": "./Assets/Models/Obj/dice.asset",
+            "Model": "./Assets/Models/Obj/Dice/dice.asset",
             "RenderOption": "./Assets/RenderOptions/RO_Default.asset"
           }
         }

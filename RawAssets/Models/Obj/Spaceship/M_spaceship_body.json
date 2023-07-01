@@ -1,0 +1,35 @@
+{
+	"Type": "Material",
+	"Shader": {
+		"VS": "./Assets/Shaders/VS_Tutorial.asset",
+		"PS": "./Assets/Shaders/PS_Tutorial.asset"
+	},
+	"Surface": {
+		"Alpha": 1.000000,
+		"Ambient": [
+			0.700000,
+			0.700000,
+			0.700000
+		],
+		"Transmission": [
+			1.000000,
+			1.000000,
+			1.000000
+		],
+		"Diffuse": [
+			0.700000,
+			0.700000,
+			0.700000
+		],
+		"IndexOfRefraction": 1.500000,
+		"Roughness": 1.000000,
+		"SpecularExponent": 10.000000,
+		"Specular": [
+			0.100000,
+			0.100000,
+			0.100000
+		],
+		"DiffuseTexture": "./Assets/Textures/Models/spaceship/diffuse.asset",
+		"DiffuseTextureSampler": "./Assets/RenderOptions/SO_Default.asset"
+	}
+}

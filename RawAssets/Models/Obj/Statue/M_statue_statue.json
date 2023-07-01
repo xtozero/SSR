@@ -1,0 +1,30 @@
+{
+	"Type": "Material",
+	"Shader": {
+		"VS": "./Assets/Shaders/VS_Tutorial.asset",
+		"PS": "./Assets/Shaders/PS_Tutorial.asset"
+	},
+	"Surface": {
+		"Alpha": 1.000000,
+		"Ambient": [
+			0.000000,
+			0.000000,
+			0.000000
+		],
+		"Diffuse": [
+			0.640000,
+			0.640000,
+			0.640000
+		],
+		"IndexOfRefraction": 1.000000,
+		"Roughness": 1.000000,
+		"SpecularExponent": 96.078430,
+		"Specular": [
+			0.000000,
+			0.000000,
+			0.000000
+		],
+		"DiffuseTexture": "./Assets/Textures/Models/statue/statue_d.asset",
+		"DiffuseTextureSampler": "./Assets/RenderOptions/SO_Default.asset"
+	}
+}

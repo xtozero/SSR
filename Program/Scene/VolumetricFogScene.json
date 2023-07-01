@@ -44,7 +44,7 @@
         "Rotation": [0, 90, 0],
         "Components": {
           "StaticMeshComponent": {
-            "Model": "./Assets/Models/Obj/sponza.asset",
+            "Model": "./Assets/Models/Obj/Sponza/sponza.asset",
             "RenderOption": "./Assets/RenderOptions/RO_CullOff.asset"
           }
         }

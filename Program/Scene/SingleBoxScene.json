@@ -31,7 +31,7 @@
         "Reflectable": 1,
         "Components": {
           "StaticMeshComponent": {
-            "Model": "./Assets/Models/Obj/box.asset",
+            "Model": "./Assets/Models/Obj/Box/box.asset",
             "RenderOption": "./Assets/RenderOptions/RO_Reflectable.asset"
           }
         }
