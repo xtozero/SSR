@@ -1,8 +1,8 @@
 {
 	"Type": "Material",
 	"Shader": {
-		"VS": "./Assets/Shaders/VS_Tutorial.asset",
-		"PS": "./Assets/Shaders/PS_Tutorial.asset"
+		"VS": "./Assets/Shaders/VS_DefaultLit.asset",
+		"PS": "./Assets/Shaders/PS_DefaultLit.asset"
 	},
 	"Surface": {
 		"Alpha": 0.000000,
