@@ -138,6 +138,16 @@ public:
 		return *this;
 	}
 
+	void WriteRaw( const void* value, size_t size )
+	{
+		size_t oldSize = m_buffer.size();
+		m_buffer.resize( oldSize + size );
+
+		auto begin = static_cast<const char*>( value );
+		auto end = begin + size;
+		std::copy( begin, end, &m_buffer[oldSize] );
+	}
+
 	size_t Size() const
 	{
 		return m_buffer.size();

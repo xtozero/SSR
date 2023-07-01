@@ -1,15 +1,26 @@
 {
-  "asset": {
-    "source_path": "../RawAssets",
-    "destination_path": "../Program/Assets",
-    "duplicate_source_directory_structure": true,
-    "ignore_path": [ "../RawAssets/Shaders" ]
+  "root_directory": "../Program",
+  "path_environments": {
+    "asset": {
+      "source_path": "../RawAssets",
+      "destination_path": "../Program/Assets",
+      "duplicate_source_directory_structure": true
+    },
+    "shader": {
+      "source_path": "../Source/Shaders/Private",
+      "destination_path": "../Program/Assets/Shaders",
+      "duplicate_source_directory_structure": true,
+      "include_path": "../Source/Shaders/Public",
+      "ignore_path": [ "../Source/Shaders/Private/Deprecated" ]
+    }
   },
-  "shader": {
-    "source_path": "../Source/Shaders/Private",
-    "destination_path": "../Program/Assets/Shaders",
-    "duplicate_source_directory_structure": true,
-    "include_path": "../Source/Shaders/Public",
-    "ignore_path": [ "../Source/Shaders/Private/Deprecated" ]
+  "preprocessing_environments": {
+    "mtl": {
+      "source_path": "../RawAssets",
+      "destination_path": "../RawAssets/",
+      "target_extension": ".mtl",
+      "product_extension": ".json",
+      "allow_overwrite": false
+    }
   }
 }

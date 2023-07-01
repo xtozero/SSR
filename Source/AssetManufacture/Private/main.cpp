@@ -64,7 +64,7 @@ bool IsIgnorePath( const PathEnvironment& env, const fs::path& path )
 
 bool PrepareDestinationDirectories()
 {
-	for ( auto& [key, environment] : ManufactureConfig::Instance().Environments() )
+	for ( auto& [key, environment] : ManufactureConfig::Instance().PathEnvironments() )
 	{
 		if ( fs::exists( environment.m_destination ) )
 		{
@@ -128,7 +128,7 @@ std::map<fs::path, fs::file_time_type> GatherAssetInfos()
 	std::map<fs::path, fs::file_time_type> assetInfos;
 	std::set<fs::path> visited;
 
-	for ( auto& [key, environment] : ManufactureConfig::Instance().Environments() )
+	for ( auto& [key, environment] : ManufactureConfig::Instance().PathEnvironments() )
 	{
 		if ( fs::exists( environment.m_destination ) )
 		{
@@ -168,7 +168,7 @@ std::map<fs::path, fs::file_time_type> GatherAssetInfos()
 
 void RemoveUnusedAssets( const std::set<fs::path>& processed )
 {
-	for ( auto& [key, environment] : ManufactureConfig::Instance().Environments() )
+	for ( auto& [key, environment] : ManufactureConfig::Instance().PathEnvironments() )
 	{
 		if ( fs::exists( environment.m_destination ) )
 		{
@@ -230,8 +230,55 @@ int32 main()
 
 	fs::path rootPath = fs::current_path();
 	
+	for ( auto& [key, environment] : ManufactureConfig::Instance().PreprocessingEnvironments() )
+	{
+		fs::path absolutePath = fs::absolute( environment.m_source );
+		fs::recursive_directory_iterator iter( absolutePath );
+
+		for ( const auto& p : iter )
+		{
+			if ( ( p.is_regular_file() == false ) 
+				|| ( ManufactureConfig::Instance().IsPreprocessingAsset( p ) == false ) )
+			{
+				continue;
+			}
+
+			fs::path targetDirectory = environment.m_destination / fs::relative( p.path().parent_path() );
+
+			auto products = manufacturer.Manufacture( environment, p.path() );
+			if ( products )
+			{
+				for ( const auto& product : products.value() )
+				{
+					const auto& archive = product.second;
+
+					if ( fs::exists( targetDirectory ) == false )
+					{
+						fs::create_directories( targetDirectory );
+					}
+
+					fs::path target = targetDirectory / product.first;
+					target = fs::absolute( target.replace_extension( environment.m_productExtension ) );
+					if ( ( environment.m_allowOverwrite == false )
+						&& fs::exists( target ) )
+					{
+						continue;
+					}
+
+					archive.WriteToFile( target );
+				}
+			}
+			else
+			{
+				std::cerr << "Failed to process asset (" + p.path().generic_string() + ")" << std::endl;
+			}
+		}
+
+		fs::current_path( rootPath );
+	}
+
 	std::set<fs::path> processed;
-	for ( auto& [key, environment] : ManufactureConfig::Instance().Environments() )
+	for ( auto& [key, environment] : ManufactureConfig::Instance().PathEnvironments() )
 	{
 		fs::path absolutePath = fs::absolute( environment.m_source );
 		fs::recursive_directory_iterator iter( absolutePath );
@@ -247,6 +294,11 @@ int32 main()
 
 			if ( p.is_regular_file() )
 			{
+				if ( ManufactureConfig::Instance().IsPreprocessingAsset( p ) )
+				{
+					continue;
+				}
+
 				fs::file_time_type lastWriteTime = fs::last_write_time( p );
 
 				fs::path targetDirectory = environment.m_destination / fs::relative( p.path().parent_path() );

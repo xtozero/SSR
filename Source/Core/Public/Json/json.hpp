@@ -521,6 +521,11 @@ namespace json
 
 		Value& operator=( const std::string& string )
 		{
+			if ( Type() == DataType::Empty )
+			{
+				ChangeValueType( DataType::String );
+			}
+
 			switch ( Type() )
 			{
 			case DataType::String:
@@ -536,6 +541,11 @@ namespace json
 
 		Value& operator=( std::string&& string )
 		{
+			if ( Type() == DataType::Empty )
+			{
+				ChangeValueType( DataType::String );
+			}
+
 			switch ( Type() )
 			{
 			case DataType::String:
@@ -551,6 +561,11 @@ namespace json
 
 		Value& operator=( int integer )
 		{
+			if ( Type() == DataType::Empty )
+			{
+				ChangeValueType( DataType::Interger );
+			}
+
 			switch ( Type() )
 			{
 			case DataType::String:
@@ -575,6 +590,11 @@ namespace json
 
 		Value& operator=( double real )
 		{
+			if ( Type() == DataType::Empty )
+			{
+				ChangeValueType( DataType::Real );
+			}
+
 			switch ( Type() )
 			{
 			case DataType::String:
@@ -1465,7 +1485,7 @@ namespace json
 						str += ",\n";
 					}
 
-					str += std::string( depth + 1, '\t' ) + names[i];
+					str += std::string( depth + 1, '\t' ) + '"' + names[i] + '"';
 					str += ": ";
 					str += ToStringRecursive<bPretty>( object[names[i]], depth + 1 );
 				}
@@ -1483,7 +1503,7 @@ namespace json
 						str += ",";
 					}
 
-					str += names[i];
+					str += +'"' + names[i] + '"';
 					str += ":";
 					str += ToStringRecursive<bPretty>( object[names[i]], depth + 1 );
 				}

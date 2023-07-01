@@ -91,7 +91,7 @@ namespace
 		return vertexInstanceID;
 	}
 
-	rendercore::StaticMesh CreateStaticMeshFromWavefrontObj( const Wavefront::ObjModel& model, const fs::path& assetsRootPath )
+	rendercore::StaticMesh CreateStaticMeshFromWavefrontObj( const Wavefront::ObjModel& model, const fs::path& parentPath )
 	{
 		std::vector<rendercore::MeshDescription> meshDescriptions;
 		meshDescriptions.emplace_back();
@@ -215,7 +215,7 @@ namespace
 				fs::path materialAsset( prefix + mesh.m_materialName + ".asset" );
 
 				auto mat = std::make_shared<rendercore::Material>( mesh.m_materialName.c_str() );
-				mat->SetPath( assetsRootPath / materialAsset );
+				mat->SetPath( parentPath / materialAsset );
 				staticMesh.AddMaterial( mat );
 			}
 		}
@@ -237,7 +237,7 @@ namespace
 			{
 				if ( p.path().filename() == mtlFileName )
 				{
-					return "." / fs::relative( p.path(), destPath.parent_path() ) / texName;
+					return "." / fs::relative( p.path(), destPath ) / texName;
 				}
 			}
 		}
@@ -245,68 +245,131 @@ namespace
 		return {};
 	}
 
-	rendercore::Material CreateMaterialFromWavefrontMaterial( const std::string& mtlFileName, const std::string& materialName, const Wavefront::ObjMaterial& material, const fs::path& destPath )
+	json::Value ConvertWavefrontMtlToJsonMaterial( const std::string& mtlFileName, const Wavefront::ObjMaterial& material )
 	{
-		rendercore::Material assetMaterial( materialName.c_str() );
+		json::Value root( json::DataType::Object );
+		root["Type"] = "Material";
+		root["Shader"] = json::Value( json::DataType::Object );
+		root["Shader"]["VS"] = "./Assets/Shaders/VS_Tutorial.asset";
+		root["Shader"]["PS"] = "./Assets/Shaders/PS_Tutorial.asset";
+		root["Surface"] = json::Value( json::DataType::Object );
+
+		json::Value& surface = root["Surface"];
+
+		surface["Alpha"] = material.m_alpha;
+		surface["Roughness"] = 1.f;
+		surface["IndexOfRefraction"] = material.m_ior;
+		surface["SpecularExponent"] = material.m_specularExponent;
 
 		if ( material.m_ambient )
 		{
 			const auto& ambientValue = material.m_ambient.value();
-			ColorF ambient( std::get<0>( ambientValue ), std::get<1>( ambientValue ), std::get<2>( ambientValue ), 1.f );
-			assetMaterial.AddProperty( "Ambient", ambient );
+			float ambient[] = { 
+				std::get<0>( ambientValue ),
+				std::get<1>( ambientValue ),
+				std::get<2>( ambientValue ) 
+			};
+
+			surface["Ambient"] = json::Value( json::DataType::Array );
+			for ( int32 i = 0; i < 3; ++i )
+			{
+				surface["Ambient"][i] = ambient[i];
+			}
 		}
 
 		if ( material.m_diffuse )
 		{
 			const auto& diffuseValue = material.m_diffuse.value();
-			ColorF diffuse( std::get<0>( diffuseValue ), std::get<1>( diffuseValue ), std::get<2>( diffuseValue ), 1.f );
-			assetMaterial.AddProperty( "Diffuse", diffuse );
+			float diffuse[] = { 
+				std::get<0>( diffuseValue ),
+				std::get<1>( diffuseValue ), 
+				std::get<2>( diffuseValue ) 
+			};
+
+			surface["Diffuse"] = json::Value( json::DataType::Array );
+			for ( int32 i = 0; i < 3; ++i )
+			{
+				surface["Diffuse"][i] = diffuse[i];
+			}
 		}
 
 		if ( material.m_specular )
 		{
 			const auto& specularValue = material.m_specular.value();
-			ColorF specular( std::get<0>( specularValue ), std::get<1>( specularValue ), std::get<2>( specularValue ), 1.f );
-			assetMaterial.AddProperty( "Specular", specular );
+			float specular[] = { 
+				std::get<0>( specularValue ), 
+				std::get<1>( specularValue ), 
+				std::get<2>( specularValue )
+			};
+
+			surface["Specular"] = json::Value( json::DataType::Array );
+			for ( int32 i = 0; i < 3; ++i )
+			{
+				surface["Specular"][i] = specular[i];
+			}
+		}
+
+		if ( material.m_transmission )
+		{
+			const auto& transmissionValue = material.m_transmission.value();
+			float transmission[] = {
+				std::get<0>( transmissionValue ),
+				std::get<1>( transmissionValue ),
+				std::get<2>( transmissionValue )
+			};
+
+			surface["Transmission"] = json::Value( json::DataType::Array );
+			for ( int32 i = 0; i < 3; ++i )
+			{
+				surface["Transmission"][i] = transmission[i];
+			}
 		}
 
 		if ( material.m_ambientTex.empty() == false )
 		{
-			fs::path ambientTex = ConvertTextureAssetPath( mtlFileName, material.m_ambientTex, destPath );
+			fs::path ambientTex = ConvertTextureAssetPath( mtlFileName, material.m_ambientTex, ManufactureConfig::Instance().RootDirectory() );
 
 			if ( ambientTex.has_relative_path() )
 			{
-				auto ambient = std::make_shared<rendercore::Texture>();
-				ambient->SetPath( material.m_ambientTex );
-				assetMaterial.AddProperty( "AmbientMap", ambient );
+				surface["AmbientTexture"] = ambientTex.generic_string();
+				surface["AmbientTextureSampler"] = "./Assets/RenderOptions/SO_Default.asset";
 			}
 		}
 
 		if ( material.m_diffuseTex.empty() == false )
 		{
-			fs::path diffuseTex = ConvertTextureAssetPath( mtlFileName, material.m_diffuseTex, destPath );
+			fs::path diffuseTex = ConvertTextureAssetPath( mtlFileName, material.m_diffuseTex, ManufactureConfig::Instance().RootDirectory() );
 
 			if ( diffuseTex.has_relative_path() )
 			{
-				auto diffuse = std::make_shared<rendercore::Texture>();
-				diffuse->SetPath( material.m_diffuseTex );
-				assetMaterial.AddProperty( "DiffuseMap", diffuse );
+				surface["DiffuseTexture"] = diffuseTex.generic_string();
+				surface["DiffuseTextureSampler"] = "./Assets/RenderOptions/SO_Default.asset";
 			}
 		}
 
 		if ( material.m_specularTex.empty() == false )
 		{
-			fs::path specularTex = ConvertTextureAssetPath( mtlFileName, material.m_specularTex, destPath );
+			fs::path specularTex = ConvertTextureAssetPath( mtlFileName, material.m_specularTex, ManufactureConfig::Instance().RootDirectory() );
 
 			if ( specularTex.has_relative_path() )
 			{
-				auto specular = std::make_shared<rendercore::Texture>();
-				specular->SetPath( material.m_specularTex );
-				assetMaterial.AddProperty( "SpecularMap", specular );
+				surface["SpecularTexture"] = specularTex.generic_string();
+				surface["SpecularTextureSampler"] = "./Assets/RenderOptions/SO_Default.asset";
 			}
 		}
 
-		return assetMaterial;
+		if ( material.m_bumpTex.empty() == false )
+		{
+			fs::path normalTex = ConvertTextureAssetPath( mtlFileName, material.m_bumpTex, ManufactureConfig::Instance().RootDirectory() );
+
+			if ( normalTex.has_relative_path() )
+			{
+				surface["NormalTexture"] = normalTex.generic_string();
+				surface["NormalTextureSampler"] = "./Assets/RenderOptions/SO_Default.asset";
+			}
+		}
+
+		return root;
 	}
 }
 
@@ -341,11 +404,11 @@ std::optional<Products> WavefrontObjManufacturer::Manufacture( const PathEnviron
 		}
 	}
 
-	fs::path destRootPath = "." / fs::relative( env.m_destination, env.m_destination.parent_path() );
-	fs::path assetsRootPath = destRootPath / fs::path( "Material" );
+	fs::path destParentPath = env.m_destination / fs::relative( path.parent_path() );
+	destParentPath = "." / fs::relative( destParentPath, ManufactureConfig::Instance().RootDirectory() );
 
 	Archive ar;
-	rendercore::StaticMesh staticMesh = CreateStaticMeshFromWavefrontObj( model, assetsRootPath );
+	rendercore::StaticMesh staticMesh = CreateStaticMeshFromWavefrontObj( model, destParentPath );
 	staticMesh.SetLastWriteTime( fs::last_write_time( path ) );
 	staticMesh.Serialize( ar );
 
@@ -359,7 +422,7 @@ bool WavefrontMtlManufacturer::IsSuitable( const std::filesystem::path& srcPath 
 	return srcPath.extension() == fs::path( ".mtl" );
 }
 
-std::optional<Products> WavefrontMtlManufacturer::Manufacture( const PathEnvironment& env, const std::filesystem::path& path ) const
+std::optional<Products> WavefrontMtlManufacturer::Manufacture( [[maybe_unused]] const PathEnvironment& env, const std::filesystem::path& path ) const
 {
 	if ( fs::exists( path ) == false )
 	{
@@ -381,10 +444,12 @@ std::optional<Products> WavefrontMtlManufacturer::Manufacture( const PathEnviron
 		Archive ar;
 		const auto& materialName = namedMaterial.first;
 		const auto& material = namedMaterial.second;
-		rendercore::Material assetMaterial = CreateMaterialFromWavefrontMaterial( mtlFileName, materialName, material, env.m_destination );
-		assetMaterial.Serialize( ar );
+		json::Value materialJson = ConvertWavefrontMtlToJsonMaterial( mtlFileName, material );
+		std::string jsonStr = json::Writer::ToStringPretty( materialJson );
 
-		fs::path assetMaterialFileName( "M_" + mtlFileName + "_" + materialName + ".asset" );
+		ar.WriteRaw( jsonStr.c_str(), jsonStr.size() );
+
+		fs::path assetMaterialFileName( "M_" + mtlFileName + "_" + materialName + ".json" );
 		products.emplace_back( assetMaterialFileName, std::move( ar ) );
 	}
 
