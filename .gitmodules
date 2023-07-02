@@ -1,3 +1,6 @@
 [submodule "ThirdParty/DirectXTex"]
 	path = ThirdParty/DirectXTex
 	url = https://github.com/microsoft/DirectXTex.git
+[submodule "ThirdParty/ImGui"]
+	path = ThirdParty/ImGui
+	url = https://github.com/ocornut/imgui.git
