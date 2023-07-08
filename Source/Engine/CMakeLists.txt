@@ -3,6 +3,10 @@ add_definitions(-DUNICODE=1)
 add_definitions(-D_UNICODE=1)
 add_definitions(-DNOMINMAX=1)
 
+set (CONFIG_SOURCE
+	Private/Config/DefaultAppConfig.cpp
+	Public/Config/DefaultAppConfig.h)
+
 set (CONSOLE_MESSAGE_SOURCES
 	Private/ConsoleMessage/ConCommand.cpp
 	Private/ConsoleMessage/ConsoleMessageExecutor.cpp
@@ -36,7 +40,8 @@ set (USER_INPUT_SOURCE
 	Private/UserInput/UICMap.cpp
 	Public/UserInput/UICMap.h
 	Public/UserInput/UserInput.h)
-	
+
+source_group("Config" FILES ${CONFIG_SOURCE})	
 source_group("ConsoleMessage" FILES ${CONSOLE_MESSAGE_SOURCES})
 source_group("UserInput" FILES ${USER_INPUT_SOURCE})
 source_group("Window" FILES ${PLATFORM_SOURCE})
@@ -44,7 +49,8 @@ source_group("Window" FILES ${PLATFORM_SOURCE})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-add_library(Engine SHARED	${CONSOLE_MESSAGE_SOURCES}
+add_library(Engine SHARED	${CONFIG_SOURCE}
+							${CONSOLE_MESSAGE_SOURCES}
 							${CORE_SOURCE}
 							${PLATFORM_SOURCE}
 							${PRECOMPILED} 
@@ -54,6 +60,7 @@ target_include_directories(Engine
 PUBLIC
 	./Public
 PRIVATE
+	../Editor/Public
 	../Logic/Public
 	./Public/AssetLoader
 	./Public/ConsoleMessage

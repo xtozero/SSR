@@ -14,6 +14,14 @@
 #define CORE_FUNC_DLL extern "C" __declspec(dllimport)
 #endif
 
+#ifdef EDITOR_EXPORTS
+#define EDITOR_DLL __declspec(dllexport)
+#define EDITOR_FUNC_DLL extern "C" __declspec(dllexport)
+#else
+#define EDITOR_DLL __declspec(dllimport)
+#define EDITOR_FUNC_DLL extern "C" __declspec(dllimport)
+#endif
+
 #ifdef ENGINE_EXPORTS
 #define ENGINE_DLL __declspec(dllexport)
 #define ENGINE_FUNC_DLL extern "C" __declspec(dllexport)

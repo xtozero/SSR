@@ -4,6 +4,8 @@
 #include "AppConfig/AppConfig.h"
 #include "common.h"
 #include "CommandLine.h"
+#include "Config/DefaultAppConfig.h"
+#include "Core/IEditor.h"
 #include "Core/ILogic.h"
 #include "FileSystem.h"
 #include "GuideTypes.h"
@@ -53,13 +55,13 @@ bool WindowPlatformEngine::BootUp( IPlatform& platform, char* argv )
 		GetInterface<ITaskScheduler>()->ProcessThisThreadTask();
 	}
 
-	m_logicDll = LoadModule( "Logic.dll" );
+	m_logicDll = LoadModule( DefaultApp::IsEditor() ? "Editor.dll" : "Logic.dll" );
 	if ( m_logicDll == nullptr )
 	{
 		return false;
 	}
 
-	m_logic = GetInterface<ILogic>();
+	m_logic = DefaultApp::IsEditor() ? GetInterface<IEditor>() : GetInterface<ILogic>();
 
 	if ( m_logic )
 	{
