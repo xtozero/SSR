@@ -21,6 +21,7 @@
 #include "Scene/IScene.h"
 //#include "Render/IRenderResourceManager.h"
 #include "UserInput/UserInput.h"
+#include "UserInterfaceRenderer.h"
 #include "World/WorldLoader.h"
 
 #include <cstddef>
@@ -284,11 +285,11 @@ void CGameLogic::EndLogic()
 
 	//InitView( views );
 
+	UpdateUIDrawData();
 	DrawScene();
 
 	//DrawForDebug( );
 	//DrawDebugOverlay( );
-	//DrawUI( );
 	//SceneEnd( );
 }
 
@@ -367,123 +368,13 @@ void CGameLogic::DrawDebugOverlay()
 	//m_debugOverlay.DrawPrimitive( *m_pRenderer, m_clock.GetElapsedTime() );
 }
 
-void CGameLogic::DrawUI()
+void CGameLogic::UpdateUIDrawData()
 {
-	//m_ui.EndFrame( );
-
-	//const ImDrawData drawData = m_ui.Render( );
-
-	//if ( drawData.m_drawLists.size( ) == 0 )
-	//{
-	//	return;
-	//}
-
-	//IResourceManager& resourceMgr = m_pRenderer->GetResourceManager( );
-
-	//// Resize Buffer
-	//if ( m_uiDrawBuffer[0].m_prevBufferSize != drawData.m_totalVertexCount ||
-	//	m_uiDrawBuffer[1].m_prevBufferSize != drawData.m_totalIndexCount )
-	//{
-	//	for ( const ImUiDrawBuffer& drawBuffer : m_uiDrawBuffer )
-	//	{
-	//		if ( drawBuffer.m_buffer != RE_HANDLE::InValidHandle( ) )
-	//		{
-	//			resourceMgr.FreeResource( drawBuffer.m_buffer );
-	//		}
-	//	}
-
-	//	BufferTrait trait = { sizeof( ImUiVertex ),
-	//		static_cast<uint32>( drawData.m_totalVertexCount ),
-	//		RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
-	//		RESOURCE_BIND_TYPE::VERTEX_BUFFER,
-	//		0U,
-	//		nullptr,
-	//		0U,
-	//		0U
-	//	};
-
-	//	m_uiDrawBuffer[0].m_buffer = m_pRenderer->CreateBuffer( trait );
-	//	m_uiDrawBuffer[0].m_prevBufferSize = drawData.m_totalVertexCount;
-
-	//	trait.m_stride = sizeof( DWORD );
-	//	trait.m_count = drawData.m_totalIndexCount;
-	//	trait.m_bindType = RESOURCE_BIND_TYPE::INDEX_BUFFER,
-
-	//	m_uiDrawBuffer[1].m_buffer = m_pRenderer->CreateBuffer( trait );
-	//	m_uiDrawBuffer[1].m_prevBufferSize = drawData.m_totalIndexCount;
-	//}
-
-	//BYTE* pVertex = reinterpret_cast<BYTE*>( m_pRenderer->LockBuffer( m_uiDrawBuffer[0].m_buffer ) );
-	//BYTE* pIndex = reinterpret_cast<BYTE*>( m_pRenderer->LockBuffer( m_uiDrawBuffer[1].m_buffer ) );
-
-	//if ( pVertex && pIndex )
-	//{
-	//	// Update Vertex, Index Buffer
-	//	for ( ImDrawList* drawList : drawData.m_drawLists )
-	//	{
-	//		size_t copySize = sizeof( ImUiVertex ) * drawList->m_vertices.size( );
-	//		memcpy( pVertex, drawList->m_vertices.data( ), copySize );
-	//		pVertex += copySize;
-
-	//		copySize = sizeof( DWORD ) * drawList->m_indices.size( );
-	//		memcpy( pIndex, drawList->m_indices.data( ), copySize );
-	//		pIndex += copySize;
-	//	}
-
-	//	m_pRenderer->UnLockBuffer( m_uiDrawBuffer[0].m_buffer );
-	//	m_pRenderer->UnLockBuffer( m_uiDrawBuffer[1].m_buffer );
-	//}
-	//else
-	//{
-	//	__debugbreak( );
-	//}
-
-	//// Update Porjection Matrix
-	//using namespace SHARED_CONSTANT_BUFFER;
-
-	//ViewProjectionTrasform* viewProj = reinterpret_cast<ViewProjectionTrasform*>( m_pRenderer->LockBuffer( m_commonConstantBuffer[VS_VIEW_PROJECTION] ) );
-	//if ( viewProj )
-	//{
-	//	viewProj->m_projection = XMMatrixTranspose( m_uiProjMat );
-	//	
-	//	m_pRenderer->UnLockBuffer( m_commonConstantBuffer[VS_VIEW_PROJECTION] );
-	//}
-	//else
-	//{
-	//	__debugbreak( );
-	//}
-	//
-
-	//// Draw
-	//uint32 stride = sizeof( ImUiVertex );
-	//uint32 offset = 0;
-	//m_pRenderer->BindVertexBuffer( &m_uiDrawBuffer[0].m_buffer, 0, 1, &stride, &offset );
-	//m_pRenderer->BindIndexBuffer( m_uiDrawBuffer[1].m_buffer, 0 );
-
-	//m_pRenderer->BindMaterial( m_uiMaterial );
-
-	//uint32 indexOffset = 0;
-	//uint32 vertexOffset = 0;
-	//RECT scissorRect;
-	//for ( ImDrawList* drawList : drawData.m_drawLists )
-	//{
-	//	for ( const ImDrawCmd& drawCmd : drawList->m_cmdBuffer )
-	//	{
-	//		const Rect& rc = drawCmd.m_clipRect;
-	//		scissorRect = { static_cast<LONG>( rc.m_leftTop.x ),
-	//						static_cast<LONG>( rc.m_leftTop.y ),
-	//						static_cast<LONG>( rc.m_rightBottom.x ),
-	//						static_cast<LONG>( rc.m_rightBottom.y ) };
-
-	//		m_pRenderer->SetScissorRects( &scissorRect, 1 );
-	//		m_pRenderer->BindShaderResource( SHADER_TYPE::PS, 0, 1, &drawCmd.m_textAtlas );
-	//		m_pRenderer->DrawIndexed( RESOURCE_PRIMITIVE::TRIANGLELIST, drawCmd.m_indicesCount, indexOffset, vertexOffset );
-	//		indexOffset += drawCmd.m_indicesCount;
-	//	}
-
-	//	assert( ( vertexOffset + drawList->m_vertices.size( ) ) <= UINT_MAX );
-	//	vertexOffset += static_cast<uint32>( drawList->m_vertices.size( ) );
-	//}
+	auto uiRenderer = GetInterface<rendercore::UserInterfaceRenderer>();
+	if ( uiRenderer )
+	{
+		uiRenderer->UpdateUIDrawData();
+	}
 }
 
 void CGameLogic::SceneEnd()

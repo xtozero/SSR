@@ -1,6 +1,9 @@
 #include "ImguiEditor.h"
 
+#include "imgui.h"
+#include "imgui_impl_win32.h"
 #include "LibraryTool/InterfaceFactories.h"
+#include "Platform/IPlatform.h"
 
 bool ImguiEditor::BootUp( IPlatform& platform )
 {
@@ -11,16 +14,26 @@ bool ImguiEditor::BootUp( IPlatform& platform )
 	}
 
 	m_logic = GetInterface<ILogic>();
-	if ( m_logic )
+	if ( m_logic == nullptr )
 	{
-		return m_logic->BootUp( platform );
+		return false;
 	}
 
-	return false;
+	if ( m_logic->BootUp( platform ) == false )
+	{
+		return false;
+	}
+
+	return ImGui_ImplWin32_Init( platform.GetRawHandle<void*>() );
 }
 
 void ImguiEditor::Update()
 {
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	ImGui::Render();
+
 	m_logic->Update();
 }
 
@@ -47,6 +60,7 @@ void ImguiEditor::AppSizeChanged( IPlatform& platform )
 ImguiEditor::~ImguiEditor()
 {
 	ShutdownModule( m_logicDll );
+	ImGui_ImplWin32_Shutdown();
 }
 
 Owner<IEditor*> CreateEditor()

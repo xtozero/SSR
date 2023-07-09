@@ -1,33 +1,57 @@
 #include "stdafx.h"
 
 #include "AssetFactory.h"
+#include "ImguiSharedContext.h"
 #include "InterfaceFactories.h"
 #include "Renderer/IRenderCore.h"
+#include "UserInterfaceRenderer.h"
 
 using ::rendercore::CreateRenderCore;
+using ::rendercore::CreateUserInterfaceRenderer;
 using ::rendercore::DestoryRenderCore;
+using ::rendercore::DestoryUserInterfaceRenderer;
 using ::rendercore::IRenderCore;
+using ::rendercore::UserInterfaceRenderer;
 
 namespace
 {
-	Owner<IRenderCore*> g_renderer = nullptr;
+	Owner<IRenderCore*> g_renderCore = nullptr;
+	Owner<UserInterfaceRenderer*> g_uiRenderer = nullptr;
 
-	void* GetRenderer()
+	void* GetRenderCore()
 	{
-		return g_renderer;
+		return g_renderCore;
+	}
+
+	void* GetUiRenderer()
+	{
+		return g_uiRenderer;
 	}
 }
 
 RENDERCORE_FUNC_DLL void BootUpModules()
 {
-	RegisterFactory<IRenderCore>( &GetRenderer );
-	g_renderer = CreateRenderCore();
+	RegisterFactory<IRenderCore>( &GetRenderCore );
+	RegisterFactory<UserInterfaceRenderer>( &GetUiRenderer );
+
+	g_renderCore = CreateRenderCore();
+	g_uiRenderer = CreateUserInterfaceRenderer();
 
 	DeferredAssetRegister::GetInstance().Register();
+
+	auto sharedContext = GetInterface<imgui::SharedContext>();
+	if ( sharedContext )
+	{
+		ImGui::SetCurrentContext( sharedContext->m_context );
+		ImGui::SetAllocatorFunctions( sharedContext->m_allocFunc, sharedContext->m_freeFunc );
+	}
 }
 
 RENDERCORE_FUNC_DLL void ShutdownModules()
 {
-	DestoryRenderCore( g_renderer );
+	DestoryUserInterfaceRenderer( g_uiRenderer );
+	DestoryRenderCore( g_renderCore );
+
+	UnregisterFactory<UserInterfaceRenderer>();
 	UnregisterFactory<IRenderCore>();
 }

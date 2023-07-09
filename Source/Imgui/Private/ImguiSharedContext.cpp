@@ -6,19 +6,27 @@ namespace imgui
 {
 	static void* MallocWrapper( size_t size, [[maybe_unused]] void* user_data )
 	{
-		return std::malloc( size ); 
+		return std::malloc( size );
 	}
 
-	static void FreeWrapper( void* ptr, [[maybe_unused]] void* user_data ) 
-	{ 
-		free( ptr ); 
+	static void FreeWrapper( void* ptr, [[maybe_unused]] void* user_data )
+	{
+		free( ptr );
 	}
 
 	SharedContext GetSharedContext()
 	{
 		if ( ImGui::GetCurrentContext() == nullptr )
 		{
+			IMGUI_CHECKVERSION();
 			ImGui::CreateContext();
+
+			ImGuiIO& io = ImGui::GetIO();
+			io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+			io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+
+			ImGui::StyleColorsDark();
+
 			ImGui::SetAllocatorFunctions( &MallocWrapper, &FreeWrapper );
 		}
 
@@ -33,7 +41,7 @@ namespace imgui
 
 	void DestorySharedContext( const SharedContext& sharedContext )
 	{
-		if ( sharedContext .m_context != nullptr )
+		if ( sharedContext.m_context != nullptr )
 		{
 			ImGui::DestroyContext( sharedContext.m_context );
 		}

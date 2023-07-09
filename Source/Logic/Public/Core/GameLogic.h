@@ -64,7 +64,7 @@ private:
 	void DrawScene();
 	void DrawForDebug();
 	void DrawDebugOverlay();
-	void DrawUI();
+	void UpdateUIDrawData();
 	void SceneEnd();
 
 	void BuildRenderableList();

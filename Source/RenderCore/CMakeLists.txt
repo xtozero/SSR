@@ -142,6 +142,7 @@ set (RENDER_UTILITY
 set (RENDERER_SOURCE
 	Private/Renderer/ForwardLighting.cpp
 	Private/Renderer/ForwardRenderer.cpp
+	Private/Renderer/ImguiRenderer.cpp
 	Private/Renderer/RenderView.cpp
 	Private/Renderer/SceneRenderer.cpp
 	Private/Renderer/SkyAtmosphereRendering.cpp
@@ -152,7 +153,8 @@ set (RENDERER_SOURCE
 	Public/Renderer/RenderView.h
 	Public/Renderer/SceneRenderer.h
 	Public/Renderer/SkyAtmosphereRendering.h
-	Public/Renderer/TemporalAntiAliasingRendering.h)
+	Public/Renderer/TemporalAntiAliasingRendering.h
+	Public/Renderer/UserInterfaceRenderer.h)
 
 source_group("CONFIG_SOURCE" FILES ${CONFIG_SOURCE})
 source_group("GraphicsResource" FILES ${GRAPHICS_RESOURCE_SOURCE})
@@ -190,6 +192,7 @@ PUBLIC
 	./Public/Renderer
 PRIVATE
 	../../ThirdParty/PIX/Include
+	../Editor/Public
 	../Logic/Public
 	../Shaders/Public/Atmosphere
 	./Public/Mesh
@@ -208,7 +211,8 @@ target_link_libraries(RenderCore
 PUBLIC
 	Agl
 PRIVATE
-	Core)
+	Core
+	Imgui)
 
 add_custom_command(TARGET RenderCore POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/RenderCore.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/RenderCore.dll"

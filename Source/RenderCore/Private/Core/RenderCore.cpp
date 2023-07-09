@@ -4,6 +4,7 @@
 #include "AbstractGraphicsInterface.h"
 #include "CommandList.h"
 #include "common.h"
+#include "Core/IEditor.h"
 #include "ForwardRenderer.h"
 #include "GlobalShaders.h"
 #include "GraphicsResource/Viewport.h"
@@ -13,6 +14,7 @@
 #include "TaskScheduler.h"
 #include "Scene/Scene.h"
 #include "ShaderCache.h"
+#include "UserInterfaceRenderer.h"
 
 #if _WIN64
 #include <optional>
@@ -82,6 +84,7 @@ namespace rendercore
 		agl::IAgl* m_agl = nullptr;
 
 		std::map<ShadingMethod, SceneRenderer*> m_sceneRenderer;
+		UserInterfaceRenderer* m_uiRenderer = nullptr;
 
 #if _WIN64
 		HMODULE m_hWinPixEventRuntime = nullptr;
@@ -124,6 +127,12 @@ namespace rendercore
 		}
 
 		if ( m_agl->BootUp() == false )
+		{
+			return false;
+		}
+
+		m_uiRenderer = GetInterface<UserInterfaceRenderer>();
+		if ( m_uiRenderer->BootUp() == false )
 		{
 			return false;
 		}
@@ -196,6 +205,11 @@ namespace rendercore
 
 			pSceneRenderer->Render( renderViewGroup );
 			pSceneRenderer->PostRender( renderViewGroup );
+		}
+
+		if ( m_uiRenderer )
+		{
+			m_uiRenderer->Render( renderViewGroup );
 		}
 
 		viewport.OnEndFrameRendering();

@@ -39,6 +39,7 @@ PRIVATE
 target_link_libraries(Editor
 PRIVATE
 	Core
+	Engine
 	Imgui)
 							
 add_custom_command(TARGET Editor POST_BUILD
