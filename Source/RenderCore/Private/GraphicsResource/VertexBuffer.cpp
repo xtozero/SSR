@@ -2,10 +2,27 @@
 #include "VertexBuffer.h"
 
 #include "AbstractGraphicsInterface.h"
+#include "CommandList.h"
 #include "TaskScheduler.h"
 
 namespace rendercore
 {
+	void VertexBuffer::Resize( uint32 newNumElement, bool copyPreviousData )
+	{
+		if ( newNumElement > m_numElement )
+		{
+			VertexBuffer newBuffer( m_elementSize, newNumElement, nullptr, m_isDynamic );
+
+			if ( copyPreviousData )
+			{
+				auto commandList = GetCommandList();
+				commandList.CopyResource( newBuffer.m_buffer, m_buffer, Size() );
+			}
+
+			( *this ) = std::move( newBuffer );
+		}
+	}
+
 	void* VertexBuffer::Lock()
 	{
 		assert( IsInRenderThread() );
@@ -28,7 +45,10 @@ namespace rendercore
 		return m_buffer.Get();
 	}
 
-	VertexBuffer::VertexBuffer( uint32 elementSize, uint32 numElement, const void* initData, bool isDynamic ) : m_size( elementSize* numElement ), m_isDynamic( isDynamic )
+	VertexBuffer::VertexBuffer( uint32 elementSize, uint32 numElement, const void* initData, bool isDynamic ) 
+		: m_elementSize( elementSize )
+		, m_numElement( numElement )
+		, m_isDynamic( isDynamic )
 	{
 		InitResource( elementSize, numElement, initData );
 	}
@@ -38,7 +58,7 @@ namespace rendercore
 		agl::ResourceAccessFlag accessFlag = agl::ResourceAccessFlag::None;
 		if ( m_isDynamic )
 		{
-			accessFlag = agl::ResourceAccessFlag::CpuWrite;
+			accessFlag = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::CpuWrite;
 		}
 		else
 		{

@@ -7,6 +7,11 @@ struct RectangleArea
 	T m_top;
 	T m_right;
 	T m_bottom;
+
+	bool Valid() const
+	{
+		return m_left < m_right && m_top < m_bottom;
+	}
 };
 
 template<typename T>

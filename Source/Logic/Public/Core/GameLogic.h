@@ -64,7 +64,7 @@ private:
 	void DrawScene();
 	void DrawForDebug();
 	void DrawDebugOverlay();
-	void UpdateUIDrawData();
+	void UpdateUIDrawInfo();
 	void SceneEnd();
 
 	void BuildRenderableList();
@@ -115,6 +115,7 @@ private:
 	std::unique_ptr<rendercore::Viewport> m_primayViewport;
 	GameClientViewport* m_gameViewport;
 
+	std::atomic<int64> m_numDrawRequestQueued = 0;
 #ifdef DEBUGGING_BY_CONSOLE
 	CDebugConsole m_commandConsole;
 #endif

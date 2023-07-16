@@ -9,10 +9,17 @@ namespace rendercore
 	class IndexBuffer
 	{
 	public:
+		void Resize( uint32 newNumElement, bool copyPreviousData );
+
+		void* Lock();
+		void Unlock();
+
+		uint32 Size() const;
+
 		agl::Buffer* Resource();
 		const agl::Buffer* Resource() const;
 
-		IndexBuffer( uint32 numElement, const void* initData, bool isDWORD );
+		IndexBuffer( uint32 numElement, const void* initData, bool isDWORD, bool isDynamic = false );
 
 		IndexBuffer() = default;
 		~IndexBuffer() = default;
@@ -33,6 +40,7 @@ namespace rendercore
 
 		uint32 m_numElement = 0;
 		bool m_isDWORD = false;
+		bool m_isDynamic = false;
 		agl::RefHandle<agl::Buffer> m_buffer;
 	};
 }

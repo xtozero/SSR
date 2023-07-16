@@ -285,8 +285,17 @@ void CGameLogic::EndLogic()
 
 	//InitView( views );
 
-	UpdateUIDrawData();
-	DrawScene();
+	if ( m_numDrawRequestQueued == 0 )
+	{
+		++m_numDrawRequestQueued;
+		UpdateUIDrawInfo();
+		DrawScene();
+
+		EnqueueRenderTask( [this]()
+			{
+				--m_numDrawRequestQueued;
+			} );
+	}
 
 	//DrawForDebug( );
 	//DrawDebugOverlay( );
@@ -368,12 +377,12 @@ void CGameLogic::DrawDebugOverlay()
 	//m_debugOverlay.DrawPrimitive( *m_pRenderer, m_clock.GetElapsedTime() );
 }
 
-void CGameLogic::UpdateUIDrawData()
+void CGameLogic::UpdateUIDrawInfo()
 {
 	auto uiRenderer = GetInterface<rendercore::UserInterfaceRenderer>();
 	if ( uiRenderer )
 	{
-		uiRenderer->UpdateUIDrawData();
+		uiRenderer->UpdateUIDrawInfo();
 	}
 }
 

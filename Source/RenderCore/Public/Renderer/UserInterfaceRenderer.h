@@ -12,7 +12,7 @@ namespace rendercore
 		virtual bool BootUp() = 0;
 		virtual void Render( RenderViewGroup& renderViewGroup ) = 0;
 
-		virtual void UpdateUIDrawData() = 0;
+		virtual void UpdateUIDrawInfo() = 0;
 
 		virtual ~UserInterfaceRenderer() = default;
 	};

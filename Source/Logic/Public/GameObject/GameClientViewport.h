@@ -26,7 +26,4 @@ private:
 	void InitView( rendercore::RenderViewGroup& views );
 
 	rendercore::Viewport* m_viewport = nullptr;
-
-	uint32 m_drawFence = 0;
-	uint32 m_curDrawFence = 0;
 };

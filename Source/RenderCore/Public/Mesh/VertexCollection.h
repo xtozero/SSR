@@ -45,7 +45,12 @@ namespace rendercore
 			return m_count;
 		}
 
-		VertexStream( const char* name, agl::ResourceFormat format, uint32 count );
+		bool IsDynamic() const
+		{
+			return m_isDynamic;
+		}
+
+		VertexStream( const char* name, agl::ResourceFormat format, uint32 count, bool isDynamic = false );
 		VertexStream() = default;
 
 		friend Archive& operator<<( Archive& ar, VertexStream& stream );
@@ -55,6 +60,7 @@ namespace rendercore
 		agl::ResourceFormat m_format = agl::ResourceFormat::Unknown;
 		uint32 m_stride = 0;
 		uint32 m_count = 0;
+		bool m_isDynamic = false;
 
 		std::vector<uint8> m_data;
 	};
@@ -90,6 +96,8 @@ namespace rendercore
 		uint32 AddStream( const VertexStream& stream );
 		uint32 AddStream( VertexStream&& stream );
 
+		[[nodiscard]] VertexBuffer* GetVertexBuffer( const Name& name );
+
 		void InitLayout( const agl::VertexLayoutTrait* traits, uint32 count, VertexStreamLayoutType layoutType );
 
 		const VertexStreamLayout& VertexLayout( VertexStreamLayoutType layoutType ) const;
@@ -99,7 +107,7 @@ namespace rendercore
 		friend Archive& operator<<( Archive& ar, VertexCollection& collection );
 
 	private:
-		std::optional<uint32> FindStream( const Name& name ) const;
+		std::optional<uint32> FindStreamIndex( const Name& name ) const;
 		VertexStreamLayout SetupVertexLayout( const agl::VertexLayoutTrait* trait, uint32 count );
 
 		std::vector<VertexStream> m_streams;

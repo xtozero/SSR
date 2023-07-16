@@ -30,18 +30,11 @@ void GameClientViewport::Draw()
 		return;
 	}
 
-	if ( m_drawFence < m_curDrawFence )
-	{
-		return;
-	}
-
 	auto renderModule = GetInterface<rendercore::IRenderCore>();
 	if ( renderModule->IsReady() == false )
 	{
 		return;
 	}
-
-	++m_curDrawFence;
 
 	const float4& bgColor = DefaultLogic::GetDefaultBackgroundColor();
 
@@ -62,7 +55,6 @@ void GameClientViewport::Draw()
 			if ( renderModule )
 			{
 				renderModule->BeginRenderingViewGroup( renderViewGroup );
-				++m_drawFence;
 			}
 		} );
 }

@@ -6,10 +6,18 @@
 
 namespace rendercore
 {
-	VertexStream::VertexStream( const char* name, agl::ResourceFormat format, uint32 count ) : m_name( name ), m_format( format ), m_count( count )
+	VertexStream::VertexStream( const char* name, agl::ResourceFormat format, uint32 count, bool isDynamic ) 
+		: m_name( name )
+		, m_format( format )
+		, m_count( count )
+		, m_isDynamic( isDynamic )
 	{
 		m_stride = agl::ResourceFormatSize( format );
-		m_data.resize( m_stride * m_count );
+		
+		if ( m_isDynamic == false )
+		{
+			m_data.resize( m_stride * m_count );
+		}
 	}
 
 	Archive& operator<<( Archive& ar, VertexStream& stream )
@@ -18,6 +26,7 @@ namespace rendercore
 			<< stream.m_format
 			<< stream.m_stride
 			<< stream.m_count
+			<< stream.m_isDynamic
 			<< stream.m_data;
 
 		return ar;
@@ -48,7 +57,7 @@ namespace rendercore
 		uint32 i = 0;
 		for ( const auto& stream : m_streams )
 		{
-			m_vbs[i++] = VertexBuffer( stream.Stride(), stream.Count(), stream.Data() );
+			m_vbs[i++] = VertexBuffer( stream.Stride(), stream.Count(), stream.IsDynamic() ? nullptr : stream.Data(), stream.IsDynamic() );
 		}
 	}
 
@@ -62,6 +71,17 @@ namespace rendercore
 	{
 		m_streams.emplace_back( std::move( stream ) );
 		return static_cast<uint32>( m_streams.size() );
+	}
+
+	VertexBuffer* VertexCollection::GetVertexBuffer( const Name& name )
+	{
+		auto streamIndex = FindStreamIndex( name );
+		if ( streamIndex )
+		{
+			return &m_vbs[streamIndex.value()];
+		}
+
+		return nullptr;
 	}
 
 	void VertexCollection::InitLayout( const agl::VertexLayoutTrait* trait, uint32 count, VertexStreamLayoutType layoutType )
@@ -132,7 +152,7 @@ namespace rendercore
 		return ar;
 	}
 
-	std::optional<uint32> VertexCollection::FindStream( const Name& name ) const
+	std::optional<uint32> VertexCollection::FindStreamIndex( const Name& name ) const
 	{
 		for ( uint32 i = 0; i < m_streams.size(); ++i )
 		{
@@ -152,7 +172,7 @@ namespace rendercore
 		for ( uint32 i = 0; i < count; ++i )
 		{
 			const agl::VertexLayoutTrait& trait = traits[i];
-			auto streamIndex = FindStream( trait.m_name );
+			auto streamIndex = FindStreamIndex( trait.m_name );
 			if ( streamIndex )
 			{
 				layout.AddLayout( trait.m_name.Str().data(),
