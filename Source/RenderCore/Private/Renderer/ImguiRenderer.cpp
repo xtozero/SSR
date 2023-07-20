@@ -1,11 +1,18 @@
 #include "UserInterfaceRenderer.h"
 
+#include "AbstractGraphicsInterface.h"
 #include "AssetLoader.h"
+#include "CommandList.h"
 #include "GlobalShaders.h"
 #include "GraphicsApiResource.h"
 #include "imgui.h"
+#include "Math/TransformationMatrix.h"
+#include "MeshDrawInfo.h"
 #include "PassProcessor.h"
 #include "RenderOption.h"
+#include "Scene/PrimitiveSceneInfo.h"
+#include "SceneRenderer.h"
+#include "ShaderParameterUtils.h"
 #include "SizedTypes.h"
 #include "Texture.h"
 #include "VertexCollection.h"
@@ -148,6 +155,7 @@ namespace rendercore
 		VertexCollection m_vertexCollection;
 		IndexBuffer m_indexBuffer;
 		agl::RefHandle<agl::Texture> m_fontAtlas;
+		SamplerState m_fontAtlasSampler;
 	};
 
 	class ImguiRenderer : public UserInterfaceRenderer
@@ -179,6 +187,73 @@ namespace rendercore
 	void ImguiRenderer::Render( RenderViewGroup& renderViewGroup )
 	{
 		assert( IsInRenderThread() );
+
+		if ( m_imguiDrawInfo.m_displaySize.x <= 0.f
+			|| m_imguiDrawInfo.m_displaySize.y <= 0.f )
+		{
+			return;
+		}
+
+		float left = m_imguiDrawInfo.m_displayPos.x;
+		float right = m_imguiDrawInfo.m_displayPos.x + m_imguiDrawInfo.m_displaySize.x;
+		float top = m_imguiDrawInfo.m_displayPos.y;
+		float bottom = m_imguiDrawInfo.m_displayPos.y + m_imguiDrawInfo.m_displaySize.y;
+		Matrix imguiProjection(
+			2.0f / ( right - left ), 0.0f, 0.0f, 0.0f,
+			0.0f, 2.0f / ( top - bottom ), 0.0f, 0.0f,
+			0.0f, 0.0f, 0.5f, 0.0f,
+			( right + left ) / ( left - right ), ( top + bottom ) / ( bottom - top ), 0.5f, 1.0f );
+
+		for ( const ImguiDrawList& drawList : m_imguiDrawInfo.m_drawLists )
+		{
+			for ( const ImguiDrawCommand& drawCommand : drawList.m_drawCommands )
+			{
+				MeshDrawInfo drawinfo{
+					.m_vertexCollection = &m_imguiRenderResource.m_vertexCollection,
+					.m_indexBuffer = &m_imguiRenderResource.m_indexBuffer,
+					.m_material = nullptr,
+					.m_renderOption = nullptr,
+					.m_startLocation = drawCommand.m_indexOffset,
+					.m_count = drawCommand.m_numElem,
+					.m_lod = 0,
+					.m_sectionIndex = 0,
+				};
+
+				PrimitiveSubMesh subMesh( drawinfo );
+				auto result = m_drawPassProcessor.Process( subMesh );
+
+				if ( result.has_value() == false )
+				{
+					continue;
+				}
+
+				DrawSnapshot& snapshot = *result;
+
+				agl::ShaderParameter param( agl::ShaderType::VS, agl::ShaderParameterType::ConstantBufferValue, 0, 0, sizeof( Matrix ) );
+
+				auto commandList = GetCommandList();
+				SetShaderValue( commandList, param, imguiProjection );
+
+				auto texture = static_cast<agl::Texture*>( drawCommand.m_textureId );
+
+				RenderingShaderResource imguiShaderResources;
+				imguiShaderResources.AddResource( "texture0", texture->SRV() );
+				imguiShaderResources.AddResource( "sampler0", m_imguiRenderResource.m_fontAtlasSampler.Resource() );
+
+				imguiShaderResources.BindResources( snapshot.m_pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+				VisibleDrawSnapshot visibleSnapshot = {
+					.m_primitiveId = 0,
+					.m_primitiveIdOffset = 0,
+					.m_numInstance = 1,
+					.m_snapshotBucketId = -1,
+					.m_drawSnapshot = &snapshot,
+				};
+
+				VertexBuffer emptyPrimitiveID;
+				CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
+			}
+		}
 	}
 
 	void ImguiRenderer::UpdateUIDrawInfo()
@@ -242,7 +317,7 @@ namespace rendercore
 			} );
 
 		static_assert( sizeof( ImTextureID ) >= sizeof( m_imguiRenderResource.m_fontAtlas.Get() ), "Can't pack descriptor handle into TexID" );
-		io.Fonts->SetTexID( (ImTextureID)m_imguiRenderResource.m_fontAtlas.Get() );
+		io.Fonts->SetTexID( m_imguiRenderResource.m_fontAtlas.Get() );
 	}
 
 	void ImguiRenderer::UpdateRenderResource()
@@ -361,6 +436,12 @@ namespace rendercore
 		std::memcpy( indexData, m_imguiDrawInfo.m_indices.data(), indexBuffer.Size() );
 
 		indexBuffer.Unlock();
+
+		if ( m_imguiRenderResource.m_fontAtlasSampler.Resource() == nullptr )
+		{
+			auto& graphicsInterface = GraphicsInterface();
+			m_imguiRenderResource.m_fontAtlasSampler = graphicsInterface.FindOrCreate( SamplerOption() );
+		}
 	}
 
 	Owner<UserInterfaceRenderer*> CreateUserInterfaceRenderer()
@@ -387,7 +468,7 @@ namespace rendercore
 			.m_rasterizerOption = &m_rasterizerOption
 		};
 
-		return std::optional<DrawSnapshot>();
+		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default, true );
 	}
 
 	ImguiDrawPassProcessor::ImguiDrawPassProcessor()

@@ -122,13 +122,11 @@ namespace agl
 
 	void D3D12CommandListImpl::BindPipelineState( GraphicsPipelineState* pipelineState )
 	{
-		m_globalConstantBuffers.Reset( false );
 		m_stateCache.BindPipelineState( CommandList(), pipelineState );
 	}
 
 	void D3D12CommandListImpl::BindPipelineState( ComputePipelineState* pipelineState )
 	{
-		m_globalConstantBuffers.Reset( true );
 		m_stateCache.BindPipelineState( CommandList(), pipelineState );
 	}
 
@@ -147,18 +145,21 @@ namespace agl
 	{
 		m_globalConstantBuffers.CommitShaderValue( false );
 		CommandList().DrawInstanced( vertexCount, numInstance, baseVertexLocation, 0 );
+		m_globalConstantBuffers.Reset( false );
 	}
 
 	void D3D12CommandListImpl::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
 	{
 		m_globalConstantBuffers.CommitShaderValue( false );
 		CommandList().DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation, 0 );
+		m_globalConstantBuffers.Reset( false );
 	}
 
 	void D3D12CommandListImpl::Dispatch( uint32 x, uint32 y, uint32 z )
 	{
 		m_globalConstantBuffers.CommitShaderValue( true );
 		CommandList().Dispatch( x, y, z );
+		m_globalConstantBuffers.Reset( true );
 	}
 
 	void D3D12CommandListImpl::SetViewports( uint32 count, const CubeArea<float>* area )

@@ -177,6 +177,9 @@ namespace rendercore
 		agl::Texture* depthStencil = renderTargets.GetDepthStencil();
 		agl::DepthStencilView* dsv = depthStencil != nullptr ? depthStencil->DSV() : nullptr;
 
+		agl::ResourceTransition rtTransition = Transition( *sceneTex, agl::ResourceState::RenderTarget );
+		commandList.Transition( 1, &rtTransition );
+
 		commandList.BindRenderTargets( &rtv, 1, dsv );
 	}
 

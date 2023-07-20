@@ -52,7 +52,12 @@ namespace rendercore
 	protected:
 		virtual PassShader CollectPassShader( MaterialResource& material ) const;
 
-		std::optional<DrawSnapshot> BuildDrawSnapshot( const PrimitiveSubMesh& subMesh, const PassShader& passShader, const PassRenderOption& passRenderOption, VertexStreamLayoutType layoutType );
+		std::optional<DrawSnapshot> BuildDrawSnapshot( 
+			const PrimitiveSubMesh& subMesh,
+			const PassShader& passShader, 
+			const PassRenderOption& passRenderOption, 
+			VertexStreamLayoutType layoutType,
+			bool useAutoInstancing = true );
 	};
 
 	using PassProcessorCreateFunction = IPassProcessor * ( * )( );

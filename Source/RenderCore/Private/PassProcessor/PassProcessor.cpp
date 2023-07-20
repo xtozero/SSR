@@ -28,29 +28,35 @@ namespace rendercore
 		return passShader;
 	}
 
-	std::optional<DrawSnapshot> IPassProcessor::BuildDrawSnapshot( const PrimitiveSubMesh& subMesh, const PassShader& passShader, const PassRenderOption& passRenderOption, VertexStreamLayoutType layoutType )
+	std::optional<DrawSnapshot> IPassProcessor::BuildDrawSnapshot( 
+		const PrimitiveSubMesh& subMesh, 
+		const PassShader& passShader, 
+		const PassRenderOption& passRenderOption, 
+		VertexStreamLayoutType layoutType, 
+		bool useAutoInstancing )
 	{
 		DrawSnapshot snapshot;
+		snapshot.m_primitiveIdSlot = -1;
 
 		VertexStreamLayout vertexlayout;
 		if ( subMesh.m_vertexCollection )
 		{
 			vertexlayout = subMesh.m_vertexCollection->VertexLayout( layoutType );
 
-			uint32 primitiveIdSlot = vertexlayout.Size();
-			vertexlayout.AddLayout( "PRIMITIVEID", 0,
-				agl::ResourceFormat::R32_UINT,
-				primitiveIdSlot,
-				true,
-				1,
-				-1 );
+			if ( useAutoInstancing )
+			{
+				uint32 primitiveIdSlot = vertexlayout.Size();
+				vertexlayout.AddLayout( "PRIMITIVEID", 0,
+					agl::ResourceFormat::R32_UINT,
+					primitiveIdSlot,
+					true,
+					1,
+					-1 );
+
+				snapshot.m_primitiveIdSlot = primitiveIdSlot;
+			}
 
 			subMesh.m_vertexCollection->Bind( snapshot.m_vertexStream, layoutType );
-			snapshot.m_primitiveIdSlot = primitiveIdSlot;
-		}
-		else
-		{
-			snapshot.m_primitiveIdSlot = -1;
 		}
 
 		if ( subMesh.m_indexBuffer )

@@ -55,7 +55,7 @@ namespace agl
 		}
 
 		ShaderParameter() = default;
-		ShaderParameter( ShaderType shader, ShaderParameterType type, uint32 bindPoint, uint32 offset, uint32 sizeInByte );
+		AGL_DLL ShaderParameter( ShaderType shader, ShaderParameterType type, uint32 bindPoint, uint32 offset, uint32 sizeInByte );
 		AGL_DLL ShaderParameter( const ShaderParameterMap& parameterMap, const char* variableName );
 	};
 
