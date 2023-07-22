@@ -17,6 +17,7 @@ namespace rendercore
 		const RenderOption* m_renderOption = nullptr;
 
 		uint32 m_startLocation = 0;
+		uint32 m_baseVertexLocation = 0;
 		uint32 m_count = 0;
 
 		uint32 m_lod = 0;

@@ -4,6 +4,7 @@
 #include "imgui_impl_win32.h"
 #include "LibraryTool/InterfaceFactories.h"
 #include "Platform/IPlatform.h"
+#include "UserInput/UserInput.h"
 
 bool ImguiEditor::BootUp( IPlatform& platform )
 {
@@ -49,7 +50,51 @@ void ImguiEditor::Resume()
 
 void ImguiEditor::HandleUserInput( const UserInput& input )
 {
-	m_logic->HandleUserInput( input );
+	if ( ImGui::IsWindowHovered( ImGuiHoveredFlags_AnyWindow | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem | ImGuiHoveredFlags_AllowWhenBlockedByPopup ) )
+	{
+		if ( ImGui::GetCurrentContext() == nullptr )
+		{
+			return;
+		}
+
+		ImGuiIO& io = ImGui::GetIO();
+		switch ( input.m_code )
+		{
+		case UserInputCode::UIC_MOUSE_LEFT:
+		case UserInputCode::UIC_MOUSE_RIGHT:
+		case UserInputCode::UIC_MOUSE_MIDDLE:
+		{
+			int32 button = 0;
+
+			if ( input.m_code == UserInputCode::UIC_MOUSE_LEFT )
+			{
+				button = 0;
+			}
+			else if ( input.m_code == UserInputCode::UIC_MOUSE_RIGHT )
+			{
+				button = 1;
+			}
+			else if ( input.m_code == UserInputCode::UIC_MOUSE_MIDDLE )
+			{
+				button = 2;
+			}
+
+			io.AddMouseSourceEvent( ImGuiMouseSource_Mouse );
+			io.AddMouseButtonEvent( button, input.m_axis[UserInput::Z_AXIS] < 0 );
+			break;
+		}
+		case UserInputCode::UIC_MOUSE_WHEELSPIN:
+		{
+			io.AddMouseWheelEvent( 0.f, input.m_axis[UserInput::Z_AXIS] );
+		}
+		default:
+			break;
+		}
+	}
+	else
+	{
+		m_logic->HandleUserInput( input );
+	}
 }
 
 void ImguiEditor::AppSizeChanged( IPlatform& platform )

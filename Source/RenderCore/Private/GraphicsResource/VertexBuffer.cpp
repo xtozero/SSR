@@ -35,6 +35,16 @@ namespace rendercore
 		GraphicsInterface().UnLock( m_buffer );
 	}
 
+	size_t VertexBuffer::Size() const
+	{
+		return m_elementSize * m_numElement;
+	}
+
+	size_t VertexBuffer::ElementSize() const
+	{
+		return m_elementSize;
+	}
+
 	agl::Buffer* VertexBuffer::Resource()
 	{
 		return m_buffer.Get();

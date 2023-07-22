@@ -1,3 +1,5 @@
+#include "Common/GammaCorrection.fxh"
+
 cbuffer vertexBuffer : register( b0 )
 {
 	float4x4 ProjectionMatrix;
@@ -21,7 +23,11 @@ PS_INPUT main( VS_INPUT input )
 {
 	PS_INPUT output;
 	output.pos = mul( ProjectionMatrix, float4( input.pos.xy, 0.f, 1.f ) );
+#if USE_SRGB == 1
+	output.col = MoveLinearSpace( input.col );
+#else
 	output.col = input.col;
+#endif
 	output.uv = input.uv;
 	return output;
 }

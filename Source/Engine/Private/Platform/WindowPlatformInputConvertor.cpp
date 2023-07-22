@@ -220,7 +220,7 @@ float GetMouseZAxis( const MSG& wndMsg )
 		case WM_MBUTTONUP:
 			return 1.0f;
 		case WM_MOUSEWHEEL:
-			return GET_WHEEL_DELTA_WPARAM( wndMsg.wParam );
+			return static_cast<float>( GET_WHEEL_DELTA_WPARAM( wndMsg.wParam ) ) / WHEEL_DELTA;
 		default:
 			return 0.f;
 	}

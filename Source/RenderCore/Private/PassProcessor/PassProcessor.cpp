@@ -98,7 +98,7 @@ namespace rendercore
 
 		snapshot.m_count = subMesh.m_count;
 		snapshot.m_startIndexLocation = subMesh.m_startLocation;
-		snapshot.m_baseVertexLocation = 0;
+		snapshot.m_baseVertexLocation = subMesh.m_baseVertexLocation;
 
 		if ( pipelineState.m_shaderState.m_vertexShader )
 		{

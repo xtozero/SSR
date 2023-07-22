@@ -43,7 +43,7 @@ namespace rendercore
 
 	struct ImguiDrawCommand
 	{
-		RectangleArea<float> m_clipRect;
+		RectangleArea<int32> m_clipRect;
 		ImTextureID m_textureId;
 		uint32 m_vertexOffset;
 		uint32 m_indexOffset;
@@ -76,11 +76,14 @@ namespace rendercore
 			m_colors.resize( m_totalNumVertex );
 			m_indices.resize( m_totalNumIndex );
 
-			size_t verticesCopyOffset = 0;
-			size_t indicesCopyOffset = 0;
+			uint32 vertexCopyOffset = 0;
+			uint32 indexCopyOffset = 0;
 
 			for ( int32 drawListIdx = 0; drawListIdx < drawData.CmdListsCount; ++drawListIdx )
 			{
+				uint32 vertexDrawOffset = vertexCopyOffset;
+				uint32 indexDrawOffset = indexCopyOffset;
+
 				const ImDrawList* cmdList = drawData.CmdLists[drawListIdx];
 				auto& drawList = m_drawLists.emplace_back();
 
@@ -89,7 +92,7 @@ namespace rendercore
 
 				for ( int32 vertexIdx = 0; vertexIdx < drawList.m_numVertex; ++vertexIdx )
 				{
-					size_t destIdx = verticesCopyOffset + vertexIdx;
+					uint32 destIdx = vertexCopyOffset + vertexIdx;
 					const ImDrawVert& vertex = cmdList->VtxBuffer[vertexIdx];
 
 					m_positions[destIdx].x = vertex.pos.x;
@@ -99,20 +102,20 @@ namespace rendercore
 					m_colors[destIdx] = vertex.col;
 				}
 
-				std::memcpy( m_indices.data() + indicesCopyOffset, cmdList->IdxBuffer.Data, sizeof( ImDrawIdx ) * drawList.m_numIndex );
+				std::memcpy( m_indices.data() + indexCopyOffset, cmdList->IdxBuffer.Data, sizeof( ImDrawIdx ) * drawList.m_numIndex );
 
-				verticesCopyOffset += drawList.m_numVertex;
-				indicesCopyOffset += drawList.m_numIndex;
+				vertexCopyOffset += drawList.m_numVertex;
+				indexCopyOffset += drawList.m_numIndex;
 
 				drawList.m_drawCommands.reserve( cmdList->CmdBuffer.Size );
 				for ( int32 drawCmdIdx = 0; drawCmdIdx < cmdList->CmdBuffer.Size; ++drawCmdIdx )
 				{
 					const ImDrawCmd* cmd = &cmdList->CmdBuffer[drawCmdIdx];
-					RectangleArea<float> clipRect = {
-						.m_left = cmd->ClipRect.x - m_displayPos.x,
-						.m_top = cmd->ClipRect.y - m_displayPos.y,
-						.m_right = cmd->ClipRect.z - m_displayPos.x,
-						.m_bottom = cmd->ClipRect.w - m_displayPos.y
+					RectangleArea<int32> clipRect = {
+						.m_left = static_cast<int32>( cmd->ClipRect.x - m_displayPos.x ),
+						.m_top = static_cast<int32>( cmd->ClipRect.y - m_displayPos.y ),
+						.m_right = static_cast<int32>( cmd->ClipRect.z - m_displayPos.x ),
+						.m_bottom = static_cast<int32>( cmd->ClipRect.w - m_displayPos.y )
 					};
 
 					if ( clipRect.Valid() == false )
@@ -124,8 +127,8 @@ namespace rendercore
 
 					drawCommand.m_clipRect = clipRect;
 					drawCommand.m_textureId = cmd->TextureId;
-					drawCommand.m_vertexOffset = cmd->VtxOffset;
-					drawCommand.m_indexOffset = cmd->IdxOffset;
+					drawCommand.m_vertexOffset = vertexDrawOffset + cmd->VtxOffset;
+					drawCommand.m_indexOffset = indexDrawOffset + cmd->IdxOffset;
 					drawCommand.m_numElem = cmd->ElemCount;
 					drawCommand.m_userCallback = cmd->UserCallback;
 					drawCommand.m_userCallbackData = cmd->UserCallbackData;
@@ -214,6 +217,7 @@ namespace rendercore
 					.m_material = nullptr,
 					.m_renderOption = nullptr,
 					.m_startLocation = drawCommand.m_indexOffset,
+					.m_baseVertexLocation = drawCommand.m_vertexOffset,
 					.m_count = drawCommand.m_numElem,
 					.m_lod = 0,
 					.m_sectionIndex = 0,
@@ -250,6 +254,7 @@ namespace rendercore
 					.m_drawSnapshot = &snapshot,
 				};
 
+				commandList.SetScissorRects( 1, &drawCommand.m_clipRect );
 				VertexBuffer emptyPrimitiveID;
 				CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
 			}
@@ -403,7 +408,8 @@ namespace rendercore
 			positionBuffer->Resize( m_imguiDrawInfo.m_totalNumVertex, false );
 			void* positionData = positionBuffer->Lock();
 
-			std::memcpy( positionData, m_imguiDrawInfo.m_positions.data(), positionBuffer->Size() );
+			size_t copySize = m_imguiDrawInfo.m_positions.size() * positionBuffer->ElementSize();
+			std::memcpy( positionData, m_imguiDrawInfo.m_positions.data(), copySize );
 
 			positionBuffer->Unlock();
 		}
@@ -413,7 +419,8 @@ namespace rendercore
 			colorBuffer->Resize( m_imguiDrawInfo.m_totalNumVertex, false );
 			void* colorData = colorBuffer->Lock();
 
-			std::memcpy( colorData, m_imguiDrawInfo.m_colors.data(), colorBuffer->Size() );
+			size_t copySize = m_imguiDrawInfo.m_colors.size() * colorBuffer->ElementSize();
+			std::memcpy( colorData, m_imguiDrawInfo.m_colors.data(), copySize );
 
 			colorBuffer->Unlock();
 		}
@@ -423,7 +430,8 @@ namespace rendercore
 			texCoordBuffer->Resize( m_imguiDrawInfo.m_totalNumVertex, false );
 			void* texCoordData = texCoordBuffer->Lock();
 
-			std::memcpy( texCoordData, m_imguiDrawInfo.m_texCoords.data(), texCoordBuffer->Size() );
+			size_t copySize = m_imguiDrawInfo.m_texCoords.size() * texCoordBuffer->ElementSize();
+			std::memcpy( texCoordData, m_imguiDrawInfo.m_texCoords.data(), copySize );
 
 			texCoordBuffer->Unlock();
 		}
@@ -433,7 +441,8 @@ namespace rendercore
 
 		void* indexData = indexBuffer.Lock();
 
-		std::memcpy( indexData, m_imguiDrawInfo.m_indices.data(), indexBuffer.Size() );
+		size_t copySize = m_imguiDrawInfo.m_indices.size() * indexBuffer.ElementSize();
+		std::memcpy( indexData, m_imguiDrawInfo.m_indices.data(), copySize );
 
 		indexBuffer.Unlock();
 
@@ -456,8 +465,11 @@ namespace rendercore
 
 	std::optional<DrawSnapshot> ImguiDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
 	{
+		StaticShaderSwitches useSRGB = DrawImguiVS().GetSwitches();
+		useSRGB.On( Name( "USE_SRGB" ), 1 );
+
 		PassShader passShader = {
-			.m_vertexShader = DrawImguiVS().GetShader(),
+			.m_vertexShader = DrawImguiVS().GetShader( useSRGB ),
 			.m_geometryShader = nullptr,
 			.m_pixelShader = DrawImguiPS().GetShader()
 		};

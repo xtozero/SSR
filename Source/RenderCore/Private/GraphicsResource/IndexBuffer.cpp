@@ -35,9 +35,14 @@ namespace rendercore
 		GraphicsInterface().UnLock( m_buffer );
 	}
 
-	uint32 IndexBuffer::Size() const
+	size_t IndexBuffer::Size() const
 	{
-		return ( m_isDWORD ? sizeof( uint32 ) : sizeof( uint16 ) ) * m_numElement;
+		return ElementSize() * m_numElement;
+	}
+
+	size_t IndexBuffer::ElementSize() const
+	{
+		return m_isDWORD ? sizeof( uint32 ) : sizeof( uint16 );
 	}
 
 	agl::Buffer* IndexBuffer::Resource()
