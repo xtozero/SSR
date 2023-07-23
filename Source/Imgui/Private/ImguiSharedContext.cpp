@@ -24,6 +24,7 @@ namespace imgui
 			ImGuiIO& io = ImGui::GetIO();
 			io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 			io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+			io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 			io.IniFilename = "./Configs/imgui.ini";
 
 			ImGui::StyleColorsDark();
