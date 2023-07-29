@@ -97,15 +97,10 @@ void WindowPlatformEngine::ProcessInput()
 	{
 		m_isAvailable = msg.message != WM_QUIT;
 
-		if ( m_inputConvertor.ProcessInput( *m_logic, msg ) )
-		{
-			//Do Nothing
-		}
-		else
-		{
-			TranslateMessage( &msg );
-			DispatchMessage( &msg );
-		}
+		TranslateMessage( &msg );
+		DispatchMessage( &msg );
+
+		m_inputConvertor.ProcessInput( *m_logic, msg );
 	}
 }
 

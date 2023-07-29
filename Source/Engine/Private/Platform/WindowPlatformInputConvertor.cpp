@@ -200,10 +200,26 @@ namespace
 		REGISTER_ENUM_STRING( VK_NUMLOCK );
 		REGISTER_ENUM_STRING( VK_SCROLL );
 		REGISTER_ENUM_STRING( VK_OEM_NEC_EQUAL );
+		REGISTER_ENUM_STRING( VK_OEM_1 );
+		REGISTER_ENUM_STRING( VK_OEM_2 );
+		REGISTER_ENUM_STRING( VK_OEM_3 );
+		REGISTER_ENUM_STRING( VK_OEM_4 );
+		REGISTER_ENUM_STRING( VK_OEM_5 );
+		REGISTER_ENUM_STRING( VK_OEM_6 );
+		REGISTER_ENUM_STRING( VK_OEM_7 );
+		REGISTER_ENUM_STRING( VK_OEM_PLUS );
+		REGISTER_ENUM_STRING( VK_OEM_COMMA );
+		REGISTER_ENUM_STRING( VK_OEM_MINUS );
+		REGISTER_ENUM_STRING( VK_OEM_PERIOD );
 		REGISTER_ENUM_STRING( VK_LSHIFT );
 		REGISTER_ENUM_STRING( VK_RSHIFT );
 		REGISTER_ENUM_STRING( VK_LCONTROL );
 		REGISTER_ENUM_STRING( VK_RCONTROL );
+	}
+
+	bool IsVkDown( int32 vk )
+	{
+		return ( GetKeyState( vk ) & 0x8000 ) > 0;
 	}
 }
 
@@ -231,7 +247,7 @@ bool WindowPlatformInputConvertor::Initialize( )
 	return m_inputMap.Initialize( );
 }
 
-bool WindowPlatformInputConvertor::ProcessInput( ILogic& logic, const MSG& wndMsg )
+void WindowPlatformInputConvertor::ProcessInput( ILogic& logic, const MSG& wndMsg )
 {
 	UserInput input;
 
@@ -244,14 +260,59 @@ bool WindowPlatformInputConvertor::ProcessInput( ILogic& logic, const MSG& wndMs
 	{
 	case WM_KEYDOWN:
 	case WM_KEYUP:
+	case WM_SYSKEYDOWN:
+	case WM_SYSKEYUP:
 		{
-			input = Convert( static_cast<uint32>( wParam ) );
-			if ( input.m_code == UIC_UNKNOWN )
+			bool bIsKeyDown = ( message == WM_KEYDOWN ) || ( message == WM_SYSKEYDOWN );
+			
+			uint32 vk = static_cast<uint32>( wParam );
+			if ( vk == VK_SHIFT )
 			{
-				return false;
+				if ( IsVkDown( VK_LSHIFT ) == bIsKeyDown )
+				{
+					input.m_code = UIC_LEFTSHIFT;
+				}
+				
+				if ( IsVkDown( VK_RSHIFT ) == bIsKeyDown )
+				{
+					input.m_code = UIC_RIGHTSHIFT;
+				}
+			}
+			else if ( vk == VK_CONTROL )
+			{
+				if ( IsVkDown( VK_LCONTROL ) == bIsKeyDown )
+				{
+					input.m_code = UIC_LEFTCONTROL;
+				}
+
+				if ( IsVkDown( VK_RCONTROL ) == bIsKeyDown )
+				{
+					input.m_code = UIC_RIGHTCONTROL;
+				}
+			}
+			else if ( vk == VK_MENU )
+			{
+				if ( IsVkDown( VK_LMENU ) == bIsKeyDown )
+				{
+					input.m_code = UIC_LEFTALT;
+				}
+
+				if ( IsVkDown( VK_RMENU ) == bIsKeyDown )
+				{
+					input.m_code = UIC_RIGHTALT;
+				}
+			}
+			else
+			{
+				input.m_code = ConvertToUserInputCode( vk );
+				if ( input.m_code == UIC_UNKNOWN )
+				{
+					return;
+				}
 			}
 
 			input.m_axis[UserInput::Z_AXIS] = ( message == WM_KEYDOWN ) ? -1.f : 1.f;
+			m_buttonStates.SetButtonState( input.m_code, message == WM_KEYDOWN );
 		}
 		break;
 	case WM_LBUTTONDOWN:
@@ -263,10 +324,10 @@ bool WindowPlatformInputConvertor::ProcessInput( ILogic& logic, const MSG& wndMs
 	case WM_MOUSEWHEEL:
 	case WM_MOUSEMOVE:
 		{
-			input = Convert( message );
+			input.m_code = ConvertToUserInputCode( message );
 			if ( input.m_code == UIC_UNKNOWN )
 			{
-				return false;
+				return;
 			}
 
 			POINT pt{ GET_X_LPARAM( lParam ),  GET_Y_LPARAM( lParam ) };
@@ -290,24 +351,41 @@ bool WindowPlatformInputConvertor::ProcessInput( ILogic& logic, const MSG& wndMs
 			}
 			input.m_axis[UserInput::Z_AXIS] = GetMouseZAxis( wndMsg );
 			m_prevMousePos = curMousePos;
+
+			bool bMouseButtonPressed = ( message == WM_LBUTTONDOWN )
+				|| ( message == WM_RBUTTONDOWN )
+				|| ( message == WM_MBUTTONDOWN );
+			m_buttonStates.SetButtonState( input.m_code, bMouseButtonPressed );
 		}
+		break;
+	case WM_CHAR:
+		if ( IsWindowUnicode( hWnd ) )
+		{
+			if ( wParam > 0 && wParam < 0x10000 )
+			{
+				logic.HandleTextInput( wParam, true );
+			}
+		}
+		else
+		{
+			wchar_t wch = 0;
+			::MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED, (char*)&wParam, 1, &wch, 1 );
+			logic.HandleTextInput( wch, false );
+		}
+		return;
 		break;
 	default:
 		//Message UnHandled;
-		return false;
+		return;
 		break;
 	}
 
 	logic.HandleUserInput( input );
-	return true;
 }
 
-UserInput WindowPlatformInputConvertor::Convert( uint32 msg )
+UserInputCode WindowPlatformInputConvertor::ConvertToUserInputCode( uint32 msg )
 {
-	UserInput input;
-	input.m_code = m_inputMap.Convert( msg );
-
-	return input;
+	return m_inputMap.Convert( msg );
 }
 
 bool WindowPlatformInputMap::Initialize( )

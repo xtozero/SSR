@@ -146,10 +146,11 @@ void CGameLogic::HandleUserInput( const UserInput& input )
 		return;
 	}
 
-	//if ( m_ui.HandleUserInput( input ) == false )
-	//{
 	m_inputController->ProcessInput( input );
-	//}
+}
+
+void CGameLogic::HandleTextInput( uint64 text, bool bUnicode )
+{
 }
 
 void CGameLogic::AppSizeChanged( IPlatform& platform )

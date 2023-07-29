@@ -27,11 +27,12 @@ class WindowPlatformInputConvertor
 {
 public:
 	bool Initialize( );
-	bool ProcessInput( ILogic& logic, const MSG& wndMsg );
+	void ProcessInput( ILogic& logic, const MSG& wndMsg );
 
 private:
-	UserInput Convert( uint32 msg );
+	UserInputCode ConvertToUserInputCode( uint32 msg );
 	WindowPlatformInputMap m_inputMap;
 
 	Vector2 m_prevMousePos;
+	UserInputButtonStates m_buttonStates;
 };

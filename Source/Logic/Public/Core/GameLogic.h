@@ -40,6 +40,7 @@ public:
 	virtual void Pause() override;
 	virtual void Resume() override;
 	virtual void HandleUserInput( const UserInput& input ) override;
+	virtual void HandleTextInput( uint64 text, bool bUnicode ) override;
 	virtual void AppSizeChanged( IPlatform& platform ) override;
 
 	void SpawnObject( Owner<CGameObject*> object );

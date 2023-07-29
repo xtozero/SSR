@@ -110,7 +110,7 @@ enum UserInputCode : uint8
 	UIC_SEMICOLON,
 	UIC_EQUALS,
 	UIC_COMMA,
-	UIC_UNDERSOCRE,
+	UIC_MINUS,
 	UIC_PERIOD,
 	UIC_SLASH,
 	UIC_TILDE,
@@ -121,14 +121,35 @@ enum UserInputCode : uint8
 
 	// Mouse Axis
 	UIC_MOUSE_MOVE,
-	UIC_MOUSE_SCROLLUP,
-	UIC_MOUSE_SCROLLDOWN,
 	UIC_MOUSE_WHEELSPIN,
 
 	// Mouse Buttons
 	UIC_MOUSE_LEFT,
 	UIC_MOUSE_RIGHT,
 	UIC_MOUSE_MIDDLE,
+
+	UIC_TOTAL,
+};
+
+struct UserInputButtonStates
+{
+	static constexpr int32 NumBits = 8;
+	uint8 m_button[( UIC_TOTAL + NumBits ) / NumBits] = {};
+
+	void SetButtonState( UserInputCode code, bool bPressed )
+	{
+		int32 idx = code / NumBits;
+		int32 remain = code % NumBits;
+
+		if ( bPressed )
+		{
+			m_button[idx] |= 0x1 << remain;
+		}
+		else
+		{
+			m_button[idx] ^= 0x1 << remain;
+		}
+	}
 };
 
 struct UserInput

@@ -86,6 +86,10 @@ void CPlayer::SetupInputComponent()
 	m_inputComponent->BindInput( UIC_LEFT, this, &CPlayer::OnMoveKey );
 	m_inputComponent->BindInput( UIC_UP, this, &CPlayer::OnMoveKey );
 	m_inputComponent->BindInput( UIC_DOWN, this, &CPlayer::OnMoveKey );
+	m_inputComponent->BindInput( UIC_W, this, &CPlayer::OnMoveKey );
+	m_inputComponent->BindInput( UIC_A, this, &CPlayer::OnMoveKey );
+	m_inputComponent->BindInput( UIC_S, this, &CPlayer::OnMoveKey );
+	m_inputComponent->BindInput( UIC_D, this, &CPlayer::OnMoveKey );
 }
 
 void CPlayer::OnMouseLButton( const UserInput& input, CGameLogic& gameLogic )
@@ -155,19 +159,23 @@ void CPlayer::OnWheelMove( const UserInput& input )
 
 void CPlayer::OnMoveKey( const UserInput& input )
 {
-	if ( input.m_code == UserInputCode::UIC_LEFT )
+	if ( input.m_code == UserInputCode::UIC_LEFT
+		|| input.m_code == UserInputCode::UIC_A )
 	{
 		m_inputDirection[0] = ( input.m_axis[UserInput::Z_AXIS] < 0 );
 	}
-	else if ( input.m_code == UserInputCode::UIC_UP )
+	else if ( input.m_code == UserInputCode::UIC_UP
+		|| input.m_code == UserInputCode::UIC_W )
 	{
 		m_inputDirection[1] = ( input.m_axis[UserInput::Z_AXIS] < 0 );
 	}
-	else if ( input.m_code == UserInputCode::UIC_RIGHT )
+	else if ( input.m_code == UserInputCode::UIC_RIGHT
+		|| input.m_code == UserInputCode::UIC_D )
 	{
 		m_inputDirection[2] = ( input.m_axis[UserInput::Z_AXIS] < 0 );
 	}
-	else if ( input.m_code == UserInputCode::UIC_DOWN )
+	else if ( input.m_code == UserInputCode::UIC_DOWN 
+		|| input.m_code == UserInputCode::UIC_S )
 	{
 		m_inputDirection[3] = ( input.m_axis[UserInput::Z_AXIS] < 0 );
 	}
