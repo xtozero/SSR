@@ -100,6 +100,39 @@ namespace agl
 
 	void D3D12Viewport::Resize( const std::pair<uint32, uint32>& newSize )
 	{
+		GetInterface<agl::IAgl>()->WaitGPU();
+
+		m_width = newSize.first;
+		m_height = newSize.second;
+
+		for ( auto& backBuffer : m_backBuffers )
+		{
+			backBuffer->Free();
+		}
+
+		HRESULT hr = m_pSwapChain->ResizeBuffers( m_bufferCount, m_width, m_height, ConvertToDxgiLinearFormat( m_format ), DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH );
+		assert( SUCCEEDED( hr ) );
+
+		for ( uint32 i = 0; i < m_bufferCount; ++i )
+		{
+			ID3D12Resource* backBuffer = nullptr;
+			hr = m_pSwapChain->GetBuffer( i, IID_PPV_ARGS( &backBuffer ) );
+
+			assert( SUCCEEDED( hr ) );
+
+			int32 oldRefCount = m_backBuffers[i]->GetRefCount();
+
+			D3D12_RESOURCE_DESC desc = backBuffer->GetDesc();
+			desc.Format = m_format;
+
+			std::construct_at( m_backBuffers[i].Get(), backBuffer, &desc );
+			m_backBuffers[i]->Init();
+
+			while ( oldRefCount != m_backBuffers[i]->GetRefCount() )
+			{
+				m_backBuffers[i]->AddRef();
+			}
+		}
 	}
 
 	agl::Texture* D3D12Viewport::Texture()

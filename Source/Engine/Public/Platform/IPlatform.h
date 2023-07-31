@@ -8,6 +8,7 @@ class IPlatform
 public:
 	virtual std::pair<uint32, uint32> GetSize( ) const noexcept = 0;
 	virtual void UpdateSize( uint32 width, uint32 height ) = 0;
+	virtual void Resize( uint32 width, uint32 height ) = 0;
 	
 	template <typename RT>
 	RT GetRawHandle( )

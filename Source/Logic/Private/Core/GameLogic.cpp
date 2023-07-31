@@ -149,7 +149,7 @@ void CGameLogic::HandleUserInput( const UserInput& input )
 	m_inputController->ProcessInput( input );
 }
 
-void CGameLogic::HandleTextInput( uint64 text, bool bUnicode )
+void CGameLogic::HandleTextInput( [[maybe_unused]] uint64 text, [[maybe_unused]] bool bUnicode )
 {
 }
 

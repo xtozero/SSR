@@ -83,8 +83,14 @@ namespace agl
 		hr = m_pSwapChain->GetBuffer( 0, IID_PPV_ARGS( &backBuffer ) );
 
 		assert( SUCCEEDED( hr ) );
+		int32 oldRefCount = m_backBuffer->GetRefCount();
 		std::construct_at( m_backBuffer.Get(), backBuffer );
 		m_backBuffer->Init();
+
+		while ( oldRefCount != m_backBuffer->GetRefCount() )
+		{
+			m_backBuffer->AddRef();
+		}
 	}
 
 	D3D11Viewport::D3D11Viewport( uint32 width, uint32 height, void* hWnd, DXGI_FORMAT format ) :

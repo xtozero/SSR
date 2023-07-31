@@ -56,13 +56,16 @@ namespace rendercore
 		{
 			agl::Texture* sceneTex = renderViewGroup.GetViewport().Texture();
 
-			agl::ResourceTransition transitions[] = {
+			agl::ResourceTransition copyTransitions[] = {
 				Transition( *historyTex, agl::ResourceState::CopyDest ),
 				Transition( *sceneTex, agl::ResourceState::CopySource ),
 			};
-			GetCommandList().Transition( std::extent_v<decltype( transitions )>, transitions );
+			GetCommandList().Transition( std::extent_v<decltype( copyTransitions )>, copyTransitions );
 
 			GetCommandList().CopyResource( historyTex, sceneTex, true );
+
+			agl::ResourceTransition rtTransition = Transition( *sceneTex, agl::ResourceState::RenderTarget );
+			GetCommandList().Transition( 1, &rtTransition );
 		}
 		else
 		{

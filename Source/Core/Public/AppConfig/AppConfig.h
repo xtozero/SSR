@@ -78,6 +78,12 @@ public:
 				std::from_chars( value->data(), value->data() + value->size(), integer );
 				property->Set( this, integer );
 			}
+			else if ( &propertyType == &TypeInfo::GetStaticTypeInfo<int32>() )
+			{
+				int32 integer = 0;
+				std::from_chars( value->data(), value->data() + value->size(), integer );
+				property->Set( this, integer );
+			}
 			else if ( std::strstr(value->c_str(), "::") != nullptr )
 			{
 				if ( &propertyType == &TypeInfo::GetStaticTypeInfo<uint8>() )

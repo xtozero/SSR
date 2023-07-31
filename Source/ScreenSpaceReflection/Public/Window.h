@@ -35,15 +35,12 @@ private:
 	int32 m_height = 0;
 };
 
-class Window : public  IPlatform
+class Window : public IPlatform
 {
 public:
-	virtual std::pair<uint32, uint32> GetSize( ) const noexcept override { return { m_width, m_height }; };
-	virtual void UpdateSize( uint32 width, uint32 height )
-	{
-		m_width = width;
-		m_height = height;
-	}
+	virtual std::pair<uint32, uint32> GetSize() const noexcept override;
+	virtual void UpdateSize( uint32 width, uint32 height ) override;
+	virtual void Resize( uint32 width, uint32 height ) override;
 
 	bool Run( CWindowSetup& setup, WNDPROC wndProc );
 	HWND GetHwnd( ) const noexcept { return m_hwnd; }

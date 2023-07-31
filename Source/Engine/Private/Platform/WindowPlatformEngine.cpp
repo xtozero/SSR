@@ -55,6 +55,9 @@ bool WindowPlatformEngine::BootUp( IPlatform& platform, char* argv )
 		GetInterface<ITaskScheduler>()->ProcessThisThreadTask();
 	}
 
+	std::pair<int32, int32> clientSize = DefaultApp::GetClientSize();
+	platform.Resize( clientSize.first, clientSize.second );
+
 	m_logicDll = LoadModule( DefaultApp::IsEditor() ? "Editor.dll" : "Logic.dll" );
 	if ( m_logicDll == nullptr )
 	{
@@ -131,6 +134,11 @@ LRESULT WindowPlatformEngine::MsgProc( HWND hWnd, uint32 message, WPARAM wParam,
 		m_logic->AppSizeChanged( *m_platform );
 		return 0;
 	case WM_SIZE:
+		if ( ( m_platform == nullptr ) || ( m_logic == nullptr ) )
+		{
+			return 0;
+		}
+
 		m_platform->UpdateSize( LOWORD( lParam ), HIWORD( lParam ) );
 
 		if ( wParam == SIZE_MINIMIZED )
