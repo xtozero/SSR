@@ -466,6 +466,13 @@ std::optional<Products> ShaderManufacturer::Manufacture( const PathEnvironment& 
 		rendercore::StaticShaderSwitches shaderSwitches;
 		shaderSwitches.m_configs = parser.Parse();
 
+		uint32 bias = 1;
+		for ( auto& [name, shaderSwitch] : shaderSwitches.m_configs )
+		{
+			shaderSwitch.m_bias = bias;
+			bias *= shaderSwitch.NumShaderValues();
+		}
+
 		Name shaderFeatureLevel( GetShaderFeatureLevel( path.filename() ) );
 
 		std::map<uint32, Microsoft::WRL::ComPtr<ID3DBlob>> compiledShader;

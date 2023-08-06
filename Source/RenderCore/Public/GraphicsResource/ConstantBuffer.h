@@ -18,6 +18,8 @@ namespace rendercore
 		void* Lock();
 		void Unlock();
 
+		size_t Size() const;
+
 		agl::Buffer* Resource();
 		const agl::Buffer* Resource() const;
 
@@ -35,5 +37,6 @@ namespace rendercore
 
 	private:
 		agl::RefHandle<agl::Buffer> m_buffer;
+		uint32 m_size = 0;
 	};
 }

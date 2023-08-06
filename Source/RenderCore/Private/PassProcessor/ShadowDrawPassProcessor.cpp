@@ -9,23 +9,31 @@
 namespace rendercore
 {
 	class DrawCascadeShadowPS : public GlobalShaderCommon<PixelShader, DrawCascadeShadowPS>
-	{};
+	{
+	public:
+		DrawCascadeShadowPS( const StaticShaderSwitches& switches ) : GlobalShaderCommon<PixelShader, DrawCascadeShadowPS>( switches ) {}
+	};
 
 	REGISTER_GLOBAL_SHADER( DrawCascadeShadowPS, "./Assets/Shaders/Shadow/PS_DrawCascadeShadow.asset" );
 
 	std::optional<DrawSnapshot> ShadowDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
 	{
-		StaticShaderSwitches switches = FullScreenQuadVS().GetSwitches();
-
+		StaticShaderSwitches vsSwitches = FullScreenQuadVS::GetSwitches();
 		if ( DefaultRenderCore::IsTaaEnabled() )
 		{
-			switches.On( Name( "TAA" ), 1 );
+			vsSwitches.On( Name( "TAA" ), 1 );
+		}
+
+		StaticShaderSwitches psSwitches = DrawCascadeShadowPS::GetSwitches();
+		if ( DefaultRenderCore::IsESMsEnabled() )
+		{
+			psSwitches.On( Name( "EnableESMs" ), 1 );
 		}
 
 		PassShader passShader{
-			FullScreenQuadVS().GetShader( switches ),
+			FullScreenQuadVS( vsSwitches ).GetShader(),
 			nullptr,
-			DrawCascadeShadowPS().GetShader()
+			DrawCascadeShadowPS( psSwitches ).GetShader()
 		};
 
 		BlendOption shadowDrawPassBlendOption;

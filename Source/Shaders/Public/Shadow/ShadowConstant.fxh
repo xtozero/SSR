@@ -15,3 +15,8 @@ cbuffer ShadowDepthPassParameters : register( b4 )
 	CascadeConstant CascadeConstants[MAX_CASCADED_NUM] : packoffset( c2 );
 	matrix ShadowViewProjection[6]: packoffset( c4 );
 };
+
+cbuffer ESMsParameters : register( b5 )
+{
+	float ESMsParameterC : packoffset( c0 );
+};

@@ -19,7 +19,12 @@ cbuffer InscatteringParameters : register( b0 )
 float Visibility( float3 worldPos, float3 biasDir )
 {
 	float3 viewPos = mul( float4( worldPos, 1.f ), ViewMatrix ).xyz;
+
+#if EnableESMs == 1
+	return ( CalcESMVisibility( worldPos, viewPos ) == 1.f ) ? 1.0 : 0.f;
+#else
 	return ( CalcShadowVisibility( worldPos, viewPos, ShadowBias ) == 1.f ) ? 1.0f : 0.f;
+#endif
 }
 
 [numthreads( 8, 8, 8 )]

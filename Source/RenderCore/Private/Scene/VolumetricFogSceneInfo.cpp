@@ -2,6 +2,7 @@
 
 #include "CommandList.h"
 #include "ComputePipelineState.h"
+#include "Config/DefaultRenderCoreConfig.h"
 #include "GlobalShaders.h"
 #include "Renderer/ForwardLighting.h"
 #include "Renderer/RenderView.h"
@@ -14,6 +15,10 @@ namespace rendercore
 {
 	class InscatteringCS : public GlobalShaderCommon<ComputeShader, InscatteringCS>
 	{
+	public:
+		InscatteringCS( const StaticShaderSwitches& switches ) : GlobalShaderCommon<ComputeShader, InscatteringCS>( switches ) {}
+
+	private:
 		DEFINE_SHADER_PARAM( AsymmetryParameterG );
 		DEFINE_SHADER_PARAM( UniformDensity );
 		DEFINE_SHADER_PARAM( Intensity );
@@ -30,6 +35,7 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( ShadowTexture );
 		DEFINE_SHADER_PARAM( ShadowSampler );
 		DEFINE_SHADER_PARAM( ShadowDepthPassParameters );
+		DEFINE_SHADER_PARAM( ESMsParameters );
 
 		DEFINE_SHADER_PARAM( VolumetricFogParameterBuffer );
 
@@ -130,7 +136,13 @@ namespace rendercore
 
 	void VolumetricFogSceneInfo::CalcInscattering( CommandList& commandList, Scene& scene, RenderView& renderView, RenderThreadFrameData<ShadowInfo>& shadowInfos )
 	{
-		InscatteringCS inscatteringCS;
+		StaticShaderSwitches switches = InscatteringCS::GetSwitches();
+		if ( DefaultRenderCore::IsESMsEnabled() )
+		{
+			switches.On( Name( "EnableESMs" ), 1 );
+		}
+
+		InscatteringCS inscatteringCS( switches );
 
 		agl::RefHandle<agl::ComputePipelineState> inscatteringPSO = PrepareComputePipelineState( inscatteringCS.GetShader()->Resource() );
 		commandList.BindPipelineState( inscatteringPSO );
@@ -153,11 +165,14 @@ namespace rendercore
 		BindResource( shaderBindings, inscatteringCS.VolumetricFogParameterBuffer(), GetVolumetricFogParameter().Resource() );
 
 		SamplerOption shadowSamplerOption;
-		shadowSamplerOption.m_filter |= agl::TextureFilter::Comparison;
-		shadowSamplerOption.m_addressU = agl::TextureAddressMode::Border;
-		shadowSamplerOption.m_addressV = agl::TextureAddressMode::Border;
-		shadowSamplerOption.m_addressW = agl::TextureAddressMode::Border;
-		shadowSamplerOption.m_comparisonFunc = agl::ComparisonFunc::LessEqual;
+		if ( DefaultRenderCore::IsESMsEnabled() == false )
+		{
+			shadowSamplerOption.m_filter |= agl::TextureFilter::Comparison;
+			shadowSamplerOption.m_addressU = agl::TextureAddressMode::Border;
+			shadowSamplerOption.m_addressV = agl::TextureAddressMode::Border;
+			shadowSamplerOption.m_addressW = agl::TextureAddressMode::Border;
+			shadowSamplerOption.m_comparisonFunc = agl::ComparisonFunc::LessEqual;
+		}
 		SamplerState shadowSampler = GraphicsInterface().FindOrCreate( shadowSamplerOption );
 
 		BindResource( shaderBindings, inscatteringCS.ShadowSampler(), shadowSampler.Resource() );
@@ -180,6 +195,11 @@ namespace rendercore
 		{
 			BindResource( shaderBindings, inscatteringCS.ShadowTexture(), shadowInfo.ShadowMap().m_shadowMap );
 			BindResource( shaderBindings, inscatteringCS.ShadowDepthPassParameters(), shadowInfo.ConstantBuffer().Resource() );
+
+			if ( DefaultRenderCore::IsESMsEnabled() )
+			{
+				BindResource( shaderBindings, inscatteringCS.ESMsParameters(), shadowInfo.ESMsConstantBuffer().Resource() );
+			}
 
 			commandList.BindShaderResources( shaderBindings );
 			commandList.Dispatch( threadGroupCount[0], threadGroupCount[1], threadGroupCount[2] );

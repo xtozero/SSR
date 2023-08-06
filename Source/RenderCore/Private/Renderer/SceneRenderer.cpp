@@ -3,6 +3,7 @@
 
 #include "CommandList.h"
 #include "Config/DefaultRenderCoreConfig.h"
+#include "ExponentialShadowMapRendering.h"
 #include "Math/TransformationMatrix.h"
 #include "Mesh/StaticMeshResource.h"
 #include "Material/MaterialResource.h"
@@ -421,7 +422,7 @@ namespace rendercore
 			auto commandList = GetCommandList();
 
 			agl::ResourceTransition beforeRenderDepth[] = {
-				Transition( *shadowMap.m_shadowMap.Get(),agl::ResourceState::RenderTarget ),
+				Transition( *shadowMap.m_shadowMap.Get(), agl::ResourceState::RenderTarget ),
 				Transition( *shadowMap.m_shadowMapDepth.Get(), agl::ResourceState::DepthWrite )
 			};
 
@@ -437,10 +438,15 @@ namespace rendercore
 			shadowInfo.RenderDepth( *this, m_shaderResources );
 
 			agl::ResourceTransition afterRenderDepth[] = {
-				Transition( *shadowMap.m_shadowMap.Get(),agl::ResourceState::GenericRead ),
+				Transition( *shadowMap.m_shadowMap.Get(), agl::ResourceState::GenericRead ),
 			};
 
 			commandList.Transition( std::extent_v<decltype( afterRenderDepth )>, afterRenderDepth );
+
+			if ( DefaultRenderCore::IsESMsEnabled() )
+			{
+				shadowMap.m_shadowMap = GenerateExponentialShadowMaps( shadowInfo, shadowMap.m_shadowMap );
+			}
 		}
 	}
 
@@ -623,15 +629,24 @@ namespace rendercore
 			m_shaderResources.AddResource( "ShadowTexture", shadowInfo.ShadowMap().m_shadowMap->SRV() );
 
 			SamplerOption shadowSamplerOption;
-			shadowSamplerOption.m_filter |= agl::TextureFilter::Comparison;
-			shadowSamplerOption.m_addressU = agl::TextureAddressMode::Border;
-			shadowSamplerOption.m_addressV = agl::TextureAddressMode::Border;
-			shadowSamplerOption.m_addressW = agl::TextureAddressMode::Border;
-			shadowSamplerOption.m_comparisonFunc = agl::ComparisonFunc::LessEqual;
+			if ( DefaultRenderCore::IsESMsEnabled() == false )
+			{
+				shadowSamplerOption.m_filter |= agl::TextureFilter::Comparison;
+				shadowSamplerOption.m_addressU = agl::TextureAddressMode::Border;
+				shadowSamplerOption.m_addressV = agl::TextureAddressMode::Border;
+				shadowSamplerOption.m_addressW = agl::TextureAddressMode::Border;
+				shadowSamplerOption.m_comparisonFunc = agl::ComparisonFunc::LessEqual;
+			}
+			
 			SamplerState shadowSampler = GraphicsInterface().FindOrCreate( shadowSamplerOption );
 			m_shaderResources.AddResource( "ShadowSampler", shadowSampler.Resource() );
 
 			m_shaderResources.AddResource( "ShadowDepthPassParameters", shadowInfo.ConstantBuffer().Resource() );
+
+			if ( DefaultRenderCore::IsESMsEnabled() )
+			{
+				m_shaderResources.AddResource( "ESMsParameters", shadowInfo.ESMsConstantBuffer().Resource());
+			}
 
 			m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 

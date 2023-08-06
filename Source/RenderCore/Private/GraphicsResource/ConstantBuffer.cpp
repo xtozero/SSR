@@ -31,6 +31,11 @@ namespace rendercore
 		GraphicsInterface().UnLock( m_buffer );
 	}
 
+	size_t ConstantBuffer::Size() const
+	{
+		return m_size;
+	}
+
 	agl::Buffer* ConstantBuffer::Resource()
 	{
 		return m_buffer.Get();
@@ -42,6 +47,7 @@ namespace rendercore
 	}
 
 	ConstantBuffer::ConstantBuffer( uint32 size )
+		: m_size( size )
 	{
 		InitResource( size );
 	}

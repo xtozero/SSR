@@ -19,7 +19,10 @@ namespace
 namespace rendercore
 {
 	class DepthWriteVS : public GlobalShaderCommon<VertexShader, DepthWriteVS>
-	{};
+	{
+	public:
+		DepthWriteVS( const StaticShaderSwitches& switches ) : GlobalShaderCommon<VertexShader, DepthWriteVS>( switches ) {}
+	};
 
 	class DepthWritePS : public GlobalShaderCommon<PixelShader, DepthWritePS>
 	{};
@@ -66,17 +69,17 @@ namespace rendercore
 
 	PassShader DepthWritePassProcessor::CollectPassShader( [[maybe_unused]] MaterialResource& material ) const
 	{
-		StaticShaderSwitches switches = DepthWriteVS().GetSwitches();
-		
+		StaticShaderSwitches switches = DepthWriteVS::GetSwitches();
+
 		if ( DefaultRenderCore::IsTaaEnabled() )
 		{
 			switches.On( Name( "TAA" ), 1 );
 		}
 
 		PassShader passShader{
-			DepthWriteVS().GetShader( switches ),
+			DepthWriteVS( switches ).GetShader(),
 			nullptr,
-			DepthWritePS().GetShader( {} )
+			DepthWritePS().GetShader()
 		};
 
 		return passShader;

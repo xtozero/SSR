@@ -2,43 +2,6 @@
 #include "ShadowConstant.fxh"
 
 Texture2DArray ShadowTexture : register( t2 );
-SamplerComparisonState ShadowSampler : register( s2 );
-
-float SampleShadow( float3 uv_depth, int cascadeIndex, float depth )
-{
-	float2 samplePos = uv_depth.xy;
-	
-	return ShadowTexture.SampleCmpLevelZero( ShadowSampler, float3( samplePos, cascadeIndex ), depth );
-}
-
-float PoissonDiskSampleShadow( float3 uv_depth, uint i, int cascadeIndex, float depth )
-{
-	float2 shadowTextureSize;
-	float elements;
-	
-	ShadowTexture.GetDimensions( shadowTextureSize.x, shadowTextureSize.y, elements );
-	float2 sampleScale = 0.5f / shadowTextureSize;
-
-	float2 offset = PoissonDiskSample( i ) * sampleScale;
-	float2 samplePos = uv_depth.xy + offset;
-
-	return ShadowTexture.SampleCmpLevelZero( ShadowSampler, float3( samplePos, cascadeIndex ), depth );
-}
-
-
-float RotatePoissonDiskSampleShadow( float3 uv_depth, float2 sin_cos, uint i, int cascadeIndex, float depth )
-{
-	float2 shadowTextureSize;
-	float elements;
-	
-	ShadowTexture.GetDimensions( shadowTextureSize.x, shadowTextureSize.y, elements );
-	float2 sampleScale = 0.5f / shadowTextureSize;
-
-	float2 offset = RotatePoissonDiskSample( sin_cos.x, sin_cos.y, i ) * sampleScale;
-	float2 samplePos = uv_depth.xy + offset;
-	
-	return ShadowTexture.SampleCmpLevelZero( ShadowSampler, float3( samplePos, cascadeIndex ), depth );
-}
 
 int SearchCascadeIndex( float dist )
 {
@@ -71,6 +34,78 @@ float3 GetNormalOffset( float nDotL, float3 normal )
 	return normal *( ConstantBias + SlopeBiasScale * normalOffsetScale );
 }
 
+#if EnableESMs == 1
+SamplerState ShadowSampler : register( s2 );
+
+float CalcESMVisibility( float3 worldPos, float3 viewPos )
+{
+	int cascadeIndex = SearchCascadeIndex( viewPos.z );	
+	float4 shadowCoord = mul( float4( worldPos, 1.0f ), ShadowViewProjection[cascadeIndex] );
+	
+	float3 uv_depth = shadowCoord.xyz / shadowCoord.w;
+	uv_depth.y = -uv_depth.y;
+	uv_depth.xy = uv_depth.xy * 0.5f + 0.5f;
+
+	float occluder = ShadowTexture.SampleLevel( ShadowSampler, float3( uv_depth.xy, cascadeIndex ), 0 );
+	float reciever = exp( -ESMsParameterC * uv_depth.z );
+	return saturate( occluder * reciever );
+}
+
+float CalcESMVisibilityWithNormalOffset( float3 worldPos, float3 worldNormal, float3 viewPos )
+{
+	int cascadeIndex = SearchCascadeIndex( viewPos.z );	
+
+	float nDotL = saturate( dot( -LightPosOrDir.xyz, worldNormal ) );
+	float3 offset = GetNormalOffset( nDotL, worldNormal );
+	
+	float4 shadowCoord = mul( float4( worldPos + offset, 1.0f ), ShadowViewProjection[cascadeIndex] );
+	
+	float3 uv_depth = shadowCoord.xyz / shadowCoord.w;
+	uv_depth.y = -uv_depth.y;
+	uv_depth.xy = uv_depth.xy * 0.5f + 0.5f;
+
+	float occluder = ShadowTexture.SampleLevel( ShadowSampler, float3( uv_depth.xy, cascadeIndex ), 0 );
+	float reciever = exp( -ESMsParameterC * uv_depth.z );
+	return saturate( occluder * reciever );
+}
+#else
+SamplerComparisonState ShadowSampler : register( s2 );
+
+float SampleShadow( float3 uv_depth, int cascadeIndex, float depth )
+{
+	float2 samplePos = uv_depth.xy;
+	
+	return ShadowTexture.SampleCmpLevelZero( ShadowSampler, float3( samplePos, cascadeIndex ), depth );
+}
+
+float PoissonDiskSampleShadow( float3 uv_depth, uint i, int cascadeIndex, float depth )
+{
+	float2 shadowTextureSize;
+	float elements;
+	
+	ShadowTexture.GetDimensions( shadowTextureSize.x, shadowTextureSize.y, elements );
+	float2 sampleScale = 0.5f / shadowTextureSize;
+
+	float2 offset = PoissonDiskSample( i ) * sampleScale;
+	float2 samplePos = uv_depth.xy + offset;
+
+	return ShadowTexture.SampleCmpLevelZero( ShadowSampler, float3( samplePos, cascadeIndex ), depth );
+}
+
+float RotatePoissonDiskSampleShadow( float3 uv_depth, float2 sin_cos, uint i, int cascadeIndex, float depth )
+{
+	float2 shadowTextureSize;
+	float elements;
+	
+	ShadowTexture.GetDimensions( shadowTextureSize.x, shadowTextureSize.y, elements );
+	float2 sampleScale = 0.5f / shadowTextureSize;
+
+	float2 offset = RotatePoissonDiskSample( sin_cos.x, sin_cos.y, i ) * sampleScale;
+	float2 samplePos = uv_depth.xy + offset;
+	
+	return ShadowTexture.SampleCmpLevelZero( ShadowSampler, float3( samplePos, cascadeIndex ), depth );
+}
+
 float CalcShadowVisibilityWithNormalOffset( float3 worldPos, float3 worldNormal, float3 viewPos )
 {
 	int cascadeIndex = SearchCascadeIndex( viewPos.z );
@@ -78,7 +113,7 @@ float CalcShadowVisibilityWithNormalOffset( float3 worldPos, float3 worldNormal,
 	float nDotL = saturate( dot( -LightPosOrDir.xyz, worldNormal ) );
 	float3 offset = GetNormalOffset( nDotL, worldNormal );
 	
-	float4 shadowCoord = mul( float4(worldPos + offset, 1.0f), ShadowViewProjection[cascadeIndex] );
+	float4 shadowCoord = mul( float4( worldPos + offset, 1.0f ), ShadowViewProjection[cascadeIndex] );
 	
 	float3 uv_depth = shadowCoord.xyz / shadowCoord.w;
 	uv_depth.y = -uv_depth.y;
@@ -110,3 +145,4 @@ float CalcShadowVisibility( float3 worldPos, float3 viewPos, float depthBias )
 
 	return ShadowTexture.SampleCmpLevelZero( ShadowSampler, float3( uv_depth.xy, cascadeIndex ), uv_depth.z + depthBias );
 }
+#endif

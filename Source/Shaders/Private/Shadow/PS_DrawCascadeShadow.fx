@@ -28,7 +28,11 @@ float4 main( PS_INPUT input ) : SV_TARGET
 	float3 packedNormal = WorldNormal.Sample( WorldNormalSampler, input.uv ).yzw;
 	float3 worldNormal = SignedOctDecode( packedNormal );
 
+#if EnableESMs == 1
+	float visibility = CalcESMVisibilityWithNormalOffset( worldPosition.xyz, worldNormal, viewPosition );
+#else
 	float visibility = CalcShadowVisibilityWithNormalOffset( worldPosition.xyz, worldNormal, viewPosition );
+#endif
 
 	return lerp( 0.5f, 1, visibility );
 }

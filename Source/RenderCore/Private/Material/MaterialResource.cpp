@@ -309,6 +309,8 @@ namespace rendercore
 
 				if ( buffer )
 				{
+					std::memset( buffer, 0, cb.Size() );
+					
 					struct Comp
 					{
 						bool operator()( const NamedShaderParameter& lhs, const agl::ShaderParameter& rhs )

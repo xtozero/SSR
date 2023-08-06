@@ -1,5 +1,6 @@
 #include "Ini/Ini.h"
 
+#include <cassert>
 #include <iostream>
 
 namespace ini
@@ -171,12 +172,13 @@ namespace ini
 			char c = GetNextChar();
 			if ( c == ';' )
 			{
+				assert( false && "the comment must be at the beginning of the line." );
 				return {};
 			}
 		}
 
 		const char* end = Tell();
-		if ( ( PeekNextChar() == '\n' ) || ( PeekNextChar() == '\r' ) )
+		if ( ( PeekNextChar() == '\n' ) || ( PeekNextChar() == '\r' ) || ( CanRead() == false ) )
 		{
 			std::string_view ret( start, end );
 			size_t trimPos = ret.find_last_not_of( ' ' );

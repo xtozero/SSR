@@ -465,7 +465,7 @@ namespace rendercore
 
 	std::optional<DrawSnapshot> ImguiDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
 	{
-		StaticShaderSwitches useSRGB = DrawImguiVS().GetSwitches();
+		StaticShaderSwitches useSRGB = DrawImguiVS::GetSwitches();
 		useSRGB.On( Name( "USE_SRGB" ), 1 );
 
 		PassShader passShader = {

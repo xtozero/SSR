@@ -62,19 +62,15 @@ namespace rendercore
 	class GlobalShaderCommon : public GlobalShaderBase
 	{
 	public:
-		const StaticShaderSwitches& GetSwitches() const
+		static const StaticShaderSwitches& GetSwitches()
 		{
-			return m_switches;
+			static StaticShaderSwitches staticSwitch = GetGlobalShader<DerivedType>()->GetStaticSwitches();
+			return staticSwitch;
 		}
 
-		ShaderType* GetShader( const StaticShaderSwitches& switches )
+		ShaderType* GetShader() const
 		{
-			return Cast<ShaderType>( m_shader->CompileShader( switches ) );
-		}
-
-		ShaderType* GetShader()
-		{
-			return Cast<ShaderType>( m_shader->CompileShader( {} ) );
+			return  Cast<ShaderType>( m_compiledShader );
 		}
 
 		GlobalShaderCommon()
@@ -82,8 +78,19 @@ namespace rendercore
 			m_shader = GetGlobalShader<DerivedType>();
 			assert( m_shader != nullptr );
 
-			m_switches = m_shader->GetStaticSwitches();
+			m_compiledShader = Cast<ShaderType>( m_shader->CompileShader( {} ) );
+			assert( m_compiledShader != nullptr );
 		}
+
+		GlobalShaderCommon( const StaticShaderSwitches& switches )
+		{
+			m_shader = GetGlobalShader<DerivedType>();
+			assert( m_shader != nullptr );
+
+			m_compiledShader = Cast<ShaderType>( m_shader->CompileShader( switches ) );
+			assert( m_compiledShader != nullptr );
+		}
+
 		virtual ~GlobalShaderCommon() = default;
 		GlobalShaderCommon( const GlobalShaderCommon& ) = default;
 		GlobalShaderCommon( GlobalShaderCommon&& ) = default;
@@ -92,7 +99,7 @@ namespace rendercore
 
 	protected:
 		IShader* m_shader = nullptr;
-		StaticShaderSwitches m_switches;
+		ShaderType* m_compiledShader = nullptr;
 	};
 }
 

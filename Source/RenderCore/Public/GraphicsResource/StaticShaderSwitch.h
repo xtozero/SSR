@@ -18,9 +18,10 @@ namespace rendercore
 		int32 m_current;
 		int32 m_min;
 		int32 m_max;
+		int32 m_bias;
 
 		uint32 GetID() const;
-		uint32 NumShaderValues() const;
+		RENDERCORE_DLL uint32 NumShaderValues() const;
 
 		std::strong_ordering operator<=>( const StaticShaderSwitch& other ) const = default;
 		

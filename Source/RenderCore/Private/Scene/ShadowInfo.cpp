@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Scene/ShadowInfo.h"
 
+#include "Config/DefaultRenderCoreConfig.h"
 #include "Proxies/LightProxy.h"
 #include "Proxies/PrimitiveProxy.h"
 #include "Renderer/SceneRenderer.h"
@@ -74,6 +75,24 @@ namespace rendercore
 		}
 
 		m_shadowConstantBuffer.Update( params );
+
+		if ( DefaultRenderCore::IsESMsEnabled() )
+		{
+			if ( m_pESMsConstantBuffer == nullptr )
+			{
+				m_pESMsConstantBuffer.reset( new TypedConstatBuffer<ESMsParameters>() );
+			}
+
+			ESMsParameters esmsParams = {
+				.m_esmsParameterC = DefaultRenderCore::ESMsParamC()
+			};
+
+			m_pESMsConstantBuffer->Update( esmsParams );
+		}
+		else
+		{
+			m_pESMsConstantBuffer = nullptr;
+		}
 	}
 
 	void ShadowInfo::RenderDepth( SceneRenderer& renderer, RenderingShaderResource& resources )

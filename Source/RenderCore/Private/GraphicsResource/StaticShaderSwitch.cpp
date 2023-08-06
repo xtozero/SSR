@@ -22,7 +22,7 @@ namespace rendercore
 
 	Archive& operator<<( Archive& ar, StaticShaderSwitch& shaderSwitch )
 	{
-		ar << shaderSwitch.m_on << shaderSwitch.m_current << shaderSwitch.m_min << shaderSwitch.m_max;
+		ar << shaderSwitch.m_on << shaderSwitch.m_current << shaderSwitch.m_min << shaderSwitch.m_max << shaderSwitch.m_bias;
 		return ar;
 	}
 
@@ -56,12 +56,10 @@ namespace rendercore
 	uint32 StaticShaderSwitches::GetID() const
 	{
 		uint32 id = 0;
-		uint32 digit = 1;
-
+		
 		for ( auto& [name, shaderSwitch] : m_configs )
 		{
-			id += shaderSwitch.GetID() * digit;
-			digit *= shaderSwitch.NumShaderValues();
+			id += shaderSwitch.GetID() * shaderSwitch.m_bias;
 		}
 
 		return id;

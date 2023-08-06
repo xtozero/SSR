@@ -140,6 +140,7 @@ set (RENDER_UTILITY
 	Public/RenderUtility/TransitionUtils.h)
 	
 set (RENDERER_SOURCE
+	Private/Renderer/ExponentialShadowMapRendering.cpp
 	Private/Renderer/ForwardLighting.cpp
 	Private/Renderer/ForwardRenderer.cpp
 	Private/Renderer/ImguiRenderer.cpp
@@ -147,6 +148,7 @@ set (RENDERER_SOURCE
 	Private/Renderer/SceneRenderer.cpp
 	Private/Renderer/SkyAtmosphereRendering.cpp
 	Private/Renderer/TemporalAntiAliasingRendering.cpp
+	Public/Renderer/ExponentialShadowMapRendering.h
 	Public/Renderer/ForwardLighting.h
 	Public/Renderer/ForwardRenderer.h
 	Public/Renderer/IRenderCore.h

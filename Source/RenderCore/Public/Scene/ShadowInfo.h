@@ -35,6 +35,12 @@ namespace rendercore
 		Matrix m_shadowViewProjection[6];
 	};
 
+	struct ESMsParameters
+	{
+		float m_esmsParameterC;
+		float padding[3];
+	};
+
 	struct ShadowMapRenderTarget
 	{
 		agl::RefHandle<agl::Texture> m_shadowMap;
@@ -52,6 +58,11 @@ namespace rendercore
 		ShadowMapRenderTarget& ShadowMap()
 		{
 			return m_shadowMap;
+		}
+
+		const LightSceneInfo* GetLightSceneInfo() const
+		{
+			return m_lightSceneInfo;
 		}
 
 		LightSceneInfo* GetLightSceneInfo()
@@ -104,6 +115,11 @@ namespace rendercore
 			return m_shadowConstantBuffer;
 		}
 
+		TypedConstatBuffer<ESMsParameters>& ESMsConstantBuffer()
+		{
+			return *m_pESMsConstantBuffer;
+		}
+
 		void AddCasterPrimitive( PrimitiveSceneInfo* primitiveSceneInfo, const BoxSphereBounds& viewspaceBounds );
 		void AddReceiverPrimitive( PrimitiveSceneInfo* primitiveSceneInfo, const BoxSphereBounds& viewspaceBounds );
 
@@ -138,5 +154,6 @@ namespace rendercore
 		CascadeShadowSetting m_cacadeSetting;
 
 		TypedConstatBuffer<ShadowDepthPassParameters> m_shadowConstantBuffer;
+		std::unique_ptr<TypedConstatBuffer<ESMsParameters>> m_pESMsConstantBuffer;
 	};
 }
