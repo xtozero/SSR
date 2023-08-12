@@ -15,9 +15,9 @@ namespace rendercore
 	std::optional<DrawSnapshot> VolumetricCloundDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
 	{
 		PassShader passShader{
-					FullScreenQuadVS().GetShader(),
+					FullScreenQuadVS(),
 					nullptr,
-					DrawVolumetricCloudPS().GetShader()
+					DrawVolumetricCloudPS()
 		};
 
 		BlendOption volumetricCloundDrawPassBlendOption;

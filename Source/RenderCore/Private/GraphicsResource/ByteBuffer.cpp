@@ -47,20 +47,18 @@ namespace rendercore
 		m_pUploadData = nullptr;
 		m_pDistributionData = nullptr;
 
-		DistributionCopyCS computeShader;
-		ComputeShader& cs = *computeShader.GetShader();
+		DistributionCopyCS distributionCopyCS;
+
+		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( distributionCopyCS );
 
 		auto commandList = GetCommandList();
-
-		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( cs.Resource() );
-
 		commandList.BindPipelineState( pso.Get() );
 
-		agl::ShaderBindings shaderBindings = CreateShaderBindings( &cs );
-		SetShaderValue( commandList, computeShader.NumDistribution(), m_distributionCount);
-		BindResource( shaderBindings, computeShader.Src(), m_src.Resource());
-		BindResource( shaderBindings, computeShader.Distributer(), m_distributer.Resource());
-		BindResource( shaderBindings, computeShader.Dest(), destBuffer);
+		agl::ShaderBindings shaderBindings = CreateShaderBindings( distributionCopyCS );
+		SetShaderValue( commandList, distributionCopyCS.NumDistribution(), m_distributionCount);
+		BindResource( shaderBindings, distributionCopyCS.Src(), m_src.Resource());
+		BindResource( shaderBindings, distributionCopyCS.Distributer(), m_distributer.Resource());
+		BindResource( shaderBindings, distributionCopyCS.Dest(), destBuffer);
 
 		commandList.BindShaderResources( shaderBindings );
 

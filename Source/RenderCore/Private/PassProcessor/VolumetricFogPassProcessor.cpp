@@ -21,9 +21,9 @@ namespace rendercore
 		switches.On( Name( "TricubicTextureSampling" ), 1 );
 
 		PassShader passShader = {
-			.m_vertexShader = FullScreenQuadVS().GetShader(),
+			.m_vertexShader = FullScreenQuadVS(),
 			.m_geometryShader = nullptr,
-			.m_pixelShader = DrawVolumetricFogPS( switches ).GetShader()
+			.m_pixelShader = DrawVolumetricFogPS( switches )
 		};
 
 		BlendOption volumetricFogDrawPassBlendOption;

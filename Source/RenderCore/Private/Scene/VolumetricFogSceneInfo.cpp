@@ -144,7 +144,7 @@ namespace rendercore
 
 		InscatteringCS inscatteringCS( switches );
 
-		agl::RefHandle<agl::ComputePipelineState> inscatteringPSO = PrepareComputePipelineState( inscatteringCS.GetShader()->Resource() );
+		agl::RefHandle<agl::ComputePipelineState> inscatteringPSO = PrepareComputePipelineState( inscatteringCS );
 		commandList.BindPipelineState( inscatteringPSO );
 
 		SetShaderValue( commandList, inscatteringCS.AsymmetryParameterG(), Proxy()->G() );
@@ -153,7 +153,7 @@ namespace rendercore
 		SetShaderValue( commandList, inscatteringCS.TemporalAccum(), ( m_numTick == 0 ) ? 0.f : 1.f );
 		SetShaderValue( commandList, inscatteringCS.ShadowBias(), Proxy()->ShadowBias() );
 
-		agl::ShaderBindings shaderBindings = CreateShaderBindings( inscatteringCS.GetShader() );
+		agl::ShaderBindings shaderBindings = CreateShaderBindings( inscatteringCS );
 		BindResource( shaderBindings, inscatteringCS.FrustumVolume(), FrustumVolume() );
 
 		SceneViewConstantBuffer& viewConstant = scene.SceneViewConstant();
@@ -210,10 +210,10 @@ namespace rendercore
 	{
 		AccumulateScatteringCS accumulateScatteringCS;
 
-		agl::RefHandle<agl::ComputePipelineState> accumulateScatteringPSO = PrepareComputePipelineState( accumulateScatteringCS.GetShader()->Resource() );
+		agl::RefHandle<agl::ComputePipelineState> accumulateScatteringPSO = PrepareComputePipelineState( accumulateScatteringCS );
 		commandList.BindPipelineState( accumulateScatteringPSO );
 
-		agl::ShaderBindings shaderBindings = CreateShaderBindings( accumulateScatteringCS.GetShader() );
+		agl::ShaderBindings shaderBindings = CreateShaderBindings( accumulateScatteringCS );
 
 		BindResource( shaderBindings, accumulateScatteringCS.FrustumVolume(), FrustumVolume() );
 		BindResource( shaderBindings, accumulateScatteringCS.AccumulatedVolume(), AccumulatedVolume() );

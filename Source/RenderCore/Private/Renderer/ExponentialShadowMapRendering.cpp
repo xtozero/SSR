@@ -72,12 +72,12 @@ namespace rendercore
 		horizonSwitches.On( Name( "KernelSize" ), KernelSize );
 
 		CascadedESMsBlurCS horizonBlurCS( horizonSwitches );
-		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( horizonBlurCS.GetShader()->Resource() );
+		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( horizonBlurCS );
 
 		auto commandList = GetCommandList();
 		commandList.BindPipelineState( pso );
 
-		agl::ShaderBindings shaderBindings = CreateShaderBindings( horizonBlurCS.GetShader() );
+		agl::ShaderBindings shaderBindings = CreateShaderBindings( horizonBlurCS );
 		BindResource( shaderBindings, horizonBlurCS.SrcTexture(), srcTexture );
 		BindResource( shaderBindings, horizonBlurCS.DestTexture(), tempTexture );
 
@@ -103,10 +103,10 @@ namespace rendercore
 		virticalSwitches.On( Name( "KernelSize" ), KernelSize );
 
 		CascadedESMsBlurCS virticalBlurCS( virticalSwitches );
-		pso = PrepareComputePipelineState( virticalBlurCS.GetShader()->Resource() );
+		pso = PrepareComputePipelineState( virticalBlurCS );
 		commandList.BindPipelineState( pso );
 
-		shaderBindings = CreateShaderBindings( virticalBlurCS.GetShader() );
+		shaderBindings = CreateShaderBindings( virticalBlurCS );
 		BindResource( shaderBindings, virticalBlurCS.SrcTexture(), tempTexture );
 		BindResource( shaderBindings, virticalBlurCS.DestTexture(), srcTexture );
 
@@ -133,14 +133,13 @@ namespace rendercore
 		esmsTexture->Init();
 
 		CascadedESMsCS cascadedESMsCS;
-		ComputeShader& cs = *cascadedESMsCS.GetShader();
 
-		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( cs.Resource() );
+		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( cascadedESMsCS );
 
 		auto commandList = GetCommandList();
 		commandList.BindPipelineState( pso );
 
-		agl::ShaderBindings shaderBindings = CreateShaderBindings( &cs );
+		agl::ShaderBindings shaderBindings = CreateShaderBindings( cascadedESMsCS );
 		BindResource( shaderBindings, cascadedESMsCS.SrcTexture(), shadowMap );
 		BindResource( shaderBindings, cascadedESMsCS.ESMsTexture(), esmsTexture );
 

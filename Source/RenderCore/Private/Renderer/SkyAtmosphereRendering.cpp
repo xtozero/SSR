@@ -107,9 +107,9 @@ namespace rendercore
 	std::optional<DrawSnapshot> SkyAtmosphereDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
 	{
 		PassShader passShader{
-				FullScreenQuadVS().GetShader(),
+				FullScreenQuadVS(),
 				nullptr,
-				DrawAtmospherePS().GetShader()
+				DrawAtmospherePS()
 		};
 
 		BlendOption skyAtmosphereDrawPassBlendOption;
@@ -217,10 +217,10 @@ namespace rendercore
 		TransmittanceCS transmittanceCS;
 
 		auto commandList = GetCommandList();
-		agl::RefHandle<agl::ComputePipelineState> transmittancePSO = PrepareComputePipelineState( transmittanceCS.GetShader()->Resource() );
+		agl::RefHandle<agl::ComputePipelineState> transmittancePSO = PrepareComputePipelineState( transmittanceCS );
 		commandList.BindPipelineState( transmittancePSO );
 
-		agl::ShaderBindings shaderBindings = CreateShaderBindings( transmittanceCS.GetShader() );
+		agl::ShaderBindings shaderBindings = CreateShaderBindings( transmittanceCS );
 		BindResource( shaderBindings, transmittanceCS.Transmittance(), info.GetTransmittanceLutTexture() );
 
 		commandList.BindShaderResources( shaderBindings );
@@ -244,10 +244,10 @@ namespace rendercore
 		deltaETexture->Init();
 
 		IrradianceOneCS irradianceOneCS;
-		agl::RefHandle<agl::ComputePipelineState> irradianceOnePSO = PrepareComputePipelineState( irradianceOneCS.GetShader()->Resource() );
+		agl::RefHandle<agl::ComputePipelineState> irradianceOnePSO = PrepareComputePipelineState( irradianceOneCS );
 		commandList.BindPipelineState( irradianceOnePSO );
 
-		shaderBindings = CreateShaderBindings( irradianceOneCS.GetShader() );
+		shaderBindings = CreateShaderBindings( irradianceOneCS );
 
 		BindResource( shaderBindings, irradianceOneCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
 		BindResource( shaderBindings, irradianceOneCS.TransmittanceLutSampler(), pointSampler.Resource() );
@@ -277,10 +277,10 @@ namespace rendercore
 		deltaSMTexture->Init();
 
 		InscatterOneCS inscatterOneCS;
-		agl::RefHandle<agl::ComputePipelineState> inscatterOnePSO = PrepareComputePipelineState( inscatterOneCS.GetShader()->Resource() );
+		agl::RefHandle<agl::ComputePipelineState> inscatterOnePSO = PrepareComputePipelineState( inscatterOneCS );
 		commandList.BindPipelineState( inscatterOnePSO );
 
-		shaderBindings = CreateShaderBindings( inscatterOneCS.GetShader() );
+		shaderBindings = CreateShaderBindings( inscatterOneCS );
 
 		BindResource( shaderBindings, inscatterOneCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
 		BindResource( shaderBindings, inscatterOneCS.TransmittanceLutSampler(), pointSampler.Resource() );
@@ -304,10 +304,10 @@ namespace rendercore
 		inscatterBuffer->Init();
 
 		CopyInscatterOneCS copyInscatterOneCS;
-		agl::RefHandle<agl::ComputePipelineState> copyInscatterOnePSO = PrepareComputePipelineState( copyInscatterOneCS.GetShader()->Resource() );
+		agl::RefHandle<agl::ComputePipelineState> copyInscatterOnePSO = PrepareComputePipelineState( copyInscatterOneCS );
 		commandList.BindPipelineState( copyInscatterOnePSO );
 
-		shaderBindings = CreateShaderBindings( copyInscatterOneCS.GetShader() );
+		shaderBindings = CreateShaderBindings( copyInscatterOneCS );
 
 		BindResource( shaderBindings, copyInscatterOneCS.DeltaSRLut(), deltaSRTexture );
 		BindResource( shaderBindings, copyInscatterOneCS.DeltaSRLutSampler(), pointSampler.Resource() );
@@ -340,10 +340,10 @@ namespace rendercore
 		{
 			// Compute deltaJ
 			InscatterSCS inscatterSCS;
-			agl::RefHandle<agl::ComputePipelineState> inscatterSPSO = PrepareComputePipelineState( inscatterSCS.GetShader()->Resource() );
+			agl::RefHandle<agl::ComputePipelineState> inscatterSPSO = PrepareComputePipelineState( inscatterSCS );
 			commandList.BindPipelineState( inscatterSPSO );
 
-			shaderBindings = CreateShaderBindings( inscatterSCS.GetShader() );
+			shaderBindings = CreateShaderBindings( inscatterSCS );
 
 			BindResource( shaderBindings, inscatterSCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
 			BindResource( shaderBindings, inscatterSCS.TransmittanceLutSampler(), pointSampler.Resource() );
@@ -366,10 +366,10 @@ namespace rendercore
 
 			// Compute deltaE
 			IrradianceNCS irradianceNCS;
-			agl::RefHandle<agl::ComputePipelineState> irradianceNPSO = PrepareComputePipelineState( irradianceNCS.GetShader()->Resource() );
+			agl::RefHandle<agl::ComputePipelineState> irradianceNPSO = PrepareComputePipelineState( irradianceNCS );
 			commandList.BindPipelineState( irradianceNPSO );
 
-			shaderBindings = CreateShaderBindings( irradianceNCS.GetShader() );
+			shaderBindings = CreateShaderBindings( irradianceNCS );
 
 			BindResource( shaderBindings, irradianceNCS.DeltaSRLut(), deltaSRTexture );
 			BindResource( shaderBindings, irradianceNCS.DeltaSRLutSampler(), pointSampler.Resource() );
@@ -383,10 +383,10 @@ namespace rendercore
 
 			// Compute deltaS
 			InscatterNCS inscatterNCS;
-			agl::RefHandle<agl::ComputePipelineState> inscatterNPSO = PrepareComputePipelineState( inscatterNCS.GetShader()->Resource() );
+			agl::RefHandle<agl::ComputePipelineState> inscatterNPSO = PrepareComputePipelineState( inscatterNCS );
 			commandList.BindPipelineState( inscatterNPSO );
 
-			shaderBindings = CreateShaderBindings( inscatterNCS.GetShader() );
+			shaderBindings = CreateShaderBindings( inscatterNCS );
 
 			BindResource( shaderBindings, inscatterNCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
 			BindResource( shaderBindings, inscatterNCS.TransmittanceLutSampler(), pointSampler.Resource() );
@@ -399,10 +399,10 @@ namespace rendercore
 
 			// Add deltaE into irradiance textrue E
 			CopyIrradianceCS copyIrradianceCS;
-			agl::RefHandle<agl::ComputePipelineState> copyIrradiancePSO = PrepareComputePipelineState( copyIrradianceCS.GetShader()->Resource() );
+			agl::RefHandle<agl::ComputePipelineState> copyIrradiancePSO = PrepareComputePipelineState( copyIrradianceCS );
 			commandList.BindPipelineState( copyIrradiancePSO );
 
-			shaderBindings = CreateShaderBindings( copyIrradianceCS.GetShader() );
+			shaderBindings = CreateShaderBindings( copyIrradianceCS );
 
 			BindResource( shaderBindings, copyIrradianceCS.DeltaELut(), deltaETexture );
 			BindResource( shaderBindings, copyIrradianceCS.DeltaELutSampler(), pointSampler.Resource() );
@@ -413,10 +413,10 @@ namespace rendercore
 
 			// Add deltaS info inscatter texture S
 			CopyInscatterNCS copyInscatterNCS;
-			agl::RefHandle<agl::ComputePipelineState> copyInscatterNPSO = PrepareComputePipelineState( copyInscatterNCS.GetShader()->Resource() );
+			agl::RefHandle<agl::ComputePipelineState> copyInscatterNPSO = PrepareComputePipelineState( copyInscatterNCS );
 			commandList.BindPipelineState( copyInscatterNPSO );
 
-			shaderBindings = CreateShaderBindings( copyInscatterNCS.GetShader() );
+			shaderBindings = CreateShaderBindings( copyInscatterNCS );
 
 			BindResource( shaderBindings, copyInscatterNCS.DeltaSRLut(), deltaSRTexture );
 			BindResource( shaderBindings, copyInscatterNCS.DeltaSRLutSampler(), pointSampler.Resource() );

@@ -519,13 +519,6 @@ namespace rendercore
 			return true;
 		}
 
-		DistributionCopyCS computeShader;
-		ComputeShader* cs = computeShader.GetShader();
-		if ( cs == nullptr )
-		{
-			return false;
-		}
-
 		uint32 totalPrimitives = static_cast<uint32>( scene.m_primitives.Size() );
 		scene.m_gpuPrimitiveInfos.Resize( totalPrimitives );
 

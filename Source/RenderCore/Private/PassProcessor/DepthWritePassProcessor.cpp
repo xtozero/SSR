@@ -77,9 +77,9 @@ namespace rendercore
 		}
 
 		PassShader passShader{
-			DepthWriteVS( switches ).GetShader(),
+			DepthWriteVS( switches ),
 			nullptr,
-			DepthWritePS().GetShader()
+			DepthWritePS()
 		};
 
 		return passShader;

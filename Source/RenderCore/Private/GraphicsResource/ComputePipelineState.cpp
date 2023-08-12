@@ -4,10 +4,10 @@
 
 namespace rendercore
 {
-	agl::RefHandle<agl::ComputePipelineState> PrepareComputePipelineState( agl::ComputeShader* cs )
+	agl::RefHandle<agl::ComputePipelineState> PrepareComputePipelineState( ComputeShader* computeShader )
 	{
 		agl::ComputePipelineStateInitializer initializer{
-			.m_computeShader = cs
+			.m_computeShader = computeShader->Resource()
 		};
 
 		return agl::ComputePipelineState::Create( initializer );

@@ -35,9 +35,9 @@ namespace rendercore
 		assert( IsInRenderThread() );
 
 		PassShader passShader{
-			ShadowDepthVS().GetShader(),
-			ShadowDepthGS().GetShader(),
-			ShadowDepthPS().GetShader()
+			ShadowDepthVS(),
+			ShadowDepthGS(),
+			ShadowDepthPS()
 		};
 
 		PassRenderOption passRenderOption;

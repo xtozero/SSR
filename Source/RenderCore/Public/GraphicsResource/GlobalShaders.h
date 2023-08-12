@@ -68,11 +68,6 @@ namespace rendercore
 			return staticSwitch;
 		}
 
-		ShaderType* GetShader() const
-		{
-			return  Cast<ShaderType>( m_compiledShader );
-		}
-
 		GlobalShaderCommon()
 		{
 			m_shader = GetGlobalShader<DerivedType>();
@@ -97,7 +92,17 @@ namespace rendercore
 		GlobalShaderCommon& operator=( const GlobalShaderCommon& ) = default;
 		GlobalShaderCommon& operator=( GlobalShaderCommon&& ) = default;
 
+		operator ShaderType* () const
+		{
+			return GetShader();
+		}
+
 	protected:
+		ShaderType* GetShader() const
+		{
+			return  Cast<ShaderType>( m_compiledShader );
+		}
+
 		IShader* m_shader = nullptr;
 		ShaderType* m_compiledShader = nullptr;
 	};

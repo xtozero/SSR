@@ -31,9 +31,9 @@ namespace rendercore
 		}
 
 		PassShader passShader{
-			FullScreenQuadVS( vsSwitches ).GetShader(),
+			FullScreenQuadVS( vsSwitches ),
 			nullptr,
-			DrawCascadeShadowPS( psSwitches ).GetShader()
+			DrawCascadeShadowPS( psSwitches )
 		};
 
 		BlendOption shadowDrawPassBlendOption;

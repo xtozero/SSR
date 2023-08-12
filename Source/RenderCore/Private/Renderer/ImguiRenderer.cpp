@@ -20,7 +20,10 @@
 namespace rendercore
 {
 	class DrawImguiVS : public GlobalShaderCommon<VertexShader, DrawImguiVS>
-	{};
+	{
+	public:
+		DrawImguiVS( const StaticShaderSwitches& switches ) : GlobalShaderCommon<VertexShader, DrawImguiVS>( switches ) {}
+	};
 
 	class DrawImguiPS : public GlobalShaderCommon<PixelShader, DrawImguiPS>
 	{};
@@ -469,9 +472,9 @@ namespace rendercore
 		useSRGB.On( Name( "USE_SRGB" ), 1 );
 
 		PassShader passShader = {
-			.m_vertexShader = DrawImguiVS().GetShader( useSRGB ),
+			.m_vertexShader = DrawImguiVS( useSRGB ),
 			.m_geometryShader = nullptr,
-			.m_pixelShader = DrawImguiPS().GetShader()
+			.m_pixelShader = DrawImguiPS()
 		};
 
 		PassRenderOption passRenderOption = {

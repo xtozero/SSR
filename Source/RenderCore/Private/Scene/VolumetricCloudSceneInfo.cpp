@@ -56,10 +56,10 @@ namespace rendercore
 
 		auto commandList = GetCommandList();
 
-		agl::RefHandle<agl::ComputePipelineState> perlinWorleyPSO = PrepareComputePipelineState( perlinWorleyCS.GetShader()->Resource() );
+		agl::RefHandle<agl::ComputePipelineState> perlinWorleyPSO = PrepareComputePipelineState( perlinWorleyCS );
 		commandList.BindPipelineState( perlinWorleyPSO );
 
-		agl::ShaderBindings shaderBindings = CreateShaderBindings( perlinWorleyCS.GetShader() );
+		agl::ShaderBindings shaderBindings = CreateShaderBindings( perlinWorleyCS );
 		BindResource( shaderBindings, perlinWorleyCS.NoiseTex(), m_baseCloudShape);
 
 		commandList.BindShaderResources( shaderBindings );
@@ -71,10 +71,10 @@ namespace rendercore
 		WorleyCS worleyCS;
 		threadGroupCount = static_cast<uint32>( std::ceilf( 32 / 8.f ) );
 
-		agl::RefHandle<agl::ComputePipelineState> worleyPSO = PrepareComputePipelineState( perlinWorleyCS.GetShader()->Resource() );
+		agl::RefHandle<agl::ComputePipelineState> worleyPSO = PrepareComputePipelineState( perlinWorleyCS );
 		commandList.BindPipelineState( worleyPSO );
 
-		shaderBindings = CreateShaderBindings( perlinWorleyCS.GetShader() );
+		shaderBindings = CreateShaderBindings( perlinWorleyCS );
 		BindResource( shaderBindings, worleyCS.NoiseTex(), m_detailCloudShape);
 
 		commandList.BindShaderResources( shaderBindings );
@@ -111,10 +111,10 @@ namespace rendercore
 
 		auto commandList = GetCommandList();
 
-		agl::RefHandle<agl::ComputePipelineState> weatherMapPSO = PrepareComputePipelineState( weatherMapCS.GetShader()->Resource() );
+		agl::RefHandle<agl::ComputePipelineState> weatherMapPSO = PrepareComputePipelineState( weatherMapCS );
 		commandList.BindPipelineState( weatherMapPSO );
 
-		agl::ShaderBindings shaderBindings = CreateShaderBindings( weatherMapCS.GetShader() );
+		agl::ShaderBindings shaderBindings = CreateShaderBindings( weatherMapCS );
 		BindResource( shaderBindings, weatherMapCS.WeatherTex(), m_weatherMap);
 
 		commandList.BindShaderResources( shaderBindings );
