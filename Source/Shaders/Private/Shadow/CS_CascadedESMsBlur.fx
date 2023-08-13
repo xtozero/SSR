@@ -8,7 +8,9 @@ cbuffer GaussianBlurParameter : register( b0 )
 
 static float Kernel[128] = (float[128])KernelBuffer;
 
-Texture2DArray<float> SrcTexture : register( t0 );
+Texture2DArray SrcTexture : register( t0 );
+SamplerState PointSampler : register( s0 );
+
 RWTexture2DArray<float> DestTexture : register( u0 );
 
 [numthreads(8, 8, 1)]
@@ -30,13 +32,10 @@ void main( uint3 DTid : SV_DispatchThreadID )
 #else
         int3 sampleIdx = center + int3(step, 0, 0);
 #endif
-        [branch]
-        if ( all( 0 <= sampleIdx ) && all( sampleIdx < dims ) )
-        {
-            result += Kernel[kernelIdx] * SrcTexture[sampleIdx];
-        }
+        float3 uv = sampleIdx;
+        uv.xy = uv.xy / dims.xy;
 
-        ++kernelIdx;
+        result += Kernel[kernelIdx++] * SrcTexture.SampleLevel( PointSampler, uv, 0 );
     }
 
     DestTexture[DTid] = result;

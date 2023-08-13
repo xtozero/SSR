@@ -35,9 +35,9 @@ namespace rendercore
 		assert( IsInRenderThread() );
 
 		PassShader passShader{
-			ShadowDepthVS(),
-			ShadowDepthGS(),
-			ShadowDepthPS()
+			.m_vertexShader = ShadowDepthVS(),
+			.m_geometryShader = ShadowDepthGS(),
+			.m_pixelShader = ShadowDepthPS()
 		};
 
 		PassRenderOption passRenderOption;

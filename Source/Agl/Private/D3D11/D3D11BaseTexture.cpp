@@ -113,7 +113,7 @@ namespace agl
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
 
-		srv.Format = desc.Format;
+		srv.Format = ConvertDxgiFormatForSRV( desc.Format );
 
 		if ( desc.ArraySize > 1 )
 		{
@@ -134,7 +134,7 @@ namespace agl
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
 
-		srv.Format = desc.Format;
+		srv.Format = ConvertDxgiFormatForSRV( desc.Format );
 
 		if ( desc.ArraySize % 6 == 0 )
 		{
@@ -185,7 +185,7 @@ namespace agl
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
 
-		srv.Format = desc.Format;
+		srv.Format = ConvertDxgiFormatForSRV( desc.Format );
 		srv.ViewDimension = D3D_SRV_DIMENSION_TEXTURE3D;
 		srv.Texture3D.MipLevels = desc.MipLevels;
 
@@ -279,7 +279,7 @@ namespace agl
 	{
 		D3D11_DEPTH_STENCIL_VIEW_DESC dsv = {};
 
-		dsv.Format = desc.Format;
+		dsv.Format = ConvertDxgiFormatForDSV( desc.Format );
 
 		if ( desc.ArraySize > 1 )
 		{

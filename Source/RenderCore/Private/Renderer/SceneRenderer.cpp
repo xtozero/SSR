@@ -373,20 +373,6 @@ namespace rendercore
 			};
 
 			shadow->ShadowMap().m_shadowMapDepth = RenderTargetPool::GetInstance().FindFreeRenderTarget( depthTrait );
-
-			EnqueueRenderTask(
-				[texture = shadow->ShadowMap().m_shadowMap, depthTexture = shadow->ShadowMap().m_shadowMapDepth]()
-				{
-					if ( texture )
-					{
-						texture->Init();
-					}
-
-					if ( depthTexture )
-					{
-						depthTexture->Init();
-					}
-				} );
 		}
 	}
 

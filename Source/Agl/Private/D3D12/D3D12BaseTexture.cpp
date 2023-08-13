@@ -7,6 +7,8 @@
 #include "D3D12ResourceUploader.h"
 #include "D3D12ResourceViews.h"
 
+using ::agl::ConvertDxgiFormatForDSV;
+using ::agl::ConvertDxgiFormatForSRV;
 using ::agl::ConvertDxgiFormatToFormat;
 using ::agl::ConvertFormatToDxgiFormat;
 using ::agl::ConvertHeapTypeToAccessFlag;
@@ -109,7 +111,7 @@ namespace
 	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertTraitToNonMultiSampleSRV( const TextureTrait& trait )
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srv = {};
-		srv.Format = ConvertFormatToDxgiFormat( trait.m_format );
+		srv.Format = ConvertDxgiFormatForSRV( ConvertFormatToDxgiFormat( trait.m_format ) );
 		srv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
 		if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Texture3D ) )
@@ -203,7 +205,7 @@ namespace
 	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertTraitToMultiSampleSRV( const TextureTrait& trait )
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srv = {};
-		srv.Format = ConvertFormatToDxgiFormat( trait.m_format );
+		srv.Format = ConvertDxgiFormatForSRV( ConvertFormatToDxgiFormat( trait.m_format ) );
 		srv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
 		assert( ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Texture3D ) == false )
@@ -401,7 +403,7 @@ namespace
 	D3D12_DEPTH_STENCIL_VIEW_DESC ConvertTraitToNonMultiSampleDSV( const TextureTrait& trait )
 	{
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {
-			.Format = ConvertFormatToDxgiFormat( trait.m_format )
+			.Format = ConvertDxgiFormatForDSV( ConvertFormatToDxgiFormat( trait.m_format ) )
 		};
 
 		assert( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Texture3D ) == false );
@@ -450,7 +452,7 @@ namespace
 	D3D12_DEPTH_STENCIL_VIEW_DESC ConvertTraitToMultiSampleDSV( const TextureTrait& trait )
 	{
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {
-			.Format = ConvertFormatToDxgiFormat( trait.m_format )
+			.Format = ConvertDxgiFormatForDSV( ConvertFormatToDxgiFormat( trait.m_format ) )
 		};
 
 		assert( ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Texture3D ) == false )
@@ -537,6 +539,7 @@ namespace
 
 		if ( HasAnyFlags( trait.m_bindType, ResourceBindType::RenderTarget ) )
 		{
+			ret.Format = ConvertDxgiFormatForDSV( ret.Format );
 			ret.Color[0] = clearValue.m_color[0];
 			ret.Color[1] = clearValue.m_color[1];
 			ret.Color[2] = clearValue.m_color[2];
@@ -546,6 +549,7 @@ namespace
 		}
 		else if ( HasAnyFlags( trait.m_bindType, ResourceBindType::DepthStencil ) )
 		{
+			ret.Format = ConvertDxgiFormatForDSV( ret.Format );
 			ret.DepthStencil.Depth = clearValue.m_depthStencil.m_depth;
 			ret.DepthStencil.Stencil = clearValue.m_depthStencil.m_stencil;
 

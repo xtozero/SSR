@@ -503,4 +503,28 @@ namespace agl
 
 		return format;
 	}
+
+	inline DXGI_FORMAT ConvertDxgiFormatForDSV( DXGI_FORMAT format )
+	{
+		switch ( format )
+		{
+		case DXGI_FORMAT_R24G8_TYPELESS:
+			return DXGI_FORMAT_D24_UNORM_S8_UINT;
+			break;
+		}
+
+		return format;
+	}
+
+	inline DXGI_FORMAT ConvertDxgiFormatForSRV( DXGI_FORMAT format )
+	{
+		switch ( format )
+		{
+		case DXGI_FORMAT_R24G8_TYPELESS:
+			return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+			break;
+		}
+
+		return format;
+	}
 }

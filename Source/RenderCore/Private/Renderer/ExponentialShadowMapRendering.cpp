@@ -34,6 +34,7 @@ namespace rendercore
 	private:
 		DEFINE_SHADER_PARAM( KernelBuffer );
 		DEFINE_SHADER_PARAM( SrcTexture );
+		DEFINE_SHADER_PARAM( PointSampler );
 		DEFINE_SHADER_PARAM( DestTexture );
 	};
 
@@ -77,8 +78,13 @@ namespace rendercore
 		auto commandList = GetCommandList();
 		commandList.BindPipelineState( pso );
 
+		SamplerOption pointSamperOption;
+		pointSamperOption.m_filter = agl::TextureFilter::Point;
+		auto pointSampler = GraphicsInterface().FindOrCreate( pointSamperOption );
+
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( horizonBlurCS );
 		BindResource( shaderBindings, horizonBlurCS.SrcTexture(), srcTexture );
+		BindResource( shaderBindings, horizonBlurCS.PointSampler(), pointSampler.Resource() );
 		BindResource( shaderBindings, horizonBlurCS.DestTexture(), tempTexture );
 
 		SetShaderValue( commandList, horizonBlurCS.KernelBuffer(), kernel );
@@ -108,6 +114,7 @@ namespace rendercore
 
 		shaderBindings = CreateShaderBindings( virticalBlurCS );
 		BindResource( shaderBindings, virticalBlurCS.SrcTexture(), tempTexture );
+		BindResource( shaderBindings, virticalBlurCS.PointSampler(), pointSampler.Resource() );
 		BindResource( shaderBindings, virticalBlurCS.DestTexture(), srcTexture );
 
 		SetShaderValue( commandList, virticalBlurCS.KernelBuffer(), kernel );
@@ -125,6 +132,7 @@ namespace rendercore
 
 		const agl::TextureTrait& srcTrait = shadowMap->GetTrait();
 		agl::TextureTrait esmsTrait = srcTrait;
+		esmsTrait.m_format = agl::ResourceFormat::R32_FLOAT;
 		esmsTrait.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess;
 
 		agl::RefHandle<agl::Texture> esmsTexture = agl::Texture::Create( esmsTrait );
