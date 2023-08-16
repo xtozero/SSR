@@ -10,8 +10,7 @@ namespace rendercore
 {
 	class DrawCascadeShadowPS : public GlobalShaderCommon<PixelShader, DrawCascadeShadowPS>
 	{
-	public:
-		DrawCascadeShadowPS( const StaticShaderSwitches& switches ) : GlobalShaderCommon<PixelShader, DrawCascadeShadowPS>( switches ) {}
+		using GlobalShaderCommon::GlobalShaderCommon;
 	};
 
 	REGISTER_GLOBAL_SHADER( DrawCascadeShadowPS, "./Assets/Shaders/Shadow/PS_DrawCascadeShadow.asset" );

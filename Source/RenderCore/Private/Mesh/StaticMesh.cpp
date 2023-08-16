@@ -84,7 +84,7 @@ namespace rendercore
 			for ( uint32 j = 0; j < static_cast<uint32>( m_materials.size() ); ++j )
 			{
 				const auto material = m_materials[j].m_mateiral;
-				if ( polygonMaterialName == Name( material->Path().stem().generic_string() ) )
+				if ( polygonMaterialName == material->GetName() )
 				{
 					section.m_materialIndex = j;
 					break;

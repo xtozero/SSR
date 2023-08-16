@@ -38,15 +38,14 @@ cbuffer VolumetricCloudRenderParameter : register( b2 )
 {
 	float3 SphereRadius : packoffset( c0 ); // x : earth, y : inner, z : outer
 	float LightAbsorption : packoffset( c0.w );
-	float3 CameraPos : packoffset( c1 );
-	float DensityScale : packoffset( c1.w );
-	float4 LightPosOrDir : packoffset( c2 );
-	float4 CloudColor : packoffset( c3 );
-	float3 WindDirection : packoffset( c4 );
-	float WindSpeed : packoffset( c4.w );
-	float Crispiness : packoffset( c5 );
-	float Curliness : packoffset( c5.y );
-	float DensityFactor : packoffset( c5.z );
+	float4 LightPosOrDir : packoffset( c1 );
+	float4 CloudColor : packoffset( c2 );
+	float3 WindDirection : packoffset( c3 );
+	float WindSpeed : packoffset( c3.w );
+	float Crispiness : packoffset( c4.x );
+	float Curliness : packoffset( c4.y );
+	float DensityFactor : packoffset( c4.z );
+	float DensityScale : packoffset( c4.w );
 }
 
 #define SphereCenter float3( 0.f, -SphereRadius.x, 0.f )

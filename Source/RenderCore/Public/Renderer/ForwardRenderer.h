@@ -50,7 +50,7 @@ namespace rendercore
 		void RenderDepthPass( RenderViewGroup& renderViewGroup, uint32 curView );
 
 	private:
-		void UpdateLightResource( RenderViewGroup& renderViewGroup );
+		void UpdateLightResource( IScene& scene );
 
 		ForwardRendererRenderTargets m_renderTargets;
 	};

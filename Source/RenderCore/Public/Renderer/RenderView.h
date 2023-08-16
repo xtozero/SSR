@@ -29,8 +29,6 @@ namespace rendercore
 		float m_fov = 0.f;
 
 		RenderThreadFrameData<VisibleDrawSnapshot>* m_snapshots;
-
-		ForwardLightingResource* m_forwardLighting = nullptr;
 	};
 
 	struct RenderViewGroupInitializer

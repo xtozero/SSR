@@ -3,11 +3,18 @@
 struct GS_INPUT
 {
 	float4 position : POSITION;
+#if EnableRSMs == 1
+	float3 normal : NORMAL;
+#endif
 };
 
 struct GS_OUTPUT
 {
 	float4 position : SV_POSITION;
+#if EnableRSMs == 1
+	float3 worldPos : POSITION0;
+	float3 normal : NORMAL;
+#endif
 	float2 shadowCoord : TEXCOORD0;
 	uint rtIndex : SV_RenderTargetArrayIndex;
 };
@@ -22,6 +29,10 @@ void main( triangle GS_INPUT input[3], inout TriangleStream<GS_OUTPUT> triStream
 		for ( int j = 0; j < 3; ++j )
 		{
 			output.position = mul( input[j].position, ShadowViewProjection[i] );
+#if EnableRSMs == 1
+			output.worldPos = input[j].position;
+			output.normal = input[j].normal;
+#endif
 			output.shadowCoord = output.position.zw;
 			output.rtIndex = i;
 			triStream.Append( output );

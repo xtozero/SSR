@@ -9,8 +9,7 @@ namespace rendercore
 {
 	class DrawVolumetricFogPS : public GlobalShaderCommon<PixelShader, DrawVolumetricFogPS>
 	{
-	public:
-		DrawVolumetricFogPS( const StaticShaderSwitches& switches ) : GlobalShaderCommon<PixelShader, DrawVolumetricFogPS>( switches ) {}
+		using GlobalShaderCommon::GlobalShaderCommon;
 	};
 
 	REGISTER_GLOBAL_SHADER( DrawVolumetricFogPS, "./Assets/Shaders/VolumetricFog/PS_DrawVolumetricFog.asset" );

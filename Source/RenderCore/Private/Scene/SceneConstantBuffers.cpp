@@ -93,6 +93,7 @@ namespace rendercore
 
 		param.m_elapsedTime = renderViewGroup.GetElapsedTime();
 		param.m_totalTime = renderViewGroup.GetTotalTime();
+		param.m_cameraPos = view.m_viewOrigin;
 		param.m_frameCount = scene ? static_cast<uint32>( scene->GetNumFrame() ) : 0;
 
 		auto wh = renderViewGroup.GetViewport().Size();

@@ -26,7 +26,6 @@ struct ForwardLightData
 cbuffer ForwardLightConstant : register( b2 )
 {
 	uint		NumLights;
-	float3		CameraPos;
 };
 
 cbuffer Material : register( b3 )
@@ -35,8 +34,7 @@ cbuffer Material : register( b3 )
 	float4		Diffuse;
 	float4		Specular;
 	float		Roughness;
-	float		SpecularPower;
-	float		pedding[2];
+	float		SpecularExponent;
 };
 
 struct GeometryProperty

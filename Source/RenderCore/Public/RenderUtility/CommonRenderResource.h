@@ -8,8 +8,9 @@ namespace rendercore
 
 	class FullScreenQuadVS : public GlobalShaderCommon<VertexShader, FullScreenQuadVS>
 	{
+		using GlobalShaderCommon::GlobalShaderCommon;
+
 	public:
-		FullScreenQuadVS( const StaticShaderSwitches& switches ) : GlobalShaderCommon<VertexShader, FullScreenQuadVS>( switches ) {}
 		FullScreenQuadVS() = default;
 	};
 }

@@ -33,9 +33,10 @@ namespace rendercore
 		float m_farPlaneDist;
 		float m_elapsedTime;
 		float m_totalTime;
+		Vector m_cameraPos;
 		uint32 m_frameCount;
 		Vector2 m_viewportDimensions;
-		uint32 padding;
+		uint32 padding[2];
 	};
 
 	struct PreviousFrameContext

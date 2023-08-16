@@ -15,8 +15,6 @@ namespace rendercore
 	{
 		Vector m_sphereRadius;
 		float m_lightAbsorption = 0.0035f;
-		Vector m_cameraPos;
-		float m_densityScale = 0.45f;
 		Vector4 m_lightPosOrDir;
 		ColorF m_cloudColor;
 		Vector m_windDirection;
@@ -24,7 +22,7 @@ namespace rendercore
 		float m_crispiness = 40.f;
 		float m_curliness = 0.1f;
 		float m_densityFactor = 0.2f;
-		float padding;
+		float m_densityScale = 0.45f;
 	};
 
 	class VolumetricCloudSceneInfo

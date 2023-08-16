@@ -16,6 +16,7 @@ cbuffer SceneViewParameters : register( b1 )
 	float FarPlaneDist : packoffset( c39.y );
 	float ElapsedTime : packoffset( c39.z );
 	float TotalTime : packoffset( c39.w );
-	uint FrameCount : packoffset( c40.x );
-	float2 ViewportDimensions : packoffset( c40.y );
+	float3 CameraPos : packoffset( c40.x );
+	uint FrameCount : packoffset( c40.w );
+	float2 ViewportDimensions : packoffset( c41 );
 };

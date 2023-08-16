@@ -28,7 +28,7 @@ namespace agl
 		virtual ResourceState GetState() const override;
 		virtual void SetState( ResourceState state ) override;
 
-		const BufferTrait& GetTrait() const;
+		AGL_DLL const BufferTrait& GetTrait() const;
 
 		bool IsDynamic() const;
 

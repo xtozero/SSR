@@ -351,7 +351,7 @@ namespace rendercore
 				}
 			};
 
-			shadow->ShadowMap().m_shadowMap = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait );
+			shadow->ShadowMap().m_shadowMaps.emplace_back( RenderTargetPool::GetInstance().FindFreeRenderTarget( trait ) );
 
 			agl::TextureTrait depthTrait = {
 				.m_width = width,
@@ -373,6 +373,63 @@ namespace rendercore
 			};
 
 			shadow->ShadowMap().m_shadowMapDepth = RenderTargetPool::GetInstance().FindFreeRenderTarget( depthTrait );
+
+			if ( DefaultRenderCore::IsRSMsEnabled() )
+			{
+				agl::TextureTrait positionMapTrait = {
+					.m_width = width,
+					.m_height = height,
+					.m_depth = CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
+					.m_sampleCount = 1,
+					.m_sampleQuality = 0,
+					.m_mipLevels = 1,
+					.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
+					.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+					.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
+					.m_miscFlag = agl::ResourceMisc::None,
+					.m_clearValue = agl::ResourceClearValue{
+						.m_color = { 0.f, 0.f, 0.f, 1.f }
+					}
+				};
+				
+				shadow->ShadowMap().m_shadowMaps.emplace_back( RenderTargetPool::GetInstance().FindFreeRenderTarget( positionMapTrait ) );
+
+				agl::TextureTrait normalMapTrait = {
+					.m_width = width,
+					.m_height = height,
+					.m_depth = CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
+					.m_sampleCount = 1,
+					.m_sampleQuality = 0,
+					.m_mipLevels = 1,
+					.m_format = agl::ResourceFormat::R10G10B10A2_UNORM,
+					.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+					.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
+					.m_miscFlag = agl::ResourceMisc::None,
+					.m_clearValue = agl::ResourceClearValue{
+						.m_color = { 0.f, 0.f, 0.f, 1.f }
+					}
+				};
+
+				shadow->ShadowMap().m_shadowMaps.emplace_back( RenderTargetPool::GetInstance().FindFreeRenderTarget( normalMapTrait ) );
+
+				agl::TextureTrait fluxMapTrait = {
+					.m_width = width,
+					.m_height = height,
+					.m_depth = CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
+					.m_sampleCount = 1,
+					.m_sampleQuality = 0,
+					.m_mipLevels = 1,
+					.m_format = agl::ResourceFormat::R8G8B8A8_UNORM_SRGB,
+					.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+					.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
+					.m_miscFlag = agl::ResourceMisc::None,
+					.m_clearValue = agl::ResourceClearValue{
+						.m_color = { 0.f, 0.f, 0.f, 1.f }
+					}
+				};
+
+				shadow->ShadowMap().m_shadowMaps.emplace_back( RenderTargetPool::GetInstance().FindFreeRenderTarget( fluxMapTrait ) );
+			}
 		}
 	}
 
@@ -381,12 +438,14 @@ namespace rendercore
 		for ( ShadowInfo& shadowInfo : m_shadowInfos )
 		{
 			ShadowMapRenderTarget& shadowMap = shadowInfo.ShadowMap();
-			assert( ( shadowMap.m_shadowMap != nullptr ) && ( shadowMap.m_shadowMapDepth != nullptr ) );
+			assert( ( shadowMap.m_shadowMaps.size() > 0 )
+				&& ( shadowMap.m_shadowMaps[0] != nullptr ) 
+				&& ( shadowMap.m_shadowMapDepth != nullptr ));
 
 			auto [width, height] = shadowInfo.ShadowMapSize();
 
 			RenderingOutputContext context = {
-				.m_renderTargets = { shadowMap.m_shadowMap },
+				.m_renderTargets = {},
 				.m_depthStencil = shadowMap.m_shadowMapDepth,
 				.m_viewport = {
 					.m_left = 0.f,
@@ -403,18 +462,24 @@ namespace rendercore
 					.m_bottom = static_cast<int32>( height )
 				}
 			};
+
+			for ( int32 i = 0; i < shadowMap.m_shadowMaps.size(); ++i )
+			{
+				context.m_renderTargets[i] = shadowMap.m_shadowMaps[i];
+			}
+
 			StoreOuputContext( context );
 
 			auto commandList = GetCommandList();
 
 			agl::ResourceTransition beforeRenderDepth[] = {
-				Transition( *shadowMap.m_shadowMap.Get(), agl::ResourceState::RenderTarget ),
+				Transition( *shadowMap.m_shadowMaps[0].Get(), agl::ResourceState::RenderTarget),
 				Transition( *shadowMap.m_shadowMapDepth.Get(), agl::ResourceState::DepthWrite )
 			};
 
 			commandList.Transition( std::extent_v<decltype( beforeRenderDepth )>, beforeRenderDepth );
 
-			agl::RenderTargetView* rtv = shadowMap.m_shadowMap->RTV();
+			agl::RenderTargetView* rtv = shadowMap.m_shadowMaps[0]->RTV();
 			commandList.ClearRenderTarget( rtv, { 1, 1, 1, 1 } );
 
 			agl::DepthStencilView* dsv = shadowMap.m_shadowMapDepth->DSV();
@@ -424,14 +489,14 @@ namespace rendercore
 			shadowInfo.RenderDepth( *this, m_shaderResources );
 
 			agl::ResourceTransition afterRenderDepth[] = {
-				Transition( *shadowMap.m_shadowMap.Get(), agl::ResourceState::GenericRead ),
+				Transition( *shadowMap.m_shadowMaps[0].Get(), agl::ResourceState::GenericRead),
 			};
 
 			commandList.Transition( std::extent_v<decltype( afterRenderDepth )>, afterRenderDepth );
 
 			if ( DefaultRenderCore::IsESMsEnabled() )
 			{
-				shadowMap.m_shadowMap = GenerateExponentialShadowMaps( shadowInfo, shadowMap.m_shadowMap );
+				shadowMap.m_shadowMaps[0] = GenerateExponentialShadowMaps( shadowInfo, shadowMap.m_shadowMaps[0] );
 			}
 		}
 	}
@@ -612,7 +677,7 @@ namespace rendercore
 			auto commandList = GetCommandList();
 			ApplyOutputContext( commandList );
 
-			m_shaderResources.AddResource( "ShadowTexture", shadowInfo.ShadowMap().m_shadowMap->SRV() );
+			m_shaderResources.AddResource( "ShadowTexture", shadowInfo.ShadowMap().m_shadowMaps[0]->SRV());
 
 			SamplerOption shadowSamplerOption;
 			if ( DefaultRenderCore::IsESMsEnabled() == false )
@@ -772,8 +837,6 @@ namespace rendercore
 		VolumetricCloudRenderParameter param = {
 			.m_sphereRadius = Vector( proxy.EarthRadius(), proxy.InnerRadius(), proxy.OuterRadius() ),
 			.m_lightAbsorption = proxy.LightAbsorption(),
-			.m_cameraPos = renderView.m_viewOrigin,
-			.m_densityScale = proxy.DensityScale(),
 			.m_lightPosOrDir = lightPosOrDir,
 			.m_cloudColor = proxy.CloudColor(),
 			.m_windDirection = Vector( 0.5f, 0.f, 0.1f ).GetNormalized(),
@@ -781,6 +844,7 @@ namespace rendercore
 			.m_crispiness = proxy.Crispiness(),
 			.m_curliness = proxy.Curliness(),
 			.m_densityFactor = proxy.DensityFactor(),
+			.m_densityScale = proxy.DensityScale(),
 		};
 
 		auto& volumetricCloudRenderParameter = info->GetVolumetricCloudRenderParameter();
@@ -840,7 +904,7 @@ namespace rendercore
 
 		info->CreateRenderData();
 		info->UpdateParameter();
-		info->PrepareFrustumVolume( *renderScene, renderView, m_shadowInfos );
+		info->PrepareFrustumVolume( *renderScene, m_forwardLighting, m_shadowInfos );
 
 		VolumetricFogDrawPassProcessor volumetricFogDrawPassProcessor;
 

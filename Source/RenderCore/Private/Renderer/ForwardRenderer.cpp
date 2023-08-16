@@ -2,7 +2,6 @@
 #include "ForwardRenderer.h"
 
 #include "CommandList.h"
-#include "ForwardLighting.h"
 #include "Math/Vector.h"
 #include "Proxies/LightProxy.h"
 #include "RenderView.h"
@@ -261,13 +260,7 @@ namespace rendercore
 
 		if ( prepared )
 		{
-			for ( auto& view : renderViewGroup )
-			{
-				view.m_forwardLighting = GetTransientAllocator<ThreadType::RenderThread>().Allocate<ForwardLightingResource>( 1 );
-				std::construct_at( view.m_forwardLighting );
-			}
-
-			UpdateLightResource( renderViewGroup );
+			UpdateLightResource( scene );
 		}
 
 		return prepared;
@@ -296,8 +289,6 @@ namespace rendercore
 			auto& view = renderViewGroup[i];
 
 			m_shaderResources.AddResource( "SceneViewParameters", viewConstant.Resource() );
-			m_shaderResources.AddResource( "ForwardLightConstant", view.m_forwardLighting->m_lightConstant.Resource() );
-			m_shaderResources.AddResource( "ForwardLight", view.m_forwardLighting->m_lightBuffer.SRV() );
 
 			RenderDepthPass( renderViewGroup, i );
 			RenderDefaultPass( renderViewGroup, i );
@@ -314,12 +305,6 @@ namespace rendercore
 
 	void ForwardRenderer::PostRender( RenderViewGroup& renderViewGroup )
 	{
-		for ( auto& view : renderViewGroup )
-		{
-			std::destroy_at( view.m_forwardLighting );
-			view.m_forwardLighting = nullptr;
-		}
-
 		SceneRenderer::PostRender( renderViewGroup );
 	}
 
@@ -419,57 +404,53 @@ namespace rendercore
 		RenderMesh( scene, RenderPass::DepthWrite, renderViewGroup[curView] );
 	}
 
-	void ForwardRenderer::UpdateLightResource( RenderViewGroup& renderViewGroup )
+	void ForwardRenderer::UpdateLightResource( IScene& scene )
 	{
-		Scene* scene = renderViewGroup.Scene().GetRenderScene();
-		if ( scene == nullptr )
+		Scene* renderScene = scene.GetRenderScene();
+		if ( renderScene == nullptr )
 		{
 			return;
 		}
 
 		RenderThreadFrameData<LightSceneInfo*> validLights;
-		const SparseArray<LightSceneInfo*>& lights = scene->Lights();
+		const SparseArray<LightSceneInfo*>& lights = renderScene->Lights();
 		for ( auto light : lights )
 		{
 			validLights.emplace_back( light );
 		}
 
-		for ( auto& view : renderViewGroup )
+		ForwardLightBuffer& lightBuffer = m_forwardLighting.m_lightBuffer;
+
+		uint32 numElement = static_cast<uint32>( ( sizeof( ForwardLightData ) / sizeof( Vector4 ) ) * validLights.size() );
+		lightBuffer.Initialize( sizeof( Vector4 ), numElement, agl::ResourceFormat::R32G32B32A32_FLOAT );
+
+		auto lightData = static_cast<ForwardLightData*>( lightBuffer.Lock() );
+		assert( lightData != nullptr );
+
+		for ( auto light : validLights )
 		{
-			ForwardLightBuffer& lightBuffer = view.m_forwardLighting->m_lightBuffer;
+			LightProxy* proxy = light->Proxy();
+			LightProperty property = proxy->GetLightProperty();
 
-			uint32 numElement = static_cast<uint32>( ( sizeof( ForwardLightData ) / sizeof( Vector4 ) ) * validLights.size() );
-			lightBuffer.Initialize( sizeof( Vector4 ), numElement, agl::ResourceFormat::R32G32B32A32_FLOAT );
+			lightData->m_positionAndRange = Vector4( property.m_position[0], property.m_position[1], property.m_position[2], property.m_range );
+			lightData->m_diffuse = property.m_diffuse;
+			lightData->m_specular = property.m_specular;
+			lightData->m_attenuationAndFalloff = Vector4( property.m_attenuation[0], property.m_attenuation[1], property.m_attenuation[2], property.m_fallOff );
+			lightData->m_directionAndType = Vector4( property.m_direction[0], property.m_direction[1], property.m_direction[2], static_cast<float>( property.m_type ) );
+			lightData->m_spotAngles = Vector4( property.m_theta, property.m_phi, 0.f, 0.f );
 
-			auto lightData = static_cast<ForwardLightData*>( lightBuffer.Lock() );
-			if ( lightData == nullptr )
-			{
-				continue;
-			}
-
-			for ( auto light : validLights )
-			{
-				LightProxy* proxy = light->Proxy();
-				LightProperty property = proxy->GetLightProperty();
-
-				lightData->m_positionAndRange = Vector4( property.m_position[0], property.m_position[1], property.m_position[2], property.m_range );
-				lightData->m_diffuse = property.m_diffuse;
-				lightData->m_specular = property.m_specular;
-				lightData->m_attenuationAndFalloff = Vector4( property.m_attenuation[0], property.m_attenuation[1], property.m_attenuation[2], property.m_fallOff );
-				lightData->m_directionAndType = Vector4( property.m_direction[0], property.m_direction[1], property.m_direction[2], static_cast<float>( property.m_type ) );
-				lightData->m_spotAngles = Vector4( property.m_theta, property.m_phi, 0.f, 0.f );
-
-				++lightData;
-			}
-
-			lightBuffer.Unlock();
-
-			ForwardLightConstant lightConstant = {
-				.m_numLight = static_cast<uint32>( validLights.size() ),
-				.m_cameraPos = view.m_viewOrigin
-			};
-
-			view.m_forwardLighting->m_lightConstant.Update( lightConstant );
+			++lightData;
 		}
+
+		lightBuffer.Unlock();
+
+		ForwardLightConstant lightConstant = {
+			.m_numLight = static_cast<uint32>( validLights.size() ),
+		};
+
+		m_forwardLighting.m_lightConstant.Update( lightConstant );
+
+		m_shaderResources.AddResource( "ForwardLightConstant", m_forwardLighting.m_lightConstant.Resource() );
+		m_shaderResources.AddResource( "ForwardLight", m_forwardLighting.m_lightBuffer.SRV() );
 	}
 }

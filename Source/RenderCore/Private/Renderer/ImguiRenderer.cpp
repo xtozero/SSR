@@ -21,8 +21,7 @@ namespace rendercore
 {
 	class DrawImguiVS : public GlobalShaderCommon<VertexShader, DrawImguiVS>
 	{
-	public:
-		DrawImguiVS( const StaticShaderSwitches& switches ) : GlobalShaderCommon<VertexShader, DrawImguiVS>( switches ) {}
+		using GlobalShaderCommon::GlobalShaderCommon;
 	};
 
 	class DrawImguiPS : public GlobalShaderCommon<PixelShader, DrawImguiPS>

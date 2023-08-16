@@ -11,8 +11,11 @@ namespace rendercore
 
 	public:
 		static bool IsTaaEnabled();
+
 		static bool IsESMsEnabled();
 		static float ESMsParamC();
+
+		static bool IsRSMsEnabled();
 
 	private:
 		PROPERTY( enableTAA )
@@ -23,5 +26,8 @@ namespace rendercore
 
 		PROPERTY( esmsParamC )
 		float m_esmsParamC = 1.f;
+
+		PROPERTY( enableRSMs )
+		bool m_enableRSMs = false;
 	};
 }

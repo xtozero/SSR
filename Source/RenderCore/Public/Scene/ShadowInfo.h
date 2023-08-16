@@ -2,6 +2,7 @@
 
 #include "DrawSnapshot.h"
 #include "GraphicsApiResource.h"
+#include "InlineMemoryAllocator.h"
 #include "Math/Vector4.h"
 #include "Math/Matrix.h"
 #include "Physics/BoxSphereBounds.h"
@@ -29,7 +30,8 @@ namespace rendercore
 		Vector4 m_lightPosOrDir;
 		float m_slopeBiasScale;
 		float m_constantBias;
-		float padding[2];
+		uint32 m_lightIdx;
+		float padding;
 
 		Vector4 m_cascadeFar[CascadeShadowSetting::MAX_CASCADE_NUM];
 		Matrix m_shadowViewProjection[6];
@@ -43,7 +45,9 @@ namespace rendercore
 
 	struct ShadowMapRenderTarget
 	{
-		agl::RefHandle<agl::Texture> m_shadowMap;
+		using ShadowMapList = std::vector<agl::RefHandle<agl::Texture>, InlineAllocator<agl::RefHandle<agl::Texture>, 1>>;
+
+		ShadowMapList m_shadowMaps;
 		agl::RefHandle<agl::Texture> m_shadowMapDepth;
 	};
 

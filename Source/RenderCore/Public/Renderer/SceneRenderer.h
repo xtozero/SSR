@@ -2,6 +2,7 @@
 
 #include "AreaTypes.h"
 #include "DrawSnapshot.h"
+#include "ForwardLighting.h"
 #include "GraphicsApiResource.h"
 #include "NameTypes.h"
 #include "PassProcessor.h"
@@ -119,6 +120,8 @@ namespace rendercore
 		void RenderTemporalAntiAliasing( RenderViewGroup& renderViewGroup );
 
 		void StoreOuputContext( const RenderingOutputContext& context );
+
+		ForwardLightingResource m_forwardLighting;
 
 		RenderingShaderResource m_shaderResources;
 		RenderingOutputContext m_outputContext;

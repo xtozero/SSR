@@ -15,8 +15,7 @@ namespace rendercore
 {
 	class InscatteringCS : public GlobalShaderCommon<ComputeShader, InscatteringCS>
 	{
-	public:
-		InscatteringCS( const StaticShaderSwitches& switches ) : GlobalShaderCommon<ComputeShader, InscatteringCS>( switches ) {}
+		using GlobalShaderCommon::GlobalShaderCommon;
 
 	private:
 		DEFINE_SHADER_PARAM( AsymmetryParameterG );
@@ -81,13 +80,13 @@ namespace rendercore
 		}
 	}
 
-	void VolumetricFogSceneInfo::PrepareFrustumVolume( Scene& scene, RenderView& renderView, RenderThreadFrameData<ShadowInfo>& shadowInfos )
+	void VolumetricFogSceneInfo::PrepareFrustumVolume( Scene& scene, ForwardLightingResource& lightingResource, RenderThreadFrameData<ShadowInfo>& shadowInfos )
 	{
 		auto commandList = GetCommandList();
 
 		++m_numTick;
 
-		CalcInscattering( commandList, scene, renderView, shadowInfos );
+		CalcInscattering( commandList, scene, lightingResource, shadowInfos );
 		AccumulateScattering( commandList );
 
 		commandList.Commit();
@@ -134,7 +133,7 @@ namespace rendercore
 			} );
 	}
 
-	void VolumetricFogSceneInfo::CalcInscattering( CommandList& commandList, Scene& scene, RenderView& renderView, RenderThreadFrameData<ShadowInfo>& shadowInfos )
+	void VolumetricFogSceneInfo::CalcInscattering( CommandList& commandList, Scene& scene, ForwardLightingResource& lightingResource, RenderThreadFrameData<ShadowInfo>& shadowInfos )
 	{
 		StaticShaderSwitches switches = InscatteringCS::GetSwitches();
 		if ( DefaultRenderCore::IsESMsEnabled() )
@@ -159,8 +158,8 @@ namespace rendercore
 		SceneViewConstantBuffer& viewConstant = scene.SceneViewConstant();
 		BindResource( shaderBindings, inscatteringCS.SceneViewParameters(), viewConstant.Resource() );
 
-		BindResource( shaderBindings, inscatteringCS.ForwardLightConstant(), renderView.m_forwardLighting->m_lightConstant.Resource() );
-		BindResource( shaderBindings, inscatteringCS.ForwardLight(), renderView.m_forwardLighting->m_lightBuffer.Resource() );
+		BindResource( shaderBindings, inscatteringCS.ForwardLightConstant(), lightingResource.m_lightConstant.Resource() );
+		BindResource( shaderBindings, inscatteringCS.ForwardLight(), lightingResource.m_lightBuffer.Resource() );
 
 		BindResource( shaderBindings, inscatteringCS.VolumetricFogParameterBuffer(), GetVolumetricFogParameter().Resource() );
 
@@ -193,7 +192,7 @@ namespace rendercore
 
 		for ( ShadowInfo& shadowInfo : shadowInfos )
 		{
-			BindResource( shaderBindings, inscatteringCS.ShadowTexture(), shadowInfo.ShadowMap().m_shadowMap );
+			BindResource( shaderBindings, inscatteringCS.ShadowTexture(), shadowInfo.ShadowMap().m_shadowMaps[0] );
 			BindResource( shaderBindings, inscatteringCS.ShadowDepthPassParameters(), shadowInfo.ConstantBuffer().Resource() );
 
 			if ( DefaultRenderCore::IsESMsEnabled() )

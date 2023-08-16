@@ -16,4 +16,9 @@ namespace rendercore
 	{
 		return GetInstance().m_esmsParamC;
 	}
+
+	bool DefaultRenderCore::IsRSMsEnabled()
+	{
+		return GetInstance().m_enableRSMs;
+	}
 }

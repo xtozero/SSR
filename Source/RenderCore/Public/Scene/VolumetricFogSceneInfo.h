@@ -11,6 +11,7 @@ namespace rendercore
 	class Scene;
 	class VolumetricFogProxy;
 
+	struct ForwardLightingResource;
 	struct RenderView;
 
 	struct VolumetricFogParameter
@@ -46,7 +47,7 @@ namespace rendercore
 
 		void CreateRenderData();
 		void UpdateParameter();
-		void PrepareFrustumVolume( Scene& scene, RenderView& renderView, RenderThreadFrameData<ShadowInfo>& shadowInfos );
+		void PrepareFrustumVolume( Scene& scene, ForwardLightingResource& lightingResource, RenderThreadFrameData<ShadowInfo>& shadowInfos );
 
 		VolumetricFogSceneInfo( VolumetricFogProxy* proxy );
 
@@ -62,7 +63,7 @@ namespace rendercore
 		}
 
 		void CreateVolumeTexture();
-		void CalcInscattering( CommandList& commandList, Scene& scene, RenderView& renderView, RenderThreadFrameData<ShadowInfo>& shadowInfos );
+		void CalcInscattering( CommandList& commandList, Scene& scene, ForwardLightingResource& lightingResource, RenderThreadFrameData<ShadowInfo>& shadowInfos );
 		void AccumulateScattering( CommandList& commandList );
 
 		VolumetricFogProxy* m_volumetricFogProxy = nullptr;

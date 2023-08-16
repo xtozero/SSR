@@ -40,7 +40,7 @@ namespace rendercore
 	struct ForwardLightConstant
 	{
 		uint32 m_numLight = 0;
-		Vector m_cameraPos;
+		uint32 padding[3];
 	};
 
 	struct ForwardLightingResource

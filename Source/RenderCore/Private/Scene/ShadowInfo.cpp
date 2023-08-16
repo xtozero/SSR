@@ -62,6 +62,7 @@ namespace rendercore
 		params.m_lightPosOrDir = ( lightProperty.m_type == LightType::Directional ) ? Vector4( lightProperty.m_direction ) : lightProperty.m_position;
 		params.m_slopeBiasScale = 0.2f;
 		params.m_constantBias = 0.05f;
+		params.m_lightIdx = m_lightSceneInfo->ID();
 
 		for ( uint32 i = 0; i < CascadeShadowSetting::MAX_CASCADE_NUM; ++i )
 		{
@@ -105,6 +106,10 @@ namespace rendercore
 		RenderingShaderResource shadowRenderingResources = resources;
 
 		shadowRenderingResources.AddResource( "ShadowDepthPassParameters", m_shadowConstantBuffer.Resource() );
+
+		if ( DefaultRenderCore::IsRSMsEnabled() )
+		{
+		}
 
 		// Update invalidated resources
 		for ( auto& viewDrawSnapshot : m_snapshots )

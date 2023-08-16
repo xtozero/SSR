@@ -222,7 +222,7 @@ namespace agl
 		if ( block == nullptr )
 		{
 			block = &m_blocks.emplace_back();
-			block->InitResource( DefaultBlockSize, m_properties );
+			block->InitResource( std::max<uint64>( DefaultBlockSize, size ), m_properties );
 		}
 
 		return block->Allocate( size );

@@ -27,9 +27,10 @@ namespace rendercore
 {
 	class CascadedESMsBlurCS : public GlobalShaderCommon<ComputeShader, CascadedESMsBlurCS>
 	{
+		using GlobalShaderCommon::GlobalShaderCommon;
+
 	public:
 		CascadedESMsBlurCS() = default;
-		CascadedESMsBlurCS( const StaticShaderSwitches& switches ) : GlobalShaderCommon<ComputeShader, CascadedESMsBlurCS>( switches ) {}
 
 	private:
 		DEFINE_SHADER_PARAM( KernelBuffer );

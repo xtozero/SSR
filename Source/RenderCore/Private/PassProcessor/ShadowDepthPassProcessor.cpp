@@ -2,6 +2,7 @@
 #include "ShadowDepthPassProcessor.h"
 
 #include "AbstractGraphicsInterface.h"
+#include "Config/DefaultRenderCoreConfig.h"
 #include "GlobalShaders.h"
 #include "PrimitiveProxy.h"
 #include "Scene/PrimitiveSceneInfo.h"
@@ -18,13 +19,19 @@ namespace
 namespace rendercore
 {
 	class ShadowDepthVS : public GlobalShaderCommon<VertexShader, ShadowDepthVS>
-	{};
+	{
+		using GlobalShaderCommon::GlobalShaderCommon;
+	};
 
 	class ShadowDepthGS : public GlobalShaderCommon<GeometryShader, ShadowDepthGS>
-	{};
+	{
+		using GlobalShaderCommon::GlobalShaderCommon;
+	};
 
 	class ShadowDepthPS : public GlobalShaderCommon<PixelShader, ShadowDepthPS>
-	{};
+	{
+		using GlobalShaderCommon::GlobalShaderCommon;
+	};
 
 	REGISTER_GLOBAL_SHADER( ShadowDepthVS, "./Assets/Shaders/Shadow/VS_CascadedShadowmap.asset" );
 	REGISTER_GLOBAL_SHADER( ShadowDepthGS, "./Assets/Shaders/Shadow/GS_CascadedShadowmap.asset" );
@@ -34,10 +41,23 @@ namespace rendercore
 	{
 		assert( IsInRenderThread() );
 
+		bool bIsRSMsEnabled = DefaultRenderCore::IsRSMsEnabled();
+
+		StaticShaderSwitches vsSwitches = ShadowDepthVS::GetSwitches();
+		StaticShaderSwitches gsSwitches = ShadowDepthGS::GetSwitches();
+		StaticShaderSwitches psSwitches = ShadowDepthPS::GetSwitches();
+
+		if ( bIsRSMsEnabled )
+		{
+			vsSwitches.On( Name( "EnableRSMs" ), 1 );
+			gsSwitches.On( Name( "EnableRSMs" ), 1 );
+			psSwitches.On( Name( "EnableRSMs" ), 1 );
+		}
+
 		PassShader passShader{
-			.m_vertexShader = ShadowDepthVS(),
-			.m_geometryShader = ShadowDepthGS(),
-			.m_pixelShader = ShadowDepthPS()
+			.m_vertexShader = ShadowDepthVS( vsSwitches ),
+			.m_geometryShader = ShadowDepthGS( gsSwitches ),
+			.m_pixelShader = ShadowDepthPS( psSwitches )
 		};
 
 		PassRenderOption passRenderOption;
@@ -57,7 +77,7 @@ namespace rendercore
 		DepthStencilOption shadowDepthPassDepthStencilOption;
 		passRenderOption.m_depthStencilOption = &shadowDepthPassDepthStencilOption;
 
-		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::PositionOnly );
+		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, bIsRSMsEnabled ? VertexStreamLayoutType::Default : VertexStreamLayoutType::PositionOnly );
 	}
 
 	PassProcessorRegister RegisterShadowDepthPass( RenderPass::CSMShadowDepth, &CreateShadowDepthPassProcessor );

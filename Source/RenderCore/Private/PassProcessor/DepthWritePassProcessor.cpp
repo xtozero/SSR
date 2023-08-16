@@ -20,8 +20,7 @@ namespace rendercore
 {
 	class DepthWriteVS : public GlobalShaderCommon<VertexShader, DepthWriteVS>
 	{
-	public:
-		DepthWriteVS( const StaticShaderSwitches& switches ) : GlobalShaderCommon<VertexShader, DepthWriteVS>( switches ) {}
+		using GlobalShaderCommon::GlobalShaderCommon;
 	};
 
 	class DepthWritePS : public GlobalShaderCommon<PixelShader, DepthWritePS>
