@@ -12,17 +12,23 @@ namespace rendercore
 {
 	PassShader IPassProcessor::CollectPassShader( MaterialResource& material ) const
 	{
-		StaticShaderSwitches switches = material.GetShaderSwitches( agl::ShaderType::VS );
+		StaticShaderSwitches vsSwitches = material.GetShaderSwitches( agl::ShaderType::VS );
+		StaticShaderSwitches psSwitches = material.GetShaderSwitches( agl::ShaderType::PS );
 
 		if ( DefaultRenderCore::IsTaaEnabled() )
 		{
-			switches.On( Name( "TAA" ), 1 );
+			vsSwitches.On( Name( "TAA" ), 1 );
+		}
+
+		if ( DefaultRenderCore::IsESMsEnabled() )
+		{
+			psSwitches.On( Name( "EnableRSMs" ), 1 );
 		}
 
 		PassShader passShader{
-			material.GetVertexShader( &switches ),
+			material.GetVertexShader( &vsSwitches ),
 			nullptr,
-			material.GetPixelShader()
+			material.GetPixelShader( &psSwitches )
 		};
 
 		return passShader;

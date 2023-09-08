@@ -16,6 +16,8 @@ namespace rendercore
 		static float ESMsParamC();
 
 		static bool IsRSMsEnabled();
+		static uint32 RSMsNumSampling();
+		static float RSMsMaxSamplingRadius();
 
 	private:
 		PROPERTY( enableTAA )
@@ -29,5 +31,11 @@ namespace rendercore
 
 		PROPERTY( enableRSMs )
 		bool m_enableRSMs = false;
+
+		PROPERTY( rsmsNumSampling )
+		uint32 m_rsmsNumSampling = 400;
+
+		PROPERTY( rsmsMaxSampleRadius )
+		float m_rsmsMaxSampleRadius = 0.1f;
 	};
 }

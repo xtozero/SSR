@@ -9,6 +9,9 @@ static const uint LIGHTDATA_PER_FLOAT4 = 6;
 Texture2D lookupTexture : register( t3 );
 Buffer<float4> ForwardLight : register( t4 );
 
+Texture2D IndirectIllumination : register( t5 );
+SamplerState LinearSampler : register( s1 );
+
 struct ForwardLightData
 {
 	uint	m_type;
@@ -42,6 +45,7 @@ struct GeometryProperty
 	float3 worldPos;
 	float3 viewPos;
 	float3 normal;
+	float2 screenUV;
 };
 
 struct LIGHTCOLOR
@@ -178,7 +182,11 @@ float4 CalcLight( GeometryProperty geometry )
 
 	float4 lightColor = float4( HemisphereLight( normal ), 1 ) * MoveLinearSpace( Diffuse );
 	lightColor += cColor.m_diffuse * MoveLinearSpace( Diffuse ) * visibility;
-	lightColor += cColor.m_specular * MoveLinearSpace( Specular ) * visibility; 
+	lightColor += cColor.m_specular * MoveLinearSpace( Specular ) * visibility;
 
-	return saturate( MoveGammaSapce( lightColor ) );
+#if EnableRSMs == 1
+	lightColor += IndirectIllumination.Sample( LinearSampler, geometry.screenUV );
+#endif
+
+	return saturate( lightColor );
 }

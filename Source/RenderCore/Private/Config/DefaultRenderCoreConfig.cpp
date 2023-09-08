@@ -21,4 +21,14 @@ namespace rendercore
 	{
 		return GetInstance().m_enableRSMs;
 	}
+
+	uint32 DefaultRenderCore::RSMsNumSampling()
+	{
+		return GetInstance().m_rsmsNumSampling;
+	}
+
+	float DefaultRenderCore::RSMsMaxSamplingRadius()
+	{
+		return GetInstance().m_rsmsMaxSampleRadius;
+	}
 }

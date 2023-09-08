@@ -6,6 +6,7 @@
 #include "GraphicsApiResource.h"
 #include "NameTypes.h"
 #include "PassProcessor.h"
+#include "ReflectiveShadowMapRendering.h"
 #include "Scene/SceneConstantBuffers.h"
 #include "Scene/ShadowInfo.h"
 #include "TemporalAntiAliasingRendering.h"
@@ -118,6 +119,7 @@ namespace rendercore
 		void RenderVolumetricCloud( IScene& scene, RenderView& renderView );
 		void RenderVolumetricFog( IScene& scene, RenderView& renderView );
 		void RenderTemporalAntiAliasing( RenderViewGroup& renderViewGroup );
+		void RenderIndirectIllumination( RenderViewGroup& renderViewGroup );
 
 		void StoreOuputContext( const RenderingOutputContext& context );
 
@@ -135,5 +137,6 @@ namespace rendercore
 	private:
 		PrimitiveIdVertexBufferPool m_primitiveIdBufferPool;
 		TAARenderer m_taa;
+		RSMsRenderer m_rsms;
 	};
 }

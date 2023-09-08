@@ -2,6 +2,8 @@
 
 #include "TransformationMatrix.h"
 
+#include <cmath>
+
 using ::DirectX::XMVectorAbs;
 using ::DirectX::XMVector3LessOrEqual;
 using ::DirectX::XMVector4LessOrEqual;
@@ -29,7 +31,7 @@ Matrix Transform::ToInverseMatrixNoScale() const
 
 bool Transform::IsRotationNormalized() const
 {
-	float testValue = abs( 1.f - ( m_rotation | m_rotation ) );
+	float testValue = std::abs( 1.f - ( m_rotation | m_rotation ) );
 	return testValue < 0.01f;
 }
 

@@ -107,10 +107,6 @@ namespace rendercore
 
 		shadowRenderingResources.AddResource( "ShadowDepthPassParameters", m_shadowConstantBuffer.Resource() );
 
-		if ( DefaultRenderCore::IsRSMsEnabled() )
-		{
-		}
-
 		// Update invalidated resources
 		for ( auto& viewDrawSnapshot : m_snapshots )
 		{

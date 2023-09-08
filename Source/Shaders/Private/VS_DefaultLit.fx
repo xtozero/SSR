@@ -13,6 +13,7 @@ struct VS_OUTPUT
 	float4 position : SV_POSITION;
 	float3 worldPos : POSITION0;
 	float3 viewPos : POSITION1;
+	float4 projectionPos : POSITION2;
 	float3 normal : NORMAL;
 };
 
@@ -23,10 +24,10 @@ VS_OUTPUT main( VS_INPUT input )
 	PrimitiveSceneData primitiveData = GetPrimitiveData( input.primitiveId );
 	output.worldPos = mul( float4( input.position, 1.0f ), primitiveData.m_worldMatrix ).xyz;
 	output.viewPos = mul( float4( output.worldPos, 1.0f ), ViewMatrix ).xyz;
-	output.position = mul( float4( output.viewPos, 1.0f ), ProjectionMatrix );
+	output.projectionPos = mul( float4( output.viewPos, 1.0f ), ProjectionMatrix );
 	output.normal = mul( float4( input.normal, 0.f ), transpose( primitiveData.m_invWorldMatrix ) ).xyz;
-
-	output.position = ApplyTAAJittering( output.position );
+	
+	output.position = ApplyTAAJittering( output.projectionPos );
 	
 	return output;
 }

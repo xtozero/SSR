@@ -129,6 +129,10 @@ namespace rendercore
 		}
 
 		InitDynamicShadows( renderViewGroup );
+
+		auto linearSampler = GraphicsInterface().FindOrCreate( SamplerOption() );
+		m_shaderResources.AddResource( "LinearSampler", linearSampler.Resource() );
+		
 		return true;
 	}
 
@@ -481,6 +485,18 @@ namespace rendercore
 
 			agl::RenderTargetView* rtv = shadowMap.m_shadowMaps[0]->RTV();
 			commandList.ClearRenderTarget( rtv, { 1, 1, 1, 1 } );
+
+			if ( DefaultRenderCore::IsRSMsEnabled() )
+			{
+				rtv = shadowMap.m_shadowMaps[1]->RTV();
+				commandList.ClearRenderTarget( rtv, { 0, 0, 0, 1 } );
+
+				rtv = shadowMap.m_shadowMaps[2]->RTV();
+				commandList.ClearRenderTarget( rtv, { 0, 0, 0, 1 } );
+
+				rtv = shadowMap.m_shadowMaps[3]->RTV();
+				commandList.ClearRenderTarget( rtv, { 0, 0, 0, 1 } );
+			}
 
 			agl::DepthStencilView* dsv = shadowMap.m_shadowMapDepth->DSV();
 			commandList.ClearDepthStencil( dsv, 1.f, 0 );
@@ -951,6 +967,51 @@ namespace rendercore
 	void SceneRenderer::RenderTemporalAntiAliasing( RenderViewGroup& renderViewGroup )
 	{
 		m_taa.Render( GetRenderRenderTargets(), renderViewGroup );
+	}
+
+	void SceneRenderer::RenderIndirectIllumination( RenderViewGroup& renderViewGroup )
+	{
+		if ( DefaultRenderCore::IsRSMsEnabled() )
+		{
+			RSMsRenderingParam renderingParam = {
+				.m_viewSpaceDistance = GetRenderRenderTargets().GetViewSpaceDistance(),
+				.m_worldNormal = GetRenderRenderTargets().GetWorldNormal(),
+				.m_shadowInfos = m_shadowInfos.data(),
+				.m_numShadowInfos = static_cast<int32>( m_shadowInfos.size() )
+			};
+
+			if ( renderingParam.m_viewSpaceDistance == nullptr )
+			{
+				return;
+			}
+
+			if ( ( renderingParam.m_shadowInfos == nullptr )
+				|| ( renderingParam.m_numShadowInfos == 0 ) )
+			{
+				return;
+			}
+
+			bool valid = false;
+			for ( int32 i = 0; i < renderingParam.m_numShadowInfos; ++i )
+			{
+				const ShadowInfo& shadowInfo = renderingParam.m_shadowInfos[i];
+
+				ShadowMapRenderTarget smrt = shadowInfo.ShadowMap();
+				if ( smrt.m_shadowMaps.size() >= 4 )
+				{
+					valid = true;
+					break;
+				}
+			}
+
+			if ( valid == false )
+			{
+				return;
+			}
+
+			m_rsms.PreRender( renderViewGroup );
+			m_rsms.Render( renderingParam, m_shaderResources );
+		}
 	}
 
 	void SceneRenderer::StoreOuputContext( const RenderingOutputContext& context )

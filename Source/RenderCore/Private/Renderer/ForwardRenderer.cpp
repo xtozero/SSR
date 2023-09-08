@@ -291,6 +291,9 @@ namespace rendercore
 			m_shaderResources.AddResource( "SceneViewParameters", viewConstant.Resource() );
 
 			RenderDepthPass( renderViewGroup, i );
+			
+			RenderIndirectIllumination( renderViewGroup );
+			
 			RenderDefaultPass( renderViewGroup, i );
 
 			RenderShadow();

@@ -59,6 +59,11 @@ namespace rendercore
 			return m_shadowCasters.size() > 0;
 		}
 
+		const ShadowMapRenderTarget& ShadowMap() const
+		{
+			return m_shadowMap;
+		}
+
 		ShadowMapRenderTarget& ShadowMap()
 		{
 			return m_shadowMap;

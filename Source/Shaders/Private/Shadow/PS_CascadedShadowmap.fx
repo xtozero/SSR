@@ -1,3 +1,4 @@
+#include "Common/GammaCorrection.fxh"
 #include "Common/LightCommon.fxh"
 #include "Common/NormalCompression.fxh"
 #include "Shadow/ShadowConstant.fxh"
@@ -32,7 +33,7 @@ PS_OUTPUT main( PS_INPUT input ) : SV_TARGET
 	output.worldPos = input.worldPos;
 	float3 enc = SignedOctEncode( normalize( input.normal ) );
 	output.packedNormal = float4( 0.f, enc );
-	output.flux = Diffuse * GetLight( LightIdx ).m_diffuse;
+	output.flux = MoveLinearSpace( Diffuse ) * GetLight( LightIdx ).m_diffuse;
 #endif
 
 	return output;
