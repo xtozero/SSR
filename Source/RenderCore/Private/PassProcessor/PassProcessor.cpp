@@ -20,7 +20,7 @@ namespace rendercore
 			vsSwitches.On( Name( "TAA" ), 1 );
 		}
 
-		if ( DefaultRenderCore::IsESMsEnabled() )
+		if ( DefaultRenderCore::IsRSMsEnabled() )
 		{
 			psSwitches.On( Name( "EnableRSMs" ), 1 );
 		}
