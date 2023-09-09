@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ColorTypes.h"
 #include "common.h"
 #include "Components/SceneComponent.h"
 #include "Math/Vector4.h"

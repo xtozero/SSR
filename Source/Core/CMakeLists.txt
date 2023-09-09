@@ -27,8 +27,10 @@ set (DATA_STRUCTURE
 	Public/DataStructure/SingleLInkedList.h)
 	
 set (DATA_TYPE
+	Private/DataType/ColorTypes.cpp
 	Private/DataType/Nametypes.cpp
 	Public/DataType/AreaTypes.h
+	Public/DataType/ColorTypes.h
 	Public/DataType/GuideTypes.h
 	Public/DataType/Nametypes.h
 	Public/DataType/RefCounterType.h

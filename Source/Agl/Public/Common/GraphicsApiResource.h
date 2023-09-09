@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ColorTypes.h"
 #include "common.h"
 #include "EnumClassFlags.h"
 #include "RefHandle.h"
@@ -692,7 +693,7 @@ namespace agl
 		float m_mipLODBias;
 		uint32 m_maxAnisotropy;
 		ComparisonFunc m_comparisonFunc;
-		float m_borderColor[4];
+		Color m_borderColor;
 		float m_minLOD;
 		float m_maxLOD;
 	};

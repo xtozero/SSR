@@ -83,8 +83,8 @@ namespace rendercore
 		}
 		else
 		{
-			param.m_hemisphereLightLowerColor = Vector::ZeroVector;
-			param.m_hemisphereLightUpperColor = Vector::ZeroVector;
+			param.m_hemisphereLightLowerColor = ColorF::Black;
+			param.m_hemisphereLightUpperColor = ColorF::Black;
 			param.m_hemisphereLightUpVector = Vector4::ZeroVector;
 		}
 

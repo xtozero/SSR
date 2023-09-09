@@ -13,6 +13,8 @@ namespace
 {
 	D3D11_SAMPLER_DESC ConvertTraitToDesc( const SamplerStateTrait& trait )
 	{
+		ColorF borderColor = trait.m_borderColor.ToColorF();
+
 		return D3D11_SAMPLER_DESC{
 			.Filter = ConvertToFilter( trait.m_filter ),
 			.AddressU = ConvertToTextureAddress( trait.m_addressU ),
@@ -22,10 +24,10 @@ namespace
 			.MaxAnisotropy = trait.m_maxAnisotropy,
 			.ComparisonFunc = ConvertToComparisionFunc( trait.m_comparisonFunc ),
 			.BorderColor = {
-				trait.m_borderColor[0],
-				trait.m_borderColor[1],
-				trait.m_borderColor[2],
-				trait.m_borderColor[3]
+				borderColor[0],
+				borderColor[1],
+				borderColor[2],
+				borderColor[3]
 			},
 			.MinLOD = trait.m_minLOD,
 			.MaxLOD = trait.m_maxLOD

@@ -143,7 +143,7 @@ namespace rendercore
 				.m_mipLODBias = option.m_mipLODBias,
 				.m_maxAnisotropy = 1,	/*anisotropy option set later*/
 				.m_comparisonFunc = option.m_comparisonFunc,
-				.m_borderColor = { option.m_borderColor.x, option.m_borderColor.y, option.m_borderColor.z, option.m_borderColor.w },
+				.m_borderColor = option.m_borderColor,
 				.m_minLOD = std::numeric_limits<float>::min(),
 				.m_maxLOD = std::numeric_limits<float>::max()
 			};

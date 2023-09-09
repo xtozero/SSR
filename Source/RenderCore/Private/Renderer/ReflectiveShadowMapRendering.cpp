@@ -160,7 +160,7 @@ namespace rendercore
 		blackBorderSampler.m_addressU = agl::TextureAddressMode::Border;
 		blackBorderSampler.m_addressV = agl::TextureAddressMode::Border;
 		blackBorderSampler.m_addressW = agl::TextureAddressMode::Border;
-		blackBorderSampler.m_borderColor = ColorF( 0.f, 0.f, 0.f, 1.f );
+		blackBorderSampler.m_borderColor = Color::Black;
 
 		m_blackBorderSampler = GraphicsInterface().FindOrCreate( blackBorderSampler );
 	}

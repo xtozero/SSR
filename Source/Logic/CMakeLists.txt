@@ -132,11 +132,6 @@ set (TEST_SCENE_OBJECT
 	Public/GameObject/BallProjectile.h
 	Public/GameObject/PhysicsObjects.h)
 	
-set (UI
-	Private/UI/ImUI.cpp
-	Private/UI/ImUI_Draw.cpp
-	Public/UI/ImUI.h)
-	
 set (USER_INPUT
 	Private/UserInput/Controller.cpp
 	Public/UserInput/Controller.h)
@@ -156,7 +151,6 @@ source_group("GameObject\\TestScene" FILES ${TEST_SCENE_OBJECT})
 source_group("Model" FILES ${MODEL})
 source_group("Physics" FILES ${PHYSICS})
 source_group("Render" FILES ${SCENE})
-source_group("UI" FILES ${UI})
 source_group("UserInput" FILES ${USER_INPUT})
 source_group("World" FILES ${WORLD})
 
@@ -176,7 +170,6 @@ add_library(Logic SHARED 	${COMPOENETS}
 							${PROXIES}
 							${SCENE}
 							${TEST_SCENE_OBJECT}
-							${UI}
 							${UNIT_TEST}
 							${USER_INPUT}
 							${WORLD})

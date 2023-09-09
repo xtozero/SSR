@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ColorTypes.h"
 #include "GraphicsApiResource.h"
 #include "HashUtil.h"
 #include "Shader.h"
@@ -314,7 +315,8 @@ namespace rendercore
 				&& lhs.m_addressV == rhs.m_addressV
 				&& lhs.m_addressW == rhs.m_addressW
 				&& lhs.m_mipLODBias == rhs.m_mipLODBias
-				&& lhs.m_comparisonFunc == rhs.m_comparisonFunc;
+				&& lhs.m_comparisonFunc == rhs.m_comparisonFunc
+				&& lhs.m_borderColor == rhs.m_borderColor;
 		}
 
 		PROPERTY( filter )
@@ -336,7 +338,7 @@ namespace rendercore
 		agl::ComparisonFunc m_comparisonFunc = agl::ComparisonFunc::Never;
 
 		PROPERTY( borderColor )
-		ColorF m_borderColor = { 1.f, 1.f, 1.f, 1.f };
+		Color m_borderColor = Color::White;
 
 	protected:
 		RENDERCORE_DLL virtual void PostLoadImpl() override;
@@ -354,10 +356,7 @@ namespace rendercore
 			HashCombine( hash, option.m_addressW );
 			HashCombine( hash, option.m_mipLODBias );
 			HashCombine( hash, option.m_comparisonFunc );
-			HashCombine( hash, option.m_borderColor.x );
-			HashCombine( hash, option.m_borderColor.y );
-			HashCombine( hash, option.m_borderColor.z );
-			HashCombine( hash, option.m_borderColor.w );
+			HashCombine( hash, option.m_borderColor.DWORD() );
 
 			return hash;
 		}

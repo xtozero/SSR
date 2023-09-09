@@ -83,5 +83,3 @@ public:
 	static const Vector4 OneVector;
 	static const Vector4 ZeroVector;
 };
-
-using ColorF = Vector4;

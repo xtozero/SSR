@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ColorTypes.h"
 #include "NameTypes.h"
 #include "Math/Vector.h"
 #include "Math/Vector2.h"
@@ -13,6 +14,19 @@
 #include <utility>
 
 class Archive;
+
+inline Archive& operator<<( Archive& ar, ColorF& c )
+{
+	ar << c.R() << c.G() << c.B() << c.A();
+
+	return ar;
+}
+
+inline Archive& operator<<( Archive& ar, Color& c )
+{
+	ar << c.DWORD();
+	return ar;
+}
 
 inline Archive& operator<<( Archive& ar, Vector& v )
 {
