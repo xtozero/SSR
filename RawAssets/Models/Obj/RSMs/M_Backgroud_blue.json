@@ -1,0 +1,18 @@
+{
+	"Type": "Material",
+	"Shader": {
+		"VS": "./Assets/Shaders/VS_DefaultLit.asset",
+		"PS": "./Assets/Shaders/PS_DefaultLit.asset"
+	},
+	"Surface": {
+		"Alpha": 1.000000,
+		"Diffuse": [
+			0.243137,
+			0.278431,
+			0.796078
+		],
+		"IndexOfRefraction": 1.000000,
+		"Roughness": 1.000000,
+		"SpecularExponent": 0.000000
+	}
+}

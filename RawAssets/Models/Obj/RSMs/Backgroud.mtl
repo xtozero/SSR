@@ -1,0 +1,10 @@
+# Exported from 3D Builder
+
+newmtl red
+Kd 0.925490 0.105882 0.137254
+
+newmtl green
+Kd 0.129411 0.733333 0.298039
+
+newmtl blue
+Kd 0.243137 0.278431 0.796078

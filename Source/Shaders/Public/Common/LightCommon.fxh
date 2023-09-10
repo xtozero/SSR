@@ -185,7 +185,7 @@ float4 CalcLight( GeometryProperty geometry )
 	lightColor += cColor.m_specular * MoveLinearSpace( Specular ) * visibility;
 
 #if EnableRSMs == 1
-	lightColor += IndirectIllumination.Sample( LinearSampler, geometry.screenUV );
+	lightColor += MoveLinearSpace( Diffuse ) * IndirectIllumination.Sample( LinearSampler, geometry.screenUV );
 #endif
 
 	return saturate( lightColor );
