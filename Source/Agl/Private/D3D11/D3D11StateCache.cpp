@@ -402,6 +402,29 @@ namespace agl
 		}
 	}
 
+	void D3D11PipelineCache::UnbindExistingRTV( ID3D11DeviceContext& context, ID3D11RenderTargetView* rtv )
+	{
+		for ( uint32 slot = 0; slot < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; ++slot )
+		{
+			if ( m_rtvs[slot] == rtv )
+			{
+				m_rtvs[slot] = nullptr;
+			}
+		}
+
+		context.OMSetRenderTargets( D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, m_rtvs, m_dsv );
+	}
+
+	void D3D11PipelineCache::UnbindExistingDSV( ID3D11DeviceContext& context, ID3D11DepthStencilView* dsv )
+	{
+		if ( m_dsv == dsv )
+		{
+			m_dsv = nullptr;
+		}
+
+		context.OMSetRenderTargets( D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, m_rtvs, m_dsv );
+	}
+
 	void D3D11PipelineCache::BindConstantBuffer( ID3D11DeviceContext& context, ShaderType shader, uint32 slot, Buffer* cb )
 	{
 		ID3D11Buffer* buffer = nullptr;
@@ -453,6 +476,16 @@ namespace agl
 				{
 					UnbindExistingUAV( context, d3d11Uav->Resource() );
 				}
+
+				if ( auto d3d11Rtv = static_cast<const D3D11RenderTargetView*>( sibiling->RTV() ) )
+				{
+					UnbindExistingRTV( context, d3d11Rtv->Resource() );
+				}
+
+				if ( auto d3d11Dsv = static_cast<const D3D11DepthStencilView*>( sibiling->DSV() ) )
+				{
+					UnbindExistingDSV( context, d3d11Dsv->Resource() );
+				}
 			}
 		}
 
@@ -498,6 +531,16 @@ namespace agl
 				if ( auto d3d11Srv = static_cast<const D3D11ShaderResourceView*>( sibiling->SRV() ) )
 				{
 					UnbindExistingSRV( context, d3d11Srv->Resource() );
+				}
+
+				if ( auto d3d11Rtv = static_cast<const D3D11RenderTargetView*>( sibiling->RTV() ) )
+				{
+					UnbindExistingRTV( context, d3d11Rtv->Resource() );
+				}
+
+				if ( auto d3d11Dsv = static_cast<const D3D11DepthStencilView*>( sibiling->DSV() ) )
+				{
+					UnbindExistingDSV( context, d3d11Dsv->Resource() );
 				}
 			}
 		}

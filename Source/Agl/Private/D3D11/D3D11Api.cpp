@@ -30,7 +30,7 @@
 #include <array>
 #include <d3d11.h>
 #include <d3dcompiler.h>
-#include <dxgi.h>
+#include <dxgi1_6.h>
 #include <map>
 #include <memory>
 #include <string>
@@ -166,7 +166,7 @@ namespace agl
 		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const override;
 		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const override;
 
-		IDXGIFactory1& GetFactory() const
+		IDXGIFactory7& GetFactory() const
 		{
 			return *m_pdxgiFactory.Get();
 		}
@@ -192,7 +192,7 @@ namespace agl
 		void ReportLiveDevice();
 		void EnumerateSampleCountAndQuality( int32* size, DXGI_SAMPLE_DESC* pSamples );
 
-		Microsoft::WRL::ComPtr<IDXGIFactory1> m_pdxgiFactory;
+		Microsoft::WRL::ComPtr<IDXGIFactory7> m_pdxgiFactory;
 
 		Microsoft::WRL::ComPtr<ID3D11Device> m_pd3d11Device;
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_pd3d11DeviceContext;
@@ -523,7 +523,20 @@ namespace agl
 
 	bool CDirect3D11::CreateDeviceIndependentResource()
 	{
-		HRESULT hr = CreateDXGIFactory1( __uuidof( IDXGIFactory1 ), reinterpret_cast<void**>( m_pdxgiFactory.GetAddressOf() ) );
+		Microsoft::WRL::ComPtr<IDXGIFactory2> factory;
+
+		uint32 factoryFlag = 0;
+#ifdef _DEBUG
+		factoryFlag = DXGI_CREATE_FACTORY_DEBUG;
+#endif
+		HRESULT hr = CreateDXGIFactory2( factoryFlag, IID_PPV_ARGS( factory.GetAddressOf() ) );
+
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
+
+		hr = factory.As( &m_pdxgiFactory );
 		if ( FAILED( hr ) )
 		{
 			return false;
@@ -562,7 +575,7 @@ namespace agl
 		return d3d11Api->GetDeviceContext();
 	}
 
-	IDXGIFactory1& D3D11Factory()
+	IDXGIFactory7& D3D11Factory()
 	{
 		auto d3d11Api = static_cast<CDirect3D11*>( GetInterface<IAgl>() );
 		return d3d11Api->GetFactory();

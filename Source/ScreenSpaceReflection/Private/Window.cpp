@@ -44,9 +44,8 @@ bool Window::Run( CWindowSetup& setup, WNDPROC wndProc )
 
 		AdjustWindowRect( &rc, m_style, false );
 
-		m_hwnd = CreateWindowExA( WS_EX_NOREDIRECTIONBITMAP,
-								m_wndTitle.c_str( ),
-								m_wndTitle.c_str( ),
+		m_hwnd = CreateWindowA( m_wndTitle.c_str(),
+								m_wndTitle.c_str(),
 								m_style,
 								CW_USEDEFAULT,
 								CW_USEDEFAULT,
@@ -54,7 +53,7 @@ bool Window::Run( CWindowSetup& setup, WNDPROC wndProc )
 								rc.bottom - rc.top,
 								nullptr,
 								nullptr,
-								setup.GethInstance( ),
+								setup.GethInstance(),
 								nullptr );
 
 		if ( !m_hwnd )

@@ -341,12 +341,20 @@ namespace agl
 	{
 	}
 
-	D3D11BaseTexture2D::D3D11BaseTexture2D( ID3D11Texture2D* texture )
+	D3D11BaseTexture2D::D3D11BaseTexture2D( ID3D11Texture2D* texture, const D3D11_TEXTURE2D_DESC* desc )
 	{
 		if ( texture )
 		{
 			m_texture = texture;
-			m_texture->GetDesc( &m_desc );
+			if ( desc == nullptr )
+			{
+				m_texture->GetDesc( &m_desc );
+			}
+			else
+			{
+				m_desc = *desc;
+			}
+
 			m_trait = ConvertDescToTrait( m_desc );
 		}
 	}

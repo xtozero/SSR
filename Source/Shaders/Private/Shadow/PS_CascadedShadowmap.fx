@@ -19,7 +19,7 @@ struct PS_OUTPUT
 	float depth : SV_TARGET0;
 #if EnableRSMs == 1
 	float3 worldPos : SV_TARGET1;
-	float3 packedNormal : SV_TARGET2;
+	float4 packedNormal : SV_TARGET2;
 	float4 flux : SV_TARGET3;
 #endif
 };

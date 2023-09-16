@@ -120,7 +120,7 @@ namespace agl
 	{
 	public:
 		D3D11BaseTexture2D( const TextureTrait& trait, const ResourceInitData* initData );
-		explicit D3D11BaseTexture2D( ID3D11Texture2D* texture );
+		D3D11BaseTexture2D( ID3D11Texture2D* texture, const D3D11_TEXTURE2D_DESC* desc = nullptr );
 
 	protected:
 		virtual void CreateTexture() override;

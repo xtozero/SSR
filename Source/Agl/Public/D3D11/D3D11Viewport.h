@@ -4,7 +4,7 @@
 #include "SizedTypes.h"
 #include "Viewport.h"
 
-#include <dxgi.h>
+#include <dxgi1_6.h>
 #include <wrl/client.h>
 
 namespace agl

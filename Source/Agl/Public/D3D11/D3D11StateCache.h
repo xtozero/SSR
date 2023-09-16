@@ -32,6 +32,8 @@ namespace agl
 	private:
 		void UnbindExistingSRV( ID3D11DeviceContext& context, ID3D11ShaderResourceView* srv );
 		void UnbindExistingUAV( ID3D11DeviceContext& context, ID3D11UnorderedAccessView* uav );
+		void UnbindExistingRTV( ID3D11DeviceContext& context, ID3D11RenderTargetView* rtv );
+		void UnbindExistingDSV( ID3D11DeviceContext& context, ID3D11DepthStencilView* dsv );
 		void BindConstantBuffer( ID3D11DeviceContext& context, ShaderType shader, uint32 slot, Buffer* cb );
 		void BindSRV( ID3D11DeviceContext& context, ShaderType shader, uint32 slot, ShaderResourceView* srv );
 		void BindUAV( ID3D11DeviceContext& context, ShaderType shader, uint32 slot, UnorderedAccessView* uav );
