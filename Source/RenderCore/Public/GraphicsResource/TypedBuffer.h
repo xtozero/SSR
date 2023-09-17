@@ -109,7 +109,7 @@ namespace rendercore
 				agl::BufferTrait trait = {
 					.m_stride = static_cast<uint32>( sizeof( T ) ),
 					.m_count = m_numElement,
-					.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+					.m_access = agl::ResourceAccessFlag::Default,
 					.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess,
 					.m_miscFlag = agl::ResourceMisc::BufferStructured,
 					.m_format = agl::ResourceFormat::Unknown

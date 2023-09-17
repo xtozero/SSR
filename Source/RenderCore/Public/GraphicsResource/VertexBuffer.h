@@ -15,8 +15,8 @@ namespace rendercore
 		void* Lock();
 		void Unlock();
 
-		size_t Size() const;
-		size_t ElementSize() const;
+		uint32 Size() const;
+		uint32 ElementSize() const;
 
 		agl::Buffer* Resource();
 		const agl::Buffer* Resource() const;

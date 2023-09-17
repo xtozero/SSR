@@ -62,7 +62,7 @@ namespace rendercore
 			.m_sampleQuality = 0,
 			.m_mipLevels = m_mipLevels,
 			.m_format = m_format,
-			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+			.m_access = agl::ResourceAccessFlag::Default,
 			.m_bindType = agl::ResourceBindType::ShaderResource,
 			.m_miscFlag = misc
 		};

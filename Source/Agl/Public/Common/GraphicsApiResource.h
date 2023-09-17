@@ -146,6 +146,10 @@ namespace agl
 		GpuWrite = 0x02,
 		CpuRead = 0x04,
 		CpuWrite = 0x08,
+
+		Default = GpuRead | GpuWrite,
+		Upload = GpuRead | CpuWrite,
+		Download = GpuRead | GpuWrite | CpuRead | CpuWrite,
 	};
 	ENUM_CLASS_FLAGS( ResourceAccessFlag );
 

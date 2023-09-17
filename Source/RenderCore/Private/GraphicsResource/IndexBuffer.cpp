@@ -66,8 +66,8 @@ namespace rendercore
 	void IndexBuffer::InitResource( const void* initData )
 	{
 		agl::ResourceAccessFlag accessFlag = m_isDynamic 
-			? ( agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::CpuWrite ) 
-			: ( agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite );
+			? ( agl::ResourceAccessFlag::Upload ) 
+			: ( agl::ResourceAccessFlag::Default );
 
 		agl::BufferTrait trait = {
 			.m_stride = m_isDWORD ? sizeof( uint32 ) : sizeof( uint16 ),

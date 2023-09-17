@@ -143,7 +143,7 @@ namespace rendercore
 			.m_sampleQuality = 0,
 			.m_mipLevels = 1,
 			.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
-			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+			.m_access = agl::ResourceAccessFlag::Default,
 			.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess,
 			.m_miscFlag = agl::ResourceMisc::None,
 		};
@@ -163,7 +163,7 @@ namespace rendercore
 			.m_sampleQuality = 0,
 			.m_mipLevels = 1,
 			.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
-			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+			.m_access = agl::ResourceAccessFlag::Default,
 			.m_bindType = agl::ResourceBindType::ShaderResource,
 			.m_miscFlag = agl::ResourceMisc::None,
 		};
@@ -183,7 +183,7 @@ namespace rendercore
 			.m_sampleQuality = 0,
 			.m_mipLevels = 1,
 			.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
-			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+			.m_access = agl::ResourceAccessFlag::Default,
 			.m_bindType = agl::ResourceBindType::ShaderResource,
 			.m_miscFlag = agl::ResourceMisc::Texture3D,
 		};
@@ -235,7 +235,7 @@ namespace rendercore
 			.m_sampleQuality = 0,
 			.m_mipLevels = 1,
 			.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
-			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+			.m_access = agl::ResourceAccessFlag::Default,
 			.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess,
 			.m_miscFlag = agl::ResourceMisc::None
 		};
@@ -265,7 +265,7 @@ namespace rendercore
 			.m_sampleQuality = 0,
 			.m_mipLevels = 1,
 			.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
-			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+			.m_access = agl::ResourceAccessFlag::Default,
 			.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess,
 			.m_miscFlag = agl::ResourceMisc::Texture3D
 		};
@@ -294,7 +294,7 @@ namespace rendercore
 		agl::BufferTrait inscatter = {
 			.m_stride = sizeof( Vector4 ),
 			.m_count = RES_MU_S * RES_NU * RES_MU * RES_R,
-			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+			.m_access = agl::ResourceAccessFlag::Default,
 			.m_bindType = agl::ResourceBindType::RandomAccess,
 			.m_miscFlag = agl::ResourceMisc::BufferStructured,
 			.m_format = agl::ResourceFormat::Unknown
@@ -325,7 +325,7 @@ namespace rendercore
 		agl::BufferTrait irradiance = {
 			.m_stride = sizeof( Vector4 ),
 			.m_count = IRRADIANCE_W * IRRADIANCE_H,
-			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+			.m_access = agl::ResourceAccessFlag::Default,
 			.m_bindType = agl::ResourceBindType::RandomAccess,
 			.m_miscFlag = agl::ResourceMisc::BufferStructured,
 			.m_format = agl::ResourceFormat::Unknown

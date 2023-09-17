@@ -146,7 +146,7 @@ namespace rendercore
 			.m_sampleQuality = 0,
 			.m_mipLevels = 1,
 			.m_format = agl::ResourceFormat::R8G8B8A8_UNORM_SRGB,
-			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+			.m_access = agl::ResourceAccessFlag::Default,
 			.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
 			.m_miscFlag = agl::ResourceMisc::None,
 			.m_clearValue = agl::ResourceClearValue{
@@ -173,7 +173,7 @@ namespace rendercore
 		agl::BufferTrait trait = {
 			.m_stride = sizeof( Vector ),
 			.m_count = numSamplingPattern,
-			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+			.m_access = agl::ResourceAccessFlag::Default,
 			.m_bindType = agl::ResourceBindType::ShaderResource,
 			.m_miscFlag = agl::ResourceMisc::None,
 			.m_format = agl::ResourceFormat::R32G32B32_FLOAT

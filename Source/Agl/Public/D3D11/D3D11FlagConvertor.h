@@ -33,18 +33,13 @@ namespace agl
 		switch ( accessFlag )
 		{
 		case D3D11_USAGE_DEFAULT:
-			return ResourceAccessFlag::GpuRead 
-				| ResourceAccessFlag::GpuWrite;
+			return ResourceAccessFlag::Default;
 		case D3D11_USAGE_DYNAMIC:
-			return ResourceAccessFlag::GpuRead 
-				| ResourceAccessFlag::CpuWrite;
+			return ResourceAccessFlag::Upload;
 		case D3D11_USAGE_IMMUTABLE:
 			return ResourceAccessFlag::GpuRead;
 		case D3D11_USAGE_STAGING:
-			return ResourceAccessFlag::GpuRead
-				| ResourceAccessFlag::GpuWrite
-				| ResourceAccessFlag::CpuRead
-				| ResourceAccessFlag::CpuWrite;
+			return ResourceAccessFlag::Download;
 		default:
 			assert( false );
 			return ResourceAccessFlag::None;

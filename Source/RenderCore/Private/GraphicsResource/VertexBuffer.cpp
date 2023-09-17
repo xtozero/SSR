@@ -35,12 +35,12 @@ namespace rendercore
 		GraphicsInterface().UnLock( m_buffer );
 	}
 
-	size_t VertexBuffer::Size() const
+	uint32 VertexBuffer::Size() const
 	{
 		return m_elementSize * m_numElement;
 	}
 
-	size_t VertexBuffer::ElementSize() const
+	uint32 VertexBuffer::ElementSize() const
 	{
 		return m_elementSize;
 	}
@@ -65,15 +65,9 @@ namespace rendercore
 
 	void VertexBuffer::InitResource( uint32 elementSize, uint32 numElement, const void* initData )
 	{
-		agl::ResourceAccessFlag accessFlag = agl::ResourceAccessFlag::None;
-		if ( m_isDynamic )
-		{
-			accessFlag = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::CpuWrite;
-		}
-		else
-		{
-			accessFlag = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite;
-		}
+		agl::ResourceAccessFlag accessFlag = m_isDynamic 
+			? agl::ResourceAccessFlag::Upload 
+			: agl::ResourceAccessFlag::Default;
 
 		agl::BufferTrait trait = {
 			.m_stride = elementSize,

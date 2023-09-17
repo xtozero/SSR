@@ -43,7 +43,7 @@ namespace
 		BufferTrait intermediateTrait = {
 			.m_stride = numByte,
 			.m_count = 1,
-			.m_access = ResourceAccessFlag::GpuRead | ResourceAccessFlag::CpuWrite,
+			.m_access = ResourceAccessFlag::Upload,
 			.m_bindType = ResourceBindType::None,
 			.m_miscFlag = ResourceMisc::Intermediate,
 			.m_format = destTrait.m_format
@@ -117,7 +117,7 @@ namespace
 			.m_sampleQuality = destTrait.m_sampleQuality,
 			.m_mipLevels = 1,
 			.m_format = destTrait.m_format,
-			.m_access = ResourceAccessFlag::GpuRead | ResourceAccessFlag::CpuWrite,
+			.m_access = ResourceAccessFlag::Upload,
 			.m_bindType = ResourceBindType::None,
 			.m_miscFlag = bIsTexture3D ? ( ResourceMisc::Texture3D | ResourceMisc::Intermediate ) : ResourceMisc::Intermediate
 		};

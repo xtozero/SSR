@@ -57,7 +57,7 @@ namespace rendercore
 		agl::BufferTrait trait = {
 			.m_stride = size,
 			.m_count = 1,
-			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::CpuWrite,
+			.m_access = agl::ResourceAccessFlag::Upload,
 			.m_bindType = agl::ResourceBindType::ConstantBuffer,
 			.m_miscFlag = agl::ResourceMisc::None,
 			.m_format = agl::ResourceFormat::Unknown

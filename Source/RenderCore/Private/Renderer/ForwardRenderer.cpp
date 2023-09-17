@@ -72,7 +72,7 @@ namespace rendercore
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
 				.m_format = agl::ResourceFormat::D24_UNORM_S8_UINT,
-				.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+				.m_access = agl::ResourceAccessFlag::Default,
 				.m_bindType = agl::ResourceBindType::DepthStencil,
 				.m_miscFlag = agl::ResourceMisc::None,
 				.m_clearValue = agl::ResourceClearValue{
@@ -104,7 +104,7 @@ namespace rendercore
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
 				.m_format = agl::ResourceFormat::R32_FLOAT,
-				.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+				.m_access = agl::ResourceAccessFlag::Default,
 				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
 				.m_miscFlag = agl::ResourceMisc::None,
 				.m_clearValue = agl::ResourceClearValue{
@@ -133,7 +133,7 @@ namespace rendercore
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
 				.m_format = agl::ResourceFormat::R8G8B8A8_UNORM_SRGB,
-				.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+				.m_access = agl::ResourceAccessFlag::Default,
 				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
 				.m_miscFlag = agl::ResourceMisc::None
 			};
@@ -156,7 +156,7 @@ namespace rendercore
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
 				.m_format = agl::ResourceFormat::R8G8B8A8_UNORM_SRGB,
-				.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+				.m_access = agl::ResourceAccessFlag::Default,
 				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
 				.m_miscFlag = agl::ResourceMisc::None
 			};
@@ -182,7 +182,7 @@ namespace rendercore
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
 				.m_format = agl::ResourceFormat::R10G10B10A2_UNORM,
-				.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+				.m_access = agl::ResourceAccessFlag::Default,
 				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
 				.m_miscFlag = agl::ResourceMisc::None,
 				.m_clearValue = agl::ResourceClearValue{
@@ -211,7 +211,7 @@ namespace rendercore
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
 				.m_format = agl::ResourceFormat::R16G16_FLOAT,
-				.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+				.m_access = agl::ResourceAccessFlag::Default,
 				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
 				.m_miscFlag = agl::ResourceMisc::None,
 				.m_clearValue = agl::ResourceClearValue{

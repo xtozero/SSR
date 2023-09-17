@@ -29,16 +29,11 @@ namespace agl
 		switch ( heapType )
 		{
 		case D3D12_HEAP_TYPE_DEFAULT:
-			return ResourceAccessFlag::GpuRead 
-				| ResourceAccessFlag::GpuWrite;
+			return ResourceAccessFlag::Default;
 		case D3D12_HEAP_TYPE_UPLOAD:
-			return ResourceAccessFlag::GpuRead
-				| ResourceAccessFlag::GpuWrite
-				| ResourceAccessFlag::CpuWrite;
+			return ResourceAccessFlag::Upload;
 		case D3D12_HEAP_TYPE_READBACK:
-			return ResourceAccessFlag::GpuRead
-				| ResourceAccessFlag::GpuWrite 
-				| ResourceAccessFlag::CpuRead;
+			return ResourceAccessFlag::Download;
 		default:
 			assert( false );
 			return ResourceAccessFlag::None;

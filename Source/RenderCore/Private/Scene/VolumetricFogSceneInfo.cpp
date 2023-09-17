@@ -110,7 +110,7 @@ namespace rendercore
 			.m_sampleQuality = 0,
 			.m_mipLevels = 1,
 			.m_format = agl::ResourceFormat::R16G16B16A16_FLOAT,
-			.m_access = agl::ResourceAccessFlag::GpuRead | agl::ResourceAccessFlag::GpuWrite,
+			.m_access = agl::ResourceAccessFlag::Default,
 			.m_bindType = agl::ResourceBindType::RandomAccess | agl::ResourceBindType::ShaderResource,
 			.m_miscFlag = agl::ResourceMisc::Texture3D
 		};
