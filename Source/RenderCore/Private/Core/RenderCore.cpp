@@ -132,7 +132,7 @@ namespace rendercore
 		}
 
 		m_uiRenderer = GetInterface<UserInterfaceRenderer>();
-		if ( m_uiRenderer->BootUp() == false )
+		if ( m_uiRenderer && m_uiRenderer->BootUp() == false )
 		{
 			return false;
 		}

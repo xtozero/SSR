@@ -35,13 +35,14 @@ RENDERCORE_FUNC_DLL void BootUpModules()
 	RegisterFactory<UserInterfaceRenderer>( &GetUiRenderer );
 
 	g_renderCore = CreateRenderCore();
-	g_uiRenderer = CreateUserInterfaceRenderer();
 
 	DeferredAssetRegister::GetInstance().Register();
 
 	auto sharedContext = GetInterface<imgui::SharedContext>();
 	if ( sharedContext )
 	{
+		g_uiRenderer = CreateUserInterfaceRenderer();
+		
 		ImGui::SetCurrentContext( sharedContext->m_context );
 		ImGui::SetAllocatorFunctions( sharedContext->m_allocFunc, sharedContext->m_freeFunc );
 	}
