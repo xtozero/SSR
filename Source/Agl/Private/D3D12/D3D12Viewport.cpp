@@ -23,8 +23,16 @@ namespace agl
 
 		GetInterface<IAgl>()->OnBeginFrameRendering();
 
+		agl::ResourceTransition transition
+		{
+			.m_pResource = backBuffer->Resource(),
+			.m_pTransitionable = backBuffer,
+			.m_subResource = agl::AllSubResource,
+			.m_state = ResourceState::RenderTarget
+		};
+
 		ICommandList* commandList = GetInterface<IAgl>()->GetCommandList();
-		backBuffer->Transition( *commandList, ResourceState::RenderTarget );
+		commandList->Transition( 1, &transition );
 	}
 
 	void D3D12Viewport::OnEndFrameRendering()
@@ -35,8 +43,16 @@ namespace agl
 			return;
 		}
 
+		agl::ResourceTransition transition
+		{
+			.m_pResource = backBuffer->Resource(),
+			.m_pTransitionable = backBuffer,
+			.m_subResource = agl::AllSubResource,
+			.m_state = ResourceState::Present
+		};
+
 		ICommandList* commandList = GetInterface<IAgl>()->GetCommandList();
-		backBuffer->Transition( *commandList, ResourceState::Present );
+		commandList->Transition( 1, &transition );
 	}
 
 	DeviceError D3D12Viewport::Present( bool vSync )

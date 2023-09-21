@@ -591,7 +591,7 @@ namespace agl
 			{
 				.pResource = static_cast<ID3D12Resource*>( transition.m_pResource ),
 				.Subresource = transition.m_subResource,
-				.StateBefore = ConvertToResourceStates( transition.m_pTransitionable.GetState() ),
+				.StateBefore = ConvertToResourceStates( transition.m_pTransitionable->GetState() ),
 				.StateAfter  = ConvertToResourceStates( transition.m_state )
 			}
 		};

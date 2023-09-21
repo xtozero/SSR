@@ -11,7 +11,7 @@ namespace rendercore
 		return agl::ResourceTransition
 		{
 			.m_pResource = buffer.Resource(),
-			.m_pTransitionable = buffer,
+			.m_pTransitionable = &buffer,
 			.m_subResource = subResource,
 			.m_state = state
 		};
@@ -22,7 +22,7 @@ namespace rendercore
 		return agl::ResourceTransition
 		{
 			.m_pResource = texture.Resource(),
-			.m_pTransitionable = texture,
+			.m_pTransitionable = &texture,
 			.m_subResource = subResource,
 			.m_state = state
 		};

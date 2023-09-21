@@ -36,8 +36,6 @@ namespace agl
 
 		AGL_DLL const TextureTrait& GetTrait() const;
 
-		void Transition( ICommandListBase& commandList, ResourceState state );
-
 		Texture( const TextureTrait& trait ) noexcept;
 		Texture() noexcept;
 

@@ -476,17 +476,26 @@ namespace rendercore
 
 			auto commandList = GetCommandList();
 
-			agl::ResourceTransition beforeRenderDepth[] = {
-				Transition( *shadowMap.m_shadowMaps[0].Get(), agl::ResourceState::RenderTarget),
-				Transition( *shadowMap.m_shadowMapDepth.Get(), agl::ResourceState::DepthWrite )
-			};
+			using TransitionArray = std::vector<agl::ResourceTransition, InlineAllocator<agl::ResourceTransition, 8>>;
+			TransitionArray beforeRenderDepth;
 
-			commandList.Transition( std::extent_v<decltype( beforeRenderDepth )>, beforeRenderDepth );
+			beforeRenderDepth.push_back( Transition( *shadowMap.m_shadowMaps[0].Get(), agl::ResourceState::RenderTarget ) );
+			beforeRenderDepth.push_back( Transition( *shadowMap.m_shadowMapDepth.Get(), agl::ResourceState::DepthWrite ) );
+
+			bool rsmsEnabled = DefaultRenderCore::IsRSMsEnabled();
+			if ( rsmsEnabled )
+			{
+				beforeRenderDepth.push_back( Transition( *shadowMap.m_shadowMaps[1].Get(), agl::ResourceState::RenderTarget ) );
+				beforeRenderDepth.push_back( Transition( *shadowMap.m_shadowMaps[2].Get(), agl::ResourceState::RenderTarget ) );
+				beforeRenderDepth.push_back( Transition( *shadowMap.m_shadowMaps[3].Get(), agl::ResourceState::RenderTarget ) );
+			}
+
+			commandList.Transition( static_cast<uint32>( beforeRenderDepth.size() ), beforeRenderDepth.data());
 
 			agl::RenderTargetView* rtv = shadowMap.m_shadowMaps[0]->RTV();
 			commandList.ClearRenderTarget( rtv, { 1, 1, 1, 1 } );
 
-			if ( DefaultRenderCore::IsRSMsEnabled() )
+			if ( rsmsEnabled )
 			{
 				rtv = shadowMap.m_shadowMaps[1]->RTV();
 				commandList.ClearRenderTarget( rtv, { 0, 0, 0, 1 } );
@@ -504,11 +513,18 @@ namespace rendercore
 			shadowInfo.SetupShadowConstantBuffer();
 			shadowInfo.RenderDepth( *this, m_shaderResources );
 
-			agl::ResourceTransition afterRenderDepth[] = {
-				Transition( *shadowMap.m_shadowMaps[0].Get(), agl::ResourceState::GenericRead),
-			};
+			TransitionArray afterRenderDepth;
 
-			commandList.Transition( std::extent_v<decltype( afterRenderDepth )>, afterRenderDepth );
+			afterRenderDepth.push_back( Transition( *shadowMap.m_shadowMaps[0].Get(), agl::ResourceState::GenericRead ) );
+
+			if ( rsmsEnabled )
+			{
+				afterRenderDepth.push_back( Transition( *shadowMap.m_shadowMaps[1].Get(), agl::ResourceState::GenericRead ) );
+				afterRenderDepth.push_back( Transition( *shadowMap.m_shadowMaps[2].Get(), agl::ResourceState::GenericRead ) );
+				afterRenderDepth.push_back( Transition( *shadowMap.m_shadowMaps[3].Get(), agl::ResourceState::GenericRead ) );
+			}
+
+			commandList.Transition( static_cast<uint32>( afterRenderDepth.size() ), afterRenderDepth.data() );
 
 			if ( DefaultRenderCore::IsESMsEnabled() )
 			{

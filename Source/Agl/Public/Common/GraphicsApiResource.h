@@ -618,7 +618,7 @@ namespace agl
 	struct ResourceTransition
 	{
 		void* m_pResource;
-		ITransitionable& m_pTransitionable;
+		ITransitionable* m_pTransitionable;
 		uint32 m_subResource;
 		ResourceState m_state;
 	};

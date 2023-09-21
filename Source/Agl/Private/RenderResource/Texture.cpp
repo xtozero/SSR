@@ -27,23 +27,6 @@ namespace agl
 		return m_trait;
 	}
 
-	void Texture::Transition( ICommandListBase& commandList, ResourceState state )
-	{
-		if ( m_state == state )
-		{
-			return;
-		}
-
-		ResourceTransition transition = {
-			.m_pResource = Resource(),
-			.m_pTransitionable = *this,
-			.m_subResource = AllSubResource,
-			.m_state = state
-		};
-
-		commandList.Transition( 1, &transition );
-	}
-
 	Texture::Texture( const TextureTrait& trait ) noexcept
 		: m_trait( trait )
 	{
