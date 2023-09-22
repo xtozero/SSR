@@ -299,52 +299,50 @@ namespace rendercore
 		auto material = m_material.lock();
 		assert( material );
 
-		auto Update = [this, material]
-		{
-			for ( auto& materialConstantBuffer : m_materialConstantBuffers )
+		EnqueueRenderTask( [this, material]
 			{
-				const auto& cbParam = materialConstantBuffer.first;
-				auto& cb = materialConstantBuffer.second;
-				char* buffer = static_cast<char*>( cb.Lock() );
-
-				if ( buffer )
+				for ( auto& materialConstantBuffer : m_materialConstantBuffers )
 				{
-					std::memset( buffer, 0, cb.Size() );
-					
-					struct Comp
+					const auto& cbParam = materialConstantBuffer.first;
+					auto& cb = materialConstantBuffer.second;
+					char* buffer = static_cast<char*>( cb.Lock() );
+
+					if ( buffer )
 					{
-						bool operator()( const NamedShaderParameter& lhs, const agl::ShaderParameter& rhs )
+						std::memset( buffer, 0, cb.Size() );
+
+						struct Comp
 						{
-							auto lVariable = std::tie( lhs.first.m_shader, lhs.first.m_bindPoint );
-							auto rVariable = std::tie( rhs.m_shader, rhs.m_bindPoint );
+							bool operator()( const NamedShaderParameter& lhs, const agl::ShaderParameter& rhs )
+							{
+								auto lVariable = std::tie( lhs.first.m_shader, lhs.first.m_bindPoint );
+								auto rVariable = std::tie( rhs.m_shader, rhs.m_bindPoint );
 
-							return lVariable < rVariable;
-						}
+								return lVariable < rVariable;
+							}
 
-						bool operator()( const agl::ShaderParameter& lhs, const NamedShaderParameter& rhs )
+							bool operator()( const agl::ShaderParameter& lhs, const NamedShaderParameter& rhs )
+							{
+								auto lVariable = std::tie( lhs.m_shader, lhs.m_bindPoint );
+								auto rVariable = std::tie( rhs.first.m_shader, rhs.first.m_bindPoint );
+
+								return lVariable < rVariable;
+							}
+						};
+
+						auto range = std::equal_range( std::begin( m_materialConstantValueNames ), std::end( m_materialConstantValueNames ), cbParam, Comp() );
+
+						for ( auto i = range.first; i != range.second; ++i )
 						{
-							auto lVariable = std::tie( lhs.m_shader, lhs.m_bindPoint );
-							auto rVariable = std::tie( rhs.first.m_shader, rhs.first.m_bindPoint );
+							const auto& [param, variableName] = *i;
+							char* dest = buffer + param.m_offset;
 
-							return lVariable < rVariable;
+							material->CopyProperty( variableName.Str().data(), dest );
 						}
-					};
-
-					auto range = std::equal_range( std::begin( m_materialConstantValueNames ), std::end( m_materialConstantValueNames ), cbParam, Comp() );
-
-					for ( auto i = range.first; i != range.second; ++i )
-					{
-						const auto& [param, variableName] = *i;
-						char* dest = buffer + param.m_offset;
-
-						material->CopyProperty( variableName.Str().data(), dest );
 					}
+
+					cb.Unlock();
 				}
-
-				cb.Unlock();
-			}
-		};
-
-		EnqueueRenderTask( Update );
+			} );
 	}
 }

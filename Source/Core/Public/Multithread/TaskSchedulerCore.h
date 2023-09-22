@@ -100,7 +100,7 @@ public:
 	template <typename... TArgs>
 	static Task* Create( size_t workerAffinity, TArgs&&... args )
 	{
-		return new Task( workerAffinity, args... );
+		return new Task( workerAffinity, std::forward<TArgs>( args )... );
 	}
 
 	TaskStorageType& Element()
@@ -112,7 +112,7 @@ protected:
 	template <typename... TArgs>
 	Task( size_t workerAffinity, TArgs&&... args ) : TaskBase( workerAffinity )
 	{
-		std::construct_at( reinterpret_cast<TaskStorageType*>( &m_storage ), args... );
+		std::construct_at( reinterpret_cast<TaskStorageType*>( &m_storage ), std::forward<TArgs>( args )... );
 	}
 
 	virtual ~Task() override

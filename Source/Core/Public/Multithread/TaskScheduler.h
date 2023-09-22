@@ -62,26 +62,26 @@ public:
 		m_lambda();
 	}
 
-	LambdaTask( const Lambda& lambda ) : m_lambda( lambda ) {}
+	LambdaTask( Lambda&& lambda ) : m_lambda( std::forward<Lambda>( lambda ) ) {}
 
 private:
 	Lambda m_lambda;
 };
 
 template <ThreadType... N, typename Lambda>
-TaskHandle EnqueueThreadTask( Lambda lambda )
+TaskHandle EnqueueThreadTask( Lambda&& lambda )
 {
 	ITaskScheduler* taskScheduler = GetInterface<ITaskScheduler>();
 	constexpr size_t affinityMask = WorkerAffinityMask<N...>();
 	TaskHandle taskGroup = taskScheduler->GetTaskGroup();
-	taskGroup.AddTask( Task<LambdaTask<Lambda>>::Create( affinityMask, lambda ) );
+	taskGroup.AddTask( Task<LambdaTask<Lambda>>::Create( affinityMask, std::forward<Lambda>( lambda ) ) );
 	[[maybe_unused]] bool success = taskScheduler->Run( taskGroup );
 	assert( success );
 	return taskGroup;
 }
 
 template <typename Lambda>
-void EnqueueRenderTask( Lambda lambda )
+void EnqueueRenderTask( Lambda&& lambda )
 {
 	if ( IsInRenderThread() )
 	{
@@ -89,7 +89,7 @@ void EnqueueRenderTask( Lambda lambda )
 	}
 	else
 	{
-		auto* task = Task<LambdaTask<Lambda>>::Create( WorkerAffinityMask<ThreadType::RenderThread>(), lambda );
+		auto* task = Task<LambdaTask<Lambda>>::Create( WorkerAffinityMask<ThreadType::RenderThread>(), std::forward<Lambda>( lambda ) );
 		EnqueueRenderTask( static_cast<TaskBase*>( task ) );
 	}
 }
