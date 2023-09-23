@@ -2,18 +2,21 @@
 
 #include "GameObject.h"
 
-class SphereObject : public CGameObject
+namespace logic
 {
-	GENERATE_CLASS_TYPE_INFO( SphereObject )
+	class SphereObject : public CGameObject
+	{
+		GENERATE_CLASS_TYPE_INFO( SphereObject )
 
-public:
-	SphereObject();
-};
+	public:
+		SphereObject();
+	};
 
-class BoxObject : public CGameObject
-{
-	GENERATE_CLASS_TYPE_INFO( BoxObject )
+	class BoxObject : public CGameObject
+	{
+		GENERATE_CLASS_TYPE_INFO( BoxObject )
 
-public:
-	BoxObject();
-};
+	public:
+		BoxObject();
+	};
+}

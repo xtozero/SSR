@@ -7,18 +7,21 @@ namespace rendercore
 	class SkyAtmospherePorxy;
 }
 
-class SkyAtmosphereComponent : public SceneComponent
+namespace logic
 {
-	GENERATE_CLASS_TYPE_INFO( SkyAtmosphereComponent )
+	class SkyAtmosphereComponent : public SceneComponent
+	{
+		GENERATE_CLASS_TYPE_INFO( SkyAtmosphereComponent )
 
-public:
-	using SceneComponent::SceneComponent;
+	public:
+		using SceneComponent::SceneComponent;
 
-protected:
-	virtual bool ShouldCreateRenderState() const override;
-	virtual void CreateRenderState() override;
-	virtual void RemoveRenderState() override;
+	protected:
+		virtual bool ShouldCreateRenderState() const override;
+		virtual void CreateRenderState() override;
+		virtual void RemoveRenderState() override;
 
-private:
-	rendercore::SkyAtmospherePorxy* m_skyAtmosphereProxy = nullptr;
-};
+	private:
+		rendercore::SkyAtmospherePorxy* m_skyAtmosphereProxy = nullptr;
+	};
+}

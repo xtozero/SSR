@@ -3,21 +3,24 @@
 #include <SizedTypes.h>
 #include <utility>
 
-class IPlatform
+namespace engine
 {
-public:
-	virtual std::pair<uint32, uint32> GetSize( ) const noexcept = 0;
-	virtual void UpdateSize( uint32 width, uint32 height ) = 0;
-	virtual void Resize( uint32 width, uint32 height ) = 0;
-	
-	template <typename RT>
-	RT GetRawHandle( )
+	class IPlatform
 	{
-		return static_cast<RT>( GetRawHandleImple() );
-	}
+	public:
+		virtual std::pair<uint32, uint32> GetSize() const noexcept = 0;
+		virtual void UpdateSize( uint32 width, uint32 height ) = 0;
+		virtual void Resize( uint32 width, uint32 height ) = 0;
 
-	virtual ~IPlatform( ) = default;
+		template <typename RT>
+		RT GetRawHandle()
+		{
+			return static_cast<RT>( GetRawHandleImple() );
+		}
 
-private:
-	virtual void* GetRawHandleImple( ) const noexcept = 0;
-};
+		virtual ~IPlatform() = default;
+
+	private:
+		virtual void* GetRawHandleImple() const noexcept = 0;
+	};
+}

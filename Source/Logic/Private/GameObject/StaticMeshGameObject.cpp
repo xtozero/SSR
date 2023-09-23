@@ -10,12 +10,15 @@
 #include "Json/json.hpp"
 #include "RenderOption.h"
 
-DECLARE_GAME_OBJECT( static_mesh, StaticMeshGameObject );
-
-StaticMeshGameObject::StaticMeshGameObject()
+namespace logic
 {
-	SetRootComponent( CreateComponent<SphereComponent>( *this, "SphereComponent" ) );
+	DECLARE_GAME_OBJECT( static_mesh, StaticMeshGameObject );
 
-	StaticMeshComponent* staticMeshComponent = CreateComponent<StaticMeshComponent>( *this, "StaticMeshComponent" );
-	staticMeshComponent->AttachToComponent( m_rootComponent, AttachmentTrasformRules::KeepRelativeTransform );
+	StaticMeshGameObject::StaticMeshGameObject()
+	{
+		SetRootComponent( CreateComponent<SphereComponent>( *this, "SphereComponent" ) );
+
+		StaticMeshComponent* staticMeshComponent = CreateComponent<StaticMeshComponent>( *this, "StaticMeshComponent" );
+		staticMeshComponent->AttachToComponent( m_rootComponent, AttachmentTrasformRules::KeepRelativeTransform );
+	}
 }

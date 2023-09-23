@@ -4,39 +4,42 @@
 #include "GameObject.h"
 #include "Scene/INotifyGraphicsDevice.h"
 
-class CameraComponent;
-
-class CPlayer : public CGameObject, public IListener
+namespace logic
 {
-	GENERATE_CLASS_TYPE_INFO( CPlayer )
+	class CameraComponent;
 
-public:
-	virtual void Initialize( CGameLogic& gameLogic, World& world ) override;
-	virtual void Think( float elapsedTime );
-	virtual void ProcessInput( const UserInput& input, CGameLogic& gameLogic ) override;
+	class CPlayer : public CGameObject, public IListener
+	{
+		GENERATE_CLASS_TYPE_INFO( CPlayer )
 
-	const CameraComponent* GetCameraComponent() const { return m_cameraComponent; }
+	public:
+		virtual void Initialize( CGameLogic& gameLogic, World& world ) override;
+		virtual void Think( float elapsedTime );
+		virtual void ProcessInput( const engine::UserInput& input, CGameLogic& gameLogic ) override;
 
-	CPlayer();
+		const CameraComponent* GetCameraComponent() const { return m_cameraComponent; }
 
-protected:
-	virtual void SetupInputComponent() override;
+		CPlayer();
 
-private:
-	void OnMouseLButton( const UserInput& input, CGameLogic& gameLogic );
-	void RotatePrimaryLightDir( CGameLogic& gameLogic, float deltaTheta, float deltaPhi );
+	protected:
+		virtual void SetupInputComponent() override;
 
-	void OnMouseLButton( const UserInput& input );
-	void OnMouseRButton( const UserInput& input );
-	void OnMouseMove( const UserInput& input );
-	void OnWheelMove( const UserInput& input );
-	void OnMoveKey( const UserInput& input );
+	private:
+		void OnMouseLButton( const engine::UserInput& input, CGameLogic& gameLogic );
+		void RotatePrimaryLightDir( CGameLogic& gameLogic, float deltaTheta, float deltaPhi );
 
-	CameraComponent* m_cameraComponent = nullptr;
+		void OnMouseLButton( const engine::UserInput& input );
+		void OnMouseRButton( const engine::UserInput& input );
+		void OnMouseMove( const engine::UserInput& input );
+		void OnWheelMove( const engine::UserInput& input );
+		void OnMoveKey( const engine::UserInput& input );
 
-	bool m_cameraRotationEnabled = false;
-	bool m_cameraTranslationEnabled = false;
-	float m_mouseSensitivity = 0.01f;
+		CameraComponent* m_cameraComponent = nullptr;
 
-	bool m_inputDirection[4] = { false, false, false, false };
-};
+		bool m_cameraRotationEnabled = false;
+		bool m_cameraTranslationEnabled = false;
+		float m_mouseSensitivity = 0.01f;
+
+		bool m_inputDirection[4] = { false, false, false, false };
+	};
+}

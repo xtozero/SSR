@@ -6,58 +6,61 @@
 
 #include <array>
 
-class DirectionalLightComponent;
-class HemisphereLightComponent;
-class LightComponent;
-
-enum class LightType : uint8
+namespace logic
 {
-	None = 0,
-	Directional,
-	Point,
-	Spot
-};
+	class DirectionalLightComponent;
+	class HemisphereLightComponent;
+	class LightComponent;
 
-class Light : public CGameObject
-{
-	GENERATE_CLASS_TYPE_INFO( Light )
+	enum class LightType : uint8
+	{
+		None = 0,
+		Directional,
+		Point,
+		Spot
+	};
 
-public:
-	virtual const LightType GetType() const = 0;
+	class Light : public CGameObject
+	{
+		GENERATE_CLASS_TYPE_INFO( Light )
 
-	void SetDiffuseColor( const ColorF& diffuseColor );
-	void SetSpecularColor( const ColorF& specularColor );
-	void SetCastShadow( bool castShadow );
+	public:
+		virtual const LightType GetType() const = 0;
 
-private:
-	LightComponent& GetLightComponent();
+		void SetDiffuseColor( const ColorF& diffuseColor );
+		void SetSpecularColor( const ColorF& specularColor );
+		void SetCastShadow( bool castShadow );
 
-	LightComponent* m_component = nullptr;
-};
+	private:
+		LightComponent& GetLightComponent();
 
-class DirectionalLight : public Light
-{
-public:
-	virtual const LightType GetType() const override;
+		LightComponent* m_component = nullptr;
+	};
 
-	const Vector& Direction() const;
+	class DirectionalLight : public Light
+	{
+	public:
+		virtual const LightType GetType() const override;
 
-	DirectionalLight();
+		const Vector& Direction() const;
 
-private:
-	DirectionalLightComponent* m_directionalLightComponent = nullptr;
-};
+		DirectionalLight();
 
-class HemisphereLight : public CGameObject
-{
-	GENERATE_CLASS_TYPE_INFO( HemisphereLight )
+	private:
+		DirectionalLightComponent* m_directionalLightComponent = nullptr;
+	};
 
-public:
-	void SetLowerColor( const ColorF& color );
-	void SetUpperColor( const ColorF& color );
+	class HemisphereLight : public CGameObject
+	{
+		GENERATE_CLASS_TYPE_INFO( HemisphereLight )
 
-	HemisphereLight();
+	public:
+		void SetLowerColor( const ColorF& color );
+		void SetUpperColor( const ColorF& color );
 
-private:
-	HemisphereLightComponent* m_hemisphereLightComponent = nullptr;
-};
+		HemisphereLight();
+
+	private:
+		HemisphereLightComponent* m_hemisphereLightComponent = nullptr;
+	};
+}

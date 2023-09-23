@@ -11,7 +11,7 @@
 
 namespace rendercore
 {
-	LightProxy::LightProxy( const LightComponent& component ) :
+	LightProxy::LightProxy( const logic::LightComponent& component ) :
 		m_diffuse( component.DiffuseColor() ),
 		m_specular( component.SpecularColor() ),
 		m_castShadow( component.CastShadow() ),
@@ -42,7 +42,7 @@ namespace rendercore
 		return true;
 	}
 
-	DirectionalLightProxy::DirectionalLightProxy( const DirectionalLightComponent& component ) :
+	DirectionalLightProxy::DirectionalLightProxy( const logic::DirectionalLightComponent& component ) :
 		LightProxy( component ),
 		m_direction( component.Direction() )
 	{

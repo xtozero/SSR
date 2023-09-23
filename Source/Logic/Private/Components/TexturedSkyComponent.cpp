@@ -7,68 +7,71 @@
 #include "Scene/IScene.h"
 #include "World/World.h"
 
-void TexturedSkyComponent::LoadProperty( const json::Value& json )
+namespace logic
 {
-	Super::LoadProperty( json );
-
-	if ( const json::Value* pTexture = json.Find( "Material" ) )
+	void TexturedSkyComponent::LoadProperty( const json::Value& json )
 	{
-		const std::string& assetPath = pTexture->AsString();
+		Super::LoadProperty( json );
 
-		IAssetLoader::LoadCompletionCallback onLoadComplete;
-		onLoadComplete.BindMemberFunction( this, &TexturedSkyComponent::OnMaterialLoadFinished );
+		if ( const json::Value* pTexture = json.Find( "Material" ) )
+		{
+			const std::string& assetPath = pTexture->AsString();
 
-		AssetLoaderSharedHandle handle = GetInterface<IAssetLoader>()->RequestAsyncLoad( assetPath, onLoadComplete );
+			IAssetLoader::LoadCompletionCallback onLoadComplete;
+			onLoadComplete.BindMemberFunction( this, &TexturedSkyComponent::OnMaterialLoadFinished );
 
-		assert( handle->IsLoadingInProgress() || handle->IsLoadComplete() );
-	}
-}
+			AssetLoaderSharedHandle handle = GetInterface<IAssetLoader>()->RequestAsyncLoad( assetPath, onLoadComplete );
 
-rendercore::TexturedSkyProxy* TexturedSkyComponent::CreateProxy( ) const
-{
-	if ( m_pStaticMesh == nullptr ||
-		m_pMaterial == nullptr )
-	{
-		return nullptr;
+			assert( handle->IsLoadingInProgress() || handle->IsLoadComplete() );
+		}
 	}
 
-	return new rendercore::TexturedSkyProxy( *this );
-}
+	rendercore::TexturedSkyProxy* TexturedSkyComponent::CreateProxy() const
+	{
+		if ( m_pStaticMesh == nullptr ||
+			m_pMaterial == nullptr )
+		{
+			return nullptr;
+		}
 
-void TexturedSkyComponent::SetStaticMesh( const std::shared_ptr<rendercore::StaticMesh>& pStaticMesh )
-{
-	assert( pStaticMesh != nullptr );
-	m_pStaticMesh = pStaticMesh;
+		return new rendercore::TexturedSkyProxy( *this );
+	}
 
-	MarkRenderStateDirty( );
-}
+	void TexturedSkyComponent::SetStaticMesh( const std::shared_ptr<rendercore::StaticMesh>& pStaticMesh )
+	{
+		assert( pStaticMesh != nullptr );
+		m_pStaticMesh = pStaticMesh;
 
-void TexturedSkyComponent::SetMaterial( const std::shared_ptr<rendercore::Material>& pMaterial )
-{
-	assert( pMaterial != nullptr );
-	m_pMaterial = pMaterial;
+		MarkRenderStateDirty();
+	}
 
-	MarkRenderStateDirty( );
-}
+	void TexturedSkyComponent::SetMaterial( const std::shared_ptr<rendercore::Material>& pMaterial )
+	{
+		assert( pMaterial != nullptr );
+		m_pMaterial = pMaterial;
 
-bool TexturedSkyComponent::ShouldCreateRenderState( ) const
-{
-	return true;
-}
+		MarkRenderStateDirty();
+	}
 
-void TexturedSkyComponent::CreateRenderState( )
-{
-	Component::CreateRenderState( );
-	m_pWorld->Scene( )->AddTexturedSkyComponent( this );
-}
+	bool TexturedSkyComponent::ShouldCreateRenderState() const
+	{
+		return true;
+	}
 
-void TexturedSkyComponent::RemoveRenderState( )
-{
-	Component::RemoveRenderState( );
-	m_pWorld->Scene( )->RemoveTexturedSkyComponent( this );
-}
+	void TexturedSkyComponent::CreateRenderState()
+	{
+		Component::CreateRenderState();
+		m_pWorld->Scene()->AddTexturedSkyComponent( this );
+	}
 
-void TexturedSkyComponent::OnMaterialLoadFinished( const std::shared_ptr<void>& material )
-{
-	SetMaterial( std::static_pointer_cast<rendercore::Material>( material ) );
+	void TexturedSkyComponent::RemoveRenderState()
+	{
+		Component::RemoveRenderState();
+		m_pWorld->Scene()->RemoveTexturedSkyComponent( this );
+	}
+
+	void TexturedSkyComponent::OnMaterialLoadFinished( const std::shared_ptr<void>& material )
+	{
+		SetMaterial( std::static_pointer_cast<rendercore::Material>( material ) );
+	}
 }

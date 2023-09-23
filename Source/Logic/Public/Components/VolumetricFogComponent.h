@@ -9,76 +9,79 @@ namespace rendercore
 	class VolumetricFogProxy;
 }
 
-class VolumetricFogComponent : public Component
+namespace logic
 {
-	GENERATE_CLASS_TYPE_INFO( VolumetricFogComponent )
-
-public:
-	using Component::Component;
-
-	virtual void LoadProperty( const json::Value& json ) override;
-
-	rendercore::VolumetricFogProxy*& Proxy()
+	class VolumetricFogComponent : public Component
 	{
-		return m_proxy;
-	}
+		GENERATE_CLASS_TYPE_INFO( VolumetricFogComponent )
 
-	virtual rendercore::VolumetricFogProxy* CreateProxy();
+	public:
+		using Component::Component;
 
-	const std::array<uint32, 3>& FrustumGridSize() const
-	{
-		return m_frustumGridSize;
-	}
+		virtual void LoadProperty( const json::Value& json ) override;
 
-	float G() const
-	{
-		return m_g;
-	}
+		rendercore::VolumetricFogProxy*& Proxy()
+		{
+			return m_proxy;
+		}
 
-	float UniformDensity() const
-	{
-		return m_uniformDensity;
-	}
+		virtual rendercore::VolumetricFogProxy* CreateProxy();
 
-	float Intensity() const
-	{
-		return m_intensity;
-	}
+		const std::array<uint32, 3>& FrustumGridSize() const
+		{
+			return m_frustumGridSize;
+		}
 
-	float DepthPackExponent() const
-	{
-		return m_depthPackExponent;
-	}
+		float G() const
+		{
+			return m_g;
+		}
 
-	float NearPlaneDist() const
-	{
-		return m_nearPlaneDist;
-	}
+		float UniformDensity() const
+		{
+			return m_uniformDensity;
+		}
 
-	float FarPlaneDist() const
-	{
-		return m_farPlaneDist;
-	}
+		float Intensity() const
+		{
+			return m_intensity;
+		}
 
-	float ShadowBias() const
-	{
-		return m_shadowBias;
-	}
+		float DepthPackExponent() const
+		{
+			return m_depthPackExponent;
+		}
 
-protected:
-	virtual bool ShouldCreateRenderState() const override;
-	virtual void CreateRenderState() override;
-	virtual void RemoveRenderState() override;
+		float NearPlaneDist() const
+		{
+			return m_nearPlaneDist;
+		}
 
-private:
-	rendercore::VolumetricFogProxy* m_proxy = nullptr;
+		float FarPlaneDist() const
+		{
+			return m_farPlaneDist;
+		}
 
-	std::array<uint32, 3> m_frustumGridSize = { 160, 90, 128 };
-	float m_g = 0.7f;
-	float m_uniformDensity = 5.f;
-	float m_intensity = 50.f;
-	float m_depthPackExponent = 2.f;
-	float m_nearPlaneDist = 1.f;
-	float m_farPlaneDist = 300.f;
-	float m_shadowBias = 0.0015f;
-};
+		float ShadowBias() const
+		{
+			return m_shadowBias;
+		}
+
+	protected:
+		virtual bool ShouldCreateRenderState() const override;
+		virtual void CreateRenderState() override;
+		virtual void RemoveRenderState() override;
+
+	private:
+		rendercore::VolumetricFogProxy* m_proxy = nullptr;
+
+		std::array<uint32, 3> m_frustumGridSize = { 160, 90, 128 };
+		float m_g = 0.7f;
+		float m_uniformDensity = 5.f;
+		float m_intensity = 50.f;
+		float m_depthPackExponent = 2.f;
+		float m_nearPlaneDist = 1.f;
+		float m_farPlaneDist = 300.f;
+		float m_shadowBias = 0.0015f;
+	};
+}

@@ -7,32 +7,38 @@
 
 #include <WinUser.h>
 
-class ILogic;
-
-class WindowPlatformInputMap
+namespace logic
 {
-public:
-	bool Initialize( );
+	class ILogic;
+}
 
-	UserInputCode Convert( uint32 code )
+namespace engine
+{
+	class WindowPlatformInputMap
 	{
-		return m_userInputMap.Convert( code );
-	}
+	public:
+		bool Initialize();
 
-private:
-	UICMap m_userInputMap;
-};
+		UserInputCode Convert( uint32 code )
+		{
+			return m_userInputMap.Convert( code );
+		}
 
-class WindowPlatformInputConvertor
-{
-public:
-	bool Initialize( );
-	void ProcessInput( ILogic& logic, const MSG& wndMsg );
+	private:
+		UICMap m_userInputMap;
+	};
 
-private:
-	UserInputCode ConvertToUserInputCode( uint32 msg );
-	WindowPlatformInputMap m_inputMap;
+	class WindowPlatformInputConvertor
+	{
+	public:
+		bool Initialize();
+		void ProcessInput( logic::ILogic& logic, const MSG& wndMsg );
 
-	Vector2 m_prevMousePos;
-	UserInputButtonStates m_buttonStates;
-};
+	private:
+		UserInputCode ConvertToUserInputCode( uint32 msg );
+		WindowPlatformInputMap m_inputMap;
+
+		Vector2 m_prevMousePos;
+		UserInputButtonStates m_buttonStates;
+	};
+}

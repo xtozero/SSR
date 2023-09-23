@@ -2,12 +2,15 @@
 
 #include "SparseArray.h"
 
-class HemisphereLightComponent;
-class LightComponent;
-class PrimitiveComponent;
-class TexturedSkyComponent;
-class VolumetricCloudComponent;
-class VolumetricFogComponent;
+namespace logic
+{
+	class HemisphereLightComponent;
+	class LightComponent;
+	class PrimitiveComponent;
+	class TexturedSkyComponent;
+	class VolumetricCloudComponent;
+	class VolumetricFogComponent;
+}
 
 namespace rendercore
 {
@@ -26,29 +29,29 @@ namespace rendercore
 	class IScene
 	{
 	public:
-		virtual void AddPrimitive( PrimitiveComponent* primitive ) = 0;
-		virtual void RemovePrimitive( PrimitiveComponent* primitive ) = 0;
-		virtual void UpdatePrimitiveTransform( PrimitiveComponent* primitive ) = 0;
+		virtual void AddPrimitive( logic::PrimitiveComponent* primitive ) = 0;
+		virtual void RemovePrimitive( logic::PrimitiveComponent* primitive ) = 0;
+		virtual void UpdatePrimitiveTransform( logic::PrimitiveComponent* primitive ) = 0;
 		virtual SparseArray<PrimitiveSceneInfo*>& Primitives() = 0;
 		virtual const SparseArray<PrimitiveSceneInfo*>& Primitives() const = 0;
 
-		virtual void AddTexturedSkyComponent( TexturedSkyComponent* texturedSky ) = 0;
-		virtual void RemoveTexturedSkyComponent( TexturedSkyComponent* texturedSky ) = 0;
+		virtual void AddTexturedSkyComponent( logic::TexturedSkyComponent* texturedSky ) = 0;
+		virtual void RemoveTexturedSkyComponent( logic::TexturedSkyComponent* texturedSky ) = 0;
 
 		virtual void AddSkyAtmosphere( SkyAtmospherePorxy* skyAtmosphereProxy ) = 0;
 		virtual void RemoveAtomosphere( SkyAtmospherePorxy* skyAtmosphereProxy ) = 0;
 
-		virtual void AddVolumetricCloud( VolumetricCloudComponent* volumetricCloud ) = 0;
-		virtual void RemoveVolumetricCloud( VolumetricCloudComponent* volumetricCloud ) = 0;
+		virtual void AddVolumetricCloud( logic::VolumetricCloudComponent* volumetricCloud ) = 0;
+		virtual void RemoveVolumetricCloud( logic::VolumetricCloudComponent* volumetricCloud ) = 0;
 
-		virtual void AddVolumetricFog( VolumetricFogComponent* volumetricFog ) = 0;
-		virtual void RemoveVolumetricFog( VolumetricFogComponent* volumetricFog ) = 0;
+		virtual void AddVolumetricFog( logic::VolumetricFogComponent* volumetricFog ) = 0;
+		virtual void RemoveVolumetricFog( logic::VolumetricFogComponent* volumetricFog ) = 0;
 
-		virtual void AddHemisphereLightComponent( HemisphereLightComponent* light ) = 0;
-		virtual void RemoveHemisphereLightComponent( HemisphereLightComponent* light ) = 0;
+		virtual void AddHemisphereLightComponent( logic::HemisphereLightComponent* light ) = 0;
+		virtual void RemoveHemisphereLightComponent( logic::HemisphereLightComponent* light ) = 0;
 
-		virtual void AddLight( LightComponent* light ) = 0;
-		virtual void RemoveLight( LightComponent* light ) = 0;
+		virtual void AddLight( logic::LightComponent* light ) = 0;
+		virtual void RemoveLight( logic::LightComponent* light ) = 0;
 
 		virtual SceneViewConstantBuffer& SceneViewConstant() = 0;
 		virtual const SceneViewConstantBuffer& SceneViewConstant() const = 0;

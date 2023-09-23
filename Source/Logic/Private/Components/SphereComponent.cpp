@@ -4,6 +4,9 @@
 
 namespace
 {
+	using ::logic::BodySetup;
+	using ::logic::SphereElem;
+
 	void UpdateSphereBodySetup( BodySetup& bodySetup, float sphereRadius )
 	{
 		std::vector<SphereElem>& sphereElems = bodySetup.SphereElems();
@@ -14,32 +17,35 @@ namespace
 	}
 }
 
-BoxSphereBounds SphereComponent::CalcBounds( const Matrix& transform )
+namespace logic
 {
-	return BoxSphereBounds( Vector::ZeroVector, Vector( m_radius, m_radius, m_radius ), m_radius ).TransformBy( transform );
-}
-
-rendercore::PrimitiveProxy* SphereComponent::CreateProxy() const
-{
-	return nullptr;
-}
-
-void SphereComponent::UpdateBodySetup()
-{
-	CreateBodySetup<SphereElem>();
-	UpdateSphereBodySetup( m_bodySetup.value(), m_radius );
-}
-
-void SphereComponent::SetRadius( float radius )
-{
-	m_radius = radius;
-
-	UpdateBounds();
-	UpdateBodySetup();
-	MarkRenderStateDirty();
-
-	if ( PhysicsStateCreated() )
+	BoxSphereBounds SphereComponent::CalcBounds( const Matrix& transform )
 	{
-		// 스케일
+		return BoxSphereBounds( Vector::ZeroVector, Vector( m_radius, m_radius, m_radius ), m_radius ).TransformBy( transform );
+	}
+
+	rendercore::PrimitiveProxy* SphereComponent::CreateProxy() const
+	{
+		return nullptr;
+	}
+
+	void SphereComponent::UpdateBodySetup()
+	{
+		CreateBodySetup<SphereElem>();
+		UpdateSphereBodySetup( m_bodySetup.value(), m_radius );
+	}
+
+	void SphereComponent::SetRadius( float radius )
+	{
+		m_radius = radius;
+
+		UpdateBounds();
+		UpdateBodySetup();
+		MarkRenderStateDirty();
+
+		if ( PhysicsStateCreated() )
+		{
+			// 스케일
+		}
 	}
 }

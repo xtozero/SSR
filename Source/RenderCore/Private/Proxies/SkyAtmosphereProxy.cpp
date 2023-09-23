@@ -2,7 +2,7 @@
 
 namespace rendercore
 {
-	SkyAtmospherePorxy::SkyAtmospherePorxy( const SkyAtmosphereComponent& component )
+	SkyAtmospherePorxy::SkyAtmospherePorxy( const logic::SkyAtmosphereComponent& component )
 	{
 	}
 

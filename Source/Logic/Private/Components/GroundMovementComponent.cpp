@@ -3,114 +3,117 @@
 #include "GameObject/GameObject.h"
 #include "Json/Json.hpp"
 
-void GroundMovementComponent::ThinkComponent( float elapsedTime )
+namespace logic
 {
-	Super::ThinkComponent( elapsedTime );
-
-	Vector forwardVector = GetOwner()->GetForwardVector();
-	Vector rightVector = GetOwner()->GetRightVector();
-	Vector upVector = GetOwner()->GetUpVector();
-
-	Vector delta = GetDelta( elapsedTime );
-	Vector deltaMove = ( delta.x * rightVector + delta.y * upVector + delta.z * forwardVector );
-
-	Vector curLocation = GetOwner()->GetPosition();
-	GetOwner()->SetPosition( curLocation + deltaMove );
-}
-
-void GroundMovementComponent::LoadProperty( const json::Value& json )
-{
-	Super::LoadProperty( json );
-
-	if ( const json::Value* pMaxForce = json.Find( "Max_Force" ) )
+	void GroundMovementComponent::ThinkComponent( float elapsedTime )
 	{
-		SetMaxForceMagnitude( static_cast<float>( pMaxForce->AsReal() ) );
+		Super::ThinkComponent( elapsedTime );
+
+		Vector forwardVector = GetOwner()->GetForwardVector();
+		Vector rightVector = GetOwner()->GetRightVector();
+		Vector upVector = GetOwner()->GetUpVector();
+
+		Vector delta = GetDelta( elapsedTime );
+		Vector deltaMove = ( delta.x * rightVector + delta.y * upVector + delta.z * forwardVector );
+
+		Vector curLocation = GetOwner()->GetPosition();
+		GetOwner()->SetPosition( curLocation + deltaMove );
 	}
 
-	if ( const json::Value* pFriction = json.Find( "Friction" ) )
+	void GroundMovementComponent::LoadProperty( const json::Value& json )
 	{
-		const json::Value& friction = *pFriction;
+		Super::LoadProperty( json );
 
-		if ( friction.Size() == 2 )
+		if ( const json::Value* pMaxForce = json.Find( "Max_Force" ) )
 		{
-			SetFriction( { static_cast<float>( friction[0].AsReal() ), static_cast<float>( friction[1].AsReal() ) } );
+			SetMaxForceMagnitude( static_cast<float>( pMaxForce->AsReal() ) );
+		}
+
+		if ( const json::Value* pFriction = json.Find( "Friction" ) )
+		{
+			const json::Value& friction = *pFriction;
+
+			if ( friction.Size() == 2 )
+			{
+				SetFriction( { static_cast<float>( friction[0].AsReal() ), static_cast<float>( friction[1].AsReal() ) } );
+			}
+		}
+
+		if ( const json::Value* pForceScale = json.Find( "Kinetic_Force_Scale" ) )
+		{
+			m_kineticForceScale = static_cast<float>( pForceScale->AsReal() );
 		}
 	}
 
-	if ( const json::Value* pForceScale = json.Find( "Kinetic_Force_Scale" ) )
+	void GroundMovementComponent::Update( const Vector& force, float elapsedTime )
 	{
-		m_kineticForceScale = static_cast<float>( pForceScale->AsReal() );
-	}
-}
+		Vector scaledForce = force * m_kineticForceScale;
 
-void GroundMovementComponent::Update( const Vector& force, float elapsedTime )
-{
-	Vector scaledForce = force * m_kineticForceScale;
-
-	float magnitude = scaledForce.Length();
-	if ( magnitude > m_maxForceMag )
-	{
-		scaledForce *= m_maxForceMag / magnitude;
-		magnitude = m_maxForceMag;
-	}
-
-	if ( m_isMoving == false )
-	{
-		if ( m_friction.first <= magnitude )
+		float magnitude = scaledForce.Length();
+		if ( magnitude > m_maxForceMag )
 		{
-			m_isMoving = true;
+			scaledForce *= m_maxForceMag / magnitude;
+			magnitude = m_maxForceMag;
 		}
-		else
+
+		if ( m_isMoving == false )
 		{
-			return;
+			if ( m_friction.first <= magnitude )
+			{
+				m_isMoving = true;
+			}
+			else
+			{
+				return;
+			}
+		}
+
+		Vector moveDir = m_velocity.GetNormalized();
+		if ( m_isMoving )
+		{
+			// calculate net force
+			scaledForce -= ( moveDir * m_friction.second );
+		}
+
+		assert( m_mass != 0.f );
+		Vector acceleration = scaledForce / m_mass;
+		m_velocity += acceleration * elapsedTime;
+
+		if ( ( moveDir | m_velocity ) < 0.f )
+		{
+			m_isMoving = false;
+			m_velocity = Vector::ZeroVector;
 		}
 	}
 
-	Vector moveDir = m_velocity.GetNormalized();
-	if ( m_isMoving )
+	void GroundMovementComponent::SetFriction( const std::pair<float, float>& friction )
 	{
-		// calculate net force
-		scaledForce -= ( moveDir * m_friction.second );
+		m_friction = friction;
 	}
 
-	assert( m_mass != 0.f );
-	Vector acceleration = scaledForce / m_mass;
-	m_velocity += acceleration * elapsedTime;
-
-	if ( ( moveDir | m_velocity ) < 0.f )
+	void GroundMovementComponent::SetMaxForceMagnitude( float magnitude )
 	{
-		m_isMoving = false;
-		m_velocity = Vector::ZeroVector;
+		m_maxForceMag = magnitude;
 	}
-}
 
-void GroundMovementComponent::SetFriction( const std::pair<float, float>& friction )
-{
-	m_friction = friction;
-}
+	GroundMovementComponent::GroundMovementComponent( CGameObject* pOwner, const char* name ) : Super( pOwner, name )
+	{
+		m_think.m_thinkGroup = ThinkingGroup::PostPhysics;
+		m_think.m_canEverTick = true;
+	}
 
-void GroundMovementComponent::SetMaxForceMagnitude( float magnitude )
-{
-	m_maxForceMag = magnitude;
-}
+	bool GroundMovementComponent::ShouldCreateRenderState() const
+	{
+		return false;
+	}
 
-GroundMovementComponent::GroundMovementComponent( CGameObject* pOwner, const char* name ) : Super( pOwner, name )
-{
-	m_think.m_thinkGroup = ThinkingGroup::PostPhysics;
-	m_think.m_canEverTick = true;
-}
+	bool GroundMovementComponent::ShouldCreatePhysicsState() const
+	{
+		return false;
+	}
 
-bool GroundMovementComponent::ShouldCreateRenderState() const
-{
-    return false;
-}
-
-bool GroundMovementComponent::ShouldCreatePhysicsState() const
-{
-    return false;
-}
-
-Vector GroundMovementComponent::GetDelta( float elapsedTime ) const
-{
-	return m_velocity * elapsedTime;
+	Vector GroundMovementComponent::GetDelta( float elapsedTime ) const
+	{
+		return m_velocity * elapsedTime;
+	}
 }

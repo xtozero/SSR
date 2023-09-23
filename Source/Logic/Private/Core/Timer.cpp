@@ -11,64 +11,67 @@ using ::std::chrono::nanoseconds;
 using ::std::chrono::steady_clock;
 using ::std::chrono::time_point;
 
-void Timer::Tick()
+namespace logic
 {
-	++m_frame;
-	++m_totalFrameCount;
-
-	time_point<steady_clock> curTime = steady_clock::now();
-
-	m_elapsedTime = curTime - m_lastTime;
-	m_lastTime = curTime;
-
-	m_frameCheckInterval += duration_cast<duration<float>>( m_elapsedTime ).count();
-	
-	if ( m_frameCheckInterval > 1.0f )
+	void Timer::Tick()
 	{
-		m_frameCheckInterval = 0.f;
-		m_fps = static_cast<float>( m_frame );
-		m_frame = 0;
+		++m_frame;
+		++m_totalFrameCount;
+
+		time_point<steady_clock> curTime = steady_clock::now();
+
+		m_elapsedTime = curTime - m_lastTime;
+		m_lastTime = curTime;
+
+		m_frameCheckInterval += duration_cast<duration<float>>( m_elapsedTime ).count();
+
+		if ( m_frameCheckInterval > 1.0f )
+		{
+			m_frameCheckInterval = 0.f;
+			m_fps = static_cast<float>( m_frame );
+			m_frame = 0;
+		}
+
+		auto scaledTime = duration_cast<duration<float>>( m_elapsedTime ) * m_timeScale;
+		m_elapsedTime = round<nanoseconds>( scaledTime );
+
+		if ( m_isPaused )
+		{
+			m_elapsedTime = nanoseconds::zero();
+		}
+		else
+		{
+			m_totalTime += m_elapsedTime;
+		}
 	}
 
-	auto scaledTime = duration_cast<duration<float>>( m_elapsedTime ) * m_timeScale;
-	m_elapsedTime = round<nanoseconds>( scaledTime );
-
-	if ( m_isPaused )
+	void Timer::Pause()
 	{
-		m_elapsedTime = nanoseconds::zero();
+		m_isPaused = true;
 	}
-	else
+
+	void Timer::Resume()
 	{
-		m_totalTime += m_elapsedTime;
+		m_isPaused = false;
 	}
-}
 
-void Timer::Pause()
-{
-	m_isPaused = true;
-}
+	float Timer::GetElapsedTime() const
+	{
+		return duration_cast<duration<float>>( m_elapsedTime ).count();
+	}
 
-void Timer::Resume()
-{
-	m_isPaused = false;
-}
+	float Timer::GetTotalTime() const
+	{
+		return duration_cast<duration<float>>( m_totalTime ).count();
+	}
 
-float Timer::GetElapsedTime() const
-{
-	return duration_cast<duration<float>>( m_elapsedTime ).count();
-}
+	uint32 Timer::GetTotalFrameCount() const
+	{
+		return m_totalFrameCount;
+	}
 
-float Timer::GetTotalTime() const
-{
-	return duration_cast<duration<float>>( m_totalTime ).count();
-}
-
-uint32 Timer::GetTotalFrameCount() const
-{
-	return m_totalFrameCount;
-}
-
-Timer::Timer()
-{
-	m_lastTime = steady_clock::now( );
+	Timer::Timer()
+	{
+		m_lastTime = steady_clock::now();
+	}
 }

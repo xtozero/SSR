@@ -4,12 +4,15 @@
 
 #include <string>
 
-class CGameLogic;
-
-class StaticMeshGameObject : public CGameObject
+namespace logic
 {
-	GENERATE_CLASS_TYPE_INFO( StaticMeshGameObject )
+	class CGameLogic;
 
-public:
-	StaticMeshGameObject();
-};
+	class StaticMeshGameObject : public CGameObject
+	{
+		GENERATE_CLASS_TYPE_INFO( StaticMeshGameObject )
+
+	public:
+		StaticMeshGameObject();
+	};
+}

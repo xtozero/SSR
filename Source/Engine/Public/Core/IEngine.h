@@ -6,28 +6,31 @@
 
 #include <memory>
 
-class IPlatform;
-
-class IEngine
+namespace engine
 {
-public:
-	virtual bool BootUp( IPlatform& platform, char* argv ) = 0;
+	class IPlatform;
 
-	virtual void Run() = 0;
+	class IEngine
+	{
+	public:
+		virtual bool BootUp( IPlatform& platform, char* argv ) = 0;
 
-	virtual LRESULT MsgProc( HWND hWnd, uint32 message, WPARAM wParam, LPARAM lParam ) = 0;
+		virtual void Run() = 0;
 
-	virtual ~IEngine() = default;
+		virtual LRESULT MsgProc( HWND hWnd, uint32 message, WPARAM wParam, LPARAM lParam ) = 0;
 
-protected:
-	virtual void ProcessInput() = 0;
-	virtual bool IsAvailable() = 0;
-};
+		virtual ~IEngine() = default;
 
-namespace SUPPORT_PLATFORM
-{
-	struct Window {};
+	protected:
+		virtual void ProcessInput() = 0;
+		virtual bool IsAvailable() = 0;
+	};
+
+	namespace SUPPORT_PLATFORM
+	{
+		struct Window {};
+	}
+
+	Owner<IEngine*> CreatePlatformEngine();
+	void DestroyPlatformEngine( Owner<IEngine*> pEngine );
 }
-
-Owner<IEngine*> CreatePlatformEngine();
-void DestroyPlatformEngine( Owner<IEngine*> pEngine );

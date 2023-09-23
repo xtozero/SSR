@@ -1,17 +1,20 @@
 #include "stdafx.h"
 #include "Components/InputComponent.h"
 
-void InputComponent::ProcessInput( const UserInput& input )
+namespace logic
 {
-	auto found = m_inputBinding.find( input.m_code );
-
-	if ( found != std::end( m_inputBinding ) )
+	void InputComponent::ProcessInput( const engine::UserInput& input )
 	{
-		const InputDelegate& delegate = found->second;
+		auto found = m_inputBinding.find( input.m_code );
 
-		if ( delegate.IsBound( ) )
+		if ( found != std::end( m_inputBinding ) )
 		{
-			delegate( input );
+			const InputDelegate& delegate = found->second;
+
+			if ( delegate.IsBound() )
+			{
+				delegate( input );
+			}
 		}
 	}
 }

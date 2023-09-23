@@ -4,10 +4,13 @@
 #include "GameObject/GameObjectFactory.h"
 #include "Json/json.hpp"
 
-DECLARE_GAME_OBJECT( volumetric_cloud, VolumetricCloud )
-
-VolumetricCloud::VolumetricCloud()
+namespace logic
 {
-	m_volumetricCloudComponent = CreateComponent<VolumetricCloudComponent>( *this, "VolumetricCloudComponent" );
-	SetRootComponent( m_volumetricCloudComponent );
+	DECLARE_GAME_OBJECT( volumetric_cloud, VolumetricCloud )
+
+	VolumetricCloud::VolumetricCloud()
+	{
+		m_volumetricCloudComponent = CreateComponent<VolumetricCloudComponent>( *this, "VolumetricCloudComponent" );
+		SetRootComponent( m_volumetricCloudComponent );
+	}
 }

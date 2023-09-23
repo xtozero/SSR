@@ -9,21 +9,24 @@ namespace rendercore
 	class RenderViewGroup;
 }
 
-class GameClientViewport : public CGameObject
+namespace logic
 {
-	GENERATE_CLASS_TYPE_INFO( GameClientViewport )
+	class GameClientViewport : public CGameObject
+	{
+		GENERATE_CLASS_TYPE_INFO( GameClientViewport )
 
-public:
-	void Draw();
+	public:
+		void Draw();
 
-	void SetViewPort( rendercore::Viewport* viewport );
+		void SetViewPort( rendercore::Viewport* viewport );
 
-	void AppSizeChanged( void* handle, const std::pair<uint32, uint32>& newSize );
+		void AppSizeChanged( void* handle, const std::pair<uint32, uint32>& newSize );
 
-	explicit GameClientViewport( rendercore::Viewport* viewport ) : m_viewport( viewport ) { }
+		explicit GameClientViewport( rendercore::Viewport* viewport ) : m_viewport( viewport ) { }
 
-private:
-	void InitView( rendercore::RenderViewGroup& views );
+	private:
+		void InitView( rendercore::RenderViewGroup& views );
 
-	rendercore::Viewport* m_viewport = nullptr;
-};
+		rendercore::Viewport* m_viewport = nullptr;
+	};
+}

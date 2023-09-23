@@ -120,7 +120,7 @@ namespace rendercore
 		return m_scene.CachedSnapshots( cachedDrawSnapshotInfo.m_renderPass )[cachedDrawSnapshotInfo.m_snapshotIndex];
 	}
 
-	PrimitiveSceneInfo::PrimitiveSceneInfo( PrimitiveComponent* component, Scene& scene ) : m_sceneProxy( component->m_sceneProxy ), m_scene( scene )
+	PrimitiveSceneInfo::PrimitiveSceneInfo( logic::PrimitiveComponent* component, Scene& scene ) : m_sceneProxy( component->m_sceneProxy ), m_scene( scene )
 	{
 	}
 

@@ -15,147 +15,154 @@
 #include <memory>
 #include <vector>
 
-enum Dirtyflag : uint8
-{
-	Position = 1 << 0,
-	Rotation = 1 << 1,
-	Scaling = 1 << 2,
-};
-
-class BaseMesh;
-class CDebugOverlayManager;
-class CGameLogic;
-class CGameObject;
-class Component;
-class InputComponent;
-class InputController;
-class RenderOption;
-class SceneComponent;
-class World;
-
 namespace json
 {
 	class Value;
 }
 
-class CGameObject : IGraphicsDeviceNotify
+namespace rendercore
 {
-	GENERATE_CLASS_TYPE_INFO( CGameObject )
+	class BaseMesh;
+	class RenderOption;
+}
 
-public:
-	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
-	virtual void Initialize( CGameLogic& gameLogic, World& world );
-
-	size_t GetID() const { return m_id; }
-	void SetID( size_t id ) { m_id = id; }
-
-	void SetPosition( const Vector& translation );
-	void SetScale3D( const Vector& scale3D );
-	void SetRotation( const Quaternion& rotation );
-
-	void SetRelativePosition( const Vector& translation );
-	void SetRelativeScale3D( const Vector& scale3D );
-	void SetRelativeRotation( const Quaternion& rotation );
-
-	const Vector& GetPosition() const;
-	const Vector& GetScale3D() const;
-	const Quaternion& GetRotation() const;
-
-	const Vector& GetRelativePosition() const;
-	const Vector& GetRelativeScale3D() const;
-	const Quaternion& GetRelativeRotation() const;
-
-	Vector GetForwardVector() const;
-	Vector GetRightVector() const;
-	Vector GetUpVector() const;
-
-	const Matrix& GetTransformMatrix();
-	const Matrix& GetInvTransformMatrix();
-
-	virtual void Think( float elapsedTime );
-
-	void SetName( const std::string& name ) { m_name = name; }
-	const std::string& GetName() const { return m_name; }
-	void SetMaterialName( const std::string& pMaterialName );
-
-	bool IsPicked() const { return m_isPicked; }
-	void SetPicked( bool isPicked ) { m_isPicked = isPicked; }
-
-	GameobjectProperty GetProperty() const { return m_property; }
-	void AddProperty( GameobjectProperty property ) { m_property |= property; }
-	void RemoveProperty( GameobjectProperty property ) { m_property &= ~property; }
-
-	bool WillRemove() const { return HasAnyFlags( m_property, GameobjectProperty::RemoveMe ); }
-
-	void LoadProperty( const json::Value& json );
-
-	virtual bool IgnorePicking() const { return false; }
-
-	SceneComponent* GetRootComponent() const { return m_rootComponent; }
-	void SetRootComponent( SceneComponent* component );
-	void RemoveComponent( const Component* component );
-
-	void SetInputController( InputController* inputController );
-
-	InputComponent* GetInputComponent();
-	void InitializeInputComponent();
-
-	World* GetWorld() const { return m_pWorld; }
-
-	CGameObject();
-	virtual ~CGameObject();
-
-protected:
-	virtual void SetupInputComponent();
-
-	template <typename T>
-	T* CreateComponent( CGameObject& gameObject, const char* name )
+namespace logic
+{
+	enum Dirtyflag : uint8
 	{
-		return new T( &gameObject, name );
-	}
+		Position = 1 << 0,
+		Rotation = 1 << 1,
+		Scaling = 1 << 2,
+	};
 
-	template <typename T>
-	T* GetComponent()
+	class CDebugOverlayManager;
+	class CGameLogic;
+	class CGameObject;
+	class Component;
+	class InputComponent;
+	class InputController;
+	class SceneComponent;
+	class World;
+
+	class CGameObject : IGraphicsDeviceNotify
 	{
-		for ( std::unique_ptr<Component>& component : m_components )
+		GENERATE_CLASS_TYPE_INFO( CGameObject )
+
+	public:
+		virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
+		virtual void Initialize( CGameLogic& gameLogic, World& world );
+
+		size_t GetID() const { return m_id; }
+		void SetID( size_t id ) { m_id = id; }
+
+		void SetPosition( const Vector& translation );
+		void SetScale3D( const Vector& scale3D );
+		void SetRotation( const Quaternion& rotation );
+
+		void SetRelativePosition( const Vector& translation );
+		void SetRelativeScale3D( const Vector& scale3D );
+		void SetRelativeRotation( const Quaternion& rotation );
+
+		const Vector& GetPosition() const;
+		const Vector& GetScale3D() const;
+		const Quaternion& GetRotation() const;
+
+		const Vector& GetRelativePosition() const;
+		const Vector& GetRelativeScale3D() const;
+		const Quaternion& GetRelativeRotation() const;
+
+		Vector GetForwardVector() const;
+		Vector GetRightVector() const;
+		Vector GetUpVector() const;
+
+		const Matrix& GetTransformMatrix();
+		const Matrix& GetInvTransformMatrix();
+
+		virtual void Think( float elapsedTime );
+
+		void SetName( const std::string& name ) { m_name = name; }
+		const std::string& GetName() const { return m_name; }
+		void SetMaterialName( const std::string& pMaterialName );
+
+		bool IsPicked() const { return m_isPicked; }
+		void SetPicked( bool isPicked ) { m_isPicked = isPicked; }
+
+		GameobjectProperty GetProperty() const { return m_property; }
+		void AddProperty( GameobjectProperty property ) { m_property |= property; }
+		void RemoveProperty( GameobjectProperty property ) { m_property &= ~property; }
+
+		bool WillRemove() const { return HasAnyFlags( m_property, GameobjectProperty::RemoveMe ); }
+
+		void LoadProperty( const json::Value& json );
+
+		virtual bool IgnorePicking() const { return false; }
+
+		SceneComponent* GetRootComponent() const { return m_rootComponent; }
+		void SetRootComponent( SceneComponent* component );
+		void RemoveComponent( const Component* component );
+
+		void SetInputController( InputController* inputController );
+
+		InputComponent* GetInputComponent();
+		void InitializeInputComponent();
+
+		World* GetWorld() const { return m_pWorld; }
+
+		CGameObject();
+		virtual ~CGameObject();
+
+	protected:
+		virtual void SetupInputComponent();
+
+		template <typename T>
+		T* CreateComponent( CGameObject& gameObject, const char* name )
 		{
-			if ( auto concrete = Cast<T>( component.get() ) )
-			{
-				return concrete;
-			}
+			return new T( &gameObject, name );
 		}
 
-		return nullptr;
-	}
+		template <typename T>
+		T* GetComponent()
+		{
+			for ( std::unique_ptr<Component>& component : m_components )
+			{
+				if ( auto concrete = Cast<T>( component.get() ) )
+				{
+					return concrete;
+				}
+			}
 
-	Component* GetComponent( const Name& name );
+			return nullptr;
+		}
 
-private:
-	void RegisterThinkFunction();
-	void UnRegisterThinkFunction();
+		Component* GetComponent( const Name& name );
 
-	size_t m_id = std::numeric_limits<size_t>::max();
-	World* m_pWorld = nullptr;
+	private:
+		void RegisterThinkFunction();
+		void UnRegisterThinkFunction();
 
-	std::string m_name;
-	std::string m_materialName;
+		size_t m_id = std::numeric_limits<size_t>::max();
+		World* m_pWorld = nullptr;
 
-	bool m_isPicked = false;
+		std::string m_name;
+		std::string m_materialName;
 
-	GameobjectProperty m_property = GameobjectProperty::None;
+		bool m_isPicked = false;
 
-	std::vector<std::unique_ptr<Component>> m_components;
-	std::map<Name, Component*> m_componentMap;
+		GameobjectProperty m_property = GameobjectProperty::None;
 
-protected:
-	GameObjectThinkFunction m_think;
+		std::vector<std::unique_ptr<Component>> m_components;
+		std::map<Name, Component*> m_componentMap;
 
-	SceneComponent* m_rootComponent = nullptr;
+	protected:
+		GameObjectThinkFunction m_think;
 
-	InputComponent* m_inputComponent = nullptr;
-	InputController* m_inputController = nullptr;
+		SceneComponent* m_rootComponent = nullptr;
 
-	friend Component;
-};
+		InputComponent* m_inputComponent = nullptr;
+		InputController* m_inputController = nullptr;
 
-void RemoveObject( CGameObject& object );
+		friend Component;
+	};
+
+	void RemoveObject( CGameObject& object );
+}

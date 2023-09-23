@@ -11,33 +11,36 @@ namespace rendercore
 	class TexturedSkyProxy;
 }
 
-class TexturedSkyComponent : public Component
+namespace logic
 {
-	GENERATE_CLASS_TYPE_INFO( TexturedSkyComponent )
+	class TexturedSkyComponent : public Component
+	{
+		GENERATE_CLASS_TYPE_INFO( TexturedSkyComponent )
 
-public:
-	using Component::Component;
+	public:
+		using Component::Component;
 
-	virtual void LoadProperty( const json::Value& json ) override;
+		virtual void LoadProperty( const json::Value& json ) override;
 
-	virtual rendercore::TexturedSkyProxy* CreateProxy() const;
+		virtual rendercore::TexturedSkyProxy* CreateProxy() const;
 
-	void SetStaticMesh( const std::shared_ptr<rendercore::StaticMesh>& pStaticMesh );
-	std::shared_ptr<rendercore::StaticMesh> GetStaticMesh() const { return m_pStaticMesh; }
+		void SetStaticMesh( const std::shared_ptr<rendercore::StaticMesh>& pStaticMesh );
+		std::shared_ptr<rendercore::StaticMesh> GetStaticMesh() const { return m_pStaticMesh; }
 
-	void SetMaterial( const std::shared_ptr<rendercore::Material>& pMaterial );
-	std::shared_ptr<rendercore::Material> GetMaterial() const { return m_pMaterial; }
+		void SetMaterial( const std::shared_ptr<rendercore::Material>& pMaterial );
+		std::shared_ptr<rendercore::Material> GetMaterial() const { return m_pMaterial; }
 
-	rendercore::TexturedSkyProxy* m_texturedSkyProxy = nullptr;
+		rendercore::TexturedSkyProxy* m_texturedSkyProxy = nullptr;
 
-protected:
-	virtual bool ShouldCreateRenderState() const override;
-	virtual void CreateRenderState() override;
-	virtual void RemoveRenderState() override;
+	protected:
+		virtual bool ShouldCreateRenderState() const override;
+		virtual void CreateRenderState() override;
+		virtual void RemoveRenderState() override;
 
-private:
-	void OnMaterialLoadFinished( const std::shared_ptr<void>& material );
+	private:
+		void OnMaterialLoadFinished( const std::shared_ptr<void>& material );
 
-	std::shared_ptr<rendercore::StaticMesh> m_pStaticMesh = nullptr;
-	std::shared_ptr<rendercore::Material> m_pMaterial = nullptr;
-};
+		std::shared_ptr<rendercore::StaticMesh> m_pStaticMesh = nullptr;
+		std::shared_ptr<rendercore::Material> m_pMaterial = nullptr;
+	};
+}

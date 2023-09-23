@@ -2,7 +2,10 @@
 
 #include "common.h"
 
-class SkyAtmosphereComponent;
+namespace logic
+{
+	class SkyAtmosphereComponent;
+}
 
 namespace rendercore
 {
@@ -11,7 +14,7 @@ namespace rendercore
 	class SkyAtmospherePorxy
 	{
 	public:
-		RENDERCORE_DLL SkyAtmospherePorxy( const SkyAtmosphereComponent& component );
+		RENDERCORE_DLL SkyAtmospherePorxy( const logic::SkyAtmosphereComponent& component );
 
 		SkyAtmosphereRenderSceneInfo*& RenderSceneInfo();
 

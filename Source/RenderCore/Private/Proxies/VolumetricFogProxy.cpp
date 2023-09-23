@@ -44,7 +44,7 @@ namespace rendercore
 		return m_shadowBias;
 	}
 
-	VolumetricFogProxy::VolumetricFogProxy( const VolumetricFogComponent& component )
+	VolumetricFogProxy::VolumetricFogProxy( const logic::VolumetricFogComponent& component )
 		: m_frustumGridSize( component.FrustumGridSize() )
 		, m_g( component.G() )
 		, m_uniformDensity( component.UniformDensity() )

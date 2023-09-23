@@ -5,12 +5,14 @@
 #include <memory>
 #include <vector>
 
-class CGameObject;
-class CGameLogic;
-
-class CWorldLoader
+namespace logic
 {
-public:
-	static bool Load( CGameLogic& gameLogic, const char* worldAsset, size_t assetSize );
-};
+	class CGameObject;
+	class CGameLogic;
 
+	class CWorldLoader
+	{
+	public:
+		static bool Load( CGameLogic& gameLogic, const char* worldAsset, size_t assetSize );
+	};
+}

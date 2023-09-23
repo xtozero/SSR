@@ -5,20 +5,23 @@
 
 #include <optional>
 
-class ShapeComponent : public PrimitiveComponent
+namespace logic
 {
-	GENERATE_CLASS_TYPE_INFO( ShapeComponent )
+	class ShapeComponent : public PrimitiveComponent
+	{
+		GENERATE_CLASS_TYPE_INFO( ShapeComponent )
 
-public:
-	using PrimitiveComponent::PrimitiveComponent;
+	public:
+		using PrimitiveComponent::PrimitiveComponent;
 
-	virtual rendercore::PrimitiveProxy* CreateProxy() const override;
-	virtual BodySetup* GetBodySetup() override;
-	virtual void UpdateBodySetup();
+		virtual rendercore::PrimitiveProxy* CreateProxy() const override;
+		virtual BodySetup* GetBodySetup() override;
+		virtual void UpdateBodySetup();
 
-protected:
-	template <typename T>
-	void CreateBodySetup();
+	protected:
+		template <typename T>
+		void CreateBodySetup();
 
-	std::optional<BodySetup> m_bodySetup;
-};
+		std::optional<BodySetup> m_bodySetup;
+	};
+}

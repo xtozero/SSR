@@ -8,35 +8,38 @@
 
 #include <tchar.h>
 
-bool CWorldLoader::Load( CGameLogic& gameLogic, const char* worldAsset, size_t assetSize )
+namespace logic
 {
-	json::Value root( json::DataType::Empty );
-	json::Reader reader;
-
-	if ( reader.Parse( worldAsset, assetSize, root ) )
+	bool CWorldLoader::Load( CGameLogic& gameLogic, const char* worldAsset, size_t assetSize )
 	{
-		const json::Value* pWorld = root.Find( "World" );
-		if ( pWorld == nullptr )
-		{
-			return false;
-		}
+		json::Value root( json::DataType::Empty );
+		json::Reader reader;
 
-		for ( const json::Value& elem : *pWorld )
+		if ( reader.Parse( worldAsset, assetSize, root ) )
 		{
-			if ( const json::Value* pObject = elem.Find( "Object" ) )
+			const json::Value* pWorld = root.Find( "World" );
+			if ( pWorld == nullptr )
 			{
-				Owner<CGameObject*> newObject = GetGameObjectFactory( ).CreateGameObjectByClassName( ( *pObject )["Class"].AsString( ) );
+				return false;
+			}
 
-				if ( newObject )
+			for ( const json::Value& elem : *pWorld )
+			{
+				if ( const json::Value* pObject = elem.Find( "Object" ) )
 				{
-					newObject->LoadProperty( *pObject );
-					gameLogic.SpawnObject( newObject );
+					Owner<CGameObject*> newObject = GetGameObjectFactory().CreateGameObjectByClassName( ( *pObject )["Class"].AsString() );
+
+					if ( newObject )
+					{
+						newObject->LoadProperty( *pObject );
+						gameLogic.SpawnObject( newObject );
+					}
 				}
 			}
+
+			return true;
 		}
 
-		return true;
+		return false;
 	}
-
-	return false;
 }

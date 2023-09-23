@@ -15,105 +15,109 @@
 #include <memory>
 #include <vector>
 
-class PhysicsScene;
-class PrimitiveComponent;
 class Transform;
 
-struct AggregateGeom;
-
-struct PhysicsHandle
+namespace logic
 {
-	size_t m_id;
-	PhysicsScene* m_scene;
+	class PhysicsScene;
+	class PrimitiveComponent;
 
-	std::strong_ordering operator<=>( const PhysicsHandle& other ) const = default;
-};
+	struct AggregateGeom;
 
-class PhysicsBody : public RigidBody
-{
-public:
-	BoxSphereBounds Bounds() const;
-
-	const ICollider* GetCollider();
-	void AddCollider( std::vector<std::unique_ptr<ICollider>>& colliders );
-
-	int32 GetDirty() const 
-	{ 
-		return m_dirtyFlag; 
-	}
-
-	void SetDirty( int32 dirtyFlag ) 
-	{ 
-		m_dirtyFlag |= dirtyFlag; 
-	}
-
-	void ResetDirty() 
-	{ 
-		m_dirtyFlag = 0; 
-	}
-
-	PrimitiveComponent* GetOwnerComponent()
+	struct PhysicsHandle
 	{
-		return m_ownerComponent;
-	}
+		size_t m_id;
+		PhysicsScene* m_scene;
 
-	void SetOwerComponent( PrimitiveComponent* ownerComponent )
+		std::strong_ordering operator<=>( const PhysicsHandle& other ) const = default;
+	};
+
+	class PhysicsBody : public RigidBody
 	{
-		m_ownerComponent = ownerComponent;
-	}
+	public:
+		BoxSphereBounds Bounds() const;
 
-private:
-	std::unique_ptr<ICollider> m_collider;
-	BoxSphereBounds m_bounds;
-	int32 m_dirtyFlag = 0;
-	PrimitiveComponent* m_ownerComponent = nullptr;
-};
+		const ICollider* GetCollider();
+		void AddCollider( std::vector<std::unique_ptr<ICollider>>& colliders );
 
-class SceneForceGenerator
-{
-public:
-	void Add( const PhysicsHandle& handle, ForceGenerator* fg );
-	void Remove( const PhysicsHandle& handle );
+		int32 GetDirty() const
+		{
+			return m_dirtyFlag;
+		}
 
-	void Clear();
+		void SetDirty( int32 dirtyFlag )
+		{
+			m_dirtyFlag |= dirtyFlag;
+		}
 
-	void GenerateForces( float duration );
+		void ResetDirty()
+		{
+			m_dirtyFlag = 0;
+		}
 
-private:
-	std::map<ForceGenerator*, SparseArray<PhysicsHandle>> m_entries;
-};
+		PrimitiveComponent* GetOwnerComponent()
+		{
+			return m_ownerComponent;
+		}
 
-class PhysicsScene
-{
-public:
-	void BeginFrame( float elapsedTime );
-	void EndFrame();
+		void SetOwerComponent( PrimitiveComponent* ownerComponent )
+		{
+			m_ownerComponent = ownerComponent;
+		}
 
-	PhysicsHandle CreatePhysicBody( PrimitiveComponent& ownerComponent, const Transform& bodyTransform );
-	void DeletePhysicsBody( const PhysicsHandle& handle );
+	private:
+		std::unique_ptr<ICollider> m_collider;
+		BoxSphereBounds m_bounds;
+		int32 m_dirtyFlag = 0;
+		PrimitiveComponent* m_ownerComponent = nullptr;
+	};
 
-	PhysicsBody& GetPhysicsBody( const PhysicsHandle& handle );
+	class SceneForceGenerator
+	{
+	public:
+		void Add( const PhysicsHandle& handle, ForceGenerator* fg );
+		void Remove( const PhysicsHandle& handle );
 
-private:
-	void PreparePhysics();
-	void RunPhysics( float elapsedTime );
-	int32 GenerateContacts();
+		void Clear();
 
-	SceneForceGenerator m_forceGenerator;
+		void GenerateForces( float duration );
 
-	// Collision Acceleration
-	BVHTree<BoxSphereBounds, PhysicsBody> m_bvhTree;
+	private:
+		std::map<ForceGenerator*, SparseArray<PhysicsHandle>> m_entries;
+	};
 
-	static constexpr uint32 MAX_CONTACTS = 256;
-	Contact m_contacts[MAX_CONTACTS];
-	ContactResolver m_resolver;
-	CollisionData m_collisionData;
+	class PhysicsScene
+	{
+	public:
+		void BeginFrame( float elapsedTime );
+		void EndFrame();
 
-	Gravity m_gravity = Gravity( Vector( 0.f, -9.8f, 0.f ) );
+		PhysicsHandle CreatePhysicBody( PrimitiveComponent& ownerComponent, const Transform& bodyTransform );
+		void DeletePhysicsBody( const PhysicsHandle& handle );
 
-	float m_remainingSimulateTime = 0.f;
+		PhysicsBody& GetPhysicsBody( const PhysicsHandle& handle );
 
-	SparseArray<PhysicsBody> m_bodies;
-};
+	private:
+		void PreparePhysics();
+		void RunPhysics( float elapsedTime );
+		int32 GenerateContacts();
 
-void AddCollider( const PhysicsHandle& handle, const Vector& scale3D, const AggregateGeom& geometries );
+		SceneForceGenerator m_forceGenerator;
+
+		// Collision Acceleration
+		BVHTree<BoxSphereBounds, PhysicsBody> m_bvhTree;
+
+		static constexpr uint32 MAX_CONTACTS = 256;
+		Contact m_contacts[MAX_CONTACTS];
+		ContactResolver m_resolver;
+		CollisionData m_collisionData;
+
+		Gravity m_gravity = Gravity( Vector( 0.f, -9.8f, 0.f ) );
+
+		float m_remainingSimulateTime = 0.f;
+
+		SparseArray<PhysicsBody> m_bodies;
+	};
+
+	void AddCollider( const PhysicsHandle& handle, const Vector& scale3D, const AggregateGeom& geometries );
+}

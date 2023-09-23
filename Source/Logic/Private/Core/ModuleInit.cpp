@@ -5,7 +5,7 @@
 
 namespace
 {
-	ILogic* g_gameLogic = nullptr;
+	logic::ILogic* g_gameLogic = nullptr;
 
 	void* GetGameLogic( )
 	{
@@ -13,16 +13,19 @@ namespace
 	}
 }
 
-LOGIC_FUNC_DLL void BootUpModules( )
+namespace logic
 {
-	RegisterFactory<ILogic>( &GetGameLogic );
+	LOGIC_FUNC_DLL void BootUpModules()
+	{
+		RegisterFactory<ILogic>( &GetGameLogic );
 
-	g_gameLogic = CreateGameLogic( );
-}
+		g_gameLogic = CreateGameLogic();
+	}
 
-LOGIC_FUNC_DLL void ShutdownModules( )
-{
-	DestroyGameLogic( g_gameLogic );
+	LOGIC_FUNC_DLL void ShutdownModules()
+	{
+		DestroyGameLogic( g_gameLogic );
 
-	UnregisterFactory<ILogic>( );
+		UnregisterFactory<ILogic>();
+	}
 }

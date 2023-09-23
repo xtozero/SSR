@@ -5,134 +5,137 @@
 #include "Scene/IScene.h"
 #include "World/World.h"
 
-void VolumetricCloudComponent::LoadProperty( const json::Value& json )
+namespace logic
 {
-	Super::LoadProperty( json );
-
-	if ( const json::Value* pEarthRadius = json.Find( "EarthRadius" ) )
+	void VolumetricCloudComponent::LoadProperty( const json::Value& json )
 	{
-		SetEarthRadius( static_cast<float>( pEarthRadius->AsReal() ) );
-	}
+		Super::LoadProperty( json );
 
-	if ( const json::Value* pInnerRadius = json.Find( "InnerRadius" ) )
-	{
-		SetInnerRadius( static_cast<float>( pInnerRadius->AsReal() ) );
-	}
-
-	if ( const json::Value* pOuterRadius = json.Find( "OuterRadius" ) )
-	{
-		SetOuterRadius( static_cast<float>( pOuterRadius->AsReal() ) );
-	}
-
-	if ( const json::Value* pLightAbsorption = json.Find( "LightAbsorption" ) )
-	{
-		SetLightAbsorption( static_cast<float>( pLightAbsorption->AsReal() ) );
-	}
-
-	if ( const json::Value* pDensityScale = json.Find( "DensityScale" ) )
-	{
-		SetDensityScale( static_cast<float>( pDensityScale->AsReal() ) );
-	}
-
-	if ( const json::Value* pCloudColor = json.Find( "CloudColor" ) )
-	{
-		const json::Value& cloudColor = *pCloudColor;
-
-		if ( cloudColor.Size() == 3 )
+		if ( const json::Value* pEarthRadius = json.Find( "EarthRadius" ) )
 		{
-			SetCloudColor(
-				ColorF( static_cast<float>( cloudColor[0].AsReal() )
-					, static_cast<float>( cloudColor[1].AsReal() )
-					, static_cast<float>( cloudColor[2].AsReal() )
-					, 1.f ) );
+			SetEarthRadius( static_cast<float>( pEarthRadius->AsReal() ) );
+		}
+
+		if ( const json::Value* pInnerRadius = json.Find( "InnerRadius" ) )
+		{
+			SetInnerRadius( static_cast<float>( pInnerRadius->AsReal() ) );
+		}
+
+		if ( const json::Value* pOuterRadius = json.Find( "OuterRadius" ) )
+		{
+			SetOuterRadius( static_cast<float>( pOuterRadius->AsReal() ) );
+		}
+
+		if ( const json::Value* pLightAbsorption = json.Find( "LightAbsorption" ) )
+		{
+			SetLightAbsorption( static_cast<float>( pLightAbsorption->AsReal() ) );
+		}
+
+		if ( const json::Value* pDensityScale = json.Find( "DensityScale" ) )
+		{
+			SetDensityScale( static_cast<float>( pDensityScale->AsReal() ) );
+		}
+
+		if ( const json::Value* pCloudColor = json.Find( "CloudColor" ) )
+		{
+			const json::Value& cloudColor = *pCloudColor;
+
+			if ( cloudColor.Size() == 3 )
+			{
+				SetCloudColor(
+					ColorF( static_cast<float>( cloudColor[0].AsReal() )
+						, static_cast<float>( cloudColor[1].AsReal() )
+						, static_cast<float>( cloudColor[2].AsReal() )
+						, 1.f ) );
+			}
+		}
+
+		if ( const json::Value* pCrispiness = json.Find( "Crispiness" ) )
+		{
+			SetCrispiness( static_cast<float>( pCrispiness->AsReal() ) );
+		}
+
+		if ( const json::Value* pCurliness = json.Find( "Curliness" ) )
+		{
+			SetCurliness( static_cast<float>( pCurliness->AsReal() ) );
+		}
+
+		if ( const json::Value* pDensityFactor = json.Find( "DensityFactor" ) )
+		{
+			SetDensityFactor( static_cast<float>( pDensityFactor->AsReal() ) );
 		}
 	}
 
-	if ( const json::Value* pCrispiness = json.Find( "Crispiness" ) )
+	BoxSphereBounds VolumetricCloudComponent::CalcBounds( const Matrix& transform )
 	{
-		SetCrispiness( static_cast<float>( pCrispiness->AsReal() ) );
+		BoxSphereBounds bounds( Vector::ZeroVector, Vector::OneVector, 1.73205f );
+		return bounds.TransformBy( transform );
 	}
 
-	if ( const json::Value* pCurliness = json.Find( "Curliness" ) )
+	rendercore::VolumetricCloudProxy* VolumetricCloudComponent::CreateProxy()
 	{
-		SetCurliness( static_cast<float>( pCurliness->AsReal() ) );
+		return new rendercore::VolumetricCloudProxy( *this );
 	}
 
-	if ( const json::Value* pDensityFactor = json.Find( "DensityFactor" ) )
+	void VolumetricCloudComponent::SetEarthRadius( float earthRadius )
 	{
-		SetDensityFactor( static_cast<float>( pDensityFactor->AsReal() ) );
+		m_earthRadius = earthRadius;
 	}
-}
 
-BoxSphereBounds VolumetricCloudComponent::CalcBounds( const Matrix& transform )
-{
-	BoxSphereBounds bounds( Vector::ZeroVector, Vector::OneVector, 1.73205f );
-	return bounds.TransformBy( transform );
-}
+	void VolumetricCloudComponent::SetInnerRadius( float innerRadius )
+	{
+		m_innerRadius = innerRadius;
+	}
 
-rendercore::VolumetricCloudProxy* VolumetricCloudComponent::CreateProxy()
-{
-	return new rendercore::VolumetricCloudProxy( *this );
-}
+	void VolumetricCloudComponent::SetOuterRadius( float outerRadius )
+	{
+		m_outerRadius = outerRadius;
+	}
 
-void VolumetricCloudComponent::SetEarthRadius( float earthRadius )
-{
-	m_earthRadius = earthRadius;
-}
+	void VolumetricCloudComponent::SetLightAbsorption( float lightAbsorption )
+	{
+		m_lightAbsorption = lightAbsorption;
+	}
 
-void VolumetricCloudComponent::SetInnerRadius( float innerRadius )
-{
-	m_innerRadius = innerRadius;
-}
+	void VolumetricCloudComponent::SetDensityScale( float densityScale )
+	{
+		m_densityScale = densityScale;
+	}
 
-void VolumetricCloudComponent::SetOuterRadius( float outerRadius )
-{
-	m_outerRadius = outerRadius;
-}
+	void VolumetricCloudComponent::SetCloudColor( const ColorF& cloudColor )
+	{
+		m_cloudColor = cloudColor;
+	}
 
-void VolumetricCloudComponent::SetLightAbsorption( float lightAbsorption )
-{
-	m_lightAbsorption = lightAbsorption;
-}
+	void VolumetricCloudComponent::SetCrispiness( float crispiness )
+	{
+		m_crispiness = crispiness;
+	}
 
-void VolumetricCloudComponent::SetDensityScale( float densityScale )
-{
-	m_densityScale = densityScale;
-}
+	void VolumetricCloudComponent::SetCurliness( float curliness )
+	{
+		m_curliness = curliness;
+	}
 
-void VolumetricCloudComponent::SetCloudColor( const ColorF& cloudColor )
-{
-	m_cloudColor = cloudColor;
-}
+	void VolumetricCloudComponent::SetDensityFactor( float densityFactor )
+	{
+		m_densityFactor = densityFactor;
+	}
 
-void VolumetricCloudComponent::SetCrispiness( float crispiness )
-{
-	m_crispiness = crispiness;
-}
+	bool VolumetricCloudComponent::ShouldCreateRenderState() const
+	{
+		return true;
+	}
 
-void VolumetricCloudComponent::SetCurliness( float curliness )
-{
-	m_curliness = curliness;
-}
+	void VolumetricCloudComponent::CreateRenderState()
+	{
+		Super::CreateRenderState();
+		m_pWorld->Scene()->AddVolumetricCloud( this );
+	}
 
-void VolumetricCloudComponent::SetDensityFactor( float densityFactor )
-{
-	m_densityFactor = densityFactor;
-}
-
-bool VolumetricCloudComponent::ShouldCreateRenderState() const
-{
-	return true;
-}
-
-void VolumetricCloudComponent::CreateRenderState()
-{
-	Super::CreateRenderState();
-	m_pWorld->Scene()->AddVolumetricCloud( this );
-}
-
-void VolumetricCloudComponent::RemoveRenderState()
-{
-	Super::RemoveRenderState();
-	m_pWorld->Scene()->RemoveVolumetricCloud( this );
+	void VolumetricCloudComponent::RemoveRenderState()
+	{
+		Super::RemoveRenderState();
+		m_pWorld->Scene()->RemoveVolumetricCloud( this );
+	}
 }

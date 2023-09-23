@@ -14,7 +14,7 @@
 
 namespace rendercore
 {
-	StaticMeshPrimitiveProxy::StaticMeshPrimitiveProxy( const StaticMeshComponent& component ) : m_pStaticMesh( component.GetStaticMesh() ), m_pRenderData( m_pStaticMesh->RenderData() ), m_pRenderOption( component.GetRenderOption() )
+	StaticMeshPrimitiveProxy::StaticMeshPrimitiveProxy( const logic::StaticMeshComponent& component ) : m_pStaticMesh( component.GetStaticMesh() ), m_pRenderData( m_pStaticMesh->RenderData() ), m_pRenderOption( component.GetRenderOption() )
 	{
 
 	}

@@ -6,99 +6,102 @@
 #include "Scene/IScene.h"
 #include "World/World.h"
 
-void PrimitiveComponent::SendRenderTransform()
+namespace logic
 {
-	UpdateBounds();
-
-	m_pWorld->Scene()->UpdatePrimitiveTransform( this );
-
-	Super::SendRenderTransform();
-}
-
-void PrimitiveComponent::LoadProperty( const json::Value& json )
-{
-	Super::LoadProperty( json );
-
-	if ( const json::Value* pMass = json.Find( "Mass" ) )
+	void PrimitiveComponent::SendRenderTransform()
 	{
-		float mass = static_cast<float>( pMass->AsReal() );
-		SetMass( mass );
+		UpdateBounds();
+
+		m_pWorld->Scene()->UpdatePrimitiveTransform( this );
+
+		Super::SendRenderTransform();
 	}
 
-	if ( const json::Value* pDamping = json.Find( "Damping" ) )
+	void PrimitiveComponent::LoadProperty( const json::Value& json )
 	{
-		const json::Value& damping = *pDamping;
+		Super::LoadProperty( json );
 
-		if ( damping.Size() == 2 )
+		if ( const json::Value* pMass = json.Find( "Mass" ) )
 		{
-			SetLinearDamping( static_cast<float>( damping[0].AsReal() ) );
-			SetAngularDamping( static_cast<float>( damping[1].AsReal() ) );
+			float mass = static_cast<float>( pMass->AsReal() );
+			SetMass( mass );
+		}
+
+		if ( const json::Value* pDamping = json.Find( "Damping" ) )
+		{
+			const json::Value& damping = *pDamping;
+
+			if ( damping.Size() == 2 )
+			{
+				SetLinearDamping( static_cast<float>( damping[0].AsReal() ) );
+				SetAngularDamping( static_cast<float>( damping[1].AsReal() ) );
+			}
 		}
 	}
-}
 
-void PrimitiveComponent::SetMass( float mass )
-{
-	m_bodyInstance.SetMass( mass );
-}
-
-void PrimitiveComponent::SetLinearDamping( float linearDamping )
-{
-	m_bodyInstance.SetLinearDamping( linearDamping );
-}
-
-void PrimitiveComponent::SetAngularDamping( float angularDamping )
-{
-	m_bodyInstance.SetAngularDamping( angularDamping );
-}
-
-const Matrix& PrimitiveComponent::GetRenderMatrix()
-{
-	return GetTransformMatrix();
-}
-
-bool PrimitiveComponent::ShouldCreateRenderState() const
-{
-	return true;
-}
-
-void PrimitiveComponent::CreateRenderState()
-{
-	Super::CreateRenderState();
-	m_pWorld->Scene()->AddPrimitive( this );
-}
-
-void PrimitiveComponent::RemoveRenderState()
-{
-	Super::RemoveRenderState();
-	m_pWorld->Scene()->RemovePrimitive( this );
-}
-
-bool PrimitiveComponent::ShouldCreatePhysicsState() const
-{
-	return true;
-}
-
-void PrimitiveComponent::OnCreatePhysicsState()
-{
-	Super::OnCreatePhysicsState();
-
-	if ( m_bodyInstance.IsValid() == false )
+	void PrimitiveComponent::SetMass( float mass )
 	{
-		BodySetup* bodySetup = GetBodySetup();
-		if ( bodySetup )
+		m_bodyInstance.SetMass( mass );
+	}
+
+	void PrimitiveComponent::SetLinearDamping( float linearDamping )
+	{
+		m_bodyInstance.SetLinearDamping( linearDamping );
+	}
+
+	void PrimitiveComponent::SetAngularDamping( float angularDamping )
+	{
+		m_bodyInstance.SetAngularDamping( angularDamping );
+	}
+
+	const Matrix& PrimitiveComponent::GetRenderMatrix()
+	{
+		return GetTransformMatrix();
+	}
+
+	bool PrimitiveComponent::ShouldCreateRenderState() const
+	{
+		return true;
+	}
+
+	void PrimitiveComponent::CreateRenderState()
+	{
+		Super::CreateRenderState();
+		m_pWorld->Scene()->AddPrimitive( this );
+	}
+
+	void PrimitiveComponent::RemoveRenderState()
+	{
+		Super::RemoveRenderState();
+		m_pWorld->Scene()->RemovePrimitive( this );
+	}
+
+	bool PrimitiveComponent::ShouldCreatePhysicsState() const
+	{
+		return true;
+	}
+
+	void PrimitiveComponent::OnCreatePhysicsState()
+	{
+		Super::OnCreatePhysicsState();
+
+		if ( m_bodyInstance.IsValid() == false )
 		{
-			m_bodyInstance.InitBody( *this, *bodySetup, GetTransform(), *m_pWorld->GetPhysicsScene());
+			BodySetup* bodySetup = GetBodySetup();
+			if ( bodySetup )
+			{
+				m_bodyInstance.InitBody( *this, *bodySetup, GetTransform(), *m_pWorld->GetPhysicsScene() );
+			}
 		}
 	}
-}
 
-void PrimitiveComponent::OnDestroyPhysicsState()
-{
-	if ( m_bodyInstance.IsValid() )
+	void PrimitiveComponent::OnDestroyPhysicsState()
 	{
-		m_bodyInstance.TermBody();
-	}
+		if ( m_bodyInstance.IsValid() )
+		{
+			m_bodyInstance.TermBody();
+		}
 
-	Super::OnDestroyPhysicsState();
+		Super::OnDestroyPhysicsState();
+	}
 }

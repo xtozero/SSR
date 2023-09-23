@@ -5,18 +5,21 @@
 
 #include <vector>
 
-class UICMap
+namespace engine
 {
-public:
-	void Initialize( );
+	class UICMap
+	{
+	public:
+		void Initialize();
 
-	UserInputCode Convert( uint32 code );
+		UserInputCode Convert( uint32 code );
 
-	bool LoadConfig( const char* fileName );
+		bool LoadConfig( const char* fileName );
 
-private:
-	void LoadKeyCode( const char* uicAsset, size_t assetSize );
+	private:
+		void LoadKeyCode( const char* uicAsset, size_t assetSize );
 
-	using CodePair = std::pair<uint32, UserInputCode>;
-	std::vector<CodePair> m_codeMap;
-};
+		using CodePair = std::pair<uint32, UserInputCode>;
+		std::vector<CodePair> m_codeMap;
+	};
+}

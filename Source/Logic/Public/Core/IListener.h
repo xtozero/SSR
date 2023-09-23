@@ -2,15 +2,18 @@
 
 #include "UserInput/UserInput.h"
 
-class CGameLogic;
-
-class IListener
+namespace logic
 {
-public:
-	virtual void ProcessInput( const UserInput&, CGameLogic& gameLogic ) = 0;
+	class CGameLogic;
 
-	virtual ~IListener( ) = default;
+	class IListener
+	{
+	public:
+		virtual void ProcessInput( const engine::UserInput&, CGameLogic& gameLogic ) = 0;
 
-protected:
-	IListener( ) = default;
-};
+		virtual ~IListener() = default;
+
+	protected:
+		IListener() = default;
+	};
+}

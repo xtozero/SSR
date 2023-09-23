@@ -2,15 +2,18 @@
 
 #include "GameObject.h"
 
-class VolumetricCloudComponent;
-
-class VolumetricCloud : public CGameObject
+namespace logic
 {
-	GENERATE_CLASS_TYPE_INFO( VolumetricCloud )
+	class VolumetricCloudComponent;
 
-public:
-	VolumetricCloud();
+	class VolumetricCloud : public CGameObject
+	{
+		GENERATE_CLASS_TYPE_INFO( VolumetricCloud )
 
-private:
-	VolumetricCloudComponent* m_volumetricCloudComponent = nullptr;
-};
+	public:
+		VolumetricCloud();
+
+	private:
+		VolumetricCloudComponent* m_volumetricCloudComponent = nullptr;
+	};
+}

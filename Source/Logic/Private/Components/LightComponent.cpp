@@ -7,170 +7,173 @@
 #include "Scene/IScene.h"
 #include "World/World.h"
 
-void LightComponent::LoadProperty( const json::Value& json )
+namespace logic
 {
-	Super::LoadProperty( json );
-
-	if ( const json::Value* pDiffuse = json.Find( "Diffuse" ) )
+	void LightComponent::LoadProperty( const json::Value& json )
 	{
-		const json::Value& diffuse = *pDiffuse;
+		Super::LoadProperty( json );
 
-		if ( diffuse.Size() >= 4 )
+		if ( const json::Value* pDiffuse = json.Find( "Diffuse" ) )
 		{
-			float r = static_cast<float>( diffuse[0].AsReal() );
-			float g = static_cast<float>( diffuse[1].AsReal() );
-			float b = static_cast<float>( diffuse[2].AsReal() );
-			float a = static_cast<float>( diffuse[3].AsReal() );
+			const json::Value& diffuse = *pDiffuse;
 
-			SetDiffuseColor( ColorF( r, g, b, a ) );
+			if ( diffuse.Size() >= 4 )
+			{
+				float r = static_cast<float>( diffuse[0].AsReal() );
+				float g = static_cast<float>( diffuse[1].AsReal() );
+				float b = static_cast<float>( diffuse[2].AsReal() );
+				float a = static_cast<float>( diffuse[3].AsReal() );
+
+				SetDiffuseColor( ColorF( r, g, b, a ) );
+			}
+		}
+
+		if ( const json::Value* pSpecular = json.Find( "Specular" ) )
+		{
+			const json::Value& specluar = *pSpecular;
+
+			if ( specluar.Size() >= 4 )
+			{
+				float r = static_cast<float>( specluar[0].AsReal() );
+				float g = static_cast<float>( specluar[1].AsReal() );
+				float b = static_cast<float>( specluar[2].AsReal() );
+				float a = static_cast<float>( specluar[3].AsReal() );
+
+				SetSpecularColor( ColorF( r, g, b, a ) );
+			}
+		}
+
+		if ( const json::Value* pCastShadow = json.Find( "CastShadow" ) )
+		{
+			const json::Value& castShadow = *pCastShadow;
+
+			CastShadow() = castShadow.AsBool();
 		}
 	}
 
-	if ( const json::Value* pSpecular = json.Find( "Specular" ) )
+	void LightComponent::SetDiffuseColor( const ColorF& diffuseColor )
 	{
-		const json::Value& specluar = *pSpecular;
+		m_diffuse = diffuseColor;
+	}
 
-		if ( specluar.Size() >= 4 )
+	void LightComponent::SetSpecularColor( const ColorF& specularColor )
+	{
+		m_specular = specularColor;
+	}
+
+	void DirectionalLightComponent::LoadProperty( const json::Value& json )
+	{
+		Super::LoadProperty( json );
+
+		if ( const json::Value* pDirection = json.Find( "Direction" ) )
 		{
-			float r = static_cast<float>( specluar[0].AsReal() );
-			float g = static_cast<float>( specluar[1].AsReal() );
-			float b = static_cast<float>( specluar[2].AsReal() );
-			float a = static_cast<float>( specluar[3].AsReal() );
+			const json::Value& direction = *pDirection;
 
-			SetSpecularColor( ColorF( r, g, b, a ) );
+			if ( direction.Size() >= 3 )
+			{
+				float x = static_cast<float>( direction[0].AsReal() );
+				float y = static_cast<float>( direction[1].AsReal() );
+				float z = static_cast<float>( direction[2].AsReal() );
+
+				Vector vDir( x, y, z );
+				SetDirection( vDir.GetNormalized() );
+			}
+		}
+
+		if ( const json::Value* pUsedAsAtmosphereSunLight = json.Find( "UsedAsAtmosphereSunLight" ) )
+		{
+			bool usedAsAtmosphereSunLight = pUsedAsAtmosphereSunLight->AsBool();
+			SetUsedAsAtmosphereSunLight( usedAsAtmosphereSunLight );
 		}
 	}
 
-	if ( const json::Value* pCastShadow = json.Find( "CastShadow" ) )
+	rendercore::LightProxy* DirectionalLightComponent::CreateProxy() const
 	{
-		const json::Value& castShadow = *pCastShadow;
-
-		CastShadow() = castShadow.AsBool();
+		return new rendercore::DirectionalLightProxy( *this );
 	}
-}
 
-void LightComponent::SetDiffuseColor( const ColorF& diffuseColor )
-{
-	m_diffuse = diffuseColor;
-}
-
-void LightComponent::SetSpecularColor( const ColorF& specularColor )
-{
-	m_specular = specularColor;
-}
-
-void DirectionalLightComponent::LoadProperty( const json::Value& json )
-{
-	Super::LoadProperty( json );
-
-	if ( const json::Value* pDirection = json.Find( "Direction" ) )
+	void DirectionalLightComponent::SetDirection( const Vector& direction )
 	{
-		const json::Value& direction = *pDirection;
+		m_direction = direction;
+	}
 
-		if ( direction.Size() >= 3 )
+	bool DirectionalLightComponent::ShouldCreateRenderState() const
+	{
+		return true;
+	}
+
+	void DirectionalLightComponent::CreateRenderState()
+	{
+		Super::CreateRenderState();
+		m_pWorld->Scene()->AddLight( this );
+	}
+
+	void DirectionalLightComponent::RemoveRenderState()
+	{
+		Super::RemoveRenderState();
+		m_pWorld->Scene()->RemoveLight( this );
+	}
+
+	void HemisphereLightComponent::LoadProperty( const json::Value& json )
+	{
+		Super::LoadProperty( json );
+
+		if ( const json::Value* pLowerColor = json.Find( "LowerColor" ) )
 		{
-			float x = static_cast<float>( direction[0].AsReal() );
-			float y = static_cast<float>( direction[1].AsReal() );
-			float z = static_cast<float>( direction[2].AsReal() );
+			const json::Value& lowerColor = *pLowerColor;
 
-			Vector vDir( x, y, z );
-			SetDirection( vDir.GetNormalized() );
+			if ( lowerColor.Size() >= 4 )
+			{
+				float r = static_cast<float>( lowerColor[0].AsReal() );
+				float g = static_cast<float>( lowerColor[1].AsReal() );
+				float b = static_cast<float>( lowerColor[2].AsReal() );
+				float a = static_cast<float>( lowerColor[3].AsReal() );
+
+				SetLowerColor( ColorF( r, g, b, a ) );
+			}
+		}
+
+		if ( const json::Value* pUpperColor = json.Find( "UpperColor" ) )
+		{
+			const json::Value& upperColor = *pUpperColor;
+
+			if ( upperColor.Size() >= 4 )
+			{
+				float r = static_cast<float>( upperColor[0].AsReal() );
+				float g = static_cast<float>( upperColor[1].AsReal() );
+				float b = static_cast<float>( upperColor[2].AsReal() );
+				float a = static_cast<float>( upperColor[3].AsReal() );
+
+				SetUpperColor( ColorF( r, g, b, a ) );
+			}
 		}
 	}
 
-	if ( const json::Value* pUsedAsAtmosphereSunLight = json.Find( "UsedAsAtmosphereSunLight" ) )
+	rendercore::HemisphereLightProxy* HemisphereLightComponent::CreateProxy() const
 	{
-		bool usedAsAtmosphereSunLight = pUsedAsAtmosphereSunLight->AsBool();
-		SetUsedAsAtmosphereSunLight( usedAsAtmosphereSunLight );
-	}
-}
-
-rendercore::LightProxy* DirectionalLightComponent::CreateProxy() const
-{
-	return new rendercore::DirectionalLightProxy( *this );
-}
-
-void DirectionalLightComponent::SetDirection( const Vector& direction )
-{
-	m_direction = direction;
-}
-
-bool DirectionalLightComponent::ShouldCreateRenderState() const
-{
-	return true;
-}
-
-void DirectionalLightComponent::CreateRenderState()
-{
-	Super::CreateRenderState();
-	m_pWorld->Scene()->AddLight( this );
-}
-
-void DirectionalLightComponent::RemoveRenderState()
-{
-	Super::RemoveRenderState();
-	m_pWorld->Scene()->RemoveLight( this );
-}
-
-void HemisphereLightComponent::LoadProperty( const json::Value& json )
-{
-	Super::LoadProperty( json );
-
-	if ( const json::Value* pLowerColor = json.Find( "LowerColor" ) )
-	{
-		const json::Value& lowerColor = *pLowerColor;
-
-		if ( lowerColor.Size() >= 4 )
-		{
-			float r = static_cast<float>( lowerColor[0].AsReal() );
-			float g = static_cast<float>( lowerColor[1].AsReal() );
-			float b = static_cast<float>( lowerColor[2].AsReal() );
-			float a = static_cast<float>( lowerColor[3].AsReal() );
-
-			SetLowerColor( ColorF( r, g, b, a ) );
-		}
+		return new rendercore::HemisphereLightProxy( LowerColor(), UpperColor(), UpVector() );
 	}
 
-	if ( const json::Value* pUpperColor = json.Find( "UpperColor" ) )
+	Vector HemisphereLightComponent::UpVector() const
 	{
-		const json::Value& upperColor = *pUpperColor;
-
-		if ( upperColor.Size() >= 4 )
-		{
-			float r = static_cast<float>( upperColor[0].AsReal() );
-			float g = static_cast<float>( upperColor[1].AsReal() );
-			float b = static_cast<float>( upperColor[2].AsReal() );
-			float a = static_cast<float>( upperColor[3].AsReal() );
-
-			SetUpperColor( ColorF( r, g, b, a ) );
-		}
+		RotationMatrix rotation( GetRotation() );
+		return rotation.TransformVector( Vector::UpVector );
 	}
-}
 
-rendercore::HemisphereLightProxy* HemisphereLightComponent::CreateProxy() const
-{
-	return new rendercore::HemisphereLightProxy( LowerColor(), UpperColor(), UpVector() );
-}
+	bool HemisphereLightComponent::ShouldCreateRenderState() const
+	{
+		return true;
+	}
 
-Vector HemisphereLightComponent::UpVector() const
-{
-	RotationMatrix rotation( GetRotation() );
-	return rotation.TransformVector( Vector::UpVector );
-}
+	void HemisphereLightComponent::CreateRenderState()
+	{
+		Super::CreateRenderState();
+		m_pWorld->Scene()->AddHemisphereLightComponent( this );
+	}
 
-bool HemisphereLightComponent::ShouldCreateRenderState() const
-{
-	return true;
-}
-
-void HemisphereLightComponent::CreateRenderState()
-{
-	Super::CreateRenderState();
-	m_pWorld->Scene()->AddHemisphereLightComponent( this );
-}
-
-void HemisphereLightComponent::RemoveRenderState()
-{
-	Super::RemoveRenderState();
-	m_pWorld->Scene()->RemoveHemisphereLightComponent( this );
+	void HemisphereLightComponent::RemoveRenderState()
+	{
+		Super::RemoveRenderState();
+		m_pWorld->Scene()->RemoveHemisphereLightComponent( this );
+	}
 }

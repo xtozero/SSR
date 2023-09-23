@@ -2,17 +2,20 @@
 
 #include "GameObject.h"
 
-class SkyAtmosphereComponent;
-
-class SkyAtmosphere : public CGameObject
+namespace logic
 {
-	GENERATE_CLASS_TYPE_INFO( SkyAtmosphere )
+	class SkyAtmosphereComponent;
 
-public:
-	virtual bool IgnorePicking() const override { return true; }
+	class SkyAtmosphere : public CGameObject
+	{
+		GENERATE_CLASS_TYPE_INFO( SkyAtmosphere )
 
-	SkyAtmosphere();
+	public:
+		virtual bool IgnorePicking() const override { return true; }
 
-private:
-	SkyAtmosphereComponent* m_pSkyAtmosphereComponent = nullptr;
-};
+		SkyAtmosphere();
+
+	private:
+		SkyAtmosphereComponent* m_pSkyAtmosphereComponent = nullptr;
+	};
+}

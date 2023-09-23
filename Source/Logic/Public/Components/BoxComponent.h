@@ -2,19 +2,22 @@
 
 #include "ShapeComponent.h"
 
-class BoxComponent : public ShapeComponent
+namespace logic
 {
-	GENERATE_CLASS_TYPE_INFO( BoxComponent )
+	class BoxComponent : public ShapeComponent
+	{
+		GENERATE_CLASS_TYPE_INFO( BoxComponent )
 
-public:
-	using ShapeComponent::ShapeComponent;
+	public:
+		using ShapeComponent::ShapeComponent;
 
-	virtual BoxSphereBounds CalcBounds( const Matrix& transform ) override;
-	virtual rendercore::PrimitiveProxy* CreateProxy() const override;
-	virtual void UpdateBodySetup() override;
+		virtual BoxSphereBounds CalcBounds( const Matrix& transform ) override;
+		virtual rendercore::PrimitiveProxy* CreateProxy() const override;
+		virtual void UpdateBodySetup() override;
 
-	void SetHalfSize( const Vector& halfSize );
+		void SetHalfSize( const Vector& halfSize );
 
-private:
-	Vector m_halfSize = Vector( 0.5f, 0.5f, 0.5f );
-};
+	private:
+		Vector m_halfSize = Vector( 0.5f, 0.5f, 0.5f );
+	};
+}

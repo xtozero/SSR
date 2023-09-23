@@ -5,26 +5,29 @@
 
 #include <unordered_map>
 
-using InputDelegate = Delegate<void, const UserInput&>;
-
-class InputComponent : public Component
+namespace logic
 {
-	GENERATE_CLASS_TYPE_INFO( InputComponent )
+	using InputDelegate = Delegate<void, const engine::UserInput&>;
 
-public:
-	using Component::Component;
-
-	template <typename T>
-	void BindInput( UserInputCode code, T* object, void (T::*memberFunc)( const UserInput& ) )
+	class InputComponent : public Component
 	{
-		InputDelegate delegate;
-		delegate.BindMemberFunction( object, memberFunc );
+		GENERATE_CLASS_TYPE_INFO( InputComponent )
 
-		m_inputBinding.emplace( code, std::move( delegate ) );
-	}
+	public:
+		using Component::Component;
 
-	void ProcessInput( const UserInput& input );
+		template <typename T>
+		void BindInput( engine::UserInputCode code, T* object, void ( T::* memberFunc )( const engine::UserInput& ) )
+		{
+			InputDelegate delegate;
+			delegate.BindMemberFunction( object, memberFunc );
 
-private:
-	std::unordered_map<UserInputCode, InputDelegate> m_inputBinding;
-};
+			m_inputBinding.emplace( code, std::move( delegate ) );
+		}
+
+		void ProcessInput( const engine::UserInput& input );
+
+	private:
+		std::unordered_map<engine::UserInputCode, InputDelegate> m_inputBinding;
+	};
+}

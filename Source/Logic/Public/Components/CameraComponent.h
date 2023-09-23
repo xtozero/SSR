@@ -4,52 +4,54 @@
 #include "Math/Matrix.h"
 #include "Math/Vector.h"
 
-class CGameLogic;
-class IRenderer;
-
 namespace json
 {
 	class Value;
 }
 
-class CameraComponent : public SceneComponent
+namespace logic
 {
-	GENERATE_CLASS_TYPE_INFO( CameraComponent )
+	class CGameLogic;
+	class IRenderer;
 
-public:
-	using SceneComponent::SceneComponent;
-
-	virtual void LoadProperty( const json::Value& json ) override;
-
-	const Vector& GetForwardVector() const { return m_lookVector; }
-	const Vector& GetRightVector() const { return m_rightVector; }
-	const Vector& GetUpVector() const { return m_upVector; }
-
-	void Move( const float right, const float up, const float look );
-	void Move( Vector delta );
-	void Rotate( const float pitch, const float yaw, const float roll );
-
-	const Matrix& GetViewMatrix() const;
-	const Matrix& GetInvViewMatrix() const;
-	void SetEnableRotation( bool isEnable ) { m_enableRotation = isEnable; }
-
-private:
-	void ReCalcViewMatrix() const;
-	void MarkCameraTransformDirty()
+	class CameraComponent : public SceneComponent
 	{
-		m_needRecalc = true;
-	}
+		GENERATE_CLASS_TYPE_INFO( CameraComponent )
 
-private:
-	mutable Matrix m_viewMatrix = Matrix::Identity;;
-	mutable Matrix m_invViewMatrix = Matrix::Identity;;
+	public:
+		using SceneComponent::SceneComponent;
 
-	Vector m_lookVector = Vector::ForwardVector;
-	Vector m_upVector = Vector::UpVector;
-	Vector m_rightVector = Vector::RightVector;
+		virtual void LoadProperty( const json::Value& json ) override;
 
-	mutable bool m_needRecalc = false;
+		const Vector& GetForwardVector() const { return m_lookVector; }
+		const Vector& GetRightVector() const { return m_rightVector; }
+		const Vector& GetUpVector() const { return m_upVector; }
 
-	bool m_enableRotation = true;
-};
+		void Move( const float right, const float up, const float look );
+		void Move( Vector delta );
+		void Rotate( const float pitch, const float yaw, const float roll );
 
+		const Matrix& GetViewMatrix() const;
+		const Matrix& GetInvViewMatrix() const;
+		void SetEnableRotation( bool isEnable ) { m_enableRotation = isEnable; }
+
+	private:
+		void ReCalcViewMatrix() const;
+		void MarkCameraTransformDirty()
+		{
+			m_needRecalc = true;
+		}
+
+	private:
+		mutable Matrix m_viewMatrix = Matrix::Identity;;
+		mutable Matrix m_invViewMatrix = Matrix::Identity;;
+
+		Vector m_lookVector = Vector::ForwardVector;
+		Vector m_upVector = Vector::UpVector;
+		Vector m_rightVector = Vector::RightVector;
+
+		mutable bool m_needRecalc = false;
+
+		bool m_enableRotation = true;
+	};
+}

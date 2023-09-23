@@ -4,27 +4,30 @@
 #include "Scene/IScene.h"
 #include "World/World.h"
 
-bool SkyAtmosphereComponent::ShouldCreateRenderState() const
+namespace logic
 {
-	return true;
-}
+	bool SkyAtmosphereComponent::ShouldCreateRenderState() const
+	{
+		return true;
+	}
 
-void SkyAtmosphereComponent::CreateRenderState()
-{
-	SceneComponent::CreateRenderState();
+	void SkyAtmosphereComponent::CreateRenderState()
+	{
+		SceneComponent::CreateRenderState();
 
-	m_skyAtmosphereProxy = new rendercore::SkyAtmospherePorxy( *this );
-	m_pWorld->Scene()->AddSkyAtmosphere( m_skyAtmosphereProxy );
-}
+		m_skyAtmosphereProxy = new rendercore::SkyAtmospherePorxy( *this );
+		m_pWorld->Scene()->AddSkyAtmosphere( m_skyAtmosphereProxy );
+	}
 
-void SkyAtmosphereComponent::RemoveRenderState()
-{
-	SceneComponent::RemoveRenderState();
+	void SkyAtmosphereComponent::RemoveRenderState()
+	{
+		SceneComponent::RemoveRenderState();
 
-	m_pWorld->Scene()->RemoveAtomosphere( m_skyAtmosphereProxy );
-	EnqueueRenderTask(
-		[proxy = m_skyAtmosphereProxy]()
-		{
-			delete proxy;
-		} );
+		m_pWorld->Scene()->RemoveAtomosphere( m_skyAtmosphereProxy );
+		EnqueueRenderTask(
+			[proxy = m_skyAtmosphereProxy]()
+			{
+				delete proxy;
+			} );
+	}
 }

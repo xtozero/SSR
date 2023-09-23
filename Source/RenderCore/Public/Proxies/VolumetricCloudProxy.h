@@ -4,7 +4,10 @@
 #include "common.h"
 #include "Math/Vector4.h"
 
-class VolumetricCloudComponent;
+namespace logic
+{
+	class VolumetricCloudComponent;
+}
 
 namespace rendercore
 {
@@ -14,7 +17,7 @@ namespace rendercore
 	class VolumetricCloudProxy
 	{
 	public:
-		RENDERCORE_DLL VolumetricCloudProxy( const VolumetricCloudComponent& component );
+		RENDERCORE_DLL VolumetricCloudProxy( const logic::VolumetricCloudComponent& component );
 
 		float EarthRadius() const;
 		float InnerRadius() const;

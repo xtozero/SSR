@@ -5,79 +5,82 @@
 #include "Scene/IScene.h"
 #include "World/World.h"
 
-void VolumetricFogComponent::LoadProperty( const json::Value& json )
+namespace logic
 {
-	Super::LoadProperty( json );
-
-	if ( const json::Value* pFrustumGridSize = json.Find( "FrustumGridSize" ) )
+	void VolumetricFogComponent::LoadProperty( const json::Value& json )
 	{
-		const json::Value& frustumGridSize = *pFrustumGridSize;
+		Super::LoadProperty( json );
 
-		if ( frustumGridSize.Size() == 3 )
+		if ( const json::Value* pFrustumGridSize = json.Find( "FrustumGridSize" ) )
 		{
-			for ( int32 i = 0; i < frustumGridSize.Size(); ++i )
+			const json::Value& frustumGridSize = *pFrustumGridSize;
+
+			if ( frustumGridSize.Size() == 3 )
 			{
-				m_frustumGridSize[i] = frustumGridSize[i].AsInt();
+				for ( int32 i = 0; i < frustumGridSize.Size(); ++i )
+				{
+					m_frustumGridSize[i] = frustumGridSize[i].AsInt();
+				}
 			}
+		}
+
+		if ( const json::Value* pG = json.Find( "G" ) )
+		{
+			m_g = static_cast<float>( pG->AsReal() );
+		}
+
+		if ( const json::Value* pUniformDensity = json.Find( "UniformDensity" ) )
+		{
+			m_uniformDensity = static_cast<float>( pUniformDensity->AsReal() );
+		}
+
+		if ( const json::Value* pIntensity = json.Find( "Intensity" ) )
+		{
+			m_intensity = static_cast<float>( pIntensity->AsReal() );
+		}
+
+		if ( const json::Value* pDepthPackExponent = json.Find( "DepthPackExponent" ) )
+		{
+			m_depthPackExponent = static_cast<float>( pDepthPackExponent->AsReal() );
+		}
+
+		if ( const json::Value* pNearPlaneDist = json.Find( "NearPlaneDist" ) )
+		{
+			m_nearPlaneDist = static_cast<float>( pNearPlaneDist->AsReal() );
+		}
+
+		if ( const json::Value* pFarPlaneDist = json.Find( "FarPlaneDist" ) )
+		{
+			m_farPlaneDist = static_cast<float>( pFarPlaneDist->AsReal() );
+		}
+
+		if ( const json::Value* pShadowBias = json.Find( "ShadowBias" ) )
+		{
+			m_shadowBias = static_cast<float>( pShadowBias->AsReal() );
 		}
 	}
 
-	if ( const json::Value* pG = json.Find( "G" ) )
+	rendercore::VolumetricFogProxy* VolumetricFogComponent::CreateProxy()
 	{
-		m_g = static_cast<float>( pG->AsReal() );
+		return new rendercore::VolumetricFogProxy( *this );
 	}
 
-	if ( const json::Value* pUniformDensity = json.Find( "UniformDensity" ) )
+	bool VolumetricFogComponent::ShouldCreateRenderState() const
 	{
-		m_uniformDensity = static_cast<float>( pUniformDensity->AsReal() );
+		return true;
 	}
 
-	if ( const json::Value* pIntensity = json.Find( "Intensity" ) )
+	void VolumetricFogComponent::CreateRenderState()
 	{
-		m_intensity = static_cast<float>( pIntensity->AsReal() );
+		Super::CreateRenderState();
+
+		m_pWorld->Scene()->AddVolumetricFog( this );
 	}
 
-	if ( const json::Value* pDepthPackExponent = json.Find( "DepthPackExponent" ) )
+	void VolumetricFogComponent::RemoveRenderState()
 	{
-		m_depthPackExponent = static_cast<float>( pDepthPackExponent->AsReal() );
+		Super::RemoveRenderState();
+
+		m_pWorld->Scene()->RemoveVolumetricFog( this );
 	}
-
-	if ( const json::Value* pNearPlaneDist = json.Find( "NearPlaneDist" ) )
-	{
-		m_nearPlaneDist = static_cast<float>( pNearPlaneDist->AsReal() );
-	}
-
-	if ( const json::Value* pFarPlaneDist = json.Find( "FarPlaneDist" ) )
-	{
-		m_farPlaneDist = static_cast<float>( pFarPlaneDist->AsReal() );
-	}
-
-	if ( const json::Value* pShadowBias = json.Find( "ShadowBias" ) )
-	{
-		m_shadowBias = static_cast<float>( pShadowBias->AsReal() );
-	}
-}
-
-rendercore::VolumetricFogProxy* VolumetricFogComponent::CreateProxy()
-{
-	return new rendercore::VolumetricFogProxy( *this );
-}
-
-bool VolumetricFogComponent::ShouldCreateRenderState() const
-{
-	return true;
-}
-
-void VolumetricFogComponent::CreateRenderState()
-{
-	Super::CreateRenderState();
-
-	m_pWorld->Scene()->AddVolumetricFog( this );
-}
-
-void VolumetricFogComponent::RemoveRenderState()
-{
-	Super::RemoveRenderState();
-
-	m_pWorld->Scene()->RemoveVolumetricFog( this );
 }

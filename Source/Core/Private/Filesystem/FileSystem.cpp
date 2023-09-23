@@ -68,30 +68,30 @@ bool FileSystemImpl::ReadAsync( const FileHandle& handle, char* buffer, uint32 s
 
 FileSystemImpl::FileSystemImpl()
 {
-	auto waitIO = [this]() {
-		while ( true )
+	m_hWaitIO = EnqueueThreadTask<ThreadType::FileSystemThread>( 
+		[this]()
 		{
-			FileSystemImplOverlapped* o = m_fileSystem.WaitAsyncIO();
-			if ( o == nullptr )
+			while ( true )
 			{
-				break;
-			}
-
-			EnqueueThreadTask<ThreadType::GameThread>(
-				[this, o]()
+				FileSystemImplOverlapped* o = m_fileSystem.WaitAsyncIO();
+				if ( o == nullptr )
 				{
-					if ( o->m_callback.IsBound() )
+					break;
+				}
+
+				EnqueueThreadTask<ThreadType::GameThread>(
+					[this, o]()
 					{
-						o->m_callback( o->m_buffer, o->m_bufferSize );
-					}
+						if ( o->m_callback.IsBound() )
+						{
+							o->m_callback( o->m_buffer, o->m_bufferSize );
+						}
 
-					delete[] o->m_buffer;
-					m_fileSystem.CleanUpIORequest( o );
-				} );
-		}
-	};
-
-	m_hWaitIO = EnqueueThreadTask<ThreadType::FileSystemThread>( waitIO );
+						delete[] o->m_buffer;
+						m_fileSystem.CleanUpIORequest( o );
+					} );
+			}
+		} );
 }
 
 FileSystemImpl::~FileSystemImpl()

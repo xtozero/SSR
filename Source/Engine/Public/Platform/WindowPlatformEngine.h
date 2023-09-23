@@ -7,38 +7,44 @@
 #include <memory>
 
 class IFileSystem;
-class ILogic;
 class ITaskScheduler;
 
-class WindowPlatformEngine : public IEngine
+namespace logic
 {
-public:
-	virtual bool BootUp( IPlatform& platform, char* argv ) override;
+	class ILogic;
+}
 
-	virtual void Run() override;
+namespace engine
+{
+	class WindowPlatformEngine : public IEngine
+	{
+	public:
+		virtual bool BootUp( IPlatform& platform, char* argv ) override;
 
-	virtual LRESULT MsgProc( HWND hWnd, uint32 message, WPARAM wParam, LPARAM lParam );
+		virtual void Run() override;
 
-	virtual ~WindowPlatformEngine() override;
+		virtual LRESULT MsgProc( HWND hWnd, uint32 message, WPARAM wParam, LPARAM lParam );
 
-protected:
-	virtual void ProcessInput() override;
-	virtual bool IsAvailable() override { return m_isAvailable; }
+		virtual ~WindowPlatformEngine() override;
 
-private:
-	void Shutdown();
+	protected:
+		virtual void ProcessInput() override;
+		virtual bool IsAvailable() override { return m_isAvailable; }
 
-	WindowPlatformInputConvertor m_inputConvertor;
-	HMODULE m_logicDll = nullptr;
-	ILogic* m_logic = nullptr;
-	IPlatform* m_platform = nullptr;
-	IFileSystem* m_fileSystem = nullptr;
-	ITaskScheduler* m_taskScheduler = nullptr;
+	private:
+		void Shutdown();
 
-	bool m_isAvailable = false;
-	bool m_isPaused = false;
-	bool m_maximized = false;
-	bool m_minimized = false;
-	bool m_resizing = false;
-};
+		WindowPlatformInputConvertor m_inputConvertor;
+		HMODULE m_logicDll = nullptr;
+		logic::ILogic* m_logic = nullptr;
+		IPlatform* m_platform = nullptr;
+		IFileSystem* m_fileSystem = nullptr;
+		ITaskScheduler* m_taskScheduler = nullptr;
 
+		bool m_isAvailable = false;
+		bool m_isPaused = false;
+		bool m_maximized = false;
+		bool m_minimized = false;
+		bool m_resizing = false;
+	};
+}

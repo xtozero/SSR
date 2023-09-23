@@ -6,7 +6,10 @@
 
 #include <memory>
 
-class TexturedSkyComponent;
+namespace logic
+{
+	class TexturedSkyComponent;
+}
 
 namespace rendercore
 {
@@ -18,7 +21,7 @@ namespace rendercore
 	class TexturedSkyProxy
 	{
 	public:
-		RENDERCORE_DLL TexturedSkyProxy( const TexturedSkyComponent& component );
+		RENDERCORE_DLL TexturedSkyProxy( const logic::TexturedSkyComponent& component );
 
 		void CreateRenderData();
 

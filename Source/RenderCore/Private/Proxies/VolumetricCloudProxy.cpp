@@ -4,7 +4,7 @@
 
 namespace rendercore
 {
-	VolumetricCloudProxy::VolumetricCloudProxy( const VolumetricCloudComponent& component )
+	VolumetricCloudProxy::VolumetricCloudProxy( const logic::VolumetricCloudComponent& component )
 	{
 		m_earthRadius = component.EarthRadius();
 		m_innerRadius = component.InnerRadius();

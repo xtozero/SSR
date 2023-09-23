@@ -23,6 +23,13 @@
 
 #include <algorithm>
 
+using ::logic::HemisphereLightComponent;
+using ::logic::LightComponent;
+using ::logic::PrimitiveComponent;
+using ::logic::TexturedSkyComponent;
+using ::logic::VolumetricCloudComponent;
+using ::logic::VolumetricFogComponent;
+
 namespace rendercore
 {
 	void Scene::AddPrimitive( PrimitiveComponent* primitive )

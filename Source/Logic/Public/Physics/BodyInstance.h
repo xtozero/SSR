@@ -7,39 +7,43 @@
 
 #include <optional>
 
-class BodySetup;
-class PrimitiveComponent;
 class Transform;
 
-class BodyInstance
+namespace logic
 {
-public:
-	void InitBody( PrimitiveComponent& ownerComponent, const BodySetup& bodySetup, const Transform& bodyTransform, PhysicsScene& physicsScene );
-	void TermBody();
+	class BodySetup;
+	class PrimitiveComponent;
 
-	bool IsValid() const;
-	PhysicsScene* GetPhysicsScene() const;
+	class BodyInstance
+	{
+	public:
+		void InitBody( PrimitiveComponent& ownerComponent, const BodySetup& bodySetup, const Transform& bodyTransform, PhysicsScene& physicsScene );
+		void TermBody();
 
-	void SetMass( float mass );
+		bool IsValid() const;
+		PhysicsScene* GetPhysicsScene() const;
 
-	void SetLinearDamping( float linearDamping );
-	void SetAngularDamping( float angularDamping );
+		void SetMass( float mass );
 
-	Transform GetTransform() const;
+		void SetLinearDamping( float linearDamping );
+		void SetAngularDamping( float angularDamping );
 
-	PhysicsHandle GetPhysicsHandle() const;
+		Transform GetTransform() const;
 
-	const Vector& GetScale3D() const;
+		PhysicsHandle GetPhysicsHandle() const;
 
-private:
-	PhysicsBody& GetPhysicsBody() const;
-	void InitDynamicPropoerties();
+		const Vector& GetScale3D() const;
 
-	std::optional<PhysicsHandle> m_physicsHandle;
+	private:
+		PhysicsBody& GetPhysicsBody() const;
+		void InitDynamicPropoerties();
 
-	float m_inverseMass = 0.f;
-	float m_linearDamping = 0.99f;
-	float m_angularDamping = 0.8f;
+		std::optional<PhysicsHandle> m_physicsHandle;
 
-	Vector m_scale3D = Vector::OneVector;
-};
+		float m_inverseMass = 0.f;
+		float m_linearDamping = 0.99f;
+		float m_angularDamping = 0.8f;
+
+		Vector m_scale3D = Vector::OneVector;
+	};
+}

@@ -2,15 +2,18 @@
 
 #include "GameObject.h"
 
-class VolumetricFogComponent;
-
-class VolumetricFog : public CGameObject
+namespace logic
 {
-	GENERATE_CLASS_TYPE_INFO( VolumetricFog )
+	class VolumetricFogComponent;
 
-public:
-	VolumetricFog();
+	class VolumetricFog : public CGameObject
+	{
+		GENERATE_CLASS_TYPE_INFO( VolumetricFog )
 
-private:
-	VolumetricFogComponent* m_volumetricFogComponent = nullptr;
-};
+	public:
+		VolumetricFog();
+
+	private:
+		VolumetricFogComponent* m_volumetricFogComponent = nullptr;
+	};
+}

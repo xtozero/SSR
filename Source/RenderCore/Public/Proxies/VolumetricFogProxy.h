@@ -5,7 +5,10 @@
 
 #include <array>
 
-class VolumetricFogComponent;
+namespace logic
+{
+	class VolumetricFogComponent;
+}
 
 namespace rendercore
 {
@@ -24,7 +27,7 @@ namespace rendercore
 		float FarPlaneDist() const;
 		float ShadowBias() const;
 
-		RENDERCORE_DLL VolumetricFogProxy( const VolumetricFogComponent& component );
+		RENDERCORE_DLL VolumetricFogProxy( const logic::VolumetricFogComponent& component );
 
 	private:
 		friend Scene;

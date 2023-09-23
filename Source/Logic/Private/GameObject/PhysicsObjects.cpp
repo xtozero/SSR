@@ -5,26 +5,29 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameObject/GameObjectFactory.h"
 
-DECLARE_GAME_OBJECT( sphere_object, SphereObject );
-
-SphereObject::SphereObject()
+namespace logic
 {
-	auto sphereComponent = CreateComponent<SphereComponent>( *this, "SphereComponent" );
-	auto staticMeshComponent = CreateComponent<StaticMeshComponent>( *this, "StaticMeshComponent" );
+	DECLARE_GAME_OBJECT( sphere_object, SphereObject );
 
-	staticMeshComponent->AttachToComponent( sphereComponent, AttachmentTrasformRules::KeepRelativeTransform );
+	SphereObject::SphereObject()
+	{
+		auto sphereComponent = CreateComponent<SphereComponent>( *this, "SphereComponent" );
+		auto staticMeshComponent = CreateComponent<StaticMeshComponent>( *this, "StaticMeshComponent" );
 
-	SetRootComponent( sphereComponent );
-}
+		staticMeshComponent->AttachToComponent( sphereComponent, AttachmentTrasformRules::KeepRelativeTransform );
 
-DECLARE_GAME_OBJECT( box_object, BoxObject );
+		SetRootComponent( sphereComponent );
+	}
 
-BoxObject::BoxObject()
-{
-	auto boxComponent = CreateComponent<BoxComponent>( *this, "BoxComponent" );
-	auto staticMeshComponent = CreateComponent<StaticMeshComponent>( *this, "StaticMeshComponent" );
+	DECLARE_GAME_OBJECT( box_object, BoxObject );
 
-	staticMeshComponent->AttachToComponent( boxComponent, AttachmentTrasformRules::KeepRelativeTransform );
+	BoxObject::BoxObject()
+	{
+		auto boxComponent = CreateComponent<BoxComponent>( *this, "BoxComponent" );
+		auto staticMeshComponent = CreateComponent<StaticMeshComponent>( *this, "StaticMeshComponent" );
 
-	SetRootComponent( boxComponent );
+		staticMeshComponent->AttachToComponent( boxComponent, AttachmentTrasformRules::KeepRelativeTransform );
+
+		SetRootComponent( boxComponent );
+	}
 }

@@ -1,11 +1,14 @@
 #pragma once
 
-class CGameLogic;
-
-class IGraphicsDeviceNotify
+namespace logic
 {
-public:
-	virtual void OnDeviceRestore( CGameLogic& gameLogic ) = 0;
+	class CGameLogic;
 
-	virtual ~IGraphicsDeviceNotify( ) = default;
-};
+	class IGraphicsDeviceNotify
+	{
+	public:
+		virtual void OnDeviceRestore( CGameLogic& gameLogic ) = 0;
+
+		virtual ~IGraphicsDeviceNotify() = default;
+	};
+}

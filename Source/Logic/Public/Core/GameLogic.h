@@ -28,95 +28,98 @@ namespace rendercore
 	class IRenderCore;
 }
 
-class CGameObject;
-class GameClientViewport;
-
-class CGameLogic : public ILogic
+namespace logic
 {
-public:
-	virtual bool BootUp( IPlatform& platform ) override;
-	virtual void Update() override;
-	virtual void Pause() override;
-	virtual void Resume() override;
-	virtual void HandleUserInput( const UserInput& input ) override;
-	virtual void HandleTextInput( uint64 text, bool bUnicode ) override;
-	virtual void AppSizeChanged( IPlatform& platform ) override;
+	class CGameObject;
+	class GameClientViewport;
 
-	void SpawnObject( Owner<CGameObject*> object );
+	class CGameLogic : public ILogic
+	{
+	public:
+		virtual bool BootUp( engine::IPlatform& platform ) override;
+		virtual void Update() override;
+		virtual void Pause() override;
+		virtual void Resume() override;
+		virtual void HandleUserInput( const engine::UserInput& input ) override;
+		virtual void HandleTextInput( uint64 text, bool bUnicode ) override;
+		virtual void AppSizeChanged( engine::IPlatform& platform ) override;
 
-	//IRenderer& GetRenderer( ) const { return *m_pRenderer; }
-	//CModelManager& GetModelManager( ) { return m_modelManager; }
-	//ImUI& GetUIManager( ) { return m_ui; }
-	//RE_HANDLE GetCommonConstantBuffer( uint32 purpose ) { return m_commonConstantBuffer[purpose]; }
-	const std::pair<uint32, uint32>& GetAPPSize() { return m_appSize; }
+		void SpawnObject( Owner<CGameObject*> object );
 
-	InputController* GetInputController();
+		//IRenderer& GetRenderer( ) const { return *m_pRenderer; }
+		//CModelManager& GetModelManager( ) { return m_modelManager; }
+		//ImUI& GetUIManager( ) { return m_ui; }
+		//RE_HANDLE GetCommonConstantBuffer( uint32 purpose ) { return m_commonConstantBuffer[purpose]; }
+		const std::pair<uint32, uint32>& GetAPPSize() { return m_appSize; }
 
-private:
-	void Shutdown();
+		InputController* GetInputController();
 
-	void StartLogic();
-	void ProcessLogic();
-	void EndLogic();
+	private:
+		void Shutdown();
 
-	bool LoadWorld( const char* filePath );
+		void StartLogic();
+		void ProcessLogic();
+		void EndLogic();
 
-	void DrawScene();
-	void DrawForDebug();
-	void DrawDebugOverlay();
-	void UpdateUIDrawInfo();
-	void SceneEnd();
+		bool LoadWorld( const char* filePath );
 
-	void BuildRenderableList();
-	void DrawReflectRenderable();
+		void DrawScene();
+		void DrawForDebug();
+		void DrawDebugOverlay();
+		void UpdateUIDrawInfo();
+		void SceneEnd();
 
-	void HandleDeviceLost();
-	bool CreateDeviceDependentResource();
-	bool CreateDefaultFontResource();
+		void BuildRenderableList();
+		void DrawReflectRenderable();
 
-public:
-	CGameLogic();
-	virtual ~CGameLogic() override;
+		void HandleDeviceLost();
+		bool CreateDeviceDependentResource();
+		bool CreateDefaultFontResource();
 
-private:
-	void CreateGameViewport();
+	public:
+		CGameLogic();
+		virtual ~CGameLogic() override;
 
-	HMODULE m_renderCoreDll;
+	private:
+		void CreateGameViewport();
 
-	HWND	m_wndHwnd;
-	std::pair<uint32, uint32> m_appSize;
+		HMODULE m_renderCoreDll;
 
-	std::unique_ptr<InputController> m_inputController;
-	//CPickingManager m_pickingManager;
-	//CSSRManager m_ssrManager;
-	//CAtmosphericScatteringManager m_atmosphereManager;
-	//CModelManager m_modelManager;
-	rendercore::IRenderCore* m_pRenderCore = nullptr;
+		HWND	m_wndHwnd;
+		std::pair<uint32, uint32> m_appSize;
 
-	//RE_HANDLE m_commonConstantBuffer[SHARED_CONSTANT_BUFFER::Count];
+		std::unique_ptr<InputController> m_inputController;
+		//CPickingManager m_pickingManager;
+		//CSSRManager m_ssrManager;
+		//CAtmosphericScatteringManager m_atmosphereManager;
+		//CModelManager m_modelManager;
+		rendercore::IRenderCore* m_pRenderCore = nullptr;
 
-	// Immediate Mode UI
-	//ImUI m_ui;
+		//RE_HANDLE m_commonConstantBuffer[SHARED_CONSTANT_BUFFER::Count];
 
-	//struct ImUiDrawBuffer
-	//{
-	//	RE_HANDLE m_buffer = RE_HANDLE::InValidHandle( );
-	//	uint32 m_prevBufferSize = 0;
-	//};
+		// Immediate Mode UI
+		//ImUI m_ui;
 
-	//ImUiDrawBuffer m_uiDrawBuffer[2];
-	//Material m_uiMaterial = INVALID_MATERIAL;
-	Matrix m_uiProjMat;
+		//struct ImUiDrawBuffer
+		//{
+		//	RE_HANDLE m_buffer = RE_HANDLE::InValidHandle( );
+		//	uint32 m_prevBufferSize = 0;
+		//};
 
-	CDebugOverlayManager m_debugOverlay;
+		//ImUiDrawBuffer m_uiDrawBuffer[2];
+		//Material m_uiMaterial = INVALID_MATERIAL;
+		Matrix m_uiProjMat;
 
-	World m_world;
+		CDebugOverlayManager m_debugOverlay;
 
-	std::unique_ptr<rendercore::Viewport> m_primayViewport;
-	GameClientViewport* m_gameViewport;
+		World m_world;
 
-	std::atomic<int64> m_numDrawRequestQueued = 0;
+		std::unique_ptr<rendercore::Viewport> m_primayViewport;
+		GameClientViewport* m_gameViewport;
+
+		std::atomic<int64> m_numDrawRequestQueued = 0;
 #ifdef DEBUGGING_BY_CONSOLE
-	CDebugConsole m_commandConsole;
+		CDebugConsole m_commandConsole;
 #endif
-};
+	};
+}

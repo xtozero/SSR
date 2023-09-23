@@ -10,33 +10,36 @@ namespace rendercore
 	class RenderOption;
 }
 
-class StaticMeshComponent : public PrimitiveComponent
+namespace logic
 {
-	GENERATE_CLASS_TYPE_INFO( StaticMeshComponent )
+	class StaticMeshComponent : public PrimitiveComponent
+	{
+		GENERATE_CLASS_TYPE_INFO( StaticMeshComponent )
 
-public:
-	using PrimitiveComponent::PrimitiveComponent;
+	public:
+		using PrimitiveComponent::PrimitiveComponent;
 
-	virtual void LoadProperty( const json::Value& json ) override;
+		virtual void LoadProperty( const json::Value& json ) override;
 
-	virtual BoxSphereBounds CalcBounds( const Matrix& transform ) override;
+		virtual BoxSphereBounds CalcBounds( const Matrix& transform ) override;
 
-	virtual rendercore::PrimitiveProxy* CreateProxy() const override;
-	virtual BodySetup* GetBodySetup() override;
+		virtual rendercore::PrimitiveProxy* CreateProxy() const override;
+		virtual BodySetup* GetBodySetup() override;
 
-	void SetStaticMesh( const std::shared_ptr<rendercore::StaticMesh>& pStaticMesh );
-	std::shared_ptr<rendercore::StaticMesh> GetStaticMesh() const { return m_pStaticMesh; }
+		void SetStaticMesh( const std::shared_ptr<rendercore::StaticMesh>& pStaticMesh );
+		std::shared_ptr<rendercore::StaticMesh> GetStaticMesh() const { return m_pStaticMesh; }
 
-	void SetRenderOption( const std::shared_ptr<rendercore::RenderOption>& pRenderOption );
-	std::shared_ptr<rendercore::RenderOption> GetRenderOption() const { return m_pRenderOption; }
+		void SetRenderOption( const std::shared_ptr<rendercore::RenderOption>& pRenderOption );
+		std::shared_ptr<rendercore::RenderOption> GetRenderOption() const { return m_pRenderOption; }
 
-private:
-	bool LoadModelMesh( const std::string& assetPath );
-	bool LoadRenderOption( const std::string& assetPath );
+	private:
+		bool LoadModelMesh( const std::string& assetPath );
+		bool LoadRenderOption( const std::string& assetPath );
 
-	void OnModelLoadFinished( const std::shared_ptr<void>& model );
-	void OnRenderOptionLoadFinished( const std::shared_ptr<void>& renderOption );
+		void OnModelLoadFinished( const std::shared_ptr<void>& model );
+		void OnRenderOptionLoadFinished( const std::shared_ptr<void>& renderOption );
 
-	std::shared_ptr<rendercore::StaticMesh> m_pStaticMesh = nullptr;
-	std::shared_ptr<rendercore::RenderOption> m_pRenderOption = nullptr;
-};
+		std::shared_ptr<rendercore::StaticMesh> m_pStaticMesh = nullptr;
+		std::shared_ptr<rendercore::RenderOption> m_pRenderOption = nullptr;
+	};
+}

@@ -3,69 +3,72 @@
 #include "Core/ThinkFunction.h"
 #include "Reflection.h"
 
-class CGameObject;
-class World;
-
 namespace json
 {
 	class Value;
 }
 
-class Component
+namespace logic
 {
-	GENERATE_CLASS_TYPE_INFO( Component )
+	class CGameObject;
+	class World;
 
-public:
-	void RegisterComponent();
-	void UnregisterComponent();
+	class Component
+	{
+		GENERATE_CLASS_TYPE_INFO( Component )
 
-	virtual void ThinkComponent( [[maybe_unused]] float elapsedTime ) {}
+	public:
+		void RegisterComponent();
+		void UnregisterComponent();
 
-	void RecreateRenderState();
-	virtual void SendRenderTransform();
+		virtual void ThinkComponent( [[maybe_unused]] float elapsedTime ) {}
 
-	void UpdateState();
-	void MarkRenderStateDirty();
+		void RecreateRenderState();
+		virtual void SendRenderTransform();
 
-	void MarkRenderTransformDirty();
+		void UpdateState();
+		void MarkRenderStateDirty();
 
-	void RegisterThinkFunction();
-	void UnRegisterThinkFunction();
+		void MarkRenderTransformDirty();
 
-	CGameObject* GetOwner() const;
+		void RegisterThinkFunction();
+		void UnRegisterThinkFunction();
 
-	virtual void DestroyComponent();
+		CGameObject* GetOwner() const;
 
-	virtual void LoadProperty( [[maybe_unused]] const json::Value& json ) {}
+		virtual void DestroyComponent();
 
-	Component( CGameObject* pOwner, const char* name );
-	virtual ~Component() = default;
+		virtual void LoadProperty( [[maybe_unused]] const json::Value& json ) {}
 
-protected:
-	virtual bool ShouldCreateRenderState() const;
-	virtual void CreateRenderState();
-	virtual void RemoveRenderState();
+		Component( CGameObject* pOwner, const char* name );
+		virtual ~Component() = default;
 
-	bool PhysicsStateCreated() const;
-	void CreatePhysicsState();
-	void DestroyPhysicsState();
-	virtual bool ShouldCreatePhysicsState() const;
-	virtual void OnCreatePhysicsState();
-	virtual void OnDestroyPhysicsState();
+	protected:
+		virtual bool ShouldCreateRenderState() const;
+		virtual void CreateRenderState();
+		virtual void RemoveRenderState();
 
-	World* m_pWorld = nullptr;
+		bool PhysicsStateCreated() const;
+		void CreatePhysicsState();
+		void DestroyPhysicsState();
+		virtual bool ShouldCreatePhysicsState() const;
+		virtual void OnCreatePhysicsState();
+		virtual void OnDestroyPhysicsState();
 
-	ComponentThinkFunction m_think;
+		World* m_pWorld = nullptr;
 
-private:
-	void RegisterComponent( World* pWorld );
+		ComponentThinkFunction m_think;
 
-	CGameObject* m_pOwner = nullptr;
+	private:
+		void RegisterComponent( World* pWorld );
 
-	bool m_renderStateCreated = false;
-	bool m_renderStateDirty = false;
-	bool m_renderTransformDirty = false;
-	bool m_markForUpdateState = false;
-	bool m_markForSendRenderTransform = false;
-	bool m_physicsStateCreated = false;
-};
+		CGameObject* m_pOwner = nullptr;
+
+		bool m_renderStateCreated = false;
+		bool m_renderStateDirty = false;
+		bool m_renderTransformDirty = false;
+		bool m_markForUpdateState = false;
+		bool m_markForSendRenderTransform = false;
+		bool m_physicsStateCreated = false;
+	};
+}

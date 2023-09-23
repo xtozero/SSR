@@ -9,101 +9,104 @@ namespace rendercore
 	class VolumetricCloudProxy;
 }
 
-class VolumetricCloudComponent : public SceneComponent
+namespace logic
 {
-	GENERATE_CLASS_TYPE_INFO( VolumetricCloudComponent )
-
-public:
-	using SceneComponent::SceneComponent;
-
-	virtual void LoadProperty( const json::Value& json ) override;
-
-	virtual BoxSphereBounds CalcBounds( const Matrix& transform ) override;
-
-	rendercore::VolumetricCloudProxy*& Proxy()
+	class VolumetricCloudComponent : public SceneComponent
 	{
-		return m_proxy;
-	}
+		GENERATE_CLASS_TYPE_INFO( VolumetricCloudComponent )
 
-	virtual rendercore::VolumetricCloudProxy* CreateProxy();
+	public:
+		using SceneComponent::SceneComponent;
 
-	float EarthRadius() const
-	{
-		return m_earthRadius;
-	}
+		virtual void LoadProperty( const json::Value& json ) override;
 
-	void SetEarthRadius( float earthRadius );
+		virtual BoxSphereBounds CalcBounds( const Matrix& transform ) override;
 
-	float InnerRadius() const
-	{
-		return m_innerRadius;
-	}
+		rendercore::VolumetricCloudProxy*& Proxy()
+		{
+			return m_proxy;
+		}
 
-	void SetInnerRadius( float innerRadius );
+		virtual rendercore::VolumetricCloudProxy* CreateProxy();
 
-	float OuterRadius() const
-	{
-		return m_outerRadius;
-	}
+		float EarthRadius() const
+		{
+			return m_earthRadius;
+		}
 
-	void SetOuterRadius( float outerRadius );
+		void SetEarthRadius( float earthRadius );
 
-	float LightAbsorption() const
-	{
-		return m_lightAbsorption;
-	}
+		float InnerRadius() const
+		{
+			return m_innerRadius;
+		}
 
-	void SetLightAbsorption( float lightAbsorption );
+		void SetInnerRadius( float innerRadius );
 
-	float DensityScale() const
-	{
-		return m_densityScale;
-	}
+		float OuterRadius() const
+		{
+			return m_outerRadius;
+		}
 
-	void SetDensityScale( float densityScale );
+		void SetOuterRadius( float outerRadius );
 
-	const ColorF& CloudColor() const
-	{
-		return m_cloudColor;
-	}
+		float LightAbsorption() const
+		{
+			return m_lightAbsorption;
+		}
 
-	void SetCloudColor( const ColorF& cloudColor );
+		void SetLightAbsorption( float lightAbsorption );
 
-	float Crispiness() const
-	{
-		return m_crispiness;
-	}
+		float DensityScale() const
+		{
+			return m_densityScale;
+		}
 
-	void SetCrispiness( float crispiness );
+		void SetDensityScale( float densityScale );
 
-	float Curliness() const
-	{
-		return m_curliness;
-	}
+		const ColorF& CloudColor() const
+		{
+			return m_cloudColor;
+		}
 
-	void SetCurliness( float curliness );
+		void SetCloudColor( const ColorF& cloudColor );
 
-	float DensityFactor() const
-	{
-		return m_densityFactor;
-	}
+		float Crispiness() const
+		{
+			return m_crispiness;
+		}
 
-	void SetDensityFactor( float densityFactor );
+		void SetCrispiness( float crispiness );
 
-protected:
-	virtual bool ShouldCreateRenderState() const override;
-	virtual void CreateRenderState() override;
-	virtual void RemoveRenderState() override;
+		float Curliness() const
+		{
+			return m_curliness;
+		}
 
-private:
-	rendercore::VolumetricCloudProxy* m_proxy = nullptr;
-	float m_earthRadius = 0.f;
-	float m_innerRadius = 0.f;
-	float m_outerRadius = 0.f;
-	float m_lightAbsorption = 0.0035f;
-	float m_densityScale = 0.45f;
-	ColorF m_cloudColor = { 0.38235f, 0.41176f, 0.47059f, 1.f };
-	float m_crispiness = 40.f;
-	float m_curliness = 0.1f;
-	float m_densityFactor = 0.2f;
-};
+		void SetCurliness( float curliness );
+
+		float DensityFactor() const
+		{
+			return m_densityFactor;
+		}
+
+		void SetDensityFactor( float densityFactor );
+
+	protected:
+		virtual bool ShouldCreateRenderState() const override;
+		virtual void CreateRenderState() override;
+		virtual void RemoveRenderState() override;
+
+	private:
+		rendercore::VolumetricCloudProxy* m_proxy = nullptr;
+		float m_earthRadius = 0.f;
+		float m_innerRadius = 0.f;
+		float m_outerRadius = 0.f;
+		float m_lightAbsorption = 0.0035f;
+		float m_densityScale = 0.45f;
+		ColorF m_cloudColor = { 0.38235f, 0.41176f, 0.47059f, 1.f };
+		float m_crispiness = 40.f;
+		float m_curliness = 0.1f;
+		float m_densityFactor = 0.2f;
+	};
+}

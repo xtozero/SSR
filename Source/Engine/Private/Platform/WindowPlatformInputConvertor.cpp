@@ -221,12 +221,11 @@ namespace
 	{
 		return ( GetKeyState( vk ) & 0x8000 ) > 0;
 	}
-}
 
-float GetMouseZAxis( const MSG& wndMsg )
-{
-	switch ( wndMsg.message )
+	float GetMouseZAxis( const MSG& wndMsg )
 	{
+		switch ( wndMsg.message )
+		{
 		case WM_LBUTTONDOWN:
 		case WM_RBUTTONDOWN:
 		case WM_MBUTTONDOWN:
@@ -239,32 +238,35 @@ float GetMouseZAxis( const MSG& wndMsg )
 			return static_cast<float>( GET_WHEEL_DELTA_WPARAM( wndMsg.wParam ) ) / WHEEL_DELTA;
 		default:
 			return 0.f;
+		}
 	}
 }
 
-bool WindowPlatformInputConvertor::Initialize( )
+namespace engine
 {
-	return m_inputMap.Initialize( );
-}
-
-void WindowPlatformInputConvertor::ProcessInput( ILogic& logic, const MSG& wndMsg )
-{
-	UserInput input;
-
-	HWND hWnd = wndMsg.hwnd;
-	uint32 message = wndMsg.message;
-	LPARAM lParam = wndMsg.lParam;
-	WPARAM wParam = wndMsg.wParam;
-
-	switch ( message )
+	bool WindowPlatformInputConvertor::Initialize()
 	{
-	case WM_KEYDOWN:
-	case WM_KEYUP:
-	case WM_SYSKEYDOWN:
-	case WM_SYSKEYUP:
+		return m_inputMap.Initialize();
+	}
+
+	void WindowPlatformInputConvertor::ProcessInput( logic::ILogic& logic, const MSG& wndMsg )
+	{
+		UserInput input;
+
+		HWND hWnd = wndMsg.hwnd;
+		uint32 message = wndMsg.message;
+		LPARAM lParam = wndMsg.lParam;
+		WPARAM wParam = wndMsg.wParam;
+
+		switch ( message )
+		{
+		case WM_KEYDOWN:
+		case WM_KEYUP:
+		case WM_SYSKEYDOWN:
+		case WM_SYSKEYUP:
 		{
 			bool bIsKeyDown = ( message == WM_KEYDOWN ) || ( message == WM_SYSKEYDOWN );
-			
+
 			uint32 vk = static_cast<uint32>( wParam );
 			if ( vk == VK_SHIFT )
 			{
@@ -272,7 +274,7 @@ void WindowPlatformInputConvertor::ProcessInput( ILogic& logic, const MSG& wndMs
 				{
 					input.m_code = UIC_LEFTSHIFT;
 				}
-				
+
 				if ( IsVkDown( VK_RSHIFT ) == bIsKeyDown )
 				{
 					input.m_code = UIC_RIGHTSHIFT;
@@ -315,14 +317,14 @@ void WindowPlatformInputConvertor::ProcessInput( ILogic& logic, const MSG& wndMs
 			m_buttonStates.SetButtonState( input.m_code, message == WM_KEYDOWN );
 		}
 		break;
-	case WM_LBUTTONDOWN:
-	case WM_LBUTTONUP:
-	case WM_RBUTTONDOWN:
-	case WM_RBUTTONUP:
-	case WM_MBUTTONDOWN:
-	case WM_MBUTTONUP:
-	case WM_MOUSEWHEEL:
-	case WM_MOUSEMOVE:
+		case WM_LBUTTONDOWN:
+		case WM_LBUTTONUP:
+		case WM_RBUTTONDOWN:
+		case WM_RBUTTONUP:
+		case WM_MBUTTONDOWN:
+		case WM_MBUTTONUP:
+		case WM_MOUSEWHEEL:
+		case WM_MOUSEMOVE:
 		{
 			input.m_code = ConvertToUserInputCode( message );
 			if ( input.m_code == UIC_UNKNOWN )
@@ -337,7 +339,7 @@ void WindowPlatformInputConvertor::ProcessInput( ILogic& logic, const MSG& wndMs
 			}
 
 			Vector2 curMousePos( static_cast<float>( pt.x ), static_cast<float>( pt.y ) );
-			
+
 			if ( message == WM_MOUSEMOVE )
 			{
 				m_prevMousePos = curMousePos - m_prevMousePos;
@@ -358,39 +360,40 @@ void WindowPlatformInputConvertor::ProcessInput( ILogic& logic, const MSG& wndMs
 			m_buttonStates.SetButtonState( input.m_code, bMouseButtonPressed );
 		}
 		break;
-	case WM_CHAR:
-		if ( IsWindowUnicode( hWnd ) )
-		{
-			if ( wParam > 0 && wParam < 0x10000 )
+		case WM_CHAR:
+			if ( IsWindowUnicode( hWnd ) )
 			{
-				logic.HandleTextInput( wParam, true );
+				if ( wParam > 0 && wParam < 0x10000 )
+				{
+					logic.HandleTextInput( wParam, true );
+				}
 			}
+			else
+			{
+				wchar_t wch = 0;
+				::MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED, (char*)&wParam, 1, &wch, 1 );
+				logic.HandleTextInput( wch, false );
+			}
+			return;
+			break;
+		default:
+			//Message UnHandled;
+			return;
+			break;
 		}
-		else
-		{
-			wchar_t wch = 0;
-			::MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED, (char*)&wParam, 1, &wch, 1 );
-			logic.HandleTextInput( wch, false );
-		}
-		return;
-		break;
-	default:
-		//Message UnHandled;
-		return;
-		break;
+
+		logic.HandleUserInput( input );
 	}
 
-	logic.HandleUserInput( input );
-}
+	UserInputCode WindowPlatformInputConvertor::ConvertToUserInputCode( uint32 msg )
+	{
+		return m_inputMap.Convert( msg );
+	}
 
-UserInputCode WindowPlatformInputConvertor::ConvertToUserInputCode( uint32 msg )
-{
-	return m_inputMap.Convert( msg );
-}
-
-bool WindowPlatformInputMap::Initialize( )
-{
-	RegisterWindowInputEnumString( );
-	m_userInputMap.Initialize( );
-	return m_userInputMap.LoadConfig( "./Configs/window_platform.json" );
+	bool WindowPlatformInputMap::Initialize()
+	{
+		RegisterWindowInputEnumString();
+		m_userInputMap.Initialize();
+		return m_userInputMap.LoadConfig( "./Configs/window_platform.json" );
+	}
 }

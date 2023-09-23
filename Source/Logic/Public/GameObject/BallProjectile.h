@@ -2,12 +2,15 @@
 
 #include "GameObject.h"
 
-class CBallProjectile : public CGameObject
+namespace logic
 {
-public:
-	virtual void Think( float elapsedTime ) override;
+	class CBallProjectile : public CGameObject
+	{
+	public:
+		virtual void Think( float elapsedTime ) override;
 
-	CBallProjectile( );
-//protected:
-//	virtual bool LoadModelMesh( CGameLogic& gameLogic ) override;
-};
+		CBallProjectile();
+		//protected:
+		//	virtual bool LoadModelMesh( CGameLogic& gameLogic ) override;
+	};
+}

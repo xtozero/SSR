@@ -5,7 +5,10 @@
 
 #include <cstddef>
 
-class LightComponent;
+namespace logic
+{
+	class LightComponent;
+}
 
 namespace rendercore
 {
@@ -57,7 +60,7 @@ namespace rendercore
 		void AddPrimitiveIntersectionInfo( PrimitiveSceneInfo& primitive );
 		void RemovePrimitiveIntersectionInfo( PrimitiveSceneInfo& primitive );
 
-		LightSceneInfo( LightComponent& component, Scene& scene );
+		LightSceneInfo( logic::LightComponent& component, Scene& scene );
 
 	private:
 		bool AffactsPrimitive( PrimitiveSceneInfo& primitive );

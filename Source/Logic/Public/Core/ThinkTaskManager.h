@@ -5,20 +5,23 @@
 #include <set>
 #include <vector>
 
-class World;
-
-class ThinkTaskManager
+namespace logic
 {
-public:
-	void RegisterThinkFunction( ThinkFunction* thinkFunction );
-	void UnRegisterThinkFunction( ThinkFunction* thinkFunction );
+	class World;
 
-	void BeginFrame( float totalTime );
+	class ThinkTaskManager
+	{
+	public:
+		void RegisterThinkFunction( ThinkFunction* thinkFunction );
+		void UnRegisterThinkFunction( ThinkFunction* thinkFunction );
 
-	void RunThinkGroup( ThinkingGroup group, float elapsedTime );
+		void BeginFrame( float totalTime );
 
-private:
-	std::set<ThinkFunction*> m_thinkFunctions;
+		void RunThinkGroup( ThinkingGroup group, float elapsedTime );
 
-	std::vector<ThinkFunction*> m_thinkTasks[static_cast<uint32>( ThinkingGroup::Max )];
-};
+	private:
+		std::set<ThinkFunction*> m_thinkFunctions;
+
+		std::vector<ThinkFunction*> m_thinkTasks[static_cast<uint32>( ThinkingGroup::Max )];
+	};
+}

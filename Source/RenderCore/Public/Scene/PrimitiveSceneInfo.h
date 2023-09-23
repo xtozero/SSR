@@ -10,7 +10,10 @@
 #include <optional>
 #include <vector>
 
-class PrimitiveComponent;
+namespace logic
+{
+	class PrimitiveComponent;
+}
 
 namespace rendercore
 {
@@ -74,7 +77,7 @@ namespace rendercore
 
 		DrawSnapshot& CachedDrawSnapshot( uint32 snapshotIndex );
 
-		PrimitiveSceneInfo( PrimitiveComponent* component, Scene& scene );
+		PrimitiveSceneInfo( logic::PrimitiveComponent* component, Scene& scene );
 
 	private:
 		void CacheDrawSnapshot();

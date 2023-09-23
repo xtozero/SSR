@@ -64,7 +64,7 @@ namespace rendercore
 		}
 	}
 
-	LightSceneInfo::LightSceneInfo( LightComponent& component, Scene& scene ) : m_lightProxy( component.m_lightProxy ), m_scene( scene ), m_shadowQuility( static_cast<uint32>( component.GetShadowQuility() ) )
+	LightSceneInfo::LightSceneInfo( logic::LightComponent& component, Scene& scene ) : m_lightProxy( component.m_lightProxy ), m_scene( scene ), m_shadowQuility( static_cast<uint32>( component.GetShadowQuility() ) )
 	{
 	}
 

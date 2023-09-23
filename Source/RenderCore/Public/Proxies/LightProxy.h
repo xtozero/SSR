@@ -7,9 +7,13 @@
 #include "SizedTypes.h"
 
 class BoxSphereBounds;
-class DirectionalLightComponent;
-class HemisphereLightComponent;
-class LightComponent;
+
+namespace logic
+{
+	class DirectionalLightComponent;
+	class HemisphereLightComponent;
+	class LightComponent;
+}
 
 namespace rendercore
 {
@@ -67,7 +71,7 @@ namespace rendercore
 			return m_usedAsAtmosphereSunLight;
 		}
 
-		RENDERCORE_DLL LightProxy( const LightComponent& component );
+		RENDERCORE_DLL LightProxy( const logic::LightComponent& component );
 		virtual ~LightProxy() = default;
 
 	protected:
@@ -93,7 +97,7 @@ namespace rendercore
 
 		virtual bool AffactsBounds( const BoxSphereBounds& bounds ) const override;
 
-		RENDERCORE_DLL DirectionalLightProxy( const DirectionalLightComponent& component );
+		RENDERCORE_DLL DirectionalLightProxy( const logic::DirectionalLightComponent& component );
 
 	private:
 		Vector m_direction;

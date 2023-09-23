@@ -2,15 +2,18 @@
 
 #include <cstdio>
 
-class CDebugConsole
+namespace logic
 {
-private:
-	HANDLE	m_thread;
-	bool	m_isAlive;
-	FILE*	m_pConOut;
-	FILE*	m_pConIn;
-public:
+	class CDebugConsole
+	{
+	private:
+		HANDLE	m_thread;
+		bool	m_isAlive;
+		FILE* m_pConOut;
+		FILE* m_pConIn;
+	public:
 
-	CDebugConsole ();
-	~CDebugConsole ();
-};
+		CDebugConsole();
+		~CDebugConsole();
+	};
+}

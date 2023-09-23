@@ -2,31 +2,32 @@
 
 #include "GameObject.h"
 
-class CDisplayShaderResourceHelper : public CGameObject
+namespace logic
 {
-public:
-	//virtual void SetPosition( const CXMFLOAT3& pos ) override;
-	//virtual void Render( CGameLogic& gameLogic ) override;
-	virtual void Think( float elapsedTime ) override;
+	class CDisplayShaderResourceHelper : public CGameObject
+	{
+	public:
+		//virtual void SetPosition( const CXMFLOAT3& pos ) override;
+		//virtual void Render( CGameLogic& gameLogic ) override;
+		virtual void Think( float elapsedTime ) override;
 
-	//virtual void LoadProperty( CGameLogic& gameLogic, const json::Value& json ) override;
+		//virtual void LoadProperty( CGameLogic& gameLogic, const json::Value& json ) override;
 
-	//virtual bool IgnorePicking( ) const override { return ShouldDraw( ); }
+		//virtual bool IgnorePicking( ) const override { return ShouldDraw( ); }
 
-	//virtual bool ShouldDraw( ) const override;
+		//virtual bool ShouldDraw( ) const override;
 
-protected:
-	// virtual bool LoadModelMesh( CGameLogic& gameLogic ) override;
+	protected:
+		// virtual bool LoadModelMesh( CGameLogic& gameLogic ) override;
 
-private:
-	float m_width;
-	float m_height;
+	private:
+		float m_width;
+		float m_height;
 
-	std::string m_textureName;
+		std::string m_textureName;
 
-public:
-	CDisplayShaderResourceHelper();
-	virtual ~CDisplayShaderResourceHelper() override = default;
-};
-
-
+	public:
+		CDisplayShaderResourceHelper();
+		virtual ~CDisplayShaderResourceHelper() override = default;
+	};
+}

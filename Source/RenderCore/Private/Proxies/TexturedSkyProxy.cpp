@@ -8,7 +8,7 @@
 
 namespace rendercore
 {
-	TexturedSkyProxy::TexturedSkyProxy( const TexturedSkyComponent& component ) : m_pStaticMesh( component.GetStaticMesh() ), m_pRenderData( m_pStaticMesh->RenderData() ), m_pMaterial( component.GetMaterial() )
+	TexturedSkyProxy::TexturedSkyProxy( const logic::TexturedSkyComponent& component ) : m_pStaticMesh( component.GetStaticMesh() ), m_pRenderData( m_pStaticMesh->RenderData() ), m_pMaterial( component.GetMaterial() )
 	{
 		m_depthStencilOption.m_depth.m_enable = false;
 		m_depthStencilOption.m_depth.m_writeDepth = false;

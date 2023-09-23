@@ -14,18 +14,21 @@
 #include <tchar.h>
 #include <vector>
 
-class IConsoleMessageExecutor
+namespace engine
 {
-public:
-	virtual void RegistConsoleMessage( const std::string& name, IConsoleMessage* consoleMessage ) = 0;
-	virtual void UnRegistConsoleMessage( const std::string& name ) = 0;
-	virtual void AppendCommand( std::string&& command ) = 0;
-	virtual void Execute( ) = 0;
+	class IConsoleMessageExecutor
+	{
+	public:
+		virtual void RegistConsoleMessage( const std::string& name, IConsoleMessage* consoleMessage ) = 0;
+		virtual void UnRegistConsoleMessage( const std::string& name ) = 0;
+		virtual void AppendCommand( std::string&& command ) = 0;
+		virtual void Execute() = 0;
 
-	virtual const std::vector<std::string>& ArgV( ) const = 0;
-	virtual size_t ArgC( ) const = 0;
+		virtual const std::vector<std::string>& ArgV() const = 0;
+		virtual size_t ArgC() const = 0;
 
-	virtual ~IConsoleMessageExecutor( ) = default;
-};
+		virtual ~IConsoleMessageExecutor() = default;
+	};
 
-ENGINE_FUNC_DLL IConsoleMessageExecutor& GetConsoleMessageExecutor( );
+	ENGINE_FUNC_DLL IConsoleMessageExecutor& GetConsoleMessageExecutor();
+}

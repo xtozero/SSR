@@ -2,18 +2,21 @@
 
 #include "GameObject.h"
 
-class TexturedSkyComponent;
-
-class CSkyBox : public CGameObject
+namespace logic
 {
-	GENERATE_CLASS_TYPE_INFO( CSkyBox )
+	class TexturedSkyComponent;
 
-public:
-	virtual bool IgnorePicking() const override { return true; }
+	class CSkyBox : public CGameObject
+	{
+		GENERATE_CLASS_TYPE_INFO( CSkyBox )
 
-	CSkyBox();
-	virtual ~CSkyBox() override = default;
+	public:
+		virtual bool IgnorePicking() const override { return true; }
 
-private:
-	TexturedSkyComponent* m_pTexturedSkyComponent = nullptr;
-};
+		CSkyBox();
+		virtual ~CSkyBox() override = default;
+
+	private:
+		TexturedSkyComponent* m_pTexturedSkyComponent = nullptr;
+	};
+}

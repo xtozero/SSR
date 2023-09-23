@@ -10,61 +10,67 @@
 #include <memory>
 #include <vector>
 
-struct VIEWPORT
+namespace engine
 {
-	VIEWPORT( float topLeftX, float topLeftY, float width, float height ) :
-	m_topLeftX( topLeftX ),
-	m_topLeftY( topLeftY ),
-	m_width( width ),
-	m_height( height ){}
+	struct UserInput;
+}
 
-	float m_topLeftX;
-	float m_topLeftY;
-	float m_width;
-	float m_height;
-
-	bool IsContain( float x, float y ) const
+namespace logic
+{
+	struct VIEWPORT
 	{
-		return m_topLeftX <= x && m_topLeftY <= y && ( x - m_topLeftX ) <= m_width && ( y - m_topLeftY ) <= m_height;
-	}
-};
+		VIEWPORT( float topLeftX, float topLeftY, float width, float height ) :
+			m_topLeftX( topLeftX ),
+			m_topLeftY( topLeftY ),
+			m_width( width ),
+			m_height( height ) {}
 
-class CameraComponent;
-class CGameObject;
-struct UserInput;
+		float m_topLeftX;
+		float m_topLeftY;
+		float m_width;
+		float m_height;
 
-class CPickingManager : public IListener
-{
-public:
-	virtual void ProcessInput( const UserInput&, CGameLogic& gameLogic ) override;
+		bool IsContain( float x, float y ) const
+		{
+			return m_topLeftX <= x && m_topLeftY <= y && ( x - m_topLeftX ) <= m_width && ( y - m_topLeftY ) <= m_height;
+		}
+	};
 
-	void PushViewport( const float topLeftX, const float topLeftY, const float width, const float height );
-	void PopViewport( );
-	void PushCamera( CameraComponent* camera );
-	void PushInvProjection( float fov, float aspect, float zNear, float zFar, bool isLH = true );
-	void PopInvProjection( );
-	bool CreateWorldSpaceRay( CRay& ray, float x, float y );
-	bool PickingObject( float x, float y );
-	void ReleasePickingObject( );
+	class CameraComponent;
+	class CGameObject;
 
-	using GameObjectsPtr = std::vector<std::unique_ptr<CGameObject>>*;
-	explicit CPickingManager( const GameObjectsPtr objects );
+	class CPickingManager : public IListener
+	{
+	public:
+		virtual void ProcessInput( const engine::UserInput&, CGameLogic& gameLogic ) override;
 
-private:
-	void OnMouseLButton( const UserInput& input );
-	void OnMouseMove( const UserInput& input );
+		void PushViewport( const float topLeftX, const float topLeftY, const float width, const float height );
+		void PopViewport();
+		void PushCamera( CameraComponent* camera );
+		void PushInvProjection( float fov, float aspect, float zNear, float zFar, bool isLH = true );
+		void PopInvProjection();
+		bool CreateWorldSpaceRay( CRay& ray, float x, float y );
+		bool PickingObject( float x, float y );
+		void ReleasePickingObject();
 
-	std::vector<VIEWPORT> m_viewports;
-	std::vector<CameraComponent*> m_cameras;
-	std::vector<Matrix> m_InvProjections;
+		using GameObjectsPtr = std::vector<std::unique_ptr<CGameObject>>*;
+		explicit CPickingManager( const GameObjectsPtr objects );
 
-	CGameObject* m_curSelectedObject = nullptr;
-	int32 m_curSelectedIdx = -1;
+	private:
+		void OnMouseLButton( const engine::UserInput& input );
+		void OnMouseMove( const engine::UserInput& input );
 
-	Point2 m_curMousePos;
+		std::vector<VIEWPORT> m_viewports;
+		std::vector<CameraComponent*> m_cameras;
+		std::vector<Matrix> m_InvProjections;
 
-	float m_closestHitDist = FLT_MAX;
+		CGameObject* m_curSelectedObject = nullptr;
+		int32 m_curSelectedIdx = -1;
 
-	GameObjectsPtr m_pGameObjects;
-};
+		Point2 m_curMousePos;
 
+		float m_closestHitDist = FLT_MAX;
+
+		GameObjectsPtr m_pGameObjects;
+	};
+}

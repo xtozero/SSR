@@ -24,9 +24,9 @@ namespace rendercore
 	class Scene final : public IScene
 	{
 	public:
-		virtual void AddPrimitive( PrimitiveComponent* primitive ) override;
-		virtual void RemovePrimitive( PrimitiveComponent* primitive ) override;
-		virtual void UpdatePrimitiveTransform( PrimitiveComponent* primitive ) override;
+		virtual void AddPrimitive( logic::PrimitiveComponent* primitive ) override;
+		virtual void RemovePrimitive( logic::PrimitiveComponent* primitive ) override;
+		virtual void UpdatePrimitiveTransform( logic::PrimitiveComponent* primitive ) override;
 		virtual SparseArray<PrimitiveSceneInfo*>& Primitives() override
 		{
 			return m_primitives;
@@ -36,23 +36,23 @@ namespace rendercore
 			return m_primitives;
 		}
 
-		virtual void AddTexturedSkyComponent( TexturedSkyComponent* texturedSky ) override;
-		virtual void RemoveTexturedSkyComponent( TexturedSkyComponent* texturedSky ) override;
+		virtual void AddTexturedSkyComponent( logic::TexturedSkyComponent* texturedSky ) override;
+		virtual void RemoveTexturedSkyComponent( logic::TexturedSkyComponent* texturedSky ) override;
 
 		virtual void AddSkyAtmosphere( SkyAtmospherePorxy* skyAtmosphereProxy ) override;
 		virtual void RemoveAtomosphere( SkyAtmospherePorxy* skyAtmosphereProxy ) override;
 
-		virtual void AddVolumetricCloud( VolumetricCloudComponent* volumetricCloud ) override;
-		virtual void RemoveVolumetricCloud( VolumetricCloudComponent* volumetricCloud ) override;
+		virtual void AddVolumetricCloud( logic::VolumetricCloudComponent* volumetricCloud ) override;
+		virtual void RemoveVolumetricCloud( logic::VolumetricCloudComponent* volumetricCloud ) override;
 
-		virtual void AddVolumetricFog( VolumetricFogComponent* volumetricFog ) override;
-		virtual void RemoveVolumetricFog( VolumetricFogComponent* volumetricFog ) override;
+		virtual void AddVolumetricFog( logic::VolumetricFogComponent* volumetricFog ) override;
+		virtual void RemoveVolumetricFog( logic::VolumetricFogComponent* volumetricFog ) override;
 
-		virtual void AddHemisphereLightComponent( HemisphereLightComponent* light ) override;
-		virtual void RemoveHemisphereLightComponent( HemisphereLightComponent* light ) override;
+		virtual void AddHemisphereLightComponent( logic::HemisphereLightComponent* light ) override;
+		virtual void RemoveHemisphereLightComponent( logic::HemisphereLightComponent* light ) override;
 
-		virtual void AddLight( LightComponent* light ) override;
-		virtual void RemoveLight( LightComponent* light ) override;
+		virtual void AddLight( logic::LightComponent* light ) override;
+		virtual void RemoveLight( logic::LightComponent* light ) override;
 
 		virtual SceneViewConstantBuffer& SceneViewConstant() override
 		{

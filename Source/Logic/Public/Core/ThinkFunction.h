@@ -4,63 +4,66 @@
 
 #include <memory>
 
-class CGameObject;
-class Component;
-class World;
-
-enum class ThinkingGroup : uint8
+namespace logic
 {
-	PrePhysics = 0,
-	StartPhysics,
-	DuringPhysics,
-	EndPhysics,
-	PostPhysics,
-	Max,
-};
+	class CGameObject;
+	class Component;
+	class World;
 
-class ThinkFunction
-{
-public:
-	virtual void ExecuteThink( float elapsedTime ) = 0;
-
-	ThinkingGroup m_thinkGroup;
-
-	bool m_canEverTick;
-
-	float m_thinkInterval;
-
-	struct InternalData
+	enum class ThinkingGroup : uint8
 	{
-		InternalData( World& world ) :
-			m_world( world ) {}
-
-		bool m_registered = false;
-
-		float m_lastThinkTime = -1;
-
-		World& m_world;
+		PrePhysics = 0,
+		StartPhysics,
+		DuringPhysics,
+		EndPhysics,
+		PostPhysics,
+		Max,
 	};
 
-	std::unique_ptr<InternalData> m_internalData;
+	class ThinkFunction
+	{
+	public:
+		virtual void ExecuteThink( float elapsedTime ) = 0;
 
-	bool IsThinkFunctionRegistered();
+		ThinkingGroup m_thinkGroup;
 
-	void RegisterThinkFunction( World& world );
-	void UnRegisterThinkFunction();
-};
+		bool m_canEverTick;
 
-class GameObjectThinkFunction : public ThinkFunction
-{
-public:
-	virtual void ExecuteThink( float elapsedTime ) override;
+		float m_thinkInterval;
 
-	CGameObject* m_target;
-};
+		struct InternalData
+		{
+			InternalData( World& world ) :
+				m_world( world ) {}
 
-class ComponentThinkFunction: public ThinkFunction
-{
-public:
-	virtual void ExecuteThink( float elapsedTime ) override;
+			bool m_registered = false;
 
-	Component* m_target;
-};
+			float m_lastThinkTime = -1;
+
+			World& m_world;
+		};
+
+		std::unique_ptr<InternalData> m_internalData;
+
+		bool IsThinkFunctionRegistered();
+
+		void RegisterThinkFunction( World& world );
+		void UnRegisterThinkFunction();
+	};
+
+	class GameObjectThinkFunction : public ThinkFunction
+	{
+	public:
+		virtual void ExecuteThink( float elapsedTime ) override;
+
+		CGameObject* m_target;
+	};
+
+	class ComponentThinkFunction : public ThinkFunction
+	{
+	public:
+		virtual void ExecuteThink( float elapsedTime ) override;
+
+		Component* m_target;
+	};
+}

@@ -6,9 +6,12 @@
 #include "Platform/IPlatform.h"
 #include "UserInput/UserInput.h"
 
+using ::engine::UserInput;
+using enum ::engine::UserInputCode;
+
 namespace
 {
-    ImGuiKey UserInputCodeToImGuiKey( UserInputCode code )
+    ImGuiKey UserInputCodeToImGuiKey( engine::UserInputCode code )
     {
         switch ( code )
         {
@@ -121,152 +124,155 @@ namespace
     }
 }
 
-bool ImguiEditor::BootUp( IPlatform& platform )
+namespace editor
 {
-	m_logicDll = LoadModule( "Logic.dll" );
-	if ( m_logicDll == nullptr )
-	{
-		return false;
-	}
-
-	m_logic = GetInterface<ILogic>();
-	if ( m_logic == nullptr )
-	{
-		return false;
-	}
-
-	if ( m_logic->BootUp( platform ) == false )
-	{
-		return false;
-	}
-
-	return ImGui_ImplWin32_Init( platform.GetRawHandle<void*>() );
-}
-
-void ImguiEditor::Update()
-{
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
-
-	DrawDockSpace();
-	DrawMainMenuBar();
-
-	ImGui::Render();
-
-	m_logic->Update();
-}
-
-void ImguiEditor::Pause()
-{
-	m_logic->Pause();
-}
-
-void ImguiEditor::Resume()
-{
-	m_logic->Resume();
-}
-
-void ImguiEditor::HandleUserInput( const UserInput& input )
-{
-    if ( ImGui::GetCurrentContext() == nullptr )
+    bool ImguiEditor::BootUp( engine::IPlatform& platform )
     {
-        return;
-    }
-
-    ImGuiIO& io = ImGui::GetIO();
-    switch ( input.m_code )
-    {
-    case UserInputCode::UIC_MOUSE_LEFT:
-        [[fallthrough]];
-    case UserInputCode::UIC_MOUSE_RIGHT:
-        [[fallthrough]];
-    case UserInputCode::UIC_MOUSE_MIDDLE:
-    {
-        int32 button = 0;
-
-        if ( input.m_code == UserInputCode::UIC_MOUSE_LEFT )
+        m_logicDll = LoadModule( "Logic.dll" );
+        if ( m_logicDll == nullptr )
         {
-            button = 0;
-        }
-        else if ( input.m_code == UserInputCode::UIC_MOUSE_RIGHT )
-        {
-            button = 1;
-        }
-        else if ( input.m_code == UserInputCode::UIC_MOUSE_MIDDLE )
-        {
-            button = 2;
+            return false;
         }
 
-        io.AddMouseSourceEvent( ImGuiMouseSource_Mouse );
-        io.AddMouseButtonEvent( button, input.m_axis[UserInput::Z_AXIS] < 0 );
-        break;
-    }
-    case UserInputCode::UIC_MOUSE_WHEELSPIN:
-    {
-        io.AddMouseWheelEvent( 0.f, input.m_axis[UserInput::Z_AXIS] );
-        break;
-    }
-    default:
-    {
-        ImGuiKey imGuiKey = UserInputCodeToImGuiKey( input.m_code );
-        if ( imGuiKey != ImGuiKey_None )
+        m_logic = GetInterface<ILogic>();
+        if ( m_logic == nullptr )
         {
-            io.AddKeyEvent( imGuiKey, input.m_axis[UserInput::Z_AXIS] < 0 );
+            return false;
         }
-        break;
-    }
+
+        if ( m_logic->BootUp( platform ) == false )
+        {
+            return false;
+        }
+
+        return ImGui_ImplWin32_Init( platform.GetRawHandle<void*>() );
     }
 
-	if ( ImGui::IsWindowFocused( ImGuiFocusedFlags_AnyWindow ) == false )
-	{
-		m_logic->HandleUserInput( input );
-	}
-}
-
-void ImguiEditor::HandleTextInput( uint64 text, bool bUnicode )
-{
-    ImGuiIO& io = ImGui::GetIO();
-    if ( bUnicode )
+    void ImguiEditor::Update()
     {
-        io.AddInputCharacterUTF16( static_cast<ImWchar16>( text ) );
+        ImGui_ImplWin32_NewFrame();
+        ImGui::NewFrame();
+
+        DrawDockSpace();
+        DrawMainMenuBar();
+
+        ImGui::Render();
+
+        m_logic->Update();
     }
-    else
+
+    void ImguiEditor::Pause()
     {
-        io.AddInputCharacter( static_cast<uint32>( text ) );
+        m_logic->Pause();
     }
-}
 
-void ImguiEditor::AppSizeChanged( IPlatform& platform )
-{
-	m_logic->AppSizeChanged( platform );
-}
+    void ImguiEditor::Resume()
+    {
+        m_logic->Resume();
+    }
 
-ImguiEditor::~ImguiEditor()
-{
-	ShutdownModule( m_logicDll );
-	ImGui_ImplWin32_Shutdown();
-}
+    void ImguiEditor::HandleUserInput( const engine::UserInput& input )
+    {
+        if ( ImGui::GetCurrentContext() == nullptr )
+        {
+            return;
+        }
 
-void ImguiEditor::DrawDockSpace()
-{
-	const ImGuiViewport* viewport = ImGui::GetMainViewport();
-	ImGui::DockSpaceOverViewport( viewport, ImGuiDockNodeFlags_PassthruCentralNode );
-}
+        ImGuiIO& io = ImGui::GetIO();
+        switch ( input.m_code )
+        {
+        case UIC_MOUSE_LEFT:
+            [[fallthrough]];
+        case UIC_MOUSE_RIGHT:
+            [[fallthrough]];
+        case UIC_MOUSE_MIDDLE:
+        {
+            int32 button = 0;
 
-void ImguiEditor::DrawMainMenuBar()
-{
-	if ( ImGui::BeginMainMenuBar() )
-	{
-		ImGui::EndMainMenuBar();
-	}
-}
+            if ( input.m_code == UIC_MOUSE_LEFT )
+            {
+                button = 0;
+            }
+            else if ( input.m_code == UIC_MOUSE_RIGHT )
+            {
+                button = 1;
+            }
+            else if ( input.m_code == UIC_MOUSE_MIDDLE )
+            {
+                button = 2;
+            }
 
-Owner<IEditor*> CreateEditor()
-{
-	return new ImguiEditor();
-}
+            io.AddMouseSourceEvent( ImGuiMouseSource_Mouse );
+            io.AddMouseButtonEvent( button, input.m_axis[UserInput::Z_AXIS] < 0 );
+            break;
+        }
+        case UIC_MOUSE_WHEELSPIN:
+        {
+            io.AddMouseWheelEvent( 0.f, input.m_axis[UserInput::Z_AXIS] );
+            break;
+        }
+        default:
+        {
+            ImGuiKey imGuiKey = UserInputCodeToImGuiKey( input.m_code );
+            if ( imGuiKey != ImGuiKey_None )
+            {
+                io.AddKeyEvent( imGuiKey, input.m_axis[UserInput::Z_AXIS] < 0 );
+            }
+            break;
+        }
+        }
 
-void DestroyEditor( Owner<IEditor*> pEditor )
-{
-	delete pEditor;
+        if ( ImGui::IsWindowFocused( ImGuiFocusedFlags_AnyWindow ) == false )
+        {
+            m_logic->HandleUserInput( input );
+        }
+    }
+
+    void ImguiEditor::HandleTextInput( uint64 text, bool bUnicode )
+    {
+        ImGuiIO& io = ImGui::GetIO();
+        if ( bUnicode )
+        {
+            io.AddInputCharacterUTF16( static_cast<ImWchar16>( text ) );
+        }
+        else
+        {
+            io.AddInputCharacter( static_cast<uint32>( text ) );
+        }
+    }
+
+    void ImguiEditor::AppSizeChanged( engine::IPlatform& platform )
+    {
+        m_logic->AppSizeChanged( platform );
+    }
+
+    ImguiEditor::~ImguiEditor()
+    {
+        ShutdownModule( m_logicDll );
+        ImGui_ImplWin32_Shutdown();
+    }
+
+    void ImguiEditor::DrawDockSpace()
+    {
+        const ImGuiViewport* viewport = ImGui::GetMainViewport();
+        ImGui::DockSpaceOverViewport( viewport, ImGuiDockNodeFlags_PassthruCentralNode );
+    }
+
+    void ImguiEditor::DrawMainMenuBar()
+    {
+        if ( ImGui::BeginMainMenuBar() )
+        {
+            ImGui::EndMainMenuBar();
+        }
+    }
+
+    Owner<IEditor*> CreateEditor()
+    {
+        return new ImguiEditor();
+    }
+
+    void DestroyEditor( Owner<IEditor*> pEditor )
+    {
+        delete pEditor;
+    }
 }

@@ -1,11 +1,14 @@
 #include "Config/DefaultAppConfig.h"
 
-bool DefaultApp::IsEditor()
+namespace engine
 {
-	return GetInstance().m_editor;
-}
+	bool DefaultApp::IsEditor()
+	{
+		return GetInstance().m_editor;
+	}
 
-std::pair<int32, int32> DefaultApp::GetClientSize()
-{
-	return { GetInstance().m_clientWidth, GetInstance().m_clientHeight };
+	std::pair<int32, int32> DefaultApp::GetClientSize()
+	{
+		return { GetInstance().m_clientWidth, GetInstance().m_clientHeight };
+	}
 }

@@ -11,91 +11,94 @@
 #include <memory>
 #include <vector>
 
-class CDebugOverlayManager;
-class CPlayer;
-class PhysicsScene;
-
 namespace rendercore
 {
 	class IScene;
 }
 
-class StartPhysicsThinkFunction : public ThinkFunction
+namespace logic
 {
-public:
-	virtual void ExecuteThink( float elapsedTime ) override;
+	class CDebugOverlayManager;
+	class CPlayer;
+	class PhysicsScene;
 
-	World* m_target = nullptr;
-};
-
-class EndPhysicsThinkFunction : public ThinkFunction
-{
-public:
-	virtual void ExecuteThink( float elapsedTime ) override;
-
-	World* m_target = nullptr;
-};
-
-class World : public IGraphicsDeviceNotify
-{
-public:
-	virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
-
-	void Initialize();
-	void CleanUp();
-
-	const Timer& GetTimer() const { return m_clock; }
-	void Pause();
-	void Resume();
-
-	void BeginFrame();
-	void RunFrame();
-	void EndFrame();
-
-	void BeginPhysicsFrame( float elapsedTime );
-	void EndPhysicsFrame();
-
-	void SpawnObject( CGameLogic& gameLogic, Owner<CGameObject*> object );
-
-	//void DebugDrawBVH( CDebugOverlayManager& debugOverlay, uint32 color, float duration );
-
-	ThinkTaskManager& GetThinkTaskManager();
-
-	const std::vector<std::unique_ptr<CGameObject>>& GameObjects() const
+	class StartPhysicsThinkFunction : public ThinkFunction
 	{
-		return m_gameObjects;
-	}
+	public:
+		virtual void ExecuteThink( float elapsedTime ) override;
 
-	rendercore::IScene* Scene() const
+		World* m_target = nullptr;
+	};
+
+	class EndPhysicsThinkFunction : public ThinkFunction
 	{
-		return m_scene;
-	}
+	public:
+		virtual void ExecuteThink( float elapsedTime ) override;
 
-	PhysicsScene* GetPhysicsScene() const
+		World* m_target = nullptr;
+	};
+
+	class World : public IGraphicsDeviceNotify
 	{
-		return m_physicsScene;
-	}
+	public:
+		virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
 
-private:
-	void RunThinkGroup( ThinkingGroup group );
+		void Initialize();
+		void CleanUp();
 
-	void CreatePhysicsScene();
-	void ReleasePhysicsScene();
-	void SetPhysicsScene( PhysicsScene* scene );
-	void SetupPhysicsThinkFunctions();
+		const Timer& GetTimer() const { return m_clock; }
+		void Pause();
+		void Resume();
 
-	std::vector<std::unique_ptr<CGameObject>> m_gameObjects;
+		void BeginFrame();
+		void RunFrame();
+		void EndFrame();
 
-	StartPhysicsThinkFunction m_startPhysicsThinkFunction;
-	EndPhysicsThinkFunction m_endPhysicsThinkFunction;
-	TaskHandle m_hRunPhysics;
+		void BeginPhysicsFrame( float elapsedTime );
+		void EndPhysicsFrame();
 
-	rendercore::IScene* m_scene = nullptr;
-	PhysicsScene* m_physicsScene = nullptr;
+		void SpawnObject( CGameLogic& gameLogic, Owner<CGameObject*> object );
 
-	Timer m_clock;
+		//void DebugDrawBVH( CDebugOverlayManager& debugOverlay, uint32 color, float duration );
 
-	ThinkTaskManager m_thinkTaskManager;
-};
+		ThinkTaskManager& GetThinkTaskManager();
 
-CPlayer* GetLocalPlayer( World& w );
+		const std::vector<std::unique_ptr<CGameObject>>& GameObjects() const
+		{
+			return m_gameObjects;
+		}
+
+		rendercore::IScene* Scene() const
+		{
+			return m_scene;
+		}
+
+		PhysicsScene* GetPhysicsScene() const
+		{
+			return m_physicsScene;
+		}
+
+	private:
+		void RunThinkGroup( ThinkingGroup group );
+
+		void CreatePhysicsScene();
+		void ReleasePhysicsScene();
+		void SetPhysicsScene( PhysicsScene* scene );
+		void SetupPhysicsThinkFunctions();
+
+		std::vector<std::unique_ptr<CGameObject>> m_gameObjects;
+
+		StartPhysicsThinkFunction m_startPhysicsThinkFunction;
+		EndPhysicsThinkFunction m_endPhysicsThinkFunction;
+		TaskHandle m_hRunPhysics;
+
+		rendercore::IScene* m_scene = nullptr;
+		PhysicsScene* m_physicsScene = nullptr;
+
+		Timer m_clock;
+
+		ThinkTaskManager m_thinkTaskManager;
+	};
+
+	CPlayer* GetLocalPlayer( World& w );
+}

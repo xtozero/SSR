@@ -14,6 +14,9 @@
 
 namespace
 {
+	using ::engine::CommandLine;
+	using ::engine::IEngine;
+
 	IAppConfig* g_appConfig = nullptr;
 	IAssetFactory* g_assetFactory = nullptr;
 	IAssetLoader* g_assetLoader = nullptr;
@@ -70,48 +73,51 @@ namespace
 	}
 }
 
-ENGINE_FUNC_DLL void BootUpModules( )
+namespace engine
 {
-	RegisterFactory<CommandLine>( &GetCommandLineOption );
-	RegisterFactory<IAppConfig>( &GetAppConfig );
-	RegisterFactory<IAssetFactory>( &GetAssetFactory );
-	RegisterFactory<IAssetLoader>( &GetAssetLoader );
-	RegisterFactory<IEngine>( &GetGameEngine );
-	RegisterFactory<IEnumStringMap>( &GetEnumStringMap );
-	RegisterFactory<IFileSystem>( &GetFileSystem );
-	RegisterFactory<INamePool>( &GetNamePool );
-	RegisterFactory<ITaskScheduler>( &GetTaskScheduler );
-	RegisterFactory<TransientAllocators>( &GetTransientAllocators );
+	ENGINE_FUNC_DLL void BootUpModules()
+	{
+		RegisterFactory<CommandLine>( &GetCommandLineOption );
+		RegisterFactory<IAppConfig>( &GetAppConfig );
+		RegisterFactory<IAssetFactory>( &GetAssetFactory );
+		RegisterFactory<IAssetLoader>( &GetAssetLoader );
+		RegisterFactory<IEngine>( &GetGameEngine );
+		RegisterFactory<IEnumStringMap>( &GetEnumStringMap );
+		RegisterFactory<IFileSystem>( &GetFileSystem );
+		RegisterFactory<INamePool>( &GetNamePool );
+		RegisterFactory<ITaskScheduler>( &GetTaskScheduler );
+		RegisterFactory<TransientAllocators>( &GetTransientAllocators );
 
-	g_taskScheduler = CreateTaskScheduler();
-	g_fileSystem = CreateFileSystem();
-	g_appConfig = CreateAppConfig();
-	g_assetFactory = CreateAssetFactory();
-	g_assetLoader = CreateAssetLoader();
-	g_commandLine = CreateCommandLine();
-	g_namePool = CreateNamePool();
-	g_gameEngine = CreatePlatformEngine();
-}
+		g_taskScheduler = CreateTaskScheduler();
+		g_fileSystem = CreateFileSystem();
+		g_appConfig = CreateAppConfig();
+		g_assetFactory = CreateAssetFactory();
+		g_assetLoader = CreateAssetLoader();
+		g_commandLine = CreateCommandLine();
+		g_namePool = CreateNamePool();
+		g_gameEngine = CreatePlatformEngine();
+	}
 
-ENGINE_FUNC_DLL void ShutdownModules()
-{
-	DestroyAssetLoader( g_assetLoader );
-	DestroyPlatformEngine( g_gameEngine );
-	DestroyNamePool( g_namePool );
-	DestroyCommandLine( g_commandLine );
-	DestroyAssetFactory( g_assetFactory );
-	DestroyAppConfig( g_appConfig );
-	DestroyFileSystem( g_fileSystem );
-	DestroyTaskScheduler( g_taskScheduler );
+	ENGINE_FUNC_DLL void ShutdownModules()
+	{
+		DestroyAssetLoader( g_assetLoader );
+		DestroyPlatformEngine( g_gameEngine );
+		DestroyNamePool( g_namePool );
+		DestroyCommandLine( g_commandLine );
+		DestroyAssetFactory( g_assetFactory );
+		DestroyAppConfig( g_appConfig );
+		DestroyFileSystem( g_fileSystem );
+		DestroyTaskScheduler( g_taskScheduler );
 
-	UnregisterFactory<CommandLine>();
-	UnregisterFactory<IAppConfig>();
-	UnregisterFactory<IAssetFactory>();
-	UnregisterFactory<IAssetLoader>();
-	UnregisterFactory<IEngine>();
-	UnregisterFactory<IEnumStringMap>();
-	UnregisterFactory<IFileSystem>();
-	UnregisterFactory<INamePool>();
-	UnregisterFactory<ITaskScheduler>();
-	UnregisterFactory<TransientAllocators>();
+		UnregisterFactory<CommandLine>();
+		UnregisterFactory<IAppConfig>();
+		UnregisterFactory<IAssetFactory>();
+		UnregisterFactory<IAssetLoader>();
+		UnregisterFactory<IEngine>();
+		UnregisterFactory<IEnumStringMap>();
+		UnregisterFactory<IFileSystem>();
+		UnregisterFactory<INamePool>();
+		UnregisterFactory<ITaskScheduler>();
+		UnregisterFactory<TransientAllocators>();
+	}
 }

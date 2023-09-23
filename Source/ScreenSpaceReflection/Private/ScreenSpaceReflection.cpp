@@ -8,10 +8,14 @@
 
 #include <memory>
 
-constexpr int32 FRAME_BUFFER_WIDTH = 1024;
-constexpr int32 FRAME_BUFFER_HEIGHT = 768;
+using ::app::CWindowSetup;
+using ::app::Window;
+using ::engine::IEngine;
 
 LRESULT CALLBACK WndProc( HWND, uint32, WPARAM, LPARAM );
+
+constexpr int32 FRAME_BUFFER_WIDTH = 1024;
+constexpr int32 FRAME_BUFFER_HEIGHT = 768;
 
 IEngine* g_engine = nullptr;
 

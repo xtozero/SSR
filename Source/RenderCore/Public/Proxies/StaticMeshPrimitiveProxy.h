@@ -3,7 +3,10 @@
 #include "common.h"
 #include "PrimitiveProxy.h"
 
-class StaticMeshComponent;
+namespace logic
+{
+	class StaticMeshComponent;
+}
 
 namespace rendercore
 {
@@ -14,7 +17,7 @@ namespace rendercore
 	class StaticMeshPrimitiveProxy : public PrimitiveProxy
 	{
 	public:
-		RENDERCORE_DLL StaticMeshPrimitiveProxy( const StaticMeshComponent& component );
+		RENDERCORE_DLL StaticMeshPrimitiveProxy( const logic::StaticMeshComponent& component );
 
 		virtual void CreateRenderData() override;
 		virtual void PrepareSubMeshs() override;

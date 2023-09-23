@@ -9,50 +9,53 @@
 #include "GameObject/GameObjectFactory.h"
 #include "UserInput/UserInput.h"
 
-DECLARE_GAME_OBJECT( player_controller, PlayerController );
-
-void InputController::SetGameObject( CGameObject* gameObject )
+namespace logic
 {
-	m_gameObject = gameObject;
-}
+	DECLARE_GAME_OBJECT( player_controller, PlayerController );
 
-InputController::InputController()
-{
-	SetRootComponent( CreateComponent<SceneComponent>( *this, "Dummy" ) );
-}
-
-void PlayerController::ProcessInput( const UserInput& input )
-{
-	if ( m_gameObject == nullptr )
+	void InputController::SetGameObject( CGameObject* gameObject )
 	{
-		return;
+		m_gameObject = gameObject;
 	}
 
-	InputComponent* inputComponent = m_gameObject->GetInputComponent();
-	if ( inputComponent != nullptr )
+	InputController::InputController()
 	{
-		inputComponent->ProcessInput( input );
-	}
-}
-
-void PlayerController::Control( CGameObject* gameObject )
-{
-	Abandon();
-
-	SetGameObject( gameObject );
-	if ( gameObject )
-	{
-		gameObject->SetInputController( this );
-		gameObject->InitializeInputComponent();
-	}
-}
-
-void PlayerController::Abandon()
-{
-	if ( m_gameObject )
-	{
-		m_gameObject->SetInputController( nullptr );
+		SetRootComponent( CreateComponent<SceneComponent>( *this, "Dummy" ) );
 	}
 
-	SetGameObject( nullptr );
+	void PlayerController::ProcessInput( const engine::UserInput& input )
+	{
+		if ( m_gameObject == nullptr )
+		{
+			return;
+		}
+
+		InputComponent* inputComponent = m_gameObject->GetInputComponent();
+		if ( inputComponent != nullptr )
+		{
+			inputComponent->ProcessInput( input );
+		}
+	}
+
+	void PlayerController::Control( CGameObject* gameObject )
+	{
+		Abandon();
+
+		SetGameObject( gameObject );
+		if ( gameObject )
+		{
+			gameObject->SetInputController( this );
+			gameObject->InitializeInputComponent();
+		}
+	}
+
+	void PlayerController::Abandon()
+	{
+		if ( m_gameObject )
+		{
+			m_gameObject->SetInputController( nullptr );
+		}
+
+		SetGameObject( nullptr );
+	}
 }
