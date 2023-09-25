@@ -13,6 +13,36 @@ using namespace ::Microsoft::WRL;
 
 namespace agl
 {
+	D3D12_SHADER_VISIBILITY GetShaderVisibility( ShaderType shaderType )
+	{
+		switch ( shaderType )
+		{
+		case agl::ShaderType::VS:
+			return D3D12_SHADER_VISIBILITY_VERTEX;
+			break;
+		case agl::ShaderType::HS:
+			return D3D12_SHADER_VISIBILITY_HULL;
+			break;
+		case agl::ShaderType::DS:
+			return D3D12_SHADER_VISIBILITY_DOMAIN;
+			break;
+		case agl::ShaderType::GS:
+			return D3D12_SHADER_VISIBILITY_GEOMETRY;
+			break;
+		case agl::ShaderType::PS:
+			return D3D12_SHADER_VISIBILITY_PIXEL;
+			break;
+		case agl::ShaderType::CS:
+			return D3D12_SHADER_VISIBILITY_ALL;
+			break;
+		default:
+			break;
+		}
+
+		assert( false && "GetShaderVisibility - Unsurpported ShaderType" );
+		return D3D12_SHADER_VISIBILITY_ALL;
+	}
+
 	ResourceStatistics SurveyShader( const ShaderBase& shader )
 	{
 		const ShaderParameterInfo& paramInfo = shader.GetParameterInfo();
@@ -188,7 +218,7 @@ namespace agl
 		D3D12_ROOT_PARAMETER& param = m_parameters.back();
 
 		param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-		param.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		param.ShaderVisibility = GetShaderVisibility( shaderType );
 		param.DescriptorTable.NumDescriptorRanges = static_cast<uint32>( paramInfo.m_srvs.size() );
 		param.DescriptorTable.pDescriptorRanges = &m_descritorRange[rangeBase];
 	}
@@ -218,7 +248,7 @@ namespace agl
 		D3D12_ROOT_PARAMETER& param = m_parameters.back();
 
 		param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-		param.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		param.ShaderVisibility = GetShaderVisibility( shaderType );
 		param.DescriptorTable.NumDescriptorRanges = static_cast<uint32>( paramInfo.m_uavs.size() );
 		param.DescriptorTable.pDescriptorRanges = &m_descritorRange[rangeBase];
 	}
@@ -248,7 +278,7 @@ namespace agl
 		D3D12_ROOT_PARAMETER& param = m_parameters.back();
 
 		param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-		param.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		param.ShaderVisibility = GetShaderVisibility( shaderType );
 		param.DescriptorTable.NumDescriptorRanges = static_cast<uint32>( paramInfo.m_constantBuffers.size() );
 		param.DescriptorTable.pDescriptorRanges = &m_descritorRange[rangeBase];
 	}
@@ -278,7 +308,7 @@ namespace agl
 		D3D12_ROOT_PARAMETER& param = m_parameters.back();
 
 		param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-		param.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		param.ShaderVisibility = GetShaderVisibility( shaderType );
 		param.DescriptorTable.NumDescriptorRanges = static_cast<uint32>( paramInfo.m_samplers.size() );
 		param.DescriptorTable.pDescriptorRanges = &m_descritorRange[rangeBase];
 	}
