@@ -38,9 +38,12 @@ PRIVATE
 
 target_link_libraries(Editor
 PRIVATE
+	Agl
 	Core
 	Engine
-	Imgui)
+	Imgui
+	Logic
+	RenderCore)
 							
 add_custom_command(TARGET Editor POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/Editor.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/Editor.dll")

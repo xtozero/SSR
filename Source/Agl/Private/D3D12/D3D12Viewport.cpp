@@ -15,24 +15,39 @@ namespace agl
 {
 	void D3D12Viewport::OnBeginFrameRendering()
 	{
-		D3D12BaseTexture2D* backBuffer = m_backBuffers[m_bufferIndex].Get();
-		if ( backBuffer == nullptr )
-		{
-			return;
-		}
-
 		GetInterface<IAgl>()->OnBeginFrameRendering();
+
+		std::vector<agl::ResourceTransition, InlineAllocator<agl::ResourceTransition, 2>> transitions;
 
 		agl::ResourceTransition transition
 		{
-			.m_pResource = backBuffer->Resource(),
-			.m_pTransitionable = backBuffer,
+			.m_pResource = nullptr,
+			.m_pTransitionable = nullptr,
 			.m_subResource = agl::AllSubResource,
 			.m_state = ResourceState::RenderTarget
 		};
 
+		if ( D3D12BaseTexture2D* backBuffer = m_backBuffers[m_bufferIndex].Get() )
+		{
+			transition.m_pResource = backBuffer->Resource();
+			transition.m_pTransitionable = backBuffer;
+
+			transitions.push_back( transition );
+		}
+
+		if ( m_useDedicateTexture )
+		{
+			if ( D3D12BaseTexture2D* backBuffer = m_frameBuffers[m_bufferIndex].Get() )
+			{
+				transition.m_pResource = backBuffer->Resource();
+				transition.m_pTransitionable = backBuffer;
+
+				transitions.push_back( transition );
+			}
+		}
+
 		ICommandList* commandList = GetInterface<IAgl>()->GetCommandList();
-		commandList->Transition( 1, &transition );
+		commandList->Transition( static_cast<uint32>( transitions.size() ), transitions.data());
 	}
 
 	void D3D12Viewport::OnEndFrameRendering()
@@ -73,19 +88,28 @@ namespace agl
 
 	void D3D12Viewport::Clear( const float( &clearColor )[4] )
 	{
-		if ( m_backBuffers[m_bufferIndex].Get() == nullptr )
-		{
-			return;
-		}
-
-		auto d3d12RTV = static_cast<D3D12RenderTargetView*>( m_backBuffers[m_bufferIndex]->RTV() );
-		if ( d3d12RTV == nullptr )
-		{
-			return;
-		}
-
 		ICommandList* commandList = GetInterface<IAgl>()->GetCommandList();
-		commandList->ClearRenderTarget( d3d12RTV, clearColor);
+
+		if ( m_backBuffers[m_bufferIndex].Get() != nullptr )
+		{
+			if ( auto d3d12RTV = static_cast<D3D12RenderTargetView*>( m_backBuffers[m_bufferIndex]->RTV() ) )
+			{
+				commandList->ClearRenderTarget( d3d12RTV, clearColor );
+			}
+		}
+
+		if ( m_useDedicateTexture == false )
+		{
+			return;
+		}
+
+		if ( m_frameBuffers[m_bufferIndex].Get() != nullptr )
+		{
+			if ( auto d3d12RTV = static_cast<D3D12RenderTargetView*>( m_frameBuffers[m_bufferIndex]->RTV() ) )
+			{
+				commandList->ClearRenderTarget( d3d12RTV, clearColor );
+			}
+		}
 	}
 
 	void D3D12Viewport::Bind( ICommandListBase& commandList ) const
@@ -149,19 +173,38 @@ namespace agl
 				m_backBuffers[i]->AddRef();
 			}
 		}
+
+		if ( m_useDedicateTexture )
+		{
+			CreateDedicateTexture();
+		}
 	}
 
 	agl::Texture* D3D12Viewport::Texture()
 	{
+		return m_useDedicateTexture 
+			? m_frameBuffers[m_bufferIndex].Get() 
+			: m_backBuffers[m_bufferIndex].Get();
+	}
+
+	agl::Texture* D3D12Viewport::Canvas()
+	{
 		return m_backBuffers[m_bufferIndex].Get();
 	}
 
-	D3D12Viewport::D3D12Viewport( uint32 width, uint32 height, uint32 bufferCount, void* hWnd, DXGI_FORMAT format ) : m_width( width )
+	D3D12Viewport::D3D12Viewport( uint32 width, uint32 height, uint32 bufferCount, void* hWnd, DXGI_FORMAT format, const float4& bgColor, bool useDedicateTexture )
+		: m_width( width )
 		, m_height( height )
 		, m_bufferCount( bufferCount )
 		, m_hWnd( hWnd )
 		, m_format( format )
+		, m_clearColor{ bgColor[0], bgColor[1], bgColor[2], bgColor[3] }
+		, m_useDedicateTexture( useDedicateTexture )
 	{
+		if ( m_useDedicateTexture )
+		{
+			CreateDedicateTexture();
+		}
 	}
 
 	void D3D12Viewport::InitResource()
@@ -216,5 +259,54 @@ namespace agl
 	void D3D12Viewport::FreeResource()
 	{
 		m_pSwapChain.Reset();
+	}
+
+	void D3D12Viewport::CreateDedicateTexture()
+	{
+		m_frameBuffers.resize( m_bufferCount );
+
+		ResourceFormat orignalFormat = ConvertDxgiFormatToFormat( m_format );
+		DXGI_FORMAT typelessDxgiFormat = ConvertDxgiFormatToDxgiTypelessFormat( m_format );
+		ResourceFormat typelessFormat = ConvertDxgiFormatToFormat( typelessDxgiFormat );
+
+		TextureTrait frameBufferTrait = {
+			.m_width = m_width,
+			.m_height = m_height,
+			.m_depth = 1,
+			.m_sampleCount = 1,
+			.m_sampleQuality = 0,
+			.m_mipLevels = 1,
+			.m_format = typelessFormat,
+			.m_access = ResourceAccessFlag::Default,
+			.m_bindType = ResourceBindType::RenderTarget | ResourceBindType::ShaderResource,
+			.m_miscFlag = ResourceMisc::WithoutViews,
+			.m_clearValue = agl::ResourceClearValue{
+				.m_format = orignalFormat,
+				.m_color = { m_clearColor[0], m_clearColor[1], m_clearColor[2], m_clearColor[3] }
+			}
+		};
+
+		for ( uint32 i = 0; i < m_bufferCount; ++i )
+		{
+			if ( m_frameBuffers[i] == nullptr )
+			{
+				m_frameBuffers[i] = new D3D12BaseTexture2D( frameBufferTrait, nullptr );
+			}
+			else
+			{
+				m_frameBuffers[i]->Recreate( frameBufferTrait, nullptr );
+			}
+		}
+
+		EnqueueRenderTask( [this, orignalFormat]()
+			{
+				for ( uint32 i = 0; i < m_bufferCount; ++i )
+				{
+					m_frameBuffers[i]->Init();
+
+					m_frameBuffers[i]->CreateRenderTarget( orignalFormat );
+					m_frameBuffers[i]->CreateShaderResource( orignalFormat );
+				}
+			} );
 	}
 }

@@ -12,7 +12,7 @@ namespace engine
 		GENERATE_CLASS_TYPE_INFO( DefaultApp );
 
 	public:
-		static bool IsEditor();
+		ENGINE_DLL static bool IsEditor();
 		static std::pair<int32, int32> GetClientSize();
 
 	private:

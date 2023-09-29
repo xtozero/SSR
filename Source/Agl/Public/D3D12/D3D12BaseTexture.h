@@ -21,6 +21,13 @@ namespace agl
 
 		const D3D12_RESOURCE_DESC& GetDesc() const;
 
+		void CreateShaderResource( std::optional<ResourceFormat> overrideFormat = {} );
+		void CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat = {} );
+		virtual void CreateRenderTarget( std::optional<ResourceFormat> overrideFormat = {} ) = 0;
+		virtual void CreateDepthStencil( std::optional<ResourceFormat> overrideFormat = {} ) = 0;
+
+		void Recreate( const TextureTrait& trait, const ResourceInitData* initData );
+
 		D3D12Texture( const TextureTrait& trait, const ResourceInitData* initData );
 		D3D12Texture() = default;
 		D3D12Texture( const D3D12Texture& ) = delete;
@@ -38,11 +45,6 @@ namespace agl
 
 		virtual void CreateTexture() override;
 
-		void CreateShaderResource();
-		void CreateUnorderedAccess();
-		virtual void CreateRenderTarget() = 0;
-		virtual void CreateDepthStencil() = 0;
-
 	private:
 		virtual void InitResource() override
 		{
@@ -51,7 +53,7 @@ namespace agl
 				CreateTexture();
 			}
 
-			if ( HasAnyFlags( m_trait.m_miscFlag, ResourceMisc::Intermediate ) )
+			if ( HasAnyFlags( m_trait.m_miscFlag, ResourceMisc::Intermediate | ResourceMisc::WithoutViews ) )
 			{
 				return;
 			}
@@ -90,11 +92,10 @@ namespace agl
 	class D3D12BaseTexture1D final : public D3D12Texture
 	{
 	public:
-		D3D12BaseTexture1D( const TextureTrait& trait, const ResourceInitData* initData );
+		virtual void CreateRenderTarget( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
+		virtual void CreateDepthStencil( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
 
-	protected:
-		virtual void CreateRenderTarget() override {};
-		virtual void CreateDepthStencil() override {};
+		D3D12BaseTexture1D( const TextureTrait& trait, const ResourceInitData* initData );
 
 	private:
 	};
@@ -102,12 +103,11 @@ namespace agl
 	class D3D12BaseTexture2D final : public D3D12Texture
 	{
 	public:
+		virtual void CreateRenderTarget( std::optional<ResourceFormat> overrideFormat = {} ) override;
+		virtual void CreateDepthStencil( std::optional<ResourceFormat> overrideFormat = {} ) override;
+
 		D3D12BaseTexture2D( const TextureTrait& trait, const ResourceInitData* initData );
 		D3D12BaseTexture2D( ID3D12Resource* texture, const D3D12_RESOURCE_DESC* desc = nullptr );
-
-	protected:
-		virtual void CreateRenderTarget() override;
-		virtual void CreateDepthStencil() override;
 
 	private:
 	};
@@ -115,11 +115,10 @@ namespace agl
 	class D3D12BaseTexture3D final : public D3D12Texture
 	{
 	public:
-		D3D12BaseTexture3D( const TextureTrait& trait, const ResourceInitData* initData );
+		virtual void CreateRenderTarget( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
+		virtual void CreateDepthStencil( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
 
-	protected:
-		virtual void CreateRenderTarget() override {};
-		virtual void CreateDepthStencil() override {};
+		D3D12BaseTexture3D( const TextureTrait& trait, const ResourceInitData* initData );
 
 	private:
 	};

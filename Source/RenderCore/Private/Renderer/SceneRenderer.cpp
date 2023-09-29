@@ -821,7 +821,7 @@ namespace rendercore
 		CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
 	}
 
-	void SceneRenderer::RenderVolumetricCloud( IScene& scene, RenderView& renderView )
+	void SceneRenderer::RenderVolumetricCloud( IScene& scene, [[maybe_unused]] RenderView& renderView )
 	{
 		Scene* renderScene = scene.GetRenderScene();
 		if ( renderScene == nullptr )
@@ -920,7 +920,7 @@ namespace rendercore
 		CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
 	}
 
-	void SceneRenderer::RenderVolumetricFog( IScene& scene, RenderView& renderView )
+	void SceneRenderer::RenderVolumetricFog( IScene& scene, [[maybe_unused]] RenderView& renderView )
 	{
 		Scene* renderScene = scene.GetRenderScene();
 		if ( renderScene == nullptr )
@@ -1024,6 +1024,37 @@ namespace rendercore
 			{
 				return;
 			}
+
+			auto renderTarget = renderViewGroup.GetViewport().Texture();
+			if ( ( renderTarget == nullptr ) 
+				|| ( renderTarget->RTV() == nullptr ))
+			{
+				return;
+			}
+
+			auto [width, height] = renderViewGroup.GetViewport().Size();
+			CubeArea<float> viewport = {
+					.m_left = 0.f,
+					.m_top = 0.f,
+					.m_front = 0.f,
+					.m_right = static_cast<float>( width ),
+					.m_bottom = static_cast<float>( height ),
+					.m_back = 1.f
+			};
+
+			RectangleArea<int32> scissorRect = {
+					.m_left = 0L,
+					.m_top = 0L,
+					.m_right = static_cast<int32>( width ),
+					.m_bottom = static_cast<int32>( height )
+			};
+
+			auto rtv = renderTarget->RTV();
+
+			auto commandList = GetCommandList();
+			commandList.SetViewports( 1, &viewport );
+			commandList.SetScissorRects( 1, &scissorRect );
+			commandList.BindRenderTargets( &rtv, 1, nullptr);
 
 			m_rsms.PreRender( renderViewGroup );
 			m_rsms.Render( renderingParam, m_shaderResources );

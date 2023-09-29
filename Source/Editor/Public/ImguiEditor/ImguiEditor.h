@@ -2,7 +2,11 @@
 
 #include "IEditor.h"
 
-class ILogic;
+namespace logic
+{
+	class GameClientViewport;
+	class ILogic;
+}
 
 namespace editor
 {
@@ -16,14 +20,18 @@ namespace editor
 		virtual void HandleUserInput( const engine::UserInput& input ) override;
 		virtual void HandleTextInput( uint64 text, bool bUnicode ) override;
 		virtual void AppSizeChanged( engine::IPlatform& platform ) override;
+		virtual logic::GameClientViewport * GetGameClientViewport() override;
 
 		~ImguiEditor();
 
 	private:
 		void DrawDockSpace();
 		void DrawMainMenuBar();
+		void DrawSceneWindow();
 
 		HMODULE m_logicDll = nullptr;
 		ILogic* m_logic = nullptr;
+
+		bool m_passingInputToLogic = false;
 	};
 }

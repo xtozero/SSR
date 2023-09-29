@@ -4,7 +4,11 @@
 #include "D3D11Api.h"
 #include "D3D11BaseTexture.h"
 #include "D3D11ResourceViews.h"
+#include "DxgiFlagConvertor.h"
+#include "IAgl.h"
 #include "ICommandList.h"
+#include "LibraryTool/InterfaceFactories.h"
+#include "TaskScheduler.h"
 #include "Texture.h"
 
 #include <d3d11.h>
@@ -25,21 +29,27 @@ namespace agl
 
 	void D3D11Viewport::Clear( const float (&clearColor)[4] )
 	{
-		if ( m_backBuffer.Get() == nullptr )
+		ICommandList* commandList = GetInterface<IAgl>()->GetCommandList();
+
+		if ( m_backBuffer.Get() != nullptr )
+		{
+			if ( agl::RenderTargetView* rtv = m_backBuffer->RTV() )
+			{
+				commandList->ClearRenderTarget( rtv, clearColor );
+			}
+		}
+
+		if ( m_useDedicateTexture == false )
 		{
 			return;
 		}
 
-		auto d3d11RTV = static_cast<D3D11RenderTargetView*>( m_backBuffer->RTV() );
-		if ( d3d11RTV == nullptr )
+		if ( m_frameBuffer.Get() != nullptr )
 		{
-			return;
-		}
-
-		ID3D11RenderTargetView* rtv = d3d11RTV->Resource();
-		if ( rtv )
-		{
-			D3D11Context().ClearRenderTargetView( rtv, clearColor );
+			if ( agl::RenderTargetView* rtv = m_frameBuffer->RTV() )
+			{
+				commandList->ClearRenderTarget( rtv, clearColor );
+			}
 		}
 	}
 
@@ -91,14 +101,30 @@ namespace agl
 		{
 			m_backBuffer->AddRef();
 		}
+
+		if ( m_useDedicateTexture )
+		{
+			CreateDedicateTexture();
+		}
 	}
 
-	D3D11Viewport::D3D11Viewport( uint32 width, uint32 height, void* hWnd, DXGI_FORMAT format ) :
-		m_width( width ), m_height( height ), m_hWnd( hWnd ), m_format( format )
+	D3D11Viewport::D3D11Viewport( uint32 width, uint32 height, void* hWnd, DXGI_FORMAT format, bool useDedicateTexture ) 
+		: m_width( width )
+		, m_height( height )
+		, m_hWnd( hWnd )
+		, m_format( format )
+		, m_useDedicateTexture( useDedicateTexture )
 	{
 	}
 
 	Texture* D3D11Viewport::Texture()
+	{
+		return m_useDedicateTexture
+			? m_frameBuffer.Get()
+			: m_backBuffer.Get();
+	}
+
+	agl::Texture* D3D11Viewport::Canvas()
 	{
 		return m_backBuffer.Get();
 	}
@@ -133,11 +159,54 @@ namespace agl
 		assert( SUCCEEDED( hr ) );
 		m_backBuffer = new D3D11BaseTexture2D( backBuffer );
 		m_backBuffer->Init();
+
+		if ( m_useDedicateTexture )
+		{
+			CreateDedicateTexture();
+		}
 	}
 
 	void D3D11Viewport::FreeResource()
 	{
 		m_backBuffer = nullptr;
+		m_frameBuffer = nullptr;
 		m_pSwapChain.Reset();
+	}
+
+	void D3D11Viewport::CreateDedicateTexture()
+	{
+		ResourceFormat orignalFormat = ConvertDxgiFormatToFormat( m_format );
+		DXGI_FORMAT typelessDxgiFormat = ConvertDxgiFormatToDxgiTypelessFormat( m_format );
+		ResourceFormat typelessFormat = ConvertDxgiFormatToFormat( typelessDxgiFormat );
+
+		TextureTrait frameBufferTrait = {
+			.m_width = m_width,
+			.m_height = m_height,
+			.m_depth = 1,
+			.m_sampleCount = 1,
+			.m_sampleQuality = 0,
+			.m_mipLevels = 1,
+			.m_format = typelessFormat,
+			.m_access = ResourceAccessFlag::Default,
+			.m_bindType = ResourceBindType::RenderTarget | ResourceBindType::ShaderResource,
+			.m_miscFlag = ResourceMisc::WithoutViews
+		};
+
+		if ( m_frameBuffer == nullptr )
+		{
+			m_frameBuffer = new D3D11BaseTexture2D( frameBufferTrait, nullptr );
+		}
+		else
+		{
+			m_frameBuffer->Recreate( frameBufferTrait, nullptr );
+		}
+
+		EnqueueRenderTask( [this, orignalFormat]()
+			{
+				m_frameBuffer->Init();
+
+				m_frameBuffer->CreateRenderTarget( orignalFormat );
+				m_frameBuffer->CreateShaderResource( orignalFormat );
+			} );
 	}
 }

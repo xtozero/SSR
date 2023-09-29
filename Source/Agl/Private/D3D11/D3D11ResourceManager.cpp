@@ -153,9 +153,9 @@ namespace agl
 		return pipelineState;
 	}
 
-	Viewport* CD3D11ResourceManager::CreateViewport( uint32 width, uint32 height, void* hWnd, ResourceFormat format )
+	Viewport* CD3D11ResourceManager::CreateViewport( uint32 width, uint32 height, void* hWnd, ResourceFormat format, [[maybe_unused]] const float4& bgColor, bool useDedicateTexture )
 	{
-		auto viewport = new D3D11Viewport( width, height, hWnd, ConvertFormatToDxgiFormat( format ) );
+		auto viewport = new D3D11Viewport( width, height, hWnd, ConvertFormatToDxgiFormat( format ), useDedicateTexture );
 
 		return viewport;
 	}

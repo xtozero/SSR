@@ -40,7 +40,7 @@ namespace agl
 		virtual ComputePipelineState* CreatePipelineState( const ComputePipelineStateInitializer& initializer ) override;
 
 		// Viewport
-		virtual Viewport* CreateViewport( uint32 width, uint32 height, void* hWnd, ResourceFormat format ) override;
+		virtual Viewport* CreateViewport( uint32 width, uint32 height, void* hWnd, ResourceFormat format, const float4& bgColor, bool useDedicateTexture ) override;
 
 		CD3D11ResourceManager() = default;
 		virtual ~CD3D11ResourceManager() override;

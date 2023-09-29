@@ -12,6 +12,7 @@ namespace engine
 
 namespace logic
 {
+	class GameClientViewport;
 	class CGameObject;
 
 	class ILogic
@@ -24,6 +25,7 @@ namespace logic
 		virtual void HandleUserInput( const engine::UserInput& ) = 0;
 		virtual void HandleTextInput( uint64 text, bool bUnicode ) = 0;
 		virtual void AppSizeChanged( engine::IPlatform& platform ) = 0;
+		virtual GameClientViewport* GetGameClientViewport() = 0;
 
 		virtual ~ILogic() = default;
 	};

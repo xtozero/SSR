@@ -43,6 +43,7 @@ namespace logic
 		virtual void HandleUserInput( const engine::UserInput& input ) override;
 		virtual void HandleTextInput( uint64 text, bool bUnicode ) override;
 		virtual void AppSizeChanged( engine::IPlatform& platform ) override;
+		virtual GameClientViewport* GetGameClientViewport() override;
 
 		void SpawnObject( Owner<CGameObject*> object );
 

@@ -152,10 +152,10 @@ namespace agl
 		return pipelineState;
 	}
 
-	Viewport* D3D12ResourceManager::CreateViewport( uint32 width, uint32 height, void* hWnd, ResourceFormat format )
+	Viewport* D3D12ResourceManager::CreateViewport( uint32 width, uint32 height, void* hWnd, ResourceFormat format, const float4& bgColor, bool useDedicateTexture )
 	{
 		uint32 bufferCount = DefaultAgl::GetBufferCount();
-		return new D3D12Viewport( width, height, bufferCount, hWnd, ConvertFormatToDxgiFormat( format ) );
+		return new D3D12Viewport( width, height, bufferCount, hWnd, ConvertFormatToDxgiFormat( format ), bgColor, useDedicateTexture );
 	}
 
 	ID3D12PipelineState* D3D12ResourceManager::FindOrCreate( GraphicsPipelineState* pipelineState, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc )

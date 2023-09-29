@@ -18,6 +18,40 @@ namespace agl
 			return m_texture;
 		}
 
+		virtual void CreateShaderResource( std::optional<ResourceFormat> overrideFormat = {} ) = 0;
+		virtual void CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat = {} ) = 0;
+		virtual void CreateRenderTarget( std::optional<ResourceFormat> overrideFormat = {} ) = 0;
+		virtual void CreateDepthStencil( std::optional<ResourceFormat> overrideFormat = {} ) = 0;
+
+		void Recreate( const TextureTrait& trait, const ResourceInitData* initData )
+		{
+			delete[] m_dataStorage;
+
+			Free();
+
+			m_trait = trait;
+			ConvertToDesc( trait );
+			m_initData.clear();
+
+			if ( initData )
+			{
+				m_dataStorage = new unsigned char[initData->m_srcSize];
+				std::memcpy( m_dataStorage, initData->m_srcData, initData->m_srcSize );
+
+				size_t numSections = initData->m_sections.size();
+
+				m_initData.resize( numSections );
+				for ( size_t i = 0; i < numSections; ++i )
+				{
+					const ResourceSectionData& section = initData->m_sections[i];
+
+					m_initData[i].pSysMem = static_cast<unsigned char*>( m_dataStorage ) + section.m_offset;
+					m_initData[i].SysMemPitch = static_cast<uint32>( section.m_pitch );
+					m_initData[i].SysMemSlicePitch = static_cast<uint32>( section.m_slicePitch );
+				}
+			}
+		}
+
 		D3D11Texture( const TextureTrait& trait, const ResourceInitData* initData ) : TextureBase( trait, initData ) 
 		{
 			if ( initData )
@@ -45,11 +79,6 @@ namespace agl
 		T* m_texture = nullptr;
 		std::vector<D3D11_SUBRESOURCE_DATA> m_initData;
 
-		virtual void CreateShaderResource() = 0;
-		virtual void CreateUnorderedAccess() = 0;
-		virtual void CreateRenderTarget() = 0;
-		virtual void CreateDepthStencil() = 0;
-
 	private:
 		virtual void InitResource() override
 		{
@@ -58,7 +87,7 @@ namespace agl
 				CreateTexture();
 			}
 
-			if ( HasAnyFlags( m_trait.m_miscFlag, ResourceMisc::Intermediate ) )
+			if ( HasAnyFlags( m_trait.m_miscFlag, ResourceMisc::Intermediate | ResourceMisc::WithoutViews ) )
 			{
 				return;
 			}
@@ -97,57 +126,65 @@ namespace agl
 				m_texture = nullptr;
 			}
 		}
+
+		virtual void ConvertToDesc( const TextureTrait& trait ) = 0;
 	};
 
 	class D3D11BaseTexture1D final : public D3D11Texture<ID3D11Texture1D>
 	{
 	public:
+		virtual void CreateShaderResource( std::optional<ResourceFormat> overrideFormat = {} ) override;
+		virtual void CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat = {} ) override;
+		virtual void CreateRenderTarget( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
+		virtual void CreateDepthStencil( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
+
 		D3D11BaseTexture1D( const TextureTrait& trait, const ResourceInitData* initData );
 
 	protected:
 		virtual void CreateTexture() override;
 
-		virtual void CreateShaderResource() override;
-		virtual void CreateUnorderedAccess() override;
-		virtual void CreateRenderTarget() override {};
-		virtual void CreateDepthStencil() override {};
-
 	private:
+		virtual void ConvertToDesc( const TextureTrait& trait ) override;
+
 		D3D11_TEXTURE1D_DESC m_desc = {};
 	};
 
 	class D3D11BaseTexture2D final : public D3D11Texture<ID3D11Texture2D>
 	{
 	public:
+		virtual void CreateShaderResource( std::optional<ResourceFormat> overrideFormat = {} ) override;
+		virtual void CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat = {} ) override;
+		virtual void CreateRenderTarget( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override;
+		virtual void CreateDepthStencil( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override;
+
 		D3D11BaseTexture2D( const TextureTrait& trait, const ResourceInitData* initData );
 		D3D11BaseTexture2D( ID3D11Texture2D* texture, const D3D11_TEXTURE2D_DESC* desc = nullptr );
 
 	protected:
 		virtual void CreateTexture() override;
 
-		virtual void CreateShaderResource() override;
-		virtual void CreateUnorderedAccess() override;
-		virtual void CreateRenderTarget() override;
-		virtual void CreateDepthStencil() override;
-
 	private:
+		virtual void ConvertToDesc( const TextureTrait& trait ) override;
+
 		D3D11_TEXTURE2D_DESC m_desc = {};
 	};
 
 	class D3D11BaseTexture3D final : public D3D11Texture<ID3D11Texture3D>
 	{
 	public:
+		virtual void CreateShaderResource( std::optional<ResourceFormat> overrideFormat = {} ) override;
+		virtual void CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat = {} ) override;
+		virtual void CreateRenderTarget( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
+		virtual void CreateDepthStencil( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
+
 		D3D11BaseTexture3D( const TextureTrait& trait, const ResourceInitData* initData );
 
 	protected:
 		virtual void CreateTexture() override;
 
-		virtual void CreateShaderResource() override;
-		virtual void CreateUnorderedAccess() override;
-		virtual void CreateRenderTarget() override {};
-		virtual void CreateDepthStencil() override {};
-
 	private:
+		virtual void ConvertToDesc( const TextureTrait& trait ) override;
+
 		D3D11_TEXTURE3D_DESC m_desc = {};
 	};
 }
