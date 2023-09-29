@@ -309,6 +309,28 @@ namespace agl
 		return dsv;
 	}
 
+	void D3D11BaseTexture1D::CreateShaderResource( std::optional<ResourceFormat> overrideFormat )
+	{
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc );
+		if ( overrideFormat.has_value() )
+		{
+			srvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+		}
+		m_srv = new D3D11ShaderResourceView( this, m_texture, srvDesc );
+		m_srv->Init();
+	}
+
+	void D3D11BaseTexture1D::CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat )
+	{
+		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc );
+		if ( overrideFormat.has_value() )
+		{
+			uavDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+		}
+		m_uav = new D3D11UnorderedAccessView( this, m_texture, uavDesc );
+		m_uav->Init();
+	}
+
 	D3D11BaseTexture1D::D3D11BaseTexture1D( const TextureTrait& trait, const ResourceInitData* initData )
 		: D3D11Texture<ID3D11Texture1D>( trait, initData )
 	{
@@ -316,24 +338,59 @@ namespace agl
 
 	void D3D11BaseTexture1D::CreateTexture()
 	{
-		m_desc = ConvertTraitTo1DDesc( m_trait );
+		ConvertToDesc( m_trait );
 
 		[[maybe_unused]] HRESULT hr = D3D11Device().CreateTexture1D( &m_desc, m_dataStorage ? m_initData.data() : nullptr, &m_texture );
 		assert( SUCCEEDED( hr ) );
 	}
 
-	void D3D11BaseTexture1D::CreateShaderResource()
+	void D3D11BaseTexture1D::ConvertToDesc( const TextureTrait& trait )
+	{
+		m_desc = ConvertTraitTo1DDesc( trait );
+	}
+
+	void D3D11BaseTexture2D::CreateShaderResource( std::optional<ResourceFormat> overrideFormat )
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc );
+		if ( overrideFormat.has_value() )
+		{
+			srvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+		}
 		m_srv = new D3D11ShaderResourceView( this, m_texture, srvDesc );
 		m_srv->Init();
 	}
 
-	void D3D11BaseTexture1D::CreateUnorderedAccess()
+	void D3D11BaseTexture2D::CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat )
 	{
 		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc );
+		if ( overrideFormat.has_value() )
+		{
+			uavDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+		}
 		m_uav = new D3D11UnorderedAccessView( this, m_texture, uavDesc );
 		m_uav->Init();
+	}
+
+	void D3D11BaseTexture2D::CreateRenderTarget( std::optional<ResourceFormat> overrideFormat )
+	{
+		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = ConvertDescToRTV( m_desc );
+		if ( overrideFormat.has_value() )
+		{
+			rtvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+		}
+		m_rtv = new D3D11RenderTargetView( this, m_texture, rtvDesc );
+		m_rtv->Init();
+	}
+
+	void D3D11BaseTexture2D::CreateDepthStencil( std::optional<ResourceFormat> overrideFormat )
+	{
+		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = ConvertDescToDSV( m_desc );
+		if ( overrideFormat.has_value() )
+		{
+			dsvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+		}
+		m_dsv = new D3D11DepthStencilView( this, m_texture, dsvDesc );
+		m_dsv->Init();
 	}
 
 	D3D11BaseTexture2D::D3D11BaseTexture2D( const TextureTrait& trait, const ResourceInitData* initData )
@@ -361,38 +418,37 @@ namespace agl
 
 	void D3D11BaseTexture2D::CreateTexture()
 	{
-		m_desc = ConvertTraitTo2DDesc( m_trait );
+		ConvertToDesc( m_trait );
 
 		[[maybe_unused]] HRESULT hr = D3D11Device().CreateTexture2D( &m_desc, m_dataStorage ? m_initData.data() : nullptr, &m_texture );
 		assert( SUCCEEDED( hr ) );
 	}
 
-	void D3D11BaseTexture2D::CreateShaderResource()
+	void D3D11BaseTexture2D::ConvertToDesc( const TextureTrait& trait )
+	{
+		m_desc = ConvertTraitTo2DDesc( trait );
+	}
+
+	void D3D11BaseTexture3D::CreateShaderResource( std::optional<ResourceFormat> overrideFormat )
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc );
+		if ( overrideFormat.has_value() )
+		{
+			srvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+		}
 		m_srv = new D3D11ShaderResourceView( this, m_texture, srvDesc );
 		m_srv->Init();
 	}
 
-	void D3D11BaseTexture2D::CreateUnorderedAccess()
+	void D3D11BaseTexture3D::CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat )
 	{
 		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc );
+		if ( overrideFormat.has_value() )
+		{
+			uavDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+		}
 		m_uav = new D3D11UnorderedAccessView( this, m_texture, uavDesc );
 		m_uav->Init();
-	}
-
-	void D3D11BaseTexture2D::CreateRenderTarget()
-	{
-		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = ConvertDescToRTV( m_desc );
-		m_rtv = new D3D11RenderTargetView( this, m_texture, rtvDesc );
-		m_rtv->Init();
-	}
-
-	void D3D11BaseTexture2D::CreateDepthStencil()
-	{
-		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = ConvertDescToDSV( m_desc );
-		m_dsv = new D3D11DepthStencilView( this, m_texture, dsvDesc );
-		m_dsv->Init();
 	}
 
 	D3D11BaseTexture3D::D3D11BaseTexture3D( const TextureTrait& trait, const ResourceInitData* initData )
@@ -402,23 +458,14 @@ namespace agl
 
 	void D3D11BaseTexture3D::CreateTexture()
 	{
-		m_desc = ConvertTraitTo3DDesc( m_trait );
+		ConvertToDesc( m_trait );
 
 		[[maybe_unused]] HRESULT hr = D3D11Device().CreateTexture3D( &m_desc, m_dataStorage ? m_initData.data() : nullptr, &m_texture );
 		assert( SUCCEEDED( hr ) );
 	}
 
-	void D3D11BaseTexture3D::CreateShaderResource()
+	void D3D11BaseTexture3D::ConvertToDesc( const TextureTrait& trait )
 	{
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc );
-		m_srv = new D3D11ShaderResourceView( this, m_texture, srvDesc );
-		m_srv->Init();
-	}
-
-	void D3D11BaseTexture3D::CreateUnorderedAccess()
-	{
-		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc );
-		m_uav = new D3D11UnorderedAccessView( this, m_texture, uavDesc );
-		m_uav->Init();
+		m_desc = ConvertTraitTo3DDesc( trait );
 	}
 }

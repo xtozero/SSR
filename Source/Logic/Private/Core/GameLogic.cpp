@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "Components/CameraComponent.h"
+#include "Config/DefaultAppConfig.h"
 #include "Config/DefaultLogicConfig.h"
 #include "ConsoleMessage/ConCommand.h"
 #include "ConsoleMessage/ConsoleMessageExecutor.h"
@@ -199,6 +200,11 @@ namespace logic
 			-1.f, 1.f, 0.5f, 1.f );
 	}
 
+	GameClientViewport* CGameLogic::GetGameClientViewport()
+	{
+		return m_gameViewport;
+	}
+
 	void CGameLogic::SpawnObject( Owner<CGameObject*> object )
 	{
 		m_world.SpawnObject( *this, object );
@@ -263,7 +269,7 @@ namespace logic
 		//float wndWidth = static_cast<float>( m_appSize.first );
 		//float wndHeight = static_cast<float>( m_appSize.second );
 		//Viewport viewport = { 0.f, 0.f, wndWidth, wndHeight, 0.f, 1.f };
-		//m_view.SetViewPort( *m_pRenderer, &viewport, 1 );
+		//m_view.SetViewport( *m_pRenderer, &viewport, 1 );
 
 		//RECT wndRect = { 0L, 0L, static_cast<LONG>( wndWidth ), static_cast<LONG>( wndHeight ) };
 		//m_view.SetScissorRects( *m_pRenderer, &wndRect, 1 );
@@ -573,7 +579,9 @@ namespace logic
 			m_appSize.first,
 			m_appSize.second,
 			m_wndHwnd,
-			agl::ResourceFormat::R8G8B8A8_UNORM_SRGB );
+			agl::ResourceFormat::R8G8B8A8_UNORM_SRGB,
+			DefaultLogic::GetDefaultBackgroundColor(),
+			engine::DefaultApp::IsEditor() );
 
 		m_gameViewport = new GameClientViewport( m_primayViewport.get() );
 		SpawnObject( m_gameViewport );

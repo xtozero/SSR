@@ -535,7 +535,8 @@ namespace
 		const ResourceClearValue& clearValue = trait.m_clearValue.value();
 
 		D3D12_CLEAR_VALUE ret;
-		ret.Format = ConvertFormatToDxgiFormat( trait.m_format );
+		ResourceFormat clearFormat = ( clearValue.m_format == ResourceFormat::Unknown ) ? trait.m_format : clearValue.m_format;
+		ret.Format = ConvertFormatToDxgiFormat( clearFormat );
 
 		if ( HasAnyFlags( trait.m_bindType, ResourceBindType::RenderTarget ) )
 		{
@@ -570,6 +571,57 @@ namespace agl
 	const D3D12_RESOURCE_DESC& D3D12Texture::GetDesc() const
 	{
 		return m_desc;
+	}
+
+	void D3D12Texture::CreateShaderResource( std::optional<ResourceFormat> overrideFormat )
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertTraitToSRV( m_trait );
+		if ( overrideFormat.has_value() )
+		{
+			srvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+		}
+		m_srv = new D3D12ShaderResourceView( this, static_cast<ID3D12Resource*>( Resource() ), srvDesc );
+		m_srv->Init();
+	}
+
+	void D3D12Texture::CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat )
+	{
+		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertTraitToUAV( m_trait );
+		if ( overrideFormat.has_value() )
+		{
+			uavDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+		}
+		m_uav = new D3D12UnorderedAccessView( this, static_cast<ID3D12Resource*>( Resource() ), uavDesc );
+		m_uav->Init();
+	}
+
+	void D3D12Texture::Recreate( const TextureTrait& trait, const ResourceInitData* initData )
+	{
+		delete[] m_dataStorage;
+
+		Free();
+
+		m_trait = trait;
+		m_desc = ConvertTraitToDesc( trait );
+		m_initData.clear();
+
+		if ( initData )
+		{
+			m_dataStorage = new unsigned char[initData->m_srcSize];
+			std::memcpy( m_dataStorage, initData->m_srcData, initData->m_srcSize );
+
+			size_t numSections = initData->m_sections.size();
+
+			m_initData.resize( numSections );
+			for ( size_t i = 0; i < numSections; ++i )
+			{
+				const ResourceSectionData& section = initData->m_sections[i];
+
+				m_initData[i].pData = static_cast<unsigned char*>( m_dataStorage ) + section.m_offset;
+				m_initData[i].RowPitch = section.m_pitch;
+				m_initData[i].SlicePitch = section.m_slicePitch;
+			}
+		}
 	}
 
 	D3D12Texture::D3D12Texture( const TextureTrait& trait, const ResourceInitData* initData )
@@ -620,20 +672,6 @@ namespace agl
 		}
 	}
 
-	void D3D12Texture::CreateShaderResource()
-	{
-		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertTraitToSRV( m_trait );
-		m_srv = new D3D12ShaderResourceView( this, static_cast<ID3D12Resource*>( Resource() ), srvDesc );
-		m_srv->Init();
-	}
-
-	void D3D12Texture::CreateUnorderedAccess()
-	{
-		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertTraitToUAV( m_trait );
-		m_uav = new D3D12UnorderedAccessView( this, static_cast<ID3D12Resource*>( Resource() ), uavDesc );
-		m_uav->Init();
-	}
-
 	D3D12BaseTexture1D::D3D12BaseTexture1D( const TextureTrait& trait, const ResourceInitData* initData )
 		: D3D12Texture( trait, initData )
 	{
@@ -665,16 +703,24 @@ namespace agl
 		}
 	}
 
-	void D3D12BaseTexture2D::CreateRenderTarget()
+	void D3D12BaseTexture2D::CreateRenderTarget( std::optional<ResourceFormat> overrideFormat )
 	{
 		D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = ConvertTraitToRTV( m_trait );
+		if ( overrideFormat.has_value() )
+		{
+			rtvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+		}
 		m_rtv = new D3D12RenderTargetView( this, static_cast<ID3D12Resource*>( Resource() ), rtvDesc );
 		m_rtv->Init();
 	}
 
-	void D3D12BaseTexture2D::CreateDepthStencil()
+	void D3D12BaseTexture2D::CreateDepthStencil( std::optional<ResourceFormat> overrideFormat )
 	{
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = ConvertTraitToDSV( m_trait );
+		if ( overrideFormat.has_value() )
+		{
+			dsvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+		}
 		m_dsv = new D3D12DepthStencilView( this, static_cast<ID3D12Resource*>( Resource() ), dsvDesc );
 		m_dsv->Init();
 	}

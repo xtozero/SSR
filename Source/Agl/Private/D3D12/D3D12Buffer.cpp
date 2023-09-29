@@ -284,7 +284,7 @@ namespace agl
 			}
 		}
 
-		if ( HasAnyFlags( m_trait.m_miscFlag, ResourceMisc::Intermediate ) )
+		if ( HasAnyFlags( m_trait.m_miscFlag, ResourceMisc::Intermediate | ResourceMisc::WithoutViews ) )
 		{
 			return;
 		}

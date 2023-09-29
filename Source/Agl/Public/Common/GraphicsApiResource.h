@@ -136,6 +136,7 @@ namespace agl
 		// Custom
 		Texture3D = 0x200,
 		Intermediate = 0x400,
+		WithoutViews = Intermediate,
 	};
 	ENUM_CLASS_FLAGS( ResourceMisc );
 
@@ -623,15 +624,20 @@ namespace agl
 		ResourceState m_state;
 	};
 
-	union ResourceClearValue
+	struct ResourceClearValue
 	{
-		float m_color[4];
+		ResourceFormat m_format = ResourceFormat::Unknown;
 
-		struct DepthStencilClearValue
+		union
 		{
-			float m_depth;
-			uint8 m_stencil;
-		} m_depthStencil;
+			float m_color[4];
+
+			struct DepthStencilClearValue
+			{
+				float m_depth;
+				uint8 m_stencil;
+			} m_depthStencil;
+		};
 	};
 
 	struct BufferTrait

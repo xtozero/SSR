@@ -1,12 +1,16 @@
 #include "ImguiEditor.h"
 
+#include "GameObject/GameClientViewport.h"
+#include "GraphicsResource/Viewport.h"
 #include "imgui.h"
 #include "imgui_impl_win32.h"
 #include "LibraryTool/InterfaceFactories.h"
 #include "Platform/IPlatform.h"
+#include "Texture.h"
 #include "UserInput/UserInput.h"
 
 using ::engine::UserInput;
+using ::logic::GameClientViewport;
 using enum ::engine::UserInputCode;
 
 namespace
@@ -155,6 +159,7 @@ namespace editor
 
         DrawDockSpace();
         DrawMainMenuBar();
+        DrawSceneWindow();
 
         ImGui::Render();
 
@@ -222,7 +227,7 @@ namespace editor
         }
         }
 
-        if ( ImGui::IsWindowFocused( ImGuiFocusedFlags_AnyWindow ) == false )
+        if ( m_passingInputToLogic )
         {
             m_logic->HandleUserInput( input );
         }
@@ -246,6 +251,16 @@ namespace editor
         m_logic->AppSizeChanged( platform );
     }
 
+    logic::GameClientViewport* ImguiEditor::GetGameClientViewport()
+    {
+        if ( m_logic )
+        {
+            return m_logic->GetGameClientViewport();
+        }
+
+        return nullptr;
+    }
+
     ImguiEditor::~ImguiEditor()
     {
         ShutdownModule( m_logicDll );
@@ -264,6 +279,27 @@ namespace editor
         {
             ImGui::EndMainMenuBar();
         }
+    }
+
+    void ImguiEditor::DrawSceneWindow()
+    {
+        GameClientViewport* gameClientViewport = GetGameClientViewport();
+        if ( gameClientViewport == nullptr )
+        {
+            return;
+        }
+
+        rendercore::Viewport* viewport = gameClientViewport->GetViewport();
+        if ( viewport == nullptr
+            || viewport->Texture() == nullptr )
+        {
+            return;
+        }
+
+        ImGui::Begin( "Scene" );
+        m_passingInputToLogic = ( ImGui::IsWindowHovered() && ImGui::IsWindowFocused() );
+        ImGui::Image( (ImTextureID)viewport->Texture(), ImGui::GetContentRegionAvail() );
+        ImGui::End();
     }
 
     Owner<IEditor*> CreateEditor()

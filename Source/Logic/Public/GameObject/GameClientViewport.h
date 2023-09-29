@@ -18,7 +18,8 @@ namespace logic
 	public:
 		void Draw();
 
-		void SetViewPort( rendercore::Viewport* viewport );
+		void SetViewport( rendercore::Viewport* viewport );
+		LOGIC_DLL rendercore::Viewport* GetViewport();
 
 		void AppSizeChanged( void* handle, const std::pair<uint32, uint32>& newSize );
 

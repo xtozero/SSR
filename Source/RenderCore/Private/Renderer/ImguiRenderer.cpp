@@ -10,12 +10,15 @@
 #include "MeshDrawInfo.h"
 #include "PassProcessor.h"
 #include "RenderOption.h"
+#include "RenderView.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "SceneRenderer.h"
 #include "ShaderParameterUtils.h"
 #include "SizedTypes.h"
 #include "Texture.h"
+#include "TransitionUtils.h"
 #include "VertexCollection.h"
+#include "Viewport.h"
 
 namespace rendercore
 {
@@ -199,6 +202,16 @@ namespace rendercore
 			return;
 		}
 
+		agl::Texture* canvas = renderViewGroup.GetViewport().Canvas();
+		if ( ( canvas == nullptr ) || ( canvas->RTV() == nullptr ) )
+		{
+			return;
+		}
+
+		agl::RenderTargetView* rtv = canvas->RTV();
+		auto commandList = GetCommandList();
+		commandList.BindRenderTargets( &rtv, 1, nullptr );
+
 		float left = m_imguiDrawInfo.m_displayPos.x;
 		float right = m_imguiDrawInfo.m_displayPos.x + m_imguiDrawInfo.m_displaySize.x;
 		float top = m_imguiDrawInfo.m_displayPos.y;
@@ -237,10 +250,12 @@ namespace rendercore
 
 				agl::ShaderParameter param( agl::ShaderType::VS, agl::ShaderParameterType::ConstantBufferValue, 0, 0, sizeof( Matrix ) );
 
-				auto commandList = GetCommandList();
 				SetShaderValue( commandList, param, imguiProjection );
 
 				auto texture = static_cast<agl::Texture*>( drawCommand.m_textureId );
+
+				agl::ResourceTransition transition = Transition( *texture, agl::ResourceState::PixelShaderResource );
+				commandList.Transition( 1, &transition );
 
 				RenderingShaderResource imguiShaderResources;
 				imguiShaderResources.AddResource( "texture0", texture->SRV() );

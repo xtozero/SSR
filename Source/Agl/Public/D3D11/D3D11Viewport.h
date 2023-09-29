@@ -28,19 +28,25 @@ namespace agl
 		virtual std::pair<uint32, uint32> Size() const override;
 		virtual void Resize( const std::pair<uint32, uint32>& newSize ) override;
 		virtual agl::Texture* Texture() override;
+		virtual agl::Texture* Canvas() override;
 
-		D3D11Viewport( uint32 width, uint32 height, void* hWnd, DXGI_FORMAT format );
+		D3D11Viewport( uint32 width, uint32 height, void* hWnd, DXGI_FORMAT format, bool useDedicateTexture );
 
 	private:
 		virtual void InitResource() override;
 		virtual void FreeResource() override;
 
+		void CreateDedicateTexture();
+
 		uint32 m_width;
 		uint32 m_height;
 		void* m_hWnd;
 		DXGI_FORMAT m_format;
+		bool m_useDedicateTexture;
 		Microsoft::WRL::ComPtr<IDXGISwapChain> m_pSwapChain;
 
 		RefHandle<D3D11BaseTexture2D> m_backBuffer;
+
+		RefHandle<D3D11BaseTexture2D> m_frameBuffer;
 	};
 }

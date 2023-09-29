@@ -152,7 +152,7 @@ namespace agl
 		[[maybe_unused]] HRESULT hr = D3D11Device().CreateBuffer( &m_desc, initData, &m_buffer );
 		assert( SUCCEEDED( hr ) );
 
-		if ( HasAnyFlags( m_trait.m_miscFlag, ResourceMisc::Intermediate ) )
+		if ( HasAnyFlags( m_trait.m_miscFlag, ResourceMisc::Intermediate | ResourceMisc::WithoutViews ) )
 		{
 			return;
 		}

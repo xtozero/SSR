@@ -6,8 +6,8 @@
 
 namespace agl
 {
-	RefHandle<Viewport> Viewport::Create( uint32 width, uint32 height, void* hWnd, ResourceFormat format )
+	RefHandle<Viewport> Viewport::Create( uint32 width, uint32 height, void* hWnd, ResourceFormat format, const float4& bgColor, bool useDedicateTexture )
 	{
-		return GetInterface<IResourceManager>( )->CreateViewport( width, height, hWnd, format );
+		return GetInterface<IResourceManager>()->CreateViewport( width, height, hWnd, format, bgColor, useDedicateTexture );
 	}
 }
