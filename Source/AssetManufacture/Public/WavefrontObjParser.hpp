@@ -303,7 +303,7 @@ namespace Wavefront
 
 		struct Token
 		{
-			TokenType m_type;
+			TokenType m_type = TokenType::Error;
 			const char* m_begin = nullptr;
 			const char* m_end = nullptr;
 		};
@@ -595,7 +595,7 @@ namespace Wavefront
 
 		struct Token
 		{
-			TokenType m_type;
+			TokenType m_type = TokenType::Error;
 			const char* m_begin = nullptr;
 			const char* m_end = nullptr;
 		};

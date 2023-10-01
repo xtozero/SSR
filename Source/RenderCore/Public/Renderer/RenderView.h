@@ -11,6 +11,7 @@
 
 namespace rendercore
 {
+	class Canvas;
 	class IScene;
 	class Viewport;
 
@@ -34,6 +35,7 @@ namespace rendercore
 	struct RenderViewGroupInitializer
 	{
 		IScene& m_scene;
+		Canvas& m_cavas;
 		Viewport& m_viewport;
 		float m_elapsedTime = 0.f;
 		float m_totalTime = 0.f;
@@ -45,6 +47,7 @@ namespace rendercore
 	public:
 		RENDERCORE_DLL RenderViewGroup( RenderViewGroupInitializer& initializer ) 
 			: m_scene( initializer.m_scene )
+			, m_canvas( initializer.m_cavas )
 			, m_viewport( initializer.m_viewport )
 			, m_elapsedTime( initializer.m_elapsedTime )
 			, m_totalTime( initializer.m_totalTime )
@@ -78,6 +81,8 @@ namespace rendercore
 
 		IScene& Scene() { return m_scene; }
 		const IScene& Scene() const { return m_scene; }
+		Canvas& GetCanvas() { return m_canvas; }
+		const Canvas& GetCanvas() const { return m_canvas; }
 		Viewport& GetViewport() { return m_viewport; }
 		const Viewport& GetViewport() const { return m_viewport; }
 		float GetElapsedTime() const { return m_elapsedTime; }
@@ -97,6 +102,7 @@ namespace rendercore
 	private:
 		std::vector<RenderView> m_viewGroup;
 		IScene& m_scene;
+		Canvas& m_canvas;
 		Viewport& m_viewport;
 		float m_elapsedTime = 0.f;
 		float m_totalTime = 0.f;

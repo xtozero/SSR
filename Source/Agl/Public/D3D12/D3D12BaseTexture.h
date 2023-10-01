@@ -38,9 +38,9 @@ namespace agl
 	protected:
 		AllocatedResourceInfo m_resourceInfo;
 
-		D3D12_RESOURCE_DESC m_desc;
-		D3D12_HEAP_PROPERTIES m_heapProperties;
-		D3D12_HEAP_FLAGS m_heapFlags;
+		D3D12_RESOURCE_DESC m_desc = {};
+		D3D12_HEAP_PROPERTIES m_heapProperties = {};
+		D3D12_HEAP_FLAGS m_heapFlags = D3D12_HEAP_FLAG_NONE;
 		std::vector<D3D12_SUBRESOURCE_DATA> m_initData;
 
 		virtual void CreateTexture() override;

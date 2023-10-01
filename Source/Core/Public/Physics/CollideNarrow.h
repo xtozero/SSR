@@ -19,9 +19,9 @@ struct CollisionData
 	Contact* m_contacts = nullptr;
 	int32 m_contactsLeft = 0;
 	int32 m_contactsCount = 0;
-	float m_friction;
-	float m_restitution;
-	float m_tolerance;
+	float m_friction = 0.f;
+	float m_restitution = 0.f;
+	float m_tolerance = 0.f;
 
 	void AddContacts( int32 count );
 

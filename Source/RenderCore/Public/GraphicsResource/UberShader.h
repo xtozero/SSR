@@ -42,7 +42,7 @@ namespace rendercore
 		std::string m_name;
 
 		PROPERTY( type )
-		agl::ShaderType m_type;
+		agl::ShaderType m_type = agl::ShaderType::None;
 
 		PROPERTY( profile )
 		Name m_profile;

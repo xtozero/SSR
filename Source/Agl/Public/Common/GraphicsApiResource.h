@@ -676,8 +676,8 @@ namespace agl
 
 	struct ResourceInitData
 	{
-		void* m_srcData;
-		size_t m_srcSize;
+		void* m_srcData = nullptr;
+		size_t m_srcSize = 0;
 		std::vector<ResourceSectionData> m_sections;
 	};
 
@@ -772,11 +772,11 @@ namespace agl
 
 	struct VertexLayoutTrait
 	{
-		bool m_isInstanceData;
-		uint32 m_index;
-		ResourceFormat m_format;
-		uint32 m_slot;
-		uint32 m_instanceDataStep;
+		bool m_isInstanceData = false;
+		uint32 m_index = 0;
+		ResourceFormat m_format = ResourceFormat::Unknown;
+		uint32 m_slot = 0;
+		uint32 m_instanceDataStep = 0;
 		Name m_name;
 
 		friend bool operator==( const VertexLayoutTrait& lhs, const VertexLayoutTrait& rhs )

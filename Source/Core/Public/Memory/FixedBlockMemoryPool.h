@@ -69,12 +69,12 @@ public:
 
 	FixedBlockMemoryPool( const FixedBlockMemoryPool& ) = delete;
 	FixedBlockMemoryPool& operator=( const FixedBlockMemoryPool& ) = delete;
-	FixedBlockMemoryPool( FixedBlockMemoryPool&& other )
+	FixedBlockMemoryPool( FixedBlockMemoryPool&& other ) noexcept
 	{
 		*this = std::move( other );
 	}
 
-	FixedBlockMemoryPool& operator=( FixedBlockMemoryPool&& other )
+	FixedBlockMemoryPool& operator=( FixedBlockMemoryPool&& other ) noexcept
 	{
 		if ( this == &other )
 		{

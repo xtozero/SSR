@@ -7,13 +7,15 @@
 #include "Core/IEditor.h"
 #include "ForwardRenderer.h"
 #include "GlobalShaders.h"
+#include "GraphicsResource/Canvas.h"
 #include "GraphicsResource/Viewport.h"
 #include "IAgl.h"
 #include "RenderTargetPool.h"
 #include "RenderView.h"
-#include "TaskScheduler.h"
 #include "Scene/Scene.h"
 #include "ShaderCache.h"
+#include "TaskScheduler.h"
+#include "TransitionUtils.h"
 #include "UserInterfaceRenderer.h"
 
 #if _WIN64
@@ -187,12 +189,14 @@ namespace rendercore
 
 	void RenderCore::BeginRenderingViewGroup( RenderViewGroup& renderViewGroup )
 	{
-		Viewport& viewport = renderViewGroup.GetViewport();
-
-		viewport.OnBeginFrameRendering();
-
 		const ColorF& bgColor = renderViewGroup.GetBackgroundColor();
 		float clearColor[4] = { bgColor[0], bgColor[1], bgColor[2], bgColor[3] };
+
+		Canvas& canvas = renderViewGroup.GetCanvas();
+		canvas.OnBeginFrameRendering();
+		canvas.Clear( clearColor );
+
+		Viewport& viewport = renderViewGroup.GetViewport();
 		viewport.Clear( clearColor );
 
 		SceneRenderer* pSceneRenderer = FindAndCreateSceneRenderer( renderViewGroup );
@@ -212,10 +216,10 @@ namespace rendercore
 			m_uiRenderer->Render( renderViewGroup );
 		}
 
-		viewport.OnEndFrameRendering();
+		canvas.OnEndFrameRendering();
 		GetCommandList().Commit();
 
-		viewport.Present();
+		canvas.Present();
 
 		if ( pSceneRenderer )
 		{

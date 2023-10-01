@@ -59,8 +59,8 @@ namespace rendercore
 		agl::RefHandle<agl::Texture> m_renderTargets[agl::MAX_RENDER_TARGET] = {};
 		agl::RefHandle<agl::Texture> m_depthStencil;
 
-		CubeArea<float> m_viewport;
-		RectangleArea<int32> m_scissorRects;
+		CubeArea<float> m_viewport = {};
+		RectangleArea<int32> m_scissorRects = {};
 	};
 
 	class SceneRenderer

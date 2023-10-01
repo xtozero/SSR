@@ -14,6 +14,7 @@ set (CORE_SOURCE
 
 set (GRAPHICS_RESOURCE_SOURCE
 	Private/GraphicsResource/ByteBuffer.cpp
+	Private/GraphicsResource/Canvas.cpp
 	Private/GraphicsResource/CommandList.cpp
 	Private/GraphicsResource/ComputePipelineState.cpp
 	Private/GraphicsResource/ConstantBuffer.cpp
@@ -32,6 +33,7 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Private/GraphicsResource/VertexLayout.cpp
 	Private/GraphicsResource/Viewport.cpp
 	Public/GraphicsResource/ByteBuffer.h
+	Public/GraphicsResource/Canvas.h
 	Public/GraphicsResource/CommandList.h
 	Public/GraphicsResource/ComputePipelineState.h
 	Public/GraphicsResource/ConstantBuffer.h

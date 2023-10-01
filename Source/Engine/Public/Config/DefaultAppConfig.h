@@ -20,9 +20,9 @@ namespace engine
 		bool m_editor = false;
 
 		PROPERTY( clientWidth )
-		int32 m_clientWidth;
+		int32 m_clientWidth = 0;
 
 		PROPERTY( clientHeight )
-		int32 m_clientHeight;
+		int32 m_clientHeight = 0;
 	};
 }

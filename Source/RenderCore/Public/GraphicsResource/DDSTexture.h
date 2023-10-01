@@ -94,7 +94,7 @@ namespace rendercore
 		bool m_isCubeMap = false;
 		uint32 m_demension = 0;
 
-		agl::ResourceFormat m_format;
+		agl::ResourceFormat m_format = agl::ResourceFormat::Unknown;
 
 		uint32 m_size = 0;
 		const uint8* m_memory = nullptr;

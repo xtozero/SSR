@@ -215,7 +215,7 @@ namespace agl
 
 		ComPtr<ID3D12Fence> m_fence;
 		std::vector<uint64, InlineAllocator<uint64, 2>> m_fenceValue;
-		HANDLE m_fenceEvent;
+		HANDLE m_fenceEvent = nullptr;
 
 		ComPtr<IDxcCompiler3> m_compiler;
 		ComPtr<IDxcLibrary> m_dxcLibrary;
