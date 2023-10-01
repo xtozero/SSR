@@ -59,8 +59,7 @@ namespace agl
 
 	void D3D11BlendState::SetBlendFactor( const float( &blendFactor )[4] )
 	{
-		constexpr uint32 size = std::extent_v<decltype( blendFactor )>;
-		for ( uint32 i = 0; i < size; ++i )
+		for ( uint32 i = 0; i < 4; ++i )
 		{
 			m_blendFactor[i] = blendFactor[i];
 		}

@@ -25,7 +25,7 @@ namespace
 {
 	D3D12_RESOURCE_DIMENSION GetResourceDimension( const TextureTrait& trait )
 	{
-		if ( trait.m_miscFlag == ResourceMisc::Texture3D )
+		if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Texture3D ) )
 		{
 			return D3D12_RESOURCE_DIMENSION_TEXTURE3D;
 		}

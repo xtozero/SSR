@@ -11,13 +11,13 @@ public:
 	void Resolve( float duration );
 	float CalculateSeparatingVelocity() const;
 
-	Particle* m_particle[2];
+	Particle* m_particle[2] = {};
 
-	float m_restitution;
+	float m_restitution = 0.f;
 
 	Vector m_contactNormal;
 
-	float m_penetration;
+	float m_penetration = 0.f;
 
 	Vector m_particleMovement[2];
 
@@ -35,7 +35,7 @@ public:
 
 private:
 	uint32 m_iterations;
-	uint32 m_iterationUsed;
+	uint32 m_iterationUsed = 0;
 };
 
 class ParticleContactGenerator

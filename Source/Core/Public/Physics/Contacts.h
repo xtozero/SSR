@@ -34,13 +34,13 @@ private:
 	RigidBody* m_body[2] = { nullptr, nullptr };
 	Point m_contactPoint;
 	Vector m_contactNormal;
-	float m_penetration;
-	float m_friction;
-	float m_restitution;
+	float m_penetration = 0.f;
+	float m_friction = 0.f;
+	float m_restitution = 0.f;
 
 	Matrix3X3 m_contactToWorld;
 	Vector m_contactVelocity;
-	float m_desiredDeltaVelocity;
+	float m_desiredDeltaVelocity = 0.f;
 	Point m_relativeContactPosition[2];
 };
 

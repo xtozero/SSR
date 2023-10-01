@@ -13,7 +13,7 @@ struct PathEnvironment
 	std::filesystem::path m_destination;
 	bool m_duplicateSourceDirectoryStructure = false;
 	std::vector<std::filesystem::path> m_ignorePath;
-	const json::Value* m_orignal;
+	const json::Value* m_orignal = nullptr;
 };
 
 struct PreprocessingEnvironment : public PathEnvironment

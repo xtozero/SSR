@@ -168,7 +168,11 @@ namespace logic
 		m_appSize = newAppSize;
 		CUtilWindowInfo::GetInstance().SetRect( m_appSize.first, m_appSize.second );
 
-		m_gameViewport->AppSizeChanged( platform.GetRawHandle<void*>(), newAppSize );
+		if ( m_canvas->Handle() == platform.GetRawHandle<void*>() )
+		{
+			m_canvas->Resize( newAppSize );
+		}
+		m_gameViewport->AppSizeChanged( newAppSize );
 
 		//m_pRenderer->AppSizeChanged( m_appSize.first, m_appSize.second );
 
@@ -220,6 +224,7 @@ namespace logic
 		WaitRenderThreadForShutdown();
 
 		m_world.CleanUp();
+		m_canvas.reset();
 		m_primayViewport.reset();
 
 		ShutdownModule( m_renderCoreDll );
@@ -356,7 +361,7 @@ namespace logic
 				scene->OnBeginSceneRendering();
 			} );
 
-		m_gameViewport->Draw();
+		m_gameViewport->Draw( *m_canvas );
 	}
 
 	void CGameLogic::DrawForDebug()
@@ -575,13 +580,24 @@ namespace logic
 
 	void CGameLogic::CreateGameViewport()
 	{
-		m_primayViewport = std::make_unique<rendercore::Viewport>(
+		m_canvas = std::make_unique<rendercore::Canvas>(
 			m_appSize.first,
 			m_appSize.second,
 			m_wndHwnd,
-			agl::ResourceFormat::R8G8B8A8_UNORM_SRGB,
-			DefaultLogic::GetDefaultBackgroundColor(),
-			engine::DefaultApp::IsEditor() );
+			agl::ResourceFormat::R8G8B8A8_UNORM_SRGB );
+
+		if ( engine::DefaultApp::IsEditor() )
+		{
+			m_primayViewport = std::make_unique<rendercore::Viewport>(
+				m_appSize.first,
+				m_appSize.second,
+				agl::ResourceFormat::R8G8B8A8_UNORM_SRGB,
+				DefaultLogic::GetDefaultBackgroundColor() );
+		}
+		else
+		{
+			m_primayViewport = std::make_unique<rendercore::Viewport>( *m_canvas );
+		}
 
 		m_gameViewport = new GameClientViewport( m_primayViewport.get() );
 		SpawnObject( m_gameViewport );

@@ -23,13 +23,13 @@ struct TaskQueue
 {
 	std::queue<TaskBase*> m_tasks;
 	std::mutex m_taskLock;
-	bool m_exclusiveQueue;
+	bool m_exclusiveQueue = false;
 	std::atomic<bool> m_free;
 };
 
 struct Worker
 {
-	size_t m_threadType;
+	size_t m_threadType = 0;
 	std::thread m_thread;
 	std::mutex m_lock;
 	std::condition_variable m_cv;

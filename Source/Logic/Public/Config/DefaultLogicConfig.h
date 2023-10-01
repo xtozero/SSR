@@ -21,6 +21,6 @@ namespace logic
 		std::string m_defaultWorld;
 
 		PROPERTY( defaultBackgroundColor )
-		float m_defaultBackgroundColor[4];
+		float m_defaultBackgroundColor[4] = {};
 	};
 }

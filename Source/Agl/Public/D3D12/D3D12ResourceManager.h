@@ -38,8 +38,12 @@ namespace agl
 		virtual GraphicsPipelineState* CreatePipelineState( const GraphicsPipelineStateInitializer& initializer ) override;
 		virtual ComputePipelineState* CreatePipelineState( const ComputePipelineStateInitializer& initializer ) override;
 
+		// Canvas
+		virtual Canvas* CreateCanvas( uint32 width, uint32 height, void* hWnd, ResourceFormat format ) override;
+
 		// Viewport
-		virtual Viewport* CreateViewport( uint32 width, uint32 height, void* hWnd, ResourceFormat format, const float4& bgColor, bool useDedicateTexture ) override;
+		virtual Viewport* CreateViewport( uint32 width, uint32 height, ResourceFormat format, const float4& bgColor ) override;
+		virtual Viewport* CreateViewport( Canvas& canvas ) override;
 
 		ID3D12PipelineState* FindOrCreate( GraphicsPipelineState* pipelineState, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc );
 

@@ -130,7 +130,7 @@ namespace rendercore
 		RasterizerState m_rasterizerState;
 		DepthStencilState m_depthStencilState;
 		BlendState m_blendState;
-		agl::ResourcePrimitive m_primitive;
+		agl::ResourcePrimitive m_primitive = agl::ResourcePrimitive::Undefined;
 
 		agl::RefHandle<agl::GraphicsPipelineState> m_pso;
 	};

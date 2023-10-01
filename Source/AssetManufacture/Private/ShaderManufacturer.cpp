@@ -148,9 +148,9 @@ namespace
 
 		struct Token
 		{
-			TokenType m_type;
+			TokenType m_type = TokenType::Error;
 			std::string_view m_str;
-			int32 m_integer;
+			int32 m_integer = 0;
 		};
 
 		std::optional<Token> ReadInteger();

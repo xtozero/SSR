@@ -17,6 +17,8 @@
 #include "D3D11VetexLayout.h"
 #include "D3D11Viewport.h"
 
+#include "DxgiSwapchain.h"
+
 #include "EnumStringMap.h"
 
 #include "Texture.h"
@@ -153,11 +155,21 @@ namespace agl
 		return pipelineState;
 	}
 
-	Viewport* CD3D11ResourceManager::CreateViewport( uint32 width, uint32 height, void* hWnd, ResourceFormat format, [[maybe_unused]] const float4& bgColor, bool useDedicateTexture )
+	Canvas* CD3D11ResourceManager::CreateCanvas( uint32 width, uint32 height, void* hWnd, ResourceFormat format )
 	{
-		auto viewport = new D3D11Viewport( width, height, hWnd, ConvertFormatToDxgiFormat( format ), useDedicateTexture );
+		return new DxgiSwapchain<AglType::D3D11>( D3D11Device(), D3D11Factory(), width, height, 1, hWnd, ConvertFormatToDxgiFormat( format ) );
+	}
+
+	Viewport* CD3D11ResourceManager::CreateViewport( uint32 width, uint32 height, ResourceFormat format, [[maybe_unused]] const float4& bgColor )
+	{
+		auto viewport = new D3D11Viewport( width, height, ConvertFormatToDxgiFormat( format ) );
 
 		return viewport;
+	}
+
+	Viewport* CD3D11ResourceManager::CreateViewport( Canvas& canvas )
+	{
+		return new D3D11Viewport( *reinterpret_cast<DxgiSwapchain<AglType::D3D11>*>( &canvas ) );
 	}
 
 	CD3D11ResourceManager::~CD3D11ResourceManager()

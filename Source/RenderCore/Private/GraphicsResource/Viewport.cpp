@@ -3,38 +3,13 @@
 
 #include "../RenderResource/Viewport.h"
 #include "AbstractGraphicsInterface.h"
+#include "Canvas.h"
 #include "InterfaceFactories.h"
 #include "IRenderResourceManager.h"
 #include "TaskScheduler.h"
 
 namespace rendercore
 {
-	void Viewport::OnBeginFrameRendering()
-	{
-		if ( m_pViewport.Get() )
-		{
-			m_pViewport->OnBeginFrameRendering();
-		}
-	}
-
-	void Viewport::OnEndFrameRendering()
-	{
-		if ( m_pViewport.Get() )
-		{
-			m_pViewport->OnEndFrameRendering();
-		}
-	}
-
-	agl::DeviceError Viewport::Present( bool vSync )
-	{
-		if ( m_pViewport.Get() )
-		{
-			return m_pViewport->Present( vSync );
-		}
-
-		return agl::DeviceError::DeviceLost;
-	}
-
 	void Viewport::Clear( const float( &color )[4] )
 	{
 		if ( m_pViewport.Get() )
@@ -49,16 +24,6 @@ namespace rendercore
 		{
 			m_pViewport->Bind( commandList );
 		}
-	}
-
-	void* Viewport::Handle() const
-	{
-		if ( m_pViewport.Get() )
-		{
-			return m_pViewport->Handle();
-		}
-
-		return nullptr;
 	}
 
 	std::pair<uint32, uint32> Viewport::Size() const
@@ -89,19 +54,19 @@ namespace rendercore
 		return nullptr;
 	}
 
-	agl::Texture* Viewport::Canvas()
+	Viewport::Viewport( uint32 width, uint32 height, agl::ResourceFormat format, const float4& bgColor )
 	{
-		if ( m_pViewport.Get() )
-		{
-			return m_pViewport->Canvas();
-		}
-
-		return nullptr;
+		m_pViewport = agl::Viewport::Create( width, height, format, bgColor );
+		EnqueueRenderTask(
+			[viewport = m_pViewport]()
+			{
+				viewport->Init();
+			} );
 	}
 
-	Viewport::Viewport( uint32 width, uint32 height, HWND hWnd, agl::ResourceFormat format, const float4& bgColor, bool useDedicateTexture )
+	Viewport::Viewport( rendercore::Canvas& canvas )
 	{
-		m_pViewport = agl::Viewport::Create( width, height, hWnd, format, bgColor, useDedicateTexture );
+		m_pViewport = agl::Viewport::Create( *canvas.Resource() );
 		EnqueueRenderTask(
 			[viewport = m_pViewport]()
 			{

@@ -394,6 +394,7 @@ namespace json
 			{
 			case DataType::String:
 				size += 2; // ""
+				[[fallthrough]];
 			case DataType::Interger:
 				[[fallthrough]];
 			case DataType::Real:
@@ -668,7 +669,7 @@ namespace json
 			return *this;
 		}
 
-		Value& operator=( Value&& rhs )
+		Value& operator=( Value&& rhs ) noexcept
 		{
 			if ( Type() != rhs.Type() )
 			{
@@ -722,7 +723,7 @@ namespace json
 			( *this ) = other;
 		}
 
-		Value( Value&& other )
+		Value( Value&& other ) noexcept
 		{
 			( *this ) = std::move( other );
 		}
@@ -823,7 +824,7 @@ namespace json
 			bool m_boolean;
 			std::string* m_string;
 			ObjectType* m_object;
-		} m_data;
+		} m_data = {};
 
 		friend std::ostream& operator<<( std::ostream& os, const Value& value )
 		{
@@ -921,7 +922,7 @@ namespace json
 
 		struct Token
 		{
-			TokenType m_type;
+			TokenType m_type = TokenType::Empty;
 			const char* m_begin = nullptr;
 			const char* m_end = nullptr;
 		};

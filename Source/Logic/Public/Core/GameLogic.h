@@ -4,6 +4,7 @@
 #include "common.h"
 #include "GameObject/PickingManager.h"
 #include "GameObject/Player.h"
+#include "GraphicsResource/Canvas.h"
 #include "GraphicsResource/Viewport.h"
 #include "ILogic.h"
 //#include "Model/ModelBuilder.h"
@@ -84,9 +85,9 @@ namespace logic
 	private:
 		void CreateGameViewport();
 
-		HMODULE m_renderCoreDll;
+		HMODULE m_renderCoreDll = nullptr;
 
-		HWND	m_wndHwnd;
+		HWND	m_wndHwnd = nullptr;
 		std::pair<uint32, uint32> m_appSize;
 
 		std::unique_ptr<InputController> m_inputController;
@@ -115,8 +116,9 @@ namespace logic
 
 		World m_world;
 
+		std::unique_ptr<rendercore::Canvas> m_canvas;
 		std::unique_ptr<rendercore::Viewport> m_primayViewport;
-		GameClientViewport* m_gameViewport;
+		GameClientViewport* m_gameViewport = nullptr;
 
 		std::atomic<int64> m_numDrawRequestQueued = 0;
 #ifdef DEBUGGING_BY_CONSOLE

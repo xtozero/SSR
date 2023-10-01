@@ -15,7 +15,7 @@ using ::DirectX::XMConvertToRadians;
 
 namespace logic
 {
-	void GameClientViewport::Draw()
+	void GameClientViewport::Draw( rendercore::Canvas& canvas )
 	{
 		if ( GetWorld() == nullptr )
 		{
@@ -43,6 +43,7 @@ namespace logic
 		const auto& timer = GetWorld()->GetTimer();
 		rendercore::RenderViewGroupInitializer initializer = {
 			.m_scene = *GetWorld()->Scene(),
+			.m_cavas = canvas,
 			.m_viewport = *m_viewport,
 			.m_elapsedTime = timer.GetElapsedTime(),
 			.m_totalTime = timer.GetTotalTime(),
@@ -71,13 +72,9 @@ namespace logic
 		return m_viewport;
 	}
 
-	void GameClientViewport::AppSizeChanged( void* handle, const std::pair<uint32, uint32>& newSize )
+	void GameClientViewport::AppSizeChanged( const std::pair<uint32, uint32>& newSize )
 	{
 		if ( m_viewport == nullptr )
-		{
-			return;
-		}
-		else if ( m_viewport->Handle() != handle )
 		{
 			return;
 		}

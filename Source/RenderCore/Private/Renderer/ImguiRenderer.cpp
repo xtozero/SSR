@@ -2,6 +2,7 @@
 
 #include "AbstractGraphicsInterface.h"
 #include "AssetLoader.h"
+#include "Canvas.h"
 #include "CommandList.h"
 #include "GlobalShaders.h"
 #include "GraphicsApiResource.h"
@@ -59,8 +60,8 @@ namespace rendercore
 
 	struct ImguiDrawList
 	{
-		int32 m_numVertex;
-		int32 m_numIndex;
+		int32 m_numVertex = 0;
+		int32 m_numIndex = 0;
 
 		std::vector<ImguiDrawCommand> m_drawCommands;
 	};
@@ -202,7 +203,7 @@ namespace rendercore
 			return;
 		}
 
-		agl::Texture* canvas = renderViewGroup.GetViewport().Canvas();
+		agl::Texture* canvas = renderViewGroup.GetCanvas().Texture();
 		if ( ( canvas == nullptr ) || ( canvas->RTV() == nullptr ) )
 		{
 			return;
