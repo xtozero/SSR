@@ -595,11 +595,9 @@ namespace agl
 		m_uav->Init();
 	}
 
-	void D3D12Texture::Recreate( const TextureTrait& trait, const ResourceInitData* initData )
+	void D3D12Texture::Reconstruct( const TextureTrait& trait, const ResourceInitData* initData )
 	{
 		delete[] m_dataStorage;
-
-		Free();
 
 		m_trait = trait;
 		m_desc = ConvertTraitToDesc( trait );

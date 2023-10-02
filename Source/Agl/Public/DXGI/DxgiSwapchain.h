@@ -94,6 +94,11 @@ namespace agl
 			return m_hWnd;
 		}
 
+		virtual std::pair<uint32, uint32> Size() const
+		{
+			return { m_width, m_height };
+		}
+
 		virtual void Resize( const std::pair<uint32, uint32>& newSize ) override
 		{
 			GetInterface<agl::IAgl>()->WaitGPU();

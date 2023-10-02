@@ -19,6 +19,7 @@ namespace agl
 		virtual void Clear( const float( &clearColor )[4] ) = 0;
 
 		virtual void* Handle() const = 0;
+		virtual std::pair<uint32, uint32> Size() const = 0;
 		virtual void Resize( const std::pair<uint32, uint32>& newSize ) = 0;
 
 		virtual agl::Texture* Texture() = 0;

@@ -213,6 +213,17 @@ namespace rendercore
 		auto commandList = GetCommandList();
 		commandList.BindRenderTargets( &rtv, 1, nullptr );
 
+		auto [width, height] = renderViewGroup.GetCanvas().Size();
+		CubeArea<float> viewport = {
+				.m_left = 0.f,
+				.m_top = 0.f,
+				.m_front = 0.f,
+				.m_right = static_cast<float>( width ),
+				.m_bottom = static_cast<float>( height ),
+				.m_back = 1.f
+		};
+		commandList.SetViewports( 1, &viewport );
+
 		float left = m_imguiDrawInfo.m_displayPos.x;
 		float right = m_imguiDrawInfo.m_displayPos.x + m_imguiDrawInfo.m_displaySize.x;
 		float top = m_imguiDrawInfo.m_displayPos.y;

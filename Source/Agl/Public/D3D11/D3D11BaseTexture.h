@@ -23,11 +23,9 @@ namespace agl
 		virtual void CreateRenderTarget( std::optional<ResourceFormat> overrideFormat = {} ) = 0;
 		virtual void CreateDepthStencil( std::optional<ResourceFormat> overrideFormat = {} ) = 0;
 
-		void Recreate( const TextureTrait& trait, const ResourceInitData* initData )
+		void Reconstruct( const TextureTrait& trait, const ResourceInitData* initData )
 		{
 			delete[] m_dataStorage;
-
-			Free();
 
 			m_trait = trait;
 			ConvertToDesc( trait );
