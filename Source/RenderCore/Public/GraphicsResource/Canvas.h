@@ -22,6 +22,7 @@ namespace rendercore
 		RENDERCORE_DLL void Clear( const float( &color )[4] );
 
 		RENDERCORE_DLL void* Handle() const;
+		RENDERCORE_DLL std::pair<uint32, uint32> Size() const;
 		RENDERCORE_DLL void Resize( const std::pair<uint32, uint32>& newSize );
 
 		RENDERCORE_DLL agl::Texture* Texture();

@@ -54,6 +54,16 @@ namespace rendercore
 		return nullptr;
 	}
 
+	RENDERCORE_DLL std::pair<uint32, uint32> Canvas::Size() const
+	{
+		if ( m_canvas.Get() )
+		{
+			return m_canvas->Size();
+		}
+
+		return {};
+	}
+
 	void Canvas::Resize( const std::pair<uint32, uint32>& newSize )
 	{
 		if ( m_canvas.Get() )

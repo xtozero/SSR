@@ -56,6 +56,11 @@ namespace agl
 
 	void D3D11Viewport::Resize( const std::pair<uint32, uint32>& newSize )
 	{
+		if ( ( m_width == newSize.first ) && ( m_height == newSize.second ) )
+		{
+			return;
+		}
+
 		m_width = newSize.first;
 		m_height = newSize.second;
 
@@ -121,11 +126,12 @@ namespace agl
 		}
 		else
 		{
-			m_frameBuffer->Recreate( frameBufferTrait, nullptr );
+			m_frameBuffer->Reconstruct( frameBufferTrait, nullptr );
 		}
 
 		EnqueueRenderTask( [this, orignalFormat]()
 			{
+				m_frameBuffer->Free();
 				m_frameBuffer->Init();
 
 				m_frameBuffer->CreateRenderTarget( orignalFormat );

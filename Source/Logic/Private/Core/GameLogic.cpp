@@ -172,7 +172,7 @@ namespace logic
 		{
 			m_canvas->Resize( newAppSize );
 		}
-		m_gameViewport->AppSizeChanged( newAppSize );
+		// m_gameViewport->AppSizeChanged( newAppSize );
 
 		//m_pRenderer->AppSizeChanged( m_appSize.first, m_appSize.second );
 
