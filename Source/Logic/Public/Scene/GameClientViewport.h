@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GameObject.h"
+#include "Reflection.h"
 #include "SizedTypes.h"
 
 namespace rendercore
@@ -12,12 +12,14 @@ namespace rendercore
 
 namespace logic
 {
-	class GameClientViewport : public CGameObject
+	class World;
+
+	class GameClientViewport
 	{
 		GENERATE_CLASS_TYPE_INFO( GameClientViewport )
 
 	public:
-		void Draw( rendercore::Canvas& canvas );
+		void Draw( World& world, rendercore::Canvas& canvas );
 
 		void SetViewport( rendercore::Viewport* viewport );
 		LOGIC_DLL rendercore::Viewport* GetViewport();
@@ -27,7 +29,7 @@ namespace logic
 		explicit GameClientViewport( rendercore::Viewport* viewport ) : m_viewport( viewport ) { }
 
 	private:
-		void InitView( rendercore::RenderViewGroup& views );
+		void InitView( World& world, rendercore::RenderViewGroup& views );
 
 		rendercore::Viewport* m_viewport = nullptr;
 	};

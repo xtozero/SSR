@@ -6,6 +6,7 @@
 #include "Math/Vector.h"
 #include "Scene/INotifyGraphicsDevice.h"
 #include "SizedTypes.h"
+#include "SparseArray.h"
 
 #include <cstddef>
 #include <memory>
@@ -63,7 +64,12 @@ namespace logic
 
 		ThinkTaskManager& GetThinkTaskManager();
 
-		const std::vector<std::unique_ptr<CGameObject>>& GameObjects() const
+		const SparseArray<std::unique_ptr<CGameObject>>& GameObjects() const
+		{
+			return m_gameObjects;
+		}
+
+		SparseArray<std::unique_ptr<CGameObject>>& GameObjects()
 		{
 			return m_gameObjects;
 		}
@@ -86,7 +92,7 @@ namespace logic
 		void SetPhysicsScene( PhysicsScene* scene );
 		void SetupPhysicsThinkFunctions();
 
-		std::vector<std::unique_ptr<CGameObject>> m_gameObjects;
+		SparseArray<std::unique_ptr<CGameObject>> m_gameObjects;
 
 		StartPhysicsThinkFunction m_startPhysicsThinkFunction;
 		EndPhysicsThinkFunction m_endPhysicsThinkFunction;

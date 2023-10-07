@@ -1,11 +1,11 @@
 #include "ImguiEditor.h"
 
-#include "GameObject/GameClientViewport.h"
 #include "GraphicsResource/Viewport.h"
 #include "imgui.h"
 #include "imgui_impl_win32.h"
 #include "LibraryTool/InterfaceFactories.h"
 #include "Platform/IPlatform.h"
+#include "Scene/GameClientViewport.h"
 #include "Texture.h"
 #include "UserInput/UserInput.h"
 
@@ -159,6 +159,7 @@ namespace editor
 
         DrawDockSpace();
         DrawMainMenuBar();
+        DrawContentBrowser();
         DrawSceneWindow();
 
         ImGui::Render();
@@ -261,6 +262,24 @@ namespace editor
         return nullptr;
     }
 
+    bool ImguiEditor::LoadWorld( const char* filePath )
+    {
+        if ( m_logic )
+        {
+            return m_logic->LoadWorld( filePath );
+        }
+
+        return false;
+    }
+
+    void ImguiEditor::UnloadWorld()
+    {
+        if ( m_logic )
+        {
+            m_logic->UnloadWorld();
+        }
+    }
+
     ImguiEditor::~ImguiEditor()
     {
         ShutdownModule( m_logicDll );
@@ -297,8 +316,14 @@ namespace editor
         }
 
         ImGui::Begin( "Scene" );
-        m_passingInputToLogic = ( ImGui::IsWindowHovered() && ImGui::IsWindowFocused() );
+        m_passingInputToLogic = ( ImGui::IsWindowHovered() && ImGui::IsWindowFocused() && ImGui::IsWindowDocked() );
         ImGui::Image( (ImTextureID)viewport->Texture(), ImGui::GetContentRegionAvail() );
+        ImGui::End();
+    }
+
+    void ImguiEditor::DrawContentBrowser()
+    {
+        ImGui::Begin( "Content Browser" );
         ImGui::End();
     }
 

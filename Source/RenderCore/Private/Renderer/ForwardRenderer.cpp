@@ -158,7 +158,10 @@ namespace rendercore
 				.m_format = agl::ResourceFormat::R8G8B8A8_UNORM_SRGB,
 				.m_access = agl::ResourceAccessFlag::Default,
 				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
-				.m_miscFlag = agl::ResourceMisc::None
+				.m_miscFlag = agl::ResourceMisc::None,
+				.m_clearValue = agl::ResourceClearValue{
+					.m_color = { 0.f, 0.f, 0.f, 0.f }
+				}
 			};
 
 			m_taaResolve = agl::Texture::Create( trait );

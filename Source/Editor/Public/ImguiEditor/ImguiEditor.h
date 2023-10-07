@@ -21,6 +21,8 @@ namespace editor
 		virtual void HandleTextInput( uint64 text, bool bUnicode ) override;
 		virtual void AppSizeChanged( engine::IPlatform& platform ) override;
 		virtual logic::GameClientViewport * GetGameClientViewport() override;
+		virtual bool LoadWorld( const char* filePath ) override;
+		virtual void UnloadWorld() override;
 
 		~ImguiEditor();
 
@@ -28,6 +30,7 @@ namespace editor
 		void DrawDockSpace();
 		void DrawMainMenuBar();
 		void DrawSceneWindow();
+		void DrawContentBrowser();
 
 		HMODULE m_logicDll = nullptr;
 		ILogic* m_logic = nullptr;

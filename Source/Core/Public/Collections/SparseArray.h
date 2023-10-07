@@ -24,9 +24,9 @@ class SparseArray
 public:
 	void Clear()
 	{
-		for ( size_t i = 0; i < Size(); ++i )
+		for ( auto& data : *this )
 		{
-			( (T&)GetData( i ).m_data ).~T();
+			( (T&)data ).~T();
 		}
 
 		m_data.clear();
@@ -75,10 +75,11 @@ public:
 		return index;
 	}
 
-	size_t Add( const T& element )
+	template <typename U>
+	size_t Add( U&& element )
 	{
 		size_t index = AddUninitialized();
-		std::construct_at( reinterpret_cast<T*>( &m_data[index].m_data ), element );
+		std::construct_at( reinterpret_cast<T*>( &m_data[index].m_data ), std::forward<U>( element ) );
 
 		return index;
 	}
@@ -180,22 +181,22 @@ public:
 
 	Iterator begin() noexcept
 	{
-		return Iterator( *this, 0 );
+		return Iterator( *this, m_allocationFlag.FindFirstSetBit() );
 	}
 
 	ConstIterator begin() const noexcept
 	{
-		return ConstIterator( *this, 0 );
+		return ConstIterator( *this, m_allocationFlag.FindFirstSetBit() );
 	}
 
 	Iterator end() noexcept
 	{
-		return Iterator( *this, m_size );
+		return Iterator( *this, m_allocationFlag.Size() );
 	}
 
 	ConstIterator end() const noexcept
 	{
-		return ConstIterator( *this, m_size );
+		return ConstIterator( *this, m_allocationFlag.Size() );
 	}
 
 	Iterator Find( const T& element )

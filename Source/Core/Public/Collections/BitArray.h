@@ -5,21 +5,21 @@
 class BitArray
 {
 public:
-	void Clear( )
+	void Clear()
 	{
-		m_bits.clear( );
+		m_bits.clear();
 	}
 
 	size_t Add( bool value )
 	{
-		size_t index = m_bits.size( );
+		size_t index = m_bits.size();
 		m_bits.emplace_back( value );
 		return index;
 	}
 
-	size_t Size( ) const
+	size_t Size() const
 	{
-		return m_bits.size( );
+		return m_bits.size();
 	}
 
 	auto operator[]( size_t index )
@@ -30,6 +30,19 @@ public:
 	const bool operator[]( size_t index ) const
 	{
 		return m_bits[index];
+	}
+
+	size_t FindFirstSetBit() const
+	{
+		for ( size_t i = 0; i < Size(); ++i )
+		{
+			if ( m_bits[i] )
+			{
+				return i;
+			}
+		}
+
+		return Size();
 	}
 
 private:
@@ -57,26 +70,26 @@ public:
 		return !( lhs == rhs );
 	}
 
-	ConstSetBitIterator& operator++( )
+	ConstSetBitIterator& operator++()
 	{
-		FindFirstSetBit( );
+		AdvanceNextSetBit();
 		return *this;
 	}
 
-	size_t operator*( ) const
+	size_t operator*() const
 	{
 		return m_startIndex;
 	}
 
 private:
-	void FindFirstSetBit( )
+	void AdvanceNextSetBit()
 	{
-		if ( m_startIndex >= m_array.Size( ) )
+		if ( m_startIndex >= m_array.Size() )
 		{
 			return;
 		}
 
-		for ( m_startIndex += 1; m_startIndex < m_array.Size( ); ++m_startIndex )
+		for ( m_startIndex += 1; m_startIndex < m_array.Size(); ++m_startIndex )
 		{
 			if ( m_array[m_startIndex] )
 			{

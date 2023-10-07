@@ -84,18 +84,7 @@ namespace rendercore
 
 	void TAARenderer::Resovle( IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup )
 	{
-		TAAResolveProcessor resolveProcessor;
-
-		PrimitiveSubMesh meshInfo;
-		meshInfo.m_count = 3;
-
-		auto result = resolveProcessor.Process( meshInfo );
-		if ( result.has_value() == false )
-		{
-			return;
-		}
-
-		DrawSnapshot& snapshot = *result;
+		auto commandList = GetCommandList();
 
 		agl::Texture* historyTex = renderTargets.GetTAAHistory();
 		agl::Texture* resolveTex = renderTargets.GetTAAResolve();
@@ -108,7 +97,22 @@ namespace rendercore
 			Transition( *sceneTex, agl::ResourceState::PixelShaderResource ),
 			Transition( *velocityTex, agl::ResourceState::PixelShaderResource ),
 		};
-		GetCommandList().Transition( std::extent_v<decltype( transitions )>, transitions );
+		commandList.Transition( std::extent_v<decltype( transitions )>, transitions );
+
+		commandList.ClearRenderTarget( resolveTex->RTV(), { 0, 0, 0, 0 } );
+
+		TAAResolveProcessor resolveProcessor;
+
+		PrimitiveSubMesh meshInfo;
+		meshInfo.m_count = 3;
+
+		auto result = resolveProcessor.Process( meshInfo );
+		if ( result.has_value() == false )
+		{
+			return;
+		}
+
+		DrawSnapshot& snapshot = *result;
 
 		// Linear Sampler
 		SamplerOption samplerOption;
@@ -138,7 +142,6 @@ namespace rendercore
 
 		agl::RenderTargetView* resolveRt = resolveTex->RTV();
 
-		auto commandList = GetCommandList();
 		commandList.BindRenderTargets( &resolveRt, 1, nullptr );
 
 		VisibleDrawSnapshot visibleSnapshot = {

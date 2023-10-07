@@ -38,7 +38,7 @@ namespace logic
 
 	void World::CleanUp()
 	{
-		m_gameObjects.clear();
+		m_gameObjects.Clear();
 
 		ReleasePhysicsScene();
 
@@ -59,17 +59,11 @@ namespace logic
 	{
 		m_clock.Tick();
 
-		for ( auto object = m_gameObjects.begin(); object != m_gameObjects.end(); )
+		for ( auto& object : m_gameObjects )
 		{
-			CGameObject* candidate = object->get();
-			if ( candidate->WillRemove() )
+			if ( object->WillRemove() )
 			{
-				// OnObjectRemoved( candidate->GetRigidBody( ) );
-				object = m_gameObjects.erase( object );
-			}
-			else
-			{
-				++object;
+				m_gameObjects.Remove( object );
 			}
 		}
 
@@ -119,8 +113,8 @@ namespace logic
 	void World::SpawnObject( CGameLogic& gameLogic, Owner<CGameObject*> object )
 	{
 		object->Initialize( gameLogic, *this );
-		object->SetID( m_gameObjects.size() );
-		m_gameObjects.emplace_back( object );
+		size_t idx = m_gameObjects.Add( object );
+		object->SetID( idx );
 	}
 
 	//void World::DebugDrawBVH( CDebugOverlayManager& debugOverlay, uint32 color, float duration )

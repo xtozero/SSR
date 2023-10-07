@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "GameObject/GameClientViewport.h"
+#include "Scene/GameClientViewport.h"
 
 #include "Components/CameraComponent.h"
 #include "Config/DefaultLogicConfig.h"
@@ -15,14 +15,9 @@ using ::DirectX::XMConvertToRadians;
 
 namespace logic
 {
-	void GameClientViewport::Draw( rendercore::Canvas& canvas )
+	void GameClientViewport::Draw( World& world, rendercore::Canvas& canvas )
 	{
-		if ( GetWorld() == nullptr )
-		{
-			return;
-		}
-
-		if ( GetWorld()->Scene() == nullptr )
+		if ( world.Scene() == nullptr )
 		{
 			return;
 		}
@@ -40,9 +35,9 @@ namespace logic
 
 		const float4& bgColor = DefaultLogic::GetDefaultBackgroundColor();
 
-		const auto& timer = GetWorld()->GetTimer();
+		const auto& timer = world.GetTimer();
 		rendercore::RenderViewGroupInitializer initializer = {
-			.m_scene = *GetWorld()->Scene(),
+			.m_scene = *world.Scene(),
 			.m_cavas = canvas,
 			.m_viewport = *m_viewport,
 			.m_elapsedTime = timer.GetElapsedTime(),
@@ -51,7 +46,7 @@ namespace logic
 		};
 
 		rendercore::RenderViewGroup renderViewGroup( initializer );
-		InitView( renderViewGroup );
+		InitView( world, renderViewGroup );
 		EnqueueRenderTask(
 			[this, renderModule, renderViewGroup]() mutable
 			{
@@ -90,15 +85,9 @@ namespace logic
 			} );
 	}
 
-	void GameClientViewport::InitView( rendercore::RenderViewGroup& views )
+	void GameClientViewport::InitView( World& world, rendercore::RenderViewGroup& views )
 	{
-		auto pWorld = GetWorld();
-		if ( pWorld == nullptr )
-		{
-			return;
-		}
-
-		CPlayer* localPlayer = GetLocalPlayer( *pWorld );
+		CPlayer* localPlayer = GetLocalPlayer( world );
 		if ( localPlayer == nullptr )
 		{
 			return;

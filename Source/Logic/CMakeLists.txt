@@ -61,7 +61,6 @@ set (CORE
 	
 set (GAME_OBJECT
 	Private/GameObject/DisplayShaderResourceHelper.cpp
-	Private/GameObject/GameClientViewport.cpp
 	Private/GameObject/GameObject.cpp
 	Private/GameObject/GameObjectFactory.cpp
 	Private/GameObject/Light.cpp
@@ -72,7 +71,6 @@ set (GAME_OBJECT
 	Private/GameObject/VolumetricCloud.cpp
 	Private/GameObject/VolumetricFog.cpp
 	Public/GameObject/DisplayShaderResourceHelper.h
-	Public/GameObject/GameClientViewport.h
 	Public/GameObject/GameObject.h
 	Public/GameObject/GameObjectFactory.h
 	Public/GameObject/GameObjectProperty.h
@@ -119,9 +117,11 @@ set (PRECOMPILED
 
 set (SCENE
 	Private/Scene/DebugOverlayManager.cpp
+	Private/Scene/GameClientViewport.cpp
 	Private/Scene/ScreenBlurManager.cpp
 	Private/Scene/SSRManager.cpp
 	Public/Scene/DebugOverlayManager.h
+	Public/Scene/GameClientViewport.h
 	Public/Scene/INotifyGraphicsDevice.h
 	Public/Scene/ScreenBlurManager.h
 	Public/Scene/SSRManager.h)

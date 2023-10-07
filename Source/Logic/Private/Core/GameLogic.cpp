@@ -13,12 +13,12 @@
 #include "Core/UtilWindowInfo.h"
 #include "FileSystem.h"
 #include "GameObject/GameObject.h"
-#include "GameObject/GameClientViewport.h"
 #include "IAgl.h"
 #include "InterfaceFactories.h"
 #include "Json/json.hpp"
 #include "Platform/IPlatform.h"
 #include "Renderer/IRenderCore.h"
+#include "Scene/GameClientViewport.h"
 #include "Scene/IScene.h"
 //#include "Render/IRenderResourceManager.h"
 #include "UserInput/UserInput.h"
@@ -72,6 +72,8 @@ namespace logic
 			return false;
 		}
 
+		CreateGameViewport();
+
 		m_inputController = std::make_unique<PlayerController>();
 
 		//m_view.CreatePerspectiveFovLHMatrix( XMConvertToRadians( 60 ),
@@ -88,16 +90,8 @@ namespace logic
 		m_pickingManager.PushViewport( 0.0f, 0.0f, static_cast<float>( m_appSize.first ), static_cast<float>( m_appSize.second ) );
 		*/
 
-		m_uiProjMat = Matrix(
-			2.0f / m_appSize.first, 0.f, 0.f, 0.f,
-			0.f, -2.0f / m_appSize.second, 0.f, 0.f,
-			0.f, 0.f, 0.5f, 0.f,
-			-1.f, 1.f, 0.5f, 1.f );
-
 		// m_pickingManager.PushCamera( &GetLocalPlayer()->GetCamera() );
 		// m_inputBroadCaster.AddListener( &m_pickingManager );
-
-		CreateGameViewport();
 
 		if ( LoadWorld( DefaultLogic::GetDefaultWorld() ) == false )
 		{
@@ -196,17 +190,53 @@ namespace logic
 		m_pickingManager.PopViewport( );
 		m_pickingManager.PushViewport( 0.0f, 0.0f, fSizeX, fSizeY );
 		*/
-
-		m_uiProjMat = Matrix(
-			2.0f / fSizeX, 0.f, 0.f, 0.f,
-			0.f, -2.0f / fSizeY, 0.f, 0.f,
-			0.f, 0.f, 0.5f, 0.f,
-			-1.f, 1.f, 0.5f, 1.f );
 	}
 
 	GameClientViewport* CGameLogic::GetGameClientViewport()
 	{
-		return m_gameViewport;
+		return m_gameViewport.get();
+	}
+
+	bool CGameLogic::LoadWorld( const char* filePath )
+	{
+		UnloadWorld();
+
+		IFileSystem* fileSystem = GetInterface<IFileSystem>();
+		FileHandle worldAsset = fileSystem->OpenFile( filePath );
+
+		if ( worldAsset.IsValid() == false )
+		{
+			return false;
+		}
+
+		unsigned long fileSize = fileSystem->GetFileSize( worldAsset );
+		char* buffer = new char[fileSize];
+
+		IFileSystem::IOCompletionCallback ParseWorldAsset;
+		ParseWorldAsset.BindFunctor(
+			[this, worldAsset]( const char* buffer, unsigned long bufferSize )
+			{
+				CWorldLoader::Load( *this, buffer, static_cast<size_t>( bufferSize ) );
+				GetInterface<IFileSystem>()->CloseFile( worldAsset );
+			}
+		);
+
+		bool result = fileSystem->ReadAsync( worldAsset, buffer, fileSize, &ParseWorldAsset );
+		if ( result == false )
+		{
+			delete[] buffer;
+			GetInterface<IFileSystem>()->CloseFile( worldAsset );
+		}
+
+		return result;
+	}
+
+	void CGameLogic::UnloadWorld()
+	{
+		for ( auto& object : m_world.GameObjects() )
+		{
+			RemoveObject( *object );
+		}
 	}
 
 	void CGameLogic::SpawnObject( Owner<CGameObject*> object )
@@ -316,38 +346,6 @@ namespace logic
 		//SceneEnd( );
 	}
 
-	bool CGameLogic::LoadWorld( const char* filePath )
-	{
-		IFileSystem* fileSystem = GetInterface<IFileSystem>();
-		FileHandle worldAsset = fileSystem->OpenFile( filePath );
-
-		if ( worldAsset.IsValid() == false )
-		{
-			return false;
-		}
-
-		unsigned long fileSize = fileSystem->GetFileSize( worldAsset );
-		char* buffer = new char[fileSize];
-
-		IFileSystem::IOCompletionCallback ParseWorldAsset;
-		ParseWorldAsset.BindFunctor(
-			[this, worldAsset]( const char* buffer, unsigned long bufferSize )
-			{
-				CWorldLoader::Load( *this, buffer, static_cast<size_t>( bufferSize ) );
-				GetInterface<IFileSystem>()->CloseFile( worldAsset );
-			}
-		);
-
-		bool result = fileSystem->ReadAsync( worldAsset, buffer, fileSize, &ParseWorldAsset );
-		if ( result == false )
-		{
-			delete[] buffer;
-			GetInterface<IFileSystem>()->CloseFile( worldAsset );
-		}
-
-		return result;
-	}
-
 	void CGameLogic::DrawScene()
 	{
 		rendercore::IScene* scene = m_world.Scene();
@@ -361,7 +359,7 @@ namespace logic
 				scene->OnBeginSceneRendering();
 			} );
 
-		m_gameViewport->Draw( *m_canvas );
+		m_gameViewport->Draw( m_world, *m_canvas );
 	}
 
 	void CGameLogic::DrawForDebug()
@@ -599,8 +597,7 @@ namespace logic
 			m_primayViewport = std::make_unique<rendercore::Viewport>( *m_canvas );
 		}
 
-		m_gameViewport = new GameClientViewport( m_primayViewport.get() );
-		SpawnObject( m_gameViewport );
+		m_gameViewport = std::make_unique<GameClientViewport>( m_primayViewport.get() );
 	}
 
 	Owner<ILogic*> CreateGameLogic()

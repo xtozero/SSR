@@ -45,6 +45,8 @@ namespace logic
 		virtual void HandleTextInput( uint64 text, bool bUnicode ) override;
 		virtual void AppSizeChanged( engine::IPlatform& platform ) override;
 		virtual GameClientViewport* GetGameClientViewport() override;
+		virtual bool LoadWorld( const char* filePath ) override;
+		virtual void UnloadWorld() override;
 
 		void SpawnObject( Owner<CGameObject*> object );
 
@@ -62,8 +64,6 @@ namespace logic
 		void StartLogic();
 		void ProcessLogic();
 		void EndLogic();
-
-		bool LoadWorld( const char* filePath );
 
 		void DrawScene();
 		void DrawForDebug();
@@ -96,29 +96,13 @@ namespace logic
 		//CAtmosphericScatteringManager m_atmosphereManager;
 		//CModelManager m_modelManager;
 		rendercore::IRenderCore* m_pRenderCore = nullptr;
-
-		//RE_HANDLE m_commonConstantBuffer[SHARED_CONSTANT_BUFFER::Count];
-
-		// Immediate Mode UI
-		//ImUI m_ui;
-
-		//struct ImUiDrawBuffer
-		//{
-		//	RE_HANDLE m_buffer = RE_HANDLE::InValidHandle( );
-		//	uint32 m_prevBufferSize = 0;
-		//};
-
-		//ImUiDrawBuffer m_uiDrawBuffer[2];
-		//Material m_uiMaterial = INVALID_MATERIAL;
-		Matrix m_uiProjMat;
-
 		CDebugOverlayManager m_debugOverlay;
 
 		World m_world;
 
 		std::unique_ptr<rendercore::Canvas> m_canvas;
 		std::unique_ptr<rendercore::Viewport> m_primayViewport;
-		GameClientViewport* m_gameViewport = nullptr;
+		std::unique_ptr<GameClientViewport> m_gameViewport;
 
 		std::atomic<int64> m_numDrawRequestQueued = 0;
 #ifdef DEBUGGING_BY_CONSOLE

@@ -26,6 +26,8 @@ namespace logic
 		virtual void HandleTextInput( uint64 text, bool bUnicode ) = 0;
 		virtual void AppSizeChanged( engine::IPlatform& platform ) = 0;
 		virtual GameClientViewport* GetGameClientViewport() = 0;
+		virtual bool LoadWorld( const char* filePath ) = 0;
+		virtual void UnloadWorld() = 0;
 
 		virtual ~ILogic() = default;
 	};
