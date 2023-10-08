@@ -1,16 +1,14 @@
 #include "ImguiEditor.h"
 
-#include "GraphicsResource/Viewport.h"
 #include "imgui.h"
 #include "imgui_impl_win32.h"
+#include "IPanel.h"
 #include "LibraryTool/InterfaceFactories.h"
+#include "PanelFactory.h"
 #include "Platform/IPlatform.h"
-#include "Scene/GameClientViewport.h"
-#include "Texture.h"
 #include "UserInput/UserInput.h"
 
 using ::engine::UserInput;
-using ::logic::GameClientViewport;
 using enum ::engine::UserInputCode;
 
 namespace
@@ -138,7 +136,7 @@ namespace editor
             return false;
         }
 
-        m_logic = GetInterface<ILogic>();
+        m_logic = GetInterface<logic::ILogic>();
         if ( m_logic == nullptr )
         {
             return false;
@@ -149,6 +147,8 @@ namespace editor
             return false;
         }
 
+        m_panels = std::move( PanelFactory::GetInstance().CreateAllPanel() );
+
         return ImGui_ImplWin32_Init( platform.GetRawHandle<void*>() );
     }
 
@@ -157,10 +157,13 @@ namespace editor
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
-        DrawDockSpace();
-        DrawMainMenuBar();
-        DrawContentBrowser();
-        DrawSceneWindow();
+        const ImGuiViewport* viewport = ImGui::GetMainViewport();
+        ImGui::DockSpaceOverViewport( viewport, ImGuiDockNodeFlags_PassthruCentralNode );
+
+        for ( auto& panel : m_panels )
+        {
+            panel->Draw( *this );
+        }
 
         ImGui::Render();
 
@@ -228,9 +231,9 @@ namespace editor
         }
         }
 
-        if ( m_passingInputToLogic )
+        for ( auto& panel : m_panels )
         {
-            m_logic->HandleUserInput( input );
+            panel->HandleUserInput( input );
         }
     }
 
@@ -284,47 +287,6 @@ namespace editor
     {
         ShutdownModule( m_logicDll );
         ImGui_ImplWin32_Shutdown();
-    }
-
-    void ImguiEditor::DrawDockSpace()
-    {
-        const ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::DockSpaceOverViewport( viewport, ImGuiDockNodeFlags_PassthruCentralNode );
-    }
-
-    void ImguiEditor::DrawMainMenuBar()
-    {
-        if ( ImGui::BeginMainMenuBar() )
-        {
-            ImGui::EndMainMenuBar();
-        }
-    }
-
-    void ImguiEditor::DrawSceneWindow()
-    {
-        GameClientViewport* gameClientViewport = GetGameClientViewport();
-        if ( gameClientViewport == nullptr )
-        {
-            return;
-        }
-
-        rendercore::Viewport* viewport = gameClientViewport->GetViewport();
-        if ( viewport == nullptr
-            || viewport->Texture() == nullptr )
-        {
-            return;
-        }
-
-        ImGui::Begin( "Scene" );
-        m_passingInputToLogic = ( ImGui::IsWindowHovered() && ImGui::IsWindowFocused() && ImGui::IsWindowDocked() );
-        ImGui::Image( (ImTextureID)viewport->Texture(), ImGui::GetContentRegionAvail() );
-        ImGui::End();
-    }
-
-    void ImguiEditor::DrawContentBrowser()
-    {
-        ImGui::Begin( "Content Browser" );
-        ImGui::End();
     }
 
     Owner<IEditor*> CreateEditor()

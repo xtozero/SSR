@@ -1,6 +1,10 @@
 #pragma once
 
 #include "IEditor.h"
+#include "IPanel.h"
+
+#include <memory>
+#include <vector>
 
 namespace logic
 {
@@ -27,14 +31,9 @@ namespace editor
 		~ImguiEditor();
 
 	private:
-		void DrawDockSpace();
-		void DrawMainMenuBar();
-		void DrawSceneWindow();
-		void DrawContentBrowser();
-
 		HMODULE m_logicDll = nullptr;
 		ILogic* m_logic = nullptr;
 
-		bool m_passingInputToLogic = false;
+		std::vector<std::unique_ptr<IPanel>> m_panels;
 	};
 }
