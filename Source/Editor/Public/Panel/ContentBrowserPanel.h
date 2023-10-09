@@ -17,8 +17,10 @@ namespace editor
 
 	private:
 		void DrawContentDirectoryTree( std::filesystem::path current );
-		void DrawCurrentDirectoryFiles();
+		void DrawCurrentDirectoryFiles( IEditor& editor );
 		void DrawCurrentDirectoryPath( std::filesystem::path relative, int32 depth = 0 );
+
+		void OpenContent( IEditor& editor, std::filesystem::path file );
 
 		std::filesystem::path m_curDirectory;
 	};

@@ -1,5 +1,6 @@
 #include "ContentBrowserPanel.h"
 
+#include "IEditor.h"
 #include "imgui.h"
 #include "PanelFactory.h"
 
@@ -24,7 +25,7 @@ namespace editor
 
             ImGui::Separator();
 
-            DrawCurrentDirectoryFiles();
+            DrawCurrentDirectoryFiles( editor );
         }
 		ImGui::End();
 	}
@@ -77,7 +78,7 @@ namespace editor
         }
     }
 
-    void ContentBrowserPanel::DrawCurrentDirectoryFiles()
+    void ContentBrowserPanel::DrawCurrentDirectoryFiles( IEditor& editor )
     {
         ImGui::BeginChild("Current Directory Files");
         {
@@ -100,6 +101,10 @@ namespace editor
                         {
                             m_curDirectory = entry.path();
                         }
+                        else if ( entry.is_regular_file() )
+                        {
+                            OpenContent( editor, entry );
+                        }
                     }
                 }
                 ImGui::EndChild();
@@ -119,7 +124,7 @@ namespace editor
 
     void ContentBrowserPanel::DrawCurrentDirectoryPath( fs::path current, int32 depth )
     {
-        if ( current == fs::current_path() )
+        if ( current == fs::current_path().parent_path() )
         {
             return;
         }
@@ -142,5 +147,14 @@ namespace editor
             m_curDirectory = current;
         }
         ImGui::PopStyleColor( 1 );
+    }
+
+    void ContentBrowserPanel::OpenContent( IEditor& editor, std::filesystem::path file )
+    {
+        if ( file.extension() == ".json" )
+        {
+            // Temporarily assume all JSON files are world files
+            editor.LoadWorld( file.generic_string().c_str() );
+        }
     }
 }
