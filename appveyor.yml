@@ -6,7 +6,6 @@ init:
     echo %APPVEYOR_BUILD_WORKER_IMAGE%
 
     if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2022" ( set generator="Visual Studio 17 2022 Win64" )
-    if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2017" ( set generator="Visual Studio 15 2017 Win64" )
 
     echo %generator%
 before_build:
