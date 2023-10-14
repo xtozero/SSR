@@ -29,10 +29,12 @@ namespace logic
 		void SetAngularDamping( float angularDamping );
 
 		Transform GetTransform() const;
+		void SetTransform( const Transform& transform );
 
 		PhysicsHandle GetPhysicsHandle() const;
 
 		const Vector& GetScale3D() const;
+		void GetScale3D( const Vector& scale );
 
 	private:
 		PhysicsBody& GetPhysicsBody() const;

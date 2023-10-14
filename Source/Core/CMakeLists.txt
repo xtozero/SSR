@@ -70,6 +70,7 @@ set (MATH
 	Private/Math/Matrix3X3.cpp
 	Private/Math/Plane.cpp
 	Private/Math/Quaternion.cpp
+	Private/Math/Rotator.cpp
 	Private/Math/Transform.cpp
 	Private/Math/Vector.cpp
 	Private/Math/Vector2.cpp
@@ -82,6 +83,7 @@ set (MATH
 	Public/Math/Plane.h
 	Public/Math/Quaternion.h
 	Public/Math/Rect.h
+	Public/Math/Rotator.h
 	Public/Math/Transform.h
 	Public/Math/TransformationMatrix.h
 	Public/Math/Util.h

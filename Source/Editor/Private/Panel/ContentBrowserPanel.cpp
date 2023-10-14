@@ -3,6 +3,7 @@
 #include "IEditor.h"
 #include "imgui.h"
 #include "PanelFactory.h"
+#include "PanelSharedContext.h"
 
 #include <filesystem>
 
@@ -153,6 +154,8 @@ namespace editor
     {
         if ( file.extension() == ".json" )
         {
+            editor.GetPanelSharedCtx().UnselectObject();
+
             // Temporarily assume all JSON files are world files
             editor.LoadWorld( file.generic_string().c_str() );
         }

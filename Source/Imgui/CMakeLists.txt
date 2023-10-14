@@ -5,6 +5,7 @@ add_definitions(-DNOMINMAX=1)
 
 set (IMGUI
 	../../ThirdParty/ImGui/imgui.cpp
+	../../ThirdParty/ImGui/imgui_demo.cpp
 	../../ThirdParty/ImGui/imgui_draw.cpp
 	../../ThirdParty/ImGui/imgui_tables.cpp
 	../../ThirdParty/ImGui/imgui_widgets.cpp

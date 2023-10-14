@@ -2,6 +2,7 @@
 
 #include "IEditor.h"
 #include "IPanel.h"
+#include "PanelSharedContext.h"
 
 #include <memory>
 #include <vector>
@@ -27,6 +28,9 @@ namespace editor
 		virtual logic::GameClientViewport * GetGameClientViewport() override;
 		virtual bool LoadWorld( const char* filePath ) override;
 		virtual void UnloadWorld() override;
+		virtual logic::World& GetWorld() override;
+
+		virtual PanelSharedContext& GetPanelSharedCtx() override;
 
 		~ImguiEditor();
 
@@ -34,6 +38,7 @@ namespace editor
 		HMODULE m_logicDll = nullptr;
 		ILogic* m_logic = nullptr;
 
+		PanelSharedContext m_ctx;
 		std::vector<std::unique_ptr<IPanel>> m_panels;
 	};
 }

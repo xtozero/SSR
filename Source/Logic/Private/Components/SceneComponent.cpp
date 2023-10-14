@@ -87,6 +87,7 @@ namespace logic
 		m_transform.SetTranslation( translation );
 
 		UpdateRelativeTransform();
+		OnUpdateTransform();
 		MarkRenderTransformDirty();
 	}
 
@@ -100,6 +101,7 @@ namespace logic
 		m_transform.SetScale3D( scale3D );
 
 		UpdateRelativeTransform();
+		OnUpdateTransform();
 		MarkRenderTransformDirty();
 	}
 
@@ -113,6 +115,7 @@ namespace logic
 		m_transform.SetRotation( rotation );
 
 		UpdateRelativeTransform();
+		OnUpdateTransform();
 		MarkRenderTransformDirty();
 	}
 

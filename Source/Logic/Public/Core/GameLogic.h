@@ -7,12 +7,8 @@
 #include "GraphicsResource/Canvas.h"
 #include "GraphicsResource/Viewport.h"
 #include "ILogic.h"
-//#include "Model/ModelBuilder.h"
-//#include "Model/ModelManager.h"
-//#include "Model/Surface.h"
 #include "Physics/BoundingSphere.h"
 #include "Physics/CollideBroad.h"
-// #include "Render/Resource.h"
 #include "Scene/DebugOverlayManager.h"
 #include "Scene/SSRManager.h"
 #include "SizedTypes.h"
@@ -47,13 +43,10 @@ namespace logic
 		virtual GameClientViewport* GetGameClientViewport() override;
 		virtual bool LoadWorld( const char* filePath ) override;
 		virtual void UnloadWorld() override;
+		virtual World& GetWorld() override;
 
 		void SpawnObject( Owner<CGameObject*> object );
 
-		//IRenderer& GetRenderer( ) const { return *m_pRenderer; }
-		//CModelManager& GetModelManager( ) { return m_modelManager; }
-		//ImUI& GetUIManager( ) { return m_ui; }
-		//RE_HANDLE GetCommonConstantBuffer( uint32 purpose ) { return m_commonConstantBuffer[purpose]; }
 		const std::pair<uint32, uint32>& GetAPPSize() { return m_appSize; }
 
 		InputController* GetInputController();
@@ -66,17 +59,10 @@ namespace logic
 		void EndLogic();
 
 		void DrawScene();
-		void DrawForDebug();
-		void DrawDebugOverlay();
 		void UpdateUIDrawInfo();
 		void SceneEnd();
 
-		void BuildRenderableList();
-		void DrawReflectRenderable();
-
 		void HandleDeviceLost();
-		bool CreateDeviceDependentResource();
-		bool CreateDefaultFontResource();
 
 	public:
 		CGameLogic();
@@ -93,8 +79,6 @@ namespace logic
 		std::unique_ptr<InputController> m_inputController;
 		//CPickingManager m_pickingManager;
 		//CSSRManager m_ssrManager;
-		//CAtmosphericScatteringManager m_atmosphereManager;
-		//CModelManager m_modelManager;
 		rendercore::IRenderCore* m_pRenderCore = nullptr;
 		CDebugOverlayManager m_debugOverlay;
 

@@ -257,30 +257,27 @@ namespace editor
 
     logic::GameClientViewport* ImguiEditor::GetGameClientViewport()
     {
-        if ( m_logic )
-        {
-            return m_logic->GetGameClientViewport();
-        }
-
-        return nullptr;
+        return m_logic->GetGameClientViewport();
     }
 
     bool ImguiEditor::LoadWorld( const char* filePath )
     {
-        if ( m_logic )
-        {
-            return m_logic->LoadWorld( filePath );
-        }
-
-        return false;
+        return m_logic->LoadWorld( filePath );
     }
 
     void ImguiEditor::UnloadWorld()
     {
-        if ( m_logic )
-        {
-            m_logic->UnloadWorld();
-        }
+        m_logic->UnloadWorld();
+    }
+
+    logic::World& ImguiEditor::GetWorld()
+    {
+        return m_logic->GetWorld();
+    }
+
+    PanelSharedContext& ImguiEditor::GetPanelSharedCtx()
+    {
+        return m_ctx;
     }
 
     ImguiEditor::~ImguiEditor()

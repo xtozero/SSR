@@ -110,7 +110,7 @@ namespace rendercore
 			EnqueueRenderTask(
 				[this, param, proxy]()
 				{
-					m_velocityData.UpdateTransform( GetNumFrame(), proxy->PrimitiveId(), proxy->WorldTransform() );
+					m_velocityData.UpdateTransform( GetNumFrame(), proxy->PrimitiveId(), param.m_worldTransform, proxy->WorldTransform() );
 
 					proxy->WorldTransform() = param.m_worldTransform;
 					proxy->Bounds() = param.m_worldBounds;
@@ -387,7 +387,8 @@ namespace rendercore
 
 		AddPrimitiveToUpdate( primitiveId );
 
-		m_velocityData.UpdateTransform( GetNumFrame(), primitiveId, primitiveSceneInfo->Proxy()->WorldTransform() );
+		const Matrix& curTransform = primitiveSceneInfo->Proxy()->WorldTransform();
+		m_velocityData.UpdateTransform( GetNumFrame(), primitiveId, curTransform, curTransform );
 
 		primitiveSceneInfo->AddToScene();
 	}

@@ -5,10 +5,10 @@
 #include "ImguiSharedContext.h"
 #include "InterfaceFactories.h"
 
+using ::editor::IEditor;
+
 namespace
 {
-	using ::editor::IEditor;
-
 	Owner<IEditor*> g_editor = nullptr;
 	imgui::SharedContext g_imguiSharedContext;
 

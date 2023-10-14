@@ -39,6 +39,11 @@ namespace logic
 		}
 	}
 
+	void PrimitiveComponent::OnUpdateTransform()
+	{
+		m_bodyInstance.SetTransform( GetTransform() );
+	}
+
 	void PrimitiveComponent::SetMass( float mass )
 	{
 		m_bodyInstance.SetMass( mass );

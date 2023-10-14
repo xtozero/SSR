@@ -1,9 +1,13 @@
 #include "Quaternion.h"
 
+#include "Rotator.h"
 #include "Vector.h"
 
+#include <cmath>
 #include <memory>
+#include <numbers>
 
+using ::DirectX::XMConvertToDegrees;
 using ::DirectX::XMQuaternionDot;
 using ::DirectX::XMQuaternionEqual;
 using ::DirectX::XMQuaternionInverse;
@@ -36,6 +40,27 @@ bool Quaternion::Equals( const Quaternion& other, float tolerance ) const
 	XMVector rotationAdd = XMVectorAbs( *this + other );
 
 	return XMVector4LessOrEqual( rotationSub, toleranceVec ) || XMVector4LessOrEqual( rotationAdd, toleranceVec );
+}
+
+Rotator Quaternion::ToRotator() const
+{
+	// from https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+	Quaternion q = GetNormalized();
+
+	float sinRcosP = 2.f * ( q.w * q.x + q.y * q.z );
+	float cosRcosP = 1.f - 2.f * ( q.x * q.x + q.y * q.y );
+	float pitch = std::atan2( sinRcosP, cosRcosP );
+
+	float sinP = std::sqrt( 1.f + 2.f * ( q.w * q.y - q.x * q.z ) );
+	float cosP = std::sqrt( 1.f - 2.f * ( q.w * q.y - q.x * q.z ) );
+	float yaw = 2.f * std::atan2( sinP, cosP ) - std::numbers::pi_v<float> * 0.5f;
+
+	float sinYcosP = 2.f * ( q.w * q.z + q.x * q.y );
+	float cosYcosP = 1.f - 2.f * ( q.y * q.y + q.z * q.z );
+	float roll = std::atan2( sinYcosP, cosYcosP );
+
+	// right-handed -> left-handed
+	return Rotator( XMConvertToDegrees( -pitch ), XMConvertToDegrees( -yaw ), XMConvertToDegrees( roll ) );
 }
 
 Quaternion::Quaternion( float pitch, float yaw, float roll )

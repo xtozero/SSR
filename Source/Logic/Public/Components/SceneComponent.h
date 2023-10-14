@@ -30,6 +30,8 @@ namespace logic
 		void SetRelativeScale3D( const Vector& scale3D );
 		void SetRelativeRotation( const Quaternion& rotation );
 
+		virtual void OnUpdateTransform() {}
+
 		const Vector& GetPosition() const;
 		const Vector& GetScale3D() const;
 		const Quaternion& GetRotation() const;

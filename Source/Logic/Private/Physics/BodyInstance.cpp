@@ -59,6 +59,16 @@ namespace logic
 		return Transform();
 	}
 
+	void BodyInstance::SetTransform( const Transform& transform )
+	{
+		if ( IsValid() )
+		{
+			PhysicsBody& body = GetPhysicsBody();
+			body.SetPosition( transform.GetTranslation() );
+			body.SetOrientation( transform.GetRotation() );
+		}
+	}
+
 	PhysicsHandle BodyInstance::GetPhysicsHandle() const
 	{
 		return m_physicsHandle.value();
@@ -67,6 +77,11 @@ namespace logic
 	const Vector& BodyInstance::GetScale3D() const
 	{
 		return m_scale3D;
+	}
+
+	void BodyInstance::GetScale3D( const Vector& scale )
+	{
+		m_scale3D = scale;
 	}
 
 	PhysicsBody& BodyInstance::GetPhysicsBody() const

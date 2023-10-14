@@ -3,6 +3,8 @@
 #include "Math/Matrix.h"
 #include "Math/XMVector.h"
 
+struct Rotator;
+
 struct Quaternion : public DirectX::XMFLOAT4
 {
 public:
@@ -10,6 +12,8 @@ public:
 	XMVector GetNormalized() const;
 	XMVector Inverse() const;
 	bool Equals( const Quaternion& other, float tolerance = 1.e-4 ) const;
+
+	Rotator ToRotator() const;
 
 	Quaternion( float pitch, float yaw, float roll );
 	Quaternion( const XMVector& v );

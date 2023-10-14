@@ -55,17 +55,17 @@ namespace logic
 		size_t GetID() const { return m_id; }
 		void SetID( size_t id ) { m_id = id; }
 
-		void SetPosition( const Vector& translation );
-		void SetScale3D( const Vector& scale3D );
-		void SetRotation( const Quaternion& rotation );
+		LOGIC_DLL void SetPosition( const Vector& translation );
+		LOGIC_DLL void SetScale3D( const Vector& scale3D );
+		LOGIC_DLL void SetRotation( const Quaternion& rotation );
 
 		void SetRelativePosition( const Vector& translation );
 		void SetRelativeScale3D( const Vector& scale3D );
 		void SetRelativeRotation( const Quaternion& rotation );
 
-		const Vector& GetPosition() const;
-		const Vector& GetScale3D() const;
-		const Quaternion& GetRotation() const;
+		LOGIC_DLL const Vector& GetPosition() const;
+		LOGIC_DLL const Vector& GetScale3D() const;
+		LOGIC_DLL const Quaternion& GetRotation() const;
 
 		const Vector& GetRelativePosition() const;
 		const Vector& GetRelativeScale3D() const;

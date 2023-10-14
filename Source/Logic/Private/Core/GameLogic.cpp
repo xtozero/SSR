@@ -20,7 +20,6 @@
 #include "Renderer/IRenderCore.h"
 #include "Scene/GameClientViewport.h"
 #include "Scene/IScene.h"
-//#include "Render/IRenderResourceManager.h"
 #include "UserInput/UserInput.h"
 #include "UserInterfaceRenderer.h"
 #include "World/WorldLoader.h"
@@ -76,11 +75,6 @@ namespace logic
 
 		m_inputController = std::make_unique<PlayerController>();
 
-		//m_view.CreatePerspectiveFovLHMatrix( XMConvertToRadians( 60 ),
-		//	static_cast<float>( m_appSize.first ) / m_appSize.second,
-		//	1.f,
-		//	1500.f );
-
 		/*
 		m_pickingManager.PushInvProjection( XMConvertToRadians( 60 ),
 			static_cast<float>( m_appSize.first ) / m_appSize.second,
@@ -91,7 +85,6 @@ namespace logic
 		*/
 
 		// m_pickingManager.PushCamera( &GetLocalPlayer()->GetCamera() );
-		// m_inputBroadCaster.AddListener( &m_pickingManager );
 
 		if ( LoadWorld( DefaultLogic::GetDefaultWorld() ) == false )
 		{
@@ -103,11 +96,6 @@ namespace logic
 		//	__debugbreak( );
 		//}
 
-		//if ( m_ui.Initialize( ) == false )
-		//{
-		//	__debugbreak( );
-		//}
-
 		if ( m_debugOverlay.Init( *this ) == false )
 		{
 			__debugbreak();
@@ -115,7 +103,7 @@ namespace logic
 
 		m_world.Initialize();
 
-		return CreateDeviceDependentResource();
+		return true;
 	}
 
 	void CGameLogic::Update()
@@ -166,19 +154,11 @@ namespace logic
 		{
 			m_canvas->Resize( newAppSize );
 		}
-		// m_gameViewport->AppSizeChanged( newAppSize );
-
-		//m_pRenderer->AppSizeChanged( m_appSize.first, m_appSize.second );
 
 		//m_ssrManager.AppSizeChanged( *this );
 
 		float fSizeX = static_cast<float>( m_appSize.first );
 		float fSizeY = static_cast<float>( m_appSize.second );
-
-		//m_view.CreatePerspectiveFovLHMatrix( XMConvertToRadians( 60 ),
-		//	fSizeX / fSizeY,
-		//	1.f,
-		//	1500.f );
 
 		/*
 		m_pickingManager.PopInvProjection( );
@@ -239,6 +219,11 @@ namespace logic
 		}
 	}
 
+	World& CGameLogic::GetWorld()
+	{
+		return m_world;
+	}
+
 	void CGameLogic::SpawnObject( Owner<CGameObject*> object )
 	{
 		m_world.SpawnObject( *this, object );
@@ -267,9 +252,6 @@ namespace logic
 
 		m_world.BeginFrame();
 
-		//Rect clientRect( 0.f, 0.f, static_cast<float>( m_appSize.first ), static_cast<float>( m_appSize.second ) );
-		//m_ui.BeginFrame( clientRect, m_clock.GetElapsedTime(), m_clock.GetTotalTime() );
-
 		//if ( showFps.GetBool( ) )
 		//{
 		//	m_ui.Window( "FPS Window" );
@@ -293,41 +275,11 @@ namespace logic
 		// 물리 시뮬레이션 결과를 반영
 		m_world.EndFrame();
 
-		//// 게임 로직 수행 후처리
-		//BuildRenderableList( );
+		// 게임 로직 수행 후처리
 
-		//CameraComponent& playerCamera = GetLocalPlayer( )->GetCamera( );
-		//playerCamera.UpdateToRenderer( m_view );
-
-		//m_view.UpdataView( *this, m_commonConstantBuffer[VS_VIEW_PROJECTION] );
-
-		//float wndWidth = static_cast<float>( m_appSize.first );
-		//float wndHeight = static_cast<float>( m_appSize.second );
-		//Viewport viewport = { 0.f, 0.f, wndWidth, wndHeight, 0.f, 1.f };
-		//m_view.SetViewport( *m_pRenderer, &viewport, 1 );
-
-		//RECT wndRect = { 0L, 0L, static_cast<LONG>( wndWidth ), static_cast<LONG>( wndHeight ) };
-		//m_view.SetScissorRects( *m_pRenderer, &wndRect, 1 );
-		//
-		//if ( PassConstant* pData = static_cast<PassConstant*>( m_pRenderer->LockBuffer( m_commonConstantBuffer[PS_UTIL] ) ) )
-		//{
-		//	pData->m_receiversFar = m_view.GetFar();
-		//	pData->m_receiversNear = m_view.GetNear( );
-		//	pData->m_elapsedTime = m_clock.GetElapsedTime( );
-		//	pData->m_totalTime = m_clock.GetTotalTime( );
-		//	pData->m_renderTargetSize.x = wndWidth;
-		//	pData->m_renderTargetSize.y = wndHeight;
-		//	pData->m_invRenderTargetSize.x = 1.f / wndWidth;
-		//	pData->m_invRenderTargetSize.y = 1.f / wndHeight;
-
-		//	m_pRenderer->UnLockBuffer( m_commonConstantBuffer[PS_UTIL] );
-		//	m_pRenderer->BindConstantBuffer( SHADER_TYPE::PS, static_cast<int32>( PS_CONSTANT_BUFFER::UTIL ), 1, &m_commonConstantBuffer[PS_UTIL] );
-		//}
 
 		//// 후면 깊이 렌더링
 		//m_ssrManager.PreProcess( *this, m_renderableList );
-
-		//InitView( views );
 
 		if ( m_numDrawRequestQueued == 0 )
 		{
@@ -343,7 +295,6 @@ namespace logic
 
 		//DrawForDebug( );
 		//DrawDebugOverlay( );
-		//SceneEnd( );
 	}
 
 	void CGameLogic::DrawScene()
@@ -362,33 +313,6 @@ namespace logic
 		m_gameViewport->Draw( m_world, *m_canvas );
 	}
 
-	void CGameLogic::DrawForDebug()
-	{
-		//m_ui.Window( "Debug Control" );
-
-		//static bool colliderWireFrame = false;
-		//colliderWireFrame = m_ui.Button( "Draw collider wireframe" ) ? !colliderWireFrame : colliderWireFrame;
-
-		//if ( colliderWireFrame )
-		//{
-		//	for ( auto& object : m_gameObjects )
-		//	{
-		//		const ICollider* collider = object->GetDefaultCollider( );
-		//		if ( collider )
-		//		{
-		//			collider->DrawDebugOverlay( m_debugOverlay, object->GetRigidBody()->IsAwake() ? g_colorChartreuse : g_colorRed, m_clock.GetElapsedTime() );
-		//		}
-		//	}
-		//}
-
-		//m_ui.EndWindow( );
-	}
-
-	void CGameLogic::DrawDebugOverlay()
-	{
-		//m_debugOverlay.DrawPrimitive( *m_pRenderer, m_clock.GetElapsedTime() );
-	}
-
 	void CGameLogic::UpdateUIDrawInfo()
 	{
 		auto uiRenderer = GetInterface<rendercore::UserInterfaceRenderer>();
@@ -405,38 +329,6 @@ namespace logic
 		//{
 		//	HandleDeviceLost( );
 		//}
-	}
-
-	void CGameLogic::BuildRenderableList()
-	{
-		//for ( auto& list : m_renderableList )
-		//{
-		//	list.clear();
-		//}
-
-		//for ( auto& object : m_gameObjects )
-		//{
-		//	if ( object )
-		//	{
-		//		// Reflectable list
-		//		if ( object->GetProperty( ) & REFLECTABLE_OBJECT )
-		//		{
-		//			m_renderableList[REFLECT_RENDERABLE].push_back( object.get() );
-		//		}
-
-		//		// Opaque list
-		//		if ( object->ShouldDraw( ) )
-		//		{
-		//			m_renderableList[OPAQUE_RENDERABLE].push_back( object.get( ) );
-		//		}
-		//	}
-		//}
-	}
-
-	void CGameLogic::DrawReflectRenderable()
-	{
-		//m_pRenderer->ForwardRenderEnd( );
-		//m_ssrManager.Process( *this, m_renderableList );
 	}
 
 	void CGameLogic::HandleDeviceLost()
@@ -459,116 +351,8 @@ namespace logic
 		m_world.OnDeviceRestore( *this );
 	}
 
-	bool CGameLogic::CreateDeviceDependentResource()
-	{
-		//BufferTrait trait = { sizeof( GeometryTransform ),
-		//	1,
-		//	RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
-		//	RESOURCE_BIND_TYPE::CONSTANT_BUFFER,
-		//	0,
-		//	nullptr,
-		//	0,
-		//	0 };
-
-		//using namespace SHARED_CONSTANT_BUFFER;
-
-		//m_commonConstantBuffer[VS_GEOMETRY] = m_pRenderer->CreateBuffer( trait );
-		//if ( m_commonConstantBuffer[VS_GEOMETRY] == RE_HANDLE::InValidHandle( ) )
-		//{
-		//	return false;
-		//}
-
-		//trait.m_stride = sizeof( ViewProjectionTrasform );
-
-		//m_commonConstantBuffer[VS_VIEW_PROJECTION] = m_pRenderer->CreateBuffer( trait );
-		//if ( m_commonConstantBuffer[VS_VIEW_PROJECTION] == RE_HANDLE::InValidHandle( ) )
-		//{
-		//	return false;
-		//}
-
-		//trait.m_stride = sizeof( SurfaceTrait );
-
-		//m_commonConstantBuffer[PS_SURFACE] = m_pRenderer->CreateBuffer( trait );
-		//if ( m_commonConstantBuffer[PS_SURFACE] == RE_HANDLE::InValidHandle( ) )
-		//{
-		//	return false;
-		//}
-
-		//trait.m_stride = sizeof( PassConstant );
-
-		//m_commonConstantBuffer[PS_UTIL] = m_pRenderer->CreateBuffer( trait );
-		//if ( m_commonConstantBuffer[PS_UTIL] == RE_HANDLE::InValidHandle( ) )
-		//{
-		//	return false;
-		//}
-
-		//m_uiMaterial = m_pRenderer->SearchMaterial( "mat_draw_ui" );
-		//if ( m_uiMaterial == INVALID_MATERIAL )
-		//{
-		//	return false;
-		//}
-
-		//if ( CreateDefaultFontResource( ) == false )
-		//{
-		//	return false;
-		//}
-
-		return true;
-	}
-
-	bool CGameLogic::CreateDefaultFontResource()
-	{
-		//constexpr char* defaultFontData = "./Scripts/Fontdata.txt";
-
-		//// Load default font
-		//std::ifstream data( defaultFontData );
-		//if ( data.good( ) == false )
-		//{
-		//	return false;
-		//}
-
-		//std::string atlasPath;
-		//data >> atlasPath;
-
-		//CTextAtlas defaultText;
-
-		//IResourceManager& resourceMgr = m_pRenderer->GetResourceManager( );
-		//defaultText.m_texture = resourceMgr.CreateShaderResourceFromFile( atlasPath );
-
-		//if ( defaultText.m_texture == RE_HANDLE::InValidHandle( ) )
-		//{
-		//	return false;
-		//}
-
-		//data >> defaultText.m_fontHeight;
-
-		//FontUV fontInfo = { { 0.f, 0.f },{ 0.f, 1.0f }, 0.f };
-		//int32 asciicode;
-
-		//while ( data )
-		//{
-		//	data >> asciicode;
-		//	data >> fontInfo.m_u.x;
-		//	data >> fontInfo.m_u.y;
-		//	data >> fontInfo.m_size;
-
-		//	defaultText.m_fontInfo.emplace( static_cast<char>( asciicode ), fontInfo );
-		//}
-
-		//defaultText.m_displayOffset.y = 4.f;
-		//defaultText.m_fontSpacing = 1.f;
-
-		//m_ui.SetDefaultText( "default", defaultText );
-
-		return true;
-	}
-
 	CGameLogic::CGameLogic() // : m_pickingManager( &m_gameObjects )
 	{
-		// for ( int32 i = 0; i < SHARED_CONSTANT_BUFFER::Count; ++i )
-		// {
-		// 	m_commonConstantBuffer[i] = RE_HANDLE::InValidHandle( );
-		// }
 	}
 
 	CGameLogic::~CGameLogic()

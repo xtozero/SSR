@@ -21,6 +21,8 @@ namespace logic
 
 		virtual void LoadProperty( const json::Value& json ) override;
 
+		virtual void OnUpdateTransform() override;
+
 		void SetMass( float mass );
 
 		void SetLinearDamping( float linearDamping );

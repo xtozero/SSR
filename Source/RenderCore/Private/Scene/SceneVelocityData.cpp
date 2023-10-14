@@ -8,20 +8,34 @@ namespace rendercore
 	{
 		uint64 numFrame = scene.GetNumFrame();
 
-		for ( auto iter = begin( m_componentData ); iter != end( m_componentData ); ++iter )
-		{
-			const ComponentVelocityData& data = iter->second;
+		bool trimOld = ( numFrame % 100 == 0 );
 
-			if ( numFrame - data.m_lastFrameUpdated == 1 )
+		for ( auto iter = begin( m_componentData ); iter != end( m_componentData ); )
+		{
+			ComponentVelocityData& data = iter->second;
+
+			uint64 deltaFrame = numFrame - data.m_lastFrameUpdated;
+			if ( deltaFrame == 1 )
 			{
+				data.m_prevTransform = data.m_curTransform;
 				scene.AddPrimitiveToUpdate( iter->first );
+			}
+			
+			if ( trimOld && ( deltaFrame > 10 ) )
+			{
+				iter = m_componentData.erase( iter );
+			}
+			else
+			{
+				++iter;
 			}
 		}
 	}
 
-	void SceneVelocityData::UpdateTransform( uint64 numFrame, uint32 primitiveId, const Matrix& prevTransform )
+	void SceneVelocityData::UpdateTransform( uint64 numFrame, uint32 primitiveId, const Matrix& curTransform, const Matrix& prevTransform )
 	{
 		ComponentVelocityData& velocityData = m_componentData[primitiveId];
+		velocityData.m_curTransform = curTransform;
 		velocityData.m_prevTransform = prevTransform;
 		velocityData.m_lastFrameUpdated = numFrame;
 	}
