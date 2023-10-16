@@ -147,9 +147,8 @@ namespace rendercore
 		}
 	};
 
-	class VisibleDrawSnapshot
+	struct VisibleDrawSnapshot
 	{
-	public:
 		uint32 m_primitiveId;
 		uint32 m_primitiveIdOffset;
 		uint32 m_numInstance;

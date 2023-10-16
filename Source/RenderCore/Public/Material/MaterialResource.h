@@ -27,6 +27,7 @@ namespace rendercore
 		StaticShaderSwitches GetShaderSwitches( agl::ShaderType type );
 
 		void SetMaterial( const std::shared_ptr<Material>& material );
+		const std::shared_ptr<Material> GetMaterial();
 		void TakeSnapshot( DrawSnapshot& snapShot );
 
 	private:

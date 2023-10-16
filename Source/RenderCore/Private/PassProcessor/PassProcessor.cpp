@@ -100,7 +100,7 @@ namespace rendercore
 			pipelineState.m_rasterizerState = graphicsInterface.FindOrCreate( *passRenderOption.m_rasterizerOption );
 		}
 
-		pipelineState.m_primitive = agl::ResourcePrimitive::Trianglelist;
+		pipelineState.m_primitive = passRenderOption.m_primitive;
 
 		snapshot.m_count = subMesh.m_count;
 		snapshot.m_startIndexLocation = subMesh.m_startLocation;

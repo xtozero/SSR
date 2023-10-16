@@ -37,6 +37,7 @@ namespace rendercore
 
 	struct PassRenderOption
 	{
+		agl::ResourcePrimitive m_primitive = agl::ResourcePrimitive::Trianglelist;
 		BlendOption* m_blendOption = nullptr;
 		DepthStencilOption* m_depthStencilOption = nullptr;
 		RasterizerOption* m_rasterizerOption = nullptr;

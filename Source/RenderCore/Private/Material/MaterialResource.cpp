@@ -101,6 +101,11 @@ namespace rendercore
 		CreateGraphicsResource();
 	}
 
+	const std::shared_ptr<Material> MaterialResource::GetMaterial()
+	{
+		return m_material.lock();
+	}
+
 	void MaterialResource::TakeSnapshot( DrawSnapshot& snapShot )
 	{
 		auto material = m_material.lock();

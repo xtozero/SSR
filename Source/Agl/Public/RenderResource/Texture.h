@@ -35,6 +35,7 @@ namespace agl
 		virtual void SetState( ResourceState state ) override;
 
 		AGL_DLL const TextureTrait& GetTrait() const;
+		AGL_DLL bool IsCubeMap() const;
 
 		Texture( const TextureTrait& trait ) noexcept;
 		Texture() noexcept;

@@ -27,6 +27,11 @@ namespace agl
 		return m_trait;
 	}
 
+	bool Texture::IsCubeMap() const
+	{
+		return HasAnyFlags( m_trait.m_miscFlag, ResourceMisc::TextureCube );
+	}
+
 	Texture::Texture( const TextureTrait& trait ) noexcept
 		: m_trait( trait )
 	{
