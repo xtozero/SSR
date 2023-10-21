@@ -1,6 +1,5 @@
+#include "Common/Constants.fxh"
 #include "Common/LightCommon.fxh"
-
-static const float PI = 3.141592657f;
 
 struct VolumetricFogParameter
 {

@@ -60,7 +60,7 @@ namespace rendercore
 		commandList.BindPipelineState( perlinWorleyPSO );
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( perlinWorleyCS );
-		BindResource( shaderBindings, perlinWorleyCS.NoiseTex(), m_baseCloudShape);
+		BindResource( shaderBindings, perlinWorleyCS.NoiseTex(), m_baseCloudShape );
 
 		commandList.BindShaderResources( shaderBindings );
 
@@ -75,7 +75,7 @@ namespace rendercore
 		commandList.BindPipelineState( worleyPSO );
 
 		shaderBindings = CreateShaderBindings( perlinWorleyCS );
-		BindResource( shaderBindings, worleyCS.NoiseTex(), m_detailCloudShape);
+		BindResource( shaderBindings, worleyCS.NoiseTex(), m_detailCloudShape );
 
 		commandList.BindShaderResources( shaderBindings );
 
@@ -115,7 +115,7 @@ namespace rendercore
 		commandList.BindPipelineState( weatherMapPSO );
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( weatherMapCS );
-		BindResource( shaderBindings, weatherMapCS.WeatherTex(), m_weatherMap);
+		BindResource( shaderBindings, weatherMapCS.WeatherTex(), m_weatherMap );
 
 		commandList.BindShaderResources( shaderBindings );
 

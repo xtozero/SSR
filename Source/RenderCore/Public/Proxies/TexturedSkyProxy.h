@@ -1,9 +1,13 @@
 #pragma once
 
 #include "common.h"
+#include "GraphicsApiResource.h"
+#include "Math/Vector.h"
 #include "RenderOption.h"
+#include "Texture.h"
 #include "VertexLayout.h"
 
+#include <array>
 #include <memory>
 
 namespace logic
@@ -31,6 +35,8 @@ namespace rendercore
 		const RasterizerOption& GetRasterizerOption() const;
 
 	private:
+		void PrefilterTexture();
+
 		std::shared_ptr<const StaticMesh> m_pStaticMesh = nullptr;
 		StaticMeshRenderData* m_pRenderData = nullptr;
 
@@ -38,5 +44,8 @@ namespace rendercore
 
 		DepthStencilOption m_depthStencilOption;
 		RasterizerOption m_rasterizerOption;
+
+		agl::RefHandle<agl::Texture> m_irradianceMap;
+		std::array<Vector, 9> m_irradianceMapSH;
 	};
 }

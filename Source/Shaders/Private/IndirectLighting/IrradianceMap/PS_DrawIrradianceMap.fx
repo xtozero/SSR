@@ -1,7 +1,9 @@
+#include "Common/Constants.fxh"
+
 TextureCube CubeMap : register( t0 );
 SamplerState LinearSampler : register( s0 );
 
-static const float PI = 3.14159265359;
+static const float SampleDelta = 0.025f;
 
 struct PS_INPUT
 {
@@ -22,11 +24,10 @@ float4 main(PS_INPUT input) : SV_TARGET
 
     float3 irradiance = 0.f;
 
-    const float sampleDelta = 0.025f;
-    float numSample = 0.0; 
-    for ( float phi = 0.0; phi < 2.0 * PI; phi += sampleDelta )
+    float numSample = 0.f; 
+    for ( float phi = 0.f; phi < 2.f * PI; phi += SampleDelta )
     {
-        for ( float theta = 0.0; theta < 0.5 * PI; theta += sampleDelta )
+        for ( float theta = 0.f; theta < 0.5f * PI; theta += SampleDelta )
         {
             float3 tangentSample = float3( sin( theta ) * cos( phi ), sin( theta ) * sin( phi ), cos( theta ) );
             float3 worldSample = normalize( mul( tangentSample, toWorld ) );

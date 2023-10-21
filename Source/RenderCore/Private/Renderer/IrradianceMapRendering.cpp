@@ -2,13 +2,16 @@
 
 #include "AbstractGraphicsInterface.h"
 #include "CommandList.h"
+#include "ComputePipelineState.h"
 #include "GlobalShaders.h"
 #include "PassProcessor.h"
 #include "RenderOption.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "SceneRenderer.h"
+#include "ShaderParameterUtils.h"
 #include "TransitionUtils.h"
 #include "VertexCollection.h"
+#include "ShaderParameterUtils.h"
 
 #include <cassert>
 
@@ -17,30 +20,32 @@ namespace rendercore
 	class DrawIrradianceMapVS : public GlobalShaderCommon<VertexShader, DrawIrradianceMapVS>
 	{
 		using GlobalShaderCommon::GlobalShaderCommon;
-
-	public:
-		DrawIrradianceMapVS() = default;
 	};
 
 	class DrawIrradianceMapGS : public GlobalShaderCommon<GeometryShader, DrawIrradianceMapGS>
 	{
 		using GlobalShaderCommon::GlobalShaderCommon;
-
-	public:
-		DrawIrradianceMapGS() = default;
 	};
 
 	class DrawIrradianceMapPS : public GlobalShaderCommon<PixelShader, DrawIrradianceMapPS>
 	{
 		using GlobalShaderCommon::GlobalShaderCommon;
+	};
 
-	public:
-		DrawIrradianceMapPS() = default;
+	class IrradianceMapShCS : public GlobalShaderCommon<ComputeShader, IrradianceMapShCS>
+	{
+		using GlobalShaderCommon::GlobalShaderCommon;
+
+	private:
+		DEFINE_SHADER_PARAM( CubeMap );
+		DEFINE_SHADER_PARAM( LinearSampler );
+		DEFINE_SHADER_PARAM( Coeffs );
 	};
 
 	REGISTER_GLOBAL_SHADER( DrawIrradianceMapVS, "./Assets/Shaders/IndirectLighting/IrradianceMap/VS_DrawIrradianceMap.asset" );
 	REGISTER_GLOBAL_SHADER( DrawIrradianceMapGS, "./Assets/Shaders/IndirectLighting/IrradianceMap/GS_DrawIrradianceMap.asset" );
 	REGISTER_GLOBAL_SHADER( DrawIrradianceMapPS, "./Assets/Shaders/IndirectLighting/IrradianceMap/PS_DrawIrradianceMap.asset" );
+	REGISTER_GLOBAL_SHADER( IrradianceMapShCS, "./Assets/Shaders/IndirectLighting/IrradianceMap/CS_IrradianceMapSH.asset" );
 
 	class IrradianceMapGenerateProcessor : public IPassProcessor
 	{
@@ -51,7 +56,7 @@ namespace rendercore
 	std::optional<DrawSnapshot> IrradianceMapGenerateProcessor::Process( const PrimitiveSubMesh& subMesh )
 	{
 		PassShader passShader = {
-			.m_vertexShader = DrawIrradianceMapVS(),
+			.m_vertexShader = DrawIrradianceMapVS(),	
 			.m_geometryShader = DrawIrradianceMapGS(),
 			.m_pixelShader = DrawIrradianceMapPS()
 		};
@@ -147,8 +152,78 @@ namespace rendercore
 		commandList.Transition( 1, &toShaderResource );
 
 		commandList.Commit();
-		GetInterface<agl::IAgl>()->WaitGPU(); // Test
 
 		return irradianceMap;
+	}
+
+	std::array<Vector, 9> GenerateIrradianceMapSH( agl::RefHandle<agl::Texture> cubeMap )
+	{
+		assert( IsInRenderThread() );
+		assert( cubeMap.Get() != nullptr );
+		assert( cubeMap->IsCubeMap() && ( cubeMap->SRV() != nullptr ) );
+
+		agl::BufferTrait coeffTrait = {
+			.m_stride = sizeof( Vector ),
+			.m_count = 9,
+			.m_access = agl::ResourceAccessFlag::Default,
+			.m_bindType = agl::ResourceBindType::RandomAccess,
+			.m_miscFlag = agl::ResourceMisc::BufferStructured,
+			.m_format = agl::ResourceFormat::Unknown
+		};
+
+		auto coeffBuffer = agl::Buffer::Create( coeffTrait );
+		EnqueueRenderTask(
+			[coeffBuffer]()
+			{
+				coeffBuffer->Init();
+			}
+		);
+
+		IrradianceMapShCS irradianceMapShCS;
+		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( irradianceMapShCS );
+
+		auto commandList = GetCommandList();
+		commandList.BindPipelineState( pso );
+
+		auto linearSampler = GraphicsInterface().FindOrCreate( SamplerOption() );
+
+		agl::ShaderBindings shaderBindings = CreateShaderBindings( irradianceMapShCS );
+		BindResource( shaderBindings, irradianceMapShCS.CubeMap(), cubeMap );
+		BindResource( shaderBindings, irradianceMapShCS.LinearSampler(), linearSampler );
+		BindResource( shaderBindings, irradianceMapShCS.Coeffs(), coeffBuffer );
+
+		commandList.BindShaderResources( shaderBindings );
+
+		commandList.Dispatch( 1, 1 );
+		commandList.Commit();
+
+		agl::BufferTrait readBackTrait = {
+			.m_stride = sizeof( Vector ),
+			.m_count = 9,
+			.m_access = agl::ResourceAccessFlag::Download,
+			.m_bindType = agl::ResourceBindType::None,
+			.m_miscFlag = agl::ResourceMisc::None,
+			.m_format = agl::ResourceFormat::Unknown
+		};
+
+		auto readBackBuffer = agl::Buffer::Create( readBackTrait );
+		EnqueueRenderTask(
+			[readBackBuffer]()
+			{
+				readBackBuffer->Init();
+			}
+		);
+
+		GetInterface<agl::IAgl>()->WaitGPU();
+		commandList.CopyResource( readBackBuffer, coeffBuffer );
+
+		auto data = static_cast<float*>( GraphicsInterface().Lock( readBackBuffer, agl::ResourceLockFlag::Read ).m_data );
+
+		std::array<Vector, 9> coeffs;
+		std::memcpy( coeffs.data(), data, sizeof( Vector ) * 9 );
+
+		GraphicsInterface().UnLock( readBackBuffer );
+
+		return coeffs;
 	}
 }

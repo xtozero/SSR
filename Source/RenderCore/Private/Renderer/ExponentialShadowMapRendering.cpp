@@ -85,7 +85,7 @@ namespace rendercore
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( horizonBlurCS );
 		BindResource( shaderBindings, horizonBlurCS.SrcTexture(), srcTexture );
-		BindResource( shaderBindings, horizonBlurCS.PointSampler(), pointSampler.Resource() );
+		BindResource( shaderBindings, horizonBlurCS.PointSampler(), pointSampler );
 		BindResource( shaderBindings, horizonBlurCS.DestTexture(), tempTexture );
 
 		SetShaderValue( commandList, horizonBlurCS.KernelBuffer(), kernel );
@@ -115,7 +115,7 @@ namespace rendercore
 
 		shaderBindings = CreateShaderBindings( virticalBlurCS );
 		BindResource( shaderBindings, virticalBlurCS.SrcTexture(), tempTexture );
-		BindResource( shaderBindings, virticalBlurCS.PointSampler(), pointSampler.Resource() );
+		BindResource( shaderBindings, virticalBlurCS.PointSampler(), pointSampler );
 		BindResource( shaderBindings, virticalBlurCS.DestTexture(), srcTexture );
 
 		SetShaderValue( commandList, virticalBlurCS.KernelBuffer(), kernel );

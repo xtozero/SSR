@@ -174,14 +174,14 @@ namespace rendercore
 		}
 		SamplerState shadowSampler = GraphicsInterface().FindOrCreate( shadowSamplerOption );
 
-		BindResource( shaderBindings, inscatteringCS.ShadowSampler(), shadowSampler.Resource() );
+		BindResource( shaderBindings, inscatteringCS.ShadowSampler(), shadowSampler );
 
 		BindResource( shaderBindings, inscatteringCS.HistoryVolume(), HistoryVolume() );
 
 		SamplerOption historySamplerOption;
 		SamplerState historySampler = GraphicsInterface().FindOrCreate( historySamplerOption );
 
-		BindResource( shaderBindings, inscatteringCS.HistorySampler(), historySampler.Resource() );
+		BindResource( shaderBindings, inscatteringCS.HistorySampler(), historySampler );
 
 		const std::array<uint32, 3>& frustumGridSize = Proxy()->FrustumGridSize();
 		const uint32 threadGroupCount[3] = {

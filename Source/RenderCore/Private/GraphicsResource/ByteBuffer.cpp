@@ -55,10 +55,10 @@ namespace rendercore
 		commandList.BindPipelineState( pso.Get() );
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( distributionCopyCS );
-		SetShaderValue( commandList, distributionCopyCS.NumDistribution(), m_distributionCount);
-		BindResource( shaderBindings, distributionCopyCS.Src(), m_src.Resource());
-		BindResource( shaderBindings, distributionCopyCS.Distributer(), m_distributer.Resource());
-		BindResource( shaderBindings, distributionCopyCS.Dest(), destBuffer);
+		SetShaderValue( commandList, distributionCopyCS.NumDistribution(), m_distributionCount );
+		BindResource( shaderBindings, distributionCopyCS.Src(), m_src.Resource() );
+		BindResource( shaderBindings, distributionCopyCS.Distributer(), m_distributer.Resource() );
+		BindResource( shaderBindings, distributionCopyCS.Dest(), destBuffer );
 
 		commandList.BindShaderResources( shaderBindings );
 

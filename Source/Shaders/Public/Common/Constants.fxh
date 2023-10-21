@@ -21,3 +21,5 @@ static const float3 HALTON_SEQUENCE[MAX_HALTON_SEQUENCE] = {
 	float3( 0.9375, 0.259259, 0.12 ),
 	float3( 0.03125, 0.592593, 0.32 )
 };
+
+static const float PI = 3.14159265359;

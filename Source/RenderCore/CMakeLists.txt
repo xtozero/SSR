@@ -146,6 +146,7 @@ set (RENDERER_SOURCE
 	Private/Renderer/ForwardLighting.cpp
 	Private/Renderer/ForwardRenderer.cpp
 	Private/Renderer/ImguiRenderer.cpp
+	Private/Renderer/IrradianceMapRendering.cpp
 	Private/Renderer/ReflectiveShadowMapRendering.cpp
 	Private/Renderer/RenderView.cpp
 	Private/Renderer/SceneRenderer.cpp
@@ -155,6 +156,7 @@ set (RENDERER_SOURCE
 	Public/Renderer/ForwardLighting.h
 	Public/Renderer/ForwardRenderer.h
 	Public/Renderer/IRenderCore.h
+	Public/Renderer/IrradianceMapRendering.h
 	Public/Renderer/ReflectiveShadowMapRendering.h
 	Public/Renderer/RenderView.h
 	Public/Renderer/SceneRenderer.h

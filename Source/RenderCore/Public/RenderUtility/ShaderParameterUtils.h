@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Buffer.h"
+#include "GraphicsPipelineState.h"
 #include "ICommandList.h"
 #include "ShaderBindings.h"
 #include "ShaderParameterMap.h"
@@ -60,7 +61,7 @@ namespace rendercore
 	}
 
 	inline void BindResource( agl::ShaderBindings& bindings,
-		const agl::ShaderParameter& parameter, agl::SamplerState* samplerState )
+		const agl::ShaderParameter& parameter, SamplerState& samplerState )
 	{
 		agl::SingleShaderBindings singleBinding = bindings.GetSingleShaderBindings( parameter.m_shader );
 
@@ -72,7 +73,7 @@ namespace rendercore
 		switch ( parameter.m_type )
 		{
 		case agl::ShaderParameterType::Sampler:
-			singleBinding.AddSampler( parameter, samplerState );
+			singleBinding.AddSampler( parameter, samplerState.Resource() );
 			break;
 		default:
 			assert( false && "Invalid parameter type" );

@@ -139,3 +139,32 @@ float4 Tex3DTricubic( Texture3D tex, SamplerState texSampler, float3 coord )
 
 	return lerp( tex001, tex000, g0.z ); // Weigh along the z-direction
 }
+
+// https://www.gamedev.net/forums/topic/687535-implementing-a-cube-map-lookup-function/5337472/
+float3 CubeUvToArrayUv( float3 uv )
+{
+	float3 absUV = abs(uv);
+	float3 ret = 0;
+
+	if ( absUV.x >= absUV.y && absUV.x >= absUV.z )
+	{
+		ret.z = uv.x > 0.f ? 0.f : 1.f;
+		ret.xy = float2( uv.x > 0.f ? -uv.z : uv.z, -uv.y );
+		ret.xy *= 0.5f / absUV.x;
+	}
+	else if ( absUV.y >= absUV.z )
+	{
+		ret.z = uv.y > 0.f ? 2.f : 3.f;
+		ret.xy = float2( uv.x, uv.y > 0.f ? uv.z : -uv.z );
+		ret.xy *= 0.5f / absUV.y;
+	}
+	else
+	{
+		ret.z = uv.z > 0.f ? 4.f : 5.f;
+		ret.xy = float2( uv.z > 0.f ? uv.x : -uv.x, -uv.y );
+		ret.xy *= 0.5f / absUV.z;
+	}
+
+	ret.xy += 0.5f;
+	return ret;
+}

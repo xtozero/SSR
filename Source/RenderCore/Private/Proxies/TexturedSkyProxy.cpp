@@ -2,7 +2,9 @@
 #include "TexturedSkyProxy.h"
 
 #include "Components/TexturedSkyComponent.h"
+#include "IrradianceMapRendering.h"
 #include "Material.h"
+#include "MaterialResource.h"
 #include "Mesh/StaticMesh.h"
 #include "Mesh/StaticMeshResource.h"
 
@@ -19,6 +21,7 @@ namespace rendercore
 	{
 		assert( IsInRenderThread() );
 		m_pRenderData->CreateRenderResource();
+		PrefilterTexture();
 	}
 
 	StaticMeshRenderData* TexturedSkyProxy::GetRenderData()
@@ -39,5 +42,29 @@ namespace rendercore
 	const RasterizerOption& TexturedSkyProxy::GetRasterizerOption() const
 	{
 		return m_rasterizerOption;
+	}
+
+	void TexturedSkyProxy::PrefilterTexture()
+	{
+		MaterialResource* materialResource = GetMaterialResource();
+		if ( materialResource == nullptr )
+		{
+			return;
+		}
+
+		const std::shared_ptr<Material> material = materialResource->GetMaterial();
+		if ( material == nullptr )
+		{
+			return;
+		}
+
+		rendercore::Texture* skyTexture = material->AsTexture( "SkyTexture" );
+		if ( skyTexture == nullptr )
+		{
+			return;
+		}
+
+		m_irradianceMap = GenerateIrradianceMap( skyTexture->Resource() );
+		m_irradianceMapSH = GenerateIrradianceMapSH( skyTexture->Resource() );
 	}
 }

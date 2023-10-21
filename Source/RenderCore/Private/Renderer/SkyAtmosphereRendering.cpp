@@ -250,7 +250,7 @@ namespace rendercore
 		shaderBindings = CreateShaderBindings( irradianceOneCS );
 
 		BindResource( shaderBindings, irradianceOneCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
-		BindResource( shaderBindings, irradianceOneCS.TransmittanceLutSampler(), pointSampler.Resource() );
+		BindResource( shaderBindings, irradianceOneCS.TransmittanceLutSampler(), pointSampler );
 		BindResource( shaderBindings, irradianceOneCS.DeltaE(), deltaETexture );
 
 		commandList.BindShaderResources( shaderBindings );
@@ -283,7 +283,7 @@ namespace rendercore
 		shaderBindings = CreateShaderBindings( inscatterOneCS );
 
 		BindResource( shaderBindings, inscatterOneCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
-		BindResource( shaderBindings, inscatterOneCS.TransmittanceLutSampler(), pointSampler.Resource() );
+		BindResource( shaderBindings, inscatterOneCS.TransmittanceLutSampler(), pointSampler );
 		BindResource( shaderBindings, inscatterOneCS.DeltaSR(), deltaSRTexture );
 		BindResource( shaderBindings, inscatterOneCS.DeltaSM(), deltaSMTexture );
 
@@ -310,9 +310,9 @@ namespace rendercore
 		shaderBindings = CreateShaderBindings( copyInscatterOneCS );
 
 		BindResource( shaderBindings, copyInscatterOneCS.DeltaSRLut(), deltaSRTexture );
-		BindResource( shaderBindings, copyInscatterOneCS.DeltaSRLutSampler(), pointSampler.Resource() );
+		BindResource( shaderBindings, copyInscatterOneCS.DeltaSRLutSampler(), pointSampler );
 		BindResource( shaderBindings, copyInscatterOneCS.DeltaSMLut(), deltaSMTexture );
-		BindResource( shaderBindings, copyInscatterOneCS.DeltaSMLutSampler(), pointSampler.Resource() );
+		BindResource( shaderBindings, copyInscatterOneCS.DeltaSMLutSampler(), pointSampler );
 		BindResource( shaderBindings, copyInscatterOneCS.Inscatter(), inscatterBuffer );
 
 		commandList.BindShaderResources( shaderBindings );
@@ -346,13 +346,13 @@ namespace rendercore
 			shaderBindings = CreateShaderBindings( inscatterSCS );
 
 			BindResource( shaderBindings, inscatterSCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
-			BindResource( shaderBindings, inscatterSCS.TransmittanceLutSampler(), pointSampler.Resource() );
+			BindResource( shaderBindings, inscatterSCS.TransmittanceLutSampler(), pointSampler );
 			BindResource( shaderBindings, inscatterSCS.DeltaELut(), deltaETexture );
-			BindResource( shaderBindings, inscatterSCS.DeltaELutSampler(), pointSampler.Resource() );
+			BindResource( shaderBindings, inscatterSCS.DeltaELutSampler(), pointSampler );
 			BindResource( shaderBindings, inscatterSCS.DeltaSRLut(), deltaSRTexture );
-			BindResource( shaderBindings, inscatterSCS.DeltaSRLutSampler(), pointSampler.Resource() );
+			BindResource( shaderBindings, inscatterSCS.DeltaSRLutSampler(), pointSampler );
 			BindResource( shaderBindings, inscatterSCS.DeltaSMLut(), deltaSMTexture );
-			BindResource( shaderBindings, inscatterSCS.DeltaSMLutSampler(), pointSampler.Resource() );
+			BindResource( shaderBindings, inscatterSCS.DeltaSMLutSampler(), pointSampler );
 			BindResource( shaderBindings, inscatterSCS.DeltaJ(), deltaJTex );
 
 			for ( uint32 i = 0; i < INSCATTERS_GROUP_Z; ++i )
@@ -372,9 +372,9 @@ namespace rendercore
 			shaderBindings = CreateShaderBindings( irradianceNCS );
 
 			BindResource( shaderBindings, irradianceNCS.DeltaSRLut(), deltaSRTexture );
-			BindResource( shaderBindings, irradianceNCS.DeltaSRLutSampler(), pointSampler.Resource() );
+			BindResource( shaderBindings, irradianceNCS.DeltaSRLutSampler(), pointSampler );
 			BindResource( shaderBindings, irradianceNCS.DeltaSMLut(), deltaSMTexture );
-			BindResource( shaderBindings, irradianceNCS.DeltaSMLutSampler(), pointSampler.Resource() );
+			BindResource( shaderBindings, irradianceNCS.DeltaSMLutSampler(), pointSampler );
 			BindResource( shaderBindings, irradianceNCS.Irradiance(), deltaETexture );
 			SetShaderValue( commandList, irradianceNCS.Order(), order );
 
@@ -389,9 +389,9 @@ namespace rendercore
 			shaderBindings = CreateShaderBindings( inscatterNCS );
 
 			BindResource( shaderBindings, inscatterNCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
-			BindResource( shaderBindings, inscatterNCS.TransmittanceLutSampler(), pointSampler.Resource() );
+			BindResource( shaderBindings, inscatterNCS.TransmittanceLutSampler(), pointSampler );
 			BindResource( shaderBindings, inscatterNCS.DeltaJLut(), deltaJTex );
-			BindResource( shaderBindings, inscatterNCS.DeltaJLutSampler(), pointSampler.Resource() );
+			BindResource( shaderBindings, inscatterNCS.DeltaJLutSampler(), pointSampler );
 			BindResource( shaderBindings, inscatterNCS.DeltaSR(), deltaSRTexture );
 
 			commandList.BindShaderResources( shaderBindings );
@@ -405,7 +405,7 @@ namespace rendercore
 			shaderBindings = CreateShaderBindings( copyIrradianceCS );
 
 			BindResource( shaderBindings, copyIrradianceCS.DeltaELut(), deltaETexture );
-			BindResource( shaderBindings, copyIrradianceCS.DeltaELutSampler(), pointSampler.Resource() );
+			BindResource( shaderBindings, copyIrradianceCS.DeltaELutSampler(), pointSampler );
 			BindResource( shaderBindings, copyIrradianceCS.Irradiance(), irradianceBuffer );
 
 			commandList.BindShaderResources( shaderBindings );
@@ -419,7 +419,7 @@ namespace rendercore
 			shaderBindings = CreateShaderBindings( copyInscatterNCS );
 
 			BindResource( shaderBindings, copyInscatterNCS.DeltaSRLut(), deltaSRTexture );
-			BindResource( shaderBindings, copyInscatterNCS.DeltaSRLutSampler(), pointSampler.Resource() );
+			BindResource( shaderBindings, copyInscatterNCS.DeltaSRLutSampler(), pointSampler );
 			BindResource( shaderBindings, copyInscatterNCS.Inscatter(), inscatterBuffer );
 
 			commandList.BindShaderResources( shaderBindings );
@@ -434,7 +434,7 @@ namespace rendercore
 			agl::BufferTrait readBack = {
 				.m_stride = sizeof( Vector4 ),
 				.m_count = IRRADIANCE_W * IRRADIANCE_H,
-				.m_access = agl::ResourceAccessFlag::CpuRead,
+				.m_access = agl::ResourceAccessFlag::Download,
 				.m_bindType = agl::ResourceBindType::None,
 				.m_miscFlag = agl::ResourceMisc::None,
 				.m_format = agl::ResourceFormat::Unknown
@@ -459,7 +459,7 @@ namespace rendercore
 			agl::BufferTrait readBack = {
 				.m_stride = sizeof( Vector4 ),
 				.m_count = RES_MU_S * RES_NU * RES_MU * RES_R,
-				.m_access = agl::ResourceAccessFlag::CpuRead,
+				.m_access = agl::ResourceAccessFlag::Download,
 				.m_bindType = agl::ResourceBindType::None,
 				.m_miscFlag = agl::ResourceMisc::None,
 				.m_format = agl::ResourceFormat::Unknown
