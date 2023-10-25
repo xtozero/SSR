@@ -44,6 +44,16 @@ namespace rendercore
 		return m_rasterizerOption;
 	}
 
+	const std::array<Vector, 9>& TexturedSkyProxy::IrradianceMapSH() const
+	{
+		return m_irradianceMapSH;
+	}
+
+	agl::RefHandle<agl::Texture> TexturedSkyProxy::IrradianceMap() const
+	{
+		return m_irradianceMap;
+	}
+
 	void TexturedSkyProxy::PrefilterTexture()
 	{
 		MaterialResource* materialResource = GetMaterialResource();

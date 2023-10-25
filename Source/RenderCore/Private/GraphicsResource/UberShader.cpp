@@ -55,6 +55,8 @@ namespace rendercore
 
 		std::array<char, 1024> valueBuffer{ '\0' };
 		char* value = valueBuffer.data();
+		size_t valueBufferSize = valueBuffer.size();
+
 		for ( auto& [name, shaderSwitch] : switches.Configs() )
 		{
 			if ( shaderSwitch.m_on == false )
@@ -65,8 +67,13 @@ namespace rendercore
 			defines.emplace_back( name.Str().data() );
 			defines.emplace_back( value );
 
-			sprintf_s( value, valueBuffer.size(), "%d", shaderSwitch.m_current);
-			value += ( std::strlen( value ) + 1 );
+			sprintf_s( value, valueBufferSize, "%d", shaderSwitch.m_current );
+			size_t offset = std::strlen( value ) + 1;
+
+			assert( ( valueBufferSize - offset ) < 1024 );
+
+			value += offset;
+			valueBufferSize -= offset;
 		}
 		defines.emplace_back( nullptr );
 		defines.emplace_back( nullptr );
@@ -93,7 +100,7 @@ namespace rendercore
 			return nullptr;
 		}
 
-		GraphicsInterface().BuildShaderMetaData( shader->ByteCode(), shader->ParameterMap(), shader->ParameterInfo());
+		GraphicsInterface().BuildShaderMetaData( shader->ByteCode(), shader->ParameterMap(), shader->ParameterInfo() );
 		shader->CreateShader();
 		shader->SetPath( Path() );
 		shader->SetLastWriteTime( LastWriteTime() );

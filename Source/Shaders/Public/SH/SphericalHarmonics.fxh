@@ -11,7 +11,7 @@ void ShFunctionL2( float3 v, out float Y[9] )
     // L2
     Y[4] = 1.092548f * v.x * v.y; // Y_2-2
     Y[5] = 1.092548f * v.y * v.z; // Y_2-1
-    Y[6] = 0.315392f * ( 3.f * v.z * v.z * v.z - 1.f ) ; // Y_20
+    Y[6] = 0.315392f * ( 3.f * v.z * v.z - 1.f ) ; // Y_20
     Y[7] = 1.092548f * v.x * v.z; // Y_21
     Y[8] = 0.546274f * ( v.x * v.x - v.y * v.y ); // Y_22
 }

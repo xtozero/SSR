@@ -73,21 +73,6 @@ namespace rendercore
 			param.m_prevViewProjMatrix = param.m_viewProjMatrix;
 		}
 
-		if ( scene && scene->HemisphereLight() )
-		{
-			const HemisphereLightProxy& hemisphereLight = *scene->HemisphereLight();
-
-			param.m_hemisphereLightLowerColor = hemisphereLight.LowerColor();
-			param.m_hemisphereLightUpperColor = hemisphereLight.UpperColor();
-			param.m_hemisphereLightUpVector = hemisphereLight.UpVector();
-		}
-		else
-		{
-			param.m_hemisphereLightLowerColor = ColorF::Black;
-			param.m_hemisphereLightUpperColor = ColorF::Black;
-			param.m_hemisphereLightUpVector = Vector4::ZeroVector;
-		}
-
 		param.m_nearPlaneDist = view.m_nearPlaneDistance;
 		param.m_farPlaneDist = view.m_farPlaneDistance;
 

@@ -2,6 +2,7 @@
 #include "Renderer/SceneRenderer.h"
 
 #include "CommandList.h"
+#include "CommonRenderResource.h"
 #include "Config/DefaultRenderCoreConfig.h"
 #include "ExponentialShadowMapRendering.h"
 #include "Math/TransformationMatrix.h"
@@ -989,6 +990,8 @@ namespace rendercore
 	{
 		if ( DefaultRenderCore::IsRSMsEnabled() )
 		{
+			m_shaderResources.AddResource( "IndirectIllumination", BlackTexture->SRV() );
+
 			RSMsRenderingParam renderingParam = {
 				.m_viewSpaceDistance = GetRenderRenderTargets().GetViewSpaceDistance(),
 				.m_worldNormal = GetRenderRenderTargets().GetWorldNormal(),

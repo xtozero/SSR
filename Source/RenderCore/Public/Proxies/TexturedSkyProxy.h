@@ -34,6 +34,9 @@ namespace rendercore
 		const DepthStencilOption& GetDepthStencilOption() const;
 		const RasterizerOption& GetRasterizerOption() const;
 
+		const std::array<Vector, 9>& IrradianceMapSH() const;
+		agl::RefHandle<agl::Texture> IrradianceMap() const;
+
 	private:
 		void PrefilterTexture();
 

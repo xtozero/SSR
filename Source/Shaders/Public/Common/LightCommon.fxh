@@ -12,6 +12,8 @@ Buffer<float4> ForwardLight : register( t4 );
 Texture2D IndirectIllumination : register( t5 );
 SamplerState LinearSampler : register( s1 );
 
+TextureCube IrradianceMap : register( t6 );
+
 struct ForwardLightData
 {
 	uint	m_type;
@@ -28,7 +30,11 @@ struct ForwardLightData
 
 cbuffer ForwardLightConstant : register( b2 )
 {
-	uint		NumLights;
+	uint NumLights : packoffset( c0.x );
+	float3 HemisphereUpVector : packoffset( c0.y );
+	float4 HemisphereUpperColor : packoffset( c1 );
+	float4 HemisphereLowerColor : packoffset( c2 );
+	float4 IrradianceMapSH[7] : packoffset( c3 );
 };
 
 cbuffer Material : register( b3 )
@@ -143,8 +149,35 @@ LIGHTCOLOR CalcLightProperties( ForwardLightData light, float3 viewDirection, fl
 
 float3 HemisphereLight( float3 normal )
 {
-	float w = ( dot( normal, HemisphereUpVector.xyz ) + 1 ) * 0.5;
-	return lerp( HemisphereLowerColor, HemisphereUpperColor, w ).xyz;
+	float w = ( dot( normal, HemisphereUpVector ) + 1 ) * 0.5;
+	return lerp( HemisphereLowerColor, HemisphereUpperColor, w ).rgb;
+}
+
+float3 ImageBasedLight( float3 normal )
+{
+#if UseIrradianceMapSH == 1
+	float3 l00 = { IrradianceMapSH[0].x, IrradianceMapSH[0].y, IrradianceMapSH[0].z }; // L00
+	float3 l1_1 = { IrradianceMapSH[0].w, IrradianceMapSH[1].x, IrradianceMapSH[1].y }; // L1-1
+	float3 l10 = { IrradianceMapSH[1].z, IrradianceMapSH[1].w, IrradianceMapSH[2].x }; // L10
+	float3 l11 = { IrradianceMapSH[2].y, IrradianceMapSH[2].z, IrradianceMapSH[2].w }; // L11
+	float3 l2_2 = { IrradianceMapSH[3].x, IrradianceMapSH[3].y, IrradianceMapSH[3].z }; // L2-2
+	float3 l2_1 = { IrradianceMapSH[3].w, IrradianceMapSH[4].x, IrradianceMapSH[4].y }; // L2-1
+	float3 l20 = { IrradianceMapSH[4].z, IrradianceMapSH[4].w, IrradianceMapSH[5].x }; // L20
+	float3 l21 = { IrradianceMapSH[5].y, IrradianceMapSH[5].z, IrradianceMapSH[5].w }; // L21
+	float3 l22 = { IrradianceMapSH[6].x, IrradianceMapSH[6].y, IrradianceMapSH[6].z }; // L22
+
+	static const float c1 = 0.429043f;
+	static const float c2 = 0.511664f;
+	static const float c3 = 0.743125f;
+	static const float c4 = 0.886227f;
+	static const float c5 = 0.247708f;
+
+	return c1 * l22 * ( normal.x * normal.x - normal.y * normal.y ) + c3 * l20 * normal.z * normal.z + c4 * l00 - c5 * l20
+		+ 2.f * c1 * ( l2_2 * normal.x * normal.y + l21 * normal.x * normal.z + l2_1 * normal.y * normal.z )
+		+ 2.f * c2 * ( l11 * normal.x + l1_1 * normal.y + l10 * normal.z );
+#else
+    return IrradianceMap.Sample( LinearSampler, normal ).rgb;
+#endif
 }
 
 float4 CalcLight( GeometryProperty geometry )
@@ -180,7 +213,8 @@ float4 CalcLight( GeometryProperty geometry )
 	// ToDo
 	float visibility = 1.f; // CalcShadowVisibility( geometry.worldPos, geometry.viewPos );
 
-	float4 lightColor = float4( HemisphereLight( normal ), 1 ) * MoveLinearSpace( Diffuse );
+    float4 lightColor = float4( ImageBasedLight( normal ), 1.f ) * MoveLinearSpace( Diffuse );
+	lightColor += float4( HemisphereLight( normal ), 1.f ) * MoveLinearSpace( Diffuse );
 	lightColor += cColor.m_diffuse * MoveLinearSpace( Diffuse ) * visibility;
 	lightColor += cColor.m_specular * MoveLinearSpace( Specular ) * visibility;
 

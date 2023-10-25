@@ -26,9 +26,6 @@ namespace rendercore
 		Matrix m_prevProjMatrix;
 		Matrix m_prevViewProjMatrix;
 
-		ColorF m_hemisphereLightUpperColor;
-		ColorF m_hemisphereLightLowerColor;
-		Vector4 m_hemisphereLightUpVector;
 		float m_nearPlaneDist;
 		float m_farPlaneDist;
 		float m_elapsedTime;

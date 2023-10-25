@@ -31,4 +31,9 @@ namespace rendercore
 	{
 		return GetInstance().m_rsmsMaxSampleRadius;
 	}
+
+	bool DefaultRenderCore::UseIrradianceMapSH()
+	{
+		return GetInstance().m_useIrradianceMapSH;
+	}
 }

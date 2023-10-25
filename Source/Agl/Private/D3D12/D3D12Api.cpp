@@ -386,6 +386,8 @@ namespace agl
 
 		constexpr int32 MaxDefineLen = 256;
 		std::vector<std::array<wchar_t, MaxDefineLen>> defineStorage;
+		defineStorage.reserve( defines.size() / 2 );
+
 		for ( uint32 i = 0; i < defines.size(); i += 2 )
 		{
 			if ( defines[i] == nullptr || defines[i + 1] == nullptr )

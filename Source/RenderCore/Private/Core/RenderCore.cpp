@@ -4,6 +4,7 @@
 #include "AbstractGraphicsInterface.h"
 #include "CommandList.h"
 #include "common.h"
+#include "CommonRenderResource.h"
 #include "Core/IEditor.h"
 #include "ForwardRenderer.h"
 #include "GlobalShaders.h"
@@ -133,6 +134,8 @@ namespace rendercore
 			return false;
 		}
 
+		DefaultGraphicsResources::GetInstance().BootUp();
+
 		m_uiRenderer = GetInterface<UserInterfaceRenderer>();
 		if ( m_uiRenderer && m_uiRenderer->BootUp() == false )
 		{
@@ -234,6 +237,8 @@ namespace rendercore
 
 	void RenderCore::Shutdown()
 	{
+		DefaultGraphicsResources::GetInstance().Shutdown();
+
 		for ( auto& kv : m_sceneRenderer )
 		{
 			EnqueueRenderTask( 

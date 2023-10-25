@@ -19,6 +19,8 @@ namespace rendercore
 		static uint32 RSMsNumSampling();
 		static float RSMsMaxSamplingRadius();
 
+		static bool UseIrradianceMapSH();
+
 	private:
 		PROPERTY( enableTAA )
 		bool m_enableTAA = false;
@@ -37,5 +39,8 @@ namespace rendercore
 
 		PROPERTY( rsmsMaxSampleRadius )
 		float m_rsmsMaxSampleRadius = 0.1f;
+
+		PROPERTY( useIrradianceMapSH )
+		bool m_useIrradianceMapSH = true;
 	};
 }

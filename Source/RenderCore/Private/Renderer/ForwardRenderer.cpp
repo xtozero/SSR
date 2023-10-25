@@ -2,8 +2,10 @@
 #include "ForwardRenderer.h"
 
 #include "CommandList.h"
+#include "CommonRenderResource.h"
 #include "Math/Vector.h"
 #include "Proxies/LightProxy.h"
+#include "Proxies/TexturedSkyProxy.h"
 #include "RenderView.h"
 #include "Scene/LightSceneInfo.h"
 #include "Scene/Scene.h"
@@ -261,6 +263,16 @@ namespace rendercore
 		m_shaderResources.AddResource( "ViewSpaceDistanceSampler", defaultSampler.Resource() );
 		m_shaderResources.AddResource( "WorldNormalSampler", defaultSampler.Resource() );
 
+		auto renderScene = scene.GetRenderScene();
+		if ( TexturedSkyProxy* proxy = renderScene->TexturedSky() )
+		{
+			m_shaderResources.AddResource( "IrradianceMap", proxy->IrradianceMap()->SRV() );
+		}
+		else
+		{
+			m_shaderResources.AddResource( "IrradianceMap", BlackCubeTexture->SRV() );
+		}
+
 		if ( prepared )
 		{
 			UpdateLightResource( scene );
@@ -428,6 +440,8 @@ namespace rendercore
 		ForwardLightBuffer& lightBuffer = m_forwardLighting.m_lightBuffer;
 
 		uint32 numElement = static_cast<uint32>( ( sizeof( ForwardLightData ) / sizeof( Vector4 ) ) * validLights.size() );
+		numElement = std::max<uint32>( 1, numElement );
+
 		lightBuffer.Initialize( sizeof( Vector4 ), numElement, agl::ResourceFormat::R32G32B32A32_FLOAT );
 
 		auto lightData = static_cast<ForwardLightData*>( lightBuffer.Lock() );
@@ -452,7 +466,27 @@ namespace rendercore
 
 		ForwardLightConstant lightConstant = {
 			.m_numLight = static_cast<uint32>( validLights.size() ),
+			.m_hemisphereLightUpVector = Vector4::ZeroVector,
+			.m_hemisphereLightUpperColor = ColorF::Black,
+			.m_hemisphereLightLowerColor = ColorF::Black,
 		};
+
+		if ( renderScene->HemisphereLight() )
+		{
+			const HemisphereLightProxy& hemisphereLight = *renderScene->HemisphereLight();
+
+			lightConstant.m_hemisphereLightUpVector = hemisphereLight.UpVector();
+			lightConstant.m_hemisphereLightUpperColor = hemisphereLight.UpperColor();
+			lightConstant.m_hemisphereLightLowerColor = hemisphereLight.LowerColor();
+		}
+
+		if ( renderScene->TexturedSky() )
+		{
+			const TexturedSkyProxy& texturedSkyProxy = *renderScene->TexturedSky();
+			const auto& irradianceMapSH = texturedSkyProxy.IrradianceMapSH();
+
+			std::memcpy( lightConstant.m_irrdianceMapSH, irradianceMapSH.data(), sizeof( Vector ) * 9 );
+		}
 
 		m_forwardLighting.m_lightConstant.Update( lightConstant );
 

@@ -72,7 +72,7 @@ void main( uint3 GTid: SV_GroupThreadID, uint GI : SV_GroupIndex)
             }
         }
 
-        float dOmega = 2.f * PI * PI / TotalSample;
+        float dOmega = 2.f * PI / float( TotalSample );
 
         [unroll]
         for ( int i = 0; i < 9; ++i )

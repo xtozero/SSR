@@ -40,7 +40,10 @@ namespace rendercore
 	struct ForwardLightConstant
 	{
 		uint32 m_numLight = 0;
-		uint32 padding[3];
+		Vector m_hemisphereLightUpVector;
+		ColorF m_hemisphereLightUpperColor;
+		ColorF m_hemisphereLightLowerColor;
+		Vector4 m_irrdianceMapSH[7];
 	};
 
 	struct ForwardLightingResource

@@ -1,5 +1,6 @@
 #include "DefaultPassProcessor.h"
 
+#include "Config/DefaultRenderCoreConfig.h"
 #include "MaterialResource.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "VertexCollection.h"
@@ -47,6 +48,35 @@ namespace rendercore
 		depthStencilOption.m_depth.m_depthFunc = agl::ComparisonFunc::LessEqual;
 		depthStencilOption.m_depth.m_writeDepth = false;
 		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default );
+	}
+
+	PassShader DefaultPassProcessor::CollectPassShader( MaterialResource& material ) const
+	{
+		StaticShaderSwitches vsSwitches = material.GetShaderSwitches( agl::ShaderType::VS );
+		StaticShaderSwitches psSwitches = material.GetShaderSwitches( agl::ShaderType::PS );
+
+		if ( DefaultRenderCore::IsTaaEnabled() )
+		{
+			vsSwitches.On( Name( "TAA" ), 1 );
+		}
+
+		if ( DefaultRenderCore::IsRSMsEnabled() )
+		{
+			psSwitches.On( Name( "EnableRSMs" ), 1 );
+		}
+
+		if ( DefaultRenderCore::UseIrradianceMapSH() )
+		{
+			psSwitches.On( Name( "UseIrradianceMapSH" ), 1 );
+		}
+
+		PassShader passShader{
+			material.GetVertexShader( &vsSwitches ),
+			nullptr,
+			material.GetPixelShader( &psSwitches )
+		};
+
+		return passShader;
 	}
 
 	PassProcessorRegister RegisterDefaultPass( RenderPass::Default, &CreateDefaultPassProcessor );
