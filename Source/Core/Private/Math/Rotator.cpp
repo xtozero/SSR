@@ -121,3 +121,5 @@ Rotator& operator/=( Rotator& r, float s )
 
 	return r;
 }
+
+const Rotator Rotator::ZeroRotator;

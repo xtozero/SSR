@@ -44,23 +44,37 @@ bool Quaternion::Equals( const Quaternion& other, float tolerance ) const
 
 Rotator Quaternion::ToRotator() const
 {
-	// from https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+	// from http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
+	// heading -> yaw
+	// attitude -> roll
+	// back -> pitch
 	Quaternion q = GetNormalized();
 
-	float sinRcosP = 2.f * ( q.w * q.x + q.y * q.z );
-	float cosRcosP = 1.f - 2.f * ( q.x * q.x + q.y * q.y );
-	float pitch = std::atan2( sinRcosP, cosRcosP );
+	float pitch = 0.f;
+	float yaw = 0.f;
+	float roll = 0.f;
 
-	float sinP = std::sqrt( 1.f + 2.f * ( q.w * q.y - q.x * q.z ) );
-	float cosP = std::sqrt( 1.f - 2.f * ( q.w * q.y - q.x * q.z ) );
-	float yaw = 2.f * std::atan2( sinP, cosP ) - std::numbers::pi_v<float> * 0.5f;
+	float test = q.x * q.y + q.z * q.w;
+	if ( test > 0.499f )
+	{
+		pitch = 0.f;
+		yaw = 2.f * atan2( q.x, q.w );
+		roll = std::numbers::pi_v<float> * 0.5f;
+	}
+	else if ( test < -0.499f )
+	{
+		pitch = 0.f;
+		yaw = -2.f * atan2( q.x, q.w );
+		roll = -std::numbers::pi_v<float> * 0.5f;
+	}
+	else
+	{
+		pitch = std::atan2( 2.f * ( q.x * q.w - q.y * q.z ), 1.f - 2.f * ( q.x * q.x + q.z * q.z ) );
+		yaw = std::atan2( 2.f * ( q.y * q.w - q.x * q.z ) , 1.f - 2.f * ( q.y * q.y + q.z * q.z ) );
+		roll = std::asin( 2.f * test );
+	}
 
-	float sinYcosP = 2.f * ( q.w * q.z + q.x * q.y );
-	float cosYcosP = 1.f - 2.f * ( q.y * q.y + q.z * q.z );
-	float roll = std::atan2( sinYcosP, cosYcosP );
-
-	// right-handed -> left-handed
-	return Rotator( XMConvertToDegrees( -pitch ), XMConvertToDegrees( -yaw ), XMConvertToDegrees( roll ) );
+	return Rotator( XMConvertToDegrees( pitch ), XMConvertToDegrees( yaw ), XMConvertToDegrees( roll ) );
 }
 
 Quaternion::Quaternion( float pitch, float yaw, float roll )

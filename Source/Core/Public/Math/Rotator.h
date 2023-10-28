@@ -34,4 +34,8 @@ public:
 	float m_pitch = 0.f;
 	float m_yaw = 0.f;
 	float m_roll = 0.f;
+
+	static const Rotator ZeroRotator;
 };
+
+
