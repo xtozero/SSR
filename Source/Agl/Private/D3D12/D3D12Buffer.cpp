@@ -252,6 +252,8 @@ namespace agl
 
 	void D3D12Buffer::CreateBuffer()
 	{
+		SetState( ResourceState::Common );
+
 		D3D12HeapProperties properties = ConvertToHeapProperties( m_trait );
 		D3D12_RESOURCE_STATES states = ConvertToStates( m_trait );
 		if ( m_hasInitData && ( properties.m_heapType != D3D12_HEAP_TYPE_UPLOAD ) )

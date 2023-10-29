@@ -644,6 +644,8 @@ namespace agl
 
 	void D3D12Texture::CreateTexture()
 	{
+		SetState( ResourceState::Common );
+
 		D3D12HeapProperties properties = ConvertToHeapProperties( m_trait );
 		D3D12_RESOURCE_STATES states = ConvertToStates( m_trait );
 		if ( ( m_dataStorage != nullptr ) && ( properties.m_heapType != D3D12_HEAP_TYPE_UPLOAD ) )
