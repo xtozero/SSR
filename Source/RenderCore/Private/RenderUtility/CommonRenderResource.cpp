@@ -5,7 +5,7 @@
 
 namespace
 {
-	agl::RefHandle<agl::Texture> CreateTexture( Color color )
+	agl::RefHandle<agl::Texture> CreateTexture( Color color, const char* debugName )
 	{
 		agl::TextureTrait trait = {
 				.m_width = 1,
@@ -30,7 +30,7 @@ namespace
 		section.m_offset = 0;
 		section.m_pitch = section.m_slicePitch = sizeof( uint32 );
 
-		agl::RefHandle<agl::Texture> texture = agl::Texture::Create( trait, &initData );
+		agl::RefHandle<agl::Texture> texture = agl::Texture::Create( trait, debugName, &initData );
 		EnqueueRenderTask( [texture]()
 			{
 				texture->Init();
@@ -39,7 +39,7 @@ namespace
 		return texture;
 	}
 
-	agl::RefHandle<agl::Texture> CreateCubeTexture( Color color )
+	agl::RefHandle<agl::Texture> CreateCubeTexture( Color color, const char* debugName )
 	{
 		agl::TextureTrait trait = {
 				.m_width = 1,
@@ -69,7 +69,7 @@ namespace
 			section.m_pitch = section.m_slicePitch = sizeof( uint32 );
 		}
 
-		agl::RefHandle<agl::Texture> cubeTexture = agl::Texture::Create( trait, &initData );
+		agl::RefHandle<agl::Texture> cubeTexture = agl::Texture::Create( trait, debugName, &initData );
 		EnqueueRenderTask( [cubeTexture]()
 			{
 				cubeTexture->Init();
@@ -85,11 +85,11 @@ namespace rendercore
 
 	void DefaultGraphicsResources::BootUp()
 	{
-		BlackTexture = CreateTexture( Color::Black );
-		WhiteTexture = CreateTexture( Color::White );
+		BlackTexture = CreateTexture( Color::Black, "DefaultBlack" );
+		WhiteTexture = CreateTexture( Color::White, "DefaultWhite" );
 
-		BlackCubeTexture = CreateCubeTexture( Color::Black );
-		WhiteCubeTexture = CreateCubeTexture( Color::White );
+		BlackCubeTexture = CreateCubeTexture( Color::Black, "DefaultBlackCube" );
+		WhiteCubeTexture = CreateCubeTexture( Color::White, "DefaultWhiteCube" );
 	}
 
 	void DefaultGraphicsResources::Shutdown()

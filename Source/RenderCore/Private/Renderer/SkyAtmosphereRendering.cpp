@@ -148,7 +148,7 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::None,
 		};
 
-		info.GetTransmittanceLutTexture() = agl::Texture::Create( transmittanceLut );
+		info.GetTransmittanceLutTexture() = agl::Texture::Create( transmittanceLut, "Atmosphere.TransmittanceLUT" );
 		EnqueueRenderTask(
 			[texture = info.GetTransmittanceLutTexture()]()
 			{
@@ -168,7 +168,7 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::None,
 		};
 
-		info.GetIrradianceLutTexture() = agl::Texture::Create( irradianceLut );
+		info.GetIrradianceLutTexture() = agl::Texture::Create( irradianceLut, "Atmosphere.IrradianceLUT" );
 		EnqueueRenderTask(
 			[texture = info.GetIrradianceLutTexture()]()
 			{
@@ -188,7 +188,7 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::Texture3D,
 		};
 
-		info.GetInscatterLutTexture() = agl::Texture::Create( inscatterLut );
+		info.GetInscatterLutTexture() = agl::Texture::Create( inscatterLut, "Atmosphere.InscatterLUT" );
 		EnqueueRenderTask(
 			[texture = info.GetInscatterLutTexture()]()
 			{
@@ -240,7 +240,7 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::None
 		};
 
-		agl::RefHandle<agl::Texture> deltaETexture = agl::Texture::Create( deltaE );
+		agl::RefHandle<agl::Texture> deltaETexture = agl::Texture::Create( deltaE, "Atmosphere.DeltaE" );
 		deltaETexture->Init();
 
 		IrradianceOneCS irradianceOneCS;
@@ -270,10 +270,10 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::Texture3D
 		};
 
-		agl::RefHandle<agl::Texture> deltaSRTexture = agl::Texture::Create( deltaS );
+		agl::RefHandle<agl::Texture> deltaSRTexture = agl::Texture::Create( deltaS, "Atmosphere.DeltaSR" );
 		deltaSRTexture->Init();
 
-		agl::RefHandle<agl::Texture> deltaSMTexture = agl::Texture::Create( deltaS );
+		agl::RefHandle<agl::Texture> deltaSMTexture = agl::Texture::Create( deltaS, "Atmosphere.DeltaSM" );
 		deltaSMTexture->Init();
 
 		InscatterOneCS inscatterOneCS;
@@ -300,7 +300,7 @@ namespace rendercore
 			.m_format = agl::ResourceFormat::Unknown
 		};
 
-		agl::RefHandle<agl::Buffer> inscatterBuffer = agl::Buffer::Create( inscatter );
+		agl::RefHandle<agl::Buffer> inscatterBuffer = agl::Buffer::Create( inscatter, "Atmosphere.Inscatter" );
 		inscatterBuffer->Init();
 
 		CopyInscatterOneCS copyInscatterOneCS;
@@ -318,7 +318,7 @@ namespace rendercore
 		commandList.BindShaderResources( shaderBindings );
 		commandList.Dispatch( INSCATTER1_GROUP_X, INSCATTER1_GROUP_Y, INSCATTER1_GROUP_Z );
 
-		agl::RefHandle<agl::Texture> deltaJTex = agl::Texture::Create( deltaS );
+		agl::RefHandle<agl::Texture> deltaJTex = agl::Texture::Create( deltaS, "Atmosphere.DeltaJ" );
 		deltaJTex->Init();
 
 		// Irradiance
@@ -332,7 +332,7 @@ namespace rendercore
 		};
 
 		Vector4 irradianceData[IRRADIANCE_W * IRRADIANCE_H] = {};
-		agl::RefHandle<agl::Buffer> irradianceBuffer = agl::Buffer::Create( irradiance, irradianceData );
+		agl::RefHandle<agl::Buffer> irradianceBuffer = agl::Buffer::Create( irradiance, "Atmosphere.Irradiance", irradianceData );
 		irradianceBuffer->Init();
 
 		// loop for each scattering order
@@ -440,7 +440,7 @@ namespace rendercore
 				.m_format = agl::ResourceFormat::Unknown
 			};
 
-			agl::RefHandle<agl::Buffer> irradianceReadBack = agl::Buffer::Create( readBack );
+			agl::RefHandle<agl::Buffer> irradianceReadBack = agl::Buffer::Create( readBack, "Atmosphere.IrradianceReadBack" );
 			irradianceReadBack->Init();
 
 			commandList.CopyResource( irradianceReadBack, irradianceBuffer );
@@ -465,7 +465,7 @@ namespace rendercore
 				.m_format = agl::ResourceFormat::Unknown
 			};
 
-			agl::RefHandle<agl::Buffer> inscatterReadBack = agl::Buffer::Create( readBack );
+			agl::RefHandle<agl::Buffer> inscatterReadBack = agl::Buffer::Create( readBack, "Atmosphere.InscatterReadBack" );
 			inscatterReadBack->Init();
 
 			commandList.CopyResource( inscatterReadBack, inscatterBuffer );

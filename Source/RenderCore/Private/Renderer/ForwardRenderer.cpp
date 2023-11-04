@@ -6,6 +6,7 @@
 #include "Math/Vector.h"
 #include "Proxies/LightProxy.h"
 #include "Proxies/TexturedSkyProxy.h"
+#include "RenderTargetPool.h"
 #include "RenderView.h"
 #include "Scene/LightSceneInfo.h"
 #include "Scene/Scene.h"
@@ -85,7 +86,7 @@ namespace rendercore
 				}
 			};
 
-			m_depthStencil = agl::Texture::Create( trait );
+			m_depthStencil = agl::Texture::Create( trait, "Scene.DepthStencil" );
 			EnqueueRenderTask(
 				[depthStencil = m_depthStencil]()
 				{
@@ -114,7 +115,7 @@ namespace rendercore
 				}
 			};
 
-			m_linearDepth = agl::Texture::Create( trait );
+			m_linearDepth = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "Scene.ViewSpaceDistance" );
 			EnqueueRenderTask(
 				[linearDepth = m_linearDepth]()
 				{
@@ -140,7 +141,7 @@ namespace rendercore
 				.m_miscFlag = agl::ResourceMisc::None
 			};
 
-			m_taaHistory = agl::Texture::Create( trait );
+			m_taaHistory = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "TAA.History" );
 			EnqueueRenderTask(
 				[taaHistory = m_taaHistory]()
 				{
@@ -166,7 +167,7 @@ namespace rendercore
 				}
 			};
 
-			m_taaResolve = agl::Texture::Create( trait );
+			m_taaResolve = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "TAA.Resolve" );
 			EnqueueRenderTask(
 				[taaResolve = m_taaResolve]()
 				{
@@ -195,7 +196,7 @@ namespace rendercore
 				}
 			};
 
-			m_worldNormal = agl::Texture::Create( trait );
+			m_worldNormal = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "Scene.WorldNormal" );
 			EnqueueRenderTask(
 				[worldNormal = m_worldNormal]()
 				{
@@ -224,7 +225,7 @@ namespace rendercore
 				}
 			};
 
-			m_velocity = agl::Texture::Create( trait );
+			m_velocity = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "Scene.Velocity" );
 			EnqueueRenderTask(
 				[velocity = m_velocity]()
 				{

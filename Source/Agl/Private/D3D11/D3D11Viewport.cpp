@@ -122,7 +122,7 @@ namespace agl
 
 		if ( m_frameBuffer == nullptr )
 		{
-			m_frameBuffer = new D3D11BaseTexture2D( frameBufferTrait, nullptr );
+			m_frameBuffer = new D3D11BaseTexture2D( frameBufferTrait, "FrameBuffer", nullptr);
 		}
 		else
 		{

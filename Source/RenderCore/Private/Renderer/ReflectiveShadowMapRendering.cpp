@@ -166,7 +166,7 @@ namespace rendercore
 			}
 		};
 
-		m_indirectIllumination = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait );
+		m_indirectIllumination = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "RSMs.Illumination" );
 
 		SamplerOption blackBorderSampler;
 		blackBorderSampler.m_addressU = agl::TextureAddressMode::Border;
@@ -209,7 +209,7 @@ namespace rendercore
 			samplingPattern[i][2] = xi1;
 		}
 
-		m_samplingPattern = agl::Buffer::Create( trait, samplingPattern );
+		m_samplingPattern = agl::Buffer::Create( trait, "RSMs.SamplingPattern", samplingPattern);
 		assert( m_samplingPattern != nullptr );
 
 		m_samplingPattern->Init();

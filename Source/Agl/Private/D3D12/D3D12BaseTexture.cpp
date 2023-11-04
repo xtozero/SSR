@@ -622,8 +622,8 @@ namespace agl
 		}
 	}
 
-	D3D12Texture::D3D12Texture( const TextureTrait& trait, const ResourceInitData* initData )
-		: TextureBase( trait, initData )
+	D3D12Texture::D3D12Texture( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )
+		: TextureBase( trait, debugName, initData )
 		, m_desc( ConvertTraitToDesc( trait ) )
 	{
 		if ( initData )
@@ -663,6 +663,12 @@ namespace agl
 			clearValue.Format == DXGI_FORMAT_UNKNOWN ? nullptr : &clearValue
 		);
 
+		if ( ID3D12Resource* resource = m_resourceInfo.GetResource() )
+		{
+			auto dataSize = static_cast<uint32>( m_debugName.Str().size() );
+			resource->SetPrivateData( WKPDID_D3DDebugObjectName, dataSize, m_debugName.Str().data() );
+		}
+
 		if ( m_initData.empty() == false )
 		{
 			for ( size_t i = 0; i < m_initData.size(); ++i )
@@ -672,20 +678,25 @@ namespace agl
 		}
 	}
 
-	D3D12BaseTexture1D::D3D12BaseTexture1D( const TextureTrait& trait, const ResourceInitData* initData )
-		: D3D12Texture( trait, initData )
+	D3D12BaseTexture1D::D3D12BaseTexture1D( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )
+		: D3D12Texture( trait, debugName, initData )
 	{
 	}
 
-	D3D12BaseTexture2D::D3D12BaseTexture2D( const TextureTrait& trait, const ResourceInitData* initData )
-		: D3D12Texture( trait, initData )
+	D3D12BaseTexture2D::D3D12BaseTexture2D( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )
+		: D3D12Texture( trait, debugName, initData )
 	{
 	}
 
-	D3D12BaseTexture2D::D3D12BaseTexture2D( ID3D12Resource* texture, const D3D12_RESOURCE_DESC* desc )
+	D3D12BaseTexture2D::D3D12BaseTexture2D( ID3D12Resource* texture, const char* debugName, const D3D12_RESOURCE_DESC* desc )
 	{
 		if ( texture )
 		{
+			m_debugName = Name( debugName );
+
+			auto dataSize = static_cast<uint32>( m_debugName.Str().size() );
+			texture->SetPrivateData( WKPDID_D3DDebugObjectName, dataSize, m_debugName.Str().data() );
+
 			m_resourceInfo.SetResource( texture );
 			if ( desc == nullptr )
 			{
@@ -725,8 +736,8 @@ namespace agl
 		m_dsv->Init();
 	}
 
-	D3D12BaseTexture3D::D3D12BaseTexture3D( const TextureTrait& trait, const ResourceInitData* initData )
-		: D3D12Texture( trait, initData )
+	D3D12BaseTexture3D::D3D12BaseTexture3D( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )
+		: D3D12Texture( trait, debugName, initData )
 	{
 	}
 }

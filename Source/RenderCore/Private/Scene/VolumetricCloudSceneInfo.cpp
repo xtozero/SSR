@@ -97,7 +97,7 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::None,
 		};
 
-		m_weatherMap = agl::Texture::Create( trait );
+		m_weatherMap = agl::Texture::Create( trait, "VolumetricCloud.Weather" );
 		EnqueueRenderTask(
 			[texture = m_weatherMap]()
 			{
@@ -137,7 +137,7 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::Texture3D
 		};
 
-		agl::RefHandle<agl::Texture> cloudTex = agl::Texture::Create( trait );
+		agl::RefHandle<agl::Texture> cloudTex = agl::Texture::Create( trait, "VolumetricCloud.Cloud" );
 		EnqueueRenderTask(
 			[texture = cloudTex]()
 			{

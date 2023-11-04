@@ -49,7 +49,7 @@ namespace
 			.m_format = destTrait.m_format
 		};
 
-		RefHandle<D3D11Buffer> intermediate = static_cast<D3D11Buffer*>( Buffer::Create( intermediateTrait ).Get() );
+		RefHandle<D3D11Buffer> intermediate = static_cast<D3D11Buffer*>( Buffer::Create( intermediateTrait, "UpdateSubresource.Intermediate" ).Get() );
 		intermediate->Init();
 
 		D3D11_MAPPED_SUBRESOURCE lockedResource = {};
@@ -122,7 +122,7 @@ namespace
 			.m_miscFlag = bIsTexture3D ? ( ResourceMisc::Texture3D | ResourceMisc::Intermediate ) : ResourceMisc::Intermediate
 		};
 
-		RefHandle<TextureBase> intermediate = static_cast<TextureBase*>( Texture::Create( intermediateTrait ).Get() );
+		RefHandle<TextureBase> intermediate = static_cast<TextureBase*>( Texture::Create( intermediateTrait, "UpdateSubresource.Intermediate" ).Get() );
 		intermediate->Init();
 
 		D3D11_MAPPED_SUBRESOURCE lockedResource = {};

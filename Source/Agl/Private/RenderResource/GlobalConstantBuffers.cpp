@@ -60,7 +60,7 @@ namespace agl
 			   .m_format = ResourceFormat::Unknown
 			};
 
-			m_buffer = Buffer::Create( trait );
+			m_buffer = Buffer::Create( trait, "GlobalConstant" );
 			m_buffer->Init();
 		}
 
@@ -106,7 +106,7 @@ namespace agl
 			.m_format = ResourceFormat::Unknown
 		};
 
-		RefHandle<Buffer> buffer = Buffer::Create( trait );
+		RefHandle<Buffer> buffer = Buffer::Create( trait, "GlobalConstant" );
 		buffer->Init();
 
 		singleShaderBindings.AddConstantBuffer( parameter, buffer );

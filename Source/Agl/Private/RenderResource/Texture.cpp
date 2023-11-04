@@ -7,9 +7,9 @@
 
 namespace agl
 {
-	RefHandle<Texture> Texture::Create( const TextureTrait& trait, const ResourceInitData* initData )
+	RefHandle<Texture> Texture::Create( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )
 	{
-		return GetInterface<IResourceManager>( )->CreateTexture( trait, initData );
+		return GetInterface<IResourceManager>( )->CreateTexture( trait, debugName, initData );
 	}
 
 	ResourceState Texture::GetState() const
@@ -32,10 +32,12 @@ namespace agl
 		return HasAnyFlags( m_trait.m_miscFlag, ResourceMisc::TextureCube );
 	}
 
-	Texture::Texture( const TextureTrait& trait ) noexcept
+	Texture::Texture( const TextureTrait& trait, const char* debugName ) noexcept
 		: m_trait( trait )
 	{
 		m_isTexture = true;
+
+		m_debugName = Name( debugName );
 	}
 
 	Texture::Texture() noexcept

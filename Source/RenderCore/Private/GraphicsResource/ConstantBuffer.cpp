@@ -63,7 +63,7 @@ namespace rendercore
 			.m_format = agl::ResourceFormat::Unknown
 		};
 
-		m_buffer = agl::Buffer::Create( trait );
+		m_buffer = agl::Buffer::Create( trait, "Constant" );
 		EnqueueRenderTask(
 			[buffer = m_buffer]()
 			{

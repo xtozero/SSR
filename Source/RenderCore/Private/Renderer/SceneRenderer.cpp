@@ -356,7 +356,7 @@ namespace rendercore
 				}
 			};
 
-			shadow->ShadowMap().m_shadowMaps.emplace_back( RenderTargetPool::GetInstance().FindFreeRenderTarget( trait ) );
+			shadow->ShadowMap().m_shadowMaps.emplace_back( RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "Shadow.Cascade" ) );
 
 			agl::TextureTrait depthTrait = {
 				.m_width = width,
@@ -377,7 +377,7 @@ namespace rendercore
 				}
 			};
 
-			shadow->ShadowMap().m_shadowMapDepth = RenderTargetPool::GetInstance().FindFreeRenderTarget( depthTrait );
+			shadow->ShadowMap().m_shadowMapDepth = RenderTargetPool::GetInstance().FindFreeRenderTarget( depthTrait, "Shadow.Cascade.Depth" );
 
 			if ( DefaultRenderCore::IsRSMsEnabled() )
 			{
@@ -397,7 +397,7 @@ namespace rendercore
 					}
 				};
 				
-				shadow->ShadowMap().m_shadowMaps.emplace_back( RenderTargetPool::GetInstance().FindFreeRenderTarget( positionMapTrait ) );
+				shadow->ShadowMap().m_shadowMaps.emplace_back( RenderTargetPool::GetInstance().FindFreeRenderTarget( positionMapTrait, "RSMs.Position" ) );
 
 				agl::TextureTrait normalMapTrait = {
 					.m_width = width,
@@ -415,7 +415,7 @@ namespace rendercore
 					}
 				};
 
-				shadow->ShadowMap().m_shadowMaps.emplace_back( RenderTargetPool::GetInstance().FindFreeRenderTarget( normalMapTrait ) );
+				shadow->ShadowMap().m_shadowMaps.emplace_back( RenderTargetPool::GetInstance().FindFreeRenderTarget( normalMapTrait, "RSMs.Normal" ) );
 
 				agl::TextureTrait fluxMapTrait = {
 					.m_width = width,
@@ -433,7 +433,7 @@ namespace rendercore
 					}
 				};
 
-				shadow->ShadowMap().m_shadowMaps.emplace_back( RenderTargetPool::GetInstance().FindFreeRenderTarget( fluxMapTrait ) );
+				shadow->ShadowMap().m_shadowMaps.emplace_back( RenderTargetPool::GetInstance().FindFreeRenderTarget( fluxMapTrait, "RSMs.Flux" ) );
 			}
 		}
 	}

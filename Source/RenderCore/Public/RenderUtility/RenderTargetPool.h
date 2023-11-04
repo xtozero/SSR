@@ -35,7 +35,7 @@ namespace rendercore
 			return renderTargetPool;
 		}
 
-		agl::RefHandle<agl::Texture> FindFreeRenderTarget( const agl::TextureTrait& trait );
+		agl::RefHandle<agl::Texture> FindFreeRenderTarget( const agl::TextureTrait& trait, const char* debugName );
 		void Shutdown();
 
 	private:

@@ -6,6 +6,7 @@
 #include "GlobalShaders.h"
 #include "PassProcessor.h"
 #include "RenderOption.h"
+#include "RenderTargetPool.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "SceneRenderer.h"
 #include "ShaderParameterUtils.h"
@@ -84,7 +85,7 @@ namespace rendercore
 		trait.m_format = agl::ResourceFormat::R8G8B8A8_UNORM_SRGB;
 		trait.m_bindType |= agl::ResourceBindType::RenderTarget;
 
-		auto irradianceMap = agl::Texture::Create( trait );
+		auto irradianceMap = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "DiffuseIrradianceMap" );
 		EnqueueRenderTask( [irradianceMap]()
 			{
 				irradianceMap->Init();
@@ -171,7 +172,7 @@ namespace rendercore
 			.m_format = agl::ResourceFormat::Unknown
 		};
 
-		auto coeffBuffer = agl::Buffer::Create( coeffTrait );
+		auto coeffBuffer = agl::Buffer::Create( coeffTrait, "IrradianceMap.Coefficient" );
 		EnqueueRenderTask(
 			[coeffBuffer]()
 			{
@@ -206,7 +207,7 @@ namespace rendercore
 			.m_format = agl::ResourceFormat::Unknown
 		};
 
-		auto readBackBuffer = agl::Buffer::Create( readBackTrait );
+		auto readBackBuffer = agl::Buffer::Create( readBackTrait, "IrradianceMap.ReadBack" );
 		EnqueueRenderTask(
 			[readBackBuffer]()
 			{

@@ -79,7 +79,7 @@ namespace rendercore
 			initData.m_sections[i].m_slicePitch = m_sections[i].m_slicePitch;
 		}
 
-		m_texture = agl::Texture::Create( tarit, &initData );
+		m_texture = agl::Texture::Create( tarit, Path().generic_string().c_str(), &initData);
 
 		EnqueueRenderTask(
 			[this]()

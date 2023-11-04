@@ -113,8 +113,9 @@ namespace agl
 		return m_desc.StructureByteStride;
 	}
 
-	D3D11Buffer::D3D11Buffer( const BufferTrait& trait, const void* initData )
+	D3D11Buffer::D3D11Buffer( const BufferTrait& trait, const char* debugName, const void* initData )
 	{
+		m_debugName = Name( debugName );
 		m_trait = trait;
 		m_desc = ConvertTraitToDesc( m_trait );
 		m_format = ConvertFormatToDxgiFormat( m_trait.m_format );
@@ -153,6 +154,12 @@ namespace agl
 		D3D11_SUBRESOURCE_DATA* initData = m_hasInitData ? &m_initData : nullptr;
 		[[maybe_unused]] HRESULT hr = D3D11Device().CreateBuffer( &m_desc, initData, &m_buffer );
 		assert( SUCCEEDED( hr ) );
+
+		if ( m_buffer )
+		{
+			auto dataSize = static_cast<uint32>( m_debugName.Str().size() );
+			m_buffer->SetPrivateData( WKPDID_D3DDebugObjectName, dataSize, m_debugName.Str().data() );
+		}
 
 		if ( HasAnyFlags( m_trait.m_miscFlag, ResourceMisc::Intermediate | ResourceMisc::WithoutViews ) )
 		{

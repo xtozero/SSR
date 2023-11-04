@@ -65,7 +65,7 @@ namespace rendercore
 		agl::TextureTrait tempTrait = srcTrait;
 		tempTrait.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess;
 
-		agl::RefHandle<agl::Texture> tempTexture = agl::Texture::Create( tempTrait );
+		agl::RefHandle<agl::Texture> tempTexture = agl::Texture::Create( tempTrait, "Blur.Temp" );
 		assert( tempTexture );
 
 		tempTexture->Init();
@@ -136,7 +136,7 @@ namespace rendercore
 		esmsTrait.m_format = agl::ResourceFormat::R32_FLOAT;
 		esmsTrait.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess;
 
-		agl::RefHandle<agl::Texture> esmsTexture = agl::Texture::Create( esmsTrait );
+		agl::RefHandle<agl::Texture> esmsTexture = agl::Texture::Create( esmsTrait, "ESMs" );
 		assert( esmsTexture );
 
 		esmsTexture->Init();

@@ -9,7 +9,7 @@ namespace agl
 	class Buffer : public DeviceDependantResource, public IResourceViews, public ITransitionable
 	{
 	public:
-		AGL_DLL static RefHandle<Buffer> Create( const BufferTrait& trait, const void* initData = nullptr );
+		AGL_DLL static RefHandle<Buffer> Create( const BufferTrait& trait, const char* debugName, const void* initData = nullptr );
 
 		virtual void* Resource() const = 0;
 

@@ -331,8 +331,8 @@ namespace agl
 		m_uav->Init();
 	}
 
-	D3D11BaseTexture1D::D3D11BaseTexture1D( const TextureTrait& trait, const ResourceInitData* initData )
-		: D3D11Texture<ID3D11Texture1D>( trait, initData )
+	D3D11BaseTexture1D::D3D11BaseTexture1D( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )
+		: D3D11Texture<ID3D11Texture1D>( trait, debugName, initData )
 	{
 	}
 
@@ -343,6 +343,12 @@ namespace agl
 
 		[[maybe_unused]] HRESULT hr = D3D11Device().CreateTexture1D( &m_desc, m_dataStorage ? m_initData.data() : nullptr, &m_texture );
 		assert( SUCCEEDED( hr ) );
+
+		if ( m_texture )
+		{
+			auto dataSize = static_cast<uint32>( m_debugName.Str().size() );
+			m_texture->SetPrivateData( WKPDID_D3DDebugObjectName, dataSize, m_debugName.Str().data() );
+		}
 	}
 
 	void D3D11BaseTexture1D::ConvertToDesc( const TextureTrait& trait )
@@ -394,15 +400,20 @@ namespace agl
 		m_dsv->Init();
 	}
 
-	D3D11BaseTexture2D::D3D11BaseTexture2D( const TextureTrait& trait, const ResourceInitData* initData )
-		: D3D11Texture<ID3D11Texture2D>( trait, initData )
+	D3D11BaseTexture2D::D3D11BaseTexture2D( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )
+		: D3D11Texture<ID3D11Texture2D>( trait, debugName, initData )
 	{
 	}
 
-	D3D11BaseTexture2D::D3D11BaseTexture2D( ID3D11Texture2D* texture, const D3D11_TEXTURE2D_DESC* desc )
+	D3D11BaseTexture2D::D3D11BaseTexture2D( ID3D11Texture2D* texture, const char* debugName, const D3D11_TEXTURE2D_DESC* desc )
 	{
 		if ( texture )
 		{
+			m_debugName = Name( debugName );
+
+			auto dataSize = static_cast<uint32>( m_debugName.Str().size() );
+			texture->SetPrivateData( WKPDID_D3DDebugObjectName, dataSize, m_debugName.Str().data() );
+
 			m_texture = texture;
 			if ( desc == nullptr )
 			{
@@ -424,6 +435,12 @@ namespace agl
 
 		[[maybe_unused]] HRESULT hr = D3D11Device().CreateTexture2D( &m_desc, m_dataStorage ? m_initData.data() : nullptr, &m_texture );
 		assert( SUCCEEDED( hr ) );
+
+		if ( m_texture )
+		{
+			auto dataSize = static_cast<uint32>( m_debugName.Str().size() );
+			m_texture->SetPrivateData( WKPDID_D3DDebugObjectName, dataSize, m_debugName.Str().data() );
+		}
 	}
 
 	void D3D11BaseTexture2D::ConvertToDesc( const TextureTrait& trait )
@@ -453,8 +470,8 @@ namespace agl
 		m_uav->Init();
 	}
 
-	D3D11BaseTexture3D::D3D11BaseTexture3D( const TextureTrait& trait, const ResourceInitData* initData )
-		: D3D11Texture<ID3D11Texture3D>( trait, initData )
+	D3D11BaseTexture3D::D3D11BaseTexture3D( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )
+		: D3D11Texture<ID3D11Texture3D>( trait, debugName, initData )
 	{
 	}
 
@@ -465,6 +482,12 @@ namespace agl
 
 		[[maybe_unused]] HRESULT hr = D3D11Device().CreateTexture3D( &m_desc, m_dataStorage ? m_initData.data() : nullptr, &m_texture );
 		assert( SUCCEEDED( hr ) );
+
+		if ( m_texture )
+		{
+			auto dataSize = static_cast<uint32>( m_debugName.Str().size() );
+			m_texture->SetPrivateData( WKPDID_D3DDebugObjectName, dataSize, m_debugName.Str().data() );
+		}
 	}
 
 	void D3D11BaseTexture3D::ConvertToDesc( const TextureTrait& trait )

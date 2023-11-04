@@ -91,6 +91,8 @@ namespace agl
 		bool m_isBuffer = false;
 		bool m_isTexture = false;
 
+		Name m_debugName;
+
 	private:
 		virtual void Finalizer() override;
 

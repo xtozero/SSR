@@ -18,6 +18,6 @@ public:
 	virtual std::optional<Products> Manufacture( const PathEnvironment& env, const std::filesystem::path& path ) const override;
 
 private:
-	void CombinationStaticSwitches( const std::string& shaderFile, const char* featureLevel, std::map<uint32, Microsoft::WRL::ComPtr<ID3DBlob>>& outCompiledShaders, const rendercore::StaticShaderSwitches& switches ) const;
-	void CombinationStaticSwitchesRecursive( const std::string& shaderFile, const char* featureLevel, std::map<uint32, Microsoft::WRL::ComPtr<ID3DBlob>>& outCompiledShaders, rendercore::StaticShaderSwitches& switches, int32 depth ) const;
+	void CombinationStaticSwitches( const std::string& shaderFile, const char* featureLevel, const rendercore::StaticShaderSwitches& switches, std::map<uint32, Microsoft::WRL::ComPtr<ID3DBlob>>& outCompiledShaders, std::vector<Microsoft::WRL::ComPtr<ID3DBlob>>& outErrorMsgs ) const;
+	void CombinationStaticSwitchesRecursive( const std::string& shaderFile, const char* featureLevel, rendercore::StaticShaderSwitches& switches, int32 depth, std::map<uint32, Microsoft::WRL::ComPtr<ID3DBlob>>& outCompiledShaders, std::vector<Microsoft::WRL::ComPtr<ID3DBlob>>& outErrorMsgs ) const;
 };

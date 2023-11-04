@@ -27,7 +27,7 @@ namespace rendercore
 				.m_format = format
 			};
 
-			m_buffer = agl::Buffer::Create( trait );
+			m_buffer = agl::Buffer::Create( trait, "ForwardLight" );
 			EnqueueRenderTask(
 				[buffer = m_buffer]()
 				{

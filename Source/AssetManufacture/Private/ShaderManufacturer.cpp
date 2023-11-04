@@ -19,6 +19,12 @@ namespace fs = std::filesystem;
 
 namespace
 {
+	struct ShaderCompileResult
+	{
+		Microsoft::WRL::ComPtr<ID3DBlob> m_byteCode;
+		Microsoft::WRL::ComPtr<ID3DBlob> m_errorMsg;
+	};
+
 	bool ValidateShaderAsset( const AsyncLoadableAsset* asset, const Archive& ar )
 	{
 		Archive rAr( ar.Data(), ar.Size() );
@@ -76,19 +82,19 @@ namespace
 
 		if ( name.starts_with( "vs" ) )
 		{
-			return "vs_5_0";
+			return "vs_5_1";
 		}
 		else if ( name.starts_with( "gs" ) )
 		{
-			return "gs_5_0";
+			return "gs_5_1";
 		}
 		else if ( name.starts_with( "ps" ) )
 		{
-			return "ps_5_0";
+			return "ps_5_1";
 		}
 		else if ( name.starts_with( "cs" ) )
 		{
-			return "cs_5_0";
+			return "cs_5_1";
 		}
 
 		assert( false && "Invalid shader file name" );
@@ -375,7 +381,7 @@ namespace
 		return false;
 	}
 
-	Microsoft::WRL::ComPtr<ID3DBlob> CompileD3D11Shader( const std::string& shaderFile, const char* featureLevel, const rendercore::StaticShaderSwitches& switches )
+	ShaderCompileResult CompileD3D11Shader( const std::string& shaderFile, const char* featureLevel, const rendercore::StaticShaderSwitches& switches )
 	{
 		std::vector<D3D_SHADER_MACRO> macros;
 		std::vector<std::string> valueStrs;
@@ -413,7 +419,7 @@ namespace
 			&byteCode,
 			&errorMsg );
 
-		return byteCode;
+		return { byteCode, errorMsg };
 	}
 
 	void ModifyShaderFileForD2D12( std::string& shaderFile, agl::ShaderType shaderType )
@@ -475,9 +481,19 @@ std::optional<Products> ShaderManufacturer::Manufacture( const PathEnvironment& 
 
 		Name shaderFeatureLevel( GetShaderFeatureLevel( path.filename() ) );
 
-		std::map<uint32, Microsoft::WRL::ComPtr<ID3DBlob>> compiledShader;
-		CombinationStaticSwitches( shaderFile, std::string( shaderFeatureLevel.Str() ).c_str(), compiledShader, shaderSwitches);
-		assert( compiledShader.size() != 0 );
+		std::map<uint32, Microsoft::WRL::ComPtr<ID3DBlob>> compiledShaders;
+		std::vector<Microsoft::WRL::ComPtr<ID3DBlob>> errorMsgs;
+		CombinationStaticSwitches( shaderFile, std::string( shaderFeatureLevel.Str() ).c_str(), shaderSwitches, compiledShaders, errorMsgs );
+		if ( compiledShaders.empty() )
+		{
+			std::cout << "\nAn error occurred while compiling " << path.filename().generic_string() << "\n";
+			for ( auto& errorMsg : errorMsgs )
+			{
+				std::cout << static_cast<const char*>( errorMsg->GetBufferPointer() ) << "\n";
+			}
+			std::cout << "\n";
+			return {};
+		}
 
 		rendercore::UberShader shader;
 		shader.m_name = path.filename().generic_string();
@@ -489,7 +505,7 @@ std::optional<Products> ShaderManufacturer::Manufacture( const PathEnvironment& 
 
 		shader.m_switches = shaderSwitches;
 
-		for ( auto& [id, byteCode] : compiledShader )
+		for ( auto& [id, byteCode] : compiledShaders )
 		{
 			shader.m_validVariation.emplace( id );
 		}
@@ -514,21 +530,25 @@ std::optional<Products> ShaderManufacturer::Manufacture( const PathEnvironment& 
 	return {};
 }
 
-void ShaderManufacturer::CombinationStaticSwitches( const std::string& shaderFile, const char* featureLevel, std::map<uint32, Microsoft::WRL::ComPtr<ID3DBlob>>& outCompiledShaders, const rendercore::StaticShaderSwitches& switches ) const
+void ShaderManufacturer::CombinationStaticSwitches( const std::string& shaderFile, const char* featureLevel, const rendercore::StaticShaderSwitches& switches, std::map<uint32, Microsoft::WRL::ComPtr<ID3DBlob>>& outCompiledShaders, std::vector<Microsoft::WRL::ComPtr<ID3DBlob>>& outErrorMsgs ) const
 {
 	rendercore::StaticShaderSwitches copySwitches = switches;
-	CombinationStaticSwitchesRecursive( shaderFile, featureLevel, outCompiledShaders, copySwitches, 0 );
+	CombinationStaticSwitchesRecursive( shaderFile, featureLevel, copySwitches, 0, outCompiledShaders, outErrorMsgs );
 }
 
-void ShaderManufacturer::CombinationStaticSwitchesRecursive( const std::string& shaderFile, const char* featureLevel, std::map<uint32, Microsoft::WRL::ComPtr<ID3DBlob>>& outCompiledShaders, rendercore::StaticShaderSwitches& switches, int32 depth ) const
+void ShaderManufacturer::CombinationStaticSwitchesRecursive( const std::string& shaderFile, const char* featureLevel, rendercore::StaticShaderSwitches& switches, int32 depth, std::map<uint32, Microsoft::WRL::ComPtr<ID3DBlob>>& outCompiledShaders, std::vector<Microsoft::WRL::ComPtr<ID3DBlob>>& outErrorMsgs ) const
 {
 	if ( switches.m_configs.size() == depth )
 	{
-		Microsoft::WRL::ComPtr<ID3DBlob> compiled = CompileD3D11Shader( shaderFile, featureLevel, switches );
-		if ( compiled )
+		ShaderCompileResult compileResult = CompileD3D11Shader( shaderFile, featureLevel, switches );
+		if ( compileResult.m_byteCode )
 		{
-			auto result = outCompiledShaders.emplace( switches.GetID(), compiled );
+			auto result = outCompiledShaders.emplace( switches.GetID(), compileResult.m_byteCode );
 			assert( result.second );
+		}
+		else if ( compileResult.m_errorMsg )
+		{
+			outErrorMsgs.emplace_back( compileResult.m_errorMsg );
 		}
 
 		return;
@@ -540,11 +560,11 @@ void ShaderManufacturer::CombinationStaticSwitchesRecursive( const std::string& 
 	const rendercore::StaticShaderSwitch& curSwitch = iter->second;
 
 	switches.Off( iter->first );
-	CombinationStaticSwitchesRecursive( shaderFile, featureLevel, outCompiledShaders, switches, depth + 1 );
+	CombinationStaticSwitchesRecursive( shaderFile, featureLevel, switches, depth + 1, outCompiledShaders, outErrorMsgs );
 
 	for ( int32 i = curSwitch.m_min; i <= curSwitch.m_max; ++i )
 	{
 		switches.On( iter->first, i );
-		CombinationStaticSwitchesRecursive( shaderFile, featureLevel, outCompiledShaders, switches, depth + 1 );
+		CombinationStaticSwitchesRecursive( shaderFile, featureLevel, switches, depth + 1, outCompiledShaders, outErrorMsgs );
 	}
 }

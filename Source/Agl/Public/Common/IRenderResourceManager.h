@@ -30,9 +30,9 @@ namespace agl
 	public:
 		virtual void Shutdown() = 0;
 
-		virtual Texture* CreateTexture( const TextureTrait& trait, const ResourceInitData* initData = nullptr ) = 0;
+		virtual Texture* CreateTexture( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData = nullptr ) = 0;
 
-		virtual Buffer* CreateBuffer( const BufferTrait& trait, const void* initData = nullptr ) = 0;
+		virtual Buffer* CreateBuffer( const BufferTrait& trait, const char* debugName, const void* initData = nullptr ) = 0;
 
 		virtual VertexLayout* CreateVertexLayout( const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size ) = 0;
 		virtual ComputeShader* CreateComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) = 0;

@@ -50,7 +50,8 @@ namespace agl
 			}
 		}
 
-		D3D11Texture( const TextureTrait& trait, const ResourceInitData* initData ) : TextureBase( trait, initData ) 
+		D3D11Texture( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData ) 
+			: TextureBase( trait, debugName, initData )
 		{
 			if ( initData )
 			{
@@ -136,7 +137,7 @@ namespace agl
 		virtual void CreateRenderTarget( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
 		virtual void CreateDepthStencil( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
 
-		D3D11BaseTexture1D( const TextureTrait& trait, const ResourceInitData* initData );
+		D3D11BaseTexture1D( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData );
 
 	protected:
 		virtual void CreateTexture() override;
@@ -155,8 +156,8 @@ namespace agl
 		virtual void CreateRenderTarget( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override;
 		virtual void CreateDepthStencil( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override;
 
-		D3D11BaseTexture2D( const TextureTrait& trait, const ResourceInitData* initData );
-		D3D11BaseTexture2D( ID3D11Texture2D* texture, const D3D11_TEXTURE2D_DESC* desc = nullptr );
+		D3D11BaseTexture2D( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData );
+		D3D11BaseTexture2D( ID3D11Texture2D* texture, const char* debugName, const D3D11_TEXTURE2D_DESC* desc = nullptr );
 
 	protected:
 		virtual void CreateTexture() override;
@@ -175,7 +176,7 @@ namespace agl
 		virtual void CreateRenderTarget( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
 		virtual void CreateDepthStencil( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
 
-		D3D11BaseTexture3D( const TextureTrait& trait, const ResourceInitData* initData );
+		D3D11BaseTexture3D( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData );
 
 	protected:
 		virtual void CreateTexture() override;

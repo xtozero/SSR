@@ -218,9 +218,10 @@ namespace agl
 		Resource()->Unmap( subResource, nullptr );
 	}
 
-	D3D12Buffer::D3D12Buffer( const BufferTrait& trait, const void* initData )
+	D3D12Buffer::D3D12Buffer( const BufferTrait& trait, const char* debugName, const void* initData )
 		: m_desc( ConvertTraitToDesc( trait ) )
 	{
+		m_debugName = Name( debugName );
 		m_trait = trait;
 		m_format = ConvertFormatToDxgiFormat( m_trait.m_format );
 
@@ -267,6 +268,12 @@ namespace agl
 			m_desc,
 			states
 		);
+
+		if ( ID3D12Resource* resource = m_resourceInfo.GetResource() )
+		{
+			auto dataSize = static_cast<uint32>( m_debugName.Str().size() );
+			resource->SetPrivateData( WKPDID_D3DDebugObjectName, dataSize, m_debugName.Str().data() );
+		}
 
 		if ( m_hasInitData )
 		{
@@ -320,8 +327,8 @@ namespace agl
 		return m_cbv.Get();
 	}
 
-	D3D12ConstantBuffer::D3D12ConstantBuffer( const BufferTrait& trait, const void* initData )
-		: D3D12Buffer( trait, initData )
+	D3D12ConstantBuffer::D3D12ConstantBuffer( const BufferTrait& trait, const char* debugName, const void* initData )
+		: D3D12Buffer( trait, debugName, initData )
 	{
 		m_desc.Width = CalcAlignment<uint64>( m_desc.Width, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT );
 	}
@@ -353,8 +360,8 @@ namespace agl
 		return m_view;
 	}
 
-	D3D12IndexBuffer::D3D12IndexBuffer( const BufferTrait& trait, const void* initData )
-		: D3D12Buffer( trait, initData )
+	D3D12IndexBuffer::D3D12IndexBuffer( const BufferTrait& trait, const char* debugName, const void* initData )
+		: D3D12Buffer( trait, debugName, initData )
 	{
 	}
 
@@ -374,8 +381,8 @@ namespace agl
 		return m_view;
 	}
 
-	D3D12VertexBuffer::D3D12VertexBuffer( const BufferTrait& trait, const void* initData )
-		: D3D12Buffer( trait, initData )
+	D3D12VertexBuffer::D3D12VertexBuffer( const BufferTrait& trait, const char* debugName, const void* initData )
+		: D3D12Buffer( trait, debugName, initData )
 	{
 	}
 

@@ -33,20 +33,20 @@ namespace agl
 		m_graphicsPipelineStateCache.clear();
 	}
 
-	Texture* CD3D11ResourceManager::CreateTexture( const TextureTrait& trait, const ResourceInitData* initData )
+	Texture* CD3D11ResourceManager::CreateTexture( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )
 	{
 		Texture* newTexture = nullptr;
 		if ( IsTexture1D( trait ) )
 		{
-			newTexture = new D3D11BaseTexture1D( trait, initData );
+			newTexture = new D3D11BaseTexture1D( trait, debugName, initData );
 		}
 		else if ( IsTexture2D( trait ) )
 		{
-			newTexture = new D3D11BaseTexture2D( trait, initData );
+			newTexture = new D3D11BaseTexture2D( trait, debugName, initData );
 		}
 		else if ( IsTexture3D( trait ) )
 		{
-			newTexture = new D3D11BaseTexture3D( trait, initData );
+			newTexture = new D3D11BaseTexture3D( trait, debugName, initData );
 		}
 		else
 		{
@@ -56,9 +56,9 @@ namespace agl
 		return newTexture;
 	}
 
-	Buffer* CD3D11ResourceManager::CreateBuffer( const BufferTrait& trait, const void* initData )
+	Buffer* CD3D11ResourceManager::CreateBuffer( const BufferTrait& trait, const char* debugName, const void* initData )
 	{
-		Buffer* newBuffer = new D3D11Buffer( trait, initData );
+		Buffer* newBuffer = new D3D11Buffer( trait, debugName, initData );
 
 		return newBuffer;
 	}

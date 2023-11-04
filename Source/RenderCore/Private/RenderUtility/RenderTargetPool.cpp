@@ -57,8 +57,9 @@ namespace rendercore
 		return *this;
 	}
 
-	agl::RefHandle<agl::Texture> RenderTargetPool::FindFreeRenderTarget( const agl::TextureTrait& trait )
+	agl::RefHandle<agl::Texture> RenderTargetPool::FindFreeRenderTarget( const agl::TextureTrait& trait, const char* debugName )
 	{
+		assert( HasAnyFlags( trait.m_bindType, agl::ResourceBindType::RenderTarget | agl::ResourceBindType::DepthStencil ) );
 		for ( PooledRenderTarget& renderTarget : m_pooledRenderTargets )
 		{
 			if ( renderTarget.IsFree() == false )
@@ -72,7 +73,7 @@ namespace rendercore
 			}
 		}
 
-		agl::RefHandle<agl::Texture> newTexture = agl::Texture::Create( trait );
+		agl::RefHandle<agl::Texture> newTexture = agl::Texture::Create( trait, debugName );
 		m_pooledRenderTargets.emplace_back( *newTexture.Get() );
 
 		EnqueueRenderTask( 

@@ -23,20 +23,20 @@ namespace agl
 	{
 	}
 
-	Texture* D3D12ResourceManager::CreateTexture( const TextureTrait& trait, const ResourceInitData* initData )
+	Texture* D3D12ResourceManager::CreateTexture( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )
 	{
 		Texture* newTexture = nullptr;
 		if ( IsTexture1D( trait ) )
 		{
-			newTexture = new D3D12BaseTexture1D( trait, initData );
+			newTexture = new D3D12BaseTexture1D( trait, debugName, initData );
 		}
 		else if ( IsTexture2D( trait ) )
 		{
-			newTexture = new D3D12BaseTexture2D( trait, initData );
+			newTexture = new D3D12BaseTexture2D( trait, debugName, initData );
 		}
 		else if ( IsTexture3D( trait ) )
 		{
-			newTexture = new D3D12BaseTexture3D( trait, initData );
+			newTexture = new D3D12BaseTexture3D( trait, debugName, initData );
 		}
 		else
 		{
@@ -46,24 +46,24 @@ namespace agl
 		return newTexture;
 	}
 
-	Buffer* D3D12ResourceManager::CreateBuffer( const BufferTrait& trait, const void* initData )
+	Buffer* D3D12ResourceManager::CreateBuffer( const BufferTrait& trait, const char* debugName, const void* initData )
 	{
 		Buffer* newBuffer = nullptr;
 		if ( HasAnyFlags( trait.m_bindType, ResourceBindType::ConstantBuffer ) )
 		{
-			newBuffer = new D3D12ConstantBuffer( trait, initData );
+			newBuffer = new D3D12ConstantBuffer( trait, debugName, initData );
 		}
 		else if ( HasAnyFlags( trait.m_bindType, ResourceBindType::IndexBuffer ) )
 		{
-			newBuffer = new D3D12IndexBuffer( trait, initData );
+			newBuffer = new D3D12IndexBuffer( trait, debugName, initData );
 		}
 		else if ( HasAnyFlags( trait.m_bindType, ResourceBindType::VertexBuffer ) )
 		{
-			newBuffer = new D3D12VertexBuffer( trait, initData );
+			newBuffer = new D3D12VertexBuffer( trait, debugName, initData );
 		} 
 		else
 		{
-			newBuffer = new D3D12Buffer( trait, initData );
+			newBuffer = new D3D12Buffer( trait, debugName, initData );
 		}
 
 		return newBuffer;
