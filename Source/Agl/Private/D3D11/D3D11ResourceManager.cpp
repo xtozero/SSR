@@ -24,7 +24,6 @@
 #include "Texture.h"
 
 #include <cstddef>
-#include <fstream>
 
 namespace agl
 {

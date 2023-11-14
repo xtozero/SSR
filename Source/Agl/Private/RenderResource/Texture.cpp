@@ -47,16 +47,16 @@ namespace agl
 
 	bool IsTexture1D( const TextureTrait& trait )
 	{
-		return trait.m_height <= 1;
+		return ( trait.m_height <= 1 ) && ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Texture3D | ResourceMisc::TextureCube ) == false );
 	}
 
 	bool IsTexture2D( const TextureTrait& trait )
 	{
-		return ( trait.m_height > 1 ) && ( ( trait.m_miscFlag & ResourceMisc::Texture3D ) == ResourceMisc::None );
+		return ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Texture3D ) == false );
 	}
 
 	bool IsTexture3D( const TextureTrait& trait )
 	{
-		return ( trait.m_miscFlag & ResourceMisc::Texture3D ) != ResourceMisc::None;
+		return HasAnyFlags( trait.m_miscFlag, ResourceMisc::Texture3D );
 	}
 }

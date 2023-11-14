@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "Components/CameraComponent.h"
+#include "Config/DefaultAglConfig.h"
 #include "Config/DefaultAppConfig.h"
 #include "Config/DefaultLogicConfig.h"
 #include "ConsoleMessage/ConCommand.h"
@@ -281,7 +282,7 @@ namespace logic
 		//// »ƒ∏È ±Ì¿Ã ∑ª¥ı∏µ
 		//m_ssrManager.PreProcess( *this, m_renderableList );
 
-		if ( m_numDrawRequestQueued == 0 )
+		if ( m_numDrawRequestQueued < agl::DefaultAgl::GetBufferCount() )
 		{
 			++m_numDrawRequestQueued;
 			UpdateUIDrawInfo();

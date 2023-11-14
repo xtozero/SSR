@@ -153,9 +153,29 @@ public:
 			return *this;
 		}
 
-		operator T& ( )
+		operator T& ()
 		{
 			return *m_value;
+		}
+
+		T& Get()
+		{
+			return *m_value;
+		}
+
+		const T& Get() const
+		{
+			return *m_value;
+		}
+
+		friend bool operator==( const ReturnValueWrapper& lhs, const ReturnValueWrapper& rhs )
+		{
+			return *lhs.m_value == *rhs.m_value;
+		}
+
+		friend bool operator!=( const ReturnValueWrapper& lhs, const ReturnValueWrapper& rhs )
+		{
+			return !( lhs == rhs );
 		}
 
 	private:

@@ -177,11 +177,11 @@ add_library(Agl SHARED 	${CONFIG_SOURCE}
 
 target_include_directories(Agl
 PUBLIC
+	./Public
 	./Public/RenderResource
 	./Public/Common
 PRIVATE
 	./../../ThirdParty/DXC/inc
-	./Public
 	./Public/D3D11
 	./Public/D3D12
 	./Public/DXGI

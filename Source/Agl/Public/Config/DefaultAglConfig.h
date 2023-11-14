@@ -12,13 +12,13 @@ namespace agl
 
 	public:
 		static AglType GetType();
-		static uint32 GetBufferCount();
+		AGL_DLL static uint32 GetBufferCount();
 		
 	private:
 		PROPERTY( type )
 		uint8 m_type = static_cast<uint8>( AglType::D3D11 );
 
 		PROPERTY( bufferCount )
-		uint32 m_bufferCount;
+		uint32 m_bufferCount = 1;
 	};
 }

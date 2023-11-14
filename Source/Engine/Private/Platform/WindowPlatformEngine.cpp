@@ -82,6 +82,9 @@ namespace engine
 	{
 		m_logic = nullptr;
 		m_isAvailable = false;
+
+		GetInterface<IAppConfig>()->SaveConfigToFile();
+
 		ShutdownModule( m_logicDll );
 	}
 
@@ -136,12 +139,17 @@ namespace engine
 			m_logic->AppSizeChanged( *m_platform );
 			return 0;
 		case WM_SIZE:
+		{
 			if ( ( m_platform == nullptr ) || ( m_logic == nullptr ) )
 			{
 				return 0;
 			}
 
-			m_platform->UpdateSize( LOWORD( lParam ), HIWORD( lParam ) );
+			int32 width = LOWORD( lParam );
+			int32 height = HIWORD( lParam );
+
+			m_platform->UpdateSize( width, height );
+			DefaultApp::SetClientSize( { width, height } );
 
 			if ( wParam == SIZE_MINIMIZED )
 			{
@@ -174,6 +182,7 @@ namespace engine
 				}
 			}
 			return 0;
+		}
 		case WM_DESTROY:
 			PostQuitMessage( 0 );
 			return 0;

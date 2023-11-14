@@ -10,7 +10,7 @@ namespace ini
 		Section* m_curSection = nullptr;
 	};
 
-	std::optional<Ini> IniReader::Parse()
+	std::optional<Ini> Reader::Parse()
 	{
 		Ini ini;
 		IniReaderContext context;
@@ -75,12 +75,12 @@ namespace ini
 		return ini;
 	}
 
-	IniReader::IniReader( const char* contents, size_t size )
+	Reader::Reader( const char* contents, size_t size )
 	{
 		TextTokenaizer::Parse( contents, size );
 	}
 
-	IniReader::Token IniReader::ReadToken()
+	Reader::Token Reader::ReadToken()
 	{
 		SkipWhiteSpace();
 
@@ -113,7 +113,7 @@ namespace ini
 		return token;
 	}
 	
-	std::optional<std::string_view> IniReader::ReadSectionName()
+	std::optional<std::string_view> Reader::ReadSectionName()
 	{
 		const char* start = Tell();
 
@@ -131,7 +131,7 @@ namespace ini
 		return {};
 	}
 
-	std::optional<std::string_view> IniReader::ReadKeyName()
+	std::optional<std::string_view> Reader::ReadKeyName()
 	{
 		const char* start = Tell();
 
@@ -160,7 +160,7 @@ namespace ini
 		return {};
 	}
 
-	std::optional<std::string_view> IniReader::ReadValue()
+	std::optional<std::string_view> Reader::ReadValue()
 	{
 		SkipWhiteSpace();
 
@@ -193,6 +193,11 @@ namespace ini
 		return {};
 	}
 
+	bool Section::HasValue() const
+	{
+		return m_properties.empty() == false;
+	}
+
 	const std::string* Section::GetValue( const Name& key ) const
 	{
 		auto found = m_properties.find( key );
@@ -215,5 +220,41 @@ namespace ini
 		}
 		
 		return &found->second;
+	}
+
+	void Ini::AddSection( const Name& name, const Section& section )
+	{
+		m_sections.emplace( name, section );
+	}
+
+	std::string Writer::ToString( const Ini& ini )
+	{
+		std::string str;
+		constexpr size_t MB = 1024 * 1024;
+		str.reserve( 1 * MB );
+
+		for ( const auto& [name, section] : ini.m_sections )
+		{
+			if ( section.HasValue() == false )
+			{
+				continue;
+			}
+
+			str += "[";
+			str += name.Str();
+			str += "]\n";
+
+			for ( const auto& [propertyName, value] : section.m_properties )
+			{
+				str += propertyName.Str();
+				str += "=";
+				str += value;
+				str += "\n";
+			}
+
+			str += "\n";
+		}
+
+		return str;
 	}
 }

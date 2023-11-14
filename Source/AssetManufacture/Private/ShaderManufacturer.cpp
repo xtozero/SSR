@@ -82,19 +82,19 @@ namespace
 
 		if ( name.starts_with( "vs" ) )
 		{
-			return "vs_5_1";
+			return "vs_5_0";
 		}
 		else if ( name.starts_with( "gs" ) )
 		{
-			return "gs_5_1";
+			return "gs_5_0";
 		}
 		else if ( name.starts_with( "ps" ) )
 		{
-			return "ps_5_1";
+			return "ps_5_0";
 		}
 		else if ( name.starts_with( "cs" ) )
 		{
-			return "cs_5_1";
+			return "cs_5_0";
 		}
 
 		assert( false && "Invalid shader file name" );
