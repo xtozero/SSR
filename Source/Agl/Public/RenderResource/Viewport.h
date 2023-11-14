@@ -9,6 +9,12 @@ namespace agl
 	class ICommandListBase;
 	class Texture;
 
+	struct ViewportProxy
+	{
+		uint32 m_width;
+		uint32 m_height;
+	};
+
 	class Viewport : public DeviceDependantResource
 	{
 	public:
@@ -18,6 +24,7 @@ namespace agl
 		virtual void Clear( const float( &clearColor )[4] ) = 0;
 		virtual void Bind( ICommandListBase& commandList ) const = 0;
 		virtual std::pair<uint32, uint32> Size() const = 0;
+		virtual std::pair<uint32, uint32> SizeOnRenderThread() const = 0;
 		virtual void Resize( const std::pair<uint32, uint32>& newSize ) = 0;
 		virtual agl::Texture* Texture() = 0;
 	};

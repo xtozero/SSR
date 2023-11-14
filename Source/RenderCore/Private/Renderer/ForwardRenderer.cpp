@@ -248,7 +248,7 @@ namespace rendercore
 	{
 		SceneRenderer::PreRender( renderViewGroup );
 
-		auto rendertargetSize = renderViewGroup.GetViewport().Size();
+		auto rendertargetSize = renderViewGroup.GetViewport().SizeOnRenderThread();
 		m_renderTargets.UpdateBufferSize( rendertargetSize.first, rendertargetSize.second );
 
 		IScene& scene = renderViewGroup.Scene();

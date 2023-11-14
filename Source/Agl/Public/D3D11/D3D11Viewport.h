@@ -21,6 +21,7 @@ namespace agl
 		virtual void Bind( ICommandListBase& commandList ) const override;
 
 		virtual std::pair<uint32, uint32> Size() const override;
+		virtual std::pair<uint32, uint32> SizeOnRenderThread() const override;
 		virtual void Resize( const std::pair<uint32, uint32>& newSize ) override;
 		virtual agl::Texture* Texture() override;
 
@@ -32,6 +33,8 @@ namespace agl
 		virtual void FreeResource() override;
 
 		void CreateDedicateTexture();
+
+		ViewportProxy m_proxy;
 
 		uint32 m_width;
 		uint32 m_height;

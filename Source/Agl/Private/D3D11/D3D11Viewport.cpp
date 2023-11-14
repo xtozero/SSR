@@ -20,7 +20,7 @@ namespace agl
 	{
 		if ( m_frameBuffer.Get() != nullptr )
 		{
-			if ( agl::RenderTargetView* rtv = m_frameBuffer->RTV() )
+			if ( RenderTargetView* rtv = m_frameBuffer->RTV() )
 			{
 				ICommandList* commandList = GetInterface<IAgl>()->GetCommandList();
 				commandList->ClearRenderTarget( rtv, clearColor );
@@ -54,6 +54,12 @@ namespace agl
 		return { m_width, m_height };
 	}
 
+	std::pair<uint32, uint32> D3D11Viewport::SizeOnRenderThread() const
+	{
+		assert( IsInRenderThread() );
+		return { m_proxy.m_width, m_proxy.m_height };
+	}
+
 	void D3D11Viewport::Resize( const std::pair<uint32, uint32>& newSize )
 	{
 		if ( ( m_width == newSize.first ) && ( m_height == newSize.second ) )
@@ -75,6 +81,9 @@ namespace agl
 		, m_height( height )
 		, m_format( format )
 	{
+		m_proxy.m_width = m_width;
+		m_proxy.m_height = m_height;
+
 		CreateDedicateTexture();
 	}
 
@@ -84,6 +93,8 @@ namespace agl
 		, m_format( swapchain.Format() )
 		, m_swapchain( &swapchain )
 	{
+		m_proxy.m_width = m_width;
+		m_proxy.m_height = m_height;
 	}
 
 	Texture* D3D11Viewport::Texture()
@@ -136,6 +147,10 @@ namespace agl
 
 				m_frameBuffer->CreateRenderTarget( orignalFormat );
 				m_frameBuffer->CreateShaderResource( orignalFormat );
+
+				const TextureTrait& trait = m_frameBuffer->GetTrait();
+				m_proxy.m_width = trait.m_width;
+				m_proxy.m_height = trait.m_height;
 			} );
 	}
 }

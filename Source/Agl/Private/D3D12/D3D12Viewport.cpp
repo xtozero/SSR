@@ -22,11 +22,11 @@ namespace agl
 			return;
 		}
 
-		agl::ResourceTransition transition
+		ResourceTransition transition
 		{
 			.m_pResource = backBuffer->Resource(),
 			.m_pTransitionable = backBuffer,
-			.m_subResource = agl::AllSubResource,
+			.m_subResource = AllSubResource,
 			.m_state = ResourceState::RenderTarget
 		};
 
@@ -35,7 +35,7 @@ namespace agl
 
 		if ( m_frameBuffer.Get() != nullptr )
 		{
-			if ( agl::RenderTargetView* rtv = m_frameBuffer->RTV() )
+			if ( RenderTargetView* rtv = m_frameBuffer->RTV() )
 			{
 				commandList->ClearRenderTarget( rtv, clearColor );
 			}
@@ -66,6 +66,12 @@ namespace agl
 	std::pair<uint32, uint32> D3D12Viewport::Size() const
 	{
 		return { m_width, m_height };
+	}
+
+	std::pair<uint32, uint32> D3D12Viewport::SizeOnRenderThread() const
+	{
+		assert( IsInRenderThread() );
+		return { m_proxy.m_width, m_proxy.m_height };
 	}
 
 	void D3D12Viewport::Resize( const std::pair<uint32, uint32>& newSize )
@@ -99,6 +105,9 @@ namespace agl
 		, m_format( format )
 		, m_clearColor{ bgColor[0], bgColor[1], bgColor[2], bgColor[3] }
 	{
+		m_proxy.m_width = m_width;
+		m_proxy.m_height = m_height;
+
 		CreateDedicateTexture();
 	}
 
@@ -109,6 +118,8 @@ namespace agl
 		, m_clearColor{}
 		, m_swapchain( &swapchain )
 	{
+		m_proxy.m_width = m_width;
+		m_proxy.m_height = m_height;
 	}
 
 	void D3D12Viewport::InitResource()
@@ -160,6 +171,10 @@ namespace agl
 
 				m_frameBuffer->CreateRenderTarget( orignalFormat );
 				m_frameBuffer->CreateShaderResource( orignalFormat );
+
+				const TextureTrait& trait = m_frameBuffer->GetTrait();
+				m_proxy.m_width = trait.m_width;
+				m_proxy.m_height = trait.m_height;
 			} );
 	}
 }

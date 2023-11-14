@@ -36,6 +36,16 @@ namespace rendercore
 		return {};
 	}
 
+	RENDERCORE_DLL std::pair<uint32, uint32> Viewport::SizeOnRenderThread() const
+	{
+		if ( m_pViewport.Get() )
+		{
+			return m_pViewport->SizeOnRenderThread();
+		}
+
+		return {};
+	}
+
 	void Viewport::Resize( const std::pair<uint32, uint32>& newSize )
 	{
 		if ( m_pViewport.Get() )
