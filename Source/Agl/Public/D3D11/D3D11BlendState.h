@@ -7,7 +7,7 @@
 
 namespace agl
 {
-	class D3D11BlendState : public BlendState
+	class D3D11BlendState final : public BlendState
 	{
 	public:
 		ID3D11BlendState* Resource();

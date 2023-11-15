@@ -20,14 +20,14 @@
 
 namespace rendercore
 {
-	class RSMsEvaluationPS : public GlobalShaderCommon<PixelShader, RSMsEvaluationPS>
+	class RSMsEvaluationPS final : public GlobalShaderCommon<PixelShader, RSMsEvaluationPS>
 	{
 		using GlobalShaderCommon::GlobalShaderCommon;
 	};
 
 	REGISTER_GLOBAL_SHADER( RSMsEvaluationPS, "./Assets/Shaders/IndirectLighting/RSMs/PS_RSMsEvaluation.asset" );
 
-	class RSMsDrawPassProcessor : public IPassProcessor
+	class RSMsDrawPassProcessor final : public IPassProcessor
 	{
 	public:
 		virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) override;

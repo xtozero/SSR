@@ -13,7 +13,7 @@ namespace agl
 	template <AglType Backend>
 	class DxgiSwapchain;
 
-	class D3D12Viewport : public Viewport
+	class D3D12Viewport final : public Viewport
 	{
 	public:
 		virtual void Clear( const float( &clearColor )[4] ) override;

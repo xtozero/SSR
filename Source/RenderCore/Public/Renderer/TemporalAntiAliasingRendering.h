@@ -9,19 +9,19 @@ namespace rendercore
 	class IRendererRenderTargets;
 	class RenderViewGroup;
 
-	struct TAAResolveParameter
+	struct TAAResolveParameter final
 	{
 		float m_blendWeight;
 		float padding[3];
 	};
 
-	class TAAResolveProcessor : public IPassProcessor
+	class TAAResolveProcessor final : public IPassProcessor
 	{
 	public:
 		virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) override;
 	};
 
-	class TAARenderer
+	class TAARenderer final
 	{
 	public:
 		void Render( IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup );

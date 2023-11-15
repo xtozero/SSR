@@ -87,7 +87,7 @@ namespace agl
 		uint32 m_numSampler = 0;
 	};
 
-	class D3D12RootSignature : public DeviceDependantResource
+	class D3D12RootSignature final : public DeviceDependantResource
 	{
 	public:
 		ID3D12RootSignature* Resource() const;

@@ -10,7 +10,7 @@
 
 namespace rendercore
 {
-	class ShaderCache : public AsyncLoadableAsset
+	class ShaderCache final : public AsyncLoadableAsset
 	{
 		GENERATE_CLASS_TYPE_INFO( ShaderCache );
 		DECLARE_ASSET( RENDERCORE, ShaderCache );

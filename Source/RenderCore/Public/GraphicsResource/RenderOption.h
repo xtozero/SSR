@@ -11,7 +11,7 @@
 
 namespace rendercore
 {
-	struct RenderTargetBlendOption
+	struct RenderTargetBlendOption final
 	{
 		bool m_blendEnable = false;
 		agl::Blend m_srcBlend = agl::Blend::One;
@@ -37,7 +37,7 @@ namespace rendercore
 		friend RENDERCORE_DLL Archive& operator<<( Archive& ar, RenderTargetBlendOption& option );
 	};
 
-	struct RenderTargetBlendOptionHasher
+	struct RenderTargetBlendOptionHasher final
 	{
 		size_t operator()( const RenderTargetBlendOption& option ) const
 		{
@@ -56,7 +56,7 @@ namespace rendercore
 		}
 	};
 
-	class BlendOption : public AsyncLoadableAsset
+	class BlendOption final : public AsyncLoadableAsset
 	{
 		GENERATE_CLASS_TYPE_INFO( BlendOption );
 		DECLARE_ASSET( RENDERCORE, BlendOption );
@@ -93,7 +93,7 @@ namespace rendercore
 		RENDERCORE_DLL virtual void PostLoadImpl() override;
 	};
 
-	struct BlendOptionHasher
+	struct BlendOptionHasher final
 	{
 		size_t operator()( const BlendOption& option ) const
 		{
@@ -115,7 +115,7 @@ namespace rendercore
 		}
 	};
 
-	struct DepthOption
+	struct DepthOption final
 	{
 		bool m_enable = true;
 		bool m_writeDepth = true;
@@ -131,7 +131,7 @@ namespace rendercore
 		friend RENDERCORE_DLL Archive& operator<<( Archive& ar, DepthOption depthOption );
 	};
 
-	struct DepthOptionHasher
+	struct DepthOptionHasher final
 	{
 		size_t operator()( const DepthOption& option ) const
 		{
@@ -145,7 +145,7 @@ namespace rendercore
 		}
 	};
 
-	struct StencilOption
+	struct StencilOption final
 	{
 		bool m_enable = false;
 
@@ -179,7 +179,7 @@ namespace rendercore
 		friend RENDERCORE_DLL Archive& operator<<( Archive& ar, StencilOption stencilOption );
 	};
 
-	struct StencilOptionHasher
+	struct StencilOptionHasher final
 	{
 		size_t operator()( const StencilOption& option ) const
 		{
@@ -202,7 +202,7 @@ namespace rendercore
 		}
 	};
 
-	class DepthStencilOption : public AsyncLoadableAsset
+	class DepthStencilOption final : public AsyncLoadableAsset
 	{
 		GENERATE_CLASS_TYPE_INFO( DepthStencilOption );
 		DECLARE_ASSET( RENDERCORE, DepthStencilOption );
@@ -224,7 +224,7 @@ namespace rendercore
 		RENDERCORE_DLL virtual void PostLoadImpl() override;
 	};
 
-	struct DepthStencilOptionHasher
+	struct DepthStencilOptionHasher final
 	{
 		size_t operator()( const DepthStencilOption& option ) const
 		{
@@ -237,7 +237,7 @@ namespace rendercore
 		}
 	};
 
-	class RasterizerOption : public AsyncLoadableAsset
+	class RasterizerOption final : public AsyncLoadableAsset
 	{
 		GENERATE_CLASS_TYPE_INFO( RasterizerOption );
 		DECLARE_ASSET( RENDERCORE, RasterizerOption );
@@ -283,7 +283,7 @@ namespace rendercore
 		RENDERCORE_DLL virtual void PostLoadImpl() override;
 	};
 
-	struct RasterizerOptionHasher
+	struct RasterizerOptionHasher final
 	{
 		size_t operator()( const RasterizerOption& option ) const
 		{
@@ -302,7 +302,7 @@ namespace rendercore
 		}
 	};
 
-	class SamplerOption : public AsyncLoadableAsset
+	class SamplerOption final : public AsyncLoadableAsset
 	{
 		GENERATE_CLASS_TYPE_INFO( SamplerOption );
 		DECLARE_ASSET( RENDERCORE, SamplerOption );
@@ -344,7 +344,7 @@ namespace rendercore
 		RENDERCORE_DLL virtual void PostLoadImpl() override;
 	};
 
-	struct SamplerOptionHasher
+	struct SamplerOptionHasher final
 	{
 		size_t operator()( const SamplerOption& option ) const
 		{
@@ -362,7 +362,7 @@ namespace rendercore
 		}
 	};
 
-	class RenderOption : public AsyncLoadableAsset
+	class RenderOption final : public AsyncLoadableAsset
 	{
 		GENERATE_CLASS_TYPE_INFO( RenderOption );
 		DECLARE_ASSET( RENDERCORE, RenderOption );

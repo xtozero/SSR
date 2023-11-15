@@ -13,19 +13,19 @@
 
 namespace rendercore
 {
-	class TransmittanceCS : public GlobalShaderCommon<ComputeShader, TransmittanceCS>
+	class TransmittanceCS final : public GlobalShaderCommon<ComputeShader, TransmittanceCS>
 	{
 		DEFINE_SHADER_PARAM( Transmittance );
 	};
 
-	class IrradianceOneCS : public GlobalShaderCommon<ComputeShader, IrradianceOneCS>
+	class IrradianceOneCS final : public GlobalShaderCommon<ComputeShader, IrradianceOneCS>
 	{
 		DEFINE_SHADER_PARAM( TransmittanceLut );
 		DEFINE_SHADER_PARAM( TransmittanceLutSampler );
 		DEFINE_SHADER_PARAM( DeltaE );
 	};
 
-	class InscatterOneCS : public GlobalShaderCommon<ComputeShader, InscatterOneCS>
+	class InscatterOneCS final : public GlobalShaderCommon<ComputeShader, InscatterOneCS>
 	{
 		DEFINE_SHADER_PARAM( TransmittanceLut );
 		DEFINE_SHADER_PARAM( TransmittanceLutSampler );
@@ -33,7 +33,7 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( DeltaSM );
 	};
 
-	class CopyInscatterOneCS : public GlobalShaderCommon<ComputeShader, CopyInscatterOneCS>
+	class CopyInscatterOneCS final : public GlobalShaderCommon<ComputeShader, CopyInscatterOneCS>
 	{
 		DEFINE_SHADER_PARAM( DeltaSRLut );
 		DEFINE_SHADER_PARAM( DeltaSRLutSampler );
@@ -42,7 +42,7 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( Inscatter );
 	};
 
-	class InscatterSCS : public GlobalShaderCommon<ComputeShader, InscatterSCS>
+	class InscatterSCS final : public GlobalShaderCommon<ComputeShader, InscatterSCS>
 	{
 		DEFINE_SHADER_PARAM( TransmittanceLut );
 		DEFINE_SHADER_PARAM( TransmittanceLutSampler );
@@ -57,7 +57,7 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( DeltaJ );
 	};
 
-	class IrradianceNCS : public GlobalShaderCommon<ComputeShader, IrradianceNCS>
+	class IrradianceNCS final : public GlobalShaderCommon<ComputeShader, IrradianceNCS>
 	{
 		DEFINE_SHADER_PARAM( DeltaSRLut );
 		DEFINE_SHADER_PARAM( DeltaSRLutSampler );
@@ -67,7 +67,7 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( Irradiance );
 	};
 
-	class InscatterNCS : public GlobalShaderCommon<ComputeShader, InscatterNCS>
+	class InscatterNCS final : public GlobalShaderCommon<ComputeShader, InscatterNCS>
 	{
 		DEFINE_SHADER_PARAM( TransmittanceLut );
 		DEFINE_SHADER_PARAM( TransmittanceLutSampler );
@@ -76,21 +76,21 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( DeltaSR );
 	};
 
-	class CopyIrradianceCS : public GlobalShaderCommon<ComputeShader, CopyIrradianceCS>
+	class CopyIrradianceCS final : public GlobalShaderCommon<ComputeShader, CopyIrradianceCS>
 	{
 		DEFINE_SHADER_PARAM( DeltaELut );
 		DEFINE_SHADER_PARAM( DeltaELutSampler );
 		DEFINE_SHADER_PARAM( Irradiance );
 	};
 
-	class CopyInscatterNCS : public GlobalShaderCommon<ComputeShader, CopyInscatterNCS>
+	class CopyInscatterNCS final : public GlobalShaderCommon<ComputeShader, CopyInscatterNCS>
 	{
 		DEFINE_SHADER_PARAM( DeltaSRLut );
 		DEFINE_SHADER_PARAM( DeltaSRLutSampler );
 		DEFINE_SHADER_PARAM( Inscatter );
 	};
 
-	class DrawAtmospherePS : public GlobalShaderCommon<PixelShader, DrawAtmospherePS>
+	class DrawAtmospherePS final : public GlobalShaderCommon<PixelShader, DrawAtmospherePS>
 	{};
 
 	REGISTER_GLOBAL_SHADER( TransmittanceCS, "./Assets/Shaders/Atmosphere/CS_Transmittance.asset" );

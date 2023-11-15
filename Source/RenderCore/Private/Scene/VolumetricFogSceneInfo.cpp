@@ -13,7 +13,7 @@
 
 namespace rendercore
 {
-	class InscatteringCS : public GlobalShaderCommon<ComputeShader, InscatteringCS>
+	class InscatteringCS final : public GlobalShaderCommon<ComputeShader, InscatteringCS>
 	{
 		using GlobalShaderCommon::GlobalShaderCommon;
 
@@ -42,7 +42,7 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( HistorySampler );
 	};
 
-	class AccumulateScatteringCS : public GlobalShaderCommon<ComputeShader, AccumulateScatteringCS>
+	class AccumulateScatteringCS final : public GlobalShaderCommon<ComputeShader, AccumulateScatteringCS>
 	{
 		DEFINE_SHADER_PARAM( FrustumVolume );
 		DEFINE_SHADER_PARAM( AccumulatedVolume );

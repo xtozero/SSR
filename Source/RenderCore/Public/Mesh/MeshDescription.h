@@ -10,7 +10,7 @@
 
 namespace rendercore
 {
-	struct MeshVertexInstance
+	struct MeshVertexInstance final
 	{
 		MeshVertexInstance( int32 positionID, int32 normalID, int32 texCoordID ) :
 			m_positionID( positionID ), m_normalID( normalID ), m_texCoordID( texCoordID ) {}
@@ -35,17 +35,17 @@ namespace rendercore
 		int32 m_texCoordID = -1;
 	};
 
-	struct MeshTriangle
+	struct MeshTriangle final
 	{
 		size_t m_vertexInstanceID[3];
 	};
 
-	struct MeshPolygon
+	struct MeshPolygon final
 	{
 		std::vector<size_t> m_triangleID;
 	};
 
-	struct MeshDescription
+	struct MeshDescription final
 	{
 		std::vector<Vector> m_positions;
 		std::vector<Vector> m_normals;

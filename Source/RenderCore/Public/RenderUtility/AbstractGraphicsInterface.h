@@ -13,7 +13,7 @@ class VertexShader;
 
 namespace rendercore
 {
-	class AbstractGraphicsInterface
+	class AbstractGraphicsInterface final
 	{
 	public:
 		void BootUp( agl::IAgl* pAgl );

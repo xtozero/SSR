@@ -42,7 +42,7 @@ namespace rendercore
 		virtual agl::Texture* GetVelocity() = 0;
 	};
 
-	class RenderingShaderResource
+	class RenderingShaderResource final
 	{
 	public:
 		void BindResources( const ShaderStates& shaders, agl::ShaderBindings& bindings );
@@ -54,7 +54,7 @@ namespace rendercore
 		std::vector<agl::GraphicsApiResource*> m_resources;
 	};
 
-	struct RenderingOutputContext
+	struct RenderingOutputContext final
 	{
 		agl::RefHandle<agl::Texture> m_renderTargets[agl::MAX_RENDER_TARGET] = {};
 		agl::RefHandle<agl::Texture> m_depthStencil;

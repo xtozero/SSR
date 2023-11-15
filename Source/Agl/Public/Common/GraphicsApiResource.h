@@ -3,9 +3,9 @@
 #include "ColorTypes.h"
 #include "common.h"
 #include "EnumClassFlags.h"
-#include "RefHandle.h"
 #include "NameTypes.h"
 #include "RefCounterType.h"
+#include "RefHandle.h"
 #include "SizedTypes.h"
 
 #include <atomic>

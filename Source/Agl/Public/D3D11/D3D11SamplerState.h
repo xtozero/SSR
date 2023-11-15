@@ -6,7 +6,7 @@
 
 namespace agl
 {
-	class D3D11SamplerState : public SamplerState
+	class D3D11SamplerState final : public SamplerState
 	{
 	public:
 		ID3D11SamplerState* Resource();

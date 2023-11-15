@@ -18,17 +18,17 @@ namespace
 
 namespace rendercore
 {
-	class ShadowDepthVS : public GlobalShaderCommon<VertexShader, ShadowDepthVS>
+	class ShadowDepthVS final : public GlobalShaderCommon<VertexShader, ShadowDepthVS>
 	{
 		using GlobalShaderCommon::GlobalShaderCommon;
 	};
 
-	class ShadowDepthGS : public GlobalShaderCommon<GeometryShader, ShadowDepthGS>
+	class ShadowDepthGS final : public GlobalShaderCommon<GeometryShader, ShadowDepthGS>
 	{
 		using GlobalShaderCommon::GlobalShaderCommon;
 	};
 
-	class ShadowDepthPS : public GlobalShaderCommon<PixelShader, ShadowDepthPS>
+	class ShadowDepthPS final : public GlobalShaderCommon<PixelShader, ShadowDepthPS>
 	{
 		using GlobalShaderCommon::GlobalShaderCommon;
 	};

@@ -5,7 +5,7 @@
 
 namespace rendercore
 {
-	class ForwardRendererRenderTargets : public IRendererRenderTargets
+	class ForwardRendererRenderTargets final : public IRendererRenderTargets
 	{
 	public:
 		void UpdateBufferSize( uint32 width, uint32 height );

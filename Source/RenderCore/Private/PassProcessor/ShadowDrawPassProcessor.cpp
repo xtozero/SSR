@@ -8,7 +8,7 @@
 
 namespace rendercore
 {
-	class DrawCascadeShadowPS : public GlobalShaderCommon<PixelShader, DrawCascadeShadowPS>
+	class DrawCascadeShadowPS final : public GlobalShaderCommon<PixelShader, DrawCascadeShadowPS>
 	{
 		using GlobalShaderCommon::GlobalShaderCommon;
 	};

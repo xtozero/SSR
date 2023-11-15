@@ -141,7 +141,7 @@ namespace agl
 		}
 	}
 
-	class CDirect3D11 : public IAgl
+	class CDirect3D11 final : public IAgl
 	{
 	public:
 		virtual AglType GetType() const override;

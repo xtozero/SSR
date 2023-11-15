@@ -126,7 +126,7 @@ namespace agl
 		DescType m_desc = {};
 	};
 
-	class D3D11ShaderResourceView : public D3D11ViewBase<ShaderResourceView, ID3D11ShaderResourceView*, D3D11_SHADER_RESOURCE_VIEW_DESC>
+	class D3D11ShaderResourceView final : public D3D11ViewBase<ShaderResourceView, ID3D11ShaderResourceView*, D3D11_SHADER_RESOURCE_VIEW_DESC>
 	{
 		using BaseClass = D3D11ViewBase<ShaderResourceView, ID3D11ShaderResourceView*, D3D11_SHADER_RESOURCE_VIEW_DESC>;
 
@@ -138,7 +138,7 @@ namespace agl
 		virtual void InitResource() override;
 	};
 
-	class D3D11UnorderedAccessView : public D3D11ViewBase<UnorderedAccessView, ID3D11UnorderedAccessView*, D3D11_UNORDERED_ACCESS_VIEW_DESC>
+	class D3D11UnorderedAccessView final : public D3D11ViewBase<UnorderedAccessView, ID3D11UnorderedAccessView*, D3D11_UNORDERED_ACCESS_VIEW_DESC>
 	{
 		using BaseClass = D3D11ViewBase<UnorderedAccessView, ID3D11UnorderedAccessView*, D3D11_UNORDERED_ACCESS_VIEW_DESC>;
 
@@ -150,7 +150,7 @@ namespace agl
 		virtual void InitResource() override;
 	};
 
-	class D3D11RenderTargetView : public D3D11ViewBase<RenderTargetView, ID3D11RenderTargetView*, D3D11_RENDER_TARGET_VIEW_DESC>
+	class D3D11RenderTargetView final : public D3D11ViewBase<RenderTargetView, ID3D11RenderTargetView*, D3D11_RENDER_TARGET_VIEW_DESC>
 	{
 		using BaseClass = D3D11ViewBase<RenderTargetView, ID3D11RenderTargetView*, D3D11_RENDER_TARGET_VIEW_DESC>;
 
@@ -162,7 +162,7 @@ namespace agl
 		virtual void InitResource() override;
 	};
 
-	class D3D11DepthStencilView : public D3D11ViewBase<DepthStencilView, ID3D11DepthStencilView*, D3D11_DEPTH_STENCIL_VIEW_DESC>
+	class D3D11DepthStencilView final : public D3D11ViewBase<DepthStencilView, ID3D11DepthStencilView*, D3D11_DEPTH_STENCIL_VIEW_DESC>
 	{
 		using BaseClass = D3D11ViewBase<DepthStencilView, ID3D11DepthStencilView*, D3D11_DEPTH_STENCIL_VIEW_DESC>;
 

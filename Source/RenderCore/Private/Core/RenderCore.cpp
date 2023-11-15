@@ -61,7 +61,7 @@ namespace
 
 namespace rendercore
 {
-	class RenderCore : public IRenderCore
+	class RenderCore final : public IRenderCore
 	{
 	public:
 		virtual bool BootUp() override;

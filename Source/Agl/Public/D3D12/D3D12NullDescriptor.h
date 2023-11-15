@@ -29,7 +29,7 @@ namespace agl
 	};
 	constexpr uint32 MaxDescriptorUnderlyingType = static_cast<uint32>( DescriptorUnderlyingType::Count );
 
-	class D3D12NullDescriptorStorage
+	class D3D12NullDescriptorStorage final
 	{
 	public:
 		static void Clear();

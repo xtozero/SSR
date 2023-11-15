@@ -6,7 +6,7 @@
 
 namespace rendercore
 {
-	class IndexBuffer
+	class IndexBuffer final
 	{
 	public:
 		void Resize( uint32 newNumElement, bool copyPreviousData );

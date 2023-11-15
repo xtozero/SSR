@@ -70,7 +70,7 @@ namespace rendercore
 
 	struct DDSTextureInitializer;
 
-	class DDSTexture : public Texture
+	class DDSTexture final : public Texture
 	{
 		GENERATE_CLASS_TYPE_INFO( DDSTexture );
 		DECLARE_ASSET( RENDERCORE, DDSTexture );

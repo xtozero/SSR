@@ -164,7 +164,7 @@ set (RENDERER_SOURCE
 	Public/Renderer/TemporalAntiAliasingRendering.h
 	Public/Renderer/UserInterfaceRenderer.h)
 
-source_group("CONFIG_SOURCE" FILES ${CONFIG_SOURCE})
+source_group("Config" FILES ${CONFIG_SOURCE})
 source_group("GraphicsResource" FILES ${GRAPHICS_RESOURCE_SOURCE})
 source_group("Material" FILES ${MATERIAL_SOURCE})
 source_group("Mesh" FILES ${MESH_SOURCE})

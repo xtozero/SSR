@@ -6,7 +6,7 @@
 
 namespace agl
 {
-	class D3D12DepthStencilState : public DepthStencilState
+	class D3D12DepthStencilState final : public DepthStencilState
 	{
 	public:
 		const D3D12_DEPTH_STENCIL_DESC& GetDesc() const

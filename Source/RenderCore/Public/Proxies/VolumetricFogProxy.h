@@ -15,7 +15,7 @@ namespace rendercore
 	class Scene;
 	class VolumetricFogSceneInfo;
 
-	class VolumetricFogProxy
+	class VolumetricFogProxy final
 	{
 	public:
 		const std::array<uint32, 3>& FrustumGridSize() const;

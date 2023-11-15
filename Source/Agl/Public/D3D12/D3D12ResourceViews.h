@@ -104,7 +104,7 @@ namespace agl
 		DescType m_desc = {};
 	};
 
-	class D3D12ShaderResourceView : public D3D12ViewBase<ShaderResourceView, D3D12_SHADER_RESOURCE_VIEW_DESC>
+	class D3D12ShaderResourceView final : public D3D12ViewBase<ShaderResourceView, D3D12_SHADER_RESOURCE_VIEW_DESC>
 	{
 		using BaseClass = D3D12ViewBase<ShaderResourceView, D3D12_SHADER_RESOURCE_VIEW_DESC>;
 
@@ -116,7 +116,7 @@ namespace agl
 		virtual void InitResource() override;
 	};
 
-	class D3D12UnorderedAccessView : public D3D12ViewBase<UnorderedAccessView, D3D12_UNORDERED_ACCESS_VIEW_DESC>
+	class D3D12UnorderedAccessView final : public D3D12ViewBase<UnorderedAccessView, D3D12_UNORDERED_ACCESS_VIEW_DESC>
 	{
 		using BaseClass = D3D12ViewBase<UnorderedAccessView, D3D12_UNORDERED_ACCESS_VIEW_DESC>;
 
@@ -128,7 +128,7 @@ namespace agl
 		virtual void InitResource() override;
 	};
 
-	class D3D12RenderTargetView : public D3D12ViewBase<RenderTargetView, D3D12_RENDER_TARGET_VIEW_DESC>
+	class D3D12RenderTargetView final : public D3D12ViewBase<RenderTargetView, D3D12_RENDER_TARGET_VIEW_DESC>
 	{
 		using BaseClass = D3D12ViewBase<RenderTargetView, D3D12_RENDER_TARGET_VIEW_DESC>;
 
@@ -140,7 +140,7 @@ namespace agl
 		virtual void InitResource() override;
 	};
 
-	class D3D12DepthStencilView : public D3D12ViewBase<DepthStencilView, D3D12_DEPTH_STENCIL_VIEW_DESC>
+	class D3D12DepthStencilView final : public D3D12ViewBase<DepthStencilView, D3D12_DEPTH_STENCIL_VIEW_DESC>
 	{
 		using BaseClass = D3D12ViewBase<DepthStencilView, D3D12_DEPTH_STENCIL_VIEW_DESC>;
 
@@ -152,7 +152,7 @@ namespace agl
 		virtual void InitResource() override;
 	};
 
-	class D3D12ConstantBufferView : public D3D12ViewBase<DeviceDependantResource, D3D12_CONSTANT_BUFFER_VIEW_DESC>
+	class D3D12ConstantBufferView final : public D3D12ViewBase<DeviceDependantResource, D3D12_CONSTANT_BUFFER_VIEW_DESC>
 	{
 		using BaseClass = D3D12ViewBase<DeviceDependantResource, D3D12_CONSTANT_BUFFER_VIEW_DESC>;
 

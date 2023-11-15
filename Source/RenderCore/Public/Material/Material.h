@@ -45,7 +45,7 @@ namespace rendercore
 	public:
 	};
 
-	class FloatProperty : public MaterialProperty
+	class FloatProperty final : public MaterialProperty
 	{
 	public:
 		virtual void Serialize( Archive& ar );
@@ -65,7 +65,7 @@ namespace rendercore
 		float m_value;
 	};
 
-	class Float4Property : public MaterialProperty
+	class Float4Property final : public MaterialProperty
 	{
 	public:
 		virtual void Serialize( Archive& ar );
@@ -85,7 +85,7 @@ namespace rendercore
 		Vector4 m_value;
 	};
 
-	class IntProperty : public MaterialProperty
+	class IntProperty final : public MaterialProperty
 	{
 	public:
 		virtual void Serialize( Archive& ar );
@@ -105,7 +105,7 @@ namespace rendercore
 		int32 m_value;
 	};
 
-	class TextureProperty : public MaterialProperty
+	class TextureProperty final : public MaterialProperty
 	{
 	public:
 		virtual void Serialize( Archive& ar );
@@ -125,7 +125,7 @@ namespace rendercore
 		std::shared_ptr<Texture> m_value;
 	};
 
-	class Material : public AsyncLoadableAsset
+	class Material final : public AsyncLoadableAsset
 	{
 		GENERATE_CLASS_TYPE_INFO( Material );
 		DECLARE_ASSET( RENDERCORE, Material );

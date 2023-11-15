@@ -6,7 +6,7 @@
 
 namespace rendercore
 {
-	class CommandList
+	class CommandList final
 	{
 	public:
 		void BindVertexBuffer( agl::Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets );

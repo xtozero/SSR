@@ -16,14 +16,14 @@ struct PathEnvironment
 	const json::Value* m_orignal = nullptr;
 };
 
-struct PreprocessingEnvironment : public PathEnvironment
+struct PreprocessingEnvironment final : public PathEnvironment
 {
 	std::filesystem::path m_targetExtension;
 	std::filesystem::path m_productExtension;
 	bool m_allowOverwrite = false;
 };
 
-class ManufactureConfig
+class ManufactureConfig final
 {
 public:
 	void Load()

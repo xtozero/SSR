@@ -7,7 +7,7 @@
 
 namespace rendercore
 {
-	class VertexBufferBundle
+	class VertexBufferBundle final
 	{
 	public:
 		void Bind( VertexBuffer& vertexBuffer, uint32 slot, uint32 offset = 0 )

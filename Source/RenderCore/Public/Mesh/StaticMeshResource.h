@@ -17,7 +17,7 @@ namespace rendercore
 {
 	struct MeshDescription;
 
-	class StaticMeshSection
+	class StaticMeshSection final
 	{
 	public:
 		friend Archive& operator<<( Archive& ar, StaticMeshSection& section );
@@ -27,7 +27,7 @@ namespace rendercore
 		uint32 m_materialIndex;
 	};
 
-	class StaticMeshLODResource
+	class StaticMeshLODResource final
 	{
 	public:
 		friend Archive& operator<<( Archive& ar, StaticMeshLODResource& lodResource );
@@ -39,7 +39,7 @@ namespace rendercore
 		std::vector<StaticMeshSection> m_sections;
 	};
 
-	class StaticMeshRenderData
+	class StaticMeshRenderData final
 	{
 	public:
 		RENDERCORE_DLL void AllocateLODResources( uint32 numLOD );

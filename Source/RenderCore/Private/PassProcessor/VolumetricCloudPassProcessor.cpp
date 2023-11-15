@@ -7,7 +7,7 @@
 
 namespace rendercore
 {
-	class DrawVolumetricCloudPS : public GlobalShaderCommon<PixelShader, DrawVolumetricCloudPS>
+	class DrawVolumetricCloudPS final : public GlobalShaderCommon<PixelShader, DrawVolumetricCloudPS>
 	{};
 
 	REGISTER_GLOBAL_SHADER( DrawVolumetricCloudPS, "./Assets/Shaders/Cloud/PS_DrawVolumetricCloud.asset" );

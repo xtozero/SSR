@@ -22,7 +22,7 @@ public:
 	virtual ~IManufacturer() = default;
 };
 
-class AssetManufacturer
+class AssetManufacturer final
 {
 public:
 	std::optional<Products> Manufacture( const PathEnvironment& env, const std::filesystem::path& path );

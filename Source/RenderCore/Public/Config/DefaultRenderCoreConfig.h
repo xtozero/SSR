@@ -5,7 +5,7 @@
 
 namespace rendercore
 {
-	class DefaultRenderCore : public ConfigBase<DefaultRenderCore, "default_engine">
+	class DefaultRenderCore final : public ConfigBase<DefaultRenderCore, "default_engine">
 	{
 		GENERATE_CLASS_TYPE_INFO( DefaultRenderCore );
 

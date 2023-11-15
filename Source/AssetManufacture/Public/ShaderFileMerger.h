@@ -5,7 +5,7 @@
 #include <set>
 #include <string>
 
-class ShaderFileMerger
+class ShaderFileMerger final
 {
 public:
 	std::optional<std::string> Merge( const std::filesystem::path& shaderFile );

@@ -4,7 +4,7 @@
 
 namespace rendercore
 {
-	class ShadowDepthPassProcessor : public IPassProcessor
+	class ShadowDepthPassProcessor final : public IPassProcessor
 	{
 	public:
 		virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) override;

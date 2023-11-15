@@ -22,7 +22,7 @@ namespace rendercore
 	class StaticMesh;
 	class StaticMeshRenderData;
 
-	class TexturedSkyProxy
+	class TexturedSkyProxy final
 	{
 	public:
 		RENDERCORE_DLL TexturedSkyProxy( const logic::TexturedSkyComponent& component );

@@ -11,7 +11,7 @@ namespace rendercore
 {
 	class VolumetricCloudProxy;
 
-	struct VolumetricCloudRenderParameter
+	struct VolumetricCloudRenderParameter final
 	{
 		Vector m_sphereRadius;
 		float m_lightAbsorption = 0.0035f;
@@ -25,7 +25,7 @@ namespace rendercore
 		float m_densityScale = 0.45f;
 	};
 
-	class VolumetricCloudSceneInfo
+	class VolumetricCloudSceneInfo final
 	{
 	public:
 		const VolumetricCloudProxy* Proxy() const

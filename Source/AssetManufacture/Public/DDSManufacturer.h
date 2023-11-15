@@ -1,7 +1,7 @@
 #pragma once
 #include "AssetManufacturer.h"
 
-class DDSManufacturer : public IManufacturer
+class DDSManufacturer final : public IManufacturer
 {
 public:
 	virtual bool IsSuitable( const std::filesystem::path& srcPath ) const override;

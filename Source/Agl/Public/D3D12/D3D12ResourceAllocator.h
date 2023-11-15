@@ -9,7 +9,7 @@
 
 namespace agl
 {
-	class AllocatedResourceInfo : protected AllocatedHeapInfo
+	class AllocatedResourceInfo final : protected AllocatedHeapInfo
 	{
 	public:
 		void SetResource( ID3D12Resource* resource );
@@ -35,7 +35,7 @@ namespace agl
 		ID3D12Resource* m_resource = nullptr;
 	};
 
-	class D3D12ResourceAllocator
+	class D3D12ResourceAllocator final
 	{
 	public:
 		AllocatedResourceInfo AllocateResource( const D3D12HeapProperties& properties, const D3D12_RESOURCE_DESC& desc, D3D12_RESOURCE_STATES state, const D3D12_CLEAR_VALUE* clearValue = nullptr );

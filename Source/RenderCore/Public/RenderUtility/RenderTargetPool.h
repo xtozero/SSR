@@ -8,7 +8,7 @@
 
 namespace rendercore
 {
-	class PooledRenderTarget
+	class PooledRenderTarget final
 	{
 	public:
 		bool IsFree() const;
@@ -26,7 +26,7 @@ namespace rendercore
 		agl::RefHandle<agl::Texture> m_texture;
 	};
 
-	class RenderTargetPool
+	class RenderTargetPool final
 	{
 	public:
 		static RenderTargetPool& GetInstance()

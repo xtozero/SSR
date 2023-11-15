@@ -21,7 +21,7 @@ namespace rendercore
 	class PrimitiveProxy;
 	class Scene;
 
-	class PrimitiveSubMeshInfo
+	class PrimitiveSubMeshInfo final
 	{
 	public:
 		std::optional<uint32> GetCachedDrawSnapshotInfoIndex( RenderPass passType ) const;
@@ -36,13 +36,13 @@ namespace rendercore
 		uint32 m_passTypeMask = 0;
 	};
 
-	struct PrimitiveSubMesh : public MeshDrawInfo
+	struct PrimitiveSubMesh final : public MeshDrawInfo
 	{
 		explicit PrimitiveSubMesh( const MeshDrawInfo& info ) : MeshDrawInfo( info ) {}
 		PrimitiveSubMesh() = default;
 	};
 
-	struct LightIntersectionInfo
+	struct LightIntersectionInfo final
 	{
 		LightSceneInfo* m_light = nullptr;
 		uint32 m_infoId = 0;
@@ -50,7 +50,7 @@ namespace rendercore
 		LightIntersectionInfo( LightSceneInfo* light, uint32 infoId ) : m_light( light ), m_infoId( infoId ) {}
 	};
 
-	class PrimitiveSceneInfo
+	class PrimitiveSceneInfo final
 	{
 	public:
 		PrimitiveProxy*& Proxy();

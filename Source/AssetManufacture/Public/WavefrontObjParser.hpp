@@ -5,11 +5,11 @@
 #include <cctype>
 #include <fstream>
 #include <map>
+#include <optional>
 #include <set>
 #include <sstream>
 #include <string>
 #include <string_view>
-#include <optional>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -209,7 +209,7 @@ namespace Wavefront
 		std::map<std::string, ObjMaterial> m_materials;
 	};
 
-	class ObjMtlParser : public ParserBase
+	class ObjMtlParser final : public ParserBase
 	{
 	public:
 		bool Parse( std::filesystem::path filePath, ObjMaterialLibrary& mtl )
@@ -506,7 +506,7 @@ namespace Wavefront
 		ObjMaterial* m_curMaterial = nullptr;
 	};
 
-	class ObjParser : public ParserBase
+	class ObjParser final : public ParserBase
 	{
 	public:
 		bool Parse( std::filesystem::path filePath, ObjModel& mesh )

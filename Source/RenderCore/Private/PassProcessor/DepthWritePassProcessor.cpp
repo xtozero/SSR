@@ -18,12 +18,12 @@ namespace
 
 namespace rendercore
 {
-	class DepthWriteVS : public GlobalShaderCommon<VertexShader, DepthWriteVS>
+	class DepthWriteVS final : public GlobalShaderCommon<VertexShader, DepthWriteVS>
 	{
 		using GlobalShaderCommon::GlobalShaderCommon;
 	};
 
-	class DepthWritePS : public GlobalShaderCommon<PixelShader, DepthWritePS>
+	class DepthWritePS final : public GlobalShaderCommon<PixelShader, DepthWritePS>
 	{};
 
 	REGISTER_GLOBAL_SHADER( DepthWriteVS, "./Assets/Shaders/VS_DepthWrite.asset" );

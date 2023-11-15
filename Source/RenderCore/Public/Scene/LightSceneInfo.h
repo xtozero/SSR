@@ -16,7 +16,7 @@ namespace rendercore
 	class PrimitiveSceneInfo;
 	class Scene;
 
-	struct PrimitiveIntersectionInfo
+	struct PrimitiveIntersectionInfo final
 	{
 		PrimitiveSceneInfo* m_primitive = nullptr;
 		uint32 m_infoId = 0;
@@ -24,7 +24,7 @@ namespace rendercore
 		PrimitiveIntersectionInfo( PrimitiveSceneInfo* primitive, uint32 infoId ) : m_primitive( primitive ), m_infoId( infoId ) {}
 	};
 
-	class LightSceneInfo
+	class LightSceneInfo final
 	{
 	public:
 		const LightProxy* Proxy() const

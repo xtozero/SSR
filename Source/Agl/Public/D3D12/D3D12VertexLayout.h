@@ -7,7 +7,7 @@
 
 namespace agl
 {
-	class D3D12VertexLayout : public VertexLayout
+	class D3D12VertexLayout final : public VertexLayout
 	{
 	public:
 		const std::vector<D3D12_INPUT_ELEMENT_DESC>& GetDesc() const;

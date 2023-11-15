@@ -11,7 +11,7 @@ namespace agl
 {
 	class D3D11VertexShader;
 
-	class D3D11VertexLayout : public VertexLayout
+	class D3D11VertexLayout final : public VertexLayout
 	{
 	public:
 		ID3D11InputLayout* Resource();

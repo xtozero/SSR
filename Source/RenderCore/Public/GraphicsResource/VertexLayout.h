@@ -68,7 +68,7 @@ namespace rendercore
 		agl::VertexLayoutTrait m_layoutData[agl::MAX_VERTEX_LAYOUT_SIZE] = {};
 	};
 
-	struct VertexLayoutDescHasher
+	struct VertexLayoutDescHasher final
 	{
 		size_t operator()( const VertexLayoutDesc& desc ) const
 		{
@@ -89,7 +89,7 @@ namespace rendercore
 		}
 	};
 
-	class VertexLayout
+	class VertexLayout final
 	{
 	public:
 		agl::VertexLayout* Resource();

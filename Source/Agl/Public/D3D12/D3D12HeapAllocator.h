@@ -1,9 +1,9 @@
 #pragma once
 
 #include "FixedBlockMemoryPool.h"
+#include "HashUtil.h"
 #include "SizedTypes.h"
 #include "SparseArray.h"
-#include "HashUtil.h"
 
 #include <d3d12.h>
 #include <typeinfo>
@@ -13,7 +13,7 @@
 
 namespace agl
 {
-	struct D3D12HeapProperties
+	struct D3D12HeapProperties final
 	{
 		uint64 m_alignment;
 		D3D12_HEAP_TYPE m_heapType;
@@ -26,7 +26,7 @@ namespace agl
 		uint64 m_offset = 0;
 	};
 
-	struct D3D12HeapSubAllocation
+	struct D3D12HeapSubAllocation final
 	{
 		uint64 m_offset = 0;
 		uint64 m_size = 0;
@@ -34,7 +34,7 @@ namespace agl
 		D3D12HeapSubAllocation* m_next = nullptr;
 	};
 
-	class D3D12HeapBlock
+	class D3D12HeapBlock final
 	{
 	public:
 		void InitResource( uint64 size, const D3D12HeapProperties& properties );
@@ -70,7 +70,7 @@ namespace agl
 		FixedBlockMemoryPool<D3D12HeapSubAllocation> m_subAllocationNodePool;
 	};
 
-	class D3D12HeapBudget
+	class D3D12HeapBudget final
 	{
 	public:
 		AllocatedHeapInfo Allocate( uint64 size );
@@ -88,7 +88,7 @@ namespace agl
 		std::vector<D3D12HeapBlock> m_blocks;
 	};
 
-	class D3D12HeapAllocator
+	class D3D12HeapAllocator final
 	{
 	public:
 		AllocatedHeapInfo Allocate( const D3D12HeapProperties& properties, uint64 size );

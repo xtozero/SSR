@@ -11,7 +11,7 @@
 
 namespace rendercore
 {
-	class GlobalShaders
+	class GlobalShaders final
 	{
 	public:
 		static GlobalShaders& GetInstance()
@@ -38,7 +38,7 @@ namespace rendercore
 		std::atomic<int32> m_loadingInProgress = 0;
 	};
 
-	class GlobalShaderRegister
+	class GlobalShaderRegister final
 	{
 	public:
 		GlobalShaderRegister( std::type_index typeIndex, const char* assetPath );

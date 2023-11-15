@@ -18,22 +18,22 @@
 
 namespace rendercore
 {
-	class DrawIrradianceMapVS : public GlobalShaderCommon<VertexShader, DrawIrradianceMapVS>
+	class DrawIrradianceMapVS final : public GlobalShaderCommon<VertexShader, DrawIrradianceMapVS>
 	{
 		using GlobalShaderCommon::GlobalShaderCommon;
 	};
 
-	class DrawIrradianceMapGS : public GlobalShaderCommon<GeometryShader, DrawIrradianceMapGS>
+	class DrawIrradianceMapGS final : public GlobalShaderCommon<GeometryShader, DrawIrradianceMapGS>
 	{
 		using GlobalShaderCommon::GlobalShaderCommon;
 	};
 
-	class DrawIrradianceMapPS : public GlobalShaderCommon<PixelShader, DrawIrradianceMapPS>
+	class DrawIrradianceMapPS final : public GlobalShaderCommon<PixelShader, DrawIrradianceMapPS>
 	{
 		using GlobalShaderCommon::GlobalShaderCommon;
 	};
 
-	class IrradianceMapShCS : public GlobalShaderCommon<ComputeShader, IrradianceMapShCS>
+	class IrradianceMapShCS final : public GlobalShaderCommon<ComputeShader, IrradianceMapShCS>
 	{
 		using GlobalShaderCommon::GlobalShaderCommon;
 
@@ -48,7 +48,7 @@ namespace rendercore
 	REGISTER_GLOBAL_SHADER( DrawIrradianceMapPS, "./Assets/Shaders/IndirectLighting/IrradianceMap/PS_DrawIrradianceMap.asset" );
 	REGISTER_GLOBAL_SHADER( IrradianceMapShCS, "./Assets/Shaders/IndirectLighting/IrradianceMap/CS_IrradianceMapSH.asset" );
 
-	class IrradianceMapGenerateProcessor : public IPassProcessor
+	class IrradianceMapGenerateProcessor final : public IPassProcessor
 	{
 	public:
 		virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) override;

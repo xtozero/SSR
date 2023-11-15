@@ -19,13 +19,13 @@ namespace rendercore
 
 	struct RenderView;
 
-	struct CascadeShadowSetting
+	struct CascadeShadowSetting final
 	{
 		static constexpr uint32 MAX_CASCADE_NUM = 2;
 		float m_splitDistance[MAX_CASCADE_NUM + 1] = {};
 	};
 
-	struct ShadowDepthPassParameters
+	struct ShadowDepthPassParameters final
 	{
 		Vector4 m_lightPosOrDir;
 		float m_slopeBiasScale;
@@ -37,13 +37,13 @@ namespace rendercore
 		Matrix m_shadowViewProjection[6];
 	};
 
-	struct ESMsParameters
+	struct ESMsParameters final
 	{
 		float m_esmsParameterC;
 		float padding[3];
 	};
 
-	struct ShadowMapRenderTarget
+	struct ShadowMapRenderTarget final
 	{
 		using ShadowMapList = std::vector<agl::RefHandle<agl::Texture>, InlineAllocator<agl::RefHandle<agl::Texture>, 1>>;
 
@@ -51,7 +51,7 @@ namespace rendercore
 		agl::RefHandle<agl::Texture> m_shadowMapDepth;
 	};
 
-	class ShadowInfo
+	class ShadowInfo final
 	{
 	public:
 		bool HasCasterPrimitives() const

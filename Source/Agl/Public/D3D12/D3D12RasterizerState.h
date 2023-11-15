@@ -6,7 +6,7 @@
 
 namespace agl
 {
-	class D3D12RasterizerState : public RasterizerState
+	class D3D12RasterizerState final : public RasterizerState
 	{
 	public:
 		const D3D12_RASTERIZER_DESC& GetDesc() const

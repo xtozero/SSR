@@ -11,7 +11,7 @@ namespace rendercore
 	class StaticShaderSwitches;
 }
 
-class ShaderManufacturer : public IManufacturer
+class ShaderManufacturer final : public IManufacturer
 {
 public:
 	virtual bool IsSuitable( const std::filesystem::path& srcPath ) const override;

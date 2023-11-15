@@ -20,7 +20,7 @@ namespace rendercore
 
 	enum class RenderPass : uint8;
 
-	class PrimitiveIdVertexBufferPool
+	class PrimitiveIdVertexBufferPool final
 	{
 	public:
 		VertexBuffer Alloc( uint32 require );
@@ -37,7 +37,7 @@ namespace rendercore
 		size_t m_discardId = 0;
 	};
 
-	class DrawSnapshot
+	class DrawSnapshot final
 	{
 	public:
 		VertexBufferBundle m_vertexStream;
@@ -101,7 +101,7 @@ namespace rendercore
 		}
 	};
 
-	struct DrawSnapshotDynamicInstancingEqual
+	struct DrawSnapshotDynamicInstancingEqual final
 	{
 		bool operator()( const DrawSnapshot& lhs, const DrawSnapshot& rhs ) const
 		{
@@ -116,7 +116,7 @@ namespace rendercore
 		}
 	};
 
-	struct DrawSnapshotDynamicInstancingHasher
+	struct DrawSnapshotDynamicInstancingHasher final
 	{
 		size_t operator()( const DrawSnapshot& ds ) const
 		{
@@ -147,7 +147,7 @@ namespace rendercore
 		}
 	};
 
-	struct VisibleDrawSnapshot
+	struct VisibleDrawSnapshot final
 	{
 		uint32 m_primitiveId;
 		uint32 m_primitiveIdOffset;
@@ -156,14 +156,14 @@ namespace rendercore
 		DrawSnapshot* m_drawSnapshot;
 	};
 
-	struct CachedDrawSnapshotInfo
+	struct CachedDrawSnapshotInfo final
 	{
 		RenderPass m_renderPass;
 		size_t m_snapshotIndex;
 		int32 m_snapshotBucketId;
 	};
 
-	class CachedDrawSnapshotBucket
+	class CachedDrawSnapshotBucket final
 	{
 	public:
 		int32 Add( const DrawSnapshot& snapshot );

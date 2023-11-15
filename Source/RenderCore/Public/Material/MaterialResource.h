@@ -13,7 +13,7 @@
 
 namespace rendercore
 {
-	class MaterialResource
+	class MaterialResource final
 	{
 	public:
 		const VertexShader* GetVertexShader( const StaticShaderSwitches* switches = nullptr ) const;

@@ -8,7 +8,7 @@
 
 namespace rendercore
 {
-	class UberShader : public IShader
+	class UberShader final : public IShader
 	{
 		GENERATE_CLASS_TYPE_INFO( UberShader );
 		DECLARE_ASSET( RENDERCORE, UberShader );

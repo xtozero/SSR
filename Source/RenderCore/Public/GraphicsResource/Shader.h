@@ -82,7 +82,7 @@ namespace rendercore
 		agl::ShaderParameterInfo m_parameterInfo;
 	};
 
-	class VertexShader : public ShaderBase
+	class VertexShader final : public ShaderBase
 	{
 		GENERATE_CLASS_TYPE_INFO( VertexShader );
 		DECLARE_ASSET( RENDERCORE, VertexShader );
@@ -111,7 +111,7 @@ namespace rendercore
 		agl::RefHandle<agl::VertexShader> m_shader;
 	};
 
-	class GeometryShader : public ShaderBase
+	class GeometryShader final : public ShaderBase
 	{
 		GENERATE_CLASS_TYPE_INFO( GeometryShader );
 		DECLARE_ASSET( RENDERCORE, GeometryShader );
@@ -140,7 +140,7 @@ namespace rendercore
 		agl::RefHandle<agl::GeometryShader> m_shader;
 	};
 
-	class PixelShader : public ShaderBase
+	class PixelShader final : public ShaderBase
 	{
 		GENERATE_CLASS_TYPE_INFO( PixelShader );
 		DECLARE_ASSET( RENDERCORE, PixelShader );
@@ -169,7 +169,7 @@ namespace rendercore
 		agl::RefHandle<agl::PixelShader> m_shader;
 	};
 
-	class ComputeShader : public ShaderBase
+	class ComputeShader final : public ShaderBase
 	{
 		GENERATE_CLASS_TYPE_INFO( ComputeShader );
 		DECLARE_ASSET( RENDERCORE, ComputeShader );

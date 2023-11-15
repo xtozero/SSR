@@ -16,7 +16,7 @@ namespace rendercore
 	class StaticMeshLODResource;
 	class StaticMeshRenderData;
 
-	struct StaticMeshMaterial
+	struct StaticMeshMaterial final
 	{
 		explicit StaticMeshMaterial( const std::shared_ptr<Material>& mateiral ) : m_mateiral( mateiral ) {}
 		StaticMeshMaterial() = default;
@@ -26,7 +26,7 @@ namespace rendercore
 		std::shared_ptr<Material> m_mateiral;
 	};
 
-	class StaticMesh : public AsyncLoadableAsset, BaseMesh
+	class StaticMesh final : public AsyncLoadableAsset, BaseMesh
 	{
 		GENERATE_CLASS_TYPE_INFO( StaticMesh );
 		DECLARE_ASSET( RENDERCORE, StaticMesh );

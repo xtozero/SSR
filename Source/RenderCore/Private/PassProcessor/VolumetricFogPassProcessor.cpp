@@ -7,7 +7,7 @@
 
 namespace rendercore
 {
-	class DrawVolumetricFogPS : public GlobalShaderCommon<PixelShader, DrawVolumetricFogPS>
+	class DrawVolumetricFogPS final : public GlobalShaderCommon<PixelShader, DrawVolumetricFogPS>
 	{
 		using GlobalShaderCommon::GlobalShaderCommon;
 	};

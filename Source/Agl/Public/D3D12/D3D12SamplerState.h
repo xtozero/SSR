@@ -1,13 +1,13 @@
 #pragma once
 
-#include "PipelineState.h"
 #include "D3D12DescriptorHeapAllocator.h"
+#include "PipelineState.h"
 
 #include <d3d12.h>
 
 namespace agl
 {
-	class D3D12SamplerState : public SamplerState
+	class D3D12SamplerState final : public SamplerState
 	{
 	public:
 		const D3D12DescriptorHeap& Resource() const;

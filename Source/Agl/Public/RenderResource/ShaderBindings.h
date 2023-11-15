@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Buffer.h"
-#include "Texture.h"
 #include "GraphicsApiResource.h"
 #include "IAgl.h"
 #include "PipelineState.h"
@@ -9,6 +8,7 @@
 #include "ShaderParameterInfo.h"
 #include "ShaderResource.h"
 #include "SizedTypes.h"
+#include "Texture.h"
 
 #include <algorithm>
 #include <cassert>
@@ -256,7 +256,7 @@ namespace agl
 		unsigned char* m_data = nullptr;
 	};
 
-	class ShaderBindingsInitializer
+	class ShaderBindingsInitializer final
 	{
 	public:
 		size_t NumShaders() const
@@ -285,7 +285,7 @@ namespace agl
 		const ShaderParameterInfo* m_shaderParameterInfos[MAX_SHADER_TYPE<uint32>] = {};
 	};
 
-	class ShaderBindings
+	class ShaderBindings final
 	{
 	public:
 		void Initialize( const ShaderBindingsInitializer& initializer )

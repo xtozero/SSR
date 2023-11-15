@@ -28,14 +28,14 @@ namespace rendercore
 
 	struct PrimitiveSubMesh;
 
-	struct PassShader
+	struct PassShader final
 	{
 		VertexShader* m_vertexShader = nullptr;
 		GeometryShader* m_geometryShader = nullptr;
 		PixelShader* m_pixelShader = nullptr;
 	};
 
-	struct PassRenderOption
+	struct PassRenderOption final
 	{
 		agl::ResourcePrimitive m_primitive = agl::ResourcePrimitive::Trianglelist;
 		BlendOption* m_blendOption = nullptr;
@@ -63,7 +63,7 @@ namespace rendercore
 
 	using PassProcessorCreateFunction = IPassProcessor * ( * )( );
 
-	class PassProcessorManager
+	class PassProcessorManager final
 	{
 	public:
 		static IPassProcessor* GetPassProcessor( RenderPass passType );
@@ -75,7 +75,7 @@ namespace rendercore
 		static PassProcessorCreateFunction m_createFunctions[static_cast<uint32>( RenderPass::Count )];
 	};
 
-	class PassProcessorRegister
+	class PassProcessorRegister final
 	{
 	public:
 		PassProcessorRegister( RenderPass passType, PassProcessorCreateFunction createFunction );

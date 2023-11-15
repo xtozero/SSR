@@ -17,7 +17,7 @@ namespace rendercore
 
 	struct ForwardLightingResource;
 
-	struct RenderView
+	struct RenderView final
 	{
 		// for view
 		Vector m_viewOrigin = {};
@@ -32,7 +32,7 @@ namespace rendercore
 		RenderThreadFrameData<VisibleDrawSnapshot>* m_snapshots;
 	};
 
-	struct RenderViewGroupInitializer
+	struct RenderViewGroupInitializer final
 	{
 		IScene& m_scene;
 		Canvas& m_cavas;
@@ -42,7 +42,7 @@ namespace rendercore
 		ColorF m_backgroundColor;
 	};
 
-	class RenderViewGroup
+	class RenderViewGroup final
 	{
 	public:
 		RENDERCORE_DLL RenderViewGroup( RenderViewGroupInitializer& initializer ) 

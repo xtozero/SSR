@@ -4,7 +4,7 @@
 
 namespace rendercore
 {
-	class DepthWritePassProcessor : public IPassProcessor
+	class DepthWritePassProcessor final : public IPassProcessor
 	{
 	public:
 		virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) override;

@@ -6,7 +6,7 @@
 
 namespace agl
 {
-	class D3D11RasterizerState : public RasterizerState
+	class D3D11RasterizerState final : public RasterizerState
 	{
 	public:
 		ID3D11RasterizerState* Resource();

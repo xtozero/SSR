@@ -18,7 +18,7 @@ namespace agl
 		uint32 m_increametSize = 0;
 	};
 
-	class D3D12CpuDescriptorHandle : public D3D12DescriptorHandle
+	class D3D12CpuDescriptorHandle final : public D3D12DescriptorHandle
 	{
 		friend class D3D12DescriptorHeap;
 
@@ -33,7 +33,7 @@ namespace agl
 		D3D12_CPU_DESCRIPTOR_HANDLE m_handle = {};
 	};
 
-	class D3D12GpuDescriptorHandle : public D3D12DescriptorHandle
+	class D3D12GpuDescriptorHandle final : public D3D12DescriptorHandle
 	{
 		friend class D3D12DescriptorHeap;
 
@@ -48,7 +48,7 @@ namespace agl
 		D3D12_GPU_DESCRIPTOR_HANDLE m_handle = {};
 	};
 
-	class D3D12DescriptorHeap
+	class D3D12DescriptorHeap final
 	{
 	public:
 		ID3D12DescriptorHeap* Resource()

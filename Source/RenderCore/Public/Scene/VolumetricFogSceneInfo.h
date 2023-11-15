@@ -14,7 +14,7 @@ namespace rendercore
 	struct ForwardLightingResource;
 	struct RenderView;
 
-	struct VolumetricFogParameter
+	struct VolumetricFogParameter final
 	{
 		float m_exposure = 0.4f;
 		float m_depthPackExponent = 2.f;
@@ -22,7 +22,7 @@ namespace rendercore
 		float m_farPlaneDist = 300.f;
 	};
 
-	class VolumetricFogSceneInfo
+	class VolumetricFogSceneInfo final
 	{
 	public:
 		const VolumetricFogProxy* Proxy() const

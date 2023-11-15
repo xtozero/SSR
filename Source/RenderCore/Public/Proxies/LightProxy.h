@@ -85,7 +85,7 @@ namespace rendercore
 		bool m_usedAsAtmosphereSunLight = false;
 	};
 
-	class DirectionalLightProxy : public LightProxy
+	class DirectionalLightProxy final : public LightProxy
 	{
 	public:
 		virtual LightType GetLightType() const override
@@ -103,7 +103,7 @@ namespace rendercore
 		Vector m_direction;
 	};
 
-	class HemisphereLightProxy
+	class HemisphereLightProxy final
 	{
 	public:
 		RENDERCORE_DLL HemisphereLightProxy( const ColorF& lowerColor, const ColorF& upperColor, const Vector& upVector );

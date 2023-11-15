@@ -32,7 +32,7 @@ namespace agl
 		uint32 m_updateSize = 0;
 	};
 
-	class GlobalSyncConstantBuffer : public GlobalConstantBuffer
+	class GlobalSyncConstantBuffer final : public GlobalConstantBuffer
 	{
 	public:
 		virtual void Prepare() override;
@@ -44,7 +44,7 @@ namespace agl
 		RefHandle<Buffer> m_buffer;
 	};
 
-	class GlobalAsyncConstantBuffer : public GlobalConstantBuffer
+	class GlobalAsyncConstantBuffer final : public GlobalConstantBuffer
 	{
 	public:
 		virtual void Prepare() override;
@@ -80,13 +80,13 @@ namespace agl
 		GlobalConstantBuffer* m_constantBuffers[MAX_SHADER_TYPE<uint32>] = {};
 	};
 
-	class GlobalSyncConstantBuffers : public GlobalConstantBuffers
+	class GlobalSyncConstantBuffers final : public GlobalConstantBuffers
 	{
 	protected:
 		virtual GlobalConstantBuffer* CreateGlobalConstantBuffer() const override;
 	};
 
-	class GlobalAsyncConstantBuffers : public GlobalConstantBuffers
+	class GlobalAsyncConstantBuffers final : public GlobalConstantBuffers
 	{
 	protected:
 		virtual GlobalConstantBuffer* CreateGlobalConstantBuffer() const override;

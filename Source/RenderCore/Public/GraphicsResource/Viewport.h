@@ -14,7 +14,7 @@ namespace rendercore
 {
 	class Canvas;
 
-	class Viewport
+	class Viewport final
 	{
 	public:
 		RENDERCORE_DLL void Clear( const float( &color )[4] );

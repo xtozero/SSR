@@ -6,7 +6,7 @@
 
 namespace agl
 {
-	class D3D12VertexShader : public VertexShader, public ShaderBase
+	class D3D12VertexShader final : public VertexShader, public ShaderBase
 	{
 	public:
 		D3D12VertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
@@ -22,7 +22,7 @@ namespace agl
 		virtual void FreeResource() override {}
 	};
 
-	class D3D12GeometryShader : public GeometryShader, public ShaderBase
+	class D3D12GeometryShader final : public GeometryShader, public ShaderBase
 	{
 	public:
 		D3D12GeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
@@ -38,7 +38,7 @@ namespace agl
 		virtual void FreeResource() override {}
 	};
 
-	class D3D12PixelShader : public PixelShader, public ShaderBase
+	class D3D12PixelShader final : public PixelShader, public ShaderBase
 	{
 	public:
 		D3D12PixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
@@ -54,7 +54,7 @@ namespace agl
 		virtual void FreeResource() override {}
 	};
 
-	class D3D12ComputeShader : public ComputeShader, public ShaderBase
+	class D3D12ComputeShader final : public ComputeShader, public ShaderBase
 	{
 	public:
 		D3D12ComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )

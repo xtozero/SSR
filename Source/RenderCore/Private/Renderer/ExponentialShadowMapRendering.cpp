@@ -25,7 +25,7 @@ namespace
 
 namespace rendercore
 {
-	class CascadedESMsBlurCS : public GlobalShaderCommon<ComputeShader, CascadedESMsBlurCS>
+	class CascadedESMsBlurCS final : public GlobalShaderCommon<ComputeShader, CascadedESMsBlurCS>
 	{
 		using GlobalShaderCommon::GlobalShaderCommon;
 
@@ -39,7 +39,7 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( DestTexture );
 	};
 
-	class CascadedESMsCS : public GlobalShaderCommon<ComputeShader, CascadedESMsCS>
+	class CascadedESMsCS final : public GlobalShaderCommon<ComputeShader, CascadedESMsCS>
 	{
 	private:
 		DEFINE_SHADER_PARAM( SrcTexture );

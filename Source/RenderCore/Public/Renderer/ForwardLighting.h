@@ -9,7 +9,7 @@
 
 namespace rendercore
 {
-	class ForwardLightBuffer
+	class ForwardLightBuffer final
 	{
 	public:
 		void Initialize( uint32 bytePerElement, uint32 numElements, agl::ResourceFormat format );
@@ -27,7 +27,7 @@ namespace rendercore
 		agl::RefHandle<agl::Buffer> m_buffer;
 	};
 
-	struct ForwardLightData
+	struct ForwardLightData final
 	{
 		Vector4 m_positionAndRange;
 		ColorF m_diffuse;
@@ -37,7 +37,7 @@ namespace rendercore
 		Vector4 m_spotAngles;
 	};
 
-	struct ForwardLightConstant
+	struct ForwardLightConstant final
 	{
 		uint32 m_numLight = 0;
 		Vector m_hemisphereLightUpVector;
@@ -46,7 +46,7 @@ namespace rendercore
 		Vector4 m_irrdianceMapSH[7];
 	};
 
-	struct ForwardLightingResource
+	struct ForwardLightingResource final
 	{
 		TypedConstatBuffer<ForwardLightConstant> m_lightConstant;
 		ForwardLightBuffer m_lightBuffer;

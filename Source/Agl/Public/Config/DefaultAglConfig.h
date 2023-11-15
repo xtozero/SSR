@@ -6,7 +6,7 @@
 
 namespace agl
 {
-	class DefaultAgl : public ConfigBase<DefaultAgl, "default_engine">
+	class DefaultAgl final : public ConfigBase<DefaultAgl, "default_engine">
 	{
 		GENERATE_CLASS_TYPE_INFO( DefaultAgl );
 

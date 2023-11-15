@@ -7,7 +7,7 @@
 
 namespace agl
 {
-	class D3D11Buffer : public Buffer
+	class D3D11Buffer final : public Buffer
 	{
 	public:
 		ID3D11Buffer* Resource();

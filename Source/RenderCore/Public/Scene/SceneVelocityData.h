@@ -10,14 +10,14 @@ namespace rendercore
 {
 	class Scene;
 
-	struct ComponentVelocityData
+	struct ComponentVelocityData final
 	{
 		Matrix m_curTransform;
 		Matrix m_prevTransform;
 		uint64 m_lastFrameUpdated = 0;
 	};
 
-	class SceneVelocityData
+	class SceneVelocityData final
 	{
 	public:
 		void StartFrame( Scene& scene );

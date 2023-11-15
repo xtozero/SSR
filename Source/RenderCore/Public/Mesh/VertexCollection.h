@@ -17,7 +17,7 @@ namespace rendercore
 	class VertexBufferBundle;
 	struct MeshDescription;
 
-	class VertexStream
+	class VertexStream final
 	{
 	public:
 		uint8* Data()
@@ -65,7 +65,7 @@ namespace rendercore
 		std::vector<uint8> m_data;
 	};
 
-	class VertexStreamLayout : public VertexLayoutDesc
+	class VertexStreamLayout final : public VertexLayoutDesc
 	{
 	public:
 		void AddLayout( const char* name, uint32 index, agl::ResourceFormat format, uint32 slot, bool isInstanceData, uint32 instanceDataStep, int32 streamIndex );
@@ -88,7 +88,7 @@ namespace rendercore
 		PositionOnly,
 	};
 
-	class VertexCollection
+	class VertexCollection final
 	{
 	public:
 		void InitResource();

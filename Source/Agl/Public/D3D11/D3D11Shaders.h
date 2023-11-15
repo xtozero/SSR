@@ -9,7 +9,7 @@
 
 namespace agl
 {
-	class D3D11VertexShader : public VertexShader, public ShaderBase
+	class D3D11VertexShader final : public VertexShader, public ShaderBase
 	{
 	public:
 		ID3D11VertexShader* Resource() { return m_pResource; }
@@ -29,7 +29,7 @@ namespace agl
 		ID3D11VertexShader* m_pResource = nullptr;
 	};
 
-	class D3D11GeometryShader : public GeometryShader, public ShaderBase
+	class D3D11GeometryShader final : public GeometryShader, public ShaderBase
 	{
 	public:
 		ID3D11GeometryShader* Resource() { return m_pResource; }
@@ -49,7 +49,7 @@ namespace agl
 		ID3D11GeometryShader* m_pResource = nullptr;
 	};
 
-	class D3D11PixelShader : public PixelShader, public ShaderBase
+	class D3D11PixelShader final : public PixelShader, public ShaderBase
 	{
 	public:
 		ID3D11PixelShader* Resource() { return m_pResource; }
@@ -69,7 +69,7 @@ namespace agl
 		ID3D11PixelShader* m_pResource = nullptr;
 	};
 
-	class D3D11ComputeShader : public ComputeShader, public ShaderBase
+	class D3D11ComputeShader final : public ComputeShader, public ShaderBase
 	{
 	public:
 		ID3D11ComputeShader* Resource() { return m_pResource; }

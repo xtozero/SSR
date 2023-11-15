@@ -13,7 +13,7 @@ namespace rendercore
 	class RenderingShaderResource;
 	class ShadowInfo;
 
-	struct RSMsRenderingParam
+	struct RSMsRenderingParam final
 	{
 		agl::RefHandle<agl::Texture> m_viewSpaceDistance;
 		agl::RefHandle<agl::Texture> m_worldNormal;
@@ -22,7 +22,7 @@ namespace rendercore
 		int32 m_numShadowInfos = 0;
 	};
 
-	struct RSMsConstantParameters
+	struct RSMsConstantParameters final
 	{
 		uint32 m_numSamplingPattern;
 		float m_maxRadius;

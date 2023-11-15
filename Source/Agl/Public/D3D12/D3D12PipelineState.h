@@ -4,8 +4,8 @@
 #include "D3D12DepthStencilState.h"
 #include "D3D12RasterizerState.h"
 #include "D3D12RootSignature.h"
-#include "D3D12VertexLayout.h"
 #include "D3D12Shaders.h"
+#include "D3D12VertexLayout.h"
 #include "GraphicsApiResource.h"
 #include "PipelineState.h"
 
@@ -13,7 +13,7 @@
 
 namespace agl
 {
-	class D3D12GraphicsPipelineState : public GraphicsPipelineState
+	class D3D12GraphicsPipelineState final : public GraphicsPipelineState
 	{
 	public:
 		const D3D12_GRAPHICS_PIPELINE_STATE_DESC& GetDesc() const;
@@ -49,7 +49,7 @@ namespace agl
 		D3D12_PRIMITIVE_TOPOLOGY m_primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_UNDEFINED;
 	};
 
-	class D3D12ComputePipelineState : public ComputePipelineState
+	class D3D12ComputePipelineState final : public ComputePipelineState
 	{
 	public:
 		ID3D12PipelineState* Resource() const;

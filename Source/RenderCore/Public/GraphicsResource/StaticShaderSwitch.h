@@ -12,7 +12,7 @@ class Archive;
 
 namespace rendercore
 {
-	struct StaticShaderSwitch
+	struct StaticShaderSwitch final
 	{
 		bool m_on;
 		int32 m_current;
@@ -28,7 +28,7 @@ namespace rendercore
 		friend RENDERCORE_DLL Archive& operator<<( Archive& ar, StaticShaderSwitch& shaderSwitch );
 	};
 
-	class StaticShaderSwitches
+	class StaticShaderSwitches final
 	{
 	public:
 		RENDERCORE_DLL bool On( const Name& name, int32 value );

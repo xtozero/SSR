@@ -51,7 +51,7 @@ namespace agl
 		DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
 	};
 
-	class D3D12ConstantBuffer : public D3D12Buffer
+	class D3D12ConstantBuffer final : public D3D12Buffer
 	{
 	public:
 		D3D12ConstantBufferView* CBV() const;
@@ -71,7 +71,7 @@ namespace agl
 		RefHandle<D3D12ConstantBufferView> m_cbv;
 	};
 
-	class D3D12IndexBuffer : public D3D12Buffer
+	class D3D12IndexBuffer final : public D3D12Buffer
 	{
 	public:
 		const D3D12_INDEX_BUFFER_VIEW& GetView() const;
@@ -90,7 +90,7 @@ namespace agl
 		D3D12_INDEX_BUFFER_VIEW m_view = {};
 	};
 
-	class D3D12VertexBuffer : public D3D12Buffer
+	class D3D12VertexBuffer final : public D3D12Buffer
 	{
 	public:
 		const D3D12_VERTEX_BUFFER_VIEW& GetView() const;

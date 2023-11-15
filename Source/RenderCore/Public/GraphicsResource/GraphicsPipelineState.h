@@ -7,7 +7,7 @@
 
 namespace rendercore
 {
-	class BlendState
+	class BlendState final
 	{
 	public:
 		agl::BlendState* Resource();
@@ -28,7 +28,7 @@ namespace rendercore
 		agl::RefHandle<agl::BlendState> m_state;
 	};
 
-	class DepthStencilState
+	class DepthStencilState final
 	{
 	public:
 		agl::DepthStencilState* Resource();
@@ -49,7 +49,7 @@ namespace rendercore
 		agl::RefHandle<agl::DepthStencilState> m_state;
 	};
 
-	class RasterizerState
+	class RasterizerState final
 	{
 	public:
 		agl::RasterizerState* Resource();
@@ -70,7 +70,7 @@ namespace rendercore
 		agl::RefHandle<agl::RasterizerState> m_state;
 	};
 
-	class SamplerState
+	class SamplerState final
 	{
 	public:
 		agl::SamplerState* Resource();
@@ -91,7 +91,7 @@ namespace rendercore
 		agl::RefHandle<agl::SamplerState> m_state;
 	};
 
-	struct ShaderStates
+	struct ShaderStates final
 	{
 		VertexLayout m_vertexLayout;
 		VertexShader* m_vertexShader = nullptr;
@@ -124,7 +124,7 @@ namespace rendercore
 		return initializer;
 	}
 
-	struct GraphicsPipelineState
+	struct GraphicsPipelineState final
 	{
 		ShaderStates m_shaderState;
 		RasterizerState m_rasterizerState;

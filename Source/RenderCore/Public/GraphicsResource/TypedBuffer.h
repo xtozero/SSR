@@ -11,7 +11,7 @@
 namespace rendercore
 {
 	template <typename T>
-	class TypedConstatBuffer : public ConstantBuffer
+	class TypedConstatBuffer final : public ConstantBuffer
 	{
 	public:
 		void Update( const T& data )
@@ -28,7 +28,7 @@ namespace rendercore
 	};
 
 	template <typename T>
-	class TypedVertexBuffer : public VertexBuffer
+	class TypedVertexBuffer final : public VertexBuffer
 	{
 	public:
 		TypedVertexBuffer( uint32 numElement, const void* initData ) : VertexBuffer( sizeof( T ), numElement, initData, false ) { }
@@ -42,7 +42,7 @@ namespace rendercore
 	};
 
 	template <typename T>
-	class TypedBuffer
+	class TypedBuffer final
 	{
 	public:
 		void Resize( uint32 newNumElement, bool copyPreviousData )
@@ -130,7 +130,7 @@ namespace rendercore
 	};
 
 	template <typename T>
-	class TypedUploadBuffer : public UploadBuffer
+	class TypedUploadBuffer final : public UploadBuffer
 	{
 	public:
 		TypedUploadBuffer( uint32 numElement, const void* initData ) : UploadBuffer( sizeof( T ), numElement, initData ) {}

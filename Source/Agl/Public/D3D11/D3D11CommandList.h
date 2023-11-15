@@ -12,7 +12,7 @@ struct ID3D11CommandList;
 
 namespace agl
 {
-	class D3D11CommandList : public ICommandList
+	class D3D11CommandList final : public ICommandList
 	{
 	public:
 		virtual void Prepare() override;
@@ -66,7 +66,7 @@ namespace agl
 		std::vector<IParallelCommandList*, InlineAllocator<IParallelCommandList*, 1>> m_parallelCommandLists;
 	};
 
-	class D3D11ParallelCommandList : public IParallelCommandList
+	class D3D11ParallelCommandList final : public IParallelCommandList
 	{
 	public:
 		virtual void Prepare() override;

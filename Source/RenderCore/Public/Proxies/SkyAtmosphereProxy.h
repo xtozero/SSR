@@ -11,7 +11,7 @@ namespace rendercore
 {
 	class SkyAtmosphereRenderSceneInfo;
 
-	class SkyAtmospherePorxy
+	class SkyAtmospherePorxy final
 	{
 	public:
 		RENDERCORE_DLL SkyAtmospherePorxy( const logic::SkyAtmosphereComponent& component );

@@ -12,7 +12,7 @@ struct PrimitiveSubMesh;
 
 namespace rendercore
 {
-	struct SkyAtmosphereRenderParameter
+	struct SkyAtmosphereRenderParameter final
 	{
 		Vector4 m_cameraPos;
 		Vector4 m_sunDir;
@@ -20,7 +20,7 @@ namespace rendercore
 		float padding[3];
 	};
 
-	class SkyAtmosphereRenderSceneInfo
+	class SkyAtmosphereRenderSceneInfo final
 	{
 	public:
 		agl::RefHandle<agl::Texture>& GetTransmittanceLutTexture()
@@ -56,7 +56,7 @@ namespace rendercore
 		bool m_rebuildLuts = true;
 	};
 
-	class SkyAtmosphereDrawPassProcessor : public IPassProcessor
+	class SkyAtmosphereDrawPassProcessor final : public IPassProcessor
 	{
 	public:
 		virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) override;

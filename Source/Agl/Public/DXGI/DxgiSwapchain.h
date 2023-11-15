@@ -15,7 +15,7 @@
 namespace agl
 {
 	template <AglType Backend>
-	class DxgiSwapchain : public Canvas
+	class DxgiSwapchain final : public Canvas
 	{
 	public:
 		virtual void OnBeginFrameRendering() override

@@ -4,7 +4,7 @@
 
 namespace rendercore
 {
-	class VolumetricFogDrawPassProcessor : public IPassProcessor
+	class VolumetricFogDrawPassProcessor final : public IPassProcessor
 	{
 	public:
 		virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) override;

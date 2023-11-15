@@ -7,7 +7,7 @@
 
 namespace agl
 {
-	class D3D12BlendState : public BlendState
+	class D3D12BlendState final : public BlendState
 	{
 	public:
 		const D3D12_BLEND_DESC& GetDesc() const

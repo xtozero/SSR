@@ -37,7 +37,7 @@ namespace agl
 		AGL_DLL static RefHandle<VertexLayout> Create( const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size );
 	};
 
-	class GraphicsPipelineStateInitializer
+	class GraphicsPipelineStateInitializer final
 	{
 	public:
 		friend bool operator<( const GraphicsPipelineStateInitializer& lhs, const GraphicsPipelineStateInitializer& rhs )
@@ -58,7 +58,7 @@ namespace agl
 		ResourcePrimitive m_primitiveType = ResourcePrimitive::Undefined;
 	};
 
-	class ComputePipelineStateInitializer
+	class ComputePipelineStateInitializer final
 	{
 	public:
 		friend bool operator<( const ComputePipelineStateInitializer& lhs, const ComputePipelineStateInitializer& rhs )

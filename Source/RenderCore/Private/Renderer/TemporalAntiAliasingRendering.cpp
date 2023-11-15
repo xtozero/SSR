@@ -15,7 +15,7 @@
 
 namespace rendercore
 {
-	class TAAResolvePS : public GlobalShaderCommon<PixelShader, TAAResolvePS>
+	class TAAResolvePS final : public GlobalShaderCommon<PixelShader, TAAResolvePS>
 	{};
 
 	REGISTER_GLOBAL_SHADER( TAAResolvePS, "./Assets/Shaders/TemporalAntiAliasing/PS_TAAResolve.asset" );

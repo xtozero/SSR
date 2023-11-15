@@ -6,7 +6,7 @@
 
 namespace rendercore
 {
-	class FullScreenQuadVS : public GlobalShaderCommon<VertexShader, FullScreenQuadVS>
+	class FullScreenQuadVS final : public GlobalShaderCommon<VertexShader, FullScreenQuadVS>
 	{
 		using GlobalShaderCommon::GlobalShaderCommon;
 
@@ -14,7 +14,7 @@ namespace rendercore
 		FullScreenQuadVS() = default;
 	};
 
-	class DefaultGraphicsResources
+	class DefaultGraphicsResources final
 	{
 	public:
 		static DefaultGraphicsResources& GetInstance()

@@ -12,7 +12,7 @@ namespace rendercore
 	class RenderViewGroup;
 	class Scene;
 
-	struct SceneViewParameters
+	struct SceneViewParameters final
 	{
 		Matrix m_viewMatrix;
 		Matrix m_projMatrix;
@@ -36,7 +36,7 @@ namespace rendercore
 		uint32 padding[2];
 	};
 
-	struct PreviousFrameContext
+	struct PreviousFrameContext final
 	{
 		Matrix m_viewMatrix;
 		Matrix m_projMatrix;
@@ -45,7 +45,7 @@ namespace rendercore
 
 	SceneViewParameters FillViewConstantParam( const Scene* scene, const PreviousFrameContext* prevFrameContext, const RenderViewGroup& renderViewGroup, size_t viewIndex );
 
-	class SceneViewConstantBuffer
+	class SceneViewConstantBuffer final
 	{
 	public:
 		void Update( const SceneViewParameters& param );
@@ -57,7 +57,7 @@ namespace rendercore
 		TypedConstatBuffer<SceneViewParameters> m_constantBuffer;
 	};
 
-	class PrimitiveSceneData
+	class PrimitiveSceneData final
 	{
 	public:
 		PrimitiveSceneData( const Scene& scene, uint32 primitiveId );
@@ -67,7 +67,7 @@ namespace rendercore
 		Matrix m_invWorldMatrix;
 	};
 
-	class ScenePrimitiveBuffer
+	class ScenePrimitiveBuffer final
 	{
 	public:
 		void Resize( uint32 size );

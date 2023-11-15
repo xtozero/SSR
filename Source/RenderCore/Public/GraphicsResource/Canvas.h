@@ -10,7 +10,7 @@ namespace agl
 
 namespace rendercore
 {
-	class Canvas
+	class Canvas final
 	{
 	public:
 		agl::Canvas* Resource();

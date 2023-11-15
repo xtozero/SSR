@@ -8,17 +8,17 @@
 
 namespace rendercore
 {
-	class PerlinWorleyCS : public GlobalShaderCommon<ComputeShader, PerlinWorleyCS>
+	class PerlinWorleyCS final : public GlobalShaderCommon<ComputeShader, PerlinWorleyCS>
 	{
 		DEFINE_SHADER_PARAM( NoiseTex );
 	};
 
-	class WorleyCS : public GlobalShaderCommon<ComputeShader, WorleyCS>
+	class WorleyCS final : public GlobalShaderCommon<ComputeShader, WorleyCS>
 	{
 		DEFINE_SHADER_PARAM( NoiseTex );
 	};
 
-	class WeatherMapCS : public GlobalShaderCommon<ComputeShader, WeatherMapCS>
+	class WeatherMapCS final : public GlobalShaderCommon<ComputeShader, WeatherMapCS>
 	{
 		DEFINE_SHADER_PARAM( WeatherTex );
 	};

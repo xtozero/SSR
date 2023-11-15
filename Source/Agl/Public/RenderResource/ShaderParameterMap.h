@@ -24,7 +24,7 @@ namespace agl
 
 	class ShaderParameterMap;
 
-	class ShaderParameter
+	class ShaderParameter final
 	{
 	public:
 		ShaderType m_shader = ShaderType::None;
@@ -59,7 +59,7 @@ namespace agl
 		AGL_DLL ShaderParameter( const ShaderParameterMap& parameterMap, const char* variableName );
 	};
 
-	class ShaderParameterMap
+	class ShaderParameterMap final
 	{
 	public:
 		void AddParameter( const char* variableName, ShaderType shader, ShaderParameterType type, uint32 bindPoint, uint32 offset, uint32 sizeInByte )

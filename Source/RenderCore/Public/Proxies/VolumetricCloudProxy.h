@@ -14,7 +14,7 @@ namespace rendercore
 	class Scene;
 	class VolumetricCloudSceneInfo;
 
-	class VolumetricCloudProxy
+	class VolumetricCloudProxy final
 	{
 	public:
 		RENDERCORE_DLL VolumetricCloudProxy( const logic::VolumetricCloudComponent& component );

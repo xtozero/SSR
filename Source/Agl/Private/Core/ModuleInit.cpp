@@ -2,8 +2,8 @@
 
 #include "Config/DefaultAglConfig.h"
 #include "D3D11Api.h"
-#include "D3D12Api.h"
 #include "D3D11ResourceManager.h"
+#include "D3D12Api.h"
 #include "D3D12ResourceManager.h"
 #include "EnumStringMap.h"
 #include "IAgl.h"

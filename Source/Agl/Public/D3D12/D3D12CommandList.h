@@ -87,7 +87,7 @@ namespace agl
 		D3D12PipelineCache m_stateCache;
 	};
 
-	class D3D12CommandList : public ICommandList
+	class D3D12CommandList final : public ICommandList
 	{
 	public:
 		virtual void Prepare() override;
@@ -142,7 +142,7 @@ namespace agl
 		std::vector<IParallelCommandList*, InlineAllocator<IParallelCommandList*, 1>> m_parallelCommandLists;
 	};
 
-	class D3D12ParallelCommandList : public IParallelCommandList
+	class D3D12ParallelCommandList final : public IParallelCommandList
 	{
 	public:
 		virtual void Prepare() override;

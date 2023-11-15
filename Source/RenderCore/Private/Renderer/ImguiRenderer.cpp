@@ -23,18 +23,18 @@
 
 namespace rendercore
 {
-	class DrawImguiVS : public GlobalShaderCommon<VertexShader, DrawImguiVS>
+	class DrawImguiVS final : public GlobalShaderCommon<VertexShader, DrawImguiVS>
 	{
 		using GlobalShaderCommon::GlobalShaderCommon;
 	};
 
-	class DrawImguiPS : public GlobalShaderCommon<PixelShader, DrawImguiPS>
+	class DrawImguiPS final : public GlobalShaderCommon<PixelShader, DrawImguiPS>
 	{};
 
 	REGISTER_GLOBAL_SHADER( DrawImguiVS, "./Assets/Shaders/VS_Imgui.asset" );
 	REGISTER_GLOBAL_SHADER( DrawImguiPS, "./Assets/Shaders/PS_Imgui.asset" );
 
-	class ImguiDrawPassProcessor : public IPassProcessor
+	class ImguiDrawPassProcessor final : public IPassProcessor
 	{
 	public:
 		virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) override;
@@ -47,7 +47,7 @@ namespace rendercore
 		DepthStencilOption m_depthStencilOption;
 	};
 
-	struct ImguiDrawCommand
+	struct ImguiDrawCommand final
 	{
 		RectangleArea<int32> m_clipRect;
 		ImTextureID m_textureId;
@@ -58,7 +58,7 @@ namespace rendercore
 		void* m_userCallbackData;
 	};
 
-	struct ImguiDrawList
+	struct ImguiDrawList final
 	{
 		int32 m_numVertex = 0;
 		int32 m_numIndex = 0;
@@ -66,7 +66,7 @@ namespace rendercore
 		std::vector<ImguiDrawCommand> m_drawCommands;
 	};
 
-	struct ImguiDrawInfo
+	struct ImguiDrawInfo final
 	{
 		explicit ImguiDrawInfo( const ImDrawData& drawData ) noexcept
 			: m_totalNumVertex( drawData.TotalVtxCount )
@@ -159,7 +159,7 @@ namespace rendercore
 		Vector2 m_framebufferScale;
 	};
 
-	struct ImguiRenderResource
+	struct ImguiRenderResource final
 	{
 		VertexCollection m_vertexCollection;
 		IndexBuffer m_indexBuffer;
@@ -167,7 +167,7 @@ namespace rendercore
 		SamplerState m_fontAtlasSampler;
 	};
 
-	class ImguiRenderer : public UserInterfaceRenderer
+	class ImguiRenderer final : public UserInterfaceRenderer
 	{
 	public:
 		virtual bool BootUp() override;

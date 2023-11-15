@@ -7,7 +7,7 @@
 
 namespace agl
 {
-	class D3D11DepthStencilState : public DepthStencilState
+	class D3D11DepthStencilState final : public DepthStencilState
 	{
 	public:
 		ID3D11DepthStencilState* Resource();
