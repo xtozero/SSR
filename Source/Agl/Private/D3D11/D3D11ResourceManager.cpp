@@ -35,11 +35,7 @@ namespace agl
 	Texture* CD3D11ResourceManager::CreateTexture( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )
 	{
 		Texture* newTexture = nullptr;
-		if ( IsTexture1D( trait ) )
-		{
-			newTexture = new D3D11BaseTexture1D( trait, debugName, initData );
-		}
-		else if ( IsTexture2D( trait ) )
+		if ( IsTexture2D( trait ) )
 		{
 			newTexture = new D3D11BaseTexture2D( trait, debugName, initData );
 		}

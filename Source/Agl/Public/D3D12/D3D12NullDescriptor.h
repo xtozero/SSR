@@ -22,7 +22,6 @@ namespace agl
 	enum class DescriptorUnderlyingType
 	{
 		Buffer,
-		Texture1D,
 		Texture2D,
 		Texture3D,
 		Count
@@ -74,11 +73,6 @@ namespace agl
 				{
 					desc.Format = DXGI_FORMAT_UNKNOWN;
 					desc.ViewDimension = D3D12_RTV_DIMENSION_BUFFER;
-				}
-				else if constexpr ( underlyingType == DescriptorUnderlyingType::Texture1D )
-				{
-					desc.Format = DXGI_FORMAT_R8G8B8A8_UINT;
-					desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE1D;
 				}
 				else if constexpr ( underlyingType == DescriptorUnderlyingType::Texture2D )
 				{

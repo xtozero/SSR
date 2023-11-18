@@ -89,17 +89,6 @@ namespace agl
 		}
 	};
 
-	class D3D12BaseTexture1D final : public D3D12Texture
-	{
-	public:
-		virtual void CreateRenderTarget( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
-		virtual void CreateDepthStencil( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
-
-		D3D12BaseTexture1D( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData );
-
-	private:
-	};
-
 	class D3D12BaseTexture2D final : public D3D12Texture
 	{
 	public:

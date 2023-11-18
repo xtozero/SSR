@@ -29,13 +29,9 @@ namespace
 		{
 			return D3D12_RESOURCE_DIMENSION_TEXTURE3D;
 		}
-		else if ( trait.m_height > 1 )
-		{
-			return D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-		}
 		else
 		{
-			return D3D12_RESOURCE_DIMENSION_TEXTURE1D;
+			return D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 		}
 	}
 
@@ -123,7 +119,7 @@ namespace
 				.ResourceMinLODClamp = 0
 			};
 		}
-		else if ( trait.m_height > 1 )
+		else
 		{
 			if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::TextureCube ) )
 			{
@@ -173,29 +169,6 @@ namespace
 						.ResourceMinLODClamp = 0
 					};
 				}
-			}
-		}
-		else
-		{
-			if ( trait.m_depth == 1 )
-			{
-				srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE1D;
-				srv.Texture1D = {
-					.MostDetailedMip = 0,
-					.MipLevels = trait.m_mipLevels,
-					.ResourceMinLODClamp = 0
-				};
-			}
-			else
-			{
-				srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE1DARRAY;
-				srv.Texture1DArray = {
-					.MostDetailedMip = 0,
-					.MipLevels = trait.m_mipLevels,
-					.FirstArraySlice = 0,
-					.ArraySize = trait.m_depth,
-					.ResourceMinLODClamp = 0
-				};
 			}
 		}
 
@@ -257,7 +230,7 @@ namespace
 				.WSize = trait.m_depth
 			};
 		}
-		else if ( trait.m_height > 1 )
+		else
 		{
 			if ( trait.m_depth > 1 )
 			{
@@ -275,25 +248,6 @@ namespace
 				uav.Texture2D = {
 					.MipSlice = 0,
 					.PlaneSlice = 0
-				};
-			}
-		}
-		else
-		{
-			if ( trait.m_depth > 1 )
-			{
-				uav.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE1DARRAY;
-				uav.Texture1DArray = {
-					.MipSlice = 0,
-					.FirstArraySlice = 0,
-					.ArraySize = trait.m_depth
-				};
-			}
-			else
-			{
-				uav.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE1D;
-				uav.Texture1D = {
-					.MipSlice = 0
 				};
 			}
 		}
@@ -316,7 +270,7 @@ namespace
 				.WSize = trait.m_depth
 			};
 		}
-		else if ( trait.m_height > 1 )
+		else
 		{
 			if ( trait.m_depth > 1 )
 			{
@@ -334,25 +288,6 @@ namespace
 				rtv.Texture2D = {
 					.MipSlice = 0,
 					.PlaneSlice = 0
-				};
-			}
-		}
-		else
-		{
-			if ( trait.m_depth > 1 )
-			{
-				rtv.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE1DARRAY;
-				rtv.Texture1DArray = {
-					.MipSlice = 0,
-					.FirstArraySlice = 0,
-					.ArraySize = trait.m_depth
-				};
-			}
-			else
-			{
-				rtv.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE1D;
-				rtv.Texture1D = {
-					.MipSlice = 0
 				};
 			}
 		}
@@ -407,43 +342,21 @@ namespace
 		};
 
 		assert( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Texture3D ) == false );
-		if ( trait.m_height > 1 )
+		if ( trait.m_depth > 1 )
 		{
-			if ( trait.m_depth > 1 )
-			{
-				dsv.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DARRAY;
-				dsv.Texture2DArray = {
-					.MipSlice = 0,
-					.FirstArraySlice = 0,
-					.ArraySize = trait.m_depth
-				};
-			}
-			else
-			{
-				dsv.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-				dsv.Texture2D = {
-					.MipSlice = 0
-				};
-			}
+			dsv.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DARRAY;
+			dsv.Texture2DArray = {
+				.MipSlice = 0,
+				.FirstArraySlice = 0,
+				.ArraySize = trait.m_depth
+			};
 		}
 		else
 		{
-			if ( trait.m_depth > 1 )
-			{
-				dsv.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE1DARRAY;
-				dsv.Texture1DArray = {
-					.MipSlice = 0,
-					.FirstArraySlice = 0,
-					.ArraySize = trait.m_depth
-				};
-			}
-			else
-			{
-				dsv.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE1D;
-				dsv.Texture1D = {
-					.MipSlice = 0
-				};
-			}
+			dsv.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+			dsv.Texture2D = {
+				.MipSlice = 0
+			};
 		}
 
 		return dsv;
@@ -676,11 +589,6 @@ namespace agl
 				D3D12Uploader().Upload( *this, m_initData[i].pData, static_cast<uint32>( m_initData[i].RowPitch ), nullptr, static_cast<uint32>( i ) );
 			}
 		}
-	}
-
-	D3D12BaseTexture1D::D3D12BaseTexture1D( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )
-		: D3D12Texture( trait, debugName, initData )
-	{
 	}
 
 	D3D12BaseTexture2D::D3D12BaseTexture2D( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )

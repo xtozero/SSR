@@ -129,25 +129,6 @@ namespace agl
 		virtual void ConvertToDesc( const TextureTrait& trait ) = 0;
 	};
 
-	class D3D11BaseTexture1D final : public D3D11Texture<ID3D11Texture1D>
-	{
-	public:
-		virtual void CreateShaderResource( std::optional<ResourceFormat> overrideFormat = {} ) override;
-		virtual void CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat = {} ) override;
-		virtual void CreateRenderTarget( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
-		virtual void CreateDepthStencil( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
-
-		D3D11BaseTexture1D( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData );
-
-	protected:
-		virtual void CreateTexture() override;
-
-	private:
-		virtual void ConvertToDesc( const TextureTrait& trait ) override;
-
-		D3D11_TEXTURE1D_DESC m_desc = {};
-	};
-
 	class D3D11BaseTexture2D final : public D3D11Texture<ID3D11Texture2D>
 	{
 	public:

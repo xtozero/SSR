@@ -2,6 +2,7 @@
 
 #include "GraphicsApiResource.h"
 #include "HashUtil.h"
+#include "InlineMemoryAllocator.h"
 #include "PipelineState.h"
 #include "Shader.h"
 #include "SizedTypes.h"
@@ -16,18 +17,20 @@ namespace rendercore
 	public:
 		const agl::VertexLayoutTrait* Data() const
 		{
-			return m_layoutData;
+			return m_layoutData.data();
 		}
 
 		uint32 Size() const
 		{
-			return m_size;
+			return static_cast<uint32>( m_layoutData.size() );
 		}
 
 		void AddLayout( const char* name, uint32 index, agl::ResourceFormat format, uint32 slot, bool isInstanceData, uint32 instanceDataStep )
 		{
-			assert( m_size < agl::MAX_VERTEX_LAYOUT_SIZE );
-			agl::VertexLayoutTrait& trait = m_layoutData[m_size];
+			assert( Size() < agl::MAX_VERTEX_LAYOUT_SIZE );
+
+			m_layoutData.emplace_back();
+			agl::VertexLayoutTrait& trait = m_layoutData.back();
 
 			trait.m_name = Name( name );
 			trait.m_isInstanceData = isInstanceData;
@@ -35,8 +38,6 @@ namespace rendercore
 			trait.m_format = format;
 			trait.m_slot = slot;
 			trait.m_instanceDataStep = instanceDataStep;
-
-			++m_size;
 		}
 
 		friend bool operator==( const VertexLayoutDesc& lhs, const VertexLayoutDesc& rhs )
@@ -61,21 +62,35 @@ namespace rendercore
 
 		friend Archive& operator<<( Archive& ar, VertexLayoutDesc& desc );
 
-	protected:
-		uint32 m_size = 0;
-
 	private:
-		agl::VertexLayoutTrait m_layoutData[agl::MAX_VERTEX_LAYOUT_SIZE] = {};
+		std::vector<agl::VertexLayoutTrait, InlineAllocator<agl::VertexLayoutTrait, 8>> m_layoutData;
 	};
 
-	struct VertexLayoutDescHasher final
+	struct VertexLayoutInstance final
 	{
-		size_t operator()( const VertexLayoutDesc& desc ) const
+		const agl::VertexShader* m_vertexShader;
+		VertexLayoutDesc m_desc;
+	};
+
+	struct VertexLayoutInstanceEqual final
+	{
+		bool operator()( const VertexLayoutInstance& lhs, const VertexLayoutInstance& rhs ) const
 		{
-			static size_t typeHash = typeid( VertexLayoutDesc ).hash_code();
+			return lhs.m_vertexShader == rhs.m_vertexShader
+				&& lhs.m_desc == rhs.m_desc;
+		}
+	};
+
+	struct VertexLayoutInstanceHasher final
+	{
+		size_t operator()( const VertexLayoutInstance& instance ) const
+		{
+			static size_t typeHash = typeid( VertexLayoutInstance ).hash_code();
 			size_t hash = typeHash;
-			const agl::VertexLayoutTrait* data = desc.Data();
-			for ( uint32 i = 0; i < desc.Size(); ++i )
+			HashCombine( hash, instance.m_vertexShader );
+
+			const agl::VertexLayoutTrait* data = instance.m_desc.Data();
+			for ( uint32 i = 0; i < instance.m_desc.Size(); ++i )
 			{
 				HashCombine( hash, std::hash<std::string_view>()( data[i].m_name.Str() ) );
 				HashCombine( hash, data[i].m_isInstanceData );

@@ -7,7 +7,18 @@ namespace rendercore
 {
 	Archive& operator<<( Archive& ar, VertexLayoutDesc& desc )
 	{
-		ar << desc.m_size;
+		if ( ar.IsWriteMode() )
+		{
+			ar << desc.Size();
+		}
+		else
+		{
+			uint32 size;
+			ar << size;
+
+			desc.m_layoutData.resize( size );
+		}
+
 		for ( uint32 i = 0; i < desc.Size(); ++i )
 		{
 			ar << desc.m_layoutData[i].m_isInstanceData;

@@ -164,11 +164,16 @@ namespace rendercore
 			return {};
 		}
 
-		auto found = m_vertexLayouts.find( desc );
+		VertexLayoutInstance vertexLayoutInstance = {
+			.m_vertexShader = vs.Resource(),
+			.m_desc = desc
+		};
+
+		auto found = m_vertexLayouts.find( vertexLayoutInstance );
 		if ( found == m_vertexLayouts.end() )
 		{
 			VertexLayout vertexLayout( vs, desc );
-			m_vertexLayouts.emplace( desc, vertexLayout );
+			m_vertexLayouts.emplace( vertexLayoutInstance, vertexLayout );
 
 			return vertexLayout;
 		}

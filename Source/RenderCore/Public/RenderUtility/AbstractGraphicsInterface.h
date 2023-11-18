@@ -41,7 +41,7 @@ namespace rendercore
 		std::unordered_map<DepthStencilOption, DepthStencilState, DepthStencilOptionHasher> m_depthStencilStates;
 		std::unordered_map<RasterizerOption, RasterizerState, RasterizerOptionHasher> m_rasterizerStates;
 		std::unordered_map<SamplerOption, SamplerState, SamplerOptionHasher> m_samplerStates;
-		std::unordered_map<VertexLayoutDesc, VertexLayout, VertexLayoutDescHasher> m_vertexLayouts;
+		std::unordered_map<VertexLayoutInstance, VertexLayout, VertexLayoutInstanceHasher, VertexLayoutInstanceEqual> m_vertexLayouts;
 	};
 
 	AbstractGraphicsInterface& GraphicsInterface();

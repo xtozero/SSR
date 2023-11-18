@@ -111,7 +111,13 @@ namespace agl
 				backBuffer->Free();
 			}
 
-			HRESULT hr = m_pSwapChain->ResizeBuffers( m_bufferCount, m_width, m_height, ConvertToDxgiLinearFormat( m_format ), DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH );
+			DXGI_FORMAT format = m_format;
+			if constexpr ( Backend != AglType::D3D11 )
+			{
+				format = ConvertToDxgiLinearFormat( m_format );
+			}
+
+			HRESULT hr = m_pSwapChain->ResizeBuffers( m_bufferCount, m_width, m_height, format, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH );
 			assert( SUCCEEDED( hr ) );
 
 			for ( uint32 i = 0; i < m_bufferCount; ++i )

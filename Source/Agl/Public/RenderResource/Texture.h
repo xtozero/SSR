@@ -95,7 +95,6 @@ namespace agl
 		void* m_dataStorage = nullptr;
 	};
 
-	bool IsTexture1D( const TextureTrait& trait );
 	bool IsTexture2D( const TextureTrait& trait );
 	bool IsTexture3D( const TextureTrait& trait );
 }

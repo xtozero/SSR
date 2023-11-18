@@ -335,7 +335,7 @@ namespace agl
 		const BufferTrait& srcTrait = src->GetTrait();
 
 		if ( ( numByte == 0 )
-			|| ( ( destTrait.m_stride * destTrait.m_stride ) == ( srcTrait.m_stride * srcTrait.m_stride ) ) )
+			|| ( ( destTrait.m_stride * destTrait.m_count ) == ( srcTrait.m_stride * srcTrait.m_count ) ) )
 		{
 			D3D11Context().CopyResource( destResource, srcResource );
 		}

@@ -6,31 +6,6 @@
 
 namespace agl
 {
-	D3D11_TEXTURE1D_DESC ConvertTraitTo1DDesc( const TextureTrait& trait )
-	{
-		DXGI_FORMAT format = ConvertFormatToDxgiFormat( trait.m_format );
-		D3D11_USAGE usage = ConvertAccessFlagToUsage( trait.m_access );
-		uint32 bindFlag = ConvertTypeToBind( trait.m_bindType );
-		uint32 cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );
-		uint32 miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
-
-		if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Intermediate ) )
-		{
-			bindFlag |= D3D11_BIND_SHADER_RESOURCE;
-		}
-
-		return D3D11_TEXTURE1D_DESC{
-			.Width = trait.m_width,
-			.MipLevels = trait.m_mipLevels,
-			.ArraySize = trait.m_depth,
-			.Format = format,
-			.Usage = usage,
-			.BindFlags = bindFlag,
-			.CPUAccessFlags = cpuAccessFlag,
-			.MiscFlags = miscFlags
-		};
-	}
-
 	D3D11_TEXTURE2D_DESC ConvertTraitTo2DDesc( const TextureTrait& trait )
 	{
 		DXGI_FORMAT format = ConvertFormatToDxgiFormat( trait.m_format );
@@ -109,27 +84,6 @@ namespace agl
 		};
 	}
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC ConvertDescToSRV( const D3D11_TEXTURE1D_DESC& desc )
-	{
-		D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
-
-		srv.Format = ConvertDxgiFormatForSRV( desc.Format );
-
-		if ( desc.ArraySize > 1 )
-		{
-			srv.ViewDimension = D3D_SRV_DIMENSION_TEXTURE1DARRAY;
-			srv.Texture1DArray.ArraySize = desc.ArraySize;
-			srv.Texture1DArray.MipLevels = desc.MipLevels;
-		}
-		else
-		{
-			srv.ViewDimension = D3D_SRV_DIMENSION_TEXTURE1D;
-			srv.Texture1D.MipLevels = desc.MipLevels;
-		}
-
-		return srv;
-	}
-
 	D3D11_SHADER_RESOURCE_VIEW_DESC ConvertDescToSRV( const D3D11_TEXTURE2D_DESC& desc )
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
@@ -190,25 +144,6 @@ namespace agl
 		srv.Texture3D.MipLevels = desc.MipLevels;
 
 		return srv;
-	}
-
-	D3D11_UNORDERED_ACCESS_VIEW_DESC ConvertDescToUAV( const D3D11_TEXTURE1D_DESC& desc )
-	{
-		D3D11_UNORDERED_ACCESS_VIEW_DESC uav = {};
-
-		uav.Format = desc.Format;
-
-		if ( desc.ArraySize > 1 )
-		{
-			uav.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE1DARRAY;
-			uav.Texture1DArray.ArraySize = desc.ArraySize;
-		}
-		else
-		{
-			uav.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE1D;
-		}
-
-		return uav;
 	}
 
 	D3D11_UNORDERED_ACCESS_VIEW_DESC ConvertDescToUAV( const D3D11_TEXTURE2D_DESC& desc )
@@ -307,53 +242,6 @@ namespace agl
 		}
 
 		return dsv;
-	}
-
-	void D3D11BaseTexture1D::CreateShaderResource( std::optional<ResourceFormat> overrideFormat )
-	{
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc );
-		if ( overrideFormat.has_value() )
-		{
-			srvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
-		}
-		m_srv = new D3D11ShaderResourceView( this, m_texture, srvDesc );
-		m_srv->Init();
-	}
-
-	void D3D11BaseTexture1D::CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat )
-	{
-		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc );
-		if ( overrideFormat.has_value() )
-		{
-			uavDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
-		}
-		m_uav = new D3D11UnorderedAccessView( this, m_texture, uavDesc );
-		m_uav->Init();
-	}
-
-	D3D11BaseTexture1D::D3D11BaseTexture1D( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )
-		: D3D11Texture<ID3D11Texture1D>( trait, debugName, initData )
-	{
-	}
-
-	void D3D11BaseTexture1D::CreateTexture()
-	{
-		SetState( ResourceState::Common );
-		ConvertToDesc( m_trait );
-
-		[[maybe_unused]] HRESULT hr = D3D11Device().CreateTexture1D( &m_desc, m_dataStorage ? m_initData.data() : nullptr, &m_texture );
-		assert( SUCCEEDED( hr ) );
-
-		if ( m_texture )
-		{
-			auto dataSize = static_cast<uint32>( m_debugName.Str().size() );
-			m_texture->SetPrivateData( WKPDID_D3DDebugObjectName, dataSize, m_debugName.Str().data() );
-		}
-	}
-
-	void D3D11BaseTexture1D::ConvertToDesc( const TextureTrait& trait )
-	{
-		m_desc = ConvertTraitTo1DDesc( trait );
 	}
 
 	void D3D11BaseTexture2D::CreateShaderResource( std::optional<ResourceFormat> overrideFormat )

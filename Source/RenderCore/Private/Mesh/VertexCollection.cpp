@@ -34,7 +34,7 @@ namespace rendercore
 
 	void VertexStreamLayout::AddLayout( const char* name, uint32 index, agl::ResourceFormat format, uint32 slot, bool isInstanceData, uint32 instanceDataStep, int32 streamIndex )
 	{
-		m_streamIndices[m_size] = streamIndex;
+		m_streamIndices[Size()] = streamIndex;
 		VertexLayoutDesc::AddLayout( name, index, format, slot, isInstanceData, instanceDataStep );
 	}
 
