@@ -53,6 +53,7 @@ namespace rendercore
 	PassShader DefaultPassProcessor::CollectPassShader( MaterialResource& material ) const
 	{
 		StaticShaderSwitches vsSwitches = material.GetShaderSwitches( agl::ShaderType::VS );
+		StaticShaderSwitches gsSwitches = material.GetShaderSwitches( agl::ShaderType::GS );
 		StaticShaderSwitches psSwitches = material.GetShaderSwitches( agl::ShaderType::PS );
 
 		if ( DefaultRenderCore::IsTaaEnabled() )
@@ -72,7 +73,7 @@ namespace rendercore
 
 		PassShader passShader{
 			material.GetVertexShader( &vsSwitches ),
-			nullptr,
+			material.GetGeometryShader( &gsSwitches ),
 			material.GetPixelShader( &psSwitches )
 		};
 

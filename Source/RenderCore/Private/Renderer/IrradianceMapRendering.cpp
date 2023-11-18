@@ -10,9 +10,9 @@
 #include "Scene/PrimitiveSceneInfo.h"
 #include "SceneRenderer.h"
 #include "ShaderParameterUtils.h"
+#include "ShaderParameterUtils.h"
 #include "TransitionUtils.h"
 #include "VertexCollection.h"
-#include "ShaderParameterUtils.h"
 
 #include <cassert>
 

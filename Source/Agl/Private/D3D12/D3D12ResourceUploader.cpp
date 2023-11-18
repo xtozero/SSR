@@ -139,9 +139,9 @@ namespace agl
 			{
 				std::memcpy( row, srcData, srcRowSize );
 				srcData += srcRowSize;
-				row += rowSize;
+				row += layout.Footprint.RowPitch;
 			}
-			mappedData += ( numRows * rowSize );
+			mappedData += ( numRows * layout.Footprint.RowPitch );
 		}
 
 		resource->Unmap( 0, nullptr );

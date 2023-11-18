@@ -15,6 +15,14 @@
 #include <type_traits>
 #include <vector>
 
+class Archive;
+
+template <typename T>
+concept HasSerialize = requires( T a, Archive & ar )
+{
+	a.Serialize( ar );
+};
+
 class BinaryChunk
 {
 public:
@@ -107,13 +115,20 @@ class Archive
 {
 public:
 	Archive() = default;
-	Archive( const char* begin, const char* end ) : m_curPos( begin ), m_endPos( end ) {}
-	Archive( const char* begin, size_t size ) : m_curPos( begin ), m_endPos( begin + size ) {}
+	Archive( const char* begin, const char* end ) : m_beginPos( begin ), m_curPos( begin ), m_endPos( end ) {}
+	Archive( const char* begin, size_t size ) : m_beginPos( begin ), m_curPos( begin ), m_endPos( begin + size ) {}
 	~Archive() = default;
 	Archive( const Archive& ) = default;
 	Archive& operator=( const Archive& ) = default;
 	Archive( Archive&& ) = default;
 	Archive& operator=( Archive&& ) = default;
+
+	template <HasSerialize T>
+	Archive& operator<<( T& value )
+	{
+		value.Serialize( *this );
+		return *this;
+	}
 
 	template <typename T>
 	Archive& operator<<( T& value )
@@ -170,6 +185,14 @@ public:
 	bool IsWriteMode() const
 	{
 		return m_curPos == nullptr;
+	}
+
+	void Seek( int64 offset )
+	{
+		if ( IsWriteMode() == false )
+		{
+			m_curPos = m_beginPos + offset;
+		}
 	}
 
 private:
@@ -236,8 +259,12 @@ private:
 
 		if ( nullFlag == 0 )
 		{
+			const char* oldPos = m_curPos;
+
 			uint32 assetID = 0;
 			ReadData( assetID );
+
+			m_curPos = oldPos;
 
 			value.reset( Cast<T>( GetInterface<class IAssetFactory>()->CreateAsset( assetID ) ) );
 			value->Serialize( *this );
@@ -410,6 +437,7 @@ private:
 		}
 	}
 
+	const char* m_beginPos = nullptr;
 	const char* m_curPos = nullptr;
 	const char* m_endPos = nullptr;
 	std::vector<char> m_buffer;

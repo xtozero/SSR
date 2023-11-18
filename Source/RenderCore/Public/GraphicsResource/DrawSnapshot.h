@@ -5,8 +5,8 @@
 #include "IndexBuffer.h"
 #include "PipelineState.h"
 #include "ShaderBindings.h"
-#include "SparseArray.h"
 #include "SizedTypes.h"
+#include "SparseArray.h"
 #include "TransientAllocator.h"
 #include "VertexBufferBundle.h"
 

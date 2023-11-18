@@ -446,7 +446,8 @@ namespace
 
 bool ShaderManufacturer::IsSuitable( const std::filesystem::path& srcPath ) const
 {
-	return srcPath.extension() == fs::path(".fx");
+	fs::path extension = ToLower( srcPath.extension().generic_string() );
+	return extension == fs::path(".fx");
 }
 
 std::optional<Products> ShaderManufacturer::Manufacture( const PathEnvironment& env, const std::filesystem::path& path ) const

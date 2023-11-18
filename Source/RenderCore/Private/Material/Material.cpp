@@ -294,13 +294,13 @@ namespace rendercore
 		return nullptr;
 	}
 
-	SamplerOption* Material::AsSampelrOption( const char* key ) const
+	const SamplerOption* Material::AsSampelrOption( const char* key ) const
 	{
 		auto found = m_samplers.find( Name( key ) );
 
 		if ( found != m_samplers.end() )
 		{
-			return found->second.get();
+			return &found->second;
 		}
 
 		return nullptr;
@@ -457,7 +457,7 @@ namespace rendercore
 		return static_cast<PixelShader*>( compiled );
 	}
 
-	void Material::AddSampler( const std::string& key, const std::shared_ptr<SamplerOption>& samplerOption )
+	void Material::AddSampler( const std::string& key, const SamplerOption& samplerOption )
 	{
 		m_samplers.emplace( Name( key ), samplerOption );
 	}

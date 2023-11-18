@@ -143,7 +143,7 @@ namespace rendercore
 		float AsFloat( const char* key ) const;
 		const Vector4& AsVector( const char* key ) const;
 		Texture* AsTexture( const char* key ) const;
-		SamplerOption* AsSampelrOption( const char* key ) const;
+		const SamplerOption* AsSampelrOption( const char* key ) const;
 
 		void CopyProperty( const char* key, void* dest ) const;
 
@@ -165,7 +165,7 @@ namespace rendercore
 		RENDERCORE_DLL void SetPixelShader( const std::shared_ptr<PixelShader>& pixelShader );
 		const PixelShader* GetPixelShader( const StaticShaderSwitches* switches = nullptr ) const;
 		PixelShader* GetPixelShader( const StaticShaderSwitches* switches = nullptr );
-		RENDERCORE_DLL void AddSampler( const std::string& key, const  std::shared_ptr<SamplerOption>& samplerOption );
+		RENDERCORE_DLL void AddSampler( const std::string& key, const SamplerOption& samplerOption );
 
 		StaticShaderSwitches GetShaderSwitches( agl::ShaderType type );
 
@@ -197,7 +197,7 @@ namespace rendercore
 		std::map<Name, std::unique_ptr<MaterialProperty>> m_properties;
 
 		PROPERTY( samplers )
-		std::map<Name, std::shared_ptr<SamplerOption>> m_samplers;
+		std::map<Name, SamplerOption> m_samplers;
 
 		std::unique_ptr<MaterialResource> m_materialResource;
 	};

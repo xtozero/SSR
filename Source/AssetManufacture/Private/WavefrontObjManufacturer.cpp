@@ -115,7 +115,7 @@ namespace
 		texcoord.reserve( model.m_texcoord.size() );
 		for ( const auto& t : model.m_texcoord )
 		{
-			texcoord.emplace_back( std::get<0>( t ), std::get<1>( t ) );
+			texcoord.emplace_back( std::get<0>( t ), 1.f - std::get<1>( t ) );
 		}
 
 		auto faceTriFold = []( size_t init, const Wavefront::Face& face )
@@ -375,7 +375,8 @@ namespace
 
 bool WavefrontObjManufacturer::IsSuitable( const std::filesystem::path& srcPath ) const
 {
-	return srcPath.extension() == fs::path( ".obj" );
+	fs::path extension = ToLower( srcPath.extension().generic_string() );
+	return extension == fs::path( ".obj" );
 }
 
 std::optional<Products> WavefrontObjManufacturer::Manufacture( const PathEnvironment& env, const std::filesystem::path& path ) const
@@ -419,7 +420,8 @@ std::optional<Products> WavefrontObjManufacturer::Manufacture( const PathEnviron
 
 bool WavefrontMtlManufacturer::IsSuitable( const std::filesystem::path& srcPath ) const
 {
-	return srcPath.extension() == fs::path( ".mtl" );
+	fs::path extension = ToLower( srcPath.extension().generic_string() );
+	return extension == fs::path( ".mtl" );
 }
 
 std::optional<Products> WavefrontMtlManufacturer::Manufacture( [[maybe_unused]] const PathEnvironment& env, const std::filesystem::path& path ) const

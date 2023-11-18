@@ -1,4 +1,4 @@
-#include "DDSManufacturer.h"
+#include "TextureManufacturer.h"
 
 #include "../DXGI/DxgiFlagConvertor.h"
 #include "DDSTexture.h"
@@ -69,16 +69,19 @@ namespace
 	}
 }
 
-bool DDSManufacturer::IsSuitable( const std::filesystem::path& srcPath ) const
+bool TextureManufacturer::IsSuitable( const std::filesystem::path& srcPath ) const
 {
-	return srcPath.extension() == fs::path( ".dds" );
+	fs::path extension = ToLower( srcPath.extension().generic_string() );
+	return extension == fs::path( ".dds" )
+		|| extension == fs::path( ".jpg" )
+		|| extension == fs::path( ".tga" );
 }
 
-std::optional<Products> DDSManufacturer::Manufacture( [[maybe_unused]] const PathEnvironment& env, const std::filesystem::path& path ) const
+std::optional<Products> TextureManufacturer::Manufacture( [[maybe_unused]] const PathEnvironment& env, const std::filesystem::path& path ) const
 {
 	if ( fs::exists( path ) == false )
 	{
-		return { };
+		return {};
 	}
 
 	std::ifstream ddsFile;
@@ -89,19 +92,33 @@ std::optional<Products> DDSManufacturer::Manufacture( [[maybe_unused]] const Pat
 
 	if ( fileSize == 0 )
 	{
-		return { };
+		return {};
 	}
 
 	std::vector<char> buff( fileSize );
 	ddsFile.read( buff.data(), fileSize );
 
+	HRESULT hr;
 	DirectX::TexMetadata meta;
 	DirectX::ScratchImage image;
-	HRESULT hr = DirectX::LoadFromDDSMemory( buff.data(), fileSize, DirectX::DDS_FLAGS_NONE, &meta, image );
+
+	fs::path extension = ToLower( path.extension().generic_string() );
+	if ( extension == fs::path( ".dds" ) )
+	{
+		hr = DirectX::LoadFromDDSMemory( buff.data(), fileSize, DirectX::DDS_FLAGS_NONE, &meta, image );
+	}
+	else if ( extension == fs::path( ".tga" ) )
+	{
+		hr = DirectX::LoadFromTGAMemory( buff.data(), fileSize, &meta, image );
+	}
+	else
+	{
+		hr = DirectX::LoadFromWICMemory( buff.data(), fileSize, DirectX::WIC_FLAGS_NONE, &meta, image );
+	}
 
 	if ( FAILED( hr ) )
 	{
-		return { };
+		return {};
 	}
 
 	rendercore::DDSTextureInitializer initializer = ConvertToBCTextureInitializer( image );
@@ -115,4 +132,9 @@ std::optional<Products> DDSManufacturer::Manufacture( [[maybe_unused]] const Pat
 	Products products;
 	products.emplace_back( path.filename(), std::move( ar ) );
 	return products;
+}
+
+TextureManufacturer::TextureManufacturer()
+{
+	[[maybe_unused]] HRESULT hr = CoInitializeEx( nullptr, COINIT_MULTITHREADED );
 }

@@ -257,7 +257,6 @@ namespace rendercore
 
 		// Default
 		{
-
 			if ( texCoord.size() > 0 )
 			{
 				VertexStream texCoordStream( "TEXCOORD", agl::ResourceFormat::R32G32_FLOAT, vertexInstanceCount );

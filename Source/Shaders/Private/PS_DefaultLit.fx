@@ -17,5 +17,10 @@ float4 main( PS_INPUT input ) : SV_Target0
 	geometry.normal = input.normal;
     geometry.screenUV = ( input.projectionPos.xy / input.projectionPos.w ) * float2( 0.5f, -0.5f ) + 0.5f;
 
-	return CalcLight( geometry );
+	LIGHTCOLOR cColor = CalcLight( geometry );
+
+	float4 lightColor = cColor.m_diffuse * MoveLinearSpace( Diffuse );
+	lightColor += cColor.m_specular * MoveLinearSpace( Specular );
+
+	return float4( lightColor.rgb, 1.f ); 
 }

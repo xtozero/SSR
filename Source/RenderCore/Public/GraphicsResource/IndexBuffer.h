@@ -1,7 +1,7 @@
 #pragma once
 
-#include "common.h"
 #include "Buffer.h"
+#include "Common.h"
 #include "GraphicsApiResource.h"
 
 namespace rendercore

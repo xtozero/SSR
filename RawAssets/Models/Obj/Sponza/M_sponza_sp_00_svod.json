@@ -1,8 +1,8 @@
 {
 	"Type": "Material",
 	"Shader": {
-		"VS": "./Assets/Shaders/VS_DefaultLit.asset",
-		"PS": "./Assets/Shaders/PS_DefaultLit.asset"
+		"VS": "./Assets/Shaders/VS_Texturing.asset",
+		"PS": "./Assets/Shaders/PS_Texturing.asset"
 	},
 	"Surface": {
 		"Ambient": [
@@ -28,6 +28,14 @@
 			0.034039,
 			0.032314,
 			0.029333
-		]
+		],
+		"DiffuseTex": "./Assets/Textures/Models/Sponza/KAMEN-stup.asset"
+	},
+	"Sampler": {
+		"DiffuseTexSampler": {
+			"AddressU": "TextureAddressMode::Wrap",
+			"AddressV": "TextureAddressMode::Wrap",
+			"AddressW": "TextureAddressMode::Wrap"
+		}
 	}
 }

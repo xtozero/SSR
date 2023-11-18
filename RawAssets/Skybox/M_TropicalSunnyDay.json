@@ -8,6 +8,6 @@
 		"SkyTexture": "./Assets/Textures/SkyboxSet/TropicalSunnyDay/TropicalSunnyDay.asset"
 	},
 	"Sampler": {
-		"SkyTextureSampler": "./Assets/RenderOptions/SO_Default.asset"
+		"SkyTextureSampler": {}
 	}
 }

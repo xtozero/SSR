@@ -14,6 +14,11 @@ void AsyncLoadableAsset::Serialize( Archive& ar )
 	{
 		ar << GetID();
 	}
+	else
+	{
+		uint32 id;
+		ar << id;
+	}
 
 	ar << m_lastWriteTime;
 

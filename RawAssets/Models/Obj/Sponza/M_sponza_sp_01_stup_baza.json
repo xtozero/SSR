@@ -1,8 +1,8 @@
 {
 	"Type": "Material",
 	"Shader": {
-		"VS": "./Assets/Shaders/VS_DefaultLit.asset",
-		"PS": "./Assets/Shaders/PS_DefaultLit.asset"
+		"VS": "./Assets/Shaders/VS_Texturing.asset",
+		"PS": "./Assets/Shaders/PS_Texturing.asset"
 	},
 	"Surface": {
 		"Ambient": [
@@ -28,6 +28,14 @@
 			0.000000,
 			0.000000,
 			0.000000
-		]
+		],
+		"DiffuseTex": "./Assets/Textures/Models/Sponza/01_S_ba.asset"
+	},
+	"Sampler": {
+		"DiffuseTexSampler": {
+			"AddressU": "TextureAddressMode::Wrap",
+			"AddressV": "TextureAddressMode::Wrap",
+			"AddressW": "TextureAddressMode::Wrap"
+		}
 	}
 }

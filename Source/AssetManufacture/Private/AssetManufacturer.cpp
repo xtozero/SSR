@@ -1,8 +1,8 @@
 #include "AssetManufacturer.h"
 
-#include "DDSManufacturer.h"
 #include "JsonManufacturer.h"
 #include "ShaderManufacturer.h"
+#include "TextureManufacturer.h"
 #include "WavefrontObjManufacturer.h"
 
 std::optional<Products> AssetManufacturer::Manufacture( const PathEnvironment& env, const std::filesystem::path& path )
@@ -27,7 +27,7 @@ std::optional<Products> AssetManufacturer::Manufacture( const PathEnvironment& e
 
 AssetManufacturer::AssetManufacturer()
 {
-	m_manufacturers.emplace_back( std::make_unique<DDSManufacturer>() );
+	m_manufacturers.emplace_back( std::make_unique<TextureManufacturer>() );
 	m_manufacturers.emplace_back( std::make_unique<JsonManufacturer>() );
 	m_manufacturers.emplace_back( std::make_unique<ShaderManufacturer>() );
 	m_manufacturers.emplace_back( std::make_unique<WavefrontMtlManufacturer>() );

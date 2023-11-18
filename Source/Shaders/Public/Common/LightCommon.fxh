@@ -180,7 +180,7 @@ float3 ImageBasedLight( float3 normal )
 #endif
 }
 
-float4 CalcLight( GeometryProperty geometry )
+LIGHTCOLOR CalcLight( GeometryProperty geometry )
 {
 	float3 viewDirection = normalize( CameraPos - geometry.worldPos );
 	float3 normal = normalize( geometry.normal );
@@ -206,21 +206,20 @@ float4 CalcLight( GeometryProperty geometry )
 		} 
 
 		LightColor = CalcLightProperties( light, viewDirection, lightDirection, normal, roughness );
-		cColor.m_diffuse += LightColor.m_diffuse;
-		cColor.m_specular += LightColor.m_specular;
+
+		// ToDo
+		float visibility = 1.f; // CalcShadowVisibility( geometry.worldPos, geometry.viewPos );
+
+		cColor.m_diffuse += LightColor.m_diffuse * visibility;
+		cColor.m_specular += LightColor.m_specular * visibility;
 	}
 
-	// ToDo
-	float visibility = 1.f; // CalcShadowVisibility( geometry.worldPos, geometry.viewPos );
-
-    float4 lightColor = float4( ImageBasedLight( normal ), 1.f ) * MoveLinearSpace( Diffuse );
-	lightColor += float4( HemisphereLight( normal ), 1.f ) * MoveLinearSpace( Diffuse );
-	lightColor += cColor.m_diffuse * MoveLinearSpace( Diffuse ) * visibility;
-	lightColor += cColor.m_specular * MoveLinearSpace( Specular ) * visibility;
+	cColor.m_diffuse.rgb += ImageBasedLight( normal );
+	cColor.m_diffuse.rgb += HemisphereLight( normal );
 
 #if EnableRSMs == 1
-	lightColor += MoveLinearSpace( Diffuse ) * IndirectIllumination.Sample( LinearSampler, geometry.screenUV );
+	cColor.m_diffuse.rgb += IndirectIllumination.Sample( LinearSampler, geometry.screenUV ).rgb;
 #endif
 
-	return saturate( lightColor );
+	return cColor;
 }

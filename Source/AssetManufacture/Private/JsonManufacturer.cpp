@@ -47,6 +47,47 @@ namespace
 		return {};
 	}
 
+	rendercore::SamplerOption CreateSamplerOption( const json::Value& desc )
+	{
+		rendercore::SamplerOption samplerOption;
+
+		if ( const json::Value* filter = desc.Find( "Filter" ) )
+		{
+			samplerOption.m_filter = agl::TextureFilter::Point;
+			for ( auto option : *filter )
+			{
+				samplerOption.m_filter |= GetEnum( option.AsString(), agl::TextureFilter::Point );
+			}
+		}
+
+		if ( const json::Value* addressU = desc.Find( "AddressU" ) )
+		{
+			samplerOption.m_addressU = GetEnum( addressU->AsString(), agl::TextureAddressMode::Clamp );
+		}
+
+		if ( const json::Value* addressV = desc.Find( "AddressV" ) )
+		{
+			samplerOption.m_addressV = GetEnum( addressV->AsString(), agl::TextureAddressMode::Clamp );
+		}
+
+		if ( const json::Value* addressW = desc.Find( "AddressW" ) )
+		{
+			samplerOption.m_addressW = GetEnum( addressW->AsString(), agl::TextureAddressMode::Clamp );
+		}
+
+		if ( const json::Value* mipLODBias = desc.Find( "MipLODBias" ) )
+		{
+			samplerOption.m_mipLODBias = static_cast<float>( mipLODBias->AsReal() );
+		}
+
+		if ( const json::Value* comparisonFunc = desc.Find( "ComparisonFunc" ) )
+		{
+			samplerOption.m_comparisonFunc = GetEnum( comparisonFunc->AsString(), agl::ComparisonFunc::Never );
+		}
+
+		return samplerOption;
+	}
+
 	std::unique_ptr<AsyncLoadableAsset> CreateAssetByAssetID( uint32 assetID, const fs::path& assetPath, const json::Value& root )
 	{
 		std::unique_ptr<AsyncLoadableAsset> asset = nullptr;
@@ -327,10 +368,9 @@ namespace
 				auto memberNames = sampler->GetMemberNames();
 				for ( auto name : memberNames )
 				{
-					if ( const json::Value* path = sampler->Find( name ) )
+					if ( const json::Value* desc = sampler->Find( name ) )
 					{
-						auto samplerOption = std::make_shared<rendercore::SamplerOption>();
-						samplerOption->SetPath( path->AsString() );
+						rendercore::SamplerOption samplerOption = CreateSamplerOption( *desc );
 
 						material->AddSampler( name, samplerOption );
 					}
@@ -506,7 +546,8 @@ namespace
 
 bool JsonManufacturer::IsSuitable( const std::filesystem::path& srcPath ) const
 {
-	return srcPath.extension() == fs::path( ".json" );
+	fs::path extension = ToLower( srcPath.extension().generic_string() );
+	return extension == fs::path( ".json" );
 }
 
 std::optional<Products> JsonManufacturer::Manufacture( const PathEnvironment& env, const std::filesystem::path& path ) const

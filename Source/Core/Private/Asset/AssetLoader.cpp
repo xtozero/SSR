@@ -169,6 +169,7 @@ AssetLoaderSharedHandle AssetLoader::LoadAsset( const char* assetPath, LoadCompl
 					uint32 assetID = 0;
 
 					ar << assetID;
+					ar.Seek( 0 );
 					
 					std::shared_ptr<IAsyncLoadableAsset> newAsset( GetInterface<IAssetFactory>()->CreateAsset( assetID ) );
 					if ( newAsset != nullptr )

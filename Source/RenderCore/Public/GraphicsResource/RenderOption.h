@@ -6,8 +6,8 @@
 #include "Shader.h"
 #include "SizedTypes.h"
 
-#include <string>
 #include <filesystem>
+#include <string>
 
 namespace rendercore
 {

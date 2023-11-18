@@ -51,3 +51,11 @@ void Trim( std::string& s )
     LTrim( s );
     RTrim( s );
 }
+
+std::string ToLower( const std::string& str )
+{
+    std::string lowercase = str;
+    std::transform( std::begin( lowercase ), std::end( lowercase ), std::begin( lowercase ), &std::tolower );
+
+    return lowercase;
+}

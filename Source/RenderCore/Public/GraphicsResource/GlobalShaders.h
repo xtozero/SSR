@@ -6,8 +6,8 @@
 #include <atomic>
 #include <map>
 #include <string>
-#include <typeindex>
 #include <type_traits>
+#include <typeindex>
 
 namespace rendercore
 {

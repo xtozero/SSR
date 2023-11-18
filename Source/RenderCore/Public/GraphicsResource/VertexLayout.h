@@ -2,9 +2,9 @@
 
 #include "GraphicsApiResource.h"
 #include "HashUtil.h"
+#include "PipelineState.h"
 #include "Shader.h"
 #include "SizedTypes.h"
-#include "PipelineState.h"
 
 #include <tuple>
 #include <vector>

@@ -4,7 +4,7 @@ set (ENTRY_POINT
 
 set (MANUFACTURER
 	Public/AssetManufacturer.h
-	Public/DDSManufacturer.h
+	Public/TextureManufacturer.h
 	Public/JsonManufacturer.h
 	Public/ManufactureConfig.h
 	Public/ShaderManufacturer.h
@@ -12,7 +12,7 @@ set (MANUFACTURER
 	Public/WavefrontObjManufacturer.h
 	Public/WavefrontObjParser.hpp
 	Private/AssetManufacturer.cpp
-	Private/DDSManufacturer.cpp
+	Private/TextureManufacturer.cpp
 	Private/JsonManufacturer.cpp
 	Private/ShaderManufacturer.cpp
 	Private/ShaderFileMerger.cpp
