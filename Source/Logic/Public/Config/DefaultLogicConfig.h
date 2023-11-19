@@ -3,6 +3,7 @@
 #include "AppConfig/AppConfig.h"
 #include "GuideTypes.h"
 
+#include <filesystem>
 #include <string>
 
 namespace logic
@@ -13,8 +14,11 @@ namespace logic
 
 	public:
 		static const char* GetDefaultWorld();
+		static void SetDefaultWorld( const std::filesystem::path& worldPath );
 
 		static const float4& GetDefaultBackgroundColor();
+
+		static const bool IsSaveLastWorldAsDefault();
 
 	private:
 		PROPERTY( defaultWorld );
@@ -22,5 +26,8 @@ namespace logic
 
 		PROPERTY( defaultBackgroundColor )
 		float m_defaultBackgroundColor[4] = {};
+
+		PROPERTY( saveLastWorldAsDefault )
+		bool m_saveLastWorldAsDefault = false;
 	};
 }

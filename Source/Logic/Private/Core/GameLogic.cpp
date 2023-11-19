@@ -209,6 +209,11 @@ namespace logic
 			GetInterface<IFileSystem>()->CloseFile( worldAsset );
 		}
 
+		if ( result && DefaultLogic::IsSaveLastWorldAsDefault() )
+		{
+			DefaultLogic::SetDefaultWorld( filePath );
+		}
+
 		return result;
 	}
 
