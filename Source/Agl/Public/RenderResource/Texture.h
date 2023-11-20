@@ -31,8 +31,8 @@ namespace agl
 		virtual DepthStencilView* DSV() override { return m_dsv.Get(); }
 		virtual const DepthStencilView* DSV() const override { return m_dsv.Get(); }
 
-		virtual ResourceState GetState() const override;
-		virtual void SetState( ResourceState state ) override;
+		virtual ResourceState GetResourceState() const override;
+		virtual void SetResourceState( ResourceState state ) override;
 
 		AGL_DLL const TextureTrait& GetTrait() const;
 		AGL_DLL bool IsCubeMap() const;

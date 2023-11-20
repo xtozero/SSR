@@ -449,11 +449,6 @@ namespace agl
 	{
 		D3D12_RESOURCE_STATES d3d12ResourceState = D3D12_RESOURCE_STATE_COMMON;
 
-		if ( HasAnyFlags( state, ResourceState::Common ) )
-		{
-			d3d12ResourceState |= D3D12_RESOURCE_STATE_COMMON;
-		}
-
 		if ( HasAnyFlags( state, ResourceState::VertexAndConstantBuffer ) )
 		{
 			d3d12ResourceState |= D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
@@ -582,6 +577,138 @@ namespace agl
 		return d3d12ResourceState;
 	}
 
+	inline ResourceState ConvertToResourceStates( D3D12_RESOURCE_STATES state )
+	{
+		ResourceState resourceState = ResourceState::Common;
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER ) )
+		{
+			resourceState |= ResourceState::VertexAndConstantBuffer;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_INDEX_BUFFER ) )
+		{
+			resourceState |= ResourceState::Indexbuffer;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_RENDER_TARGET ) )
+		{
+			resourceState |= ResourceState::RenderTarget;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_UNORDERED_ACCESS ) )
+		{
+			resourceState |= ResourceState::UnorderedAccess;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_DEPTH_WRITE ) )
+		{
+			resourceState |= ResourceState::DepthWrite;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_DEPTH_READ ) )
+		{
+			resourceState |= ResourceState::DepthRead;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE ) )
+		{
+			resourceState |= ResourceState::NonPixelShaderResource;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE ) )
+		{
+			resourceState |= ResourceState::PixelShaderResource;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_STREAM_OUT ) )
+		{
+			resourceState |= ResourceState::StreamOut;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT ) )
+		{
+			resourceState |= ResourceState::IndirectArgument;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_COPY_DEST ) )
+		{
+			resourceState |= ResourceState::CopyDest;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_COPY_SOURCE ) )
+		{
+			resourceState |= ResourceState::CopySource;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_RESOLVE_DEST ) )
+		{
+			resourceState |= ResourceState::ResolveDest;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_RESOLVE_SOURCE ) )
+		{
+			resourceState |= ResourceState::ResolveSource;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE ) )
+		{
+			resourceState |= ResourceState::RaytracingAccelerationStructure;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_SHADING_RATE_SOURCE ) )
+		{
+			resourceState |= ResourceState::ShadingRateSource;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_GENERIC_READ ) )
+		{
+			resourceState |= ResourceState::GenericRead;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_PRESENT ) )
+		{
+			resourceState |= ResourceState::Present;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_PREDICATION ) )
+		{
+			resourceState |= ResourceState::Predication;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_VIDEO_DECODE_READ ) )
+		{
+			resourceState |= ResourceState::VideoDecodeRead;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_VIDEO_DECODE_WRITE ) )
+		{
+			resourceState |= ResourceState::VideoDecodeWrite;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_VIDEO_PROCESS_READ ) )
+		{
+			resourceState |= ResourceState::VideoProcessRead;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_VIDEO_PROCESS_WRITE ) )
+		{
+			resourceState |= ResourceState::VideoProecssWrite;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_VIDEO_ENCODE_READ ) )
+		{
+			resourceState |= ResourceState::VideoEncodeRead;
+		}
+
+		if ( HasAnyFlags( state, D3D12_RESOURCE_STATE_VIDEO_ENCODE_WRITE ) )
+		{
+			resourceState |= ResourceState::VideoEncodeWrite;
+		}
+
+		return resourceState;
+	}
+
 	inline D3D12_RESOURCE_BARRIER ConvertToResourceBarrier( const ResourceTransition& transition )
 	{
 		D3D12_RESOURCE_BARRIER barrier = {
@@ -591,7 +718,7 @@ namespace agl
 			{
 				.pResource = static_cast<ID3D12Resource*>( transition.m_pResource ),
 				.Subresource = transition.m_subResource,
-				.StateBefore = ConvertToResourceStates( transition.m_pTransitionable->GetState() ),
+				.StateBefore = ConvertToResourceStates( transition.m_pTransitionable->GetResourceState() ),
 				.StateAfter  = ConvertToResourceStates( transition.m_state )
 			}
 		};

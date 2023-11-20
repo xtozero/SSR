@@ -149,7 +149,7 @@ namespace agl
 
 	void D3D11Buffer::CreateBuffer()
 	{
-		SetState( ResourceState::Common );
+		SetResourceState( ResourceState::Common );
 
 		D3D11_SUBRESOURCE_DATA* initData = m_hasInitData ? &m_initData : nullptr;
 		[[maybe_unused]] HRESULT hr = D3D11Device().CreateBuffer( &m_desc, initData, &m_buffer );

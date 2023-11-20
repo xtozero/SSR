@@ -12,12 +12,12 @@ namespace agl
 		return GetInterface<IResourceManager>( )->CreateTexture( trait, debugName, initData );
 	}
 
-	ResourceState Texture::GetState() const
+	ResourceState Texture::GetResourceState() const
 	{
 		return m_state;
 	}
 
-	void Texture::SetState( ResourceState state )
+	void Texture::SetResourceState( ResourceState state )
 	{
 		m_state = state;
 	}

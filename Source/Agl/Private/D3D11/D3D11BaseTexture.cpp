@@ -318,7 +318,7 @@ namespace agl
 
 	void D3D11BaseTexture2D::CreateTexture()
 	{
-		SetState( ResourceState::Common );
+		SetResourceState( ResourceState::Common );
 		ConvertToDesc( m_trait );
 
 		[[maybe_unused]] HRESULT hr = D3D11Device().CreateTexture2D( &m_desc, m_dataStorage ? m_initData.data() : nullptr, &m_texture );
@@ -365,7 +365,7 @@ namespace agl
 
 	void D3D11BaseTexture3D::CreateTexture()
 	{
-		SetState( ResourceState::Common );
+		SetResourceState( ResourceState::Common );
 		ConvertToDesc( m_trait );
 
 		[[maybe_unused]] HRESULT hr = D3D11Device().CreateTexture3D( &m_desc, m_dataStorage ? m_initData.data() : nullptr, &m_texture );

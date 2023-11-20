@@ -25,8 +25,8 @@ namespace agl
 		virtual DepthStencilView* DSV() override { return nullptr; }
 		virtual const DepthStencilView* DSV() const override { return nullptr; }
 
-		virtual ResourceState GetState() const override;
-		virtual void SetState( ResourceState state ) override;
+		virtual ResourceState GetResourceState() const override;
+		virtual void SetResourceState( ResourceState state ) override;
 
 		AGL_DLL const BufferTrait& GetTrait() const;
 

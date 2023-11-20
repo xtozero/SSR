@@ -45,13 +45,13 @@ namespace rendercore
 	class TypedBuffer final
 	{
 	public:
-		void Resize( uint32 newNumElement, bool copyPreviousData )
+		void Resize( uint32 newNumElement, bool bCopyPreviousData )
 		{
 			if ( newNumElement > m_numElement )
 			{
 				TypedBuffer newBuffer = TypedBuffer( newNumElement );
 
-				if ( copyPreviousData )
+				if ( bCopyPreviousData )
 				{
 					auto commandList = GetCommandList();
 					commandList.CopyResource( newBuffer.m_buffer, m_buffer, Size() );

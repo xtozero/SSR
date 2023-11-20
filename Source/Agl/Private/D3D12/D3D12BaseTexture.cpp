@@ -427,12 +427,16 @@ namespace
 		return properties;
 	}
 
-	D3D12_RESOURCE_STATES ConvertToStates( const TextureTrait& trait )
+	D3D12_RESOURCE_STATES ConvertToInitalResourceStates( const TextureTrait& trait )
 	{
 		D3D12_RESOURCE_STATES states = D3D12_RESOURCE_STATE_COMMON;
-		if ( HasAnyFlags( trait.m_access, ResourceAccessFlag::CpuRead ) )
+		if ( HasAllFlags( trait.m_access, ResourceAccessFlag::Download ) )
 		{
 			states = D3D12_RESOURCE_STATE_COPY_DEST;
+		}
+		else if ( HasAllFlags( trait.m_access, ResourceAccessFlag::Upload ) )
+		{
+			states |= D3D12_RESOURCE_STATE_GENERIC_READ;
 		}
 
 		return states;
@@ -557,14 +561,14 @@ namespace agl
 
 	void D3D12Texture::CreateTexture()
 	{
-		SetState( ResourceState::Common );
-
 		D3D12HeapProperties properties = ConvertToHeapProperties( m_trait );
-		D3D12_RESOURCE_STATES states = ConvertToStates( m_trait );
+		D3D12_RESOURCE_STATES states = ConvertToInitalResourceStates( m_trait );
 		if ( ( m_dataStorage != nullptr ) && ( properties.m_heapType != D3D12_HEAP_TYPE_UPLOAD ) )
 		{
 			states = D3D12_RESOURCE_STATE_COPY_DEST;
 		}
+
+		SetResourceState( ConvertToResourceStates( states ) );
 
 		D3D12_CLEAR_VALUE clearValue = ConvertToClearValue( m_trait );
 

@@ -614,8 +614,8 @@ namespace agl
 	class ITransitionable
 	{
 	public:
-		virtual ResourceState GetState() const = 0;
-		virtual void SetState( ResourceState state ) = 0;
+		virtual ResourceState GetResourceState() const = 0;
+		virtual void SetResourceState( ResourceState state ) = 0;
 	};
 
 	struct ResourceTransition

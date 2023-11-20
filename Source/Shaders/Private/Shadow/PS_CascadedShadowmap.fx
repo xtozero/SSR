@@ -18,7 +18,7 @@ struct PS_OUTPUT
 {
 	float depth : SV_TARGET0;
 #if EnableRSMs == 1
-	float3 worldPos : SV_TARGET1;
+	float4 worldPos : SV_TARGET1;
 	float4 packedNormal : SV_TARGET2;
 	float4 flux : SV_TARGET3;
 #endif
@@ -30,7 +30,7 @@ PS_OUTPUT main( PS_INPUT input ) : SV_TARGET
 	
 	output.depth = input.shadowCoord.x / input.shadowCoord.y;
 #if EnableRSMs == 1
-	output.worldPos = input.worldPos;
+	output.worldPos = float4( input.worldPos, 0.f );
 	float3 enc = SignedOctEncode( normalize( input.normal ) );
 	output.packedNormal = float4( 0.f, enc );
 	output.flux = MoveLinearSpace( Diffuse ) * GetLight( LightIdx ).m_diffuse;

@@ -124,12 +124,16 @@ namespace
 		return uav;
 	}
 
-	D3D12_RESOURCE_STATES ConvertToStates( const BufferTrait& trait )
+	D3D12_RESOURCE_STATES ConvertToInitalResourceStates( const BufferTrait& trait )
 	{
-		D3D12_RESOURCE_STATES states = D3D12_RESOURCE_STATE_GENERIC_READ;
-		if ( HasAnyFlags( trait.m_access, ResourceAccessFlag::CpuRead ) )
+		D3D12_RESOURCE_STATES states = D3D12_RESOURCE_STATE_COMMON;
+		if ( HasAllFlags( trait.m_access, ResourceAccessFlag::Download ) )
 		{
-			states = D3D12_RESOURCE_STATE_COPY_DEST;
+			states |= D3D12_RESOURCE_STATE_COPY_DEST;
+		}
+		else if ( HasAllFlags( trait.m_access, ResourceAccessFlag::Upload ) )
+		{
+			states |= D3D12_RESOURCE_STATE_GENERIC_READ;
 		}
 
 		return states;
@@ -253,14 +257,14 @@ namespace agl
 
 	void D3D12Buffer::CreateBuffer()
 	{
-		SetState( ResourceState::Common );
-
 		D3D12HeapProperties properties = ConvertToHeapProperties( m_trait );
-		D3D12_RESOURCE_STATES states = ConvertToStates( m_trait );
+		D3D12_RESOURCE_STATES states = ConvertToInitalResourceStates( m_trait );
 		if ( m_hasInitData && ( properties.m_heapType != D3D12_HEAP_TYPE_UPLOAD ) )
 		{
 			states = D3D12_RESOURCE_STATE_COPY_DEST;
 		}
+
+		SetResourceState( ConvertToResourceStates( states ) );
 
 		D3D12ResourceAllocator& allocator = D3D12Allocator();
 		m_resourceInfo = allocator.AllocateResource(

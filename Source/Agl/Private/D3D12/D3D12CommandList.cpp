@@ -276,13 +276,13 @@ namespace agl
 		d3d12Barriers.reserve( numTransitions );
 		for ( uint32 i = 0; i < numTransitions; ++i )
 		{
-			ResourceState beforeState = transitions[i].m_pTransitionable->GetState();
+			ResourceState beforeState = transitions[i].m_pTransitionable->GetResourceState();
 			ResourceState afterState = transitions[i].m_state;
 
 			if ( beforeState != afterState )
 			{
 				d3d12Barriers.emplace_back( ConvertToResourceBarrier( transitions[i] ) );
-				transitions[i].m_pTransitionable->SetState( transitions[i].m_state );
+				transitions[i].m_pTransitionable->SetResourceState( transitions[i].m_state );
 			}
 		}
 
