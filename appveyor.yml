@@ -4,6 +4,10 @@ clone_folder: c:\ssr
 init:
 - cmd: >-
     echo %APPVEYOR_BUILD_WORKER_IMAGE%
+install:
+- cmd: >-
+    
+    git submodule update --init
 before_build:
 - cmd: >-
     mkdir build
