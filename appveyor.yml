@@ -4,17 +4,17 @@ clone_folder: c:\ssr
 init:
 - cmd: >-
     echo %APPVEYOR_BUILD_WORKER_IMAGE%
-
-    if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2022" ( set generator="Visual Studio 17 2022 Win64" )
-
-    echo %generator%
+install:
+- cmd: >-
+    
+    git submodule update --init
 before_build:
 - cmd: >-
     mkdir build
 
     cd build
 
-    cmake .. -G %generator%
+    cmake ..
 build:
   project: c:\ssr\build\ScreenSpaceReflection.sln
   verbosity: minimal

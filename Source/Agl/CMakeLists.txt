@@ -190,13 +190,11 @@ PRIVATE
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 target_link_directories(Agl
 PRIVATE
-	./../../ThirdParty/DXC/lib/x64
-	$ENV{DXSDK_DIR}lib/x64)
+	./../../ThirdParty/DXC/lib/x64)
 elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
 target_link_directories(Agl
 PRIVATE
-	./../../ThirdParty/DXC/lib/x86
-	$ENV{DXSDK_DIR}lib/x86)
+	./../../ThirdParty/DXC/lib/x86)
 endif()
 
 set (DIRECT3D_LIBRARY
