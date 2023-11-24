@@ -11,7 +11,7 @@ namespace rendercore
 	{
 		if ( newNumElement > m_numElement )
 		{
-			IndexBuffer newBuffer( newNumElement, nullptr, m_isDWORD, m_isDynamic );
+			IndexBuffer newBuffer( newNumElement, agl::ResourceState::CopyDest, nullptr, m_isDWORD, m_isDynamic );
 
 			if ( copyPreviousData )
 			{
@@ -55,15 +55,15 @@ namespace rendercore
 		return m_buffer.Get();
 	}
 
-	IndexBuffer::IndexBuffer( uint32 numElement, const void* initData, bool isDWORD, bool isDynamic ) 
+	IndexBuffer::IndexBuffer( uint32 numElement, agl::ResourceState initialState, const void* initData, bool isDWORD, bool isDynamic )
 		: m_numElement( numElement )
 		, m_isDWORD( isDWORD )
 		, m_isDynamic( isDynamic )
 	{
-		InitResource( initData );
+		InitResource( initialState, initData );
 	}
 
-	void IndexBuffer::InitResource( const void* initData )
+	void IndexBuffer::InitResource( agl::ResourceState initialState, const void* initData )
 	{
 		agl::ResourceAccessFlag accessFlag = m_isDynamic 
 			? ( agl::ResourceAccessFlag::Upload ) 
@@ -78,7 +78,7 @@ namespace rendercore
 			.m_format = agl::ResourceFormat::Unknown
 		};
 
-		m_buffer = agl::Buffer::Create( trait, "Index", initData);
+		m_buffer = agl::Buffer::Create( trait, "Index", initialState, initData);
 		EnqueueRenderTask(
 			[buffer = m_buffer]()
 			{

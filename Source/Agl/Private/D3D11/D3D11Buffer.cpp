@@ -113,7 +113,8 @@ namespace agl
 		return m_desc.StructureByteStride;
 	}
 
-	D3D11Buffer::D3D11Buffer( const BufferTrait& trait, const char* debugName, const void* initData )
+	D3D11Buffer::D3D11Buffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData )
+		: Buffer( initialState )
 	{
 		m_debugName = Name( debugName );
 		m_trait = trait;
@@ -149,8 +150,6 @@ namespace agl
 
 	void D3D11Buffer::CreateBuffer()
 	{
-		SetResourceState( ResourceState::Common );
-
 		D3D11_SUBRESOURCE_DATA* initData = m_hasInitData ? &m_initData : nullptr;
 		[[maybe_unused]] HRESULT hr = D3D11Device().CreateBuffer( &m_desc, initData, &m_buffer );
 		assert( SUCCEEDED( hr ) );

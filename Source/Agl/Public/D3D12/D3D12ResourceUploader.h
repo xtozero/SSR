@@ -1,8 +1,8 @@
 #pragma once
 
-#include "D3D12BaseTexture.h"
 #include "D3D12Buffer.h"
 #include "D3D12CommandList.h"
+#include "D3D12Texture.h"
 
 #include "FixedBlockMemoryPool.h"
 

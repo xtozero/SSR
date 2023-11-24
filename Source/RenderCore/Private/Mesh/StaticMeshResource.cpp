@@ -78,7 +78,7 @@ namespace rendercore
 
 			uint32 stride = lodResource.m_isDWORD ? sizeof( DWORD ) : sizeof( WORD );
 			uint32 size = static_cast<uint32>( lodResource.m_indexData.size() ) / stride;
-			lodResource.m_ib = IndexBuffer( size, lodResource.m_indexData.data(), lodResource.m_isDWORD );
+			lodResource.m_ib = IndexBuffer( size, agl::ResourceState::Common, lodResource.m_indexData.data(), lodResource.m_isDWORD );
 		}
 
 		m_initialized = true;

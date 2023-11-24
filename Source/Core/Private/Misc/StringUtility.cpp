@@ -55,7 +55,23 @@ void Trim( std::string& s )
 std::string ToLower( const std::string& str )
 {
     std::string lowercase = str;
-    std::transform( std::begin( lowercase ), std::end( lowercase ), std::begin( lowercase ), &std::tolower );
+    std::transform( std::begin( lowercase ), std::end( lowercase ), std::begin( lowercase ), 
+        []( const unsigned char c )
+        {
+            return static_cast<char>( std::tolower( c ) );
+        } );
 
     return lowercase;
+}
+
+std::string ToUpper( const std::string& str )
+{
+    std::string uppercase = str;
+    std::transform( std::begin( uppercase ), std::end( uppercase ), std::begin( uppercase ),
+        []( const unsigned char c )
+        {
+            return static_cast<char>( std::toupper( c ) );
+        } );
+
+    return uppercase;
 }

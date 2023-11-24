@@ -2,11 +2,11 @@
 #include "D3D11CommandList.h"
 
 #include "D3D11Api.h"
-#include "D3D11BaseTexture.h"
 #include "D3D11Buffer.h"
 #include "D3D11PipelineState.h"
 #include "D3D11ResourceViews.h"
 #include "D3D11SamplerState.h"
+#include "D3D11Texture.h"
 
 #include "ShaderBindings.h"
 

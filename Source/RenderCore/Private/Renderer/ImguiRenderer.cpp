@@ -427,7 +427,7 @@ namespace rendercore
 
 			vertexCollection.InitResource();
 
-			std::construct_at( &m_imguiRenderResource.m_indexBuffer, m_imguiDrawInfo.m_totalNumIndex, nullptr, false, true );
+			std::construct_at( &m_imguiRenderResource.m_indexBuffer, m_imguiDrawInfo.m_totalNumIndex, agl::ResourceState::GenericRead, nullptr, false, true );
 
 			m_renderResourceCreated = true;
 		}

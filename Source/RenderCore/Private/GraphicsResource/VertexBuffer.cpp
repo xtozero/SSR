@@ -11,7 +11,7 @@ namespace rendercore
 	{
 		if ( newNumElement > m_numElement )
 		{
-			VertexBuffer newBuffer( m_elementSize, newNumElement, nullptr, m_isDynamic );
+			VertexBuffer newBuffer( m_elementSize, newNumElement, agl::ResourceState::CopyDest, nullptr, m_isDynamic );
 
 			if ( copyPreviousData )
 			{
@@ -55,15 +55,15 @@ namespace rendercore
 		return m_buffer.Get();
 	}
 
-	VertexBuffer::VertexBuffer( uint32 elementSize, uint32 numElement, const void* initData, bool isDynamic ) 
+	VertexBuffer::VertexBuffer( uint32 elementSize, uint32 numElement, agl::ResourceState initialState, const void* initData, bool isDynamic )
 		: m_elementSize( elementSize )
 		, m_numElement( numElement )
 		, m_isDynamic( isDynamic )
 	{
-		InitResource( elementSize, numElement, initData );
+		InitResource( elementSize, numElement, initialState, initData );
 	}
 
-	void VertexBuffer::InitResource( uint32 elementSize, uint32 numElement, const void* initData )
+	void VertexBuffer::InitResource( uint32 elementSize, uint32 numElement, agl::ResourceState initialState, const void* initData )
 	{
 		agl::ResourceAccessFlag accessFlag = m_isDynamic 
 			? agl::ResourceAccessFlag::Upload 
@@ -78,7 +78,7 @@ namespace rendercore
 			.m_format = agl::ResourceFormat::Unknown
 		};
 
-		m_buffer = agl::Buffer::Create( trait, "Vertex", initData);
+		m_buffer = agl::Buffer::Create( trait, "Vertex", initialState, initData);
 		EnqueueRenderTask(
 			[buffer = m_buffer]()
 			{

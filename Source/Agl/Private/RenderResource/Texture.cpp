@@ -7,9 +7,24 @@
 
 namespace agl
 {
+	RefHandle<Texture> Texture::Create( const TextureTrait& trait, const char* debugName )
+	{
+		return GetInterface<IResourceManager>()->CreateTexture( trait, debugName, ResourceState::Common, nullptr );
+	}
+
+	RefHandle<Texture> Texture::Create( const TextureTrait& trait, const char* debugName, ResourceState initialState )
+	{
+		return GetInterface<IResourceManager>()->CreateTexture( trait, debugName, initialState, nullptr );
+	}
+
 	RefHandle<Texture> Texture::Create( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )
 	{
-		return GetInterface<IResourceManager>( )->CreateTexture( trait, debugName, initData );
+		return GetInterface<IResourceManager>( )->CreateTexture( trait, debugName, ResourceState::Common, initData );
+	}
+
+	RefHandle<Texture> Texture::Create( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
+	{
+		return GetInterface<IResourceManager>()->CreateTexture( trait, debugName, initialState, initData );
 	}
 
 	ResourceState Texture::GetResourceState() const
@@ -32,8 +47,9 @@ namespace agl
 		return HasAnyFlags( m_trait.m_miscFlag, ResourceMisc::TextureCube );
 	}
 
-	Texture::Texture( const TextureTrait& trait, const char* debugName ) noexcept
+	Texture::Texture( const TextureTrait& trait, ResourceState initialState, const char* debugName ) noexcept
 		: m_trait( trait )
+		, m_state( initialState )
 	{
 		m_isTexture = true;
 

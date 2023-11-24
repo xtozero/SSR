@@ -14,7 +14,10 @@ namespace agl
 	class Texture : public DeviceDependantResource, public IResourceViews, public ITransitionable
 	{
 	public:
-		AGL_DLL static RefHandle<Texture> Create( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData = nullptr );
+		AGL_DLL static RefHandle<Texture> Create( const TextureTrait& trait, const char* debugName );
+		AGL_DLL static RefHandle<Texture> Create( const TextureTrait& trait, const char* debugName, ResourceState initialState );
+		AGL_DLL static RefHandle<Texture> Create( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData );
+		AGL_DLL static RefHandle<Texture> Create( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
 
 		virtual std::pair<uint32, uint32> Size() const = 0;
 		virtual void* Resource() const = 0;
@@ -37,7 +40,7 @@ namespace agl
 		AGL_DLL const TextureTrait& GetTrait() const;
 		AGL_DLL bool IsCubeMap() const;
 
-		Texture( const TextureTrait& trait, const char* debugName ) noexcept;
+		Texture( const TextureTrait& trait, ResourceState initialState, const char* debugName ) noexcept;
 		Texture() noexcept;
 
 	protected:
@@ -48,6 +51,7 @@ namespace agl
 		RefHandle<RenderTargetView> m_rtv;
 		RefHandle<DepthStencilView> m_dsv;
 
+	private:
 		ResourceState m_state = ResourceState::Common;
 	};
 
@@ -59,8 +63,8 @@ namespace agl
 			return { m_trait.m_width, m_trait.m_height };
 		}
 
-		TextureBase( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )
-			: Texture( trait, debugName )
+		TextureBase( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
+			: Texture( trait, initialState, debugName )
 		{
 			if ( initData )
 			{

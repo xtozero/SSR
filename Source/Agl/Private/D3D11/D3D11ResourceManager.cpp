@@ -5,7 +5,6 @@
 
 #include "common.h"
 
-#include "D3D11BaseTexture.h"
 #include "D3D11BlendState.h"
 #include "D3D11Buffer.h"
 #include "D3D11DepthStencilState.h"
@@ -14,6 +13,7 @@
 #include "D3D11RasterizerState.h"
 #include "D3D11SamplerState.h"
 #include "D3D11Shaders.h"
+#include "D3D11Texture.h"
 #include "D3D11VetexLayout.h"
 #include "D3D11Viewport.h"
 
@@ -32,16 +32,16 @@ namespace agl
 		m_graphicsPipelineStateCache.clear();
 	}
 
-	Texture* CD3D11ResourceManager::CreateTexture( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )
+	Texture* CD3D11ResourceManager::CreateTexture( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
 	{
 		Texture* newTexture = nullptr;
 		if ( IsTexture2D( trait ) )
 		{
-			newTexture = new D3D11BaseTexture2D( trait, debugName, initData );
+			newTexture = new D3D11Texture2D( trait, debugName, initialState, initData );
 		}
 		else if ( IsTexture3D( trait ) )
 		{
-			newTexture = new D3D11BaseTexture3D( trait, debugName, initData );
+			newTexture = new D3D11Texture3D( trait, debugName, initialState, initData );
 		}
 		else
 		{
@@ -51,9 +51,9 @@ namespace agl
 		return newTexture;
 	}
 
-	Buffer* CD3D11ResourceManager::CreateBuffer( const BufferTrait& trait, const char* debugName, const void* initData )
+	Buffer* CD3D11ResourceManager::CreateBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData )
 	{
-		Buffer* newBuffer = new D3D11Buffer( trait, debugName, initData );
+		Buffer* newBuffer = new D3D11Buffer( trait, debugName, initialState, initData );
 
 		return newBuffer;
 	}

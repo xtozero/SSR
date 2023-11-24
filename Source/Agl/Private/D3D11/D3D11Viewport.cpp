@@ -2,8 +2,8 @@
 #include "D3D11Viewport.h"
 
 #include "D3D11Api.h"
-#include "D3D11BaseTexture.h"
 #include "D3D11ResourceViews.h"
+#include "D3D11Texture.h"
 #include "DxgiFlagConvertor.h"
 #include "DxgiSwapchain.h"
 #include "IAgl.h"
@@ -133,7 +133,7 @@ namespace agl
 
 		if ( m_frameBuffer == nullptr )
 		{
-			m_frameBuffer = new D3D11BaseTexture2D( frameBufferTrait, "FrameBuffer", nullptr);
+			m_frameBuffer = new D3D11Texture2D( frameBufferTrait, "FrameBuffer", ResourceState::Common, nullptr );
 		}
 		else
 		{

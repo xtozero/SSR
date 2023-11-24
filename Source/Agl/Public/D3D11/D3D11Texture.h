@@ -50,8 +50,8 @@ namespace agl
 			}
 		}
 
-		D3D11Texture( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData ) 
-			: TextureBase( trait, debugName, initData )
+		D3D11Texture( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
+			: TextureBase( trait, debugName, initialState, initData )
 		{
 			if ( initData )
 			{
@@ -129,7 +129,7 @@ namespace agl
 		virtual void ConvertToDesc( const TextureTrait& trait ) = 0;
 	};
 
-	class D3D11BaseTexture2D final : public D3D11Texture<ID3D11Texture2D>
+	class D3D11Texture2D final : public D3D11Texture<ID3D11Texture2D>
 	{
 	public:
 		virtual void CreateShaderResource( std::optional<ResourceFormat> overrideFormat = {} ) override;
@@ -137,8 +137,8 @@ namespace agl
 		virtual void CreateRenderTarget( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override;
 		virtual void CreateDepthStencil( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override;
 
-		D3D11BaseTexture2D( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData );
-		D3D11BaseTexture2D( ID3D11Texture2D* texture, const char* debugName, const D3D11_TEXTURE2D_DESC* desc = nullptr );
+		D3D11Texture2D( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
+		D3D11Texture2D( ID3D11Texture2D* texture, const char* debugName, const D3D11_TEXTURE2D_DESC* desc = nullptr );
 
 	protected:
 		virtual void CreateTexture() override;
@@ -149,7 +149,7 @@ namespace agl
 		D3D11_TEXTURE2D_DESC m_desc = {};
 	};
 
-	class D3D11BaseTexture3D final : public D3D11Texture<ID3D11Texture3D>
+	class D3D11Texture3D final : public D3D11Texture<ID3D11Texture3D>
 	{
 	public:
 		virtual void CreateShaderResource( std::optional<ResourceFormat> overrideFormat = {} ) override;
@@ -157,7 +157,7 @@ namespace agl
 		virtual void CreateRenderTarget( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
 		virtual void CreateDepthStencil( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
 
-		D3D11BaseTexture3D( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData );
+		D3D11Texture3D( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
 
 	protected:
 		virtual void CreateTexture() override;

@@ -9,7 +9,7 @@
 
 namespace agl
 {
-	class D3D11BaseTexture2D;
+	class D3D11Texture2D;
 
 	template <AglType Backend>
 	class DxgiSwapchain;
@@ -40,7 +40,7 @@ namespace agl
 		uint32 m_height;
 		DXGI_FORMAT m_format;
 
-		RefHandle<D3D11BaseTexture2D> m_frameBuffer;
+		RefHandle<D3D11Texture2D> m_frameBuffer;
 		RefHandle<DxgiSwapchain<AglType::D3D11>> m_swapchain;
 	};
 }

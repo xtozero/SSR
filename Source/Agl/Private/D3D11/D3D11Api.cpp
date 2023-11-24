@@ -3,7 +3,6 @@
 
 #include "common.h"
 
-#include "D3D11BaseTexture.h"
 #include "D3D11BlendState.h"
 #include "D3D11Buffer.h"
 #include "D3D11CommandList.h"
@@ -14,6 +13,7 @@
 #include "D3D11ResourceViews.h"
 #include "D3D11SamplerState.h"
 #include "D3D11Shaders.h"
+#include "D3D11Texture.h"
 #include "D3D11VetexLayout.h"
 #include "D3D11Viewport.h"
 

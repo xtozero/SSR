@@ -3,7 +3,6 @@
 #include "Config/DefaultAglConfig.h"
 
 #include "D3D12Api.h"
-#include "D3D12BaseTexture.h"
 #include "D3D12BlendState.h"
 #include "D3D12Buffer.h"
 #include "D3D12DepthStencilState.h"
@@ -11,6 +10,7 @@
 #include "D3D12RasterizerState.h"
 #include "D3D12SamplerState.h"
 #include "D3D12Shaders.h"
+#include "D3D12Texture.h"
 #include "D3D12VertexLayout.h"
 #include "D3D12Viewport.h"
 
@@ -23,16 +23,16 @@ namespace agl
 	{
 	}
 
-	Texture* D3D12ResourceManager::CreateTexture( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )
+	Texture* D3D12ResourceManager::CreateTexture( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
 	{
 		Texture* newTexture = nullptr;
 		if ( IsTexture2D( trait ) )
 		{
-			newTexture = new D3D12BaseTexture2D( trait, debugName, initData );
+			newTexture = new D3D12Texture2D( trait, debugName, initialState, initData );
 		}
 		else if ( IsTexture3D( trait ) )
 		{
-			newTexture = new D3D12BaseTexture3D( trait, debugName, initData );
+			newTexture = new D3D12Texture3D( trait, debugName, initialState, initData );
 		}
 		else
 		{
@@ -42,24 +42,24 @@ namespace agl
 		return newTexture;
 	}
 
-	Buffer* D3D12ResourceManager::CreateBuffer( const BufferTrait& trait, const char* debugName, const void* initData )
+	Buffer* D3D12ResourceManager::CreateBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData )
 	{
 		Buffer* newBuffer = nullptr;
 		if ( HasAnyFlags( trait.m_bindType, ResourceBindType::ConstantBuffer ) )
 		{
-			newBuffer = new D3D12ConstantBuffer( trait, debugName, initData );
+			newBuffer = new D3D12ConstantBuffer( trait, debugName, initialState, initData );
 		}
 		else if ( HasAnyFlags( trait.m_bindType, ResourceBindType::IndexBuffer ) )
 		{
-			newBuffer = new D3D12IndexBuffer( trait, debugName, initData );
+			newBuffer = new D3D12IndexBuffer( trait, debugName, initialState, initData );
 		}
 		else if ( HasAnyFlags( trait.m_bindType, ResourceBindType::VertexBuffer ) )
 		{
-			newBuffer = new D3D12VertexBuffer( trait, debugName, initData );
+			newBuffer = new D3D12VertexBuffer( trait, debugName, initialState, initData );
 		} 
 		else
 		{
-			newBuffer = new D3D12Buffer( trait, debugName, initData );
+			newBuffer = new D3D12Buffer( trait, debugName, initialState, initData );
 		}
 
 		return newBuffer;

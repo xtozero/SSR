@@ -1,4 +1,4 @@
-#include "D3D12BaseTexture.h"
+#include "D3D12Texture.h"
 
 #include "D3D12Api.h"
 
@@ -427,21 +427,6 @@ namespace
 		return properties;
 	}
 
-	D3D12_RESOURCE_STATES ConvertToInitalResourceStates( const TextureTrait& trait )
-	{
-		D3D12_RESOURCE_STATES states = D3D12_RESOURCE_STATE_COMMON;
-		if ( HasAllFlags( trait.m_access, ResourceAccessFlag::Download ) )
-		{
-			states = D3D12_RESOURCE_STATE_COPY_DEST;
-		}
-		else if ( HasAllFlags( trait.m_access, ResourceAccessFlag::Upload ) )
-		{
-			states |= D3D12_RESOURCE_STATE_GENERIC_READ;
-		}
-
-		return states;
-	}
-
 	D3D12_CLEAR_VALUE ConvertToClearValue( const TextureTrait& trait )
 	{
 		if ( trait.m_clearValue.has_value() == false )
@@ -539,8 +524,8 @@ namespace agl
 		}
 	}
 
-	D3D12Texture::D3D12Texture( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )
-		: TextureBase( trait, debugName, initData )
+	D3D12Texture::D3D12Texture( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
+		: TextureBase( trait, debugName, initialState, initData )
 		, m_desc( ConvertTraitToDesc( trait ) )
 	{
 		if ( initData )
@@ -561,14 +546,9 @@ namespace agl
 
 	void D3D12Texture::CreateTexture()
 	{
-		D3D12HeapProperties properties = ConvertToHeapProperties( m_trait );
-		D3D12_RESOURCE_STATES states = ConvertToInitalResourceStates( m_trait );
-		if ( ( m_dataStorage != nullptr ) && ( properties.m_heapType != D3D12_HEAP_TYPE_UPLOAD ) )
-		{
-			states = D3D12_RESOURCE_STATE_COPY_DEST;
-		}
+		AdjustInitalResourceStates();
 
-		SetResourceState( ConvertToResourceStates( states ) );
+		D3D12HeapProperties properties = ConvertToHeapProperties( m_trait );
 
 		D3D12_CLEAR_VALUE clearValue = ConvertToClearValue( m_trait );
 
@@ -576,7 +556,7 @@ namespace agl
 		m_resourceInfo = allocator.AllocateResource(
 			properties,
 			m_desc,
-			states,
+			ConvertToResourceStates( GetResourceState() ),
 			clearValue.Format == DXGI_FORMAT_UNKNOWN ? nullptr : &clearValue
 		);
 
@@ -595,12 +575,28 @@ namespace agl
 		}
 	}
 
-	D3D12BaseTexture2D::D3D12BaseTexture2D( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )
-		: D3D12Texture( trait, debugName, initData )
+	void D3D12Texture::AdjustInitalResourceStates()
+	{
+		if ( HasAllFlags( m_trait.m_access, ResourceAccessFlag::Download ) )
+		{
+			SetResourceState( ResourceState::CopyDest );
+		}
+		else if ( HasAllFlags( m_trait.m_access, ResourceAccessFlag::Upload ) )
+		{
+			SetResourceState( ResourceState::GenericRead );
+		}
+		else if ( ( m_dataStorage != nullptr ) && ( HasAllFlags( m_trait.m_access, ResourceAccessFlag::CpuWrite ) == false ) )
+		{
+			SetResourceState( ResourceState::CopyDest );
+		}
+	}
+
+	D3D12Texture2D::D3D12Texture2D( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
+		: D3D12Texture( trait, debugName, initialState, initData )
 	{
 	}
 
-	D3D12BaseTexture2D::D3D12BaseTexture2D( ID3D12Resource* texture, const char* debugName, const D3D12_RESOURCE_DESC* desc )
+	D3D12Texture2D::D3D12Texture2D( ID3D12Resource* texture, const char* debugName, const D3D12_RESOURCE_DESC* desc )
 	{
 		if ( texture )
 		{
@@ -626,7 +622,7 @@ namespace agl
 		}
 	}
 
-	void D3D12BaseTexture2D::CreateRenderTarget( std::optional<ResourceFormat> overrideFormat )
+	void D3D12Texture2D::CreateRenderTarget( std::optional<ResourceFormat> overrideFormat )
 	{
 		D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = ConvertTraitToRTV( m_trait );
 		if ( overrideFormat.has_value() )
@@ -637,7 +633,7 @@ namespace agl
 		m_rtv->Init();
 	}
 
-	void D3D12BaseTexture2D::CreateDepthStencil( std::optional<ResourceFormat> overrideFormat )
+	void D3D12Texture2D::CreateDepthStencil( std::optional<ResourceFormat> overrideFormat )
 	{
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = ConvertTraitToDSV( m_trait );
 		if ( overrideFormat.has_value() )
@@ -648,8 +644,8 @@ namespace agl
 		m_dsv->Init();
 	}
 
-	D3D12BaseTexture3D::D3D12BaseTexture3D( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )
-		: D3D12Texture( trait, debugName, initData )
+	D3D12Texture3D::D3D12Texture3D( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
+		: D3D12Texture( trait, debugName, initialState, initData )
 	{
 	}
 }

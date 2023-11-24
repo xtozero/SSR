@@ -28,7 +28,7 @@ namespace agl
 
 		void Reconstruct( const TextureTrait& trait, const ResourceInitData* initData );
 
-		D3D12Texture( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData );
+		D3D12Texture( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
 		D3D12Texture() = default;
 		D3D12Texture( const D3D12Texture& ) = delete;
 		D3D12Texture& operator=( const D3D12Texture& ) = delete;
@@ -87,27 +87,29 @@ namespace agl
 			TextureBase::FreeResource();
 			m_resourceInfo.Release();
 		}
+
+		void AdjustInitalResourceStates();
 	};
 
-	class D3D12BaseTexture2D final : public D3D12Texture
+	class D3D12Texture2D final : public D3D12Texture
 	{
 	public:
 		virtual void CreateRenderTarget( std::optional<ResourceFormat> overrideFormat = {} ) override;
 		virtual void CreateDepthStencil( std::optional<ResourceFormat> overrideFormat = {} ) override;
 
-		D3D12BaseTexture2D( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData );
-		D3D12BaseTexture2D( ID3D12Resource* texture, const char* debugName, const D3D12_RESOURCE_DESC* desc = nullptr );
+		D3D12Texture2D( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
+		D3D12Texture2D( ID3D12Resource* texture, const char* debugName, const D3D12_RESOURCE_DESC* desc = nullptr );
 
 	private:
 	};
 
-	class D3D12BaseTexture3D final : public D3D12Texture
+	class D3D12Texture3D final : public D3D12Texture
 	{
 	public:
 		virtual void CreateRenderTarget( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
 		virtual void CreateDepthStencil( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
 
-		D3D12BaseTexture3D( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData );
+		D3D12Texture3D( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
 
 	private:
 	};

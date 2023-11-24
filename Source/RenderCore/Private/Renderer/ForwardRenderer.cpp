@@ -255,6 +255,14 @@ namespace rendercore
 		bool prepared = UpdateGPUPrimitiveInfos( *scene.GetRenderScene() );
 
 		auto& gpuPrimitiveInfo = scene.GpuPrimitiveInfo();
+		auto commandList = GetCommandList();
+
+		if ( gpuPrimitiveInfo.Resource() )
+		{
+			agl::ResourceTransition transition = Transition( *gpuPrimitiveInfo.Resource(), agl::ResourceState::GenericRead );
+			commandList.Transition( 1, &transition );
+		}
+
 		m_shaderResources.AddResource( "primitiveInfo", gpuPrimitiveInfo.SRV() );
 		m_shaderResources.AddResource( "ViewSpaceDistance", m_renderTargets.GetViewSpaceDistance()->SRV() );
 		m_shaderResources.AddResource( "WorldNormal", m_renderTargets.GetWorldNormal()->SRV() );

@@ -27,7 +27,7 @@ namespace agl
 		LockedResource Lock( uint32 subResource = 0 );
 		void UnLock( uint32 subResource = 0 );
 
-		D3D12Buffer( const BufferTrait& trait, const char* debugName, const void* initData );
+		D3D12Buffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData );
 		virtual ~D3D12Buffer() override;
 		D3D12Buffer( const D3D12Buffer& ) = delete;
 		D3D12Buffer& operator=( const D3D12Buffer& ) = delete;
@@ -49,6 +49,9 @@ namespace agl
 		AllocatedResourceInfo m_resourceInfo;
 		D3D12_RESOURCE_DESC m_desc = {};
 		DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
+
+	private:
+		void AdjustInitalResourceStates();
 	};
 
 	class D3D12ConstantBuffer final : public D3D12Buffer
@@ -56,7 +59,7 @@ namespace agl
 	public:
 		D3D12ConstantBufferView* CBV() const;
 
-		D3D12ConstantBuffer( const BufferTrait& trait, const char* debugName, const void* initData );
+		D3D12ConstantBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData );
 		virtual ~D3D12ConstantBuffer() override = default;
 		D3D12ConstantBuffer( const D3D12ConstantBuffer& ) = delete;
 		D3D12ConstantBuffer& operator=( const D3D12ConstantBuffer& ) = delete;
@@ -76,7 +79,7 @@ namespace agl
 	public:
 		const D3D12_INDEX_BUFFER_VIEW& GetView() const;
 
-		D3D12IndexBuffer( const BufferTrait& trait, const char* debugName, const void* initData );
+		D3D12IndexBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData );
 		virtual ~D3D12IndexBuffer() override = default;
 		D3D12IndexBuffer( const D3D12IndexBuffer& ) = delete;
 		D3D12IndexBuffer& operator=( const D3D12IndexBuffer& ) = delete;
@@ -95,7 +98,7 @@ namespace agl
 	public:
 		const D3D12_VERTEX_BUFFER_VIEW& GetView() const;
 
-		D3D12VertexBuffer( const BufferTrait& trait, const char* debugName, const void* initData );
+		D3D12VertexBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData );
 		virtual ~D3D12VertexBuffer() override = default;
 		D3D12VertexBuffer( const D3D12VertexBuffer& ) = delete;
 		D3D12VertexBuffer& operator=( const D3D12VertexBuffer& ) = delete;

@@ -123,21 +123,6 @@ namespace
 
 		return uav;
 	}
-
-	D3D12_RESOURCE_STATES ConvertToInitalResourceStates( const BufferTrait& trait )
-	{
-		D3D12_RESOURCE_STATES states = D3D12_RESOURCE_STATE_COMMON;
-		if ( HasAllFlags( trait.m_access, ResourceAccessFlag::Download ) )
-		{
-			states |= D3D12_RESOURCE_STATE_COPY_DEST;
-		}
-		else if ( HasAllFlags( trait.m_access, ResourceAccessFlag::Upload ) )
-		{
-			states |= D3D12_RESOURCE_STATE_GENERIC_READ;
-		}
-
-		return states;
-	}
 }
 
 namespace agl
@@ -222,8 +207,9 @@ namespace agl
 		Resource()->Unmap( subResource, nullptr );
 	}
 
-	D3D12Buffer::D3D12Buffer( const BufferTrait& trait, const char* debugName, const void* initData )
-		: m_desc( ConvertTraitToDesc( trait ) )
+	D3D12Buffer::D3D12Buffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData )
+		: Buffer( initialState )
+		, m_desc( ConvertTraitToDesc( trait ) )
 	{
 		m_debugName = Name( debugName );
 		m_trait = trait;
@@ -257,20 +243,15 @@ namespace agl
 
 	void D3D12Buffer::CreateBuffer()
 	{
-		D3D12HeapProperties properties = ConvertToHeapProperties( m_trait );
-		D3D12_RESOURCE_STATES states = ConvertToInitalResourceStates( m_trait );
-		if ( m_hasInitData && ( properties.m_heapType != D3D12_HEAP_TYPE_UPLOAD ) )
-		{
-			states = D3D12_RESOURCE_STATE_COPY_DEST;
-		}
+		AdjustInitalResourceStates();
 
-		SetResourceState( ConvertToResourceStates( states ) );
+		D3D12HeapProperties properties = ConvertToHeapProperties( m_trait );
 
 		D3D12ResourceAllocator& allocator = D3D12Allocator();
 		m_resourceInfo = allocator.AllocateResource(
 			properties,
 			m_desc,
-			states
+			ConvertToResourceStates( GetResourceState() )
 		);
 
 		if ( ID3D12Resource* resource = m_resourceInfo.GetResource() )
@@ -324,6 +305,22 @@ namespace agl
 		m_resourceInfo.Release();
 	}
 
+	void D3D12Buffer::AdjustInitalResourceStates()
+	{
+		if ( HasAllFlags( m_trait.m_access, ResourceAccessFlag::Download ) )
+		{
+			SetResourceState( ResourceState::CopyDest );
+		}
+		else if ( HasAllFlags( m_trait.m_access, ResourceAccessFlag::Upload ) )
+		{
+			SetResourceState( ResourceState::GenericRead );
+		}
+		else if ( m_hasInitData && HasAllFlags( m_trait.m_access, ResourceAccessFlag::CpuWrite ) == false )
+		{
+			SetResourceState( ResourceState::CopyDest );
+		}
+	}
+
 	D3D12ConstantBufferView* D3D12ConstantBuffer::CBV() const
 	{
 		assert( IsInRenderThread() );
@@ -331,8 +328,8 @@ namespace agl
 		return m_cbv.Get();
 	}
 
-	D3D12ConstantBuffer::D3D12ConstantBuffer( const BufferTrait& trait, const char* debugName, const void* initData )
-		: D3D12Buffer( trait, debugName, initData )
+	D3D12ConstantBuffer::D3D12ConstantBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData )
+		: D3D12Buffer( trait, debugName, initialState, initData )
 	{
 		m_desc.Width = CalcAlignment<uint64>( m_desc.Width, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT );
 	}
@@ -364,8 +361,8 @@ namespace agl
 		return m_view;
 	}
 
-	D3D12IndexBuffer::D3D12IndexBuffer( const BufferTrait& trait, const char* debugName, const void* initData )
-		: D3D12Buffer( trait, debugName, initData )
+	D3D12IndexBuffer::D3D12IndexBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData )
+		: D3D12Buffer( trait, debugName, initialState, initData )
 	{
 	}
 
@@ -385,8 +382,8 @@ namespace agl
 		return m_view;
 	}
 
-	D3D12VertexBuffer::D3D12VertexBuffer( const BufferTrait& trait, const char* debugName, const void* initData )
-		: D3D12Buffer( trait, debugName, initData )
+	D3D12VertexBuffer::D3D12VertexBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData )
+		: D3D12Buffer( trait, debugName, initialState, initData )
 	{
 	}
 

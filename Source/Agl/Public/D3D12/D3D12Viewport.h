@@ -1,6 +1,6 @@
 #pragma once
 
-#include "D3D12BaseTexture.h"
+#include "D3D12Texture.h"
 #include "Memory/InlineMemoryAllocator.h"
 #include "Viewport.h"
 
@@ -42,7 +42,7 @@ namespace agl
 
 		uint32 m_bufferIndex = 0;
 
-		RefHandle<D3D12BaseTexture2D> m_frameBuffer;
+		RefHandle<D3D12Texture2D> m_frameBuffer;
 		RefHandle<DxgiSwapchain<AglType::D3D12>> m_swapchain;
 	};
 }

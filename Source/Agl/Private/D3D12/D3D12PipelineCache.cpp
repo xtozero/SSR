@@ -1,7 +1,6 @@
 #include "D3D12PipelineCache.h"
 
 #include "D3D12Api.h"
-#include "D3D12BaseTexture.h"
 #include "D3D12Buffer.h"
 #include "D3D12FlagConvertor.h"
 #include "D3D12GlobalDescriptorHeap.h"
@@ -9,6 +8,7 @@
 #include "D3D12PipelineState.h"
 #include "D3D12ResourceManager.h"
 #include "D3D12SamplerState.h"
+#include "D3D12Texture.h"
 
 #include "InlineMemoryAllocator.h"
 

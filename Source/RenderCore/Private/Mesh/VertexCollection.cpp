@@ -57,7 +57,7 @@ namespace rendercore
 		uint32 i = 0;
 		for ( const auto& stream : m_streams )
 		{
-			m_vbs[i++] = VertexBuffer( stream.Stride(), stream.Count(), stream.IsDynamic() ? nullptr : stream.Data(), stream.IsDynamic() );
+			m_vbs[i++] = VertexBuffer( stream.Stride(), stream.Count(), agl::ResourceState::Common, stream.IsDynamic() ? nullptr : stream.Data(), stream.IsDynamic() );
 		}
 	}
 

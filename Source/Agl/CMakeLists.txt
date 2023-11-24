@@ -21,7 +21,6 @@ set (CORE_SOURCE
 	Private/Core/ModuleInit.cpp)
 	
 set (D3D11_RENDER_RESOURCE_SOURCE
-	Private/D3D11/D3D11BaseTexture.cpp
 	Private/D3D11/D3D11BlendState.cpp
 	Private/D3D11/D3D11Buffer.cpp
 	Private/D3D11/D3D11CommandList.cpp
@@ -33,9 +32,9 @@ set (D3D11_RENDER_RESOURCE_SOURCE
 	Private/D3D11/D3D11SamplerState.cpp
 	Private/D3D11/D3D11Shaders.cpp
 	Private/D3D11/D3D11StateCache.cpp
+	Private/D3D11/D3D11Texture.cpp
 	Private/D3D11/D3D11VetexLayout.cpp
 	Private/D3D11/D3D11Viewport.cpp
-	Public/D3D11/D3D11BaseTexture.h
 	Public/D3D11/D3D11BlendState.h
 	Public/D3D11/D3D11Buffer.h
 	Public/D3D11/D3D11CommandList.h
@@ -47,6 +46,7 @@ set (D3D11_RENDER_RESOURCE_SOURCE
 	Public/D3D11/D3D11SamplerState.h
 	Public/D3D11/D3D11Shaders.h
 	Public/D3D11/D3D11StateCache.h
+	Public/D3D11/D3D11Texture.h
 	Public/D3D11/D3D11VetexLayout.h
 	Public/D3D11/D3D11Viewport.h)
 
@@ -58,7 +58,6 @@ set (D3D11_UTILITY
 	Public/D3D11/D3D11FlagConvertor.h)
 
 set (D3D12_RENDER_RESOURCE_SOURCE
-	Private/D3D12/D3D12BaseTexture.cpp
 	Private/D3D12/D3D12BlendState.cpp
 	Private/D3D12/D3D12Buffer.cpp
 	Private/D3D12/D3D12CommandList.cpp
@@ -77,9 +76,9 @@ set (D3D12_RENDER_RESOURCE_SOURCE
 	Private/D3D12/D3D12RootSignature.cpp
 	Private/D3D12/D3D12SamplerState.cpp
 	Private/D3D12/D3D12Shaders.cpp
+	Private/D3D12/D3D12Texture.cpp
 	Private/D3D12/D3D12VertexLayout.cpp
 	Private/D3D12/D3D12Viewport.cpp
-	Public/D3D12/D3D12BaseTexture.h
 	Public/D3D12/D3D12BlendState.h
 	Public/D3D12/D3D12Buffer.h
 	Public/D3D12/D3D12CommandList.h
@@ -98,6 +97,7 @@ set (D3D12_RENDER_RESOURCE_SOURCE
 	Public/D3D12/D3D12RootSignature.h
 	Public/D3D12/D3D12SamplerState.h
 	Public/D3D12/D3D12Shaders.h
+	Public/D3D12/D3D12Texture.h
 	Public/D3D12/D3D12VertexLayout.h
 	Public/D3D12/D3D12Viewport.h)
 

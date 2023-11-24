@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "D3D11BaseTexture.h"
+#include "D3D11Texture.h"
 
 #include "D3D11FlagConvertor.h"
 #include "D3D11ResourceViews.h"
@@ -244,7 +244,7 @@ namespace agl
 		return dsv;
 	}
 
-	void D3D11BaseTexture2D::CreateShaderResource( std::optional<ResourceFormat> overrideFormat )
+	void D3D11Texture2D::CreateShaderResource( std::optional<ResourceFormat> overrideFormat )
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc );
 		if ( overrideFormat.has_value() )
@@ -255,7 +255,7 @@ namespace agl
 		m_srv->Init();
 	}
 
-	void D3D11BaseTexture2D::CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat )
+	void D3D11Texture2D::CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat )
 	{
 		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc );
 		if ( overrideFormat.has_value() )
@@ -266,7 +266,7 @@ namespace agl
 		m_uav->Init();
 	}
 
-	void D3D11BaseTexture2D::CreateRenderTarget( std::optional<ResourceFormat> overrideFormat )
+	void D3D11Texture2D::CreateRenderTarget( std::optional<ResourceFormat> overrideFormat )
 	{
 		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = ConvertDescToRTV( m_desc );
 		if ( overrideFormat.has_value() )
@@ -277,7 +277,7 @@ namespace agl
 		m_rtv->Init();
 	}
 
-	void D3D11BaseTexture2D::CreateDepthStencil( std::optional<ResourceFormat> overrideFormat )
+	void D3D11Texture2D::CreateDepthStencil( std::optional<ResourceFormat> overrideFormat )
 	{
 		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = ConvertDescToDSV( m_desc );
 		if ( overrideFormat.has_value() )
@@ -288,12 +288,12 @@ namespace agl
 		m_dsv->Init();
 	}
 
-	D3D11BaseTexture2D::D3D11BaseTexture2D( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )
-		: D3D11Texture<ID3D11Texture2D>( trait, debugName, initData )
+	D3D11Texture2D::D3D11Texture2D( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
+		: D3D11Texture<ID3D11Texture2D>( trait, debugName, initialState, initData )
 	{
 	}
 
-	D3D11BaseTexture2D::D3D11BaseTexture2D( ID3D11Texture2D* texture, const char* debugName, const D3D11_TEXTURE2D_DESC* desc )
+	D3D11Texture2D::D3D11Texture2D( ID3D11Texture2D* texture, const char* debugName, const D3D11_TEXTURE2D_DESC* desc )
 	{
 		if ( texture )
 		{
@@ -316,9 +316,8 @@ namespace agl
 		}
 	}
 
-	void D3D11BaseTexture2D::CreateTexture()
+	void D3D11Texture2D::CreateTexture()
 	{
-		SetResourceState( ResourceState::Common );
 		ConvertToDesc( m_trait );
 
 		[[maybe_unused]] HRESULT hr = D3D11Device().CreateTexture2D( &m_desc, m_dataStorage ? m_initData.data() : nullptr, &m_texture );
@@ -331,12 +330,12 @@ namespace agl
 		}
 	}
 
-	void D3D11BaseTexture2D::ConvertToDesc( const TextureTrait& trait )
+	void D3D11Texture2D::ConvertToDesc( const TextureTrait& trait )
 	{
 		m_desc = ConvertTraitTo2DDesc( trait );
 	}
 
-	void D3D11BaseTexture3D::CreateShaderResource( std::optional<ResourceFormat> overrideFormat )
+	void D3D11Texture3D::CreateShaderResource( std::optional<ResourceFormat> overrideFormat )
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc );
 		if ( overrideFormat.has_value() )
@@ -347,7 +346,7 @@ namespace agl
 		m_srv->Init();
 	}
 
-	void D3D11BaseTexture3D::CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat )
+	void D3D11Texture3D::CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat )
 	{
 		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc );
 		if ( overrideFormat.has_value() )
@@ -358,14 +357,13 @@ namespace agl
 		m_uav->Init();
 	}
 
-	D3D11BaseTexture3D::D3D11BaseTexture3D( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )
-		: D3D11Texture<ID3D11Texture3D>( trait, debugName, initData )
+	D3D11Texture3D::D3D11Texture3D( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
+		: D3D11Texture<ID3D11Texture3D>( trait, debugName, initialState, initData )
 	{
 	}
 
-	void D3D11BaseTexture3D::CreateTexture()
+	void D3D11Texture3D::CreateTexture()
 	{
-		SetResourceState( ResourceState::Common );
 		ConvertToDesc( m_trait );
 
 		[[maybe_unused]] HRESULT hr = D3D11Device().CreateTexture3D( &m_desc, m_dataStorage ? m_initData.data() : nullptr, &m_texture );
@@ -378,7 +376,7 @@ namespace agl
 		}
 	}
 
-	void D3D11BaseTexture3D::ConvertToDesc( const TextureTrait& trait )
+	void D3D11Texture3D::ConvertToDesc( const TextureTrait& trait )
 	{
 		m_desc = ConvertTraitTo3DDesc( trait );
 	}

@@ -597,7 +597,7 @@ namespace agl
 		ResolveSource = 0x2000,
 		RaytracingAccelerationStructure = 0x400000,
 		ShadingRateSource = 0x1000000,
-		GenericRead = ( ( ( ( ( 0x1 | 0x2 ) | 0x40 ) | 0x80 ) | 0x200 ) | 0x800 ),
+		GenericRead = ( ( ( ( ( VertexAndConstantBuffer | Indexbuffer ) | NonPixelShaderResource ) | PixelShaderResource ) | IndirectArgument ) | CopySource ),
 		Present = 0,
 		Predication = 0x200,
 		VideoDecodeRead = 0x10000,

@@ -49,7 +49,7 @@ namespace rendercore
 		{
 			if ( newNumElement > m_numElement )
 			{
-				TypedBuffer newBuffer = TypedBuffer( newNumElement );
+				TypedBuffer newBuffer = TypedBuffer( newNumElement, agl::ResourceState::CopyDest );
 
 				if ( bCopyPreviousData )
 				{
@@ -83,10 +83,10 @@ namespace rendercore
 			return m_buffer.Get() ? m_buffer->SRV() : nullptr;
 		}
 
-		TypedBuffer( uint32 numElement, const void* initData = nullptr ) :
+		TypedBuffer( uint32 numElement, agl::ResourceState initialState, const void* initData = nullptr ) :
 			m_numElement( numElement )
 		{
-			InitResource( initData );
+			InitResource( initialState, initData );
 		}
 
 		TypedBuffer() = default;
@@ -102,7 +102,7 @@ namespace rendercore
 		}
 
 	protected:
-		void InitResource( const void* initData )
+		void InitResource( agl::ResourceState initialState, const void* initData )
 		{
 			if ( m_numElement > 0 )
 			{
@@ -115,7 +115,7 @@ namespace rendercore
 					.m_format = agl::ResourceFormat::Unknown
 				};
 
-				m_buffer = agl::Buffer::Create( trait, "TypedBuffer", initData);
+				m_buffer = agl::Buffer::Create( trait, "TypedBuffer", initialState, initData );
 				EnqueueRenderTask(
 					[buffer = m_buffer]()
 					{

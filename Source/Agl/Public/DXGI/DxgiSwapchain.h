@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Canvas.h"
-#include "D3D11BaseTexture.h"
-#include "D3D12BaseTexture.h"
+#include "D3D11Texture.h"
+#include "D3D12Texture.h"
 #include "DXGIFlagConvertor.h"
 #include "IAgl.h"
 #include "ICommandList.h"
@@ -131,7 +131,7 @@ namespace agl
 
 					assert( SUCCEEDED( hr ) );
 
-					std::construct_at( static_cast<D3D11BaseTexture2D*>( m_backBuffers[i].Get() ), backBuffer, "SwapChain" );
+					std::construct_at( static_cast<D3D11Texture2D*>( m_backBuffers[i].Get() ), backBuffer, "SwapChain" );
 				}
 				else
 				{
@@ -143,7 +143,7 @@ namespace agl
 					D3D12_RESOURCE_DESC desc = backBuffer->GetDesc();
 					desc.Format = m_format;
 
-					std::construct_at( static_cast<D3D12BaseTexture2D*>( m_backBuffers[i].Get() ), backBuffer, "SwapChain", &desc );
+					std::construct_at( static_cast<D3D12Texture2D*>( m_backBuffers[i].Get() ), backBuffer, "SwapChain", &desc );
 				}
 
 				m_backBuffers[i]->Init();
@@ -238,7 +238,7 @@ namespace agl
 					hr = m_pSwapChain->GetBuffer( i, IID_PPV_ARGS( &backBuffer ) );
 
 					assert( SUCCEEDED( hr ) );
-					m_backBuffers[i] = new D3D11BaseTexture2D( backBuffer, "SwapChain" );
+					m_backBuffers[i] = new D3D11Texture2D( backBuffer, "SwapChain" );
 				}
 				else
 				{
@@ -250,7 +250,7 @@ namespace agl
 					D3D12_RESOURCE_DESC desc = backBuffer->GetDesc();
 					desc.Format = m_format;
 
-					m_backBuffers[i] = new D3D12BaseTexture2D( backBuffer, "SwapChain", &desc);
+					m_backBuffers[i] = new D3D12Texture2D( backBuffer, "SwapChain", &desc);
 				}
 
 				m_backBuffers[i]->Init();

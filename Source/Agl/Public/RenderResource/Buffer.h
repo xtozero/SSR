@@ -9,7 +9,10 @@ namespace agl
 	class Buffer : public DeviceDependantResource, public IResourceViews, public ITransitionable
 	{
 	public:
-		AGL_DLL static RefHandle<Buffer> Create( const BufferTrait& trait, const char* debugName, const void* initData = nullptr );
+		AGL_DLL static RefHandle<Buffer> Create( const BufferTrait& trait, const char* debugName );
+		AGL_DLL static RefHandle<Buffer> Create( const BufferTrait& trait, const char* debugName, ResourceState initialState );
+		AGL_DLL static RefHandle<Buffer> Create( const BufferTrait& trait, const char* debugName, const void* initData );
+		AGL_DLL static RefHandle<Buffer> Create( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData );
 
 		virtual void* Resource() const = 0;
 
@@ -32,7 +35,7 @@ namespace agl
 
 		bool IsDynamic() const;
 
-		Buffer() noexcept;
+		explicit Buffer( ResourceState initialState ) noexcept;
 
 	protected:
 		BufferTrait m_trait = {};
@@ -40,6 +43,7 @@ namespace agl
 		RefHandle<ShaderResourceView> m_srv;
 		RefHandle<UnorderedAccessView> m_uav;
 
+	private:
 		ResourceState m_state = ResourceState::Common;
 	};
 }

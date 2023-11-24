@@ -18,10 +18,10 @@ namespace agl
 		virtual void Shutdown() override;
 
 		// Texture
-		virtual Texture* CreateTexture( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData = nullptr ) override;
+		virtual Texture* CreateTexture( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData ) override;
 
 		// Buffer
-		virtual Buffer* CreateBuffer( const BufferTrait& trait, const char* debugName, const void* initData = nullptr ) override;
+		virtual Buffer* CreateBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData ) override;
 
 		// Shader
 		virtual VertexLayout* CreateVertexLayout( const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size ) override;

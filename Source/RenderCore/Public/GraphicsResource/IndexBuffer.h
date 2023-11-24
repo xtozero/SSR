@@ -20,7 +20,7 @@ namespace rendercore
 		agl::Buffer* Resource();
 		const agl::Buffer* Resource() const;
 
-		IndexBuffer( uint32 numElement, const void* initData, bool isDWORD, bool isDynamic = false );
+		IndexBuffer( uint32 numElement, agl::ResourceState initialState, const void* initData, bool isDWORD, bool isDynamic = false );
 
 		IndexBuffer() = default;
 		~IndexBuffer() = default;
@@ -37,7 +37,7 @@ namespace rendercore
 		}
 
 	private:
-		void InitResource( const void* initData );
+		void InitResource( agl::ResourceState initialState, const void* initData );
 
 		uint32 m_numElement = 0;
 		bool m_isDWORD = false;
