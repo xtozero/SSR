@@ -94,8 +94,10 @@ set (MATH
 	Public/Math/XMVector.h)
 
 set (MEMORY
+	Private/Memory/BuddySystem.cpp
 	Private/Memory/StackMemoryAllocator.cpp
 	Private/Memory/TransientAllocator.cpp
+	Public/Memory/BuddySystem.h
 	Public/Memory/FixedBlockMemoryPool.h
 	Public/Memory/InlineMemoryAllocator.h
 	Public/Memory/MemoryPool.h
