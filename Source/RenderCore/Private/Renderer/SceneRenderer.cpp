@@ -296,7 +296,6 @@ namespace rendercore
 				break;
 			case LightType::Spot:
 				break;
-			case LightType::None:
 			default:
 				break;
 			}
@@ -314,8 +313,6 @@ namespace rendercore
 
 			switch ( lightType )
 			{
-			case LightType::None:
-				break;
 			case LightType::Directional:
 				cascadeShadows.push_back( &shadowInfo );
 				break;
@@ -603,16 +600,7 @@ namespace rendercore
 
 			m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
-			VisibleDrawSnapshot visibleSnapshot = {
-				.m_primitiveId = 0,
-				.m_primitiveIdOffset = 0,
-				.m_numInstance = 1,
-				.m_snapshotBucketId = -1,
-				.m_drawSnapshot = &snapshot,
-			};
-
-			VertexBuffer emptyPrimitiveID;
-			CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
+			AddSingleDrawPass( snapshot );
 		}
 	}
 
@@ -692,10 +680,7 @@ namespace rendercore
 		{
 			ShadowDrawPassProcessor shadowDrawPassProcessor;
 
-			PrimitiveSubMesh meshInfo;
-			meshInfo.m_count = 3;
-
-			auto result = shadowDrawPassProcessor.Process( meshInfo );
+			auto result = shadowDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
 			if ( result.has_value() == false )
 			{
 				return;
@@ -734,16 +719,7 @@ namespace rendercore
 
 			m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
-			VisibleDrawSnapshot visibleSnapshot = {
-				.m_primitiveId = 0,
-				.m_primitiveIdOffset = 0,
-				.m_numInstance = 1,
-				.m_snapshotBucketId = -1,
-				.m_drawSnapshot = &snapshot,
-			};
-
-			VertexBuffer emptyPrimitiveID;
-			CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
+			AddSingleDrawPass( snapshot );
 		}
 	}
 
@@ -778,11 +754,7 @@ namespace rendercore
 		skyAtmosphereRenderParameter.Update( param );
 
 		SkyAtmosphereDrawPassProcessor skyAtmosphereDrawPassProcessor;
-
-		PrimitiveSubMesh meshInfo;
-		meshInfo.m_count = 3;
-
-		auto result = skyAtmosphereDrawPassProcessor.Process( meshInfo );
+		auto result = skyAtmosphereDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
 		if ( result.has_value() == false )
 		{
 			return;
@@ -810,16 +782,7 @@ namespace rendercore
 
 		skyAtmosphereDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
-		VisibleDrawSnapshot visibleSnapshot = {
-			.m_primitiveId = 0,
-			.m_primitiveIdOffset = 0,
-			.m_numInstance = 1,
-			.m_snapshotBucketId = -1,
-			.m_drawSnapshot = &snapshot,
-		};
-
-		VertexBuffer emptyPrimitiveID;
-		CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
+		AddSingleDrawPass( snapshot );
 	}
 
 	void SceneRenderer::RenderVolumetricCloud( IScene& scene, [[maybe_unused]] RenderView& renderView )
@@ -845,11 +808,7 @@ namespace rendercore
 		}
 
 		VolumetricCloundDrawPassProcessor volumetricCloundDrawPassProcessor;
-
-		PrimitiveSubMesh meshInfo;
-		meshInfo.m_count = 3;
-
-		auto result = volumetricCloundDrawPassProcessor.Process( meshInfo );
+		auto result = volumetricCloundDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
 		if ( result.has_value() == false )
 		{
 			return;
@@ -909,16 +868,7 @@ namespace rendercore
 
 		volumetricCloundDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
-		VisibleDrawSnapshot visibleSnapshot = {
-			.m_primitiveId = 0,
-			.m_primitiveIdOffset = 0,
-			.m_numInstance = 1,
-			.m_snapshotBucketId = -1,
-			.m_drawSnapshot = &snapshot,
-		};
-
-		VertexBuffer emptyPrimitiveID;
-		CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
+		AddSingleDrawPass( snapshot );
 	}
 
 	void SceneRenderer::RenderVolumetricFog( IScene& scene, [[maybe_unused]] RenderView& renderView )
@@ -940,11 +890,7 @@ namespace rendercore
 		info->PrepareFrustumVolume( *renderScene, m_forwardLighting, m_shadowInfos );
 
 		VolumetricFogDrawPassProcessor volumetricFogDrawPassProcessor;
-
-		PrimitiveSubMesh meshInfo;
-		meshInfo.m_count = 3;
-
-		auto result = volumetricFogDrawPassProcessor.Process( meshInfo );
+		auto result = volumetricFogDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
 		if ( result.has_value() == false )
 		{
 			return;
@@ -969,16 +915,7 @@ namespace rendercore
 
 		volumetricFogDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
-		VisibleDrawSnapshot visibleSnapshot = {
-			.m_primitiveId = 0,
-			.m_primitiveIdOffset = 0,
-			.m_numInstance = 1,
-			.m_snapshotBucketId = -1,
-			.m_drawSnapshot = &snapshot,
-		};
-
-		VertexBuffer emptyPrimitiveID;
-		CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
+		AddSingleDrawPass( snapshot );
 	}
 
 	void SceneRenderer::RenderTemporalAntiAliasing( RenderViewGroup& renderViewGroup )
@@ -1067,5 +1004,21 @@ namespace rendercore
 	void SceneRenderer::StoreOuputContext( const RenderingOutputContext& context )
 	{
 		m_outputContext = context;
+	}
+
+	void AddSingleDrawPass( DrawSnapshot& snapshot )
+	{
+		VisibleDrawSnapshot visibleSnapshot = {
+			.m_primitiveId = 0,
+			.m_primitiveIdOffset = 0,
+			.m_numInstance = 1,
+			.m_snapshotBucketId = -1,
+			.m_drawSnapshot = &snapshot,
+		};
+
+		auto commandList = GetCommandList();
+
+		VertexBuffer emptyPrimitiveID;
+		CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
 	}
 }

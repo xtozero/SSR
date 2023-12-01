@@ -158,21 +158,6 @@ namespace logic
 		MarkRenderTransformDirty();
 	}
 
-	const Vector& SceneComponent::GetPosition() const
-	{
-		return m_transform.GetTranslation();
-	}
-
-	const Vector& SceneComponent::GetScale3D() const
-	{
-		return m_transform.GetScale3D();
-	}
-
-	const Quaternion& SceneComponent::GetRotation() const
-	{
-		return m_transform.GetRotation();
-	}
-
 	const Vector& SceneComponent::GetRelativePosition() const
 	{
 		return m_relativeTransform.GetTranslation();

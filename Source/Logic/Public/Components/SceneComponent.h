@@ -32,9 +32,20 @@ namespace logic
 
 		virtual void OnUpdateTransform() {}
 
-		const Vector& GetPosition() const;
-		const Vector& GetScale3D() const;
-		const Quaternion& GetRotation() const;
+		const Vector& GetPosition() const
+		{
+			return m_transform.GetTranslation();
+		}
+
+		const Vector& GetScale3D() const
+		{
+			return m_transform.GetScale3D();
+		}
+
+		const Quaternion& GetRotation() const
+		{
+			return m_transform.GetRotation();
+		}
 
 		const Vector& GetRelativePosition() const;
 		const Vector& GetRelativeScale3D() const;

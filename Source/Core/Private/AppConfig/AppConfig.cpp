@@ -88,49 +88,52 @@ void AppConfig::BootUp( std::atomic<int32>& workInProgress )
 		}
 	}
 
-	for ( const auto& p : std::filesystem::recursive_directory_iterator( g_saveDir ) )
+	if ( std::filesystem::exists( g_saveDir ) )
 	{
-		if ( p.is_regular_file() )
+		for ( const auto& p : std::filesystem::recursive_directory_iterator( g_saveDir ) )
 		{
-			if ( p.path().extension() != std::filesystem::path( ".ini" ) )
+			if ( p.is_regular_file() )
 			{
-				continue;
-			}
-
-			FileHandle hSave = filesystem->OpenFile( p.path().generic_string().c_str() );
-			if ( hSave.IsValid() == false )
-			{
-				assert( false && "Fail to open config file" );
-			}
-
-			uint32 fileSize = filesystem->GetFileSize( hSave );
-			auto buffer = new char[fileSize];
-
-			IFileSystem::IOCompletionCallback ParseIniAsset;
-			ParseIniAsset.BindFunctor(
-				[this, hSave, &workInProgress]( const char* buffer, uint32 bufferSize )
+				if ( p.path().extension() != std::filesystem::path( ".ini" ) )
 				{
-					ini::Reader reader( buffer, bufferSize );
-					auto ini = reader.Parse();
-					if ( ini.has_value() )
-					{
-						std::lock_guard lk( m_savedIniLock );
-						m_savedIni.emplace_back( std::move( ini.value() ) );
-					}
+					continue;
+				}
 
-					--workInProgress;
+				FileHandle hSave = filesystem->OpenFile( p.path().generic_string().c_str() );
+				if ( hSave.IsValid() == false )
+				{
+					assert( false && "Fail to open config file" );
+				}
+
+				uint32 fileSize = filesystem->GetFileSize( hSave );
+				auto buffer = new char[fileSize];
+
+				IFileSystem::IOCompletionCallback ParseIniAsset;
+				ParseIniAsset.BindFunctor(
+					[this, hSave, &workInProgress]( const char* buffer, uint32 bufferSize )
+					{
+						ini::Reader reader( buffer, bufferSize );
+						auto ini = reader.Parse();
+						if ( ini.has_value() )
+						{
+							std::lock_guard lk( m_savedIniLock );
+							m_savedIni.emplace_back( std::move( ini.value() ) );
+						}
+
+						--workInProgress;
+						GetInterface<IFileSystem>()->CloseFile( hSave );
+					}
+				);
+
+				bool result = filesystem->ReadAsync( hSave, buffer, fileSize, &ParseIniAsset );
+				if ( result == false )
+				{
+					delete[] buffer;
 					GetInterface<IFileSystem>()->CloseFile( hSave );
 				}
-			);
 
-			bool result = filesystem->ReadAsync( hSave, buffer, fileSize, &ParseIniAsset );
-			if ( result == false )
-			{
-				delete[] buffer;
-				GetInterface<IFileSystem>()->CloseFile( hSave );
+				++workInProgress;
 			}
-
-			++workInProgress;
 		}
 	}
 }
@@ -163,6 +166,11 @@ void AppConfig::RegisterConfig( IConfig* config )
 
 void AppConfig::SaveConfigToFile() const
 {
+	if ( std::filesystem::exists( g_saveDir ) == false )
+	{
+		std::filesystem::create_directory( g_saveDir );
+	}
+
 	std::ofstream outputFile( g_saveIniPath, std::ios::trunc );
 	if ( outputFile.good() )
 	{

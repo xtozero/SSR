@@ -5,6 +5,9 @@
 
 #define MAX_LIGHTS 180
 static const uint LIGHTDATA_PER_FLOAT4 = 6;
+static const uint LightTypeDirectional = 0;
+static const uint LightTypePoint = 1;
+static const uint LightTypeSpot = 2;
 
 Texture2D lookupTexture : register( t3 );
 Buffer<float4> ForwardLight : register( t4 );
@@ -131,19 +134,36 @@ float CookTorranceSpecular( float3 viewDirection, float3 lightDirection, float3 
 	return ( d * g * f ) / ( 4 * vdotn * ldotn );
 }
 
-LIGHTCOLOR CalcLightProperties( ForwardLightData light, float3 viewDirection, float3 lightDirection, float3 normal, float roughness )
+LIGHTCOLOR CalcLightProperties( ForwardLightData light, float3 worldPosition, float3 viewDirection, float3 normal, float roughness )
 {
 	LIGHTCOLOR lightColor = (LIGHTCOLOR)0;
 
+    float3 toLight = normalize( light.m_position - worldPosition );
+    if ( light.m_type == LightTypeDirectional )
+    {
+        toLight = -light.m_direction;
+    }
+    else if ( light.m_type == LightTypePoint )
+    {
+        light.m_direction = -toLight;
+    }
+	
 	// ToDo 
 	// float diffuseFactor = OrenNayarDiffuse( viewDirection, lightDirection, normal, roughness );
-	float ndotl = saturate( dot( lightDirection, normal ) );
+    float ndotl = saturate( dot( toLight, normal ) );
 	lightColor.m_diffuse = light.m_diffuse * ndotl;
-	if ( ndotl > 0.f )
-	{
-		lightColor.m_specular += CookTorranceSpecular( viewDirection, lightDirection, normal, roughness ) * light.m_specular * ndotl;
-	}
+    lightColor.m_specular = CookTorranceSpecular( viewDirection, toLight, normal, roughness ) * light.m_specular * ndotl;
+	
+    float distance = length( light.m_position - worldPosition );
+    float attenuation = 1.f / ( light.m_attenuation.x + light.m_attenuation.y * distance + light.m_attenuation.z * distance * distance );
 
+    float theta = dot( toLight, -light.m_direction );
+    float epsilon = ( light.m_theta - light.m_phi );
+    float intensity = saturate( ( theta - light.m_phi ) / epsilon );
+	
+    lightColor.m_diffuse *= attenuation * intensity;
+    lightColor.m_specular *= attenuation * intensity;
+	
 	return lightColor;
 }
 
@@ -193,19 +213,7 @@ LIGHTCOLOR CalcLight( GeometryProperty geometry )
 	for ( uint i = 0; i < NumLights; ++i )
 	{
 		ForwardLightData light = GetLight( i );
-	
-		float3 lightDirection = { 0.f, 0.f, 0.f };
-			
-		if ( length( light.m_direction ) > 0.f )
-		{
-			lightDirection = -normalize( light.m_direction );
-		}	
-		else
-		{
-			lightDirection = normalize( light.m_position - geometry.worldPos );
-		} 
-
-		LightColor = CalcLightProperties( light, viewDirection, lightDirection, normal, roughness );
+        LightColor = CalcLightProperties( light, geometry.worldPos, viewDirection, normal, roughness );
 
 		// ToDo
 		float visibility = 1.f; // CalcShadowVisibility( geometry.worldPos, geometry.viewPos );

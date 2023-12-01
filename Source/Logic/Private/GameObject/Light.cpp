@@ -43,13 +43,54 @@ namespace logic
 
 	const Vector& DirectionalLight::Direction() const
 	{
-		return m_directionalLightComponent->Direction();
+		if ( m_directionalLightComponent )
+		{
+			return m_directionalLightComponent->Direction();
+		}
+
+		return Vector::ZeroVector;
 	}
 
 	DirectionalLight::DirectionalLight()
 	{
 		m_directionalLightComponent = CreateComponent<DirectionalLightComponent>( *this, "DirectionalLightComponent" );
 		SetRootComponent( m_directionalLightComponent );
+	}
+
+	DECLARE_GAME_OBJECT( point_light, PointLight );
+
+	const LightType PointLight::GetType() const
+	{
+		return LightType::Point;
+	}
+
+	PointLight::PointLight()
+	{
+		m_pointLightComponent = CreateComponent<PointLightComponent>( *this, "PointLightComponent" );
+		SetRootComponent( m_pointLightComponent );
+	}
+
+	DECLARE_GAME_OBJECT( spot_light, SpotLight );
+
+	const LightType SpotLight::GetType() const
+	{
+		return LightType::Spot;
+	}
+
+	const Vector& SpotLight::Direction() const
+	{
+		if ( m_spotLightComponent )
+		{
+			return m_spotLightComponent->Direction();
+		}
+
+		return Vector::ZeroVector;
+	}
+
+	SpotLight::SpotLight()
+	{
+		m_spotLightComponent = CreateComponent<SpotLightComponent>( *this, "SpotLightComponent" );
+		SetRootComponent( m_spotLightComponent );
 	}
 
 	DECLARE_GAME_OBJECT( hemisphere_light, HemisphereLight );

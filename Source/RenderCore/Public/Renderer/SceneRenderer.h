@@ -139,4 +139,6 @@ namespace rendercore
 		TAARenderer m_taa;
 		RSMsRenderer m_rsms;
 	};
+
+	void AddSingleDrawPass( DrawSnapshot& snapshot );
 }

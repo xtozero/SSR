@@ -102,11 +102,7 @@ namespace rendercore
 		commandList.ClearRenderTarget( resolveTex->RTV(), { 0, 0, 0, 0 } );
 
 		TAAResolveProcessor resolveProcessor;
-
-		PrimitiveSubMesh meshInfo;
-		meshInfo.m_count = 3;
-
-		auto result = resolveProcessor.Process( meshInfo );
+		auto result = resolveProcessor.Process( FullScreenQuadDrawInfo() );
 		if ( result.has_value() == false )
 		{
 			return;
@@ -144,16 +140,7 @@ namespace rendercore
 
 		commandList.BindRenderTargets( &resolveRt, 1, nullptr );
 
-		VisibleDrawSnapshot visibleSnapshot = {
-			.m_primitiveId = 0,
-			.m_primitiveIdOffset = 0,
-			.m_numInstance = 1,
-			.m_snapshotBucketId = -1,
-			.m_drawSnapshot = &snapshot,
-		};
-
-		VertexBuffer emptyPrimitiveID;
-		CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
+		AddSingleDrawPass( snapshot );
 	}
 
 	void TAARenderer::UpdateHistory( IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup )

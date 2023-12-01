@@ -275,17 +275,9 @@ namespace rendercore
 
 				imguiShaderResources.BindResources( snapshot.m_pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
-				VisibleDrawSnapshot visibleSnapshot = {
-					.m_primitiveId = 0,
-					.m_primitiveIdOffset = 0,
-					.m_numInstance = 1,
-					.m_snapshotBucketId = -1,
-					.m_drawSnapshot = &snapshot,
-				};
-
 				commandList.SetScissorRects( 1, &drawCommand.m_clipRect );
-				VertexBuffer emptyPrimitiveID;
-				CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
+
+				AddSingleDrawPass( snapshot );
 			}
 		}
 	}

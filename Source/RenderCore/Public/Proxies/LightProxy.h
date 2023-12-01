@@ -13,6 +13,8 @@ namespace logic
 	class DirectionalLightComponent;
 	class HemisphereLightComponent;
 	class LightComponent;
+	class PointLightComponent;
+	class SpotLightComponent;
 }
 
 namespace rendercore
@@ -24,7 +26,6 @@ namespace rendercore
 
 	enum class LightType : uint8
 	{
-		None = 0,
 		Directional,
 		Point,
 		Spot
@@ -32,7 +33,7 @@ namespace rendercore
 
 	struct LightProperty
 	{
-		LightType				m_type = LightType::None;
+		LightType				m_type = LightType::Directional;
 		float					m_theta = 0.f;
 		float					m_phi = 0.f;
 		Vector					m_direction;
@@ -101,6 +102,49 @@ namespace rendercore
 
 	private:
 		Vector m_direction;
+	};
+
+	class PointLightProxy final : public LightProxy
+	{
+	public:
+		virtual LightType GetLightType() const override
+		{
+			return LightType::Point;
+		}
+
+		virtual LightProperty GetLightProperty() const override;
+
+		virtual bool AffactsBounds( const BoxSphereBounds& bounds ) const override;
+
+		RENDERCORE_DLL PointLightProxy( const logic::PointLightComponent& component );
+
+	private:
+		float m_range = 0;
+		Vector m_attenuation;
+		Vector m_position;
+	};
+
+	class SpotLightProxy final : public LightProxy
+	{
+	public:
+		virtual LightType GetLightType() const override
+		{
+			return LightType::Spot;
+		}
+
+		virtual LightProperty GetLightProperty() const override;
+
+		virtual bool AffactsBounds( const BoxSphereBounds& bounds ) const override;
+
+		RENDERCORE_DLL SpotLightProxy( const logic::SpotLightComponent& component );
+
+	private:
+		float m_theta = 0;
+		float m_phi = 0;
+		Vector m_direction;
+		float m_range = 0;
+		Vector m_attenuation;
+		Vector m_position;
 	};
 
 	class HemisphereLightProxy final

@@ -36,10 +36,15 @@ namespace rendercore
 		uint32 m_passTypeMask = 0;
 	};
 
-	struct PrimitiveSubMesh final : public MeshDrawInfo
+	struct PrimitiveSubMesh : public MeshDrawInfo
 	{
 		explicit PrimitiveSubMesh( const MeshDrawInfo& info ) : MeshDrawInfo( info ) {}
 		PrimitiveSubMesh() = default;
+	};
+
+	struct FullScreenQuadDrawInfo : public PrimitiveSubMesh
+	{
+		FullScreenQuadDrawInfo();
 	};
 
 	struct LightIntersectionInfo final

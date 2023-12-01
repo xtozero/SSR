@@ -181,4 +181,9 @@ namespace rendercore
 
 		return snapshotInfoIndex;
 	}
+
+	FullScreenQuadDrawInfo::FullScreenQuadDrawInfo()
+	{
+		m_count = 3;
+	}
 }

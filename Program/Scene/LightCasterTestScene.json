@@ -1,0 +1,228 @@
+{
+  "World": [
+    {
+      "Object": {
+        "Class": "point_light",
+        "Position": [ -50, 0, -50 ],
+        "Diffuse": [ 0.5, 0.5, 0.5, 1 ],
+        "Specular": [ 0.8, 0.8, 0.8, 1 ],
+        "CastShadow": false,
+        "Range": 100
+      }
+    },
+    {
+      "Object": {
+        "Class": "point_light",
+        "Position": [ 50, 0, -50 ],
+        "Diffuse": [ 0.5, 0.5, 0.5, 1 ],
+        "Specular": [ 0.8, 0.8, 0.8, 1 ],
+        "CastShadow": false,
+        "Range": 100
+      }
+    },
+    {
+      "Object": {
+        "Class": "point_light",
+        "Position": [ -50, 0, 50 ],
+        "Diffuse": [ 0.5, 0.5, 0.5, 1 ],
+        "Specular": [ 0.8, 0.8, 0.8, 1 ],
+        "CastShadow": false,
+        "Range": 100
+      }
+    },
+    {
+      "Object": {
+        "Class": "point_light",
+        "Position": [ 50, 0, 50 ],
+        "Diffuse": [ 0.5, 0.5, 0.5, 1 ],
+        "Specular": [ 0.8, 0.8, 0.8, 1 ],
+        "CastShadow": false,
+        "Range": 100
+      }
+    },
+    {
+      "Object": {
+        "Class": "spot_light",
+        "Position": [ 0, 50, 0 ],
+        "Diffuse": [ 0.5, 0.5, 0.5, 1 ],
+        "Specular": [ 0.8, 0.8, 0.8, 1 ],
+        "CastShadow": false,
+        "Direction": [0, -1, 0],
+        "Range": 200,
+        "InnerAngle" : 20,
+        "OuterAngle" : 30
+      }
+    },
+    {
+      "Object": {
+        "Class": "player",
+        "Position": [ 0, 0, -60 ],
+        "Components": {
+          "GroundMovementComponent": {
+            "Kinetic_Force_Scale": 300,
+            "Friction": [ 300, 200 ]
+          }
+        }
+      }
+    },
+    {
+      "Object": {
+        "Class": "box_object",
+        "Name": "ground",
+        "Position": [ 0, -10, 0 ],
+        "Scale": [ 200, 1, 200 ],
+        "Reflectable": 1,
+        "Components": {
+          "StaticMeshComponent": {
+            "Model": "./Assets/Models/Obj/Box/box.asset",
+            "RenderOption": "./Assets/RenderOptions/RO_Reflectable.asset"
+          }
+        }
+      }
+    },
+    {
+      "Object": {
+        "Class": "sphere_object",
+        "Name": "sphere",
+        "Position": [ -26.409266, -4.487085, -10.000000 ],
+        "Scale": [ 10, 10, 10 ],
+        "Mass": 10,
+        "Components": {
+          "StaticMeshComponent": {
+            "Model": "./Assets/Models/Obj/Sphere/sphere.asset",
+            "RenderOption": "./Assets/RenderOptions/RO_Default.asset"
+          }
+        }
+      }
+    },
+    {
+      "Object": {
+        "Class": "static_mesh",
+        "Name": "cone",
+        "Position": [ -13.516332, -4.475936, -10.000000 ],
+        "Scale": [ 10, 10, 10 ],
+        "Components": {
+          "StaticMeshComponent": {
+            "Model": "./Assets/Models/Obj/Cone/cone.asset",
+            "RenderOption": "./Assets/RenderOptions/RO_Default.asset"
+          }
+        }
+      }
+    },
+    {
+      "Object": {
+        "Class": "static_mesh",
+        "Name": "cylinder",
+        "Position": [ -1.270190, -4.746570, -10.000000 ],
+        "Scale": [ 10, 10, 10 ],
+        "Components": {
+          "StaticMeshComponent": {
+            "Model": "./Assets/Models/Obj/Cylinder/cylinder.asset",
+            "RenderOption": "./Assets/RenderOptions/RO_Default.asset"
+          }
+        }
+      }
+    },
+    {
+      "Object": {
+        "Class": "static_mesh",
+        "Name": "torus",
+        "Position": [ 11.517221, -8.738405, -10.000000 ],
+        "Scale": [ 10, 10, 10 ],
+        "Components": {
+          "StaticMeshComponent": {
+            "Model": "./Assets/Models/Obj/Torus/torus.asset",
+            "RenderOption": "./Assets/RenderOptions/RO_Default.asset"
+          }
+        }
+      }
+    },
+    {
+      "Object": {
+        "Class": "box_object",
+        "Name": "dice",
+        "Position": [ 25.928568, -4.814196, -10.000000 ],
+        "Scale": [ 10, 10, 10 ],
+        "Mass": 10,
+        "Components": {
+          "StaticMeshComponent": {
+            "Model": "./Assets/Models/Obj/Dice/dice.asset",
+            "RenderOption": "./Assets/RenderOptions/RO_Default.asset"
+          }
+        }
+      }
+    },
+    {
+      "Object": {
+        "Class": "sphere_object",
+        "Name": "sphere",
+        "Position": [ -26.409266, -4.787085, 10.000000 ],
+        "Scale": [ 10, 10, 10 ],
+        "Mass": 10,
+        "Components": {
+          "StaticMeshComponent": {
+            "Model": "./Assets/Models/Obj/Sphere/sphere.asset",
+            "RenderOption": "./Assets/RenderOptions/RO_Default.asset"
+          }
+        }
+      }
+    },
+    {
+      "Object": {
+        "Class": "static_mesh",
+        "Name": "cone",
+        "Position": [ -13.516332, -4.475936, 10.000000 ],
+        "Scale": [ 10, 10, 10 ],
+        "Components": {
+          "StaticMeshComponent": {
+            "Model": "./Assets/Models/Obj/Cone/cone.asset",
+            "RenderOption": "./Assets/RenderOptions/RO_Default.asset"
+          }
+        }
+      }
+    },
+    {
+      "Object": {
+        "Class": "static_mesh",
+        "Name": "cylinder",
+        "Position": [ -1.270190, -4.746570, 10.000000 ],
+        "Scale": [ 10, 10, 10 ],
+        "Components": {
+          "StaticMeshComponent": {
+            "Model": "./Assets/Models/Obj/Cylinder/cylinder.asset",
+            "RenderOption": "./Assets/RenderOptions/RO_Default.asset"
+          }
+        }
+      }
+    },
+    {
+      "Object": {
+        "Class": "static_mesh",
+        "Name": "torus",
+        "Position": [ 11.517221, -8.738405, 10.000000 ],
+        "Scale": [ 10, 10, 10 ],
+        "Components": {
+          "StaticMeshComponent": {
+            "Model": "./Assets/Models/Obj/Torus/torus.asset",
+            "RenderOption": "./Assets/RenderOptions/RO_Default.asset"
+          }
+        }
+      }
+    },
+    {
+      "Object": {
+        "Class": "box_object",
+        "Name": "dice",
+        "Position": [ 25.928568, -4.814196, 10.000000 ],
+        "Scale": [ 10, 10, 10 ],
+        "Mass": 10,
+        "Components": {
+          "StaticMeshComponent": {
+            "Model": "./Assets/Models/Obj/Dice/dice.asset",
+            "RenderOption": "./Assets/RenderOptions/RO_Default.asset"
+          }
+        }
+      }
+    }
+  ]
+}

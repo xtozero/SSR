@@ -107,6 +107,79 @@ namespace logic
 		bool m_usedAsAtmosphereSunLight = false;
 	};
 
+	class PointLightComponent : public LightComponent
+	{
+		GENERATE_CLASS_TYPE_INFO( PointLightComponent )
+
+	public:
+		using LightComponent::LightComponent;
+
+		virtual void LoadProperty( const json::Value& json ) override;
+
+		virtual rendercore::LightProxy* CreateProxy() const override;
+
+		void SetRange( float range );
+		float Range() const
+		{
+			return m_range;
+		}
+
+	protected:
+		virtual bool ShouldCreateRenderState() const override;
+		virtual void CreateRenderState() override;
+		virtual void RemoveRenderState() override;
+
+	private:
+		float m_range;
+	};
+
+	class SpotLightComponent : public LightComponent
+	{
+		GENERATE_CLASS_TYPE_INFO( SpotLightComponent )
+
+	public:
+		using LightComponent::LightComponent;
+
+		virtual void LoadProperty( const json::Value& json ) override;
+
+		virtual rendercore::LightProxy* CreateProxy() const override;
+
+		void SetDirection( const Vector& direction );
+		const Vector& Direction() const
+		{
+			return m_direction;
+		}
+
+		void SetRange( float range );
+		float Range() const
+		{
+			return m_range;
+		}
+
+		void SetInnerAngle( float innerAngle );
+		float InnerAngle() const
+		{
+			return m_innerAngle;
+		}
+
+		void SetOuterAngle( float outterAngle );
+		float OuterAngle() const
+		{
+			return m_outerAngle;
+		}
+
+	protected:
+		virtual bool ShouldCreateRenderState() const override;
+		virtual void CreateRenderState() override;
+		virtual void RemoveRenderState() override;
+
+	private:
+		Vector m_direction;
+		float m_range;
+		float m_innerAngle;
+		float m_outerAngle;
+	};
+
 	class HemisphereLightComponent : public SceneComponent
 	{
 		GENERATE_CLASS_TYPE_INFO( HemisphereLightComponent )

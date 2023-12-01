@@ -136,16 +136,7 @@ namespace rendercore
 				GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 				shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
-				VisibleDrawSnapshot visibleSnapshot = {
-					.m_primitiveId = 0,
-					.m_primitiveIdOffset = 0,
-					.m_numInstance = 1,
-					.m_snapshotBucketId = -1,
-					.m_drawSnapshot = &snapshot,
-				};
-
-				VertexBuffer emptyPrimitiveID;
-				CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
+				AddSingleDrawPass( snapshot );
 			}
 		}
 

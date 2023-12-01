@@ -7,6 +7,8 @@
 #include "Scene/IScene.h"
 #include "World/World.h"
 
+using ::DirectX::XMConvertToRadians;
+
 namespace logic
 {
 	void LightComponent::LoadProperty( const json::Value& json )
@@ -109,6 +111,120 @@ namespace logic
 	}
 
 	void DirectionalLightComponent::RemoveRenderState()
+	{
+		Super::RemoveRenderState();
+		m_pWorld->Scene()->RemoveLight( this );
+	}
+
+	void PointLightComponent::LoadProperty( const json::Value& json )
+	{
+		Super::LoadProperty( json );
+
+		if ( const json::Value* pRange = json.Find( "Range" ) )
+		{
+			SetRange( static_cast<float>( pRange->AsReal() ) );
+		}
+	}
+
+	rendercore::LightProxy* PointLightComponent::CreateProxy() const
+	{
+		return new rendercore::PointLightProxy( *this );
+	}
+
+	void PointLightComponent::SetRange( float range )
+	{
+		m_range = range;
+	}
+
+	bool PointLightComponent::ShouldCreateRenderState() const
+	{
+		return true;
+	}
+
+	void PointLightComponent::CreateRenderState()
+	{
+		Super::CreateRenderState();
+		m_pWorld->Scene()->AddLight( this );
+	}
+
+	void PointLightComponent::RemoveRenderState()
+	{
+		Super::RemoveRenderState();
+		m_pWorld->Scene()->RemoveLight( this );
+	}
+
+	void SpotLightComponent::LoadProperty( const json::Value& json )
+	{
+		Super::LoadProperty( json );
+
+		if ( const json::Value* pDirection = json.Find( "Direction" ) )
+		{
+			const json::Value& direction = *pDirection;
+
+			if ( direction.Size() >= 3 )
+			{
+				float x = static_cast<float>( direction[0].AsReal() );
+				float y = static_cast<float>( direction[1].AsReal() );
+				float z = static_cast<float>( direction[2].AsReal() );
+
+				Vector vDir( x, y, z );
+				SetDirection( vDir.GetNormalized() );
+			}
+		}
+
+		if ( const json::Value* pRange = json.Find( "Range" ) )
+		{
+			SetRange( static_cast<float>( pRange->AsReal() ) );
+		}
+
+		if ( const json::Value* pRange = json.Find( "InnerAngle" ) )
+		{
+			SetInnerAngle( XMConvertToRadians( static_cast<float>( pRange->AsReal() ) ) );
+		}
+
+		if ( const json::Value* pRange = json.Find( "OuterAngle" ) )
+		{
+			SetOuterAngle( XMConvertToRadians( static_cast<float>( pRange->AsReal() ) ) );
+		}
+	}
+
+	rendercore::LightProxy* SpotLightComponent::CreateProxy() const
+	{
+		return new rendercore::SpotLightProxy( *this );
+	}
+
+	void SpotLightComponent::SetDirection( const Vector& direction )
+	{
+		m_direction = direction;
+	}
+
+	void SpotLightComponent::SetRange( float range )
+	{
+		m_range = range;
+	}
+
+	void SpotLightComponent::SetInnerAngle( float innerAngle )
+	{
+		m_innerAngle = innerAngle;
+	}
+
+	void SpotLightComponent::SetOuterAngle( float outterAngle )
+	{
+		m_outerAngle = outterAngle;
+	}
+
+	bool SpotLightComponent::ShouldCreateRenderState() const
+	{
+		return true;
+	}
+
+	void SpotLightComponent::CreateRenderState()
+	{
+		Super::CreateRenderState();
+		m_pWorld->Scene()->AddLight( this );
+	}
+
+	void SpotLightComponent::RemoveRenderState()
 	{
 		Super::RemoveRenderState();
 		m_pWorld->Scene()->RemoveLight( this );

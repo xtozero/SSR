@@ -11,11 +11,12 @@ namespace logic
 	class DirectionalLightComponent;
 	class HemisphereLightComponent;
 	class LightComponent;
+	class PointLightComponent;
+	class SpotLightComponent;
 
 	enum class LightType : uint8
 	{
-		None = 0,
-		Directional,
+		Directional = 0,
 		Point,
 		Spot
 	};
@@ -48,6 +49,30 @@ namespace logic
 
 	private:
 		DirectionalLightComponent* m_directionalLightComponent = nullptr;
+	};
+
+	class PointLight : public Light
+	{
+	public:
+		virtual const LightType GetType() const override;
+
+		PointLight();
+
+	private:
+		PointLightComponent* m_pointLightComponent = nullptr;
+	};
+
+	class SpotLight : public Light
+	{
+	public:
+		virtual const LightType GetType() const override;
+
+		const Vector& Direction() const;
+
+		SpotLight();
+
+	private:
+		SpotLightComponent* m_spotLightComponent = nullptr;
 	};
 
 	class HemisphereLight : public CGameObject

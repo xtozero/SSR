@@ -79,11 +79,7 @@ namespace rendercore
 	void RSMsRenderer::Render( const RSMsRenderingParam& param, RenderingShaderResource& outRenderingShaderResource )
 	{
 		RSMsDrawPassProcessor rsmsDrawPassProcessor;
-
-		PrimitiveSubMesh meshInfo;
-		meshInfo.m_count = 3;
-
-		auto result = rsmsDrawPassProcessor.Process( meshInfo );
+		auto result = rsmsDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
 		if ( result.has_value() == false )
 		{
 			return;
@@ -127,16 +123,7 @@ namespace rendercore
 			shaderResources.AddResource( "RSMsFlux", shadowMaps[3]->SRV() );
 			shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
-			VisibleDrawSnapshot visibleSnapshot = {
-			   .m_primitiveId = 0,
-			   .m_primitiveIdOffset = 0,
-			   .m_numInstance = 1,
-			   .m_snapshotBucketId = -1,
-			   .m_drawSnapshot = &snapshot,
-			};
-
-			VertexBuffer emptyPrimitiveID;
-			CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
+			AddSingleDrawPass( snapshot );
 		}
 
 		agl::ResourceTransition afterTransition[] = {
