@@ -3,6 +3,7 @@
 
 #include "Components/LightComponent.h"
 #include "Physics/Frustum.h"
+#include "Physics/ICollider.h"
 #include "RenderView.h"
 #include "Scene/LightSceneInfo.h"
 #include "Scene/PrimitiveSceneInfo.h"
@@ -46,6 +47,18 @@ namespace rendercore
 		return lightProperty;
 	}
 
+	float DirectionalLightProxy::GetRange() const
+	{
+		assert( false && "DirectionalLightProxy - Unsurpported function" );
+		return 0.0f;
+	}
+
+	Vector DirectionalLightProxy::GetPosition() const
+	{
+		assert( false && "DirectionalLightProxy - Unsurpported function" );
+		return Vector::ZeroVector;
+	}
+
 	bool DirectionalLightProxy::AffactsBounds( [[maybe_unused]] const BoxSphereBounds& bounds ) const
 	{
 		return true;
@@ -75,9 +88,21 @@ namespace rendercore
 		return lightProperty;
 	}
 
+	float PointLightProxy::GetRange() const
+	{
+		return m_range;
+	}
+
+	Vector PointLightProxy::GetPosition() const
+	{
+		return m_position;
+	}
+
 	bool PointLightProxy::AffactsBounds( const BoxSphereBounds& bounds ) const
 	{
-		return false;
+		BoxSphereBounds lightBounds( m_position, Vector( m_range, m_range, m_range ), m_range );
+
+		return lightBounds.Overlapped( bounds ) != CollisionResult::Outside;
 	}
 
 	PointLightProxy::PointLightProxy( const logic::PointLightComponent& component ) 
@@ -104,6 +129,16 @@ namespace rendercore
 		};
 
 		return lightProperty;
+	}
+
+	float SpotLightProxy::GetRange() const
+	{
+		return m_range;
+	}
+
+	Vector SpotLightProxy::GetPosition() const
+	{
+		return m_position;
 	}
 
 	bool SpotLightProxy::AffactsBounds( const BoxSphereBounds& bounds ) const

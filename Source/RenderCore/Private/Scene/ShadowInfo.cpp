@@ -32,11 +32,14 @@ namespace
 
 namespace rendercore
 {
-	void ShadowInfo::AddCasterPrimitive( PrimitiveSceneInfo* primitiveSceneInfo, const BoxSphereBounds& viewspaceBounds )
+	LightType ShadowInfo::GetLightType() const
+	{
+		return m_lightSceneInfo->Proxy()->GetLightType();
+	}
+
+	void ShadowInfo::AddCasterPrimitive( PrimitiveSceneInfo* primitiveSceneInfo )
 	{
 		m_shadowCasters.emplace_back( primitiveSceneInfo );
-		m_shadowCastersViewSpaceBounds.emplace_back( viewspaceBounds );
-		UpdateSubjectNearAndFar( viewspaceBounds );
 
 		if ( primitiveSceneInfo->SubMeshInfos().size() > 0 )
 		{
@@ -46,6 +49,14 @@ namespace rendercore
 		{
 			// For Dynamic Mesh
 		}
+	}
+
+	void ShadowInfo::AddCasterPrimitive( PrimitiveSceneInfo* primitiveSceneInfo, const BoxSphereBounds& viewspaceBounds )
+	{
+		m_shadowCastersViewSpaceBounds.emplace_back( viewspaceBounds );
+		UpdateSubjectNearAndFar( viewspaceBounds );
+
+		AddCasterPrimitive( primitiveSceneInfo );
 	}
 
 	void ShadowInfo::AddReceiverPrimitive( PrimitiveSceneInfo* primitiveSceneInfo, const BoxSphereBounds& viewspaceBounds )
@@ -61,8 +72,8 @@ namespace rendercore
 		LightProperty lightProperty = m_lightSceneInfo->Proxy()->GetLightProperty();
 		params.m_lightPosOrDir = ( lightProperty.m_type == LightType::Directional ) ? Vector4( lightProperty.m_direction ) : lightProperty.m_position;
 		params.m_slopeBiasScale = 0.2f;
-		params.m_constantBias = 0.05f;
-		params.m_lightIdx = m_lightSceneInfo->ID();
+		params.m_constantBias = ( lightProperty.m_type == LightType::Directional ) ? 0.05f : 0.5f;
+		params.m_lightIdx = m_lightSceneInfo->IdOnGPU();
 
 		for ( uint32 i = 0; i < CascadeShadowSetting::MAX_CASCADE_NUM; ++i )
 		{
@@ -143,7 +154,7 @@ namespace rendercore
 		{
 			for ( const auto& subMeshInfo : subMeshInfos )
 			{
-				auto snapshotIndex = subMeshInfo.GetCachedDrawSnapshotInfoIndex( RenderPass::CSMShadowDepth );
+				auto snapshotIndex = subMeshInfo.GetCachedDrawSnapshotInfoIndex( GetShadowDepthRenderPass() );
 				if ( snapshotIndex )
 				{
 					const CachedDrawSnapshotInfo& info = primitiveSceneInfo.GetCachedDrawSnapshotInfo( *snapshotIndex );
@@ -166,5 +177,24 @@ namespace rendercore
 
 		m_subjectNear = std::min( m_subjectNear, min.z );
 		m_subjectFar = std::max( m_subjectFar, max.z );
+	}
+
+	RenderPass ShadowInfo::GetShadowDepthRenderPass() const
+	{
+		switch ( GetLightType() )
+		{
+		case LightType::Directional:
+			return RenderPass::CascadeShadowDepth;
+			break;
+		case LightType::Point:
+			return RenderPass::PointShadowDepth;
+			break;
+		case LightType::Spot:
+			return RenderPass::PointShadowDepth;
+			break;
+		}
+
+		assert( false && "GetShadowDepthRenderPass - Unsurpported LightType" );
+		return RenderPass::CascadeShadowDepth;
 	}
 }

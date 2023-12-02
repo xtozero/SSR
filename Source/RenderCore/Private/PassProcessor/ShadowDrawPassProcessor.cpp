@@ -15,7 +15,7 @@ namespace rendercore
 
 	REGISTER_GLOBAL_SHADER( DrawCascadeShadowPS, "./Assets/Shaders/Shadow/PS_DrawCascadeShadow.asset" );
 
-	std::optional<DrawSnapshot> ShadowDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
+	std::optional<DrawSnapshot> CascadeShadowDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
 	{
 		StaticShaderSwitches vsSwitches = FullScreenQuadVS::GetSwitches();
 		if ( DefaultRenderCore::IsTaaEnabled() )
@@ -33,6 +33,48 @@ namespace rendercore
 			FullScreenQuadVS( vsSwitches ),
 			nullptr,
 			DrawCascadeShadowPS( psSwitches )
+		};
+
+		BlendOption shadowDrawPassBlendOption;
+		RenderTargetBlendOption& rt0BlendOption = shadowDrawPassBlendOption.m_renderTarget[0];
+		rt0BlendOption.m_blendEnable = true;
+		rt0BlendOption.m_srcBlend = agl::Blend::Zero;
+		rt0BlendOption.m_destBlend = agl::Blend::SrcColor;
+		rt0BlendOption.m_srcBlendAlpha = agl::Blend::Zero;
+		rt0BlendOption.m_destBlendAlpha = agl::Blend::One;
+
+		DepthStencilOption shadowDrawPassDepthOption;
+		shadowDrawPassDepthOption.m_depth.m_writeDepth = false;
+
+		PassRenderOption passRenderOption = {
+			.m_blendOption = &shadowDrawPassBlendOption,
+			.m_depthStencilOption = &shadowDrawPassDepthOption
+		};
+
+		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default );
+	}
+
+	class DrawPointShadowPS final : public GlobalShaderCommon<PixelShader, DrawPointShadowPS>
+	{
+		using GlobalShaderCommon::GlobalShaderCommon;
+	};
+
+	REGISTER_GLOBAL_SHADER( DrawPointShadowPS, "./Assets/Shaders/Shadow/PS_DrawPointShadow.asset" );
+
+	std::optional<DrawSnapshot> PointShadowDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
+	{
+		StaticShaderSwitches vsSwitches = FullScreenQuadVS::GetSwitches();
+		if ( DefaultRenderCore::IsTaaEnabled() )
+		{
+			vsSwitches.On( Name( "TAA" ), 1 );
+		}
+
+		StaticShaderSwitches psSwitches = DrawPointShadowPS::GetSwitches();
+
+		PassShader passShader{
+			FullScreenQuadVS( vsSwitches ),
+			nullptr,
+			DrawPointShadowPS( psSwitches )
 		};
 
 		BlendOption shadowDrawPassBlendOption;

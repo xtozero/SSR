@@ -191,9 +191,11 @@ namespace rendercore
 		}
 
 		RenderThreadFrameData<ShadowInfo*> viewDependentShadow;
+		RenderThreadFrameData<ShadowInfo*> viewIndependentShadow;
 
 		Scene& renderScene = *scene.GetRenderScene();
 		auto lights = renderScene.Lights();
+		m_shadowInfos.reserve( lights.Size() );
 
 		for ( const auto& view : renderViewGroup )
 		{
@@ -203,26 +205,35 @@ namespace rendercore
 				if ( proxy->CastShadow() )
 				{
 					ShadowInfo& shadowInfo = m_shadowInfos.emplace_back( light, view );
-					viewDependentShadow.push_back( &shadowInfo );
+
+					if ( proxy->GetLightType() == LightType::Directional )
+					{
+						viewDependentShadow.push_back( &shadowInfo );
+					}
+					else
+					{
+						viewIndependentShadow.push_back( &shadowInfo );
+					}
 				}
 			}
 		}
 
-		ClassifyShadowCasterAndReceiver( scene, viewDependentShadow );
+		ClassifyViewDependentShadowCasterAndReceiver( scene, viewDependentShadow );
+		ClassifyViewIndependentShadowCasterAndReceiver( scene, viewIndependentShadow );
 
 		SetupShadow();
 
 		AllocateShadowMaps();
 	}
 
-	void SceneRenderer::ClassifyShadowCasterAndReceiver( IScene& scene, const RenderThreadFrameData<ShadowInfo*>& shadows )
+	void SceneRenderer::ClassifyViewDependentShadowCasterAndReceiver( IScene& scene, const RenderThreadFrameData<ShadowInfo*>& shadows )
 	{
 		Scene& renderScene = *scene.GetRenderScene();
 
 		for ( ShadowInfo* pShadowInfo : shadows )
 		{
 			LightSceneInfo* lightSceneInfo = pShadowInfo->GetLightSceneInfo();
-			[[maybe_unused]] LightType lightType = lightSceneInfo->Proxy()->GetLightType();
+			[[maybe_unused]] LightType lightType = pShadowInfo->GetLightType();
 
 			assert( lightType == LightType::Directional );
 			assert( pShadowInfo->View() != nullptr );
@@ -273,6 +284,22 @@ namespace rendercore
 		}
 	}
 
+	void SceneRenderer::ClassifyViewIndependentShadowCasterAndReceiver( IScene& scene, const RenderThreadFrameData<ShadowInfo*>& shadows )
+	{
+		for ( ShadowInfo* pShadowInfo : shadows )
+		{
+			LightSceneInfo* lightSceneInfo = pShadowInfo->GetLightSceneInfo();
+
+			const auto& intersectionInfos = lightSceneInfo->Primitives();
+			for ( const auto& intersectionInfo : intersectionInfos )
+			{
+				PrimitiveSceneInfo* primitive = intersectionInfo.m_primitive;
+
+				pShadowInfo->AddCasterPrimitive( primitive );
+			}
+		}
+	}
+
 	void SceneRenderer::SetupShadow()
 	{
 		for ( ShadowInfo& shadowInfo : m_shadowInfos )
@@ -282,8 +309,7 @@ namespace rendercore
 				continue;
 			}
 
-			LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo();
-			LightType lightType = lightSceneInfo->Proxy()->GetLightType();
+			LightType lightType = shadowInfo.GetLightType();
 
 			switch ( lightType )
 			{
@@ -293,7 +319,10 @@ namespace rendercore
 				break;
 			}
 			case LightType::Point:
+			{
+				BuildPointShadowProjectionMatrix( shadowInfo );
 				break;
+			}
 			case LightType::Spot:
 				break;
 			default:
@@ -305,11 +334,11 @@ namespace rendercore
 	void SceneRenderer::AllocateShadowMaps()
 	{
 		RenderThreadFrameData<ShadowInfo*> cascadeShadows;
+		RenderThreadFrameData<ShadowInfo*> pointShadows;
 
 		for ( auto& shadowInfo : m_shadowInfos )
 		{
-			LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo();
-			LightType lightType = lightSceneInfo->Proxy()->GetLightType();
+			LightType lightType = shadowInfo.GetLightType();
 
 			switch ( lightType )
 			{
@@ -317,6 +346,7 @@ namespace rendercore
 				cascadeShadows.push_back( &shadowInfo );
 				break;
 			case LightType::Point:
+				pointShadows.push_back( &shadowInfo );
 				break;
 			case LightType::Spot:
 				break;
@@ -328,6 +358,11 @@ namespace rendercore
 		if ( cascadeShadows.size() > 0 )
 		{
 			AllocateCascadeShadowMaps( cascadeShadows );
+		}
+
+		if ( pointShadows.size() > 0 )
+		{
+			AllocatePointShadowMaps( pointShadows );
 		}
 	}
 
@@ -435,6 +470,53 @@ namespace rendercore
 		}
 	}
 
+	void SceneRenderer::AllocatePointShadowMaps( const RenderThreadFrameData<ShadowInfo*>& shadows )
+	{
+		for ( ShadowInfo* shadow : shadows )
+		{
+			auto [width, height] = shadow->ShadowMapSize();
+
+			agl::TextureTrait trait = {
+				.m_width = width,
+				.m_height = height,
+				.m_depth = 6,
+				.m_sampleCount = 1,
+				.m_sampleQuality = 0,
+				.m_mipLevels = 1,
+				.m_format = agl::ResourceFormat::R32_FLOAT,
+				.m_access = agl::ResourceAccessFlag::Default,
+				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
+				.m_miscFlag = agl::ResourceMisc::TextureCube,
+				.m_clearValue = agl::ResourceClearValue{
+					.m_color = { 1.f, 1.f, 1.f, 1.f }
+				}
+			};
+
+			shadow->ShadowMap().m_shadowMaps.emplace_back( RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "Shadow.Point" ) );
+
+			agl::TextureTrait depthTrait = {
+				.m_width = width,
+				.m_height = height,
+				.m_depth = 6,
+				.m_sampleCount = 1,
+				.m_sampleQuality = 0,
+				.m_mipLevels = 1,
+				.m_format = agl::ResourceFormat::D24_UNORM_S8_UINT,
+				.m_access = agl::ResourceAccessFlag::Default,
+				.m_bindType = agl::ResourceBindType::DepthStencil,
+				.m_miscFlag = agl::ResourceMisc::TextureCube,
+				.m_clearValue = agl::ResourceClearValue{
+					.m_depthStencil = {
+						.m_depth = 1.f,
+						.m_stencil = 0
+					}
+				}
+			};
+
+			shadow->ShadowMap().m_shadowMapDepth = RenderTargetPool::GetInstance().FindFreeRenderTarget( depthTrait, "Shadow.Point.Depth" );
+		}
+	}
+
 	void SceneRenderer::RenderShadowDepthPass()
 	{
 		for ( ShadowInfo& shadowInfo : m_shadowInfos )
@@ -480,7 +562,7 @@ namespace rendercore
 			beforeRenderDepth.push_back( Transition( *shadowMap.m_shadowMaps[0].Get(), agl::ResourceState::RenderTarget ) );
 			beforeRenderDepth.push_back( Transition( *shadowMap.m_shadowMapDepth.Get(), agl::ResourceState::DepthWrite ) );
 
-			bool rsmsEnabled = DefaultRenderCore::IsRSMsEnabled();
+			bool rsmsEnabled = DefaultRenderCore::IsRSMsEnabled() && shadowMap.m_shadowMaps.size() >= 4;
 			if ( rsmsEnabled )
 			{
 				beforeRenderDepth.push_back( Transition( *shadowMap.m_shadowMaps[1].Get(), agl::ResourceState::RenderTarget ) );
@@ -678,9 +760,24 @@ namespace rendercore
 	{
 		for ( ShadowInfo& shadowInfo : m_shadowInfos )
 		{
-			ShadowDrawPassProcessor shadowDrawPassProcessor;
+			std::optional<DrawSnapshot> result;
 
-			auto result = shadowDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
+			switch ( shadowInfo.GetLightType() )
+			{
+			case LightType::Directional:
+			{
+				CascadeShadowDrawPassProcessor shadowDrawPassProcessor;
+				result = shadowDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
+				break;
+			}
+			case LightType::Point:
+			{
+				PointShadowDrawPassProcessor shadowDrawPassProcessor;
+				result = shadowDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
+				break;
+			}
+			}
+
 			if ( result.has_value() == false )
 			{
 				return;
@@ -695,16 +792,18 @@ namespace rendercore
 			auto commandList = GetCommandList();
 			ApplyOutputContext( commandList );
 
-			m_shaderResources.AddResource( "ShadowTexture", shadowInfo.ShadowMap().m_shadowMaps[0]->SRV());
+			m_shaderResources.AddResource( "ShadowTexture", shadowInfo.ShadowMap().m_shadowMaps[0]->SRV() );
+
+			bool bESMsEnabled = DefaultRenderCore::IsESMsEnabled();
 
 			SamplerOption shadowSamplerOption;
-			if ( DefaultRenderCore::IsESMsEnabled() == false )
+			if ( ( bESMsEnabled == false ) || ( shadowInfo.GetLightType() != LightType::Directional ) )
 			{
 				shadowSamplerOption.m_filter |= agl::TextureFilter::Comparison;
 				shadowSamplerOption.m_addressU = agl::TextureAddressMode::Border;
 				shadowSamplerOption.m_addressV = agl::TextureAddressMode::Border;
 				shadowSamplerOption.m_addressW = agl::TextureAddressMode::Border;
-				shadowSamplerOption.m_comparisonFunc = agl::ComparisonFunc::LessEqual;
+				shadowSamplerOption.m_comparisonFunc = agl::ComparisonFunc::Less;
 			}
 			
 			SamplerState shadowSampler = GraphicsInterface().FindOrCreate( shadowSamplerOption );
@@ -712,7 +811,7 @@ namespace rendercore
 
 			m_shaderResources.AddResource( "ShadowDepthPassParameters", shadowInfo.ConstantBuffer().Resource() );
 
-			if ( DefaultRenderCore::IsESMsEnabled() )
+			if ( bESMsEnabled )
 			{
 				m_shaderResources.AddResource( "ESMsParameters", shadowInfo.ESMsConstantBuffer().Resource());
 			}
@@ -952,7 +1051,7 @@ namespace rendercore
 			{
 				const ShadowInfo& shadowInfo = renderingParam.m_shadowInfos[i];
 
-				ShadowMapRenderTarget smrt = shadowInfo.ShadowMap();
+				const ShadowMapRenderTarget& smrt = shadowInfo.ShadowMap();
 				if ( smrt.m_shadowMaps.size() >= 4 )
 				{
 					valid = true;

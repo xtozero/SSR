@@ -78,11 +78,11 @@ public:
 	}
 
 	constexpr InlineAllocator() = default;
-	constexpr InlineAllocator( const InlineAllocator& ) = default;
+	constexpr InlineAllocator( const InlineAllocator& ) {}
 	template <class Other>
 	constexpr InlineAllocator( const InlineAllocator<Other, NumInlineElements, SecondAlloc>& ) noexcept {}
 	~InlineAllocator() = default;
-	InlineAllocator& operator=( const InlineAllocator& ) = default;
+	InlineAllocator& operator=( const InlineAllocator& ) { return *this; }
 	
 	friend bool operator==( const InlineAllocator<T, NumInlineElements, SecondAlloc, OriginalT>& lhs, const InlineAllocator<T, NumInlineElements, SecondAlloc, OriginalT>& rhs )
 	{

@@ -17,6 +17,8 @@ namespace rendercore
 	class RenderingShaderResource;
 	class SceneRenderer;
 
+	enum class LightType : uint8;
+
 	struct RenderView;
 
 	struct CascadeShadowSetting final
@@ -129,6 +131,9 @@ namespace rendercore
 			return *m_pESMsConstantBuffer;
 		}
 
+		LightType GetLightType() const;
+
+		void AddCasterPrimitive( PrimitiveSceneInfo* primitiveSceneInfo );
 		void AddCasterPrimitive( PrimitiveSceneInfo* primitiveSceneInfo, const BoxSphereBounds& viewspaceBounds );
 		void AddReceiverPrimitive( PrimitiveSceneInfo* primitiveSceneInfo, const BoxSphereBounds& viewspaceBounds );
 
@@ -140,6 +145,7 @@ namespace rendercore
 	private:
 		void AddCachedDrawSnapshotForPass( PrimitiveSceneInfo& primitiveSceneInfo );
 		void UpdateSubjectNearAndFar( const BoxSphereBounds& viewspaceBounds );
+		RenderPass GetShadowDepthRenderPass() const;
 
 		LightSceneInfo* m_lightSceneInfo = nullptr;
 		const RenderView* m_view = nullptr;

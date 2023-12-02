@@ -473,7 +473,7 @@ namespace rendercore
 	void Scene::AddLightSceneInfo( LightSceneInfo* lightSceneInfo )
 	{
 		uint32 id = static_cast<uint32>( m_lights.Add( lightSceneInfo ) );
-		lightSceneInfo->SetID( id );
+		lightSceneInfo->SetId( id );
 
 		lightSceneInfo->AddToScene();
 
@@ -484,7 +484,7 @@ namespace rendercore
 	{
 		RemoveSkyAtmosphereLight( lightSceneInfo );
 
-		uint32 id = lightSceneInfo->ID();
+		uint32 id = lightSceneInfo->Id();
 		m_lights.RemoveAt( id );
 
 		lightSceneInfo->RemoveFromScene();

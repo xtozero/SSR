@@ -456,8 +456,11 @@ namespace rendercore
 		auto lightData = static_cast<ForwardLightData*>( lightBuffer.Lock() );
 		assert( lightData != nullptr );
 
+		uint32 idOnGpu = 0;
 		for ( auto light : validLights )
 		{
+			light->SetIdOnGPU( idOnGpu++ );
+
 			LightProxy* proxy = light->Proxy();
 			LightProperty property = proxy->GetLightProperty();
 

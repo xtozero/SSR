@@ -24,7 +24,7 @@ struct PS_OUTPUT
 #endif
 };
 
-PS_OUTPUT main( PS_INPUT input ) : SV_TARGET
+PS_OUTPUT main( PS_INPUT input )
 {
 	PS_OUTPUT output = (PS_OUTPUT)0;
 	

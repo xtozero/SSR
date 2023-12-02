@@ -10,7 +10,8 @@ namespace rendercore
 	enum class RenderPass : uint8
 	{
 		DepthWrite = 0,
-		CSMShadowDepth,
+		CascadeShadowDepth,
+		PointShadowDepth,
 		Default,
 		Count,
 	};

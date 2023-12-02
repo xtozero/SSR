@@ -50,6 +50,9 @@ namespace rendercore
 	public:
 		virtual LightType GetLightType() const = 0;
 		virtual LightProperty GetLightProperty() const = 0;
+		virtual float GetRange() const = 0;
+		virtual Vector GetPosition() const = 0;
+
 		virtual bool AffactsBounds( const BoxSphereBounds& bounds ) const = 0;
 
 		bool& CastShadow()
@@ -95,6 +98,8 @@ namespace rendercore
 		}
 
 		virtual LightProperty GetLightProperty() const override;
+		virtual float GetRange() const override;
+		virtual Vector GetPosition() const override;
 
 		virtual bool AffactsBounds( const BoxSphereBounds& bounds ) const override;
 
@@ -113,6 +118,8 @@ namespace rendercore
 		}
 
 		virtual LightProperty GetLightProperty() const override;
+		virtual float GetRange() const override;
+		virtual Vector GetPosition() const override;
 
 		virtual bool AffactsBounds( const BoxSphereBounds& bounds ) const override;
 
@@ -133,6 +140,8 @@ namespace rendercore
 		}
 
 		virtual LightProperty GetLightProperty() const override;
+		virtual float GetRange() const override;
+		virtual Vector GetPosition() const override;
 
 		virtual bool AffactsBounds( const BoxSphereBounds& bounds ) const override;
 

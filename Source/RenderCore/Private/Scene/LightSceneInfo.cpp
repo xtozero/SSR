@@ -54,8 +54,9 @@ namespace rendercore
 	{
 		SparseArray<LightIntersectionInfo>& lights = primitive.Lights();
 
-		for ( size_t i = 0; i < lights.Size(); ++i )
+		for ( auto iter = std::begin( lights ); iter != std::end( lights ); ++iter )
 		{
+			size_t i = iter.Index();
 			if ( lights[i].m_light == this )
 			{
 				m_primitiveList.RemoveAt( lights[i].m_infoId );

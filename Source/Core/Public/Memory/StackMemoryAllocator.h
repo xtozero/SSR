@@ -34,6 +34,8 @@ public:
 		uint8* memory = reinterpret_cast<uint8*>( ( (uptrint)m_top + align - 1 ) & ~( align - 1 ) );
 		uint8* newTop = memory + n;
 
+		assert( n <= sizeof( MemoryPage ) - sizeof( TaggedMemory ) );
+
 		if ( newTop <= m_end )
 		{
 			m_top = newTop;
@@ -132,7 +134,7 @@ public:
 	using value_type = T;
 	using size_type = size_t;
 	using difference_type = uptrint;
-	using propagate_on_container_move_assignment = std::false_type;
+	using propagate_on_container_move_assignment = std::true_type;
 
 	[[nodiscard]] constexpr T* allocate( size_t n )
 	{

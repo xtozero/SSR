@@ -23,7 +23,7 @@ public:
 	using value_type = T;
 	using size_type = size_t;
 	using difference_type = uptrint;
-	using propagate_on_container_move_assignment = std::false_type;
+	using propagate_on_container_move_assignment = std::true_type;
 
 	[[nodiscard]] constexpr T* allocate( size_t n )
 	{

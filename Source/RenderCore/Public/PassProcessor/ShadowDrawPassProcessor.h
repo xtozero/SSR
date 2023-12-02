@@ -4,7 +4,13 @@
 
 namespace rendercore
 {
-	class ShadowDrawPassProcessor final : public IPassProcessor
+	class CascadeShadowDrawPassProcessor final : public IPassProcessor
+	{
+	public:
+		virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) override;
+	};
+
+	class PointShadowDrawPassProcessor final : public IPassProcessor
 	{
 	public:
 		virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) override;

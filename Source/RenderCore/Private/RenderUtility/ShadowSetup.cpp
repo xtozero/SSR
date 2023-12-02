@@ -13,6 +13,7 @@
 #include "Scene/LightSceneInfo.h"
 #include "Scene/ShadowInfo.h"
 
+using ::DirectX::XMConvertToRadians;
 using ::rendercore::CascadeShadowSetting;
 using ::rendercore::RenderView;
 using ::rendercore::ShadowInfo;
@@ -571,6 +572,34 @@ namespace rendercore
 
 			SplitShadowProjectionMatrix( shadowInfo, view, shadowViewProjMat, shadowMat );
 		}
+	}
+
+	void BuildPointShadowProjectionMatrix( ShadowInfo& shadowInfo )
+	{
+		LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo();
+		
+		float range = lightSceneInfo->Proxy()->GetRange();
+		PerspectiveMatrix lightProjection( XMConvertToRadians( 90.f ), 1.f, 1, range );
+
+		const Vector& position = lightSceneInfo->Proxy()->GetPosition();
+
+		// +x
+		shadowInfo.ShadowViewProjections()[0] = LookAtMatrix( position, position + Vector( 1, 0, 0 ), Vector( 0, 1, 0 ) ) * lightProjection;
+
+		// -x
+		shadowInfo.ShadowViewProjections()[1] = LookAtMatrix( position, position + Vector( -1, 0, 0 ), Vector( 0, 1, 0 ) ) * lightProjection;
+		
+		// +y
+		shadowInfo.ShadowViewProjections()[2] = LookAtMatrix( position, position + Vector( 0, 1, 0 ), Vector( 0, 0, -1 ) ) * lightProjection;
+		
+		// -y
+		shadowInfo.ShadowViewProjections()[3] = LookAtMatrix( position, position + Vector( 0, -1, 0 ), Vector( 0, 0, 1 ) ) * lightProjection;
+		
+		// +z
+		shadowInfo.ShadowViewProjections()[4] = LookAtMatrix( position, position + Vector( 0, 0, 1 ), Vector( 0, 1, 0 ) ) * lightProjection;
+		
+		// -z
+		shadowInfo.ShadowViewProjections()[5] = LookAtMatrix( position, position + Vector( 0, 0, -1 ), Vector( 0, 1, 0 ) ) * lightProjection;
 	}
 
 	void CalculateSplitPositions( ShadowInfo& shadowInfo, float casterFar, float lamda )

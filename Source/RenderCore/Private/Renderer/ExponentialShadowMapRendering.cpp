@@ -179,7 +179,7 @@ namespace rendercore
 			return shadowMap;
 		}
 
-		LightType lightType = shadowInfo.GetLightSceneInfo()->Proxy()->GetLightType();
+		LightType lightType = shadowInfo.GetLightType();
 		if ( lightType == LightType::Directional )
 		{
 			return GenerateCascadedESMs( shadowMap );

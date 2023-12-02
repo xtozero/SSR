@@ -3,8 +3,6 @@
 #include "SizedTypes.h"
 #include "SparseArray.h"
 
-#include <cstddef>
-
 namespace logic
 {
 	class LightComponent;
@@ -37,14 +35,25 @@ namespace rendercore
 			return m_lightProxy;
 		}
 
-		uint32 ID() const
+		uint32 Id() const
 		{
 			return m_id;
 		}
 
-		void SetID( uint32 id )
+		void SetId( uint32 id )
 		{
 			m_id = id;
+		}
+
+		// Valid in current frame only. Do not cache this id
+		uint32 IdOnGPU() const
+		{
+			return m_idOnGpu;
+		}
+
+		void SetIdOnGPU( uint32 id )
+		{
+			m_idOnGpu = id;
 		}
 
 		uint32 GetShadowQuility() const
@@ -66,6 +75,7 @@ namespace rendercore
 		bool AffactsPrimitive( PrimitiveSceneInfo& primitive );
 
 		uint32 m_id = 0;
+		uint32 m_idOnGpu = 0;
 		LightProxy* m_lightProxy = nullptr;
 		Scene& m_scene;
 
