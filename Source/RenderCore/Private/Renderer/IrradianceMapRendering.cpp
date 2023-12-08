@@ -11,6 +11,7 @@
 #include "SceneRenderer.h"
 #include "ShaderParameterUtils.h"
 #include "ShaderParameterUtils.h"
+#include "StaticState.h"
 #include "TransitionUtils.h"
 #include "VertexCollection.h"
 
@@ -127,7 +128,7 @@ namespace rendercore
 			auto result = irradianceMapGenerateProcessor.Process( meshInfo );
 			if ( result.has_value() )
 			{
-				auto linearSampler = GraphicsInterface().FindOrCreate( SamplerOption() );
+				auto linearSampler = StaticSamplerState<>::Get();
 				RenderingShaderResource shaderResources;
 				shaderResources.AddResource( "CubeMap", cubeMap->SRV() );
 				shaderResources.AddResource( "LinearSampler", linearSampler.Resource() );
@@ -177,7 +178,7 @@ namespace rendercore
 		auto commandList = GetCommandList();
 		commandList.BindPipelineState( pso );
 
-		auto linearSampler = GraphicsInterface().FindOrCreate( SamplerOption() );
+		auto linearSampler = StaticSamplerState<>::Get();
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( irradianceMapShCS );
 		BindResource( shaderBindings, irradianceMapShCS.CubeMap(), cubeMap );

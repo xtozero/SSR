@@ -484,6 +484,8 @@ namespace agl
 		Comparison = 0x80,
 		Minimum = 0x100,
 		Maximum = 0x180,
+
+		MinMagMipLinear = MipLinear | MagLinear | MinLinear,
 	};
 	ENUM_CLASS_FLAGS( TextureFilter );
 

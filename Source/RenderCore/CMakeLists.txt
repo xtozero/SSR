@@ -46,6 +46,7 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Public/GraphicsResource/Shader.h
 	Public/GraphicsResource/ShaderCache.h
 	Public/GraphicsResource/StaticShaderSwitch.h
+	Public/GraphicsResource/StaticState.h
 	Public/GraphicsResource/TypedBuffer.h
 	Public/GraphicsResource/UberShader.h
 	Public/GraphicsResource/UploadBuffer.h

@@ -44,8 +44,14 @@ private:
 class Color
 {
 public:
-	Color( uint8 r, uint8 g, uint8 b, uint8 a = 255 );
-	Color();
+	constexpr Color( uint8 r, uint8 g, uint8 b, uint8 a = 255 )
+		: m_elem{ r, g, b, a }
+	{
+	}
+	constexpr Color()
+		: m_elem{ 0, 0, 0, 0 }
+	{
+	}
 
 	uint8& operator[]( size_t idx );
 	uint8 operator[]( size_t idx ) const;
@@ -73,7 +79,6 @@ public:
 	static const Color Black;
 	static const Color White;
 
-private:
 	union
 	{
 		struct

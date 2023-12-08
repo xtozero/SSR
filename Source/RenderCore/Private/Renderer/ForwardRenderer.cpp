@@ -11,6 +11,7 @@
 #include "Scene/LightSceneInfo.h"
 #include "Scene/Scene.h"
 #include "Scene/SceneConstantBuffers.h"
+#include "StaticState.h"
 #include "SkyAtmosphereRendering.h"
 #include "TransitionUtils.h"
 #include "Viewport.h"
@@ -267,10 +268,9 @@ namespace rendercore
 		m_shaderResources.AddResource( "ViewSpaceDistance", m_renderTargets.GetViewSpaceDistance()->SRV() );
 		m_shaderResources.AddResource( "WorldNormal", m_renderTargets.GetWorldNormal()->SRV() );
 
-		SamplerOption defaultSamplerOption;
-		SamplerState defaultSampler = GraphicsInterface().FindOrCreate( defaultSamplerOption );
-		m_shaderResources.AddResource( "ViewSpaceDistanceSampler", defaultSampler.Resource() );
-		m_shaderResources.AddResource( "WorldNormalSampler", defaultSampler.Resource() );
+		SamplerState linearSampler = StaticSamplerState<>::Get();
+		m_shaderResources.AddResource( "ViewSpaceDistanceSampler", linearSampler.Resource() );
+		m_shaderResources.AddResource( "WorldNormalSampler", linearSampler.Resource() );
 
 		auto renderScene = scene.GetRenderScene();
 		if ( TexturedSkyProxy* proxy = renderScene->TexturedSky() )

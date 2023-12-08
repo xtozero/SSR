@@ -64,16 +64,6 @@ float ColorF::A() const
 const ColorF ColorF::Black( 0.f, 0.f, 0.f, 1.f );
 const ColorF ColorF::White( 1.f, 1.f, 1.f, 1.f );
 
-Color::Color( uint8 r, uint8 g, uint8 b, uint8 a )
-	: m_elem{ r, g, b, a }
-{
-}
-
-Color::Color()
-	: m_elem{ 0, 0, 0, 0 }
-{
-}
-
 uint8& Color::operator[]( size_t idx )
 {
 	switch ( idx )

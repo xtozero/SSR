@@ -14,6 +14,7 @@ namespace rendercore
 		const agl::BlendState* Resource() const;
 
 		explicit BlendState( const agl::BlendStateTrait& trait );
+		explicit BlendState( agl::BlendState* state ) noexcept;
 
 		BlendState() = default;
 		~BlendState() = default;
@@ -35,6 +36,7 @@ namespace rendercore
 		const agl::DepthStencilState* Resource() const;
 
 		explicit DepthStencilState( const agl::DepthStencilStateTrait& trait );
+		explicit DepthStencilState( agl::DepthStencilState* state ) noexcept;
 
 		DepthStencilState() = default;
 		~DepthStencilState() = default;
@@ -56,6 +58,7 @@ namespace rendercore
 		const agl::RasterizerState* Resource() const;
 
 		explicit RasterizerState( const agl::RasterizerStateTrait& trait );
+		explicit RasterizerState( agl::RasterizerState* state ) noexcept;
 
 		RasterizerState() = default;
 		~RasterizerState() = default;
@@ -77,6 +80,7 @@ namespace rendercore
 		const agl::SamplerState* Resource() const;
 
 		explicit SamplerState( const agl::SamplerStateTrait& trait );
+		explicit SamplerState( agl::SamplerState* state ) noexcept;
 
 		SamplerState() = default;
 		~SamplerState() = default;

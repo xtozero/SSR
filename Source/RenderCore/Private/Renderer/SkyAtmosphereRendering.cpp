@@ -9,6 +9,7 @@
 #include "Scene/PrimitiveSceneInfo.h"
 #include "Scene/Scene.h"
 #include "ShaderParameterUtils.h"
+#include "StaticState.h"
 #include "VertexCollection.h"
 
 namespace rendercore
@@ -209,9 +210,7 @@ namespace rendercore
 			return;
 		}
 
-		SamplerOption pointSamperOption;
-		pointSamperOption.m_filter = agl::TextureFilter::Point;
-		auto pointSampler = GraphicsInterface().FindOrCreate( pointSamperOption );
+		SamplerState pointSampler = StaticSamplerState<agl::TextureFilter::Point>::Get();
 
 		// 1. Transmittance Table
 		TransmittanceCS transmittanceCS;

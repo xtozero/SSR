@@ -5,9 +5,9 @@
 #include "CommonRenderResource.h"
 #include "Config/DefaultRenderCoreConfig.h"
 #include "ExponentialShadowMapRendering.h"
+#include "Material/MaterialResource.h"
 #include "Math/TransformationMatrix.h"
 #include "Mesh/StaticMeshResource.h"
-#include "Material/MaterialResource.h"
 #include "Physics/CollideNarrow.h"
 #include "Physics/Frustum.h"
 #include "Physics/ICollider.h"
@@ -27,6 +27,7 @@
 #include "ShadowDrawPassProcessor.h"
 #include "ShadowSetup.h"
 #include "SkyAtmosphereRendering.h"
+#include "StaticState.h"
 #include "TransitionUtils.h"
 #include "Viewport.h"
 #include "VolumetricCloudPassProcessor.h"
@@ -131,7 +132,7 @@ namespace rendercore
 
 		InitDynamicShadows( renderViewGroup );
 
-		auto linearSampler = GraphicsInterface().FindOrCreate( SamplerOption() );
+		auto linearSampler = StaticSamplerState<>::Get();
 		m_shaderResources.AddResource( "LinearSampler", linearSampler.Resource() );
 		
 		return true;
@@ -796,17 +797,21 @@ namespace rendercore
 
 			bool bESMsEnabled = DefaultRenderCore::IsESMsEnabled();
 
-			SamplerOption shadowSamplerOption;
+			SamplerState shadowSampler;
 			if ( ( bESMsEnabled == false ) || ( shadowInfo.GetLightType() != LightType::Directional ) )
 			{
-				shadowSamplerOption.m_filter |= agl::TextureFilter::Comparison;
-				shadowSamplerOption.m_addressU = agl::TextureAddressMode::Border;
-				shadowSamplerOption.m_addressV = agl::TextureAddressMode::Border;
-				shadowSamplerOption.m_addressW = agl::TextureAddressMode::Border;
-				shadowSamplerOption.m_comparisonFunc = agl::ComparisonFunc::Less;
+				shadowSampler = StaticSamplerState<agl::TextureFilter::MinMagMipLinear | agl::TextureFilter::Comparison
+					, agl::TextureAddressMode::Border
+					, agl::TextureAddressMode::Border
+					, agl::TextureAddressMode::Border
+					, 0.f
+					, agl::ComparisonFunc::Less>::Get();
+			}
+			else
+			{
+				shadowSampler = StaticSamplerState<>::Get();
 			}
 			
-			SamplerState shadowSampler = GraphicsInterface().FindOrCreate( shadowSamplerOption );
 			m_shaderResources.AddResource( "ShadowSampler", shadowSampler.Resource() );
 
 			m_shaderResources.AddResource( "ShadowDepthPassParameters", shadowInfo.ConstantBuffer().Resource() );
@@ -868,15 +873,15 @@ namespace rendercore
 		auto commandList = GetCommandList();
 		ApplyOutputContext( commandList );
 
-		auto defaultSampler = GraphicsInterface().FindOrCreate( SamplerOption() );
+		auto linearSampler = StaticSamplerState<>::Get();
 
 		RenderingShaderResource skyAtmosphereDrawResources;
 		skyAtmosphereDrawResources.AddResource( "TransmittanceLut", info->GetTransmittanceLutTexture()->SRV() );
-		skyAtmosphereDrawResources.AddResource( "TransmittanceLutSampler", defaultSampler.Resource() );
+		skyAtmosphereDrawResources.AddResource( "TransmittanceLutSampler", linearSampler.Resource() );
 		skyAtmosphereDrawResources.AddResource( "IrradianceLut", info->GetIrradianceLutTexture()->SRV() );
-		skyAtmosphereDrawResources.AddResource( "IrradianceLutSampler", defaultSampler.Resource() );
+		skyAtmosphereDrawResources.AddResource( "IrradianceLutSampler", linearSampler.Resource() );
 		skyAtmosphereDrawResources.AddResource( "InscatterLut", info->GetInscatterLutTexture()->SRV() );
-		skyAtmosphereDrawResources.AddResource( "InscatterLutSampler", defaultSampler.Resource() );
+		skyAtmosphereDrawResources.AddResource( "InscatterLutSampler", linearSampler.Resource() );
 		skyAtmosphereDrawResources.AddResource( "SkyAtmosphereRenderParameter", skyAtmosphereRenderParameter.Resource() );
 
 		skyAtmosphereDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
@@ -950,20 +955,18 @@ namespace rendercore
 		auto commandList = GetCommandList();
 		ApplyOutputContext( commandList );
 
-		SamplerOption samplerOption;
-		samplerOption.m_addressU =
-			samplerOption.m_addressV =
-			samplerOption.m_addressW = agl::TextureAddressMode::Wrap;
-		SamplerState cloudSampler = GraphicsInterface().FindOrCreate( samplerOption );
-		SamplerState weatherSampler = GraphicsInterface().FindOrCreate( samplerOption );
+		SamplerState wrapSamplerState = StaticSamplerState<agl::TextureFilter::MinMagMipLinear
+			, agl::TextureAddressMode::Wrap
+			, agl::TextureAddressMode::Wrap
+			, agl::TextureAddressMode::Wrap>::Get();
 
 		RenderingShaderResource volumetricCloundDrawResources;
 		volumetricCloundDrawResources.AddResource( "VolumetricCloudRenderParameter", volumetricCloudRenderParameter.Resource() );
 		volumetricCloundDrawResources.AddResource( "BaseCloudShape", info->BaseCloudShape()->SRV() );
 		volumetricCloundDrawResources.AddResource( "DetailCloudShape", info->DetailCloudShape()->SRV() );
 		volumetricCloundDrawResources.AddResource( "WeatherMap", info->WeatherMap()->SRV() );
-		volumetricCloundDrawResources.AddResource( "BaseCloudSampler", cloudSampler.Resource() );
-		volumetricCloundDrawResources.AddResource( "WeatherSampler", weatherSampler.Resource() );
+		volumetricCloundDrawResources.AddResource( "BaseCloudSampler", wrapSamplerState.Resource() );
+		volumetricCloundDrawResources.AddResource( "WeatherSampler", wrapSamplerState.Resource() );
 
 		volumetricCloundDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
@@ -1004,8 +1007,7 @@ namespace rendercore
 		auto commandList = GetCommandList();
 		ApplyOutputContext( commandList );
 
-		SamplerOption samplerOption;
-		SamplerState accumulatedVolumeSampler = GraphicsInterface().FindOrCreate( samplerOption );
+		SamplerState accumulatedVolumeSampler = StaticSamplerState<>::Get();
 
 		RenderingShaderResource volumetricFogDrawResources;
 		volumetricFogDrawResources.AddResource( "AccumulatedVolume", info->AccumulatedVolume()->SRV() );

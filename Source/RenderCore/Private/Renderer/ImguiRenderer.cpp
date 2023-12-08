@@ -16,6 +16,7 @@
 #include "SceneRenderer.h"
 #include "ShaderParameterUtils.h"
 #include "SizedTypes.h"
+#include "StaticState.h"
 #include "Texture.h"
 #include "TransitionUtils.h"
 #include "VertexCollection.h"
@@ -469,8 +470,7 @@ namespace rendercore
 
 		if ( m_imguiRenderResource.m_fontAtlasSampler.Resource() == nullptr )
 		{
-			auto& graphicsInterface = GraphicsInterface();
-			m_imguiRenderResource.m_fontAtlasSampler = graphicsInterface.FindOrCreate( SamplerOption() );
+			m_imguiRenderResource.m_fontAtlasSampler = StaticSamplerState<>::Get();
 		}
 	}
 

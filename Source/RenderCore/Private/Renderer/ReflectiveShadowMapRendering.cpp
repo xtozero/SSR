@@ -10,6 +10,7 @@
 #include "Scene/PrimitiveSceneInfo.h"
 #include "SceneRenderer.h"
 #include "ShaderParameterUtils.h"
+#include "StaticState.h"
 #include "TransitionUtils.h"
 #include "VertexCollection.h"
 #include "Viewport.h"
@@ -155,13 +156,13 @@ namespace rendercore
 
 		m_indirectIllumination = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "RSMs.Illumination" );
 
-		SamplerOption blackBorderSampler;
-		blackBorderSampler.m_addressU = agl::TextureAddressMode::Border;
-		blackBorderSampler.m_addressV = agl::TextureAddressMode::Border;
-		blackBorderSampler.m_addressW = agl::TextureAddressMode::Border;
-		blackBorderSampler.m_borderColor = Color::Black;
-
-		m_blackBorderSampler = GraphicsInterface().FindOrCreate( blackBorderSampler );
+		m_blackBorderSampler = StaticSamplerState<agl::TextureFilter::MinMagMipLinear
+			, agl::TextureAddressMode::Border
+			, agl::TextureAddressMode::Border
+			, agl::TextureAddressMode::Border
+			, 0.f
+			, agl::ComparisonFunc::Never
+			, Color( 0, 0, 0, 255 )>::Get();
 	}
 
 	void RSMsRenderer::CreateSamplingPattern()

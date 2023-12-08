@@ -8,6 +8,7 @@
 #include "Renderer/RenderView.h"
 #include "Scene/Scene.h"
 #include "ShaderParameterUtils.h"
+#include "StaticState.h"
 #include "TaskScheduler.h"
 #include "VolumetricFogProxy.h"
 
@@ -163,23 +164,26 @@ namespace rendercore
 
 		BindResource( shaderBindings, inscatteringCS.VolumetricFogParameterBuffer(), GetVolumetricFogParameter().Resource() );
 
-		SamplerOption shadowSamplerOption;
+		SamplerState shadowSampler;
 		if ( DefaultRenderCore::IsESMsEnabled() == false )
 		{
-			shadowSamplerOption.m_filter |= agl::TextureFilter::Comparison;
-			shadowSamplerOption.m_addressU = agl::TextureAddressMode::Border;
-			shadowSamplerOption.m_addressV = agl::TextureAddressMode::Border;
-			shadowSamplerOption.m_addressW = agl::TextureAddressMode::Border;
-			shadowSamplerOption.m_comparisonFunc = agl::ComparisonFunc::LessEqual;
+			shadowSampler = StaticSamplerState<agl::TextureFilter::MinMagMipLinear | agl::TextureFilter::Comparison
+				, agl::TextureAddressMode::Border
+				, agl::TextureAddressMode::Border
+				, agl::TextureAddressMode::Border
+				, 0.f
+				, agl::ComparisonFunc::Less>::Get();
 		}
-		SamplerState shadowSampler = GraphicsInterface().FindOrCreate( shadowSamplerOption );
+		else
+		{
+			shadowSampler = StaticSamplerState<>::Get();
+		}
 
 		BindResource( shaderBindings, inscatteringCS.ShadowSampler(), shadowSampler );
 
 		BindResource( shaderBindings, inscatteringCS.HistoryVolume(), HistoryVolume() );
 
-		SamplerOption historySamplerOption;
-		SamplerState historySampler = GraphicsInterface().FindOrCreate( historySamplerOption );
+		SamplerState historySampler = StaticSamplerState<>::Get();
 
 		BindResource( shaderBindings, inscatteringCS.HistorySampler(), historySampler );
 

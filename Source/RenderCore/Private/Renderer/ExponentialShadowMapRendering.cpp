@@ -10,6 +10,7 @@
 #include "Scene/LightSceneInfo.h"
 #include "Scene/ShadowInfo.h"
 #include "ShaderParameterUtils.h"
+#include "StaticState.h"
 
 #include <cassert>
 #include <numbers>
@@ -79,9 +80,7 @@ namespace rendercore
 		auto commandList = GetCommandList();
 		commandList.BindPipelineState( pso );
 
-		SamplerOption pointSamperOption;
-		pointSamperOption.m_filter = agl::TextureFilter::Point;
-		auto pointSampler = GraphicsInterface().FindOrCreate( pointSamperOption );
+		SamplerState pointSampler = StaticSamplerState<agl::TextureFilter::Point>::Get();
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( horizonBlurCS );
 		BindResource( shaderBindings, horizonBlurCS.SrcTexture(), srcTexture );

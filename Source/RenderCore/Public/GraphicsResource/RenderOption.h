@@ -320,7 +320,7 @@ namespace rendercore
 		}
 
 		PROPERTY( filter )
-		agl::TextureFilter m_filter = agl::TextureFilter::MinLinear | agl::TextureFilter::MagLinear | agl::TextureFilter::MipLinear;
+		agl::TextureFilter m_filter = agl::TextureFilter::MinMagMipLinear;
 
 		PROPERTY( addressU )
 		agl::TextureAddressMode m_addressU = agl::TextureAddressMode::Clamp;

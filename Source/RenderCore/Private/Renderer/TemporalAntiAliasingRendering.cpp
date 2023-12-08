@@ -9,6 +9,7 @@
 #include "Scene/PrimitiveSceneInfo.h"
 #include "SceneRenderer.h"
 #include "ShaderParameterUtils.h"
+#include "StaticState.h"
 #include "TransitionUtils.h"
 #include "VertexCollection.h"
 #include "Viewport.h"
@@ -111,15 +112,13 @@ namespace rendercore
 		DrawSnapshot& snapshot = *result;
 
 		// Linear Sampler
-		SamplerOption samplerOption;
-		SamplerState historyTexSampler = GraphicsInterface().FindOrCreate( samplerOption );
+		SamplerState historyTexSampler = StaticSamplerState<>::Get();
 
 		// Point Sampler
-		samplerOption.m_filter = agl::TextureFilter::Point;
-		SamplerState sceneTexSampler = GraphicsInterface().FindOrCreate( samplerOption );
+		SamplerState sceneTexSampler = StaticSamplerState<agl::TextureFilter::Point>::Get();
 
 		// Point Sampler
-		SamplerState velocityTexSampler = GraphicsInterface().FindOrCreate( samplerOption );
+		SamplerState velocityTexSampler = StaticSamplerState<agl::TextureFilter::Point>::Get();
 
 		SceneViewConstantBuffer& viewConstant = renderViewGroup.Scene().SceneViewConstant();
 
