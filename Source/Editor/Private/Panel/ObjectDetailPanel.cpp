@@ -54,29 +54,34 @@ namespace editor
 
 						float fPosition[3] = { position[0], position[1], position[2] };
 						float fScale[3] = { scale[0], scale[1], scale[2] };
-						float fRotation[3] = {
-							( rotation[0] == 0.f ) ? 0.f : rotation[0],
-							( rotation[1] == 0.f ) ? 0.f : rotation[1],
-							( rotation[2] == 0.f ) ? 0.f : rotation[2] };
+						float fRotation[3] = { rotation[0], rotation[1], rotation[2] };
 
-						if ( ImGui::DragFloat3( "Position", fPosition, 0.1f, min, max ) )
+						ImGui::PushID( "Position" );
+						ImGui::Text( "Position" );
+						ImGui::SameLine();
+						if ( ImGui::DragFloat3( "", fPosition, 0.1f, min, max ) )
 						{
 							object->SetPosition( Vector( fPosition ) );
 						}
+						ImGui::PopID();
 
-						if ( ImGui::DragFloat3( "Scale", fScale, 0.1f, min, max ) )
+						ImGui::PushID( "Scale" );
+						ImGui::Text( "Scale   " );
+						ImGui::SameLine();
+						if ( ImGui::DragFloat3( "", fScale, 0.1f, min, max ) )
 						{
 							object->SetScale3D( Vector( fScale ) );
 						}
+						ImGui::PopID();
 
-						if ( ImGui::DragFloat3( "Rotation", fRotation, 0.1f, min, max ) )
+						ImGui::PushID( "Rotation" );
+						ImGui::Text( "Rotation" );
+						ImGui::SameLine();
+						if ( ImGui::DragFloat3( "", fRotation, 0.1f, min, max ) )
 						{
-							fRotation[0] = ( rotation[0] == 0.f ) ? 0.f : rotation[0];
-							fRotation[1] = ( rotation[1] == 0.f ) ? 0.f : rotation[1];
-							fRotation[2] = ( rotation[2] == 0.f ) ? 0.f : rotation[2];
-
 							object->SetRotation( Quaternion( XMConvertToRadians( fRotation[0] ), XMConvertToRadians( fRotation[1] ), XMConvertToRadians( fRotation[2] ) ) );
 						}
+						ImGui::PopID();
 					}
 					ImGui::EndChild();
 				}

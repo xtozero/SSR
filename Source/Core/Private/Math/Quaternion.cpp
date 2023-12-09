@@ -47,7 +47,7 @@ Rotator Quaternion::ToRotator() const
 	// from http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
 	// heading -> yaw
 	// attitude -> roll
-	// back -> pitch
+	// bank -> pitch
 	Quaternion q = GetNormalized();
 
 	float pitch = 0.f;
