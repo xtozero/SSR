@@ -1,21 +1,20 @@
 #pragma once
 
-#include "Core/IListener.h"
 #include "GameObject.h"
 #include "Scene/INotifyGraphicsDevice.h"
+#include "UserInput/UserInput.h"
 
 namespace logic
 {
 	class CameraComponent;
 
-	class CPlayer : public CGameObject, public IListener
+	class CPlayer : public CGameObject
 	{
 		GENERATE_CLASS_TYPE_INFO( CPlayer )
 
 	public:
 		virtual void Initialize( CGameLogic& gameLogic, World& world ) override;
 		virtual void Think( float elapsedTime );
-		virtual void ProcessInput( const engine::UserInput& input, CGameLogic& gameLogic ) override;
 
 		const CameraComponent* GetCameraComponent() const { return m_cameraComponent; }
 
@@ -25,9 +24,6 @@ namespace logic
 		virtual void SetupInputComponent() override;
 
 	private:
-		void OnMouseLButton( const engine::UserInput& input, CGameLogic& gameLogic );
-		void RotatePrimaryLightDir( CGameLogic& gameLogic, float deltaTheta, float deltaPhi );
-
 		void OnMouseLButton( const engine::UserInput& input );
 		void OnMouseRButton( const engine::UserInput& input );
 		void OnMouseMove( const engine::UserInput& input );
@@ -37,7 +33,6 @@ namespace logic
 		CameraComponent* m_cameraComponent = nullptr;
 
 		bool m_cameraRotationEnabled = false;
-		bool m_cameraTranslationEnabled = false;
 		float m_mouseSensitivity = 0.01f;
 
 		bool m_inputDirection[4] = { false, false, false, false };
