@@ -580,6 +580,8 @@ namespace agl
 		All = ( ( ( Red | Green ) | Blue ) | Alpha )
 	};
 
+	unsigned char ConvertToColorWriteEnable( ColorWriteEnable colorWriteEnable );
+
 	enum class ResourceState : uint32
 	{
 		Common = 0,

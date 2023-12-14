@@ -654,9 +654,4 @@ namespace agl
 			return D3D11_BLEND_OP_ADD;
 		}
 	}
-
-	inline unsigned char ConvertToColorWriteEnable( ColorWriteEnable colorWriteEnable )
-	{
-		return static_cast<unsigned char>( colorWriteEnable );
-	}
 }

@@ -59,6 +59,8 @@ namespace agl
 		D3D12HeapSubAllocation* FindFreeSpace( uint64 size ) const;
 		D3D12HeapSubAllocation* FindAllocatedSpace( uint64 offset ) const;
 
+		bool ValidateFreeList();
+
 		Microsoft::WRL::ComPtr<ID3D12Heap> m_heap;
 		uint64 m_size = 0;
 		uint64 m_alignment = 0;

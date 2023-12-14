@@ -11,6 +11,11 @@ namespace agl
 		delete this;
 	}
 
+	unsigned char ConvertToColorWriteEnable( ColorWriteEnable colorWriteEnable )
+	{
+		return static_cast<unsigned char>( colorWriteEnable );
+	}
+
 	size_t TextureTrait::GetHash() const
 	{
 		static size_t typeHash = typeid( TextureTrait ).hash_code();

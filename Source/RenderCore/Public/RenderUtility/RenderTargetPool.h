@@ -2,6 +2,7 @@
 
 #include "GraphicsApiResource.h"
 #include "SizedTypes.h"
+#include "SparseArray.h"
 #include "Texture.h"
 
 #include <vector>
@@ -15,6 +16,10 @@ namespace rendercore
 		size_t GetHash() const;
 		agl::RefHandle<agl::Texture> Get() const;
 
+		void Tick();
+		void MarkAsInUse();
+		uint32 NumUnusedFrame() const;
+
 		explicit PooledRenderTarget( agl::Texture& texture );
 		PooledRenderTarget( const PooledRenderTarget& other ) noexcept;
 		PooledRenderTarget& operator=( const PooledRenderTarget& other ) noexcept;
@@ -22,6 +27,7 @@ namespace rendercore
 		PooledRenderTarget& operator=( PooledRenderTarget&& other ) noexcept;
 
 	private:
+		uint32 m_numUnusedFrame = 0;
 		agl::TextureTrait m_trait;
 		agl::RefHandle<agl::Texture> m_texture;
 	};
@@ -35,10 +41,12 @@ namespace rendercore
 			return renderTargetPool;
 		}
 
+		void Tick();
+
 		agl::RefHandle<agl::Texture> FindFreeRenderTarget( const agl::TextureTrait& trait, const char* debugName );
 		void Shutdown();
 
 	private:
-		std::vector<PooledRenderTarget> m_pooledRenderTargets;
+		SparseArray<PooledRenderTarget> m_pooledRenderTargets;
 	};
 }

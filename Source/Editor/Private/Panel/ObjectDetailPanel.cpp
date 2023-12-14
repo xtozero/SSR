@@ -79,7 +79,7 @@ namespace editor
 						ImGui::SameLine();
 						if ( ImGui::DragFloat3( "", fRotation, 0.1f, min, max ) )
 						{
-							object->SetRotation( Quaternion( XMConvertToRadians( fRotation[0] ), XMConvertToRadians( fRotation[1] ), XMConvertToRadians( fRotation[2] ) ) );
+							object->SetRotation( Rotator( fRotation[0], fRotation[1], fRotation[2] ).ToQuat() );
 						}
 						ImGui::PopID();
 					}

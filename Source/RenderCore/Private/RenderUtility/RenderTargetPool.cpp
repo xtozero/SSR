@@ -20,6 +20,21 @@ namespace rendercore
 		return m_texture;
 	}
 
+	void PooledRenderTarget::Tick()
+	{
+		++m_numUnusedFrame;
+	}
+
+	void PooledRenderTarget::MarkAsInUse()
+	{
+		m_numUnusedFrame = 0;
+	}
+
+	uint32 PooledRenderTarget::NumUnusedFrame() const
+	{
+		return m_numUnusedFrame;
+	}
+
 	PooledRenderTarget::PooledRenderTarget( agl::Texture& texture )
 		: m_texture( &texture )
 		, m_trait( texture.GetTrait() )
@@ -57,6 +72,23 @@ namespace rendercore
 		return *this;
 	}
 
+	void RenderTargetPool::Tick()
+	{
+		for ( PooledRenderTarget& renderTarget : m_pooledRenderTargets )
+		{
+			renderTarget.Tick();
+		}
+
+		for ( auto iter = std::begin( m_pooledRenderTargets ); iter != std::end( m_pooledRenderTargets ); ++iter )
+		{
+			size_t i = iter.Index();
+			if ( m_pooledRenderTargets[i].NumUnusedFrame() > 2 )
+			{
+				m_pooledRenderTargets.RemoveAt( i );
+			}
+		}
+	}
+
 	agl::RefHandle<agl::Texture> RenderTargetPool::FindFreeRenderTarget( const agl::TextureTrait& trait, const char* debugName )
 	{
 		assert( HasAnyFlags( trait.m_bindType, agl::ResourceBindType::RenderTarget | agl::ResourceBindType::DepthStencil ) );
@@ -69,12 +101,13 @@ namespace rendercore
 
 			if ( renderTarget.GetHash() == trait.GetHash() )
 			{
+				renderTarget.MarkAsInUse();
 				return renderTarget.Get();
 			}
 		}
 
 		agl::RefHandle<agl::Texture> newTexture = agl::Texture::Create( trait, debugName );
-		m_pooledRenderTargets.emplace_back( *newTexture.Get() );
+		m_pooledRenderTargets.Add( *newTexture.Get() );
 
 		EnqueueRenderTask( 
 			[texture = newTexture]()
@@ -87,6 +120,6 @@ namespace rendercore
 
 	void RenderTargetPool::Shutdown()
 	{
-		m_pooledRenderTargets.clear();
+		m_pooledRenderTargets.Clear();
 	}
 }

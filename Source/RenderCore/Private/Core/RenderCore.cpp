@@ -202,6 +202,8 @@ namespace rendercore
 		Viewport& viewport = renderViewGroup.GetViewport();
 		viewport.Clear( clearColor );
 
+		RenderTargetPool::GetInstance().Tick();
+
 		SceneRenderer* pSceneRenderer = FindAndCreateSceneRenderer( renderViewGroup );
 		if ( pSceneRenderer )
 		{

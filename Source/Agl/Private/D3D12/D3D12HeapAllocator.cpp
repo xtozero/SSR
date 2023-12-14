@@ -74,6 +74,8 @@ namespace agl
 
 		RemoveFromFreeList( *node );
 
+		assert( ValidateFreeList() );
+
 		return allocated;
 	}
 
@@ -92,7 +94,15 @@ namespace agl
 		D3D12HeapSubAllocation* prevNode = DLinkedList::Find( m_freeList,
 			[&info]( const D3D12HeapSubAllocation* node )
 			{
-				return node->m_offset < info.m_offset;
+				if ( node->m_next == nullptr )
+				{
+					return node->m_offset < info.m_offset;
+				}
+				else
+				{
+					const D3D12HeapSubAllocation* next = node->m_next;
+					return ( node->m_offset < info.m_offset ) && ( info.m_offset < next->m_offset ) ;
+				}
 			});
 
 		AddToFreeList( prevNode, node->m_offset, node->m_size );
@@ -116,6 +126,8 @@ namespace agl
 		}
 		
 		RemoveFromAllocationList( *node );
+
+		assert( ValidateFreeList() );
 	}
 
 	bool D3D12HeapBlock::IsOwnedMemory( const AllocatedHeapInfo& info ) const
@@ -212,6 +224,26 @@ namespace agl
 			} );
 
 		return found;
+	}
+
+	bool D3D12HeapBlock::ValidateFreeList()
+	{
+		D3D12HeapSubAllocation* head = m_freeList;
+
+		while ( head )
+		{
+			if ( head->m_next )
+			{
+				if ( head->m_offset > head->m_next->m_offset )
+				{
+					return false;
+				}
+			}
+
+			head = head->m_next;
+		}
+
+		return true;
 	}
 
 	AllocatedHeapInfo D3D12HeapBudget::Allocate( uint64 size )

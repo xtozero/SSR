@@ -106,6 +106,7 @@ set (D3D12_SOURCE
 	Public/D3D12/D3D12Api.h)
 
 set (D3D12_UTILITY
+	Private/D3D12/D3D12FlagConvertor.cpp
 	Public/D3D12/D3D12FlagConvertor.h)
 
 set (DXC_SOURCE
