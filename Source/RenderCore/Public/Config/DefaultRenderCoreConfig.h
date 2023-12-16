@@ -21,6 +21,8 @@ namespace rendercore
 
 		static bool UseIrradianceMapSH();
 
+		static uint32 RenderTargetPoolMin();
+
 	private:
 		PROPERTY( enableTAA )
 		bool m_enableTAA = false;
@@ -42,5 +44,8 @@ namespace rendercore
 
 		PROPERTY( useIrradianceMapSH )
 		bool m_useIrradianceMapSH = true;
+
+		PROPERTY( renderTargetPoolMin )
+		uint32 m_renderTargetPoolMin = 300;
 	};
 }

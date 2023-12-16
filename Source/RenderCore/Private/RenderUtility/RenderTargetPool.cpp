@@ -1,6 +1,31 @@
 #include "RenderTargetPool.h"
 
+#include "Config/DefaultRenderCoreConfig.h"
 #include "Multithread/TaskScheduler.h"
+
+namespace
+{
+	uint32 ComputeSizeInKB( const agl::TextureTrait& trait )
+	{
+		uint32 bitPerPixel = agl::BitPerPixel( trait.m_format );
+		uint32 totalSize = 0;
+
+		uint32 width = trait.m_width;
+		uint32 height = trait.m_height;
+		uint32 depth = trait.m_depth;
+
+		for ( uint32 i = 0; i < trait.m_mipLevels; ++i )
+		{
+			totalSize += ( width * height * depth * bitPerPixel + 7 ) / 8;
+
+			width >>= 1;
+			height >>= 1;
+			depth >>= 1;
+		}
+
+		return ( totalSize + 1023 ) / 1024;
+	}
+}
 
 namespace rendercore
 {
@@ -13,6 +38,11 @@ namespace rendercore
 	size_t PooledRenderTarget::GetHash() const
 	{
 		return m_trait.GetHash();
+	}
+
+	const agl::TextureTrait& PooledRenderTarget::GetTrait() const
+	{
+		return m_trait;
 	}
 
 	agl::RefHandle<agl::Texture> PooledRenderTarget::Get() const
@@ -79,12 +109,33 @@ namespace rendercore
 			renderTarget.Tick();
 		}
 
-		for ( auto iter = std::begin( m_pooledRenderTargets ); iter != std::end( m_pooledRenderTargets ); ++iter )
+		uint32 renderTargetPoolMinInKB = DefaultRenderCore::RenderTargetPoolMin() * 1024;
+		while ( m_allocationSizeInKB > renderTargetPoolMinInKB )
 		{
-			size_t i = iter.Index();
-			if ( m_pooledRenderTargets[i].NumUnusedFrame() > 2 )
+			size_t endIndex = m_pooledRenderTargets.Size();
+			size_t oldestIndex = endIndex;
+
+			for ( auto iter = std::begin( m_pooledRenderTargets ); iter != std::end( m_pooledRenderTargets ); ++iter )
 			{
-				m_pooledRenderTargets.RemoveAt( i );
+				size_t i = iter.Index();
+				if ( m_pooledRenderTargets[i].NumUnusedFrame() > 2 )
+				{
+					if ( ( oldestIndex == endIndex ) 
+						|| ( m_pooledRenderTargets[i].NumUnusedFrame() > m_pooledRenderTargets[oldestIndex].NumUnusedFrame() ) )
+					{
+						oldestIndex = i;
+					}
+				}
+			}
+
+			if ( oldestIndex != endIndex )
+			{
+				m_allocationSizeInKB -= ComputeSizeInKB( m_pooledRenderTargets[oldestIndex].GetTrait() );
+				m_pooledRenderTargets.RemoveAt( oldestIndex );
+			}
+			else
+			{
+				break;
 			}
 		}
 	}
@@ -105,6 +156,8 @@ namespace rendercore
 				return renderTarget.Get();
 			}
 		}
+
+		m_allocationSizeInKB += ComputeSizeInKB( trait );
 
 		agl::RefHandle<agl::Texture> newTexture = agl::Texture::Create( trait, debugName );
 		m_pooledRenderTargets.Add( *newTexture.Get() );

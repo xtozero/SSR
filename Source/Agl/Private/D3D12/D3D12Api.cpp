@@ -308,6 +308,8 @@ namespace agl
 
 	void Direct3D12::WaitGPU()
 	{
+		assert( IsInRenderThread() );
+
 		uint64 fence = m_fenceValue[m_frameIndex];
 		[[maybe_unused]] HRESULT hr = m_directCommandQueue->Signal( m_fence.Get(), fence );
 		assert( SUCCEEDED( hr ) );

@@ -14,6 +14,7 @@ namespace rendercore
 	public:
 		bool IsFree() const;
 		size_t GetHash() const;
+		const agl::TextureTrait& GetTrait() const;
 		agl::RefHandle<agl::Texture> Get() const;
 
 		void Tick();
@@ -47,6 +48,7 @@ namespace rendercore
 		void Shutdown();
 
 	private:
+		uint32 m_allocationSizeInKB = 0;
 		SparseArray<PooledRenderTarget> m_pooledRenderTargets;
 	};
 }

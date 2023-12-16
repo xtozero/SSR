@@ -12,7 +12,7 @@ namespace rendercore
 		, m_count( count )
 		, m_isDynamic( isDynamic )
 	{
-		m_stride = agl::ResourceFormatSize( format );
+		m_stride = ( agl::BitPerPixel( format ) + 7 ) / 8;
 		
 		if ( m_isDynamic == false )
 		{

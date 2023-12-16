@@ -81,8 +81,6 @@ namespace agl
 			return;
 		}
 
-		GetInterface<agl::IAgl>()->WaitGPU();
-
 		m_width = newSize.first;
 		m_height = newSize.second;
 
@@ -166,6 +164,8 @@ namespace agl
 
 		EnqueueRenderTask( [this, orignalFormat]()
 			{
+				GetInterface<agl::IAgl>()->WaitGPU();
+
 				m_frameBuffer->Free();
 				m_frameBuffer->Init();
 

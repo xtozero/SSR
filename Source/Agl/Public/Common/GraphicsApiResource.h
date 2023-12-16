@@ -261,7 +261,7 @@ namespace agl
 		BC7_UNORM_SRGB = 99
 	};
 
-	inline uint32 ResourceFormatSize( ResourceFormat format )
+	inline uint32 BitPerPixel( ResourceFormat format )
 	{
 		switch ( format )
 		{
@@ -271,13 +271,13 @@ namespace agl
 		case ResourceFormat::R32G32B32A32_FLOAT:
 		case ResourceFormat::R32G32B32A32_UINT:
 		case ResourceFormat::R32G32B32A32_SINT:
-			return 16;
+			return 128;
 			break;
 		case ResourceFormat::R32G32B32_TYPELESS:
 		case ResourceFormat::R32G32B32_FLOAT:
 		case ResourceFormat::R32G32B32_UINT:
 		case ResourceFormat::R32G32B32_SINT:
-			return 12;
+			return 96;
 			break;
 		case ResourceFormat::R16G16B16A16_TYPELESS:
 		case ResourceFormat::R16G16B16A16_FLOAT:
@@ -293,7 +293,7 @@ namespace agl
 		case ResourceFormat::D32_FLOAT_S8X24_UINT:
 		case ResourceFormat::R32_FLOAT_X8X24_TYPELESS:
 		case ResourceFormat::X32_TYPELESS_G8X24_UINT:
-			return 8;
+			return 64;
 			break;
 		case ResourceFormat::R10G10B10A2_TYPELESS:
 		case ResourceFormat::R10G10B10A2_UNORM:
@@ -320,7 +320,7 @@ namespace agl
 		case ResourceFormat::D24_UNORM_S8_UINT:
 		case ResourceFormat::R24_UNORM_X8_TYPELESS:
 		case ResourceFormat::X24_TYPELESS_G8_UINT:
-			return 4;
+			return 32;
 			break;
 		case ResourceFormat::R8G8_TYPELESS:
 		case ResourceFormat::R8G8_UNORM:
@@ -334,7 +334,7 @@ namespace agl
 		case ResourceFormat::R16_UINT:
 		case ResourceFormat::R16_SNORM:
 		case ResourceFormat::R16_SINT:
-			return 2;
+			return 16;
 			break;
 		case ResourceFormat::R8_TYPELESS:
 		case ResourceFormat::R8_UNORM:
@@ -342,47 +342,41 @@ namespace agl
 		case ResourceFormat::R8_SNORM:
 		case ResourceFormat::R8_SINT:
 		case ResourceFormat::A8_UNORM:
+			return 8;
+			break;
 		case ResourceFormat::R1_UNORM:
-			return 1;
 			break;
 		case ResourceFormat::R9G9B9E5_SHAREDEXP:
 		case ResourceFormat::R8G8_B8G8_UNORM:
 		case ResourceFormat::G8R8_G8B8_UNORM:
-			return 4;
+			return 32;
 			break;
 		case ResourceFormat::BC1_TYPELESS:
-			break;
 		case ResourceFormat::BC1_UNORM:
-			break;
 		case ResourceFormat::BC1_UNORM_SRGB:
+			return 4;
 			break;
 		case ResourceFormat::BC2_TYPELESS:
-			break;
 		case ResourceFormat::BC2_UNORM:
-			break;
 		case ResourceFormat::BC2_UNORM_SRGB:
-			break;
 		case ResourceFormat::BC3_TYPELESS:
-			break;
 		case ResourceFormat::BC3_UNORM:
-			break;
 		case ResourceFormat::BC3_UNORM_SRGB:
+			return 8;
 			break;
 		case ResourceFormat::BC4_TYPELESS:
-			break;
 		case ResourceFormat::BC4_UNORM:
-			break;
 		case ResourceFormat::BC4_SNORM:
+			return 4;
 			break;
 		case ResourceFormat::BC5_TYPELESS:
-			break;
 		case ResourceFormat::BC5_UNORM:
-			break;
 		case ResourceFormat::BC5_SNORM:
+			return 8;
 			break;
 		case ResourceFormat::B5G6R5_UNORM:
 		case ResourceFormat::B5G5R5A1_UNORM:
-			return 2;
+			return 16;
 			break;
 		case ResourceFormat::B8G8R8A8_UNORM:
 		case ResourceFormat::B8G8R8X8_UNORM:
@@ -391,19 +385,15 @@ namespace agl
 		case ResourceFormat::B8G8R8A8_UNORM_SRGB:
 		case ResourceFormat::B8G8R8X8_TYPELESS:
 		case ResourceFormat::B8G8R8X8_UNORM_SRGB:
-			return 4;
+			return 32;
 			break;
 		case ResourceFormat::BC6H_TYPELESS:
-			break;
 		case ResourceFormat::BC6H_UF16:
-			break;
 		case ResourceFormat::BC6H_SF16:
-			break;
 		case ResourceFormat::BC7_TYPELESS:
-			break;
 		case ResourceFormat::BC7_UNORM:
-			break;
 		case ResourceFormat::BC7_UNORM_SRGB:
+			return 8;
 			break;
 		default:
 			break;

@@ -101,7 +101,12 @@ namespace agl
 
 		virtual void Resize( const std::pair<uint32, uint32>& newSize ) override
 		{
-			GetInterface<agl::IAgl>()->WaitGPU();
+			TaskHandle handle = EnqueueThreadTask<ThreadType::RenderThread>(
+				[]()
+				{
+					GetInterface<agl::IAgl>()->WaitGPU();
+				} );
+			GetInterface<ITaskScheduler>()->Wait( handle );
 
 			m_width = newSize.first;
 			m_height = newSize.second;

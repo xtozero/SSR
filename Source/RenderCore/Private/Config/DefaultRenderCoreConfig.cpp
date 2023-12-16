@@ -36,4 +36,9 @@ namespace rendercore
 	{
 		return GetInstance().m_useIrradianceMapSH;
 	}
+
+	uint32 DefaultRenderCore::RenderTargetPoolMin()
+	{
+		return GetInstance().m_renderTargetPoolMin;
+	}
 }

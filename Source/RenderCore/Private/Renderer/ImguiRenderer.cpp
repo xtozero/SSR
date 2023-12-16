@@ -322,7 +322,7 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::None
 		};
 
-		const uint32 formatSize = agl::ResourceFormatSize( trait.m_format );
+		const uint32 formatSize = ( agl::BitPerPixel( trait.m_format ) + 7 ) / 8;
 
 		agl::ResourceInitData initData;
 		initData.m_srcData = pixels;

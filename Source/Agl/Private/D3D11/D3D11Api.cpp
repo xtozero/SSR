@@ -266,6 +266,8 @@ namespace agl
 
 	void CDirect3D11::WaitGPU()
 	{
+		assert( IsInRenderThread() );
+
 		D3D11_QUERY_DESC desc = {
 			.Query = D3D11_QUERY_EVENT,
 			.MiscFlags = 0U
