@@ -23,6 +23,8 @@ namespace rendercore
 
 		static uint32 RenderTargetPoolMin();
 
+		static bool IsLPVEnabled();
+
 	private:
 		PROPERTY( enableTAA )
 		bool m_enableTAA = false;
@@ -47,5 +49,8 @@ namespace rendercore
 
 		PROPERTY( renderTargetPoolMin )
 		uint32 m_renderTargetPoolMin = 300;
+
+		PROPERTY( enableLPV )
+		bool m_enableLPV = false;
 	};
 }

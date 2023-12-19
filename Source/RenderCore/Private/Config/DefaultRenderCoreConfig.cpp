@@ -19,7 +19,7 @@ namespace rendercore
 
 	bool DefaultRenderCore::IsRSMsEnabled()
 	{
-		return GetInstance().m_enableRSMs;
+		return GetInstance().m_enableRSMs || GetInstance().m_enableLPV;
 	}
 
 	uint32 DefaultRenderCore::RSMsNumSampling()
@@ -40,5 +40,10 @@ namespace rendercore
 	uint32 DefaultRenderCore::RenderTargetPoolMin()
 	{
 		return GetInstance().m_renderTargetPoolMin;
+	}
+
+	bool DefaultRenderCore::IsLPVEnabled()
+	{
+		return GetInstance().m_enableLPV;
 	}
 }

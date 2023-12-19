@@ -457,7 +457,7 @@ namespace rendercore
 					.m_sampleCount = 1,
 					.m_sampleQuality = 0,
 					.m_mipLevels = 1,
-					.m_format = agl::ResourceFormat::R8G8B8A8_UNORM_SRGB,
+					.m_format = agl::ResourceFormat::R8G8B8A8_UNORM,
 					.m_access = agl::ResourceAccessFlag::Default,
 					.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
 					.m_miscFlag = agl::ResourceMisc::None,
@@ -1026,10 +1026,35 @@ namespace rendercore
 
 	void SceneRenderer::RenderIndirectIllumination( RenderViewGroup& renderViewGroup )
 	{
-		if ( DefaultRenderCore::IsRSMsEnabled() )
-		{
-			m_shaderResources.AddResource( "IndirectIllumination", BlackTexture->SRV() );
+		m_shaderResources.AddResource( "IndirectIllumination", BlackTexture->SRV() );
 
+		if ( DefaultRenderCore::IsLPVEnabled() )
+		{
+			for ( const ShadowInfo& shadowInfo : m_shadowInfos )
+			{
+				const ShadowMapRenderTarget& shadowMapRT = shadowInfo.ShadowMap();
+				if ( shadowMapRT.m_shadowMaps.size() < 4 )
+				{
+					continue;
+				}
+
+				const LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo();
+				if ( lightSceneInfo == nullptr )
+				{
+					continue;
+				}
+
+				RSMTextures rsmTextures = {
+					.m_worldPosition = shadowMapRT.m_shadowMaps[1],
+					.m_normal = shadowMapRT.m_shadowMaps[2],
+					.m_flux = shadowMapRT.m_shadowMaps[3],
+				};
+
+				m_lpv.AddLight( *lightSceneInfo, rsmTextures );
+			}
+		}
+		else if ( DefaultRenderCore::IsRSMsEnabled() )
+		{
 			RSMsRenderingParam renderingParam = {
 				.m_viewSpaceDistance = GetRenderRenderTargets().GetViewSpaceDistance(),
 				.m_worldNormal = GetRenderRenderTargets().GetWorldNormal(),

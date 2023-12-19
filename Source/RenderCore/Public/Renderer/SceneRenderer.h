@@ -4,6 +4,7 @@
 #include "DrawSnapshot.h"
 #include "ForwardLighting.h"
 #include "GraphicsApiResource.h"
+#include "LightPropagationVolume.h"
 #include "NameTypes.h"
 #include "PassProcessor.h"
 #include "ReflectiveShadowMapRendering.h"
@@ -140,6 +141,7 @@ namespace rendercore
 		PrimitiveIdVertexBufferPool m_primitiveIdBufferPool;
 		TAARenderer m_taa;
 		RSMsRenderer m_rsms;
+		LightPropagationVolume m_lpv;
 	};
 
 	void AddSingleDrawPass( DrawSnapshot& snapshot );
