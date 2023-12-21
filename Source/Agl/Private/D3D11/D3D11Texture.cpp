@@ -210,6 +210,21 @@ namespace agl
 		return rtv;
 	}
 
+	D3D11_RENDER_TARGET_VIEW_DESC ConvertDescToRTV( const D3D11_TEXTURE3D_DESC& desc )
+	{
+		D3D11_RENDER_TARGET_VIEW_DESC rtv = {};
+
+		rtv.Format = desc.Format;
+		rtv.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE3D;
+		rtv.Texture3D = {
+			.MipSlice = 0,
+			.FirstWSlice = 0,
+			.WSize = desc.Depth
+		};
+
+		return rtv;
+	}
+
 	D3D11_DEPTH_STENCIL_VIEW_DESC ConvertDescToDSV( const D3D11_TEXTURE2D_DESC& desc )
 	{
 		D3D11_DEPTH_STENCIL_VIEW_DESC dsv = {};
@@ -355,6 +370,17 @@ namespace agl
 		}
 		m_uav = new D3D11UnorderedAccessView( this, m_texture, uavDesc );
 		m_uav->Init();
+	}
+
+	void D3D11Texture3D::CreateRenderTarget( std::optional<ResourceFormat> overrideFormat )
+	{
+		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = ConvertDescToRTV( m_desc );
+		if ( overrideFormat.has_value() )
+		{
+			rtvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+		}
+		m_rtv = new D3D11RenderTargetView( this, m_texture, rtvDesc );
+		m_rtv->Init();
 	}
 
 	D3D11Texture3D::D3D11Texture3D( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData )

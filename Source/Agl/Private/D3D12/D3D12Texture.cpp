@@ -644,6 +644,17 @@ namespace agl
 		m_dsv->Init();
 	}
 
+	void D3D12Texture3D::CreateRenderTarget( std::optional<ResourceFormat> overrideFormat )
+	{
+		D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = ConvertTraitToRTV( m_trait );
+		if ( overrideFormat.has_value() )
+		{
+			rtvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+		}
+		m_rtv = new D3D12RenderTargetView( this, static_cast<ID3D12Resource*>( Resource() ), rtvDesc );
+		m_rtv->Init();
+	}
+
 	D3D12Texture3D::D3D12Texture3D( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
 		: D3D12Texture( trait, debugName, initialState, initData )
 	{

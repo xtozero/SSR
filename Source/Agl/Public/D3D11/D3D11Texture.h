@@ -154,7 +154,7 @@ namespace agl
 	public:
 		virtual void CreateShaderResource( std::optional<ResourceFormat> overrideFormat = {} ) override;
 		virtual void CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat = {} ) override;
-		virtual void CreateRenderTarget( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
+		virtual void CreateRenderTarget( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override;
 		virtual void CreateDepthStencil( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
 
 		D3D11Texture3D( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData );

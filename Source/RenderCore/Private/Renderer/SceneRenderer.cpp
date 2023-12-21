@@ -1030,7 +1030,9 @@ namespace rendercore
 
 		if ( DefaultRenderCore::IsLPVEnabled() )
 		{
-			for ( const ShadowInfo& shadowInfo : m_shadowInfos )
+			m_lpv.Prepare();
+
+			for ( ShadowInfo& shadowInfo : m_shadowInfos )
 			{
 				const ShadowMapRenderTarget& shadowMapRT = shadowInfo.ShadowMap();
 				if ( shadowMapRT.m_shadowMaps.size() < 4 )
@@ -1044,13 +1046,21 @@ namespace rendercore
 					continue;
 				}
 
-				RSMTextures rsmTextures = {
-					.m_worldPosition = shadowMapRT.m_shadowMaps[1],
-					.m_normal = shadowMapRT.m_shadowMaps[2],
-					.m_flux = shadowMapRT.m_shadowMaps[3],
+				IScene& scene = renderViewGroup.Scene();
+
+				LightInjectionParameters params =
+				{
+					.lightInfo = lightSceneInfo,
+					.m_sceneViewParameters = scene.SceneViewConstant().Resource(),
+					.m_shadowDepthPassParameters = shadowInfo.ConstantBuffer().Resource(),
+					.m_rsmTextures = {
+						.m_worldPosition = shadowMapRT.m_shadowMaps[1],
+						.m_normal = shadowMapRT.m_shadowMaps[2],
+						.m_flux = shadowMapRT.m_shadowMaps[3],
+					},
 				};
 
-				m_lpv.AddLight( *lightSceneInfo, rsmTextures );
+				m_lpv.AddLight( params );
 			}
 		}
 		else if ( DefaultRenderCore::IsRSMsEnabled() )
