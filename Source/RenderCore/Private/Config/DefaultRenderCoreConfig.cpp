@@ -42,8 +42,13 @@ namespace rendercore
 		return GetInstance().m_renderTargetPoolMin;
 	}
 
-	bool DefaultRenderCore::IsLPVEnabled()
+	bool DefaultRenderCore::IsLpvEnabled()
 	{
 		return GetInstance().m_enableLPV;
+	}
+
+	uint32 DefaultRenderCore::NumLpvIteration()
+	{
+		return GetInstance().m_numLpvIteration;
 	}
 }

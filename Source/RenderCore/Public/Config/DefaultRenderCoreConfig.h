@@ -23,7 +23,8 @@ namespace rendercore
 
 		static uint32 RenderTargetPoolMin();
 
-		static bool IsLPVEnabled();
+		static bool IsLpvEnabled();
+		static uint32 NumLpvIteration();
 
 	private:
 		PROPERTY( enableTAA )
@@ -52,5 +53,8 @@ namespace rendercore
 
 		PROPERTY( enableLPV )
 		bool m_enableLPV = false;
+
+		PROPERTY( numLpvIteration )
+		uint32 m_numLpvIteration = 8;
 	};
 }

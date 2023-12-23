@@ -35,6 +35,7 @@ namespace rendercore
 	public:
 		void Prepare();
 		void AddLight( const LightInjectionParameters& params );
+		void Propagate();
 
 	private:
 		void InitResource();

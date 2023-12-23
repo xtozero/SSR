@@ -1,4 +1,6 @@
-cbuffer LPVCommonParameters : register( b2 )
+#include "SH/SphericalHarmonics.fxh"
+
+cbuffer LPVCommonParameters : register( b5 )
 {
     float4 TexDimension;
     float4 CellSize;

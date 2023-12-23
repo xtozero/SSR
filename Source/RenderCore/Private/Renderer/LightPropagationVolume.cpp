@@ -2,6 +2,7 @@
 
 #include "AbstractGraphicsInterface.h"
 #include "ComputePipelineState.h"
+#include "Config/DefaultRenderCoreConfig.h"
 #include "GlobalShaders.h"
 #include "LightProxy.h"
 #include "PassProcessor.h"
@@ -30,7 +31,7 @@ namespace rendercore
 		using GlobalShaderCommon::GlobalShaderCommon;
 
 	private:
-		DEFINE_SHADER_PARAM( LPVCommonParameters ); // b2
+		DEFINE_SHADER_PARAM( LPVCommonParameters ); // b5
 
 		DEFINE_SHADER_PARAM( RSMsDimensions );
 		DEFINE_SHADER_PARAM( KernelSize );
@@ -47,70 +48,69 @@ namespace rendercore
 
 	class LightInjectionVS final : public GlobalShaderCommon<VertexShader, LightInjectionVS>
 	{
-		using GlobalShaderCommon::GlobalShaderCommon;
-
 	private:
 		DEFINE_SHADER_PARAM( RSMsDimensions );
 	};
 
 	class LightInjectionGS final : public GlobalShaderCommon<GeometryShader, LightInjectionGS>
-	{
-		using GlobalShaderCommon::GlobalShaderCommon;
-
-	private:
-	};
+	{};
 
 	class LightInjectionPS final : public GlobalShaderCommon<PixelShader, LightInjectionPS>
-	{
-		using GlobalShaderCommon::GlobalShaderCommon;
+	{};
 
+	class LightPropagationCS final : public GlobalShaderCommon<ComputeShader, LightPropagationCS>
+	{
 	private:
+		DEFINE_SHADER_PARAM( LPVCommonParameters );
+
+		DEFINE_SHADER_PARAM( CoeffR );
+		DEFINE_SHADER_PARAM( CoeffG );
+		DEFINE_SHADER_PARAM( CoeffB );
 	};
-
-	class LightInjectionPassProcessor final : public IPassProcessor
-	{
-	public:
-		virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) override;
-	};
-
-	std::optional<DrawSnapshot> LightInjectionPassProcessor::Process( const PrimitiveSubMesh& subMesh )
-	{
-		PassShader passShader = {
-			.m_vertexShader = LightInjectionVS(),
-			.m_geometryShader = LightInjectionGS(),
-			.m_pixelShader = LightInjectionPS()
-		};
-
-		DepthStencilOption passDepthOption;
-		passDepthOption.m_depth.m_enable = false;
-		passDepthOption.m_depth.m_writeDepth = false;
-
-		BlendOption passBlendOption;
-		for ( int32 i = 0; i < 3; ++i )
-		{
-			passBlendOption.m_renderTarget[i].m_blendEnable = true;
-			passBlendOption.m_renderTarget[i].m_srcBlend = agl::Blend::One;
-			passBlendOption.m_renderTarget[i].m_destBlend = agl::Blend::One;
-			passBlendOption.m_renderTarget[i].m_blendOp = agl::BlendOp::Add;
-			passBlendOption.m_renderTarget[i].m_srcBlendAlpha = agl::Blend::One;
-			passBlendOption.m_renderTarget[i].m_destBlendAlpha = agl::Blend::One;
-			passBlendOption.m_renderTarget[i].m_blendOpAlpha = agl::BlendOp::Add; 
-		}
-
-		PassRenderOption passRenderOption = {
-			.m_primitive = agl::ResourcePrimitive::Pointlist,
-			.m_blendOption = &passBlendOption,
-			.m_depthStencilOption = &passDepthOption
-		};
-
-		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default );
-	}
 
 	REGISTER_GLOBAL_SHADER( ClearLpvCS, "./Assets/Shaders/IndirectLighting/LPV/CS_ClearLPV.asset" );
 	REGISTER_GLOBAL_SHADER( DownSampleRSMsCS, "./Assets/Shaders/IndirectLighting/LPV/CS_DownSampleRSMs.asset" );
 	REGISTER_GLOBAL_SHADER( LightInjectionVS, "./Assets/Shaders/IndirectLighting/LPV/VS_LightInjection.asset" );
 	REGISTER_GLOBAL_SHADER( LightInjectionGS, "./Assets/Shaders/IndirectLighting/LPV/GS_LightInjection.asset" );
 	REGISTER_GLOBAL_SHADER( LightInjectionPS, "./Assets/Shaders/IndirectLighting/LPV/PS_LightInjection.asset" );
+	REGISTER_GLOBAL_SHADER( LightPropagationCS, "./Assets/Shaders/IndirectLighting/LPV/CS_LightPropagation.asset" );
+
+	class LightInjectionPassProcessor final : public IPassProcessor
+	{
+	public:
+		virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) override
+		{
+			PassShader passShader = {
+				.m_vertexShader = LightInjectionVS(),
+				.m_geometryShader = LightInjectionGS(),
+				.m_pixelShader = LightInjectionPS()
+			};
+
+			DepthStencilOption passDepthOption;
+			passDepthOption.m_depth.m_enable = false;
+			passDepthOption.m_depth.m_writeDepth = false;
+
+			BlendOption passBlendOption;
+			for ( int32 i = 0; i < 3; ++i )
+			{
+				passBlendOption.m_renderTarget[i].m_blendEnable = true;
+				passBlendOption.m_renderTarget[i].m_srcBlend = agl::Blend::One;
+				passBlendOption.m_renderTarget[i].m_destBlend = agl::Blend::One;
+				passBlendOption.m_renderTarget[i].m_blendOp = agl::BlendOp::Add;
+				passBlendOption.m_renderTarget[i].m_srcBlendAlpha = agl::Blend::One;
+				passBlendOption.m_renderTarget[i].m_destBlendAlpha = agl::Blend::One;
+				passBlendOption.m_renderTarget[i].m_blendOpAlpha = agl::BlendOp::Add;
+			}
+
+			PassRenderOption passRenderOption = {
+				.m_primitive = agl::ResourcePrimitive::Pointlist,
+				.m_blendOption = &passBlendOption,
+				.m_depthStencilOption = &passDepthOption
+			};
+
+			return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default );
+		}
+	};
 
 	void LightPropagationVolume::Prepare()
 	{
@@ -134,6 +134,40 @@ namespace rendercore
 
 		RSMTextures downSampledTex = DownSampleRSMs( *params.lightInfo, params.m_rsmTextures );
 		InjectToLPV( params.m_sceneViewParameters.Get(), params.m_shadowDepthPassParameters.Get(), downSampledTex );
+	}
+
+	void LightPropagationVolume::Propagate()
+	{
+		LightPropagationCS lightPropagationCS;
+
+		agl::ShaderBindings shaderBindings = CreateShaderBindings( lightPropagationCS );
+		BindResource( shaderBindings, lightPropagationCS.LPVCommonParameters(), m_lpvCommon );
+		BindResource( shaderBindings, lightPropagationCS.CoeffR(), m_lpvTextures.m_coeffR );
+		BindResource( shaderBindings, lightPropagationCS.CoeffG(), m_lpvTextures.m_coeffG );
+		BindResource( shaderBindings, lightPropagationCS.CoeffB(), m_lpvTextures.m_coeffB );
+
+		auto commandList = GetCommandList();
+
+		{
+			agl::ResourceTransition transitions[] = {
+				Transition( *m_lpvTextures.m_coeffR, agl::ResourceState::UnorderedAccess ),
+				Transition( *m_lpvTextures.m_coeffG, agl::ResourceState::UnorderedAccess ),
+				Transition( *m_lpvTextures.m_coeffB, agl::ResourceState::UnorderedAccess ),
+			};
+
+			commandList.Transition( std::extent_v<decltype( transitions )>, transitions );
+		}
+
+		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( lightPropagationCS );
+
+		commandList.BindPipelineState( pso );
+		commandList.BindShaderResources( shaderBindings );
+
+		// [numthreads(4, 4, 32)] -> Dispatch( 32 / 8, 32 / 8, 32 / 1 )
+		for ( int i = 0; i < DefaultRenderCore::NumLpvIteration(); ++i )
+		{
+			commandList.Dispatch( 4, 4, 32 );
+		}
 	}
 
 	void LightPropagationVolume::InitResource()
@@ -217,7 +251,7 @@ namespace rendercore
 		commandList.BindPipelineState( pso );
 		commandList.BindShaderResources( shaderBindings );
 
-		// [numthreads(4, 4, 4)] -> Dispatch( 32 / 4, 32 / 4, 32 / 4 )
+		// [numthreads(8, 8, 8)] -> Dispatch( 32 / 4, 32 / 4, 32 / 4 )
 		commandList.Dispatch( 8, 8, 8 );
 	}
 
@@ -395,16 +429,6 @@ namespace rendercore
 			shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
 			AddSingleDrawPass( snapshot );
-
-			{
-				agl::ResourceTransition transitions[] = {
-					Transition( *m_lpvTextures.m_coeffR, agl::ResourceState::UnorderedAccess ),
-					Transition( *m_lpvTextures.m_coeffG, agl::ResourceState::UnorderedAccess ),
-					Transition( *m_lpvTextures.m_coeffB, agl::ResourceState::UnorderedAccess ),
-				};
-
-				commandList.Transition( std::extent_v<decltype( transitions )>, transitions );
-			}
 		}
 	}
 }

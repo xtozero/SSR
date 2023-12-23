@@ -1,3 +1,8 @@
+float4 ShFunctionL1( float3 v )
+{
+    return float4( 0.282095f, -0.488603f * v.y, 0.488603f * v.z, -0.488603f * v.x );
+}
+
 void ShFunctionL2( float3 v, out float Y[9] )
 {
     // L0

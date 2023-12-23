@@ -1028,7 +1028,7 @@ namespace rendercore
 	{
 		m_shaderResources.AddResource( "IndirectIllumination", BlackTexture->SRV() );
 
-		if ( DefaultRenderCore::IsLPVEnabled() )
+		if ( DefaultRenderCore::IsLpvEnabled() )
 		{
 			m_lpv.Prepare();
 
@@ -1062,6 +1062,8 @@ namespace rendercore
 
 				m_lpv.AddLight( params );
 			}
+
+			m_lpv.Propagate();
 		}
 		else if ( DefaultRenderCore::IsRSMsEnabled() )
 		{
