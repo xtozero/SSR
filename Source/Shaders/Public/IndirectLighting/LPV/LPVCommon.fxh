@@ -8,11 +8,17 @@ cbuffer LPVCommonParameters : register( b5 )
 
 int3 GetGridPos( float3 position )
 {
-    uint halfTexDimensionX = TexDimension.x * 0.5f;
-    uint halfTexDimensionY = TexDimension.y * 0.5f;
-    uint halfTexDimensionZ = TexDimension.z * 0.5f;
+    int3 halfTexDimension = int3( TexDimension.xyz * 0.5f );
 
-    return ( position / CellSize.xyz ) + int3( halfTexDimensionX, halfTexDimensionY, halfTexDimensionZ );
+    return ( position / CellSize.xyz ) + halfTexDimension;
+}
+
+float3 GetLpvUV( float3 position )
+{
+    float3 halfTexDimension = TexDimension.xyz * 0.5f;
+    float3 gridPosition = ( position / CellSize.xyz ) + halfTexDimension;
+    
+    return gridPosition / TexDimension.xyz;
 }
 
 float4 CosineLobe( float3 normal )

@@ -85,7 +85,7 @@ namespace agl
 		virtual void FreeResource() override
 		{
 			TextureBase::FreeResource();
-			m_resourceInfo.Release();
+			m_resourceInfo = AllocatedResourceInfo();
 		}
 
 		void AdjustInitalResourceStates();

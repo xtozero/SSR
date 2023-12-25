@@ -18,6 +18,7 @@ struct VS_OUTPUT
 	float3 normal : NORMAL;
     float3 flux : FLUX;
     int skip : SKIP;
+    int cascadeIndex : CASCADE_INDEX;
 };
 
 VS_OUTPUT main( uint vertexId : SV_VertexID )
@@ -33,7 +34,10 @@ VS_OUTPUT main( uint vertexId : SV_VertexID )
     float3 worldPosition = RSMsWorldPosition.Load( uv ).xyz;
     int3 gridPos = GetGridPos( worldPosition );
 
-    float2 screenPosition = { ( gridPos.x + 0.5f ) / TexDimension.x, 1.f - ( gridPos.y + 0.5f ) / TexDimension.y };
+    float2 screenPosition = { ( gridPos.x + 0.5f ) / TexDimension.x, ( gridPos.y + 0.5f ) / TexDimension.y };
+    screenPosition = screenPosition * 2.f - 1.f;
+    screenPosition.y = -screenPosition.y;
+
     output.position = float4( screenPosition, gridPos.z, 1.f );
     
     float3 packedNormal = RSMsNormal.Load( uv ).yzw;
@@ -42,7 +46,8 @@ VS_OUTPUT main( uint vertexId : SV_VertexID )
     output.flux = RSMsFlux.Load( uv ).rgb;
 
     float3 viewPosition = mul( float4( worldPosition, 1.f ), ViewMatrix ).xyz;
-    output.skip = ( zIndex == SearchCascadeIndex( viewPosition.z ) ) ? 0 : 1;
+    output.cascadeIndex = SearchCascadeIndex( viewPosition.z );
+    output.skip = ( zIndex == output.cascadeIndex ) ? 0 : 1;
 
     return output;
 }

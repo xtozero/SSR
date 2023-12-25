@@ -1,18 +1,23 @@
 #include "LightPropagationVolume.h"
 
 #include "AbstractGraphicsInterface.h"
+#include "CommonRenderResource.h"
 #include "ComputePipelineState.h"
 #include "Config/DefaultRenderCoreConfig.h"
 #include "GlobalShaders.h"
 #include "LightProxy.h"
 #include "PassProcessor.h"
+#include "RenderTargetPool.h"
+#include "RenderView.h"
 #include "Scene/LightSceneInfo.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "Scene/ShadowInfo.h"
 #include "SceneRenderer.h"
 #include "ShaderParameterUtils.h"
+#include "StaticState.h"
 #include "TransitionUtils.h"
 #include "VertexCollection.h"
+#include "Viewport.h"
 
 namespace rendercore
 {
@@ -61,12 +66,15 @@ namespace rendercore
 	class LightPropagationCS final : public GlobalShaderCommon<ComputeShader, LightPropagationCS>
 	{
 	private:
-		DEFINE_SHADER_PARAM( LPVCommonParameters );
+		DEFINE_SHADER_PARAM( LPVCommonParameters ); // b5
 
 		DEFINE_SHADER_PARAM( CoeffR );
 		DEFINE_SHADER_PARAM( CoeffG );
 		DEFINE_SHADER_PARAM( CoeffB );
 	};
+
+	class RenderLpvPS final : public GlobalShaderCommon<PixelShader, RenderLpvPS>
+	{};
 
 	REGISTER_GLOBAL_SHADER( ClearLpvCS, "./Assets/Shaders/IndirectLighting/LPV/CS_ClearLPV.asset" );
 	REGISTER_GLOBAL_SHADER( DownSampleRSMsCS, "./Assets/Shaders/IndirectLighting/LPV/CS_DownSampleRSMs.asset" );
@@ -74,6 +82,7 @@ namespace rendercore
 	REGISTER_GLOBAL_SHADER( LightInjectionGS, "./Assets/Shaders/IndirectLighting/LPV/GS_LightInjection.asset" );
 	REGISTER_GLOBAL_SHADER( LightInjectionPS, "./Assets/Shaders/IndirectLighting/LPV/PS_LightInjection.asset" );
 	REGISTER_GLOBAL_SHADER( LightPropagationCS, "./Assets/Shaders/IndirectLighting/LPV/CS_LightPropagation.asset" );
+	REGISTER_GLOBAL_SHADER( RenderLpvPS, "./Assets/Shaders/IndirectLighting/LPV/PS_RenderLPV.asset" );
 
 	class LightInjectionPassProcessor final : public IPassProcessor
 	{
@@ -112,13 +121,38 @@ namespace rendercore
 		}
 	};
 
-	void LightPropagationVolume::Prepare()
+	class LpvRenderPassProcessor final : public IPassProcessor
 	{
-		InitResource();
+	public:
+		virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) override
+		{
+			PassShader passShader = {
+				.m_vertexShader = FullScreenQuadVS(),
+				.m_geometryShader = nullptr,
+				.m_pixelShader = RenderLpvPS()
+			};
+
+			DepthStencilOption RSMsDrawPassDepthOption;
+			RSMsDrawPassDepthOption.m_depth.m_enable = false;
+			RSMsDrawPassDepthOption.m_depth.m_writeDepth = false;
+
+			PassRenderOption passRenderOption = {
+				.m_depthStencilOption = &RSMsDrawPassDepthOption
+			};
+
+			return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default );
+		}
+	};
+
+	void LightPropagationVolume::Prepare( const RenderViewGroup& renderViewGroup )
+	{
+		std::pair<uint32, uint32> curRtSize = renderViewGroup.GetViewport().Size();
+
+		InitResource( curRtSize );
 		ClearLPV();
 	}
 
-	void LightPropagationVolume::AddLight( const LightInjectionParameters& params )
+	void LightPropagationVolume::AddLight( const LpvLightInjectionParameters& params )
 	{
 		bool isValid = params.lightInfo != nullptr
 			&& params.m_sceneViewParameters.Get() != nullptr
@@ -132,7 +166,7 @@ namespace rendercore
 			return;
 		}
 
-		RSMTextures downSampledTex = DownSampleRSMs( *params.lightInfo, params.m_rsmTextures );
+		LpvRSMTextures downSampledTex = DownSampleRSMs( *params.lightInfo, params.m_rsmTextures );
 		InjectToLPV( params.m_sceneViewParameters.Get(), params.m_shadowDepthPassParameters.Get(), downSampledTex );
 	}
 
@@ -164,13 +198,114 @@ namespace rendercore
 		commandList.BindShaderResources( shaderBindings );
 
 		// [numthreads(4, 4, 32)] -> Dispatch( 32 / 8, 32 / 8, 32 / 1 )
-		for ( int i = 0; i < DefaultRenderCore::NumLpvIteration(); ++i )
+		for ( uint32 i = 0; i < DefaultRenderCore::NumLpvIteration(); ++i )
 		{
 			commandList.Dispatch( 4, 4, 32 );
 		}
 	}
 
-	void LightPropagationVolume::InitResource()
+	void LightPropagationVolume::Render( const LpvRenderingParameters& param, RenderingShaderResource& outRenderingShaderResource )
+	{
+		LpvRenderPassProcessor lpvDrawPassProcessor;
+		auto result = lpvDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
+		if ( result.has_value() == false )
+		{
+			return;
+		}
+
+		DrawSnapshot& snapshot = *result;
+
+		auto blackBorderSampler = StaticSamplerState<agl::TextureFilter::MinMagMipLinear
+			, agl::TextureAddressMode::Border
+			, agl::TextureAddressMode::Border
+			, agl::TextureAddressMode::Border
+			, 0.f
+			, agl::ComparisonFunc::Never
+			, Color( 0, 0, 0, 255 )>::Get();
+
+		RenderingShaderResource shaderResources;
+		shaderResources.AddResource( "ViewSpaceDistance", param.m_viewSpaceDistance->SRV() );
+		shaderResources.AddResource( "WorldNormal", param.m_worldNormal->SRV() );
+		shaderResources.AddResource( "CoeffR", m_lpvTextures.m_coeffR->SRV() );
+		shaderResources.AddResource( "CoeffG", m_lpvTextures.m_coeffG->SRV() );
+		shaderResources.AddResource( "CoeffB", m_lpvTextures.m_coeffB->SRV() );
+		shaderResources.AddResource( "BlackBorderSampler", blackBorderSampler.Resource() );
+		shaderResources.AddResource( "LPVCommonParameters", m_lpvCommon );
+
+		auto commandList = GetCommandList();
+
+		{
+			agl::ResourceTransition transition[] = {
+				Transition( *m_indirectIllumination.Get(), agl::ResourceState::RenderTarget ),
+			};
+
+			commandList.Transition( std::extent_v<decltype( transition )>, transition );
+		}
+
+		agl::RenderTargetView* rtv = m_indirectIllumination->RTV();
+		commandList.BindRenderTargets( &rtv, 1, nullptr );
+
+		const agl::TextureTrait& trait = m_indirectIllumination->GetTrait();
+
+		CubeArea<float> viewport = {
+				.m_left = 0.f,
+				.m_top = 0.f,
+				.m_front = 0.f,
+				.m_right = static_cast<float>( trait.m_width ),
+				.m_bottom = static_cast<float>( trait.m_height ),
+				.m_back = 1.f
+		};
+		commandList.SetViewports( 1, &viewport );
+
+		RectangleArea<int32> scissorRect = {
+			.m_left = 0L,
+			.m_top = 0L,
+			.m_right = static_cast<int32>( trait.m_width ),
+			.m_bottom = static_cast<int32>( trait.m_height )
+		};
+		commandList.SetScissorRects( 1, &scissorRect );
+
+		// Update invalidated resources
+		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+		outRenderingShaderResource.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+		shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+		AddSingleDrawPass( snapshot );
+
+		{
+			agl::ResourceTransition transition[] = {
+				Transition( *m_indirectIllumination.Get(), agl::ResourceState::PixelShaderResource ),
+			};
+
+			commandList.Transition( std::extent_v<decltype( transition )>, transition );
+		}
+
+		outRenderingShaderResource.AddResource( "IndirectIllumination", m_indirectIllumination->SRV() );
+	}
+
+	void LightPropagationVolume::AllocTextureForIndirectIllumination( const std::pair<uint32, uint32>& renderTargetSize )
+	{
+		agl::TextureTrait trait = {
+			.m_width = renderTargetSize.first,
+			.m_height = renderTargetSize.second,
+			.m_depth = 1,
+			.m_sampleCount = 1,
+			.m_sampleQuality = 0,
+			.m_mipLevels = 1,
+			.m_format = agl::ResourceFormat::R8G8B8A8_UNORM_SRGB,
+			.m_access = agl::ResourceAccessFlag::Default,
+			.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
+			.m_miscFlag = agl::ResourceMisc::None,
+			.m_clearValue = agl::ResourceClearValue{
+				.m_color = { 0.f, 0.f, 0.f, 1.f }
+			}
+		};
+
+		m_indirectIllumination = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "LPV.Illumination" );
+	}
+
+	void LightPropagationVolume::InitResource( const std::pair<uint32, uint32>& renderTargetSize )
 	{
 		if ( m_lpvCommon.Get() == nullptr )
 		{
@@ -223,6 +358,21 @@ namespace rendercore
 			m_lpvTextures.m_coeffB = agl::Texture::Create( trait, "LPV.Coeff.B" );
 			m_lpvTextures.m_coeffB->Init();
 		}
+
+		if( m_indirectIllumination == nullptr )
+		{
+			AllocTextureForIndirectIllumination( renderTargetSize );
+		}
+		else
+		{
+			auto texTrait = m_indirectIllumination->GetTrait();
+			std::pair<uint32, uint32> oldRtSize = { texTrait.m_width, texTrait.m_height };
+
+			if ( renderTargetSize != oldRtSize )
+			{
+				AllocTextureForIndirectIllumination( renderTargetSize );
+			}
+		}
 	}
 
 	void LightPropagationVolume::ClearLPV()
@@ -255,9 +405,9 @@ namespace rendercore
 		commandList.Dispatch( 8, 8, 8 );
 	}
 
-	RSMTextures LightPropagationVolume::DownSampleRSMs( const LightSceneInfo& lightInfo, const RSMTextures& rsmTextures )
+	LpvRSMTextures LightPropagationVolume::DownSampleRSMs( const LightSceneInfo& lightInfo, const LpvRSMTextures& rsmTextures )
 	{
-		RSMTextures downSampledTex;
+		LpvRSMTextures downSampledTex;
 
 		// Create textures
 		{
@@ -360,7 +510,7 @@ namespace rendercore
 
 	void LightPropagationVolume::InjectToLPV( agl::Buffer* sceneViewParameters,
 		agl::Buffer* shadowDepthPassParameters,
-		const RSMTextures& downSampledTex )
+		const LpvRSMTextures& downSampledTex )
 	{
 		LightInjectionPassProcessor lightInjectionPassProcessor;
 
@@ -409,7 +559,7 @@ namespace rendercore
 				.m_right = 32,
 				.m_bottom = 32
 			};
-			commandList.SetScissorRects( 3, &scissorRect );
+			commandList.SetScissorRects( 1, &scissorRect );
 
 			const agl::TextureTrait& rsmTextureTrait = downSampledTex.m_worldPosition->GetTrait();
 			uint32 dimensions[] = { rsmTextureTrait.m_width, rsmTextureTrait.m_height, rsmTextureTrait.m_depth };

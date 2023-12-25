@@ -1030,7 +1030,7 @@ namespace rendercore
 
 		if ( DefaultRenderCore::IsLpvEnabled() )
 		{
-			m_lpv.Prepare();
+			m_lpv.Prepare( renderViewGroup );
 
 			for ( ShadowInfo& shadowInfo : m_shadowInfos )
 			{
@@ -1048,7 +1048,7 @@ namespace rendercore
 
 				IScene& scene = renderViewGroup.Scene();
 
-				LightInjectionParameters params =
+				LpvLightInjectionParameters injectionParams =
 				{
 					.lightInfo = lightSceneInfo,
 					.m_sceneViewParameters = scene.SceneViewConstant().Resource(),
@@ -1060,10 +1060,17 @@ namespace rendercore
 					},
 				};
 
-				m_lpv.AddLight( params );
+				m_lpv.AddLight( injectionParams );
 			}
 
 			m_lpv.Propagate();
+
+			LpvRenderingParameters renderingParams = {
+				.m_viewSpaceDistance = GetRenderRenderTargets().GetViewSpaceDistance(),
+				.m_worldNormal = GetRenderRenderTargets().GetWorldNormal(),
+			};
+
+			m_lpv.Render( renderingParams, m_shaderResources );
 		}
 		else if ( DefaultRenderCore::IsRSMsEnabled() )
 		{

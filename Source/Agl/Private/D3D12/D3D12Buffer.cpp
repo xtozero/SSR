@@ -302,7 +302,7 @@ namespace agl
 	{
 		m_srv = nullptr;
 		m_uav = nullptr;
-		m_resourceInfo.Release();
+		m_resourceInfo = AllocatedResourceInfo();
 	}
 
 	void D3D12Buffer::AdjustInitalResourceStates()

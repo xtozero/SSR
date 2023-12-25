@@ -35,7 +35,10 @@ namespace agl
 
 		std::memset( m_rtvs, 0, sizeof( m_rtvs ) );
 		m_dsv = nullptr;
+	}
 
+	void D3D12PipelineCache::ReleaseRenderResources()
+	{
 		for ( auto& allocatedInfo : m_allocatedInfos )
 		{
 			allocatedInfo.Release();

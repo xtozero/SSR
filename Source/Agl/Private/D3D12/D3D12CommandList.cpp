@@ -106,6 +106,8 @@ namespace agl
 			m_stateCache.Prepare();
 		}
 
+		m_stateCache.ReleaseRenderResources();
+
 		m_globalConstantBuffers.Prepare();
 		m_globalDescriptorHeap.Prepare();
 	}
@@ -302,6 +304,9 @@ namespace agl
 	void D3D12CommandListImpl::OnCommited()
 	{
 		D3D12DirectCommandQueue().Signal( m_cmdListResource.m_fence.Get(), 1 );
+
+		m_cmdListResource = D3D12CmdPool( D3D12_COMMAND_LIST_TYPE_DIRECT ).ObtainCommandList();
+		m_stateCache.Prepare();
 	}
 
 	ID3D12CommandList* D3D12CommandListImpl::Resource() const
