@@ -194,12 +194,12 @@ namespace rendercore
 
 		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( lightPropagationCS );
 
-		commandList.BindPipelineState( pso );
 		commandList.BindShaderResources( shaderBindings );
 
 		// [numthreads(4, 4, 32)] -> Dispatch( 32 / 8, 32 / 8, 32 / 1 )
 		for ( uint32 i = 0; i < DefaultRenderCore::NumLpvIteration(); ++i )
 		{
+			commandList.BindPipelineState( pso );
 			commandList.Dispatch( 4, 4, 32 );
 		}
 	}
@@ -547,9 +547,9 @@ namespace rendercore
 				.m_left = 0.f,
 				.m_top = 0.f,
 				.m_front = 0.f,
-				.m_right = 32,
-				.m_bottom = 32,
-				.m_back = 32
+				.m_right = 32.f,
+				.m_bottom = 32.f,
+				.m_back = 1.f
 			};
 			commandList.SetViewports( 1, &viewport );
 
