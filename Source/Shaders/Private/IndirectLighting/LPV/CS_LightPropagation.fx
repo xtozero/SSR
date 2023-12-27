@@ -5,6 +5,10 @@ RWTexture3D<float4> CoeffR : register( u0 );
 RWTexture3D<float4> CoeffG : register( u1 );
 RWTexture3D<float4> CoeffB : register( u2 );
 
+RWTexture3D<float4> OutCoeffR : register( u3 );
+RWTexture3D<float4> OutCoeffG : register( u4 );
+RWTexture3D<float4> OutCoeffB : register( u5 );
+
 static const float DirectFaceSolidAngle = 0.4006696846f / PI;
 static const float SideFaceSolidAngle = 0.4234413544f / PI;
 
@@ -63,9 +67,9 @@ void main( uint3 DTid : SV_DispatchThreadId )
                 continue;
             }
 
-            float4 neighborCoeffR = CoeffR[neighborIndex];
-            float4 neighborCoeffG = CoeffG[neighborIndex];
-            float4 neighborCoeffB = CoeffB[neighborIndex];
+            float4 neighborCoeffR = CoeffR.Load( neighborIndex );
+            float4 neighborCoeffG = CoeffG.Load( neighborIndex );
+            float4 neighborCoeffB = CoeffB.Load( neighborIndex );
 
             float3x3 orientation = NeighborOrientations[neighbor];
 
@@ -92,8 +96,8 @@ void main( uint3 DTid : SV_DispatchThreadId )
             b += DirectFaceSolidAngle * dot( neighborCoeffB, directSH ) * reprojectionCosineLobeSH;
         }
 
-        CoeffR[DTid] += r;
-        CoeffG[DTid] += g;
-        CoeffB[DTid] += b;
+        OutCoeffR[DTid] = r;
+        OutCoeffG[DTid] = g;
+        OutCoeffB[DTid] = b;
     }
 }

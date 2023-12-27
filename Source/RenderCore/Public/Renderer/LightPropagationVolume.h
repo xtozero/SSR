@@ -40,7 +40,15 @@ namespace rendercore
 		void Render( const LpvRenderingParameters& param, RenderingShaderResource& outRenderingShaderResource );
 
 	private:
+		struct LPVTextures
+		{
+			agl::RefHandle<agl::Texture> m_coeffR;
+			agl::RefHandle<agl::Texture> m_coeffG;
+			agl::RefHandle<agl::Texture> m_coeffB;
+		};
+
 		void AllocTextureForIndirectIllumination( const std::pair<uint32, uint32>& renderTargetSize );
+		LPVTextures AllocVolumeTextures();
 		void InitResource( const std::pair<uint32, uint32>& renderTargetSize );
 		void ClearLPV();
 		LpvRSMTextures DownSampleRSMs( const LightSceneInfo& lightInfo, const LpvRSMTextures& rsmTextures );
@@ -48,12 +56,7 @@ namespace rendercore
 
 		agl::RefHandle<agl::Buffer> m_lpvCommon;
 
-		struct LPVTextures
-		{
-			agl::RefHandle<agl::Texture> m_coeffR;
-			agl::RefHandle<agl::Texture> m_coeffG;
-			agl::RefHandle<agl::Texture> m_coeffB;
-		} m_lpvTextures;
+		LPVTextures m_lpvTextures;
 
 		agl::RefHandle<agl::Texture> m_indirectIllumination;
 	};

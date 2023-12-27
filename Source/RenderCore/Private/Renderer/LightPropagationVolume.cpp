@@ -71,6 +71,9 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( CoeffR );
 		DEFINE_SHADER_PARAM( CoeffG );
 		DEFINE_SHADER_PARAM( CoeffB );
+		DEFINE_SHADER_PARAM( OutCoeffR );
+		DEFINE_SHADER_PARAM( OutCoeffG );
+		DEFINE_SHADER_PARAM( OutCoeffB );
 	};
 
 	class RenderLpvPS final : public GlobalShaderCommon<PixelShader, RenderLpvPS>
@@ -172,13 +175,7 @@ namespace rendercore
 
 	void LightPropagationVolume::Propagate()
 	{
-		LightPropagationCS lightPropagationCS;
-
-		agl::ShaderBindings shaderBindings = CreateShaderBindings( lightPropagationCS );
-		BindResource( shaderBindings, lightPropagationCS.LPVCommonParameters(), m_lpvCommon );
-		BindResource( shaderBindings, lightPropagationCS.CoeffR(), m_lpvTextures.m_coeffR );
-		BindResource( shaderBindings, lightPropagationCS.CoeffG(), m_lpvTextures.m_coeffG );
-		BindResource( shaderBindings, lightPropagationCS.CoeffB(), m_lpvTextures.m_coeffB );
+		LPVTextures tempTextures = AllocVolumeTextures();
 
 		auto commandList = GetCommandList();
 
@@ -187,21 +184,39 @@ namespace rendercore
 				Transition( *m_lpvTextures.m_coeffR, agl::ResourceState::UnorderedAccess ),
 				Transition( *m_lpvTextures.m_coeffG, agl::ResourceState::UnorderedAccess ),
 				Transition( *m_lpvTextures.m_coeffB, agl::ResourceState::UnorderedAccess ),
+				Transition( *tempTextures.m_coeffR, agl::ResourceState::UnorderedAccess ),
+				Transition( *tempTextures.m_coeffG, agl::ResourceState::UnorderedAccess ),
+				Transition( *tempTextures.m_coeffB, agl::ResourceState::UnorderedAccess ),
 			};
 
 			commandList.Transition( std::extent_v<decltype( transitions )>, transitions );
 		}
 
-		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( lightPropagationCS );
+		LightPropagationCS lightPropagationCS;
 
-		commandList.BindShaderResources( shaderBindings );
+		agl::ShaderBindings shaderBindings = CreateShaderBindings( lightPropagationCS );
+		BindResource( shaderBindings, lightPropagationCS.LPVCommonParameters(), m_lpvCommon );
+
+		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( lightPropagationCS );
 
 		// [numthreads(4, 4, 32)] -> Dispatch( 32 / 8, 32 / 8, 32 / 1 )
 		for ( uint32 i = 0; i < DefaultRenderCore::NumLpvIteration(); ++i )
 		{
+			BindResource( shaderBindings, lightPropagationCS.CoeffR(), m_lpvTextures.m_coeffR );
+			BindResource( shaderBindings, lightPropagationCS.CoeffG(), m_lpvTextures.m_coeffG );
+			BindResource( shaderBindings, lightPropagationCS.CoeffB(), m_lpvTextures.m_coeffB );
+			BindResource( shaderBindings, lightPropagationCS.OutCoeffR(), tempTextures.m_coeffR );
+			BindResource( shaderBindings, lightPropagationCS.OutCoeffG(), tempTextures.m_coeffG );
+			BindResource( shaderBindings, lightPropagationCS.OutCoeffB(), tempTextures.m_coeffB );
+
 			commandList.BindPipelineState( pso );
+			commandList.BindShaderResources( shaderBindings );
 			commandList.Dispatch( 4, 4, 32 );
+
+			std::swap( m_lpvTextures, tempTextures );
 		}
+
+		m_lpvTextures = tempTextures;
 	}
 
 	void LightPropagationVolume::Render( const LpvRenderingParameters& param, RenderingShaderResource& outRenderingShaderResource )
@@ -305,6 +320,30 @@ namespace rendercore
 		m_indirectIllumination = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "LPV.Illumination" );
 	}
 
+	LightPropagationVolume::LPVTextures LightPropagationVolume::AllocVolumeTextures()
+	{
+		LPVTextures volumeTextures;
+
+		agl::TextureTrait trait = {
+				.m_width = 32,
+				.m_height = 32,
+				.m_depth = 32,
+				.m_sampleCount = 1,
+				.m_sampleQuality = 0,
+				.m_mipLevels = 1,
+				.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
+				.m_access = agl::ResourceAccessFlag::Default,
+				.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RenderTarget | agl::ResourceBindType::RandomAccess,
+				.m_miscFlag = agl::ResourceMisc::Texture3D
+		};
+
+		volumeTextures.m_coeffR = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "LPV.Coeff.R" );
+		volumeTextures.m_coeffG = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "LPV.Coeff.G" );
+		volumeTextures.m_coeffB = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "LPV.Coeff.B" );
+
+		return volumeTextures;
+	}
+
 	void LightPropagationVolume::InitResource( const std::pair<uint32, uint32>& renderTargetSize )
 	{
 		if ( m_lpvCommon.Get() == nullptr )
@@ -336,27 +375,7 @@ namespace rendercore
 			|| m_lpvTextures.m_coeffG.Get() == nullptr
 			|| m_lpvTextures.m_coeffB.Get() == nullptr )
 		{
-			agl::TextureTrait trait = {
-				.m_width = 32,
-				.m_height = 32,
-				.m_depth = 32,
-				.m_sampleCount = 1,
-				.m_sampleQuality = 0,
-				.m_mipLevels = 1,
-				.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
-				.m_access = agl::ResourceAccessFlag::Default,
-				.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RenderTarget | agl::ResourceBindType::RandomAccess,
-				.m_miscFlag = agl::ResourceMisc::Texture3D
-			};
-
-			m_lpvTextures.m_coeffR = agl::Texture::Create( trait, "LPV.Coeff.R" );
-			m_lpvTextures.m_coeffR->Init();
-
-			m_lpvTextures.m_coeffG = agl::Texture::Create( trait, "LPV.Coeff.G" );
-			m_lpvTextures.m_coeffG->Init();
-
-			m_lpvTextures.m_coeffB = agl::Texture::Create( trait, "LPV.Coeff.B" );
-			m_lpvTextures.m_coeffB->Init();
+			m_lpvTextures = AllocVolumeTextures();
 		}
 
 		if( m_indirectIllumination == nullptr )
