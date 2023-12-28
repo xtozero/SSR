@@ -100,5 +100,5 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	float3 raymie;
 	Inscatter( r, mu, muS, nu, raymie );
 
-	DeltaJ[DTid] = float4( raymie, 0.f );
+	DeltaJ[uint3(DTid.xy, ThreadGroupZ)] = float4( raymie, 0.f );
 }

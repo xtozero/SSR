@@ -340,7 +340,6 @@ namespace rendercore
 			// Compute deltaJ
 			InscatterSCS inscatterSCS;
 			agl::RefHandle<agl::ComputePipelineState> inscatterSPSO = PrepareComputePipelineState( inscatterSCS );
-			commandList.BindPipelineState( inscatterSPSO );
 
 			shaderBindings = CreateShaderBindings( inscatterSCS );
 
@@ -359,6 +358,7 @@ namespace rendercore
 				SetShaderValue( commandList, inscatterSCS.Order(), order );
 				SetShaderValue( commandList, inscatterSCS.ThreadGroupZ(), i );
 
+				commandList.BindPipelineState( inscatterSPSO );
 				commandList.BindShaderResources( shaderBindings );
 				commandList.Dispatch( INSCATTERS_GROUP_X, INSCATTERS_GROUP_Y );
 			}
@@ -449,7 +449,7 @@ namespace rendercore
 
 			constexpr size_t rowSize = sizeof( Vector4 ) * IRRADIANCE_W;
 
-			commandList.UpdateSubresource( info.GetIrradianceLutTexture(), srcData, rowSize);
+			commandList.UpdateSubresource( info.GetIrradianceLutTexture(), srcData, rowSize );
 			GraphicsInterface().UnLock( irradianceReadBack );
 		}
 

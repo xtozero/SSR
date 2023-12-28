@@ -151,18 +151,18 @@ namespace agl
 			assert( refCount == 0 );
 		}
 
+		if ( info.m_refCounter != nullptr )
+		{
+			std::destroy_at( info.m_refCounter );
+			m_refCounterPool.Deallocate( info.m_refCounter );
+		}
+
 		if ( info.m_heap == nullptr )
 		{
 			return;
 		}
 
 		m_heapAllocator.Deallocate( info );
-
-		if ( info.m_refCounter != nullptr )
-		{
-			std::destroy_at( info.m_refCounter );
-			m_refCounterPool.Deallocate( info.m_refCounter );
-		}
 	}
 
 	D3D12ResourceAllocator::~D3D12ResourceAllocator()
