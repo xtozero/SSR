@@ -6,7 +6,7 @@ struct PS_INPUT
     float4 position : SV_POSITION;
     float3 normal : NORMAL;
     float3 flux : FLUX;
-    float surfelWeight : SURFEL_WEIGHT;
+    float surfelArea : SURFEL_AREA;
     uint rtIndex : SV_RenderTargetArrayIndex;
 };
 
@@ -21,7 +21,7 @@ PS_OUTPUT main( PS_INPUT input )
 {
     PS_OUTPUT output = (PS_OUTPUT)0;
     
-    float4 coeff = CosineLobe( input.normal ) / PI * input.surfelWeight;
+    float4 coeff = CosineLobe( input.normal ) / PI * input.surfelArea;
     output.coeffR = coeff * input.flux.r;
     output.coeffG = coeff * input.flux.g;
     output.coeffB = coeff * input.flux.b;

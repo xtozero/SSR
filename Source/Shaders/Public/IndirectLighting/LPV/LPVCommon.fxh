@@ -13,6 +13,20 @@ int3 GetGridPos( float3 position )
     return ( position / CellSize.xyz ) + halfTexDimension;
 }
 
+int3 GetGridPosForGV( float3 position )
+{
+    int3 halfTexDimension = int3( TexDimension.xyz * 0.5f );
+
+    return ( position / CellSize.xyz - 0.5f ) + halfTexDimension;
+}
+
+int3 GetGridPos( float3 position, float3 normal )
+{
+    int3 halfTexDimension = int3( TexDimension.xyz * 0.5f );
+
+    return ( position / CellSize.xyz + 0.5f * normal ) + halfTexDimension;
+}
+
 float3 GetLpvUV( float3 position )
 {
     float3 halfTexDimension = TexDimension.xyz * 0.5f;

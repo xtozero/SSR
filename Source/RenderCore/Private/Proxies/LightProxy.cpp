@@ -47,6 +47,11 @@ namespace rendercore
 		return lightProperty;
 	}
 
+	Vector DirectionalLightProxy::GetDirection() const
+	{
+		return m_direction;
+	}
+
 	float DirectionalLightProxy::GetRange() const
 	{
 		assert( false && "DirectionalLightProxy - Unsurpported function" );
@@ -86,6 +91,12 @@ namespace rendercore
 		};
 
 		return lightProperty;
+	}
+
+	Vector PointLightProxy::GetDirection() const
+	{
+		assert( false && "PointLightProxy - Unsurpported function" );
+		return Vector::ZeroVector;
 	}
 
 	float PointLightProxy::GetRange() const
@@ -129,6 +140,11 @@ namespace rendercore
 		};
 
 		return lightProperty;
+	}
+
+	Vector SpotLightProxy::GetDirection() const
+	{
+		return m_direction;
 	}
 
 	float SpotLightProxy::GetRange() const

@@ -2,7 +2,10 @@
 
 #include "Buffer.h"
 #include "GraphicsApiResource.h"
+#include "Scene/ShadowInfo.h"
 #include "Texture.h"
+
+#include <array>
 
 namespace rendercore
 {
@@ -23,6 +26,7 @@ namespace rendercore
 		agl::RefHandle<agl::Buffer> m_sceneViewParameters;
 		agl::RefHandle<agl::Buffer> m_shadowDepthPassParameters;
 		LpvRSMTextures m_rsmTextures;
+		std::array<float, CascadeShadowSetting::MAX_CASCADE_NUM> m_surfelAreas;
 	};
 
 	struct LpvRenderingParameters
@@ -35,7 +39,7 @@ namespace rendercore
 	{
 	public:
 		void Prepare( const RenderViewGroup& renderViewGroup );
-		void AddLight( const LpvLightInjectionParameters& params );
+		void InjectLight( const LpvLightInjectionParameters& params );
 		void Propagate();
 		void Render( const LpvRenderingParameters& param, RenderingShaderResource& outRenderingShaderResource );
 
@@ -45,14 +49,15 @@ namespace rendercore
 			agl::RefHandle<agl::Texture> m_coeffR;
 			agl::RefHandle<agl::Texture> m_coeffG;
 			agl::RefHandle<agl::Texture> m_coeffB;
+			agl::RefHandle<agl::Texture> m_coeffOcclusion;
 		};
 
 		void AllocTextureForIndirectIllumination( const std::pair<uint32, uint32>& renderTargetSize );
-		LPVTextures AllocVolumeTextures();
+		LPVTextures AllocVolumeTextures( bool allocForOcclusion );
 		void InitResource( const std::pair<uint32, uint32>& renderTargetSize );
 		void ClearLPV();
 		LpvRSMTextures DownSampleRSMs( const LightSceneInfo& lightInfo, const LpvRSMTextures& rsmTextures );
-		void InjectToLPV( agl::Buffer* sceneViewParameters, agl::Buffer* shadowDepthPassParameters, const LpvRSMTextures& downSampledTex );
+		void InjectToLPV( const LpvLightInjectionParameters& params, const LpvRSMTextures& downSampledTex );
 
 		agl::RefHandle<agl::Buffer> m_lpvCommon;
 

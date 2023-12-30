@@ -1048,8 +1048,7 @@ namespace rendercore
 
 				IScene& scene = renderViewGroup.Scene();
 
-				LpvLightInjectionParameters injectionParams =
-				{
+				LpvLightInjectionParameters injectionParams = {
 					.lightInfo = lightSceneInfo,
 					.m_sceneViewParameters = scene.SceneViewConstant().Resource(),
 					.m_shadowDepthPassParameters = shadowInfo.ConstantBuffer().Resource(),
@@ -1058,9 +1057,10 @@ namespace rendercore
 						.m_normal = shadowMapRT.m_shadowMaps[2],
 						.m_flux = shadowMapRT.m_shadowMaps[3],
 					},
+					.m_surfelAreas = { 0.06f * 0.07f, 0.06f } // For now, the hardcoded
 				};
 
-				m_lpv.AddLight( injectionParams );
+				m_lpv.InjectLight( injectionParams );
 			}
 
 			m_lpv.Propagate();

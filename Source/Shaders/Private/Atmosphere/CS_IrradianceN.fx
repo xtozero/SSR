@@ -17,7 +17,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
 	float r, muS;
 	GetIrradianceRMuS( DTid, r, muS );
 
-	float3 s = float3( max( sqrt( 1.0 - muS * muS ), 0.f ), 0.f, muS );
+	float3 s = float3( max( sqrt( saturate( 1.0 - muS * muS ) ), 0.f ), 0.f, muS );
 
 	float3 result = 0.f;
 

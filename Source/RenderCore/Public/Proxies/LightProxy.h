@@ -50,6 +50,7 @@ namespace rendercore
 	public:
 		virtual LightType GetLightType() const = 0;
 		virtual LightProperty GetLightProperty() const = 0;
+		virtual Vector GetDirection() const = 0;
 		virtual float GetRange() const = 0;
 		virtual Vector GetPosition() const = 0;
 
@@ -98,6 +99,7 @@ namespace rendercore
 		}
 
 		virtual LightProperty GetLightProperty() const override;
+		virtual Vector GetDirection() const override;
 		virtual float GetRange() const override;
 		virtual Vector GetPosition() const override;
 
@@ -118,6 +120,7 @@ namespace rendercore
 		}
 
 		virtual LightProperty GetLightProperty() const override;
+		virtual Vector GetDirection() const override;
 		virtual float GetRange() const override;
 		virtual Vector GetPosition() const override;
 
@@ -140,6 +143,7 @@ namespace rendercore
 		}
 
 		virtual LightProperty GetLightProperty() const override;
+		virtual Vector GetDirection() const override;
 		virtual float GetRange() const override;
 		virtual Vector GetPosition() const override;
 

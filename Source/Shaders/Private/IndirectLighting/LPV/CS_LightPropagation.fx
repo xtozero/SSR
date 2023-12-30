@@ -9,6 +9,14 @@ RWTexture3D<float4> OutCoeffR : register( u3 );
 RWTexture3D<float4> OutCoeffG : register( u4 );
 RWTexture3D<float4> OutCoeffB : register( u5 );
 
+Texture3D<float4> CoeffOcclusion : register( t0 );
+SamplerState BlackBorderLinearSampler : register( s0 );
+
+cbuffer LightPropagationParameters : register( b0 )
+{
+    uint InterationCount;
+};
+
 static const float DirectFaceSolidAngle = 0.4006696846f / PI;
 static const float SideFaceSolidAngle = 0.4234413544f / PI;
 
@@ -58,6 +66,8 @@ void main( uint3 DTid : SV_DispatchThreadId )
         float4 g = (float4)0.f;
         float4 b = (float4)0.f;
 
+        bool doOcclusion = ( InterationCount > 1 );
+
         for ( int neighbor = 0; neighbor < 6; ++neighbor )
         {
             int3 neighborIndex = (int3)DTid - NeighborOffsets[neighbor];
@@ -82,18 +92,34 @@ void main( uint3 DTid : SV_DispatchThreadId )
                 float4 sideSH = ShFunctionL1( sideVector );
                 float4 reprojectionCosineLobeSH = CosineLobe( reprojectionVector );
 
-                r += SideFaceSolidAngle * dot( neighborCoeffR, sideSH ) * reprojectionCosineLobeSH;
-                g += SideFaceSolidAngle * dot( neighborCoeffG, sideSH ) * reprojectionCosineLobeSH;
-                b += SideFaceSolidAngle * dot( neighborCoeffB, sideSH ) * reprojectionCosineLobeSH;
+                float transmittance = 1.f;
+                if ( doOcclusion )
+                {
+                    float3 uvw = ( neighborIndex + 0.5f * sideVector ) / TexDimension.xyz;
+                    float4 coeffOcclusion = CoeffOcclusion.SampleLevel( BlackBorderLinearSampler, uvw, 0 );
+                    transmittance = 1.f - saturate( dot( ShFunctionL1( -sideVector ), coeffOcclusion ) );
+                }
+
+                r += transmittance * SideFaceSolidAngle * dot( neighborCoeffR, sideSH ) * reprojectionCosineLobeSH;
+                g += transmittance * SideFaceSolidAngle * dot( neighborCoeffG, sideSH ) * reprojectionCosineLobeSH;
+                b += transmittance * SideFaceSolidAngle * dot( neighborCoeffB, sideSH ) * reprojectionCosineLobeSH;
             }
 
             // direct
             float4 directSH = ShFunctionL1( NeighborOffsets[neighbor] );
             float4 reprojectionCosineLobeSH = CosineLobe( NeighborOffsets[neighbor] );
 
-            r += DirectFaceSolidAngle * dot( neighborCoeffR, directSH ) * reprojectionCosineLobeSH;
-            g += DirectFaceSolidAngle * dot( neighborCoeffG, directSH ) * reprojectionCosineLobeSH;
-            b += DirectFaceSolidAngle * dot( neighborCoeffB, directSH ) * reprojectionCosineLobeSH;
+            float transmittance = 1.f;
+            if ( doOcclusion )
+            {
+                float3 uvw = ( neighborIndex + 0.5f * NeighborOffsets[neighbor] ) / TexDimension.xyz;
+                float4 coeffOcclusion = CoeffOcclusion.SampleLevel( BlackBorderLinearSampler, uvw, 0 );
+                transmittance = 1.f - saturate( dot( ShFunctionL1( -NeighborOffsets[neighbor] ), coeffOcclusion ) );
+            }
+
+            r += transmittance * DirectFaceSolidAngle * dot( neighborCoeffR, directSH ) * reprojectionCosineLobeSH;
+            g += transmittance * DirectFaceSolidAngle * dot( neighborCoeffG, directSH ) * reprojectionCosineLobeSH;
+            b += transmittance * DirectFaceSolidAngle * dot( neighborCoeffB, directSH ) * reprojectionCosineLobeSH;
         }
 
         OutCoeffR[DTid] = r;
