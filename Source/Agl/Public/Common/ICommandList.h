@@ -55,6 +55,9 @@ namespace agl
 
 		virtual void Transition( uint32 numTransitions, const ResourceTransition* transitions ) = 0;
 
+		virtual void BeginQuery( void* rawQuery ) = 0;
+		virtual void EndQuery( void* rawQuery ) = 0;
+
 		virtual ~ICommandListBase() = default;
 	};
 

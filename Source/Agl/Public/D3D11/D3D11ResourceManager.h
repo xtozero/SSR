@@ -46,6 +46,8 @@ namespace agl
 		virtual Viewport* CreateViewport( uint32 width, uint32 height, ResourceFormat format, const float4& bgColor ) override;
 		virtual Viewport* CreateViewport( Canvas& canvas ) override;
 
+		virtual GpuTimer* CreateGpuTimer() override;
+
 		CD3D11ResourceManager() = default;
 		virtual ~CD3D11ResourceManager() override;
 		CD3D11ResourceManager( const CD3D11ResourceManager& ) = delete;

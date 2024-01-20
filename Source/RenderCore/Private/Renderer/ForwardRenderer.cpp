@@ -1,8 +1,10 @@
 #include "stdafx.h"
+
 #include "ForwardRenderer.h"
 
 #include "CommandList.h"
 #include "CommonRenderResource.h"
+#include "GPUProfiler.h"
 #include "Math/Vector.h"
 #include "Proxies/LightProxy.h"
 #include "Proxies/TexturedSkyProxy.h"
@@ -11,8 +13,8 @@
 #include "Scene/LightSceneInfo.h"
 #include "Scene/Scene.h"
 #include "Scene/SceneConstantBuffers.h"
-#include "StaticState.h"
 #include "SkyAtmosphereRendering.h"
+#include "StaticState.h"
 #include "TransitionUtils.h"
 #include "Viewport.h"
 
@@ -363,9 +365,17 @@ namespace rendercore
 		StoreOuputContext( context );
 
 		IScene& scene = renderViewGroup.Scene();
-		RenderTexturedSky( scene );
 
-		RenderMesh( scene, RenderPass::Default, renderViewGroup[curView] );
+		auto commandList = GetCommandList();
+		{
+			GPU_PROFILE( commandList, TexturedSky );
+			RenderTexturedSky( scene );
+		}
+
+		{
+			GPU_PROFILE( commandList, DefaultPass );
+			RenderMesh( scene, RenderPass::Default, renderViewGroup[curView] );
+		}
 	}
 
 	IRendererRenderTargets& ForwardRenderer::GetRenderRenderTargets()
@@ -404,31 +414,36 @@ namespace rendercore
 		};
 		StoreOuputContext( context );
 
+
 		auto commandList = GetCommandList();
+		{
+			GPU_PROFILE( commandList, DepthPass );
 
-		agl::ResourceTransition transitions[] = {
-			Transition( *renderTarget, agl::ResourceState::RenderTarget ),
-			Transition( *worldNormal, agl::ResourceState::RenderTarget ),
-			Transition( *velocity, agl::ResourceState::RenderTarget ),
-			Transition( *depthStencil, agl::ResourceState::DepthWrite )
-		};
+			agl::ResourceTransition transitions[] = {
+				Transition( *renderTarget, agl::ResourceState::RenderTarget ),
+				Transition( *worldNormal, agl::ResourceState::RenderTarget ),
+				Transition( *velocity, agl::ResourceState::RenderTarget ),
+				Transition( *depthStencil, agl::ResourceState::DepthWrite )
+			};
 
-		commandList.Transition( std::extent_v<decltype( transitions )>, transitions );
+			commandList.Transition( std::extent_v<decltype( transitions )>, transitions );
 
-		agl::RenderTargetView* rtv0 = renderTarget->RTV();
-		commandList.ClearRenderTarget( rtv0, { 0, 0, 0, 0 } );
+			agl::RenderTargetView* rtv0 = renderTarget->RTV();
+			commandList.ClearRenderTarget( rtv0, { 0, 0, 0, 0 } );
 
-		agl::RenderTargetView* rtv1 = worldNormal->RTV();
-		commandList.ClearRenderTarget( rtv1, { } );
+			agl::RenderTargetView* rtv1 = worldNormal->RTV();
+			commandList.ClearRenderTarget( rtv1, { } );
 
-		agl::RenderTargetView* rtv2 = velocity->RTV();
-		commandList.ClearRenderTarget( rtv2, { } );
+			agl::RenderTargetView* rtv2 = velocity->RTV();
+			commandList.ClearRenderTarget( rtv2, { } );
 
-		agl::DepthStencilView* dsv = depthStencil->DSV();
-		commandList.ClearDepthStencil( dsv, 1.f, 0 );
+			agl::DepthStencilView* dsv = depthStencil->DSV();
+			commandList.ClearDepthStencil( dsv, 1.f, 0 );
 
-		IScene& scene = renderViewGroup.Scene();
-		RenderMesh( scene, RenderPass::DepthWrite, renderViewGroup[curView] );
+			IScene& scene = renderViewGroup.Scene();
+
+			RenderMesh( scene, RenderPass::DepthWrite, renderViewGroup[curView] );
+		}
 	}
 
 	void ForwardRenderer::UpdateLightResource( IScene& scene )

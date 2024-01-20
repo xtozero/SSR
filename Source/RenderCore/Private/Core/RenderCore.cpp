@@ -1,4 +1,5 @@
 #include "stdafx.h"
+
 #include "Renderer/IRenderCore.h"
 
 #include "AbstractGraphicsInterface.h"
@@ -8,6 +9,7 @@
 #include "Core/IEditor.h"
 #include "ForwardRenderer.h"
 #include "GlobalShaders.h"
+#include "GPUProfiler.h"
 #include "GraphicsResource/Canvas.h"
 #include "GraphicsResource/Viewport.h"
 #include "IAgl.h"
@@ -100,7 +102,7 @@ namespace rendercore
 		return new RenderCore();
 	}
 
-	void DestoryRenderCore( Owner<IRenderCore*> pRenderCore )
+	void DestroyRenderCore( Owner<IRenderCore*> pRenderCore )
 	{
 		delete pRenderCore;
 	}
@@ -192,44 +194,51 @@ namespace rendercore
 
 	void RenderCore::BeginRenderingViewGroup( RenderViewGroup& renderViewGroup )
 	{
-		const ColorF& bgColor = renderViewGroup.GetBackgroundColor();
-		float clearColor[4] = { bgColor[0], bgColor[1], bgColor[2], bgColor[3] };
-
-		Canvas& canvas = renderViewGroup.GetCanvas();
-		canvas.OnBeginFrameRendering();
-		canvas.Clear( clearColor );
-
-		Viewport& viewport = renderViewGroup.GetViewport();
-		viewport.Clear( clearColor );
-
-		RenderTargetPool::GetInstance().Tick();
-
-		SceneRenderer* pSceneRenderer = FindAndCreateSceneRenderer( renderViewGroup );
-		if ( pSceneRenderer )
+		auto commandList = GetCommandList();
 		{
-			if ( pSceneRenderer->PreRender( renderViewGroup ) == false )
+			GPU_PROFILE( commandList, RenderFrame );
+
+			const ColorF& bgColor = renderViewGroup.GetBackgroundColor();
+			float clearColor[4] = { bgColor[0], bgColor[1], bgColor[2], bgColor[3] };
+
+			Canvas& canvas = renderViewGroup.GetCanvas();
+			canvas.OnBeginFrameRendering();
+			canvas.Clear( clearColor );
+
+			Viewport& viewport = renderViewGroup.GetViewport();
+			viewport.Clear( clearColor );
+
+			RenderTargetPool::GetInstance().Tick();
+
+			SceneRenderer* pSceneRenderer = FindAndCreateSceneRenderer( renderViewGroup );
+			if ( pSceneRenderer )
 			{
-				return;
+				if ( pSceneRenderer->PreRender( renderViewGroup ) == false )
+				{
+					return;
+				}
+
+				pSceneRenderer->Render( renderViewGroup );
+				pSceneRenderer->PostRender( renderViewGroup );
 			}
 
-			pSceneRenderer->Render( renderViewGroup );
-			pSceneRenderer->PostRender( renderViewGroup );
+			if ( m_uiRenderer )
+			{
+				m_uiRenderer->Render( renderViewGroup );
+			}
+
+			canvas.OnEndFrameRendering();
+			commandList.Commit();
+
+			canvas.Present();
+
+			if ( pSceneRenderer )
+			{
+				pSceneRenderer->WaitUntilRenderingIsFinish();
+			}
 		}
 
-		if ( m_uiRenderer )
-		{
-			m_uiRenderer->Render( renderViewGroup );
-		}
-
-		canvas.OnEndFrameRendering();
-		GetCommandList().Commit();
-
-		canvas.Present();
-
-		if ( pSceneRenderer )
-		{
-			pSceneRenderer->WaitUntilRenderingIsFinish();
-		}
+		GetGpuProfiler().GatherProfileData();
 	}
 
 	RenderCore::~RenderCore()

@@ -41,7 +41,7 @@ namespace imgui
 		return sharedContext;
 	}
 
-	void DestorySharedContext( const SharedContext& sharedContext )
+	void DestroySharedContext( const SharedContext& sharedContext )
 	{
 		if ( sharedContext.m_context != nullptr )
 		{

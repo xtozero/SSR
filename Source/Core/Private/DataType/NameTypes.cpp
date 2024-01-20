@@ -407,6 +407,11 @@ std::string_view Name::Str() const
 	return { entry.m_str, entry.m_len };
 }
 
+const char* Name::CStr() const
+{
+	return Str().data();
+}
+
 Name Name::Make( const std::string_view& view )
 {
 	INamePool& pool = GetNamePool();

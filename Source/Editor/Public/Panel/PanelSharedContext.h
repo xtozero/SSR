@@ -17,6 +17,9 @@ namespace editor
 		bool IsSelectedObject( logic::CGameObject* object );
 		const std::set<logic::CGameObject*>& GetSelectedObjects() const;
 
+		void OpenProfiler( bool open );
+		bool ShouldDrawProfiler() const;
+
 		PanelSharedContext() = default;
 		PanelSharedContext( const PanelSharedContext& ) = delete;
 		PanelSharedContext& operator=( const PanelSharedContext& ) = delete;
@@ -25,5 +28,7 @@ namespace editor
 
 	private:
 		std::set<logic::CGameObject*> m_selectedObject;
+
+		bool m_openProfiler = false;
 	};
 }

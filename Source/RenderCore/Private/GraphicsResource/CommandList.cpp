@@ -2,6 +2,7 @@
 
 #include "AbstractGraphicsInterface.h"
 #include "InterfaceFactories.h"
+#include "Query.h"
 
 namespace rendercore
 {
@@ -99,6 +100,16 @@ namespace rendercore
 	void CommandList::Transition( uint32 numTransitions, const agl::ResourceTransition* transitions )
 	{
 		m_imple.Transition( numTransitions, transitions );
+	}
+
+	void CommandList::BeginQuery( agl::Query* rawQuery )
+	{
+		rawQuery->Begin( m_imple );
+	}
+
+	void CommandList::EndQuery( agl::Query* rawQuery )
+	{
+		rawQuery->End( m_imple );
 	}
 
 	void CommandList::WaitUntilFlush()

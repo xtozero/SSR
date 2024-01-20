@@ -427,6 +427,14 @@ namespace agl
 		m_imple.Transition( numTransitions, transitions );
 	}
 
+	void D3D12CommandList::BeginQuery( void* rawQuery )
+	{
+	}
+
+	void D3D12CommandList::EndQuery( void* rawQuery )
+	{
+	}
+
 	IParallelCommandList& D3D12CommandList::GetParallelCommandList()
 	{
 		if ( m_numUsedParallelCommandList >= m_parallelCommandLists.size() )
@@ -605,6 +613,14 @@ namespace agl
 	void D3D12ParallelCommandList::Transition( uint32 numTransitions, const ResourceTransition* transitions )
 	{
 		m_imple.Transition( numTransitions, transitions );
+	}
+
+	void D3D12ParallelCommandList::BeginQuery( void* rawQuery )
+	{
+	}
+
+	void D3D12ParallelCommandList::EndQuery( void* rawQuery )
+	{
 	}
 
 	void D3D12ParallelCommandList::Close()

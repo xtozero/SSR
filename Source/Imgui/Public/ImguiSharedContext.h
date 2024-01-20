@@ -12,5 +12,5 @@ namespace imgui
 	};
 
 	SharedContext GetSharedContext();
-	void DestorySharedContext( const SharedContext& sharedContext );
+	void DestroySharedContext( const SharedContext& sharedContext );
 }

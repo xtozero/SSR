@@ -165,6 +165,11 @@ namespace agl
 		return new D3D12Viewport( *reinterpret_cast<DxgiSwapchain<AglType::D3D12>*>( &canvas ) );
 	}
 
+	GpuTimer* D3D12ResourceManager::CreateGpuTimer()
+	{
+		return nullptr;
+	}
+
 	ID3D12PipelineState* D3D12ResourceManager::FindOrCreate( GraphicsPipelineState* pipelineState, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc )
 	{
 		D3D12PipelineStateKey key( pipelineState, desc );

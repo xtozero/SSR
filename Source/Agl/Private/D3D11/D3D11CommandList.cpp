@@ -369,6 +369,18 @@ namespace agl
 		// Do Nothing
 	}
 
+	void D3D11CommandList::BeginQuery( void* rawQuery )
+	{
+		auto d3d11Query = static_cast<ID3D11Query*>( rawQuery );
+		D3D11Context().Begin( d3d11Query );
+	}
+
+	void D3D11CommandList::EndQuery( void* rawQuery )
+	{
+		auto d3d11Query = static_cast<ID3D11Query*>( rawQuery );
+		D3D11Context().End( d3d11Query );
+	}
+
 	void D3D11CommandList::WaitUntilFlush()
 	{
 		D3D11Context().Flush();
@@ -617,6 +629,18 @@ namespace agl
 	void D3D11ParallelCommandList::Transition( [[maybe_unused]] uint32 numTransitions, [[maybe_unused]] const ResourceTransition* transitions )
 	{
 		// Do Nothing
+	}
+
+	void D3D11ParallelCommandList::BeginQuery( void* rawQuery )
+	{
+		auto d3d11Query = static_cast<ID3D11Query*>( rawQuery );
+		m_pContext->Begin( d3d11Query );
+	}
+
+	void D3D11ParallelCommandList::EndQuery( void* rawQuery )
+	{
+		auto d3d11Query = static_cast<ID3D11Query*>( rawQuery );
+		m_pContext->End( d3d11Query );
 	}
 
 	void D3D11ParallelCommandList::Close()

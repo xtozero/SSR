@@ -331,14 +331,14 @@ namespace agl
 				continue;
 			}
 
-			if ( const IResourceViews* sibiling = d3d11RTV->ViewHolder() )
+			if ( const IResourceViews* sibling = d3d11RTV->ViewHolder() )
 			{
-				if ( auto d3d11SRV = static_cast<const D3D11ShaderResourceView*>( sibiling->SRV() ) )
+				if ( auto d3d11SRV = static_cast<const D3D11ShaderResourceView*>( sibling->SRV() ) )
 				{
 					UnbindExistingSRV( context, d3d11SRV->Resource() );
 				}
 
-				if ( auto d3d11UAV = static_cast<const D3D11UnorderedAccessView*>( sibiling->UAV() ) )
+				if ( auto d3d11UAV = static_cast<const D3D11UnorderedAccessView*>( sibling->UAV() ) )
 				{
 					UnbindExistingUAV( context, d3d11UAV->Resource() );
 				}
@@ -351,14 +351,14 @@ namespace agl
 		{
 			dsv = d3d11DSV->Resource();
 
-			if ( const IResourceViews* sibiling = d3d11DSV->ViewHolder() )
+			if ( const IResourceViews* sibling = d3d11DSV->ViewHolder() )
 			{
-				if ( auto d3d11SRV = static_cast<const D3D11ShaderResourceView*>( sibiling->SRV() ) )
+				if ( auto d3d11SRV = static_cast<const D3D11ShaderResourceView*>( sibling->SRV() ) )
 				{
 					UnbindExistingSRV( context, d3d11SRV->Resource() );
 				}
 
-				if ( auto d3d11UAV = static_cast<const D3D11UnorderedAccessView*>( sibiling->UAV() ) )
+				if ( auto d3d11UAV = static_cast<const D3D11UnorderedAccessView*>( sibling->UAV() ) )
 				{
 					UnbindExistingUAV( context, d3d11UAV->Resource() );
 				}
@@ -470,19 +470,19 @@ namespace agl
 		{
 			rawSrv = d3d11Srv->Resource();
 
-			if ( const IResourceViews* sibiling = d3d11Srv->ViewHolder() )
+			if ( const IResourceViews* sibling = d3d11Srv->ViewHolder() )
 			{
-				if ( auto d3d11Uav = static_cast<const D3D11UnorderedAccessView*>( sibiling->UAV() ) )
+				if ( auto d3d11Uav = static_cast<const D3D11UnorderedAccessView*>( sibling->UAV() ) )
 				{
 					UnbindExistingUAV( context, d3d11Uav->Resource() );
 				}
 
-				if ( auto d3d11Rtv = static_cast<const D3D11RenderTargetView*>( sibiling->RTV() ) )
+				if ( auto d3d11Rtv = static_cast<const D3D11RenderTargetView*>( sibling->RTV() ) )
 				{
 					UnbindExistingRTV( context, d3d11Rtv->Resource() );
 				}
 
-				if ( auto d3d11Dsv = static_cast<const D3D11DepthStencilView*>( sibiling->DSV() ) )
+				if ( auto d3d11Dsv = static_cast<const D3D11DepthStencilView*>( sibling->DSV() ) )
 				{
 					UnbindExistingDSV( context, d3d11Dsv->Resource() );
 				}
@@ -526,19 +526,19 @@ namespace agl
 		{
 			rawUav = d3d11Uav->Resource();
 
-			if ( const IResourceViews* sibiling = d3d11Uav->ViewHolder() )
+			if ( const IResourceViews* sibling = d3d11Uav->ViewHolder() )
 			{
-				if ( auto d3d11Srv = static_cast<const D3D11ShaderResourceView*>( sibiling->SRV() ) )
+				if ( auto d3d11Srv = static_cast<const D3D11ShaderResourceView*>( sibling->SRV() ) )
 				{
 					UnbindExistingSRV( context, d3d11Srv->Resource() );
 				}
 
-				if ( auto d3d11Rtv = static_cast<const D3D11RenderTargetView*>( sibiling->RTV() ) )
+				if ( auto d3d11Rtv = static_cast<const D3D11RenderTargetView*>( sibling->RTV() ) )
 				{
 					UnbindExistingRTV( context, d3d11Rtv->Resource() );
 				}
 
-				if ( auto d3d11Dsv = static_cast<const D3D11DepthStencilView*>( sibiling->DSV() ) )
+				if ( auto d3d11Dsv = static_cast<const D3D11DepthStencilView*>( sibling->DSV() ) )
 				{
 					UnbindExistingDSV( context, d3d11Dsv->Resource() );
 				}

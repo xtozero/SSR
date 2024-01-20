@@ -479,7 +479,7 @@ namespace rendercore
 		return new ImguiRenderer();
 	}
 
-	void DestoryUserInterfaceRenderer( Owner<UserInterfaceRenderer*> uiRenderer )
+	void DestroyUserInterfaceRenderer( Owner<UserInterfaceRenderer*> uiRenderer )
 	{
 		delete uiRenderer;
 	}

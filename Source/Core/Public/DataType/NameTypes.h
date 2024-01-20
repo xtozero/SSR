@@ -79,6 +79,7 @@ public:
 	Name() = default;
 
 	std::string_view Str() const;
+	const char* CStr() const;
 
 	std::strong_ordering operator<=>( const Name& other ) const = default;
 

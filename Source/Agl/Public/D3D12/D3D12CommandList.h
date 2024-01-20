@@ -118,6 +118,9 @@ namespace agl
 
 		virtual void Transition( uint32 numTransitions, const ResourceTransition* transitions ) override;
 
+		virtual void BeginQuery( void* rawQuery ) override;
+		virtual void EndQuery( void* rawQuery ) override;
+
 		virtual void WaitUntilFlush() override;
 
 		virtual void Commit() override;
@@ -172,6 +175,9 @@ namespace agl
 		virtual void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset = 0, uint32 numByte = 0 ) override;
 
 		virtual void Transition( uint32 numTransitions, const ResourceTransition* transitions ) override;
+
+		virtual void BeginQuery( void* rawQuery ) override;
+		virtual void EndQuery( void* rawQuery ) override;
 
 		void Close();
 

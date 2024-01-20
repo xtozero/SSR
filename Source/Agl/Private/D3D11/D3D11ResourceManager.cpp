@@ -10,6 +10,7 @@
 #include "D3D11DepthStencilState.h"
 #include "D3D11FlagConvertor.h"
 #include "D3D11PipelineState.h"
+#include "D3D11Query.h"
 #include "D3D11RasterizerState.h"
 #include "D3D11SamplerState.h"
 #include "D3D11Shaders.h"
@@ -165,6 +166,11 @@ namespace agl
 	Viewport* CD3D11ResourceManager::CreateViewport( Canvas& canvas )
 	{
 		return new D3D11Viewport( *reinterpret_cast<DxgiSwapchain<AglType::D3D11>*>( &canvas ) );
+	}
+
+	GpuTimer* CD3D11ResourceManager::CreateGpuTimer()
+	{
+		return new D3D11GpuTimer();
 	}
 
 	CD3D11ResourceManager::~CD3D11ResourceManager()

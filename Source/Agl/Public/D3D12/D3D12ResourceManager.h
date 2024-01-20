@@ -45,6 +45,8 @@ namespace agl
 		virtual Viewport* CreateViewport( uint32 width, uint32 height, ResourceFormat format, const float4& bgColor ) override;
 		virtual Viewport* CreateViewport( Canvas& canvas ) override;
 
+		virtual GpuTimer* CreateGpuTimer() override;
+
 		ID3D12PipelineState* FindOrCreate( GraphicsPipelineState* pipelineState, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc );
 
 		D3D12ResourceManager() = default;

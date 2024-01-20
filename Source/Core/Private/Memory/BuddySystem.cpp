@@ -33,7 +33,7 @@ bool BuddySystem::Initialize( size_t size, size_t minBlockSize ) noexcept
 		return false;
 	}
 
-	m_numLevel = std::log2( m_size / m_minBlockSize ) + 1;
+	m_numLevel = static_cast<uint32>( std::log2( m_size / m_minBlockSize ) ) + 1;
 
 	m_freeFlags.resize( static_cast<size_t>( 1 ) << m_numLevel );
 	m_freeFlags[1] = true;
@@ -50,7 +50,7 @@ std::optional<size_t> BuddySystem::Allocate( size_t size )
 	std::optional<size_t> blockIdx = GetFreeBlock( level );
 	if ( blockIdx.has_value() == false )
 	{
-		for ( int curLevel = level + 1; curLevel < m_numLevel; ++curLevel )
+		for ( uint32 curLevel = level + 1; curLevel < m_numLevel; ++curLevel )
 		{
 			blockIdx = GetFreeBlock( curLevel );
 			if ( blockIdx.has_value() )
@@ -122,7 +122,7 @@ size_t BuddySystem::GetSuitableBlockSize( size_t size ) const noexcept
 uint32 BuddySystem::GetLevel( size_t size ) const noexcept
 {
 	size = GetSuitableBlockSize( size );
-	return std::log2( size / m_minBlockSize );
+	return static_cast<uint32>( std::log2( size / m_minBlockSize ) );
 }
 
 size_t BuddySystem::GetBlockStateOffset( uint32 level ) const noexcept

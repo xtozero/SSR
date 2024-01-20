@@ -4,6 +4,11 @@
 
 #include <memory>
 
+namespace agl
+{
+	class Query;
+}
+
 namespace rendercore
 {
 	class CommandList final
@@ -35,6 +40,9 @@ namespace rendercore
 		void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset = 0, uint32 numByte = 0 );
 
 		void Transition( uint32 numTransitions, const agl::ResourceTransition* transitions );
+
+		void BeginQuery( agl::Query* rawQuery );
+		void EndQuery( agl::Query* rawQuery );
 
 		void WaitUntilFlush();
 

@@ -18,13 +18,15 @@ set (PANEL
 	./Private/Panel/MainMenuPanel.cpp
 	./Private/Panel/ObjectDetailPanel.cpp
 	./Private/Panel/PanelSharedContext.cpp
+	./Private/Panel/PerformanceProfilePanel.cpp
 	./Private/Panel/ScenePanel.cpp
 	./Private/Panel/WorldOutlinePanel.cpp
 	./Public/Panel/ContentBrowserPanel.h
 	./Public/Panel/MainMenuPanel.h
 	./Public/Panel/ObjectDetailPanel.h
-	./Public/Panel/PanelSharedContext.h
 	./Public/Panel/PanelFactory.h
+	./Public/Panel/PanelSharedContext.h
+	./Public/Panel/PerformanceProfilePanel.h
 	./Public/Panel/ScenePanel.h
 	./Public/Panel/WorldOutlinePanel.h)
 

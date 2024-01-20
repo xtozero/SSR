@@ -26,6 +26,7 @@ set (D3D11_RENDER_RESOURCE_SOURCE
 	Private/D3D11/D3D11CommandList.cpp
 	Private/D3D11/D3D11DepthStencilState.cpp
 	Private/D3D11/D3D11PipelineState.cpp
+	Private/D3D11/D3D11Query.cpp
 	Private/D3D11/D3D11RasterizerState.cpp
 	Private/D3D11/D3D11ResourceManager.cpp
 	Private/D3D11/D3D11ResourceViews.cpp
@@ -40,6 +41,7 @@ set (D3D11_RENDER_RESOURCE_SOURCE
 	Public/D3D11/D3D11CommandList.h
 	Public/D3D11/D3D11DepthStencilState.h
 	Public/D3D11/D3D11PipelineState.h
+	Public/D3D11/D3D11Query.h
 	Public/D3D11/D3D11RasterizerState.h
 	Public/D3D11/D3D11ResourceManager.h
 	Public/D3D11/D3D11ResourceViews.h
@@ -129,6 +131,7 @@ set (RENDER_RESOURCE_SOURCE
 	Private/RenderResource/Canvas.cpp
 	Private/RenderResource/GlobalConstantBuffers.cpp
 	Private/RenderResource/PipelineState.cpp
+	Private/RenderResource/Query.cpp
 	Private/RenderResource/ResourceViews.cpp
 	Private/RenderResource/ShaderParameterMap.cpp
 	Private/RenderResource/ShaderResource.cpp
@@ -138,6 +141,7 @@ set (RENDER_RESOURCE_SOURCE
 	Public/RenderResource/Canvas.h
 	Public/RenderResource/GlobalConstantBuffers.h
 	Public/RenderResource/PipelineState.h
+	Public/RenderResource/Query.h
 	Public/RenderResource/ResourceViews.h
 	Public/RenderResource/ShaderBindings.h
 	Public/RenderResource/ShaderParameterInfo.h

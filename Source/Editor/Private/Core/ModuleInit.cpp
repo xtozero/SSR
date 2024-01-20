@@ -40,7 +40,7 @@ namespace editor
 	EDITOR_FUNC_DLL void ShutdownModules()
 	{
 		DestroyEditor( g_editor );
-		imgui::DestorySharedContext( g_imguiSharedContext );
+		imgui::DestroySharedContext( g_imguiSharedContext );
 
 		UnregisterFactory<IEditor>();
 		UnregisterFactory<imgui::SharedContext>();

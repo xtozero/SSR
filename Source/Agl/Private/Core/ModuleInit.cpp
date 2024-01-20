@@ -54,7 +54,7 @@ namespace
 		}
 	}
 
-	void DestoryResourceManager()
+	void DestroyResourceManager()
 	{
 		delete g_resourceManager;
 	}
@@ -64,7 +64,7 @@ namespace
 		return g_resourceManager;
 	}
 
-	void DestoryGraphicsApi()
+	void DestroyGraphicsApi()
 	{
 		delete g_abstractGraphicsLibrary;
 	}
@@ -307,8 +307,8 @@ AGL_FUNC_DLL void BootUpModules()
 
 AGL_FUNC_DLL void ShutdownModules()
 {
-	DestoryResourceManager();
-	DestoryGraphicsApi();
+	DestroyResourceManager();
+	DestroyGraphicsApi();
 
 	UnregisterFactory<agl::IResourceManager>();
 	UnregisterFactory<agl::IAgl>();

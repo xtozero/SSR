@@ -28,5 +28,5 @@ namespace rendercore
 	};
 
 	Owner<IRenderCore*> CreateRenderCore();
-	void DestoryRenderCore( Owner<IRenderCore*> pRenderCore );
+	void DestroyRenderCore( Owner<IRenderCore*> pRenderCore );
 }

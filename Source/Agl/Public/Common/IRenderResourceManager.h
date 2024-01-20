@@ -17,6 +17,7 @@ namespace agl
 	class GraphicsPipelineState;
 	class GraphicsPipelineStateInitializer;
 	class PixelShader;
+	class GpuTimer;
 	class RasterizerState;
 	class SamplerState;
 	class ShaderParameterInfo;
@@ -51,6 +52,8 @@ namespace agl
 
 		virtual Viewport* CreateViewport( uint32 width, uint32 height, ResourceFormat format, const float4& bgColor ) = 0;
 		virtual Viewport* CreateViewport( Canvas& canvas ) = 0;
+
+		virtual GpuTimer* CreateGpuTimer() = 0;
 
 		virtual ~IResourceManager() = default;
 	};

@@ -23,4 +23,14 @@ namespace editor
 	{
 		return m_selectedObject;
 	}
+
+	void PanelSharedContext::OpenProfiler( bool open )
+	{
+		m_openProfiler = open;
+	}
+
+	bool PanelSharedContext::ShouldDrawProfiler() const
+	{
+		return m_openProfiler;
+	}
 }

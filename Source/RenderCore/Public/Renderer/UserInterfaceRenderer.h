@@ -18,5 +18,5 @@ namespace rendercore
 	};
 
 	Owner<UserInterfaceRenderer*> CreateUserInterfaceRenderer();
-	void DestoryUserInterfaceRenderer( Owner<UserInterfaceRenderer*> uiRenderer );
+	void DestroyUserInterfaceRenderer( Owner<UserInterfaceRenderer*> uiRenderer );
 }

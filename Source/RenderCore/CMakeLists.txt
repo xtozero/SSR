@@ -12,6 +12,10 @@ set (CORE_SOURCE
 	Private/Core/ModuleInit.cpp
 	Private/Core/RenderCore.cpp)
 
+set (GPU_PROFILER_SOURCE
+	Private/GpuProfiler/GPUProfiler.cpp
+	Public/GpuProfiler/GPUProfiler.h)
+
 set (GRAPHICS_RESOURCE_SOURCE
 	Private/GraphicsResource/ByteBuffer.cpp
 	Private/GraphicsResource/Canvas.cpp
@@ -168,6 +172,7 @@ set (RENDERER_SOURCE
 	Public/Renderer/UserInterfaceRenderer.h)
 
 source_group("Config" FILES ${CONFIG_SOURCE})
+source_group("GpuProfiler" FILES ${GPU_PROFILER_SOURCE})
 source_group("GraphicsResource" FILES ${GRAPHICS_RESOURCE_SOURCE})
 source_group("Material" FILES ${MATERIAL_SOURCE})
 source_group("Mesh" FILES ${MESH_SOURCE})
@@ -183,6 +188,7 @@ link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 add_library(RenderCore SHARED 	${CONFIG_SOURCE}
 								${CORE_SOURCE}
+								${GPU_PROFILER_SOURCE}
 								${GRAPHICS_RESOURCE_SOURCE}
 								${MATERIAL_SOURCE}
 								${MESH_SOURCE}
@@ -206,6 +212,7 @@ PRIVATE
 	../Editor/Public
 	../Logic/Public
 	../Shaders/Public/Atmosphere
+	./Public/GpuProfiler
 	./Public/Mesh
 	./Public/Pch
 	./Public/Proxies
