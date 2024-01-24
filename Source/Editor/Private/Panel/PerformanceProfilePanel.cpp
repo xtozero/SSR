@@ -57,6 +57,8 @@ namespace editor
 	REGISTER_PANEL( PerformanceProfilePanel );
 	void PerformanceProfilePanel::Draw( IEditor& editor )
 	{
+		ImGui::ShowDemoWindow();
+
 		PanelSharedContext& sharedCtx = editor.GetPanelSharedCtx();
 		bool shouldDraw = sharedCtx.ShouldDrawProfiler();
 		if ( shouldDraw == false )
@@ -64,7 +66,8 @@ namespace editor
 			return;
 		}
 
-		ImGui::Begin( "Performance Profile", &shouldDraw );
+		ImGui::SetNextWindowSizeConstraints( ImVec2( -1, 100 ), ImVec2( -1, 200 ) );
+		ImGui::Begin( "Performance Profile", &shouldDraw, ImGuiWindowFlags_AlwaysAutoResize );
 		{
 			static const auto* gpuProfiler = GetInterface<IGpuProfiler>();
 			DrawGpuProfile( gpuProfiler );

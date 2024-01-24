@@ -6,6 +6,7 @@
 #include "CommonRenderResource.h"
 #include "Config/DefaultRenderCoreConfig.h"
 #include "ExponentialShadowMapRendering.h"
+#include "GPUProfiler.h"
 #include "Material/MaterialResource.h"
 #include "Math/TransformationMatrix.h"
 #include "Mesh/StaticMeshResource.h"
@@ -521,6 +522,9 @@ namespace rendercore
 
 	void SceneRenderer::RenderShadowDepthPass()
 	{
+		auto commandList = GetCommandList();
+		GPU_PROFILE( commandList, ShadowDepth );
+
 		for ( ShadowInfo& shadowInfo : m_shadowInfos )
 		{
 			ShadowMapRenderTarget& shadowMap = shadowInfo.ShadowMap();
@@ -555,8 +559,6 @@ namespace rendercore
 			}
 
 			StoreOuputContext( context );
-
-			auto commandList = GetCommandList();
 
 			using TransitionArray = std::vector<agl::ResourceTransition, InlineAllocator<agl::ResourceTransition, 8>>;
 			TransitionArray beforeRenderDepth;
@@ -636,6 +638,9 @@ namespace rendercore
 			return;
 		}
 
+		auto commandList = GetCommandList();
+		GPU_PROFILE( commandList, TexturedSky );
+
 		ShaderStates shaderState{
 			{},
 			material->GetVertexShader(),
@@ -643,7 +648,6 @@ namespace rendercore
 			material->GetPixelShader(),
 		};
 
-		auto commandList = GetCommandList();
 		ApplyOutputContext( commandList );
 
 		StaticMeshLODResource& lodResource = renderData->LODResource( 0 );
@@ -760,6 +764,9 @@ namespace rendercore
 
 	void SceneRenderer::RenderShadow()
 	{
+		auto commandList = GetCommandList();
+		GPU_PROFILE( commandList, Shadow );
+		
 		for ( ShadowInfo& shadowInfo : m_shadowInfos )
 		{
 			std::optional<DrawSnapshot> result;
@@ -791,7 +798,6 @@ namespace rendercore
 			GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 			m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
-			auto commandList = GetCommandList();
 			ApplyOutputContext( commandList );
 
 			m_shaderResources.AddResource( "ShadowTexture", shadowInfo.ShadowMap().m_shadowMaps[0]->SRV() );
@@ -848,6 +854,9 @@ namespace rendercore
 			return;
 		}
 
+		auto commandList = GetCommandList();
+		GPU_PROFILE( commandList, SkyAtmosphere );
+
 		LightProperty lightProperty = skyAtmosphereLight->Proxy()->GetLightProperty();
 
 		auto& skyAtmosphereRenderParameter = info->GetSkyAtmosphereRenderParameter();
@@ -871,7 +880,6 @@ namespace rendercore
 		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
-		auto commandList = GetCommandList();
 		ApplyOutputContext( commandList );
 
 		auto linearSampler = StaticSamplerState<>::Get();
@@ -919,6 +927,9 @@ namespace rendercore
 			return;
 		}
 
+		auto commandList = GetCommandList();
+		GPU_PROFILE( commandList, VolumetricCloud );
+
 		Vector4 lightPosOrDir;
 		LightProperty lightProperty = skyAtmosphereLight->Proxy()->GetLightProperty();
 		if ( lightProperty.m_type == LightType::Directional )
@@ -953,7 +964,6 @@ namespace rendercore
 		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
-		auto commandList = GetCommandList();
 		ApplyOutputContext( commandList );
 
 		SamplerState wrapSamplerState = StaticSamplerState<agl::TextureFilter::MinMagMipLinear
@@ -988,6 +998,9 @@ namespace rendercore
 			return;
 		}
 
+		auto commandList = GetCommandList();
+		GPU_PROFILE( commandList, VolumetricFog );
+
 		info->CreateRenderData();
 		info->UpdateParameter();
 		info->PrepareFrustumVolume( *renderScene, m_forwardLighting, m_shadowInfos );
@@ -1005,7 +1018,6 @@ namespace rendercore
 		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
-		auto commandList = GetCommandList();
 		ApplyOutputContext( commandList );
 
 		SamplerState accumulatedVolumeSampler = StaticSamplerState<>::Get();
@@ -1022,11 +1034,17 @@ namespace rendercore
 
 	void SceneRenderer::RenderTemporalAntiAliasing( RenderViewGroup& renderViewGroup )
 	{
+		auto commandList = GetCommandList();
+		GPU_PROFILE( commandList, TAA );
+
 		m_taa.Render( GetRenderRenderTargets(), renderViewGroup );
 	}
 
 	void SceneRenderer::RenderIndirectIllumination( RenderViewGroup& renderViewGroup )
 	{
+		auto commandList = GetCommandList();
+		GPU_PROFILE( commandList, IndirectIllumination );
+
 		m_shaderResources.AddResource( "IndirectIllumination", BlackTexture->SRV() );
 
 		if ( DefaultRenderCore::IsLpvEnabled() )
@@ -1137,7 +1155,6 @@ namespace rendercore
 
 			auto rtv = renderTarget->RTV();
 
-			auto commandList = GetCommandList();
 			commandList.SetViewports( 1, &viewport );
 			commandList.SetScissorRects( 1, &scissorRect );
 			commandList.BindRenderTargets( &rtv, 1, nullptr);

@@ -30,13 +30,13 @@ namespace
 			m_drawSnapshot.push_back( snapshot );
 		}
 
-		CommitDrawSnapshotTask( size_t reserveSize, agl::IParallelCommandList& commandList, VertexBuffer& primitiveIds ) : m_commandList( commandList ), m_primitiveIds( primitiveIds )
+		CommitDrawSnapshotTask( size_t reserveSize, agl::ICommandList& commandList, VertexBuffer& primitiveIds ) : m_commandList( commandList ), m_primitiveIds( primitiveIds )
 		{
 			m_drawSnapshot.reserve( reserveSize );
 		}
 
 	private:
-		agl::IParallelCommandList& m_commandList;
+		agl::ICommandList& m_commandList;
 		VertexBuffer& m_primitiveIds;
 		std::vector<VisibleDrawSnapshot*> m_drawSnapshot;
 	};
@@ -193,7 +193,7 @@ namespace rendercore
 			TaskHandle taskGroup = taskScheduler->GetTaskGroup();
 
 			CommitDrawSnapshotTask* commitTasks[2] = {};
-			agl::IParallelCommandList* deferredCommandLists[2] = {};
+			agl::ICommandList* deferredCommandLists[2] = {};
 
 			for ( size_t i = 0, j = 0; i < std::extent_v<decltype( commitTasks )>; ++i )
 			{

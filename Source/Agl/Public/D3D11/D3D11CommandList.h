@@ -52,7 +52,7 @@ namespace agl
 
 		void Initialize();
 
-		IParallelCommandList& GetParallelCommandList();
+		ICommandList& GetParallelCommandList();
 
 		D3D11CommandList() = default;
 		D3D11CommandList( const D3D11CommandList& ) = delete;
@@ -66,10 +66,10 @@ namespace agl
 		GlobalSyncConstantBuffers m_globalConstantBuffers;
 
 		uint32 m_numUsedParallelCommandList = 0;
-		std::vector<IParallelCommandList*, InlineAllocator<IParallelCommandList*, 1>> m_parallelCommandLists;
+		std::vector<ICommandList*, InlineAllocator<ICommandList*, 1>> m_parallelCommandLists;
 	};
 
-	class D3D11ParallelCommandList final : public IParallelCommandList
+	class D3D11ParallelCommandList final : public ICommandList
 	{
 	public:
 		virtual void Prepare() override;
@@ -103,9 +103,11 @@ namespace agl
 		virtual void BeginQuery( void* rawQuery ) override;
 		virtual void EndQuery( void* rawQuery ) override;
 
-		void Close();
+		virtual void WaitUntilFlush() override {}
 
-		void Commit();
+		virtual void Commit() override;
+
+		void Close();
 
 		void Initialize();
 

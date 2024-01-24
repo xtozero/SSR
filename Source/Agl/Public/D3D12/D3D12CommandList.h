@@ -70,6 +70,10 @@ namespace agl
 
 		void Transition( uint32 numTransitions, const ResourceTransition* transitions );
 
+		void BeginQuery( void* rawQuery );
+		void EndQuery( void* rawQuery );
+		void ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries );
+
 		void Close();
 
 		void OnCommited();
@@ -87,7 +91,13 @@ namespace agl
 		D3D12PipelineCache m_stateCache;
 	};
 
-	class D3D12CommandList final : public ICommandList
+	class ID3D12CommandListEX : public ICommandList
+	{
+	public:
+		virtual void ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries ) = 0;
+	};
+
+	class D3D12CommandList final : public ID3D12CommandListEX
 	{
 	public:
 		virtual void Prepare() override;
@@ -125,11 +135,13 @@ namespace agl
 
 		virtual void Commit() override;
 
+		virtual void ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries ) override;
+
 		void Initialize();
 
 		void OnCommitted();
 
-		IParallelCommandList& GetParallelCommandList();
+		ID3D12CommandListEX& GetParallelCommandList();
 
 		D3D12CommandList() = default;
 		D3D12CommandList( const D3D12CommandList& ) = delete;
@@ -142,10 +154,10 @@ namespace agl
 		D3D12CommandListImpl m_imple;
 
 		uint32 m_numUsedParallelCommandList = 0;
-		std::vector<IParallelCommandList*, InlineAllocator<IParallelCommandList*, 1>> m_parallelCommandLists;
+		std::vector<ID3D12CommandListEX*, InlineAllocator<ID3D12CommandListEX*, 1>> m_parallelCommandLists;
 	};
 
-	class D3D12ParallelCommandList final : public IParallelCommandList
+	class D3D12ParallelCommandList final : public ID3D12CommandListEX
 	{
 	public:
 		virtual void Prepare() override;
@@ -178,6 +190,12 @@ namespace agl
 
 		virtual void BeginQuery( void* rawQuery ) override;
 		virtual void EndQuery( void* rawQuery ) override;
+
+		virtual void ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries ) override;
+
+		virtual void WaitUntilFlush() override {}
+
+		virtual void Commit() override {}
 
 		void Close();
 

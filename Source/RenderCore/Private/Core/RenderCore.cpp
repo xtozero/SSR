@@ -195,13 +195,13 @@ namespace rendercore
 	void RenderCore::BeginRenderingViewGroup( RenderViewGroup& renderViewGroup )
 	{
 		auto commandList = GetCommandList();
+		Canvas& canvas = renderViewGroup.GetCanvas();
 		{
 			GPU_PROFILE( commandList, RenderFrame );
 
 			const ColorF& bgColor = renderViewGroup.GetBackgroundColor();
 			float clearColor[4] = { bgColor[0], bgColor[1], bgColor[2], bgColor[3] };
 
-			Canvas& canvas = renderViewGroup.GetCanvas();
 			canvas.OnBeginFrameRendering();
 			canvas.Clear( clearColor );
 
@@ -228,15 +228,15 @@ namespace rendercore
 			}
 
 			canvas.OnEndFrameRendering();
-			commandList.Commit();
-
-			canvas.Present();
 
 			if ( pSceneRenderer )
 			{
 				pSceneRenderer->WaitUntilRenderingIsFinish();
 			}
 		}
+
+		commandList.Commit();
+		canvas.Present();
 
 		GetGpuProfiler().GatherProfileData();
 	}

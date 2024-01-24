@@ -5,6 +5,7 @@
 #include "Canvas.h"
 #include "CommandList.h"
 #include "GlobalShaders.h"
+#include "GPUProfiler.h"
 #include "GraphicsApiResource.h"
 #include "imgui.h"
 #include "Math/TransformationMatrix.h"
@@ -210,8 +211,10 @@ namespace rendercore
 			return;
 		}
 
-		agl::RenderTargetView* rtv = canvas->RTV();
 		auto commandList = GetCommandList();
+		GPU_PROFILE( commandList, ImGui );
+
+		agl::RenderTargetView* rtv = canvas->RTV();
 		commandList.BindRenderTargets( &rtv, 1, nullptr );
 
 		auto [width, height] = renderViewGroup.GetCanvas().Size();

@@ -6,6 +6,7 @@
 #include "CommonRenderResource.h"
 #include "ComputePipelineState.h"
 #include "GlobalShaders.h"
+#include "GPUProfiler.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "Scene/Scene.h"
 #include "ShaderParameterUtils.h"
@@ -210,12 +211,14 @@ namespace rendercore
 			return;
 		}
 
+		auto commandList = GetCommandList();
+		GPU_PROFILE( commandList, AtomosphereLookUp );
+
 		SamplerState pointSampler = StaticSamplerState<agl::TextureFilter::Point>::Get();
 
 		// 1. Transmittance Table
 		TransmittanceCS transmittanceCS;
 
-		auto commandList = GetCommandList();
 		agl::RefHandle<agl::ComputePipelineState> transmittancePSO = PrepareComputePipelineState( transmittanceCS );
 		commandList.BindPipelineState( transmittancePSO );
 

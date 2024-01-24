@@ -7,6 +7,7 @@
 #include "D3D12Buffer.h"
 #include "D3D12DepthStencilState.h"
 #include "D3D12PipelineState.h"
+#include "D3D12Query.h"
 #include "D3D12RasterizerState.h"
 #include "D3D12SamplerState.h"
 #include "D3D12Shaders.h"
@@ -167,7 +168,7 @@ namespace agl
 
 	GpuTimer* D3D12ResourceManager::CreateGpuTimer()
 	{
-		return nullptr;
+		return new D3D12GpuTimer();
 	}
 
 	ID3D12PipelineState* D3D12ResourceManager::FindOrCreate( GraphicsPipelineState* pipelineState, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc )

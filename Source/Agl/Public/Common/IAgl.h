@@ -36,7 +36,7 @@ namespace agl
 		virtual void GetRendererMultiSampleOption( MultiSampleOption* option ) = 0;
 
 		virtual ICommandList* GetCommandList() = 0;
-		virtual IParallelCommandList* GetParallelCommandList() = 0;
+		virtual ICommandList* GetParallelCommandList() = 0;
 
 		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const = 0;
 		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const = 0;

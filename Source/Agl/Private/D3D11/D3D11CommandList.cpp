@@ -402,7 +402,7 @@ namespace agl
 		m_globalConstantBuffers.Initialize();
 	}
 
-	IParallelCommandList& D3D11CommandList::GetParallelCommandList()
+	ICommandList& D3D11CommandList::GetParallelCommandList()
 	{
 		if ( m_numUsedParallelCommandList >= m_parallelCommandLists.size() )
 		{
@@ -436,7 +436,7 @@ namespace agl
 
 	D3D11CommandList::~D3D11CommandList()
 	{
-		for ( IParallelCommandList* commandList : m_parallelCommandLists )
+		for ( ICommandList* commandList : m_parallelCommandLists )
 		{
 			delete commandList;
 		}
@@ -643,18 +643,18 @@ namespace agl
 		m_pContext->End( d3d11Query );
 	}
 
-	void D3D11ParallelCommandList::Close()
-	{
-		m_pContext->FinishCommandList( false, m_pCommandList.GetAddressOf() );
-	}
-
 	void D3D11ParallelCommandList::Commit()
 	{
 		if ( m_pCommandList )
 		{
-			D3D11Context().ExecuteCommandList( m_pCommandList.Get(), false);
+			D3D11Context().ExecuteCommandList( m_pCommandList.Get(), false );
 			m_pCommandList = nullptr;
 		}
+	}
+
+	void D3D11ParallelCommandList::Close()
+	{
+		m_pContext->FinishCommandList( false, m_pCommandList.GetAddressOf() );
 	}
 
 	void D3D11ParallelCommandList::Initialize()

@@ -68,8 +68,4 @@ namespace agl
 
 		virtual void Commit() = 0;
 	};
-
-	class IParallelCommandList : public ICommandListBase
-	{
-	};
 }

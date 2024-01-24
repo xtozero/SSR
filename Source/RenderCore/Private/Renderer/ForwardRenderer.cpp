@@ -373,7 +373,7 @@ namespace rendercore
 		}
 
 		{
-			GPU_PROFILE( commandList, DefaultPass );
+			GPU_PROFILE( commandList, Default );
 			RenderMesh( scene, RenderPass::Default, renderViewGroup[curView] );
 		}
 	}
@@ -417,7 +417,7 @@ namespace rendercore
 
 		auto commandList = GetCommandList();
 		{
-			GPU_PROFILE( commandList, DepthPass );
+			GPU_PROFILE( commandList, Depth );
 
 			agl::ResourceTransition transitions[] = {
 				Transition( *renderTarget, agl::ResourceState::RenderTarget ),

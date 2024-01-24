@@ -23,7 +23,7 @@ namespace rendercore
 		void UnLock( agl::Buffer* buffer, uint32 subResource = 0 );
 
 		agl::ICommandList* GetCommandList();
-		agl::IParallelCommandList* GetParallelCommandList();
+		agl::ICommandList* GetParallelCommandList();
 
 		BlendState FindOrCreate( const BlendOption& option );
 		DepthStencilState FindOrCreate( const DepthStencilOption& option );

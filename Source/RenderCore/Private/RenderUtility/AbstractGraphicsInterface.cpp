@@ -37,7 +37,7 @@ namespace rendercore
 		return m_agl->GetCommandList();
 	}
 
-	agl::IParallelCommandList* AbstractGraphicsInterface::GetParallelCommandList()
+	agl::ICommandList* AbstractGraphicsInterface::GetParallelCommandList()
 	{
 		return m_agl->GetParallelCommandList();
 	}

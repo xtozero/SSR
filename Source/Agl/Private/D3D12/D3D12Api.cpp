@@ -7,6 +7,7 @@
 
 #include "D3D12CommandList.h"
 #include "D3D12NullDescriptor.h"
+#include "D3D12Query.h"
 #include "D3D12ResourceUploader.h"
 
 #include "EnumStringMap.h"
@@ -180,7 +181,7 @@ namespace agl
 		virtual void GetRendererMultiSampleOption( MultiSampleOption* option ) override;
 
 		virtual ICommandList* GetCommandList() override;
-		virtual IParallelCommandList* GetParallelCommandList() override;
+		virtual ICommandList* GetParallelCommandList() override;
 
 		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const override;
 		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const override;
@@ -190,6 +191,7 @@ namespace agl
 		ID3D12CommandQueue& GetDirectCommandQueue() const;
 
 		D3D12ResourceAllocator& GetAllocator();
+		D3D12QueryAllocator& GetQueryAllocator();
 		D3D12CommnadListResourcePool& GetCmdPool( D3D12_COMMAND_LIST_TYPE type );
 		D3D12ResourceUploader& GetUploader();
 
@@ -232,6 +234,7 @@ namespace agl
 		};
 
 		D3D12ResourceAllocator m_allocator;
+		D3D12QueryAllocator m_queryAllocator;
 
 		D3D12ResourceUploader m_uploader;
 	};
@@ -355,7 +358,7 @@ namespace agl
 		return &m_commandList[m_frameIndex];
 	}
 
-	IParallelCommandList* Direct3D12::GetParallelCommandList()
+	ICommandList* Direct3D12::GetParallelCommandList()
 	{
 		return &m_commandList[m_frameIndex].GetParallelCommandList();
 	}
@@ -500,6 +503,11 @@ namespace agl
 	D3D12ResourceAllocator& Direct3D12::GetAllocator()
 	{
 		return m_allocator;
+	}
+
+	D3D12QueryAllocator& Direct3D12::GetQueryAllocator()
+	{
+		return m_queryAllocator;
 	}
 
 	D3D12CommnadListResourcePool& Direct3D12::GetCmdPool( D3D12_COMMAND_LIST_TYPE type )
@@ -676,6 +684,12 @@ namespace agl
 	{
 		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
 		return d3d12Api->GetAllocator();
+	}
+
+	D3D12QueryAllocator& D3D12AllocatorForQuery()
+	{
+		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
+		return d3d12Api->GetQueryAllocator();
 	}
 
 	D3D12CommnadListResourcePool& D3D12CmdPool( D3D12_COMMAND_LIST_TYPE type )

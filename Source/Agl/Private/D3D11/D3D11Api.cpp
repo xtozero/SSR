@@ -161,7 +161,7 @@ namespace agl
 		virtual void GetRendererMultiSampleOption( MultiSampleOption* option ) override;
 
 		virtual ICommandList* GetCommandList() override;
-		virtual IParallelCommandList* GetParallelCommandList() override;
+		virtual ICommandList* GetParallelCommandList() override;
 
 		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const override;
 		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const override;
@@ -352,7 +352,7 @@ namespace agl
 		return &m_commandList;
 	}
 
-	IParallelCommandList* CDirect3D11::GetParallelCommandList()
+	ICommandList* CDirect3D11::GetParallelCommandList()
 	{
 		return &m_commandList.GetParallelCommandList();
 	}

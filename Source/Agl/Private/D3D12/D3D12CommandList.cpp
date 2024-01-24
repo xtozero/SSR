@@ -2,6 +2,7 @@
 
 #include "D3D12Api.h"
 #include "D3D12FlagConvertor.h"
+#include "D3D12Query.h"
 #include "D3D12ResourceUploader.h"
 #include "D3D12ResourceViews.h"
 
@@ -296,6 +297,29 @@ namespace agl
 		CommandList().ResourceBarrier( static_cast<uint32>( d3d12Barriers.size() ), d3d12Barriers.data() );
 	}
 
+	void D3D12CommandListImpl::BeginQuery( void* rawQuery )
+	{
+		auto d3dQuery = static_cast<D3D12Query*>( rawQuery );
+
+		CommandList().BeginQuery( d3dQuery->m_heap->GetHeap(), d3dQuery->m_type, d3dQuery->m_offset);
+	}
+
+	void D3D12CommandListImpl::EndQuery( void* rawQuery )
+	{
+		auto d3dQuery = static_cast<D3D12Query*>( rawQuery );
+
+		CommandList().EndQuery( d3dQuery->m_heap->GetHeap(), d3dQuery->m_type, d3dQuery->m_offset);
+	}
+
+	void D3D12CommandListImpl::ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries )
+	{
+		auto d3dQueryHeap = static_cast<D3D12QueryHeapBlock*>( queryHeap );
+		ID3D12QueryHeap* heap = d3dQueryHeap->GetHeap();
+		ID3D12Resource* readBackBuffer = d3dQueryHeap->GetReadBackBuffer();
+
+		CommandList().ResolveQueryData( d3dQueryHeap->GetHeap(), type, offset, numQueries, readBackBuffer, sizeof( uint64 ) * offset );
+	}
+
 	void D3D12CommandListImpl::Close()
 	{
 		CommandList().Close();
@@ -429,13 +453,15 @@ namespace agl
 
 	void D3D12CommandList::BeginQuery( void* rawQuery )
 	{
+		m_imple.BeginQuery( rawQuery );
 	}
 
 	void D3D12CommandList::EndQuery( void* rawQuery )
 	{
+		m_imple.EndQuery( rawQuery );
 	}
 
-	IParallelCommandList& D3D12CommandList::GetParallelCommandList()
+	ID3D12CommandListEX& D3D12CommandList::GetParallelCommandList()
 	{
 		if ( m_numUsedParallelCommandList >= m_parallelCommandLists.size() )
 		{
@@ -479,6 +505,11 @@ namespace agl
 		}
 	}
 
+	void D3D12CommandList::ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries )
+	{
+		m_imple.ResolveQueryData( queryHeap, type, offset, numQueries );
+	}
+
 	void D3D12CommandList::Initialize()
 	{
 		m_imple.Initialize();
@@ -508,7 +539,7 @@ namespace agl
 
 	D3D12CommandList::~D3D12CommandList()
 	{
-		for ( IParallelCommandList* commandList : m_parallelCommandLists )
+		for ( ID3D12CommandListEX* commandList : m_parallelCommandLists )
 		{
 			delete commandList;
 		}
@@ -617,10 +648,17 @@ namespace agl
 
 	void D3D12ParallelCommandList::BeginQuery( void* rawQuery )
 	{
+		m_imple.BeginQuery( rawQuery );
 	}
 
 	void D3D12ParallelCommandList::EndQuery( void* rawQuery )
 	{
+		m_imple.EndQuery( rawQuery );
+	}
+
+	void D3D12ParallelCommandList::ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries )
+	{
+		m_imple.ResolveQueryData( queryHeap, type, offset, numQueries );
 	}
 
 	void D3D12ParallelCommandList::Close()

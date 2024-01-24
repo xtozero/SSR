@@ -70,6 +70,7 @@ set (D3D12_RENDER_RESOURCE_SOURCE
 	Private/D3D12/D3D12NullDescriptor.cpp
 	Private/D3D12/D3D12PipelineCache.cpp
 	Private/D3D12/D3D12PipelineState.cpp
+	Private/D3D12/D3D12Query.cpp
 	Private/D3D12/D3D12RasterizerState.cpp
 	Private/D3D12/D3D12ResourceAllocator.cpp
 	Private/D3D12/D3D12ResourceManager.cpp
@@ -91,6 +92,7 @@ set (D3D12_RENDER_RESOURCE_SOURCE
 	Public/D3D12/D3D12NullDescriptor.h
 	Public/D3D12/D3D12PipelineCache.h
 	Public/D3D12/D3D12PipelineState.h
+	Public/D3D12/D3D12Query.h
 	Public/D3D12/D3D12RasterizerState.h
 	Public/D3D12/D3D12ResourceAllocator.h
 	Public/D3D12/D3D12ResourceManager.h
