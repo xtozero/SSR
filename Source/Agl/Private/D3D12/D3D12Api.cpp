@@ -298,9 +298,10 @@ namespace agl
 		[[maybe_unused]] HRESULT hr = m_directCommandQueue->Signal( m_fence.Get(), fence );
 		assert( SUCCEEDED( hr ) );
 
-		if ( m_fence->GetCompletedValue() < fence )
+		uint64 nextFence = m_fenceValue[nextFrameIndex];
+		if ( m_fence->GetCompletedValue() < nextFence )
 		{
-			hr = m_fence->SetEventOnCompletion( fence, m_fenceEvent );
+			hr = m_fence->SetEventOnCompletion( nextFence, m_fenceEvent );
 			assert( SUCCEEDED( hr ) );
 			WaitForSingleObject( m_fenceEvent, INFINITE );
 		}
