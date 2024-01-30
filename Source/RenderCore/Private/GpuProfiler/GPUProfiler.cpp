@@ -1,4 +1,4 @@
-#include "GPUProfiler.h"
+#include "GpuProfiler.h"
 
 #include "GraphicsApiResource.h"
 #include "Multithread/TaskScheduler.h"

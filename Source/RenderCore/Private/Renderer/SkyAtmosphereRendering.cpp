@@ -6,7 +6,7 @@
 #include "CommonRenderResource.h"
 #include "ComputePipelineState.h"
 #include "GlobalShaders.h"
-#include "GPUProfiler.h"
+#include "GpuProfiler.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "Scene/Scene.h"
 #include "ShaderParameterUtils.h"

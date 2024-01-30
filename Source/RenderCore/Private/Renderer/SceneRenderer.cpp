@@ -5,8 +5,9 @@
 #include "CommandList.h"
 #include "CommonRenderResource.h"
 #include "Config/DefaultRenderCoreConfig.h"
+#include "CpuProfiler.h"
 #include "ExponentialShadowMapRendering.h"
-#include "GPUProfiler.h"
+#include "GpuProfiler.h"
 #include "Material/MaterialResource.h"
 #include "Math/TransformationMatrix.h"
 #include "Mesh/StaticMeshResource.h"
@@ -182,6 +183,8 @@ namespace rendercore
 
 	void SceneRenderer::WaitUntilRenderingIsFinish()
 	{
+		CPU_PROFILE( WaitUntilRenderingIsFinish );
+
 		GetPrimitiveIdPool().DiscardAll();
 	}
 

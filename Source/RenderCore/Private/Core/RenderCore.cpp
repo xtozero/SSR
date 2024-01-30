@@ -7,9 +7,10 @@
 #include "common.h"
 #include "CommonRenderResource.h"
 #include "Core/IEditor.h"
+#include "CpuProfiler.h"
 #include "ForwardRenderer.h"
 #include "GlobalShaders.h"
-#include "GPUProfiler.h"
+#include "GpuProfiler.h"
 #include "GraphicsResource/Canvas.h"
 #include "GraphicsResource/Viewport.h"
 #include "IAgl.h"
@@ -194,9 +195,12 @@ namespace rendercore
 
 	void RenderCore::BeginRenderingViewGroup( RenderViewGroup& renderViewGroup )
 	{
+		CPU_PROFILE( BeginRenderingViewGroup );
+
 		auto commandList = GetCommandList();
 		Canvas& canvas = renderViewGroup.GetCanvas();
 		{
+			CPU_PROFILE( RenderFrame );
 			GPU_PROFILE( commandList, RenderFrame );
 
 			const ColorF& bgColor = renderViewGroup.GetBackgroundColor();
@@ -235,8 +239,17 @@ namespace rendercore
 			}
 		}
 
-		commandList.Commit();
-		canvas.Present();
+		{
+			CPU_PROFILE( CommitRenderFrame );
+			{
+				CPU_PROFILE( Commit );
+				commandList.Commit();
+			}
+			{
+				CPU_PROFILE( Present );
+				canvas.Present();
+			}
+		}
 
 		GetGpuProfiler().GatherProfileData();
 	}

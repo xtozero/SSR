@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 #include "AssetFactory.h"
-#include "GPUProfiler.h"
+#include "GpuProfiler.h"
 #include "ImguiSharedContext.h"
 #include "InterfaceFactories.h"
 #include "Renderer/IRenderCore.h"

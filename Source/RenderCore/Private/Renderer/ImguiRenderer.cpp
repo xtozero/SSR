@@ -4,8 +4,9 @@
 #include "AssetLoader.h"
 #include "Canvas.h"
 #include "CommandList.h"
+#include "CpuProfiler.h"
 #include "GlobalShaders.h"
-#include "GPUProfiler.h"
+#include "GpuProfiler.h"
 #include "GraphicsApiResource.h"
 #include "imgui.h"
 #include "Math/TransformationMatrix.h"
@@ -197,6 +198,8 @@ namespace rendercore
 
 	void ImguiRenderer::Render( RenderViewGroup& renderViewGroup )
 	{
+		CPU_PROFILE( ImguiRenderer_Render );
+
 		assert( IsInRenderThread() );
 
 		if ( m_imguiDrawInfo.m_displaySize.x <= 0.f

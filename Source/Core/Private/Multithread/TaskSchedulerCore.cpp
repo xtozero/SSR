@@ -38,7 +38,7 @@ struct Worker
 
 void WorkerThread( TaskScheduler* scheduler, Worker* worker )
 {
-	scheduler->m_workerid[worker->m_threadType] = std::this_thread::get_id();
+	scheduler->m_threadId[worker->m_threadType] = std::this_thread::get_id();
 
 	while ( true )
 	{
@@ -251,13 +251,19 @@ size_t TaskScheduler::GetThisThreadType() const
 
 	for ( size_t i = 0; i < m_workerCount; ++i )
 	{
-		if ( m_workerid[i] == thisThreadId )
+		if ( m_threadId[i] == thisThreadId )
 		{
 			return i;
 		}
 	}
 
 	return m_workerCount;
+}
+
+std::thread::id TaskScheduler::GetThreadId( size_t workerId ) const
+{
+	assert( workerId < m_workerCount );
+	return m_threadId[workerId];
 }
 
 void TaskScheduler::SetWorkerNameForDebugging( size_t workerId, const char* name )
@@ -312,7 +318,7 @@ TaskScheduler::~TaskScheduler()
 
 	delete[] m_taskQueues;
 	delete[] m_workers;
-	delete[] m_workerid;
+	delete[] m_threadId;
 }
 
 void TaskScheduler::Initialize( size_t queueCount, size_t workerCount )
@@ -328,7 +334,7 @@ void TaskScheduler::Initialize( size_t queueCount, size_t workerCount )
 	}
 
 	m_workers = new Worker[m_workerCount];
-	m_workerid = new std::thread::id[m_workerCount];
+	m_threadId = new std::thread::id[m_workerCount];
 
 	for ( size_t i = 0; i < m_workerCount; ++i )
 	{

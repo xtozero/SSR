@@ -4,7 +4,8 @@
 
 #include "CommandList.h"
 #include "CommonRenderResource.h"
-#include "GPUProfiler.h"
+#include "CpuProfiler.h"
+#include "GpuProfiler.h"
 #include "Math/Vector.h"
 #include "Proxies/LightProxy.h"
 #include "Proxies/TexturedSkyProxy.h"
@@ -249,6 +250,8 @@ namespace rendercore
 
 	bool ForwardRenderer::PreRender( RenderViewGroup& renderViewGroup )
 	{
+		CPU_PROFILE( ForwardRenderer_PreRender );
+
 		SceneRenderer::PreRender( renderViewGroup );
 
 		auto rendertargetSize = renderViewGroup.GetViewport().SizeOnRenderThread();
@@ -294,6 +297,8 @@ namespace rendercore
 
 	void ForwardRenderer::Render( RenderViewGroup& renderViewGroup )
 	{
+		CPU_PROFILE( ForwardRenderer_Render );
+
 		RenderShadowDepthPass();
 
 		IScene& scene = renderViewGroup.Scene();
@@ -334,6 +339,8 @@ namespace rendercore
 
 	void ForwardRenderer::PostRender( RenderViewGroup& renderViewGroup )
 	{
+		CPU_PROFILE( ForwardRenderer_PostRender );
+
 		SceneRenderer::PostRender( renderViewGroup );
 	}
 

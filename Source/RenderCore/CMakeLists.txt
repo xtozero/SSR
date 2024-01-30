@@ -14,7 +14,7 @@ set (CORE_SOURCE
 
 set (GPU_PROFILER_SOURCE
 	Private/GpuProfiler/GPUProfiler.cpp
-	Public/GpuProfiler/GPUProfiler.h)
+	Public/GpuProfiler/GpuProfiler.h)
 
 set (GRAPHICS_RESOURCE_SOURCE
 	Private/GraphicsResource/ByteBuffer.cpp
@@ -230,6 +230,7 @@ PUBLIC
 	Agl
 PRIVATE
 	Core
+	Engine
 	Imgui)
 
 add_custom_command(TARGET RenderCore POST_BUILD

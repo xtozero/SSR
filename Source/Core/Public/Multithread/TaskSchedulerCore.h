@@ -149,6 +149,8 @@ public:
 
 	size_t GetThisThreadType() const;
 
+	std::thread::id GetThreadId( size_t workerId ) const;
+
 	void SetWorkerNameForDebugging( size_t workerId, const char* name );
 
 	TaskScheduler();
@@ -167,7 +169,7 @@ private:
 	size_t m_maxTaskQueue = 4;
 	size_t m_workerCount = 1;
 	Worker* m_workers = nullptr;
-	std::thread::id* m_workerid = nullptr;
+	std::thread::id* m_threadId = nullptr;
 	volatile bool m_shutdown = false;
 
 	friend void WorkerThread( TaskScheduler* scheduler, Worker* worker );

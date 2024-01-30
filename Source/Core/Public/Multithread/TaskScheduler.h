@@ -35,6 +35,8 @@ public:
 
 	virtual size_t GetThisThreadType() const = 0;
 
+	virtual std::thread::id GetThreadId( ThreadType threadType ) const = 0;
+
 	virtual ~ITaskScheduler() = default;
 };
 

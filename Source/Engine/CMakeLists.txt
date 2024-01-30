@@ -22,6 +22,10 @@ set (CORE_SOURCE
 	Private/Core/ModuleInit.cpp
 	Public/Core/IEngine.h)
 	
+set (CPU_PROFILER
+	Private/CpuProfiler/CpuProfiler.cpp
+	Public/CpuProfiler/CpuProfiler.h)
+
 set (PLATFORM_SOURCE
 	Private/Platform/CommandLine.cpp
 	Private/Platform/WindowPlatformEngine.cpp
@@ -43,6 +47,7 @@ set (USER_INPUT_SOURCE
 
 source_group("Config" FILES ${CONFIG_SOURCE})	
 source_group("ConsoleMessage" FILES ${CONSOLE_MESSAGE_SOURCES})
+source_group("CpuProfiler" FILES ${CPU_PROFILER})
 source_group("UserInput" FILES ${USER_INPUT_SOURCE})
 source_group("Window" FILES ${PLATFORM_SOURCE})
 
@@ -52,6 +57,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 add_library(Engine SHARED	${CONFIG_SOURCE}
 							${CONSOLE_MESSAGE_SOURCES}
 							${CORE_SOURCE}
+							${CPU_PROFILER}
 							${PLATFORM_SOURCE}
 							${PRECOMPILED} 
 							${USER_INPUT_SOURCE})
@@ -59,12 +65,14 @@ add_library(Engine SHARED	${CONFIG_SOURCE}
 target_include_directories(Engine
 PUBLIC
 	./Public
+	./Public/CpuProfiler
 PRIVATE
 	../Editor/Public
 	../Logic/Public
 	./Public/AssetLoader
 	./Public/ConsoleMessage
 	./Public/Core
+	./Public/CpuProfiler
 	./Public/FileSystem
 	./Public/Pch
 	./Public/Platform

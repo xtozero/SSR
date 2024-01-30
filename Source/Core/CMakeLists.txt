@@ -169,7 +169,7 @@ set (SERIALIZATION
 
 source_group("AppConfig" FILES ${APP_CONFIG})
 source_group("Asset" FILES ${ASSET})
-source_group("Collections" FILES ${COLLECTIONS} )	
+source_group("Collections" FILES ${COLLECTIONS} )
 source_group("DataStructure" FILES ${DATA_STRUCTURE})
 source_group("DataType" FILES ${DATA_TYPE})
 source_group("DebugTool" FILES ${DEBUG_TOOL})

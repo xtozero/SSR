@@ -31,6 +31,8 @@ public:
 
 	virtual size_t GetThisThreadType() const override;
 
+	virtual std::thread::id GetThreadId( ThreadType threadType ) const override;
+
 	[[nodiscard]] TaskHandle GetExclusiveTaskGroup( ThreadType threadType );
 
 	TaskSchedulerImpl();
@@ -69,6 +71,11 @@ void TaskSchedulerImpl::ProcessThisThreadTask()
 size_t TaskSchedulerImpl::GetThisThreadType() const
 {
 	return m_taskScheduler.GetThisThreadType();
+}
+
+std::thread::id TaskSchedulerImpl::GetThreadId( ThreadType threadType ) const
+{
+	return m_taskScheduler.GetThreadId( static_cast<size_t>( threadType ) );
 }
 
 TaskHandle TaskSchedulerImpl::GetExclusiveTaskGroup( ThreadType threadType )
