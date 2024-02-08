@@ -1,12 +1,14 @@
 #include "stdafx.h"
+
 #include "WindowPlatformEngine.h"
 
 #include "AppConfig/AppConfig.h"
-#include "common.h"
 #include "CommandLine.h"
+#include "common.h"
 #include "Config/DefaultAppConfig.h"
 #include "Core/IEditor.h"
 #include "Core/ILogic.h"
+#include "CpuProfiler.h"
 #include "FileSystem.h"
 #include "GuideTypes.h"
 #include "InterfaceFactories.h"
@@ -95,6 +97,11 @@ namespace engine
 			ProcessInput();
 			m_taskScheduler->ProcessThisThreadTask();
 			m_logic->Update();
+
+			if ( auto cpuProfiler = GetInterface<ICpuProfiler>() )
+			{
+				cpuProfiler->Tick();
+			}
 		}
 	}
 

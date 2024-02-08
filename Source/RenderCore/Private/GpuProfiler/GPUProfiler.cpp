@@ -7,10 +7,21 @@
 
 #include <cassert>
 #include <map>
+#include <numeric>
 #include <stack>
 
 namespace rendercore
 {
+	double GpuProfileData::CalcAverageMS() const
+	{
+		return std::accumulate( std::begin( m_durationMS ), std::end( m_durationMS ), 0. ) / MaxSamples;
+	}
+
+	RENDERCORE_DLL bool GpuProfileData::IsAvaliable() const
+	{
+		return m_avaliable;
+	}
+
 	class GpuProfiler : public IGpuProfiler
 	{
 	public:
@@ -21,7 +32,7 @@ namespace rendercore
 
 		virtual void GatherProfileData() override;
 
-		virtual const std::vector<GpuProfileData*>& GetProfileDatas() const override;
+		virtual const std::vector<GpuProfileData*>& GetProfileData() const override;
 
 		void CleanUp();
 
@@ -78,6 +89,7 @@ namespace rendercore
 
 		commandList.EndQuery( profileData.m_timers[m_curFrame] );
 		profileData.m_queryEnded[m_curFrame] = true;
+		profileData.m_avaliable = true;
 
 		m_profileStack.pop();
 	}
@@ -87,28 +99,29 @@ namespace rendercore
 		assert( IsInRenderThread() );
 
 		uint32 nextFrame = ( m_curFrame + 1 ) % GpuProfileData::TimerLatency;
-		for ( auto& profile : m_profiles )
+		for ( auto& profileData : m_profiles )
 		{
-			if ( profile->m_queryEnded[nextFrame] == false )
+			if ( profileData->m_queryEnded[nextFrame] == false )
 			{
+				profileData->m_avaliable = false;
 				continue;
 			}
 
-			double duration = profile->m_timers[nextFrame]->GetDuration();
-			double total = profile->m_averageMS * profile->m_numSamples + duration;
+			double duration = profileData->m_timers[nextFrame]->GetDuration();
 
-			++profile->m_numSamples;
+			int32 durationIdx = profileData->m_numSamples % GpuProfileData::MaxSamples;
+			profileData->m_durationMS[durationIdx] = duration;
 
-			profile->m_averageMS = total / profile->m_numSamples;
+			++profileData->m_numSamples;
 
-			profile->m_queryStarted[nextFrame] = false;
-			profile->m_queryEnded[nextFrame] = false;
+			profileData->m_queryStarted[nextFrame] = false;
+			profileData->m_queryEnded[nextFrame] = false;
 		}
 
 		m_curFrame = nextFrame;
 	}
 
-	const std::vector<GpuProfileData*>& GpuProfiler::GetProfileDatas() const
+	const std::vector<GpuProfileData*>& GpuProfiler::GetProfileData() const
 	{
 		return m_profiles;
 	}

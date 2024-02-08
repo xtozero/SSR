@@ -1,4 +1,5 @@
 #include "stdafx.h"
+
 #include "Core/GameLogic.h"
 
 #include "common.h"
@@ -12,6 +13,7 @@
 #include "Core/DebugConsole.h"
 #include "Core/Timer.h"
 #include "Core/UtilWindowInfo.h"
+#include "CpuProfiler.h"
 #include "FileSystem.h"
 #include "GameObject/GameObject.h"
 #include "IAgl.h"
@@ -109,6 +111,8 @@ namespace logic
 
 	void CGameLogic::Update()
 	{
+		CPU_PROFILE( Update );
+
 		// 한 프레임의 시작 ElapsedTime 갱신
 		StartLogic();
 		ProcessLogic();
@@ -253,6 +257,8 @@ namespace logic
 
 	void CGameLogic::StartLogic()
 	{
+		CPU_PROFILE( StartLogic );
+
 		//게임 로직 수행 전처리
 		engine::GetConsoleMessageExecutor().Execute();
 
@@ -269,6 +275,8 @@ namespace logic
 
 	void CGameLogic::ProcessLogic()
 	{
+		CPU_PROFILE( ProcessLogic );
+
 		if ( m_world.GetTimer().IsPaused() == false )
 		{
 			// 게임 로직 수행
@@ -278,6 +286,8 @@ namespace logic
 
 	void CGameLogic::EndLogic()
 	{
+		CPU_PROFILE( EndLogic );
+
 		// 물리 시뮬레이션 결과를 반영
 		m_world.EndFrame();
 

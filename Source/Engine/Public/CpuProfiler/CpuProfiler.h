@@ -26,10 +26,17 @@ namespace engine
 		std::chrono::time_point<std::chrono::steady_clock> m_timeStampBegin;
 		std::chrono::time_point<std::chrono::steady_clock> m_timeStampEnd;
 
-		double m_averageMS = 0;
 		uint64 m_numSamples = 0;
 
+		static constexpr int32 MaxSamples = 20;
+		double m_durationMS[MaxSamples] = {};
+
+		uint64 m_lastCollectTick = 0;
+
 		std::thread::id m_threadId;
+
+		ENGINE_DLL double CalcAverageMS() const;
+		ENGINE_DLL bool IsAvaliable() const;
 	};
 
 	class ICpuProfiler
@@ -38,7 +45,10 @@ namespace engine
 		virtual void StartProfile( CpuProfileData& profileData ) = 0;
 		virtual void EndProfile( CpuProfileData& profileData ) = 0;
 
-		virtual void GetProfileDatas( std::thread::id threadId, std::vector<const CpuProfileData*>& outProfileData ) const = 0;
+		virtual void GetProfileData( std::thread::id threadId, std::vector<const CpuProfileData*>& outProfileData ) const = 0;
+		
+		virtual void Tick() = 0;
+		virtual uint64 GetTickCount() const = 0;
 
 		virtual ~ICpuProfiler() = default;
 	};

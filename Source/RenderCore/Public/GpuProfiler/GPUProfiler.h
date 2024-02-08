@@ -30,9 +30,15 @@ namespace rendercore
 
 		bool m_queryStarted[TimerLatency] = {};
 		bool m_queryEnded[TimerLatency] = {};
+		bool m_avaliable = false;
 
-		double m_averageMS = 0;
 		uint64 m_numSamples = 0;
+
+		static constexpr int32 MaxSamples = 20;
+		double m_durationMS[MaxSamples] = {};
+
+		RENDERCORE_DLL double CalcAverageMS() const;
+		RENDERCORE_DLL bool IsAvaliable() const;
 	};
 
 	class IGpuProfiler
@@ -45,7 +51,7 @@ namespace rendercore
 
 		virtual void GatherProfileData() = 0;
 
-		virtual const std::vector<GpuProfileData*>& GetProfileDatas() const = 0;
+		virtual const std::vector<GpuProfileData*>& GetProfileData() const = 0;
 
 		virtual ~IGpuProfiler() = default;
 	};

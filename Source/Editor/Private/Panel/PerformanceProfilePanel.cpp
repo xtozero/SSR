@@ -18,21 +18,24 @@ namespace
 {
 	void DrawGpuProfileRecursive( const GpuProfileData* gpuProfileData )
 	{
-		constexpr ImGuiTreeNodeFlags baseFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
-
-		const char* label = gpuProfileData->m_label.CStr();
-		ImGuiTreeNodeFlags nodeFlags = baseFlags;
-		if ( gpuProfileData->m_child == nullptr )
+		if ( gpuProfileData->IsAvaliable() )
 		{
-			nodeFlags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-		}
+			constexpr ImGuiTreeNodeFlags baseFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 
-		if ( ImGui::TreeNodeEx( label, nodeFlags, "%s - %fms", label, (float)gpuProfileData->m_averageMS) )
-		{
-			if ( const GpuProfileData* child = gpuProfileData->m_child )
+			const char* label = gpuProfileData->m_label.CStr();
+			ImGuiTreeNodeFlags nodeFlags = baseFlags;
+			if ( gpuProfileData->m_child == nullptr )
 			{
-				DrawGpuProfileRecursive( child );
-				ImGui::TreePop();
+				nodeFlags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+			}
+
+			if ( ImGui::TreeNodeEx( label, nodeFlags, "%s - %fms", label, (float)gpuProfileData->CalcAverageMS() ) )
+			{
+				if ( const GpuProfileData* child = gpuProfileData->m_child )
+				{
+					DrawGpuProfileRecursive( child );
+					ImGui::TreePop();
+				}
 			}
 		}
 
@@ -46,34 +49,37 @@ namespace
 	{
 		ImGui::TextColored( ImVec4( 0.0f, 1.0f, 0.0f, 1.0f ), "[GPU]" );
 
-		const std::vector<GpuProfileData*>& gpuProfileDatas = gpuProfiler->GetProfileDatas();
+		const std::vector<GpuProfileData*>& gpuProfileData = gpuProfiler->GetProfileData();
 
-		for ( const GpuProfileData* gpuProfileData : gpuProfileDatas )
+		for ( const GpuProfileData* profileData : gpuProfileData )
 		{
-			if ( gpuProfileData->m_parent == nullptr )
+			if ( profileData->m_parent == nullptr )
 			{
-				DrawGpuProfileRecursive( gpuProfileData );
+				DrawGpuProfileRecursive( profileData );
 			}
 		}
 	}
 
 	void DrawCpuProfileRecursive( const CpuProfileData* cpuProfileData )
 	{
-		constexpr ImGuiTreeNodeFlags baseFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
-
-		const char* label = cpuProfileData->m_label.CStr();
-		ImGuiTreeNodeFlags nodeFlags = baseFlags;
-		if ( cpuProfileData->m_child == nullptr )
+		if ( cpuProfileData->IsAvaliable() )
 		{
-			nodeFlags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-		}
+			constexpr ImGuiTreeNodeFlags baseFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 
-		if ( ImGui::TreeNodeEx( label, nodeFlags, "%s - %fms", label, (float)cpuProfileData->m_averageMS ) )
-		{
-			if ( const CpuProfileData* child = cpuProfileData->m_child )
+			const char* label = cpuProfileData->m_label.CStr();
+			ImGuiTreeNodeFlags nodeFlags = baseFlags;
+			if ( cpuProfileData->m_child == nullptr )
 			{
-				DrawCpuProfileRecursive( child );
-				ImGui::TreePop();
+				nodeFlags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+			}
+
+			if ( ImGui::TreeNodeEx( label, nodeFlags, "%s - %fms", label, (float)cpuProfileData->CalcAverageMS() ) )
+			{
+				if ( const CpuProfileData* child = cpuProfileData->m_child )
+				{
+					DrawCpuProfileRecursive( child );
+					ImGui::TreePop();
+				}
 			}
 		}
 
@@ -85,14 +91,14 @@ namespace
 
 	void DrawCpuProfile( const ICpuProfiler* cpuProfiler, std::thread::id threadId )
 	{
-		static std::vector<const CpuProfileData*> cpuProfileDatas;
+		static std::vector<const CpuProfileData*> cpuProfileData;
 
-		cpuProfileDatas.clear();
-		cpuProfiler->GetProfileDatas( threadId, cpuProfileDatas );
+		cpuProfileData.clear();
+		cpuProfiler->GetProfileData( threadId, cpuProfileData );
 
-		for ( const CpuProfileData* cpuProfileData : cpuProfileDatas )
+		for ( const CpuProfileData* profileData : cpuProfileData )
 		{
-			DrawCpuProfileRecursive( cpuProfileData );
+			DrawCpuProfileRecursive( profileData );
 		}
 	}
 }
@@ -122,6 +128,10 @@ namespace editor
 
 			std::thread::id renderThreadId = taskScheduler->GetThreadId( ThreadType::RenderThread );
 			DrawCpuProfile( cpuProfiler, renderThreadId );
+
+			ImGui::TextColored( ImVec4( 0.0f, 1.0f, 0.0f, 1.0f ), "[GameThread]" );
+
+			DrawCpuProfile( cpuProfiler, std::this_thread::get_id() );
 		}
 		ImGui::End();
 
