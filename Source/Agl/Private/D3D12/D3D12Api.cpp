@@ -5,6 +5,7 @@
 #include "common.h"
 #include "Config/DefaultAglConfig.h"
 
+#include "D3D12BindlessManager.h"
 #include "D3D12CommandList.h"
 #include "D3D12NullDescriptor.h"
 #include "D3D12Query.h"
@@ -66,29 +67,6 @@ namespace
 		}
 
 		return ShaderType::None;
-	}
-
-	const wchar_t* GetProperProfile( const char* profile )
-	{
-		if ( std::strncmp( profile, "vs", 2 ) == 0 )
-		{
-			return L"vs_6_0";
-		}
-		else if ( std::strncmp( profile, "gs", 2 ) == 0 )
-		{
-			return L"gs_6_0";
-		}
-		else if ( std::strncmp( profile, "ps", 2 ) == 0 )
-		{
-			return L"ps_6_0";
-		}
-		else if ( std::strncmp( profile, "cs", 2 ) == 0 )
-		{
-			return L"cs_6_0";
-		}
-
-		assert( false && "Invalid shader profile" );
-		return L"";
 	}
 }
 
@@ -194,6 +172,7 @@ namespace agl
 		D3D12QueryAllocator& GetQueryAllocator();
 		D3D12CommnadListResourcePool& GetCmdPool( D3D12_COMMAND_LIST_TYPE type );
 		D3D12ResourceUploader& GetUploader();
+		D3D12BindlessManager& GetBindlessManager();
 
 		uint32 GetFrameIndex() const
 		{
@@ -205,6 +184,8 @@ namespace agl
 	private:
 		bool CreateDeviceDependentResource();
 		bool CreateDeviceIndependentResource();
+
+		const wchar_t* GetProperProfile( const char* profile ) const;
 
 #ifdef _DEBUG
 		ComPtr<ID3D12Debug> m_debugLayer;
@@ -223,6 +204,8 @@ namespace agl
 		ComPtr<IDxcLibrary> m_dxcLibrary;
 		ComPtr<IDxcContainerReflection> m_reflection;
 
+		bool m_raytracingAvailable = false;
+
 		uint32 m_frameIndex = 0;
 
 		std::vector<D3D12CommandList, InlineAllocator<D3D12CommandList, 2>> m_commandList;
@@ -237,6 +220,8 @@ namespace agl
 		D3D12QueryAllocator m_queryAllocator;
 
 		D3D12ResourceUploader m_uploader;
+
+		D3D12BindlessManager m_bindlessManager;
 	};
 
 	AglType Direct3D12::GetType() const
@@ -537,6 +522,11 @@ namespace agl
 		return m_uploader;
 	}
 
+	D3D12BindlessManager& Direct3D12::GetBindlessManager()
+	{
+		return m_bindlessManager;
+	}
+
 	Direct3D12::~Direct3D12()
 	{
 		CloseHandle( m_fenceEvent );
@@ -582,6 +572,16 @@ namespace agl
 		{
 			return false;
 		}
+
+		D3D12_FEATURE_DATA_D3D12_OPTIONS5 featureOption5;
+		hr = m_device->CheckFeatureSupport( D3D12_FEATURE_D3D12_OPTIONS5, &featureOption5, sizeof( featureOption5 ) );
+
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
+
+		m_raytracingAvailable = ( featureOption5.RaytracingTier != D3D12_RAYTRACING_TIER_NOT_SUPPORTED );
 
 		D3D12_COMMAND_QUEUE_DESC desc = {
 			.Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
@@ -663,6 +663,29 @@ namespace agl
 		return true;
 	}
 
+	const wchar_t* Direct3D12::GetProperProfile( const char* profile ) const
+	{
+		if ( std::strncmp( profile, "vs", 2 ) == 0 )
+		{
+			return m_raytracingAvailable ? L"vs_6_6" : L"vs_6_5";
+		}
+		else if ( std::strncmp( profile, "gs", 2 ) == 0 )
+		{
+			return m_raytracingAvailable ? L"gs_6_6" : L"gs_6_5";
+		}
+		else if ( std::strncmp( profile, "ps", 2 ) == 0 )
+		{
+			return m_raytracingAvailable ? L"ps_6_6" : L"ps_6_5";
+		}
+		else if ( std::strncmp( profile, "cs", 2 ) == 0 )
+		{
+			return m_raytracingAvailable ? L"cs_6_6" : L"cs_6_5";
+		}
+
+		assert( false && "Invalid shader profile" );
+		return L"";
+	}
+
 	ID3D12CommandQueue& D3D12DirectCommandQueue()
 	{
 		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
@@ -703,6 +726,12 @@ namespace agl
 	{
 		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
 		return d3d12Api->GetUploader();
+	}
+
+	D3D12BindlessManager& D3D12BindlessMgr()
+	{
+		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
+		return d3d12Api->GetBindlessManager();
 	}
 
 	Owner<IAgl*> CreateD3D12GraphicsApi()

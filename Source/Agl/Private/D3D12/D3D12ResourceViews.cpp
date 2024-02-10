@@ -1,6 +1,7 @@
 #include "D3D12ResourceViews.h"
 
 #include "D3D12Api.h"
+#include "D3D12BindlessManager.h"
 
 namespace agl
 {
@@ -8,6 +9,15 @@ namespace agl
 	{
 		m_descriptorHeap = D3D12DescriptorHeapAllocator::GetInstance().AllocCpuDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1 );
 		D3D12Device().CreateShaderResourceView( m_d3d12Resource, &m_desc, m_descriptorHeap.GetCpuHandle().At() );
+
+		m_bindlessHandle = D3D12BindlessMgr().AddDescriptor( m_descriptorHeap.GetCpuHandle() );
+	}
+
+	void D3D12ShaderResourceView::FreeResource()
+	{
+		BaseClass::FreeResource();
+
+		D3D12BindlessMgr().RemoveDescriptor( m_bindlessHandle );
 	}
 
 	void D3D12UnorderedAccessView::InitResource()

@@ -50,10 +50,14 @@ namespace agl
 	{
 		m_samplerState = D3D12DescriptorHeapAllocator::GetInstance().AllocCpuDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, 1 );
 		D3D12Device().CreateSampler( &m_desc, m_samplerState.GetCpuHandle().At() );
+
+		m_bindlessHandle = D3D12BindlessMgr().AddSamplerDescriptor( m_samplerState.GetCpuHandle() );
 	}
 
 	void D3D12SamplerState::FreeResource()
 	{
 		std::destroy_at( &m_samplerState );
+
+		D3D12BindlessMgr().RemoveSamplerDescriptor( m_bindlessHandle );
 	}
 }

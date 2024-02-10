@@ -10,6 +10,7 @@ struct IDXGIFactory7;
 
 namespace agl
 {
+	class D3D12BindlessManager;
 	class D3D12CommnadListResourcePool;
 	class D3D12QueryAllocator;
 	class D3D12ResourceAllocator;
@@ -24,6 +25,7 @@ namespace agl
 	D3D12QueryAllocator& D3D12AllocatorForQuery();
 	D3D12CommnadListResourcePool& D3D12CmdPool( D3D12_COMMAND_LIST_TYPE type );
 	D3D12ResourceUploader& D3D12Uploader();
+	D3D12BindlessManager& D3D12BindlessMgr();
 
 	Owner<IAgl*> CreateD3D12GraphicsApi();
 

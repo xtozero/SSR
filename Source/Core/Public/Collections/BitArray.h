@@ -22,6 +22,11 @@ public:
 		return m_bits.size();
 	}
 
+	void Resize( size_t newSize, bool init )
+	{
+		m_bits.resize( newSize, init );
+	}
+
 	auto operator[]( size_t index )
 	{
 		return m_bits[index];

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "D3D12BindlessManager.h"
 #include "D3D12DescriptorHeapAllocator.h"
 #include "PipelineState.h"
 
@@ -26,5 +27,7 @@ namespace agl
 		D3D12DescriptorHeap m_samplerState;
 
 		D3D12_SAMPLER_DESC m_desc;
+
+		int32 m_bindlessHandle = NullBindlessHandle;
 	};
 }

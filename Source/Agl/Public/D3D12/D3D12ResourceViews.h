@@ -1,5 +1,6 @@
 #pragma once
 
+#include "D3D12BindlessManager.h"
 #include "D3D12DescriptorHeapAllocator.h"
 #include "ResourceViews.h"
 
@@ -114,6 +115,10 @@ namespace agl
 
 	protected:
 		virtual void InitResource() override;
+		virtual void FreeResource() override;
+
+	private:
+		int32 m_bindlessHandle = NullBindlessHandle;
 	};
 
 	class D3D12UnorderedAccessView final : public D3D12ViewBase<UnorderedAccessView, D3D12_UNORDERED_ACCESS_VIEW_DESC>
