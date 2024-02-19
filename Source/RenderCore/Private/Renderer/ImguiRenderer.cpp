@@ -267,7 +267,7 @@ namespace rendercore
 
 				DrawSnapshot& snapshot = *result;
 
-				agl::ShaderParameter param( agl::ShaderType::VS, agl::ShaderParameterType::ConstantBufferValue, 0, 0, sizeof( Matrix ) );
+				agl::ShaderParameter param( agl::ShaderType::VS, agl::ShaderParameterType::ConstantBufferValue, 0, 0, 0, sizeof( Matrix ) );
 
 				SetShaderValue( commandList, param, imguiProjection );
 

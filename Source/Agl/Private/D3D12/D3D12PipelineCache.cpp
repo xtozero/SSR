@@ -1,6 +1,7 @@
 #include "D3D12PipelineCache.h"
 
 #include "D3D12Api.h"
+#include "D3D12BindlessManager.h"
 #include "D3D12Buffer.h"
 #include "D3D12FlagConvertor.h"
 #include "D3D12GlobalDescriptorHeap.h"
@@ -9,6 +10,8 @@
 #include "D3D12ResourceManager.h"
 #include "D3D12SamplerState.h"
 #include "D3D12Texture.h"
+
+#include "GlobalConstantBuffers.h"
 
 #include "InlineMemoryAllocator.h"
 
@@ -52,6 +55,8 @@ namespace agl
 
 		std::construct_at( &m_allocatedIdentifiers, m_allocatedIdentifierAllocator );
 		std::construct_at( &m_allocatedInfos, m_allocatedInfoAllocator );
+
+		m_residentResource.clear();
 	}
 
 	void D3D12PipelineCache::BindVertexBuffer( ID3D12GraphicsCommandList6& commandList, Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
@@ -199,8 +204,205 @@ namespace agl
 		commandList.SetComputeRootSignature( rootSignature );
 	}
 
-	void D3D12PipelineCache::BindShaderResources( ID3D12GraphicsCommandList6& commandList, D3D12GlobalDescriptorHeap& descriptorHeap, ShaderBindings& shaderBindings )
+	void D3D12PipelineCache::BindBindlessResources( ID3D12GraphicsCommandList6& commandList, GlobalConstantBuffers& globalConstantBuffers, ShaderBindings& shaderBindings )
 	{
+		for ( uint32 shaderType = 0; shaderType < MAX_SHADER_TYPE<uint32>; ++shaderType )
+		{
+			SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( shaderType ) );
+			if ( binding.GetShaderType() == ShaderType::None )
+			{
+				continue;
+			}
+
+			const ShaderParameterInfo& parameterInfo = binding.ParameterInfo();
+
+			for ( uint32 i = 0; i < binding.NumBindless(); ++i )
+			{
+				RefHandle<GraphicsApiResource> resource = binding.GetBindlessStart()[i];
+				int32 bindlessHandle = ( resource != nullptr ) ? resource->GetBindlessHandle() : -1;
+
+				const ShaderParameter& bindlessParam = parameterInfo.m_bindless[i];
+				globalConstantBuffers.SetShaderValue( bindlessParam, &bindlessHandle );
+			}
+		}
+
+		globalConstantBuffers.AddGlobalConstantBuffers( shaderBindings );
+
+		ID3D12DescriptorHeap* heaps[] = {
+			D3D12BindlessMgr().GetHeap().Resource(),
+			D3D12BindlessMgr().GetSamplerHeap().Resource()
+		};
+
+		RegisterRenderResource( heaps[0] );
+		RegisterRenderResource( heaps[1] );
+
+		commandList.SetDescriptorHeaps( std::extent_v<decltype( heaps )>, heaps );
+
+		auto GetBindlessGpuHandle = []( D3D12DescriptorHeap& heap, int32 bindlessHandle ) -> D3D12_GPU_DESCRIPTOR_HANDLE
+			{
+				return heap.GetGpuHandle().At( bindlessHandle );
+			};
+
+		uint32 rootParameterIndex = 2;
+
+		if ( shaderBindings.IsCompute() )
+		{
+			commandList.SetComputeRootDescriptorTable( 0, D3D12BindlessMgr().GetHeap().GetGpuHandle().At() );
+			commandList.SetComputeRootDescriptorTable( 1, D3D12BindlessMgr().GetSamplerHeap().GetGpuHandle().At() );
+
+			for ( uint32 shaderType = 0; shaderType < MAX_SHADER_TYPE<uint32>; ++shaderType )
+			{
+				SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( shaderType ) );
+				if ( binding.GetShaderType() == ShaderType::None )
+				{
+					continue;
+				}
+
+				const ShaderParameterInfo& parameterInfo = binding.ParameterInfo();
+
+				for ( uint32 i = 0; i < binding.NumSRV(); ++i )
+				{
+					if ( parameterInfo.m_srvs[i].m_space >= 100 )
+					{
+						continue;
+					}
+
+					RefHandle<ShaderResourceView> srv = binding.GetSRVStart()[i];
+
+					auto d3d12SRV = static_cast<D3D12ShaderResourceView*>( srv.Get() );
+					assert( d3d12SRV != nullptr );
+
+					RegisterRenderResource( d3d12SRV->GetOwner() );
+
+					int32 bindlessHandle = d3d12SRV->GetBindlessHandle();
+					commandList.SetComputeRootDescriptorTable( rootParameterIndex++, GetBindlessGpuHandle( D3D12BindlessMgr().GetHeap(), bindlessHandle ) );
+				}
+
+				for ( uint32 i = 0; i < binding.NumUAV(); ++i )
+				{
+					RefHandle<UnorderedAccessView> uav = binding.GetUAVStart()[i];
+
+					auto d3d12UAV = static_cast<D3D12UnorderedAccessView*>( uav.Get() );
+					assert( d3d12UAV != nullptr );
+
+					RegisterRenderResource( d3d12UAV->GetOwner() );
+
+					int32 bindlessHandle = d3d12UAV->GetBindlessHandle();
+					commandList.SetComputeRootDescriptorTable( rootParameterIndex++, GetBindlessGpuHandle( D3D12BindlessMgr().GetHeap(), bindlessHandle ) );
+				}
+
+				for ( uint32 i = 0; i < binding.NumCBV(); ++i )
+				{
+					RefHandle<Buffer> cb = binding.GetConstantBufferStart()[i];
+
+					auto d3d12CB = static_cast<D3D12ConstantBuffer*>( cb.Get() );
+					assert( d3d12CB != nullptr );
+
+					RegisterRenderResource( cb.Get() );
+
+					int32 bindlessHandle = d3d12CB->CBV()->GetBindlessHandle();
+					commandList.SetComputeRootDescriptorTable( rootParameterIndex++, GetBindlessGpuHandle( D3D12BindlessMgr().GetHeap(), bindlessHandle ) );
+				}
+
+				for ( uint32 i = 0; i < binding.NumSampler(); ++i )
+				{
+					if ( parameterInfo.m_samplers[i].m_space == 100 )
+					{
+						continue;
+					}
+
+					RefHandle<SamplerState> samplerState = binding.GetSamplerStart()[i];
+
+					auto d3d12SamplerState = static_cast<D3D12SamplerState*>( samplerState.Get() );
+					assert( d3d12SamplerState != nullptr );
+
+					int32 bindlessHandle = d3d12SamplerState->GetBindlessHandle();
+					commandList.SetComputeRootDescriptorTable( rootParameterIndex++, GetBindlessGpuHandle( D3D12BindlessMgr().GetSamplerHeap(), bindlessHandle ) );
+				}
+			}
+		}
+		else
+		{
+			commandList.SetGraphicsRootDescriptorTable( 0, D3D12BindlessMgr().GetHeap().GetGpuHandle().At() );
+			commandList.SetGraphicsRootDescriptorTable( 1, D3D12BindlessMgr().GetSamplerHeap().GetGpuHandle().At() );
+
+			for ( uint32 shaderType = 0; shaderType < MAX_SHADER_TYPE<uint32>; ++shaderType )
+			{
+				SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( shaderType ) );
+				if ( binding.GetShaderType() == ShaderType::None )
+				{
+					continue;
+				}
+
+				const ShaderParameterInfo& parameterInfo = binding.ParameterInfo();
+
+				for ( uint32 i = 0; i < binding.NumSRV(); ++i )
+				{
+					if ( parameterInfo.m_srvs[i].m_space >= 100 )
+					{
+						continue;
+					}
+
+					RefHandle<ShaderResourceView> srv = binding.GetSRVStart()[i];
+
+					auto d3d12SRV = static_cast<D3D12ShaderResourceView*>( srv.Get() );
+					assert( d3d12SRV != nullptr );
+
+					RegisterRenderResource( d3d12SRV->GetOwner() );
+
+					int32 bindlessHandle = d3d12SRV->GetBindlessHandle();
+					commandList.SetGraphicsRootDescriptorTable( rootParameterIndex++, GetBindlessGpuHandle( D3D12BindlessMgr().GetHeap(), bindlessHandle ) );
+				}
+
+				for ( uint32 i = 0; i < binding.NumUAV(); ++i )
+				{
+					RefHandle<UnorderedAccessView> uav = binding.GetUAVStart()[i];
+
+					auto d3d12UAV = static_cast<D3D12UnorderedAccessView*>( uav.Get() );
+					assert( d3d12UAV != nullptr );
+
+					RegisterRenderResource( d3d12UAV->GetOwner() );
+
+					int32 bindlessHandle = d3d12UAV->GetBindlessHandle();
+					commandList.SetGraphicsRootDescriptorTable( rootParameterIndex++, GetBindlessGpuHandle( D3D12BindlessMgr().GetHeap(), bindlessHandle ) );
+				}
+
+				for ( uint32 i = 0; i < binding.NumCBV(); ++i )
+				{
+					RefHandle<Buffer> cb = binding.GetConstantBufferStart()[i];
+
+					auto d3d12CB = static_cast<D3D12ConstantBuffer*>( cb.Get() );
+					assert( d3d12CB != nullptr );
+
+					RegisterRenderResource( cb.Get() );
+
+					int32 bindlessHandle = d3d12CB->CBV()->GetBindlessHandle();
+					commandList.SetGraphicsRootDescriptorTable( rootParameterIndex++, GetBindlessGpuHandle( D3D12BindlessMgr().GetHeap(), bindlessHandle ) );
+				}
+
+				for ( uint32 i = 0; i < binding.NumSampler(); ++i )
+				{
+					if ( parameterInfo.m_samplers[i].m_space == 100 )
+					{
+						continue;
+					}
+
+					RefHandle<SamplerState> samplerState = binding.GetSamplerStart()[i];
+
+					auto d3d12SamplerState = static_cast<D3D12SamplerState*>( samplerState.Get() );
+					assert( d3d12SamplerState != nullptr );
+
+					int32 bindlessHandle = d3d12SamplerState->GetBindlessHandle();
+					commandList.SetGraphicsRootDescriptorTable( rootParameterIndex++, GetBindlessGpuHandle( D3D12BindlessMgr().GetSamplerHeap(), bindlessHandle ) );
+				}
+			}
+		}
+	}
+
+	void D3D12PipelineCache::BindShaderResources( ID3D12GraphicsCommandList6& commandList, D3D12GlobalDescriptorHeap& descriptorHeap, GlobalConstantBuffers& globalConstantBuffers, ShaderBindings& shaderBindings )
+	{
+		globalConstantBuffers.AddGlobalConstantBuffers( shaderBindings );
+
 		uint32 numSrvUavCbv = 0;
 		uint32 numSampler = 0;
 
@@ -563,5 +765,10 @@ namespace agl
 			m_allocatedIdentifiers.insert( d3d12Resource );
 			m_allocatedInfos.emplace_back( *resourceInfo );
 		}
+	}
+
+	void D3D12PipelineCache::RegisterRenderResource( IUnknown* resource )
+	{
+		m_residentResource.emplace_back( resource );
 	}
 }

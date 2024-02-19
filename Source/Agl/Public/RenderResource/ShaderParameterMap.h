@@ -19,6 +19,7 @@ namespace agl
 		SRV,
 		UAV,
 		Sampler,
+		Bindless,
 		Count
 	};
 
@@ -30,6 +31,7 @@ namespace agl
 		ShaderType m_shader = ShaderType::None;
 		ShaderParameterType m_type = ShaderParameterType::Unknown;
 		uint32 m_bindPoint = 0;
+		uint32 m_space = 0;
 		uint32 m_offset = 0;
 		uint32 m_sizeInByte = 0;
 
@@ -40,31 +42,31 @@ namespace agl
 
 		friend bool operator<( const ShaderParameter& lhs, const ShaderParameter& rhs )
 		{
-			auto lVariable = std::tie( lhs.m_shader, lhs.m_type, lhs.m_bindPoint, lhs.m_offset, lhs.m_sizeInByte );
-			auto rVariable = std::tie( rhs.m_shader, rhs.m_type, rhs.m_bindPoint, rhs.m_offset, rhs.m_sizeInByte );
+			auto lVariable = std::tie( lhs.m_shader, lhs.m_type, lhs.m_bindPoint, lhs.m_space, lhs.m_offset, lhs.m_sizeInByte );
+			auto rVariable = std::tie( rhs.m_shader, rhs.m_type, rhs.m_bindPoint, rhs.m_space, rhs.m_offset, rhs.m_sizeInByte );
 
 			return lVariable < rVariable;
 		}
 
 		friend bool operator==( const ShaderParameter& lhs, const ShaderParameter& rhs )
 		{
-			auto lVariable = std::tie( lhs.m_shader, lhs.m_type, lhs.m_bindPoint, lhs.m_offset, lhs.m_sizeInByte );
-			auto rVariable = std::tie( rhs.m_shader, rhs.m_type, rhs.m_bindPoint, rhs.m_offset, rhs.m_sizeInByte );
+			auto lVariable = std::tie( lhs.m_shader, lhs.m_type, lhs.m_bindPoint, lhs.m_space, lhs.m_offset, lhs.m_sizeInByte );
+			auto rVariable = std::tie( rhs.m_shader, rhs.m_type, rhs.m_bindPoint, rhs.m_space, rhs.m_offset, rhs.m_sizeInByte );
 
 			return lVariable == rVariable;
 		}
 
 		ShaderParameter() = default;
-		AGL_DLL ShaderParameter( ShaderType shader, ShaderParameterType type, uint32 bindPoint, uint32 offset, uint32 sizeInByte );
+		AGL_DLL ShaderParameter( ShaderType shader, ShaderParameterType type, uint32 bindPoint, uint32 space, uint32 offset, uint32 sizeInByte );
 		AGL_DLL ShaderParameter( const ShaderParameterMap& parameterMap, const char* variableName );
 	};
 
 	class ShaderParameterMap final
 	{
 	public:
-		void AddParameter( const char* variableName, ShaderType shader, ShaderParameterType type, uint32 bindPoint, uint32 offset, uint32 sizeInByte )
+		void AddParameter( const char* variableName, ShaderType shader, ShaderParameterType type, uint32 bindPoint, uint32 space, uint32 offset, uint32 sizeInByte )
 		{
-			m_parameters.emplace( variableName, ShaderParameter{ shader, type, bindPoint, offset, sizeInByte } );
+			m_parameters.emplace( variableName, ShaderParameter{ shader, type, bindPoint, space, offset, sizeInByte } );
 		}
 
 		void AddParameter( const char* variableName, const ShaderParameter& parameter )

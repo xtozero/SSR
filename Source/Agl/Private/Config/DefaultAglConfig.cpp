@@ -11,4 +11,9 @@ namespace agl
 	{
 		return GetInstance().m_bufferCount;
 	}
+
+	bool DefaultAgl::IsSupportsBindless()
+	{
+		return ( GetType() == AglType::D3D12 ) && GetInstance().m_useBindless;
+	}
 }

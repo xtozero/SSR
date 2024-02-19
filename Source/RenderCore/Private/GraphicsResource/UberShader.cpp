@@ -32,6 +32,7 @@ namespace rendercore
 
 	ShaderBase* UberShader::CompileShader( const StaticShaderSwitches& switches )
 	{
+/*
 #ifdef _DEBUG
 		if ( m_validVariation.find( switches.GetID() ) == std::end( m_validVariation ) )
 		{
@@ -39,6 +40,7 @@ namespace rendercore
 			return nullptr;
 		}
 #endif
+*/
 
 		uint64 shaderHash = ShaderHash( m_name, switches );
 		ShaderBase* cache = ShaderCache::GetCachedShader( shaderHash );

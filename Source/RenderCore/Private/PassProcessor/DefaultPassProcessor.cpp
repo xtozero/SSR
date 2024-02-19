@@ -1,5 +1,6 @@
 #include "DefaultPassProcessor.h"
 
+#include "Config/DefaultAglConfig.h"
 #include "Config/DefaultRenderCoreConfig.h"
 #include "MaterialResource.h"
 #include "Scene/PrimitiveSceneInfo.h"
@@ -69,6 +70,11 @@ namespace rendercore
 		if ( DefaultRenderCore::UseIrradianceMapSH() )
 		{
 			psSwitches.On( Name( "UseIrradianceMapSH" ), 1 );
+		}
+
+		if ( agl::DefaultAgl::IsSupportsBindless() )
+		{
+			psSwitches.On( Name( "SupportsBindless" ), 1 );
 		}
 
 		PassShader passShader{

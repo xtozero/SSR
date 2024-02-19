@@ -60,7 +60,7 @@ namespace
 			.m_srcSize = sizeof( clearColor )
 		};
 
-		for ( int i = 0; i < 6; ++i )
+		for ( int32 i = 0; i < 6; ++i )
 		{
 			initData.m_sections.emplace_back();
 			agl::ResourceSectionData& section = initData.m_sections.back();

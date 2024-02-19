@@ -3,8 +3,6 @@
 #include "D3D12Api.h"
 #include "D3D12Shaders.h"
 
-#include "Memory/InlineMemoryAllocator.h"
-
 #include "PipelineState.h"
 
 #include <wrl/client.h>
@@ -95,12 +93,7 @@ namespace agl
 
 	D3D12RootSignature::D3D12RootSignature( const GraphicsPipelineStateInitializer& initializer )
 	{
-		ResourceStatistics statistics = SurveyPipeline( initializer );
-		m_parameters.reserve( statistics.NumResourceCategory() );
-		m_descritorRange.reserve( statistics.Total() );
-
-		using TypedShader = std::pair<ShaderType, ShaderBase*>;
-		std::vector<TypedShader, InlineAllocator<TypedShader, MAX_SHADER_TYPE<uint32>>> shaders;
+		InlineShaderArray shaders;
 		if ( initializer.m_vertexShader )
 		{
 			shaders.emplace_back( ShaderType::VS, static_cast<D3D12VertexShader*>( initializer.m_vertexShader ) );
@@ -116,28 +109,50 @@ namespace agl
 			shaders.emplace_back( ShaderType::PS, static_cast<D3D12PixelShader*>( initializer.m_piexlShader ) );
 		}
 
+		bool hasBindless = false;
 		for ( const auto& [type, shader] : shaders )
 		{
 			const ShaderParameterInfo& paramInfo = shader->GetParameterInfo();
-			InitializeSRV( type, paramInfo );
+			if ( paramInfo.m_bindless.size() > 0 )
+			{
+				hasBindless = true;
+				break;
+			}
 		}
 
-		for ( const auto& [type, shader] : shaders )
-		{
-			const ShaderParameterInfo& paramInfo = shader->GetParameterInfo();
-			InitializeUAV( type, paramInfo );
-		}
+		ResourceStatistics statistics = SurveyPipeline( initializer );
+		m_parameters.reserve( hasBindless ? ( statistics.Total() + 2 ) : statistics.NumResourceCategory() );
+		m_descritorRange.reserve( statistics.Total() + ( hasBindless ? 5 : 0 ) );
 
-		for ( const auto& [type, shader] : shaders )
+		if ( hasBindless )
 		{
-			const ShaderParameterInfo& paramInfo = shader->GetParameterInfo();
-			InitializeCB( type, paramInfo );
+			InitializeForBindless( shaders );
 		}
-
-		for ( const auto& [type, shader] : shaders )
+		else
 		{
-			const ShaderParameterInfo& paramInfo = shader->GetParameterInfo();
-			InitializeSampler( type, paramInfo );
+			for ( const auto& [type, shader] : shaders )
+			{
+				const ShaderParameterInfo& paramInfo = shader->GetParameterInfo();
+				InitializeSRV( type, paramInfo );
+			}
+
+			for ( const auto& [type, shader] : shaders )
+			{
+				const ShaderParameterInfo& paramInfo = shader->GetParameterInfo();
+				InitializeUAV( type, paramInfo );
+			}
+
+			for ( const auto& [type, shader] : shaders )
+			{
+				const ShaderParameterInfo& paramInfo = shader->GetParameterInfo();
+				InitializeCB( type, paramInfo );
+			}
+
+			for ( const auto& [type, shader] : shaders )
+			{
+				const ShaderParameterInfo& paramInfo = shader->GetParameterInfo();
+				InitializeSampler( type, paramInfo );
+			}
 		}
 
 		m_desc.NumParameters = static_cast<uint32>( m_parameters.size() );
@@ -155,15 +170,27 @@ namespace agl
 			return;
 		}
 
-		ResourceStatistics statistics = SurveyPipeline( initializer );
-		m_parameters.reserve( statistics.NumResourceCategory() );
-		m_descritorRange.reserve( statistics.Total() );
-
 		const ShaderParameterInfo& paramInfo = computeShader->GetParameterInfo();
-		InitializeSRV( ShaderType::CS, paramInfo );
-		InitializeUAV( ShaderType::CS, paramInfo );
-		InitializeCB( ShaderType::CS, paramInfo );
-		InitializeSampler( ShaderType::CS, paramInfo );
+		bool hasBindless = paramInfo.m_bindless.size() > 0;
+
+		ResourceStatistics statistics = SurveyPipeline( initializer );
+		m_parameters.reserve( hasBindless ? ( statistics.Total() + 2 ) : statistics.NumResourceCategory() );
+		m_descritorRange.reserve( statistics.Total() + ( hasBindless ? 5 : 0 ) );
+
+		if ( hasBindless )
+		{
+			InlineShaderArray shaders;
+			shaders.emplace_back( ShaderType::CS, computeShader );
+
+			InitializeForBindless( shaders );
+		}
+		else
+		{
+			InitializeSRV( ShaderType::CS, paramInfo );
+			InitializeUAV( ShaderType::CS, paramInfo );
+			InitializeCB( ShaderType::CS, paramInfo );
+			InitializeSampler( ShaderType::CS, paramInfo );
+		}
 
 		m_desc.NumParameters = static_cast<uint32>( m_parameters.size() );
 		m_desc.pParameters = m_parameters.data();
@@ -210,7 +237,7 @@ namespace agl
 			range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 			range.NumDescriptors = 1;
 			range.BaseShaderRegister = srvParam.m_bindPoint;
-			range.RegisterSpace = static_cast<uint32>( shaderType );
+			range.RegisterSpace = srvParam.m_space;
 			range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 		}
 
@@ -240,7 +267,7 @@ namespace agl
 			range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
 			range.NumDescriptors = 1;
 			range.BaseShaderRegister = uavParam.m_bindPoint;
-			range.RegisterSpace = static_cast<uint32>( shaderType );
+			range.RegisterSpace = uavParam.m_space;
 			range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 		}
 
@@ -270,7 +297,7 @@ namespace agl
 			range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 			range.NumDescriptors = 1;
 			range.BaseShaderRegister = constantBufferParam.m_bindPoint;
-			range.RegisterSpace = static_cast<uint32>( shaderType );
+			range.RegisterSpace = constantBufferParam.m_space;
 			range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 		}
 
@@ -300,7 +327,7 @@ namespace agl
 			range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
 			range.NumDescriptors = 1;
 			range.BaseShaderRegister = samplerParam.m_bindPoint;
-			range.RegisterSpace = static_cast<uint32>( shaderType );
+			range.RegisterSpace = samplerParam.m_space;
 			range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 		}
 
@@ -311,5 +338,132 @@ namespace agl
 		param.ShaderVisibility = GetShaderVisibility( shaderType );
 		param.DescriptorTable.NumDescriptorRanges = static_cast<uint32>( paramInfo.m_samplers.size() );
 		param.DescriptorTable.pDescriptorRanges = &m_descritorRange[rangeBase];
+	}
+
+	void D3D12RootSignature::InitializeForBindless( InlineShaderArray& shaders )
+	{
+		{
+			constexpr int32 MaxStandardSrvCount = 4;
+			for ( int32 i = 0; i < MaxStandardSrvCount; ++i )
+			{
+				D3D12_DESCRIPTOR_RANGE& range = m_descritorRange.emplace_back();
+
+				range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+				range.NumDescriptors = (uint32)-1;
+				range.BaseShaderRegister = 0;
+				range.RegisterSpace = 100 + i;
+				range.OffsetInDescriptorsFromTableStart = 0;
+			}
+
+			D3D12_ROOT_PARAMETER& param = m_parameters.emplace_back();
+
+			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+			param.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+			param.DescriptorTable.NumDescriptorRanges = MaxStandardSrvCount;
+			param.DescriptorTable.pDescriptorRanges = &m_descritorRange[0];
+		}
+
+		{
+			D3D12_DESCRIPTOR_RANGE& range = m_descritorRange.emplace_back();
+
+			range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+			range.NumDescriptors = (uint32)-1;
+			range.BaseShaderRegister = 0;
+			range.RegisterSpace = 100;
+			range.OffsetInDescriptorsFromTableStart = 0;
+
+			D3D12_ROOT_PARAMETER& param = m_parameters.emplace_back();
+
+			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+			param.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+			param.DescriptorTable.NumDescriptorRanges = 1;
+			param.DescriptorTable.pDescriptorRanges = &range;
+		}
+
+		for ( auto& [type, shader] : shaders )
+		{
+			const ShaderParameterInfo& paramInfo = shader->GetParameterInfo();
+			for ( const ShaderParameter& shaderParam : paramInfo.m_srvs )
+			{
+				if ( shaderParam.m_space >= 100 ) // Skip bindless
+				{
+					continue;
+				}
+
+				D3D12_DESCRIPTOR_RANGE& range = m_descritorRange.emplace_back();
+
+				range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+				range.NumDescriptors = 1;
+				range.BaseShaderRegister = shaderParam.m_bindPoint;
+				range.RegisterSpace = shaderParam.m_space;
+				range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+				D3D12_ROOT_PARAMETER& param = m_parameters.emplace_back();
+
+				param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+				param.ShaderVisibility = GetShaderVisibility( type );;
+				param.DescriptorTable.NumDescriptorRanges = 1;
+				param.DescriptorTable.pDescriptorRanges = &range;
+			}
+
+			for ( const ShaderParameter& shaderParam : paramInfo.m_uavs )
+			{
+				D3D12_DESCRIPTOR_RANGE& range = m_descritorRange.emplace_back();
+
+				range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+				range.NumDescriptors = 1;
+				range.BaseShaderRegister = shaderParam.m_bindPoint;
+				range.RegisterSpace = shaderParam.m_space;
+				range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+				D3D12_ROOT_PARAMETER& param = m_parameters.emplace_back();
+
+				param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+				param.ShaderVisibility = GetShaderVisibility( type );;
+				param.DescriptorTable.NumDescriptorRanges = 1;
+				param.DescriptorTable.pDescriptorRanges = &range;
+			}
+
+			for ( const ShaderParameter& shaderParam : paramInfo.m_constantBuffers )
+			{
+				D3D12_DESCRIPTOR_RANGE& range = m_descritorRange.emplace_back();
+
+				range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+				range.NumDescriptors = 1;
+				range.BaseShaderRegister = shaderParam.m_bindPoint;
+				range.RegisterSpace = shaderParam.m_space;
+				range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+				D3D12_ROOT_PARAMETER& param = m_parameters.emplace_back();
+
+				param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+				param.ShaderVisibility = GetShaderVisibility( type );;
+				param.DescriptorTable.NumDescriptorRanges = 1;
+				param.DescriptorTable.pDescriptorRanges = &range;
+			}
+
+			for ( const ShaderParameter& shaderParam : paramInfo.m_samplers )
+			{
+				if ( shaderParam.m_space == 100 ) // Skip bindless
+				{
+					continue;
+				}
+
+				D3D12_DESCRIPTOR_RANGE& range = m_descritorRange.emplace_back();
+
+				range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+				range.NumDescriptors = 1;
+				range.BaseShaderRegister = shaderParam.m_bindPoint;
+				range.RegisterSpace = shaderParam.m_space;
+				range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+				D3D12_ROOT_PARAMETER& param = m_parameters.emplace_back();
+
+				param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+				param.ShaderVisibility = GetShaderVisibility( type );;
+				param.DescriptorTable.NumDescriptorRanges = 1;
+				param.DescriptorTable.pDescriptorRanges = &range;
+			}
+		}
 	}
 }

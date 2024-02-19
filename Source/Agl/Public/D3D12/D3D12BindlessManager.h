@@ -44,7 +44,7 @@ namespace agl
 		D3D12DescriptorHeap& GetHeap();
 		const D3D12DescriptorHeap& GetHeap() const;
 
-		D3D12DescriptorHeap& GetSamperHeap();
+		D3D12DescriptorHeap& GetSamplerHeap();
 		const D3D12DescriptorHeap& GetSamplerHeap() const;
 
 		D3D12BindlessManager();

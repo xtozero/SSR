@@ -30,6 +30,9 @@ namespace rendercore
 		case agl::ShaderParameterType::UAV:
 			singleBinding.AddUAV( parameter, buffer ? buffer->UAV() : nullptr );
 			break;
+		case agl::ShaderParameterType::Bindless:
+			singleBinding.AddBindless( parameter, buffer ? buffer->SRV() : nullptr );
+			break;
 		default:
 			assert( false && "Invalid parameter type" );
 			break;
@@ -54,6 +57,9 @@ namespace rendercore
 		case agl::ShaderParameterType::UAV:
 			singleBinding.AddUAV( parameter, texture ? texture->UAV() : nullptr );
 			break;
+		case agl::ShaderParameterType::Bindless:
+			singleBinding.AddBindless( parameter, texture ? texture->SRV() : nullptr );
+			break;
 		default:
 			assert( false && "Invalid parameter type" );
 			break;
@@ -73,6 +79,8 @@ namespace rendercore
 		switch ( parameter.m_type )
 		{
 		case agl::ShaderParameterType::Sampler:
+			[[fallthrough]];
+		case agl::ShaderParameterType::Bindless:
 			singleBinding.AddSampler( parameter, samplerState.Resource() );
 			break;
 		default:
@@ -104,6 +112,9 @@ namespace rendercore
 			break;
 		case agl::ShaderParameterType::Sampler:
 			singleBinding.AddSampler( parameter, nullptr );
+			break;
+		case agl::ShaderParameterType::Bindless:
+			singleBinding.AddBindless( parameter, nullptr );
 			break;
 		default:
 			assert( false && "Invalid parameter type" );

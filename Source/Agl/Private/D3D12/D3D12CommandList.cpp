@@ -8,6 +8,8 @@
 
 #include "PipelineState.h"
 
+#include "ShaderBindings.h"
+
 using ::Microsoft::WRL::ComPtr;
 
 namespace agl
@@ -135,8 +137,14 @@ namespace agl
 
 	void D3D12CommandListImpl::BindShaderResources( ShaderBindings& shaderBindings )
 	{
-		m_globalConstantBuffers.AddGlobalConstantBuffers( shaderBindings );
-		m_stateCache.BindShaderResources( CommandList(), m_globalDescriptorHeap, shaderBindings );
+		if ( shaderBindings.HasBindless() )
+		{
+			m_stateCache.BindBindlessResources( CommandList(), m_globalConstantBuffers, shaderBindings );
+		}
+		else
+		{
+			m_stateCache.BindShaderResources( CommandList(), m_globalDescriptorHeap, m_globalConstantBuffers, shaderBindings );
+		}
 	}
 
 	void D3D12CommandListImpl::SetShaderValue( const ShaderParameter& parameter, const void* value )

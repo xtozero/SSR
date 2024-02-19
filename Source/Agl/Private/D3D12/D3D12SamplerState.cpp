@@ -36,6 +36,11 @@ namespace
 
 namespace agl
 {
+	int32 D3D12SamplerState::GetBindlessHandle() const
+	{
+		return m_bindlessHandle;
+	}
+
 	const D3D12DescriptorHeap& D3D12SamplerState::Resource() const
 	{
 		return m_samplerState;

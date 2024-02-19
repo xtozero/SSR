@@ -17,6 +17,7 @@ namespace agl
 		std::vector<ShaderParameter> m_srvs;
 		std::vector<ShaderParameter> m_uavs;
 		std::vector<ShaderParameter> m_samplers;
+		std::vector<ShaderParameter> m_bindless;
 
 		size_t GetHash() const
 		{
@@ -43,15 +44,21 @@ namespace agl
 				HashCombine( hash, param.GetHash() );
 			}
 
+			for ( const auto& param : m_bindless )
+			{
+				HashCombine( hash, param.GetHash() );
+			}
+
 			return hash;
 		}
 
 		friend bool operator==( const ShaderParameterInfo& lhs, const ShaderParameterInfo& rhs )
 		{
-			return lhs.m_constantBuffers == rhs.m_constantBuffers &&
-				lhs.m_srvs == rhs.m_srvs &&
-				lhs.m_uavs == rhs.m_uavs &&
-				lhs.m_samplers == rhs.m_samplers;
+			return lhs.m_constantBuffers == rhs.m_constantBuffers 
+				&& lhs.m_srvs == rhs.m_srvs 
+				&& lhs.m_uavs == rhs.m_uavs 
+				&& lhs.m_samplers == rhs.m_samplers 
+				&& lhs.m_bindless == rhs.m_bindless;
 		}
 
 		friend Archive& operator<<( Archive& ar, ShaderParameterInfo& shaderParamInfo )
@@ -60,6 +67,7 @@ namespace agl
 			ar << shaderParamInfo.m_srvs;
 			ar << shaderParamInfo.m_uavs;
 			ar << shaderParamInfo.m_samplers;
+			ar << shaderParamInfo.m_bindless;
 
 			return ar;
 		}
@@ -97,6 +105,10 @@ namespace agl
 			else if ( curParameterType == ShaderParameterType::Sampler )
 			{
 				shaderParameters = &parameterInfo.m_samplers;
+			}
+			else if ( curParameterType == ShaderParameterType::Bindless )
+			{
+				shaderParameters = &parameterInfo.m_bindless;
 			}
 			else
 			{

@@ -5,6 +5,42 @@
 #include "SizedTypes.h"
 #include "TaskScheduler.h"
 
+using ::rendercore::GraphicsPipelineState;
+using ::rendercore::ShaderBase;
+
+namespace
+{
+	const ShaderBase* GetShader( const GraphicsPipelineState& pipelineState, agl::ShaderType type )
+	{
+		switch ( type )
+		{
+		case agl::ShaderType::None:
+			break;
+		case agl::ShaderType::VS:
+			return pipelineState.m_shaderState.m_vertexShader;
+			break;
+		case agl::ShaderType::HS:
+			break;
+		case agl::ShaderType::DS:
+			break;
+		case agl::ShaderType::GS:
+			return pipelineState.m_shaderState.m_geometryShader;
+			break;
+		case agl::ShaderType::PS:
+			return pipelineState.m_shaderState.m_pixelShader;
+			break;
+		case agl::ShaderType::CS:
+			break;
+		case agl::ShaderType::Count:
+			[[fallthrough]];
+		default:
+			break;
+		}
+
+		return nullptr;
+	}
+}
+
 namespace rendercore
 {
 	const VertexShader* MaterialResource::GetVertexShader( const StaticShaderSwitches* switches ) const
@@ -127,7 +163,7 @@ namespace rendercore
 		auto shaderTypes = { agl::ShaderType::VS, agl::ShaderType::GS, agl::ShaderType::PS };
 		for ( auto shaderType : shaderTypes )
 		{
-			auto shader = GetShader( shaderType );
+			auto shader = ::GetShader( snapShot.m_pipelineState, shaderType );
 			if ( shader == nullptr )
 			{
 				continue;
@@ -140,8 +176,8 @@ namespace rendercore
 			{
 				const auto& [name, param] = pair;
 
-				if ( param.m_type == agl::ShaderParameterType::SRV ||
-					param.m_type == agl::ShaderParameterType::UAV )
+				if ( param.m_type == agl::ShaderParameterType::SRV 
+					|| param.m_type == agl::ShaderParameterType::UAV )
 				{
 					auto texture = material->AsTexture( name.Str().data() );
 					if ( texture == nullptr )
@@ -167,6 +203,20 @@ namespace rendercore
 					{
 						auto sampler = graphicsInterface.FindOrCreate( *samplerOption );
 						binding.AddSampler( param, sampler.Resource() );
+					}
+				}
+				else if ( param.m_type == agl::ShaderParameterType::Bindless )
+				{
+					if ( auto samplerOption = material->AsSampelrOption( name.Str().data() ) )
+					{
+						auto sampler = graphicsInterface.FindOrCreate( *samplerOption );
+						binding.AddBindless( param, sampler.Resource() );
+					}
+					else if ( auto texture = material->AsTexture( name.Str().data() ) )
+					{
+						agl::Texture* resource = texture->Resource();
+						auto srv = resource ? resource->SRV() : nullptr;
+						binding.AddBindless( param, srv );
 					}
 				}
 			}

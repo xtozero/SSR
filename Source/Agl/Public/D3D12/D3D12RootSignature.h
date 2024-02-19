@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GraphicsApiResource.h"
+#include "Memory/InlineMemoryAllocator.h"
 #include "SizedTypes.h"
 
 #include <d3d12.h>
@@ -9,6 +10,7 @@ namespace agl
 {
 	class ComputePipelineStateInitializer;
 	class GraphicsPipelineStateInitializer;
+	class ShaderBase;
 	class ShaderParameterInfo;
 
 	class ResourceStatistics
@@ -103,6 +105,9 @@ namespace agl
 		void InitializeUAV( ShaderType shaderType, const ShaderParameterInfo& paramInfo );
 		void InitializeCB( ShaderType shaderType, const ShaderParameterInfo& paramInfo );
 		void InitializeSampler( ShaderType shaderType, const ShaderParameterInfo& paramInfo );
+
+		using InlineShaderArray = std::vector<std::pair<ShaderType, ShaderBase*>, InlineAllocator<std::pair<ShaderType, ShaderBase*>, MAX_SHADER_TYPE<uint32>>>;
+		void InitializeForBindless( InlineShaderArray& shaders );
 
 		ID3D12RootSignature* m_rootSignature = nullptr;
 		D3D12_ROOT_SIGNATURE_DESC m_desc = {};

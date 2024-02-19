@@ -12,6 +12,7 @@ namespace agl
 		ar << shaderParam.m_shader
 			<< shaderParam.m_type
 			<< shaderParam.m_bindPoint
+			<< shaderParam.m_space
 			<< shaderParam.m_offset
 			<< shaderParam.m_sizeInByte;
 
@@ -26,6 +27,7 @@ namespace agl
 		HashCombine( hash, m_shader );
 		HashCombine( hash, m_type );
 		HashCombine( hash, m_bindPoint );
+		HashCombine( hash, m_space );
 		HashCombine( hash, m_offset );
 		HashCombine( hash, m_sizeInByte );
 
@@ -37,10 +39,11 @@ namespace agl
 		( *this ) = parameterMap.GetParameter( variableName );
 	}
 
-	ShaderParameter::ShaderParameter( ShaderType shader, ShaderParameterType type, uint32 bindPoint, uint32 offset, uint32 sizeInByte )
+	ShaderParameter::ShaderParameter( ShaderType shader, ShaderParameterType type, uint32 bindPoint, uint32 space, uint32 offset, uint32 sizeInByte )
 		: m_shader( shader )
 		, m_type( type )
 		, m_bindPoint( bindPoint )
+		, m_space( space )
 		, m_offset( offset )
 		, m_sizeInByte( sizeInByte )
 	{}

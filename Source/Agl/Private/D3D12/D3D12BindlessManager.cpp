@@ -97,7 +97,7 @@ namespace agl
 		return m_descriptorHeap.GetHeap();
 	}
 
-	D3D12DescriptorHeap& D3D12BindlessManager::GetSamperHeap()
+	D3D12DescriptorHeap& D3D12BindlessManager::GetSamplerHeap()
 	{
 		return m_samplerDescriptorHeap.GetHeap();
 	}

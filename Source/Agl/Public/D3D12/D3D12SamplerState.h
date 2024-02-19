@@ -11,6 +11,8 @@ namespace agl
 	class D3D12SamplerState final : public SamplerState
 	{
 	public:
+		virtual int32 GetBindlessHandle() const override;
+
 		const D3D12DescriptorHeap& Resource() const;
 
 		D3D12SamplerState( const SamplerStateTrait& trait );

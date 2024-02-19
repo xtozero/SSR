@@ -422,14 +422,35 @@ namespace
 		return { byteCode, errorMsg };
 	}
 
+	bool HasExplicitSpace( const char* s )
+	{
+		if ( strnicmp( s, "register", std::strlen( "register" ) ) != 0 )
+		{
+			return false;
+		}
+
+		// find first (
+		const char* openBracket = std::strstr( s, "(" );
+
+		// find first )
+		const char* closeBracket = std::strstr( s, ")" );
+
+		std::string_view args( openBracket, closeBracket + 1 );
+
+		return args.find( "space" ) != std::string::npos;
+	}
+
 	void ModifyShaderFileForD2D12( std::string& shaderFile, agl::ShaderType shaderType )
 	{
 		// Replace register( -> Register(
 		char* pos = std::strstr( shaderFile.data(), "register(" );
 		while ( pos != nullptr )
 		{
-			*pos = 'R';
-			pos = std::strstr( pos, "register(" );
+			if ( HasExplicitSpace( pos ) == false )
+			{
+				*pos = 'R';
+			}
+			pos = std::strstr( pos + 1, "register(" );
 		}
 
 		/* Sample

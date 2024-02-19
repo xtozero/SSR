@@ -13,6 +13,7 @@ namespace agl
 	public:
 		static AglType GetType();
 		AGL_DLL static uint32 GetBufferCount();
+		AGL_DLL static bool IsSupportsBindless();
 		
 	private:
 		PROPERTY( type )
@@ -20,5 +21,8 @@ namespace agl
 
 		PROPERTY( bufferCount )
 		uint32 m_bufferCount = 1;
+
+		PROPERTY( useBindless )
+		bool m_useBindless = false;
 	};
 }

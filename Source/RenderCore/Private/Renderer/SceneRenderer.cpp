@@ -91,6 +91,9 @@ namespace rendercore
 				case agl::ShaderParameterType::Sampler:
 					singleBinding.AddSampler( parameter, reinterpret_cast<agl::SamplerState*>( m_resources[i] ) );
 					break;
+				case agl::ShaderParameterType::Bindless:
+					singleBinding.AddBindless( parameter, m_resources[i] );
+					break;
 				default:
 					break;
 				}

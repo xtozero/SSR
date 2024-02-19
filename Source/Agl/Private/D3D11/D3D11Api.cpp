@@ -110,7 +110,7 @@ namespace agl
 						D3D11_SHADER_VARIABLE_DESC shaderVarDesc;
 						variableReflection->GetDesc( &shaderVarDesc );
 
-						parameterMap.AddParameter( shaderVarDesc.Name, shaderType, ShaderParameterType::ConstantBufferValue, bindDesc.BindPoint, shaderVarDesc.StartOffset, shaderVarDesc.Size );
+						parameterMap.AddParameter( shaderVarDesc.Name, shaderType, ShaderParameterType::ConstantBufferValue, bindDesc.BindPoint, 0, shaderVarDesc.StartOffset, shaderVarDesc.Size );
 					}
 				}
 			}
@@ -137,7 +137,7 @@ namespace agl
 				assert( false && "Unexpected case" );
 			}
 
-			parameterMap.AddParameter( bindDesc.Name, shaderType, parameterType, bindDesc.BindPoint, 0, parameterSize );
+			parameterMap.AddParameter( bindDesc.Name, shaderType, parameterType, bindDesc.BindPoint, 0, 0, parameterSize );
 		}
 	}
 

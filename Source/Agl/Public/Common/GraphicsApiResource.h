@@ -87,6 +87,11 @@ namespace agl
 			return m_isTexture;
 		}
 
+		virtual int32 GetBindlessHandle() const
+		{
+			return -1;
+		}
+
 	protected:
 		bool m_isBuffer = false;
 		bool m_isTexture = false;

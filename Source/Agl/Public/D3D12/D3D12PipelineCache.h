@@ -17,6 +17,7 @@ namespace agl
 	class ComputePipelineState;
 	class D3D12GlobalDescriptorHeap;
 	class DepthStencilView;
+	class GlobalConstantBuffers;
 	class GraphicsPipelineState;
 	class RenderTargetView;
 	class ShaderBindings;
@@ -34,7 +35,8 @@ namespace agl
 		void BindPipelineState( ID3D12GraphicsCommandList6& commandList, GraphicsPipelineState* pipelineState );
 		void BindPipelineState( ID3D12GraphicsCommandList6& commandList, ComputePipelineState* pipelineState );
 
-		void BindShaderResources( ID3D12GraphicsCommandList6& commandList, D3D12GlobalDescriptorHeap& descriptorHeap, ShaderBindings& shaderBindings );
+		void BindBindlessResources( ID3D12GraphicsCommandList6& commandList, GlobalConstantBuffers& globalConstantBuffers, ShaderBindings& shaderBindings );
+		void BindShaderResources( ID3D12GraphicsCommandList6& commandList, D3D12GlobalDescriptorHeap& descriptorHeap, GlobalConstantBuffers& globalConstantBuffers, ShaderBindings& shaderBindings );
 
 		void SetViewports( ID3D12GraphicsCommandList6& commandList, uint32 count, const CubeArea<float>* area );
 		void SetScissorRects( ID3D12GraphicsCommandList6& commandList, uint32 count, const RectangleArea<int32>* area );
@@ -49,6 +51,7 @@ namespace agl
 
 	private:
 		void RegisterRenderResource( GraphicsApiResource* resource );
+		void RegisterRenderResource( IUnknown* resource );
 
 		D3D12_VERTEX_BUFFER_VIEW m_vertexBufferViews[D3D12_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
 		uint32 m_numVertexBufferViews = 0;
@@ -71,5 +74,7 @@ namespace agl
 
 		TypedStackAllocator<AllocatedResourceInfo> m_allocatedInfoAllocator;
 		std::vector<AllocatedResourceInfo, TypedStackAllocator<AllocatedResourceInfo>> m_allocatedInfos;
+
+		std::vector<Microsoft::WRL::ComPtr<IUnknown>, TypedStackAllocator<Microsoft::WRL::ComPtr<IUnknown>>> m_residentResource;
 	};
 }

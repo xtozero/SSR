@@ -23,7 +23,7 @@ namespace agl
 	public:
 		size_t GetDataSize() const
 		{
-			return ( m_parameterInfo->m_constantBuffers.size() + m_parameterInfo->m_srvs.size() + m_parameterInfo->m_uavs.size() + m_parameterInfo->m_samplers.size() ) * sizeof( RefHandle<GraphicsApiResource> );
+			return ( m_parameterInfo->m_constantBuffers.size() + m_parameterInfo->m_srvs.size() + m_parameterInfo->m_uavs.size() + m_parameterInfo->m_samplers.size() + m_parameterInfo->m_bindless.size() ) * sizeof( RefHandle<GraphicsApiResource> );
 		}
 
 		const ShaderParameterInfo& ParameterInfo() const
@@ -65,6 +65,11 @@ namespace agl
 		uint32 NumSampler() const
 		{
 			return static_cast<uint32>( m_parameterInfo->m_samplers.size() );
+		}
+
+		uint32 NumBindless() const
+		{
+			return static_cast<uint32>( m_parameterInfo->m_bindless.size() );
 		}
 
 		ShaderBindingLayout() = default;
@@ -131,6 +136,11 @@ namespace agl
 			return GetUAVOffset() + m_parameterInfo->m_uavs.size() * sizeof( RefHandle<GraphicsApiResource> );
 		}
 
+		size_t GetBindlessOffset() const
+		{
+			return GetSamplerOffset() + m_parameterInfo->m_samplers.size() * sizeof( RefHandle<GraphicsApiResource> );
+		}
+
 		ShaderType m_shaderType = ShaderType::None;
 		const ShaderParameterInfo* m_parameterInfo = nullptr;
 	};
@@ -152,6 +162,7 @@ namespace agl
 				if ( m_parameterInfo->m_constantBuffers[i].m_bindPoint == param.m_bindPoint )
 				{
 					foundSlot = static_cast<uint32>( i );
+					break;
 				}
 			}
 
@@ -175,6 +186,7 @@ namespace agl
 				if ( m_parameterInfo->m_srvs[i].m_bindPoint == param.m_bindPoint )
 				{
 					foundSlot = static_cast<uint32>( i );
+					break;
 				}
 			}
 
@@ -198,6 +210,7 @@ namespace agl
 				if ( m_parameterInfo->m_uavs[i].m_bindPoint == param.m_bindPoint )
 				{
 					foundSlot = static_cast<uint32>( i );
+					break;
 				}
 			}
 
@@ -221,12 +234,39 @@ namespace agl
 				if ( m_parameterInfo->m_samplers[i].m_bindPoint == param.m_bindPoint )
 				{
 					foundSlot = static_cast<uint32>( i );
+					break;
 				}
 			}
 
 			if ( foundSlot )
 			{
 				GetSamplerStart()[*foundSlot] = sampler;
+			}
+		}
+
+		void AddBindless( const ShaderParameter& param, GraphicsApiResource* resource )
+		{
+			if ( param.m_shader != m_shaderType )
+			{
+				return;
+			}
+
+			std::optional<uint32> foundSlot;
+			for ( size_t i = 0; i < m_parameterInfo->m_samplers.size(); ++i )
+			{
+				if ( ( m_parameterInfo->m_bindless[i].m_bindPoint != param.m_bindPoint )
+					|| ( m_parameterInfo->m_bindless[i].m_offset != param.m_offset )
+					|| ( m_parameterInfo->m_bindless[i].m_sizeInByte != param.m_sizeInByte ) )
+				{
+					continue;
+				}
+
+				foundSlot = static_cast<uint32>( i );
+			}
+
+			if ( foundSlot )
+			{
+				GetBindlessStart()[*foundSlot] = resource;
 			}
 		}
 
@@ -248,6 +288,11 @@ namespace agl
 		RefHandle<SamplerState>* GetSamplerStart() const
 		{
 			return reinterpret_cast<RefHandle<SamplerState>*>( m_data + GetSamplerOffset() );
+		}
+
+		RefHandle<GraphicsApiResource>* GetBindlessStart() const
+		{
+			return reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + GetBindlessOffset() );
 		}
 
 		SingleShaderBindings( const ShaderBindingLayout& bindingLayout, unsigned char* data ) : ShaderBindingLayout( bindingLayout ), m_data( data ) {}
@@ -308,6 +353,7 @@ namespace agl
 					m_numSRV += static_cast<uint32>( initializer[shaderType]->m_srvs.size() );
 					m_numUAV += static_cast<uint32>( initializer[shaderType]->m_uavs.size() );
 					m_numSampler += static_cast<uint32>( initializer[shaderType]->m_samplers.size() );
+					m_numBindless += static_cast<uint32>( initializer[shaderType]->m_bindless.size() );
 				}
 			}
 
@@ -339,6 +385,11 @@ namespace agl
 			return m_bCompute;
 		}
 
+		bool HasBindless() const
+		{
+			return m_numBindless > 0;
+		}
+
 		ShaderBindings() = default;
 		ShaderBindings( const ShaderBindings& other )
 		{
@@ -356,6 +407,7 @@ namespace agl
 				m_numUAV = other.m_numUAV;
 				m_numCBV = other.m_numCBV;
 				m_numSampler = other.m_numSampler;
+				m_numBindless = other.m_numBindless;
 				std::copy_n( other.m_shaderLayouts, m_shaderLayoutSize, m_shaderLayouts );
 				Allocate( other.m_size );
 
@@ -389,6 +441,7 @@ namespace agl
 				m_numUAV = other.m_numUAV;
 				m_numCBV = other.m_numCBV;
 				m_numSampler = other.m_numSampler;
+				m_numBindless = other.m_numBindless;
 				m_data = other.m_data;
 				m_size = other.m_size;
 				m_bCompute = other.m_bCompute;
@@ -399,6 +452,7 @@ namespace agl
 				other.m_numUAV = 0;
 				other.m_numCBV = 0;
 				other.m_numSampler = 0;
+				other.m_numBindless = 0;
 				other.m_data = nullptr;
 				other.m_size = 0;
 				other.m_bCompute = false;
@@ -420,6 +474,7 @@ namespace agl
 				|| ( m_numUAV != other.m_numUAV )
 				|| ( m_numCBV != other.m_numCBV )
 				|| ( m_numSampler != other.m_numSampler )
+				|| ( m_numBindless != other.m_numBindless )
 				|| ( m_bCompute != other.m_bCompute ) )
 			{
 				return false;
@@ -494,6 +549,7 @@ namespace agl
 			m_numUAV = 0;
 			m_numCBV = 0;
 			m_numSampler = 0;
+			m_numBindless = 0;
 
 			delete[] m_data;
 			m_data = nullptr;
@@ -509,6 +565,7 @@ namespace agl
 		uint32 m_numUAV = 0;
 		uint32 m_numCBV = 0;
 		uint32 m_numSampler = 0;
+		uint32 m_numBindless = 0;
 
 		unsigned char* m_data = nullptr;
 		size_t m_size = 0;

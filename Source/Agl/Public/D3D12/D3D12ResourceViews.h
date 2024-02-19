@@ -113,6 +113,8 @@ namespace agl
 		using BaseClass::BaseClass;
 		using BaseClass::operator=;
 
+		virtual int32 GetBindlessHandle() const override;
+
 	protected:
 		virtual void InitResource() override;
 		virtual void FreeResource() override;
@@ -129,8 +131,14 @@ namespace agl
 		using BaseClass::BaseClass;
 		using BaseClass::operator=;
 
+		virtual int32 GetBindlessHandle() const override;
+
 	protected:
 		virtual void InitResource() override;
+		virtual void FreeResource() override;
+
+	private:
+		int32 m_bindlessHandle = NullBindlessHandle;
 	};
 
 	class D3D12RenderTargetView final : public D3D12ViewBase<RenderTargetView, D3D12_RENDER_TARGET_VIEW_DESC>
@@ -165,7 +173,13 @@ namespace agl
 		using BaseClass::BaseClass;
 		using BaseClass::operator=;
 
+		virtual int32 GetBindlessHandle() const override;
+
 	protected:
 		virtual void InitResource() override;
+		virtual void FreeResource() override;
+
+	private:
+		int32 m_bindlessHandle = NullBindlessHandle;
 	};
 }

@@ -5,6 +5,11 @@
 
 namespace agl
 {
+	int32 D3D12ShaderResourceView::GetBindlessHandle() const
+	{
+		return m_bindlessHandle;
+	}
+
 	void D3D12ShaderResourceView::InitResource()
 	{
 		m_descriptorHeap = D3D12DescriptorHeapAllocator::GetInstance().AllocCpuDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1 );
@@ -20,10 +25,24 @@ namespace agl
 		D3D12BindlessMgr().RemoveDescriptor( m_bindlessHandle );
 	}
 
+	int32 D3D12UnorderedAccessView::GetBindlessHandle() const
+	{
+		return m_bindlessHandle;
+	}
+
 	void D3D12UnorderedAccessView::InitResource()
 	{
 		m_descriptorHeap = D3D12DescriptorHeapAllocator::GetInstance().AllocCpuDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1 );
 		D3D12Device().CreateUnorderedAccessView( m_d3d12Resource, nullptr, &m_desc, m_descriptorHeap.GetCpuHandle().At() );
+
+		m_bindlessHandle = D3D12BindlessMgr().AddDescriptor( m_descriptorHeap.GetCpuHandle() );
+	}
+
+	void D3D12UnorderedAccessView::FreeResource()
+	{
+		BaseClass::FreeResource();
+
+		D3D12BindlessMgr().RemoveDescriptor( m_bindlessHandle );
 	}
 
 	void D3D12RenderTargetView::InitResource()
@@ -38,9 +57,23 @@ namespace agl
 		D3D12Device().CreateDepthStencilView( m_d3d12Resource, &m_desc, m_descriptorHeap.GetCpuHandle().At() );
 	}
 
+	int32 D3D12ConstantBufferView::GetBindlessHandle() const
+	{
+		return m_bindlessHandle;
+	}
+
 	void D3D12ConstantBufferView::InitResource()
 	{
 		m_descriptorHeap = D3D12DescriptorHeapAllocator::GetInstance().AllocCpuDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1 );
 		D3D12Device().CreateConstantBufferView( &m_desc, m_descriptorHeap.GetCpuHandle().At() );
+
+		m_bindlessHandle = D3D12BindlessMgr().AddDescriptor( m_descriptorHeap.GetCpuHandle() );
+	}
+
+	void D3D12ConstantBufferView::FreeResource()
+	{
+		BaseClass::FreeResource();
+
+		D3D12BindlessMgr().RemoveDescriptor( m_bindlessHandle );
 	}
 }

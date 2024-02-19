@@ -102,13 +102,16 @@ namespace agl
 
 					parameterSize = shaderBuffDesc.Size;
 
+					bool isBindlessParam = std::strcmp( bindDesc.Name, "BindlessIndices" ) == 0;
+					ShaderParameterType paramType = isBindlessParam ? ShaderParameterType::Bindless : ShaderParameterType::ConstantBufferValue;
+
 					for ( uint32 j = 0; j < shaderBuffDesc.Variables; ++j )
 					{
 						ID3D12ShaderReflectionVariable* variableReflection = constBufferReflection->GetVariableByIndex( j );
 						D3D12_SHADER_VARIABLE_DESC shaderVarDesc;
 						variableReflection->GetDesc( &shaderVarDesc );
 
-						parameterMap.AddParameter( shaderVarDesc.Name, shaderType, ShaderParameterType::ConstantBufferValue, bindDesc.BindPoint, shaderVarDesc.StartOffset, shaderVarDesc.Size );
+						parameterMap.AddParameter( shaderVarDesc.Name, shaderType, paramType, bindDesc.BindPoint, bindDesc.Space, shaderVarDesc.StartOffset, shaderVarDesc.Size );
 					}
 				}
 			}
@@ -135,7 +138,7 @@ namespace agl
 				assert( false && "Unexpected case" );
 			}
 
-			parameterMap.AddParameter( bindDesc.Name, shaderType, parameterType, bindDesc.BindPoint, 0, parameterSize );
+			parameterMap.AddParameter( bindDesc.Name, shaderType, parameterType, bindDesc.BindPoint, bindDesc.Space, 0, parameterSize );
 		}
 	}
 
@@ -205,6 +208,7 @@ namespace agl
 		ComPtr<IDxcContainerReflection> m_reflection;
 
 		bool m_raytracingAvailable = false;
+		D3D12_FEATURE_DATA_SHADER_MODEL m_shaderModel = {};
 
 		uint32 m_frameIndex = 0;
 
@@ -583,6 +587,29 @@ namespace agl
 
 		m_raytracingAvailable = ( featureOption5.RaytracingTier != D3D12_RAYTRACING_TIER_NOT_SUPPORTED );
 
+		D3D_SHADER_MODEL allModelVersions[] = {
+			D3D_SHADER_MODEL_6_7,
+			D3D_SHADER_MODEL_6_6,
+			D3D_SHADER_MODEL_6_5,
+			D3D_SHADER_MODEL_6_4,
+			D3D_SHADER_MODEL_6_3,
+			D3D_SHADER_MODEL_6_2,
+			D3D_SHADER_MODEL_6_1,
+			D3D_SHADER_MODEL_6_0,
+			D3D_SHADER_MODEL_5_1
+		};
+
+		for ( D3D_SHADER_MODEL shaderModel : allModelVersions )
+		{
+			m_shaderModel.HighestShaderModel = shaderModel;
+			hr = m_device->CheckFeatureSupport( D3D12_FEATURE_SHADER_MODEL, &m_shaderModel, sizeof( m_shaderModel ) );
+
+			if ( FAILED( hr ) == false )
+			{
+				break;
+			}
+		}
+
 		D3D12_COMMAND_QUEUE_DESC desc = {
 			.Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
 			.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
@@ -667,19 +694,63 @@ namespace agl
 	{
 		if ( std::strncmp( profile, "vs", 2 ) == 0 )
 		{
-			return m_raytracingAvailable ? L"vs_6_6" : L"vs_6_5";
+			switch ( m_shaderModel.HighestShaderModel )
+			{
+			case D3D_SHADER_MODEL_6_5:
+				return L"vs_6_5";
+				break;
+			case D3D_SHADER_MODEL_6_6:
+				return L"vs_6_6";
+				break;
+			case D3D_SHADER_MODEL_6_7:
+				return L"vs_6_7";
+				break;
+			}
 		}
 		else if ( std::strncmp( profile, "gs", 2 ) == 0 )
 		{
-			return m_raytracingAvailable ? L"gs_6_6" : L"gs_6_5";
+			switch ( m_shaderModel.HighestShaderModel )
+			{
+			case D3D_SHADER_MODEL_6_5:
+				return L"gs_6_5";
+				break;
+			case D3D_SHADER_MODEL_6_6:
+				return L"gs_6_6";
+				break;
+			case D3D_SHADER_MODEL_6_7:
+				return L"gs_6_7";
+				break;
+			}
 		}
 		else if ( std::strncmp( profile, "ps", 2 ) == 0 )
 		{
-			return m_raytracingAvailable ? L"ps_6_6" : L"ps_6_5";
+			switch ( m_shaderModel.HighestShaderModel )
+			{
+			case D3D_SHADER_MODEL_6_5:
+				return L"ps_6_5";
+				break;
+			case D3D_SHADER_MODEL_6_6:
+				return L"ps_6_6";
+				break;
+			case D3D_SHADER_MODEL_6_7:
+				return L"ps_6_7";
+				break;
+			}
 		}
 		else if ( std::strncmp( profile, "cs", 2 ) == 0 )
 		{
-			return m_raytracingAvailable ? L"cs_6_6" : L"cs_6_5";
+			switch ( m_shaderModel.HighestShaderModel )
+			{
+			case D3D_SHADER_MODEL_6_5:
+				return L"cs_6_5";
+				break;
+			case D3D_SHADER_MODEL_6_6:
+				return L"cs_6_6";
+				break;
+			case D3D_SHADER_MODEL_6_7:
+				return L"cs_6_7";
+				break;
+			}
 		}
 
 		assert( false && "Invalid shader profile" );
