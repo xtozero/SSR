@@ -8,22 +8,28 @@ set (MANUFACTURER
 	Public/JsonManufacturer.h
 	Public/ManufactureConfig.h
 	Public/ShaderManufacturer.h
-	Public/ShaderFileMerger.h
 	Public/WavefrontObjManufacturer.h
 	Public/WavefrontObjParser.hpp
 	Private/AssetManufacturer.cpp
 	Private/TextureManufacturer.cpp
 	Private/JsonManufacturer.cpp
 	Private/ShaderManufacturer.cpp
-	Private/ShaderFileMerger.cpp
 	Private/WavefrontObjManufacturer.cpp
+)
+
+set (SHADER
+	Public/ShaderFileMerger.h
+	Public/ShaderTool.h
+	Private/ShaderFileMerger.cpp
+	Private/ShaderTool.cpp
 )
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 add_executable(AssetManufacture		${ENTRY_POINT}
-									${MANUFACTURER})
+									${MANUFACTURER}
+									${SHADER})
 
 target_include_directories(AssetManufacture
 PRIVATE

@@ -3,6 +3,7 @@
 #include "../D3D11/D3D11Shaders.h"
 #include "ManufactureConfig.h"
 #include "ShaderFileMerger.h"
+#include "ShaderTool.h"
 #include "StaticShaderSwitch.h"
 #include "TextTokenaizer.h"
 #include "UberShader.h"
@@ -486,6 +487,9 @@ std::optional<Products> ShaderManufacturer::Manufacture( const PathEnvironment& 
 	if ( merged )
 	{
 		std::string shaderFile = std::move( merged.value() );
+
+		ShaderTool shaderTool;
+		shaderFile = std::move( shaderTool.Process( shaderFile ) );
 
 		agl::ShaderType shaderType = GetShaderType( path.filename() );
 		ModifyShaderFileForD2D12( shaderFile, shaderType );

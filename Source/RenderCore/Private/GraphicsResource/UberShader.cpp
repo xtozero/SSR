@@ -33,6 +33,7 @@ namespace rendercore
 	ShaderBase* UberShader::CompileShader( const StaticShaderSwitches& switches )
 	{
 /*
+* FIX ME
 #ifdef _DEBUG
 		if ( m_validVariation.find( switches.GetID() ) == std::end( m_validVariation ) )
 		{
