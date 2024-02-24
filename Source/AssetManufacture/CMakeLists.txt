@@ -17,7 +17,7 @@ set (MANUFACTURER
 	Private/WavefrontObjManufacturer.cpp
 )
 
-set (SHADER
+set (SHADER_TOOL
 	Public/ShaderFileMerger.h
 	Public/ShaderTool.h
 	Private/ShaderFileMerger.cpp
@@ -29,7 +29,7 @@ link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 add_executable(AssetManufacture		${ENTRY_POINT}
 									${MANUFACTURER}
-									${SHADER})
+									${SHADER_TOOL})
 
 target_include_directories(AssetManufacture
 PRIVATE

@@ -23,13 +23,19 @@ private:
 template <typename T>
 T* GetInterface( )
 {
+	static T* globalInterface = nullptr;
+	if ( globalInterface )
+	{
+		return globalInterface;
+	}
+
 	FactoryFunctionType factoryFunc = InterfaceFactories::Get( ).GetFactoryFunction( typeid( T ) );
 	if ( factoryFunc )
 	{
-		return static_cast<T*>( factoryFunc( ) );
+		globalInterface = static_cast<T*>( factoryFunc() );
 	}
 
-	return nullptr;
+	return globalInterface;
 }
 
 template <typename T>
@@ -47,6 +53,12 @@ void UnregisterFactory( )
 template <typename T>
 T* GetInterface( )
 {
+	static T* globalInterface = nullptr;
+	if ( globalInterface )
+	{
+		return globalInterface;
+	}
+
 	HMODULE hEngineModule = GetModuleHandleA( "Engine.dll" );
 	if ( hEngineModule == nullptr )
 	{
@@ -60,7 +72,8 @@ T* GetInterface( )
 		assert( "Engine module must have GetInterface function!" && false );
 	}
 
-	return static_cast<T*>( getInterface( typeid( T ) ) );
+	globalInterface = static_cast<T*>( getInterface( typeid( T ) ) );
+	return globalInterface;
 }
 
 template <typename T>

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SizedTypes.h"
+#include "TextTokenaizer.h"
 
 #include <cctype>
 #include <fstream>
@@ -52,138 +53,6 @@ namespace Wavefront
 		std::vector<Vec3> m_texcoord;
 	};
 
-	class ParserBase
-	{
-	protected:
-		void Parse( const char* contents, size_t length )
-		{
-			m_begin = contents;
-			m_end = contents + length;
-			m_current = contents;
-		}
-
-		bool CanRead()
-		{
-			return m_current < m_end;
-		}
-
-		void SkipBlank()
-		{
-			while ( CanRead() )
-			{
-				char c = *m_current;
-				if ( c == ' ' || c == '\t' )
-				{
-					++m_current;
-				}
-				else
-				{
-					break;
-				}
-			}
-		}
-
-		void SkipWhiteSpace()
-		{
-			while ( CanRead() )
-			{
-				char c = *m_current;
-				if ( c == ' ' || c == '\t' || c == '\n' || c == '\r' )
-				{
-					++m_current;
-				}
-				else
-				{
-					break;
-				}
-			}
-		}
-
-		void SkipLine()
-		{
-			while ( CanRead() )
-			{
-				char c = *m_current;
-				if ( c == '\n' )
-				{
-					break;
-				}
-				else
-				{
-					++m_current;
-				}
-			}
-		}
-
-		bool IsLineEnd()
-		{
-			char c = *m_current;
-			return c == '\n' || c == '\r';
-		}
-
-		char GetNextChar()
-		{
-			return CanRead() ? *m_current++ : 0;
-		}
-
-		char PeekNextChar()
-		{
-			return CanRead() ? *m_current : 0;
-		}
-
-		bool MatchNextString( const char* str, size_t length )
-		{
-			if ( ( m_current > m_end ) || ( static_cast<size_t>( m_end - m_current ) < length ) )
-			{
-				return false;
-			}
-
-			if ( std::strncmp( m_current, str, length ) )
-			{
-				return false;
-			}
-
-			m_current += length;
-			return true;
-		}
-
-		std::string ReadWord()
-		{
-			const char* begin = m_current;
-
-			while ( CanRead() )
-			{
-				char c = *m_current;
-				if ( c != ' ' && c != '\t' && c != '\n' && c != '\r' )
-				{
-					++m_current;
-				}
-				else
-				{
-					break;
-				}
-			}
-
-			return std::string( begin, m_current );
-		}
-
-		float ReadFloat()
-		{
-			SkipWhiteSpace();
-			return static_cast<float>( std::atof( ReadWord().c_str() ) );
-		}
-
-		int32 ReadInt()
-		{
-			SkipWhiteSpace();
-			return std::atoi( ReadWord().c_str() );
-		}
-
-		const char* m_begin = nullptr;
-		const char* m_end = nullptr;
-		const char* m_current = nullptr;
-	};
-
 	struct ObjMaterial
 	{
 		std::optional<Color> m_ambient;
@@ -209,7 +78,7 @@ namespace Wavefront
 		std::map<std::string, ObjMaterial> m_materials;
 	};
 
-	class ObjMtlParser final : public ParserBase
+	class ObjMtlParser final : public TextTokenaizer
 	{
 	public:
 		bool Parse( std::filesystem::path filePath, ObjMaterialLibrary& mtl )
@@ -239,7 +108,7 @@ namespace Wavefront
 
 		bool Parse( const char* contents, size_t length, ObjMaterialLibrary& mtl )
 		{
-			ParserBase::Parse( contents, length );
+			TextTokenaizer::Parse( contents, length );
 			return ParseMtl( mtl );
 		}
 
@@ -247,7 +116,7 @@ namespace Wavefront
 		void CreateMaterial( ObjMaterialLibrary& mtl )
 		{
 			SkipWhiteSpace();
-			std::string name = ReadWord();
+			std::string_view name = ReadWord();
 			auto result = mtl.m_materials.emplace( name, ObjMaterial() );
 			m_curMaterial = &result.first->second;
 		}
@@ -255,7 +124,7 @@ namespace Wavefront
 		void ReadRGB( Vec3& rgb )
 		{
 			SkipWhiteSpace();
-			std::string word = ReadWord();
+			auto word = std::string( ReadWord() );
 			float r = static_cast<float>( atof( word.c_str() ) );
 
 			float g = r;
@@ -314,7 +183,7 @@ namespace Wavefront
 
 			Token token;
 			token.m_type = TokenType::Error;
-			token.m_begin = m_current;
+			token.m_begin = Tell();
 
 			switch ( GetNextChar() )
 			{
@@ -405,7 +274,7 @@ namespace Wavefront
 				break;
 			}
 
-			token.m_end = m_current;
+			token.m_end = Tell();
 			return token;
 		}
 
@@ -458,13 +327,13 @@ namespace Wavefront
 				}
 				break;
 				case TokenType::SpecularExponent:
-					m_curMaterial->m_specularExponent = ReadFloat();
+					m_curMaterial->m_specularExponent = ReadNumber<float>();
 					break;
 				case TokenType::IndexOfRefraction:
-					m_curMaterial->m_ior = ReadFloat();
+					m_curMaterial->m_ior = ReadNumber<float>();
 					break;
 				case TokenType::Alpha:
-					m_curMaterial->m_alpha = ReadFloat();
+					m_curMaterial->m_alpha = ReadNumber<float>();
 					break;
 				case TokenType::Transmission:
 				{
@@ -475,12 +344,12 @@ namespace Wavefront
 				break;
 				case TokenType::Transparent:
 				{
-					float transparency = ReadFloat();
+					float transparency = ReadNumber<float>();
 					m_curMaterial->m_alpha = 1.f - transparency;
 				}
 				break;
 				case TokenType::IllumType:
-					m_curMaterial->m_illuminationModel = ReadInt();
+					m_curMaterial->m_illuminationModel = ReadNumber<int32>();
 					break;
 				case TokenType::AmbientTexture:
 					SkipWhiteSpace();
@@ -506,7 +375,7 @@ namespace Wavefront
 		ObjMaterial* m_curMaterial = nullptr;
 	};
 
-	class ObjParser final : public ParserBase
+	class ObjParser final : public TextTokenaizer
 	{
 	public:
 		bool Parse( std::filesystem::path filePath, ObjModel& mesh )
@@ -537,7 +406,7 @@ namespace Wavefront
 
 		bool Parse( const char* contents, size_t length, ObjModel& mesh )
 		{
-			ParserBase::Parse( contents, length );
+			TextTokenaizer::Parse( contents, length );
 			return ParseObj( mesh );
 		}
 
@@ -606,7 +475,7 @@ namespace Wavefront
 
 			Token token;
 			token.m_type = TokenType::Error;
-			token.m_begin = m_current;
+			token.m_begin = Tell();
 
 			switch ( GetNextChar() )
 			{
@@ -679,7 +548,7 @@ namespace Wavefront
 				break;
 			}
 
-			token.m_end = m_current;
+			token.m_end = Tell();
 			return token;
 		}
 
@@ -737,7 +606,7 @@ namespace Wavefront
 			}
 
 			// v is an optional argument
-			const char* prevPos = m_current; // save current
+			const char* prevPos = Tell(); // save current
 			token = ReadToken();
 			if ( token.m_type == TokenType::Number )
 			{
@@ -745,7 +614,7 @@ namespace Wavefront
 				v = static_cast<float>( std::atof( temp ) );
 
 				// w is an optional argument
-				prevPos = m_current; // save current
+				prevPos = Tell(); // save current
 				token = ReadToken();
 				if ( token.m_type == TokenType::Number )
 				{
@@ -754,12 +623,12 @@ namespace Wavefront
 				}
 				else
 				{
-					m_current = prevPos;
+					Seek( prevPos );
 				}
 			}
 			else
 			{
-				m_current = prevPos;
+				Seek( prevPos );
 			}
 
 			vec.emplace_back( u, v, w );
@@ -792,7 +661,7 @@ namespace Wavefront
 				if ( nextChar == '/' )
 				{
 					++col;
-					++m_current;
+					Seek( 1 );
 					nextChar = PeekNextChar();
 				}
 				else
@@ -804,21 +673,21 @@ namespace Wavefront
 				if ( nextChar == '-' )
 				{
 					val = -1;
-					++m_current;
+					Seek( 1 );
 				}
 
-				if ( std::isdigit( *m_current ) == 0 )
+				if ( std::isdigit( *Tell() ) == 0 )
 				{
 					continue;
 				}
 
-				const char* begin = m_current;
-				while ( std::isdigit( *m_current ) != 0 )
+				const char* begin = Tell();
+				while ( std::isdigit( *Tell() ) != 0 )
 				{
-					++m_current;
+					Seek( 1 );
 				}
 
-				std::string numberStr( begin, m_current - begin );
+				std::string numberStr( begin, Tell() - begin);
 				val *= atoi( numberStr.c_str() );
 
 				if ( val < 0 )
@@ -861,14 +730,14 @@ namespace Wavefront
 		void ReadGroupName( ObjModel& mesh )
 		{
 			SkipWhiteSpace();
-			std::string groupName = ReadWord();
+			auto groupName = std::string( ReadWord() );
 			CreateObject( groupName, mesh );
 		}
 
 		void ReadMaterialName( ObjModel& mesh )
 		{
 			SkipWhiteSpace();
-			std::string name = ReadWord();
+			auto name = std::string( ReadWord() );
 
 			auto found = std::find_if( std::begin( m_materialLut ), std::end( m_materialLut ),
 				[&name]( const MaterialList& ml )
@@ -906,7 +775,7 @@ namespace Wavefront
 		void MakeMtlLookUpTable()
 		{
 			SkipWhiteSpace();
-			std::string fileName = ReadWord();
+			std::string_view fileName = ReadWord();
 			std::filesystem::path mtlPath = m_workingPath / std::filesystem::path( fileName );
 
 			if ( std::filesystem::exists( mtlPath ) )

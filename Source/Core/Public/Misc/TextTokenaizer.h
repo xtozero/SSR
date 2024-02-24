@@ -2,6 +2,7 @@
 
 #include "SizedTypes.h"
 
+#include <algorithm>
 #include <charconv>
 #include <string_view>
 
@@ -182,6 +183,14 @@ public:
 	void Seek( const char* pos )
 	{
 		m_current = pos;
+	}
+
+	void Seek( int64 offset )
+	{
+		auto low = static_cast<int64>( m_begin - m_current );
+		auto high = static_cast<int64>( m_end - m_current );
+		offset = std::clamp( offset, low, high );
+		m_current += offset;
 	}
 
 private:
