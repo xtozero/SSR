@@ -9,6 +9,7 @@
 #include "D3D12CommandList.h"
 #include "D3D12NullDescriptor.h"
 #include "D3D12Query.h"
+#include "D3D12ResourceManager.h"
 #include "D3D12ResourceUploader.h"
 
 #include "EnumStringMap.h"
@@ -279,6 +280,9 @@ namespace agl
 
 		m_uploader.Prepare();
 		m_commandList[m_frameIndex].Prepare();
+
+		auto& d3d12ResourceManager = *static_cast<D3D12ResourceManager*>( GetInterface<IResourceManager>() );
+		d3d12ResourceManager.Prepare();
 	}
 
 	void Direct3D12::OnEndFrameRendering( uint32 curFrameIndex, uint32 nextFrameIndex )

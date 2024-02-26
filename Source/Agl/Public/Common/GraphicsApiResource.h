@@ -144,6 +144,7 @@ namespace agl
 		Texture3D = 0x200,
 		Intermediate = 0x400,
 		WithoutViews = Intermediate,
+		Disposable = 0x800,
 	};
 	ENUM_CLASS_FLAGS( ResourceMisc );
 

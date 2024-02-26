@@ -24,8 +24,10 @@ namespace agl
 
 		const D3D12_RESOURCE_DESC& Desc() const;
 
-		LockedResource Lock( uint32 subResource = 0 );
-		void UnLock( uint32 subResource = 0 );
+		virtual LockedResource Lock( uint32 subResource = 0 );
+		virtual void UnLock( uint32 subResource = 0 );
+
+		D3D12ConstantBufferView* CBV() const;
 
 		D3D12Buffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData );
 		virtual ~D3D12Buffer() override;
@@ -50,6 +52,8 @@ namespace agl
 		D3D12_RESOURCE_DESC m_desc = {};
 		DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
 
+		RefHandle<D3D12ConstantBufferView> m_cbv;
+
 	private:
 		void AdjustInitalResourceStates();
 	};
@@ -57,8 +61,6 @@ namespace agl
 	class D3D12ConstantBuffer final : public D3D12Buffer
 	{
 	public:
-		D3D12ConstantBufferView* CBV() const;
-
 		D3D12ConstantBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData );
 		virtual ~D3D12ConstantBuffer() override = default;
 		D3D12ConstantBuffer( const D3D12ConstantBuffer& ) = delete;
@@ -67,11 +69,56 @@ namespace agl
 		D3D12ConstantBuffer& operator=( D3D12ConstantBuffer&& ) = delete;
 
 	protected:
-		virtual void CreateBuffer();
-		virtual void DestroyBuffer();
+		virtual void CreateBuffer() override;
+		virtual void DestroyBuffer() override;
+	};
+
+	class D3D12DisposableConstantBufferPool final
+	{
+	public:
+		struct AllocatedInfo
+		{
+			AllocatedResourceInfo m_resourceInfo;
+			uint32 m_offset;
+			uint8* m_lockedData;
+		};
+
+		void Prepare();
+		AllocatedInfo Allocate( uint32 size );
+
+		~D3D12DisposableConstantBufferPool();
 
 	private:
-		RefHandle<D3D12ConstantBufferView> m_cbv;
+		static constexpr uint32 DefaultBlockSize = 64 * 1024;
+
+		void CreateBlock();
+
+		struct Block
+		{
+			AllocatedResourceInfo m_resourceInfo;
+			uint32 m_size = 0;
+			uint32 m_capacity = 0;
+			uint8* m_lockedData = nullptr;
+		};
+
+		std::vector<Block> m_blocks;
+		uint32 m_top = 0;
+	};
+
+	class D3D12DisposableConstantBuffer final : public D3D12Buffer
+	{
+	public:
+		virtual LockedResource Lock( uint32 subResource = 0 ) override;
+		virtual void UnLock( [[maybe_unused]] uint32 subResource = 0 ) override {}
+
+		explicit D3D12DisposableConstantBuffer( const BufferTrait& trait, const char* debugName );
+
+	protected:
+		virtual void CreateBuffer() override;
+		virtual void DestroyBuffer() override;
+
+	private:
+		uint8* m_lockedData = nullptr;
 	};
 
 	class D3D12IndexBuffer final : public D3D12Buffer

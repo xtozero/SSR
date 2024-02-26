@@ -295,7 +295,7 @@ namespace agl
 				{
 					RefHandle<Buffer> cb = binding.GetConstantBufferStart()[i];
 
-					auto d3d12CB = static_cast<D3D12ConstantBuffer*>( cb.Get() );
+					auto d3d12CB = static_cast<D3D12Buffer*>( cb.Get() );
 					assert( d3d12CB != nullptr );
 
 					RegisterRenderResource( cb.Get() );
@@ -371,7 +371,7 @@ namespace agl
 				{
 					RefHandle<Buffer> cb = binding.GetConstantBufferStart()[i];
 
-					auto d3d12CB = static_cast<D3D12ConstantBuffer*>( cb.Get() );
+					auto d3d12CB = static_cast<D3D12Buffer*>( cb.Get() );
 					assert( d3d12CB != nullptr );
 
 					RegisterRenderResource( cb.Get() );
@@ -483,7 +483,7 @@ namespace agl
 			{
 				RefHandle<Buffer>* cb = binding.GetConstantBufferStart() + i;
 
-				auto d3d12CB = static_cast<D3D12ConstantBuffer*>( cb->Get() );
+				auto d3d12CB = static_cast<D3D12Buffer*>( cb->Get() );
 				assert( d3d12CB != nullptr );
 
 				RegisterRenderResource( cb->Get() );

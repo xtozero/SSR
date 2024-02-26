@@ -5,6 +5,7 @@
 
 #include "D3D12FlagConvertor.h"
 
+#include "D3D12ResourceManager.h"
 #include "D3D12ResourceUploader.h"
 #include "D3D12ResourceViews.h"
 
@@ -207,6 +208,13 @@ namespace agl
 		Resource()->Unmap( subResource, nullptr );
 	}
 
+	D3D12ConstantBufferView* D3D12Buffer::CBV() const
+	{
+		assert( IsInRenderThread() );
+
+		return m_cbv.Get();
+	}
+
 	D3D12Buffer::D3D12Buffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData )
 		: Buffer( initialState )
 		, m_desc( ConvertTraitToDesc( trait ) )
@@ -321,13 +329,6 @@ namespace agl
 		}
 	}
 
-	D3D12ConstantBufferView* D3D12ConstantBuffer::CBV() const
-	{
-		assert( IsInRenderThread() );
-
-		return m_cbv.Get();
-	}
-
 	D3D12ConstantBuffer::D3D12ConstantBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData )
 		: D3D12Buffer( trait, debugName, initialState, initData )
 	{
@@ -350,6 +351,148 @@ namespace agl
 	}
 
 	void D3D12ConstantBuffer::DestroyBuffer()
+	{
+		m_cbv = nullptr;
+
+		D3D12Buffer::DestroyBuffer();
+	}
+
+	void D3D12DisposableConstantBufferPool::Prepare()
+	{
+		m_top = 0;
+		for ( Block& block : m_blocks )
+		{
+			block.m_size = 0;
+		}
+	}
+
+	D3D12DisposableConstantBufferPool::AllocatedInfo D3D12DisposableConstantBufferPool::Allocate( uint32 size )
+	{
+		if ( ( m_top < m_blocks.size() )
+			&& ( m_blocks[m_top].m_capacity - m_blocks[m_top].m_size < size ) )
+		{
+			++m_top;
+		}
+
+		if ( m_blocks.size() <= m_top )
+		{
+			CreateBlock();
+		}
+
+		Block& block = m_blocks[m_top];
+
+		AllocatedInfo allcatedInfo = {
+			.m_resourceInfo = block.m_resourceInfo,
+			.m_offset = block.m_size,
+			.m_lockedData = block.m_lockedData + block.m_size,
+		};
+
+		block.m_size += size;
+
+		return allcatedInfo;
+	}
+
+	D3D12DisposableConstantBufferPool::~D3D12DisposableConstantBufferPool()
+	{
+		for ( Block& block : m_blocks )
+		{
+			if ( ID3D12Resource* resource = block.m_resourceInfo.GetResource() )
+			{
+				resource->Unmap( 0, nullptr );
+			}
+
+			block.m_resourceInfo = AllocatedResourceInfo();
+		}
+	}
+
+	void D3D12DisposableConstantBufferPool::CreateBlock()
+	{
+		m_blocks.emplace_back();
+
+		Block& block = m_blocks.back();
+
+		D3D12HeapProperties heapProperties = {
+			.m_alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT,
+			.m_heapType = D3D12_HEAP_TYPE_UPLOAD,
+			.m_heapFlags = D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS
+		};
+
+		D3D12_RESOURCE_DESC desc = {
+			.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER,
+			.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT,
+			.Width = DefaultBlockSize,
+			.Height = 1,
+			.DepthOrArraySize = 1,
+			.MipLevels = 1,
+			.Format = DXGI_FORMAT_UNKNOWN,
+			.SampleDesc = {
+				.Count = 1,
+				.Quality = 0
+			},
+			.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
+			.Flags = D3D12_RESOURCE_FLAG_NONE
+		};
+
+		D3D12ResourceAllocator& allocator = D3D12Allocator();
+		block.m_resourceInfo = allocator.AllocateResource(
+			heapProperties,
+			desc,
+			D3D12_RESOURCE_STATE_GENERIC_READ
+		);
+
+		block.m_size = 0;
+		block.m_capacity = DefaultBlockSize;
+
+		ID3D12Resource* resource = block.m_resourceInfo.GetResource();
+		assert( resource != nullptr );
+		
+		const char* debugName = "Disposable Constant Buffer";
+		auto dataSize = static_cast<uint32>( std::strlen( debugName ) );
+		resource->SetPrivateData( WKPDID_D3DDebugObjectName, dataSize, debugName );
+
+		void* lockedData = nullptr;
+		resource->Map( 0, nullptr, &lockedData );
+
+		block.m_lockedData = static_cast<uint8*>( lockedData );
+	}
+
+	LockedResource D3D12DisposableConstantBuffer::Lock( [[maybe_unused]] uint32 subResource )
+	{
+		return {
+			.m_data = m_lockedData,
+			.m_rowPitch = Size(),
+			.m_depthPitch = Size()
+		};
+	}
+
+	D3D12DisposableConstantBuffer::D3D12DisposableConstantBuffer( const BufferTrait& trait, const char* debugName )
+		: D3D12Buffer( trait, debugName, ResourceState::GenericRead, nullptr )
+	{
+	}
+
+	void D3D12DisposableConstantBuffer::CreateBuffer()
+	{
+		auto& d3d12ResourceManager = *static_cast<D3D12ResourceManager*>( GetInterface<IResourceManager>() );
+
+		D3D12DisposableConstantBufferPool& pool = d3d12ResourceManager.GetDisposableConstantBufferPool();
+
+		uint32 alignedSize = CalcAlignment<uint32>( Size(), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT );
+		auto allocatedInfo = pool.Allocate( alignedSize );
+
+		m_resourceInfo = std::move( allocatedInfo.m_resourceInfo );
+
+		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {
+			.BufferLocation = Resource()->GetGPUVirtualAddress() + allocatedInfo.m_offset,
+			.SizeInBytes = alignedSize
+		};
+
+		m_cbv = new D3D12ConstantBufferView( this, Resource(), cbvDesc );
+		m_cbv->Init();
+
+		m_lockedData = allocatedInfo.m_lockedData;
+	}
+
+	void D3D12DisposableConstantBuffer::DestroyBuffer()
 	{
 		m_cbv = nullptr;
 

@@ -56,7 +56,7 @@ namespace agl
 			   .m_count = 1,
 			   .m_access = ResourceAccessFlag::Upload,
 			   .m_bindType = ResourceBindType::ConstantBuffer,
-			   .m_miscFlag = ResourceMisc::None,
+			   .m_miscFlag = ResourceMisc::Disposable,
 			   .m_format = ResourceFormat::Unknown
 			};
 
@@ -102,7 +102,7 @@ namespace agl
 			.m_count = 1,
 			.m_access = ResourceAccessFlag::Upload,
 			.m_bindType = ResourceBindType::ConstantBuffer,
-			.m_miscFlag = ResourceMisc::None,
+			.m_miscFlag = ResourceMisc::Disposable,
 			.m_format = ResourceFormat::Unknown
 		};
 

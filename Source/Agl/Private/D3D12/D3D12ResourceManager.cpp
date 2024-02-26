@@ -48,7 +48,14 @@ namespace agl
 		Buffer* newBuffer = nullptr;
 		if ( HasAnyFlags( trait.m_bindType, ResourceBindType::ConstantBuffer ) )
 		{
-			newBuffer = new D3D12ConstantBuffer( trait, debugName, initialState, initData );
+			if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Disposable ) )
+			{
+				newBuffer = new D3D12DisposableConstantBuffer( trait, debugName );
+			}
+			else
+			{
+				newBuffer = new D3D12ConstantBuffer( trait, debugName, initialState, initData );
+			}
 		}
 		else if ( HasAnyFlags( trait.m_bindType, ResourceBindType::IndexBuffer ) )
 		{
@@ -200,6 +207,17 @@ namespace agl
 
 			return newPipelineState.Get();
 		}
+	}
+
+	D3D12DisposableConstantBufferPool& D3D12ResourceManager::GetDisposableConstantBufferPool()
+	{
+		m_d3d12DisposbleConstantBufferPool.resize( DefaultAgl::GetBufferCount() );
+		return m_d3d12DisposbleConstantBufferPool[GetFrameIndex()];
+	}
+
+	void D3D12ResourceManager::Prepare()
+	{
+		GetDisposableConstantBufferPool().Prepare();
 	}
 
 	D3D12ResourceManager::~D3D12ResourceManager()

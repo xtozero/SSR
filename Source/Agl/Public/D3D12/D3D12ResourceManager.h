@@ -12,6 +12,8 @@
 
 namespace agl
 {
+	class D3D12DisposableConstantBufferPool;
+
 	class D3D12ResourceManager final : public IResourceManager
 	{
 	public:
@@ -48,6 +50,10 @@ namespace agl
 		virtual GpuTimer* CreateGpuTimer() override;
 
 		ID3D12PipelineState* FindOrCreate( GraphicsPipelineState* pipelineState, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc );
+
+		D3D12DisposableConstantBufferPool& GetDisposableConstantBufferPool();
+
+		void Prepare();
 
 		D3D12ResourceManager() = default;
 		virtual ~D3D12ResourceManager() override;
@@ -107,6 +113,8 @@ namespace agl
 
 		std::shared_mutex m_d3d12PipelineMutex;
 		std::unordered_map<D3D12PipelineStateKey, Microsoft::WRL::ComPtr<ID3D12PipelineState>, D3D12PipelineStateKeyHasher> m_d3d12PipelineState;
+
+		std::vector<D3D12DisposableConstantBufferPool> m_d3d12DisposbleConstantBufferPool;
 	};
 
 	Owner<IResourceManager*> CreateD3D12ResourceManager();

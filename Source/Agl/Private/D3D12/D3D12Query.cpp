@@ -51,7 +51,7 @@ namespace agl
 {
 	void D3D12QueryHeapBlock::InitResource( D3D12_QUERY_HEAP_TYPE type )
 	{
-		constexpr uint32 DefaultBlockSize = 64 * 1024 * 1024; // 64kb
+		constexpr uint32 DefaultBlockSize = 64 * 1024 * 1024; // 64mb
 
 		m_freeSize = DefaultBlockSize / sizeof( uint64 );
 		m_freeList.resize( m_freeSize );
