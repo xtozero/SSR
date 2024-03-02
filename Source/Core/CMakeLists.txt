@@ -17,6 +17,7 @@ set (ASSET
 	Public/Asset/IAsyncLoadableAsset.h)
 
 set (COLLECTIONS
+	Private/Collections/BitArray.cpp
 	Public/Collections/BitArray.h
 	Public/Collections/SparseArray.h)
 

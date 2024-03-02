@@ -1,57 +1,46 @@
 #pragma once
 
+#include "SizedTypes.h"
+
 #include <vector>
 
 class BitArray
 {
 public:
-	void Clear()
+	class BitArrayRef
 	{
-		m_bits.clear();
-	}
+	public:
+		BitArrayRef( uint64& bit, uint64 mask );
 
-	size_t Add( bool value )
-	{
-		size_t index = m_bits.size();
-		m_bits.emplace_back( value );
-		return index;
-	}
+		operator bool() const;
 
-	size_t Size() const
-	{
-		return m_bits.size();
-	}
+		BitArrayRef& operator=( bool value );
 
-	void Resize( size_t newSize, bool init )
-	{
-		m_bits.resize( newSize, init );
-	}
+	private:
+		uint64& m_bit;
+		uint64 m_mask = 0;
+	};
 
-	auto operator[]( size_t index )
-	{
-		return m_bits[index];
-	}
+	void Clear();
 
-	const bool operator[]( size_t index ) const
-	{
-		return m_bits[index];
-	}
+	size_t Add( bool value );
 
-	size_t FindFirstSetBit() const
-	{
-		for ( size_t i = 0; i < Size(); ++i )
-		{
-			if ( m_bits[i] )
-			{
-				return i;
-			}
-		}
+	size_t Size() const;
 
-		return Size();
-	}
+	void Resize( size_t newSize, bool init );
+
+	BitArrayRef operator[]( size_t index );
+	const bool operator[]( size_t index ) const;
+
+	size_t FindFirstSetBit() const;
 
 private:
-	std::vector<bool> m_bits;
+	uint64 BitMask( size_t index ) const;
+
+	static constexpr size_t BitSize = 64;
+
+	std::vector<uint64> m_bits;
+	size_t m_size = 0;
 };
 
 class ConstSetBitIterator
@@ -63,45 +52,17 @@ public:
 	using pointer = const bool*;
 	using reference = const bool&;
 
-	ConstSetBitIterator( const BitArray& array, size_t startIndex ) : m_array( array ), m_startIndex( startIndex ) {}
+	ConstSetBitIterator( const BitArray& array, size_t startIndex );
 
-	friend bool operator==( const ConstSetBitIterator& lhs, const ConstSetBitIterator& rhs )
-	{
-		return ( &lhs.m_array == &rhs.m_array ) && ( lhs.m_startIndex == rhs.m_startIndex );
-	}
+	friend bool operator==( const ConstSetBitIterator& lhs, const ConstSetBitIterator& rhs );
+	friend bool operator!=( const ConstSetBitIterator& lhs, const ConstSetBitIterator& rhs );
 
-	friend bool operator!=( const ConstSetBitIterator& lhs, const ConstSetBitIterator& rhs )
-	{
-		return !( lhs == rhs );
-	}
+	ConstSetBitIterator& operator++();
 
-	ConstSetBitIterator& operator++()
-	{
-		AdvanceNextSetBit();
-		return *this;
-	}
-
-	size_t operator*() const
-	{
-		return m_startIndex;
-	}
+	size_t operator*() const;
 
 private:
-	void AdvanceNextSetBit()
-	{
-		if ( m_startIndex >= m_array.Size() )
-		{
-			return;
-		}
-
-		for ( m_startIndex += 1; m_startIndex < m_array.Size(); ++m_startIndex )
-		{
-			if ( m_array[m_startIndex] )
-			{
-				break;
-			}
-		}
-	}
+	void AdvanceNextSetBit();
 
 	const BitArray& m_array;
 	size_t m_startIndex = 0;
