@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Scene/GameClientViewport.h"
 
 #include "Components/CameraComponent.h"

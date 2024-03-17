@@ -3,7 +3,6 @@
 #include "Archive.h"
 
 #include "common.h"
-#include "Config/DefaultAglConfig.h"
 
 #include "D3D12BindlessManager.h"
 #include "D3D12CommandList.h"
@@ -11,6 +10,8 @@
 #include "D3D12Query.h"
 #include "D3D12ResourceManager.h"
 #include "D3D12ResourceUploader.h"
+
+#include "DefaultAglConfig.h"
 
 #include "EnumStringMap.h"
 

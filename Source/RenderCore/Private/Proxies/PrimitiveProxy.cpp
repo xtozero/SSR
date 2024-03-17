@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Proxies/PrimitiveProxy.h"
 
 #include "Scene/PrimitiveSceneInfo.h"

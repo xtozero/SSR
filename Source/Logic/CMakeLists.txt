@@ -110,11 +110,6 @@ set (PLAYER_OBJECT
 	Private/GameObject/Player.cpp
 	Public/GameObject/Player.h)
 
-set (PRECOMPILED
-	Private/Pch/stdafx.cpp
-	Public/Pch/stdafx.h
-	Public/Pch/targetver.h)
-
 set (SCENE
 	Private/Scene/DebugOverlayManager.cpp
 	Private/Scene/GameClientViewport.cpp
@@ -166,7 +161,6 @@ add_library(Logic SHARED 	${COMPOENETS}
 #							${MODEL}
 							${PHYSICS}
 							${PLAYER_OBJECT}
-							${PRECOMPILED}
 							${PROXIES}
 							${SCENE}
 							${TEST_SCENE_OBJECT}
@@ -178,8 +172,7 @@ target_include_directories(Logic
 PUBLIC
 	./Public
 PRIVATE
-	../Shaders/Public
-	./Public/Pch)		
+	../Shaders/Public)		
 							
 target_link_libraries(Logic
 PRIVATE

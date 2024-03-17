@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Canvas.h"
 
 #include "InterfaceFactories.h"

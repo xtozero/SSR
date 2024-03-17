@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Components/PrimitiveComponent.h"
 
 #include "Json/Json.hpp"

@@ -16,26 +16,7 @@ set (GPU_PROFILER_SOURCE
 	Private/GpuProfiler/GPUProfiler.cpp
 	Public/GpuProfiler/GpuProfiler.h)
 
-set (GRAPHICS_RESOURCE_SOURCE
-	Private/GraphicsResource/ByteBuffer.cpp
-	Private/GraphicsResource/Canvas.cpp
-	Private/GraphicsResource/CommandList.cpp
-	Private/GraphicsResource/ComputePipelineState.cpp
-	Private/GraphicsResource/ConstantBuffer.cpp
-	Private/GraphicsResource/DDSTexture.cpp
-	Private/GraphicsResource/DrawSnapshot.cpp
-	Private/GraphicsResource/GlobalShaders.cpp
-	Private/GraphicsResource/GraphicsPipelineState.cpp
-	Private/GraphicsResource/IndexBuffer.cpp
-	Private/GraphicsResource/RenderOption.cpp
-	Private/GraphicsResource/Shader.cpp
-	Private/GraphicsResource/ShaderCache.cpp
-	Private/GraphicsResource/StaticShaderSwitch.cpp
-	Private/GraphicsResource/UberShader.cpp
-	Private/GraphicsResource/UploadBuffer.cpp
-	Private/GraphicsResource/VertexBuffer.cpp
-	Private/GraphicsResource/VertexLayout.cpp
-	Private/GraphicsResource/Viewport.cpp
+set (GRAPHICS_RESOURCE_HEADER
 	Public/GraphicsResource/ByteBuffer.h
 	Public/GraphicsResource/Canvas.h
 	Public/GraphicsResource/CommandList.h
@@ -58,6 +39,27 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Public/GraphicsResource/VertexLayout.h
 	Public/GraphicsResource/VertexBufferBundle.h
 	Public/GraphicsResource/Viewport.h)
+
+set (GRAPHICS_RESOURCE_SOURCE
+	Private/GraphicsResource/ByteBuffer.cpp
+	Private/GraphicsResource/Canvas.cpp
+	Private/GraphicsResource/CommandList.cpp
+	Private/GraphicsResource/ComputePipelineState.cpp
+	Private/GraphicsResource/ConstantBuffer.cpp
+	Private/GraphicsResource/DDSTexture.cpp
+	Private/GraphicsResource/DrawSnapshot.cpp
+	Private/GraphicsResource/GlobalShaders.cpp
+	Private/GraphicsResource/GraphicsPipelineState.cpp
+	Private/GraphicsResource/IndexBuffer.cpp
+	Private/GraphicsResource/RenderOption.cpp
+	Private/GraphicsResource/Shader.cpp
+	Private/GraphicsResource/ShaderCache.cpp
+	Private/GraphicsResource/StaticShaderSwitch.cpp
+	Private/GraphicsResource/UberShader.cpp
+	Private/GraphicsResource/UploadBuffer.cpp
+	Private/GraphicsResource/VertexBuffer.cpp
+	Private/GraphicsResource/VertexLayout.cpp
+	Private/GraphicsResource/Viewport.cpp)
 
 set (MATERIAL_SOURCE
 	Private/Material/Material.cpp
@@ -92,11 +94,6 @@ set (PASS_PROCESSOR
 	Public/PassProcessor/ShadowDrawPassProcessor.h
 	Public/PassProcessor/VolumetricCloudPassProcessor.h
 	Public/PassProcessor/VolumetricFogPassProcessor.h)
-
-set (PRECOMPILED
-	Private/Pch/stdafx.cpp
-	Public/Pch/stdafx.h
-	Public/Pch/targetver.h)
 	
 set (PROXIES_SOURCE
 	Private/Proxies/LightProxy.cpp
@@ -173,7 +170,7 @@ set (RENDERER_SOURCE
 
 source_group("Config" FILES ${CONFIG_SOURCE})
 source_group("GpuProfiler" FILES ${GPU_PROFILER_SOURCE})
-source_group("GraphicsResource" FILES ${GRAPHICS_RESOURCE_SOURCE})
+source_group("GraphicsResource" FILES ${GRAPHICS_RESOURCE_HEADER} ${GRAPHICS_RESOURCE_SOURCE})
 source_group("Material" FILES ${MATERIAL_SOURCE})
 source_group("Mesh" FILES ${MESH_SOURCE})
 source_group("PassProcessor" FILES ${PASS_PROCESSOR})
@@ -189,11 +186,11 @@ link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 add_library(RenderCore SHARED 	${CONFIG_SOURCE}
 								${CORE_SOURCE}
 								${GPU_PROFILER_SOURCE}
+								${GRAPHICS_RESOURCE_HEADER}
 								${GRAPHICS_RESOURCE_SOURCE}
 								${MATERIAL_SOURCE}
 								${MESH_SOURCE}
 								${PASS_PROCESSOR}
-								${PRECOMPILED}
 								${PROXIES_SOURCE}
 								${RENDER_SCENE_SOURCE}
 								${RENDER_UTILITY}
@@ -207,6 +204,7 @@ PUBLIC
 	./Public/Material
 	./Public/PassProcessor
 	./Public/Renderer
+	./Public/RenderUtility
 PRIVATE
 	../../ThirdParty/PIX/Include
 	../Editor/Public
@@ -214,9 +212,7 @@ PRIVATE
 	../Shaders/Public/Atmosphere
 	./Public/GpuProfiler
 	./Public/Mesh
-	./Public/Pch
-	./Public/Proxies
-	./Public/RenderUtility)
+	./Public/Proxies)
 
 if(WIN32)
 target_link_directories(RenderCore
@@ -232,6 +228,10 @@ PRIVATE
 	Core
 	Engine
 	Imgui)
+
+target_precompile_headers(RenderCore
+PUBLIC
+	${GRAPHICS_RESOURCE_HEADER})
 
 add_custom_command(TARGET RenderCore POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/RenderCore.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/RenderCore.dll"

@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Renderer/RenderView.h"
 
 namespace rendercore

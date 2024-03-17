@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Proxies/StaticMeshPrimitiveProxy.h"
 
 #include "AbstractGraphicsInterface.h"

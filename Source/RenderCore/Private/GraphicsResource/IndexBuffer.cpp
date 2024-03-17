@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "IndexBuffer.h"
 
 #include "AbstractGraphicsInterface.h"

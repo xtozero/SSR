@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "ByteBuffer.h"
 
 #include "CommandList.h"

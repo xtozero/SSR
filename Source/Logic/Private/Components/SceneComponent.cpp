@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Components/SceneComponent.h"
 
 #include "GameObject/GameObject.h"

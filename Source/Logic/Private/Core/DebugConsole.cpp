@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Core/DebugConsole.h"
 
 #include "common.h"

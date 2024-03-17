@@ -1,6 +1,6 @@
 #include "NameTypes.h"
 
-#include "Crc64Hash.h"
+#include "CrcHash.h"
 #include "LibraryTool/InterfaceFactories.h"
 
 #include <cassert>

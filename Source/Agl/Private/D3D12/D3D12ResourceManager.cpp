@@ -1,7 +1,5 @@
 #include "D3D12ResourceManager.h"
 
-#include "Config/DefaultAglConfig.h"
-
 #include "D3D12Api.h"
 #include "D3D12BlendState.h"
 #include "D3D12Buffer.h"
@@ -14,6 +12,8 @@
 #include "D3D12Texture.h"
 #include "D3D12VertexLayout.h"
 #include "D3D12Viewport.h"
+
+#include "DefaultAglConfig.h"
 
 #include "DxgiFlagConvertor.h"
 #include "DxgiSwapchain.h"

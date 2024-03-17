@@ -1,13 +1,12 @@
 #include "D3D12Buffer.h"
 
-#include "Config/DefaultAglConfig.h"
 #include "D3D12Api.h"
-
 #include "D3D12FlagConvertor.h"
-
 #include "D3D12ResourceManager.h"
 #include "D3D12ResourceUploader.h"
 #include "D3D12ResourceViews.h"
+
+#include "DefaultAglConfig.h"
 
 #include "Math/Util.h"
 #include "Multithread/TaskScheduler.h"

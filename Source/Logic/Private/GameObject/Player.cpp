@@ -1,5 +1,3 @@
-#include "stdafx.h"
-
 #include "Components/CameraComponent.h"
 #include "Components/GroundMovementComponent.h"
 #include "Components/InputComponent.h"

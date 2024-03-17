@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "PipelineState.h"
 
 #include "InterfaceFactories.h"

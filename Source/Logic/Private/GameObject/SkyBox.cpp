@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "GameObject/SkyBox.h"
 
 #include "AssetLoader.h"

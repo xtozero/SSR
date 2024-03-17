@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "DepthWritePassProcessor.h"
 
 #include "AbstractGraphicsInterface.h"

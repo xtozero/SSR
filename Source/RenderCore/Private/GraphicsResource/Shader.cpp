@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Shader.h"
 
 #include "ArchiveUtility.h"

@@ -1,10 +1,7 @@
-#include "stdafx.h"
-
 #include "Core/GameLogic.h"
 
 #include "common.h"
 #include "Components/CameraComponent.h"
-#include "Config/DefaultAglConfig.h"
 #include "Config/DefaultAppConfig.h"
 #include "Config/DefaultLogicConfig.h"
 #include "ConsoleMessage/ConCommand.h"
@@ -14,6 +11,7 @@
 #include "Core/Timer.h"
 #include "Core/UtilWindowInfo.h"
 #include "CpuProfiler.h"
+#include "DefaultAglConfig.h"
 #include "FileSystem.h"
 #include "GameObject/GameObject.h"
 #include "IAgl.h"

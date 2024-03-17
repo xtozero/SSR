@@ -62,7 +62,7 @@ namespace rendercore
 		FloatProperty() = default;
 
 	private:
-		float m_value;
+		float m_value = 0.f;
 	};
 
 	class Float4Property final : public MaterialProperty
@@ -102,7 +102,7 @@ namespace rendercore
 		IntProperty() = default;
 
 	private:
-		int32 m_value;
+		int32 m_value = 0;
 	};
 
 	class TextureProperty final : public MaterialProperty

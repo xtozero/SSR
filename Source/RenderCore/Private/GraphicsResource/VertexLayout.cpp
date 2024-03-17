@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "VertexLayout.h"
 
 #include "TaskScheduler.h"

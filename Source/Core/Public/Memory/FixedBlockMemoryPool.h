@@ -167,6 +167,6 @@ private:
 
 	MemoryBlock* m_freeList = nullptr;
 
-	static constexpr size_t BlockSize = std::max( sizeof( MemoryBlock ), sizeof( T ) );
+	static constexpr size_t BlockSize = (std::max)( sizeof( MemoryBlock ), sizeof( T ) );
 	static constexpr size_t ChunkAlignment = 4096;
 };

@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Components/LightComponent.h"
 
 #include "Json/Json.hpp"

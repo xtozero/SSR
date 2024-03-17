@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Scene/ScreenBlurManager.h"
 
 #include "Core/GameLogic.h"

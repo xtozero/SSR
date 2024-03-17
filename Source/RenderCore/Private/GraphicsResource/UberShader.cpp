@@ -1,7 +1,7 @@
 #include "UberShader.h"
 
 #include "AbstractGraphicsInterface.h"
-#include "Crc64Hash.h"
+#include "CrcHash.h"
 #include "ShaderCache.h"
 
 #include <array>
@@ -130,6 +130,37 @@ namespace rendercore
 	const agl::ShaderParameterInfo& UberShader::ParameterInfo() const
 	{
 		return m_emptyParameterInfo;
+	}
+
+	void UberShader::SetName( const std::string& name )
+	{
+		m_name = name;
+	}
+
+	void UberShader::SetShaderType( agl::ShaderType type )
+	{
+		m_type = type;
+	}
+
+	void UberShader::SetProfile( Name profile )
+	{
+		m_profile = profile;
+	}
+
+	void UberShader::SetShaderCode( const std::string& shaderCode )
+	{
+		std::construct_at( &m_shaderCode, static_cast<uint32>( shaderCode.length() ) );
+		std::memcpy( m_shaderCode.Data(), shaderCode.data(), shaderCode.length() );
+	}
+
+	void UberShader::SetSwitches( const StaticShaderSwitches& switches )
+	{
+		m_switches = switches;
+	}
+
+	void UberShader::AddValidVariation( uint32 id )
+	{
+		m_validVariation.emplace( id );
 	}
 
 	void UberShader::PostLoadImpl()

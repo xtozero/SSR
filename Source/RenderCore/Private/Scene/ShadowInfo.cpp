@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Scene/ShadowInfo.h"
 
 #include "Config/DefaultRenderCoreConfig.h"

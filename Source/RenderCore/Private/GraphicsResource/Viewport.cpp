@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Viewport.h"
 
 #include "../RenderResource/Viewport.h"

@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "UICMap.h"
 
 #include "EnumStringMap.h"

@@ -1,5 +1,3 @@
-#include "stdafx.h"
-
 #include "AssetFactory.h"
 #include "GpuProfiler.h"
 #include "ImguiSharedContext.h"

@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "common.h"
 #include "Core/IEngine.h"
 #include "InterfaceFactories.h"

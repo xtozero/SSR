@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "DDSTexture.h"
 
 #include "ArchiveUtility.h"

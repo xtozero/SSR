@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Scene/SceneConstantBuffers.h"
 
 #include "Math/TransformationMatrix.h"

@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "CommonRenderResource.h"
 
 #include "ColorTypes.h"

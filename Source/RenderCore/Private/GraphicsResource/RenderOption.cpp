@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "RenderOption.h"
 
 #include "FileSystem.h"

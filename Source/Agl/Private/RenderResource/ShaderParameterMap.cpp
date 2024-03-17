@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "ShaderParameterMap.h"
 
 #include "Archive.h"

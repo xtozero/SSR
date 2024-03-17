@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Mesh/StaticMesh.h"
 
 #include "ArchiveUtility.h"

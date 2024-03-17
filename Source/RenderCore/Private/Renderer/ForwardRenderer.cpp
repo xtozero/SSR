@@ -1,5 +1,3 @@
-#include "stdafx.h"
-
 #include "ForwardRenderer.h"
 
 #include "CommandList.h"

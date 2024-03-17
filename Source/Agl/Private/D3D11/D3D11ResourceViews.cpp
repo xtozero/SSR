@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "D3D11ResourceViews.h"
 
 #include "D3D11Api.h"

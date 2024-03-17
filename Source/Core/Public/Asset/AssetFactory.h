@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Crc32Hash.h"
+#include "CrcHash.h"
 #include "IAsyncLoadableAsset.h"
 #include "InterfaceFactories.h"
 #include "SizedTypes.h"

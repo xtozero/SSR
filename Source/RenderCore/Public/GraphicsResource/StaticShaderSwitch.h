@@ -35,13 +35,14 @@ namespace rendercore
 		RENDERCORE_DLL bool Off( const Name& name );
 		RENDERCORE_DLL uint32 GetID() const;
 
+		RENDERCORE_DLL void SetConfigs( const std::map<Name, StaticShaderSwitch>& configs );
+
+		RENDERCORE_DLL std::map<Name, StaticShaderSwitch>& Configs();
 		RENDERCORE_DLL const std::map<Name, StaticShaderSwitch>& Configs() const;
 
 		std::strong_ordering operator<=>( const StaticShaderSwitches& other ) const = default;
 
 		friend RENDERCORE_DLL Archive& operator<<( Archive& ar, StaticShaderSwitches& shaderSwitches );
-
-		friend class ShaderManufacturer;
 
 	private:
 		std::map<Name, StaticShaderSwitch> m_configs;

@@ -1,5 +1,3 @@
-#include "stdafx.h"
-
 #include "Core/GameLogic.h"
 #include "InterfaceFactories.h"
 

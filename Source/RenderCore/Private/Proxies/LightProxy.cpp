@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "LightProxy.h"
 
 #include "Components/LightComponent.h"

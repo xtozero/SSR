@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "ConsoleMessageExecutor.h"
 
 #include "DebugUtil.h"

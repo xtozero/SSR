@@ -65,6 +65,16 @@ namespace rendercore
 		return id;
 	}
 
+	void StaticShaderSwitches::SetConfigs( const std::map<Name, StaticShaderSwitch>& configs )
+	{
+		m_configs = configs;
+	}
+
+	std::map<Name, StaticShaderSwitch>& StaticShaderSwitches::Configs()
+	{
+		return m_configs;
+	}
+
 	const std::map<Name, StaticShaderSwitch>& StaticShaderSwitches::Configs() const
 	{
 		return m_configs;

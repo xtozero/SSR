@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Core/Timer.h"
 
 #include "common.h"

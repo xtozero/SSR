@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "DrawSnapshot.h"
 
 #include "AbstractGraphicsInterface.h"

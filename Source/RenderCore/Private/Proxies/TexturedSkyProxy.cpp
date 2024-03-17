@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "TexturedSkyProxy.h"
 
 #include "Components/TexturedSkyComponent.h"

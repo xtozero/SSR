@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "GraphicsPipelineState.h"
 
 #include "PipelineState.h"

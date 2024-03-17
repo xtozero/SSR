@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "GameObject/Light.h"
 
 #include "Components/LightComponent.h"

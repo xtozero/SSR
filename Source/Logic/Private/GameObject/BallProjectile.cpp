@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "GameObject/BallProjectile.h"
 
 #include "Core/GameLogic.h"

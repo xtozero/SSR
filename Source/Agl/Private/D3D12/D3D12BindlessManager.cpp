@@ -1,7 +1,7 @@
 #include "D3D12BindlessManager.h"
 
-#include "Config/DefaultAglConfig.h"
 #include "D3D12Api.h"
+#include "DefaultAglConfig.h"
 
 #include <cassert>
 

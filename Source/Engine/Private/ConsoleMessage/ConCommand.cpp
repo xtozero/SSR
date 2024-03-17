@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "ConCommand.h"
 
 #include "ConsoleMessageExecutor.h"

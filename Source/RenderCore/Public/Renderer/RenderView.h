@@ -29,7 +29,7 @@ namespace rendercore
 		float m_aspect = 0.f;
 		float m_fov = 0.f;
 
-		RenderThreadFrameData<VisibleDrawSnapshot>* m_snapshots;
+		RenderThreadFrameData<VisibleDrawSnapshot>* m_snapshots = nullptr;
 	};
 
 	struct RenderViewGroupInitializer final

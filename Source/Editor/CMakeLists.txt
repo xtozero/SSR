@@ -30,29 +30,21 @@ set (PANEL
 	./Public/Panel/ScenePanel.h
 	./Public/Panel/WorldOutlinePanel.h)
 
-set (PRECOMPILED
-	./Private/Pch/stdafx.cpp
-	./Public/Pch/stdafx.h
-	./Public/Pch/targetver.h)
-
 source_group("Core" FILES ${CORE})
 source_group("ImguiEditor" FILES ${IMGUI_EDITOR})
 source_group("Panel" FILES ${PANEL})
-source_group("Precomputed" FILES ${PRECOMPILED})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 add_library(Editor SHARED	${CORE}
 							${IMGUI_EDITOR}
-							${PANEL}
-							${PRECOMPILED})
+							${PANEL})
 
 target_include_directories(Editor
 PUBLIC
 	../Logic/Public
 	./Public
-	./Public/Pch
 PRIVATE
 	./Public/Core
 	./Public/ImguiEditor

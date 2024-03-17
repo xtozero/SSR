@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "GameObject/GameObjectFactory.h"
 
 #include "NameTypes.h"

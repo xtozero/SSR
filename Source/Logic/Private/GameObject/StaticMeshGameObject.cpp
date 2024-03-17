@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "GameObject/StaticMeshGameObject.h"
 
 #include "AssetLoader.h"

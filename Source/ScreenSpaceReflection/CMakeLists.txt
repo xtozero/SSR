@@ -6,11 +6,8 @@ add_definitions(-DWIN32=1)
 endif()
 
 set (EXCUTABLE_SOUCE
-	./Private/Pch/stdafx.cpp
 	./Private/ScreenSpaceReflection.cpp
 	./Private/Window.cpp
-	./Public/Pch/stdafx.h
-	./Public/Pch/targetver.h
 	./Public/Resource.h
 	./Public/ScreenSpaceReflection.h
 	./Public/Window.h)
@@ -22,8 +19,7 @@ add_executable(ScreenSpaceReflection WIN32 ${EXCUTABLE_SOUCE})
 
 target_include_directories(ScreenSpaceReflection
 PRIVATE
-	./Public
-	./Public/Pch)
+	./Public)
 
 target_link_libraries(ScreenSpaceReflection
 PRIVATE

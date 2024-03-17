@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "VertexBuffer.h"
 
 #include "AbstractGraphicsInterface.h"

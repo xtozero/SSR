@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Material/Material.h"
 
 #include "Archive.h"

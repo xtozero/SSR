@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "UserInput/Controller.h"
 
 #include "common.h"

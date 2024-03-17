@@ -1,4 +1,4 @@
-#include "Config/DefaultAglConfig.h"
+#include "DefaultAglConfig.h"
 
 namespace agl
 {

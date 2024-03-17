@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "World/WorldLoader.h"
 
 #include "Core/GameLogic.h"

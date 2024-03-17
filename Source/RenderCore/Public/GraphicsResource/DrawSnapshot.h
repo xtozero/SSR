@@ -29,7 +29,7 @@ namespace rendercore
 	private:
 		struct PrimitiveIdVertexBufferPoolEntry
 		{
-			size_t m_lastDiscardId;
+			size_t m_lastDiscardId = 0;
 			VertexBuffer m_vertexBuffer;
 		};
 
@@ -41,7 +41,7 @@ namespace rendercore
 	{
 	public:
 		VertexBufferBundle m_vertexStream;
-		int32 m_primitiveIdSlot;
+		int32 m_primitiveIdSlot = 0;
 
 		IndexBuffer m_indexBuffer;
 
@@ -51,9 +51,9 @@ namespace rendercore
 		GraphicsPipelineState m_pipelineState;
 
 		// For Draw method
-		uint32 m_count;
-		uint32 m_startIndexLocation;
-		uint32 m_baseVertexLocation;
+		uint32 m_count = 0;
+		uint32 m_startIndexLocation = 0;
+		uint32 m_baseVertexLocation = 0;
 
 		DrawSnapshot() = default;
 		DrawSnapshot( const DrawSnapshot& other )

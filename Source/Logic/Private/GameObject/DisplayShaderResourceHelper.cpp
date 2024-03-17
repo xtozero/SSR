@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "GameObject/DisplayShaderResourceHelper.h"
 
 #include "ConsoleMessage/ConVar.h"

@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "ShadowDepthPassProcessor.h"
 
 #include "AbstractGraphicsInterface.h"

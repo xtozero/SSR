@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "D3D11ResourceManager.h"
 
 #include "Buffer.h"

@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Scene/SSRManager.h"
 
 #include "Core/GameLogic.h"

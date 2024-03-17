@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Components/TexturedSkyComponent.h"
 
 #include "AssetLoader.h"

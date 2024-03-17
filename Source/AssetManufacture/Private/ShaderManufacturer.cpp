@@ -425,7 +425,7 @@ namespace
 
 	bool HasExplicitSpace( const char* s )
 	{
-		if ( strnicmp( s, "register", std::strlen( "register" ) ) != 0 )
+		if ( _strnicmp( s, "register", std::strlen( "register" ) ) != 0 )
 		{
 			return false;
 		}
@@ -496,10 +496,10 @@ std::optional<Products> ShaderManufacturer::Manufacture( const PathEnvironment& 
 
 		StaticSwitchParser parser( shaderFile.data(), shaderFile.length() );
 		rendercore::StaticShaderSwitches shaderSwitches;
-		shaderSwitches.m_configs = parser.Parse();
+		shaderSwitches.SetConfigs( parser.Parse() );
 
 		uint32 bias = 1;
-		for ( auto& [name, shaderSwitch] : shaderSwitches.m_configs )
+		for ( auto& [name, shaderSwitch] : shaderSwitches.Configs() )
 		{
 			shaderSwitch.m_bias = bias;
 			bias *= shaderSwitch.NumShaderValues();
@@ -522,18 +522,15 @@ std::optional<Products> ShaderManufacturer::Manufacture( const PathEnvironment& 
 		}
 
 		rendercore::UberShader shader;
-		shader.m_name = path.filename().generic_string();
-		shader.m_type = shaderType;
-		shader.m_profile = shaderFeatureLevel;
-
-		std::construct_at( &shader.m_shaderCode, static_cast<uint32>( shaderFile.length() ) );
-		std::memcpy( shader.m_shaderCode.Data(), shaderFile.data(), shaderFile.length() );
-
-		shader.m_switches = shaderSwitches;
+		shader.SetName( path.filename().generic_string() );
+		shader.SetShaderType( shaderType );
+		shader.SetProfile( shaderFeatureLevel );
+		shader.SetShaderCode( shaderFile );
+		shader.SetSwitches( shaderSwitches );
 
 		for ( auto& [id, byteCode] : compiledShaders )
 		{
-			shader.m_validVariation.emplace( id );
+			shader.AddValidVariation( id );
 		}
 
 		shader.SetLastWriteTime( fs::last_write_time( path ) );
@@ -564,7 +561,7 @@ void ShaderManufacturer::CombinationStaticSwitches( const std::string& shaderFil
 
 void ShaderManufacturer::CombinationStaticSwitchesRecursive( const std::string& shaderFile, const char* featureLevel, rendercore::StaticShaderSwitches& switches, int32 depth, std::map<uint32, Microsoft::WRL::ComPtr<ID3DBlob>>& outCompiledShaders, std::vector<Microsoft::WRL::ComPtr<ID3DBlob>>& outErrorMsgs ) const
 {
-	if ( switches.m_configs.size() == depth )
+	if ( switches.Configs().size() == depth )
 	{
 		ShaderCompileResult compileResult = CompileD3D11Shader( shaderFile, featureLevel, switches );
 		if ( compileResult.m_byteCode )
@@ -580,7 +577,7 @@ void ShaderManufacturer::CombinationStaticSwitchesRecursive( const std::string& 
 		return;
 	}
 
-	auto iter = switches.m_configs.begin();
+	auto iter = switches.Configs().begin();
 	std::advance( iter, depth );
 
 	const rendercore::StaticShaderSwitch& curSwitch = iter->second;

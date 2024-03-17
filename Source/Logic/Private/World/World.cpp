@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "World/World.h"
 
 #include "GameObject/Player.h"

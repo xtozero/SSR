@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "GameObject/PickingManager.h"
 //
 //#include "Components/CameraComponent.h"

@@ -1,5 +1,3 @@
-#include "stdafx.h"
-
 #include "WindowPlatformEngine.h"
 
 #include "AppConfig/AppConfig.h"

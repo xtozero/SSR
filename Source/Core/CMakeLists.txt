@@ -27,15 +27,17 @@ set (DATA_STRUCTURE
 	Public/DataStructure/EnumStringMap.h
 	Public/DataStructure/SingleLInkedList.h)
 	
-set (DATA_TYPE
-	Private/DataType/ColorTypes.cpp
-	Private/DataType/Nametypes.cpp
+set (DATA_TYPE_HEADER
 	Public/DataType/AreaTypes.h
 	Public/DataType/ColorTypes.h
 	Public/DataType/GuideTypes.h
 	Public/DataType/Nametypes.h
 	Public/DataType/RefCounterType.h
 	Public/DataType/SizedTypes.h)
+
+set (DATA_TYPE_SOURCE
+	Private/DataType/ColorTypes.cpp
+	Private/DataType/Nametypes.cpp)
 
 set (DEBUG_TOOL
 	Public/DebugTool/DebugUtil.h)
@@ -49,8 +51,8 @@ set (FILESYSTEM
 	Public/Filesystem/FileSystemCore.h)
 
 set (HASH
-	Public/Hash/Crc32Hash.h
-	Public/Hash/Crc64Hash.h
+	Private/Hash/CrcHash.cpp
+	Public/Hash/CrcHash.h
 	Public/Hash/HashUtil.h)
 
 set (INI
@@ -65,19 +67,7 @@ set (LIBRARY_TOOL
 	Public/LibraryTool/common.h
 	Public/LibraryTool/Interfacefactories.h)
 
-set (MATH
-	Private/Math/Halton.cpp
-	Private/Math/Matrix.cpp
-	Private/Math/Matrix3X3.cpp
-	Private/Math/Plane.cpp
-	Private/Math/Quaternion.cpp
-	Private/Math/Rotator.cpp
-	Private/Math/Transform.cpp
-	Private/Math/Vector.cpp
-	Private/Math/Vector2.cpp
-	Private/Math/Vector4.cpp
-	Private/Math/XMMatrix.cpp
-	Private/Math/XMVector.cpp
+set (MATH_HEADER
 	Public/Math/Halton.h
 	Public/Math/Matrix.h
 	Public/Math/Matrix3X3.h
@@ -93,6 +83,20 @@ set (MATH
 	Public/Math/Vector4.h
 	Public/Math/XMMatrix.h
 	Public/Math/XMVector.h)
+
+set (MATH_SOURCE
+	Private/Math/Halton.cpp
+	Private/Math/Matrix.cpp
+	Private/Math/Matrix3X3.cpp
+	Private/Math/Plane.cpp
+	Private/Math/Quaternion.cpp
+	Private/Math/Rotator.cpp
+	Private/Math/Transform.cpp
+	Private/Math/Vector.cpp
+	Private/Math/Vector2.cpp
+	Private/Math/Vector4.cpp
+	Private/Math/XMMatrix.cpp
+	Private/Math/XMVector.cpp)
 
 set (MEMORY
 	Private/Memory/BuddySystem.cpp
@@ -164,7 +168,7 @@ set (REFLECTION
 	Public/Reflection/TypeInfo.h
 	Public/Reflection/TypeInfoMacros.h)
 
-set (SERIALIZATION
+set (SERIALIZATION_HEADER
 	Public/Serialization/Archive.h
 	Public/Serialization/ArchiveUtility.h)
 
@@ -172,7 +176,7 @@ source_group("AppConfig" FILES ${APP_CONFIG})
 source_group("Asset" FILES ${ASSET})
 source_group("Collections" FILES ${COLLECTIONS} )
 source_group("DataStructure" FILES ${DATA_STRUCTURE})
-source_group("DataType" FILES ${DATA_TYPE})
+source_group("DataType" FILES ${DATA_TYPE_HEADER} ${DATA_TYPE_SOURCE})
 source_group("DebugTool" FILES ${DEBUG_TOOL})
 source_group("Delegate" FILES ${DELEGATE})
 source_group("Filesystem" FILES ${FILESYSTEM})
@@ -180,19 +184,20 @@ source_group("Hash" FILES ${HASH})
 source_group("INI" FILES ${INI})
 source_group("Json" FILES ${JSON})
 source_group("LibraryTool" FILES ${LIBRARY_TOOL})
-source_group("Math" FILES ${MATH})
+source_group("Math" FILES ${MATH_HEADER} ${MATH_SOURCE})
 source_group("Misc" FILES ${MISC})
 source_group("Memory" FILES ${MEMORY})
 source_group("MultiThread" FILES ${MULTITHREAD})
 source_group("Physics" FILES ${PHYSICS})
 source_group("Reflection" FILES ${REFLECTION})
-source_group("Serialization" FILES ${SERIALIZATION})
+source_group("Serialization" FILES ${SERIALIZATION_HEADER})
 
 add_library(Core STATIC	${APP_CONFIG}
 						${ASSET}
 						${COLLECTIONS}
 						${DATA_STRUCTURE}
-						${DATA_TYPE}
+						${DATA_TYPE_HEADER}
+						${DATA_TYPE_SOURCE}
 						${DEBUG_TOOL}
 						${DELEGATE}
 						${FILESYSTEM}
@@ -200,13 +205,14 @@ add_library(Core STATIC	${APP_CONFIG}
 						${INI}
 						${JSON}
 						${LIBRARY_TOOL}
-						${MATH}
+						${MATH_HEADER}
+						${MATH_SOURCE}
 						${MEMORY}
 						${MISC}
 						${MULTITHREAD}
 						${PHYSICS}
 						${REFLECTION}
-						${SERIALIZATION})
+						${SERIALIZATION_HEADER})
 
 target_include_directories(Core
 PUBLIC
@@ -229,4 +235,10 @@ PRIVATE
 	./Public/Physics
 	./Public/Math
 )
-							
+
+target_precompile_headers(Core
+PUBLIC
+	${DATA_TYPE_HEADER}
+	${MATH_HEADER}
+	${SERIALIZATION_HEADER}
+)

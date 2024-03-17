@@ -1,5 +1,3 @@
-#include "stdafx.h"
-
 #include "Renderer/IRenderCore.h"
 
 #include "AbstractGraphicsInterface.h"

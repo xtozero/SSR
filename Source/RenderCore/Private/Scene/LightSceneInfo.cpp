@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Scene/LightSceneInfo.h"
 
 #include "Components/LightComponent.h"

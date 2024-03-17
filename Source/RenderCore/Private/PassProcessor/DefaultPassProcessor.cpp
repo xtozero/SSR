@@ -1,7 +1,7 @@
 #include "DefaultPassProcessor.h"
 
-#include "Config/DefaultAglConfig.h"
 #include "Config/DefaultRenderCoreConfig.h"
+#include "DefaultAglConfig.h"
 #include "MaterialResource.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "VertexCollection.h"

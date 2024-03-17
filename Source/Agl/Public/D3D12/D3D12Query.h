@@ -13,7 +13,7 @@ namespace agl
 
 	struct D3D12Query final
 	{
-		D3D12_QUERY_TYPE m_type;
+		D3D12_QUERY_TYPE m_type = D3D12_QUERY_TYPE_OCCLUSION;
 		D3D12QueryHeapBlock* m_heap = nullptr;
 		int32 m_offset = 0;
 	};

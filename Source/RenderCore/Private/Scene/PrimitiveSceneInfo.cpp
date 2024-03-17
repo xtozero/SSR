@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Scene/PrimitiveSceneInfo.h"
 
 #include "Components/PrimitiveComponent.h"

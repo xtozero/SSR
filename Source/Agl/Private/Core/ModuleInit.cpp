@@ -1,10 +1,8 @@
-#include "stdafx.h"
-
-#include "Config/DefaultAglConfig.h"
 #include "D3D11Api.h"
 #include "D3D11ResourceManager.h"
 #include "D3D12Api.h"
 #include "D3D12ResourceManager.h"
+#include "DefaultAglConfig.h"
 #include "EnumStringMap.h"
 #include "IAgl.h"
 #include "InterfaceFactories.h"

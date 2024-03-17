@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "ConstantBuffer.h"
 
 #include "AbstractGraphicsInterface.h"

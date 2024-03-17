@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Components/CameraComponent.h"
 
 #include "common.h"

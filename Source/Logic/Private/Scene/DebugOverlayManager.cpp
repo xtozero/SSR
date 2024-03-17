@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Scene/DebugOverlayManager.h"
 
 #include "Core/GameLogic.h"

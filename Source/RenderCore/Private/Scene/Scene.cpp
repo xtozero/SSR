@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Scene/Scene.h"
 
 #include "ByteBuffer.h"

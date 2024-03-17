@@ -14,8 +14,6 @@ namespace rendercore
 		DECLARE_ASSET( RENDERCORE, UberShader );
 
 	public:
-		friend class ShaderManufacturer;
-		
 		RENDERCORE_DLL virtual StaticShaderSwitches GetStaticSwitches() const override;
 		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
 
@@ -24,6 +22,18 @@ namespace rendercore
 
 		RENDERCORE_DLL virtual agl::ShaderParameterInfo& ParameterInfo() override;
 		RENDERCORE_DLL virtual const agl::ShaderParameterInfo& ParameterInfo() const override;
+
+		RENDERCORE_DLL void SetName( const std::string& name );
+
+		RENDERCORE_DLL void SetShaderType( agl::ShaderType type );
+
+		RENDERCORE_DLL void SetProfile( Name profile );
+
+		RENDERCORE_DLL void SetShaderCode( const std::string& shaderCode );
+
+		RENDERCORE_DLL void SetSwitches( const StaticShaderSwitches& switches );
+
+		RENDERCORE_DLL void AddValidVariation( uint32 id );
 
 		friend bool operator==( const UberShader& lhs, const UberShader& rhs )
 		{

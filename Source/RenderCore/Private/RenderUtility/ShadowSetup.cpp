@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "ShadowSetup.h"
 
 #include "Math/TransformationMatrix.h"
