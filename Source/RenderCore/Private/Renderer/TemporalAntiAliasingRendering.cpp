@@ -5,12 +5,12 @@
 #include "GlobalShaders.h"
 #include "GraphicsApiResource.h"
 #include "RenderView.h"
+#include "ResourceBarrierUtils.h"
 #include "Scene/IScene.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "SceneRenderer.h"
 #include "ShaderParameterUtils.h"
 #include "StaticState.h"
-#include "TransitionUtils.h"
 #include "VertexCollection.h"
 #include "Viewport.h"
 
@@ -55,16 +55,12 @@ namespace rendercore
 		{
 			agl::Texture* sceneTex = renderViewGroup.GetViewport().Texture();
 
-			agl::ResourceTransition copyTransitions[] = {
-				Transition( *historyTex, agl::ResourceState::CopyDest ),
-				Transition( *sceneTex, agl::ResourceState::CopySource ),
-			};
-			GetCommandList().Transition( std::extent_v<decltype( copyTransitions )>, copyTransitions );
+			GetCommandList().AddTransition( Transition( *historyTex, agl::ResourceState::CopyDest ) );
+			GetCommandList().AddTransition( Transition( *sceneTex, agl::ResourceState::CopySource ) );
 
 			GetCommandList().CopyResource( historyTex, sceneTex, true );
 
-			agl::ResourceTransition rtTransition = Transition( *sceneTex, agl::ResourceState::RenderTarget );
-			GetCommandList().Transition( 1, &rtTransition );
+			GetCommandList().AddTransition( Transition( *sceneTex, agl::ResourceState::RenderTarget ) );
 		}
 		else
 		{
@@ -92,13 +88,10 @@ namespace rendercore
 		agl::Texture* sceneTex = renderViewGroup.GetViewport().Texture();
 		agl::Texture* velocityTex = renderTargets.GetVelocity();
 
-		agl::ResourceTransition transitions[] = {
-			Transition( *historyTex, agl::ResourceState::PixelShaderResource ),
-			Transition( *resolveTex, agl::ResourceState::RenderTarget ),
-			Transition( *sceneTex, agl::ResourceState::PixelShaderResource ),
-			Transition( *velocityTex, agl::ResourceState::PixelShaderResource ),
-		};
-		commandList.Transition( std::extent_v<decltype( transitions )>, transitions );
+		commandList.AddTransition( Transition( *historyTex, agl::ResourceState::PixelShaderResource ) );
+		commandList.AddTransition( Transition( *resolveTex, agl::ResourceState::RenderTarget ) );
+		commandList.AddTransition( Transition( *sceneTex, agl::ResourceState::PixelShaderResource ) );
+		commandList.AddTransition( Transition( *velocityTex, agl::ResourceState::PixelShaderResource ) );
 
 		commandList.ClearRenderTarget( resolveTex->RTV(), { 0, 0, 0, 0 } );
 
@@ -150,13 +143,9 @@ namespace rendercore
 		agl::Texture* resolveTex = renderTargets.GetTAAResolve();
 		agl::Texture* sceneTex = renderViewGroup.GetViewport().Texture();
 
-		agl::ResourceTransition transitions[] = {
-			Transition( *historyTex, agl::ResourceState::CopyDest ),
-			Transition( *resolveTex, agl::ResourceState::CopySource ),
-			Transition( *sceneTex, agl::ResourceState::CopyDest ),
-		};
-
-		commandList.Transition( std::extent_v<decltype( transitions )>, transitions );
+		commandList.AddTransition( Transition( *historyTex, agl::ResourceState::CopyDest ) );
+		commandList.AddTransition( Transition( *resolveTex, agl::ResourceState::CopySource ) );
+		commandList.AddTransition( Transition( *sceneTex, agl::ResourceState::CopyDest ) );
 
 		commandList.CopyResource( historyTex, resolveTex, true );
 		commandList.CopyResource( sceneTex, resolveTex, true );
@@ -167,8 +156,7 @@ namespace rendercore
 		agl::Texture* depthStencil = renderTargets.GetDepthStencil();
 		agl::DepthStencilView* dsv = depthStencil != nullptr ? depthStencil->DSV() : nullptr;
 
-		agl::ResourceTransition rtTransition = Transition( *sceneTex, agl::ResourceState::RenderTarget );
-		commandList.Transition( 1, &rtTransition );
+		commandList.AddTransition( Transition( *sceneTex, agl::ResourceState::RenderTarget ) );
 
 		commandList.BindRenderTargets( &rtv, 1, dsv );
 	}

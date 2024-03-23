@@ -7,11 +7,11 @@
 #include "PassProcessor.h"
 #include "RenderTargetPool.h"
 #include "RenderView.h"
+#include "ResourceBarrierUtils.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "SceneRenderer.h"
 #include "ShaderParameterUtils.h"
 #include "StaticState.h"
-#include "TransitionUtils.h"
 #include "VertexCollection.h"
 #include "Viewport.h"
 
@@ -99,12 +99,8 @@ namespace rendercore
 		shaderResources.AddResource( "RSMsConstantParameters", m_constantParams.Resource() );
 		shaderResources.AddResource( "BlackBorderSampler", m_blackBorderSampler.Resource() );
 
-		agl::ResourceTransition beforeTransition[] = {
-			Transition( *m_indirectIllumination.Get(), agl::ResourceState::RenderTarget ),
-		};
-
 		auto commandList = GetCommandList();
-		commandList.Transition( std::extent_v<decltype( beforeTransition )>, beforeTransition );
+		commandList.AddTransition( Transition( *m_indirectIllumination.Get(), agl::ResourceState::RenderTarget ) );
 
 		agl::RenderTargetView* rtv = m_indirectIllumination->RTV();
 		commandList.BindRenderTargets( &rtv, 1, nullptr );
@@ -127,11 +123,7 @@ namespace rendercore
 			AddSingleDrawPass( snapshot );
 		}
 
-		agl::ResourceTransition afterTransition[] = {
-			Transition( *m_indirectIllumination.Get(), agl::ResourceState::GenericRead ),
-		};
-
-		commandList.Transition( std::extent_v<decltype( afterTransition )>, afterTransition );
+		commandList.AddTransition( Transition( *m_indirectIllumination.Get(), agl::ResourceState::GenericRead ) );
 
 		outRenderingShaderResource.AddResource( "IndirectIllumination", m_indirectIllumination->SRV() );
 	}

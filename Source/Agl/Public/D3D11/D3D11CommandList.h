@@ -41,7 +41,7 @@ namespace agl
 		virtual void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea = nullptr, uint32 subresource = 0 ) override;
 		virtual void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset = 0, uint32 numByte = 0 ) override;
 
-		virtual void Transition( uint32 numTransitions, const ResourceTransition* transitions ) override;
+		virtual void AddTransition( const ResourceTransition& transition ) override;
 
 		virtual void BeginQuery( void* rawQuery ) override;
 		virtual void EndQuery( void* rawQuery ) override;
@@ -98,7 +98,7 @@ namespace agl
 		virtual void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea = nullptr, uint32 subresource = 0 ) override;
 		virtual void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 srcSize, uint32 subresource = 0 ) override;
 
-		virtual void Transition( uint32 numTransitions, const ResourceTransition* transitions ) override;
+		virtual void AddTransition( const ResourceTransition& transition ) override;
 
 		virtual void BeginQuery( void* rawQuery ) override;
 		virtual void EndQuery( void* rawQuery ) override;

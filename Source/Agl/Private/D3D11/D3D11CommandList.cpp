@@ -363,7 +363,7 @@ namespace agl
 		::UpdateSubresource( D3D11Context(), dest, src, destOffset, numByte );
 	}
 
-	void D3D11CommandList::Transition( [[maybe_unused]] uint32 numTransitions, [[maybe_unused]] const ResourceTransition* transitions )
+	void D3D11CommandList::AddTransition( [[maybe_unused]] const ResourceTransition& transition )
 	{
 		// Do Nothing
 	}
@@ -625,7 +625,7 @@ namespace agl
 		::UpdateSubresource( *m_pContext.Get(), dest, src, destOffset, numByte );
 	}
 
-	void D3D11ParallelCommandList::Transition( [[maybe_unused]] uint32 numTransitions, [[maybe_unused]] const ResourceTransition* transitions )
+	void D3D11ParallelCommandList::AddTransition( [[maybe_unused]] const ResourceTransition& transition )
 	{
 		// Do Nothing
 	}

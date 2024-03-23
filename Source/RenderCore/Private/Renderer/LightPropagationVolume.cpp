@@ -9,12 +9,12 @@
 #include "PassProcessor.h"
 #include "RenderTargetPool.h"
 #include "RenderView.h"
+#include "ResourceBarrierUtils.h"
 #include "Scene/LightSceneInfo.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "SceneRenderer.h"
 #include "ShaderParameterUtils.h"
 #include "StaticState.h"
-#include "TransitionUtils.h"
 #include "VertexCollection.h"
 #include "Viewport.h"
 
@@ -238,19 +238,13 @@ namespace rendercore
 
 		auto commandList = GetCommandList();
 
-		{
-			agl::ResourceTransition transitions[] = {
-				Transition( *m_lpvTextures.m_coeffR, agl::ResourceState::UnorderedAccess ),
-				Transition( *m_lpvTextures.m_coeffG, agl::ResourceState::UnorderedAccess ),
-				Transition( *m_lpvTextures.m_coeffB, agl::ResourceState::UnorderedAccess ),
-				Transition( *m_lpvTextures.m_coeffOcclusion, agl::ResourceState::UnorderedAccess ),
-				Transition( *tempTextures.m_coeffR, agl::ResourceState::UnorderedAccess ),
-				Transition( *tempTextures.m_coeffG, agl::ResourceState::UnorderedAccess ),
-				Transition( *tempTextures.m_coeffB, agl::ResourceState::UnorderedAccess ),
-			};
-
-			commandList.Transition( std::extent_v<decltype( transitions )>, transitions );
-		}
+		commandList.AddTransition( Transition( *m_lpvTextures.m_coeffR, agl::ResourceState::UnorderedAccess ) );
+		commandList.AddTransition( Transition( *m_lpvTextures.m_coeffG, agl::ResourceState::UnorderedAccess ) );
+		commandList.AddTransition( Transition( *m_lpvTextures.m_coeffB, agl::ResourceState::UnorderedAccess ) );
+		commandList.AddTransition( Transition( *m_lpvTextures.m_coeffOcclusion, agl::ResourceState::UnorderedAccess ) );
+		commandList.AddTransition( Transition( *tempTextures.m_coeffR, agl::ResourceState::UnorderedAccess ) );
+		commandList.AddTransition( Transition( *tempTextures.m_coeffG, agl::ResourceState::UnorderedAccess ) );
+		commandList.AddTransition( Transition( *tempTextures.m_coeffB, agl::ResourceState::UnorderedAccess ) );
 
 		LightPropagationCS lightPropagationCS;
 
@@ -321,13 +315,7 @@ namespace rendercore
 
 		auto commandList = GetCommandList();
 
-		{
-			agl::ResourceTransition transition[] = {
-				Transition( *m_indirectIllumination.Get(), agl::ResourceState::RenderTarget ),
-			};
-
-			commandList.Transition( std::extent_v<decltype( transition )>, transition );
-		}
+		commandList.AddTransition( Transition( *m_indirectIllumination.Get(), agl::ResourceState::RenderTarget ) );
 
 		agl::RenderTargetView* rtv = m_indirectIllumination->RTV();
 		commandList.BindRenderTargets( &rtv, 1, nullptr );
@@ -360,13 +348,7 @@ namespace rendercore
 
 		AddSingleDrawPass( snapshot );
 
-		{
-			agl::ResourceTransition transition[] = {
-				Transition( *m_indirectIllumination.Get(), agl::ResourceState::PixelShaderResource ),
-			};
-
-			commandList.Transition( std::extent_v<decltype( transition )>, transition );
-		}
+		commandList.AddTransition( Transition( *m_indirectIllumination.Get(), agl::ResourceState::PixelShaderResource ) );
 
 		outRenderingShaderResource.AddResource( "IndirectIllumination", m_indirectIllumination->SRV() );
 	}
@@ -486,16 +468,10 @@ namespace rendercore
 
 		auto commandList = GetCommandList();
 
-		{
-			agl::ResourceTransition transitions[] = {
-				Transition( *m_lpvTextures.m_coeffR, agl::ResourceState::UnorderedAccess ),
-				Transition( *m_lpvTextures.m_coeffG, agl::ResourceState::UnorderedAccess ),
-				Transition( *m_lpvTextures.m_coeffB, agl::ResourceState::UnorderedAccess ),
-				Transition( *m_lpvTextures.m_coeffOcclusion, agl::ResourceState::UnorderedAccess ),
-			};
-
-			commandList.Transition( std::extent_v<decltype( transitions )>, transitions );
-		}
+		commandList.AddTransition( Transition( *m_lpvTextures.m_coeffR, agl::ResourceState::UnorderedAccess ) );
+		commandList.AddTransition( Transition( *m_lpvTextures.m_coeffG, agl::ResourceState::UnorderedAccess ) );
+		commandList.AddTransition( Transition( *m_lpvTextures.m_coeffB, agl::ResourceState::UnorderedAccess ) );
+		commandList.AddTransition( Transition( *m_lpvTextures.m_coeffOcclusion, agl::ResourceState::UnorderedAccess ) );
 
 		commandList.BindPipelineState( pso );
 		commandList.BindShaderResources( shaderBindings );
@@ -561,18 +537,12 @@ namespace rendercore
 
 		auto commandList = GetCommandList();
 
-		{
-			agl::ResourceTransition transitions[] = {
-				Transition( *rsmTextures.m_worldPosition, agl::ResourceState::NonPixelShaderResource ),
-				Transition( *rsmTextures.m_normal, agl::ResourceState::NonPixelShaderResource ),
-				Transition( *rsmTextures.m_flux, agl::ResourceState::NonPixelShaderResource ),
-				Transition( *downSampledTex.m_worldPosition, agl::ResourceState::UnorderedAccess ),
-				Transition( *downSampledTex.m_normal, agl::ResourceState::UnorderedAccess ),
-				Transition( *downSampledTex.m_flux, agl::ResourceState::UnorderedAccess ),
-			};
-
-			commandList.Transition( std::extent_v<decltype( transitions )>, transitions );
-		}
+		commandList.AddTransition( Transition( *rsmTextures.m_worldPosition, agl::ResourceState::NonPixelShaderResource ) );
+		commandList.AddTransition( Transition( *rsmTextures.m_normal, agl::ResourceState::NonPixelShaderResource ) );
+		commandList.AddTransition( Transition( *rsmTextures.m_flux, agl::ResourceState::NonPixelShaderResource ) );
+		commandList.AddTransition( Transition( *downSampledTex.m_worldPosition, agl::ResourceState::UnorderedAccess ) );
+		commandList.AddTransition( Transition( *downSampledTex.m_normal, agl::ResourceState::UnorderedAccess ) );
+		commandList.AddTransition( Transition( *downSampledTex.m_flux, agl::ResourceState::UnorderedAccess ) );
 
 		DownSampleRSMsCS downSampleRSMsCS;
 		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( downSampleRSMsCS );
@@ -619,18 +589,12 @@ namespace rendercore
 		{
 			auto commandList = GetCommandList();
 
-			{
-				agl::ResourceTransition transitions[] = {
-					Transition( *downSampledTex.m_worldPosition, agl::ResourceState::NonPixelShaderResource ),
-					Transition( *downSampledTex.m_normal, agl::ResourceState::NonPixelShaderResource ),
-					Transition( *downSampledTex.m_flux, agl::ResourceState::NonPixelShaderResource ),
-					Transition( *m_lpvTextures.m_coeffR, agl::ResourceState::RenderTarget ),
-					Transition( *m_lpvTextures.m_coeffG, agl::ResourceState::RenderTarget ),
-					Transition( *m_lpvTextures.m_coeffB, agl::ResourceState::RenderTarget )
-				};
-
-				commandList.Transition( std::extent_v<decltype( transitions )>, transitions );
-			}
+			commandList.AddTransition( Transition( *downSampledTex.m_worldPosition, agl::ResourceState::NonPixelShaderResource ) );
+			commandList.AddTransition( Transition( *downSampledTex.m_normal, agl::ResourceState::NonPixelShaderResource ) );
+			commandList.AddTransition( Transition( *downSampledTex.m_flux, agl::ResourceState::NonPixelShaderResource ) );
+			commandList.AddTransition( Transition( *m_lpvTextures.m_coeffR, agl::ResourceState::RenderTarget ) );
+			commandList.AddTransition( Transition( *m_lpvTextures.m_coeffG, agl::ResourceState::RenderTarget ) );
+			commandList.AddTransition( Transition( *m_lpvTextures.m_coeffB, agl::ResourceState::RenderTarget ) );
 
 			agl::RenderTargetView* rtvs[] = {
 				m_lpvTextures.m_coeffR->RTV(),
@@ -692,13 +656,7 @@ namespace rendercore
 		{
 			auto commandList = GetCommandList();
 
-			{
-				agl::ResourceTransition transitions[] = {
-					Transition( *m_lpvTextures.m_coeffOcclusion, agl::ResourceState::RenderTarget )
-				};
-
-				commandList.Transition( std::extent_v<decltype( transitions )>, transitions );
-			}
+			commandList.AddTransition( Transition( *m_lpvTextures.m_coeffOcclusion, agl::ResourceState::RenderTarget ) );
 
 			agl::RenderTargetView* rtvs[] = {
 				m_lpvTextures.m_coeffOcclusion->RTV(),

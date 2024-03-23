@@ -626,6 +626,11 @@ namespace agl
 		ResourceState m_state;
 	};
 
+	struct UavBarrier
+	{
+		void* m_pResource;
+	};
+
 	struct ResourceClearValue
 	{
 		ResourceFormat m_format = ResourceFormat::Unknown;

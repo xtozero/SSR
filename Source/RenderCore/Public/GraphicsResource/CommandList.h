@@ -39,7 +39,7 @@ namespace rendercore
 		void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea = nullptr, uint32 subresource = 0 );
 		void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset = 0, uint32 numByte = 0 );
 
-		void Transition( uint32 numTransitions, const agl::ResourceTransition* transitions );
+		void AddTransition( const agl::ResourceTransition& transition );
 
 		void BeginQuery( agl::Query* rawQuery );
 		void EndQuery( agl::Query* rawQuery );

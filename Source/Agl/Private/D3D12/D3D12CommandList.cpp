@@ -154,6 +154,7 @@ namespace agl
 
 	void D3D12CommandListImpl::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
 	{
+		m_barrierBatcher.Commit( *this );
 		m_globalConstantBuffers.CommitShaderValue( false );
 		CommandList().DrawInstanced( vertexCount, numInstance, baseVertexLocation, 0 );
 		m_globalConstantBuffers.Reset( false );
@@ -161,6 +162,7 @@ namespace agl
 
 	void D3D12CommandListImpl::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
 	{
+		m_barrierBatcher.Commit( *this );
 		m_globalConstantBuffers.CommitShaderValue( false );
 		CommandList().DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation, 0 );
 		m_globalConstantBuffers.Reset( false );
@@ -168,6 +170,7 @@ namespace agl
 
 	void D3D12CommandListImpl::Dispatch( uint32 x, uint32 y, uint32 z )
 	{
+		m_barrierBatcher.Commit( *this );
 		m_globalConstantBuffers.CommitShaderValue( true );
 		CommandList().Dispatch( x, y, z );
 		m_globalConstantBuffers.Reset( true );
@@ -195,6 +198,8 @@ namespace agl
 			return;
 		}
 
+		m_barrierBatcher.Commit( *this );
+
 		auto d3d12RTV = static_cast<D3D12RenderTargetView*>( renderTarget );
 		D3D12_CPU_DESCRIPTOR_HANDLE handle = d3d12RTV->GetCpuHandle().At();
 		CommandList().ClearRenderTargetView( handle, clearColor, 0, nullptr );
@@ -206,6 +211,8 @@ namespace agl
 		{
 			return;
 		}
+
+		m_barrierBatcher.Commit( *this );
 
 		auto d3d12DSV = static_cast<D3D12DepthStencilView*>( depthStencil );
 		D3D12_CPU_DESCRIPTOR_HANDLE handle = d3d12DSV->GetCpuHandle().At();
@@ -221,6 +228,8 @@ namespace agl
 		{
 			return;
 		}
+
+		m_barrierBatcher.Commit( *this );
 
 		if ( bDirect )
 		{
@@ -241,6 +250,8 @@ namespace agl
 		{
 			return;
 		}
+
+		m_barrierBatcher.Commit( *this );
 
 		if ( bDirect )
 		{
@@ -267,6 +278,8 @@ namespace agl
 			return;
 		}
 
+		m_barrierBatcher.Commit( *this );
+
 		D3D12Uploader().Upload( *d3d12Texture, src, srcRowSize, destArea, subresource );
 	}
 
@@ -278,31 +291,19 @@ namespace agl
 			return;
 		}
 
+		m_barrierBatcher.Commit( *this );
+
 		D3D12Uploader().Upload( *d3d12Buffer, src, destOffset, numByte );
 	}
 
-	void D3D12CommandListImpl::Transition( uint32 numTransitions, const ResourceTransition* transitions )
+	void D3D12CommandListImpl::AddTransition( const ResourceTransition& transition )
 	{
-		std::vector<D3D12_RESOURCE_BARRIER, InlineAllocator<D3D12_RESOURCE_BARRIER, 1>> d3d12Barriers;
-		d3d12Barriers.reserve( numTransitions );
-		for ( uint32 i = 0; i < numTransitions; ++i )
-		{
-			ResourceState beforeState = transitions[i].m_pTransitionable->GetResourceState();
-			ResourceState afterState = transitions[i].m_state;
+		m_barrierBatcher.AddTransition( transition );
+	}
 
-			if ( beforeState != afterState )
-			{
-				d3d12Barriers.emplace_back( ConvertToResourceBarrier( transitions[i] ) );
-				transitions[i].m_pTransitionable->SetResourceState( transitions[i].m_state );
-			}
-		}
-
-		if ( d3d12Barriers.empty() )
-		{
-			return;
-		}
-
-		CommandList().ResourceBarrier( static_cast<uint32>( d3d12Barriers.size() ), d3d12Barriers.data() );
+	void D3D12CommandListImpl::ResourceBarrier( uint32 numBarriers, D3D12_RESOURCE_BARRIER* barriers )
+	{
+		CommandList().ResourceBarrier( numBarriers, barriers );
 	}
 
 	void D3D12CommandListImpl::BeginQuery( void* rawQuery )
@@ -330,6 +331,8 @@ namespace agl
 
 	void D3D12CommandListImpl::Close()
 	{
+		m_barrierBatcher.Commit( *this );
+
 		CommandList().Close();
 	}
 
@@ -454,9 +457,9 @@ namespace agl
 		m_imple.UpdateSubresource( dest, src, destOffset, numByte );
 	}
 
-	void D3D12CommandList::Transition( uint32 numTransitions, const ResourceTransition* transitions )
+	void D3D12CommandList::AddTransition( const ResourceTransition& transition )
 	{
-		m_imple.Transition( numTransitions, transitions );
+		m_imple.AddTransition( transition );
 	}
 
 	void D3D12CommandList::BeginQuery( void* rawQuery )
@@ -649,9 +652,9 @@ namespace agl
 		m_imple.UpdateSubresource( dest, src, destOffset, numByte );
 	}
 
-	void D3D12ParallelCommandList::Transition( uint32 numTransitions, const ResourceTransition* transitions )
+	void D3D12ParallelCommandList::AddTransition( const ResourceTransition& transition )
 	{
-		m_imple.Transition( numTransitions, transitions );
+		m_imple.AddTransition( transition );
 	}
 
 	void D3D12ParallelCommandList::BeginQuery( void* rawQuery )

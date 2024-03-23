@@ -130,18 +130,21 @@ set (RENDER_SCENE_SOURCE
 	Public/Scene/VolumetricCloudSceneInfo.h
 	Public/Scene/VolumetricFogSceneInfo.h)
 
-set (RENDER_UTILITY
+set (RENDER_UTILITY_HEADER
 	../Shaders/Public/Atmosphere/AtmosphereConstant.h
-	Private/RenderUtility/AbstractGraphicsInterface.cpp
-	Private/RenderUtility/CommonRenderResource.cpp
-	Private/RenderUtility/RenderTargetPool.cpp
-	Private/RenderUtility/ShadowSetup.cpp
 	Public/RenderUtility/AbstractGraphicsInterface.h
 	Public/RenderUtility/CommonRenderResource.h
 	Public/RenderUtility/RenderTargetPool.h
 	Public/RenderUtility/ShaderParameterUtils.h
 	Public/RenderUtility/ShadowSetup.h
-	Public/RenderUtility/TransitionUtils.h)
+	Public/RenderUtility/ResourceBarrierUtils.h)
+
+set (RENDER_UTILITY_SOURCE
+	Private/RenderUtility/AbstractGraphicsInterface.cpp
+	Private/RenderUtility/CommonRenderResource.cpp
+	Private/RenderUtility/RenderTargetPool.cpp
+	Private/RenderUtility/ShadowSetup.cpp
+	Private/RenderUtility/ResourceBarrierUtils.cpp)
 	
 set (RENDERER_SOURCE
 	Private/Renderer/ExponentialShadowMapRendering.cpp
@@ -176,7 +179,7 @@ source_group("Mesh" FILES ${MESH_SOURCE})
 source_group("PassProcessor" FILES ${PASS_PROCESSOR})
 source_group("Proxies" FILES ${PROXIES_SOURCE})
 source_group("Renderer" FILES ${RENDERER_SOURCE})
-source_group("RenderUtility" FILES ${RENDER_UTILITY})
+source_group("RenderUtility" FILES ${RENDER_UTILITY_HEADER} ${RENDER_UTILITY_SOURCE})
 source_group("Scene" FILES ${RENDER_SCENE_SOURCE})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -193,7 +196,8 @@ add_library(RenderCore SHARED 	${CONFIG_SOURCE}
 								${PASS_PROCESSOR}
 								${PROXIES_SOURCE}
 								${RENDER_SCENE_SOURCE}
-								${RENDER_UTILITY}
+								${RENDER_UTILITY_HEADER}
+								${RENDER_UTILITY_SOURCE}
 								${RENDERER_SOURCE})
 
 target_include_directories(RenderCore
@@ -231,7 +235,9 @@ PRIVATE
 
 target_precompile_headers(RenderCore
 PUBLIC
-	${GRAPHICS_RESOURCE_HEADER})
+	${GRAPHICS_RESOURCE_HEADER}
+PRIVATE
+	${RENDER_UTILITY_HEADER})
 
 add_custom_command(TARGET RenderCore POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/RenderCore.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/RenderCore.dll"

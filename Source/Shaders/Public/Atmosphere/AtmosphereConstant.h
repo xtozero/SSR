@@ -1,5 +1,6 @@
 // Rayleigh
 #ifdef __cplusplus
+#pragma once
 #define CONSTANT constexpr
 #else
 #define CONSTANT static const

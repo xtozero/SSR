@@ -9,12 +9,12 @@
 #include "Proxies/TexturedSkyProxy.h"
 #include "RenderTargetPool.h"
 #include "RenderView.h"
+#include "ResourceBarrierUtils.h"
 #include "Scene/LightSceneInfo.h"
 #include "Scene/Scene.h"
 #include "Scene/SceneConstantBuffers.h"
 #include "SkyAtmosphereRendering.h"
 #include "StaticState.h"
-#include "TransitionUtils.h"
 #include "Viewport.h"
 
 namespace rendercore
@@ -263,8 +263,7 @@ namespace rendercore
 
 		if ( gpuPrimitiveInfo.Resource() )
 		{
-			agl::ResourceTransition transition = Transition( *gpuPrimitiveInfo.Resource(), agl::ResourceState::GenericRead );
-			commandList.Transition( 1, &transition );
+			commandList.AddTransition( Transition( *gpuPrimitiveInfo.Resource(), agl::ResourceState::GenericRead ) );
 		}
 
 		m_shaderResources.AddResource( "primitiveInfo", gpuPrimitiveInfo.SRV() );
@@ -424,14 +423,10 @@ namespace rendercore
 		{
 			GPU_PROFILE( commandList, Depth );
 
-			agl::ResourceTransition transitions[] = {
-				Transition( *renderTarget, agl::ResourceState::RenderTarget ),
-				Transition( *worldNormal, agl::ResourceState::RenderTarget ),
-				Transition( *velocity, agl::ResourceState::RenderTarget ),
-				Transition( *depthStencil, agl::ResourceState::DepthWrite )
-			};
-
-			commandList.Transition( std::extent_v<decltype( transitions )>, transitions );
+			commandList.AddTransition( Transition( *renderTarget, agl::ResourceState::RenderTarget ) );
+			commandList.AddTransition( Transition( *worldNormal, agl::ResourceState::RenderTarget ) );
+			commandList.AddTransition( Transition( *velocity, agl::ResourceState::RenderTarget ) );
+			commandList.AddTransition( Transition( *depthStencil, agl::ResourceState::DepthWrite ) );
 
 			agl::RenderTargetView* rtv0 = renderTarget->RTV();
 			commandList.ClearRenderTarget( rtv0, { 0, 0, 0, 0 } );

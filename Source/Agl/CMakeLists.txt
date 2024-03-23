@@ -66,6 +66,7 @@ set (D3D11_UTILITY
 	Public/D3D11/D3D11FlagConvertor.h)
 
 set (D3D12_RENDER_RESOURCE_HEADER
+	Public/D3D12/D3D12BarrierBatcher.h
 	Public/D3D12/D3D12BindlessManager.h
 	Public/D3D12/D3D12BlendState.h
 	Public/D3D12/D3D12Buffer.h
@@ -91,6 +92,7 @@ set (D3D12_RENDER_RESOURCE_HEADER
 	Public/D3D12/D3D12Viewport.h)
 
 set (D3D12_RENDER_RESOURCE_SOURCE
+	Private/D3D12/D3D12BarrierBatcher.cpp
 	Private/D3D12/D3D12BindlessManager.cpp
 	Private/D3D12/D3D12BlendState.cpp
 	Private/D3D12/D3D12Buffer.cpp

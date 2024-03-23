@@ -31,7 +31,7 @@ namespace agl
 		};
 
 		ICommandList* commandList = GetInterface<IAgl>()->GetCommandList();
-		commandList->Transition( 1, &transition );
+		commandList->AddTransition( transition );
 
 		if ( m_frameBuffer.Get() != nullptr )
 		{

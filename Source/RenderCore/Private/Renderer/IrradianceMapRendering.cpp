@@ -7,12 +7,12 @@
 #include "PassProcessor.h"
 #include "RenderOption.h"
 #include "RenderTargetPool.h"
+#include "ResourceBarrierUtils.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "SceneRenderer.h"
 #include "ShaderParameterUtils.h"
 #include "ShaderParameterUtils.h"
 #include "StaticState.h"
-#include "TransitionUtils.h"
 #include "VertexCollection.h"
 
 #include <cassert>
@@ -94,8 +94,7 @@ namespace rendercore
 
 		auto commandList = GetCommandList();
 
-		auto toRenderTarget = Transition( *irradianceMap.Get(), agl::ResourceState::RenderTarget);
-		commandList.Transition( 1, &toRenderTarget );
+		commandList.AddTransition( Transition( *irradianceMap.Get(), agl::ResourceState::RenderTarget ) );
 
 		{
 			agl::RenderTargetView* rtv = irradianceMap->RTV();
@@ -141,8 +140,7 @@ namespace rendercore
 			}
 		}
 
-		auto toShaderResource = Transition( *irradianceMap.Get(), agl::ResourceState::PixelShaderResource );
-		commandList.Transition( 1, &toShaderResource );
+		commandList.AddTransition( Transition( *irradianceMap.Get(), agl::ResourceState::PixelShaderResource ) );
 
 		commandList.Commit();
 

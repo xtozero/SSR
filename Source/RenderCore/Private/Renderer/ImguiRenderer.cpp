@@ -14,13 +14,13 @@
 #include "PassProcessor.h"
 #include "RenderOption.h"
 #include "RenderView.h"
+#include "ResourceBarrierUtils.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "SceneRenderer.h"
 #include "ShaderParameterUtils.h"
 #include "SizedTypes.h"
 #include "StaticState.h"
 #include "Texture.h"
-#include "TransitionUtils.h"
 #include "VertexCollection.h"
 #include "Viewport.h"
 
@@ -272,9 +272,7 @@ namespace rendercore
 				SetShaderValue( commandList, param, imguiProjection );
 
 				auto texture = static_cast<agl::Texture*>( drawCommand.m_textureId );
-
-				agl::ResourceTransition transition = Transition( *texture, agl::ResourceState::PixelShaderResource );
-				commandList.Transition( 1, &transition );
+				commandList.AddTransition( Transition( *texture, agl::ResourceState::PixelShaderResource ) );
 
 				RenderingShaderResource imguiShaderResources;
 				imguiShaderResources.AddResource( "texture0", texture->SRV() );

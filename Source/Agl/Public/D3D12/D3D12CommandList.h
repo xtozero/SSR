@@ -1,5 +1,6 @@
 #pragma once
 
+#include "D3D12BarrierBatcher.h"
 #include "D3D12GlobalDescriptorHeap.h"
 #include "D3D12PipelineCache.h"
 #include "GlobalConstantBuffers.h"
@@ -68,7 +69,9 @@ namespace agl
 		void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea, uint32 subresource );
 		void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset, uint32 numByte );
 
-		void Transition( uint32 numTransitions, const ResourceTransition* transitions );
+		void AddTransition( const ResourceTransition& transition );
+
+		void ResourceBarrier( uint32 numBarriers, D3D12_RESOURCE_BARRIER* barriers );
 
 		void BeginQuery( void* rawQuery );
 		void EndQuery( void* rawQuery );
@@ -89,6 +92,8 @@ namespace agl
 		D3D12GlobalDescriptorHeap m_globalDescriptorHeap;
 
 		D3D12PipelineCache m_stateCache;
+
+		D3D12BarrierBatcher m_barrierBatcher;
 	};
 
 	class ID3D12CommandListEX : public ICommandList
@@ -126,7 +131,7 @@ namespace agl
 		virtual void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea = nullptr, uint32 subresource = 0 ) override;
 		virtual void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset = 0, uint32 numByte = 0 ) override;
 
-		virtual void Transition( uint32 numTransitions, const ResourceTransition* transitions ) override;
+		virtual void AddTransition( const ResourceTransition& transition ) override;
 
 		virtual void BeginQuery( void* rawQuery ) override;
 		virtual void EndQuery( void* rawQuery ) override;
@@ -186,7 +191,7 @@ namespace agl
 		virtual void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea = nullptr, uint32 subresource = 0 ) override;
 		virtual void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset = 0, uint32 numByte = 0 ) override;
 
-		virtual void Transition( uint32 numTransitions, const ResourceTransition* transitions ) override;
+		virtual void AddTransition( const ResourceTransition& transition ) override;
 
 		virtual void BeginQuery( void* rawQuery ) override;
 		virtual void EndQuery( void* rawQuery ) override;

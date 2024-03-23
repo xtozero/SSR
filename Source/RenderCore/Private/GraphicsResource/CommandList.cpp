@@ -97,9 +97,9 @@ namespace rendercore
 		m_imple.UpdateSubresource( dest, src, destOffset, numByte );
 	}
 
-	void CommandList::Transition( uint32 numTransitions, const agl::ResourceTransition* transitions )
+	void CommandList::AddTransition( const agl::ResourceTransition& transition )
 	{
-		m_imple.Transition( numTransitions, transitions );
+		m_imple.AddTransition( transition );
 	}
 
 	void CommandList::BeginQuery( agl::Query* rawQuery )

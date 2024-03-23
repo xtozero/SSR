@@ -37,7 +37,7 @@ namespace agl
 			};
 
 			ICommandList* commandList = GetInterface<IAgl>()->GetCommandList();
-			commandList->Transition( 1, &transition );
+			commandList->AddTransition( transition );
 		}
 
 		virtual void OnEndFrameRendering() override
@@ -57,7 +57,7 @@ namespace agl
 			};
 
 			ICommandList* commandList = GetInterface<IAgl>()->GetCommandList();
-			commandList->Transition( 1, &transition );
+			commandList->AddTransition( transition );
 		}
 
 		virtual DeviceError Present( bool vSync = false ) override

@@ -18,6 +18,7 @@
 #include "Proxies/VolumetricCloudProxy.h"
 #include "RenderTargetPool.h"
 #include "RenderView.h"
+#include "ResourceBarrierUtils.h"
 #include "Scene/IScene.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "Scene/Scene.h"
@@ -29,7 +30,6 @@
 #include "ShadowSetup.h"
 #include "SkyAtmosphereRendering.h"
 #include "StaticState.h"
-#include "TransitionUtils.h"
 #include "Viewport.h"
 #include "VolumetricCloudPassProcessor.h"
 #include "VolumetricFogPassProcessor.h"
@@ -564,21 +564,16 @@ namespace rendercore
 
 			StoreOuputContext( context );
 
-			using TransitionArray = std::vector<agl::ResourceTransition, InlineAllocator<agl::ResourceTransition, 8>>;
-			TransitionArray beforeRenderDepth;
-
-			beforeRenderDepth.push_back( Transition( *shadowMap.m_shadowMaps[0].Get(), agl::ResourceState::RenderTarget ) );
-			beforeRenderDepth.push_back( Transition( *shadowMap.m_shadowMapDepth.Get(), agl::ResourceState::DepthWrite ) );
+			commandList.AddTransition( Transition( *shadowMap.m_shadowMaps[0].Get(), agl::ResourceState::RenderTarget ) );
+			commandList.AddTransition( Transition( *shadowMap.m_shadowMapDepth.Get(), agl::ResourceState::DepthWrite ) );
 
 			bool rsmsEnabled = DefaultRenderCore::IsRSMsEnabled() && shadowMap.m_shadowMaps.size() >= 4;
 			if ( rsmsEnabled )
 			{
-				beforeRenderDepth.push_back( Transition( *shadowMap.m_shadowMaps[1].Get(), agl::ResourceState::RenderTarget ) );
-				beforeRenderDepth.push_back( Transition( *shadowMap.m_shadowMaps[2].Get(), agl::ResourceState::RenderTarget ) );
-				beforeRenderDepth.push_back( Transition( *shadowMap.m_shadowMaps[3].Get(), agl::ResourceState::RenderTarget ) );
+				commandList.AddTransition( Transition( *shadowMap.m_shadowMaps[1].Get(), agl::ResourceState::RenderTarget ) );
+				commandList.AddTransition( Transition( *shadowMap.m_shadowMaps[2].Get(), agl::ResourceState::RenderTarget ) );
+				commandList.AddTransition( Transition( *shadowMap.m_shadowMaps[3].Get(), agl::ResourceState::RenderTarget ) );
 			}
-
-			commandList.Transition( static_cast<uint32>( beforeRenderDepth.size() ), beforeRenderDepth.data());
 
 			agl::RenderTargetView* rtv = shadowMap.m_shadowMaps[0]->RTV();
 			commandList.ClearRenderTarget( rtv, { 1, 1, 1, 1 } );
@@ -601,18 +596,14 @@ namespace rendercore
 			shadowInfo.SetupShadowConstantBuffer();
 			shadowInfo.RenderDepth( *this, m_shaderResources );
 
-			TransitionArray afterRenderDepth;
-
-			afterRenderDepth.push_back( Transition( *shadowMap.m_shadowMaps[0].Get(), agl::ResourceState::GenericRead ) );
+			commandList.AddTransition( Transition( *shadowMap.m_shadowMaps[0].Get(), agl::ResourceState::GenericRead ) );
 
 			if ( rsmsEnabled )
 			{
-				afterRenderDepth.push_back( Transition( *shadowMap.m_shadowMaps[1].Get(), agl::ResourceState::GenericRead ) );
-				afterRenderDepth.push_back( Transition( *shadowMap.m_shadowMaps[2].Get(), agl::ResourceState::GenericRead ) );
-				afterRenderDepth.push_back( Transition( *shadowMap.m_shadowMaps[3].Get(), agl::ResourceState::GenericRead ) );
+				commandList.AddTransition( Transition( *shadowMap.m_shadowMaps[1].Get(), agl::ResourceState::GenericRead ) );
+				commandList.AddTransition( Transition( *shadowMap.m_shadowMaps[2].Get(), agl::ResourceState::GenericRead ) );
+				commandList.AddTransition( Transition( *shadowMap.m_shadowMaps[3].Get(), agl::ResourceState::GenericRead ) );
 			}
-
-			commandList.Transition( static_cast<uint32>( afterRenderDepth.size() ), afterRenderDepth.data() );
 
 			if ( DefaultRenderCore::IsESMsEnabled() )
 			{

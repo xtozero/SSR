@@ -14,10 +14,10 @@
 #include "IAgl.h"
 #include "RenderTargetPool.h"
 #include "RenderView.h"
+#include "ResourceBarrierUtils.h"
 #include "Scene/Scene.h"
 #include "ShaderCache.h"
 #include "TaskScheduler.h"
-#include "TransitionUtils.h"
 #include "UserInterfaceRenderer.h"
 
 #if _WIN64
