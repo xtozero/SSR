@@ -327,6 +327,11 @@ namespace rendercore
 		return false;
 	}
 
+	void Material::SetName( const Name& name )
+	{
+		m_name = name;
+	}
+
 	const ShaderBase* Material::GetShader( agl::ShaderType type ) const
 	{
 		switch ( type )

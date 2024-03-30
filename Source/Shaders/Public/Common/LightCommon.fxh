@@ -47,6 +47,7 @@ cbuffer Material : register( b3 )
 	float4		Specular;
 	float		Roughness;
 	float		SpecularExponent;
+	float		Metallic;
 };
 
 struct GeometryProperty
@@ -55,6 +56,13 @@ struct GeometryProperty
 	float3 viewPos;
 	float3 normal;
 	float2 screenUV;
+};
+
+struct SurfaceProperty
+{
+	float3 albedo;
+	float roughness;
+	float metallic;
 };
 
 struct LIGHTCOLOR
@@ -88,6 +96,43 @@ ForwardLightData GetLight( uint index )
 	light.m_specular = specular;
 	
 	return light;
+}
+
+float3 FresnelSchlick( float cosTheta, float3 f0 )
+{
+	return f0 + ( 1.f - f0 ) * pow( saturate( 1.f - cosTheta ), 5.f );
+}
+
+float DistributionGGX( float ndoth, float roughness )
+{
+	float a = roughness * roughness;
+	float a2 = a * a;
+	float ndoth2 = ndoth * ndoth;
+
+	float num = a2;
+	float denom = ( ndoth2 * ( a2 - 1.f ) + 1.f );
+	denom = PI * denom * denom;
+
+	return num / denom;
+}
+
+float GeometrySchlickGGX( float ndotv, float roughness )
+{
+	float r = roughness + 1.f;
+	float k = ( r * r ) / 8.f;
+
+	float num = ndotv;
+	float denom = ndotv * ( 1.f - k ) + k;
+
+	return num / denom;
+}
+
+float GemoetrySmith( float ndotl, float ndotv, float roughness )
+{
+	float ggx1 = GeometrySchlickGGX( ndotl, roughness );
+	float ggx2 = GeometrySchlickGGX( ndotv, roughness );
+
+	return ggx1 * ggx2;
 }
 
 float OrenNayarDiffuse( float3 viewDirection, float3 lightDirection, float3 normal, float roughness )
@@ -148,11 +193,60 @@ LIGHTCOLOR CalcLightProperties( ForwardLightData light, float3 worldPosition, fl
         light.m_direction = -toLight;
     }
 	
-	// ToDo 
-	// float diffuseFactor = OrenNayarDiffuse( viewDirection, lightDirection, normal, roughness );
     float ndotl = saturate( dot( toLight, normal ) );
 	lightColor.m_diffuse = light.m_diffuse * ndotl;
     lightColor.m_specular = CookTorranceSpecular( viewDirection, toLight, normal, roughness ) * light.m_specular * ndotl;
+	
+    float distance = length( light.m_position - worldPosition );
+    float attenuation = 1.f / ( light.m_attenuation.x + light.m_attenuation.y * distance + light.m_attenuation.z * distance * distance );
+
+    float theta = dot( toLight, -light.m_direction );
+    float epsilon = ( light.m_theta - light.m_phi );
+    float intensity = saturate( ( theta - light.m_phi ) / epsilon );
+	
+    lightColor.m_diffuse *= attenuation * intensity;
+    lightColor.m_specular *= attenuation * intensity;
+	
+	return lightColor;
+}
+
+LIGHTCOLOR CalcPhysicallyBasedLightProperties( ForwardLightData light, float3 worldPosition, float3 viewDirection, float3 normal, SurfaceProperty surface )
+{
+	LIGHTCOLOR lightColor = (LIGHTCOLOR)0;
+
+    float3 toLight = normalize( light.m_position - worldPosition );
+    if ( light.m_type == LightTypeDirectional )
+    {
+        toLight = -light.m_direction;
+    }
+    else if ( light.m_type == LightTypePoint )
+    {
+        light.m_direction = -toLight;
+    }
+
+	float3 f0 = (float3)0.04f;
+	f0 = lerp( f0, surface.albedo, surface.metallic );
+	
+	float3 halfway = normalize( viewDirection + toLight );
+    float ndotl = saturate( dot( toLight, normal ) );
+	float hdotv = saturate( dot( halfway, viewDirection ) );
+	float ndotv = saturate( dot( normal, viewDirection ) );
+	float ndoth = saturate( dot( normal, halfway ) );
+
+	float N = DistributionGGX( ndoth, surface.roughness );
+	float G = GemoetrySmith( ndotl, ndotv, surface.roughness );
+	float3 F = FresnelSchlick( hdotv, f0 );
+
+	float3 kS = F;
+	float3 kD = (float3)1.f - kS;
+	kD *= 1.f - surface.metallic;
+	
+	lightColor.m_diffuse = float4( kD / PI, 1.f ) * light.m_diffuse * ndotl;
+
+	float3 numerator = N * G * F;
+	float denominator = 4.f * ndotv * ndotl + 0.0001f;
+
+    lightColor.m_specular = float4( numerator / denominator, 1.f ) * light.m_specular * ndotl;
 	
     float distance = length( light.m_position - worldPosition );
     float attenuation = 1.f / ( light.m_attenuation.x + light.m_attenuation.y * distance + light.m_attenuation.z * distance * distance );
@@ -214,6 +308,36 @@ LIGHTCOLOR CalcLight( GeometryProperty geometry )
 	{
 		ForwardLightData light = GetLight( i );
         LightColor = CalcLightProperties( light, geometry.worldPos, viewDirection, normal, roughness );
+
+		// ToDo
+		float visibility = 1.f; // CalcShadowVisibility( geometry.worldPos, geometry.viewPos );
+
+		cColor.m_diffuse += LightColor.m_diffuse * visibility;
+		cColor.m_specular += LightColor.m_specular * visibility;
+	}
+
+	cColor.m_diffuse.rgb += ImageBasedLight( normal );
+	cColor.m_diffuse.rgb += HemisphereLight( normal );
+
+#if EnableRSMs == 1
+	cColor.m_diffuse.rgb += IndirectIllumination.Sample( LinearSampler, geometry.screenUV ).rgb;
+#endif
+
+	return cColor;
+}
+
+LIGHTCOLOR CalcPhysicallyBasedLight( GeometryProperty geometry, SurfaceProperty surface )
+{
+	float3 viewDirection = normalize( CameraPos - geometry.worldPos );
+	float3 normal = normalize( geometry.normal );
+
+	LIGHTCOLOR LightColor = (LIGHTCOLOR)0;
+	LIGHTCOLOR cColor = (LIGHTCOLOR)0;
+
+	for ( uint i = 0; i < NumLights; ++i )
+	{
+		ForwardLightData light = GetLight( i );
+        LightColor = CalcPhysicallyBasedLightProperties( light, geometry.worldPos, viewDirection, normal, surface );
 
 		// ToDo
 		float visibility = 1.f; // CalcShadowVisibility( geometry.worldPos, geometry.viewPos );

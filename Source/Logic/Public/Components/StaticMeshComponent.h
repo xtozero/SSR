@@ -1,12 +1,13 @@
 #pragma once
 
 #include "PrimitiveComponent.h"
+#include "Mesh/StaticMesh.h"
 
 #include <memory>
 
 namespace rendercore
 {
-	class StaticMesh;
+	class Material;
 	class RenderOption;
 }
 
@@ -32,14 +33,46 @@ namespace logic
 		void SetRenderOption( const std::shared_ptr<rendercore::RenderOption>& pRenderOption );
 		std::shared_ptr<rendercore::RenderOption> GetRenderOption() const { return m_pRenderOption; }
 
+		void SetMaterial( size_t index, const std::shared_ptr<rendercore::Material>& pMaterial );
+		std::shared_ptr<rendercore::Material> GetMaterial( size_t index ) const
+		{
+			if ( ( index < m_materials.size() ) && ( m_materials[index] != nullptr ) )
+			{
+				return m_materials[index];
+			}
+
+			if ( GetStaticMesh() )
+			{
+				return GetStaticMesh()->GetMaterial( index );
+			}
+
+			return nullptr;
+		}
+
+		uint32 NumMaterials() const
+		{
+			uint32 numMaterials = static_cast<uint32>( m_materials.size() );
+
+			if ( GetStaticMesh() )
+			{
+				numMaterials = std::max( numMaterials, GetStaticMesh()->NumMaterials() );
+			}
+
+			return numMaterials;
+		}
+
 	private:
-		bool LoadModelMesh( const std::string& assetPath );
-		bool LoadRenderOption( const std::string& assetPath );
+		void LoadModelMesh( const std::string& assetPath );
+		void LoadRenderOption( const std::string& assetPath );
+		void LoadMaterial( size_t index, const std::string& assetPath );
 
 		void OnModelLoadFinished( const std::shared_ptr<void>& model );
 		void OnRenderOptionLoadFinished( const std::shared_ptr<void>& renderOption );
+		void OnMaterialLoadFinished( size_t index, const std::shared_ptr<void>& material );
 
 		std::shared_ptr<rendercore::StaticMesh> m_pStaticMesh = nullptr;
 		std::shared_ptr<rendercore::RenderOption> m_pRenderOption = nullptr;
+
+		std::vector<std::shared_ptr<rendercore::Material>> m_materials;
 	};
 }

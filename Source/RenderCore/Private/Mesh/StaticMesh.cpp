@@ -123,9 +123,24 @@ namespace rendercore
 		return m_materials[idx].m_mateiral->GetMaterialResource();
 	}
 
+	std::shared_ptr<Material> StaticMesh::GetMaterial( size_t idx ) const
+	{
+		if ( idx >= m_materials.size() )
+		{
+			return nullptr;
+		}
+
+		return m_materials[idx].m_mateiral;
+	}
+
 	void StaticMesh::AddMaterial( const std::shared_ptr<Material>& mateiral )
 	{
 		m_materials.emplace_back( mateiral );
+	}
+
+	uint32 StaticMesh::NumMaterials() const
+	{
+		return static_cast<uint32>( m_materials.size() );
 	}
 
 	StaticMesh::~StaticMesh()

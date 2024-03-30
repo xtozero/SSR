@@ -1,0 +1,51 @@
+{
+  "World": [
+    {
+      "Object": {
+        "Class": "skybox",
+        "Components": {
+          "TexturedSkyComponent": {
+            "Material": "./Assets/Skybox/M_TropicalSunnyDay.asset"
+          }
+        }
+      }
+    },
+    {
+      "Object": {
+        "Class": "directional_light",
+        "Direction": [ -1, -1, 0 ],
+        "Diffuse": [ 1.0, 1.0, 1.0, 1 ],
+        "Specular": [ 1.0, 1.0, 1.0, 1 ]
+      }
+    },
+    {
+      "Object": {
+        "Class": "player",
+        "Position": [ 0, 0, -60 ],
+        "Components": {
+          "GroundMovementComponent": {
+            "Kinetic_Force_Scale": 300,
+            "Friction": [ 300, 200 ]
+          }
+        }
+      }
+    },
+    {
+      "Object": {
+        "Class": "sphere_object",
+        "Name": "white_sphere",
+        "Position": [ 0, 0, 0 ],
+        "Scale": [ 50, 50, 50 ],
+        "Components": {
+          "StaticMeshComponent": {
+            "Model": "./Assets/Models/Obj/RSMs/white_sphere.asset",
+            "RenderOption": "./Assets/RenderOptions/RO_Default.asset",
+            "Materials": {
+              "0": "./Assets/Materials/PBR/M_white.asset"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

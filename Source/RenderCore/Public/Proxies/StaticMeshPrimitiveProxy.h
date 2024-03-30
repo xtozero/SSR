@@ -10,6 +10,7 @@ namespace logic
 
 namespace rendercore
 {
+	class Material;
 	class RenderOption;
 	class StaticMesh;
 	class StaticMeshRenderData;
@@ -31,5 +32,7 @@ namespace rendercore
 		StaticMeshRenderData* m_pRenderData = nullptr;
 
 		std::shared_ptr<const RenderOption> m_pRenderOption = nullptr;
+
+		std::vector<std::shared_ptr<Material>> m_materials;
 	};
 }

@@ -759,6 +759,8 @@ namespace rendercore
 
 	void SceneRenderer::RenderShadow()
 	{
+		CPU_PROFILE( SceneRenderer_RenderShadow );
+
 		auto commandList = GetCommandList();
 		GPU_PROFILE( commandList, Shadow );
 		
@@ -831,6 +833,8 @@ namespace rendercore
 
 	void SceneRenderer::RenderSkyAtmosphere( IScene& scene, RenderView& renderView )
 	{
+		CPU_PROFILE( SceneRenderer_RenderSkyAtmosphere );
+
 		Scene* renderScene = scene.GetRenderScene();
 		if ( renderScene == nullptr )
 		{
@@ -895,6 +899,8 @@ namespace rendercore
 
 	void SceneRenderer::RenderVolumetricCloud( IScene& scene, [[maybe_unused]] RenderView& renderView )
 	{
+		CPU_PROFILE( SceneRenderer_RenderVolumetricCloud );
+
 		Scene* renderScene = scene.GetRenderScene();
 		if ( renderScene == nullptr )
 		{
@@ -981,6 +987,8 @@ namespace rendercore
 
 	void SceneRenderer::RenderVolumetricFog( IScene& scene, [[maybe_unused]] RenderView& renderView )
 	{
+		CPU_PROFILE( SceneRenderer_RenderVolumetricFog );
+
 		Scene* renderScene = scene.GetRenderScene();
 		if ( renderScene == nullptr )
 		{
@@ -1037,6 +1045,8 @@ namespace rendercore
 
 	void SceneRenderer::RenderIndirectIllumination( RenderViewGroup& renderViewGroup )
 	{
+		CPU_PROFILE( SceneRenderer_RenderIndirectIllumination );
+
 		auto commandList = GetCommandList();
 		GPU_PROFILE( commandList, IndirectIllumination );
 

@@ -153,6 +153,7 @@ namespace rendercore
 		{
 			return m_name;
 		}
+		RENDERCORE_DLL void SetName( const Name& name );
 
 		const ShaderBase* GetShader( agl::ShaderType type ) const;
 

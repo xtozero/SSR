@@ -343,6 +343,8 @@ namespace rendercore
 
 	void ForwardRenderer::RenderDefaultPass( RenderViewGroup& renderViewGroup, uint32 curView )
 	{
+		CPU_PROFILE( ForwardRenderer_RenderDefaultPass );
+
 		auto renderTarget = renderViewGroup.GetViewport().Texture();
 		auto depthStencil = m_renderTargets.GetDepthStencil();
 
@@ -389,6 +391,8 @@ namespace rendercore
 
 	void ForwardRenderer::RenderDepthPass( RenderViewGroup& renderViewGroup, uint32 curView )
 	{
+		CPU_PROFILE( ForwardRenderer_RenderDepthPass );
+
 		auto renderTarget = m_renderTargets.GetViewSpaceDistance();
 		auto worldNormal = m_renderTargets.GetWorldNormal();
 		auto velocity = m_renderTargets.GetVelocity();

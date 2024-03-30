@@ -260,6 +260,7 @@ namespace
 		{
 			auto material = std::make_unique<rendercore::Material>();
 			material->SetPath( assetPath );
+			material->SetName( Name( assetPath.filename().generic_string() ) );
 
 			if ( const json::Value* shaderKeys = root.Find( "Shader" ) )
 			{

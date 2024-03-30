@@ -133,7 +133,6 @@ namespace rendercore
 	void MaterialResource::SetMaterial( const std::shared_ptr<Material>& material )
 	{
 		m_material = material;
-		CreateGraphicsResource();
 	}
 
 	const std::shared_ptr<Material> MaterialResource::GetMaterial()
@@ -145,6 +144,8 @@ namespace rendercore
 	{
 		auto material = m_material.lock();
 		assert( material );
+
+		CreateGraphicsResource( snapShot.m_pipelineState.m_shaderState );
 
 		// Bind constant buffer
 		for ( auto& materialConstantBuffer : m_materialConstantBuffers )
@@ -222,7 +223,7 @@ namespace rendercore
 		}
 	}
 
-	void MaterialResource::CreateGraphicsResource()
+	void MaterialResource::CreateGraphicsResource( const ShaderStates& shaderStates )
 	{
 		auto material = m_material.lock();
 		if ( material == nullptr )
@@ -242,13 +243,14 @@ namespace rendercore
 		constexpr uint32 invalidSlot = std::numeric_limits<uint32>::max();
 		std::fill( std::begin( materialCbSlotNumbers ), std::end( materialCbSlotNumbers ), invalidSlot );
 
-		const ShaderBase* shaders[agl::MAX_SHADER_TYPE<uint32>] = {};
-
-		// cache shader
-		for ( auto shaderType : shaderTypes )
-		{
-			shaders[shaderType] = GetShader( static_cast<agl::ShaderType>( shaderType ) );
-		}
+		const ShaderBase* shaders[agl::MAX_SHADER_TYPE<uint32>] = {
+			shaderStates.m_vertexShader,
+			nullptr,
+			nullptr,
+			shaderStates.m_geometryShader,
+			shaderStates.m_pixelShader,
+			nullptr
+		};
 
 		// find material constant buffer slot
 		for ( auto shaderType : shaderTypes )
@@ -350,53 +352,52 @@ namespace rendercore
 
 	void MaterialResource::UpdateToGPU()
 	{
+		assert( IsInRenderThread() );
+
 		auto material = m_material.lock();
 		assert( material );
 
-		EnqueueRenderTask( [this, material]
+		for ( auto& materialConstantBuffer : m_materialConstantBuffers )
+		{
+			const auto& cbParam = materialConstantBuffer.first;
+			auto& cb = materialConstantBuffer.second;
+			char* buffer = static_cast<char*>( cb.Lock() );
+
+			if ( buffer )
 			{
-				for ( auto& materialConstantBuffer : m_materialConstantBuffers )
+				std::memset( buffer, 0, cb.Size() );
+
+				struct Comp
 				{
-					const auto& cbParam = materialConstantBuffer.first;
-					auto& cb = materialConstantBuffer.second;
-					char* buffer = static_cast<char*>( cb.Lock() );
-
-					if ( buffer )
+					bool operator()( const NamedShaderParameter& lhs, const agl::ShaderParameter& rhs )
 					{
-						std::memset( buffer, 0, cb.Size() );
+						auto lVariable = std::tie( lhs.first.m_shader, lhs.first.m_bindPoint );
+						auto rVariable = std::tie( rhs.m_shader, rhs.m_bindPoint );
 
-						struct Comp
-						{
-							bool operator()( const NamedShaderParameter& lhs, const agl::ShaderParameter& rhs )
-							{
-								auto lVariable = std::tie( lhs.first.m_shader, lhs.first.m_bindPoint );
-								auto rVariable = std::tie( rhs.m_shader, rhs.m_bindPoint );
-
-								return lVariable < rVariable;
-							}
-
-							bool operator()( const agl::ShaderParameter& lhs, const NamedShaderParameter& rhs )
-							{
-								auto lVariable = std::tie( lhs.m_shader, lhs.m_bindPoint );
-								auto rVariable = std::tie( rhs.first.m_shader, rhs.first.m_bindPoint );
-
-								return lVariable < rVariable;
-							}
-						};
-
-						auto range = std::equal_range( std::begin( m_materialConstantValueNames ), std::end( m_materialConstantValueNames ), cbParam, Comp() );
-
-						for ( auto i = range.first; i != range.second; ++i )
-						{
-							const auto& [param, variableName] = *i;
-							char* dest = buffer + param.m_offset;
-
-							material->CopyProperty( variableName.Str().data(), dest );
-						}
+						return lVariable < rVariable;
 					}
 
-					cb.Unlock();
+					bool operator()( const agl::ShaderParameter& lhs, const NamedShaderParameter& rhs )
+					{
+						auto lVariable = std::tie( lhs.m_shader, lhs.m_bindPoint );
+						auto rVariable = std::tie( rhs.first.m_shader, rhs.first.m_bindPoint );
+
+						return lVariable < rVariable;
+					}
+				};
+
+				auto range = std::equal_range( std::begin( m_materialConstantValueNames ), std::end( m_materialConstantValueNames ), cbParam, Comp() );
+
+				for ( auto i = range.first; i != range.second; ++i )
+				{
+					const auto& [param, variableName] = *i;
+					char* dest = buffer + param.m_offset;
+
+					material->CopyProperty( variableName.Str().data(), dest );
 				}
-			} );
+			}
+
+			cb.Unlock();
+		}
 	}
 }

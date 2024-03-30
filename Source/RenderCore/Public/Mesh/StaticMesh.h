@@ -38,7 +38,9 @@ namespace rendercore
 		void BuildMeshFromMeshDescription( const MeshDescription& meshDescription, StaticMeshLODResource& lodResource );
 
 		RENDERCORE_DLL MaterialResource* GetMaterialResource( size_t idx ) const;
+		RENDERCORE_DLL std::shared_ptr<Material> GetMaterial( size_t idx ) const;
 		RENDERCORE_DLL void AddMaterial( const std::shared_ptr<Material>& mateiral );
+		RENDERCORE_DLL uint32 NumMaterials() const;
 
 		RENDERCORE_DLL StaticMesh() = default;
 		RENDERCORE_DLL virtual ~StaticMesh() override;

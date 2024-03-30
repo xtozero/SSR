@@ -31,7 +31,7 @@ namespace rendercore
 		void TakeSnapshot( DrawSnapshot& snapShot );
 
 	private:
-		void CreateGraphicsResource();
+		void CreateGraphicsResource( const ShaderStates& shaderStates );
 		void UpdateToGPU();
 
 		std::weak_ptr<Material> m_material;

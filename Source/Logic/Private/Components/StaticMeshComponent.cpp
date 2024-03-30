@@ -22,6 +22,21 @@ namespace logic
 		{
 			LoadRenderOption( pRenderOption->AsString() );
 		}
+
+		if ( const json::Value* pMaterials = json.Find( "Materials" ) )
+		{
+			std::vector<const char*> memberNames = pMaterials->GetMemberNames();
+			for ( const char* name : memberNames )
+			{
+				int32 index = std::atoi( name );
+				m_materials.resize( index + 1 );
+
+				if ( const json::Value* pMaterial = pMaterials->Find( name ) )
+				{
+					LoadMaterial( index, pMaterial->AsString() );
+				}
+			}
+		}
 	}
 
 	BoxSphereBounds StaticMeshComponent::CalcBounds( const Matrix& transform )
@@ -71,7 +86,15 @@ namespace logic
 		MarkRenderStateDirty();
 	}
 
-	bool StaticMeshComponent::LoadModelMesh( const std::string& assetPath )
+	void StaticMeshComponent::SetMaterial( size_t index, const std::shared_ptr<rendercore::Material>& pMaterial )
+	{
+		assert( pMaterial != nullptr );
+		m_materials[index] = pMaterial;
+
+		MarkRenderStateDirty();
+	}
+
+	void StaticMeshComponent::LoadModelMesh( const std::string& assetPath )
 	{
 		if ( assetPath.length() > 0 )
 		{
@@ -81,13 +104,11 @@ namespace logic
 
 			AssetLoaderSharedHandle handle = GetInterface<IAssetLoader>()->RequestAsyncLoad( assetPath, onLoadComplete );
 
-			return handle->IsLoadingInProgress() || handle->IsLoadComplete();
+			assert( handle->IsLoadingInProgress() || handle->IsLoadComplete() );
 		}
-
-		return false;
 	}
 
-	bool StaticMeshComponent::LoadRenderOption( const std::string& assetPath )
+	void StaticMeshComponent::LoadRenderOption( const std::string& assetPath )
 	{
 		if ( assetPath.length() > 0 )
 		{
@@ -96,10 +117,32 @@ namespace logic
 
 			AssetLoaderSharedHandle handle = GetInterface<IAssetLoader>()->RequestAsyncLoad( assetPath, onLoadComplete );
 
-			return handle->IsLoadingInProgress() || handle->IsLoadComplete();
+			assert( handle->IsLoadingInProgress() || handle->IsLoadComplete() );
+		}
+	}
+
+	void StaticMeshComponent::LoadMaterial( size_t index, const std::string& assetPath )
+	{
+		if ( index >= m_materials.size() )
+		{
+			return;
 		}
 
-		return false;
+		if ( assetPath.empty() )
+		{
+			return;
+		}
+
+		IAssetLoader::LoadCompletionCallback onLoadComplete;
+		onLoadComplete.BindFunctor(
+			[this, index]( const std::shared_ptr<void>& material )
+			{
+				OnMaterialLoadFinished( index, material );
+			} );
+
+		AssetLoaderSharedHandle handle = GetInterface<IAssetLoader>()->RequestAsyncLoad( assetPath, onLoadComplete );
+
+		assert( handle->IsLoadingInProgress() || handle->IsLoadComplete() );
 	}
 
 	void StaticMeshComponent::OnModelLoadFinished( const std::shared_ptr<void>& model )
@@ -110,5 +153,10 @@ namespace logic
 	void StaticMeshComponent::OnRenderOptionLoadFinished( const std::shared_ptr<void>& renderOption )
 	{
 		SetRenderOption( std::static_pointer_cast<rendercore::RenderOption>( renderOption ) );
+	}
+
+	void StaticMeshComponent::OnMaterialLoadFinished( size_t index, const std::shared_ptr<void>& material )
+	{
+		SetMaterial( index, std::static_pointer_cast<rendercore::Material>( material ) );
 	}
 }

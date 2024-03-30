@@ -13,9 +13,16 @@
 
 namespace rendercore
 {
-	StaticMeshPrimitiveProxy::StaticMeshPrimitiveProxy( const logic::StaticMeshComponent& component ) : m_pStaticMesh( component.GetStaticMesh() ), m_pRenderData( m_pStaticMesh->RenderData() ), m_pRenderOption( component.GetRenderOption() )
+	StaticMeshPrimitiveProxy::StaticMeshPrimitiveProxy( const logic::StaticMeshComponent& component ) 
+		: m_pStaticMesh( component.GetStaticMesh() )
+		, m_pRenderData( m_pStaticMesh->RenderData() )
+		, m_pRenderOption( component.GetRenderOption() )
+		, m_materials( component.NumMaterials() )
 	{
-
+		for ( uint32 i = 0; i < component.NumMaterials(); ++i )
+		{
+			m_materials[i] = component.GetMaterial( i );
+		}
 	}
 
 	void StaticMeshPrimitiveProxy::CreateRenderData()
@@ -94,7 +101,7 @@ namespace rendercore
 
 		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 		const StaticMeshSection& section = lodResource.m_sections[sectionIndex];
-		auto materialResource = m_pStaticMesh->GetMaterialResource( section.m_materialIndex );
+		auto materialResource = m_materials[section.m_materialIndex]->GetMaterialResource();
 		if ( materialResource )
 		{
 			pipelineState.m_shaderState.m_vertexShader = materialResource->GetVertexShader();
@@ -158,7 +165,7 @@ namespace rendercore
 
 		info.m_vertexCollection = &lodResource.m_vertexCollection;
 		info.m_indexBuffer = &lodResource.m_ib;
-		info.m_material = m_pStaticMesh->GetMaterialResource( section.m_materialIndex );
+		info.m_material = m_materials[section.m_materialIndex]->GetMaterialResource();
 		info.m_renderOption = &*m_pRenderOption;
 
 		info.m_startLocation = section.m_startLocation;
