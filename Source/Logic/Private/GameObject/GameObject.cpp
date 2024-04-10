@@ -189,6 +189,24 @@ namespace logic
 		return Vector::UpVector;
 	}
 
+	void CGameObject::SetTransform( const Transform& transform )
+	{
+		if ( m_rootComponent )
+		{
+			m_rootComponent->SetTransform( transform );
+		}
+	}
+
+	const Transform& CGameObject::GetTransform() const
+	{
+		if ( m_rootComponent )
+		{
+			return m_rootComponent->GetTransform();
+		}
+
+		return Transform::Identity;
+	}
+
 	const Matrix& CGameObject::GetTransformMatrix()
 	{
 		if ( m_rootComponent )

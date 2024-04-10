@@ -215,7 +215,7 @@ namespace
 		}
 	}
 
-	D3D12_UNORDERED_ACCESS_VIEW_DESC ConvertTraitToUAV( const TextureTrait& trait )
+	D3D12_UNORDERED_ACCESS_VIEW_DESC ConvertTraitToUAV( const TextureTrait& trait, uint32 mipSlice )
 	{
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uav = {
 			.Format = ConvertFormatToDxgiFormat( trait.m_format )
@@ -225,7 +225,7 @@ namespace
 		{
 			uav.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE3D;
 			uav.Texture3D = {
-				.MipSlice = 0,
+				.MipSlice = mipSlice,
 				.FirstWSlice = 0,
 				.WSize = trait.m_depth
 			};
@@ -236,7 +236,7 @@ namespace
 			{
 				uav.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
 				uav.Texture2DArray = {
-					.MipSlice = 0,
+					.MipSlice = mipSlice,
 					.FirstArraySlice = 0,
 					.ArraySize = trait.m_depth,
 					.PlaneSlice = 0
@@ -246,7 +246,7 @@ namespace
 			{
 				uav.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 				uav.Texture2D = {
-					.MipSlice = 0,
+					.MipSlice = mipSlice,
 					.PlaneSlice = 0
 				};
 			}
@@ -488,13 +488,17 @@ namespace agl
 
 	void D3D12Texture::CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat )
 	{
-		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertTraitToUAV( m_trait );
-		if ( overrideFormat.has_value() )
+		m_uav.resize( m_trait.m_mipLevels );
+		for ( uint32 mipSlice = 0; mipSlice < m_trait.m_mipLevels; ++mipSlice )
 		{
-			uavDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+			D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertTraitToUAV( m_trait, mipSlice );
+			if ( overrideFormat.has_value() )
+			{
+				uavDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+			}
+			m_uav[mipSlice] = new D3D12UnorderedAccessView(this, static_cast<ID3D12Resource*>( Resource() ), uavDesc);
+			m_uav[mipSlice]->Init();
 		}
-		m_uav = new D3D12UnorderedAccessView( this, static_cast<ID3D12Resource*>( Resource() ), uavDesc );
-		m_uav->Init();
 	}
 
 	void D3D12Texture::Reconstruct( const TextureTrait& trait, const ResourceInitData* initData )

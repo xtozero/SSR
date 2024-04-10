@@ -55,6 +55,7 @@ namespace logic
 		Vector GetRightVector() const;
 		Vector GetUpVector() const;
 
+		void SetTransform( const Transform& transform );
 		const Transform& GetTransform() const;
 
 		const Matrix& GetTransformMatrix();

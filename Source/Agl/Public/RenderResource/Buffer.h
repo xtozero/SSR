@@ -19,8 +19,8 @@ namespace agl
 		virtual ShaderResourceView* SRV() override { return m_srv.Get(); }
 		virtual const ShaderResourceView* SRV() const override { return m_srv.Get(); }
 
-		virtual UnorderedAccessView* UAV() override { return m_uav.Get(); }
-		virtual const UnorderedAccessView* UAV() const override { return m_uav.Get(); }
+		virtual UnorderedAccessView* UAV( [[maybe_unused]] uint32 mipSlice = 0 ) override { return m_uav.Get(); }
+		virtual const UnorderedAccessView* UAV( [[maybe_unused]] uint32 mipSlice = 0 ) const override { return m_uav.Get(); }
 
 		virtual RenderTargetView* RTV() override { return nullptr; }
 		virtual const RenderTargetView* RTV() const override { return nullptr; }

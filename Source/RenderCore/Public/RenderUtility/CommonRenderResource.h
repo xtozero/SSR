@@ -32,4 +32,6 @@ namespace rendercore
 
 	extern agl::RefHandle<agl::Texture> BlackCubeTexture;
 	extern agl::RefHandle<agl::Texture> WhiteCubeTexture;
+
+	extern agl::RefHandle<agl::Texture> BRDFLookUpTexture;
 }

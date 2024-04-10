@@ -7,6 +7,7 @@
 #include "IAsyncLoadableAsset.h"
 #include "Math/Vector4.h"
 #include "NameTypes.h"
+#include "Reflection.h"
 #include "RenderOption.h"
 #include "SizedTypes.h"
 
@@ -42,11 +43,15 @@ namespace rendercore
 
 	class MaterialProperty : public IMaterialProperty
 	{
+		GENERATE_CLASS_TYPE_INFO( MaterialProperty );
+
 	public:
 	};
 
 	class FloatProperty final : public MaterialProperty
 	{
+		GENERATE_CLASS_TYPE_INFO( FloatProperty );
+
 	public:
 		virtual void Serialize( Archive& ar );
 		virtual MaterialPropertyType Type() const override
@@ -57,6 +62,7 @@ namespace rendercore
 		virtual void CopyValue( void* dest ) const override;
 
 		float Value() const { return m_value; }
+		void SetValue( float value ) { m_value = value; }
 
 		explicit FloatProperty( float value ) : m_value( value ) {}
 		FloatProperty() = default;
@@ -67,6 +73,8 @@ namespace rendercore
 
 	class Float4Property final : public MaterialProperty
 	{
+		GENERATE_CLASS_TYPE_INFO( Float4Property );
+
 	public:
 		virtual void Serialize( Archive& ar );
 		virtual MaterialPropertyType Type() const override
@@ -77,6 +85,7 @@ namespace rendercore
 		virtual void CopyValue( void* dest ) const override;
 
 		const Vector4& Value() const { return m_value; }
+		void SetValue( const Vector4& value ) { m_value = value; }
 
 		explicit Float4Property( const Vector4& value ) : m_value( value ) {}
 		Float4Property() = default;
@@ -87,6 +96,8 @@ namespace rendercore
 
 	class IntProperty final : public MaterialProperty
 	{
+		GENERATE_CLASS_TYPE_INFO( IntProperty );
+
 	public:
 		virtual void Serialize( Archive& ar );
 		virtual MaterialPropertyType Type() const override
@@ -107,6 +118,8 @@ namespace rendercore
 
 	class TextureProperty final : public MaterialProperty
 	{
+		GENERATE_CLASS_TYPE_INFO( TextureProperty );
+
 	public:
 		virtual void Serialize( Archive& ar );
 		virtual MaterialPropertyType Type() const override
@@ -137,6 +150,8 @@ namespace rendercore
 		RENDERCORE_DLL void AddProperty( const char* key, float value );
 		RENDERCORE_DLL void AddProperty( const char* key, const Vector4& value );
 		RENDERCORE_DLL void AddProperty( const char* key, const std::shared_ptr<Texture>& value );
+
+		RENDERCORE_DLL const std::map<Name, std::unique_ptr<MaterialProperty>>& GetProperties() const;
 
 		const MaterialProperty* AsProperty( const char* key ) const;
 		int32 AsInteger( const char* key ) const;

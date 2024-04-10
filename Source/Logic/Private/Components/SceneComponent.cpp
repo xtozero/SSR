@@ -187,6 +187,19 @@ namespace logic
 		return m_transform.TransformVectorNoScale( Vector::UpVector ).GetNormalized();
 	}
 
+	void SceneComponent::SetTransform( const Transform& transform )
+	{
+		if ( m_transform.Equals( transform ) )
+		{
+			return;
+		}
+		
+		m_transform = transform;
+
+		UpdateTransform();
+		MarkRenderTransformDirty();
+	}
+
 	const Transform& SceneComponent::GetTransform() const
 	{
 		return m_transform;

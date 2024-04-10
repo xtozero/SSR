@@ -26,6 +26,18 @@ namespace agl
 		return GetInterface<IResourceManager>()->CreateTexture( trait, debugName, initialState, initData );
 	}
 
+	UnorderedAccessView* Texture::UAV( uint32 mipSlice )
+	{
+		assert( mipSlice < m_trait.m_mipLevels );
+		return m_uav[mipSlice].Get();
+	}
+
+	const UnorderedAccessView* Texture::UAV( uint32 mipSlice ) const
+	{
+		assert( mipSlice < m_trait.m_mipLevels );
+		return m_uav[mipSlice].Get();
+	}
+
 	ResourceState Texture::GetResourceState() const
 	{
 		return m_state;

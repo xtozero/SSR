@@ -278,10 +278,14 @@ namespace rendercore
 		if ( TexturedSkyProxy* proxy = renderScene->TexturedSky() )
 		{
 			m_shaderResources.AddResource( "IrradianceMap", proxy->IrradianceMap()->SRV() );
+			m_shaderResources.AddResource( "PrefilterMap", proxy->PrefilteredColor()->SRV() );
+			m_shaderResources.AddResource( "BrdfLUT", BRDFLookUpTexture->SRV() );
 		}
 		else
 		{
 			m_shaderResources.AddResource( "IrradianceMap", BlackCubeTexture->SRV() );
+			m_shaderResources.AddResource( "PrefilterMap", BlackCubeTexture->SRV() );
+			m_shaderResources.AddResource( "BrdfLUT", BlackTexture->SRV() );
 		}
 
 		if ( prepared )
@@ -500,6 +504,7 @@ namespace rendercore
 			.m_hemisphereLightUpVector = Vector4::ZeroVector,
 			.m_hemisphereLightUpperColor = ColorF::Black,
 			.m_hemisphereLightLowerColor = ColorF::Black,
+			.m_reflectionMipLevels = 1,
 		};
 
 		if ( renderScene->HemisphereLight() )
@@ -517,6 +522,11 @@ namespace rendercore
 			const auto& irradianceMapSH = texturedSkyProxy.IrradianceMapSH();
 
 			std::memcpy( lightConstant.m_irrdianceMapSH, irradianceMapSH.data(), sizeof( Vector ) * 9 );
+
+			if ( agl::RefHandle<agl::Texture> prefilteredColor = texturedSkyProxy.PrefilteredColor() )
+			{
+				lightConstant.m_reflectionMipLevels = static_cast<float>( prefilteredColor->GetTrait().m_mipLevels );
+			}
 		}
 
 		m_forwardLighting.m_lightConstant.Update( lightConstant );

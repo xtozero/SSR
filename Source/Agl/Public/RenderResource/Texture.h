@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "GraphicsApiResource.h"
+#include "InlineMemoryAllocator.h"
 #include "ResourceViews.h"
 #include "SizedTypes.h"
 
@@ -25,8 +26,8 @@ namespace agl
 		virtual ShaderResourceView* SRV() override { return m_srv.Get(); }
 		virtual const ShaderResourceView* SRV() const override { return m_srv.Get(); }
 
-		virtual UnorderedAccessView* UAV() override { return m_uav.Get(); }
-		virtual const UnorderedAccessView* UAV() const override { return m_uav.Get(); }
+		virtual UnorderedAccessView* UAV( uint32 mipSlice = 0 ) override;
+		virtual const UnorderedAccessView* UAV( uint32 mipSlice = 0 ) const override;
 
 		virtual RenderTargetView* RTV() override { return m_rtv.Get(); }
 		virtual const RenderTargetView* RTV() const override { return m_rtv.Get(); }
@@ -47,7 +48,7 @@ namespace agl
 		TextureTrait m_trait = {};
 
 		RefHandle<ShaderResourceView> m_srv;
-		RefHandle<UnorderedAccessView> m_uav;
+		std::vector<RefHandle<UnorderedAccessView>, InlineAllocator<RefHandle<UnorderedAccessView>, 1>> m_uav;
 		RefHandle<RenderTargetView> m_rtv;
 		RefHandle<DepthStencilView> m_dsv;
 
@@ -89,7 +90,7 @@ namespace agl
 		virtual void FreeResource() override
 		{
 			m_srv = nullptr;
-			m_uav = nullptr;
+			m_uav.clear();
 			m_rtv = nullptr;
 			m_dsv = nullptr;
 		}

@@ -18,4 +18,6 @@ struct StringLiteral
 	char m_str[N] = {};
 };
 
+using float2 = float[2];
+using float3 = float[3];
 using float4 = float[4];

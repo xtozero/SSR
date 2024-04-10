@@ -18,14 +18,12 @@ float4 main( PS_INPUT input ) : SV_Target0
     geometry.screenUV = ( input.projectionPos.xy / input.projectionPos.w ) * float2( 0.5f, -0.5f ) + 0.5f;
 
 	SurfaceProperty surface = (SurfaceProperty)0;
-	surface.albedo = Diffuse;
+	surface.albedo = MoveLinearSpace( Diffuse );
 	surface.roughness = Roughness;
 	surface.metallic = Metallic;
 
 	LIGHTCOLOR cColor = CalcPhysicallyBasedLight( geometry, surface ); 
 
-	float4 lightColor = cColor.m_diffuse * MoveLinearSpace( Diffuse );
-	lightColor += cColor.m_specular * MoveLinearSpace( Specular );
-
-	return float4( lightColor.rgb, 1.f ); 
+	float4 lightColor = cColor.m_diffuse + cColor.m_specular;
+	return float4( lightColor.rgb, 1.f );
 }

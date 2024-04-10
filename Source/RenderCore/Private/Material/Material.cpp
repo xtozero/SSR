@@ -214,6 +214,11 @@ namespace rendercore
 		std::construct_at( static_cast<TextureProperty*>( found->second.get() ), value );
 	}
 
+	const std::map<Name, std::unique_ptr<MaterialProperty>>& Material::GetProperties() const
+	{
+		return m_properties;
+	}
+
 	const MaterialProperty* Material::AsProperty( const char* key ) const
 	{
 		auto found = m_properties.find( Name( key ) );

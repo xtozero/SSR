@@ -9,8 +9,7 @@
 
 namespace rendercore
 {
-	inline void BindResource( agl::ShaderBindings& bindings,
-		const agl::ShaderParameter& parameter, agl::Buffer* buffer )
+	inline void BindResource( agl::ShaderBindings& bindings, const agl::ShaderParameter& parameter, agl::Buffer* buffer )
 	{
 		agl::SingleShaderBindings singleBinding = bindings.GetSingleShaderBindings( parameter.m_shader );
 
@@ -39,8 +38,7 @@ namespace rendercore
 		}
 	}
 
-	inline void BindResource( agl::ShaderBindings& bindings,
-		const agl::ShaderParameter& parameter, agl::Texture* texture )
+	inline void BindResource( agl::ShaderBindings& bindings, const agl::ShaderParameter& parameter, agl::Texture* texture, uint32 mipSlice = 0 )
 	{
 		agl::SingleShaderBindings singleBinding = bindings.GetSingleShaderBindings( parameter.m_shader );
 
@@ -55,7 +53,7 @@ namespace rendercore
 			singleBinding.AddSRV( parameter, texture ? texture->SRV() : nullptr );
 			break;
 		case agl::ShaderParameterType::UAV:
-			singleBinding.AddUAV( parameter, texture ? texture->UAV() : nullptr );
+			singleBinding.AddUAV( parameter, texture ? texture->UAV( mipSlice ) : nullptr );
 			break;
 		case agl::ShaderParameterType::Bindless:
 			singleBinding.AddBindless( parameter, texture ? texture->SRV() : nullptr );

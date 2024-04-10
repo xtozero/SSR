@@ -44,6 +44,8 @@ namespace rendercore
 		ColorF m_hemisphereLightUpperColor;
 		ColorF m_hemisphereLightLowerColor;
 		Vector4 m_irrdianceMapSH[7];
+		float m_reflectionMipLevels;
+		float3 m_padding;
 	};
 
 	struct ForwardLightingResource final

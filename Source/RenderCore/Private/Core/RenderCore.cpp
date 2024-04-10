@@ -135,8 +135,6 @@ namespace rendercore
 			return false;
 		}
 
-		DefaultGraphicsResources::GetInstance().BootUp();
-
 		m_uiRenderer = GetInterface<UserInterfaceRenderer>();
 		if ( m_uiRenderer && m_uiRenderer->BootUp() == false )
 		{
@@ -153,6 +151,8 @@ namespace rendercore
 		{
 			GetInterface<ITaskScheduler>()->ProcessThisThreadTask();
 		}
+
+		DefaultGraphicsResources::GetInstance().BootUp();
 
 		return true;
 	}

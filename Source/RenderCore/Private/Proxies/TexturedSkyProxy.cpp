@@ -1,7 +1,7 @@
 #include "TexturedSkyProxy.h"
 
 #include "Components/TexturedSkyComponent.h"
-#include "IrradianceMapRendering.h"
+#include "ImageBasedLightingRendering.h"
 #include "Material.h"
 #include "MaterialResource.h"
 #include "Mesh/StaticMesh.h"
@@ -53,6 +53,11 @@ namespace rendercore
 		return m_irradianceMap;
 	}
 
+	agl::RefHandle<agl::Texture> TexturedSkyProxy::PrefilteredColor() const
+	{
+		return m_prefilteredSpecular;
+	}
+
 	void TexturedSkyProxy::PrefilterTexture()
 	{
 		MaterialResource* materialResource = GetMaterialResource();
@@ -75,5 +80,7 @@ namespace rendercore
 
 		m_irradianceMap = GenerateIrradianceMap( skyTexture->Resource() );
 		m_irradianceMapSH = GenerateIrradianceMapSH( skyTexture->Resource() );
+
+		m_prefilteredSpecular = GeneratePrefilteredSpecular( skyTexture->Resource() );
 	}
 }

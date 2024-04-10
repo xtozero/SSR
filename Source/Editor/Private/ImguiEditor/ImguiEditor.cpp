@@ -8,6 +8,8 @@
 #include "Platform/IPlatform.h"
 #include "UserInput/UserInput.h"
 
+constexpr int32 ShowImGuiShowCase = 0;
+
 using ::engine::UserInput;
 using enum ::engine::UserInputCode;
 
@@ -159,6 +161,11 @@ namespace editor
 
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
         ImGui::DockSpaceOverViewport( viewport, ImGuiDockNodeFlags_PassthruCentralNode );
+
+        if constexpr ( ShowImGuiShowCase )
+        {
+            ImGui::ShowDemoWindow();
+        }
 
         for ( auto& panel : m_panels )
         {

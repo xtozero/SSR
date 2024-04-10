@@ -27,7 +27,7 @@ namespace logic
 		virtual void SendRenderTransform();
 
 		void UpdateState();
-		void MarkRenderStateDirty();
+		LOGIC_DLL void MarkRenderStateDirty();
 
 		void MarkRenderTransformDirty();
 

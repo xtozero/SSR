@@ -1,6 +1,9 @@
 #include "CommonRenderResource.h"
 
 #include "ColorTypes.h"
+#include "CommandList.h"
+#include "ComputePipelineState.h"
+#include "GlobalShaders.h"
 
 namespace
 {
@@ -80,7 +83,56 @@ namespace
 
 namespace rendercore
 {
+	class PrecomputedBrdfCS final : public GlobalShaderCommon<ComputeShader, PrecomputedBrdfCS>
+	{
+	private:
+		DEFINE_SHADER_PARAM( Precomputed );
+	};
+
+	agl::RefHandle<agl::Texture> CreateBRDFLookUpTexture()
+	{
+		agl::TextureTrait trait = {
+			.m_width = 512,
+			.m_height = 512,
+			.m_depth = 1,
+			.m_sampleCount = 1,
+			.m_sampleQuality = 0,
+			.m_mipLevels = 1,
+			.m_format = agl::ResourceFormat::R16G16_FLOAT,
+			.m_access = agl::ResourceAccessFlag::Default,
+			.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess,
+			.m_miscFlag = agl::ResourceMisc::None
+		};
+
+		agl::RefHandle<agl::Texture> brdfLUT = agl::Texture::Create( trait, "BrdfLookUpTexture", nullptr );
+		EnqueueRenderTask( [brdfLUT]()
+			{
+				brdfLUT->Init();
+
+				PrecomputedBrdfCS precomputedBrdfCS;
+				agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( precomputedBrdfCS );
+
+				auto commandList = GetCommandList();
+				commandList.BindPipelineState( pso );
+
+				agl::ShaderBindings shaderBindings = CreateShaderBindings( precomputedBrdfCS );
+				BindResource( shaderBindings, precomputedBrdfCS.Precomputed(), brdfLUT );
+
+				commandList.BindShaderResources( shaderBindings );
+
+				commandList.Dispatch( 512 / 8, 512 / 8 );
+
+				commandList.AddTransition( Transition( *brdfLUT.Get(), agl::ResourceState::PixelShaderResource ) );
+
+				commandList.Commit();
+				GetInterface<agl::IAgl>()->WaitGPU();
+			} );
+
+		return brdfLUT;
+	}
+
 	REGISTER_GLOBAL_SHADER( FullScreenQuadVS, "./Assets/Shaders/Common/VS_FullScreenQuad.asset" );
+	REGISTER_GLOBAL_SHADER( PrecomputedBrdfCS, "./Assets/Shaders/PhysicallyBased/CS_PrecomputedBRDF.asset" );
 
 	void DefaultGraphicsResources::BootUp()
 	{
@@ -89,6 +141,8 @@ namespace rendercore
 
 		BlackCubeTexture = CreateCubeTexture( Color::Black, "DefaultBlackCube" );
 		WhiteCubeTexture = CreateCubeTexture( Color::White, "DefaultWhiteCube" );
+
+		BRDFLookUpTexture = CreateBRDFLookUpTexture();
 	}
 
 	void DefaultGraphicsResources::Shutdown()
@@ -100,6 +154,8 @@ namespace rendercore
 
 				BlackCubeTexture = nullptr;
 				WhiteCubeTexture = nullptr;
+
+				BRDFLookUpTexture = nullptr;
 			} );
 	}
 
@@ -108,4 +164,6 @@ namespace rendercore
 
 	agl::RefHandle<agl::Texture> BlackCubeTexture;
 	agl::RefHandle<agl::Texture> WhiteCubeTexture;
+
+	agl::RefHandle<agl::Texture> BRDFLookUpTexture;
 }

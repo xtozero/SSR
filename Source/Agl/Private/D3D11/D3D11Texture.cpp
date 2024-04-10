@@ -145,7 +145,7 @@ namespace agl
 		return srv;
 	}
 
-	D3D11_UNORDERED_ACCESS_VIEW_DESC ConvertDescToUAV( const D3D11_TEXTURE2D_DESC& desc )
+	D3D11_UNORDERED_ACCESS_VIEW_DESC ConvertDescToUAV( const D3D11_TEXTURE2D_DESC& desc, uint32 mipSlice )
 	{
 		D3D11_UNORDERED_ACCESS_VIEW_DESC uav = {};
 
@@ -154,23 +154,34 @@ namespace agl
 		if ( desc.ArraySize > 1 )
 		{
 			uav.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2DARRAY;
-			uav.Texture2DArray.ArraySize = desc.ArraySize;
+			uav.Texture2DArray = {
+				.MipSlice = mipSlice,
+				.FirstArraySlice = 0,
+				.ArraySize = desc.ArraySize
+			};
 		}
 		else
 		{
 			uav.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+			uav.Texture2D = {
+				.MipSlice = mipSlice
+			};
 		}
 
 		return uav;
 	}
 
-	D3D11_UNORDERED_ACCESS_VIEW_DESC ConvertDescToUAV( const D3D11_TEXTURE3D_DESC& desc )
+	D3D11_UNORDERED_ACCESS_VIEW_DESC ConvertDescToUAV( const D3D11_TEXTURE3D_DESC& desc, uint32 mipSlice )
 	{
 		D3D11_UNORDERED_ACCESS_VIEW_DESC uav = {};
 
 		uav.Format = desc.Format;
 		uav.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE3D;
-		uav.Texture3D.WSize = desc.Depth;
+		uav.Texture3D = {
+			.MipSlice = mipSlice,
+			.FirstWSlice = 0,
+			.WSize = desc.Depth
+		};
 
 		return uav;
 	}
@@ -271,13 +282,18 @@ namespace agl
 
 	void D3D11Texture2D::CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat )
 	{
-		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc );
-		if ( overrideFormat.has_value() )
+		m_uav.resize( m_trait.m_mipLevels );
+		for ( uint32 mipSlice = 0; mipSlice < m_trait.m_mipLevels; ++mipSlice )
 		{
-			uavDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+			D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc, mipSlice );
+			if ( overrideFormat.has_value() )
+			{
+				uavDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+			}
+
+			m_uav[mipSlice] = new D3D11UnorderedAccessView( this, m_texture, uavDesc );
+			m_uav[mipSlice]->Init();
 		}
-		m_uav = new D3D11UnorderedAccessView( this, m_texture, uavDesc );
-		m_uav->Init();
 	}
 
 	void D3D11Texture2D::CreateRenderTarget( std::optional<ResourceFormat> overrideFormat )
@@ -362,13 +378,18 @@ namespace agl
 
 	void D3D11Texture3D::CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat )
 	{
-		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc );
-		if ( overrideFormat.has_value() )
+		m_uav.resize( m_trait.m_mipLevels );
+		for ( uint32 mipSlice = 0; mipSlice < m_trait.m_mipLevels; ++mipSlice )
 		{
-			uavDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+			D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc, mipSlice );
+			if ( overrideFormat.has_value() )
+			{
+				uavDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+			}
+
+			m_uav[mipSlice] = new D3D11UnorderedAccessView( this, m_texture, uavDesc );
+			m_uav[mipSlice]->Init();
 		}
-		m_uav = new D3D11UnorderedAccessView( this, m_texture, uavDesc );
-		m_uav->Init();
 	}
 
 	void D3D11Texture3D::CreateRenderTarget( std::optional<ResourceFormat> overrideFormat )

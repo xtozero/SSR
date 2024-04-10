@@ -37,6 +37,8 @@ namespace rendercore
 		const std::array<Vector, 9>& IrradianceMapSH() const;
 		agl::RefHandle<agl::Texture> IrradianceMap() const;
 
+		agl::RefHandle<agl::Texture> PrefilteredColor() const;
+
 	private:
 		void PrefilterTexture();
 
@@ -50,5 +52,7 @@ namespace rendercore
 
 		agl::RefHandle<agl::Texture> m_irradianceMap;
 		std::array<Vector, 9> m_irradianceMapSH;
+
+		agl::RefHandle<agl::Texture> m_prefilteredSpecular;
 	};
 }

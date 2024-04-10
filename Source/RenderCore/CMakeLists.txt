@@ -150,8 +150,8 @@ set (RENDERER_SOURCE
 	Private/Renderer/ExponentialShadowMapRendering.cpp
 	Private/Renderer/ForwardLighting.cpp
 	Private/Renderer/ForwardRenderer.cpp
+	Private/Renderer/ImageBasedLightingRendering.cpp
 	Private/Renderer/ImguiRenderer.cpp
-	Private/Renderer/IrradianceMapRendering.cpp
 	Private/Renderer/LightPropagationVolume.cpp
 	Private/Renderer/ReflectiveShadowMapRendering.cpp
 	Private/Renderer/RenderView.cpp
@@ -161,8 +161,8 @@ set (RENDERER_SOURCE
 	Public/Renderer/ExponentialShadowMapRendering.h
 	Public/Renderer/ForwardLighting.h
 	Public/Renderer/ForwardRenderer.h
+	Public/Renderer/ImageBasedLightingRendering.h
 	Public/Renderer/IRenderCore.h
-	Public/Renderer/IrradianceMapRendering.h
 	Public/Renderer/LightPropagationVolume.h
 	Public/Renderer/ReflectiveShadowMapRendering.h
 	Public/Renderer/RenderView.h

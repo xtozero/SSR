@@ -75,6 +75,9 @@ namespace logic
 		Vector GetRightVector() const;
 		Vector GetUpVector() const;
 
+		LOGIC_DLL void SetTransform( const Transform& transform );
+		LOGIC_DLL const Transform& GetTransform() const;
+
 		const Matrix& GetTransformMatrix();
 		const Matrix& GetInvTransformMatrix();
 
@@ -100,6 +103,20 @@ namespace logic
 		SceneComponent* GetRootComponent() const { return m_rootComponent; }
 		void SetRootComponent( SceneComponent* component );
 		void RemoveComponent( const Component* component );
+
+		template <typename T>
+		void GetComponents( std::vector<T*>& outComponents )
+		{
+			outComponents.reserve( m_components.size() );
+
+			for ( std::unique_ptr<Component>& component : m_components )
+			{
+				if ( auto concrete = Cast<T>( component.get() ) )
+				{
+					outComponents.emplace_back( concrete );
+				}
+			}
+		}
 
 		void SetInputController( InputController* inputController );
 

@@ -27,8 +27,8 @@ namespace agl
 		virtual ShaderResourceView* SRV() = 0;
 		virtual const ShaderResourceView* SRV() const = 0;
 
-		virtual UnorderedAccessView* UAV() = 0;
-		virtual const UnorderedAccessView* UAV() const = 0;
+		virtual UnorderedAccessView* UAV( uint32 mipSlice = 0 ) = 0;
+		virtual const UnorderedAccessView* UAV( uint32 mipSlice = 0 ) const = 0;
 
 		virtual RenderTargetView* RTV() = 0;
 		virtual const RenderTargetView* RTV() const = 0;

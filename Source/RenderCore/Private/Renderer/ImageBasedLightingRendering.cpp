@@ -1,4 +1,4 @@
-#include "IrradianceMapRendering.h"
+#include "ImageBasedLightingRendering.h"
 
 #include "AbstractGraphicsInterface.h"
 #include "CommandList.h"
@@ -10,7 +10,6 @@
 #include "ResourceBarrierUtils.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "SceneRenderer.h"
-#include "ShaderParameterUtils.h"
 #include "ShaderParameterUtils.h"
 #include "StaticState.h"
 #include "VertexCollection.h"
@@ -44,10 +43,20 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( Coeffs );
 	};
 
+	class PrefilteredSpecularCS final : public GlobalShaderCommon<ComputeShader, PrefilteredSpecularCS>
+	{
+	private:
+		DEFINE_SHADER_PARAM( Roughness );
+		DEFINE_SHADER_PARAM( EnvMap );
+		DEFINE_SHADER_PARAM( EnvMapSampler );
+		DEFINE_SHADER_PARAM( Prefiltered );
+	};
+
 	REGISTER_GLOBAL_SHADER( DrawIrradianceMapVS, "./Assets/Shaders/IndirectLighting/IrradianceMap/VS_DrawIrradianceMap.asset" );
 	REGISTER_GLOBAL_SHADER( DrawIrradianceMapGS, "./Assets/Shaders/IndirectLighting/IrradianceMap/GS_DrawIrradianceMap.asset" );
 	REGISTER_GLOBAL_SHADER( DrawIrradianceMapPS, "./Assets/Shaders/IndirectLighting/IrradianceMap/PS_DrawIrradianceMap.asset" );
 	REGISTER_GLOBAL_SHADER( IrradianceMapShCS, "./Assets/Shaders/IndirectLighting/IrradianceMap/CS_IrradianceMapSH.asset" );
+	REGISTER_GLOBAL_SHADER( PrefilteredSpecularCS, "./Assets/Shaders/PhysicallyBased/CS_PrefilteredSpecular.asset" );
 
 	class IrradianceMapGenerateProcessor final : public IPassProcessor
 	{
@@ -216,5 +225,99 @@ namespace rendercore
 		GraphicsInterface().UnLock( readBackBuffer );
 
 		return coeffs;
+	}
+
+	agl::RefHandle<agl::Texture> GeneratePrefilteredSpecular( agl::RefHandle<agl::Texture> cubeMap )
+	{
+		assert( IsInRenderThread() );
+		assert( cubeMap.Get() != nullptr );
+		assert( cubeMap->IsCubeMap() && ( cubeMap->SRV() != nullptr ) );
+
+		auto CountMips = 
+			[]( uint32 width, uint32 height )
+			{
+				uint32 mipLevels = 1;
+
+				while ( width > 1 || height > 1 )
+				{
+					if ( width > 1 )
+					{
+						width >>= 1;
+					}
+
+					if ( height > 1 )
+					{
+						height >>= 1;
+					}
+
+					++mipLevels;
+				}
+
+				return mipLevels;
+			};
+
+		const agl::TextureTrait& cubeMapTrait = cubeMap->GetTrait();
+		agl::TextureTrait trait = {
+			.m_width = cubeMapTrait.m_width,
+			.m_height = cubeMapTrait.m_height,
+			.m_depth = cubeMapTrait.m_depth,
+			.m_sampleCount = 1,
+			.m_sampleQuality = 0,
+			.m_mipLevels = CountMips( cubeMapTrait.m_width, cubeMapTrait.m_height ),
+			.m_format = agl::ResourceFormat::R16G16B16A16_FLOAT,
+			.m_access = agl::ResourceAccessFlag::None,
+			.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess,
+			.m_miscFlag = agl::ResourceMisc::TextureCube
+		};
+
+		auto prefiltered = agl::Texture::Create( trait, "PrefilteredSpecular" );
+		EnqueueRenderTask(
+			[prefiltered]()
+			{
+				prefiltered->Init();
+			}
+		);
+
+		PrefilteredSpecularCS prefilteredSpecularCS;
+		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( prefilteredSpecularCS );
+
+		auto commandList = GetCommandList();
+
+		agl::ShaderBindings shaderBindings = CreateShaderBindings( prefilteredSpecularCS );
+		BindResource( shaderBindings, prefilteredSpecularCS.EnvMap(), cubeMap );
+
+		auto linearSampler = StaticSamplerState<>::Get();
+		BindResource( shaderBindings, prefilteredSpecularCS.EnvMapSampler(), linearSampler );
+
+		uint32 width = trait.m_width;
+		uint32 height = trait.m_height;
+
+		for ( uint32 mipSlice = 0; mipSlice < trait.m_mipLevels; ++mipSlice )
+		{
+			BindResource( shaderBindings, prefilteredSpecularCS.Prefiltered(), prefiltered, mipSlice );
+			SetShaderValue( commandList, prefilteredSpecularCS.Roughness(), static_cast<float>( mipSlice ) / trait.m_mipLevels );
+
+			commandList.BindPipelineState( pso );
+			commandList.BindShaderResources( shaderBindings );
+
+			uint32 numGroupX = CalcAlignment<uint32>( width, 8 ) / 8;
+			uint32 numGroupY = CalcAlignment<uint32>( height, 8 ) / 8;
+			commandList.Dispatch( numGroupX, numGroupY, 6 );
+
+			if ( width > 1 )
+			{
+				width >>= 1;
+			}
+
+			if ( height > 1 )
+			{
+				height >>= 1;
+			}
+
+			commandList.Commit();
+			GetInterface<agl::IAgl>()->WaitGPU();
+		}
+
+		return prefiltered;
 	}
 }

@@ -1,4 +1,5 @@
 #include "Common/GammaCorrection.fxh"
+#include "Common/PBR.fxh"
 #include "Common/PsCommon.fxh"
 #include "Common/TexCommon.fxh"
 #include "Common/ViewConstant.fxh"
@@ -16,6 +17,9 @@ Texture2D IndirectIllumination : register( t5 );
 SamplerState LinearSampler : register( s1 );
 
 TextureCube IrradianceMap : register( t6 );
+
+TextureCube PrefilterMap : register( t7 );
+Texture2D BrdfLUT : register( t8 );
 
 struct ForwardLightData
 {
@@ -38,6 +42,7 @@ cbuffer ForwardLightConstant : register( b2 )
 	float4 HemisphereUpperColor : packoffset( c1 );
 	float4 HemisphereLowerColor : packoffset( c2 );
 	float4 IrradianceMapSH[7] : packoffset( c3 );
+	float ReflectionMipLevels : packoffset( c10.x );
 };
 
 cbuffer Material : register( b3 )
@@ -96,43 +101,6 @@ ForwardLightData GetLight( uint index )
 	light.m_specular = specular;
 	
 	return light;
-}
-
-float3 FresnelSchlick( float cosTheta, float3 f0 )
-{
-	return f0 + ( 1.f - f0 ) * pow( saturate( 1.f - cosTheta ), 5.f );
-}
-
-float DistributionGGX( float ndoth, float roughness )
-{
-	float a = roughness * roughness;
-	float a2 = a * a;
-	float ndoth2 = ndoth * ndoth;
-
-	float num = a2;
-	float denom = ( ndoth2 * ( a2 - 1.f ) + 1.f );
-	denom = PI * denom * denom;
-
-	return num / denom;
-}
-
-float GeometrySchlickGGX( float ndotv, float roughness )
-{
-	float r = roughness + 1.f;
-	float k = ( r * r ) / 8.f;
-
-	float num = ndotv;
-	float denom = ndotv * ( 1.f - k ) + k;
-
-	return num / denom;
-}
-
-float GemoetrySmith( float ndotl, float ndotv, float roughness )
-{
-	float ggx1 = GeometrySchlickGGX( ndotl, roughness );
-	float ggx2 = GeometrySchlickGGX( ndotv, roughness );
-
-	return ggx1 * ggx2;
 }
 
 float OrenNayarDiffuse( float3 viewDirection, float3 lightDirection, float3 normal, float roughness )
@@ -224,8 +192,7 @@ LIGHTCOLOR CalcPhysicallyBasedLightProperties( ForwardLightData light, float3 wo
         light.m_direction = -toLight;
     }
 
-	float3 f0 = (float3)0.04f;
-	f0 = lerp( f0, surface.albedo, surface.metallic );
+	float3 f0 = lerp( F0, surface.albedo, surface.metallic );
 	
 	float3 halfway = normalize( viewDirection + toLight );
     float ndotl = saturate( dot( toLight, normal ) );
@@ -241,7 +208,7 @@ LIGHTCOLOR CalcPhysicallyBasedLightProperties( ForwardLightData light, float3 wo
 	float3 kD = (float3)1.f - kS;
 	kD *= 1.f - surface.metallic;
 	
-	lightColor.m_diffuse = float4( kD / PI, 1.f ) * light.m_diffuse * ndotl;
+	lightColor.m_diffuse = float4( kD * surface.albedo / PI, 1.f ) * light.m_diffuse * ndotl;
 
 	float3 numerator = N * G * F;
 	float denominator = 4.f * ndotv * ndotl + 0.0001f;
@@ -334,6 +301,8 @@ LIGHTCOLOR CalcPhysicallyBasedLight( GeometryProperty geometry, SurfaceProperty 
 	LIGHTCOLOR LightColor = (LIGHTCOLOR)0;
 	LIGHTCOLOR cColor = (LIGHTCOLOR)0;
 
+	float3 f0 = lerp( F0, surface.albedo, surface.metallic );
+
 	for ( uint i = 0; i < NumLights; ++i )
 	{
 		ForwardLightData light = GetLight( i );
@@ -346,12 +315,25 @@ LIGHTCOLOR CalcPhysicallyBasedLight( GeometryProperty geometry, SurfaceProperty 
 		cColor.m_specular += LightColor.m_specular * visibility;
 	}
 
-	cColor.m_diffuse.rgb += ImageBasedLight( normal );
-	cColor.m_diffuse.rgb += HemisphereLight( normal );
+	float ndotv = saturate( dot( normal, viewDirection ) );
+
+	float3 F = FresnelSchlick( ndotv, f0, surface.roughness );
+	float3 kS = F;
+	float3 kD = 1.f - kS;
+	kD *= 1.f - surface.metallic;
+
+	cColor.m_diffuse.rgb += ImageBasedLight( normal ) * kD;
+	cColor.m_diffuse.rgb += HemisphereLight( normal ) * kD;
 
 #if EnableRSMs == 1
-	cColor.m_diffuse.rgb += IndirectIllumination.Sample( LinearSampler, geometry.screenUV ).rgb;
+	cColor.m_diffuse.rgb += IndirectIllumination.Sample( LinearSampler, geometry.screenUV ).rgb * kD;
 #endif
+
+	float3 r = reflect( -viewDirection, normal );
+	float3 prefilteredColor = PrefilterMap.SampleLevel( LinearSampler, r, surface.roughness * ( ReflectionMipLevels - 1 ) ).rgb	;
+	float2 brdf = BrdfLUT.Sample( LinearSampler, float2( ndotv, surface.roughness ) ).rg;
+
+	cColor.m_specular.rgb += prefilteredColor * ( F * brdf.x + brdf.y );
 
 	return cColor;
 }
