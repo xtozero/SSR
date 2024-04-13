@@ -257,15 +257,20 @@ namespace rendercore
 			};
 
 		const agl::TextureTrait& cubeMapTrait = cubeMap->GetTrait();
+
+		constexpr uint32 MaxResolution = 512;
+		uint32 width = std::min( cubeMapTrait.m_width, MaxResolution );
+		uint32 height = std::min( cubeMapTrait.m_height, MaxResolution );
+
 		agl::TextureTrait trait = {
-			.m_width = cubeMapTrait.m_width,
-			.m_height = cubeMapTrait.m_height,
+			.m_width = width,
+			.m_height = height,
 			.m_depth = cubeMapTrait.m_depth,
 			.m_sampleCount = 1,
 			.m_sampleQuality = 0,
-			.m_mipLevels = CountMips( cubeMapTrait.m_width, cubeMapTrait.m_height ),
+			.m_mipLevels = CountMips( width, height ),
 			.m_format = agl::ResourceFormat::R16G16B16A16_FLOAT,
-			.m_access = agl::ResourceAccessFlag::None,
+			.m_access = agl::ResourceAccessFlag::Default,
 			.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess,
 			.m_miscFlag = agl::ResourceMisc::TextureCube
 		};
@@ -281,16 +286,15 @@ namespace rendercore
 		PrefilteredSpecularCS prefilteredSpecularCS;
 		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( prefilteredSpecularCS );
 
-		auto commandList = GetCommandList();
-
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( prefilteredSpecularCS );
 		BindResource( shaderBindings, prefilteredSpecularCS.EnvMap(), cubeMap );
 
 		auto linearSampler = StaticSamplerState<>::Get();
 		BindResource( shaderBindings, prefilteredSpecularCS.EnvMapSampler(), linearSampler );
 
-		uint32 width = trait.m_width;
-		uint32 height = trait.m_height;
+		auto commandList = GetCommandList();
+
+		commandList.AddTransition( Transition( *prefiltered.Get(), agl::ResourceState::UnorderedAccess ) );
 
 		for ( uint32 mipSlice = 0; mipSlice < trait.m_mipLevels; ++mipSlice )
 		{
@@ -313,10 +317,11 @@ namespace rendercore
 			{
 				height >>= 1;
 			}
-
-			commandList.Commit();
-			GetInterface<agl::IAgl>()->WaitGPU();
 		}
+
+		commandList.AddTransition( Transition( *prefiltered.Get(), agl::ResourceState::PixelShaderResource ) );
+		commandList.Commit();
+		GetInterface<agl::IAgl>()->WaitGPU();
 
 		return prefiltered;
 	}

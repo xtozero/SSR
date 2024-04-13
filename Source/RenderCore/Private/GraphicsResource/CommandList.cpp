@@ -102,6 +102,11 @@ namespace rendercore
 		m_imple.AddTransition( transition );
 	}
 
+	void CommandList::AddUavBarrier( const agl::UavBarrier& uavBarrier )
+	{
+		m_imple.AddUavBarrier( uavBarrier );
+	}
+
 	void CommandList::BeginQuery( agl::Query* rawQuery )
 	{
 		rawQuery->Begin( m_imple );

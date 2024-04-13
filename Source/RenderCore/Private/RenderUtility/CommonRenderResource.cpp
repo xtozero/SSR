@@ -125,7 +125,6 @@ namespace rendercore
 				commandList.AddTransition( Transition( *brdfLUT.Get(), agl::ResourceState::PixelShaderResource ) );
 
 				commandList.Commit();
-				GetInterface<agl::IAgl>()->WaitGPU();
 			} );
 
 		return brdfLUT;

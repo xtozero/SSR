@@ -376,6 +376,11 @@ namespace logic
 
 	void CGameLogic::CreateGameViewport()
 	{
+		if ( m_wndHwnd == nullptr )
+		{
+			return;
+		}
+
 		m_canvas = std::make_unique<rendercore::Canvas>(
 			m_appSize.first,
 			m_appSize.second,

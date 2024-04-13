@@ -301,6 +301,11 @@ namespace agl
 		m_barrierBatcher.AddTransition( transition );
 	}
 
+	void D3D12CommandListImpl::AddUavBarrier( const UavBarrier& uavBarrier )
+	{
+		m_barrierBatcher.AddUavBarrier( uavBarrier );
+	}
+
 	void D3D12CommandListImpl::ResourceBarrier( uint32 numBarriers, D3D12_RESOURCE_BARRIER* barriers )
 	{
 		CommandList().ResourceBarrier( numBarriers, barriers );
@@ -460,6 +465,11 @@ namespace agl
 	void D3D12CommandList::AddTransition( const ResourceTransition& transition )
 	{
 		m_imple.AddTransition( transition );
+	}
+
+	void D3D12CommandList::AddUavBarrier( const UavBarrier& uavBarrier )
+	{
+		m_imple.AddUavBarrier( uavBarrier );
 	}
 
 	void D3D12CommandList::BeginQuery( void* rawQuery )
@@ -655,6 +665,11 @@ namespace agl
 	void D3D12ParallelCommandList::AddTransition( const ResourceTransition& transition )
 	{
 		m_imple.AddTransition( transition );
+	}
+
+	void D3D12ParallelCommandList::AddUavBarrier( const UavBarrier& uavBarrier )
+	{
+		m_imple.AddUavBarrier( uavBarrier );
 	}
 
 	void D3D12ParallelCommandList::BeginQuery( void* rawQuery )

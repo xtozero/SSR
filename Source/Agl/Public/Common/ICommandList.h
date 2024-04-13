@@ -54,6 +54,7 @@ namespace agl
 		virtual void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset = 0, uint32 numByte = 0 ) = 0;
 
 		virtual void AddTransition( const ResourceTransition& transition ) = 0;
+		virtual void AddUavBarrier( const UavBarrier& uavBarrier ) = 0;
 
 		virtual void BeginQuery( void* rawQuery ) = 0;
 		virtual void EndQuery( void* rawQuery ) = 0;

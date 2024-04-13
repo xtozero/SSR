@@ -40,6 +40,7 @@ namespace rendercore
 		void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset = 0, uint32 numByte = 0 );
 
 		void AddTransition( const agl::ResourceTransition& transition );
+		void AddUavBarrier( const agl::UavBarrier& uavBarrier );
 
 		void BeginQuery( agl::Query* rawQuery );
 		void EndQuery( agl::Query* rawQuery );

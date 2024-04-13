@@ -368,6 +368,11 @@ namespace agl
 		// Do Nothing
 	}
 
+	void D3D11CommandList::AddUavBarrier( [[maybe_unused]] const UavBarrier& uavBarrier )
+	{
+		// Do Nothing
+	}
+
 	void D3D11CommandList::BeginQuery( void* rawQuery )
 	{
 		auto d3d11Query = static_cast<ID3D11Query*>( rawQuery );
@@ -626,6 +631,11 @@ namespace agl
 	}
 
 	void D3D11ParallelCommandList::AddTransition( [[maybe_unused]] const ResourceTransition& transition )
+	{
+		// Do Nothing
+	}
+
+	void D3D11ParallelCommandList::AddUavBarrier( [[maybe_unused]] const UavBarrier& uavBarrier )
 	{
 		// Do Nothing
 	}

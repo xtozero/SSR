@@ -468,6 +468,7 @@ namespace agl
 		if ( auto d3d11Srv = static_cast<D3D11ShaderResourceView*>( srv ) )
 		{
 			rawSrv = d3d11Srv->Resource();
+			UnbindExistingSRV( context, rawSrv );
 
 			if ( const IResourceViews* sibling = d3d11Srv->ViewHolder() )
 			{
@@ -524,6 +525,7 @@ namespace agl
 		if ( auto d3d11Uav = static_cast<D3D11UnorderedAccessView*>( uav ) )
 		{
 			rawUav = d3d11Uav->Resource();
+			UnbindExistingUAV( context, rawUav );
 
 			if ( const IResourceViews* sibling = d3d11Uav->ViewHolder() )
 			{

@@ -70,6 +70,7 @@ namespace agl
 		void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset, uint32 numByte );
 
 		void AddTransition( const ResourceTransition& transition );
+		void AddUavBarrier( const UavBarrier& uavBarrier );
 
 		void ResourceBarrier( uint32 numBarriers, D3D12_RESOURCE_BARRIER* barriers );
 
@@ -132,6 +133,7 @@ namespace agl
 		virtual void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset = 0, uint32 numByte = 0 ) override;
 
 		virtual void AddTransition( const ResourceTransition& transition ) override;
+		virtual void AddUavBarrier( const UavBarrier& uavBarrier ) override;
 
 		virtual void BeginQuery( void* rawQuery ) override;
 		virtual void EndQuery( void* rawQuery ) override;
@@ -192,6 +194,7 @@ namespace agl
 		virtual void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset = 0, uint32 numByte = 0 ) override;
 
 		virtual void AddTransition( const ResourceTransition& transition ) override;
+		virtual void AddUavBarrier( const UavBarrier& uavBarrier ) override;
 
 		virtual void BeginQuery( void* rawQuery ) override;
 		virtual void EndQuery( void* rawQuery ) override;
