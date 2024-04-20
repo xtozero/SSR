@@ -3,6 +3,7 @@
 #include "D3D12BarrierBatcher.h"
 #include "D3D12GlobalDescriptorHeap.h"
 #include "D3D12PipelineCache.h"
+#include "DirectXTex.h"
 #include "GlobalConstantBuffers.h"
 #include "ICommandList.h"
 #include "Memory/FixedBlockMemoryPool.h"
@@ -74,6 +75,8 @@ namespace agl
 
 		void ResourceBarrier( uint32 numBarriers, D3D12_RESOURCE_BARRIER* barriers );
 
+		bool CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult );
+
 		void BeginQuery( void* rawQuery );
 		void EndQuery( void* rawQuery );
 		void ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries );
@@ -135,6 +138,8 @@ namespace agl
 		virtual void AddTransition( const ResourceTransition& transition ) override;
 		virtual void AddUavBarrier( const UavBarrier& uavBarrier ) override;
 
+		virtual bool CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult ) override;
+
 		virtual void BeginQuery( void* rawQuery ) override;
 		virtual void EndQuery( void* rawQuery ) override;
 
@@ -195,6 +200,8 @@ namespace agl
 
 		virtual void AddTransition( const ResourceTransition& transition ) override;
 		virtual void AddUavBarrier( const UavBarrier& uavBarrier ) override;
+
+		virtual bool CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult ) override;
 
 		virtual void BeginQuery( void* rawQuery ) override;
 		virtual void EndQuery( void* rawQuery ) override;

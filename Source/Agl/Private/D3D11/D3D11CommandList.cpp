@@ -6,6 +6,7 @@
 #include "D3D11ResourceViews.h"
 #include "D3D11SamplerState.h"
 #include "D3D11Texture.h"
+#include "DirectXTex.h"
 
 #include "ShaderBindings.h"
 
@@ -373,6 +374,25 @@ namespace agl
 		// Do Nothing
 	}
 
+	bool D3D11CommandList::CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult )
+	{
+		if ( texture == nullptr )
+		{
+			return false;
+		}
+
+		auto resource = static_cast<ID3D11Resource*>( texture->Resource() );
+		if ( resource == nullptr )
+		{
+			return false;
+		}
+
+		ID3D11Device* pDevice = &D3D11Device();
+		ID3D11DeviceContext* pDeviceContext = &D3D11Context();
+
+		return DirectX::CaptureTexture( pDevice, pDeviceContext, resource, outResult );
+	}
+
 	void D3D11CommandList::BeginQuery( void* rawQuery )
 	{
 		auto d3d11Query = static_cast<ID3D11Query*>( rawQuery );
@@ -638,6 +658,12 @@ namespace agl
 	void D3D11ParallelCommandList::AddUavBarrier( [[maybe_unused]] const UavBarrier& uavBarrier )
 	{
 		// Do Nothing
+	}
+
+	bool D3D11ParallelCommandList::CaptureTexture( [[maybe_unused]] agl::Texture* texture, [[maybe_unused]]  DirectX::ScratchImage& outResult )
+	{
+		assert( false && "Not Implemented" );
+		return false;
 	}
 
 	void D3D11ParallelCommandList::BeginQuery( void* rawQuery )

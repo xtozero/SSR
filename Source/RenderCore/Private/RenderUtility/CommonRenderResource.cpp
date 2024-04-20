@@ -4,6 +4,7 @@
 #include "CommandList.h"
 #include "ComputePipelineState.h"
 #include "GlobalShaders.h"
+#include "IAssetLoader.h"
 
 namespace
 {
@@ -140,8 +141,30 @@ namespace rendercore
 
 		BlackCubeTexture = CreateCubeTexture( Color::Black, "DefaultBlackCube" );
 		WhiteCubeTexture = CreateCubeTexture( Color::White, "DefaultWhiteCube" );
+		
+		{
+			std::filesystem::path assetPath = "./Assets/EngineDefault/Texture/PrecomputedBRDF.asset";
+			if ( std::filesystem::exists( assetPath ) )
+			{
+				IAssetLoader::LoadCompletionCallback onLoadComplete;
+				onLoadComplete.BindFunctor(
+					[this]( const std::shared_ptr<void>& asset )
+					{
+						auto brdfLUT = std::reinterpret_pointer_cast<DDSTexture>( asset );
+						BRDFLookUpTexture = brdfLUT->Resource();
+						--m_numPending;
+					} );
 
-		BRDFLookUpTexture = CreateBRDFLookUpTexture();
+				AssetLoaderSharedHandle handle = GetInterface<IAssetLoader>()->RequestAsyncLoad( "./Assets/EngineDefault/Texture/PrecomputedBRDF.asset", onLoadComplete );
+
+				assert( handle->IsLoadingInProgress() || handle->IsLoadComplete() );
+				++m_numPending;
+			}
+			else
+			{
+				BRDFLookUpTexture = CreateBRDFLookUpTexture();
+			}
+		}
 	}
 
 	void DefaultGraphicsResources::Shutdown()
@@ -156,6 +179,11 @@ namespace rendercore
 
 				BRDFLookUpTexture = nullptr;
 			} );
+	}
+
+	bool DefaultGraphicsResources::IsReady() const
+	{
+		return m_numPending == 0;
 	}
 
 	agl::RefHandle<agl::Texture> BlackTexture;

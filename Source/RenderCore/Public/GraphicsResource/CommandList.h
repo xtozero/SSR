@@ -42,6 +42,8 @@ namespace rendercore
 		void AddTransition( const agl::ResourceTransition& transition );
 		void AddUavBarrier( const agl::UavBarrier& uavBarrier );
 
+		RENDERCORE_DLL bool CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult );
+
 		void BeginQuery( agl::Query* rawQuery );
 		void EndQuery( agl::Query* rawQuery );
 
@@ -56,5 +58,5 @@ namespace rendercore
 		agl::ICommandList& m_imple;
 	};
 
-	CommandList GetCommandList();
+	RENDERCORE_DLL CommandList GetCommandList();
 }

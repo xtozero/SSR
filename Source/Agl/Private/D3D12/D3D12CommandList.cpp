@@ -311,6 +311,28 @@ namespace agl
 		CommandList().ResourceBarrier( numBarriers, barriers );
 	}
 
+	bool D3D12CommandListImpl::CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult )
+	{
+		if ( texture == nullptr )
+		{
+			return false;
+		}
+
+		const TextureTrait& trait = texture->GetTrait();
+
+		bool isCubeMap = HasAnyFlags( trait.m_miscFlag, ResourceMisc::TextureCube );
+		auto resource = static_cast<ID3D12Resource *>( texture->Resource() );
+		if ( resource == nullptr )
+		{
+			return false;
+		}
+
+		D3D12_RESOURCE_STATES resourceState = ConvertToResourceStates( texture->GetResourceState() );
+
+		HRESULT hr = DirectX::CaptureTexture( &D3D12DirectCommandQueue(), resource, isCubeMap, outResult, resourceState, resourceState );
+		return SUCCEEDED( hr );
+	}
+
 	void D3D12CommandListImpl::BeginQuery( void* rawQuery )
 	{
 		auto d3dQuery = static_cast<D3D12Query*>( rawQuery );
@@ -470,6 +492,11 @@ namespace agl
 	void D3D12CommandList::AddUavBarrier( const UavBarrier& uavBarrier )
 	{
 		m_imple.AddUavBarrier( uavBarrier );
+	}
+
+	bool D3D12CommandList::CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult )
+	{
+		return m_imple.CaptureTexture( texture, outResult );
 	}
 
 	void D3D12CommandList::BeginQuery( void* rawQuery )
@@ -670,6 +697,11 @@ namespace agl
 	void D3D12ParallelCommandList::AddUavBarrier( const UavBarrier& uavBarrier )
 	{
 		m_imple.AddUavBarrier( uavBarrier );
+	}
+
+	bool D3D12ParallelCommandList::CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult )
+	{
+		return m_imple.CaptureTexture( texture, outResult );
 	}
 
 	void D3D12ParallelCommandList::BeginQuery( void* rawQuery )

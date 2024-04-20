@@ -4,7 +4,7 @@
 
 namespace engine
 {
-	void CommandLine::Parse( char* argv )
+	void CommandLine::Parse( const char* argv )
 	{
 		std::vector<std::string> splited = SplitString( argv );
 		std::vector<Name>* option = nullptr;
@@ -61,6 +61,16 @@ namespace engine
 			};
 
 		return IsExist_Lambda( m_related ) || IsExist_Lambda( m_unrelated );
+	}
+
+	bool CommandLine::Has( const Name& name )
+	{
+		if ( auto commandLine = GetInterface<CommandLine>(); commandLine->IsExist( name ) )
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	CommandLine* CreateCommandLine()

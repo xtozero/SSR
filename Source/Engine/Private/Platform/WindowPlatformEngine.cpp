@@ -17,7 +17,7 @@
 
 namespace engine
 {
-	bool WindowPlatformEngine::BootUp( IPlatform& platform, char* argv )
+	bool WindowPlatformEngine::BootUp( IPlatform& platform, const char* argv )
 	{
 		if ( GetInterface<CommandLine>() == nullptr )
 		{
@@ -60,13 +60,15 @@ namespace engine
 		std::pair<int32, int32> clientSize = DefaultApp::GetClientSize();
 		platform.Resize( clientSize.first, clientSize.second );
 
-		m_logicDll = LoadModule( DefaultApp::IsEditor() ? "Editor.dll" : "Logic.dll" );
+		bool isEditor = DefaultApp::IsEditor() && !CommandLine::Has( Name( "Console" ) );
+
+		m_logicDll = LoadModule( isEditor ? "Editor.dll" : "Logic.dll" );
 		if ( m_logicDll == nullptr )
 		{
 			return false;
 		}
 
-		m_logic = DefaultApp::IsEditor() ? GetInterface<editor::IEditor>() : GetInterface<logic::ILogic>();
+		m_logic = isEditor ? GetInterface<editor::IEditor>() : GetInterface<logic::ILogic>();
 
 		if ( m_logic )
 		{

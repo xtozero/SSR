@@ -1,8 +1,9 @@
 #pragma once
 
 #include "GlobalShaders.h"
-#include "GraphicsApiResource.h"
 #include "Texture.h"
+
+#include <atomic>
 
 namespace rendercore
 {
@@ -25,7 +26,14 @@ namespace rendercore
 
 		void BootUp();
 		void Shutdown();
+
+		bool IsReady() const;
+
+	private:
+		std::atomic<int32> m_numPending = 0;
 	};
+
+	RENDERCORE_DLL agl::RefHandle<agl::Texture> CreateBRDFLookUpTexture();
 
 	extern agl::RefHandle<agl::Texture> BlackTexture;
 	extern agl::RefHandle<agl::Texture> WhiteTexture;

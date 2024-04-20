@@ -44,6 +44,8 @@ namespace agl
 		virtual void AddTransition( const ResourceTransition& transition ) override;
 		virtual void AddUavBarrier( const UavBarrier& uavBarrier ) override;
 
+		virtual bool CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult ) override;
+
 		virtual void BeginQuery( void* rawQuery ) override;
 		virtual void EndQuery( void* rawQuery ) override;
 
@@ -101,6 +103,8 @@ namespace agl
 
 		virtual void AddTransition( const ResourceTransition& transition ) override;
 		virtual void AddUavBarrier( const UavBarrier& uavBarrier ) override;
+
+		virtual bool CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult ) override;
 
 		virtual void BeginQuery( void* rawQuery ) override;
 		virtual void EndQuery( void* rawQuery ) override;

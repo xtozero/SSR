@@ -4,6 +4,11 @@
 #include "GraphicsApiResource.h"
 #include "SizedTypes.h"
 
+namespace DirectX
+{
+	class ScratchImage;
+}
+
 namespace agl
 {
 	class Buffer;
@@ -55,6 +60,8 @@ namespace agl
 
 		virtual void AddTransition( const ResourceTransition& transition ) = 0;
 		virtual void AddUavBarrier( const UavBarrier& uavBarrier ) = 0;
+
+		virtual bool CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult ) = 0;
 
 		virtual void BeginQuery( void* rawQuery ) = 0;
 		virtual void EndQuery( void* rawQuery ) = 0;

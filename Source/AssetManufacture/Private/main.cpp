@@ -2,7 +2,10 @@
 #include "ArchiveUtility.h"
 #include "AssetManufacturer.h"
 #include "common.h"
+#include "Core/IEngine.h"
+#include "EngineDefaultManufacturer.h"
 #include "ManufactureConfig.h"
+#include "Platform/IPlatform.h"
 #include "SizedTypes.h"
 
 #include <chrono>
@@ -15,31 +18,45 @@
 
 namespace fs = std::filesystem;
 
-bool LoadModules()
+HMODULE g_engineDll = nullptr;
+
+class Console : public engine::IPlatform
 {
-	HMODULE engineDll = LoadModule( "Engine.dll" );
-	if ( engineDll == nullptr )
+public:
+	virtual std::pair<uint32, uint32> GetSize() const noexcept override
+	{
+		return { 0, 0 };
+	}
+
+	virtual void UpdateSize( [[maybe_unused]] uint32 width, [[maybe_unused]] uint32 height ) override {}
+	virtual void Resize( [[maybe_unused]] uint32 width, [[maybe_unused]] uint32 height ) override {}
+
+private:
+	virtual void* GetRawHandleImple() const noexcept override
+	{
+		return nullptr;
+	}
+};
+
+bool LoadModules( const std::string& commandline )
+{
+	fs::path oldPath = fs::current_path();
+
+	fs::current_path( "../Program" );
+
+	g_engineDll = LoadModule( "Engine.dll" );
+	if ( g_engineDll == nullptr )
 	{
 		return false;
 	}
 
-	HMODULE logicDll = LoadModule( "Logic.dll" );
-	if ( logicDll == nullptr )
+	if ( auto engine = GetInterface<engine::IEngine>() )
 	{
-		return false;
+		Console console;
+		engine->BootUp( console, commandline.c_str() );
 	}
 
-	HMODULE renderCoreDll = LoadModule( "RenderCore.dll" );
-	if ( renderCoreDll == nullptr )
-	{
-		return false;
-	}
-
-	HMODULE aglDll = LoadModule( "Agl.dll" );
-	if ( aglDll == nullptr )
-	{
-		return false;
-	}
+	fs::current_path( oldPath );
 
 	return true;
 }
@@ -183,7 +200,7 @@ void RemoveUnusedAssets( const std::set<fs::path>& processed )
 					continue;
 				}
 
-				if ( processed.find( fs::absolute( p ) ) == std::end(processed) )
+				if ( processed.find( fs::absolute( p ) ) == std::end( processed ) )
 				{
 					uint32 trial = 0;
 					constexpr uint32 maxTrial = 5;
@@ -215,20 +232,29 @@ void RemoveUnusedAssets( const std::set<fs::path>& processed )
 	}
 }
 
-int32 main()
+int32 main( int32 argc, char* argv[] )
 {
-	if ( LoadModules() == false )
+	fs::path rootPath = fs::current_path();
+	ManufactureConfig::Instance().Load();
+
+	std::string commandline;
+	commandline.reserve( 2048 );
+
+	for ( int32 i = 0; i < argc; ++i )
+	{
+		commandline += argv[i];
+		commandline += " ";
+	}
+	commandline += "Console";
+
+	if ( LoadModules( commandline ) == false )
 	{
 		return EXIT_FAILURE;
 	}
 
-	ManufactureConfig::Instance().Load();
-
 	std::map<fs::path, fs::file_time_type> assetInfos = GatherAssetInfos();
 
 	AssetManufacturer manufacturer;
-
-	fs::path rootPath = fs::current_path();
 	
 	for ( auto& [key, environment] : ManufactureConfig::Instance().PreprocessingEnvironments() )
 	{
@@ -342,7 +368,14 @@ int32 main()
 		fs::current_path( rootPath );
 	}
 
+	{
+		EngineDefaultManufacturer engineDefault;
+		engineDefault.Manufacture( processed );
+	}
+
 	RemoveUnusedAssets( processed );
+
+	ShutdownModule( g_engineDll );
 
 	return EXIT_SUCCESS;
 }

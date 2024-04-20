@@ -4,6 +4,7 @@ set (ENTRY_POINT
 
 set (MANUFACTURER
 	Public/AssetManufacturer.h
+	Public/EngineDefaultManufacturer.h
 	Public/TextureManufacturer.h
 	Public/JsonManufacturer.h
 	Public/ManufactureConfig.h
@@ -11,6 +12,7 @@ set (MANUFACTURER
 	Public/WavefrontObjManufacturer.h
 	Public/WavefrontObjParser.hpp
 	Private/AssetManufacturer.cpp
+	Private/EngineDefaultManufacturer.cpp
 	Private/TextureManufacturer.cpp
 	Private/JsonManufacturer.cpp
 	Private/ShaderManufacturer.cpp
@@ -24,12 +26,18 @@ set (SHADER_TOOL
 	Private/ShaderTool.cpp
 )
 
+set (UTIL
+	Public/DirectXTexTool.h
+	Private/DirectXTexTool.cpp
+)
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 add_executable(AssetManufacture		${ENTRY_POINT}
 									${MANUFACTURER}
-									${SHADER_TOOL})
+									${SHADER_TOOL}
+									${UTIL})
 
 target_include_directories(AssetManufacture
 PRIVATE

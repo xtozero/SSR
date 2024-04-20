@@ -13,7 +13,7 @@ namespace engine
 	class IEngine
 	{
 	public:
-		virtual bool BootUp( IPlatform& platform, char* argv ) = 0;
+		virtual bool BootUp( IPlatform& platform, const char* argv ) = 0;
 
 		virtual void Run() = 0;
 

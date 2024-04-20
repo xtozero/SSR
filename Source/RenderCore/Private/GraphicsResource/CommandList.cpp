@@ -107,6 +107,11 @@ namespace rendercore
 		m_imple.AddUavBarrier( uavBarrier );
 	}
 
+	bool CommandList::CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult )
+	{
+		return m_imple.CaptureTexture( texture, outResult );
+	}
+
 	void CommandList::BeginQuery( agl::Query* rawQuery )
 	{
 		rawQuery->Begin( m_imple );

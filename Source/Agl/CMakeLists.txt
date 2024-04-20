@@ -228,6 +228,7 @@ set (DIRECT3D_LIBRARY
 target_link_libraries(Agl
 PRIVATE 
 	Core
+	DirectXTex
 	${DIRECT3D_LIBRARY})
 
 target_precompile_headers(Agl

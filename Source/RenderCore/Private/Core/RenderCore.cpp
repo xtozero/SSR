@@ -147,12 +147,16 @@ namespace rendercore
 
 		GraphicsInterface().BootUp( m_agl );
 
-		while ( IsReady() == false )
+		while ( !GlobalShaders::GetInstance().IsReady() || !ShaderCache::IsLoaded() )
 		{
 			GetInterface<ITaskScheduler>()->ProcessThisThreadTask();
 		}
 
 		DefaultGraphicsResources::GetInstance().BootUp();
+		while ( !DefaultGraphicsResources::GetInstance().IsReady() )
+		{
+			GetInterface<ITaskScheduler>()->ProcessThisThreadTask();
+		}
 
 		return true;
 	}
@@ -162,7 +166,8 @@ namespace rendercore
 		if ( m_isReady == false )
 		{
 			m_isReady = GlobalShaders::GetInstance().IsReady()
-				&& ShaderCache::IsLoaded();
+				&& ShaderCache::IsLoaded()
+				&& DefaultGraphicsResources::GetInstance().IsReady();
 		}
 
 		return m_isReady;

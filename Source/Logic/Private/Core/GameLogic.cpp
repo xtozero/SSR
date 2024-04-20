@@ -17,6 +17,7 @@
 #include "IAgl.h"
 #include "InterfaceFactories.h"
 #include "Json/json.hpp"
+#include "Platform/CommandLine.h"
 #include "Platform/IPlatform.h"
 #include "Renderer/IRenderCore.h"
 #include "Scene/GameClientViewport.h"
@@ -72,7 +73,12 @@ namespace logic
 			return false;
 		}
 
-		CreateGameViewport();
+		bool useGUI = engine::CommandLine::Has( Name( "Console" ) ) == false;
+
+		if ( useGUI )
+		{
+			CreateGameViewport();
+		}
 
 		m_inputController = std::make_unique<PlayerController>();
 
@@ -87,7 +93,7 @@ namespace logic
 
 		// m_pickingManager.PushCamera( &GetLocalPlayer()->GetCamera() );
 
-		if ( LoadWorld( DefaultLogic::GetDefaultWorld() ) == false )
+		if ( useGUI && ( LoadWorld( DefaultLogic::GetDefaultWorld() ) == false ) )
 		{
 			__debugbreak();
 		}
@@ -158,12 +164,12 @@ namespace logic
 			m_canvas->Resize( newAppSize );
 		}
 
-		//m_ssrManager.AppSizeChanged( *this );
+		/*
+		m_ssrManager.AppSizeChanged( *this );
 
 		float fSizeX = static_cast<float>( m_appSize.first );
 		float fSizeY = static_cast<float>( m_appSize.second );
 
-		/*
 		m_pickingManager.PopInvProjection( );
 		m_pickingManager.PushInvProjection( XMConvertToRadians( 60 ),
 			fSizeX / fSizeY,
@@ -376,11 +382,6 @@ namespace logic
 
 	void CGameLogic::CreateGameViewport()
 	{
-		if ( m_wndHwnd == nullptr )
-		{
-			return;
-		}
-
 		m_canvas = std::make_unique<rendercore::Canvas>(
 			m_appSize.first,
 			m_appSize.second,

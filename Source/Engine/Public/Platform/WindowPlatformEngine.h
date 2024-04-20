@@ -19,7 +19,7 @@ namespace engine
 	class WindowPlatformEngine : public IEngine
 	{
 	public:
-		virtual bool BootUp( IPlatform& platform, char* argv ) override;
+		virtual bool BootUp( IPlatform& platform, const char* argv ) override;
 
 		virtual void Run() override;
 
