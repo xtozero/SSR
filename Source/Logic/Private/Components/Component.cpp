@@ -5,7 +5,6 @@
 #include "World/World.h"
 
 #include <cassert>
-
 namespace logic
 {
 	void Component::RegisterComponent()
@@ -21,6 +20,11 @@ namespace logic
 		{
 			RemoveRenderState();
 		}
+
+		if ( m_pWorld )
+		{
+			m_pWorld->ClearComponentForNeededRenderStateUpdate( *this );
+		}
 	}
 
 	void Component::RecreateRenderState()
@@ -35,18 +39,18 @@ namespace logic
 
 	void Component::SendRenderTransform()
 	{
-		m_markForSendRenderTransform = false;
 		m_renderTransformDirty = false;
 	}
 
-	void Component::UpdateState()
+	void Component::UpdateRenderState()
 	{
-		m_markForUpdateState = false;
-
 		if ( m_renderStateDirty )
 		{
-			m_renderStateDirty = false;
 			RecreateRenderState();
+		}
+		else if ( m_renderTransformDirty )
+		{
+			SendRenderTransform();
 		}
 	}
 
@@ -55,17 +59,7 @@ namespace logic
 		if ( m_renderStateCreated && ( m_renderStateDirty == false ) )
 		{
 			m_renderStateDirty = true;
-
-			if ( m_markForUpdateState == false )
-			{
-				EnqueueThreadTask<ThreadType::GameThread>(
-					[this]()
-					{
-						UpdateState();
-					} );
-			}
-
-			m_markForUpdateState = true;
+			MarkRenderStateUpdate();
 		}
 	}
 
@@ -74,17 +68,7 @@ namespace logic
 		if ( m_renderStateCreated && ( m_renderTransformDirty == false ) )
 		{
 			m_renderTransformDirty = true;
-
-			if ( m_markForSendRenderTransform == false )
-			{
-				EnqueueThreadTask<ThreadType::GameThread>(
-					[this]()
-					{
-						SendRenderTransform();
-					} );
-			}
-
-			m_markForSendRenderTransform = true;
+			MarkRenderStateUpdate();
 		}
 	}
 
@@ -140,6 +124,9 @@ namespace logic
 	void Component::CreateRenderState()
 	{
 		m_renderStateCreated = true;
+
+		m_renderStateDirty = false;
+		m_renderTransformDirty = false;
 	}
 
 	void Component::RemoveRenderState()
@@ -183,6 +170,14 @@ namespace logic
 	{
 		assert( m_physicsStateCreated );
 		m_physicsStateCreated = false;
+	}
+
+	void Component::MarkRenderStateUpdate()
+	{
+		if ( m_pWorld )
+		{
+			m_pWorld->MarkComponentForNeededRenderStateUpdate( *this );
+		}
 	}
 
 	void Component::RegisterComponent( World* pWorld )

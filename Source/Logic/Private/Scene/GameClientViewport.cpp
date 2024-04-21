@@ -32,6 +32,8 @@ namespace logic
 			return;
 		}
 
+		world.SendRenderStateUpdate();
+
 		const float4& bgColor = DefaultLogic::GetDefaultBackgroundColor();
 
 		const auto& timer = world.GetTimer();

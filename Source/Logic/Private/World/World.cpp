@@ -1,5 +1,6 @@
 #include "World/World.h"
 
+#include "Components/Component.h"
 #include "GameObject/Player.h"
 #include "InterfaceFactories.h"
 #include "Physics/PhysicsScene.h"
@@ -10,6 +11,25 @@
 
 namespace logic
 {
+	struct UpdateRenderStateHelper
+	{
+	public:
+		static void Set( Component& component, int32 arrayIndex )
+		{
+			component.m_markForUpdateRenderStateArrayIndex = arrayIndex;
+		}
+
+		static int32 GetArrayIndex( Component& component )
+		{
+			return component.m_markForUpdateRenderStateArrayIndex;
+		}
+
+		static bool IsUpdateRenderStateReserved( Component& component )
+		{
+			return GetArrayIndex( component ) >= 0;
+		}
+	};
+
 	void StartPhysicsThinkFunction::ExecuteThink( float elapsedTime )
 	{
 		m_target->BeginPhysicsFrame( elapsedTime );
@@ -31,6 +51,9 @@ namespace logic
 	void World::Initialize()
 	{
 		m_scene = GetInterface<rendercore::IRenderCore>()->CreateScene();
+
+		constexpr int32 DefaultRenderStateUpdateArraySize = 1024;
+		m_componentsThatNeedRenderStateUpdate.reserve( DefaultRenderStateUpdateArraySize );
 
 		CreatePhysicsScene();
 	}
@@ -114,6 +137,48 @@ namespace logic
 		object->Initialize( gameLogic, *this );
 		size_t idx = m_gameObjects.Add( object );
 		object->SetID( idx );
+	}
+
+	void World::MarkComponentForNeededRenderStateUpdate( Component& component )
+	{
+		if ( UpdateRenderStateHelper::IsUpdateRenderStateReserved( component ) )
+		{
+			return;
+		}
+
+		auto arrayIndex = static_cast<int32>( m_componentsThatNeedRenderStateUpdate.size() );
+		UpdateRenderStateHelper::Set( component, arrayIndex );
+
+		m_componentsThatNeedRenderStateUpdate.emplace_back( &component );
+	}
+
+	void World::ClearComponentForNeededRenderStateUpdate( Component& component )
+	{
+		if ( UpdateRenderStateHelper::IsUpdateRenderStateReserved( component ) == false )
+		{
+			return;
+		}
+
+		int32 arrayIndex = UpdateRenderStateHelper::GetArrayIndex( component );
+		UpdateRenderStateHelper::Set( component, -1 );
+
+		m_componentsThatNeedRenderStateUpdate[arrayIndex] = nullptr;
+	}
+
+	void World::SendRenderStateUpdate()
+	{
+		for ( Component* component : m_componentsThatNeedRenderStateUpdate )
+		{
+			if ( component == nullptr )
+			{
+				continue;
+			}
+
+			component->UpdateRenderState();
+			UpdateRenderStateHelper::Set( *component, -1 );
+		}
+
+		m_componentsThatNeedRenderStateUpdate.clear();
 	}
 
 	//void World::DebugDrawBVH( CDebugOverlayManager& debugOverlay, uint32 color, float duration )

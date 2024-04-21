@@ -60,6 +60,10 @@ namespace logic
 
 		void SpawnObject( CGameLogic& gameLogic, Owner<CGameObject*> object );
 
+		void MarkComponentForNeededRenderStateUpdate( Component& component );
+		void ClearComponentForNeededRenderStateUpdate( Component& component );
+		void SendRenderStateUpdate();
+
 		//void DebugDrawBVH( CDebugOverlayManager& debugOverlay, uint32 color, float duration );
 
 		ThinkTaskManager& GetThinkTaskManager();
@@ -104,6 +108,8 @@ namespace logic
 		Timer m_clock;
 
 		ThinkTaskManager m_thinkTaskManager;
+
+		std::vector<Component*> m_componentsThatNeedRenderStateUpdate;
 	};
 
 	CPlayer* GetLocalPlayer( World& w );

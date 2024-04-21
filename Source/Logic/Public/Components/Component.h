@@ -26,7 +26,7 @@ namespace logic
 		void RecreateRenderState();
 		virtual void SendRenderTransform();
 
-		void UpdateState();
+		void UpdateRenderState();
 		LOGIC_DLL void MarkRenderStateDirty();
 
 		void MarkRenderTransformDirty();
@@ -60,15 +60,19 @@ namespace logic
 		ComponentThinkFunction m_think;
 
 	private:
+		void MarkRenderStateUpdate();
+
 		void RegisterComponent( World* pWorld );
 
+		friend struct UpdateRenderStateHelper;
+
 		CGameObject* m_pOwner = nullptr;
+
+		int32 m_markForUpdateRenderStateArrayIndex = -1;
 
 		bool m_renderStateCreated = false;
 		bool m_renderStateDirty = false;
 		bool m_renderTransformDirty = false;
-		bool m_markForUpdateState = false;
-		bool m_markForSendRenderTransform = false;
 		bool m_physicsStateCreated = false;
 	};
 }
