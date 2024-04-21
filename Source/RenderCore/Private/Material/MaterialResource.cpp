@@ -157,6 +157,8 @@ namespace rendercore
 			binding.AddConstantBuffer( cbParam, cb.Resource() );
 		}
 
+		m_materialConstantBuffers.clear();
+
 		auto& graphicsInterface = GraphicsInterface();
 
 		// Bind texture and sampler
@@ -399,5 +401,7 @@ namespace rendercore
 
 			cb.Unlock();
 		}
+
+		m_materialConstantValueNames.clear();
 	}
 }
