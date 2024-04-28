@@ -55,7 +55,7 @@ namespace agl
 		ID3D12PipelineState* Resource() const;
 		D3D12RootSignature* GetRootSignature() const;
 
-		explicit D3D12ComputePipelineState( const ComputePipelineStateInitializer& initializer );
+		D3D12ComputePipelineState( const ComputePipelineStateInitializer& initializer, const BinaryChunk* cachedPSO );
 		D3D12ComputePipelineState( const D3D12ComputePipelineState& ) = delete;
 		D3D12ComputePipelineState( D3D12ComputePipelineState&& ) = delete;
 		D3D12ComputePipelineState& operator=( const D3D12ComputePipelineState& ) = delete;

@@ -307,7 +307,8 @@ namespace logic
 			UpdateUIDrawInfo();
 			DrawScene();
 
-			EnqueueRenderTask( [this]()
+			EnqueueRenderTask(
+				[this]()
 				{
 					--m_numDrawRequestQueued;
 				} );
@@ -325,7 +326,8 @@ namespace logic
 			return;
 		}
 
-		EnqueueRenderTask( [scene]()
+		EnqueueRenderTask(
+			[scene]()
 			{
 				scene->OnBeginSceneRendering();
 			} );

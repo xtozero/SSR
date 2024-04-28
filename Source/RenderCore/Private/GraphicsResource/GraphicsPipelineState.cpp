@@ -58,7 +58,8 @@ namespace rendercore
 	void DepthStencilState::InitResource( const agl::DepthStencilStateTrait& trait )
 	{
 		m_state = agl::DepthStencilState::Create( trait );
-		EnqueueRenderTask( [state = m_state]()
+		EnqueueRenderTask(
+			[state = m_state]()
 			{
 				state->Init();
 			} );

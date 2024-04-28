@@ -48,6 +48,8 @@ namespace agl
 
 		virtual GpuTimer* CreateGpuTimer() override;
 
+		virtual void SetPSOCache( std::map<uint64, BinaryChunk>& psoCache ) override;
+
 		CD3D11ResourceManager() = default;
 		virtual ~CD3D11ResourceManager() override;
 		CD3D11ResourceManager( const CD3D11ResourceManager& ) = delete;

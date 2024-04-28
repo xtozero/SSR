@@ -165,6 +165,11 @@ namespace agl
 		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const override;
 		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const override;
 
+		virtual const char* GetShaderCacheFilePath() const override;
+
+		virtual bool IsSupportsPSOCache() const override;
+		virtual const char* GetPSOCacheFilePath() const override;
+
 		IDXGIFactory7& GetFactory() const
 		{
 			return *m_pdxgiFactory.Get();
@@ -409,6 +414,21 @@ namespace agl
 		BuildShaderParameterInfo( outParameterMap.GetParameterMap(), outParameterInfo );
 
 		return true;
+	}
+
+	const char* CDirect3D11::GetShaderCacheFilePath() const
+	{
+		return "./Assets/Shaders/ShaderCache-d3d11.asset";
+	}
+
+	bool CDirect3D11::IsSupportsPSOCache() const
+	{
+		return false;
+	}
+
+	const char* CDirect3D11::GetPSOCacheFilePath() const
+	{
+		return "";
 	}
 
 	CDirect3D11::CDirect3D11()

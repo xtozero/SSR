@@ -162,7 +162,8 @@ namespace agl
 			m_frameBuffer->Reconstruct( frameBufferTrait, nullptr );
 		}
 
-		EnqueueRenderTask( [this, orignalFormat]()
+		EnqueueRenderTask(
+			[this, orignalFormat]()
 			{
 				GetInterface<agl::IAgl>()->WaitGPU();
 

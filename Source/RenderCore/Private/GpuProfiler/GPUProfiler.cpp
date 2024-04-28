@@ -130,7 +130,8 @@ namespace rendercore
 	{
 		for ( auto& gpuTimers : m_gpuTimers )
 		{
-			EnqueueRenderTask( [timers = std::move( gpuTimers )]() mutable
+			EnqueueRenderTask(
+				[timers = std::move( gpuTimers )]() mutable
 				{
 					for ( auto& timer : timers )
 					{

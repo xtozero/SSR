@@ -169,6 +169,11 @@ namespace agl
 		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const override;
 		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const override;
 
+		virtual const char* GetShaderCacheFilePath() const override;
+
+		virtual bool IsSupportsPSOCache() const override;
+		virtual const char* GetPSOCacheFilePath() const override;
+
 		ID3D12Device& GetDevice() const;
 		IDXGIFactory7& GetFactory() const;
 		ID3D12CommandQueue& GetDirectCommandQueue() const;
@@ -478,6 +483,21 @@ namespace agl
 		BuildShaderParameterInfo( outParameterMap.GetParameterMap(), outParameterInfo );
 
 		return true;
+	}
+
+	const char* Direct3D12::GetShaderCacheFilePath() const
+	{
+		return "./Assets/Shaders/ShaderCache-d3d12.asset";;
+	}
+
+	bool Direct3D12::IsSupportsPSOCache() const
+	{
+		return true;
+	}
+
+	const char* Direct3D12::GetPSOCacheFilePath() const
+	{
+		return "./Assets/Shaders/PSOCache-d3d12.asset";
 	}
 
 	ID3D12Device& Direct3D12::GetDevice() const

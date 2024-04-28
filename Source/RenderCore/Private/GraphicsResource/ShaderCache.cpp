@@ -6,31 +6,19 @@
 
 namespace fs = std::filesystem;
 
-namespace
-{
-	const char* GetShaderCachePath()
-	{
-		agl::AglType type = GetInterface<agl::IAgl>()->GetType();
-		switch ( type )
-		{
-		case agl::AglType::D3D11:
-			return "./Assets/Shaders/ShaderCache.asset";
-			break;
-		case agl::AglType::D3D12:
-			return "./Assets/Shaders/ShaderCache-d3d12.asset";
-			break;
-		}
-
-		assert( false );
-		return "";
-	}
-}
-
 namespace rendercore
 {
 	std::shared_ptr<ShaderCache> ShaderCache::m_shaderCache;
 
 	REGISTER_ASSET( ShaderCache );
+	void ShaderCache::PostLoadImpl()
+	{
+		for ( auto& [key, shader] : m_shaders )
+		{
+			shader->CreateShader();
+		}
+	}
+
 	bool ShaderCache::IsLoaded()
 	{
 		return m_shaderCache != nullptr;
@@ -38,14 +26,14 @@ namespace rendercore
 
 	void ShaderCache::LoadFromFile()
 	{
-		const std::string cachePath = GetShaderCachePath();
+		const fs::path cachePath = GetInterface<agl::IAgl>()->GetShaderCacheFilePath();
 
 		if ( fs::exists( cachePath ) )
 		{
 			IAssetLoader::LoadCompletionCallback onLoadComplete;
 			onLoadComplete.BindFunction( &ShaderCache::OnLoadFinished );
 
-			GetInterface<IAssetLoader>()->RequestAsyncLoad( cachePath, onLoadComplete );
+			GetInterface<IAssetLoader>()->RequestAsyncLoad( cachePath.generic_string(), onLoadComplete);
 		}
 		else
 		{
@@ -53,19 +41,13 @@ namespace rendercore
 		}
 	}
 
-	void ShaderCache::SaveToFile()
-	{
-		if ( m_shaderCache != nullptr )
-		{
-			Archive ar;
-			m_shaderCache->Serialize( ar );
-
-			ar.WriteToFile( GetShaderCachePath() );
-		}
-	}
-
 	void ShaderCache::OnLoadFinished( const std::shared_ptr<void>& shaderCache )
 	{
+		if ( shaderCache == nullptr )
+		{
+			return;
+		}
+
 		m_shaderCache = std::reinterpret_pointer_cast<ShaderCache>( shaderCache );
 	}
 
@@ -97,6 +79,8 @@ namespace rendercore
 
 	void ShaderCache::Shutdown()
 	{
+		SaveToFile();
+
 		if ( m_shaderCache == nullptr )
 		{
 			return;
@@ -106,11 +90,14 @@ namespace rendercore
 		m_shaderCache = nullptr;
 	}
 
-	void ShaderCache::PostLoadImpl()
+	void ShaderCache::SaveToFile()
 	{
-		for ( auto& [key, shader] : m_shaders )
+		if ( m_shaderCache != nullptr )
 		{
-			shader->CreateShader();
+			Archive ar;
+			m_shaderCache->Serialize( ar );
+
+			ar.WriteToFile( GetInterface<agl::IAgl>()->GetShaderCacheFilePath() );
 		}
 	}
 }

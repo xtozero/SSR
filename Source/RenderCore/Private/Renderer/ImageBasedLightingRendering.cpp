@@ -96,7 +96,8 @@ namespace rendercore
 		trait.m_bindType |= agl::ResourceBindType::RenderTarget;
 
 		auto irradianceMap = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "DiffuseIrradianceMap" );
-		EnqueueRenderTask( [irradianceMap]()
+		EnqueueRenderTask(
+			[irradianceMap]()
 			{
 				irradianceMap->Init();
 			} );

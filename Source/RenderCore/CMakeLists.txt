@@ -27,6 +27,7 @@ set (GRAPHICS_RESOURCE_HEADER
 	Public/GraphicsResource/GlobalShaders.h
 	Public/GraphicsResource/GraphicsPipelineState.h
 	Public/GraphicsResource/IndexBuffer.h
+	Public/GraphicsResource/PipelineStateCache.h
 	Public/GraphicsResource/RenderOption.h
 	Public/GraphicsResource/Shader.h
 	Public/GraphicsResource/ShaderCache.h
@@ -51,6 +52,7 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Private/GraphicsResource/GlobalShaders.cpp
 	Private/GraphicsResource/GraphicsPipelineState.cpp
 	Private/GraphicsResource/IndexBuffer.cpp
+	Private/GraphicsResource/PipelineStateCache.cpp
 	Private/GraphicsResource/RenderOption.cpp
 	Private/GraphicsResource/Shader.cpp
 	Private/GraphicsResource/ShaderCache.cpp

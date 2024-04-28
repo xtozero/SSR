@@ -4,6 +4,8 @@
 #include "GraphicsApiResource.h"
 #include "SizedTypes.h"
 
+#include <map>
+
 namespace agl
 {
 	class BlendState;
@@ -54,6 +56,8 @@ namespace agl
 		virtual Viewport* CreateViewport( Canvas& canvas ) = 0;
 
 		virtual GpuTimer* CreateGpuTimer() = 0;
+
+		virtual void SetPSOCache( std::map<uint64, BinaryChunk>& psoCache ) = 0;
 
 		virtual ~IResourceManager() = default;
 	};

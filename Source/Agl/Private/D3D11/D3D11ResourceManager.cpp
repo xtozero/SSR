@@ -172,6 +172,10 @@ namespace agl
 		return new D3D11GpuTimer();
 	}
 
+	void CD3D11ResourceManager::SetPSOCache( [[maybe_unused]] std::map<uint64, BinaryChunk>& psoCache )
+	{
+	}
+
 	CD3D11ResourceManager::~CD3D11ResourceManager()
 	{
 		Shutdown();

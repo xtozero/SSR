@@ -5,6 +5,21 @@
 
 namespace rendercore
 {
+	void ShaderBase::SetHash( size_t hash )
+	{
+		m_hash = hash;
+
+		if ( IsValid() )
+		{
+			m_shader->SetHash( hash );
+		}
+	}
+
+	size_t ShaderBase::GetHash() const
+	{
+		return m_hash;
+	}
+
 	Archive& operator<<( Archive& ar, ShaderBase& shaderBase )
 	{
 		shaderBase.Serialize( ar );
@@ -29,17 +44,19 @@ namespace rendercore
 	REGISTER_ASSET( VertexShader );
 	agl::VertexShader* VertexShader::Resource()
 	{
-		return m_shader.Get();
+		return static_cast<agl::VertexShader*>( m_shader.Get() );
 	}
 
 	const agl::VertexShader* VertexShader::Resource() const
 	{
-		return m_shader.Get();
+		return static_cast<agl::VertexShader*>( m_shader.Get() );
 	}
 
 	void VertexShader::CreateShader()
 	{
-		m_shader = agl::VertexShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo );
+		m_shader = agl::VertexShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
+		m_shader->SetHash( m_hash );
+
 		EnqueueRenderTask(
 			[shader = m_shader]()
 			{
@@ -50,17 +67,19 @@ namespace rendercore
 	REGISTER_ASSET( GeometryShader );
 	agl::GeometryShader* GeometryShader::Resource()
 	{
-		return m_shader.Get();
+		return static_cast<agl::GeometryShader*>( m_shader.Get() );
 	}
 
 	const agl::GeometryShader* GeometryShader::Resource() const
 	{
-		return m_shader.Get();
+		return  static_cast<agl::GeometryShader*>( m_shader.Get() );
 	}
 
 	void GeometryShader::CreateShader()
 	{
-		m_shader = agl::GeometryShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo );
+		m_shader = agl::GeometryShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
+		m_shader->SetHash( m_hash );
+
 		EnqueueRenderTask(
 			[shader = m_shader]()
 			{
@@ -72,17 +91,19 @@ namespace rendercore
 	REGISTER_ASSET( PixelShader );
 	agl::PixelShader* PixelShader::Resource()
 	{
-		return m_shader.Get();
+		return static_cast<agl::PixelShader*>( m_shader.Get() );
 	}
 
 	const agl::PixelShader* PixelShader::Resource() const
 	{
-		return m_shader.Get();
+		return static_cast<agl::PixelShader*>( m_shader.Get() );
 	}
 
 	void PixelShader::CreateShader()
 	{
-		m_shader = agl::PixelShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo );
+		m_shader = agl::PixelShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
+		m_shader->SetHash( m_hash );
+
 		EnqueueRenderTask(
 			[shader = m_shader]()
 			{
@@ -93,17 +114,19 @@ namespace rendercore
 	REGISTER_ASSET( ComputeShader );
 	agl::ComputeShader* ComputeShader::Resource()
 	{
-		return m_shader.Get();
+		return static_cast<agl::ComputeShader*>( m_shader.Get() );
 	}
 
 	const agl::ComputeShader* ComputeShader::Resource() const
 	{
-		return m_shader.Get();
+		return static_cast<agl::ComputeShader*>( m_shader.Get() );
 	}
 
 	void ComputeShader::CreateShader()
 	{
-		m_shader = agl::ComputeShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo );
+		m_shader = agl::ComputeShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
+		m_shader->SetHash( m_hash );
+
 		EnqueueRenderTask(
 			[shader = m_shader]()
 			{

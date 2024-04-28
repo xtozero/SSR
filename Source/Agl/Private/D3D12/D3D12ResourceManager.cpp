@@ -18,6 +18,8 @@
 #include "DxgiFlagConvertor.h"
 #include "DxgiSwapchain.h"
 
+#include <cassert>
+
 namespace agl
 {
 	void D3D12ResourceManager::Shutdown()
@@ -146,13 +148,25 @@ namespace agl
 			return cached->second;
 		}
 
-		auto pipelineState = new D3D12ComputePipelineState( initializer );
+		size_t psoHash = initializer.GetHash();
+		const BinaryChunk* cachedPSO = nullptr;
+		if ( m_psoCache )
+		{
+			auto found = m_psoCache->find( psoHash );
+			if ( found != std::end( *m_psoCache ) )
+			{
+				cachedPSO = &found->second;
+			}
+		}
+
+		auto pipelineState = new D3D12ComputePipelineState( initializer, cachedPSO );
 		m_computePipelineStateCache.emplace( initializer, pipelineState );
 
 		EnqueueRenderTask(
-			[state = pipelineState]()
+			[this, psoHash, state = pipelineState]()
 			{
 				state->Init();
+				UpdatePSOCache( psoHash, state->Resource() );
 			} );
 
 		return pipelineState;
@@ -178,7 +192,12 @@ namespace agl
 		return new D3D12GpuTimer();
 	}
 
-	ID3D12PipelineState* D3D12ResourceManager::FindOrCreate( GraphicsPipelineState* pipelineState, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc )
+	void D3D12ResourceManager::SetPSOCache( std::map<uint64, BinaryChunk>& psoCache )
+	{
+		m_psoCache = &psoCache;
+	}
+
+	ID3D12PipelineState* D3D12ResourceManager::FindOrCreate( GraphicsPipelineState* pipelineState, D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc )
 	{
 		D3D12PipelineStateKey key( pipelineState, desc );
 
@@ -199,11 +218,35 @@ namespace agl
 				return found->second.Get();
 			}
 
+			size_t psoHash = key.GetHash();
+			if ( m_psoCache )
+			{
+				auto cashedPSO = m_psoCache->find( psoHash );
+				if ( cashedPSO != std::end( *m_psoCache ) )
+				{
+					desc.CachedPSO.pCachedBlob = cashedPSO->second.Data();
+					desc.CachedPSO.CachedBlobSizeInBytes = cashedPSO->second.Size();
+				}
+			}
+
 			Microsoft::WRL::ComPtr<ID3D12PipelineState> newPipelineState;
-			[[maybe_unused]] HRESULT hr = D3D12Device().CreateGraphicsPipelineState( &desc, IID_PPV_ARGS( newPipelineState.GetAddressOf() ) );
-			assert( SUCCEEDED( hr ) );
+			HRESULT hr = D3D12Device().CreateGraphicsPipelineState( &desc, IID_PPV_ARGS( newPipelineState.GetAddressOf() ) );
+			if ( FAILED( hr ) )
+			{
+				desc.CachedPSO.pCachedBlob = nullptr;
+				desc.CachedPSO.CachedBlobSizeInBytes = 0;
+
+				hr = D3D12Device().CreateGraphicsPipelineState( &desc, IID_PPV_ARGS( newPipelineState.GetAddressOf() ) );
+				assert( SUCCEEDED( hr ) );
+			}
 
 			m_d3d12PipelineState.emplace( key, newPipelineState );
+
+			EnqueueRenderTask(
+				[this, psoHash, state = newPipelineState]()
+				{
+					UpdatePSOCache( psoHash, state.Get() );
+				} );
 
 			return newPipelineState.Get();
 		}
@@ -223,6 +266,24 @@ namespace agl
 	D3D12ResourceManager::~D3D12ResourceManager()
 	{
 		Shutdown();
+	}
+
+	void D3D12ResourceManager::UpdatePSOCache( size_t hash, ID3D12PipelineState* pipelineState )
+	{
+		if ( m_psoCache == nullptr
+			|| pipelineState == nullptr )
+		{
+			return;
+		}
+
+		Microsoft::WRL::ComPtr<ID3DBlob> cachedBlob;
+		[[maybe_unused]] HRESULT hr = pipelineState->GetCachedBlob( cachedBlob.GetAddressOf() );
+		assert( SUCCEEDED( hr ) );
+
+		BinaryChunk cachedPSO( static_cast<uint32>( cachedBlob->GetBufferSize() ) );
+		std::memcpy( cachedPSO.Data(), cachedBlob->GetBufferPointer(), cachedPSO.Size() );
+
+		( *m_psoCache )[hash] = cachedPSO;
 	}
 
 	Owner<IResourceManager*> CreateD3D12ResourceManager()

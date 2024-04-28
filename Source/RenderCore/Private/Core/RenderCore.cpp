@@ -12,6 +12,7 @@
 #include "GraphicsResource/Canvas.h"
 #include "GraphicsResource/Viewport.h"
 #include "IAgl.h"
+#include "PipelineStateCache.h"
 #include "RenderTargetPool.h"
 #include "RenderView.h"
 #include "ResourceBarrierUtils.h"
@@ -144,6 +145,7 @@ namespace rendercore
 		GlobalShaders::GetInstance().BootUp();
 
 		ShaderCache::LoadFromFile();
+		PipelineStateCache::LoadFromFile();
 
 		GraphicsInterface().BootUp( m_agl );
 
@@ -167,6 +169,7 @@ namespace rendercore
 		{
 			m_isReady = GlobalShaders::GetInstance().IsReady()
 				&& ShaderCache::IsLoaded()
+				&& PipelineStateCache::IsLoaded()
 				&& DefaultGraphicsResources::GetInstance().IsReady();
 		}
 
@@ -277,7 +280,6 @@ namespace rendercore
 
 		m_sceneRenderer.clear();
 
-		ShaderCache::SaveToFile();
 		ShaderCache::Shutdown();
 
 		GlobalShaders::GetInstance().Shutdown();
@@ -287,6 +289,8 @@ namespace rendercore
 
 		TaskHandle handle = EnqueueThreadTask<ThreadType::RenderThread>( [](){} );
 		GetInterface<ITaskScheduler>()->Wait( handle );
+
+		PipelineStateCache::Shutdown();
 
 		ShutdownModule( m_hAgl );
 

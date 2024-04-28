@@ -185,7 +185,7 @@ namespace agl
 		return m_rootSignature;
 	}
 
-	D3D12ComputePipelineState::D3D12ComputePipelineState( const ComputePipelineStateInitializer& initializer )
+	D3D12ComputePipelineState::D3D12ComputePipelineState( const ComputePipelineStateInitializer& initializer, const BinaryChunk* cachedPSO )
 		: m_computeShader( static_cast<D3D12ComputeShader*>( initializer.m_computeShader ) )
 	{
 		m_rootSignature = new D3D12RootSignature( initializer );
@@ -198,8 +198,8 @@ namespace agl
 			},
 			.NodeMask = 0,
 			.CachedPSO = {
-				.pCachedBlob = nullptr,
-				.CachedBlobSizeInBytes = 0
+				.pCachedBlob = cachedPSO ? cachedPSO->Data() : nullptr,
+				.CachedBlobSizeInBytes = cachedPSO ? cachedPSO->Size() : 0
 			},
 			.Flags = D3D12_PIPELINE_STATE_FLAG_NONE
 		};
@@ -211,7 +211,15 @@ namespace agl
 		m_desc.pRootSignature = m_rootSignature->Resource();
 
 		HRESULT hr = D3D12Device().CreateComputePipelineState( &m_desc, IID_PPV_ARGS( &m_pipelineState ) );
-		assert( SUCCEEDED( hr ) && "CreateComputePipelineState failed" );
+		if ( FAILED( hr ) )
+		{
+			m_desc.CachedPSO.pCachedBlob = nullptr;
+			m_desc.CachedPSO.CachedBlobSizeInBytes = 0;
+
+			hr = D3D12Device().CreateComputePipelineState( &m_desc, IID_PPV_ARGS( &m_pipelineState ) );
+
+			assert( SUCCEEDED( hr ) && "CreateComputePipelineState failed" );
+		}
 	}
 
 	void D3D12ComputePipelineState::FreeResource()

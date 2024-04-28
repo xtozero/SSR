@@ -48,6 +48,8 @@ namespace agl
 			return lVariable < rVariable;
 		}
 
+		size_t GetHash() const;
+
 		VertexShader* m_vertexShader = nullptr;
 		GeometryShader* m_geometryShader = nullptr;
 		PixelShader* m_piexlShader = nullptr;
@@ -68,6 +70,8 @@ namespace agl
 
 			return lVariable < rVariable;
 		}
+
+		size_t GetHash() const;
 
 		ComputeShader* m_computeShader = nullptr;
 	};

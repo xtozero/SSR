@@ -41,6 +41,11 @@ namespace agl
 		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const = 0;
 		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const = 0;
 
+		virtual const char* GetShaderCacheFilePath() const = 0;
+
+		virtual bool IsSupportsPSOCache() const = 0;
+		virtual const char* GetPSOCacheFilePath() const = 0;
+
 		virtual ~IAgl() = default;
 
 	protected:

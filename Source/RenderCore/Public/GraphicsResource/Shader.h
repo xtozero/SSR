@@ -34,12 +34,24 @@ namespace rendercore
 		RENDERCORE_DLL virtual StaticShaderSwitches GetStaticSwitches() const override;
 		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
 
-		ShaderBase( BinaryChunk&& byteCode ) : m_byteCode( std::move( byteCode ) ) {}
+		bool IsValid() const
+		{
+			return m_shader.Get() != nullptr;
+		}
+
+		void SetHash( size_t hash );
+		size_t GetHash() const;
+
+		ShaderBase( BinaryChunk&& byteCode, size_t hash ) 
+			: m_byteCode( std::move( byteCode ) )
+			, m_hash( hash )
+		{}
 		ShaderBase() = default;
 
 		friend bool operator==( const ShaderBase& lhs, const ShaderBase& rhs )
 		{
-			return lhs.m_byteCode == rhs.m_byteCode;
+			return lhs.m_shader == rhs.m_shader
+				|| lhs.m_byteCode == rhs.m_byteCode;
 		}
 
 		friend Archive& operator<<( Archive& ar, ShaderBase& shaderBase );
@@ -80,6 +92,11 @@ namespace rendercore
 
 		PROPERTY( parameterInfo )
 		agl::ShaderParameterInfo m_parameterInfo;
+
+		PROPERTY( hash )
+		size_t m_hash = 0;
+
+		agl::RefHandle<agl::GraphicsApiResource> m_shader;
 	};
 
 	class VertexShader final : public ShaderBase
@@ -88,27 +105,13 @@ namespace rendercore
 		DECLARE_ASSET( RENDERCORE, VertexShader );
 
 	public:
-		bool IsValid() const
-		{
-			return m_shader.Get() != nullptr;
-		}
-
-		VertexShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
+		VertexShader( BinaryChunk&& byteCode, size_t hash ) : ShaderBase( std::move( byteCode ), hash ) {}
 		VertexShader() = default;
 
 		agl::VertexShader* Resource();
 		const agl::VertexShader* Resource() const;
 
-		friend bool operator==( const VertexShader& lhs, const VertexShader& rhs )
-		{
-			return static_cast<const ShaderBase&>( lhs ) == static_cast<const ShaderBase&>( rhs )
-				&& lhs.m_shader == rhs.m_shader;
-		}
-
 		RENDERCORE_DLL virtual void CreateShader() override;
-
-	private:
-		agl::RefHandle<agl::VertexShader> m_shader;
 	};
 
 	class GeometryShader final : public ShaderBase
@@ -117,27 +120,13 @@ namespace rendercore
 		DECLARE_ASSET( RENDERCORE, GeometryShader );
 
 	public:
-		bool IsValid() const
-		{
-			return m_shader.Get() != nullptr;
-		}
-
-		GeometryShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
+		GeometryShader( BinaryChunk&& byteCode, size_t hash ) : ShaderBase( std::move( byteCode ), hash ) {}
 		GeometryShader() = default;
 
 		agl::GeometryShader* Resource();
 		const agl::GeometryShader* Resource() const;
 
-		friend bool operator==( const GeometryShader& lhs, const GeometryShader& rhs )
-		{
-			return static_cast<const ShaderBase&>( lhs ) == static_cast<const ShaderBase&>( rhs )
-				&& lhs.m_shader == rhs.m_shader;
-		}
-
 		RENDERCORE_DLL virtual void CreateShader() override;
-
-	private:
-		agl::RefHandle<agl::GeometryShader> m_shader;
 	};
 
 	class PixelShader final : public ShaderBase
@@ -146,27 +135,13 @@ namespace rendercore
 		DECLARE_ASSET( RENDERCORE, PixelShader );
 
 	public:
-		bool IsValid() const
-		{
-			return m_shader.Get() != nullptr;
-		}
-
-		PixelShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
+		PixelShader( BinaryChunk&& byteCode, size_t hash ) : ShaderBase( std::move( byteCode ), hash ) {}
 		PixelShader() = default;
 
 		agl::PixelShader* Resource();
 		const agl::PixelShader* Resource() const;
 
-		friend bool operator==( const PixelShader& lhs, const PixelShader& rhs )
-		{
-			return static_cast<const ShaderBase&>( lhs ) == static_cast<const ShaderBase&>( rhs )
-				&& lhs.m_shader == rhs.m_shader;
-		}
-
 		RENDERCORE_DLL virtual void CreateShader() override;
-
-	private:
-		agl::RefHandle<agl::PixelShader> m_shader;
 	};
 
 	class ComputeShader final : public ShaderBase
@@ -175,26 +150,12 @@ namespace rendercore
 		DECLARE_ASSET( RENDERCORE, ComputeShader );
 
 	public:
-		bool IsValid() const
-		{
-			return m_shader.Get() != nullptr;
-		}
-
-		ComputeShader( BinaryChunk&& byteCode ) : ShaderBase( std::move( byteCode ) ) {}
+		ComputeShader( BinaryChunk&& byteCode, size_t hash ) : ShaderBase( std::move( byteCode ), hash ) {}
 		ComputeShader() = default;
 
 		agl::ComputeShader* Resource();
 		const agl::ComputeShader* Resource() const;
 
-		friend bool operator==( const ComputeShader& lhs, const ComputeShader& rhs )
-		{
-			return static_cast<const ShaderBase&>( lhs ) == static_cast<const ShaderBase&>( rhs )
-				&& lhs.m_shader == rhs.m_shader;
-		}
-
 		RENDERCORE_DLL virtual void CreateShader() override;
-
-	private:
-		agl::RefHandle<agl::ComputeShader> m_shader;
 	};
 }

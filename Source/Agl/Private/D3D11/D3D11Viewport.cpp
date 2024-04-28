@@ -139,7 +139,8 @@ namespace agl
 			m_frameBuffer->Reconstruct( frameBufferTrait, nullptr );
 		}
 
-		EnqueueRenderTask( [this, orignalFormat]()
+		EnqueueRenderTask(
+			[this, orignalFormat]()
 			{
 				m_frameBuffer->Free();
 				m_frameBuffer->Init();

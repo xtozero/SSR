@@ -34,7 +34,8 @@ namespace
 		section.m_pitch = section.m_slicePitch = sizeof( uint32 );
 
 		agl::RefHandle<agl::Texture> texture = agl::Texture::Create( trait, debugName, &initData );
-		EnqueueRenderTask( [texture]()
+		EnqueueRenderTask(
+			[texture]()
 			{
 				texture->Init();
 			} );
@@ -73,7 +74,8 @@ namespace
 		}
 
 		agl::RefHandle<agl::Texture> cubeTexture = agl::Texture::Create( trait, debugName, &initData );
-		EnqueueRenderTask( [cubeTexture]()
+		EnqueueRenderTask(
+			[cubeTexture]()
 			{
 				cubeTexture->Init();
 			} );
@@ -106,7 +108,8 @@ namespace rendercore
 		};
 
 		agl::RefHandle<agl::Texture> brdfLUT = agl::Texture::Create( trait, "BrdfLookUpTexture", nullptr );
-		EnqueueRenderTask( [brdfLUT]()
+		EnqueueRenderTask(
+			[brdfLUT]()
 			{
 				brdfLUT->Init();
 
@@ -169,7 +172,8 @@ namespace rendercore
 
 	void DefaultGraphicsResources::Shutdown()
 	{
-		EnqueueRenderTask( []()
+		EnqueueRenderTask(
+			[]()
 			{
 				BlackTexture = nullptr;
 				WhiteTexture = nullptr;

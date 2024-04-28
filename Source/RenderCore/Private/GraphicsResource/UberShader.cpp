@@ -87,16 +87,16 @@ namespace rendercore
 		switch ( static_cast<agl::ShaderType>( m_type ) )
 		{
 		case agl::ShaderType::VS:
-			shader = new VertexShader( std::move( byteCode ) );
+			shader = new VertexShader( std::move( byteCode ), shaderHash );
 			break;
 		case agl::ShaderType::GS:
-			shader = new GeometryShader( std::move( byteCode ) );
+			shader = new GeometryShader( std::move( byteCode ), shaderHash );
 			break;
 		case agl::ShaderType::PS:
-			shader = new PixelShader( std::move( byteCode ) );
+			shader = new PixelShader( std::move( byteCode ), shaderHash );
 			break;
 		case agl::ShaderType::CS:
-			shader = new ComputeShader( std::move( byteCode ) );
+			shader = new ComputeShader( std::move( byteCode ), shaderHash );
 			break;
 		default:
 			assert( false && "Invalid shader type" );

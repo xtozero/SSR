@@ -49,7 +49,9 @@ namespace agl
 
 		virtual GpuTimer* CreateGpuTimer() override;
 
-		ID3D12PipelineState* FindOrCreate( GraphicsPipelineState* pipelineState, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc );
+		virtual void SetPSOCache( std::map<uint64, BinaryChunk>& psoCache ) override;
+
+		ID3D12PipelineState* FindOrCreate( GraphicsPipelineState* pipelineState, D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc );
 
 		D3D12DisposableConstantBufferPool& GetDisposableConstantBufferPool();
 
@@ -63,6 +65,8 @@ namespace agl
 		D3D12ResourceManager& operator=( D3D12ResourceManager&& ) = delete;
 
 	private:
+		void UpdatePSOCache( size_t hash, ID3D12PipelineState* pipelineState );
+
 		std::map<GraphicsPipelineStateInitializer, RefHandle<GraphicsPipelineState>> m_graphicsPipelineStateCache;
 		std::map<ComputePipelineStateInitializer, RefHandle<ComputePipelineState>> m_computePipelineStateCache;
 
@@ -70,6 +74,19 @@ namespace agl
 		{
 			GraphicsPipelineState* m_state;
 			DXGI_FORMAT m_outputFormats[9] = {};
+
+			size_t GetHash() const
+			{
+				size_t hash = m_state ? m_state->GetHash() : 0;
+
+				for ( int32 i = 0; i < 9; ++i )
+				{
+					int32 salt = ( ( i + 1 ) * 19937 );
+					HashCombine( hash, static_cast<int32>( m_outputFormats[i] ) + salt );
+				}
+
+				return hash;
+			}
 
 			D3D12PipelineStateKey( GraphicsPipelineState* state, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc )
 				: m_state( state )
@@ -113,6 +130,8 @@ namespace agl
 
 		std::shared_mutex m_d3d12PipelineMutex;
 		std::unordered_map<D3D12PipelineStateKey, Microsoft::WRL::ComPtr<ID3D12PipelineState>, D3D12PipelineStateKeyHasher> m_d3d12PipelineState;
+
+		std::map<uint64, BinaryChunk>* m_psoCache = nullptr;
 
 		std::vector<D3D12DisposableConstantBufferPool> m_d3d12DisposbleConstantBufferPool;
 	};

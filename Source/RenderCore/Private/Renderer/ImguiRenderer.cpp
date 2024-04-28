@@ -298,7 +298,8 @@ namespace rendercore
 
 		ImguiDrawInfo imguiDrawInfo( *drawData );
 
-		EnqueueRenderTask( [this, drawInfo = std::move( imguiDrawInfo )]() mutable
+		EnqueueRenderTask(
+			[this, drawInfo = std::move( imguiDrawInfo )]() mutable
 			{
 				m_imguiDrawInfo = std::move( drawInfo );
 				UpdateRenderResource();
@@ -342,7 +343,8 @@ namespace rendercore
 
 		m_imguiRenderResource.m_fontAtlas = agl::Texture::Create( trait, "UI.FontAtlas", &initData);
 
-		EnqueueRenderTask( [texture = m_imguiRenderResource.m_fontAtlas]()
+		EnqueueRenderTask(
+			[texture = m_imguiRenderResource.m_fontAtlas]()
 			{
 				texture->Init();
 			} );

@@ -87,6 +87,16 @@ namespace agl
 			return m_isTexture;
 		}
 
+		void SetHash( size_t hash )
+		{
+			m_hash = hash;
+		}
+
+		size_t GetHash() const
+		{
+			return m_hash;
+		}
+
 		virtual int32 GetBindlessHandle() const
 		{
 			return -1;
@@ -95,6 +105,8 @@ namespace agl
 	protected:
 		bool m_isBuffer = false;
 		bool m_isTexture = false;
+
+		size_t m_hash = 0;
 
 		Name m_debugName;
 
@@ -727,6 +739,8 @@ namespace agl
 		bool m_scissorEnable;
 		bool m_multisampleEnable;
 		bool m_antialiasedLineEnable;
+
+		AGL_DLL size_t GetHash() const;
 	};
 
 	struct RenderTargetBlendTrait
@@ -739,6 +753,8 @@ namespace agl
 		Blend m_destBlendAlpha;
 		BlendOp m_blendOpAlpha;
 		ColorWriteEnable m_renderTargetWriteMask;
+
+		AGL_DLL size_t GetHash() const;
 	};
 
 	struct BlendStateTrait
@@ -747,6 +763,8 @@ namespace agl
 		bool m_independentBlendEnable;
 		RenderTargetBlendTrait m_renderTarget[MAX_RENDER_TARGET];
 		uint32 m_sampleMask;
+
+		AGL_DLL size_t GetHash() const;
 	};
 
 	struct StencilOpTrait
@@ -755,6 +773,8 @@ namespace agl
 		StencilOp m_depthFailOp;
 		StencilOp m_passOp;
 		ComparisonFunc m_func;
+
+		AGL_DLL size_t GetHash() const;
 
 		friend bool operator==( const StencilOpTrait& lhs, const StencilOpTrait& rhs )
 		{
@@ -775,6 +795,8 @@ namespace agl
 		unsigned char m_stencilWriteMask;
 		StencilOpTrait m_frontFace;
 		StencilOpTrait m_backFace;
+
+		AGL_DLL size_t GetHash() const;
 	};
 
 	struct VertexLayoutTrait
@@ -785,6 +807,8 @@ namespace agl
 		uint32 m_slot = 0;
 		uint32 m_instanceDataStep = 0;
 		Name m_name;
+
+		AGL_DLL size_t GetHash() const;
 
 		friend bool operator==( const VertexLayoutTrait& lhs, const VertexLayoutTrait& rhs )
 		{

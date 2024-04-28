@@ -92,12 +92,7 @@ namespace rendercore
 			const agl::VertexLayoutTrait* data = instance.m_desc.Data();
 			for ( uint32 i = 0; i < instance.m_desc.Size(); ++i )
 			{
-				HashCombine( hash, std::hash<std::string_view>()( data[i].m_name.Str() ) );
-				HashCombine( hash, data[i].m_isInstanceData );
-				HashCombine( hash, data[i].m_index );
-				HashCombine( hash, data[i].m_format );
-				HashCombine( hash, data[i].m_slot );
-				HashCombine( hash, data[i].m_instanceDataStep );
+				HashCombine( hash, data[i].GetHash() );
 			}
 
 			return hash;
