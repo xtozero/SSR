@@ -17,7 +17,7 @@ void main( uint3 DTid : SV_DispatchThreadId )
 
     if ( all( DTid < dims ) )
     {
-        float2 uv = float2( DTid.xy ) / dims.xy;
+        float2 uv = float2( DTid.xy + 0.5f ) / dims.xy;
         uv = ( uv - 0.5f ) * float2( 2.f, -2.f );
 
         // https://learn.microsoft.com/en-us/windows/win32/direct3d9/cubic-environment-mapping
@@ -47,8 +47,8 @@ void main( uint3 DTid : SV_DispatchThreadId )
             normal = float3( -uv.x, uv.y, -1.f );
         }
 
-        normal = normalize( normal );
+        normal = normalize( normal );    
         float3 prefilteredSpecular = PrefilterSpecular( normal, Roughness, EnvMap, EnvMapSampler );
-        Prefiltered[DTid] = float4( prefilteredSpecular, 0.f );
+        Prefiltered[DTid] = float4( prefilteredSpecular, Roughness );
     }
 }

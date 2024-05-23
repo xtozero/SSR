@@ -322,11 +322,11 @@ LIGHTCOLOR CalcPhysicallyBasedLight( GeometryProperty geometry, SurfaceProperty 
 	float3 kD = 1.f - kS;
 	kD *= 1.f - surface.metallic;
 
-	cColor.m_diffuse.rgb += ImageBasedLight( normal ) * kD;
-	cColor.m_diffuse.rgb += HemisphereLight( normal ) * kD;
+	cColor.m_diffuse.rgb += ImageBasedLight( normal ) * kD * surface.albedo;
+	cColor.m_diffuse.rgb += HemisphereLight( normal ) * kD * surface.albedo;
 
 #if EnableRSMs == 1
-	cColor.m_diffuse.rgb += IndirectIllumination.Sample( LinearSampler, geometry.screenUV ).rgb * kD;
+	cColor.m_diffuse.rgb += IndirectIllumination.Sample( LinearSampler, geometry.screenUV ).rgb * kD * surface.albedo;
 #endif
 
 	float3 r = reflect( -viewDirection, normal );
