@@ -47,8 +47,8 @@ void main( uint3 DTid : SV_DispatchThreadId )
             normal = float3( -uv.x, uv.y, -1.f );
         }
 
-        normal = normalize( normal );    
+        normal = normalize( normal );
         float3 prefilteredSpecular = PrefilterSpecular( normal, Roughness, EnvMap, EnvMapSampler );
-        Prefiltered[DTid] = float4( prefilteredSpecular, Roughness );
+        Prefiltered[DTid] = float4( prefilteredSpecular, 0.f );
     }
 }

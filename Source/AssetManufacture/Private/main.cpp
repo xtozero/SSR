@@ -38,10 +38,9 @@ private:
 	}
 };
 
-bool LoadModules( const std::string& commandline )
+bool LoadModules()
 {
 	fs::path oldPath = fs::current_path();
-
 	fs::current_path( "../Program" );
 
 	g_engineDll = LoadModule( "Engine.dll" );
@@ -50,15 +49,37 @@ bool LoadModules( const std::string& commandline )
 		return false;
 	}
 
-	if ( auto engine = GetInterface<engine::IEngine>() )
-	{
-		Console console;
-		engine->BootUp( console, commandline.c_str() );
-	}
-
 	fs::current_path( oldPath );
 
 	return true;
+}
+
+bool BootUpEngine( int32 argc, char* argv[] )
+{
+	bool result = false;
+	if ( auto engine = GetInterface<engine::IEngine>() )
+	{
+		Console console;
+
+		std::string commandline;
+		commandline.reserve( 2048 );
+
+		for ( int32 i = 0; i < argc; ++i )
+		{
+			commandline += argv[i];
+			commandline += " ";
+		}
+		commandline += "Console";
+
+		fs::path oldPath = fs::current_path();
+		fs::current_path( "../Program" );
+
+		result = engine->BootUp( console, commandline.c_str() );
+
+		fs::current_path( oldPath );
+	}
+
+	return result;
 }
 
 bool IsIgnorePath( const PathEnvironment& env, const fs::path& path )
@@ -237,17 +258,7 @@ int32 main( int32 argc, char* argv[] )
 	fs::path rootPath = fs::current_path();
 	ManufactureConfig::Instance().Load();
 
-	std::string commandline;
-	commandline.reserve( 2048 );
-
-	for ( int32 i = 0; i < argc; ++i )
-	{
-		commandline += argv[i];
-		commandline += " ";
-	}
-	commandline += "Console";
-
-	if ( LoadModules( commandline ) == false )
+	if ( LoadModules() == false )
 	{
 		return EXIT_FAILURE;
 	}
@@ -368,6 +379,11 @@ int32 main( int32 argc, char* argv[] )
 		fs::current_path( rootPath );
 	}
 
+	if ( BootUpEngine( argc, argv ) == false )
+	{
+		return EXIT_FAILURE;
+	}
+	else
 	{
 		EngineDefaultManufacturer engineDefault;
 		engineDefault.Manufacture( processed );

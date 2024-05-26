@@ -163,7 +163,7 @@ namespace editor
 					}
 
 					{
-						ImGui::SeparatorText( "Material" );
+						ImGui::SeparatorText( "Materials" );
 
 						std::vector<StaticMeshComponent*> components;
 						object->GetComponents( components );
@@ -173,6 +173,11 @@ namespace editor
 							uint32 numMaterials = component->NumMaterials();
 							for ( uint32 i = 0; i < numMaterials; ++i )
 							{
+								if ( i > 0 )
+								{
+									ImGui::Separator();
+								}
+
 								DrawProperty( *component, *component->GetMaterial( i ) );
 							}
 						}
