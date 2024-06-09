@@ -25,11 +25,11 @@ namespace logic
 	public:
 		virtual void ExecuteThink( float elapsedTime ) = 0;
 
-		ThinkingGroup m_thinkGroup;
+		ThinkingGroup m_thinkGroup = ThinkingGroup::PrePhysics;
 
-		bool m_canEverTick;
+		bool m_canEverTick = false;
 
-		float m_thinkInterval;
+		float m_thinkInterval = 0.f;
 
 		struct InternalData
 		{
@@ -56,7 +56,7 @@ namespace logic
 	public:
 		virtual void ExecuteThink( float elapsedTime ) override;
 
-		CGameObject* m_target;
+		CGameObject* m_target = nullptr;
 	};
 
 	class ComponentThinkFunction : public ThinkFunction
@@ -64,6 +64,6 @@ namespace logic
 	public:
 		virtual void ExecuteThink( float elapsedTime ) override;
 
-		Component* m_target;
+		Component* m_target = nullptr;
 	};
 }

@@ -3,7 +3,7 @@
 #include "EnumStringMap.h"
 #include "Math/Vector2.h"
 #include "SizedTypes.h"
-#include "UICMap.h"
+#include "UserInput/UICMap.h"
 
 #include <WinUser.h>
 

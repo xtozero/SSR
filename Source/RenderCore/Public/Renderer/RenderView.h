@@ -17,6 +17,11 @@ namespace rendercore
 
 	struct ForwardLightingResource;
 
+	struct RenderViewShowFlags
+	{
+		bool m_bHitProxy = false;
+	};
+
 	struct RenderView final
 	{
 		// for view
@@ -39,7 +44,7 @@ namespace rendercore
 		Viewport& m_viewport;
 		float m_elapsedTime = 0.f;
 		float m_totalTime = 0.f;
-		ColorF m_backgroundColor;
+		const RenderViewShowFlags* m_showFlags = nullptr;
 	};
 
 	class RenderViewGroup final
@@ -51,8 +56,11 @@ namespace rendercore
 			, m_viewport( initializer.m_viewport )
 			, m_elapsedTime( initializer.m_elapsedTime )
 			, m_totalTime( initializer.m_totalTime )
-			, m_backgroundColor( initializer.m_backgroundColor )
 		{
+			if ( initializer.m_showFlags )
+			{
+				m_showFlags = *initializer.m_showFlags;
+			}
 		}
 
 		RENDERCORE_DLL RenderView& AddRenderView();
@@ -87,7 +95,8 @@ namespace rendercore
 		const Viewport& GetViewport() const { return m_viewport; }
 		float GetElapsedTime() const { return m_elapsedTime; }
 		float GetTotalTime() const { return m_totalTime; }
-		const ColorF& GetBackgroundColor() const { return m_backgroundColor; }
+		RenderViewShowFlags& GetShowFlags() { return m_showFlags; }
+		const RenderViewShowFlags& GetShowFlags() const { return m_showFlags; }
 
 		const RenderView& operator[]( size_t index ) const
 		{
@@ -106,6 +115,6 @@ namespace rendercore
 		Viewport& m_viewport;
 		float m_elapsedTime = 0.f;
 		float m_totalTime = 0.f;
-		ColorF m_backgroundColor;
+		RenderViewShowFlags m_showFlags;
 	};
 }

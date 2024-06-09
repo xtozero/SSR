@@ -31,6 +31,16 @@ namespace rendercore
 		m_agl->UnLock( buffer, subResource );
 	}
 
+	agl::LockedResource AbstractGraphicsInterface::Lock( agl::Texture* texture, agl::ResourceLockFlag lockFlag, uint32 subResource )
+	{
+		return m_agl->Lock( texture, lockFlag, subResource );
+	}
+
+	void AbstractGraphicsInterface::UnLock( agl::Texture* texture, uint32 subResource )
+	{
+		m_agl->UnLock( texture, subResource );
+	}
+
 	agl::ICommandList* AbstractGraphicsInterface::GetCommandList()
 	{
 		return m_agl->GetCommandList();

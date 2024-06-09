@@ -5,14 +5,15 @@
 
 namespace editor
 {
+	class IEditor;
 	class IPanel;
 
-	using PanelCreateFunc = IPanel*( * )( );
+	using PanelCreateFunc = IPanel*( * )( IEditor& );
 
 	template <typename T>
-	IPanel* NewPanel()
+	IPanel* NewPanel( IEditor& editor )
 	{
-		return new T();
+		return new T( editor );
 	}
 
 	class PanelFactory final
@@ -31,14 +32,14 @@ namespace editor
 			return true;
 		}
 
-		std::vector<std::unique_ptr<IPanel>> CreateAllPanel()
+		std::vector<std::unique_ptr<IPanel>> CreateAllPanel( IEditor& editor )
 		{
 			std::vector<std::unique_ptr<IPanel>> allPanel;
 			allPanel.reserve( m_createfunctions.size() );
 
 			for ( PanelCreateFunc func : m_createfunctions )
 			{
-				allPanel.emplace_back( func() );
+				allPanel.emplace_back( func( editor ) );
 			}
 
 			return allPanel;

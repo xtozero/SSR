@@ -161,6 +161,9 @@ namespace agl
 		virtual LockedResource Lock( Buffer* buffer, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard, uint32 subResource = 0 ) override;
 		virtual void UnLock( Buffer* buffer, uint32 subResource = 0 ) override;
 
+		virtual LockedResource Lock( Texture* texture, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard, uint32 subResource = 0 ) override;
+		virtual void UnLock( Texture* texture, uint32 subResource = 0 ) override;
+
 		virtual void GetRendererMultiSampleOption( MultiSampleOption* option ) override;
 
 		virtual ICommandList* GetCommandList() override;
@@ -347,6 +350,28 @@ namespace agl
 		}
 
 		d3d12Buffer->UnLock( subResource );
+	}
+
+	LockedResource Direct3D12::Lock( Texture* texture, ResourceLockFlag lockFlag, uint32 subResource )
+	{
+		auto d3d12Texture = static_cast<D3D12Texture*>( texture );
+		if ( d3d12Texture == nullptr )
+		{
+			return {};
+		}
+
+		return d3d12Texture->Lock( subResource );
+	}
+
+	void Direct3D12::UnLock( Texture* texture, uint32 subResource )
+	{
+		auto d3d12Texture = static_cast<D3D12Texture*>( texture );
+		if ( d3d12Texture == nullptr )
+		{
+			return;
+		}
+
+		return d3d12Texture->UnLock( subResource );
 	}
 
 	void Direct3D12::GetRendererMultiSampleOption( MultiSampleOption* option )

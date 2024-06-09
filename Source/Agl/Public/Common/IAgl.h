@@ -33,6 +33,9 @@ namespace agl
 		virtual LockedResource Lock( Buffer* buffer, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard, uint32 subResource = 0 ) = 0;
 		virtual void UnLock( Buffer* buffer, uint32 subResource = 0 ) = 0;
 
+		virtual LockedResource Lock( Texture* texture, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard, uint32 subResource = 0 ) = 0;
+		virtual void UnLock( Texture* texture, uint32 subResource = 0 ) = 0;
+
 		virtual void GetRendererMultiSampleOption( MultiSampleOption* option ) = 0;
 
 		virtual ICommandList* GetCommandList() = 0;

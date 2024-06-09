@@ -12,14 +12,15 @@ namespace agl
 	class D3D12Texture : public TextureBase
 	{
 	public:
-		virtual void* Resource() const
-		{
-			return m_resourceInfo.GetResource();
-		}
+		ID3D12Resource* Resource();
+		virtual void* Resource() const override;
 
 		const AllocatedResourceInfo& GetResourceInfo() const;
 
 		const D3D12_RESOURCE_DESC& GetDesc() const;
+
+		virtual LockedResource Lock( uint32 subResource = 0 );
+		virtual void UnLock( uint32 subResource = 0 );
 
 		void CreateShaderResource( std::optional<ResourceFormat> overrideFormat = {} );
 		void CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat = {} );
@@ -89,6 +90,8 @@ namespace agl
 		}
 
 		void AdjustInitalResourceStates();
+
+		D3D12_RESOURCE_DESC GetDescForDownload() const;
 	};
 
 	class D3D12Texture2D final : public D3D12Texture

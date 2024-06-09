@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IEngine.h"
+#include "Core/IEngine.h"
 #include "SizedTypes.h"
 #include "WindowPlatformInputConvertor.h"
 
@@ -23,12 +23,13 @@ namespace engine
 
 		virtual void Run() override;
 
-		virtual LRESULT MsgProc( HWND hWnd, uint32 message, WPARAM wParam, LPARAM lParam );
+		virtual void ProcessInput() override;
+
+		ENGINE_DLL LRESULT MsgProc( HWND hWnd, uint32 message, WPARAM wParam, LPARAM lParam );
 
 		virtual ~WindowPlatformEngine() override;
 
 	protected:
-		virtual void ProcessInput() override;
 		virtual bool IsAvailable() override { return m_isAvailable; }
 
 	private:

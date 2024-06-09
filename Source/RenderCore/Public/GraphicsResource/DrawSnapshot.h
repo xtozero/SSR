@@ -26,6 +26,8 @@ namespace rendercore
 		VertexBuffer Alloc( uint32 require );
 		void DiscardAll();
 
+		void Shutdown();
+
 	private:
 		struct PrimitiveIdVertexBufferPoolEntry
 		{

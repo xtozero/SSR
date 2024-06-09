@@ -49,6 +49,7 @@ namespace rendercore
 		virtual void StartProfile( CommandList& commandList, GpuProfileData& profileData ) = 0;
 		virtual void EndProfile( CommandList& commandList, GpuProfileData& profileData ) = 0;
 
+		virtual void BeginFrameRendering() = 0;
 		virtual void GatherProfileData() = 0;
 
 		virtual const std::vector<GpuProfileData*>& GetProfileData() const = 0;

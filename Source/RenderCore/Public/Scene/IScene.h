@@ -10,6 +10,7 @@ namespace logic
 	class TexturedSkyComponent;
 	class VolumetricCloudComponent;
 	class VolumetricFogComponent;
+	class World;
 }
 
 namespace rendercore
@@ -29,6 +30,8 @@ namespace rendercore
 	class IScene
 	{
 	public:
+		virtual logic::World* GetWorld() const = 0;
+
 		virtual void AddPrimitive( logic::PrimitiveComponent* primitive ) = 0;
 		virtual void RemovePrimitive( logic::PrimitiveComponent* primitive ) = 0;
 		virtual void UpdatePrimitiveTransform( logic::PrimitiveComponent* primitive ) = 0;

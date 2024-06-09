@@ -88,11 +88,6 @@ namespace logic
 		m_think.UnRegisterThinkFunction();
 	}
 
-	CGameObject* Component::GetOwner() const
-	{
-		return m_pOwner;
-	}
-
 	void Component::DestroyComponent()
 	{
 		UnRegisterThinkFunction();

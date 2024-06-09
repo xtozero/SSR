@@ -174,13 +174,15 @@ namespace rendercore
 	{
 	public:
 		virtual bool BootUp() override;
-		virtual void Render( RenderViewGroup& renderViewGroup ) override;
+		virtual void Render( Canvas& canvas ) override;
 
 		virtual void UpdateUIDrawInfo() override;
 
 	private:
 		void CreateFontsAtlas();
 		void UpdateRenderResource();
+
+		static agl::ShaderParameter ProjectionMatrixShaderParam;
 
 		ImguiDrawPassProcessor m_drawPassProcessor;
 		ImguiDrawInfo m_imguiDrawInfo;
@@ -189,6 +191,8 @@ namespace rendercore
 		bool m_renderResourceCreated = false;
 	};
 
+	agl::ShaderParameter ImguiRenderer::ProjectionMatrixShaderParam( agl::ShaderType::VS, agl::ShaderParameterType::ConstantBufferValue, 0, 0, 0, sizeof( Matrix ) );
+
 	bool ImguiRenderer::BootUp()
 	{
 		CreateFontsAtlas();
@@ -196,7 +200,7 @@ namespace rendercore
 		return true;
 	}
 
-	void ImguiRenderer::Render( RenderViewGroup& renderViewGroup )
+	void ImguiRenderer::Render( Canvas& canvas )
 	{
 		CPU_PROFILE( ImguiRenderer_Render );
 
@@ -208,8 +212,8 @@ namespace rendercore
 			return;
 		}
 
-		agl::Texture* canvas = renderViewGroup.GetCanvas().Texture();
-		if ( ( canvas == nullptr ) || ( canvas->RTV() == nullptr ) )
+		agl::Texture* canvasTexture = canvas.Texture();
+		if ( ( canvasTexture == nullptr ) || ( canvasTexture->RTV() == nullptr ) )
 		{
 			return;
 		}
@@ -217,10 +221,10 @@ namespace rendercore
 		auto commandList = GetCommandList();
 		GPU_PROFILE( commandList, ImGui );
 
-		agl::RenderTargetView* rtv = canvas->RTV();
+		agl::RenderTargetView* rtv = canvasTexture->RTV();
 		commandList.BindRenderTargets( &rtv, 1, nullptr );
 
-		auto [width, height] = renderViewGroup.GetCanvas().Size();
+		auto [width, height] = canvas.Size();
 		CubeArea<float> viewport = {
 				.m_left = 0.f,
 				.m_top = 0.f,
@@ -267,9 +271,7 @@ namespace rendercore
 
 				DrawSnapshot& snapshot = *result;
 
-				agl::ShaderParameter param( agl::ShaderType::VS, agl::ShaderParameterType::ConstantBufferValue, 0, 0, 0, sizeof( Matrix ) );
-
-				SetShaderValue( commandList, param, imguiProjection );
+				SetShaderValue( commandList, ProjectionMatrixShaderParam, imguiProjection );
 
 				auto texture = static_cast<agl::Texture*>( drawCommand.m_textureId );
 				commandList.AddTransition( Transition( *texture, agl::ResourceState::PixelShaderResource ) );

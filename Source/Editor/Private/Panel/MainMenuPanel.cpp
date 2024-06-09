@@ -8,8 +8,9 @@
 namespace editor
 {
 	REGISTER_PANEL( MainMenuPanel );
-	void MainMenuPanel::Draw( IEditor& editor )
+	void MainMenuPanel::Draw()
 	{
+		IEditor& editor = GetEditor();
 		PanelSharedContext& sharedCtx = editor.GetPanelSharedCtx();
 
 		if ( ImGui::BeginMainMenuBar() )

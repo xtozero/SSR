@@ -84,6 +84,7 @@ set (MESH_SOURCE
 set (PASS_PROCESSOR
 	Private/PassProcessor/DefaultPassProcessor.cpp
 	Private/PassProcessor/DepthWritePassProcessor.cpp
+	Private/PassProcessor/HitProxyPassProcessor.cpp
 	Private/PassProcessor/PassProcessor.cpp
 	Private/PassProcessor/ShadowDepthPassProcessor.cpp
 	Private/PassProcessor/ShadowDrawPassProcessor.cpp
@@ -91,6 +92,7 @@ set (PASS_PROCESSOR
 	Private/PassProcessor/VolumetricFogPassProcessor.cpp
 	Public/PassProcessor/DefaultPassProcessor.h
 	Public/PassProcessor/DepthWritePassProcessor.h
+	Public/PassProcessor/HitProxyPassProcessor.h
 	Public/PassProcessor/PassProcessor.h
 	Public/PassProcessor/ShadowDepthPassProcessor.h
 	Public/PassProcessor/ShadowDrawPassProcessor.h
@@ -98,6 +100,7 @@ set (PASS_PROCESSOR
 	Public/PassProcessor/VolumetricFogPassProcessor.h)
 	
 set (PROXIES_SOURCE
+	Private/Proxies/HitProxy.cpp
 	Private/Proxies/LightProxy.cpp
 	Private/Proxies/PrimitiveProxy.cpp
 	Private/Proxies/SkyAtmosphereProxy.cpp
@@ -105,6 +108,7 @@ set (PROXIES_SOURCE
 	Private/Proxies/TexturedSkyProxy.cpp
 	Private/Proxies/VolumetricCloudProxy.cpp
 	Private/Proxies/VolumetricFogProxy.cpp
+	Public/Proxies/HitProxy.h
 	Public/Proxies/LightProxy.h
 	Public/Proxies/PrimitiveProxy.h
 	Public/Proxies/SkyAtmosphereProxy.h

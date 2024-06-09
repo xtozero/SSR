@@ -13,7 +13,7 @@ namespace agl
 	class D3D11Texture : public TextureBase
 	{
 	public:
-		virtual void* Resource() const
+		virtual void* Resource() const override
 		{
 			return m_texture;
 		}

@@ -1,10 +1,17 @@
 #include "Proxies/PrimitiveProxy.h"
 
+#include "Components/PrimitiveComponent.h"
+#include "GameObject/HitObject.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "TaskScheduler.h"
 
 namespace rendercore
 {
+	HitProxy* PrimitiveProxy::CreateHitProxy( logic::PrimitiveComponent* component ) const
+	{
+		return new logic::HitObject( component->GetOwner(), component );
+	}
+
 	Matrix& PrimitiveProxy::WorldTransform()
 	{
 		assert( IsInRenderThread() );

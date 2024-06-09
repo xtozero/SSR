@@ -94,7 +94,6 @@ namespace engine
 	{
 		while ( IsAvailable() )
 		{
-			ProcessInput();
 			m_taskScheduler->ProcessThisThreadTask();
 			m_logic->Update();
 

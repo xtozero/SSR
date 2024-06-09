@@ -233,7 +233,33 @@ namespace agl
 
 		if ( bDirect )
 		{
-			CommandList().CopyResource( static_cast<ID3D12Resource*>( d3d12Dest->Resource() ),	static_cast<ID3D12Resource*>( d3d12Src->Resource() ) );
+			if ( HasAnyFlags( d3d12Dest->GetTrait().m_access, ResourceAccessFlag::CpuRead ) )
+			{
+				D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout = {};
+				uint32 numRows = 0;
+				uint64 rowSize = 0;
+				uint64 totalSize = 0;
+
+				D3D12Device().GetCopyableFootprints( &d3d12Src->GetDesc(), 0, 1, 0, &layout, &numRows, &rowSize, &totalSize );
+
+				D3D12_TEXTURE_COPY_LOCATION destLocation = {
+					.pResource = static_cast<ID3D12Resource*>( d3d12Dest->Resource() ),
+					.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,
+					.PlacedFootprint = layout
+				};
+
+				D3D12_TEXTURE_COPY_LOCATION srcLocation = {
+					.pResource = static_cast<ID3D12Resource*>( d3d12Src->Resource() ),
+					.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
+					.SubresourceIndex = 0
+				};
+
+				CommandList().CopyTextureRegion( &destLocation, 0, 0, 0, &srcLocation, nullptr );
+			}
+			else
+			{
+				CommandList().CopyResource( static_cast<ID3D12Resource*>( d3d12Dest->Resource() ), static_cast<ID3D12Resource*>( d3d12Src->Resource() ) );
+			}
 		}
 		else
 		{

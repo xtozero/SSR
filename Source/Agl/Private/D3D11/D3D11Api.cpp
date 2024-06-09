@@ -157,6 +157,9 @@ namespace agl
 		virtual LockedResource Lock( Buffer* buffer, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard, uint32 subResource = 0 ) override;
 		virtual void UnLock( Buffer* buffer, uint32 subResource = 0 ) override;
 
+		virtual LockedResource Lock( Texture* texture, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard, uint32 subResource = 0 ) override;
+		virtual void UnLock( Texture* texture, uint32 subResource = 0 ) override;
+
 		virtual void GetRendererMultiSampleOption( MultiSampleOption* option ) override;
 
 		virtual ICommandList* GetCommandList() override;
@@ -320,6 +323,39 @@ namespace agl
 		auto d3d11buffer = static_cast<D3D11Buffer*>( buffer );
 
 		m_pd3d11DeviceContext->Unmap( d3d11buffer->Resource(), subResource );
+	}
+
+	LockedResource CDirect3D11::Lock( Texture* texture, ResourceLockFlag lockFlag, uint32 subResource )
+	{
+		if ( texture == nullptr )
+		{
+			return {};
+		}
+
+		D3D11_MAPPED_SUBRESOURCE resource;
+
+		HRESULT hr = m_pd3d11DeviceContext->Map( static_cast<ID3D11Resource*>( texture->Resource() ), subResource, ConvertLockFlagToD3D11Map( lockFlag ), 0, &resource );
+		if ( FAILED( hr ) )
+		{
+			__debugbreak();
+		}
+
+		LockedResource result = {
+			.m_data = resource.pData,
+			.m_rowPitch = resource.RowPitch,
+			.m_depthPitch = resource.DepthPitch
+		};
+		return result;
+	}
+
+	void CDirect3D11::UnLock( Texture* texture, uint32 subResource )
+	{
+		if ( texture == nullptr )
+		{
+			return;
+		}
+
+		m_pd3d11DeviceContext->Unmap( static_cast<ID3D11Resource*>( texture->Resource() ), subResource );
 	}
 
 	void CDirect3D11::EnumerateSampleCountAndQuality( int32* size, DXGI_SAMPLE_DESC* pSamples )

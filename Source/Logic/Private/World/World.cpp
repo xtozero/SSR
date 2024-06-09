@@ -50,7 +50,7 @@ namespace logic
 
 	void World::Initialize()
 	{
-		m_scene = GetInterface<rendercore::IRenderCore>()->CreateScene();
+		m_scene = GetInterface<rendercore::IRenderCore>()->CreateScene( *this );
 
 		constexpr int32 DefaultRenderStateUpdateArraySize = 1024;
 		m_componentsThatNeedRenderStateUpdate.reserve( DefaultRenderStateUpdateArraySize );

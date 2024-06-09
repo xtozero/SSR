@@ -250,7 +250,7 @@ namespace engine
 
 	void WindowPlatformInputConvertor::ProcessInput( logic::ILogic& logic, const MSG& wndMsg )
 	{
-		UserInput input;
+		UserInput input( m_buttonStates );
 
 		HWND hWnd = wndMsg.hwnd;
 		uint32 message = wndMsg.message;

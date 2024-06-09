@@ -67,8 +67,9 @@ namespace rendercore
 	class SceneRenderer
 	{
 	public:
-		virtual bool PreRender( RenderViewGroup& renderViewGroup );
+		virtual void PreRender( RenderViewGroup& renderViewGroup );
 		virtual void Render( RenderViewGroup& renderViewGroup ) = 0;
+		virtual void RenderHitProxy( RenderViewGroup& renderViewGroup ) = 0;
 		virtual void PostRender( RenderViewGroup& renderViewGroup );
 
 		virtual void RenderDefaultPass( RenderViewGroup& renderViewGroup, uint32 curView ) = 0;
@@ -99,8 +100,6 @@ namespace rendercore
 
 		virtual IRendererRenderTargets& GetRenderRenderTargets() = 0;
 
-		PrimitiveIdVertexBufferPool& GetPrimitiveIdPool();
-
 		void WaitUntilRenderingIsFinish();
 
 		virtual ~SceneRenderer() = default;
@@ -123,6 +122,7 @@ namespace rendercore
 		void RenderVolumetricFog( IScene& scene, RenderView& renderView );
 		void RenderTemporalAntiAliasing( RenderViewGroup& renderViewGroup );
 		void RenderIndirectIllumination( RenderViewGroup& renderViewGroup );
+		void DoRenderHitProxy( RenderViewGroup& renderViewGroup );
 
 		void StoreOuputContext( const RenderingOutputContext& context );
 
@@ -138,11 +138,12 @@ namespace rendercore
 		std::vector<PreviousFrameContext> m_prevFrameContext;
 
 	private:
-		PrimitiveIdVertexBufferPool m_primitiveIdBufferPool;
 		TAARenderer m_taa;
 		RSMsRenderer m_rsms;
 		LightPropagationVolume m_lpv;
 	};
 
 	void AddSingleDrawPass( DrawSnapshot& snapshot );
+
+	PrimitiveIdVertexBufferPool& GetPrimitiveIdPool();
 }

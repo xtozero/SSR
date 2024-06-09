@@ -1,11 +1,13 @@
 #pragma once
 
 #include "SizedTypes.h"
+#include "GuideTypes.h"
 
 class ColorF
 {
 public:
 	ColorF( float r, float g, float b, float a = 1.f );
+	ColorF( const float4& rgba );
 	ColorF();
 
 	float& operator[]( size_t idx );
@@ -22,6 +24,8 @@ public:
 
 	float& A();
 	float A() const;
+
+	const float4& RGBA() const;
 
 	static const ColorF Black;
 	static const ColorF White;

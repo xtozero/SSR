@@ -12,7 +12,7 @@ namespace fs = std::filesystem;
 namespace editor
 {
     REGISTER_PANEL( ContentBrowserPanel );
-	void ContentBrowserPanel::Draw( [[maybe_unused]] IEditor& editor )
+	void ContentBrowserPanel::Draw()
 	{
 		ImGui::Begin( "Content Directory Outliner" );
         {
@@ -26,7 +26,7 @@ namespace editor
 
             ImGui::Separator();
 
-            DrawCurrentDirectoryFiles( editor );
+            DrawCurrentDirectoryFiles();
         }
 		ImGui::End();
 	}
@@ -35,8 +35,9 @@ namespace editor
 	{
 	}
 
-	ContentBrowserPanel::ContentBrowserPanel()
-		: m_curDirectory( fs::current_path() )
+	ContentBrowserPanel::ContentBrowserPanel( IEditor& editor )
+		: Panel( editor )
+        , m_curDirectory( fs::current_path() )
 	{
 	}
 
@@ -79,7 +80,7 @@ namespace editor
         }
     }
 
-    void ContentBrowserPanel::DrawCurrentDirectoryFiles( IEditor& editor )
+    void ContentBrowserPanel::DrawCurrentDirectoryFiles()
     {
         ImGui::BeginChild("Current Directory Files");
         {
@@ -103,8 +104,8 @@ namespace editor
                             m_curDirectory = entry.path();
                         }
                         else if ( entry.is_regular_file() )
-                        {
-                            OpenContent( editor, entry );
+						{
+							OpenContent( entry );
                         }
                     }
                 }
@@ -150,8 +151,10 @@ namespace editor
         ImGui::PopStyleColor( 1 );
     }
 
-    void ContentBrowserPanel::OpenContent( IEditor& editor, std::filesystem::path file )
+    void ContentBrowserPanel::OpenContent( std::filesystem::path file )
     {
+        IEditor& editor = GetEditor();
+
         if ( file.extension() == ".json" )
         {
             editor.GetPanelSharedCtx().UnselectObject();

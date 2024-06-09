@@ -2,7 +2,6 @@
 
 #include "Core/DebugConsole.h"
 #include "common.h"
-#include "GameObject/PickingManager.h"
 #include "GameObject/Player.h"
 #include "GraphicsResource/Canvas.h"
 #include "GraphicsResource/Viewport.h"
@@ -65,7 +64,7 @@ namespace logic
 		void HandleDeviceLost();
 
 	public:
-		CGameLogic();
+		CGameLogic() = default;
 		virtual ~CGameLogic() override;
 
 	private:
@@ -77,7 +76,6 @@ namespace logic
 		std::pair<uint32, uint32> m_appSize;
 
 		std::unique_ptr<InputController> m_inputController;
-		//CPickingManager m_pickingManager;
 		//CSSRManager m_ssrManager;
 		rendercore::IRenderCore* m_pRenderCore = nullptr;
 		CDebugOverlayManager m_debugOverlay;

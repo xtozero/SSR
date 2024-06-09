@@ -149,7 +149,7 @@ namespace editor
             return false;
         }
 
-        m_panels = std::move( PanelFactory::GetInstance().CreateAllPanel() );
+        m_panels = std::move( PanelFactory::GetInstance().CreateAllPanel( *this ) );
 
         return ImGui_ImplWin32_Init( platform.GetRawHandle<void*>() );
     }
@@ -169,7 +169,7 @@ namespace editor
 
         for ( auto& panel : m_panels )
         {
-            panel->Draw( *this );
+            panel->Draw();
         }
 
         ImGui::Render();
@@ -289,6 +289,8 @@ namespace editor
 
     ImguiEditor::~ImguiEditor()
     {
+        m_panels.clear();
+
         ShutdownModule( m_logicDll );
         ImGui_ImplWin32_Shutdown();
     }

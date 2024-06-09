@@ -98,7 +98,7 @@ namespace agl
 		intermediateDesc.Height = destArea.m_bottom - destArea.m_top;
 		intermediateDesc.DepthOrArraySize = static_cast<uint16>( destArea.m_back - destArea.m_front );
 
-		D3D12Device().GetCopyableFootprints( &dest.GetDesc(), subresource, 1, 0, &layout, &numRows, &rowSize, &totalSize);
+		D3D12Device().GetCopyableFootprints( &dest.GetDesc(), subresource, 1, 0, &layout, &numRows, &rowSize, &totalSize );
 
 		D3D12HeapProperties heapProperties = {
 			.m_alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT,
@@ -224,7 +224,33 @@ namespace agl
 		m_destResource = &dest;
 		m_srcResource = &src;
 
-		CommandList()->CopyResource( static_cast<ID3D12Resource*>( dest.Resource() ), static_cast<ID3D12Resource*>( src.Resource() ) );
+		if ( HasAnyFlags( dest.GetTrait().m_access, ResourceAccessFlag::CpuRead ) )
+		{
+			D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout = {};
+			uint32 numRows = 0;
+			uint64 rowSize = 0;
+			uint64 totalSize = 0;
+
+			D3D12Device().GetCopyableFootprints( &src.GetDesc(), 0, 1, 0, &layout, &numRows, &rowSize, &totalSize );
+
+			D3D12_TEXTURE_COPY_LOCATION destLocation = {
+				.pResource = static_cast<ID3D12Resource*>( dest.Resource() ),
+				.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,
+				.PlacedFootprint = layout
+			};
+
+			D3D12_TEXTURE_COPY_LOCATION srcLocation = {
+				.pResource = static_cast<ID3D12Resource*>( src.Resource() ),
+				.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
+				.SubresourceIndex = 0
+			};
+
+			CommandList()->CopyTextureRegion( &destLocation, 0, 0, 0, &srcLocation, nullptr );
+		}
+		else
+		{
+			CommandList()->CopyResource( static_cast<ID3D12Resource*>( dest.Resource() ), static_cast<ID3D12Resource*>( src.Resource() ) );
+		}
 
 		CommandList()->Close();
 	}

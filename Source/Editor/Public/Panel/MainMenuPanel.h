@@ -4,10 +4,12 @@
 
 namespace editor
 {
-	class MainMenuPanel final : public IPanel
+	class MainMenuPanel final : public Panel
 	{
+		using Panel::Panel;
+
 	public:
-		virtual void Draw( IEditor& editor ) override;
+		virtual void Draw() override;
 		virtual void HandleUserInput( const engine::UserInput& input ) override;
 
 	private:

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DrawSnapshot.h"
+#include "HitProxy.h"
 #include "MeshDrawInfo.h"
 #include "PassProcessor.h"
 #include "SizedTypes.h"
@@ -82,6 +83,8 @@ namespace rendercore
 
 		DrawSnapshot& CachedDrawSnapshot( uint32 snapshotIndex );
 
+		HitProxyId GetHitProxyId() const;
+
 		PrimitiveSceneInfo( logic::PrimitiveComponent* component, Scene& scene );
 
 	private:
@@ -91,6 +94,7 @@ namespace rendercore
 		Scene& m_scene;
 
 		PrimitiveProxy* m_sceneProxy = nullptr;
+		agl::RefHandle<HitProxy> m_hitProxy;
 
 		uint32 m_primitiveId = 0;
 

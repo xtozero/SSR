@@ -111,6 +111,11 @@ public:
 		return m_size;
 	}
 
+	bool IsAllocated( size_t index ) const
+	{
+		return m_allocationFlag[index];
+	}
+
 	T& operator[]( size_t index )
 	{
 		return ( (T&)GetData( index ).m_data );

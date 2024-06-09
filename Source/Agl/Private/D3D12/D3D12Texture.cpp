@@ -66,7 +66,7 @@ namespace
 		uint64 alignment = ( trait.m_sampleCount > 1 ) ? D3D12_DEFAULT_MSAA_RESOURCE_PLACEMENT_ALIGNMENT : D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
 
 		D3D12_RESOURCE_DESC desc = {
-			.Dimension = GetResourceDimension(trait),
+			.Dimension = GetResourceDimension( trait ),
 			.Alignment = alignment,
 			.Width = trait.m_width,
 			.Height = trait.m_height,
@@ -418,10 +418,12 @@ namespace
 	{
 		uint64 alignment = ( trait.m_sampleCount > 1 ) ? D3D12_DEFAULT_MSAA_RESOURCE_PLACEMENT_ALIGNMENT : D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
 
+		bool bDownload = HasAnyFlags( trait.m_access, ResourceAccessFlag::CpuRead );
+
 		D3D12HeapProperties properties = {
 			.m_alignment = alignment,
 			.m_heapType = ConvertAccessFlagToHeapType( trait.m_access ),
-			.m_heapFlags = ConvertToTextureHeapFlags( trait.m_bindType )
+			.m_heapFlags = bDownload ? D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS : ConvertToTextureHeapFlags( trait.m_bindType )
 		};
 
 		return properties;
@@ -465,6 +467,16 @@ namespace
 
 namespace agl
 {
+	ID3D12Resource* D3D12Texture::Resource()
+	{
+		return m_resourceInfo.GetResource();
+	}
+
+	void* D3D12Texture::Resource() const
+	{
+		return m_resourceInfo.GetResource();
+	}
+
 	const AllocatedResourceInfo& D3D12Texture::GetResourceInfo() const
 	{
 		return m_resourceInfo;
@@ -473,6 +485,46 @@ namespace agl
 	const D3D12_RESOURCE_DESC& D3D12Texture::GetDesc() const
 	{
 		return m_desc;
+	}
+
+	LockedResource D3D12Texture::Lock( uint32 subResource )
+	{
+		assert( HasAnyFlags( GetTrait().m_access, ResourceAccessFlag::CpuRead ) );
+
+		ID3D12Resource* resource = Resource();
+		if ( resource == nullptr )
+		{
+			return {};
+		}
+
+		void* mappedData = nullptr;
+		[[maybe_unused]] HRESULT hr = resource->Map( subResource, nullptr, &mappedData );
+		assert( SUCCEEDED( hr ) );
+
+		D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout = {};
+		uint32 numRows = 0;
+		uint64 rowSize = 0;
+		uint64 totalSize = 0;
+
+		D3D12Device().GetCopyableFootprints( &GetDesc(), subResource, 1, 0, &layout, &numRows, &rowSize, &totalSize );
+
+		LockedResource result = {
+			.m_data = mappedData,
+			.m_rowPitch = layout.Footprint.RowPitch,
+			.m_depthPitch = layout.Footprint.RowPitch * layout.Footprint.Height
+		};
+
+		return result;
+	}
+
+	void D3D12Texture::UnLock( uint32 subResource )
+	{
+		if ( Resource() == nullptr )
+		{
+			return;
+		}
+
+		Resource()->Unmap( subResource, nullptr );
 	}
 
 	void D3D12Texture::CreateShaderResource( std::optional<ResourceFormat> overrideFormat )
@@ -556,10 +608,10 @@ namespace agl
 
 		D3D12_CLEAR_VALUE clearValue = ConvertToClearValue( m_trait );
 
-		D3D12ResourceAllocator& allocator = D3D12Allocator();
-		m_resourceInfo = allocator.AllocateResource(
+		bool bDownload = HasAnyFlags( m_trait.m_access, ResourceAccessFlag::CpuRead );
+		m_resourceInfo = D3D12Allocator().AllocateResource(
 			properties,
-			m_desc,
+			bDownload ? GetDescForDownload() : m_desc,
 			ConvertToResourceStates( GetResourceState() ),
 			clearValue.Format == DXGI_FORMAT_UNKNOWN ? nullptr : &clearValue
 		);
@@ -593,6 +645,32 @@ namespace agl
 		{
 			SetResourceState( ResourceState::CopyDest );
 		}
+	}
+
+	D3D12_RESOURCE_DESC D3D12Texture::GetDescForDownload() const
+	{
+		D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout = {};
+		uint32 numRows = 0;
+		uint64 rowSize = 0;
+		uint64 totalSize = 0;
+
+		agl::D3D12Device().GetCopyableFootprints( &m_desc, 0, 1, 0, &layout, &numRows, &rowSize, &totalSize );
+
+		return {
+			.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER,
+			.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT,
+			.Width = totalSize,
+			.Height = 1,
+			.DepthOrArraySize = 1,
+			.MipLevels = 1,
+			.Format = DXGI_FORMAT_UNKNOWN,
+			.SampleDesc = {
+				.Count = 1,
+				.Quality = 0
+			},
+			.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
+			.Flags = GetResourceFlags( m_trait )
+		};
 	}
 
 	D3D12Texture2D::D3D12Texture2D( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData )

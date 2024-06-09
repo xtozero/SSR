@@ -104,6 +104,11 @@ namespace rendercore
 		}
 	}
 
+	void PrimitiveIdVertexBufferPool::Shutdown()
+	{
+		m_entries.clear();
+	}
+
 	void PreparePipelineStateObject( DrawSnapshot& snapshot )
 	{
 		auto& pipelineState = snapshot.m_pipelineState;

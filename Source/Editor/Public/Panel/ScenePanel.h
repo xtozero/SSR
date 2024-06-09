@@ -5,16 +5,24 @@
 
 #include <utility>
 
+namespace rendercore
+{
+	class HitProxy;
+}
+
 namespace editor
 {
-	class ScenePanel final : public IPanel
+	class ScenePanel final : public Panel
 	{
+		using Panel::Panel;
+
 	public:
-		virtual void Draw( IEditor& editor ) override;
+		virtual void Draw() override;
 		virtual void HandleUserInput( const engine::UserInput& input ) override;
 
 	private:
-		bool m_passingInputToLogic = false;
+		RectangleArea<float> m_panelArea = {};
 		std::pair<uint32, uint32> m_viewportResolution = {};
+		bool m_passingInputToLogic = false;
 	};
 }

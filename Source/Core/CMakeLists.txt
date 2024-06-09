@@ -231,6 +231,7 @@ PUBLIC
 	./Public/Multithread
 	./Public/Reflection
 	./Public/Serialization
+	./Public/UserInterface
 PRIVATE
 	./Public/Physics
 	./Public/Math

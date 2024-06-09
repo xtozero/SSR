@@ -2,10 +2,16 @@
 
 #include "GuideTypes.h"
 
+namespace logic
+{
+	class World;
+}
+
 namespace rendercore
 {
 	class IScene;
 	class RenderViewGroup;
+	class Viewport;
 
 	class IRenderCore
 	{
@@ -16,10 +22,14 @@ namespace rendercore
 		virtual void HandleDeviceLost() = 0;
 		virtual void AppSizeChanged() = 0;
 
-		virtual IScene* CreateScene() = 0;
+		virtual IScene* CreateScene( logic::World& world ) = 0;
 		virtual void RemoveScene( IScene* scene ) = 0;
 
+		virtual void BeginFrameRendering( Canvas& canvas ) = 0;
 		virtual void BeginRenderingViewGroup( RenderViewGroup& renderViewGroup ) = 0;
+		virtual void EndFrameRendering( Canvas& canvas ) = 0;
+
+		virtual void GetRawHitProxyData( Viewport& viewport, std::vector<Color>& outHitProxyData ) = 0;
 
 		virtual ~IRenderCore() = default;
 

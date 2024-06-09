@@ -18,24 +18,21 @@ namespace
 {
 	void DrawGpuProfileRecursive( const GpuProfileData* gpuProfileData )
 	{
-		if ( gpuProfileData->IsAvaliable() )
+		constexpr ImGuiTreeNodeFlags baseFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+
+		const char* label = gpuProfileData->m_label.CStr();
+		ImGuiTreeNodeFlags nodeFlags = baseFlags;
+		if ( gpuProfileData->m_child == nullptr )
 		{
-			constexpr ImGuiTreeNodeFlags baseFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+			nodeFlags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+		}
 
-			const char* label = gpuProfileData->m_label.CStr();
-			ImGuiTreeNodeFlags nodeFlags = baseFlags;
-			if ( gpuProfileData->m_child == nullptr )
+		if ( ImGui::TreeNodeEx( label, nodeFlags, "%s - %fms", label, (float)gpuProfileData->CalcAverageMS() ) )
+		{
+			if ( const GpuProfileData* child = gpuProfileData->m_child )
 			{
-				nodeFlags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-			}
-
-			if ( ImGui::TreeNodeEx( label, nodeFlags, "%s - %fms", label, (float)gpuProfileData->CalcAverageMS() ) )
-			{
-				if ( const GpuProfileData* child = gpuProfileData->m_child )
-				{
-					DrawGpuProfileRecursive( child );
-					ImGui::TreePop();
-				}
+				DrawGpuProfileRecursive( child );
+				ImGui::TreePop();
 			}
 		}
 
@@ -106,8 +103,9 @@ namespace
 namespace editor
 {
 	REGISTER_PANEL( PerformanceProfilePanel );
-	void PerformanceProfilePanel::Draw( IEditor& editor )
+	void PerformanceProfilePanel::Draw()
 	{
+		IEditor& editor = GetEditor();
 		PanelSharedContext& sharedCtx = editor.GetPanelSharedCtx();
 		bool shouldDraw = sharedCtx.ShouldDrawProfiler();
 		if ( shouldDraw == false )

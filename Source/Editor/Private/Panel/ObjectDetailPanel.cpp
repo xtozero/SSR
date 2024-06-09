@@ -128,8 +128,10 @@ namespace editor
 	}
 
 	REGISTER_PANEL( ObjectDetailPanel );
-	void ObjectDetailPanel::Draw( IEditor& editor )
+	void ObjectDetailPanel::Draw()
 	{
+		IEditor& editor = GetEditor();
+
 		ImGui::Begin( "Object Detail" );
 		{
 			PanelSharedContext& sharedCtx = editor.GetPanelSharedCtx();

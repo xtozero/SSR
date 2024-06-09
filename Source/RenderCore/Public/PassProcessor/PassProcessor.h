@@ -13,6 +13,7 @@ namespace rendercore
 		CascadeShadowDepth,
 		PointShadowDepth,
 		Default,
+		HitProxy,
 		Count,
 	};
 

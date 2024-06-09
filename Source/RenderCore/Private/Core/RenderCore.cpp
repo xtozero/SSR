@@ -72,10 +72,14 @@ namespace rendercore
 		virtual void HandleDeviceLost() override;
 		virtual void AppSizeChanged() override;
 
-		virtual IScene* CreateScene() override;
+		virtual IScene* CreateScene( logic::World& world ) override;
 		virtual void RemoveScene( IScene* scene ) override;
 
+		virtual void BeginFrameRendering( Canvas& canvas ) override;
 		virtual void BeginRenderingViewGroup( RenderViewGroup& renderViewGroup ) override;
+		virtual void EndFrameRendering( Canvas& canvas ) override;
+
+		virtual void GetRawHitProxyData( Viewport& viewport, std::vector<Color>& outHitProxyData ) override;
 
 		virtual ~RenderCore() override;
 
@@ -185,9 +189,9 @@ namespace rendercore
 		m_agl->AppSizeChanged();
 	}
 
-	IScene* RenderCore::CreateScene()
+	IScene* RenderCore::CreateScene( logic::World& world )
 	{
-		return new Scene();
+		return new Scene( world );
 	}
 
 	void RenderCore::RemoveScene( IScene* scene )
@@ -199,51 +203,64 @@ namespace rendercore
 			} );
 	}
 
+	void RenderCore::BeginFrameRendering( Canvas& canvas )
+	{
+		CPU_PROFILE( BeginFrameRendering );
+
+		GetGpuProfiler().BeginFrameRendering();
+
+		RenderTargetPool::GetInstance().Tick();
+
+		canvas.OnBeginFrameRendering();
+		canvas.Clear();
+	}
+
 	void RenderCore::BeginRenderingViewGroup( RenderViewGroup& renderViewGroup )
 	{
 		CPU_PROFILE( BeginRenderingViewGroup );
 
+		GetGpuProfiler().GatherProfileData();
+
 		auto commandList = GetCommandList();
-		Canvas& canvas = renderViewGroup.GetCanvas();
 		{
 			CPU_PROFILE( RenderFrame );
 			GPU_PROFILE( commandList, RenderFrame );
 
-			const ColorF& bgColor = renderViewGroup.GetBackgroundColor();
-			float clearColor[4] = { bgColor[0], bgColor[1], bgColor[2], bgColor[3] };
-
-			canvas.OnBeginFrameRendering();
-			canvas.Clear( clearColor );
-
-			Viewport& viewport = renderViewGroup.GetViewport();
-			viewport.Clear( clearColor );
-
-			RenderTargetPool::GetInstance().Tick();
-
 			SceneRenderer* pSceneRenderer = FindAndCreateSceneRenderer( renderViewGroup );
-			if ( pSceneRenderer )
-			{
-				if ( pSceneRenderer->PreRender( renderViewGroup ) == false )
-				{
-					return;
-				}
+			assert( pSceneRenderer != nullptr );
 
+			pSceneRenderer->PreRender( renderViewGroup );
+
+			if ( renderViewGroup.GetShowFlags().m_bHitProxy )
+			{
+				pSceneRenderer->RenderHitProxy( renderViewGroup );
+			}
+			else
+			{
 				pSceneRenderer->Render( renderViewGroup );
-				pSceneRenderer->PostRender( renderViewGroup );
 			}
 
-			if ( m_uiRenderer )
-			{
-				m_uiRenderer->Render( renderViewGroup );
-			}
-
-			canvas.OnEndFrameRendering();
-
-			if ( pSceneRenderer )
-			{
-				pSceneRenderer->WaitUntilRenderingIsFinish();
-			}
+			pSceneRenderer->PostRender( renderViewGroup );
+			pSceneRenderer->WaitUntilRenderingIsFinish();
 		}
+	}
+
+	void RenderCore::EndFrameRendering( Canvas& canvas )
+	{
+		CPU_PROFILE( EndFrameRendering );
+
+		auto commandList = GetCommandList();
+		{
+			CPU_PROFILE( RenderUI );
+			GPU_PROFILE( commandList, RenderUI );
+
+			assert( m_uiRenderer != nullptr );
+			m_uiRenderer->Render( canvas );
+		}
+
+		GetPrimitiveIdPool().DiscardAll();
+
+		canvas.OnEndFrameRendering();
 
 		{
 			CPU_PROFILE( CommitRenderFrame );
@@ -251,13 +268,53 @@ namespace rendercore
 				CPU_PROFILE( Commit );
 				commandList.Commit();
 			}
-			{
-				CPU_PROFILE( Present );
-				canvas.Present();
-			}
 		}
 
-		GetGpuProfiler().GatherProfileData();
+		{
+			CPU_PROFILE( Present );
+			canvas.Present();
+		}
+	}
+
+	void RenderCore::GetRawHitProxyData( Viewport& viewport, std::vector<Color>& outHitProxyData )
+	{
+		HitProxyMap& hitProxyMap = viewport.GetHitPorxyMap();
+
+		TaskHandle handle = EnqueueThreadTask<ThreadType::RenderThread>(
+			[&hitProxyMap, &outHitProxyData]()
+			{
+				auto commandList = GetCommandList();
+				commandList.CopyResource( hitProxyMap.CpuTexture(), hitProxyMap.Texture(), true );
+
+				commandList.Commit();
+
+				GetInterface<agl::IAgl>()->WaitGPU();
+
+				if ( hitProxyMap.CpuTexture() == nullptr )
+				{
+					return;
+				}
+
+				agl::LockedResource lockedResource = GraphicsInterface().Lock( hitProxyMap.CpuTexture(), agl::ResourceLockFlag::Read );
+
+				const agl::TextureTrait& cpuTextureTrait = hitProxyMap.CpuTexture()->GetTrait();
+				uint32 width = cpuTextureTrait.m_width;
+				uint32 height = cpuTextureTrait.m_height;
+
+				size_t rowSize = sizeof( Color ) * width;
+				auto dest = outHitProxyData.data();
+				auto src = (uint8*)lockedResource.m_data;
+
+				for ( uint32 i = 0; i < height; ++i )
+				{
+					std::memcpy( dest, src, rowSize );
+					dest += width;
+					src += lockedResource.m_rowPitch;
+				}
+
+				GraphicsInterface().UnLock( hitProxyMap.CpuTexture() );
+			} );
+		GetInterface<ITaskScheduler>()->Wait( handle );
 	}
 
 	RenderCore::~RenderCore()
@@ -271,7 +328,7 @@ namespace rendercore
 
 		for ( auto& kv : m_sceneRenderer )
 		{
-			EnqueueRenderTask( 
+			EnqueueRenderTask(
 				[sceneRenderer = kv.second]()
 				{
 					delete sceneRenderer;
@@ -291,6 +348,7 @@ namespace rendercore
 		GetInterface<ITaskScheduler>()->Wait( handle );
 
 		PipelineStateCache::Shutdown();
+		GetPrimitiveIdPool().Shutdown();
 
 		ShutdownModule( m_hAgl );
 

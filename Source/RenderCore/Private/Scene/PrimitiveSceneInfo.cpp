@@ -1,6 +1,7 @@
 #include "Scene/PrimitiveSceneInfo.h"
 
 #include "Components/PrimitiveComponent.h"
+#include "Config/DefaultAppConfig.h"
 #include "Proxies/PrimitiveProxy.h"
 #include "Scene/Scene.h"
 
@@ -119,8 +120,22 @@ namespace rendercore
 		return m_scene.CachedSnapshots( cachedDrawSnapshotInfo.m_renderPass )[cachedDrawSnapshotInfo.m_snapshotIndex];
 	}
 
+	HitProxyId PrimitiveSceneInfo::GetHitProxyId() const
+	{
+		if ( m_hitProxy )
+		{
+			return m_hitProxy->GetId();
+		}
+
+		return HitProxyId();
+	}
+
 	PrimitiveSceneInfo::PrimitiveSceneInfo( logic::PrimitiveComponent* component, Scene& scene ) : m_sceneProxy( component->m_sceneProxy ), m_scene( scene )
 	{
+		if ( engine::DefaultApp::IsEditor() )
+		{
+			m_hitProxy = m_sceneProxy->CreateHitProxy( component );
+		}
 	}
 
 	void PrimitiveSceneInfo::CacheDrawSnapshot()

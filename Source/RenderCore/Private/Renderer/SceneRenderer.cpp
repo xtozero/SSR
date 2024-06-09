@@ -36,6 +36,11 @@
 
 #include <deque>
 
+namespace
+{
+	agl::ShaderParameter HitProxyIdShaderParam( agl::ShaderType::PS, agl::ShaderParameterType::ConstantBufferValue, 0, 0, 0, sizeof( ColorF ) );
+}
+
 namespace rendercore
 {
 	void RenderingShaderResource::BindResources( const ShaderStates& shaders, agl::ShaderBindings& bindings )
@@ -123,10 +128,9 @@ namespace rendercore
 		}
 	}
 
-	bool SceneRenderer::PreRender( RenderViewGroup& renderViewGroup )
+	void SceneRenderer::PreRender( RenderViewGroup& renderViewGroup )
 	{
 		std::construct_at( &m_passSnapshots );
-		std::construct_at( &m_shadowInfos );
 
 		for ( auto& view : renderViewGroup )
 		{
@@ -134,20 +138,24 @@ namespace rendercore
 			view.m_snapshots = passSnapshot.data();
 		}
 
-		InitDynamicShadows( renderViewGroup );
-
 		auto linearSampler = StaticSamplerState<>::Get();
 		m_shaderResources.AddResource( "LinearSampler", linearSampler.Resource() );
 		
-		return true;
+		IScene& scene = renderViewGroup.Scene();
+		UpdateGPUPrimitiveInfos( *scene.GetRenderScene() );
+
+		auto& gpuPrimitiveInfo = scene.GpuPrimitiveInfo();
+		auto commandList = GetCommandList();
+
+		if ( gpuPrimitiveInfo.Resource() )
+		{
+			commandList.AddTransition( Transition( *gpuPrimitiveInfo.Resource(), agl::ResourceState::GenericRead ) );
+		}
 	}
 
 	void SceneRenderer::PostRender( RenderViewGroup& renderViewGroup )
 	{
-		if ( DefaultRenderCore::IsTaaEnabled() )
-		{
-			RenderTemporalAntiAliasing( renderViewGroup );
-		}
+		CPU_PROFILE( PostRender );
 
 		m_shaderResources.ClearResources();
 
@@ -177,16 +185,9 @@ namespace rendercore
 		GetTransientAllocator<ThreadType::RenderThread>().Flush();
 	}
 
-	PrimitiveIdVertexBufferPool& SceneRenderer::GetPrimitiveIdPool()
-	{
-		return m_primitiveIdBufferPool;
-	}
-
 	void SceneRenderer::WaitUntilRenderingIsFinish()
 	{
 		CPU_PROFILE( WaitUntilRenderingIsFinish );
-
-		GetPrimitiveIdPool().DiscardAll();
 	}
 
 	void SceneRenderer::InitDynamicShadows( RenderViewGroup& renderViewGroup )
@@ -1169,6 +1170,161 @@ namespace rendercore
 		}
 	}
 
+	void SceneRenderer::DoRenderHitProxy( RenderViewGroup& renderViewGroup )
+	{
+		IScene& scene = renderViewGroup.Scene();
+		const auto& primitives = scene.Primitives();
+		if ( primitives.Size() == 0 )
+		{
+			return;
+		}
+
+		Viewport& viewport = renderViewGroup.GetViewport();
+		auto [width, height] = viewport.Size();
+
+		HitProxyMap& hitProxyMap = viewport.GetHitPorxyMap();
+		hitProxyMap.Init( width, height );
+
+		auto renderTarget = viewport.GetHitPorxyMap().Texture();
+
+		agl::TextureTrait trait = {
+				.m_width = width,
+				.m_height = height,
+				.m_depth = 1,
+				.m_sampleCount = 1,
+				.m_sampleQuality = 0,
+				.m_mipLevels = 1,
+				.m_format = agl::ResourceFormat::D24_UNORM_S8_UINT,
+				.m_access = agl::ResourceAccessFlag::Default,
+				.m_bindType = agl::ResourceBindType::DepthStencil,
+				.m_miscFlag = agl::ResourceMisc::None,
+				.m_clearValue = agl::ResourceClearValue{
+					.m_depthStencil = {
+						.m_depth = 1.f,
+						.m_stencil = 0
+					}
+				}
+		};
+
+		auto depthStencil = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "HitProxy.DepthStencil" );
+
+		RenderingOutputContext context = {
+			.m_renderTargets = { renderTarget },
+			.m_depthStencil = depthStencil,
+			.m_viewport = {
+				.m_left = 0.f,
+				.m_top = 0.f,
+				.m_front = 0.f,
+				.m_right = static_cast<float>( width ),
+				.m_bottom = static_cast<float>( height ),
+				.m_back = 1.f
+			},
+			.m_scissorRects = {
+				.m_left = 0L,
+				.m_top = 0L,
+				.m_right = static_cast<int32>( width ),
+				.m_bottom = static_cast<int32>( height )
+			}
+		};
+		StoreOuputContext( context );
+
+		auto commandList = GetCommandList();
+		commandList.AddTransition( Transition( *renderTarget, agl::ResourceState::RenderTarget ) );
+		commandList.AddTransition( Transition( *depthStencil, agl::ResourceState::DepthWrite ) );
+
+		commandList.ClearRenderTarget( renderTarget->RTV(), { 1.f, 1.f, 1.f, 1.f } );
+		commandList.ClearDepthStencil( depthStencil->DSV(), 1.f, 0 );
+
+		for ( size_t viewIndex = 0; viewIndex < renderViewGroup.Size(); ++viewIndex )
+		{
+			auto& viewConstant = scene.SceneViewConstant();
+
+			SceneViewParameters viewConstantParam = FillViewConstantParam( scene.GetRenderScene()
+				, ( viewIndex < m_prevFrameContext.size() ) ? &m_prevFrameContext[viewIndex] : nullptr
+				, renderViewGroup, viewIndex );
+
+			viewConstant.Update( viewConstantParam );
+
+			m_shaderResources.AddResource( "SceneViewParameters", viewConstant.Resource() );
+
+			RenderView& renderView = renderViewGroup[viewIndex];
+			auto& snapshots = renderView.m_snapshots[static_cast<uint32>( RenderPass::HitProxy )];
+
+			// Create DrawSnapshot
+			for ( auto primitive : primitives )
+			{
+				PrimitiveProxy* proxy = primitive->Proxy();
+
+				const std::vector<PrimitiveSubMeshInfo>& subMeshInfos = primitive->SubMeshInfos();
+
+				if ( subMeshInfos.size() > 0 )
+				{
+					for ( const auto& subMeshInfo : subMeshInfos )
+					{
+						auto snapshotIndex = subMeshInfo.GetCachedDrawSnapshotInfoIndex( RenderPass::HitProxy );
+						if ( snapshotIndex )
+						{
+							const CachedDrawSnapshotInfo& info = primitive->GetCachedDrawSnapshotInfo( *snapshotIndex );
+							DrawSnapshot& snapshot = primitive->CachedDrawSnapshot( *snapshotIndex );
+
+							VisibleDrawSnapshot& visibleSnapshot = snapshots.emplace_back();
+							visibleSnapshot.m_snapshotBucketId = info.m_snapshotBucketId;
+							visibleSnapshot.m_drawSnapshot = &snapshot;
+							visibleSnapshot.m_primitiveId = proxy->PrimitiveId();
+							visibleSnapshot.m_numInstance = 1;
+						}
+					}
+				}
+				else
+				{
+					assert( false && "Not Implemented" );
+				}
+			}
+
+			if ( snapshots.size() == 0 )
+			{
+				return;
+			}
+
+			// Update invalidated resources
+			for ( auto& viewDrawSnapshot : snapshots )
+			{
+				DrawSnapshot& snapshot = *viewDrawSnapshot.m_drawSnapshot;
+				GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+
+				m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+			}
+
+			VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc( static_cast<uint32>( snapshots.size() * sizeof( uint32 ) ) );
+
+			uint32* idBuffer = reinterpret_cast<uint32*>( primitiveIds.Lock() );
+			if ( idBuffer )
+			{
+				for ( size_t i = 0; i < snapshots.size(); ++i )
+				{
+					snapshots[i].m_primitiveIdOffset = static_cast<uint32>( i );
+					*idBuffer = snapshots[i].m_primitiveId;
+					++idBuffer;
+				}
+
+				primitiveIds.Unlock();
+			}
+
+			ApplyOutputContext( commandList );
+
+			for ( size_t i = 0; i < snapshots.size(); )
+			{
+				HitProxyId hitProxyId = primitives[snapshots[i].m_primitiveId]->GetHitProxyId();
+
+				SetShaderValue( commandList, HitProxyIdShaderParam, hitProxyId.GetColor().ToColorF() );
+				CommitDrawSnapshot( commandList, snapshots[i], primitiveIds );
+				i += snapshots[i].m_numInstance;
+			}
+		}
+
+		commandList.AddTransition( Transition( *renderTarget, agl::ResourceState::CopySource ) );
+	}
+
 	void SceneRenderer::StoreOuputContext( const RenderingOutputContext& context )
 	{
 		m_outputContext = context;
@@ -1188,5 +1344,11 @@ namespace rendercore
 
 		VertexBuffer emptyPrimitiveID;
 		CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
+	}
+
+	PrimitiveIdVertexBufferPool& GetPrimitiveIdPool()
+	{
+		static PrimitiveIdVertexBufferPool primitiveIdBufferPool;
+		return primitiveIdBufferPool;
 	}
 }

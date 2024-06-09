@@ -31,6 +31,11 @@ using ::logic::VolumetricFogComponent;
 
 namespace rendercore
 {
+	logic::World* Scene::GetWorld() const
+	{
+		return m_world;
+	}
+
 	void Scene::AddPrimitive( PrimitiveComponent* primitive )
 	{
 		PrimitiveProxy* proxy = primitive->CreateProxy();
@@ -375,6 +380,11 @@ namespace rendercore
 		return m_velocityData.GetPreviousTransform( primitiveId );
 	}
 
+	Scene::Scene( logic::World& world )
+		: m_world( &world )
+	{
+	}
+
 	void Scene::AddPrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo )
 	{
 		assert( IsInRenderThread() );
@@ -517,13 +527,13 @@ namespace rendercore
 		}
 	}
 
-	bool UpdateGPUPrimitiveInfos( Scene& scene )
+	void UpdateGPUPrimitiveInfos( Scene& scene )
 	{
 		assert( IsInRenderThread() );
 		uint32 updateSize = static_cast<uint32>( scene.m_primitiveToUpdate.size() );
 		if ( updateSize == 0 )
 		{
-			return true;
+			return;
 		}
 
 		uint32 totalPrimitives = static_cast<uint32>( scene.m_primitives.Size() );
@@ -542,6 +552,5 @@ namespace rendercore
 		gpuMemcpy.Upload( gpuPrimitiveInfos );
 
 		scene.m_primitiveToUpdate.clear();
-		return true;
 	}
 }

@@ -6,6 +6,10 @@ ColorF::ColorF( float r, float g, float b, float a )
 	: m_elem{ r, g, b, a }
 {}
 
+ColorF::ColorF( const float4& rgba )
+	: m_elem{ rgba[0], rgba[1], rgba[2], rgba[3] }
+{}
+
 ColorF::ColorF()
 	: m_elem{ 0.f, 0.f, 0.f, 0.f }
 {
@@ -59,6 +63,11 @@ float& ColorF::A()
 float ColorF::A() const
 {
 	return m_elem.m_a;
+}
+
+const float4& ColorF::RGBA() const
+{
+	return m_rgba;
 }
 
 const ColorF ColorF::Black( 0.f, 0.f, 0.f, 1.f );

@@ -152,10 +152,27 @@ namespace engine
 				m_button[idx] ^= 0x1 << remain;
 			}
 		}
+
+		bool IsButtonPressed( UserInputCode code ) const
+		{
+			int32 idx = code / NumBits;
+			int32 remain = code % NumBits;
+
+			return ( m_button[idx] & ( 0x1 << remain ) ) > 0;
+		}
+
+		bool IsButtonReleased( UserInputCode code ) const
+		{
+			return ( IsButtonPressed( code ) == false );
+		}
 	};
 
 	struct UserInput
 	{
+		explicit UserInput( UserInputButtonStates& buttonState )
+			: m_buttonState( buttonState )
+		{}
+
 		enum
 		{
 			X_AXIS = 0,
@@ -166,5 +183,6 @@ namespace engine
 
 		UserInputCode m_code = UIC_UNKNOWN;
 		float m_axis[INPUT_AXIS_COUNT] = { 0.f, 0.f, 0.f };
+		const UserInputButtonStates& m_buttonState;
 	};
 }

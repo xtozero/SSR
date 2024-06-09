@@ -8,6 +8,7 @@
 #include "ConsoleMessage/ConsoleMessageExecutor.h"
 #include "ConsoleMessage/ConVar.h"
 #include "Core/DebugConsole.h"
+#include "Core/IEngine.h"
 #include "Core/Timer.h"
 #include "Core/UtilWindowInfo.h"
 #include "CpuProfiler.h"
@@ -20,6 +21,7 @@
 #include "Platform/CommandLine.h"
 #include "Platform/IPlatform.h"
 #include "Renderer/IRenderCore.h"
+#include "Renderer/RenderView.h"
 #include "Scene/GameClientViewport.h"
 #include "Scene/IScene.h"
 #include "UserInput/UserInput.h"
@@ -81,17 +83,6 @@ namespace logic
 		}
 
 		m_inputController = std::make_unique<PlayerController>();
-
-		/*
-		m_pickingManager.PushInvProjection( XMConvertToRadians( 60 ),
-			static_cast<float>( m_appSize.first ) / m_appSize.second,
-			1.f,
-			1500.f );
-
-		m_pickingManager.PushViewport( 0.0f, 0.0f, static_cast<float>( m_appSize.first ), static_cast<float>( m_appSize.second ) );
-		*/
-
-		// m_pickingManager.PushCamera( &GetLocalPlayer()->GetCamera() );
 
 		if ( useGUI && ( LoadWorld( DefaultLogic::GetDefaultWorld() ) == false ) )
 		{
@@ -166,18 +157,6 @@ namespace logic
 
 		/*
 		m_ssrManager.AppSizeChanged( *this );
-
-		float fSizeX = static_cast<float>( m_appSize.first );
-		float fSizeY = static_cast<float>( m_appSize.second );
-
-		m_pickingManager.PopInvProjection( );
-		m_pickingManager.PushInvProjection( XMConvertToRadians( 60 ),
-			fSizeX / fSizeY,
-			1.f,
-			1500.f );
-
-		m_pickingManager.PopViewport( );
-		m_pickingManager.PushViewport( 0.0f, 0.0f, fSizeX, fSizeY );
 		*/
 	}
 
@@ -265,6 +244,7 @@ namespace logic
 
 		//게임 로직 수행 전처리
 		engine::GetConsoleMessageExecutor().Execute();
+		GetInterface<engine::IEngine>()->ProcessInput();
 
 		m_world.BeginFrame();
 
@@ -321,7 +301,13 @@ namespace logic
 	void CGameLogic::DrawScene()
 	{
 		rendercore::IScene* scene = m_world.Scene();
-		if ( scene == nullptr )
+		rendercore::Viewport* viewport = m_gameViewport->GetViewport();
+		auto renderModule = GetInterface<rendercore::IRenderCore>();
+
+		if ( ( scene == nullptr )
+			|| ( viewport == nullptr )
+			|| ( renderModule == nullptr )
+			|| ( renderModule->IsReady() == false ) )
 		{
 			return;
 		}
@@ -332,7 +318,9 @@ namespace logic
 				scene->OnBeginSceneRendering();
 			} );
 
-		m_gameViewport->Draw( m_world, *m_canvas );
+		m_gameViewport->BeginFrameRendering( *m_canvas );
+		m_gameViewport->Draw( *m_canvas );
+		m_gameViewport->EndFrameRendering( *m_canvas );
 	}
 
 	void CGameLogic::UpdateUIDrawInfo()
@@ -373,10 +361,6 @@ namespace logic
 		m_world.OnDeviceRestore( *this );
 	}
 
-	CGameLogic::CGameLogic() // : m_pickingManager( &m_gameObjects )
-	{
-	}
-
 	CGameLogic::~CGameLogic()
 	{
 		Shutdown();
@@ -388,7 +372,8 @@ namespace logic
 			m_appSize.first,
 			m_appSize.second,
 			m_wndHwnd,
-			agl::ResourceFormat::R8G8B8A8_UNORM_SRGB );
+			agl::ResourceFormat::R8G8B8A8_UNORM_SRGB,
+			DefaultLogic::GetDefaultBackgroundColor() );
 
 		if ( engine::DefaultApp::IsEditor() )
 		{
@@ -403,7 +388,7 @@ namespace logic
 			m_primayViewport = std::make_unique<rendercore::Viewport>( *m_canvas );
 		}
 
-		m_gameViewport = std::make_unique<GameClientViewport>( m_primayViewport.get() );
+		m_gameViewport = std::make_unique<GameClientViewport>( m_world, m_primayViewport.get() );
 	}
 
 	Owner<ILogic*> CreateGameLogic()

@@ -39,9 +39,9 @@ namespace rendercore
 	class ForwardRenderer final : public SceneRenderer
 	{
 	public:
-		virtual bool PreRender( RenderViewGroup& renderViewGroup ) override;
+		virtual void PreRender( RenderViewGroup& renderViewGroup ) override;
 		virtual void Render( RenderViewGroup& renderViewGroup ) override;
-		virtual void PostRender( RenderViewGroup& renderViewGroup ) override;
+		virtual void RenderHitProxy( RenderViewGroup& renderViewGroup ) override;
 
 		virtual void RenderDefaultPass( RenderViewGroup& renderViewGroup, uint32 curView ) override;
 

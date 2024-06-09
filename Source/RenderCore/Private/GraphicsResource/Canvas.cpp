@@ -36,11 +36,11 @@ namespace rendercore
 		return agl::DeviceError::DeviceLost;
 	}
 
-	void Canvas::Clear( const float( &color )[4] )
+	void Canvas::Clear()
 	{
 		if ( m_canvas.Get() )
 		{
-			m_canvas->Clear( color );
+			m_canvas->Clear( m_clearColor.RGBA() );
 		}
 	}
 
@@ -82,7 +82,8 @@ namespace rendercore
 		return nullptr;
 	}
 
-	Canvas::Canvas( uint32 width, uint32 height, void* hWnd, agl::ResourceFormat format )
+	Canvas::Canvas( uint32 width, uint32 height, void* hWnd, agl::ResourceFormat format, const float4& clearColor )
+		: m_clearColor( clearColor )
 	{
 		m_canvas = agl::Canvas::Create( width, height, hWnd, format );
 		EnqueueRenderTask(

@@ -126,7 +126,7 @@ namespace rendercore
 			shadowRenderingResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 		}
 
-		VertexBuffer primitiveIds = renderer.GetPrimitiveIdPool().Alloc( static_cast<uint32>( m_snapshots.size() * sizeof( uint32 ) ) );
+		VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc( static_cast<uint32>( m_snapshots.size() * sizeof( uint32 ) ) );
 
 		SortDrawSnapshots( m_snapshots, primitiveIds );
 		ParallelCommitDrawSnapshot( renderer, m_snapshots, primitiveIds );

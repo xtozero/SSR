@@ -24,6 +24,8 @@ namespace rendercore
 	class Scene final : public IScene
 	{
 	public:
+		virtual logic::World* GetWorld() const override;
+
 		virtual void AddPrimitive( logic::PrimitiveComponent* primitive ) override;
 		virtual void RemovePrimitive( logic::PrimitiveComponent* primitive ) override;
 		virtual void UpdatePrimitiveTransform( logic::PrimitiveComponent* primitive ) override;
@@ -140,6 +142,9 @@ namespace rendercore
 
 		std::optional<Matrix> GetPreviousTransform( uint32 primitiveId ) const;
 
+		Scene() = default;
+		explicit Scene( logic::World& world );
+
 	private:
 		void AddPrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo );
 		void RemovePrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo );
@@ -161,6 +166,8 @@ namespace rendercore
 
 		void AddSkyAtmosphereLight( LightSceneInfo* lightSceneInfo );
 		void RemoveSkyAtmosphereLight( LightSceneInfo* lightSceneInfo );
+
+		logic::World* m_world = nullptr;
 
 		SparseArray<PrimitiveSceneInfo*> m_primitives;
 		SparseArray<BoxSphereBounds> m_primitiveBounds;
@@ -192,8 +199,8 @@ namespace rendercore
 
 		SceneVelocityData m_velocityData;
 
-		friend bool UpdateGPUPrimitiveInfos( Scene& scene );
+		friend void UpdateGPUPrimitiveInfos( Scene& scene );
 	};
 
-	bool UpdateGPUPrimitiveInfos( Scene& scene );
+	void UpdateGPUPrimitiveInfos( Scene& scene );
 }

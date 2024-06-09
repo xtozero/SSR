@@ -34,7 +34,10 @@ namespace logic
 		void RegisterThinkFunction();
 		void UnRegisterThinkFunction();
 
-		CGameObject* GetOwner() const;
+		CGameObject* GetOwner() const
+		{
+			return m_pOwner;
+		}
 
 		virtual void DestroyComponent();
 

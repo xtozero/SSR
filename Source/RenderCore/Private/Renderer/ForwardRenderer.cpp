@@ -2,6 +2,7 @@
 
 #include "CommandList.h"
 #include "CommonRenderResource.h"
+#include "Config/DefaultRenderCoreConfig.h"
 #include "CpuProfiler.h"
 #include "GpuProfiler.h"
 #include "Math/Vector.h"
@@ -246,27 +247,21 @@ namespace rendercore
 		m_velocity = nullptr;
 	}
 
-	bool ForwardRenderer::PreRender( RenderViewGroup& renderViewGroup )
+	void ForwardRenderer::PreRender( RenderViewGroup& renderViewGroup )
 	{
 		CPU_PROFILE( ForwardRenderer_PreRender );
 
 		SceneRenderer::PreRender( renderViewGroup );
 
+		std::construct_at( &m_shadowInfos );
+		InitDynamicShadows( renderViewGroup );
+
 		auto rendertargetSize = renderViewGroup.GetViewport().SizeOnRenderThread();
 		m_renderTargets.UpdateBufferSize( rendertargetSize.first, rendertargetSize.second );
 
 		IScene& scene = renderViewGroup.Scene();
-		bool prepared = UpdateGPUPrimitiveInfos( *scene.GetRenderScene() );
 
-		auto& gpuPrimitiveInfo = scene.GpuPrimitiveInfo();
-		auto commandList = GetCommandList();
-
-		if ( gpuPrimitiveInfo.Resource() )
-		{
-			commandList.AddTransition( Transition( *gpuPrimitiveInfo.Resource(), agl::ResourceState::GenericRead ) );
-		}
-
-		m_shaderResources.AddResource( "primitiveInfo", gpuPrimitiveInfo.SRV() );
+		m_shaderResources.AddResource( "primitiveInfo", scene.GpuPrimitiveInfo().SRV() );
 		m_shaderResources.AddResource( "ViewSpaceDistance", m_renderTargets.GetViewSpaceDistance()->SRV() );
 		m_shaderResources.AddResource( "WorldNormal", m_renderTargets.GetWorldNormal()->SRV() );
 
@@ -288,17 +283,15 @@ namespace rendercore
 			m_shaderResources.AddResource( "BrdfLUT", BlackTexture->SRV() );
 		}
 
-		if ( prepared )
-		{
-			UpdateLightResource( scene );
-		}
-
-		return prepared;
+		UpdateLightResource( scene );
 	}
 
 	void ForwardRenderer::Render( RenderViewGroup& renderViewGroup )
 	{
 		CPU_PROFILE( ForwardRenderer_Render );
+
+		Viewport& viewport = renderViewGroup.GetViewport();
+		viewport.Clear();
 
 		RenderShadowDepthPass();
 
@@ -336,13 +329,18 @@ namespace rendercore
 
 			RenderVolumetricFog( scene, view );
 		}
+
+		if ( DefaultRenderCore::IsTaaEnabled() )
+		{
+			RenderTemporalAntiAliasing( renderViewGroup );
+		}
 	}
 
-	void ForwardRenderer::PostRender( RenderViewGroup& renderViewGroup )
+	void ForwardRenderer::RenderHitProxy( RenderViewGroup& renderViewGroup )
 	{
-		CPU_PROFILE( ForwardRenderer_PostRender );
+		CPU_PROFILE( ForwardRenderer_RenderHitProxy );
 
-		SceneRenderer::PostRender( renderViewGroup );
+		DoRenderHitProxy( renderViewGroup );
 	}
 
 	void ForwardRenderer::RenderDefaultPass( RenderViewGroup& renderViewGroup, uint32 curView )

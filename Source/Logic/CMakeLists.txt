@@ -63,8 +63,8 @@ set (GAME_OBJECT
 	Private/GameObject/DisplayShaderResourceHelper.cpp
 	Private/GameObject/GameObject.cpp
 	Private/GameObject/GameObjectFactory.cpp
+	Private/GameObject/HitObject.cpp
 	Private/GameObject/Light.cpp
-	Private/GameObject/PickingManager.cpp
 	Private/GameObject/SkyAtmosphere.cpp
 	Private/GameObject/SkyBox.cpp
 	Private/GameObject/StaticMeshGameObject.cpp
@@ -74,8 +74,8 @@ set (GAME_OBJECT
 	Public/GameObject/GameObject.h
 	Public/GameObject/GameObjectFactory.h
 	Public/GameObject/GameObjectProperty.h
+	Public/GameObject/HitObject.h
 	Public/GameObject/Light.h
-	Public/GameObject/PickingManager.h
 	Public/GameObject/SkyAtmosphere.h
 	Public/GameObject/SkyBox.h
 	Public/GameObject/StaticMeshGameObject.h

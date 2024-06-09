@@ -1,6 +1,6 @@
 #include "common.h"
-#include "Core/IEngine.h"
 #include "InterfaceFactories.h"
+#include "Platform/WindowPlatformEngine.h"
 #include "ScreenSpaceReflection.h"
 #include "SizedTypes.h"
 #include "Window.h"
@@ -10,13 +10,14 @@
 using ::app::CWindowSetup;
 using ::app::Window;
 using ::engine::IEngine;
+using ::engine::WindowPlatformEngine;
 
 LRESULT CALLBACK WndProc( HWND, uint32, WPARAM, LPARAM );
 
 constexpr int32 FRAME_BUFFER_WIDTH = 1024;
 constexpr int32 FRAME_BUFFER_HEIGHT = 768;
 
-IEngine* g_engine = nullptr;
+WindowPlatformEngine* g_engine = nullptr;
 
 int32 APIENTRY WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR lpszCmdParam, _In_ int32 )
 {
@@ -34,7 +35,7 @@ int32 APIENTRY WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR
 		return false;
 	}
 
-	g_engine = GetInterface<IEngine>();
+	g_engine = static_cast<WindowPlatformEngine*>( GetInterface<IEngine>() );
 	if ( g_engine == nullptr )
 	{
 		return false;

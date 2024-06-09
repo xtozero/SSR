@@ -11,8 +11,9 @@ using ::logic::World;
 namespace editor
 {
 	REGISTER_PANEL( WorldOutlinePanel );
-	void WorldOutlinePanel::Draw( IEditor& editor )
+	void WorldOutlinePanel::Draw()
 	{
+		IEditor& editor = GetEditor();
 		PanelSharedContext& sharedCtx = editor.GetPanelSharedCtx();
 
 		ImGui::Begin( "World Outliner" );

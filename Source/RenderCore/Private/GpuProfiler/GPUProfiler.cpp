@@ -30,6 +30,7 @@ namespace rendercore
 		virtual void StartProfile( CommandList& commandList, GpuProfileData& profileData ) override;
 		virtual void EndProfile( CommandList& commandList, GpuProfileData& profileData ) override;
 
+		virtual void BeginFrameRendering() override;
 		virtual void GatherProfileData() override;
 
 		virtual const std::vector<GpuProfileData*>& GetProfileData() const override;
@@ -94,6 +95,17 @@ namespace rendercore
 		m_profileStack.pop();
 	}
 
+	void GpuProfiler::BeginFrameRendering()
+	{
+		for ( auto& profileData : m_profiles )
+		{
+			++profileData->m_numSamples;
+
+			int32 durationIdx = profileData->m_numSamples % GpuProfileData::MaxSamples;
+			profileData->m_durationMS[durationIdx] = 0;
+		}
+	}
+
 	void GpuProfiler::GatherProfileData()
 	{
 		assert( IsInRenderThread() );
@@ -110,9 +122,7 @@ namespace rendercore
 			double duration = profileData->m_timers[nextFrame]->GetDuration();
 
 			int32 durationIdx = profileData->m_numSamples % GpuProfileData::MaxSamples;
-			profileData->m_durationMS[durationIdx] = duration;
-
-			++profileData->m_numSamples;
+			profileData->m_durationMS[durationIdx] += duration;
 
 			profileData->m_queryStarted[nextFrame] = false;
 			profileData->m_queryEnded[nextFrame] = false;
