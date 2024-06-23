@@ -33,13 +33,13 @@ namespace rendercore
 		std::atomic<int32> m_numPending = 0;
 	};
 
-	RENDERCORE_DLL agl::RefHandle<agl::Texture> CreateBRDFLookUpTexture();
+	RENDERCORE_DLL RefHandle<agl::Texture> CreateBRDFLookUpTexture();
 
-	extern agl::RefHandle<agl::Texture> BlackTexture;
-	extern agl::RefHandle<agl::Texture> WhiteTexture;
+	extern RefHandle<agl::Texture> BlackTexture;
+	extern RefHandle<agl::Texture> WhiteTexture;
 
-	extern agl::RefHandle<agl::Texture> BlackCubeTexture;
-	extern agl::RefHandle<agl::Texture> WhiteCubeTexture;
+	extern RefHandle<agl::Texture> BlackCubeTexture;
+	extern RefHandle<agl::Texture> WhiteCubeTexture;
 
-	extern agl::RefHandle<agl::Texture> BRDFLookUpTexture;
+	extern RefHandle<agl::Texture> BRDFLookUpTexture;
 }

@@ -42,6 +42,6 @@ namespace rendercore
 		uint32 m_numElement = 0;
 		bool m_isDWORD = false;
 		bool m_isDynamic = false;
-		agl::RefHandle<agl::Buffer> m_buffer;
+		RefHandle<agl::Buffer> m_buffer;
 	};
 }

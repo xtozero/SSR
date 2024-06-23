@@ -116,7 +116,7 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::Texture3D
 		};
 
-		for ( agl::RefHandle<agl::Texture>& frustumVolume : m_frustumVolume )
+		for ( RefHandle<agl::Texture>& frustumVolume : m_frustumVolume )
 		{
 			frustumVolume = agl::Texture::Create( frustumVolumeTrait, "VolumetricFog.Frustum" );
 			EnqueueRenderTask(
@@ -144,7 +144,7 @@ namespace rendercore
 
 		InscatteringCS inscatteringCS( switches );
 
-		agl::RefHandle<agl::ComputePipelineState> inscatteringPSO = PrepareComputePipelineState( inscatteringCS );
+		RefHandle<agl::ComputePipelineState> inscatteringPSO = PrepareComputePipelineState( inscatteringCS );
 		commandList.BindPipelineState( inscatteringPSO );
 
 		SetShaderValue( commandList, inscatteringCS.AsymmetryParameterG(), Proxy()->G() );
@@ -213,7 +213,7 @@ namespace rendercore
 	{
 		AccumulateScatteringCS accumulateScatteringCS;
 
-		agl::RefHandle<agl::ComputePipelineState> accumulateScatteringPSO = PrepareComputePipelineState( accumulateScatteringCS );
+		RefHandle<agl::ComputePipelineState> accumulateScatteringPSO = PrepareComputePipelineState( accumulateScatteringCS );
 		commandList.BindPipelineState( accumulateScatteringPSO );
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( accumulateScatteringCS );

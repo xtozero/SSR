@@ -84,7 +84,7 @@ namespace rendercore
 		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::PositionOnly );
 	}
 
-	agl::RefHandle<agl::Texture> GenerateIrradianceMap( agl::RefHandle<agl::Texture> cubeMap )
+	RefHandle<agl::Texture> GenerateIrradianceMap( RefHandle<agl::Texture> cubeMap )
 	{
 		assert( IsInRenderThread() );
 		assert( cubeMap.Get() != nullptr );
@@ -157,7 +157,7 @@ namespace rendercore
 		return irradianceMap;
 	}
 
-	std::array<Vector, 9> GenerateIrradianceMapSH( agl::RefHandle<agl::Texture> cubeMap )
+	std::array<Vector, 9> GenerateIrradianceMapSH( RefHandle<agl::Texture> cubeMap )
 	{
 		assert( IsInRenderThread() );
 		assert( cubeMap.Get() != nullptr );
@@ -181,7 +181,7 @@ namespace rendercore
 		);
 
 		IrradianceMapShCS irradianceMapShCS;
-		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( irradianceMapShCS );
+		RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( irradianceMapShCS );
 
 		auto commandList = GetCommandList();
 		commandList.BindPipelineState( pso );
@@ -228,7 +228,7 @@ namespace rendercore
 		return coeffs;
 	}
 
-	agl::RefHandle<agl::Texture> GeneratePrefilteredSpecular( agl::RefHandle<agl::Texture> cubeMap )
+	RefHandle<agl::Texture> GeneratePrefilteredSpecular( RefHandle<agl::Texture> cubeMap )
 	{
 		assert( IsInRenderThread() );
 		assert( cubeMap.Get() != nullptr );
@@ -285,7 +285,7 @@ namespace rendercore
 		);
 
 		PrefilteredSpecularCS prefilteredSpecularCS;
-		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( prefilteredSpecularCS );
+		RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( prefilteredSpecularCS );
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( prefilteredSpecularCS );
 		BindResource( shaderBindings, prefilteredSpecularCS.EnvMap(), cubeMap );

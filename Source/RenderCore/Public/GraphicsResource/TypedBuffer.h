@@ -125,7 +125,7 @@ namespace rendercore
 		}
 
 	private:
-		agl::RefHandle<agl::Buffer> m_buffer;
+		RefHandle<agl::Buffer> m_buffer;
 		uint32 m_numElement = 0;
 	};
 

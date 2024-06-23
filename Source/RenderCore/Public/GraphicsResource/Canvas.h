@@ -33,7 +33,7 @@ namespace rendercore
 		RENDERCORE_DLL ~Canvas();
 
 	private:
-		agl::RefHandle<agl::Canvas> m_canvas;
+		RefHandle<agl::Canvas> m_canvas;
 		ColorF m_clearColor;
 	};
 }

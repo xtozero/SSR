@@ -40,7 +40,7 @@ void EngineDefaultManufacturer::CreateBRDFLookUpTexture( std::set<std::filesyste
 	TaskHandle handle = EnqueueThreadTask<ThreadType::RenderThread>( 
 		[&image]()
 		{
-			agl::RefHandle<agl::Texture> brdfLUT = rendercore::CreateBRDFLookUpTexture();
+			RefHandle<agl::Texture> brdfLUT = rendercore::CreateBRDFLookUpTexture();
 			GetInterface<agl::IAgl>()->WaitGPU();
 
 			auto commandList = rendercore::GetCommandList();

@@ -36,7 +36,7 @@ namespace rendercore
 		void InitResource( uint32 size );
 
 	private:
-		agl::RefHandle<agl::Buffer> m_buffer;
+		RefHandle<agl::Buffer> m_buffer;
 		uint32 m_size = 0;
 	};
 }

@@ -18,7 +18,6 @@ namespace
 	using ::agl::Buffer;
 	using ::agl::BufferTrait;
 	using ::agl::D3D11Buffer;
-	using ::agl::RefHandle;
 	using ::agl::ResourceAccessFlag;
 	using ::agl::ResourceBindType;
 	using ::agl::ResourceMisc;

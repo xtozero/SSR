@@ -35,7 +35,7 @@ namespace rendercore
 			return m_volumetricFogProxy;
 		}
 
-		agl::RefHandle<agl::Texture> AccumulatedVolume() const
+		RefHandle<agl::Texture> AccumulatedVolume() const
 		{
 			return m_accumulatedVolume;
 		}
@@ -52,12 +52,12 @@ namespace rendercore
 		VolumetricFogSceneInfo( VolumetricFogProxy* proxy );
 
 	private:
-		agl::RefHandle<agl::Texture> FrustumVolume() const
+		RefHandle<agl::Texture> FrustumVolume() const
 		{
 			return m_frustumVolume[m_numTick % std::extent_v<decltype( m_frustumVolume )>];
 		}
 
-		agl::RefHandle<agl::Texture> HistoryVolume() const
+		RefHandle<agl::Texture> HistoryVolume() const
 		{
 			return m_frustumVolume[( m_numTick + 1 ) % std::extent_v<decltype( m_frustumVolume )>];
 		}
@@ -70,8 +70,8 @@ namespace rendercore
 
 		int64 m_numTick = -1;
 
-		agl::RefHandle<agl::Texture> m_frustumVolume[2];
-		agl::RefHandle<agl::Texture> m_accumulatedVolume;
+		RefHandle<agl::Texture> m_frustumVolume[2];
+		RefHandle<agl::Texture> m_accumulatedVolume;
 
 		TypedConstatBuffer<VolumetricFogParameter> m_volumetricFogParameter;
 

@@ -15,7 +15,7 @@ namespace rendercore
 		bool IsFree() const;
 		size_t GetHash() const;
 		const agl::TextureTrait& GetTrait() const;
-		agl::RefHandle<agl::Texture> Get() const;
+		RefHandle<agl::Texture> Get() const;
 
 		void Tick();
 		void MarkAsInUse();
@@ -30,7 +30,7 @@ namespace rendercore
 	private:
 		uint32 m_numUnusedFrame = 0;
 		agl::TextureTrait m_trait;
-		agl::RefHandle<agl::Texture> m_texture;
+		RefHandle<agl::Texture> m_texture;
 	};
 
 	class RenderTargetPool final
@@ -44,7 +44,7 @@ namespace rendercore
 
 		void Tick();
 
-		agl::RefHandle<agl::Texture> FindFreeRenderTarget( const agl::TextureTrait& trait, const char* debugName );
+		RefHandle<agl::Texture> FindFreeRenderTarget( const agl::TextureTrait& trait, const char* debugName );
 		void Shutdown();
 
 	private:

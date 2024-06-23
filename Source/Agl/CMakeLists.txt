@@ -7,8 +7,7 @@ set (COMMON_HEADER
 	Public/Common/GraphicsApiResource.h
 	Public/Common/IAgl.h
 	Public/Common/ICommandList.h
-	Public/Common/IRenderResourceManager.h
-	Public/Common/RefHandle.h)
+	Public/Common/IRenderResourceManager.h)
 
 set (COMMON_SOURCE
 	Private/Common/GraphicsApiResource.cpp)

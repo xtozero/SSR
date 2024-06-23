@@ -48,7 +48,7 @@ namespace rendercore
 
 		DistributionCopyCS distributionCopyCS;
 
-		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( distributionCopyCS );
+		RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( distributionCopyCS );
 
 		auto commandList = GetCommandList();
 		commandList.BindPipelineState( pso.Get() );

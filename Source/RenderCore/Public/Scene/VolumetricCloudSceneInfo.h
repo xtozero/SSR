@@ -65,14 +65,14 @@ namespace rendercore
 	private:
 		void SetupCloudTexture();
 		void GenerateWeatherMap();
-		agl::RefHandle<agl::Texture> CreateCloudTexture( uint32 texSize );
+		RefHandle<agl::Texture> CreateCloudTexture( uint32 texSize );
 
 		VolumetricCloudProxy* m_cloudProxy = nullptr;
 		TypedConstatBuffer<VolumetricCloudRenderParameter> m_renderParameter;
 
-		agl::RefHandle<agl::Texture> m_baseCloudShape;
-		agl::RefHandle<agl::Texture> m_detailCloudShape;
-		agl::RefHandle<agl::Texture> m_weatherMap;
+		RefHandle<agl::Texture> m_baseCloudShape;
+		RefHandle<agl::Texture> m_detailCloudShape;
+		RefHandle<agl::Texture> m_weatherMap;
 
 		bool m_needCreateRenderData = true;
 	};

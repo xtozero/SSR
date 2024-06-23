@@ -96,7 +96,7 @@ namespace rendercore
 		PROPERTY( hash )
 		size_t m_hash = 0;
 
-		agl::RefHandle<agl::GraphicsApiResource> m_shader;
+		RefHandle<agl::GraphicsApiResource> m_shader;
 	};
 
 	class VertexShader final : public ShaderBase

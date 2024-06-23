@@ -166,7 +166,7 @@ namespace rendercore
 	{
 		VertexCollection m_vertexCollection;
 		IndexBuffer m_indexBuffer;
-		agl::RefHandle<agl::Texture> m_fontAtlas;
+		RefHandle<agl::Texture> m_fontAtlas;
 		SamplerState m_fontAtlasSampler;
 	};
 

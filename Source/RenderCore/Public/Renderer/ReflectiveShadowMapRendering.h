@@ -15,8 +15,8 @@ namespace rendercore
 
 	struct RSMsRenderingParam final
 	{
-		agl::RefHandle<agl::Texture> m_viewSpaceDistance;
-		agl::RefHandle<agl::Texture> m_worldNormal;
+		RefHandle<agl::Texture> m_viewSpaceDistance;
+		RefHandle<agl::Texture> m_worldNormal;
 		
 		ShadowInfo* m_shadowInfos = nullptr;
 		int32 m_numShadowInfos = 0;
@@ -39,9 +39,9 @@ namespace rendercore
 		void AllocTextureForIndirectIllumination( const std::pair<uint32, uint32>& renderTargetSize );
 		void CreateSamplingPattern();
 
-		agl::RefHandle<agl::Buffer> m_samplingPattern;
+		RefHandle<agl::Buffer> m_samplingPattern;
 		TypedConstatBuffer<RSMsConstantParameters> m_constantParams;
-		agl::RefHandle<agl::Texture> m_indirectIllumination;
+		RefHandle<agl::Texture> m_indirectIllumination;
 		SamplerState m_blackBorderSampler;
 	};
 }

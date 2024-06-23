@@ -8,7 +8,7 @@
 
 namespace
 {
-	agl::RefHandle<agl::Texture> CreateTexture( Color color, const char* debugName )
+	RefHandle<agl::Texture> CreateTexture( Color color, const char* debugName )
 	{
 		agl::TextureTrait trait = {
 				.m_width = 1,
@@ -33,7 +33,7 @@ namespace
 		section.m_offset = 0;
 		section.m_pitch = section.m_slicePitch = sizeof( uint32 );
 
-		agl::RefHandle<agl::Texture> texture = agl::Texture::Create( trait, debugName, &initData );
+		RefHandle<agl::Texture> texture = agl::Texture::Create( trait, debugName, &initData );
 		EnqueueRenderTask(
 			[texture]()
 			{
@@ -43,7 +43,7 @@ namespace
 		return texture;
 	}
 
-	agl::RefHandle<agl::Texture> CreateCubeTexture( Color color, const char* debugName )
+	RefHandle<agl::Texture> CreateCubeTexture( Color color, const char* debugName )
 	{
 		agl::TextureTrait trait = {
 				.m_width = 1,
@@ -73,7 +73,7 @@ namespace
 			section.m_pitch = section.m_slicePitch = sizeof( uint32 );
 		}
 
-		agl::RefHandle<agl::Texture> cubeTexture = agl::Texture::Create( trait, debugName, &initData );
+		RefHandle<agl::Texture> cubeTexture = agl::Texture::Create( trait, debugName, &initData );
 		EnqueueRenderTask(
 			[cubeTexture]()
 			{
@@ -92,7 +92,7 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( Precomputed );
 	};
 
-	agl::RefHandle<agl::Texture> CreateBRDFLookUpTexture()
+	RefHandle<agl::Texture> CreateBRDFLookUpTexture()
 	{
 		agl::TextureTrait trait = {
 			.m_width = 512,
@@ -107,14 +107,14 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::None
 		};
 
-		agl::RefHandle<agl::Texture> brdfLUT = agl::Texture::Create( trait, "BrdfLookUpTexture", nullptr );
+		RefHandle<agl::Texture> brdfLUT = agl::Texture::Create( trait, "BrdfLookUpTexture", nullptr );
 		EnqueueRenderTask(
 			[brdfLUT]()
 			{
 				brdfLUT->Init();
 
 				PrecomputedBrdfCS precomputedBrdfCS;
-				agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( precomputedBrdfCS );
+				RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( precomputedBrdfCS );
 
 				auto commandList = GetCommandList();
 				commandList.BindPipelineState( pso );
@@ -190,11 +190,11 @@ namespace rendercore
 		return m_numPending == 0;
 	}
 
-	agl::RefHandle<agl::Texture> BlackTexture;
-	agl::RefHandle<agl::Texture> WhiteTexture;
+	RefHandle<agl::Texture> BlackTexture;
+	RefHandle<agl::Texture> WhiteTexture;
 
-	agl::RefHandle<agl::Texture> BlackCubeTexture;
-	agl::RefHandle<agl::Texture> WhiteCubeTexture;
+	RefHandle<agl::Texture> BlackCubeTexture;
+	RefHandle<agl::Texture> WhiteCubeTexture;
 
-	agl::RefHandle<agl::Texture> BRDFLookUpTexture;
+	RefHandle<agl::Texture> BRDFLookUpTexture;
 }

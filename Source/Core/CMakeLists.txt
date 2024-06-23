@@ -33,6 +33,7 @@ set (DATA_TYPE_HEADER
 	Public/DataType/GuideTypes.h
 	Public/DataType/Nametypes.h
 	Public/DataType/RefCounterType.h
+	Public/DataType/RefHandle.h
 	Public/DataType/SizedTypes.h)
 
 set (DATA_TYPE_SOURCE

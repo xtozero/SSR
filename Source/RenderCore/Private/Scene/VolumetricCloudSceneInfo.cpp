@@ -56,7 +56,7 @@ namespace rendercore
 
 		auto commandList = GetCommandList();
 
-		agl::RefHandle<agl::ComputePipelineState> perlinWorleyPSO = PrepareComputePipelineState( perlinWorleyCS );
+		RefHandle<agl::ComputePipelineState> perlinWorleyPSO = PrepareComputePipelineState( perlinWorleyCS );
 		commandList.BindPipelineState( perlinWorleyPSO );
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( perlinWorleyCS );
@@ -71,7 +71,7 @@ namespace rendercore
 		WorleyCS worleyCS;
 		threadGroupCount = static_cast<uint32>( std::ceilf( 32 / 8.f ) );
 
-		agl::RefHandle<agl::ComputePipelineState> worleyPSO = PrepareComputePipelineState( perlinWorleyCS );
+		RefHandle<agl::ComputePipelineState> worleyPSO = PrepareComputePipelineState( perlinWorleyCS );
 		commandList.BindPipelineState( worleyPSO );
 
 		shaderBindings = CreateShaderBindings( perlinWorleyCS );
@@ -111,7 +111,7 @@ namespace rendercore
 
 		auto commandList = GetCommandList();
 
-		agl::RefHandle<agl::ComputePipelineState> weatherMapPSO = PrepareComputePipelineState( weatherMapCS );
+		RefHandle<agl::ComputePipelineState> weatherMapPSO = PrepareComputePipelineState( weatherMapCS );
 		commandList.BindPipelineState( weatherMapPSO );
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( weatherMapCS );
@@ -122,7 +122,7 @@ namespace rendercore
 		commandList.Dispatch( threadGroupCount, threadGroupCount );
 	}
 
-	agl::RefHandle<agl::Texture> VolumetricCloudSceneInfo::CreateCloudTexture( uint32 texSize )
+	RefHandle<agl::Texture> VolumetricCloudSceneInfo::CreateCloudTexture( uint32 texSize )
 	{
 		agl::TextureTrait trait = {
 			.m_width = texSize,
@@ -137,7 +137,7 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::Texture3D
 		};
 
-		agl::RefHandle<agl::Texture> cloudTex = agl::Texture::Create( trait, "VolumetricCloud.Cloud" );
+		RefHandle<agl::Texture> cloudTex = agl::Texture::Create( trait, "VolumetricCloud.Cloud" );
 		EnqueueRenderTask(
 			[texture = cloudTex]()
 			{

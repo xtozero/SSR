@@ -48,12 +48,12 @@ namespace rendercore
 		return m_irradianceMapSH;
 	}
 
-	agl::RefHandle<agl::Texture> TexturedSkyProxy::IrradianceMap() const
+	RefHandle<agl::Texture> TexturedSkyProxy::IrradianceMap() const
 	{
 		return m_irradianceMap;
 	}
 
-	agl::RefHandle<agl::Texture> TexturedSkyProxy::PrefilteredColor() const
+	RefHandle<agl::Texture> TexturedSkyProxy::PrefilteredColor() const
 	{
 		return m_prefilteredSpecular;
 	}

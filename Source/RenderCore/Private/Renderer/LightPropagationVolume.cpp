@@ -261,7 +261,7 @@ namespace rendercore
 			, Color( 0, 0, 0, 0 )>::Get();
 		BindResource( shaderBindings, lightPropagationCS.BlackBorderLinearSampler(), blackBorderLinearSampler );
 
-		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( lightPropagationCS );
+		RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( lightPropagationCS );
 
 		// [numthreads(4, 4, 32)] -> Dispatch( 32 / 8, 32 / 8, 32 / 1 )
 		for ( uint32 i = 0; i < DefaultRenderCore::NumLpvIteration(); ++i )
@@ -464,7 +464,7 @@ namespace rendercore
 		BindResource( shaderBindings, clearLpvCS.CoeffB(), m_lpvTextures.m_coeffB );
 		BindResource( shaderBindings, clearLpvCS.CoeffOcclusion(), m_lpvTextures.m_coeffOcclusion );
 
-		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( clearLpvCS );
+		RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( clearLpvCS );
 
 		auto commandList = GetCommandList();
 
@@ -545,7 +545,7 @@ namespace rendercore
 		commandList.AddTransition( Transition( *downSampledTex.m_flux, agl::ResourceState::UnorderedAccess ) );
 
 		DownSampleRSMsCS downSampleRSMsCS;
-		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( downSampleRSMsCS );
+		RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( downSampleRSMsCS );
 
 		commandList.BindPipelineState( pso );
 

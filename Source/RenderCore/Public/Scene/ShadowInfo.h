@@ -47,10 +47,10 @@ namespace rendercore
 
 	struct ShadowMapRenderTarget final
 	{
-		using ShadowMapList = std::vector<agl::RefHandle<agl::Texture>, InlineAllocator<agl::RefHandle<agl::Texture>, 1>>;
+		using ShadowMapList = std::vector<RefHandle<agl::Texture>, InlineAllocator<RefHandle<agl::Texture>, 1>>;
 
 		ShadowMapList m_shadowMaps;
-		agl::RefHandle<agl::Texture> m_shadowMapDepth;
+		RefHandle<agl::Texture> m_shadowMapDepth;
 	};
 
 	class ShadowInfo final

@@ -15,24 +15,24 @@ namespace rendercore
 
 	struct LpvRSMTextures
 	{
-		agl::RefHandle<agl::Texture> m_worldPosition;
-		agl::RefHandle<agl::Texture> m_normal;
-		agl::RefHandle<agl::Texture> m_flux;
+		RefHandle<agl::Texture> m_worldPosition;
+		RefHandle<agl::Texture> m_normal;
+		RefHandle<agl::Texture> m_flux;
 	};
 
 	struct LpvLightInjectionParameters
 	{
 		const LightSceneInfo* lightInfo = nullptr;
-		agl::RefHandle<agl::Buffer> m_sceneViewParameters;
-		agl::RefHandle<agl::Buffer> m_shadowDepthPassParameters;
+		RefHandle<agl::Buffer> m_sceneViewParameters;
+		RefHandle<agl::Buffer> m_shadowDepthPassParameters;
 		LpvRSMTextures m_rsmTextures;
 		std::array<float, CascadeShadowSetting::MAX_CASCADE_NUM> m_surfelAreas;
 	};
 
 	struct LpvRenderingParameters
 	{
-		agl::RefHandle<agl::Texture> m_viewSpaceDistance;
-		agl::RefHandle<agl::Texture> m_worldNormal;
+		RefHandle<agl::Texture> m_viewSpaceDistance;
+		RefHandle<agl::Texture> m_worldNormal;
 	};
 
 	class LightPropagationVolume
@@ -46,10 +46,10 @@ namespace rendercore
 	private:
 		struct LPVTextures
 		{
-			agl::RefHandle<agl::Texture> m_coeffR;
-			agl::RefHandle<agl::Texture> m_coeffG;
-			agl::RefHandle<agl::Texture> m_coeffB;
-			agl::RefHandle<agl::Texture> m_coeffOcclusion;
+			RefHandle<agl::Texture> m_coeffR;
+			RefHandle<agl::Texture> m_coeffG;
+			RefHandle<agl::Texture> m_coeffB;
+			RefHandle<agl::Texture> m_coeffOcclusion;
 		};
 
 		void AllocTextureForIndirectIllumination( const std::pair<uint32, uint32>& renderTargetSize );
@@ -59,10 +59,10 @@ namespace rendercore
 		LpvRSMTextures DownSampleRSMs( const LightSceneInfo& lightInfo, const LpvRSMTextures& rsmTextures );
 		void InjectToLPV( const LpvLightInjectionParameters& params, const LpvRSMTextures& downSampledTex );
 
-		agl::RefHandle<agl::Buffer> m_lpvCommon;
+		RefHandle<agl::Buffer> m_lpvCommon;
 
 		LPVTextures m_lpvTextures;
 
-		agl::RefHandle<agl::Texture> m_indirectIllumination;
+		RefHandle<agl::Texture> m_indirectIllumination;
 	};
 }

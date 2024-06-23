@@ -219,7 +219,7 @@ namespace rendercore
 		// 1. Transmittance Table
 		TransmittanceCS transmittanceCS;
 
-		agl::RefHandle<agl::ComputePipelineState> transmittancePSO = PrepareComputePipelineState( transmittanceCS );
+		RefHandle<agl::ComputePipelineState> transmittancePSO = PrepareComputePipelineState( transmittanceCS );
 		commandList.BindPipelineState( transmittancePSO );
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( transmittanceCS );
@@ -242,11 +242,11 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::None
 		};
 
-		agl::RefHandle<agl::Texture> deltaETexture = agl::Texture::Create( deltaE, "Atmosphere.DeltaE" );
+		RefHandle<agl::Texture> deltaETexture = agl::Texture::Create( deltaE, "Atmosphere.DeltaE" );
 		deltaETexture->Init();
 
 		IrradianceOneCS irradianceOneCS;
-		agl::RefHandle<agl::ComputePipelineState> irradianceOnePSO = PrepareComputePipelineState( irradianceOneCS );
+		RefHandle<agl::ComputePipelineState> irradianceOnePSO = PrepareComputePipelineState( irradianceOneCS );
 		commandList.BindPipelineState( irradianceOnePSO );
 
 		shaderBindings = CreateShaderBindings( irradianceOneCS );
@@ -272,14 +272,14 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::Texture3D
 		};
 
-		agl::RefHandle<agl::Texture> deltaSRTexture = agl::Texture::Create( deltaS, "Atmosphere.DeltaSR" );
+		RefHandle<agl::Texture> deltaSRTexture = agl::Texture::Create( deltaS, "Atmosphere.DeltaSR" );
 		deltaSRTexture->Init();
 
-		agl::RefHandle<agl::Texture> deltaSMTexture = agl::Texture::Create( deltaS, "Atmosphere.DeltaSM" );
+		RefHandle<agl::Texture> deltaSMTexture = agl::Texture::Create( deltaS, "Atmosphere.DeltaSM" );
 		deltaSMTexture->Init();
 
 		InscatterOneCS inscatterOneCS;
-		agl::RefHandle<agl::ComputePipelineState> inscatterOnePSO = PrepareComputePipelineState( inscatterOneCS );
+		RefHandle<agl::ComputePipelineState> inscatterOnePSO = PrepareComputePipelineState( inscatterOneCS );
 		commandList.BindPipelineState( inscatterOnePSO );
 
 		shaderBindings = CreateShaderBindings( inscatterOneCS );
@@ -302,11 +302,11 @@ namespace rendercore
 			.m_format = agl::ResourceFormat::Unknown
 		};
 
-		agl::RefHandle<agl::Buffer> inscatterBuffer = agl::Buffer::Create( inscatter, "Atmosphere.Inscatter" );
+		RefHandle<agl::Buffer> inscatterBuffer = agl::Buffer::Create( inscatter, "Atmosphere.Inscatter" );
 		inscatterBuffer->Init();
 
 		CopyInscatterOneCS copyInscatterOneCS;
-		agl::RefHandle<agl::ComputePipelineState> copyInscatterOnePSO = PrepareComputePipelineState( copyInscatterOneCS );
+		RefHandle<agl::ComputePipelineState> copyInscatterOnePSO = PrepareComputePipelineState( copyInscatterOneCS );
 		commandList.BindPipelineState( copyInscatterOnePSO );
 
 		shaderBindings = CreateShaderBindings( copyInscatterOneCS );
@@ -320,7 +320,7 @@ namespace rendercore
 		commandList.BindShaderResources( shaderBindings );
 		commandList.Dispatch( INSCATTER1_GROUP_X, INSCATTER1_GROUP_Y, INSCATTER1_GROUP_Z );
 
-		agl::RefHandle<agl::Texture> deltaJTex = agl::Texture::Create( deltaS, "Atmosphere.DeltaJ" );
+		RefHandle<agl::Texture> deltaJTex = agl::Texture::Create( deltaS, "Atmosphere.DeltaJ" );
 		deltaJTex->Init();
 
 		// Irradiance
@@ -334,7 +334,7 @@ namespace rendercore
 		};
 
 		Vector4 irradianceData[IRRADIANCE_W * IRRADIANCE_H] = {};
-		agl::RefHandle<agl::Buffer> irradianceBuffer = agl::Buffer::Create( irradiance, "Atmosphere.Irradiance", irradianceData );
+		RefHandle<agl::Buffer> irradianceBuffer = agl::Buffer::Create( irradiance, "Atmosphere.Irradiance", irradianceData );
 		irradianceBuffer->Init();
 
 		// loop for each scattering order
@@ -342,7 +342,7 @@ namespace rendercore
 		{
 			// Compute deltaJ
 			InscatterSCS inscatterSCS;
-			agl::RefHandle<agl::ComputePipelineState> inscatterSPSO = PrepareComputePipelineState( inscatterSCS );
+			RefHandle<agl::ComputePipelineState> inscatterSPSO = PrepareComputePipelineState( inscatterSCS );
 
 			shaderBindings = CreateShaderBindings( inscatterSCS );
 
@@ -368,7 +368,7 @@ namespace rendercore
 
 			// Compute deltaE
 			IrradianceNCS irradianceNCS;
-			agl::RefHandle<agl::ComputePipelineState> irradianceNPSO = PrepareComputePipelineState( irradianceNCS );
+			RefHandle<agl::ComputePipelineState> irradianceNPSO = PrepareComputePipelineState( irradianceNCS );
 			commandList.BindPipelineState( irradianceNPSO );
 
 			shaderBindings = CreateShaderBindings( irradianceNCS );
@@ -385,7 +385,7 @@ namespace rendercore
 
 			// Compute deltaS
 			InscatterNCS inscatterNCS;
-			agl::RefHandle<agl::ComputePipelineState> inscatterNPSO = PrepareComputePipelineState( inscatterNCS );
+			RefHandle<agl::ComputePipelineState> inscatterNPSO = PrepareComputePipelineState( inscatterNCS );
 			commandList.BindPipelineState( inscatterNPSO );
 
 			shaderBindings = CreateShaderBindings( inscatterNCS );
@@ -401,7 +401,7 @@ namespace rendercore
 
 			// Add deltaE into irradiance textrue E
 			CopyIrradianceCS copyIrradianceCS;
-			agl::RefHandle<agl::ComputePipelineState> copyIrradiancePSO = PrepareComputePipelineState( copyIrradianceCS );
+			RefHandle<agl::ComputePipelineState> copyIrradiancePSO = PrepareComputePipelineState( copyIrradianceCS );
 			commandList.BindPipelineState( copyIrradiancePSO );
 
 			shaderBindings = CreateShaderBindings( copyIrradianceCS );
@@ -415,7 +415,7 @@ namespace rendercore
 
 			// Add deltaS info inscatter texture S
 			CopyInscatterNCS copyInscatterNCS;
-			agl::RefHandle<agl::ComputePipelineState> copyInscatterNPSO = PrepareComputePipelineState( copyInscatterNCS );
+			RefHandle<agl::ComputePipelineState> copyInscatterNPSO = PrepareComputePipelineState( copyInscatterNCS );
 			commandList.BindPipelineState( copyInscatterNPSO );
 
 			shaderBindings = CreateShaderBindings( copyInscatterNCS );
@@ -442,7 +442,7 @@ namespace rendercore
 				.m_format = agl::ResourceFormat::Unknown
 			};
 
-			agl::RefHandle<agl::Buffer> irradianceReadBack = agl::Buffer::Create( readBack, "Atmosphere.IrradianceReadBack" );
+			RefHandle<agl::Buffer> irradianceReadBack = agl::Buffer::Create( readBack, "Atmosphere.IrradianceReadBack" );
 			irradianceReadBack->Init();
 
 			commandList.CopyResource( irradianceReadBack, irradianceBuffer );
@@ -467,7 +467,7 @@ namespace rendercore
 				.m_format = agl::ResourceFormat::Unknown
 			};
 
-			agl::RefHandle<agl::Buffer> inscatterReadBack = agl::Buffer::Create( readBack, "Atmosphere.InscatterReadBack" );
+			RefHandle<agl::Buffer> inscatterReadBack = agl::Buffer::Create( readBack, "Atmosphere.InscatterReadBack" );
 			inscatterReadBack->Init();
 
 			commandList.CopyResource( inscatterReadBack, inscatterBuffer );

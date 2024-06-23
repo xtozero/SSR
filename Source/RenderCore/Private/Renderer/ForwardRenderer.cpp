@@ -521,7 +521,7 @@ namespace rendercore
 
 			std::memcpy( lightConstant.m_irrdianceMapSH, irradianceMapSH.data(), sizeof( Vector ) * 9 );
 
-			if ( agl::RefHandle<agl::Texture> prefilteredColor = texturedSkyProxy.PrefilteredColor() )
+			if ( RefHandle<agl::Texture> prefilteredColor = texturedSkyProxy.PrefilteredColor() )
 			{
 				lightConstant.m_reflectionMipLevels = static_cast<float>( prefilteredColor->GetTrait().m_mipLevels );
 			}

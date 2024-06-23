@@ -36,7 +36,7 @@ namespace rendercore
 	protected:
 		void InitResource( const void* initData );
 
-		agl::RefHandle<agl::Buffer> m_buffer;
+		RefHandle<agl::Buffer> m_buffer;
 		uint32 m_elementSize = 0;
 		uint32 m_numElement = 0;
 

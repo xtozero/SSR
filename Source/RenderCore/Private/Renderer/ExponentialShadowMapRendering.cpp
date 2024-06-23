@@ -52,7 +52,7 @@ namespace rendercore
 	REGISTER_GLOBAL_SHADER( CascadedESMsCS, "./Assets/Shaders/Shadow/CS_CascadedESMs.asset" );
 
 	template <float Sigma, int32 KernelSize>
-	agl::RefHandle<agl::Texture> ApplyGaussianBlur( agl::RefHandle<agl::Texture> srcTexture )
+	RefHandle<agl::Texture> ApplyGaussianBlur( RefHandle<agl::Texture> srcTexture )
 	{
 		static_assert( KernelSize < 128, "Maximum kernel size exceeded" );
 
@@ -66,7 +66,7 @@ namespace rendercore
 		agl::TextureTrait tempTrait = srcTrait;
 		tempTrait.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess;
 
-		agl::RefHandle<agl::Texture> tempTexture = agl::Texture::Create( tempTrait, "Blur.Temp" );
+		RefHandle<agl::Texture> tempTexture = agl::Texture::Create( tempTrait, "Blur.Temp" );
 		assert( tempTexture );
 
 		tempTexture->Init();
@@ -75,7 +75,7 @@ namespace rendercore
 		horizonSwitches.On( Name( "KernelSize" ), KernelSize );
 
 		CascadedESMsBlurCS horizonBlurCS( horizonSwitches );
-		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( horizonBlurCS );
+		RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( horizonBlurCS );
 
 		auto commandList = GetCommandList();
 		commandList.BindPipelineState( pso );
@@ -126,7 +126,7 @@ namespace rendercore
 		return srcTexture;
 	}
 
-	agl::RefHandle<agl::Texture> GenerateCascadedESMs( agl::RefHandle<agl::Texture> shadowMap )
+	RefHandle<agl::Texture> GenerateCascadedESMs( RefHandle<agl::Texture> shadowMap )
 	{
 		assert( IsInRenderThread() );
 
@@ -135,14 +135,14 @@ namespace rendercore
 		esmsTrait.m_format = agl::ResourceFormat::R32_FLOAT;
 		esmsTrait.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess;
 
-		agl::RefHandle<agl::Texture> esmsTexture = agl::Texture::Create( esmsTrait, "ESMs" );
+		RefHandle<agl::Texture> esmsTexture = agl::Texture::Create( esmsTrait, "ESMs" );
 		assert( esmsTexture );
 
 		esmsTexture->Init();
 
 		CascadedESMsCS cascadedESMsCS;
 
-		agl::RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( cascadedESMsCS );
+		RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( cascadedESMsCS );
 
 		auto commandList = GetCommandList();
 		commandList.BindPipelineState( pso );
@@ -171,7 +171,7 @@ namespace rendercore
 		return ApplyGaussianBlur<1.8f, 7>( esmsTexture );
 	}
 
-	agl::RefHandle<agl::Texture> GenerateExponentialShadowMaps( const ShadowInfo& shadowInfo, agl::RefHandle<agl::Texture> shadowMap )
+	RefHandle<agl::Texture> GenerateExponentialShadowMaps( const ShadowInfo& shadowInfo, RefHandle<agl::Texture> shadowMap )
 	{
 		if ( shadowMap.Get() == nullptr )
 		{

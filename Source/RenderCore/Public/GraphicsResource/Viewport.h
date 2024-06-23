@@ -26,8 +26,8 @@ namespace rendercore
 		uint32 m_width = 0;
 		uint32 m_height = 0;
 
-		agl::RefHandle<agl::Texture> m_hitProxyTexture;
-		agl::RefHandle<agl::Texture> m_hitProxyCpuTexture;
+		RefHandle<agl::Texture> m_hitProxyTexture;
+		RefHandle<agl::Texture> m_hitProxyCpuTexture;
 	};
 
 	class Viewport final
@@ -50,7 +50,7 @@ namespace rendercore
 		RENDERCORE_DLL ~Viewport();
 
 	private:
-		agl::RefHandle<agl::Viewport> m_pViewport;
+		RefHandle<agl::Viewport> m_pViewport;
 		HitProxyMap m_hitProxyMap;
 		ColorF m_clearColor;
 	};

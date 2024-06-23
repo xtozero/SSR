@@ -117,6 +117,6 @@ namespace rendercore
 	private:
 		void InitResource( const VertexShader& vs, const VertexLayoutDesc& desc );
 
-		agl::RefHandle<agl::VertexLayout> m_layout;
+		RefHandle<agl::VertexLayout> m_layout;
 	};
 }

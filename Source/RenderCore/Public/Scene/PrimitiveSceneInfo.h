@@ -94,7 +94,7 @@ namespace rendercore
 		Scene& m_scene;
 
 		PrimitiveProxy* m_sceneProxy = nullptr;
-		agl::RefHandle<HitProxy> m_hitProxy;
+		RefHandle<HitProxy> m_hitProxy;
 
 		uint32 m_primitiveId = 0;
 

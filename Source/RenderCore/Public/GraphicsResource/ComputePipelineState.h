@@ -8,7 +8,7 @@ namespace rendercore
 {
 	class ComputeShader;
 
-	[[nodiscard]] agl::RefHandle<agl::ComputePipelineState> PrepareComputePipelineState( ComputeShader* computeShader );
+	[[nodiscard]] RefHandle<agl::ComputePipelineState> PrepareComputePipelineState( ComputeShader* computeShader );
 
 	[[nodiscard]] agl::ShaderBindings CreateShaderBindings( const ComputeShader* computeShader );
 }

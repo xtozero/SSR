@@ -24,7 +24,7 @@ namespace rendercore
 		const agl::Buffer* Resource() const;
 
 	private:
-		agl::RefHandle<agl::Buffer> m_buffer;
+		RefHandle<agl::Buffer> m_buffer;
 	};
 
 	struct ForwardLightData final

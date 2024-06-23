@@ -41,7 +41,7 @@ namespace rendercore
 
 	private:
 		std::vector<GpuProfileData*> m_profiles;
-		std::vector<agl::RefHandle<agl::GpuTimer>> m_gpuTimers[GpuProfileData::TimerLatency];
+		std::vector<RefHandle<agl::GpuTimer>> m_gpuTimers[GpuProfileData::TimerLatency];
 
 		uint32 m_curFrame = 0;
 

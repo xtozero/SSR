@@ -7,5 +7,5 @@ namespace rendercore
 {
 	class ShadowInfo;
 
-	agl::RefHandle<agl::Texture> GenerateExponentialShadowMaps( const ShadowInfo& shadowInfo, agl::RefHandle<agl::Texture> shadowMap );
+	RefHandle<agl::Texture> GenerateExponentialShadowMaps( const ShadowInfo& shadowInfo, RefHandle<agl::Texture> shadowMap );
 }

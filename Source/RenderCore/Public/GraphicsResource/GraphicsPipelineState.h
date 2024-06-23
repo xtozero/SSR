@@ -26,7 +26,7 @@ namespace rendercore
 	private:
 		void InitResource( const agl::BlendStateTrait& trait );
 
-		agl::RefHandle<agl::BlendState> m_state;
+		RefHandle<agl::BlendState> m_state;
 	};
 
 	class DepthStencilState final
@@ -48,7 +48,7 @@ namespace rendercore
 	private:
 		void InitResource( const agl::DepthStencilStateTrait& trait );
 
-		agl::RefHandle<agl::DepthStencilState> m_state;
+		RefHandle<agl::DepthStencilState> m_state;
 	};
 
 	class RasterizerState final
@@ -70,7 +70,7 @@ namespace rendercore
 	private:
 		void InitResource( const agl::RasterizerStateTrait& trait );
 
-		agl::RefHandle<agl::RasterizerState> m_state;
+		RefHandle<agl::RasterizerState> m_state;
 	};
 
 	class SamplerState final
@@ -92,7 +92,7 @@ namespace rendercore
 	private:
 		void InitResource( const agl::SamplerStateTrait& trait );
 
-		agl::RefHandle<agl::SamplerState> m_state;
+		RefHandle<agl::SamplerState> m_state;
 	};
 
 	struct ShaderStates final
@@ -136,6 +136,6 @@ namespace rendercore
 		BlendState m_blendState;
 		agl::ResourcePrimitive m_primitive = agl::ResourcePrimitive::Undefined;
 
-		agl::RefHandle<agl::GraphicsPipelineState> m_pso;
+		RefHandle<agl::GraphicsPipelineState> m_pso;
 	};
 }

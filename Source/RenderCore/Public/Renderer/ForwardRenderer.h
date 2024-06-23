@@ -26,12 +26,12 @@ namespace rendercore
 
 		void ReleaseAll();
 
-		agl::RefHandle<agl::Texture> m_depthStencil;
-		agl::RefHandle<agl::Texture> m_linearDepth;
-		agl::RefHandle<agl::Texture> m_taaHistory;
-		agl::RefHandle<agl::Texture> m_taaResolve;
-		agl::RefHandle<agl::Texture> m_worldNormal;
-		agl::RefHandle<agl::Texture> m_velocity;
+		RefHandle<agl::Texture> m_depthStencil;
+		RefHandle<agl::Texture> m_linearDepth;
+		RefHandle<agl::Texture> m_taaHistory;
+		RefHandle<agl::Texture> m_taaResolve;
+		RefHandle<agl::Texture> m_worldNormal;
+		RefHandle<agl::Texture> m_velocity;
 
 		std::pair<uint32, uint32> m_bufferSize;
 	};
