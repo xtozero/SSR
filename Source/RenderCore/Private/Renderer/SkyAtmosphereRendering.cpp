@@ -196,6 +196,8 @@ namespace rendercore
 			{
 				texture->Init();
 			} );
+
+		info.GetShaderArguments() = SkyAtmosphereRenderParameters::CreateShaderArguments();
 	}
 
 	void RenderAtmosphereLookUpTables( Scene& scene )

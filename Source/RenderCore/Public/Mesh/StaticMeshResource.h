@@ -4,7 +4,6 @@
 #include "GraphicsApiResource.h"
 #include "IndexBuffer.h"
 #include "SizedTypes.h"
-#include "TypedBuffer.h"
 #include "VertexCollection.h"
 #include "VertexLayout.h"
 

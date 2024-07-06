@@ -13,24 +13,7 @@
 
 namespace rendercore
 {
-	void SceneViewConstantBuffer::Update( const SceneViewParameters& param )
-	{
-		assert( IsInRenderThread() );
-
-		m_constantBuffer.Update( param );
-	}
-
-	agl::Buffer* SceneViewConstantBuffer::Resource()
-	{
-		return m_constantBuffer.Resource();
-	}
-
-	const agl::Buffer* SceneViewConstantBuffer::Resource() const
-	{
-		return m_constantBuffer.Resource();
-	}
-
-	SceneViewParameters FillViewConstantParam( const Scene* scene, const PreviousFrameContext* prevFrameContext, const RenderViewGroup& renderViewGroup, size_t viewIndex )
+	SceneViewParameters GetViewParameters( const Scene* scene, const PreviousFrameContext* prevFrameContext, const RenderViewGroup& renderViewGroup, size_t viewIndex )
 	{
 		SceneViewParameters param = {};
 
@@ -39,49 +22,49 @@ namespace rendercore
 		auto viewMatrix = LookFromMatrix( view.m_viewOrigin,
 			view.m_viewAxis[2],
 			view.m_viewAxis[1] );
-		param.m_viewMatrix = viewMatrix.GetTrasposed();
+		param.ViewMatrix = viewMatrix.GetTrasposed();
 
 		auto projMatrix = PerspectiveMatrix( view.m_fov,
 			view.m_aspect,
 			view.m_nearPlaneDistance,
 			view.m_farPlaneDistance );
-		param.m_projMatrix = projMatrix.GetTrasposed();
+		param.ProjMatrix = projMatrix.GetTrasposed();
 
 		auto viewProjMatrix = viewMatrix * projMatrix;
-		param.m_viewProjMatrix = viewProjMatrix.GetTrasposed();
+		param.ViewProjMatrix = viewProjMatrix.GetTrasposed();
 
 		auto invViewMatrix = viewMatrix.Inverse();
-		param.m_invViewMatrix = invViewMatrix.GetTrasposed();
+		param.InvViewMatrix = invViewMatrix.GetTrasposed();
 
 		auto invProjMatrix = projMatrix.Inverse();
-		param.m_invProjMatrix = invProjMatrix.GetTrasposed();
+		param.InvProjMatrix = invProjMatrix.GetTrasposed();
 
 		auto invViewProjMatrix = viewProjMatrix.Inverse();
-		param.m_invViewProjMatrix = invViewProjMatrix.GetTrasposed();
+		param.InvViewProjMatrix = invViewProjMatrix.GetTrasposed();
 
 		if ( prevFrameContext )
 		{
-			param.m_prevViewMatrix = prevFrameContext->m_viewMatrix.GetTrasposed();
-			param.m_prevProjMatrix = prevFrameContext->m_projMatrix.GetTrasposed();
-			param.m_prevViewProjMatrix = prevFrameContext->m_viewProjMatrix.GetTrasposed();
+			param.PrevViewMatrix = prevFrameContext->m_viewMatrix.GetTrasposed();
+			param.PrevProjMatrix = prevFrameContext->m_projMatrix.GetTrasposed();
+			param.PrevViewProjMatrix = prevFrameContext->m_viewProjMatrix.GetTrasposed();
 		}
 		else
 		{
-			param.m_prevViewMatrix = param.m_viewMatrix;
-			param.m_prevProjMatrix = param.m_projMatrix;
-			param.m_prevViewProjMatrix = param.m_viewProjMatrix;
+			param.PrevViewMatrix = param.ViewMatrix;
+			param.PrevProjMatrix = param.ProjMatrix;
+			param.PrevViewProjMatrix = param.ViewProjMatrix;
 		}
 
-		param.m_nearPlaneDist = view.m_nearPlaneDistance;
-		param.m_farPlaneDist = view.m_farPlaneDistance;
+		param.NearPlaneDist = view.m_nearPlaneDistance;
+		param.FarPlaneDist = view.m_farPlaneDistance;
 
-		param.m_elapsedTime = renderViewGroup.GetElapsedTime();
-		param.m_totalTime = renderViewGroup.GetTotalTime();
-		param.m_cameraPos = view.m_viewOrigin;
-		param.m_frameCount = scene ? static_cast<uint32>( scene->GetNumFrame() ) : 0;
+		param.ElapsedTime = renderViewGroup.GetElapsedTime();
+		param.TotalTime = renderViewGroup.GetTotalTime();
+		param.CameraPos = view.m_viewOrigin;
+		param.FrameCount = scene ? static_cast<uint32>( scene->GetNumFrame() ) : 0;
 
 		auto wh = renderViewGroup.GetViewport().Size();
-		param.m_viewportDimensions = Vector2( static_cast<float>( wh.first ), static_cast<float>( wh.second ) );
+		param.ViewportDimensions = Vector2( static_cast<float>( wh.first ), static_cast<float>( wh.second ) );
 
 		return param;
 	}

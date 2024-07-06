@@ -66,4 +66,9 @@ namespace rendercore
 	{
 		return m_buffer;
 	}
+
+	ForwardLightingResource::ForwardLightingResource()
+	{
+		m_shaderArguments = ForwardLightParameters::CreateShaderArguments();
+	}
 }

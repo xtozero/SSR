@@ -30,6 +30,7 @@ set (GRAPHICS_RESOURCE_HEADER
 	Public/GraphicsResource/PipelineStateCache.h
 	Public/GraphicsResource/RenderOption.h
 	Public/GraphicsResource/Shader.h
+	Public/GraphicsResource/ShaderArguments.h
 	Public/GraphicsResource/ShaderCache.h
 	Public/GraphicsResource/StaticShaderSwitch.h
 	Public/GraphicsResource/StaticState.h
@@ -55,6 +56,7 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Private/GraphicsResource/PipelineStateCache.cpp
 	Private/GraphicsResource/RenderOption.cpp
 	Private/GraphicsResource/Shader.cpp
+	Private/GraphicsResource/ShaderArguments.cpp
 	Private/GraphicsResource/ShaderCache.cpp
 	Private/GraphicsResource/StaticShaderSwitch.cpp
 	Private/GraphicsResource/UberShader.cpp

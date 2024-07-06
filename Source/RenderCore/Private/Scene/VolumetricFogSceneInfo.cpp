@@ -68,14 +68,14 @@ namespace rendercore
 	{
 		if ( m_needUpdateParameter )
 		{
-			VolumetricFogParameter param = {
-			   .m_exposure = 0.4f,
-			   .m_depthPackExponent = m_volumetricFogProxy->DepthPackExponent(),
-			   .m_nearPlaneDist = m_volumetricFogProxy->NearPlaneDist(),
-			   .m_farPlaneDist = m_volumetricFogProxy->FarPlaneDist()
+			VolumetricFogParameters param = {
+			   .Exposure = 0.4f,
+			   .DepthPackExponent = m_volumetricFogProxy->DepthPackExponent(),
+			   .NearPlaneDist = m_volumetricFogProxy->NearPlaneDist(),
+			   .FarPlaneDist = m_volumetricFogProxy->FarPlaneDist()
 			};
 
-			m_volumetricFogParameter.Update( param );
+			m_shaderArguments->Update( param );
 
 			m_needUpdateParameter = false;
 		}
@@ -97,6 +97,7 @@ namespace rendercore
 	VolumetricFogSceneInfo::VolumetricFogSceneInfo( VolumetricFogProxy* proxy )
 		: m_volumetricFogProxy( proxy )
 	{
+		m_shaderArguments = VolumetricFogParameters::CreateShaderArguments();
 	}
 
 	void VolumetricFogSceneInfo::CreateVolumeTexture()
@@ -155,14 +156,10 @@ namespace rendercore
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( inscatteringCS );
 		BindResource( shaderBindings, inscatteringCS.FrustumVolume(), FrustumVolume() );
-
-		SceneViewConstantBuffer& viewConstant = scene.SceneViewConstant();
-		BindResource( shaderBindings, inscatteringCS.SceneViewParameters(), viewConstant.Resource() );
-
-		BindResource( shaderBindings, inscatteringCS.ForwardLightConstant(), lightingResource.m_lightConstant.Resource() );
+		BindResource( shaderBindings, inscatteringCS.SceneViewParameters(), scene.GetViewShaderArguments().Resource() );
+		BindResource( shaderBindings, inscatteringCS.ForwardLightConstant(), lightingResource.m_shaderArguments->Resource() );
 		BindResource( shaderBindings, inscatteringCS.ForwardLight(), lightingResource.m_lightBuffer.Resource() );
-
-		BindResource( shaderBindings, inscatteringCS.VolumetricFogParameterBuffer(), GetVolumetricFogParameter().Resource() );
+		BindResource( shaderBindings, inscatteringCS.VolumetricFogParameterBuffer(), GetShaderArguments().Resource() );
 
 		SamplerState shadowSampler;
 		if ( DefaultRenderCore::IsESMsEnabled() == false )
@@ -197,11 +194,11 @@ namespace rendercore
 		for ( ShadowInfo& shadowInfo : shadowInfos )
 		{
 			BindResource( shaderBindings, inscatteringCS.ShadowTexture(), shadowInfo.ShadowMap().m_shadowMaps[0] );
-			BindResource( shaderBindings, inscatteringCS.ShadowDepthPassParameters(), shadowInfo.ConstantBuffer().Resource() );
+			BindResource( shaderBindings, inscatteringCS.ShadowDepthPassParameters(), shadowInfo.GetShadowShaderArguments().Resource() );
 
 			if ( DefaultRenderCore::IsESMsEnabled() )
 			{
-				BindResource( shaderBindings, inscatteringCS.ESMsParameters(), shadowInfo.ESMsConstantBuffer().Resource() );
+				BindResource( shaderBindings, inscatteringCS.ESMsParameters(), shadowInfo.GetESMsShaderArguments().Resource() );
 			}
 
 			commandList.BindShaderResources( shaderBindings );
@@ -221,7 +218,7 @@ namespace rendercore
 		BindResource( shaderBindings, accumulateScatteringCS.FrustumVolume(), FrustumVolume() );
 		BindResource( shaderBindings, accumulateScatteringCS.AccumulatedVolume(), AccumulatedVolume() );
 
-		BindResource( shaderBindings, accumulateScatteringCS.VolumetricFogParameterBuffer(), GetVolumetricFogParameter().Resource() );
+		BindResource( shaderBindings, accumulateScatteringCS.VolumetricFogParameterBuffer(), GetShaderArguments().Resource() );
 
 		const std::array<uint32, 3>& frustumGridSize = Proxy()->FrustumGridSize();
 		const uint32 threadGroupCount[2] = {

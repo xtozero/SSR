@@ -5,7 +5,7 @@
 #include "Math/Vector.h"
 #include "Math/Vector4.h"
 #include "SizedTypes.h"
-#include "TypedBuffer.h"
+#include "ShaderArguments.h"
 
 namespace rendercore
 {
@@ -37,20 +37,20 @@ namespace rendercore
 		Vector4 m_spotAngles;
 	};
 
-	struct ForwardLightConstant final
-	{
-		uint32 m_numLight = 0;
-		Vector m_hemisphereLightUpVector;
-		ColorF m_hemisphereLightUpperColor;
-		ColorF m_hemisphereLightLowerColor;
-		Vector4 m_irrdianceMapSH[7];
-		float m_reflectionMipLevels;
-		float3 m_padding;
-	};
+	BEGIN_SHADER_ARGUMENTS_STRUCT( ForwardLightParameters )
+		DECLARE_VALUE( uint32, NumLight )
+		DECLARE_VALUE( Vector, HemisphereLightUpVector )
+		DECLARE_VALUE( ColorF, HemisphereLightUpperColor )
+		DECLARE_VALUE( ColorF, HemisphereLightLowerColor )
+		DECLARE_ARRAY_VALUE( Vector4, IrradianceMapSH, 7 )
+		DECLARE_VALUE( float, ReflectionMipLevels )
+	END_SHADER_ARGUMENTS_STRUCT()
 
 	struct ForwardLightingResource final
 	{
-		TypedConstatBuffer<ForwardLightConstant> m_lightConstant;
+		RefHandle<ShaderArguments> m_shaderArguments;
 		ForwardLightBuffer m_lightBuffer;
+
+		ForwardLightingResource();
 	};
 }

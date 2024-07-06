@@ -2,6 +2,7 @@
 
 #include "GraphicsApiResource.h"
 #include "Scene/ShadowInfo.h"
+#include "ShaderArguments.h"
 #include "SizedTypes.h"
 #include "Texture.h"
 
@@ -14,13 +15,12 @@ namespace rendercore
 	struct ForwardLightingResource;
 	struct RenderView;
 
-	struct VolumetricFogParameter final
-	{
-		float m_exposure = 0.4f;
-		float m_depthPackExponent = 2.f;
-		float m_nearPlaneDist = 1.f;
-		float m_farPlaneDist = 300.f;
-	};
+	BEGIN_SHADER_ARGUMENTS_STRUCT( VolumetricFogParameters )
+		DECLARE_VALUE( float, Exposure )
+		DECLARE_VALUE( float, DepthPackExponent )
+		DECLARE_VALUE( float, NearPlaneDist )
+		DECLARE_VALUE( float, FarPlaneDist )
+	END_SHADER_ARGUMENTS_STRUCT()
 
 	class VolumetricFogSceneInfo final
 	{
@@ -40,9 +40,9 @@ namespace rendercore
 			return m_accumulatedVolume;
 		}
 
-		TypedConstatBuffer<VolumetricFogParameter>& GetVolumetricFogParameter()
+		ShaderArguments& GetShaderArguments()
 		{
-			return m_volumetricFogParameter;
+			return *m_shaderArguments.Get();
 		}
 
 		void CreateRenderData();
@@ -73,7 +73,7 @@ namespace rendercore
 		RefHandle<agl::Texture> m_frustumVolume[2];
 		RefHandle<agl::Texture> m_accumulatedVolume;
 
-		TypedConstatBuffer<VolumetricFogParameter> m_volumetricFogParameter;
+		RefHandle<ShaderArguments> m_shaderArguments;
 
 		bool m_needCreateRenderData = true;
 		bool m_needUpdateParameter = true;

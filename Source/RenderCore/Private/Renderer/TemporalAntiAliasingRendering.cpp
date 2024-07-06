@@ -64,18 +64,8 @@ namespace rendercore
 		}
 		else
 		{
-			UploadParamToGpu();
 			Resovle( renderTargets, renderViewGroup );
 			UpdateHistory( renderTargets, renderViewGroup );
-		}
-	}
-
-	void TAARenderer::UploadParamToGpu()
-	{
-		if ( m_paramUploaded == false )
-		{
-			m_resolveConstantBuffer.Update( m_resolveParam );
-			m_paramUploaded = true;
 		}
 	}
 
@@ -113,17 +103,18 @@ namespace rendercore
 		// Point Sampler
 		SamplerState velocityTexSampler = StaticSamplerState<agl::TextureFilter::Point>::Get();
 
-		SceneViewConstantBuffer& viewConstant = renderViewGroup.Scene().SceneViewConstant();
+		m_parameters.HistoryTex = historyTex->SRV();
+		m_parameters.HistoryTexSampler = historyTexSampler.Resource();
+		m_parameters.SceneTex = sceneTex->SRV();
+		m_parameters.SceneTexSampler = sceneTexSampler.Resource();
+		m_parameters.VelocityTex = velocityTex->SRV();
+		m_parameters.VelocityTexSampler = velocityTexSampler.Resource();
+
+		m_shaderArguments->Update( m_parameters );
 
 		RenderingShaderResource taaResolveDrawResources;
-		taaResolveDrawResources.AddResource( "SceneViewParameters", viewConstant.Resource() );
-		taaResolveDrawResources.AddResource( "HistoryTex", historyTex->SRV() );
-		taaResolveDrawResources.AddResource( "HistoryTexSampler", historyTexSampler.Resource() );
-		taaResolveDrawResources.AddResource( "SceneTex", sceneTex->SRV() );
-		taaResolveDrawResources.AddResource( "SceneTexSampler", sceneTexSampler.Resource() );
-		taaResolveDrawResources.AddResource( "VelocityTex", velocityTex->SRV() );
-		taaResolveDrawResources.AddResource( "VelocityTexSampler", velocityTexSampler.Resource() );
-		taaResolveDrawResources.AddResource( "TAAParameter", m_resolveConstantBuffer.Resource() );
+		taaResolveDrawResources.AddResource( &renderViewGroup.Scene().GetViewShaderArguments() );
+		taaResolveDrawResources.AddResource( m_shaderArguments.Get() );
 
 		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 		taaResolveDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
@@ -163,6 +154,7 @@ namespace rendercore
 
 	TAARenderer::TAARenderer()
 	{
-		m_resolveParam.m_blendWeight = 0.9f;
+		m_shaderArguments = TAAParameters::CreateShaderArguments();
+		m_parameters.BlendWeight = 0.9f;
 	}
 }

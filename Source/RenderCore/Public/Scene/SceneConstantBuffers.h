@@ -1,10 +1,11 @@
 #pragma once
 
-#include "TypedBuffer.h"
 #include "Math/Matrix.h"
 #include "Math/Vector.h"
 #include "Math/Vector4.h"
+#include "ShaderArguments.h"
 #include "SizedTypes.h"
+#include "TypedBuffer.h"
 
 namespace rendercore
 {
@@ -12,29 +13,28 @@ namespace rendercore
 	class RenderViewGroup;
 	class Scene;
 
-	struct SceneViewParameters final
-	{
-		Matrix m_viewMatrix;
-		Matrix m_projMatrix;
-		Matrix m_viewProjMatrix;
+	BEGIN_SHADER_ARGUMENTS_STRUCT( SceneViewParameters )
+		DECLARE_VALUE( Matrix, ViewMatrix )
+		DECLARE_VALUE( Matrix, ProjMatrix )
+		DECLARE_VALUE( Matrix, ViewProjMatrix )
 
-		Matrix m_invViewMatrix;
-		Matrix m_invProjMatrix;
-		Matrix m_invViewProjMatrix;
+		DECLARE_VALUE( Matrix, InvViewMatrix )
+		DECLARE_VALUE( Matrix, InvProjMatrix )
+		DECLARE_VALUE( Matrix, InvViewProjMatrix )
 
-		Matrix m_prevViewMatrix;
-		Matrix m_prevProjMatrix;
-		Matrix m_prevViewProjMatrix;
+		DECLARE_VALUE( Matrix, PrevViewMatrix )
+		DECLARE_VALUE( Matrix, PrevProjMatrix )
+		DECLARE_VALUE( Matrix, PrevViewProjMatrix )
 
-		float m_nearPlaneDist;
-		float m_farPlaneDist;
-		float m_elapsedTime;
-		float m_totalTime;
-		Vector m_cameraPos;
-		uint32 m_frameCount;
-		Vector2 m_viewportDimensions;
-		uint32 padding[2];
-	};
+		DECLARE_VALUE( float, NearPlaneDist )
+		DECLARE_VALUE( float, FarPlaneDist )
+		DECLARE_VALUE( float, ElapsedTime )
+		DECLARE_VALUE( float, TotalTime )
+
+		DECLARE_VALUE( Vector, CameraPos )
+		DECLARE_VALUE( uint32, FrameCount )
+		DECLARE_VALUE( Vector2, ViewportDimensions )
+	END_SHADER_ARGUMENTS_STRUCT()
 
 	struct PreviousFrameContext final
 	{
@@ -43,19 +43,7 @@ namespace rendercore
 		Matrix m_viewProjMatrix;
 	};
 
-	SceneViewParameters FillViewConstantParam( const Scene* scene, const PreviousFrameContext* prevFrameContext, const RenderViewGroup& renderViewGroup, size_t viewIndex );
-
-	class SceneViewConstantBuffer final
-	{
-	public:
-		void Update( const SceneViewParameters& param );
-
-		agl::Buffer* Resource();
-		const agl::Buffer* Resource() const;
-
-	private:
-		TypedConstatBuffer<SceneViewParameters> m_constantBuffer;
-	};
+	SceneViewParameters GetViewParameters( const Scene* scene, const PreviousFrameContext* prevFrameContext, const RenderViewGroup& renderViewGroup, size_t viewIndex );
 
 	class PrimitiveSceneData final
 	{

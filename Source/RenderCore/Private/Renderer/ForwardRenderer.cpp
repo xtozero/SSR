@@ -301,19 +301,19 @@ namespace rendercore
 			RenderAtmosphereLookUpTables( *renderScene );
 		}
 
+		auto& viewShaderArguments = scene.GetViewShaderArguments();
+
 		for ( uint32 i = 0; i < static_cast<uint32>( renderViewGroup.Size() ); ++i )
 		{
-			auto& viewConstant = scene.SceneViewConstant();
-
-			SceneViewParameters viewConstantParam = FillViewConstantParam( scene.GetRenderScene()
+			SceneViewParameters viewParam = GetViewParameters( scene.GetRenderScene()
 				, ( i < m_prevFrameContext.size() ) ? &m_prevFrameContext[i] : nullptr
 				, renderViewGroup, i );
 
-			viewConstant.Update( viewConstantParam );
+			viewShaderArguments.Update( viewParam );
+
+			m_shaderResources.AddResource( &viewShaderArguments );
 
 			auto& view = renderViewGroup[i];
-
-			m_shaderResources.AddResource( "SceneViewParameters", viewConstant.Resource() );
 
 			RenderDepthPass( renderViewGroup, i );
 			
@@ -497,21 +497,21 @@ namespace rendercore
 
 		lightBuffer.Unlock();
 
-		ForwardLightConstant lightConstant = {
-			.m_numLight = static_cast<uint32>( validLights.size() ),
-			.m_hemisphereLightUpVector = Vector4::ZeroVector,
-			.m_hemisphereLightUpperColor = ColorF::Black,
-			.m_hemisphereLightLowerColor = ColorF::Black,
-			.m_reflectionMipLevels = 1,
+		ForwardLightParameters lightParams = {
+			.NumLight = static_cast<uint32>( validLights.size() ),
+			.HemisphereLightUpVector = Vector4::ZeroVector,
+			.HemisphereLightUpperColor = ColorF::Black,
+			.HemisphereLightLowerColor = ColorF::Black,
+			.ReflectionMipLevels = 1,
 		};
 
 		if ( renderScene->HemisphereLight() )
 		{
 			const HemisphereLightProxy& hemisphereLight = *renderScene->HemisphereLight();
 
-			lightConstant.m_hemisphereLightUpVector = hemisphereLight.UpVector();
-			lightConstant.m_hemisphereLightUpperColor = hemisphereLight.UpperColor();
-			lightConstant.m_hemisphereLightLowerColor = hemisphereLight.LowerColor();
+			lightParams.HemisphereLightUpVector = hemisphereLight.UpVector();
+			lightParams.HemisphereLightUpperColor = hemisphereLight.UpperColor();
+			lightParams.HemisphereLightLowerColor = hemisphereLight.LowerColor();
 		}
 
 		if ( renderScene->TexturedSky() )
@@ -519,17 +519,17 @@ namespace rendercore
 			const TexturedSkyProxy& texturedSkyProxy = *renderScene->TexturedSky();
 			const auto& irradianceMapSH = texturedSkyProxy.IrradianceMapSH();
 
-			std::memcpy( lightConstant.m_irrdianceMapSH, irradianceMapSH.data(), sizeof( Vector ) * 9 );
+			std::memcpy( lightParams.IrradianceMapSH, irradianceMapSH.data(), sizeof( Vector ) * 9 );
 
 			if ( RefHandle<agl::Texture> prefilteredColor = texturedSkyProxy.PrefilteredColor() )
 			{
-				lightConstant.m_reflectionMipLevels = static_cast<float>( prefilteredColor->GetTrait().m_mipLevels );
+				lightParams.ReflectionMipLevels = static_cast<float>( prefilteredColor->GetTrait().m_mipLevels );
 			}
 		}
 
-		m_forwardLighting.m_lightConstant.Update( lightConstant );
+		m_forwardLighting.m_shaderArguments->Update( lightParams );
 
-		m_shaderResources.AddResource( "ForwardLightConstant", m_forwardLighting.m_lightConstant.Resource() );
+		m_shaderResources.AddResource( "ForwardLightConstant", m_forwardLighting.m_shaderArguments->Resource() );
 		m_shaderResources.AddResource( "ForwardLight", m_forwardLighting.m_lightBuffer.SRV() );
 	}
 }

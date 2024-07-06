@@ -10,10 +10,10 @@ namespace rendercore
 		assert( IsInRenderThread() );
 
 		assert( data != nullptr );
-		void* dst = GraphicsInterface().Lock( m_buffer ).m_data;
-		if ( dst )
+		void* dest = GraphicsInterface().Lock( m_buffer ).m_data;
+		if ( dest )
 		{
-			std::memcpy( dst, data, size );
+			std::memcpy( dest, data, size );
 		}
 		GraphicsInterface().UnLock( m_buffer );
 	}

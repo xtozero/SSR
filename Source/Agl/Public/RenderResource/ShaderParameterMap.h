@@ -36,7 +36,7 @@ namespace agl
 		uint32 m_sizeInByte = 0;
 
 		AGL_DLL size_t GetHash() const;
-		AGL_DLL void Bind( const ShaderParameterMap& parameterMap, const char* variableName );
+		AGL_DLL void Bind( const ShaderParameterMap& parameterMap, Name variableName );
 
 		friend AGL_DLL Archive& operator<<( Archive& ar, ShaderParameter& shaderParam );
 
@@ -84,7 +84,7 @@ namespace agl
 			return m_parameters;
 		}
 
-		AGL_DLL ShaderParameter GetParameter( const char* name ) const;
+		AGL_DLL ShaderParameter GetParameter( Name name ) const;
 
 		uint32 Size() const
 		{

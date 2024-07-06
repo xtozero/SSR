@@ -5,7 +5,7 @@ SamplerState SceneTexSampler : register( s1 );
 Texture2D VelocityTex : register( t2 );
 SamplerState VelocityTexSampler : register( s2 );
 
-cbuffer TAAParameter : register( b1 )
+cbuffer TAAParameters : register( b1 )
 {
 	float BlendWeight : packoffset( c0 );
 };

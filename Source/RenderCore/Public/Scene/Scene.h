@@ -56,13 +56,13 @@ namespace rendercore
 		virtual void AddLight( logic::LightComponent* light ) override;
 		virtual void RemoveLight( logic::LightComponent* light ) override;
 
-		virtual SceneViewConstantBuffer& SceneViewConstant() override
+		virtual ShaderArguments& GetViewShaderArguments() override
 		{
-			return m_viewConstant;
+			return *m_viewShaderArguments.Get();
 		}
-		virtual const SceneViewConstantBuffer& SceneViewConstant() const override
+		virtual const ShaderArguments& GetViewShaderArguments() const override
 		{
-			return m_viewConstant;
+			return *m_viewShaderArguments.Get();
 		}
 
 		virtual ScenePrimitiveBuffer& GpuPrimitiveInfo() override
@@ -187,7 +187,7 @@ namespace rendercore
 		SparseArray<DrawSnapshot> m_cachedSnapshots[static_cast<uint32>( RenderPass::Count )];
 		CachedDrawSnapshotBucket m_cachedSnapshotBuckect;
 
-		SceneViewConstantBuffer m_viewConstant;
+		RefHandle<ShaderArguments> m_viewShaderArguments;
 
 		std::set<uint32> m_primitiveToUpdate;
 		ScenePrimitiveBuffer m_gpuPrimitiveInfos;

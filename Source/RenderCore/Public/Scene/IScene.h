@@ -19,7 +19,7 @@ namespace rendercore
 	class RenderViewGroup;
 	class Scene;
 	class ScenePrimitiveBuffer;
-	class SceneViewConstantBuffer;
+	class ShaderArguments;
 	class SkyAtmospherePorxy;
 
 	enum class ShadingMethod : uint8
@@ -56,8 +56,8 @@ namespace rendercore
 		virtual void AddLight( logic::LightComponent* light ) = 0;
 		virtual void RemoveLight( logic::LightComponent* light ) = 0;
 
-		virtual SceneViewConstantBuffer& SceneViewConstant() = 0;
-		virtual const SceneViewConstantBuffer& SceneViewConstant() const = 0;
+		virtual ShaderArguments& GetViewShaderArguments() = 0;
+		virtual const ShaderArguments& GetViewShaderArguments() const = 0;
 
 		virtual ScenePrimitiveBuffer& GpuPrimitiveInfo() = 0;
 		virtual const ScenePrimitiveBuffer& GpuPrimitiveInfo() const = 0;

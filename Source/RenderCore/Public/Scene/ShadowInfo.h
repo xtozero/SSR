@@ -3,12 +3,12 @@
 #include "DrawSnapshot.h"
 #include "GraphicsApiResource.h"
 #include "InlineMemoryAllocator.h"
-#include "Math/Vector4.h"
 #include "Math/Matrix.h"
+#include "Math/Vector4.h"
 #include "Physics/BoxSphereBounds.h"
+#include "ShaderArguments.h"
 #include "SizedTypes.h"
 #include "Texture.h"
-#include "TypedBuffer.h"
 
 namespace rendercore
 {
@@ -27,23 +27,18 @@ namespace rendercore
 		float m_splitDistance[MAX_CASCADE_NUM + 1] = {};
 	};
 
-	struct ShadowDepthPassParameters final
-	{
-		Vector4 m_lightPosOrDir;
-		float m_slopeBiasScale;
-		float m_constantBias;
-		uint32 m_lightIdx;
-		float padding;
+	BEGIN_SHADER_ARGUMENTS_STRUCT( ShadowDepthPassParameters )
+		DECLARE_VALUE( Vector4, LightPosOrDir )
+		DECLARE_VALUE( float, SlopeBiasScale )
+		DECLARE_VALUE( float, ConstantBias )
+		DECLARE_VALUE( uint32, LightIndex )
+		DECLARE_ARRAY_VALUE( Vector4, CascadeFar, CascadeShadowSetting::MAX_CASCADE_NUM )
+		DECLARE_ARRAY_VALUE( Matrix, ShadowViewProjection, 6 )
+	END_SHADER_ARGUMENTS_STRUCT()
 
-		Vector4 m_cascadeFar[CascadeShadowSetting::MAX_CASCADE_NUM];
-		Matrix m_shadowViewProjection[6];
-	};
-
-	struct ESMsParameters final
-	{
-		float m_esmsParameterC;
-		float padding[3];
-	};
+	BEGIN_SHADER_ARGUMENTS_STRUCT( ESMsParameters )
+		DECLARE_VALUE( float, EsmsParameterC )
+	END_SHADER_ARGUMENTS_STRUCT()
 
 	struct ShadowMapRenderTarget final
 	{
@@ -121,14 +116,14 @@ namespace rendercore
 			return m_cacadeSetting;
 		}
 
-		TypedConstatBuffer<ShadowDepthPassParameters>& ConstantBuffer()
+		ShaderArguments& GetShadowShaderArguments()
 		{
-			return m_shadowConstantBuffer;
+			return *m_shadowShaderArguments.Get();
 		}
 
-		TypedConstatBuffer<ESMsParameters>& ESMsConstantBuffer()
+		ShaderArguments& GetESMsShaderArguments()
 		{
-			return *m_pESMsConstantBuffer;
+			return *m_esmsShaderArguments.Get();
 		}
 
 		LightType GetLightType() const;
@@ -168,7 +163,7 @@ namespace rendercore
 
 		CascadeShadowSetting m_cacadeSetting;
 
-		TypedConstatBuffer<ShadowDepthPassParameters> m_shadowConstantBuffer;
-		std::unique_ptr<TypedConstatBuffer<ESMsParameters>> m_pESMsConstantBuffer;
+		RefHandle<ShaderArguments> m_shadowShaderArguments;
+		RefHandle<ShaderArguments> m_esmsShaderArguments;
 	};
 }

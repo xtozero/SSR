@@ -33,7 +33,7 @@ namespace agl
 		return hash;
 	}
 
-	void ShaderParameter::Bind( const ShaderParameterMap& parameterMap, const char* variableName )
+	void ShaderParameter::Bind( const ShaderParameterMap& parameterMap, Name variableName )
 	{
 		( *this ) = parameterMap.GetParameter( variableName );
 	}
@@ -49,12 +49,12 @@ namespace agl
 
 	ShaderParameter::ShaderParameter( const ShaderParameterMap& parameterMap, const char* variableName )
 	{
-		Bind( parameterMap, variableName );
+		Bind( parameterMap, Name( variableName ) );
 	}
 
-	ShaderParameter ShaderParameterMap::GetParameter( const char* name ) const
+	ShaderParameter ShaderParameterMap::GetParameter( Name name ) const
 	{
-		auto found = m_parameters.find( Name( name ) );
+		auto found = m_parameters.find( name );
 		if ( found != m_parameters.end() )
 		{
 			return found->second;

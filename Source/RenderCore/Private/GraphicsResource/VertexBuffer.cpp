@@ -77,7 +77,7 @@ namespace rendercore
 			.m_format = agl::ResourceFormat::Unknown
 		};
 
-		m_buffer = agl::Buffer::Create( trait, "Vertex", initialState, initData);
+		m_buffer = agl::Buffer::Create( trait, "Vertex", initialState, initData );
 		EnqueueRenderTask(
 			[buffer = m_buffer]()
 			{

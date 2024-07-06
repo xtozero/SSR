@@ -63,17 +63,17 @@ namespace rendercore
 			constexpr uint32 size = std::extent_v<decltype( option.m_renderTarget )>;
 			for ( uint32 i = 0; i < size; ++i )
 			{
-				auto& dst = trait.m_renderTarget[i];
+				auto& dest = trait.m_renderTarget[i];
 				auto& src = option.m_renderTarget[i];
 
-				dst.m_blendEnable = src.m_blendEnable;
-				dst.m_srcBlend = src.m_srcBlend;
-				dst.m_destBlend = src.m_destBlend;
-				dst.m_blendOp = src.m_blendOp;
-				dst.m_srcBlendAlpha = src.m_srcBlendAlpha;
-				dst.m_destBlendAlpha = src.m_destBlendAlpha;
-				dst.m_blendOpAlpha = src.m_blendOpAlpha;
-				dst.m_renderTargetWriteMask = src.m_renderTargetWriteMask;
+				dest.m_blendEnable = src.m_blendEnable;
+				dest.m_srcBlend = src.m_srcBlend;
+				dest.m_destBlend = src.m_destBlend;
+				dest.m_blendOp = src.m_blendOp;
+				dest.m_srcBlendAlpha = src.m_srcBlendAlpha;
+				dest.m_destBlendAlpha = src.m_destBlendAlpha;
+				dest.m_blendOpAlpha = src.m_blendOpAlpha;
+				dest.m_renderTargetWriteMask = src.m_renderTargetWriteMask;
 			}
 
 			trait.m_sampleMask = option.m_sampleMask;

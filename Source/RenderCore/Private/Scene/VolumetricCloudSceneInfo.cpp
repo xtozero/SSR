@@ -31,6 +31,8 @@ namespace rendercore
 	{
 		if ( m_needCreateRenderData )
 		{
+			m_shaderArguments = VolumetricCloudRenderParameters::CreateShaderArguments();
+
 			SetupCloudTexture();
 			GenerateWeatherMap();
 

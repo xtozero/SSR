@@ -96,7 +96,7 @@ namespace rendercore
 		shaderResources.AddResource( "ViewSpaceDistance", param.m_viewSpaceDistance->SRV() );
 		shaderResources.AddResource( "WorldNormal", param.m_worldNormal->SRV() );
 		shaderResources.AddResource( "SamplingPattern", m_samplingPattern->SRV() );
-		shaderResources.AddResource( "RSMsConstantParameters", m_constantParams.Resource() );
+		shaderResources.AddResource( "RSMsConstantParameters", m_shaderArguments->Resource() );
 		shaderResources.AddResource( "BlackBorderSampler", m_blackBorderSampler.Resource() );
 
 		auto commandList = GetCommandList();
@@ -114,7 +114,7 @@ namespace rendercore
 				continue;
 			}
 
-			shaderResources.AddResource( "ShadowDepthPassParameters", shadowInfo.ConstantBuffer().Resource() );
+			shaderResources.AddResource( "ShadowDepthPassParameters", shadowInfo.GetShadowShaderArguments().Resource() );
 			shaderResources.AddResource( "RSMsNormal", shadowMaps[2]->SRV() );
 			shaderResources.AddResource( "RSMsWorldPosition", shadowMaps[1]->SRV() );
 			shaderResources.AddResource( "RSMsFlux", shadowMaps[3]->SRV() );
@@ -126,6 +126,11 @@ namespace rendercore
 		commandList.AddTransition( Transition( *m_indirectIllumination.Get(), agl::ResourceState::GenericRead ) );
 
 		outRenderingShaderResource.AddResource( "IndirectIllumination", m_indirectIllumination->SRV() );
+	}
+
+	RSMsRenderer::RSMsRenderer()
+	{
+		m_shaderArguments = RSMsParameters::CreateShaderArguments();
 	}
 
 	void RSMsRenderer::AllocTextureForIndirectIllumination( const std::pair<uint32, uint32>& renderTargetSize )
@@ -189,15 +194,16 @@ namespace rendercore
 			samplingPattern[i][2] = xi1;
 		}
 
-		m_samplingPattern = agl::Buffer::Create( trait, "RSMs.SamplingPattern", samplingPattern);
+		m_samplingPattern = agl::Buffer::Create( trait, "RSMs.SamplingPattern", samplingPattern );
 		assert( m_samplingPattern != nullptr );
 
 		m_samplingPattern->Init();
 
-		RSMsConstantParameters params = {
-			.m_numSamplingPattern = numSamplingPattern,
-			.m_maxRadius = DefaultRenderCore::RSMsMaxSamplingRadius(),
+		RSMsParameters params = {
+			.NumSamplingPattern = numSamplingPattern,
+			.MaxRadius = DefaultRenderCore::RSMsMaxSamplingRadius(),
 		};
-		m_constantParams.Update( params );
+
+		m_shaderArguments->Update( params );
 	}
 }

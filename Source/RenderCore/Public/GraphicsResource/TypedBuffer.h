@@ -2,7 +2,6 @@
 
 #include "AbstractGraphicsInterface.h"
 #include "CommandList.h"
-#include "ConstantBuffer.h"
 #include "GraphicsApiResource.h"
 #include "SizedTypes.h"
 #include "UploadBuffer.h"
@@ -10,37 +9,6 @@
 
 namespace rendercore
 {
-	template <typename T>
-	class TypedConstatBuffer final : public ConstantBuffer
-	{
-	public:
-		void Update( const T& data )
-		{
-			ConstantBuffer::Update( &data, sizeof( T ) );
-		}
-
-		TypedConstatBuffer() : ConstantBuffer( sizeof( T ) ) {}
-		virtual ~TypedConstatBuffer() override = default;
-		TypedConstatBuffer( const TypedConstatBuffer& ) = default;
-		TypedConstatBuffer& operator=( const TypedConstatBuffer& ) = default;
-		TypedConstatBuffer( TypedConstatBuffer&& ) = default;
-		TypedConstatBuffer& operator=( TypedConstatBuffer&& ) = default;
-	};
-
-	template <typename T>
-	class TypedVertexBuffer final : public VertexBuffer
-	{
-	public:
-		TypedVertexBuffer( uint32 numElement, const void* initData ) : VertexBuffer( sizeof( T ), numElement, initData, false ) { }
-
-		TypedVertexBuffer() = default;
-		virtual ~TypedVertexBuffer() override = default;
-		TypedVertexBuffer( const TypedVertexBuffer& ) = default;
-		TypedVertexBuffer& operator=( const TypedVertexBuffer& ) = default;
-		TypedVertexBuffer( TypedVertexBuffer&& ) = default;
-		TypedVertexBuffer& operator=( TypedVertexBuffer&& ) = default;
-	};
-
 	template <typename T>
 	class TypedBuffer final
 	{

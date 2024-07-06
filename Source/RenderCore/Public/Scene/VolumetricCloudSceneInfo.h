@@ -5,11 +5,23 @@
 #include "Math/Vector2.h"
 #include "Math/Vector4.h"
 #include "Texture.h"
-#include "TypedBuffer.h"
 
 namespace rendercore
 {
 	class VolumetricCloudProxy;
+
+	BEGIN_SHADER_ARGUMENTS_STRUCT( VolumetricCloudRenderParameters )
+		DECLARE_VALUE( Vector, SphereRadius )
+		DECLARE_VALUE( float, LightAbsorption )
+		DECLARE_VALUE( Vector4, LightPosOrDir )
+		DECLARE_VALUE( ColorF, CloudColor )
+		DECLARE_VALUE( Vector, WindDirection )
+		DECLARE_VALUE( float, WindSpeed )
+		DECLARE_VALUE( float, Crispiness )
+		DECLARE_VALUE( float, Curliness )
+		DECLARE_VALUE( float, DensityFactor )
+		DECLARE_VALUE( float, DensityScale )
+	END_SHADER_ARGUMENTS_STRUCT()
 
 	struct VolumetricCloudRenderParameter final
 	{
@@ -38,9 +50,9 @@ namespace rendercore
 			return m_cloudProxy;
 		}
 
-		TypedConstatBuffer<VolumetricCloudRenderParameter>& GetVolumetricCloudRenderParameter()
+		ShaderArguments& GetShaderArguments()
 		{
-			return m_renderParameter;
+			return *m_shaderArguments.Get();
 		}
 
 		void CreateRenderData();
@@ -68,7 +80,7 @@ namespace rendercore
 		RefHandle<agl::Texture> CreateCloudTexture( uint32 texSize );
 
 		VolumetricCloudProxy* m_cloudProxy = nullptr;
-		TypedConstatBuffer<VolumetricCloudRenderParameter> m_renderParameter;
+		RefHandle<ShaderArguments> m_shaderArguments;
 
 		RefHandle<agl::Texture> m_baseCloudShape;
 		RefHandle<agl::Texture> m_detailCloudShape;

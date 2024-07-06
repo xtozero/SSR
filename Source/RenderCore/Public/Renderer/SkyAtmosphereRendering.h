@@ -4,7 +4,6 @@
 #include "Math/Vector4.h"
 #include "PassProcessor.h"
 #include "Texture.h"
-#include "TypedBuffer.h"
 
 class Scene;
 
@@ -12,13 +11,11 @@ struct PrimitiveSubMesh;
 
 namespace rendercore
 {
-	struct SkyAtmosphereRenderParameter final
-	{
-		Vector4 m_cameraPos;
-		Vector4 m_sunDir;
-		float m_exposure;
-		float padding[3];
-	};
+	BEGIN_SHADER_ARGUMENTS_STRUCT( SkyAtmosphereRenderParameters )
+		DECLARE_VALUE( Vector4, CameraPos )
+		DECLARE_VALUE( Vector4, SunDir )
+		DECLARE_VALUE( float, Exposure )
+	END_SHADER_ARGUMENTS_STRUCT()
 
 	class SkyAtmosphereRenderSceneInfo final
 	{
@@ -38,9 +35,9 @@ namespace rendercore
 			return m_inscatterLutTexture;
 		}
 
-		TypedConstatBuffer<SkyAtmosphereRenderParameter>& GetSkyAtmosphereRenderParameter()
+		RefHandle<ShaderArguments>& GetShaderArguments()
 		{
-			return m_skyAtmosphereRenderParameter;
+			return m_shaderArguments;
 		}
 
 		bool& RebuildLookUpTables()
@@ -52,7 +49,7 @@ namespace rendercore
 		RefHandle<agl::Texture> m_transmittanceLutTexture;
 		RefHandle<agl::Texture> m_irradianceLutTexture;
 		RefHandle<agl::Texture> m_inscatterLutTexture;
-		TypedConstatBuffer<SkyAtmosphereRenderParameter> m_skyAtmosphereRenderParameter;
+		RefHandle<ShaderArguments> m_shaderArguments;
 		bool m_rebuildLuts = true;
 	};
 

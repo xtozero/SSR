@@ -17,6 +17,7 @@
 #include "Scene/PrimitiveSceneInfo.h"
 #include "Scene/VolumetricCloudSceneInfo.h"
 #include "Scene/VolumetricFogSceneInfo.h"
+#include "ShaderArguments.h"
 #include "SkyAtmosphereRendering.h"
 #include "TaskScheduler.h"
 
@@ -383,6 +384,7 @@ namespace rendercore
 	Scene::Scene( logic::World& world )
 		: m_world( &world )
 	{
+		m_viewShaderArguments = SceneViewParameters::CreateShaderArguments();
 	}
 
 	void Scene::AddPrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo )

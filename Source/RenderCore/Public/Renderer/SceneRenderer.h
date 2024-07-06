@@ -28,6 +28,7 @@ namespace rendercore
 {
 	class IScene;
 	class RenderViewGroup;
+	class ShaderArguments;
 
 	struct RenderView;
 	struct ShaderStates;
@@ -47,12 +48,17 @@ namespace rendercore
 	{
 	public:
 		void BindResources( const ShaderStates& shaders, agl::ShaderBindings& bindings );
+
 		void AddResource( const std::string& parameterName, agl::GraphicsApiResource* resource );
+		void AddResource( const ShaderArguments* collection );
+
 		void ClearResources();
 
 	private:
 		std::vector<Name> m_parameterNames;
 		std::vector<agl::GraphicsApiResource*> m_resources;
+
+		std::vector<const ShaderArguments*> m_argumentsList;
 	};
 
 	struct RenderingOutputContext final

@@ -67,42 +67,43 @@ namespace rendercore
 
 	void ShadowInfo::SetupShadowConstantBuffer()
 	{
-		ShadowDepthPassParameters params = {};
 		LightProperty lightProperty = m_lightSceneInfo->Proxy()->GetLightProperty();
-		params.m_lightPosOrDir = ( lightProperty.m_type == LightType::Directional ) ? Vector4( lightProperty.m_direction ) : lightProperty.m_position;
-		params.m_slopeBiasScale = 0.2f;
-		params.m_constantBias = ( lightProperty.m_type == LightType::Directional ) ? 0.05f : 0.5f;
-		params.m_lightIdx = m_lightSceneInfo->IdOnGPU();
+		ShadowDepthPassParameters params = {
+			.LightPosOrDir = ( lightProperty.m_type == LightType::Directional ) ? Vector4( lightProperty.m_direction ) : lightProperty.m_position,
+			.SlopeBiasScale = 0.2f,
+			.ConstantBias = ( lightProperty.m_type == LightType::Directional ) ? 0.05f : 0.5f,
+			.LightIndex = m_lightSceneInfo->IdOnGPU(),
+		};
 
 		for ( uint32 i = 0; i < CascadeShadowSetting::MAX_CASCADE_NUM; ++i )
 		{
-			params.m_cascadeFar[i].x = m_cacadeSetting.m_splitDistance[i + 1];
-			params.m_shadowViewProjection[i] = m_shadowViewProjections[i].GetTrasposed();
+			params.CascadeFar[i].x = m_cacadeSetting.m_splitDistance[i + 1];
+			params.ShadowViewProjection[i] = m_shadowViewProjections[i].GetTrasposed();
 		}
 
 		for ( uint32 i = CascadeShadowSetting::MAX_CASCADE_NUM; i < 6; ++i )
 		{
-			params.m_shadowViewProjection[i] = m_shadowViewProjections[i].GetTrasposed();
+			params.ShadowViewProjection[i] = m_shadowViewProjections[i].GetTrasposed();
 		}
 
-		m_shadowConstantBuffer.Update( params );
+		m_shadowShaderArguments->Update( params );
 
 		if ( DefaultRenderCore::IsESMsEnabled() )
 		{
-			if ( m_pESMsConstantBuffer == nullptr )
+			if ( m_esmsShaderArguments.Get() == nullptr )
 			{
-				m_pESMsConstantBuffer.reset( new TypedConstatBuffer<ESMsParameters>() );
+				m_esmsShaderArguments = ESMsParameters::CreateShaderArguments();
 			}
 
 			ESMsParameters esmsParams = {
-				.m_esmsParameterC = DefaultRenderCore::ESMsParamC()
+				.EsmsParameterC = DefaultRenderCore::ESMsParamC()
 			};
 
-			m_pESMsConstantBuffer->Update( esmsParams );
+			m_esmsShaderArguments->Update( esmsParams );
 		}
 		else
 		{
-			m_pESMsConstantBuffer = nullptr;
+			m_esmsShaderArguments = nullptr;
 		}
 	}
 
@@ -115,7 +116,7 @@ namespace rendercore
 
 		RenderingShaderResource shadowRenderingResources = resources;
 
-		shadowRenderingResources.AddResource( "ShadowDepthPassParameters", m_shadowConstantBuffer.Resource() );
+		shadowRenderingResources.AddResource( "ShadowDepthPassParameters", m_shadowShaderArguments->Resource() );
 
 		// Update invalidated resources
 		for ( auto& viewDrawSnapshot : m_snapshots )
@@ -141,6 +142,8 @@ namespace rendercore
 		size_t numPrimitives = m_lightSceneInfo->Primitives().Size();
 		m_shadowCasters.reserve( numPrimitives );
 		m_shadowReceivers.reserve( numPrimitives );
+
+		m_shadowShaderArguments = ShadowDepthPassParameters::CreateShaderArguments();
 	}
 
 	void ShadowInfo::AddCachedDrawSnapshotForPass( PrimitiveSceneInfo& primitiveSceneInfo )

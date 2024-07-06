@@ -78,7 +78,7 @@ namespace rendercore
 					continue;
 				}
 
-				agl::ShaderParameter parameter = parameterMap.GetParameter( m_parameterNames[i].Str().data() );
+				agl::ShaderParameter parameter = parameterMap.GetParameter( m_parameterNames[i] );
 
 				switch ( parameter.m_type )
 				{
@@ -101,6 +101,16 @@ namespace rendercore
 					break;
 				}
 			}
+
+			for ( const ShaderArguments* arguments : m_argumentsList )
+			{
+				if ( arguments == nullptr )
+				{
+					continue;
+				}
+
+				arguments->Bind( parameterMap, singleBinding );
+			}
 		}
 	}
 
@@ -118,6 +128,17 @@ namespace rendercore
 			size_t idx = std::distance( std::begin( m_parameterNames ), found );
 			m_resources[idx] = resource;
 		}
+	}
+
+	void RenderingShaderResource::AddResource( const ShaderArguments* collection )
+	{
+		auto found = std::find( std::begin( m_argumentsList ), std::end( m_argumentsList ), collection );
+		if ( found != std::end( m_argumentsList ) )
+		{
+			return;
+		}
+
+		m_argumentsList.emplace_back( collection );
 	}
 
 	void RenderingShaderResource::ClearResources()
@@ -140,8 +161,10 @@ namespace rendercore
 
 		auto linearSampler = StaticSamplerState<>::Get();
 		m_shaderResources.AddResource( "LinearSampler", linearSampler.Resource() );
-		
+
 		IScene& scene = renderViewGroup.Scene();
+		m_shaderResources.AddResource( &scene.GetViewShaderArguments() );
+
 		UpdateGPUPrimitiveInfos( *scene.GetRenderScene() );
 
 		auto& gpuPrimitiveInfo = scene.GpuPrimitiveInfo();
@@ -436,7 +459,7 @@ namespace rendercore
 						.m_color = { 0.f, 0.f, 0.f, 1.f }
 					}
 				};
-				
+
 				shadow->ShadowMap().m_shadowMaps.emplace_back( RenderTargetPool::GetInstance().FindFreeRenderTarget( positionMapTrait, "RSMs.Position" ) );
 
 				agl::TextureTrait normalMapTrait = {
@@ -534,8 +557,8 @@ namespace rendercore
 		{
 			ShadowMapRenderTarget& shadowMap = shadowInfo.ShadowMap();
 			assert( ( shadowMap.m_shadowMaps.size() > 0 )
-				&& ( shadowMap.m_shadowMaps[0] != nullptr ) 
-				&& ( shadowMap.m_shadowMapDepth != nullptr ));
+				&& ( shadowMap.m_shadowMaps[0] != nullptr )
+				&& ( shadowMap.m_shadowMapDepth != nullptr ) );
 
 			auto [width, height] = shadowInfo.ShadowMapSize();
 
@@ -764,7 +787,7 @@ namespace rendercore
 
 		auto commandList = GetCommandList();
 		GPU_PROFILE( commandList, Shadow );
-		
+
 		for ( ShadowInfo& shadowInfo : m_shadowInfos )
 		{
 			std::optional<DrawSnapshot> result;
@@ -816,14 +839,14 @@ namespace rendercore
 			{
 				shadowSampler = StaticSamplerState<>::Get();
 			}
-			
+
 			m_shaderResources.AddResource( "ShadowSampler", shadowSampler.Resource() );
 
-			m_shaderResources.AddResource( "ShadowDepthPassParameters", shadowInfo.ConstantBuffer().Resource() );
+			m_shaderResources.AddResource( "ShadowDepthPassParameters", shadowInfo.GetShadowShaderArguments().Resource() );
 
 			if ( bESMsEnabled )
 			{
-				m_shaderResources.AddResource( "ESMsParameters", shadowInfo.ESMsConstantBuffer().Resource());
+				m_shaderResources.AddResource( "ESMsParameters", shadowInfo.GetESMsShaderArguments().Resource() );
 			}
 
 			m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
@@ -859,13 +882,13 @@ namespace rendercore
 
 		LightProperty lightProperty = skyAtmosphereLight->Proxy()->GetLightProperty();
 
-		auto& skyAtmosphereRenderParameter = info->GetSkyAtmosphereRenderParameter();
-		SkyAtmosphereRenderParameter param = {
-			.m_cameraPos = renderView.m_viewOrigin,
-			.m_sunDir = -lightProperty.m_direction,
-			.m_exposure = 0.4f,
+		auto& skyAtmosphereRenderParameter = info->GetShaderArguments();
+		SkyAtmosphereRenderParameters param = {
+			.CameraPos = renderView.m_viewOrigin,
+			.SunDir = -lightProperty.m_direction,
+			.Exposure = 0.4f,
 		};
-		skyAtmosphereRenderParameter.Update( param );
+		skyAtmosphereRenderParameter->Update( param );
 
 		SkyAtmosphereDrawPassProcessor skyAtmosphereDrawPassProcessor;
 		auto result = skyAtmosphereDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
@@ -891,7 +914,7 @@ namespace rendercore
 		skyAtmosphereDrawResources.AddResource( "IrradianceLutSampler", linearSampler.Resource() );
 		skyAtmosphereDrawResources.AddResource( "InscatterLut", info->GetInscatterLutTexture()->SRV() );
 		skyAtmosphereDrawResources.AddResource( "InscatterLutSampler", linearSampler.Resource() );
-		skyAtmosphereDrawResources.AddResource( "SkyAtmosphereRenderParameter", skyAtmosphereRenderParameter.Resource() );
+		skyAtmosphereDrawResources.AddResource( "SkyAtmosphereRenderParameter", skyAtmosphereRenderParameter->Resource() );
 
 		skyAtmosphereDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
@@ -944,21 +967,21 @@ namespace rendercore
 		}
 
 		const VolumetricCloudProxy& proxy = *info->Proxy();
-		VolumetricCloudRenderParameter param = {
-			.m_sphereRadius = Vector( proxy.EarthRadius(), proxy.InnerRadius(), proxy.OuterRadius() ),
-			.m_lightAbsorption = proxy.LightAbsorption(),
-			.m_lightPosOrDir = lightPosOrDir,
-			.m_cloudColor = proxy.CloudColor(),
-			.m_windDirection = Vector( 0.5f, 0.f, 0.1f ).GetNormalized(),
-			.m_windSpeed = 450.f,
-			.m_crispiness = proxy.Crispiness(),
-			.m_curliness = proxy.Curliness(),
-			.m_densityFactor = proxy.DensityFactor(),
-			.m_densityScale = proxy.DensityScale(),
+		VolumetricCloudRenderParameters param = {
+			.SphereRadius = Vector( proxy.EarthRadius(), proxy.InnerRadius(), proxy.OuterRadius() ),
+			.LightAbsorption = proxy.LightAbsorption(),
+			.LightPosOrDir = lightPosOrDir,
+			.CloudColor = proxy.CloudColor(),
+			.WindDirection = Vector( 0.5f, 0.f, 0.1f ).GetNormalized(),
+			.WindSpeed = 450.f,
+			.Crispiness = proxy.Crispiness(),
+			.Curliness = proxy.Curliness(),
+			.DensityFactor = proxy.DensityFactor(),
+			.DensityScale = proxy.DensityScale(),
 		};
 
-		auto& volumetricCloudRenderParameter = info->GetVolumetricCloudRenderParameter();
-		volumetricCloudRenderParameter.Update( param );
+		auto& shaderArguments = info->GetShaderArguments();
+		shaderArguments.Update( param );
 
 		DrawSnapshot& snapshot = *result;
 
@@ -974,7 +997,7 @@ namespace rendercore
 			, agl::TextureAddressMode::Wrap>::Get();
 
 		RenderingShaderResource volumetricCloundDrawResources;
-		volumetricCloundDrawResources.AddResource( "VolumetricCloudRenderParameter", volumetricCloudRenderParameter.Resource() );
+		volumetricCloundDrawResources.AddResource( "VolumetricCloudRenderParameter", shaderArguments.Resource() );
 		volumetricCloundDrawResources.AddResource( "BaseCloudShape", info->BaseCloudShape()->SRV() );
 		volumetricCloundDrawResources.AddResource( "DetailCloudShape", info->DetailCloudShape()->SRV() );
 		volumetricCloundDrawResources.AddResource( "WeatherMap", info->WeatherMap()->SRV() );
@@ -1029,7 +1052,7 @@ namespace rendercore
 		RenderingShaderResource volumetricFogDrawResources;
 		volumetricFogDrawResources.AddResource( "AccumulatedVolume", info->AccumulatedVolume()->SRV() );
 		volumetricFogDrawResources.AddResource( "AccumulatedVolumeSampler", accumulatedVolumeSampler.Resource() );
-		volumetricFogDrawResources.AddResource( "VolumetricFogParameterBuffer", info->GetVolumetricFogParameter().Resource() );
+		volumetricFogDrawResources.AddResource( "VolumetricFogParameterBuffer", info->GetShaderArguments().Resource() );
 
 		volumetricFogDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
@@ -1075,8 +1098,8 @@ namespace rendercore
 
 				LpvLightInjectionParameters injectionParams = {
 					.lightInfo = lightSceneInfo,
-					.m_sceneViewParameters = scene.SceneViewConstant().Resource(),
-					.m_shadowDepthPassParameters = shadowInfo.ConstantBuffer().Resource(),
+					.m_viewShaderArguments = scene.GetViewShaderArguments().Resource(),
+					.m_shadowDepthPassParameters = shadowInfo.GetShadowShaderArguments().Resource(),
 					.m_rsmTextures = {
 						.m_worldPosition = shadowMapRT.m_shadowMaps[1],
 						.m_normal = shadowMapRT.m_shadowMaps[2],
@@ -1136,8 +1159,8 @@ namespace rendercore
 			}
 
 			auto renderTarget = renderViewGroup.GetViewport().Texture();
-			if ( ( renderTarget == nullptr ) 
-				|| ( renderTarget->RTV() == nullptr ))
+			if ( ( renderTarget == nullptr )
+				|| ( renderTarget->RTV() == nullptr ) )
 			{
 				return;
 			}
@@ -1163,7 +1186,7 @@ namespace rendercore
 
 			commandList.SetViewports( 1, &viewport );
 			commandList.SetScissorRects( 1, &scissorRect );
-			commandList.BindRenderTargets( &rtv, 1, nullptr);
+			commandList.BindRenderTargets( &rtv, 1, nullptr );
 
 			m_rsms.PreRender( renderViewGroup );
 			m_rsms.Render( renderingParam, m_shaderResources );
@@ -1235,17 +1258,17 @@ namespace rendercore
 		commandList.ClearRenderTarget( renderTarget->RTV(), { 1.f, 1.f, 1.f, 1.f } );
 		commandList.ClearDepthStencil( depthStencil->DSV(), 1.f, 0 );
 
+		auto& viewShaderArguments = scene.GetViewShaderArguments();
+
 		for ( size_t viewIndex = 0; viewIndex < renderViewGroup.Size(); ++viewIndex )
 		{
-			auto& viewConstant = scene.SceneViewConstant();
-
-			SceneViewParameters viewConstantParam = FillViewConstantParam( scene.GetRenderScene()
+			SceneViewParameters viewParam = GetViewParameters( scene.GetRenderScene()
 				, ( viewIndex < m_prevFrameContext.size() ) ? &m_prevFrameContext[viewIndex] : nullptr
 				, renderViewGroup, viewIndex );
 
-			viewConstant.Update( viewConstantParam );
+			viewShaderArguments.Update( viewParam );
 
-			m_shaderResources.AddResource( "SceneViewParameters", viewConstant.Resource() );
+			m_shaderResources.AddResource( &viewShaderArguments );
 
 			RenderView& renderView = renderViewGroup[viewIndex];
 			auto& snapshots = renderView.m_snapshots[static_cast<uint32>( RenderPass::HitProxy )];

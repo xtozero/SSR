@@ -3,15 +3,20 @@
 #include "Buffer.h"
 #include "GraphicsApiResource.h"
 #include "GraphicsPipelineState.h"
+#include "ShaderArguments.h"
 #include "SizedTypes.h"
 #include "Texture.h"
-#include "TypedBuffer.h"
 
 namespace rendercore
 {
 	class RenderViewGroup;
 	class RenderingShaderResource;
 	class ShadowInfo;
+
+	BEGIN_SHADER_ARGUMENTS_STRUCT( RSMsParameters )
+		DECLARE_VALUE( uint32, NumSamplingPattern )
+		DECLARE_VALUE( float, MaxRadius )
+	END_SHADER_ARGUMENTS_STRUCT()
 
 	struct RSMsRenderingParam final
 	{
@@ -35,12 +40,14 @@ namespace rendercore
 		void PreRender( const RenderViewGroup& renderViewGroup );
 		void Render( const RSMsRenderingParam& param, RenderingShaderResource& outRenderingShaderResource );
 
+		RSMsRenderer();
+
 	private:
 		void AllocTextureForIndirectIllumination( const std::pair<uint32, uint32>& renderTargetSize );
 		void CreateSamplingPattern();
 
 		RefHandle<agl::Buffer> m_samplingPattern;
-		TypedConstatBuffer<RSMsConstantParameters> m_constantParams;
+		RefHandle<ShaderArguments> m_shaderArguments;
 		RefHandle<agl::Texture> m_indirectIllumination;
 		SamplerState m_blackBorderSampler;
 	};

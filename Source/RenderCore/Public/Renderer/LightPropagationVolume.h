@@ -23,7 +23,7 @@ namespace rendercore
 	struct LpvLightInjectionParameters
 	{
 		const LightSceneInfo* lightInfo = nullptr;
-		RefHandle<agl::Buffer> m_sceneViewParameters;
+		RefHandle<agl::Buffer> m_viewShaderArguments;
 		RefHandle<agl::Buffer> m_shadowDepthPassParameters;
 		LpvRSMTextures m_rsmTextures;
 		std::array<float, CascadeShadowSetting::MAX_CASCADE_NUM> m_surfelAreas;

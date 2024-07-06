@@ -217,7 +217,7 @@ namespace rendercore
 	void LightPropagationVolume::InjectLight( const LpvLightInjectionParameters& params )
 	{
 		bool isValid = params.lightInfo != nullptr
-			&& params.m_sceneViewParameters.Get() != nullptr
+			&& params.m_viewShaderArguments.Get() != nullptr
 			&& params.m_shadowDepthPassParameters.Get() != nullptr
 			&& params.m_rsmTextures.m_worldPosition != nullptr
 			&& params.m_rsmTextures.m_normal != nullptr
@@ -635,7 +635,7 @@ namespace rendercore
 			SetShaderValue( commandList, LightInjectionVS().SurfelArea(), vSurfelArea );
 
 			RenderingShaderResource shaderResources;
-			shaderResources.AddResource( "SceneViewParameters", params.m_sceneViewParameters );
+			shaderResources.AddResource( "SceneViewParameters", params.m_viewShaderArguments );
 			shaderResources.AddResource( "LPVCommonParameters", m_lpvCommon );
 			shaderResources.AddResource( "ShadowDepthPassParameters", params.m_shadowDepthPassParameters );
 
@@ -690,7 +690,7 @@ namespace rendercore
 			SetShaderValue( commandList, GeometryInjectionVS().LightDirection(), lightDirection );
 
 			RenderingShaderResource shaderResources;
-			shaderResources.AddResource( "SceneViewParameters", params.m_sceneViewParameters );
+			shaderResources.AddResource( "SceneViewParameters", params.m_viewShaderArguments );
 			shaderResources.AddResource( "LPVCommonParameters", m_lpvCommon );
 			shaderResources.AddResource( "ShadowDepthPassParameters", params.m_shadowDepthPassParameters );
 
