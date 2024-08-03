@@ -5,19 +5,19 @@
 
 namespace agl
 {
-	class ShaderResourceView : public DeviceDependantResource
+	class ShaderResourceView : public GraphicsApiResource
 	{
 	};
 
-	class UnorderedAccessView : public DeviceDependantResource
+	class UnorderedAccessView : public GraphicsApiResource
 	{
 	};
 
-	class RenderTargetView : public DeviceDependantResource
+	class RenderTargetView : public GraphicsApiResource
 	{
 	};
 
-	class DepthStencilView : public DeviceDependantResource
+	class DepthStencilView : public GraphicsApiResource
 	{
 	};
 

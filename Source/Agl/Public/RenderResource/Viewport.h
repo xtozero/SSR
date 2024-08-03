@@ -15,7 +15,7 @@ namespace agl
 		uint32 m_height;
 	};
 
-	class Viewport : public DeviceDependantResource
+	class Viewport : public GraphicsApiResource
 	{
 	public:
 		AGL_DLL static RefHandle<Viewport> Create( uint32 width, uint32 height, ResourceFormat format, const float4& bgColor );

@@ -12,7 +12,7 @@ namespace agl
 {
 	class ICommandListBase;
 
-	class Texture : public DeviceDependantResource, public IResourceViews, public ITransitionable
+	class Texture : public GraphicsApiResource, public IResourceViews, public ITransitionable
 	{
 	public:
 		AGL_DLL static RefHandle<Texture> Create( const TextureTrait& trait, const char* debugName );

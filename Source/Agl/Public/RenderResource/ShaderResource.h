@@ -42,25 +42,25 @@ namespace agl
 		const ShaderParameterInfo* m_parameterInfo = nullptr;
 	};
 
-	class VertexShader : public DeviceDependantResource
+	class VertexShader : public GraphicsApiResource
 	{
 	public:
 		AGL_DLL static RefHandle<VertexShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
 	};
 
-	class GeometryShader : public DeviceDependantResource
+	class GeometryShader : public GraphicsApiResource
 	{
 	public:
 		AGL_DLL static RefHandle<GeometryShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
 	};
 
-	class PixelShader : public DeviceDependantResource
+	class PixelShader : public GraphicsApiResource
 	{
 	public:
 		AGL_DLL static RefHandle<PixelShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
 	};
 
-	class ComputeShader : public DeviceDependantResource
+	class ComputeShader : public GraphicsApiResource
 	{
 	public:
 		AGL_DLL static RefHandle<ComputeShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );

@@ -7,7 +7,7 @@ namespace agl
 {
 	class ICommandListBase;
 
-	class Query : public DeviceDependantResource
+	class Query : public GraphicsApiResource
 	{
 	public:
 		virtual void Begin( ICommandListBase& commandList ) = 0;

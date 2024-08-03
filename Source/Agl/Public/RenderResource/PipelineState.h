@@ -7,31 +7,31 @@
 
 namespace agl
 {
-	class BlendState : public DeviceDependantResource
+	class BlendState : public GraphicsApiResource
 	{
 	public:
 		AGL_DLL static RefHandle<BlendState> Create( const BlendStateTrait& trait );
 	};
 
-	class DepthStencilState : public DeviceDependantResource
+	class DepthStencilState : public GraphicsApiResource
 	{
 	public:
 		AGL_DLL static RefHandle<DepthStencilState> Create( const DepthStencilStateTrait& trait );
 	};
 
-	class RasterizerState : public DeviceDependantResource
+	class RasterizerState : public GraphicsApiResource
 	{
 	public:
 		AGL_DLL static RefHandle<RasterizerState> Create( const RasterizerStateTrait& trait );
 	};
 
-	class SamplerState : public DeviceDependantResource
+	class SamplerState : public GraphicsApiResource
 	{
 	public:
 		AGL_DLL static RefHandle<SamplerState> Create( const SamplerStateTrait& trait );
 	};
 
-	class VertexLayout : public DeviceDependantResource
+	class VertexLayout : public GraphicsApiResource
 	{
 	public:
 		AGL_DLL static RefHandle<VertexLayout> Create( const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size );
@@ -76,13 +76,13 @@ namespace agl
 		ComputeShader* m_computeShader = nullptr;
 	};
 
-	class GraphicsPipelineState : public DeviceDependantResource
+	class GraphicsPipelineState : public GraphicsApiResource
 	{
 	public:
 		AGL_DLL static RefHandle<GraphicsPipelineState> Create( const GraphicsPipelineStateInitializer& initializer );
 	};
 
-	class ComputePipelineState : public DeviceDependantResource
+	class ComputePipelineState : public GraphicsApiResource
 	{
 	public:
 		AGL_DLL static RefHandle<ComputePipelineState> Create( const ComputePipelineStateInitializer& initializer );

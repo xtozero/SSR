@@ -6,7 +6,7 @@
 
 namespace agl
 {
-	class Buffer : public DeviceDependantResource, public IResourceViews, public ITransitionable
+	class Buffer : public GraphicsApiResource, public IResourceViews, public ITransitionable
 	{
 	public:
 		AGL_DLL static RefHandle<Buffer> Create( const BufferTrait& trait, const char* debugName );

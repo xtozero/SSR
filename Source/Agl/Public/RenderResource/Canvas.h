@@ -7,7 +7,7 @@ namespace agl
 {
 	class Texture;
 
-	class Canvas : public DeviceDependantResource
+	class Canvas : public GraphicsApiResource
 	{
 	public:
 		AGL_DLL static RefHandle<Canvas> Create( uint32 width, uint32 height, void* hWnd, ResourceFormat format );

@@ -119,10 +119,6 @@ namespace agl
 		bool m_isInitialized = false;
 	};
 
-	class DeviceDependantResource : public GraphicsApiResource
-	{
-	};
-
 	enum class ResourceBindType : uint8
 	{
 		// from D3D11
