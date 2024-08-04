@@ -620,6 +620,11 @@ namespace rendercore
 			shadowInfo.SetupShadowConstantBuffer();
 			shadowInfo.RenderDepth( *this, m_shaderResources );
 
+			if ( DefaultRenderCore::IsESMsEnabled() )
+			{
+				shadowMap.m_shadowMaps[0] = GenerateExponentialShadowMaps( shadowInfo, shadowMap.m_shadowMaps[0] );
+			}
+
 			commandList.AddTransition( Transition( *shadowMap.m_shadowMaps[0].Get(), agl::ResourceState::GenericRead ) );
 
 			if ( rsmsEnabled )
@@ -627,11 +632,6 @@ namespace rendercore
 				commandList.AddTransition( Transition( *shadowMap.m_shadowMaps[1].Get(), agl::ResourceState::GenericRead ) );
 				commandList.AddTransition( Transition( *shadowMap.m_shadowMaps[2].Get(), agl::ResourceState::GenericRead ) );
 				commandList.AddTransition( Transition( *shadowMap.m_shadowMaps[3].Get(), agl::ResourceState::GenericRead ) );
-			}
-
-			if ( DefaultRenderCore::IsESMsEnabled() )
-			{
-				shadowMap.m_shadowMaps[0] = GenerateExponentialShadowMaps( shadowInfo, shadowMap.m_shadowMaps[0] );
 			}
 		}
 	}
@@ -1046,6 +1046,8 @@ namespace rendercore
 		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
 		ApplyOutputContext( commandList );
+
+		commandList.AddTransition( Transition( *info->AccumulatedVolume().Get(), agl::ResourceState::PixelShaderResource ) );
 
 		SamplerState accumulatedVolumeSampler = StaticSamplerState<>::Get();
 

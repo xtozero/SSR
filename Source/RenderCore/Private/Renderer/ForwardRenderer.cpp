@@ -449,6 +449,10 @@ namespace rendercore
 			IScene& scene = renderViewGroup.Scene();
 
 			RenderMesh( scene, RenderPass::DepthWrite, renderViewGroup[curView] );
+
+			commandList.AddTransition( Transition( *renderTarget, agl::ResourceState::PixelShaderResource ) );
+			commandList.AddTransition( Transition( *worldNormal, agl::ResourceState::PixelShaderResource ) );
+			commandList.AddTransition( Transition( *velocity, agl::ResourceState::PixelShaderResource ) );
 		}
 	}
 

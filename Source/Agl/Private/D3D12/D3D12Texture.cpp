@@ -643,7 +643,7 @@ namespace agl
 		}
 		else if ( ( m_dataStorage != nullptr ) && ( HasAllFlags( m_trait.m_access, ResourceAccessFlag::CpuWrite ) == false ) )
 		{
-			SetResourceState( ResourceState::CopyDest );
+			SetResourceState( ResourceState::Common );
 		}
 	}
 

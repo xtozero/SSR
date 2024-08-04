@@ -241,7 +241,7 @@ namespace rendercore
 		commandList.AddTransition( Transition( *m_lpvTextures.m_coeffR, agl::ResourceState::UnorderedAccess ) );
 		commandList.AddTransition( Transition( *m_lpvTextures.m_coeffG, agl::ResourceState::UnorderedAccess ) );
 		commandList.AddTransition( Transition( *m_lpvTextures.m_coeffB, agl::ResourceState::UnorderedAccess ) );
-		commandList.AddTransition( Transition( *m_lpvTextures.m_coeffOcclusion, agl::ResourceState::UnorderedAccess ) );
+		commandList.AddTransition( Transition( *m_lpvTextures.m_coeffOcclusion, agl::ResourceState::NonPixelShaderResource ) );
 		commandList.AddTransition( Transition( *tempTextures.m_coeffR, agl::ResourceState::UnorderedAccess ) );
 		commandList.AddTransition( Transition( *tempTextures.m_coeffG, agl::ResourceState::UnorderedAccess ) );
 		commandList.AddTransition( Transition( *tempTextures.m_coeffB, agl::ResourceState::UnorderedAccess ) );
@@ -315,6 +315,9 @@ namespace rendercore
 
 		auto commandList = GetCommandList();
 
+		commandList.AddTransition( Transition( *m_lpvTextures.m_coeffR.Get(), agl::ResourceState::PixelShaderResource ) );
+		commandList.AddTransition( Transition( *m_lpvTextures.m_coeffG.Get(), agl::ResourceState::PixelShaderResource ) );
+		commandList.AddTransition( Transition( *m_lpvTextures.m_coeffB.Get(), agl::ResourceState::PixelShaderResource ) );
 		commandList.AddTransition( Transition( *m_indirectIllumination.Get(), agl::ResourceState::RenderTarget ) );
 
 		agl::RenderTargetView* rtv = m_indirectIllumination->RTV();

@@ -324,7 +324,7 @@ namespace agl
 		}
 		else if ( m_hasInitData && HasAllFlags( m_trait.m_access, ResourceAccessFlag::CpuWrite ) == false )
 		{
-			SetResourceState( ResourceState::CopyDest );
+			SetResourceState( ResourceState::Common );
 		}
 	}
 

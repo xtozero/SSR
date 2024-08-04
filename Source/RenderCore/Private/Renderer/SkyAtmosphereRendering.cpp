@@ -224,6 +224,8 @@ namespace rendercore
 		RefHandle<agl::ComputePipelineState> transmittancePSO = PrepareComputePipelineState( transmittanceCS );
 		commandList.BindPipelineState( transmittancePSO );
 
+		commandList.AddTransition( Transition( *info.GetTransmittanceLutTexture().Get(), agl::ResourceState::UnorderedAccess) );
+
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( transmittanceCS );
 		BindResource( shaderBindings, transmittanceCS.Transmittance(), info.GetTransmittanceLutTexture() );
 
@@ -250,6 +252,9 @@ namespace rendercore
 		IrradianceOneCS irradianceOneCS;
 		RefHandle<agl::ComputePipelineState> irradianceOnePSO = PrepareComputePipelineState( irradianceOneCS );
 		commandList.BindPipelineState( irradianceOnePSO );
+
+		commandList.AddTransition( Transition( *info.GetTransmittanceLutTexture().Get(), agl::ResourceState::NonPixelShaderResource ) );
+		commandList.AddTransition( Transition( *deltaETexture.Get(), agl::ResourceState::UnorderedAccess ) );
 
 		shaderBindings = CreateShaderBindings( irradianceOneCS );
 
@@ -284,6 +289,10 @@ namespace rendercore
 		RefHandle<agl::ComputePipelineState> inscatterOnePSO = PrepareComputePipelineState( inscatterOneCS );
 		commandList.BindPipelineState( inscatterOnePSO );
 
+		commandList.AddTransition( Transition( *info.GetTransmittanceLutTexture().Get(), agl::ResourceState::NonPixelShaderResource ) );
+		commandList.AddTransition( Transition( *deltaSRTexture.Get(), agl::ResourceState::UnorderedAccess ) );
+		commandList.AddTransition( Transition( *deltaSMTexture.Get(), agl::ResourceState::UnorderedAccess ) );
+
 		shaderBindings = CreateShaderBindings( inscatterOneCS );
 
 		BindResource( shaderBindings, inscatterOneCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
@@ -310,6 +319,10 @@ namespace rendercore
 		CopyInscatterOneCS copyInscatterOneCS;
 		RefHandle<agl::ComputePipelineState> copyInscatterOnePSO = PrepareComputePipelineState( copyInscatterOneCS );
 		commandList.BindPipelineState( copyInscatterOnePSO );
+
+		commandList.AddTransition( Transition( *deltaSRTexture.Get(), agl::ResourceState::NonPixelShaderResource ) );
+		commandList.AddTransition( Transition( *deltaSMTexture.Get(), agl::ResourceState::NonPixelShaderResource ) );
+		commandList.AddTransition( Transition( *inscatterBuffer.Get(), agl::ResourceState::UnorderedAccess ) );
 
 		shaderBindings = CreateShaderBindings( copyInscatterOneCS );
 
@@ -348,6 +361,12 @@ namespace rendercore
 
 			shaderBindings = CreateShaderBindings( inscatterSCS );
 
+			commandList.AddTransition( Transition( *info.GetTransmittanceLutTexture().Get(), agl::ResourceState::NonPixelShaderResource ) );
+			commandList.AddTransition( Transition( *deltaETexture.Get(), agl::ResourceState::NonPixelShaderResource ) );
+			commandList.AddTransition( Transition( *deltaSRTexture.Get(), agl::ResourceState::NonPixelShaderResource ) );
+			commandList.AddTransition( Transition( *deltaSMTexture.Get(), agl::ResourceState::NonPixelShaderResource ) );
+			commandList.AddTransition( Transition( *deltaJTex.Get(), agl::ResourceState::UnorderedAccess ) );
+
 			BindResource( shaderBindings, inscatterSCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
 			BindResource( shaderBindings, inscatterSCS.TransmittanceLutSampler(), pointSampler );
 			BindResource( shaderBindings, inscatterSCS.DeltaELut(), deltaETexture );
@@ -375,6 +394,10 @@ namespace rendercore
 
 			shaderBindings = CreateShaderBindings( irradianceNCS );
 
+			commandList.AddTransition( Transition( *deltaSRTexture.Get(), agl::ResourceState::NonPixelShaderResource ) );
+			commandList.AddTransition( Transition( *deltaSMTexture.Get(), agl::ResourceState::NonPixelShaderResource ) );
+			commandList.AddTransition( Transition( *deltaETexture.Get(), agl::ResourceState::UnorderedAccess ) );
+
 			BindResource( shaderBindings, irradianceNCS.DeltaSRLut(), deltaSRTexture );
 			BindResource( shaderBindings, irradianceNCS.DeltaSRLutSampler(), pointSampler );
 			BindResource( shaderBindings, irradianceNCS.DeltaSMLut(), deltaSMTexture );
@@ -392,6 +415,10 @@ namespace rendercore
 
 			shaderBindings = CreateShaderBindings( inscatterNCS );
 
+			commandList.AddTransition( Transition( *info.GetTransmittanceLutTexture().Get(), agl::ResourceState::NonPixelShaderResource ) );
+			commandList.AddTransition( Transition( *deltaJTex.Get(), agl::ResourceState::NonPixelShaderResource ) );
+			commandList.AddTransition( Transition( *deltaSRTexture.Get(), agl::ResourceState::UnorderedAccess ) );
+
 			BindResource( shaderBindings, inscatterNCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
 			BindResource( shaderBindings, inscatterNCS.TransmittanceLutSampler(), pointSampler );
 			BindResource( shaderBindings, inscatterNCS.DeltaJLut(), deltaJTex );
@@ -408,6 +435,9 @@ namespace rendercore
 
 			shaderBindings = CreateShaderBindings( copyIrradianceCS );
 
+			commandList.AddTransition( Transition( *deltaETexture.Get(), agl::ResourceState::NonPixelShaderResource ) );
+			commandList.AddTransition( Transition( *irradianceBuffer.Get(), agl::ResourceState::UnorderedAccess ) );
+
 			BindResource( shaderBindings, copyIrradianceCS.DeltaELut(), deltaETexture );
 			BindResource( shaderBindings, copyIrradianceCS.DeltaELutSampler(), pointSampler );
 			BindResource( shaderBindings, copyIrradianceCS.Irradiance(), irradianceBuffer );
@@ -421,6 +451,9 @@ namespace rendercore
 			commandList.BindPipelineState( copyInscatterNPSO );
 
 			shaderBindings = CreateShaderBindings( copyInscatterNCS );
+
+			commandList.AddTransition( Transition( *deltaSRTexture.Get(), agl::ResourceState::NonPixelShaderResource ) );
+			commandList.AddTransition( Transition( *inscatterBuffer.Get(), agl::ResourceState::UnorderedAccess ) );
 
 			BindResource( shaderBindings, copyInscatterNCS.DeltaSRLut(), deltaSRTexture );
 			BindResource( shaderBindings, copyInscatterNCS.DeltaSRLutSampler(), pointSampler );
@@ -447,6 +480,7 @@ namespace rendercore
 			RefHandle<agl::Buffer> irradianceReadBack = agl::Buffer::Create( readBack, "Atmosphere.IrradianceReadBack" );
 			irradianceReadBack->Init();
 
+			commandList.AddTransition( Transition( *irradianceBuffer.Get(), agl::ResourceState::CopySource ) );
 			commandList.CopyResource( irradianceReadBack, irradianceBuffer );
 
 			auto src = GraphicsInterface().Lock( irradianceReadBack, agl::ResourceLockFlag::Read );
@@ -472,6 +506,7 @@ namespace rendercore
 			RefHandle<agl::Buffer> inscatterReadBack = agl::Buffer::Create( readBack, "Atmosphere.InscatterReadBack" );
 			inscatterReadBack->Init();
 
+			commandList.AddTransition( Transition( *inscatterBuffer.Get(), agl::ResourceState::CopySource ) );
 			commandList.CopyResource( inscatterReadBack, inscatterBuffer );
 
 			auto src = GraphicsInterface().Lock( inscatterReadBack, agl::ResourceLockFlag::Read );

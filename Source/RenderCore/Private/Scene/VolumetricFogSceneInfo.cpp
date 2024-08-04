@@ -148,6 +148,8 @@ namespace rendercore
 		RefHandle<agl::ComputePipelineState> inscatteringPSO = PrepareComputePipelineState( inscatteringCS );
 		commandList.BindPipelineState( inscatteringPSO );
 
+		commandList.AddTransition( Transition( *FrustumVolume().Get(), agl::ResourceState::UnorderedAccess ) );
+
 		SetShaderValue( commandList, inscatteringCS.AsymmetryParameterG(), Proxy()->G() );
 		SetShaderValue( commandList, inscatteringCS.UniformDensity(), Proxy()->UniformDensity() );
 		SetShaderValue( commandList, inscatteringCS.Intensity(), Proxy()->Intensity() );
@@ -214,6 +216,9 @@ namespace rendercore
 		commandList.BindPipelineState( accumulateScatteringPSO );
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( accumulateScatteringCS );
+
+		commandList.AddTransition( Transition( *FrustumVolume().Get(), agl::ResourceState::NonPixelShaderResource ) );
+		commandList.AddTransition( Transition( *AccumulatedVolume().Get(), agl::ResourceState::UnorderedAccess ) );
 
 		BindResource( shaderBindings, accumulateScatteringCS.FrustumVolume(), FrustumVolume() );
 		BindResource( shaderBindings, accumulateScatteringCS.AccumulatedVolume(), AccumulatedVolume() );

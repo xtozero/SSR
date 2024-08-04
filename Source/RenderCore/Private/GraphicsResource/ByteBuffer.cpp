@@ -53,6 +53,8 @@ namespace rendercore
 		auto commandList = GetCommandList();
 		commandList.BindPipelineState( pso.Get() );
 
+		commandList.AddTransition( Transition( *destBuffer, agl::ResourceState::UnorderedAccess ) );
+
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( distributionCopyCS );
 		SetShaderValue( commandList, distributionCopyCS.NumDistribution(), m_distributionCount );
 		BindResource( shaderBindings, distributionCopyCS.Src(), m_src.Resource() );

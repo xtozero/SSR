@@ -343,7 +343,7 @@ namespace rendercore
 			}
 		);
 
-		m_imguiRenderResource.m_fontAtlas = agl::Texture::Create( trait, "UI.FontAtlas", &initData);
+		m_imguiRenderResource.m_fontAtlas = agl::Texture::Create( trait, "UI.FontAtlas", &initData );
 
 		EnqueueRenderTask(
 			[texture = m_imguiRenderResource.m_fontAtlas]()

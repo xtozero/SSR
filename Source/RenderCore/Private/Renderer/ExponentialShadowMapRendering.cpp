@@ -80,6 +80,9 @@ namespace rendercore
 		auto commandList = GetCommandList();
 		commandList.BindPipelineState( pso );
 
+		commandList.AddTransition( Transition( *srcTexture.Get(), agl::ResourceState::NonPixelShaderResource ) );
+		commandList.AddTransition( Transition( *tempTexture.Get(), agl::ResourceState::UnorderedAccess ) );
+
 		SamplerState pointSampler = StaticSamplerState<agl::TextureFilter::Point>::Get();
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( horizonBlurCS );
@@ -111,6 +114,9 @@ namespace rendercore
 		CascadedESMsBlurCS virticalBlurCS( virticalSwitches );
 		pso = PrepareComputePipelineState( virticalBlurCS );
 		commandList.BindPipelineState( pso );
+
+		commandList.AddTransition( Transition( *tempTexture.Get(), agl::ResourceState::NonPixelShaderResource ) );
+		commandList.AddTransition( Transition( *srcTexture.Get(), agl::ResourceState::UnorderedAccess ) );
 
 		shaderBindings = CreateShaderBindings( virticalBlurCS );
 		BindResource( shaderBindings, virticalBlurCS.SrcTexture(), tempTexture );
@@ -146,6 +152,9 @@ namespace rendercore
 
 		auto commandList = GetCommandList();
 		commandList.BindPipelineState( pso );
+
+		commandList.AddTransition( Transition( *shadowMap.Get(), agl::ResourceState::NonPixelShaderResource ) );
+		commandList.AddTransition( Transition( *esmsTexture.Get(), agl::ResourceState::UnorderedAccess ) );
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( cascadedESMsCS );
 		BindResource( shaderBindings, cascadedESMsCS.SrcTexture(), shadowMap );
