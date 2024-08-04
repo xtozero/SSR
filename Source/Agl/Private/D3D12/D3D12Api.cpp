@@ -201,7 +201,7 @@ namespace agl
 		const wchar_t* GetProperProfile( const char* profile ) const;
 
 #ifdef _DEBUG
-		ComPtr<ID3D12Debug> m_debugLayer;
+		ComPtr<ID3D12Debug1> m_debugLayer;
 #endif
 
 		ComPtr<IDXGIFactory7> m_factory;
@@ -608,6 +608,7 @@ namespace agl
 		}
 
 		m_debugLayer->EnableDebugLayer();
+		m_debugLayer->SetEnableGPUBasedValidation( DefaultAgl::IsGpuValidationEnabled() );
 #endif
 
 		for ( uint32 i = 0; i < _countof( d3dFeatureLevel ); ++i )

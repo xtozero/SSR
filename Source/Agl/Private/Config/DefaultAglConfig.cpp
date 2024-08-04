@@ -16,4 +16,9 @@ namespace agl
 	{
 		return ( GetType() == AglType::D3D12 ) && GetInstance().m_useBindless;
 	}
+
+	bool DefaultAgl::IsGpuValidationEnabled()
+	{
+		return GetInstance().m_gpuValidationEnabled;
+	}
 }

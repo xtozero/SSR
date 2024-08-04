@@ -14,6 +14,7 @@ namespace agl
 		static AglType GetType();
 		AGL_DLL static uint32 GetBufferCount();
 		AGL_DLL static bool IsSupportsBindless();
+		static bool IsGpuValidationEnabled();
 		
 	private:
 		PROPERTY( type )
@@ -24,5 +25,8 @@ namespace agl
 
 		PROPERTY( useBindless )
 		bool m_useBindless = false;
+
+		PROPERTY( gpuValidationEnabled )
+		bool m_gpuValidationEnabled = false;
 	};
 }
