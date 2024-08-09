@@ -12,8 +12,8 @@ namespace agl
 	{
 	public:
 		ID3D12DescriptorHeap* GetDescriptorHeap();
-		D3D12_CPU_DESCRIPTOR_HANDLE GetCpuHandle( uint32 offset ) const;
-		D3D12_GPU_DESCRIPTOR_HANDLE GetGpuHandle( uint32 offset ) const;
+		D3D12_CPU_DESCRIPTOR_HANDLE GetCpuHandle( uint32 offset = 0 ) const;
+		D3D12_GPU_DESCRIPTOR_HANDLE GetGpuHandle( uint32 offset = 0 ) const;
 
 		D3D12GlobalHeapAllocatedInfo( const D3D12DescriptorHeap& base, uint32 offset, uint32 end ) noexcept;
 		D3D12GlobalHeapAllocatedInfo( const D3D12GlobalHeapAllocatedInfo& ) = default;

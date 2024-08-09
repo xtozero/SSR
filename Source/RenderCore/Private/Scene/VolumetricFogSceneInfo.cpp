@@ -91,7 +91,6 @@ namespace rendercore
 		AccumulateScattering( commandList );
 
 		commandList.Commit();
-		GetInterface<agl::IAgl>()->WaitGPU();
 	}
 
 	VolumetricFogSceneInfo::VolumetricFogSceneInfo( VolumetricFogProxy* proxy )

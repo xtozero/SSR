@@ -401,7 +401,7 @@ namespace agl
 				D3D12_ROOT_PARAMETER& param = m_parameters.emplace_back();
 
 				param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-				param.ShaderVisibility = GetShaderVisibility( type );;
+				param.ShaderVisibility = GetShaderVisibility( type );
 				param.DescriptorTable.NumDescriptorRanges = 1;
 				param.DescriptorTable.pDescriptorRanges = &range;
 			}
@@ -419,7 +419,7 @@ namespace agl
 				D3D12_ROOT_PARAMETER& param = m_parameters.emplace_back();
 
 				param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-				param.ShaderVisibility = GetShaderVisibility( type );;
+				param.ShaderVisibility = GetShaderVisibility( type );
 				param.DescriptorTable.NumDescriptorRanges = 1;
 				param.DescriptorTable.pDescriptorRanges = &range;
 			}
@@ -437,7 +437,7 @@ namespace agl
 				D3D12_ROOT_PARAMETER& param = m_parameters.emplace_back();
 
 				param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-				param.ShaderVisibility = GetShaderVisibility( type );;
+				param.ShaderVisibility = GetShaderVisibility( type );
 				param.DescriptorTable.NumDescriptorRanges = 1;
 				param.DescriptorTable.pDescriptorRanges = &range;
 			}

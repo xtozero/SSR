@@ -15,14 +15,14 @@ namespace agl
 		m_descriptorHeap = D3D12DescriptorHeapAllocator::GetInstance().AllocCpuDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1 );
 		D3D12Device().CreateShaderResourceView( m_d3d12Resource, &m_desc, m_descriptorHeap.GetCpuHandle().At() );
 
-		m_bindlessHandle = D3D12BindlessMgr().AddDescriptor( m_descriptorHeap.GetCpuHandle() );
+		m_bindlessHandle = D3D12BindlessMgr().AddResourceDescriptor( m_descriptorHeap.GetCpuHandle() );
 	}
 
 	void D3D12ShaderResourceView::FreeResource()
 	{
 		BaseClass::FreeResource();
 
-		D3D12BindlessMgr().RemoveDescriptor( m_bindlessHandle );
+		D3D12BindlessMgr().RemoveResourceDescriptor( m_bindlessHandle );
 	}
 
 	int32 D3D12UnorderedAccessView::GetBindlessHandle() const
@@ -35,14 +35,14 @@ namespace agl
 		m_descriptorHeap = D3D12DescriptorHeapAllocator::GetInstance().AllocCpuDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1 );
 		D3D12Device().CreateUnorderedAccessView( m_d3d12Resource, nullptr, &m_desc, m_descriptorHeap.GetCpuHandle().At() );
 
-		m_bindlessHandle = D3D12BindlessMgr().AddDescriptor( m_descriptorHeap.GetCpuHandle() );
+		m_bindlessHandle = D3D12BindlessMgr().AddResourceDescriptor( m_descriptorHeap.GetCpuHandle() );
 	}
 
 	void D3D12UnorderedAccessView::FreeResource()
 	{
 		BaseClass::FreeResource();
 
-		D3D12BindlessMgr().RemoveDescriptor( m_bindlessHandle );
+		D3D12BindlessMgr().RemoveResourceDescriptor( m_bindlessHandle );
 	}
 
 	void D3D12RenderTargetView::InitResource()
@@ -67,13 +67,13 @@ namespace agl
 		m_descriptorHeap = D3D12DescriptorHeapAllocator::GetInstance().AllocCpuDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1 );
 		D3D12Device().CreateConstantBufferView( &m_desc, m_descriptorHeap.GetCpuHandle().At() );
 
-		m_bindlessHandle = D3D12BindlessMgr().AddDescriptor( m_descriptorHeap.GetCpuHandle() );
+		m_bindlessHandle = D3D12BindlessMgr().AddResourceDescriptor( m_descriptorHeap.GetCpuHandle() );
 	}
 
 	void D3D12ConstantBufferView::FreeResource()
 	{
 		BaseClass::FreeResource();
 
-		D3D12BindlessMgr().RemoveDescriptor( m_bindlessHandle );
+		D3D12BindlessMgr().RemoveResourceDescriptor( m_bindlessHandle );
 	}
 }

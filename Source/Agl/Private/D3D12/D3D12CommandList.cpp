@@ -139,7 +139,7 @@ namespace agl
 	{
 		if ( shaderBindings.HasBindless() )
 		{
-			m_stateCache.BindBindlessResources( CommandList(), m_globalConstantBuffers, shaderBindings );
+			m_stateCache.BindBindlessResources( CommandList(), m_globalDescriptorHeap, m_globalConstantBuffers, shaderBindings );
 		}
 		else
 		{

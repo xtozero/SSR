@@ -35,14 +35,19 @@ namespace agl
 		}
 	}
 
-	D3D12DescriptorHeap& D3D12BindlessDescriptorHeap::GetHeap()
+	D3D12DescriptorHeap& D3D12BindlessDescriptorHeap::GetCpuHeap()
 	{
-		return m_gpuHeap;
+		return m_cpuHeap;
 	}
 
-	const D3D12DescriptorHeap& D3D12BindlessDescriptorHeap::GetHeap() const
+	const D3D12DescriptorHeap& D3D12BindlessDescriptorHeap::GetCpuHeap() const
 	{
-		return m_gpuHeap;
+		return m_cpuHeap;
+	}
+
+	uint32 D3D12BindlessDescriptorHeap::GetCapacity() const
+	{
+		return m_capacity;
 	}
 
 	D3D12BindlessDescriptorHeap::D3D12BindlessDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE type )
@@ -68,24 +73,24 @@ namespace agl
 		m_freeFlag.Resize( m_capacity, true );
 	}
 
-	int32 D3D12BindlessManager::AddDescriptor( D3D12CpuDescriptorHandle handle )
+	int32 D3D12BindlessManager::AddResourceDescriptor( D3D12CpuDescriptorHandle handle )
 	{
 		if ( DefaultAgl::IsSupportsBindless() == false )
 		{
 			return -1;
 		}
 
-		return m_descriptorHeap.Add( handle );
+		return m_resourceDescriptorHeap.Add( handle );
 	}
 
-	void D3D12BindlessManager::RemoveDescriptor( int32 bindlessHandle )
+	void D3D12BindlessManager::RemoveResourceDescriptor( int32 bindlessHandle )
 	{
 		if ( DefaultAgl::IsSupportsBindless() == false )
 		{
 			return;
 		}
 
-		m_descriptorHeap.Remove( bindlessHandle );
+		m_resourceDescriptorHeap.Remove( bindlessHandle );
 	}
 
 	int32 D3D12BindlessManager::AddSamplerDescriptor( D3D12CpuDescriptorHandle handle )
@@ -108,28 +113,38 @@ namespace agl
 		m_samplerDescriptorHeap.Remove( bindlessHandle );
 	}
 
-	D3D12DescriptorHeap& D3D12BindlessManager::GetHeap()
+	D3D12DescriptorHeap& D3D12BindlessManager::GetResourceCpuHeap()
 	{
-		return m_descriptorHeap.GetHeap();
+		return m_resourceDescriptorHeap.GetCpuHeap();
 	}
 
-	const D3D12DescriptorHeap& D3D12BindlessManager::GetHeap() const
+	const D3D12DescriptorHeap& D3D12BindlessManager::GetResourceCpuHeap() const
 	{
-		return m_descriptorHeap.GetHeap();
+		return m_resourceDescriptorHeap.GetCpuHeap();
 	}
 
-	D3D12DescriptorHeap& D3D12BindlessManager::GetSamplerHeap()
+	uint32 D3D12BindlessManager::GetHeapCapacity() const
 	{
-		return m_samplerDescriptorHeap.GetHeap();
+		return m_resourceDescriptorHeap.GetCapacity();
 	}
 
-	const D3D12DescriptorHeap& D3D12BindlessManager::GetSamplerHeap() const
+	D3D12DescriptorHeap& D3D12BindlessManager::GetSamplerCpuHeap()
 	{
-		return m_samplerDescriptorHeap.GetHeap();
+		return m_samplerDescriptorHeap.GetCpuHeap();
+	}
+
+	const D3D12DescriptorHeap& D3D12BindlessManager::GetSamplerCpuHeap() const
+	{
+		return m_samplerDescriptorHeap.GetCpuHeap();
+	}
+
+	uint32 D3D12BindlessManager::GetSamplerHeapCapacity() const
+	{
+		return m_samplerDescriptorHeap.GetCapacity();
 	}
 
 	D3D12BindlessManager::D3D12BindlessManager() 
-		: m_descriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV )
+		: m_resourceDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV )
 		, m_samplerDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER )
 	{
 	}

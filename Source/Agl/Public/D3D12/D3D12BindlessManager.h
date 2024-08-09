@@ -13,8 +13,10 @@ namespace agl
 		[[nodiscard]] int32 Add( D3D12CpuDescriptorHandle handle );
 		void Remove( int32 bindlessHandle );
 
-		D3D12DescriptorHeap& GetHeap();
-		const D3D12DescriptorHeap& GetHeap() const;
+		D3D12DescriptorHeap& GetCpuHeap();
+		const D3D12DescriptorHeap& GetCpuHeap() const;
+
+		uint32 GetCapacity() const;
 
 		explicit D3D12BindlessDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE type );
 
@@ -35,22 +37,26 @@ namespace agl
 	class D3D12BindlessManager
 	{
 	public:
-		[[nodiscard]] int32 AddDescriptor( D3D12CpuDescriptorHandle handle );
-		void RemoveDescriptor( int32 bindlessHandle );
+		[[nodiscard]] int32 AddResourceDescriptor( D3D12CpuDescriptorHandle handle );
+		void RemoveResourceDescriptor( int32 bindlessHandle );
 
 		[[nodiscard]] int32 AddSamplerDescriptor( D3D12CpuDescriptorHandle handle );
 		void RemoveSamplerDescriptor( int32 bindlessHandle );
 
-		D3D12DescriptorHeap& GetHeap();
-		const D3D12DescriptorHeap& GetHeap() const;
+		D3D12DescriptorHeap& GetResourceCpuHeap();
+		const D3D12DescriptorHeap& GetResourceCpuHeap() const;
+		
+		uint32 GetHeapCapacity() const;
 
-		D3D12DescriptorHeap& GetSamplerHeap();
-		const D3D12DescriptorHeap& GetSamplerHeap() const;
+		D3D12DescriptorHeap& GetSamplerCpuHeap();
+		const D3D12DescriptorHeap& GetSamplerCpuHeap() const;
+
+		uint32 GetSamplerHeapCapacity() const;
 
 		D3D12BindlessManager();
 
 	private:
-		D3D12BindlessDescriptorHeap m_descriptorHeap;
+		D3D12BindlessDescriptorHeap m_resourceDescriptorHeap;
 		D3D12BindlessDescriptorHeap m_samplerDescriptorHeap;
 	};
 }

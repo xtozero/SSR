@@ -35,7 +35,7 @@ namespace agl
 		void BindPipelineState( ID3D12GraphicsCommandList6& commandList, GraphicsPipelineState* pipelineState );
 		void BindPipelineState( ID3D12GraphicsCommandList6& commandList, ComputePipelineState* pipelineState );
 
-		void BindBindlessResources( ID3D12GraphicsCommandList6& commandList, GlobalConstantBuffers& globalConstantBuffers, ShaderBindings& shaderBindings );
+		void BindBindlessResources( ID3D12GraphicsCommandList6& commandList, D3D12GlobalDescriptorHeap& descriptorHeap, GlobalConstantBuffers& globalConstantBuffers, ShaderBindings& shaderBindings );
 		void BindShaderResources( ID3D12GraphicsCommandList6& commandList, D3D12GlobalDescriptorHeap& descriptorHeap, GlobalConstantBuffers& globalConstantBuffers, ShaderBindings& shaderBindings );
 
 		void SetViewports( ID3D12GraphicsCommandList6& commandList, uint32 count, const CubeArea<float>* area );
