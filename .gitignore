@@ -333,6 +333,9 @@ __pycache__/
 *.odx.cs
 *.xsd.cs
 
+# Project Settings
+PSOCache*.asset
+ShaderCache*.asset
 !Program/Assets/Models/*
 !RawAssets/Models/*
 
