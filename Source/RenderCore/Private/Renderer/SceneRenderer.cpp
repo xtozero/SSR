@@ -250,7 +250,7 @@ namespace rendercore
 		}
 
 		ClassifyViewDependentShadowCasterAndReceiver( scene, viewDependentShadow );
-		ClassifyViewIndependentShadowCasterAndReceiver( scene, viewIndependentShadow );
+		ClassifyViewIndependentShadowCasterAndReceiver( viewIndependentShadow );
 
 		SetupShadow();
 
@@ -315,7 +315,7 @@ namespace rendercore
 		}
 	}
 
-	void SceneRenderer::ClassifyViewIndependentShadowCasterAndReceiver( IScene& scene, const RenderThreadFrameData<ShadowInfo*>& shadows )
+	void SceneRenderer::ClassifyViewIndependentShadowCasterAndReceiver( const RenderThreadFrameData<ShadowInfo*>& shadows )
 	{
 		for ( ShadowInfo* pShadowInfo : shadows )
 		{

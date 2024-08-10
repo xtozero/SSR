@@ -1,6 +1,6 @@
+#if 0
 #pragma once
 
-#include "INotifyGraphicsDevice.h"
 #include "Math/Matrix.h"
 #include "Math/Vector.h"
 #include "SizedTypes.h"
@@ -48,10 +48,9 @@ namespace logic
 			m_vertices{ p0, p1, p2 }, BaseDebugPrimitive( color, life ) {}
 	};
 
-	class CDebugOverlayManager : public IGraphicsDeviceNotify
+	class CDebugOverlayManager
 	{
 	public:
-		virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
 		bool Init( CGameLogic& gameLogic );
 
 		void DrawPrimitive( IRenderer& renderer, float deltaTime );
@@ -71,3 +70,4 @@ namespace logic
 		//Material m_debugMaterial = INVALID_MATERIAL;
 	};
 }
+#endif

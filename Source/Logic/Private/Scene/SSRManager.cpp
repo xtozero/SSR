@@ -1,3 +1,4 @@
+#if 0
 #include "Scene/SSRManager.h"
 
 #include "Core/GameLogic.h"
@@ -8,11 +9,6 @@
 
 namespace logic
 {
-	void CSSRManager::OnDeviceRestore( CGameLogic& gameLogic )
-	{
-		CreateDeviceDependendResource( gameLogic );
-	}
-
 	bool CSSRManager::Init( CGameLogic& gameLogic )
 	{
 		return CreateDeviceDependendResource( gameLogic );
@@ -300,3 +296,4 @@ namespace logic
 		return true;
 	}
 }
+#endif

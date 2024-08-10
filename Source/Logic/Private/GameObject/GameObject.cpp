@@ -13,23 +13,13 @@
 #include "Physics/AxisAlignedBox.h"
 #include "Physics/BoundingSphere.h"
 #include "Physics/OrientedBox.h"
-//#include "Render/IRenderer.h"
 #include "Scene/DebugOverlayManager.h"
 
 #include <tchar.h>
 
 namespace logic
 {
-	void CGameObject::OnDeviceRestore( CGameLogic& gameLogic )
-	{
-		//m_material = INVALID_MATERIAL;
-		//m_overrideMaterial = INVALID_MATERIAL;
-
-		//LoadModelMesh( gameLogic );
-		//LoadMaterial( gameLogic );
-	}
-
-	void CGameObject::Initialize( CGameLogic& gameLogic, World& world )
+	void CGameObject::Initialize( [[maybe_unused]] CGameLogic& gameLogic, World& world )
 	{
 		m_pWorld = &world;
 
@@ -60,8 +50,6 @@ namespace logic
 		{
 			m_rootComponent->SetScale3D( scale3D );
 		}
-
-		// m_body.SetDirty( DF_SCALING );
 	}
 
 	void CGameObject::SetRotation( const Quaternion& rotation )
@@ -70,9 +58,6 @@ namespace logic
 		{
 			m_rootComponent->SetRotation( rotation );
 		}
-
-		// m_body.SetOrientation( m_vecRotate );
-		// m_body.SetDirty( DF_ROTATION );
 	}
 
 	void CGameObject::SetRelativePosition( const Vector& translation )
@@ -227,13 +212,8 @@ namespace logic
 		return Matrix::Identity;
 	}
 
-	void CGameObject::Think( float elapsedTime )
+	void CGameObject::Think( [[maybe_unused]] float elapsedTime )
 	{
-		if ( m_isPicked )
-		{
-			//m_body.SetVelocity( CXMFLOAT3( 0.f, 0.f, 0.f ) );
-			//m_body.SetRotation( CXMFLOAT3( 0.f, 0.f, 0.f ) );
-		}
 	}
 
 	void CGameObject::SetMaterialName( const std::string& pMaterialName )

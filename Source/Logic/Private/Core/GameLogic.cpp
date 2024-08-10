@@ -89,16 +89,6 @@ namespace logic
 			__debugbreak();
 		}
 
-		//if ( m_ssrManager.Init( *this ) == false )
-		//{
-		//	__debugbreak( );
-		//}
-
-		if ( m_debugOverlay.Init( *this ) == false )
-		{
-			__debugbreak();
-		}
-
 		m_world.Initialize();
 
 		return true;
@@ -154,10 +144,6 @@ namespace logic
 		{
 			m_canvas->Resize( newAppSize );
 		}
-
-		/*
-		m_ssrManager.AppSizeChanged( *this );
-		*/
 	}
 
 	GameClientViewport* CGameLogic::GetGameClientViewport()
@@ -247,14 +233,6 @@ namespace logic
 		GetInterface<engine::IEngine>()->ProcessInput();
 
 		m_world.BeginFrame();
-
-		//if ( showFps.GetBool( ) )
-		//{
-		//	m_ui.Window( "FPS Window" );
-		//	std::string fps = std::string( "FPS : " ) + std::to_string( m_clock.GetFps( ) );
-		//	m_ui.Text( fps.c_str( ) );
-		//	m_ui.EndWindow( );
-		//}
 	}
 
 	void CGameLogic::ProcessLogic()
@@ -277,10 +255,6 @@ namespace logic
 
 		// 게임 로직 수행 후처리
 
-
-		//// 후면 깊이 렌더링
-		//m_ssrManager.PreProcess( *this, m_renderableList );
-
 		if ( m_numDrawRequestQueued < agl::DefaultAgl::GetBufferCount() )
 		{
 			++m_numDrawRequestQueued;
@@ -293,9 +267,6 @@ namespace logic
 					--m_numDrawRequestQueued;
 				} );
 		}
-
-		//DrawForDebug( );
-		//DrawDebugOverlay( );
 	}
 
 	void CGameLogic::DrawScene()
@@ -334,31 +305,6 @@ namespace logic
 
 	void CGameLogic::SceneEnd()
 	{
-		//BYTE errorCode = m_pRenderer->SceneEnd( );
-		//if ( errorCode == DEVICE_ERROR::DEVICE_LOST )
-		//{
-		//	HandleDeviceLost( );
-		//}
-	}
-
-	void CGameLogic::HandleDeviceLost()
-	{
-		//m_pRenderer->HandleDeviceLost( m_wndHwnd, m_appSize.first, m_appSize.second );
-
-		//for ( auto& uiDrawBuffer : m_uiDrawBuffer )
-		//{
-		//	uiDrawBuffer.m_prevBufferSize = 0;
-		//	uiDrawBuffer.m_buffer = RE_HANDLE::InValidHandle( );
-		//}
-
-		//CreateDeviceDependentResource( );
-
-		//m_modelManager.OnDeviceRestore( *this );
-		//m_ssrManager.OnDeviceRestore( *this );
-		//m_debugOverlay.OnDeviceRestore( *this );
-		//m_atmosphereManager.OnDeviceRestore( *this );
-
-		m_world.OnDeviceRestore( *this );
 	}
 
 	CGameLogic::~CGameLogic()

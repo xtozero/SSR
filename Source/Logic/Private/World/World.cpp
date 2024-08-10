@@ -40,14 +40,6 @@ namespace logic
 		m_target->EndPhysicsFrame();
 	}
 
-	void World::OnDeviceRestore( CGameLogic& gameLogic )
-	{
-		for ( auto& object : m_gameObjects )
-		{
-			object->OnDeviceRestore( gameLogic );
-		}
-	}
-
 	void World::Initialize()
 	{
 		m_scene = GetInterface<rendercore::IRenderCore>()->CreateScene( *this );
@@ -180,14 +172,6 @@ namespace logic
 
 		m_componentsThatNeedRenderStateUpdate.clear();
 	}
-
-	//void World::DebugDrawBVH( CDebugOverlayManager& debugOverlay, uint32 color, float duration )
-	//{
-	//	for ( auto node : m_bvhTree )
-	//	{
-	//		debugOverlay.AddDebugSphere( node.m_volume.GetCenter(), node.m_volume.GetRadius(), color, duration );
-	//	}
-	//}
 
 	ThinkTaskManager& World::GetThinkTaskManager()
 	{

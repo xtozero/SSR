@@ -1,6 +1,6 @@
+#if 0
 #pragma once
 
-#include "INotifyGraphicsDevice.h"
 #include "Math/Matrix.h"
 #include "Math/Vector.h"
 //#include "Render/Resource.h"
@@ -21,11 +21,9 @@ namespace logic
 	class CGameObject;
 	class IRenderer;
 
-	class CSSRManager : public IGraphicsDeviceNotify
+	class CSSRManager
 	{
 	public:
-		virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
-
 		bool Init( CGameLogic& gameLogic );
 		void PreProcess( CGameLogic& gameLogic, const std::list<CGameObject*>* renderableList ) const;
 		void Process( CGameLogic& gameLogic, const std::list<CGameObject*>* renderableList ) const;
@@ -79,3 +77,4 @@ namespace logic
 		mutable bool m_isEnabled = true;
 	};
 }
+#endif

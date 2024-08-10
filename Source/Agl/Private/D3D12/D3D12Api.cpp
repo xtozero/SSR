@@ -352,7 +352,7 @@ namespace agl
 		d3d12Buffer->UnLock( subResource );
 	}
 
-	LockedResource Direct3D12::Lock( Texture* texture, ResourceLockFlag lockFlag, uint32 subResource )
+	LockedResource Direct3D12::Lock( Texture* texture, [[maybe_unused]] ResourceLockFlag lockFlag, uint32 subResource )
 	{
 		auto d3d12Texture = static_cast<D3D12Texture*>( texture );
 		if ( d3d12Texture == nullptr )
@@ -374,7 +374,7 @@ namespace agl
 		return d3d12Texture->UnLock( subResource );
 	}
 
-	void Direct3D12::GetRendererMultiSampleOption( MultiSampleOption* option )
+	void Direct3D12::GetRendererMultiSampleOption( [[maybe_unused]] MultiSampleOption* option )
 	{
 	}
 

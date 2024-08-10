@@ -1,7 +1,5 @@
+#if 0
 #pragma once
-
-#include "INotifyGraphicsDevice.h"
-//#include "Render/Resource.h"
 
 #include <memory>
 
@@ -16,11 +14,9 @@ namespace logic
 	//class IModelBuilder;
 	class IRenderResource;
 
-	class ScreenBlurManager : public IGraphicsDeviceNotify
+	class ScreenBlurManager
 	{
 	public:
-		virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
-
 		bool Init( CGameLogic& gameLogic );
 		//void Process( CGameLogic& gameLogic, RE_HANDLE destSRV, RE_HANDLE destRT ) const;
 		void AppSizeChanged( CGameLogic& gameLogic );
@@ -36,3 +32,4 @@ namespace logic
 		//RE_HANDLE m_blurSrv = RE_HANDLE::InValidHandle( );
 	};
 }
+#endif

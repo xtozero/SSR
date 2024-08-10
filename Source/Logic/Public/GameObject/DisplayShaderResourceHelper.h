@@ -1,3 +1,4 @@
+#if 0
 #pragma once
 
 #include "GameObject.h"
@@ -31,3 +32,4 @@ namespace logic
 		virtual ~CDisplayShaderResourceHelper() override = default;
 	};
 }
+#endif

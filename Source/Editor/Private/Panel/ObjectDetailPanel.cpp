@@ -191,7 +191,7 @@ namespace editor
 		ImGui::End();
 	}
 
-	void ObjectDetailPanel::HandleUserInput( const engine::UserInput& input )
+	void ObjectDetailPanel::HandleUserInput( [[maybe_unused]] const engine::UserInput& input )
 	{
 	}
 }

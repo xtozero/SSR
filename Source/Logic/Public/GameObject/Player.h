@@ -1,7 +1,6 @@
 #pragma once
 
 #include "GameObject.h"
-#include "Scene/INotifyGraphicsDevice.h"
 #include "UserInput/UserInput.h"
 
 namespace logic

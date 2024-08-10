@@ -1,3 +1,4 @@
+#if 0
 #include "Scene/DebugOverlayManager.h"
 
 #include "Core/GameLogic.h"
@@ -7,12 +8,6 @@
 
 namespace logic
 {
-	void CDebugOverlayManager::OnDeviceRestore( CGameLogic& gameLogic )
-	{
-		//m_dynamicVB.OnDeviceRestore( gameLogic );
-		//m_debugMaterial = gameLogic.GetRenderer( ).SearchMaterial( "mat_debugOverlay" );
-	}
-
 	bool CDebugOverlayManager::Init( CGameLogic& gameLogic )
 	{
 		//IRenderer& renderer = gameLogic.GetRenderer( );
@@ -293,3 +288,4 @@ namespace logic
 		}
 	}
 }
+#endif

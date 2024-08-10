@@ -431,13 +431,8 @@ namespace agl
 			numSampler += binding.NumSampler();
 		}
 
-		D3D12GlobalHeapAllocatedInfo allocatedInfo[2] = {
-			descriptorHeap.Aquire( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, numSrvUavCbv ),
-			descriptorHeap.Aquire( D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, numSampler )
-		};
-
-		constexpr uint32 SrvCbvUavHeap = 0;
-		constexpr uint32 SamplerHeap = 1;
+		D3D12GlobalHeapAllocatedInfo srvCbvUavHeap = descriptorHeap.Aquire( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, numSrvUavCbv );
+		D3D12GlobalHeapAllocatedInfo samplerHeap = descriptorHeap.Aquire( D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, numSampler );
 
 		uint32 destOffset = 0;
 		for ( uint32 shaderType = 0; shaderType < MAX_SHADER_TYPE<uint32>; ++shaderType )
@@ -457,7 +452,7 @@ namespace agl
 
 				RegisterRenderResource( d3d12SRV->GetOwner() );
 				
-				D3D12Device().CopyDescriptorsSimple( 1, allocatedInfo[SrvCbvUavHeap].GetCpuHandle( destOffset ), d3d12SRV->GetCpuHandle().At(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
+				D3D12Device().CopyDescriptorsSimple( 1, srvCbvUavHeap.GetCpuHandle( destOffset ), d3d12SRV->GetCpuHandle().At(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
 				++destOffset;
 			}
 		}
@@ -479,7 +474,7 @@ namespace agl
 
 				RegisterRenderResource( d3d12UAV->GetOwner() );
 
-				D3D12Device().CopyDescriptorsSimple( 1, allocatedInfo[SrvCbvUavHeap].GetCpuHandle( destOffset ), d3d12UAV->GetCpuHandle().At(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
+				D3D12Device().CopyDescriptorsSimple( 1, srvCbvUavHeap.GetCpuHandle( destOffset ), d3d12UAV->GetCpuHandle().At(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
 				++destOffset;
 			}
 		}
@@ -501,7 +496,7 @@ namespace agl
 
 				RegisterRenderResource( cb->Get() );
 
-				D3D12Device().CopyDescriptorsSimple( 1, allocatedInfo[SrvCbvUavHeap].GetCpuHandle( destOffset ), d3d12CB->CBV()->GetCpuHandle().At(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
+				D3D12Device().CopyDescriptorsSimple( 1, srvCbvUavHeap.GetCpuHandle( destOffset ), d3d12CB->CBV()->GetCpuHandle().At(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
 				++destOffset;
 			}
 		}
@@ -521,19 +516,19 @@ namespace agl
 				auto d3d12SamplerState = static_cast<D3D12SamplerState*>( samplerState->Get() );
 				assert( d3d12SamplerState != nullptr );
 
-				D3D12Device().CopyDescriptorsSimple( 1, allocatedInfo[SamplerHeap].GetCpuHandle( i ), d3d12SamplerState->Resource().GetCpuHandle().At(), D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER );
+				D3D12Device().CopyDescriptorsSimple( 1, samplerHeap.GetCpuHandle( i ), d3d12SamplerState->Resource().GetCpuHandle().At(), D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER );
 			}
 		}
 
 		std::vector<ID3D12DescriptorHeap*, InlineAllocator<ID3D12DescriptorHeap*, 2>> descriptorHeaps;
 		if ( numSrvUavCbv > 0 )
 		{
-			descriptorHeaps.push_back( allocatedInfo[SrvCbvUavHeap].GetDescriptorHeap() );
+			descriptorHeaps.push_back( srvCbvUavHeap.GetDescriptorHeap() );
 		}
 
 		if ( numSampler > 0 )
 		{
-			descriptorHeaps.push_back( allocatedInfo[SamplerHeap].GetDescriptorHeap() );
+			descriptorHeaps.push_back( samplerHeap.GetDescriptorHeap() );
 		}
 
 		commandList.SetDescriptorHeaps( static_cast<uint32>( descriptorHeaps.size() ), descriptorHeaps.data() );
@@ -546,25 +541,25 @@ namespace agl
 
 			if ( binding.NumSRV() > 0 )
 			{
-				commandList.SetComputeRootDescriptorTable( rootParameterIndex++, allocatedInfo[SrvCbvUavHeap].GetGpuHandle( offset ) );
+				commandList.SetComputeRootDescriptorTable( rootParameterIndex++, srvCbvUavHeap.GetGpuHandle( offset ) );
 				offset += binding.NumSRV();
 			}
 
 			if ( binding.NumUAV() > 0 )
 			{
-				commandList.SetComputeRootDescriptorTable( rootParameterIndex++, allocatedInfo[SrvCbvUavHeap].GetGpuHandle( offset ) );
+				commandList.SetComputeRootDescriptorTable( rootParameterIndex++, srvCbvUavHeap.GetGpuHandle( offset ) );
 				offset += binding.NumUAV();
 			}
 
 			if ( binding.NumCBV() > 0 )
 			{
-				commandList.SetComputeRootDescriptorTable( rootParameterIndex++, allocatedInfo[SrvCbvUavHeap].GetGpuHandle( offset ) );
+				commandList.SetComputeRootDescriptorTable( rootParameterIndex++, srvCbvUavHeap.GetGpuHandle( offset ) );
 				offset += binding.NumCBV();
 			}
 
 			if ( binding.NumSampler() > 0 )
 			{
-				commandList.SetComputeRootDescriptorTable( rootParameterIndex++, allocatedInfo[SamplerHeap].GetGpuHandle( 0 ) );
+				commandList.SetComputeRootDescriptorTable( rootParameterIndex++, samplerHeap.GetGpuHandle( 0 ) );
 			}
 		}
 		else
@@ -580,7 +575,7 @@ namespace agl
 
 				if ( binding.NumSRV() > 0 )
 				{
-					commandList.SetGraphicsRootDescriptorTable( rootParameterIndex++, allocatedInfo[SrvCbvUavHeap].GetGpuHandle( offset ) );
+					commandList.SetGraphicsRootDescriptorTable( rootParameterIndex++, srvCbvUavHeap.GetGpuHandle( offset ) );
 					offset += binding.NumSRV();
 				}
 			}
@@ -595,7 +590,7 @@ namespace agl
 
 				if ( binding.NumUAV() > 0 )
 				{
-					commandList.SetGraphicsRootDescriptorTable( rootParameterIndex++, allocatedInfo[SrvCbvUavHeap].GetGpuHandle( offset ) );
+					commandList.SetGraphicsRootDescriptorTable( rootParameterIndex++, srvCbvUavHeap.GetGpuHandle( offset ) );
 					offset += binding.NumUAV();
 				}
 			}
@@ -610,7 +605,7 @@ namespace agl
 
 				if ( binding.NumCBV() > 0 )
 				{
-					commandList.SetGraphicsRootDescriptorTable( rootParameterIndex++, allocatedInfo[SrvCbvUavHeap].GetGpuHandle( offset ) );
+					commandList.SetGraphicsRootDescriptorTable( rootParameterIndex++, srvCbvUavHeap.GetGpuHandle( offset ) );
 					offset += binding.NumCBV();
 				}
 			}
@@ -626,7 +621,7 @@ namespace agl
 
 				if ( binding.NumSampler() > 0 )
 				{
-					commandList.SetGraphicsRootDescriptorTable( rootParameterIndex++, allocatedInfo[SamplerHeap].GetGpuHandle( offset ) );
+					commandList.SetGraphicsRootDescriptorTable( rootParameterIndex++, samplerHeap.GetGpuHandle( offset ) );
 					offset += binding.NumSampler();
 				}
 			}

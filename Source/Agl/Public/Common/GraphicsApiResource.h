@@ -5,14 +5,9 @@
 #include "EnumClassFlags.h"
 #include "NameTypes.h"
 #include "RefCounterType.h"
-#include "RefHandle.h"
 #include "SizedTypes.h"
 
-#include <atomic>
-#include <cstddef>
-#include <limits>
 #include <optional>
-#include <string>
 #include <vector>
 
 namespace agl

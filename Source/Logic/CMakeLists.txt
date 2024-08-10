@@ -82,22 +82,6 @@ set (GAME_OBJECT
 	Public/GameObject/VolumetricCloud.h
 	Public/GameObject/VolumetricFog.h)
 
-#set (MODEL
-#	"Private/Model/DebugMesh.cpp"
-#	"Private/Model/ModelBuilder.cpp"
-#	"Private/Model/ModelManager.cpp"
-#	"Private/Model/PlyMesh.cpp"
-#	"Private/Model/PlyMeshLoader.cpp"
-#	"Public/Model/DebugMesh.h"
-#	"Public/Model/IModelBuilder.h"
-#	"Public/Model/IModelLoader.h"
-#	"Public/Model/MeshBuildHelper.h"
-#	"Public/Model/ModelBuilder.h"
-#	"Public/Model/ModelManager.h"
-#	"Public/Model/PlyMesh.h"
-#	"Public/Model/PlyMeshLoader.h"
-#	"Public/Model/Surface.h")
-
 set (PHYSICS
 	Private/Physics/BodyInstance.cpp
 	Private/Physics/BodySetup.cpp
@@ -117,7 +101,6 @@ set (SCENE
 	Private/Scene/SSRManager.cpp
 	Public/Scene/DebugOverlayManager.h
 	Public/Scene/GameClientViewport.h
-	Public/Scene/INotifyGraphicsDevice.h
 	Public/Scene/ScreenBlurManager.h
 	Public/Scene/SSRManager.h)
 	

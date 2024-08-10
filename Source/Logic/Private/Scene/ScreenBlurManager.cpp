@@ -1,3 +1,4 @@
+#if 0
 #include "Scene/ScreenBlurManager.h"
 
 #include "Core/GameLogic.h"
@@ -8,11 +9,6 @@
 
 namespace logic
 {
-	void ScreenBlurManager::OnDeviceRestore( CGameLogic& gameLogic )
-	{
-		CreateDeviceDependentResource( gameLogic );
-	}
-
 	bool ScreenBlurManager::Init( CGameLogic& gameLogic )
 	{
 		return CreateDeviceDependentResource( gameLogic );
@@ -119,3 +115,4 @@ namespace logic
 		return true;
 	}
 }
+#endif

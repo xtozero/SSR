@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "GraphicsApiResource.h"
+#include "RefHandle.h"
 #include "ResourceViews.h"
 
 namespace agl

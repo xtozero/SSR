@@ -1,3 +1,4 @@
+#if 0
 #include "GameObject/DisplayShaderResourceHelper.h"
 
 #include "ConsoleMessage/ConVar.h"
@@ -111,3 +112,4 @@ namespace logic
 		m_height( 1.0f )
 	{}
 }
+#endif

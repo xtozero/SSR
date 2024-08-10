@@ -72,7 +72,7 @@ namespace logic
 		m_inputComponent->BindInput( UIC_D, this, &CPlayer::OnMoveKey );
 	}
 
-	void CPlayer::OnMouseLButton( const UserInput& input )
+	void CPlayer::OnMouseLButton( [[maybe_unused]] const UserInput& input )
 	{
 		
 	}
@@ -102,7 +102,7 @@ namespace logic
 		}
 	}
 
-	void CPlayer::OnWheelMove( const UserInput& input )
+	void CPlayer::OnWheelMove( [[maybe_unused]] const UserInput& input )
 	{
 	}
 

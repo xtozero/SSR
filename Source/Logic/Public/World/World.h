@@ -4,7 +4,6 @@
 #include "Core/Timer.h"
 #include "GameObject/GameObject.h"
 #include "Math/Vector.h"
-#include "Scene/INotifyGraphicsDevice.h"
 #include "SizedTypes.h"
 #include "SparseArray.h"
 
@@ -19,7 +18,6 @@ namespace rendercore
 
 namespace logic
 {
-	class CDebugOverlayManager;
 	class CPlayer;
 	class PhysicsScene;
 
@@ -39,11 +37,9 @@ namespace logic
 		World* m_target = nullptr;
 	};
 
-	class World : public IGraphicsDeviceNotify
+	class World
 	{
 	public:
-		virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
-
 		void Initialize();
 		void CleanUp();
 
@@ -63,8 +59,6 @@ namespace logic
 		void MarkComponentForNeededRenderStateUpdate( Component& component );
 		void ClearComponentForNeededRenderStateUpdate( Component& component );
 		void SendRenderStateUpdate();
-
-		//void DebugDrawBVH( CDebugOverlayManager& debugOverlay, uint32 color, float duration );
 
 		ThinkTaskManager& GetThinkTaskManager();
 

@@ -7,7 +7,6 @@
 #include "Math/Vector.h"
 #include "NameTypes.h"
 #include "Reflection.h"
-#include "Scene/INotifyGraphicsDevice.h"
 
 #include <cstddef>
 #include <limits>
@@ -35,7 +34,6 @@ namespace logic
 		Scaling = 1 << 2,
 	};
 
-	class CDebugOverlayManager;
 	class CGameLogic;
 	class CGameObject;
 	class Component;
@@ -44,12 +42,11 @@ namespace logic
 	class SceneComponent;
 	class World;
 
-	class CGameObject : IGraphicsDeviceNotify
+	class CGameObject
 	{
 		GENERATE_CLASS_TYPE_INFO( CGameObject )
 
 	public:
-		virtual void OnDeviceRestore( CGameLogic& gameLogic ) override;
 		virtual void Initialize( CGameLogic& gameLogic, World& world );
 
 		size_t GetID() const { return m_id; }
@@ -86,9 +83,6 @@ namespace logic
 		void SetName( const std::string& name ) { m_name = name; }
 		const std::string& GetName() const { return m_name; }
 		void SetMaterialName( const std::string& pMaterialName );
-
-		bool IsPicked() const { return m_isPicked; }
-		void SetPicked( bool isPicked ) { m_isPicked = isPicked; }
 
 		GameobjectProperty GetProperty() const { return m_property; }
 		void AddProperty( GameobjectProperty property ) { m_property |= property; }
@@ -162,8 +156,6 @@ namespace logic
 
 		std::string m_name;
 		std::string m_materialName;
-
-		bool m_isPicked = false;
 
 		GameobjectProperty m_property = GameobjectProperty::None;
 

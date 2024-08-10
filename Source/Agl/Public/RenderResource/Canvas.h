@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GraphicsApiResource.h"
+#include "RefHandle.h"
 #include "SizedTypes.h"
 
 namespace agl

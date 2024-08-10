@@ -113,7 +113,7 @@ namespace rendercore
 	protected:
 		void InitDynamicShadows( RenderViewGroup& renderViewGroup );
 		void ClassifyViewDependentShadowCasterAndReceiver( IScene& scene, const RenderThreadFrameData<ShadowInfo*>& shadows );
-		void ClassifyViewIndependentShadowCasterAndReceiver( IScene& scene, const RenderThreadFrameData<ShadowInfo*>& shadows );
+		void ClassifyViewIndependentShadowCasterAndReceiver( const RenderThreadFrameData<ShadowInfo*>& shadows );
 		void SetupShadow();
 		void AllocateShadowMaps();
 		void AllocateCascadeShadowMaps( const RenderThreadFrameData<ShadowInfo*>& shadows );
