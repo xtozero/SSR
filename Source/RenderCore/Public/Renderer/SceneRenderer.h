@@ -8,6 +8,7 @@
 #include "NameTypes.h"
 #include "PassProcessor.h"
 #include "ReflectiveShadowMapRendering.h"
+#include "RenderView.h"
 #include "Scene/SceneConstantBuffers.h"
 #include "Scene/ShadowInfo.h"
 #include "TemporalAntiAliasingRendering.h"
@@ -30,8 +31,13 @@ namespace rendercore
 	class RenderViewGroup;
 	class ShaderArguments;
 
-	struct RenderView;
 	struct ShaderStates;
+
+	struct RenderViewInfo : public RenderView
+	{
+		RenderThreadFrameData<VisibleDrawSnapshot>* m_snapshots = nullptr;
+		RenderThreadFrameData<bool> m_visibilityMap;
+	};
 
 	class IRendererRenderTargets
 	{
@@ -121,7 +127,7 @@ namespace rendercore
 
 		void RenderShadowDepthPass();
 		void RenderTexturedSky( IScene& scene );
-		void RenderMesh( IScene& scene, RenderPass passType, RenderView& renderView );
+		void RenderMesh( IScene& scene, RenderPass passType, uint32 viewIndex );
 		void RenderShadow();
 		void RenderSkyAtmosphere( IScene& scene, RenderView& renderView );
 		void RenderVolumetricCloud( IScene& scene, RenderView& renderView );
@@ -132,6 +138,8 @@ namespace rendercore
 
 		void StoreOuputContext( const RenderingOutputContext& context );
 
+		void CalcVisibility( RenderViewGroup& renderViewGroup );
+
 		ForwardLightingResource m_forwardLighting;
 
 		RenderingShaderResource m_shaderResources;
@@ -141,6 +149,7 @@ namespace rendercore
 		using PassVisibleSnapshots = std::array<RenderThreadFrameData<VisibleDrawSnapshot>, static_cast<uint32>( RenderPass::Count )>;
 		RenderThreadFrameData<PassVisibleSnapshots> m_passSnapshots;
 
+		std::vector<RenderViewInfo, InlineAllocator<RenderViewInfo, 1>> m_viewInfo;
 		std::vector<PreviousFrameContext> m_prevFrameContext;
 
 	private:

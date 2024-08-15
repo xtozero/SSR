@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Physics/BoxSphereBounds.h"
 #include "SparseArray.h"
 
 namespace logic
@@ -37,6 +38,8 @@ namespace rendercore
 		virtual void UpdatePrimitiveTransform( logic::PrimitiveComponent* primitive ) = 0;
 		virtual SparseArray<PrimitiveSceneInfo*>& Primitives() = 0;
 		virtual const SparseArray<PrimitiveSceneInfo*>& Primitives() const = 0;
+		virtual SparseArray<BoxSphereBounds>& PrimitiveBounds() = 0;
+		virtual const SparseArray<BoxSphereBounds>& PrimitiveBounds() const = 0;
 
 		virtual void AddTexturedSkyComponent( logic::TexturedSkyComponent* texturedSky ) = 0;
 		virtual void RemoveTexturedSkyComponent( logic::TexturedSkyComponent* texturedSky ) = 0;

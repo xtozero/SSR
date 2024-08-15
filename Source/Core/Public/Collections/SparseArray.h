@@ -111,6 +111,11 @@ public:
 		return m_size;
 	}
 
+	size_t GetMaxIndex() const
+	{
+		return m_data.size();
+	}
+
 	bool IsAllocated( size_t index ) const
 	{
 		return m_allocationFlag[index];

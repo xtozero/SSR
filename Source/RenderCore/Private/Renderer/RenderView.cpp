@@ -4,7 +4,7 @@ namespace rendercore
 {
 	RenderView& RenderViewGroup::AddRenderView()
 	{
-		m_viewGroup.emplace_back();
-		return m_viewGroup.back();
+		m_views.emplace_back();
+		return m_views.back();
 	}
 }

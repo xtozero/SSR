@@ -151,21 +151,28 @@ namespace rendercore
 
 	void SceneRenderer::PreRender( RenderViewGroup& renderViewGroup )
 	{
+		IScene& scene = renderViewGroup.Scene();
+
+		assert( scene.GetRenderScene() != nullptr );
+		Scene& renderScene = *scene.GetRenderScene();
+
 		std::construct_at( &m_passSnapshots );
 
-		for ( auto& view : renderViewGroup )
+		m_viewInfo.reserve( renderViewGroup.Size() );
+		for ( size_t i = 0; i < renderViewGroup.Size(); ++i )
 		{
+			RenderViewInfo& viewInfo = m_viewInfo.emplace_back( renderViewGroup[i] );
 			PassVisibleSnapshots& passSnapshot = m_passSnapshots.emplace_back();
-			view.m_snapshots = passSnapshot.data();
+
+			viewInfo.m_snapshots = passSnapshot.data();
+			viewInfo.m_visibilityMap.resize( renderScene.Primitives().GetMaxIndex(), true );
 		}
 
 		auto linearSampler = StaticSamplerState<>::Get();
 		m_shaderResources.AddResource( "LinearSampler", linearSampler.Resource() );
-
-		IScene& scene = renderViewGroup.Scene();
 		m_shaderResources.AddResource( &scene.GetViewShaderArguments() );
 
-		UpdateGPUPrimitiveInfos( *scene.GetRenderScene() );
+		UpdateGPUPrimitiveInfos( renderScene );
 
 		auto& gpuPrimitiveInfo = scene.GpuPrimitiveInfo();
 		auto commandList = GetCommandList();
@@ -174,6 +181,8 @@ namespace rendercore
 		{
 			commandList.AddTransition( Transition( *gpuPrimitiveInfo.Resource(), agl::ResourceState::GenericRead ) );
 		}
+
+		CalcVisibility( renderViewGroup );
 	}
 
 	void SceneRenderer::PostRender( RenderViewGroup& renderViewGroup )
@@ -202,6 +211,7 @@ namespace rendercore
 			m_prevFrameContext[i].m_viewProjMatrix = viewProjMatrix;
 		}
 
+		m_viewInfo.clear();
 		std::destroy_at( &m_passSnapshots );
 		std::destroy_at( &m_shadowInfos );
 
@@ -711,7 +721,7 @@ namespace rendercore
 		}
 	}
 
-	void SceneRenderer::RenderMesh( IScene& scene, RenderPass passType, RenderView& renderView )
+	void SceneRenderer::RenderMesh( IScene& scene, RenderPass passType, uint32 viewIndex )
 	{
 		const auto& primitives = scene.Primitives();
 		if ( primitives.Size() == 0 )
@@ -725,13 +735,20 @@ namespace rendercore
 			return;
 		}
 
-		auto& snapshots = renderView.m_snapshots[static_cast<uint32>( passType )];
+		RenderViewInfo& viewInfo = m_viewInfo[viewIndex];
+		auto& snapshots = viewInfo.m_snapshots[static_cast<uint32>( passType )];
 
 		std::deque<DrawSnapshot> snapshotStorage;
 
 		// Create DrawSnapshot
 		for ( auto primitive : primitives )
 		{
+			uint32 primitiveId = primitive->PrimitiveId();
+			if ( viewInfo.m_visibilityMap[primitiveId] == false )
+			{
+				continue;
+			}
+
 			PrimitiveProxy* proxy = primitive->Proxy();
 
 			const std::vector<PrimitiveSubMeshInfo>& subMeshInfos = primitive->SubMeshInfos();
@@ -749,7 +766,7 @@ namespace rendercore
 						VisibleDrawSnapshot& visibleSnapshot = snapshots.emplace_back();
 						visibleSnapshot.m_snapshotBucketId = info.m_snapshotBucketId;
 						visibleSnapshot.m_drawSnapshot = &snapshot;
-						visibleSnapshot.m_primitiveId = proxy->PrimitiveId();
+						visibleSnapshot.m_primitiveId = primitiveId;
 						visibleSnapshot.m_numInstance = 1;
 					}
 				}
@@ -1272,13 +1289,17 @@ namespace rendercore
 
 			m_shaderResources.AddResource( &viewShaderArguments );
 
-			RenderView& renderView = renderViewGroup[viewIndex];
-			auto& snapshots = renderView.m_snapshots[static_cast<uint32>( RenderPass::HitProxy )];
+			RenderViewInfo& viewInfo = m_viewInfo[viewIndex];
+			auto& snapshots = viewInfo.m_snapshots[static_cast<uint32>( RenderPass::HitProxy )];
 
 			// Create DrawSnapshot
 			for ( auto primitive : primitives )
 			{
-				PrimitiveProxy* proxy = primitive->Proxy();
+				uint32 primitiveId = primitive->PrimitiveId();
+				if ( viewInfo.m_visibilityMap[primitiveId] == false )
+				{
+					continue;
+				}
 
 				const std::vector<PrimitiveSubMeshInfo>& subMeshInfos = primitive->SubMeshInfos();
 
@@ -1295,7 +1316,7 @@ namespace rendercore
 							VisibleDrawSnapshot& visibleSnapshot = snapshots.emplace_back();
 							visibleSnapshot.m_snapshotBucketId = info.m_snapshotBucketId;
 							visibleSnapshot.m_drawSnapshot = &snapshot;
-							visibleSnapshot.m_primitiveId = proxy->PrimitiveId();
+							visibleSnapshot.m_primitiveId = primitiveId;
 							visibleSnapshot.m_numInstance = 1;
 						}
 					}
@@ -1306,44 +1327,42 @@ namespace rendercore
 				}
 			}
 
-			if ( snapshots.size() == 0 )
+			if ( snapshots.size() != 0 )
 			{
-				return;
-			}
-
-			// Update invalidated resources
-			for ( auto& viewDrawSnapshot : snapshots )
-			{
-				DrawSnapshot& snapshot = *viewDrawSnapshot.m_drawSnapshot;
-				GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
-
-				m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
-			}
-
-			VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc( static_cast<uint32>( snapshots.size() * sizeof( uint32 ) ) );
-
-			uint32* idBuffer = reinterpret_cast<uint32*>( primitiveIds.Lock() );
-			if ( idBuffer )
-			{
-				for ( size_t i = 0; i < snapshots.size(); ++i )
+				// Update invalidated resources
+				for ( auto& viewDrawSnapshot : snapshots )
 				{
-					snapshots[i].m_primitiveIdOffset = static_cast<uint32>( i );
-					*idBuffer = snapshots[i].m_primitiveId;
-					++idBuffer;
+					DrawSnapshot& snapshot = *viewDrawSnapshot.m_drawSnapshot;
+					GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+
+					m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 				}
 
-				primitiveIds.Unlock();
-			}
+				VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc( static_cast<uint32>( snapshots.size() * sizeof( uint32 ) ) );
 
-			ApplyOutputContext( commandList );
+				uint32* idBuffer = reinterpret_cast<uint32*>( primitiveIds.Lock() );
+				if ( idBuffer )
+				{
+					for ( size_t i = 0; i < snapshots.size(); ++i )
+					{
+						snapshots[i].m_primitiveIdOffset = static_cast<uint32>( i );
+						*idBuffer = snapshots[i].m_primitiveId;
+						++idBuffer;
+					}
 
-			for ( size_t i = 0; i < snapshots.size(); )
-			{
-				HitProxyId hitProxyId = primitives[snapshots[i].m_primitiveId]->GetHitProxyId();
+					primitiveIds.Unlock();
+				}
 
-				SetShaderValue( commandList, HitProxyIdShaderParam, hitProxyId.GetColor().ToColorF() );
-				CommitDrawSnapshot( commandList, snapshots[i], primitiveIds );
-				i += snapshots[i].m_numInstance;
+				ApplyOutputContext( commandList );
+
+				for ( size_t i = 0; i < snapshots.size(); )
+				{
+					HitProxyId hitProxyId = primitives[snapshots[i].m_primitiveId]->GetHitProxyId();
+
+					SetShaderValue( commandList, HitProxyIdShaderParam, hitProxyId.GetColor().ToColorF() );
+					CommitDrawSnapshot( commandList, snapshots[i], primitiveIds );
+					i += snapshots[i].m_numInstance;
+				}
 			}
 		}
 
@@ -1353,6 +1372,30 @@ namespace rendercore
 	void SceneRenderer::StoreOuputContext( const RenderingOutputContext& context )
 	{
 		m_outputContext = context;
+	}
+
+	void SceneRenderer::CalcVisibility( RenderViewGroup& renderViewGroup )
+	{
+		IScene& scene = renderViewGroup.Scene();
+		const auto& primitives = scene.Primitives();
+
+		for ( RenderViewInfo& viewInfo : m_viewInfo )
+		{
+			auto viewMat = LookFromMatrix( viewInfo.m_viewOrigin, viewInfo.m_viewAxis[2], viewInfo.m_viewAxis[1] );
+			auto viewProjectionMat = PerspectiveMatrix( viewInfo.m_fov, viewInfo.m_aspect, viewInfo.m_nearPlaneDistance, viewInfo.m_farPlaneDistance );
+			viewProjectionMat = viewMat * viewProjectionMat;
+			Frustum frustum( viewProjectionMat );
+
+			for ( auto primitive : primitives )
+			{
+				uint32 primitiveId = primitive->PrimitiveId();
+				BoxSphereBounds bounds = scene.PrimitiveBounds()[primitiveId];
+
+				CollisionResult result = BoxAndFrustum( bounds.Origin() - bounds.HalfSize(), bounds.Origin() + bounds.HalfSize(), frustum );
+
+				viewInfo.m_visibilityMap[primitiveId] = ( result != CollisionResult::Outside );
+			}
+		}
 	}
 
 	void AddSingleDrawPass( DrawSnapshot& snapshot )

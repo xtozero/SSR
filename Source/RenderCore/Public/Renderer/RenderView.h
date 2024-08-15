@@ -22,7 +22,7 @@ namespace rendercore
 		bool m_bHitProxy = false;
 	};
 
-	struct RenderView final
+	struct RenderView
 	{
 		// for view
 		Vector m_viewOrigin = {};
@@ -33,8 +33,6 @@ namespace rendercore
 		float m_farPlaneDistance = 0.f;
 		float m_aspect = 0.f;
 		float m_fov = 0.f;
-
-		RenderThreadFrameData<VisibleDrawSnapshot>* m_snapshots = nullptr;
 	};
 
 	struct RenderViewGroupInitializer final
@@ -67,20 +65,20 @@ namespace rendercore
 
 		size_t Size() const
 		{
-			return m_viewGroup.size();
+			return m_views.size();
 		}
 
 		RenderView* begin()
 		{
-			return m_viewGroup.size() > 0 ? &m_viewGroup[0] : nullptr;
+			return m_views.size() > 0 ? &m_views[0] : nullptr;
 		}
 
 		RenderView* end()
 		{
 			RenderView* endIter = nullptr;
-			if ( m_viewGroup.size() > 0 )
+			if ( m_views.size() > 0 )
 			{
-				endIter = &m_viewGroup.back();
+				endIter = &m_views.back();
 				++endIter;
 			}
 
@@ -100,16 +98,16 @@ namespace rendercore
 
 		const RenderView& operator[]( size_t index ) const
 		{
-			return m_viewGroup[index];
+			return m_views[index];
 		}
 
 		RenderView& operator[]( size_t index )
 		{
-			return m_viewGroup[index];
+			return m_views[index];
 		}
 
 	private:
-		std::vector<RenderView> m_viewGroup;
+		std::vector<RenderView> m_views;
 		IScene& m_scene;
 		Canvas& m_canvas;
 		Viewport& m_viewport;

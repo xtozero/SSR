@@ -4,7 +4,6 @@
 #include "IScene.h"
 #include "LightSceneInfo.h"
 #include "PassProcessor.h"
-#include "Physics/BoxSphereBounds.h"
 #include "SceneConstantBuffers.h"
 #include "SceneVelocityData.h"
 #include "SizedTypes.h"
@@ -36,6 +35,14 @@ namespace rendercore
 		virtual const SparseArray<PrimitiveSceneInfo*>& Primitives() const override
 		{
 			return m_primitives;
+		}
+		SparseArray<BoxSphereBounds>& PrimitiveBounds() override
+		{
+			return m_primitiveBounds;
+		}
+		const SparseArray<BoxSphereBounds>& PrimitiveBounds() const override
+		{
+			return m_primitiveBounds;
 		}
 
 		virtual void AddTexturedSkyComponent( logic::TexturedSkyComponent* texturedSky ) override;
@@ -94,16 +101,6 @@ namespace rendercore
 		const SparseArray<LightSceneInfo*>& Lights() const
 		{
 			return m_lights;
-		}
-
-		SparseArray<BoxSphereBounds>& PrimitiveBounds()
-		{
-			return m_primitiveBounds;
-		}
-
-		const SparseArray<BoxSphereBounds>& PrimitiveBounds() const
-		{
-			return m_primitiveBounds;
 		}
 
 		[[nodiscard]] CachedDrawSnapshotInfo AddCachedDrawSnapshot( RenderPass passType, const DrawSnapshot& snapshot );

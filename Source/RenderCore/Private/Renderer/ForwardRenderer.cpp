@@ -382,7 +382,7 @@ namespace rendercore
 
 		{
 			GPU_PROFILE( commandList, Default );
-			RenderMesh( scene, RenderPass::Default, renderViewGroup[curView] );
+			RenderMesh( scene, RenderPass::Default, curView );
 		}
 	}
 
@@ -448,7 +448,7 @@ namespace rendercore
 
 			IScene& scene = renderViewGroup.Scene();
 
-			RenderMesh( scene, RenderPass::DepthWrite, renderViewGroup[curView] );
+			RenderMesh( scene, RenderPass::DepthWrite, curView );
 
 			commandList.AddTransition( Transition( *renderTarget, agl::ResourceState::PixelShaderResource ) );
 			commandList.AddTransition( Transition( *worldNormal, agl::ResourceState::PixelShaderResource ) );
