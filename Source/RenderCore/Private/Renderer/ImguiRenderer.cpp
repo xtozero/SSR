@@ -509,7 +509,7 @@ namespace rendercore
 			.m_rasterizerOption = &m_rasterizerOption
 		};
 
-		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default, true );
+		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default, false );
 	}
 
 	ImguiDrawPassProcessor::ImguiDrawPassProcessor()

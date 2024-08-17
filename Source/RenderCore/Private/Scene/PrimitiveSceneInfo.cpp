@@ -44,7 +44,16 @@ namespace rendercore
 
 	void PrimitiveSceneInfo::AddToScene()
 	{
-		m_scene.PrimitiveBounds()[m_primitiveId] = m_sceneProxy->Bounds();
+		const BoxSphereBounds& bounds = m_sceneProxy->Bounds();
+		m_scene.PrimitiveBounds()[m_primitiveId] = bounds;
+
+		BoxSphereBounds occlusionBounds = bounds;
+		constexpr float occlusionPadding = 1.f;
+		occlusionBounds.HalfSize().x += occlusionPadding;
+		occlusionBounds.HalfSize().y += occlusionPadding;
+		occlusionBounds.HalfSize().z += occlusionPadding;
+		occlusionBounds.Radius() += occlusionPadding;
+		m_scene.PrimitiveOcclusionBounds()[m_primitiveId] = occlusionBounds;
 
 		m_sceneProxy->PrepareSubMeshs();
 

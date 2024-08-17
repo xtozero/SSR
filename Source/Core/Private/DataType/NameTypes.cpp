@@ -68,7 +68,11 @@ public:
 		assert( view.length() < NameSize );
 		entry.m_len = static_cast<uint16>( view.length() );
 
+#ifdef _MSC_VER
+		strncpy_s( entry.m_str, view.data(), view.length() );
+#else
 		std::strncpy( entry.m_str, view.data(), view.length() );
+#endif
 		entry.m_str[view.length()] = '\0';
 
 		return handle;
@@ -261,6 +265,7 @@ protected:
 	uint32 m_capacityMask = 0;
 	NameSlot* m_slots = nullptr;
 	NameEntryAllocator* m_entries = nullptr;
+	uint8 padding[32];
 };
 
 class NamePoolShard : public NamePoolShardBase

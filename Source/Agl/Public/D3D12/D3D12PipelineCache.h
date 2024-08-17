@@ -29,7 +29,7 @@ namespace agl
 		void Prepare();
 		void ReleaseRenderResources();
 
-		void BindVertexBuffer( ID3D12GraphicsCommandList6& commandList, Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets );
+		void BindVertexBuffer( ID3D12GraphicsCommandList6& commandList, Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets );
 		void BindIndexBuffer( ID3D12GraphicsCommandList6& commandList, Buffer* indexBuffer, uint32 indexOffset );
 
 		void BindPipelineState( ID3D12GraphicsCommandList6& commandList, GraphicsPipelineState* pipelineState );

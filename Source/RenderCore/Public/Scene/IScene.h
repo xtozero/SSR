@@ -40,6 +40,8 @@ namespace rendercore
 		virtual const SparseArray<PrimitiveSceneInfo*>& Primitives() const = 0;
 		virtual SparseArray<BoxSphereBounds>& PrimitiveBounds() = 0;
 		virtual const SparseArray<BoxSphereBounds>& PrimitiveBounds() const = 0;
+		virtual SparseArray<BoxSphereBounds>& PrimitiveOcclusionBounds() = 0;
+		virtual const SparseArray<BoxSphereBounds>& PrimitiveOcclusionBounds() const = 0;
 
 		virtual void AddTexturedSkyComponent( logic::TexturedSkyComponent* texturedSky ) = 0;
 		virtual void RemoveTexturedSkyComponent( logic::TexturedSkyComponent* texturedSky ) = 0;

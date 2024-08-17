@@ -22,4 +22,20 @@ namespace agl
 		ID3D11Query* m_timeStampEnd = nullptr;
 		ID3D11Query* m_timeStampDisjoint = nullptr;
 	};
+
+	class D3D11OcclusionTest final : public OcclusionQuery
+	{
+	public:
+		virtual void InitResource() override;
+		virtual void FreeResource() override;
+
+		virtual void Begin( ICommandListBase& commandList ) override;
+		virtual void End( ICommandListBase& commandList ) override;
+
+		virtual uint64 GetNumSamplePassed() override;
+		virtual bool IsDataReady() const override;
+
+	private:
+		ID3D11Query* m_occlusionTest = nullptr;
+	};
 }

@@ -42,6 +42,7 @@ CollisionResult BoxAndBox( const AxisAlignedBox& lhs, RigidBody* lhsBody, const 
 CollisionResult BoxAndBox( const OrientedBox& lhs, RigidBody* lhsBody, const OrientedBox& rhs, RigidBody* rhsBody, CollisionData* data );
 CollisionResult BoxAndBox( const AxisAlignedBox& lhs, RigidBody* lhsBody, const OrientedBox& rhs, RigidBody* rhsBody, CollisionData* data );
 CollisionResult BoxAndFrustum( const Point& min, const Point& max, const Frustum& frustum );
+CollisionResult BoxAndPlane( const Point& origin, const Vector& halfSize, const Plane& plane );
 
 float RayAndBox( const Point& rayOrigin, const Vector& rayDir, const Point& max, const Point& min );
 float RayAndSphere( const Point& rayOrigin, const Vector& rayDir, const Point& origin, float radius );

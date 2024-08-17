@@ -741,6 +741,25 @@ CollisionResult BoxAndFrustum( const Point& min, const Point& max, const Frustum
 	return result;
 }
 
+CollisionResult BoxAndPlane( const Point& origin, const Vector& halfSize, const Plane& plane )
+{
+	float r = abs( halfSize.x * plane.x ) + abs( halfSize.y * plane.y ) + abs( halfSize.z * plane.z );
+	float s = plane.PlaneDot( origin );
+
+	if ( s > r )
+	{
+		return CollisionResult::Outside;
+	}
+	else if ( s < -r )
+	{
+		return CollisionResult::Inside;
+	}
+	else
+	{
+		return CollisionResult::Intersection;
+	}
+}
+
 float RayAndBox( const Point& rayOrigin, const Vector& rayDir, const Point& max, const Point& min )
 {
 	float t_min = 0;

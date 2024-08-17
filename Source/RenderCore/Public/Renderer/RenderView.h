@@ -4,10 +4,12 @@
 #include "DrawSnapshot.h"
 #include "GraphicsApiResource.h"
 #include "Math/Matrix3X3.h"
+#include "OcclusionRendering.h"
 #include "PassProcessor.h"
 #include "SizedTypes.h"
 
 #include <vector>
+#include <map>
 
 namespace rendercore
 {
@@ -22,6 +24,27 @@ namespace rendercore
 		bool m_bHitProxy = false;
 	};
 
+	struct RenderViewState
+	{
+		uint64 m_occlusionFrameCounter = 0;
+		OcclusionQueryAllocator m_occlutionTestPool;
+		std::map<uint32, OcclusionTestData> m_occlusionTestDataSet;
+	};
+
+	class RenderViewStateReference
+	{
+	public:
+		RENDERCORE_DLL RenderViewState* Get() const;
+
+		RENDERCORE_DLL void Allocate();
+
+		RenderViewStateReference() = default;
+		RENDERCORE_DLL ~RenderViewStateReference();
+
+	private:
+		RenderViewState* m_viewState = nullptr;
+	};
+
 	struct RenderView
 	{
 		// for view
@@ -33,6 +56,8 @@ namespace rendercore
 		float m_farPlaneDistance = 0.f;
 		float m_aspect = 0.f;
 		float m_fov = 0.f;
+
+		RenderViewState* m_state = nullptr;
 	};
 
 	struct RenderViewGroupInitializer final
@@ -63,28 +88,6 @@ namespace rendercore
 
 		RENDERCORE_DLL RenderView& AddRenderView();
 
-		size_t Size() const
-		{
-			return m_views.size();
-		}
-
-		RenderView* begin()
-		{
-			return m_views.size() > 0 ? &m_views[0] : nullptr;
-		}
-
-		RenderView* end()
-		{
-			RenderView* endIter = nullptr;
-			if ( m_views.size() > 0 )
-			{
-				endIter = &m_views.back();
-				++endIter;
-			}
-
-			return endIter;
-		}
-
 		IScene& Scene() { return m_scene; }
 		const IScene& Scene() const { return m_scene; }
 		Canvas& GetCanvas() { return m_canvas; }
@@ -96,14 +99,14 @@ namespace rendercore
 		RenderViewShowFlags& GetShowFlags() { return m_showFlags; }
 		const RenderViewShowFlags& GetShowFlags() const { return m_showFlags; }
 
-		const RenderView& operator[]( size_t index ) const
+		const RenderView& GetRenderView( size_t index ) const
 		{
 			return m_views[index];
 		}
 
-		RenderView& operator[]( size_t index )
+		size_t NumRenderView() const
 		{
-			return m_views[index];
+			return m_views.size();
 		}
 
 	private:

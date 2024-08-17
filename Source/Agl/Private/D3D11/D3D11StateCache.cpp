@@ -12,11 +12,11 @@
 
 namespace agl
 {
-	void D3D11PipelineCache::BindVertexBuffer( ID3D11DeviceContext& context, Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
+	void D3D11PipelineCache::BindVertexBuffer( ID3D11DeviceContext& context, Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets )
 	{
-		ID3D11Buffer* pBuffers[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
-		uint32 strides[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
-		uint32 offsets[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
+		ID3D11Buffer* newBuffers[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
+		uint32 newStrides[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
+		uint32 newOffsets[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
 
 		if ( vertexBuffers )
 		{
@@ -26,19 +26,19 @@ namespace agl
 				auto d3d11buffer = static_cast<D3D11Buffer*>( vertexBuffers[i] );
 				if ( d3d11buffer )
 				{
-					pBuffers[i] = d3d11buffer->Resource();
-					strides[i] = d3d11buffer->Stride();
-					offsets[i] = pOffsets[i];
+					newBuffers[i] = d3d11buffer->Resource();
+					newStrides[i] = ( strides[i] > 0 ) ? strides[i] : d3d11buffer->Stride();
+					newOffsets[i] = pOffsets[i];
 				}
 			}
 		}
 
-		static_assert( sizeof( pBuffers ) == sizeof( m_vertexBuffers ) );
-		static_assert( sizeof( strides ) == sizeof( m_vertexStrides ) );
-		static_assert( sizeof( offsets ) == sizeof( m_vertexOffsets ) );
-		if ( std::equal( std::begin( pBuffers ), std::end( pBuffers ), std::begin( m_vertexBuffers ) ) &&
-			std::equal( std::begin( strides ), std::end( strides ), std::begin( m_vertexStrides ) ) &&
-			std::equal( std::begin( offsets ), std::end( offsets ), std::begin( m_vertexOffsets ) ) )
+		static_assert( sizeof( newBuffers ) == sizeof( m_vertexBuffers ) );
+		static_assert( sizeof( newStrides ) == sizeof( m_vertexStrides ) );
+		static_assert( sizeof( newOffsets ) == sizeof( m_vertexOffsets ) );
+		if ( std::equal( std::begin( newBuffers ), std::end( newBuffers ), std::begin( m_vertexBuffers ) ) &&
+			std::equal( std::begin( newStrides ), std::end( newStrides ), std::begin( m_vertexStrides ) ) &&
+			std::equal( std::begin( newOffsets ), std::end( newOffsets ), std::begin( m_vertexOffsets ) ) )
 		{
 			return;
 		}
@@ -48,10 +48,10 @@ namespace agl
 			numBuffers = D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT;
 		}
 
-		std::copy( std::begin( pBuffers ), std::end( pBuffers ), std::begin( m_vertexBuffers ) );
-		std::copy( std::begin( strides ), std::end( strides ), std::begin( m_vertexStrides ) );
-		std::copy( std::begin( offsets ), std::end( offsets ), std::begin( m_vertexOffsets ) );
-		context.IASetVertexBuffers( startSlot, numBuffers, pBuffers, strides, offsets );
+		std::copy( std::begin( newBuffers ), std::end( newBuffers ), std::begin( m_vertexBuffers ) );
+		std::copy( std::begin( newStrides ), std::end( newStrides ), std::begin( m_vertexStrides ) );
+		std::copy( std::begin( newOffsets ), std::end( newOffsets ), std::begin( m_vertexOffsets ) );
+		context.IASetVertexBuffers( startSlot, numBuffers, newBuffers, newStrides, newOffsets );
 	}
 
 	void D3D11PipelineCache::BindIndexBuffer( ID3D11DeviceContext& context, Buffer* indexBuffer, uint32 indexOffset )

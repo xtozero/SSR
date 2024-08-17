@@ -74,4 +74,46 @@ namespace agl
 
 		return 0.0;
 	}
+
+	void D3D11OcclusionTest::InitResource()
+	{
+		D3D11_QUERY_DESC desc = {
+			.Query = D3D11_QUERY_OCCLUSION,
+			.MiscFlags = 0,
+		};
+
+		D3D11Device().CreateQuery( &desc, &m_occlusionTest );
+	}
+
+	void D3D11OcclusionTest::FreeResource()
+	{
+		if ( m_occlusionTest )
+		{
+			m_occlusionTest->Release();
+			m_occlusionTest = nullptr;
+		}
+	}
+
+	void D3D11OcclusionTest::Begin( ICommandListBase& commandList )
+	{
+		commandList.BeginQuery( m_occlusionTest );
+	}
+
+	void D3D11OcclusionTest::End( ICommandListBase& commandList )
+	{
+		commandList.EndQuery( m_occlusionTest );
+	}
+
+	uint64 D3D11OcclusionTest::GetNumSamplePassed()
+	{
+		uint64 numSamplePassed = std::numeric_limits<uint64>::max();
+		while ( D3D11Context().GetData( m_occlusionTest, &numSamplePassed, sizeof( numSamplePassed ), 0 ) != S_OK );
+
+		return numSamplePassed;
+	}
+
+	bool D3D11OcclusionTest::IsDataReady() const
+	{
+		return true;
+	}
 }

@@ -44,6 +44,33 @@ namespace logic
 		}
 	}
 
+	rendercore::RenderView* CPlayer::CalcSceneView( rendercore::RenderViewGroup& renderViewGroup )
+	{
+		if ( m_cameraComponent == nullptr )
+		{
+			return nullptr;
+		}
+
+		size_t viewIndex = renderViewGroup.NumRenderView();
+		rendercore::RenderView& localPlayerView = renderViewGroup.AddRenderView();
+
+		localPlayerView.m_viewOrigin = m_cameraComponent->GetPosition();
+		localPlayerView.m_viewAxis = BasisVectorMatrix( m_cameraComponent->GetRightVector(),
+			m_cameraComponent->GetUpVector(),
+			m_cameraComponent->GetForwardVector() );
+
+		m_viewStates.resize( renderViewGroup.NumRenderView() );
+
+		if ( m_viewStates[viewIndex].Get() == nullptr )
+		{
+			m_viewStates[viewIndex].Allocate();
+		}
+
+		localPlayerView.m_state = m_viewStates[viewIndex].Get();
+
+		return &localPlayerView;
+	}
+
 	CPlayer::CPlayer()
 	{
 		m_cameraComponent = CreateComponent<CameraComponent>( *this, "CameraComponent" );

@@ -43,7 +43,7 @@ namespace rendercore
 		Matrix m_viewProjMatrix;
 	};
 
-	SceneViewParameters GetViewParameters( const Scene* scene, const PreviousFrameContext* prevFrameContext, const RenderViewGroup& renderViewGroup, size_t viewIndex );
+	SceneViewParameters GetViewParameters( const PreviousFrameContext* prevFrameContext, const RenderViewGroup& renderViewGroup, size_t viewIndex );
 
 	class PrimitiveSceneData final
 	{

@@ -48,6 +48,7 @@ namespace rendercore
 		virtual IRendererRenderTargets& GetRenderRenderTargets() override;
 
 		void RenderDepthPass( RenderViewGroup& renderViewGroup, uint32 curView );
+		void RenderOcclusionTest( RenderViewGroup& renderViewGroup, uint32 viewIndex );
 
 	private:
 		void UpdateLightResource( IScene& scene );

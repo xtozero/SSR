@@ -21,4 +21,13 @@ namespace agl
 
 		virtual double GetDuration() = 0;
 	};
+
+	class OcclusionQuery : public Query
+	{
+	public:
+		AGL_DLL static RefHandle<OcclusionQuery> Create();
+
+		virtual uint64 GetNumSamplePassed() = 0;
+		virtual bool IsDataReady() const = 0;
+	};
 }

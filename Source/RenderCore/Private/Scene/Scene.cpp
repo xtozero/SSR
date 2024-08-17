@@ -395,6 +395,7 @@ namespace rendercore
 		uint32 primitiveId = static_cast<uint32>( m_primitives.Add( primitiveSceneInfo ) );
 		primitiveSceneInfo->PrimitiveId() = primitiveId;
 		m_primitiveBounds.AddUninitialized();
+		m_primitiveOcclusionBounds.AddUninitialized();
 
 		AddPrimitiveToUpdate( primitiveId );
 

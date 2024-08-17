@@ -14,7 +14,7 @@ namespace rendercore
 	class CommandList final
 	{
 	public:
-		void BindVertexBuffer( agl::Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets );
+		void BindVertexBuffer( agl::Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets );
 		void BindIndexBuffer( agl::Buffer* indexBuffer, uint32 indexOffset );
 
 		void BindPipelineState( agl::GraphicsPipelineState* pipelineState );

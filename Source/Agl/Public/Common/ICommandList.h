@@ -32,7 +32,7 @@ namespace agl
 	public:
 		virtual void Prepare() = 0;
 
-		virtual void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets ) = 0;
+		virtual void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets ) = 0;
 		virtual void BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset ) = 0;
 
 		virtual void BindPipelineState( GraphicsPipelineState* pipelineState ) = 0;

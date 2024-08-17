@@ -4,6 +4,7 @@
 #include "SizedTypes.h"
 
 #include <compare>
+#include <string>
 #include <string_view>
 
 static constexpr uint32 NameSize = 1024;

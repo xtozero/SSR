@@ -26,7 +26,7 @@ namespace agl
 	{
 	}
 
-	Texture* D3D12ResourceManager::CreateTexture( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
+	Texture* D3D12ResourceManager::CreateTexture( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData ) const
 	{
 		Texture* newTexture = nullptr;
 		if ( IsTexture2D( trait ) )
@@ -45,7 +45,7 @@ namespace agl
 		return newTexture;
 	}
 
-	Buffer* D3D12ResourceManager::CreateBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData )
+	Buffer* D3D12ResourceManager::CreateBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData ) const
 	{
 		Buffer* newBuffer = nullptr;
 		if ( HasAnyFlags( trait.m_bindType, ResourceBindType::ConstantBuffer ) )
@@ -75,47 +75,47 @@ namespace agl
 		return newBuffer;
 	}
 
-	VertexLayout* D3D12ResourceManager::CreateVertexLayout( [[maybe_unused]] const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size )
+	VertexLayout* D3D12ResourceManager::CreateVertexLayout( [[maybe_unused]] const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size ) const
 	{
 		return new D3D12VertexLayout( trait, size );
 	}
 
-	ComputeShader* D3D12ResourceManager::CreateComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+	ComputeShader* D3D12ResourceManager::CreateComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
 	{
 		return new D3D12ComputeShader( byteCode, byteCodeSize, paramInfo );
 	}
 
-	VertexShader* D3D12ResourceManager::CreateVertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+	VertexShader* D3D12ResourceManager::CreateVertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
 	{
 		return new D3D12VertexShader( byteCode, byteCodeSize, paramInfo );
 	}
 
-	GeometryShader* D3D12ResourceManager::CreateGeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+	GeometryShader* D3D12ResourceManager::CreateGeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
 	{
 		return new D3D12GeometryShader( byteCode, byteCodeSize, paramInfo );
 	}
 
-	PixelShader* D3D12ResourceManager::CreatePixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+	PixelShader* D3D12ResourceManager::CreatePixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
 	{
 		return new D3D12PixelShader( byteCode, byteCodeSize, paramInfo );
 	}
 
-	BlendState* D3D12ResourceManager::CreateBlendState( const BlendStateTrait& trait )
+	BlendState* D3D12ResourceManager::CreateBlendState( const BlendStateTrait& trait ) const
 	{
 		return new D3D12BlendState( trait );
 	}
 
-	DepthStencilState* D3D12ResourceManager::CreateDepthStencilState( const DepthStencilStateTrait& trait )
+	DepthStencilState* D3D12ResourceManager::CreateDepthStencilState( const DepthStencilStateTrait& trait ) const
 	{
 		return new D3D12DepthStencilState( trait );
 	}
 
-	RasterizerState* D3D12ResourceManager::CreateRasterizerState( const RasterizerStateTrait& trait )
+	RasterizerState* D3D12ResourceManager::CreateRasterizerState( const RasterizerStateTrait& trait ) const
 	{
 		return new D3D12RasterizerState( trait );
 	}
 
-	SamplerState* D3D12ResourceManager::CreateSamplerState( const SamplerStateTrait& trait )
+	SamplerState* D3D12ResourceManager::CreateSamplerState( const SamplerStateTrait& trait ) const
 	{
 		return new D3D12SamplerState( trait );
 	}
@@ -172,24 +172,29 @@ namespace agl
 		return pipelineState;
 	}
 
-	Canvas* D3D12ResourceManager::CreateCanvas( uint32 width, uint32 height, void* hWnd, ResourceFormat format )
+	Canvas* D3D12ResourceManager::CreateCanvas( uint32 width, uint32 height, void* hWnd, ResourceFormat format ) const
 	{
 		return new DxgiSwapchain<AglType::D3D12>( D3D12DirectCommandQueue(), D3D12Factory(), width, height, DefaultAgl::GetBufferCount(), hWnd, ConvertFormatToDxgiFormat( format ) );
 	}
 
-	Viewport* D3D12ResourceManager::CreateViewport( uint32 width, uint32 height, ResourceFormat format, const float4& bgColor )
+	Viewport* D3D12ResourceManager::CreateViewport( uint32 width, uint32 height, ResourceFormat format, const float4& bgColor ) const
 	{
 		return new D3D12Viewport( width, height, ConvertFormatToDxgiFormat( format ), bgColor );
 	}
 
-	Viewport* D3D12ResourceManager::CreateViewport( Canvas& canvas )
+	Viewport* D3D12ResourceManager::CreateViewport( Canvas& canvas ) const
 	{
 		return new D3D12Viewport( *reinterpret_cast<DxgiSwapchain<AglType::D3D12>*>( &canvas ) );
 	}
 
-	GpuTimer* D3D12ResourceManager::CreateGpuTimer()
+	GpuTimer* D3D12ResourceManager::CreateGpuTimer() const
 	{
 		return new D3D12GpuTimer();
+	}
+
+	OcclusionQuery* D3D12ResourceManager::CreateOcclusionQuery() const
+	{
+		return new D3D12OcclusionTest();
 	}
 
 	void D3D12ResourceManager::SetPSOCache( std::map<uint64, BinaryChunk>& psoCache )

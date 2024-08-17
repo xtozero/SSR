@@ -44,6 +44,14 @@ namespace rendercore
 		{
 			return m_primitiveBounds;
 		}
+		SparseArray<BoxSphereBounds>& PrimitiveOcclusionBounds() override
+		{
+			return m_primitiveOcclusionBounds;
+		}
+		const SparseArray<BoxSphereBounds>& PrimitiveOcclusionBounds() const override
+		{
+			return m_primitiveOcclusionBounds;
+		}
 
 		virtual void AddTexturedSkyComponent( logic::TexturedSkyComponent* texturedSky ) override;
 		virtual void RemoveTexturedSkyComponent( logic::TexturedSkyComponent* texturedSky ) override;
@@ -168,6 +176,7 @@ namespace rendercore
 
 		SparseArray<PrimitiveSceneInfo*> m_primitives;
 		SparseArray<BoxSphereBounds> m_primitiveBounds;
+		SparseArray<BoxSphereBounds> m_primitiveOcclusionBounds;
 
 		TexturedSkyProxy* m_texturedSky = nullptr;
 

@@ -193,13 +193,14 @@ namespace rendercore
 		VertexBufferBundle vertexStream = snapshot.m_vertexStream;
 		if ( snapshot.m_primitiveIdSlot != -1 )
 		{
-			vertexStream.Bind( primitiveIds, static_cast<uint32>( snapshot.m_primitiveIdSlot ), visibleSnapshot.m_primitiveIdOffset * sizeof( uint32 ) );
+			vertexStream.Bind( primitiveIds, static_cast<uint32>( snapshot.m_primitiveIdSlot ), primitiveIds.ElementSize(), visibleSnapshot.m_primitiveIdOffset * sizeof(uint32));
 		}
 
 		uint32 numVB = vertexStream.NumBuffer();
 		agl::Buffer* const* vertexBuffers = vertexStream.VertexBuffers();
+		const uint32* vertexStrides = vertexStream.Strides();
 		const uint32* vertexOffsets = vertexStream.Offsets();
-		commandList.BindVertexBuffer( vertexBuffers, 0, numVB, vertexOffsets );
+		commandList.BindVertexBuffer( vertexBuffers, 0, numVB, vertexStrides, vertexOffsets );
 
 		// Set index buffer
 		agl::Buffer* indexBuffer = snapshot.m_indexBuffer.Resource();

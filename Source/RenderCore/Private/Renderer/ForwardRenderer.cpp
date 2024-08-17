@@ -253,7 +253,6 @@ namespace rendercore
 
 		SceneRenderer::PreRender( renderViewGroup );
 
-		std::construct_at( &m_shadowInfos );
 		InitDynamicShadows( renderViewGroup );
 
 		auto rendertargetSize = renderViewGroup.GetViewport().SizeOnRenderThread();
@@ -290,6 +289,8 @@ namespace rendercore
 	{
 		CPU_PROFILE( ForwardRenderer_Render );
 
+		m_dynamicVertexBuffer.Commit();
+
 		Viewport& viewport = renderViewGroup.GetViewport();
 		viewport.Clear();
 
@@ -303,31 +304,30 @@ namespace rendercore
 
 		auto& viewShaderArguments = scene.GetViewShaderArguments();
 
-		for ( uint32 i = 0; i < static_cast<uint32>( renderViewGroup.Size() ); ++i )
+		for ( uint32 i = 0; i < static_cast<uint32>( renderViewGroup.NumRenderView() ); ++i )
 		{
-			SceneViewParameters viewParam = GetViewParameters( scene.GetRenderScene()
-				, ( i < m_prevFrameContext.size() ) ? &m_prevFrameContext[i] : nullptr
+			SceneViewParameters viewParam = GetViewParameters( ( i < m_prevFrameContext.size() ) ? &m_prevFrameContext[i] : nullptr
 				, renderViewGroup, i );
 
 			viewShaderArguments.Update( viewParam );
 
 			m_shaderResources.AddResource( &viewShaderArguments );
 
-			auto& view = renderViewGroup[i];
-
 			RenderDepthPass( renderViewGroup, i );
 			
+			RenderOcclusionTest( renderViewGroup, i );
+
 			RenderIndirectIllumination( renderViewGroup );
 			
 			RenderDefaultPass( renderViewGroup, i );
 
 			RenderShadow();
 
-			RenderSkyAtmosphere( scene, view );
+			RenderSkyAtmosphere( scene, i );
 
-			RenderVolumetricCloud( scene, view );
+			RenderVolumetricCloud( scene );
 
-			RenderVolumetricFog( scene, view );
+			RenderVolumetricFog( scene );
 		}
 
 		if ( DefaultRenderCore::IsTaaEnabled() )
@@ -424,7 +424,6 @@ namespace rendercore
 		};
 		StoreOuputContext( context );
 
-
 		auto commandList = GetCommandList();
 		{
 			GPU_PROFILE( commandList, Depth );
@@ -454,6 +453,38 @@ namespace rendercore
 			commandList.AddTransition( Transition( *worldNormal, agl::ResourceState::PixelShaderResource ) );
 			commandList.AddTransition( Transition( *velocity, agl::ResourceState::PixelShaderResource ) );
 		}
+	}
+
+	void ForwardRenderer::RenderOcclusionTest( RenderViewGroup& renderViewGroup, uint32 viewIndex )
+	{
+		auto [width, height] = renderViewGroup.GetViewport().Size();
+
+		RenderingOutputContext context = {
+			.m_renderTargets = { renderViewGroup.GetViewport().Texture() },
+			.m_depthStencil = m_renderTargets.GetDepthStencil(),
+			.m_viewport = {
+				.m_left = 0.f,
+				.m_top = 0.f,
+				.m_front = 0.f,
+				.m_right = static_cast<float>( width ),
+				.m_bottom = static_cast<float>( height ),
+				.m_back = 1.f
+			},
+			.m_scissorRects = {
+				.m_left = 0L,
+				.m_top = 0L,
+				.m_right = static_cast<int32>( width ),
+				.m_bottom = static_cast<int32>( height )
+			}
+		};
+		StoreOuputContext( context );
+
+		auto commandList = GetCommandList();
+		GPU_PROFILE( commandList, Occlusion );
+
+		ApplyOutputContext( commandList );
+
+		DoRenderOcclusionTest( m_shaderResources, m_viewInfo[viewIndex], m_occlusionRenderData );
 	}
 
 	void ForwardRenderer::UpdateLightResource( IScene& scene )

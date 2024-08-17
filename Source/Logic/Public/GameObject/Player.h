@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameObject.h"
+#include "RenderView.h"
 #include "UserInput/UserInput.h"
 
 namespace logic
@@ -15,7 +16,7 @@ namespace logic
 		virtual void Initialize( CGameLogic& gameLogic, World& world ) override;
 		virtual void Think( float elapsedTime );
 
-		const CameraComponent* GetCameraComponent() const { return m_cameraComponent; }
+		virtual rendercore::RenderView* CalcSceneView( rendercore::RenderViewGroup& renderViewGroup );
 
 		CPlayer();
 
@@ -28,6 +29,8 @@ namespace logic
 		void OnMouseMove( const engine::UserInput& input );
 		void OnWheelMove( const engine::UserInput& input );
 		void OnMoveKey( const engine::UserInput& input );
+
+		std::vector<rendercore::RenderViewStateReference, InlineAllocator<rendercore::RenderViewStateReference, 1>> m_viewStates;
 
 		CameraComponent* m_cameraComponent = nullptr;
 

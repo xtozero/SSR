@@ -59,7 +59,7 @@ namespace agl
 		m_residentResource.clear();
 	}
 
-	void D3D12PipelineCache::BindVertexBuffer( ID3D12GraphicsCommandList6& commandList, Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
+	void D3D12PipelineCache::BindVertexBuffer( ID3D12GraphicsCommandList6& commandList, Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets )
 	{
 		std::vector<D3D12_VERTEX_BUFFER_VIEW, InlineAllocator<D3D12_VERTEX_BUFFER_VIEW, 3>> vertexBufferViews;
 		vertexBufferViews.resize( numBuffers, {} );
@@ -76,6 +76,7 @@ namespace agl
 					view = vertexBuffer->GetView();
 					view.BufferLocation += pOffsets[i];
 					view.SizeInBytes -= pOffsets[i];
+					view.StrideInBytes = ( strides[i] > 0 ) ? strides[i] : view.StrideInBytes;
 				}
 			}
 		}

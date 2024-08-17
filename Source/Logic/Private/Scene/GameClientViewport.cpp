@@ -156,27 +156,17 @@ namespace logic
 			return;
 		}
 
-		const CameraComponent* cameraComponent = localPlayer->GetCameraComponent();
-		if ( cameraComponent == nullptr )
+		if ( rendercore::RenderView* localPlayerView = localPlayer->CalcSceneView( views ) )
 		{
-			return;
+			localPlayerView->m_nearPlaneDistance = 1.f;
+			localPlayerView->m_farPlaneDistance = 1500.f;
+
+			auto renderTargetSize = m_viewport->Size();
+			float width = static_cast<float>( renderTargetSize.first );
+			float height = static_cast<float>( renderTargetSize.second );
+			localPlayerView->m_aspect = width / height;
+			localPlayerView->m_fov = XMConvertToRadians( 60.f );
 		}
-
-		rendercore::RenderView& localPlayerView = views.AddRenderView();
-
-		localPlayerView.m_viewOrigin = cameraComponent->GetPosition();
-		localPlayerView.m_viewAxis = BasisVectorMatrix( cameraComponent->GetRightVector(),
-			cameraComponent->GetUpVector(),
-			cameraComponent->GetForwardVector() );
-
-		localPlayerView.m_nearPlaneDistance = 1.f;
-		localPlayerView.m_farPlaneDistance = 1500.f;
-
-		auto renderTargetSize = m_viewport->Size();
-		float width = static_cast<float>( renderTargetSize.first );
-		float height = static_cast<float>( renderTargetSize.second );
-		localPlayerView.m_aspect = width / height;
-		localPlayerView.m_fov = XMConvertToRadians( 60.f );
 	}
 
 	const std::vector<Color>& GameClientViewport::GetRawHitProxyData()

@@ -17,7 +17,7 @@ namespace agl
 	public:
 		virtual void Prepare() override;
 
-		virtual void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets ) override;
+		virtual void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets ) override;
 		virtual void BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset ) override;
 		virtual void BindPipelineState( GraphicsPipelineState* pipelineState ) override;
 		virtual void BindPipelineState( ComputePipelineState* pipelineState ) override;
@@ -77,7 +77,7 @@ namespace agl
 	public:
 		virtual void Prepare() override;
 
-		virtual void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets ) override;
+		virtual void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets ) override;
 		virtual void BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset ) override;
 		virtual void BindPipelineState( GraphicsPipelineState* pipelineState ) override;
 		virtual void BindPipelineState( ComputePipelineState* pipelineState ) override;

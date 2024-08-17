@@ -88,4 +88,21 @@ namespace agl
 		D3D12Query m_timeStampBegin;
 		D3D12Query m_timeStampEnd;
 	};
+
+	class D3D12OcclusionTest final : public OcclusionQuery
+	{
+	public:
+		virtual void InitResource() override;
+		virtual void FreeResource() override;
+
+		virtual void Begin( ICommandListBase& commandList ) override;
+		virtual void End( ICommandListBase& commandList ) override;
+
+		virtual uint64 GetNumSamplePassed() override;
+		virtual bool IsDataReady() const override;
+
+	private:
+		D3D12Query m_occlusionTest;
+		ID3D12Fence* m_completionFence = nullptr;
+	};
 }

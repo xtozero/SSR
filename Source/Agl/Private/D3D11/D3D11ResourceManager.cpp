@@ -32,7 +32,7 @@ namespace agl
 		m_graphicsPipelineStateCache.clear();
 	}
 
-	Texture* CD3D11ResourceManager::CreateTexture( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
+	Texture* CD3D11ResourceManager::CreateTexture( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData ) const
 	{
 		Texture* newTexture = nullptr;
 		if ( IsTexture2D( trait ) )
@@ -51,14 +51,14 @@ namespace agl
 		return newTexture;
 	}
 
-	Buffer* CD3D11ResourceManager::CreateBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData )
+	Buffer* CD3D11ResourceManager::CreateBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData ) const
 	{
 		Buffer* newBuffer = new D3D11Buffer( trait, debugName, initialState, initData );
 
 		return newBuffer;
 	}
 
-	VertexLayout* CD3D11ResourceManager::CreateVertexLayout( const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size )
+	VertexLayout* CD3D11ResourceManager::CreateVertexLayout( const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size ) const
 	{
 		auto d3d11VS = static_cast<const D3D11VertexShader*>( vs );
 		auto newVertexLayout = new D3D11VertexLayout( d3d11VS, trait, size );
@@ -66,56 +66,56 @@ namespace agl
 		return newVertexLayout;
 	}
 
-	ComputeShader * CD3D11ResourceManager::CreateComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+	ComputeShader * CD3D11ResourceManager::CreateComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
 	{
 		auto newShader = new D3D11ComputeShader( byteCode, byteCodeSize, paramInfo );
 
 		return newShader;
 	}
 
-	VertexShader* CD3D11ResourceManager::CreateVertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+	VertexShader* CD3D11ResourceManager::CreateVertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
 	{
 		auto newShader = new D3D11VertexShader( byteCode, byteCodeSize, paramInfo );
 
 		return newShader;
 	}
 
-	GeometryShader* CD3D11ResourceManager::CreateGeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+	GeometryShader* CD3D11ResourceManager::CreateGeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
 	{
 		auto newShader = new D3D11GeometryShader( byteCode, byteCodeSize, paramInfo );
 
 		return newShader;
 	}
 
-	PixelShader* CD3D11ResourceManager::CreatePixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+	PixelShader* CD3D11ResourceManager::CreatePixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
 	{
 		auto newShader = new D3D11PixelShader( byteCode, byteCodeSize, paramInfo );
 
 		return newShader;
 	}
 
-	BlendState* CD3D11ResourceManager::CreateBlendState( const BlendStateTrait& trait )
+	BlendState* CD3D11ResourceManager::CreateBlendState( const BlendStateTrait& trait ) const
 	{
 		auto blendState = new D3D11BlendState( trait );
 
 		return blendState;
 	}
 
-	DepthStencilState* CD3D11ResourceManager::CreateDepthStencilState( const DepthStencilStateTrait& trait )
+	DepthStencilState* CD3D11ResourceManager::CreateDepthStencilState( const DepthStencilStateTrait& trait ) const
 	{
 		auto depthStencilState = new D3D11DepthStencilState( trait );
 
 		return depthStencilState;
 	}
 
-	RasterizerState* CD3D11ResourceManager::CreateRasterizerState( const RasterizerStateTrait& trait )
+	RasterizerState* CD3D11ResourceManager::CreateRasterizerState( const RasterizerStateTrait& trait ) const
 	{
 		auto rasterizerState = new D3D11RasterizerState( trait );
 
 		return rasterizerState;
 	}
 
-	SamplerState* CD3D11ResourceManager::CreateSamplerState( const SamplerStateTrait& trait )
+	SamplerState* CD3D11ResourceManager::CreateSamplerState( const SamplerStateTrait& trait ) const
 	{
 		auto samplerState = new D3D11SamplerState( trait );
 
@@ -150,26 +150,31 @@ namespace agl
 		return pipelineState;
 	}
 
-	Canvas* CD3D11ResourceManager::CreateCanvas( uint32 width, uint32 height, void* hWnd, ResourceFormat format )
+	Canvas* CD3D11ResourceManager::CreateCanvas( uint32 width, uint32 height, void* hWnd, ResourceFormat format ) const
 	{
 		return new DxgiSwapchain<AglType::D3D11>( D3D11Device(), D3D11Factory(), width, height, 1, hWnd, ConvertFormatToDxgiFormat( format ) );
 	}
 
-	Viewport* CD3D11ResourceManager::CreateViewport( uint32 width, uint32 height, ResourceFormat format, [[maybe_unused]] const float4& bgColor )
+	Viewport* CD3D11ResourceManager::CreateViewport( uint32 width, uint32 height, ResourceFormat format, [[maybe_unused]] const float4& bgColor ) const
 	{
 		auto viewport = new D3D11Viewport( width, height, ConvertFormatToDxgiFormat( format ) );
 
 		return viewport;
 	}
 
-	Viewport* CD3D11ResourceManager::CreateViewport( Canvas& canvas )
+	Viewport* CD3D11ResourceManager::CreateViewport( Canvas& canvas ) const
 	{
 		return new D3D11Viewport( *reinterpret_cast<DxgiSwapchain<AglType::D3D11>*>( &canvas ) );
 	}
 
-	GpuTimer* CD3D11ResourceManager::CreateGpuTimer()
+	GpuTimer* CD3D11ResourceManager::CreateGpuTimer() const
 	{
 		return new D3D11GpuTimer();
+	}
+
+	OcclusionQuery* CD3D11ResourceManager::CreateOcclusionQuery() const
+	{
+		return new D3D11OcclusionTest();
 	}
 
 	void CD3D11ResourceManager::SetPSOCache( [[maybe_unused]] std::map<uint64, BinaryChunk>& psoCache )

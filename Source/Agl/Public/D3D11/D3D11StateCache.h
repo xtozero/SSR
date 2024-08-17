@@ -16,7 +16,7 @@ namespace agl
 	class D3D11PipelineCache final
 	{
 	public:
-		void BindVertexBuffer( ID3D11DeviceContext& context, Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets );
+		void BindVertexBuffer( ID3D11DeviceContext& context, Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets );
 		void BindIndexBuffer( ID3D11DeviceContext& context, Buffer* indexBuffer, uint32 indexOffset );
 		void BindPipelineState( ID3D11DeviceContext& context, GraphicsPipelineState* pipelineState );
 		void BindPipelineState( ID3D11DeviceContext& context, ComputePipelineState* pipelineState );

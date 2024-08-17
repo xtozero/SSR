@@ -41,7 +41,11 @@ public:
 	static FileHandle OpenFile( const char* filePath )
 	{
 		char normalizedPath[MAX_FILE_PATH] = { '\0' };
+#ifdef _MSC_VER
+		strncpy_s( normalizedPath, filePath, MAX_FILE_PATH );
+#else
 		std::strncpy( normalizedPath, filePath, MAX_FILE_PATH );
+#endif
 
 		for ( char* c = normalizedPath; *c != '\0'; ++c )
 		{

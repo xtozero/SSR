@@ -163,11 +163,6 @@ namespace
 		std::optional<Token> ReadInteger();
 		Token ReadToken();
 		bool IsReservedKeyword( std::string_view& keyword ) const;
-
-		static constexpr const char* ReservedKeywords[] =
-		{
-			"__cplusplus",
-		};
 	};
 
 	std::map<Name, rendercore::StaticShaderSwitch> StaticSwitchParser::Parse()
@@ -371,6 +366,11 @@ namespace
 
 	bool StaticSwitchParser::IsReservedKeyword( std::string_view& keyword ) const
 	{
+		static constexpr const char* ReservedKeywords[] =
+		{
+			"__cplusplus"
+		};
+
 		for ( const char* reservedKeyword : ReservedKeywords )
 		{
 			if ( keyword == reservedKeyword )

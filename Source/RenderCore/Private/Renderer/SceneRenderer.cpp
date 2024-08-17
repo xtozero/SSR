@@ -156,16 +156,35 @@ namespace rendercore
 		assert( scene.GetRenderScene() != nullptr );
 		Scene& renderScene = *scene.GetRenderScene();
 
+		std::construct_at( &m_shadowInfos );
 		std::construct_at( &m_passSnapshots );
+		std::construct_at( &m_occlusionRenderData );
 
-		m_viewInfo.reserve( renderViewGroup.Size() );
-		for ( size_t i = 0; i < renderViewGroup.Size(); ++i )
+		m_viewInfo.reserve( renderViewGroup.NumRenderView() );
+		for ( size_t i = 0; i < renderViewGroup.NumRenderView(); ++i )
 		{
-			RenderViewInfo& viewInfo = m_viewInfo.emplace_back( renderViewGroup[i] );
+			RenderViewInfo& viewInfo = m_viewInfo.emplace_back( renderViewGroup.GetRenderView( i ) );
 			PassVisibleSnapshots& passSnapshot = m_passSnapshots.emplace_back();
+
+			viewInfo.m_viewMatrix = LookFromMatrix( viewInfo.m_viewOrigin
+				, viewInfo.m_viewAxis[2]
+				, viewInfo.m_viewAxis[1] );
+
+			viewInfo.m_projMatrix = PerspectiveMatrix( viewInfo.m_fov
+				, viewInfo.m_aspect
+				, viewInfo.m_nearPlaneDistance
+				, viewInfo.m_farPlaneDistance );
+
+			viewInfo.m_viewProjMatrix = viewInfo.m_viewMatrix * viewInfo.m_projMatrix;
 
 			viewInfo.m_snapshots = passSnapshot.data();
 			viewInfo.m_visibilityMap.resize( renderScene.Primitives().GetMaxIndex(), true );
+
+			if ( viewInfo.m_state )
+			{
+				++viewInfo.m_state->m_occlusionFrameCounter;
+				viewInfo.m_state->m_occlutionTestPool.Prepare( viewInfo.m_state->m_occlusionFrameCounter );
+			}
 		}
 
 		auto linearSampler = StaticSamplerState<>::Get();
@@ -185,35 +204,26 @@ namespace rendercore
 		CalcVisibility( renderViewGroup );
 	}
 
-	void SceneRenderer::PostRender( RenderViewGroup& renderViewGroup )
+	void SceneRenderer::PostRender()
 	{
 		CPU_PROFILE( PostRender );
 
 		m_shaderResources.ClearResources();
 
-		m_prevFrameContext.resize( renderViewGroup.Size() );
+		m_prevFrameContext.resize( m_viewInfo.size() );
 		for ( size_t i = 0; i < m_prevFrameContext.size(); ++i )
 		{
-			const RenderView& view = renderViewGroup[i];
+			const RenderViewInfo& viewInfo = m_viewInfo[i];
 
-			auto viewMatrix = LookFromMatrix( view.m_viewOrigin
-				, view.m_viewAxis[2]
-				, view.m_viewAxis[1] );
-			m_prevFrameContext[i].m_viewMatrix = viewMatrix;
-
-			auto projMatrix = PerspectiveMatrix( view.m_fov
-				, view.m_aspect
-				, view.m_nearPlaneDistance
-				, view.m_farPlaneDistance );
-			m_prevFrameContext[i].m_projMatrix = projMatrix;
-
-			auto viewProjMatrix = viewMatrix * projMatrix;
-			m_prevFrameContext[i].m_viewProjMatrix = viewProjMatrix;
+			m_prevFrameContext[i].m_viewMatrix = viewInfo.m_viewMatrix;
+			m_prevFrameContext[i].m_projMatrix = viewInfo.m_projMatrix;
+			m_prevFrameContext[i].m_viewProjMatrix = viewInfo.m_viewProjMatrix;
 		}
 
 		m_viewInfo.clear();
 		std::destroy_at( &m_passSnapshots );
 		std::destroy_at( &m_shadowInfos );
+		std::destroy_at( &m_occlusionRenderData );
 
 		GetTransientAllocator<ThreadType::RenderThread>().Flush();
 	}
@@ -238,7 +248,7 @@ namespace rendercore
 		auto lights = renderScene.Lights();
 		m_shadowInfos.reserve( lights.Size() );
 
-		for ( const auto& view : renderViewGroup )
+		for ( const auto& view : m_viewInfo )
 		{
 			for ( LightSceneInfo* light : lights )
 			{
@@ -872,7 +882,7 @@ namespace rendercore
 		}
 	}
 
-	void SceneRenderer::RenderSkyAtmosphere( IScene& scene, RenderView& renderView )
+	void SceneRenderer::RenderSkyAtmosphere( IScene& scene, uint32 viewIndex )
 	{
 		CPU_PROFILE( SceneRenderer_RenderSkyAtmosphere );
 
@@ -901,7 +911,7 @@ namespace rendercore
 
 		auto& skyAtmosphereRenderParameter = info->GetShaderArguments();
 		SkyAtmosphereRenderParameters param = {
-			.CameraPos = renderView.m_viewOrigin,
+			.CameraPos = m_viewInfo[viewIndex].m_viewOrigin,
 			.SunDir = -lightProperty.m_direction,
 			.Exposure = 0.4f,
 		};
@@ -938,7 +948,7 @@ namespace rendercore
 		AddSingleDrawPass( snapshot );
 	}
 
-	void SceneRenderer::RenderVolumetricCloud( IScene& scene, [[maybe_unused]] RenderView& renderView )
+	void SceneRenderer::RenderVolumetricCloud( IScene& scene )
 	{
 		CPU_PROFILE( SceneRenderer_RenderVolumetricCloud );
 
@@ -1026,7 +1036,7 @@ namespace rendercore
 		AddSingleDrawPass( snapshot );
 	}
 
-	void SceneRenderer::RenderVolumetricFog( IScene& scene, [[maybe_unused]] RenderView& renderView )
+	void SceneRenderer::RenderVolumetricFog( IScene& scene )
 	{
 		CPU_PROFILE( SceneRenderer_RenderVolumetricFog );
 
@@ -1279,15 +1289,12 @@ namespace rendercore
 
 		auto& viewShaderArguments = scene.GetViewShaderArguments();
 
-		for ( size_t viewIndex = 0; viewIndex < renderViewGroup.Size(); ++viewIndex )
+		for ( size_t viewIndex = 0; viewIndex < renderViewGroup.NumRenderView(); ++viewIndex )
 		{
-			SceneViewParameters viewParam = GetViewParameters( scene.GetRenderScene()
-				, ( viewIndex < m_prevFrameContext.size() ) ? &m_prevFrameContext[viewIndex] : nullptr
+			SceneViewParameters viewParam = GetViewParameters( ( viewIndex < m_prevFrameContext.size() ) ? &m_prevFrameContext[viewIndex] : nullptr
 				, renderViewGroup, viewIndex );
 
 			viewShaderArguments.Update( viewParam );
-
-			m_shaderResources.AddResource( &viewShaderArguments );
 
 			RenderViewInfo& viewInfo = m_viewInfo[viewIndex];
 			auto& snapshots = viewInfo.m_snapshots[static_cast<uint32>( RenderPass::HitProxy )];
@@ -1381,10 +1388,7 @@ namespace rendercore
 
 		for ( RenderViewInfo& viewInfo : m_viewInfo )
 		{
-			auto viewMat = LookFromMatrix( viewInfo.m_viewOrigin, viewInfo.m_viewAxis[2], viewInfo.m_viewAxis[1] );
-			auto viewProjectionMat = PerspectiveMatrix( viewInfo.m_fov, viewInfo.m_aspect, viewInfo.m_nearPlaneDistance, viewInfo.m_farPlaneDistance );
-			viewProjectionMat = viewMat * viewProjectionMat;
-			Frustum frustum( viewProjectionMat );
+			Frustum frustum( viewInfo.m_viewProjMatrix );
 
 			for ( auto primitive : primitives )
 			{
@@ -1395,6 +1399,8 @@ namespace rendercore
 
 				viewInfo.m_visibilityMap[primitiveId] = ( result != CollisionResult::Outside );
 			}
+
+			OcclusionCull( scene, m_dynamicVertexBuffer, viewInfo, m_occlusionRenderData );
 		}
 	}
 

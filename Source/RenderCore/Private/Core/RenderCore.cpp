@@ -240,7 +240,7 @@ namespace rendercore
 				pSceneRenderer->Render( renderViewGroup );
 			}
 
-			pSceneRenderer->PostRender( renderViewGroup );
+			pSceneRenderer->PostRender();
 			pSceneRenderer->WaitUntilRenderingIsFinish();
 		}
 	}

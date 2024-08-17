@@ -6,6 +6,7 @@
 #include "GraphicsApiResource.h"
 #include "LightPropagationVolume.h"
 #include "NameTypes.h"
+#include "OcclusionRendering.h"
 #include "PassProcessor.h"
 #include "ReflectiveShadowMapRendering.h"
 #include "RenderView.h"
@@ -35,6 +36,10 @@ namespace rendercore
 
 	struct RenderViewInfo : public RenderView
 	{
+		Matrix m_viewMatrix = Matrix::Identity;
+		Matrix m_projMatrix = Matrix::Identity;
+		Matrix m_viewProjMatrix = Matrix::Identity;
+
 		RenderThreadFrameData<VisibleDrawSnapshot>* m_snapshots = nullptr;
 		RenderThreadFrameData<bool> m_visibilityMap;
 	};
@@ -82,7 +87,7 @@ namespace rendercore
 		virtual void PreRender( RenderViewGroup& renderViewGroup );
 		virtual void Render( RenderViewGroup& renderViewGroup ) = 0;
 		virtual void RenderHitProxy( RenderViewGroup& renderViewGroup ) = 0;
-		virtual void PostRender( RenderViewGroup& renderViewGroup );
+		virtual void PostRender();
 
 		virtual void RenderDefaultPass( RenderViewGroup& renderViewGroup, uint32 curView ) = 0;
 
@@ -129,9 +134,9 @@ namespace rendercore
 		void RenderTexturedSky( IScene& scene );
 		void RenderMesh( IScene& scene, RenderPass passType, uint32 viewIndex );
 		void RenderShadow();
-		void RenderSkyAtmosphere( IScene& scene, RenderView& renderView );
-		void RenderVolumetricCloud( IScene& scene, RenderView& renderView );
-		void RenderVolumetricFog( IScene& scene, RenderView& renderView );
+		void RenderSkyAtmosphere( IScene& scene, uint32 viewIndex );
+		void RenderVolumetricCloud( IScene& scene );
+		void RenderVolumetricFog( IScene& scene );
 		void RenderTemporalAntiAliasing( RenderViewGroup& renderViewGroup );
 		void RenderIndirectIllumination( RenderViewGroup& renderViewGroup );
 		void DoRenderHitProxy( RenderViewGroup& renderViewGroup );
@@ -148,9 +153,12 @@ namespace rendercore
 		RenderThreadFrameData<ShadowInfo> m_shadowInfos;
 		using PassVisibleSnapshots = std::array<RenderThreadFrameData<VisibleDrawSnapshot>, static_cast<uint32>( RenderPass::Count )>;
 		RenderThreadFrameData<PassVisibleSnapshots> m_passSnapshots;
+		RenderThreadFrameData<OcclusionRenderData> m_occlusionRenderData;
 
 		std::vector<RenderViewInfo, InlineAllocator<RenderViewInfo, 1>> m_viewInfo;
 		std::vector<PreviousFrameContext> m_prevFrameContext;
+
+		GlobalDynamicVertexBuffer m_dynamicVertexBuffer;
 
 	private:
 		TAARenderer m_taa;

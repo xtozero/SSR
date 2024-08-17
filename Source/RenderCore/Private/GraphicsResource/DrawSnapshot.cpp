@@ -46,7 +46,7 @@ namespace rendercore
 	VertexBuffer PrimitiveIdVertexBufferPool::Alloc( uint32 require )
 	{
 		constexpr uint32 minimum = 1024;
-		require = CalcAlignment(require, minimum);
+		require = CalcAlignment( require, minimum );
 
 		std::optional<size_t> bestMatchIdx;
 		for ( size_t i = 0; i < m_entries.size(); ++i )

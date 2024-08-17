@@ -46,7 +46,7 @@ namespace agl
 
 		void Prepare();
 
-		void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets );
+		void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets );
 		void BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset );
 		void BindPipelineState( GraphicsPipelineState* pipelineState );
 		void BindPipelineState( ComputePipelineState* pipelineState );
@@ -81,6 +81,8 @@ namespace agl
 		void EndQuery( void* rawQuery );
 		void ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries );
 
+		void Signal( ID3D12Fence* fence, uint64 fenceValue );
+
 		void Close();
 
 		void OnCommited();
@@ -98,12 +100,15 @@ namespace agl
 		D3D12PipelineCache m_stateCache;
 
 		D3D12BarrierBatcher m_barrierBatcher;
+		std::vector<std::pair<ID3D12Fence*, int64>> m_fenceBatch;
 	};
 
 	class ID3D12CommandListEX : public ICommandList
 	{
 	public:
 		virtual void ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries ) = 0;
+
+		virtual void Signal( ID3D12Fence* fence, uint64 fenceValue ) = 0;
 	};
 
 	class D3D12CommandList final : public ID3D12CommandListEX
@@ -111,7 +116,7 @@ namespace agl
 	public:
 		virtual void Prepare() override;
 
-		virtual void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets ) override;
+		virtual void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets ) override;
 		virtual void BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset ) override;
 		virtual void BindPipelineState( GraphicsPipelineState* pipelineState ) override;
 		virtual void BindPipelineState( ComputePipelineState* pipelineState ) override;
@@ -149,6 +154,8 @@ namespace agl
 
 		virtual void ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries ) override;
 
+		virtual void Signal( ID3D12Fence* fence, uint64 fenceValue ) override;
+
 		void Initialize();
 
 		void OnCommitted();
@@ -174,7 +181,7 @@ namespace agl
 	public:
 		virtual void Prepare() override;
 
-		virtual void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets ) override;
+		virtual void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets ) override;
 		virtual void BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset ) override;
 		virtual void BindPipelineState( GraphicsPipelineState* pipelineState ) override;
 		virtual void BindPipelineState( ComputePipelineState* pipelineState ) override;
@@ -207,6 +214,8 @@ namespace agl
 		virtual void EndQuery( void* rawQuery ) override;
 
 		virtual void ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries ) override;
+
+		virtual void Signal( ID3D12Fence* fence, uint64 fenceValue ) override;
 
 		virtual void WaitUntilFlush() override {}
 

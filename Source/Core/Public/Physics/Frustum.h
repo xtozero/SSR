@@ -6,6 +6,16 @@
 class Frustum
 {
 public:
+	enum class PlaneDir
+	{
+		Left = 0,
+		Right,
+		Bottom,
+		Top,
+		Near,
+		Far
+	};
+
 	enum
 	{
 		X_MAX = 1 << 0,
@@ -59,6 +69,11 @@ public:
 	const LookUpTable& GetVertexLUT( ) const { return m_vertexLUT; }
 
 	const Plane( &GetPlanes( ) const )[6]{ return m_plane; }
+	const Plane& GetPlane( PlaneDir planeDir ) const
+	{
+		return m_plane[static_cast<int32>( planeDir )];
+	}
+
 	const Point( &GetVertices( ) const )[8]{ return m_vertices; }
 
 private:

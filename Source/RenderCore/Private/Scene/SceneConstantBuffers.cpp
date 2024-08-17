@@ -13,11 +13,11 @@
 
 namespace rendercore
 {
-	SceneViewParameters GetViewParameters( const Scene* scene, const PreviousFrameContext* prevFrameContext, const RenderViewGroup& renderViewGroup, size_t viewIndex )
+	SceneViewParameters GetViewParameters( const PreviousFrameContext* prevFrameContext, const RenderViewGroup& renderViewGroup, size_t viewIndex )
 	{
 		SceneViewParameters param = {};
 
-		const RenderView& view = renderViewGroup[viewIndex];
+		const RenderView& view = renderViewGroup.GetRenderView( viewIndex );
 
 		auto viewMatrix = LookFromMatrix( view.m_viewOrigin,
 			view.m_viewAxis[2],
@@ -61,7 +61,7 @@ namespace rendercore
 		param.ElapsedTime = renderViewGroup.GetElapsedTime();
 		param.TotalTime = renderViewGroup.GetTotalTime();
 		param.CameraPos = view.m_viewOrigin;
-		param.FrameCount = scene ? static_cast<uint32>( scene->GetNumFrame() ) : 0;
+		param.FrameCount = static_cast<uint32>( renderViewGroup.Scene().GetNumFrame() );
 
 		auto wh = renderViewGroup.GetViewport().Size();
 		param.ViewportDimensions = Vector2( static_cast<float>( wh.first ), static_cast<float>( wh.second ) );

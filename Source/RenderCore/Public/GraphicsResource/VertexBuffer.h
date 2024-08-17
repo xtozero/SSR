@@ -38,4 +38,47 @@ namespace rendercore
 		uint32 m_numElement = 0;
 		bool m_isDynamic = false;
 	};
+
+	class DynamicVertexBufferChunk
+	{
+	public:
+		void InitResource();
+
+		uint8* Allocate( uint32 sizeInBytes );
+		void Commit();
+
+		uint32 Size() const;
+		uint32 AllocatedSize() const;
+		uint32 FreeSize() const;
+
+		agl::Buffer* Resource();
+
+		explicit DynamicVertexBufferChunk( uint32 sizeInBytes );
+
+	private:
+		static constexpr uint32 BufferSizeAlignment = 64 * 1024;
+
+		RefHandle<agl::Buffer> m_buffer;
+		uint32 m_sizeInBytes = 0;
+		uint32 m_allocatedSizeInBytes = 0;
+		void* m_lockedMemory = nullptr;
+	};
+
+	class GlobalDynamicVertexBuffer
+	{
+	public:
+		struct AllocationInfo
+		{
+			agl::Buffer* m_buffer = nullptr;
+			void* m_lockedMemory = nullptr;
+			uint32 m_offset = 0;
+		};
+
+		AllocationInfo Allocate( uint32 sizeInBytes );
+		void Commit();
+
+	private:
+		std::vector<DynamicVertexBufferChunk> m_chunks;
+		DynamicVertexBufferChunk* m_currentChunk = nullptr;
+	};
 }

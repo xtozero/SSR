@@ -10,7 +10,7 @@ namespace rendercore
 	class VertexBufferBundle final
 	{
 	public:
-		void Bind( VertexBuffer& vertexBuffer, uint32 slot, uint32 offset = 0 )
+		void Bind( agl::Buffer* vertexBuffer, uint32 slot, uint32 stride = 0, uint32 offset = 0 )
 		{
 			if ( slot >= agl::MAX_VERTEX_SLOT )
 			{
@@ -22,8 +22,9 @@ namespace rendercore
 				m_vertexBuffers[slot]->ReleaseRef();
 			}
 
-			m_vertexBuffers[slot] = vertexBuffer.Resource();
-			m_offset[slot] = offset;
+			m_vertexBuffers[slot] = vertexBuffer;
+			m_strides[slot] = stride;
+			m_offsets[slot] = offset;
 
 			if ( m_vertexBuffers[slot] )
 			{
@@ -34,6 +35,11 @@ namespace rendercore
 			{
 				m_numBuffers = slot + 1;
 			}
+		}
+
+		void Bind( VertexBuffer& vertexBuffer, uint32 slot, uint32 stride = 0, uint32 offset = 0 )
+		{
+			Bind( vertexBuffer.Resource(), slot, stride, offset );
 		}
 
 		uint32 NumBuffer() const
@@ -51,9 +57,14 @@ namespace rendercore
 			return m_vertexBuffers;
 		}
 
+		const uint32* Strides() const
+		{
+			return m_strides;
+		}
+
 		const uint32* Offsets() const
 		{
-			return m_offset;
+			return m_offsets;
 		}
 
 		VertexBufferBundle() = default;
@@ -96,6 +107,9 @@ namespace rendercore
 					}
 				}
 
+				std::copy( std::begin( other.m_strides ), std::end( other.m_strides ), std::begin( m_strides ) );
+				std::copy( std::begin( other.m_offsets ), std::end( other.m_offsets ), std::begin( m_offsets ) );
+
 				m_numBuffers = other.m_numBuffers;
 			}
 
@@ -125,6 +139,9 @@ namespace rendercore
 					other.m_vertexBuffers[i] = nullptr;
 				}
 
+				std::copy( std::begin( other.m_strides ), std::end( other.m_strides ), std::begin( m_strides ) );
+				std::copy( std::begin( other.m_offsets ), std::end( other.m_offsets ), std::begin( m_offsets ) );
+
 				m_numBuffers = other.m_numBuffers;
 				other.m_numBuffers = 0;
 			}
@@ -142,8 +159,9 @@ namespace rendercore
 		{
 			while ( size-- > 0 )
 			{
-				if ( ( lhs.m_offset[size] != rhs.m_offset[size] ) ||
-					( lhs.m_vertexBuffers[size] != rhs.m_vertexBuffers[size] ) )
+				if ( ( lhs.m_strides[size] != rhs.m_strides[size] )
+					|| ( lhs.m_offsets[size] != rhs.m_offsets[size] )
+					|| ( lhs.m_vertexBuffers[size] != rhs.m_vertexBuffers[size] ) )
 				{
 					return false;
 				}
@@ -153,7 +171,8 @@ namespace rendercore
 		}
 
 		agl::Buffer* m_vertexBuffers[agl::MAX_VERTEX_SLOT] = {};
-		uint32 m_offset[agl::MAX_VERTEX_SLOT] = {};
+		uint32 m_strides[agl::MAX_VERTEX_SLOT] = {};
+		uint32 m_offsets[agl::MAX_VERTEX_SLOT] = {};
 		uint32 m_numBuffers = 0;
 	};
 }

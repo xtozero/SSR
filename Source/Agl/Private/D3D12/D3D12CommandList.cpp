@@ -115,9 +115,9 @@ namespace agl
 		m_globalDescriptorHeap.Prepare();
 	}
 
-	void D3D12CommandListImpl::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
+	void D3D12CommandListImpl::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets )
 	{
-		m_stateCache.BindVertexBuffer( CommandList(), vertexBuffers, startSlot, numBuffers, pOffsets);
+		m_stateCache.BindVertexBuffer( CommandList(), vertexBuffers, startSlot, numBuffers, strides, pOffsets );
 	}
 
 	void D3D12CommandListImpl::BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset )
@@ -382,6 +382,16 @@ namespace agl
 		CommandList().ResolveQueryData( heap, type, offset, numQueries, readBackBuffer, sizeof( uint64 ) * offset );
 	}
 
+	void D3D12CommandListImpl::Signal( ID3D12Fence* fence, uint64 fenceValue )
+	{
+		if ( fence == nullptr )
+		{
+			return;
+		}
+
+		m_fenceBatch.emplace_back( fence, fenceValue );
+	}
+
 	void D3D12CommandListImpl::Close()
 	{
 		m_barrierBatcher.Commit( *this );
@@ -392,9 +402,14 @@ namespace agl
 	void D3D12CommandListImpl::OnCommited()
 	{
 		D3D12DirectCommandQueue().Signal( m_cmdListResource.m_fence.Get(), 1 );
+		for ( const auto& pair : m_fenceBatch )
+		{
+			D3D12DirectCommandQueue().Signal( pair.first, pair.second );
+		}
 
 		m_cmdListResource = D3D12CmdPool( D3D12_COMMAND_LIST_TYPE_DIRECT ).ObtainCommandList();
 		m_stateCache.Prepare();
+		m_fenceBatch.clear();
 	}
 
 	ID3D12CommandList* D3D12CommandListImpl::Resource() const
@@ -420,9 +435,9 @@ namespace agl
 		m_numUsedParallelCommandList = 0;
 	}
 
-	void D3D12CommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
+	void D3D12CommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets )
 	{
-		m_imple.BindVertexBuffer( vertexBuffers, startSlot, numBuffers, pOffsets );
+		m_imple.BindVertexBuffer( vertexBuffers, startSlot, numBuffers, strides, pOffsets );
 	}
 
 	void D3D12CommandList::BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset )
@@ -584,6 +599,11 @@ namespace agl
 		m_imple.ResolveQueryData( queryHeap, type, offset, numQueries );
 	}
 
+	void D3D12CommandList::Signal( ID3D12Fence* fence, uint64 fenceValue )
+	{
+		m_imple.Signal( fence, fenceValue );
+	}
+
 	void D3D12CommandList::Initialize()
 	{
 		m_imple.Initialize();
@@ -625,9 +645,9 @@ namespace agl
 		m_imple.Prepare();
 	}
 
-	void D3D12ParallelCommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
+	void D3D12ParallelCommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets )
 	{
-		m_imple.BindVertexBuffer( vertexBuffers, startSlot, numBuffers, pOffsets );
+		m_imple.BindVertexBuffer( vertexBuffers, startSlot, numBuffers, strides, pOffsets );
 	}
 
 	void D3D12ParallelCommandList::BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset )
@@ -743,6 +763,11 @@ namespace agl
 	void D3D12ParallelCommandList::ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries )
 	{
 		m_imple.ResolveQueryData( queryHeap, type, offset, numQueries );
+	}
+
+	void D3D12ParallelCommandList::Signal( ID3D12Fence* fence, uint64 fenceValue )
+	{
+		m_imple.Signal( fence, fenceValue );
 	}
 
 	void D3D12ParallelCommandList::Close()

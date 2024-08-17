@@ -9,4 +9,9 @@ namespace agl
 	{
 		return GetInterface<IResourceManager>()->CreateGpuTimer();
 	}
+
+	RefHandle<OcclusionQuery> OcclusionQuery::Create()
+	{
+		return GetInterface<IResourceManager>()->CreateOcclusionQuery();
+	}
 }

@@ -6,9 +6,9 @@
 
 namespace rendercore
 {
-	void CommandList::BindVertexBuffer( agl::Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
+	void CommandList::BindVertexBuffer( agl::Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets )
 	{
-		m_imple.BindVertexBuffer( vertexBuffers, startSlot, numBuffers, pOffsets );
+		m_imple.BindVertexBuffer( vertexBuffers, startSlot, numBuffers, strides, pOffsets );
 	}
 
 	void CommandList::BindIndexBuffer( agl::Buffer* indexBuffer, uint32 indexOffset )

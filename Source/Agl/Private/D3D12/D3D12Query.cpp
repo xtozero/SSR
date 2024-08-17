@@ -139,7 +139,6 @@ namespace agl
 	{
 		auto src = static_cast<uint8*>( m_readBackPtr ) + size * offset;
 		std::memcpy( outData, src, size );
-		*(int64*)src = 0;
 	}
 
 	D3D12QueryHeapBlock::~D3D12QueryHeapBlock()
@@ -296,5 +295,52 @@ namespace agl
 		}
 
 		return 0.0;
+	}
+
+	void D3D12OcclusionTest::InitResource()
+	{
+		m_occlusionTest = D3D12AllocatorForQuery().Allocate( D3D12_QUERY_TYPE_OCCLUSION );
+		D3D12Device().CreateFence( 0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS( &m_completionFence ) );
+	}
+
+	void D3D12OcclusionTest::FreeResource()
+	{
+		D3D12AllocatorForQuery().Deallocate( m_occlusionTest );
+
+		if ( m_completionFence )
+		{
+			m_completionFence->Release();
+			m_completionFence = nullptr;
+		}
+	}
+
+	void D3D12OcclusionTest::Begin( ICommandListBase& commandList )
+	{
+		m_completionFence->Signal( 0 );
+
+		commandList.BeginQuery( &m_occlusionTest );
+	}
+
+	void D3D12OcclusionTest::End( ICommandListBase& commandList )
+	{
+		auto& d3d12CommandList = static_cast<ID3D12CommandListEX&>( commandList );
+		d3d12CommandList.EndQuery( &m_occlusionTest );
+
+		d3d12CommandList.ResolveQueryData( m_occlusionTest.m_heap, D3D12_QUERY_TYPE_OCCLUSION, m_occlusionTest.m_offset, 1 );
+
+		d3d12CommandList.Signal( m_completionFence, 1 );
+	}
+
+	uint64 D3D12OcclusionTest::GetNumSamplePassed()
+	{
+		uint64 numSamplePassed = std::numeric_limits<uint64>::max();
+		m_occlusionTest.m_heap->GetData( &numSamplePassed, sizeof( numSamplePassed ), m_occlusionTest.m_offset );
+
+		return numSamplePassed;
+	}
+
+	bool D3D12OcclusionTest::IsDataReady() const
+	{
+		return m_completionFence && ( m_completionFence->GetCompletedValue() == 1 );
 	}
 };

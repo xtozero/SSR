@@ -161,6 +161,7 @@ set (RENDERER_SOURCE
 	Private/Renderer/ImageBasedLightingRendering.cpp
 	Private/Renderer/ImguiRenderer.cpp
 	Private/Renderer/LightPropagationVolume.cpp
+	Private/Renderer/OcclusionRendering.cpp
 	Private/Renderer/ReflectiveShadowMapRendering.cpp
 	Private/Renderer/RenderView.cpp
 	Private/Renderer/SceneRenderer.cpp
@@ -172,6 +173,7 @@ set (RENDERER_SOURCE
 	Public/Renderer/ImageBasedLightingRendering.h
 	Public/Renderer/IRenderCore.h
 	Public/Renderer/LightPropagationVolume.h
+	Public/Renderer/OcclusionRendering.h
 	Public/Renderer/ReflectiveShadowMapRendering.h
 	Public/Renderer/RenderView.h
 	Public/Renderer/SceneRenderer.h

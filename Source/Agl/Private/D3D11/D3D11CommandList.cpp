@@ -184,9 +184,9 @@ namespace agl
 		m_numUsedParallelCommandList = 0;
 	}
 
-	void D3D11CommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
+	void D3D11CommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets )
 	{
-		m_stateCache.BindVertexBuffer( D3D11Context(), vertexBuffers, startSlot, numBuffers, pOffsets );
+		m_stateCache.BindVertexBuffer( D3D11Context(), vertexBuffers, startSlot, numBuffers, strides, pOffsets );
 	}
 
 	void D3D11CommandList::BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset )
@@ -471,9 +471,9 @@ namespace agl
 		m_globalConstantBuffers.Prepare();
 	}
 
-	void D3D11ParallelCommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* pOffsets )
+	void D3D11ParallelCommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets )
 	{
-		m_stateCache.BindVertexBuffer( *m_pContext.Get(), vertexBuffers, startSlot, numBuffers, pOffsets);
+		m_stateCache.BindVertexBuffer( *m_pContext.Get(), vertexBuffers, startSlot, numBuffers, strides, pOffsets );
 	}
 
 	void D3D11ParallelCommandList::BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset )
