@@ -160,7 +160,7 @@ namespace editor
         ImGui::NewFrame();
 
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::DockSpaceOverViewport( viewport, ImGuiDockNodeFlags_PassthruCentralNode );
+        ImGui::DockSpaceOverViewport( 0, viewport, ImGuiDockNodeFlags_PassthruCentralNode );
 
         if constexpr ( ShowImGuiShowCase )
         {
