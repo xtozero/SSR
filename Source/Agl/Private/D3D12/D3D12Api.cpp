@@ -34,7 +34,7 @@
 #include <dxgi1_6.h>
 #include <wrl/client.h>
 
-using namespace ::Microsoft::WRL;
+using ::Microsoft::WRL::ComPtr;
 
 namespace
 {
@@ -69,6 +69,20 @@ namespace
 		}
 
 		return ShaderType::None;
+	}
+
+	bool IsAdapterIntegrated( IDXGIAdapter1* adapter )
+	{
+		ComPtr<IDXGIAdapter3> adapter3;
+		adapter->QueryInterface( IID_PPV_ARGS( adapter3.GetAddressOf() ) );
+
+		DXGI_QUERY_VIDEO_MEMORY_INFO nonLocalVideoMemoryInfo = {};
+		if ( adapter3.Get() && SUCCEEDED( adapter3->QueryVideoMemoryInfo( 0, DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &nonLocalVideoMemoryInfo ) ) )
+		{
+			return nonLocalVideoMemoryInfo.Budget == 0;
+		}
+
+		return true;
 	}
 }
 
@@ -611,9 +625,37 @@ namespace agl
 		m_debugLayer->SetEnableGPUBasedValidation( DefaultAgl::IsGpuValidationEnabled() );
 #endif
 
+		std::vector<ComPtr<IDXGIAdapter1>> adapters;
+		{
+			assert( m_factory != nullptr );
+
+			uint32 i = 0;
+			ComPtr<IDXGIAdapter1> adapter;
+			while ( m_factory->EnumAdapters1( i, adapter.GetAddressOf() ) != DXGI_ERROR_NOT_FOUND )
+			{
+				adapters.push_back( adapter );
+				++i;
+			}
+		}
+
+		ComPtr<IDXGIAdapter1> properAdapter;
+		for ( ComPtr<IDXGIAdapter1> adapter : adapters )
+		{
+			DXGI_ADAPTER_DESC1 desc = {};
+			adapter->GetDesc1( &desc );
+
+			if ( IsAdapterIntegrated( adapter.Get() ) )
+			{
+				continue;
+			}
+
+			properAdapter = adapter;
+			break;
+		}
+
 		for ( uint32 i = 0; i < _countof( d3dFeatureLevel ); ++i )
 		{
-			hr = D3D12CreateDevice( nullptr
+			hr = D3D12CreateDevice( properAdapter.Get()
 				, d3dFeatureLevel[i]
 				, IID_PPV_ARGS( m_device.GetAddressOf() ) );
 
