@@ -81,6 +81,9 @@ namespace agl
 		void EndQuery( void* rawQuery );
 		void ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries );
 
+		void BeginEvent( const char* eventName );
+		void EndEvnet();
+
 		void Signal( ID3D12Fence* fence, uint64 fenceValue );
 
 		void Close();
@@ -148,7 +151,8 @@ namespace agl
 		virtual void BeginQuery( void* rawQuery ) override;
 		virtual void EndQuery( void* rawQuery ) override;
 
-		virtual void WaitUntilFlush() override;
+		virtual void BeginEvent( const char* eventName ) override;
+		virtual void EndEvent() override;
 
 		virtual void Commit() override;
 
@@ -213,11 +217,12 @@ namespace agl
 		virtual void BeginQuery( void* rawQuery ) override;
 		virtual void EndQuery( void* rawQuery ) override;
 
+		virtual void BeginEvent( const char* eventName ) override;
+		virtual void EndEvent() override;
+
 		virtual void ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries ) override;
 
 		virtual void Signal( ID3D12Fence* fence, uint64 fenceValue ) override;
-
-		virtual void WaitUntilFlush() override {}
 
 		virtual void Commit() override {}
 

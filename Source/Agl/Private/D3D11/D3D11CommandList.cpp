@@ -404,9 +404,28 @@ namespace agl
 		D3D11Context().End( d3d11Query );
 	}
 
-	void D3D11CommandList::WaitUntilFlush()
+	void D3D11CommandList::BeginEvent( const char* eventName )
 	{
-		D3D11Context().Flush();
+		assert( m_annotation.Get() != nullptr );
+
+		constexpr uint32 MaxLen = 256;
+		static wchar_t EventName[MaxLen] = {};
+
+#if _WIN32
+		size_t numConverted = 0;
+		mbstowcs_s( &numConverted, EventName, MaxLen, eventName, MaxLen );
+#else
+		std::mbstowcs( EventName, eventName, MaxLen );
+#endif
+
+		m_annotation->BeginEvent( EventName );
+	}
+
+	void D3D11CommandList::EndEvent()
+	{
+		assert( m_annotation.Get() != nullptr );
+
+		m_annotation->EndEvent();
 	}
 
 	void D3D11CommandList::Commit()
@@ -423,6 +442,8 @@ namespace agl
 	void D3D11CommandList::Initialize()
 	{
 		m_globalConstantBuffers.Initialize();
+
+		D3D11Context().QueryInterface( IID_PPV_ARGS( m_annotation.GetAddressOf() ) );
 	}
 
 	ICommandList& D3D11CommandList::GetParallelCommandList()
@@ -677,6 +698,30 @@ namespace agl
 		m_pContext->End( d3d11Query );
 	}
 
+	void D3D11ParallelCommandList::BeginEvent( const char* eventName )
+	{
+		assert( m_annotation.Get() != nullptr );
+
+		constexpr uint32 MaxLen = 256;
+		static wchar_t EventName[MaxLen] = {};
+
+#if _WIN32
+		size_t numConverted = 0;
+		mbstowcs_s( &numConverted, EventName, MaxLen, eventName, MaxLen );
+#else
+		std::mbstowcs( EventName, eventName, MaxLen );
+#endif
+
+		m_annotation->BeginEvent( EventName );
+	}
+
+	void D3D11ParallelCommandList::EndEvent()
+	{
+		assert( m_annotation.Get() != nullptr );
+
+		m_annotation->EndEvent();
+	}
+
 	void D3D11ParallelCommandList::Commit()
 	{
 		if ( m_pCommandList )
@@ -697,5 +742,7 @@ namespace agl
 		assert( SUCCEEDED( hr ) );
 
 		m_globalConstantBuffers.Initialize();
+
+		D3D11Context().QueryInterface( IID_PPV_ARGS( m_annotation.GetAddressOf() ) );
 	}
 }

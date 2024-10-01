@@ -10,6 +10,8 @@
 
 #include "ShaderBindings.h"
 
+#include "WinPixEventRuntime/pix3.h"
+
 using ::Microsoft::WRL::ComPtr;
 
 namespace agl
@@ -382,6 +384,17 @@ namespace agl
 		CommandList().ResolveQueryData( heap, type, offset, numQueries, readBackBuffer, sizeof( uint64 ) * offset );
 	}
 
+	void D3D12CommandListImpl::BeginEvent( const char* eventName )
+	{
+		static uint64 black = PIX_COLOR( 0, 0, 0 );
+		PIXBeginEvent( &CommandList(), black, eventName );
+	}
+
+	void D3D12CommandListImpl::EndEvnet()
+	{
+		PIXEndEvent( &CommandList() );
+	}
+
 	void D3D12CommandListImpl::Signal( ID3D12Fence* fence, uint64 fenceValue )
 	{
 		if ( fence == nullptr )
@@ -550,6 +563,16 @@ namespace agl
 		m_imple.EndQuery( rawQuery );
 	}
 
+	void D3D12CommandList::BeginEvent( const char* eventName )
+	{
+		m_imple.BeginEvent( eventName );
+	}
+
+	void D3D12CommandList::EndEvent()
+	{
+		m_imple.EndEvnet();
+	}
+
 	ID3D12CommandListEX& D3D12CommandList::GetParallelCommandList()
 	{
 		if ( m_numUsedParallelCommandList >= m_parallelCommandLists.size() )
@@ -562,10 +585,6 @@ namespace agl
 		}
 
 		return *m_parallelCommandLists[m_numUsedParallelCommandList++];
-	}
-
-	void D3D12CommandList::WaitUntilFlush()
-	{
 	}
 
 	void D3D12CommandList::Commit()
@@ -758,6 +777,16 @@ namespace agl
 	void D3D12ParallelCommandList::EndQuery( void* rawQuery )
 	{
 		m_imple.EndQuery( rawQuery );
+	}
+
+	void D3D12ParallelCommandList::BeginEvent( const char* eventName )
+	{
+		m_imple.BeginEvent( eventName );
+	}
+
+	void D3D12ParallelCommandList::EndEvent()
+	{
+		m_imple.EndEvnet();
 	}
 
 	void D3D12ParallelCommandList::ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries )

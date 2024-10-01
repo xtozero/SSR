@@ -201,6 +201,7 @@ PUBLIC
 	./Public/RenderResource
 PRIVATE
 	./../../ThirdParty/DXC/inc
+	./../../ThirdParty/PIX/Include
 	./Public
 	./Public/D3D11
 	./Public/D3D12
@@ -209,7 +210,8 @@ PRIVATE
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 target_link_directories(Agl
 PRIVATE
-	./../../ThirdParty/DXC/lib/x64)
+	./../../ThirdParty/DXC/lib/x64
+	./../../ThirdParty/PIX/lib/x64)
 elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
 target_link_directories(Agl
 PRIVATE
@@ -223,12 +225,17 @@ set (DIRECT3D_LIBRARY
 	"dxcompiler.lib"
 	"dxguid.lib"
 	"dxgi.lib")
+
+set (PIX_LIBRARY
+	"WinPixEventRuntime.lib"
+	"WinPixEventRuntime_UAP.lib")
 								
 target_link_libraries(Agl
 PRIVATE 
 	Core
 	DirectXTex
-	${DIRECT3D_LIBRARY})
+	${DIRECT3D_LIBRARY}
+	${PIX_LIBRARY})
 
 target_precompile_headers(Agl
 PUBLIC

@@ -5,6 +5,7 @@
 #include "ICommandList.h"
 #include "Memory/InlineMemoryAllocator.h"
 
+#include <d3d11_1.h>
 #include <wrl/client.h>
 
 struct ID3D11DeviceContext;
@@ -49,7 +50,8 @@ namespace agl
 		virtual void BeginQuery( void* rawQuery ) override;
 		virtual void EndQuery( void* rawQuery ) override;
 
-		virtual void WaitUntilFlush() override;
+		virtual void BeginEvent( const char* eventName ) override;
+		virtual void EndEvent() override;
 
 		virtual void Commit() override;
 
@@ -65,6 +67,8 @@ namespace agl
 		virtual ~D3D11CommandList();
 
 	private:
+		Microsoft::WRL::ComPtr<ID3DUserDefinedAnnotation> m_annotation;
+
 		D3D11PipelineCache m_stateCache;
 		GlobalSyncConstantBuffers m_globalConstantBuffers;
 
@@ -109,7 +113,8 @@ namespace agl
 		virtual void BeginQuery( void* rawQuery ) override;
 		virtual void EndQuery( void* rawQuery ) override;
 
-		virtual void WaitUntilFlush() override {}
+		virtual void BeginEvent( const char* eventName ) override;
+		virtual void EndEvent() override;
 
 		virtual void Commit() override;
 
@@ -120,6 +125,8 @@ namespace agl
 	private:
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_pContext;
 		Microsoft::WRL::ComPtr<ID3D11CommandList> m_pCommandList;
+		Microsoft::WRL::ComPtr<ID3DUserDefinedAnnotation> m_annotation;
+
 		D3D11PipelineCache m_stateCache;
 		GlobalAsyncConstantBuffers m_globalConstantBuffers;
 	};

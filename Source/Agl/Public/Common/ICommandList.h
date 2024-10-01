@@ -66,14 +66,15 @@ namespace agl
 		virtual void BeginQuery( void* rawQuery ) = 0;
 		virtual void EndQuery( void* rawQuery ) = 0;
 
+		virtual void BeginEvent( const char* eventName ) = 0;
+		virtual void EndEvent() = 0;
+
 		virtual ~ICommandListBase() = default;
 	};
 
 	class ICommandList : public ICommandListBase
 	{
 	public:
-		virtual void WaitUntilFlush() = 0;
-
 		virtual void Commit() = 0;
 	};
 }

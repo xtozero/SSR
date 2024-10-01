@@ -122,9 +122,14 @@ namespace rendercore
 		rawQuery->End( m_imple );
 	}
 
-	void CommandList::WaitUntilFlush()
+	void CommandList::BeginEvent( const char* eventName )
 	{
-		m_imple.WaitUntilFlush();
+		m_imple.BeginEvent( eventName );
+	}
+
+	void CommandList::EndEvent()
+	{
+		m_imple.EndEvent();
 	}
 
 	void CommandList::Commit()

@@ -338,6 +338,7 @@ PSOCache*.asset
 ShaderCache*.asset
 !Program/Assets/Models/*
 !RawAssets/Models/*
+/Program/Saved/*
 
 ### VisualStudio Patch ###
 # By default, sensitive information, such as encrypted password

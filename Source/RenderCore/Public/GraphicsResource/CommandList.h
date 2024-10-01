@@ -47,7 +47,8 @@ namespace rendercore
 		void BeginQuery( agl::Query* rawQuery );
 		void EndQuery( agl::Query* rawQuery );
 
-		void WaitUntilFlush();
+		void BeginEvent( const char* eventName );
+		void EndEvent();
 
 		void Commit();
 

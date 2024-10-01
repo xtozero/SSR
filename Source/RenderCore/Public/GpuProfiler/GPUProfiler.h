@@ -13,6 +13,23 @@ namespace agl
 
 namespace rendercore
 {
+	class ScopedGpuEvent
+	{
+	public:
+		ScopedGpuEvent( CommandList& commandList, const char* eventName );
+		~ScopedGpuEvent();
+
+	private:
+		CommandList& m_commandList;
+	};
+
+#if ENABLE_GPU_PROFILE
+#define GPU_EVENT( commandList, name ) \
+	ScopedGpuEvent ScopedGpuEvent_##name( commandList, #name );
+#else
+#define GPU_EVENT( commandList, name )
+#endif
+
 	struct GpuProfileData
 	{
 		explicit GpuProfileData( const char* label )
@@ -66,6 +83,8 @@ namespace rendercore
 	private:
 		CommandList& m_commandList;
 		GpuProfileData& m_gpuProfileData;
+
+		ScopedGpuEvent m_gpuEvent;
 	};
 
 	class RegisterGpuProfileData

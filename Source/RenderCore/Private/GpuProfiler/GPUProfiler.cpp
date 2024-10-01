@@ -12,6 +12,17 @@
 
 namespace rendercore
 {
+	ScopedGpuEvent::ScopedGpuEvent( CommandList& commandList, const char* eventName )
+		: m_commandList( commandList )
+	{
+		m_commandList.BeginEvent( eventName );
+	}
+
+	ScopedGpuEvent::~ScopedGpuEvent()
+	{
+		m_commandList.EndEvent();
+	}
+
 	double GpuProfileData::CalcAverageMS() const
 	{
 		return std::accumulate( std::begin( m_durationMS ), std::end( m_durationMS ), 0. ) / MaxSamples;
@@ -163,6 +174,7 @@ namespace rendercore
 	ScopedGpuProfile::ScopedGpuProfile( CommandList& commandList, GpuProfileData& gpuProfileData )
 		: m_commandList( commandList )
 		, m_gpuProfileData( gpuProfileData )
+		, m_gpuEvent( commandList, gpuProfileData.m_label.CStr() )
 	{
 		GetGpuProfiler().StartProfile( m_commandList, m_gpuProfileData );
 	}
