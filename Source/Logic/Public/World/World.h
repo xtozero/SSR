@@ -40,7 +40,7 @@ namespace logic
 	class World
 	{
 	public:
-		void Initialize();
+		void Initialize( CGameLogic& gameLogic );
 		void CleanUp();
 
 		const Timer& GetTimer() const { return m_clock; }
@@ -82,6 +82,11 @@ namespace logic
 			return m_physicsScene;
 		}
 
+		CGameObject* GetDebugOverlay() const
+		{
+			return m_debugOverlay.get();
+		}
+
 	private:
 		void RunThinkGroup( ThinkingGroup group );
 
@@ -104,6 +109,8 @@ namespace logic
 		ThinkTaskManager m_thinkTaskManager;
 
 		std::vector<Component*> m_componentsThatNeedRenderStateUpdate;
+
+		std::unique_ptr<CGameObject> m_debugOverlay;
 	};
 
 	CPlayer* GetLocalPlayer( World& w );

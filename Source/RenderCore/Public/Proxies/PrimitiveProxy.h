@@ -24,6 +24,8 @@ namespace rendercore
 	class ScenePrimitiveBuffer;
 	class SceneViewConstantBuffer;
 
+	struct RenderViewInfo;
+
 	class PrimitiveProxy
 	{
 	public:
@@ -32,8 +34,14 @@ namespace rendercore
 		virtual void TakeSnapshot( std::deque<DrawSnapshot>& snapshotStorage, RenderThreadFrameData<VisibleDrawSnapshot>& drawList ) const = 0;
 		virtual std::optional<DrawSnapshot> TakeSnapshot( uint32 lod, uint32 sectionIndex ) const = 0;
 		virtual MeshDrawInfo GatherMeshDrawInfo( uint32 lod, uint32 sectionIndex ) const = 0;
+		virtual void GatherDynamicMeshDrawInfo( [[maybe_unused]] RenderViewInfo& viewInfo ) const {};
 
 		virtual HitProxy* CreateHitProxy( logic::PrimitiveComponent* component ) const;
+
+		bool CastShadow() const
+		{
+			return m_castShadow;
+		}
 
 		Matrix& WorldTransform();
 		const Matrix& WorldTransform() const;
@@ -49,6 +57,8 @@ namespace rendercore
 
 	protected:
 		friend Scene;
+
+		bool m_castShadow = true;
 
 		PrimitiveSceneInfo* m_primitiveSceneInfo = nullptr;
 		Matrix m_worldTransform;

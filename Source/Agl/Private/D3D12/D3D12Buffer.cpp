@@ -157,13 +157,13 @@ namespace agl
 		return m_desc;
 	}
 
-	LockedResource D3D12Buffer::Lock( uint32 subResource )
+	LockedResource D3D12Buffer::Lock( uint32 subResource, ResourceLockFlag lockFlag )
 	{
 		ID3D12Resource* resource = nullptr;
 
 		if ( IsDynamic() )
 		{
-			if ( m_neverLocked )
+			if ( m_neverLocked || ( lockFlag != ResourceLockFlag::WriteDiscard ) )
 			{
 				resource = Resource();
 				m_neverLocked = false;
@@ -455,7 +455,7 @@ namespace agl
 		block.m_lockedData = static_cast<uint8*>( lockedData );
 	}
 
-	LockedResource D3D12DisposableConstantBuffer::Lock( [[maybe_unused]] uint32 subResource )
+	LockedResource D3D12DisposableConstantBuffer::Lock( [[maybe_unused]] uint32 subResource, ResourceLockFlag lockFlag )
 	{
 		return {
 			.m_data = m_lockedData,

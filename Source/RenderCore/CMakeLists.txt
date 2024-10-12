@@ -102,6 +102,7 @@ set (PASS_PROCESSOR
 	Public/PassProcessor/VolumetricFogPassProcessor.h)
 	
 set (PROXIES_SOURCE
+	Private/Proxies/DebugOverlayProxy.cpp
 	Private/Proxies/HitProxy.cpp
 	Private/Proxies/LightProxy.cpp
 	Private/Proxies/PrimitiveProxy.cpp
@@ -110,6 +111,7 @@ set (PROXIES_SOURCE
 	Private/Proxies/TexturedSkyProxy.cpp
 	Private/Proxies/VolumetricCloudProxy.cpp
 	Private/Proxies/VolumetricFogProxy.cpp
+	Public/Proxies/DebugOverlayProxy.h
 	Public/Proxies/HitProxy.h
 	Public/Proxies/LightProxy.h
 	Public/Proxies/PrimitiveProxy.h
@@ -142,6 +144,7 @@ set (RENDER_UTILITY_HEADER
 	../Shaders/Public/Atmosphere/AtmosphereConstant.h
 	Public/RenderUtility/AbstractGraphicsInterface.h
 	Public/RenderUtility/CommonRenderResource.h
+	Public/RenderUtility/DebugOverlay.h
 	Public/RenderUtility/RenderTargetPool.h
 	Public/RenderUtility/ShaderParameterUtils.h
 	Public/RenderUtility/ShadowSetup.h
@@ -150,6 +153,7 @@ set (RENDER_UTILITY_HEADER
 set (RENDER_UTILITY_SOURCE
 	Private/RenderUtility/AbstractGraphicsInterface.cpp
 	Private/RenderUtility/CommonRenderResource.cpp
+	Private/RenderUtility/DebugOverlay.cpp
 	Private/RenderUtility/RenderTargetPool.cpp
 	Private/RenderUtility/ShadowSetup.cpp
 	Private/RenderUtility/ResourceBarrierUtils.cpp)

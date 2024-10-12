@@ -24,7 +24,7 @@ namespace agl
 
 		const D3D12_RESOURCE_DESC& Desc() const;
 
-		virtual LockedResource Lock( uint32 subResource = 0 );
+		virtual LockedResource Lock( uint32 subResource = 0, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard );
 		virtual void UnLock( uint32 subResource = 0 );
 
 		D3D12ConstantBufferView* CBV() const;
@@ -108,7 +108,7 @@ namespace agl
 	class D3D12DisposableConstantBuffer final : public D3D12Buffer
 	{
 	public:
-		virtual LockedResource Lock( uint32 subResource = 0 ) override;
+		virtual LockedResource Lock( uint32 subResource = 0, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard ) override;
 		virtual void UnLock( [[maybe_unused]] uint32 subResource = 0 ) override {}
 
 		explicit D3D12DisposableConstantBuffer( const BufferTrait& trait, const char* debugName );

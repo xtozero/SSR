@@ -1,11 +1,11 @@
 #include "World/World.h"
 
 #include "Components/Component.h"
+#include "GameObject/DebugOverlay.h"
 #include "GameObject/Player.h"
 #include "InterfaceFactories.h"
 #include "Physics/PhysicsScene.h"
 #include "Renderer/IRenderCore.h"
-#include "Scene/DebugOverlayManager.h"
 #include "Scene/IScene.h"
 #include "TaskScheduler.h"
 
@@ -40,7 +40,7 @@ namespace logic
 		m_target->EndPhysicsFrame();
 	}
 
-	void World::Initialize()
+	void World::Initialize( CGameLogic& gameLogic )
 	{
 		m_scene = GetInterface<rendercore::IRenderCore>()->CreateScene( *this );
 
@@ -48,10 +48,15 @@ namespace logic
 		m_componentsThatNeedRenderStateUpdate.reserve( DefaultRenderStateUpdateArraySize );
 
 		CreatePhysicsScene();
+
+		m_debugOverlay = std::make_unique<DebugOverlay>();
+		m_debugOverlay->Initialize( gameLogic, *this );
 	}
 
 	void World::CleanUp()
 	{
+		m_debugOverlay = nullptr;
+
 		m_gameObjects.Clear();
 
 		ReleasePhysicsScene();

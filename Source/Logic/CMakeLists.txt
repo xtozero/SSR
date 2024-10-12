@@ -7,6 +7,7 @@ set (COMPOENETS
 	Private/Components/BoxComponent.cpp
 	Private/Components/CameraComponent.cpp
 	Private/Components/Component.cpp
+	Private/Components/DebugOverlayComponent.cpp
 	Private/Components/GroundMovementComponent.cpp
 	Private/Components/InputComponent.cpp
 	Private/Components/LightComponent.cpp
@@ -22,6 +23,7 @@ set (COMPOENETS
 	Public/Components/BoxComponent.h
 	Public/Components/CameraComponent.h
 	Public/Components/Component.h
+	Public/Components/DebugOverlayComponent.h
 	Public/Components/GroundMovementComponent.h
 	Public/Components/InputComponent.h
 	Public/Components/LightComponent.h
@@ -41,6 +43,7 @@ set (CONFIG
 	
 set (CORE
 	Private/Core/DebugConsole.cpp
+	Private/Core/DebugDrawHelper.cpp
 	Private/Core/dllmain.cpp
 	Private/Core/GameLogic.cpp
 	Private/Core/Logic.cpp
@@ -50,6 +53,7 @@ set (CORE
 	Private/Core/Timer.cpp
 	Private/Core/WeldingTransformRules.cpp
 	Public/Core/DebugConsole.h
+	Public/Core/DebugDrawHelper.h
 	Public/Core/GameLogic.h
 	Public/Core/IListener.h
 	Public/Core/ILogic.h
@@ -70,6 +74,7 @@ set (GAME_OBJECT
 	Private/GameObject/StaticMeshGameObject.cpp
 	Private/GameObject/VolumetricCloud.cpp
 	Private/GameObject/VolumetricFog.cpp
+	Public/GameObject/DebugOverlay.h
 	Public/GameObject/DisplayShaderResourceHelper.h
 	Public/GameObject/GameObject.h
 	Public/GameObject/GameObjectFactory.h
@@ -95,11 +100,9 @@ set (PLAYER_OBJECT
 	Public/GameObject/Player.h)
 
 set (SCENE
-	Private/Scene/DebugOverlayManager.cpp
 	Private/Scene/GameClientViewport.cpp
 	Private/Scene/ScreenBlurManager.cpp
 	Private/Scene/SSRManager.cpp
-	Public/Scene/DebugOverlayManager.h
 	Public/Scene/GameClientViewport.h
 	Public/Scene/ScreenBlurManager.h
 	Public/Scene/SSRManager.h)

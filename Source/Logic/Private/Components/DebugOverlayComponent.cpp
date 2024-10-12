@@ -1,136 +1,101 @@
-#if 0
-#include "Scene/DebugOverlayManager.h"
+#include "Components/DebugOverlayComponent.h"
 
-#include "Core/GameLogic.h"
-//#include "Render/Resource.h"
+#include "Proxies/DebugOverlayProxy.h"
 
-#include <cassert>
+#include <algorithm>
 
 namespace logic
 {
-	bool CDebugOverlayManager::Init( CGameLogic& gameLogic )
+	DebugOverlayComponent::DebugOverlayComponent( CGameObject* pOwner, const char* name )
+		: Super( pOwner, name )
 	{
-		//IRenderer& renderer = gameLogic.GetRenderer( );
-		//IResourceManager& resourceMgr = renderer.GetResourceManager( );
-
-		//constexpr uint32 defaultDynamicBufferSize = 64 * 1024;
-		//m_dynamicVB.Initialize( resourceMgr, RESOURCE_BIND_TYPE::VERTEX_BUFFER, defaultDynamicBufferSize );
-
-		//m_debugMaterial = renderer.SearchMaterial( "mat_debugOverlay" );
-		//if ( m_debugMaterial == INVALID_MATERIAL )
-		//{
-		//	return false;
-		//}
-
-		return true;
+		m_think.m_canEverTick = true;
 	}
 
-	void CDebugOverlayManager::DrawPrimitive( IRenderer& renderer, float deltaTime )
+	void DebugOverlayComponent::ThinkComponent( float elapsedTime )
 	{
-		//int32 popCount = 0;
+		int32 numRemoveLine = 0;
+		for ( auto iter = std::begin( m_debugLine ), end = std::end( m_debugLine ); iter != end; )
+		{
+			if ( iter->m_life <= 0.f )
+			{
+				std::iter_swap( iter, end - 1 );
+				--end;
+				++numRemoveLine;
+			}
+			else
+			{
+				iter->m_life -= elapsedTime;
+				++iter;
+			}
+		}
 
-		//for ( auto iter = m_debugLine.begin( ), end = m_debugLine.end(); iter != end; )
-		//{
-		//	if ( iter->m_life <= 0.f )
-		//	{
-		//		std::iter_swap( iter, end - 1 );
-		//		--end;
-		//		++popCount;
-		//	}
-		//	else
-		//	{
-		//		iter->m_life -= deltaTime;
-		//		++iter;
-		//	}
-		//}
+		if ( numRemoveLine > 0 )
+		{
+			auto iter = std::end( m_debugLine );
+			std::advance( iter, -numRemoveLine );
 
-		//while ( popCount-- > 0 )
-		//{
-		//	m_debugLine.pop_back( );
-		//}
+			m_debugLine.erase( iter, std::end( m_debugLine ) );
+		}
 
-		//popCount = 0;
-		//for ( auto iter = m_debugTriangle.begin( ), end = m_debugTriangle.end(); iter != end; )
-		//{
-		//	if ( iter->m_life <= 0.f )
-		//	{
-		//		std::iter_swap( iter, end - 1 );
-		//		--end;
-		//		++popCount;
-		//	}
-		//	else
-		//	{
-		//		iter->m_life -= deltaTime;
-		//		++iter;
-		//	}
-		//}
+		int numRemoveTriangle = 0;
+		for ( auto iter = std::begin( m_debugTriangle ), end = std::end( m_debugTriangle ); iter != end; )
+		{
+			if ( iter->m_life <= 0.f )
+			{
+				std::iter_swap( iter, end - 1 );
+				--end;
+				++numRemoveTriangle;
+			}
+			else
+			{
+				iter->m_life -= elapsedTime;
+				++iter;
+			}
+		}
 
-		//while ( popCount-- > 0 )
-		//{
-		//	m_debugTriangle.pop_back( );
-		//}
+		if ( numRemoveTriangle > 0 )
+		{
+			auto iter = std::end( m_debugTriangle );
+			std::advance( iter, -numRemoveTriangle );
 
-		//struct DebugPrimitiveVertex
-		//{
-		//	CXMFLOAT3 m_pos;
-		//	uint32 m_color;
-		//};
+			m_debugTriangle.erase( iter, std::end( m_debugTriangle ) );
+		}
 
-		//assert( ( m_debugLine.size( ) * 2 + m_debugTriangle.size( ) * 3 ) <= UINT_MAX );
-		//DebugPrimitiveVertex* vertices = m_dynamicVB.Map<DebugPrimitiveVertex>( renderer, sizeof( DebugPrimitiveVertex ) * static_cast<uint32>( m_debugLine.size( ) * 2 + m_debugTriangle.size( ) * 3 ) );
-		//if ( vertices == nullptr )
-		//{
-		//	__debugbreak( );
-		//}
-
-		//size_t idx = 0;
-		//for ( const auto& line : m_debugLine )
-		//{
-		//	vertices[idx].m_pos = line.m_from;
-		//	vertices[idx++].m_color = line.m_color;
-
-		//	vertices[idx].m_pos = line.m_to;
-		//	vertices[idx++].m_color = line.m_color;
-		//}
-
-		//for ( const auto& triangle : m_debugTriangle )
-		//{
-		//	vertices[idx].m_pos = triangle.m_vertices[0];
-		//	vertices[idx++].m_color = triangle.m_color;
-
-		//	vertices[idx].m_pos = triangle.m_vertices[1];
-		//	vertices[idx++].m_color = triangle.m_color;
-
-		//	vertices[idx].m_pos = triangle.m_vertices[2];
-		//	vertices[idx++].m_color = triangle.m_color;
-		//}
-
-		//m_dynamicVB.Unmap( renderer );
-
-		//RE_HANDLE handle = m_dynamicVB.GetHandle( );
-		//uint32 stride = sizeof( DebugPrimitiveVertex );
-		//uint32 offset = 0;
-		//renderer.BindVertexBuffer( &handle, 0, 1, &stride, &offset );
-		//renderer.BindMaterial( m_debugMaterial );
-
-		//assert( ( m_debugLine.size( ) * 2 ) <= UINT_MAX );
-		//uint32 debugLineSize = static_cast<uint32>( m_debugLine.size( ) * 2 );
-		//renderer.Draw( RESOURCE_PRIMITIVE::LINELIST, debugLineSize );
-		//assert( ( m_debugTriangle.size( ) * 3 ) <= UINT_MAX );
-		//renderer.Draw( RESOURCE_PRIMITIVE::TRIANGLELIST, static_cast<uint32>( m_debugTriangle.size() * 3 ), debugLineSize );
+		if ( ( numRemoveLine > 0 ) || ( numRemoveTriangle > 0 ) )
+		{
+			MarkRenderStateDirty();
+		}
 	}
 
-	void CDebugOverlayManager::AddDebugLine( const Point& from, const Point& to, uint32 color, float life )
+	rendercore::PrimitiveProxy* DebugOverlayComponent::CreateProxy() const
+	{
+		if ( m_debugLine.empty() && m_debugTriangle.empty() )
+		{
+			return nullptr;
+		}
+
+		return new rendercore::DebugOverlayProxy( *this );
+	}
+
+	BodySetup* DebugOverlayComponent::GetBodySetup()
+	{
+		return nullptr;
+	}
+
+	void DebugOverlayComponent::AddDebugLine( const Point& from, const Point& to, const ColorF& color, float life )
 	{
 		m_debugLine.emplace_back( from, to, color, life );
+		MarkRenderStateDirty();
 	}
 
-	void CDebugOverlayManager::AddDebugTriangle( const Point& p0, const Point& p1, const Point& p2, uint32 color, float life )
+	void DebugOverlayComponent::AddDebugTriangle( const Point& p0, const Point& p1, const Point& p2, const ColorF& color, float life )
 	{
 		m_debugTriangle.emplace_back( p0, p1, p2, color, life );
+		MarkRenderStateDirty();
 	}
 
-	void CDebugOverlayManager::AddDebugCube( const Point& min, const Point& max, uint32 color, float life )
+	void DebugOverlayComponent::AddDebugCube( const Point& min, const Point& max, const ColorF& color, float life )
 	{
 		Point from = min;
 		Point to = min;
@@ -167,7 +132,7 @@ namespace logic
 		AddDebugLine( from, to, color, life );
 	}
 
-	void CDebugOverlayManager::AddDebugCube( const Vector& halfSize, const Matrix& transform, uint32 color, float life )
+	void DebugOverlayComponent::AddDebugCube( const Vector& halfSize, const Matrix& transform, const ColorF& color, float life )
 	{
 		Point vertex[8] = {
 			Point( -halfSize.x, -halfSize.y, -halfSize.z ),
@@ -201,7 +166,7 @@ namespace logic
 		AddDebugLine( vertex[3], vertex[7], color, life );
 	}
 
-	void CDebugOverlayManager::AddDebugSolidCube( const Point& min, const Point& max, uint32 color, float life )
+	void DebugOverlayComponent::AddDebugSolidCube( const Point& min, const Point& max, const ColorF& color, float life )
 	{
 		Point a = min;
 		Point b( max.x, min.y, min.z );
@@ -253,7 +218,7 @@ namespace logic
 		AddDebugTriangle( a, c, b, color, life );
 	}
 
-	void CDebugOverlayManager::AddDebugSphere( const Point& center, float radius, uint32 color, float life )
+	void DebugOverlayComponent::AddDebugSphere( const Point& center, float radius, const ColorF& color, float life )
 	{
 		constexpr int32 COLS = 36;
 		constexpr int32 ROWS = COLS >> 1;
@@ -287,5 +252,9 @@ namespace logic
 			}
 		}
 	}
+
+	bool DebugOverlayComponent::ShouldCreatePhysicsState() const
+	{
+		return false;
+	}
 }
-#endif

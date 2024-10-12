@@ -19,6 +19,11 @@ namespace rendercore
 
 	void LightSceneInfo::AddToScene()
 	{
+		if ( Proxy()->CastShadow() == false )
+		{
+			return;
+		}
+
 		for ( PrimitiveSceneInfo* primitive : m_scene.Primitives() )
 		{
 			AddPrimitiveIntersectionInfo( *primitive );
@@ -27,6 +32,11 @@ namespace rendercore
 
 	void LightSceneInfo::RemoveFromScene()
 	{
+		if ( Proxy()->CastShadow() == false )
+		{
+			return;
+		}
+
 		for ( PrimitiveSceneInfo* primitive : m_scene.Primitives() )
 		{
 			RemovePrimitiveIntersectionInfo( *primitive );

@@ -344,7 +344,7 @@ namespace agl
 		++m_fenceValue[m_frameIndex];
 	}
 
-	LockedResource Direct3D12::Lock( Buffer* buffer, [[maybe_unused]] ResourceLockFlag lockFlag, uint32 subResource )
+	LockedResource Direct3D12::Lock( Buffer* buffer, ResourceLockFlag lockFlag, uint32 subResource )
 	{
 		auto d3d12Buffer = static_cast<D3D12Buffer*>( buffer );
 		if ( d3d12Buffer == nullptr )
@@ -352,7 +352,7 @@ namespace agl
 			return {};
 		}
 
-		return d3d12Buffer->Lock( subResource );
+		return d3d12Buffer->Lock( subResource, lockFlag );
 	}
 
 	void Direct3D12::UnLock( Buffer* buffer, uint32 subResource )

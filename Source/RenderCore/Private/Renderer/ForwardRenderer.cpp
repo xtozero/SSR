@@ -384,6 +384,11 @@ namespace rendercore
 			GPU_PROFILE( commandList, Default );
 			RenderMesh( scene, RenderPass::Default, curView );
 		}
+
+		{
+			GPU_PROFILE( commandList, DebugOverlay );
+			m_viewInfo[curView].m_debugOverlayData.Draw( m_dynamicVertexBuffer, m_shaderResources );
+		}
 	}
 
 	IRendererRenderTargets& ForwardRenderer::GetRenderRenderTargets()

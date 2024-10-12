@@ -8,7 +8,6 @@
 #include "ILogic.h"
 #include "Physics/BoundingSphere.h"
 #include "Physics/CollideBroad.h"
-#include "Scene/DebugOverlayManager.h"
 #include "Scene/SSRManager.h"
 #include "SizedTypes.h"
 #include "UserInput/Controller.h"

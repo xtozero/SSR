@@ -13,7 +13,6 @@
 #include "Physics/AxisAlignedBox.h"
 #include "Physics/BoundingSphere.h"
 #include "Physics/OrientedBox.h"
-#include "Scene/DebugOverlayManager.h"
 
 #include <tchar.h>
 

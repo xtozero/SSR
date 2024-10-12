@@ -109,7 +109,7 @@ namespace rendercore
 		assert( IsInRenderThread() );
 		if ( m_lockedMemory == nullptr )
 		{
-			m_lockedMemory = GraphicsInterface().Lock( m_buffer ).m_data;
+			m_lockedMemory = GraphicsInterface().Lock( m_buffer, agl::ResourceLockFlag::WriteNoOverwrite ).m_data;
 		}
 
 		auto allocatedMemory = static_cast<uint8*>( m_lockedMemory ) + m_allocatedSizeInBytes;
@@ -125,8 +125,11 @@ namespace rendercore
 		{
 			GraphicsInterface().UnLock( m_buffer );
 			m_lockedMemory = nullptr;
-			m_allocatedSizeInBytes = 0;
+
+			return;
 		}
+
+		++m_numFailedCommit;
 	}
 
 	uint32 DynamicVertexBufferChunk::Size() const
@@ -149,9 +152,23 @@ namespace rendercore
 		return m_buffer.Get();
 	}
 
+	uint64 DynamicVertexBufferChunk::GetNumFailedCommit() const
+	{
+		return m_numFailedCommit;
+	}
+
+	DynamicVertexBufferChunk::DynamicVertexBufferChunk( uint32 sizeInBytes )
+		: m_sizeInBytes( CalcAlignment( sizeInBytes, BufferSizeAlignment ) )
+	{
+	}
+
 	GlobalDynamicVertexBuffer::AllocationInfo GlobalDynamicVertexBuffer::Allocate( uint32 sizeInBytes )
 	{
 		AllocationInfo allocationInfo;
+		if ( sizeInBytes == 0 )
+		{
+			return allocationInfo;
+		}
 
 		if ( ( m_currentChunk == nullptr ) || ( m_currentChunk->FreeSize() < sizeInBytes ) )
 		{
@@ -184,16 +201,21 @@ namespace rendercore
 
 	void GlobalDynamicVertexBuffer::Commit()
 	{
-		for ( DynamicVertexBufferChunk& dynamicVertexBufferChunk : m_chunks )
+		constexpr uint64 MaxNumFailedCommit = 30;
+
+		for ( size_t i = 0; i < m_chunks.size(); ++i )
 		{
+			DynamicVertexBufferChunk& dynamicVertexBufferChunk = m_chunks[i];
+
 			dynamicVertexBufferChunk.Commit();
+			if ( dynamicVertexBufferChunk.GetNumFailedCommit() > MaxNumFailedCommit )
+			{
+				std::swap( m_chunks[i], m_chunks.back() );
+				m_chunks.pop_back();
+				--i;
+			}
 		}
 
 		m_currentChunk = nullptr;
-	}
-
-	DynamicVertexBufferChunk::DynamicVertexBufferChunk( uint32 sizeInBytes )
-		: m_sizeInBytes( CalcAlignment( sizeInBytes, BufferSizeAlignment ) )
-	{
 	}
 }

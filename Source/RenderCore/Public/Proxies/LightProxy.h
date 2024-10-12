@@ -56,19 +56,9 @@ namespace rendercore
 
 		virtual bool AffactsBounds( const BoxSphereBounds& bounds ) const = 0;
 
-		bool& CastShadow()
-		{
-			return m_castShadow;
-		}
-
 		bool CastShadow() const
 		{
 			return m_castShadow;
-		}
-
-		bool& IsUsedAsAtmosphereSunLight()
-		{
-			return m_usedAsAtmosphereSunLight;
 		}
 
 		bool IsUsedAsAtmosphereSunLight() const

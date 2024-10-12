@@ -89,7 +89,7 @@ namespace logic
 			__debugbreak();
 		}
 
-		m_world.Initialize();
+		m_world.Initialize( *this );
 
 		return true;
 	}

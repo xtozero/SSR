@@ -53,6 +53,8 @@ namespace rendercore
 
 		agl::Buffer* Resource();
 
+		uint64 GetNumFailedCommit() const;
+
 		explicit DynamicVertexBufferChunk( uint32 sizeInBytes );
 
 	private:
@@ -62,6 +64,7 @@ namespace rendercore
 		uint32 m_sizeInBytes = 0;
 		uint32 m_allocatedSizeInBytes = 0;
 		void* m_lockedMemory = nullptr;
+		uint64 m_numFailedCommit = 0;
 	};
 
 	class GlobalDynamicVertexBuffer

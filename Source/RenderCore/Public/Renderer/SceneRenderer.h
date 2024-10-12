@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AreaTypes.h"
+#include "DebugOverlay.h"
 #include "DrawSnapshot.h"
 #include "ForwardLighting.h"
 #include "GraphicsApiResource.h"
@@ -42,6 +43,8 @@ namespace rendercore
 
 		RenderThreadFrameData<VisibleDrawSnapshot>* m_snapshots = nullptr;
 		RenderThreadFrameData<bool> m_visibilityMap;
+
+		DebugOverlayData m_debugOverlayData;
 	};
 
 	class IRendererRenderTargets

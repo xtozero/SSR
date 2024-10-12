@@ -202,6 +202,14 @@ namespace rendercore
 		}
 
 		CalcVisibility( renderViewGroup );
+
+		for ( RenderViewInfo& viewInfo : m_viewInfo )
+		{
+			for ( const PrimitiveSceneInfo* primitiveSceneInfo : renderScene.Primitives() )
+			{
+				primitiveSceneInfo->Proxy()->GatherDynamicMeshDrawInfo( viewInfo );
+			}
+		}
 	}
 
 	void SceneRenderer::PostRender()
@@ -301,6 +309,11 @@ namespace rendercore
 			const auto& intersectionInfos = lightSceneInfo->Primitives();
 			for ( const auto& intersectionInfo : intersectionInfos )
 			{
+				if ( intersectionInfo.m_castShadow == false )
+				{
+					continue;
+				}
+
 				PrimitiveSceneInfo* primitive = intersectionInfo.m_primitive;
 				uint32 id = primitive->PrimitiveId();
 
@@ -344,6 +357,11 @@ namespace rendercore
 			const auto& intersectionInfos = lightSceneInfo->Primitives();
 			for ( const auto& intersectionInfo : intersectionInfos )
 			{
+				if ( intersectionInfo.m_castShadow == false )
+				{
+					continue;
+				}
+
 				PrimitiveSceneInfo* primitive = intersectionInfo.m_primitive;
 
 				pShadowInfo->AddCasterPrimitive( primitive );
@@ -1330,7 +1348,7 @@ namespace rendercore
 				}
 				else
 				{
-					assert( false && "Not Implemented" );
+					// ToDo : Is this line really necessary?
 				}
 			}
 
