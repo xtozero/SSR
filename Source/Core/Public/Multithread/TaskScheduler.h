@@ -1,6 +1,5 @@
 #pragma once
 
-#include "common.h"
 #include "EnumClassFlags.h"
 #include "InterfaceFactories.h"
 #include "SizedTypes.h"

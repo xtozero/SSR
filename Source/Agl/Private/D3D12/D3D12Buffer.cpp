@@ -455,7 +455,7 @@ namespace agl
 		block.m_lockedData = static_cast<uint8*>( lockedData );
 	}
 
-	LockedResource D3D12DisposableConstantBuffer::Lock( [[maybe_unused]] uint32 subResource, ResourceLockFlag lockFlag )
+	LockedResource D3D12DisposableConstantBuffer::Lock( [[maybe_unused]] uint32 subResource, [[maybe_unused]] ResourceLockFlag lockFlag )
 	{
 		return {
 			.m_data = m_lockedData,

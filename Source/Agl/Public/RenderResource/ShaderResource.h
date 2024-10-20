@@ -1,7 +1,7 @@
 #pragma once
 
-#include "common.h"
 #include "GraphicsApiResource.h"
+#include "LibraryTool/Common.h"
 #include "ShaderParameterInfo.h"
 #include "SizedTypes.h"
 

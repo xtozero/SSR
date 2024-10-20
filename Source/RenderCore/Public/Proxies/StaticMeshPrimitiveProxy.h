@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.h"
+#include "LibraryTool/Common.h"
 #include "PrimitiveProxy.h"
 
 namespace logic

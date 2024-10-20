@@ -2,8 +2,6 @@
 
 #include "Archive.h"
 
-#include "common.h"
-
 #include "D3D12BindlessManager.h"
 #include "D3D12CommandList.h"
 #include "D3D12NullDescriptor.h"

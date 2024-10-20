@@ -66,12 +66,10 @@ namespace rendercore
 		EnqueueRenderTask(
 			[this, param, primitiveSceneInfo]()
 			{
-				PrimitiveProxy* sceneProxy = primitiveSceneInfo->Proxy();
+				PrimitiveProxy* proxy = primitiveSceneInfo->Proxy();
 
-				sceneProxy->WorldTransform() = param.m_worldTransform;
-				sceneProxy->Bounds() = param.m_worldBounds;
-				sceneProxy->LocalBounds() = param.m_localBounds;
-				sceneProxy->CreateRenderData();
+				proxy->UpdateTransformAndBounds( param.m_worldTransform, param.m_worldBounds, param.m_localBounds );
+				proxy->CreateRenderData();
 
 				AddPrimitiveSceneInfo( primitiveSceneInfo );
 			} );
@@ -117,9 +115,7 @@ namespace rendercore
 				{
 					m_velocityData.UpdateTransform( GetNumFrame(), proxy->PrimitiveId(), param.m_worldTransform, proxy->WorldTransform() );
 
-					proxy->WorldTransform() = param.m_worldTransform;
-					proxy->Bounds() = param.m_worldBounds;
-					proxy->LocalBounds() = param.m_localBounds;
+					proxy->UpdateTransformAndBounds( param.m_worldTransform, param.m_worldBounds, param.m_localBounds );
 
 					AddPrimitiveToUpdate( proxy->PrimitiveId() );
 				} );

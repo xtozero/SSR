@@ -1,6 +1,5 @@
 #pragma once
 
-#include "common.h"
 #include "Platform/IPlatform.h"
 #include "SizedTypes.h"
 

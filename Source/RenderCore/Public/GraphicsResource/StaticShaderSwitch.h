@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Common.h"
+#include "LibraryTool/Common.h"
 #include "NameTypes.h"
 #include "SizedTypes.h"
 

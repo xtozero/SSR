@@ -1,6 +1,5 @@
 #pragma once
 
-#include "common.h"
 #include "GraphicsApiResource.h"
 #include "SizedTypes.h"
 

@@ -1,7 +1,5 @@
 #include "D3D11Api.h"
 
-#include "common.h"
-
 #include "D3D11BlendState.h"
 #include "D3D11Buffer.h"
 #include "D3D11CommandList.h"

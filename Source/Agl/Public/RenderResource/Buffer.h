@@ -1,7 +1,7 @@
 #pragma once
 
-#include "common.h"
 #include "GraphicsApiResource.h"
+#include "LibraryTool/Common.h"
 #include "RefHandle.h"
 #include "ResourceViews.h"
 

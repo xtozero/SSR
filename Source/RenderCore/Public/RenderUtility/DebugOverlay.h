@@ -20,7 +20,7 @@ namespace rendercore
 		DebugOverlayVertex( const Vector& position, const ColorF& color );
 	};
 
-	static_assert( std::is_standard_layout_v<DebugOverlayVertex> );
+	static_assert( std::is_trivially_copyable_v<DebugOverlayVertex> );
 
 	class DebugOverlayData
 	{

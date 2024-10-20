@@ -1,6 +1,5 @@
 #include "Core/DebugConsole.h"
 
-#include "common.h"
 #include "ConsoleMessage/ConsoleMessageExecutor.h"
 #include "DebugUtil.h"
 

@@ -54,51 +54,6 @@
 #define AGL_FUNC_DLL extern "C" __declspec(dllimport)
 #endif
 
-#define ON_FAIL_RETURN( x ){ \
-	if ( !x ) \
-	{\
-		assert( false );\
-		return false; \
-	}\
-}
-
-struct InPlaceListNode
-{
-	unsigned char* m_next;
-};
-
-template <typename T>
-void PushFrontInPlaceList( unsigned char** head, T* newElement )
-{
-	static_assert( sizeof( T ) >= sizeof( InPlaceListNode ), "Free-List element memory size must bigger than FreeResourceNode" );
-	InPlaceListNode* newFront = reinterpret_cast<InPlaceListNode*>( newElement );
-	newFront->m_next = *head;
-	*head = reinterpret_cast<unsigned char*>( newElement );
-}
-
-template <typename T>
-void PopFrontInPlaceList( unsigned char** head, T** dest )
-{
-	static_assert( sizeof( T ) >= sizeof( InPlaceListNode ), "Free-List element memory size must bigger than FreeResourceNode" );
-	*dest = reinterpret_cast<T*>( *head );
-	InPlaceListNode* node = reinterpret_cast<InPlaceListNode*>( *head );
-	*head = node->m_next;
-	std::construct_at( *dest );
-}
-
-template <typename T>
-void ClearFreeList( unsigned char** head )
-{
-	static_assert( sizeof( T ) >= sizeof( InPlaceListNode ), "Free-List element memory size must bigger than FreeResourceNode" );
-	while ( *head != nullptr )
-	{
-		T* elem = reinterpret_cast<T*>( *head );
-		InPlaceListNode* node = reinterpret_cast<InPlaceListNode*>( *head );
-		*head = node->m_next;
-		std::construct_at( elem );
-	}
-}
-
 inline HMODULE LoadModule( const char* dllPath )
 {
 	HMODULE hModule = LoadLibraryA( dllPath );

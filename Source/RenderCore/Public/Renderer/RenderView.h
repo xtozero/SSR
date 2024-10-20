@@ -1,15 +1,15 @@
 #pragma once
 
-#include "common.h"
 #include "DrawSnapshot.h"
 #include "GraphicsApiResource.h"
+#include "LibraryTool/Common.h"
 #include "Math/Matrix3X3.h"
 #include "OcclusionRendering.h"
 #include "PassProcessor.h"
 #include "SizedTypes.h"
 
-#include <vector>
 #include <map>
+#include <vector>
 
 namespace rendercore
 {

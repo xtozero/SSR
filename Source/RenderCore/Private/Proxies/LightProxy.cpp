@@ -156,7 +156,7 @@ namespace rendercore
 		return m_position;
 	}
 
-	bool SpotLightProxy::AffactsBounds( const BoxSphereBounds& bounds ) const
+	bool SpotLightProxy::AffactsBounds( [[maybe_unused]] const BoxSphereBounds& bounds ) const
 	{
 		return false;
 	}

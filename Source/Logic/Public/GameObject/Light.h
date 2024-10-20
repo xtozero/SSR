@@ -1,6 +1,5 @@
 #pragma once
 
-#include "common.h"
 #include "GameObject.h"
 #include "Math/Vector4.h"
 

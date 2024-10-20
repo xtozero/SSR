@@ -1,10 +1,10 @@
 #pragma once
 
 #include "AssetFactory.h"
-#include "common.h"
 #include "DDSTexture.h"
 #include "GraphicsApiResource.h"
 #include "IAsyncLoadableAsset.h"
+#include "LibraryTool/Common.h"
 #include "Math/Vector4.h"
 #include "NameTypes.h"
 #include "Reflection.h"

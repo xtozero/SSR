@@ -1,8 +1,8 @@
 #pragma once
 
-#include "common.h"
 #include "GraphicsApiResource.h"
 #include "IndexBuffer.h"
+#include "LibraryTool/Common.h"
 #include "SizedTypes.h"
 #include "VertexCollection.h"
 #include "VertexLayout.h"

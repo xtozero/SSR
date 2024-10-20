@@ -1,7 +1,7 @@
 #pragma once
 
-#include "common.h"
 #include "GuideTypes.h"
+#include "LibraryTool/Common.h"
 #include "NameTypes.h"
 
 #include <chrono>

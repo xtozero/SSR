@@ -2,8 +2,6 @@
 
 #include "Buffer.h"
 
-#include "common.h"
-
 #include "D3D11BlendState.h"
 #include "D3D11Buffer.h"
 #include "D3D11DepthStencilState.h"

@@ -89,14 +89,6 @@ namespace rendercore
 		VertexStreamLayout vertexlayout;
 		vertexlayout.AddLayout( "POSITION", 0, agl::ResourceFormat::R32G32B32_FLOAT, 0, false, 0, 0 );
 
-		RasterizerOption occlusionPassRasterizerOption;
-		occlusionPassRasterizerOption.m_cullMode = agl::CullMode::None;
-		occlusionPassRasterizerOption.m_scissorEnable = true;
-
-		DepthStencilOption occlusionPassDepthOption;
-		occlusionPassDepthOption.m_depth.m_depthFunc = agl::ComparisonFunc::Less;
-		occlusionPassDepthOption.m_depth.m_writeDepth = false;
-
 		DrawSnapshot snapshot;
 		snapshot.m_vertexStream.Bind( allcationInfo.m_buffer, 0, sizeof( Vector ), allcationInfo.m_offset );
 		snapshot.m_primitiveIdSlot = -1;
@@ -104,8 +96,8 @@ namespace rendercore
 		snapshot.m_pipelineState.m_shaderState.m_vertexLayout = GraphicsInterface().FindOrCreate( *occlusionVS, vertexlayout );
 		snapshot.m_pipelineState.m_shaderState.m_vertexShader = occlusionVS;
 
-		snapshot.m_pipelineState.m_rasterizerState = GraphicsInterface().FindOrCreate( occlusionPassRasterizerOption );
-		snapshot.m_pipelineState.m_depthStencilState = GraphicsInterface().FindOrCreate( occlusionPassDepthOption );
+		snapshot.m_pipelineState.m_rasterizerState = StaticRasterizerState<false, agl::CullMode::None, false, 0, true, true>::Get();
+		snapshot.m_pipelineState.m_depthStencilState = StaticDepthStencilState<true, false, agl::ComparisonFunc::Less>::Get();
 
 		snapshot.m_pipelineState.m_primitive = agl::ResourcePrimitive::Trianglelist;
 

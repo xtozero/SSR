@@ -1,8 +1,8 @@
 #pragma once
 
 #include "ColorTypes.h"
-#include "common.h"
 #include "EnumClassFlags.h"
+#include "LibraryTool/Common.h"
 #include "NameTypes.h"
 #include "RefCounterType.h"
 #include "SizedTypes.h"

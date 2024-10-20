@@ -1,6 +1,5 @@
 #include "Core/GameLogic.h"
 
-#include "common.h"
 #include "Components/CameraComponent.h"
 #include "Config/DefaultAppConfig.h"
 #include "Config/DefaultLogicConfig.h"
@@ -18,6 +17,7 @@
 #include "IAgl.h"
 #include "InterfaceFactories.h"
 #include "Json/json.hpp"
+#include "LibraryTool/Common.h"
 #include "Platform/CommandLine.h"
 #include "Platform/IPlatform.h"
 #include "Renderer/IRenderCore.h"

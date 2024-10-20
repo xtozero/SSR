@@ -1,7 +1,6 @@
 #include "Mesh/StaticMesh.h"
 
 #include "ArchiveUtility.h"
-#include "common.h"
 #include "Material/Material.h"
 #include "Material/MaterialResource.h"
 #include "MeshDescription.h"

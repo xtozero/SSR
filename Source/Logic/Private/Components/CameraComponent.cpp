@@ -1,6 +1,5 @@
 #include "Components/CameraComponent.h"
 
-#include "common.h"
 #include "Core/Timer.h"
 #include "Json/json.hpp"
 #include "Math/TransformationMatrix.h"

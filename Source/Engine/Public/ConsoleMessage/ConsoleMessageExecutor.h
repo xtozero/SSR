@@ -1,8 +1,8 @@
 #pragma once
 
-#include "common.h"
 #include "ConCommand.h"
 #include "IConsoleMessage.h"
+#include "LibraryTool/Common.h"
 #include "SizedTypes.h"
 
 #include <cstddef>

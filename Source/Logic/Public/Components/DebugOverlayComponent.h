@@ -15,7 +15,7 @@ namespace logic
 		{}
 
 		ColorF m_color;
-		float m_life;
+		float m_life = 0;
 	};
 
 	struct DebugLine : public BaseDebugPrimitive

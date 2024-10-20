@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.h"
+#include "LibraryTool/Common.h"
 #include "SizedTypes.h"
 
 #include <array>

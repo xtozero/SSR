@@ -12,10 +12,9 @@ namespace rendercore
 		return new logic::HitObject( component->GetOwner(), component );
 	}
 
-	Matrix& PrimitiveProxy::WorldTransform()
+	bool PrimitiveProxy::CastShadow() const
 	{
-		assert( IsInRenderThread() );
-		return m_worldTransform;
+		return m_castShadow;
 	}
 
 	const Matrix& PrimitiveProxy::WorldTransform() const
@@ -24,28 +23,23 @@ namespace rendercore
 		return m_worldTransform;
 	}
 
-	BoxSphereBounds& PrimitiveProxy::Bounds()
-	{
-		assert( IsInRenderThread() );
-		return m_bounds;
-	}
-
 	const BoxSphereBounds& PrimitiveProxy::Bounds() const
 	{
 		assert( IsInRenderThread() );
 		return m_bounds;
 	}
 
-	BoxSphereBounds& PrimitiveProxy::LocalBounds()
+	const BoxSphereBounds& PrimitiveProxy::LocalBounds() const
 	{
 		assert( IsInRenderThread() );
 		return m_localBounds;
 	}
 
-	const BoxSphereBounds& PrimitiveProxy::LocalBounds() const
+	void PrimitiveProxy::UpdateTransformAndBounds( const Matrix& worldTransform, const BoxSphereBounds& bounds, const BoxSphereBounds& localBounds )
 	{
-		assert( IsInRenderThread() );
-		return m_localBounds;
+		m_worldTransform = worldTransform;
+		m_bounds = bounds;
+		m_localBounds = localBounds;
 	}
 
 	uint32 PrimitiveProxy::PrimitiveId() const

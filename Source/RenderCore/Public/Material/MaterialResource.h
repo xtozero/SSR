@@ -1,6 +1,5 @@
 #pragma once
 
-#include "common.h"
 #include "ConstantBuffer.h"
 #include "DrawSnapshot.h"
 #include "Material/Material.h"

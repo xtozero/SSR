@@ -83,7 +83,11 @@ namespace rendercore
 		uint32 primitiveId = primitive.PrimitiveId();
 		const BoxSphereBounds& primitiveBound = m_scene.PrimitiveBounds()[primitiveId];
 
-		if ( m_lightProxy->AffactsBounds( primitiveBound ) == false )
+		if ( primitive.Proxy()->CastShadow() == false )
+		{
+			return false;
+		}
+		else if ( m_lightProxy->AffactsBounds( primitiveBound ) == false )
 		{
 			return false;
 		}

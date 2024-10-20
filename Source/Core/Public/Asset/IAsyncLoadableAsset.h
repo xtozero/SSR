@@ -3,7 +3,6 @@
 #include "Archive.h"
 #include "ArchiveUtility.h"
 #include "AssetLoader.h"
-#include "common.h"
 #include "Reflection.h"
 
 #include <filesystem>

@@ -2,15 +2,14 @@
 
 #include "AppConfig/AppConfig.h"
 #include "CommandLine.h"
-#include "common.h"
 #include "Config/DefaultAppConfig.h"
 #include "Core/IEditor.h"
 #include "Core/ILogic.h"
 #include "CpuProfiler.h"
 #include "FileSystem.h"
 #include "GuideTypes.h"
-#include "InterfaceFactories.h"
 #include "IPlatform.h"
+#include "LibraryTool/InterfaceFactories.h"
 #include "TaskScheduler.h"
 
 #include <Windows.h>

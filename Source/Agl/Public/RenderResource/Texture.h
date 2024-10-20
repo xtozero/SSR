@@ -1,8 +1,8 @@
 #pragma once
 
-#include "common.h"
 #include "GraphicsApiResource.h"
 #include "InlineMemoryAllocator.h"
+#include "LibraryTool/Common.h"
 #include "ResourceViews.h"
 #include "SizedTypes.h"
 

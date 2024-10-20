@@ -1,6 +1,5 @@
 #pragma once
 
-#include "common.h"
 #include "Delegate.h"
 #include "FileSystemCore.h"
 #include "SizedTypes.h"

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Buffer.h"
-#include "Common.h"
 #include "GraphicsApiResource.h"
 #include "SizedTypes.h"
 

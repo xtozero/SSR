@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ColorTypes.h"
-#include "common.h"
+#include "LibraryTool/Common.h"
 #include "Math/Vector4.h"
 
 namespace logic

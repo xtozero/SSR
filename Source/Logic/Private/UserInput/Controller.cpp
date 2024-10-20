@@ -1,6 +1,5 @@
 #include "UserInput/Controller.h"
 
-#include "common.h"
 #include "Components/InputComponent.h"
 #include "Components/SceneComponent.h"
 #include "Core/IListener.h"

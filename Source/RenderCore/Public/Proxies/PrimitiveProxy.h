@@ -38,19 +38,13 @@ namespace rendercore
 
 		virtual HitProxy* CreateHitProxy( logic::PrimitiveComponent* component ) const;
 
-		bool CastShadow() const
-		{
-			return m_castShadow;
-		}
-
-		Matrix& WorldTransform();
+		bool CastShadow() const;
 		const Matrix& WorldTransform() const;
-
-		BoxSphereBounds& Bounds();
 		const BoxSphereBounds& Bounds() const;
-
-		BoxSphereBounds& LocalBounds();
 		const BoxSphereBounds& LocalBounds() const;
+
+		void UpdateTransformAndBounds( const Matrix& worldTransform, const BoxSphereBounds& bounds, const BoxSphereBounds& localBounds );
+
 		uint32 PrimitiveId() const;
 
 		virtual ~PrimitiveProxy() = default;

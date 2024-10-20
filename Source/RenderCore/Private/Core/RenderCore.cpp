@@ -2,7 +2,6 @@
 
 #include "AbstractGraphicsInterface.h"
 #include "CommandList.h"
-#include "common.h"
 #include "CommonRenderResource.h"
 #include "Core/IEditor.h"
 #include "CpuProfiler.h"
@@ -12,6 +11,7 @@
 #include "GraphicsResource/Canvas.h"
 #include "GraphicsResource/Viewport.h"
 #include "IAgl.h"
+#include "LibraryTool/Common.h"
 #include "PipelineStateCache.h"
 #include "RenderTargetPool.h"
 #include "RenderView.h"

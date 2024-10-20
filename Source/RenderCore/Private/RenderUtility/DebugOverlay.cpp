@@ -21,6 +21,13 @@ namespace rendercore
 	REGISTER_GLOBAL_SHADER( DebugOverlayVS, "./Assets/Shaders/DebugOverlay/VS_DebugOverlay.asset" );
 	REGISTER_GLOBAL_SHADER( DebugOverlayPS, "./Assets/Shaders/DebugOverlay/PS_DebugOverlay.asset" );
 
+	struct DebugOverlayDrawParam
+	{
+		GlobalDynamicVertexBuffer::AllocationInfo m_allocationInfo;
+		agl::ResourcePrimitive m_primitive;
+		uint32 m_numVertices;
+	};
+
 	void DebugOverlayData::Draw( GlobalDynamicVertexBuffer& dynamicVertexBuffer, RenderingShaderResource& resources )
 	{
 		auto numDebugLine = static_cast<uint32>( m_debugLine.size() );
@@ -68,10 +75,28 @@ namespace rendercore
 		DepthStencilState debugOverlayDepthState = StaticDepthStencilState<true, false, agl::ComparisonFunc::LessEqual>::Get();
 		RasterizerState debugOverlayRasterizerState = StaticRasterizerState<>::Get();
 
-		if ( lineVbAllocationInfo.m_lockedMemory != nullptr )
+		DebugOverlayDrawParam DrawParams[2] = {
+			{
+				.m_allocationInfo = lineVbAllocationInfo,
+				.m_primitive = agl::ResourcePrimitive::Linelist,
+				.m_numVertices = numDebugLine
+			},
+			{
+				.m_allocationInfo = triangleVbAllocationInfo,
+				.m_primitive = agl::ResourcePrimitive::Trianglelist,
+				.m_numVertices = numDebugTriangle
+			}
+		};
+
+		for ( const DebugOverlayDrawParam& drawParam : DrawParams )
 		{
+			if ( drawParam.m_allocationInfo.m_lockedMemory == nullptr )
+			{
+				continue;
+			}
+
 			DrawSnapshot snapshot;
-			snapshot.m_vertexStream.Bind( lineVbAllocationInfo.m_buffer, 0, VertexSizeInBytes, lineVbAllocationInfo.m_offset );
+			snapshot.m_vertexStream.Bind( drawParam.m_allocationInfo.m_buffer, 0, VertexSizeInBytes, drawParam.m_allocationInfo.m_offset );
 			snapshot.m_primitiveIdSlot = -1;
 
 			snapshot.m_pipelineState.m_shaderState.m_vertexLayout = vertexLayout;
@@ -81,48 +106,12 @@ namespace rendercore
 			snapshot.m_pipelineState.m_rasterizerState = debugOverlayRasterizerState;
 			snapshot.m_pipelineState.m_depthStencilState = debugOverlayDepthState;
 
-			snapshot.m_pipelineState.m_primitive = agl::ResourcePrimitive::Linelist;
+			snapshot.m_pipelineState.m_primitive = drawParam.m_primitive;
 
 			auto initializer = CreateShaderBindingsInitializer( snapshot.m_pipelineState.m_shaderState );
 			snapshot.m_shaderBindings.Initialize( initializer );
 
-			snapshot.m_count = numDebugLine;
-
-			PreparePipelineStateObject( snapshot );
-
-			resources.BindResources( snapshot.m_pipelineState.m_shaderState, snapshot.m_shaderBindings );
-
-			VisibleDrawSnapshot visibleSnapshot = {
-				.m_primitiveId = 0,
-				.m_primitiveIdOffset = 0,
-				.m_numInstance = 1,
-				.m_snapshotBucketId = -1,
-				.m_drawSnapshot = &snapshot,
-			};
-
-			VertexBuffer emptyPrimitiveID;
-			CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
-		}
-
-		if ( triangleVbAllocationInfo.m_lockedMemory != nullptr )
-		{
-			DrawSnapshot snapshot;
-			snapshot.m_vertexStream.Bind( triangleVbAllocationInfo.m_buffer, 0, VertexSizeInBytes, triangleVbAllocationInfo.m_offset );
-			snapshot.m_primitiveIdSlot = -1;
-
-			snapshot.m_pipelineState.m_shaderState.m_vertexLayout = vertexLayout;
-			snapshot.m_pipelineState.m_shaderState.m_vertexShader = debugOverlayVS;
-			snapshot.m_pipelineState.m_shaderState.m_pixelShader = debugOverlayPS;
-
-			snapshot.m_pipelineState.m_rasterizerState = debugOverlayRasterizerState;
-			snapshot.m_pipelineState.m_depthStencilState = debugOverlayDepthState;
-
-			snapshot.m_pipelineState.m_primitive = agl::ResourcePrimitive::Trianglelist;
-
-			auto initializer = CreateShaderBindingsInitializer( snapshot.m_pipelineState.m_shaderState );
-			snapshot.m_shaderBindings.Initialize( initializer );
-
-			snapshot.m_count = numDebugTriangle;
+			snapshot.m_count = drawParam.m_numVertices;
 
 			PreparePipelineStateObject( snapshot );
 

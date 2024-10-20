@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core/DebugConsole.h"
-#include "common.h"
 #include "GameObject/Player.h"
 #include "GraphicsResource/Canvas.h"
 #include "GraphicsResource/Viewport.h"

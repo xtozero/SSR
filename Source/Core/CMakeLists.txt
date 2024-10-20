@@ -65,7 +65,7 @@ set (JSON
 
 set (LIBRARY_TOOL
 	Private/LibraryTool/Interfacefactories.cpp
-	Public/LibraryTool/common.h
+	Public/LibraryTool/Common.h
 	Public/LibraryTool/Interfacefactories.h)
 
 set (MATH_HEADER

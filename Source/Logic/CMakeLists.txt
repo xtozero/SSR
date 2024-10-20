@@ -64,7 +64,6 @@ set (CORE
 	Public/Core/WeldingTransformRules.h)
 	
 set (GAME_OBJECT
-	Private/GameObject/DisplayShaderResourceHelper.cpp
 	Private/GameObject/GameObject.cpp
 	Private/GameObject/GameObjectFactory.cpp
 	Private/GameObject/HitObject.cpp
@@ -75,7 +74,6 @@ set (GAME_OBJECT
 	Private/GameObject/VolumetricCloud.cpp
 	Private/GameObject/VolumetricFog.cpp
 	Public/GameObject/DebugOverlay.h
-	Public/GameObject/DisplayShaderResourceHelper.h
 	Public/GameObject/GameObject.h
 	Public/GameObject/GameObjectFactory.h
 	Public/GameObject/GameObjectProperty.h

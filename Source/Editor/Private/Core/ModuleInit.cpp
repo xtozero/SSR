@@ -1,9 +1,9 @@
-#include "common.h"
 #include "GuideTypes.h"
 #include "IEditor.h"
 #include "imgui.h"
 #include "ImguiSharedContext.h"
 #include "InterfaceFactories.h"
+#include "LibraryTool/Common.h"
 
 using ::editor::IEditor;
 

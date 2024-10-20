@@ -1,5 +1,5 @@
-#include "common.h"
 #include "InterfaceFactories.h"
+#include "LibraryTool/Common.h"
 #include "Platform/WindowPlatformEngine.h"
 #include "ScreenSpaceReflection.h"
 #include "SizedTypes.h"
