@@ -11,7 +11,8 @@
 
 namespace
 {
-	constexpr int32 NumOcclusionBoxVertex = 36;
+	constexpr int32 NumOcclusionBoxVertex = 8;
+	constexpr int32 NumOcclusionBoxIndex = 36;
 
 	int32 GetCurrentOcclusionTestIndex( uint64 occlusionFrame )
 	{
@@ -25,53 +26,14 @@ namespace
 
 		auto vertex = static_cast<Vector*>( dest );
 
-		// front
 		*( vertex++ ) = Vector( min.x, min.y, min.z );
 		*( vertex++ ) = Vector( min.x, max.y, min.z );
-		*( vertex++ ) = Vector( max.x, max.y, min.z );
-		*( vertex++ ) = Vector( min.x, min.y, min.z );
-		*( vertex++ ) = Vector( max.x, max.y, min.z );
-		*( vertex++ ) = Vector( max.x, min.y, min.z );
-
-		// back
-		*( vertex++ ) = Vector( max.x, min.y, max.z );
-		*( vertex++ ) = Vector( max.x, max.y, max.z );
-		*( vertex++ ) = Vector( min.x, max.y, max.z );
-		*( vertex++ ) = Vector( max.x, min.y, max.z );
-		*( vertex++ ) = Vector( min.x, max.y, max.z );
-		*( vertex++ ) = Vector( min.x, min.y, max.z );
-
-		// left
-		*( vertex++ ) = Vector( min.x, min.y, max.z );
-		*( vertex++ ) = Vector( min.x, max.y, max.z );
-		*( vertex++ ) = Vector( min.x, max.y, min.z );
-		*( vertex++ ) = Vector( min.x, min.y, max.z );
-		*( vertex++ ) = Vector( min.x, max.y, min.z );
-		*( vertex++ ) = Vector( min.x, min.y, min.z );
-
-		// right
 		*( vertex++ ) = Vector( max.x, min.y, min.z );
 		*( vertex++ ) = Vector( max.x, max.y, min.z );
-		*( vertex++ ) = Vector( max.x, max.y, max.z );
-		*( vertex++ ) = Vector( max.x, min.y, min.z );
-		*( vertex++ ) = Vector( max.x, max.y, max.z );
-		*( vertex++ ) = Vector( max.x, min.y, max.z );
-
-		// top
-		*( vertex++ ) = Vector( min.x, max.y, min.z );
+		*( vertex++ ) = Vector( min.x, min.y, max.z );
 		*( vertex++ ) = Vector( min.x, max.y, max.z );
-		*( vertex++ ) = Vector( max.x, max.y, max.z );
-		*( vertex++ ) = Vector( min.x, max.y, min.z );
-		*( vertex++ ) = Vector( max.x, max.y, max.z );
-		*( vertex++ ) = Vector( max.x, max.y, min.z );
-
-		// bottom
-		*( vertex++ ) = Vector( min.x, min.y, max.z );
-		*( vertex++ ) = Vector( min.x, min.y, min.z );
-		*( vertex++ ) = Vector( max.x, min.y, min.z );
-		*( vertex++ ) = Vector( min.x, min.y, max.z );
-		*( vertex++ ) = Vector( max.x, min.y, min.z );
 		*( vertex++ ) = Vector( max.x, min.y, max.z );
+		*( vertex++ ) = Vector( max.x, max.y, max.z );
 	}
 }
 
@@ -91,6 +53,7 @@ namespace rendercore
 
 		DrawSnapshot snapshot;
 		snapshot.m_vertexStream.Bind( allcationInfo.m_buffer, 0, sizeof( Vector ), allcationInfo.m_offset );
+		snapshot.m_indexBuffer = OcclusionQueryIndexBuffer;
 		snapshot.m_primitiveIdSlot = -1;
 
 		snapshot.m_pipelineState.m_shaderState.m_vertexLayout = GraphicsInterface().FindOrCreate( *occlusionVS, vertexlayout );
@@ -104,7 +67,7 @@ namespace rendercore
 		auto initializer = CreateShaderBindingsInitializer( snapshot.m_pipelineState.m_shaderState );
 		snapshot.m_shaderBindings.Initialize( initializer );
 
-		snapshot.m_count = NumOcclusionBoxVertex;
+		snapshot.m_count = NumOcclusionBoxIndex;
 
 		PreparePipelineStateObject( snapshot );
 

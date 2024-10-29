@@ -6,6 +6,8 @@
 #include "GlobalShaders.h"
 #include "IAssetLoader.h"
 
+using ::rendercore::IndexBuffer;
+
 namespace
 {
 	RefHandle<agl::Texture> CreateTexture( Color color, const char* debugName )
@@ -82,6 +84,25 @@ namespace
 
 		return cubeTexture;
 	}
+
+	IndexBuffer CreateOcclusionQueryIndexBuffer()
+	{
+		uint16 cubeIndex[36] = {
+			0, 1, 2,
+			2, 1, 3,
+			4, 5, 0,
+			0, 5, 1,
+			2, 3, 6,
+			6, 3, 7,
+			6, 7, 4,
+			4, 7, 5,
+			1, 5, 3,
+			3, 5, 7,
+			4, 0, 6,
+			6, 0, 2
+		};
+		return IndexBuffer( 36, agl::ResourceState::Common, cubeIndex, false );
+	}
 }
 
 namespace rendercore
@@ -144,6 +165,8 @@ namespace rendercore
 
 		BlackCubeTexture = CreateCubeTexture( Color::Black, "DefaultBlackCube" );
 		WhiteCubeTexture = CreateCubeTexture( Color::White, "DefaultWhiteCube" );
+
+		OcclusionQueryIndexBuffer = CreateOcclusionQueryIndexBuffer();
 		
 		{
 			std::filesystem::path assetPath = "./Assets/EngineDefault/Texture/PrecomputedBRDF.asset";
@@ -181,6 +204,8 @@ namespace rendercore
 				BlackCubeTexture = nullptr;
 				WhiteCubeTexture = nullptr;
 
+				std::destroy_at( &OcclusionQueryIndexBuffer );
+
 				BRDFLookUpTexture = nullptr;
 			} );
 	}
@@ -197,4 +222,6 @@ namespace rendercore
 	RefHandle<agl::Texture> WhiteCubeTexture;
 
 	RefHandle<agl::Texture> BRDFLookUpTexture;
+
+	IndexBuffer OcclusionQueryIndexBuffer;
 }

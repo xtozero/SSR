@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GlobalShaders.h"
+#include "IndexBuffer.h"
 #include "Texture.h"
 
 #include <atomic>
@@ -42,4 +43,6 @@ namespace rendercore
 	extern RefHandle<agl::Texture> WhiteCubeTexture;
 
 	extern RefHandle<agl::Texture> BRDFLookUpTexture;
+
+	extern IndexBuffer OcclusionQueryIndexBuffer;
 }
