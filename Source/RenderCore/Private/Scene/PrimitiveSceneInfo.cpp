@@ -2,6 +2,7 @@
 
 #include "Components/PrimitiveComponent.h"
 #include "Config/DefaultAppConfig.h"
+#include "Proxies/LightProxy.h"
 #include "Proxies/PrimitiveProxy.h"
 #include "Scene/Scene.h"
 
@@ -61,6 +62,11 @@ namespace rendercore
 
 		for ( LightSceneInfo* light : m_scene.Lights() )
 		{
+			if ( light->Proxy()->CastShadow() == false )
+			{
+				continue;
+			}
+
 			light->AddPrimitiveIntersectionInfo( *this );
 		}
 	}
@@ -74,6 +80,11 @@ namespace rendercore
 
 		for ( LightSceneInfo* light : m_scene.Lights() )
 		{
+			if ( light->Proxy()->CastShadow() == false )
+			{
+				continue;
+			}
+
 			light->RemovePrimitiveIntersectionInfo( *this );
 		}
 
