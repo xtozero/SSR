@@ -2,8 +2,10 @@
 
 #include "IEditor.h"
 #include "imgui.h"
+#include "Json/json.hpp"
 #include "PanelFactory.h"
 #include "PanelSharedContext.h"
+#include "Platform/PlatformMisc.h"
 
 #include <filesystem>
 
@@ -157,10 +159,52 @@ namespace editor
 
         if ( file.extension() == ".json" )
         {
-            editor.GetPanelSharedCtx().UnselectObject();
+            json::Value root;
+            json::Reader reader;
+            if ( reader.Parse( file, root ) )
+            {
+                if ( const json::Value* pWorld = root.Find( "World" ) )
+                {
+                    editor.GetPanelSharedCtx().UnselectObject();
 
-            // Temporarily assume all JSON files are world files
-            editor.LoadWorld( file.generic_string().c_str() );
+                    editor.LoadWorld( file.generic_string().c_str() );
+                    return;
+                }
+            }
         }
+        else if ( file.extension() == ".asset" )
+        {
+            // Try opening the raw asset file.
+            fs::path assetDirectory = fs::current_path() / fs::path( "Assets" );
+            fs::path relativeFileDirectory = fs::relative( file, assetDirectory ).remove_filename();
+            fs::path rawAssetDirectory = fs::current_path().parent_path() / fs::path( "RawAssets" ) / relativeFileDirectory;
+
+            if ( fs::exists( rawAssetDirectory ) == false )
+            {
+                return;
+            }
+
+            fs::path assetFileName = file.filename().stem();
+            bool isExist = false;
+
+            for ( const auto& p : fs::directory_iterator( rawAssetDirectory ) )
+            {
+                if ( p.path().filename().stem() == assetFileName )
+                {
+                    file = p.path();
+                    isExist = true;
+
+                    break;
+                }
+            }
+
+            if ( isExist == false )
+            {
+                return;
+            }
+        }
+
+        bool success = engine::PlatformMisc::LaunchApplication( "open", file.generic_string().c_str() );
+        assert( success );
     }
 }

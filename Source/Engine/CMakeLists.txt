@@ -32,10 +32,13 @@ set (PLATFORM_SOURCE
 	Private/Platform/CommandLine.cpp
 	Private/Platform/WindowPlatformEngine.cpp
 	Private/Platform/WindowPlatformInputConvertor.cpp
+	Private/Platform/WindowPlatformMisc.cpp
 	Public/Platform/CommandLine.h
 	Public/Platform/IPlatform.h
+	Public/Platform/PlatformMisc.h
 	Public/Platform/WindowPlatformEngine.h
-	Public/Platform/WindowPlatformInputConvertor.h)
+	Public/Platform/WindowPlatformInputConvertor.h
+	Public/Platform/WindowPlatformMisc.h)
 	
 set (USER_INPUT_HEADER
 	Public/UserInput/UICMap.h
@@ -48,7 +51,7 @@ source_group("Config" FILES ${CONFIG_SOURCE})
 source_group("ConsoleMessage" FILES ${CONSOLE_MESSAGE_SOURCES})
 source_group("CpuProfiler" FILES ${CPU_PROFILER_HEADER} ${CPU_PROFILER_SOURCE})
 source_group("UserInput" FILES ${USER_INPUT_HEADER} ${USER_INPUT_SOURCE})
-source_group("Window" FILES ${PLATFORM_SOURCE})
+source_group("Platform" FILES ${PLATFORM_SOURCE})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
