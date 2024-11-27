@@ -118,13 +118,13 @@ namespace engine
 
 	UserInputCode UICMap::Convert( uint32 code )
 	{
-		auto found = std::lower_bound( m_codeMap.begin(), m_codeMap.end(), code,
+		auto found = std::lower_bound( std::begin( m_codeMap ), std::end( m_codeMap ), code,
 			[]( const CodePair& codePair, uint32 code )
 			{
 				return codePair.first < code;
 			} );
 
-		if ( found != m_codeMap.end() && found->first == code )
+		if ( found != std::end( m_codeMap ) && found->first == code )
 		{
 			return found->second;
 		}
@@ -183,7 +183,7 @@ namespace engine
 				}
 			}
 
-			std::sort( m_codeMap.begin(), m_codeMap.end(),
+			std::sort( std::begin( m_codeMap ), std::end( m_codeMap ),
 				[]( const CodePair& lhs, const CodePair& rhs )
 				{
 					return lhs.first < rhs.first;

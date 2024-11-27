@@ -31,6 +31,8 @@ namespace agl
 		virtual VertexShader* CreateVertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const override;
 		virtual GeometryShader* CreateGeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const override;
 		virtual PixelShader* CreatePixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const override;
+		virtual AmplificationShader* CreateAmplificationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const override;
+		virtual MeshShader* CreateMeshShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const override;
 
 		// RenderState
 		virtual BlendState* CreateBlendState( const BlendStateTrait& trait ) const override;
@@ -52,7 +54,7 @@ namespace agl
 
 		virtual void SetPSOCache( std::map<uint64, BinaryChunk>& psoCache ) override;
 
-		ID3D12PipelineState* FindOrCreate( GraphicsPipelineState* pipelineState, D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc );
+		ID3D12PipelineState* FindOrCreate( D3D12GraphicsPipelineState* pipelineState, const DXGI_FORMAT( &rtvFormats )[8], DXGI_FORMAT dsvFormat );
 
 		D3D12DisposableConstantBufferPool& GetDisposableConstantBufferPool();
 
@@ -101,6 +103,20 @@ namespace agl
 					desc.RTVFormats[6],
 					desc.RTVFormats[7],
 					desc.DSVFormat }
+			{}
+			D3D12PipelineStateKey( GraphicsPipelineState* state, const DXGI_FORMAT( &rtvFormats )[8], DXGI_FORMAT dsvFormat )
+				: m_state( state )
+				, m_outputFormats{
+					rtvFormats[0],
+					rtvFormats[1],
+					rtvFormats[2],
+					rtvFormats[3],
+					rtvFormats[4],
+					rtvFormats[5],
+					rtvFormats[6],
+					rtvFormats[7],
+					dsvFormat
+				}
 			{}
 			D3D12PipelineStateKey() = default;
 

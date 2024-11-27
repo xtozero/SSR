@@ -16,7 +16,7 @@ public:
 
 	virtual void AddCreateFunction( uint32 assetID, AssetCreateFunctionPtr func ) override
 	{
-		assert( m_createfunctions.find( assetID ) == std::end( m_createfunctions ) );
+		assert( m_createfunctions.contains( assetID ) == false );
 		m_createfunctions.emplace( assetID, func );
 	}
 

@@ -99,10 +99,8 @@ set (PLAYER_OBJECT
 
 set (SCENE
 	Private/Scene/GameClientViewport.cpp
-	Private/Scene/ScreenBlurManager.cpp
 	Private/Scene/SSRManager.cpp
 	Public/Scene/GameClientViewport.h
-	Public/Scene/ScreenBlurManager.h
 	Public/Scene/SSRManager.h)
 	
 set (TEST_SCENE_OBJECT

@@ -25,14 +25,13 @@
     {
       "Object": {
         "Class": "box_object",
-        "Name": "ground",
+        "Name": "box",
         "Position": [ 0, 0, 0 ],
         "Scale": [ 10, 10, 10 ],
-        "Reflectable": 1,
         "Components": {
           "StaticMeshComponent": {
             "Model": "./Assets/Models/Obj/Box/box.asset",
-            "RenderOption": "./Assets/RenderOptions/RO_Reflectable.asset"
+            "RenderOption": "./Assets/RenderOptions/RO_Default.asset"
           }
         }
       }

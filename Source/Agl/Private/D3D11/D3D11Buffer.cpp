@@ -16,6 +16,11 @@ namespace
 	D3D11_BUFFER_DESC ConvertTraitToDesc( const BufferTrait& trait )
 	{
 		uint32 byteWidth = trait.m_count * trait.m_stride;
+		if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::BufferAllowRawViews ) )
+		{
+			byteWidth = CalcAlignment<uint32>( byteWidth, sizeof( int32 ) );
+		}
+
 		D3D11_USAGE usage = ConvertAccessFlagToUsage( trait.m_access );
 		uint32 bindFlag = ConvertTypeToBind( trait.m_bindType );
 		uint32 cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );
@@ -43,11 +48,6 @@ namespace
 
 		if ( ( desc.MiscFlags & D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS ) > 0 )
 		{
-			if ( ( desc.ByteWidth % 4 ) != 0 )
-			{
-				__debugbreak();
-			}
-
 			srv.Format = DXGI_FORMAT_R32_TYPELESS;
 			srv.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
 			srv.BufferEx.NumElements = desc.ByteWidth / 4;
@@ -70,11 +70,6 @@ namespace
 
 		if ( ( desc.MiscFlags & D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS ) > 0 )
 		{
-			if ( ( desc.ByteWidth % 4 ) != 0 )
-			{
-				__debugbreak();
-			}
-
 			uav.Format = DXGI_FORMAT_R32_TYPELESS;
 			uav.Buffer.NumElements = desc.ByteWidth / 4;
 			uav.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_RAW;

@@ -336,8 +336,8 @@ __pycache__/
 # Project Settings
 PSOCache*.asset
 ShaderCache*.asset
-!Program/Assets/Models/*
-!RawAssets/Models/*
+!Program/Assets/Models/**
+!RawAssets/Models/**
 /Program/Saved/*
 
 ### VisualStudio Patch ###

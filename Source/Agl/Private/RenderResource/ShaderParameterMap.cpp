@@ -55,7 +55,7 @@ namespace agl
 	ShaderParameter ShaderParameterMap::GetParameter( Name name ) const
 	{
 		auto found = m_parameters.find( name );
-		if ( found != m_parameters.end() )
+		if ( found != std::end( m_parameters ) )
 		{
 			return found->second;
 		}

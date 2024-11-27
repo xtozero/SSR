@@ -33,6 +33,12 @@ namespace agl
 		case agl::ShaderType::CS:
 			return D3D12_SHADER_VISIBILITY_ALL;
 			break;
+		case agl::ShaderType::AS:
+			return D3D12_SHADER_VISIBILITY_AMPLIFICATION;
+			break;
+		case agl::ShaderType::MS:
+			return D3D12_SHADER_VISIBILITY_MESH;
+			break;
 		default:
 			break;
 		}
@@ -94,6 +100,7 @@ namespace agl
 	D3D12RootSignature::D3D12RootSignature( const GraphicsPipelineStateInitializer& initializer )
 	{
 		InlineShaderArray shaders;
+
 		if ( initializer.m_vertexShader )
 		{
 			shaders.emplace_back( ShaderType::VS, static_cast<D3D12VertexShader*>( initializer.m_vertexShader ) );
@@ -107,6 +114,16 @@ namespace agl
 		if ( initializer.m_piexlShader )
 		{
 			shaders.emplace_back( ShaderType::PS, static_cast<D3D12PixelShader*>( initializer.m_piexlShader ) );
+		}
+
+		if ( initializer.m_amplificationShader )
+		{
+			shaders.emplace_back( ShaderType::AS, static_cast<D3D12AmplificationShader*>( initializer.m_amplificationShader ) );
+		}
+
+		if ( initializer.m_meshShader )
+		{
+			shaders.emplace_back( ShaderType::MS, static_cast<D3D12MeshShader*>( initializer.m_meshShader ) );
 		}
 
 		bool hasBindless = false;

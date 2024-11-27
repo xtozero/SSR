@@ -83,7 +83,7 @@ AssetLoaderSharedHandle AssetLoader::RequestAsyncLoad( const std::string& assetP
 	assert( IsInGameThread() );
 
 	auto found = m_assets.find( assetPath );
-	if ( found != m_assets.end() )
+	if ( found != std::end( m_assets ) )
 	{
 		auto handle = std::make_shared<AssetLoaderHandle>();
 		handle->BindCompletionCallback( completionCallback );
@@ -96,7 +96,7 @@ AssetLoaderSharedHandle AssetLoader::RequestAsyncLoad( const std::string& assetP
 	} 
 
 	auto isInProgress = m_waitingHandle.find( assetPath );
-	if ( isInProgress != m_waitingHandle.end() )
+	if ( isInProgress != std::end( m_waitingHandle ) )
 	{
 		auto handle = std::make_shared<AssetLoaderHandle>();
 		handle->BindCompletionCallback( completionCallback );
@@ -224,7 +224,7 @@ void AssetLoader::OnAssetLoaded( const std::string& path, const std::shared_ptr<
 	assert( result.second );
 
 	auto found = m_waitingHandle.find( path );
-	if ( found != m_waitingHandle.end() )
+	if ( found != std::end( m_waitingHandle ) )
 	{
 		for ( auto& handle : found->second )
 		{

@@ -624,7 +624,7 @@ namespace json
 			ObjectType& array = *m_data.m_object;
 			std::string indexString = std::to_string( index );
 			auto found = array.find( indexString );
-			if ( found == array.end() )
+			if ( found == std::end( array ) )
 			{
 				auto result = array.emplace( std::to_string( index ), Value( DataType::Empty ) );
 				return result.first->second;
@@ -638,7 +638,7 @@ namespace json
 			assert( ( Type() == DataType::Object ) );
 			ObjectType& array = *m_data.m_object;
 			auto found = array.find( key );
-			if ( found == array.end() )
+			if ( found == std::end( array ) )
 			{
 				auto result = array.emplace( key, Value( DataType::Empty ) );
 				return result.first->second;
@@ -793,7 +793,7 @@ namespace json
 				}
 
 				auto iter = array.find( std::to_string( i ) );
-				assert( iter != array.end() );
+				assert( iter != std::end( array ) );
 				os << iter->second;
 			}
 			os << ']';
@@ -804,9 +804,9 @@ namespace json
 			assert( ( Type() == DataType::Object ) );
 			const ObjectType& map = *m_data.m_object;
 			os << '{';
-			for ( auto iter = map.begin(); iter != map.end(); ++iter )
+			for ( auto iter = std::begin( map ); iter != std::end( map ); ++iter )
 			{
-				if ( iter != map.begin() )
+				if ( iter != std::begin( map ) )
 				{
 					os << ',';
 				}

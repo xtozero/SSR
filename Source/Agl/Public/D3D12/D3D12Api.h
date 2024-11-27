@@ -18,7 +18,7 @@ namespace agl
 	class IAgl;
 
 	ID3D12CommandQueue& D3D12DirectCommandQueue();
-	ID3D12Device& D3D12Device();
+	ID3D12Device8& D3D12Device();
 	IDXGIFactory7& D3D12Factory();
 
 	D3D12ResourceAllocator& D3D12Allocator();

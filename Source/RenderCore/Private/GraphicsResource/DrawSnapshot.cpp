@@ -45,8 +45,8 @@ namespace rendercore
 {
 	VertexBuffer PrimitiveIdVertexBufferPool::Alloc( uint32 require )
 	{
-		constexpr uint32 minimum = 1024;
-		require = CalcAlignment( require, minimum );
+		constexpr uint32 Minimum = 1024;
+		require = CalcAlignment( require, Minimum );
 
 		std::optional<size_t> bestMatchIdx;
 		for ( size_t i = 0; i < m_entries.size(); ++i )
@@ -79,9 +79,9 @@ namespace rendercore
 			auto& newEntry = m_entries.back();
 			newEntry.m_lastDiscardId = m_discardId;
 
-			constexpr uint32 elementSize = sizeof( uint32 );
+			constexpr uint32 ElementSize = sizeof( uint32 );
 			uint32 numElement = require / sizeof( uint32 );
-			newEntry.m_vertexBuffer = VertexBuffer( elementSize, numElement, agl::ResourceState::Common, nullptr, true );
+			newEntry.m_vertexBuffer = VertexBuffer( ElementSize, numElement, agl::ResourceState::Common, nullptr, true );
 
 			return newEntry.m_vertexBuffer;
 		}
@@ -119,6 +119,8 @@ namespace rendercore
 			.m_vertexShader = shaderState.m_vertexShader ? shaderState.m_vertexShader->Resource() : nullptr,
 			.m_geometryShader = shaderState.m_geometryShader ? shaderState.m_geometryShader->Resource() : nullptr,
 			.m_piexlShader = shaderState.m_pixelShader ? shaderState.m_pixelShader->Resource() : nullptr,
+			.m_amplificationShader = shaderState.m_amplificationShader ? shaderState.m_amplificationShader->Resource() : nullptr,
+			.m_meshShader = shaderState.m_meshShader ? shaderState.m_meshShader->Resource() : nullptr,
 			.m_blendState = pipelineState.m_blendState.Resource(),
 			.m_rasterizerState = pipelineState.m_rasterizerState.Resource(),
 			.m_depthStencilState = pipelineState.m_depthStencilState.Resource(),
@@ -193,7 +195,7 @@ namespace rendercore
 		else
 		{
 			auto taskScheduler = GetInterface<ITaskScheduler>();
-			constexpr size_t affinityMask = WorkerAffinityMask<WorkerThreads>();
+			constexpr size_t AffinityMask = WorkerAffinityMask<WorkerThreads>();
 			TaskHandle taskGroup = taskScheduler->GetTaskGroup();
 
 			CommitDrawSnapshotTask* commitTasks[2] = {};
@@ -204,7 +206,7 @@ namespace rendercore
 				deferredCommandLists[i] = GraphicsInterface().GetParallelCommandList();
 
 				size_t count = ( dc + 1 ) / 2;
-				auto task = Task<CommitDrawSnapshotTask>::Create( affinityMask, count, *deferredCommandLists[i], primitiveIds );
+				auto task = Task<CommitDrawSnapshotTask>::Create( AffinityMask, count, *deferredCommandLists[i], primitiveIds );
 				commitTasks[i] = &task->Element();
 
 				size_t added = 0;
@@ -230,8 +232,8 @@ namespace rendercore
 
 	int32 CachedDrawSnapshotBucket::Add( const DrawSnapshot& snapshot )
 	{
-		constexpr SharedSnapshotId dummy( 0 );
-		auto [iter, success] = m_bucket.emplace( snapshot, dummy );
+		constexpr SharedSnapshotId Dummy( 0 );
+		auto [iter, success] = m_bucket.emplace( snapshot, Dummy );
 		if ( success )
 		{
 			size_t id = m_snapshots.Add( snapshot );

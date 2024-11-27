@@ -48,6 +48,8 @@ namespace agl
 		virtual bool IsSupportsPSOCache() const = 0;
 		virtual const char* GetPSOCacheFilePath() const = 0;
 
+		virtual bool IsSupportsMeshShader() const = 0;
+
 		virtual ~IAgl() = default;
 
 	protected:

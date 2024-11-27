@@ -4,7 +4,7 @@
 
 namespace
 {
-	constexpr float g_sleepEpsilon = 0.3f;
+	constexpr float SleepEpsilon = 0.3f;
 }
 
 void RigidBody::SetMass( float mass )
@@ -127,7 +127,7 @@ void RigidBody::SetAwake( bool awake )
 
 	if ( awake )
 	{
-		m_motion = g_sleepEpsilon * 2.f;
+		m_motion = SleepEpsilon * 2.f;
 	}
 	else
 	{
@@ -281,13 +281,13 @@ bool RigidBody::Integrate( float duration )
 		float bias = powf( 0.5f, duration );
 		m_motion = bias * m_motion + ( 1.f - bias ) * currentMotion;
 
-		if ( ( m_lastFrameMotion > m_motion ) && ( m_motion < g_sleepEpsilon ) )
+		if ( ( m_lastFrameMotion > m_motion ) && ( m_motion < SleepEpsilon ) )
 		{
 			SetAwake( false );
 		}
-		else if ( m_motion > g_sleepEpsilon * 10.f )
+		else if ( m_motion > SleepEpsilon * 10.f )
 		{
-			m_motion = 10.f * g_sleepEpsilon;
+			m_motion = 10.f * SleepEpsilon;
 		}
 
 		m_lastFrameMotion = m_motion;

@@ -58,10 +58,11 @@ namespace rendercore
 			psSwitches.On( Name( "EnableRSMs" ), 1 );
 		}
 
-		PassShader passShader{
+		PassShader passShader = {
 			.m_vertexShader = CascadeShadowDepthVS( vsSwitches ),
 			.m_geometryShader = CascadeShadowDepthGS( gsSwitches ),
 			.m_pixelShader = CascadeShadowDepthPS( psSwitches )
+			// TODO : Add MeshShader
 		};
 
 		PassRenderOption passRenderOption;
@@ -107,10 +108,11 @@ namespace rendercore
 	{
 		assert( IsInRenderThread() );
 
-		PassShader passShader{
+		PassShader passShader = {
 			.m_vertexShader = PointShadowDepthVS(),
 			.m_geometryShader = PointShadowDepthGS(),
 			.m_pixelShader = PointShadowDepthPS()
+			// TODO : Add MeshShader
 		};
 
 		PassRenderOption passRenderOption;

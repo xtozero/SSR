@@ -29,10 +29,9 @@ namespace rendercore
 			psSwitches.On( Name( "EnableESMs" ), 1 );
 		}
 
-		PassShader passShader{
-			FullScreenQuadVS( vsSwitches ),
-			nullptr,
-			DrawCascadeShadowPS( psSwitches )
+		PassShader passShader = {
+			.m_vertexShader = FullScreenQuadVS( vsSwitches ),
+			.m_pixelShader = DrawCascadeShadowPS( psSwitches )
 		};
 
 		BlendOption shadowDrawPassBlendOption;
@@ -71,10 +70,9 @@ namespace rendercore
 
 		StaticShaderSwitches psSwitches = DrawPointShadowPS::GetSwitches();
 
-		PassShader passShader{
-			FullScreenQuadVS( vsSwitches ),
-			nullptr,
-			DrawPointShadowPS( psSwitches )
+		PassShader passShader = {
+			.m_vertexShader = FullScreenQuadVS( vsSwitches ),
+			.m_pixelShader = DrawPointShadowPS( psSwitches )
 		};
 
 		BlendOption shadowDrawPassBlendOption;

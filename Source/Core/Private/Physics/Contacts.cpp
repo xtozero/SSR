@@ -69,7 +69,7 @@ Vector Contact::CalculateLocalVelocity( uint32 bodyIndex, float duration )
 
 void Contact::CalculateDesiredDeltaVelocity( float duration )
 {
-	constexpr float velocityLimit = 0.25f;
+	constexpr float VelocityLimit = 0.25f;
 
 	float velocityFromAcc = 0;
 
@@ -84,7 +84,7 @@ void Contact::CalculateDesiredDeltaVelocity( float duration )
 	}
 
 	float thisRestitution = m_restitution;
-	if ( fabsf( m_contactVelocity.x ) < velocityLimit )
+	if ( fabsf( m_contactVelocity.x ) < VelocityLimit )
 	{
 		thisRestitution = 0.f;
 	}
@@ -199,7 +199,7 @@ Vector Contact::CalculateFrictionImpulse( const Matrix3X3* inverseInertiaTensor 
 
 void Contact::ApplyPositionChange( Vector linearChange[2], Vector angularChange[2], float penetration )
 {
-	constexpr float angularLimit = 0.2f;
+	constexpr float AngularLimit = 0.2f;
 	float angularMove[2];
 	float linearMove[2];
 
@@ -235,7 +235,7 @@ void Contact::ApplyPositionChange( Vector linearChange[2], Vector angularChange[
 
 			Vector projection = m_contactNormal * -( m_relativeContactPosition[i] | m_contactNormal ) + m_relativeContactPosition[i];
 
-			float maxMagnitude = angularLimit * projection.Length();
+			float maxMagnitude = AngularLimit * projection.Length();
 
 			float totalMove = angularMove[i] + linearMove[i];
 			if ( angularMove[i] < -maxMagnitude )

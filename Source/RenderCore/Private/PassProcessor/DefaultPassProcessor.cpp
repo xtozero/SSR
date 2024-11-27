@@ -51,40 +51,5 @@ namespace rendercore
 		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default );
 	}
 
-	PassShader DefaultPassProcessor::CollectPassShader( MaterialResource& material ) const
-	{
-		StaticShaderSwitches vsSwitches = material.GetShaderSwitches( agl::ShaderType::VS );
-		StaticShaderSwitches gsSwitches = material.GetShaderSwitches( agl::ShaderType::GS );
-		StaticShaderSwitches psSwitches = material.GetShaderSwitches( agl::ShaderType::PS );
-
-		if ( DefaultRenderCore::IsTaaEnabled() )
-		{
-			vsSwitches.On( Name( "TAA" ), 1 );
-		}
-
-		if ( DefaultRenderCore::IsRSMsEnabled() )
-		{
-			psSwitches.On( Name( "EnableRSMs" ), 1 );
-		}
-
-		if ( DefaultRenderCore::UseIrradianceMapSH() )
-		{
-			psSwitches.On( Name( "UseIrradianceMapSH" ), 1 );
-		}
-
-		if ( agl::DefaultAgl::IsSupportsBindless() )
-		{
-			psSwitches.On( Name( "SupportsBindless" ), 1 );
-		}
-
-		PassShader passShader{
-			material.GetVertexShader( &vsSwitches ),
-			material.GetGeometryShader( &gsSwitches ),
-			material.GetPixelShader( &psSwitches )
-		};
-
-		return passShader;
-	}
-
 	PassProcessorRegister RegisterDefaultPass( RenderPass::Default, &CreateDefaultPassProcessor );
 }

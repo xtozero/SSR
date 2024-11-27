@@ -23,10 +23,9 @@ namespace rendercore
 
 	std::optional<DrawSnapshot> TAAResolveProcessor::Process( const PrimitiveSubMesh& subMesh )
 	{
-		PassShader passShader{
-				FullScreenQuadVS(),
-				nullptr,
-				TAAResolvePS()
+		PassShader passShader = {
+			.m_vertexShader = FullScreenQuadVS(),
+			.m_pixelShader = TAAResolvePS()
 		};
 
 		DepthStencilOption depthStencilOption;

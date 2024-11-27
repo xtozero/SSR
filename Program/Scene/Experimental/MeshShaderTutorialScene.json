@@ -1,0 +1,30 @@
+{
+  "World": [
+    {
+      "Object": {
+        "Class": "player",
+        "Position": [ 0, 0, -50 ],
+        "Components": {
+          "GroundMovementComponent": {
+            "Kinetic_Force_Scale": 300,
+            "Friction": [ 300, 200 ]
+          }
+        }
+      }
+    },
+    {
+      "Object": {
+        "Class": "box_object",
+        "Name": "dummy_mesh_for_mesh_shader_tutorial",
+        "Position": [ 0, 0, 0 ],
+        "Scale": [ 1, 1, 1 ],
+        "Components": {
+          "StaticMeshComponent": {
+            "Model": "./Assets/Models/Experimental/Obj/MeshShaderTutorial/dummy.asset",
+            "RenderOption": "./Assets/RenderOptions/RO_Default.asset"
+          }
+        }
+      }
+    }
+  ]
+}

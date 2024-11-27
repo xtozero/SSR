@@ -7,6 +7,13 @@
 
 #include <cassert>
 
+using ::agl::ShaderType;
+
+namespace
+{
+	ShaderType GraphicsShaderTypes[] = { ShaderType::VS, ShaderType::HS, ShaderType::DS, ShaderType::GS, ShaderType::PS, ShaderType::AS, ShaderType::MS };
+}
+
 namespace agl
 {
 	void GlobalConstantBuffer::Reset()
@@ -139,11 +146,10 @@ namespace agl
 		}
 		else
 		{
-			GetGlobalConstantBuffer( ShaderType::VS ).Reset();
-			GetGlobalConstantBuffer( ShaderType::HS ).Reset();
-			GetGlobalConstantBuffer( ShaderType::DS ).Reset();
-			GetGlobalConstantBuffer( ShaderType::GS ).Reset();
-			GetGlobalConstantBuffer( ShaderType::PS ).Reset();
+			for ( ShaderType type : GraphicsShaderTypes )
+			{
+				GetGlobalConstantBuffer( type ).Reset();
+			}
 		}
 	}
 
@@ -160,11 +166,10 @@ namespace agl
 		}
 		else
 		{
-			GetGlobalConstantBuffer( ShaderType::VS ).CommitShaderValue();
-			GetGlobalConstantBuffer( ShaderType::HS ).CommitShaderValue();
-			GetGlobalConstantBuffer( ShaderType::DS ).CommitShaderValue();
-			GetGlobalConstantBuffer( ShaderType::GS ).CommitShaderValue();
-			GetGlobalConstantBuffer( ShaderType::PS ).CommitShaderValue();
+			for ( ShaderType type : GraphicsShaderTypes )
+			{
+				GetGlobalConstantBuffer( type ).CommitShaderValue();
+			}
 		}
 	}
 

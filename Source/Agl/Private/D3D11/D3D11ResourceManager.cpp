@@ -92,6 +92,18 @@ namespace agl
 		return newShader;
 	}
 
+	AmplificationShader* CD3D11ResourceManager::CreateAmplificationShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
+	{
+		// Amplification Shader is not supported in direct3D 11
+		return nullptr;
+	}
+
+	MeshShader* CD3D11ResourceManager::CreateMeshShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
+	{
+		// Mesh Shader is not supported in direct3D 11
+		return nullptr;
+	}
+
 	BlendState* CD3D11ResourceManager::CreateBlendState( const BlendStateTrait& trait ) const
 	{
 		auto blendState = new D3D11BlendState( trait );
@@ -123,7 +135,7 @@ namespace agl
 	GraphicsPipelineState* CD3D11ResourceManager::CreatePipelineState( const GraphicsPipelineStateInitializer& initializer )
 	{
 		auto cached = m_graphicsPipelineStateCache.find( initializer );
-		if ( cached != m_graphicsPipelineStateCache.end() )
+		if ( cached != std::end( m_graphicsPipelineStateCache ) )
 		{
 			return cached->second;
 		}
@@ -137,7 +149,7 @@ namespace agl
 	ComputePipelineState* CD3D11ResourceManager::CreatePipelineState( const ComputePipelineStateInitializer& initializer )
 	{
 		auto cached = m_computePipelineStateCache.find( initializer );
-		if ( cached != m_computePipelineStateCache.end() )
+		if ( cached != std::end( m_computePipelineStateCache ) )
 		{
 			return cached->second;
 		}

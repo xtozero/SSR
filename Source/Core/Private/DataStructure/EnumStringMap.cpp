@@ -24,7 +24,7 @@ int32 CEnumStringMap::GetEnum( const std::string& enumName, const int32 defaultV
 {
 	auto found = m_enumString.find( Name( enumName ) );
 
-	if ( found != m_enumString.end() )
+	if ( found != std::end( m_enumString ) )
 	{
 		return found->second;
 	}

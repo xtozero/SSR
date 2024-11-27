@@ -44,7 +44,7 @@ Transform Transform::GetRelativeTransform( const Transform other ) const
 
 	Transform result;
 
-	// ToDo : handle negative scaling
+	// TODO : handle negative scaling
 	
 	XMVector scale3D = m_scale3D / other.m_scale3D;
 
@@ -303,7 +303,7 @@ void Transform::SetFromMatrix( const Matrix& matrix )
 
 	m_scale3D = m.ExtractScaling();
 
-	// ToDo : handle negative scaling
+	// TODO : handle negative scaling
 
 	m_rotation = Quaternion( m );
 	m_translation = Vector( m[3][0], m[3][1], m[3][2] );

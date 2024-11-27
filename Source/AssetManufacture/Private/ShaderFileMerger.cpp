@@ -73,7 +73,7 @@ void ShaderFileMerger::MergeRecursive( const std::filesystem::path& shaderFile )
                         for ( const fs::path& directory : candidateDirectories )
                         {
                             fs::path fullPath = directory / trim;
-                            bool notMerged = m_mergedFiles.find( fullPath ) == std::end( m_mergedFiles );
+                            bool notMerged = m_mergedFiles.contains( fullPath ) == false;
                             if ( notMerged && fs::exists( fullPath ) )
                             {
                                 m_mergedFiles.emplace( fullPath );

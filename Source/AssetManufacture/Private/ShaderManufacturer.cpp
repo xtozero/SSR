@@ -18,14 +18,10 @@
 
 namespace fs = std::filesystem;
 
+using ::Microsoft::WRL::ComPtr;
+
 namespace
 {
-	struct ShaderCompileResult
-	{
-		Microsoft::WRL::ComPtr<ID3DBlob> m_byteCode;
-		Microsoft::WRL::ComPtr<ID3DBlob> m_errorMsg;
-	};
-
 	bool ValidateShaderAsset( const AsyncLoadableAsset* asset, const Archive& ar )
 	{
 		Archive rAr( ar.Data(), ar.Size() );
@@ -71,34 +67,41 @@ namespace
 		return false;
 	}
 
-	const char* GetShaderFeatureLevel( const fs::path& fileName )
+	const char* GetShaderTargetProfile( agl::ShaderType shaderType )
 	{
-		std::string name = fileName.filename().generic_string();
-		
-		std::transform( name.begin(), name.end(), name.begin(),
-			[]( unsigned char c )
-			{ 
-				return static_cast<char>( std::tolower( c ) ); 
-			} );
-
-		if ( name.starts_with( "vs" ) )
+		switch ( shaderType )
 		{
+		case agl::ShaderType::None:
+			break;
+		case agl::ShaderType::VS:
 			return "vs_5_0";
-		}
-		else if ( name.starts_with( "gs" ) )
-		{
+			break;
+		case agl::ShaderType::HS:
+			break;
+		case agl::ShaderType::DS:
+			break;
+		case agl::ShaderType::GS:
 			return "gs_5_0";
-		}
-		else if ( name.starts_with( "ps" ) )
-		{
+			break;
+		case agl::ShaderType::PS:
 			return "ps_5_0";
-		}
-		else if ( name.starts_with( "cs" ) )
-		{
+			break;
+		case agl::ShaderType::CS:
 			return "cs_5_0";
+			break;
+		case agl::ShaderType::MS:
+			return "ms_6_5";
+			break;
+		case agl::ShaderType::AS:
+			return "as_6_5";
+			break;
+		case agl::ShaderType::Count:
+			break;
+		default:
+			break;
 		}
 
-		assert( false && "Invalid shader file name" );
+		assert( false && "Invalid shader type" );
 		return "";
 	}
 
@@ -106,7 +109,7 @@ namespace
 	{
 		std::string name = fileName.filename().generic_string();
 
-		std::transform( name.begin(), name.end(), name.begin(),
+		std::transform( std::begin( name ), std::end( name ), std::begin( name ),
 			[]( unsigned char c )
 			{
 				return static_cast<char>( std::tolower( c ) );
@@ -127,6 +130,14 @@ namespace
 		else if ( name.starts_with( "cs" ) )
 		{
 			return agl::ShaderType::CS;
+		}
+		else if ( name.starts_with( "as" ) )
+		{
+			return agl::ShaderType::AS;
+		}
+		else if ( name.starts_with( "ms" ) )
+		{
+			return agl::ShaderType::MS;
 		}
 
 		assert( false && "Invalid shader file name" );
@@ -406,9 +417,9 @@ namespace
 		macros.back().Name = nullptr;
 		macros.back().Definition = nullptr;
 
-		Microsoft::WRL::ComPtr<ID3DBlob> byteCode = nullptr;
-		Microsoft::WRL::ComPtr<ID3DBlob> errorMsg = nullptr;
-		D3DCompile( shaderFile.c_str(),
+		ComPtr<ID3DBlob> byteCode = nullptr;
+		ComPtr<ID3DBlob> errorMsg = nullptr;
+		HRESULT hr = D3DCompile( shaderFile.c_str(),
 			shaderFile.size(),
 			nullptr,
 			macros.data(),
@@ -420,7 +431,12 @@ namespace
 			&byteCode,
 			&errorMsg );
 
-		return { byteCode, errorMsg };
+		if ( SUCCEEDED( hr ) )
+		{
+			errorMsg = nullptr;
+		}
+
+		return ShaderCompileResult( errorMsg, errorMsg ? static_cast<const char*>( errorMsg->GetBufferPointer() ) : nullptr );
 	}
 
 	bool HasExplicitSpace( const char* s )
@@ -466,6 +482,22 @@ namespace
 	}
 }
 
+bool ShaderCompileResult::Succeeded() const
+{
+	return m_errorMsgBlob.Get() == nullptr;
+}
+
+const char* ShaderCompileResult::GetErrorMessage() const
+{
+	return m_errorMsg;
+}
+
+ShaderCompileResult::ShaderCompileResult( const Microsoft::WRL::ComPtr<IUnknown>& errorMsgBlob, const char* errorMsg )
+	: m_errorMsgBlob( errorMsgBlob )
+	, m_errorMsg( errorMsg )
+{
+}
+
 bool ShaderManufacturer::IsSuitable( const std::filesystem::path& srcPath ) const
 {
 	fs::path extension = ToLower( srcPath.extension().generic_string() );
@@ -505,17 +537,14 @@ std::optional<Products> ShaderManufacturer::Manufacture( const PathEnvironment& 
 			bias *= shaderSwitch.NumShaderValues();
 		}
 
-		Name shaderFeatureLevel( GetShaderFeatureLevel( path.filename() ) );
-
-		std::map<uint32, Microsoft::WRL::ComPtr<ID3DBlob>> compiledShaders;
-		std::vector<Microsoft::WRL::ComPtr<ID3DBlob>> errorMsgs;
-		CombinationStaticSwitches( shaderFile, std::string( shaderFeatureLevel.Str() ).c_str(), shaderSwitches, compiledShaders, errorMsgs );
-		if ( compiledShaders.empty() )
+		std::vector<ShaderCompileResult> errorMsgs;
+		std::set<uint32> compiledShaderIDs = CompileShaderCombination( shaderFile, shaderType, shaderSwitches, errorMsgs );
+		if ( compiledShaderIDs.empty() )
 		{
 			std::cout << "\nAn error occurred while compiling " << path.filename().generic_string() << "\n";
 			for ( auto& errorMsg : errorMsgs )
 			{
-				std::cout << static_cast<const char*>( errorMsg->GetBufferPointer() ) << "\n";
+				std::cout << errorMsg.GetErrorMessage() << "\n";
 			}
 			std::cout << "\n";
 			return {};
@@ -524,11 +553,14 @@ std::optional<Products> ShaderManufacturer::Manufacture( const PathEnvironment& 
 		rendercore::UberShader shader;
 		shader.SetName( path.filename().generic_string() );
 		shader.SetShaderType( shaderType );
-		shader.SetProfile( shaderFeatureLevel );
+
+		Name shaderTargetProfile( GetShaderTargetProfile( shaderType ) );
+		shader.SetProfile( shaderTargetProfile );
+
 		shader.SetShaderCode( shaderFile );
 		shader.SetSwitches( shaderSwitches );
 
-		for ( auto& [id, byteCode] : compiledShaders )
+		for ( uint32 id : compiledShaderIDs )
 		{
 			shader.AddValidVariation( id );
 		}
@@ -553,41 +585,137 @@ std::optional<Products> ShaderManufacturer::Manufacture( const PathEnvironment& 
 	return {};
 }
 
-void ShaderManufacturer::CombinationStaticSwitches( const std::string& shaderFile, const char* featureLevel, const rendercore::StaticShaderSwitches& switches, std::map<uint32, Microsoft::WRL::ComPtr<ID3DBlob>>& outCompiledShaders, std::vector<Microsoft::WRL::ComPtr<ID3DBlob>>& outErrorMsgs ) const
+bool ShaderManufacturer::Initialize()
 {
-	rendercore::StaticShaderSwitches copySwitches = switches;
-	CombinationStaticSwitchesRecursive( shaderFile, featureLevel, copySwitches, 0, outCompiledShaders, outErrorMsgs );
+	HRESULT hr = DxcCreateInstance( CLSID_DxcCompiler, IID_PPV_ARGS( m_compiler.GetAddressOf() ) );
+	return SUCCEEDED( hr );
 }
 
-void ShaderManufacturer::CombinationStaticSwitchesRecursive( const std::string& shaderFile, const char* featureLevel, rendercore::StaticShaderSwitches& switches, int32 depth, std::map<uint32, Microsoft::WRL::ComPtr<ID3DBlob>>& outCompiledShaders, std::vector<Microsoft::WRL::ComPtr<ID3DBlob>>& outErrorMsgs ) const
+std::set<uint32> ShaderManufacturer::CompileShaderCombination( const std::string& shaderFile, agl::ShaderType shaderType, const rendercore::StaticShaderSwitches& switches, std::vector<ShaderCompileResult>& outErrorMsgs ) const
+{
+	std::set<uint32> compiledShaderIDs;
+
+	rendercore::StaticShaderSwitches copySwitches = switches;
+	CompileShaderCombination( shaderFile, shaderType, copySwitches, 0, compiledShaderIDs, outErrorMsgs );
+
+	return compiledShaderIDs;
+}
+
+void ShaderManufacturer::CompileShaderCombination( const std::string& shaderFile, agl::ShaderType shaderType, rendercore::StaticShaderSwitches& switches, int32 depth, std::set<uint32>& outCompiledShaderIDs, std::vector<ShaderCompileResult>& outErrorMsgs ) const
 {
 	if ( switches.Configs().size() == depth )
 	{
-		ShaderCompileResult compileResult = CompileD3D11Shader( shaderFile, featureLevel, switches );
-		if ( compileResult.m_byteCode )
+		ShaderCompileResult compileResult;
+
+		const char* targetProfile = GetShaderTargetProfile( shaderType );
+		if ( ( shaderType == agl::ShaderType::MS ) || ( shaderType == agl::ShaderType::AS ) )
 		{
-			auto result = outCompiledShaders.emplace( switches.GetID(), compileResult.m_byteCode );
+			compileResult = CompileD3D12Shader( shaderFile, targetProfile, switches );
+		}
+		else
+		{
+			compileResult = CompileD3D11Shader( shaderFile, targetProfile, switches );
+		}
+		
+		if ( compileResult.Succeeded() )
+		{
+			auto result = outCompiledShaderIDs.emplace( switches.GetID() );
 			assert( result.second );
 		}
-		else if ( compileResult.m_errorMsg )
+		else
 		{
-			outErrorMsgs.emplace_back( compileResult.m_errorMsg );
+			outErrorMsgs.emplace_back( compileResult );
 		}
 
 		return;
 	}
 
-	auto iter = switches.Configs().begin();
+	auto iter = std::begin( switches.Configs() );
 	std::advance( iter, depth );
 
 	const rendercore::StaticShaderSwitch& curSwitch = iter->second;
 
 	switches.Off( iter->first );
-	CombinationStaticSwitchesRecursive( shaderFile, featureLevel, switches, depth + 1, outCompiledShaders, outErrorMsgs );
+	CompileShaderCombination( shaderFile, shaderType, switches, depth + 1, outCompiledShaderIDs, outErrorMsgs );
 
 	for ( int32 i = curSwitch.m_min; i <= curSwitch.m_max; ++i )
 	{
 		switches.On( iter->first, i );
-		CombinationStaticSwitchesRecursive( shaderFile, featureLevel, switches, depth + 1, outCompiledShaders, outErrorMsgs );
+		CompileShaderCombination( shaderFile, shaderType, switches, depth + 1, outCompiledShaderIDs, outErrorMsgs );
 	}
+}
+
+ShaderCompileResult ShaderManufacturer::CompileD3D12Shader( const std::string& shaderFile, const char* featureLevel, const rendercore::StaticShaderSwitches& switches ) const
+{
+	DxcBuffer buffer = {
+		.Ptr = shaderFile.data(),
+		.Size = shaderFile.size(),
+		.Encoding = DXC_CP_ACP
+	};
+
+	std::vector<const wchar_t*> args;
+
+	// entry point
+	args.push_back( L"-E" );
+	args.push_back( L"main" );
+
+	// target profile
+	args.push_back( L"-T" );
+
+	wchar_t wFeatureLevel[8] = {};
+	{
+		ToWideChar( wFeatureLevel, std::extent_v<decltype( wFeatureLevel )>, featureLevel );
+	}
+
+	args.push_back( wFeatureLevel );
+
+	// defines
+	const auto& configs = switches.Configs();
+
+	constexpr int32 MaxDefineLen = 256;
+	std::vector<std::array<wchar_t, MaxDefineLen>> defineStorage;
+	defineStorage.reserve( configs.size() );
+
+	for ( const auto& [name, shaderSwitch] : configs )
+	{
+		if ( shaderSwitch.m_on == false )
+		{
+			continue;
+		}
+
+		std::array<char, MaxDefineLen> define;
+		SPrintf( define.data(), MaxDefineLen, "%s=%s", name.Str().data(), std::to_string( shaderSwitch.m_current ).c_str() );
+
+		defineStorage.emplace_back();
+		std::array<wchar_t, MaxDefineLen>& wDefine = defineStorage.back();
+
+		ToWideChar( wDefine.data(), MaxDefineLen, define.data() );
+
+		args.push_back( L"-D" );
+		args.push_back( wDefine.data() );
+	}
+
+	ComPtr<IDxcResult> results;
+	m_compiler->Compile( &buffer
+		, args.data()
+		, static_cast<uint32>( args.size() )
+		, nullptr
+		, IID_PPV_ARGS( results.GetAddressOf() ) );
+
+	HRESULT hr = S_OK;
+	results->GetStatus( &hr );
+
+	ComPtr<IDxcBlob> byteCode = nullptr;
+	ComPtr<IDxcBlobEncoding> errorMsg = nullptr;
+	if ( SUCCEEDED( hr ) )
+	{
+		ComPtr<IDxcBlobUtf16> shaderName = nullptr;
+		results->GetOutput( DXC_OUT_OBJECT, IID_PPV_ARGS( byteCode.GetAddressOf() ), shaderName.GetAddressOf() );
+	}
+	else
+	{
+		results->GetErrorBuffer( errorMsg.GetAddressOf() );
+	}
+
+	return ShaderCompileResult( errorMsg, errorMsg ? static_cast<const char*>( errorMsg->GetBufferPointer() ) : nullptr );
 }

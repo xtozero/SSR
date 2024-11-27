@@ -65,4 +65,16 @@ namespace agl
 	public:
 		AGL_DLL static RefHandle<ComputeShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
 	};
+
+	class AmplificationShader : public GraphicsApiResource
+	{
+	public:
+		AGL_DLL static RefHandle<AmplificationShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
+	};
+
+	class MeshShader : public GraphicsApiResource
+	{
+	public:
+		AGL_DLL static RefHandle<MeshShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
+	};
 }

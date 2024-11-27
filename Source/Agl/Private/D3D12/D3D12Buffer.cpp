@@ -46,6 +46,10 @@ namespace
 	D3D12_RESOURCE_DESC ConvertTraitToDesc( const BufferTrait& trait )
 	{
 		uint64 bufferSize = trait.m_stride * trait.m_count;
+		if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::BufferAllowRawViews ) )
+		{
+			bufferSize = CalcAlignment<uint64>( bufferSize, 4 );
+		}
 
 		D3D12_RESOURCE_DESC desc = {
 			.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER,
@@ -66,6 +70,12 @@ namespace
 		return desc;
 	}
 
+	uint32 NumRawViewElements( const BufferTrait& trait )
+	{
+		auto bufferSize = CalcAlignment<uint32>( trait.m_stride * trait.m_count, 4 );
+		return bufferSize / 4;
+	}
+
 	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertDescToSRV( const BufferTrait& trait, DXGI_FORMAT format )
 	{
 		bool bStructured = HasAnyFlags( trait.m_miscFlag, ResourceMisc::BufferStructured );
@@ -79,18 +89,11 @@ namespace
 			.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
 			.Buffer = {
 				.FirstElement = 0,
-				.NumElements = trait.m_count,
+				.NumElements = bAllowRawViews ? NumRawViewElements( trait ) : trait.m_count,
 				.StructureByteStride = bStructured ? trait.m_stride : 0,
 				.Flags = bAllowRawViews ? D3D12_BUFFER_SRV_FLAG_RAW : D3D12_BUFFER_SRV_FLAG_NONE
 			}
 		};
-
-#if _DEBUG
-		if ( bAllowRawViews )
-		{
-			assert( ( ( trait.m_stride % 4 ) == 0 ) );
-		}
-#endif
 
 		return srv;
 	}
@@ -107,19 +110,12 @@ namespace
 			.ViewDimension = D3D12_UAV_DIMENSION_BUFFER,
 			.Buffer = {
 				.FirstElement = 0,
-				.NumElements = trait.m_count,
+				.NumElements = bAllowRawViews ? NumRawViewElements( trait ) : trait.m_count,
 				.StructureByteStride = bStructured ? trait.m_stride : 0,
 				.CounterOffsetInBytes = 0,
 				.Flags = bAllowRawViews ? D3D12_BUFFER_UAV_FLAG_RAW : D3D12_BUFFER_UAV_FLAG_NONE
 			}
 		};
-
-#if _DEBUG
-		if ( bAllowRawViews )
-		{
-			assert( ( ( trait.m_stride % 4 ) == 0 ) );
-		}
-#endif
 
 		return uav;
 	}
@@ -176,7 +172,7 @@ namespace agl
 		}
 		else
 		{
-			// ToDo
+			// TODO
 		}
 
 		if ( resource == nullptr )

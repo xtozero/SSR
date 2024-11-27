@@ -13,7 +13,7 @@ namespace
 	uint64 ShaderHash( const std::string& name, const StaticShaderSwitches& switches )
 	{
 		char buf[1024] = {};
-		int32 len = sprintf_s( buf, "%s_%d", name.c_str(), switches.GetID() );
+		int32 len = SPrintf( buf, std::extent_v<decltype(buf)>, "%s_%d", name.c_str(), switches.GetID() );
 
 		return Crc64Hash( buf, len );
 	}
@@ -53,6 +53,12 @@ namespace rendercore
 			}
 		}
 
+		bool bMeshShader = ( m_type == agl::ShaderType::AS ) || ( m_type == agl::ShaderType::MS );
+		if ( bMeshShader && ( GetInterface<agl::IAgl>()->IsSupportsMeshShader() == false ) )
+		{
+			return nullptr;
+		}
+
 		std::vector<const char*> defines;
 		defines.reserve( ( switches.Configs().size() + 1 ) << 1 );
 
@@ -70,7 +76,7 @@ namespace rendercore
 			defines.emplace_back( name.Str().data() );
 			defines.emplace_back( value );
 
-			sprintf_s( value, valueBufferSize, "%d", shaderSwitch.m_current );
+			SPrintf( value, valueBufferSize, "%d", shaderSwitch.m_current );
 			size_t offset = std::strlen( value ) + 1;
 
 			assert( ( valueBufferSize - offset ) < 1024 );
@@ -82,6 +88,10 @@ namespace rendercore
 		defines.emplace_back( nullptr );
 
 		BinaryChunk byteCode = GraphicsInterface().CompieShader( m_shaderCode, defines, m_profile.Str().data() );
+		if ( byteCode.Size() == 0 )
+		{
+			return nullptr;
+		}
 
 		ShaderBase* shader = nullptr;
 		switch ( static_cast<agl::ShaderType>( m_type ) )
@@ -97,6 +107,12 @@ namespace rendercore
 			break;
 		case agl::ShaderType::CS:
 			shader = new ComputeShader( std::move( byteCode ), shaderHash );
+			break;
+		case agl::ShaderType::AS:
+			shader = new AmplificationShader( std::move( byteCode ), shaderHash );
+			break;
+		case agl::ShaderType::MS:
+			shader = new MeshShader( std::move( byteCode ), shaderHash );
 			break;
 		default:
 			assert( false && "Invalid shader type" );

@@ -7,6 +7,7 @@
 
 namespace agl
 {
+	class AmplificationShader;
 	class BlendState;
 	class Buffer;
 	class Canvas;
@@ -17,6 +18,7 @@ namespace agl
 	class GeometryShader;
 	class GraphicsPipelineState;
 	class GraphicsPipelineStateInitializer;
+	class MeshShader;
 	class OcclusionQuery;
 	class PixelShader;
 	class GpuTimer;
@@ -42,6 +44,8 @@ namespace agl
 		virtual VertexShader* CreateVertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const = 0;
 		virtual GeometryShader* CreateGeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const = 0;
 		virtual PixelShader* CreatePixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const = 0;
+		virtual AmplificationShader* CreateAmplificationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const = 0;
+		virtual MeshShader* CreateMeshShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const = 0;
 
 		virtual BlendState* CreateBlendState( const BlendStateTrait& trait ) const = 0;
 		virtual DepthStencilState* CreateDepthStencilState( const DepthStencilStateTrait& trait ) const = 0;

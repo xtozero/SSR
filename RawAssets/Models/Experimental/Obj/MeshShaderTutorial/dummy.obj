@@ -1,0 +1,8 @@
+# Exported from 3D Builder
+mtllib dummy.mtl
+
+o Object.1
+v 0.000000 0.000000 0.000000
+
+usemtl 0_0
+f 1 1 1

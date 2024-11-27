@@ -212,7 +212,13 @@ namespace rendercore
 		// Set shader resources
 		commandList.BindShaderResources( snapshot.m_shaderBindings );
 
-		if ( indexBuffer )
+		bool bUseMeshShader = snapshot.m_pipelineState.m_shaderState.m_meshShader != nullptr;
+		if ( bUseMeshShader )
+		{
+			// TODO : Call DispatchMesh with proper arguments
+			commandList.DispatchMesh( 1, 1 );
+		}
+		else if( indexBuffer )
 		{
 			commandList.DrawIndexedInstanced( snapshot.m_count, visibleSnapshot.m_numInstance, snapshot.m_startIndexLocation, snapshot.m_baseVertexLocation );
 		}

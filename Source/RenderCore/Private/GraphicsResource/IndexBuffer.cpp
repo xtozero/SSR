@@ -68,12 +68,16 @@ namespace rendercore
 			? ( agl::ResourceAccessFlag::Upload ) 
 			: ( agl::ResourceAccessFlag::Default );
 
+		bool bSupportsMeshShader = GetInterface<agl::IAgl>()->IsSupportsMeshShader();
+		auto bindType = bSupportsMeshShader ? ( agl::ResourceBindType::IndexBuffer | agl::ResourceBindType::ShaderResource ) : agl::ResourceBindType::IndexBuffer;
+		auto miscFlag = bSupportsMeshShader ? agl::ResourceMisc::BufferAllowRawViews : agl::ResourceMisc::None;
+
 		agl::BufferTrait trait = {
 			.m_stride = m_isDWORD ? sizeof( uint32 ) : sizeof( uint16 ),
 			.m_count = m_numElement,
 			.m_access = accessFlag,
-			.m_bindType = agl::ResourceBindType::IndexBuffer,
-			.m_miscFlag = agl::ResourceMisc::None,
+			.m_bindType = bindType,
+			.m_miscFlag = miscFlag,
 			.m_format = agl::ResourceFormat::Unknown
 		};
 

@@ -742,8 +742,7 @@ namespace Wavefront
 			auto found = std::find_if( std::begin( m_materialLut ), std::end( m_materialLut ),
 				[&name]( const MaterialList& ml )
 				{
-					auto found = ml.m_materialNames.find( name );
-					return found != std::end( ml.m_materialNames );
+					return ml.m_materialNames.contains( name );
 				} );
 
 			std::string mtlName;

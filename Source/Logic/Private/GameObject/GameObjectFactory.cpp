@@ -15,7 +15,7 @@ namespace logic
 		virtual Owner<CGameObject*> CreateGameObjectByClassName( const std::string& className ) const override
 		{
 			auto found = m_createHelpers.find( Name( className ) );
-			if ( found != m_createHelpers.end() )
+			if ( found != std::end( m_createHelpers ) )
 			{
 				return found->second->Create();
 			}

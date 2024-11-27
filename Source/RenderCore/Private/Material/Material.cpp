@@ -125,17 +125,17 @@ namespace rendercore
 	void Material::AddProperty( const char* key, int32 value )
 	{
 		auto found = m_properties.find( Name( key ) );
-		if ( found != m_properties.end() )
+		if ( found != std::end( m_properties ) )
 		{
 			const std::unique_ptr<MaterialProperty>& property = found->second;
 			if ( property && ( property->Type() != MaterialPropertyType::Int ) )
 			{
 				m_properties.erase( found );
-				found = m_properties.end();
+				found = std::end( m_properties );
 			}
 		}
 
-		if ( found == m_properties.end() )
+		if ( found == std::end( m_properties ) )
 		{
 			auto result = m_properties.emplace( key, new IntProperty( value ) );
 			found = result.first;
@@ -148,17 +148,17 @@ namespace rendercore
 	void Material::AddProperty( const char* key, float value )
 	{
 		auto found = m_properties.find( Name( key ) );
-		if ( found != m_properties.end() )
+		if ( found != std::end( m_properties ) )
 		{
 			const std::unique_ptr<MaterialProperty>& property = found->second;
 			if ( property && ( property->Type() != MaterialPropertyType::Int ) )
 			{
 				m_properties.erase( found );
-				found = m_properties.end();
+				found = std::end( m_properties );
 			}
 		}
 
-		if ( found == m_properties.end() )
+		if ( found == std::end( m_properties ) )
 		{
 			auto result = m_properties.emplace( key, new FloatProperty( value ) );
 			found = result.first;
@@ -171,17 +171,17 @@ namespace rendercore
 	void Material::AddProperty( const char* key, const Vector4& value )
 	{
 		auto found = m_properties.find( Name( key ) );
-		if ( found != m_properties.end() )
+		if ( found != std::end( m_properties ) )
 		{
 			const std::unique_ptr<MaterialProperty>& property = found->second;
 			if ( property && ( property->Type() != MaterialPropertyType::Int ) )
 			{
 				m_properties.erase( found );
-				found = m_properties.end();
+				found = std::end( m_properties );
 			}
 		}
 
-		if ( found == m_properties.end() )
+		if ( found == std::end( m_properties ) )
 		{
 			auto result = m_properties.emplace( key, new Float4Property( value ) );
 			found = result.first;
@@ -194,17 +194,17 @@ namespace rendercore
 	void Material::AddProperty( const char* key, const std::shared_ptr<Texture>& value )
 	{
 		auto found = m_properties.find( Name( key ) );
-		if ( found != m_properties.end() )
+		if ( found != std::end( m_properties ) )
 		{
 			const std::unique_ptr<MaterialProperty>& property = found->second;
 			if ( property && ( property->Type() != MaterialPropertyType::Int ) )
 			{
 				m_properties.erase( found );
-				found = m_properties.end();
+				found = std::end( m_properties );
 			}
 		}
 
-		if ( found == m_properties.end() )
+		if ( found == std::end( m_properties ) )
 		{
 			auto result = m_properties.emplace( key, new TextureProperty( value ) );
 			found = result.first;
@@ -222,7 +222,7 @@ namespace rendercore
 	const MaterialProperty* Material::AsProperty( const char* key ) const
 	{
 		auto found = m_properties.find( Name( key ) );
-		if ( found != m_properties.end() )
+		if ( found != std::end( m_properties ) )
 		{
 			return found->second.get();
 		}
@@ -233,8 +233,7 @@ namespace rendercore
 	int32 Material::AsInteger( const char* key ) const
 	{
 		auto found = m_properties.find( Name( key ) );
-
-		if ( found != m_properties.end() )
+		if ( found != std::end( m_properties ) )
 		{
 			const auto& property = found->second;
 			if ( property && ( property->Type() == MaterialPropertyType::Int ) )
@@ -250,8 +249,7 @@ namespace rendercore
 	float Material::AsFloat( const char* key ) const
 	{
 		auto found = m_properties.find( Name( key ) );
-
-		if ( found != m_properties.end() )
+		if ( found != std::end( m_properties ) )
 		{
 			const std::unique_ptr<MaterialProperty>& property = found->second;
 			if ( property && ( property->Type() == MaterialPropertyType::Float ) )
@@ -267,8 +265,7 @@ namespace rendercore
 	const Vector4& Material::AsVector( const char* key ) const
 	{
 		auto found = m_properties.find( Name( key ) );
-
-		if ( found != m_properties.end() )
+		if ( found != std::end( m_properties ) )
 		{
 			const std::unique_ptr<MaterialProperty>& property = found->second;
 			if ( property && ( property->Type() == MaterialPropertyType::Float4 ) )
@@ -284,8 +281,7 @@ namespace rendercore
 	Texture* Material::AsTexture( const char* key ) const
 	{
 		auto found = m_properties.find( Name( key ) );
-
-		if ( found != m_properties.end() )
+		if ( found != std::end( m_properties ) )
 		{
 			const std::unique_ptr<MaterialProperty>& property = found->second;
 			if ( property && ( property->Type() == MaterialPropertyType::Texture ) )
@@ -301,8 +297,7 @@ namespace rendercore
 	const SamplerOption* Material::AsSampelrOption( const char* key ) const
 	{
 		auto found = m_samplers.find( Name( key ) );
-
-		if ( found != m_samplers.end() )
+		if ( found != std::end( m_samplers ) )
 		{
 			return &found->second;
 		}
@@ -313,8 +308,7 @@ namespace rendercore
 	void Material::CopyProperty( const char* key, void* dest ) const
 	{
 		auto found = m_properties.find( Name( key ) );
-
-		if ( found != m_properties.end() )
+		if ( found != std::end( m_properties ) )
 		{
 			MaterialProperty& property = *found->second;
 			property.CopyValue( dest );
@@ -324,7 +318,7 @@ namespace rendercore
 	bool Material::HasProperty( const char* key ) const
 	{
 		auto found = m_properties.find( Name( key ) );
-		if ( found != m_properties.end() )
+		if ( found != std::end( m_properties ) )
 		{
 			return found->second != nullptr;
 		}
@@ -358,6 +352,12 @@ namespace rendercore
 			break;
 		case agl::ShaderType::CS:
 			break;
+		case agl::ShaderType::AS:
+			return GetAmplificationShader();
+			break;
+		case agl::ShaderType::MS:
+			return GetMeshShader();
+			break;
 		case agl::ShaderType::Count:
 			[[fallthrough]];
 		default:
@@ -372,32 +372,9 @@ namespace rendercore
 		m_shaders[static_cast<uint32>( agl::ShaderType::VS )] = vertexshader;
 	}
 
-	const VertexShader* Material::GetVertexShader( const StaticShaderSwitches* switches ) const
+	VertexShader* Material::GetVertexShader( const StaticShaderSwitches* switches ) const
 	{
-		auto& vertexShader = m_shaders[static_cast<uint32>( agl::ShaderType::VS )];
-		if ( vertexShader == nullptr )
-		{
-			return nullptr;
-		}
-
-		const StaticShaderSwitches& compileOption = switches ? *switches : m_shaderSwitches[static_cast<uint32>( agl::ShaderType::VS )];
-
-		const ShaderBase* compiled = vertexShader->CompileShader( compileOption );
-		return static_cast<const VertexShader*>( compiled );
-	}
-
-	VertexShader* Material::GetVertexShader( const StaticShaderSwitches* switches )
-	{
-		auto& vertexShader = m_shaders[static_cast<uint32>( agl::ShaderType::VS )];
-		if ( vertexShader == nullptr )
-		{
-			return nullptr;
-		}
-
-		const StaticShaderSwitches& compileOption = switches ? *switches : m_shaderSwitches[static_cast<uint32>( agl::ShaderType::VS )];
-
-		ShaderBase* compiled = vertexShader->CompileShader( compileOption );
-		return static_cast<VertexShader*>( compiled );
+		return static_cast<VertexShader*>( GetCompiledShader( agl::ShaderType::VS, switches ) );
 	}
 
 	void Material::SetGeometryShader( const std::shared_ptr<GeometryShader>& geometryShader )
@@ -405,32 +382,9 @@ namespace rendercore
 		m_shaders[static_cast<uint32>( agl::ShaderType::GS )] = geometryShader;
 	}
 
-	const GeometryShader* Material::GetGeometryShader( const StaticShaderSwitches* switches ) const
+	GeometryShader* Material::GetGeometryShader( const StaticShaderSwitches* switches ) const
 	{
-		auto& geometryShader = m_shaders[static_cast<uint32>( agl::ShaderType::GS )];
-		if ( geometryShader == nullptr )
-		{
-			return nullptr;
-		}
-
-		const StaticShaderSwitches& compileOption = switches ? *switches : m_shaderSwitches[static_cast<uint32>( agl::ShaderType::GS )];
-
-		const ShaderBase* compiled = geometryShader->CompileShader( compileOption );
-		return static_cast<const GeometryShader*>( compiled );
-	}
-
-	GeometryShader* Material::GetGeometryShader( const StaticShaderSwitches* switches )
-	{
-		auto& geometryShader = m_shaders[static_cast<uint32>( agl::ShaderType::GS )];
-		if ( geometryShader == nullptr )
-		{
-			return nullptr;
-		}
-
-		const StaticShaderSwitches& compileOption = switches ? *switches : m_shaderSwitches[static_cast<uint32>( agl::ShaderType::GS )];
-
-		ShaderBase* compiled = geometryShader->CompileShader( compileOption );
-		return static_cast<GeometryShader*>( compiled );
+		return static_cast<GeometryShader*>( GetCompiledShader( agl::ShaderType::GS, switches ) );
 	}
 
 	void Material::SetPixelShader( const std::shared_ptr<PixelShader>& pixelShader )
@@ -438,37 +392,39 @@ namespace rendercore
 		m_shaders[static_cast<uint32>( agl::ShaderType::PS )] = pixelShader;
 	}
 
-	const PixelShader* Material::GetPixelShader( const StaticShaderSwitches* switches ) const
+	PixelShader* Material::GetPixelShader( const StaticShaderSwitches* switches ) const
 	{
-		auto& pixelShader = m_shaders[static_cast<uint32>( agl::ShaderType::PS )];
-		if ( pixelShader == nullptr )
-		{
-			return nullptr;
-		}
-
-		const StaticShaderSwitches& compileOption = switches ? *switches : m_shaderSwitches[static_cast<uint32>( agl::ShaderType::PS )];
-
-		const ShaderBase* compiled = pixelShader->CompileShader( compileOption );
-		return static_cast<const PixelShader*>( compiled );
+		return static_cast<PixelShader*>( GetCompiledShader( agl::ShaderType::PS, switches ) );
 	}
 
-	PixelShader* Material::GetPixelShader( const StaticShaderSwitches* switches )
+	RENDERCORE_DLL void Material::SetAmplificationShader( const std::shared_ptr<AmplificationShader>& amplificationShader )
 	{
-		auto& pixelShader = m_shaders[static_cast<uint32>( agl::ShaderType::PS )];
-		if ( pixelShader == nullptr )
-		{
-			return nullptr;
-		}
+		m_shaders[static_cast<uint32>( agl::ShaderType::AS )] = amplificationShader;
+	}
 
-		const StaticShaderSwitches& compileOption = switches ? *switches : m_shaderSwitches[static_cast<uint32>( agl::ShaderType::PS )];
+	AmplificationShader* Material::GetAmplificationShader( const StaticShaderSwitches* switches ) const
+	{
+		return static_cast<AmplificationShader*>( GetCompiledShader( agl::ShaderType::AS, switches ) );
+	}
 
-		ShaderBase* compiled = pixelShader->CompileShader( compileOption );
-		return static_cast<PixelShader*>( compiled );
+	RENDERCORE_DLL void Material::SetMeshShader( const std::shared_ptr<MeshShader>& meshShader )
+	{
+		m_shaders[static_cast<uint32>( agl::ShaderType::MS )] = meshShader;
+	}
+
+	MeshShader* Material::GetMeshShader( const StaticShaderSwitches* switches ) const
+	{
+		return static_cast<MeshShader*>( GetCompiledShader( agl::ShaderType::MS, switches ) );
 	}
 
 	void Material::AddSampler( const std::string& key, const SamplerOption& samplerOption )
 	{
 		m_samplers.emplace( Name( key ), samplerOption );
+	}
+
+	bool Material::UseMeshShader() const
+	{
+		return ( m_shaders[static_cast<uint32>( agl::ShaderType::MS )].get() != nullptr ) && ( GetInterface<agl::IAgl>()->IsSupportsMeshShader() == false );
 	}
 
 	StaticShaderSwitches Material::GetShaderSwitches( agl::ShaderType type )
@@ -516,5 +472,18 @@ namespace rendercore
 
 		m_materialResource = std::make_unique<MaterialResource>();
 		m_materialResource->SetMaterial( std::static_pointer_cast<Material>( SharedThis() ) );
+	}
+
+	ShaderBase* Material::GetCompiledShader( agl::ShaderType type, const StaticShaderSwitches* switches ) const
+	{
+		auto& shader = m_shaders[static_cast<uint32>( type )];
+		if ( shader == nullptr )
+		{
+			return nullptr;
+		}
+
+		const StaticShaderSwitches& compileOption = switches ? *switches : m_shaderSwitches[static_cast<uint32>( type )];
+
+		return shader->CompileShader( compileOption );
 	}
 }

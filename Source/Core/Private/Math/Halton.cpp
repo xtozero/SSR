@@ -25,7 +25,7 @@ namespace
 	template <uint64 base>
 	float RadicalInverse( uint64 a )
 	{
-		constexpr float invBase = 1.f / base;
+		constexpr float InvBase = 1.f / base;
 		uint64 reversedDigits = 0;
 		float invBaseN = 1;
 
@@ -34,7 +34,7 @@ namespace
 			uint64 next = a / base;
 			uint64 digit = a % base;
 			reversedDigits = reversedDigits * base + digit;
-			invBaseN *= invBase;
+			invBaseN *= InvBase;
 			a = next;
 		}
 

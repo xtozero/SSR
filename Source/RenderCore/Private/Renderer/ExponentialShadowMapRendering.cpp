@@ -19,8 +19,8 @@ namespace
 {
 	float Gaussian( int32 x, float sigma )
 	{
-		constexpr float pi = std::numbers::pi_v<float>;
-		return 1.f / ( std::sqrtf( 2.f * pi ) * sigma ) * std::expf( -( x * x ) / ( 2.f * sigma * sigma ) );
+		constexpr float Pi = std::numbers::pi_v<float>;
+		return 1.f / ( std::sqrtf( 2.f * Pi ) * sigma ) * std::expf( -( x * x ) / ( 2.f * sigma * sigma ) );
 	}
 }
 

@@ -74,10 +74,10 @@ namespace rendercore
 			switches.On( Name( "TAA" ), 1 );
 		}
 
-		PassShader passShader{
-			DepthWriteVS( switches ),
-			nullptr,
-			DepthWritePS()
+		PassShader passShader = {
+			.m_vertexShader = DepthWriteVS( switches ),
+			.m_pixelShader = DepthWritePS()
+			// TODO : Add MeshShader
 		};
 
 		return passShader;

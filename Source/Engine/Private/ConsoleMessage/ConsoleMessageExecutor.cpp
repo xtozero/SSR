@@ -18,7 +18,7 @@ namespace engine
 		{
 			auto found = m_consoleMessages.find( name );
 
-			if ( found != m_consoleMessages.end() )
+			if ( found != std::end( m_consoleMessages ) )
 			{
 				m_consoleMessages.erase( found );
 			}
@@ -53,7 +53,7 @@ namespace engine
 
 			auto found = m_consoleMessages.find( m_argV[0] );
 
-			if ( found != m_consoleMessages.end() )
+			if ( found != std::end( m_consoleMessages ) )
 			{
 				if ( found->second == nullptr )
 				{

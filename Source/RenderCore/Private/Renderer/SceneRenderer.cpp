@@ -52,6 +52,8 @@ namespace rendercore
 			shaders.m_geometryShader,
 			shaders.m_pixelShader,
 			nullptr, // CS
+			shaders.m_amplificationShader,
+			shaders.m_meshShader
 		};
 
 		for ( uint32 shaderType = 0; shaderType < agl::MAX_SHADER_TYPE<uint32>; ++shaderType )
@@ -1348,7 +1350,7 @@ namespace rendercore
 				}
 				else
 				{
-					// ToDo : Is this line really necessary?
+					// TODO : Is this line really necessary?
 				}
 			}
 

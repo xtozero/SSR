@@ -20,7 +20,7 @@ namespace rendercore
 		{
 			auto [typeIndex, assetPath] = pathPair;
 
-			if ( m_shaders.find( typeIndex ) != std::end( m_shaders ) )
+			if ( m_shaders.contains( typeIndex ) )
 			{
 				continue;
 			}
@@ -54,8 +54,7 @@ namespace rendercore
 
 	bool GlobalShaders::RegisterShader( std::type_index typeIndex, const std::shared_ptr<IShader>& shader )
 	{
-		auto found = m_shaders.find( typeIndex );
-		assert( found == std::end( m_shaders ) );
+		assert( m_shaders.contains( typeIndex ) == false );
 
 		m_shaders[typeIndex] = shader;
 		--m_loadingInProgress;
@@ -65,8 +64,7 @@ namespace rendercore
 
 	bool GlobalShaders::RegisterShaderPath( std::type_index typeIndex, const char* path )
 	{
-		auto found = m_shaderAssetPaths.find( typeIndex );
-		if ( found != std::end( m_shaderAssetPaths ) )
+		if ( m_shaderAssetPaths.contains( typeIndex ) )
 		{
 			return false;
 		}

@@ -77,7 +77,7 @@ namespace
 		rendercore::MeshVertexInstance vi( posIdx, normalIdx, texIdx );
 		auto found = viLut.find( vi );
 
-		if ( found == viLut.end() )
+		if ( found == std::end( viLut ) )
 		{
 			vertexInstanceID = vertexInstances.size();
 			vertexInstances.emplace_back( vi );
@@ -206,8 +206,7 @@ namespace
 				continue;
 			}
 
-			auto found = uniqueMaterial.find( mesh.m_materialName );
-			if ( found == uniqueMaterial.end() )
+			if ( uniqueMaterial.contains( mesh.m_materialName ) == false )
 			{
 				uniqueMaterial.emplace( mesh.m_materialName );
 

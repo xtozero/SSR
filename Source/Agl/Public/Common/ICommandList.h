@@ -43,6 +43,7 @@ namespace agl
 		virtual void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation ) = 0;
 		virtual void DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) = 0;
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) = 0;
+		virtual void DispatchMesh( uint32 x, uint32 y, uint32 z = 1 ) = 0;
 
 		virtual void SetViewports( uint32 count, const CubeArea<float>* areas ) = 0;
 		virtual void SetScissorRects( uint32 count, const RectangleArea<int32>* areas ) = 0;

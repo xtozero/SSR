@@ -108,10 +108,9 @@ namespace rendercore
 
 	std::optional<DrawSnapshot> SkyAtmosphereDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
 	{
-		PassShader passShader{
-				FullScreenQuadVS(),
-				nullptr,
-				DrawAtmospherePS()
+		PassShader passShader = {
+			.m_vertexShader = FullScreenQuadVS(),
+			.m_pixelShader = DrawAtmospherePS()
 		};
 
 		BlendOption skyAtmosphereDrawPassBlendOption;
@@ -486,9 +485,9 @@ namespace rendercore
 			auto src = GraphicsInterface().Lock( irradianceReadBack, agl::ResourceLockFlag::Read );
 			auto srcData = static_cast<uint8*>( src.m_data );
 
-			constexpr size_t rowSize = sizeof( Vector4 ) * IRRADIANCE_W;
+			constexpr size_t RowSize = sizeof( Vector4 ) * IRRADIANCE_W;
 
-			commandList.UpdateSubresource( info.GetIrradianceLutTexture(), srcData, rowSize );
+			commandList.UpdateSubresource( info.GetIrradianceLutTexture(), srcData, RowSize );
 			GraphicsInterface().UnLock( irradianceReadBack );
 		}
 
@@ -512,9 +511,9 @@ namespace rendercore
 			auto src = GraphicsInterface().Lock( inscatterReadBack, agl::ResourceLockFlag::Read );
 			auto srcData = static_cast<uint8*>( src.m_data );
 
-			constexpr size_t rowSize = sizeof( Vector4 ) * RES_MU_S * RES_NU;
+			constexpr size_t RowSize = sizeof( Vector4 ) * RES_MU_S * RES_NU;
 
-			commandList.UpdateSubresource( info.GetInscatterLutTexture(), srcData, rowSize );
+			commandList.UpdateSubresource( info.GetInscatterLutTexture(), srcData, RowSize );
 			GraphicsInterface().UnLock( inscatterReadBack );
 		}
 

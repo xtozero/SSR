@@ -302,6 +302,20 @@ namespace
 					}
 					case agl::ShaderType::CS:
 						break;
+					case agl::ShaderType::AS:
+					{
+						auto as = std::make_shared<rendercore::AmplificationShader>();
+						as->SetPath( shaderPath->AsString() );
+						material->SetAmplificationShader( as );
+						break;
+					}
+					case agl::ShaderType::MS:
+					{
+						auto ms = std::make_shared<rendercore::MeshShader>();
+						ms->SetPath( shaderPath->AsString() );
+						material->SetMeshShader( ms );
+						break;
+					}
 					case agl::ShaderType::Count:
 						[[fallthrough]];
 					case agl::ShaderType::None:

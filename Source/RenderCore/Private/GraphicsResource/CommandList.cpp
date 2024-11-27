@@ -52,6 +52,12 @@ namespace rendercore
 		BindPipelineState( static_cast<agl::ComputePipelineState*>( nullptr ) );
 	}
 
+	void CommandList::DispatchMesh( uint32 x, uint32 y, uint32 z )
+	{
+		assert( GetInterface<agl::IAgl>()->IsSupportsMeshShader() );
+		m_imple.DispatchMesh( x, y, z );
+	}
+
 	void CommandList::SetViewports( uint32 count, const CubeArea<float>* areas )
 	{
 		m_imple.SetViewports( count, areas );

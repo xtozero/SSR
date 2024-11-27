@@ -178,6 +178,14 @@ namespace agl
 		m_globalConstantBuffers.Reset( true );
 	}
 
+	void D3D12CommandListImpl::DispatchMesh( uint32 x, uint32 y, uint32 z )
+	{
+		m_barrierBatcher.Commit( *this );
+		m_globalConstantBuffers.CommitShaderValue( false );
+		CommandList().DispatchMesh( x, y, z );
+		m_globalConstantBuffers.Reset( false );
+	}
+
 	void D3D12CommandListImpl::SetViewports( uint32 count, const CubeArea<float>* area )
 	{
 		m_stateCache.SetViewports( CommandList(), count, area );
@@ -493,6 +501,11 @@ namespace agl
 		m_imple.Dispatch( x, y, z );
 	}
 
+	void D3D12CommandList::DispatchMesh( uint32 x, uint32 y, uint32 z )
+	{
+		m_imple.DispatchMesh( x, y, z );
+	}
+
 	void D3D12CommandList::SetViewports( uint32 count, const CubeArea<float>* area )
 	{
 		m_imple.SetViewports( count, area );
@@ -707,6 +720,11 @@ namespace agl
 	void D3D12ParallelCommandList::Dispatch( uint32 x, uint32 y, uint32 z )
 	{
 		m_imple.Dispatch( x, y, z );
+	}
+
+	void D3D12ParallelCommandList::DispatchMesh( uint32 x, uint32 y, uint32 z )
+	{
+		m_imple.DispatchMesh( x, y, z );
 	}
 
 	void D3D12ParallelCommandList::SetViewports( uint32 count, const CubeArea<float>* areas )

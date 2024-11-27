@@ -75,3 +75,13 @@ std::string ToUpper( const std::string& str )
 
     return uppercase;
 }
+
+bool ToWideChar( wchar_t* dest, size_t destSize, const char* source )
+{
+#if _WIN32
+    size_t numConverted = 0;
+    return mbstowcs_s( &numConverted, dest, destSize, source, destSize ) == 0;
+#else
+	return std::mbstowcs( dest, source, destSize ) != static_cast<std::size_t>( -1 );
+#endif
+}

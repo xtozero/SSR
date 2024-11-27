@@ -68,12 +68,16 @@ namespace rendercore
 			? agl::ResourceAccessFlag::Upload 
 			: agl::ResourceAccessFlag::Default;
 
+		bool bSupportsMeshShader = GetInterface<agl::IAgl>()->IsSupportsMeshShader();
+		auto bindType = bSupportsMeshShader ? ( agl::ResourceBindType::VertexBuffer | agl::ResourceBindType::ShaderResource ) : agl::ResourceBindType::VertexBuffer;
+		auto miscFlag = bSupportsMeshShader ? agl::ResourceMisc::BufferStructured : agl::ResourceMisc::None;
+
 		agl::BufferTrait trait = {
 			.m_stride = elementSize,
 			.m_count = numElement,
 			.m_access = accessFlag,
-			.m_bindType = agl::ResourceBindType::VertexBuffer,
-			.m_miscFlag = agl::ResourceMisc::None,
+			.m_bindType = bindType,
+			.m_miscFlag = miscFlag,
 			.m_format = agl::ResourceFormat::Unknown
 		};
 

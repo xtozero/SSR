@@ -145,16 +145,15 @@ namespace agl
 		auto d3d12GraphicsPipelineState = static_cast<D3D12GraphicsPipelineState*>( pipelineState );
 		assert( d3d12GraphicsPipelineState != nullptr );
 
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = d3d12GraphicsPipelineState->GetDesc();
-		desc.NumRenderTargets = D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT;
+		DXGI_FORMAT rtvFormats[D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT] = {};
 		for ( int32 i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i )
 		{
-			desc.RTVFormats[i] = m_rtvs[i] ? ( static_cast<D3D12RenderTargetView*>( m_rtvs[i] )->GetDesc().Format ) : DXGI_FORMAT_UNKNOWN;
+			rtvFormats[i] = m_rtvs[i] ? ( static_cast<D3D12RenderTargetView*>( m_rtvs[i] )->GetDesc().Format ) : DXGI_FORMAT_UNKNOWN;
 		}
-		desc.DSVFormat = m_dsv ? ( static_cast<D3D12DepthStencilView*>( m_dsv )->GetDesc().Format ) : DXGI_FORMAT_UNKNOWN;
+		DXGI_FORMAT dsvFormat = m_dsv ? ( static_cast<D3D12DepthStencilView*>( m_dsv )->GetDesc().Format ) : DXGI_FORMAT_UNKNOWN;
 
 		auto& d3d12ResourceManager = *static_cast<D3D12ResourceManager*>( GetInterface<IResourceManager>() );
-		ID3D12PipelineState* graphicsPipelineState = d3d12ResourceManager.FindOrCreate( pipelineState, desc );
+		ID3D12PipelineState* graphicsPipelineState = d3d12ResourceManager.FindOrCreate( d3d12GraphicsPipelineState, rtvFormats, dsvFormat );
 
 		if ( m_pipelineState == graphicsPipelineState )
 		{
@@ -532,7 +531,10 @@ namespace agl
 			descriptorHeaps.push_back( samplerHeap.GetDescriptorHeap() );
 		}
 
-		commandList.SetDescriptorHeaps( static_cast<uint32>( descriptorHeaps.size() ), descriptorHeaps.data() );
+		if ( descriptorHeaps.empty() == false )
+		{
+			commandList.SetDescriptorHeaps( static_cast<uint32>( descriptorHeaps.size() ), descriptorHeaps.data() );
+		}
 
 		uint32 rootParameterIndex = 0;
 		if ( shaderBindings.IsCompute() )
@@ -769,7 +771,7 @@ namespace agl
 		}
 
 		const ID3D12Resource* d3d12Resource = resourceInfo->GetResource();
-		if ( m_allocatedIdentifiers.find( d3d12Resource ) == std::end( m_allocatedIdentifiers ) )
+		if ( m_allocatedIdentifiers.contains( d3d12Resource ) == false )
 		{
 			m_allocatedIdentifiers.insert( d3d12Resource );
 			m_allocatedInfos.emplace_back( *resourceInfo );

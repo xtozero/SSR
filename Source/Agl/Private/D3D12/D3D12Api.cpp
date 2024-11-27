@@ -28,7 +28,6 @@
 
 #include <array>
 #include <cstdlib>
-#include <d3d12.h>
 #include <dxgi1_6.h>
 #include <wrl/client.h>
 
@@ -61,6 +60,12 @@ namespace
 			break;
 		case D3D12_SHVER_COMPUTE_SHADER:
 			return ShaderType::CS;
+			break;
+		case D3D12_SHVER_MESH_SHADER:
+			return ShaderType::MS;
+			break;
+		case D3D12_SHVER_AMPLIFICATION_SHADER:
+			return ShaderType::AS;
 			break;
 		default:
 			break;
@@ -189,7 +194,9 @@ namespace agl
 		virtual bool IsSupportsPSOCache() const override;
 		virtual const char* GetPSOCacheFilePath() const override;
 
-		ID3D12Device& GetDevice() const;
+		virtual bool IsSupportsMeshShader() const override;
+
+		ID3D12Device8& GetDevice() const;
 		IDXGIFactory7& GetFactory() const;
 		ID3D12CommandQueue& GetDirectCommandQueue() const;
 
@@ -218,7 +225,7 @@ namespace agl
 
 		ComPtr<IDXGIFactory7> m_factory;
 
-		ComPtr<ID3D12Device> m_device;
+		ComPtr<ID3D12Device8> m_device;
 		ComPtr<ID3D12CommandQueue> m_directCommandQueue;
 
 		ComPtr<ID3D12Fence> m_fence;
@@ -230,6 +237,7 @@ namespace agl
 		ComPtr<IDxcContainerReflection> m_reflection;
 
 		bool m_raytracingAvailable = false;
+		bool m_meshShaderAvailable = false;
 		D3D12_FEATURE_DATA_SHADER_MODEL m_shaderModel = {};
 
 		uint32 m_frameIndex = 0;
@@ -439,21 +447,12 @@ namespace agl
 
 			std::array<char, MaxDefineLen> define;
 
-#if _WIN32
-			sprintf_s( define.data(), MaxDefineLen, "%s=%s", defines[i], defines[i + 1] );
-#else
-			std::sprintf( define.data(), "%s=%s", defines[i], defines[i + 1] );
-#endif
+			SPrintf( define.data(), MaxDefineLen, "%s=%s", defines[i], defines[i + 1] );
 
 			defineStorage.emplace_back();
 			std::array<wchar_t, MaxDefineLen>& wDefine = defineStorage.back();
 
-#if _WIN32
-			size_t numConverted = 0;
-			mbstowcs_s( &numConverted, wDefine.data(), MaxDefineLen, define.data(), MaxDefineLen );
-#else
-			std::mbstowcs( wDefine.data(), define.data(), MaxDefineLen );
-#endif
+			ToWideChar( wDefine.data(), MaxDefineLen, define.data() );
 
 			args.push_back( L"-D" );
 			args.push_back( wDefine.data() );
@@ -537,7 +536,12 @@ namespace agl
 		return "./Assets/Shaders/PSOCache-d3d12.asset";
 	}
 
-	ID3D12Device& Direct3D12::GetDevice() const
+	bool Direct3D12::IsSupportsMeshShader() const
+	{
+		return m_meshShaderAvailable;
+	}
+
+	ID3D12Device8& Direct3D12::GetDevice() const
 	{
 		return *m_device.Get();
 	}
@@ -677,6 +681,16 @@ namespace agl
 		}
 
 		m_raytracingAvailable = ( featureOption5.RaytracingTier != D3D12_RAYTRACING_TIER_NOT_SUPPORTED );
+
+		D3D12_FEATURE_DATA_D3D12_OPTIONS7 featureOption7 = {};
+		hr = m_device->CheckFeatureSupport( D3D12_FEATURE_D3D12_OPTIONS7, &featureOption7, sizeof( featureOption7 ) );
+		
+		m_meshShaderAvailable = ( featureOption7.MeshShaderTier != D3D12_MESH_SHADER_TIER_NOT_SUPPORTED );
+
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
 
 		D3D_SHADER_MODEL allModelVersions[] = {
 			D3D_SHADER_MODEL_6_7,
@@ -843,6 +857,36 @@ namespace agl
 				break;
 			}
 		}
+		else if ( std::strncmp( profile, "as", 2 ) == 0 )
+		{
+			switch ( m_shaderModel.HighestShaderModel )
+			{
+			case D3D_SHADER_MODEL_6_5:
+				return L"as_6_5";
+				break;
+			case D3D_SHADER_MODEL_6_6:
+				return L"as_6_6";
+				break;
+			case D3D_SHADER_MODEL_6_7:
+				return L"as_6_7";
+				break;
+			}
+		}
+		else if ( std::strncmp( profile, "ms", 2 ) == 0 )
+		{
+			switch ( m_shaderModel.HighestShaderModel )
+			{
+			case D3D_SHADER_MODEL_6_5:
+				return L"ms_6_5";
+				break;
+			case D3D_SHADER_MODEL_6_6:
+				return L"ms_6_6";
+				break;
+			case D3D_SHADER_MODEL_6_7:
+				return L"ms_6_7";
+				break;
+			}
+		}
 
 		assert( false && "Invalid shader profile" );
 		return L"";
@@ -854,7 +898,7 @@ namespace agl
 		return d3d12Api->GetDirectCommandQueue();
 	}
 
-	ID3D12Device& D3D12Device()
+	ID3D12Device8& D3D12Device()
 	{
 		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
 		return d3d12Api->GetDevice();

@@ -406,13 +406,10 @@ public:
 	{
 		size_t oldSize = m_invocationList.size();
 
-		m_invocationList.erase( std::remove_if( m_invocationList.begin(),
-								m_invocationList.end(), 
-								[handle]( const DelegateType& delegate ) 
-								{ 
-									return handle == delegate.GetHandle(); 
-								} ), 
-								m_invocationList.end() );
+		std::erase_if( m_invocationList, [handle]( const DelegateType& delegate )
+			{
+				return handle == delegate.GetHandle();
+			} );
 
 		return oldSize != m_invocationList.size();;
 	}

@@ -19,6 +19,8 @@ public:
 	virtual bool IsSuitable( const std::filesystem::path& srcPath ) const = 0;
 	virtual std::optional<Products> Manufacture( const PathEnvironment& env, const std::filesystem::path& path ) const = 0;
 
+	virtual bool Initialize() { return true; }
+
 	virtual ~IManufacturer() = default;
 };
 
@@ -27,8 +29,10 @@ class AssetManufacturer final
 public:
 	std::optional<Products> Manufacture( const PathEnvironment& env, const std::filesystem::path& path );
 
-	AssetManufacturer( );
-	~AssetManufacturer( ) = default;
+	void Initialize();
+
+	AssetManufacturer() = default;
+	~AssetManufacturer() = default;
 	AssetManufacturer( const AssetManufacturer& ) = delete;
 	AssetManufacturer& operator=( const AssetManufacturer& ) = delete;
 	AssetManufacturer( AssetManufacturer&& ) = delete;

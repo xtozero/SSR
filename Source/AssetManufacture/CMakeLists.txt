@@ -32,12 +32,15 @@ set (UTIL
 )
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-link_directories(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 add_executable(AssetManufacture		${ENTRY_POINT}
 									${MANUFACTURER}
 									${SHADER_TOOL}
 									${UTIL})
+
+target_link_directories(AssetManufacture
+PRIVATE
+	${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 target_include_directories(AssetManufacture
 PRIVATE
@@ -50,6 +53,7 @@ PRIVATE
 	Engine
 	Logic
 	RenderCore
-	d3dcompiler)
+	d3dcompiler
+	dxcompiler)
 
 set_target_properties( AssetManufacture PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/AssetManufacture" )

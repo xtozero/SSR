@@ -9,10 +9,10 @@
 
 namespace
 {
-	constexpr const char* g_configDir = "./Configs";
-	constexpr const char* g_saveDir = "./Saved";
+	constexpr const char* ConfigDir = "./Configs";
+	constexpr const char* SaveDir = "./Saved";
 
-	constexpr const char* g_saveIniPath = "./Saved/user_settings.ini";
+	constexpr const char* SaveIniPath = "./Saved/user_settings.ini";
 }
 
 class AppConfig : public IAppConfig
@@ -42,7 +42,7 @@ void AppConfig::BootUp( std::atomic<int32>& workInProgress )
 {
 	auto filesystem = GetInterface<IFileSystem>();
 
-	for ( const auto& p : std::filesystem::recursive_directory_iterator( g_configDir ) )
+	for ( const auto& p : std::filesystem::recursive_directory_iterator( ConfigDir ) )
 	{
 		if ( p.is_regular_file() )
 		{
@@ -88,9 +88,9 @@ void AppConfig::BootUp( std::atomic<int32>& workInProgress )
 		}
 	}
 
-	if ( std::filesystem::exists( g_saveDir ) )
+	if ( std::filesystem::exists( SaveDir ) )
 	{
-		for ( const auto& p : std::filesystem::recursive_directory_iterator( g_saveDir ) )
+		for ( const auto& p : std::filesystem::recursive_directory_iterator( SaveDir ) )
 		{
 			if ( p.is_regular_file() )
 			{
@@ -166,12 +166,12 @@ void AppConfig::RegisterConfig( IConfig* config )
 
 void AppConfig::SaveConfigToFile() const
 {
-	if ( std::filesystem::exists( g_saveDir ) == false )
+	if ( std::filesystem::exists( SaveDir ) == false )
 	{
-		std::filesystem::create_directory( g_saveDir );
+		std::filesystem::create_directory( SaveDir );
 	}
 
-	std::ofstream outputFile( g_saveIniPath, std::ios::trunc );
+	std::ofstream outputFile( SaveIniPath, std::ios::trunc );
 	if ( outputFile.good() )
 	{
 		ini::Ini userSettings;

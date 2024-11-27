@@ -27,6 +27,8 @@ namespace agl
 		GS,
 		PS,
 		CS,
+		MS,
+		AS,
 		Count,
 	};
 
@@ -45,7 +47,9 @@ namespace agl
 			"DS",
 			"GS",
 			"PS",
-			"CS"
+			"CS",
+			"MS",
+			"AS",
 		};
 
 		return shaderTypeStr[static_cast<uint32>( shaderType )];

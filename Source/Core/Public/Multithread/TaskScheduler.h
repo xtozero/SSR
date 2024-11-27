@@ -73,9 +73,9 @@ template <ThreadType... N, typename Lambda>
 TaskHandle EnqueueThreadTask( Lambda&& lambda )
 {
 	ITaskScheduler* taskScheduler = GetInterface<ITaskScheduler>();
-	constexpr size_t affinityMask = WorkerAffinityMask<N...>();
+	constexpr size_t AffinityMask = WorkerAffinityMask<N...>();
 	TaskHandle taskGroup = taskScheduler->GetTaskGroup();
-	taskGroup.AddTask( Task<LambdaTask<Lambda>>::Create( affinityMask, std::forward<Lambda>( lambda ) ) );
+	taskGroup.AddTask( Task<LambdaTask<Lambda>>::Create( AffinityMask, std::forward<Lambda>( lambda ) ) );
 	[[maybe_unused]] bool success = taskScheduler->Run( taskGroup );
 	assert( success );
 	return taskGroup;

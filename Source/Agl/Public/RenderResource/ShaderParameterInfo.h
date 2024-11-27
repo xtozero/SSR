@@ -80,9 +80,9 @@ namespace agl
 			auto curParameterType = static_cast<ShaderParameterType>( i );
 			size_t count = 0;
 
-			for ( auto iter = parameterMap.begin(); iter != parameterMap.end(); ++iter )
+			for ( const auto& [name, shaderParameter] : parameterMap )
 			{
-				if ( iter->second.m_type == curParameterType )
+				if ( shaderParameter.m_type == curParameterType )
 				{
 					++count;
 				}
@@ -117,11 +117,11 @@ namespace agl
 
 			shaderParameters->reserve( count );
 
-			for ( auto iter = parameterMap.begin(); iter != parameterMap.end(); ++iter )
+			for ( const auto& [name, shaderParameter] : parameterMap )
 			{
-				if ( iter->second.m_type == curParameterType )
+				if ( shaderParameter.m_type == curParameterType )
 				{
-					shaderParameters->push_back( iter->second );
+					shaderParameters->push_back( shaderParameter );
 				}
 			}
 		}

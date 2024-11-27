@@ -62,9 +62,10 @@ namespace rendercore
 
 	PassShader HitProxyPassProcessor::CollectPassShader( [[maybe_unused]] MaterialResource& material ) const
 	{
-		PassShader passShader{
+		PassShader passShader = {
 			.m_vertexShader = HitProxyVS(),
 			.m_pixelShader = HitProxyPS(),
+			// TODO : Add MeshShader
 		};
 
 		return passShader;

@@ -12,7 +12,10 @@ namespace rendercore
 	PassShader IPassProcessor::CollectPassShader( MaterialResource& material ) const
 	{
 		StaticShaderSwitches vsSwitches = material.GetShaderSwitches( agl::ShaderType::VS );
+		StaticShaderSwitches gsSwitches = material.GetShaderSwitches( agl::ShaderType::GS );
 		StaticShaderSwitches psSwitches = material.GetShaderSwitches( agl::ShaderType::PS );
+		StaticShaderSwitches asSwitches = material.GetShaderSwitches( agl::ShaderType::AS );
+		StaticShaderSwitches msSwitches = material.GetShaderSwitches( agl::ShaderType::MS );
 
 		if ( DefaultRenderCore::IsTaaEnabled() )
 		{
@@ -24,10 +27,22 @@ namespace rendercore
 			psSwitches.On( Name( "EnableRSMs" ), 1 );
 		}
 
-		PassShader passShader{
-			material.GetVertexShader( &vsSwitches ),
-			nullptr,
-			material.GetPixelShader( &psSwitches )
+		if ( DefaultRenderCore::UseIrradianceMapSH() )
+		{
+			psSwitches.On( Name( "UseIrradianceMapSH" ), 1 );
+		}
+
+		if ( agl::DefaultAgl::IsSupportsBindless() )
+		{
+			psSwitches.On( Name( "SupportsBindless" ), 1 );
+		}
+
+		PassShader passShader = {
+			.m_vertexShader = material.GetVertexShader( &vsSwitches ),
+			.m_geometryShader = material.GetGeometryShader( &gsSwitches ),
+			.m_pixelShader = material.GetPixelShader( &psSwitches ),
+			.m_amplificationShader = material.GetAmplificationShader( &asSwitches ),
+			.m_meshShader = material.GetMeshShader( &msSwitches ),
 		};
 
 		return passShader;
@@ -42,6 +57,25 @@ namespace rendercore
 	{
 		DrawSnapshot snapshot;
 		snapshot.m_primitiveIdSlot = -1;
+
+		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+
+		if ( passShader.m_meshShader )
+		{
+			pipelineState.m_shaderState.m_amplificationShader = passShader.m_amplificationShader;
+			pipelineState.m_shaderState.m_meshShader = passShader.m_meshShader;
+		}
+		else if ( passShader.m_vertexShader )
+		{
+			pipelineState.m_shaderState.m_vertexShader = passShader.m_vertexShader;
+			pipelineState.m_shaderState.m_geometryShader = passShader.m_geometryShader;
+		}
+		else
+		{
+			return {};
+		}
+
+		pipelineState.m_shaderState.m_pixelShader = passShader.m_pixelShader;
 
 		VertexStreamLayout vertexlayout;
 		if ( subMesh.m_vertexCollection )
@@ -68,11 +102,6 @@ namespace rendercore
 		{
 			snapshot.m_indexBuffer = *subMesh.m_indexBuffer;
 		}
-
-		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
-		pipelineState.m_shaderState.m_vertexShader = passShader.m_vertexShader;
-		pipelineState.m_shaderState.m_geometryShader = passShader.m_geometryShader;
-		pipelineState.m_shaderState.m_pixelShader = passShader.m_pixelShader;
 
 		auto initializer = CreateShaderBindingsInitializer( pipelineState.m_shaderState );
 		snapshot.m_shaderBindings.Initialize( initializer );

@@ -107,8 +107,8 @@ bool PrepareDestinationDirectories()
 		if ( fs::exists( environment.m_destination ) )
 		{
 			uint32 trial = 0;
-			constexpr uint32 maxTrial = 5;
-			while ( trial < maxTrial )
+			constexpr uint32 MaxTrial = 5;
+			while ( trial < MaxTrial )
 			{
 				if ( fs::is_directory( environment.m_destination ) )
 				{
@@ -120,9 +120,9 @@ bool PrepareDestinationDirectories()
 					catch ( fs::filesystem_error& err )
 					{
 						++trial;
-						std::cout << err.what() << " ( " << trial << " / " << maxTrial << " )\n";
+						std::cout << err.what() << " ( " << trial << " / " << MaxTrial << " )\n";
 
-						if ( trial < maxTrial )
+						if ( trial < MaxTrial )
 						{
 							std::cout << "Retry after 1 second\n";
 							std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
@@ -174,7 +174,7 @@ std::map<fs::path, fs::file_time_type> GatherAssetInfos()
 			{
 				if ( p.is_regular_file() )
 				{
-					if ( visited.find( p ) != std::end( visited ) )
+					if ( visited.contains( p ) )
 					{
 						continue;
 					}
@@ -194,7 +194,7 @@ std::map<fs::path, fs::file_time_type> GatherAssetInfos()
 					fs::file_time_type lastWriteTime;
 					ar << lastWriteTime;
 
-					assetInfos.emplace( p, lastWriteTime);
+					assetInfos.emplace( p, lastWriteTime );
 					visited.emplace( p );
 				}
 			}
@@ -221,11 +221,11 @@ void RemoveUnusedAssets( const std::set<fs::path>& processed )
 					continue;
 				}
 
-				if ( processed.find( fs::absolute( p ) ) == std::end( processed ) )
+				if ( processed.contains( fs::absolute( p ) ) == false )
 				{
 					uint32 trial = 0;
-					constexpr uint32 maxTrial = 5;
-					while ( trial < maxTrial )
+					constexpr uint32 MaxTrial = 5;
+					while ( trial < MaxTrial )
 					{
 						try
 						{
@@ -236,7 +236,7 @@ void RemoveUnusedAssets( const std::set<fs::path>& processed )
 						catch ( fs::filesystem_error& )
 						{
 							++trial;
-							if ( trial < maxTrial )
+							if ( trial < MaxTrial )
 							{
 								std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 							}
@@ -266,6 +266,7 @@ int32 main( int32 argc, char* argv[] )
 	std::map<fs::path, fs::file_time_type> assetInfos = GatherAssetInfos();
 
 	AssetManufacturer manufacturer;
+	manufacturer.Initialize();
 	
 	for ( auto& [key, environment] : ManufactureConfig::Instance().PreprocessingEnvironments() )
 	{

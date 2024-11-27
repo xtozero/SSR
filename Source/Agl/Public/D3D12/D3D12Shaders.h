@@ -69,4 +69,36 @@ namespace agl
 		virtual void InitResource() override {}
 		virtual void FreeResource() override {}
 	};
+
+	class D3D12AmplificationShader final : public AmplificationShader, public ShaderBase
+	{
+	public:
+		D3D12AmplificationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+			: ShaderBase( byteCode, byteCodeSize, paramInfo ) {}
+		D3D12AmplificationShader( const D3D12AmplificationShader& ) = delete;
+		D3D12AmplificationShader( D3D12AmplificationShader&& ) = default;
+		D3D12AmplificationShader& operator=( const D3D12AmplificationShader& ) = delete;
+		D3D12AmplificationShader& operator=( D3D12AmplificationShader&& ) = default;
+		virtual ~D3D12AmplificationShader() override = default;
+
+	private:
+		virtual void InitResource() override {}
+		virtual void FreeResource() override {}
+	};
+
+	class D3D12MeshShader final : public MeshShader, public ShaderBase
+	{
+	public:
+		D3D12MeshShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+			: ShaderBase( byteCode, byteCodeSize, paramInfo ) {}
+		D3D12MeshShader( const D3D12MeshShader& ) = delete;
+		D3D12MeshShader( D3D12MeshShader&& ) = default;
+		D3D12MeshShader& operator=( const D3D12MeshShader& ) = delete;
+		D3D12MeshShader& operator=( D3D12MeshShader&& ) = default;
+		virtual ~D3D12MeshShader() override = default;
+
+	private:
+		virtual void InitResource() override {}
+		virtual void FreeResource() override {}
+	};
 }

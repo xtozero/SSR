@@ -155,7 +155,7 @@ namespace editor
 
 				// Object Properties
 				{
-					logic::CGameObject* object = *objects.begin();
+					logic::CGameObject* object = *std::begin( objects );
 
 					ImGui::BeginChild( "Object Properties" );
 					{

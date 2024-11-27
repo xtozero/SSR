@@ -4,12 +4,7 @@
 
 void InterfaceFactories::RegisterFactory( std::type_index typeIndex, FactoryFunctionType factoryFunc )
 {
-	auto found = m_factoryFuncs.find( typeIndex );
-	if ( found != m_factoryFuncs.end( ) )
-	{
-		assert( "Duplicate factory function" && false );
-	}
-
+	assert( "Duplicate factory function" && ( m_factoryFuncs.contains( typeIndex ) == false ) );
 	m_factoryFuncs.emplace( typeIndex, factoryFunc );
 }
 

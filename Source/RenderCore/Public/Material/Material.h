@@ -173,15 +173,18 @@ namespace rendercore
 		const ShaderBase* GetShader( agl::ShaderType type ) const;
 
 		RENDERCORE_DLL void SetVertexShader( const std::shared_ptr<VertexShader>& vertexshader );
-		const VertexShader* GetVertexShader( const StaticShaderSwitches* switches = nullptr ) const;
-		VertexShader* GetVertexShader( const StaticShaderSwitches* switches = nullptr );
+		VertexShader* GetVertexShader( const StaticShaderSwitches* switches = nullptr ) const;
 		RENDERCORE_DLL void SetGeometryShader( const std::shared_ptr<GeometryShader>& geometryShader );
-		const GeometryShader* GetGeometryShader( const StaticShaderSwitches* switches = nullptr ) const;
-		GeometryShader* GetGeometryShader( const StaticShaderSwitches* switches = nullptr );
+		GeometryShader* GetGeometryShader( const StaticShaderSwitches* switches = nullptr ) const;
 		RENDERCORE_DLL void SetPixelShader( const std::shared_ptr<PixelShader>& pixelShader );
-		const PixelShader* GetPixelShader( const StaticShaderSwitches* switches = nullptr ) const;
-		PixelShader* GetPixelShader( const StaticShaderSwitches* switches = nullptr );
+		PixelShader* GetPixelShader( const StaticShaderSwitches* switches = nullptr ) const;
+		RENDERCORE_DLL void SetAmplificationShader( const std::shared_ptr<AmplificationShader>& amplificationShader );
+		AmplificationShader* GetAmplificationShader( const StaticShaderSwitches* switches = nullptr ) const;
+		RENDERCORE_DLL void SetMeshShader( const std::shared_ptr<MeshShader>& meshShader );
+		MeshShader* GetMeshShader( const StaticShaderSwitches* switches = nullptr ) const;
 		RENDERCORE_DLL void AddSampler( const std::string& key, const SamplerOption& samplerOption );
+
+		RENDERCORE_DLL bool UseMeshShader() const;
 
 		StaticShaderSwitches GetShaderSwitches( agl::ShaderType type );
 
@@ -199,6 +202,8 @@ namespace rendercore
 		RENDERCORE_DLL virtual void PostLoadImpl() override;
 
 	private:
+		ShaderBase* GetCompiledShader( agl::ShaderType type, const StaticShaderSwitches* switches = nullptr ) const;
+
 		PROPERTY( name )
 		Name m_name;
 

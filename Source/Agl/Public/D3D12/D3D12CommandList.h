@@ -55,6 +55,7 @@ namespace agl
 		void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation );
 		void DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation );
 		void Dispatch( uint32 x, uint32 y, uint32 z = 1 );
+		void DispatchMesh( uint32 x, uint32 y, uint32 z = 1 );
 
 		void SetViewports( uint32 count, const CubeArea<float>* area );
 		void SetScissorRects( uint32 count, const RectangleArea<int32>* area );
@@ -128,6 +129,7 @@ namespace agl
 		virtual void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation ) override;
 		virtual void DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) override;
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) override;
+		virtual void DispatchMesh( uint32 x, uint32 y, uint32 z = 1 ) override;
 
 		virtual void SetViewports( uint32 count, const CubeArea<float>* area ) override;
 		virtual void SetScissorRects( uint32 count, const RectangleArea<int32>* area ) override;
@@ -194,6 +196,7 @@ namespace agl
 		virtual void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation ) override;
 		virtual void DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) override;
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) override;
+		virtual void DispatchMesh( uint32 x, uint32 y, uint32 z = 1 ) override;
 
 		virtual void SetViewports( uint32 count, const CubeArea<float>* areas ) override;
 		virtual void SetScissorRects( uint32 count, const RectangleArea<int32>* areas ) override;

@@ -291,13 +291,13 @@ private:
 template <typename T>
 struct SizeOfArray
 {
-	constexpr static uint32 value = 1;
+	constexpr static uint32 Value = 1;
 };
 
 template <typename T, size_t N>
 struct SizeOfArray<T[N]>
 {
-	constexpr static uint32 value = SizeOfArray<T>::value * N;
+	constexpr static uint32 Value = SizeOfArray<T>::Value * N;
 };
 
 template <typename TClass, typename T, typename TPtr, TPtr ptr>
@@ -320,7 +320,7 @@ public:
 						using ElementType = std::remove_all_extents_t<T>;
 						auto elem = reinterpret_cast<ElementType*>( &( static_cast<TClass*>( object )->*ptr ) );
 
-						for ( size_t i = 0; i < SizeOfArray<T>::value; ++i )
+						for ( size_t i = 0; i < SizeOfArray<T>::Value; ++i )
 						{
 							ar << *elem++;
 						}
@@ -337,7 +337,7 @@ public:
 						using ElementType = std::remove_all_extents_t<T>;
 						auto elem = reinterpret_cast<ElementType*>( &( static_cast<TClass*>( object )->*ptr ) );
 
-						ParseArray( elem, SizeOfArray<T>::value, s );
+						ParseArray( elem, SizeOfArray<T>::Value, s );
 					}
 					else
 					{
@@ -361,7 +361,7 @@ public:
 						using ElementType = std::remove_all_extents_t<T>;
 						auto elem = reinterpret_cast<ElementType*>( &*ptr );
 
-						for ( size_t i = 0; i < SizeOfArray<T>::value; ++i )
+						for ( size_t i = 0; i < SizeOfArray<T>::Value; ++i )
 						{
 							ar << *elem++;
 						}
@@ -378,7 +378,7 @@ public:
 						using ElementType = std::remove_all_extents_t<T>;
 						auto elem = reinterpret_cast<ElementType*>( &*ptr );
 
-						ParseArray( elem, SizeOfArray<T>::value, s );
+						ParseArray( elem, SizeOfArray<T>::Value, s );
 					}
 					else
 					{

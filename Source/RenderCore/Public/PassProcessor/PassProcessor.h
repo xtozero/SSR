@@ -35,6 +35,8 @@ namespace rendercore
 		VertexShader* m_vertexShader = nullptr;
 		GeometryShader* m_geometryShader = nullptr;
 		PixelShader* m_pixelShader = nullptr;
+		AmplificationShader* m_amplificationShader = nullptr;
+		MeshShader* m_meshShader = nullptr;
 	};
 
 	struct PassRenderOption final
@@ -63,7 +65,7 @@ namespace rendercore
 			bool useAutoInstancing = true );
 	};
 
-	using PassProcessorCreateFunction = IPassProcessor * ( * )( );
+	using PassProcessorCreateFunction = IPassProcessor* (*)();
 
 	class PassProcessorManager final
 	{

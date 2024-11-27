@@ -112,7 +112,7 @@ void ForceRegistry::Remove( RigidBody* body, ForceGenerator* fg )
 					return value.m_body == body && value.m_fg == fg;
 				};
 
-	m_registrations.erase( std::remove_if( m_registrations.begin( ), m_registrations.end( ), pred ), m_registrations.end( ) );
+	std::erase_if( m_registrations, pred );
 }
 
 void ForceRegistry::Remove( RigidBody* body )
@@ -122,7 +122,7 @@ void ForceRegistry::Remove( RigidBody* body )
 		return value.m_body == body;
 	};
 
-	m_registrations.erase( std::remove_if( m_registrations.begin( ), m_registrations.end( ), pred ), m_registrations.end( ) );
+	std::erase_if( m_registrations, pred );
 }
 
 void ForceRegistry::Clear( )

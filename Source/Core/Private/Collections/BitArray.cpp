@@ -59,15 +59,15 @@ void BitArray::Resize( size_t newSize, bool init )
 		return;
 	}
 
-	constexpr uint64 allMask = std::numeric_limits<uint64>::max();
+	constexpr uint64 AllMask = std::numeric_limits<uint64>::max();
 
 	auto newBitsSize = static_cast<size_t>( std::ceil( static_cast<double>( newSize ) / BitSize ) );
-	m_bits.resize( newBitsSize, init ? allMask : 0 );
+	m_bits.resize( newBitsSize, init ? AllMask : 0 );
 
 	size_t quotient = Size() / BitSize;
 	size_t remain = Size() % BitSize;
 
-	m_bits[quotient] |= init ? ( allMask >> remain ) : 0;
+	m_bits[quotient] |= init ? ( AllMask >> remain ) : 0;
 
 	m_size = newSize;
 }

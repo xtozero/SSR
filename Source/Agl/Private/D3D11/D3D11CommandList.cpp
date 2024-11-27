@@ -236,6 +236,11 @@ namespace agl
 		m_globalConstantBuffers.Reset( true );
 	}
 
+	void D3D11CommandList::DispatchMesh( [[maybe_unused]] uint32 x, [[maybe_unused]] uint32 y, [[maybe_unused]] uint32 z )
+	{
+		assert( false && "DispatchMesh - Unsurpported function in d3d11" );
+	}
+
 	void D3D11CommandList::SetViewports( uint32 count, const CubeArea<float>* areas )
 	{
 		m_stateCache.SetViewports( D3D11Context(), count, areas );
@@ -411,13 +416,7 @@ namespace agl
 		constexpr uint32 MaxLen = 256;
 		static wchar_t EventName[MaxLen] = {};
 
-#if _WIN32
-		size_t numConverted = 0;
-		mbstowcs_s( &numConverted, EventName, MaxLen, eventName, MaxLen );
-#else
-		std::mbstowcs( EventName, eventName, MaxLen );
-#endif
-
+		ToWideChar( EventName, MaxLen, eventName );
 		m_annotation->BeginEvent( EventName );
 	}
 
@@ -504,13 +503,11 @@ namespace agl
 
 	void D3D11ParallelCommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
 	{
-		m_globalConstantBuffers.Reset( false );
 		m_stateCache.BindPipelineState( *m_pContext.Get(), pipelineState );
 	}
 
 	void D3D11ParallelCommandList::BindPipelineState( ComputePipelineState* pipelineState )
 	{
-		m_globalConstantBuffers.Reset( true );
 		m_stateCache.BindPipelineState( *m_pContext.Get(), pipelineState );
 	}
 
@@ -529,18 +526,26 @@ namespace agl
 	{
 		m_globalConstantBuffers.CommitShaderValue( false );
 		m_pContext->DrawInstanced( vertexCount, numInstance, baseVertexLocation, 0 );
+		m_globalConstantBuffers.Reset( false );
 	}
 
 	void D3D11ParallelCommandList::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
 	{
 		m_globalConstantBuffers.CommitShaderValue( false );
 		m_pContext->DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation, 0 );
+		m_globalConstantBuffers.Reset( false );
 	}
 
 	void D3D11ParallelCommandList::Dispatch( uint32 x, uint32 y, uint32 z )
 	{
 		m_globalConstantBuffers.CommitShaderValue( true );
 		m_pContext->Dispatch( x, y, z );
+		m_globalConstantBuffers.Reset( true );
+	}
+
+	void D3D11ParallelCommandList::DispatchMesh( [[maybe_unused]] uint32 x, [[maybe_unused]] uint32 y, [[maybe_unused]] uint32 z )
+	{
+		assert( false && "DispatchMesh - Unsurpported function in d3d11" );
 	}
 
 	void D3D11ParallelCommandList::SetViewports( uint32 count, const CubeArea<float>* areas )
@@ -705,13 +710,7 @@ namespace agl
 		constexpr uint32 MaxLen = 256;
 		static wchar_t EventName[MaxLen] = {};
 
-#if _WIN32
-		size_t numConverted = 0;
-		mbstowcs_s( &numConverted, EventName, MaxLen, eventName, MaxLen );
-#else
-		std::mbstowcs( EventName, eventName, MaxLen );
-#endif
-
+		ToWideChar( EventName, MaxLen, eventName );
 		m_annotation->BeginEvent( EventName );
 	}
 

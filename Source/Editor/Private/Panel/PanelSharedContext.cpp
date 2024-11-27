@@ -16,7 +16,7 @@ namespace editor
 
 	bool PanelSharedContext::IsSelectedObject( CGameObject* object )
 	{
-		return m_selectedObject.find( object ) != std::end( m_selectedObject );
+		return m_selectedObject.contains( object );
 	}
 
 	const std::set<logic::CGameObject*>& PanelSharedContext::GetSelectedObjects() const

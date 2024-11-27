@@ -129,7 +129,7 @@ void ParticleForceRegistry::Remove( Particle* particle, ParticleForceGenerator* 
 		return value.m_particle == particle && value.m_fg == fg;
 	};
 
-	m_registrations.erase( std::remove_if( m_registrations.begin(), m_registrations.end(), pred ), m_registrations.end() );
+	std::erase_if( m_registrations, pred );
 }
 
 void ParticleForceRegistry::Clear()
@@ -139,8 +139,8 @@ void ParticleForceRegistry::Clear()
 
 void ParticleForceRegistry::UpdateForces( float duration )
 {
-	for ( auto i = m_registrations.begin(); i != m_registrations.end(); ++i )
+	for ( ParticleForceRegistration& registration : m_registrations )
 	{
-		i->m_fg->UpdateForce( i->m_particle, duration );
+		registration.m_fg->UpdateForce( registration.m_particle, duration );
 	}
 }

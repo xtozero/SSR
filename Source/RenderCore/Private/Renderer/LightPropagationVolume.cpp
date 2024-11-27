@@ -190,7 +190,6 @@ namespace rendercore
 		{
 			PassShader passShader = {
 				.m_vertexShader = FullScreenQuadVS(),
-				.m_geometryShader = nullptr,
 				.m_pixelShader = RenderLpvPS()
 			};
 

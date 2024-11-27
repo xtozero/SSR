@@ -54,14 +54,14 @@ namespace rendercore
 	BlendState AbstractGraphicsInterface::FindOrCreate( const BlendOption& option )
 	{
 		auto found = m_blendStates.find( option );
-		if ( found == m_blendStates.end() )
+		if ( found == std::end( m_blendStates ) )
 		{
 			agl::BlendStateTrait trait;
 			trait.m_alphaToConverageEnable = option.m_alphaToConverageEnable;
 			trait.m_independentBlendEnable = option.m_independentBlendEnable;
 
-			constexpr uint32 size = std::extent_v<decltype( option.m_renderTarget )>;
-			for ( uint32 i = 0; i < size; ++i )
+			constexpr uint32 MaxRenderTargets = std::extent_v<decltype( option.m_renderTarget )>;
+			for ( uint32 i = 0; i < MaxRenderTargets; ++i )
 			{
 				auto& dest = trait.m_renderTarget[i];
 				auto& src = option.m_renderTarget[i];
@@ -90,7 +90,7 @@ namespace rendercore
 	DepthStencilState AbstractGraphicsInterface::FindOrCreate( const DepthStencilOption& option )
 	{
 		auto found = m_depthStencilStates.find( option );
-		if ( found == m_depthStencilStates.end() )
+		if ( found == std::end( m_depthStencilStates ) )
 		{
 			agl::DepthStencilStateTrait trait = {
 				.m_depthEnable = option.m_depth.m_enable,
@@ -115,7 +115,7 @@ namespace rendercore
 	RasterizerState AbstractGraphicsInterface::FindOrCreate( const RasterizerOption& option )
 	{
 		auto found = m_rasterizerStates.find( option );
-		if ( found == m_rasterizerStates.end() )
+		if ( found == std::end( m_rasterizerStates ) )
 		{
 			agl::RasterizerStateTrait trait = {
 				.m_fillMode = option.m_isWireframe ? agl::FillMode::Wireframe : agl::FillMode::Solid,
@@ -142,7 +142,7 @@ namespace rendercore
 	SamplerState AbstractGraphicsInterface::FindOrCreate( const SamplerOption& option )
 	{
 		auto found = m_samplerStates.find( option );
-		if ( found == m_samplerStates.end() )
+		if ( found == std::end( m_samplerStates ) )
 		{
 			agl::SamplerStateTrait trait = {
 				.m_filter = option.m_filter,
@@ -179,7 +179,7 @@ namespace rendercore
 		};
 
 		auto found = m_vertexLayouts.find( vertexLayoutInstance );
-		if ( found == m_vertexLayouts.end() )
+		if ( found == std::end( m_vertexLayouts ) )
 		{
 			VertexLayout vertexLayout( vs, desc );
 			m_vertexLayouts.emplace( vertexLayoutInstance, vertexLayout );

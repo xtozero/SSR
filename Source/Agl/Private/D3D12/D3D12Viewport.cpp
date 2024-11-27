@@ -8,8 +8,6 @@
 #include "ICommandList.h"
 #include "LibraryTool/InterfaceFactories.h"
 
-#include <d3d12.h>
-
 using ::Microsoft::WRL::ComPtr;
 
 namespace agl

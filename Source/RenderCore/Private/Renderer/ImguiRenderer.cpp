@@ -499,7 +499,6 @@ namespace rendercore
 
 		PassShader passShader = {
 			.m_vertexShader = DrawImguiVS( useSRGB ),
-			.m_geometryShader = nullptr,
 			.m_pixelShader = DrawImguiPS()
 		};
 

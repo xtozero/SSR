@@ -258,13 +258,10 @@ namespace logic
 
 	void CGameObject::RemoveComponent( const Component* component )
 	{
-		auto iter = std::remove_if( std::begin( m_components ), std::end( m_components ),
-			[component]( std::unique_ptr<Component>& elem )
+		std::erase_if( m_components, [component]( std::unique_ptr<Component>& elem )
 			{
 				return elem.get() == component;
 			} );
-
-		m_components.erase( iter, std::end( m_components ) );
 	}
 
 	void CGameObject::SetInputController( InputController* inputController )

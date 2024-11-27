@@ -187,6 +187,8 @@ namespace agl
 		virtual bool IsSupportsPSOCache() const override;
 		virtual const char* GetPSOCacheFilePath() const override;
 
+		virtual bool IsSupportsMeshShader() const override;
+
 		IDXGIFactory7& GetFactory() const
 		{
 			return *m_pdxgiFactory.Get();
@@ -376,16 +378,16 @@ namespace agl
 	{
 		assert( size != nullptr );
 
-		constexpr int32 desireCounts[] = { 2, 4, 8 };
+		constexpr int32 DesireCounts[] = { 2, 4, 8 };
 		uint32 qualityLevel = 0;
-		for ( int32 i = 0; i < _countof( desireCounts ); ++i )
+		for ( int32 i = 0; i < _countof( DesireCounts ); ++i )
 		{
-			HRESULT hr = m_pd3d11Device->CheckMultisampleQualityLevels( DXGI_FORMAT_R8G8B8A8_UNORM, desireCounts[i], &qualityLevel );
+			HRESULT hr = m_pd3d11Device->CheckMultisampleQualityLevels( DXGI_FORMAT_R8G8B8A8_UNORM, DesireCounts[i], &qualityLevel );
 			if ( SUCCEEDED( hr ) && qualityLevel > 0 )
 			{
 				if ( pSamples != nullptr )
 				{
-					pSamples[i].Count = desireCounts[i];
+					pSamples[i].Count = DesireCounts[i];
 					pSamples[i].Quality = qualityLevel - 1;
 				}
 
@@ -479,6 +481,11 @@ namespace agl
 	const char* CDirect3D11::GetPSOCacheFilePath() const
 	{
 		return "";
+	}
+
+	bool CDirect3D11::IsSupportsMeshShader() const
+	{
+		return false;
 	}
 
 	CDirect3D11::CDirect3D11()

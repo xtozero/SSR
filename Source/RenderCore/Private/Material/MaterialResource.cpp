@@ -30,6 +30,12 @@ namespace
 			break;
 		case agl::ShaderType::CS:
 			break;
+		case agl::ShaderType::AS:
+			return pipelineState.m_shaderState.m_amplificationShader;
+			break;
+		case agl::ShaderType::MS:
+			return pipelineState.m_shaderState.m_meshShader;
+			break;
 		case agl::ShaderType::Count:
 			[[fallthrough]];
 		default:
@@ -42,7 +48,7 @@ namespace
 
 namespace rendercore
 {
-	const VertexShader* MaterialResource::GetVertexShader( const StaticShaderSwitches* switches ) const
+	VertexShader* MaterialResource::GetVertexShader( const StaticShaderSwitches* switches ) const
 	{
 		auto material = m_material.lock();
 		if ( material )
@@ -53,18 +59,7 @@ namespace rendercore
 		return nullptr;
 	}
 
-	VertexShader* MaterialResource::GetVertexShader( const StaticShaderSwitches* switches )
-	{
-		auto material = m_material.lock();
-		if ( material )
-		{
-			return material->GetVertexShader( switches );
-		}
-
-		return nullptr;
-	}
-
-	const GeometryShader* MaterialResource::GetGeometryShader( const StaticShaderSwitches* switches ) const
+	GeometryShader* MaterialResource::GetGeometryShader( const StaticShaderSwitches* switches ) const
 	{
 		auto material = m_material.lock();
 		if ( material )
@@ -75,18 +70,7 @@ namespace rendercore
 		return nullptr;
 	}
 
-	GeometryShader* MaterialResource::GetGeometryShader( const StaticShaderSwitches* switches )
-	{
-		auto material = m_material.lock();
-		if ( material )
-		{
-			return material->GetGeometryShader( switches );
-		}
-
-		return nullptr;
-	}
-
-	const PixelShader* MaterialResource::GetPixelShader( const StaticShaderSwitches* switches ) const
+	PixelShader* MaterialResource::GetPixelShader( const StaticShaderSwitches* switches ) const
 	{
 		auto material = m_material.lock();
 		if ( material )
@@ -97,26 +81,37 @@ namespace rendercore
 		return nullptr;
 	}
 
-	PixelShader* MaterialResource::GetPixelShader( const StaticShaderSwitches* switches )
+	AmplificationShader* MaterialResource::GetAmplificationShader( const StaticShaderSwitches* switches ) const
 	{
 		auto material = m_material.lock();
 		if ( material )
 		{
-			return material->GetPixelShader( switches );
+			return material->GetAmplificationShader( switches );
 		}
 
 		return nullptr;
 	}
 
-	const ShaderBase* MaterialResource::GetShader( agl::ShaderType type ) const
+	MeshShader* MaterialResource::GetMeshShader( const StaticShaderSwitches* switches ) const
 	{
 		auto material = m_material.lock();
 		if ( material )
 		{
-			return material->GetShader( type );
+			return material->GetMeshShader( switches );
 		}
 
 		return nullptr;
+	}
+
+	bool MaterialResource::UseMeshShader() const
+	{
+		auto material = m_material.lock();
+		if ( material )
+		{
+			return material->UseMeshShader();
+		}
+
+		return false;
 	}
 
 	StaticShaderSwitches MaterialResource::GetShaderSwitches( agl::ShaderType type )
@@ -162,8 +157,14 @@ namespace rendercore
 		auto& graphicsInterface = GraphicsInterface();
 
 		// Bind texture and sampler
-		auto shaderTypes = { agl::ShaderType::VS, agl::ShaderType::GS, agl::ShaderType::PS };
-		for ( auto shaderType : shaderTypes )
+		constexpr agl::ShaderType ShaderTypes[] = {
+			agl::ShaderType::VS,
+			agl::ShaderType::GS,
+			agl::ShaderType::PS,
+			agl::ShaderType::AS,
+			agl::ShaderType::MS };
+
+		for ( auto shaderType : ShaderTypes )
 		{
 			auto shader = ::GetShader( snapShot.m_pipelineState, shaderType );
 			if ( shader == nullptr )
@@ -236,14 +237,16 @@ namespace rendercore
 		size_t constantBufferSize = 0;
 		size_t constantValueNameSize = 0;
 
-		auto shaderTypes = {
+		constexpr uint32 ShaderTypes[] = {
 			static_cast<uint32>( agl::ShaderType::VS ),
 			static_cast<uint32>( agl::ShaderType::GS ),
-			static_cast<uint32>( agl::ShaderType::PS ) };
+			static_cast<uint32>( agl::ShaderType::PS ),
+			static_cast<uint32>( agl::ShaderType::AS ),
+			static_cast<uint32>( agl::ShaderType::MS ) };
 
 		uint32 materialCbSlotNumbers[agl::MAX_SHADER_TYPE<uint32>];
-		constexpr uint32 invalidSlot = std::numeric_limits<uint32>::max();
-		std::fill( std::begin( materialCbSlotNumbers ), std::end( materialCbSlotNumbers ), invalidSlot );
+		constexpr uint32 InvalidSlot = std::numeric_limits<uint32>::max();
+		std::fill( std::begin( materialCbSlotNumbers ), std::end( materialCbSlotNumbers ), InvalidSlot );
 
 		const ShaderBase* shaders[agl::MAX_SHADER_TYPE<uint32>] = {
 			shaderStates.m_vertexShader,
@@ -255,7 +258,7 @@ namespace rendercore
 		};
 
 		// find material constant buffer slot
-		for ( auto shaderType : shaderTypes )
+		for ( auto shaderType : ShaderTypes )
 		{
 			if ( auto shader = shaders[shaderType] )
 			{
@@ -266,8 +269,8 @@ namespace rendercore
 					if ( ( param.m_type == agl::ShaderParameterType::ConstantBuffer ) &&
 						( name == Name( "Material" ) ) )
 					{
-						assert( materialCbSlotNumbers[shaderType] == invalidSlot );
-						if ( materialCbSlotNumbers[shaderType] == invalidSlot )
+						assert( materialCbSlotNumbers[shaderType] == InvalidSlot );
+						if ( materialCbSlotNumbers[shaderType] == InvalidSlot )
 						{
 							materialCbSlotNumbers[shaderType] = param.m_bindPoint;
 						}
@@ -277,10 +280,10 @@ namespace rendercore
 		}
 
 		// gather vector size
-		for ( auto shaderType : shaderTypes )
+		for ( auto shaderType : ShaderTypes )
 		{
 			uint32 materialCbSlot = materialCbSlotNumbers[shaderType];
-			if ( materialCbSlot == invalidSlot )
+			if ( materialCbSlot == InvalidSlot )
 			{
 				continue;
 			}
@@ -316,10 +319,10 @@ namespace rendercore
 		m_materialConstantBuffers.reserve( constantBufferSize );
 		m_materialConstantValueNames.reserve( constantValueNameSize );
 
-		for ( auto shaderType : shaderTypes )
+		for ( auto shaderType : ShaderTypes )
 		{
 			uint32 materialCbSlot = materialCbSlotNumbers[shaderType];
-			if ( materialCbSlot == invalidSlot )
+			if ( materialCbSlot == InvalidSlot )
 			{
 				continue;
 			}

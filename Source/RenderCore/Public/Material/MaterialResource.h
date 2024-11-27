@@ -15,13 +15,13 @@ namespace rendercore
 	class MaterialResource final
 	{
 	public:
-		const VertexShader* GetVertexShader( const StaticShaderSwitches* switches = nullptr ) const;
-		VertexShader* GetVertexShader( const StaticShaderSwitches* switches = nullptr );
-		const GeometryShader* GetGeometryShader( const StaticShaderSwitches* switches = nullptr ) const;
-		GeometryShader* GetGeometryShader( const StaticShaderSwitches* switches = nullptr );
-		const PixelShader* GetPixelShader( const StaticShaderSwitches* switches = nullptr ) const;
-		PixelShader* GetPixelShader( const StaticShaderSwitches* switches = nullptr );
-		const ShaderBase* GetShader( agl::ShaderType type ) const;
+		VertexShader* GetVertexShader( const StaticShaderSwitches* switches = nullptr ) const;
+		GeometryShader* GetGeometryShader( const StaticShaderSwitches* switches = nullptr ) const;
+		PixelShader* GetPixelShader( const StaticShaderSwitches* switches = nullptr ) const;
+		AmplificationShader* GetAmplificationShader( const StaticShaderSwitches* switches = nullptr ) const;
+		MeshShader* GetMeshShader( const StaticShaderSwitches* switches = nullptr ) const;
+
+		bool UseMeshShader() const;
 
 		StaticShaderSwitches GetShaderSwitches( agl::ShaderType type );
 

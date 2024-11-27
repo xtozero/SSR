@@ -51,13 +51,7 @@ namespace engine
 	{
 		auto IsExist_Lambda = [name]( const auto& container )
 			{
-				auto found = container.find( name );
-				if ( found != std::end( container ) )
-				{
-					return true;
-				}
-
-				return false;
+				return container.contains( name );
 			};
 
 		return IsExist_Lambda( m_related ) || IsExist_Lambda( m_unrelated );

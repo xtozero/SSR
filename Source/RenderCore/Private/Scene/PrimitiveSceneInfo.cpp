@@ -49,11 +49,11 @@ namespace rendercore
 		m_scene.PrimitiveBounds()[m_primitiveId] = bounds;
 
 		BoxSphereBounds occlusionBounds = bounds;
-		constexpr float occlusionPadding = 1.f;
-		occlusionBounds.HalfSize().x += occlusionPadding;
-		occlusionBounds.HalfSize().y += occlusionPadding;
-		occlusionBounds.HalfSize().z += occlusionPadding;
-		occlusionBounds.Radius() += occlusionPadding;
+		constexpr float OcclusionPadding = 1.f;
+		occlusionBounds.HalfSize().x += OcclusionPadding;
+		occlusionBounds.HalfSize().y += OcclusionPadding;
+		occlusionBounds.HalfSize().z += OcclusionPadding;
+		occlusionBounds.Radius() += OcclusionPadding;
 		m_scene.PrimitiveOcclusionBounds()[m_primitiveId] = occlusionBounds;
 
 		m_sceneProxy->PrepareSubMeshs();

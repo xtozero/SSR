@@ -118,9 +118,9 @@ Quaternion::Quaternion( const Matrix& m )
 			i = 2;
 		}
 
-		static constexpr uint32 nxt[3] = { 1, 2, 0 };
-		const uint32 j = nxt[i];
-		const uint32 k = nxt[j];
+		static constexpr uint32 NextIndex[3] = { 1, 2, 0 };
+		const uint32 j = NextIndex[i];
+		const uint32 k = NextIndex[j];
 
 		float root = sqrtf( m.m[i][i] - m.m[j][j] - m.m[k][k] + 1 );
 

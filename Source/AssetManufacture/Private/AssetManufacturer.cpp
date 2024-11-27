@@ -25,11 +25,17 @@ std::optional<Products> AssetManufacturer::Manufacture( const PathEnvironment& e
 	return representative->Manufacture( env, path );
 }
 
-AssetManufacturer::AssetManufacturer()
+void AssetManufacturer::Initialize()
 {
 	m_manufacturers.emplace_back( std::make_unique<TextureManufacturer>() );
 	m_manufacturers.emplace_back( std::make_unique<JsonManufacturer>() );
 	m_manufacturers.emplace_back( std::make_unique<ShaderManufacturer>() );
 	m_manufacturers.emplace_back( std::make_unique<WavefrontMtlManufacturer>() );
 	m_manufacturers.emplace_back( std::make_unique<WavefrontObjManufacturer>() );
+
+	for ( std::unique_ptr<IManufacturer>& manufacturer : m_manufacturers )
+	{
+		bool succeeded = manufacturer->Initialize();
+		assert( succeeded );
+	}
 }

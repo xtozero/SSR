@@ -399,11 +399,11 @@ namespace rendercore
 
 					lightView = LookAtMatrix( ppLightPos, Vector( 0.f, 0.f, 0.5f ), axis );
 
-					constexpr float ppCubeRadius = 1.5f;  // the post-projective view box radius is 1.5
-					fFovy = 2.f * atanf( ppCubeRadius / distance );
+					constexpr float PPCubeRadius = 1.5f;  // the post-projective view box radius is 1.5
+					fFovy = 2.f * atanf( PPCubeRadius / distance );
 					fAspect = 1.f;
-					fNear = distance - 2.f * ppCubeRadius;
-					fFar = distance + 2.f * ppCubeRadius;
+					fNear = distance - 2.f * PPCubeRadius;
+					fFar = distance + 2.f * PPCubeRadius;
 				}
 
 				fNear = std::max( 0.001f, fNear );
