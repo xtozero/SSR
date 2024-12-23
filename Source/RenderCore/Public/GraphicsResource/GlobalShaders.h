@@ -24,6 +24,8 @@ namespace rendercore
 		void Shutdown();
 		bool IsReady() const;
 
+		void Reload();
+
 		bool RegisterShader( std::type_index typeIndex, const std::shared_ptr<IShader>& shader );
 		bool RegisterShaderPath( std::type_index typeIndex, const char* path );
 

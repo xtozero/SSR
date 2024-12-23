@@ -6,6 +6,7 @@
 #include "LibraryTool/Common.h"
 #include "ManufactureConfig.h"
 #include "Platform/IPlatform.h"
+#include "Renderer/IRenderCore.h"
 #include "SizedTypes.h"
 
 #include <chrono>
@@ -69,7 +70,7 @@ bool BootUpEngine( int32 argc, char* argv[] )
 			commandline += argv[i];
 			commandline += " ";
 		}
-		commandline += "Console";
+		commandline += "Console AssetManufacture";
 
 		fs::path oldPath = fs::current_path();
 		fs::current_path( "../Program" );
@@ -80,6 +81,20 @@ bool BootUpEngine( int32 argc, char* argv[] )
 	}
 
 	return result;
+}
+
+void ReloadGlobalShaders()
+{
+	fs::path oldPath = fs::current_path();
+	fs::current_path( "../Program" );
+
+	GetInterface<rendercore::IRenderCore>()->ReloadGlobalShaders();
+	while ( GetInterface<rendercore::IRenderCore>()->IsReady() == false )
+	{
+		GetInterface<ITaskScheduler>()->ProcessThisThreadTask();
+	}
+
+	fs::current_path( oldPath );
 }
 
 bool IsIgnorePath( const PathEnvironment& env, const fs::path& path )
@@ -258,7 +273,7 @@ int32 main( int32 argc, char* argv[] )
 	fs::path rootPath = fs::current_path();
 	ManufactureConfig::Instance().Load();
 
-	if ( LoadModules() == false )
+	if ( ( LoadModules() == false ) || ( BootUpEngine( argc, argv ) == false ) )
 	{
 		return EXIT_FAILURE;
 	}
@@ -380,15 +395,10 @@ int32 main( int32 argc, char* argv[] )
 		fs::current_path( rootPath );
 	}
 
-	if ( BootUpEngine( argc, argv ) == false )
-	{
-		return EXIT_FAILURE;
-	}
-	else
-	{
-		EngineDefaultManufacturer engineDefault;
-		engineDefault.Manufacture( processed );
-	}
+	ReloadGlobalShaders();
+
+	EngineDefaultManufacturer engineDefault;
+	engineDefault.Manufacture( processed );
 
 	RemoveUnusedAssets( processed );
 

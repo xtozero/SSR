@@ -1,6 +1,7 @@
 #include "GlobalShaders.h"
 
 #include "AssetLoader.h"
+#include "Platform/CommandLine.h"
 #include "TaskScheduler.h"
 
 #include <cassert>
@@ -16,11 +17,15 @@ namespace rendercore
 			return;
 		}
 
-		for ( const auto& pathPair : m_shaderAssetPaths )
+		bool bRunningAssetManufacture = engine::CommandLine::Has( Name( "AssetManufacture" ) );
+		for ( auto& [typeIndex, assetPath] : m_shaderAssetPaths )
 		{
-			auto [typeIndex, assetPath] = pathPair;
-
 			if ( m_shaders.contains( typeIndex ) )
+			{
+				continue;
+			}
+
+			if ( bRunningAssetManufacture && ( std::filesystem::exists( assetPath ) == false ) )
 			{
 				continue;
 			}
@@ -50,6 +55,13 @@ namespace rendercore
 	bool GlobalShaders::IsReady() const
 	{
 		return m_loadingInProgress == 0;
+	}
+
+	void GlobalShaders::Reload()
+	{
+		assert( IsReady() );
+		Shutdown();
+		BootUp();
 	}
 
 	bool GlobalShaders::RegisterShader( std::type_index typeIndex, const std::shared_ptr<IShader>& shader )

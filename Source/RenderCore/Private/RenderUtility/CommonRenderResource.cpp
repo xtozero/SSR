@@ -5,6 +5,7 @@
 #include "ComputePipelineState.h"
 #include "GlobalShaders.h"
 #include "IAssetLoader.h"
+#include "Platform/CommandLine.h"
 
 using ::rendercore::IndexBuffer;
 
@@ -168,28 +169,32 @@ namespace rendercore
 
 		OcclusionQueryIndexBuffer = CreateOcclusionQueryIndexBuffer();
 		
+		bool bRunningAssetManufacture = engine::CommandLine::Has( Name( "AssetManufacture" ) );
+		if ( bRunningAssetManufacture )
 		{
-			std::filesystem::path assetPath = "./Assets/EngineDefault/Texture/PrecomputedBRDF.asset";
-			if ( std::filesystem::exists( assetPath ) )
-			{
-				IAssetLoader::LoadCompletionCallback onLoadComplete;
-				onLoadComplete.BindFunctor(
-					[this]( const std::shared_ptr<void>& asset )
-					{
-						auto brdfLUT = std::reinterpret_pointer_cast<DDSTexture>( asset );
-						BRDFLookUpTexture = brdfLUT->Resource();
-						--m_numPending;
-					} );
+			return;
+		}
 
-				AssetLoaderSharedHandle handle = GetInterface<IAssetLoader>()->RequestAsyncLoad( "./Assets/EngineDefault/Texture/PrecomputedBRDF.asset", onLoadComplete );
+		std::filesystem::path assetPath = "./Assets/EngineDefault/Texture/PrecomputedBRDF.asset";
+		if ( std::filesystem::exists( assetPath ) )
+		{
+			IAssetLoader::LoadCompletionCallback onLoadComplete;
+			onLoadComplete.BindFunctor(
+				[this]( const std::shared_ptr<void>& asset )
+				{
+					auto brdfLUT = std::reinterpret_pointer_cast<DDSTexture>( asset );
+					BRDFLookUpTexture = brdfLUT->Resource();
+					--m_numPending;
+				} );
 
-				assert( handle->IsLoadingInProgress() || handle->IsLoadComplete() );
-				++m_numPending;
-			}
-			else
-			{
-				BRDFLookUpTexture = CreateBRDFLookUpTexture();
-			}
+			AssetLoaderSharedHandle handle = GetInterface<IAssetLoader>()->RequestAsyncLoad( assetPath.generic_string(), onLoadComplete );
+
+			assert( handle->IsLoadingInProgress() || handle->IsLoadComplete() );
+			++m_numPending;
+		}
+		else
+		{
+			BRDFLookUpTexture = CreateBRDFLookUpTexture();
 		}
 	}
 

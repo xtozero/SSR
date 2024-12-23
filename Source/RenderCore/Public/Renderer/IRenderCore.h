@@ -19,6 +19,8 @@ namespace rendercore
 		virtual bool BootUp() = 0;
 		virtual bool IsReady() const = 0;
 
+		virtual void ReloadGlobalShaders() = 0;
+
 		virtual void HandleDeviceLost() = 0;
 		virtual void AppSizeChanged() = 0;
 

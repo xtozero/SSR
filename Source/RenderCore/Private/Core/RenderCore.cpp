@@ -69,6 +69,8 @@ namespace rendercore
 		virtual bool BootUp() override;
 		virtual bool IsReady() const override;
 
+		virtual void ReloadGlobalShaders() override;
+
 		virtual void HandleDeviceLost() override;
 		virtual void AppSizeChanged() override;
 
@@ -178,6 +180,12 @@ namespace rendercore
 		}
 
 		return m_isReady;
+	}
+
+	void RenderCore::ReloadGlobalShaders()
+	{
+		m_isReady = false;
+		GlobalShaders::GetInstance().Reload();
 	}
 
 	void RenderCore::HandleDeviceLost()
