@@ -54,6 +54,7 @@ PRIVATE
 	Logic
 	RenderCore
 	d3dcompiler
-	dxcompiler)
+	dxcompiler
+	meshoptimizer)
 
 set_target_properties( AssetManufacture PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/AssetManufacture" )

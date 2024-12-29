@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 project (ScreenSpaceReflection LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -18,3 +20,9 @@ add_subdirectory(Source/ScreenSpaceReflection)
 
 option(BUILD_TOOLS "I don't need command-line tools" OFF)
 add_subdirectory(ThirdParty/DirectXTex)
+
+add_subdirectory(ThirdParty/MeshOptimizer)
+
+set_target_properties(ddsview PROPERTIES FOLDER ThirdParty)
+set_target_properties(DirectXTex PROPERTIES FOLDER ThirdParty)
+set_target_properties(meshoptimizer PROPERTIES FOLDER ThirdParty)
