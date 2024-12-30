@@ -154,8 +154,6 @@ AssetLoaderSharedHandle AssetLoader::LoadAsset( const char* assetPath, LoadCompl
 		return handle;
 	}
 
-	char* asset = new char[assetSize];
-
 	IFileSystem::IOCompletionCallback AssetProcessing;
 	AssetProcessing.BindFunctor(
 		[this, handle, hAsset, path = std::filesystem::path( assetPath )](char*& buffer, uint32 bufferSize)
@@ -166,12 +164,12 @@ AssetLoaderSharedHandle AssetLoader::LoadAsset( const char* assetPath, LoadCompl
 					SetHandleInProcess( handle );
 
 					Archive ar( buffer, bufferSize );
-					uint32 assetID = 0;
+					uint32 assetId = 0;
 
-					ar << assetID;
+					ar << assetId;
 					ar.Seek( 0 );
 					
-					std::shared_ptr<IAsyncLoadableAsset> newAsset( GetInterface<IAssetFactory>()->CreateAsset( assetID ) );
+					std::shared_ptr<IAsyncLoadableAsset> newAsset( GetInterface<IAssetFactory>()->CreateAsset( assetId ) );
 					if ( newAsset != nullptr )
 					{
 						handle->SetLoadedAsset( newAsset );
@@ -207,6 +205,7 @@ AssetLoaderSharedHandle AssetLoader::LoadAsset( const char* assetPath, LoadCompl
 	handle->NeedPostProcess();
 	AddPrerequisiteToDependantAsset( handle );
 
+	char* asset = new char[assetSize];
 	if ( fileSystem->ReadAsync( hAsset, asset, assetSize, &AssetProcessing ) == false )
 	{
 		delete[] asset;

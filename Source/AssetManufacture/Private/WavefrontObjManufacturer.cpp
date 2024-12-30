@@ -9,6 +9,7 @@
 #include "WavefrontObjParser.hpp"
 
 #include <DirectXMath.h>
+#include <meshoptimizer.h>
 #include <numeric>
 
 namespace fs = std::filesystem;
@@ -71,24 +72,24 @@ namespace
 		return normals;
 	}
 
-	size_t FindOrCreateVertexInstance( std::vector<rendercore::MeshVertexInstance>& vertexInstances, std::map<rendercore::MeshVertexInstance, size_t>& viLut, int32 posIdx, int32 normalIdx, int32 texIdx )
+	uint32 FindOrCreateVertexInstance( std::vector<rendercore::MeshVertexInstance>& vertexInstances, std::map<rendercore::MeshVertexInstance, uint32>& viLut, int32 posIdx, int32 normalIdx, int32 texIdx )
 	{
-		size_t vertexInstanceID = 0;
+		uint32 vertexInstanceId = 0;
 		rendercore::MeshVertexInstance vi( posIdx, normalIdx, texIdx );
 		auto found = viLut.find( vi );
 
 		if ( found == std::end( viLut ) )
 		{
-			vertexInstanceID = vertexInstances.size();
+			vertexInstanceId = static_cast<uint32>( vertexInstances.size() );
 			vertexInstances.emplace_back( vi );
-			viLut.emplace( vi, vertexInstanceID );
+			viLut.emplace( vi, vertexInstanceId );
 		}
 		else
 		{
-			vertexInstanceID = found->second;
+			vertexInstanceId = found->second;
 		}
 
-		return vertexInstanceID;
+		return vertexInstanceId;
 	}
 
 	rendercore::StaticMesh CreateStaticMeshFromWavefrontObj( const Wavefront::ObjModel& model, const fs::path& parentPath )
@@ -139,7 +140,7 @@ namespace
 
 		auto& vertexInstances = meshDescription.m_vertexInstances;
 		vertexInstances.reserve( totalTriangle * 3 );
-		std::map<rendercore::MeshVertexInstance, size_t> viLut;
+		std::map<rendercore::MeshVertexInstance, uint32> viLut;
 
 		for ( const auto& mesh : model.m_meshs )
 		{
@@ -162,7 +163,7 @@ namespace
 				size_t normalSize = face.m_normals.size();
 				size_t texcoordSize = face.m_texcoords.size();
 
-				size_t firstVertexInstanceID = FindOrCreateVertexInstance(
+				uint32 firstVertexInstanceId = FindOrCreateVertexInstance(
 					vertexInstances,
 					viLut,
 					face.m_vertices[0],
@@ -171,14 +172,14 @@ namespace
 
 				for ( size_t i = 0; i < vertexSize - 2; ++i )
 				{
-					size_t secondVertexInstanceID = FindOrCreateVertexInstance(
+					uint32 secondVertexInstanceId = FindOrCreateVertexInstance(
 						vertexInstances,
 						viLut,
 						face.m_vertices[i + 1],
 						( normalSize == 0 ) ? -1 : face.m_normals[i + 1],
 						( texcoordSize == 0 ) ? -1 : face.m_texcoords[i + 1] );
 
-					size_t thirdVertexInstanceID = FindOrCreateVertexInstance(
+					uint32 thirdVertexInstanceId = FindOrCreateVertexInstance(
 						vertexInstances,
 						viLut,
 						face.m_vertices[i + 2],
@@ -186,15 +187,99 @@ namespace
 						( texcoordSize == 0 ) ? -1 : face.m_texcoords[i + 2] );
 
 					rendercore::MeshTriangle triangle = {
-						firstVertexInstanceID,
-						secondVertexInstanceID,
-						thirdVertexInstanceID
+						firstVertexInstanceId,
+						secondVertexInstanceId,
+						thirdVertexInstanceId
 					};
 
-					curPolygon.m_triangleID.emplace_back( triangles.size() );
+					curPolygon.m_triangleId.emplace_back( static_cast<uint32>( triangles.size() ) );
 					triangles.emplace_back( triangle );
 				}
 			}
+		}
+
+		// Build Meshlet
+		{
+			std::vector<Vector> vertices;
+			vertices.reserve( meshDescription.m_vertexInstances.size() );
+
+			for ( const rendercore::MeshVertexInstance& vertexInstance : meshDescription.m_vertexInstances )
+			{
+				vertices.emplace_back( pos[vertexInstance.m_positionId] );
+			}
+
+			std::vector<uint32> meshletVertices;
+			meshletVertices.reserve( meshDescription.m_triangles.size() * 3 );
+
+			std::vector<uint32> meshletTriangles;
+			meshletTriangles.reserve( meshDescription.m_triangles.size() * 3 );
+
+			for ( rendercore::MeshPolygon& polygon : meshDescription.m_polygons )
+			{
+				std::vector<uint32> indices;
+				indices.reserve( polygon.m_triangleId.size() * 3 );
+
+				for ( uint32 triangleId : polygon.m_triangleId )
+				{
+					const rendercore::MeshTriangle& triangle = meshDescription.m_triangles[triangleId];
+
+					for ( uint32 vertexInstanceId : triangle.m_vertexInstanceId )
+					{
+						indices.emplace_back( vertexInstanceId );
+					}
+				}
+
+				constexpr size_t MaxVertices = 64;
+				constexpr size_t MaxTriangles = 124;
+				constexpr float ConeWeight = 0.f;
+
+				size_t maxMashlets = meshopt_buildMeshletsBound( indices.size(), MaxVertices, MaxTriangles );
+
+				std::vector<meshopt_Meshlet> meshlets( maxMashlets );
+				std::vector<uint32> polygonVertices( maxMashlets * MaxVertices );
+				std::vector<uint8> polygonTriangles( maxMashlets * MaxTriangles * 3 );
+
+				size_t meshletCount = meshopt_buildMeshlets( meshlets.data(), polygonVertices.data(), polygonTriangles.data(), indices.data(), indices.size(), &vertices[0].x, vertices.size(), sizeof( Vector ), MaxVertices, MaxTriangles, ConeWeight );
+
+				meshlets.resize( meshletCount );
+
+				polygon.m_meshlets.reserve( meshlets.size() );
+
+				const meshopt_Meshlet& lastMeshlet = meshlets.back();
+
+				uint32 numVertices = lastMeshlet.vertex_offset + lastMeshlet.vertex_count;
+				
+				auto vertexOffset = static_cast<uint32>( meshletVertices.size() );
+
+				for ( const meshopt_Meshlet& meshlet : meshlets )
+				{
+					auto triangleOffset = static_cast<uint32>( meshletTriangles.size() );
+
+					for ( uint32 i = 0; i < meshlet.triangle_count; ++i )
+					{
+						uint32 i0 = 3 * i + meshlet.triangle_offset;
+						uint32 i1 = 3 * i + 1 + meshlet.triangle_offset;
+						uint32 i2 = 3 * i + 2 + meshlet.triangle_offset;
+
+						uint8 idx0 = polygonTriangles[i0];
+						uint8 idx1 = polygonTriangles[i1];
+						uint8 idx2 = polygonTriangles[i2];
+						uint32 packed = ( idx2 << 16 ) | ( idx1 << 8 ) | idx0;
+
+						meshletTriangles.emplace_back( packed );
+					}
+					
+					meshopt_Bounds meshletBounds = meshopt_computeMeshletBounds( &polygonVertices[meshlet.vertex_offset], &polygonTriangles[meshlet.triangle_offset], meshlet.triangle_count, &vertices[0].x, vertices.size(), sizeof( Vector ) );
+
+					uint32 meshletVertexOffset = meshlet.vertex_offset + vertexOffset;
+					polygon.m_meshlets.emplace_back( meshletVertexOffset, triangleOffset, meshlet.vertex_count, meshlet.triangle_count, Vector( meshletBounds.center ), meshletBounds.radius);
+				}
+
+				meshletVertices.insert( std::end( meshletVertices ), &polygonVertices[0], &polygonVertices[numVertices] );
+			}
+
+			meshDescription.m_meshletVertices = std::move( meshletVertices );
+			meshDescription.m_meshletTriangles = std::move( meshletTriangles );
 		}
 
 		rendercore::StaticMesh staticMesh;

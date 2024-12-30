@@ -13,7 +13,7 @@ namespace
 	uint64 ShaderHash( const std::string& name, const StaticShaderSwitches& switches )
 	{
 		char buf[1024] = {};
-		int32 len = SPrintf( buf, std::extent_v<decltype(buf)>, "%s_%d", name.c_str(), switches.GetID() );
+		int32 len = SPrintf( buf, std::extent_v<decltype(buf)>, "%s_%d", name.c_str(), switches.GetId() );
 
 		return Crc64Hash( buf, len );
 	}
@@ -35,7 +35,7 @@ namespace rendercore
 /*
 * FIX ME
 #ifdef _DEBUG
-		if ( m_validVariation.find( switches.GetID() ) == std::end( m_validVariation ) )
+		if ( m_validVariation.find( switches.GetId() ) == std::end( m_validVariation ) )
 		{
 			assert( false && "Invalid shader variation" );
 			return nullptr;
@@ -53,7 +53,7 @@ namespace rendercore
 			}
 		}
 
-		bool bMeshShader = ( m_type == agl::ShaderType::AS ) || ( m_type == agl::ShaderType::MS );
+		bool bMeshShader = ( m_type == agl::ShaderType::MS ) || ( m_type == agl::ShaderType::AS );
 		if ( bMeshShader && ( GetInterface<agl::IAgl>()->IsSupportsMeshShader() == false ) )
 		{
 			return nullptr;
@@ -108,11 +108,11 @@ namespace rendercore
 		case agl::ShaderType::CS:
 			shader = new ComputeShader( std::move( byteCode ), shaderHash );
 			break;
-		case agl::ShaderType::AS:
-			shader = new AmplificationShader( std::move( byteCode ), shaderHash );
-			break;
 		case agl::ShaderType::MS:
 			shader = new MeshShader( std::move( byteCode ), shaderHash );
+			break;
+		case agl::ShaderType::AS:
+			shader = new AmplificationShader( std::move( byteCode ), shaderHash );
 			break;
 		default:
 			assert( false && "Invalid shader type" );

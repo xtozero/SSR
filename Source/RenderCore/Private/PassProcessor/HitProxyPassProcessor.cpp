@@ -1,6 +1,7 @@
 #include "HitProxyPassProcessor.h"
 
 #include "GlobalShaders.h"
+#include "MaterialResource.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "VertexCollection.h"
 
@@ -15,20 +16,20 @@ namespace
 namespace rendercore
 {
 	class HitProxyVS final : public GlobalShaderCommon<VertexShader, HitProxyVS>
-	{
-	};
+	{};
 
 	class HitProxyPS final : public GlobalShaderCommon<PixelShader, HitProxyPS>
-	{
-	};
+	{};
+
+	class HitProxyMS final : public GlobalShaderCommon<MeshShader, HitProxyMS>
+	{};
 
 	REGISTER_GLOBAL_SHADER( HitProxyVS, "./Assets/Shaders/HitProxy/VS_HitProxy.asset" );
 	REGISTER_GLOBAL_SHADER( HitProxyPS, "./Assets/Shaders/HitProxy/PS_HitProxy.asset" );
+	REGISTER_GLOBAL_SHADER( HitProxyMS, "./Assets/Shaders/HitProxy/MS_HitProxy.asset" );
 
-	std::optional<DrawSnapshot> HitProxyPassProcessor::Process( const PrimitiveSubMesh& subMesh )
+	std::optional<DrawSnapshot> HitProxyPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{
-		PassShader passShader = CollectPassShader( *subMesh.m_material );
-
 		PassRenderOption passRenderOption;
 		if ( const RenderOption* option = subMesh.m_renderOption )
 		{
@@ -62,10 +63,13 @@ namespace rendercore
 
 	PassShader HitProxyPassProcessor::CollectPassShader( [[maybe_unused]] MaterialResource& material ) const
 	{
+		bool bUseMeshShader = material.UseMeshShader();
+
 		PassShader passShader = {
-			.m_vertexShader = HitProxyVS(),
+			.m_vertexShader = bUseMeshShader ? nullptr : HitProxyVS(),
 			.m_pixelShader = HitProxyPS(),
-			// TODO : Add MeshShader
+			.m_meshShader = bUseMeshShader ? HitProxyMS() : nullptr,
+			.m_amplificationShader = bUseMeshShader ? DefaultAS() : nullptr
 		};
 
 		return passShader;

@@ -6,7 +6,7 @@ namespace rendercore
 {
 	class DefaultPassProcessor final : public IPassProcessor
 	{
-	public:
-		virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) override;
+	protected:
+		virtual std::optional<DrawSnapshot> ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader ) override;
 	};
 }

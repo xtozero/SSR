@@ -40,9 +40,11 @@ namespace rendercore
 	class ImguiDrawPassProcessor final : public IPassProcessor
 	{
 	public:
-		virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) override;
-
 		ImguiDrawPassProcessor();
+
+	protected:
+		virtual std::optional<DrawSnapshot> ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader ) override;
+		virtual PassShader CollectPassShader( MaterialResource& material ) const override;
 
 	private:
 		BlendOption m_blendOption;
@@ -492,25 +494,6 @@ namespace rendercore
 		delete uiRenderer;
 	}
 
-	std::optional<DrawSnapshot> ImguiDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
-	{
-		StaticShaderSwitches useSRGB = DrawImguiVS::GetSwitches();
-		useSRGB.On( Name( "USE_SRGB" ), 1 );
-
-		PassShader passShader = {
-			.m_vertexShader = DrawImguiVS( useSRGB ),
-			.m_pixelShader = DrawImguiPS()
-		};
-
-		PassRenderOption passRenderOption = {
-			.m_blendOption = &m_blendOption,
-			.m_depthStencilOption = &m_depthStencilOption,
-			.m_rasterizerOption = &m_rasterizerOption
-		};
-
-		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default, false );
-	}
-
 	ImguiDrawPassProcessor::ImguiDrawPassProcessor()
 	{
 		for ( RenderTargetBlendOption& rtBlendOption : m_blendOption.m_renderTarget )
@@ -536,5 +519,29 @@ namespace rendercore
 
 		m_depthStencilOption.m_depth.m_enable = false;
 		m_depthStencilOption.m_stencil.m_enable = false;
+	}
+
+	std::optional<DrawSnapshot> ImguiDrawPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
+	{
+		PassRenderOption passRenderOption = {
+			.m_blendOption = &m_blendOption,
+			.m_depthStencilOption = &m_depthStencilOption,
+			.m_rasterizerOption = &m_rasterizerOption
+		};
+
+		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default, false );
+	}
+
+	PassShader ImguiDrawPassProcessor::CollectPassShader( [[maybe_unused]] MaterialResource& material ) const
+	{
+		StaticShaderSwitches useSRGB = DrawImguiVS::GetSwitches();
+		useSRGB.On( Name( "USE_SRGB" ), 1 );
+
+		PassShader passShader = {
+			.m_vertexShader = DrawImguiVS( useSRGB ),
+			.m_pixelShader = DrawImguiPS()
+		};
+
+		return passShader;
 	}
 }

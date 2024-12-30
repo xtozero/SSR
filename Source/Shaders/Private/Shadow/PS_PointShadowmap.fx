@@ -5,7 +5,6 @@ struct PS_INPUT
 {
 	float4 position : SV_POSITION;
 	float3 worldPos : TEXCOORD0;
-	uint rtIndex : SV_RenderTargetArrayIndex;
 };
 
 struct PS_OUTPUT

@@ -134,39 +134,6 @@ namespace rendercore
 			} );
 	}
 
-	REGISTER_ASSET( AmplificationShader );
-	ShaderBase* AmplificationShader::CompileShader( const StaticShaderSwitches& switches )
-	{
-		if ( GetInterface<agl::IAgl>()->IsSupportsMeshShader() == false )
-		{
-			return nullptr;
-		}
-
-		return Super::CompileShader( switches );
-	}
-
-	agl::AmplificationShader* AmplificationShader::Resource()
-	{
-		return static_cast<agl::AmplificationShader*>( m_shader.Get() );
-	}
-
-	const agl::AmplificationShader* AmplificationShader::Resource() const
-	{
-		return static_cast<agl::AmplificationShader*>( m_shader.Get() );
-	}
-
-	void AmplificationShader::CreateShader()
-	{
-		m_shader = agl::AmplificationShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
-		m_shader->SetHash( m_hash );
-
-		EnqueueRenderTask(
-			[shader = m_shader]()
-			{
-				shader->Init();
-			} );
-	}
-
 	REGISTER_ASSET( MeshShader );
 	ShaderBase* MeshShader::CompileShader( const StaticShaderSwitches& switches )
 	{
@@ -191,6 +158,39 @@ namespace rendercore
 	void MeshShader::CreateShader()
 	{
 		m_shader = agl::MeshShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
+		m_shader->SetHash( m_hash );
+
+		EnqueueRenderTask(
+			[shader = m_shader]()
+			{
+				shader->Init();
+			} );
+	}
+
+	REGISTER_ASSET( AmplificationShader );
+	ShaderBase* AmplificationShader::CompileShader( const StaticShaderSwitches& switches )
+	{
+		if ( GetInterface<agl::IAgl>()->IsSupportsMeshShader() == false )
+		{
+			return nullptr;
+		}
+
+		return Super::CompileShader( switches );
+	}
+
+	agl::AmplificationShader* AmplificationShader::Resource()
+	{
+		return static_cast<agl::AmplificationShader*>( m_shader.Get() );
+	}
+
+	const agl::AmplificationShader* AmplificationShader::Resource() const
+	{
+		return static_cast<agl::AmplificationShader*>( m_shader.Get() );
+	}
+
+	void AmplificationShader::CreateShader()
+	{
+		m_shader = agl::AmplificationShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
 		m_shader->SetHash( m_hash );
 
 		EnqueueRenderTask(

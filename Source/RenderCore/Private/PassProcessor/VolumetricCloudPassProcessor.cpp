@@ -12,13 +12,8 @@ namespace rendercore
 
 	REGISTER_GLOBAL_SHADER( DrawVolumetricCloudPS, "./Assets/Shaders/Cloud/PS_DrawVolumetricCloud.asset" );
 
-	std::optional<DrawSnapshot> VolumetricCloundDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
+	std::optional<DrawSnapshot> VolumetricCloundDrawPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{
-		PassShader passShader = {
-			.m_vertexShader = FullScreenQuadVS(),
-			.m_pixelShader =  DrawVolumetricCloudPS()
-		};
-
 		BlendOption volumetricCloundDrawPassBlendOption;
 		RenderTargetBlendOption& rt0BlendOption = volumetricCloundDrawPassBlendOption.m_renderTarget[0];
 		rt0BlendOption.m_blendEnable = true;
@@ -37,5 +32,15 @@ namespace rendercore
 		};
 
 		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default );
+	}
+
+	PassShader VolumetricCloundDrawPassProcessor::CollectPassShader( [[maybe_unused]] MaterialResource& material ) const
+	{
+		PassShader passShader = {
+			.m_vertexShader = FullScreenQuadVS(),
+			.m_pixelShader = DrawVolumetricCloudPS()
+		};
+
+		return passShader;
 	}
 }

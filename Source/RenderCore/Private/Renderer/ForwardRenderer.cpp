@@ -382,6 +382,7 @@ namespace rendercore
 
 		{
 			GPU_PROFILE( commandList, Default );
+			PIPELINE_STAT( commandList, Default );
 			RenderMesh( scene, RenderPass::Default, curView );
 		}
 

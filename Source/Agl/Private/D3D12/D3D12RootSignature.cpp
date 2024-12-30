@@ -33,11 +33,11 @@ namespace agl
 		case agl::ShaderType::CS:
 			return D3D12_SHADER_VISIBILITY_ALL;
 			break;
-		case agl::ShaderType::AS:
-			return D3D12_SHADER_VISIBILITY_AMPLIFICATION;
-			break;
 		case agl::ShaderType::MS:
 			return D3D12_SHADER_VISIBILITY_MESH;
+			break;
+		case agl::ShaderType::AS:
+			return D3D12_SHADER_VISIBILITY_AMPLIFICATION;
 			break;
 		default:
 			break;
@@ -78,6 +78,18 @@ namespace agl
 			statistics += SurveyShader( *pixelShader );
 		}
 
+		auto meshShader = static_cast<D3D12MeshShader*>( initializer.m_meshShader );
+		if ( meshShader )
+		{
+			statistics += SurveyShader( *meshShader );
+		}
+
+		auto amplificationShader = static_cast<D3D12AmplificationShader*>( initializer.m_amplificationShader );
+		if ( amplificationShader )
+		{
+			statistics += SurveyShader( *amplificationShader );
+		}
+
 		return statistics;
 	}
 
@@ -116,14 +128,14 @@ namespace agl
 			shaders.emplace_back( ShaderType::PS, static_cast<D3D12PixelShader*>( initializer.m_piexlShader ) );
 		}
 
-		if ( initializer.m_amplificationShader )
-		{
-			shaders.emplace_back( ShaderType::AS, static_cast<D3D12AmplificationShader*>( initializer.m_amplificationShader ) );
-		}
-
 		if ( initializer.m_meshShader )
 		{
 			shaders.emplace_back( ShaderType::MS, static_cast<D3D12MeshShader*>( initializer.m_meshShader ) );
+		}
+
+		if ( initializer.m_amplificationShader )
+		{
+			shaders.emplace_back( ShaderType::AS, static_cast<D3D12AmplificationShader*>( initializer.m_amplificationShader ) );
 		}
 
 		bool hasBindless = false;

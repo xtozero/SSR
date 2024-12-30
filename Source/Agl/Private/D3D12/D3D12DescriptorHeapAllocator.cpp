@@ -109,6 +109,12 @@ namespace agl
 		[[maybe_unused]] HRESULT hr = D3D12Device().CreateDescriptorHeap( &desc, IID_PPV_ARGS( heap.GetAddressOf() ) );
 		assert( SUCCEEDED( hr ) );
 
+		if ( type == D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER )
+		{
+			auto dataSize = static_cast<uint32>( std::strlen( "sampler heap" ) );
+			heap->SetPrivateData( WKPDID_D3DDebugObjectName, dataSize, "sampler heap" );
+		}
+
 		return heap;
 	}
 }

@@ -178,10 +178,10 @@ namespace rendercore
 		GeometryShader* GetGeometryShader( const StaticShaderSwitches* switches = nullptr ) const;
 		RENDERCORE_DLL void SetPixelShader( const std::shared_ptr<PixelShader>& pixelShader );
 		PixelShader* GetPixelShader( const StaticShaderSwitches* switches = nullptr ) const;
-		RENDERCORE_DLL void SetAmplificationShader( const std::shared_ptr<AmplificationShader>& amplificationShader );
-		AmplificationShader* GetAmplificationShader( const StaticShaderSwitches* switches = nullptr ) const;
 		RENDERCORE_DLL void SetMeshShader( const std::shared_ptr<MeshShader>& meshShader );
 		MeshShader* GetMeshShader( const StaticShaderSwitches* switches = nullptr ) const;
+		RENDERCORE_DLL void SetAmplificationShader( const std::shared_ptr<AmplificationShader>& amplificationShader );
+		AmplificationShader* GetAmplificationShader( const StaticShaderSwitches* switches = nullptr ) const;
 		RENDERCORE_DLL void AddSampler( const std::string& key, const SamplerOption& samplerOption );
 
 		RENDERCORE_DLL bool UseMeshShader() const;

@@ -389,7 +389,7 @@ namespace agl
 		ID3D12QueryHeap* heap = d3dQueryHeap->GetHeap();
 		ID3D12Resource* readBackBuffer = d3dQueryHeap->GetReadBackBuffer();
 
-		CommandList().ResolveQueryData( heap, type, offset, numQueries, readBackBuffer, sizeof( uint64 ) * offset );
+		CommandList().ResolveQueryData( heap, type, offset, numQueries, readBackBuffer, GetQueryDataSize( type ) * offset );
 	}
 
 	void D3D12CommandListImpl::BeginEvent( const char* eventName )

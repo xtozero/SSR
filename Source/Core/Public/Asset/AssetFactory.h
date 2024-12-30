@@ -20,12 +20,12 @@ public:
 		AddCreateFunction( id, createFunc );
 	}
 
-	virtual IAsyncLoadableAsset* CreateAsset( uint32 assetID ) const = 0;
+	virtual IAsyncLoadableAsset* CreateAsset( uint32 assetId ) const = 0;
 
 	virtual ~IAssetFactory() = default;
 
 protected:
-	virtual void AddCreateFunction( uint32 assetID, AssetCreateFunctionPtr func ) = 0;
+	virtual void AddCreateFunction( uint32 assetId, AssetCreateFunctionPtr func ) = 0;
 };
 
 template <typename T>
@@ -56,8 +56,8 @@ public:
 	template <typename T>
 	void AddCreateFunction( const char* assetType )
 	{
-		T::ID = Crc32Hash( assetType );
-		m_functionPairs.emplace_back( T::ID, &NewAsset<T> );
+		T::Id = Crc32Hash( assetType );
+		m_functionPairs.emplace_back( T::Id, &NewAsset<T> );
 	}
 
 private:
@@ -80,15 +80,15 @@ void DestroyAssetFactory( Owner<IAssetFactory*> pAssetFactory );
 
 #define DECLARE_ASSET( dllName, type ) \
 public : \
-	virtual uint32 GetID() const override \
+	virtual uint32 GetId() const override \
 	{ \
-		return type::ID;\
+		return type::Id;\
 	} \
 \
-	dllName##_DLL static uint32 ID;\
+	dllName##_DLL static uint32 Id;\
 private : \
 \
 
 #define REGISTER_ASSET( type ) \
-	uint32 type::ID = 0; \
+	uint32 type::Id = 0; \
 	const AssetFactoryRegister<type> type##Register( #type );

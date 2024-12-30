@@ -158,6 +158,7 @@ namespace rendercore
 
 	REGISTER_GLOBAL_SHADER( FullScreenQuadVS, "./Assets/Shaders/Common/VS_FullScreenQuad.asset" );
 	REGISTER_GLOBAL_SHADER( PrecomputedBrdfCS, "./Assets/Shaders/PhysicallyBased/CS_PrecomputedBRDF.asset" );
+	REGISTER_GLOBAL_SHADER( DefaultAS, "./Assets/Shaders/AS_Meshlet.asset" );
 
 	void DefaultGraphicsResources::BootUp()
 	{

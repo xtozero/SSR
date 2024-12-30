@@ -17,8 +17,7 @@ namespace rendercore
 		uint32 Size() const;
 		uint32 ElementSize() const;
 
-		agl::Buffer* Resource();
-		const agl::Buffer* Resource() const;
+		agl::Buffer* Resource() const;
 
 		VertexBuffer( uint32 elementSize, uint32 numElement, agl::ResourceState initialState, const void* initData, bool isDynamic = false );
 
@@ -50,7 +49,7 @@ namespace rendercore
 		uint32 AllocatedSize() const;
 		uint32 FreeSize() const;
 
-		agl::Buffer* Resource();
+		agl::Buffer* Resource() const;
 
 		uint64 GetNumFailedCommit() const;
 

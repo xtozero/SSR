@@ -92,15 +92,15 @@ namespace agl
 		return newShader;
 	}
 
-	AmplificationShader* CD3D11ResourceManager::CreateAmplificationShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
-	{
-		// Amplification Shader is not supported in direct3D 11
-		return nullptr;
-	}
-
 	MeshShader* CD3D11ResourceManager::CreateMeshShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
 	{
 		// Mesh Shader is not supported in direct3D 11
+		return nullptr;
+	}
+
+	AmplificationShader* CD3D11ResourceManager::CreateAmplificationShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
+	{
+		// Amplification Shader is not supported in direct3D 11
 		return nullptr;
 	}
 
@@ -185,6 +185,11 @@ namespace agl
 	OcclusionQuery* CD3D11ResourceManager::CreateOcclusionQuery() const
 	{
 		return new D3D11OcclusionTest();
+	}
+
+	PipelineStatistics* CD3D11ResourceManager::CreatePipelineStatistics() const
+	{
+		return new D3D11PipelineStatistics();
 	}
 
 	void CD3D11ResourceManager::SetPSOCache( [[maybe_unused]] std::map<uint64, BinaryChunk>& psoCache )

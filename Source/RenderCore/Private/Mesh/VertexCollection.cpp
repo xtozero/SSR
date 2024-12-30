@@ -6,6 +6,27 @@
 
 namespace rendercore
 {
+	// TODO : Add semantic index
+	Name ConvertToShaderParameterName( const VertexStream& stream )
+	{
+		static Name PositionName( "POSITION" );
+		static Name NormalName( "NORMAL" );
+		static Name TexcoordName( "TEXCOORD" );
+
+		if ( stream.GetName() == PositionName )
+		{
+			return Name( "Positions" );
+		}
+		else if ( stream.GetName() == NormalName )
+		{
+			return Name( "Normals" );
+		}
+		else
+		{
+			return Name( "Texcoords" );
+		}
+	}
+
 	VertexStream::VertexStream( const char* name, agl::ResourceFormat format, uint32 count, bool isDynamic ) 
 		: m_name( name )
 		, m_format( format )
@@ -142,6 +163,20 @@ namespace rendercore
 		}
 	}
 
+	void VertexCollection::Bind( const agl::ShaderParameterMap& shaderParameterMap, agl::SingleShaderBindings& singleShaderBinding )
+	{
+		for ( uint32 i = 0; i < m_streams.size(); ++i )
+		{
+			if ( m_vbs[i].Resource() == nullptr )
+			{
+				continue;
+			}
+
+			agl::ShaderParameter parameter = shaderParameterMap.GetParameter( ConvertToShaderParameterName( m_streams[i] ) );
+			singleShaderBinding.AddSRV( parameter, m_vbs[i].Resource()->SRV() );
+		}
+	}
+
 	Archive& operator<<( Archive& ar, VertexCollection& collection )
 	{
 		ar << collection.m_streams
@@ -210,7 +245,7 @@ namespace rendercore
 			for ( size_t i = 0; i < vertexInstances.size(); ++i )
 			{
 				const MeshVertexInstance& instance = vertexInstances[i];
-				data[i] = pos[instance.m_positionID];
+				data[i] = pos[instance.m_positionId];
 			}
 
 			collection.AddStream( std::move( posStream ) );
@@ -237,7 +272,7 @@ namespace rendercore
 				for ( size_t i = 0; i < vertexInstances.size(); ++i )
 				{
 					const MeshVertexInstance& instance = vertexInstances[i];
-					data[i] = normal[instance.m_normalID];
+					data[i] = normal[instance.m_normalId];
 				}
 
 				collection.AddStream( std::move( normalStream ) );
@@ -265,7 +300,7 @@ namespace rendercore
 				for ( size_t i = 0; i < vertexInstances.size(); ++i )
 				{
 					const MeshVertexInstance& instance = vertexInstances[i];
-					data[i] = texCoord[instance.m_texCoordID];
+					data[i] = texCoord[instance.m_texCoordId];
 				}
 
 				collection.AddStream( std::move( texCoordStream ) );

@@ -11,6 +11,12 @@
 
 class Archive;
 
+namespace agl
+{
+	class ShaderParameterMap;
+	class SingleShaderBindings;
+}
+
 namespace rendercore
 {
 	class VertexBufferBundle;
@@ -102,6 +108,7 @@ namespace rendercore
 		const VertexStreamLayout& VertexLayout( VertexStreamLayoutType layoutType ) const;
 
 		void Bind( VertexBufferBundle& bundle, VertexStreamLayoutType layoutType ) const;
+		void Bind( const agl::ShaderParameterMap& shaderParameterMap, agl::SingleShaderBindings& singleShaderBinding );
 
 		friend Archive& operator<<( Archive& ar, VertexCollection& collection );
 

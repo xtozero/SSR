@@ -44,7 +44,7 @@ class NameEntryAllocator
 public:
 	NameEntryHandle Allocate( uint32 bytes )
 	{
-		bytes = static_cast<uint32>( ( (uptrint)bytes + Stride - 1 ) & ~( Stride - 1 ) );
+		bytes = CalcAlignment( bytes, Stride );
 
 		std::lock_guard lk( m_mutex );
 
@@ -55,6 +55,7 @@ public:
 
 		uint32 offset = m_currentByte;
 		m_currentByte += bytes;
+		assert( offset % Stride == 0 );
 
 		return NameEntryHandle( m_currentBlock, offset / Stride );
 	}
@@ -68,11 +69,8 @@ public:
 		assert( view.length() < NameSize );
 		entry.m_len = static_cast<uint16>( view.length() );
 
-#ifdef _MSC_VER
-		strncpy_s( entry.m_str, view.data(), view.length() );
-#else
-		std::strncpy( entry.m_str, view.data(), view.length() );
-#endif
+		std::copy( std::begin( view ), std::end( view ), entry.m_str );
+
 		entry.m_str[view.length()] = '\0';
 
 		return handle;
@@ -265,7 +263,7 @@ protected:
 	uint32 m_capacityMask = 0;
 	NameSlot* m_slots = nullptr;
 	NameEntryAllocator* m_entries = nullptr;
-	uint8 padding[32];
+	uint8 padding[32] = {};
 };
 
 class NamePoolShard : public NamePoolShardBase

@@ -60,18 +60,13 @@ namespace rendercore
 
 	class IrradianceMapGenerateProcessor final : public IPassProcessor
 	{
-	public:
-		virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) override;
+	protected:
+		virtual std::optional<DrawSnapshot> ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader ) override;
+		virtual PassShader CollectPassShader( MaterialResource& material ) const override;
 	};
 
-	std::optional<DrawSnapshot> IrradianceMapGenerateProcessor::Process( const PrimitiveSubMesh& subMesh )
+	std::optional<DrawSnapshot> IrradianceMapGenerateProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{
-		PassShader passShader = {
-			.m_vertexShader = DrawIrradianceMapVS(),	
-			.m_geometryShader = DrawIrradianceMapGS(),
-			.m_pixelShader = DrawIrradianceMapPS()
-		};
-
 		DepthStencilOption RSMsDrawPassDepthOption;
 		RSMsDrawPassDepthOption.m_depth.m_enable = false;
 		RSMsDrawPassDepthOption.m_depth.m_writeDepth = false;
@@ -82,6 +77,17 @@ namespace rendercore
 		};
 
 		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::PositionOnly );
+	}
+
+	PassShader IrradianceMapGenerateProcessor::CollectPassShader( [[maybe_unused]] MaterialResource& material ) const
+	{
+		PassShader passShader = {
+			.m_vertexShader = DrawIrradianceMapVS(),
+			.m_geometryShader = DrawIrradianceMapGS(),
+			.m_pixelShader = DrawIrradianceMapPS()
+		};
+
+		return passShader;
 	}
 
 	RefHandle<agl::Texture> GenerateIrradianceMap( RefHandle<agl::Texture> cubeMap )

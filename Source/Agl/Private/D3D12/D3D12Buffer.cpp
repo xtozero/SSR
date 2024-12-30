@@ -133,16 +133,6 @@ namespace agl
 		return m_resourceInfo.GetResource();
 	}
 
-	uint32 D3D12Buffer::Stride() const
-	{
-		return m_trait.m_stride;
-	}
-
-	uint32 D3D12Buffer::Size() const
-	{
-		return m_trait.m_stride * m_trait.m_count;
-	}
-
 	const AllocatedResourceInfo& D3D12Buffer::GetResourceInfo() const
 	{
 		return m_resourceInfo;
@@ -222,9 +212,8 @@ namespace agl
 		{
 			m_hasInitData = true;
 
-			uint32 dataSize = Size();
-			m_dataStorage = new unsigned char[dataSize];
-			std::memcpy( m_dataStorage, initData, dataSize );
+			m_dataStorage = new unsigned char[m_desc.Width];
+			std::memcpy( m_dataStorage, initData, Size() );
 		}
 	}
 

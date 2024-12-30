@@ -95,7 +95,7 @@ public:
 	struct GenerateNewHandle {};
 
 	DelegateHandle() : m_id( 0 ) { }
-	DelegateHandle( GenerateNewHandle ) : m_id( GenerateNewID() ) { }
+	DelegateHandle( GenerateNewHandle ) : m_id( GenerateNewId() ) { }
 
 	friend bool operator==( const DelegateHandle& lhs, const DelegateHandle& rhs )
 	{
@@ -108,20 +108,20 @@ public:
 	}
 
 private:
-	static int32 GenerateNewID()
+	static int32 GenerateNewId()
 	{
-		int32 newID = ++m_nextID;
+		int32 newId = ++m_nextId;
 
-		if ( newID == 0 )
+		if ( newId == 0 )
 		{
-			newID = ++m_nextID;
+			newId = ++m_nextId;
 		}
 
-		return newID;
+		return newId;
 	}
 
 	int32 m_id = 0;
-	inline static std::atomic<int32> m_nextID = 1;
+	inline static std::atomic<int32> m_nextId = 1;
 };
 
 template <typename RetType, typename... ArgTypes>

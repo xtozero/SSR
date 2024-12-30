@@ -171,7 +171,8 @@ set (REFLECTION
 
 set (SERIALIZATION_HEADER
 	Public/Serialization/Archive.h
-	Public/Serialization/ArchiveUtility.h)
+	Public/Serialization/ArchiveUtility.h
+	Public/Serialization/Serializable.h)
 
 source_group("AppConfig" FILES ${APP_CONFIG})
 source_group("Asset" FILES ${ASSET})

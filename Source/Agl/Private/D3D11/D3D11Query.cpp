@@ -116,4 +116,55 @@ namespace agl
 	{
 		return true;
 	}
+
+	void D3D11PipelineStatistics::InitResource()
+	{
+		D3D11_QUERY_DESC desc = {
+			.Query = D3D11_QUERY_PIPELINE_STATISTICS,
+			.MiscFlags = 0,
+		};
+
+		D3D11Device().CreateQuery( &desc, &m_pipelineStatistics );
+	}
+
+	void D3D11PipelineStatistics::FreeResource()
+	{
+		if ( m_pipelineStatistics )
+		{
+			m_pipelineStatistics->Release();
+			m_pipelineStatistics = nullptr;
+		}
+	}
+
+	void D3D11PipelineStatistics::Begin( ICommandListBase& commandList )
+	{
+		commandList.BeginQuery( m_pipelineStatistics );
+	}
+
+	void D3D11PipelineStatistics::End( ICommandListBase& commandList )
+	{
+		commandList.EndQuery( m_pipelineStatistics );
+	}
+
+	PipelineStatisticsData D3D11PipelineStatistics::GetStatisticsData() const
+	{
+		D3D11_QUERY_DATA_PIPELINE_STATISTICS d3d11Data = {};
+		while ( D3D11Context().GetData( m_pipelineStatistics, &d3d11Data, sizeof( d3d11Data ), 0 ) != S_OK );
+
+		PipelineStatisticsData data = {
+			.m_verticesIA = d3d11Data.IAVertices,
+			.m_primitivesIA = d3d11Data.IAPrimitives,
+			.m_invocationsVS = d3d11Data.VSInvocations,
+			.m_invocationsGS = d3d11Data.GSInvocations,
+			.m_primitivesGS = d3d11Data.GSPrimitives,
+			.m_invocationsC = d3d11Data.CInvocations,
+			.m_primitivesC = d3d11Data.CPrimitives,
+			.m_invocationsPS = d3d11Data.PSInvocations,
+			.m_invocationsHS = d3d11Data.HSInvocations,
+			.m_invocationsDS = d3d11Data.DSInvocations,
+			.m_invocationsCS = d3d11Data.CSInvocations,
+		};
+
+		return data;
+	}
 }

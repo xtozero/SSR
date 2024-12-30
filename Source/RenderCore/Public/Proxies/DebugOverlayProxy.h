@@ -23,7 +23,7 @@ namespace rendercore
 		{
 			return {};
 		}
-		virtual MeshDrawInfo GatherMeshDrawInfo( [[maybe_unused]] uint32 lod, [[maybe_unused]] uint32 sectionIndex ) const override
+		virtual std::optional<MeshDrawInfo> GatherMeshDrawInfo( [[maybe_unused]] uint32 lod, [[maybe_unused]] uint32 sectionIndex ) const override
 		{
 			return {};
 		}

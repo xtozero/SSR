@@ -181,11 +181,9 @@ namespace engine
 				{
 
 				}
-				else
-				{
-					m_logic->AppSizeChanged( *m_platform );
-				}
 			}
+
+			m_logic->AppSizeChanged( *m_platform );
 			return 0;
 		}
 		case WM_DESTROY:

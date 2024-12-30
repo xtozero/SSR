@@ -246,8 +246,8 @@ namespace rendercore
 				.m_drawSnapshot = &snapshot,
 			};
 
-			VertexBuffer emptyPrimitiveID;
-			CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
+			VertexBuffer emptyPrimitiveId;
+			CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveId );
 
 			found->second.EndQuery( viewState );
 		}

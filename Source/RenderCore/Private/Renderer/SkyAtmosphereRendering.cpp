@@ -106,13 +106,8 @@ namespace rendercore
 	REGISTER_GLOBAL_SHADER( CopyInscatterNCS, "./Assets/Shaders/Atmosphere/CS_CopyInscatterN.asset" );
 	REGISTER_GLOBAL_SHADER( DrawAtmospherePS, "./Assets/Shaders/Atmosphere/PS_DrawAtmosphere.asset" );
 
-	std::optional<DrawSnapshot> SkyAtmosphereDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
+	std::optional<DrawSnapshot> SkyAtmosphereDrawPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{
-		PassShader passShader = {
-			.m_vertexShader = FullScreenQuadVS(),
-			.m_pixelShader = DrawAtmospherePS()
-		};
-
 		BlendOption skyAtmosphereDrawPassBlendOption;
 		RenderTargetBlendOption& rt0BlendOption = skyAtmosphereDrawPassBlendOption.m_renderTarget[0];
 		rt0BlendOption.m_blendEnable = true;
@@ -130,6 +125,16 @@ namespace rendercore
 		};
 
 		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default );
+	}
+
+	PassShader SkyAtmosphereDrawPassProcessor::CollectPassShader( [[maybe_unused]] MaterialResource& material ) const
+	{
+		PassShader passShader = {
+			.m_vertexShader = FullScreenQuadVS(),
+			.m_pixelShader = DrawAtmospherePS()
+		};
+
+		return passShader;
 	}
 
 	void InitAtmosphereForScene( Scene& scene )

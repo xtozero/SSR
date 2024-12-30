@@ -35,8 +35,8 @@ namespace rendercore
 		VertexShader* m_vertexShader = nullptr;
 		GeometryShader* m_geometryShader = nullptr;
 		PixelShader* m_pixelShader = nullptr;
-		AmplificationShader* m_amplificationShader = nullptr;
 		MeshShader* m_meshShader = nullptr;
+		AmplificationShader* m_amplificationShader = nullptr;
 	};
 
 	struct PassRenderOption final
@@ -50,11 +50,12 @@ namespace rendercore
 	class IPassProcessor
 	{
 	public:
-		virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) = 0;
+		std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh );
 
 		virtual ~IPassProcessor() = default;
 
 	protected:
+		virtual std::optional<DrawSnapshot> ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader ) = 0;
 		virtual PassShader CollectPassShader( MaterialResource& material ) const;
 
 		std::optional<DrawSnapshot> BuildDrawSnapshot( 

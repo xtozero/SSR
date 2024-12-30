@@ -1,0 +1,33 @@
+{
+  "World": [
+    {
+      "Object": {
+        "Class": "player",
+        "Position": [ 0, 0, -50 ],
+        "Components": {
+          "GroundMovementComponent": {
+            "Kinetic_Force_Scale": 300,
+            "Friction": [ 300, 200 ]
+          }
+        }
+      }
+    },
+    {
+      "Object": {
+        "Class": "sphere_object",
+        "Name": "sphere",
+        "Position": [ 0, 0, 0 ],
+        "Scale": [ 50, 50, 50 ],
+        "Components": {
+          "StaticMeshComponent": {
+            "Model": "./Assets/Models/Obj/RSMs/white_sphere.asset",
+            "RenderOption": "./Assets/RenderOptions/RO_Default.asset",
+            "Materials": {
+              "0": "./Assets/Materials/Experimental/MeshShader/M_meshlet.asset"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

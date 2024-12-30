@@ -43,23 +43,23 @@ namespace logic
 		}
 
 		boxDesc.m_triangles.resize( 12 );
-		boxDesc.m_triangles[0].m_vertexInstanceID[0] = 4; boxDesc.m_triangles[0].m_vertexInstanceID[1] = 6; boxDesc.m_triangles[0].m_vertexInstanceID[2] = 0;
-		boxDesc.m_triangles[1].m_vertexInstanceID[0] = 6; boxDesc.m_triangles[1].m_vertexInstanceID[1] = 2; boxDesc.m_triangles[1].m_vertexInstanceID[2] = 0;
-		boxDesc.m_triangles[2].m_vertexInstanceID[0] = 2; boxDesc.m_triangles[2].m_vertexInstanceID[1] = 3; boxDesc.m_triangles[2].m_vertexInstanceID[2] = 0;
-		boxDesc.m_triangles[3].m_vertexInstanceID[0] = 3; boxDesc.m_triangles[3].m_vertexInstanceID[1] = 1; boxDesc.m_triangles[3].m_vertexInstanceID[2] = 0;
-		boxDesc.m_triangles[4].m_vertexInstanceID[0] = 6; boxDesc.m_triangles[4].m_vertexInstanceID[1] = 7; boxDesc.m_triangles[4].m_vertexInstanceID[2] = 2;
-		boxDesc.m_triangles[5].m_vertexInstanceID[0] = 7; boxDesc.m_triangles[5].m_vertexInstanceID[1] = 3; boxDesc.m_triangles[5].m_vertexInstanceID[2] = 2;
-		boxDesc.m_triangles[6].m_vertexInstanceID[0] = 7; boxDesc.m_triangles[6].m_vertexInstanceID[1] = 6; boxDesc.m_triangles[6].m_vertexInstanceID[2] = 4;
-		boxDesc.m_triangles[7].m_vertexInstanceID[0] = 5; boxDesc.m_triangles[7].m_vertexInstanceID[1] = 7; boxDesc.m_triangles[7].m_vertexInstanceID[2] = 4;
-		boxDesc.m_triangles[8].m_vertexInstanceID[0] = 5; boxDesc.m_triangles[8].m_vertexInstanceID[1] = 4; boxDesc.m_triangles[8].m_vertexInstanceID[2] = 0;
-		boxDesc.m_triangles[9].m_vertexInstanceID[0] = 1; boxDesc.m_triangles[9].m_vertexInstanceID[1] = 5; boxDesc.m_triangles[9].m_vertexInstanceID[2] = 0;
-		boxDesc.m_triangles[10].m_vertexInstanceID[0] = 7; boxDesc.m_triangles[10].m_vertexInstanceID[1] = 5; boxDesc.m_triangles[10].m_vertexInstanceID[2] = 1;
-		boxDesc.m_triangles[11].m_vertexInstanceID[0] = 3; boxDesc.m_triangles[11].m_vertexInstanceID[1] = 7; boxDesc.m_triangles[11].m_vertexInstanceID[2] = 1;
+		boxDesc.m_triangles[0].m_vertexInstanceId[0] = 4; boxDesc.m_triangles[0].m_vertexInstanceId[1] = 6; boxDesc.m_triangles[0].m_vertexInstanceId[2] = 0;
+		boxDesc.m_triangles[1].m_vertexInstanceId[0] = 6; boxDesc.m_triangles[1].m_vertexInstanceId[1] = 2; boxDesc.m_triangles[1].m_vertexInstanceId[2] = 0;
+		boxDesc.m_triangles[2].m_vertexInstanceId[0] = 2; boxDesc.m_triangles[2].m_vertexInstanceId[1] = 3; boxDesc.m_triangles[2].m_vertexInstanceId[2] = 0;
+		boxDesc.m_triangles[3].m_vertexInstanceId[0] = 3; boxDesc.m_triangles[3].m_vertexInstanceId[1] = 1; boxDesc.m_triangles[3].m_vertexInstanceId[2] = 0;
+		boxDesc.m_triangles[4].m_vertexInstanceId[0] = 6; boxDesc.m_triangles[4].m_vertexInstanceId[1] = 7; boxDesc.m_triangles[4].m_vertexInstanceId[2] = 2;
+		boxDesc.m_triangles[5].m_vertexInstanceId[0] = 7; boxDesc.m_triangles[5].m_vertexInstanceId[1] = 3; boxDesc.m_triangles[5].m_vertexInstanceId[2] = 2;
+		boxDesc.m_triangles[6].m_vertexInstanceId[0] = 7; boxDesc.m_triangles[6].m_vertexInstanceId[1] = 6; boxDesc.m_triangles[6].m_vertexInstanceId[2] = 4;
+		boxDesc.m_triangles[7].m_vertexInstanceId[0] = 5; boxDesc.m_triangles[7].m_vertexInstanceId[1] = 7; boxDesc.m_triangles[7].m_vertexInstanceId[2] = 4;
+		boxDesc.m_triangles[8].m_vertexInstanceId[0] = 5; boxDesc.m_triangles[8].m_vertexInstanceId[1] = 4; boxDesc.m_triangles[8].m_vertexInstanceId[2] = 0;
+		boxDesc.m_triangles[9].m_vertexInstanceId[0] = 1; boxDesc.m_triangles[9].m_vertexInstanceId[1] = 5; boxDesc.m_triangles[9].m_vertexInstanceId[2] = 0;
+		boxDesc.m_triangles[10].m_vertexInstanceId[0] = 7; boxDesc.m_triangles[10].m_vertexInstanceId[1] = 5; boxDesc.m_triangles[10].m_vertexInstanceId[2] = 1;
+		boxDesc.m_triangles[11].m_vertexInstanceId[0] = 3; boxDesc.m_triangles[11].m_vertexInstanceId[1] = 7; boxDesc.m_triangles[11].m_vertexInstanceId[2] = 1;
 
 		boxDesc.m_polygons.resize( 1 );
-		auto& triangleID = boxDesc.m_polygons[0].m_triangleID;
-		triangleID.resize( 12 );
-		std::iota( std::begin( triangleID ), std::end( triangleID ), 0 );
+		auto& triangleId = boxDesc.m_polygons[0].m_triangleId;
+		triangleId.resize( 12 );
+		std::iota( std::begin( triangleId ), std::end( triangleId ), 0 );
 
 		boxDesc.m_polygonMaterialName.resize( 1 );
 

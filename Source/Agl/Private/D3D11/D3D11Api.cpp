@@ -500,6 +500,7 @@ namespace agl
 	bool CDirect3D11::CreateDeviceDependentResource()
 	{
 		D3D_DRIVER_TYPE d3dDriverTypes[] = {
+			D3D_DRIVER_TYPE_UNKNOWN,
 			D3D_DRIVER_TYPE_HARDWARE,
 			D3D_DRIVER_TYPE_WARP,
 			D3D_DRIVER_TYPE_REFERENCE
@@ -548,9 +549,9 @@ namespace agl
 		D3D_FEATURE_LEVEL selectedFeature = D3D_FEATURE_LEVEL_11_1;
 		HRESULT hr = E_FAIL;
 
-		for ( uint32 i = 0; i < _countof( d3dDriverTypes ); ++i )
+		for ( uint32 i = 0; FAILED( hr ) && ( i < _countof( d3dDriverTypes ) ); ++i )
 		{
-			hr = D3D11CreateDevice( nullptr,
+			hr = D3D11CreateDevice( properAdapter.Get(),
 				d3dDriverTypes[i],
 				nullptr, flag,
 				d3dFeatureLevel,
@@ -560,68 +561,68 @@ namespace agl
 				&selectedFeature,
 				m_pd3d11DeviceContext.GetAddressOf()
 			);
+		}
 
-			if ( SUCCEEDED( hr ) )
+		if ( SUCCEEDED( hr ) )
+		{
+			// TODO: Viewport 에서 멀티 샘플링 관련 기능 구현
+			/*int32 desiredSampleCount = 0;
+			EnumerateSampleCountAndQuality( &desiredSampleCount, nullptr );
+
+			std::vector<DXGI_SAMPLE_DESC> sampleCountAndQuality;
+			sampleCountAndQuality.resize( desiredSampleCount );
+
+			EnumerateSampleCountAndQuality( &desiredSampleCount, sampleCountAndQuality.data( ) );
+
+			auto found = std::find_if( sampleCountAndQuality.begin( ), sampleCountAndQuality.end( ),
+									[]( DXGI_SAMPLE_DESC& desc )
+									{
+										return desc.Count == 1;
+									} );
+
+			if ( found != sampleCountAndQuality.end( ) )
 			{
-				// TODO: Viewport 에서 멀티 샘플링 관련 기능 구현
-				/*int32 desiredSampleCount = 0;
-				EnumerateSampleCountAndQuality( &desiredSampleCount, nullptr );
-
-				std::vector<DXGI_SAMPLE_DESC> sampleCountAndQuality;
-				sampleCountAndQuality.resize( desiredSampleCount );
-
-				EnumerateSampleCountAndQuality( &desiredSampleCount, sampleCountAndQuality.data( ) );
-
-				auto found = std::find_if( sampleCountAndQuality.begin( ), sampleCountAndQuality.end( ),
-										[]( DXGI_SAMPLE_DESC& desc )
-										{
-											return desc.Count == 1;
-										} );
-
-				if ( found != sampleCountAndQuality.end( ) )
-				{
-					m_multiSampleOption = *found;
-				}
-
-				DXGI_SWAP_CHAIN_DESC dxgiSwapchainDesc = {};
-
-				dxgiSwapchainDesc.BufferCount = 1;
-				dxgiSwapchainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-				dxgiSwapchainDesc.BufferDesc.Height = nWndHeight;
-				dxgiSwapchainDesc.BufferDesc.Width = nWndWidth;
-				dxgiSwapchainDesc.BufferDesc.RefreshRate.Denominator = 1;
-				dxgiSwapchainDesc.BufferDesc.RefreshRate.Numerator = 60;
-				dxgiSwapchainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-				dxgiSwapchainDesc.OutputWindow = hWnd;
-				dxgiSwapchainDesc.SampleDesc.Count = m_multiSampleOption.Count;
-				dxgiSwapchainDesc.SampleDesc.Quality = m_multiSampleOption.Quality;
-				dxgiSwapchainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-				dxgiSwapchainDesc.Windowed = true;
-				dxgiSwapchainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-
-				hr = m_pdxgiFactory->CreateSwapChain( m_pd3d11Device.Get( ), &dxgiSwapchainDesc, m_pdxgiSwapChain.GetAddressOf( ) );
-				if ( FAILED( hr ) )
-				{
-					return false;
-				}
-
-				m_resourceManager.OnDeviceRestore( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ) );
-
-				Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
-				hr = m_pdxgiSwapChain->GetBuffer( 0, IID_PPV_ARGS( &backBuffer ) );
-				if ( FAILED( hr ) )
-				{
-					return false;
-				}
-
-				m_backBuffer = m_resourceManager.AddTexture2D( backBuffer, true );*/
-
-				std::destroy_at( &m_commandList );
-				std::construct_at( &m_commandList );
-				m_commandList.Initialize();
-
-				return true;
+				m_multiSampleOption = *found;
 			}
+
+			DXGI_SWAP_CHAIN_DESC dxgiSwapchainDesc = {};
+
+			dxgiSwapchainDesc.BufferCount = 1;
+			dxgiSwapchainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+			dxgiSwapchainDesc.BufferDesc.Height = nWndHeight;
+			dxgiSwapchainDesc.BufferDesc.Width = nWndWidth;
+			dxgiSwapchainDesc.BufferDesc.RefreshRate.Denominator = 1;
+			dxgiSwapchainDesc.BufferDesc.RefreshRate.Numerator = 60;
+			dxgiSwapchainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+			dxgiSwapchainDesc.OutputWindow = hWnd;
+			dxgiSwapchainDesc.SampleDesc.Count = m_multiSampleOption.Count;
+			dxgiSwapchainDesc.SampleDesc.Quality = m_multiSampleOption.Quality;
+			dxgiSwapchainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+			dxgiSwapchainDesc.Windowed = true;
+			dxgiSwapchainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
+			hr = m_pdxgiFactory->CreateSwapChain( m_pd3d11Device.Get( ), &dxgiSwapchainDesc, m_pdxgiSwapChain.GetAddressOf( ) );
+			if ( FAILED( hr ) )
+			{
+				return false;
+			}
+
+			m_resourceManager.OnDeviceRestore( m_pd3d11Device.Get( ), m_pd3d11DeviceContext.Get( ) );
+
+			Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
+			hr = m_pdxgiSwapChain->GetBuffer( 0, IID_PPV_ARGS( &backBuffer ) );
+			if ( FAILED( hr ) )
+			{
+				return false;
+			}
+
+			m_backBuffer = m_resourceManager.AddTexture2D( backBuffer, true );*/
+
+			std::destroy_at( &m_commandList );
+			std::construct_at( &m_commandList );
+			m_commandList.Initialize();
+
+			return true;
 		}
 
 		return false;

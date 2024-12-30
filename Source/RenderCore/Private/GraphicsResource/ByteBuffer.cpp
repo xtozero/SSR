@@ -67,4 +67,36 @@ namespace rendercore
 
 		commandList.Dispatch( threadGroup, 1 );
 	}
+
+	agl::Buffer* ByteBuffer::Resource() const
+	{
+		return m_buffer.Get();
+	}
+
+	ByteBuffer::ByteBuffer( uint32 size, agl::ResourceState initialState, const void* initData, bool isDynamic )
+		: m_isDynamic( isDynamic )
+	{
+		InitResource( size, initialState, initData );
+	}
+
+	void ByteBuffer::InitResource( uint32 size, agl::ResourceState initialState, const void* initData )
+	{
+		auto accessFlag = m_isDynamic ? agl::ResourceAccessFlag::Upload : agl::ResourceAccessFlag::Default;
+
+		agl::BufferTrait trait = {
+			.m_stride = 1,
+			.m_count = size,
+			.m_access = accessFlag,
+			.m_bindType = agl::ResourceBindType::ShaderResource,
+			.m_miscFlag = agl::ResourceMisc::BufferAllowRawViews,
+			.m_format = agl::ResourceFormat::Unknown
+		};
+
+		m_buffer = agl::Buffer::Create( trait, "Byte", initialState, initData );
+		EnqueueRenderTask(
+			[buffer = m_buffer]()
+			{
+				buffer->Init();
+			} );
+	}
 }

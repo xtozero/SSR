@@ -30,11 +30,11 @@ namespace
 			break;
 		case agl::ShaderType::CS:
 			break;
-		case agl::ShaderType::AS:
-			return pipelineState.m_shaderState.m_amplificationShader;
-			break;
 		case agl::ShaderType::MS:
 			return pipelineState.m_shaderState.m_meshShader;
+			break;
+		case agl::ShaderType::AS:
+			return pipelineState.m_shaderState.m_amplificationShader;
 			break;
 		case agl::ShaderType::Count:
 			[[fallthrough]];
@@ -81,23 +81,23 @@ namespace rendercore
 		return nullptr;
 	}
 
-	AmplificationShader* MaterialResource::GetAmplificationShader( const StaticShaderSwitches* switches ) const
-	{
-		auto material = m_material.lock();
-		if ( material )
-		{
-			return material->GetAmplificationShader( switches );
-		}
-
-		return nullptr;
-	}
-
 	MeshShader* MaterialResource::GetMeshShader( const StaticShaderSwitches* switches ) const
 	{
 		auto material = m_material.lock();
 		if ( material )
 		{
 			return material->GetMeshShader( switches );
+		}
+
+		return nullptr;
+	}
+
+	AmplificationShader* MaterialResource::GetAmplificationShader( const StaticShaderSwitches* switches ) const
+	{
+		auto material = m_material.lock();
+		if ( material )
+		{
+			return material->GetAmplificationShader( switches );
 		}
 
 		return nullptr;
@@ -161,8 +161,8 @@ namespace rendercore
 			agl::ShaderType::VS,
 			agl::ShaderType::GS,
 			agl::ShaderType::PS,
-			agl::ShaderType::AS,
-			agl::ShaderType::MS };
+			agl::ShaderType::MS,
+			agl::ShaderType::AS };
 
 		for ( auto shaderType : ShaderTypes )
 		{
@@ -241,8 +241,8 @@ namespace rendercore
 			static_cast<uint32>( agl::ShaderType::VS ),
 			static_cast<uint32>( agl::ShaderType::GS ),
 			static_cast<uint32>( agl::ShaderType::PS ),
-			static_cast<uint32>( agl::ShaderType::AS ),
-			static_cast<uint32>( agl::ShaderType::MS ) };
+			static_cast<uint32>( agl::ShaderType::MS ),
+			static_cast<uint32>( agl::ShaderType::AS ) };
 
 		uint32 materialCbSlotNumbers[agl::MAX_SHADER_TYPE<uint32>];
 		constexpr uint32 InvalidSlot = std::numeric_limits<uint32>::max();

@@ -34,6 +34,9 @@ namespace agl
 
 		AGL_DLL const BufferTrait& GetTrait() const;
 
+		uint32 Stride() const;
+		uint32 Size() const;
+
 		bool IsDynamic() const;
 
 		explicit Buffer( ResourceState initialState ) noexcept;

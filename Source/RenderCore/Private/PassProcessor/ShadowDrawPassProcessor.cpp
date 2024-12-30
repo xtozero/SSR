@@ -15,25 +15,8 @@ namespace rendercore
 
 	REGISTER_GLOBAL_SHADER( DrawCascadeShadowPS, "./Assets/Shaders/Shadow/PS_DrawCascadeShadow.asset" );
 
-	std::optional<DrawSnapshot> CascadeShadowDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
+	std::optional<DrawSnapshot> CascadeShadowDrawPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{
-		StaticShaderSwitches vsSwitches = FullScreenQuadVS::GetSwitches();
-		if ( DefaultRenderCore::IsTaaEnabled() )
-		{
-			vsSwitches.On( Name( "TAA" ), 1 );
-		}
-
-		StaticShaderSwitches psSwitches = DrawCascadeShadowPS::GetSwitches();
-		if ( DefaultRenderCore::IsESMsEnabled() )
-		{
-			psSwitches.On( Name( "EnableESMs" ), 1 );
-		}
-
-		PassShader passShader = {
-			.m_vertexShader = FullScreenQuadVS( vsSwitches ),
-			.m_pixelShader = DrawCascadeShadowPS( psSwitches )
-		};
-
 		BlendOption shadowDrawPassBlendOption;
 		RenderTargetBlendOption& rt0BlendOption = shadowDrawPassBlendOption.m_renderTarget[0];
 		rt0BlendOption.m_blendEnable = true;
@@ -53,14 +36,7 @@ namespace rendercore
 		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default );
 	}
 
-	class DrawPointShadowPS final : public GlobalShaderCommon<PixelShader, DrawPointShadowPS>
-	{
-		using GlobalShaderCommon::GlobalShaderCommon;
-	};
-
-	REGISTER_GLOBAL_SHADER( DrawPointShadowPS, "./Assets/Shaders/Shadow/PS_DrawPointShadow.asset" );
-
-	std::optional<DrawSnapshot> PointShadowDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
+	PassShader CascadeShadowDrawPassProcessor::CollectPassShader( [[maybe_unused]] MaterialResource& material ) const
 	{
 		StaticShaderSwitches vsSwitches = FullScreenQuadVS::GetSwitches();
 		if ( DefaultRenderCore::IsTaaEnabled() )
@@ -68,13 +44,29 @@ namespace rendercore
 			vsSwitches.On( Name( "TAA" ), 1 );
 		}
 
-		StaticShaderSwitches psSwitches = DrawPointShadowPS::GetSwitches();
+		StaticShaderSwitches psSwitches = DrawCascadeShadowPS::GetSwitches();
+		if ( DefaultRenderCore::IsESMsEnabled() )
+		{
+			psSwitches.On( Name( "EnableESMs" ), 1 );
+		}
 
 		PassShader passShader = {
 			.m_vertexShader = FullScreenQuadVS( vsSwitches ),
-			.m_pixelShader = DrawPointShadowPS( psSwitches )
+			.m_pixelShader = DrawCascadeShadowPS( psSwitches )
 		};
 
+		return passShader;
+	}
+
+	class DrawPointShadowPS final : public GlobalShaderCommon<PixelShader, DrawPointShadowPS>
+	{
+		using GlobalShaderCommon::GlobalShaderCommon;
+	};
+
+	REGISTER_GLOBAL_SHADER( DrawPointShadowPS, "./Assets/Shaders/Shadow/PS_DrawPointShadow.asset" );
+
+	std::optional<DrawSnapshot> PointShadowDrawPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
+	{
 		BlendOption shadowDrawPassBlendOption;
 		RenderTargetBlendOption& rt0BlendOption = shadowDrawPassBlendOption.m_renderTarget[0];
 		rt0BlendOption.m_blendEnable = true;
@@ -92,5 +84,23 @@ namespace rendercore
 		};
 
 		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default );
+	}
+
+	PassShader PointShadowDrawPassProcessor::CollectPassShader( [[maybe_unused]] MaterialResource& material ) const
+	{
+		StaticShaderSwitches vsSwitches = FullScreenQuadVS::GetSwitches();
+		if ( DefaultRenderCore::IsTaaEnabled() )
+		{
+			vsSwitches.On( Name( "TAA" ), 1 );
+		}
+
+		StaticShaderSwitches psSwitches = DrawPointShadowPS::GetSwitches();
+
+		PassShader passShader = {
+			.m_vertexShader = FullScreenQuadVS( vsSwitches ),
+			.m_pixelShader = DrawPointShadowPS( psSwitches )
+		};
+
+		return passShader;
 	}
 }

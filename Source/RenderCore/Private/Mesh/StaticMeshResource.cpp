@@ -13,7 +13,8 @@ namespace rendercore
 	{
 		ar << section.m_startLocation
 			<< section.m_count
-			<< section.m_materialIndex;
+			<< section.m_materialIndex
+			<< section.m_meshlets;
 
 		return ar;
 	}
@@ -50,6 +51,8 @@ namespace rendercore
 		}
 
 		ar << lodResource.m_sections;
+		ar << lodResource.m_meshletVertices;
+		ar << lodResource.m_meshletTriangles;
 
 		return ar;
 	}
@@ -71,13 +74,30 @@ namespace rendercore
 			return;
 		}
 
+		bool bSupportsMeshShader = GetInterface<agl::IAgl>()->IsSupportsMeshShader();
+
 		for ( StaticMeshLODResource& lodResource : m_lodResources )
 		{
 			lodResource.m_vertexCollection.InitResource();
 
-			uint32 stride = lodResource.m_isDWORD ? sizeof( DWORD ) : sizeof( WORD );
-			uint32 size = static_cast<uint32>( lodResource.m_indexData.size() ) / stride;
-			lodResource.m_ib = IndexBuffer( size, agl::ResourceState::Common, lodResource.m_indexData.data(), lodResource.m_isDWORD );
+			uint32 indexBufferStride = lodResource.m_isDWORD ? sizeof( DWORD ) : sizeof( WORD );
+			auto numIndexBufferElement = static_cast<uint32>( lodResource.m_indexData.size() ) / indexBufferStride;
+			lodResource.m_ib = IndexBuffer( numIndexBufferElement, agl::ResourceState::Common, lodResource.m_indexData.data(), lodResource.m_isDWORD );
+
+			if ( bSupportsMeshShader )
+			{
+				auto numMeshletVertexBufferElement = static_cast<uint32>( lodResource.m_meshletVertices.size() );
+				std::construct_at( &lodResource.m_meshletVertexBuffer, numMeshletVertexBufferElement, lodResource.m_meshletVertices.data() );
+
+				auto meshletTriangleBufferElement = static_cast<uint32>( lodResource.m_meshletTriangles.size() );
+				std::construct_at( &lodResource.m_meshletTriangleBuffer, meshletTriangleBufferElement, lodResource.m_meshletTriangles.data() );
+
+				for ( StaticMeshSection& section : lodResource.m_sections )
+				{
+					auto numMeshletElement = static_cast<uint32>( section.m_meshlets.size() );
+					std::construct_at( &section.m_meshletBuffer, numMeshletElement, section.m_meshlets.data() );
+				}
+			}
 		}
 
 		m_initialized = true;

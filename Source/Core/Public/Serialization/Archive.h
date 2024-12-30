@@ -261,12 +261,12 @@ private:
 		{
 			const char* oldPos = m_curPos;
 
-			uint32 assetID = 0;
-			ReadData( assetID );
+			uint32 assetId = 0;
+			ReadData( assetId );
 
 			m_curPos = oldPos;
 
-			value.reset( Cast<T>( GetInterface<class IAssetFactory>()->CreateAsset( assetID ) ) );
+			value.reset( Cast<T>( GetInterface<class IAssetFactory>()->CreateAsset( assetId ) ) );
 			value->Serialize( *this );
 		}
 	}

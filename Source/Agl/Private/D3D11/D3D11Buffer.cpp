@@ -102,27 +102,20 @@ namespace agl
 		return m_desc;
 	}
 
-	uint32 D3D11Buffer::Stride() const
-	{
-		return m_desc.StructureByteStride;
-	}
-
 	D3D11Buffer::D3D11Buffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData )
 		: Buffer( initialState )
+		, m_desc( ConvertTraitToDesc( trait ) )
 	{
 		m_debugName = Name( debugName );
 		m_trait = trait;
-		m_desc = ConvertTraitToDesc( m_trait );
 		m_format = ConvertFormatToDxgiFormat( m_trait.m_format );
-		m_dataStorage = new unsigned char[m_desc.ByteWidth];
-		m_initData.pSysMem = m_dataStorage;
-		m_initData.SysMemPitch = m_desc.ByteWidth;
-		m_initData.SysMemSlicePitch = m_desc.ByteWidth;
 
 		if ( initData != nullptr )
 		{
 			m_hasInitData = true;
-			std::memcpy( m_dataStorage, initData, m_desc.ByteWidth );
+
+			m_dataStorage = new unsigned char[m_desc.ByteWidth];
+			std::memcpy( m_dataStorage, initData, Size() );
 		}
 	}
 
@@ -144,8 +137,13 @@ namespace agl
 
 	void D3D11Buffer::CreateBuffer()
 	{
-		D3D11_SUBRESOURCE_DATA* initData = m_hasInitData ? &m_initData : nullptr;
-		[[maybe_unused]] HRESULT hr = D3D11Device().CreateBuffer( &m_desc, initData, &m_buffer );
+		D3D11_SUBRESOURCE_DATA initData = {
+			.pSysMem = m_dataStorage,
+			.SysMemPitch = m_desc.ByteWidth,
+			.SysMemSlicePitch = m_desc.ByteWidth
+		};
+
+		[[maybe_unused]] HRESULT hr = D3D11Device().CreateBuffer( &m_desc, m_hasInitData ? &initData : nullptr, &m_buffer );
 		assert( SUCCEEDED( hr ) );
 
 		if ( m_buffer )

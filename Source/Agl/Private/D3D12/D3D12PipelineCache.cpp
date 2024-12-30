@@ -520,21 +520,12 @@ namespace agl
 			}
 		}
 
-		std::vector<ID3D12DescriptorHeap*, InlineAllocator<ID3D12DescriptorHeap*, 2>> descriptorHeaps;
-		if ( numSrvUavCbv > 0 )
-		{
-			descriptorHeaps.push_back( srvCbvUavHeap.GetDescriptorHeap() );
-		}
+		ID3D12DescriptorHeap* heaps[] = {
+			srvCbvUavHeap.GetDescriptorHeap(),
+			samplerHeap.GetDescriptorHeap()
+		};
 
-		if ( numSampler > 0 )
-		{
-			descriptorHeaps.push_back( samplerHeap.GetDescriptorHeap() );
-		}
-
-		if ( descriptorHeaps.empty() == false )
-		{
-			commandList.SetDescriptorHeaps( static_cast<uint32>( descriptorHeaps.size() ), descriptorHeaps.data() );
-		}
+		commandList.SetDescriptorHeaps( std::extent_v<decltype( heaps )>, heaps );
 
 		uint32 rootParameterIndex = 0;
 		if ( shaderBindings.IsCompute() )

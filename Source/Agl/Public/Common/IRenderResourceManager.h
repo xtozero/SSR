@@ -20,6 +20,7 @@ namespace agl
 	class GraphicsPipelineStateInitializer;
 	class MeshShader;
 	class OcclusionQuery;
+	class PipelineStatistics;
 	class PixelShader;
 	class GpuTimer;
 	class RasterizerState;
@@ -44,8 +45,8 @@ namespace agl
 		virtual VertexShader* CreateVertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const = 0;
 		virtual GeometryShader* CreateGeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const = 0;
 		virtual PixelShader* CreatePixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const = 0;
-		virtual AmplificationShader* CreateAmplificationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const = 0;
 		virtual MeshShader* CreateMeshShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const = 0;
+		virtual AmplificationShader* CreateAmplificationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const = 0;
 
 		virtual BlendState* CreateBlendState( const BlendStateTrait& trait ) const = 0;
 		virtual DepthStencilState* CreateDepthStencilState( const DepthStencilStateTrait& trait ) const = 0;
@@ -61,6 +62,7 @@ namespace agl
 
 		virtual GpuTimer* CreateGpuTimer() const = 0;
 		virtual OcclusionQuery* CreateOcclusionQuery() const = 0;
+		virtual PipelineStatistics* CreatePipelineStatistics() const = 0;
 
 		virtual void SetPSOCache( std::map<uint64, BinaryChunk>& psoCache ) = 0;
 

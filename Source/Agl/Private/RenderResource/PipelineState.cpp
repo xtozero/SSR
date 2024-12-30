@@ -69,14 +69,14 @@ namespace agl
 			HashCombine( hash, m_piexlShader->GetHash() );
 		}
 
-		if ( m_amplificationShader )
-		{
-			HashCombine( hash, m_amplificationShader->GetHash() );
-		}
-
 		if ( m_meshShader )
 		{
 			HashCombine( hash, m_meshShader->GetHash() );
+		}
+
+		if ( m_amplificationShader )
+		{
+			HashCombine( hash, m_amplificationShader->GetHash() );
 		}
 
 		if ( m_blendState )

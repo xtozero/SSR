@@ -394,7 +394,7 @@ namespace agl
 		ID3D11Device* pDevice = &D3D11Device();
 		ID3D11DeviceContext* pDeviceContext = &D3D11Context();
 
-		return DirectX::CaptureTexture( pDevice, pDeviceContext, resource, outResult );
+		return SUCCEEDED( DirectX::CaptureTexture( pDevice, pDeviceContext, resource, outResult ) );
 	}
 
 	void D3D11CommandList::BeginQuery( void* rawQuery )

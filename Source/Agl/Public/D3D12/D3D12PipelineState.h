@@ -22,8 +22,8 @@ namespace agl
 		// RefHandle<D3D12VertexShader> m_domainShader;
 		RefHandle<D3D12GeometryShader> m_geometryShader;
 		RefHandle<D3D12PixelShader> m_pixelShader;
-		RefHandle<D3D12AmplificationShader> m_amplificationShader;
 		RefHandle<D3D12MeshShader> m_meshShader;
+		RefHandle<D3D12AmplificationShader> m_amplificationShader;
 		RefHandle<D3D12BlendState> m_blendState;
 		RefHandle<D3D12RasterizerState> m_rasterizerState;
 		RefHandle<D3D12DepthStencilState> m_depthStencilState;

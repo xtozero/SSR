@@ -52,8 +52,8 @@ namespace rendercore
 			shaders.m_geometryShader,
 			shaders.m_pixelShader,
 			nullptr, // CS
+			shaders.m_meshShader,
 			shaders.m_amplificationShader,
-			shaders.m_meshShader
 		};
 
 		for ( uint32 shaderType = 0; shaderType < agl::MAX_SHADER_TYPE<uint32>; ++shaderType )
@@ -1436,8 +1436,8 @@ namespace rendercore
 
 		auto commandList = GetCommandList();
 
-		VertexBuffer emptyPrimitiveID;
-		CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveID );
+		VertexBuffer emptyPrimitiveId;
+		CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveId );
 	}
 
 	PrimitiveIdVertexBufferPool& GetPrimitiveIdPool()

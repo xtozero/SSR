@@ -12,7 +12,7 @@ namespace fs = std::filesystem;
 
 namespace
 {
-	std::optional<uint32> ConvertAssetTypeToAssetID( const json::Value& root )
+	std::optional<uint32> ConvertAssetTypeToAssetId( const json::Value& root )
 	{
 		const json::Value* type = root.Find( "Type" );
 		if ( type != nullptr )
@@ -20,27 +20,27 @@ namespace
 			const std::string& assetType = type->AsString();
 			if ( assetType == "BlendOption" )
 			{
-				return rendercore::BlendOption::ID;
+				return rendercore::BlendOption::Id;
 			}
 			else if ( assetType == "DepthStencilOption" )
 			{
-				return rendercore::DepthStencilOption::ID;
+				return rendercore::DepthStencilOption::Id;
 			}
 			else if ( assetType == "Material" )
 			{
-				return rendercore::Material::ID;
+				return rendercore::Material::Id;
 			}
 			else if ( assetType == "RasterizerOption" )
 			{
-				return rendercore::RasterizerOption::ID;
+				return rendercore::RasterizerOption::Id;
 			}
 			else if ( assetType == "RenderOption" )
 			{
-				return rendercore::RenderOption::ID;
+				return rendercore::RenderOption::Id;
 			}
 			else if ( assetType == "SamplerOption" )
 			{
-				return rendercore::SamplerOption::ID;
+				return rendercore::SamplerOption::Id;
 			}
 		}
 
@@ -88,11 +88,11 @@ namespace
 		return samplerOption;
 	}
 
-	std::unique_ptr<AsyncLoadableAsset> CreateAssetByAssetID( uint32 assetID, const fs::path& assetPath, const json::Value& root )
+	std::unique_ptr<AsyncLoadableAsset> CreateAssetByAssetId( uint32 assetId, const fs::path& assetPath, const json::Value& root )
 	{
 		std::unique_ptr<AsyncLoadableAsset> asset = nullptr;
 
-		if ( assetID == rendercore::BlendOption::ID )
+		if ( assetId == rendercore::BlendOption::Id )
 		{
 			auto blendOption = std::make_unique<rendercore::BlendOption>();
 			blendOption->SetPath( assetPath );
@@ -170,7 +170,7 @@ namespace
 
 			asset = std::move( blendOption );
 		}
-		else if ( assetID == rendercore::DepthStencilOption::ID )
+		else if ( assetId == rendercore::DepthStencilOption::Id )
 		{
 			auto depthStencilOption = std::make_unique<rendercore::DepthStencilOption>();
 			depthStencilOption->SetPath( assetPath );
@@ -256,7 +256,7 @@ namespace
 
 			asset = std::move( depthStencilOption );
 		}
-		else if ( assetID == rendercore::Material::ID )
+		else if ( assetId == rendercore::Material::Id )
 		{
 			auto material = std::make_unique<rendercore::Material>();
 			material->SetPath( assetPath );
@@ -302,18 +302,18 @@ namespace
 					}
 					case agl::ShaderType::CS:
 						break;
-					case agl::ShaderType::AS:
-					{
-						auto as = std::make_shared<rendercore::AmplificationShader>();
-						as->SetPath( shaderPath->AsString() );
-						material->SetAmplificationShader( as );
-						break;
-					}
 					case agl::ShaderType::MS:
 					{
 						auto ms = std::make_shared<rendercore::MeshShader>();
 						ms->SetPath( shaderPath->AsString() );
 						material->SetMeshShader( ms );
+						break;
+					}
+					case agl::ShaderType::AS:
+					{
+						auto as = std::make_shared<rendercore::AmplificationShader>();
+						as->SetPath( shaderPath->AsString() );
+						material->SetAmplificationShader( as );
 						break;
 					}
 					case agl::ShaderType::Count:
@@ -394,7 +394,7 @@ namespace
 
 			asset = std::move( material );
 		}
-		else if ( assetID == rendercore::RasterizerOption::ID )
+		else if ( assetId == rendercore::RasterizerOption::Id )
 		{
 			auto rasterizerOption = std::make_unique<rendercore::RasterizerOption>();
 			rasterizerOption->SetPath( assetPath );
@@ -441,7 +441,7 @@ namespace
 
 			asset = std::move( rasterizerOption );
 		}
-		else if ( assetID == rendercore::SamplerOption::ID )
+		else if ( assetId == rendercore::SamplerOption::Id )
 		{
 			auto samplerOption = std::make_unique<rendercore::SamplerOption>();
 			samplerOption->SetPath( assetPath );
@@ -482,7 +482,7 @@ namespace
 
 			asset = std::move( samplerOption );
 		}
-		else if ( assetID == rendercore::RenderOption::ID )
+		else if ( assetId == rendercore::RenderOption::Id )
 		{
 			auto renderOption = std::make_unique<rendercore::RenderOption>();
 
@@ -516,38 +516,38 @@ namespace
 	bool ValidateJsonAsset( const AsyncLoadableAsset* asset, const Archive& ar )
 	{
 		Archive rAr( ar.Data(), ar.Size() );
-		uint32 assetID = 0;
-		rAr << assetID;
+		uint32 assetId = 0;
+		rAr << assetId;
 
-		if ( assetID == rendercore::BlendOption::ID )
+		if ( assetId == rendercore::BlendOption::Id )
 		{
 			rendercore::BlendOption blendOption;
 			blendOption.Serialize( rAr );
 
 			return ( blendOption == ( *reinterpret_cast<const rendercore::BlendOption*>( asset ) ) );
 		}
-		else if ( assetID == rendercore::DepthStencilOption::ID )
+		else if ( assetId == rendercore::DepthStencilOption::Id )
 		{
 			rendercore::DepthStencilOption depthStencilOption;
 			depthStencilOption.Serialize( rAr );
 
 			return ( depthStencilOption == ( *reinterpret_cast<const rendercore::DepthStencilOption*>( asset ) ) );
 		}
-		else if ( assetID == rendercore::RasterizerOption::ID )
+		else if ( assetId == rendercore::RasterizerOption::Id )
 		{
 			rendercore::RasterizerOption rasterizerOption;
 			rasterizerOption.Serialize( rAr );
 
 			return ( rasterizerOption == ( *reinterpret_cast<const rendercore::RasterizerOption*>( asset ) ) );
 		}
-		else if ( assetID == rendercore::SamplerOption::ID )
+		else if ( assetId == rendercore::SamplerOption::Id )
 		{
 			rendercore::SamplerOption samplerOption;
 			samplerOption.Serialize( rAr );
 
 			return ( samplerOption == ( *reinterpret_cast<const rendercore::SamplerOption*>( asset ) ) );
 		}
-		else if ( assetID == rendercore::RenderOption::ID )
+		else if ( assetId == rendercore::RenderOption::Id )
 		{
 			rendercore::RenderOption renderOption;
 			renderOption.Serialize( rAr );
@@ -579,8 +579,8 @@ std::optional<Products> JsonManufacturer::Manufacture( const PathEnvironment& en
 		return { };
 	}
 
-	auto assetID = ConvertAssetTypeToAssetID( root );
-	if ( !assetID )
+	auto assetId = ConvertAssetTypeToAssetId( root );
+	if ( !assetId )
 	{
 		return { };
 	}
@@ -588,7 +588,7 @@ std::optional<Products> JsonManufacturer::Manufacture( const PathEnvironment& en
 	fs::path assetPath = "." / fs::relative( env.m_destination, env.m_destination.parent_path() );
 	assetPath /= fs::relative( path, env.m_source );
 	assetPath.replace_extension( ".Asset" );
-	std::unique_ptr<AsyncLoadableAsset> asset = CreateAssetByAssetID( assetID.value(), assetPath, root );
+	std::unique_ptr<AsyncLoadableAsset> asset = CreateAssetByAssetId( assetId.value(), assetPath, root );
 	if ( asset == nullptr )
 	{
 		return { };

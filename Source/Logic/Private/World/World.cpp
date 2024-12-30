@@ -133,7 +133,7 @@ namespace logic
 	{
 		object->Initialize( gameLogic, *this );
 		size_t idx = m_gameObjects.Add( object );
-		object->SetID( idx );
+		object->SetId( idx );
 	}
 
 	void World::MarkComponentForNeededRenderStateUpdate( Component& component )

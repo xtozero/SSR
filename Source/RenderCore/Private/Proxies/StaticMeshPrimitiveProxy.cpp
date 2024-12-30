@@ -43,8 +43,11 @@ namespace rendercore
 			uint32 sectionSize = static_cast<uint32>( lodResource.m_sections.size() );
 			for ( uint32 sectionIndex = 0; sectionIndex < sectionSize; ++sectionIndex )
 			{
-				PrimitiveSubMesh& subMesh = m_primitiveSceneInfo->AddSubMesh();
-				std::construct_at( &subMesh, GatherMeshDrawInfo( lod, sectionIndex ) );
+				if ( auto meshDrawInfo = GatherMeshDrawInfo( lod, sectionIndex ) )
+				{
+					PrimitiveSubMesh& subMesh = m_primitiveSceneInfo->AddSubMesh();
+					std::construct_at( &subMesh, *meshDrawInfo );
+				}
 			}
 		}
 	}
@@ -145,7 +148,7 @@ namespace rendercore
 		return snapshot;
 	}
 
-	MeshDrawInfo StaticMeshPrimitiveProxy::GatherMeshDrawInfo( uint32 lod, uint32 sectionIndex ) const
+	std::optional<MeshDrawInfo> StaticMeshPrimitiveProxy::GatherMeshDrawInfo( uint32 lod, uint32 sectionIndex ) const
 	{
 		uint32 lodSize = m_pRenderData->LODSize();
 		if ( lod >= lodSize )
@@ -159,17 +162,23 @@ namespace rendercore
 			return {};
 		}
 
-		const StaticMeshSection& section = lodResource.m_sections[sectionIndex];
+		StaticMeshSection& section = lodResource.m_sections[sectionIndex];
 
 		MeshDrawInfo info;
 
 		info.m_vertexCollection = &lodResource.m_vertexCollection;
 		info.m_indexBuffer = &lodResource.m_ib;
+
+		info.m_meshlet = &section.m_meshletBuffer;
+		info.m_meshletVertices = &lodResource.m_meshletVertexBuffer;
+		info.m_meshletTriangles = &lodResource.m_meshletTriangleBuffer;
+
 		info.m_material = m_materials[section.m_materialIndex]->GetMaterialResource();
 		info.m_renderOption = &*m_pRenderOption;
 
 		info.m_startLocation = section.m_startLocation;
 		info.m_count = section.m_count;
+		info.m_numMeshlets = static_cast<uint32>( section.m_meshlets.size() );
 
 		info.m_lod = lod;
 		info.m_sectionIndex = sectionIndex;

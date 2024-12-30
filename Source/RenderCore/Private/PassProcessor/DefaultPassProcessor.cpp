@@ -16,14 +16,8 @@ namespace
 
 namespace rendercore
 {
-	std::optional<DrawSnapshot> DefaultPassProcessor::Process( const PrimitiveSubMesh& subMesh )
+	std::optional<DrawSnapshot> DefaultPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{
-		assert( IsInRenderThread() );
-
-		MaterialResource& material = *subMesh.m_material;
-
-		PassShader passShader = CollectPassShader( material );
-
 		PassRenderOption passRenderOption;
 		DepthStencilOption depthStencilOption;
 		if ( const RenderOption* option = subMesh.m_renderOption )

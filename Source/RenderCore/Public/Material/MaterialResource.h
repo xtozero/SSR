@@ -18,8 +18,8 @@ namespace rendercore
 		VertexShader* GetVertexShader( const StaticShaderSwitches* switches = nullptr ) const;
 		GeometryShader* GetGeometryShader( const StaticShaderSwitches* switches = nullptr ) const;
 		PixelShader* GetPixelShader( const StaticShaderSwitches* switches = nullptr ) const;
-		AmplificationShader* GetAmplificationShader( const StaticShaderSwitches* switches = nullptr ) const;
 		MeshShader* GetMeshShader( const StaticShaderSwitches* switches = nullptr ) const;
+		AmplificationShader* GetAmplificationShader( const StaticShaderSwitches* switches = nullptr ) const;
 
 		bool UseMeshShader() const;
 

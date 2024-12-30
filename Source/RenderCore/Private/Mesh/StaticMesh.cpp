@@ -55,10 +55,10 @@ namespace rendercore
 		size_t indexCount = 0;
 		for ( const MeshPolygon& polygon : polygons )
 		{
-			indexCount += polygon.m_triangleID.size() * 3;
+			indexCount += polygon.m_triangleId.size() * 3;
 		}
 
-		std::vector<size_t> indices;
+		std::vector<uint32> indices;
 		indices.reserve( indexCount );
 
 		for ( size_t i = 0; i < polygons.size(); ++i )
@@ -68,11 +68,11 @@ namespace rendercore
 			StaticMeshSection& section = lodResource.m_sections.emplace_back();
 			section.m_startLocation = static_cast<uint32>( indices.size() );
 
-			for ( size_t triangleID : polygon.m_triangleID )
+			for ( size_t triangleId : polygon.m_triangleId )
 			{
-				for ( size_t vertexInstanceID : triangles[triangleID].m_vertexInstanceID )
+				for ( uint32 vertexInstanceId : triangles[triangleId].m_vertexInstanceId )
 				{
-					indices.push_back( vertexInstanceID );
+					indices.push_back( vertexInstanceId );
 				}
 			}
 
@@ -88,6 +88,8 @@ namespace rendercore
 					break;
 				}
 			}
+
+			section.m_meshlets = polygon.m_meshlets;
 		}
 
 		lodResource.m_isDWORD = ( vertexInstances.size() > std::numeric_limits<DWORD>::max() );
@@ -109,6 +111,9 @@ namespace rendercore
 				reinterpret_cast<WORD*>( lodResource.m_indexData.data() )[i] = static_cast<WORD>( indices[i] );
 			}
 		}
+
+		lodResource.m_meshletVertices = meshDescription.m_meshletVertices;
+		lodResource.m_meshletTriangles = meshDescription.m_meshletTriangles;
 	}
 
 	MaterialResource* StaticMesh::GetMaterialResource( size_t idx ) const

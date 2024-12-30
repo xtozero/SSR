@@ -42,4 +42,25 @@ namespace rendercore
 
 		uint32 m_sizePerFloat4 = 0;
 	};
+
+	class ByteBuffer
+	{
+	public:
+		agl::Buffer* Resource() const;
+
+		ByteBuffer( uint32 size, agl::ResourceState initialState, const void* initData, bool isDynamic = false );
+
+		ByteBuffer() = default;
+		virtual ~ByteBuffer() = default;
+		ByteBuffer( const ByteBuffer& ) = default;
+		ByteBuffer& operator=( const ByteBuffer& ) = default;
+		ByteBuffer( ByteBuffer&& ) = default;
+		ByteBuffer& operator=( ByteBuffer&& ) = default;
+
+	private:
+		void InitResource( uint32 size, agl::ResourceState initialState, const void* initData );
+
+		RefHandle<agl::Buffer> m_buffer;
+		bool m_isDynamic = false;
+	};
 }

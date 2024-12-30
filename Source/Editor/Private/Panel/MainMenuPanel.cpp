@@ -24,6 +24,12 @@ namespace editor
 					sharedCtx.OpenProfiler( showProfiler );
 				}
 				
+				// Pipeline Statistics
+				{
+					bool showPipelineStatistics = sharedCtx.ShouldDrawPipelineStatistics();
+					ImGui::MenuItem( "Pipeline Statistics", nullptr, &showPipelineStatistics );
+					sharedCtx.OpenPipelineStatistics( showPipelineStatistics );
+				}
 
 				ImGui::EndMenu();
 			}

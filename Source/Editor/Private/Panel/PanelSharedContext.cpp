@@ -33,4 +33,14 @@ namespace editor
 	{
 		return m_openProfiler;
 	}
+
+	void PanelSharedContext::OpenPipelineStatistics( bool open )
+	{
+		m_openPipelineStatistics = open;
+	}
+
+	bool PanelSharedContext::ShouldDrawPipelineStatistics() const
+	{
+		return m_openPipelineStatistics;
+	}
 }

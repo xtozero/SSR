@@ -123,6 +123,11 @@ namespace rendercore
 	template <typename CommandList, typename ValueType>
 	void SetShaderValue( CommandList& commandList, const agl::ShaderParameter& parameter, const ValueType& value )
 	{
+		if ( parameter.m_shader == agl::ShaderType::None )
+		{
+			return;
+		}
+
 		assert( parameter.m_bindPoint == 0 );
 		assert( parameter.m_type == agl::ShaderParameterType::ConstantBufferValue );
 		commandList.SetShaderValue( parameter, &value );

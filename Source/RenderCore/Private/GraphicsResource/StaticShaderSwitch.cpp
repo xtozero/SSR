@@ -5,7 +5,7 @@
 
 namespace rendercore
 {
-	uint32 StaticShaderSwitch::GetID() const
+	uint32 StaticShaderSwitch::GetId() const
 	{
 		if ( m_on == false )
 		{
@@ -53,13 +53,13 @@ namespace rendercore
 		return true;
 	}
 
-	uint32 StaticShaderSwitches::GetID() const
+	uint32 StaticShaderSwitches::GetId() const
 	{
 		uint32 id = 0;
 		
 		for ( auto& [name, shaderSwitch] : m_configs )
 		{
-			id += shaderSwitch.GetID() * shaderSwitch.m_bias;
+			id += shaderSwitch.GetId() * shaderSwitch.m_bias;
 		}
 
 		return id;

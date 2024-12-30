@@ -45,6 +45,16 @@ namespace
 
 		return D3D12_QUERY_HEAP_TYPE_OCCLUSION;
 	}
+
+	uint32 GetQueryDataSize( D3D12_QUERY_HEAP_TYPE type )
+	{
+		if ( type == D3D12_QUERY_HEAP_TYPE_PIPELINE_STATISTICS1 )
+		{
+			return sizeof( D3D12_QUERY_DATA_PIPELINE_STATISTICS1 );
+		}
+
+		return sizeof( uint64 );
+	}
 }
 
 namespace agl
@@ -53,7 +63,7 @@ namespace agl
 	{
 		constexpr uint32 DefaultBlockSize = 64 * 1024 * 1024; // 64mb
 
-		m_freeSize = DefaultBlockSize / sizeof( uint64 );
+		m_freeSize = DefaultBlockSize / ::GetQueryDataSize( type );
 		m_freeList.resize( m_freeSize );
 		std::iota( std::rbegin( m_freeList ), std::rend( m_freeList ), 0 );
 
@@ -270,7 +280,7 @@ namespace agl
 		}
 		else
 		{
-			d3d12CommandList.ResolveQueryData( m_timeStampBegin.m_heap, D3D12_QUERY_TYPE_TIMESTAMP, m_timeStampBegin.m_offset, 1 );
+			d3d12CommandList.ResolveQueryData( m_timeStampBegin.m_heap, D3D12_QUERY_TYPE_TIMESTAMP, m_timeStampBegin.m_offset, 1);
 			d3d12CommandList.ResolveQueryData( m_timeStampEnd.m_heap, D3D12_QUERY_TYPE_TIMESTAMP, m_timeStampEnd.m_offset, 1 );
 		}
 	}
@@ -342,5 +352,58 @@ namespace agl
 	bool D3D12OcclusionTest::IsDataReady() const
 	{
 		return m_completionFence && ( m_completionFence->GetCompletedValue() == 1 );
+	}
+
+	void D3D12PipelineStatistics::InitResource()
+	{
+		m_pipelineStatistics = D3D12AllocatorForQuery().Allocate( D3D12_QUERY_TYPE_PIPELINE_STATISTICS1 );
+	}
+
+	void D3D12PipelineStatistics::FreeResource()
+	{
+		D3D12AllocatorForQuery().Deallocate( m_pipelineStatistics );
+	}
+
+	void D3D12PipelineStatistics::Begin( ICommandListBase& commandList )
+	{
+		commandList.BeginQuery( &m_pipelineStatistics );
+	}
+
+	void D3D12PipelineStatistics::End( ICommandListBase& commandList )
+	{
+		auto& d3d12CommandList = static_cast<ID3D12CommandListEX&>( commandList );
+		d3d12CommandList.EndQuery( &m_pipelineStatistics );
+
+		d3d12CommandList.ResolveQueryData( m_pipelineStatistics.m_heap, D3D12_QUERY_TYPE_PIPELINE_STATISTICS1, m_pipelineStatistics.m_offset, 1 );
+	}
+
+	PipelineStatisticsData D3D12PipelineStatistics::GetStatisticsData() const
+	{
+		D3D12_QUERY_DATA_PIPELINE_STATISTICS1 d3d12Data = {};
+		m_pipelineStatistics.m_heap->GetData( &d3d12Data, sizeof( d3d12Data ), m_pipelineStatistics.m_offset );
+
+		PipelineStatisticsData data = {
+			.m_verticesIA = d3d12Data.IAVertices,
+			.m_primitivesIA = d3d12Data.IAPrimitives,
+			.m_invocationsVS = d3d12Data.VSInvocations,
+			.m_invocationsGS = d3d12Data.GSInvocations,
+			.m_primitivesGS = d3d12Data.GSPrimitives,
+			.m_invocationsC = d3d12Data.CInvocations,
+			.m_primitivesC = d3d12Data.CPrimitives,
+			.m_invocationsPS = d3d12Data.PSInvocations,
+			.m_invocationsHS = d3d12Data.HSInvocations,
+			.m_invocationsDS = d3d12Data.DSInvocations,
+			.m_invocationsCS = d3d12Data.CSInvocations,
+			.m_invocationsAS = d3d12Data.ASInvocations,
+			.m_invocationsMS = d3d12Data.MSInvocations,
+			.m_primitivesMS = d3d12Data.MSPrimitives,
+		};
+
+		return data;
+	}
+
+	uint32 GetQueryDataSize( D3D12_QUERY_TYPE type )
+	{
+		return ::GetQueryDataSize( GetQueryHeapType( type ) );
 	}
 };

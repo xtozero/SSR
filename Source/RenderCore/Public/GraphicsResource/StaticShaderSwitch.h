@@ -20,7 +20,7 @@ namespace rendercore
 		int32 m_max;
 		int32 m_bias;
 
-		uint32 GetID() const;
+		uint32 GetId() const;
 		RENDERCORE_DLL uint32 NumShaderValues() const;
 
 		std::strong_ordering operator<=>( const StaticShaderSwitch& other ) const = default;
@@ -33,7 +33,7 @@ namespace rendercore
 	public:
 		RENDERCORE_DLL bool On( const Name& name, int32 value );
 		RENDERCORE_DLL bool Off( const Name& name );
-		RENDERCORE_DLL uint32 GetID() const;
+		RENDERCORE_DLL uint32 GetId() const;
 
 		RENDERCORE_DLL void SetConfigs( const std::map<Name, StaticShaderSwitch>& configs );
 

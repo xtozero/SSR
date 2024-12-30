@@ -49,8 +49,8 @@ namespace logic
 	public:
 		virtual void Initialize( CGameLogic& gameLogic, World& world );
 
-		size_t GetID() const { return m_id; }
-		void SetID( size_t id ) { m_id = id; }
+		size_t GetId() const { return m_id; }
+		void SetId( size_t id ) { m_id = id; }
 
 		LOGIC_DLL void SetPosition( const Vector& translation );
 		LOGIC_DLL void SetScale3D( const Vector& scale3D );

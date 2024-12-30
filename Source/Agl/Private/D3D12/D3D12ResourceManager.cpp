@@ -102,14 +102,14 @@ namespace agl
 		return new D3D12PixelShader( byteCode, byteCodeSize, paramInfo );
 	}
 
-	AmplificationShader* D3D12ResourceManager::CreateAmplificationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
-	{
-		return new D3D12AmplificationShader( byteCode, byteCodeSize, paramInfo );
-	}
-
 	MeshShader* D3D12ResourceManager::CreateMeshShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
 	{
 		return new D3D12MeshShader( byteCode, byteCodeSize, paramInfo );
+	}
+
+	AmplificationShader* D3D12ResourceManager::CreateAmplificationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	{
+		return new D3D12AmplificationShader( byteCode, byteCodeSize, paramInfo );
 	}
 
 	BlendState* D3D12ResourceManager::CreateBlendState( const BlendStateTrait& trait ) const
@@ -207,6 +207,11 @@ namespace agl
 	OcclusionQuery* D3D12ResourceManager::CreateOcclusionQuery() const
 	{
 		return new D3D12OcclusionTest();
+	}
+
+	PipelineStatistics* D3D12ResourceManager::CreatePipelineStatistics() const
+	{
+		return new D3D12PipelineStatistics();
 	}
 
 	void D3D12ResourceManager::SetPSOCache( std::map<uint64, BinaryChunk>& psoCache )

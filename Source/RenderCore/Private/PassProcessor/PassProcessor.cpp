@@ -9,17 +9,28 @@
 
 namespace rendercore
 {
+	std::optional<DrawSnapshot> IPassProcessor::Process( const PrimitiveSubMesh& subMesh )
+	{
+		assert( IsInRenderThread() );
+
+		static MaterialResource dummyMaterial;
+		PassShader passShader = CollectPassShader( ( subMesh.m_material != nullptr ) ? *subMesh.m_material : dummyMaterial );
+
+		return ProcessInternal( subMesh, passShader );
+	}
+
 	PassShader IPassProcessor::CollectPassShader( MaterialResource& material ) const
 	{
 		StaticShaderSwitches vsSwitches = material.GetShaderSwitches( agl::ShaderType::VS );
 		StaticShaderSwitches gsSwitches = material.GetShaderSwitches( agl::ShaderType::GS );
 		StaticShaderSwitches psSwitches = material.GetShaderSwitches( agl::ShaderType::PS );
-		StaticShaderSwitches asSwitches = material.GetShaderSwitches( agl::ShaderType::AS );
 		StaticShaderSwitches msSwitches = material.GetShaderSwitches( agl::ShaderType::MS );
+		StaticShaderSwitches asSwitches = material.GetShaderSwitches( agl::ShaderType::AS );
 
 		if ( DefaultRenderCore::IsTaaEnabled() )
 		{
 			vsSwitches.On( Name( "TAA" ), 1 );
+			msSwitches.On( Name( "TAA" ), 1 );
 		}
 
 		if ( DefaultRenderCore::IsRSMsEnabled() )
@@ -41,8 +52,8 @@ namespace rendercore
 			.m_vertexShader = material.GetVertexShader( &vsSwitches ),
 			.m_geometryShader = material.GetGeometryShader( &gsSwitches ),
 			.m_pixelShader = material.GetPixelShader( &psSwitches ),
-			.m_amplificationShader = material.GetAmplificationShader( &asSwitches ),
 			.m_meshShader = material.GetMeshShader( &msSwitches ),
+			.m_amplificationShader = material.GetAmplificationShader( &asSwitches ),
 		};
 
 		return passShader;
@@ -59,52 +70,85 @@ namespace rendercore
 		snapshot.m_primitiveIdSlot = -1;
 
 		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+		ShaderStates& shaderState = pipelineState.m_shaderState;
 
-		if ( passShader.m_meshShader )
+		bool bUseMeshShader = ( passShader.m_meshShader != nullptr );
+		if ( bUseMeshShader )
 		{
-			pipelineState.m_shaderState.m_amplificationShader = passShader.m_amplificationShader;
-			pipelineState.m_shaderState.m_meshShader = passShader.m_meshShader;
+			shaderState.m_meshShader = passShader.m_meshShader;
+			shaderState.m_amplificationShader = passShader.m_amplificationShader;
 		}
 		else if ( passShader.m_vertexShader )
 		{
-			pipelineState.m_shaderState.m_vertexShader = passShader.m_vertexShader;
-			pipelineState.m_shaderState.m_geometryShader = passShader.m_geometryShader;
+			shaderState.m_vertexShader = passShader.m_vertexShader;
+			shaderState.m_geometryShader = passShader.m_geometryShader;
 		}
 		else
 		{
 			return {};
 		}
 
-		pipelineState.m_shaderState.m_pixelShader = passShader.m_pixelShader;
+		shaderState.m_pixelShader = passShader.m_pixelShader;
+
+		auto initializer = CreateShaderBindingsInitializer( shaderState );
+		snapshot.m_shaderBindings.Initialize( initializer );
 
 		VertexStreamLayout vertexlayout;
 		if ( subMesh.m_vertexCollection )
 		{
 			vertexlayout = subMesh.m_vertexCollection->VertexLayout( layoutType );
 
-			if ( useAutoInstancing )
+			if ( bUseMeshShader )
 			{
-				uint32 primitiveIdSlot = vertexlayout.Size();
-				vertexlayout.AddLayout( "PRIMITIVEID", 0,
-					agl::ResourceFormat::R32_UINT,
-					primitiveIdSlot,
-					true,
-					1,
-					-1 );
+				const agl::ShaderParameterMap& shaderParameterMapForMS = shaderState.m_meshShader->ParameterMap();
+				agl::SingleShaderBindings shaderBindingsForMS = snapshot.m_shaderBindings.GetSingleShaderBindings( agl::ShaderType::MS );
+				subMesh.m_vertexCollection->Bind( shaderParameterMapForMS, shaderBindingsForMS );
 
-				snapshot.m_primitiveIdSlot = primitiveIdSlot;
+				assert( subMesh.m_meshlet != nullptr );
+				assert( subMesh.m_meshletVertices != nullptr );
+				assert( subMesh.m_meshletTriangles != nullptr );
+
+				agl::ShaderParameter meshletParameterForMS = shaderParameterMapForMS.GetParameter( Name("Meshlets") );
+				agl::ShaderParameter meshletVerticesParameterForMS = shaderParameterMapForMS.GetParameter( Name( "VertexIndices" ) );
+				agl::ShaderParameter meshletTrianglesParamterForMS = shaderParameterMapForMS.GetParameter( Name( "TriangleIndices" ) );
+
+				shaderBindingsForMS.AddSRV( meshletParameterForMS, subMesh.m_meshlet->SRV() );
+				shaderBindingsForMS.AddSRV( meshletVerticesParameterForMS, subMesh.m_meshletVertices->SRV() );
+				shaderBindingsForMS.AddSRV( meshletTrianglesParamterForMS, subMesh.m_meshletTriangles->SRV() );
+
+				if ( shaderState.m_amplificationShader )
+				{
+					const agl::ShaderParameterMap& shaderParameterForAS = shaderState.m_amplificationShader->ParameterMap();
+					agl::SingleShaderBindings shaderBindingsForAS = snapshot.m_shaderBindings.GetSingleShaderBindings( agl::ShaderType::AS );
+
+					agl::ShaderParameter meshletParameterForAS = shaderParameterForAS.GetParameter( Name( "Meshlets" ) );
+
+					shaderBindingsForAS.AddSRV( meshletParameterForAS, subMesh.m_meshlet->SRV() );
+				}
 			}
+			else
+			{
+				if ( useAutoInstancing )
+				{
+					uint32 primitiveIdSlot = vertexlayout.Size();
+					vertexlayout.AddLayout( "PRIMITIVEID", 0,
+						agl::ResourceFormat::R32_UINT,
+						primitiveIdSlot,
+						true,
+						1,
+						-1 );
 
-			subMesh.m_vertexCollection->Bind( snapshot.m_vertexStream, layoutType );
+					snapshot.m_primitiveIdSlot = primitiveIdSlot;
+				}
+
+				subMesh.m_vertexCollection->Bind( snapshot.m_vertexStream, layoutType );
+			}
 		}
 
 		if ( subMesh.m_indexBuffer )
 		{
 			snapshot.m_indexBuffer = *subMesh.m_indexBuffer;
 		}
-
-		auto initializer = CreateShaderBindingsInitializer( pipelineState.m_shaderState );
-		snapshot.m_shaderBindings.Initialize( initializer );
 
 		auto materialResource = subMesh.m_material;
 		if ( materialResource )
@@ -130,7 +174,7 @@ namespace rendercore
 
 		pipelineState.m_primitive = passRenderOption.m_primitive;
 
-		snapshot.m_count = subMesh.m_count;
+		snapshot.m_count = bUseMeshShader ? subMesh.m_numMeshlets : subMesh.m_count;
 		snapshot.m_startIndexLocation = subMesh.m_startLocation;
 		snapshot.m_baseVertexLocation = subMesh.m_baseVertexLocation;
 

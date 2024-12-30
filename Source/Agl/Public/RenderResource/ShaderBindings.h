@@ -159,7 +159,9 @@ namespace agl
 
 			for ( size_t i = 0; i < m_parameterInfo->m_constantBuffers.size(); ++i )
 			{
-				if ( m_parameterInfo->m_constantBuffers[i].m_bindPoint == param.m_bindPoint )
+				const ShaderParameter& targetParam = m_parameterInfo->m_constantBuffers[i];
+				if( ( targetParam.m_bindPoint == param.m_bindPoint )
+					&& ( targetParam.m_space == param.m_space ) )
 				{
 					foundSlot = static_cast<uint32>( i );
 					break;
@@ -183,7 +185,9 @@ namespace agl
 
 			for ( size_t i = 0; i < m_parameterInfo->m_srvs.size(); ++i )
 			{
-				if ( m_parameterInfo->m_srvs[i].m_bindPoint == param.m_bindPoint )
+				const ShaderParameter& targetParam = m_parameterInfo->m_srvs[i];
+				if ( ( targetParam.m_bindPoint == param.m_bindPoint )
+					&& ( targetParam.m_space == param.m_space ) )
 				{
 					foundSlot = static_cast<uint32>( i );
 					break;
@@ -207,7 +211,9 @@ namespace agl
 
 			for ( size_t i = 0; i < m_parameterInfo->m_uavs.size(); ++i )
 			{
-				if ( m_parameterInfo->m_uavs[i].m_bindPoint == param.m_bindPoint )
+				const ShaderParameter& targetParam = m_parameterInfo->m_uavs[i];
+				if ( ( targetParam.m_bindPoint == param.m_bindPoint )
+					&& ( targetParam.m_space == param.m_space ) )
 				{
 					foundSlot = static_cast<uint32>( i );
 					break;
@@ -231,7 +237,9 @@ namespace agl
 
 			for ( size_t i = 0; i < m_parameterInfo->m_samplers.size(); ++i )
 			{
-				if ( m_parameterInfo->m_samplers[i].m_bindPoint == param.m_bindPoint )
+				const ShaderParameter& targetParam = m_parameterInfo->m_samplers[i];
+				if ( ( targetParam.m_bindPoint == param.m_bindPoint ) 
+					&& ( targetParam.m_space == param.m_space ) )
 				{
 					foundSlot = static_cast<uint32>( i );
 					break;
@@ -254,14 +262,15 @@ namespace agl
 			std::optional<uint32> foundSlot;
 			for ( size_t i = 0; i < m_parameterInfo->m_samplers.size(); ++i )
 			{
-				if ( ( m_parameterInfo->m_bindless[i].m_bindPoint != param.m_bindPoint )
-					|| ( m_parameterInfo->m_bindless[i].m_offset != param.m_offset )
-					|| ( m_parameterInfo->m_bindless[i].m_sizeInByte != param.m_sizeInByte ) )
+				const ShaderParameter& targetParam = m_parameterInfo->m_bindless[i];
+				if ( ( targetParam.m_bindPoint == param.m_bindPoint )
+					&& ( targetParam.m_space == param.m_space )
+					&& ( targetParam.m_offset == param.m_offset )
+					&& ( targetParam.m_sizeInByte == param.m_sizeInByte ) )
 				{
-					continue;
+					foundSlot = static_cast<uint32>( i );
+					break;
 				}
-
-				foundSlot = static_cast<uint32>( i );
 			}
 
 			if ( foundSlot )

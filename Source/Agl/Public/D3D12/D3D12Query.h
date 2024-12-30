@@ -105,4 +105,21 @@ namespace agl
 		D3D12Query m_occlusionTest;
 		ID3D12Fence* m_completionFence = nullptr;
 	};
+
+	class D3D12PipelineStatistics final : public PipelineStatistics
+	{
+	public:
+		virtual void InitResource() override;
+		virtual void FreeResource() override;
+
+		virtual void Begin( ICommandListBase& commandList ) override;
+		virtual void End( ICommandListBase& commandList ) override;
+
+		virtual PipelineStatisticsData GetStatisticsData() const override;
+
+	private:
+		D3D12Query m_pipelineStatistics;
+	};
+
+	uint32 GetQueryDataSize( D3D12_QUERY_TYPE type );
 }

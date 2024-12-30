@@ -25,38 +25,38 @@ namespace
 	bool ValidateShaderAsset( const AsyncLoadableAsset* asset, const Archive& ar )
 	{
 		Archive rAr( ar.Data(), ar.Size() );
-		uint32 assetID = 0;
-		rAr << assetID;
+		uint32 assetId = 0;
+		rAr << assetId;
 
-		if ( assetID == rendercore::ComputeShader::ID )
+		if ( assetId == rendercore::ComputeShader::Id )
 		{
 			rendercore::ComputeShader cs;
 			cs.Serialize( rAr );
 
 			return ( cs == *reinterpret_cast<const rendercore::ComputeShader*>( asset ) );
 		}
-		else if ( assetID == rendercore::GeometryShader::ID )
+		else if ( assetId == rendercore::GeometryShader::Id )
 		{
 			rendercore::GeometryShader gs;
 			gs.Serialize( rAr );
 
 			return ( gs == *reinterpret_cast<const rendercore::GeometryShader*>( asset ) );
 		}
-		else if ( assetID == rendercore::PixelShader::ID )
+		else if ( assetId == rendercore::PixelShader::Id )
 		{
 			rendercore::PixelShader ps;
 			ps.Serialize( rAr );
 
 			return ( ps == *reinterpret_cast<const rendercore::PixelShader*>( asset ) );
 		}
-		else if ( assetID == rendercore::VertexShader::ID )
+		else if ( assetId == rendercore::VertexShader::Id )
 		{
 			rendercore::VertexShader vs;
 			vs.Serialize( rAr );
 
 			return ( vs == *reinterpret_cast<const rendercore::VertexShader*>( asset ) );
 		}
-		else if ( assetID == rendercore::UberShader::ID )
+		else if ( assetId == rendercore::UberShader::Id )
 		{
 			rendercore::UberShader uberShader;
 			uberShader.Serialize( rAr );
@@ -131,13 +131,13 @@ namespace
 		{
 			return agl::ShaderType::CS;
 		}
-		else if ( name.starts_with( "as" ) )
-		{
-			return agl::ShaderType::AS;
-		}
 		else if ( name.starts_with( "ms" ) )
 		{
 			return agl::ShaderType::MS;
+		}
+		else if ( name.starts_with( "as" ) )
+		{
+			return agl::ShaderType::AS;
 		}
 
 		assert( false && "Invalid shader file name" );
@@ -619,7 +619,7 @@ void ShaderManufacturer::CompileShaderCombination( const std::string& shaderFile
 		
 		if ( compileResult.Succeeded() )
 		{
-			auto result = outCompiledShaderIDs.emplace( switches.GetID() );
+			auto result = outCompiledShaderIDs.emplace( switches.GetId() );
 			assert( result.second );
 		}
 		else

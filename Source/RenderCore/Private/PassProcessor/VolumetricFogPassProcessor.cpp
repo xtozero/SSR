@@ -14,16 +14,8 @@ namespace rendercore
 
 	REGISTER_GLOBAL_SHADER( DrawVolumetricFogPS, "./Assets/Shaders/VolumetricFog/PS_DrawVolumetricFog.asset" );
 
-	std::optional<DrawSnapshot> VolumetricFogDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
+	std::optional<DrawSnapshot> VolumetricFogDrawPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{
-		StaticShaderSwitches switches = DrawVolumetricFogPS::GetSwitches();
-		switches.On( Name( "TricubicTextureSampling" ), 1 );
-
-		PassShader passShader = {
-			.m_vertexShader = FullScreenQuadVS(),
-			.m_pixelShader = DrawVolumetricFogPS( switches )
-		};
-
 		BlendOption volumetricFogDrawPassBlendOption;
 		RenderTargetBlendOption& rt0BlendOption = volumetricFogDrawPassBlendOption.m_renderTarget[0];
 		rt0BlendOption.m_blendEnable = true;
@@ -42,5 +34,18 @@ namespace rendercore
 		};
 
 		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default );
+	}
+
+	PassShader VolumetricFogDrawPassProcessor::CollectPassShader( [[maybe_unused]] MaterialResource& material ) const
+	{
+		StaticShaderSwitches switches = DrawVolumetricFogPS::GetSwitches();
+		switches.On( Name( "TricubicTextureSampling" ), 1 );
+
+		PassShader passShader = {
+			.m_vertexShader = FullScreenQuadVS(),
+			.m_pixelShader = DrawVolumetricFogPS( switches )
+		};
+
+		return passShader;
 	}
 }

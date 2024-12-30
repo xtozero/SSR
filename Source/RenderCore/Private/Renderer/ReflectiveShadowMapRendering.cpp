@@ -30,17 +30,13 @@ namespace rendercore
 
 	class RSMsDrawPassProcessor final : public IPassProcessor
 	{
-	public:
-		virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) override;
+	protected:
+		virtual std::optional<DrawSnapshot> ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader ) override;
+		virtual PassShader CollectPassShader( MaterialResource& material ) const override;
 	};
 
-	std::optional<DrawSnapshot> RSMsDrawPassProcessor::Process( const PrimitiveSubMesh& subMesh )
+	std::optional<DrawSnapshot> RSMsDrawPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{
-		PassShader passShader = {
-			.m_vertexShader = FullScreenQuadVS(),
-			.m_pixelShader = RSMsEvaluationPS()
-		};
-
 		DepthStencilOption RSMsDrawPassDepthOption;
 		RSMsDrawPassDepthOption.m_depth.m_enable = false;
 		RSMsDrawPassDepthOption.m_depth.m_writeDepth = false;
@@ -50,6 +46,16 @@ namespace rendercore
 		};
 
 		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default );
+	}
+
+	PassShader RSMsDrawPassProcessor::CollectPassShader( [[maybe_unused]] MaterialResource& material ) const
+	{
+		PassShader passShader = {
+			.m_vertexShader = FullScreenQuadVS(),
+			.m_pixelShader = RSMsEvaluationPS()
+		};
+
+		return passShader;
 	}
 
 	void RSMsRenderer::PreRender( const RenderViewGroup& renderViewGroup )

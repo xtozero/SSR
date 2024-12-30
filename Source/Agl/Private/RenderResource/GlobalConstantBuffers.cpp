@@ -11,7 +11,7 @@ using ::agl::ShaderType;
 
 namespace
 {
-	ShaderType GraphicsShaderTypes[] = { ShaderType::VS, ShaderType::HS, ShaderType::DS, ShaderType::GS, ShaderType::PS, ShaderType::AS, ShaderType::MS };
+	ShaderType GraphicsShaderTypes[] = { ShaderType::VS, ShaderType::HS, ShaderType::DS, ShaderType::GS, ShaderType::PS, ShaderType::MS, ShaderType::AS };
 }
 
 namespace agl

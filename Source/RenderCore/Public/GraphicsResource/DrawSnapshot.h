@@ -188,37 +188,80 @@ namespace rendercore
 	void CommitDrawSnapshot( CommandList& commandList, VisibleDrawSnapshot& visibleSnapshot, VertexBuffer& primitiveIds )
 	{
 		DrawSnapshot& snapshot = *visibleSnapshot.m_drawSnapshot;
+		ShaderStates& shaderState = snapshot.m_pipelineState.m_shaderState;
 
-		// Set vertex buffer
-		VertexBufferBundle vertexStream = snapshot.m_vertexStream;
-		if ( snapshot.m_primitiveIdSlot != -1 )
+		// TODO : Remove copy if possible
+		agl::ShaderBindings shaderBindings = snapshot.m_shaderBindings;
+
+		bool bUseMeshShader = shaderState.m_meshShader != nullptr;
+		if ( bUseMeshShader )
 		{
-			vertexStream.Bind( primitiveIds, static_cast<uint32>( snapshot.m_primitiveIdSlot ), primitiveIds.ElementSize(), visibleSnapshot.m_primitiveIdOffset * sizeof(uint32));
+			const agl::ShaderParameterMap& shaderParameterMapForMS = shaderState.m_meshShader->ParameterMap();
+
+			if ( agl::Buffer* primitiveIdsBufffer = primitiveIds.Resource() )
+			{
+				agl::ShaderParameter primitiveIdsParam = shaderParameterMapForMS.GetParameter( Name( "PrimitiveIds" ) );
+
+				agl::SingleShaderBindings shaderBindingForMS = shaderBindings.GetSingleShaderBindings( agl::ShaderType::MS );
+				shaderBindingForMS.AddSRV( primitiveIdsParam, primitiveIdsBufffer->SRV() );
+			}
+
+			if ( shaderState.m_amplificationShader != nullptr )
+			{
+				const agl::ShaderParameterMap& shaderParameterMapForAS = shaderState.m_amplificationShader->ParameterMap();
+				
+				if ( agl::Buffer* primitiveIdsBufffer = primitiveIds.Resource() )
+				{
+					agl::ShaderParameter primitiveIdsParam = shaderParameterMapForAS.GetParameter( Name( "PrimitiveIds" ) );
+
+					agl::SingleShaderBindings shaderBindingForAS = shaderBindings.GetSingleShaderBindings( agl::ShaderType::AS );
+					shaderBindingForAS.AddSRV( primitiveIdsParam, primitiveIdsBufffer->SRV() );
+				}
+
+				agl::ShaderParameter meshletCountParam = shaderParameterMapForAS.GetParameter( Name( "MeshletCount" ) );
+				agl::ShaderParameter instanceCountParam = shaderParameterMapForAS.GetParameter( Name( "InstanceCount" ) );
+				agl::ShaderParameter primitiveIdsParam = shaderParameterMapForAS.GetParameter( Name( "PrimitiveIdOffset" ) );
+
+				SetShaderValue( commandList, meshletCountParam, snapshot.m_count );
+				SetShaderValue( commandList, instanceCountParam, visibleSnapshot.m_numInstance );
+				SetShaderValue( commandList, primitiveIdsParam, visibleSnapshot.m_primitiveIdOffset );
+			}
 		}
+		else
+		{
+			// Set vertex buffer
+			VertexBufferBundle vertexStream = snapshot.m_vertexStream;
+			if ( snapshot.m_primitiveIdSlot != -1 )
+			{
+				vertexStream.Bind( primitiveIds, static_cast<uint32>( snapshot.m_primitiveIdSlot ), primitiveIds.ElementSize(), visibleSnapshot.m_primitiveIdOffset * sizeof( uint32 ) );
+			}
 
-		uint32 numVB = vertexStream.NumBuffer();
-		agl::Buffer* const* vertexBuffers = vertexStream.VertexBuffers();
-		const uint32* vertexStrides = vertexStream.Strides();
-		const uint32* vertexOffsets = vertexStream.Offsets();
-		commandList.BindVertexBuffer( vertexBuffers, 0, numVB, vertexStrides, vertexOffsets );
+			uint32 numVB = vertexStream.NumBuffer();
+			agl::Buffer* const* vertexBuffers = vertexStream.VertexBuffers();
+			const uint32* vertexStrides = vertexStream.Strides();
+			const uint32* vertexOffsets = vertexStream.Offsets();
+			commandList.BindVertexBuffer( vertexBuffers, 0, numVB, vertexStrides, vertexOffsets );
 
-		// Set index buffer
-		agl::Buffer* indexBuffer = snapshot.m_indexBuffer.Resource();
-		commandList.BindIndexBuffer( indexBuffer, 0 );
+			// Set index buffer
+			agl::Buffer* indexBuffer = snapshot.m_indexBuffer.Resource();
+			commandList.BindIndexBuffer( indexBuffer, 0 );
+		}
 
 		// Set pipeline state
 		commandList.BindPipelineState( snapshot.m_pipelineState.m_pso );
 
 		// Set shader resources
-		commandList.BindShaderResources( snapshot.m_shaderBindings );
+		commandList.BindShaderResources( shaderBindings );
 
-		bool bUseMeshShader = snapshot.m_pipelineState.m_shaderState.m_meshShader != nullptr;
+		bool bHasIndexBuffer = snapshot.m_indexBuffer.Resource() != nullptr;
 		if ( bUseMeshShader )
 		{
 			// TODO : Call DispatchMesh with proper arguments
-			commandList.DispatchMesh( 1, 1 );
+			constexpr uint32 NumGroupForAS = 32;
+			uint32 numGroupX = CalcAlignment( snapshot.m_count * visibleSnapshot.m_numInstance, NumGroupForAS ) / NumGroupForAS;
+			commandList.DispatchMesh( numGroupX, 1 );
 		}
-		else if( indexBuffer )
+		else if( bHasIndexBuffer )
 		{
 			commandList.DrawIndexedInstanced( snapshot.m_count, visibleSnapshot.m_numInstance, snapshot.m_startIndexLocation, snapshot.m_baseVertexLocation );
 		}

@@ -20,6 +20,9 @@ namespace editor
 		void OpenProfiler( bool open );
 		bool ShouldDrawProfiler() const;
 
+		void OpenPipelineStatistics( bool open );
+		bool ShouldDrawPipelineStatistics() const;
+
 		PanelSharedContext() = default;
 		PanelSharedContext( const PanelSharedContext& ) = delete;
 		PanelSharedContext& operator=( const PanelSharedContext& ) = delete;
@@ -30,5 +33,6 @@ namespace editor
 		std::set<logic::CGameObject*> m_selectedObject;
 
 		bool m_openProfiler = false;
+		bool m_openPipelineStatistics = false;
 	};
 }

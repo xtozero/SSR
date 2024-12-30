@@ -21,13 +21,8 @@ namespace rendercore
 
 	REGISTER_GLOBAL_SHADER( TAAResolvePS, "./Assets/Shaders/TemporalAntiAliasing/PS_TAAResolve.asset" );
 
-	std::optional<DrawSnapshot> TAAResolveProcessor::Process( const PrimitiveSubMesh& subMesh )
+	std::optional<DrawSnapshot> TAAResolveProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{
-		PassShader passShader = {
-			.m_vertexShader = FullScreenQuadVS(),
-			.m_pixelShader = TAAResolvePS()
-		};
-
 		DepthStencilOption depthStencilOption;
 		depthStencilOption.m_depth.m_enable = false;
 		depthStencilOption.m_stencil.m_enable = false;
@@ -37,6 +32,16 @@ namespace rendercore
 		};
 
 		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default );
+	}
+
+	PassShader TAAResolveProcessor::CollectPassShader( [[maybe_unused]] MaterialResource& material ) const
+	{
+		PassShader passShader = {
+			.m_vertexShader = FullScreenQuadVS(),
+			.m_pixelShader = TAAResolvePS()
+		};
+
+		return passShader;
 	}
 
 	void TAARenderer::Render( IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup )

@@ -38,4 +38,19 @@ namespace agl
 	private:
 		ID3D11Query* m_occlusionTest = nullptr;
 	};
+
+	class D3D11PipelineStatistics final : public PipelineStatistics
+	{
+	public:
+		virtual void InitResource() override;
+		virtual void FreeResource() override;
+
+		virtual void Begin( ICommandListBase& commandList ) override;
+		virtual void End( ICommandListBase& commandList ) override;
+
+		virtual PipelineStatisticsData GetStatisticsData() const override;
+
+	private:
+		ID3D11Query* m_pipelineStatistics = nullptr;
+	};
 }

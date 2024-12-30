@@ -104,8 +104,8 @@ namespace rendercore
 		// DomainShader m_domainShader;
 		GeometryShader* m_geometryShader = nullptr;
 		PixelShader* m_pixelShader = nullptr;
-		AmplificationShader* m_amplificationShader = nullptr;
 		MeshShader* m_meshShader = nullptr;
+		AmplificationShader* m_amplificationShader = nullptr;
 	};
 
 	inline agl::ShaderBindingsInitializer CreateShaderBindingsInitializer( const ShaderStates& state )
@@ -127,14 +127,14 @@ namespace rendercore
 			initializer[agl::ShaderType::PS] = &state.m_pixelShader->ParameterInfo();
 		}
 
-		if ( state.m_amplificationShader && state.m_amplificationShader->IsValid() )
-		{
-			initializer[agl::ShaderType::AS] = &state.m_amplificationShader->ParameterInfo();
-		}
-
 		if ( state.m_meshShader && state.m_meshShader->IsValid() )
 		{
 			initializer[agl::ShaderType::MS] = &state.m_meshShader->ParameterInfo();
+		}
+
+		if ( state.m_amplificationShader && state.m_amplificationShader->IsValid() )
+		{
+			initializer[agl::ShaderType::AS] = &state.m_amplificationShader->ParameterInfo();
 		}
 
 		return initializer;

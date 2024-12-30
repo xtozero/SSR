@@ -111,15 +111,9 @@ namespace rendercore
 
 	class LightInjectionPassProcessor final : public IPassProcessor
 	{
-	public:
-		virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) override
+	protected:
+		virtual std::optional<DrawSnapshot> ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader ) override
 		{
-			PassShader passShader = {
-				.m_vertexShader = LightInjectionVS(),
-				.m_geometryShader = LightInjectionGS(),
-				.m_pixelShader = LightInjectionPS()
-			};
-
 			DepthStencilOption passDepthOption;
 			passDepthOption.m_depth.m_enable = false;
 			passDepthOption.m_depth.m_writeDepth = false;
@@ -144,19 +138,24 @@ namespace rendercore
 
 			return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default );
 		}
+		
+		virtual PassShader CollectPassShader( [[maybe_unused]] MaterialResource& material ) const override
+		{
+			PassShader passShader = {
+				.m_vertexShader = LightInjectionVS(),
+				.m_geometryShader = LightInjectionGS(),
+				.m_pixelShader = LightInjectionPS()
+			};
+
+			return passShader;
+		}
 	};
 
 	class GeometryInjectionPassProcessor final : public IPassProcessor
 	{
-	public:
-		virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) override
+	protected:
+		virtual std::optional<DrawSnapshot> ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader ) override
 		{
-			PassShader passShader = {
-				.m_vertexShader = GeometryInjectionVS(),
-				.m_geometryShader = GeometryInjectionGS(),
-				.m_pixelShader = GeometryInjectionPS()
-			};
-
 			DepthStencilOption passDepthOption;
 			passDepthOption.m_depth.m_enable = false;
 			passDepthOption.m_depth.m_writeDepth = false;
@@ -181,18 +180,24 @@ namespace rendercore
 
 			return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default );
 		}
+		
+		virtual PassShader CollectPassShader( [[maybe_unused]] MaterialResource& material ) const override
+		{
+			PassShader passShader = {
+				.m_vertexShader = GeometryInjectionVS(),
+				.m_geometryShader = GeometryInjectionGS(),
+				.m_pixelShader = GeometryInjectionPS()
+			};
+
+			return passShader;
+		}
 	};
 
 	class LpvRenderPassProcessor final : public IPassProcessor
 	{
-	public:
-		virtual std::optional<DrawSnapshot> Process( const PrimitiveSubMesh& subMesh ) override
+	protected:
+		virtual std::optional<DrawSnapshot> ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader ) override
 		{
-			PassShader passShader = {
-				.m_vertexShader = FullScreenQuadVS(),
-				.m_pixelShader = RenderLpvPS()
-			};
-
 			DepthStencilOption RSMsDrawPassDepthOption;
 			RSMsDrawPassDepthOption.m_depth.m_enable = false;
 			RSMsDrawPassDepthOption.m_depth.m_writeDepth = false;
@@ -202,6 +207,16 @@ namespace rendercore
 			};
 
 			return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default );
+		}
+
+		virtual PassShader CollectPassShader( [[maybe_unused]] MaterialResource& material ) const override
+		{
+			PassShader passShader = {
+				.m_vertexShader = FullScreenQuadVS(),
+				.m_pixelShader = RenderLpvPS()
+			};
+
+			return passShader;
 		}
 	};
 

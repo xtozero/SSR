@@ -7,12 +7,9 @@ void AsyncLoadableAsset::SetPath( const std::filesystem::path& path )
 
 void AsyncLoadableAsset::Serialize( Archive& ar )
 {
-	const TypeInfo& typeInfo = GetTypeInfo();
-	const auto& properties = typeInfo.GetProperties();
-	
 	if ( ar.IsWriteMode() )
 	{
-		ar << GetID();
+		ar << GetId();
 	}
 	else
 	{
@@ -22,10 +19,7 @@ void AsyncLoadableAsset::Serialize( Archive& ar )
 
 	ar << m_lastWriteTime;
 
-	for ( const auto& property : properties )
-	{
-		property->Serialize( this, ar );
-	}
+	Super::Serialize( ar );
 }
 
 void AsyncLoadableAsset::SetLastWriteTime( std::filesystem::file_time_type lastWriteTime )

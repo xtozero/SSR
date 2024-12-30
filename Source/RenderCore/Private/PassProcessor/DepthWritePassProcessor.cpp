@@ -3,6 +3,7 @@
 #include "AbstractGraphicsInterface.h"
 #include "Config/DefaultRenderCoreConfig.h"
 #include "GlobalShaders.h"
+#include "MaterialResource.h"
 #include "PrimitiveProxy.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "VertexCollection.h"
@@ -25,15 +26,17 @@ namespace rendercore
 	class DepthWritePS final : public GlobalShaderCommon<PixelShader, DepthWritePS>
 	{};
 
-	REGISTER_GLOBAL_SHADER( DepthWriteVS, "./Assets/Shaders/VS_DepthWrite.asset" );
-	REGISTER_GLOBAL_SHADER( DepthWritePS, "./Assets/Shaders/PS_DepthWrite.asset" );
-
-	std::optional<DrawSnapshot> DepthWritePassProcessor::Process( const PrimitiveSubMesh& subMesh )
+	class DepthWriteMS final : public GlobalShaderCommon<MeshShader, DepthWriteMS>
 	{
-		assert( IsInRenderThread() );
+		using GlobalShaderCommon::GlobalShaderCommon;
+	};
 
-		PassShader passShader = CollectPassShader( *subMesh.m_material );
+	REGISTER_GLOBAL_SHADER( DepthWriteVS, "./Assets/Shaders/DepthWrite/VS_DepthWrite.asset" );
+	REGISTER_GLOBAL_SHADER( DepthWritePS, "./Assets/Shaders/DepthWrite/PS_DepthWrite.asset" );
+	REGISTER_GLOBAL_SHADER( DepthWriteMS, "./Assets/Shaders/DepthWrite/MS_DepthWrite.asset" );
 
+	std::optional<DrawSnapshot> DepthWritePassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
+	{
 		PassRenderOption passRenderOption;
 		if ( const RenderOption* option = subMesh.m_renderOption )
 		{
@@ -65,19 +68,24 @@ namespace rendercore
 		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::PositionNormal );
 	}
 
-	PassShader DepthWritePassProcessor::CollectPassShader( [[maybe_unused]] MaterialResource& material ) const
+	PassShader DepthWritePassProcessor::CollectPassShader( MaterialResource& material ) const
 	{
-		StaticShaderSwitches switches = DepthWriteVS::GetSwitches();
+		StaticShaderSwitches vsSwitches = DepthWriteVS::GetSwitches();
+		StaticShaderSwitches msSwitches = DepthWriteMS::GetSwitches();
 
 		if ( DefaultRenderCore::IsTaaEnabled() )
 		{
-			switches.On( Name( "TAA" ), 1 );
+			vsSwitches.On( Name( "TAA" ), 1 );
+			msSwitches.On( Name( "TAA" ), 1 );
 		}
 
+		bool bUseMeshShader = material.UseMeshShader();
+
 		PassShader passShader = {
-			.m_vertexShader = DepthWriteVS( switches ),
-			.m_pixelShader = DepthWritePS()
-			// TODO : Add MeshShader
+			.m_vertexShader = bUseMeshShader ? nullptr : DepthWriteVS( vsSwitches ),
+			.m_pixelShader = DepthWritePS(),
+			.m_meshShader = bUseMeshShader ? DepthWriteMS( msSwitches ) : nullptr,
+			.m_amplificationShader = bUseMeshShader ? DefaultAS() : nullptr,
 		};
 
 		return passShader;

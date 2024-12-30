@@ -3,6 +3,7 @@
 #include "GraphicsApiResource.h"
 #include "IndexBuffer.h"
 #include "LibraryTool/Common.h"
+#include "MeshDescription.h"
 #include "SizedTypes.h"
 #include "VertexCollection.h"
 #include "VertexLayout.h"
@@ -21,9 +22,12 @@ namespace rendercore
 	public:
 		friend Archive& operator<<( Archive& ar, StaticMeshSection& section );
 
-		uint32 m_startLocation;
-		uint32 m_count;
-		uint32 m_materialIndex;
+		uint32 m_startLocation = 0;
+		uint32 m_count = 0;
+		uint32 m_materialIndex = 0;
+
+		std::vector<Meshlet> m_meshlets;
+		TypedBuffer<Meshlet> m_meshletBuffer;
 	};
 
 	class StaticMeshLODResource final
@@ -32,10 +36,18 @@ namespace rendercore
 		friend Archive& operator<<( Archive& ar, StaticMeshLODResource& lodResource );
 
 		VertexCollection m_vertexCollection;
+
 		bool m_isDWORD = false;
-		std::vector<unsigned char> m_indexData;
+		std::vector<uint8> m_indexData;
 		IndexBuffer m_ib;
+
 		std::vector<StaticMeshSection> m_sections;
+
+		std::vector<uint32> m_meshletVertices;
+		TypedBuffer<uint32> m_meshletVertexBuffer;
+
+		std::vector<uint32> m_meshletTriangles;
+		TypedBuffer<uint32> m_meshletTriangleBuffer;
 	};
 
 	class StaticMeshRenderData final

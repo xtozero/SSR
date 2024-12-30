@@ -159,23 +159,6 @@ namespace rendercore
 		RENDERCORE_DLL virtual void CreateShader() override;
 	};
 
-	class AmplificationShader final : public ShaderBase
-	{
-		GENERATE_CLASS_TYPE_INFO( AmplificationShader );
-		DECLARE_ASSET( RENDERCORE, AmplificationShader );
-
-	public:
-		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
-
-		AmplificationShader( BinaryChunk&& byteCode, size_t hash ) : ShaderBase( std::move( byteCode ), hash ) {}
-		AmplificationShader() = default;
-
-		agl::AmplificationShader* Resource();
-		const agl::AmplificationShader* Resource() const;
-
-		RENDERCORE_DLL virtual void CreateShader() override;
-	};
-
 	class MeshShader final : public ShaderBase
 	{
 		GENERATE_CLASS_TYPE_INFO( MeshShader );
@@ -189,6 +172,23 @@ namespace rendercore
 
 		agl::MeshShader* Resource();
 		const agl::MeshShader* Resource() const;
+
+		RENDERCORE_DLL virtual void CreateShader() override;
+	};
+
+	class AmplificationShader final : public ShaderBase
+	{
+		GENERATE_CLASS_TYPE_INFO( AmplificationShader );
+		DECLARE_ASSET( RENDERCORE, AmplificationShader );
+
+	public:
+		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
+
+		AmplificationShader( BinaryChunk&& byteCode, size_t hash ) : ShaderBase( std::move( byteCode ), hash ) {}
+		AmplificationShader() = default;
+
+		agl::AmplificationShader* Resource();
+		const agl::AmplificationShader* Resource() const;
 
 		RENDERCORE_DLL virtual void CreateShader() override;
 	};

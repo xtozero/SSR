@@ -42,8 +42,8 @@ namespace agl
 	public:
 		friend bool operator<( const GraphicsPipelineStateInitializer& lhs, const GraphicsPipelineStateInitializer& rhs )
 		{
-			auto lVariable = std::tie( lhs.m_vertexShader, lhs.m_geometryShader, lhs.m_piexlShader, lhs.m_amplificationShader, lhs.m_meshShader, lhs.m_blendState, lhs.m_rasterizerState, lhs.m_depthStencilState, lhs.m_vertexLayout, lhs.m_primitiveType );
-			auto rVariable = std::tie( rhs.m_vertexShader, rhs.m_geometryShader, rhs.m_piexlShader, rhs.m_amplificationShader, rhs.m_meshShader, rhs.m_blendState, rhs.m_rasterizerState, rhs.m_depthStencilState, rhs.m_vertexLayout, rhs.m_primitiveType );
+			auto lVariable = std::tie( lhs.m_vertexShader, lhs.m_geometryShader, lhs.m_piexlShader, lhs.m_meshShader, lhs.m_amplificationShader, lhs.m_blendState, lhs.m_rasterizerState, lhs.m_depthStencilState, lhs.m_vertexLayout, lhs.m_primitiveType );
+			auto rVariable = std::tie( rhs.m_vertexShader, rhs.m_geometryShader, rhs.m_piexlShader, rhs.m_meshShader, rhs.m_amplificationShader, rhs.m_blendState, rhs.m_rasterizerState, rhs.m_depthStencilState, rhs.m_vertexLayout, rhs.m_primitiveType );
 
 			return lVariable < rVariable;
 		}
@@ -53,8 +53,8 @@ namespace agl
 		VertexShader* m_vertexShader = nullptr;
 		GeometryShader* m_geometryShader = nullptr;
 		PixelShader* m_piexlShader = nullptr;
-		AmplificationShader* m_amplificationShader = nullptr;
 		MeshShader* m_meshShader = nullptr;
+		AmplificationShader* m_amplificationShader = nullptr;
 		BlendState* m_blendState = nullptr;
 		RasterizerState* m_rasterizerState = nullptr;
 		DepthStencilState* m_depthStencilState = nullptr;

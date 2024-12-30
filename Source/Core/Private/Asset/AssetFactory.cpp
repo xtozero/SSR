@@ -3,9 +3,9 @@
 class AssetFactory : public IAssetFactory
 {
 public:
-	IAsyncLoadableAsset* CreateAsset( uint32 assetID ) const override
+	IAsyncLoadableAsset* CreateAsset( uint32 assetId ) const override
 	{
-		auto found = m_createfunctions.find( assetID );
+		auto found = m_createfunctions.find( assetId );
 		if ( found != m_createfunctions.end( ) )
 		{
 			return found->second( );
@@ -14,10 +14,10 @@ public:
 		return nullptr;
 	}
 
-	virtual void AddCreateFunction( uint32 assetID, AssetCreateFunctionPtr func ) override
+	virtual void AddCreateFunction( uint32 assetId, AssetCreateFunctionPtr func ) override
 	{
-		assert( m_createfunctions.contains( assetID ) == false );
-		m_createfunctions.emplace( assetID, func );
+		assert( m_createfunctions.contains( assetId ) == false );
+		m_createfunctions.emplace( assetId, func );
 	}
 
 private:

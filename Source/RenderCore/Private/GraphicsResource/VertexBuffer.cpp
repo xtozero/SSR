@@ -44,12 +44,7 @@ namespace rendercore
 		return m_elementSize;
 	}
 
-	agl::Buffer* VertexBuffer::Resource()
-	{
-		return m_buffer.Get();
-	}
-
-	const agl::Buffer* VertexBuffer::Resource() const
+	agl::Buffer* VertexBuffer::Resource() const
 	{
 		return m_buffer.Get();
 	}
@@ -151,7 +146,7 @@ namespace rendercore
 		return Size() - AllocatedSize();
 	}
 
-	agl::Buffer* DynamicVertexBufferChunk::Resource()
+	agl::Buffer* DynamicVertexBufferChunk::Resource() const
 	{
 		return m_buffer.Get();
 	}

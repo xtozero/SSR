@@ -40,6 +40,16 @@ namespace agl
 		return m_trait;
 	}
 
+	uint32 Buffer::Stride() const
+	{
+		return m_trait.m_stride;
+	}
+
+	uint32 Buffer::Size() const
+	{
+		return m_trait.m_stride * m_trait.m_count;
+	}
+
 	bool Buffer::IsDynamic() const
 	{
 		return HasAnyFlags( m_trait.m_access, ResourceAccessFlag::CpuRead )

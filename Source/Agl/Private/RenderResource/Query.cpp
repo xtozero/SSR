@@ -14,4 +14,9 @@ namespace agl
 	{
 		return GetInterface<IResourceManager>()->CreateOcclusionQuery();
 	}
+
+	RefHandle<PipelineStatistics> PipelineStatistics::Create()
+	{
+		return GetInterface<IResourceManager>()->CreatePipelineStatistics();
+	}
 }

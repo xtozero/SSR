@@ -16,6 +16,10 @@ namespace rendercore
 		FullScreenQuadVS() = default;
 	};
 
+	class DefaultAS final : public GlobalShaderCommon<AmplificationShader, DefaultAS>
+	{
+	};
+
 	class DefaultGraphicsResources final
 	{
 	public:
