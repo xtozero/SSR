@@ -48,7 +48,11 @@ namespace
 
 	uint32 GetQueryDataSize( D3D12_QUERY_HEAP_TYPE type )
 	{
-		if ( type == D3D12_QUERY_HEAP_TYPE_PIPELINE_STATISTICS1 )
+		if ( type == D3D12_QUERY_HEAP_TYPE_PIPELINE_STATISTICS )
+		{
+			return sizeof( D3D12_QUERY_DATA_PIPELINE_STATISTICS );
+		}
+		else if ( type == D3D12_QUERY_HEAP_TYPE_PIPELINE_STATISTICS1 )
 		{
 			return sizeof( D3D12_QUERY_DATA_PIPELINE_STATISTICS1 );
 		}
@@ -356,7 +360,9 @@ namespace agl
 
 	void D3D12PipelineStatistics::InitResource()
 	{
-		m_pipelineStatistics = D3D12AllocatorForQuery().Allocate( D3D12_QUERY_TYPE_PIPELINE_STATISTICS1 );
+		bool bSupportsMeshShader = GetInterface<agl::IAgl>()->IsSupportsMeshShader();
+		D3D12_QUERY_TYPE queryType = bSupportsMeshShader ? D3D12_QUERY_TYPE_PIPELINE_STATISTICS1 : D3D12_QUERY_TYPE_PIPELINE_STATISTICS;
+		m_pipelineStatistics = D3D12AllocatorForQuery().Allocate( queryType );
 	}
 
 	void D3D12PipelineStatistics::FreeResource()
@@ -374,30 +380,52 @@ namespace agl
 		auto& d3d12CommandList = static_cast<ID3D12CommandListEX&>( commandList );
 		d3d12CommandList.EndQuery( &m_pipelineStatistics );
 
-		d3d12CommandList.ResolveQueryData( m_pipelineStatistics.m_heap, D3D12_QUERY_TYPE_PIPELINE_STATISTICS1, m_pipelineStatistics.m_offset, 1 );
+		bool bSupportsMeshShader = GetInterface<agl::IAgl>()->IsSupportsMeshShader();
+		D3D12_QUERY_TYPE queryType = bSupportsMeshShader ? D3D12_QUERY_TYPE_PIPELINE_STATISTICS1 : D3D12_QUERY_TYPE_PIPELINE_STATISTICS;
+		d3d12CommandList.ResolveQueryData( m_pipelineStatistics.m_heap, queryType, m_pipelineStatistics.m_offset, 1 );
 	}
 
 	PipelineStatisticsData D3D12PipelineStatistics::GetStatisticsData() const
 	{
-		D3D12_QUERY_DATA_PIPELINE_STATISTICS1 d3d12Data = {};
-		m_pipelineStatistics.m_heap->GetData( &d3d12Data, sizeof( d3d12Data ), m_pipelineStatistics.m_offset );
+		bool bSupportsMeshShader = GetInterface<agl::IAgl>()->IsSupportsMeshShader();
+		PipelineStatisticsData data = {};
+		if ( bSupportsMeshShader )
+		{
+			D3D12_QUERY_DATA_PIPELINE_STATISTICS1 d3d12Data = {};
+			m_pipelineStatistics.m_heap->GetData( &d3d12Data, sizeof( d3d12Data ), m_pipelineStatistics.m_offset );
 
-		PipelineStatisticsData data = {
-			.m_verticesIA = d3d12Data.IAVertices,
-			.m_primitivesIA = d3d12Data.IAPrimitives,
-			.m_invocationsVS = d3d12Data.VSInvocations,
-			.m_invocationsGS = d3d12Data.GSInvocations,
-			.m_primitivesGS = d3d12Data.GSPrimitives,
-			.m_invocationsC = d3d12Data.CInvocations,
-			.m_primitivesC = d3d12Data.CPrimitives,
-			.m_invocationsPS = d3d12Data.PSInvocations,
-			.m_invocationsHS = d3d12Data.HSInvocations,
-			.m_invocationsDS = d3d12Data.DSInvocations,
-			.m_invocationsCS = d3d12Data.CSInvocations,
-			.m_invocationsAS = d3d12Data.ASInvocations,
-			.m_invocationsMS = d3d12Data.MSInvocations,
-			.m_primitivesMS = d3d12Data.MSPrimitives,
-		};
+			data.m_verticesIA = d3d12Data.IAVertices;
+			data.m_primitivesIA = d3d12Data.IAPrimitives;
+			data.m_invocationsVS = d3d12Data.VSInvocations;
+			data.m_invocationsGS = d3d12Data.GSInvocations;
+			data.m_primitivesGS = d3d12Data.GSPrimitives;
+			data.m_invocationsC = d3d12Data.CInvocations;
+			data.m_primitivesC = d3d12Data.CPrimitives;
+			data.m_invocationsPS = d3d12Data.PSInvocations;
+			data.m_invocationsHS = d3d12Data.HSInvocations;
+			data.m_invocationsDS = d3d12Data.DSInvocations;
+			data.m_invocationsCS = d3d12Data.CSInvocations;
+			data.m_invocationsAS = d3d12Data.ASInvocations;
+			data.m_invocationsMS = d3d12Data.MSInvocations;
+			data.m_primitivesMS = d3d12Data.MSPrimitives;
+		}
+		else
+		{
+			D3D12_QUERY_DATA_PIPELINE_STATISTICS d3d12Data = {};
+			m_pipelineStatistics.m_heap->GetData( &d3d12Data, sizeof( d3d12Data ), m_pipelineStatistics.m_offset );
+
+			data.m_verticesIA = d3d12Data.IAVertices;
+			data.m_primitivesIA = d3d12Data.IAPrimitives;
+			data.m_invocationsVS = d3d12Data.VSInvocations;
+			data.m_invocationsGS = d3d12Data.GSInvocations;
+			data.m_primitivesGS = d3d12Data.GSPrimitives;
+			data.m_invocationsC = d3d12Data.CInvocations;
+			data.m_primitivesC = d3d12Data.CPrimitives;
+			data.m_invocationsPS = d3d12Data.PSInvocations;
+			data.m_invocationsHS = d3d12Data.HSInvocations;
+			data.m_invocationsDS = d3d12Data.DSInvocations;
+			data.m_invocationsCS = d3d12Data.CSInvocations;
+		}
 
 		return data;
 	}
