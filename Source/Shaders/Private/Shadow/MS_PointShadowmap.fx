@@ -36,7 +36,7 @@ void main( uint GTid : SV_GroupThreadID
 		uint idx0 = packed & 0xFF;
 		uint idx1 = ( packed >> 8 ) & 0xFF;
 		uint idx2 = ( packed >> 16 ) & 0xFF;
-		triangles[GTid] = float3( idx0, idx1, idx2 );
+		triangles[GTid] = uint3( idx0, idx1, idx2 );
         prims[GTid].rtIndex = cascadeIndex;
 	}
 
