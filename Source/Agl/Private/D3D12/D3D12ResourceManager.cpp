@@ -19,8 +19,8 @@
 #include "DxgiFlagConvertor.h"
 #include "DxgiSwapchain.h"
 
-#include <d3dx12.h>
 #include <cassert>
+#include <directx/d3dx12_pipeline_state_stream.h>
 
 namespace agl
 {

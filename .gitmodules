@@ -8,3 +8,6 @@
 [submodule "ThirdParty/MeshOptimizer"]
 	path = ThirdParty/MeshOptimizer
 	url = https://github.com/zeux/meshoptimizer.git
+[submodule "ThirdParty/DirectXHeaders"]
+	path = ThirdParty/DirectXHeaders
+	url = https://github.com/microsoft/DirectX-Headers.git

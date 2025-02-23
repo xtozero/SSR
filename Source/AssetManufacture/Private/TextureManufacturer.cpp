@@ -35,8 +35,8 @@ std::optional<Products> TextureManufacturer::Manufacture( [[maybe_unused]] const
 		return {};
 	}
 
-	std::vector<char> buff( fileSize );
-	ddsFile.read( buff.data(), fileSize );
+	std::vector<uint8> buff( fileSize );
+	ddsFile.read( reinterpret_cast<char*>( buff.data() ), fileSize );
 
 	HRESULT hr;
 	DirectX::TexMetadata meta;

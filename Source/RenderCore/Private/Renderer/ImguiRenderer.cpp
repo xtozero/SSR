@@ -275,7 +275,7 @@ namespace rendercore
 
 				SetShaderValue( commandList, ProjectionMatrixShaderParam, imguiProjection );
 
-				auto texture = static_cast<agl::Texture*>( drawCommand.m_textureId );
+				auto texture = reinterpret_cast<agl::Texture*>( drawCommand.m_textureId );
 				commandList.AddTransition( Transition( *texture, agl::ResourceState::PixelShaderResource ) );
 
 				RenderingShaderResource imguiShaderResources;
@@ -354,7 +354,7 @@ namespace rendercore
 			} );
 
 		static_assert( sizeof( ImTextureID ) >= sizeof( m_imguiRenderResource.m_fontAtlas.Get() ), "Can't pack descriptor handle into TexID" );
-		io.Fonts->SetTexID( m_imguiRenderResource.m_fontAtlas.Get() );
+		io.Fonts->SetTexID( reinterpret_cast<ImTextureID>( m_imguiRenderResource.m_fontAtlas.Get() ) );
 	}
 
 	void ImguiRenderer::UpdateRenderResource()

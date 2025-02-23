@@ -233,6 +233,7 @@ set (PIX_LIBRARY
 target_link_libraries(Agl
 PRIVATE 
 	Core
+	DirectX-Headers
 	DirectXTex
 	${DIRECT3D_LIBRARY}
 	${PIX_LIBRARY})

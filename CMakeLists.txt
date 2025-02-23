@@ -23,6 +23,10 @@ add_subdirectory(ThirdParty/DirectXTex)
 
 add_subdirectory(ThirdParty/MeshOptimizer)
 
+add_subdirectory(ThirdParty/DirectXHeaders)
+
 set_target_properties(ddsview PROPERTIES FOLDER ThirdParty)
+set_target_properties(DirectX-Guids PROPERTIES FOLDER ThirdParty)
+set_target_properties(DirectX-Headers PROPERTIES FOLDER ThirdParty)
 set_target_properties(DirectXTex PROPERTIES FOLDER ThirdParty)
 set_target_properties(meshoptimizer PROPERTIES FOLDER ThirdParty)
