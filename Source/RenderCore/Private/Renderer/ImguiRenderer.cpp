@@ -12,6 +12,7 @@
 #include "Math/TransformationMatrix.h"
 #include "MeshDrawInfo.h"
 #include "PassProcessor.h"
+#include "RenderGraph.h"
 #include "RenderOption.h"
 #include "RenderView.h"
 #include "ResourceBarrierUtils.h"
@@ -176,7 +177,7 @@ namespace rendercore
 	{
 	public:
 		virtual bool BootUp() override;
-		virtual void Render( Canvas& canvas ) override;
+		virtual void Render( RenderGraph& renderGraph, Canvas& canvas ) override;
 
 		virtual void UpdateUIDrawInfo() override;
 
@@ -202,7 +203,7 @@ namespace rendercore
 		return true;
 	}
 
-	void ImguiRenderer::Render( Canvas& canvas )
+	void ImguiRenderer::Render( RenderGraph& renderGraph, Canvas& canvas )
 	{
 		CPU_PROFILE( ImguiRenderer_Render );
 
@@ -220,75 +221,73 @@ namespace rendercore
 			return;
 		}
 
-		auto commandList = GetCommandList();
-		GPU_PROFILE( commandList, ImGui );
-
-		agl::RenderTargetView* rtv = canvasTexture->RTV();
-		commandList.BindRenderTargets( &rtv, 1, nullptr );
+		auto rgCanvasTexture = renderGraph.RegisterExternalResource( canvasTexture );
 
 		auto [width, height] = canvas.Size();
-		CubeArea<float> viewport = {
-				.m_left = 0.f,
-				.m_top = 0.f,
-				.m_front = 0.f,
-				.m_right = static_cast<float>( width ),
-				.m_bottom = static_cast<float>( height ),
-				.m_back = 1.f
-		};
-		commandList.SetViewports( 1, &viewport );
 
-		float left = m_imguiDrawInfo.m_displayPos.x;
-		float right = m_imguiDrawInfo.m_displayPos.x + m_imguiDrawInfo.m_displaySize.x;
-		float top = m_imguiDrawInfo.m_displayPos.y;
-		float bottom = m_imguiDrawInfo.m_displayPos.y + m_imguiDrawInfo.m_displaySize.y;
-		Matrix imguiProjection(
-			2.0f / ( right - left ), 0.0f, 0.0f, 0.0f,
-			0.0f, 2.0f / ( top - bottom ), 0.0f, 0.0f,
-			0.0f, 0.0f, 0.5f, 0.0f,
-			( right + left ) / ( left - right ), ( top + bottom ) / ( bottom - top ), 0.5f, 1.0f );
+		RasterOutput rasterOutput;
+		rasterOutput.SetRenderTarget( 0, rgCanvasTexture );
+		rasterOutput.SetViewport( width, height );
 
-		for ( const ImguiDrawList& drawList : m_imguiDrawInfo.m_drawLists )
-		{
-			for ( const ImguiDrawCommand& drawCommand : drawList.m_drawCommands )
+		GPU_PROFILE_EVENT( renderGraph, ImGui );
+
+		renderGraph.AddPass(
+			rasterOutput,
+			[this, &canvas]( CommandList& commandList ) mutable
 			{
-				MeshDrawInfo drawinfo{
-					.m_vertexCollection = &m_imguiRenderResource.m_vertexCollection,
-					.m_indexBuffer = &m_imguiRenderResource.m_indexBuffer,
-					.m_material = nullptr,
-					.m_renderOption = nullptr,
-					.m_startLocation = drawCommand.m_indexOffset,
-					.m_baseVertexLocation = drawCommand.m_vertexOffset,
-					.m_count = drawCommand.m_numElem,
-					.m_lod = 0,
-					.m_sectionIndex = 0,
-				};
+				float left = m_imguiDrawInfo.m_displayPos.x;
+				float right = m_imguiDrawInfo.m_displayPos.x + m_imguiDrawInfo.m_displaySize.x;
+				float top = m_imguiDrawInfo.m_displayPos.y;
+				float bottom = m_imguiDrawInfo.m_displayPos.y + m_imguiDrawInfo.m_displaySize.y;
+				Matrix imguiProjection(
+					2.0f / ( right - left ), 0.0f, 0.0f, 0.0f,
+					0.0f, 2.0f / ( top - bottom ), 0.0f, 0.0f,
+					0.0f, 0.0f, 0.5f, 0.0f,
+					( right + left ) / ( left - right ), ( top + bottom ) / ( bottom - top ), 0.5f, 1.0f );
 
-				PrimitiveSubMesh subMesh( drawinfo );
-				auto result = m_drawPassProcessor.Process( subMesh );
-
-				if ( result.has_value() == false )
+				for ( const ImguiDrawList& drawList : m_imguiDrawInfo.m_drawLists )
 				{
-					continue;
+					for ( const ImguiDrawCommand& drawCommand : drawList.m_drawCommands )
+					{
+						MeshDrawInfo drawinfo{
+							.m_vertexCollection = &m_imguiRenderResource.m_vertexCollection,
+							.m_indexBuffer = &m_imguiRenderResource.m_indexBuffer,
+							.m_material = nullptr,
+							.m_renderOption = nullptr,
+							.m_startLocation = drawCommand.m_indexOffset,
+							.m_baseVertexLocation = drawCommand.m_vertexOffset,
+							.m_count = drawCommand.m_numElem,
+							.m_lod = 0,
+							.m_sectionIndex = 0,
+						};
+
+						PrimitiveSubMesh subMesh( drawinfo );
+						auto result = m_drawPassProcessor.Process( subMesh );
+
+						if ( result.has_value() == false )
+						{
+							continue;
+						}
+
+						DrawSnapshot& snapshot = *result;
+
+						SetShaderValue( commandList, ProjectionMatrixShaderParam, imguiProjection );
+
+						auto texture = reinterpret_cast<agl::Texture*>( drawCommand.m_textureId );
+						commandList.AddTransition( Transition( *texture, agl::ResourceState::PixelShaderResource ) );
+
+						ResourceBinder resourceBinder;
+						resourceBinder.Add( "texture0", texture->SRV() );
+						resourceBinder.Add( "sampler0", m_imguiRenderResource.m_fontAtlasSampler.Resource() );
+
+						resourceBinder.Bind( snapshot.m_pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+						commandList.SetScissorRects( 1, &drawCommand.m_clipRect );
+
+						AddSingleDrawPass( commandList, snapshot );
+					}
 				}
-
-				DrawSnapshot& snapshot = *result;
-
-				SetShaderValue( commandList, ProjectionMatrixShaderParam, imguiProjection );
-
-				auto texture = reinterpret_cast<agl::Texture*>( drawCommand.m_textureId );
-				commandList.AddTransition( Transition( *texture, agl::ResourceState::PixelShaderResource ) );
-
-				RenderingShaderResource imguiShaderResources;
-				imguiShaderResources.AddResource( "texture0", texture->SRV() );
-				imguiShaderResources.AddResource( "sampler0", m_imguiRenderResource.m_fontAtlasSampler.Resource() );
-
-				imguiShaderResources.BindResources( snapshot.m_pipelineState.m_shaderState, snapshot.m_shaderBindings );
-
-				commandList.SetScissorRects( 1, &drawCommand.m_clipRect );
-
-				AddSingleDrawPass( snapshot );
-			}
-		}
+			} );
 	}
 
 	void ImguiRenderer::UpdateUIDrawInfo()

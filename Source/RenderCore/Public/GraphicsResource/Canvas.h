@@ -34,6 +34,5 @@ namespace rendercore
 
 	private:
 		RefHandle<agl::Canvas> m_canvas;
-		ColorF m_clearColor;
 	};
 }

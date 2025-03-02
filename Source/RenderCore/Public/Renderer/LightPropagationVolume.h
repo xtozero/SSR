@@ -9,10 +9,12 @@
 
 namespace rendercore
 {
+	class IScene;
 	class LightSceneInfo;
+	class RenderGraph;
 	class RenderViewGroup;
-	class RenderingShaderResource;
-
+	class ResourceBinder;
+	
 	struct LpvRSMTextures
 	{
 		RefHandle<agl::Texture> m_worldPosition;
@@ -38,10 +40,10 @@ namespace rendercore
 	class LightPropagationVolume
 	{
 	public:
-		void Prepare( const RenderViewGroup& renderViewGroup );
-		void InjectLight( const LpvLightInjectionParameters& params );
-		void Propagate();
-		void Render( const LpvRenderingParameters& param, RenderingShaderResource& outRenderingShaderResource );
+		void Prepare( RenderGraph& renderGraph, const RenderViewGroup& renderViewGroup );
+		void InjectLight( RenderGraph& renderGraph, IScene& scene, RenderThreadFrameData<ShadowInfo>& shadowInfos );
+		void Propagate( RenderGraph& renderGraph );
+		RefHandle<agl::Texture> Render( RenderGraph& renderGraph, const LpvRenderingParameters& param, const ResourceBinder& resourceBinder );
 
 	private:
 		struct LPVTextures
@@ -55,9 +57,9 @@ namespace rendercore
 		void AllocTextureForIndirectIllumination( const std::pair<uint32, uint32>& renderTargetSize );
 		LPVTextures AllocVolumeTextures( bool allocForOcclusion );
 		void InitResource( const std::pair<uint32, uint32>& renderTargetSize );
-		void ClearLPV();
-		LpvRSMTextures DownSampleRSMs( const LightSceneInfo& lightInfo, const LpvRSMTextures& rsmTextures );
-		void InjectToLPV( const LpvLightInjectionParameters& params, const LpvRSMTextures& downSampledTex );
+		void ClearLPV( RenderGraph& renderGraph );
+		LpvRSMTextures DownSampleRSMs( RenderGraph& renderGraph, const LightSceneInfo& lightInfo, const LpvRSMTextures& rsmTextures );
+		void InjectToLPV( RenderGraph& renderGraph, const LpvLightInjectionParameters& params, const LpvRSMTextures& downSampledTex );
 
 		RefHandle<agl::Buffer> m_lpvCommon;
 

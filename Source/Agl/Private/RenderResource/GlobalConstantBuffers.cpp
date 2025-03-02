@@ -42,9 +42,9 @@ namespace agl
 		}
 
 		assert( m_buffer.Get() != nullptr );
-		void* dest = GetInterface<IAgl>()->Lock( m_buffer ).m_data;
+		void* dest = GetInterface<IAgl>()->Lock( m_buffer.Get() ).m_data;
 		std::memcpy( dest, m_data.data(), m_updateSize );
-		GetInterface<IAgl>()->UnLock( m_buffer );
+		GetInterface<IAgl>()->UnLock( m_buffer.Get() );
 	}
 
 	void GlobalSyncConstantBuffer::AddGlobalConstantBuffer( const ShaderParameter& parameter, SingleShaderBindings& singleShaderBindings )
@@ -71,7 +71,7 @@ namespace agl
 			m_buffer->Init();
 		}
 
-		singleShaderBindings.AddConstantBuffer( parameter, m_buffer );
+		singleShaderBindings.AddConstantBuffer( parameter, m_buffer.Get() );
 	}
 
 	void GlobalAsyncConstantBuffer::Prepare()
@@ -116,7 +116,7 @@ namespace agl
 		RefHandle<Buffer> buffer = Buffer::Create( trait, "GlobalConstant" );
 		buffer->Init();
 
-		singleShaderBindings.AddConstantBuffer( parameter, buffer );
+		singleShaderBindings.AddConstantBuffer( parameter, buffer.Get() );
 
 		m_buffers.push_back( buffer );
 	}

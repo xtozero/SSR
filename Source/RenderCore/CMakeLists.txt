@@ -121,6 +121,17 @@ set (PROXIES_SOURCE
 	Public/Proxies/VolumetricCloudProxy.h
 	Public/Proxies/VolumetricFogProxy.h)
 
+set (RENDER_GRAPH_HEADER
+	Public/RenderGraph/RenderGraph.h
+	Public/RenderGraph/RenderGraphEvent.h
+	Public/RenderGraph/RenderGraphPass.h
+	Public/RenderGraph/RenderGraphResource.h)
+
+set (RENDER_GRAPH_SOURCE
+	Private/RenderGraph/RenderGraph.cpp
+	Private/RenderGraph/RenderGraphEvent.cpp
+	Private/RenderGraph/RenderGraphPass.cpp)
+
 set (RENDER_SCENE_SOURCE
 	Private/Scene/LightSceneInfo.cpp
 	Private/Scene/PrimitiveSceneInfo.cpp
@@ -145,7 +156,7 @@ set (RENDER_UTILITY_HEADER
 	Public/RenderUtility/AbstractGraphicsInterface.h
 	Public/RenderUtility/CommonRenderResource.h
 	Public/RenderUtility/DebugOverlay.h
-	Public/RenderUtility/RenderTargetPool.h
+	Public/RenderUtility/GraphicsResourcePool.h
 	Public/RenderUtility/ShaderParameterUtils.h
 	Public/RenderUtility/ShadowSetup.h
 	Public/RenderUtility/ResourceBarrierUtils.h)
@@ -154,7 +165,7 @@ set (RENDER_UTILITY_SOURCE
 	Private/RenderUtility/AbstractGraphicsInterface.cpp
 	Private/RenderUtility/CommonRenderResource.cpp
 	Private/RenderUtility/DebugOverlay.cpp
-	Private/RenderUtility/RenderTargetPool.cpp
+	Private/RenderUtility/GraphicsResourcePool.cpp
 	Private/RenderUtility/ShadowSetup.cpp
 	Private/RenderUtility/ResourceBarrierUtils.cpp)
 	
@@ -193,6 +204,7 @@ source_group("Mesh" FILES ${MESH_SOURCE})
 source_group("PassProcessor" FILES ${PASS_PROCESSOR})
 source_group("Proxies" FILES ${PROXIES_SOURCE})
 source_group("Renderer" FILES ${RENDERER_SOURCE})
+source_group("RenderGraph" FILES ${RENDER_GRAPH_HEADER} ${RENDER_GRAPH_SOURCE})
 source_group("RenderUtility" FILES ${RENDER_UTILITY_HEADER} ${RENDER_UTILITY_SOURCE})
 source_group("Scene" FILES ${RENDER_SCENE_SOURCE})
 
@@ -209,6 +221,8 @@ add_library(RenderCore SHARED 	${CONFIG_SOURCE}
 								${MESH_SOURCE}
 								${PASS_PROCESSOR}
 								${PROXIES_SOURCE}
+								${RENDER_GRAPH_HEADER}
+								${RENDER_GRAPH_SOURCE}
 								${RENDER_SCENE_SOURCE}
 								${RENDER_UTILITY_HEADER}
 								${RENDER_UTILITY_SOURCE}
@@ -230,7 +244,8 @@ PRIVATE
 	../Shaders/Public/Atmosphere
 	./Public/GpuProfiler
 	./Public/Mesh
-	./Public/Proxies)
+	./Public/Proxies
+	./Public/RenderGraph)
 
 if(WIN32)
 target_link_directories(RenderCore

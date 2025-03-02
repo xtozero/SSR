@@ -39,9 +39,9 @@ namespace agl
 			return m_desc;
 		}
 
-		D3D12ViewBase( GraphicsApiResource* owner, ID3D12Resource* d3d11Resource, const DescType& desc ) noexcept :
+		D3D12ViewBase( GraphicsApiResource* owner, ID3D12Resource* d3d12Resource, const DescType& desc ) noexcept :
 			m_owner( owner ),
-			m_d3d12Resource( d3d11Resource ),
+			m_d3d12Resource( d3d12Resource ),
 			m_desc( desc )
 		{}
 
@@ -146,11 +146,17 @@ namespace agl
 		using BaseClass = D3D12ViewBase<RenderTargetView, D3D12_RENDER_TARGET_VIEW_DESC>;
 
 	public:
-		using BaseClass::BaseClass;
 		using BaseClass::operator=;
+
+		D3D12RenderTargetView( GraphicsApiResource* owner, ID3D12Resource* d3d12Resource, const D3D12_RENDER_TARGET_VIEW_DESC& desc, const ColorF& clearColor );
+
+		ColorF GetClearColor() const;
 
 	protected:
 		virtual void InitResource() override;
+
+	private:
+		ColorF m_clearColor = ColorF::Black;
 	};
 
 	class D3D12DepthStencilView final : public D3D12ViewBase<DepthStencilView, D3D12_DEPTH_STENCIL_VIEW_DESC>
@@ -158,11 +164,19 @@ namespace agl
 		using BaseClass = D3D12ViewBase<DepthStencilView, D3D12_DEPTH_STENCIL_VIEW_DESC>;
 
 	public:
-		using BaseClass::BaseClass;
 		using BaseClass::operator=;
+
+		D3D12DepthStencilView( GraphicsApiResource* owner, ID3D12Resource* d3d12Resource, const D3D12_DEPTH_STENCIL_VIEW_DESC& desc, float depthValue, uint8 stencilValue );
+
+		float GetDepthClearValue() const;
+		uint8 GetStencilClearValue() const;
 
 	protected:
 		virtual void InitResource() override;
+
+	private:
+		float m_depthClearValue = 0.f;
+		uint8 m_stencilClearValue = 0;
 	};
 
 	class D3D12ConstantBufferView final : public D3D12ViewBase<GraphicsApiResource, D3D12_CONSTANT_BUFFER_VIEW_DESC>

@@ -40,7 +40,7 @@ namespace engine
 	class CpuProfiler : public ICpuProfiler
 	{
 	public:
-		virtual void StartProfile( CpuProfileData& profileData ) override;
+		virtual void BeginProfile( CpuProfileData& profileData ) override;
 		virtual void EndProfile( CpuProfileData& profileData ) override;
 
 		virtual void GetProfileData( std::thread::id threadId, std::vector<const CpuProfileData*>& outProfileData ) const override;
@@ -60,7 +60,7 @@ namespace engine
 
 	thread_local std::stack<CpuProfileData*> CpuProfiler::m_profileStack;
 
-	void CpuProfiler::StartProfile( CpuProfileData& profileData )
+	void CpuProfiler::BeginProfile( CpuProfileData& profileData )
 	{
 		profileData.m_timeStampBegin = steady_clock::now();
 		auto threadId = std::this_thread::get_id();
@@ -147,7 +147,7 @@ namespace engine
 	{
 		if ( auto cpuProfiler = GetInterface<ICpuProfiler>() )
 		{
-			cpuProfiler->StartProfile( m_cpuProfileData );
+			cpuProfiler->BeginProfile( m_cpuProfileData );
 		}
 	}
 

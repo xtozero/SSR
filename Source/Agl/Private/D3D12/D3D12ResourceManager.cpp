@@ -137,7 +137,7 @@ namespace agl
 		auto cached = m_graphicsPipelineStateCache.find( initializer );
 		if ( cached != std::end( m_graphicsPipelineStateCache ) )
 		{
-			return cached->second;
+			return cached->second.Get();
 		}
 
 		auto pipelineState = new D3D12GraphicsPipelineState( initializer );
@@ -157,7 +157,7 @@ namespace agl
 		auto cached = m_computePipelineStateCache.find( initializer );
 		if ( cached != std::end( m_computePipelineStateCache ) )
 		{
-			return cached->second;
+			return cached->second.Get();
 		}
 
 		size_t psoHash = initializer.GetHash();
@@ -184,9 +184,9 @@ namespace agl
 		return pipelineState;
 	}
 
-	Canvas* D3D12ResourceManager::CreateCanvas( uint32 width, uint32 height, void* hWnd, ResourceFormat format ) const
+	Canvas* D3D12ResourceManager::CreateCanvas( uint32 width, uint32 height, void* hWnd, ResourceFormat format, const float4& clearColor ) const
 	{
-		return new DxgiSwapchain<AglType::D3D12>( D3D12DirectCommandQueue(), D3D12Factory(), width, height, DefaultAgl::GetBufferCount(), hWnd, ConvertFormatToDxgiFormat( format ) );
+		return new DxgiSwapchain<AglType::D3D12>( D3D12DirectCommandQueue(), D3D12Factory(), width, height, DefaultAgl::GetBufferCount(), hWnd, ConvertFormatToDxgiFormat( format ), clearColor );
 	}
 
 	Viewport* D3D12ResourceManager::CreateViewport( uint32 width, uint32 height, ResourceFormat format, const float4& bgColor ) const

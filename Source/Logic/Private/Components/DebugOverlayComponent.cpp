@@ -38,7 +38,7 @@ namespace logic
 			m_debugLine.erase( iter, std::end( m_debugLine ) );
 		}
 
-		int numRemoveTriangle = 0;
+		int32 numRemoveTriangle = 0;
 		for ( auto iter = std::begin( m_debugTriangle ), end = std::end( m_debugTriangle ); iter != end; )
 		{
 			if ( iter->m_life <= 0.f )

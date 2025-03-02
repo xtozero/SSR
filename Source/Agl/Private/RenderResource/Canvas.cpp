@@ -5,8 +5,8 @@
 
 namespace agl
 {
-	RefHandle<Canvas> Canvas::Create( uint32 width, uint32 height, void* hWnd, ResourceFormat format )
+	RefHandle<Canvas> Canvas::Create( uint32 width, uint32 height, void* hWnd, ResourceFormat format, const float4& clearColor )
 	{
-		return GetInterface<IResourceManager>()->CreateCanvas( width, height, hWnd, format );
+		return GetInterface<IResourceManager>()->CreateCanvas( width, height, hWnd, format, clearColor );
 	}
 }

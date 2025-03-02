@@ -137,7 +137,7 @@ namespace agl
 		auto cached = m_graphicsPipelineStateCache.find( initializer );
 		if ( cached != std::end( m_graphicsPipelineStateCache ) )
 		{
-			return cached->second;
+			return cached->second.Get();
 		}
 
 		auto pipelineState = new D3D11GraphicsPipelineState( initializer );
@@ -151,7 +151,7 @@ namespace agl
 		auto cached = m_computePipelineStateCache.find( initializer );
 		if ( cached != std::end( m_computePipelineStateCache ) )
 		{
-			return cached->second;
+			return cached->second.Get();
 		}
 
 		auto pipelineState = new D3D11ComputePipelineState( initializer );
@@ -160,14 +160,14 @@ namespace agl
 		return pipelineState;
 	}
 
-	Canvas* CD3D11ResourceManager::CreateCanvas( uint32 width, uint32 height, void* hWnd, ResourceFormat format ) const
+	Canvas* CD3D11ResourceManager::CreateCanvas( uint32 width, uint32 height, void* hWnd, ResourceFormat format, const float4& clearColor ) const
 	{
-		return new DxgiSwapchain<AglType::D3D11>( D3D11Device(), D3D11Factory(), width, height, 1, hWnd, ConvertFormatToDxgiFormat( format ) );
+		return new DxgiSwapchain<AglType::D3D11>( D3D11Device(), D3D11Factory(), width, height, 1, hWnd, ConvertFormatToDxgiFormat( format ), clearColor );
 	}
 
-	Viewport* CD3D11ResourceManager::CreateViewport( uint32 width, uint32 height, ResourceFormat format, [[maybe_unused]] const float4& bgColor ) const
+	Viewport* CD3D11ResourceManager::CreateViewport( uint32 width, uint32 height, ResourceFormat format, const float4& bgColor ) const
 	{
-		auto viewport = new D3D11Viewport( width, height, ConvertFormatToDxgiFormat( format ) );
+		auto viewport = new D3D11Viewport( width, height, ConvertFormatToDxgiFormat( format ), bgColor );
 
 		return viewport;
 	}

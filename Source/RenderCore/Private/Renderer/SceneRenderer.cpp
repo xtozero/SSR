@@ -6,6 +6,7 @@
 #include "CpuProfiler.h"
 #include "ExponentialShadowMapRendering.h"
 #include "GpuProfiler.h"
+#include "GraphicsResourcePool.h"
 #include "Material/MaterialResource.h"
 #include "Math/TransformationMatrix.h"
 #include "Mesh/StaticMeshResource.h"
@@ -16,7 +17,7 @@
 #include "Proxies/PrimitiveProxy.h"
 #include "Proxies/TexturedSkyProxy.h"
 #include "Proxies/VolumetricCloudProxy.h"
-#include "RenderTargetPool.h"
+#include "RenderGraph.h"
 #include "RenderView.h"
 #include "ResourceBarrierUtils.h"
 #include "Scene/IScene.h"
@@ -43,7 +44,7 @@ namespace
 
 namespace rendercore
 {
-	void RenderingShaderResource::BindResources( const ShaderStates& shaders, agl::ShaderBindings& bindings )
+	void ResourceBinder::Bind( const ShaderStates& shaders, agl::ShaderBindings& bindings ) const
 	{
 		const ShaderBase* shaderArray[] = {
 			shaders.m_vertexShader,
@@ -116,7 +117,7 @@ namespace rendercore
 		}
 	}
 
-	void RenderingShaderResource::AddResource( const std::string& parameterName, agl::GraphicsApiResource* resource )
+	void ResourceBinder::Add( const std::string& parameterName, agl::GraphicsApiResource* resource )
 	{
 		auto found = std::find( std::begin( m_parameterNames ), std::end( m_parameterNames ), Name( parameterName ) );
 
@@ -132,7 +133,7 @@ namespace rendercore
 		}
 	}
 
-	void RenderingShaderResource::AddResource( const ShaderArguments* collection )
+	void ResourceBinder::Add( const ShaderArguments* collection )
 	{
 		auto found = std::find( std::begin( m_argumentsList ), std::end( m_argumentsList ), collection );
 		if ( found != std::end( m_argumentsList ) )
@@ -143,7 +144,7 @@ namespace rendercore
 		m_argumentsList.emplace_back( collection );
 	}
 
-	void RenderingShaderResource::ClearResources()
+	void ResourceBinder::Clear()
 	{
 		for ( auto& resource : m_resources )
 		{
@@ -151,18 +152,100 @@ namespace rendercore
 		}
 	}
 
-	void SceneRenderer::PreRender( RenderViewGroup& renderViewGroup )
+	void RasterOutput::SetRenderTarget( int32 index, RenderGraphTexture* renderTarget, RasterOutputLoadAction loadAction )
 	{
+		m_renderTargets[index].m_texture = renderTarget;
+		m_renderTargets[index].m_loadAction = loadAction;
+	}
+
+	void RasterOutput::SetDepthStencil( RenderGraphTexture* depthStencil, bool readOnly, RasterOutputLoadAction loadAction )
+	{
+		m_depthStencil.m_texture = depthStencil;
+		m_depthStencil.m_loadAction = loadAction;
+		m_depthStencilReadOnly = readOnly;
+	}
+
+	void RasterOutput::SetViewport( int32 left, int32 top, int32 right, int32 bottom, int32 front, int32 back )
+	{
+		m_viewport = {
+				.m_left = static_cast<float>( left ),
+				.m_top = static_cast<float>( top ),
+				.m_front = static_cast<float>( front ),
+				.m_right = static_cast<float>( right ),
+				.m_bottom = static_cast<float>( bottom ),
+				.m_back = static_cast<float>( back )
+		};
+	}
+
+	void RasterOutput::SetViewport( int32 width, int32 height )
+	{
+		SetViewport( 0, 0, width, height, 0, 1 );
+	}
+
+	void RasterOutput::SetScissorRect( int32 left, int32 top, int32 right, int32 bottom )
+	{
+		m_scissorRect = {
+				.m_left = left,
+				.m_top = top,
+				.m_right = right,
+				.m_bottom = bottom
+		};
+	}
+
+	void RasterOutput::SetScissorRect( int32 width, int32 height )
+	{
+		SetScissorRect( 0, 0, width, height );
+	}
+
+	void RasterOutput::Bind( CommandList& commandList ) const
+	{
+		agl::RenderTargetView* rtvs[agl::MAX_RENDER_TARGET] = {};
+		agl::DepthStencilView* dsv = nullptr;
+
+		for ( uint32 i = 0; i < agl::MAX_RENDER_TARGET; ++i )
+		{
+			if ( m_renderTargets[i].m_texture )
+			{
+				rtvs[i] = m_renderTargets[i].m_texture->Get()->RTV();
+			}
+		}
+
+		if ( m_depthStencil.m_texture )
+		{
+			dsv = m_depthStencil.m_texture->Get()->DSV();
+		}
+
+		commandList.BindRenderTargets( rtvs, agl::MAX_RENDER_TARGET, dsv );
+		commandList.SetViewports( 1, &m_viewport );
+		commandList.SetScissorRects( 1, &m_scissorRect );
+	}
+
+	void SceneRenderer::PreRender( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup )
+	{
+		m_prevFrameContext.resize( m_viewInfo.size() );
+		for ( size_t i = 0; i < m_prevFrameContext.size(); ++i )
+		{
+			const RenderViewInfo& viewInfo = m_viewInfo[i];
+
+			m_prevFrameContext[i].m_viewMatrix = viewInfo.m_viewMatrix;
+			m_prevFrameContext[i].m_projMatrix = viewInfo.m_projMatrix;
+			m_prevFrameContext[i].m_viewProjMatrix = viewInfo.m_viewProjMatrix;
+		}
+
+		m_viewInfo.clear();
+		m_viewInfo.reserve( renderViewGroup.NumRenderView() );
+
+		ResetTransientContainer( m_shadowInfos );
+		ResetTransientContainer( m_passSnapshots );
+		ResetTransientContainer( m_occlusionRenderData );
+
+		GetTransientAllocator<ThreadType::RenderThread>().Flush();
+
 		IScene& scene = renderViewGroup.Scene();
 
 		assert( scene.GetRenderScene() != nullptr );
 		Scene& renderScene = *scene.GetRenderScene();
 
-		std::construct_at( &m_shadowInfos );
-		std::construct_at( &m_passSnapshots );
-		std::construct_at( &m_occlusionRenderData );
-
-		m_viewInfo.reserve( renderViewGroup.NumRenderView() );
 		for ( size_t i = 0; i < renderViewGroup.NumRenderView(); ++i )
 		{
 			RenderViewInfo& viewInfo = m_viewInfo.emplace_back( renderViewGroup.GetRenderView( i ) );
@@ -189,11 +272,13 @@ namespace rendercore
 			}
 		}
 
-		auto linearSampler = StaticSamplerState<>::Get();
-		m_shaderResources.AddResource( "LinearSampler", linearSampler.Resource() );
-		m_shaderResources.AddResource( &scene.GetViewShaderArguments() );
+		m_resourceBinder.Clear();
 
-		UpdateGPUPrimitiveInfos( renderScene );
+		auto linearSampler = StaticSamplerState<>::Get();
+		m_resourceBinder.Add( "LinearSampler", linearSampler.Resource() );
+		m_resourceBinder.Add( &scene.GetViewShaderArguments() );
+
+		UpdateGPUPrimitiveInfos( renderGraph, renderScene );
 
 		auto& gpuPrimitiveInfo = scene.GpuPrimitiveInfo();
 		auto commandList = GetCommandList();
@@ -214,35 +299,6 @@ namespace rendercore
 		}
 	}
 
-	void SceneRenderer::PostRender()
-	{
-		CPU_PROFILE( PostRender );
-
-		m_shaderResources.ClearResources();
-
-		m_prevFrameContext.resize( m_viewInfo.size() );
-		for ( size_t i = 0; i < m_prevFrameContext.size(); ++i )
-		{
-			const RenderViewInfo& viewInfo = m_viewInfo[i];
-
-			m_prevFrameContext[i].m_viewMatrix = viewInfo.m_viewMatrix;
-			m_prevFrameContext[i].m_projMatrix = viewInfo.m_projMatrix;
-			m_prevFrameContext[i].m_viewProjMatrix = viewInfo.m_viewProjMatrix;
-		}
-
-		m_viewInfo.clear();
-		std::destroy_at( &m_passSnapshots );
-		std::destroy_at( &m_shadowInfos );
-		std::destroy_at( &m_occlusionRenderData );
-
-		GetTransientAllocator<ThreadType::RenderThread>().Flush();
-	}
-
-	void SceneRenderer::WaitUntilRenderingIsFinish()
-	{
-		CPU_PROFILE( WaitUntilRenderingIsFinish );
-	}
-
 	void SceneRenderer::InitDynamicShadows( RenderViewGroup& renderViewGroup )
 	{
 		IScene& scene = renderViewGroup.Scene();
@@ -255,7 +311,7 @@ namespace rendercore
 		RenderThreadFrameData<ShadowInfo*> viewIndependentShadow;
 
 		Scene& renderScene = *scene.GetRenderScene();
-		auto lights = renderScene.Lights();
+		const auto& lights = renderScene.Lights();
 		m_shadowInfos.reserve( lights.Size() );
 
 		for ( const auto& view : m_viewInfo )
@@ -459,7 +515,7 @@ namespace rendercore
 				}
 			};
 
-			shadow->ShadowMap().m_shadowMaps.emplace_back( RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "Shadow.Cascade" ) );
+			shadow->ShadowMap().m_shadowMaps.emplace_back( GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "Shadow.Cascade" ) );
 
 			agl::TextureTrait depthTrait = {
 				.m_width = width,
@@ -480,7 +536,7 @@ namespace rendercore
 				}
 			};
 
-			shadow->ShadowMap().m_shadowMapDepth = RenderTargetPool::GetInstance().FindFreeRenderTarget( depthTrait, "Shadow.Cascade.Depth" );
+			shadow->ShadowMap().m_shadowMapDepth = GraphicsResourcePool::GetInstance().FindFreeTexture( depthTrait, "Shadow.Cascade.Depth" );
 
 			if ( DefaultRenderCore::IsRSMsEnabled() )
 			{
@@ -500,7 +556,7 @@ namespace rendercore
 					}
 				};
 
-				shadow->ShadowMap().m_shadowMaps.emplace_back( RenderTargetPool::GetInstance().FindFreeRenderTarget( positionMapTrait, "RSMs.Position" ) );
+				shadow->ShadowMap().m_shadowMaps.emplace_back( GraphicsResourcePool::GetInstance().FindFreeTexture( positionMapTrait, "RSMs.Position" ) );
 
 				agl::TextureTrait normalMapTrait = {
 					.m_width = width,
@@ -518,7 +574,7 @@ namespace rendercore
 					}
 				};
 
-				shadow->ShadowMap().m_shadowMaps.emplace_back( RenderTargetPool::GetInstance().FindFreeRenderTarget( normalMapTrait, "RSMs.Normal" ) );
+				shadow->ShadowMap().m_shadowMaps.emplace_back( GraphicsResourcePool::GetInstance().FindFreeTexture( normalMapTrait, "RSMs.Normal" ) );
 
 				agl::TextureTrait fluxMapTrait = {
 					.m_width = width,
@@ -536,7 +592,7 @@ namespace rendercore
 					}
 				};
 
-				shadow->ShadowMap().m_shadowMaps.emplace_back( RenderTargetPool::GetInstance().FindFreeRenderTarget( fluxMapTrait, "RSMs.Flux" ) );
+				shadow->ShadowMap().m_shadowMaps.emplace_back( GraphicsResourcePool::GetInstance().FindFreeTexture( fluxMapTrait, "RSMs.Flux" ) );
 			}
 		}
 	}
@@ -563,7 +619,7 @@ namespace rendercore
 				}
 			};
 
-			shadow->ShadowMap().m_shadowMaps.emplace_back( RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "Shadow.Point" ) );
+			shadow->ShadowMap().m_shadowMaps.emplace_back( GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "Shadow.Point" ) );
 
 			agl::TextureTrait depthTrait = {
 				.m_width = width,
@@ -584,191 +640,26 @@ namespace rendercore
 				}
 			};
 
-			shadow->ShadowMap().m_shadowMapDepth = RenderTargetPool::GetInstance().FindFreeRenderTarget( depthTrait, "Shadow.Point.Depth" );
+			shadow->ShadowMap().m_shadowMapDepth = GraphicsResourcePool::GetInstance().FindFreeTexture( depthTrait, "Shadow.Point.Depth" );
 		}
 	}
 
-	void SceneRenderer::RenderShadowDepthPass()
-	{
-		auto commandList = GetCommandList();
-		GPU_PROFILE( commandList, ShadowDepth );
-
-		for ( ShadowInfo& shadowInfo : m_shadowInfos )
-		{
-			ShadowMapRenderTarget& shadowMap = shadowInfo.ShadowMap();
-			assert( ( shadowMap.m_shadowMaps.size() > 0 )
-				&& ( shadowMap.m_shadowMaps[0] != nullptr )
-				&& ( shadowMap.m_shadowMapDepth != nullptr ) );
-
-			auto [width, height] = shadowInfo.ShadowMapSize();
-
-			RenderingOutputContext context = {
-				.m_renderTargets = {},
-				.m_depthStencil = shadowMap.m_shadowMapDepth,
-				.m_viewport = {
-					.m_left = 0.f,
-					.m_top = 0.f,
-					.m_front = 0.f,
-					.m_right = static_cast<float>( width ),
-					.m_bottom = static_cast<float>( height ),
-					.m_back = 1.f
-				},
-				.m_scissorRects = {
-					.m_left = 0L,
-					.m_top = 0L,
-					.m_right = static_cast<int32>( width ),
-					.m_bottom = static_cast<int32>( height )
-				}
-			};
-
-			for ( int32 i = 0; i < shadowMap.m_shadowMaps.size(); ++i )
-			{
-				context.m_renderTargets[i] = shadowMap.m_shadowMaps[i];
-			}
-
-			StoreOuputContext( context );
-
-			commandList.AddTransition( Transition( *shadowMap.m_shadowMaps[0].Get(), agl::ResourceState::RenderTarget ) );
-			commandList.AddTransition( Transition( *shadowMap.m_shadowMapDepth.Get(), agl::ResourceState::DepthWrite ) );
-
-			bool rsmsEnabled = DefaultRenderCore::IsRSMsEnabled() && shadowMap.m_shadowMaps.size() >= 4;
-			if ( rsmsEnabled )
-			{
-				commandList.AddTransition( Transition( *shadowMap.m_shadowMaps[1].Get(), agl::ResourceState::RenderTarget ) );
-				commandList.AddTransition( Transition( *shadowMap.m_shadowMaps[2].Get(), agl::ResourceState::RenderTarget ) );
-				commandList.AddTransition( Transition( *shadowMap.m_shadowMaps[3].Get(), agl::ResourceState::RenderTarget ) );
-			}
-
-			agl::RenderTargetView* rtv = shadowMap.m_shadowMaps[0]->RTV();
-			commandList.ClearRenderTarget( rtv, { 1, 1, 1, 1 } );
-
-			if ( rsmsEnabled )
-			{
-				rtv = shadowMap.m_shadowMaps[1]->RTV();
-				commandList.ClearRenderTarget( rtv, { 0, 0, 0, 1 } );
-
-				rtv = shadowMap.m_shadowMaps[2]->RTV();
-				commandList.ClearRenderTarget( rtv, { 0, 0, 0, 1 } );
-
-				rtv = shadowMap.m_shadowMaps[3]->RTV();
-				commandList.ClearRenderTarget( rtv, { 0, 0, 0, 1 } );
-			}
-
-			agl::DepthStencilView* dsv = shadowMap.m_shadowMapDepth->DSV();
-			commandList.ClearDepthStencil( dsv, 1.f, 0 );
-
-			shadowInfo.SetupShadowConstantBuffer();
-			shadowInfo.RenderDepth( *this, m_shaderResources );
-
-			if ( DefaultRenderCore::IsESMsEnabled() )
-			{
-				shadowMap.m_shadowMaps[0] = GenerateExponentialShadowMaps( shadowInfo, shadowMap.m_shadowMaps[0] );
-			}
-
-			commandList.AddTransition( Transition( *shadowMap.m_shadowMaps[0].Get(), agl::ResourceState::GenericRead ) );
-
-			if ( rsmsEnabled )
-			{
-				commandList.AddTransition( Transition( *shadowMap.m_shadowMaps[1].Get(), agl::ResourceState::GenericRead ) );
-				commandList.AddTransition( Transition( *shadowMap.m_shadowMaps[2].Get(), agl::ResourceState::GenericRead ) );
-				commandList.AddTransition( Transition( *shadowMap.m_shadowMaps[3].Get(), agl::ResourceState::GenericRead ) );
-			}
-		}
-	}
-
-	void SceneRenderer::RenderTexturedSky( IScene& scene )
-	{
-		Scene* renderScene = scene.GetRenderScene();
-		if ( renderScene == nullptr )
-		{
-			return;
-		}
-
-		TexturedSkyProxy* proxy = renderScene->TexturedSky();
-		if ( proxy == nullptr )
-		{
-			return;
-		}
-
-		StaticMeshRenderData* renderData = proxy->GetRenderData();
-		MaterialResource* material = proxy->GetMaterialResource();
-		if ( ( renderData == nullptr ) || ( renderData->LODSize() == 0 || ( material == nullptr ) ) )
-		{
-			return;
-		}
-
-		auto commandList = GetCommandList();
-		GPU_PROFILE( commandList, TexturedSky );
-
-		ShaderStates shaderState{
-			{},
-			material->GetVertexShader(),
-			nullptr,
-			material->GetPixelShader(),
-		};
-
-		ApplyOutputContext( commandList );
-
-		StaticMeshLODResource& lodResource = renderData->LODResource( 0 );
-		const VertexCollection& vertexCollection = lodResource.m_vertexCollection;
-
-		for ( const auto& section : lodResource.m_sections )
-		{
-			DrawSnapshot snapshot;
-			vertexCollection.Bind( snapshot.m_vertexStream, VertexStreamLayoutType::PositionOnly );
-			snapshot.m_primitiveIdSlot = -1;
-			snapshot.m_indexBuffer = lodResource.m_ib;
-
-			GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
-			pipelineState.m_shaderState = shaderState;
-
-			auto initializer = CreateShaderBindingsInitializer( pipelineState.m_shaderState );
-			snapshot.m_shaderBindings.Initialize( initializer );
-
-			material->TakeSnapshot( snapshot );
-
-			auto& graphicsInterface = GraphicsInterface();
-			if ( pipelineState.m_shaderState.m_vertexShader )
-			{
-				VertexStreamLayout vertexlayout = vertexCollection.VertexLayout( VertexStreamLayoutType::PositionOnly );
-				pipelineState.m_shaderState.m_vertexLayout = graphicsInterface.FindOrCreate( *pipelineState.m_shaderState.m_vertexShader, vertexlayout );
-			}
-
-			pipelineState.m_depthStencilState = graphicsInterface.FindOrCreate( proxy->GetDepthStencilOption() );
-			pipelineState.m_rasterizerState = graphicsInterface.FindOrCreate( proxy->GetRasterizerOption() );
-
-			pipelineState.m_primitive = agl::ResourcePrimitive::Trianglelist;
-
-			snapshot.m_count = section.m_count;
-			snapshot.m_startIndexLocation = section.m_startLocation;
-			snapshot.m_baseVertexLocation = 0;
-
-			PreparePipelineStateObject( snapshot );
-
-			m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
-
-			AddSingleDrawPass( snapshot );
-		}
-	}
-
-	void SceneRenderer::RenderMesh( IScene& scene, RenderPass passType, uint32 viewIndex )
+	RenderThreadFrameData<VisibleDrawSnapshot>* SceneRenderer::GatherDrawsnapshots( IScene& scene, RenderPassType passType, uint32 viewIndex, std::deque<DrawSnapshot>& outSnapshotStorage )
 	{
 		const auto& primitives = scene.Primitives();
 		if ( primitives.Size() == 0 )
 		{
-			return;
+			return nullptr;
 		}
 
 		auto* renderScene = scene.GetRenderScene();
 		if ( renderScene == nullptr )
 		{
-			return;
+			return nullptr;
 		}
 
 		RenderViewInfo& viewInfo = m_viewInfo[viewIndex];
 		auto& snapshots = viewInfo.m_snapshots[static_cast<uint32>( passType )];
-
-		std::deque<DrawSnapshot> snapshotStorage;
 
 		// Create DrawSnapshot
 		for ( auto primitive : primitives )
@@ -803,110 +694,236 @@ namespace rendercore
 			}
 			else
 			{
-				proxy->TakeSnapshot( snapshotStorage, snapshots );
+				proxy->TakeSnapshot( outSnapshotStorage, snapshots );
 			}
 		}
 
-		if ( snapshots.size() == 0 )
+		return &snapshots;
+	}
+
+	void SceneRenderer::RenderShadowDepthPass( RenderGraph& renderGraph )
+	{
+		for ( ShadowInfo& shadowInfo : m_shadowInfos )
+		{
+			ShadowMapRenderTarget& shadowMap = shadowInfo.ShadowMap();
+			assert( ( shadowMap.m_shadowMaps.size() > 0 )
+				&& ( shadowMap.m_shadowMaps[0] != nullptr )
+				&& ( shadowMap.m_shadowMapDepth != nullptr ) );
+
+			auto [width, height] = shadowInfo.ShadowMapSize();
+
+			RasterOutput rasterOutput;
+			for ( int32 i = 0; i < shadowMap.m_shadowMaps.size(); ++i )
+			{
+				auto rgShadowMap = renderGraph.RegisterExternalResource( shadowMap.m_shadowMaps[i].Get() );
+				rasterOutput.SetRenderTarget( i, rgShadowMap, RasterOutputLoadAction::Clear );
+			}
+			auto rgShadowMapDepth = renderGraph.RegisterExternalResource( shadowMap.m_shadowMapDepth.Get() );
+			rasterOutput.SetDepthStencil( rgShadowMapDepth, false, RasterOutputLoadAction::Clear );
+			rasterOutput.SetViewport( width, height );
+			rasterOutput.SetScissorRect( width, height );
+
+			GPU_PROFILE_EVENT( renderGraph, ShadowDepth );
+
+			renderGraph.AddPass(
+				rasterOutput,
+				[this, &shadowInfo]( CommandList& commandList )
+				{
+					shadowInfo.SetupShadowConstantBuffer();
+					shadowInfo.RenderDepth( commandList, m_resourceBinder );
+				} );
+
+			if ( DefaultRenderCore::IsESMsEnabled() )
+			{
+				shadowMap.m_shadowMaps[0] = GenerateExponentialShadowMaps( renderGraph, shadowInfo, shadowMap.m_shadowMaps[0] );
+			}
+		}
+	}
+
+	void SceneRenderer::RenderTexturedSky( RenderGraph& renderGraph, IScene& scene, const RasterOutput& rasterOutput )
+	{
+		Scene* renderScene = scene.GetRenderScene();
+		if ( renderScene == nullptr )
 		{
 			return;
 		}
 
-		// Update invalidated resources
-		for ( auto& viewDrawSnapshot : snapshots )
+		TexturedSkyProxy* proxy = renderScene->TexturedSky();
+		if ( proxy == nullptr )
 		{
-			DrawSnapshot& snapshot = *viewDrawSnapshot.m_drawSnapshot;
-			GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
-
-			m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+			return;
 		}
 
-		VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc( static_cast<uint32>( snapshots.size() * sizeof( uint32 ) ) );
+		StaticMeshRenderData* renderData = proxy->GetRenderData();
+		MaterialResource* material = proxy->GetMaterialResource();
+		if ( ( renderData == nullptr ) || ( renderData->LODSize() == 0 || ( material == nullptr ) ) )
+		{
+			return;
+		}
 
-		SortDrawSnapshots( snapshots, primitiveIds );
-		// CommitDrawSnapshots( *this, renderViewGroup, curView, primitiveIds );
-		ParallelCommitDrawSnapshot( *this, snapshots, primitiveIds );
+		GPU_PROFILE_EVENT( renderGraph, TexturedSky );
+
+		renderGraph.AddPass(
+			rasterOutput,
+			[this, proxy]( CommandList& commandList )
+			{
+				MaterialResource* material = proxy->GetMaterialResource();
+				ShaderStates shaderState = {
+					.m_vertexShader = material->GetVertexShader(),
+					.m_pixelShader = material->GetPixelShader(),
+				};
+
+				StaticMeshRenderData* renderData = proxy->GetRenderData();
+				StaticMeshLODResource& lodResource = renderData->LODResource( 0 );
+				const VertexCollection& vertexCollection = lodResource.m_vertexCollection;
+
+				for ( const auto& section : lodResource.m_sections )
+				{
+					DrawSnapshot snapshot;
+					vertexCollection.Bind( snapshot.m_vertexStream, VertexStreamLayoutType::PositionOnly );
+					snapshot.m_primitiveIdSlot = -1;
+					snapshot.m_indexBuffer = lodResource.m_ib;
+
+					GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+					pipelineState.m_shaderState = shaderState;
+
+					auto initializer = CreateShaderBindingsInitializer( pipelineState.m_shaderState );
+					snapshot.m_shaderBindings.Initialize( initializer );
+
+					material->TakeSnapshot( snapshot );
+
+					auto& graphicsInterface = GraphicsInterface();
+					if ( pipelineState.m_shaderState.m_vertexShader )
+					{
+						VertexStreamLayout vertexlayout = vertexCollection.VertexLayout( VertexStreamLayoutType::PositionOnly );
+						pipelineState.m_shaderState.m_vertexLayout = graphicsInterface.FindOrCreate( *pipelineState.m_shaderState.m_vertexShader, vertexlayout );
+					}
+
+					pipelineState.m_depthStencilState = graphicsInterface.FindOrCreate( proxy->GetDepthStencilOption() );
+					pipelineState.m_rasterizerState = graphicsInterface.FindOrCreate( proxy->GetRasterizerOption() );
+
+					pipelineState.m_primitive = agl::ResourcePrimitive::Trianglelist;
+
+					snapshot.m_count = section.m_count;
+					snapshot.m_startIndexLocation = section.m_startLocation;
+					snapshot.m_baseVertexLocation = 0;
+
+					PreparePipelineStateObject( snapshot );
+
+					m_resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+					AddSingleDrawPass( commandList, snapshot );
+				}
+			} );
 	}
 
-	void SceneRenderer::RenderShadow()
+	void SceneRenderer::RenderShadow( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup )
 	{
 		CPU_PROFILE( SceneRenderer_RenderShadow );
 
-		auto commandList = GetCommandList();
-		GPU_PROFILE( commandList, Shadow );
+		auto renderTarget = renderViewGroup.GetViewport().Texture();
+		auto depthStencil = GetRenderRenderTargets().GetDepthStencil();
+
+		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
+		auto rgDepthStencil = renderGraph.RegisterExternalResource( depthStencil );
+
+		auto [width, height] = renderViewGroup.GetViewport().Size();
+
+		RasterOutput rasterOutput;
+		rasterOutput.SetRenderTarget( 0, rgRenderTarget );
+		rasterOutput.SetDepthStencil( rgDepthStencil, true );
+		rasterOutput.SetViewport( width, height );
+		rasterOutput.SetScissorRect( width, height );
+
+		GPU_PROFILE_EVENT( renderGraph, Shadow );
 
 		for ( ShadowInfo& shadowInfo : m_shadowInfos )
 		{
-			std::optional<DrawSnapshot> result;
+			BEGIN_RG_RESOURCE_STRUCT( RenderShadowPassResource )
+				DECLARE_RG_TEXTURE_PIXEL_SRV( shadowMap )
+			END_RG_RESOURCE_STRUCT();
 
-			switch ( shadowInfo.GetLightType() )
-			{
-			case LightType::Directional:
-			{
-				CascadeShadowDrawPassProcessor shadowDrawPassProcessor;
-				result = shadowDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
-				break;
-			}
-			case LightType::Point:
-			{
-				PointShadowDrawPassProcessor shadowDrawPassProcessor;
-				result = shadowDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
-				break;
-			}
-			}
+			auto rgShadowMap = renderGraph.RegisterExternalResource( shadowInfo.ShadowMap().m_shadowMaps[0].Get() );
 
-			if ( result.has_value() == false )
-			{
-				return;
-			}
+			RenderShadowPassResource passResource = {
+				.m_shadowMap = rgShadowMap,
+			};
 
-			DrawSnapshot& snapshot = *result;
+			renderGraph.AddPass(
+				passResource,
+				rasterOutput,
+				[this, passResource, &shadowInfo](CommandList& commandList)
+				{
+					std::optional<DrawSnapshot> result;
 
-			// Update invalidated resources
-			GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
-			m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+					switch ( shadowInfo.GetLightType() )
+					{
+					case LightType::Directional:
+					{
+						CascadeShadowDrawPassProcessor shadowDrawPassProcessor;
+						result = shadowDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
+						break;
+					}
+					case LightType::Point:
+					{
+						PointShadowDrawPassProcessor shadowDrawPassProcessor;
+						result = shadowDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
+						break;
+					}
+					}
 
-			ApplyOutputContext( commandList );
+					if ( result.has_value() == false )
+					{
+						return;
+					}
 
-			m_shaderResources.AddResource( "ShadowTexture", shadowInfo.ShadowMap().m_shadowMaps[0]->SRV() );
+					DrawSnapshot& snapshot = *result;
 
-			bool bESMsEnabled = DefaultRenderCore::IsESMsEnabled();
+					// Update invalidated resources
+					GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+					m_resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
-			SamplerState shadowSampler;
-			if ( ( bESMsEnabled == false ) || ( shadowInfo.GetLightType() != LightType::Directional ) )
-			{
-				shadowSampler = StaticSamplerState<agl::TextureFilter::MinMagMipLinear | agl::TextureFilter::Comparison
-					, agl::TextureAddressMode::Border
-					, agl::TextureAddressMode::Border
-					, agl::TextureAddressMode::Border
-					, 0.f
-					, agl::ComparisonFunc::Less>::Get();
-			}
-			else
-			{
-				shadowSampler = StaticSamplerState<>::Get();
-			}
+					m_resourceBinder.Add( "ShadowTexture", passResource.m_shadowMap->SRV() );
 
-			m_shaderResources.AddResource( "ShadowSampler", shadowSampler.Resource() );
+					bool bESMsEnabled = DefaultRenderCore::IsESMsEnabled();
 
-			m_shaderResources.AddResource( "ShadowDepthPassParameters", shadowInfo.GetShadowShaderArguments().Resource() );
+					SamplerState shadowSampler;
+					if ( ( bESMsEnabled == false ) || ( shadowInfo.GetLightType() != LightType::Directional ) )
+					{
+						shadowSampler = StaticSamplerState<agl::TextureFilter::MinMagMipLinear | agl::TextureFilter::Comparison
+							, agl::TextureAddressMode::Border
+							, agl::TextureAddressMode::Border
+							, agl::TextureAddressMode::Border
+							, 0.f
+							, agl::ComparisonFunc::Less>::Get();
+					}
+					else
+					{
+						shadowSampler = StaticSamplerState<>::Get();
+					}
 
-			if ( bESMsEnabled )
-			{
-				m_shaderResources.AddResource( "ESMsParameters", shadowInfo.GetESMsShaderArguments().Resource() );
-			}
+					m_resourceBinder.Add( "ShadowSampler", shadowSampler.Resource() );
 
-			m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+					m_resourceBinder.Add( "ShadowDepthPassParameters", shadowInfo.GetShadowShaderArguments().Resource() );
 
-			AddSingleDrawPass( snapshot );
+					if ( bESMsEnabled )
+					{
+						m_resourceBinder.Add( "ESMsParameters", shadowInfo.GetESMsShaderArguments().Resource() );
+					}
+
+					m_resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+					AddSingleDrawPass( commandList, snapshot );
+				}
+			);
 		}
 	}
 
-	void SceneRenderer::RenderSkyAtmosphere( IScene& scene, uint32 viewIndex )
+	void SceneRenderer::RenderSkyAtmosphere( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex )
 	{
 		CPU_PROFILE( SceneRenderer_RenderSkyAtmosphere );
 
-		Scene* renderScene = scene.GetRenderScene();
+		Scene* renderScene = renderViewGroup.Scene().GetRenderScene();
 		if ( renderScene == nullptr )
 		{
 			return;
@@ -924,55 +941,89 @@ namespace rendercore
 			return;
 		}
 
-		auto commandList = GetCommandList();
-		GPU_PROFILE( commandList, SkyAtmosphere );
+		auto rgTransmittanceLut = renderGraph.RegisterExternalResource( info->GetTransmittanceLutTexture().Get() );
+		auto rgIrradianceLut = renderGraph.RegisterExternalResource( info->GetIrradianceLutTexture().Get() );
+		auto rgInscatterLut = renderGraph.RegisterExternalResource( info->GetInscatterLutTexture().Get() );
 
-		LightProperty lightProperty = skyAtmosphereLight->Proxy()->GetLightProperty();
+		BEGIN_RG_RESOURCE_STRUCT( RenderSkyAtmospherePassResource )
+			DECLARE_RG_TEXTURE_PIXEL_SRV( transmittanceLut )
+			DECLARE_RG_TEXTURE_PIXEL_SRV( irradianceLut )
+			DECLARE_RG_TEXTURE_PIXEL_SRV( inscatterLut )
+		END_RG_RESOURCE_STRUCT();
 
-		auto& skyAtmosphereRenderParameter = info->GetShaderArguments();
-		SkyAtmosphereRenderParameters param = {
-			.CameraPos = m_viewInfo[viewIndex].m_viewOrigin,
-			.SunDir = -lightProperty.m_direction,
-			.Exposure = 0.4f,
+		RenderSkyAtmospherePassResource passResource = {
+			.m_transmittanceLut = rgTransmittanceLut,
+			.m_irradianceLut = rgIrradianceLut,
+			.m_inscatterLut = rgInscatterLut,
 		};
-		skyAtmosphereRenderParameter->Update( param );
 
-		SkyAtmosphereDrawPassProcessor skyAtmosphereDrawPassProcessor;
-		auto result = skyAtmosphereDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
-		if ( result.has_value() == false )
-		{
-			return;
-		}
+		auto renderTarget = renderViewGroup.GetViewport().Texture();
+		auto depthStencil = GetRenderRenderTargets().GetDepthStencil();
 
-		DrawSnapshot& snapshot = *result;
+		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
+		auto rgDepthStencil = renderGraph.RegisterExternalResource( depthStencil );
 
-		// Update invalidated resources
-		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
-		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+		auto [width, height] = renderViewGroup.GetViewport().Size();
 
-		ApplyOutputContext( commandList );
+		RasterOutput rasterOutput;
+		rasterOutput.SetRenderTarget( 0, rgRenderTarget );
+		rasterOutput.SetDepthStencil( rgDepthStencil, true );
+		rasterOutput.SetViewport( width, height );
+		rasterOutput.SetScissorRect( width, height );
 
-		auto linearSampler = StaticSamplerState<>::Get();
+		GPU_PROFILE_EVENT( renderGraph, SkyAtmosphere );
 
-		RenderingShaderResource skyAtmosphereDrawResources;
-		skyAtmosphereDrawResources.AddResource( "TransmittanceLut", info->GetTransmittanceLutTexture()->SRV() );
-		skyAtmosphereDrawResources.AddResource( "TransmittanceLutSampler", linearSampler.Resource() );
-		skyAtmosphereDrawResources.AddResource( "IrradianceLut", info->GetIrradianceLutTexture()->SRV() );
-		skyAtmosphereDrawResources.AddResource( "IrradianceLutSampler", linearSampler.Resource() );
-		skyAtmosphereDrawResources.AddResource( "InscatterLut", info->GetInscatterLutTexture()->SRV() );
-		skyAtmosphereDrawResources.AddResource( "InscatterLutSampler", linearSampler.Resource() );
-		skyAtmosphereDrawResources.AddResource( "SkyAtmosphereRenderParameter", skyAtmosphereRenderParameter->Resource() );
+		renderGraph.AddPass(
+			passResource,
+			rasterOutput,
+			[this, info, skyAtmosphereLight, viewIndex]( CommandList& commandList )
+			{
+				LightProperty lightProperty = skyAtmosphereLight->Proxy()->GetLightProperty();
 
-		skyAtmosphereDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+				auto& skyAtmosphereRenderParameter = info->GetShaderArguments();
+				SkyAtmosphereRenderParameters param = {
+					.CameraPos = m_viewInfo[viewIndex].m_viewOrigin,
+					.SunDir = -lightProperty.m_direction,
+					.Exposure = 0.4f,
+				};
+				skyAtmosphereRenderParameter->Update( param );
 
-		AddSingleDrawPass( snapshot );
+				SkyAtmosphereDrawPassProcessor skyAtmosphereDrawPassProcessor;
+				auto result = skyAtmosphereDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
+				if ( result.has_value() == false )
+				{
+					return;
+				}
+
+				DrawSnapshot& snapshot = *result;
+
+				// Update invalidated resources
+				GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+				m_resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+				
+				auto linearSampler = StaticSamplerState<>::Get();
+
+				ResourceBinder passResourceBinder;
+				passResourceBinder.Add( "TransmittanceLut", info->GetTransmittanceLutTexture()->SRV() );
+				passResourceBinder.Add( "TransmittanceLutSampler", linearSampler.Resource() );
+				passResourceBinder.Add( "IrradianceLut", info->GetIrradianceLutTexture()->SRV() );
+				passResourceBinder.Add( "IrradianceLutSampler", linearSampler.Resource() );
+				passResourceBinder.Add( "InscatterLut", info->GetInscatterLutTexture()->SRV() );
+				passResourceBinder.Add( "InscatterLutSampler", linearSampler.Resource() );
+				passResourceBinder.Add( "SkyAtmosphereRenderParameter", skyAtmosphereRenderParameter->Resource() );
+
+				passResourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+				AddSingleDrawPass( commandList, snapshot );
+			}
+		);
 	}
 
-	void SceneRenderer::RenderVolumetricCloud( IScene& scene )
+	void SceneRenderer::RenderVolumetricCloud( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup )
 	{
 		CPU_PROFILE( SceneRenderer_RenderVolumetricCloud );
 
-		Scene* renderScene = scene.GetRenderScene();
+		Scene* renderScene = renderViewGroup.Scene().GetRenderScene();
 		if ( renderScene == nullptr )
 		{
 			return;
@@ -984,83 +1035,114 @@ namespace rendercore
 			return;
 		}
 
-		info->CreateRenderData();
-
 		const LightSceneInfo* skyAtmosphereLight = renderScene->SkyAtmosphereSunLight();
 		if ( skyAtmosphereLight == nullptr )
 		{
 			return;
 		}
 
-		VolumetricCloundDrawPassProcessor volumetricCloundDrawPassProcessor;
-		auto result = volumetricCloundDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
-		if ( result.has_value() == false )
-		{
-			return;
-		}
+		auto rgBaseCloudShape = renderGraph.RegisterExternalResource( info->BaseCloudShape() );
+		auto rgDetailCloudShape = renderGraph.RegisterExternalResource( info->DetailCloudShape() );
+		auto rgWeatherMap = renderGraph.RegisterExternalResource( info->WeatherMap() );
 
-		auto commandList = GetCommandList();
-		GPU_PROFILE( commandList, VolumetricCloud );
+		BEGIN_RG_RESOURCE_STRUCT( RenderVolumetricCloudPassResource )
+			DECLARE_RG_TEXTURE_PIXEL_SRV( baseCloudShape )
+			DECLARE_RG_TEXTURE_PIXEL_SRV( detailCloudShape )
+			DECLARE_RG_TEXTURE_PIXEL_SRV( weatherMap )
+		END_RG_RESOURCE_STRUCT();
 
-		Vector4 lightPosOrDir;
-		LightProperty lightProperty = skyAtmosphereLight->Proxy()->GetLightProperty();
-		if ( lightProperty.m_type == LightType::Directional )
-		{
-			lightPosOrDir = Vector4( -lightProperty.m_direction.x, -lightProperty.m_direction.y, -lightProperty.m_direction.z, 0.f );
-		}
-		else
-		{
-			lightPosOrDir = Vector4( lightProperty.m_position.x, lightProperty.m_position.y, lightProperty.m_position.z, 1.f );
-		}
-
-		const VolumetricCloudProxy& proxy = *info->Proxy();
-		VolumetricCloudRenderParameters param = {
-			.SphereRadius = Vector( proxy.EarthRadius(), proxy.InnerRadius(), proxy.OuterRadius() ),
-			.LightAbsorption = proxy.LightAbsorption(),
-			.LightPosOrDir = lightPosOrDir,
-			.CloudColor = proxy.CloudColor(),
-			.WindDirection = Vector( 0.5f, 0.f, 0.1f ).GetNormalized(),
-			.WindSpeed = 450.f,
-			.Crispiness = proxy.Crispiness(),
-			.Curliness = proxy.Curliness(),
-			.DensityFactor = proxy.DensityFactor(),
-			.DensityScale = proxy.DensityScale(),
+		RenderVolumetricCloudPassResource passResource = {
+			.m_baseCloudShape = rgBaseCloudShape,
+			.m_detailCloudShape = rgDetailCloudShape,
+			.m_weatherMap = rgWeatherMap,
 		};
 
-		auto& shaderArguments = info->GetShaderArguments();
-		shaderArguments.Update( param );
+		auto renderTarget = renderViewGroup.GetViewport().Texture();
+		auto depthStencil = GetRenderRenderTargets().GetDepthStencil();
 
-		DrawSnapshot& snapshot = *result;
+		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
+		auto rgDepthStencil = renderGraph.RegisterExternalResource( depthStencil );
 
-		// Update invalidated resources
-		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
-		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+		auto [width, height] = renderViewGroup.GetViewport().Size();
 
-		ApplyOutputContext( commandList );
+		RasterOutput rasterOutput;
+		rasterOutput.SetRenderTarget( 0, rgRenderTarget );
+		rasterOutput.SetDepthStencil( rgDepthStencil, true );
+		rasterOutput.SetViewport( width, height );
+		rasterOutput.SetScissorRect( width, height );
 
-		SamplerState wrapSamplerState = StaticSamplerState<agl::TextureFilter::MinMagMipLinear
-			, agl::TextureAddressMode::Wrap
-			, agl::TextureAddressMode::Wrap
-			, agl::TextureAddressMode::Wrap>::Get();
+		GPU_PROFILE_EVENT( renderGraph, VolumetricCloud );
 
-		RenderingShaderResource volumetricCloundDrawResources;
-		volumetricCloundDrawResources.AddResource( "VolumetricCloudRenderParameter", shaderArguments.Resource() );
-		volumetricCloundDrawResources.AddResource( "BaseCloudShape", info->BaseCloudShape()->SRV() );
-		volumetricCloundDrawResources.AddResource( "DetailCloudShape", info->DetailCloudShape()->SRV() );
-		volumetricCloundDrawResources.AddResource( "WeatherMap", info->WeatherMap()->SRV() );
-		volumetricCloundDrawResources.AddResource( "BaseCloudSampler", wrapSamplerState.Resource() );
-		volumetricCloundDrawResources.AddResource( "WeatherSampler", wrapSamplerState.Resource() );
+		renderGraph.AddPass(
+			passResource,
+			rasterOutput,
+			[this, info, skyAtmosphereLight]( CommandList& commandList )
+			{
+				VolumetricCloundDrawPassProcessor volumetricCloundDrawPassProcessor;
+				auto result = volumetricCloundDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
+				if ( result.has_value() == false )
+				{
+					return;
+				}
 
-		volumetricCloundDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+				Vector4 lightPosOrDir;
+				LightProperty lightProperty = skyAtmosphereLight->Proxy()->GetLightProperty();
+				if ( lightProperty.m_type == LightType::Directional )
+				{
+					lightPosOrDir = Vector4( -lightProperty.m_direction.x, -lightProperty.m_direction.y, -lightProperty.m_direction.z, 0.f );
+				}
+				else
+				{
+					lightPosOrDir = Vector4( lightProperty.m_position.x, lightProperty.m_position.y, lightProperty.m_position.z, 1.f );
+				}
 
-		AddSingleDrawPass( snapshot );
+				const VolumetricCloudProxy& proxy = *info->Proxy();
+				VolumetricCloudRenderParameters param = {
+					.SphereRadius = Vector( proxy.EarthRadius(), proxy.InnerRadius(), proxy.OuterRadius() ),
+					.LightAbsorption = proxy.LightAbsorption(),
+					.LightPosOrDir = lightPosOrDir,
+					.CloudColor = proxy.CloudColor(),
+					.WindDirection = Vector( 0.5f, 0.f, 0.1f ).GetNormalized(),
+					.WindSpeed = 450.f,
+					.Crispiness = proxy.Crispiness(),
+					.Curliness = proxy.Curliness(),
+					.DensityFactor = proxy.DensityFactor(),
+					.DensityScale = proxy.DensityScale(),
+				};
+
+				auto& shaderArguments = info->GetShaderArguments();
+				shaderArguments.Update( param );
+
+				DrawSnapshot& snapshot = *result;
+
+				// Update invalidated resources
+				GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+				m_resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+				SamplerState wrapSamplerState = StaticSamplerState<agl::TextureFilter::MinMagMipLinear
+					, agl::TextureAddressMode::Wrap
+					, agl::TextureAddressMode::Wrap
+					, agl::TextureAddressMode::Wrap>::Get();
+
+				ResourceBinder passResourceBinder;
+				passResourceBinder.Add( "VolumetricCloudRenderParameter", shaderArguments.Resource() );
+				passResourceBinder.Add( "BaseCloudShape", info->BaseCloudShape()->SRV() );
+				passResourceBinder.Add( "DetailCloudShape", info->DetailCloudShape()->SRV() );
+				passResourceBinder.Add( "WeatherMap", info->WeatherMap()->SRV() );
+				passResourceBinder.Add( "BaseCloudSampler", wrapSamplerState.Resource() );
+				passResourceBinder.Add( "WeatherSampler", wrapSamplerState.Resource() );
+
+				passResourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+				AddSingleDrawPass( commandList, snapshot );
+			} );
 	}
 
-	void SceneRenderer::RenderVolumetricFog( IScene& scene )
+	void SceneRenderer::RenderVolumetricFog( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup )
 	{
 		CPU_PROFILE( SceneRenderer_RenderVolumetricFog );
 
-		Scene* renderScene = scene.GetRenderScene();
+		Scene* renderScene = renderViewGroup.Scene().GetRenderScene();
 		if ( renderScene == nullptr )
 		{
 			return;
@@ -1072,102 +1154,91 @@ namespace rendercore
 			return;
 		}
 
-		auto commandList = GetCommandList();
-		GPU_PROFILE( commandList, VolumetricFog );
+		GPU_PROFILE_EVENT( renderGraph, VolumetricFog );
 
-		info->CreateRenderData();
-		info->UpdateParameter();
-		info->PrepareFrustumVolume( *renderScene, m_forwardLighting, m_shadowInfos );
+		info->PrepareFrustumVolume( renderGraph, *renderScene, m_forwardLighting, m_shadowInfos );
 
-		VolumetricFogDrawPassProcessor volumetricFogDrawPassProcessor;
-		auto result = volumetricFogDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
-		if ( result.has_value() == false )
-		{
-			return;
-		}
+		auto rgAccumulatedVolume = renderGraph.RegisterExternalResource( info->AccumulatedVolume().Get() );
 
-		DrawSnapshot& snapshot = *result;
+		BEGIN_RG_RESOURCE_STRUCT( RenderVolumetricFogPassResource )
+			DECLARE_RG_TEXTURE_PIXEL_SRV( accumulatedVolume )
+		END_RG_RESOURCE_STRUCT();
 
-		// Update invalidated resources
-		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
-		m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+		RenderVolumetricFogPassResource renderVolumetricFogPassResource = {
+			.m_accumulatedVolume = rgAccumulatedVolume
+		};
 
-		ApplyOutputContext( commandList );
+		auto renderTarget = renderViewGroup.GetViewport().Texture();
+		auto depthStencil = GetRenderRenderTargets().GetDepthStencil();
 
-		commandList.AddTransition( Transition( *info->AccumulatedVolume().Get(), agl::ResourceState::PixelShaderResource ) );
+		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
+		auto rgDepthStencil = renderGraph.RegisterExternalResource( depthStencil );
 
-		SamplerState accumulatedVolumeSampler = StaticSamplerState<>::Get();
+		auto [width, height] = renderViewGroup.GetViewport().Size();
 
-		RenderingShaderResource volumetricFogDrawResources;
-		volumetricFogDrawResources.AddResource( "AccumulatedVolume", info->AccumulatedVolume()->SRV() );
-		volumetricFogDrawResources.AddResource( "AccumulatedVolumeSampler", accumulatedVolumeSampler.Resource() );
-		volumetricFogDrawResources.AddResource( "VolumetricFogParameterBuffer", info->GetShaderArguments().Resource() );
+		RasterOutput rasterOutput;
+		rasterOutput.SetRenderTarget( 0, rgRenderTarget );
+		rasterOutput.SetDepthStencil( rgDepthStencil, true );
+		rasterOutput.SetViewport( width, height );
+		rasterOutput.SetScissorRect( width, height );
 
-		volumetricFogDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+		renderGraph.AddPass(
+			renderVolumetricFogPassResource,
+			rasterOutput,
+			[this, renderScene, info]( CommandList& commandList )
+			{
+				VolumetricFogDrawPassProcessor volumetricFogDrawPassProcessor;
+				auto result = volumetricFogDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
+				if ( result.has_value() == false )
+				{
+					return;
+				}
 
-		AddSingleDrawPass( snapshot );
+				DrawSnapshot& snapshot = *result;
+
+				// Update invalidated resources
+				GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+				m_resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+				SamplerState accumulatedVolumeSampler = StaticSamplerState<>::Get();
+
+				ResourceBinder passResourceBinder;
+				passResourceBinder.Add( "AccumulatedVolume", info->AccumulatedVolume()->SRV() );
+				passResourceBinder.Add( "AccumulatedVolumeSampler", accumulatedVolumeSampler.Resource() );
+				passResourceBinder.Add( "VolumetricFogParameterBuffer", info->GetShaderArguments().Resource() );
+
+				passResourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+				AddSingleDrawPass( commandList, snapshot );
+			} );
 	}
 
-	void SceneRenderer::RenderTemporalAntiAliasing( RenderViewGroup& renderViewGroup )
+	void SceneRenderer::RenderTemporalAntiAliasing( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup )
 	{
-		auto commandList = GetCommandList();
-		GPU_PROFILE( commandList, TAA );
-
-		m_taa.Render( GetRenderRenderTargets(), renderViewGroup );
+		GPU_PROFILE_EVENT( renderGraph, TAA );
+		m_taa.Render( renderGraph, GetRenderRenderTargets(), renderViewGroup );
 	}
 
-	void SceneRenderer::RenderIndirectIllumination( RenderViewGroup& renderViewGroup )
+	void SceneRenderer::RenderIndirectIllumination( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup )
 	{
 		CPU_PROFILE( SceneRenderer_RenderIndirectIllumination );
 
-		auto commandList = GetCommandList();
-		GPU_PROFILE( commandList, IndirectIllumination );
+		GPU_PROFILE_EVENT( renderGraph, IndirectIllumination );
 
-		m_shaderResources.AddResource( "IndirectIllumination", BlackTexture->SRV() );
+		m_resourceCollection.m_indirectIllumination = BlackTexture;
 
 		if ( DefaultRenderCore::IsLpvEnabled() )
 		{
-			m_lpv.Prepare( renderViewGroup );
-
-			for ( ShadowInfo& shadowInfo : m_shadowInfos )
-			{
-				const ShadowMapRenderTarget& shadowMapRT = shadowInfo.ShadowMap();
-				if ( shadowMapRT.m_shadowMaps.size() < 4 )
-				{
-					continue;
-				}
-
-				const LightSceneInfo* lightSceneInfo = shadowInfo.GetLightSceneInfo();
-				if ( lightSceneInfo == nullptr )
-				{
-					continue;
-				}
-
-				IScene& scene = renderViewGroup.Scene();
-
-				LpvLightInjectionParameters injectionParams = {
-					.lightInfo = lightSceneInfo,
-					.m_viewShaderArguments = scene.GetViewShaderArguments().Resource(),
-					.m_shadowDepthPassParameters = shadowInfo.GetShadowShaderArguments().Resource(),
-					.m_rsmTextures = {
-						.m_worldPosition = shadowMapRT.m_shadowMaps[1],
-						.m_normal = shadowMapRT.m_shadowMaps[2],
-						.m_flux = shadowMapRT.m_shadowMaps[3],
-					},
-					.m_surfelAreas = { 0.06f * 0.07f, 0.06f } // For now, the hardcoded
-				};
-
-				m_lpv.InjectLight( injectionParams );
-			}
-
-			m_lpv.Propagate();
+			m_lpv.Prepare( renderGraph, renderViewGroup );
+			m_lpv.InjectLight( renderGraph, renderViewGroup.Scene(), m_shadowInfos );
+			m_lpv.Propagate( renderGraph );
 
 			LpvRenderingParameters renderingParams = {
 				.m_viewSpaceDistance = GetRenderRenderTargets().GetViewSpaceDistance(),
 				.m_worldNormal = GetRenderRenderTargets().GetWorldNormal(),
 			};
 
-			m_lpv.Render( renderingParams, m_shaderResources );
+			m_resourceCollection.m_indirectIllumination = m_lpv.Render( renderGraph, renderingParams, m_resourceBinder );
 		}
 		else if ( DefaultRenderCore::IsRSMsEnabled() )
 		{
@@ -1207,42 +1278,12 @@ namespace rendercore
 				return;
 			}
 
-			auto renderTarget = renderViewGroup.GetViewport().Texture();
-			if ( ( renderTarget == nullptr )
-				|| ( renderTarget->RTV() == nullptr ) )
-			{
-				return;
-			}
-
-			auto [width, height] = renderViewGroup.GetViewport().Size();
-			CubeArea<float> viewport = {
-					.m_left = 0.f,
-					.m_top = 0.f,
-					.m_front = 0.f,
-					.m_right = static_cast<float>( width ),
-					.m_bottom = static_cast<float>( height ),
-					.m_back = 1.f
-			};
-
-			RectangleArea<int32> scissorRect = {
-					.m_left = 0L,
-					.m_top = 0L,
-					.m_right = static_cast<int32>( width ),
-					.m_bottom = static_cast<int32>( height )
-			};
-
-			auto rtv = renderTarget->RTV();
-
-			commandList.SetViewports( 1, &viewport );
-			commandList.SetScissorRects( 1, &scissorRect );
-			commandList.BindRenderTargets( &rtv, 1, nullptr );
-
 			m_rsms.PreRender( renderViewGroup );
-			m_rsms.Render( renderingParam, m_shaderResources );
+			m_resourceCollection.m_indirectIllumination = m_rsms.Render( renderGraph, renderingParam, m_resourceBinder );
 		}
 	}
 
-	void SceneRenderer::DoRenderHitProxy( RenderViewGroup& renderViewGroup )
+	void SceneRenderer::DoRenderHitProxy( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup )
 	{
 		IScene& scene = renderViewGroup.Scene();
 		const auto& primitives = scene.Primitives();
@@ -1278,34 +1319,16 @@ namespace rendercore
 				}
 		};
 
-		auto depthStencil = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "HitProxy.DepthStencil" );
+		auto depthStencil = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "HitProxy.DepthStencil" );
 
-		RenderingOutputContext context = {
-			.m_renderTargets = { renderTarget },
-			.m_depthStencil = depthStencil,
-			.m_viewport = {
-				.m_left = 0.f,
-				.m_top = 0.f,
-				.m_front = 0.f,
-				.m_right = static_cast<float>( width ),
-				.m_bottom = static_cast<float>( height ),
-				.m_back = 1.f
-			},
-			.m_scissorRects = {
-				.m_left = 0L,
-				.m_top = 0L,
-				.m_right = static_cast<int32>( width ),
-				.m_bottom = static_cast<int32>( height )
-			}
-		};
-		StoreOuputContext( context );
+		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
+		auto rgDepthStencil = renderGraph.RegisterExternalResource( depthStencil.Get() );
 
-		auto commandList = GetCommandList();
-		commandList.AddTransition( Transition( *renderTarget, agl::ResourceState::RenderTarget ) );
-		commandList.AddTransition( Transition( *depthStencil, agl::ResourceState::DepthWrite ) );
-
-		commandList.ClearRenderTarget( renderTarget->RTV(), { 1.f, 1.f, 1.f, 1.f } );
-		commandList.ClearDepthStencil( depthStencil->DSV(), 1.f, 0 );
+		RasterOutput rasterOutput;
+		rasterOutput.SetRenderTarget( 0, rgRenderTarget, RasterOutputLoadAction::Clear );
+		rasterOutput.SetDepthStencil( rgDepthStencil, false, RasterOutputLoadAction::Clear );
+		rasterOutput.SetViewport( width, height );
+		rasterOutput.SetScissorRect( width, height );
 
 		auto& viewShaderArguments = scene.GetViewShaderArguments();
 
@@ -1317,7 +1340,7 @@ namespace rendercore
 			viewShaderArguments.Update( viewParam );
 
 			RenderViewInfo& viewInfo = m_viewInfo[viewIndex];
-			auto& snapshots = viewInfo.m_snapshots[static_cast<uint32>( RenderPass::HitProxy )];
+			auto& snapshots = viewInfo.m_snapshots[static_cast<uint32>( RenderPassType::HitProxy )];
 
 			// Create DrawSnapshot
 			for ( auto primitive : primitives )
@@ -1334,7 +1357,7 @@ namespace rendercore
 				{
 					for ( const auto& subMeshInfo : subMeshInfos )
 					{
-						auto snapshotIndex = subMeshInfo.GetCachedDrawSnapshotInfoIndex( RenderPass::HitProxy );
+						auto snapshotIndex = subMeshInfo.GetCachedDrawSnapshotInfoIndex( RenderPassType::HitProxy );
 						if ( snapshotIndex )
 						{
 							const CachedDrawSnapshotInfo& info = primitive->GetCachedDrawSnapshotInfo( *snapshotIndex );
@@ -1356,49 +1379,65 @@ namespace rendercore
 
 			if ( snapshots.size() != 0 )
 			{
-				// Update invalidated resources
-				for ( auto& viewDrawSnapshot : snapshots )
-				{
-					DrawSnapshot& snapshot = *viewDrawSnapshot.m_drawSnapshot;
-					GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
-
-					m_shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
-				}
-
-				VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc( static_cast<uint32>( snapshots.size() * sizeof( uint32 ) ) );
-
-				uint32* idBuffer = reinterpret_cast<uint32*>( primitiveIds.Lock() );
-				if ( idBuffer )
-				{
-					for ( size_t i = 0; i < snapshots.size(); ++i )
+				renderGraph.AddPass(
+					rasterOutput,
+					[this, &snapshots, &primitives]( CommandList& commandList )
 					{
-						snapshots[i].m_primitiveIdOffset = static_cast<uint32>( i );
-						*idBuffer = snapshots[i].m_primitiveId;
-						++idBuffer;
-					}
+						// Update invalidated resources
+						for ( auto& viewDrawSnapshot : snapshots )
+						{
+							DrawSnapshot& snapshot = *viewDrawSnapshot.m_drawSnapshot;
+							GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 
-					primitiveIds.Unlock();
-				}
+							m_resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+						}
 
-				ApplyOutputContext( commandList );
+						VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc( static_cast<uint32>( snapshots.size() * sizeof( uint32 ) ) );
 
-				for ( size_t i = 0; i < snapshots.size(); )
-				{
-					HitProxyId hitProxyId = primitives[snapshots[i].m_primitiveId]->GetHitProxyId();
+						uint32* idBuffer = reinterpret_cast<uint32*>( primitiveIds.Lock() );
+						if ( idBuffer )
+						{
+							for ( size_t i = 0; i < snapshots.size(); ++i )
+							{
+								snapshots[i].m_primitiveIdOffset = static_cast<uint32>( i );
+								*idBuffer = snapshots[i].m_primitiveId;
+								++idBuffer;
+							}
 
-					SetShaderValue( commandList, HitProxyIdShaderParam, hitProxyId.GetColor().ToColorF() );
-					CommitDrawSnapshot( commandList, snapshots[i], primitiveIds );
-					i += snapshots[i].m_numInstance;
-				}
+							primitiveIds.Unlock();
+						}
+
+						for ( size_t i = 0; i < snapshots.size(); )
+						{
+							HitProxyId hitProxyId = primitives[snapshots[i].m_primitiveId]->GetHitProxyId();
+
+							SetShaderValue( commandList, HitProxyIdShaderParam, hitProxyId.GetColor().ToColorF() );
+							CommitDrawSnapshot( commandList, snapshots[i], primitiveIds );
+							i += snapshots[i].m_numInstance;
+						}
+					} );
 			}
 		}
 
-		commandList.AddTransition( Transition( *renderTarget, agl::ResourceState::CopySource ) );
-	}
+		BEGIN_RG_RESOURCE_STRUCT( CopyHitProxyPassResource )
+			DECLARE_RG_TEXTURE_COPY_DEST( copyDest )
+			DECLARE_RG_TEXTURE_COPY_SOURCE( copySource )
+		END_RG_RESOURCE_STRUCT();
 
-	void SceneRenderer::StoreOuputContext( const RenderingOutputContext& context )
-	{
-		m_outputContext = context;
+		auto rgCopyDest = renderGraph.RegisterExternalResource( viewport.GetHitPorxyMap().CpuTexture() );
+		auto rgCopySource = renderGraph.RegisterExternalResource( viewport.GetHitPorxyMap().Texture() );
+
+		CopyHitProxyPassResource copyHitProxyPassResource = {
+			.m_copyDest = rgCopyDest,
+			.m_copySource = rgCopySource
+		};
+
+		renderGraph.AddPass(
+			copyHitProxyPassResource,
+			[copyHitProxyPassResource]( [[maybe_unused]] ResourceCommandList& commandList )
+			{
+				commandList.CopyResource( copyHitProxyPassResource.m_copyDest->Get(), copyHitProxyPassResource.m_copySource->Get(), false);
+			} );
 	}
 
 	void SceneRenderer::CalcVisibility( RenderViewGroup& renderViewGroup )
@@ -1424,7 +1463,7 @@ namespace rendercore
 		}
 	}
 
-	void AddSingleDrawPass( DrawSnapshot& snapshot )
+	void AddSingleDrawPass( CommandList& commandList, DrawSnapshot& snapshot )
 	{
 		VisibleDrawSnapshot visibleSnapshot = {
 			.m_primitiveId = 0,
@@ -1433,8 +1472,6 @@ namespace rendercore
 			.m_snapshotBucketId = -1,
 			.m_drawSnapshot = &snapshot,
 		};
-
-		auto commandList = GetCommandList();
 
 		VertexBuffer emptyPrimitiveId;
 		CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveId );

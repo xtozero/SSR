@@ -75,5 +75,5 @@ namespace rendercore
 		return passShader;
 	}
 
-	PassProcessorRegister RegisterHitProxyPass( RenderPass::HitProxy, &CreateHitProxyPassProcessor );
+	PassProcessorRegister RegisterHitProxyPass( RenderPassType::HitProxy, &CreateHitProxyPassProcessor );
 }

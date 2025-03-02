@@ -45,10 +45,38 @@ namespace agl
 		D3D12BindlessMgr().RemoveResourceDescriptor( m_bindlessHandle );
 	}
 
+	D3D12RenderTargetView::D3D12RenderTargetView( GraphicsApiResource* owner, ID3D12Resource* d3d12Resource, const D3D12_RENDER_TARGET_VIEW_DESC& desc, const ColorF& clearColor )
+		: BaseClass( owner, d3d12Resource, desc )
+		, m_clearColor( clearColor )
+	{
+	}
+
+	ColorF D3D12RenderTargetView::GetClearColor() const
+	{
+		return m_clearColor;
+	}
+
 	void D3D12RenderTargetView::InitResource()
 	{
 		m_descriptorHeap = D3D12DescriptorHeapAllocator::GetInstance().AllocCpuDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 1 );
 		D3D12Device().CreateRenderTargetView( m_d3d12Resource, &m_desc, m_descriptorHeap.GetCpuHandle().At() );
+	}
+
+	D3D12DepthStencilView::D3D12DepthStencilView( GraphicsApiResource* owner, ID3D12Resource* d3d12Resource, const D3D12_DEPTH_STENCIL_VIEW_DESC& desc, float depthValue, uint8 stencilValue )
+		: BaseClass( owner, d3d12Resource, desc )
+		, m_depthClearValue( depthValue )
+		, m_stencilClearValue( stencilValue )
+	{
+	}
+
+	float D3D12DepthStencilView::GetDepthClearValue() const
+	{
+		return m_depthClearValue;
+	}
+
+	uint8 D3D12DepthStencilView::GetStencilClearValue() const
+	{
+		return m_stencilClearValue;
 	}
 
 	void D3D12DepthStencilView::InitResource()

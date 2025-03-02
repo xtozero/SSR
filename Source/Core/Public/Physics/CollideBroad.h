@@ -229,7 +229,7 @@ public:
 	using reference = T&;
 	using pointer = T*;
 	using iterator_category = std::forward_iterator_tag;
-	using difference_type = std::ptrdiff_t;
+	using difference_type = ptrint;
 
 	using Node = typename T::NodeType;
 

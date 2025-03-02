@@ -163,6 +163,6 @@ namespace rendercore
 		return passShader;
 	}
 
-	PassProcessorRegister RegisterCascadeShadowDepthPass( RenderPass::CascadeShadowDepth, &CreateCascadeShadowDepthPassProcessor );
-	PassProcessorRegister RegisterPointShadowDepthPass( RenderPass::PointShadowDepth, &CreatePointShadowDepthPassProcessor );
+	PassProcessorRegister RegisterCascadeShadowDepthPass( RenderPassType::CascadeShadowDepth, &CreateCascadeShadowDepthPassProcessor );
+	PassProcessorRegister RegisterPointShadowDepthPass( RenderPassType::PointShadowDepth, &CreatePointShadowDepthPassProcessor );
 }

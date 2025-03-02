@@ -101,7 +101,20 @@ namespace agl
 			return -1;
 		}
 
+		void Rename( Name debugName )
+		{
+			if ( m_debugName == debugName )
+			{
+				return;
+			}
+
+			m_debugName = debugName;
+			SetDebugObjectName();
+		}
+
 	protected:
+		virtual void SetDebugObjectName() {}
+
 		bool m_isBuffer = false;
 		bool m_isTexture = false;
 
@@ -662,6 +675,8 @@ namespace agl
 		ResourceBindType m_bindType;
 		ResourceMisc m_miscFlag;
 		ResourceFormat m_format;
+
+		AGL_DLL size_t GetHash() const;
 	};
 
 	struct TextureTrait

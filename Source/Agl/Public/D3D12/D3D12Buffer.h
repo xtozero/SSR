@@ -34,8 +34,7 @@ namespace agl
 		D3D12Buffer& operator=( D3D12Buffer&& ) = delete;
 
 	protected:
-		virtual void InitResource() override;
-		virtual void FreeResource() override;
+		virtual void SetDebugObjectName() override;
 
 		virtual void CreateBuffer();
 		virtual void DestroyBuffer();
@@ -52,6 +51,9 @@ namespace agl
 		RefHandle<D3D12ConstantBufferView> m_cbv;
 
 	private:
+		virtual void InitResource() override;
+		virtual void FreeResource() override;
+
 		void AdjustInitalResourceStates();
 	};
 

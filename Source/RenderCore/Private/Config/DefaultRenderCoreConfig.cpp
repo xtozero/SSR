@@ -37,9 +37,9 @@ namespace rendercore
 		return GetInstance().m_useIrradianceMapSH;
 	}
 
-	uint32 DefaultRenderCore::RenderTargetPoolMin()
+	uint32 DefaultRenderCore::GraphicsResourcePoolMin()
 	{
-		return GetInstance().m_renderTargetPoolMin;
+		return GetInstance().m_graphicsResourcePoolMin;
 	}
 
 	bool DefaultRenderCore::IsLpvEnabled()

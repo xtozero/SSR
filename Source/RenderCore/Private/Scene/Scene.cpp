@@ -354,7 +354,7 @@ namespace rendercore
 		m_primitiveToUpdate.emplace( primitiveId );
 	}
 
-	CachedDrawSnapshotInfo Scene::AddCachedDrawSnapshot( RenderPass passType, const DrawSnapshot& snapshot )
+	CachedDrawSnapshotInfo Scene::AddCachedDrawSnapshot( RenderPassType passType, const DrawSnapshot& snapshot )
 	{
 		CachedDrawSnapshotInfo info;
 		info.m_renderPass = passType;
@@ -526,7 +526,7 @@ namespace rendercore
 		}
 	}
 
-	void UpdateGPUPrimitiveInfos( Scene& scene )
+	void UpdateGPUPrimitiveInfos( RenderGraph& renderGraph, Scene& scene )
 	{
 		assert( IsInRenderThread() );
 		uint32 updateSize = static_cast<uint32>( scene.m_primitiveToUpdate.size() );
@@ -548,7 +548,7 @@ namespace rendercore
 		}
 
 		agl::Buffer* gpuPrimitiveInfos = scene.m_gpuPrimitiveInfos.Resource();
-		gpuMemcpy.Upload( gpuPrimitiveInfos );
+		gpuMemcpy.Upload( renderGraph, gpuPrimitiveInfos );
 
 		scene.m_primitiveToUpdate.clear();
 	}

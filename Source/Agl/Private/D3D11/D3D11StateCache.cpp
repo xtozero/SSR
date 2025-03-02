@@ -241,25 +241,25 @@ namespace agl
 			for ( size_t i = 0; i < parameterInfo.m_constantBuffers.size(); ++i )
 			{
 				const ShaderParameter& param = parameterInfo.m_constantBuffers[i];
-				BindConstantBuffer( context, param.m_shader, param.m_bindPoint, binding.GetConstantBufferStart()[i] );
+				BindConstantBuffer( context, param.m_shader, param.m_bindPoint, binding.GetConstantBufferStart()[i].Get() );
 			}
 
 			for ( size_t i = 0; i < parameterInfo.m_srvs.size(); ++i )
 			{
 				const ShaderParameter& param = parameterInfo.m_srvs[i];
-				BindSRV( context, param.m_shader, param.m_bindPoint, binding.GetSRVStart()[i] );
+				BindSRV( context, param.m_shader, param.m_bindPoint, binding.GetSRVStart()[i].Get() );
 			}
 
 			for ( size_t i = 0; i < parameterInfo.m_uavs.size(); ++i )
 			{
 				const ShaderParameter& param = parameterInfo.m_uavs[i];
-				BindUAV( context, param.m_shader, param.m_bindPoint, binding.GetUAVStart()[i] );
+				BindUAV( context, param.m_shader, param.m_bindPoint, binding.GetUAVStart()[i].Get() );
 			}
 
 			for ( size_t i = 0; i < parameterInfo.m_samplers.size(); ++i )
 			{
 				const ShaderParameter& param = parameterInfo.m_samplers[i];
-				BindSampler( context, param.m_shader, param.m_bindPoint, binding.GetSamplerStart()[i] );
+				BindSampler( context, param.m_shader, param.m_bindPoint, binding.GetSamplerStart()[i].Get() );
 			}
 		}
 	}
@@ -384,7 +384,7 @@ namespace agl
 			{
 				if ( m_srvs[shader][slot] == srv )
 				{
-					BindSRV( context, static_cast<ShaderType>( shader ), slot, RefHandle<ShaderResourceView>() );
+					BindSRV( context, static_cast<ShaderType>( shader ), slot, RefHandle<ShaderResourceView>().Get() );
 				}
 			}
 		}
@@ -396,7 +396,7 @@ namespace agl
 		{
 			if ( m_uavs[slot] == uav )
 			{
-				BindUAV( context, ShaderType::CS, slot, RefHandle<UnorderedAccessView>() );
+				BindUAV( context, ShaderType::CS, slot, RefHandle<UnorderedAccessView>().Get() );
 			}
 		}
 	}

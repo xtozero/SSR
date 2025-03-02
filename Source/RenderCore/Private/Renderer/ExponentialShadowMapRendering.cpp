@@ -7,6 +7,7 @@
 #include "InlineMemoryAllocator.h"
 #include "Multithread/TaskScheduler.h"
 #include "Proxies/LightProxy.h"
+#include "RenderGraph.h"
 #include "Scene/LightSceneInfo.h"
 #include "Scene/ShadowInfo.h"
 #include "ShaderParameterUtils.h"
@@ -52,7 +53,7 @@ namespace rendercore
 	REGISTER_GLOBAL_SHADER( CascadedESMsCS, "./Assets/Shaders/Shadow/CS_CascadedESMs.asset" );
 
 	template <float Sigma, int32 KernelSize>
-	RefHandle<agl::Texture> ApplyGaussianBlur( RefHandle<agl::Texture> srcTexture )
+	RefHandle<agl::Texture> ApplyGaussianBlur( RenderGraph& renderGraph, RefHandle<agl::Texture> srcTexture )
 	{
 		static_assert( KernelSize < 128, "Maximum kernel size exceeded" );
 
@@ -62,77 +63,107 @@ namespace rendercore
 			kernel[i++] = Gaussian( x, Sigma );
 		}
 
+		auto rgSource = renderGraph.RegisterExternalResource( srcTexture.Get() );
+
 		const agl::TextureTrait& srcTrait = srcTexture->GetTrait();
 		agl::TextureTrait tempTrait = srcTrait;
 		tempTrait.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess;
+		auto rgTemp = renderGraph.CreateTexture( tempTrait, "Blur.Temp" );
 
-		RefHandle<agl::Texture> tempTexture = agl::Texture::Create( tempTrait, "Blur.Temp" );
-		assert( tempTexture );
+		BEGIN_RG_RESOURCE_STRUCT( BlurPassResource )
+			DECLARE_RG_TEXTURE_NONPIXEL_SRV( input )
+			DECLARE_RG_TEXTURE_UAV( output )
+		END_RG_RESOURCE_STRUCT();
 
-		tempTexture->Init();
-
-		StaticShaderSwitches horizonSwitches = CascadedESMsBlurCS::GetSwitches();
-		horizonSwitches.On( Name( "KernelSize" ), KernelSize );
-
-		CascadedESMsBlurCS horizonBlurCS( horizonSwitches );
-		RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( horizonBlurCS );
-
-		auto commandList = GetCommandList();
-		commandList.BindPipelineState( pso );
-
-		commandList.AddTransition( Transition( *srcTexture.Get(), agl::ResourceState::NonPixelShaderResource ) );
-		commandList.AddTransition( Transition( *tempTexture.Get(), agl::ResourceState::UnorderedAccess ) );
-
-		SamplerState pointSampler = StaticSamplerState<agl::TextureFilter::Point>::Get();
-
-		agl::ShaderBindings shaderBindings = CreateShaderBindings( horizonBlurCS );
-		BindResource( shaderBindings, horizonBlurCS.SrcTexture(), srcTexture );
-		BindResource( shaderBindings, horizonBlurCS.PointSampler(), pointSampler );
-		BindResource( shaderBindings, horizonBlurCS.DestTexture(), tempTexture );
-
-		SetShaderValue( commandList, horizonBlurCS.KernelBuffer(), kernel );
-
-		commandList.BindShaderResources( shaderBindings );
-
-		uint32 w = srcTrait.m_width;
-		uint32 h = srcTrait.m_height;
-
-		assert( ( w % 8 == 0 ) && ( h % 8 == 0 ) );
-
-		const uint32 threadGroupCount[3] = {
-			static_cast<uint32>( std::ceilf( w / 8.f ) ),
-			static_cast<uint32>( std::ceilf( h / 8.f ) ),
-			srcTrait.m_depth
+		BlurPassResource horizonBlurPassResource = {
+			.m_input = rgSource,
+			.m_output = rgTemp
 		};
 
-		commandList.Dispatch( threadGroupCount[0], threadGroupCount[1], threadGroupCount[2] );
+		renderGraph.AddPass( 
+			horizonBlurPassResource,
+			[horizonBlurPassResource, srcTrait, kernel]( ComputeCommandList& commandList )
+			{
+				StaticShaderSwitches horizonSwitches = CascadedESMsBlurCS::GetSwitches();
+				horizonSwitches.On( Name( "KernelSize" ), KernelSize );
 
-		StaticShaderSwitches virticalSwitches = horizonSwitches;
-		virticalSwitches.On( Name( "Virtical" ), 1 );
-		virticalSwitches.On( Name( "KernelSize" ), KernelSize );
+				CascadedESMsBlurCS horizonBlurCS( horizonSwitches );
+				RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( horizonBlurCS );
 
-		CascadedESMsBlurCS virticalBlurCS( virticalSwitches );
-		pso = PrepareComputePipelineState( virticalBlurCS );
-		commandList.BindPipelineState( pso );
+				commandList.BindPipelineState( pso.Get() );
 
-		commandList.AddTransition( Transition( *tempTexture.Get(), agl::ResourceState::NonPixelShaderResource ) );
-		commandList.AddTransition( Transition( *srcTexture.Get(), agl::ResourceState::UnorderedAccess ) );
+				SamplerState pointSampler = StaticSamplerState<agl::TextureFilter::Point>::Get();
 
-		shaderBindings = CreateShaderBindings( virticalBlurCS );
-		BindResource( shaderBindings, virticalBlurCS.SrcTexture(), tempTexture );
-		BindResource( shaderBindings, virticalBlurCS.PointSampler(), pointSampler );
-		BindResource( shaderBindings, virticalBlurCS.DestTexture(), srcTexture );
+				agl::ShaderBindings shaderBindings = CreateShaderBindings( horizonBlurCS );
+				BindResource( shaderBindings, horizonBlurCS.SrcTexture(), horizonBlurPassResource.m_input->Get() );
+				BindResource( shaderBindings, horizonBlurCS.PointSampler(), pointSampler );
+				BindResource( shaderBindings, horizonBlurCS.DestTexture(), horizonBlurPassResource.m_output->Get() );
 
-		SetShaderValue( commandList, virticalBlurCS.KernelBuffer(), kernel );
+				SetShaderValue( commandList, horizonBlurCS.KernelBuffer(), kernel );
 
-		commandList.BindShaderResources( shaderBindings );
+				commandList.BindShaderResources( shaderBindings );
 
-		commandList.Dispatch( threadGroupCount[0], threadGroupCount[1], threadGroupCount[2] );
+				uint32 w = srcTrait.m_width;
+				uint32 h = srcTrait.m_height;
+
+				assert( ( w % 8 == 0 ) && ( h % 8 == 0 ) );
+
+				const uint32 threadGroupCount[3] = {
+					static_cast<uint32>( std::ceilf( w / 8.f ) ),
+					static_cast<uint32>( std::ceilf( h / 8.f ) ),
+					srcTrait.m_depth
+				};
+
+				commandList.Dispatch( threadGroupCount[0], threadGroupCount[1], threadGroupCount[2] );
+			} );
+
+		BlurPassResource verticalBlurPassResource = {
+			.m_input = rgTemp,
+			.m_output = rgSource
+		};
+
+		renderGraph.AddPass(
+			verticalBlurPassResource,
+			[verticalBlurPassResource, srcTrait, kernel]( ComputeCommandList& commandList )
+			{
+				StaticShaderSwitches virticalSwitches = CascadedESMsBlurCS::GetSwitches();
+				virticalSwitches.On( Name( "Virtical" ), 1 );
+				virticalSwitches.On( Name( "KernelSize" ), KernelSize );
+
+				CascadedESMsBlurCS virticalBlurCS( virticalSwitches );
+				RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( virticalBlurCS );
+
+				commandList.BindPipelineState( pso.Get() );
+
+				SamplerState pointSampler = StaticSamplerState<agl::TextureFilter::Point>::Get();
+
+				agl::ShaderBindings shaderBindings = CreateShaderBindings( virticalBlurCS );
+				BindResource( shaderBindings, virticalBlurCS.SrcTexture(), verticalBlurPassResource.m_input->Get() );
+				BindResource( shaderBindings, virticalBlurCS.PointSampler(), pointSampler );
+				BindResource( shaderBindings, virticalBlurCS.DestTexture(), verticalBlurPassResource.m_output->Get() );
+
+				SetShaderValue( commandList, virticalBlurCS.KernelBuffer(), kernel );
+
+				commandList.BindShaderResources( shaderBindings );
+
+				uint32 w = srcTrait.m_width;
+				uint32 h = srcTrait.m_height;
+
+				assert( ( w % 8 == 0 ) && ( h % 8 == 0 ) );
+
+				const uint32 threadGroupCount[3] = {
+					static_cast<uint32>( std::ceilf( w / 8.f ) ),
+					static_cast<uint32>( std::ceilf( h / 8.f ) ),
+					srcTrait.m_depth
+				};
+
+				commandList.Dispatch( threadGroupCount[0], threadGroupCount[1], threadGroupCount[2] );
+			} );
 
 		return srcTexture;
 	}
 
-	RefHandle<agl::Texture> GenerateCascadedESMs( RefHandle<agl::Texture> shadowMap )
+	RefHandle<agl::Texture> GenerateCascadedESMs( RenderGraph& renderGraph, RefHandle<agl::Texture> shadowMap )
 	{
 		assert( IsInRenderThread() );
 
@@ -142,45 +173,57 @@ namespace rendercore
 		esmsTrait.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess;
 
 		RefHandle<agl::Texture> esmsTexture = agl::Texture::Create( esmsTrait, "ESMs" );
-		assert( esmsTexture );
-
 		esmsTexture->Init();
 
-		CascadedESMsCS cascadedESMsCS;
+		auto rgShadowMap = renderGraph.RegisterExternalResource( shadowMap.Get() );
+		auto rgEsms = renderGraph.RegisterExternalResource( esmsTexture.Get() );
 
-		RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( cascadedESMsCS );
+		BEGIN_RG_RESOURCE_STRUCT( ESMsPassResource )
+			DECLARE_RG_TEXTURE_NONPIXEL_SRV( shadowMap )
+			DECLARE_RG_TEXTURE_UAV( esms )
+		END_RG_RESOURCE_STRUCT();
 
-		auto commandList = GetCommandList();
-		commandList.BindPipelineState( pso );
-
-		commandList.AddTransition( Transition( *shadowMap.Get(), agl::ResourceState::NonPixelShaderResource ) );
-		commandList.AddTransition( Transition( *esmsTexture.Get(), agl::ResourceState::UnorderedAccess ) );
-
-		agl::ShaderBindings shaderBindings = CreateShaderBindings( cascadedESMsCS );
-		BindResource( shaderBindings, cascadedESMsCS.SrcTexture(), shadowMap );
-		BindResource( shaderBindings, cascadedESMsCS.ESMsTexture(), esmsTexture );
-
-		SetShaderValue( commandList, cascadedESMsCS.ParameterC(), DefaultRenderCore::ESMsParamC() );
-
-		commandList.BindShaderResources( shaderBindings );
-
-		uint32 w = srcTrait.m_width;
-		uint32 h = srcTrait.m_height;
-
-		assert( ( w % 8 == 0 ) && ( h % 8 == 0 ) );
-
-		const uint32 threadGroupCount[3] = {
-			static_cast<uint32>( std::ceilf( w / 8.f ) ),
-			static_cast<uint32>( std::ceilf( h / 8.f ) ),
-			srcTrait.m_depth
+		ESMsPassResource passResource = {
+			.m_shadowMap = rgShadowMap,
+			.m_esms = rgEsms
 		};
 
-		commandList.Dispatch( threadGroupCount[0], threadGroupCount[1], threadGroupCount[2] );
+		renderGraph.AddPass(
+			passResource,
+			[passResource, srcTrait]( ComputeCommandList& commandList )
+			{
+				CascadedESMsCS cascadedESMsCS;
 
-		return ApplyGaussianBlur<1.8f, 7>( esmsTexture );
+				RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( cascadedESMsCS );
+
+				commandList.BindPipelineState( pso.Get() );
+
+				agl::ShaderBindings shaderBindings = CreateShaderBindings( cascadedESMsCS );
+				BindResource( shaderBindings, cascadedESMsCS.SrcTexture(), passResource.m_shadowMap->Get() );
+				BindResource( shaderBindings, cascadedESMsCS.ESMsTexture(), passResource.m_esms->Get() );
+
+				SetShaderValue( commandList, cascadedESMsCS.ParameterC(), DefaultRenderCore::ESMsParamC() );
+
+				commandList.BindShaderResources( shaderBindings );
+
+				uint32 w = srcTrait.m_width;
+				uint32 h = srcTrait.m_height;
+
+				assert( ( w % 8 == 0 ) && ( h % 8 == 0 ) );
+
+				const uint32 threadGroupCount[3] = {
+					static_cast<uint32>( std::ceilf( w / 8.f ) ),
+					static_cast<uint32>( std::ceilf( h / 8.f ) ),
+					srcTrait.m_depth
+				};
+
+				commandList.Dispatch( threadGroupCount[0], threadGroupCount[1], threadGroupCount[2] );
+			} );
+
+		return ApplyGaussianBlur<1.8f, 7>( renderGraph, esmsTexture );
 	}
 
-	RefHandle<agl::Texture> GenerateExponentialShadowMaps( const ShadowInfo& shadowInfo, RefHandle<agl::Texture> shadowMap )
+	RefHandle<agl::Texture> GenerateExponentialShadowMaps( RenderGraph& renderGraph, const ShadowInfo& shadowInfo, RefHandle<agl::Texture> shadowMap )
 	{
 		if ( shadowMap.Get() == nullptr )
 		{
@@ -190,7 +233,7 @@ namespace rendercore
 		LightType lightType = shadowInfo.GetLightType();
 		if ( lightType == LightType::Directional )
 		{
-			return GenerateCascadedESMs( shadowMap );
+			return GenerateCascadedESMs( renderGraph, shadowMap );
 		}
 
 		return shadowMap;

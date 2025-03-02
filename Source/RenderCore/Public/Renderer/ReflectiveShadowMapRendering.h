@@ -9,8 +9,10 @@
 
 namespace rendercore
 {
+	class RasterOutput;
+	class RenderGraph;
 	class RenderViewGroup;
-	class RenderingShaderResource;
+	class ResourceBinder;
 	class ShadowInfo;
 
 	BEGIN_SHADER_ARGUMENTS_STRUCT( RSMsParameters )
@@ -38,7 +40,7 @@ namespace rendercore
 	{
 	public:
 		void PreRender( const RenderViewGroup& renderViewGroup );
-		void Render( const RSMsRenderingParam& param, RenderingShaderResource& outRenderingShaderResource );
+		RefHandle<agl::Texture> Render( RenderGraph& renderGraph, const RSMsRenderingParam& param, const ResourceBinder& resourceBinder );
 
 		RSMsRenderer();
 

@@ -223,14 +223,13 @@ namespace agl
 		m_dataStorage = nullptr;
 	}
 
-	void D3D12Buffer::InitResource()
+	void D3D12Buffer::SetDebugObjectName()
 	{
-		CreateBuffer();
-	}
-
-	void D3D12Buffer::FreeResource()
-	{
-		DestroyBuffer();
+		if ( ID3D12Resource* resource = m_resourceInfo.GetResource() )
+		{
+			auto dataSize = static_cast<uint32>( m_debugName.Str().size() );
+			resource->SetPrivateData( WKPDID_D3DDebugObjectName, dataSize, m_debugName.Str().data() );
+		}
 	}
 
 	void D3D12Buffer::CreateBuffer()
@@ -246,11 +245,7 @@ namespace agl
 			ConvertToResourceStates( GetResourceState() )
 		);
 
-		if ( ID3D12Resource* resource = m_resourceInfo.GetResource() )
-		{
-			auto dataSize = static_cast<uint32>( m_debugName.Str().size() );
-			resource->SetPrivateData( WKPDID_D3DDebugObjectName, dataSize, m_debugName.Str().data() );
-		}
+		SetDebugObjectName();
 
 		if ( m_hasInitData )
 		{
@@ -295,6 +290,16 @@ namespace agl
 		m_srv = nullptr;
 		m_uav = nullptr;
 		m_resourceInfo = AllocatedResourceInfo();
+	}
+
+	void D3D12Buffer::InitResource()
+	{
+		CreateBuffer();
+	}
+
+	void D3D12Buffer::FreeResource()
+	{
+		DestroyBuffer();
 	}
 
 	void D3D12Buffer::AdjustInitalResourceStates()

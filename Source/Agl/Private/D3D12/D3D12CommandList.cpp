@@ -201,7 +201,7 @@ namespace agl
 		m_stateCache.BindRenderTargets( CommandList(), pRenderTargets, renderTargetCount, depthStencil );
 	}
 
-	void D3D12CommandListImpl::ClearRenderTarget( RenderTargetView* renderTarget, const float( &clearColor )[4] )
+	void D3D12CommandListImpl::ClearRenderTarget( RenderTargetView* renderTarget )
 	{
 		if ( renderTarget == nullptr )
 		{
@@ -212,10 +212,11 @@ namespace agl
 
 		auto d3d12RTV = static_cast<D3D12RenderTargetView*>( renderTarget );
 		D3D12_CPU_DESCRIPTOR_HANDLE handle = d3d12RTV->GetCpuHandle().At();
-		CommandList().ClearRenderTargetView( handle, clearColor, 0, nullptr );
+		ColorF clearValue = d3d12RTV->GetClearColor();
+		CommandList().ClearRenderTargetView( handle, clearValue.RGBA(), 0, nullptr);
 	}
 
-	void D3D12CommandListImpl::ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor )
+	void D3D12CommandListImpl::ClearDepthStencil( DepthStencilView* depthStencil )
 	{
 		if ( depthStencil == nullptr )
 		{
@@ -226,10 +227,13 @@ namespace agl
 
 		auto d3d12DSV = static_cast<D3D12DepthStencilView*>( depthStencil );
 		D3D12_CPU_DESCRIPTOR_HANDLE handle = d3d12DSV->GetCpuHandle().At();
-		CommandList().ClearDepthStencilView( handle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, depthColor, stencilColor, 0, nullptr );
+		float depthClearValue = d3d12DSV->GetDepthClearValue();
+		uint8 stencilClearValue = d3d12DSV->GetStencilClearValue();
+
+		CommandList().ClearDepthStencilView( handle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, depthClearValue, stencilClearValue, 0, nullptr );
 	}
 
-	void D3D12CommandListImpl::CopyResource( Texture* dest, Texture* src, bool bDirect )
+	void D3D12CommandListImpl::CopyResource( Texture* dest, Texture* src, bool bAsync )
 	{
 		auto d3d12Dest = static_cast<D3D12Texture*>( dest );
 		auto d3d12Src = static_cast<D3D12Texture*>( src );
@@ -241,7 +245,11 @@ namespace agl
 
 		m_barrierBatcher.Commit( *this );
 
-		if ( bDirect )
+		if ( bAsync )
+		{
+			D3D12Uploader().Copy( *d3d12Dest, *d3d12Src );
+		}
+		else
 		{
 			if ( HasAnyFlags( d3d12Dest->GetTrait().m_access, ResourceAccessFlag::CpuRead ) )
 			{
@@ -271,13 +279,9 @@ namespace agl
 				CommandList().CopyResource( static_cast<ID3D12Resource*>( d3d12Dest->Resource() ), static_cast<ID3D12Resource*>( d3d12Src->Resource() ) );
 			}
 		}
-		else
-		{
-			D3D12Uploader().Copy( *d3d12Dest, *d3d12Src );
-		}
 	}
 
-	void D3D12CommandListImpl::CopyResource( Buffer* dest, Buffer* src, uint32 numByte, bool bDirect )
+	void D3D12CommandListImpl::CopyResource( Buffer* dest, Buffer* src, bool bAsync, uint32 numByte )
 	{
 		auto d3d12Dest = static_cast<D3D12Buffer*>( dest );
 		auto d3d12Src = static_cast<D3D12Buffer*>( src );
@@ -289,7 +293,11 @@ namespace agl
 
 		m_barrierBatcher.Commit( *this );
 
-		if ( bDirect )
+		if ( bAsync )
+		{
+			D3D12Uploader().Copy( *d3d12Dest, *d3d12Src, numByte );
+		}
+		else
 		{
 			if ( numByte == 0 )
 			{
@@ -300,13 +308,9 @@ namespace agl
 				CommandList().CopyBufferRegion( d3d12Dest->Resource(), 0, d3d12Src->Resource(), 0, numByte );
 			}
 		}
-		else
-		{
-			D3D12Uploader().Copy( *d3d12Dest, *d3d12Src, numByte );
-		}
 	}
 
-	void D3D12CommandListImpl::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea, uint32 subresource )
+	void D3D12CommandListImpl::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
 	{
 		auto d3d12Texture = static_cast<D3D12Texture*>( dest );
 		if ( d3d12Texture == nullptr )
@@ -316,10 +320,41 @@ namespace agl
 
 		m_barrierBatcher.Commit( *this );
 
-		D3D12Uploader().Upload( *d3d12Texture, src, srcRowSize, destArea, subresource );
+		if ( bAsync )
+		{
+			D3D12Uploader().Upload( *d3d12Texture, src, srcRowSize, destArea, subresource );
+		}
+		else
+		{
+			auto intermediate = CreateIntermediateInfo( *d3d12Texture, src, srcRowSize, destArea, subresource );
+
+			D3D12_TEXTURE_COPY_LOCATION destLocation = {
+				.pResource = static_cast<ID3D12Resource*>( d3d12Texture->Resource() ),
+				.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
+				.SubresourceIndex = subresource
+			};
+
+			D3D12_TEXTURE_COPY_LOCATION srcLocation = {
+				.pResource = static_cast<ID3D12Resource*>( intermediate.m_buffer->Resource() ),
+				.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,
+				.PlacedFootprint = intermediate.m_layout
+			};
+
+			CommandList().CopyTextureRegion(
+				&destLocation,
+				intermediate.m_destArea.m_left,
+				intermediate.m_destArea.m_top,
+				intermediate.m_destArea.m_front,
+				&srcLocation,
+				nullptr
+			);
+
+			m_stateCache.RegisterRenderResource( dest );
+			m_stateCache.RegisterRenderResource( intermediate.m_buffer.Get() );
+		}
 	}
 
-	void D3D12CommandListImpl::UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset, uint32 numByte )
+	void D3D12CommandListImpl::UpdateSubresource( agl::Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte )
 	{
 		auto d3d12Buffer = static_cast<D3D12Buffer*>( dest );
 		if ( d3d12Buffer == nullptr )
@@ -329,7 +364,43 @@ namespace agl
 
 		m_barrierBatcher.Commit( *this );
 
-		D3D12Uploader().Upload( *d3d12Buffer, src, destOffset, numByte );
+		if ( bAsync )
+		{
+			D3D12Uploader().Upload( *d3d12Buffer, src, destOffset, numByte );
+		}
+		else
+		{
+			if ( numByte == 0 )
+			{
+				numByte = dest->Size();
+			}
+
+			BufferTrait trait = {
+				.m_stride = static_cast<uint32>( numByte ),
+				.m_count = 1,
+				.m_access = ResourceAccessFlag::Upload,
+				.m_bindType = ResourceBindType::None,
+				.m_miscFlag = ResourceMisc::Intermediate,
+				.m_format = ResourceFormat::Unknown
+			};
+
+			auto intermediate = Buffer::Create( trait, "Uploader.Buffer.Intermediate" );
+			intermediate->Init();
+
+			auto resource = static_cast<ID3D12Resource*>( intermediate->Resource() );
+			void* mappedData = nullptr;
+			[[maybe_unused]] HRESULT hr = resource->Map( 0, nullptr, &mappedData );
+			assert( SUCCEEDED( hr ) );
+
+			std::memcpy( mappedData, src, numByte );
+
+			resource->Unmap( 0, nullptr );
+
+			CommandList().CopyBufferRegion( d3d12Buffer->Resource(), destOffset, resource, 0, numByte );
+
+			m_stateCache.RegisterRenderResource( dest );
+			m_stateCache.RegisterRenderResource( intermediate.Get() );
+		}
 	}
 
 	void D3D12CommandListImpl::AddTransition( const ResourceTransition& transition )
@@ -521,34 +592,34 @@ namespace agl
 		m_imple.BindRenderTargets( pRenderTargets, renderTargetCount, depthStencil );
 	}
 
-	void D3D12CommandList::ClearRenderTarget( RenderTargetView* renderTarget, const float( &clearColor )[4] )
+	void D3D12CommandList::ClearRenderTarget( RenderTargetView* renderTarget )
 	{
-		m_imple.ClearRenderTarget( renderTarget, clearColor );
+		m_imple.ClearRenderTarget( renderTarget );
 	}
 
-	void D3D12CommandList::ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor )
+	void D3D12CommandList::ClearDepthStencil( DepthStencilView* depthStencil )
 	{
-		m_imple.ClearDepthStencil( depthStencil, depthColor, stencilColor );
+		m_imple.ClearDepthStencil( depthStencil );
 	}
 
-	void D3D12CommandList::CopyResource( Texture* dest, Texture* src, bool bDirect )
+	void D3D12CommandList::CopyResource( Texture* dest, Texture* src, bool bAsync )
 	{
-		m_imple.CopyResource( dest, src, bDirect );
+		m_imple.CopyResource( dest, src, bAsync );
 	}
 
-	void D3D12CommandList::CopyResource( Buffer* dest, Buffer* src, uint32 numByte, bool bDirect )
+	void D3D12CommandList::CopyResource( Buffer* dest, Buffer* src, bool bAsync, uint32 numByte )
 	{
-		m_imple.CopyResource( dest, src, numByte, bDirect );
+		m_imple.CopyResource( dest, src, bAsync, numByte );
 	}
 
-	void D3D12CommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea, uint32 subresource )
+	void D3D12CommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
 	{
-		m_imple.UpdateSubresource( dest, src, srcRowSize, destArea, subresource );
+		m_imple.UpdateSubresource( dest, src, srcRowSize, bAsync, destArea, subresource );
 	}
 
-	void D3D12CommandList::UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset, uint32 numByte )
+	void D3D12CommandList::UpdateSubresource( agl::Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte )
 	{
-		m_imple.UpdateSubresource( dest, src, destOffset, numByte );
+		m_imple.UpdateSubresource( dest, src, bAsync, destOffset, numByte );
 	}
 
 	void D3D12CommandList::AddTransition( const ResourceTransition& transition )
@@ -742,34 +813,34 @@ namespace agl
 		m_imple.BindRenderTargets( pRenderTargets, renderTargetCount, depthStencil );
 	}
 
-	void D3D12ParallelCommandList::ClearRenderTarget( RenderTargetView* renderTarget, const float( &clearColor )[4] )
+	void D3D12ParallelCommandList::ClearRenderTarget( RenderTargetView* renderTarget )
 	{
-		m_imple.ClearRenderTarget( renderTarget, clearColor );
+		m_imple.ClearRenderTarget( renderTarget );
 	}
 
-	void D3D12ParallelCommandList::ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor )
+	void D3D12ParallelCommandList::ClearDepthStencil( DepthStencilView* depthStencil )
 	{
-		m_imple.ClearDepthStencil( depthStencil, depthColor, stencilColor );
+		m_imple.ClearDepthStencil( depthStencil );
 	}
 
-	void D3D12ParallelCommandList::CopyResource( Texture* dest, Texture* src, bool bDirect )
+	void D3D12ParallelCommandList::CopyResource( Texture* dest, Texture* src, bool bAsync )
 	{
-		m_imple.CopyResource( dest, src, bDirect );
+		m_imple.CopyResource( dest, src, bAsync );
 	}
 
-	void D3D12ParallelCommandList::CopyResource( Buffer* dest, Buffer* src, uint32 numByte, bool bDirect )
+	void D3D12ParallelCommandList::CopyResource( Buffer* dest, Buffer* src, bool bAsync, uint32 numByte )
 	{
-		m_imple.CopyResource( dest, src, numByte, bDirect );
+		m_imple.CopyResource( dest, src, bAsync, numByte );
 	}
 
-	void D3D12ParallelCommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea, uint32 subresource )
+	void D3D12ParallelCommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
 	{
-		m_imple.UpdateSubresource( dest, src, srcRowSize, destArea, subresource );
+		m_imple.UpdateSubresource( dest, src, srcRowSize, bAsync, destArea, subresource );
 	}
 
-	void D3D12ParallelCommandList::UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset, uint32 numByte )
+	void D3D12ParallelCommandList::UpdateSubresource( agl::Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte )
 	{
-		m_imple.UpdateSubresource( dest, src, destOffset, numByte );
+		m_imple.UpdateSubresource( dest, src, bAsync, destOffset, numByte );
 	}
 
 	void D3D12ParallelCommandList::AddTransition( const ResourceTransition& transition )

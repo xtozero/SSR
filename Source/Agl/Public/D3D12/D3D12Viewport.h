@@ -16,7 +16,7 @@ namespace agl
 	class D3D12Viewport final : public Viewport
 	{
 	public:
-		virtual void Clear( const float( &clearColor )[4] ) override;
+		virtual void Clear() override;
 		virtual void Bind( ICommandListBase& commandList ) const override;
 
 		virtual std::pair<uint32, uint32> Size() const override;

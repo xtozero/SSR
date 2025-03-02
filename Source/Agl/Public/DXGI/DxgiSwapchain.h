@@ -76,7 +76,7 @@ namespace agl
 			return DeviceError::None;
 		}
 
-		virtual void Clear( const float( &clearColor )[4] ) override
+		virtual void Clear() override
 		{
 			ICommandList* commandList = GetInterface<IAgl>()->GetCommandList();
 
@@ -84,7 +84,7 @@ namespace agl
 			{
 				if ( auto rtv = curTex->RTV() )
 				{
-					commandList->ClearRenderTarget( rtv, clearColor );
+					commandList->ClearRenderTarget( rtv );
 				}
 			}
 		}
@@ -136,7 +136,7 @@ namespace agl
 
 					assert( SUCCEEDED( hr ) );
 
-					std::construct_at( static_cast<D3D11Texture2D*>( m_backBuffers[i].Get() ), backBuffer, "SwapChain" );
+					std::construct_at( static_cast<D3D11Texture2D*>( m_backBuffers[i].Get() ), backBuffer, "SwapChain", m_clearColor );
 				}
 				else
 				{
@@ -148,7 +148,7 @@ namespace agl
 					D3D12_RESOURCE_DESC desc = backBuffer->GetDesc();
 					desc.Format = m_format;
 
-					std::construct_at( static_cast<D3D12Texture2D*>( m_backBuffers[i].Get() ), backBuffer, "SwapChain", &desc );
+					std::construct_at( static_cast<D3D12Texture2D*>( m_backBuffers[i].Get() ), backBuffer, "SwapChain", m_clearColor, &desc );
 				}
 
 				m_backBuffers[i]->Init();
@@ -180,7 +180,7 @@ namespace agl
 			return m_backBuffers[m_bufferIndex].Get();
 		}
 
-		DxgiSwapchain( IUnknown& device, IDXGIFactory7& factory, uint32 width, uint32 height, uint32 bufferCount, void* hWnd, DXGI_FORMAT format )
+		DxgiSwapchain( IUnknown& device, IDXGIFactory7& factory, uint32 width, uint32 height, uint32 bufferCount, void* hWnd, DXGI_FORMAT format, const float4 clearColor )
 			: m_device( &device )
 			, m_factory( &factory )
 			, m_width( width )
@@ -188,6 +188,7 @@ namespace agl
 			, m_bufferCount( bufferCount )
 			, m_hWnd( hWnd )
 			, m_format( format )
+			, m_clearColor{ clearColor[0], clearColor[1], clearColor[2], clearColor[3] }
 		{}
 
 	private:
@@ -243,7 +244,7 @@ namespace agl
 					hr = m_pSwapChain->GetBuffer( i, IID_PPV_ARGS( &backBuffer ) );
 
 					assert( SUCCEEDED( hr ) );
-					m_backBuffers[i] = new D3D11Texture2D( backBuffer, "SwapChain" );
+					m_backBuffers[i] = new D3D11Texture2D( backBuffer, "SwapChain", m_clearColor );
 				}
 				else
 				{
@@ -255,7 +256,7 @@ namespace agl
 					D3D12_RESOURCE_DESC desc = backBuffer->GetDesc();
 					desc.Format = m_format;
 
-					m_backBuffers[i] = new D3D12Texture2D( backBuffer, "SwapChain", &desc);
+					m_backBuffers[i] = new D3D12Texture2D( backBuffer, "SwapChain", m_clearColor, &desc );
 				}
 
 				m_backBuffers[i]->Init();
@@ -276,6 +277,7 @@ namespace agl
 		uint32 m_bufferCount = 0;
 		void* m_hWnd = nullptr;
 		DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
+		float4 m_clearColor;
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_pSwapChain;
 
 		uint32 m_bufferIndex = 0;

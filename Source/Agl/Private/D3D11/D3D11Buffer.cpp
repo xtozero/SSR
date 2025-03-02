@@ -125,14 +125,13 @@ namespace agl
 		m_dataStorage = nullptr;
 	}
 
-	void D3D11Buffer::InitResource()
+	void D3D11Buffer::SetDebugObjectName()
 	{
-		CreateBuffer();
-	}
-
-	void D3D11Buffer::FreeResource()
-	{
-		DestroyBuffer();
+		if ( m_buffer )
+		{
+			auto dataSize = static_cast<uint32>( m_debugName.Str().size() );
+			m_buffer->SetPrivateData( WKPDID_D3DDebugObjectName, dataSize, m_debugName.Str().data() );
+		}
 	}
 
 	void D3D11Buffer::CreateBuffer()
@@ -146,11 +145,7 @@ namespace agl
 		[[maybe_unused]] HRESULT hr = D3D11Device().CreateBuffer( &m_desc, m_hasInitData ? &initData : nullptr, &m_buffer );
 		assert( SUCCEEDED( hr ) );
 
-		if ( m_buffer )
-		{
-			auto dataSize = static_cast<uint32>( m_debugName.Str().size() );
-			m_buffer->SetPrivateData( WKPDID_D3DDebugObjectName, dataSize, m_debugName.Str().data() );
-		}
+		SetDebugObjectName();
 
 		if ( HasAnyFlags( m_trait.m_miscFlag, ResourceMisc::Intermediate | ResourceMisc::WithoutViews ) )
 		{
@@ -182,5 +177,15 @@ namespace agl
 			[[maybe_unused]] uint32 ref = m_buffer->Release();
 			m_buffer = nullptr;
 		}
+	}
+
+	void D3D11Buffer::InitResource()
+	{
+		CreateBuffer();
+	}
+
+	void D3D11Buffer::FreeResource()
+	{
+		DestroyBuffer();
 	}
 }

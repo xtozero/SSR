@@ -10,6 +10,7 @@
 #include "OcclusionRendering.h"
 #include "PassProcessor.h"
 #include "ReflectiveShadowMapRendering.h"
+#include "RenderGraphResource.h"
 #include "RenderView.h"
 #include "Scene/SceneConstantBuffers.h"
 #include "Scene/ShadowInfo.h"
@@ -17,6 +18,7 @@
 #include "Texture.h"
 
 #include <array>
+#include <deque>
 #include <map>
 #include <string>
 
@@ -30,6 +32,8 @@ namespace agl
 namespace rendercore
 {
 	class IScene;
+	class RenderGraph;
+	class RenderGraphPass;
 	class RenderViewGroup;
 	class ShaderArguments;
 
@@ -58,15 +62,20 @@ namespace rendercore
 		virtual agl::Texture* GetVelocity() = 0;
 	};
 
-	class RenderingShaderResource final
+	struct RendererResourceCollection
+	{
+		RefHandle<agl::Texture> m_indirectIllumination;
+	};
+
+	class ResourceBinder final
 	{
 	public:
-		void BindResources( const ShaderStates& shaders, agl::ShaderBindings& bindings );
+		void Bind( const ShaderStates& shaders, agl::ShaderBindings& bindings ) const;
 
-		void AddResource( const std::string& parameterName, agl::GraphicsApiResource* resource );
-		void AddResource( const ShaderArguments* collection );
+		void Add( const std::string& parameterName, agl::GraphicsApiResource* resource );
+		void Add( const ShaderArguments* collection );
 
-		void ClearResources();
+		void Clear();
 
 	private:
 		std::vector<Name> m_parameterNames;
@@ -75,52 +84,53 @@ namespace rendercore
 		std::vector<const ShaderArguments*> m_argumentsList;
 	};
 
-	struct RenderingOutputContext final
+	enum class RasterOutputLoadAction
 	{
-		RefHandle<agl::Texture> m_renderTargets[agl::MAX_RENDER_TARGET] = {};
-		RefHandle<agl::Texture> m_depthStencil;
+		NoAction = 0,
+		Clear,
+	};
+
+	class RasterOutput final
+	{
+	public:
+		void SetRenderTarget( int32 i, RenderGraphTexture* renderTarget, RasterOutputLoadAction loadAction = RasterOutputLoadAction::NoAction );
+		void SetDepthStencil( RenderGraphTexture* depthStencil, bool readOnly = false, RasterOutputLoadAction loadAction = RasterOutputLoadAction::NoAction );
+
+		void SetViewport( int32 left, int32 top, int32 right, int32 bottom, int32 front, int32 back );
+		void SetViewport( int32 width, int32 height );
+
+		void SetScissorRect( int32 left, int32 top, int32 right, int32 bottom );
+		void SetScissorRect( int32 width, int32 height );
+
+		void Bind( CommandList& commandList ) const;
+
+	private:
+		friend RenderGraphPass;
+
+		struct RasterOutputInfo
+		{
+			RenderGraphTexture* m_texture = nullptr;
+			RasterOutputLoadAction m_loadAction = RasterOutputLoadAction::NoAction;
+		};
+		RasterOutputInfo m_renderTargets[agl::MAX_RENDER_TARGET] = {};
+
+		RasterOutputInfo m_depthStencil;
+		bool m_depthStencilReadOnly = false;
 
 		CubeArea<float> m_viewport = {};
-		RectangleArea<int32> m_scissorRects = {};
+		RectangleArea<int32> m_scissorRect = {};
 	};
 
 	class SceneRenderer
 	{
 	public:
-		virtual void PreRender( RenderViewGroup& renderViewGroup );
-		virtual void Render( RenderViewGroup& renderViewGroup ) = 0;
-		virtual void RenderHitProxy( RenderViewGroup& renderViewGroup ) = 0;
-		virtual void PostRender();
+		virtual void PreRender( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup );
+		virtual void Render( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup ) = 0;
+		virtual void RenderHitProxy( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup ) = 0;
 
-		virtual void RenderDefaultPass( RenderViewGroup& renderViewGroup, uint32 curView ) = 0;
-
-		template <typename CommandList>
-		void ApplyOutputContext( CommandList& commandList )
-		{
-			agl::RenderTargetView* renderTargets[agl::MAX_RENDER_TARGET] = {};
-			agl::DepthStencilView* depthStencil = nullptr;
-
-			for ( uint32 i = 0; i < agl::MAX_RENDER_TARGET; ++i )
-			{
-				if ( m_outputContext.m_renderTargets[i] )
-				{
-					renderTargets[i] = m_outputContext.m_renderTargets[i]->RTV();
-				}
-			}
-
-			if ( m_outputContext.m_depthStencil )
-			{
-				depthStencil = m_outputContext.m_depthStencil->DSV();
-			}
-
-			commandList.BindRenderTargets( renderTargets, agl::MAX_RENDER_TARGET, depthStencil );
-			commandList.SetViewports( 1, &m_outputContext.m_viewport );
-			commandList.SetScissorRects( 1, &m_outputContext.m_scissorRects );
-		}
+		virtual void RenderDefaultPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 curView ) = 0;
 
 		virtual IRendererRenderTargets& GetRenderRenderTargets() = 0;
-
-		void WaitUntilRenderingIsFinish();
 
 		virtual ~SceneRenderer() = default;
 
@@ -133,28 +143,27 @@ namespace rendercore
 		void AllocateCascadeShadowMaps( const RenderThreadFrameData<ShadowInfo*>& shadows );
 		void AllocatePointShadowMaps( const RenderThreadFrameData<ShadowInfo*>& shadows );
 
-		void RenderShadowDepthPass();
-		void RenderTexturedSky( IScene& scene );
-		void RenderMesh( IScene& scene, RenderPass passType, uint32 viewIndex );
-		void RenderShadow();
-		void RenderSkyAtmosphere( IScene& scene, uint32 viewIndex );
-		void RenderVolumetricCloud( IScene& scene );
-		void RenderVolumetricFog( IScene& scene );
-		void RenderTemporalAntiAliasing( RenderViewGroup& renderViewGroup );
-		void RenderIndirectIllumination( RenderViewGroup& renderViewGroup );
-		void DoRenderHitProxy( RenderViewGroup& renderViewGroup );
+		RenderThreadFrameData<VisibleDrawSnapshot>* GatherDrawsnapshots( IScene& scene, RenderPassType passType, uint32 viewIndex, std::deque<DrawSnapshot>& outSnapshotStorage );
 
-		void StoreOuputContext( const RenderingOutputContext& context );
+		void RenderShadowDepthPass( RenderGraph& renderGraph );
+		void RenderTexturedSky( RenderGraph& renderGraph, IScene& scene, const RasterOutput& rasterOutput );
+		void RenderShadow( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup );
+		void RenderSkyAtmosphere( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex );
+		void RenderVolumetricCloud( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup );
+		void RenderVolumetricFog( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup );
+		void RenderTemporalAntiAliasing( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup );
+		void RenderIndirectIllumination( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup );
+		void DoRenderHitProxy( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup );
 
 		void CalcVisibility( RenderViewGroup& renderViewGroup );
 
 		ForwardLightingResource m_forwardLighting;
 
-		RenderingShaderResource m_shaderResources;
-		RenderingOutputContext m_outputContext;
+		ResourceBinder m_resourceBinder;
+		RendererResourceCollection m_resourceCollection;
 
 		RenderThreadFrameData<ShadowInfo> m_shadowInfos;
-		using PassVisibleSnapshots = std::array<RenderThreadFrameData<VisibleDrawSnapshot>, static_cast<uint32>( RenderPass::Count )>;
+		using PassVisibleSnapshots = std::array<RenderThreadFrameData<VisibleDrawSnapshot>, static_cast<uint32>( RenderPassType::Count )>;
 		RenderThreadFrameData<PassVisibleSnapshots> m_passSnapshots;
 		RenderThreadFrameData<OcclusionRenderData> m_occlusionRenderData;
 
@@ -169,7 +178,7 @@ namespace rendercore
 		LightPropagationVolume m_lpv;
 	};
 
-	void AddSingleDrawPass( DrawSnapshot& snapshot );
+	void AddSingleDrawPass( CommandList& commandList, DrawSnapshot& snapshot );
 
 	PrimitiveIdVertexBufferPool& GetPrimitiveIdPool();
 }

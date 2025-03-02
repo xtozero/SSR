@@ -78,7 +78,7 @@ namespace rendercore
 	{
 		if ( m_pViewport.Get() )
 		{
-			m_pViewport->Clear( m_clearColor.RGBA() );
+			m_pViewport->Clear();
 		}
 	}
 
@@ -134,7 +134,6 @@ namespace rendercore
 	}
 
 	Viewport::Viewport( uint32 width, uint32 height, agl::ResourceFormat format, const float4& bgColor )
-		: m_clearColor( bgColor )
 	{
 		m_pViewport = agl::Viewport::Create( width, height, format, bgColor );
 		EnqueueRenderTask(

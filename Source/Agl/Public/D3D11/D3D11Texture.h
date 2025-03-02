@@ -75,6 +75,15 @@ namespace agl
 		D3D11Texture& operator=( D3D11Texture&& ) = delete;
 
 	protected:
+		virtual void SetDebugObjectName() override
+		{
+			if ( m_texture )
+			{
+				auto dataSize = static_cast<uint32>( m_debugName.Str().size() );
+				m_texture->SetPrivateData( WKPDID_D3DDebugObjectName, dataSize, m_debugName.Str().data() );
+			}
+		}
+
 		T* m_texture = nullptr;
 		std::vector<D3D11_SUBRESOURCE_DATA> m_initData;
 
@@ -138,7 +147,7 @@ namespace agl
 		virtual void CreateDepthStencil( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override;
 
 		D3D11Texture2D( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
-		D3D11Texture2D( ID3D11Texture2D* texture, const char* debugName, const D3D11_TEXTURE2D_DESC* desc = nullptr );
+		D3D11Texture2D( ID3D11Texture2D* texture, const char* debugName, const float4& clearColor, const D3D11_TEXTURE2D_DESC* desc = nullptr );
 
 	protected:
 		virtual void CreateTexture() override;

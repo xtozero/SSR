@@ -178,9 +178,9 @@ namespace rendercore
 		}
 		else
 		{
-			auto data = static_cast<uint8*>( GraphicsInterface().Lock( m_buffer ).m_data );
+			auto data = static_cast<uint8*>( GraphicsInterface().Lock( m_buffer.Get() ).m_data );
 			UpdateShaderValue( data, contents );
-			GraphicsInterface().UnLock( m_buffer );
+			GraphicsInterface().UnLock( m_buffer.Get() );
 
 			UpdateShaderResouce( contents );
 		}

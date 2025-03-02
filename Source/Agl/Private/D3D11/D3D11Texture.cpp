@@ -303,7 +303,14 @@ namespace agl
 		{
 			rtvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
 		}
-		m_rtv = new D3D11RenderTargetView( this, m_texture, rtvDesc );
+
+		ColorF clearColor = ColorF::Black;
+		if ( m_trait.m_clearValue )
+		{
+			clearColor = m_trait.m_clearValue->m_color;
+		}
+
+		m_rtv = new D3D11RenderTargetView( this, m_texture, rtvDesc, clearColor );
 		m_rtv->Init();
 	}
 
@@ -314,7 +321,16 @@ namespace agl
 		{
 			dsvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
 		}
-		m_dsv = new D3D11DepthStencilView( this, m_texture, dsvDesc );
+
+		float depthClearValue = 0;
+		uint8 stencilClearValue = 0;
+		if ( m_trait.m_clearValue )
+		{
+			depthClearValue = m_trait.m_clearValue->m_depthStencil.m_depth;
+			stencilClearValue = m_trait.m_clearValue->m_depthStencil.m_stencil;
+		}
+
+		m_dsv = new D3D11DepthStencilView( this, m_texture, dsvDesc, depthClearValue, stencilClearValue );
 		m_dsv->Init();
 	}
 
@@ -323,16 +339,14 @@ namespace agl
 	{
 	}
 
-	D3D11Texture2D::D3D11Texture2D( ID3D11Texture2D* texture, const char* debugName, const D3D11_TEXTURE2D_DESC* desc )
+	D3D11Texture2D::D3D11Texture2D( ID3D11Texture2D* texture, const char* debugName, const float4& clearColor, const D3D11_TEXTURE2D_DESC* desc )
 	{
 		if ( texture )
 		{
-			m_debugName = Name( debugName );
-
-			auto dataSize = static_cast<uint32>( m_debugName.Str().size() );
-			texture->SetPrivateData( WKPDID_D3DDebugObjectName, dataSize, m_debugName.Str().data() );
-
 			m_texture = texture;
+
+			Rename( Name( debugName ) );
+
 			if ( desc == nullptr )
 			{
 				m_texture->GetDesc( &m_desc );
@@ -343,6 +357,10 @@ namespace agl
 			}
 
 			m_trait = ConvertDescToTrait( m_desc );
+			m_trait.m_clearValue = ResourceClearValue{
+				.m_format = m_trait.m_format,
+				.m_color = { clearColor[0], clearColor[1], clearColor[2], clearColor[3] },
+			};
 		}
 	}
 
@@ -353,11 +371,7 @@ namespace agl
 		[[maybe_unused]] HRESULT hr = D3D11Device().CreateTexture2D( &m_desc, m_dataStorage ? m_initData.data() : nullptr, &m_texture );
 		assert( SUCCEEDED( hr ) );
 
-		if ( m_texture )
-		{
-			auto dataSize = static_cast<uint32>( m_debugName.Str().size() );
-			m_texture->SetPrivateData( WKPDID_D3DDebugObjectName, dataSize, m_debugName.Str().data() );
-		}
+		SetDebugObjectName();
 	}
 
 	void D3D11Texture2D::ConvertToDesc( const TextureTrait& trait )
@@ -399,7 +413,14 @@ namespace agl
 		{
 			rtvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
 		}
-		m_rtv = new D3D11RenderTargetView( this, m_texture, rtvDesc );
+
+		ColorF clearColor = ColorF::Black;
+		if ( m_trait.m_clearValue )
+		{
+			clearColor = m_trait.m_clearValue->m_color;
+		}
+
+		m_rtv = new D3D11RenderTargetView( this, m_texture, rtvDesc, clearColor );
 		m_rtv->Init();
 	}
 
@@ -415,11 +436,7 @@ namespace agl
 		[[maybe_unused]] HRESULT hr = D3D11Device().CreateTexture3D( &m_desc, m_dataStorage ? m_initData.data() : nullptr, &m_texture );
 		assert( SUCCEEDED( hr ) );
 
-		if ( m_texture )
-		{
-			auto dataSize = static_cast<uint32>( m_debugName.Str().size() );
-			m_texture->SetPrivateData( WKPDID_D3DDebugObjectName, dataSize, m_debugName.Str().data() );
-		}
+		SetDebugObjectName();
 	}
 
 	void D3D11Texture3D::ConvertToDesc( const TextureTrait& trait )

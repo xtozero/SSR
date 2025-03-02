@@ -73,11 +73,6 @@ public:
 		return *this;
 	}
 
-	operator ReferencedType* ( ) const
-	{
-		return m_reference;
-	}
-
 	ReferencedType* operator->() const
 	{
 		return m_reference;

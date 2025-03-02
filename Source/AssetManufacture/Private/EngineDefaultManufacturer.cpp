@@ -45,7 +45,7 @@ void EngineDefaultManufacturer::CreateBRDFLookUpTexture( std::set<std::filesyste
 
 			auto commandList = rendercore::GetCommandList();
 			
-			bool result = commandList.CaptureTexture( brdfLUT, image );
+			bool result = commandList.CaptureTexture( brdfLUT.Get(), image );
 			assert( result && "CaptureTexture was Failed" );
 		} 
 	);

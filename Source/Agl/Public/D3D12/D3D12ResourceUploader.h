@@ -25,7 +25,7 @@ namespace agl
 
 		bool IsFinished() const;
 
-		~D3D12UploadContext();
+		~D3D12UploadContext() = default;
 
 		D3D12UploadContext* m_next = nullptr;
 
@@ -35,7 +35,7 @@ namespace agl
 
 		friend D3D12ResourceUploader;
 
-		AllocatedResourceInfo m_srcResourceInfo;
+		RefHandle<Buffer> m_intermediateResource;
 		RefHandle<GraphicsApiResource> m_destResource;
 
 		D3D12CommandListResource m_cmdListResource;
@@ -102,4 +102,12 @@ namespace agl
 		D3D12UploadContext* m_pendingListForUpload = nullptr;
 		D3D12CopyContext* m_pendingListForCopy = nullptr;
 	};
+
+	struct IntermediateInfo
+	{
+		RefHandle<Buffer> m_buffer;
+		D3D12_PLACED_SUBRESOURCE_FOOTPRINT m_layout = {};
+		CubeArea<uint32> m_destArea = {};
+	};
+	IntermediateInfo CreateIntermediateInfo( const D3D12Texture& dest, const void* data, uint32 srcRowSize, const CubeArea<uint32>* pDestArea, uint32 subresource );
 }

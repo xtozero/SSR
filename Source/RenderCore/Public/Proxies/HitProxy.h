@@ -34,6 +34,8 @@ namespace rendercore
 		~HitProxy();
 
 	private:
+		virtual void Finalizer() override;
+
 		void InitHitProxy();
 
 		HitProxyId m_id;

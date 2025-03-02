@@ -14,8 +14,7 @@ namespace rendercore
 {
 	class LightSceneInfo;
 	class PrimitiveSceneInfo;
-	class RenderingShaderResource;
-	class SceneRenderer;
+	class ResourceBinder;
 
 	enum class LightType : uint8;
 
@@ -133,14 +132,14 @@ namespace rendercore
 		void AddReceiverPrimitive( PrimitiveSceneInfo* primitiveSceneInfo, const BoxSphereBounds& viewspaceBounds );
 
 		void SetupShadowConstantBuffer();
-		void RenderDepth( SceneRenderer& renderer, RenderingShaderResource& resources );
+		void RenderDepth( CommandList& commandList, const ResourceBinder& resourceBinder );
 
 		ShadowInfo( LightSceneInfo* lightSceneInfo, const RenderView& view );
 
 	private:
 		void AddCachedDrawSnapshotForPass( PrimitiveSceneInfo& primitiveSceneInfo );
 		void UpdateSubjectNearAndFar( const BoxSphereBounds& viewspaceBounds );
-		RenderPass GetShadowDepthRenderPass() const;
+		RenderPassType GetShadowDepthRenderPass() const;
 
 		LightSceneInfo* m_lightSceneInfo = nullptr;
 		const RenderView* m_view = nullptr;

@@ -3,6 +3,7 @@
 #include "CommandList.h"
 #include "ComputePipelineState.h"
 #include "GlobalShaders.h"
+#include "RenderGraph.h"
 #include "ShaderParameterUtils.h"
 #include "TaskScheduler.h"
 #include "UploadBuffer.h"
@@ -36,36 +37,54 @@ namespace rendercore
 		m_distributionCount += m_sizePerFloat4;
 	}
 
-	void GpuMemcpy::Upload( agl::Buffer* destBuffer )
+	void GpuMemcpy::Upload( RenderGraph& renderGraph, RefHandle<agl::Buffer> destBuffer )
 	{
 		assert( IsInRenderThread() );
+
+		BEGIN_RG_RESOURCE_STRUCT( GpuMemcpyPassResource )
+			DECLARE_RG_BUFFER_UAV( destBuffer )
+		END_RG_RESOURCE_STRUCT();
+
+		auto rgDestBuffer = renderGraph.RegisterExternalResource( destBuffer.Get() );
+
+		GpuMemcpyPassResource passResource = {
+			.m_destBuffer = rgDestBuffer,
+		};
+
+		uint32 numDistribution = m_distributionCount;
+		agl::Buffer* srcBuffer = m_src.Resource();
+		agl::Buffer* distributerBuffer = m_distributer.Resource();
+
+		renderGraph.AddPass(
+			passResource,
+			[passResource, numDistribution, srcBuffer, distributerBuffer]( ComputeCommandList& commandList )
+			{
+				agl::Buffer* destBuffer = passResource.m_destBuffer->Get();
+
+				DistributionCopyCS distributionCopyCS;
+
+				RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( distributionCopyCS );
+
+				commandList.BindPipelineState( pso.Get() );
+
+				agl::ShaderBindings shaderBindings = CreateShaderBindings( distributionCopyCS );
+				SetShaderValue( commandList, distributionCopyCS.NumDistribution(), numDistribution );
+				BindResource( shaderBindings, distributionCopyCS.Src(), srcBuffer );
+				BindResource( shaderBindings, distributionCopyCS.Distributer(), distributerBuffer );
+				BindResource( shaderBindings, distributionCopyCS.Dest(), destBuffer );
+
+				commandList.BindShaderResources( shaderBindings );
+
+				uint32 threadGroup = ( ( numDistribution + DistributionCopyCS::ThreadGroupX - 1 ) / DistributionCopyCS::ThreadGroupX );
+
+				commandList.Dispatch( threadGroup, 1 );
+			} );
 
 		m_src.Unlock();
 		m_distributer.Unlock();
 
 		m_pUploadData = nullptr;
 		m_pDistributionData = nullptr;
-
-		DistributionCopyCS distributionCopyCS;
-
-		RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( distributionCopyCS );
-
-		auto commandList = GetCommandList();
-		commandList.BindPipelineState( pso.Get() );
-
-		commandList.AddTransition( Transition( *destBuffer, agl::ResourceState::UnorderedAccess ) );
-
-		agl::ShaderBindings shaderBindings = CreateShaderBindings( distributionCopyCS );
-		SetShaderValue( commandList, distributionCopyCS.NumDistribution(), m_distributionCount );
-		BindResource( shaderBindings, distributionCopyCS.Src(), m_src.Resource() );
-		BindResource( shaderBindings, distributionCopyCS.Distributer(), m_distributer.Resource() );
-		BindResource( shaderBindings, distributionCopyCS.Dest(), destBuffer );
-
-		commandList.BindShaderResources( shaderBindings );
-
-		uint32 threadGroup = ( ( m_distributionCount + DistributionCopyCS::ThreadGroupX - 1 ) / DistributionCopyCS::ThreadGroupX );
-
-		commandList.Dispatch( threadGroup, 1 );
 	}
 
 	agl::Buffer* ByteBuffer::Resource() const

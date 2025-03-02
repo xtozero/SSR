@@ -155,11 +155,17 @@ namespace agl
 		using BaseClass = D3D11ViewBase<RenderTargetView, ID3D11RenderTargetView*, D3D11_RENDER_TARGET_VIEW_DESC>;
 
 	public:
-		using BaseClass::BaseClass;
 		using BaseClass::operator=;
+
+		D3D11RenderTargetView( IResourceViews* viewHolder, ID3D11Resource* d3d11Resource, const D3D11_RENDER_TARGET_VIEW_DESC& desc, const ColorF& clearColor );
+
+		ColorF GetClearColor() const;
 
 	protected:
 		virtual void InitResource() override;
+
+	private:
+		ColorF m_clearColor = ColorF::Black;
 	};
 
 	class D3D11DepthStencilView final : public D3D11ViewBase<DepthStencilView, ID3D11DepthStencilView*, D3D11_DEPTH_STENCIL_VIEW_DESC>
@@ -167,10 +173,18 @@ namespace agl
 		using BaseClass = D3D11ViewBase<DepthStencilView, ID3D11DepthStencilView*, D3D11_DEPTH_STENCIL_VIEW_DESC>;
 
 	public:
-		using BaseClass::BaseClass;
 		using BaseClass::operator=;
+
+		D3D11DepthStencilView( IResourceViews* viewHolder, ID3D11Resource* d3d11Resource, const D3D11_DEPTH_STENCIL_VIEW_DESC& desc, float depthClearValue, uint8 stencilClearValue );
+
+		float GetDepthClearValue() const;
+		uint8 GetStencilClearValue() const;
 
 	protected:
 		virtual void InitResource() override;
+
+	private:
+		float m_depthClearValue = 0.f;
+		uint8 m_stencilClearValue = 0;
 	};
 }

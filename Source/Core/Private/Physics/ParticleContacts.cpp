@@ -108,7 +108,7 @@ void ParticleContact::ResolveInterpenetration( float /*duration*/ )
 
 void ParticleContactResolver::ResolveContacts( ParticleContact* contactArray, uint32 numContacts, float duration )
 {
-	for ( m_iterationUsed = 0; m_iterationUsed < m_iterations; ++m_iterations )
+	for ( m_iterationUsed = 0; m_iterationUsed < m_iterations; ++m_iterationUsed )
 	{
 		float max = FLT_MAX;
 		uint32 maxIndex = numContacts;

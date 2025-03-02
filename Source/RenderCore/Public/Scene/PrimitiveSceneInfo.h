@@ -25,9 +25,9 @@ namespace rendercore
 	class PrimitiveSubMeshInfo final
 	{
 	public:
-		std::optional<uint32> GetCachedDrawSnapshotInfoIndex( RenderPass passType ) const;
+		std::optional<uint32> GetCachedDrawSnapshotInfoIndex( RenderPassType passType ) const;
 
-		void OnDrawSnapshotAdded( RenderPass passType );
+		void OnDrawSnapshotAdded( RenderPassType passType );
 
 		uint32& SnapshotInfoBase();
 		uint32 SnapshotInfoBase() const;

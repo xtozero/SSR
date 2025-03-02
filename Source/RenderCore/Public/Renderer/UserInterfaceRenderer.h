@@ -5,13 +5,14 @@
 namespace rendercore
 {
 	class Canvas;
+	class RenderGraph;
 	class RenderViewGroup;
 
 	class UserInterfaceRenderer
 	{
 	public:
 		virtual bool BootUp() = 0;
-		virtual void Render( Canvas& canvas ) = 0;
+		virtual void Render( RenderGraph& renderGraph, Canvas& canvas ) = 0;
 
 		virtual void UpdateUIDrawInfo() = 0;
 

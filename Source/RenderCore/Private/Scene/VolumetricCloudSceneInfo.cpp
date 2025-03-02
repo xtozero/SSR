@@ -3,6 +3,7 @@
 #include "CommandList.h"
 #include "ComputePipelineState.h"
 #include "GlobalShaders.h"
+#include "RenderGraph.h"
 #include "ShaderParameterMap.h"
 #include "ShaderParameterUtils.h"
 
@@ -33,11 +34,15 @@ namespace rendercore
 		{
 			m_shaderArguments = VolumetricCloudRenderParameters::CreateShaderArguments();
 
-			SetupCloudTexture();
-			GenerateWeatherMap();
+			RenderGraph renderGraph;
 
-			auto commandList = GetCommandList();
-			commandList.Commit();
+			SetupCloudTexture( renderGraph );
+			GenerateWeatherMap( renderGraph );
+
+			renderGraph.Execute();
+
+			GetCommandList().Commit();
+
 			GetInterface<agl::IAgl>()->WaitGPU();
 
 			m_needCreateRenderData = false;
@@ -49,46 +54,70 @@ namespace rendercore
 	{
 	}
 
-	void VolumetricCloudSceneInfo::SetupCloudTexture()
+	void VolumetricCloudSceneInfo::SetupCloudTexture( RenderGraph& renderGraph )
 	{
 		m_baseCloudShape = CreateCloudTexture( 128 );
+		auto rgBaseCloudShape = renderGraph.RegisterExternalResource( m_baseCloudShape.Get() );
 
-		PerlinWorleyCS perlinWorleyCS;
-		auto threadGroupCount = static_cast<uint32>( std::ceilf( 128 / 8.f ) );
+		BEGIN_RG_RESOURCE_STRUCT( BaseCloudShapePassResource )
+			DECLARE_RG_TEXTURE_UAV( baseCloudShape )
+		END_RG_RESOURCE_STRUCT();
 
-		auto commandList = GetCommandList();
+		BaseCloudShapePassResource baseCloudShapePassResource = {
+			.m_baseCloudShape = rgBaseCloudShape
+		};
 
-		RefHandle<agl::ComputePipelineState> perlinWorleyPSO = PrepareComputePipelineState( perlinWorleyCS );
-		commandList.BindPipelineState( perlinWorleyPSO );
+		renderGraph.AddPass(
+			baseCloudShapePassResource,
+			[baseCloudShapePassResource](ComputeCommandList& commandList)
+			{
+				PerlinWorleyCS perlinWorleyCS;
+				auto threadGroupCount = static_cast<uint32>( std::ceilf( 128 / 8.f ) );
 
-		commandList.AddTransition( Transition( *m_baseCloudShape.Get(), agl::ResourceState::UnorderedAccess ) );
+				RefHandle<agl::ComputePipelineState> perlinWorleyPSO = PrepareComputePipelineState( perlinWorleyCS );
+				commandList.BindPipelineState( perlinWorleyPSO.Get() );
 
-		agl::ShaderBindings shaderBindings = CreateShaderBindings( perlinWorleyCS );
-		BindResource( shaderBindings, perlinWorleyCS.NoiseTex(), m_baseCloudShape );
+				agl::ShaderBindings shaderBindings = CreateShaderBindings( perlinWorleyCS );
+				auto baseCloudShape = baseCloudShapePassResource.m_baseCloudShape->Get();
+				BindResource( shaderBindings, perlinWorleyCS.NoiseTex(), baseCloudShape );
 
-		commandList.BindShaderResources( shaderBindings );
+				commandList.BindShaderResources( shaderBindings );
 
-		commandList.Dispatch( threadGroupCount, threadGroupCount, threadGroupCount );
+				commandList.Dispatch( threadGroupCount, threadGroupCount, threadGroupCount );
+			} );
 
 		m_detailCloudShape = CreateCloudTexture( 32 );
+		auto rgDetailCloudShape = renderGraph.RegisterExternalResource( m_detailCloudShape.Get() );
 
-		WorleyCS worleyCS;
-		threadGroupCount = static_cast<uint32>( std::ceilf( 32 / 8.f ) );
+		BEGIN_RG_RESOURCE_STRUCT( DetailCloudShapePassResource )
+			DECLARE_RG_TEXTURE_UAV( detailCloudShape )
+		END_RG_RESOURCE_STRUCT();
 
-		RefHandle<agl::ComputePipelineState> worleyPSO = PrepareComputePipelineState( perlinWorleyCS );
-		commandList.BindPipelineState( worleyPSO );
+		DetailCloudShapePassResource detailCloudShapePassResource = {
+			.m_detailCloudShape = rgDetailCloudShape
+		};
 
-		commandList.AddTransition( Transition( *m_detailCloudShape.Get(), agl::ResourceState::UnorderedAccess ) );
+		renderGraph.AddPass(
+			detailCloudShapePassResource,
+			[detailCloudShapePassResource]( ComputeCommandList& commandList )
+			{
+				WorleyCS worleyCS;
+				auto threadGroupCount = static_cast<uint32>( std::ceilf( 32 / 8.f ) );
 
-		shaderBindings = CreateShaderBindings( perlinWorleyCS );
-		BindResource( shaderBindings, worleyCS.NoiseTex(), m_detailCloudShape );
+				RefHandle<agl::ComputePipelineState> worleyPSO = PrepareComputePipelineState( worleyCS );
+				commandList.BindPipelineState( worleyPSO.Get() );
 
-		commandList.BindShaderResources( shaderBindings );
+				agl::ShaderBindings shaderBindings = CreateShaderBindings( worleyCS );
+				auto detailCloudShape = detailCloudShapePassResource.m_detailCloudShape->Get();
+				BindResource( shaderBindings, worleyCS.NoiseTex(), detailCloudShape );
 
-		commandList.Dispatch( threadGroupCount, threadGroupCount, threadGroupCount );
+				commandList.BindShaderResources( shaderBindings );
+
+				commandList.Dispatch( threadGroupCount, threadGroupCount, threadGroupCount );
+			} );
 	}
 
-	void VolumetricCloudSceneInfo::GenerateWeatherMap()
+	void VolumetricCloudSceneInfo::GenerateWeatherMap( RenderGraph& renderGraph )
 	{
 		agl::TextureTrait trait = {
 			.m_width = 1024,
@@ -104,30 +133,36 @@ namespace rendercore
 		};
 
 		m_weatherMap = agl::Texture::Create( trait, "VolumetricCloud.Weather" );
-		EnqueueRenderTask(
-			[texture = m_weatherMap]()
+		m_weatherMap->Init();
+
+		auto rgWeatherMap = renderGraph.RegisterExternalResource( m_weatherMap.Get() );
+
+		BEGIN_RG_RESOURCE_STRUCT( WeatherMapPassResource )
+			DECLARE_RG_TEXTURE_UAV( weatherMap )
+		END_RG_RESOURCE_STRUCT();
+
+		WeatherMapPassResource passResource = {
+			.m_weatherMap = rgWeatherMap
+		};
+
+		renderGraph.AddPass(
+			passResource,
+			[passResource](ComputeCommandList& commandList)
 			{
-				texture->Init();
-			}
-		);
+				WeatherMapCS weatherMapCS;
 
-		WeatherMapCS weatherMapCS;
+				auto threadGroupCount = static_cast<uint32>( std::ceilf( 1024.f / 8.f ) );
 
-		auto threadGroupCount = static_cast<uint32>( std::ceilf( 1024.f / 8.f ) );
+				RefHandle<agl::ComputePipelineState> weatherMapPSO = PrepareComputePipelineState( weatherMapCS );
+				commandList.BindPipelineState( weatherMapPSO.Get() );
 
-		auto commandList = GetCommandList();
+				agl::ShaderBindings shaderBindings = CreateShaderBindings( weatherMapCS );
+				BindResource( shaderBindings, weatherMapCS.WeatherTex(), passResource.m_weatherMap->Get() );
 
-		RefHandle<agl::ComputePipelineState> weatherMapPSO = PrepareComputePipelineState( weatherMapCS );
-		commandList.BindPipelineState( weatherMapPSO );
+				commandList.BindShaderResources( shaderBindings );
 
-		commandList.AddTransition( Transition( *m_weatherMap.Get(), agl::ResourceState::UnorderedAccess ) );
-
-		agl::ShaderBindings shaderBindings = CreateShaderBindings( weatherMapCS );
-		BindResource( shaderBindings, weatherMapCS.WeatherTex(), m_weatherMap );
-
-		commandList.BindShaderResources( shaderBindings );
-
-		commandList.Dispatch( threadGroupCount, threadGroupCount );
+				commandList.Dispatch( threadGroupCount, threadGroupCount );
+			} );
 	}
 
 	RefHandle<agl::Texture> VolumetricCloudSceneInfo::CreateCloudTexture( uint32 texSize )

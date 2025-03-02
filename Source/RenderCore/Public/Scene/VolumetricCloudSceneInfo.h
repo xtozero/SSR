@@ -8,6 +8,7 @@
 
 namespace rendercore
 {
+	class RenderGraph;
 	class VolumetricCloudProxy;
 
 	BEGIN_SHADER_ARGUMENTS_STRUCT( VolumetricCloudRenderParameters )
@@ -59,24 +60,24 @@ namespace rendercore
 
 		agl::Texture* BaseCloudShape()
 		{
-			return m_baseCloudShape;
+			return m_baseCloudShape.Get();
 		}
 
 		agl::Texture* DetailCloudShape()
 		{
-			return m_detailCloudShape;
+			return m_detailCloudShape.Get();
 		}
 
 		agl::Texture* WeatherMap()
 		{
-			return m_weatherMap;
+			return m_weatherMap.Get();
 		}
 
 		VolumetricCloudSceneInfo( VolumetricCloudProxy* proxy );
 
 	private:
-		void SetupCloudTexture();
-		void GenerateWeatherMap();
+		void SetupCloudTexture( RenderGraph& renderGraph );
+		void GenerateWeatherMap( RenderGraph& renderGraph );
 		RefHandle<agl::Texture> CreateCloudTexture( uint32 texSize );
 
 		VolumetricCloudProxy* m_cloudProxy = nullptr;

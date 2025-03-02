@@ -52,6 +52,5 @@ namespace rendercore
 	private:
 		RefHandle<agl::Viewport> m_pViewport;
 		HitProxyMap m_hitProxyMap;
-		ColorF m_clearColor;
 	};
 }

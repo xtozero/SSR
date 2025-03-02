@@ -23,8 +23,7 @@ namespace agl
 		D3D11Buffer& operator=( D3D11Buffer&& ) = delete;
 
 	protected:
-		virtual void InitResource() override;
-		virtual void FreeResource() override;
+		virtual void SetDebugObjectName() override;
 
 		void CreateBuffer();
 		void DestroyBuffer();
@@ -34,5 +33,9 @@ namespace agl
 		DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
 		void* m_dataStorage = nullptr;
 		bool m_hasInitData = false;
+
+	private:
+		virtual void InitResource() override;
+		virtual void FreeResource() override;
 	};
 }

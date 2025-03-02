@@ -4,6 +4,7 @@
 #include "CommonRenderResource.h"
 #include "GlobalShaders.h"
 #include "GraphicsApiResource.h"
+#include "RenderGraph.h"
 #include "RenderView.h"
 #include "ResourceBarrierUtils.h"
 #include "Scene/IScene.h"
@@ -44,12 +45,17 @@ namespace rendercore
 		return passShader;
 	}
 
-	void TAARenderer::Render( IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup )
+	void TAARenderer::Render( RenderGraph& renderGraph, IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup )
 	{
+		agl::Texture* sceneTex = renderViewGroup.GetViewport().Texture();
 		agl::Texture* historyTex = renderTargets.GetTAAHistory();
 		agl::Texture* resolveTex = renderTargets.GetTAAResolve();
+		agl::Texture* velocityTex = renderTargets.GetVelocity();
 
-		if ( historyTex == nullptr || resolveTex == nullptr )
+		if ( sceneTex == nullptr
+			|| historyTex == nullptr
+			|| resolveTex == nullptr
+			|| velocityTex == nullptr )
 		{
 			return;
 		}
@@ -57,46 +63,45 @@ namespace rendercore
 		IScene& scene = renderViewGroup.Scene();
 		if ( scene.GetNumFrame() == 1 )
 		{
-			agl::Texture* sceneTex = renderViewGroup.GetViewport().Texture();
+			BEGIN_RG_RESOURCE_STRUCT( TAACopyPassResource )
+				DECLARE_RG_TEXTURE_COPY_DEST( historyTex )
+				DECLARE_RG_TEXTURE_COPY_SOURCE( sceneTex )
+			END_RG_RESOURCE_STRUCT();
 
-			GetCommandList().AddTransition( Transition( *historyTex, agl::ResourceState::CopyDest ) );
-			GetCommandList().AddTransition( Transition( *sceneTex, agl::ResourceState::CopySource ) );
+			auto rgHistoryTex = renderGraph.RegisterExternalResource( historyTex );
+			auto rgSceneTex = renderGraph.RegisterExternalResource( sceneTex );
 
-			GetCommandList().CopyResource( historyTex, sceneTex, true );
+			TAACopyPassResource passResource = {
+				.m_historyTex = rgHistoryTex,
+				.m_sceneTex = rgSceneTex
+			};
 
-			GetCommandList().AddTransition( Transition( *sceneTex, agl::ResourceState::RenderTarget ) );
+			renderGraph.AddPass(
+				passResource,
+				[passResource]( ResourceCommandList& commandList )
+				{
+					auto historyTex = passResource.m_historyTex->Get();
+					auto sceneTex = passResource.m_sceneTex->Get();
+
+					commandList.CopyResource( historyTex, sceneTex, false );
+				} );
 		}
 		else
 		{
-			Resovle( renderTargets, renderViewGroup );
-			UpdateHistory( renderTargets, renderViewGroup );
+			Resovle( renderGraph, renderTargets, renderViewGroup );
+			UpdateHistory( renderGraph, renderTargets, renderViewGroup );
 		}
 	}
 
-	void TAARenderer::Resovle( IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup )
+	void TAARenderer::Resovle( RenderGraph& renderGraph, IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup )
 	{
-		auto commandList = GetCommandList();
-
 		agl::Texture* historyTex = renderTargets.GetTAAHistory();
 		agl::Texture* resolveTex = renderTargets.GetTAAResolve();
 		agl::Texture* sceneTex = renderViewGroup.GetViewport().Texture();
 		agl::Texture* velocityTex = renderTargets.GetVelocity();
+		ShaderArguments& viewArguments = renderViewGroup.Scene().GetViewShaderArguments();
 
-		commandList.AddTransition( Transition( *historyTex, agl::ResourceState::PixelShaderResource ) );
-		commandList.AddTransition( Transition( *resolveTex, agl::ResourceState::RenderTarget ) );
-		commandList.AddTransition( Transition( *sceneTex, agl::ResourceState::PixelShaderResource ) );
-		commandList.AddTransition( Transition( *velocityTex, agl::ResourceState::PixelShaderResource ) );
-
-		commandList.ClearRenderTarget( resolveTex->RTV(), { 0, 0, 0, 0 } );
-
-		TAAResolveProcessor resolveProcessor;
-		auto result = resolveProcessor.Process( FullScreenQuadDrawInfo() );
-		if ( result.has_value() == false )
-		{
-			return;
-		}
-
-		DrawSnapshot& snapshot = *result;
+		auto rgResolveTex = renderGraph.RegisterExternalResource( resolveTex );
 
 		// Linear Sampler
 		SamplerState historyTexSampler = StaticSamplerState<>::Get();
@@ -116,44 +121,88 @@ namespace rendercore
 
 		m_shaderArguments->Update( m_parameters );
 
-		RenderingShaderResource taaResolveDrawResources;
-		taaResolveDrawResources.AddResource( &renderViewGroup.Scene().GetViewShaderArguments() );
-		taaResolveDrawResources.AddResource( m_shaderArguments.Get() );
+		auto rgHistoryTex = renderGraph.RegisterExternalResource( historyTex );
+		auto rgSceneTex = renderGraph.RegisterExternalResource( sceneTex );
+		auto rgVelocityTex = renderGraph.RegisterExternalResource( velocityTex );
 
-		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
-		taaResolveDrawResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+		BEGIN_RG_RESOURCE_STRUCT( ResolvePassResource )
+			DECLARE_RG_TEXTURE_PIXEL_SRV( historyTex )
+			DECLARE_RG_TEXTURE_PIXEL_SRV( sceneTex )
+			DECLARE_RG_TEXTURE_PIXEL_SRV( velocityTex )
+		END_RG_RESOURCE_STRUCT();
 
-		agl::RenderTargetView* resolveRt = resolveTex->RTV();
+		ResolvePassResource resolvePassResource = {
+			.m_historyTex = rgHistoryTex,
+			.m_sceneTex = rgSceneTex,
+			.m_velocityTex = rgVelocityTex
+		};
 
-		commandList.BindRenderTargets( &resolveRt, 1, nullptr );
+		auto width = resolveTex->GetTrait().m_width;
+		auto height = resolveTex->GetTrait().m_height;
 
-		AddSingleDrawPass( snapshot );
+		RasterOutput rasterOutput;
+		rasterOutput.SetRenderTarget( 0, rgResolveTex, RasterOutputLoadAction::Clear );
+		rasterOutput.SetViewport( width, height);
+		rasterOutput.SetScissorRect( width, height );
+
+		renderGraph.AddPass(
+			resolvePassResource,
+			rasterOutput,
+			[this, &viewArguments]( CommandList& commandList )
+			{
+				TAAResolveProcessor resolveProcessor;
+				auto result = resolveProcessor.Process( FullScreenQuadDrawInfo() );
+				if ( result.has_value() == false )
+				{
+					return;
+				}
+
+				DrawSnapshot& snapshot = *result;
+
+				ResourceBinder resourceBinder;
+				resourceBinder.Add( &viewArguments );
+				resourceBinder.Add( m_shaderArguments.Get() );
+
+				GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+				resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+				AddSingleDrawPass( commandList, snapshot );
+			});
 	}
 
-	void TAARenderer::UpdateHistory( IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup )
+	void TAARenderer::UpdateHistory( RenderGraph& renderGraph, IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup )
 	{
-		auto commandList = GetCommandList();
-
 		agl::Texture* historyTex = renderTargets.GetTAAHistory();
-		agl::Texture* resolveTex = renderTargets.GetTAAResolve();
 		agl::Texture* sceneTex = renderViewGroup.GetViewport().Texture();
+		agl::Texture* resolveTex = renderTargets.GetTAAResolve();
 
-		commandList.AddTransition( Transition( *historyTex, agl::ResourceState::CopyDest ) );
-		commandList.AddTransition( Transition( *resolveTex, agl::ResourceState::CopySource ) );
-		commandList.AddTransition( Transition( *sceneTex, agl::ResourceState::CopyDest ) );
+		auto rgHistoryTex = renderGraph.RegisterExternalResource( historyTex );
+		auto rgSceneTex = renderGraph.RegisterExternalResource( sceneTex );
+		auto rgResolveTex = renderGraph.RegisterExternalResource( resolveTex );
 
-		commandList.CopyResource( historyTex, resolveTex, true );
-		commandList.CopyResource( sceneTex, resolveTex, true );
+		BEGIN_RG_RESOURCE_STRUCT( UpdateHistoryPassResource )
+			DECLARE_RG_TEXTURE_COPY_DEST( historyTex )
+			DECLARE_RG_TEXTURE_COPY_DEST( sceneTex )
+			DECLARE_RG_TEXTURE_COPY_SOURCE( resolveTex )
+		END_RG_RESOURCE_STRUCT();
 
-		agl::Texture* renderTarget = renderViewGroup.GetViewport().Texture();
-		agl::RenderTargetView* rtv = renderTarget != nullptr ? renderTarget->RTV() : nullptr;
+		UpdateHistoryPassResource passResource = {
+			.m_historyTex = rgHistoryTex,
+			.m_sceneTex = rgSceneTex,
+			.m_resolveTex = rgResolveTex
+		};
 
-		agl::Texture* depthStencil = renderTargets.GetDepthStencil();
-		agl::DepthStencilView* dsv = depthStencil != nullptr ? depthStencil->DSV() : nullptr;
+		renderGraph.AddPass(
+			passResource,
+			[passResource]( ResourceCommandList& commandList )
+			{
+				auto historyTex = passResource.m_historyTex->Get();
+				auto sceneTex = passResource.m_sceneTex->Get();
+				auto resolveTex = passResource.m_resolveTex->Get();
 
-		commandList.AddTransition( Transition( *sceneTex, agl::ResourceState::RenderTarget ) );
-
-		commandList.BindRenderTargets( &rtv, 1, dsv );
+				commandList.CopyResource( historyTex, resolveTex, false );
+				commandList.CopyResource( sceneTex, resolveTex, false );
+			} );
 	}
 
 	TAARenderer::TAARenderer()

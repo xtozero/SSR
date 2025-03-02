@@ -91,5 +91,5 @@ namespace rendercore
 		return passShader;
 	}
 
-	PassProcessorRegister RegisterDepthWritePass( RenderPass::DepthWrite, &CreateDepthWritePassProcessor );
+	PassProcessorRegister RegisterDepthWritePass( RenderPassType::DepthWrite, &CreateDepthWritePassProcessor );
 }

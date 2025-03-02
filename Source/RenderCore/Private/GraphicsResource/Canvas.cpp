@@ -40,7 +40,7 @@ namespace rendercore
 	{
 		if ( m_canvas.Get() )
 		{
-			m_canvas->Clear( m_clearColor.RGBA() );
+			m_canvas->Clear();
 		}
 	}
 
@@ -83,9 +83,8 @@ namespace rendercore
 	}
 
 	Canvas::Canvas( uint32 width, uint32 height, void* hWnd, agl::ResourceFormat format, const float4& clearColor )
-		: m_clearColor( clearColor )
 	{
-		m_canvas = agl::Canvas::Create( width, height, hWnd, format );
+		m_canvas = agl::Canvas::Create( width, height, hWnd, format, clearColor );
 		EnqueueRenderTask(
 			[canvas = m_canvas]()
 			{

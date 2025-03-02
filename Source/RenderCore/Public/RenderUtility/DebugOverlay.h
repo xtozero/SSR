@@ -9,7 +9,9 @@
 namespace rendercore
 {
 	class GlobalDynamicVertexBuffer;
-	class RenderingShaderResource;
+	class RasterOutput;
+	class RenderGraph;
+	class ResourceBinder;
 
 	struct DebugOverlayVertex
 	{
@@ -25,7 +27,7 @@ namespace rendercore
 	class DebugOverlayData
 	{
 	public:
-		void Draw( GlobalDynamicVertexBuffer& dynamicVertexBuffer, RenderingShaderResource& resources );
+		void Draw( RenderGraph& renderGraph, GlobalDynamicVertexBuffer& dynamicVertexBuffer, const ResourceBinder& resourceBinder, const RasterOutput& rasterOutput );
 
 		void AddLine( const Point& from, const Point& to, const ColorF& color );
 		void AddTriangle( const Point& p0, const Point& p1, const Point& p2, const ColorF& color );

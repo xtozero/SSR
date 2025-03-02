@@ -22,7 +22,7 @@ namespace rendercore
 				if ( bCopyPreviousData )
 				{
 					auto commandList = GetCommandList();
-					commandList.CopyResource( newBuffer.m_buffer, m_buffer, Size() );
+					commandList.CopyResource( newBuffer.m_buffer.Get(), m_buffer.Get(), true, Size() );
 				}
 
 				( *this ) = std::move( newBuffer );

@@ -48,7 +48,7 @@ class ConstSetBitIterator
 public:
 	using iterator_category = std::forward_iterator_tag;
 	using value_type = bool;
-	using difference_type = std::ptrdiff_t;
+	using difference_type = ptrint;
 	using pointer = const bool*;
 	using reference = const bool&;
 

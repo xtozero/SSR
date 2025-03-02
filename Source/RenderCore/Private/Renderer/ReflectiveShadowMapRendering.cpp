@@ -4,8 +4,9 @@
 
 #include "CommonRenderResource.h"
 #include "Config/DefaultRenderCoreConfig.h"
+#include "GraphicsResourcePool.h"
 #include "PassProcessor.h"
-#include "RenderTargetPool.h"
+#include "RenderGraph.h"
 #include "RenderView.h"
 #include "ResourceBarrierUtils.h"
 #include "Scene/PrimitiveSceneInfo.h"
@@ -82,55 +83,92 @@ namespace rendercore
 		}
 	}
 
-	void RSMsRenderer::Render( const RSMsRenderingParam& param, RenderingShaderResource& outRenderingShaderResource )
+	RefHandle<agl::Texture> RSMsRenderer::Render( RenderGraph& renderGraph, const RSMsRenderingParam& param, const ResourceBinder& resourceBinder )
 	{
-		RSMsDrawPassProcessor rsmsDrawPassProcessor;
-		auto result = rsmsDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
-		if ( result.has_value() == false )
-		{
-			return;
-		}
+		auto renderTarget = m_indirectIllumination.Get();
+		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
 
-		DrawSnapshot& snapshot = *result;
-		
-		// Update invalidated resources
-		GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
-		outRenderingShaderResource.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+		auto [width, height] = renderTarget->Size();
 
-		RenderingShaderResource shaderResources;
-		shaderResources.AddResource( "ViewSpaceDistance", param.m_viewSpaceDistance->SRV() );
-		shaderResources.AddResource( "WorldNormal", param.m_worldNormal->SRV() );
-		shaderResources.AddResource( "SamplingPattern", m_samplingPattern->SRV() );
-		shaderResources.AddResource( "RSMsConstantParameters", m_shaderArguments->Resource() );
-		shaderResources.AddResource( "BlackBorderSampler", m_blackBorderSampler.Resource() );
+		RasterOutput rasterOutput;
+		rasterOutput.SetRenderTarget( 0, rgRenderTarget );
+		rasterOutput.SetViewport( width, height );
+		rasterOutput.SetScissorRect( width, height );
 
-		auto commandList = GetCommandList();
-		commandList.AddTransition( Transition( *m_indirectIllumination.Get(), agl::ResourceState::RenderTarget ) );
-
-		agl::RenderTargetView* rtv = m_indirectIllumination->RTV();
-		commandList.BindRenderTargets( &rtv, 1, nullptr );
+		auto rgViewSpaceDistance = renderGraph.RegisterExternalResource( param.m_viewSpaceDistance.Get() );
+		auto rgWorldNormal = renderGraph.RegisterExternalResource( param.m_worldNormal.Get() );
+		auto rgSamplingPattern = renderGraph.RegisterExternalResource( m_samplingPattern.Get() );
 
 		for ( int32 i = 0; i < param.m_numShadowInfos; ++i )
 		{
-			ShadowInfo& shadowInfo = param.m_shadowInfos[i];
-			const ShadowMapRenderTarget::ShadowMapList& shadowMaps = shadowInfo.ShadowMap().m_shadowMaps;
-			if ( shadowMaps.size() < 4 )
+			const ShadowMapRenderTarget::ShadowMapList& shadowMaps = param.m_shadowInfos[i].ShadowMap().m_shadowMaps;
+			size_t numShadowMaps = shadowMaps.size();
+			if ( numShadowMaps < 4 )
 			{
 				continue;
 			}
 
-			shaderResources.AddResource( "ShadowDepthPassParameters", shadowInfo.GetShadowShaderArguments().Resource() );
-			shaderResources.AddResource( "RSMsNormal", shadowMaps[2]->SRV() );
-			shaderResources.AddResource( "RSMsWorldPosition", shadowMaps[1]->SRV() );
-			shaderResources.AddResource( "RSMsFlux", shadowMaps[3]->SRV() );
-			shaderResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+			BEGIN_RG_RESOURCE_STRUCT( RSMsRenderPassResource )
+				DECLARE_RG_TEXTURE_PIXEL_SRV( viewSpaceDistance )
+				DECLARE_RG_TEXTURE_PIXEL_SRV( worldNormal )
+				DECLARE_RG_BUFFER_PIXEL_SRV( samplingPattern )
+				DECLARE_RG_TEXTURE_PIXEL_SRV( rsmsWorldPosition )
+				DECLARE_RG_TEXTURE_PIXEL_SRV( rsmsNormal )
+				DECLARE_RG_TEXTURE_PIXEL_SRV( rsmsFlux )
+			END_RG_RESOURCE_STRUCT();
 
-			AddSingleDrawPass( snapshot );
+			auto rgRsmsWorldPosition = renderGraph.RegisterExternalResource( shadowMaps[1].Get() );
+			auto rgRsmsNormal = renderGraph.RegisterExternalResource( shadowMaps[2].Get() );
+			auto rgRsmsFlux = renderGraph.RegisterExternalResource( shadowMaps[3].Get() );
+
+			RSMsRenderPassResource passResource = {
+				.m_viewSpaceDistance = rgViewSpaceDistance,
+				.m_worldNormal = rgWorldNormal,
+				.m_samplingPattern = rgSamplingPattern,
+				.m_rsmsWorldPosition = rgRsmsWorldPosition,
+				.m_rsmsNormal = rgRsmsNormal,
+				.m_rsmsFlux = rgRsmsFlux,
+			};
+
+			renderGraph.AddPass(
+				passResource,
+				rasterOutput,
+				[this, passResource, param, &resourceBinder, i]( CommandList& commandList )
+				{
+					RSMsDrawPassProcessor rsmsDrawPassProcessor;
+					auto result = rsmsDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
+					if ( result.has_value() == false )
+					{
+						return;
+					}
+
+					DrawSnapshot& snapshot = *result;
+
+					// Update invalidated resources
+					GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+					resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+					ResourceBinder passResourceBinder;
+					passResourceBinder.Add( "ViewSpaceDistance", passResource.m_viewSpaceDistance->SRV() );
+					passResourceBinder.Add( "WorldNormal", passResource.m_worldNormal->SRV() );
+					passResourceBinder.Add( "SamplingPattern", passResource.m_samplingPattern->SRV() );
+					passResourceBinder.Add( "RSMsConstantParameters", m_shaderArguments->Resource() );
+					passResourceBinder.Add( "BlackBorderSampler", m_blackBorderSampler.Resource() );
+
+					ShadowInfo& shadowInfo = param.m_shadowInfos[i];
+					const ShadowMapRenderTarget::ShadowMapList& shadowMaps = shadowInfo.ShadowMap().m_shadowMaps;
+
+					passResourceBinder.Add( "ShadowDepthPassParameters", shadowInfo.GetShadowShaderArguments().Resource() );
+					passResourceBinder.Add( "RSMsWorldPosition", shadowMaps[1]->SRV() );
+					passResourceBinder.Add( "RSMsNormal", shadowMaps[2]->SRV() );
+					passResourceBinder.Add( "RSMsFlux", shadowMaps[3]->SRV() );
+					passResourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+					AddSingleDrawPass( commandList, snapshot );
+				} );
 		}
 
-		commandList.AddTransition( Transition( *m_indirectIllumination.Get(), agl::ResourceState::GenericRead ) );
-
-		outRenderingShaderResource.AddResource( "IndirectIllumination", m_indirectIllumination->SRV() );
+		return m_indirectIllumination;
 	}
 
 	RSMsRenderer::RSMsRenderer()
@@ -156,7 +194,7 @@ namespace rendercore
 			}
 		};
 
-		m_indirectIllumination = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "RSMs.Illumination" );
+		m_indirectIllumination = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "RSMs.Illumination" );
 
 		m_blackBorderSampler = StaticSamplerState<agl::TextureFilter::MinMagMipLinear
 			, agl::TextureAddressMode::Border

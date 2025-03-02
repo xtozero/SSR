@@ -1,8 +1,8 @@
 #pragma once
-#include "StackMemoryAllocator.h"
 
 #include "Multithread/TaskScheduler.h"
 #include "SizedTypes.h"
+#include "StackMemoryAllocator.h"
 
 #include <cassert>
 #include <vector>
@@ -22,7 +22,7 @@ class TransientAllocator
 public:
 	using value_type = T;
 	using size_type = size_t;
-	using difference_type = std::ptrdiff_t;
+	using difference_type = ptrint;
 	using propagate_on_container_move_assignment = std::true_type;
 
 	[[nodiscard]] constexpr T* allocate( size_t n )
@@ -62,3 +62,10 @@ StackAllocator& GetTransientAllocator()
 
 template <typename T>
 using RenderThreadFrameData = std::vector<T, TransientAllocator<T, ThreadType::RenderThread>>;
+
+template <typename T, ThreadType LocalThreadType>
+void ResetTransientContainer( std::vector<T, TransientAllocator<T, LocalThreadType>>& container )
+{
+	std::destroy_at( &container );
+	std::construct_at( &container );
+}

@@ -1,6 +1,8 @@
 #include "DebugOverlay.h"
 
 #include "Config/DefaultRenderCoreConfig.h"
+#include "GPUProfiler.h"
+#include "RenderGraph.h"
 #include "SceneRenderer.h"
 #include "VertexCollection.h"
 
@@ -28,7 +30,7 @@ namespace rendercore
 		uint32 m_numVertices;
 	};
 
-	void DebugOverlayData::Draw( GlobalDynamicVertexBuffer& dynamicVertexBuffer, RenderingShaderResource& resources )
+	void DebugOverlayData::Draw( RenderGraph& renderGraph, GlobalDynamicVertexBuffer& dynamicVertexBuffer, const ResourceBinder& resourceBinder, const RasterOutput& rasterOutput )
 	{
 		auto numDebugLine = static_cast<uint32>( m_debugLine.size() );
 		auto numDebugTriangle = static_cast<uint32>( m_debugTriangle.size() );
@@ -55,79 +57,85 @@ namespace rendercore
 
 		dynamicVertexBuffer.Commit();
 
-		auto commandList = GetCommandList();
+		GPU_PROFILE_EVENT( renderGraph, DebugOverlay );
 
-		StaticShaderSwitches switches = DebugOverlayVS::GetSwitches();
-		if ( DefaultRenderCore::IsTaaEnabled() )
-		{
-			switches.On( Name( "TAA" ), 1 );
-		}
-
-		DebugOverlayVS debugOverlayVS( switches );
-		DebugOverlayPS debugOverlayPS;
-
-		VertexStreamLayout vertexlayout;
-		vertexlayout.AddLayout( "POSITION", 0, agl::ResourceFormat::R32G32B32_FLOAT, 0, false, 0, 0 );
-		vertexlayout.AddLayout( "COLOR", 0, agl::ResourceFormat::R32G32B32A32_FLOAT, 0, false, 0, 0 );
-
-		VertexLayout vertexLayout = GraphicsInterface().FindOrCreate( *debugOverlayVS, vertexlayout );
-
-		DepthStencilState debugOverlayDepthState = StaticDepthStencilState<true, false, agl::ComparisonFunc::LessEqual>::Get();
-		RasterizerState debugOverlayRasterizerState = StaticRasterizerState<>::Get();
-
-		DebugOverlayDrawParam DrawParams[2] = {
+		renderGraph.AddPass(
+			rasterOutput,
+			[lineVbAllocationInfo, numDebugLine, triangleVbAllocationInfo, numDebugTriangle, &resourceBinder]( CommandList& commandList )
 			{
-				.m_allocationInfo = lineVbAllocationInfo,
-				.m_primitive = agl::ResourcePrimitive::Linelist,
-				.m_numVertices = numDebugLine
-			},
-			{
-				.m_allocationInfo = triangleVbAllocationInfo,
-				.m_primitive = agl::ResourcePrimitive::Trianglelist,
-				.m_numVertices = numDebugTriangle
+				StaticShaderSwitches switches = DebugOverlayVS::GetSwitches();
+				if ( DefaultRenderCore::IsTaaEnabled() )
+				{
+					switches.On( Name( "TAA" ), 1 );
+				}
+
+				DebugOverlayVS debugOverlayVS( switches );
+				DebugOverlayPS debugOverlayPS;
+
+				VertexStreamLayout vertexlayout;
+				vertexlayout.AddLayout( "POSITION", 0, agl::ResourceFormat::R32G32B32_FLOAT, 0, false, 0, 0 );
+				vertexlayout.AddLayout( "COLOR", 0, agl::ResourceFormat::R32G32B32A32_FLOAT, 0, false, 0, 0 );
+
+				VertexLayout vertexLayout = GraphicsInterface().FindOrCreate( *debugOverlayVS, vertexlayout );
+
+				DepthStencilState debugOverlayDepthState = StaticDepthStencilState<true, false, agl::ComparisonFunc::LessEqual>::Get();
+				RasterizerState debugOverlayRasterizerState = StaticRasterizerState<>::Get();
+
+				DebugOverlayDrawParam DrawParams[2] = {
+					{
+						.m_allocationInfo = lineVbAllocationInfo,
+						.m_primitive = agl::ResourcePrimitive::Linelist,
+						.m_numVertices = numDebugLine
+					},
+					{
+						.m_allocationInfo = triangleVbAllocationInfo,
+						.m_primitive = agl::ResourcePrimitive::Trianglelist,
+						.m_numVertices = numDebugTriangle
+					}
+				};
+
+				for ( const DebugOverlayDrawParam& drawParam : DrawParams )
+				{
+					if ( drawParam.m_allocationInfo.m_lockedMemory == nullptr )
+					{
+						continue;
+					}
+
+					DrawSnapshot snapshot;
+					snapshot.m_vertexStream.Bind( drawParam.m_allocationInfo.m_buffer, 0, VertexSizeInBytes, drawParam.m_allocationInfo.m_offset );
+					snapshot.m_primitiveIdSlot = -1;
+
+					snapshot.m_pipelineState.m_shaderState.m_vertexLayout = vertexLayout;
+					snapshot.m_pipelineState.m_shaderState.m_vertexShader = debugOverlayVS;
+					snapshot.m_pipelineState.m_shaderState.m_pixelShader = debugOverlayPS;
+
+					snapshot.m_pipelineState.m_rasterizerState = debugOverlayRasterizerState;
+					snapshot.m_pipelineState.m_depthStencilState = debugOverlayDepthState;
+
+					snapshot.m_pipelineState.m_primitive = drawParam.m_primitive;
+
+					auto initializer = CreateShaderBindingsInitializer( snapshot.m_pipelineState.m_shaderState );
+					snapshot.m_shaderBindings.Initialize( initializer );
+
+					snapshot.m_count = drawParam.m_numVertices;
+
+					PreparePipelineStateObject( snapshot );
+
+					resourceBinder.Bind( snapshot.m_pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+					VisibleDrawSnapshot visibleSnapshot = {
+						.m_primitiveId = 0,
+						.m_primitiveIdOffset = 0,
+						.m_numInstance = 1,
+						.m_snapshotBucketId = -1,
+						.m_drawSnapshot = &snapshot,
+					};
+
+					VertexBuffer emptyPrimitiveId;
+					CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveId );
+				}
 			}
-		};
-
-		for ( const DebugOverlayDrawParam& drawParam : DrawParams )
-		{
-			if ( drawParam.m_allocationInfo.m_lockedMemory == nullptr )
-			{
-				continue;
-			}
-
-			DrawSnapshot snapshot;
-			snapshot.m_vertexStream.Bind( drawParam.m_allocationInfo.m_buffer, 0, VertexSizeInBytes, drawParam.m_allocationInfo.m_offset );
-			snapshot.m_primitiveIdSlot = -1;
-
-			snapshot.m_pipelineState.m_shaderState.m_vertexLayout = vertexLayout;
-			snapshot.m_pipelineState.m_shaderState.m_vertexShader = debugOverlayVS;
-			snapshot.m_pipelineState.m_shaderState.m_pixelShader = debugOverlayPS;
-
-			snapshot.m_pipelineState.m_rasterizerState = debugOverlayRasterizerState;
-			snapshot.m_pipelineState.m_depthStencilState = debugOverlayDepthState;
-
-			snapshot.m_pipelineState.m_primitive = drawParam.m_primitive;
-
-			auto initializer = CreateShaderBindingsInitializer( snapshot.m_pipelineState.m_shaderState );
-			snapshot.m_shaderBindings.Initialize( initializer );
-
-			snapshot.m_count = drawParam.m_numVertices;
-
-			PreparePipelineStateObject( snapshot );
-
-			resources.BindResources( snapshot.m_pipelineState.m_shaderState, snapshot.m_shaderBindings );
-
-			VisibleDrawSnapshot visibleSnapshot = {
-				.m_primitiveId = 0,
-				.m_primitiveIdOffset = 0,
-				.m_numInstance = 1,
-				.m_snapshotBucketId = -1,
-				.m_drawSnapshot = &snapshot,
-			};
-
-			VertexBuffer emptyPrimitiveId;
-			CommitDrawSnapshot( commandList, visibleSnapshot, emptyPrimitiveId );
-		}
+		);
 	}
 
 	void DebugOverlayData::AddLine( const Point& from, const Point& to, const ColorF& color )

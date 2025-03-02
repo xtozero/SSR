@@ -6,6 +6,7 @@
 #include "GlobalShaders.h"
 #include "Renderer/ForwardLighting.h"
 #include "Renderer/RenderView.h"
+#include "RenderGraph.h"
 #include "Scene/Scene.h"
 #include "ShaderParameterUtils.h"
 #include "StaticState.h"
@@ -64,33 +65,51 @@ namespace rendercore
 		}
 	}
 
-	void VolumetricFogSceneInfo::UpdateParameter()
+	void VolumetricFogSceneInfo::PrepareFrustumVolume( RenderGraph& renderGraph, Scene& scene, ForwardLightingResource& lightingResource, RenderThreadFrameData<ShadowInfo>& shadowInfos )
 	{
-		if ( m_needUpdateParameter )
-		{
-			VolumetricFogParameters param = {
-			   .Exposure = 0.4f,
-			   .DepthPackExponent = m_volumetricFogProxy->DepthPackExponent(),
-			   .NearPlaneDist = m_volumetricFogProxy->NearPlaneDist(),
-			   .FarPlaneDist = m_volumetricFogProxy->FarPlaneDist()
-			};
-
-			m_shaderArguments->Update( param );
-
-			m_needUpdateParameter = false;
-		}
-	}
-
-	void VolumetricFogSceneInfo::PrepareFrustumVolume( Scene& scene, ForwardLightingResource& lightingResource, RenderThreadFrameData<ShadowInfo>& shadowInfos )
-	{
-		auto commandList = GetCommandList();
+		UpdateParameter();
 
 		++m_numTick;
 
-		CalcInscattering( commandList, scene, lightingResource, shadowInfos );
-		AccumulateScattering( commandList );
+		auto rgFrustumVolume = renderGraph.RegisterExternalResource( FrustumVolume().Get() );
+		auto rgHistoryVolume = renderGraph.RegisterExternalResource( HistoryVolume().Get() );
 
-		commandList.Commit();
+		BEGIN_RG_RESOURCE_STRUCT( InscatterPassResource )
+			DECLARE_RG_TEXTURE_UAV( frustumVolume )
+			DECLARE_RG_TEXTURE_PIXEL_SRV( historyVolume )
+		END_RG_RESOURCE_STRUCT();
+
+		InscatterPassResource inscatterPassResource = {
+			.m_frustumVolume = rgFrustumVolume,
+			.m_historyVolume = rgHistoryVolume
+		};
+
+		renderGraph.AddPass(
+			inscatterPassResource,
+			[this, &scene, &lightingResource, &shadowInfos]( ComputeCommandList& commandList )
+			{
+				CalcInscattering( commandList, scene, lightingResource, shadowInfos );
+			} );
+
+		auto rgAccumulatedVolume = renderGraph.RegisterExternalResource( AccumulatedVolume().Get() );
+
+		BEGIN_RG_RESOURCE_STRUCT( AccumulatePassResource )
+			DECLARE_RG_TEXTURE_NONPIXEL_SRV( frustumVolume )
+			DECLARE_RG_TEXTURE_UAV( accumulatedVolume )
+		END_RG_RESOURCE_STRUCT();
+
+		AccumulatePassResource accumulatePassResource = {
+			.m_frustumVolume = rgFrustumVolume,
+			.m_accumulatedVolume = rgAccumulatedVolume
+		};
+
+		renderGraph.AddPass(
+			accumulatePassResource,
+			[this]( ComputeCommandList& commandList )
+			{
+				AccumulateScattering( commandList );
+			}
+		);
 	}
 
 	VolumetricFogSceneInfo::VolumetricFogSceneInfo( VolumetricFogProxy* proxy )
@@ -134,7 +153,24 @@ namespace rendercore
 			} );
 	}
 
-	void VolumetricFogSceneInfo::CalcInscattering( CommandList& commandList, Scene& scene, ForwardLightingResource& lightingResource, RenderThreadFrameData<ShadowInfo>& shadowInfos )
+	void VolumetricFogSceneInfo::UpdateParameter()
+	{
+		if ( m_needUpdateParameter )
+		{
+			VolumetricFogParameters param = {
+			   .Exposure = 0.4f,
+			   .DepthPackExponent = m_volumetricFogProxy->DepthPackExponent(),
+			   .NearPlaneDist = m_volumetricFogProxy->NearPlaneDist(),
+			   .FarPlaneDist = m_volumetricFogProxy->FarPlaneDist()
+			};
+
+			m_shaderArguments->Update( param );
+
+			m_needUpdateParameter = false;
+		}
+	}
+
+	void VolumetricFogSceneInfo::CalcInscattering( ComputeCommandList& commandList, Scene& scene, ForwardLightingResource& lightingResource, RenderThreadFrameData<ShadowInfo>& shadowInfos )
 	{
 		StaticShaderSwitches switches = InscatteringCS::GetSwitches();
 		if ( DefaultRenderCore::IsESMsEnabled() )
@@ -145,9 +181,7 @@ namespace rendercore
 		InscatteringCS inscatteringCS( switches );
 
 		RefHandle<agl::ComputePipelineState> inscatteringPSO = PrepareComputePipelineState( inscatteringCS );
-		commandList.BindPipelineState( inscatteringPSO );
-
-		commandList.AddTransition( Transition( *FrustumVolume().Get(), agl::ResourceState::UnorderedAccess ) );
+		commandList.BindPipelineState( inscatteringPSO.Get() );
 
 		SetShaderValue( commandList, inscatteringCS.AsymmetryParameterG(), Proxy()->G() );
 		SetShaderValue( commandList, inscatteringCS.UniformDensity(), Proxy()->UniformDensity() );
@@ -156,7 +190,7 @@ namespace rendercore
 		SetShaderValue( commandList, inscatteringCS.ShadowBias(), Proxy()->ShadowBias() );
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( inscatteringCS );
-		BindResource( shaderBindings, inscatteringCS.FrustumVolume(), FrustumVolume() );
+		BindResource( shaderBindings, inscatteringCS.FrustumVolume(), FrustumVolume().Get() );
 		BindResource( shaderBindings, inscatteringCS.SceneViewParameters(), scene.GetViewShaderArguments().Resource() );
 		BindResource( shaderBindings, inscatteringCS.ForwardLightConstant(), lightingResource.m_shaderArguments->Resource() );
 		BindResource( shaderBindings, inscatteringCS.ForwardLight(), lightingResource.m_lightBuffer.Resource() );
@@ -179,7 +213,7 @@ namespace rendercore
 
 		BindResource( shaderBindings, inscatteringCS.ShadowSampler(), shadowSampler );
 
-		BindResource( shaderBindings, inscatteringCS.HistoryVolume(), HistoryVolume() );
+		BindResource( shaderBindings, inscatteringCS.HistoryVolume(), HistoryVolume().Get() );
 
 		SamplerState historySampler = StaticSamplerState<>::Get();
 
@@ -194,7 +228,7 @@ namespace rendercore
 
 		for ( ShadowInfo& shadowInfo : shadowInfos )
 		{
-			BindResource( shaderBindings, inscatteringCS.ShadowTexture(), shadowInfo.ShadowMap().m_shadowMaps[0] );
+			BindResource( shaderBindings, inscatteringCS.ShadowTexture(), shadowInfo.ShadowMap().m_shadowMaps[0].Get() );
 			BindResource( shaderBindings, inscatteringCS.ShadowDepthPassParameters(), shadowInfo.GetShadowShaderArguments().Resource() );
 
 			if ( DefaultRenderCore::IsESMsEnabled() )
@@ -207,20 +241,17 @@ namespace rendercore
 		}
 	}
 
-	void VolumetricFogSceneInfo::AccumulateScattering( CommandList& commandList )
+	void VolumetricFogSceneInfo::AccumulateScattering( ComputeCommandList& commandList )
 	{
 		AccumulateScatteringCS accumulateScatteringCS;
 
 		RefHandle<agl::ComputePipelineState> accumulateScatteringPSO = PrepareComputePipelineState( accumulateScatteringCS );
-		commandList.BindPipelineState( accumulateScatteringPSO );
+		commandList.BindPipelineState( accumulateScatteringPSO.Get() );
 
 		agl::ShaderBindings shaderBindings = CreateShaderBindings( accumulateScatteringCS );
 
-		commandList.AddTransition( Transition( *FrustumVolume().Get(), agl::ResourceState::NonPixelShaderResource ) );
-		commandList.AddTransition( Transition( *AccumulatedVolume().Get(), agl::ResourceState::UnorderedAccess ) );
-
-		BindResource( shaderBindings, accumulateScatteringCS.FrustumVolume(), FrustumVolume() );
-		BindResource( shaderBindings, accumulateScatteringCS.AccumulatedVolume(), AccumulatedVolume() );
+		BindResource( shaderBindings, accumulateScatteringCS.FrustumVolume(), FrustumVolume().Get() );
+		BindResource( shaderBindings, accumulateScatteringCS.AccumulatedVolume(), AccumulatedVolume().Get() );
 
 		BindResource( shaderBindings, accumulateScatteringCS.VolumetricFogParameterBuffer(), GetShaderArguments().Resource() );
 

@@ -54,7 +54,7 @@ namespace agl
 
 	D3D12RootSignature* D3D12ComputePipelineState::GetRootSignature() const
 	{
-		return m_rootSignature;
+		return m_rootSignature.Get();
 	}
 
 	D3D12ComputePipelineState::D3D12ComputePipelineState( const ComputePipelineStateInitializer& initializer, const BinaryChunk* cachedPSO )

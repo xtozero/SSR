@@ -25,7 +25,7 @@ namespace rendercore
 
 		HitProxy* GetHitProxy( uint32 index )
 		{
-			if ( index < m_hitProxies.Size() && m_hitProxies.IsAllocated( index ) )
+			if ( index < m_hitProxies.GetMaxIndex() && m_hitProxies.IsAllocated( index ) )
 			{
 				return m_hitProxies[index];
 			}
@@ -76,6 +76,11 @@ namespace rendercore
 	HitProxy::~HitProxy()
 	{
 		HitProxyArray::GetInstance().Remove( m_id.GetId() );
+	}
+
+	void HitProxy::Finalizer()
+	{
+		delete this;
 	}
 
 	void HitProxy::InitHitProxy()

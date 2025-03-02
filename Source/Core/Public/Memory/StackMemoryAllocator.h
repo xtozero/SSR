@@ -128,12 +128,59 @@ private:
 };
 
 template <typename T>
+class StackAllcatorAdapter
+{
+public:
+	using value_type = T;
+	using size_type = size_t;
+	using difference_type = ptrint;
+	using propagate_on_container_move_assignment = std::true_type;
+
+	[[nodiscard]] constexpr T* allocate( size_t n )
+	{
+		return m_allocator->Allocate<T>( n );
+	}
+
+	void deallocate( [[maybe_unused]] T* p, [[maybe_unused]] size_t n ) { /*Do Nothing*/ }
+
+	StackAllocator* GetStackAllocator() const
+	{
+		return m_allocator;
+	}
+
+	constexpr StackAllcatorAdapter( StackAllocator& allocator )
+		: m_allocator( &allocator )
+	{
+	}
+	
+	constexpr StackAllcatorAdapter( const StackAllcatorAdapter& ) = default;
+	constexpr StackAllcatorAdapter( StackAllcatorAdapter&& ) = default;
+	template <class Other>
+	constexpr StackAllcatorAdapter( const StackAllcatorAdapter<Other>& other ) noexcept
+		: m_allocator( other.GetStackAllocator() )
+	{
+	}
+
+	~StackAllcatorAdapter() = default;
+	StackAllcatorAdapter& operator=( const StackAllcatorAdapter& ) = default;
+	StackAllcatorAdapter& operator=( StackAllcatorAdapter&& ) = default;
+
+	friend bool operator==( const StackAllcatorAdapter& lhs, const StackAllcatorAdapter& rhs )
+	{
+		return &lhs == &rhs;
+	}
+
+private:
+	StackAllocator* m_allocator = nullptr;
+};
+
+template <typename T>
 class TypedStackAllocator
 {
 public:
 	using value_type = T;
 	using size_type = size_t;
-	using difference_type = uptrint;
+	using difference_type = ptrint;
 	using propagate_on_container_move_assignment = std::true_type;
 
 	[[nodiscard]] constexpr T* allocate( size_t n )

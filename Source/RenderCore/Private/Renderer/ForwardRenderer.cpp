@@ -5,10 +5,11 @@
 #include "Config/DefaultRenderCoreConfig.h"
 #include "CpuProfiler.h"
 #include "GpuProfiler.h"
+#include "GraphicsResourcePool.h"
 #include "Math/Vector.h"
 #include "Proxies/LightProxy.h"
 #include "Proxies/TexturedSkyProxy.h"
-#include "RenderTargetPool.h"
+#include "RenderGraph.h"
 #include "RenderView.h"
 #include "ResourceBarrierUtils.h"
 #include "Scene/LightSceneInfo.h"
@@ -33,37 +34,37 @@ namespace rendercore
 	agl::Texture* ForwardRendererRenderTargets::GetDepthStencil()
 	{
 		AllocDepthStencil();
-		return m_depthStencil;
+		return m_depthStencil.Get();
 	}
 
 	agl::Texture* ForwardRendererRenderTargets::GetViewSpaceDistance()
 	{
 		AllocViewSpaceDistance();
-		return m_linearDepth;
+		return m_linearDepth.Get();
 	}
 
 	agl::Texture* ForwardRendererRenderTargets::GetTAAHistory()
 	{
 		AllocTAARenderTargets();
-		return m_taaHistory;
+		return m_taaHistory.Get();
 	}
 
 	agl::Texture* ForwardRendererRenderTargets::GetTAAResolve()
 	{
 		AllocTAARenderTargets();
-		return m_taaResolve;
+		return m_taaResolve.Get();
 	}
 
 	agl::Texture* ForwardRendererRenderTargets::GetWorldNormal()
 	{
 		AllocWorldNormal();
-		return m_worldNormal;
+		return m_worldNormal.Get();
 	}
 
 	agl::Texture* ForwardRendererRenderTargets::GetVelocity()
 	{
 		AllocVelocity();
-		return m_velocity;
+		return m_velocity.Get();
 	}
 
 	void ForwardRendererRenderTargets::AllocDepthStencil()
@@ -118,12 +119,7 @@ namespace rendercore
 				}
 			};
 
-			m_linearDepth = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "Scene.ViewSpaceDistance" );
-			EnqueueRenderTask(
-				[linearDepth = m_linearDepth]()
-				{
-					linearDepth->Init();
-				} );
+			m_linearDepth = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "Scene.ViewSpaceDistance" );
 		}
 	}
 
@@ -144,12 +140,7 @@ namespace rendercore
 				.m_miscFlag = agl::ResourceMisc::None
 			};
 
-			m_taaHistory = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "TAA.History" );
-			EnqueueRenderTask(
-				[taaHistory = m_taaHistory]()
-				{
-					taaHistory->Init();
-				} );
+			m_taaHistory = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "TAA.History" );
 		}
 
 		if ( m_taaResolve == nullptr )
@@ -170,12 +161,7 @@ namespace rendercore
 				}
 			};
 
-			m_taaResolve = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "TAA.Resolve" );
-			EnqueueRenderTask(
-				[taaResolve = m_taaResolve]()
-				{
-					taaResolve->Init();
-				} );
+			m_taaResolve = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "TAA.Resolve" );
 		}
 	}
 
@@ -199,12 +185,7 @@ namespace rendercore
 				}
 			};
 
-			m_worldNormal = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "Scene.WorldNormal" );
-			EnqueueRenderTask(
-				[worldNormal = m_worldNormal]()
-				{
-					worldNormal->Init();
-				} );
+			m_worldNormal = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "Scene.WorldNormal" );
 		}
 	}
 
@@ -228,12 +209,7 @@ namespace rendercore
 				}
 			};
 
-			m_velocity = RenderTargetPool::GetInstance().FindFreeRenderTarget( trait, "Scene.Velocity" );
-			EnqueueRenderTask(
-				[velocity = m_velocity]()
-				{
-					velocity->Init();
-				} );
+			m_velocity = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "Scene.Velocity" );
 		}
 	}
 
@@ -247,11 +223,11 @@ namespace rendercore
 		m_velocity = nullptr;
 	}
 
-	void ForwardRenderer::PreRender( RenderViewGroup& renderViewGroup )
+	void ForwardRenderer::PreRender( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup )
 	{
 		CPU_PROFILE( ForwardRenderer_PreRender );
 
-		SceneRenderer::PreRender( renderViewGroup );
+		SceneRenderer::PreRender( renderGraph, renderViewGroup );
 
 		InitDynamicShadows( renderViewGroup );
 
@@ -260,32 +236,32 @@ namespace rendercore
 
 		IScene& scene = renderViewGroup.Scene();
 
-		m_shaderResources.AddResource( "primitiveInfo", scene.GpuPrimitiveInfo().SRV() );
-		m_shaderResources.AddResource( "ViewSpaceDistance", m_renderTargets.GetViewSpaceDistance()->SRV() );
-		m_shaderResources.AddResource( "WorldNormal", m_renderTargets.GetWorldNormal()->SRV() );
+		m_resourceBinder.Add( "primitiveInfo", scene.GpuPrimitiveInfo().SRV() );
+		m_resourceBinder.Add( "ViewSpaceDistance", m_renderTargets.GetViewSpaceDistance()->SRV() );
+		m_resourceBinder.Add( "WorldNormal", m_renderTargets.GetWorldNormal()->SRV() );
 
 		SamplerState linearSampler = StaticSamplerState<>::Get();
-		m_shaderResources.AddResource( "ViewSpaceDistanceSampler", linearSampler.Resource() );
-		m_shaderResources.AddResource( "WorldNormalSampler", linearSampler.Resource() );
+		m_resourceBinder.Add( "ViewSpaceDistanceSampler", linearSampler.Resource() );
+		m_resourceBinder.Add( "WorldNormalSampler", linearSampler.Resource() );
 
 		auto renderScene = scene.GetRenderScene();
 		if ( TexturedSkyProxy* proxy = renderScene->TexturedSky() )
 		{
-			m_shaderResources.AddResource( "IrradianceMap", proxy->IrradianceMap()->SRV() );
-			m_shaderResources.AddResource( "PrefilterMap", proxy->PrefilteredColor()->SRV() );
-			m_shaderResources.AddResource( "BrdfLUT", BRDFLookUpTexture->SRV() );
+			m_resourceBinder.Add( "IrradianceMap", proxy->IrradianceMap()->SRV() );
+			m_resourceBinder.Add( "PrefilterMap", proxy->PrefilteredColor()->SRV() );
+			m_resourceBinder.Add( "BrdfLUT", BRDFLookUpTexture->SRV() );
 		}
 		else
 		{
-			m_shaderResources.AddResource( "IrradianceMap", BlackCubeTexture->SRV() );
-			m_shaderResources.AddResource( "PrefilterMap", BlackCubeTexture->SRV() );
-			m_shaderResources.AddResource( "BrdfLUT", BlackTexture->SRV() );
+			m_resourceBinder.Add( "IrradianceMap", BlackCubeTexture->SRV() );
+			m_resourceBinder.Add( "PrefilterMap", BlackCubeTexture->SRV() );
+			m_resourceBinder.Add( "BrdfLUT", BlackTexture->SRV() );
 		}
 
 		UpdateLightResource( scene );
 	}
 
-	void ForwardRenderer::Render( RenderViewGroup& renderViewGroup )
+	void ForwardRenderer::Render( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup )
 	{
 		CPU_PROFILE( ForwardRenderer_Render );
 
@@ -294,12 +270,12 @@ namespace rendercore
 		Viewport& viewport = renderViewGroup.GetViewport();
 		viewport.Clear();
 
-		RenderShadowDepthPass();
+		RenderShadowDepthPass( renderGraph );
 
 		IScene& scene = renderViewGroup.Scene();
 		if ( Scene* renderScene = scene.GetRenderScene() )
 		{
-			RenderAtmosphereLookUpTables( *renderScene );
+			RenderAtmosphereLookUpTables( renderGraph, *renderScene );
 		}
 
 		auto& viewShaderArguments = scene.GetViewShaderArguments();
@@ -311,84 +287,111 @@ namespace rendercore
 
 			viewShaderArguments.Update( viewParam );
 
-			m_shaderResources.AddResource( &viewShaderArguments );
+			m_resourceBinder.Add( &viewShaderArguments );
 
-			RenderDepthPass( renderViewGroup, i );
+			RenderDepthPass( renderGraph, renderViewGroup, i );
 			
-			RenderOcclusionTest( renderViewGroup, i );
+			RenderOcclusionTest( renderGraph, renderViewGroup, i );
 
-			RenderIndirectIllumination( renderViewGroup );
+			RenderIndirectIllumination( renderGraph, renderViewGroup );
 			
-			RenderDefaultPass( renderViewGroup, i );
+			RenderDefaultPass( renderGraph, renderViewGroup, i );
 
-			RenderShadow();
+			RenderShadow( renderGraph, renderViewGroup );
 
-			RenderSkyAtmosphere( scene, i );
+			RenderSkyAtmosphere( renderGraph, renderViewGroup, i );
 
-			RenderVolumetricCloud( scene );
+			RenderVolumetricCloud( renderGraph, renderViewGroup );
 
-			RenderVolumetricFog( scene );
+			RenderVolumetricFog( renderGraph, renderViewGroup );
 		}
 
 		if ( DefaultRenderCore::IsTaaEnabled() )
 		{
-			RenderTemporalAntiAliasing( renderViewGroup );
+			RenderTemporalAntiAliasing( renderGraph, renderViewGroup );
 		}
 	}
 
-	void ForwardRenderer::RenderHitProxy( RenderViewGroup& renderViewGroup )
+	void ForwardRenderer::RenderHitProxy( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup )
 	{
 		CPU_PROFILE( ForwardRenderer_RenderHitProxy );
 
-		DoRenderHitProxy( renderViewGroup );
+		DoRenderHitProxy( renderGraph, renderViewGroup );
 	}
 
-	void ForwardRenderer::RenderDefaultPass( RenderViewGroup& renderViewGroup, uint32 curView )
+	void ForwardRenderer::RenderDefaultPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 curView )
 	{
 		CPU_PROFILE( ForwardRenderer_RenderDefaultPass );
 
 		auto renderTarget = renderViewGroup.GetViewport().Texture();
 		auto depthStencil = m_renderTargets.GetDepthStencil();
 
+		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
+		auto rgDepthStencil = renderGraph.RegisterExternalResource( depthStencil );
+
 		auto [width, height] = renderViewGroup.GetViewport().Size();
 
-		RenderingOutputContext context = {
-			.m_renderTargets = { renderTarget },
-			.m_depthStencil = depthStencil,
-			.m_viewport = { 
-				.m_left = 0.f, 
-				.m_top = 0.f, 
-				.m_front = 0.f,
-				.m_right = static_cast<float>( width ), 
-				.m_bottom = static_cast<float>( height ), 
-				.m_back = 1.f 
-			},
-			.m_scissorRects = { 
-				.m_left = 0L, 
-				.m_top = 0L,
-				.m_right = static_cast<int32>( width ), 
-				.m_bottom = static_cast<int32>( height )
-			}
-		};
-		StoreOuputContext( context );
+		RasterOutput rasterOutput;
+		rasterOutput.SetRenderTarget( 0, rgRenderTarget );
+		rasterOutput.SetDepthStencil( rgDepthStencil, true );
+		rasterOutput.SetViewport( width, height );
+		rasterOutput.SetScissorRect( width, height );
 
 		IScene& scene = renderViewGroup.Scene();
 
 		auto commandList = GetCommandList();
 		{
-			GPU_PROFILE( commandList, TexturedSky );
-			RenderTexturedSky( scene );
+			RenderTexturedSky( renderGraph, scene, rasterOutput );
 		}
 
 		{
-			GPU_PROFILE( commandList, Default );
-			PIPELINE_STAT( commandList, Default );
-			RenderMesh( scene, RenderPass::Default, curView );
+			GPU_PROFILE_EVENT( renderGraph, Default );
+			PIPELINE_STAT_EVENT( renderGraph, Default );
+
+			std::deque<DrawSnapshot> snapshotStorage;
+			RenderThreadFrameData<VisibleDrawSnapshot>* pSnapshots = GatherDrawsnapshots( scene, RenderPassType::Default, curView, snapshotStorage );
+
+			if ( pSnapshots != nullptr )
+			{
+				RenderThreadFrameData<VisibleDrawSnapshot>& snapshots = *pSnapshots;
+
+				VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc( static_cast<uint32>( snapshots.size() * sizeof( uint32 ) ) );
+				SortDrawSnapshots( snapshots, primitiveIds );
+
+				m_resourceBinder.Add( "IndirectIllumination", m_resourceCollection.m_indirectIllumination->SRV() );
+
+				BEGIN_RG_RESOURCE_STRUCT( DefaultPassResource )
+					DECLARE_RG_TEXTURE_PIXEL_SRV( indirectIllumination )
+				END_RG_RESOURCE_STRUCT();
+
+				auto rgIndirectIllumination = renderGraph.RegisterExternalResource( m_resourceCollection.m_indirectIllumination.Get() );
+
+				DefaultPassResource passResource = {
+					.m_indirectIllumination = rgIndirectIllumination
+				};
+
+				renderGraph.AddPass(
+					passResource,
+					rasterOutput,
+					[this, &snapshots, storage = std::move( snapshotStorage ), primitiveIds]( CommandList& commandList ) mutable
+					{
+						// Update invalidated resources
+						for ( auto& viewDrawSnapshot : snapshots )
+						{
+							DrawSnapshot& snapshot = *viewDrawSnapshot.m_drawSnapshot;
+							GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+
+							m_resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+						}
+
+						ParallelCommitDrawSnapshot( commandList, snapshots, primitiveIds );
+					} );
+			}
 		}
 
 		{
-			GPU_PROFILE( commandList, DebugOverlay );
-			m_viewInfo[curView].m_debugOverlayData.Draw( m_dynamicVertexBuffer, m_shaderResources );
+			// TODO
+			m_viewInfo[curView].m_debugOverlayData.Draw( renderGraph, m_dynamicVertexBuffer, m_resourceBinder, rasterOutput );
 		}
 	}
 
@@ -397,7 +400,7 @@ namespace rendercore
 		return m_renderTargets;
 	}
 
-	void ForwardRenderer::RenderDepthPass( RenderViewGroup& renderViewGroup, uint32 curView )
+	void ForwardRenderer::RenderDepthPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 curView )
 	{
 		CPU_PROFILE( ForwardRenderer_RenderDepthPass );
 
@@ -406,91 +409,86 @@ namespace rendercore
 		auto velocity = m_renderTargets.GetVelocity();
 		auto depthStencil = m_renderTargets.GetDepthStencil();
 
+		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
+		auto rgWorldNormal = renderGraph.RegisterExternalResource( worldNormal );
+		auto rgVelocity = renderGraph.RegisterExternalResource( velocity );
+		auto rgDepthStencil = renderGraph.RegisterExternalResource( depthStencil );
+
 		assert( ( renderTarget != nullptr ) && ( worldNormal != nullptr ) && ( velocity != nullptr ) && ( depthStencil != nullptr ) );
 
 		auto [width, height] = renderViewGroup.GetViewport().Size();
 
-		RenderingOutputContext context = {
-			.m_renderTargets = { renderTarget, worldNormal, velocity },
-			.m_depthStencil = depthStencil,
-			.m_viewport = { 
-				.m_left = 0.f, 
-				.m_top = 0.f, 
-				.m_front = 0.f,
-				.m_right = static_cast<float>( width ), 
-				.m_bottom = static_cast<float>( height ),
-				.m_back = 1.f 
-			},
-			.m_scissorRects = {
-				.m_left = 0L, 
-				.m_top = 0L, 
-				.m_right = static_cast<int32>( width ),
-				.m_bottom = static_cast<int32>( height )
-			}
-		};
-		StoreOuputContext( context );
+		RasterOutput rasterOutput;
+		rasterOutput.SetRenderTarget( 0, rgRenderTarget, RasterOutputLoadAction::Clear );
+		rasterOutput.SetRenderTarget( 1, rgWorldNormal, RasterOutputLoadAction::Clear );
+		rasterOutput.SetRenderTarget( 2, rgVelocity, RasterOutputLoadAction::Clear );
+		rasterOutput.SetDepthStencil( rgDepthStencil, false, RasterOutputLoadAction::Clear );
+		rasterOutput.SetViewport( width, height );
+		rasterOutput.SetScissorRect( width, height );
 
-		auto commandList = GetCommandList();
+		GPU_PROFILE_EVENT( renderGraph, Depth );
+
+		IScene& scene = renderViewGroup.Scene();
+		
+		std::deque<DrawSnapshot> snapshotStorage;
+		RenderThreadFrameData<VisibleDrawSnapshot>* pSnapshots = GatherDrawsnapshots( scene, RenderPassType::DepthWrite, curView, snapshotStorage );
+
+		if ( pSnapshots != nullptr )
 		{
-			GPU_PROFILE( commandList, Depth );
+			RenderThreadFrameData<VisibleDrawSnapshot>& snapshots = *pSnapshots;
 
-			commandList.AddTransition( Transition( *renderTarget, agl::ResourceState::RenderTarget ) );
-			commandList.AddTransition( Transition( *worldNormal, agl::ResourceState::RenderTarget ) );
-			commandList.AddTransition( Transition( *velocity, agl::ResourceState::RenderTarget ) );
-			commandList.AddTransition( Transition( *depthStencil, agl::ResourceState::DepthWrite ) );
+			VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc( static_cast<uint32>( snapshots.size() * sizeof( uint32 ) ) );
+			SortDrawSnapshots( snapshots, primitiveIds );
 
-			agl::RenderTargetView* rtv0 = renderTarget->RTV();
-			commandList.ClearRenderTarget( rtv0, { 0, 0, 0, 0 } );
+			renderGraph.AddPass(
+				rasterOutput,
+				[this, &snapshots, storage = std::move( snapshotStorage ), primitiveIds]( CommandList& commandList ) mutable
+				{
+					// Update invalidated resources
+					for ( auto& viewDrawSnapshot : snapshots )
+					{
+						DrawSnapshot& snapshot = *viewDrawSnapshot.m_drawSnapshot;
+						GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 
-			agl::RenderTargetView* rtv1 = worldNormal->RTV();
-			commandList.ClearRenderTarget( rtv1, { } );
+						m_resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+					}
 
-			agl::RenderTargetView* rtv2 = velocity->RTV();
-			commandList.ClearRenderTarget( rtv2, { } );
-
-			agl::DepthStencilView* dsv = depthStencil->DSV();
-			commandList.ClearDepthStencil( dsv, 1.f, 0 );
-
-			IScene& scene = renderViewGroup.Scene();
-
-			RenderMesh( scene, RenderPass::DepthWrite, curView );
-
-			commandList.AddTransition( Transition( *renderTarget, agl::ResourceState::PixelShaderResource ) );
-			commandList.AddTransition( Transition( *worldNormal, agl::ResourceState::PixelShaderResource ) );
-			commandList.AddTransition( Transition( *velocity, agl::ResourceState::PixelShaderResource ) );
+					ParallelCommitDrawSnapshot( commandList, snapshots, primitiveIds );
+				} );
+		}
+		else
+		{
+			renderGraph.AddPass(
+				rasterOutput,
+				[]( [[maybe_unused]] ResourceCommandList& commandList )
+				{} );
 		}
 	}
 
-	void ForwardRenderer::RenderOcclusionTest( RenderViewGroup& renderViewGroup, uint32 viewIndex )
+	void ForwardRenderer::RenderOcclusionTest( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex )
 	{
+		auto renderTarget = renderViewGroup.GetViewport().Texture();
+		auto depthStencil = m_renderTargets.GetDepthStencil();
+
+		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
+		auto rgDepthStencil = renderGraph.RegisterExternalResource( depthStencil );
+
 		auto [width, height] = renderViewGroup.GetViewport().Size();
 
-		RenderingOutputContext context = {
-			.m_renderTargets = { renderViewGroup.GetViewport().Texture() },
-			.m_depthStencil = m_renderTargets.GetDepthStencil(),
-			.m_viewport = {
-				.m_left = 0.f,
-				.m_top = 0.f,
-				.m_front = 0.f,
-				.m_right = static_cast<float>( width ),
-				.m_bottom = static_cast<float>( height ),
-				.m_back = 1.f
-			},
-			.m_scissorRects = {
-				.m_left = 0L,
-				.m_top = 0L,
-				.m_right = static_cast<int32>( width ),
-				.m_bottom = static_cast<int32>( height )
-			}
-		};
-		StoreOuputContext( context );
+		RasterOutput rasterOutput;
+		rasterOutput.SetRenderTarget( 0, rgRenderTarget );
+		rasterOutput.SetDepthStencil( rgDepthStencil, true );
+		rasterOutput.SetViewport( width, height );
+		rasterOutput.SetScissorRect( width, height );
 
-		auto commandList = GetCommandList();
-		GPU_PROFILE( commandList, Occlusion );
+		GPU_PROFILE_EVENT( renderGraph, Occlusion );
 
-		ApplyOutputContext( commandList );
-
-		DoRenderOcclusionTest( m_shaderResources, m_viewInfo[viewIndex], m_occlusionRenderData );
+		renderGraph.AddPass( 
+			rasterOutput,
+			[this, viewIndex]( CommandList& commandList )
+			{
+				DoRenderOcclusionTest( commandList, m_resourceBinder, m_viewInfo[viewIndex], m_occlusionRenderData );
+			} );
 	}
 
 	void ForwardRenderer::UpdateLightResource( IScene& scene )
@@ -562,7 +560,8 @@ namespace rendercore
 
 			std::memcpy( lightParams.IrradianceMapSH, irradianceMapSH.data(), sizeof( Vector ) * 9 );
 
-			if ( RefHandle<agl::Texture> prefilteredColor = texturedSkyProxy.PrefilteredColor() )
+			RefHandle<agl::Texture> prefilteredColor = texturedSkyProxy.PrefilteredColor();
+			if ( prefilteredColor.Get() )
 			{
 				lightParams.ReflectionMipLevels = static_cast<float>( prefilteredColor->GetTrait().m_mipLevels );
 			}
@@ -570,7 +569,7 @@ namespace rendercore
 
 		m_forwardLighting.m_shaderArguments->Update( lightParams );
 
-		m_shaderResources.AddResource( "ForwardLightConstant", m_forwardLighting.m_shaderArguments->Resource() );
-		m_shaderResources.AddResource( "ForwardLight", m_forwardLighting.m_lightBuffer.SRV() );
+		m_resourceBinder.Add( "ForwardLightConstant", m_forwardLighting.m_shaderArguments->Resource() );
+		m_resourceBinder.Add( "ForwardLight", m_forwardLighting.m_lightBuffer.SRV() );
 	}
 }

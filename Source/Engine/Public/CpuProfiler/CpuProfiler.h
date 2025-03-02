@@ -42,7 +42,7 @@ namespace engine
 	class ICpuProfiler
 	{
 	public:
-		virtual void StartProfile( CpuProfileData& profileData ) = 0;
+		virtual void BeginProfile( CpuProfileData& profileData ) = 0;
 		virtual void EndProfile( CpuProfileData& profileData ) = 0;
 
 		virtual void GetProfileData( std::thread::id threadId, std::vector<const CpuProfileData*>& outProfileData ) const = 0;

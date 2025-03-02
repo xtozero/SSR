@@ -139,16 +139,14 @@ namespace rendercore
 				RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( precomputedBrdfCS );
 
 				auto commandList = GetCommandList();
-				commandList.BindPipelineState( pso );
+				commandList.BindPipelineState( pso.Get() );
 
 				agl::ShaderBindings shaderBindings = CreateShaderBindings( precomputedBrdfCS );
-				BindResource( shaderBindings, precomputedBrdfCS.Precomputed(), brdfLUT );
+				BindResource( shaderBindings, precomputedBrdfCS.Precomputed(), brdfLUT.Get() );
 
 				commandList.BindShaderResources( shaderBindings );
 
 				commandList.Dispatch( 512 / 8, 512 / 8 );
-
-				commandList.AddTransition( Transition( *brdfLUT.Get(), agl::ResourceState::PixelShaderResource ) );
 
 				commandList.Commit();
 			} );

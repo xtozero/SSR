@@ -116,7 +116,7 @@ public: \
 	static const ShaderArgumentsMetaData& GetMetaData() \
 	{ \
 		static ShaderArgumentsMetaData metaData( \
-			Name(#type), \
+			Name( #type ), \
 			type::GetMemberMetaData() ); \
 		return metaData; \
 	} \
@@ -136,7 +136,7 @@ private: \
 \
 	typedef FirstMemberId
 
-#define DECALRE_GET_MEATADATA( name, memberType ) \
+#define DECLARE_GET_MEATADATA( name, memberType ) \
 	struct MemberId##name{}; \
 	static void* GetMetaData( MemberId##name, ShaderArgumentsMemberMetaData*& next ) \
 	{ \
@@ -156,8 +156,8 @@ private: \
 \
 	typedef MemberId##name \
 
-#define DECLARE_RESOURCE_GET_METADATA( name ) DECALRE_GET_MEATADATA( name, ShaderResource )
-#define DECLARE_VALUE_GET_METADATA( name ) DECALRE_GET_MEATADATA( name, ShaderValue )
+#define DECLARE_RESOURCE_GET_METADATA( name ) DECLARE_GET_MEATADATA( name, ShaderResource )
+#define DECLARE_VALUE_GET_METADATA( name ) DECLARE_GET_MEATADATA( name, ShaderValue )
 
 #define DECLARE_RESOURCE( type, name ) \
 	PrevMemberId##name; \

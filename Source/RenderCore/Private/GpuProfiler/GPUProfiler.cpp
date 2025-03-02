@@ -12,17 +12,6 @@
 
 namespace rendercore
 {
-	ScopedGpuEvent::ScopedGpuEvent( CommandList& commandList, const char* eventName )
-		: m_commandList( commandList )
-	{
-		m_commandList.BeginEvent( eventName );
-	}
-
-	ScopedGpuEvent::~ScopedGpuEvent()
-	{
-		m_commandList.EndEvent();
-	}
-
 	double GpuProfileData::CalcAverageMS() const
 	{
 		return std::accumulate( std::begin( m_durationMS ), std::end( m_durationMS ), 0. ) / MaxSamples;
@@ -49,11 +38,11 @@ namespace rendercore
 		virtual void RegisterProfile( GpuProfileData& profileData ) override;
 		virtual void RegisterPipelineStat( PipelineStatData& pipelineStatData ) override;
 
-		virtual void StartProfile( CommandList& commandList, GpuProfileData& profileData ) override;
-		virtual void EndProfile( CommandList& commandList, GpuProfileData& profileData ) override;
+		virtual void BeginProfile( ComputeCommandList& commandList, GpuProfileData& profileData ) override;
+		virtual void EndProfile( ComputeCommandList& commandList, GpuProfileData& profileData ) override;
 
-		virtual void StartPipelineStat( CommandList& commandList, PipelineStatData& pipelineStatData ) override;
-		virtual void EndPipelineStat( CommandList& commandList, PipelineStatData& pipelineStatData ) override;
+		virtual void BeginPipelineStat( ComputeCommandList& commandList, PipelineStatData& pipelineStatData ) override;
+		virtual void EndPipelineStat( ComputeCommandList& commandList, PipelineStatData& pipelineStatData ) override;
 
 		virtual void BeginFrameRendering() override;
 		virtual void GatherProfileData() override;
@@ -90,7 +79,7 @@ namespace rendercore
 		m_pipelineStatDataList.push_back( &pipelineStatData );
 	}
 
-	void GpuProfiler::StartProfile( CommandList& commandList, GpuProfileData& profileData )
+	void GpuProfiler::BeginProfile( ComputeCommandList& commandList, GpuProfileData& profileData )
 	{
 		assert( IsInRenderThread() );
 		assert( profileData.m_queryStarted[m_curTick] == false);
@@ -104,6 +93,7 @@ namespace rendercore
 			m_gpuTimers[m_curTick].emplace_back( std::move( gpuTimer ) );
 		}
 
+		commandList.BeginEvent( profileData.m_label.CStr() );
 		commandList.BeginQuery( profileData.m_timers[m_curTick] );
 		profileData.m_queryStarted[m_curTick] = true;
 
@@ -118,20 +108,21 @@ namespace rendercore
 		m_profileStack.push( &profileData );
 	}
 
-	void GpuProfiler::EndProfile( CommandList& commandList, GpuProfileData& profileData )
+	void GpuProfiler::EndProfile( ComputeCommandList& commandList, GpuProfileData& profileData )
 	{
 		assert( IsInRenderThread() );
 		assert( profileData.m_queryStarted[m_curTick] == true );
 		assert( profileData.m_queryEnded[m_curTick] == false );
 
 		commandList.EndQuery( profileData.m_timers[m_curTick] );
+		commandList.EndEvent();
 		profileData.m_queryEnded[m_curTick] = true;
 		profileData.m_avaliable = true;
 
 		m_profileStack.pop();
 	}
 
-	void GpuProfiler::StartPipelineStat( CommandList& commandList, PipelineStatData& pipelineStatData )
+	void GpuProfiler::BeginPipelineStat( ComputeCommandList& commandList, PipelineStatData& pipelineStatData )
 	{
 		assert( IsInRenderThread() );
 		assert( pipelineStatData.m_queryStarted[m_curTick] == false );
@@ -159,7 +150,7 @@ namespace rendercore
 		m_pipelineStatStack.push( &pipelineStatData );
 	}
 
-	void GpuProfiler::EndPipelineStat( CommandList& commandList, PipelineStatData& pipelineStatData )
+	void GpuProfiler::EndPipelineStat( ComputeCommandList& commandList, PipelineStatData& pipelineStatData )
 	{
 		assert( IsInRenderThread() );
 		assert( pipelineStatData.m_queryStarted[m_curTick] == true );
@@ -286,34 +277,9 @@ namespace rendercore
 		}
 	}
 
-	ScopedGpuProfile::ScopedGpuProfile( CommandList& commandList, GpuProfileData& gpuProfileData )
-		: m_commandList( commandList )
-		, m_gpuProfileData( gpuProfileData )
-		, m_gpuEvent( commandList, gpuProfileData.m_label.CStr() )
-	{
-		GetGpuProfiler().StartProfile( m_commandList, m_gpuProfileData );
-	}
-
-	ScopedGpuProfile::~ScopedGpuProfile()
-	{
-		GetGpuProfiler().EndProfile( m_commandList, m_gpuProfileData );
-	}
-
 	RegisterGpuProfileData::RegisterGpuProfileData( GpuProfileData& gpuProfileData )
 	{
 		GetGpuProfiler().RegisterProfile( gpuProfileData );
-	}
-
-	ScopedPipelineStat::ScopedPipelineStat( CommandList& commandList, PipelineStatData& pipelineStatData )
-		: m_commandList( commandList )
-		, m_pipelineStatData( pipelineStatData )
-	{
-		GetGpuProfiler().StartPipelineStat( m_commandList, m_pipelineStatData );
-	}
-
-	ScopedPipelineStat::~ScopedPipelineStat()
-	{
-		GetGpuProfiler().EndPipelineStat( m_commandList, m_pipelineStatData );
 	}
 
 	RegisterPipelineStatData::RegisterPipelineStatData( PipelineStatData& pipelineStatData )

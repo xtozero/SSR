@@ -45,5 +45,5 @@ namespace rendercore
 		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default );
 	}
 
-	PassProcessorRegister RegisterDefaultPass( RenderPass::Default, &CreateDefaultPassProcessor );
+	PassProcessorRegister RegisterDefaultPass( RenderPassType::Default, &CreateDefaultPassProcessor );
 }

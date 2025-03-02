@@ -15,7 +15,7 @@ namespace rendercore
 			if ( copyPreviousData )
 			{
 				auto commandList = GetCommandList();
-				commandList.CopyResource( newBuffer.m_buffer, m_buffer, Size() );
+				commandList.CopyResource( newBuffer.m_buffer.Get(), m_buffer.Get(), true, Size() );
 			}
 
 			( *this ) = std::move( newBuffer );
@@ -25,13 +25,13 @@ namespace rendercore
 	void* VertexBuffer::Lock()
 	{
 		assert( IsInRenderThread() );
-		return GraphicsInterface().Lock( m_buffer ).m_data;
+		return GraphicsInterface().Lock( m_buffer.Get() ).m_data;
 	}
 
 	void VertexBuffer::Unlock()
 	{
 		assert( IsInRenderThread() );
-		GraphicsInterface().UnLock( m_buffer );
+		GraphicsInterface().UnLock( m_buffer.Get() );
 	}
 
 	uint32 VertexBuffer::Size() const
@@ -108,7 +108,7 @@ namespace rendercore
 		assert( IsInRenderThread() );
 		if ( m_lockedMemory == nullptr )
 		{
-			m_lockedMemory = GraphicsInterface().Lock( m_buffer, agl::ResourceLockFlag::WriteNoOverwrite ).m_data;
+			m_lockedMemory = GraphicsInterface().Lock( m_buffer.Get(), agl::ResourceLockFlag::WriteNoOverwrite ).m_data;
 		}
 
 		auto allocatedMemory = static_cast<uint8*>( m_lockedMemory ) + m_allocatedSizeInBytes;
@@ -122,7 +122,7 @@ namespace rendercore
 		assert( IsInRenderThread() );
 		if ( m_lockedMemory != nullptr )
 		{
-			GraphicsInterface().UnLock( m_buffer );
+			GraphicsInterface().UnLock( m_buffer.Get() );
 			m_lockedMemory = nullptr;
 
 			return;

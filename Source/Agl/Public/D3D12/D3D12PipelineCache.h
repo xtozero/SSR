@@ -42,6 +42,9 @@ namespace agl
 		void SetScissorRects( ID3D12GraphicsCommandList6& commandList, uint32 count, const RectangleArea<int32>* area );
 		void BindRenderTargets( ID3D12GraphicsCommandList6& commandList, RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil );
 
+		void RegisterRenderResource( GraphicsApiResource* resource );
+		void RegisterRenderResource( IUnknown* resource );
+
 		D3D12PipelineCache();
 		~D3D12PipelineCache() = default;
 		D3D12PipelineCache( const D3D12PipelineCache& ) = delete;
@@ -50,9 +53,6 @@ namespace agl
 		D3D12PipelineCache& operator=( D3D12PipelineCache&& ) = default;
 
 	private:
-		void RegisterRenderResource( GraphicsApiResource* resource );
-		void RegisterRenderResource( IUnknown* resource );
-
 		D3D12_VERTEX_BUFFER_VIEW m_vertexBufferViews[D3D12_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT] = {};
 		uint32 m_numVertexBufferViews = 0;
 

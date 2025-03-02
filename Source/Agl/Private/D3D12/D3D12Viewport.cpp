@@ -12,7 +12,7 @@ using ::Microsoft::WRL::ComPtr;
 
 namespace agl
 {
-	void D3D12Viewport::Clear( const float( &clearColor )[4] )
+	void D3D12Viewport::Clear()
 	{
 		agl::Texture* backBuffer = m_frameBuffer.Get();
 		if ( backBuffer == nullptr )
@@ -35,7 +35,7 @@ namespace agl
 		{
 			if ( RenderTargetView* rtv = m_frameBuffer->RTV() )
 			{
-				commandList->ClearRenderTarget( rtv, clearColor );
+				commandList->ClearRenderTarget( rtv );
 			}
 		}
 	}

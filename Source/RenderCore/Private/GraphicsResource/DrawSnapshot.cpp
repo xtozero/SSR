@@ -166,12 +166,8 @@ namespace rendercore
 		}
 	}
 
-	void CommitDrawSnapshots( SceneRenderer& renderer, RenderThreadFrameData<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
+	void CommitDrawSnapshots( CommandList& commandList, RenderThreadFrameData<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
 	{
-		auto commandList = GetCommandList();
-
-		renderer.ApplyOutputContext( commandList );
-
 		for ( size_t i = 0; i < visibleSnapshots.size(); )
 		{
 			CommitDrawSnapshot( commandList, visibleSnapshots[i], primitiveIds );
@@ -179,7 +175,7 @@ namespace rendercore
 		}
 	}
 
-	void ParallelCommitDrawSnapshot( SceneRenderer& renderer, RenderThreadFrameData<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
+	void ParallelCommitDrawSnapshot( CommandList& commandList, RenderThreadFrameData<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
 	{
 		size_t dc = 0;
 		for ( size_t i = 0; i < visibleSnapshots.size(); )
@@ -190,7 +186,7 @@ namespace rendercore
 
 		if ( dc < 64 )
 		{
-			CommitDrawSnapshots( renderer, visibleSnapshots, primitiveIds );
+			CommitDrawSnapshots( commandList, visibleSnapshots, primitiveIds );
 		}
 		else
 		{
@@ -220,10 +216,13 @@ namespace rendercore
 				taskGroup.AddTask( task );
 			}
 
+			/*
+			// TODO
 			for ( size_t i = 0; i < std::extent_v<decltype( deferredCommandLists )>; ++i )
 			{
 				renderer.ApplyOutputContext( *deferredCommandLists[i] );
 			}
+			*/
 
 			taskScheduler->Run( taskGroup );
 			taskScheduler->Wait( taskGroup );

@@ -20,7 +20,7 @@ namespace rendercore
 
 	void UploadBuffer::Unlock()
 	{
-		GraphicsInterface().UnLock( m_buffer );
+		GraphicsInterface().UnLock( m_buffer.Get() );
 	}
 
 	agl::Buffer* UploadBuffer::Resource()
@@ -63,6 +63,6 @@ namespace rendercore
 
 	void* UploadBuffer::LockImple()
 	{
-		return GraphicsInterface().Lock( m_buffer ).m_data;
+		return GraphicsInterface().Lock( m_buffer.Get() ).m_data;
 	}
 }

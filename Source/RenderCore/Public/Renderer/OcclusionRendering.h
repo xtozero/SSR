@@ -9,8 +9,9 @@ class BoxSphereBounds;
 
 namespace rendercore
 {
+	class CommandList;
 	class IScene;
-	class RenderingShaderResource;
+	class ResourceBinder;
 
 	struct RenderViewInfo;
 	struct RenderViewState;
@@ -64,5 +65,5 @@ namespace rendercore
 	};
 
 	void OcclusionCull( const IScene& scene, GlobalDynamicVertexBuffer& outDynamicVertexBuffer, RenderViewInfo& outViewInfo, RenderThreadFrameData<OcclusionRenderData>& outOcclusionRenderData );
-	void DoRenderOcclusionTest( RenderingShaderResource& resources, RenderViewInfo& viewInfo, const RenderThreadFrameData<OcclusionRenderData>& occlusionRenderData );
+	void DoRenderOcclusionTest( CommandList& commandList, const ResourceBinder& resourceBinder, RenderViewInfo& viewInfo, const RenderThreadFrameData<OcclusionRenderData>& occlusionRenderData );
 }

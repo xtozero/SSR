@@ -256,41 +256,34 @@ namespace agl
 		m_stateCache.BindRenderTargets( D3D11Context(), pRenderTargets, renderTargetCount, depthStencil );
 	}
 
-	void D3D11CommandList::ClearRenderTarget( RenderTargetView* renderTarget, const float( &clearColor )[4] )
+	void D3D11CommandList::ClearRenderTarget( RenderTargetView* renderTarget )
 	{
-		ID3D11RenderTargetView* rtvs = nullptr;
-
-		if ( auto d3d11RTV = static_cast<D3D11RenderTargetView*>( renderTarget ) )
-		{
-			rtvs = d3d11RTV->Resource();
-		}
-
-		if ( rtvs == nullptr )
+		if ( renderTarget == nullptr )
 		{
 			return;
 		}
 
-		D3D11Context().ClearRenderTargetView( rtvs, clearColor );
+		auto d3d11RTV = static_cast<D3D11RenderTargetView*>( renderTarget );
+		ColorF clearValue = d3d11RTV->GetClearColor();
+
+		D3D11Context().ClearRenderTargetView( d3d11RTV->Resource(), clearValue.RGBA() );
 	}
 
-	void D3D11CommandList::ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor )
+	void D3D11CommandList::ClearDepthStencil( DepthStencilView* depthStencil )
 	{
-		ID3D11DepthStencilView* dsv = nullptr;
-
-		if ( auto d3d11DSV = static_cast<D3D11DepthStencilView*>( depthStencil ) )
-		{
-			dsv = d3d11DSV->Resource();
-		}
-
-		if ( dsv == nullptr )
+		if ( depthStencil == nullptr )
 		{
 			return;
 		}
 
-		D3D11Context().ClearDepthStencilView( dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthColor, stencilColor );
+		auto d3d11DSV = static_cast<D3D11DepthStencilView*>( depthStencil );
+		float depthClearValue = d3d11DSV->GetDepthClearValue();
+		uint8 stencilClearValue = d3d11DSV->GetStencilClearValue();
+
+		D3D11Context().ClearDepthStencilView( d3d11DSV->Resource(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthClearValue, stencilClearValue );
 	}
 
-	void D3D11CommandList::CopyResource( Texture* dest, Texture* src, [[maybe_unused]] bool bDirect )
+	void D3D11CommandList::CopyResource( Texture* dest, Texture* src, [[maybe_unused]] bool bAsync )
 	{
 		if ( dest == nullptr || src == nullptr )
 		{
@@ -314,7 +307,7 @@ namespace agl
 		D3D11Context().CopyResource( destResource, srcResource );
 	}
 
-	void D3D11CommandList::CopyResource( Buffer* dest, Buffer* src, uint32 numByte, [[maybe_unused]] bool bDirect )
+	void D3D11CommandList::CopyResource( Buffer* dest, Buffer* src, [[maybe_unused]] bool bAsync, uint32 numByte )
 	{
 		if ( dest == nullptr || src == nullptr )
 		{
@@ -358,12 +351,12 @@ namespace agl
 		}
 	}
 
-	void D3D11CommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea, uint32 subresource )
+	void D3D11CommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, [[maybe_unused]] bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
 	{
 		::UpdateSubresource( D3D11Context(), dest, src, srcRowSize, destArea, subresource );
 	}
 
-	void D3D11CommandList::UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset, uint32 numByte )
+	void D3D11CommandList::UpdateSubresource( agl::Buffer* dest, const void* src, [[maybe_unused]] bool bAsync, uint32 destOffset, uint32 numByte )
 	{
 		::UpdateSubresource( D3D11Context(), dest, src, destOffset, numByte );
 	}
@@ -563,13 +556,15 @@ namespace agl
 		m_stateCache.BindRenderTargets( *m_pContext.Get(), pRenderTargets, renderTargetCount, depthStencil );
 	}
 
-	void D3D11ParallelCommandList::ClearRenderTarget( RenderTargetView* renderTarget, const float( &clearColor )[4] )
+	void D3D11ParallelCommandList::ClearRenderTarget( RenderTargetView* renderTarget )
 	{
 		ID3D11RenderTargetView* rtvs = nullptr;
+		ColorF clearValue;
 
 		if ( auto d3d11RTV = static_cast<D3D11RenderTargetView*>( renderTarget ) )
 		{
 			rtvs = d3d11RTV->Resource();
+			clearValue = d3d11RTV->GetClearColor();
 		}
 
 		if ( rtvs == nullptr )
@@ -577,27 +572,24 @@ namespace agl
 			return;
 		}
 
-		m_pContext->ClearRenderTargetView( rtvs, clearColor );
+		m_pContext->ClearRenderTargetView( rtvs, clearValue.RGBA() );
 	}
 
-	void D3D11ParallelCommandList::ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor )
+	void D3D11ParallelCommandList::ClearDepthStencil( DepthStencilView* depthStencil )
 	{
-		ID3D11DepthStencilView* dsv = nullptr;
-
-		if ( auto d3d11DSV = static_cast<D3D11DepthStencilView*>( depthStencil ) )
-		{
-			dsv = d3d11DSV->Resource();
-		}
-
-		if ( dsv == nullptr )
+		if ( depthStencil == nullptr )
 		{
 			return;
 		}
 
-		m_pContext->ClearDepthStencilView( dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthColor, stencilColor );
+		auto d3d11DSV = static_cast<D3D11DepthStencilView*>( depthStencil );
+		float depthClearValue = d3d11DSV->GetDepthClearValue();
+		uint8 stencilClearValue = d3d11DSV->GetStencilClearValue();
+
+		m_pContext->ClearDepthStencilView( d3d11DSV->Resource(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthClearValue, stencilClearValue );
 	}
 
-	void D3D11ParallelCommandList::CopyResource( Texture* dest, Texture* src, [[maybe_unused]] bool bDirect )
+	void D3D11ParallelCommandList::CopyResource( Texture* dest, Texture* src, [[maybe_unused]] bool bAsync )
 	{
 		if ( dest == nullptr || src == nullptr )
 		{
@@ -621,7 +613,7 @@ namespace agl
 		m_pContext->CopyResource( destResource, srcResource );
 	}
 
-	void D3D11ParallelCommandList::CopyResource( Buffer* dest, Buffer* src, uint32 numByte, [[maybe_unused]] bool bDirect )
+	void D3D11ParallelCommandList::CopyResource( Buffer* dest, Buffer* src, [[maybe_unused]] bool bAsync, uint32 numByte )
 	{
 		if ( dest == nullptr || src == nullptr )
 		{
@@ -665,12 +657,12 @@ namespace agl
 		}
 	}
 
-	void D3D11ParallelCommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea, uint32 subresource )
+	void D3D11ParallelCommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, [[maybe_unused]] bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
 	{
 		::UpdateSubresource( *m_pContext.Get(), dest, src, srcRowSize, destArea, subresource);
 	}
 
-	void D3D11ParallelCommandList::UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset, uint32 numByte )
+	void D3D11ParallelCommandList::UpdateSubresource( agl::Buffer* dest, const void* src, [[maybe_unused]] bool bAsync, uint32 destOffset, uint32 numByte )
 	{
 		::UpdateSubresource( *m_pContext.Get(), dest, src, destOffset, numByte );
 	}

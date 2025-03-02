@@ -39,16 +39,16 @@ namespace rendercore
 	class ForwardRenderer final : public SceneRenderer
 	{
 	public:
-		virtual void PreRender( RenderViewGroup& renderViewGroup ) override;
-		virtual void Render( RenderViewGroup& renderViewGroup ) override;
-		virtual void RenderHitProxy( RenderViewGroup& renderViewGroup ) override;
+		virtual void PreRender( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup ) override;
+		virtual void Render( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup ) override;
+		virtual void RenderHitProxy( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup ) override;
 
-		virtual void RenderDefaultPass( RenderViewGroup& renderViewGroup, uint32 curView ) override;
+		virtual void RenderDefaultPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 curView ) override;
 
 		virtual IRendererRenderTargets& GetRenderRenderTargets() override;
 
-		void RenderDepthPass( RenderViewGroup& renderViewGroup, uint32 curView );
-		void RenderOcclusionTest( RenderViewGroup& renderViewGroup, uint32 viewIndex );
+		void RenderDepthPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 curView );
+		void RenderOcclusionTest( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex );
 
 	private:
 		void UpdateLightResource( IScene& scene );

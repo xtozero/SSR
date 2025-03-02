@@ -15,14 +15,14 @@
 
 namespace agl
 {
-	void D3D11Viewport::Clear( const float (&clearColor)[4] )
+	void D3D11Viewport::Clear()
 	{
 		if ( m_frameBuffer.Get() != nullptr )
 		{
 			if ( RenderTargetView* rtv = m_frameBuffer->RTV() )
 			{
 				ICommandList* commandList = GetInterface<IAgl>()->GetCommandList();
-				commandList->ClearRenderTarget( rtv, clearColor );
+				commandList->ClearRenderTarget( rtv );
 			}
 		}
 	}
@@ -75,10 +75,11 @@ namespace agl
 		}
 	}
 
-	D3D11Viewport::D3D11Viewport( uint32 width, uint32 height, DXGI_FORMAT format ) 
+	D3D11Viewport::D3D11Viewport( uint32 width, uint32 height, DXGI_FORMAT format, const float4& clearColor )
 		: m_width( width )
 		, m_height( height )
 		, m_format( format )
+		, m_clearColor{ clearColor[0], clearColor[1], clearColor[2], clearColor[3] }
 	{
 		m_proxy.m_width = m_width;
 		m_proxy.m_height = m_height;
@@ -90,6 +91,7 @@ namespace agl
 		: m_width( swapchain.Width() )
 		, m_height( swapchain.Height() )
 		, m_format( swapchain.Format() )
+		, m_clearColor{}
 		, m_swapchain( &swapchain )
 	{
 		m_proxy.m_width = m_width;
@@ -127,7 +129,11 @@ namespace agl
 			.m_format = typelessFormat,
 			.m_access = ResourceAccessFlag::Default,
 			.m_bindType = ResourceBindType::RenderTarget | ResourceBindType::ShaderResource,
-			.m_miscFlag = ResourceMisc::WithoutViews
+			.m_miscFlag = ResourceMisc::WithoutViews,
+			.m_clearValue = ResourceClearValue{
+				.m_format = orignalFormat,
+				.m_color = { m_clearColor[0], m_clearColor[1], m_clearColor[2], m_clearColor[3]}
+			}
 		};
 
 		if ( m_frameBuffer == nullptr )

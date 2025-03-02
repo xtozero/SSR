@@ -188,7 +188,7 @@ namespace rendercore
 		return snapshot;
 	}
 
-	IPassProcessor* PassProcessorManager::GetPassProcessor( RenderPass passType )
+	IPassProcessor* PassProcessorManager::GetPassProcessor( RenderPassType passType )
 	{
 		int32 index = static_cast<int32>( passType );
 		auto& passProcessor = m_passProcessors[index];
@@ -201,17 +201,17 @@ namespace rendercore
 		return passProcessor.get();
 	}
 
-	void PassProcessorManager::RegisterCreateFunction( RenderPass passType, PassProcessorCreateFunction createFunction )
+	void PassProcessorManager::RegisterCreateFunction( RenderPassType passType, PassProcessorCreateFunction createFunction )
 	{
 		int32 index = static_cast<int32>( passType );
 		m_createFunctions[index] = createFunction;
 	}
 
-	PassProcessorRegister::PassProcessorRegister( RenderPass passType, PassProcessorCreateFunction createFunction )
+	PassProcessorRegister::PassProcessorRegister( RenderPassType passType, PassProcessorCreateFunction createFunction )
 	{
 		PassProcessorManager::RegisterCreateFunction( passType, createFunction );
 	}
 
-	std::unique_ptr<IPassProcessor> PassProcessorManager::m_passProcessors[static_cast<uint32>( RenderPass::Count )] = {};
-	PassProcessorCreateFunction PassProcessorManager::m_createFunctions[static_cast<uint32>( RenderPass::Count )] = {};
+	std::unique_ptr<IPassProcessor> PassProcessorManager::m_passProcessors[static_cast<uint32>( RenderPassType::Count )] = {};
+	PassProcessorCreateFunction PassProcessorManager::m_createFunctions[static_cast<uint32>( RenderPassType::Count )] = {};
 }

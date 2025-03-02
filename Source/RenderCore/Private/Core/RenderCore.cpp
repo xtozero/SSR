@@ -10,10 +10,11 @@
 #include "GpuProfiler.h"
 #include "GraphicsResource/Canvas.h"
 #include "GraphicsResource/Viewport.h"
+#include "GraphicsResourcePool.h"
 #include "IAgl.h"
 #include "LibraryTool/Common.h"
 #include "PipelineStateCache.h"
-#include "RenderTargetPool.h"
+#include "RenderGraph.h"
 #include "RenderView.h"
 #include "ResourceBarrierUtils.h"
 #include "Scene/Scene.h"
@@ -93,6 +94,8 @@ namespace rendercore
 
 		HMODULE m_hAgl = nullptr;
 		agl::IAgl* m_agl = nullptr;
+
+		RenderGraph m_renderGraph;
 
 		std::map<ShadingMethod, SceneRenderer*> m_sceneRenderer;
 		UserInterfaceRenderer* m_uiRenderer = nullptr;
@@ -217,7 +220,7 @@ namespace rendercore
 
 		GetGpuProfiler().BeginFrameRendering();
 
-		RenderTargetPool::GetInstance().Tick();
+		GraphicsResourcePool::GetInstance().Tick();
 
 		canvas.OnBeginFrameRendering();
 		canvas.Clear();
@@ -232,24 +235,23 @@ namespace rendercore
 		auto commandList = GetCommandList();
 		{
 			CPU_PROFILE( RenderFrame );
-			GPU_PROFILE( commandList, RenderFrame );
+			GPU_PROFILE_EVENT( m_renderGraph, RenderFrame );
 
 			SceneRenderer* pSceneRenderer = FindAndCreateSceneRenderer( renderViewGroup );
 			assert( pSceneRenderer != nullptr );
 
-			pSceneRenderer->PreRender( renderViewGroup );
+			pSceneRenderer->PreRender( m_renderGraph, renderViewGroup );
 
 			if ( renderViewGroup.GetShowFlags().m_bHitProxy )
 			{
-				pSceneRenderer->RenderHitProxy( renderViewGroup );
+				pSceneRenderer->RenderHitProxy( m_renderGraph, renderViewGroup );
 			}
 			else
 			{
-				pSceneRenderer->Render( renderViewGroup );
+				pSceneRenderer->Render( m_renderGraph, renderViewGroup );
 			}
 
-			pSceneRenderer->PostRender();
-			pSceneRenderer->WaitUntilRenderingIsFinish();
+			m_renderGraph.Execute();
 		}
 	}
 
@@ -257,16 +259,17 @@ namespace rendercore
 	{
 		CPU_PROFILE( EndFrameRendering );
 
-		auto commandList = GetCommandList();
+		if ( m_uiRenderer )
 		{
 			CPU_PROFILE( RenderUI );
-			GPU_PROFILE( commandList, RenderUI );
+			GPU_PROFILE_EVENT( m_renderGraph, RenderUI );
 
-			assert( m_uiRenderer != nullptr );
-			m_uiRenderer->Render( canvas );
+			m_uiRenderer->Render( m_renderGraph, canvas );
 		}
 
 		GetPrimitiveIdPool().DiscardAll();
+
+		m_renderGraph.Execute();
 
 		canvas.OnEndFrameRendering();
 
@@ -274,7 +277,7 @@ namespace rendercore
 			CPU_PROFILE( CommitRenderFrame );
 			{
 				CPU_PROFILE( Commit );
-				commandList.Commit();
+				GetCommandList().Commit();
 			}
 		}
 
@@ -291,10 +294,7 @@ namespace rendercore
 		TaskHandle handle = EnqueueThreadTask<ThreadType::RenderThread>(
 			[&hitProxyMap, &outHitProxyData]()
 			{
-				auto commandList = GetCommandList();
-				commandList.CopyResource( hitProxyMap.CpuTexture(), hitProxyMap.Texture(), true );
-
-				commandList.Commit();
+				GetCommandList().Commit();
 
 				GetInterface<agl::IAgl>()->WaitGPU();
 
@@ -348,7 +348,7 @@ namespace rendercore
 		ShaderCache::Shutdown();
 
 		GlobalShaders::GetInstance().Shutdown();
-		RenderTargetPool::GetInstance().Shutdown();
+		GraphicsResourcePool::GetInstance().Shutdown();
 
 		GraphicsInterface().Shutdown();
 

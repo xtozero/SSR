@@ -37,14 +37,15 @@ namespace agl
 		D3D12Texture& operator=( D3D12Texture&& ) = delete;
 
 	protected:
+		virtual void SetDebugObjectName() override;
+		virtual void CreateTexture() override;
+
 		AllocatedResourceInfo m_resourceInfo;
 
 		D3D12_RESOURCE_DESC m_desc = {};
 		D3D12_HEAP_PROPERTIES m_heapProperties = {};
 		D3D12_HEAP_FLAGS m_heapFlags = D3D12_HEAP_FLAG_NONE;
 		std::vector<D3D12_SUBRESOURCE_DATA> m_initData;
-
-		virtual void CreateTexture() override;
 
 	private:
 		virtual void InitResource() override
@@ -101,7 +102,7 @@ namespace agl
 		virtual void CreateDepthStencil( std::optional<ResourceFormat> overrideFormat = {} ) override;
 
 		D3D12Texture2D( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
-		D3D12Texture2D( ID3D12Resource* texture, const char* debugName, const D3D12_RESOURCE_DESC* desc = nullptr );
+		D3D12Texture2D( ID3D12Resource* texture, const char* debugName, const float4& clearColor, const D3D12_RESOURCE_DESC* desc = nullptr );
 
 	private:
 	};

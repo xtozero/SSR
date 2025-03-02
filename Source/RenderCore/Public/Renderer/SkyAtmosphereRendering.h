@@ -11,6 +11,8 @@ struct PrimitiveSubMesh;
 
 namespace rendercore
 {
+	class RenderGraph;
+
 	BEGIN_SHADER_ARGUMENTS_STRUCT( SkyAtmosphereRenderParameters )
 		DECLARE_VALUE( Vector4, CameraPos )
 		DECLARE_VALUE( Vector4, SunDir )
@@ -61,5 +63,5 @@ namespace rendercore
 	};
 
 	void InitAtmosphereForScene( Scene& scene );
-	void RenderAtmosphereLookUpTables( Scene& scene );
+	void RenderAtmosphereLookUpTables( RenderGraph& renderGraph, Scene& scene );
 }

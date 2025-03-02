@@ -9,6 +9,7 @@
 
 namespace rendercore
 {
+	class RenderGraph;
 	class UploadBuffer;
 
 	class DistributionCopyCS final : public GlobalShaderCommon<ComputeShader, DistributionCopyCS>
@@ -29,7 +30,7 @@ namespace rendercore
 
 		void Add( const char* data, uint32 dstIndex );
 
-		void Upload( agl::Buffer* destBuffer );
+		void Upload( RenderGraph& renderGraph, RefHandle<agl::Buffer> destBuffer );
 
 	private:
 		UploadBuffer& m_src;

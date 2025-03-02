@@ -44,10 +44,10 @@ namespace rendercore
 		{
 			return *m_shaderArguments.Get();
 		}
-
+		
 		void CreateRenderData();
-		void UpdateParameter();
-		void PrepareFrustumVolume( Scene& scene, ForwardLightingResource& lightingResource, RenderThreadFrameData<ShadowInfo>& shadowInfos );
+
+		void PrepareFrustumVolume( RenderGraph& renderGraph, Scene& scene, ForwardLightingResource& lightingResource, RenderThreadFrameData<ShadowInfo>& shadowInfos );
 
 		VolumetricFogSceneInfo( VolumetricFogProxy* proxy );
 
@@ -63,8 +63,11 @@ namespace rendercore
 		}
 
 		void CreateVolumeTexture();
-		void CalcInscattering( CommandList& commandList, Scene& scene, ForwardLightingResource& lightingResource, RenderThreadFrameData<ShadowInfo>& shadowInfos );
-		void AccumulateScattering( CommandList& commandList );
+
+		void UpdateParameter();
+
+		void CalcInscattering( ComputeCommandList& commandList, Scene& scene, ForwardLightingResource& lightingResource, RenderThreadFrameData<ShadowInfo>& shadowInfos );
+		void AccumulateScattering( ComputeCommandList& commandList );
 
 		VolumetricFogProxy* m_volumetricFogProxy = nullptr;
 

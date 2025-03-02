@@ -21,7 +21,7 @@ namespace rendercore
 
 		static bool UseIrradianceMapSH();
 
-		static uint32 RenderTargetPoolMin();
+		static uint32 GraphicsResourcePoolMin();
 
 		static bool IsLpvEnabled();
 		static uint32 NumLpvIteration();
@@ -48,8 +48,8 @@ namespace rendercore
 		PROPERTY( useIrradianceMapSH )
 		bool m_useIrradianceMapSH = true;
 
-		PROPERTY( renderTargetPoolMin )
-		uint32 m_renderTargetPoolMin = 300;
+		PROPERTY( graphicsResourcePoolMin )
+		uint32 m_graphicsResourcePoolMin = 300;
 
 		PROPERTY( enableLPV )
 		bool m_enableLPV = false;

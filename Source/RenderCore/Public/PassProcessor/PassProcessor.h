@@ -7,7 +7,7 @@
 
 namespace rendercore
 {
-	enum class RenderPass : uint8
+	enum class RenderPassType : uint8
 	{
 		DepthWrite = 0,
 		CascadeShadowDepth,
@@ -71,18 +71,18 @@ namespace rendercore
 	class PassProcessorManager final
 	{
 	public:
-		static IPassProcessor* GetPassProcessor( RenderPass passType );
+		static IPassProcessor* GetPassProcessor( RenderPassType passType );
 
-		static void RegisterCreateFunction( RenderPass passType, PassProcessorCreateFunction createFunction );
+		static void RegisterCreateFunction( RenderPassType passType, PassProcessorCreateFunction createFunction );
 
 	private:
-		static std::unique_ptr<IPassProcessor> m_passProcessors[static_cast<uint32>( RenderPass::Count )];
-		static PassProcessorCreateFunction m_createFunctions[static_cast<uint32>( RenderPass::Count )];
+		static std::unique_ptr<IPassProcessor> m_passProcessors[static_cast<uint32>( RenderPassType::Count )];
+		static PassProcessorCreateFunction m_createFunctions[static_cast<uint32>( RenderPassType::Count )];
 	};
 
 	class PassProcessorRegister final
 	{
 	public:
-		PassProcessorRegister( RenderPass passType, PassProcessorCreateFunction createFunction );
+		PassProcessorRegister( RenderPassType passType, PassProcessorCreateFunction createFunction );
 	};
 }

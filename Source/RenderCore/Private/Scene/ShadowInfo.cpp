@@ -107,16 +107,15 @@ namespace rendercore
 		}
 	}
 
-	void ShadowInfo::RenderDepth( SceneRenderer& renderer, RenderingShaderResource& resources )
+	void ShadowInfo::RenderDepth( CommandList& commandList, const ResourceBinder& resourceBinder )
 	{
 		if ( m_snapshots.empty() )
 		{
 			return;
 		}
 
-		RenderingShaderResource shadowRenderingResources = resources;
-
-		shadowRenderingResources.AddResource( "ShadowDepthPassParameters", m_shadowShaderArguments->Resource() );
+		ResourceBinder passResourceBinder = resourceBinder;
+		passResourceBinder.Add( "ShadowDepthPassParameters", m_shadowShaderArguments->Resource() );
 
 		// Update invalidated resources
 		for ( auto& viewDrawSnapshot : m_snapshots )
@@ -124,13 +123,13 @@ namespace rendercore
 			DrawSnapshot& snapshot = *viewDrawSnapshot.m_drawSnapshot;
 			GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 
-			shadowRenderingResources.BindResources( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+			passResourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 		}
 
 		VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc( static_cast<uint32>( m_snapshots.size() * sizeof( uint32 ) ) );
 
 		SortDrawSnapshots( m_snapshots, primitiveIds );
-		ParallelCommitDrawSnapshot( renderer, m_snapshots, primitiveIds );
+		ParallelCommitDrawSnapshot( commandList, m_snapshots, primitiveIds );
 	}
 
 	ShadowInfo::ShadowInfo( LightSceneInfo* lightSceneInfo, const RenderView& view ) : m_lightSceneInfo( lightSceneInfo ), m_view( &view )
@@ -181,22 +180,22 @@ namespace rendercore
 		m_subjectFar = std::max( m_subjectFar, max.z );
 	}
 
-	RenderPass ShadowInfo::GetShadowDepthRenderPass() const
+	RenderPassType ShadowInfo::GetShadowDepthRenderPass() const
 	{
 		switch ( GetLightType() )
 		{
 		case LightType::Directional:
-			return RenderPass::CascadeShadowDepth;
+			return RenderPassType::CascadeShadowDepth;
 			break;
 		case LightType::Point:
-			return RenderPass::PointShadowDepth;
+			return RenderPassType::PointShadowDepth;
 			break;
 		case LightType::Spot:
-			return RenderPass::PointShadowDepth;
+			return RenderPassType::PointShadowDepth;
 			break;
 		}
 
 		assert( false && "GetShadowDepthRenderPass - Unsurpported LightType" );
-		return RenderPass::CascadeShadowDepth;
+		return RenderPassType::CascadeShadowDepth;
 	}
 }

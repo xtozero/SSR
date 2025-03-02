@@ -729,12 +729,6 @@ namespace agl
 		commandList.OMSetRenderTargets( renderTargetCount, rtvs, false, depthStencil ? &dsv : nullptr );
 	}
 
-	D3D12PipelineCache::D3D12PipelineCache()
-		: m_allocatedIdentifiers( m_allocatedIdentifierAllocator )
-		, m_allocatedInfos( m_allocatedInfoAllocator )
-	{
-	}
-
 	void D3D12PipelineCache::RegisterRenderResource( GraphicsApiResource* resource )
 	{
 		if ( resource == nullptr )
@@ -772,5 +766,11 @@ namespace agl
 	void D3D12PipelineCache::RegisterRenderResource( IUnknown* resource )
 	{
 		m_residentResource.emplace_back( resource );
+	}
+
+	D3D12PipelineCache::D3D12PipelineCache()
+		: m_allocatedIdentifiers( m_allocatedIdentifierAllocator )
+		, m_allocatedInfos( m_allocatedInfoAllocator )
+	{
 	}
 }

@@ -7,6 +7,7 @@
 namespace rendercore
 {
 	class IRendererRenderTargets;
+	class RenderGraph;
 	class RenderViewGroup;
 
 	BEGIN_SHADER_ARGUMENTS_STRUCT( TAAParameters )
@@ -29,9 +30,9 @@ namespace rendercore
 	class TAARenderer final
 	{
 	public:
-		void Render( IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup );
-		void Resovle( IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup );
-		void UpdateHistory( IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup );
+		void Render( RenderGraph& renderGraph, IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup );
+		void Resovle( RenderGraph& renderGraph, IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup );
+		void UpdateHistory( RenderGraph& renderGraph, IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup );
 
 		TAARenderer();
 

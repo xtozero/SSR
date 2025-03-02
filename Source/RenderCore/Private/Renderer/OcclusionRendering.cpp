@@ -213,7 +213,7 @@ namespace rendercore
 		}
 	}
 
-	void DoRenderOcclusionTest( RenderingShaderResource& resources, RenderViewInfo& viewInfo, const RenderThreadFrameData<OcclusionRenderData>& occlusionRenderData )
+	void DoRenderOcclusionTest( CommandList& commandList, const ResourceBinder& resourceBinder, RenderViewInfo& viewInfo, const RenderThreadFrameData<OcclusionRenderData>& occlusionRenderData )
 	{
 		if ( occlusionRenderData.empty() )
 		{
@@ -222,8 +222,6 @@ namespace rendercore
 
 		assert( viewInfo.m_state != nullptr );
 		RenderViewState& viewState = *viewInfo.m_state;
-
-		auto commandList = GetCommandList();
 
 		for ( const OcclusionRenderData& renderData : occlusionRenderData )
 		{
@@ -236,7 +234,7 @@ namespace rendercore
 			found->second.BeginQuery( viewState );
 
 			auto snapshot = BuildOcclusionDrawSnapshot( renderData.m_allcationInfo );
-			resources.BindResources( snapshot.m_pipelineState.m_shaderState, snapshot.m_shaderBindings );
+			resourceBinder.Bind( snapshot.m_pipelineState.m_shaderState, snapshot.m_shaderBindings );
 			
 			VisibleDrawSnapshot visibleSnapshot = {
 				.m_primitiveId = 0,

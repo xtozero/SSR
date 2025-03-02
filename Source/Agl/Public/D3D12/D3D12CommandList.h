@@ -62,14 +62,14 @@ namespace agl
 
 		void BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil );
 
-		void ClearRenderTarget( RenderTargetView* renderTarget, const float( &clearColor )[4] );
-		void ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor );
+		void ClearRenderTarget( RenderTargetView* renderTarget );
+		void ClearDepthStencil( DepthStencilView* depthStencil );
 
-		void CopyResource( Texture* dest, Texture* src, bool bDirect );
-		void CopyResource( Buffer* dest, Buffer* src, uint32 numByte, bool bDirect );
+		void CopyResource( Texture* dest, Texture* src, bool bAsync );
+		void CopyResource( Buffer* dest, Buffer* src, bool bAsync, uint32 numByte );
 
-		void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea, uint32 subresource );
-		void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset, uint32 numByte );
+		void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource );
+		void UpdateSubresource( agl::Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte );
 
 		void AddTransition( const ResourceTransition& transition );
 		void AddUavBarrier( const UavBarrier& uavBarrier );
@@ -136,14 +136,14 @@ namespace agl
 
 		virtual void BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil ) override;
 
-		virtual void ClearRenderTarget( RenderTargetView* renderTarget, const float( &clearColor )[4] ) override;
-		virtual void ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor ) override;
+		virtual void ClearRenderTarget( RenderTargetView* renderTarget ) override;
+		virtual void ClearDepthStencil( DepthStencilView* depthStencil ) override;
 
-		virtual void CopyResource( Texture* dest, Texture* src, bool bDirect = false ) override;
-		virtual void CopyResource( Buffer* dest, Buffer* src, uint32 numByte, bool bDirect = false ) override;
+		virtual void CopyResource( Texture* dest, Texture* src, bool bAsync = true ) override;
+		virtual void CopyResource( Buffer* dest, Buffer* src, bool bAsync = true, uint32 numByte = 0 ) override;
 
-		virtual void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea = nullptr, uint32 subresource = 0 ) override;
-		virtual void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset = 0, uint32 numByte = 0 ) override;
+		virtual void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, bool bAsync = true, const CubeArea<uint32>* destArea = nullptr, uint32 subresource = 0 ) override;
+		virtual void UpdateSubresource( agl::Buffer* dest, const void* src, bool bAsync = true, uint32 destOffset = 0, uint32 numByte = 0 ) override;
 
 		virtual void AddTransition( const ResourceTransition& transition ) override;
 		virtual void AddUavBarrier( const UavBarrier& uavBarrier ) override;
@@ -203,14 +203,14 @@ namespace agl
 
 		virtual void BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil ) override;
 
-		virtual void ClearRenderTarget( RenderTargetView* renderTarget, const float( &clearColor )[4] ) override;
-		virtual void ClearDepthStencil( DepthStencilView* depthStencil, float depthColor, UINT8 stencilColor ) override;
+		virtual void ClearRenderTarget( RenderTargetView* renderTarget ) override;
+		virtual void ClearDepthStencil( DepthStencilView* depthStencil ) override;
 
-		virtual void CopyResource( Texture* dest, Texture* src, bool bDirect = false ) override;
-		virtual void CopyResource( Buffer* dest, Buffer* src, uint32 numByte, bool bDirect = false ) override;
+		virtual void CopyResource( Texture* dest, Texture* src, bool bAsync = true ) override;
+		virtual void CopyResource( Buffer* dest, Buffer* src, bool bAsync = true, uint32 numByte = 0 ) override;
 
-		virtual void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* destArea = nullptr, uint32 subresource = 0 ) override;
-		virtual void UpdateSubresource( agl::Buffer* dest, const void* src, uint32 destOffset = 0, uint32 numByte = 0 ) override;
+		virtual void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, bool bAsync = true, const CubeArea<uint32>* destArea = nullptr, uint32 subresource = 0 ) override;
+		virtual void UpdateSubresource( agl::Buffer* dest, const void* src, bool bAsync = true, uint32 destOffset = 0, uint32 numByte = 0 ) override;
 
 		virtual void AddTransition( const ResourceTransition& transition ) override;
 		virtual void AddUavBarrier( const UavBarrier& uavBarrier ) override;

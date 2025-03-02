@@ -348,12 +348,12 @@ public:
 		return *this;
 	}
 
-	Delegate( Delegate&& other )
+	Delegate( Delegate&& other ) noexcept
 	{
 		( *this ) = std::move( other );
 	}
 
-	Delegate& operator=( Delegate&& other )
+	Delegate& operator=( Delegate&& other ) noexcept
 	{
 		if ( &other != this )
 		{

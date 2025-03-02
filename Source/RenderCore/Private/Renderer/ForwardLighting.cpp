@@ -9,7 +9,7 @@ namespace rendercore
 	{
 		uint32 newSize = bytePerElement * numElements;
 		uint32 curSize = 0;
-		if ( m_buffer )
+		if ( m_buffer.Get() )
 		{
 			const agl::BufferTrait& trait = m_buffer->GetTrait();
 			curSize = trait.m_count * trait.m_stride;
@@ -38,33 +38,33 @@ namespace rendercore
 	void* ForwardLightBuffer::Lock()
 	{
 		assert( IsInRenderThread() );
-		return GraphicsInterface().Lock( m_buffer ).m_data;
+		return GraphicsInterface().Lock( m_buffer.Get() ).m_data;
 	}
 
 	void ForwardLightBuffer::Unlock()
 	{
 		assert( IsInRenderThread() );
-		GraphicsInterface().UnLock( m_buffer );
+		GraphicsInterface().UnLock( m_buffer.Get() );
 	}
 
 	agl::ShaderResourceView* ForwardLightBuffer::SRV()
 	{
-		return m_buffer ? m_buffer->SRV() : nullptr;
+		return m_buffer.Get() ? m_buffer->SRV() : nullptr;
 	}
 
 	const agl::ShaderResourceView* ForwardLightBuffer::SRV() const
 	{
-		return m_buffer ? m_buffer->SRV() : nullptr;
+		return m_buffer.Get() ? m_buffer->SRV() : nullptr;
 	}
 
 	agl::Buffer* ForwardLightBuffer::Resource()
 	{
-		return m_buffer;
+		return m_buffer.Get();
 	}
 
 	const agl::Buffer* ForwardLightBuffer::Resource() const
 	{
-		return m_buffer;
+		return m_buffer.Get();
 	}
 
 	ForwardLightingResource::ForwardLightingResource()

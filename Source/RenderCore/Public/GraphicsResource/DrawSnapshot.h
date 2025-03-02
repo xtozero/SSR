@@ -18,7 +18,7 @@ namespace rendercore
 	class RenderViewGroup;
 	class SceneRenderer;
 
-	enum class RenderPass : uint8;
+	enum class RenderPassType : uint8;
 
 	class PrimitiveIdVertexBufferPool final
 	{
@@ -160,7 +160,7 @@ namespace rendercore
 
 	struct CachedDrawSnapshotInfo final
 	{
-		RenderPass m_renderPass;
+		RenderPassType m_renderPass;
 		size_t m_snapshotIndex;
 		int32 m_snapshotBucketId;
 	};
@@ -248,7 +248,7 @@ namespace rendercore
 		}
 
 		// Set pipeline state
-		commandList.BindPipelineState( snapshot.m_pipelineState.m_pso );
+		commandList.BindPipelineState( snapshot.m_pipelineState.m_pso.Get() );
 
 		// Set shader resources
 		commandList.BindShaderResources( shaderBindings );
@@ -273,6 +273,6 @@ namespace rendercore
 
 	void PreparePipelineStateObject( DrawSnapshot& snapshot );
 	void SortDrawSnapshots( RenderThreadFrameData<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
-	void CommitDrawSnapshots( SceneRenderer& renderer, RenderThreadFrameData<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
-	void ParallelCommitDrawSnapshot( SceneRenderer& renderer, RenderThreadFrameData<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
+	void CommitDrawSnapshots( CommandList& commandList, RenderThreadFrameData<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
+	void ParallelCommitDrawSnapshot( CommandList& commandList, RenderThreadFrameData<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
 }

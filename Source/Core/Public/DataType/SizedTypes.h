@@ -13,6 +13,7 @@ using uint16 = unsigned short;
 using uint32 = unsigned int;
 using uint64 = unsigned long long;
 
+using ptrint = int64;
 using uptrint = uint64;
 using size_t = uptrint;
 #else
@@ -26,6 +27,7 @@ using uint16 = unsigned short;
 using uint32 = unsigned int;
 using uint64 = unsigned long long;
 
+using ptrint = int32;
 using uptrint = uint32;
 using size_t = uptrint;
 #endif

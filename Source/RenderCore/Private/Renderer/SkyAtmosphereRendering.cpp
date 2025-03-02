@@ -7,6 +7,7 @@
 #include "ComputePipelineState.h"
 #include "GlobalShaders.h"
 #include "GpuProfiler.h"
+#include "RenderGraph.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "Scene/Scene.h"
 #include "ShaderParameterUtils.h"
@@ -204,7 +205,7 @@ namespace rendercore
 		info.GetShaderArguments() = SkyAtmosphereRenderParameters::CreateShaderArguments();
 	}
 
-	void RenderAtmosphereLookUpTables( Scene& scene )
+	void RenderAtmosphereLookUpTables( RenderGraph& renderGraph, Scene& scene )
 	{
 		if ( scene.SkyAtmosphereSceneInfo() == nullptr )
 		{
@@ -217,24 +218,34 @@ namespace rendercore
 			return;
 		}
 
-		auto commandList = GetCommandList();
-		GPU_PROFILE( commandList, AtomosphereLookUp );
-
-		SamplerState pointSampler = StaticSamplerState<agl::TextureFilter::Point>::Get();
+		GPU_PROFILE_EVENT( renderGraph, AtomosphereLookUp );
 
 		// 1. Transmittance Table
-		TransmittanceCS transmittanceCS;
+		auto rgTransmittanceLut = renderGraph.RegisterExternalResource( info.GetTransmittanceLutTexture().Get() );
 
-		RefHandle<agl::ComputePipelineState> transmittancePSO = PrepareComputePipelineState( transmittanceCS );
-		commandList.BindPipelineState( transmittancePSO );
+		BEGIN_RG_RESOURCE_STRUCT( TransmittancePassResource )
+			DECLARE_RG_TEXTURE_UAV( transmittanceLut )
+		END_RG_RESOURCE_STRUCT();
 
-		commandList.AddTransition( Transition( *info.GetTransmittanceLutTexture().Get(), agl::ResourceState::UnorderedAccess) );
+		TransmittancePassResource transmittancePassResource = {
+			.m_transmittanceLut = rgTransmittanceLut
+		};
 
-		agl::ShaderBindings shaderBindings = CreateShaderBindings( transmittanceCS );
-		BindResource( shaderBindings, transmittanceCS.Transmittance(), info.GetTransmittanceLutTexture() );
+		renderGraph.AddPass(
+			transmittancePassResource,
+			[transmittancePassResource]( ComputeCommandList& commandList )
+			{
+				TransmittanceCS transmittanceCS;
 
-		commandList.BindShaderResources( shaderBindings );
-		commandList.Dispatch( TRANSMITTANCE_GROUP_X, TRANSMITTANCE_GROUP_Y );
+				RefHandle<agl::ComputePipelineState> transmittancePSO = PrepareComputePipelineState( transmittanceCS );
+				commandList.BindPipelineState( transmittancePSO.Get() );
+
+				agl::ShaderBindings shaderBindings = CreateShaderBindings( transmittanceCS );
+				BindResource( shaderBindings, transmittanceCS.Transmittance(), transmittancePassResource.m_transmittanceLut->Get() );
+
+				commandList.BindShaderResources( shaderBindings );
+				commandList.Dispatch( TRANSMITTANCE_GROUP_X, TRANSMITTANCE_GROUP_Y );
+			} );
 
 		// 2. Ground irradiance due to direct sunlight
 		agl::TextureTrait deltaE = {
@@ -250,24 +261,36 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::None
 		};
 
-		RefHandle<agl::Texture> deltaETexture = agl::Texture::Create( deltaE, "Atmosphere.DeltaE" );
-		deltaETexture->Init();
+		auto rgDeltaE = renderGraph.CreateTexture( deltaE, "Atmosphere.DeltaE" );
 
-		IrradianceOneCS irradianceOneCS;
-		RefHandle<agl::ComputePipelineState> irradianceOnePSO = PrepareComputePipelineState( irradianceOneCS );
-		commandList.BindPipelineState( irradianceOnePSO );
+		BEGIN_RG_RESOURCE_STRUCT( GroundIrrdiancePassResource )
+			DECLARE_RG_TEXTURE_NONPIXEL_SRV( transmittanceLut )
+			DECLARE_RG_TEXTURE_UAV( deltaE )
+		END_RG_RESOURCE_STRUCT();
 
-		commandList.AddTransition( Transition( *info.GetTransmittanceLutTexture().Get(), agl::ResourceState::NonPixelShaderResource ) );
-		commandList.AddTransition( Transition( *deltaETexture.Get(), agl::ResourceState::UnorderedAccess ) );
+		GroundIrrdiancePassResource groundIrrdiancePassResource = {
+			.m_transmittanceLut = rgTransmittanceLut,
+			.m_deltaE = rgDeltaE
+		};
 
-		shaderBindings = CreateShaderBindings( irradianceOneCS );
+		renderGraph.AddPass(
+			groundIrrdiancePassResource,
+			[groundIrrdiancePassResource]( ComputeCommandList& commandList )
+			{
+				IrradianceOneCS irradianceOneCS;
+				RefHandle<agl::ComputePipelineState> irradianceOnePSO = PrepareComputePipelineState( irradianceOneCS );
+				commandList.BindPipelineState( irradianceOnePSO.Get() );
 
-		BindResource( shaderBindings, irradianceOneCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
-		BindResource( shaderBindings, irradianceOneCS.TransmittanceLutSampler(), pointSampler );
-		BindResource( shaderBindings, irradianceOneCS.DeltaE(), deltaETexture );
+				SamplerState pointSampler = StaticSamplerState<agl::TextureFilter::Point>::Get();
 
-		commandList.BindShaderResources( shaderBindings );
-		commandList.Dispatch( IRRADIANCE_GROUP_X, IRRADIANCE_GROUP_Y );
+				agl::ShaderBindings shaderBindings = CreateShaderBindings( irradianceOneCS );
+				BindResource( shaderBindings, irradianceOneCS.TransmittanceLut(), groundIrrdiancePassResource.m_transmittanceLut->Get() );
+				BindResource( shaderBindings, irradianceOneCS.TransmittanceLutSampler(), pointSampler );
+				BindResource( shaderBindings, irradianceOneCS.DeltaE(), groundIrrdiancePassResource.m_deltaE->Get() );
+
+				commandList.BindShaderResources( shaderBindings );
+				commandList.Dispatch( IRRADIANCE_GROUP_X, IRRADIANCE_GROUP_Y );
+			} );
 
 		// 3. Compute single scattering texture deltaS
 		agl::TextureTrait deltaS = {
@@ -283,29 +306,40 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::Texture3D
 		};
 
-		RefHandle<agl::Texture> deltaSRTexture = agl::Texture::Create( deltaS, "Atmosphere.DeltaSR" );
-		deltaSRTexture->Init();
+		auto rgDeltaSR = renderGraph.CreateTexture( deltaS, "Atmosphere.DeltaSR" );
+		auto rgDeltaSM = renderGraph.CreateTexture( deltaS, "Atmosphere.DeltaSM" );
 
-		RefHandle<agl::Texture> deltaSMTexture = agl::Texture::Create( deltaS, "Atmosphere.DeltaSM" );
-		deltaSMTexture->Init();
+		BEGIN_RG_RESOURCE_STRUCT( SingleScatteringPassResource )
+			DECLARE_RG_TEXTURE_NONPIXEL_SRV( transmittanceLut )
+			DECLARE_RG_TEXTURE_UAV( deltaSR )
+			DECLARE_RG_TEXTURE_UAV( deltaSM )
+		END_RG_RESOURCE_STRUCT();
 
-		InscatterOneCS inscatterOneCS;
-		RefHandle<agl::ComputePipelineState> inscatterOnePSO = PrepareComputePipelineState( inscatterOneCS );
-		commandList.BindPipelineState( inscatterOnePSO );
+		SingleScatteringPassResource singleScatteringPassResource = {
+			.m_transmittanceLut = rgTransmittanceLut,
+			.m_deltaSR = rgDeltaSR,
+			.m_deltaSM = rgDeltaSM
+		};
 
-		commandList.AddTransition( Transition( *info.GetTransmittanceLutTexture().Get(), agl::ResourceState::NonPixelShaderResource ) );
-		commandList.AddTransition( Transition( *deltaSRTexture.Get(), agl::ResourceState::UnorderedAccess ) );
-		commandList.AddTransition( Transition( *deltaSMTexture.Get(), agl::ResourceState::UnorderedAccess ) );
+		renderGraph.AddPass(
+			singleScatteringPassResource,
+			[singleScatteringPassResource]( ComputeCommandList& commandList )
+			{
+				InscatterOneCS inscatterOneCS;
+				RefHandle<agl::ComputePipelineState> inscatterOnePSO = PrepareComputePipelineState( inscatterOneCS );
+				commandList.BindPipelineState( inscatterOnePSO.Get() );
 
-		shaderBindings = CreateShaderBindings( inscatterOneCS );
+				SamplerState pointSampler = StaticSamplerState<agl::TextureFilter::Point>::Get();
 
-		BindResource( shaderBindings, inscatterOneCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
-		BindResource( shaderBindings, inscatterOneCS.TransmittanceLutSampler(), pointSampler );
-		BindResource( shaderBindings, inscatterOneCS.DeltaSR(), deltaSRTexture );
-		BindResource( shaderBindings, inscatterOneCS.DeltaSM(), deltaSMTexture );
+				agl::ShaderBindings shaderBindings = CreateShaderBindings( inscatterOneCS );
+				BindResource( shaderBindings, inscatterOneCS.TransmittanceLut(), singleScatteringPassResource.m_transmittanceLut->Get() );
+				BindResource( shaderBindings, inscatterOneCS.TransmittanceLutSampler(), pointSampler );
+				BindResource( shaderBindings, inscatterOneCS.DeltaSR(), singleScatteringPassResource.m_deltaSR->Get() );
+				BindResource( shaderBindings, inscatterOneCS.DeltaSM(), singleScatteringPassResource.m_deltaSM->Get() );
 
-		commandList.BindShaderResources( shaderBindings );
-		commandList.Dispatch( INSCATTER1_GROUP_X, INSCATTER1_GROUP_Y, INSCATTER1_GROUP_Z );
+				commandList.BindShaderResources( shaderBindings );
+				commandList.Dispatch( INSCATTER1_GROUP_X, INSCATTER1_GROUP_Y, INSCATTER1_GROUP_Z );
+			} );
 
 		// 4. Copy deltaS into inscatter texture S
 		agl::BufferTrait inscatter = {
@@ -317,32 +351,44 @@ namespace rendercore
 			.m_format = agl::ResourceFormat::Unknown
 		};
 
-		RefHandle<agl::Buffer> inscatterBuffer = agl::Buffer::Create( inscatter, "Atmosphere.Inscatter" );
-		inscatterBuffer->Init();
+		auto rgInscatter = renderGraph.CreateBuffer( inscatter, "Atmosphere.Inscatter" );
 
-		CopyInscatterOneCS copyInscatterOneCS;
-		RefHandle<agl::ComputePipelineState> copyInscatterOnePSO = PrepareComputePipelineState( copyInscatterOneCS );
-		commandList.BindPipelineState( copyInscatterOnePSO );
+		BEGIN_RG_RESOURCE_STRUCT( CopyDeltaSPassResource )
+			DECLARE_RG_TEXTURE_NONPIXEL_SRV( deltaSR )
+			DECLARE_RG_TEXTURE_NONPIXEL_SRV( deltaSM )
+			DECLARE_RG_BUFFER_UAV( inscatter )
+		END_RG_RESOURCE_STRUCT();
 
-		commandList.AddTransition( Transition( *deltaSRTexture.Get(), agl::ResourceState::NonPixelShaderResource ) );
-		commandList.AddTransition( Transition( *deltaSMTexture.Get(), agl::ResourceState::NonPixelShaderResource ) );
-		commandList.AddTransition( Transition( *inscatterBuffer.Get(), agl::ResourceState::UnorderedAccess ) );
+		CopyDeltaSPassResource copyDeltaSPassResource = {
+			.m_deltaSR = rgDeltaSR,
+			.m_deltaSM = rgDeltaSM,
+			.m_inscatter = rgInscatter
+		};
 
-		shaderBindings = CreateShaderBindings( copyInscatterOneCS );
+		renderGraph.AddPass(
+			copyDeltaSPassResource,
+			[copyDeltaSPassResource]( ComputeCommandList& commandList )
+			{
+				CopyInscatterOneCS copyInscatterOneCS;
+				RefHandle<agl::ComputePipelineState> copyInscatterOnePSO = PrepareComputePipelineState( copyInscatterOneCS );
+				commandList.BindPipelineState( copyInscatterOnePSO.Get() );
 
-		BindResource( shaderBindings, copyInscatterOneCS.DeltaSRLut(), deltaSRTexture );
-		BindResource( shaderBindings, copyInscatterOneCS.DeltaSRLutSampler(), pointSampler );
-		BindResource( shaderBindings, copyInscatterOneCS.DeltaSMLut(), deltaSMTexture );
-		BindResource( shaderBindings, copyInscatterOneCS.DeltaSMLutSampler(), pointSampler );
-		BindResource( shaderBindings, copyInscatterOneCS.Inscatter(), inscatterBuffer );
+				SamplerState pointSampler = StaticSamplerState<agl::TextureFilter::Point>::Get();
 
-		commandList.BindShaderResources( shaderBindings );
-		commandList.Dispatch( INSCATTER1_GROUP_X, INSCATTER1_GROUP_Y, INSCATTER1_GROUP_Z );
+				agl::ShaderBindings shaderBindings = CreateShaderBindings( copyInscatterOneCS );
+				BindResource( shaderBindings, copyInscatterOneCS.DeltaSRLut(), copyDeltaSPassResource.m_deltaSR->Get() );
+				BindResource( shaderBindings, copyInscatterOneCS.DeltaSRLutSampler(), pointSampler );
+				BindResource( shaderBindings, copyInscatterOneCS.DeltaSMLut(), copyDeltaSPassResource.m_deltaSM->Get() );
+				BindResource( shaderBindings, copyInscatterOneCS.DeltaSMLutSampler(), pointSampler );
+				BindResource( shaderBindings, copyInscatterOneCS.Inscatter(), copyDeltaSPassResource.m_inscatter->Get() );
 
-		RefHandle<agl::Texture> deltaJTex = agl::Texture::Create( deltaS, "Atmosphere.DeltaJ" );
-		deltaJTex->Init();
+				commandList.BindShaderResources( shaderBindings );
+				commandList.Dispatch( INSCATTER1_GROUP_X, INSCATTER1_GROUP_Y, INSCATTER1_GROUP_Z );
+			} );
 
 		// Irradiance
+		auto rgDeltaJ = renderGraph.CreateTexture( deltaS, "Atmosphere.DeltaJ" );
+
 		agl::BufferTrait irradiance = {
 			.m_stride = sizeof( Vector4 ),
 			.m_count = IRRADIANCE_W * IRRADIANCE_H,
@@ -356,119 +402,190 @@ namespace rendercore
 		RefHandle<agl::Buffer> irradianceBuffer = agl::Buffer::Create( irradiance, "Atmosphere.Irradiance", irradianceData );
 		irradianceBuffer->Init();
 
+		auto rgIrradiance = renderGraph.RegisterExternalResource( irradianceBuffer.Get() );
+
 		// loop for each scattering order
 		for ( uint32 order = 2; order <= 4; ++order )
 		{
 			// Compute deltaJ
-			InscatterSCS inscatterSCS;
-			RefHandle<agl::ComputePipelineState> inscatterSPSO = PrepareComputePipelineState( inscatterSCS );
+			BEGIN_RG_RESOURCE_STRUCT( DeltaJPassResource )
+				DECLARE_RG_TEXTURE_NONPIXEL_SRV( transmittanceLut )
+				DECLARE_RG_TEXTURE_NONPIXEL_SRV( deltaE )
+				DECLARE_RG_TEXTURE_NONPIXEL_SRV( deltaSR )
+				DECLARE_RG_TEXTURE_NONPIXEL_SRV( deltaSM )
+				DECLARE_RG_TEXTURE_UAV( deltaJ )
+			END_RG_RESOURCE_STRUCT();
 
-			shaderBindings = CreateShaderBindings( inscatterSCS );
+			DeltaJPassResource deltaJPassResource = {
+				.m_transmittanceLut = rgTransmittanceLut,
+				.m_deltaE = rgDeltaE,
+				.m_deltaSR = rgDeltaSR,
+				.m_deltaSM = rgDeltaSM,
+				.m_deltaJ = rgDeltaJ
+			};
 
-			commandList.AddTransition( Transition( *info.GetTransmittanceLutTexture().Get(), agl::ResourceState::NonPixelShaderResource ) );
-			commandList.AddTransition( Transition( *deltaETexture.Get(), agl::ResourceState::NonPixelShaderResource ) );
-			commandList.AddTransition( Transition( *deltaSRTexture.Get(), agl::ResourceState::NonPixelShaderResource ) );
-			commandList.AddTransition( Transition( *deltaSMTexture.Get(), agl::ResourceState::NonPixelShaderResource ) );
-			commandList.AddTransition( Transition( *deltaJTex.Get(), agl::ResourceState::UnorderedAccess ) );
+			renderGraph.AddPass(
+				deltaJPassResource,
+				[deltaJPassResource, order]( ComputeCommandList& commandList )
+				{
+					InscatterSCS inscatterSCS;
+					RefHandle<agl::ComputePipelineState> inscatterSPSO = PrepareComputePipelineState( inscatterSCS );
 
-			BindResource( shaderBindings, inscatterSCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
-			BindResource( shaderBindings, inscatterSCS.TransmittanceLutSampler(), pointSampler );
-			BindResource( shaderBindings, inscatterSCS.DeltaELut(), deltaETexture );
-			BindResource( shaderBindings, inscatterSCS.DeltaELutSampler(), pointSampler );
-			BindResource( shaderBindings, inscatterSCS.DeltaSRLut(), deltaSRTexture );
-			BindResource( shaderBindings, inscatterSCS.DeltaSRLutSampler(), pointSampler );
-			BindResource( shaderBindings, inscatterSCS.DeltaSMLut(), deltaSMTexture );
-			BindResource( shaderBindings, inscatterSCS.DeltaSMLutSampler(), pointSampler );
-			BindResource( shaderBindings, inscatterSCS.DeltaJ(), deltaJTex );
+					SamplerState pointSampler = StaticSamplerState<agl::TextureFilter::Point>::Get();
 
-			for ( uint32 i = 0; i < INSCATTERS_GROUP_Z; ++i )
-			{
-				SetShaderValue( commandList, inscatterSCS.Order(), order );
-				SetShaderValue( commandList, inscatterSCS.ThreadGroupZ(), i );
+					agl::ShaderBindings shaderBindings = CreateShaderBindings( inscatterSCS );
+					BindResource( shaderBindings, inscatterSCS.TransmittanceLut(), deltaJPassResource.m_transmittanceLut->Get() );
+					BindResource( shaderBindings, inscatterSCS.TransmittanceLutSampler(), pointSampler );
+					BindResource( shaderBindings, inscatterSCS.DeltaELut(), deltaJPassResource.m_deltaE->Get() );
+					BindResource( shaderBindings, inscatterSCS.DeltaELutSampler(), pointSampler );
+					BindResource( shaderBindings, inscatterSCS.DeltaSRLut(), deltaJPassResource.m_deltaSR->Get() );
+					BindResource( shaderBindings, inscatterSCS.DeltaSRLutSampler(), pointSampler );
+					BindResource( shaderBindings, inscatterSCS.DeltaSMLut(), deltaJPassResource.m_deltaSM->Get() );
+					BindResource( shaderBindings, inscatterSCS.DeltaSMLutSampler(), pointSampler );
+					BindResource( shaderBindings, inscatterSCS.DeltaJ(), deltaJPassResource.m_deltaJ->Get() );
 
-				commandList.BindPipelineState( inscatterSPSO );
-				commandList.BindShaderResources( shaderBindings );
-				commandList.Dispatch( INSCATTERS_GROUP_X, INSCATTERS_GROUP_Y );
-			}
+					for ( uint32 i = 0; i < INSCATTERS_GROUP_Z; ++i )
+					{
+						SetShaderValue( commandList, inscatterSCS.Order(), order );
+						SetShaderValue( commandList, inscatterSCS.ThreadGroupZ(), i );
+
+						commandList.BindPipelineState( inscatterSPSO.Get() );
+						commandList.BindShaderResources( shaderBindings );
+						commandList.Dispatch( INSCATTERS_GROUP_X, INSCATTERS_GROUP_Y );
+					}
+				} );
 
 			// Compute deltaE
-			IrradianceNCS irradianceNCS;
-			RefHandle<agl::ComputePipelineState> irradianceNPSO = PrepareComputePipelineState( irradianceNCS );
-			commandList.BindPipelineState( irradianceNPSO );
+			BEGIN_RG_RESOURCE_STRUCT( DeltaEPassResource )
+				DECLARE_RG_TEXTURE_NONPIXEL_SRV( deltaSR )
+				DECLARE_RG_TEXTURE_NONPIXEL_SRV( deltaSM )
+				DECLARE_RG_TEXTURE_UAV( deltaE )
+			END_RG_RESOURCE_STRUCT();
 
-			shaderBindings = CreateShaderBindings( irradianceNCS );
+			DeltaEPassResource deltaEPassResource = {
+				.m_deltaSR = rgDeltaSR,
+				.m_deltaSM = rgDeltaSM,
+				.m_deltaE = rgDeltaE
+			};
 
-			commandList.AddTransition( Transition( *deltaSRTexture.Get(), agl::ResourceState::NonPixelShaderResource ) );
-			commandList.AddTransition( Transition( *deltaSMTexture.Get(), agl::ResourceState::NonPixelShaderResource ) );
-			commandList.AddTransition( Transition( *deltaETexture.Get(), agl::ResourceState::UnorderedAccess ) );
+			renderGraph.AddPass(
+				deltaEPassResource,
+				[deltaEPassResource, order]( ComputeCommandList& commandList )
+				{
+					IrradianceNCS irradianceNCS;
+					RefHandle<agl::ComputePipelineState> irradianceNPSO = PrepareComputePipelineState( irradianceNCS );
+					commandList.BindPipelineState( irradianceNPSO.Get() );
 
-			BindResource( shaderBindings, irradianceNCS.DeltaSRLut(), deltaSRTexture );
-			BindResource( shaderBindings, irradianceNCS.DeltaSRLutSampler(), pointSampler );
-			BindResource( shaderBindings, irradianceNCS.DeltaSMLut(), deltaSMTexture );
-			BindResource( shaderBindings, irradianceNCS.DeltaSMLutSampler(), pointSampler );
-			BindResource( shaderBindings, irradianceNCS.Irradiance(), deltaETexture );
-			SetShaderValue( commandList, irradianceNCS.Order(), order );
+					SamplerState pointSampler = StaticSamplerState<agl::TextureFilter::Point>::Get();
 
-			commandList.BindShaderResources( shaderBindings );
-			commandList.Dispatch( IRRADIANCE_GROUP_X, IRRADIANCE_GROUP_Y );
+					agl::ShaderBindings shaderBindings = CreateShaderBindings( irradianceNCS );
+					BindResource( shaderBindings, irradianceNCS.DeltaSRLut(), deltaEPassResource.m_deltaSR->Get() );
+					BindResource( shaderBindings, irradianceNCS.DeltaSRLutSampler(), pointSampler );
+					BindResource( shaderBindings, irradianceNCS.DeltaSMLut(), deltaEPassResource.m_deltaSM->Get() );
+					BindResource( shaderBindings, irradianceNCS.DeltaSMLutSampler(), pointSampler );
+					BindResource( shaderBindings, irradianceNCS.Irradiance(), deltaEPassResource.m_deltaE->Get() );
+					SetShaderValue( commandList, irradianceNCS.Order(), order );
 
+					commandList.BindShaderResources( shaderBindings );
+					commandList.Dispatch( IRRADIANCE_GROUP_X, IRRADIANCE_GROUP_Y );
+				} );
+			
 			// Compute deltaS
-			InscatterNCS inscatterNCS;
-			RefHandle<agl::ComputePipelineState> inscatterNPSO = PrepareComputePipelineState( inscatterNCS );
-			commandList.BindPipelineState( inscatterNPSO );
+			BEGIN_RG_RESOURCE_STRUCT( DeltaSPassResource )
+				DECLARE_RG_TEXTURE_NONPIXEL_SRV( transmittanceLut )
+				DECLARE_RG_TEXTURE_NONPIXEL_SRV( deltaJ )
+				DECLARE_RG_TEXTURE_UAV( deltaSR )
+			END_RG_RESOURCE_STRUCT();
 
-			shaderBindings = CreateShaderBindings( inscatterNCS );
+			DeltaSPassResource deltaSPassResource = {
+				.m_transmittanceLut = rgTransmittanceLut,
+				.m_deltaJ = rgDeltaJ,
+				.m_deltaSR = rgDeltaSR
+			};
 
-			commandList.AddTransition( Transition( *info.GetTransmittanceLutTexture().Get(), agl::ResourceState::NonPixelShaderResource ) );
-			commandList.AddTransition( Transition( *deltaJTex.Get(), agl::ResourceState::NonPixelShaderResource ) );
-			commandList.AddTransition( Transition( *deltaSRTexture.Get(), agl::ResourceState::UnorderedAccess ) );
+			renderGraph.AddPass(
+				deltaSPassResource,
+				[deltaSPassResource]( ComputeCommandList& commandList )
+				{
+					InscatterNCS inscatterNCS;
+					RefHandle<agl::ComputePipelineState> inscatterNPSO = PrepareComputePipelineState( inscatterNCS );
+					commandList.BindPipelineState( inscatterNPSO.Get() );
 
-			BindResource( shaderBindings, inscatterNCS.TransmittanceLut(), info.GetTransmittanceLutTexture() );
-			BindResource( shaderBindings, inscatterNCS.TransmittanceLutSampler(), pointSampler );
-			BindResource( shaderBindings, inscatterNCS.DeltaJLut(), deltaJTex );
-			BindResource( shaderBindings, inscatterNCS.DeltaJLutSampler(), pointSampler );
-			BindResource( shaderBindings, inscatterNCS.DeltaSR(), deltaSRTexture );
+					SamplerState pointSampler = StaticSamplerState<agl::TextureFilter::Point>::Get();
 
-			commandList.BindShaderResources( shaderBindings );
-			commandList.Dispatch( INSCATTERN_GROUP_X, INSCATTERN_GROUP_Y, INSCATTERN_GROUP_Z );
+					agl::ShaderBindings shaderBindings = CreateShaderBindings( inscatterNCS );
+					BindResource( shaderBindings, inscatterNCS.TransmittanceLut(), deltaSPassResource.m_transmittanceLut->Get() );
+					BindResource( shaderBindings, inscatterNCS.TransmittanceLutSampler(), pointSampler );
+					BindResource( shaderBindings, inscatterNCS.DeltaJLut(), deltaSPassResource.m_deltaJ->Get() );
+					BindResource( shaderBindings, inscatterNCS.DeltaJLutSampler(), pointSampler );
+					BindResource( shaderBindings, inscatterNCS.DeltaSR(), deltaSPassResource.m_deltaSR->Get() );
+
+					commandList.BindShaderResources( shaderBindings );
+					commandList.Dispatch( INSCATTERN_GROUP_X, INSCATTERN_GROUP_Y, INSCATTERN_GROUP_Z );
+				} );
 
 			// Add deltaE into irradiance textrue E
-			CopyIrradianceCS copyIrradianceCS;
-			RefHandle<agl::ComputePipelineState> copyIrradiancePSO = PrepareComputePipelineState( copyIrradianceCS );
-			commandList.BindPipelineState( copyIrradiancePSO );
+			BEGIN_RG_RESOURCE_STRUCT( CopyIrradiancePassResource )
+				DECLARE_RG_TEXTURE_NONPIXEL_SRV( deltaE )
+				DECLARE_RG_BUFFER_UAV( irradiance )
+			END_RG_RESOURCE_STRUCT();
 
-			shaderBindings = CreateShaderBindings( copyIrradianceCS );
+			CopyIrradiancePassResource copyIrradiancePassResource = {
+				.m_deltaE = rgDeltaE,
+				.m_irradiance = rgIrradiance
+			};
 
-			commandList.AddTransition( Transition( *deltaETexture.Get(), agl::ResourceState::NonPixelShaderResource ) );
-			commandList.AddTransition( Transition( *irradianceBuffer.Get(), agl::ResourceState::UnorderedAccess ) );
+			renderGraph.AddPass(
+				copyIrradiancePassResource,
+				[copyIrradiancePassResource]( ComputeCommandList& commandList )
+				{
+					CopyIrradianceCS copyIrradianceCS;
+					RefHandle<agl::ComputePipelineState> copyIrradiancePSO = PrepareComputePipelineState( copyIrradianceCS );
+					commandList.BindPipelineState( copyIrradiancePSO.Get() );
 
-			BindResource( shaderBindings, copyIrradianceCS.DeltaELut(), deltaETexture );
-			BindResource( shaderBindings, copyIrradianceCS.DeltaELutSampler(), pointSampler );
-			BindResource( shaderBindings, copyIrradianceCS.Irradiance(), irradianceBuffer );
+					SamplerState pointSampler = StaticSamplerState<agl::TextureFilter::Point>::Get();
 
-			commandList.BindShaderResources( shaderBindings );
-			commandList.Dispatch( IRRADIANCE_GROUP_X, IRRADIANCE_GROUP_Y );
+					agl::ShaderBindings shaderBindings = CreateShaderBindings( copyIrradianceCS );
+
+					BindResource( shaderBindings, copyIrradianceCS.DeltaELut(), copyIrradiancePassResource.m_deltaE->Get() );
+					BindResource( shaderBindings, copyIrradianceCS.DeltaELutSampler(), pointSampler );
+					BindResource( shaderBindings, copyIrradianceCS.Irradiance(), copyIrradiancePassResource.m_irradiance->Get() );
+
+					commandList.BindShaderResources( shaderBindings );
+					commandList.Dispatch( IRRADIANCE_GROUP_X, IRRADIANCE_GROUP_Y );
+				} );
 
 			// Add deltaS info inscatter texture S
-			CopyInscatterNCS copyInscatterNCS;
-			RefHandle<agl::ComputePipelineState> copyInscatterNPSO = PrepareComputePipelineState( copyInscatterNCS );
-			commandList.BindPipelineState( copyInscatterNPSO );
+			BEGIN_RG_RESOURCE_STRUCT( CopyInscatterPassResource )
+				DECLARE_RG_TEXTURE_NONPIXEL_SRV( deltaSR )
+				DECLARE_RG_BUFFER_UAV( inscatter )
+			END_RG_RESOURCE_STRUCT();
 
-			shaderBindings = CreateShaderBindings( copyInscatterNCS );
+			CopyInscatterPassResource copyInscatterPassResource = {
+				.m_deltaSR = rgDeltaSR,
+				.m_inscatter = rgInscatter
+			};
 
-			commandList.AddTransition( Transition( *deltaSRTexture.Get(), agl::ResourceState::NonPixelShaderResource ) );
-			commandList.AddTransition( Transition( *inscatterBuffer.Get(), agl::ResourceState::UnorderedAccess ) );
+			renderGraph.AddPass(
+				copyInscatterPassResource,
+				[copyInscatterPassResource]( ComputeCommandList& commandList )
+				{
+					CopyInscatterNCS copyInscatterNCS;
+					RefHandle<agl::ComputePipelineState> copyInscatterNPSO = PrepareComputePipelineState( copyInscatterNCS );
+					commandList.BindPipelineState( copyInscatterNPSO.Get() );
 
-			BindResource( shaderBindings, copyInscatterNCS.DeltaSRLut(), deltaSRTexture );
-			BindResource( shaderBindings, copyInscatterNCS.DeltaSRLutSampler(), pointSampler );
-			BindResource( shaderBindings, copyInscatterNCS.Inscatter(), inscatterBuffer );
+					SamplerState pointSampler = StaticSamplerState<agl::TextureFilter::Point>::Get();
 
-			commandList.BindShaderResources( shaderBindings );
-			commandList.Dispatch( INSCATTERN_GROUP_X, INSCATTERN_GROUP_Y, INSCATTERN_GROUP_Z );
+					agl::ShaderBindings shaderBindings = CreateShaderBindings( copyInscatterNCS );
+
+					BindResource( shaderBindings, copyInscatterNCS.DeltaSRLut(), copyInscatterPassResource.m_deltaSR->Get() );
+					BindResource( shaderBindings, copyInscatterNCS.DeltaSRLutSampler(), pointSampler );
+					BindResource( shaderBindings, copyInscatterNCS.Inscatter(), copyInscatterPassResource.m_inscatter->Get() );
+
+					commandList.BindShaderResources( shaderBindings );
+					commandList.Dispatch( INSCATTERN_GROUP_X, INSCATTERN_GROUP_Y, INSCATTERN_GROUP_Z );
+				} );
 		}
-
-		commandList.Commit();
-		GetInterface<agl::IAgl>()->WaitGPU();
 
 		// copy irradiance buffer to texture
 		{
@@ -484,16 +601,38 @@ namespace rendercore
 			RefHandle<agl::Buffer> irradianceReadBack = agl::Buffer::Create( readBack, "Atmosphere.IrradianceReadBack" );
 			irradianceReadBack->Init();
 
-			commandList.AddTransition( Transition( *irradianceBuffer.Get(), agl::ResourceState::CopySource ) );
-			commandList.CopyResource( irradianceReadBack, irradianceBuffer );
+			auto rgIrradianceReadBack = renderGraph.RegisterExternalResource( irradianceReadBack.Get() );
+			auto rgIrradianceLut = renderGraph.RegisterExternalResource( info.GetIrradianceLutTexture().Get() );
 
-			auto src = GraphicsInterface().Lock( irradianceReadBack, agl::ResourceLockFlag::Read );
-			auto srcData = static_cast<uint8*>( src.m_data );
+			BEGIN_RG_RESOURCE_STRUCT( CopyIrradianceReadBackPassResource )
+				DECLARE_RG_BUFFER_COPY_DEST( irradianceReadBack )
+				DECLARE_RG_BUFFER_COPY_SOURCE( irradiance )
+				DECLARE_RG_TEXTURE_COPY_DEST( irradianceLut )
+			END_RG_RESOURCE_STRUCT();
 
-			constexpr size_t RowSize = sizeof( Vector4 ) * IRRADIANCE_W;
+			CopyIrradianceReadBackPassResource passResource = {
+				.m_irradianceReadBack = rgIrradianceReadBack,
+				.m_irradiance = rgIrradiance,
+				.m_irradianceLut = rgIrradianceLut
+			};
 
-			commandList.UpdateSubresource( info.GetIrradianceLutTexture(), srcData, RowSize );
-			GraphicsInterface().UnLock( irradianceReadBack );
+			renderGraph.AddPass(
+				passResource,
+				[passResource]( ResourceCommandList& commandList )
+				{
+					commandList.CopyResource( passResource.m_irradianceReadBack->Get(), passResource.m_irradiance->Get(), false);
+
+					commandList.Commit();
+					GetInterface<agl::IAgl>()->WaitGPU();
+
+					auto src = GraphicsInterface().Lock( passResource.m_irradianceReadBack->Get(), agl::ResourceLockFlag::Read);
+					auto srcData = static_cast<uint8*>( src.m_data );
+
+					constexpr size_t RowSize = sizeof( Vector4 ) * IRRADIANCE_W;
+
+					commandList.UpdateSubresource( passResource.m_irradianceLut->Get(), srcData, RowSize, false);
+					GraphicsInterface().UnLock( passResource.m_irradianceReadBack->Get() );
+				});
 		}
 
 		// copy inscatter buffer to texture
@@ -510,16 +649,38 @@ namespace rendercore
 			RefHandle<agl::Buffer> inscatterReadBack = agl::Buffer::Create( readBack, "Atmosphere.InscatterReadBack" );
 			inscatterReadBack->Init();
 
-			commandList.AddTransition( Transition( *inscatterBuffer.Get(), agl::ResourceState::CopySource ) );
-			commandList.CopyResource( inscatterReadBack, inscatterBuffer );
+			auto rgInscatterReadBack = renderGraph.RegisterExternalResource( inscatterReadBack.Get() );
+			auto rgInscatterLut = renderGraph.RegisterExternalResource( info.GetInscatterLutTexture().Get() );
 
-			auto src = GraphicsInterface().Lock( inscatterReadBack, agl::ResourceLockFlag::Read );
-			auto srcData = static_cast<uint8*>( src.m_data );
+			BEGIN_RG_RESOURCE_STRUCT( CopyInscatterReadBackPassResource )
+				DECLARE_RG_BUFFER_COPY_DEST( inscatterReadBack )
+				DECLARE_RG_BUFFER_COPY_SOURCE( inscatter )
+				DECLARE_RG_TEXTURE_COPY_DEST( inscatterLut )
+			END_RG_RESOURCE_STRUCT();
 
-			constexpr size_t RowSize = sizeof( Vector4 ) * RES_MU_S * RES_NU;
+			CopyInscatterReadBackPassResource passResource = {
+				.m_inscatterReadBack = rgInscatterReadBack,
+				.m_inscatter = rgInscatter,
+				.m_inscatterLut = rgInscatterLut
+			};
 
-			commandList.UpdateSubresource( info.GetInscatterLutTexture(), srcData, RowSize );
-			GraphicsInterface().UnLock( inscatterReadBack );
+			renderGraph.AddPass(
+				passResource,
+				[passResource]( ResourceCommandList& commandList )
+				{
+					commandList.CopyResource( passResource.m_inscatterReadBack->Get(), passResource.m_inscatter->Get(), false);
+
+					commandList.Commit();
+					GetInterface<agl::IAgl>()->WaitGPU();
+
+					auto src = GraphicsInterface().Lock( passResource.m_inscatterReadBack->Get(), agl::ResourceLockFlag::Read);
+					auto srcData = static_cast<uint8*>( src.m_data );
+
+					constexpr size_t RowSize = sizeof( Vector4 ) * RES_MU_S * RES_NU;
+
+					commandList.UpdateSubresource( passResource.m_inscatterLut->Get(), srcData, RowSize, false);
+					GraphicsInterface().UnLock( passResource.m_inscatterReadBack->Get() );
+				} );
 		}
 
 		info.RebuildLookUpTables() = false;

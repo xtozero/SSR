@@ -8,7 +8,7 @@
 
 namespace rendercore
 {
-	void PrimitiveSubMeshInfo::OnDrawSnapshotAdded( RenderPass passType )
+	void PrimitiveSubMeshInfo::OnDrawSnapshotAdded( RenderPassType passType )
 	{
 		m_passTypeMask |= 1 << static_cast<uint32>( passType );
 	}
@@ -142,7 +142,7 @@ namespace rendercore
 
 	HitProxyId PrimitiveSceneInfo::GetHitProxyId() const
 	{
-		if ( m_hitProxy )
+		if ( m_hitProxy.Get() )
 		{
 			return m_hitProxy->GetId();
 		}
@@ -166,9 +166,9 @@ namespace rendercore
 			PrimitiveSubMeshInfo& subMeshInfo = m_subMeshInfos[i];
 			subMeshInfo.SnapshotInfoBase() = static_cast<uint32>( m_cachedDrawSnapshotInfos.size() );
 
-			for ( uint32 j = 0; j < static_cast<uint32>( RenderPass::Count ); ++j )
+			for ( uint32 j = 0; j < static_cast<uint32>( RenderPassType::Count ); ++j )
 			{
-				auto passType = static_cast<RenderPass>( j );
+				auto passType = static_cast<RenderPassType>( j );
 				IPassProcessor* processor = PassProcessorManager::GetPassProcessor( passType );
 				if ( processor == nullptr )
 				{
@@ -196,7 +196,7 @@ namespace rendercore
 		}
 	}
 
-	std::optional<uint32> PrimitiveSubMeshInfo::GetCachedDrawSnapshotInfoIndex( RenderPass passType ) const
+	std::optional<uint32> PrimitiveSubMeshInfo::GetCachedDrawSnapshotInfoIndex( RenderPassType passType ) const
 	{
 		uint32 iPassType = static_cast<uint32>( passType );
 		if ( ( m_passTypeMask & ( 1 << iPassType ) ) == 0 )

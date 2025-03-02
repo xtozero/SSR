@@ -23,32 +23,19 @@ namespace agl
 			numByte = dest.Size();
 		}
 
-		D3D12HeapProperties heapProperties = {
-			.m_alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT,
-			.m_heapType = D3D12_HEAP_TYPE_UPLOAD,
-			.m_heapFlags = D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS
+		BufferTrait trait = {
+			.m_stride = static_cast<uint32>( numByte ),
+			.m_count = 1,
+			.m_access = ResourceAccessFlag::Upload,
+			.m_bindType = ResourceBindType::None,
+			.m_miscFlag = ResourceMisc::Intermediate,
+			.m_format = ResourceFormat::Unknown
 		};
 
-		D3D12_RESOURCE_DESC desc = {
-			.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER,
-			.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT,
-			.Width = numByte,
-			.Height = 1,
-			.DepthOrArraySize = 1,
-			.MipLevels = 1,
-			.Format = DXGI_FORMAT_UNKNOWN,
-			.SampleDesc = {
-				.Count = 1,
-				.Quality = 0
-			},
-			.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
-			.Flags = D3D12_RESOURCE_FLAG_NONE
-		};
+		m_intermediateResource = Buffer::Create( trait, "Uploader.Buffer.Intermediate" );
+		m_intermediateResource->Init();
 
-		D3D12ResourceAllocator& allocator = D3D12Allocator();
-		m_srcResourceInfo = allocator.AllocateResource( heapProperties, desc, D3D12_RESOURCE_STATE_GENERIC_READ );
-
-		ID3D12Resource* resource = m_srcResourceInfo.GetResource();
+		auto resource = static_cast<ID3D12Resource*>( m_intermediateResource->Resource() );
 		void* mappedData = nullptr;
 		[[maybe_unused]] HRESULT hr = resource->Map( 0, nullptr, &mappedData );
 		assert( SUCCEEDED( hr ) );
@@ -66,85 +53,7 @@ namespace agl
 	{
 		assert( m_destResource.Get() == nullptr );
 
-		m_destResource = &dest;
-
-		const TextureTrait& destTrait = dest.GetTrait();
-		bool bIsTexture3D = HasAnyFlags( destTrait.m_miscFlag, ResourceMisc::Texture3D );
-
-		CubeArea<uint32> destArea;
-		if ( pDestArea == nullptr )
-		{
-			destArea = {
-				.m_left = 0,
-				.m_top = 0,
-				.m_front = 0,
-				.m_right = destTrait.m_width,
-				.m_bottom = destTrait.m_height,
-				.m_back = bIsTexture3D ? destTrait.m_depth : 1,
-			};
-		}
-		else
-		{
-			destArea = *pDestArea;
-		}
-
-		D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout = {};
-		uint32 numRows = 0;
-		uint64 rowSize = 0;
-		uint64 totalSize = 0;
-
-		D3D12_RESOURCE_DESC intermediateDesc = dest.GetDesc();
-		intermediateDesc.Width = destArea.m_right - destArea.m_left;
-		intermediateDesc.Height = destArea.m_bottom - destArea.m_top;
-		intermediateDesc.DepthOrArraySize = static_cast<uint16>( destArea.m_back - destArea.m_front );
-
-		D3D12Device().GetCopyableFootprints( &dest.GetDesc(), subresource, 1, 0, &layout, &numRows, &rowSize, &totalSize );
-
-		D3D12HeapProperties heapProperties = {
-			.m_alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT,
-			.m_heapType = D3D12_HEAP_TYPE_UPLOAD,
-			.m_heapFlags = D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS
-		};
-
-		D3D12_RESOURCE_DESC desc = {
-			.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER,
-			.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT,
-			.Width = totalSize,
-			.Height = 1,
-			.DepthOrArraySize = 1,
-			.MipLevels = 1,
-			.Format = DXGI_FORMAT_UNKNOWN,
-			.SampleDesc = {
-				.Count = 1,
-				.Quality = 0
-			},
-			.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
-			.Flags = D3D12_RESOURCE_FLAG_NONE
-		};
-
-		D3D12ResourceAllocator& allocator = D3D12Allocator();
-		m_srcResourceInfo = allocator.AllocateResource( heapProperties, desc, D3D12_RESOURCE_STATE_GENERIC_READ );
-
-		ID3D12Resource* resource = m_srcResourceInfo.GetResource();
-		uint8* mappedData = nullptr;
-		[[maybe_unused]] HRESULT hr = resource->Map( 0, nullptr, reinterpret_cast<void**>( &mappedData ) );
-		assert( SUCCEEDED( hr ) );
-
-		auto srcData = static_cast<const uint8*>( data );
-
-		for ( uint32 z = 0, zEnd = destArea.m_back - destArea.m_front; z < zEnd; ++z )
-		{
-			auto row = mappedData;
-			for ( uint32 y = 0, yEnd = numRows; y < yEnd; ++y )
-			{
-				std::memcpy( row, srcData, srcRowSize );
-				srcData += srcRowSize;
-				row += layout.Footprint.RowPitch;
-			}
-			mappedData += ( numRows * layout.Footprint.RowPitch );
-		}
-
-		resource->Unmap( 0, nullptr );
+		auto intermediate = CreateIntermediateInfo( dest, data, srcRowSize, pDestArea, subresource );
 
 		D3D12_TEXTURE_COPY_LOCATION destLocation = {
 			.pResource = static_cast<ID3D12Resource*>( dest.Resource() ),
@@ -153,31 +62,29 @@ namespace agl
 		};
 
 		D3D12_TEXTURE_COPY_LOCATION srcLocation = {
-			.pResource = resource,
+			.pResource = static_cast<ID3D12Resource*>( intermediate.m_buffer->Resource() ),
 			.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,
-			.PlacedFootprint = layout
+			.PlacedFootprint = intermediate.m_layout
 		};
 
 		CommandList()->CopyTextureRegion(
 			&destLocation,
-			destArea.m_left, 
-			destArea.m_top,
-			destArea.m_front,
+			intermediate.m_destArea.m_left, 
+			intermediate.m_destArea.m_top,
+			intermediate.m_destArea.m_front,
 			&srcLocation,
 			nullptr
 		);
 
 		CommandList()->Close();
+
+		m_destResource = &dest;
+		m_intermediateResource = intermediate.m_buffer;
 	}
 
 	bool D3D12UploadContext::IsFinished() const
 	{
 		return Fence()->GetCompletedValue() > 0;
-	}
-
-	D3D12UploadContext::~D3D12UploadContext()
-	{
-		m_srcResourceInfo.Release();
 	}
 
 	ID3D12GraphicsCommandList6* D3D12UploadContext::CommandList() const
@@ -507,5 +414,75 @@ namespace agl
 	{
 		CloseHandle( m_uploadFenceEvent );
 		CloseHandle( m_copyFenceEvent );
+	}
+
+	IntermediateInfo CreateIntermediateInfo( const D3D12Texture& dest, const void* data, uint32 srcRowSize, const CubeArea<uint32>* pDestArea, uint32 subresource )
+	{
+		IntermediateInfo intermediate;
+
+		const TextureTrait& destTrait = dest.GetTrait();
+		bool bIsTexture3D = HasAnyFlags( destTrait.m_miscFlag, ResourceMisc::Texture3D );
+
+		if ( pDestArea == nullptr )
+		{
+			intermediate.m_destArea = {
+				.m_left = 0,
+				.m_top = 0,
+				.m_front = 0,
+				.m_right = destTrait.m_width,
+				.m_bottom = destTrait.m_height,
+				.m_back = bIsTexture3D ? destTrait.m_depth : 1,
+			};
+		}
+		else
+		{
+			intermediate.m_destArea = *pDestArea;
+		}
+
+		uint32 numRows = 0;
+		uint64 rowSize = 0;
+		uint64 totalSize = 0;
+
+		D3D12_RESOURCE_DESC intermediateDesc = dest.GetDesc();
+		intermediateDesc.Width = intermediate.m_destArea.m_right - intermediate.m_destArea.m_left;
+		intermediateDesc.Height = intermediate.m_destArea.m_bottom - intermediate.m_destArea.m_top;
+		intermediateDesc.DepthOrArraySize = static_cast<uint16>( intermediate.m_destArea.m_back - intermediate.m_destArea.m_front );
+
+		D3D12Device().GetCopyableFootprints( &dest.GetDesc(), subresource, 1, 0, &intermediate.m_layout, &numRows, &rowSize, &totalSize );
+
+		BufferTrait trait = {
+			.m_stride = static_cast<uint32>( totalSize ),
+			.m_count = 1,
+			.m_access = ResourceAccessFlag::Upload,
+			.m_bindType = ResourceBindType::None,
+			.m_miscFlag = ResourceMisc::Intermediate,
+			.m_format = ResourceFormat::Unknown
+		};
+
+		intermediate.m_buffer = Buffer::Create( trait, "Uploader.Texture.Intermediate" );
+		intermediate.m_buffer->Init();
+
+		auto resource = static_cast<ID3D12Resource*>( intermediate.m_buffer->Resource() );
+		uint8* mappedData = nullptr;
+		[[maybe_unused]] HRESULT hr = resource->Map( 0, nullptr, reinterpret_cast<void**>( &mappedData ) );
+		assert( SUCCEEDED( hr ) );
+
+		auto srcData = static_cast<const uint8*>( data );
+
+		for ( uint32 z = 0, zEnd = intermediate.m_destArea.m_back - intermediate.m_destArea.m_front; z < zEnd; ++z )
+		{
+			auto row = mappedData;
+			for ( uint32 y = 0, yEnd = numRows; y < yEnd; ++y )
+			{
+				std::memcpy( row, srcData, srcRowSize );
+				srcData += srcRowSize;
+				row += intermediate.m_layout.Footprint.RowPitch;
+			}
+			mappedData += ( numRows * intermediate.m_layout.Footprint.RowPitch );
+		}
+
+		resource->Unmap( 0, nullptr );
+
+		return intermediate;
 	}
 }

@@ -15,6 +15,7 @@ namespace rendercore
 {
 	class HemisphereLightProxy;
 	class PrimitiveSceneInfo;
+	class RenderGraph;
 	class SkyAtmosphereRenderSceneInfo;
 	class TexturedSkyProxy;
 	class VolumetricCloudSceneInfo;
@@ -111,9 +112,9 @@ namespace rendercore
 			return m_lights;
 		}
 
-		[[nodiscard]] CachedDrawSnapshotInfo AddCachedDrawSnapshot( RenderPass passType, const DrawSnapshot& snapshot );
+		[[nodiscard]] CachedDrawSnapshotInfo AddCachedDrawSnapshot( RenderPassType passType, const DrawSnapshot& snapshot );
 		void RemoveCachedDrawSnapshot( const CachedDrawSnapshotInfo& info );
-		SparseArray<DrawSnapshot>& CachedSnapshots( RenderPass passType ) { return m_cachedSnapshots[static_cast<uint32>( passType )]; }
+		SparseArray<DrawSnapshot>& CachedSnapshots( RenderPassType passType ) { return m_cachedSnapshots[static_cast<uint32>( passType )]; }
 
 		TexturedSkyProxy* TexturedSky()
 		{
@@ -190,7 +191,7 @@ namespace rendercore
 
 		SparseArray<LightSceneInfo*> m_lights;
 
-		SparseArray<DrawSnapshot> m_cachedSnapshots[static_cast<uint32>( RenderPass::Count )];
+		SparseArray<DrawSnapshot> m_cachedSnapshots[static_cast<uint32>( RenderPassType::Count )];
 		CachedDrawSnapshotBucket m_cachedSnapshotBuckect;
 
 		RefHandle<ShaderArguments> m_viewShaderArguments;
@@ -205,8 +206,8 @@ namespace rendercore
 
 		SceneVelocityData m_velocityData;
 
-		friend void UpdateGPUPrimitiveInfos( Scene& scene );
+		friend void UpdateGPUPrimitiveInfos( RenderGraph& renderGraph, Scene& scene );
 	};
 
-	void UpdateGPUPrimitiveInfos( Scene& scene );
+	void UpdateGPUPrimitiveInfos( RenderGraph& renderGraph, Scene& scene );
 }

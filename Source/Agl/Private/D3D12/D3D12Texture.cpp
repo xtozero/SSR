@@ -600,6 +600,15 @@ namespace agl
 		}
 	}
 
+	void D3D12Texture::SetDebugObjectName()
+	{
+		if ( ID3D12Resource* resource = m_resourceInfo.GetResource() )
+		{
+			auto dataSize = static_cast<uint32>( m_debugName.Str().size() );
+			resource->SetPrivateData( WKPDID_D3DDebugObjectName, dataSize, m_debugName.Str().data() );
+		}
+	}
+
 	void D3D12Texture::CreateTexture()
 	{
 		AdjustInitalResourceStates();
@@ -616,11 +625,7 @@ namespace agl
 			clearValue.Format == DXGI_FORMAT_UNKNOWN ? nullptr : &clearValue
 		);
 
-		if ( ID3D12Resource* resource = m_resourceInfo.GetResource() )
-		{
-			auto dataSize = static_cast<uint32>( m_debugName.Str().size() );
-			resource->SetPrivateData( WKPDID_D3DDebugObjectName, dataSize, m_debugName.Str().data() );
-		}
+		SetDebugObjectName();
 
 		if ( m_initData.empty() == false )
 		{
@@ -678,16 +683,14 @@ namespace agl
 	{
 	}
 
-	D3D12Texture2D::D3D12Texture2D( ID3D12Resource* texture, const char* debugName, const D3D12_RESOURCE_DESC* desc )
+	D3D12Texture2D::D3D12Texture2D( ID3D12Resource* texture, const char* debugName, const float4& clearColor, const D3D12_RESOURCE_DESC* desc )
 	{
 		if ( texture )
 		{
-			m_debugName = Name( debugName );
-
-			auto dataSize = static_cast<uint32>( m_debugName.Str().size() );
-			texture->SetPrivateData( WKPDID_D3DDebugObjectName, dataSize, m_debugName.Str().data() );
-
 			m_resourceInfo.SetResource( texture );
+
+			Rename( Name( debugName ) );
+
 			if ( desc == nullptr )
 			{
 				m_desc = texture->GetDesc();
@@ -701,6 +704,10 @@ namespace agl
 			assert( SUCCEEDED( hr ) );
 
 			m_trait = ConvertDescToTrait( m_desc, m_heapProperties );
+			m_trait.m_clearValue = ResourceClearValue{
+				.m_format = m_trait.m_format,
+				.m_color = { clearColor[0], clearColor[1], clearColor[2], clearColor[3]}
+			};
 		}
 	}
 
@@ -711,7 +718,14 @@ namespace agl
 		{
 			rtvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
 		}
-		m_rtv = new D3D12RenderTargetView( this, static_cast<ID3D12Resource*>( Resource() ), rtvDesc );
+
+		ColorF clearColor = ColorF::Black;
+		if ( m_trait.m_clearValue )
+		{
+			clearColor = m_trait.m_clearValue->m_color;
+		}
+
+		m_rtv = new D3D12RenderTargetView( this, static_cast<ID3D12Resource*>( Resource() ), rtvDesc, clearColor );
 		m_rtv->Init();
 	}
 
@@ -722,7 +736,16 @@ namespace agl
 		{
 			dsvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
 		}
-		m_dsv = new D3D12DepthStencilView( this, static_cast<ID3D12Resource*>( Resource() ), dsvDesc );
+
+		float depthClearValue = 0;
+		uint8 stencilClearValue = 0;
+		if ( m_trait.m_clearValue )
+		{
+			depthClearValue = m_trait.m_clearValue->m_depthStencil.m_depth;
+			stencilClearValue = m_trait.m_clearValue->m_depthStencil.m_stencil;
+		}
+
+		m_dsv = new D3D12DepthStencilView( this, static_cast<ID3D12Resource*>( Resource() ), dsvDesc, depthClearValue, stencilClearValue );
 		m_dsv->Init();
 	}
 
@@ -733,7 +756,14 @@ namespace agl
 		{
 			rtvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
 		}
-		m_rtv = new D3D12RenderTargetView( this, static_cast<ID3D12Resource*>( Resource() ), rtvDesc );
+
+		ColorF clearColor = ColorF::Black;
+		if ( m_trait.m_clearValue )
+		{
+			clearColor = m_trait.m_clearValue->m_color;
+		}
+
+		m_rtv = new D3D12RenderTargetView( this, static_cast<ID3D12Resource*>( Resource() ), rtvDesc, clearColor );
 		m_rtv->Init();
 	}
 

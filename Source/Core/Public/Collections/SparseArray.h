@@ -137,7 +137,7 @@ public:
 	public:
 		using iterator_category = std::forward_iterator_tag;
 		using value_type = T;
-		using difference_type = std::ptrdiff_t;
+		using difference_type = ptrint;
 		using pointer = std::conditional_t<IsConst, const value_type*, value_type*>;
 		using reference = std::conditional_t<IsConst, const value_type&, value_type&>;
 

@@ -10,24 +10,24 @@ namespace rendercore
 		assert( IsInRenderThread() );
 
 		assert( data != nullptr );
-		void* dest = GraphicsInterface().Lock( m_buffer ).m_data;
+		void* dest = GraphicsInterface().Lock( m_buffer.Get() ).m_data;
 		if ( dest )
 		{
 			std::memcpy( dest, data, size );
 		}
-		GraphicsInterface().UnLock( m_buffer );
+		GraphicsInterface().UnLock( m_buffer.Get() );
 	}
 
 	void* ConstantBuffer::Lock()
 	{
 		assert( IsInRenderThread() );
-		return  GraphicsInterface().Lock( m_buffer ).m_data;
+		return  GraphicsInterface().Lock( m_buffer.Get() ).m_data;
 	}
 
 	void ConstantBuffer::Unlock()
 	{
 		assert( IsInRenderThread() );
-		GraphicsInterface().UnLock( m_buffer );
+		GraphicsInterface().UnLock( m_buffer.Get() );
 	}
 
 	size_t ConstantBuffer::Size() const

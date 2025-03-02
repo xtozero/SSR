@@ -17,7 +17,7 @@ namespace agl
 	class D3D11Viewport final : public Viewport
 	{
 	public:
-		virtual void Clear( const float (&clearColor)[4] ) override;
+		virtual void Clear() override;
 		virtual void Bind( ICommandListBase& commandList ) const override;
 
 		virtual std::pair<uint32, uint32> Size() const override;
@@ -25,7 +25,7 @@ namespace agl
 		virtual void Resize( const std::pair<uint32, uint32>& newSize ) override;
 		virtual agl::Texture* Texture() override;
 
-		D3D11Viewport( uint32 width, uint32 height, DXGI_FORMAT format );
+		D3D11Viewport( uint32 width, uint32 height, DXGI_FORMAT format, const float4& clearColor );
 		D3D11Viewport( DxgiSwapchain<AglType::D3D11>& swapchain );
 
 	private:
@@ -39,6 +39,7 @@ namespace agl
 		uint32 m_width;
 		uint32 m_height;
 		DXGI_FORMAT m_format;
+		float4 m_clearColor;
 
 		RefHandle<D3D11Texture2D> m_frameBuffer;
 		RefHandle<DxgiSwapchain<AglType::D3D11>> m_swapchain;
