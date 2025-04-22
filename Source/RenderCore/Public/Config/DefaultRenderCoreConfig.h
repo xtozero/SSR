@@ -26,7 +26,12 @@ namespace rendercore
 		static bool IsLpvEnabled();
 		static uint32 NumLpvIteration();
 
+		static bool IsPIXEnabled();
+
 	private:
+		PROPERTY( enablePIX )
+		bool m_enablePIX = false;
+
 		PROPERTY( enableTAA )
 		bool m_enableTAA = false;
 

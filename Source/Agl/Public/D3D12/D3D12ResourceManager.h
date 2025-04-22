@@ -54,7 +54,10 @@ namespace agl
 		virtual PipelineStatistics* CreatePipelineStatistics() const override;
 
 		virtual void SetPSOCache( std::map<uint64, BinaryChunk>& psoCache ) override;
+		virtual void SetPSOCache( const BinaryChunk& psoCache ) override;
+		virtual BinaryChunk SerializePSOLibraryCache() override;
 
+		ID3D12PipelineState* FindOrCreate( D3D12ComputePipelineState* pipelineState );
 		ID3D12PipelineState* FindOrCreate( D3D12GraphicsPipelineState* pipelineState, const DXGI_FORMAT( &rtvFormats )[8], DXGI_FORMAT dsvFormat );
 
 		D3D12DisposableConstantBufferPool& GetDisposableConstantBufferPool();
@@ -149,9 +152,14 @@ namespace agl
 		std::shared_mutex m_d3d12PipelineMutex;
 		std::unordered_map<D3D12PipelineStateKey, Microsoft::WRL::ComPtr<ID3D12PipelineState>, D3D12PipelineStateKeyHasher> m_d3d12PipelineState;
 
+		std::shared_mutex m_d3d12ComputePipelineMutex;
+		std::unordered_map<D3D12ComputePipelineState*, Microsoft::WRL::ComPtr<ID3D12PipelineState>> m_d3d12ComputePipelineState;
+
 		std::map<uint64, BinaryChunk>* m_psoCache = nullptr;
 
 		std::vector<D3D12DisposableConstantBufferPool> m_d3d12DisposbleConstantBufferPool;
+
+		Microsoft::WRL::ComPtr<ID3D12PipelineLibrary1> m_d3d12PipelineLibrary;
 	};
 
 	Owner<IResourceManager*> CreateD3D12ResourceManager();

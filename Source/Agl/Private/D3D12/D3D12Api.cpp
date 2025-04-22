@@ -192,6 +192,7 @@ namespace agl
 		virtual const char* GetShaderCacheFilePath() const override;
 
 		virtual bool IsSupportsPSOCache() const override;
+		virtual bool IsSupportsPSOLibraryCache() const override;
 		virtual const char* GetPSOCacheFilePath() const override;
 
 		virtual bool IsSupportsMeshShader() const override;
@@ -236,6 +237,7 @@ namespace agl
 		ComPtr<IDxcLibrary> m_dxcLibrary;
 		ComPtr<IDxcContainerReflection> m_reflection;
 
+		bool m_psoLibraryCacheAvailable = false;
 		bool m_raytracingAvailable = false;
 		bool m_meshShaderAvailable = false;
 		D3D12_FEATURE_DATA_SHADER_MODEL m_shaderModel = {};
@@ -531,6 +533,11 @@ namespace agl
 		return true;
 	}
 
+	bool Direct3D12::IsSupportsPSOLibraryCache() const
+	{
+		return m_psoLibraryCacheAvailable;
+	}
+
 	const char* Direct3D12::GetPSOCacheFilePath() const
 	{
 		return "./Assets/Shaders/PSOCache-d3d12.asset";
@@ -672,7 +679,17 @@ namespace agl
 			return false;
 		}
 
-		D3D12_FEATURE_DATA_D3D12_OPTIONS5 featureOption5;
+		D3D12_FEATURE_DATA_SHADER_CACHE shaderCacheFeature = {};
+		hr = m_device->CheckFeatureSupport( D3D12_FEATURE_SHADER_CACHE, &shaderCacheFeature, sizeof( shaderCacheFeature ) );
+
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
+
+		m_psoLibraryCacheAvailable = shaderCacheFeature.SupportFlags & D3D12_SHADER_CACHE_SUPPORT_LIBRARY;
+
+		D3D12_FEATURE_DATA_D3D12_OPTIONS5 featureOption5 = {};
 		hr = m_device->CheckFeatureSupport( D3D12_FEATURE_D3D12_OPTIONS5, &featureOption5, sizeof( featureOption5 ) );
 
 		if ( FAILED( hr ) )
@@ -685,12 +702,12 @@ namespace agl
 		D3D12_FEATURE_DATA_D3D12_OPTIONS7 featureOption7 = {};
 		hr = m_device->CheckFeatureSupport( D3D12_FEATURE_D3D12_OPTIONS7, &featureOption7, sizeof( featureOption7 ) );
 		
-		m_meshShaderAvailable = ( featureOption7.MeshShaderTier != D3D12_MESH_SHADER_TIER_NOT_SUPPORTED );
-
 		if ( FAILED( hr ) )
 		{
 			return false;
 		}
+
+		m_meshShaderAvailable = ( featureOption7.MeshShaderTier != D3D12_MESH_SHADER_TIER_NOT_SUPPORTED );
 
 		D3D_SHADER_MODEL allModelVersions[] = {
 			D3D_SHADER_MODEL_6_7,

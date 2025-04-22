@@ -185,6 +185,7 @@ namespace agl
 		virtual const char* GetShaderCacheFilePath() const override;
 
 		virtual bool IsSupportsPSOCache() const override;
+		virtual bool IsSupportsPSOLibraryCache() const override;
 		virtual const char* GetPSOCacheFilePath() const override;
 
 		virtual bool IsSupportsMeshShader() const override;
@@ -474,6 +475,11 @@ namespace agl
 	}
 
 	bool CDirect3D11::IsSupportsPSOCache() const
+	{
+		return false;
+	}
+
+	bool CDirect3D11::IsSupportsPSOLibraryCache() const
 	{
 		return false;
 	}

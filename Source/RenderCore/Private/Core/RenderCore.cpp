@@ -3,6 +3,7 @@
 #include "AbstractGraphicsInterface.h"
 #include "CommandList.h"
 #include "CommonRenderResource.h"
+#include "Config/DefaultRenderCoreConfig.h"
 #include "Core/IEditor.h"
 #include "CpuProfiler.h"
 #include "ForwardRenderer.h"
@@ -119,12 +120,15 @@ namespace rendercore
 	bool RenderCore::BootUp()
 	{
 #if _WIN64
-		m_hWinPixEventRuntime = LoadLibrary( _T( "WinPixEventRuntime.dll" ) );
-
-		std::optional<std::wstring> winPixGpuCapturerPath = GetLatestWinPixGpuCapturerPath();
-		if ( winPixGpuCapturerPath )
+		if ( DefaultRenderCore::IsPIXEnabled() )
 		{
-			m_hWinPixGpuCapturer = LoadLibrary( winPixGpuCapturerPath.value().c_str() );
+			m_hWinPixEventRuntime = LoadLibrary( _T( "WinPixEventRuntime.dll" ) );
+
+			std::optional<std::wstring> winPixGpuCapturerPath = GetLatestWinPixGpuCapturerPath();
+			if ( winPixGpuCapturerPath )
+			{
+				m_hWinPixGpuCapturer = LoadLibrary( winPixGpuCapturerPath.value().c_str() );
+			}
 		}
 #endif
 

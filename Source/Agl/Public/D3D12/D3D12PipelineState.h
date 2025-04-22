@@ -54,7 +54,7 @@ namespace agl
 	class D3D12ComputePipelineState final : public ComputePipelineState
 	{
 	public:
-		ID3D12PipelineState* Resource() const;
+		const D3D12_COMPUTE_PIPELINE_STATE_DESC& GetDesc() const;
 		D3D12RootSignature* GetRootSignature() const;
 
 		D3D12ComputePipelineState( const ComputePipelineStateInitializer& initializer, const BinaryChunk* cachedPSO );

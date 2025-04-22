@@ -52,12 +52,21 @@ namespace rendercore
 		}
 
 		m_pipelineStateCache = std::reinterpret_pointer_cast<PipelineStateCache>( psoCache );
+		PipelineStateCacheType type = m_pipelineStateCache->m_psoCacheType;
 		std::map<uint64, BinaryChunk>& psoCacheRef = m_pipelineStateCache->m_psoCache;
+		BinaryChunk& psoLibraryCacheRef = m_pipelineStateCache->m_psoLibraryCache;
 
 		EnqueueRenderTask(
-			[&psoCacheRef]()
+			[type, &psoCacheRef, &psoLibraryCacheRef]()
 			{
-				GetInterface<agl::IResourceManager>()->SetPSOCache( psoCacheRef );
+				if ( type == PipelineStateCacheType::HandmadeCache )
+				{
+					GetInterface<agl::IResourceManager>()->SetPSOCache( psoCacheRef );
+				}
+				else
+				{
+					GetInterface<agl::IResourceManager>()->SetPSOCache( psoLibraryCacheRef );
+				}
 			} );
 	}
 
@@ -82,8 +91,25 @@ namespace rendercore
 			return;
 		}
 
+		if ( agl->IsSupportsPSOLibraryCache() == false )
+		{
+			m_pipelineStateCache->m_psoCacheType = PipelineStateCacheType::HandmadeCache;
+		}
+
 		if ( m_pipelineStateCache != nullptr )
 		{
+			m_pipelineStateCache->m_psoLibraryCache = GetInterface<agl::IResourceManager>()->SerializePSOLibraryCache();
+
+			// Unused types of PSO cache data are deleted to save space.
+			if ( m_pipelineStateCache->m_psoCacheType == PipelineStateCacheType::HandmadeCache )
+			{
+				m_pipelineStateCache->m_psoLibraryCache = BinaryChunk();
+			}
+			else
+			{
+				m_pipelineStateCache->m_psoCache.clear();
+			}
+
 			Archive ar;
 			m_pipelineStateCache->Serialize( ar );
 

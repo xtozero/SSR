@@ -2,6 +2,11 @@
 
 namespace rendercore
 {
+	bool DefaultRenderCore::IsPIXEnabled()
+	{
+		return GetInstance().m_enablePIX;
+	}
+
 	bool DefaultRenderCore::IsTaaEnabled()
 	{
 		return GetInstance().m_enableTAA;

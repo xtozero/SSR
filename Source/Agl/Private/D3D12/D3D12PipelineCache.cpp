@@ -184,7 +184,8 @@ namespace agl
 		auto d3d12ComputePipelineState = static_cast<D3D12ComputePipelineState*>( pipelineState );
 		assert( d3d12ComputePipelineState != nullptr );
 
-		ID3D12PipelineState* computePipelineState = d3d12ComputePipelineState->Resource();
+		auto& d3d12ResourceManager = *static_cast<D3D12ResourceManager*>( GetInterface<IResourceManager>() );
+		ID3D12PipelineState* computePipelineState = d3d12ResourceManager.FindOrCreate( d3d12ComputePipelineState );
 
 		if ( m_pipelineState == computePipelineState )
 		{

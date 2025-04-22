@@ -196,6 +196,15 @@ namespace agl
 	{
 	}
 
+	void CD3D11ResourceManager::SetPSOCache( [[maybe_unused]] const BinaryChunk& psoCache )
+	{
+	}
+
+	BinaryChunk CD3D11ResourceManager::SerializePSOLibraryCache()
+	{
+		return BinaryChunk();
+	}
+
 	CD3D11ResourceManager::~CD3D11ResourceManager()
 	{
 		Shutdown();

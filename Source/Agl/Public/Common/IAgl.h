@@ -46,6 +46,7 @@ namespace agl
 		virtual const char* GetShaderCacheFilePath() const = 0;
 
 		virtual bool IsSupportsPSOCache() const = 0;
+		virtual bool IsSupportsPSOLibraryCache() const = 0;
 		virtual const char* GetPSOCacheFilePath() const = 0;
 
 		virtual bool IsSupportsMeshShader() const = 0;

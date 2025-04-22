@@ -65,6 +65,8 @@ namespace agl
 		virtual PipelineStatistics* CreatePipelineStatistics() const = 0;
 
 		virtual void SetPSOCache( std::map<uint64, BinaryChunk>& psoCache ) = 0;
+		virtual void SetPSOCache( const BinaryChunk& psoCache ) = 0;
+		virtual BinaryChunk SerializePSOLibraryCache() = 0;
 
 		virtual ~IResourceManager() = default;
 	};

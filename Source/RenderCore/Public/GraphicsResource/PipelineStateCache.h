@@ -8,6 +8,12 @@
 
 namespace rendercore
 {
+	enum class PipelineStateCacheType
+	{
+		HandmadeCache,
+		LibraryCache,
+	};
+
 	class PipelineStateCache final : public AsyncLoadableAsset
 	{
 		GENERATE_CLASS_TYPE_INFO( PipelineStateCache );
@@ -26,7 +32,13 @@ namespace rendercore
 
 		static std::shared_ptr<PipelineStateCache> m_pipelineStateCache;
 
+		PROPERTY( psoCacheType )
+		PipelineStateCacheType m_psoCacheType = PipelineStateCacheType::HandmadeCache;
+
 		PROPERTY( psoCache )
 		std::map<uint64, BinaryChunk> m_psoCache;
+
+		PROPERTY( psoLibraryCache )
+		BinaryChunk m_psoLibraryCache;
 	};
 }

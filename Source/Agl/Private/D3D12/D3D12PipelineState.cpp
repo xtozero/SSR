@@ -47,9 +47,9 @@ namespace agl
 		m_desc.m_rootSignature = nullptr;
 	}
 
-	ID3D12PipelineState* D3D12ComputePipelineState::Resource() const
+	const D3D12_COMPUTE_PIPELINE_STATE_DESC& D3D12ComputePipelineState::GetDesc() const
 	{
-		return m_pipelineState;
+		return m_desc;
 	}
 
 	D3D12RootSignature* D3D12ComputePipelineState::GetRootSignature() const
@@ -81,17 +81,6 @@ namespace agl
 	{
 		m_rootSignature->Init();
 		m_desc.pRootSignature = m_rootSignature->Resource();
-
-		HRESULT hr = D3D12Device().CreateComputePipelineState( &m_desc, IID_PPV_ARGS( &m_pipelineState ) );
-		if ( FAILED( hr ) )
-		{
-			m_desc.CachedPSO.pCachedBlob = nullptr;
-			m_desc.CachedPSO.CachedBlobSizeInBytes = 0;
-
-			hr = D3D12Device().CreateComputePipelineState( &m_desc, IID_PPV_ARGS( &m_pipelineState ) );
-
-			assert( SUCCEEDED( hr ) && "CreateComputePipelineState failed" );
-		}
 	}
 
 	void D3D12ComputePipelineState::FreeResource()

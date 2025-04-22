@@ -53,6 +53,8 @@ namespace agl
 		virtual PipelineStatistics* CreatePipelineStatistics() const override;
 
 		virtual void SetPSOCache( std::map<uint64, BinaryChunk>& psoCache ) override;
+		virtual void SetPSOCache( const BinaryChunk& psoCache ) override;
+		virtual BinaryChunk SerializePSOLibraryCache() override;
 
 		CD3D11ResourceManager() = default;
 		virtual ~CD3D11ResourceManager() override;
