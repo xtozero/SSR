@@ -230,7 +230,8 @@ namespace agl
 		ComPtr<ID3D12CommandQueue> m_directCommandQueue;
 
 		ComPtr<ID3D12Fence> m_fence;
-		std::vector<uint64, InlineAllocator<uint64, 2>> m_fenceValue;
+		std::vector<uint64, InlineAllocator<uint64, 2>> m_fenceValues;
+		uint64 m_lastFenceValue = 0;
 		HANDLE m_fenceEvent = nullptr;
 
 		ComPtr<IDxcCompiler3> m_compiler;
@@ -318,11 +319,16 @@ namespace agl
 
 	void Direct3D12::OnEndFrameRendering( uint32 curFrameIndex, uint32 nextFrameIndex )
 	{
-		uint64 fence = m_fenceValue[curFrameIndex];
+		if ( m_frameIndex == nextFrameIndex )
+		{
+			return;
+		}
+
+		uint64 fence = std::max( m_fenceValues[curFrameIndex], m_lastFenceValue );
 		[[maybe_unused]] HRESULT hr = m_directCommandQueue->Signal( m_fence.Get(), fence );
 		assert( SUCCEEDED( hr ) );
 
-		uint64 nextFence = m_fenceValue[nextFrameIndex];
+		uint64 nextFence = m_fenceValues[nextFrameIndex];
 		if ( m_fence->GetCompletedValue() < nextFence )
 		{
 			hr = m_fence->SetEventOnCompletion( nextFence, m_fenceEvent );
@@ -330,7 +336,7 @@ namespace agl
 			WaitForSingleObject( m_fenceEvent, INFINITE );
 		}
 
-		m_fenceValue[nextFrameIndex] = fence + 1;
+		m_lastFenceValue = m_fenceValues[nextFrameIndex] = fence + 1;
 		m_frameIndex = nextFrameIndex;
 	}
 
@@ -338,7 +344,7 @@ namespace agl
 	{
 		assert( IsInRenderThread() );
 
-		uint64 fence = m_fenceValue[m_frameIndex];
+		uint64 fence = m_fenceValues[m_frameIndex];
 		[[maybe_unused]] HRESULT hr = m_directCommandQueue->Signal( m_fence.Get(), fence );
 		assert( SUCCEEDED( hr ) );
 
@@ -349,7 +355,7 @@ namespace agl
 			WaitForSingleObject( m_fenceEvent, INFINITE );
 		}
 
-		++m_fenceValue[m_frameIndex];
+		m_lastFenceValue = ++m_fenceValues[m_frameIndex];
 	}
 
 	LockedResource Direct3D12::Lock( Buffer* buffer, ResourceLockFlag lockFlag, uint32 subResource )
@@ -745,8 +751,8 @@ namespace agl
 			return false;
 		}
 
-		hr = m_device->CreateFence( m_fenceValue[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS( &m_fence ) );
-		++m_fenceValue[m_frameIndex];
+		hr = m_device->CreateFence( m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS( &m_fence ) );
+		m_lastFenceValue = ++m_fenceValues[m_frameIndex];
 
 		m_commandList.resize( DefaultAgl::GetBufferCount() );
 		for ( D3D12CommandList& frameCommandList : m_commandList )
@@ -789,7 +795,7 @@ namespace agl
 			return false;
 		}
 
-		m_fenceValue.resize( DefaultAgl::GetBufferCount(), 0 );
+		m_fenceValues.resize( DefaultAgl::GetBufferCount(), 0 );
 
 		hr = DxcCreateInstance( CLSID_DxcCompiler, IID_PPV_ARGS( m_compiler.GetAddressOf() ) );
 		if ( FAILED( hr ) )

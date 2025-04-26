@@ -158,6 +158,8 @@ namespace agl
 					m_backBuffers[i]->AddRef();
 				}
 			}
+
+			m_bufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 		}
 
 		uint32 Width() const

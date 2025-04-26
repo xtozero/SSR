@@ -712,6 +712,7 @@ namespace agl
 			if ( d3d12RTV )
 			{
 				rtvs[i] = d3d12RTV->GetCpuHandle().At();
+				RegisterRenderResource( d3d12RTV->GetOwner() );
 			}
 			else
 			{
@@ -723,6 +724,7 @@ namespace agl
 		if ( auto d3d12DSV = static_cast<D3D12DepthStencilView*>( depthStencil ) )
 		{
 			dsv = d3d12DSV->GetCpuHandle().At();
+			RegisterRenderResource( d3d12DSV->GetOwner() );
 		}
 
 		std::copy( pRenderTargets, pRenderTargets + renderTargetCount, std::begin( m_rtvs ) );

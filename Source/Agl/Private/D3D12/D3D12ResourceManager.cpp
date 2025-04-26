@@ -628,7 +628,7 @@ namespace agl
 		if ( m_d3d12PipelineLibrary.Get() != nullptr )
 		{
 			auto hashString = std::to_wstring( hash );
-			m_d3d12PipelineLibrary->StorePipeline( hashString.c_str(), pipelineState);
+			m_d3d12PipelineLibrary->StorePipeline( hashString.c_str(), pipelineState );
 		}
 
 		if ( m_psoCache != nullptr )
