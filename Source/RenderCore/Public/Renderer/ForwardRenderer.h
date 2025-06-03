@@ -10,8 +10,11 @@ namespace rendercore
 	public:
 		void UpdateBufferSize( uint32 width, uint32 height );
 
+		void Tick();
+
 		virtual agl::Texture* GetDepthStencil() override;
 		virtual agl::Texture* GetViewSpaceDistance() override;
+		virtual agl::Texture* GetPrevViewSpaceDistance() override;
 		virtual agl::Texture* GetTAAHistory() override;
 		virtual agl::Texture* GetTAAResolve() override;
 		virtual agl::Texture* GetWorldNormal() override;
@@ -27,7 +30,7 @@ namespace rendercore
 		void ReleaseAll();
 
 		RefHandle<agl::Texture> m_depthStencil;
-		RefHandle<agl::Texture> m_linearDepth;
+		RefHandle<agl::Texture> m_linearDepth[2]; // 0 : current frame, 1 : previous frame
 		RefHandle<agl::Texture> m_taaHistory;
 		RefHandle<agl::Texture> m_taaResolve;
 		RefHandle<agl::Texture> m_worldNormal;
@@ -43,12 +46,15 @@ namespace rendercore
 		virtual void Render( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup ) override;
 		virtual void RenderHitProxy( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup ) override;
 
-		virtual void RenderDefaultPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 curView ) override;
+		virtual void RenderDefaultPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex ) override;
 
-		virtual IRendererRenderTargets& GetRenderRenderTargets() override;
+		virtual IRendererRenderTargets& GetRenderTargets() override;
 
-		void RenderDepthPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 curView );
+		void RenderDepthPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex );
 		void RenderOcclusionTest( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex );
+
+	protected:
+		virtual void RenderScreenSpaceIndirectIllumination( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex ) override;
 
 	private:
 		void UpdateLightResource( IScene& scene );

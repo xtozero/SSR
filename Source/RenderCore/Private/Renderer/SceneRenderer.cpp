@@ -44,6 +44,12 @@ namespace
 
 namespace rendercore
 {
+	void RendererResourceCollection::Clear()
+	{
+		m_ssgi = BlackTexture;
+		m_indirectIllumination = BlackTexture;
+	}
+
 	void ResourceBinder::Bind( const ShaderStates& shaders, agl::ShaderBindings& bindings ) const
 	{
 		const ShaderBase* shaderArray[] = {
@@ -273,6 +279,7 @@ namespace rendercore
 		}
 
 		m_resourceBinder.Clear();
+		m_resourceCollection.Clear();
 
 		auto linearSampler = StaticSamplerState<>::Get();
 		m_resourceBinder.Add( "LinearSampler", linearSampler.Resource() );
@@ -698,7 +705,7 @@ namespace rendercore
 			}
 		}
 
-		return &snapshots;
+		return snapshots.empty() ? nullptr : &snapshots;
 	}
 
 	void SceneRenderer::RenderShadowDepthPass( RenderGraph& renderGraph )
@@ -822,7 +829,7 @@ namespace rendercore
 		CPU_PROFILE( SceneRenderer_RenderShadow );
 
 		auto renderTarget = renderViewGroup.GetViewport().Texture();
-		auto depthStencil = GetRenderRenderTargets().GetDepthStencil();
+		auto depthStencil = GetRenderTargets().GetDepthStencil();
 
 		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
 		auto rgDepthStencil = renderGraph.RegisterExternalResource( depthStencil );
@@ -958,7 +965,7 @@ namespace rendercore
 		};
 
 		auto renderTarget = renderViewGroup.GetViewport().Texture();
-		auto depthStencil = GetRenderRenderTargets().GetDepthStencil();
+		auto depthStencil = GetRenderTargets().GetDepthStencil();
 
 		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
 		auto rgDepthStencil = renderGraph.RegisterExternalResource( depthStencil );
@@ -1058,7 +1065,7 @@ namespace rendercore
 		};
 
 		auto renderTarget = renderViewGroup.GetViewport().Texture();
-		auto depthStencil = GetRenderRenderTargets().GetDepthStencil();
+		auto depthStencil = GetRenderTargets().GetDepthStencil();
 
 		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
 		auto rgDepthStencil = renderGraph.RegisterExternalResource( depthStencil );
@@ -1169,7 +1176,7 @@ namespace rendercore
 		};
 
 		auto renderTarget = renderViewGroup.GetViewport().Texture();
-		auto depthStencil = GetRenderRenderTargets().GetDepthStencil();
+		auto depthStencil = GetRenderTargets().GetDepthStencil();
 
 		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
 		auto rgDepthStencil = renderGraph.RegisterExternalResource( depthStencil );
@@ -1185,7 +1192,7 @@ namespace rendercore
 		renderGraph.AddPass(
 			renderVolumetricFogPassResource,
 			rasterOutput,
-			[this, renderScene, info]( CommandList& commandList )
+			[this, info]( CommandList& commandList )
 			{
 				VolumetricFogDrawPassProcessor volumetricFogDrawPassProcessor;
 				auto result = volumetricFogDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
@@ -1216,16 +1223,14 @@ namespace rendercore
 	void SceneRenderer::RenderTemporalAntiAliasing( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup )
 	{
 		GPU_PROFILE_EVENT( renderGraph, TAA );
-		m_taa.Render( renderGraph, GetRenderRenderTargets(), renderViewGroup );
+		m_taa.Render( renderGraph, GetRenderTargets(), renderViewGroup );
 	}
 
-	void SceneRenderer::RenderIndirectIllumination( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup )
+	void SceneRenderer::RenderIndirectIllumination( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, [[maybe_unused]] uint32 viewIndex )
 	{
 		CPU_PROFILE( SceneRenderer_RenderIndirectIllumination );
 
 		GPU_PROFILE_EVENT( renderGraph, IndirectIllumination );
-
-		m_resourceCollection.m_indirectIllumination = BlackTexture;
 
 		if ( DefaultRenderCore::IsLpvEnabled() )
 		{
@@ -1234,8 +1239,8 @@ namespace rendercore
 			m_lpv.Propagate( renderGraph );
 
 			LpvRenderingParameters renderingParams = {
-				.m_viewSpaceDistance = GetRenderRenderTargets().GetViewSpaceDistance(),
-				.m_worldNormal = GetRenderRenderTargets().GetWorldNormal(),
+				.m_viewSpaceDistance = GetRenderTargets().GetViewSpaceDistance(),
+				.m_worldNormal = GetRenderTargets().GetWorldNormal(),
 			};
 
 			m_resourceCollection.m_indirectIllumination = m_lpv.Render( renderGraph, renderingParams, m_resourceBinder );
@@ -1243,8 +1248,8 @@ namespace rendercore
 		else if ( DefaultRenderCore::IsRSMsEnabled() )
 		{
 			RSMsRenderingParam renderingParam = {
-				.m_viewSpaceDistance = GetRenderRenderTargets().GetViewSpaceDistance(),
-				.m_worldNormal = GetRenderRenderTargets().GetWorldNormal(),
+				.m_viewSpaceDistance = GetRenderTargets().GetViewSpaceDistance(),
+				.m_worldNormal = GetRenderTargets().GetWorldNormal(),
 				.m_shadowInfos = m_shadowInfos.data(),
 				.m_numShadowInfos = static_cast<int32>( m_shadowInfos.size() )
 			};
@@ -1281,6 +1286,33 @@ namespace rendercore
 			m_rsms.PreRender( renderViewGroup );
 			m_resourceCollection.m_indirectIllumination = m_rsms.Render( renderGraph, renderingParam, m_resourceBinder );
 		}
+	}
+
+	void SceneRenderer::RenderScreenSpaceIndirectIllumination( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, [[maybe_unused]] uint32 viewIndex )
+	{
+		if ( DefaultRenderCore::IsSSGIEnabled() == false )
+		{
+			return;
+		}
+
+		SSGIConfig ssgiConfig = DefaultRenderCore::GetSSGIConfig();
+		
+		SSGIRenderParam param = {
+			.m_viewShaderArguments = renderViewGroup.Scene().GetViewShaderArguments().Resource(),
+			.m_sceneColor = renderViewGroup.GetViewport().Texture(),
+			.m_viewSpaceDistance = GetRenderTargets().GetViewSpaceDistance(),
+			.m_prevViewSpaceDistance = GetRenderTargets().GetPrevViewSpaceDistance(),
+			.m_worldNormal = GetRenderTargets().GetWorldNormal(),
+			.m_velocity = GetRenderTargets().GetVelocity(),
+			.m_thickness = ssgiConfig.m_thickness,
+			.m_viewSpaceRadius = ssgiConfig.m_viewSpaceRadius,
+			.m_numSlices = ssgiConfig.m_numSlices,
+			.m_numSteps = ssgiConfig.m_numSteps,
+			.m_colorIntensity = ssgiConfig.m_colorIntensity,
+			.m_denoiseKernelRadius = ssgiConfig.m_denoiseKernelRadius,
+		};
+
+		m_resourceCollection.m_ssgi = m_ssgi.Render( renderGraph, param );
 	}
 
 	void SceneRenderer::DoRenderHitProxy( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup )
@@ -1394,7 +1426,7 @@ namespace rendercore
 
 						VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc( static_cast<uint32>( snapshots.size() * sizeof( uint32 ) ) );
 
-						uint32* idBuffer = reinterpret_cast<uint32*>( primitiveIds.Lock() );
+						auto idBuffer = static_cast<uint32*>( primitiveIds.Lock() );
 						if ( idBuffer )
 						{
 							for ( size_t i = 0; i < snapshots.size(); ++i )

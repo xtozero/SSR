@@ -181,6 +181,7 @@ set (RENDERER_SOURCE
 	Private/Renderer/RenderView.cpp
 	Private/Renderer/SceneRenderer.cpp
 	Private/Renderer/SkyAtmosphereRendering.cpp
+	Private/Renderer/SSGIRendering.cpp
 	Private/Renderer/TemporalAntiAliasingRendering.cpp
 	Public/Renderer/ExponentialShadowMapRendering.h
 	Public/Renderer/ForwardLighting.h
@@ -193,6 +194,7 @@ set (RENDERER_SOURCE
 	Public/Renderer/RenderView.h
 	Public/Renderer/SceneRenderer.h
 	Public/Renderer/SkyAtmosphereRendering.h
+	Public/Renderer/SSGIRendering.h
 	Public/Renderer/TemporalAntiAliasingRendering.h
 	Public/Renderer/UserInterfaceRenderer.h)
 

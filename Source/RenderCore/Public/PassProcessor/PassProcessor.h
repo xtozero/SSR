@@ -14,6 +14,7 @@ namespace rendercore
 		PointShadowDepth,
 		Default,
 		HitProxy,
+		CompositeSSGI,
 		Count,
 	};
 

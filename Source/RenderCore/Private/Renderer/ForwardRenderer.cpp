@@ -11,7 +11,6 @@
 #include "Proxies/TexturedSkyProxy.h"
 #include "RenderGraph.h"
 #include "RenderView.h"
-#include "ResourceBarrierUtils.h"
 #include "Scene/LightSceneInfo.h"
 #include "Scene/Scene.h"
 #include "Scene/SceneConstantBuffers.h"
@@ -31,6 +30,11 @@ namespace rendercore
 		}
 	}
 
+	void ForwardRendererRenderTargets::Tick()
+	{
+		std::swap( m_linearDepth[0], m_linearDepth[1] );
+	}
+
 	agl::Texture* ForwardRendererRenderTargets::GetDepthStencil()
 	{
 		AllocDepthStencil();
@@ -40,7 +44,13 @@ namespace rendercore
 	agl::Texture* ForwardRendererRenderTargets::GetViewSpaceDistance()
 	{
 		AllocViewSpaceDistance();
-		return m_linearDepth.Get();
+		return m_linearDepth[0].Get();
+	}
+
+	agl::Texture* ForwardRendererRenderTargets::GetPrevViewSpaceDistance()
+	{
+		AllocViewSpaceDistance();
+		return m_linearDepth[1].Get();
 	}
 
 	agl::Texture* ForwardRendererRenderTargets::GetTAAHistory()
@@ -101,7 +111,7 @@ namespace rendercore
 
 	void ForwardRendererRenderTargets::AllocViewSpaceDistance()
 	{
-		if ( m_linearDepth == nullptr )
+		if ( m_linearDepth[0] == nullptr || m_linearDepth[1] == nullptr )
 		{
 			agl::TextureTrait trait = {
 				.m_width = m_bufferSize.first,
@@ -119,7 +129,8 @@ namespace rendercore
 				}
 			};
 
-			m_linearDepth = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "Scene.ViewSpaceDistance" );
+			m_linearDepth[0] = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "Scene.ViewSpaceDistance" );
+			m_linearDepth[1] = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "Scene.PrevViewSpaceDistance" );
 		}
 	}
 
@@ -216,7 +227,8 @@ namespace rendercore
 	void ForwardRendererRenderTargets::ReleaseAll()
 	{
 		m_depthStencil = nullptr;
-		m_linearDepth = nullptr;
+		m_linearDepth[0] = nullptr;
+		m_linearDepth[1] = nullptr;
 		m_taaHistory = nullptr;
 		m_taaResolve = nullptr;
 		m_worldNormal = nullptr;
@@ -231,6 +243,8 @@ namespace rendercore
 
 		InitDynamicShadows( renderViewGroup );
 
+		m_renderTargets.Tick();
+		
 		auto rendertargetSize = renderViewGroup.GetViewport().SizeOnRenderThread();
 		m_renderTargets.UpdateBufferSize( rendertargetSize.first, rendertargetSize.second );
 
@@ -293,9 +307,11 @@ namespace rendercore
 			
 			RenderOcclusionTest( renderGraph, renderViewGroup, i );
 
-			RenderIndirectIllumination( renderGraph, renderViewGroup );
+			RenderIndirectIllumination( renderGraph, renderViewGroup, i );
 			
 			RenderDefaultPass( renderGraph, renderViewGroup, i );
+
+			RenderScreenSpaceIndirectIllumination( renderGraph, renderViewGroup, i );
 
 			RenderShadow( renderGraph, renderViewGroup );
 
@@ -319,7 +335,7 @@ namespace rendercore
 		DoRenderHitProxy( renderGraph, renderViewGroup );
 	}
 
-	void ForwardRenderer::RenderDefaultPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 curView )
+	void ForwardRenderer::RenderDefaultPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex )
 	{
 		CPU_PROFILE( ForwardRenderer_RenderDefaultPass );
 
@@ -339,17 +355,14 @@ namespace rendercore
 
 		IScene& scene = renderViewGroup.Scene();
 
-		auto commandList = GetCommandList();
-		{
-			RenderTexturedSky( renderGraph, scene, rasterOutput );
-		}
+		RenderTexturedSky( renderGraph, scene, rasterOutput );
 
 		{
 			GPU_PROFILE_EVENT( renderGraph, Default );
 			PIPELINE_STAT_EVENT( renderGraph, Default );
 
 			std::deque<DrawSnapshot> snapshotStorage;
-			RenderThreadFrameData<VisibleDrawSnapshot>* pSnapshots = GatherDrawsnapshots( scene, RenderPassType::Default, curView, snapshotStorage );
+			RenderThreadFrameData<VisibleDrawSnapshot>* pSnapshots = GatherDrawsnapshots( scene, RenderPassType::Default, viewIndex, snapshotStorage );
 
 			if ( pSnapshots != nullptr )
 			{
@@ -391,16 +404,16 @@ namespace rendercore
 
 		{
 			// TODO
-			m_viewInfo[curView].m_debugOverlayData.Draw( renderGraph, m_dynamicVertexBuffer, m_resourceBinder, rasterOutput );
+			m_viewInfo[viewIndex].m_debugOverlayData.Draw( renderGraph, m_dynamicVertexBuffer, m_resourceBinder, rasterOutput );
 		}
 	}
 
-	IRendererRenderTargets& ForwardRenderer::GetRenderRenderTargets()
+	IRendererRenderTargets& ForwardRenderer::GetRenderTargets()
 	{
 		return m_renderTargets;
 	}
 
-	void ForwardRenderer::RenderDepthPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 curView )
+	void ForwardRenderer::RenderDepthPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex )
 	{
 		CPU_PROFILE( ForwardRenderer_RenderDepthPass );
 
@@ -431,7 +444,7 @@ namespace rendercore
 		IScene& scene = renderViewGroup.Scene();
 		
 		std::deque<DrawSnapshot> snapshotStorage;
-		RenderThreadFrameData<VisibleDrawSnapshot>* pSnapshots = GatherDrawsnapshots( scene, RenderPassType::DepthWrite, curView, snapshotStorage );
+		RenderThreadFrameData<VisibleDrawSnapshot>* pSnapshots = GatherDrawsnapshots( scene, RenderPassType::DepthWrite, viewIndex, snapshotStorage );
 
 		if ( pSnapshots != nullptr )
 		{
@@ -489,6 +502,78 @@ namespace rendercore
 			{
 				DoRenderOcclusionTest( commandList, m_resourceBinder, m_viewInfo[viewIndex], m_occlusionRenderData );
 			} );
+	}
+
+	void ForwardRenderer::RenderScreenSpaceIndirectIllumination( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex )
+	{
+		if ( DefaultRenderCore::IsSSGIEnabled() == false )
+		{
+			return;
+		}
+
+		SceneRenderer::RenderScreenSpaceIndirectIllumination( renderGraph, renderViewGroup, viewIndex );
+
+		GPU_PROFILE_EVENT( renderGraph, CompositeSSGI );
+		PIPELINE_STAT_EVENT( renderGraph, CompositeSSGI );
+
+		auto renderTarget = renderViewGroup.GetViewport().Texture();
+		auto depthStencil = m_renderTargets.GetDepthStencil();
+
+		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
+		auto rgDepthStencil = renderGraph.RegisterExternalResource( depthStencil );
+
+		auto [width, height] = renderViewGroup.GetViewport().Size();
+
+		RasterOutput rasterOutput;
+		rasterOutput.SetRenderTarget( 0, rgRenderTarget );
+		rasterOutput.SetDepthStencil( rgDepthStencil, true );
+		rasterOutput.SetViewport( width, height );
+		rasterOutput.SetScissorRect( width, height );
+
+		IScene& scene = renderViewGroup.Scene();
+
+		std::deque<DrawSnapshot> snapshotStorage;
+		RenderThreadFrameData<VisibleDrawSnapshot>* pSnapshots = GatherDrawsnapshots( scene, RenderPassType::CompositeSSGI, viewIndex, snapshotStorage );
+
+		if ( pSnapshots != nullptr )
+		{
+			RenderThreadFrameData<VisibleDrawSnapshot>& snapshots = *pSnapshots;
+
+			VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc( static_cast<uint32>( snapshots.size() * sizeof( uint32 ) ) );
+			SortDrawSnapshots( snapshots, primitiveIds );
+
+			m_resourceBinder.Add( "SSGITex", m_resourceCollection.m_ssgi->SRV() );
+
+			SamplerState linearSampler = StaticSamplerState<>::Get();
+			m_resourceBinder.Add( "SSGITexSampler", linearSampler.Resource() );
+
+			BEGIN_RG_RESOURCE_STRUCT( CompositeSSGIPassResource )
+				DECLARE_RG_TEXTURE_PIXEL_SRV( ssgi )
+			END_RG_RESOURCE_STRUCT();
+
+			auto rgSSGI = renderGraph.RegisterExternalResource( m_resourceCollection.m_ssgi.Get() );
+
+			CompositeSSGIPassResource passResource = {
+				.m_ssgi = rgSSGI
+			};
+
+			renderGraph.AddPass(
+				passResource,
+				rasterOutput,
+				[this, &snapshots, storage = std::move( snapshotStorage ), primitiveIds]( CommandList& commandList ) mutable
+				{
+					// Update invalidated resources
+					for ( auto& viewDrawSnapshot : snapshots )
+					{
+						DrawSnapshot& snapshot = *viewDrawSnapshot.m_drawSnapshot;
+						GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+
+						m_resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+					}
+
+					ParallelCommitDrawSnapshot( commandList, snapshots, primitiveIds );
+				} );
+		}
 	}
 
 	void ForwardRenderer::UpdateLightResource( IScene& scene )

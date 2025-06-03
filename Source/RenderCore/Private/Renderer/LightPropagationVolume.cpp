@@ -10,7 +10,6 @@
 #include "PassProcessor.h"
 #include "RenderGraph.h"
 #include "RenderView.h"
-#include "ResourceBarrierUtils.h"
 #include "Scene/IScene.h"
 #include "Scene/LightSceneInfo.h"
 #include "Scene/PrimitiveSceneInfo.h"

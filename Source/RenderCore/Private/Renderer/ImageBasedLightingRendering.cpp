@@ -124,7 +124,7 @@ namespace rendercore
 		renderGraph.AddPass(
 			passResource,
 			rasterOutput,
-			[passResource, trait]( CommandList& commandList )
+			[passResource]( CommandList& commandList )
 			{
 				IrradianceMapGenerateProcessor irradianceMapGenerateProcessor;
 

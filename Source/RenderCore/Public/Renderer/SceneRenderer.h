@@ -14,12 +14,12 @@
 #include "RenderView.h"
 #include "Scene/SceneConstantBuffers.h"
 #include "Scene/ShadowInfo.h"
+#include "SSGIRendering.h"
 #include "TemporalAntiAliasingRendering.h"
 #include "Texture.h"
 
 #include <array>
 #include <deque>
-#include <map>
 #include <string>
 
 namespace agl
@@ -55,16 +55,23 @@ namespace rendercore
 	{
 	public:
 		virtual agl::Texture* GetDepthStencil() = 0;
+		virtual agl::Texture* GetPrevViewSpaceDistance() = 0;
 		virtual agl::Texture* GetViewSpaceDistance() = 0;
 		virtual agl::Texture* GetTAAHistory() = 0;
 		virtual agl::Texture* GetTAAResolve() = 0;
 		virtual agl::Texture* GetWorldNormal() = 0;
 		virtual agl::Texture* GetVelocity() = 0;
+
+		virtual ~IRendererRenderTargets() = default;
 	};
 
-	struct RendererResourceCollection
+	class RendererResourceCollection
 	{
+	public:
+		void Clear();
+		
 		RefHandle<agl::Texture> m_indirectIllumination;
+		RefHandle<agl::Texture> m_ssgi;
 	};
 
 	class ResourceBinder final
@@ -128,9 +135,9 @@ namespace rendercore
 		virtual void Render( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup ) = 0;
 		virtual void RenderHitProxy( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup ) = 0;
 
-		virtual void RenderDefaultPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 curView ) = 0;
+		virtual void RenderDefaultPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex ) = 0;
 
-		virtual IRendererRenderTargets& GetRenderRenderTargets() = 0;
+		virtual IRendererRenderTargets& GetRenderTargets() = 0;
 
 		virtual ~SceneRenderer() = default;
 
@@ -152,7 +159,8 @@ namespace rendercore
 		void RenderVolumetricCloud( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup );
 		void RenderVolumetricFog( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup );
 		void RenderTemporalAntiAliasing( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup );
-		void RenderIndirectIllumination( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup );
+		void RenderIndirectIllumination( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex );
+		virtual void RenderScreenSpaceIndirectIllumination( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex );
 		void DoRenderHitProxy( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup );
 
 		void CalcVisibility( RenderViewGroup& renderViewGroup );
@@ -173,9 +181,10 @@ namespace rendercore
 		GlobalDynamicVertexBuffer m_dynamicVertexBuffer;
 
 	private:
-		TAARenderer m_taa;
-		RSMsRenderer m_rsms;
 		LightPropagationVolume m_lpv;
+		RSMsRenderer m_rsms;
+		SSGIRenderer m_ssgi;
+		TAARenderer m_taa;
 	};
 
 	void AddSingleDrawPass( CommandList& commandList, DrawSnapshot& snapshot );

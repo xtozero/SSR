@@ -260,7 +260,7 @@ namespace agl
 			}
 
 			std::optional<uint32> foundSlot;
-			for ( size_t i = 0; i < m_parameterInfo->m_samplers.size(); ++i )
+			for ( size_t i = 0; i < m_parameterInfo->m_bindless.size(); ++i )
 			{
 				const ShaderParameter& targetParam = m_parameterInfo->m_bindless[i];
 				if ( ( targetParam.m_bindPoint == param.m_bindPoint )

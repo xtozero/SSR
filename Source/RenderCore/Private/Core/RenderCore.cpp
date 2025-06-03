@@ -17,7 +17,6 @@
 #include "PipelineStateCache.h"
 #include "RenderGraph.h"
 #include "RenderView.h"
-#include "ResourceBarrierUtils.h"
 #include "Scene/Scene.h"
 #include "ShaderCache.h"
 #include "TaskScheduler.h"

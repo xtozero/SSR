@@ -61,7 +61,7 @@ namespace rendercore
 		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::PositionOnly );
 	}
 
-	PassShader HitProxyPassProcessor::CollectPassShader( [[maybe_unused]] MaterialResource& material ) const
+	PassShader HitProxyPassProcessor::CollectPassShader( MaterialResource& material ) const
 	{
 		bool bUseMeshShader = material.UseMeshShader();
 

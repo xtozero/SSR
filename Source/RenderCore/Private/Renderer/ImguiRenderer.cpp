@@ -9,7 +9,6 @@
 #include "GpuProfiler.h"
 #include "GraphicsApiResource.h"
 #include "imgui.h"
-#include "Math/TransformationMatrix.h"
 #include "MeshDrawInfo.h"
 #include "PassProcessor.h"
 #include "RenderGraph.h"
@@ -23,7 +22,6 @@
 #include "StaticState.h"
 #include "Texture.h"
 #include "VertexCollection.h"
-#include "Viewport.h"
 
 namespace rendercore
 {
@@ -233,7 +231,7 @@ namespace rendercore
 
 		renderGraph.AddPass(
 			rasterOutput,
-			[this, &canvas]( CommandList& commandList ) mutable
+			[this]( CommandList& commandList ) mutable
 			{
 				float left = m_imguiDrawInfo.m_displayPos.x;
 				float right = m_imguiDrawInfo.m_displayPos.x + m_imguiDrawInfo.m_displaySize.x;

@@ -56,4 +56,23 @@ namespace rendercore
 	{
 		return GetInstance().m_numLpvIteration;
 	}
+
+	bool DefaultRenderCore::IsSSGIEnabled()
+	{
+		return GetInstance().m_enableSSGI;
+	}
+
+	SSGIConfig DefaultRenderCore::GetSSGIConfig()
+	{
+		const DefaultRenderCore& renderCoreConfig = GetInstance();
+		
+		return SSGIConfig{
+			.m_thickness = renderCoreConfig.m_thicknessSSGI,
+			.m_viewSpaceRadius = renderCoreConfig.m_viewSpaceRadiusSSGI,
+			.m_numSlices = renderCoreConfig.m_numSlicesSSGI,
+			.m_numSteps = renderCoreConfig.m_numStepsSSGI,
+			.m_colorIntensity = renderCoreConfig.m_colorIntensitySSGI,
+			.m_denoiseKernelRadius = renderCoreConfig.m_denoiseKernelRadiusSSGI,
+		};
+	}
 }
