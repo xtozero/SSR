@@ -31,9 +31,10 @@ public:
 		assert( static_cast<ThreadType>( taskScheduler->GetThisThreadType() ) == LocalThreadType );
 
 		static auto threadLocalAllocators = GetInterface<TransientAllocators>();
-		static StackAllocator& allocator = threadLocalAllocators->GetAllocator( LocalThreadType );
+		// To fix error C2131, declare the variable as a pointer
+		static StackAllocator* allocator = &threadLocalAllocators->GetAllocator( LocalThreadType );
 
-		return allocator.Allocate<T>( n );
+		return allocator->Allocate<T>( n );
 	}
 
 	void deallocate( [[maybe_unused]] T* p, [[maybe_unused]] size_t n ) { /*Do Nothing*/ }

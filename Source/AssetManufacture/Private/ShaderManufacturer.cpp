@@ -22,51 +22,6 @@ using ::Microsoft::WRL::ComPtr;
 
 namespace
 {
-	bool ValidateShaderAsset( const AsyncLoadableAsset* asset, const Archive& ar )
-	{
-		Archive rAr( ar.Data(), ar.Size() );
-		uint32 assetId = 0;
-		rAr << assetId;
-
-		if ( assetId == rendercore::ComputeShader::Id )
-		{
-			rendercore::ComputeShader cs;
-			cs.Serialize( rAr );
-
-			return ( cs == *reinterpret_cast<const rendercore::ComputeShader*>( asset ) );
-		}
-		else if ( assetId == rendercore::GeometryShader::Id )
-		{
-			rendercore::GeometryShader gs;
-			gs.Serialize( rAr );
-
-			return ( gs == *reinterpret_cast<const rendercore::GeometryShader*>( asset ) );
-		}
-		else if ( assetId == rendercore::PixelShader::Id )
-		{
-			rendercore::PixelShader ps;
-			ps.Serialize( rAr );
-
-			return ( ps == *reinterpret_cast<const rendercore::PixelShader*>( asset ) );
-		}
-		else if ( assetId == rendercore::VertexShader::Id )
-		{
-			rendercore::VertexShader vs;
-			vs.Serialize( rAr );
-
-			return ( vs == *reinterpret_cast<const rendercore::VertexShader*>( asset ) );
-		}
-		else if ( assetId == rendercore::UberShader::Id )
-		{
-			rendercore::UberShader uberShader;
-			uberShader.Serialize( rAr );
-
-			return ( uberShader == *reinterpret_cast<const rendercore::UberShader*>( asset ) );
-		}
-
-		return false;
-	}
-
 	const char* GetShaderTargetProfile( agl::ShaderType shaderType )
 	{
 		switch ( shaderType )
@@ -550,35 +505,23 @@ std::optional<Products> ShaderManufacturer::Manufacture( const PathEnvironment& 
 			return {};
 		}
 
-		rendercore::UberShader shader;
-		shader.SetName( path.filename().generic_string() );
-		shader.SetShaderType( shaderType );
+		auto shader = std::make_unique<rendercore::UberShader>();
+		shader->SetName( path.filename().generic_string() );
+		shader->SetShaderType( shaderType );
 
 		Name shaderTargetProfile( GetShaderTargetProfile( shaderType ) );
-		shader.SetProfile( shaderTargetProfile );
+		shader->SetProfile( shaderTargetProfile );
 
-		shader.SetShaderCode( shaderFile );
-		shader.SetSwitches( shaderSwitches );
+		shader->SetShaderCode( shaderFile );
+		shader->SetSwitches( shaderSwitches );
 
 		for ( uint32 id : compiledShaderIDs )
 		{
-			shader.AddValidVariation( id );
+			shader->AddValidVariation( id );
 		}
-
-		shader.SetLastWriteTime( fs::last_write_time( path ) );
-
-		Archive ar;
-		shader.Serialize( ar );
-
-#ifdef ASSET_VALIDATE
-		if ( ValidateShaderAsset( &shader, ar ) == false )
-		{
-			DebugBreak();
-		}
-#endif
 
 		Products products;
-		products.emplace_back( path.filename(), std::move( ar ) );
+		products.emplace_back( path.filename(), std::move( shader ) );
 		return products;
 	}
 

@@ -14,7 +14,8 @@ set (ASSET
 	Public/Asset/AssetFactory.h
 	Public/Asset/IAssetLoader.h
 	Public/Asset/IAssetLoader.h
-	Public/Asset/IAsyncLoadableAsset.h)
+	Public/Asset/IAsyncLoadableAsset.h
+	Public/Asset/RawAsset.h)
 
 set (COLLECTIONS
 	Private/Collections/BitArray.cpp
@@ -54,6 +55,7 @@ set (FILESYSTEM
 set (HASH
 	Private/Hash/CrcHash.cpp
 	Public/Hash/CrcHash.h
+	Public/Hash/Djb2Hash.h
 	Public/Hash/HashUtil.h)
 
 set (INI

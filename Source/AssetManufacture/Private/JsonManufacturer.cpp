@@ -512,51 +512,6 @@ namespace
 
 		return asset;
 	}
-
-	bool ValidateJsonAsset( const AsyncLoadableAsset* asset, const Archive& ar )
-	{
-		Archive rAr( ar.Data(), ar.Size() );
-		uint32 assetId = 0;
-		rAr << assetId;
-
-		if ( assetId == rendercore::BlendOption::Id )
-		{
-			rendercore::BlendOption blendOption;
-			blendOption.Serialize( rAr );
-
-			return ( blendOption == ( *reinterpret_cast<const rendercore::BlendOption*>( asset ) ) );
-		}
-		else if ( assetId == rendercore::DepthStencilOption::Id )
-		{
-			rendercore::DepthStencilOption depthStencilOption;
-			depthStencilOption.Serialize( rAr );
-
-			return ( depthStencilOption == ( *reinterpret_cast<const rendercore::DepthStencilOption*>( asset ) ) );
-		}
-		else if ( assetId == rendercore::RasterizerOption::Id )
-		{
-			rendercore::RasterizerOption rasterizerOption;
-			rasterizerOption.Serialize( rAr );
-
-			return ( rasterizerOption == ( *reinterpret_cast<const rendercore::RasterizerOption*>( asset ) ) );
-		}
-		else if ( assetId == rendercore::SamplerOption::Id )
-		{
-			rendercore::SamplerOption samplerOption;
-			samplerOption.Serialize( rAr );
-
-			return ( samplerOption == ( *reinterpret_cast<const rendercore::SamplerOption*>( asset ) ) );
-		}
-		else if ( assetId == rendercore::RenderOption::Id )
-		{
-			rendercore::RenderOption renderOption;
-			renderOption.Serialize( rAr );
-
-			return ( renderOption == ( *reinterpret_cast<const rendercore::RenderOption*>( asset ) ) );
-		}
-
-		return false;
-	}
 }
 
 bool JsonManufacturer::IsSuitable( const std::filesystem::path& srcPath ) const
@@ -594,19 +549,7 @@ std::optional<Products> JsonManufacturer::Manufacture( const PathEnvironment& en
 		return { };
 	}
 
-	asset->SetLastWriteTime( fs::last_write_time( path ) );
-
-	Archive ar;
-	asset->Serialize( ar );
-
-#ifdef ASSET_VALIDATE
-	if ( ValidateJsonAsset( asset.get(), ar ) == false )
-	{
-		DebugBreak();
-	}
-#endif
-
 	Products products;
-	products.emplace_back( path.filename(), std::move( ar ) );
+	products.emplace_back( path.filename(), std::move( asset ) );
 	return products;
 }

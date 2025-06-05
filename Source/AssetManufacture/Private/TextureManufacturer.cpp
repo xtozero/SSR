@@ -63,14 +63,10 @@ std::optional<Products> TextureManufacturer::Manufacture( [[maybe_unused]] const
 
 	rendercore::DDSTextureInitializer initializer = ConvertToBCTextureInitializer( image );
 
-	rendercore::DDSTexture asset( initializer );
-	asset.SetLastWriteTime( fs::last_write_time( path ) );
-
-	Archive ar;
-	asset.Serialize( ar );
+	auto asset = std::make_unique<rendercore::DDSTexture>( initializer );
 
 	Products products;
-	products.emplace_back( path.filename(), std::move( ar ) );
+	products.emplace_back( path.filename(), std::move( asset ) );
 	return products;
 }
 

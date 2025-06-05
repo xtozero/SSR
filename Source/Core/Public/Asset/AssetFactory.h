@@ -78,16 +78,23 @@ public:
 Owner<IAssetFactory*> CreateAssetFactory();
 void DestroyAssetFactory( Owner<IAssetFactory*> pAssetFactory );
 
-#define DECLARE_ASSET( dllName, type ) \
+#define DECLARE_ASSET_WITH_VERSION( dllName, type, version ) \
 public : \
 	virtual uint32 GetId() const override \
 	{ \
-		return type::Id;\
+		return type::Id; \
 	} \
 \
-	dllName##_DLL static uint32 Id;\
+	virtual uint32 GetAssetVersion() const override \
+	{ \
+		return version; \
+	} \
+\
+	dllName##_DLL static uint32 Id; \
 private : \
 \
+
+#define DECLARE_ASSET( dllName, type ) DECLARE_ASSET_WITH_VERSION( dllName, type, 0 )
 
 #define REGISTER_ASSET( type ) \
 	uint32 type::Id = 0; \

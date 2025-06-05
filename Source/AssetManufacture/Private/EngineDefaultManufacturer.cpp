@@ -56,6 +56,7 @@ void EngineDefaultManufacturer::CreateBRDFLookUpTexture( std::set<std::filesyste
 	rendercore::DDSTexture asset( initializer );
 
 	asset.SetLastWriteTime( std::chrono::file_clock::now() );
+	asset.SetFileHash( ( std::numeric_limits<uint64>::max )() );
 
 	Archive ar;
 	asset.Serialize( ar );

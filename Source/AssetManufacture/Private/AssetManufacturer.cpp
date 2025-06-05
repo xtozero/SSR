@@ -1,11 +1,14 @@
 #include "AssetManufacturer.h"
 
+#include "IAsyncLoadableAsset.h"
 #include "JsonManufacturer.h"
 #include "ShaderManufacturer.h"
 #include "TextureManufacturer.h"
 #include "WavefrontObjManufacturer.h"
 
-std::optional<Products> AssetManufacturer::Manufacture( const PathEnvironment& env, const std::filesystem::path& path )
+namespace fs = std::filesystem;
+
+std::optional<Products> AssetManufacturer::Manufacture( const PathEnvironment& env, const std::filesystem::path& path, uint64 fileHash ) const
 {
 	IManufacturer* representative = nullptr;
 	for ( const std::unique_ptr<IManufacturer>& manufacturer : m_manufacturers )
@@ -22,7 +25,20 @@ std::optional<Products> AssetManufacturer::Manufacture( const PathEnvironment& e
 		return {};
 	}
 
-	return representative->Manufacture( env, path );
+	auto products = representative->Manufacture( env, path );
+	if ( products.has_value() )
+	{
+		for ( const auto& product : *products )
+		{
+			if ( auto asyncLoadableAsset = Cast<AsyncLoadableAsset>( product.second.get() ) )
+			{
+				asyncLoadableAsset->SetLastWriteTime( fs::last_write_time( path ) );
+				asyncLoadableAsset->SetFileHash( fileHash );
+			}
+		}
+	}
+
+	return products;
 }
 
 void AssetManufacturer::Initialize()

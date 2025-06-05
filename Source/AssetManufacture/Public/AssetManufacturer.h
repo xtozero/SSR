@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Archive.h"
+#include "Serializable.h"
 
 #include <filesystem>
 #include <memory>
@@ -8,7 +8,7 @@
 #include <utility>
 #include <vector>
 
-using Product = std::pair<std::filesystem::path, Archive>;
+using Product = std::pair<std::filesystem::path, std::unique_ptr<Serializable>>;
 using Products = std::vector<Product>;
 
 struct PathEnvironment;
@@ -27,7 +27,7 @@ public:
 class AssetManufacturer final
 {
 public:
-	std::optional<Products> Manufacture( const PathEnvironment& env, const std::filesystem::path& path );
+	std::optional<Products> Manufacture( const PathEnvironment& env, const std::filesystem::path& path, uint64 fileHash ) const;
 
 	void Initialize();
 

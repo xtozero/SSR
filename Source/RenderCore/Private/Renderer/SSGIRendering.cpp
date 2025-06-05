@@ -42,7 +42,7 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( VelocityTex );
 
 		DEFINE_SHADER_PARAM( BlackBorderSampler );
-		
+
 		DEFINE_SHADER_PARAM( DenoisedSSGI );
 
 		DEFINE_SHADER_PARAM( KernelRadius );
@@ -86,12 +86,12 @@ namespace rendercore
 		blendOption.m_renderTarget[0].m_srcBlendAlpha = agl::Blend::Zero;
 		blendOption.m_renderTarget[0].m_destBlendAlpha = agl::Blend::One;
 		blendOption.m_renderTarget[0].m_blendOpAlpha = agl::BlendOp::Add;
-		
+
 		PassRenderOption passRenderOption = {
 			.m_blendOption = &blendOption,
 			.m_depthStencilOption = &depthStencilOption,
 		};
-		
+
 		return BuildDrawSnapshot( subMesh, passShader, passRenderOption, VertexStreamLayoutType::Default );
 	}
 
@@ -102,7 +102,7 @@ namespace rendercore
 		{
 			useDiffuseTexture = material.GetMaterial()->HasProperty( "DiffuseTex" );
 		}
-		
+
 		StaticShaderSwitches vsSwitches = SSGICompositeVS::GetSwitches();
 		StaticShaderSwitches psSwitches = SSGICompositePS::GetSwitches();
 
@@ -118,7 +118,7 @@ namespace rendercore
 
 		if ( useDiffuseTexture )
 		{
-			vsSwitches.On( Name( "UseDiffuseTexture" ), 1  );
+			vsSwitches.On( Name( "UseDiffuseTexture" ), 1 );
 			psSwitches.On( Name( "UseDiffuseTexture" ), 1 );
 		}
 
@@ -163,7 +163,7 @@ namespace rendercore
 			.m_bindType = agl::ResourceBindType::RandomAccess | agl::ResourceBindType::ShaderResource,
 			.m_miscFlag = agl::ResourceMisc::None,
 		};
-		
+
 		auto rgSSGITex = renderGraph.CreateTexture( ssgiTrait, "SSGITex" );
 
 		BEGIN_RG_RESOURCE_STRUCT( SSGIPassResource )
@@ -180,9 +180,9 @@ namespace rendercore
 			.m_ssgi = rgSSGITex
 		};
 
-		Vector2 screenSize = { 
+		Vector2 screenSize = {
 			static_cast<float>( sceneTexTrait.m_width ),
-			static_cast<float>( sceneTexTrait.m_height ) 
+			static_cast<float>( sceneTexTrait.m_height )
 		};
 
 		renderGraph.AddPass( ssgiPassResource,
@@ -235,25 +235,25 @@ namespace rendercore
 			DECLARE_RG_TEXTURE_NONPIXEL_SRV( velocity )
 			DECLARE_RG_TEXTURE_UAV( denoisedSSGI )
 		END_RG_RESOURCE_STRUCT();
-		
+
 		auto rgPrevSSGITex = renderGraph.RegisterExternalResource( m_prevSSGI.Get() );
 		auto rgVelocityTex = renderGraph.RegisterExternalResource( param.m_velocity.Get() );
 		auto rgPrevViewSpaceDistanceTex = renderGraph.RegisterExternalResource( param.m_prevViewSpaceDistance.Get() );
 		auto rgViewSpaceDistanceTex = renderGraph.RegisterExternalResource( param.m_viewSpaceDistance.Get() );
 		auto denoisedSSGITex = GraphicsResourcePool::GetInstance().FindFreeTexture( ssgiTrait, "DenoisedSSGITex" );
 		auto rgDenoisedSSGITex = renderGraph.RegisterExternalResource( denoisedSSGITex.Get() );
-		
+
 		SSGIDenoiseResource ssgiDenoiseResource = {
 			.m_prevSSGI = rgPrevSSGITex,
 			.m_ssgi = rgSSGITex,
 			.m_prevViewSpaceDistance = rgPrevViewSpaceDistanceTex,
 			.m_viewSpeaceDistance = rgViewSpaceDistanceTex,
 			.m_velocity = rgVelocityTex,
-			.m_denoisedSSGI = rgDenoisedSSGITex 
+			.m_denoisedSSGI = rgDenoisedSSGITex
 		};
 
 		int kernelRadius = param.m_denoiseKernelRadius;
-		
+
 		renderGraph.AddPass( ssgiDenoiseResource,
 			[ssgiDenoiseResource, kernelRadius, screenSize]( ComputeCommandList& commandList )
 			{
@@ -279,13 +279,13 @@ namespace rendercore
 					, agl::ComparisonFunc::Never
 					, Color( 0, 0, 0, 255 )>::Get();
 				BindResource( shaderBindings, ssgiDenoiseCS.BlackBorderSampler(), blackBorderSampler );
-				
+
 				SetShaderValue( commandList, ssgiDenoiseCS.KernelRadius(), kernelRadius );
 				SetShaderValue( commandList, ssgiDenoiseCS.ScreenSize(), screenSize );
 				SetShaderValue( commandList, ssgiDenoiseCS.InvScreenSize(), Vector2::OneVector / screenSize );
 
 				commandList.BindShaderResources( shaderBindings );
-				
+
 				auto numThreadGroupX = static_cast<uint32>( std::ceilf( screenSize.x / 8 ) );
 				auto numThreadGroupY = static_cast<uint32>( std::ceilf( screenSize.y / 8 ) );
 				commandList.Dispatch( numThreadGroupX, numThreadGroupY, 1 );

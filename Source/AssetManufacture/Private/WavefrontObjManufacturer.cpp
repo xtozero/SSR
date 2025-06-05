@@ -5,6 +5,7 @@
 #include "Math/Vector4.h"
 #include "Mesh/MeshDescription.h"
 #include "Mesh/StaticMesh.h"
+#include "RawAsset.h"
 #include "SizedTypes.h"
 #include "WavefrontObjParser.hpp"
 
@@ -92,7 +93,7 @@ namespace
 		return vertexInstanceId;
 	}
 
-	rendercore::StaticMesh CreateStaticMeshFromWavefrontObj( const Wavefront::ObjModel& model, const fs::path& parentPath )
+	std::unique_ptr<rendercore::StaticMesh> CreateStaticMeshFromWavefrontObj( const Wavefront::ObjModel& model, const fs::path& parentPath )
 	{
 		std::vector<rendercore::MeshDescription> meshDescriptions;
 		meshDescriptions.emplace_back();
@@ -282,7 +283,7 @@ namespace
 			meshDescription.m_meshletTriangles = std::move( meshletTriangles );
 		}
 
-		rendercore::StaticMesh staticMesh;
+		auto staticMesh = std::make_unique<rendercore::StaticMesh>();
 		std::set<std::string> uniqueMaterial;
 		for ( const auto& mesh : model.m_meshs )
 		{
@@ -300,12 +301,12 @@ namespace
 
 				auto mat = std::make_shared<rendercore::Material>( mesh.m_materialName.c_str() );
 				mat->SetPath( parentPath / materialAsset );
-				staticMesh.AddMaterial( mat );
+				staticMesh->AddMaterial( mat );
 			}
 		}
 
-		staticMesh.BuildMeshFromMeshDescriptions( meshDescriptions );
-		staticMesh.Bounds() = BoxSphereBounds( pos.data(), static_cast<uint32>( pos.size() ) );
+		staticMesh->BuildMeshFromMeshDescriptions( meshDescriptions );
+		staticMesh->Bounds() = BoxSphereBounds( pos.data(), static_cast<uint32>( pos.size() ) );
 
 		return staticMesh;
 	}
@@ -492,13 +493,10 @@ std::optional<Products> WavefrontObjManufacturer::Manufacture( const PathEnviron
 	fs::path destParentPath = env.m_destination / fs::relative( path.parent_path() );
 	destParentPath = "." / fs::relative( destParentPath, ManufactureConfig::Instance().RootDirectory() );
 
-	Archive ar;
-	rendercore::StaticMesh staticMesh = CreateStaticMeshFromWavefrontObj( model, destParentPath );
-	staticMesh.SetLastWriteTime( fs::last_write_time( path ) );
-	staticMesh.Serialize( ar );
+	auto staticMesh = CreateStaticMeshFromWavefrontObj( model, destParentPath );
 
 	Products products;
-	products.emplace_back( path.filename(), std::move( ar ) );
+	products.emplace_back( path.filename(), std::move( staticMesh ) );
 	return products;
 }
 
@@ -527,16 +525,18 @@ std::optional<Products> WavefrontMtlManufacturer::Manufacture( [[maybe_unused]] 
 	Products products;
 	for ( const auto& namedMaterial : mtl.m_materials )
 	{
-		Archive ar;
 		const auto& materialName = namedMaterial.first;
 		const auto& material = namedMaterial.second;
 		json::Value materialJson = ConvertWavefrontMtlToJsonMaterial( mtlFileName, material );
 		std::string jsonStr = json::Writer::ToStringPretty( materialJson );
 
-		ar.WriteRaw( jsonStr.c_str(), jsonStr.size() );
+		BinaryChunk jsonData( static_cast<uint32>( jsonStr.size() ) );
+		std::memcpy( jsonData.Data(), jsonStr.c_str(), jsonStr.size() );
+
+		auto jsonAsset = std::make_unique<RawAsset>( jsonData );
 
 		fs::path assetMaterialFileName( "M_" + mtlFileName + "_" + materialName + ".json" );
-		products.emplace_back( assetMaterialFileName, std::move( ar ) );
+		products.emplace_back( assetMaterialFileName, std::move( jsonAsset ) );
 	}
 
 	return products;
