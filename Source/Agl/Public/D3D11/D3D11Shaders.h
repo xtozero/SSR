@@ -9,13 +9,13 @@
 
 namespace agl
 {
-	class D3D11VertexShader final : public VertexShader, public ShaderBase
+	class D3D11VertexShader final : public VertexShader
 	{
 	public:
 		ID3D11VertexShader* Resource() { return m_pResource; }
 
 		D3D11VertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: ShaderBase( byteCode, byteCodeSize, paramInfo ) {}
+			: VertexShader( byteCode, byteCodeSize, paramInfo ) {}
 		D3D11VertexShader( const D3D11VertexShader& ) = delete;
 		D3D11VertexShader( D3D11VertexShader&& ) = default;
 		D3D11VertexShader& operator=( const D3D11VertexShader& ) = delete;
@@ -29,13 +29,13 @@ namespace agl
 		ID3D11VertexShader* m_pResource = nullptr;
 	};
 
-	class D3D11GeometryShader final : public GeometryShader, public ShaderBase
+	class D3D11GeometryShader final : public GeometryShader
 	{
 	public:
 		ID3D11GeometryShader* Resource() { return m_pResource; }
 
 		D3D11GeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: ShaderBase( byteCode, byteCodeSize, paramInfo ) {}
+			: GeometryShader( byteCode, byteCodeSize, paramInfo ) {}
 		D3D11GeometryShader( const D3D11GeometryShader& ) = delete;
 		D3D11GeometryShader( D3D11GeometryShader&& ) = default;
 		D3D11GeometryShader& operator=( const D3D11GeometryShader& ) = delete;
@@ -49,13 +49,13 @@ namespace agl
 		ID3D11GeometryShader* m_pResource = nullptr;
 	};
 
-	class D3D11PixelShader final : public PixelShader, public ShaderBase
+	class D3D11PixelShader final : public PixelShader
 	{
 	public:
 		ID3D11PixelShader* Resource() { return m_pResource; }
 
 		D3D11PixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: ShaderBase( byteCode, byteCodeSize, paramInfo ) {}
+			: PixelShader( byteCode, byteCodeSize, paramInfo ) {}
 		D3D11PixelShader( const D3D11PixelShader& ) = delete;
 		D3D11PixelShader( D3D11PixelShader&& ) = default;
 		D3D11PixelShader& operator=( const D3D11PixelShader& ) = delete;
@@ -69,13 +69,13 @@ namespace agl
 		ID3D11PixelShader* m_pResource = nullptr;
 	};
 
-	class D3D11ComputeShader final : public ComputeShader, public ShaderBase
+	class D3D11ComputeShader final : public ComputeShader
 	{
 	public:
 		ID3D11ComputeShader* Resource() { return m_pResource; }
 
 		D3D11ComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: ShaderBase( byteCode, byteCodeSize, paramInfo ) {}
+			: ComputeShader( byteCode, byteCodeSize, paramInfo ) {}
 		D3D11ComputeShader( const D3D11ComputeShader& ) = delete;
 		D3D11ComputeShader( D3D11ComputeShader&& ) = default;
 		D3D11ComputeShader& operator=( const D3D11ComputeShader& ) = delete;

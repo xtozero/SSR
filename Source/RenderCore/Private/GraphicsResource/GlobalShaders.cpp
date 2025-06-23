@@ -17,7 +17,7 @@ namespace rendercore
 			return;
 		}
 
-		bool bRunningAssetManufacture = engine::CommandLine::Has( Name( "AssetManufacture" ) );
+		bool isRunningAssetBuilder = engine::CommandLine::Has( Name( "AssetBuilder" ) );
 		for ( auto& [typeIndex, assetPath] : m_shaderAssetPaths )
 		{
 			if ( m_shaders.contains( typeIndex ) )
@@ -25,7 +25,7 @@ namespace rendercore
 				continue;
 			}
 
-			if ( bRunningAssetManufacture && ( std::filesystem::exists( assetPath ) == false ) )
+			if ( isRunningAssetBuilder && ( std::filesystem::exists( assetPath ) == false ) )
 			{
 				continue;
 			}
@@ -36,7 +36,7 @@ namespace rendercore
 					EnqueueRenderTask(
 						[typeIndex, asset]()
 						{
-							GlobalShaders::GetInstance().RegisterShader( typeIndex, std::static_pointer_cast<IShader>( asset ) );
+							GlobalShaders::GetInstance().RegisterShader( typeIndex, std::static_pointer_cast<ShaderAsset>( asset ) );
 						} );
 				} );
 
@@ -64,7 +64,7 @@ namespace rendercore
 		BootUp();
 	}
 
-	bool GlobalShaders::RegisterShader( std::type_index typeIndex, const std::shared_ptr<IShader>& shader )
+	bool GlobalShaders::RegisterShader( std::type_index typeIndex, const std::shared_ptr<ShaderAsset>& shader )
 	{
 		assert( m_shaders.contains( typeIndex ) == false );
 
@@ -85,7 +85,7 @@ namespace rendercore
 		return true;
 	}
 
-	IShader* GlobalShaders::GetShader( std::type_index typeIndex )
+	ShaderAsset* GlobalShaders::GetShader( std::type_index typeIndex )
 	{
 		auto found = m_shaders.find( typeIndex );
 		if ( found == std::end( m_shaders ) )
@@ -101,7 +101,7 @@ namespace rendercore
 		GlobalShaders::GetInstance().RegisterShaderPath( typeIndex, assetPath );
 	}
 
-	IShader* GetGlobalShaderImpl( std::type_index typeIndex )
+	ShaderAsset* GetGlobalShaderImpl( std::type_index typeIndex )
 	{
 		assert( IsInRenderThread() );
 		return GlobalShaders::GetInstance().GetShader( typeIndex );

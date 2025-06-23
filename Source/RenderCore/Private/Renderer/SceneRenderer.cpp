@@ -3,7 +3,7 @@
 #include "CommandList.h"
 #include "CommonRenderResource.h"
 #include "Config/DefaultRenderCoreConfig.h"
-#include "CpuProfiler.h"
+#include "CpuProfiler/CpuProfiler.h"
 #include "ExponentialShadowMapRendering.h"
 #include "GpuProfiler.h"
 #include "GraphicsResourcePool.h"
@@ -842,18 +842,28 @@ namespace rendercore
 		rasterOutput.SetViewport( width, height );
 		rasterOutput.SetScissorRect( width, height );
 
+		auto viewSpaceDistance = GetRenderTargets().GetViewSpaceDistance();
+		auto worldNormal = GetRenderTargets().GetWorldNormal();
+
+		auto rgViewSpaceDistance = renderGraph.RegisterExternalResource( viewSpaceDistance );
+		auto rgWorldNormal = renderGraph.RegisterExternalResource( worldNormal );
+
 		GPU_PROFILE_EVENT( renderGraph, Shadow );
 
 		for ( ShadowInfo& shadowInfo : m_shadowInfos )
 		{
 			BEGIN_RG_RESOURCE_STRUCT( RenderShadowPassResource )
 				DECLARE_RG_TEXTURE_PIXEL_SRV( shadowMap )
+				DECLARE_RG_TEXTURE_PIXEL_SRV( viewSpaceDistance )
+				DECLARE_RG_TEXTURE_PIXEL_SRV( worldNormal )
 			END_RG_RESOURCE_STRUCT();
 
 			auto rgShadowMap = renderGraph.RegisterExternalResource( shadowInfo.ShadowMap().m_shadowMaps[0].Get() );
 
 			RenderShadowPassResource passResource = {
 				.m_shadowMap = rgShadowMap,
+				.m_viewSpaceDistance = rgViewSpaceDistance,
+				.m_worldNormal = rgWorldNormal,
 			};
 
 			renderGraph.AddPass(

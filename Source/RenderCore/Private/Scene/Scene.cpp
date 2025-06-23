@@ -349,6 +349,24 @@ namespace rendercore
 		m_velocityData.StartFrame( *this );
 	}
 
+	void Scene::PreReloadShaders()
+	{
+		for ( PrimitiveSceneInfo* primitive : m_primitives)
+		{
+			primitive->RemoveCachedDrawSnapshot();
+		}
+	}
+
+	void Scene::PostReloadShaders()
+	{
+		for ( PrimitiveSceneInfo* primitive : m_primitives)
+		{
+			primitive->CacheDrawSnapshot();
+		}
+
+		GetInterface<agl::IResourceManager>()->PostReloadShaders();
+	}
+
 	void Scene::AddPrimitiveToUpdate( uint32 primitiveId )
 	{
 		m_primitiveToUpdate.emplace( primitiveId );

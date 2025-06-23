@@ -13,7 +13,7 @@
 
 namespace agl
 {
-	class CD3D11ResourceManager final : public IResourceManager
+	class D3D11ResourceManager final : public IResourceManager
 	{
 	public:
 		virtual void Shutdown() override;
@@ -56,12 +56,14 @@ namespace agl
 		virtual void SetPSOCache( const BinaryChunk& psoCache ) override;
 		virtual BinaryChunk SerializePSOLibraryCache() override;
 
-		CD3D11ResourceManager() = default;
-		virtual ~CD3D11ResourceManager() override;
-		CD3D11ResourceManager( const CD3D11ResourceManager& ) = delete;
-		CD3D11ResourceManager( CD3D11ResourceManager&& ) = delete;
-		CD3D11ResourceManager& operator=( const CD3D11ResourceManager& ) = delete;
-		CD3D11ResourceManager& operator=( CD3D11ResourceManager&& ) = delete;
+		virtual void PostReloadShaders() override;
+
+		D3D11ResourceManager() = default;
+		virtual ~D3D11ResourceManager() override;
+		D3D11ResourceManager( const D3D11ResourceManager& ) = delete;
+		D3D11ResourceManager( D3D11ResourceManager&& ) = delete;
+		D3D11ResourceManager& operator=( const D3D11ResourceManager& ) = delete;
+		D3D11ResourceManager& operator=( D3D11ResourceManager&& ) = delete;
 
 	private:
 		std::map<GraphicsPipelineStateInitializer, RefHandle<GraphicsPipelineState>> m_graphicsPipelineStateCache;

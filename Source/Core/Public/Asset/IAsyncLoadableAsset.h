@@ -61,6 +61,11 @@ public:
 		return m_header.m_lastWriteTime;
 	}
 
+	uint64 GetFileHash() const
+	{
+		return m_header.m_fileHash;
+	}
+
 	void SetLastWriteTime( std::filesystem::file_time_type lastWriteTime );
 	void SetFileHash( uint64 fileHash );
 

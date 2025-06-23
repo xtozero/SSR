@@ -160,18 +160,7 @@ namespace agl
 			return cached->second.Get();
 		}
 
-		size_t psoHash = initializer.GetHash();
-		const BinaryChunk* cachedPSO = nullptr;
-		if ( m_psoCache )
-		{
-			auto found = m_psoCache->find( psoHash );
-			if ( found != std::end( *m_psoCache ) )
-			{
-				cachedPSO = &found->second;
-			}
-		}
-
-		auto pipelineState = new D3D12ComputePipelineState( initializer, cachedPSO );
+		auto pipelineState = new D3D12ComputePipelineState( initializer );
 		m_computePipelineStateCache.emplace( initializer, pipelineState );
 
 		EnqueueRenderTask(
@@ -245,11 +234,26 @@ namespace agl
 		return serializedCache;
 	}
 
-	ID3D12PipelineState* D3D12ResourceManager::FindOrCreate( D3D12ComputePipelineState* pipelineState )
+	void D3D12ResourceManager::PostReloadShaders()
 	{
 		{
+			std::unique_lock<std::shared_mutex> lock( m_d3d12PipelineMutex );
+			m_d3d12PipelineState.clear();
+		}
+
+		{
+			std::unique_lock<std::shared_mutex> lock( m_d3d12ComputePipelineMutex );
+			m_d3d12ComputePipelineState.clear();
+		}
+	}
+
+	ID3D12PipelineState* D3D12ResourceManager::FindOrCreate( const D3D12ComputePipelineState* pipelineState )
+	{
+		size_t psoHash = pipelineState->GetHash();
+
+		{
 			std::shared_lock<std::shared_mutex> lock( m_d3d12ComputePipelineMutex );
-			auto found = m_d3d12ComputePipelineState.find( pipelineState );
+			auto found = m_d3d12ComputePipelineState.find( psoHash );
 			if ( found != std::end( m_d3d12ComputePipelineState ) )
 			{
 				return found->second.Get();
@@ -258,16 +262,38 @@ namespace agl
 
 		{
 			std::unique_lock<std::shared_mutex> lock( m_d3d12ComputePipelineMutex );
-			auto found = m_d3d12ComputePipelineState.find( pipelineState );
+			auto found = m_d3d12ComputePipelineState.find( psoHash );
 			if ( found != std::end( m_d3d12ComputePipelineState ) )
 			{
 				return found->second.Get();
 			}
 
-			D3D12_COMPUTE_PIPELINE_STATE_DESC desc = pipelineState->GetDesc();
-			Microsoft::WRL::ComPtr<ID3D12PipelineState> newPipelineState;
+			D3D12_CACHED_PIPELINE_STATE cachedPSO = {};
+			if ( m_psoCache )
+			{
+				auto cashedPSO = m_psoCache->find( psoHash );
+				if ( cashedPSO != std::end( *m_psoCache ) )
+				{
+					cachedPSO.pCachedBlob = cashedPSO->second.Data();
+					cachedPSO.CachedBlobSizeInBytes = cashedPSO->second.Size();
+				}
+			}
 
-			size_t psoHash = pipelineState->GetHash();
+			D3D12ComputeShader* computeShader = pipelineState->GetComputeShader();
+			D3D12RootSignature* rootSignature = pipelineState->GetRootSignature();
+
+			D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {
+				.pRootSignature = rootSignature ? rootSignature->Resource() : nullptr,
+				.CS = {
+					.pShaderBytecode = computeShader->ByteCode(),
+					.BytecodeLength = computeShader->ByteCodeSize()
+				},
+				.NodeMask = 0,
+				.CachedPSO = cachedPSO,
+				.Flags = D3D12_PIPELINE_STATE_FLAG_NONE
+			};
+
+			Microsoft::WRL::ComPtr<ID3D12PipelineState> newPipelineState;
 			if ( m_d3d12PipelineLibrary.Get() != nullptr )
 			{
 				auto hashString = std::to_wstring( psoHash );
@@ -293,7 +319,7 @@ namespace agl
 				}
 			}
 
-			m_d3d12ComputePipelineState.emplace( pipelineState, newPipelineState );
+			m_d3d12ComputePipelineState.emplace( psoHash, newPipelineState );
 
 			if ( encounterNewPSO )
 			{
@@ -304,13 +330,33 @@ namespace agl
 		}
 	}
 
-	ID3D12PipelineState* D3D12ResourceManager::FindOrCreate( D3D12GraphicsPipelineState* pipelineState, const DXGI_FORMAT( &rtvFormats )[8], DXGI_FORMAT dsvFormat )
+	ID3D12PipelineState* D3D12ResourceManager::FindOrCreate( const D3D12GraphicsPipelineState* pipelineState, const DXGI_FORMAT( &rtvFormats )[8], DXGI_FORMAT dsvFormat )
 	{
-		D3D12PipelineStateKey key( pipelineState, rtvFormats, dsvFormat );
+		struct GraphicsPipelineStateHasher
+		{
+			size_t operator()( const GraphicsPipelineState* state, const DXGI_FORMAT (&rtvFormats)[8], DXGI_FORMAT dsvFormat ) const
+			{
+				size_t hash = state ? state->GetHash() : 0;
+
+				constexpr int32 numRTVFormats = std::extent_v<std::remove_cvref_t<decltype(rtvFormats)>>;
+				for ( int32 i = 0; i < numRTVFormats; ++i )
+				{
+					int32 salt = ( ( i + 1 ) * 19937 );
+					HashCombine( hash, static_cast<int32>( rtvFormats[i] ) + salt );
+				}
+
+				constexpr int32 salt = ( ( numRTVFormats + 1 ) * 19937 );
+				HashCombine( hash, static_cast<int32>( dsvFormat ) + salt );
+
+				return hash;
+			}
+		} hasher;
+
+		size_t psoHash = hasher( pipelineState, rtvFormats, dsvFormat );
 
 		{
 			std::shared_lock<std::shared_mutex> lock( m_d3d12PipelineMutex );
-			auto found = m_d3d12PipelineState.find( key );
+			auto found = m_d3d12PipelineState.find( psoHash );
 			if ( found != std::end( m_d3d12PipelineState ) )
 			{
 				return found->second.Get();
@@ -319,13 +365,12 @@ namespace agl
 
 		{
 			std::unique_lock<std::shared_mutex> lock( m_d3d12PipelineMutex );
-			auto found = m_d3d12PipelineState.find( key );
+			auto found = m_d3d12PipelineState.find( psoHash );
 			if ( found != std::end( m_d3d12PipelineState ) )
 			{
 				return found->second.Get();
 			}
 
-			size_t psoHash = key.GetHash();
 			D3D12_CACHED_PIPELINE_STATE cachedPSO = {};
 			if ( m_psoCache )
 			{
@@ -587,7 +632,8 @@ namespace agl
 				}
 			}
 
-			m_d3d12PipelineState.emplace( key, newPipelineState );
+			assert( m_d3d12PipelineState.contains( psoHash ) == false );
+			m_d3d12PipelineState.emplace( psoHash, newPipelineState );
 
 			if ( encounterNewPSO )
 			{
@@ -597,6 +643,15 @@ namespace agl
 						UpdatePSOCache( psoHash, state.Get() );
 					} );
 			}
+
+			// Update the lookup table between shaders and pipeline states
+			ShaderBase* shaders[] = {
+				desc.m_vertexShader.Get(),
+				desc.m_geometryShader.Get(),
+				desc.m_pixelShader.Get(),
+				desc.m_meshShader.Get(),
+				desc.m_amplificationShader.Get(),
+			};
 
 			return newPipelineState.Get();
 		}

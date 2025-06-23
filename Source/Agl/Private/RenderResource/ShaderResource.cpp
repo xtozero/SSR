@@ -5,6 +5,18 @@
 
 namespace agl
 {
+	void ShaderBase::UpdateByteCodeAndParameterInfo( const void* byteCode, size_t byteCodeSize,
+		const ShaderParameterInfo& paramInfo )
+	{
+		m_byteCodeSize = byteCodeSize;
+
+		delete[] m_byteCode;
+		m_byteCode = new uint8[m_byteCodeSize];
+		std::memcpy( m_byteCode, byteCode, m_byteCodeSize );
+
+		m_parameterInfo = &paramInfo;
+	}
+
 	RefHandle<VertexShader> VertexShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
 		return GetInterface<IResourceManager>( )->CreateVertexShader( byteCode, byteCodeSize, paramInfo );

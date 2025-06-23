@@ -25,11 +25,6 @@ namespace rendercore
 	agl::ShaderParameterInfo UberShader::m_emptyParameterInfo;
 
 	REGISTER_ASSET( UberShader );
-	StaticShaderSwitches UberShader::GetStaticSwitches() const
-	{
-		return m_switches;
-	}
-
 	ShaderBase* UberShader::CompileShader( const StaticShaderSwitches& switches )
 	{
 /*
@@ -42,77 +37,45 @@ namespace rendercore
 		}
 #endif
 */
+		auto thisShared = std::reinterpret_pointer_cast<ShaderAsset>( shared_from_this() );
 
-		uint64 shaderHash = ShaderHash( m_name, switches );
+		uint64 shaderHash = ShaderHash( Path().generic_string(), switches );
 		ShaderBase* cache = ShaderCache::GetCachedShader( shaderHash );
 		if ( cache != nullptr )
 		{
 			if ( cache->LastWriteTime() == LastWriteTime() )
 			{
+				cache->SetParent( thisShared );
 				return cache;
 			}
 		}
 
-		bool bMeshShader = ( m_type == agl::ShaderType::MS ) || ( m_type == agl::ShaderType::AS );
-		if ( bMeshShader && ( GetInterface<agl::IAgl>()->IsSupportsMeshShader() == false ) )
-		{
-			return nullptr;
-		}
-
-		std::vector<const char*> defines;
-		defines.reserve( ( switches.Configs().size() + 1 ) << 1 );
-
-		std::array<char, 1024> valueBuffer{ '\0' };
-		char* value = valueBuffer.data();
-		size_t valueBufferSize = valueBuffer.size();
-
-		for ( auto& [name, shaderSwitch] : switches.Configs() )
-		{
-			if ( shaderSwitch.m_on == false )
-			{
-				continue;
-			}
-
-			defines.emplace_back( name.Str().data() );
-			defines.emplace_back( value );
-
-			SPrintf( value, valueBufferSize, "%d", shaderSwitch.m_current );
-			size_t offset = std::strlen( value ) + 1;
-
-			assert( ( valueBufferSize - offset ) < 1024 );
-
-			value += offset;
-			valueBufferSize -= offset;
-		}
-		defines.emplace_back( nullptr );
-		defines.emplace_back( nullptr );
-
-		BinaryChunk byteCode = GraphicsInterface().CompieShader( m_shaderCode, defines, m_profile.Str().data() );
+		BinaryChunk byteCode = ComipeShaderByteCode( switches );
 		if ( byteCode.Size() == 0 )
 		{
 			return nullptr;
 		}
 
 		ShaderBase* shader = nullptr;
-		switch ( static_cast<agl::ShaderType>( m_type ) )
+		switch ( m_type )
 		{
 		case agl::ShaderType::VS:
-			shader = new VertexShader( std::move( byteCode ), shaderHash );
+			shader = new VertexShader( switches, std::move( byteCode ), shaderHash );
 			break;
 		case agl::ShaderType::GS:
-			shader = new GeometryShader( std::move( byteCode ), shaderHash );
+			shader = new GeometryShader( switches, std::move( byteCode ), shaderHash );
 			break;
 		case agl::ShaderType::PS:
-			shader = new PixelShader( std::move( byteCode ), shaderHash );
+			shader = new PixelShader( switches, std::move( byteCode ), shaderHash );
 			break;
 		case agl::ShaderType::CS:
-			shader = new ComputeShader( std::move( byteCode ), shaderHash );
+			shader = new ComputeShader( switches, std::move( byteCode ), shaderHash );
 			break;
 		case agl::ShaderType::MS:
-			shader = new MeshShader( std::move( byteCode ), shaderHash );
+			shader = new MeshShader( switches, std::move( byteCode ), shaderHash );
 			break;
 		case agl::ShaderType::AS:
-			shader = new AmplificationShader( std::move( byteCode ), shaderHash );
+			shader = new AmplificationShader( switches, std::move( byteCode ), shaderHash );
 			break;
 		default:
 			assert( false && "Invalid shader type" );
@@ -123,9 +86,15 @@ namespace rendercore
 		shader->CreateShader();
 		shader->SetPath( Path() );
 		shader->SetLastWriteTime( LastWriteTime() );
+		shader->SetParent( thisShared );
 
 		ShaderCache::UpdateCache( shaderHash, shader );
 		return shader;
+	}
+
+	void UberShader::RecompileShader()
+	{
+		// Do Nothing
 	}
 
 	agl::ShaderParameterMap& UberShader::ParameterMap()
@@ -177,6 +146,45 @@ namespace rendercore
 	void UberShader::AddValidVariation( uint32 id )
 	{
 		m_validVariation.emplace( id );
+	}
+
+	BinaryChunk UberShader::ComipeShaderByteCode( const StaticShaderSwitches& switches )
+	{
+		bool bMeshShader = ( m_type == agl::ShaderType::MS ) || ( m_type == agl::ShaderType::AS );
+        if ( bMeshShader && ( GetInterface<agl::IAgl>()->IsSupportsMeshShader() == false ) )
+        {
+        	return {};
+        }
+
+		std::vector<const char*> defines;
+		defines.reserve( ( switches.Configs().size() + 1 ) << 1 );
+
+		std::array<char, 1024> valueBuffer{ '\0' };
+		char* value = valueBuffer.data();
+		size_t valueBufferSize = valueBuffer.size();
+
+		for ( auto& [name, shaderSwitch] : switches.Configs() )
+		{
+			if ( shaderSwitch.m_on == false )
+			{
+				continue;
+			}
+
+			defines.emplace_back( name.Str().data() );
+			defines.emplace_back( value );
+
+			SPrintf( value, valueBufferSize, "%d", shaderSwitch.m_current );
+			size_t offset = std::strlen( value ) + 1;
+
+			assert( ( valueBufferSize - offset ) < 1024 );
+
+			value += offset;
+			valueBufferSize -= offset;
+		}
+		defines.emplace_back( nullptr );
+		defines.emplace_back( nullptr );
+
+		return GraphicsInterface().CompieShader( m_shaderCode, defines, m_profile.Str().data() );
 	}
 
 	void UberShader::PostLoadImpl()

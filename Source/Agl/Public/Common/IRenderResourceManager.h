@@ -25,6 +25,7 @@ namespace agl
 	class GpuTimer;
 	class RasterizerState;
 	class SamplerState;
+	class ShaderBase;
 	class ShaderParameterInfo;
 	class Texture;
 	class VertexLayout;
@@ -67,6 +68,8 @@ namespace agl
 		virtual void SetPSOCache( std::map<uint64, BinaryChunk>& psoCache ) = 0;
 		virtual void SetPSOCache( const BinaryChunk& psoCache ) = 0;
 		virtual BinaryChunk SerializePSOLibraryCache() = 0;
+
+		virtual void PostReloadShaders() = 0;
 
 		virtual ~IResourceManager() = default;
 	};

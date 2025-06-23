@@ -2,11 +2,19 @@
 
 #include "Components/LightComponent.h"
 #include "Proxies/LightProxy.h"
+#include "Proxies/PrimitiveProxy.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "Scene/Scene.h"
 
 namespace rendercore
 {
+	PrimitiveIntersectionInfo::PrimitiveIntersectionInfo( PrimitiveSceneInfo* primitive, uint32 infoId )
+			: m_primitive( primitive )
+			, m_infoId( infoId )
+	{
+		m_castShadow = m_primitive->Proxy()->CastShadow();
+	}
+
 	SparseArray<PrimitiveIntersectionInfo>& LightSceneInfo::Primitives()
 	{
 		return m_primitiveList;

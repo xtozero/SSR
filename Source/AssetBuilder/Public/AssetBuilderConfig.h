@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Json/Json.hpp"
+#include "Platform/PlatformProcess.h"
 
 #include <filesystem>
 #include <map>
@@ -23,7 +24,7 @@ struct PreprocessingEnvironment final : public PathEnvironment
 	bool m_allowOverwrite = false;
 };
 
-class ManufactureConfig final
+class AssetBuilderConfig final
 {
 public:
 	void Load()
@@ -32,7 +33,7 @@ public:
 		[[maybe_unused]] bool success = reader.Parse( "Config/Environment.json", m_configRaw );
 		assert( success );
 
-		m_workingDirectory = std::filesystem::absolute( std::filesystem::current_path() );
+		m_workingDirectory = std::filesystem::absolute( engine::PlatformProcess::GetWorkingDirectory() );
 		if ( const json::Value* pRootDirectory = m_configRaw.Find( "root_directory" ) )
 		{
 			m_rootDirectory = pRootDirectory->AsString();
@@ -155,9 +156,9 @@ public:
 		return false;
 	}
 
-	static ManufactureConfig& Instance( )
+	static AssetBuilderConfig& Instance( )
 	{
-		static ManufactureConfig environment;
+		static AssetBuilderConfig environment;
 		return environment;
 	}
 

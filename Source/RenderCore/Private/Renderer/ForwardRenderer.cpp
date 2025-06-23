@@ -3,7 +3,7 @@
 #include "CommandList.h"
 #include "CommonRenderResource.h"
 #include "Config/DefaultRenderCoreConfig.h"
-#include "CpuProfiler.h"
+#include "CpuProfiler/CpuProfiler.h"
 #include "GpuProfiler.h"
 #include "GraphicsResourcePool.h"
 #include "Math/Vector.h"

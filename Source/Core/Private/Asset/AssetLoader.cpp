@@ -53,7 +53,7 @@ void AssetLoaderHandle::ExecuteCompletionCallback()
 class AssetLoader : public IAssetLoader
 {
 public:
-	virtual AssetLoaderSharedHandle RequestAsyncLoad( const std::string& assetPath, LoadCompletionCallback completionCallback ) override;
+	virtual AssetLoaderSharedHandle RequestAsyncLoad( const std::string& assetPath, LoadCompletionCallback completionCallback, bool needCaching = true ) override;
 	virtual AssetLoaderSharedHandle HandleInProcess() const override;
 	virtual void SetHandleInProcess( const AssetLoaderSharedHandle& handle ) override;
 
@@ -67,7 +67,7 @@ public:
 private:
 	AssetLoaderSharedHandle LoadAsset( const char* assetPath, LoadCompletionCallback completionCallback );
 
-	void OnAssetLoaded( const std::string& path, const std::shared_ptr<void>& asset );
+	void OnAssetLoaded( const std::string& path, const std::shared_ptr<void>& asset, bool needCaching );
 	void AddPrerequisiteToDependantAsset( const AssetLoaderSharedHandle& handle );
 
 	std::unordered_map<std::string, std::vector<AssetLoaderSharedHandle>> m_waitingHandle;
@@ -78,22 +78,25 @@ private:
 
 thread_local AssetLoaderSharedHandle AssetLoader::AssetHandleInProcess = nullptr;
 
-AssetLoaderSharedHandle AssetLoader::RequestAsyncLoad( const std::string& assetPath, LoadCompletionCallback completionCallback )
+AssetLoaderSharedHandle AssetLoader::RequestAsyncLoad( const std::string& assetPath, LoadCompletionCallback completionCallback, bool needCaching )
 {
 	assert( IsInGameThread() );
 
-	auto found = m_assets.find( assetPath );
-	if ( found != std::end( m_assets ) )
+	if ( needCaching )
 	{
-		auto handle = std::make_shared<AssetLoaderHandle>();
-		handle->BindCompletionCallback( completionCallback );
-		handle->SetLoadedAsset( found->second );
-		handle->OnStartLoading();
-		AddPrerequisiteToDependantAsset( handle );
-		handle->ExecuteCompletionCallback();
+		auto found = m_assets.find( assetPath );
+		if ( found != std::end( m_assets ) )
+		{
+			auto handle = std::make_shared<AssetLoaderHandle>();
+			handle->BindCompletionCallback( completionCallback );
+			handle->SetLoadedAsset( found->second );
+			handle->OnStartLoading();
+			AddPrerequisiteToDependantAsset( handle );
+			handle->ExecuteCompletionCallback();
 
-		return handle;
-	} 
+			return handle;
+		}
+	}
 
 	auto isInProgress = m_waitingHandle.find( assetPath );
 	if ( isInProgress != std::end( m_waitingHandle ) )
@@ -110,13 +113,14 @@ AssetLoaderSharedHandle AssetLoader::RequestAsyncLoad( const std::string& assetP
 
 	IAssetLoader::LoadCompletionCallback onAssetLoaded;
 	onAssetLoaded.BindFunctor(
-		[assetPath, completionCallback, this]( const std::shared_ptr<void>& asset )
+		[this, assetPath, completionCallback, needCaching]( const std::shared_ptr<void>& asset )
 		{
 			if ( completionCallback.IsBound() )
 			{
 				completionCallback( asset );
 			}
-			OnAssetLoaded( assetPath, asset );
+
+			OnAssetLoaded( assetPath, asset, needCaching );
 		}
 	);
 
@@ -215,12 +219,15 @@ AssetLoaderSharedHandle AssetLoader::LoadAsset( const char* assetPath, LoadCompl
 	return handle;
 }
 
-void AssetLoader::OnAssetLoaded( const std::string& path, const std::shared_ptr<void>& asset )
+void AssetLoader::OnAssetLoaded( const std::string& path, const std::shared_ptr<void>& asset, bool needCaching )
 {
 	assert( IsInGameThread() );
 
-	auto result = m_assets.emplace( path, asset );
-	assert( result.second );
+	if ( needCaching )
+	{
+		auto result = m_assets.emplace( path, asset );
+		assert( result.second );
+	}
 
 	auto found = m_waitingHandle.find( path );
 	if ( found != std::end( m_waitingHandle ) )

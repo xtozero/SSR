@@ -1,7 +1,7 @@
-#include "ShaderManufacturer.h"
+#include "ShaderBuilder.h"
 
 #include "../D3D11/D3D11Shaders.h"
-#include "ManufactureConfig.h"
+#include "AssetBuilderConfig.h"
 #include "ShaderFileMerger.h"
 #include "ShaderTool.h"
 #include "StaticShaderSwitch.h"
@@ -453,13 +453,13 @@ ShaderCompileResult::ShaderCompileResult( const Microsoft::WRL::ComPtr<IUnknown>
 {
 }
 
-bool ShaderManufacturer::IsSuitable( const std::filesystem::path& srcPath ) const
+bool ShaderBuilder::IsSuitable( const std::filesystem::path& srcPath ) const
 {
 	fs::path extension = ToLower( srcPath.extension().generic_string() );
 	return extension == fs::path(".fx");
 }
 
-std::optional<Products> ShaderManufacturer::Manufacture( const PathEnvironment& env, const std::filesystem::path& path ) const
+std::optional<Products> ShaderBuilder::Build( const PathEnvironment& env, const std::filesystem::path& path ) const
 {
 	const json::Value* pIncludePath = env.m_orignal->Find( "include_path" );
 	if ( pIncludePath == nullptr )
@@ -467,7 +467,7 @@ std::optional<Products> ShaderManufacturer::Manufacture( const PathEnvironment& 
 		return {};
 	}
 
-	fs::path includePath = ManufactureConfig::Instance().WorkingDirectory() / fs::path( pIncludePath->AsString() );
+	fs::path includePath = AssetBuilderConfig::Instance().WorkingDirectory() / fs::path( pIncludePath->AsString() );
 
 	ShaderFileMerger merger( includePath );
 	auto merged = merger.Merge( path );
@@ -528,13 +528,13 @@ std::optional<Products> ShaderManufacturer::Manufacture( const PathEnvironment& 
 	return {};
 }
 
-bool ShaderManufacturer::Initialize()
+bool ShaderBuilder::Initialize()
 {
 	HRESULT hr = DxcCreateInstance( CLSID_DxcCompiler, IID_PPV_ARGS( m_compiler.GetAddressOf() ) );
 	return SUCCEEDED( hr );
 }
 
-std::set<uint32> ShaderManufacturer::CompileShaderCombination( const std::string& shaderFile, agl::ShaderType shaderType, const rendercore::StaticShaderSwitches& switches, std::vector<ShaderCompileResult>& outErrorMsgs ) const
+std::set<uint32> ShaderBuilder::CompileShaderCombination( const std::string& shaderFile, agl::ShaderType shaderType, const rendercore::StaticShaderSwitches& switches, std::vector<ShaderCompileResult>& outErrorMsgs ) const
 {
 	std::set<uint32> compiledShaderIDs;
 
@@ -544,7 +544,7 @@ std::set<uint32> ShaderManufacturer::CompileShaderCombination( const std::string
 	return compiledShaderIDs;
 }
 
-void ShaderManufacturer::CompileShaderCombination( const std::string& shaderFile, agl::ShaderType shaderType, rendercore::StaticShaderSwitches& switches, int32 depth, std::set<uint32>& outCompiledShaderIDs, std::vector<ShaderCompileResult>& outErrorMsgs ) const
+void ShaderBuilder::CompileShaderCombination( const std::string& shaderFile, agl::ShaderType shaderType, rendercore::StaticShaderSwitches& switches, int32 depth, std::set<uint32>& outCompiledShaderIDs, std::vector<ShaderCompileResult>& outErrorMsgs ) const
 {
 	if ( switches.Configs().size() == depth )
 	{
@@ -588,7 +588,7 @@ void ShaderManufacturer::CompileShaderCombination( const std::string& shaderFile
 	}
 }
 
-ShaderCompileResult ShaderManufacturer::CompileD3D12Shader( const std::string& shaderFile, const char* featureLevel, const rendercore::StaticShaderSwitches& switches ) const
+ShaderCompileResult ShaderBuilder::CompileD3D12Shader( const std::string& shaderFile, const char* featureLevel, const rendercore::StaticShaderSwitches& switches ) const
 {
 	DxcBuffer buffer = {
 		.Ptr = shaderFile.data(),

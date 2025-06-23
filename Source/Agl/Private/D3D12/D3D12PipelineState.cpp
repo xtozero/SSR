@@ -47,50 +47,29 @@ namespace agl
 		m_desc.m_rootSignature = nullptr;
 	}
 
-	const D3D12_COMPUTE_PIPELINE_STATE_DESC& D3D12ComputePipelineState::GetDesc() const
-	{
-		return m_desc;
-	}
-
 	D3D12RootSignature* D3D12ComputePipelineState::GetRootSignature() const
 	{
 		return m_rootSignature.Get();
 	}
 
-	D3D12ComputePipelineState::D3D12ComputePipelineState( const ComputePipelineStateInitializer& initializer, const BinaryChunk* cachedPSO )
+	D3D12ComputeShader* D3D12ComputePipelineState::GetComputeShader() const
+	{
+		return m_computeShader.Get();
+	}
+
+	D3D12ComputePipelineState::D3D12ComputePipelineState( const ComputePipelineStateInitializer& initializer )
 		: m_computeShader( static_cast<D3D12ComputeShader*>( initializer.m_computeShader ) )
 	{
 		m_rootSignature = new D3D12RootSignature( initializer );
-
-		m_desc = {
-			.pRootSignature = nullptr, // Assign later, See D3D12ComputePipelineState::InitResource
-			.CS = {
-				.pShaderBytecode = m_computeShader->ByteCode(),
-				.BytecodeLength = m_computeShader->ByteCodeSize()
-			},
-			.NodeMask = 0,
-			.CachedPSO = {
-				.pCachedBlob = cachedPSO ? cachedPSO->Data() : nullptr,
-				.CachedBlobSizeInBytes = cachedPSO ? cachedPSO->Size() : 0
-			},
-			.Flags = D3D12_PIPELINE_STATE_FLAG_NONE
-		};
 	}
 
 	void D3D12ComputePipelineState::InitResource()
 	{
 		m_rootSignature->Init();
-		m_desc.pRootSignature = m_rootSignature->Resource();
 	}
 
 	void D3D12ComputePipelineState::FreeResource()
 	{
-		if ( m_pipelineState )
-		{
-			m_pipelineState->Release();
-			m_pipelineState = nullptr;
-		}
-
 		m_rootSignature->Free();
 	}
 }

@@ -10,7 +10,7 @@
 #include "Core/IEngine.h"
 #include "Core/Timer.h"
 #include "Core/UtilWindowInfo.h"
-#include "CpuProfiler.h"
+#include "CpuProfiler/CpuProfiler.h"
 #include "DefaultAglConfig.h"
 #include "FileSystem.h"
 #include "GameObject/GameObject.h"
@@ -98,7 +98,7 @@ namespace logic
 	{
 		CPU_PROFILE( Update );
 
-		// ÇÑ ÇÁ·¹ÀÓÀÇ ½ÃÀÛ ElapsedTime °»½Å
+		// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ElapsedTime ï¿½ï¿½ï¿½ï¿½
 		StartLogic();
 		ProcessLogic();
 		EndLogic();
@@ -228,7 +228,7 @@ namespace logic
 	{
 		CPU_PROFILE( StartLogic );
 
-		//°ÔÀÓ ·ÎÁ÷ ¼öÇà ÀüÃ³¸®
+		//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã³ï¿½ï¿½
 		engine::GetConsoleMessageExecutor().Execute();
 		GetInterface<engine::IEngine>()->ProcessInput();
 
@@ -241,7 +241,7 @@ namespace logic
 
 		if ( m_world.GetTimer().IsPaused() == false )
 		{
-			// °ÔÀÓ ·ÎÁ÷ ¼öÇà
+			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			m_world.RunFrame();
 		}
 	}
@@ -250,10 +250,10 @@ namespace logic
 	{
 		CPU_PROFILE( EndLogic );
 
-		// ¹°¸® ½Ã¹Ä·¹ÀÌ¼Ç °á°ú¸¦ ¹Ý¿µ
+		// ï¿½ï¿½ï¿½ï¿½ ï¿½Ã¹Ä·ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ý¿ï¿½
 		m_world.EndFrame();
 
-		// °ÔÀÓ ·ÎÁ÷ ¼öÇà ÈÄÃ³¸®
+		// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã³ï¿½ï¿½
 
 		if ( m_numDrawRequestQueued < agl::DefaultAgl::GetBufferCount() )
 		{

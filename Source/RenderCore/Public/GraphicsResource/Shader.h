@@ -11,28 +11,38 @@ namespace rendercore
 {
 	class ShaderBase;
 
-	class IShader : public AsyncLoadableAsset
+	class ShaderAsset : public AsyncLoadableAsset
 	{
-		GENERATE_CLASS_TYPE_INFO( IShader );
+		GENERATE_CLASS_TYPE_INFO( ShaderAsset );
 
 	public:
-		RENDERCORE_DLL virtual StaticShaderSwitches GetStaticSwitches() const = 0;
+		RENDERCORE_DLL StaticShaderSwitches GetStaticSwitches() const;
+
 		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) = 0;
+		RENDERCORE_DLL virtual void RecompileShader() = 0;
 
 		RENDERCORE_DLL virtual agl::ShaderParameterMap& ParameterMap() = 0;
 		RENDERCORE_DLL virtual const agl::ShaderParameterMap& ParameterMap() const = 0;
 
 		RENDERCORE_DLL virtual agl::ShaderParameterInfo& ParameterInfo() = 0;
 		RENDERCORE_DLL virtual const agl::ShaderParameterInfo& ParameterInfo() const = 0;
+
+		explicit ShaderAsset( const StaticShaderSwitches& switches );
+		RENDERCORE_DLL ShaderAsset();
+		RENDERCORE_DLL virtual ~ShaderAsset() override;
+
+	protected:
+		PROPERTY( switches )
+		StaticShaderSwitches m_switches;
 	};
 
-	class ShaderBase : public IShader
+	class ShaderBase : public ShaderAsset
 	{
 		GENERATE_CLASS_TYPE_INFO( ShaderBase );
 
 	public:
-		RENDERCORE_DLL virtual StaticShaderSwitches GetStaticSwitches() const override;
 		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
+		RENDERCORE_DLL virtual void RecompileShader() override;
 
 		bool IsValid() const
 		{
@@ -41,20 +51,6 @@ namespace rendercore
 
 		void SetHash( size_t hash );
 		size_t GetHash() const;
-
-		ShaderBase( BinaryChunk&& byteCode, size_t hash ) 
-			: m_byteCode( std::move( byteCode ) )
-			, m_hash( hash )
-		{}
-		ShaderBase() = default;
-
-		friend bool operator==( const ShaderBase& lhs, const ShaderBase& rhs )
-		{
-			return lhs.m_shader == rhs.m_shader
-				|| lhs.m_byteCode == rhs.m_byteCode;
-		}
-
-		friend Archive& operator<<( Archive& ar, ShaderBase& shaderBase );
 
 		const BinaryChunk& ByteCode() const
 		{
@@ -81,6 +77,25 @@ namespace rendercore
 
 		RENDERCORE_DLL virtual void CreateShader() = 0;
 
+		static void ReloadShaders();
+
+		ShaderAsset* GetParent();
+		const ShaderAsset* GetParent() const;
+		void SetParent( const std::shared_ptr<ShaderAsset>& parent );
+
+		ShaderBase( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash )
+			: Super( switches )
+			, m_byteCode( std::move( byteCode ) )
+			, m_hash( hash )
+		{}
+		ShaderBase() = default;
+
+		friend bool operator==( const ShaderBase& lhs, const ShaderBase& rhs )
+		{
+			return lhs.m_shader == rhs.m_shader
+				|| lhs.m_byteCode == rhs.m_byteCode;
+		}
+
 	protected:
 		RENDERCORE_DLL virtual void PostLoadImpl() override;
 
@@ -96,7 +111,11 @@ namespace rendercore
 		PROPERTY( hash )
 		size_t m_hash = 0;
 
-		RefHandle<agl::GraphicsApiResource> m_shader;
+		std::shared_ptr<ShaderAsset> m_parent = nullptr;
+		RefHandle<agl::ShaderBase> m_shader;
+
+	private:
+		void RecreateShader();
 	};
 
 	class VertexShader final : public ShaderBase
@@ -105,7 +124,8 @@ namespace rendercore
 		DECLARE_ASSET( RENDERCORE, VertexShader );
 
 	public:
-		VertexShader( BinaryChunk&& byteCode, size_t hash ) : ShaderBase( std::move( byteCode ), hash ) {}
+		VertexShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash )
+			: ShaderBase( switches, std::move( byteCode ), hash ) {}
 		VertexShader() = default;
 
 		agl::VertexShader* Resource();
@@ -120,7 +140,8 @@ namespace rendercore
 		DECLARE_ASSET( RENDERCORE, GeometryShader );
 
 	public:
-		GeometryShader( BinaryChunk&& byteCode, size_t hash ) : ShaderBase( std::move( byteCode ), hash ) {}
+		GeometryShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash )
+			: ShaderBase( switches, std::move( byteCode ), hash ) {}
 		GeometryShader() = default;
 
 		agl::GeometryShader* Resource();
@@ -135,7 +156,8 @@ namespace rendercore
 		DECLARE_ASSET( RENDERCORE, PixelShader );
 
 	public:
-		PixelShader( BinaryChunk&& byteCode, size_t hash ) : ShaderBase( std::move( byteCode ), hash ) {}
+		PixelShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash )
+			: ShaderBase( switches, std::move( byteCode ), hash ) {}
 		PixelShader() = default;
 
 		agl::PixelShader* Resource();
@@ -150,7 +172,8 @@ namespace rendercore
 		DECLARE_ASSET( RENDERCORE, ComputeShader );
 
 	public:
-		ComputeShader( BinaryChunk&& byteCode, size_t hash ) : ShaderBase( std::move( byteCode ), hash ) {}
+		ComputeShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash )
+			: ShaderBase( switches, std::move( byteCode ), hash ) {}
 		ComputeShader() = default;
 
 		agl::ComputeShader* Resource();
@@ -167,7 +190,8 @@ namespace rendercore
 	public:
 		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
 
-		MeshShader( BinaryChunk&& byteCode, size_t hash ) : ShaderBase( std::move( byteCode ), hash ) {}
+		MeshShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash )
+			: ShaderBase( switches, std::move( byteCode ), hash ) {}
 		MeshShader() = default;
 
 		agl::MeshShader* Resource();
@@ -184,7 +208,8 @@ namespace rendercore
 	public:
 		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
 
-		AmplificationShader( BinaryChunk&& byteCode, size_t hash ) : ShaderBase( std::move( byteCode ), hash ) {}
+		AmplificationShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash )
+			: ShaderBase( switches, std::move( byteCode ), hash ) {}
 		AmplificationShader() = default;
 
 		agl::AmplificationShader* Resource();

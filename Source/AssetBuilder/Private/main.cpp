@@ -1,11 +1,11 @@
 #include "Archive.h"
 #include "ArchiveUtility.h"
-#include "AssetManufacturer.h"
+#include "AssetBuilder.h"
 #include "Core/IEngine.h"
 #include "Djb2Hash.h"
-#include "EngineDefaultManufacturer.h"
+#include "EngineDefaultBuilder.h"
 #include "LibraryTool/Common.h"
-#include "ManufactureConfig.h"
+#include "AssetBuilderConfig.h"
 #include "Platform/IPlatform.h"
 #include "Renderer/IRenderCore.h"
 #include "SizedTypes.h"
@@ -73,7 +73,7 @@ namespace
 				commandline += argv[i];
 				commandline += " ";
 			}
-			commandline += "Console AssetManufacture";
+			commandline += "Console AssetBuilder";
 
 			fs::path oldPath = fs::current_path();
 			fs::current_path( "../Program" );
@@ -123,7 +123,7 @@ namespace
 		std::map<fs::path, AssetHeader> assetInfos;
 		std::set<fs::path> visited;
 
-		for ( auto& [key, environment] : ManufactureConfig::Instance().PathEnvironments() )
+		for ( auto& [key, environment] : AssetBuilderConfig::Instance().PathEnvironments() )
 		{
 			if ( fs::exists( environment.m_destination ) )
 			{
@@ -160,7 +160,7 @@ namespace
 
 	void RemoveUnusedAssets( const std::set<fs::path>& processed )
 	{
-		for ( auto& [key, environment] : ManufactureConfig::Instance().PathEnvironments() )
+		for ( auto& [key, environment] : AssetBuilderConfig::Instance().PathEnvironments() )
 		{
 			if ( fs::exists( environment.m_destination ) )
 			{
@@ -226,12 +226,24 @@ namespace
 
 		return hash;
 	}
+
+	void WriteToDisk( const std::unique_ptr<Serializable>& asset, const fs::path& path )
+	{
+		Archive archive;
+		asset->Serialize( archive );
+		archive.WriteToFile( path );
+
+		if ( auto ayncLoadableAsset = Cast<AsyncLoadableAsset>( asset.get() ) )
+		{
+			fs::last_write_time( path, ayncLoadableAsset->LastWriteTime() );
+		}
+	}
 }
 
 int32 main( int32 argc, char* argv[] )
 {
-	fs::path rootPath = fs::current_path();
-	ManufactureConfig::Instance().Load();
+	fs::path workingPath = fs::current_path();
+	AssetBuilderConfig::Instance().Load();
 
 	if ( ( LoadModules() == false ) || ( BootUpEngine( argc, argv ) == false ) )
 	{
@@ -240,10 +252,10 @@ int32 main( int32 argc, char* argv[] )
 
 	std::map<fs::path, AssetHeader> assetInfos = GatherAssetInfos();
 
-	AssetManufacturer manufacturer;
-	manufacturer.Initialize();
+	AssetBuilder assetBuilder;
+	assetBuilder.Initialize();
 	
-	for ( auto& [key, environment] : ManufactureConfig::Instance().PreprocessingEnvironments() )
+	for ( auto& [key, environment] : AssetBuilderConfig::Instance().PreprocessingEnvironments() )
 	{
 		fs::path absolutePath = fs::absolute( environment.m_source );
 		fs::recursive_directory_iterator iter( absolutePath );
@@ -251,14 +263,14 @@ int32 main( int32 argc, char* argv[] )
 		for ( const auto& p : iter )
 		{
 			if ( ( p.is_regular_file() == false ) 
-				|| ( ManufactureConfig::Instance().IsPreprocessingAsset( p ) == false ) )
+				|| ( AssetBuilderConfig::Instance().IsPreprocessingAsset( p ) == false ) )
 			{
 				continue;
 			}
 
 			fs::path targetDirectory = environment.m_destination / fs::relative( p.path().parent_path() );
 
-			auto products = manufacturer.Manufacture( environment, p.path(), CalcFileHash( p.path() ) );
+			auto products = assetBuilder.Build( environment, p.path(), CalcFileHash( p.path() ) );
 			if ( products )
 			{
 				for ( const auto& product : products.value() )
@@ -276,10 +288,8 @@ int32 main( int32 argc, char* argv[] )
 						continue;
 					}
 
-					Archive archive;
 					const auto& asset = product.second;
-					asset->Serialize( archive );
-					archive.WriteToFile( target );
+					WriteToDisk( asset, target );
 				}
 			}
 			else
@@ -288,11 +298,11 @@ int32 main( int32 argc, char* argv[] )
 			}
 		}
 
-		fs::current_path( rootPath );
+		fs::current_path( workingPath );
 	}
 
 	std::set<fs::path> processed;
-	for ( auto& [key, environment] : ManufactureConfig::Instance().PathEnvironments() )
+	for ( auto& [key, environment] : AssetBuilderConfig::Instance().PathEnvironments() )
 	{
 		fs::path absolutePath = fs::absolute( environment.m_source );
 		fs::recursive_directory_iterator iter( absolutePath );
@@ -308,7 +318,7 @@ int32 main( int32 argc, char* argv[] )
 
 			if ( p.is_regular_file() )
 			{
-				if ( ManufactureConfig::Instance().IsPreprocessingAsset( p ) )
+				if ( AssetBuilderConfig::Instance().IsPreprocessingAsset( p ) )
 				{
 					continue;
 				}
@@ -333,7 +343,7 @@ int32 main( int32 argc, char* argv[] )
 					}
 				}
 
-				auto products = manufacturer.Manufacture( environment, p.path(), fileHash );
+				auto products = assetBuilder.Build( environment, p.path(), fileHash );
 				if ( products )
 				{
 					for ( const auto& product : products.value() )
@@ -343,10 +353,8 @@ int32 main( int32 argc, char* argv[] )
 							fs::create_directories( targetDirectory );
 						}
 
-						Archive archive;
 						const auto& asset = product.second;
-						asset->Serialize( archive );
-						archive.WriteToFile( target );
+						WriteToDisk( asset, target );
 					}
 				}
 				else
@@ -356,13 +364,13 @@ int32 main( int32 argc, char* argv[] )
 			}
 		}
 
-		fs::current_path( rootPath );
+		fs::current_path( workingPath );
 	}
 
 	ReloadGlobalShaders();
 
-	EngineDefaultManufacturer engineDefault;
-	engineDefault.Manufacture( processed );
+	EngineDefaultBuilder engineDefault;
+	engineDefault.Build( processed );
 
 	RemoveUnusedAssets( processed );
 

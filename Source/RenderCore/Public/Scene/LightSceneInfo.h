@@ -1,7 +1,5 @@
 #pragma once
 
-#include "PrimitiveProxy.h"
-#include "PrimitiveSceneInfo.h"
 #include "SizedTypes.h"
 #include "SparseArray.h"
 
@@ -22,12 +20,7 @@ namespace rendercore
 		uint32 m_infoId = 0;
 		bool m_castShadow = false;
 
-		PrimitiveIntersectionInfo( PrimitiveSceneInfo* primitive, uint32 infoId ) 
-			: m_primitive( primitive )
-			, m_infoId( infoId ) 
-		{
-			m_castShadow = m_primitive->Proxy()->CastShadow();
-		}
+		PrimitiveIntersectionInfo( PrimitiveSceneInfo* primitive, uint32 infoId );
 	};
 
 	class LightSceneInfo final

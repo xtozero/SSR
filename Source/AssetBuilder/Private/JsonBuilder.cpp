@@ -1,8 +1,8 @@
-#include "JsonManufacturer.h"
+#include "JsonBuilder.h"
 
 #include "EnumStringMap.h"
 #include "Json/json.hpp"
-#include "ManufactureConfig.h"
+#include "AssetBuilderConfig.h"
 #include "Material/Material.h"
 #include "Math/Vector.h"
 #include "RenderOption.h"
@@ -514,13 +514,13 @@ namespace
 	}
 }
 
-bool JsonManufacturer::IsSuitable( const std::filesystem::path& srcPath ) const
+bool JsonBuilder::IsSuitable( const std::filesystem::path& srcPath ) const
 {
 	fs::path extension = ToLower( srcPath.extension().generic_string() );
 	return extension == fs::path( ".json" );
 }
 
-std::optional<Products> JsonManufacturer::Manufacture( const PathEnvironment& env, const std::filesystem::path& path ) const
+std::optional<Products> JsonBuilder::Build( const PathEnvironment& env, const std::filesystem::path& path ) const
 {
 	if ( fs::exists( path ) == false )
 	{

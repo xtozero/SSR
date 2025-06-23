@@ -53,7 +53,7 @@ namespace rendercore
 		GENERATE_CLASS_TYPE_INFO( FloatProperty );
 
 	public:
-		virtual void Serialize( Archive& ar );
+		virtual void Serialize( Archive& ar ) override;
 		virtual MaterialPropertyType Type() const override
 		{
 			return MaterialPropertyType::Float;
@@ -76,7 +76,7 @@ namespace rendercore
 		GENERATE_CLASS_TYPE_INFO( Float4Property );
 
 	public:
-		virtual void Serialize( Archive& ar );
+		virtual void Serialize( Archive& ar ) override;
 		virtual MaterialPropertyType Type() const override
 		{
 			return MaterialPropertyType::Float4;
@@ -99,7 +99,7 @@ namespace rendercore
 		GENERATE_CLASS_TYPE_INFO( IntProperty );
 
 	public:
-		virtual void Serialize( Archive& ar );
+		virtual void Serialize( Archive& ar ) override;
 		virtual MaterialPropertyType Type() const override
 		{
 			return MaterialPropertyType::Int;
@@ -121,7 +121,7 @@ namespace rendercore
 		GENERATE_CLASS_TYPE_INFO( TextureProperty );
 
 	public:
-		virtual void Serialize( Archive& ar );
+		virtual void Serialize( Archive& ar ) override;
 		virtual MaterialPropertyType Type() const override
 		{
 			return MaterialPropertyType::Texture;

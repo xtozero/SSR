@@ -4,6 +4,7 @@
 #include "HitProxy.h"
 #include "MeshDrawInfo.h"
 #include "PassProcessor.h"
+#include "Scene.h"
 #include "SizedTypes.h"
 #include "SparseArray.h"
 
@@ -20,7 +21,6 @@ namespace rendercore
 {
 	class LightSceneInfo;
 	class PrimitiveProxy;
-	class Scene;
 
 	class PrimitiveSubMeshInfo final
 	{
@@ -88,6 +88,9 @@ namespace rendercore
 		PrimitiveSceneInfo( logic::PrimitiveComponent* component, Scene& scene );
 
 	private:
+		friend void Scene::PreReloadShaders();
+		friend void Scene::PostReloadShaders();
+
 		void CacheDrawSnapshot();
 		void RemoveCachedDrawSnapshot();
 

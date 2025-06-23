@@ -4,10 +4,10 @@
 
 struct PathEnvironment;
 
-class EngineDefaultManufacturer
+class EngineDefaultBuilder
 {
 public:
-	void Manufacture( std::set<std::filesystem::path>& outProcessed );
+	void Build( std::set<std::filesystem::path>& outProcessed );
 
 private:
 	void CreateBRDFLookUpTexture( std::set<std::filesystem::path>& outProcessed );

@@ -28,17 +28,23 @@ set (CPU_PROFILER_HEADER
 set (CPU_PROFILER_SOURCE
 	Private/CpuProfiler/CpuProfiler.cpp)
 
+set (EXTERNAL_TOOLS_HEADER
+    Public/ExternalTools/AssetBuilderLauncher.h)
+
+set (EXTERNAL_TOOLS_SOURCE
+    Private/ExternalTools/AssetBuilderLauncher.cpp)
+
 set (PLATFORM_SOURCE
 	Private/Platform/CommandLine.cpp
 	Private/Platform/WindowPlatformEngine.cpp
 	Private/Platform/WindowPlatformInputConvertor.cpp
-	Private/Platform/WindowPlatformMisc.cpp
+	Private/Platform/WindowPlatformProcess.cpp
 	Public/Platform/CommandLine.h
 	Public/Platform/IPlatform.h
-	Public/Platform/PlatformMisc.h
+	Public/Platform/PlatformProcess.h
 	Public/Platform/WindowPlatformEngine.h
 	Public/Platform/WindowPlatformInputConvertor.h
-	Public/Platform/WindowPlatformMisc.h)
+	Public/Platform/WindowPlatformProcess.h)
 	
 set (USER_INPUT_HEADER
 	Public/UserInput/UICMap.h
@@ -50,6 +56,7 @@ set (USER_INPUT_SOURCE
 source_group("Config" FILES ${CONFIG_SOURCE})	
 source_group("ConsoleMessage" FILES ${CONSOLE_MESSAGE_SOURCES})
 source_group("CpuProfiler" FILES ${CPU_PROFILER_HEADER} ${CPU_PROFILER_SOURCE})
+source_group("ExternalTools" FILES ${EXTERNAL_TOOLS_HEADER} ${EXTERNAL_TOOLS_SOURCE})
 source_group("UserInput" FILES ${USER_INPUT_HEADER} ${USER_INPUT_SOURCE})
 source_group("Platform" FILES ${PLATFORM_SOURCE})
 
@@ -61,6 +68,8 @@ add_library(Engine SHARED	${CONFIG_SOURCE}
 							${CORE_SOURCE}
 							${CPU_PROFILER_HEADER}
 							${CPU_PROFILER_SOURCE}
+							${EXTERNAL_TOOLS_HEADER}
+							${EXTERNAL_TOOLS_SOURCE}
 							${PLATFORM_SOURCE}
 							${USER_INPUT_HEADER}
 							${USER_INPUT_SOURCE})
@@ -68,7 +77,6 @@ add_library(Engine SHARED	${CONFIG_SOURCE}
 target_include_directories(Engine
 PUBLIC
 	./Public
-	./Public/CpuProfiler
 PRIVATE
 	../Editor/Public
 	../Logic/Public
@@ -76,6 +84,7 @@ PRIVATE
 	./Public/ConsoleMessage
 	./Public/Core
 	./Public/CpuProfiler
+	./Public/ExternalTools
 	./Public/FileSystem
 	./Public/Platform
 	./Public/UserInput)

@@ -75,6 +75,9 @@ namespace rendercore
 
 		virtual uint64 GetNumFrame() const = 0;
 
+		virtual void PreReloadShaders() = 0;
+        virtual void PostReloadShaders() = 0;
+
 		virtual ~IScene() = default;
 	};
 }

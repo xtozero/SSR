@@ -3,6 +3,7 @@
 #include "AppConfig/AppConfig.h"
 #include "Ini/Ini.h"
 #include "LibraryTool/InterfaceFactories.h"
+#include "Platform/PlatformProcess.h"
 
 #include <cassert>
 
@@ -18,7 +19,7 @@ namespace logic
 
 	void DefaultLogic::SetDefaultWorld( const std::filesystem::path& worldPath )
 	{
-		std::filesystem::path relative = std::filesystem::relative( worldPath, std::filesystem::current_path() );
+		std::filesystem::path relative = std::filesystem::relative( worldPath, engine::PlatformProcess::GetWorkingDirectory() );
 		GetInstance().m_defaultWorld = relative.generic_string();
 	}
 

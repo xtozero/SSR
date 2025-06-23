@@ -57,8 +57,10 @@ namespace agl
 		virtual void SetPSOCache( const BinaryChunk& psoCache ) override;
 		virtual BinaryChunk SerializePSOLibraryCache() override;
 
-		ID3D12PipelineState* FindOrCreate( D3D12ComputePipelineState* pipelineState );
-		ID3D12PipelineState* FindOrCreate( D3D12GraphicsPipelineState* pipelineState, const DXGI_FORMAT( &rtvFormats )[8], DXGI_FORMAT dsvFormat );
+		virtual void PostReloadShaders() override;
+
+		ID3D12PipelineState* FindOrCreate( const D3D12ComputePipelineState* pipelineState );
+		ID3D12PipelineState* FindOrCreate( const D3D12GraphicsPipelineState* pipelineState, const DXGI_FORMAT( &rtvFormats )[8], DXGI_FORMAT dsvFormat );
 
 		D3D12DisposableConstantBufferPool& GetDisposableConstantBufferPool();
 
@@ -77,83 +79,11 @@ namespace agl
 		std::map<GraphicsPipelineStateInitializer, RefHandle<GraphicsPipelineState>> m_graphicsPipelineStateCache;
 		std::map<ComputePipelineStateInitializer, RefHandle<ComputePipelineState>> m_computePipelineStateCache;
 
-		struct D3D12PipelineStateKey
-		{
-			GraphicsPipelineState* m_state;
-			DXGI_FORMAT m_outputFormats[9] = {};
-
-			size_t GetHash() const
-			{
-				size_t hash = m_state ? m_state->GetHash() : 0;
-
-				for ( int32 i = 0; i < 9; ++i )
-				{
-					int32 salt = ( ( i + 1 ) * 19937 );
-					HashCombine( hash, static_cast<int32>( m_outputFormats[i] ) + salt );
-				}
-
-				return hash;
-			}
-
-			D3D12PipelineStateKey( GraphicsPipelineState* state, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc )
-				: m_state( state )
-				, m_outputFormats{ 
-					desc.RTVFormats[0], 
-					desc.RTVFormats[1],
-					desc.RTVFormats[2],
-					desc.RTVFormats[3],
-					desc.RTVFormats[4],
-					desc.RTVFormats[5],
-					desc.RTVFormats[6],
-					desc.RTVFormats[7],
-					desc.DSVFormat }
-			{}
-			D3D12PipelineStateKey( GraphicsPipelineState* state, const DXGI_FORMAT( &rtvFormats )[8], DXGI_FORMAT dsvFormat )
-				: m_state( state )
-				, m_outputFormats{
-					rtvFormats[0],
-					rtvFormats[1],
-					rtvFormats[2],
-					rtvFormats[3],
-					rtvFormats[4],
-					rtvFormats[5],
-					rtvFormats[6],
-					rtvFormats[7],
-					dsvFormat
-				}
-			{}
-			D3D12PipelineStateKey() = default;
-
-			friend bool operator==( const D3D12PipelineStateKey& lhs, const D3D12PipelineStateKey& rhs )
-			{
-				return lhs.m_state == rhs.m_state
-					&& std::equal( std::begin( lhs.m_outputFormats ), std::end( lhs.m_outputFormats ), std::begin( rhs.m_outputFormats ) );
-			}
-		};
-
-		struct D3D12PipelineStateKeyHasher
-		{
-			size_t operator()( const D3D12PipelineStateKey& key ) const
-			{
-				static size_t typeHash = typeid( D3D12PipelineStateKeyHasher ).hash_code();
-				size_t hash = typeHash;
-
-				HashCombine( hash, key.m_state );
-
-				for ( DXGI_FORMAT format : key.m_outputFormats )
-				{
-					HashCombine( hash, format );
-				}
-
-				return hash;
-			}
-		};
-
 		std::shared_mutex m_d3d12PipelineMutex;
-		std::unordered_map<D3D12PipelineStateKey, Microsoft::WRL::ComPtr<ID3D12PipelineState>, D3D12PipelineStateKeyHasher> m_d3d12PipelineState;
+		std::map<uint64, Microsoft::WRL::ComPtr<ID3D12PipelineState>> m_d3d12PipelineState;
 
 		std::shared_mutex m_d3d12ComputePipelineMutex;
-		std::unordered_map<D3D12ComputePipelineState*, Microsoft::WRL::ComPtr<ID3D12PipelineState>> m_d3d12ComputePipelineState;
+		std::map<uint64, Microsoft::WRL::ComPtr<ID3D12PipelineState>> m_d3d12ComputePipelineState;
 
 		std::map<uint64, BinaryChunk>* m_psoCache = nullptr;
 

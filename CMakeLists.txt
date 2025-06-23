@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
 
 add_subdirectory(Source/Agl)
-add_subdirectory(Source/AssetManufacture)
+add_subdirectory(Source/AssetBuilder)
 add_subdirectory(Source/Core)
 add_subdirectory(Source/Editor)
 add_subdirectory(Source/Engine)

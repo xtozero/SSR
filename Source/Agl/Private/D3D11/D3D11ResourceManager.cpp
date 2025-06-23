@@ -25,12 +25,12 @@
 
 namespace agl
 {
-	void CD3D11ResourceManager::Shutdown()
+	void D3D11ResourceManager::Shutdown()
 	{
 		m_graphicsPipelineStateCache.clear();
 	}
 
-	Texture* CD3D11ResourceManager::CreateTexture( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData ) const
+	Texture* D3D11ResourceManager::CreateTexture( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData ) const
 	{
 		Texture* newTexture = nullptr;
 		if ( IsTexture2D( trait ) )
@@ -49,14 +49,14 @@ namespace agl
 		return newTexture;
 	}
 
-	Buffer* CD3D11ResourceManager::CreateBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData ) const
+	Buffer* D3D11ResourceManager::CreateBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData ) const
 	{
 		Buffer* newBuffer = new D3D11Buffer( trait, debugName, initialState, initData );
 
 		return newBuffer;
 	}
 
-	VertexLayout* CD3D11ResourceManager::CreateVertexLayout( const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size ) const
+	VertexLayout* D3D11ResourceManager::CreateVertexLayout( const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size ) const
 	{
 		auto d3d11VS = static_cast<const D3D11VertexShader*>( vs );
 		auto newVertexLayout = new D3D11VertexLayout( d3d11VS, trait, size );
@@ -64,75 +64,75 @@ namespace agl
 		return newVertexLayout;
 	}
 
-	ComputeShader * CD3D11ResourceManager::CreateComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	ComputeShader * D3D11ResourceManager::CreateComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
 	{
 		auto newShader = new D3D11ComputeShader( byteCode, byteCodeSize, paramInfo );
 
 		return newShader;
 	}
 
-	VertexShader* CD3D11ResourceManager::CreateVertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	VertexShader* D3D11ResourceManager::CreateVertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
 	{
 		auto newShader = new D3D11VertexShader( byteCode, byteCodeSize, paramInfo );
 
 		return newShader;
 	}
 
-	GeometryShader* CD3D11ResourceManager::CreateGeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	GeometryShader* D3D11ResourceManager::CreateGeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
 	{
 		auto newShader = new D3D11GeometryShader( byteCode, byteCodeSize, paramInfo );
 
 		return newShader;
 	}
 
-	PixelShader* CD3D11ResourceManager::CreatePixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	PixelShader* D3D11ResourceManager::CreatePixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
 	{
 		auto newShader = new D3D11PixelShader( byteCode, byteCodeSize, paramInfo );
 
 		return newShader;
 	}
 
-	MeshShader* CD3D11ResourceManager::CreateMeshShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
+	MeshShader* D3D11ResourceManager::CreateMeshShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
 	{
 		// Mesh Shader is not supported in direct3D 11
 		return nullptr;
 	}
 
-	AmplificationShader* CD3D11ResourceManager::CreateAmplificationShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
+	AmplificationShader* D3D11ResourceManager::CreateAmplificationShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
 	{
 		// Amplification Shader is not supported in direct3D 11
 		return nullptr;
 	}
 
-	BlendState* CD3D11ResourceManager::CreateBlendState( const BlendStateTrait& trait ) const
+	BlendState* D3D11ResourceManager::CreateBlendState( const BlendStateTrait& trait ) const
 	{
 		auto blendState = new D3D11BlendState( trait );
 
 		return blendState;
 	}
 
-	DepthStencilState* CD3D11ResourceManager::CreateDepthStencilState( const DepthStencilStateTrait& trait ) const
+	DepthStencilState* D3D11ResourceManager::CreateDepthStencilState( const DepthStencilStateTrait& trait ) const
 	{
 		auto depthStencilState = new D3D11DepthStencilState( trait );
 
 		return depthStencilState;
 	}
 
-	RasterizerState* CD3D11ResourceManager::CreateRasterizerState( const RasterizerStateTrait& trait ) const
+	RasterizerState* D3D11ResourceManager::CreateRasterizerState( const RasterizerStateTrait& trait ) const
 	{
 		auto rasterizerState = new D3D11RasterizerState( trait );
 
 		return rasterizerState;
 	}
 
-	SamplerState* CD3D11ResourceManager::CreateSamplerState( const SamplerStateTrait& trait ) const
+	SamplerState* D3D11ResourceManager::CreateSamplerState( const SamplerStateTrait& trait ) const
 	{
 		auto samplerState = new D3D11SamplerState( trait );
 
 		return samplerState;
 	}
 
-	GraphicsPipelineState* CD3D11ResourceManager::CreatePipelineState( const GraphicsPipelineStateInitializer& initializer )
+	GraphicsPipelineState* D3D11ResourceManager::CreatePipelineState( const GraphicsPipelineStateInitializer& initializer )
 	{
 		auto cached = m_graphicsPipelineStateCache.find( initializer );
 		if ( cached != std::end( m_graphicsPipelineStateCache ) )
@@ -146,7 +146,7 @@ namespace agl
 		return pipelineState;
 	}
 
-	ComputePipelineState* CD3D11ResourceManager::CreatePipelineState( const ComputePipelineStateInitializer& initializer )
+	ComputePipelineState* D3D11ResourceManager::CreatePipelineState( const ComputePipelineStateInitializer& initializer )
 	{
 		auto cached = m_computePipelineStateCache.find( initializer );
 		if ( cached != std::end( m_computePipelineStateCache ) )
@@ -160,58 +160,65 @@ namespace agl
 		return pipelineState;
 	}
 
-	Canvas* CD3D11ResourceManager::CreateCanvas( uint32 width, uint32 height, void* hWnd, ResourceFormat format, const float4& clearColor ) const
+	Canvas* D3D11ResourceManager::CreateCanvas( uint32 width, uint32 height, void* hWnd, ResourceFormat format, const float4& clearColor ) const
 	{
 		return new DxgiSwapchain<AglType::D3D11>( D3D11Device(), D3D11Factory(), width, height, 1, hWnd, ConvertFormatToDxgiFormat( format ), clearColor );
 	}
 
-	Viewport* CD3D11ResourceManager::CreateViewport( uint32 width, uint32 height, ResourceFormat format, const float4& bgColor ) const
+	Viewport* D3D11ResourceManager::CreateViewport( uint32 width, uint32 height, ResourceFormat format, const float4& bgColor ) const
 	{
 		auto viewport = new D3D11Viewport( width, height, ConvertFormatToDxgiFormat( format ), bgColor );
 
 		return viewport;
 	}
 
-	Viewport* CD3D11ResourceManager::CreateViewport( Canvas& canvas ) const
+	Viewport* D3D11ResourceManager::CreateViewport( Canvas& canvas ) const
 	{
 		return new D3D11Viewport( *reinterpret_cast<DxgiSwapchain<AglType::D3D11>*>( &canvas ) );
 	}
 
-	GpuTimer* CD3D11ResourceManager::CreateGpuTimer() const
+	GpuTimer* D3D11ResourceManager::CreateGpuTimer() const
 	{
 		return new D3D11GpuTimer();
 	}
 
-	OcclusionQuery* CD3D11ResourceManager::CreateOcclusionQuery() const
+	OcclusionQuery* D3D11ResourceManager::CreateOcclusionQuery() const
 	{
 		return new D3D11OcclusionTest();
 	}
 
-	PipelineStatistics* CD3D11ResourceManager::CreatePipelineStatistics() const
+	PipelineStatistics* D3D11ResourceManager::CreatePipelineStatistics() const
 	{
 		return new D3D11PipelineStatistics();
 	}
 
-	void CD3D11ResourceManager::SetPSOCache( [[maybe_unused]] std::map<uint64, BinaryChunk>& psoCache )
+	void D3D11ResourceManager::SetPSOCache( [[maybe_unused]] std::map<uint64, BinaryChunk>& psoCache )
 	{
+		// Do Nothing
 	}
 
-	void CD3D11ResourceManager::SetPSOCache( [[maybe_unused]] const BinaryChunk& psoCache )
+	void D3D11ResourceManager::SetPSOCache( [[maybe_unused]] const BinaryChunk& psoCache )
 	{
+		// Do Nothing
 	}
 
-	BinaryChunk CD3D11ResourceManager::SerializePSOLibraryCache()
+	BinaryChunk D3D11ResourceManager::SerializePSOLibraryCache()
 	{
 		return BinaryChunk();
 	}
 
-	CD3D11ResourceManager::~CD3D11ResourceManager()
+	void D3D11ResourceManager::PostReloadShaders()
+	{
+		// Do Nothing
+	}
+
+	D3D11ResourceManager::~D3D11ResourceManager()
 	{
 		Shutdown();
 	}
 
 	Owner<IResourceManager*> CreateD3D11ResourceManager()
 	{
-		return new CD3D11ResourceManager();
+		return new D3D11ResourceManager();
 	}
 }

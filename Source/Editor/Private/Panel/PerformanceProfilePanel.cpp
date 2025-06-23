@@ -1,6 +1,6 @@
 #include "PerformanceProfilePanel.h"
 
-#include "CpuProfiler.h"
+#include "CpuProfiler/CpuProfiler.h"
 #include "GpuProfiler/GpuProfiler.h"
 #include "IEditor.h"
 #include "imgui.h"

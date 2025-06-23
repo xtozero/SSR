@@ -8,14 +8,14 @@
 
 namespace rendercore
 {
-	class UberShader final : public IShader
+	class UberShader final : public ShaderAsset
 	{
 		GENERATE_CLASS_TYPE_INFO( UberShader );
 		DECLARE_ASSET( RENDERCORE, UberShader );
 
 	public:
-		RENDERCORE_DLL virtual StaticShaderSwitches GetStaticSwitches() const override;
 		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
+		RENDERCORE_DLL virtual void RecompileShader() override;
 
 		RENDERCORE_DLL virtual agl::ShaderParameterMap& ParameterMap() override;
 		RENDERCORE_DLL virtual const agl::ShaderParameterMap& ParameterMap() const override;
@@ -34,6 +34,8 @@ namespace rendercore
 		RENDERCORE_DLL void SetSwitches( const StaticShaderSwitches& switches );
 
 		RENDERCORE_DLL void AddValidVariation( uint32 id );
+
+		BinaryChunk ComipeShaderByteCode( const StaticShaderSwitches& switches );
 
 		friend bool operator==( const UberShader& lhs, const UberShader& rhs )
 		{
@@ -59,9 +61,6 @@ namespace rendercore
 
 		PROPERTY( shaderCode )
 		BinaryChunk m_shaderCode{ 0 };
-
-		PROPERTY( switches )
-		StaticShaderSwitches m_switches;
 
 		PROPERTY( validVariation )
 		std::set<uint32> m_validVariation;

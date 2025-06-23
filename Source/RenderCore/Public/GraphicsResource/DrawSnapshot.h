@@ -111,7 +111,7 @@ namespace rendercore
 				lhs.m_primitiveIdSlot == rhs.m_primitiveIdSlot &&
 				lhs.m_indexBuffer == rhs.m_indexBuffer &&
 				lhs.m_shaderBindings.MatchsForDynamicInstancing( rhs.m_shaderBindings ) &&
-				lhs.m_pipelineState.m_pso == rhs.m_pipelineState.m_pso &&
+				lhs.m_pipelineState.m_pso->GetHash() == rhs.m_pipelineState.m_pso->GetHash() &&
 				lhs.m_count == rhs.m_count &&
 				lhs.m_startIndexLocation == rhs.m_startIndexLocation &&
 				lhs.m_baseVertexLocation == rhs.m_baseVertexLocation;
@@ -140,7 +140,7 @@ namespace rendercore
 
 			HashCombine( hash, ds.m_shaderBindings.HashForDynamicInstaning() );
 
-			HashCombine( hash, ds.m_pipelineState.m_pso.Get() );
+			HashCombine( hash, ds.m_pipelineState.m_pso->GetHash() );
 			HashCombine( hash, ds.m_count );
 			HashCombine( hash, ds.m_startIndexLocation );
 			HashCombine( hash, ds.m_baseVertexLocation );

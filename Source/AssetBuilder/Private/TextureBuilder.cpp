@@ -1,4 +1,4 @@
-#include "TextureManufacturer.h"
+#include "TextureBuilder.h"
 
 #include "DDSTexture.h"
 #include "DirectXTex.h"
@@ -9,7 +9,7 @@
 
 namespace fs = std::filesystem;
 
-bool TextureManufacturer::IsSuitable( const std::filesystem::path& srcPath ) const
+bool TextureBuilder::IsSuitable( const std::filesystem::path& srcPath ) const
 {
 	fs::path extension = ToLower( srcPath.extension().generic_string() );
 	return extension == fs::path( ".dds" )
@@ -17,7 +17,7 @@ bool TextureManufacturer::IsSuitable( const std::filesystem::path& srcPath ) con
 		|| extension == fs::path( ".tga" );
 }
 
-std::optional<Products> TextureManufacturer::Manufacture( [[maybe_unused]] const PathEnvironment& env, const std::filesystem::path& path ) const
+std::optional<Products> TextureBuilder::Build( [[maybe_unused]] const PathEnvironment& env, const std::filesystem::path& path ) const
 {
 	if ( fs::exists( path ) == false )
 	{
@@ -70,7 +70,7 @@ std::optional<Products> TextureManufacturer::Manufacture( [[maybe_unused]] const
 	return products;
 }
 
-TextureManufacturer::TextureManufacturer()
+TextureBuilder::TextureBuilder()
 {
 	[[maybe_unused]] HRESULT hr = CoInitializeEx( nullptr, COINIT_MULTITHREADED );
 }

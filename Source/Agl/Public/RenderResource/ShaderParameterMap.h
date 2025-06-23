@@ -91,6 +91,11 @@ namespace agl
 			return static_cast<uint32>( m_parameters.size() );
 		}
 
+		void Clear()
+		{
+			m_parameters.clear();
+		}
+
 		friend AGL_DLL Archive& operator<<( Archive& ar, ShaderParameterMap& shaderParamMap );
 
 	private:

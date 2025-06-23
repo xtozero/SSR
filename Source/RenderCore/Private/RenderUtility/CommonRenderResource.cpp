@@ -168,8 +168,8 @@ namespace rendercore
 
 		OcclusionQueryIndexBuffer = CreateOcclusionQueryIndexBuffer();
 		
-		bool bRunningAssetManufacture = engine::CommandLine::Has( Name( "AssetManufacture" ) );
-		if ( bRunningAssetManufacture )
+		bool isRunningAssetBuilder = engine::CommandLine::Has( Name( "AssetBuilder" ) );
+		if ( isRunningAssetBuilder )
 		{
 			return;
 		}

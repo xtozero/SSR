@@ -26,15 +26,15 @@ namespace rendercore
 
 		void Reload();
 
-		bool RegisterShader( std::type_index typeIndex, const std::shared_ptr<IShader>& shader );
+		bool RegisterShader( std::type_index typeIndex, const std::shared_ptr<ShaderAsset>& shader );
 		bool RegisterShaderPath( std::type_index typeIndex, const char* path );
 
-		IShader* GetShader( std::type_index typeIndex );
+		ShaderAsset* GetShader( std::type_index typeIndex );
 
 	private:
 		GlobalShaders() = default;
 
-		std::map<std::type_index, std::shared_ptr<IShader>> m_shaders;
+		std::map<std::type_index, std::shared_ptr<ShaderAsset>> m_shaders;
 		std::map<std::type_index, const char*> m_shaderAssetPaths;
 
 		std::atomic<int32> m_loadingInProgress = 0;
@@ -46,10 +46,10 @@ namespace rendercore
 		GlobalShaderRegister( std::type_index typeIndex, const char* assetPath );
 	};
 
-	IShader* GetGlobalShaderImpl( std::type_index typeIndex );
+	ShaderAsset* GetGlobalShaderImpl( std::type_index typeIndex );
 
 	template <typename T>
-	IShader* GetGlobalShader()
+	ShaderAsset* GetGlobalShader()
 	{
 		return GetGlobalShaderImpl( typeid( T ) );
 	}
@@ -105,7 +105,7 @@ namespace rendercore
 			return  Cast<ShaderType>( m_compiledShader );
 		}
 
-		IShader* m_shader = nullptr;
+		ShaderAsset* m_shader = nullptr;
 		ShaderType* m_compiledShader = nullptr;
 	};
 }

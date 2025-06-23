@@ -4,7 +4,7 @@
 #include "AssetLoader.h"
 #include "Canvas.h"
 #include "CommandList.h"
-#include "CpuProfiler.h"
+#include "CpuProfiler/CpuProfiler.h"
 #include "GlobalShaders.h"
 #include "GpuProfiler.h"
 #include "GraphicsApiResource.h"

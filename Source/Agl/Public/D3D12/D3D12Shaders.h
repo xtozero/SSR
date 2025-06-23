@@ -6,11 +6,11 @@
 
 namespace agl
 {
-	class D3D12VertexShader final : public VertexShader, public ShaderBase
+	class D3D12VertexShader final : public VertexShader
 	{
 	public:
 		D3D12VertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: ShaderBase( byteCode, byteCodeSize, paramInfo ) {}
+			: VertexShader( byteCode, byteCodeSize, paramInfo ) {}
 		D3D12VertexShader( const D3D12VertexShader& ) = delete;
 		D3D12VertexShader( D3D12VertexShader&& ) = default;
 		D3D12VertexShader& operator=( const D3D12VertexShader& ) = delete;
@@ -22,11 +22,11 @@ namespace agl
 		virtual void FreeResource() override {}
 	};
 
-	class D3D12GeometryShader final : public GeometryShader, public ShaderBase
+	class D3D12GeometryShader final : public GeometryShader
 	{
 	public:
 		D3D12GeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: ShaderBase( byteCode, byteCodeSize, paramInfo ) {}
+			: GeometryShader( byteCode, byteCodeSize, paramInfo ) {}
 		D3D12GeometryShader( const D3D12GeometryShader& ) = delete;
 		D3D12GeometryShader( D3D12GeometryShader&& ) = default;
 		D3D12GeometryShader& operator=( const D3D12GeometryShader& ) = delete;
@@ -38,11 +38,11 @@ namespace agl
 		virtual void FreeResource() override {}
 	};
 
-	class D3D12PixelShader final : public PixelShader, public ShaderBase
+	class D3D12PixelShader final : public PixelShader
 	{
 	public:
 		D3D12PixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: ShaderBase( byteCode, byteCodeSize, paramInfo ) {}
+			: PixelShader( byteCode, byteCodeSize, paramInfo ) {}
 		D3D12PixelShader( const D3D12PixelShader& ) = delete;
 		D3D12PixelShader( D3D12PixelShader&& ) = default;
 		D3D12PixelShader& operator=( const D3D12PixelShader& ) = delete;
@@ -54,11 +54,11 @@ namespace agl
 		virtual void FreeResource() override {}
 	};
 
-	class D3D12ComputeShader final : public ComputeShader, public ShaderBase
+	class D3D12ComputeShader final : public ComputeShader
 	{
 	public:
 		D3D12ComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: ShaderBase( byteCode, byteCodeSize, paramInfo ) {}
+			: ComputeShader( byteCode, byteCodeSize, paramInfo ) {}
 		D3D12ComputeShader( const D3D12ComputeShader& ) = delete;
 		D3D12ComputeShader( D3D12ComputeShader&& ) = default;
 		D3D12ComputeShader& operator=( const D3D12ComputeShader& ) = delete;
@@ -70,11 +70,11 @@ namespace agl
 		virtual void FreeResource() override {}
 	};
 
-	class D3D12MeshShader final : public MeshShader, public ShaderBase
+	class D3D12MeshShader final : public MeshShader
 	{
 	public:
 		D3D12MeshShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: ShaderBase( byteCode, byteCodeSize, paramInfo ) {}
+			: MeshShader( byteCode, byteCodeSize, paramInfo ) {}
 		D3D12MeshShader( const D3D12MeshShader& ) = delete;
 		D3D12MeshShader( D3D12MeshShader&& ) = default;
 		D3D12MeshShader& operator=( const D3D12MeshShader& ) = delete;
@@ -86,11 +86,11 @@ namespace agl
 		virtual void FreeResource() override {}
 	};
 
-	class D3D12AmplificationShader final : public AmplificationShader, public ShaderBase
+	class D3D12AmplificationShader final : public AmplificationShader
 	{
 	public:
 		D3D12AmplificationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: ShaderBase( byteCode, byteCodeSize, paramInfo ) {
+			: AmplificationShader( byteCode, byteCodeSize, paramInfo ) {
 		}
 		D3D12AmplificationShader( const D3D12AmplificationShader& ) = delete;
 		D3D12AmplificationShader( D3D12AmplificationShader&& ) = default;

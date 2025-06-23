@@ -1,6 +1,6 @@
-#include "WavefrontObjManufacturer.h"
+#include "WavefrontObjBuilder.h"
 
-#include "ManufactureConfig.h"
+#include "AssetBuilderConfig.h"
 #include "Material/Material.h"
 #include "Math/Vector4.h"
 #include "Mesh/MeshDescription.h"
@@ -412,7 +412,7 @@ namespace
 
 		if ( material.m_ambientTex.empty() == false )
 		{
-			fs::path ambientTex = ConvertTextureAssetPath( mtlFileName, material.m_ambientTex, ManufactureConfig::Instance().RootDirectory() );
+			fs::path ambientTex = ConvertTextureAssetPath( mtlFileName, material.m_ambientTex, AssetBuilderConfig::Instance().RootDirectory() );
 
 			if ( ambientTex.has_relative_path() )
 			{
@@ -423,7 +423,7 @@ namespace
 
 		if ( material.m_diffuseTex.empty() == false )
 		{
-			fs::path diffuseTex = ConvertTextureAssetPath( mtlFileName, material.m_diffuseTex, ManufactureConfig::Instance().RootDirectory() );
+			fs::path diffuseTex = ConvertTextureAssetPath( mtlFileName, material.m_diffuseTex, AssetBuilderConfig::Instance().RootDirectory() );
 
 			if ( diffuseTex.has_relative_path() )
 			{
@@ -434,7 +434,7 @@ namespace
 
 		if ( material.m_specularTex.empty() == false )
 		{
-			fs::path specularTex = ConvertTextureAssetPath( mtlFileName, material.m_specularTex, ManufactureConfig::Instance().RootDirectory() );
+			fs::path specularTex = ConvertTextureAssetPath( mtlFileName, material.m_specularTex, AssetBuilderConfig::Instance().RootDirectory() );
 
 			if ( specularTex.has_relative_path() )
 			{
@@ -445,7 +445,7 @@ namespace
 
 		if ( material.m_bumpTex.empty() == false )
 		{
-			fs::path normalTex = ConvertTextureAssetPath( mtlFileName, material.m_bumpTex, ManufactureConfig::Instance().RootDirectory() );
+			fs::path normalTex = ConvertTextureAssetPath( mtlFileName, material.m_bumpTex, AssetBuilderConfig::Instance().RootDirectory() );
 
 			if ( normalTex.has_relative_path() )
 			{
@@ -458,13 +458,13 @@ namespace
 	}
 }
 
-bool WavefrontObjManufacturer::IsSuitable( const std::filesystem::path& srcPath ) const
+bool WavefrontObjBuilder::IsSuitable( const std::filesystem::path& srcPath ) const
 {
 	fs::path extension = ToLower( srcPath.extension().generic_string() );
 	return extension == fs::path( ".obj" );
 }
 
-std::optional<Products> WavefrontObjManufacturer::Manufacture( const PathEnvironment& env, const std::filesystem::path& path ) const
+std::optional<Products> WavefrontObjBuilder::Build( const PathEnvironment& env, const std::filesystem::path& path ) const
 {
 	if ( fs::exists( path ) == false )
 	{
@@ -491,7 +491,7 @@ std::optional<Products> WavefrontObjManufacturer::Manufacture( const PathEnviron
 	}
 
 	fs::path destParentPath = env.m_destination / fs::relative( path.parent_path() );
-	destParentPath = "." / fs::relative( destParentPath, ManufactureConfig::Instance().RootDirectory() );
+	destParentPath = "." / fs::relative( destParentPath, AssetBuilderConfig::Instance().RootDirectory() );
 
 	auto staticMesh = CreateStaticMeshFromWavefrontObj( model, destParentPath );
 
@@ -500,13 +500,13 @@ std::optional<Products> WavefrontObjManufacturer::Manufacture( const PathEnviron
 	return products;
 }
 
-bool WavefrontMtlManufacturer::IsSuitable( const std::filesystem::path& srcPath ) const
+bool WavefrontMtlBuilder::IsSuitable( const std::filesystem::path& srcPath ) const
 {
 	fs::path extension = ToLower( srcPath.extension().generic_string() );
 	return extension == fs::path( ".mtl" );
 }
 
-std::optional<Products> WavefrontMtlManufacturer::Manufacture( [[maybe_unused]] const PathEnvironment& env, const std::filesystem::path& path ) const
+std::optional<Products> WavefrontMtlBuilder::Build( [[maybe_unused]] const PathEnvironment& env, const std::filesystem::path& path ) const
 {
 	if ( fs::exists( path ) == false )
 	{

@@ -5,7 +5,7 @@
 #include "Json/json.hpp"
 #include "PanelFactory.h"
 #include "PanelSharedContext.h"
-#include "Platform/PlatformMisc.h"
+#include "Platform/PlatformProcess.h"
 
 #include <filesystem>
 
@@ -18,7 +18,7 @@ namespace editor
 	{
 		ImGui::Begin( "Content Directory Outliner" );
         {
-            DrawContentDirectoryTree( fs::current_path() );
+            DrawContentDirectoryTree( engine::PlatformProcess::GetWorkingDirectory() );
         }
 		ImGui::End();
 
@@ -39,7 +39,7 @@ namespace editor
 
 	ContentBrowserPanel::ContentBrowserPanel( IEditor& editor )
 		: Panel( editor )
-        , m_curDirectory( fs::current_path() )
+        , m_curDirectory( engine::PlatformProcess::GetWorkingDirectory() )
 	{
 	}
 
@@ -128,7 +128,7 @@ namespace editor
 
     void ContentBrowserPanel::DrawCurrentDirectoryPath( fs::path current, int32 depth )
     {
-        if ( current == fs::current_path().parent_path() )
+        if ( current == engine::PlatformProcess::GetRootDirectory() )
         {
             return;
         }
@@ -175,9 +175,9 @@ namespace editor
         else if ( file.extension() == ".asset" )
         {
             // Try opening the raw asset file.
-            fs::path assetDirectory = fs::current_path() / fs::path( "Assets" );
+            fs::path assetDirectory = engine::PlatformProcess::GetWorkingDirectory() / fs::path( "Assets" );
             fs::path relativeFileDirectory = fs::relative( file, assetDirectory ).remove_filename();
-            fs::path rawAssetDirectory = fs::current_path().parent_path() / fs::path( "RawAssets" ) / relativeFileDirectory;
+            fs::path rawAssetDirectory = engine::PlatformProcess::GetRootDirectory() / fs::path( "RawAssets" ) / relativeFileDirectory;
 
             if ( fs::exists( rawAssetDirectory ) == false )
             {
@@ -204,7 +204,7 @@ namespace editor
             }
         }
 
-        bool success = engine::PlatformMisc::LaunchApplication( "open", file.generic_string().c_str() );
+        bool success = engine::PlatformProcess::LaunchApplication( "open", file.generic_string().c_str() );
         assert( success );
     }
 }

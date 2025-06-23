@@ -359,6 +359,7 @@ namespace rendercore
 					}
 				}
 
+				commandList.AddTransition( Transition( *cubeMap, agl::ResourceState::PixelShaderResource ) );
 				commandList.AddTransition( Transition( *prefiltered, agl::ResourceState::PixelShaderResource ) );
 			}
 		);

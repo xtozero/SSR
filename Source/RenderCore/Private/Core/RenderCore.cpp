@@ -5,7 +5,7 @@
 #include "CommonRenderResource.h"
 #include "Config/DefaultRenderCoreConfig.h"
 #include "Core/IEditor.h"
-#include "CpuProfiler.h"
+#include "CpuProfiler/CpuProfiler.h"
 #include "ForwardRenderer.h"
 #include "GlobalShaders.h"
 #include "GpuProfiler.h"
@@ -18,6 +18,7 @@
 #include "RenderGraph.h"
 #include "RenderView.h"
 #include "Scene/Scene.h"
+#include "Shader.h"
 #include "ShaderCache.h"
 #include "TaskScheduler.h"
 #include "UserInterfaceRenderer.h"
@@ -70,6 +71,7 @@ namespace rendercore
 		virtual bool BootUp() override;
 		virtual bool IsReady() const override;
 
+		virtual void ReloadShaders() override;
 		virtual void ReloadGlobalShaders() override;
 
 		virtual void HandleDeviceLost() override;
@@ -94,6 +96,8 @@ namespace rendercore
 
 		HMODULE m_hAgl = nullptr;
 		agl::IAgl* m_agl = nullptr;
+
+		std::set<IScene*> m_scenes;
 
 		RenderGraph m_renderGraph;
 
@@ -188,6 +192,29 @@ namespace rendercore
 		return m_isReady;
 	}
 
+	void RenderCore::ReloadShaders()
+	{
+		EnqueueRenderTask(
+			[this]()
+			{
+				for ( IScene* scene : m_scenes )
+				{
+					scene->PreReloadShaders();
+				}
+			} );
+
+		ShaderBase::ReloadShaders();
+
+		EnqueueRenderTask(
+			[this]()
+			{
+				for ( IScene* scene : m_scenes )
+				{
+					scene->PostReloadShaders();
+				}
+			});
+	}
+
 	void RenderCore::ReloadGlobalShaders()
 	{
 		m_isReady = false;
@@ -205,11 +232,16 @@ namespace rendercore
 
 	IScene* RenderCore::CreateScene( logic::World& world )
 	{
-		return new Scene( world );
+		auto scene = new Scene( world );
+		m_scenes.emplace( scene );
+
+		return scene;
 	}
 
 	void RenderCore::RemoveScene( IScene* scene )
 	{
+		m_scenes.erase( scene );
+
 		EnqueueRenderTask(
 			[scene]()
 			{

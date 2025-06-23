@@ -15,7 +15,7 @@ class IAssetLoader
 public:
 	using LoadCompletionCallback = Delegate<void, const std::shared_ptr<void>&>;
 
-	virtual AssetLoaderSharedHandle RequestAsyncLoad( const std::string& assetPath, LoadCompletionCallback completionCallback ) = 0;
+	virtual AssetLoaderSharedHandle RequestAsyncLoad( const std::string& assetPath, LoadCompletionCallback completionCallback, bool needCaching = true ) = 0;
 	virtual AssetLoaderSharedHandle HandleInProcess( ) const = 0;
 	virtual void SetHandleInProcess( const AssetLoaderSharedHandle& handle ) = 0;
 

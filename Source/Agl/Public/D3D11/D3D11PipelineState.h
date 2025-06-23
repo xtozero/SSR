@@ -1,5 +1,10 @@
 #pragma once
 
+#include "D3D11BlendState.h"
+#include "D3D11DepthStencilState.h"
+#include "D3D11RasterizerState.h"
+#include "D3D11Shaders.h"
+#include "D3D11VetexLayout.h"
 #include "PipelineState.h"
 
 #include <d3d11.h>
@@ -44,13 +49,13 @@ namespace agl
 		virtual void InitResource() override {}
 		virtual void FreeResource() override;
 
-		ID3D11VertexShader* m_vertexShader = nullptr;
-		ID3D11GeometryShader* m_geometryShader = nullptr;
-		ID3D11PixelShader* m_pixelShader = nullptr;
-		ID3D11BlendState* m_blendState = nullptr;
-		ID3D11RasterizerState* m_rasterizerState = nullptr;
-		ID3D11DepthStencilState* m_depthStencilState = nullptr;
-		ID3D11InputLayout* m_inputLayout = nullptr;
+		RefHandle<D3D11VertexShader> m_vertexShader;
+		RefHandle<D3D11GeometryShader> m_geometryShader;
+		RefHandle<D3D11PixelShader> m_pixelShader;
+		RefHandle<D3D11BlendState> m_blendState;
+		RefHandle<D3D11RasterizerState> m_rasterizerState;
+		RefHandle<D3D11DepthStencilState> m_depthStencilState;
+		RefHandle<D3D11VertexLayout> m_inputLayout;
 		D3D11_PRIMITIVE_TOPOLOGY m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
 		uint32 m_sampleMask = D3D11_DEFAULT_SAMPLE_MASK;
 	};
@@ -71,6 +76,6 @@ namespace agl
 		virtual void InitResource() override {}
 		virtual void FreeResource() override;
 
-		ID3D11ComputeShader* m_computeShader = nullptr;
+		RefHandle<D3D11ComputeShader> m_computeShader;
 	};
 }

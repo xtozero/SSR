@@ -52,6 +52,15 @@ namespace agl
 			return hash;
 		}
 
+		void Clear()
+		{
+			m_constantBuffers.clear();
+			m_srvs.clear();
+			m_uavs.clear();
+			m_samplers.clear();
+			m_bindless.clear();
+		}
+
 		friend bool operator==( const ShaderParameterInfo& lhs, const ShaderParameterInfo& rhs )
 		{
 			return lhs.m_constantBuffers == rhs.m_constantBuffers 

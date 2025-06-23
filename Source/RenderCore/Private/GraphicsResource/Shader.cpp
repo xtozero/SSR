@@ -3,6 +3,33 @@
 #include "ArchiveUtility.h"
 #include "TaskScheduler.h"
 
+#include <mutex>
+
+namespace fs = std::filesystem;
+using namespace rendercore;
+
+namespace
+{
+	std::mutex ShaderAssetsMutex;
+	std::vector<ShaderAsset*> ShaderAssets;
+
+	void RegisterShaderAsset(ShaderAsset* shader)
+	{
+		std::lock_guard<std::mutex> lock( ShaderAssetsMutex );
+		ShaderAssets.emplace_back( shader );
+	}
+
+	void UnregisterShaderAsset( ShaderAsset* shader )
+	{
+		std::lock_guard<std::mutex> lock( ShaderAssetsMutex );
+		std::erase_if( ShaderAssets,
+					   [shader]( const ShaderAsset* shaderAsset )
+					   {
+						   return shaderAsset == shader;
+					   } );
+	}
+}
+
 namespace rendercore
 {
 	void ShaderBase::SetHash( size_t hash )
@@ -20,15 +47,25 @@ namespace rendercore
 		return m_hash;
 	}
 
-	Archive& operator<<( Archive& ar, ShaderBase& shaderBase )
+	StaticShaderSwitches ShaderAsset::GetStaticSwitches() const
 	{
-		shaderBase.Serialize( ar );
-		return ar;
+		return m_switches;
 	}
 
-	StaticShaderSwitches ShaderBase::GetStaticSwitches() const
+	ShaderAsset::ShaderAsset( const StaticShaderSwitches& switches )
+		: m_switches( switches )
 	{
-		return StaticShaderSwitches();
+		RegisterShaderAsset( this );
+	}
+
+	ShaderAsset::ShaderAsset()
+	{
+		RegisterShaderAsset( this );
+	}
+
+	ShaderAsset::~ShaderAsset()
+	{
+		UnregisterShaderAsset( this );
 	}
 
 	ShaderBase* ShaderBase::CompileShader( [[maybe_unused]] const StaticShaderSwitches& switches )
@@ -36,9 +73,124 @@ namespace rendercore
 		return this;
 	}
 
+	void ShaderBase::RecompileShader()
+	{
+		// Shader not currently used in scene rendering. Modify to allow redirection even if unused in the future.
+		if (m_parent.get() == nullptr)
+		{
+			return;
+		}
+
+		auto uberShader = static_cast<UberShader*>( m_parent.get() );
+
+		BinaryChunk byteCode = uberShader->ComipeShaderByteCode( GetStaticSwitches() );
+		if (byteCode.Size() == 0)
+		{
+			return;
+		}
+
+		m_byteCode = std::move( byteCode );
+
+		m_parameterMap.Clear();
+		m_parameterInfo.Clear();
+		GraphicsInterface().BuildShaderMetaData( ByteCode(), ParameterMap(), ParameterInfo() );
+		RecreateShader();
+	}
+
+	void ShaderBase::ReloadShaders()
+	{
+		std::vector<ShaderBase*> shaders;
+		std::set<UberShader*> shadersToReload;
+
+		for ( ShaderAsset* shaderAsset : ShaderAssets )
+		{
+			if ( auto uberShader = Cast<UberShader>( shaderAsset ) )
+			{
+				fs::file_time_type curLastWriteTime = fs::last_write_time( uberShader->Path() );
+				if ( curLastWriteTime == uberShader->LastWriteTime() )
+				{
+					continue;
+				}
+
+				shadersToReload.emplace( uberShader );
+			}
+			else
+			{
+				shaders.emplace_back( Cast<ShaderBase>( shaderAsset ) );
+			}
+		}
+
+		std::atomic<int32> numReloadedShaders = static_cast<int32>( shadersToReload.size() );
+
+		TaskHandle handle = EnqueueThreadTask<ThreadType::RenderThread>(
+			[]()
+			{
+				GetInterface<agl::IAgl>()->WaitGPU();
+			});
+		GetInterface<ITaskScheduler>()->Wait( handle );
+
+		for ( UberShader* uberShader : shadersToReload )
+		{
+			IAssetLoader::LoadCompletionCallback onLoadComplete;
+			onLoadComplete.BindFunctor(
+				[uberShader, &numReloadedShaders]( const std::shared_ptr<void>& asset )
+				{
+					auto newUberShader = std::reinterpret_pointer_cast<UberShader>( asset );
+					*uberShader = *newUberShader.get();
+
+					--numReloadedShaders;
+				} );
+
+			GetInterface<IAssetLoader>()->RequestAsyncLoad( uberShader->Path().generic_string(), onLoadComplete, false );
+		}
+
+		while ( numReloadedShaders > 0 )
+		{
+			GetInterface<ITaskScheduler>()->ProcessThisThreadTask();
+		}
+
+		for ( ShaderBase* shader : shaders )
+		{
+			auto parentShader = Cast<UberShader>( shader->GetParent() );
+			if ( shadersToReload.contains( parentShader ) == false )
+			{
+				continue;
+			}
+
+			shader->RecompileShader();
+		}
+	}
+
+	ShaderAsset* ShaderBase::GetParent()
+	{
+		return const_cast<ShaderAsset*>( static_cast<const ShaderBase&>( *this ).GetParent() );
+	}
+
+	const ShaderAsset* ShaderBase::GetParent() const
+	{
+		return m_parent.get();
+	}
+
+	void ShaderBase::SetParent( const std::shared_ptr<ShaderAsset>& parent )
+	{
+		assert( m_parent == nullptr || m_parent == parent );
+		m_parent = parent;
+	}
+
 	void ShaderBase::PostLoadImpl()
 	{
 		CreateShader();
+	}
+
+	void ShaderBase::RecreateShader()
+	{
+		EnqueueRenderTask(
+			[this, shader = m_shader]()
+			{
+				shader->UpdateByteCodeAndParameterInfo( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo );
+				shader->Free();
+				shader->Init();
+			} );
 	}
 
 	REGISTER_ASSET( VertexShader );

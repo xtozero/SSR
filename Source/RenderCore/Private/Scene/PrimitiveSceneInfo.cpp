@@ -194,6 +194,8 @@ namespace rendercore
 		{
 			m_scene.RemoveCachedDrawSnapshot( cachedDrawSnapshotInfo );
 		}
+
+		m_cachedDrawSnapshotInfos.clear();
 	}
 
 	std::optional<uint32> PrimitiveSubMeshInfo::GetCachedDrawSnapshotInfoIndex( RenderPassType passType ) const

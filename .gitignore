@@ -339,6 +339,7 @@ ShaderCache*.asset
 !Program/Assets/Models/**
 !RawAssets/Models/**
 /Program/Saved/*
+/AssetBuilder/Saved/*
 
 ### VisualStudio Patch ###
 # By default, sensitive information, such as encrypted password

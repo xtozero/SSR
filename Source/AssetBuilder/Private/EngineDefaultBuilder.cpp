@@ -1,10 +1,10 @@
-#include "EngineDefaultManufacturer.h"
+#include "EngineDefaultBuilder.h"
 
 #include "CommandList.h"
 #include "DDSTexture.h"
 #include "DirectXTex.h"
 #include "DirectXTexTool.h"
-#include "ManufactureConfig.h"
+#include "AssetBuilderConfig.h"
 #include "RenderUtility/CommonRenderResource.h"
 #include "TaskScheduler.h"
 
@@ -12,14 +12,14 @@
 
 namespace fs = std::filesystem;
 
-void EngineDefaultManufacturer::Manufacture( std::set<std::filesystem::path>& outProcessed )
+void EngineDefaultBuilder::Build( std::set<std::filesystem::path>& outProcessed )
 {
 	CreateBRDFLookUpTexture( outProcessed );
 }
 
-void EngineDefaultManufacturer::CreateBRDFLookUpTexture( std::set<std::filesystem::path>& outProcessed )
+void EngineDefaultBuilder::CreateBRDFLookUpTexture( std::set<std::filesystem::path>& outProcessed )
 {
-	fs::path target = ManufactureConfig::Instance().RootDirectory() / "Assets/EngineDefault/Texture" / "PrecomputedBRDF.asset";
+	fs::path target = AssetBuilderConfig::Instance().RootDirectory() / "Assets/EngineDefault/Texture" / "PrecomputedBRDF.asset";
 	target = fs::absolute( target.make_preferred() );
 
 	outProcessed.emplace( target );

@@ -105,6 +105,9 @@ namespace rendercore
 			return m_internalNumFrame;
 		}
 
+		virtual void PreReloadShaders() override;
+		virtual void PostReloadShaders() override;
+
 		void AddPrimitiveToUpdate( uint32 primitiveId );
 
 		const SparseArray<LightSceneInfo*>& Lights() const
