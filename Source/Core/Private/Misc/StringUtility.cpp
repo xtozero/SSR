@@ -1,6 +1,7 @@
 #include "StringUtility.h"
 
 #include <algorithm>
+#include <regex>
 #include <sstream>
 
 std::vector<std::string> SplitString( const char* str, char delim )
@@ -84,4 +85,14 @@ bool ToWideChar( wchar_t* dest, size_t destSize, const char* source )
 #else
 	return std::mbstowcs( dest, source, destSize ) != static_cast<std::size_t>( -1 );
 #endif
+}
+
+void RegexReplace( std::string& str, const std::string& from, const std::string& to )
+{
+    if ( from.empty() )
+    {
+        return;
+    }
+
+    str = std::regex_replace( str, std::regex(from), to );
 }

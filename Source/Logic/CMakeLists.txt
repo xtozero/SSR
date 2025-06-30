@@ -46,7 +46,6 @@ set (CORE
 	Private/Core/DebugDrawHelper.cpp
 	Private/Core/dllmain.cpp
 	Private/Core/GameLogic.cpp
-	Private/Core/Logic.cpp
 	Private/Core/ModuleInit.cpp
 	Private/Core/ThinkFunction.cpp
 	Private/Core/ThinkTaskManager.cpp

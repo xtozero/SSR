@@ -121,16 +121,22 @@ namespace agl
 
 					parameterSize = shaderBuffDesc.Size;
 
-					bool isBindlessParam = std::strcmp( bindDesc.Name, "BindlessIndices" ) == 0;
-					ShaderParameterType paramType = isBindlessParam ? ShaderParameterType::Bindless : ShaderParameterType::ConstantBufferValue;
-
 					for ( uint32 j = 0; j < shaderBuffDesc.Variables; ++j )
 					{
 						ID3D12ShaderReflectionVariable* variableReflection = constBufferReflection->GetVariableByIndex( j );
 						D3D12_SHADER_VARIABLE_DESC shaderVarDesc;
 						variableReflection->GetDesc( &shaderVarDesc );
 
-						parameterMap.AddParameter( shaderVarDesc.Name, shaderType, paramType, bindDesc.BindPoint, bindDesc.Space, shaderVarDesc.StartOffset, shaderVarDesc.Size );
+						std::string_view paramName( shaderVarDesc.Name );
+						bool isBindlessParam = paramName.starts_with( BindlessIndexTag );
+						if ( isBindlessParam )
+						{
+							paramName.remove_prefix( BindlessIndexTag.length() );
+						}
+
+						ShaderParameterType paramType = isBindlessParam ? ShaderParameterType::Bindless : ShaderParameterType::ConstantBufferValue;
+
+						parameterMap.AddParameter( paramName.data(), shaderType, paramType, bindDesc.BindPoint, bindDesc.Space, shaderVarDesc.StartOffset, shaderVarDesc.Size );
 					}
 				}
 			}

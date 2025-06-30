@@ -2,13 +2,7 @@
 #include "Common/LightCommon.fxh"
 
 #if UseDiffuseTexture == 1
-#if SupportsBindless == 1
-DefineBindlessIndices
-{
-    int DiffuseTex;
-    int DiffuseTexSampler;
-};
-#else
+#if SupportsBindless == 0
 Texture2D DiffuseTex : register( t2 );
 SamplerState DiffuseTexSampler : register( s2 );
 #endif
@@ -34,10 +28,7 @@ float4 main( PS_INPUT input ) : SV_Target0
     float4 diffuseColor = (float4)0.f;
 #if UseDiffuseTexture == 1
 #if SupportsBindless == 1
-    if ( DiffuseTex > -1 && DiffuseTexSampler > -1 )
-    {
-        diffuseColor = MoveLinearSpace( Tex2D[DiffuseTex].Sample( Samplers[DiffuseTexSampler], input.texcoord ) );
-    }
+    diffuseColor = MoveLinearSpace( Tex2D[DiffuseTex].Sample( Samplers[DiffuseTexSampler], input.texcoord ) );
 #else
 	diffuseColor = MoveLinearSpace( DiffuseTex.Sample( DiffuseTexSampler, input.texcoord ) );
 #endif

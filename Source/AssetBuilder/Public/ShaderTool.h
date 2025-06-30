@@ -12,10 +12,10 @@ public:
 	std::string Process( const std::string& src );
 
 private:
-	void CacheLine();
+	bool CacheLine();
 	void SkipLine();
 
-	std::string_view ReadToken();
+	bool IsBindlessArrayAccess();
 
 	void CollectBindlessVariableName();
 	std::string InsertBindlessVariable( const std::string& srcShaderFile );
@@ -25,5 +25,5 @@ private:
 	TextTokenaizer m_src;
 	TextTokenaizer m_line;
 
-	std::vector<std::string_view> m_bindlessVariableName;
+	std::vector<std::string_view> m_bindlessVariableNames;
 };

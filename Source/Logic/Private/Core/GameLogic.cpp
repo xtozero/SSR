@@ -98,7 +98,7 @@ namespace logic
 	{
 		CPU_PROFILE( Update );
 
-		// �� �������� ���� ElapsedTime ����
+		// Update ElapsedTime at the start of a frame
 		StartLogic();
 		ProcessLogic();
 		EndLogic();
@@ -228,7 +228,7 @@ namespace logic
 	{
 		CPU_PROFILE( StartLogic );
 
-		//���� ���� ���� ��ó��
+		// Preprocessing before executing game logic
 		engine::GetConsoleMessageExecutor().Execute();
 		GetInterface<engine::IEngine>()->ProcessInput();
 
@@ -241,7 +241,7 @@ namespace logic
 
 		if ( m_world.GetTimer().IsPaused() == false )
 		{
-			// ���� ���� ����
+			// Perform game logic
 			m_world.RunFrame();
 		}
 	}
@@ -250,11 +250,10 @@ namespace logic
 	{
 		CPU_PROFILE( EndLogic );
 
-		// ���� �ùķ��̼� ����� �ݿ�
+		// Reflect the results of the physics simulation
 		m_world.EndFrame();
 
-		// ���� ���� ���� ��ó��
-
+		// Post-processing after game logic execution
 		if ( m_numDrawRequestQueued < agl::DefaultAgl::GetBufferCount() )
 		{
 			++m_numDrawRequestQueued;

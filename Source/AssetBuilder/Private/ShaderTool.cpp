@@ -9,33 +9,30 @@ std::string ShaderTool::Process( const std::string& src )
 	std::string shaderFile;
 	shaderFile.reserve( src.size() );
 
-	CacheLine();
-	while ( m_line.CanRead() )
+	while ( CacheLine() )
 	{
-		std::string_view token = ReadToken();
-		if ( token == "DefineBindlessIndices" )
+		while ( m_line.CanRead() )
 		{
-			CollectBindlessVariableName();
+			if ( IsBindlessArrayAccess() )
+			{
+				CollectBindlessVariableName();
+			}
+
+			m_line.GetNextChar();
 		}
-		else
-		{
-			shaderFile += m_srcLine;
-			SkipLine();
-		}
+
+		shaderFile += m_srcLine;
 	}
 
 	return InsertBindlessVariable( shaderFile );
 }
 
-void ShaderTool::CacheLine()
+bool ShaderTool::CacheLine()
 {
-	if ( m_line.CanRead() )
-	{
-		return;
-	}
-
 	m_srcLine = m_src.ReadLine( false );
 	m_line.Parse( m_srcLine.data(), m_srcLine.size() );
+
+	return m_line.CanRead();
 }
 
 void ShaderTool::SkipLine()
@@ -44,91 +41,77 @@ void ShaderTool::SkipLine()
 	m_line.Parse( m_srcLine.data(), m_srcLine.size() );
 }
 
-std::string_view ShaderTool::ReadToken()
+bool ShaderTool::IsBindlessArrayAccess()
 {
-	m_line.SkipWhiteSpace();
-	CacheLine();
-
-	m_line.SkipWhiteSpace();
-	return m_line.ReadWord();
+	return m_line.MatchNextString( "Tex2DArray[", std::strlen( "Tex2DArray[" ) )
+			|| m_line.MatchNextString( "Tex2D[", std::strlen( "Tex2D[" ) )
+			|| m_line.MatchNextString( "Tex3D[", std::strlen( "Tex3D[" ) )
+			|| m_line.MatchNextString( "TexCube[", std::strlen( "TexCube[" ) )
+			|| m_line.MatchNextString( "Samplers[", std::strlen( "Samplers[" ) );
 }
 
 void ShaderTool::CollectBindlessVariableName()
 {
-	std::string_view token = ReadToken();
+	m_line.SkipWhiteSpace();
 
-	assert( token == "{" );
+	const char* nameStart = m_line.Tell();
+	size_t len = 0;
 
-	auto RemoveSemicolon = []( const std::string_view& s )
-		{
-			const char* begin = s.data();
-			for ( int32 i = 0; i < s.size(); ++i )
-			{
-				if ( s[i] == ';' )
-				{
-					return std::string_view( begin, i );
-				}
-			}
-
-			return s;
-		};
-
-	for ( token = ReadToken(); token != "};"; token = ReadToken() )
+	for ( char c = m_line.GetNextChar(); c != ']'; c = m_line.GetNextChar() )
 	{
-		if ( token == "int" )
-		{
-			continue;
-		}
-		else
-		{
-			token = RemoveSemicolon( token );
-			m_bindlessVariableName.emplace_back( token );
-		}
+		++len;
 	}
+
+	if ( len == 0 )
+	{
+		return;
+	}
+
+	m_bindlessVariableNames.emplace_back( nameStart, len );
 }
 
 std::string ShaderTool::InsertBindlessVariable( const std::string& srcShaderFile )
 {
+	if ( m_bindlessVariableNames.empty() )
+	{
+		return srcShaderFile;
+	}
+
 	constexpr size_t MB = 1024 * 1024;
 
 	std::string bindlessVariable;
 	bindlessVariable.reserve( 1 * MB);
 
 	/* Sample
-	* DefineBindlessIndices
-	* {
-	*
-	* }
-	*/
-	bindlessVariable += "\nDefineBindlessIndices\n{\n";
-
-	for ( const std::string_view& name : m_bindlessVariableName )
+	 * #if SupportsBindless
+	 * int Foo;
+	 * int Bar;
+	 * #endif
+	 */
+	bindlessVariable += "#if SupportsBindless == 1\n";
+	for ( const std::string_view& name : m_bindlessVariableNames )
 	{
-		bindlessVariable += "\tint ";
+		bindlessVariable += "int\t";
 		bindlessVariable += name;
 		bindlessVariable += ";\n";
 	}
+	bindlessVariable += "#endif\n\n";
 
-	bindlessVariable += "}\n";
+	std::string shaderCode = bindlessVariable + srcShaderFile;
 
-	std::string shaderFile;
-	shaderFile.reserve( bindlessVariable.size() + srcShaderFile.size() );
-
-	TextTokenaizer tokenaizer;
-	tokenaizer.Parse( srcShaderFile.data(), srcShaderFile.size() );
-
-	while ( tokenaizer.CanRead() )
+	std::string pattern = R"(((?:int|\[)[\t ]*)()";
+	for ( auto iter = std::begin( m_bindlessVariableNames ); iter != std::end( m_bindlessVariableNames ); ++iter )
 	{
-		std::string_view line = tokenaizer.ReadLine( false );
-
-		shaderFile += line;
-
-		// Insert after DefineBindlessIndices definition
-		if ( line.starts_with( "#define DefineBindlessIndices" ) )
+		if ( iter != std::begin( m_bindlessVariableNames ) )
 		{
-			shaderFile += bindlessVariable;
+			pattern += "|";
 		}
-	}
 
-	return shaderFile;
+		pattern += *iter;
+	}
+	pattern += ")";
+
+	RegexReplace( shaderCode, pattern, "$1" + std::string( agl::BindlessIndexTag ) + "$2" );
+
+	return shaderCode;
 }

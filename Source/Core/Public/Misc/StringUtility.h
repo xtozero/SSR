@@ -18,3 +18,5 @@ int32 SPrintf( char* dest, size_t destSize, const char* format, Args... args )
 {
 	return std::snprintf( dest, destSize, format, args... );
 }
+
+void RegexReplace( std::string& str, const std::string& from, const std::string& to );

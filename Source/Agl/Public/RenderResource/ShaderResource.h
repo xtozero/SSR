@@ -91,4 +91,7 @@ namespace agl
 
 		using ShaderBase::ShaderBase;
 	};
+
+	// bIdx: bindless index
+	constexpr std::string_view BindlessIndexTag( "bidx_" );
 }

@@ -5,6 +5,4 @@ TextureCube TexCube[] : register(t0, space102);
 Texture3D Tex3D[] : register(t0, space103);
 
 SamplerState Samplers[] : register(s0, space100);
-
-#define DefineBindlessIndices cbuffer BindlessIndices : register( b0 )
 #endif

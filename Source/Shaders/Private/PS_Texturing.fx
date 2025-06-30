@@ -1,13 +1,7 @@
 #include "Common/BindlessResources.fxh"
 #include "Common/LightCommon.fxh"
 
-#if SupportsBindless == 1
-DefineBindlessIndices
-{
-    int DiffuseTex;
-    int DiffuseTexSampler;
-};
-#else
+#if SupportsBindless == 0
 Texture2D DiffuseTex : register( t2 );
 SamplerState DiffuseTexSampler : register( s2 );
 #endif
@@ -33,11 +27,7 @@ float4 main( PS_INPUT input ) : SV_Target0
     LIGHTCOLOR cColor = CalcLight( geometry );
 
 #if SupportsBindless == 1
-    float4 lightColor = (float4)0.f;
-    if ( DiffuseTex > -1 && DiffuseTexSampler > -1 )
-    {
-        lightColor = cColor.m_diffuse * MoveLinearSpace( Tex2D[DiffuseTex].Sample( Samplers[DiffuseTexSampler], input.texcoord ) );
-    }
+    float4 lightColor = cColor.m_diffuse * MoveLinearSpace( Tex2D[DiffuseTex].Sample( Samplers[DiffuseTexSampler], input.texcoord ) );
 #else
 	float4 lightColor = cColor.m_diffuse * MoveLinearSpace( DiffuseTex.Sample( DiffuseTexSampler, input.texcoord ) );
 #endif
