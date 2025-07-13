@@ -5,7 +5,7 @@
 
 namespace logic
 {
-	class DebugOverlay : public CGameObject
+	class DebugOverlay : public GameObject
 	{
 		GENERATE_CLASS_TYPE_INFO( DebugOverlay )
 

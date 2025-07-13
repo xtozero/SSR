@@ -6,25 +6,29 @@
 
 namespace rendercore
 {
-	// TODO : Add semantic index
 	Name ConvertToShaderParameterName( const VertexStream& stream )
 	{
 		static Name PositionName( "POSITION" );
 		static Name NormalName( "NORMAL" );
 		static Name TexcoordName( "TEXCOORD" );
 
-		if ( stream.GetName() == PositionName )
+		const Name& streamName = stream.GetName();
+
+		if ( streamName == PositionName )
 		{
 			return Name( "Positions" );
 		}
-		else if ( stream.GetName() == NormalName )
+		else if ( streamName == NormalName )
 		{
 			return Name( "Normals" );
 		}
-		else
+		else if ( streamName.Str().starts_with( TexcoordName.Str() ) )
 		{
-			return Name( "Texcoords" );
+			std::string_view indexString = streamName.Str().substr( TexcoordName.Str().length() );
+			return Name( std::string( "Texcoords" ) + std::string( indexString ) );
 		}
+
+		return Name("None");
 	}
 
 	VertexStream::VertexStream( const char* name, agl::ResourceFormat format, uint32 count, bool isDynamic ) 

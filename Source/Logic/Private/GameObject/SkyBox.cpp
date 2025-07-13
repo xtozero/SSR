@@ -17,9 +17,9 @@ namespace
 
 namespace logic
 {
-	DECLARE_GAME_OBJECT( skybox, CSkyBox );
+	DECLARE_GAME_OBJECT( skybox, SkyBox );
 
-	CSkyBox::CSkyBox()
+	SkyBox::SkyBox()
 	{
 		m_pTexturedSkyComponent = CreateComponent<TexturedSkyComponent>( *this, "TexturedSkyComponent" );
 		auto pStaticMesh = std::make_shared<rendercore::StaticMesh>();

@@ -103,9 +103,7 @@ set (SCENE
 	Public/Scene/SSRManager.h)
 	
 set (TEST_SCENE_OBJECT
-	Private/GameObject/BallProjectile.cpp
 	Private/GameObject/PhysicsObjects.cpp
-	Public/GameObject/BallProjectile.h
 	Public/GameObject/PhysicsObjects.h)
 	
 set (USER_INPUT

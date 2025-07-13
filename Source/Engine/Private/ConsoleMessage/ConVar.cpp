@@ -7,9 +7,14 @@
 #include <tchar.h>
 #include <vector>
 
+namespace
+{
+	ConVar( ConVarTest, "1", "Console variable for test" );
+}
+
 namespace engine
 {
-	void CConVar::Execute()
+	void ConVariable::Execute()
 	{
 		size_t argC = GetConsoleMessageExecutor().ArgC();
 
@@ -24,14 +29,14 @@ namespace engine
 		}
 	}
 
-	void CConVar::SetValue( const std::string& newValue )
+	void ConVariable::SetValue( const std::string& newValue )
 	{
 		m_value = newValue;
 		m_iValue = std::atoi( newValue.c_str() );
 		m_fValue = static_cast<float>( std::atof( newValue.c_str() ) );
 	}
 
-	CConVar::CConVar( const std::string& name, const std::string& value, const std::string& description ) :
+	ConVariable::ConVariable( const std::string& name, const std::string& value, const std::string& description ) :
 		m_name( name ),
 		m_description( description )
 	{

@@ -1,10 +1,10 @@
 #include "PanelSharedContext.h"
 
-using ::logic::CGameObject;
+using ::logic::GameObject;
 
 namespace editor
 {
-	void PanelSharedContext::SelectObject( CGameObject* object )
+	void PanelSharedContext::SelectObject( GameObject* object )
 	{
 		m_selectedObject.emplace( object );
 	}
@@ -14,12 +14,12 @@ namespace editor
 		m_selectedObject.clear();
 	}
 
-	bool PanelSharedContext::IsSelectedObject( CGameObject* object )
+	bool PanelSharedContext::IsSelectedObject( GameObject* object )
 	{
 		return m_selectedObject.contains( object );
 	}
 
-	const std::set<logic::CGameObject*>& PanelSharedContext::GetSelectedObjects() const
+	const std::set<logic::GameObject*>& PanelSharedContext::GetSelectedObjects() const
 	{
 		return m_selectedObject;
 	}

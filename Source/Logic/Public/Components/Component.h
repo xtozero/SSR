@@ -10,7 +10,7 @@ namespace json
 
 namespace logic
 {
-	class CGameObject;
+	class GameObject;
 	class World;
 
 	class Component
@@ -34,7 +34,7 @@ namespace logic
 		void RegisterThinkFunction();
 		void UnRegisterThinkFunction();
 
-		CGameObject* GetOwner() const
+		GameObject* GetOwner() const
 		{
 			return m_pOwner;
 		}
@@ -43,7 +43,7 @@ namespace logic
 
 		virtual void LoadProperty( [[maybe_unused]] const json::Value& json ) {}
 
-		Component( CGameObject* pOwner, const char* name );
+		Component( GameObject* pOwner, const char* name );
 		virtual ~Component() = default;
 
 	protected:
@@ -69,7 +69,7 @@ namespace logic
 
 		friend struct UpdateRenderStateHelper;
 
-		CGameObject* m_pOwner = nullptr;
+		GameObject* m_pOwner = nullptr;
 
 		int32 m_markForUpdateRenderStateArrayIndex = -1;
 

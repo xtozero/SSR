@@ -40,7 +40,7 @@ namespace logic
 		m_target->EndPhysicsFrame();
 	}
 
-	void World::Initialize( CGameLogic& gameLogic )
+	void World::Initialize( GameLogic& gameLogic )
 	{
 		m_scene = GetInterface<rendercore::IRenderCore>()->CreateScene( *this );
 
@@ -129,7 +129,7 @@ namespace logic
 		}
 	}
 
-	void World::SpawnObject( CGameLogic& gameLogic, Owner<CGameObject*> object )
+	void World::SpawnObject( GameLogic& gameLogic, Owner<GameObject*> object )
 	{
 		object->Initialize( gameLogic, *this );
 		size_t idx = m_gameObjects.Add( object );
@@ -235,14 +235,14 @@ namespace logic
 		}
 	}
 
-	CPlayer* GetLocalPlayer( World& w )
+	Player* GetLocalPlayer( World& w )
 	{
-		CPlayer* localPlayer = nullptr;
+		Player* localPlayer = nullptr;
 
 		const auto& gameObjects = w.GameObjects();
 		for ( const auto& gameObject : gameObjects )
 		{
-			if ( CPlayer* player = Cast<CPlayer>( gameObject.get() ) )
+			if ( Player* player = Cast<Player>( gameObject.get() ) )
 			{
 				localPlayer = player;
 				break;

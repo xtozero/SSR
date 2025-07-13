@@ -153,16 +153,6 @@ public:
 		return *this;
 	}
 
-	void WriteRaw( const void* value, size_t size )
-	{
-		size_t oldSize = m_buffer.size();
-		m_buffer.resize( oldSize + size );
-
-		auto begin = static_cast<const char*>( value );
-		auto end = begin + size;
-		std::copy( begin, end, &m_buffer[oldSize] );
-	}
-
 	size_t Size() const
 	{
 		return m_buffer.size();
@@ -251,7 +241,7 @@ private:
 		RequestLoadAsset<T>( std::move( path ), value );
 	}
 
-	template <typename T>
+	template <HasSerialize T>
 	void ReadData( std::unique_ptr<T>& value )
 	{
 		uint8 nullFlag = 0;
@@ -317,13 +307,6 @@ private:
 		m_curPos += stringSize;
 	}
 
-	void ReadData( std::filesystem::path& value )
-	{
-		std::string pathString;
-		ReadData( pathString );
-		value = std::move( pathString );
-	}
-
 	void ReadData( BinaryChunk& chunk )
 	{
 		if ( CanRead( sizeof( uint32 ) ) == false )
@@ -377,7 +360,7 @@ private:
 		}
 	}
 
-	template <typename T>
+	template <HasSerialize T>
 	void WriteData( const std::unique_ptr<T>& value )
 	{
 		if ( value == nullptr )
@@ -389,11 +372,6 @@ private:
 			WriteData( static_cast<uint8>( 0 ) );
 			value->Serialize( *this );
 		}
-	}
-
-	void WriteData( char* str )
-	{
-		WriteData( static_cast<const char*>( str ) );
 	}
 
 	void WriteData( const char* str, uint32 len = 0 )
@@ -418,11 +396,6 @@ private:
 	void WriteData( const std::string_view& str )
 	{
 		WriteData( str.data(), static_cast<uint32>( str.length() ) );
-	}
-
-	void WriteData( const std::filesystem::path& path )
-	{
-		WriteData( path.generic_string() );
 	}
 
 	void WriteData( const BinaryChunk& chunk )

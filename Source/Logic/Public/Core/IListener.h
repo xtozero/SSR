@@ -4,12 +4,12 @@
 
 namespace logic
 {
-	class CGameLogic;
+	class GameLogic;
 
 	class IListener
 	{
 	public:
-		virtual void ProcessInput( const engine::UserInput&, CGameLogic& gameLogic ) = 0;
+		virtual void ProcessInput( const engine::UserInput&, GameLogic& gameLogic ) = 0;
 
 		virtual ~IListener() = default;
 

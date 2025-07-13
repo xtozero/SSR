@@ -32,10 +32,10 @@
 #include <ctime>
 #include <tchar.h>
 
+#include "DebugUtil.h"
+
 namespace
 {
-	ConVar( showFps, "1", "Show Fps" );
-
 	void WaitRenderThreadForShutdown()
 	{
 		TaskHandle handle = EnqueueThreadTask<ThreadType::RenderThread>(
@@ -50,7 +50,7 @@ namespace
 
 namespace logic
 {
-	bool CGameLogic::BootUp( engine::IPlatform& platform )
+	bool GameLogic::BootUp( engine::IPlatform& platform )
 	{
 		m_renderCoreDll = LoadModule( "RenderCore.dll" );
 		if ( m_renderCoreDll == nullptr )
@@ -68,7 +68,7 @@ namespace logic
 		srand( static_cast<uint32>( time( nullptr ) ) );
 
 		m_appSize = platform.GetSize();
-		CUtilWindowInfo::GetInstance().SetRect( m_appSize.first, m_appSize.second );
+		UtilWindowInfo::GetInstance().SetRect( m_appSize.first, m_appSize.second );
 
 		if ( m_pRenderCore->BootUp() == false )
 		{
@@ -94,7 +94,7 @@ namespace logic
 		return true;
 	}
 
-	void CGameLogic::Update()
+	void GameLogic::Update()
 	{
 		CPU_PROFILE( Update );
 
@@ -104,17 +104,17 @@ namespace logic
 		EndLogic();
 	}
 
-	void CGameLogic::Pause()
+	void GameLogic::Pause()
 	{
 		m_world.Pause();
 	}
 
-	void CGameLogic::Resume()
+	void GameLogic::Resume()
 	{
 		m_world.Resume();
 	}
 
-	void CGameLogic::HandleUserInput( const engine::UserInput& input )
+	void GameLogic::HandleUserInput( const engine::UserInput& input )
 	{
 		if ( m_inputController == nullptr )
 		{
@@ -124,11 +124,11 @@ namespace logic
 		m_inputController->ProcessInput( input );
 	}
 
-	void CGameLogic::HandleTextInput( [[maybe_unused]] uint64 text, [[maybe_unused]] bool bUnicode )
+	void GameLogic::HandleTextInput( [[maybe_unused]] uint64 text, [[maybe_unused]] bool bUnicode )
 	{
 	}
 
-	void CGameLogic::AppSizeChanged( engine::IPlatform& platform )
+	void GameLogic::AppSizeChanged( engine::IPlatform& platform )
 	{
 		const std::pair<uint32, uint32>& newAppSize = platform.GetSize();
 
@@ -138,7 +138,7 @@ namespace logic
 		}
 
 		m_appSize = newAppSize;
-		CUtilWindowInfo::GetInstance().SetRect( m_appSize.first, m_appSize.second );
+		UtilWindowInfo::GetInstance().SetRect( m_appSize.first, m_appSize.second );
 
 		if ( m_canvas->Handle() == platform.GetRawHandle<void*>() )
 		{
@@ -146,12 +146,12 @@ namespace logic
 		}
 	}
 
-	GameClientViewport* CGameLogic::GetGameClientViewport()
+	GameClientViewport* GameLogic::GetGameClientViewport()
 	{
 		return m_gameViewport.get();
 	}
 
-	bool CGameLogic::LoadWorld( const char* filePath )
+	bool GameLogic::LoadWorld( const char* filePath )
 	{
 		UnloadWorld();
 
@@ -170,7 +170,7 @@ namespace logic
 		ParseWorldAsset.BindFunctor(
 			[this, worldAsset]( const char* buffer, unsigned long bufferSize )
 			{
-				CWorldLoader::Load( *this, buffer, static_cast<size_t>( bufferSize ) );
+				WorldLoader::Load( *this, buffer, static_cast<size_t>( bufferSize ) );
 				GetInterface<IFileSystem>()->CloseFile( worldAsset );
 			}
 		);
@@ -190,7 +190,7 @@ namespace logic
 		return result;
 	}
 
-	void CGameLogic::UnloadWorld()
+	void GameLogic::UnloadWorld()
 	{
 		for ( auto& object : m_world.GameObjects() )
 		{
@@ -198,22 +198,34 @@ namespace logic
 		}
 	}
 
-	World& CGameLogic::GetWorld()
+	World& GameLogic::GetWorld()
 	{
 		return m_world;
 	}
 
-	void CGameLogic::SpawnObject( Owner<CGameObject*> object )
+	void GameLogic::ToggleDebugConsole()
+	{
+		if ( m_commandConsole )
+		{
+			m_commandConsole = nullptr;
+		}
+		else
+		{
+			m_commandConsole = std::make_unique<DebugConsole>();
+		}
+	}
+
+	void GameLogic::SpawnObject( Owner<GameObject*> object )
 	{
 		m_world.SpawnObject( *this, object );
 	}
 
-	InputController* CGameLogic::GetInputController()
+	InputController* GameLogic::GetInputController()
 	{
 		return m_inputController.get();
 	}
 
-	void CGameLogic::Shutdown()
+	void GameLogic::Shutdown()
 	{
 		WaitRenderThreadForShutdown();
 
@@ -224,7 +236,7 @@ namespace logic
 		ShutdownModule( m_renderCoreDll );
 	}
 
-	void CGameLogic::StartLogic()
+	void GameLogic::StartLogic()
 	{
 		CPU_PROFILE( StartLogic );
 
@@ -235,7 +247,7 @@ namespace logic
 		m_world.BeginFrame();
 	}
 
-	void CGameLogic::ProcessLogic()
+	void GameLogic::ProcessLogic()
 	{
 		CPU_PROFILE( ProcessLogic );
 
@@ -246,7 +258,7 @@ namespace logic
 		}
 	}
 
-	void CGameLogic::EndLogic()
+	void GameLogic::EndLogic()
 	{
 		CPU_PROFILE( EndLogic );
 
@@ -268,7 +280,7 @@ namespace logic
 		}
 	}
 
-	void CGameLogic::DrawScene()
+	void GameLogic::DrawScene()
 	{
 		rendercore::IScene* scene = m_world.Scene();
 		rendercore::Viewport* viewport = m_gameViewport->GetViewport();
@@ -293,7 +305,7 @@ namespace logic
 		m_gameViewport->EndFrameRendering( *m_canvas );
 	}
 
-	void CGameLogic::UpdateUIDrawInfo()
+	void GameLogic::UpdateUIDrawInfo()
 	{
 		auto uiRenderer = GetInterface<rendercore::UserInterfaceRenderer>();
 		if ( uiRenderer )
@@ -302,16 +314,16 @@ namespace logic
 		}
 	}
 
-	void CGameLogic::SceneEnd()
+	void GameLogic::SceneEnd()
 	{
 	}
 
-	CGameLogic::~CGameLogic()
+	GameLogic::~GameLogic()
 	{
 		Shutdown();
 	}
 
-	void CGameLogic::CreateGameViewport()
+	void GameLogic::CreateGameViewport()
 	{
 		m_canvas = std::make_unique<rendercore::Canvas>(
 			m_appSize.first,
@@ -338,7 +350,7 @@ namespace logic
 
 	Owner<ILogic*> CreateGameLogic()
 	{
-		return new CGameLogic();
+		return new GameLogic();
 	}
 
 	void DestroyGameLogic( Owner<ILogic*> pGameLogic )

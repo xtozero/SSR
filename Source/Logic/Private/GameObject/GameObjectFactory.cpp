@@ -4,15 +4,15 @@
 
 namespace logic
 {
-	class CGameObjectFactory : public IGameObjectFactory
+	class GameObjectFactory : public IGameObjectFactory
 	{
 	public:
-		virtual void RegistGameObjectCreateFunc( const std::string& className, CCreateGameObjectHelper* helper ) override
+		virtual void RegistGameObjectCreateFunc( const std::string& className, CreateGameObjectHelper* helper ) override
 		{
 			m_createHelpers.emplace( className, helper );
 		}
 
-		virtual Owner<CGameObject*> CreateGameObjectByClassName( const std::string& className ) const override
+		virtual Owner<GameObject*> CreateGameObjectByClassName( const std::string& className ) const override
 		{
 			auto found = m_createHelpers.find( Name( className ) );
 			if ( found != std::end( m_createHelpers ) )
@@ -26,12 +26,12 @@ namespace logic
 		}
 
 	private:
-		std::map<Name, CCreateGameObjectHelper*> m_createHelpers;
+		std::map<Name, CreateGameObjectHelper*> m_createHelpers;
 	};
 
 	IGameObjectFactory& GetGameObjectFactory()
 	{
-		static CGameObjectFactory factory;
+		static GameObjectFactory factory;
 		return factory;
 	}
 }

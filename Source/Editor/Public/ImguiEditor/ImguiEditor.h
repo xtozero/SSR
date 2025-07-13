@@ -29,6 +29,7 @@ namespace editor
 		virtual bool LoadWorld( const char* filePath ) override;
 		virtual void UnloadWorld() override;
 		virtual logic::World& GetWorld() override;
+		virtual void ToggleDebugConsole() override;
 
 		virtual PanelSharedContext& GetPanelSharedCtx() override;
 

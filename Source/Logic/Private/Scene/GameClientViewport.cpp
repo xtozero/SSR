@@ -150,7 +150,7 @@ namespace logic
 
 	void GameClientViewport::InitView( rendercore::RenderViewGroup& views )
 	{
-		CPlayer* localPlayer = GetLocalPlayer( GetWorld() );
+		Player* localPlayer = GetLocalPlayer( GetWorld() );
 		if ( localPlayer == nullptr )
 		{
 			return;

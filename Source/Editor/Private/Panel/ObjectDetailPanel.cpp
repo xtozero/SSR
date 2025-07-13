@@ -20,7 +20,7 @@ using ::rendercore::Material;
 
 namespace editor
 {
-	void DrawProperty( logic::CGameObject& object, const Transform& transform )
+	void DrawProperty( logic::GameObject& object, const Transform& transform )
 	{
 		const Vector& position = transform.GetTranslation();
 		const Vector& scale = transform.GetScale3D();
@@ -155,7 +155,7 @@ namespace editor
 
 				// Object Properties
 				{
-					logic::CGameObject* object = *std::begin( objects );
+					logic::GameObject* object = *std::begin( objects );
 
 					ImGui::BeginChild( "Object Properties" );
 					{

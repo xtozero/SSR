@@ -1,6 +1,7 @@
 #include "ConsoleMessageExecutor.h"
 
 #include "DebugUtil.h"
+#include "Platform/PlatformProcess.h"
 
 #include <cstddef>
 
@@ -99,17 +100,17 @@ namespace engine
 
 	IConsoleMessageExecutor& GetConsoleMessageExecutor()
 	{
-		static ConsoleMessageExecutor g_consoleMessageExecutor;
-		return g_consoleMessageExecutor;
+		static ConsoleMessageExecutor consoleMessageExecutor;
+		return consoleMessageExecutor;
 	}
 }
 
-CON_COMMAND( list, "List of Registed Console Messages" )
+ConCommand( list, "List of Registed Console Messages" )
 {
 	static_cast<engine::ConsoleMessageExecutor&>( engine::GetConsoleMessageExecutor( ) ).PrintConsoleMessages( );
 }
 
-CON_COMMAND( exit, "Terminate Process" )
+ConCommand( exit, "Terminate Process" )
 {
-	::exit( 0 );
+	engine::PlatformProcess::ExitProcess();
 }

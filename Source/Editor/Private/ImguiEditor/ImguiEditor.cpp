@@ -282,6 +282,11 @@ namespace editor
         return m_logic->GetWorld();
     }
 
+    void ImguiEditor::ToggleDebugConsole()
+    {
+        m_logic->ToggleDebugConsole();
+    }
+
     PanelSharedContext& ImguiEditor::GetPanelSharedCtx()
     {
         return m_ctx;

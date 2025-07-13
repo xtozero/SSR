@@ -21,11 +21,11 @@ namespace logic
 		void SetFriction( const std::pair<float, float>& friction );
 		void SetMaxForceMagnitude( float magnitude );
 
-		GroundMovementComponent( CGameObject* pOwner, const char* name );
+		GroundMovementComponent( GameObject* pOwner, const char* name );
 
 	protected:
-		virtual bool ShouldCreateRenderState() const;
-		virtual bool ShouldCreatePhysicsState() const;
+		virtual bool ShouldCreateRenderState() const override;
+		virtual bool ShouldCreatePhysicsState() const override;
 
 	private:
 		Vector GetDelta( float elapsedTime ) const;

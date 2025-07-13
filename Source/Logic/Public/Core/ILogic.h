@@ -11,7 +11,7 @@ namespace engine
 
 namespace logic
 {
-	class CGameObject;
+	class GameObject;
 	class GameClientViewport;
 	class World;
 
@@ -29,6 +29,7 @@ namespace logic
 		virtual bool LoadWorld( const char* filePath ) = 0;
 		virtual void UnloadWorld() = 0;
 		virtual World& GetWorld() = 0;
+		virtual void ToggleDebugConsole() = 0;
 
 		virtual ~ILogic() = default;
 	};

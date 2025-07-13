@@ -4,16 +4,15 @@
 
 namespace logic
 {
-	class CDebugConsole
+	class DebugConsole
 	{
+	public:
+		DebugConsole();
+		~DebugConsole();
+
 	private:
-		HANDLE	m_thread;
-		bool	m_isAlive;
+		HANDLE m_thread;
 		FILE* m_pConOut;
 		FILE* m_pConIn;
-	public:
-
-		CDebugConsole();
-		~CDebugConsole();
 	};
 }

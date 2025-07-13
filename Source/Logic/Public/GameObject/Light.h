@@ -20,7 +20,7 @@ namespace logic
 		Spot
 	};
 
-	class Light : public CGameObject
+	class Light : public GameObject
 	{
 		GENERATE_CLASS_TYPE_INFO( Light )
 
@@ -74,7 +74,7 @@ namespace logic
 		SpotLightComponent* m_spotLightComponent = nullptr;
 	};
 
-	class HemisphereLight : public CGameObject
+	class HemisphereLight : public GameObject
 	{
 		GENERATE_CLASS_TYPE_INFO( HemisphereLight )
 

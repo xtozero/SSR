@@ -5,7 +5,7 @@
 
 namespace engine
 {
-	void CConCommand::Execute()
+	void ConsoleCommand::Execute()
 	{
 		if ( m_func )
 		{
@@ -13,7 +13,7 @@ namespace engine
 		}
 	}
 
-	CConCommand::CConCommand( const std::string& name, const std::string& description, const std::function<void()>& function )
+	ConsoleCommand::ConsoleCommand( const std::string& name, const std::string& description, const std::function<void()>& function )
 		: m_name( name )
 		, m_description( description )
 		, m_func( function )
@@ -22,7 +22,7 @@ namespace engine
 	}
 }
 
-CON_COMMAND( test, "Test Console Command" )
+ConCommand( test, "Test Console Command" )
 {
 	DebugMsg( "test concommand executed!!\n" );
 }

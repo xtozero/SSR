@@ -17,65 +17,65 @@ namespace
 	using ::engine::ICpuProfiler;
 	using ::engine::IEngine;
 
-	IAppConfig* g_appConfig = nullptr;
-	IAssetFactory* g_assetFactory = nullptr;
-	IAssetLoader* g_assetLoader = nullptr;
-	CommandLine* g_commandLine = nullptr;
-	ICpuProfiler* g_cpuProfiler = nullptr;
-	IFileSystem* g_fileSystem = nullptr;
-	IEngine* g_gameEngine = nullptr;
-	INamePool* g_namePool = nullptr;
-	ITaskScheduler* g_taskScheduler = nullptr;
-	TransientAllocators g_transientAllocators;
+	IAppConfig* GAppConfig = nullptr;
+	IAssetFactory* GAssetFactory = nullptr;
+	IAssetLoader* GAssetLoader = nullptr;
+	CommandLine* GCommandLine = nullptr;
+	ICpuProfiler* GCpuProfiler = nullptr;
+	IFileSystem* GFileSystem = nullptr;
+	IEngine* GEngine = nullptr;
+	INamePool* GNamePool = nullptr;
+	ITaskScheduler* GTaskScheduler = nullptr;
+	TransientAllocators GTransientAllocators;
 	
 	void* GetAppConfig()
 	{
-		return g_appConfig;
+		return GAppConfig;
 	}
 
 	void* GetAssetFactory()
 	{
-		return g_assetFactory;
+		return GAssetFactory;
 	}
 
 	void* GetAssetLoader()
 	{
-		return g_assetLoader;
+		return GAssetLoader;
 	}
 
 	void* GetCommandLineOption()
 	{
-		return g_commandLine;
+		return GCommandLine;
 	}
 
 	void* GetCpuProfiler()
 	{
-		return g_cpuProfiler;
+		return GCpuProfiler;
 	}
 
 	void* GetFileSystem()
 	{
-		return g_fileSystem;
+		return GFileSystem;
 	}
 
 	void* GetGameEngine()
 	{
-		return g_gameEngine;
+		return GEngine;
 	}
 
 	void* GetNamePool()
 	{
-		return g_namePool;
+		return GNamePool;
 	}
 
 	void* GetTaskScheduler()
 	{
-		return g_taskScheduler;
+		return GTaskScheduler;
 	}
 
 	void* GetTransientAllocators()
 	{
-		return &g_transientAllocators;
+		return &GTransientAllocators;
 	}
 }
 
@@ -95,28 +95,28 @@ namespace engine
 		RegisterFactory<ITaskScheduler>( &GetTaskScheduler );
 		RegisterFactory<TransientAllocators>( &GetTransientAllocators );
 
-		g_cpuProfiler = CreateCpuProfiler();
-		g_taskScheduler = CreateTaskScheduler();
-		g_fileSystem = CreateFileSystem();
-		g_appConfig = CreateAppConfig();
-		g_assetFactory = CreateAssetFactory();
-		g_assetLoader = CreateAssetLoader();
-		g_commandLine = CreateCommandLine();
-		g_namePool = CreateNamePool();
-		g_gameEngine = CreatePlatformEngine();
+		GCpuProfiler = CreateCpuProfiler();
+		GTaskScheduler = CreateTaskScheduler();
+		GFileSystem = CreateFileSystem();
+		GAppConfig = CreateAppConfig();
+		GAssetFactory = CreateAssetFactory();
+		GAssetLoader = CreateAssetLoader();
+		GCommandLine = CreateCommandLine();
+		GNamePool = CreateNamePool();
+		GEngine = CreatePlatformEngine();
 	}
 
 	ENGINE_FUNC_DLL void ShutdownModules()
 	{
-		DestroyAssetLoader( g_assetLoader );
-		DestroyPlatformEngine( g_gameEngine );
-		DestroyNamePool( g_namePool );
-		DestroyCommandLine( g_commandLine );
-		DestroyAssetFactory( g_assetFactory );
-		DestroyAppConfig( g_appConfig );
-		DestroyFileSystem( g_fileSystem );
-		DestroyTaskScheduler( g_taskScheduler );
-		DestroyCpuProfiler( g_cpuProfiler );
+		DestroyAssetLoader( GAssetLoader );
+		DestroyPlatformEngine( GEngine );
+		DestroyNamePool( GNamePool );
+		DestroyCommandLine( GCommandLine );
+		DestroyAssetFactory( GAssetFactory );
+		DestroyAppConfig( GAppConfig );
+		DestroyFileSystem( GFileSystem );
+		DestroyTaskScheduler( GTaskScheduler );
+		DestroyCpuProfiler( GCpuProfiler );
 
 		UnregisterFactory<CommandLine>();
 		UnregisterFactory<IAppConfig>();

@@ -35,8 +35,6 @@
 #include "VolumetricCloudPassProcessor.h"
 #include "VolumetricFogPassProcessor.h"
 
-#include <deque>
-
 namespace
 {
 	agl::ShaderParameter HitProxyIdShaderParam( agl::ShaderType::PS, agl::ShaderParameterType::ConstantBufferValue, 0, 0, 0, sizeof( ColorF ) );
@@ -244,6 +242,7 @@ namespace rendercore
 		ResetTransientContainer( m_shadowInfos );
 		ResetTransientContainer( m_passSnapshots );
 		ResetTransientContainer( m_occlusionRenderData );
+		ResetTransientContainer( m_currentFrameDrawSnapshots );
 
 		GetTransientAllocator<ThreadType::RenderThread>().Flush();
 
@@ -651,7 +650,7 @@ namespace rendercore
 		}
 	}
 
-	RenderThreadFrameData<VisibleDrawSnapshot>* SceneRenderer::GatherDrawsnapshots( IScene& scene, RenderPassType passType, uint32 viewIndex, std::deque<DrawSnapshot>& outSnapshotStorage )
+	RenderThreadFrameData<VisibleDrawSnapshot>* SceneRenderer::GatherDrawsnapshots( IScene& scene, RenderPassType passType, uint32 viewIndex )
 	{
 		const auto& primitives = scene.Primitives();
 		if ( primitives.Size() == 0 )
@@ -701,7 +700,7 @@ namespace rendercore
 			}
 			else
 			{
-				proxy->TakeSnapshot( outSnapshotStorage, snapshots );
+				proxy->TakeSnapshot( m_currentFrameDrawSnapshots, snapshots );
 			}
 		}
 
@@ -1323,6 +1322,25 @@ namespace rendercore
 		};
 
 		m_resourceCollection.m_ssgi = m_ssgi.Render( renderGraph, param );
+	}
+
+	void SceneRenderer::RenderDebugOverlay( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex )
+	{
+		auto renderTarget = renderViewGroup.GetViewport().Texture();
+		auto depthStencil = GetRenderTargets().GetDepthStencil();
+
+		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
+		auto rgDepthStencil = renderGraph.RegisterExternalResource( depthStencil );
+
+		auto [width, height] = renderViewGroup.GetViewport().Size();
+
+		RasterOutput rasterOutput;
+		rasterOutput.SetRenderTarget( 0, rgRenderTarget );
+		rasterOutput.SetDepthStencil( rgDepthStencil, true );
+		rasterOutput.SetViewport( width, height );
+		rasterOutput.SetScissorRect( width, height );
+
+		m_viewInfo[viewIndex].m_debugOverlayData.Draw( renderGraph, m_dynamicVertexBuffer, m_resourceBinder, rasterOutput );
 	}
 
 	void SceneRenderer::DoRenderHitProxy( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup )

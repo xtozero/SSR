@@ -32,6 +32,11 @@ bool engine::WindowPlatformProcess::LaunchApplication( const char* operation, co
 	return false;
 }
 
+void engine::WindowPlatformProcess::ExitProcess()
+{
+	PostMessageA( nullptr, WM_QUIT, 0, 0 );
+}
+
 fs::path engine::WindowPlatformProcess::GetExecutablePath()
 {
 	static char path[MAX_PATH] = {};

@@ -7,7 +7,7 @@
 
 #include <memory>
 
-using ::app::CWindowSetup;
+using ::app::WindowSetup;
 using ::app::Window;
 using ::engine::IEngine;
 using ::engine::WindowPlatformEngine;
@@ -17,11 +17,11 @@ LRESULT CALLBACK WndProc( HWND, uint32, WPARAM, LPARAM );
 constexpr int32 FRAME_BUFFER_WIDTH = 1024;
 constexpr int32 FRAME_BUFFER_HEIGHT = 768;
 
-WindowPlatformEngine* g_engine = nullptr;
+WindowPlatformEngine* GEngine = nullptr;
 
 int32 APIENTRY WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR lpszCmdParam, _In_ int32 )
 {
-	CWindowSetup setup( hInstance, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT );
+	WindowSetup setup( hInstance, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT );
 	Window mainWindow( "Screen Space Reflection" );
 
 	if ( !mainWindow.Run( setup, WndProc ) )
@@ -35,18 +35,18 @@ int32 APIENTRY WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR
 		return false;
 	}
 
-	g_engine = static_cast<WindowPlatformEngine*>( GetInterface<IEngine>() );
-	if ( g_engine == nullptr )
+	GEngine = static_cast<WindowPlatformEngine*>( GetInterface<IEngine>() );
+	if ( GEngine == nullptr )
 	{
 		return false;
 	}
 
-	if ( !g_engine->BootUp( mainWindow, lpszCmdParam ) )
+	if ( !GEngine->BootUp( mainWindow, lpszCmdParam ) )
 	{
 		return false;
 	}
 
-	g_engine->Run();
+	GEngine->Run();
 
 	ShutdownModule( engineDll );
 
@@ -55,9 +55,9 @@ int32 APIENTRY WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR
 
 LRESULT CALLBACK WndProc( HWND hWnd, uint32 message, WPARAM wParam, LPARAM lParam )
 {
-	if ( g_engine )
+	if ( GEngine )
 	{
-		return g_engine->MsgProc( hWnd, message, wParam, lParam );
+		return GEngine->MsgProc( hWnd, message, wParam, lParam );
 	}
 
 	return DefWindowProcA( hWnd, message, wParam, lParam );

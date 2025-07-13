@@ -6,13 +6,11 @@ namespace logic
 {
 	class SkyAtmosphereComponent;
 
-	class SkyAtmosphere : public CGameObject
+	class SkyAtmosphere : public GameObject
 	{
 		GENERATE_CLASS_TYPE_INFO( SkyAtmosphere )
 
 	public:
-		virtual bool IgnorePicking() const override { return true; }
-
 		SkyAtmosphere();
 
 	private:

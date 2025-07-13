@@ -6,7 +6,7 @@ namespace logic
 {
 	class VolumetricFogComponent;
 
-	class VolumetricFog : public CGameObject
+	class VolumetricFog : public GameObject
 	{
 		GENERATE_CLASS_TYPE_INFO( VolumetricFog )
 

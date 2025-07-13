@@ -18,7 +18,7 @@ namespace rendercore
 
 namespace logic
 {
-	class CPlayer;
+	class Player;
 	class PhysicsScene;
 
 	class StartPhysicsThinkFunction : public ThinkFunction
@@ -40,7 +40,7 @@ namespace logic
 	class World
 	{
 	public:
-		void Initialize( CGameLogic& gameLogic );
+		void Initialize( GameLogic& gameLogic );
 		void CleanUp();
 
 		const Timer& GetTimer() const { return m_clock; }
@@ -54,7 +54,7 @@ namespace logic
 		void BeginPhysicsFrame( float elapsedTime );
 		void EndPhysicsFrame();
 
-		void SpawnObject( CGameLogic& gameLogic, Owner<CGameObject*> object );
+		void SpawnObject( GameLogic& gameLogic, Owner<GameObject*> object );
 
 		void MarkComponentForNeededRenderStateUpdate( Component& component );
 		void ClearComponentForNeededRenderStateUpdate( Component& component );
@@ -62,12 +62,12 @@ namespace logic
 
 		ThinkTaskManager& GetThinkTaskManager();
 
-		const SparseArray<std::unique_ptr<CGameObject>>& GameObjects() const
+		const SparseArray<std::unique_ptr<GameObject>>& GameObjects() const
 		{
 			return m_gameObjects;
 		}
 
-		SparseArray<std::unique_ptr<CGameObject>>& GameObjects()
+		SparseArray<std::unique_ptr<GameObject>>& GameObjects()
 		{
 			return m_gameObjects;
 		}
@@ -82,7 +82,7 @@ namespace logic
 			return m_physicsScene;
 		}
 
-		CGameObject* GetDebugOverlay() const
+		GameObject* GetDebugOverlay() const
 		{
 			return m_debugOverlay.get();
 		}
@@ -95,7 +95,7 @@ namespace logic
 		void SetPhysicsScene( PhysicsScene* scene );
 		void SetupPhysicsThinkFunctions();
 
-		SparseArray<std::unique_ptr<CGameObject>> m_gameObjects;
+		SparseArray<std::unique_ptr<GameObject>> m_gameObjects;
 
 		StartPhysicsThinkFunction m_startPhysicsThinkFunction;
 		EndPhysicsThinkFunction m_endPhysicsThinkFunction;
@@ -110,8 +110,8 @@ namespace logic
 
 		std::vector<Component*> m_componentsThatNeedRenderStateUpdate;
 
-		std::unique_ptr<CGameObject> m_debugOverlay;
+		std::unique_ptr<GameObject> m_debugOverlay;
 	};
 
-	CPlayer* GetLocalPlayer( World& w );
+	Player* GetLocalPlayer( World& w );
 }

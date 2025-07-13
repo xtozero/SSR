@@ -11,7 +11,7 @@ namespace logic
 {
 	DECLARE_GAME_OBJECT( player_controller, PlayerController );
 
-	void InputController::SetGameObject( CGameObject* gameObject )
+	void InputController::SetGameObject( GameObject* gameObject )
 	{
 		m_gameObject = gameObject;
 	}
@@ -35,7 +35,7 @@ namespace logic
 		}
 	}
 
-	void PlayerController::Control( CGameObject* gameObject )
+	void PlayerController::Control( GameObject* gameObject )
 	{
 		Abandon();
 

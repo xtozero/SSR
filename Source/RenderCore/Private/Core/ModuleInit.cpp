@@ -17,17 +17,17 @@ using ::rendercore::UserInterfaceRenderer;
 
 namespace
 {
-	Owner<IRenderCore*> g_renderCore = nullptr;
-	Owner<UserInterfaceRenderer*> g_uiRenderer = nullptr;
+	Owner<IRenderCore*> GRenderCore = nullptr;
+	Owner<UserInterfaceRenderer*> GUiRenderer = nullptr;
 
 	void* GetRenderCore()
 	{
-		return g_renderCore;
+		return GRenderCore;
 	}
 
 	void* GetUiRenderer()
 	{
-		return g_uiRenderer;
+		return GUiRenderer;
 	}
 
 	void* GetGpuProfilerPtr()
@@ -42,14 +42,14 @@ RENDERCORE_FUNC_DLL void BootUpModules()
 	RegisterFactory<IRenderCore>( &GetRenderCore );
 	RegisterFactory<UserInterfaceRenderer>( &GetUiRenderer );
 
-	g_renderCore = CreateRenderCore();
+	GRenderCore = CreateRenderCore();
 
 	DeferredAssetRegister::GetInstance().Register();
 
 	auto sharedContext = GetInterface<imgui::SharedContext>();
 	if ( sharedContext )
 	{
-		g_uiRenderer = CreateUserInterfaceRenderer();
+		GUiRenderer = CreateUserInterfaceRenderer();
 		
 		ImGui::SetCurrentContext( sharedContext->m_context );
 		ImGui::SetAllocatorFunctions( sharedContext->m_allocFunc, sharedContext->m_freeFunc );
@@ -60,8 +60,8 @@ RENDERCORE_FUNC_DLL void ShutdownModules()
 {
 	CleanUpGpuProfiler();
 
-	DestroyUserInterfaceRenderer( g_uiRenderer );
-	DestroyRenderCore( g_renderCore );
+	DestroyUserInterfaceRenderer( GUiRenderer );
+	DestroyRenderCore( GRenderCore );
 
 	UnregisterFactory<IGpuProfiler>();
 	UnregisterFactory<IRenderCore>();

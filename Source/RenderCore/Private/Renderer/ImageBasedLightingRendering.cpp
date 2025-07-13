@@ -233,7 +233,7 @@ namespace rendercore
 			copySHPassResource,
 			[copySHPassResource]( ResourceCommandList& commandList )
 			{
-				commandList.CopyResource( copySHPassResource.m_readBack->Get(), copySHPassResource.m_coeffs->Get(), false);
+				commandList.CopyResource( copySHPassResource.m_readBack->Get(), copySHPassResource.m_coeffs->Get(), false );
 			}
 		);
 

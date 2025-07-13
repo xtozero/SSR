@@ -18,9 +18,9 @@ using enum ::engine::UserInputCode;
 
 namespace logic
 {
-	DECLARE_GAME_OBJECT( player, CPlayer );
+	DECLARE_GAME_OBJECT( player, Player );
 
-	void CPlayer::Initialize( CGameLogic& gameLogic, World& world )
+	void Player::Initialize( GameLogic& gameLogic, World& world )
 	{
 		Super::Initialize( gameLogic, world );
 
@@ -30,7 +30,7 @@ namespace logic
 		}
 	}
 
-	void CPlayer::Think( float elapsedTime )
+	void Player::Think( float elapsedTime )
 	{
 		Super::Think( elapsedTime );
 
@@ -44,7 +44,7 @@ namespace logic
 		}
 	}
 
-	rendercore::RenderView* CPlayer::CalcSceneView( rendercore::RenderViewGroup& renderViewGroup )
+	rendercore::RenderView* Player::CalcSceneView( rendercore::RenderViewGroup& renderViewGroup )
 	{
 		if ( m_cameraComponent == nullptr )
 		{
@@ -71,7 +71,7 @@ namespace logic
 		return &localPlayerView;
 	}
 
-	CPlayer::CPlayer()
+	Player::Player()
 	{
 		m_cameraComponent = CreateComponent<CameraComponent>( *this, "CameraComponent" );
 		SetRootComponent( m_cameraComponent );
@@ -81,35 +81,35 @@ namespace logic
 		m_think.m_canEverTick = true;
 	}
 
-	void CPlayer::SetupInputComponent()
+	void Player::SetupInputComponent()
 	{
 		Super::SetupInputComponent();
 
-		m_inputComponent->BindInput( UIC_MOUSE_MOVE, this, &CPlayer::OnMouseMove );
-		m_inputComponent->BindInput( UIC_MOUSE_LEFT, this, &CPlayer::OnMouseLButton );
-		m_inputComponent->BindInput( UIC_MOUSE_RIGHT, this, &CPlayer::OnMouseRButton );
-		m_inputComponent->BindInput( UIC_MOUSE_WHEELSPIN, this, &CPlayer::OnWheelMove );
-		m_inputComponent->BindInput( UIC_RIGHT, this, &CPlayer::OnMoveKey );
-		m_inputComponent->BindInput( UIC_LEFT, this, &CPlayer::OnMoveKey );
-		m_inputComponent->BindInput( UIC_UP, this, &CPlayer::OnMoveKey );
-		m_inputComponent->BindInput( UIC_DOWN, this, &CPlayer::OnMoveKey );
-		m_inputComponent->BindInput( UIC_W, this, &CPlayer::OnMoveKey );
-		m_inputComponent->BindInput( UIC_A, this, &CPlayer::OnMoveKey );
-		m_inputComponent->BindInput( UIC_S, this, &CPlayer::OnMoveKey );
-		m_inputComponent->BindInput( UIC_D, this, &CPlayer::OnMoveKey );
+		m_inputComponent->BindInput( UIC_MOUSE_MOVE, this, &Player::OnMouseMove );
+		m_inputComponent->BindInput( UIC_MOUSE_LEFT, this, &Player::OnMouseLButton );
+		m_inputComponent->BindInput( UIC_MOUSE_RIGHT, this, &Player::OnMouseRButton );
+		m_inputComponent->BindInput( UIC_MOUSE_WHEELSPIN, this, &Player::OnWheelMove );
+		m_inputComponent->BindInput( UIC_RIGHT, this, &Player::OnMoveKey );
+		m_inputComponent->BindInput( UIC_LEFT, this, &Player::OnMoveKey );
+		m_inputComponent->BindInput( UIC_UP, this, &Player::OnMoveKey );
+		m_inputComponent->BindInput( UIC_DOWN, this, &Player::OnMoveKey );
+		m_inputComponent->BindInput( UIC_W, this, &Player::OnMoveKey );
+		m_inputComponent->BindInput( UIC_A, this, &Player::OnMoveKey );
+		m_inputComponent->BindInput( UIC_S, this, &Player::OnMoveKey );
+		m_inputComponent->BindInput( UIC_D, this, &Player::OnMoveKey );
 	}
 
-	void CPlayer::OnMouseLButton( [[maybe_unused]] const UserInput& input )
+	void Player::OnMouseLButton( [[maybe_unused]] const UserInput& input )
 	{
 		
 	}
 
-	void CPlayer::OnMouseRButton( const UserInput& input )
+	void Player::OnMouseRButton( const UserInput& input )
 	{
 		m_cameraRotationEnabled = input.m_axis[UserInput::Z_AXIS] < 0;
 	}
 
-	void CPlayer::OnMouseMove( const UserInput& input )
+	void Player::OnMouseMove( const UserInput& input )
 	{
 		if ( m_cameraRotationEnabled )
 		{
@@ -129,11 +129,11 @@ namespace logic
 		}
 	}
 
-	void CPlayer::OnWheelMove( [[maybe_unused]] const UserInput& input )
+	void Player::OnWheelMove( [[maybe_unused]] const UserInput& input )
 	{
 	}
 
-	void CPlayer::OnMoveKey( const UserInput& input )
+	void Player::OnMoveKey( const UserInput& input )
 	{
 		if ( input.m_code == UIC_LEFT
 			|| input.m_code == UIC_A )

@@ -197,6 +197,8 @@ set (RENDERER_SOURCE
 	Public/Renderer/SSGIRendering.h
 	Public/Renderer/TemporalAntiAliasingRendering.h
 	Public/Renderer/UserInterfaceRenderer.h)
+	
+file(GLOB_RECURSE SHADERS "${CMAKE_SOURCE_DIR}/*.fxh" "${CMAKE_SOURCE_DIR}/*.fx")
 
 source_group("Config" FILES ${CONFIG_SOURCE})
 source_group("GpuProfiler" FILES ${GPU_PROFILER_SOURCE})
@@ -209,6 +211,9 @@ source_group("Renderer" FILES ${RENDERER_SOURCE})
 source_group("RenderGraph" FILES ${RENDER_GRAPH_HEADER} ${RENDER_GRAPH_SOURCE})
 source_group("RenderUtility" FILES ${RENDER_UTILITY_HEADER} ${RENDER_UTILITY_SOURCE})
 source_group("Scene" FILES ${RENDER_SCENE_SOURCE})
+source_group("Shaders" FILES ${SHADERS})
+
+set_source_files_properties(${SHADERS} PROPERTIES HEADER_FILE_ONLY TRUE)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -228,7 +233,8 @@ add_library(RenderCore SHARED 	${CONFIG_SOURCE}
 								${RENDER_SCENE_SOURCE}
 								${RENDER_UTILITY_HEADER}
 								${RENDER_UTILITY_SOURCE}
-								${RENDERER_SOURCE})
+								${RENDERER_SOURCE}
+								${SHADERS})
 
 target_include_directories(RenderCore
 PUBLIC

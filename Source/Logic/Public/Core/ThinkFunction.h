@@ -6,7 +6,7 @@
 
 namespace logic
 {
-	class CGameObject;
+	class GameObject;
 	class Component;
 	class World;
 
@@ -56,7 +56,7 @@ namespace logic
 	public:
 		virtual void ExecuteThink( float elapsedTime ) override;
 
-		CGameObject* m_target = nullptr;
+		GameObject* m_target = nullptr;
 	};
 
 	class ComponentThinkFunction : public ThinkFunction

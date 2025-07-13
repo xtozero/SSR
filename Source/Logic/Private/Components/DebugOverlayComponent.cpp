@@ -6,7 +6,7 @@
 
 namespace logic
 {
-	DebugOverlayComponent::DebugOverlayComponent( CGameObject* pOwner, const char* name )
+	DebugOverlayComponent::DebugOverlayComponent( GameObject* pOwner, const char* name )
 		: Super( pOwner, name )
 	{
 		m_think.m_canEverTick = true;

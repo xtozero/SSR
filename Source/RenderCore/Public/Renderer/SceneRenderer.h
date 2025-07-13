@@ -19,7 +19,6 @@
 #include "Texture.h"
 
 #include <array>
-#include <deque>
 #include <string>
 
 namespace agl
@@ -150,7 +149,7 @@ namespace rendercore
 		void AllocateCascadeShadowMaps( const RenderThreadFrameData<ShadowInfo*>& shadows );
 		void AllocatePointShadowMaps( const RenderThreadFrameData<ShadowInfo*>& shadows );
 
-		RenderThreadFrameData<VisibleDrawSnapshot>* GatherDrawsnapshots( IScene& scene, RenderPassType passType, uint32 viewIndex, std::deque<DrawSnapshot>& outSnapshotStorage );
+		RenderThreadFrameData<VisibleDrawSnapshot>* GatherDrawsnapshots( IScene& scene, RenderPassType passType, uint32 viewIndex );
 
 		void RenderShadowDepthPass( RenderGraph& renderGraph );
 		void RenderTexturedSky( RenderGraph& renderGraph, IScene& scene, const RasterOutput& rasterOutput );
@@ -161,6 +160,7 @@ namespace rendercore
 		void RenderTemporalAntiAliasing( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup );
 		void RenderIndirectIllumination( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex );
 		virtual void RenderScreenSpaceIndirectIllumination( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex );
+		void RenderDebugOverlay( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex );
 		void DoRenderHitProxy( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup );
 
 		void CalcVisibility( RenderViewGroup& renderViewGroup );
@@ -174,6 +174,7 @@ namespace rendercore
 		using PassVisibleSnapshots = std::array<RenderThreadFrameData<VisibleDrawSnapshot>, static_cast<uint32>( RenderPassType::Count )>;
 		RenderThreadFrameData<PassVisibleSnapshots> m_passSnapshots;
 		RenderThreadFrameData<OcclusionRenderData> m_occlusionRenderData;
+		RenderThreadFrameData<DrawSnapshot> m_currentFrameDrawSnapshots;
 
 		std::vector<RenderViewInfo, InlineAllocator<RenderViewInfo, 1>> m_viewInfo;
 		std::vector<PreviousFrameContext> m_prevFrameContext;

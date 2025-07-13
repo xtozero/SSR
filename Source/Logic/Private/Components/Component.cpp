@@ -93,13 +93,13 @@ namespace logic
 		UnRegisterThinkFunction();
 		UnregisterComponent();
 
-		if ( CGameObject* owner = GetOwner() )
+		if ( GameObject* owner = GetOwner() )
 		{
 			owner->RemoveComponent( this );
 		}
 	}
 
-	Component::Component( CGameObject* pOwner, const char* name ) : m_pOwner( pOwner )
+	Component::Component( GameObject* pOwner, const char* name ) : m_pOwner( pOwner )
 	{
 		assert( pOwner != nullptr && "Owner can not be nullptr" );
 

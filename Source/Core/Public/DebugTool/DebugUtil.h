@@ -89,7 +89,7 @@ namespace UTIL
 		va_list vaList;
 
 		va_start( vaList, msg );
-		sprintf_s( buf, _countof( buf ), msg, vaList );
+		vsnprintf( buf, _countof( buf ), msg, vaList );
 		va_end( vaList );
 
 		printf_s( "%s", buf );
@@ -103,7 +103,7 @@ namespace UTIL
 		va_list vaList;
 
 		va_start( vaList, msg );
-		sprintf_s( buf, _countof( buf ), msg, vaList );
+		vsnprintf( buf, _countof( buf ), msg, vaList );
 		va_end( vaList );
 
 		printf_s( "%s", buf );
@@ -118,7 +118,7 @@ namespace UTIL
 	}
 }
 
-#if defined( _DEBUG ) || defined( DEBUGGING_BY_CONSOLE )
+#if defined( _DEBUG )
 #define DebugMsg( x, ... ) UTIL::DebugMsgImplment( x, ##__VA_ARGS__ )
 #define DebugWarning( x, ... ) UTIL::DebugWarningImplment( x, ##__VA_ARGS__ )
 #else

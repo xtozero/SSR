@@ -5,7 +5,7 @@
 
 namespace engine
 {
-	class CConVar : public IConsoleMessage
+	class ConVariable : public IConsoleMessage
 	{
 	public:
 		ENGINE_DLL virtual bool IsValue() override { return true; }
@@ -14,7 +14,7 @@ namespace engine
 		ENGINE_DLL virtual void Execute() override;
 		ENGINE_DLL virtual std::string GetDescription() override { return m_description; }
 
-		ENGINE_DLL CConVar( const std::string& name, const std::string& value, const std::string& description );
+		ENGINE_DLL ConVariable( const std::string& name, const std::string& value, const std::string& description );
 
 		ENGINE_DLL void SetValue( const std::string& newValue );
 		ENGINE_DLL const std::string& GetString() { return m_value; }
@@ -33,4 +33,4 @@ namespace engine
 }
 
 #define ConVar( name, initValue, description ) \
-	static engine::CConVar name( #name, initValue, description )
+	static engine::ConVariable name( #name, initValue, description )

@@ -4,7 +4,7 @@
 
 namespace rendercore
 {
-	AbstractGraphicsInterface g_abstractGraphicsInterface;
+	AbstractGraphicsInterface GAbstractGraphicsInterface;
 
 	void AbstractGraphicsInterface::BootUp( agl::IAgl* pAgl )
 	{
@@ -202,6 +202,6 @@ namespace rendercore
 
 	AbstractGraphicsInterface& GraphicsInterface()
 	{
-		return g_abstractGraphicsInterface;
+		return GAbstractGraphicsInterface;
 	}
 }

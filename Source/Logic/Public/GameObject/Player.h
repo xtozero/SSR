@@ -8,17 +8,17 @@ namespace logic
 {
 	class CameraComponent;
 
-	class CPlayer : public CGameObject
+	class Player : public GameObject
 	{
-		GENERATE_CLASS_TYPE_INFO( CPlayer )
+		GENERATE_CLASS_TYPE_INFO( Player )
 
 	public:
-		virtual void Initialize( CGameLogic& gameLogic, World& world ) override;
+		virtual void Initialize( GameLogic& gameLogic, World& world ) override;
 		virtual void Think( float elapsedTime );
 
 		virtual rendercore::RenderView* CalcSceneView( rendercore::RenderViewGroup& renderViewGroup );
 
-		CPlayer();
+		Player();
 
 	protected:
 		virtual void SetupInputComponent() override;

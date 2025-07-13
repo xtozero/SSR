@@ -31,7 +31,7 @@ namespace app
 		UpdateSize( width, height );
 	}
 
-	bool Window::Run( CWindowSetup& setup, WNDPROC wndProc )
+	bool Window::Run( WindowSetup& setup, WNDPROC wndProc )
 	{
 		WNDCLASSEXA wndclsex = setup.GetWndClass();
 		wndclsex.lpszClassName = m_wndTitle.c_str();

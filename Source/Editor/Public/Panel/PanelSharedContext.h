@@ -4,7 +4,7 @@
 
 namespace logic
 {
-	class CGameObject;
+	class GameObject;
 }
 
 namespace editor
@@ -12,10 +12,10 @@ namespace editor
 	class PanelSharedContext
 	{
 	public:
-		void SelectObject( logic::CGameObject* object );
+		void SelectObject( logic::GameObject* object );
 		void UnselectObject();
-		bool IsSelectedObject( logic::CGameObject* object );
-		const std::set<logic::CGameObject*>& GetSelectedObjects() const;
+		bool IsSelectedObject( logic::GameObject* object );
+		const std::set<logic::GameObject*>& GetSelectedObjects() const;
 
 		void OpenProfiler( bool open );
 		bool ShouldDrawProfiler() const;
@@ -30,7 +30,7 @@ namespace editor
 		PanelSharedContext& operator=( PanelSharedContext&& ) = delete;
 
 	private:
-		std::set<logic::CGameObject*> m_selectedObject;
+		std::set<logic::GameObject*> m_selectedObject;
 
 		bool m_openProfiler = false;
 		bool m_openPipelineStatistics = false;

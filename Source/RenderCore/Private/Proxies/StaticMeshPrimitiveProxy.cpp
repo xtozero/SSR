@@ -52,7 +52,7 @@ namespace rendercore
 		}
 	}
 
-	void StaticMeshPrimitiveProxy::TakeSnapshot( std::deque<DrawSnapshot>& snapshotStorage, RenderThreadFrameData<VisibleDrawSnapshot>& drawList ) const
+	void StaticMeshPrimitiveProxy::TakeSnapshot( RenderThreadFrameData<DrawSnapshot>& outSnapshotStorage, RenderThreadFrameData<VisibleDrawSnapshot>& outVisibleSnapshot ) const
 	{
 		// To Do : will make lod available later
 		StaticMeshLODResource& lodResource = m_pRenderData->LODResource( 0 );
@@ -64,12 +64,12 @@ namespace rendercore
 
 			if ( snapshot )
 			{
-				snapshotStorage.emplace_back( std::move( snapshot.value() ) );
-				VisibleDrawSnapshot& visibleSnapshot = drawList.emplace_back();
+				outSnapshotStorage.emplace_back( std::move( snapshot.value() ) );
+				VisibleDrawSnapshot& visibleSnapshot = outVisibleSnapshot.emplace_back();
 				visibleSnapshot.m_primitiveId = PrimitiveId();
 				visibleSnapshot.m_numInstance = 1;
 				visibleSnapshot.m_snapshotBucketId = -1;
-				visibleSnapshot.m_drawSnapshot = &snapshotStorage.back();
+				visibleSnapshot.m_drawSnapshot = &outSnapshotStorage.back();
 			}
 		}
 	}

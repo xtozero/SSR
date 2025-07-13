@@ -5,23 +5,23 @@
 
 namespace logic
 {
-	class CGameObject;
+	class GameObject;
 	class PrimitiveComponent;
 
 	class HitObject : public rendercore::HitProxy
 	{
 		GENERATE_CLASS_TYPE_INFO( HitObject )
 	public:
-		LOGIC_DLL CGameObject* GetObject();
+		LOGIC_DLL GameObject* GetObject();
 
 		HitObject() = default;
-		HitObject( CGameObject* gameObject, PrimitiveComponent* component )
+		HitObject( GameObject* gameObject, PrimitiveComponent* component )
 			: m_gameObject( gameObject )
 			, m_component( component )
 		{}
 
 	private:
-		CGameObject* m_gameObject = nullptr;
+		GameObject* m_gameObject = nullptr;
 		PrimitiveComponent* m_component = nullptr;
 	};
 }

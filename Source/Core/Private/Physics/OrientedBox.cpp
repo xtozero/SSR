@@ -45,7 +45,7 @@ void OrientedBox::Update( const Vector& scaling, const Quaternion& rotation, con
 	}
 }
 
-float OrientedBox::Intersect( const CRay& ray ) const
+float OrientedBox::Intersect( const Ray& ray ) const
 {
 	Vector rayOrigin = m_matInvTransform.TransformPosition( ray.GetOrigin() );
 	Vector rayDir = m_matInvTransform.TransformVector( ray.GetDir() );

@@ -4,12 +4,12 @@
 
 namespace logic
 {
-	class CUtilWindowInfo
+	class UtilWindowInfo
 	{
 	public:
-		static CUtilWindowInfo& GetInstance()
+		static UtilWindowInfo& GetInstance()
 		{
-			static CUtilWindowInfo windowInfo;
+			static UtilWindowInfo windowInfo;
 			return windowInfo;
 		}
 

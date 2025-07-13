@@ -256,7 +256,6 @@ namespace rendercore
 		bool bHasIndexBuffer = snapshot.m_indexBuffer.Resource() != nullptr;
 		if ( bUseMeshShader )
 		{
-			// TODO : Call DispatchMesh with proper arguments
 			constexpr uint32 NumGroupForAS = 32;
 			uint32 numGroupX = CalcAlignment( snapshot.m_count * visibleSnapshot.m_numInstance, NumGroupForAS ) / NumGroupForAS;
 			commandList.DispatchMesh( numGroupX, 1 );

@@ -6,15 +6,12 @@ namespace logic
 {
 	class TexturedSkyComponent;
 
-	class CSkyBox : public CGameObject
+	class SkyBox : public GameObject
 	{
-		GENERATE_CLASS_TYPE_INFO( CSkyBox )
+		GENERATE_CLASS_TYPE_INFO( SkyBox )
 
 	public:
-		virtual bool IgnorePicking() const override { return true; }
-
-		CSkyBox();
-		virtual ~CSkyBox() override = default;
+		SkyBox();
 
 	private:
 		TexturedSkyComponent* m_pTexturedSkyComponent = nullptr;

@@ -10,7 +10,7 @@ namespace logic
 {
 	void SceneComponent::DestroyComponent()
 	{
-		if ( CGameObject* owner = GetOwner() )
+		if ( GameObject* owner = GetOwner() )
 		{
 			DetachFromComponent( DetachmentTrasformRules::KeepWorldTransform );
 		}
@@ -261,8 +261,8 @@ namespace logic
 				return true;
 			}
 
-			CGameObject* myOwner = GetOwner();
-			CGameObject* parentOwner = GetOwner();
+			GameObject* myOwner = GetOwner();
+			GameObject* parentOwner = GetOwner();
 
 			if ( myOwner == parentOwner && myOwner && myOwner->GetRootComponent() == this )
 			{

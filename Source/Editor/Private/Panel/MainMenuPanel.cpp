@@ -33,6 +33,12 @@ namespace editor
 					sharedCtx.OpenPipelineStatistics( showPipelineStatistics );
 				}
 
+				// Debug Console
+				if ( ImGui::MenuItem( "Debug Console", nullptr, &m_isDebugConsoleVisible ) )
+				{
+					editor.ToggleDebugConsole();
+				}
+
 				ImGui::EndMenu();
 			}
 

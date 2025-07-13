@@ -47,7 +47,7 @@ namespace logic
 		GENERATE_CLASS_TYPE_INFO( DebugOverlayComponent )
 
 	public:
-		DebugOverlayComponent( CGameObject* pOwner, const char* name );
+		DebugOverlayComponent( GameObject* pOwner, const char* name );
 
 		virtual void ThinkComponent( float elapsedTime );
 

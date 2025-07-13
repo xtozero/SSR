@@ -96,7 +96,7 @@ namespace logic
 		m_maxForceMag = magnitude;
 	}
 
-	GroundMovementComponent::GroundMovementComponent( CGameObject* pOwner, const char* name ) : Super( pOwner, name )
+	GroundMovementComponent::GroundMovementComponent( GameObject* pOwner, const char* name ) : Super( pOwner, name )
 	{
 		m_think.m_thinkGroup = ThinkingGroup::PostPhysics;
 		m_think.m_canEverTick = true;

@@ -21,7 +21,6 @@ namespace json
 
 namespace rendercore
 {
-	class BaseMesh;
 	class RenderOption;
 }
 
@@ -34,20 +33,20 @@ namespace logic
 		Scaling = 1 << 2,
 	};
 
-	class CGameLogic;
-	class CGameObject;
+	class GameLogic;
+	class GameObject;
 	class Component;
 	class InputComponent;
 	class InputController;
 	class SceneComponent;
 	class World;
 
-	class CGameObject
+	class GameObject
 	{
-		GENERATE_CLASS_TYPE_INFO( CGameObject )
+		GENERATE_CLASS_TYPE_INFO( GameObject )
 
 	public:
-		virtual void Initialize( CGameLogic& gameLogic, World& world );
+		virtual void Initialize( GameLogic& gameLogic, World& world );
 
 		size_t GetId() const { return m_id; }
 		void SetId( size_t id ) { m_id = id; }
@@ -82,7 +81,6 @@ namespace logic
 
 		void SetName( const std::string& name ) { m_name = name; }
 		const std::string& GetName() const { return m_name; }
-		void SetMaterialName( const std::string& pMaterialName );
 
 		GameobjectProperty GetProperty() const { return m_property; }
 		void AddProperty( GameobjectProperty property ) { m_property |= property; }
@@ -91,8 +89,6 @@ namespace logic
 		bool WillRemove() const { return HasAnyFlags( m_property, GameobjectProperty::RemoveMe ); }
 
 		void LoadProperty( const json::Value& json );
-
-		virtual bool IgnorePicking() const { return false; }
 
 		SceneComponent* GetRootComponent() const { return m_rootComponent; }
 		void SetRootComponent( SceneComponent* component );
@@ -119,14 +115,14 @@ namespace logic
 
 		World* GetWorld() const { return m_pWorld; }
 
-		CGameObject();
-		virtual ~CGameObject();
+		GameObject();
+		virtual ~GameObject();
 
 	protected:
 		virtual void SetupInputComponent();
 
 		template <typename T>
-		T* CreateComponent( CGameObject& gameObject, const char* name )
+		T* CreateComponent( GameObject& gameObject, const char* name )
 		{
 			return new T( &gameObject, name );
 		}
@@ -155,7 +151,6 @@ namespace logic
 		World* m_pWorld = nullptr;
 
 		std::string m_name;
-		std::string m_materialName;
 
 		GameobjectProperty m_property = GameobjectProperty::None;
 
@@ -173,5 +168,5 @@ namespace logic
 		friend Component;
 	};
 
-	void RemoveObject( CGameObject& object );
+	void RemoveObject( GameObject& object );
 }

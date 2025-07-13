@@ -4,7 +4,7 @@
 
 namespace logic
 {
-	class SphereObject : public CGameObject
+	class SphereObject : public GameObject
 	{
 		GENERATE_CLASS_TYPE_INFO( SphereObject )
 
@@ -12,7 +12,7 @@ namespace logic
 		SphereObject();
 	};
 
-	class BoxObject : public CGameObject
+	class BoxObject : public GameObject
 	{
 		GENERATE_CLASS_TYPE_INFO( BoxObject )
 

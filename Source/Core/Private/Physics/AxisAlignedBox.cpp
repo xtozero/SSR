@@ -47,7 +47,7 @@ void AxisAlignedBox::Update( const Vector& scaling, const Quaternion& rotation, 
 	}
 }
 
-float AxisAlignedBox::Intersect( const CRay& ray ) const
+float AxisAlignedBox::Intersect( const Ray& ray ) const
 {
 	return RayAndBox( ray.GetOrigin(), ray.GetDir(), m_max, m_min );
 }

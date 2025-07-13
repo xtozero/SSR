@@ -13,22 +13,22 @@ namespace logic
 {
 	class InputComponent;
 
-	class InputController : public CGameObject
+	class InputController : public GameObject
 	{
 		GENERATE_CLASS_TYPE_INFO( InputController )
 
 	public:
 		virtual void ProcessInput( const engine::UserInput& input ) = 0;
 
-		virtual void Control( CGameObject* gameObject ) = 0;
+		virtual void Control( GameObject* gameObject ) = 0;
 		virtual void Abandon() = 0;
 
-		void SetGameObject( CGameObject* gameObject );
+		void SetGameObject( GameObject* gameObject );
 
 		InputController();
 
 	protected:
-		CGameObject* m_gameObject = nullptr;
+		GameObject* m_gameObject = nullptr;
 	};
 
 	class PlayerController : public InputController
@@ -38,7 +38,7 @@ namespace logic
 	public:
 		virtual void ProcessInput( const engine::UserInput& input ) override;
 
-		virtual void Control( CGameObject* gameObject ) override;
+		virtual void Control( GameObject* gameObject ) override;
 		virtual void Abandon() override;
 
 	private:

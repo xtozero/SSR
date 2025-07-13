@@ -83,6 +83,22 @@ inline Archive& operator<<( Archive& ar, std::filesystem::file_time_type& lastWr
 	return ar;
 }
 
+inline Archive& operator<<( Archive& ar, std::filesystem::path& path )
+{
+	if ( ar.IsWriteMode() )
+	{
+		ar << path.generic_string();
+	}
+	else
+	{
+		std::string pathString;
+		ar << pathString;
+		path = std::move( pathString );
+	}
+
+	return ar;
+}
+
 template <typename Type, typename Alloc>
 Archive& operator<<( Archive& ar, std::vector<Type, Alloc>& v )
 {

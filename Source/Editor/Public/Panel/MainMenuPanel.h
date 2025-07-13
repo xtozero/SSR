@@ -13,5 +13,6 @@ namespace editor
 		virtual void HandleUserInput( const engine::UserInput& input ) override;
 
 	private:
+		bool m_isDebugConsoleVisible = false;
 	};
 }

@@ -9,7 +9,7 @@
 
 namespace logic
 {
-	bool CWorldLoader::Load( CGameLogic& gameLogic, const char* worldAsset, size_t assetSize )
+	bool WorldLoader::Load( GameLogic& gameLogic, const char* worldAsset, size_t assetSize )
 	{
 		json::Value root( json::DataType::Empty );
 		json::Reader reader;
@@ -26,7 +26,7 @@ namespace logic
 			{
 				if ( const json::Value* pObject = elem.Find( "Object" ) )
 				{
-					Owner<CGameObject*> newObject = GetGameObjectFactory().CreateGameObjectByClassName( ( *pObject )["Class"].AsString() );
+					Owner<GameObject*> newObject = GetGameObjectFactory().CreateGameObjectByClassName( ( *pObject )["Class"].AsString() );
 
 					if ( newObject )
 					{

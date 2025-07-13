@@ -5,12 +5,12 @@
 
 namespace logic
 {
-	class CGameObject;
-	class CGameLogic;
+	class GameObject;
+	class GameLogic;
 
-	class CWorldLoader
+	class WorldLoader
 	{
 	public:
-		static bool Load( CGameLogic& gameLogic, const char* worldAsset, size_t assetSize );
+		static bool Load( GameLogic& gameLogic, const char* worldAsset, size_t assetSize );
 	};
 }

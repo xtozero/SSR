@@ -2,7 +2,7 @@
 
 #include "Math/Vector.h"
 
-class CRay
+class Ray
 {
 public:
 	const Vector& GetOrigin( ) const { return m_origin; }
@@ -11,9 +11,9 @@ public:
 	void SetOrigin( const Vector& origin ) { m_origin = origin; }
 	void SetDir( const Vector& dir ) { m_dir = dir.GetNormalized(); }
 
-	CRay( const Vector& origin, const Vector& dir ) :
+	Ray( const Vector& origin, const Vector& dir ) :
 		m_origin( origin ), m_dir( dir.GetNormalized() ) {}
-	CRay( ) = default;
+	Ray( ) = default;
 
 private:
 	Vector m_origin;

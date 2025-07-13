@@ -4,7 +4,7 @@
 
 #include <map>
 
-class CEnumStringMap : public IEnumStringMap
+class EnumStringMap : public IEnumStringMap
 {
 public:
 	virtual void RegisterEnumString( const std::string& enumString, const int32 enumValue ) override;
@@ -15,12 +15,12 @@ private:
 };
 
 
-void CEnumStringMap::RegisterEnumString( const std::string& enumString, const int32 enumValue )
+void EnumStringMap::RegisterEnumString( const std::string& enumString, const int32 enumValue )
 {
 	m_enumString.emplace( Name( enumString ), enumValue );
 }
 
-int32 CEnumStringMap::GetEnum( const std::string& enumName, const int32 defaultValue ) const
+int32 EnumStringMap::GetEnum( const std::string& enumName, const int32 defaultValue ) const
 {
 	auto found = m_enumString.find( Name( enumName ) );
 
@@ -34,6 +34,6 @@ int32 CEnumStringMap::GetEnum( const std::string& enumName, const int32 defaultV
 
 void* GetEnumStringMap()
 {
-	static CEnumStringMap gEnumStringMap;
+	static EnumStringMap gEnumStringMap;
 	return &gEnumStringMap;
 }

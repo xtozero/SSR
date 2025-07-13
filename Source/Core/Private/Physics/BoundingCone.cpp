@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-CBoundingCone::CBoundingCone( const Vector* points, size_t count, const Matrix& projection, const Vector& apex )
+BoundingCone::BoundingCone( const Vector* points, size_t count, const Matrix& projection, const Vector& apex )
 	: m_apex( apex )
 {
 	switch ( count )
@@ -62,7 +62,7 @@ CBoundingCone::CBoundingCone( const Vector* points, size_t count, const Matrix& 
 	}
 }
 
-CBoundingCone::CBoundingCone( const Vector* points, size_t count, const Matrix& projection, const Vector& apex, const Vector& dir ) :
+BoundingCone::BoundingCone( const Vector* points, size_t count, const Matrix& projection, const Vector& apex, const Vector& dir ) :
 	m_apex( apex )
 {
 	m_direction = dir.GetNormalized();

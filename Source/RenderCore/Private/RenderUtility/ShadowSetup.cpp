@@ -171,7 +171,7 @@ namespace rendercore
 		auto rayOrigin = -viewLightDir * view.m_farPlaneDistance;
 		rayOrigin += center;
 
-		CRay ray( rayOrigin, viewLightDir );
+		Ray ray( rayOrigin, viewLightDir );
 		float t = casterAABB.Intersect( ray );
 
 		auto lightPosition = Vector( lightProperty.m_position );
@@ -259,7 +259,7 @@ namespace rendercore
 		{
 			if ( true /*m_isUnitClipCube*/ )
 			{
-				CBoundingCone cone( clipedResivePoints.data(), clipedResivePoints.size(), virtualCameraView, Vector::ZeroVector, Vector::ForwardVector );
+				BoundingCone cone( clipedResivePoints.data(), clipedResivePoints.size(), virtualCameraView, Vector::ZeroVector, Vector::ForwardVector );
 				virtualCameraProjection = PerspectiveMatrix( { 2.f * tanf( cone.GetFovX() ) * zClipNear, 2.f * tanf( cone.GetFovY() ) * zClipNear }, zClipNear, zClipFar );
 			}
 			else
@@ -299,7 +299,7 @@ namespace rendercore
 			Vector rayOrigin = ppLightDir * 2.f;
 			rayOrigin += cubeCenter;
 
-			CRay ray( rayOrigin, -ppLightDir );
+			Ray ray( rayOrigin, -ppLightDir );
 			float t = ppUnitBox.Intersect( ray );
 
 			Vector lightPosition;
@@ -341,10 +341,10 @@ namespace rendercore
 			bool isShadowTestInverted = ( lightPos.w < 0.f );
 			if ( isShadowTestInverted )
 			{
-				CBoundingCone viewCone;
+				BoundingCone viewCone;
 				if ( false /*m_isUnitClipCube*/ )
 				{
-					viewCone = CBoundingCone( clipedResivePoints.data(), clipedResivePoints.size(), eyeToPostProjectiveVirtualCamera, ppLightPos );
+					viewCone = BoundingCone( clipedResivePoints.data(), clipedResivePoints.size(), eyeToPostProjectiveVirtualCamera, ppLightPos );
 				}
 				else
 				{
@@ -354,7 +354,7 @@ namespace rendercore
 					{
 						ndcBox.emplace_back( ( i & 1 ) ? -1.f : 1.f, ( i & 2 ) ? -1.f : 1.f, ( i & 4 ) ? 0.f : 1.f );
 					}
-					viewCone = CBoundingCone( ndcBox.data(), ndcBox.size(), Matrix::Identity, ppLightPos );
+					viewCone = BoundingCone( ndcBox.data(), ndcBox.size(), Matrix::Identity, ppLightPos );
 				}
 				lightView = viewCone.GetLookAt();
 
@@ -376,7 +376,7 @@ namespace rendercore
 
 				if ( false /*m_isUnitClipCube*/ )
 				{
-					CBoundingCone viewCone( clipedResivePoints.data(), clipedResivePoints.size(), eyeToPostProjectiveVirtualCamera, ppLightPos );
+					BoundingCone viewCone( clipedResivePoints.data(), clipedResivePoints.size(), eyeToPostProjectiveVirtualCamera, ppLightPos );
 					lightView = viewCone.GetLookAt();
 
 					fFovy = viewCone.GetFovY() * 2.f;

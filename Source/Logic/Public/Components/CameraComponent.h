@@ -11,7 +11,7 @@ namespace json
 
 namespace logic
 {
-	class CGameLogic;
+	class GameLogic;
 	class IRenderer;
 
 	class CameraComponent : public SceneComponent

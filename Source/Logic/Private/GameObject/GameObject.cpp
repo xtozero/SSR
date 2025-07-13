@@ -18,7 +18,7 @@
 
 namespace logic
 {
-	void CGameObject::Initialize( [[maybe_unused]] CGameLogic& gameLogic, World& world )
+	void GameObject::Initialize( [[maybe_unused]] GameLogic& gameLogic, World& world )
 	{
 		m_pWorld = &world;
 
@@ -35,7 +35,7 @@ namespace logic
 		}
 	}
 
-	void CGameObject::SetPosition( const Vector& translation )
+	void GameObject::SetPosition( const Vector& translation )
 	{
 		if ( m_rootComponent )
 		{
@@ -43,7 +43,7 @@ namespace logic
 		}
 	}
 
-	void CGameObject::SetScale3D( const Vector& scale3D )
+	void GameObject::SetScale3D( const Vector& scale3D )
 	{
 		if ( m_rootComponent )
 		{
@@ -51,7 +51,7 @@ namespace logic
 		}
 	}
 
-	void CGameObject::SetRotation( const Quaternion& rotation )
+	void GameObject::SetRotation( const Quaternion& rotation )
 	{
 		if ( m_rootComponent )
 		{
@@ -59,7 +59,7 @@ namespace logic
 		}
 	}
 
-	void CGameObject::SetRelativePosition( const Vector& translation )
+	void GameObject::SetRelativePosition( const Vector& translation )
 	{
 		if ( m_rootComponent )
 		{
@@ -67,7 +67,7 @@ namespace logic
 		}
 	}
 
-	void CGameObject::SetRelativeScale3D( const Vector& scale3D )
+	void GameObject::SetRelativeScale3D( const Vector& scale3D )
 	{
 		if ( m_rootComponent )
 		{
@@ -75,7 +75,7 @@ namespace logic
 		}
 	}
 
-	void CGameObject::SetRelativeRotation( const Quaternion& rotation )
+	void GameObject::SetRelativeRotation( const Quaternion& rotation )
 	{
 		if ( m_rootComponent )
 		{
@@ -83,7 +83,7 @@ namespace logic
 		}
 	}
 
-	const Vector& CGameObject::GetPosition() const
+	const Vector& GameObject::GetPosition() const
 	{
 		if ( m_rootComponent )
 		{
@@ -93,7 +93,7 @@ namespace logic
 		return Vector::ZeroVector;
 	}
 
-	const Vector& CGameObject::GetScale3D() const
+	const Vector& GameObject::GetScale3D() const
 	{
 		if ( m_rootComponent )
 		{
@@ -103,7 +103,7 @@ namespace logic
 		return Vector::OneVector;
 	}
 
-	const Quaternion& CGameObject::GetRotation() const
+	const Quaternion& GameObject::GetRotation() const
 	{
 		if ( m_rootComponent )
 		{
@@ -113,7 +113,7 @@ namespace logic
 		return Quaternion::Identity;
 	}
 
-	const Vector& CGameObject::GetRelativePosition() const
+	const Vector& GameObject::GetRelativePosition() const
 	{
 		if ( m_rootComponent )
 		{
@@ -123,7 +123,7 @@ namespace logic
 		return Vector::ZeroVector;
 	}
 
-	const Vector& CGameObject::GetRelativeScale3D() const
+	const Vector& GameObject::GetRelativeScale3D() const
 	{
 		if ( m_rootComponent )
 		{
@@ -133,7 +133,7 @@ namespace logic
 		return Vector::OneVector;
 	}
 
-	const Quaternion& CGameObject::GetRelativeRotation() const
+	const Quaternion& GameObject::GetRelativeRotation() const
 	{
 		if ( m_rootComponent )
 		{
@@ -143,7 +143,7 @@ namespace logic
 		return Quaternion::Identity;
 	}
 
-	Vector CGameObject::GetForwardVector() const
+	Vector GameObject::GetForwardVector() const
 	{
 		if ( m_rootComponent )
 		{
@@ -153,7 +153,7 @@ namespace logic
 		return Vector::ForwardVector;
 	}
 
-	Vector CGameObject::GetRightVector() const
+	Vector GameObject::GetRightVector() const
 	{
 		if ( m_rootComponent )
 		{
@@ -163,7 +163,7 @@ namespace logic
 		return Vector::RightVector;
 	}
 
-	Vector CGameObject::GetUpVector() const
+	Vector GameObject::GetUpVector() const
 	{
 		if ( m_rootComponent )
 		{
@@ -173,7 +173,7 @@ namespace logic
 		return Vector::UpVector;
 	}
 
-	void CGameObject::SetTransform( const Transform& transform )
+	void GameObject::SetTransform( const Transform& transform )
 	{
 		if ( m_rootComponent )
 		{
@@ -181,7 +181,7 @@ namespace logic
 		}
 	}
 
-	const Transform& CGameObject::GetTransform() const
+	const Transform& GameObject::GetTransform() const
 	{
 		if ( m_rootComponent )
 		{
@@ -191,7 +191,7 @@ namespace logic
 		return Transform::Identity;
 	}
 
-	const Matrix& CGameObject::GetTransformMatrix()
+	const Matrix& GameObject::GetTransformMatrix()
 	{
 		if ( m_rootComponent )
 		{
@@ -201,7 +201,7 @@ namespace logic
 		return Matrix::Identity;
 	}
 
-	const Matrix& CGameObject::GetInvTransformMatrix()
+	const Matrix& GameObject::GetInvTransformMatrix()
 	{
 		if ( m_rootComponent )
 		{
@@ -211,16 +211,11 @@ namespace logic
 		return Matrix::Identity;
 	}
 
-	void CGameObject::Think( [[maybe_unused]] float elapsedTime )
+	void GameObject::Think( [[maybe_unused]] float elapsedTime )
 	{
 	}
 
-	void CGameObject::SetMaterialName( const std::string& pMaterialName )
-	{
-		m_materialName = pMaterialName;
-	}
-
-	void CGameObject::LoadProperty( const json::Value& json )
+	void GameObject::LoadProperty( const json::Value& json )
 	{
 		if ( const json::Value* pName = json.Find( "Name" ) )
 		{
@@ -248,7 +243,7 @@ namespace logic
 		}
 	}
 
-	void CGameObject::SetRootComponent( SceneComponent* component )
+	void GameObject::SetRootComponent( SceneComponent* component )
 	{
 		if ( component == nullptr || component->GetOwner() == this )
 		{
@@ -256,7 +251,7 @@ namespace logic
 		}
 	}
 
-	void CGameObject::RemoveComponent( const Component* component )
+	void GameObject::RemoveComponent( const Component* component )
 	{
 		std::erase_if( m_components, [component]( std::unique_ptr<Component>& elem )
 			{
@@ -264,17 +259,17 @@ namespace logic
 			} );
 	}
 
-	void CGameObject::SetInputController( InputController* inputController )
+	void GameObject::SetInputController( InputController* inputController )
 	{
 		m_inputController = inputController;
 	}
 
-	InputComponent* CGameObject::GetInputComponent()
+	InputComponent* GameObject::GetInputComponent()
 	{
 		return m_inputComponent;
 	}
 
-	void CGameObject::InitializeInputComponent()
+	void GameObject::InitializeInputComponent()
 	{
 		if ( m_inputComponent == nullptr )
 		{
@@ -283,14 +278,14 @@ namespace logic
 		}
 	}
 
-	CGameObject::CGameObject()
+	GameObject::GameObject()
 	{
 		m_think.m_thinkGroup = ThinkingGroup::PrePhysics;
 		m_think.m_canEverTick = false;
 		m_think.m_thinkInterval = 0.f;
 	}
 
-	CGameObject::~CGameObject()
+	GameObject::~GameObject()
 	{
 		if ( m_inputController )
 		{
@@ -308,18 +303,18 @@ namespace logic
 		}
 	}
 
-	void CGameObject::SetupInputComponent()
+	void GameObject::SetupInputComponent()
 	{
 	}
 
-	Component* CGameObject::GetComponent( const Name& name )
+	Component* GameObject::GetComponent( const Name& name )
 	{
 		auto found = m_componentMap.find( name );
 
 		return ( found != std::end( m_componentMap ) ) ? found->second : nullptr;
 	}
 
-	void CGameObject::RegisterThinkFunction()
+	void GameObject::RegisterThinkFunction()
 	{
 		if ( m_think.m_canEverTick )
 		{
@@ -330,12 +325,12 @@ namespace logic
 		}
 	}
 
-	void CGameObject::UnRegisterThinkFunction()
+	void GameObject::UnRegisterThinkFunction()
 	{
 		m_think.UnRegisterThinkFunction();
 	}
 
-	void RemoveObject( CGameObject& object )
+	void RemoveObject( GameObject& object )
 	{
 		object.AddProperty( GameobjectProperty::RemoveMe );
 	}

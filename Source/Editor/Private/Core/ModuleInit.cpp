@@ -9,17 +9,17 @@ using ::editor::IEditor;
 
 namespace
 {
-	Owner<IEditor*> g_editor = nullptr;
-	imgui::SharedContext g_imguiSharedContext;
+	Owner<IEditor*> GEditor = nullptr;
+	imgui::SharedContext GImguiSharedContext;
 
 	void* GetEditor()
 	{
-		return g_editor;
+		return GEditor;
 	}
 
 	void* GetImguiSharedContext()
 	{
-		return &g_imguiSharedContext;
+		return &GImguiSharedContext;
 	}
 }
 
@@ -30,17 +30,17 @@ namespace editor
 		RegisterFactory<IEditor>( &GetEditor );
 		RegisterFactory<imgui::SharedContext>( &GetImguiSharedContext );
 
-		g_editor = CreateEditor();
-		g_imguiSharedContext = imgui::GetSharedContext();
+		GEditor = CreateEditor();
+		GImguiSharedContext = imgui::GetSharedContext();
 
-		ImGui::SetCurrentContext( g_imguiSharedContext.m_context );
-		ImGui::SetAllocatorFunctions( g_imguiSharedContext.m_allocFunc, g_imguiSharedContext.m_freeFunc );
+		ImGui::SetCurrentContext( GImguiSharedContext.m_context );
+		ImGui::SetAllocatorFunctions( GImguiSharedContext.m_allocFunc, GImguiSharedContext.m_freeFunc );
 	}
 
 	EDITOR_FUNC_DLL void ShutdownModules()
 	{
-		DestroyEditor( g_editor );
-		imgui::DestroySharedContext( g_imguiSharedContext );
+		DestroyEditor( GEditor );
+		imgui::DestroySharedContext( GImguiSharedContext );
 
 		UnregisterFactory<IEditor>();
 		UnregisterFactory<imgui::SharedContext>();

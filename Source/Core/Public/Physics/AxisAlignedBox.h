@@ -14,7 +14,7 @@ class AxisAlignedBox : public ICollider
 {
 public:
 	virtual void Update( const Vector& scaling, const Quaternion& rotation, const Vector& translation, ICollider* original ) override;
-	virtual float Intersect( const CRay& ray ) const override;
+	virtual float Intersect( const Ray& ray ) const override;
 	virtual CollisionResult Intersect( const Frustum& frustum ) const override;
 	virtual BoxSphereBounds Bounds() const override;
 	virtual Collider GetType() const override;

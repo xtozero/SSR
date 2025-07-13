@@ -6,7 +6,7 @@ namespace logic
 {
 	class VolumetricCloudComponent;
 
-	class VolumetricCloud : public CGameObject
+	class VolumetricCloud : public GameObject
 	{
 		GENERATE_CLASS_TYPE_INFO( VolumetricCloud )
 

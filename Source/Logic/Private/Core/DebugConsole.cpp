@@ -10,9 +10,7 @@ namespace
 {
 	uint32 __stdcall asyncInputFunc( void* arg )
 	{
-		bool& isAlive = *(static_cast<bool*>( arg ));
-
-		while ( isAlive )
+		while ( true )
 		{
 			char conMessage[1024] = { 0, };
 			gets_s( conMessage, sizeof( conMessage ) );
@@ -31,20 +29,30 @@ namespace
 
 namespace logic
 {
-	CDebugConsole::CDebugConsole() : m_isAlive( true )
+	DebugConsole::DebugConsole()
 	{
-		m_thread = (HANDLE)_beginthreadex( nullptr, 0, asyncInputFunc, &m_isAlive, 0, nullptr );
+		if ( AllocConsole() )
+		{
+			/* Disable the close button on the console window.
+			 * If the program is terminated via the console window, it cannot go through the normal shutdown process.
+			 * Note: This method cannot prevent Alt + F4 from closing the window.
+			 * Therefore, I plan to create a console window using ImGUI in the future. */
+			if( HWND hwnd = GetConsoleWindow() )
+			{
+				if( HMENU hMenu = GetSystemMenu( hwnd, FALSE ) )
+				{
+					EnableMenuItem( hMenu, SC_CLOSE, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED );
+				}
+			}
 
-		AllocConsole();
-		freopen_s( &m_pConOut, "CONOUT$", "wt", stdout );
-		freopen_s( &m_pConIn, "CONIN$", "r", stdin );
+			freopen_s( &m_pConOut, "CONOUT$", "wt", stdout );
+			freopen_s( &m_pConIn, "CONIN$", "r", stdin );
+			m_thread = (HANDLE)_beginthreadex( nullptr, 0, asyncInputFunc, nullptr, 0, nullptr );
+		}
 	}
 
-
-	CDebugConsole::~CDebugConsole()
+	DebugConsole::~DebugConsole()
 	{
-		m_isAlive = false;
-		WaitForSingleObject( m_thread, INFINITE );
 		CloseHandle( m_thread );
 
 		FreeConsole();

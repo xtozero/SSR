@@ -361,8 +361,7 @@ namespace rendercore
 			GPU_PROFILE_EVENT( renderGraph, Default );
 			PIPELINE_STAT_EVENT( renderGraph, Default );
 
-			std::deque<DrawSnapshot> snapshotStorage;
-			RenderThreadFrameData<VisibleDrawSnapshot>* pSnapshots = GatherDrawsnapshots( scene, RenderPassType::Default, viewIndex, snapshotStorage );
+			RenderThreadFrameData<VisibleDrawSnapshot>* pSnapshots = GatherDrawsnapshots( scene, RenderPassType::Default, viewIndex );
 
 			if ( pSnapshots != nullptr )
 			{
@@ -386,7 +385,7 @@ namespace rendercore
 				renderGraph.AddPass(
 					passResource,
 					rasterOutput,
-					[this, &snapshots, storage = std::move( snapshotStorage ), primitiveIds]( CommandList& commandList ) mutable
+					[this, &snapshots, primitiveIds]( CommandList& commandList ) mutable
 					{
 						// Update invalidated resources
 						for ( auto& viewDrawSnapshot : snapshots )
@@ -402,10 +401,7 @@ namespace rendercore
 			}
 		}
 
-		{
-			// TODO
-			m_viewInfo[viewIndex].m_debugOverlayData.Draw( renderGraph, m_dynamicVertexBuffer, m_resourceBinder, rasterOutput );
-		}
+		RenderDebugOverlay( renderGraph, renderViewGroup, viewIndex );
 	}
 
 	IRendererRenderTargets& ForwardRenderer::GetRenderTargets()
@@ -442,9 +438,8 @@ namespace rendercore
 		GPU_PROFILE_EVENT( renderGraph, Depth );
 
 		IScene& scene = renderViewGroup.Scene();
-		
-		std::deque<DrawSnapshot> snapshotStorage;
-		RenderThreadFrameData<VisibleDrawSnapshot>* pSnapshots = GatherDrawsnapshots( scene, RenderPassType::DepthWrite, viewIndex, snapshotStorage );
+
+		RenderThreadFrameData<VisibleDrawSnapshot>* pSnapshots = GatherDrawsnapshots( scene, RenderPassType::DepthWrite, viewIndex );
 
 		if ( pSnapshots != nullptr )
 		{
@@ -455,7 +450,7 @@ namespace rendercore
 
 			renderGraph.AddPass(
 				rasterOutput,
-				[this, &snapshots, storage = std::move( snapshotStorage ), primitiveIds]( CommandList& commandList ) mutable
+				[this, &snapshots, primitiveIds]( CommandList& commandList ) mutable
 				{
 					// Update invalidated resources
 					for ( auto& viewDrawSnapshot : snapshots )
@@ -531,9 +526,7 @@ namespace rendercore
 		rasterOutput.SetScissorRect( width, height );
 
 		IScene& scene = renderViewGroup.Scene();
-
-		std::deque<DrawSnapshot> snapshotStorage;
-		RenderThreadFrameData<VisibleDrawSnapshot>* pSnapshots = GatherDrawsnapshots( scene, RenderPassType::CompositeSSGI, viewIndex, snapshotStorage );
+		RenderThreadFrameData<VisibleDrawSnapshot>* pSnapshots = GatherDrawsnapshots( scene, RenderPassType::CompositeSSGI, viewIndex );
 
 		if ( pSnapshots != nullptr )
 		{
@@ -560,7 +553,7 @@ namespace rendercore
 			renderGraph.AddPass(
 				passResource,
 				rasterOutput,
-				[this, &snapshots, storage = std::move( snapshotStorage ), primitiveIds]( CommandList& commandList ) mutable
+				[this, &snapshots, primitiveIds]( CommandList& commandList ) mutable
 				{
 					// Update invalidated resources
 					for ( auto& viewDrawSnapshot : snapshots )

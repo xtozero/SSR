@@ -154,7 +154,7 @@ namespace agl
 		}
 	}
 
-	class CDirect3D11 final : public IAgl
+	class Direct3D11 final : public IAgl
 	{
 	public:
 		virtual AglType GetType() const override;
@@ -205,8 +205,8 @@ namespace agl
 			return *m_pd3d11DeviceContext.Get();
 		}
 
-		CDirect3D11();
-		virtual ~CDirect3D11() override;
+		Direct3D11();
+		virtual ~Direct3D11() override;
 
 	private:
 		void Shutdown();
@@ -229,12 +229,12 @@ namespace agl
 		D3D11CommandList m_commandList;
 	};
 
-	AglType CDirect3D11::GetType() const
+	AglType Direct3D11::GetType() const
 	{
 		return AglType::D3D11;
 	}
 
-	bool CDirect3D11::BootUp()
+	bool Direct3D11::BootUp()
 	{
 		if ( !CreateDeviceIndependentResource() )
 		{
@@ -249,7 +249,7 @@ namespace agl
 		return true;
 	}
 
-	void CDirect3D11::HandleDeviceLost()
+	void Direct3D11::HandleDeviceLost()
 	{
 		m_pdxgiFactory.Reset();
 		m_pd3d11DeviceContext.Reset();
@@ -268,7 +268,7 @@ namespace agl
 		}
 	}
 
-	void CDirect3D11::AppSizeChanged()
+	void Direct3D11::AppSizeChanged()
 	{
 		if ( m_pd3d11Device == nullptr )
 		{
@@ -276,19 +276,19 @@ namespace agl
 		}
 	}
 
-	void CDirect3D11::OnBeginFrameRendering()
+	void Direct3D11::OnBeginFrameRendering()
 	{
 		m_commandList.Prepare();
 	}
 
-	void CDirect3D11::Shutdown()
+	void Direct3D11::Shutdown()
 	{
 #ifdef _DEBUG
 		ReportLiveDevice();
 #endif
 	}
 
-	void CDirect3D11::WaitGPU()
+	void Direct3D11::WaitGPU()
 	{
 		assert( IsInRenderThread() );
 
@@ -306,7 +306,7 @@ namespace agl
 		}
 	}
 
-	LockedResource CDirect3D11::Lock( Buffer* buffer, ResourceLockFlag lockFlag, uint32 subResource )
+	LockedResource Direct3D11::Lock( Buffer* buffer, ResourceLockFlag lockFlag, uint32 subResource )
 	{
 		if ( buffer == nullptr )
 		{
@@ -330,7 +330,7 @@ namespace agl
 		return result;
 	}
 
-	void CDirect3D11::UnLock( Buffer* buffer, uint32 subResource )
+	void Direct3D11::UnLock( Buffer* buffer, uint32 subResource )
 	{
 		if ( buffer == nullptr )
 		{
@@ -342,7 +342,7 @@ namespace agl
 		m_pd3d11DeviceContext->Unmap( d3d11buffer->Resource(), subResource );
 	}
 
-	LockedResource CDirect3D11::Lock( Texture* texture, ResourceLockFlag lockFlag, uint32 subResource )
+	LockedResource Direct3D11::Lock( Texture* texture, ResourceLockFlag lockFlag, uint32 subResource )
 	{
 		if ( texture == nullptr )
 		{
@@ -365,7 +365,7 @@ namespace agl
 		return result;
 	}
 
-	void CDirect3D11::UnLock( Texture* texture, uint32 subResource )
+	void Direct3D11::UnLock( Texture* texture, uint32 subResource )
 	{
 		if ( texture == nullptr )
 		{
@@ -375,7 +375,7 @@ namespace agl
 		m_pd3d11DeviceContext->Unmap( static_cast<ID3D11Resource*>( texture->Resource() ), subResource );
 	}
 
-	void CDirect3D11::EnumerateSampleCountAndQuality( int32* size, DXGI_SAMPLE_DESC* pSamples )
+	void Direct3D11::EnumerateSampleCountAndQuality( int32* size, DXGI_SAMPLE_DESC* pSamples )
 	{
 		assert( size != nullptr );
 
@@ -397,24 +397,24 @@ namespace agl
 		}
 	}
 
-	void CDirect3D11::GetRendererMultiSampleOption( MultiSampleOption* option )
+	void Direct3D11::GetRendererMultiSampleOption( MultiSampleOption* option )
 	{
 		assert( option != nullptr );
 		option->m_count = m_multiSampleOption.Count;
 		option->m_quality = m_multiSampleOption.Quality;
 	}
 
-	ICommandList* CDirect3D11::GetCommandList()
+	ICommandList* Direct3D11::GetCommandList()
 	{
 		return &m_commandList;
 	}
 
-	ICommandList* CDirect3D11::GetParallelCommandList()
+	ICommandList* Direct3D11::GetParallelCommandList()
 	{
 		return &m_commandList.GetParallelCommandList();
 	}
 
-	BinaryChunk CDirect3D11::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const
+	BinaryChunk Direct3D11::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const
 	{
 		Microsoft::WRL::ComPtr<ID3DBlob> byteCode = nullptr;
 		Microsoft::WRL::ComPtr<ID3DBlob> errorMsg = nullptr;
@@ -454,7 +454,7 @@ namespace agl
 		return {};
 	}
 
-	bool CDirect3D11::BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const
+	bool Direct3D11::BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const
 	{
 		Microsoft::WRL::ComPtr<ID3D11ShaderReflection> pShaderReflection = nullptr;
 		HRESULT hr = D3DReflect( byteCode.Data(), byteCode.Size(), IID_PPV_ARGS(&pShaderReflection));
@@ -469,41 +469,41 @@ namespace agl
 		return true;
 	}
 
-	const char* CDirect3D11::GetShaderCacheFilePath() const
+	const char* Direct3D11::GetShaderCacheFilePath() const
 	{
 		return "./Assets/Shaders/ShaderCache-d3d11.asset";
 	}
 
-	bool CDirect3D11::IsSupportsPSOCache() const
+	bool Direct3D11::IsSupportsPSOCache() const
 	{
 		return false;
 	}
 
-	bool CDirect3D11::IsSupportsPSOLibraryCache() const
+	bool Direct3D11::IsSupportsPSOLibraryCache() const
 	{
 		return false;
 	}
 
-	const char* CDirect3D11::GetPSOCacheFilePath() const
+	const char* Direct3D11::GetPSOCacheFilePath() const
 	{
 		return "";
 	}
 
-	bool CDirect3D11::IsSupportsMeshShader() const
+	bool Direct3D11::IsSupportsMeshShader() const
 	{
 		return false;
 	}
 
-	CDirect3D11::CDirect3D11()
+	Direct3D11::Direct3D11()
 	{
 	}
 
-	CDirect3D11::~CDirect3D11()
+	Direct3D11::~Direct3D11()
 	{
 		Shutdown();
 	}
 
-	bool CDirect3D11::CreateDeviceDependentResource()
+	bool Direct3D11::CreateDeviceDependentResource()
 	{
 		D3D_DRIVER_TYPE d3dDriverTypes[] = {
 			D3D_DRIVER_TYPE_UNKNOWN,
@@ -571,7 +571,7 @@ namespace agl
 
 		if ( SUCCEEDED( hr ) )
 		{
-			// TODO: Viewport 에서 멀티 샘플링 관련 기능 구현
+			// TODO: Implement multi-sampling related features in the viewport
 			/*int32 desiredSampleCount = 0;
 			EnumerateSampleCountAndQuality( &desiredSampleCount, nullptr );
 
@@ -634,7 +634,7 @@ namespace agl
 		return false;
 	}
 
-	bool CDirect3D11::CreateDeviceIndependentResource()
+	bool Direct3D11::CreateDeviceIndependentResource()
 	{
 		Microsoft::WRL::ComPtr<IDXGIFactory2> factory;
 
@@ -658,7 +658,7 @@ namespace agl
 		return true;
 	}
 
-	void CDirect3D11::ReportLiveDevice()
+	void Direct3D11::ReportLiveDevice()
 	{
 		if ( m_pd3d11Device == nullptr )
 		{
@@ -678,24 +678,24 @@ namespace agl
 
 	ID3D11Device& D3D11Device()
 	{
-		auto d3d11Api = static_cast<CDirect3D11*>( GetInterface<IAgl>() );
+		auto d3d11Api = static_cast<Direct3D11*>( GetInterface<IAgl>() );
 		return d3d11Api->GetDevice();
 	}
 
 	ID3D11DeviceContext& D3D11Context()
 	{
-		auto d3d11Api = static_cast<CDirect3D11*>( GetInterface<IAgl>() );
+		auto d3d11Api = static_cast<Direct3D11*>( GetInterface<IAgl>() );
 		return d3d11Api->GetDeviceContext();
 	}
 
 	IDXGIFactory7& D3D11Factory()
 	{
-		auto d3d11Api = static_cast<CDirect3D11*>( GetInterface<IAgl>() );
+		auto d3d11Api = static_cast<Direct3D11*>( GetInterface<IAgl>() );
 		return d3d11Api->GetFactory();
 	}
 
 	Owner<IAgl*> CreateD3D11GraphicsApi()
 	{
-		return new CDirect3D11();
+		return new Direct3D11();
 	}
 }

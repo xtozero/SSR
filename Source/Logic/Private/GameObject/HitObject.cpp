@@ -2,7 +2,7 @@
 
 namespace logic
 {
-    CGameObject* HitObject::GetObject()
+    GameObject* HitObject::GetObject()
     {
         return m_gameObject;
     }

@@ -7,7 +7,7 @@
 #include <vector>
 
 class Frustum;
-class CRay;
+class Ray;
 struct MeshData;
 struct Quaternion;
 struct Vector;
@@ -32,7 +32,7 @@ class ICollider
 {
 public:
 	virtual void Update( const Vector& scaling, const Quaternion& rotation, const Vector& translation, ICollider* original ) = 0;
-	virtual float Intersect( const CRay& ray ) const = 0;
+	virtual float Intersect( const Ray& ray ) const = 0;
 	virtual CollisionResult Intersect( const Frustum& frustum ) const = 0;
 	virtual BoxSphereBounds Bounds() const = 0;
 	virtual Collider GetType() const = 0;

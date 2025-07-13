@@ -9,30 +9,30 @@
 
 namespace logic
 {
-	class CGameObject;
-	class CCreateGameObjectHelper;
+	class GameObject;
+	class CreateGameObjectHelper;
 
 	class IGameObjectFactory
 	{
 	public:
-		virtual void RegistGameObjectCreateFunc( const std::string& className, CCreateGameObjectHelper* helper ) = 0;
-		virtual Owner<CGameObject*> CreateGameObjectByClassName( const std::string& className ) const = 0;
+		virtual void RegistGameObjectCreateFunc( const std::string& className, CreateGameObjectHelper* helper ) = 0;
+		virtual Owner<GameObject*> CreateGameObjectByClassName( const std::string& className ) const = 0;
 
 		virtual ~IGameObjectFactory() = default;
 	};
 
 	IGameObjectFactory& GetGameObjectFactory();
 
-	class CCreateGameObjectHelper
+	class CreateGameObjectHelper
 	{
 	public:
-		CCreateGameObjectHelper( const std::string& className, std::function<CGameObject* ( )> createFunc )
+		CreateGameObjectHelper( const std::string& className, std::function<GameObject* ( )> createFunc )
 			: m_createFunc( createFunc )
 		{
 			GetGameObjectFactory().RegistGameObjectCreateFunc( className, this );
 		}
 
-		Owner<CGameObject*> Create()
+		Owner<GameObject*> Create()
 		{
 			if ( m_createFunc )
 			{
@@ -45,13 +45,13 @@ namespace logic
 		}
 
 	private:
-		std::function<Owner<CGameObject*>()> m_createFunc;
+		std::function<Owner<GameObject*>()> m_createFunc;
 	};
 }
 
 #define DECLARE_GAME_OBJECT( name, classType ) \
-	static Owner<CGameObject*> create_##name( ) \
+	static Owner<GameObject*> create_##name( ) \
 	{ \
 		return new classType; \
 	} \
-	static CCreateGameObjectHelper name##_create_heper( #name, create_##name );
+	static CreateGameObjectHelper name##_create_heper( #name, create_##name );

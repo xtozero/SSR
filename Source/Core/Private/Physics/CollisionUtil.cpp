@@ -43,7 +43,7 @@ namespace
 
 namespace COLLISION_UTIL
 {
-	float IntersectWithRay( const ICollider& collider, const CRay& ray )
+	float IntersectWithRay( const ICollider& collider, const Ray& ray )
 	{
 		return collider.Intersect( ray );
 	}

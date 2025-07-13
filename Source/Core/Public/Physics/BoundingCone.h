@@ -6,7 +6,7 @@
 
 #include <vector>
 
-class CBoundingCone
+class BoundingCone
 {
 public:
 	float GetFovX() const { return m_fovX; }
@@ -15,10 +15,10 @@ public:
 	float GetFar() const { return m_far; }
 	Matrix GetLookAt() const { return m_lookAt; }
 
-	CBoundingCone() = default;
-	CBoundingCone( const Vector* points, size_t count, const Matrix& projection, const Vector& apex );
-	CBoundingCone( const Vector* points, size_t count, const Matrix& projection, const Vector& apex, const Vector& dir );
-	~CBoundingCone() = default;
+	BoundingCone() = default;
+	BoundingCone( const Vector* points, size_t count, const Matrix& projection, const Vector& apex );
+	BoundingCone( const Vector* points, size_t count, const Matrix& projection, const Vector& apex, const Vector& dir );
+	~BoundingCone() = default;
 
 private:
 	Vector m_direction = Vector::ZAxisVector;

@@ -12,7 +12,6 @@
 #include "UserInput/Controller.h"
 #include "World/World.h"
 
-#include <list>
 #include <memory>
 #include <minwindef.h>
 #include <vector>
@@ -24,10 +23,10 @@ namespace rendercore
 
 namespace logic
 {
-	class CGameObject;
+	class GameObject;
 	class GameClientViewport;
 
-	class CGameLogic : public ILogic
+	class GameLogic : public ILogic
 	{
 	public:
 		virtual bool BootUp( engine::IPlatform& platform ) override;
@@ -41,8 +40,9 @@ namespace logic
 		virtual bool LoadWorld( const char* filePath ) override;
 		virtual void UnloadWorld() override;
 		virtual World& GetWorld() override;
+		virtual void ToggleDebugConsole() override;
 
-		void SpawnObject( Owner<CGameObject*> object );
+		void SpawnObject( Owner<GameObject*> object );
 
 		const std::pair<uint32, uint32>& GetAPPSize() { return m_appSize; }
 
@@ -60,8 +60,8 @@ namespace logic
 		void SceneEnd();
 
 	public:
-		CGameLogic() = default;
-		virtual ~CGameLogic() override;
+		GameLogic() = default;
+		virtual ~GameLogic() override;
 
 	private:
 		void CreateGameViewport();
@@ -81,8 +81,6 @@ namespace logic
 		std::unique_ptr<GameClientViewport> m_gameViewport;
 
 		std::atomic<int64> m_numDrawRequestQueued = 0;
-#ifdef DEBUGGING_BY_CONSOLE
-		CDebugConsole m_commandConsole;
-#endif
+		std::unique_ptr<DebugConsole> m_commandConsole = nullptr;
 	};
 }

@@ -3,11 +3,11 @@
 
 namespace
 {
-	logic::ILogic* g_gameLogic = nullptr;
+	logic::ILogic* GGameLogic = nullptr;
 
 	void* GetGameLogic( )
 	{
-		return g_gameLogic;
+		return GGameLogic;
 	}
 }
 
@@ -17,12 +17,12 @@ namespace logic
 	{
 		RegisterFactory<ILogic>( &GetGameLogic );
 
-		g_gameLogic = CreateGameLogic();
+		GGameLogic = CreateGameLogic();
 	}
 
 	LOGIC_FUNC_DLL void ShutdownModules()
 	{
-		DestroyGameLogic( g_gameLogic );
+		DestroyGameLogic( GGameLogic );
 
 		UnregisterFactory<ILogic>();
 	}

@@ -39,7 +39,7 @@ namespace logic
 		virtual void CreateRenderState() override;
 		virtual void RemoveRenderState() override;
 
-		virtual bool ShouldCreatePhysicsState() const;
+		virtual bool ShouldCreatePhysicsState() const override;
 		virtual void OnCreatePhysicsState() override;
 		virtual void OnDestroyPhysicsState() override;
 

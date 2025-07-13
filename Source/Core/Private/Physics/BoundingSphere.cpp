@@ -48,7 +48,7 @@ void BoundingSphere::Update( const Vector& scaling, const Quaternion& /*rotation
 	m_radius = orig->GetRadius() * maxScaling;
 }
 
-float BoundingSphere::Intersect( const CRay& ray ) const
+float BoundingSphere::Intersect( const Ray& ray ) const
 {
 	return RayAndSphere( ray.GetOrigin(), ray.GetDir(), m_origin, m_radius );
 }
