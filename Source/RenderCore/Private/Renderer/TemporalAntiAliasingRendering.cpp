@@ -76,7 +76,7 @@ namespace rendercore
 
 			renderGraph.AddPass(
 				passResource,
-				[passResource]( ResourceCommandList& commandList )
+				[passResource]( CopyCommandList& commandList )
 				{
 					auto historyTex = passResource.m_historyTex->Get();
 					auto sceneTex = passResource.m_sceneTex->Get();
@@ -192,7 +192,7 @@ namespace rendercore
 
 		renderGraph.AddPass(
 			passResource,
-			[passResource]( ResourceCommandList& commandList )
+			[passResource]( CopyCommandList& commandList )
 			{
 				auto historyTex = passResource.m_historyTex->Get();
 				auto sceneTex = passResource.m_sceneTex->Get();

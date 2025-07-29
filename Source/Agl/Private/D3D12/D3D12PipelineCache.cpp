@@ -4,6 +4,7 @@
 #include "D3D12BindlessManager.h"
 #include "D3D12Buffer.h"
 #include "D3D12FlagConvertor.h"
+#include "D3D12FrameResourceCollection.h"
 #include "D3D12GlobalDescriptorHeap.h"
 #include "D3D12NullDescriptor.h"
 #include "D3D12PipelineState.h"
@@ -38,25 +39,6 @@ namespace agl
 
 		std::memset( m_rtvs, 0, sizeof( m_rtvs ) );
 		m_dsv = nullptr;
-	}
-
-	void D3D12PipelineCache::ReleaseRenderResources()
-	{
-		for ( auto& allocatedInfo : m_allocatedInfos )
-		{
-			allocatedInfo.Release();
-		}
-
-		m_allocatedInfos.clear();
-		m_allocatedIdentifiers.clear();
-
-		m_allocatedIdentifierAllocator.Flush();
-		m_allocatedInfoAllocator.Flush();
-
-		std::construct_at( &m_allocatedIdentifiers, m_allocatedIdentifierAllocator );
-		std::construct_at( &m_allocatedInfos, m_allocatedInfoAllocator );
-
-		m_residentResource.clear();
 	}
 
 	void D3D12PipelineCache::BindVertexBuffer( ID3D12GraphicsCommandList6& commandList, Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets )
@@ -102,7 +84,7 @@ namespace agl
 		{
 			for ( uint32 i = 0; i < numBuffers; ++i )
 			{
-				RegisterRenderResource( vertexBuffers[i] );
+				D3D12FrameResources().RegisterResource( vertexBuffers[i] );
 			}
 		}
 
@@ -129,7 +111,7 @@ namespace agl
 			return;
 		}
 
-		RegisterRenderResource( indexBuffer );
+		D3D12FrameResources().RegisterResource( indexBuffer );
 
 		m_indexBufferView = view;
 		commandList.IASetIndexBuffer( ( view.SizeInBytes == 0 ) ? nullptr : &view );
@@ -166,7 +148,7 @@ namespace agl
 			rootSignature = d3d12RootSignature->Resource();
 		}
 
-		RegisterRenderResource( pipelineState );
+		D3D12FrameResources().RegisterResource( pipelineState );
 
 		m_pipelineState = graphicsPipelineState;
 		commandList.IASetPrimitiveTopology( d3d12GraphicsPipelineState->GetPrimitiveTopology() );
@@ -198,7 +180,7 @@ namespace agl
 			rootSignature = d3d12RootSignature->Resource();
 		}
 
-		RegisterRenderResource( pipelineState );
+		D3D12FrameResources().RegisterResource( pipelineState );
 
 		m_pipelineState = computePipelineState;
 		commandList.SetPipelineState( computePipelineState );
@@ -286,7 +268,7 @@ namespace agl
 					auto d3d12SRV = static_cast<D3D12ShaderResourceView*>( srv.Get() );
 					assert( d3d12SRV != nullptr );
 
-					RegisterRenderResource( d3d12SRV->GetOwner() );
+					D3D12FrameResources().RegisterResource( d3d12SRV->GetOwner() );
 
 					int32 bindlessHandle = d3d12SRV->GetBindlessHandle();
 					commandList.SetComputeRootDescriptorTable( rootParameterIndex++, GetBindlessGpuHandle( resourceHeap, bindlessHandle ) );
@@ -299,7 +281,7 @@ namespace agl
 					auto d3d12UAV = static_cast<D3D12UnorderedAccessView*>( uav.Get() );
 					assert( d3d12UAV != nullptr );
 
-					RegisterRenderResource( d3d12UAV->GetOwner() );
+					D3D12FrameResources().RegisterResource( d3d12UAV->GetOwner() );
 
 					int32 bindlessHandle = d3d12UAV->GetBindlessHandle();
 					commandList.SetComputeRootDescriptorTable( rootParameterIndex++, GetBindlessGpuHandle( resourceHeap, bindlessHandle ) );
@@ -312,7 +294,7 @@ namespace agl
 					auto d3d12CB = static_cast<D3D12Buffer*>( cb.Get() );
 					assert( d3d12CB != nullptr );
 
-					RegisterRenderResource( cb.Get() );
+					D3D12FrameResources().RegisterResource( cb.Get() );
 
 					int32 bindlessHandle = d3d12CB->CBV()->GetBindlessHandle();
 					commandList.SetComputeRootDescriptorTable( rootParameterIndex++, GetBindlessGpuHandle( resourceHeap, bindlessHandle ) );
@@ -362,7 +344,7 @@ namespace agl
 					auto d3d12SRV = static_cast<D3D12ShaderResourceView*>( srv.Get() );
 					assert( d3d12SRV != nullptr );
 
-					RegisterRenderResource( d3d12SRV->GetOwner() );
+					D3D12FrameResources().RegisterResource( d3d12SRV->GetOwner() );
 
 					int32 bindlessHandle = d3d12SRV->GetBindlessHandle();
 					commandList.SetGraphicsRootDescriptorTable( rootParameterIndex++, GetBindlessGpuHandle( resourceHeap, bindlessHandle ) );
@@ -375,7 +357,7 @@ namespace agl
 					auto d3d12UAV = static_cast<D3D12UnorderedAccessView*>( uav.Get() );
 					assert( d3d12UAV != nullptr );
 
-					RegisterRenderResource( d3d12UAV->GetOwner() );
+					D3D12FrameResources().RegisterResource( d3d12UAV->GetOwner() );
 
 					int32 bindlessHandle = d3d12UAV->GetBindlessHandle();
 					commandList.SetGraphicsRootDescriptorTable( rootParameterIndex++, GetBindlessGpuHandle( resourceHeap, bindlessHandle ) );
@@ -388,7 +370,7 @@ namespace agl
 					auto d3d12CB = static_cast<D3D12Buffer*>( cb.Get() );
 					assert( d3d12CB != nullptr );
 
-					RegisterRenderResource( cb.Get() );
+					D3D12FrameResources().RegisterResource( cb.Get() );
 
 					int32 bindlessHandle = d3d12CB->CBV()->GetBindlessHandle();
 					commandList.SetGraphicsRootDescriptorTable( rootParameterIndex++, GetBindlessGpuHandle( resourceHeap, bindlessHandle ) );
@@ -451,7 +433,7 @@ namespace agl
 				auto d3d12SRV = static_cast<D3D12ShaderResourceView*>( srv.Get() );
 				assert( d3d12SRV != nullptr );
 
-				RegisterRenderResource( d3d12SRV->GetOwner() );
+				D3D12FrameResources().RegisterResource( d3d12SRV->GetOwner() );
 				
 				D3D12Device().CopyDescriptorsSimple( 1, srvCbvUavHeap.GetCpuHandle( destOffset ), d3d12SRV->GetCpuHandle().At(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
 				++destOffset;
@@ -473,7 +455,7 @@ namespace agl
 				auto d3d12UAV = static_cast<D3D12UnorderedAccessView*>( uav->Get() );
 				assert( d3d12UAV != nullptr );
 
-				RegisterRenderResource( d3d12UAV->GetOwner() );
+				D3D12FrameResources().RegisterResource( d3d12UAV->GetOwner() );
 
 				D3D12Device().CopyDescriptorsSimple( 1, srvCbvUavHeap.GetCpuHandle( destOffset ), d3d12UAV->GetCpuHandle().At(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
 				++destOffset;
@@ -495,7 +477,7 @@ namespace agl
 				auto d3d12CB = static_cast<D3D12Buffer*>( cb->Get() );
 				assert( d3d12CB != nullptr );
 
-				RegisterRenderResource( cb->Get() );
+				D3D12FrameResources().RegisterResource( cb->Get() );
 
 				D3D12Device().CopyDescriptorsSimple( 1, srvCbvUavHeap.GetCpuHandle( destOffset ), d3d12CB->CBV()->GetCpuHandle().At(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
 				++destOffset;
@@ -712,7 +694,7 @@ namespace agl
 			if ( d3d12RTV )
 			{
 				rtvs[i] = d3d12RTV->GetCpuHandle().At();
-				RegisterRenderResource( d3d12RTV->GetOwner() );
+				D3D12FrameResources().RegisterResource( d3d12RTV->GetOwner() );
 			}
 			else
 			{
@@ -724,56 +706,11 @@ namespace agl
 		if ( auto d3d12DSV = static_cast<D3D12DepthStencilView*>( depthStencil ) )
 		{
 			dsv = d3d12DSV->GetCpuHandle().At();
-			RegisterRenderResource( d3d12DSV->GetOwner() );
+			D3D12FrameResources().RegisterResource( d3d12DSV->GetOwner() );
 		}
 
 		std::copy( pRenderTargets, pRenderTargets + renderTargetCount, std::begin( m_rtvs ) );
 		m_dsv = depthStencil;
 		commandList.OMSetRenderTargets( renderTargetCount, rtvs, false, depthStencil ? &dsv : nullptr );
-	}
-
-	void D3D12PipelineCache::RegisterRenderResource( GraphicsApiResource* resource )
-	{
-		if ( resource == nullptr )
-		{
-			return;
-		}
-
-		const AllocatedResourceInfo* resourceInfo = nullptr;
-
-		if ( resource->IsBuffer() )
-		{
-			auto d3d12Buffer = static_cast<D3D12Buffer*>( resource );
-			resourceInfo = &d3d12Buffer->GetResourceInfo();
-		}
-		else if ( resource->IsTexture() )
-		{
-			auto d3d12Texture = static_cast<D3D12Texture*>( resource );
-			resourceInfo = &d3d12Texture->GetResourceInfo();
-		}
-
-		if ( ( resourceInfo == nullptr )
-			|| resourceInfo->IsExternalResource() )
-		{
-			return;
-		}
-
-		const ID3D12Resource* d3d12Resource = resourceInfo->GetResource();
-		if ( m_allocatedIdentifiers.contains( d3d12Resource ) == false )
-		{
-			m_allocatedIdentifiers.insert( d3d12Resource );
-			m_allocatedInfos.emplace_back( *resourceInfo );
-		}
-	}
-
-	void D3D12PipelineCache::RegisterRenderResource( IUnknown* resource )
-	{
-		m_residentResource.emplace_back( resource );
-	}
-
-	D3D12PipelineCache::D3D12PipelineCache()
-		: m_allocatedIdentifiers( m_allocatedIdentifierAllocator )
-		, m_allocatedInfos( m_allocatedInfoAllocator )
-	{
 	}
 }

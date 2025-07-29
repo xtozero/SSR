@@ -29,7 +29,9 @@ void ParseArray( T* dest, size_t n, const std::string& s )
 
 	for ( size_t i = 0; i < n && i < values.size(); ++i )
 	{
-		Parse( *dest++, values[i] );
+		auto begin = std::begin( values[i] );
+		auto end = std::end( values[i] );
+		std::from_chars( std::to_address( begin ), std::to_address( end ), dest[i] );
 	}
 }
 
@@ -37,7 +39,9 @@ template <CanParseFromString T>
 void Parse( T& dest, const std::string& s )
 {
 	T value = {};
-	std::from_chars_result result = std::from_chars( s.data(), s.data() + s.size(), value );
+	auto begin = std::begin( s );
+	auto end = std::end( s );
+	std::from_chars_result result = std::from_chars( std::to_address( begin ), std::to_address( end ), value );
 
 	if ( result.ec == std::errc() )
 	{

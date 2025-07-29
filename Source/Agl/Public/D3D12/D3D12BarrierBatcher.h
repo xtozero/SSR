@@ -7,7 +7,7 @@
 
 namespace agl
 {
-	class D3D12CommandListImpl;
+	class D3D12CopyCommandListImpl;
 
 	struct ResourceTransition;
 
@@ -17,7 +17,7 @@ namespace agl
 		void AddTransition( const ResourceTransition& transition );
 		void AddUavBarrier( const UavBarrier& uavBarrier );
 
-		void Commit( D3D12CommandListImpl& commandList );
+		void Commit( D3D12CopyCommandListImpl& commandList );
 
 		D3D12BarrierBatcher();
 

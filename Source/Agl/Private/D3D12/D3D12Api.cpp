@@ -4,6 +4,7 @@
 
 #include "D3D12BindlessManager.h"
 #include "D3D12CommandList.h"
+#include "D3D12FrameResourceCollection.h"
 #include "D3D12NullDescriptor.h"
 #include "D3D12Query.h"
 #include "D3D12ResourceManager.h"
@@ -180,6 +181,7 @@ namespace agl
 		virtual void OnBeginFrameRendering() override;
 		virtual void OnEndFrameRendering( uint32 curFrameIndex, uint32 nextFrameIndex ) override;
 		virtual void WaitGPU() override;
+		virtual void WaitQueue( QueueType type ) override;
 
 		virtual LockedResource Lock( Buffer* buffer, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard, uint32 subResource = 0 ) override;
 		virtual void UnLock( Buffer* buffer, uint32 subResource = 0 ) override;
@@ -191,6 +193,7 @@ namespace agl
 
 		virtual ICommandList* GetCommandList() override;
 		virtual ICommandList* GetParallelCommandList() override;
+		virtual IComputeCommandList* GetComputeCommandList() override;
 
 		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const override;
 		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const override;
@@ -206,12 +209,14 @@ namespace agl
 		ID3D12Device8& GetDevice() const;
 		IDXGIFactory7& GetFactory() const;
 		ID3D12CommandQueue& GetDirectCommandQueue() const;
+		ID3D12CommandQueue& GetComputeCommandQueue() const;
 
 		D3D12ResourceAllocator& GetAllocator();
 		D3D12QueryAllocator& GetQueryAllocator();
 		D3D12CommnadListResourcePool& GetCmdPool( D3D12_COMMAND_LIST_TYPE type );
 		D3D12ResourceUploader& GetUploader();
 		D3D12BindlessManager& GetBindlessManager();
+		D3D12FrameResourceCollection& GetFrameResourceCollection();
 
 		uint32 GetFrameIndex() const
 		{
@@ -234,11 +239,18 @@ namespace agl
 
 		ComPtr<ID3D12Device8> m_device;
 		ComPtr<ID3D12CommandQueue> m_directCommandQueue;
+		ComPtr<ID3D12CommandQueue> m_computeCommandQueue;
 
 		ComPtr<ID3D12Fence> m_fence;
 		std::vector<uint64, InlineAllocator<uint64, 2>> m_fenceValues;
 		uint64 m_lastFenceValue = 0;
 		HANDLE m_fenceEvent = nullptr;
+
+		ComPtr<ID3D12Fence> m_directFence;
+		uint64 m_directFenceValue = 0;
+
+		ComPtr<ID3D12Fence> m_computeFence;
+		uint64 m_computeFenceValue = 0;
 
 		ComPtr<IDxcCompiler3> m_compiler;
 		ComPtr<IDxcLibrary> m_dxcLibrary;
@@ -252,6 +264,8 @@ namespace agl
 		uint32 m_frameIndex = 0;
 
 		std::vector<D3D12CommandList, InlineAllocator<D3D12CommandList, 2>> m_commandList;
+		std::vector<D3D12ComputeCommandList, InlineAllocator<D3D12ComputeCommandList, 2>> m_computeCommandList;
+		std::vector<D3D12FrameResourceCollection, InlineAllocator<D3D12FrameResourceCollection, 2>> m_frameResources;
 
 		D3D12CommnadListResourcePool m_cmdListResourcePools[3] = {
 			D3D12_COMMAND_LIST_TYPE_DIRECT,
@@ -293,9 +307,19 @@ namespace agl
 		m_uploader.WaitUntilCopyCompleted();
 
 		// Dereferencing rendering resources
-		for ( auto& cmdList : m_commandList )
+		for ( D3D12CommandList& commandList : m_commandList )
 		{
-			cmdList.Prepare();
+			commandList.Prepare();
+		}
+
+		for ( D3D12ComputeCommandList& commandList : m_computeCommandList )
+		{
+			commandList.Prepare();
+		}
+
+		for ( auto& frameResourceCollection : m_frameResources )
+		{
+			frameResourceCollection.ReleaseResources();
 		}
 
 		D3D12NullDescriptorStorage::Clear();
@@ -317,7 +341,10 @@ namespace agl
 		}
 
 		m_uploader.Prepare();
-		m_commandList[m_frameIndex].Prepare();
+		GetCommandList()->Prepare();
+		GetComputeCommandList()->Prepare();
+
+		D3D12FrameResources().ReleaseResources();
 
 		auto& d3d12ResourceManager = *static_cast<D3D12ResourceManager*>( GetInterface<IResourceManager>() );
 		d3d12ResourceManager.Prepare();
@@ -362,6 +389,25 @@ namespace agl
 		}
 
 		m_lastFenceValue = ++m_fenceValues[m_frameIndex];
+	}
+
+	void Direct3D12::WaitQueue( QueueType type )
+	{
+		GetCommandList()->Commit();
+		GetComputeCommandList()->Commit();
+
+		if ( type == QueueType::Direct )
+		{
+			GetDirectCommandQueue().Signal( m_directFence.Get(), m_directFenceValue );
+			GetComputeCommandQueue().Wait( m_directFence.Get(), m_directFenceValue );
+			++m_directFenceValue;
+		}
+		else // QueueType::Compute
+		{
+			GetComputeCommandQueue().Signal( m_computeFence.Get(), m_computeFenceValue );
+			GetDirectCommandQueue().Wait( m_computeFence.Get(), m_computeFenceValue );
+			++m_computeFenceValue;
+		}
 	}
 
 	LockedResource Direct3D12::Lock( Buffer* buffer, ResourceLockFlag lockFlag, uint32 subResource )
@@ -420,6 +466,11 @@ namespace agl
 	ICommandList* Direct3D12::GetParallelCommandList()
 	{
 		return &m_commandList[m_frameIndex].GetParallelCommandList();
+	}
+
+	IComputeCommandList* Direct3D12::GetComputeCommandList()
+	{
+		return &m_computeCommandList[m_frameIndex];
 	}
 
 	BinaryChunk Direct3D12::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const
@@ -487,7 +538,7 @@ namespace agl
 		ComPtr<IDxcBlob> compiledBinary = nullptr;
 		ComPtr<IDxcBlobUtf16> shaderName = nullptr;
 		results->GetOutput( DXC_OUT_OBJECT, IID_PPV_ARGS( compiledBinary.GetAddressOf() ), shaderName.GetAddressOf() );
-		
+
 		assert( compiledBinary.Get() != nullptr );
 
 		BinaryChunk binary( static_cast<uint32>( compiledBinary->GetBufferSize() ) );
@@ -575,6 +626,11 @@ namespace agl
 		return *m_directCommandQueue.Get();
 	}
 
+	ID3D12CommandQueue& Direct3D12::GetComputeCommandQueue() const
+	{
+		return *m_computeCommandQueue.Get();
+	}
+
 	D3D12ResourceAllocator& Direct3D12::GetAllocator()
 	{
 		return m_allocator;
@@ -614,6 +670,11 @@ namespace agl
 	D3D12BindlessManager& Direct3D12::GetBindlessManager()
 	{
 		return m_bindlessManager;
+	}
+
+	D3D12FrameResourceCollection& Direct3D12::GetFrameResourceCollection()
+	{
+		return m_frameResources[m_frameIndex];
 	}
 
 	Direct3D12::~Direct3D12()
@@ -713,7 +774,7 @@ namespace agl
 
 		D3D12_FEATURE_DATA_D3D12_OPTIONS7 featureOption7 = {};
 		hr = m_device->CheckFeatureSupport( D3D12_FEATURE_D3D12_OPTIONS7, &featureOption7, sizeof( featureOption7 ) );
-		
+
 		if ( FAILED( hr ) )
 		{
 			return false;
@@ -744,26 +805,63 @@ namespace agl
 			}
 		}
 
-		D3D12_COMMAND_QUEUE_DESC desc = {
+		D3D12_COMMAND_QUEUE_DESC directQueueDesc = {
 			.Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
 			.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
 			.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,
 			.NodeMask = 0
 		};
 
-		hr = m_device->CreateCommandQueue( &desc, IID_PPV_ARGS( m_directCommandQueue.GetAddressOf() ) );
+		hr = m_device->CreateCommandQueue( &directQueueDesc, IID_PPV_ARGS( m_directCommandQueue.GetAddressOf() ) );
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
+
+		D3D12_COMMAND_QUEUE_DESC computeQueueDesc = {
+			.Type = D3D12_COMMAND_LIST_TYPE_COMPUTE,
+			.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
+			.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,
+			.NodeMask = 0
+		};
+
+		hr = m_device->CreateCommandQueue( &computeQueueDesc, IID_PPV_ARGS( m_computeCommandQueue.GetAddressOf() ) );
 		if ( FAILED( hr ) )
 		{
 			return false;
 		}
 
 		hr = m_device->CreateFence( m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS( &m_fence ) );
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
 		m_lastFenceValue = ++m_fenceValues[m_frameIndex];
 
-		m_commandList.resize( DefaultAgl::GetBufferCount() );
-		for ( D3D12CommandList& frameCommandList : m_commandList )
+		hr = m_device->CreateFence( m_directFenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS( &m_directFence ) );
+		if ( FAILED( hr ) )
 		{
-			frameCommandList.Initialize();
+			return false;
+		}
+		++m_directFenceValue;
+
+		hr = m_device->CreateFence( m_computeFenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS( &m_computeFence ) );
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
+		++m_computeFenceValue;
+
+		m_commandList.resize( DefaultAgl::GetBufferCount() );
+		for ( D3D12CommandList& commandList : m_commandList )
+		{
+			commandList.Initialize();
+		}
+
+		m_computeCommandList.resize( DefaultAgl::GetBufferCount() );
+		for ( D3D12ComputeCommandList& commandList : m_computeCommandList )
+		{
+			commandList.Initialize();
 		}
 
 		if ( m_uploader.Initialize() == false )
@@ -802,6 +900,7 @@ namespace agl
 		}
 
 		m_fenceValues.resize( DefaultAgl::GetBufferCount(), 0 );
+		m_frameResources.resize( DefaultAgl::GetBufferCount() );
 
 		hr = DxcCreateInstance( CLSID_DxcCompiler, IID_PPV_ARGS( m_compiler.GetAddressOf() ) );
 		if ( FAILED( hr ) )
@@ -927,6 +1026,12 @@ namespace agl
 		return d3d12Api->GetDirectCommandQueue();
 	}
 
+	ID3D12CommandQueue& D3D12ComputeCommandQueue()
+	{
+		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
+		return d3d12Api->GetComputeCommandQueue();
+	}
+
 	ID3D12Device8& D3D12Device()
 	{
 		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
@@ -967,6 +1072,12 @@ namespace agl
 	{
 		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
 		return d3d12Api->GetBindlessManager();
+	}
+
+	D3D12FrameResourceCollection& D3D12FrameResources()
+	{
+		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
+		return d3d12Api->GetFrameResourceCollection();
 	}
 
 	Owner<IAgl*> CreateD3D12GraphicsApi()

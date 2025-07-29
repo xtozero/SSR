@@ -15,6 +15,12 @@ namespace agl
 	class ShaderParameterMap;
 	class Texture;
 
+	enum class QueueType : uint8
+	{
+		Direct,
+		Compute,
+	};
+
 	class IAgl
 	{
 	public:
@@ -28,6 +34,7 @@ namespace agl
 		virtual void OnBeginFrameRendering() = 0;
 		virtual void OnEndFrameRendering( uint32 oldFrameIndex, uint32 newFrameIndex ) = 0;
 		virtual void WaitGPU() = 0;
+		virtual void WaitQueue( QueueType type ) = 0;
 
 		virtual LockedResource Lock( Buffer* buffer, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard, uint32 subResource = 0 ) = 0;
 		virtual void UnLock( Buffer* buffer, uint32 subResource = 0 ) = 0;
@@ -39,6 +46,7 @@ namespace agl
 
 		virtual ICommandList* GetCommandList() = 0;
 		virtual ICommandList* GetParallelCommandList() = 0;
+		virtual IComputeCommandList* GetComputeCommandList() = 0;
 
 		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const = 0;
 		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const = 0;

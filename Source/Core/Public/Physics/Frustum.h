@@ -6,7 +6,7 @@
 class Frustum
 {
 public:
-	enum class PlaneDir
+	enum class PlaneDir : uint8
 	{
 		Left = 0,
 		Right,

@@ -40,7 +40,7 @@ namespace agl
 		}
 	}
 
-	void D3D12Viewport::Bind( ICommandListBase& commandList ) const
+	void D3D12Viewport::Bind( ICommandList& commandList ) const
 	{
 		CubeArea<float> viewport{ 
 			.m_left= 0.f, 

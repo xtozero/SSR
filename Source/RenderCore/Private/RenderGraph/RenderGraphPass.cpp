@@ -58,32 +58,62 @@ namespace rendercore
 		}
 	}
 
-	void RenderGraphPass::ApplyResourceBarrier( ComputeCommandList& commandList )
+	void RenderGraphPass::ApplyResourceBarrier()
 	{
-		auto AddTransition = [&commandList]( const RenderGraphResourceSet& resourceSet, bool isReadOnly )
+		auto AddTransition = []( const RenderGraphResourceSet& resourceSet, bool isReadOnly )
+		{
+			auto commandList = GetCommandList();
+
+			for ( const PassResource& resource : resourceSet )
 			{
-				for ( const PassResource& resource : resourceSet )
+				agl::ResourceState resourceState = DetermineResourceState( resource.m_flag, isReadOnly );
+
+				if ( HasAnyFlags( resource.m_flag, RenderGraphResourceFlag::Texture ) )
 				{
-					agl::ResourceState resourceState = DetermineResourceState( resource.m_flag, isReadOnly );
-
-					if ( HasAnyFlags( resource.m_flag, RenderGraphResourceFlag::Texture ) )
-					{
-						auto& texture = *static_cast<RenderGraphTexture*>( resource.m_ptr );
-						AddResourceBarrier( commandList, *texture.Get(), resourceState);
-					}
-					else
-					{
-						auto& buffer = *static_cast<RenderGraphBuffer*>( resource.m_ptr );
-						AddResourceBarrier( commandList, *buffer.Get(), resourceState);
-					}
+					auto& texture = *static_cast<RenderGraphTexture*>(resource.m_ptr);
+					AddResourceBarrier( commandList, *texture.Get(), resourceState );
 				}
-			};
+				else
+				{
+					auto& buffer = *static_cast<RenderGraphBuffer*>(resource.m_ptr);
+					AddResourceBarrier( commandList, *buffer.Get(), resourceState );
+				}
+			}
+		};
 
+		auto AddFencePrologue = [this]()
+		{
+			if ( m_waitForOtherQueue == false )
+			{
+				return;
+			}
+
+			if ( m_type == RenderGraphPassType::Graphics )
+			{
+				GraphicsInterface().WaitQueue( agl::QueueType::Compute );
+			}
+		};
+
+		auto AddFenceEpilogue = [this]()
+		{
+			if ( m_waitForOtherQueue == false )
+			{
+				return;
+			}
+
+			if ( m_type == RenderGraphPassType::AsyncCompute )
+			{
+				GraphicsInterface().WaitQueue( agl::QueueType::Direct );
+			}
+		};
+
+		AddFencePrologue();
 		AddTransition( m_resourceReads, true );
 		AddTransition( m_resourceWrites, false );
+		AddFenceEpilogue();
 	}
 
-	void RenderGraphPass::LoadRasterOutput( ResourceCommandList& commandList )
+	void RenderGraphPass::LoadRasterOutput( CommandList& commandList )
 	{
 		if ( m_rasterOutput )
 		{
@@ -91,7 +121,7 @@ namespace rendercore
 			{
 				if ( renderTarget.m_texture && ( renderTarget.m_loadAction == RasterOutputLoadAction::Clear ) )
 				{
-					commandList.ClearRenderTarget( renderTarget.m_texture->Get()->RTV());
+					commandList.ClearRenderTarget( renderTarget.m_texture->Get()->RTV() );
 				}
 			}
 
@@ -99,7 +129,7 @@ namespace rendercore
 			{
 				if ( m_rasterOutput->m_depthStencil.m_loadAction == RasterOutputLoadAction::Clear )
 				{
-					commandList.ClearDepthStencil( m_rasterOutput->m_depthStencil.m_texture->Get()->DSV());
+					commandList.ClearDepthStencil( m_rasterOutput->m_depthStencil.m_texture->Get()->DSV() );
 				}
 			}
 		}

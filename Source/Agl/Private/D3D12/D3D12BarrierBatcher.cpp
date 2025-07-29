@@ -30,7 +30,7 @@ namespace agl
 		m_barriers.emplace_back( barrier );
 	}
 
-	void D3D12BarrierBatcher::Commit( D3D12CommandListImpl& commandList )
+	void D3D12BarrierBatcher::Commit( D3D12CopyCommandListImpl& commandList )
 	{
 		if ( m_barriers.empty() )
 		{

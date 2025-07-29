@@ -80,7 +80,7 @@ namespace rendercore
 			.m_output = rgTemp
 		};
 
-		renderGraph.AddPass( 
+		renderGraph.AddPass(
 			horizonBlurPassResource,
 			[horizonBlurPassResource, srcTrait, kernel]( ComputeCommandList& commandList )
 			{

@@ -16,6 +16,14 @@ namespace rendercore
 {
 	class RenderGraph;
 
+	enum class RenderGraphPassType : uint8
+	{
+		Copy,
+		Compute,
+		AsyncCompute,
+		Graphics
+	};
+
 	class RenderGraphPass
 	{
 	public:
@@ -25,8 +33,8 @@ namespace rendercore
 		virtual ~RenderGraphPass() = default;
 
 	protected:
-		void ApplyResourceBarrier( ComputeCommandList& commandList );
-		void LoadRasterOutput( ResourceCommandList& commandList );
+		void ApplyResourceBarrier();
+		void LoadRasterOutput( CommandList& commandList );
 
 		const RasterOutput* m_rasterOutput = nullptr;
 
@@ -69,6 +77,10 @@ namespace rendercore
 
 		GpuProfileRenderGraphEvent* m_gpuProfileEvent = nullptr;
 		PipelineStateRenderGraphEvent* m_pipelineStatEvent = nullptr;
+
+		RenderGraphPassType m_type = RenderGraphPassType::Copy;
+
+		bool m_waitForOtherQueue = false;
 	};
 
 	template <typename Lambda>
@@ -89,16 +101,14 @@ namespace rendercore
 			using CommandListType = LambdaArgType;
 		};
 
+	public:
 		using CommandListType = typename LambdaTrait<Lambda>::CommandListType;
 
-	public:
 		virtual void Execute( ComputeCommandList& commandList ) override
 		{
 			auto concreteCommandList = static_cast<CommandListType&>( commandList );
 
-			ApplyResourceBarrier( commandList );
-
-			if constexpr ( std::is_base_of_v<ResourceCommandList, CommandListType> )
+			if constexpr ( std::is_base_of_v<CommandList, CommandListType> )
 			{
 				LoadRasterOutput( concreteCommandList );
 			}

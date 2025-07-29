@@ -150,7 +150,7 @@ namespace rendercore
 		
 		renderGraph.Execute();
 
-		GetCommandList().Commit();
+		RenderGraph::Commit();
 
 		return irradianceMap;
 	}
@@ -231,7 +231,7 @@ namespace rendercore
 
 		renderGraph.AddPass(
 			copySHPassResource,
-			[copySHPassResource]( ResourceCommandList& commandList )
+			[copySHPassResource]( CopyCommandList& commandList )
 			{
 				commandList.CopyResource( copySHPassResource.m_readBack->Get(), copySHPassResource.m_coeffs->Get(), false );
 			}
@@ -239,7 +239,7 @@ namespace rendercore
 
 		renderGraph.Execute();
 
-		GetCommandList().Commit();
+		RenderGraph::Commit();
 
 		GetInterface<agl::IAgl>()->WaitGPU();
 
@@ -366,7 +366,7 @@ namespace rendercore
 
 		renderGraph.Execute();
 
-		GetCommandList().Commit();
+		RenderGraph::Commit();
 
 		return prefiltered;
 	}

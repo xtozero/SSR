@@ -27,6 +27,7 @@ namespace rendercore
 
 		agl::ICommandList* GetCommandList();
 		agl::ICommandList* GetParallelCommandList();
+		agl::IComputeCommandList* GetComputeCommandList();
 
 		BlendState FindOrCreate( const BlendOption& option );
 		DepthStencilState FindOrCreate( const DepthStencilOption& option );
@@ -36,6 +37,8 @@ namespace rendercore
 
 		BinaryChunk CompieShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const;
 		bool BuildShaderMetaData( const BinaryChunk& byteCode, agl::ShaderParameterMap& outParameterMap, agl::ShaderParameterInfo& outParameterInfo ) const;
+
+		void WaitQueue( agl::QueueType type );
 
 	private:
 		agl::IAgl* m_agl = nullptr;

@@ -468,7 +468,7 @@ namespace rendercore
 		{
 			renderGraph.AddPass(
 				rasterOutput,
-				[]( [[maybe_unused]] ResourceCommandList& commandList )
+				[]( [[maybe_unused]] CommandList& commandList )
 				{} );
 		}
 	}

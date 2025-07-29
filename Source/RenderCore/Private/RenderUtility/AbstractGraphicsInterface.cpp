@@ -51,6 +51,11 @@ namespace rendercore
 		return m_agl->GetParallelCommandList();
 	}
 
+	agl::IComputeCommandList* AbstractGraphicsInterface::GetComputeCommandList()
+	{
+		return m_agl->GetComputeCommandList();
+	}
+
 	BlendState AbstractGraphicsInterface::FindOrCreate( const BlendOption& option )
 	{
 		auto found = m_blendStates.find( option );
@@ -198,6 +203,11 @@ namespace rendercore
 	bool AbstractGraphicsInterface::BuildShaderMetaData( const BinaryChunk& byteCode, agl::ShaderParameterMap& outParameterMap, agl::ShaderParameterInfo& outParameterInfo ) const
 	{
 		return m_agl->BuildShaderMetaData( byteCode, outParameterMap, outParameterInfo );
+	}
+
+	void AbstractGraphicsInterface::WaitQueue( agl::QueueType type )
+	{
+		m_agl->WaitQueue( type );
 	}
 
 	AbstractGraphicsInterface& GraphicsInterface()

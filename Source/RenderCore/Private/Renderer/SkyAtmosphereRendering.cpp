@@ -618,7 +618,7 @@ namespace rendercore
 
 			renderGraph.AddPass(
 				passResource,
-				[passResource]( ResourceCommandList& commandList )
+				[passResource]( CopyCommandList& commandList )
 				{
 					commandList.CopyResource( passResource.m_irradianceReadBack->Get(), passResource.m_irradiance->Get(), false);
 
@@ -666,7 +666,7 @@ namespace rendercore
 
 			renderGraph.AddPass(
 				passResource,
-				[passResource]( ResourceCommandList& commandList )
+				[passResource]( CopyCommandList& commandList )
 				{
 					commandList.CopyResource( passResource.m_inscatterReadBack->Get(), passResource.m_inscatter->Get(), false);
 

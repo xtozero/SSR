@@ -17,6 +17,9 @@ namespace agl
 
 namespace rendercore
 {
+	template <typename T>
+	concept ComputePass = std::is_same_v<typename LambdaRenderGraphPass<T>::CommandListType, ComputeCommandList>;
+
 	class RenderGraph
 	{
 	public:
@@ -25,7 +28,8 @@ namespace rendercore
 		{
 			static_assert( !std::is_same_v<typename LambdaRenderGraphPass<Lambda>::CommandListType, CommandList>, "Graphics command list must need raster output" );
 
-			AddPassInternal( nullptr, nullptr, nullptr, std::forward<Lambda>( passBody ) );
+			constexpr RenderGraphPassType renderGraphPassType = ComputePass<Lambda> ? RenderGraphPassType::Compute : RenderGraphPassType::Copy;
+			AddPassInternal( nullptr, nullptr, nullptr, renderGraphPassType, std::forward<Lambda>( passBody ) );
 		}
 
 		template <HasMetaData RenderGraphResource, typename Lambda>
@@ -33,27 +37,46 @@ namespace rendercore
 		{
 			static_assert( !std::is_same_v<typename LambdaRenderGraphPass<Lambda>::CommandListType, CommandList>, "Graphics command list must need raster output" );
 
-			AddPassInternal( &renderGraphResource, renderGraphResource.GetMetaData(), nullptr, std::forward<Lambda>( passBody ) );
+			constexpr RenderGraphPassType renderGraphPassType = ComputePass<Lambda> ? RenderGraphPassType::Compute : RenderGraphPassType::Copy;
+			AddPassInternal( &renderGraphResource, renderGraphResource.GetMetaData(), nullptr, renderGraphPassType, std::forward<Lambda>( passBody ) );
+		}
+
+		template <ComputePass Lambda>
+		void AddPass( bool isAsync, Lambda&& passBody )
+		{
+			static_assert( !std::is_same_v<typename LambdaRenderGraphPass<Lambda>::CommandListType, CommandList>, "Graphics command list must need raster output" );
+
+			RenderGraphPassType renderGraphPassType = isAsync ? RenderGraphPassType::AsyncCompute : RenderGraphPassType::Compute;
+			AddPassInternal( nullptr, nullptr, nullptr, renderGraphPassType, std::forward<Lambda>( passBody ) );
+		}
+
+		template <HasMetaData RenderGraphResource, ComputePass Lambda>
+		void AddPass( bool isAsync, RenderGraphResource& renderGraphResource, Lambda&& passBody )
+		{
+			static_assert( !std::is_same_v<typename LambdaRenderGraphPass<Lambda>::CommandListType, CommandList>, "Graphics command list must need raster output" );
+
+			RenderGraphPassType renderGraphPassType = isAsync ? RenderGraphPassType::AsyncCompute : RenderGraphPassType::Compute;
+			AddPassInternal( &renderGraphResource, renderGraphResource.GetMetaData(), nullptr, renderGraphPassType, std::forward<Lambda>( passBody ) );
 		}
 
 		template <typename Lambda>
 		void AddPass( const RasterOutput& rasterOutput, Lambda&& passBody )
 		{
-			static_assert( std::is_base_of_v<ResourceCommandList, typename LambdaRenderGraphPass<Lambda>::CommandListType>, "compute command list can't set raster output" );
+			static_assert( std::is_same_v<typename LambdaRenderGraphPass<Lambda>::CommandListType, CommandList>, "compute command list can't set raster output" );
 
-			AddPassInternal( nullptr, nullptr, &rasterOutput, std::forward<Lambda>( passBody ) );
+			AddPassInternal( nullptr, nullptr, &rasterOutput, RenderGraphPassType::Graphics, std::forward<Lambda>( passBody ) );
 		}
 
 		template <HasMetaData RenderGraphResource, typename Lambda>
 		void AddPass( RenderGraphResource& renderGraphResource, const RasterOutput& rasterOutput, Lambda&& passBody )
 		{
-			static_assert( std::is_base_of_v<ResourceCommandList, typename LambdaRenderGraphPass<Lambda>::CommandListType>, "compute command list can't set raster output" );
+			static_assert( std::is_same_v<typename LambdaRenderGraphPass<Lambda>::CommandListType, CommandList>, "compute command list can't set raster output" );
 
-			AddPassInternal( &renderGraphResource, renderGraphResource.GetMetaData(), &rasterOutput, std::forward<Lambda>(passBody));
+			AddPassInternal( &renderGraphResource, renderGraphResource.GetMetaData(), &rasterOutput, RenderGraphPassType::Graphics, std::forward<Lambda>(passBody));
 		}
 
 		template <typename Lambda>
-		void AddPassInternal( void* resourceData, const RenderGraphResourceMemberMetaData* metaData, const RasterOutput* rasterOutput, Lambda&& passBody )
+		void AddPassInternal( void* resourceData, const RenderGraphResourceMemberMetaData* metaData, const RasterOutput* rasterOutput, RenderGraphPassType passType, Lambda&& passBody )
 		{
 			RasterOutput* passRasterOutput = nullptr;
 			if ( rasterOutput )
@@ -67,6 +90,7 @@ namespace rendercore
 
 			renderPass->m_gpuProfileEvent = m_curGPUProfileEvent;
 			renderPass->m_pipelineStatEvent = m_curPipelineStatEvent;
+			renderPass->m_type = passType;
 
 			renderPass->Setup( resourceData, metaData, passRasterOutput );
 
@@ -74,6 +98,7 @@ namespace rendercore
 		}
 
 		void Execute();
+		static void Commit();
 
 		RenderGraphTexture* RegisterExternalResource( agl::Texture* texture );
 		RenderGraphBuffer* RegisterExternalResource( agl::Buffer* buffer );
@@ -101,8 +126,8 @@ namespace rendercore
 
 		void CompilePassEvent();
 
-		void ExecutePassPrologue( ComputeCommandList& commandList, RenderGraphPass& pass );
-		void ExecutePassEpilogue( ComputeCommandList& commandList, RenderGraphPass& pass );
+		void ExecutePassPrologue( RenderGraphPass& pass );
+		void ExecutePassEpilogue( RenderGraphPass& pass );
 
 		void PreparePassResource( RenderGraphPass& pass );
 

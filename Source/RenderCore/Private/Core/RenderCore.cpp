@@ -312,7 +312,7 @@ namespace rendercore
 			CPU_PROFILE( CommitRenderFrame );
 			{
 				CPU_PROFILE( Commit );
-				GetCommandList().Commit();
+				RenderGraph::Commit();
 			}
 		}
 
@@ -329,7 +329,7 @@ namespace rendercore
 		TaskHandle handle = EnqueueThreadTask<ThreadType::RenderThread>(
 			[&hitProxyMap, &outHitProxyData]()
 			{
-				GetCommandList().Commit();
+				RenderGraph::Commit();
 
 				GetInterface<agl::IAgl>()->WaitGPU();
 

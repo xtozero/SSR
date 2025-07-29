@@ -41,7 +41,7 @@ namespace rendercore
 
 			renderGraph.Execute();
 
-			GetCommandList().Commit();
+			RenderGraph::Commit();
 
 			GetInterface<agl::IAgl>()->WaitGPU();
 
@@ -69,7 +69,7 @@ namespace rendercore
 
 		renderGraph.AddPass(
 			baseCloudShapePassResource,
-			[baseCloudShapePassResource](ComputeCommandList& commandList)
+			[baseCloudShapePassResource]( ComputeCommandList& commandList )
 			{
 				PerlinWorleyCS perlinWorleyCS;
 				auto threadGroupCount = static_cast<uint32>( std::ceilf( 128 / 8.f ) );
@@ -147,7 +147,7 @@ namespace rendercore
 
 		renderGraph.AddPass(
 			passResource,
-			[passResource](ComputeCommandList& commandList)
+			[passResource]( ComputeCommandList& commandList )
 			{
 				WeatherMapCS weatherMapCS;
 

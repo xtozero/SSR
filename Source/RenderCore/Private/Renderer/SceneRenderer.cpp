@@ -1494,7 +1494,7 @@ namespace rendercore
 
 		renderGraph.AddPass(
 			copyHitProxyPassResource,
-			[copyHitProxyPassResource]( [[maybe_unused]] ResourceCommandList& commandList )
+			[copyHitProxyPassResource]( [[maybe_unused]] CopyCommandList& commandList )
 			{
 				commandList.CopyResource( copyHitProxyPassResource.m_copyDest->Get(), copyHitProxyPassResource.m_copySource->Get(), false);
 			} );

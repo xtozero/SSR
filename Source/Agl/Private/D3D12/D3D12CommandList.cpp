@@ -33,7 +33,7 @@ namespace agl
 		}
 	}
 
-	D3D12CommandListResource& D3D12CommnadListResourcePool::ObtainCommandList()
+	D3D12CommandListResource& D3D12CommnadListResourcePool::GetCommandList()
 	{
 		D3D12CommandListResource* ret = nullptr;
 		if ( m_freeList == nullptr )
@@ -97,143 +97,96 @@ namespace agl
 		}
 	}
 
-	void D3D12CommandListImpl::Initialize()
+	void D3D12BaseCommandListImpl::Initialize()
 	{
-		m_globalConstantBuffers.Initialize();
-		m_cmdListResource = D3D12CmdPool( D3D12_COMMAND_LIST_TYPE_DIRECT ).ObtainCommandList();
+		InitializeCommandList();
 	}
 
-	void D3D12CommandListImpl::Prepare()
+	void D3D12BaseCommandListImpl::Prepare()
 	{
+		assert( m_cmdListResource.m_fence != nullptr );
 		if ( m_cmdListResource.m_fence->GetCompletedValue() > 0 )
 		{
-			m_cmdListResource = D3D12CmdPool( D3D12_COMMAND_LIST_TYPE_DIRECT ).ObtainCommandList();
-			m_stateCache.Prepare();
-		}
-
-		m_stateCache.ReleaseRenderResources();
-
-		m_globalConstantBuffers.Prepare();
-		m_globalDescriptorHeap.Prepare();
-	}
-
-	void D3D12CommandListImpl::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets )
-	{
-		m_stateCache.BindVertexBuffer( CommandList(), vertexBuffers, startSlot, numBuffers, strides, pOffsets );
-	}
-
-	void D3D12CommandListImpl::BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset )
-	{
-		m_stateCache.BindIndexBuffer( CommandList(), indexBuffer, indexOffset );
-	}
-
-	void D3D12CommandListImpl::BindPipelineState( GraphicsPipelineState* pipelineState )
-	{
-		m_stateCache.BindPipelineState( CommandList(), pipelineState );
-	}
-
-	void D3D12CommandListImpl::BindPipelineState( ComputePipelineState* pipelineState )
-	{
-		m_stateCache.BindPipelineState( CommandList(), pipelineState );
-	}
-
-	void D3D12CommandListImpl::BindShaderResources( ShaderBindings& shaderBindings )
-	{
-		if ( shaderBindings.HasBindless() )
-		{
-			m_stateCache.BindBindlessResources( CommandList(), m_globalDescriptorHeap, m_globalConstantBuffers, shaderBindings );
-		}
-		else
-		{
-			m_stateCache.BindShaderResources( CommandList(), m_globalDescriptorHeap, m_globalConstantBuffers, shaderBindings );
+			InitializeCommandList();
 		}
 	}
 
-	void D3D12CommandListImpl::SetShaderValue( const ShaderParameter& parameter, const void* value )
+	bool D3D12BaseCommandListImpl::HasCommands() const
 	{
-		m_globalConstantBuffers.SetShaderValue( parameter, value );
+		return m_numCommands > 0;
 	}
 
-	void D3D12CommandListImpl::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
+	ID3D12CommandQueue& D3D12BaseCommandListImpl::GetCommandQueue()
 	{
-		m_barrierBatcher.Commit( *this );
-		m_globalConstantBuffers.CommitShaderValue( false );
-		CommandList().DrawInstanced( vertexCount, numInstance, baseVertexLocation, 0 );
-		m_globalConstantBuffers.Reset( false );
+		return m_type == D3D12_COMMAND_LIST_TYPE_COMPUTE ? D3D12ComputeCommandQueue() : D3D12DirectCommandQueue();
 	}
 
-	void D3D12CommandListImpl::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
+	void D3D12BaseCommandListImpl::BeginQuery( void* rawQuery )
 	{
-		m_barrierBatcher.Commit( *this );
-		m_globalConstantBuffers.CommitShaderValue( false );
-		CommandList().DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation, 0 );
-		m_globalConstantBuffers.Reset( false );
+		auto d3dQuery = static_cast<D3D12Query*>( rawQuery );
+
+		CommandList().BeginQuery( d3dQuery->m_heap->GetHeap(), d3dQuery->m_type, d3dQuery->m_offset);
+
+		OnCommandRecorded();
 	}
 
-	void D3D12CommandListImpl::Dispatch( uint32 x, uint32 y, uint32 z )
+	void D3D12BaseCommandListImpl::EndQuery( void* rawQuery )
 	{
-		m_barrierBatcher.Commit( *this );
-		m_globalConstantBuffers.CommitShaderValue( true );
-		CommandList().Dispatch( x, y, z );
-		m_globalConstantBuffers.Reset( true );
+		auto d3dQuery = static_cast<D3D12Query*>( rawQuery );
+
+		CommandList().EndQuery( d3dQuery->m_heap->GetHeap(), d3dQuery->m_type, d3dQuery->m_offset);
+
+		OnCommandRecorded();
 	}
 
-	void D3D12CommandListImpl::DispatchMesh( uint32 x, uint32 y, uint32 z )
+	void D3D12BaseCommandListImpl::ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries )
 	{
-		m_barrierBatcher.Commit( *this );
-		m_globalConstantBuffers.CommitShaderValue( false );
-		CommandList().DispatchMesh( x, y, z );
-		m_globalConstantBuffers.Reset( false );
+		auto d3dQueryHeap = static_cast<D3D12QueryHeapBlock*>( queryHeap );
+		ID3D12QueryHeap* heap = d3dQueryHeap->GetHeap();
+		ID3D12Resource* readBackBuffer = d3dQueryHeap->GetReadBackBuffer();
+
+		CommandList().ResolveQueryData( heap, type, offset, numQueries, readBackBuffer, GetQueryDataSize( type ) * offset );
+
+		OnCommandRecorded();
 	}
 
-	void D3D12CommandListImpl::SetViewports( uint32 count, const CubeArea<float>* area )
+	void D3D12BaseCommandListImpl::BeginEvent( const char* eventName )
 	{
-		m_stateCache.SetViewports( CommandList(), count, area );
+		static uint64 black = PIX_COLOR( 0, 0, 0 );
+		PIXBeginEvent( &CommandList(), black, eventName );
+
+		OnCommandRecorded();
 	}
 
-	void D3D12CommandListImpl::SetScissorRects( uint32 count, const RectangleArea<int32>* area )
+	void D3D12BaseCommandListImpl::EndEvnet()
 	{
-		m_stateCache.SetScissorRects( CommandList(), count, area );
+		PIXEndEvent( &CommandList() );
+
+		OnCommandRecorded();
 	}
 
-	void D3D12CommandListImpl::BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil )
+	ID3D12CommandList* D3D12BaseCommandListImpl::Resource() const
 	{
-		m_stateCache.BindRenderTargets( CommandList(), pRenderTargets, renderTargetCount, depthStencil );
+		return m_cmdListResource.m_commandList.Get();
 	}
 
-	void D3D12CommandListImpl::ClearRenderTarget( RenderTargetView* renderTarget )
+	ID3D12GraphicsCommandList6& D3D12BaseCommandListImpl::CommandList()
 	{
-		if ( renderTarget == nullptr )
-		{
-			return;
-		}
-
-		m_barrierBatcher.Commit( *this );
-
-		auto d3d12RTV = static_cast<D3D12RenderTargetView*>( renderTarget );
-		D3D12_CPU_DESCRIPTOR_HANDLE handle = d3d12RTV->GetCpuHandle().At();
-		ColorF clearValue = d3d12RTV->GetClearColor();
-		CommandList().ClearRenderTargetView( handle, clearValue.RGBA(), 0, nullptr);
+		return *m_cmdListResource.m_commandList.Get();
 	}
 
-	void D3D12CommandListImpl::ClearDepthStencil( DepthStencilView* depthStencil )
+	void D3D12BaseCommandListImpl::InitializeCommandList()
 	{
-		if ( depthStencil == nullptr )
-		{
-			return;
-		}
-
-		m_barrierBatcher.Commit( *this );
-
-		auto d3d12DSV = static_cast<D3D12DepthStencilView*>( depthStencil );
-		D3D12_CPU_DESCRIPTOR_HANDLE handle = d3d12DSV->GetCpuHandle().At();
-		float depthClearValue = d3d12DSV->GetDepthClearValue();
-		uint8 stencilClearValue = d3d12DSV->GetStencilClearValue();
-
-		CommandList().ClearDepthStencilView( handle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, depthClearValue, stencilClearValue, 0, nullptr );
+		m_cmdListResource = D3D12CmdPool( m_type ).GetCommandList();
+		m_numCommands = 0;
 	}
 
-	void D3D12CommandListImpl::CopyResource( Texture* dest, Texture* src, bool bAsync )
+	void D3D12BaseCommandListImpl::OnCommandRecorded()
+	{
+	    ++m_numCommands;
+	}
+
+	void D3D12CopyCommandListImpl::CopyResource( Texture* dest, Texture* src, bool bAsync )
 	{
 		auto d3d12Dest = static_cast<D3D12Texture*>( dest );
 		auto d3d12Src = static_cast<D3D12Texture*>( src );
@@ -278,10 +231,12 @@ namespace agl
 			{
 				CommandList().CopyResource( static_cast<ID3D12Resource*>( d3d12Dest->Resource() ), static_cast<ID3D12Resource*>( d3d12Src->Resource() ) );
 			}
+
+			OnCommandRecorded();
 		}
 	}
 
-	void D3D12CommandListImpl::CopyResource( Buffer* dest, Buffer* src, bool bAsync, uint32 numByte )
+	void D3D12CopyCommandListImpl::CopyResource( Buffer* dest, Buffer* src, bool bAsync, uint32 numByte )
 	{
 		auto d3d12Dest = static_cast<D3D12Buffer*>( dest );
 		auto d3d12Src = static_cast<D3D12Buffer*>( src );
@@ -307,10 +262,12 @@ namespace agl
 			{
 				CommandList().CopyBufferRegion( d3d12Dest->Resource(), 0, d3d12Src->Resource(), 0, numByte );
 			}
+
+			OnCommandRecorded();
 		}
 	}
 
-	void D3D12CommandListImpl::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
+	void D3D12CopyCommandListImpl::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
 	{
 		auto d3d12Texture = static_cast<D3D12Texture*>( dest );
 		if ( d3d12Texture == nullptr )
@@ -349,12 +306,14 @@ namespace agl
 				nullptr
 			);
 
-			m_stateCache.RegisterRenderResource( dest );
-			m_stateCache.RegisterRenderResource( intermediate.m_buffer.Get() );
+			D3D12FrameResources().RegisterResource( dest );
+			D3D12FrameResources().RegisterResource( intermediate.m_buffer.Get() );
+
+			OnCommandRecorded();
 		}
 	}
 
-	void D3D12CommandListImpl::UpdateSubresource( agl::Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte )
+	void D3D12CopyCommandListImpl::UpdateSubresource( agl::Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte )
 	{
 		auto d3d12Buffer = static_cast<D3D12Buffer*>( dest );
 		if ( d3d12Buffer == nullptr )
@@ -398,24 +357,216 @@ namespace agl
 
 			CommandList().CopyBufferRegion( d3d12Buffer->Resource(), destOffset, resource, 0, numByte );
 
-			m_stateCache.RegisterRenderResource( dest );
-			m_stateCache.RegisterRenderResource( intermediate.Get() );
+			D3D12FrameResources().RegisterResource( dest );
+			D3D12FrameResources().RegisterResource( intermediate.Get() );
+
+			OnCommandRecorded();
 		}
 	}
 
-	void D3D12CommandListImpl::AddTransition( const ResourceTransition& transition )
+	void D3D12CopyCommandListImpl::AddTransition( const ResourceTransition& transition )
 	{
 		m_barrierBatcher.AddTransition( transition );
 	}
 
-	void D3D12CommandListImpl::AddUavBarrier( const UavBarrier& uavBarrier )
+	void D3D12CopyCommandListImpl::AddUavBarrier( const UavBarrier& uavBarrier )
 	{
 		m_barrierBatcher.AddUavBarrier( uavBarrier );
 	}
 
-	void D3D12CommandListImpl::ResourceBarrier( uint32 numBarriers, D3D12_RESOURCE_BARRIER* barriers )
+	void D3D12CopyCommandListImpl::ResourceBarrier( uint32 numBarriers, D3D12_RESOURCE_BARRIER* barriers )
 	{
 		CommandList().ResourceBarrier( numBarriers, barriers );
+
+		OnCommandRecorded();
+	}
+
+	void D3D12CopyCommandListImpl::Signal( ID3D12Fence* fence, uint64 fenceValue )
+	{
+		if ( fence == nullptr )
+		{
+			return;
+		}
+
+		m_fenceBatch.emplace_back( fence, fenceValue );
+	}
+
+	void D3D12CopyCommandListImpl::Close()
+	{
+		m_barrierBatcher.Commit( *this );
+
+		if ( HasCommands() == false )
+		{
+			return;
+		}
+
+		CommandList().Close();
+	}
+
+	void D3D12CopyCommandListImpl::OnCommited()
+	{
+		GetCommandQueue().Signal( m_cmdListResource.m_fence.Get(), 1 );
+		for ( const auto& pair : m_fenceBatch )
+		{
+			GetCommandQueue().Signal( pair.first, pair.second );
+		}
+
+		InitializeCommandList();
+		m_fenceBatch.clear();
+	}
+
+	void D3D12ComputeCommandListImpl::Initialize()
+	{
+		D3D12CopyCommandListImpl::Initialize();
+		m_globalConstantBuffers.Initialize();
+	}
+
+	void D3D12ComputeCommandListImpl::Prepare()
+	{
+		assert( m_cmdListResource.m_fence != nullptr );
+		if ( m_cmdListResource.m_fence->GetCompletedValue() > 0 )
+		{
+			m_stateCache.Prepare();
+		}
+
+		D3D12CopyCommandListImpl::Prepare();
+
+		m_globalConstantBuffers.Prepare();
+		m_globalDescriptorHeap.Prepare();
+	}
+
+	void D3D12ComputeCommandListImpl::BindComputePipelineState( ComputePipelineState* pipelineState )
+	{
+		m_stateCache.BindPipelineState( CommandList(), pipelineState );
+	}
+
+	void D3D12ComputeCommandListImpl::BindShaderResources( ShaderBindings& shaderBindings )
+	{
+		if ( shaderBindings.HasBindless() )
+		{
+			m_stateCache.BindBindlessResources( CommandList(), m_globalDescriptorHeap, m_globalConstantBuffers, shaderBindings );
+		}
+		else
+		{
+			m_stateCache.BindShaderResources( CommandList(), m_globalDescriptorHeap, m_globalConstantBuffers, shaderBindings );
+		}
+	}
+
+	void D3D12ComputeCommandListImpl::SetShaderValue( const ShaderParameter& parameter, const void* value )
+	{
+		m_globalConstantBuffers.SetShaderValue( parameter, value );
+	}
+
+	void D3D12ComputeCommandListImpl::Dispatch( uint32 x, uint32 y, uint32 z )
+	{
+		m_barrierBatcher.Commit( *this );
+		m_globalConstantBuffers.CommitShaderValue( true );
+		CommandList().Dispatch( x, y, z );
+		m_globalConstantBuffers.Reset( true );
+
+		OnCommandRecorded();
+	}
+
+	void D3D12ComputeCommandListImpl::OnCommited()
+	{
+		D3D12CopyCommandListImpl::OnCommited();
+		m_stateCache.Prepare();
+	}
+
+	void D3D12CommandListImpl::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets )
+	{
+		m_stateCache.BindVertexBuffer( CommandList(), vertexBuffers, startSlot, numBuffers, strides, pOffsets );
+	}
+
+	void D3D12CommandListImpl::BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset )
+	{
+		m_stateCache.BindIndexBuffer( CommandList(), indexBuffer, indexOffset );
+	}
+
+	void D3D12CommandListImpl::BindGraphicsPipelineState( GraphicsPipelineState* pipelineState )
+	{
+		m_stateCache.BindPipelineState( CommandList(), pipelineState );
+	}
+
+	void D3D12CommandListImpl::BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil )
+	{
+		m_stateCache.BindRenderTargets( CommandList(), pRenderTargets, renderTargetCount, depthStencil );
+	}
+
+	void D3D12CommandListImpl::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
+	{
+		m_barrierBatcher.Commit( *this );
+		m_globalConstantBuffers.CommitShaderValue( false );
+		CommandList().DrawInstanced( vertexCount, numInstance, baseVertexLocation, 0 );
+		m_globalConstantBuffers.Reset( false );
+
+		OnCommandRecorded();
+	}
+
+	void D3D12CommandListImpl::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
+	{
+		m_barrierBatcher.Commit( *this );
+		m_globalConstantBuffers.CommitShaderValue( false );
+		CommandList().DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation, 0 );
+		m_globalConstantBuffers.Reset( false );
+
+		OnCommandRecorded();
+	}
+
+	void D3D12CommandListImpl::DispatchMesh( uint32 x, uint32 y, uint32 z )
+	{
+		m_barrierBatcher.Commit( *this );
+		m_globalConstantBuffers.CommitShaderValue( false );
+		CommandList().DispatchMesh( x, y, z );
+		m_globalConstantBuffers.Reset( false );
+
+		OnCommandRecorded();
+	}
+
+	void D3D12CommandListImpl::SetViewports( uint32 count, const CubeArea<float>* area )
+	{
+		m_stateCache.SetViewports( CommandList(), count, area );
+	}
+
+	void D3D12CommandListImpl::SetScissorRects( uint32 count, const RectangleArea<int32>* area )
+	{
+		m_stateCache.SetScissorRects( CommandList(), count, area );
+	}
+
+	void D3D12CommandListImpl::ClearRenderTarget( RenderTargetView* renderTarget )
+	{
+		if ( renderTarget == nullptr )
+		{
+			return;
+		}
+
+		m_barrierBatcher.Commit( *this );
+
+		auto d3d12RTV = static_cast<D3D12RenderTargetView*>( renderTarget );
+		D3D12_CPU_DESCRIPTOR_HANDLE handle = d3d12RTV->GetCpuHandle().At();
+		ColorF clearValue = d3d12RTV->GetClearColor();
+		CommandList().ClearRenderTargetView( handle, clearValue.RGBA(), 0, nullptr);
+
+		OnCommandRecorded();
+	}
+
+	void D3D12CommandListImpl::ClearDepthStencil( DepthStencilView* depthStencil )
+	{
+		if ( depthStencil == nullptr )
+		{
+			return;
+		}
+
+		m_barrierBatcher.Commit( *this );
+
+		auto d3d12DSV = static_cast<D3D12DepthStencilView*>( depthStencil );
+		D3D12_CPU_DESCRIPTOR_HANDLE handle = d3d12DSV->GetCpuHandle().At();
+		float depthClearValue = d3d12DSV->GetDepthClearValue();
+		uint8 stencilClearValue = d3d12DSV->GetStencilClearValue();
+
+		CommandList().ClearDepthStencilView( handle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, depthClearValue, stencilClearValue, 0, nullptr );
+
+		OnCommandRecorded();
 	}
 
 	bool D3D12CommandListImpl::CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult )
@@ -436,87 +587,131 @@ namespace agl
 
 		D3D12_RESOURCE_STATES resourceState = ConvertToResourceStates( texture->GetResourceState() );
 
-		HRESULT hr = DirectX::CaptureTexture( &D3D12DirectCommandQueue(), resource, isCubeMap, outResult, resourceState, resourceState );
+		HRESULT hr = DirectX::CaptureTexture( &GetCommandQueue(), resource, isCubeMap, outResult, resourceState, resourceState );
 		return SUCCEEDED( hr );
 	}
 
-	void D3D12CommandListImpl::BeginQuery( void* rawQuery )
+	void D3D12ComputeCommandList::Prepare()
 	{
-		auto d3dQuery = static_cast<D3D12Query*>( rawQuery );
-
-		CommandList().BeginQuery( d3dQuery->m_heap->GetHeap(), d3dQuery->m_type, d3dQuery->m_offset);
+		m_impl.Prepare();
 	}
 
-	void D3D12CommandListImpl::EndQuery( void* rawQuery )
+	void D3D12ComputeCommandList::AddTransition( const ResourceTransition& transition )
 	{
-		auto d3dQuery = static_cast<D3D12Query*>( rawQuery );
-
-		CommandList().EndQuery( d3dQuery->m_heap->GetHeap(), d3dQuery->m_type, d3dQuery->m_offset);
+		m_impl.AddTransition( transition );
 	}
 
-	void D3D12CommandListImpl::ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries )
+	void D3D12ComputeCommandList::AddUavBarrier( const UavBarrier& uavBarrier )
 	{
-		auto d3dQueryHeap = static_cast<D3D12QueryHeapBlock*>( queryHeap );
-		ID3D12QueryHeap* heap = d3dQueryHeap->GetHeap();
-		ID3D12Resource* readBackBuffer = d3dQueryHeap->GetReadBackBuffer();
-
-		CommandList().ResolveQueryData( heap, type, offset, numQueries, readBackBuffer, GetQueryDataSize( type ) * offset );
+		m_impl.AddUavBarrier( uavBarrier );
 	}
 
-	void D3D12CommandListImpl::BeginEvent( const char* eventName )
+	void D3D12ComputeCommandList::BeginQuery( void* rawQuery )
 	{
-		static uint64 black = PIX_COLOR( 0, 0, 0 );
-		PIXBeginEvent( &CommandList(), black, eventName );
+		m_impl.BeginQuery( rawQuery );
 	}
 
-	void D3D12CommandListImpl::EndEvnet()
+	void D3D12ComputeCommandList::EndQuery( void* rawQuery )
 	{
-		PIXEndEvent( &CommandList() );
+		m_impl.EndQuery( rawQuery );
 	}
 
-	void D3D12CommandListImpl::Signal( ID3D12Fence* fence, uint64 fenceValue )
+	void D3D12ComputeCommandList::BeginEvent( const char* eventName )
 	{
-		if ( fence == nullptr )
+		m_impl.BeginEvent( eventName );
+	}
+
+	void D3D12ComputeCommandList::EndEvent()
+	{
+		m_impl.EndEvnet();
+	}
+
+	void D3D12ComputeCommandList::Commit()
+	{
+		m_impl.Close();
+
+		if ( m_impl.HasCommands() == false )
 		{
 			return;
 		}
 
-		m_fenceBatch.emplace_back( fence, fenceValue );
+		ID3D12CommandList* commandLists[] = { m_impl.Resource() };
+
+		m_impl.GetCommandQueue().ExecuteCommandLists( 1, commandLists );
+
+		OnCommited();
 	}
 
-	void D3D12CommandListImpl::Close()
+	void D3D12ComputeCommandList::CopyResource( Texture* dest, Texture* src, bool bAsync )
 	{
-		m_barrierBatcher.Commit( *this );
-
-		CommandList().Close();
+		m_impl.CopyResource( dest, src, bAsync );
 	}
 
-	void D3D12CommandListImpl::OnCommited()
+	void D3D12ComputeCommandList::CopyResource( Buffer* dest, Buffer* src, bool bAsync, uint32 numByte )
 	{
-		D3D12DirectCommandQueue().Signal( m_cmdListResource.m_fence.Get(), 1 );
-		for ( const auto& pair : m_fenceBatch )
+		m_impl.CopyResource( dest, src, bAsync, numByte );
+	}
+
+	void D3D12ComputeCommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize,
+	                                                 bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
+	{
+		m_impl.UpdateSubresource( dest, src, srcRowSize, bAsync, destArea, subresource );
+	}
+
+	void D3D12ComputeCommandList::UpdateSubresource( agl::Buffer* dest, const void* src, bool bAsync, uint32 destOffset,
+	                                                 uint32 numByte )
+	{
+		m_impl.UpdateSubresource( dest, src, bAsync, destOffset, numByte );
+	}
+
+	void D3D12ComputeCommandList::BindPipelineState( ComputePipelineState* pipelineState )
+	{
+		m_impl.BindComputePipelineState( pipelineState );
+	}
+
+	void D3D12ComputeCommandList::BindShaderResources( ShaderBindings& shaderBindings )
+	{
+		m_impl.BindShaderResources( shaderBindings );
+	}
+
+	void D3D12ComputeCommandList::SetShaderValue( const ShaderParameter& parameter, const void* value )
+	{
+		m_impl.SetShaderValue( parameter, value );
+	}
+
+	void D3D12ComputeCommandList::Dispatch( uint32 x, uint32 y, uint32 z )
+	{
+		m_impl.Dispatch( x, y, z );
+	}
+
+	void D3D12ComputeCommandList::Initialize()
+	{
+		m_impl.Initialize();
+	}
+
+	void D3D12ComputeCommandList::OnCommited()
+	{
+		m_impl.OnCommited();
+	}
+
+	D3D12ComputeCommandList::D3D12ComputeCommandList( D3D12ComputeCommandList&& other ) noexcept
+	{
+		*this = std::move( other );
+	}
+
+	D3D12ComputeCommandList& D3D12ComputeCommandList::operator=( D3D12ComputeCommandList&& other ) noexcept
+	{
+		if ( this != &other )
 		{
-			D3D12DirectCommandQueue().Signal( pair.first, pair.second );
+			m_impl = std::move( other.m_impl );
 		}
 
-		m_cmdListResource = D3D12CmdPool( D3D12_COMMAND_LIST_TYPE_DIRECT ).ObtainCommandList();
-		m_stateCache.Prepare();
-		m_fenceBatch.clear();
-	}
-
-	ID3D12CommandList* D3D12CommandListImpl::Resource() const
-	{
-		return m_cmdListResource.m_commandList.Get();
-	}
-
-	ID3D12GraphicsCommandList6& D3D12CommandListImpl::CommandList()
-	{
-		return *m_cmdListResource.m_commandList.Get();
+		return *this;
 	}
 
 	void D3D12CommandList::Prepare()
 	{
-		m_imple.Prepare();
+		m_impl.Prepare();
 
 		for ( auto commandList : m_parallelCommandLists )
 		{
@@ -527,134 +722,192 @@ namespace agl
 		m_numUsedParallelCommandList = 0;
 	}
 
-	void D3D12CommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets )
-	{
-		m_imple.BindVertexBuffer( vertexBuffers, startSlot, numBuffers, strides, pOffsets );
-	}
-
-	void D3D12CommandList::BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset )
-	{
-		m_imple.BindIndexBuffer( indexBuffer, indexOffset );
-	}
-
-	void D3D12CommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
-	{
-		m_imple.BindPipelineState( pipelineState );
-	}
-
-	void D3D12CommandList::BindPipelineState( ComputePipelineState* pipelineState )
-	{
-		m_imple.BindPipelineState( pipelineState );
-	}
-
-	void D3D12CommandList::BindShaderResources( ShaderBindings& shaderBindings )
-	{
-		m_imple.BindShaderResources( shaderBindings );
-	}
-
-	void D3D12CommandList::SetShaderValue( const ShaderParameter& parameter, const void* value )
-	{
-		m_imple.SetShaderValue( parameter, value );
-	}
-
-	void D3D12CommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
-	{
-		m_imple.DrawInstanced( vertexCount, numInstance, baseVertexLocation );
-	}
-
-	void D3D12CommandList::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
-	{
-		m_imple.DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation );
-	}
-
-	void D3D12CommandList::Dispatch( uint32 x, uint32 y, uint32 z )
-	{
-		m_imple.Dispatch( x, y, z );
-	}
-
-	void D3D12CommandList::DispatchMesh( uint32 x, uint32 y, uint32 z )
-	{
-		m_imple.DispatchMesh( x, y, z );
-	}
-
-	void D3D12CommandList::SetViewports( uint32 count, const CubeArea<float>* area )
-	{
-		m_imple.SetViewports( count, area );
-	}
-
-	void D3D12CommandList::SetScissorRects( uint32 count, const RectangleArea<int32>* area )
-	{
-		m_imple.SetScissorRects( count, area );
-	}
-
-	void D3D12CommandList::BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil )
-	{
-		m_imple.BindRenderTargets( pRenderTargets, renderTargetCount, depthStencil );
-	}
-
-	void D3D12CommandList::ClearRenderTarget( RenderTargetView* renderTarget )
-	{
-		m_imple.ClearRenderTarget( renderTarget );
-	}
-
-	void D3D12CommandList::ClearDepthStencil( DepthStencilView* depthStencil )
-	{
-		m_imple.ClearDepthStencil( depthStencil );
-	}
-
-	void D3D12CommandList::CopyResource( Texture* dest, Texture* src, bool bAsync )
-	{
-		m_imple.CopyResource( dest, src, bAsync );
-	}
-
-	void D3D12CommandList::CopyResource( Buffer* dest, Buffer* src, bool bAsync, uint32 numByte )
-	{
-		m_imple.CopyResource( dest, src, bAsync, numByte );
-	}
-
-	void D3D12CommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
-	{
-		m_imple.UpdateSubresource( dest, src, srcRowSize, bAsync, destArea, subresource );
-	}
-
-	void D3D12CommandList::UpdateSubresource( agl::Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte )
-	{
-		m_imple.UpdateSubresource( dest, src, bAsync, destOffset, numByte );
-	}
-
 	void D3D12CommandList::AddTransition( const ResourceTransition& transition )
 	{
-		m_imple.AddTransition( transition );
+		m_impl.AddTransition( transition );
 	}
 
 	void D3D12CommandList::AddUavBarrier( const UavBarrier& uavBarrier )
 	{
-		m_imple.AddUavBarrier( uavBarrier );
-	}
-
-	bool D3D12CommandList::CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult )
-	{
-		return m_imple.CaptureTexture( texture, outResult );
+		m_impl.AddUavBarrier( uavBarrier );
 	}
 
 	void D3D12CommandList::BeginQuery( void* rawQuery )
 	{
-		m_imple.BeginQuery( rawQuery );
+		m_impl.BeginQuery( rawQuery );
 	}
 
 	void D3D12CommandList::EndQuery( void* rawQuery )
 	{
-		m_imple.EndQuery( rawQuery );
+		m_impl.EndQuery( rawQuery );
 	}
 
 	void D3D12CommandList::BeginEvent( const char* eventName )
 	{
-		m_imple.BeginEvent( eventName );
+		m_impl.BeginEvent( eventName );
 	}
 
 	void D3D12CommandList::EndEvent()
 	{
-		m_imple.EndEvnet();
+		m_impl.EndEvnet();
+	}
+
+	void D3D12CommandList::Commit()
+	{
+		m_impl.Close();
+
+		std::vector<ID3D12CommandList*, InlineAllocator<ID3D12CommandList*, 1>> commandLists;
+
+		if ( m_impl.HasCommands() )
+		{
+			commandLists.push_back( m_impl.Resource() );
+		}
+
+		for ( size_t i = 0; i < m_parallelCommandLists.size(); ++i )
+		{
+			auto d3d12CommandList = static_cast<D3D12ParallelCommandList*>( m_parallelCommandLists[i] );
+			d3d12CommandList->Close();
+
+			if ( d3d12CommandList->HasCommands() )
+			{
+				commandLists.push_back( d3d12CommandList->Resource() );
+			}
+		}
+
+		if ( commandLists.empty() )
+		{
+			return;
+		}
+
+		auto numCommandList = static_cast<uint32>( commandLists.size() );
+		m_impl.GetCommandQueue().ExecuteCommandLists( numCommandList, commandLists.data() );
+
+		OnCommited();
+		for ( size_t i = 0; i < m_parallelCommandLists.size(); ++i )
+		{
+			auto d3d12CommandList = static_cast<D3D12ParallelCommandList*>( m_parallelCommandLists[i] );
+			d3d12CommandList->OnCommited();
+		}
+	}
+
+	void D3D12CommandList::CopyResource( Texture* dest, Texture* src, bool bAsync )
+	{
+		m_impl.CopyResource( dest, src, bAsync );
+	}
+
+	void D3D12CommandList::CopyResource( Buffer* dest, Buffer* src, bool bAsync, uint32 numByte )
+	{
+		m_impl.CopyResource( dest, src, bAsync, numByte );
+	}
+
+	void D3D12CommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
+	{
+		m_impl.UpdateSubresource( dest, src, srcRowSize, bAsync, destArea, subresource );
+	}
+
+	void D3D12CommandList::UpdateSubresource( agl::Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte )
+	{
+		m_impl.UpdateSubresource( dest, src, bAsync, destOffset, numByte );
+	}
+
+	void D3D12CommandList::BindPipelineState( ComputePipelineState* pipelineState )
+    {
+    	m_impl.BindComputePipelineState( pipelineState );
+    }
+
+    void D3D12CommandList::BindShaderResources( ShaderBindings& shaderBindings )
+    {
+    	m_impl.BindShaderResources( shaderBindings );
+    }
+
+    void D3D12CommandList::SetShaderValue( const ShaderParameter& parameter, const void* value )
+    {
+    	m_impl.SetShaderValue( parameter, value );
+    }
+
+	void D3D12CommandList::Dispatch( uint32 x, uint32 y, uint32 z )
+	{
+		m_impl.Dispatch( x, y, z );
+	}
+
+	void D3D12CommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
+	{
+		m_impl.DrawInstanced( vertexCount, numInstance, baseVertexLocation );
+	}
+
+	void D3D12CommandList::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
+	{
+		m_impl.DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation );
+	}
+
+	void D3D12CommandList::DispatchMesh( uint32 x, uint32 y, uint32 z )
+	{
+		m_impl.DispatchMesh( x, y, z );
+	}
+
+	void D3D12CommandList::SetViewports( uint32 count, const CubeArea<float>* area )
+	{
+		m_impl.SetViewports( count, area );
+	}
+
+	void D3D12CommandList::SetScissorRects( uint32 count, const RectangleArea<int32>* area )
+	{
+		m_impl.SetScissorRects( count, area );
+	}
+
+	void D3D12CommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets )
+	{
+		m_impl.BindVertexBuffer( vertexBuffers, startSlot, numBuffers, strides, pOffsets );
+	}
+
+	void D3D12CommandList::BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset )
+	{
+		m_impl.BindIndexBuffer( indexBuffer, indexOffset );
+	}
+
+	void D3D12CommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
+	{
+		m_impl.BindGraphicsPipelineState( pipelineState );
+	}
+
+	void D3D12CommandList::BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil )
+	{
+		m_impl.BindRenderTargets( pRenderTargets, renderTargetCount, depthStencil );
+	}
+
+	void D3D12CommandList::ClearRenderTarget( RenderTargetView* renderTarget )
+	{
+		m_impl.ClearRenderTarget( renderTarget );
+	}
+
+	void D3D12CommandList::ClearDepthStencil( DepthStencilView* depthStencil )
+	{
+		m_impl.ClearDepthStencil( depthStencil );
+	}
+
+	bool D3D12CommandList::CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult )
+	{
+		return m_impl.CaptureTexture( texture, outResult );
+	}
+
+	void D3D12CommandList::ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries )
+	{
+		m_impl.ResolveQueryData( queryHeap, type, offset, numQueries );
+	}
+
+	void D3D12CommandList::Signal( ID3D12Fence* fence, uint64 fenceValue )
+	{
+		m_impl.Signal( fence, fenceValue );
+	}
+
+	void D3D12CommandList::Initialize()
+	{
+		m_impl.Initialize();
+	}
+
+	void D3D12CommandList::OnCommited()
+	{
+		m_impl.OnCommited();
 	}
 
 	ID3D12CommandListEX& D3D12CommandList::GetParallelCommandList()
@@ -671,52 +924,6 @@ namespace agl
 		return *m_parallelCommandLists[m_numUsedParallelCommandList++];
 	}
 
-	void D3D12CommandList::Commit()
-	{
-		m_imple.Close();
-
-		std::vector<ID3D12CommandList*, InlineAllocator<ID3D12CommandList*, 1>> commandLists;
-		commandLists.push_back( m_imple.Resource() );
-
-		for ( size_t i = 0; i < m_parallelCommandLists.size(); ++i )
-		{
-			auto d3d12CommandList = static_cast<D3D12ParallelCommandList*>( m_parallelCommandLists[i] );
-			d3d12CommandList->Close();
-
-			commandLists.push_back( d3d12CommandList->Resource() );
-		}
-
-		auto numCommandList = static_cast<uint32>( commandLists.size() );
-		D3D12DirectCommandQueue().ExecuteCommandLists( numCommandList, commandLists.data() );
-
-		m_imple.OnCommited();
-		for ( size_t i = 0; i < m_parallelCommandLists.size(); ++i )
-		{
-			auto d3d12CommandList = static_cast<D3D12ParallelCommandList*>( m_parallelCommandLists[i] );
-			d3d12CommandList->OnCommitted();
-		}
-	}
-
-	void D3D12CommandList::ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries )
-	{
-		m_imple.ResolveQueryData( queryHeap, type, offset, numQueries );
-	}
-
-	void D3D12CommandList::Signal( ID3D12Fence* fence, uint64 fenceValue )
-	{
-		m_imple.Signal( fence, fenceValue );
-	}
-
-	void D3D12CommandList::Initialize()
-	{
-		m_imple.Initialize();
-	}
-
-	void D3D12CommandList::OnCommitted()
-	{
-		m_imple.OnCommited();
-	}
-
 	D3D12CommandList::D3D12CommandList( D3D12CommandList&& other ) noexcept
 	{
 		*this = std::move( other );
@@ -726,7 +933,7 @@ namespace agl
 	{
 		if ( this != &other )
 		{
-			m_imple = std::move( other.m_imple );
+			m_impl = std::move( other.m_impl );
 			m_numUsedParallelCommandList = other.m_numUsedParallelCommandList;
 			m_parallelCommandLists = std::move( m_parallelCommandLists );
 		}
@@ -745,166 +952,171 @@ namespace agl
 
 	void D3D12ParallelCommandList::Prepare()
 	{
-		m_imple.Prepare();
-	}
-
-	void D3D12ParallelCommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets )
-	{
-		m_imple.BindVertexBuffer( vertexBuffers, startSlot, numBuffers, strides, pOffsets );
-	}
-
-	void D3D12ParallelCommandList::BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset )
-	{
-		m_imple.BindIndexBuffer( indexBuffer, indexOffset );
-	}
-
-	void D3D12ParallelCommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
-	{
-		m_imple.BindPipelineState( pipelineState );
-	}
-
-	void D3D12ParallelCommandList::BindPipelineState( ComputePipelineState* pipelineState )
-	{
-		m_imple.BindPipelineState( pipelineState );
-	}
-
-	void D3D12ParallelCommandList::BindShaderResources( ShaderBindings& shaderBindings )
-	{
-		m_imple.BindShaderResources( shaderBindings );
-	}
-
-	void D3D12ParallelCommandList::SetShaderValue( const ShaderParameter& parameter, const void* value )
-	{
-		m_imple.SetShaderValue( parameter, value );
-	}
-
-	void D3D12ParallelCommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
-	{
-		m_imple.DrawInstanced( vertexCount, numInstance, baseVertexLocation );
-	}
-
-	void D3D12ParallelCommandList::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
-	{
-		m_imple.DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation );
-	}
-
-	void D3D12ParallelCommandList::Dispatch( uint32 x, uint32 y, uint32 z )
-	{
-		m_imple.Dispatch( x, y, z );
-	}
-
-	void D3D12ParallelCommandList::DispatchMesh( uint32 x, uint32 y, uint32 z )
-	{
-		m_imple.DispatchMesh( x, y, z );
-	}
-
-	void D3D12ParallelCommandList::SetViewports( uint32 count, const CubeArea<float>* areas )
-	{
-		m_imple.SetViewports( count, areas );
-	}
-
-	void D3D12ParallelCommandList::SetScissorRects( uint32 count, const RectangleArea<int32>* areas )
-	{
-		m_imple.SetScissorRects( count, areas );
-	}
-
-	void D3D12ParallelCommandList::BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil )
-	{
-		m_imple.BindRenderTargets( pRenderTargets, renderTargetCount, depthStencil );
-	}
-
-	void D3D12ParallelCommandList::ClearRenderTarget( RenderTargetView* renderTarget )
-	{
-		m_imple.ClearRenderTarget( renderTarget );
-	}
-
-	void D3D12ParallelCommandList::ClearDepthStencil( DepthStencilView* depthStencil )
-	{
-		m_imple.ClearDepthStencil( depthStencil );
-	}
-
-	void D3D12ParallelCommandList::CopyResource( Texture* dest, Texture* src, bool bAsync )
-	{
-		m_imple.CopyResource( dest, src, bAsync );
-	}
-
-	void D3D12ParallelCommandList::CopyResource( Buffer* dest, Buffer* src, bool bAsync, uint32 numByte )
-	{
-		m_imple.CopyResource( dest, src, bAsync, numByte );
-	}
-
-	void D3D12ParallelCommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
-	{
-		m_imple.UpdateSubresource( dest, src, srcRowSize, bAsync, destArea, subresource );
-	}
-
-	void D3D12ParallelCommandList::UpdateSubresource( agl::Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte )
-	{
-		m_imple.UpdateSubresource( dest, src, bAsync, destOffset, numByte );
+		m_impl.Prepare();
 	}
 
 	void D3D12ParallelCommandList::AddTransition( const ResourceTransition& transition )
 	{
-		m_imple.AddTransition( transition );
+		m_impl.AddTransition( transition );
 	}
 
 	void D3D12ParallelCommandList::AddUavBarrier( const UavBarrier& uavBarrier )
 	{
-		m_imple.AddUavBarrier( uavBarrier );
-	}
-
-	bool D3D12ParallelCommandList::CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult )
-	{
-		return m_imple.CaptureTexture( texture, outResult );
+		m_impl.AddUavBarrier( uavBarrier );
 	}
 
 	void D3D12ParallelCommandList::BeginQuery( void* rawQuery )
 	{
-		m_imple.BeginQuery( rawQuery );
+		m_impl.BeginQuery( rawQuery );
 	}
 
 	void D3D12ParallelCommandList::EndQuery( void* rawQuery )
 	{
-		m_imple.EndQuery( rawQuery );
+		m_impl.EndQuery( rawQuery );
 	}
 
 	void D3D12ParallelCommandList::BeginEvent( const char* eventName )
 	{
-		m_imple.BeginEvent( eventName );
+		m_impl.BeginEvent( eventName );
 	}
 
 	void D3D12ParallelCommandList::EndEvent()
 	{
-		m_imple.EndEvnet();
+		m_impl.EndEvnet();
+	}
+
+	void D3D12ParallelCommandList::CopyResource( Texture* dest, Texture* src, bool bAsync )
+	{
+		m_impl.CopyResource( dest, src, bAsync );
+	}
+
+	void D3D12ParallelCommandList::CopyResource( Buffer* dest, Buffer* src, bool bAsync, uint32 numByte )
+	{
+		m_impl.CopyResource( dest, src, bAsync, numByte );
+	}
+
+	void D3D12ParallelCommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
+	{
+		m_impl.UpdateSubresource( dest, src, srcRowSize, bAsync, destArea, subresource );
+	}
+
+	void D3D12ParallelCommandList::UpdateSubresource( agl::Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte )
+	{
+		m_impl.UpdateSubresource( dest, src, bAsync, destOffset, numByte );
+	}
+
+	void D3D12ParallelCommandList::BindPipelineState( ComputePipelineState* pipelineState )
+	{
+		m_impl.BindComputePipelineState( pipelineState );
+	}
+
+	void D3D12ParallelCommandList::BindShaderResources( ShaderBindings& shaderBindings )
+	{
+		m_impl.BindShaderResources( shaderBindings );
+	}
+
+	void D3D12ParallelCommandList::SetShaderValue( const ShaderParameter& parameter, const void* value )
+	{
+		m_impl.SetShaderValue( parameter, value );
+	}
+
+	void D3D12ParallelCommandList::Dispatch( uint32 x, uint32 y, uint32 z )
+	{
+		m_impl.Dispatch( x, y, z );
+	}
+
+	void D3D12ParallelCommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
+	{
+		m_impl.DrawInstanced( vertexCount, numInstance, baseVertexLocation );
+	}
+
+	void D3D12ParallelCommandList::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
+	{
+		m_impl.DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation );
+	}
+
+	void D3D12ParallelCommandList::DispatchMesh( uint32 x, uint32 y, uint32 z )
+	{
+		m_impl.DispatchMesh( x, y, z );
+	}
+
+	void D3D12ParallelCommandList::SetViewports( uint32 count, const CubeArea<float>* areas )
+	{
+		m_impl.SetViewports( count, areas );
+	}
+
+	void D3D12ParallelCommandList::SetScissorRects( uint32 count, const RectangleArea<int32>* areas )
+	{
+		m_impl.SetScissorRects( count, areas );
+	}
+
+	void D3D12ParallelCommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets )
+	{
+		m_impl.BindVertexBuffer( vertexBuffers, startSlot, numBuffers, strides, pOffsets );
+	}
+
+	void D3D12ParallelCommandList::BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset )
+	{
+		m_impl.BindIndexBuffer( indexBuffer, indexOffset );
+	}
+
+	void D3D12ParallelCommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
+	{
+		m_impl.BindGraphicsPipelineState( pipelineState );
+	}
+
+	void D3D12ParallelCommandList::BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil )
+	{
+		m_impl.BindRenderTargets( pRenderTargets, renderTargetCount, depthStencil );
+	}
+
+	void D3D12ParallelCommandList::ClearRenderTarget( RenderTargetView* renderTarget )
+	{
+		m_impl.ClearRenderTarget( renderTarget );
+	}
+
+	void D3D12ParallelCommandList::ClearDepthStencil( DepthStencilView* depthStencil )
+	{
+		m_impl.ClearDepthStencil( depthStencil );
+	}
+
+	bool D3D12ParallelCommandList::CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult )
+	{
+		return m_impl.CaptureTexture( texture, outResult );
 	}
 
 	void D3D12ParallelCommandList::ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries )
 	{
-		m_imple.ResolveQueryData( queryHeap, type, offset, numQueries );
+		m_impl.ResolveQueryData( queryHeap, type, offset, numQueries );
 	}
 
 	void D3D12ParallelCommandList::Signal( ID3D12Fence* fence, uint64 fenceValue )
 	{
-		m_imple.Signal( fence, fenceValue );
+		m_impl.Signal( fence, fenceValue );
 	}
 
 	void D3D12ParallelCommandList::Close()
 	{
-		m_imple.Close();
+		m_impl.Close();
 	}
 
 	void D3D12ParallelCommandList::Initialize()
 	{
-		m_imple.Initialize();
+		m_impl.Initialize();
 	}
 
-	void D3D12ParallelCommandList::OnCommitted()
+	void D3D12ParallelCommandList::OnCommited()
 	{
-		m_imple.OnCommited();
+		m_impl.OnCommited();
 	}
 
 	ID3D12CommandList* D3D12ParallelCommandList::Resource() const
 	{
-		return m_imple.Resource();
+		return m_impl.Resource();
+	}
+
+	bool D3D12ParallelCommandList::HasCommands() const
+	{
+		return m_impl.HasCommands();
 	}
 }

@@ -72,6 +72,7 @@ set (D3D12_RENDER_RESOURCE_HEADER
 	Public/D3D12/D3D12CommandList.h
 	Public/D3D12/D3D12DepthStencilState.h
 	Public/D3D12/D3D12DescriptorHeapAllocator.h
+	Public/D3D12/D3D12FrameResourceCollection.h
 	Public/D3D12/D3D12GlobalDescriptorHeap.h
 	Public/D3D12/D3D12HeapAllocator.h
 	Public/D3D12/D3D12NullDescriptor.h
@@ -98,6 +99,7 @@ set (D3D12_RENDER_RESOURCE_SOURCE
 	Private/D3D12/D3D12CommandList.cpp
 	Private/D3D12/D3D12DepthStencilState.cpp
 	Private/D3D12/D3D12DescriptorHeapAllocator.cpp
+	Private/D3D12/D3D12FrameResourceCollection.cpp
 	Private/D3D12/D3D12GlobalDescriptorHeap.cpp
 	Private/D3D12/D3D12HeapAllocator.cpp
 	Private/D3D12/D3D12NullDescriptor.cpp

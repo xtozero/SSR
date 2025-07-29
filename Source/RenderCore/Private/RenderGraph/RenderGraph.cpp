@@ -7,22 +7,35 @@
 
 namespace rendercore
 {
+	agl::QueueType GetQueueType( RenderGraphPassType passType )
+	{
+		return passType == RenderGraphPassType::AsyncCompute ? agl::QueueType::Compute : agl::QueueType::Direct;
+	}
+
 	void RenderGraph::Execute()
 	{
 		Compile();
 
-		auto commandList = GetCommandList();
-
 		for ( auto pass : m_passes )
 		{
-			ExecutePassPrologue( commandList, *pass );
+			ExecutePassPrologue( *pass );
+
+			bool isAsyncComputePass = ( pass->m_type == RenderGraphPassType::AsyncCompute );
+			auto commandList = isAsyncComputePass ? GetComputeCommandList() : GetCommandList();
 			pass->Execute( commandList );
-			ExecutePassEpilogue( commandList, *pass );
+
+			ExecutePassEpilogue( *pass );
 			
 			std::destroy_at( pass );
 		}
 
 		CleanUp();
+	}
+
+	void RenderGraph::Commit()
+	{
+		GetCommandList().Commit();
+		GetComputeCommandList().Commit();
 	}
 
 	RenderGraphTexture* RenderGraph::RegisterExternalResource( agl::Texture* texture )
@@ -231,9 +244,12 @@ namespace rendercore
 				{
 					queue.push( i );
 				}
+
+				bool waitForOtherQueue = GetQueueType( m_passes[passIndex]->m_type ) != GetQueueType( m_passes[i]->m_type );
+				m_passes[i]->m_waitForOtherQueue |= waitForOtherQueue;
 			}
 		}
-		
+
 		m_passes = std::move( sortedPasses );
 	}
 
@@ -263,16 +279,20 @@ namespace rendercore
 		}
 	}
 
-	void RenderGraph::ExecutePassPrologue( ComputeCommandList& commandList, RenderGraphPass& pass )
+	void RenderGraph::ExecutePassPrologue( RenderGraphPass& pass )
 	{
 		PreparePassResource( pass );
 
+		pass.ApplyResourceBarrier();
+
+		auto commandList = GetCommandList();
 		BeginGpuProfileEvent( commandList, pass, pass.m_gpuProfileEvent );
 		BeginPipelineStatEvent( commandList, pass, pass.m_pipelineStatEvent );
 	}
 
-	void RenderGraph::ExecutePassEpilogue( ComputeCommandList& commandList, RenderGraphPass& pass )
+	void RenderGraph::ExecutePassEpilogue( RenderGraphPass& pass )
 	{
+		auto commandList = GetCommandList();
 		EndPipelineStatEvent( commandList, pass, pass.m_pipelineStatEvent );
 		EndGpuProfileEvent( commandList, pass, pass.m_gpuProfileEvent );
 	}

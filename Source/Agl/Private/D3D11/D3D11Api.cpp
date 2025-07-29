@@ -167,6 +167,7 @@ namespace agl
 		virtual void OnBeginFrameRendering() override;
 		virtual void OnEndFrameRendering( [[maybe_unused]] uint32 oldFrameIndex, [[maybe_unused]] uint32 newFrameIndex ) override {}
 		virtual void WaitGPU() override;
+		virtual void WaitQueue( [[maybe_unused]] QueueType type ) override {}
 
 		virtual LockedResource Lock( Buffer* buffer, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard, uint32 subResource = 0 ) override;
 		virtual void UnLock( Buffer* buffer, uint32 subResource = 0 ) override;
@@ -178,6 +179,7 @@ namespace agl
 
 		virtual ICommandList* GetCommandList() override;
 		virtual ICommandList* GetParallelCommandList() override;
+		virtual IComputeCommandList* GetComputeCommandList() override;
 
 		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const override;
 		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const override;
@@ -412,6 +414,11 @@ namespace agl
 	ICommandList* Direct3D11::GetParallelCommandList()
 	{
 		return &m_commandList.GetParallelCommandList();
+	}
+
+	IComputeCommandList* Direct3D11::GetComputeCommandList()
+	{
+		return &m_commandList;
 	}
 
 	BinaryChunk Direct3D11::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const

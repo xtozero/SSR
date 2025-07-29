@@ -6,146 +6,167 @@
 
 namespace rendercore
 {
-	void ComputeCommandList::BindPipelineState( agl::ComputePipelineState* pipelineState )
+	void CopyCommandList::CopyResource( agl::Texture* dest, agl::Texture* src, bool bAsync ) const
 	{
-		m_imple.BindPipelineState( pipelineState );
+		GetImpl().CopyResource( dest, src, bAsync );
 	}
 
-	void ComputeCommandList::BindShaderResources( agl::ShaderBindings& shaderBindings )
+	void CopyCommandList::CopyResource( agl::Buffer* dest, agl::Buffer* src, bool bAsync, uint32 numByte ) const
 	{
-		m_imple.BindShaderResources( shaderBindings );
+		GetImpl().CopyResource( dest, src, bAsync, numByte );
 	}
 
-	void ComputeCommandList::SetShaderValue( const agl::ShaderParameter& parameter, const void* value )
+	void CopyCommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource ) const
 	{
-		m_imple.SetShaderValue( parameter, value );
+		GetImpl().UpdateSubresource( dest, src, srcRowSize, bAsync, destArea, subresource );
 	}
 
-	void ComputeCommandList::Dispatch( uint32 x, uint32 y, uint32 z )
+	void CopyCommandList::UpdateSubresource( agl::Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte ) const
 	{
-		m_imple.Dispatch( x, y, z );
+		GetImpl().UpdateSubresource( dest, src, bAsync, destOffset, numByte );
+	}
+
+	void CopyCommandList::Commit() const
+	{
+		GetImpl().Commit();
+	}
+
+	agl::ICopyCommandList& CopyCommandList::GetImpl() const
+	{
+		return static_cast<agl::ICopyCommandList&>( m_impl );
+	}
+
+	void ComputeCommandList::BindPipelineState( agl::ComputePipelineState* pipelineState ) const
+	{
+		GetImpl().BindPipelineState( pipelineState );
+	}
+
+	void ComputeCommandList::BindShaderResources( agl::ShaderBindings& shaderBindings ) const
+	{
+		GetImpl().BindShaderResources( shaderBindings );
+	}
+
+	void ComputeCommandList::SetShaderValue( const agl::ShaderParameter& parameter, const void* value ) const
+	{
+		GetImpl().SetShaderValue( parameter, value );
+	}
+
+	void ComputeCommandList::Dispatch( uint32 x, uint32 y, uint32 z ) const
+	{
+		GetImpl().Dispatch( x, y, z );
 		BindPipelineState( static_cast<agl::ComputePipelineState*>( nullptr ) );
 	}
 
-	void ComputeCommandList::AddTransition( const agl::ResourceTransition& transition )
+	void ComputeCommandList::AddTransition( const agl::ResourceTransition& transition ) const
 	{
-		m_imple.AddTransition( transition );
+		m_impl.AddTransition( transition );
 	}
 
-	void ComputeCommandList::AddUavBarrier( const agl::UavBarrier& uavBarrier )
+	void ComputeCommandList::AddUavBarrier( const agl::UavBarrier& uavBarrier ) const
 	{
-		m_imple.AddUavBarrier( uavBarrier );
+		m_impl.AddUavBarrier( uavBarrier );
 	}
 
-	void ComputeCommandList::BeginQuery( agl::Query* rawQuery )
+	void ComputeCommandList::BeginQuery( agl::Query* rawQuery ) const
 	{
-		rawQuery->Begin( m_imple );
+		rawQuery->Begin( m_impl );
 	}
 
-	void ComputeCommandList::EndQuery( agl::Query* rawQuery )
+	void ComputeCommandList::EndQuery( agl::Query* rawQuery ) const
 	{
-		rawQuery->End( m_imple );
+		rawQuery->End( m_impl );
 	}
 
-	void ComputeCommandList::BeginEvent( const char* eventName )
+	void ComputeCommandList::BeginEvent( const char* eventName ) const
 	{
-		m_imple.BeginEvent( eventName );
+		m_impl.BeginEvent( eventName );
 	}
 
-	void ComputeCommandList::EndEvent()
+	void ComputeCommandList::EndEvent() const
 	{
-		m_imple.EndEvent();
+		m_impl.EndEvent();
 	}
 
-	void ComputeCommandList::Commit()
+	agl::IComputeCommandList& ComputeCommandList::GetImpl() const
 	{
-		m_imple.Commit();
+		return static_cast<agl::IComputeCommandList&>( m_impl );
 	}
 
-	void ResourceCommandList::CopyResource( agl::Texture* dest, agl::Texture* src, bool bAsync )
+	void CommandList::BindVertexBuffer( agl::Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets ) const
 	{
-		m_imple.CopyResource( dest, src, bAsync );
+		GetImpl().BindVertexBuffer( vertexBuffers, startSlot, numBuffers, strides, pOffsets );
 	}
 
-	void ResourceCommandList::CopyResource( agl::Buffer* dest, agl::Buffer* src, bool bAsync, uint32 numByte )
+	void CommandList::BindIndexBuffer( agl::Buffer* indexBuffer, uint32 indexOffset ) const
 	{
-		m_imple.CopyResource( dest, src, bAsync, numByte );
+		GetImpl().BindIndexBuffer( indexBuffer, indexOffset );
 	}
 
-	void ResourceCommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
+	void CommandList::BindPipelineState( agl::GraphicsPipelineState* pipelineState ) const
 	{
-		m_imple.UpdateSubresource( dest, src, srcRowSize, bAsync, destArea, subresource );
+		GetImpl().BindPipelineState( pipelineState );
 	}
 
-	void ResourceCommandList::UpdateSubresource( agl::Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte )
+	void CommandList::BindRenderTargets( agl::RenderTargetView** pRenderTargets, uint32 renderTargetCount, agl::DepthStencilView* depthStencil ) const
 	{
-		m_imple.UpdateSubresource( dest, src, bAsync, destOffset, numByte );
+		GetImpl().BindRenderTargets( pRenderTargets, renderTargetCount, depthStencil );
 	}
 
-	bool ResourceCommandList::CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult )
+	void CommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation ) const
 	{
-		return m_imple.CaptureTexture( texture, outResult );
+		GetImpl().DrawInstanced( vertexCount, numInstance, baseVertexLocation );
 	}
 
-	void ResourceCommandList::ClearRenderTarget( agl::RenderTargetView* renderTarget )
+	void CommandList::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) const
 	{
-		m_imple.ClearRenderTarget( renderTarget );
+		GetImpl().DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation );
 	}
 
-	void ResourceCommandList::ClearDepthStencil( agl::DepthStencilView* depthStencil )
-	{
-		m_imple.ClearDepthStencil( depthStencil );
-	}
-
-	void CommandList::BindVertexBuffer( agl::Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets )
-	{
-		m_imple.BindVertexBuffer( vertexBuffers, startSlot, numBuffers, strides, pOffsets );
-	}
-
-	void CommandList::BindIndexBuffer( agl::Buffer* indexBuffer, uint32 indexOffset )
-	{
-		m_imple.BindIndexBuffer( indexBuffer, indexOffset );
-	}
-
-	void CommandList::BindPipelineState( agl::GraphicsPipelineState* pipelineState )
-	{
-		m_imple.BindPipelineState( pipelineState );
-	}
-
-	void CommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
-	{
-		m_imple.DrawInstanced( vertexCount, numInstance, baseVertexLocation );
-	}
-
-	void CommandList::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
-	{
-		m_imple.DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation );
-	}
-
-	void CommandList::DispatchMesh( uint32 x, uint32 y, uint32 z )
+	void CommandList::DispatchMesh( uint32 x, uint32 y, uint32 z ) const
 	{
 		assert( GetInterface<agl::IAgl>()->IsSupportsMeshShader() );
-		m_imple.DispatchMesh( x, y, z );
+		GetImpl().DispatchMesh( x, y, z );
 	}
 
-	void CommandList::SetViewports( uint32 count, const CubeArea<float>* areas )
+	void CommandList::SetViewports( uint32 count, const CubeArea<float>* areas ) const
 	{
-		m_imple.SetViewports( count, areas );
+		GetImpl().SetViewports( count, areas );
 	}
 
-	void CommandList::SetScissorRects( uint32 count, const RectangleArea<int32>* areas )
+	void CommandList::SetScissorRects( uint32 count, const RectangleArea<int32>* areas ) const
 	{
-		m_imple.SetScissorRects( count, areas );
+		GetImpl().SetScissorRects( count, areas );
 	}
 
-	void CommandList::BindRenderTargets( agl::RenderTargetView** pRenderTargets, uint32 renderTargetCount, agl::DepthStencilView* depthStencil )
+	void CommandList::ClearRenderTarget( agl::RenderTargetView* renderTarget ) const
 	{
-		m_imple.BindRenderTargets( pRenderTargets, renderTargetCount, depthStencil );
+		GetImpl().ClearRenderTarget( renderTarget );
+	}
+
+	void CommandList::ClearDepthStencil( agl::DepthStencilView* depthStencil ) const
+	{
+		GetImpl().ClearDepthStencil( depthStencil );
+	}
+
+	bool CommandList::CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult ) const
+	{
+		return GetImpl().CaptureTexture( texture, outResult );
+	}
+
+	agl::ICommandList& CommandList::GetImpl() const
+	{
+		return static_cast<agl::ICommandList&>( m_impl );
 	}
 
 	CommandList GetCommandList()
 	{
 		auto commandList = GraphicsInterface().GetCommandList();
 		return CommandList( *commandList );
+	}
+
+	ComputeCommandList GetComputeCommandList()
+	{
+		auto commandList = GraphicsInterface().GetComputeCommandList();
+		return ComputeCommandList( *commandList );
 	}
 }

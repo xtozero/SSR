@@ -90,7 +90,7 @@ namespace rendercore
 		std::vector<const ShaderArguments*> m_argumentsList;
 	};
 
-	enum class RasterOutputLoadAction
+	enum class RasterOutputLoadAction : uint8
 	{
 		NoAction = 0,
 		Clear,

@@ -6,7 +6,7 @@
 namespace agl
 {
 	class Canvas;
-	class ICommandListBase;
+	class ICommandList;
 	class Texture;
 
 	struct ViewportProxy
@@ -22,7 +22,7 @@ namespace agl
 		AGL_DLL static RefHandle<Viewport> Create( Canvas& canvas );
 
 		virtual void Clear() = 0;
-		virtual void Bind( ICommandListBase& commandList ) const = 0;
+		virtual void Bind( ICommandList& commandList ) const = 0;
 		virtual std::pair<uint32, uint32> Size() const = 0;
 		virtual std::pair<uint32, uint32> SizeOnRenderThread() const = 0;
 		virtual void Resize( const std::pair<uint32, uint32>& newSize ) = 0;

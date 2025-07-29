@@ -184,103 +184,55 @@ namespace agl
 		m_numUsedParallelCommandList = 0;
 	}
 
-	void D3D11CommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets )
+	void D3D11CommandList::AddTransition( [[maybe_unused]] const ResourceTransition& transition )
 	{
-		m_stateCache.BindVertexBuffer( D3D11Context(), vertexBuffers, startSlot, numBuffers, strides, pOffsets );
+		// Do Nothing
 	}
 
-	void D3D11CommandList::BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset )
+	void D3D11CommandList::AddUavBarrier( [[maybe_unused]] const UavBarrier& uavBarrier )
 	{
-		m_stateCache.BindIndexBuffer( D3D11Context(), indexBuffer, indexOffset );
+		// Do Nothing
 	}
 
-	void D3D11CommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
+	void D3D11CommandList::BeginQuery( void* rawQuery )
 	{
-		m_stateCache.BindPipelineState( D3D11Context(), pipelineState );
+		auto d3d11Query = static_cast<ID3D11Query*>( rawQuery );
+		D3D11Context().Begin( d3d11Query );
 	}
 
-	void D3D11CommandList::BindPipelineState( ComputePipelineState* pipelineState )
+	void D3D11CommandList::EndQuery( void* rawQuery )
 	{
-		m_stateCache.BindPipelineState( D3D11Context(), pipelineState );
+		auto d3d11Query = static_cast<ID3D11Query*>( rawQuery );
+		D3D11Context().End( d3d11Query );
 	}
 
-	void D3D11CommandList::BindShaderResources( ShaderBindings& shaderBindings )
+	void D3D11CommandList::BeginEvent( const char* eventName )
 	{
-		m_globalConstantBuffers.AddGlobalConstantBuffers( shaderBindings );
-		m_stateCache.BindShaderResources( D3D11Context(), shaderBindings );
+		assert( m_annotation.Get() != nullptr );
+
+		constexpr uint32 MaxLen = 256;
+		static wchar_t EventName[MaxLen] = {};
+
+		ToWideChar( EventName, MaxLen, eventName );
+		m_annotation->BeginEvent( EventName );
 	}
 
-	void D3D11CommandList::SetShaderValue( const ShaderParameter& parameter, const void* value )
+	void D3D11CommandList::EndEvent()
 	{
-		m_globalConstantBuffers.SetShaderValue( parameter, value );
+		assert( m_annotation.Get() != nullptr );
+
+		m_annotation->EndEvent();
 	}
 
-	void D3D11CommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
+	void D3D11CommandList::Commit()
 	{
-		m_globalConstantBuffers.CommitShaderValue( false );
-		D3D11Context().DrawInstanced( vertexCount, numInstance, baseVertexLocation, 0 );
-		m_globalConstantBuffers.Reset( false );
-	}
-
-	void D3D11CommandList::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
-	{
-		m_globalConstantBuffers.CommitShaderValue( false );
-		D3D11Context().DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation, 0 );
-		m_globalConstantBuffers.Reset( false );
-	}
-
-	void D3D11CommandList::Dispatch( uint32 x, uint32 y, uint32 z )
-	{
-		m_globalConstantBuffers.CommitShaderValue( true );
-		D3D11Context().Dispatch( x, y, z );
-		m_globalConstantBuffers.Reset( true );
-	}
-
-	void D3D11CommandList::DispatchMesh( [[maybe_unused]] uint32 x, [[maybe_unused]] uint32 y, [[maybe_unused]] uint32 z )
-	{
-		assert( false && "DispatchMesh - Unsurpported function in d3d11" );
-	}
-
-	void D3D11CommandList::SetViewports( uint32 count, const CubeArea<float>* areas )
-	{
-		m_stateCache.SetViewports( D3D11Context(), count, areas );
-	}
-
-	void D3D11CommandList::SetScissorRects( uint32 count, const RectangleArea<int32>* areas )
-	{
-		m_stateCache.SetScissorRects( D3D11Context(), count, areas );
-	}
-
-	void D3D11CommandList::BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil )
-	{
-		m_stateCache.BindRenderTargets( D3D11Context(), pRenderTargets, renderTargetCount, depthStencil );
-	}
-
-	void D3D11CommandList::ClearRenderTarget( RenderTargetView* renderTarget )
-	{
-		if ( renderTarget == nullptr )
+		for ( size_t i = 0; i < m_parallelCommandLists.size(); ++i )
 		{
-			return;
+			auto d3d12CommandList = static_cast<D3D11ParallelCommandList*>( m_parallelCommandLists[i] );
+			d3d12CommandList->Close();
+
+			d3d12CommandList->Commit();
 		}
-
-		auto d3d11RTV = static_cast<D3D11RenderTargetView*>( renderTarget );
-		ColorF clearValue = d3d11RTV->GetClearColor();
-
-		D3D11Context().ClearRenderTargetView( d3d11RTV->Resource(), clearValue.RGBA() );
-	}
-
-	void D3D11CommandList::ClearDepthStencil( DepthStencilView* depthStencil )
-	{
-		if ( depthStencil == nullptr )
-		{
-			return;
-		}
-
-		auto d3d11DSV = static_cast<D3D11DepthStencilView*>( depthStencil );
-		float depthClearValue = d3d11DSV->GetDepthClearValue();
-		uint8 stencilClearValue = d3d11DSV->GetStencilClearValue();
-
-		D3D11Context().ClearDepthStencilView( d3d11DSV->Resource(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthClearValue, stencilClearValue );
 	}
 
 	void D3D11CommandList::CopyResource( Texture* dest, Texture* src, [[maybe_unused]] bool bAsync )
@@ -361,14 +313,103 @@ namespace agl
 		::UpdateSubresource( D3D11Context(), dest, src, destOffset, numByte );
 	}
 
-	void D3D11CommandList::AddTransition( [[maybe_unused]] const ResourceTransition& transition )
+	void D3D11CommandList::BindPipelineState( ComputePipelineState* pipelineState )
 	{
-		// Do Nothing
+		m_stateCache.BindPipelineState( D3D11Context(), pipelineState );
 	}
 
-	void D3D11CommandList::AddUavBarrier( [[maybe_unused]] const UavBarrier& uavBarrier )
+	void D3D11CommandList::BindShaderResources( ShaderBindings& shaderBindings )
 	{
-		// Do Nothing
+		m_globalConstantBuffers.AddGlobalConstantBuffers( shaderBindings );
+		m_stateCache.BindShaderResources( D3D11Context(), shaderBindings );
+	}
+
+	void D3D11CommandList::SetShaderValue( const ShaderParameter& parameter, const void* value )
+	{
+		m_globalConstantBuffers.SetShaderValue( parameter, value );
+	}
+
+	void D3D11CommandList::Dispatch( uint32 x, uint32 y, uint32 z )
+	{
+		m_globalConstantBuffers.CommitShaderValue( true );
+		D3D11Context().Dispatch( x, y, z );
+		m_globalConstantBuffers.Reset( true );
+	}
+
+	void D3D11CommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
+	{
+		m_globalConstantBuffers.CommitShaderValue( false );
+		D3D11Context().DrawInstanced( vertexCount, numInstance, baseVertexLocation, 0 );
+		m_globalConstantBuffers.Reset( false );
+	}
+
+	void D3D11CommandList::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
+	{
+		m_globalConstantBuffers.CommitShaderValue( false );
+		D3D11Context().DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation, 0 );
+		m_globalConstantBuffers.Reset( false );
+	}
+
+	void D3D11CommandList::DispatchMesh( [[maybe_unused]] uint32 x, [[maybe_unused]] uint32 y, [[maybe_unused]] uint32 z )
+	{
+		assert( false && "DispatchMesh - Unsurpported function in d3d11" );
+	}
+
+	void D3D11CommandList::SetViewports( uint32 count, const CubeArea<float>* areas )
+	{
+		m_stateCache.SetViewports( D3D11Context(), count, areas );
+	}
+
+	void D3D11CommandList::SetScissorRects( uint32 count, const RectangleArea<int32>* areas )
+	{
+		m_stateCache.SetScissorRects( D3D11Context(), count, areas );
+	}
+
+	void D3D11CommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets )
+	{
+		m_stateCache.BindVertexBuffer( D3D11Context(), vertexBuffers, startSlot, numBuffers, strides, pOffsets );
+	}
+
+	void D3D11CommandList::BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset )
+	{
+		m_stateCache.BindIndexBuffer( D3D11Context(), indexBuffer, indexOffset );
+	}
+
+	void D3D11CommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
+	{
+		m_stateCache.BindPipelineState( D3D11Context(), pipelineState );
+	}
+
+	void D3D11CommandList::BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil )
+	{
+		m_stateCache.BindRenderTargets( D3D11Context(), pRenderTargets, renderTargetCount, depthStencil );
+	}
+
+	void D3D11CommandList::ClearRenderTarget( RenderTargetView* renderTarget )
+	{
+		if ( renderTarget == nullptr )
+		{
+			return;
+		}
+
+		auto d3d11RTV = static_cast<D3D11RenderTargetView*>( renderTarget );
+		ColorF clearValue = d3d11RTV->GetClearColor();
+
+		D3D11Context().ClearRenderTargetView( d3d11RTV->Resource(), clearValue.RGBA() );
+	}
+
+	void D3D11CommandList::ClearDepthStencil( DepthStencilView* depthStencil )
+	{
+		if ( depthStencil == nullptr )
+		{
+			return;
+		}
+
+		auto d3d11DSV = static_cast<D3D11DepthStencilView*>( depthStencil );
+		float depthClearValue = d3d11DSV->GetDepthClearValue();
+		uint8 stencilClearValue = d3d11DSV->GetStencilClearValue();
+
+		D3D11Context().ClearDepthStencilView( d3d11DSV->Resource(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthClearValue, stencilClearValue );
 	}
 
 	bool D3D11CommandList::CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult )
@@ -388,47 +429,6 @@ namespace agl
 		ID3D11DeviceContext* pDeviceContext = &D3D11Context();
 
 		return SUCCEEDED( DirectX::CaptureTexture( pDevice, pDeviceContext, resource, outResult ) );
-	}
-
-	void D3D11CommandList::BeginQuery( void* rawQuery )
-	{
-		auto d3d11Query = static_cast<ID3D11Query*>( rawQuery );
-		D3D11Context().Begin( d3d11Query );
-	}
-
-	void D3D11CommandList::EndQuery( void* rawQuery )
-	{
-		auto d3d11Query = static_cast<ID3D11Query*>( rawQuery );
-		D3D11Context().End( d3d11Query );
-	}
-
-	void D3D11CommandList::BeginEvent( const char* eventName )
-	{
-		assert( m_annotation.Get() != nullptr );
-
-		constexpr uint32 MaxLen = 256;
-		static wchar_t EventName[MaxLen] = {};
-
-		ToWideChar( EventName, MaxLen, eventName );
-		m_annotation->BeginEvent( EventName );
-	}
-
-	void D3D11CommandList::EndEvent()
-	{
-		assert( m_annotation.Get() != nullptr );
-
-		m_annotation->EndEvent();
-	}
-
-	void D3D11CommandList::Commit()
-	{
-		for ( size_t i = 0; i < m_parallelCommandLists.size(); ++i )
-		{
-			auto d3d12CommandList = static_cast<D3D11ParallelCommandList*>( m_parallelCommandLists[i] );
-			d3d12CommandList->Close();
-
-			d3d12CommandList->Commit();
-		}
 	}
 	
 	void D3D11CommandList::Initialize()
@@ -484,109 +484,53 @@ namespace agl
 		m_globalConstantBuffers.Prepare();
 	}
 
-	void D3D11ParallelCommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets )
+	void D3D11ParallelCommandList::AddTransition( [[maybe_unused]] const ResourceTransition& transition )
 	{
-		m_stateCache.BindVertexBuffer( *m_pContext.Get(), vertexBuffers, startSlot, numBuffers, strides, pOffsets );
+		// Do Nothing
 	}
 
-	void D3D11ParallelCommandList::BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset )
+	void D3D11ParallelCommandList::AddUavBarrier( [[maybe_unused]] const UavBarrier& uavBarrier )
 	{
-		m_stateCache.BindIndexBuffer( *m_pContext.Get(), indexBuffer, indexOffset );
+		// Do Nothing
 	}
 
-	void D3D11ParallelCommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
+	void D3D11ParallelCommandList::BeginQuery( void* rawQuery )
 	{
-		m_stateCache.BindPipelineState( *m_pContext.Get(), pipelineState );
+		auto d3d11Query = static_cast<ID3D11Query*>( rawQuery );
+		m_pContext->Begin( d3d11Query );
 	}
 
-	void D3D11ParallelCommandList::BindPipelineState( ComputePipelineState* pipelineState )
+	void D3D11ParallelCommandList::EndQuery( void* rawQuery )
 	{
-		m_stateCache.BindPipelineState( *m_pContext.Get(), pipelineState );
+		auto d3d11Query = static_cast<ID3D11Query*>( rawQuery );
+		m_pContext->End( d3d11Query );
 	}
 
-	void D3D11ParallelCommandList::BindShaderResources( ShaderBindings& shaderBindings )
+	void D3D11ParallelCommandList::BeginEvent( const char* eventName )
 	{
-		m_globalConstantBuffers.AddGlobalConstantBuffers( shaderBindings );
-		m_stateCache.BindShaderResources( *m_pContext.Get(), shaderBindings );
+		assert( m_annotation.Get() != nullptr );
+
+		constexpr uint32 MaxLen = 256;
+		static wchar_t EventName[MaxLen] = {};
+
+		ToWideChar( EventName, MaxLen, eventName );
+		m_annotation->BeginEvent( EventName );
 	}
 
-	void D3D11ParallelCommandList::SetShaderValue( const ShaderParameter& parameter, const void* value )
+	void D3D11ParallelCommandList::EndEvent()
 	{
-		m_globalConstantBuffers.SetShaderValue( parameter, value );
+		assert( m_annotation.Get() != nullptr );
+
+		m_annotation->EndEvent();
 	}
 
-	void D3D11ParallelCommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
+	void D3D11ParallelCommandList::Commit()
 	{
-		m_globalConstantBuffers.CommitShaderValue( false );
-		m_pContext->DrawInstanced( vertexCount, numInstance, baseVertexLocation, 0 );
-		m_globalConstantBuffers.Reset( false );
-	}
-
-	void D3D11ParallelCommandList::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
-	{
-		m_globalConstantBuffers.CommitShaderValue( false );
-		m_pContext->DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation, 0 );
-		m_globalConstantBuffers.Reset( false );
-	}
-
-	void D3D11ParallelCommandList::Dispatch( uint32 x, uint32 y, uint32 z )
-	{
-		m_globalConstantBuffers.CommitShaderValue( true );
-		m_pContext->Dispatch( x, y, z );
-		m_globalConstantBuffers.Reset( true );
-	}
-
-	void D3D11ParallelCommandList::DispatchMesh( [[maybe_unused]] uint32 x, [[maybe_unused]] uint32 y, [[maybe_unused]] uint32 z )
-	{
-		assert( false && "DispatchMesh - Unsurpported function in d3d11" );
-	}
-
-	void D3D11ParallelCommandList::SetViewports( uint32 count, const CubeArea<float>* areas )
-	{
-		m_stateCache.SetViewports( *m_pContext.Get(), count, areas );
-	}
-
-	void D3D11ParallelCommandList::SetScissorRects( uint32 count, const RectangleArea<int32>* areas )
-	{
-		m_stateCache.SetScissorRects( *m_pContext.Get(), count, areas );
-	}
-
-	void D3D11ParallelCommandList::BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil )
-	{
-		m_stateCache.BindRenderTargets( *m_pContext.Get(), pRenderTargets, renderTargetCount, depthStencil );
-	}
-
-	void D3D11ParallelCommandList::ClearRenderTarget( RenderTargetView* renderTarget )
-	{
-		ID3D11RenderTargetView* rtvs = nullptr;
-		ColorF clearValue;
-
-		if ( auto d3d11RTV = static_cast<D3D11RenderTargetView*>( renderTarget ) )
+		if ( m_pCommandList )
 		{
-			rtvs = d3d11RTV->Resource();
-			clearValue = d3d11RTV->GetClearColor();
+			D3D11Context().ExecuteCommandList( m_pCommandList.Get(), false );
+			m_pCommandList = nullptr;
 		}
-
-		if ( rtvs == nullptr )
-		{
-			return;
-		}
-
-		m_pContext->ClearRenderTargetView( rtvs, clearValue.RGBA() );
-	}
-
-	void D3D11ParallelCommandList::ClearDepthStencil( DepthStencilView* depthStencil )
-	{
-		if ( depthStencil == nullptr )
-		{
-			return;
-		}
-
-		auto d3d11DSV = static_cast<D3D11DepthStencilView*>( depthStencil );
-		float depthClearValue = d3d11DSV->GetDepthClearValue();
-		uint8 stencilClearValue = d3d11DSV->GetStencilClearValue();
-
-		m_pContext->ClearDepthStencilView( d3d11DSV->Resource(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthClearValue, stencilClearValue );
 	}
 
 	void D3D11ParallelCommandList::CopyResource( Texture* dest, Texture* src, [[maybe_unused]] bool bAsync )
@@ -623,7 +567,7 @@ namespace agl
 
 		ID3D11Resource* destResource = nullptr;
 		ID3D11Resource* srcResource = nullptr;
-		
+
 		if ( auto destBuffer = static_cast<D3D11Buffer*>( dest ) )
 		{
 			destResource = destBuffer->Resource();
@@ -667,59 +611,115 @@ namespace agl
 		::UpdateSubresource( *m_pContext.Get(), dest, src, destOffset, numByte );
 	}
 
-	void D3D11ParallelCommandList::AddTransition( [[maybe_unused]] const ResourceTransition& transition )
+	void D3D11ParallelCommandList::BindPipelineState( ComputePipelineState* pipelineState )
 	{
-		// Do Nothing
+		m_stateCache.BindPipelineState( *m_pContext.Get(), pipelineState );
 	}
 
-	void D3D11ParallelCommandList::AddUavBarrier( [[maybe_unused]] const UavBarrier& uavBarrier )
+	void D3D11ParallelCommandList::BindShaderResources( ShaderBindings& shaderBindings )
 	{
-		// Do Nothing
+		m_globalConstantBuffers.AddGlobalConstantBuffers( shaderBindings );
+		m_stateCache.BindShaderResources( *m_pContext.Get(), shaderBindings );
+	}
+
+	void D3D11ParallelCommandList::SetShaderValue( const ShaderParameter& parameter, const void* value )
+	{
+		m_globalConstantBuffers.SetShaderValue( parameter, value );
+	}
+
+	void D3D11ParallelCommandList::Dispatch( uint32 x, uint32 y, uint32 z )
+	{
+		m_globalConstantBuffers.CommitShaderValue( true );
+		m_pContext->Dispatch( x, y, z );
+		m_globalConstantBuffers.Reset( true );
+	}
+
+	void D3D11ParallelCommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
+	{
+		m_globalConstantBuffers.CommitShaderValue( false );
+		m_pContext->DrawInstanced( vertexCount, numInstance, baseVertexLocation, 0 );
+		m_globalConstantBuffers.Reset( false );
+	}
+
+	void D3D11ParallelCommandList::DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation )
+	{
+		m_globalConstantBuffers.CommitShaderValue( false );
+		m_pContext->DrawIndexedInstanced( indexCount, numInstance, startIndexLocation, baseVertexLocation, 0 );
+		m_globalConstantBuffers.Reset( false );
+	}
+
+	void D3D11ParallelCommandList::DispatchMesh( [[maybe_unused]] uint32 x, [[maybe_unused]] uint32 y, [[maybe_unused]] uint32 z )
+	{
+		assert( false && "DispatchMesh - Unsurpported function in d3d11" );
+	}
+
+	void D3D11ParallelCommandList::SetViewports( uint32 count, const CubeArea<float>* areas )
+	{
+		m_stateCache.SetViewports( *m_pContext.Get(), count, areas );
+	}
+
+	void D3D11ParallelCommandList::SetScissorRects( uint32 count, const RectangleArea<int32>* areas )
+	{
+		m_stateCache.SetScissorRects( *m_pContext.Get(), count, areas );
+	}
+
+	void D3D11ParallelCommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets )
+	{
+		m_stateCache.BindVertexBuffer( *m_pContext.Get(), vertexBuffers, startSlot, numBuffers, strides, pOffsets );
+	}
+
+	void D3D11ParallelCommandList::BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset )
+	{
+		m_stateCache.BindIndexBuffer( *m_pContext.Get(), indexBuffer, indexOffset );
+	}
+
+	void D3D11ParallelCommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
+	{
+		m_stateCache.BindPipelineState( *m_pContext.Get(), pipelineState );
+	}
+
+	void D3D11ParallelCommandList::BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil )
+	{
+		m_stateCache.BindRenderTargets( *m_pContext.Get(), pRenderTargets, renderTargetCount, depthStencil );
+	}
+
+	void D3D11ParallelCommandList::ClearRenderTarget( RenderTargetView* renderTarget )
+	{
+		ID3D11RenderTargetView* rtvs = nullptr;
+		ColorF clearValue;
+
+		if ( auto d3d11RTV = static_cast<D3D11RenderTargetView*>( renderTarget ) )
+		{
+			rtvs = d3d11RTV->Resource();
+			clearValue = d3d11RTV->GetClearColor();
+		}
+
+		if ( rtvs == nullptr )
+		{
+			return;
+		}
+
+		m_pContext->ClearRenderTargetView( rtvs, clearValue.RGBA() );
+	}
+
+	void D3D11ParallelCommandList::ClearDepthStencil( DepthStencilView* depthStencil )
+	{
+		if ( depthStencil == nullptr )
+		{
+			return;
+		}
+
+		auto d3d11DSV = static_cast<D3D11DepthStencilView*>( depthStencil );
+		float depthClearValue = d3d11DSV->GetDepthClearValue();
+		uint8 stencilClearValue = d3d11DSV->GetStencilClearValue();
+
+		m_pContext->ClearDepthStencilView( d3d11DSV->Resource(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthClearValue, stencilClearValue );
 	}
 
 	bool D3D11ParallelCommandList::CaptureTexture( [[maybe_unused]] agl::Texture* texture, [[maybe_unused]]  DirectX::ScratchImage& outResult )
 	{
 		assert( false && "Not Implemented" );
 		return false;
-	}
-
-	void D3D11ParallelCommandList::BeginQuery( void* rawQuery )
-	{
-		auto d3d11Query = static_cast<ID3D11Query*>( rawQuery );
-		m_pContext->Begin( d3d11Query );
-	}
-
-	void D3D11ParallelCommandList::EndQuery( void* rawQuery )
-	{
-		auto d3d11Query = static_cast<ID3D11Query*>( rawQuery );
-		m_pContext->End( d3d11Query );
-	}
-
-	void D3D11ParallelCommandList::BeginEvent( const char* eventName )
-	{
-		assert( m_annotation.Get() != nullptr );
-
-		constexpr uint32 MaxLen = 256;
-		static wchar_t EventName[MaxLen] = {};
-
-		ToWideChar( EventName, MaxLen, eventName );
-		m_annotation->BeginEvent( EventName );
-	}
-
-	void D3D11ParallelCommandList::EndEvent()
-	{
-		assert( m_annotation.Get() != nullptr );
-
-		m_annotation->EndEvent();
-	}
-
-	void D3D11ParallelCommandList::Commit()
-	{
-		if ( m_pCommandList )
-		{
-			D3D11Context().ExecuteCommandList( m_pCommandList.Get(), false );
-			m_pCommandList = nullptr;
-		}
 	}
 
 	void D3D11ParallelCommandList::Close()

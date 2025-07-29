@@ -8,7 +8,7 @@
 
 namespace rendercore
 {
-	enum class PipelineStateCacheType
+	enum class PipelineStateCacheType : uint8
 	{
 		HandmadeCache,
 		LibraryCache,

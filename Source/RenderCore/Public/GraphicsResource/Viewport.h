@@ -5,7 +5,7 @@
 
 namespace agl
 {
-	class ICommandListBase;
+	class ICommandList;
 	class Texture;
 	class Viewport;
 }
@@ -34,7 +34,7 @@ namespace rendercore
 	{
 	public:
 		RENDERCORE_DLL void Clear();
-		RENDERCORE_DLL void Bind( agl::ICommandListBase& commandList ) const;
+		RENDERCORE_DLL void Bind( agl::ICommandList& commandList ) const;
 
 		RENDERCORE_DLL std::pair<uint32, uint32> Size() const;
 		RENDERCORE_DLL std::pair<uint32, uint32> SizeOnRenderThread() const;

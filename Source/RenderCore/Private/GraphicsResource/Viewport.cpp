@@ -82,7 +82,7 @@ namespace rendercore
 		}
 	}
 
-	void Viewport::Bind( agl::ICommandListBase& commandList ) const
+	void Viewport::Bind( agl::ICommandList& commandList ) const
 	{
 		if ( m_pViewport.Get() )
 		{

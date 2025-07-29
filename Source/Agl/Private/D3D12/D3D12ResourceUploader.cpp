@@ -9,7 +9,7 @@ namespace agl
 {
 	void D3D12UploadContext::Prepare()
 	{
-		m_cmdListResource = D3D12CmdPool( D3D12_COMMAND_LIST_TYPE_COPY ).ObtainCommandList();
+		m_cmdListResource = D3D12CmdPool( D3D12_COMMAND_LIST_TYPE_COPY ).GetCommandList();
 	}
 
 	void D3D12UploadContext::RecordUploadCommand( D3D12Buffer& dest, const void* data, uint32 destOffset, uint32 numByte )
@@ -99,7 +99,7 @@ namespace agl
 
 	void D3D12CopyContext::Prepare()
 	{
-		m_cmdListResource = D3D12CmdPool( D3D12_COMMAND_LIST_TYPE_COPY ).ObtainCommandList();
+		m_cmdListResource = D3D12CmdPool( D3D12_COMMAND_LIST_TYPE_COPY ).GetCommandList();
 	}
 
 	void D3D12CopyContext::RecordCopyCommand( D3D12Buffer& dest, D3D12Buffer& src, uint32 numByte )

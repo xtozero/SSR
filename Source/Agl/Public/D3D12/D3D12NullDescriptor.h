@@ -7,7 +7,7 @@
 
 namespace agl
 {
-	enum class DescriptorType
+	enum class DescriptorType : uint8
 	{
 		ConstantBufferView,
 		ShaderResourceView,
@@ -19,7 +19,7 @@ namespace agl
 	};
 	constexpr uint32 MaxDescriptorType = static_cast<uint32>( DescriptorType::Count );
 
-	enum class DescriptorUnderlyingType
+	enum class DescriptorUnderlyingType : uint8
 	{
 		Buffer,
 		Texture2D,

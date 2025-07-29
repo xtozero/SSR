@@ -18,7 +18,7 @@ namespace agl
 	{
 	public:
 		virtual void Clear() override;
-		virtual void Bind( ICommandListBase& commandList ) const override;
+		virtual void Bind( ICommandList& commandList ) const override;
 
 		virtual std::pair<uint32, uint32> Size() const override;
 		virtual std::pair<uint32, uint32> SizeOnRenderThread() const override;
