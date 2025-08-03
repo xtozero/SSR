@@ -142,7 +142,7 @@ void AssetLoader::SetHandleInProcess( const AssetLoaderSharedHandle& handle )
 
 AssetLoaderSharedHandle AssetLoader::LoadAsset( const char* assetPath, LoadCompletionCallback completionCallback )
 {
-	AssetLoaderSharedHandle handle = std::make_shared<AssetLoaderHandle>();
+	auto handle = std::make_shared<AssetLoaderHandle>();
 
 	IFileSystem* fileSystem = GetInterface<IFileSystem>();
 	FileHandle hAsset = fileSystem->OpenFile( assetPath );
@@ -209,7 +209,7 @@ AssetLoaderSharedHandle AssetLoader::LoadAsset( const char* assetPath, LoadCompl
 	handle->NeedPostProcess();
 	AddPrerequisiteToDependantAsset( handle );
 
-	char* asset = new char[assetSize];
+	auto asset = new char[assetSize];
 	if ( fileSystem->ReadAsync( hAsset, asset, assetSize, &AssetProcessing ) == false )
 	{
 		delete[] asset;

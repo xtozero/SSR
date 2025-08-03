@@ -49,7 +49,7 @@ namespace rendercore
 
 		void PrepareFrustumVolume( RenderGraph& renderGraph, Scene& scene, ForwardLightingResource& lightingResource, RenderThreadFrameData<ShadowInfo>& shadowInfos );
 
-		VolumetricFogSceneInfo( VolumetricFogProxy* proxy );
+		explicit VolumetricFogSceneInfo( VolumetricFogProxy* proxy );
 
 	private:
 		RefHandle<agl::Texture> FrustumVolume() const

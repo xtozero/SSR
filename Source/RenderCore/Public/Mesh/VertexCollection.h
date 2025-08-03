@@ -114,7 +114,7 @@ namespace rendercore
 
 	private:
 		std::optional<uint32> FindStreamIndex( const Name& name ) const;
-		VertexStreamLayout SetupVertexLayout( const agl::VertexLayoutTrait* trait, uint32 count );
+		VertexStreamLayout SetupVertexLayout( const agl::VertexLayoutTrait* traits, uint32 count );
 
 		std::vector<VertexStream> m_streams;
 		mutable std::vector<VertexBuffer> m_vbs;

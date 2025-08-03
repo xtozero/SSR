@@ -34,5 +34,7 @@ namespace agl
 
 		virtual DepthStencilView* DSV() = 0;
 		virtual const DepthStencilView* DSV() const = 0;
+
+		virtual ~IResourceViews() = default;
 	};
 }

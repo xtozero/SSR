@@ -8,7 +8,7 @@
 
 namespace
 {
-	uint32 __stdcall asyncInputFunc( void* arg )
+	uint32 __stdcall asyncInputFunc( [[maybe_unused]] void* arg )
 	{
 		while ( true )
 		{

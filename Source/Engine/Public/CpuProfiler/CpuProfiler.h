@@ -56,7 +56,7 @@ namespace engine
 	class ScopedCpuProfile
 	{
 	public:
-		ENGINE_DLL ScopedCpuProfile( CpuProfileData& cpuProfileData );
+		ENGINE_DLL explicit ScopedCpuProfile( CpuProfileData& cpuProfileData );
 		ENGINE_DLL ~ScopedCpuProfile();
 
 	private:

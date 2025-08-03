@@ -191,7 +191,7 @@ namespace logic
 
 	void World::CreatePhysicsScene()
 	{
-		PhysicsScene* newScene = new PhysicsScene();
+		auto newScene = new PhysicsScene();
 		SetPhysicsScene( newScene );
 	}
 

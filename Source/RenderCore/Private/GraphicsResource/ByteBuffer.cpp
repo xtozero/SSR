@@ -12,7 +12,7 @@ namespace rendercore
 {
 	REGISTER_GLOBAL_SHADER( DistributionCopyCS, "./Assets/Shaders/Common/CS_DistributionCopy.asset" );
 
-	GpuMemcpy::GpuMemcpy( uint32 numUpload, uint32 sizePerFloat4, UploadBuffer& src, UploadBuffer& distributer ) : m_sizePerFloat4( sizePerFloat4 ), m_src( src ), m_distributer( distributer )
+	GpuMemcpy::GpuMemcpy( uint32 numUpload, uint32 sizePerFloat4, UploadBuffer& src, UploadBuffer& distributer ) : m_src( src ), m_distributer( distributer ), m_sizePerFloat4( sizePerFloat4 )
 	{
 		m_src.Resize( m_sizePerFloat4 * numUpload, nullptr );
 		m_distributer.Resize( m_sizePerFloat4 * numUpload, nullptr );

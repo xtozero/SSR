@@ -27,7 +27,7 @@ namespace rendercore
 		float FarPlaneDist() const;
 		float ShadowBias() const;
 
-		RENDERCORE_DLL VolumetricFogProxy( const logic::VolumetricFogComponent& component );
+		RENDERCORE_DLL explicit VolumetricFogProxy( const logic::VolumetricFogComponent& component );
 
 	private:
 		friend Scene;

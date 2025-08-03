@@ -14,7 +14,7 @@ namespace logic
 
 	public:
 		virtual void Initialize( GameLogic& gameLogic, World& world ) override;
-		virtual void Think( float elapsedTime );
+		virtual void Think( float elapsedTime ) override;
 
 		virtual rendercore::RenderView* CalcSceneView( rendercore::RenderViewGroup& renderViewGroup );
 

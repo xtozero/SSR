@@ -22,7 +22,7 @@ namespace rendercore
 		agl::Buffer* Resource();
 		const agl::Buffer* Resource() const;
 
-		ConstantBuffer( uint32 size );
+		explicit ConstantBuffer( uint32 size );
 
 		ConstantBuffer() = default;
 		virtual ~ConstantBuffer() = default;

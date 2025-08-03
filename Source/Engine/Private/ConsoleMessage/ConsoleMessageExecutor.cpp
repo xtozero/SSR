@@ -65,7 +65,7 @@ namespace engine
 			}
 		}
 
-		void PrintConsoleMessages()
+		void PrintConsoleMessages() const
 		{
 			for ( const auto& message : m_consoleMessages )
 			{

@@ -329,7 +329,7 @@ private:
 		m_curPos += size;
 	}
 
-	bool CanRead( size_t size )
+	bool CanRead( size_t size ) const
 	{
 		return ( m_curPos + size ) <= m_endPos;
 	}
@@ -338,7 +338,7 @@ private:
 	template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T> || std::is_enum_v<T>>>
 	void WriteData( const T& value )
 	{
-		char* cur = (char*)( &value );
+		auto cur = (char*)( &value );
 
 		for ( size_t i = 0; i < sizeof( T ); ++i )
 		{

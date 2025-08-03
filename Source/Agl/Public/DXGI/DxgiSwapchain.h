@@ -94,7 +94,7 @@ namespace agl
 			return m_hWnd;
 		}
 
-		virtual std::pair<uint32, uint32> Size() const
+		virtual std::pair<uint32, uint32> Size() const override
 		{
 			return { m_width, m_height };
 		}

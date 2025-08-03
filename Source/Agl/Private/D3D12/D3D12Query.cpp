@@ -149,7 +149,7 @@ namespace agl
 		return m_readBackBuffer.Get();
 	}
 
-	void D3D12QueryHeapBlock::GetData( void* outData, int32 size, int32 offset )
+	void D3D12QueryHeapBlock::GetData( void* outData, int32 size, int32 offset ) const
 	{
 		auto src = static_cast<uint8*>( m_readBackPtr ) + size * offset;
 		std::memcpy( outData, src, size );
@@ -205,7 +205,7 @@ namespace agl
 	{
 		uint32 heapIndex = GetHeapIndex( type );
 
-		assert( 0 <= heapIndex && heapIndex < MaxQueryHeapType );
+		assert( heapIndex < MaxQueryHeapType );
 		return m_heaps[heapIndex].Allocate( type );
 	}
 
@@ -213,11 +213,11 @@ namespace agl
 	{
 		uint32 heapIndex = GetHeapIndex( query.m_type );
 
-		assert( 0 <= heapIndex && heapIndex < MaxQueryHeapType );
+		assert( heapIndex < MaxQueryHeapType );
 		m_heaps[heapIndex].Deallocate( query );
 	}
 
-	uint32 D3D12QueryAllocator::GetHeapIndex( D3D12_QUERY_TYPE type )
+	uint32 D3D12QueryAllocator::GetHeapIndex( D3D12_QUERY_TYPE type ) const
 	{
 		switch ( type )
 		{
@@ -250,7 +250,7 @@ namespace agl
 		}
 
 		assert( false && "GetHeapIndex - Invalid query type" );
-		return 0;
+		return MaxQueryHeapType;
 	}
 
 	void D3D12GpuTimer::InitResource()

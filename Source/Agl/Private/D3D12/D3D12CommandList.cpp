@@ -116,7 +116,7 @@ namespace agl
 		return m_numCommands > 0;
 	}
 
-	ID3D12CommandQueue& D3D12BaseCommandListImpl::GetCommandQueue()
+	ID3D12CommandQueue& D3D12BaseCommandListImpl::GetCommandQueue() const
 	{
 		return m_type == D3D12_COMMAND_LIST_TYPE_COMPUTE ? D3D12ComputeCommandQueue() : D3D12DirectCommandQueue();
 	}
@@ -170,7 +170,7 @@ namespace agl
 		return m_cmdListResource.m_commandList.Get();
 	}
 
-	ID3D12GraphicsCommandList6& D3D12BaseCommandListImpl::CommandList()
+	ID3D12GraphicsCommandList6& D3D12BaseCommandListImpl::CommandList() const
 	{
 		return *m_cmdListResource.m_commandList.Get();
 	}
@@ -374,7 +374,7 @@ namespace agl
 		m_barrierBatcher.AddUavBarrier( uavBarrier );
 	}
 
-	void D3D12CopyCommandListImpl::ResourceBarrier( uint32 numBarriers, D3D12_RESOURCE_BARRIER* barriers )
+	void D3D12CopyCommandListImpl::ResourceBarrier( uint32 numBarriers, const D3D12_RESOURCE_BARRIER* barriers )
 	{
 		CommandList().ResourceBarrier( numBarriers, barriers );
 
@@ -569,7 +569,7 @@ namespace agl
 		OnCommandRecorded();
 	}
 
-	bool D3D12CommandListImpl::CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult )
+	bool D3D12CommandListImpl::CaptureTexture( const agl::Texture* texture, DirectX::ScratchImage& outResult ) const
 	{
 		if ( texture == nullptr )
 		{

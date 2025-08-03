@@ -67,7 +67,7 @@ namespace agl
 		D3D11CommandList& operator=( const D3D11CommandList& ) = delete;
 		D3D11CommandList( D3D11CommandList&& other ) noexcept;
 		D3D11CommandList& operator=( D3D11CommandList&& other ) noexcept;
-		virtual ~D3D11CommandList();
+		virtual ~D3D11CommandList() override;
 
 	private:
 		Microsoft::WRL::ComPtr<ID3DUserDefinedAnnotation> m_annotation;

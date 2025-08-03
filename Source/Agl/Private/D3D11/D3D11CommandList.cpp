@@ -355,14 +355,14 @@ namespace agl
 		assert( false && "DispatchMesh - Unsurpported function in d3d11" );
 	}
 
-	void D3D11CommandList::SetViewports( uint32 count, const CubeArea<float>* areas )
+	void D3D11CommandList::SetViewports( uint32 count, const CubeArea<float>* area )
 	{
-		m_stateCache.SetViewports( D3D11Context(), count, areas );
+		m_stateCache.SetViewports( D3D11Context(), count, area );
 	}
 
-	void D3D11CommandList::SetScissorRects( uint32 count, const RectangleArea<int32>* areas )
+	void D3D11CommandList::SetScissorRects( uint32 count, const RectangleArea<int32>* area )
 	{
-		m_stateCache.SetScissorRects( D3D11Context(), count, areas );
+		m_stateCache.SetScissorRects( D3D11Context(), count, area );
 	}
 
 	void D3D11CommandList::BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets )

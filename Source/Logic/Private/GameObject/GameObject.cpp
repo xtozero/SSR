@@ -253,7 +253,7 @@ namespace logic
 
 	void GameObject::RemoveComponent( const Component* component )
 	{
-		std::erase_if( m_components, [component]( std::unique_ptr<Component>& elem )
+		std::erase_if( m_components, [component]( const std::unique_ptr<Component>& elem )
 			{
 				return elem.get() == component;
 			} );

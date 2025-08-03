@@ -30,21 +30,21 @@ std::vector<std::string> SplitString( const std::string& str, char delim )
 void LTrim( std::string& s )
 {
     s.erase( std::begin( s ),
-        std::find_if( std::begin( s ), std::end( s ), 
-            []( char c )
-            {
-                return !std::isspace( c );
-            }));
+             std::ranges::find_if( s,
+                                   []( char c )
+                                   {
+                                       return !std::isspace( c );
+                                   } ) );
 }
 
 void RTrim( std::string& s )
 {
-	s.erase( std::find_if( std::rbegin( s ), std::rend( s ),
-		[]( char c )
-		{
-			return !std::isspace( c );
-		} ).base(),
-		std::end( s ) );
+    s.erase( std::find_if( std::rbegin( s ), std::rend( s ),
+                           []( char c )
+                           {
+                               return !std::isspace( c );
+                           } ).base(),
+             std::end( s ) );
 }
 
 void Trim( std::string& s )
@@ -56,11 +56,11 @@ void Trim( std::string& s )
 std::string ToLower( const std::string& str )
 {
     std::string lowercase = str;
-    std::transform( std::begin( lowercase ), std::end( lowercase ), std::begin( lowercase ), 
-        []( const unsigned char c )
-        {
-            return static_cast<char>( std::tolower( c ) );
-        } );
+    std::ranges::transform( lowercase, std::begin( lowercase ),
+                            []( const unsigned char c )
+                            {
+                                return static_cast<char>( std::tolower( c ) );
+                            } );
 
     return lowercase;
 }
@@ -68,11 +68,11 @@ std::string ToLower( const std::string& str )
 std::string ToUpper( const std::string& str )
 {
     std::string uppercase = str;
-    std::transform( std::begin( uppercase ), std::end( uppercase ), std::begin( uppercase ),
-        []( const unsigned char c )
-        {
-            return static_cast<char>( std::toupper( c ) );
-        } );
+    std::ranges::transform( uppercase, std::begin( uppercase ),
+                            []( const unsigned char c )
+                            {
+                                return static_cast<char>( std::toupper( c ) );
+                            } );
 
     return uppercase;
 }

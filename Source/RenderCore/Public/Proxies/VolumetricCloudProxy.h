@@ -17,7 +17,7 @@ namespace rendercore
 	class VolumetricCloudProxy final
 	{
 	public:
-		RENDERCORE_DLL VolumetricCloudProxy( const logic::VolumetricCloudComponent& component );
+		RENDERCORE_DLL explicit VolumetricCloudProxy( const logic::VolumetricCloudComponent& component );
 
 		float EarthRadius() const;
 		float InnerRadius() const;

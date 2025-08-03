@@ -173,7 +173,7 @@ namespace agl
 		}
 	}
 
-	void GlobalConstantBuffers::AddGlobalConstantBuffers( ShaderBindings& shaderBindings )
+	void GlobalConstantBuffers::AddGlobalConstantBuffers( const ShaderBindings& shaderBindings )
 	{
 		for ( uint32 i = 0; i < MAX_SHADER_TYPE<uint32>; ++i )
 		{

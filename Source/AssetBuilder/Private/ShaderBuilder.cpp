@@ -64,11 +64,11 @@ namespace
 	{
 		std::string name = fileName.filename().generic_string();
 
-		std::transform( std::begin( name ), std::end( name ), std::begin( name ),
-			[]( unsigned char c )
-			{
-				return static_cast<char>( std::tolower( c ) );
-			} );
+		std::ranges::transform( name, std::begin( name ),
+		                        []( unsigned char c )
+		                        {
+			                        return static_cast<char>( std::tolower( c ) );
+		                        } );
 
 		if ( name.starts_with( "vs" ) )
 		{
@@ -211,9 +211,9 @@ namespace
 		return switches;
 	}
 
-	StaticSwitchParser::StaticSwitchParser( const char* contents, size_t length )
+	StaticSwitchParser::StaticSwitchParser( const char* contents, size_t size )
 	{
-		TextTokenaizer::Parse( contents, length );
+		TextTokenaizer::Parse( contents, size );
 	}
 
 	std::optional<StaticSwitchParser::Token> StaticSwitchParser::ReadInteger()

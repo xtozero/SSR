@@ -31,7 +31,7 @@ namespace rendercore
 		HitProxyId GetId() const;
 
 		HitProxy();
-		~HitProxy();
+		virtual ~HitProxy() override;
 
 	private:
 		virtual void Finalizer() override;

@@ -51,7 +51,7 @@ namespace rendercore
 			return m_buffer.Get() ? m_buffer->SRV() : nullptr;
 		}
 
-		TypedBuffer( uint32 numElement, const void* initData = nullptr ) :
+		explicit TypedBuffer( uint32 numElement, const void* initData = nullptr ) :
 			m_numElement( numElement )
 		{
 			InitResource( initData );

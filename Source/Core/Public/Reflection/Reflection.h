@@ -7,5 +7,5 @@
 template <typename To, typename From>
 To* Cast( From* src )
 {
-	return src && src->GetTypeInfo().IsChildOf<To>() ? reinterpret_cast<To*>( src ) : nullptr;
+	return src && src->GetTypeInfo().template IsChildOf<To>() ? reinterpret_cast<To*>( src ) : nullptr;
 }

@@ -33,7 +33,7 @@ namespace editor
 
 		virtual PanelSharedContext& GetPanelSharedCtx() override;
 
-		~ImguiEditor();
+		virtual ~ImguiEditor() override;
 
 	private:
 		HMODULE m_logicDll = nullptr;

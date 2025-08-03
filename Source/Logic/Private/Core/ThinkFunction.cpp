@@ -6,7 +6,7 @@
 
 namespace logic
 {
-	bool ThinkFunction::IsThinkFunctionRegistered()
+	bool ThinkFunction::IsThinkFunctionRegistered() const
 	{
 		return ( m_internalData.get() != nullptr ) && m_internalData->m_registered;
 	}

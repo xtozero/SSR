@@ -49,7 +49,7 @@ namespace logic
 	public:
 		DebugOverlayComponent( GameObject* pOwner, const char* name );
 
-		virtual void ThinkComponent( float elapsedTime );
+		virtual void ThinkComponent( float elapsedTime ) override;
 
 		virtual rendercore::PrimitiveProxy* CreateProxy() const override;
 		virtual BodySetup* GetBodySetup() override;
@@ -72,7 +72,7 @@ namespace logic
 		void AddDebugSphere( const Point& center, float radius, const ColorF& color, float life );
 
 	protected:
-		virtual bool ShouldCreatePhysicsState() const;
+		virtual bool ShouldCreatePhysicsState() const override;
 
 	private:
 		std::vector<DebugLine> m_debugLine;

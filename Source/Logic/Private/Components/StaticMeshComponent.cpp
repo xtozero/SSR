@@ -96,9 +96,9 @@ namespace logic
 
 	void StaticMeshComponent::LoadModelMesh( const std::string& assetPath )
 	{
-		if ( assetPath.length() > 0 )
+		if ( assetPath.empty() == false )
 		{
-			// �𵨷ε�
+			// �𵨷ε�
 			IAssetLoader::LoadCompletionCallback onLoadComplete;
 			onLoadComplete.BindMemberFunction( this, &StaticMeshComponent::OnModelLoadFinished );
 
@@ -110,7 +110,7 @@ namespace logic
 
 	void StaticMeshComponent::LoadRenderOption( const std::string& assetPath )
 	{
-		if ( assetPath.length() > 0 )
+		if ( assetPath.empty() == false )
 		{
 			IAssetLoader::LoadCompletionCallback onLoadComplete;
 			onLoadComplete.BindMemberFunction( this, &StaticMeshComponent::OnRenderOptionLoadFinished );

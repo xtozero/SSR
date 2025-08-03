@@ -234,7 +234,7 @@ namespace agl
 
 		commandList.SetDescriptorHeaps( std::extent_v<decltype( heaps )>, heaps );
 
-		auto GetBindlessGpuHandle = []( D3D12GlobalHeapAllocatedInfo& heap, int32 bindlessHandle ) -> D3D12_GPU_DESCRIPTOR_HANDLE
+		auto GetBindlessGpuHandle = []( const D3D12GlobalHeapAllocatedInfo& heap, int32 bindlessHandle ) -> D3D12_GPU_DESCRIPTOR_HANDLE
 			{
 				return heap.GetGpuHandle( bindlessHandle );
 			};
@@ -637,7 +637,7 @@ namespace agl
 			return;
 		}
 
-		std::copy( std::begin( viewports ), std::end( viewports ), std::begin( m_viewports ) );
+		std::ranges::copy( viewports, std::begin( m_viewports ) );
 		m_numViewports = count;
 
 		commandList.RSSetViewports( count, viewports );
@@ -671,7 +671,7 @@ namespace agl
 			return;
 		}
 
-		std::copy( std::begin( rects ), std::end( rects ), std::begin( m_siccorRects ) );
+		std::ranges::copy( rects, std::begin( m_siccorRects ) );
 		m_numSiccorRects = count;
 
 		commandList.RSSetScissorRects( count, rects );
@@ -709,7 +709,7 @@ namespace agl
 			D3D12FrameResources().RegisterResource( d3d12DSV->GetOwner() );
 		}
 
-		std::copy( pRenderTargets, pRenderTargets + renderTargetCount, std::begin( m_rtvs ) );
+		std::copy_n( pRenderTargets, renderTargetCount, std::begin( m_rtvs ) );
 		m_dsv = depthStencil;
 		commandList.OMSetRenderTargets( renderTargetCount, rtvs, false, depthStencil ? &dsv : nullptr );
 	}

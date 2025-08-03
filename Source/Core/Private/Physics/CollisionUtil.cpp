@@ -62,46 +62,46 @@ namespace COLLISION_UTIL
 
 		if ( lhsType == Collider::Sphere )
 		{
-			const BoundingSphere* sphereCollider1 = reinterpret_cast<const BoundingSphere*>( lhsCollider );
+			auto sphereCollider1 = reinterpret_cast<const BoundingSphere*>( lhsCollider );
 
 			if ( rhsType == Collider::Sphere )
 			{
-				const BoundingSphere* sphereCollider2 = reinterpret_cast<const BoundingSphere*>( rhsCollider );
+				auto sphereCollider2 = reinterpret_cast<const BoundingSphere*>( rhsCollider );
 				return SphereAndSphere( *sphereCollider1, lhsBody, *sphereCollider2, rhsBody, data );
 			}
 			else if ( rhsType == Collider::Aabb )
 			{
-				const AxisAlignedBox* boxCollider = reinterpret_cast<const AxisAlignedBox*>( rhsCollider );
+				auto boxCollider = reinterpret_cast<const AxisAlignedBox*>( rhsCollider );
 				return BoxAndSphere( *boxCollider, rhsBody, *sphereCollider1, lhsBody, data );
 			}
 			else if ( rhsType == Collider::Obb )
 			{
-				const OrientedBox* boxCollider = reinterpret_cast<const OrientedBox*>( rhsCollider );
+				auto boxCollider = reinterpret_cast<const OrientedBox*>( rhsCollider );
 				return BoxAndSphere( *boxCollider, rhsBody, *sphereCollider1, lhsBody, data );
 			}
 		}
 		else if ( lhsType == Collider::Aabb )
 		{
-			const AxisAlignedBox* boxCollider1 = reinterpret_cast<const AxisAlignedBox*>( lhsCollider );
+			auto boxCollider1 = reinterpret_cast<const AxisAlignedBox*>( lhsCollider );
 
 			if ( rhsType == Collider::Aabb )
 			{
-				const AxisAlignedBox* boxCollider2 = reinterpret_cast<const AxisAlignedBox*>( rhsCollider );
+				auto boxCollider2 = reinterpret_cast<const AxisAlignedBox*>( rhsCollider );
 				return BoxAndBox( *boxCollider1, lhsBody, *boxCollider2, rhsBody, data );
 			}
 			else if ( rhsType == Collider::Obb )
 			{
-				const OrientedBox* boxCollider2 = reinterpret_cast<const OrientedBox*>( rhsCollider );
+				auto boxCollider2 = reinterpret_cast<const OrientedBox*>( rhsCollider );
 				return BoxAndBox( *boxCollider1, lhsBody, *boxCollider2, rhsBody, data );
 			}
 		}
 		else if ( lhsType == Collider::Obb )
 		{
-			const OrientedBox* boxCollider1 = reinterpret_cast<const OrientedBox*>( lhsCollider );
+			auto boxCollider1 = reinterpret_cast<const OrientedBox*>( lhsCollider );
 
 			if ( rhsType == Collider::Obb )
 			{
-				const OrientedBox* boxCollider2 = reinterpret_cast<const OrientedBox*>( rhsCollider );
+				auto boxCollider2 = reinterpret_cast<const OrientedBox*>( rhsCollider );
 				return BoxAndBox( *boxCollider1, lhsBody, *boxCollider2, rhsBody, data );
 			}
 		}

@@ -48,9 +48,9 @@ namespace agl
 			numBuffers = D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT;
 		}
 
-		std::copy( std::begin( newBuffers ), std::end( newBuffers ), std::begin( m_vertexBuffers ) );
-		std::copy( std::begin( newStrides ), std::end( newStrides ), std::begin( m_vertexStrides ) );
-		std::copy( std::begin( newOffsets ), std::end( newOffsets ), std::begin( m_vertexOffsets ) );
+		std::ranges::copy( newBuffers, std::begin( m_vertexBuffers ) );
+		std::ranges::copy( newStrides, std::begin( m_vertexStrides ) );
+		std::ranges::copy( newOffsets, std::begin( m_vertexOffsets ) );
 		context.IASetVertexBuffers( startSlot, numBuffers, newBuffers, newStrides, newOffsets );
 	}
 
@@ -286,7 +286,7 @@ namespace agl
 			return;
 		}
 
-		std::copy( std::begin( viewports ), std::end( viewports ), std::begin( m_viewports ) );
+		std::ranges::copy( viewports, std::begin( m_viewports ) );
 		context.RSSetViewports( count, viewports );
 	}
 
@@ -310,7 +310,7 @@ namespace agl
 			return;
 		}
 
-		std::copy( std::begin( rects ), std::end( rects ), std::begin( m_siccorRects ) );
+		std::ranges::copy( rects, std::begin( m_siccorRects ) );
 		context.RSSetScissorRects( count, rects );
 	}
 
@@ -371,12 +371,12 @@ namespace agl
 			return;
 		}
 
-		std::copy( std::begin( rtvs ), std::end( rtvs ), std::begin( m_rtvs ) );
+		std::ranges::copy( rtvs, std::begin( m_rtvs ) );
 		m_dsv = dsv;
 		context.OMSetRenderTargets( renderTargetCount, rtvs, dsv );
 	}
 
-	void D3D11PipelineCache::UnbindExistingSRV( ID3D11DeviceContext& context, ID3D11ShaderResourceView* srv )
+	void D3D11PipelineCache::UnbindExistingSRV( ID3D11DeviceContext& context, const ID3D11ShaderResourceView* srv )
 	{
 		for ( uint32 shader = 0; shader < MAX_SHADER_TYPE<uint32>; ++shader )
 		{
@@ -390,7 +390,7 @@ namespace agl
 		}
 	}
 
-	void D3D11PipelineCache::UnbindExistingUAV( ID3D11DeviceContext& context, ID3D11UnorderedAccessView* uav )
+	void D3D11PipelineCache::UnbindExistingUAV( ID3D11DeviceContext& context, const ID3D11UnorderedAccessView* uav )
 	{
 		for ( uint32 slot = 0; slot < D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT; ++slot )
 		{
@@ -401,7 +401,7 @@ namespace agl
 		}
 	}
 
-	void D3D11PipelineCache::UnbindExistingRTV( ID3D11DeviceContext& context, ID3D11RenderTargetView* rtv )
+	void D3D11PipelineCache::UnbindExistingRTV( ID3D11DeviceContext& context, const ID3D11RenderTargetView* rtv )
 	{
 		for ( uint32 slot = 0; slot < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; ++slot )
 		{
@@ -414,7 +414,7 @@ namespace agl
 		context.OMSetRenderTargets( D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, m_rtvs, m_dsv );
 	}
 
-	void D3D11PipelineCache::UnbindExistingDSV( ID3D11DeviceContext& context, ID3D11DepthStencilView* dsv )
+	void D3D11PipelineCache::UnbindExistingDSV( ID3D11DeviceContext& context, const ID3D11DepthStencilView* dsv )
 	{
 		if ( m_dsv == dsv )
 		{

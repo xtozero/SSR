@@ -99,7 +99,7 @@ namespace rendercore
 	class RasterOutput final
 	{
 	public:
-		void SetRenderTarget( int32 i, RenderGraphTexture* renderTarget, RasterOutputLoadAction loadAction = RasterOutputLoadAction::NoAction );
+		void SetRenderTarget( int32 index, RenderGraphTexture* renderTarget, RasterOutputLoadAction loadAction = RasterOutputLoadAction::NoAction );
 		void SetDepthStencil( RenderGraphTexture* depthStencil, bool readOnly = false, RasterOutputLoadAction loadAction = RasterOutputLoadAction::NoAction );
 
 		void SetViewport( int32 left, int32 top, int32 right, int32 bottom, int32 front, int32 back );

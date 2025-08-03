@@ -25,7 +25,7 @@ public:
 
 	void* Allocate( size_t size )
 	{
-		if ( IDelegateInstance* pInstance = static_cast<IDelegateInstance*>( m_storage ) )
+		if ( auto pInstance = static_cast<IDelegateInstance*>( m_storage ) )
 		{
 			pInstance->~IDelegateInstance();
 		}
@@ -42,7 +42,7 @@ public:
 
 	void Unbind()
 	{
-		if ( IDelegateInstance* pInstance = static_cast<IDelegateInstance*>( m_storage ) )
+		if ( auto pInstance = static_cast<IDelegateInstance*>( m_storage ) )
 		{
 			pInstance->~IDelegateInstance();
 			std::free( m_storage );
@@ -411,7 +411,7 @@ public:
 				return handle == delegate.GetHandle();
 			} );
 
-		return oldSize != m_invocationList.size();;
+		return oldSize != m_invocationList.size();
 	}
 
 	void Boardcast( ArgTypes... args )

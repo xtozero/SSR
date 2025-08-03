@@ -81,7 +81,7 @@ namespace Wavefront
 	class ObjMtlParser final : public TextTokenaizer
 	{
 	public:
-		bool Parse( std::filesystem::path filePath, ObjMaterialLibrary& mtl )
+		bool Parse( const std::filesystem::path& filePath, ObjMaterialLibrary& mtl )
 		{
 			if ( std::filesystem::exists( filePath ) == false )
 			{
@@ -378,7 +378,7 @@ namespace Wavefront
 	class ObjParser final : public TextTokenaizer
 	{
 	public:
-		bool Parse( std::filesystem::path filePath, ObjModel& mesh )
+		bool Parse( const std::filesystem::path& filePath, ObjModel& mesh )
 		{
 			if ( std::filesystem::exists( filePath ) == false )
 			{
@@ -687,7 +687,7 @@ namespace Wavefront
 					Seek( 1 );
 				}
 
-				std::string numberStr( begin, Tell() - begin);
+				std::string numberStr( begin, Tell() - begin );
 				val *= atoi( numberStr.c_str() );
 
 				if ( val < 0 )
@@ -739,11 +739,11 @@ namespace Wavefront
 			SkipWhiteSpace();
 			auto name = std::string( ReadWord() );
 
-			auto found = std::find_if( std::begin( m_materialLut ), std::end( m_materialLut ),
-				[&name]( const MaterialList& ml )
-				{
-					return ml.m_materialNames.contains( name );
-				} );
+			auto found = std::ranges::find_if( m_materialLut,
+			                                   [&name]( const MaterialList& ml )
+			                                   {
+				                                   return ml.m_materialNames.contains( name );
+			                                   } );
 
 			std::string mtlName;
 			if ( found == std::end( m_materialLut ) )

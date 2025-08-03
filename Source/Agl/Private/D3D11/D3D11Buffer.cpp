@@ -114,7 +114,7 @@ namespace agl
 		{
 			m_hasInitData = true;
 
-			m_dataStorage = new unsigned char[m_desc.ByteWidth];
+			m_dataStorage = new uint8[m_desc.ByteWidth];
 			std::memcpy( m_dataStorage, initData, Size() );
 		}
 	}

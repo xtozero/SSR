@@ -143,13 +143,13 @@ namespace engine
 		}
 
 		uint32 fileSize = fileSystem->GetFileSize( uicAsset );
-		char* buffer = new char[fileSize];
+		auto buffer = new char[fileSize];
 
 		IFileSystem::IOCompletionCallback ParseUICAsset;
 		ParseUICAsset.BindFunctor(
 			[this, uicAsset]( const char* buffer, uint32 bufferSize )
 			{
-				LoadKeyCode( buffer, static_cast<size_t>( bufferSize ) );
+				LoadKeyCode( buffer, bufferSize );
 				GetInterface<IFileSystem>()->CloseFile( uicAsset );
 			}
 		);
@@ -183,11 +183,11 @@ namespace engine
 				}
 			}
 
-			std::sort( std::begin( m_codeMap ), std::end( m_codeMap ),
-				[]( const CodePair& lhs, const CodePair& rhs )
-				{
-					return lhs.first < rhs.first;
-				}
+			std::ranges::sort( m_codeMap,
+			                   []( const CodePair& lhs, const CodePair& rhs )
+			                   {
+				                   return lhs.first < rhs.first;
+			                   }
 			);
 		}
 	}

@@ -13,7 +13,7 @@ namespace editor
 		virtual void Draw() override;
 		virtual void HandleUserInput( const engine::UserInput& input ) override;
 
-		ContentBrowserPanel( IEditor& editor );
+		explicit ContentBrowserPanel( IEditor& editor );
 
 	private:
 		void DrawContentDirectoryTree( std::filesystem::path current );

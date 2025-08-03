@@ -267,7 +267,6 @@ namespace rendercore
 
 		GetGpuProfiler().GatherProfileData();
 
-		auto commandList = GetCommandList();
 		{
 			CPU_PROFILE( RenderFrame );
 			GPU_PROFILE_EVENT( m_renderGraph, RenderFrame );
@@ -346,7 +345,7 @@ namespace rendercore
 
 				size_t rowSize = sizeof( Color ) * width;
 				auto dest = outHitProxyData.data();
-				auto src = (uint8*)lockedResource.m_data;
+				auto src = static_cast<uint8*>( lockedResource.m_data );
 
 				for ( uint32 i = 0; i < height; ++i )
 				{

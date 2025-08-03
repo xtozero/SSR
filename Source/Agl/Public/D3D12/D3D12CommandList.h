@@ -47,7 +47,7 @@ namespace agl
 
 		bool HasCommands() const;
 
-		ID3D12CommandQueue& GetCommandQueue();
+		ID3D12CommandQueue& GetCommandQueue() const;
 
 		void BeginQuery( void* rawQuery );
 		void EndQuery( void* rawQuery );
@@ -61,7 +61,7 @@ namespace agl
 	protected:
 		D3D12BaseCommandListImpl( D3D12_COMMAND_LIST_TYPE type ) : m_type( type ) {}
 
-		ID3D12GraphicsCommandList6& CommandList();
+		ID3D12GraphicsCommandList6& CommandList() const;
 		void InitializeCommandList();
 
 		void OnCommandRecorded();
@@ -86,7 +86,7 @@ namespace agl
 		void AddTransition( const ResourceTransition& transition );
 		void AddUavBarrier( const UavBarrier& uavBarrier );
 
-		void ResourceBarrier( uint32 numBarriers, D3D12_RESOURCE_BARRIER* barriers );
+		void ResourceBarrier( uint32 numBarriers, const D3D12_RESOURCE_BARRIER* barriers );
 
 		void Signal( ID3D12Fence* fence, uint64 fenceValue );
 
@@ -147,7 +147,7 @@ namespace agl
 		void ClearRenderTarget( RenderTargetView* renderTarget );
 		void ClearDepthStencil( DepthStencilView* depthStencil );
 
-		bool CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult );
+		bool CaptureTexture( const agl::Texture* texture, DirectX::ScratchImage& outResult ) const;
 
 		D3D12CommandListImpl() : D3D12ComputeCommandListImpl( D3D12_COMMAND_LIST_TYPE_DIRECT ) {}
 

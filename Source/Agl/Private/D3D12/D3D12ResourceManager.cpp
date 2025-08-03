@@ -511,7 +511,7 @@ namespace agl
 					.StreamOutput = {
 						.pSODeclaration = nullptr,
 						.NumEntries = 0,
-						.pBufferStrides = 0,
+						.pBufferStrides = nullptr,
 						.NumStrides = 0,
 						.RasterizedStream = 0
 					},
@@ -643,15 +643,6 @@ namespace agl
 						UpdatePSOCache( psoHash, state.Get() );
 					} );
 			}
-
-			// Update the lookup table between shaders and pipeline states
-			ShaderBase* shaders[] = {
-				desc.m_vertexShader.Get(),
-				desc.m_geometryShader.Get(),
-				desc.m_pixelShader.Get(),
-				desc.m_meshShader.Get(),
-				desc.m_amplificationShader.Get(),
-			};
 
 			return newPipelineState.Get();
 		}

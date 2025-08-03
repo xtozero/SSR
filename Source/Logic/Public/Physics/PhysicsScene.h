@@ -37,7 +37,7 @@ namespace logic
 	public:
 		BoxSphereBounds Bounds() const;
 
-		const ICollider* GetCollider();
+		const ICollider* GetCollider() const;
 		void AddCollider( std::vector<std::unique_ptr<ICollider>>& colliders );
 
 		int32 GetDirty() const

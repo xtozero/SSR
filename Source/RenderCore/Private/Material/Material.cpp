@@ -447,14 +447,6 @@ namespace rendercore
 	{
 	}
 
-	Material::Material() = default;
-
-	Material::~Material() = default;
-
-	Material::Material( Material&& other ) = default;
-
-	Material& Material::operator=( Material&& other ) = default;
-
 	void Material::PostLoadImpl()
 	{
 		for ( uint32 i = 0; i < agl::MAX_SHADER_TYPE<uint32>; ++i )

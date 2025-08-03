@@ -95,13 +95,13 @@ namespace rendercore
 	class RegisterGpuProfileData
 	{
 	public:
-		RegisterGpuProfileData( GpuProfileData& gpuProfileData );
+		explicit RegisterGpuProfileData( GpuProfileData& gpuProfileData );
 	};
 
 	class RegisterPipelineStatData
 	{
 	public:
-		RegisterPipelineStatData( PipelineStatData& pipelineStatData );
+		explicit RegisterPipelineStatData( PipelineStatData& pipelineStatData );
 	};
 
 	IGpuProfiler& GetGpuProfiler();

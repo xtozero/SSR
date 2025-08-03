@@ -31,7 +31,7 @@ public:
 
 	void* Allocate( size_t n, size_t align )
 	{
-		uint8* memory = reinterpret_cast<uint8*>( ( (uptrint)m_top + align - 1 ) & ~( align - 1 ) );
+		auto memory = reinterpret_cast<uint8*>( ( (uptrint)m_top + align - 1 ) & ~( align - 1 ) );
 		uint8* newTop = memory + n;
 
 		assert( n <= sizeof( MemoryPage ) - sizeof( TaggedMemory ) );

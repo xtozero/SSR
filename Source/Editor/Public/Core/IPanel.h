@@ -21,7 +21,7 @@ namespace editor
 	class Panel : public IPanel
 	{
 	public:
-		Panel( IEditor& editor )
+		explicit Panel( IEditor& editor )
 			: m_editor( editor )
 		{}
 

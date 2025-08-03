@@ -102,7 +102,7 @@ namespace engine
 		nanoseconds durationNS = profileData.m_timeStampEnd - profileData.m_timeStampBegin;
 		double durationMS = duration_cast<duration<double>>( durationNS ).count() * 1000.0;
 
-		int32 durationIdx = profileData.m_numSamples % CpuProfileData::MaxSamples;
+		uint64 durationIdx = profileData.m_numSamples % CpuProfileData::MaxSamples;
 		profileData.m_durationMS[durationIdx] = durationMS;
 
 		++profileData.m_numSamples;

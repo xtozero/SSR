@@ -73,7 +73,7 @@ namespace rendercore
 			return m_weatherMap.Get();
 		}
 
-		VolumetricCloudSceneInfo( VolumetricCloudProxy* proxy );
+		explicit VolumetricCloudSceneInfo( VolumetricCloudProxy* proxy );
 
 	private:
 		void SetupCloudTexture( RenderGraph& renderGraph );

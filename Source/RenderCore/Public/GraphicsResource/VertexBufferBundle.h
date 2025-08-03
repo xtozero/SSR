@@ -107,8 +107,8 @@ namespace rendercore
 					}
 				}
 
-				std::copy( std::begin( other.m_strides ), std::end( other.m_strides ), std::begin( m_strides ) );
-				std::copy( std::begin( other.m_offsets ), std::end( other.m_offsets ), std::begin( m_offsets ) );
+				std::ranges::copy( other.m_strides, std::begin( m_strides ) );
+				std::ranges::copy( other.m_offsets, std::begin( m_offsets ) );
 
 				m_numBuffers = other.m_numBuffers;
 			}
@@ -139,8 +139,8 @@ namespace rendercore
 					other.m_vertexBuffers[i] = nullptr;
 				}
 
-				std::copy( std::begin( other.m_strides ), std::end( other.m_strides ), std::begin( m_strides ) );
-				std::copy( std::begin( other.m_offsets ), std::end( other.m_offsets ), std::begin( m_offsets ) );
+				std::ranges::copy( other.m_strides, std::begin( m_strides ) );
+				std::ranges::copy( other.m_offsets, std::begin( m_offsets ) );
 
 				m_numBuffers = other.m_numBuffers;
 				other.m_numBuffers = 0;

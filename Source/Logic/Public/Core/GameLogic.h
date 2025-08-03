@@ -44,7 +44,7 @@ namespace logic
 
 		void SpawnObject( Owner<GameObject*> object );
 
-		const std::pair<uint32, uint32>& GetAPPSize() { return m_appSize; }
+		const std::pair<uint32, uint32>& GetAPPSize() const { return m_appSize; }
 
 		InputController* GetInputController();
 

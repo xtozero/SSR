@@ -69,7 +69,7 @@ namespace agl
 		{
 			if ( initData )
 			{
-				m_dataStorage = new unsigned char[initData->m_srcSize];
+				m_dataStorage = new uint8[initData->m_srcSize];
 				std::memcpy( m_dataStorage, initData->m_srcData, initData->m_srcSize );
 			}
 		}
@@ -97,7 +97,7 @@ namespace agl
 
 		virtual void CreateTexture() = 0;
 
-		void* m_dataStorage = nullptr;
+		uint8* m_dataStorage = nullptr;
 	};
 
 	bool IsTexture2D( const TextureTrait& trait );

@@ -21,7 +21,7 @@ namespace rendercore
 	{
 	public:
 		void StartFrame( Scene& scene );
-		void UpdateTransform( uint64 numframe, uint32 primitiveId, const Matrix& curTransform, const Matrix& prevTransform );
+		void UpdateTransform( uint64 numFrame, uint32 primitiveId, const Matrix& curTransform, const Matrix& prevTransform );
 		void RemoveFromScene( uint32 primitiveId );
 		std::optional<Matrix> GetPreviousTransform( uint32 primitiveId ) const;
 

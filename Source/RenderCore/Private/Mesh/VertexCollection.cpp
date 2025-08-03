@@ -109,19 +109,19 @@ namespace rendercore
 		return nullptr;
 	}
 
-	void VertexCollection::InitLayout( const agl::VertexLayoutTrait* trait, uint32 count, VertexStreamLayoutType layoutType )
+	void VertexCollection::InitLayout( const agl::VertexLayoutTrait* traits, uint32 count, VertexStreamLayoutType layoutType )
 	{
 		if ( layoutType == VertexStreamLayoutType::PositionOnly )
 		{
-			m_positionLayout = SetupVertexLayout( trait, count );
+			m_positionLayout = SetupVertexLayout( traits, count );
 		}
 		else if ( layoutType == VertexStreamLayoutType::PositionNormal )
 		{
-			m_positionNormalLayout = SetupVertexLayout( trait, count );
+			m_positionNormalLayout = SetupVertexLayout( traits, count );
 		}
 		else
 		{
-			m_defaultLayout = SetupVertexLayout( trait, count );
+			m_defaultLayout = SetupVertexLayout( traits, count );
 		}
 	}
 

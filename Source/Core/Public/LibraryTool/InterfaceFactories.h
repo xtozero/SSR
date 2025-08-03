@@ -66,7 +66,7 @@ T* GetInterface( )
 	}
 
 	using GetInterfaceFunc = void*(*)( std::type_index );
-	GetInterfaceFunc getInterface = reinterpret_cast<GetInterfaceFunc>( GetProcAddress( hEngineModule, "GetInterface" ) );
+	auto getInterface = reinterpret_cast<GetInterfaceFunc>( GetProcAddress( hEngineModule, "GetInterface" ) );
 	if ( getInterface == nullptr )
 	{
 		assert( "Engine module must have GetInterface function!" && false );
@@ -86,7 +86,7 @@ void RegisterFactory( FactoryFunctionType factoryFunc )
 	}
 
 	using RegisterFactoryFunc = void(*)( std::type_index, FactoryFunctionType );
-	RegisterFactoryFunc registerFactory = reinterpret_cast<RegisterFactoryFunc>( GetProcAddress( hEngineModule, "RegisterFactory" ) );
+	auto registerFactory = reinterpret_cast<RegisterFactoryFunc>( GetProcAddress( hEngineModule, "RegisterFactory" ) );
 	if ( registerFactory == nullptr )
 	{
 		assert( "Engine module must have RegisterFactory function!" && false );
@@ -105,7 +105,7 @@ void UnregisterFactory( )
 	}
 
 	using UnregisterFactoryFunc = void(*)( std::type_index );
-	UnregisterFactoryFunc unregisterFactory = reinterpret_cast<UnregisterFactoryFunc>( GetProcAddress( hEngineModule, "UnregisterFactory" ) );
+	auto unregisterFactory = reinterpret_cast<UnregisterFactoryFunc>( GetProcAddress( hEngineModule, "UnregisterFactory" ) );
 	if ( unregisterFactory == nullptr )
 	{
 		assert( "Engine module must have UnregisterFactory function!" && false );

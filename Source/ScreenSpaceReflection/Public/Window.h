@@ -13,7 +13,7 @@ namespace app
 	public:
 		RECT GetScreenArea() const noexcept { return{ 0, 0, m_width, m_height }; }
 		const WNDCLASSEXA& GetWndClass() const noexcept { return m_wndClass; }
-		const HINSTANCE GethInstance() const noexcept { return m_wndClass.hInstance; }
+		HINSTANCE GethInstance() const noexcept { return m_wndClass.hInstance; }
 
 		WindowSetup( HINSTANCE hInstance, int32 width, int32 height ) noexcept : m_width( width ), m_height( height )
 		{
@@ -43,7 +43,7 @@ namespace app
 		virtual void UpdateSize( uint32 width, uint32 height ) override;
 		virtual void Resize( uint32 width, uint32 height ) override;
 
-		bool Run( WindowSetup& setup, WNDPROC wndProc );
+		bool Run( const WindowSetup& setup, WNDPROC wndProc );
 		HWND GetHwnd() const noexcept { return m_hwnd; }
 
 		Window( const std::string& title, uint32 style = WS_OVERLAPPEDWINDOW ) noexcept;

@@ -142,7 +142,7 @@ public:
 		return m_preprocessingEnvironments;
 	}
 
-	bool IsPreprocessingAsset( std::filesystem::path path )
+	bool IsPreprocessingAsset( const std::filesystem::path& path )
 	{
 		std::filesystem::path targetExtension = path.extension();
 		for ( const auto& [key, value] : m_preprocessingEnvironments )

@@ -354,7 +354,7 @@ public:
 			.m_name = name,
 			.m_type = TypeInfo::GetStaticTypeInfo<T>(),
 			.m_handler = handler,
-			.m_serializer = +[]( void* object, Archive& ar )
+			.m_serializer = +[]( [[maybe_unused]] void* object, Archive& ar )
 				{
 					if constexpr ( std::is_array_v<T> )
 					{
@@ -371,7 +371,7 @@ public:
 						ar << *ptr;
 					}
 				},
-			.m_parser = +[]( void* object, const std::string& s )
+			.m_parser = +[]( [[maybe_unused]] void* object, const std::string& s )
 				{
 					if constexpr ( std::is_array_v<T> )
 					{

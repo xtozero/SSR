@@ -57,7 +57,7 @@ bool FileSystemImpl::ReadAsync( const FileHandle& handle, char* buffer, uint32 s
 	}
 
 	std::lock_guard lk( m_ioRequestMutex );
-	FileSystemImplOverlapped* o = static_cast<FileSystemImplOverlapped*>( m_fileSystem.ReadAsync( handle, buffer, size ) );
+	auto o = static_cast<FileSystemImplOverlapped*>( m_fileSystem.ReadAsync( handle, buffer, size ) );
 	if ( callback && ( o != nullptr ) )
 	{
 		o->m_callback = *callback;

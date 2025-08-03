@@ -10,6 +10,8 @@ class ParticleForceGenerator
 {
 public:
 	virtual void UpdateForce( Particle* particle, float duration ) = 0;
+
+	virtual ~ParticleForceGenerator() = default;
 };
 
 class ParticleGravity : public ParticleForceGenerator

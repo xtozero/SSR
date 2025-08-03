@@ -15,7 +15,7 @@ namespace logic
 		static AttachmentTrasformRules KeepRelativeTransform;
 		static AttachmentTrasformRules KeepWorldTransform;
 
-		AttachmentTrasformRules( WeldingRule rule )
+		explicit AttachmentTrasformRules( WeldingRule rule )
 			: m_translationRule( rule )
 			, m_rotationRule( rule )
 			, m_scaleRule( rule )
@@ -37,7 +37,7 @@ namespace logic
 		static DetachmentTrasformRules KeepRelativeTransform;
 		static DetachmentTrasformRules KeepWorldTransform;
 
-		DetachmentTrasformRules( WeldingRule rule )
+		explicit DetachmentTrasformRules( WeldingRule rule )
 			: m_translationRule( rule )
 			, m_rotationRule( rule )
 			, m_scaleRule( rule )

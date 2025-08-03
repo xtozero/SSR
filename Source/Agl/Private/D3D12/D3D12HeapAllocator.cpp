@@ -226,7 +226,7 @@ namespace agl
 		return found;
 	}
 
-	bool D3D12HeapBlock::ValidateFreeList()
+	bool D3D12HeapBlock::ValidateFreeList() const
 	{
 		D3D12HeapSubAllocation* head = m_freeList;
 

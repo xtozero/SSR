@@ -123,7 +123,7 @@ namespace rendercore
 
 	void ResourceBinder::Add( const std::string& parameterName, agl::GraphicsApiResource* resource )
 	{
-		auto found = std::find( std::begin( m_parameterNames ), std::end( m_parameterNames ), Name( parameterName ) );
+		auto found = std::ranges::find( m_parameterNames, Name( parameterName ) );
 
 		if ( found == std::end( m_parameterNames ) )
 		{
@@ -139,7 +139,7 @@ namespace rendercore
 
 	void ResourceBinder::Add( const ShaderArguments* collection )
 	{
-		auto found = std::find( std::begin( m_argumentsList ), std::end( m_argumentsList ), collection );
+		auto found = std::ranges::find( m_argumentsList, collection );
 		if ( found != std::end( m_argumentsList ) )
 		{
 			return;

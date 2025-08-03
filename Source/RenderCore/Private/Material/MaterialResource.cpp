@@ -130,7 +130,7 @@ namespace rendercore
 		m_material = material;
 	}
 
-	const std::shared_ptr<Material> MaterialResource::GetMaterial()
+	std::shared_ptr<Material> MaterialResource::GetMaterial()
 	{
 		return m_material.lock();
 	}
@@ -246,7 +246,7 @@ namespace rendercore
 
 		uint32 materialCbSlotNumbers[agl::MAX_SHADER_TYPE<uint32>];
 		constexpr uint32 InvalidSlot = std::numeric_limits<uint32>::max();
-		std::fill( std::begin( materialCbSlotNumbers ), std::end( materialCbSlotNumbers ), InvalidSlot );
+		std::ranges::fill( materialCbSlotNumbers, InvalidSlot );
 
 		const ShaderBase* shaders[agl::MAX_SHADER_TYPE<uint32>] = {
 			shaderStates.m_vertexShader,
@@ -350,7 +350,7 @@ namespace rendercore
 			}
 		}
 
-		std::sort( std::begin( m_materialConstantValueNames ), std::end( m_materialConstantValueNames ) );
+		std::ranges::sort( m_materialConstantValueNames );
 
 		UpdateToGPU();
 	}
@@ -366,7 +366,7 @@ namespace rendercore
 		{
 			const auto& cbParam = materialConstantBuffer.first;
 			auto& cb = materialConstantBuffer.second;
-			char* buffer = static_cast<char*>( cb.Lock() );
+			auto buffer = static_cast<char*>( cb.Lock() );
 
 			if ( buffer )
 			{

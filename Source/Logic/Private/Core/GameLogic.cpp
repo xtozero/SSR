@@ -164,7 +164,7 @@ namespace logic
 		}
 
 		unsigned long fileSize = fileSystem->GetFileSize( worldAsset );
-		char* buffer = new char[fileSize];
+		auto buffer = new char[fileSize];
 
 		IFileSystem::IOCompletionCallback ParseWorldAsset;
 		ParseWorldAsset.BindFunctor(

@@ -63,7 +63,7 @@ inline HMODULE LoadModule( const char* dllPath )
 	}
 
 	using BootUpFunc = void(*)( );
-	BootUpFunc bootUp = (BootUpFunc)( GetProcAddress( hModule, "BootUpModules" ) );
+	auto bootUp = (BootUpFunc)( GetProcAddress( hModule, "BootUpModules" ) );
 	if ( bootUp == nullptr )
 	{
 		assert( "Module must have BootUpModules function!" && false );
@@ -78,7 +78,7 @@ inline HMODULE LoadModule( const char* dllPath )
 inline void ShutdownModule( HMODULE dll )
 {
 	using ShutDownFunc = void(*)( );
-	ShutDownFunc shutDown = reinterpret_cast<ShutDownFunc>( GetProcAddress( dll, "ShutdownModules" ) );
+	auto shutDown = reinterpret_cast<ShutDownFunc>( GetProcAddress( dll, "ShutdownModules" ) );
 	if ( shutDown == nullptr )
 	{
 		assert( "Module must have ShutDownModules function!" && false );

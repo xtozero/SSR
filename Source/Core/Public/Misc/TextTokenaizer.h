@@ -16,7 +16,7 @@ public:
 		m_current = contents;
 	}
 
-	bool CanRead()
+	bool CanRead() const
 	{
 		return m_current < m_end;
 	}
@@ -69,7 +69,7 @@ public:
 		}
 	}
 
-	bool IsLineEnd()
+	bool IsLineEnd() const
 	{
 		char c = *m_current;
 		return c == '\n' || c == '\r';

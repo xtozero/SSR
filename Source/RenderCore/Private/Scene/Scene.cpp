@@ -47,7 +47,7 @@ namespace rendercore
 			return;
 		}
 
-		PrimitiveSceneInfo* primitiveSceneInfo = new PrimitiveSceneInfo( primitive, *this );
+		auto primitiveSceneInfo = new PrimitiveSceneInfo( primitive, *this );
 
 		proxy->m_primitiveSceneInfo = primitiveSceneInfo;
 
@@ -309,7 +309,7 @@ namespace rendercore
 			return;
 		}
 
-		LightSceneInfo* lightsceneInfo = new LightSceneInfo( *light, *this );
+		auto lightsceneInfo = new LightSceneInfo( *light, *this );
 
 		proxy->m_lightSceneInfo = lightsceneInfo;
 

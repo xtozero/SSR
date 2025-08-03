@@ -30,7 +30,7 @@ namespace
 
 void OrientedBox::Update( const Vector& scaling, const Quaternion& rotation, const Vector& translation, ICollider* original )
 {
-	OrientedBox* orig = dynamic_cast<OrientedBox*>( original );
+	auto orig = dynamic_cast<OrientedBox*>( original );
 	if ( orig == nullptr )
 	{
 		return;

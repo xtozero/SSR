@@ -42,7 +42,7 @@ namespace rendercore
 
 		struct ShaderResourceLayout
 		{
-			ShaderResourceLayout( const ShaderArgumentsMemberMetaData* memberMetaData )
+			explicit ShaderResourceLayout( const ShaderArgumentsMemberMetaData* memberMetaData )
 				: m_memberMetaData( memberMetaData )
 			{}
 			ShaderResourceLayout() = default;

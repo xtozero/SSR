@@ -14,12 +14,12 @@ namespace rendercore
 	class DebugOverlayProxy final : public PrimitiveProxy
 	{
 	public:
-		RENDERCORE_DLL DebugOverlayProxy( const logic::DebugOverlayComponent& component );
+		RENDERCORE_DLL explicit DebugOverlayProxy( const logic::DebugOverlayComponent& component );
 
 		virtual void CreateRenderData() override {}
 		virtual void PrepareSubMeshs() override {}
-		virtual void TakeSnapshot( [[maybe_unused]] RenderThreadFrameData<DrawSnapshot>& outSnapshotStorage, [[maybe_unused]]  RenderThreadFrameData<VisibleDrawSnapshot>& outVisibleSnapshot ) const {}
-		virtual std::optional<DrawSnapshot> TakeSnapshot( [[maybe_unused]] uint32 lod, [[maybe_unused]] uint32 sectionIndex ) const
+		virtual void TakeSnapshot( [[maybe_unused]] RenderThreadFrameData<DrawSnapshot>& outSnapshotStorage, [[maybe_unused]]  RenderThreadFrameData<VisibleDrawSnapshot>& outVisibleSnapshot ) const override {}
+		virtual std::optional<DrawSnapshot> TakeSnapshot( [[maybe_unused]] uint32 lod, [[maybe_unused]] uint32 sectionIndex ) const override
 		{
 			return {};
 		}

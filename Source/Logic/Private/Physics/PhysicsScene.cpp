@@ -43,7 +43,7 @@ namespace logic
 		return m_bounds.TransformBy( transform.ToMatrix() );
 	}
 
-	const ICollider* PhysicsBody::GetCollider()
+	const ICollider* PhysicsBody::GetCollider() const
 	{
 		return m_collider.get();
 	}

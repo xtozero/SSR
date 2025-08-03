@@ -150,7 +150,7 @@ namespace rendercore
 		return HitProxyId();
 	}
 
-	PrimitiveSceneInfo::PrimitiveSceneInfo( logic::PrimitiveComponent* component, Scene& scene ) : m_sceneProxy( component->m_sceneProxy ), m_scene( scene )
+	PrimitiveSceneInfo::PrimitiveSceneInfo( logic::PrimitiveComponent* component, Scene& scene ) : m_scene( scene ), m_sceneProxy( component->m_sceneProxy )
 	{
 		if ( engine::DefaultApp::IsEditor() )
 		{

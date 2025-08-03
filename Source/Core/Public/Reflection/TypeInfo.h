@@ -34,7 +34,7 @@ struct SuperClassTypeDeduction
 template <typename T>
 struct SuperClassTypeDeduction<T, std::void_t<typename T::ThisType>>
 {
-	using Type = T::ThisType;
+	using Type = typename T::ThisType;
 };
 
 template <typename T>

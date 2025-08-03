@@ -220,9 +220,9 @@ Transform::Transform( const Quaternion& rotation )
 }
 
 Transform::Transform( const Vector& translation, const Quaternion& rotation, const Vector& scale3D )
-	: m_translation( translation ),
+	: m_scale3D( scale3D ),
 	m_rotation( rotation ),
-	m_scale3D( scale3D )
+	m_translation( translation )
 {
 }
 
@@ -275,22 +275,22 @@ bool AreScale3DsEqual( const Transform& lhs, const Transform& rhs, float toleran
 	return XMVector3LessOrEqual( scaleDiff, toleranceVec );
 }
 
-bool Transform::RotationEquals( const Transform& other, float tolerance )
+bool Transform::RotationEquals( const Transform& other, float tolerance ) const
 {
 	return AreRotationsEqual( *this, other, tolerance );
 }
 
-bool Transform::TranslationEquals( const Transform& other, float tolerance )
+bool Transform::TranslationEquals( const Transform& other, float tolerance ) const
 {
 	return AreTranslationsEqual( *this, other, tolerance );
 }
 
-bool Transform::Scale3DEquals( const Transform& other, float tolerance )
+bool Transform::Scale3DEquals( const Transform& other, float tolerance ) const
 {
 	return AreScale3DsEqual( *this, other, tolerance );
 }
 
-bool Transform::Equals( const Transform& other, float tolerance )
+bool Transform::Equals( const Transform& other, float tolerance ) const
 {
 	return RotationEquals( other, tolerance )
 		&& TranslationEquals( other, tolerance )

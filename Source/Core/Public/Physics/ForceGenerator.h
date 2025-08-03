@@ -11,6 +11,8 @@ class ForceGenerator
 {
 public:
 	virtual void UpdateForce( RigidBody* body, float duration ) = 0;
+
+	virtual ~ForceGenerator() = default;
 };
 
 class Gravity : public ForceGenerator
@@ -27,7 +29,7 @@ class Spring : public ForceGenerator
 {
 public:
 	Spring( const Vector& localConnectionPt, RigidBody* other, const Vector& otherConnectionPt, float springConstant, float restLength ) :
-		m_connectionPoint( localConnectionPt ), m_other( other ), m_otherConnectionPoint( otherConnectionPt ), m_springConstant( springConstant ), m_restLength( restLength ) {}
+		m_connectionPoint( localConnectionPt ), m_otherConnectionPoint( otherConnectionPt ), m_other( other ), m_springConstant( springConstant ), m_restLength( restLength ) {}
 	virtual void UpdateForce( RigidBody* body, float duration ) override;
 	
 private:
@@ -75,7 +77,7 @@ class Buoyancy : public ForceGenerator
 {
 public:
 	Buoyancy( const Point& cOfB, float maxDepth, float volume, float waterHeight, float liquidDensity = 1000.f ) :
-		m_centreOfBuoyancy( cOfB ), m_maxDepth( maxDepth ), m_volume( volume ), m_waterHeight( waterHeight ), m_liquidDensity( liquidDensity ) {}
+		m_maxDepth( maxDepth ), m_volume( volume ), m_waterHeight( waterHeight ), m_liquidDensity( liquidDensity ), m_centreOfBuoyancy( cOfB ) {}
 	virtual void UpdateForce( RigidBody* body, float duration ) override;
 
 private:

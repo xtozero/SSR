@@ -73,7 +73,7 @@ namespace rendercore
 	class RenderViewGroup final
 	{
 	public:
-		RENDERCORE_DLL RenderViewGroup( RenderViewGroupInitializer& initializer ) 
+		RENDERCORE_DLL explicit RenderViewGroup( RenderViewGroupInitializer& initializer )
 			: m_scene( initializer.m_scene )
 			, m_canvas( initializer.m_cavas )
 			, m_viewport( initializer.m_viewport )

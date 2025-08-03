@@ -40,7 +40,7 @@ namespace
 
 	ShaderType ConvertShaderVersionToType( uint32 shaderVersion )
 	{
-		D3D12_SHADER_VERSION_TYPE shaderType = static_cast<D3D12_SHADER_VERSION_TYPE>( D3D12_SHVER_GET_TYPE( shaderVersion ) );
+		auto shaderType = static_cast<D3D12_SHADER_VERSION_TYPE>( D3D12_SHVER_GET_TYPE( shaderVersion ) );
 
 		switch ( shaderType )
 		{

@@ -18,7 +18,7 @@ namespace rendercore
 	class StaticMeshPrimitiveProxy final : public PrimitiveProxy
 	{
 	public:
-		RENDERCORE_DLL StaticMeshPrimitiveProxy( const logic::StaticMeshComponent& component );
+		RENDERCORE_DLL explicit StaticMeshPrimitiveProxy( const logic::StaticMeshComponent& component );
 
 		virtual void CreateRenderData() override;
 		virtual void PrepareSubMeshs() override;

@@ -443,11 +443,6 @@ namespace agl
 		uint64 rowSize = 0;
 		uint64 totalSize = 0;
 
-		D3D12_RESOURCE_DESC intermediateDesc = dest.GetDesc();
-		intermediateDesc.Width = intermediate.m_destArea.m_right - intermediate.m_destArea.m_left;
-		intermediateDesc.Height = intermediate.m_destArea.m_bottom - intermediate.m_destArea.m_top;
-		intermediateDesc.DepthOrArraySize = static_cast<uint16>( intermediate.m_destArea.m_back - intermediate.m_destArea.m_front );
-
 		D3D12Device().GetCopyableFootprints( &dest.GetDesc(), subresource, 1, 0, &intermediate.m_layout, &numRows, &rowSize, &totalSize );
 
 		BufferTrait trait = {

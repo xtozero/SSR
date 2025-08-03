@@ -69,7 +69,7 @@ public:
 		assert( view.length() < NameSize );
 		entry.m_len = static_cast<uint16>( view.length() );
 
-		std::copy( std::begin( view ), std::end( view ), entry.m_str );
+		std::ranges::copy( view, entry.m_str );
 
 		entry.m_str[view.length()] = '\0';
 

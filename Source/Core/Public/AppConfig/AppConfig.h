@@ -16,6 +16,8 @@ public:
 	virtual ini::Section GetChangedConfig() const = 0;
 	virtual Name GetName() const = 0;
 	virtual Name GetSectionName() const = 0;
+
+	virtual ~IConfig() = default;
 };
 
 class IAppConfig

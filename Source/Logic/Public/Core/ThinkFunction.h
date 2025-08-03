@@ -24,6 +24,7 @@ namespace logic
 	{
 	public:
 		virtual void ExecuteThink( float elapsedTime ) = 0;
+		virtual ~ThinkFunction() = default;
 
 		ThinkingGroup m_thinkGroup = ThinkingGroup::PrePhysics;
 
@@ -33,7 +34,7 @@ namespace logic
 
 		struct InternalData
 		{
-			InternalData( World& world ) :
+			explicit InternalData( World& world ) :
 				m_world( world ) {}
 
 			bool m_registered = false;
@@ -45,7 +46,7 @@ namespace logic
 
 		std::unique_ptr<InternalData> m_internalData;
 
-		bool IsThinkFunctionRegistered();
+		bool IsThinkFunctionRegistered() const;
 
 		void RegisterThinkFunction( World& world );
 		void UnRegisterThinkFunction();

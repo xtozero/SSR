@@ -498,11 +498,11 @@ namespace rendercore
 
 			auto dest = static_cast<uint8*>( GraphicsInterface().Lock( m_lpvCommon.Get() ).m_data );
 
-			Vector4 textureDimension = Vector4( 32.f, 32.f, 32.f, 32.f );
+			Vector4 textureDimension( 32.f, 32.f, 32.f, 32.f );
 			memcpy( dest, &textureDimension, sizeof( Vector4 ) );
 			dest += sizeof( Vector4 );
 
-			Vector4 cellSize = Vector4( 4.f, 4.f, 4.f, 4.f );
+			Vector4 cellSize( 4.f, 4.f, 4.f, 4.f );
 			memcpy( dest, &cellSize, sizeof( Vector4 ) );
 
 			GraphicsInterface().UnLock( m_lpvCommon.Get() );

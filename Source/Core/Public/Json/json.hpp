@@ -124,7 +124,7 @@ namespace json
 			return m_mapType->second;
 		}
 
-		ObjectType::iterator m_mapType;
+		typename ObjectType::iterator m_mapType;
 		pointer m_otherType = nullptr;
 	};
 
@@ -138,7 +138,7 @@ namespace json
 		using reference = T&;
 		using difference_type = size_t;
 
-		explicit ValueIterator( ObjectType::iterator iterator ) noexcept
+		explicit ValueIterator( typename ObjectType::iterator iterator ) noexcept
 		{
 			this->m_mapType = iterator;
 		}
@@ -195,7 +195,7 @@ namespace json
 		using reference = const T&;
 		using difference_type = size_t;
 
-		explicit ConstValueIterator( ObjectType::iterator iterator ) noexcept
+		explicit ConstValueIterator( typename ObjectType::iterator iterator ) noexcept
 		{
 			this->m_mapType = iterator;
 		}
@@ -249,7 +249,7 @@ namespace json
 
 		DataType Type() const { return m_type; }
 
-		const std::string AsString() const
+		std::string AsString() const
 		{
 			switch ( Type() )
 			{
@@ -313,7 +313,7 @@ namespace json
 			}
 
 			__debugbreak();
-			return 0;
+			return false;
 		}
 
 		double AsReal() const
@@ -859,7 +859,7 @@ namespace json
 	class Reader
 	{
 	public:
-		bool Parse( std::filesystem::path filePath, Value& root )
+		bool Parse( const std::filesystem::path& filePath, Value& root )
 		{
 			std::ifstream jsonFile( filePath );
 

@@ -19,7 +19,7 @@ uint32 Crc32Hash( const void* data, uint32 size, uint32 seed )
 
 	seed = ~seed;
 	uint32 crc = seed;
-	const unsigned char* current = (const unsigned char*)data;
+	auto current = static_cast<const unsigned char*>( data );
 
 	if ( size > 0 )
 	{
@@ -58,7 +58,7 @@ uint64 Crc64Hash( const void* data, uint32 size, uint64 seed )
 
 	seed = ~seed;
 	uint64 crc = seed;
-	const unsigned char* current = (const unsigned char*)data;
+	auto current = static_cast<const unsigned char*>(data);
 
 	if ( size > 0 )
 	{

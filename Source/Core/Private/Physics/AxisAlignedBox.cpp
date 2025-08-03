@@ -9,7 +9,7 @@
 
 void AxisAlignedBox::Update( const Vector& scaling, const Quaternion& rotation, const Vector& translation, ICollider* original )
 {
-	AxisAlignedBox* orig = dynamic_cast<AxisAlignedBox*>( original );
+	auto orig = dynamic_cast<AxisAlignedBox*>( original );
 	if ( orig == nullptr )
 	{
 		return;

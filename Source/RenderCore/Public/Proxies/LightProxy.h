@@ -66,7 +66,7 @@ namespace rendercore
 			return m_usedAsAtmosphereSunLight;
 		}
 
-		RENDERCORE_DLL LightProxy( const logic::LightComponent& component );
+		RENDERCORE_DLL explicit LightProxy( const logic::LightComponent& component );
 		virtual ~LightProxy() = default;
 
 	protected:
@@ -95,7 +95,7 @@ namespace rendercore
 
 		virtual bool AffactsBounds( const BoxSphereBounds& bounds ) const override;
 
-		RENDERCORE_DLL DirectionalLightProxy( const logic::DirectionalLightComponent& component );
+		RENDERCORE_DLL explicit DirectionalLightProxy( const logic::DirectionalLightComponent& component );
 
 	private:
 		Vector m_direction;
@@ -116,7 +116,7 @@ namespace rendercore
 
 		virtual bool AffactsBounds( const BoxSphereBounds& bounds ) const override;
 
-		RENDERCORE_DLL PointLightProxy( const logic::PointLightComponent& component );
+		RENDERCORE_DLL explicit PointLightProxy( const logic::PointLightComponent& component );
 
 	private:
 		float m_range = 0;
@@ -139,7 +139,7 @@ namespace rendercore
 
 		virtual bool AffactsBounds( const BoxSphereBounds& bounds ) const override;
 
-		RENDERCORE_DLL SpotLightProxy( const logic::SpotLightComponent& component );
+		RENDERCORE_DLL explicit SpotLightProxy( const logic::SpotLightComponent& component );
 
 	private:
 		float m_theta = 0;

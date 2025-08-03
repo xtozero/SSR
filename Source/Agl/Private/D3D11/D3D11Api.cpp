@@ -41,7 +41,7 @@ namespace
 
 	ShaderType ConvertShaderVersionToType( uint32 shaderVersion )
 	{
-		D3D11_SHADER_VERSION_TYPE shaderType = static_cast<D3D11_SHADER_VERSION_TYPE>( D3D11_SHVER_GET_TYPE( shaderVersion ) );
+		auto shaderType = static_cast<D3D11_SHADER_VERSION_TYPE>( D3D11_SHVER_GET_TYPE( shaderVersion ) );
 
 		switch ( shaderType )
 		{
@@ -215,8 +215,8 @@ namespace agl
 
 		bool CreateDeviceDependentResource();
 		bool CreateDeviceIndependentResource();
-		void ReportLiveDevice();
-		void EnumerateSampleCountAndQuality( int32* size, DXGI_SAMPLE_DESC* pSamples );
+		void ReportLiveDevice() const;
+		void EnumerateSampleCountAndQuality( int32* size, DXGI_SAMPLE_DESC* pSamples ) const;
 
 		Microsoft::WRL::ComPtr<IDXGIFactory7> m_pdxgiFactory;
 
@@ -377,7 +377,7 @@ namespace agl
 		m_pd3d11DeviceContext->Unmap( static_cast<ID3D11Resource*>( texture->Resource() ), subResource );
 	}
 
-	void Direct3D11::EnumerateSampleCountAndQuality( int32* size, DXGI_SAMPLE_DESC* pSamples )
+	void Direct3D11::EnumerateSampleCountAndQuality( int32* size, DXGI_SAMPLE_DESC* pSamples ) const
 	{
 		assert( size != nullptr );
 
@@ -665,17 +665,15 @@ namespace agl
 		return true;
 	}
 
-	void Direct3D11::ReportLiveDevice()
+	void Direct3D11::ReportLiveDevice() const
 	{
 		if ( m_pd3d11Device == nullptr )
 		{
 			return;
 		}
 
-		HRESULT hr;
 		Microsoft::WRL::ComPtr<ID3D11Debug> pD3dDebug;
-
-		hr = m_pd3d11Device.Get()->QueryInterface( IID_PPV_ARGS( &pD3dDebug ) );
+		HRESULT hr = m_pd3d11Device.Get()->QueryInterface( IID_PPV_ARGS( &pD3dDebug ) );
 
 		if ( SUCCEEDED( hr ) )
 		{

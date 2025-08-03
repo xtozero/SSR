@@ -14,12 +14,12 @@ namespace agl
 	public:
 		ID3D12DescriptorHeap* Resource() 
 		{ 
-			return m_descriptorHeap.GetHeap();
+			return m_descriptorHeap.Resource();
 		}
 
 		const ID3D12DescriptorHeap* Resource() const 
 		{ 
-			return m_descriptorHeap.GetHeap();
+			return m_descriptorHeap.Resource();
 		}
 
 		const D3D12CpuDescriptorHandle& GetCpuHandle() const
@@ -68,12 +68,12 @@ namespace agl
 			return *this;
 		}
 
-		D3D12ViewBase( D3D12ViewBase&& other )
+		D3D12ViewBase( D3D12ViewBase&& other ) noexcept
 		{
 			*this = std::move( other );
 		}
 
-		D3D12ViewBase& operator=( D3D12ViewBase&& other )
+		D3D12ViewBase& operator=( D3D12ViewBase&& other ) noexcept
 		{
 			if ( this != &other )
 			{

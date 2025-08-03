@@ -320,7 +320,7 @@ namespace agl
 				return info != nullptr;
 			};
 
-			return std::count_if( std::begin( m_shaderParameterInfos ), std::end( m_shaderParameterInfos ), pred );
+			return std::ranges::count_if( m_shaderParameterInfos, pred );
 		}
 
 		const ShaderParameterInfo*& operator[]( ShaderType type )
@@ -422,8 +422,8 @@ namespace agl
 
 				for ( size_t offset = 0; offset < m_size; offset += sizeof( RefHandle<GraphicsApiResource> ) )
 				{
-					RefHandle<GraphicsApiResource>* handle = reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + offset );
-					RefHandle<GraphicsApiResource>* otherHandle = reinterpret_cast<RefHandle<GraphicsApiResource>*>( other.m_data + offset );
+					auto handle = reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + offset );
+					auto otherHandle = reinterpret_cast<RefHandle<GraphicsApiResource>*>( other.m_data + offset );
 
 					*handle = *otherHandle;
 				}
@@ -533,7 +533,7 @@ namespace agl
 
 				for ( size_t offset = 0; offset < m_size; offset += sizeof( RefHandle<GraphicsApiResource> ) )
 				{
-					RefHandle<GraphicsApiResource>* handle = reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + offset );
+					auto handle = reinterpret_cast<RefHandle<GraphicsApiResource>*>( m_data + offset );
 					std::construct_at( handle );
 				}
 			}

@@ -123,7 +123,7 @@ namespace rendercore
 
 		explicit LambdaRenderGraphPass( Lambda&& passBody ) : m_passBody( std::forward<Lambda>( passBody ) ) {}
 
-		virtual ~LambdaRenderGraphPass()
+		virtual ~LambdaRenderGraphPass() override
 		{
 			if ( m_rasterOutput != nullptr )
 			{

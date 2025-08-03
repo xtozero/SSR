@@ -25,7 +25,7 @@ namespace rendercore
 	class TexturedSkyProxy final
 	{
 	public:
-		RENDERCORE_DLL TexturedSkyProxy( const logic::TexturedSkyComponent& component );
+		RENDERCORE_DLL explicit TexturedSkyProxy( const logic::TexturedSkyComponent& component );
 
 		void CreateRenderData();
 

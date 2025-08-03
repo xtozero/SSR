@@ -26,13 +26,13 @@ namespace logic
 	class CreateGameObjectHelper
 	{
 	public:
-		CreateGameObjectHelper( const std::string& className, std::function<GameObject* ( )> createFunc )
+		CreateGameObjectHelper( const std::string& className, const std::function<GameObject*()>& createFunc )
 			: m_createFunc( createFunc )
 		{
 			GetGameObjectFactory().RegistGameObjectCreateFunc( className, this );
 		}
 
-		Owner<GameObject*> Create()
+		Owner<GameObject*> Create() const
 		{
 			if ( m_createFunc )
 			{

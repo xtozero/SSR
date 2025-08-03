@@ -17,7 +17,7 @@ namespace fs = std::filesystem;
 
 namespace
 {
-	Wavefront::Vec3 CalcTriangleNormal( Wavefront::Vec3 v0, Wavefront::Vec3 v1, Wavefront::Vec3 v2 )
+	Wavefront::Vec3 CalcTriangleNormal( const Wavefront::Vec3& v0, const Wavefront::Vec3& v1, const Wavefront::Vec3& v2 )
 	{
 		Vector f0( std::get<0>( v0 ), std::get<1>( v0 ), std::get<2>( v0 ) );
 		Vector f1( std::get<0>( v1 ), std::get<1>( v1 ), std::get<2>( v1 ) );

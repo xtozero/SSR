@@ -55,7 +55,7 @@ namespace UTIL
 		}
 	}
 
-	inline const std::string FileNameExtension( const std::string& pFileName )
+	inline std::string FileNameExtension( const std::string& pFileName )
 	{
 		auto found = pFileName.find_last_of( "." );
 

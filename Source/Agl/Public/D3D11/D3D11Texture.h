@@ -33,7 +33,7 @@ namespace agl
 
 			if ( initData )
 			{
-				m_dataStorage = new unsigned char[initData->m_srcSize];
+				m_dataStorage = new uint8[initData->m_srcSize];
 				std::memcpy( m_dataStorage, initData->m_srcData, initData->m_srcSize );
 
 				size_t numSections = initData->m_sections.size();
@@ -43,7 +43,7 @@ namespace agl
 				{
 					const ResourceSectionData& section = initData->m_sections[i];
 
-					m_initData[i].pSysMem = static_cast<unsigned char*>( m_dataStorage ) + section.m_offset;
+					m_initData[i].pSysMem = m_dataStorage + section.m_offset;
 					m_initData[i].SysMemPitch = static_cast<uint32>( section.m_pitch );
 					m_initData[i].SysMemSlicePitch = static_cast<uint32>( section.m_slicePitch );
 				}
@@ -62,7 +62,7 @@ namespace agl
 				{
 					const ResourceSectionData& section = initData->m_sections[i];
 
-					m_initData[i].pSysMem = static_cast<unsigned char*>( m_dataStorage ) + section.m_offset;
+					m_initData[i].pSysMem = m_dataStorage + section.m_offset;
 					m_initData[i].SysMemPitch = static_cast<uint32>( section.m_pitch );
 					m_initData[i].SysMemSlicePitch = static_cast<uint32>( section.m_slicePitch );
 				}

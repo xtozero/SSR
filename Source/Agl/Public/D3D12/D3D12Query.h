@@ -33,7 +33,7 @@ namespace agl
 		ID3D12QueryHeap* GetHeap();
 		ID3D12Resource* GetReadBackBuffer();
 
-		void GetData( void* outData, int32 size, int32 offset );
+		void GetData( void* outData, int32 size, int32 offset ) const;
 
 		~D3D12QueryHeapBlock();
 
@@ -66,9 +66,9 @@ namespace agl
 		void Deallocate( const D3D12Query& query );
 
 	private:
-		uint32 GetHeapIndex( D3D12_QUERY_TYPE type );
+		uint32 GetHeapIndex( D3D12_QUERY_TYPE type ) const;
 
-		static const int32 MaxQueryHeapType = 6;
+		static constexpr int32 MaxQueryHeapType = 6;
 
 		D3D12QueryHeapBudget m_heaps[MaxQueryHeapType];
 	};

@@ -378,7 +378,7 @@ namespace agl
 				D3D12_DESCRIPTOR_RANGE& range = m_descritorRange.emplace_back();
 
 				range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-				range.NumDescriptors = (uint32)-1;
+				range.NumDescriptors = static_cast<uint32>( -1 );
 				range.BaseShaderRegister = 0;
 				range.RegisterSpace = 100 + i;
 				range.OffsetInDescriptorsFromTableStart = 0;
@@ -396,7 +396,7 @@ namespace agl
 			D3D12_DESCRIPTOR_RANGE& range = m_descritorRange.emplace_back();
 
 			range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
-			range.NumDescriptors = (uint32)-1;
+			range.NumDescriptors = static_cast<uint32>( -1 );
 			range.BaseShaderRegister = 0;
 			range.RegisterSpace = 100;
 			range.OffsetInDescriptorsFromTableStart = 0;

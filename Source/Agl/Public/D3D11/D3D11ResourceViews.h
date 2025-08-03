@@ -11,7 +11,7 @@ namespace agl
 	{
 	public:
 		ViewType Resource() { return m_resource; }
-		const ViewType Resource() const { return m_resource; }
+		ViewType Resource() const { return m_resource; }
 
 		const IResourceViews* ViewHolder() const { return m_viewHolder; }
 
@@ -69,12 +69,12 @@ namespace agl
 			return *this;
 		}
 
-		D3D11ViewBase( D3D11ViewBase&& other )
+		D3D11ViewBase( D3D11ViewBase&& other ) noexcept
 		{
 			*this = std::move( other );
 		}
 
-		D3D11ViewBase& operator=( D3D11ViewBase&& other )
+		D3D11ViewBase& operator=( D3D11ViewBase&& other ) noexcept
 		{
 			if ( this != &other )
 			{

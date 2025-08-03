@@ -22,8 +22,8 @@ template <CanParseFromString T>
 void ParseArray( T* dest, size_t n, const std::string& s ) 
 {
 	std::string temp = s;
-	std::replace( std::begin( temp ), std::end( temp ), '{', ' ' );
-	std::replace( std::begin( temp ), std::end( temp ), '}', ' ' );
+	std::ranges::replace( temp, '{', ' ' );
+	std::ranges::replace( temp, '}', ' ' );
 	Trim( temp );
 	std::vector<std::string> values = SplitString( temp, ',' );
 

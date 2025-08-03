@@ -27,7 +27,7 @@ public:
 
 	void Deallocate( void* ptr )
 	{
-		MemoryChunk* chunk = reinterpret_cast<MemoryChunk*>( static_cast<unsigned char*>( ptr ) - sizeof( MemoryChunk ) );
+		auto chunk = reinterpret_cast<MemoryChunk*>( static_cast<unsigned char*>( ptr ) - sizeof( MemoryChunk ) );
 
 		// 1. Remove from allocation list
 		RemoveFromAllocList( chunk );
@@ -81,7 +81,7 @@ private:
 		size_t remainSize = chunk->m_size - size;
 		if ( remainSize >= sizeof( MemoryChunk ) )
 		{
-			MemoryChunk* nextChunk = reinterpret_cast<MemoryChunk*>( reinterpret_cast<unsigned char*>( chunk ) + sizeof( MemoryChunk ) + size );
+			auto nextChunk = reinterpret_cast<MemoryChunk*>( reinterpret_cast<unsigned char*>( chunk ) + sizeof( MemoryChunk ) + size );
 			nextChunk->m_size = remainSize - sizeof( MemoryChunk );
 			DLinkedList::InsertAfter( chunk, nextChunk );
 		}
@@ -189,7 +189,7 @@ private:
 	{
 		assert( chunk != nullptr );
 
-		MemoryChunk* nextChunk = reinterpret_cast<MemoryChunk*>( reinterpret_cast<unsigned char*>( chunk ) + sizeof( MemoryChunk ) + chunk->m_size );
+		auto nextChunk = reinterpret_cast<MemoryChunk*>( reinterpret_cast<unsigned char*>( chunk ) + sizeof( MemoryChunk ) + chunk->m_size );
 		if ( chunk->m_next == nextChunk )
 		{
 			chunk->m_size += nextChunk->m_size + sizeof( MemoryChunk );

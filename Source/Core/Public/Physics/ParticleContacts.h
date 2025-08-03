@@ -42,4 +42,6 @@ class ParticleContactGenerator
 {
 public:
 	virtual uint32 AddContact( ParticleContact* contact, uint32 limit ) const = 0;
+
+	virtual ~ParticleContactGenerator() = default;
 };

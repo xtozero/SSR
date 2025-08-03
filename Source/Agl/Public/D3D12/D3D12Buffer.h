@@ -39,7 +39,7 @@ namespace agl
 		virtual void CreateBuffer();
 		virtual void DestroyBuffer();
 
-		void* m_dataStorage = nullptr;
+		uint8* m_dataStorage = nullptr;
 		bool m_hasInitData = false;
 
 		bool m_neverLocked = true;
@@ -133,7 +133,7 @@ namespace agl
 		D3D12IndexBuffer& operator=( D3D12IndexBuffer&& ) = delete;
 
 	protected:
-		virtual void CreateBuffer();
+		virtual void CreateBuffer() override;
 
 	private:
 		D3D12_INDEX_BUFFER_VIEW m_view = {};
@@ -152,7 +152,7 @@ namespace agl
 		D3D12VertexBuffer& operator=( D3D12VertexBuffer&& ) = delete;
 
 	protected:
-		virtual void CreateBuffer();
+		virtual void CreateBuffer() override;
 
 	private:
 		D3D12_VERTEX_BUFFER_VIEW m_view = {};

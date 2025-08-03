@@ -113,11 +113,11 @@ private:
 		chunkSize = CalcAlignment<size_t>( chunkSize, ChunkAlignment );
 		size_t entryCount = ( chunkSize - sizeof( MemoryChunk ) ) / BlockSize;
 
-		auto chunk = reinterpret_cast<MemoryChunk*>( VirtualAlloc( nullptr, chunkSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE ) );
+		auto chunk = static_cast<MemoryChunk*>( VirtualAlloc( nullptr, chunkSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE ) );
 		chunk->m_size = chunkSize;
 
-		void* block = reinterpret_cast<void*>( ( (uptrint)chunk ) + sizeof( MemoryChunk ) );
-		MemoryBlock* head = reinterpret_cast<MemoryBlock*>( block );
+		auto block = reinterpret_cast<void*>( ( (uptrint)chunk ) + sizeof( MemoryChunk ) );
+		MemoryBlock* head = static_cast<MemoryBlock*>( block );
 		MemoryBlock* entry = head;
 		for ( size_t i = 1; i < entryCount; ++i )
 		{

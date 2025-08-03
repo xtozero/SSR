@@ -69,7 +69,7 @@ namespace agl
 		m_sampleMask = sampleMask;
 	}
 
-	D3D11BlendState::D3D11BlendState( const BlendStateTrait& trait ) : m_desc( ConvertTraitToDesc( trait ) ), m_sampleMask( trait.m_sampleMask ) {}
+	D3D11BlendState::D3D11BlendState( const BlendStateTrait& trait ) : m_sampleMask( trait.m_sampleMask ), m_desc( ConvertTraitToDesc( trait ) ) {}
 
 	void D3D11BlendState::InitResource()
 	{

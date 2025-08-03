@@ -41,7 +41,7 @@ namespace
 
 void BoundingSphere::Update( const Vector& scaling, const Quaternion& /*rotation*/, const Vector& translation, ICollider* original )
 {
-	BoundingSphere* orig = dynamic_cast<BoundingSphere*>( original );
+	auto orig = dynamic_cast<BoundingSphere*>( original );
 	m_origin = translation;
 
 	float maxScaling = std::max( scaling.x, std::max( scaling.y, std::max( scaling.z, 1.f ) ) );

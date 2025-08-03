@@ -79,7 +79,7 @@ namespace rendercore
 			assert( m_compiledShader != nullptr );
 		}
 
-		GlobalShaderCommon( const StaticShaderSwitches& switches )
+		explicit GlobalShaderCommon( const StaticShaderSwitches& switches )
 		{
 			m_shader = GetGlobalShader<DerivedType>();
 			assert( m_shader != nullptr );
@@ -88,7 +88,7 @@ namespace rendercore
 			assert( m_compiledShader != nullptr );
 		}
 
-		virtual ~GlobalShaderCommon() = default;
+		virtual ~GlobalShaderCommon() override = default;
 		GlobalShaderCommon( const GlobalShaderCommon& ) = default;
 		GlobalShaderCommon( GlobalShaderCommon&& ) = default;
 		GlobalShaderCommon& operator=( const GlobalShaderCommon& ) = default;

@@ -45,7 +45,7 @@ private:
 class TaskHandle
 {
 public:
-	void AddTask( class TaskBase* task )
+	void AddTask( TaskBase* task )
 	{
 		task->m_controlBlock = m_controlBlock;
 

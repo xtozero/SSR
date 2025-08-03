@@ -133,11 +133,11 @@ namespace rendercore
 
 	void SortDrawSnapshots( RenderThreadFrameData<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
 	{
-		std::sort( std::begin( visibleSnapshots ), std::end( visibleSnapshots ),
-			[]( const VisibleDrawSnapshot& lhs, const VisibleDrawSnapshot& rhs )
-			{
-				return lhs.m_snapshotBucketId < rhs.m_snapshotBucketId;
-			} );
+		std::ranges::sort( visibleSnapshots,
+		                   []( const VisibleDrawSnapshot& lhs, const VisibleDrawSnapshot& rhs )
+		                   {
+			                   return lhs.m_snapshotBucketId < rhs.m_snapshotBucketId;
+		                   } );
 
 		for ( size_t cur = 0, dest = cur + 1; cur < visibleSnapshots.size() && dest < visibleSnapshots.size(); ++dest )
 		{
@@ -152,7 +152,7 @@ namespace rendercore
 			}
 		}
 
-		uint32* idBuffer = reinterpret_cast<uint32*>( primitiveIds.Lock() );
+		auto idBuffer = static_cast<uint32*>( primitiveIds.Lock() );
 		if ( idBuffer )
 		{
 			for ( size_t i = 0; i < visibleSnapshots.size(); ++i )

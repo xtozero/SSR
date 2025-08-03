@@ -18,9 +18,9 @@ namespace engine
 
 		ENGINE_DLL void SetValue( const std::string& newValue );
 		ENGINE_DLL const std::string& GetString() { return m_value; }
-		ENGINE_DLL int32 GetInteger() { return m_iValue; }
-		ENGINE_DLL float GetFloat() { return m_fValue; }
-		ENGINE_DLL bool GetBool() { return m_iValue > 0; }
+		ENGINE_DLL int32 GetInteger() const { return m_iValue; }
+		ENGINE_DLL float GetFloat() const { return m_fValue; }
+		ENGINE_DLL bool GetBool() const { return m_iValue > 0; }
 
 	private:
 		std::string m_name;

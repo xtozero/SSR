@@ -13,7 +13,7 @@ public:
 	explicit ShaderFileMerger( const std::filesystem::path& includeFilesDirectory );
 
 public:
-	void MergeRecursive( const std::filesystem::path& includeFile );
+	void MergeRecursive( const std::filesystem::path& shaderFile );
 
 	std::filesystem::path m_includeFileDirectory;
 	std::string m_buffer;

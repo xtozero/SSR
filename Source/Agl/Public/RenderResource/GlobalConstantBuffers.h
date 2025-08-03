@@ -64,7 +64,7 @@ namespace agl
 		void Reset( bool bCompute );
 		void SetShaderValue( const ShaderParameter& parameter, const void* value );
 		void CommitShaderValue( bool bCompute );
-		void AddGlobalConstantBuffers( ShaderBindings& shaderBindings );
+		void AddGlobalConstantBuffers( const ShaderBindings& shaderBindings );
 
 		GlobalConstantBuffers() = default;
 		GlobalConstantBuffers( const GlobalConstantBuffers& other ) = delete;

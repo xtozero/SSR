@@ -636,6 +636,8 @@ namespace agl
 	public:
 		virtual ResourceState GetResourceState() const = 0;
 		virtual void SetResourceState( ResourceState state ) = 0;
+
+		virtual ~ITransitionable() = default;
 	};
 
 	struct ResourceTransition

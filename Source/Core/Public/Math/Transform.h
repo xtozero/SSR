@@ -55,10 +55,10 @@ public:
 	friend bool AreTranslationsEqual( const Transform& lhs, const Transform& rhs, float tolerance = 1.e-4 );
 	friend bool AreScale3DsEqual( const Transform& lhs, const Transform& rhs, float tolerance = 1.e-4 );
 
-	bool RotationEquals( const Transform& other, float tolerance = 1.e-4 );
-	bool TranslationEquals( const Transform& other, float tolerance = 1.e-4 );
-	bool Scale3DEquals( const Transform& other, float tolerance = 1.e-4 );
-	bool Equals( const Transform& other, float tolerance = 1.e-4 );
+	bool RotationEquals( const Transform& other, float tolerance = 1.e-4 ) const;
+	bool TranslationEquals( const Transform& other, float tolerance = 1.e-4 ) const;
+	bool Scale3DEquals( const Transform& other, float tolerance = 1.e-4 ) const;
+	bool Equals( const Transform& other, float tolerance = 1.e-4 ) const;
 
 	static const Transform Identity;
 

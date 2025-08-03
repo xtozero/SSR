@@ -11,7 +11,7 @@ namespace rendercore
 {
 	void HitProxyMap::Init( uint32 width, uint32 height )
 	{
-		if ( ( m_width == width ) && ( m_height = height ) )
+		if ( ( m_width == width ) && ( m_height == height ) )
 		{
 			return;
 		}
