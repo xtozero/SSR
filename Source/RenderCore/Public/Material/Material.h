@@ -189,8 +189,8 @@ namespace rendercore
 		RENDERCORE_DLL MaterialResource* GetMaterialResource() const;
 
 		RENDERCORE_DLL explicit Material( const char* name );
-		RENDERCORE_DLL Material() = default;
-		RENDERCORE_DLL virtual ~Material() override = default;
+		RENDERCORE_DLL Material();
+		RENDERCORE_DLL virtual ~Material() override;
 		Material( const Material& ) = delete;
 		Material& operator=( const Material& ) = delete;
 		RENDERCORE_DLL Material( Material&& ) noexcept = default;

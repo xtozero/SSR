@@ -447,6 +447,10 @@ namespace rendercore
 	{
 	}
 
+	// unique_ptr for incomplete type
+	Material::Material() = default;
+	Material::~Material() = default;
+
 	void Material::PostLoadImpl()
 	{
 		for ( uint32 i = 0; i < agl::MAX_SHADER_TYPE<uint32>; ++i )
