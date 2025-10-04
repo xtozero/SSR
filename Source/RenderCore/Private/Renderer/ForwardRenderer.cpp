@@ -4,6 +4,7 @@
 #include "CommonRenderResource.h"
 #include "Config/DefaultRenderCoreConfig.h"
 #include "CpuProfiler/CpuProfiler.h"
+#include "Experimental/AsyncCompute.h"
 #include "GpuProfiler.h"
 #include "GraphicsResourcePool.h"
 #include "Math/Vector.h"
@@ -302,6 +303,11 @@ namespace rendercore
 			viewShaderArguments.Update( viewParam );
 
 			m_resourceBinder.Add( &viewShaderArguments );
+
+			{
+				AsyncComputeTestBed asyncComputeTestBed;
+				asyncComputeTestBed.IndependentHeavyWork( renderGraph );
+			}
 
 			RenderDepthPass( renderGraph, renderViewGroup, i );
 			
