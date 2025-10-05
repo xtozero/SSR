@@ -7,6 +7,7 @@ namespace rendercore
     class AsyncComputeTestBed
     {
     public:
-        void IndependentHeavyWork( RenderGraph& renderGraph );
+        static void IndependentHeavyWork( RenderGraph& renderGraph );
+        static void DependentHeavyWork( RenderGraph& renderGraph );
     };
 }

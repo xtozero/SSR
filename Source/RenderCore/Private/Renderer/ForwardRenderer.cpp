@@ -304,9 +304,10 @@ namespace rendercore
 
 			m_resourceBinder.Add( &viewShaderArguments );
 
+			// Async compute test code
 			{
-				AsyncComputeTestBed asyncComputeTestBed;
-				asyncComputeTestBed.IndependentHeavyWork( renderGraph );
+				AsyncComputeTestBed::IndependentHeavyWork( renderGraph );
+				AsyncComputeTestBed::DependentHeavyWork( renderGraph );
 			}
 
 			RenderDepthPass( renderGraph, renderViewGroup, i );
