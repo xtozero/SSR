@@ -39,6 +39,8 @@ namespace agl
 
 		std::memset( m_rtvs, 0, sizeof( m_rtvs ) );
 		m_dsv = nullptr;
+
+		std::memset( m_descriptorHeaps, 0, sizeof( m_descriptorHeaps ) );
 	}
 
 	void D3D12PipelineCache::BindVertexBuffer( ID3D12GraphicsCommandList6& commandList, Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets )
@@ -232,7 +234,11 @@ namespace agl
 			samplerHeap.GetDescriptorHeap()
 		};
 
-		commandList.SetDescriptorHeaps( std::extent_v<decltype( heaps )>, heaps );
+		if ( std::ranges::equal( heaps, m_descriptorHeaps ) == false )
+		{
+			std::ranges::copy( heaps, std::begin( m_descriptorHeaps ) );
+			commandList.SetDescriptorHeaps( std::extent_v<decltype( heaps )>, heaps );
+		}
 
 		auto GetBindlessGpuHandle = []( const D3D12GlobalHeapAllocatedInfo& heap, int32 bindlessHandle ) -> D3D12_GPU_DESCRIPTOR_HANDLE
 			{
@@ -508,7 +514,11 @@ namespace agl
 			samplerHeap.GetDescriptorHeap()
 		};
 
-		commandList.SetDescriptorHeaps( std::extent_v<decltype( heaps )>, heaps );
+		if ( std::ranges::equal( heaps, m_descriptorHeaps ) == false )
+		{
+			std::ranges::copy( heaps, std::begin( m_descriptorHeaps ) );
+			commandList.SetDescriptorHeaps( std::extent_v<decltype( heaps )>, heaps );
+		}
 
 		uint32 rootParameterIndex = 0;
 		if ( shaderBindings.IsCompute() )

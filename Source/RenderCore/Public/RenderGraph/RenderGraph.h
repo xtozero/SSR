@@ -147,4 +147,6 @@ namespace rendercore
 		GpuProfileRenderGraphEvent* m_curGPUProfileEvent = nullptr;
 		PipelineStateRenderGraphEvent* m_curPipelineStatEvent = nullptr;
 	};
+
+	agl::QueueType GetQueueType( RenderGraphPassType passType );
 }
