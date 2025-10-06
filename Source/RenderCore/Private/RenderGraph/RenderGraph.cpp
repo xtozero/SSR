@@ -7,11 +7,6 @@
 
 namespace rendercore
 {
-	agl::QueueType GetQueueType( RenderGraphPassType passType )
-	{
-		return passType == RenderGraphPassType::AsyncCompute ? agl::QueueType::Compute : agl::QueueType::Direct;
-	}
-
 	void RenderGraph::Execute()
 	{
 		Compile();
@@ -339,5 +334,10 @@ namespace rendercore
 			bool isTexture = HasAnyFlags( passResource.m_flag, RenderGraphResourceFlag::Texture );
 			AllocatePassResource( passResource.m_ptr, isTexture );
 		}
+	}
+
+	agl::QueueType GetQueueType( RenderGraphPassType passType )
+	{
+		return passType == RenderGraphPassType::AsyncCompute ? agl::QueueType::Compute : agl::QueueType::Direct;
 	}
 }

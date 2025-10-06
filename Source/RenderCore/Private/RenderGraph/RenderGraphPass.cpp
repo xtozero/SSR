@@ -1,5 +1,6 @@
 #include "RenderGraphPass.h"
 
+#include "RenderGraph.h"
 #include "RenderGraphResource.h"
 
 namespace rendercore
@@ -88,7 +89,7 @@ namespace rendercore
 				return;
 			}
 
-			if ( m_type == RenderGraphPassType::Graphics )
+			if ( GetQueueType( m_type ) == agl::QueueType::Direct )
 			{
 				GraphicsInterface().WaitQueue( agl::QueueType::Compute );
 			}
@@ -101,7 +102,7 @@ namespace rendercore
 				return;
 			}
 
-			if ( m_type == RenderGraphPassType::AsyncCompute )
+			if ( GetQueueType( m_type ) == agl::QueueType::Compute )
 			{
 				GraphicsInterface().WaitQueue( agl::QueueType::Direct );
 			}

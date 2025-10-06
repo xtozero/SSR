@@ -60,5 +60,7 @@ namespace agl
 
 		RenderTargetView* m_rtvs[D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT] = {};
 		DepthStencilView* m_dsv = nullptr;
+
+		ID3D12DescriptorHeap* m_descriptorHeaps[2] = {};
 	};
 }
