@@ -29,7 +29,7 @@ namespace rendercore
 	public:
 		virtual void CreateRenderData() = 0;
 		virtual void PrepareSubMeshs() = 0;
-		virtual void TakeSnapshot( RenderThreadFrameData<DrawSnapshot>& outSnapshotStorage, RenderThreadFrameData<VisibleDrawSnapshot>& outVisibleSnapshot ) const = 0;
+		virtual void TakeSnapshot( RenderFrameArray<DrawSnapshot>& outSnapshotStorage, RenderFrameArray<VisibleDrawSnapshot>& outVisibleSnapshot ) const = 0;
 		virtual std::optional<DrawSnapshot> TakeSnapshot( uint32 lod, uint32 sectionIndex ) const = 0;
 		virtual std::optional<MeshDrawInfo> GatherMeshDrawInfo( uint32 lod, uint32 sectionIndex ) const = 0;
 		virtual void GatherDynamicMeshDrawInfo( [[maybe_unused]] RenderViewInfo& viewInfo ) const {};

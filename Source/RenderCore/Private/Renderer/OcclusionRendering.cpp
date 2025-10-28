@@ -159,7 +159,7 @@ namespace rendercore
 		return m_wasOccluded;
 	}
 
-	void OcclusionCull( const IScene& scene, GlobalDynamicVertexBuffer& outDynamicVertexBuffer, RenderViewInfo& outViewInfo, RenderThreadFrameData<OcclusionRenderData>& outOcclusionRenderData )
+	void OcclusionCull( const IScene& scene, GlobalDynamicVertexBuffer& outDynamicVertexBuffer, RenderViewInfo& outViewInfo, RenderFrameArray<OcclusionRenderData>& outOcclusionRenderData )
 	{
 		assert( outViewInfo.m_state != nullptr );
 		RenderViewState& viewState = *outViewInfo.m_state;
@@ -213,7 +213,7 @@ namespace rendercore
 		}
 	}
 
-	void DoRenderOcclusionTest( CommandList& commandList, const ResourceBinder& resourceBinder, RenderViewInfo& viewInfo, const RenderThreadFrameData<OcclusionRenderData>& occlusionRenderData )
+	void DoRenderOcclusionTest( CommandList& commandList, const ResourceBinder& resourceBinder, RenderViewInfo& viewInfo, const RenderFrameArray<OcclusionRenderData>& occlusionRenderData )
 	{
 		if ( occlusionRenderData.empty() )
 		{

@@ -17,7 +17,7 @@ namespace rendercore
 			return;
 		}
 
-		bool isRunningAssetBuilder = engine::CommandLine::Has( Name( "AssetBuilder" ) );
+		bool isRunningAssetBuilder = engine::CommandLine::Has( StaticName( "AssetBuilder" ) );
 		for ( auto& [typeIndex, assetPath] : m_shaderAssetPaths )
 		{
 			if ( m_shaders.contains( typeIndex ) )

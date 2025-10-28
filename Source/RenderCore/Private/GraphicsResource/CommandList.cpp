@@ -54,7 +54,17 @@ namespace rendercore
 	void ComputeCommandList::Dispatch( uint32 x, uint32 y, uint32 z ) const
 	{
 		GetImpl().Dispatch( x, y, z );
-		BindPipelineState( static_cast<agl::ComputePipelineState*>( nullptr ) );
+		BindPipelineState( nullptr );
+	}
+
+	void ComputeCommandList::ExecuteIndirect( agl::IndirectCommandType type, agl::Buffer* argument,
+		uint64 argumentOffset )
+	{
+		GetImpl().ExecuteIndirect( type, argument, argumentOffset );
+		if ( type == agl::IndirectCommandType::Dispatch )
+		{
+			BindPipelineState( nullptr );
+		}
 	}
 
 	void ComputeCommandList::AddTransition( const agl::ResourceTransition& transition ) const
@@ -124,7 +134,7 @@ namespace rendercore
 
 	void CommandList::DispatchMesh( uint32 x, uint32 y, uint32 z ) const
 	{
-		assert( GetInterface<agl::IAgl>()->IsSupportsMeshShader() );
+		assert( GetInterface<agl::IAgl>()->SupportsMeshShader() );
 		GetImpl().DispatchMesh( x, y, z );
 	}
 

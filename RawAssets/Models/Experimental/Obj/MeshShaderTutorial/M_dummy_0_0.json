@@ -2,7 +2,7 @@
 	"Type": "Material",
 	"Shader": {
 		"MS": "./Assets/Shaders/MS_Test.asset",
-		"PS": "./Assets/Shaders/PS_DefaultUnlit.asset"
+		"PS": "./Assets/Shaders/Material/PS_DefaultUnlit.asset"
 	},
 	"Surface": {
 		"Alpha": 1.000000,

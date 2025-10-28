@@ -27,6 +27,14 @@ namespace agl
 	class UnorderedAccessView;
 	class VertexShader;
 
+	enum class IndirectCommandType : uint8
+	{
+		Draw,
+		DrawIndexed,
+		Dispatch,
+		DispatchMesh,
+	};
+
 	class ICommandListBase
 	{
 	public:
@@ -64,6 +72,8 @@ namespace agl
 		virtual void SetShaderValue( const ShaderParameter& parameter, const void* value ) = 0;
 
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) = 0;
+
+		virtual void ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset = 0 ) = 0;
 	};
 
 	class ICommandList : public IComputeCommandList

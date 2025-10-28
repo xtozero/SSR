@@ -74,7 +74,7 @@ namespace rendercore
 			return;
 		}
 
-		bool bSupportsMeshShader = GetInterface<agl::IAgl>()->IsSupportsMeshShader();
+		bool bSupportsMeshShader = GetInterface<agl::IAgl>()->SupportsMeshShader();
 
 		for ( StaticMeshLODResource& lodResource : m_lodResources )
 		{

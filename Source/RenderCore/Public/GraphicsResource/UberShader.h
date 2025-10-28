@@ -27,8 +27,6 @@ namespace rendercore
 
 		RENDERCORE_DLL void SetShaderType( agl::ShaderType type );
 
-		RENDERCORE_DLL void SetProfile( Name profile );
-
 		RENDERCORE_DLL void SetShaderCode( const std::string& shaderCode );
 
 		RENDERCORE_DLL void SetSwitches( const StaticShaderSwitches& switches );
@@ -40,7 +38,6 @@ namespace rendercore
 		friend bool operator==( const UberShader& lhs, const UberShader& rhs )
 		{
 			return lhs.m_type == rhs.m_type
-				&& lhs.m_profile == rhs.m_profile
 				&& lhs.m_shaderCode == rhs.m_shaderCode
 				&& lhs.m_switches == rhs.m_switches
 				&& lhs.m_validVariation == rhs.m_validVariation;
@@ -55,9 +52,6 @@ namespace rendercore
 
 		PROPERTY( type )
 		agl::ShaderType m_type = agl::ShaderType::None;
-
-		PROPERTY( profile )
-		Name m_profile;
 
 		PROPERTY( shaderCode )
 		BinaryChunk m_shaderCode{ 0 };

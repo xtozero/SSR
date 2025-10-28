@@ -152,7 +152,7 @@ namespace rendercore
 			agl::BufferTrait trait = {
 			   .m_stride = constantBufferSize,
 			   .m_count = 1,
-			   .m_access = agl::ResourceAccessFlag::Upload,
+			   .m_access = agl::ResourceAccess::Upload,
 			   .m_bindType = agl::ResourceBindType::ConstantBuffer,
 			   .m_miscFlag = agl::ResourceMisc::None,
 			   .m_format = agl::ResourceFormat::Unknown
@@ -178,7 +178,7 @@ namespace rendercore
 		}
 		else
 		{
-			auto data = static_cast<uint8*>( GraphicsInterface().Lock( m_buffer.Get() ).m_data );
+			auto data = GraphicsInterface().Lock<uint8>( m_buffer.Get() );
 			UpdateShaderValue( data, contents );
 			GraphicsInterface().UnLock( m_buffer.Get() );
 

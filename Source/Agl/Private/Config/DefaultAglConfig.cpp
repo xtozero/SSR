@@ -1,4 +1,4 @@
-#include "DefaultAglConfig.h"
+#include "Config/DefaultAglConfig.h"
 
 namespace agl
 {
@@ -12,7 +12,7 @@ namespace agl
 		return GetInstance().m_bufferCount;
 	}
 
-	bool DefaultAgl::IsSupportsBindless()
+	bool DefaultAgl::SupportsBindless()
 	{
 		return ( GetType() == AglType::D3D12 ) && GetInstance().m_useBindless;
 	}

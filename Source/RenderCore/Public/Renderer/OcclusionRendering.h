@@ -64,6 +64,6 @@ namespace rendercore
 		GlobalDynamicVertexBuffer::AllocationInfo m_allcationInfo;
 	};
 
-	void OcclusionCull( const IScene& scene, GlobalDynamicVertexBuffer& outDynamicVertexBuffer, RenderViewInfo& outViewInfo, RenderThreadFrameData<OcclusionRenderData>& outOcclusionRenderData );
-	void DoRenderOcclusionTest( CommandList& commandList, const ResourceBinder& resourceBinder, RenderViewInfo& viewInfo, const RenderThreadFrameData<OcclusionRenderData>& occlusionRenderData );
+	void OcclusionCull( const IScene& scene, GlobalDynamicVertexBuffer& outDynamicVertexBuffer, RenderViewInfo& outViewInfo, RenderFrameArray<OcclusionRenderData>& outOcclusionRenderData );
+	void DoRenderOcclusionTest( CommandList& commandList, const ResourceBinder& resourceBinder, RenderViewInfo& viewInfo, const RenderFrameArray<OcclusionRenderData>& occlusionRenderData );
 }

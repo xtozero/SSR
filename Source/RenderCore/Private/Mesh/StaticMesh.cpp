@@ -92,7 +92,7 @@ namespace rendercore
 			section.m_meshlets = polygon.m_meshlets;
 		}
 
-		lodResource.m_isDWORD = ( vertexInstances.size() > std::numeric_limits<DWORD>::max() );
+		lodResource.m_isDWORD = ( vertexInstances.size() > std::numeric_limits<WORD>::max() );
 
 		size_t indexStride = lodResource.m_isDWORD ? sizeof( DWORD ) : sizeof( WORD );
 		lodResource.m_indexData.resize( indices.size() * indexStride );

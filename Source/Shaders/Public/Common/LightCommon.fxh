@@ -257,7 +257,7 @@ float3 ImageBasedLight( float3 normal )
 		+ 2.f * c1 * ( l2_2 * normal.x * normal.y + l21 * normal.x * normal.z + l2_1 * normal.y * normal.z )
 		+ 2.f * c2 * ( l11 * normal.x + l1_1 * normal.y + l10 * normal.z );
 #else
-    return IrradianceMap.Sample( LinearSampler, normal ).rgb;
+    return IrradianceMap.SampleLevel( LinearSampler, normal, 0 ).rgb;
 #endif
 }
 
@@ -287,7 +287,7 @@ LIGHTCOLOR CalcLight( GeometryProperty geometry )
 	cColor.m_diffuse.rgb += HemisphereLight( normal );
 
 #if EnableRSMs == 1
-	cColor.m_diffuse.rgb += IndirectIllumination.Sample( LinearSampler, geometry.screenUV ).rgb;
+	cColor.m_diffuse.rgb += MoveLinearSpace( IndirectIllumination.SampleLevel( LinearSampler, geometry.screenUV, 0 ) ).rgb;
 #endif
 
 	return cColor;
@@ -326,12 +326,12 @@ LIGHTCOLOR CalcPhysicallyBasedLight( GeometryProperty geometry, SurfaceProperty 
 	cColor.m_diffuse.rgb += HemisphereLight( normal ) * kD * surface.albedo;
 
 #if EnableRSMs == 1
-	cColor.m_diffuse.rgb += IndirectIllumination.Sample( LinearSampler, geometry.screenUV ).rgb * kD * surface.albedo;
+	cColor.m_diffuse.rgb += MoveLinearSpace( IndirectIllumination.SampleLevel( LinearSampler, geometry.screenUV, 0 ) ).rgb * kD * surface.albedo;
 #endif
 
 	float3 r = reflect( -viewDirection, normal );
 	float3 prefilteredColor = PrefilterMap.SampleLevel( LinearSampler, r, surface.roughness * ( ReflectionMipLevels - 1 ) ).rgb	;
-	float2 brdf = BrdfLUT.Sample( LinearSampler, float2( ndotv, surface.roughness ) ).rg;
+	float2 brdf = BrdfLUT.SampleLevel( LinearSampler, float2( ndotv, surface.roughness ), 0 ).rg;
 
 	cColor.m_specular.rgb += prefilteredColor * ( F * brdf.x + brdf.y );
 

@@ -19,7 +19,7 @@ namespace rendercore
 		void OnBeginFrameRendering();
 		void OnEndFrameRendering();
 
-		RENDERCORE_DLL agl::DeviceError Present( bool vSync = false );
+		RENDERCORE_DLL agl::DeviceError Present( bool vSync = false, bool allowTearing = true );
 		RENDERCORE_DLL void Clear();
 
 		RENDERCORE_DLL void* Handle() const;

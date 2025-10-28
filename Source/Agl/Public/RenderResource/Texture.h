@@ -20,6 +20,11 @@ namespace agl
 		AGL_DLL static RefHandle<Texture> Create( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData );
 		AGL_DLL static RefHandle<Texture> Create( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
 
+		virtual void CreateShaderResource( std::optional<ResourceFormat> overrideFormat = {} ) = 0;
+		virtual void CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat = {} ) = 0;
+		virtual void CreateRenderTarget( std::optional<ResourceFormat> overrideFormat = {} ) = 0;
+		virtual void CreateDepthStencil( std::optional<ResourceFormat> overrideFormat = {} ) = 0;
+
 		virtual std::pair<uint32, uint32> Size() const = 0;
 		virtual void* Resource() const = 0;
 

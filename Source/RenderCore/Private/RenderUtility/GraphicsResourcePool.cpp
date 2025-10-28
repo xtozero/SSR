@@ -92,7 +92,7 @@ namespace rendercore
 
 	size_t PooledBuffer::GetHash() const
 	{
-		return size_t();
+		return m_trait.GetHash();
 	}
 
 	const agl::BufferTrait& PooledBuffer::GetTrait() const

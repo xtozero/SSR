@@ -48,16 +48,18 @@ namespace agl
 		virtual ICommandList* GetParallelCommandList() = 0;
 		virtual IComputeCommandList* GetComputeCommandList() = 0;
 
-		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const = 0;
+		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, ShaderType type ) const = 0;
 		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const = 0;
 
 		virtual const char* GetShaderCacheFilePath() const = 0;
 
-		virtual bool IsSupportsPSOCache() const = 0;
-		virtual bool IsSupportsPSOLibraryCache() const = 0;
+		virtual bool SupportsPSOCache() const = 0;
+		virtual bool SupportsPSOLibraryCache() const = 0;
 		virtual const char* GetPSOCacheFilePath() const = 0;
 
-		virtual bool IsSupportsMeshShader() const = 0;
+		virtual bool SupportsMeshShader() const = 0;
+
+		virtual bool SupportsWaveIntrinsics() const = 0;
 
 		virtual ~IAgl() = default;
 

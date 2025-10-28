@@ -65,7 +65,7 @@ namespace rendercore
 		}
 	}
 
-	void VolumetricFogSceneInfo::PrepareFrustumVolume( RenderGraph& renderGraph, Scene& scene, ForwardLightingResource& lightingResource, RenderThreadFrameData<ShadowInfo>& shadowInfos )
+	void VolumetricFogSceneInfo::PrepareFrustumVolume( RenderGraph& renderGraph, Scene& scene, ForwardLightingResource& lightingResource, RenderFrameArray<ShadowInfo>& shadowInfos )
 	{
 		UpdateParameter();
 
@@ -130,7 +130,7 @@ namespace rendercore
 			.m_sampleQuality = 0,
 			.m_mipLevels = 1,
 			.m_format = agl::ResourceFormat::R16G16B16A16_FLOAT,
-			.m_access = agl::ResourceAccessFlag::Default,
+			.m_access = agl::ResourceAccess::Default,
 			.m_bindType = agl::ResourceBindType::RandomAccess | agl::ResourceBindType::ShaderResource,
 			.m_miscFlag = agl::ResourceMisc::Texture3D
 		};
@@ -170,12 +170,12 @@ namespace rendercore
 		}
 	}
 
-	void VolumetricFogSceneInfo::CalcInscattering( ComputeCommandList& commandList, Scene& scene, ForwardLightingResource& lightingResource, RenderThreadFrameData<ShadowInfo>& shadowInfos )
+	void VolumetricFogSceneInfo::CalcInscattering( ComputeCommandList& commandList, Scene& scene, ForwardLightingResource& lightingResource, RenderFrameArray<ShadowInfo>& shadowInfos )
 	{
 		StaticShaderSwitches switches = InscatteringCS::GetSwitches();
 		if ( DefaultRenderCore::IsESMsEnabled() )
 		{
-			switches.On( Name( "EnableESMs" ), 1 );
+			switches.On( StaticName( "EnableESMs" ), 1 );
 		}
 
 		InscatteringCS inscatteringCS( switches );

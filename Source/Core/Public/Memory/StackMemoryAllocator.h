@@ -58,7 +58,7 @@ public:
 		return memory;
 	}
 
-	void Flush()
+	void Purge()
 	{
 		DeallocateChunks();
 	}
@@ -192,7 +192,7 @@ public:
 
 	void Flush()
 	{
-		m_allocator->Flush();
+		m_allocator->Purge();
 	}
 
 	std::shared_ptr<StackAllocator> GetStackAllocator() const

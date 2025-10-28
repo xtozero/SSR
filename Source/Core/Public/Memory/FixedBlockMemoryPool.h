@@ -38,6 +38,10 @@ public:
 
 	void Deallocate( T* memory )
 	{
+#if _DEBUG
+		std::memset( memory, 0xfe, sizeof( T ) );
+#endif
+
 		auto block = reinterpret_cast<MemoryBlock*>( memory );
 		block->m_next = nullptr;
 
@@ -110,7 +114,7 @@ private:
 
 	void* AllocateChunk( size_t chunkSize )
 	{
-		chunkSize = CalcAlignment<size_t>( chunkSize, ChunkAlignment );
+		chunkSize = CalcAlignment<size_t>( chunkSize + sizeof( MemoryChunk ), ChunkAlignment );
 		size_t entryCount = ( chunkSize - sizeof( MemoryChunk ) ) / BlockSize;
 
 		auto chunk = static_cast<MemoryChunk*>( VirtualAlloc( nullptr, chunkSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE ) );

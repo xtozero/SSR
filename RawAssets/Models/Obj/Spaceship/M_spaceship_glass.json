@@ -1,8 +1,9 @@
 {
 	"Type": "Material",
 	"Shader": {
-		"VS": "./Assets/Shaders/VS_DefaultLit.asset",
-		"PS": "./Assets/Shaders/PS_DefaultLit.asset"
+		"VS": "./Assets/Shaders/Material/VS_DefaultLit.asset",
+		"PS": "./Assets/Shaders/Material/PS_DefaultLit.asset",
+		"CS": "./Assets/Shaders/Material/CS_DefaultLit.asset"
 	},
 	"Surface": {
 		"Ambient": [

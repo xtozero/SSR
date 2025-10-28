@@ -33,5 +33,5 @@ float4 main( PS_INPUT input ) : SV_Target0
 #endif
 	lightColor += cColor.m_specular * MoveLinearSpace( Specular );
 
-	return float4( lightColor.rgb, 1.f );
+	return MoveGammaSpace( float4( lightColor.rgb, 1.f ) );
 }

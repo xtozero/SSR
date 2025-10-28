@@ -61,6 +61,7 @@ namespace agl
 
 		ID3D12PipelineState* FindOrCreate( const D3D12ComputePipelineState* pipelineState );
 		ID3D12PipelineState* FindOrCreate( const D3D12GraphicsPipelineState* pipelineState, const DXGI_FORMAT( &rtvFormats )[8], DXGI_FORMAT dsvFormat );
+		ID3D12CommandSignature* FindOrCreate( IndirectCommandType type );
 
 		D3D12DisposableConstantBufferPool& GetDisposableConstantBufferPool();
 
@@ -85,6 +86,8 @@ namespace agl
 		std::shared_mutex m_d3d12ComputePipelineMutex;
 		std::map<uint64, Microsoft::WRL::ComPtr<ID3D12PipelineState>> m_d3d12ComputePipelineState;
 
+		std::map<IndirectCommandType, Microsoft::WRL::ComPtr<ID3D12CommandSignature>> m_d3d12IndirectCommandSignature;
+
 		std::map<uint64, BinaryChunk>* m_psoCache = nullptr;
 
 		std::vector<D3D12DisposableConstantBufferPool> m_d3d12DisposbleConstantBufferPool;
@@ -93,4 +96,5 @@ namespace agl
 	};
 
 	Owner<IResourceManager*> CreateD3D12ResourceManager();
+	uint32 GetIndirectArgumentStride( agl::IndirectCommandType type );
 }

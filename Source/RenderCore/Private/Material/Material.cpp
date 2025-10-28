@@ -2,8 +2,8 @@
 
 #include "Archive.h"
 #include "ArchiveUtility.h"
+#include "Config/DefaultRenderCoreConfig.h"
 #include "Material/MaterialResource.h"
-#include "UberShader.h"
 
 #include <cassert>
 
@@ -351,6 +351,7 @@ namespace rendercore
 			return GetPixelShader();
 			break;
 		case agl::ShaderType::CS:
+			return GetComputeShader();
 			break;
 		case agl::ShaderType::MS:
 			return GetMeshShader();
@@ -397,6 +398,16 @@ namespace rendercore
 		return static_cast<PixelShader*>( GetCompiledShader( agl::ShaderType::PS, switches ) );
 	}
 
+	void Material::SetComputeShader( const std::shared_ptr<ComputeShader>& computeShader )
+	{
+		m_shaders[static_cast<uint32>( agl::ShaderType::CS )] = computeShader;
+	}
+
+	ComputeShader* Material::GetComputeShader( const StaticShaderSwitches* switches ) const
+	{
+		return static_cast<ComputeShader*>( GetCompiledShader( agl::ShaderType::CS, switches ) );
+	}
+
 	void Material::SetMeshShader( const std::shared_ptr<MeshShader>& meshShader )
 	{
 		m_shaders[static_cast<uint32>( agl::ShaderType::MS )] = meshShader;
@@ -424,10 +435,15 @@ namespace rendercore
 
 	bool Material::UseMeshShader() const
 	{
-		return GetInterface<agl::IAgl>()->IsSupportsMeshShader() && ( m_shaders[static_cast<uint32>( agl::ShaderType::MS )].get() != nullptr );
+		return GetInterface<agl::IAgl>()->SupportsMeshShader() && HasShaderSource( agl::ShaderType::MS );
 	}
 
-	StaticShaderSwitches Material::GetShaderSwitches( agl::ShaderType type )
+	bool Material::SupportsVisibilityRendering() const
+	{
+		return DefaultRenderCore::SupportsVisibilityRendering() && HasShaderSource( agl::ShaderType::CS );
+	}
+
+	StaticShaderSwitches Material::GetShaderSwitches( agl::ShaderType type ) const
 	{
 		auto& shader = m_shaders[static_cast<uint32>( type )];
 		if ( shader != nullptr )
@@ -468,6 +484,12 @@ namespace rendercore
 
 		m_materialResource = std::make_unique<MaterialResource>();
 		m_materialResource->SetMaterial( std::static_pointer_cast<Material>( SharedThis() ) );
+	}
+
+	bool Material::HasShaderSource( agl::ShaderType type ) const
+	{
+		auto index = static_cast<uint32>( type );
+		return m_shaders[index].get() != nullptr;
 	}
 
 	ShaderBase* Material::GetCompiledShader( agl::ShaderType type, const StaticShaderSwitches* switches ) const

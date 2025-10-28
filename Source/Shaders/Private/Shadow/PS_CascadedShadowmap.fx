@@ -33,7 +33,7 @@ PS_OUTPUT main( PS_INPUT input )
 	output.worldPos = float4( input.worldPos, 0.f );
 	float3 enc = SignedOctEncode( normalize( input.normal ) );
 	output.packedNormal = float4( 0.f, enc );
-	output.flux = MoveLinearSpace( Diffuse ) * GetLight( LightIdx ).m_diffuse;
+	output.flux = MoveGammaSpace( MoveLinearSpace( Diffuse ) * GetLight( LightIdx ).m_diffuse );
 #endif
 
 	return output;

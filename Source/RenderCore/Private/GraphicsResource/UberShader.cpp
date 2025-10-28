@@ -127,11 +127,6 @@ namespace rendercore
 		m_type = type;
 	}
 
-	void UberShader::SetProfile( Name profile )
-	{
-		m_profile = profile;
-	}
-
 	void UberShader::SetShaderCode( const std::string& shaderCode )
 	{
 		std::construct_at( &m_shaderCode, static_cast<uint32>( shaderCode.length() ) );
@@ -151,7 +146,7 @@ namespace rendercore
 	BinaryChunk UberShader::ComipeShaderByteCode( const StaticShaderSwitches& switches )
 	{
 		bool bMeshShader = ( m_type == agl::ShaderType::MS ) || ( m_type == agl::ShaderType::AS );
-        if ( bMeshShader && ( GetInterface<agl::IAgl>()->IsSupportsMeshShader() == false ) )
+        if ( bMeshShader && ( GetInterface<agl::IAgl>()->SupportsMeshShader() == false ) )
         {
         	return {};
         }
@@ -184,7 +179,7 @@ namespace rendercore
 		defines.emplace_back( nullptr );
 		defines.emplace_back( nullptr );
 
-		return GraphicsInterface().CompieShader( m_shaderCode, defines, m_profile.Str().data() );
+		return GraphicsInterface().CompieShader( m_shaderCode, defines, m_type );
 	}
 
 	void UberShader::PostLoadImpl()

@@ -16,11 +16,11 @@ namespace rendercore
 
 		if ( streamName == PositionName )
 		{
-			return Name( "Positions" );
+			return StaticName( "Positions" );
 		}
 		else if ( streamName == NormalName )
 		{
-			return Name( "Normals" );
+			return StaticName( "Normals" );
 		}
 		else if ( streamName.Str().starts_with( TexcoordName.Str() ) )
 		{
@@ -28,7 +28,7 @@ namespace rendercore
 			return Name( std::string( "Texcoords" ) + std::string( indexString ) );
 		}
 
-		return Name("None");
+		return StaticName("None");
 	}
 
 	VertexStream::VertexStream( const char* name, agl::ResourceFormat format, uint32 count, bool isDynamic ) 
@@ -260,7 +260,7 @@ namespace rendercore
 				.m_format = agl::ResourceFormat::R32G32B32_FLOAT,
 				.m_slot = slot++,
 				.m_instanceDataStep = 0,
-				.m_name = Name( "POSITION" )
+				.m_name = StaticName( "POSITION" )
 			};
 
 			collection.InitLayout( trait, traitSize, VertexStreamLayoutType::PositionOnly );
@@ -287,7 +287,7 @@ namespace rendercore
 					.m_format = agl::ResourceFormat::R32G32B32_FLOAT,
 					.m_slot = slot++,
 					.m_instanceDataStep = 0,
-					.m_name = Name( "NORMAL" )
+					.m_name = StaticName( "NORMAL" )
 				};
 
 				collection.InitLayout( trait, traitSize, VertexStreamLayoutType::PositionNormal );
@@ -315,7 +315,7 @@ namespace rendercore
 					.m_format = agl::ResourceFormat::R32G32_FLOAT,
 					.m_slot = slot++,
 					.m_instanceDataStep = 0,
-					.m_name = Name( "TEXCOORD" )
+					.m_name = StaticName( "TEXCOORD" )
 				};
 			}
 

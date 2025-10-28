@@ -66,7 +66,7 @@ namespace rendercore
 				StaticShaderSwitches switches = DebugOverlayVS::GetSwitches();
 				if ( DefaultRenderCore::IsTaaEnabled() )
 				{
-					switches.On( Name( "TAA" ), 1 );
+					switches.On( StaticName( "TAA" ), 1 );
 				}
 
 				DebugOverlayVS debugOverlayVS( switches );

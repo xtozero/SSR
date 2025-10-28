@@ -301,7 +301,12 @@ namespace
 						break;
 					}
 					case agl::ShaderType::CS:
+					{
+						auto cs = std::make_shared<rendercore::ComputeShader>();
+						cs->SetPath( shaderPath->AsString() );
+						material->SetComputeShader( cs );
 						break;
+					}
 					case agl::ShaderType::MS:
 					{
 						auto ms = std::make_shared<rendercore::MeshShader>();

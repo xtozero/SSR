@@ -37,7 +37,7 @@ namespace rendercore
 			}
 		}
 
-		void Bind( VertexBuffer& vertexBuffer, uint32 slot, uint32 stride = 0, uint32 offset = 0 )
+		void Bind( const VertexBuffer& vertexBuffer, uint32 slot, uint32 stride = 0, uint32 offset = 0 )
 		{
 			Bind( vertexBuffer.Resource(), slot, stride, offset );
 		}

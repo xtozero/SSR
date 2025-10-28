@@ -12,6 +12,7 @@ namespace rendercore
 
 		void Tick();
 
+		virtual agl::Texture* GetSceneColor() override;
 		virtual agl::Texture* GetDepthStencil() override;
 		virtual agl::Texture* GetViewSpaceDistance() override;
 		virtual agl::Texture* GetPrevViewSpaceDistance() override;
@@ -19,22 +20,27 @@ namespace rendercore
 		virtual agl::Texture* GetTAAResolve() override;
 		virtual agl::Texture* GetWorldNormal() override;
 		virtual agl::Texture* GetVelocity() override;
+		virtual agl::Texture* GetVisibility() override;
 
 	private:
+		void AllocSceneColor();
 		void AllocDepthStencil();
 		void AllocViewSpaceDistance();
 		void AllocTAARenderTargets();
 		void AllocWorldNormal();
 		void AllocVelocity();
+		void AllocVisibility();
 
 		void ReleaseAll();
 
+		RefHandle<agl::Texture> m_sceneColor;
 		RefHandle<agl::Texture> m_depthStencil;
 		RefHandle<agl::Texture> m_linearDepth[2]; // 0 : current frame, 1 : previous frame
 		RefHandle<agl::Texture> m_taaHistory;
 		RefHandle<agl::Texture> m_taaResolve;
 		RefHandle<agl::Texture> m_worldNormal;
 		RefHandle<agl::Texture> m_velocity;
+		RefHandle<agl::Texture> m_visibility;
 
 		std::pair<uint32, uint32> m_bufferSize;
 	};
@@ -50,14 +56,16 @@ namespace rendercore
 
 		virtual IRendererRenderTargets& GetRenderTargets() override;
 
-		void RenderDepthPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex );
-		void RenderOcclusionTest( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex );
-
 	protected:
 		virtual void RenderScreenSpaceIndirectIllumination( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex ) override;
 
 	private:
+		void RenderDepthPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex );
+		void RenderOcclusionTest( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex );
+		void RenderDefaultPassWithVisibilityBuffer( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex );
+
 		void UpdateLightResource( IScene& scene );
+		void ClearRenderTargets( RenderGraph& renderGraph );
 
 		ForwardRendererRenderTargets m_renderTargets;
 	};

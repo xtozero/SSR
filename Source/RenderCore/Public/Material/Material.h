@@ -176,6 +176,8 @@ namespace rendercore
 		GeometryShader* GetGeometryShader( const StaticShaderSwitches* switches = nullptr ) const;
 		RENDERCORE_DLL void SetPixelShader( const std::shared_ptr<PixelShader>& pixelShader );
 		PixelShader* GetPixelShader( const StaticShaderSwitches* switches = nullptr ) const;
+		RENDERCORE_DLL void SetComputeShader( const std::shared_ptr<ComputeShader>& computeShader );
+		ComputeShader* GetComputeShader( const StaticShaderSwitches* switches = nullptr ) const;
 		RENDERCORE_DLL void SetMeshShader( const std::shared_ptr<MeshShader>& meshShader );
 		MeshShader* GetMeshShader( const StaticShaderSwitches* switches = nullptr ) const;
 		RENDERCORE_DLL void SetAmplificationShader( const std::shared_ptr<AmplificationShader>& amplificationShader );
@@ -183,8 +185,9 @@ namespace rendercore
 		RENDERCORE_DLL void AddSampler( const std::string& key, const SamplerOption& samplerOption );
 
 		RENDERCORE_DLL bool UseMeshShader() const;
+		RENDERCORE_DLL bool SupportsVisibilityRendering() const;
 
-		StaticShaderSwitches GetShaderSwitches( agl::ShaderType type );
+		StaticShaderSwitches GetShaderSwitches( agl::ShaderType type ) const;
 
 		RENDERCORE_DLL MaterialResource* GetMaterialResource() const;
 
@@ -200,6 +203,7 @@ namespace rendercore
 		RENDERCORE_DLL virtual void PostLoadImpl() override;
 
 	private:
+		bool HasShaderSource( agl::ShaderType type ) const;
 		ShaderBase* GetCompiledShader( agl::ShaderType type, const StaticShaderSwitches* switches = nullptr ) const;
 
 		PROPERTY( name )

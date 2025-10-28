@@ -1,11 +1,11 @@
 #include "Archive.h"
-#include "ArchiveUtility.h"
 #include "AssetBuilder.h"
 #include "Core/IEngine.h"
 #include "Djb2Hash.h"
 #include "EngineDefaultBuilder.h"
 #include "LibraryTool/Common.h"
 #include "AssetBuilderConfig.h"
+#include "Platform/CommandLine.h"
 #include "Platform/IPlatform.h"
 #include "Renderer/IRenderCore.h"
 #include "SizedTypes.h"
@@ -254,6 +254,13 @@ int32 main( int32 argc, char* argv[] )
 
 	AssetBuilder assetBuilder;
 	assetBuilder.Initialize();
+
+	struct AssetBuildSummary
+	{
+		uint32 m_succeededCount = 0;
+		uint32 m_failedCount = 0;
+		uint32 m_skippedCount = 0;
+	} buildSummary;
 	
 	for ( auto& [key, environment] : AssetBuilderConfig::Instance().PreprocessingEnvironments() )
 	{
@@ -290,11 +297,15 @@ int32 main( int32 argc, char* argv[] )
 
 					const auto& asset = product.second;
 					WriteToDisk( asset, target );
+
+					++buildSummary.m_succeededCount;
 				}
 			}
 			else
 			{
 				std::cerr << "Failed to process asset (" + p.path().generic_string() + ")" << std::endl;
+
+				++buildSummary.m_failedCount;
 			}
 		}
 
@@ -338,7 +349,12 @@ int32 main( int32 argc, char* argv[] )
 					const AssetHeader& header = assetInfoIter->second;
 					if ( ( header.m_lastWriteTime == lastWriteTime ) || ( header.m_fileHash == fileHash ) )
 					{
-						std::cout << "Skip processing asset (" + p.path().generic_string() + ")" << std::endl;
+						if ( engine::CommandLine::Has( StaticName( "LogSkippedAssets" ) ) )
+						{
+							std::cout << "Skip processing asset (" + p.path().generic_string() + ")" << std::endl;
+						}
+
+						++buildSummary.m_skippedCount;
 						continue;
 					}
 				}
@@ -355,11 +371,15 @@ int32 main( int32 argc, char* argv[] )
 
 						const auto& asset = product.second;
 						WriteToDisk( asset, target );
+
+						++buildSummary.m_succeededCount;
 					}
 				}
 				else
 				{
 					std::cerr << "Failed to process asset (" + p.path().generic_string() + ")" << std::endl;
+
+					++buildSummary.m_failedCount;
 				}
 			}
 		}
@@ -376,5 +396,5 @@ int32 main( int32 argc, char* argv[] )
 
 	ShutdownModule( g_engineDll );
 
-	return EXIT_SUCCESS;
+	return ( buildSummary.m_failedCount == 0 ) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

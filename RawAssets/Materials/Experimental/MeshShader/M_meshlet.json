@@ -1,9 +1,9 @@
 {
   "Type": "Material",
   "Shader": {
-    "MS": "./Assets/Shaders/MS_Meshlet.asset",
-    "AS": "./Assets/Shaders/AS_Meshlet.asset",
-    "PS": "./Assets/Shaders/PS_DefaultUnlit.asset"
+    "MS": "./Assets/Shaders/Material/MS_Meshlet.asset",
+    "AS": "./Assets/Shaders/Material/AS_Meshlet.asset",
+    "PS": "./Assets/Shaders/Material/PS_DefaultUnlit.asset"
   },
   "Surface": {
     "Alpha": 1.000000,

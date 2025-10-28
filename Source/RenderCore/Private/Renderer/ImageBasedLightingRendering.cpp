@@ -110,14 +110,18 @@ namespace rendercore
 
 		agl::TextureTrait trait = cubeMap->GetTrait();
 		trait.m_width = trait.m_height = 32;
-		trait.m_format = agl::ResourceFormat::R8G8B8A8_UNORM_SRGB;
+		trait.m_format = agl::ResourceFormat::R8G8B8A8_UNORM;
 		trait.m_bindType |= agl::ResourceBindType::RenderTarget;
+		trait.m_clearValue = agl::ResourceClearValue{
+			.m_format = trait.m_format,
+			.m_color = { 0, 0, 0, 1 }
+		};
 
 		auto irradianceMap = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "DiffuseIrradianceMap" );
 		auto rgIrrdianceMap = renderGraph.RegisterExternalResource( irradianceMap.Get() );
 
 		RasterOutput rasterOutput;
-		rasterOutput.SetRenderTarget( 0, rgIrrdianceMap );
+		rasterOutput.SetRenderTarget( 0, rgIrrdianceMap, RasterOutputLoadAction::Clear );
 		rasterOutput.SetViewport( trait.m_width, trait.m_height );
 		rasterOutput.SetScissorRect( trait.m_width, trait.m_height );
 
@@ -136,8 +140,8 @@ namespace rendercore
 				{
 					auto linearSampler = StaticSamplerState<>::Get();
 					ResourceBinder resourceBinder;
-					resourceBinder.Add( "CubeMap", passResource.m_cubeMap->SRV());
-					resourceBinder.Add( "LinearSampler", linearSampler.Resource() );
+					resourceBinder.Add( StaticName( "CubeMap" ), passResource.m_cubeMap->SRV() );
+					resourceBinder.Add( StaticName( "LinearSampler" ), linearSampler.Resource() );
 
 					DrawSnapshot& snapshot = *result;
 					GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
@@ -167,7 +171,7 @@ namespace rendercore
 		agl::BufferTrait coeffTrait = {
 			.m_stride = sizeof( Vector ),
 			.m_count = 9,
-			.m_access = agl::ResourceAccessFlag::Default,
+			.m_access = agl::ResourceAccess::Default,
 			.m_bindType = agl::ResourceBindType::RandomAccess,
 			.m_miscFlag = agl::ResourceMisc::BufferStructured,
 			.m_format = agl::ResourceFormat::Unknown
@@ -208,7 +212,7 @@ namespace rendercore
 		agl::BufferTrait readBackTrait = {
 			.m_stride = sizeof( Vector ),
 			.m_count = 9,
-			.m_access = agl::ResourceAccessFlag::Download,
+			.m_access = agl::ResourceAccess::Download,
 			.m_bindType = agl::ResourceBindType::None,
 			.m_miscFlag = agl::ResourceMisc::None,
 			.m_format = agl::ResourceFormat::Unknown
@@ -243,7 +247,7 @@ namespace rendercore
 
 		GetInterface<agl::IAgl>()->WaitGPU();
 
-		auto data = static_cast<float*>( GraphicsInterface().Lock( readBackBuffer.Get(), agl::ResourceLockFlag::Read ).m_data );
+		auto data = GraphicsInterface().Lock<float>( readBackBuffer.Get(), agl::ResourceLockFlag::Read );
 
 		std::array<Vector, 9> coeffs;
 		std::memcpy( coeffs.data(), data, sizeof( Vector ) * 9 );
@@ -296,7 +300,7 @@ namespace rendercore
 			.m_sampleQuality = 0,
 			.m_mipLevels = CountMips( width, height ),
 			.m_format = agl::ResourceFormat::R16G16B16A16_FLOAT,
-			.m_access = agl::ResourceAccessFlag::Default,
+			.m_access = agl::ResourceAccess::Default,
 			.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess,
 			.m_miscFlag = agl::ResourceMisc::TextureCube
 		};

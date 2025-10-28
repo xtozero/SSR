@@ -17,6 +17,7 @@ namespace rendercore
 
 	protected:
 		bool m_isExternal = false;
+		bool m_isForUpload = false;
 	};
 
 	template<typename T>
@@ -62,8 +63,9 @@ namespace rendercore
 		UAV = 0x10,
 		RTV = 0x20,
 		DSV = 0x40,
-		CopyDest = 0x80,
-		CopySource = 0x100,
+		IndirectArgument = 0x80,
+		CopyDest = 0x100,
+		CopySource = 0x200,
 	};
 	ENUM_CLASS_FLAGS( RenderGraphResourceFlag )
 
@@ -141,6 +143,7 @@ private: \
 #define DECLARE_RG_BUFFER_PIXEL_SRV( name ) DECLARE_RG_BUFFER( name, RenderGraphResourceFlag::PixelSRV )
 #define DECLARE_RG_BUFFER_NONPIXEL_SRV( name ) DECLARE_RG_BUFFER( name, RenderGraphResourceFlag::NonPixelSRV )
 #define DECLARE_RG_BUFFER_UAV( name ) DECLARE_RG_BUFFER( name, RenderGraphResourceFlag::UAV )
+#define DECLARE_RG_BUFFER_INDRIECT_ARG( name ) DECLARE_RG_BUFFER( name, RenderGraphResourceFlag::IndirectArgument )
 #define DECLARE_RG_BUFFER_COPY_DEST( name ) DECLARE_RG_BUFFER( name, RenderGraphResourceFlag::CopyDest )
 #define DECLARE_RG_BUFFER_COPY_SOURCE( name ) DECLARE_RG_BUFFER( name, RenderGraphResourceFlag::CopySource )
 

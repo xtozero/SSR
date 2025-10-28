@@ -108,18 +108,18 @@ namespace rendercore
 
 		if ( DefaultRenderCore::IsTaaEnabled() )
 		{
-			vsSwitches.On( Name( "TAA" ), 1 );
+			vsSwitches.On( StaticName( "TAA" ), 1 );
 		}
 
-		if ( agl::DefaultAgl::IsSupportsBindless() )
+		if ( agl::DefaultAgl::SupportsBindless() )
 		{
-			psSwitches.On( Name( "SupportsBindless" ), 1 );
+			psSwitches.On( StaticName( "SupportsBindless" ), 1 );
 		}
 
 		if ( useDiffuseTexture )
 		{
-			vsSwitches.On( Name( "UseDiffuseTexture" ), 1 );
-			psSwitches.On( Name( "UseDiffuseTexture" ), 1 );
+			vsSwitches.On( StaticName( "UseDiffuseTexture" ), 1 );
+			psSwitches.On( StaticName( "UseDiffuseTexture" ), 1 );
 		}
 
 		PassShader passShader = {
@@ -159,7 +159,7 @@ namespace rendercore
 			.m_sampleQuality = 0,
 			.m_mipLevels = 1,
 			.m_format = agl::ResourceFormat::R8G8B8A8_UNORM,
-			.m_access = agl::ResourceAccessFlag::Default,
+			.m_access = agl::ResourceAccess::Default,
 			.m_bindType = agl::ResourceBindType::RandomAccess | agl::ResourceBindType::ShaderResource,
 			.m_miscFlag = agl::ResourceMisc::None,
 		};

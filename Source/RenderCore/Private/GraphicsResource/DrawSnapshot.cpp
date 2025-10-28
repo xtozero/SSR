@@ -29,14 +29,14 @@ namespace
 			m_drawSnapshot.push_back( snapshot );
 		}
 
-		CommitDrawSnapshotTask( size_t reserveSize, agl::ICommandList& commandList, VertexBuffer& primitiveIds ) : m_commandList( commandList ), m_primitiveIds( primitiveIds )
+		CommitDrawSnapshotTask( size_t reserveSize, agl::ICommandList& commandList, const VertexBuffer& primitiveIds ) : m_commandList( commandList ), m_primitiveIds( primitiveIds )
 		{
 			m_drawSnapshot.reserve( reserveSize );
 		}
 
 	private:
 		agl::ICommandList& m_commandList;
-		VertexBuffer& m_primitiveIds;
+		const VertexBuffer& m_primitiveIds;
 		std::vector<VisibleDrawSnapshot*> m_drawSnapshot;
 	};
 }
@@ -109,6 +109,40 @@ namespace rendercore
 		m_entries.clear();
 	}
 
+	int32 CachedDrawSnapshotBucket::Add( const DrawSnapshot& snapshot )
+	{
+		constexpr SharedSnapshotId Dummy( 0 );
+		auto [iter, success] = m_bucket.emplace( snapshot, Dummy );
+		if ( success )
+		{
+			size_t id = m_snapshots.Add( snapshot );
+			iter->second.m_id = static_cast<int32>( id );
+		}
+
+		++iter->second.m_ref;
+		return iter->second.m_id;
+	}
+
+	void CachedDrawSnapshotBucket::Remove( int32 id )
+	{
+		size_t index = static_cast<size_t>( id );
+		const DrawSnapshot& snapshot = m_snapshots[index];
+		auto found = m_bucket.find( snapshot );
+		if ( found == std::end( m_bucket ) )
+		{
+			// Error
+			assert( false );
+			return;
+		}
+
+		--found->second.m_ref;
+		if ( found->second.m_ref == 0 )
+		{
+			m_bucket.erase( found );
+			m_snapshots.RemoveAt( index );
+		}
+	}
+
 	void PreparePipelineStateObject( DrawSnapshot& snapshot )
 	{
 		auto& pipelineState = snapshot.m_pipelineState;
@@ -131,33 +165,45 @@ namespace rendercore
 		pipelineState.m_pso = agl::GraphicsPipelineState::Create( initializer );
 	}
 
-	void SortDrawSnapshots( RenderThreadFrameData<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
+	void SortDrawSnapshots( RenderFrameArray<VisibleDrawSnapshot>& outSnapshots )
 	{
-		std::ranges::sort( visibleSnapshots,
+		std::ranges::sort( outSnapshots,
 		                   []( const VisibleDrawSnapshot& lhs, const VisibleDrawSnapshot& rhs )
 		                   {
 			                   return lhs.m_snapshotBucketId < rhs.m_snapshotBucketId;
 		                   } );
 
-		for ( size_t cur = 0, dest = cur + 1; cur < visibleSnapshots.size() && dest < visibleSnapshots.size(); ++dest )
+		MergeDrawSnapshots( outSnapshots );
+
+		for ( size_t i = 0; i < outSnapshots.size(); ++i )
 		{
-			if ( visibleSnapshots[cur].m_snapshotBucketId != -1 &&
-				visibleSnapshots[cur].m_snapshotBucketId == visibleSnapshots[dest].m_snapshotBucketId )
+			outSnapshots[i].m_primitiveIdOffset = static_cast<uint32>( i );
+		}
+	}
+
+	void MergeDrawSnapshots( RenderFrameArray<VisibleDrawSnapshot>& outSnapshots )
+	{
+		for ( size_t cur = 0, dest = cur + 1; cur < outSnapshots.size() && dest < outSnapshots.size(); ++dest )
+		{
+			if ( outSnapshots[cur].m_snapshotBucketId != -1 &&
+				outSnapshots[cur].m_snapshotBucketId == outSnapshots[dest].m_snapshotBucketId )
 			{
-				++visibleSnapshots[cur].m_numInstance;
+				++outSnapshots[cur].m_numInstance;
 			}
 			else
 			{
 				cur = dest;
 			}
 		}
+	}
 
+	void UpdatePrimitiveIDs( const RenderFrameArray<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
+	{
 		auto idBuffer = static_cast<uint32*>( primitiveIds.Lock() );
 		if ( idBuffer )
 		{
 			for ( size_t i = 0; i < visibleSnapshots.size(); ++i )
 			{
-				visibleSnapshots[i].m_primitiveIdOffset = static_cast<uint32>( i );
 				*idBuffer = visibleSnapshots[i].m_primitiveId;
 				++idBuffer;
 			}
@@ -166,7 +212,7 @@ namespace rendercore
 		}
 	}
 
-	void CommitDrawSnapshots( CommandList& commandList, RenderThreadFrameData<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
+	void CommitDrawSnapshots( CommandList& commandList, RenderFrameArray<VisibleDrawSnapshot>& visibleSnapshots, const VertexBuffer& primitiveIds )
 	{
 		for ( size_t i = 0; i < visibleSnapshots.size(); )
 		{
@@ -175,7 +221,7 @@ namespace rendercore
 		}
 	}
 
-	void ParallelCommitDrawSnapshot( CommandList& commandList, RenderThreadFrameData<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds )
+	void ParallelCommitDrawSnapshot( CommandList& commandList, RenderFrameArray<VisibleDrawSnapshot>& visibleSnapshots, const VertexBuffer& primitiveIds )
 	{
 		size_t dc = 0;
 		for ( size_t i = 0; i < visibleSnapshots.size(); )
@@ -226,40 +272,6 @@ namespace rendercore
 
 			taskScheduler->Run( taskGroup );
 			taskScheduler->Wait( taskGroup );
-		}
-	}
-
-	int32 CachedDrawSnapshotBucket::Add( const DrawSnapshot& snapshot )
-	{
-		constexpr SharedSnapshotId Dummy( 0 );
-		auto [iter, success] = m_bucket.emplace( snapshot, Dummy );
-		if ( success )
-		{
-			size_t id = m_snapshots.Add( snapshot );
-			iter->second.m_id = static_cast<int32>( id );
-		}
-
-		++iter->second.m_ref;
-		return iter->second.m_id;
-	}
-
-	void CachedDrawSnapshotBucket::Remove( int32 id )
-	{
-		size_t index = static_cast<size_t>( id );
-		const DrawSnapshot& snapshot = m_snapshots[index];
-		auto found = m_bucket.find( snapshot );
-		if ( found == std::end( m_bucket ) )
-		{
-			// Error
-			assert( false );
-			return;
-		}
-
-		--found->second.m_ref;
-		if ( found->second.m_ref == 0 )
-		{
-			m_bucket.erase( found );
-			m_snapshots.RemoveAt( index );
 		}
 	}
 }

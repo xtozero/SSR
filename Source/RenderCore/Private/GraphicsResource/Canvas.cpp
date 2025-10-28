@@ -26,11 +26,11 @@ namespace rendercore
 		}
 	}
 
-	agl::DeviceError Canvas::Present( bool vSync )
+	agl::DeviceError Canvas::Present( bool vSync, bool allowTearing )
 	{
 		if ( m_canvas.Get() )
 		{
-			return m_canvas->Present( vSync );
+			return m_canvas->Present( vSync, allowTearing );
 		}
 
 		return agl::DeviceError::DeviceLost;

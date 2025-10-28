@@ -22,42 +22,43 @@ using ::Microsoft::WRL::ComPtr;
 
 namespace
 {
-	const char* GetShaderTargetProfile( agl::ShaderType shaderType )
+	std::string GetD3DShaderTargetProfile( agl::ShaderType shaderType, agl::AglType aglType )
 	{
-		switch ( shaderType )
+		if ( shaderType == agl::ShaderType::None || shaderType == agl::ShaderType::Count )
 		{
-		case agl::ShaderType::None:
-			break;
-		case agl::ShaderType::VS:
-			return "vs_5_0";
-			break;
-		case agl::ShaderType::HS:
-			break;
-		case agl::ShaderType::DS:
-			break;
-		case agl::ShaderType::GS:
-			return "gs_5_0";
-			break;
-		case agl::ShaderType::PS:
-			return "ps_5_0";
-			break;
-		case agl::ShaderType::CS:
-			return "cs_5_0";
-			break;
-		case agl::ShaderType::MS:
-			return "ms_6_5";
-			break;
-		case agl::ShaderType::AS:
-			return "as_6_5";
-			break;
-		case agl::ShaderType::Count:
-			break;
-		default:
-			break;
+			return "";
 		}
 
-		assert( false && "Invalid shader type" );
-		return "";
+		if ( aglType == agl::AglType::D3D11 )
+		{
+			const char* d3d11Profiles[agl::MAX_SHADER_TYPE<uint32>] = {
+				"vs_5_0",
+				"hs_5_0",
+				"ds_5_0",
+				"gs_5_0",
+				"ps_5_0",
+				"cs_5_0",
+				"",
+				""
+			};
+
+			return d3d11Profiles[static_cast<int8>(shaderType)];
+		}
+		else // agl::AglType::D3D12
+		{
+			const char* d3d12Profiles[agl::MAX_SHADER_TYPE<uint32>] = {
+				"vs_6_5",
+				"hs_6_5",
+				"ds_6_5",
+				"gs_6_5",
+				"ps_6_5",
+				"cs_6_5",
+				"ms_6_5",
+				"as_6_5"
+			};
+
+			return d3d12Profiles[static_cast<int8>(shaderType)];
+		}
 	}
 
 	agl::ShaderType GetShaderType( const fs::path& fileName )
@@ -509,9 +510,6 @@ std::optional<Products> ShaderBuilder::Build( const PathEnvironment& env, const 
 		shader->SetName( path.filename().generic_string() );
 		shader->SetShaderType( shaderType );
 
-		Name shaderTargetProfile( GetShaderTargetProfile( shaderType ) );
-		shader->SetProfile( shaderTargetProfile );
-
 		shader->SetShaderCode( shaderFile );
 		shader->SetSwitches( shaderSwitches );
 
@@ -550,14 +548,16 @@ void ShaderBuilder::CompileShaderCombination( const std::string& shaderFile, agl
 	{
 		ShaderCompileResult compileResult;
 
-		const char* targetProfile = GetShaderTargetProfile( shaderType );
-		if ( ( shaderType == agl::ShaderType::MS ) || ( shaderType == agl::ShaderType::AS ) )
+		std::string targetProfile = GetD3DShaderTargetProfile( shaderType, agl::AglType::D3D11 );
+		if ( targetProfile.empty() == false )
 		{
-			compileResult = CompileD3D12Shader( shaderFile, targetProfile, switches );
+			compileResult = CompileD3D11Shader( shaderFile, targetProfile.c_str(), switches );
 		}
-		else
+
+		if ( compileResult.Succeeded() == false )
 		{
-			compileResult = CompileD3D11Shader( shaderFile, targetProfile, switches );
+			targetProfile = GetD3DShaderTargetProfile( shaderType, agl::AglType::D3D12 );
+			compileResult = CompileD3D12Shader( shaderFile, targetProfile.c_str(), switches );
 		}
 		
 		if ( compileResult.Succeeded() )

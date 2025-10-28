@@ -20,6 +20,11 @@ namespace rendercore
 		GENERATE_CLASS_TYPE_INFO( DefaultRenderCore );
 
 	public:
+		static bool UseVSync();
+		static bool AllowTearing();
+
+		RENDERCORE_DLL static const float4& GetDefaultBackgroundColor();
+
 		static bool IsPIXEnabled();
 
 		static bool IsTaaEnabled();
@@ -41,7 +46,18 @@ namespace rendercore
 		static bool IsSSGIEnabled();
 		static SSGIConfig GetSSGIConfig();
 
+		static bool SupportsVisibilityRendering();
+
 	private:
+		PROPERTY( useVSync )
+		bool m_useVSync = false;
+
+		PROPERTY( allowTearing )
+		bool m_allowTearing = false;
+
+		PROPERTY( defaultBackgroundColor )
+		float4 m_defaultBackgroundColor = {};
+
 		PROPERTY( enablePIX )
 		bool m_enablePIX = false;
 
@@ -95,5 +111,8 @@ namespace rendercore
 
 		PROPERTY( denoiseKernelRadiusSSGI )
 		int32 m_denoiseKernelRadiusSSGI = 8;
+
+		PROPERTY( enableVisibilityRendering )
+		bool m_enableVisibilityRendering = false;
 	};
 }

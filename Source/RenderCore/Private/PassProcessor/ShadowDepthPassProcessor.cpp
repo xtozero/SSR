@@ -86,10 +86,10 @@ namespace rendercore
 
 		if ( bIsRSMsEnabled )
 		{
-			vsSwitches.On( Name( "EnableRSMs" ), 1 );
-			gsSwitches.On( Name( "EnableRSMs" ), 1 );
-			psSwitches.On( Name( "EnableRSMs" ), 1 );
-			msSwitches.On( Name( "EnableRSMs" ), 1 );
+			vsSwitches.On( StaticName( "EnableRSMs" ), 1 );
+			gsSwitches.On( StaticName( "EnableRSMs" ), 1 );
+			psSwitches.On( StaticName( "EnableRSMs" ), 1 );
+			msSwitches.On( StaticName( "EnableRSMs" ), 1 );
 		}
 
 		bool bUseMeshShader = material.UseMeshShader();

@@ -85,7 +85,7 @@ namespace rendercore
 			[horizonBlurPassResource, srcTrait, kernel]( ComputeCommandList& commandList )
 			{
 				StaticShaderSwitches horizonSwitches = CascadedESMsBlurCS::GetSwitches();
-				horizonSwitches.On( Name( "KernelSize" ), KernelSize );
+				horizonSwitches.On( StaticName( "KernelSize" ), KernelSize );
 
 				CascadedESMsBlurCS horizonBlurCS( horizonSwitches );
 				RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( horizonBlurCS );
@@ -127,8 +127,8 @@ namespace rendercore
 			[verticalBlurPassResource, srcTrait, kernel]( ComputeCommandList& commandList )
 			{
 				StaticShaderSwitches virticalSwitches = CascadedESMsBlurCS::GetSwitches();
-				virticalSwitches.On( Name( "Virtical" ), 1 );
-				virticalSwitches.On( Name( "KernelSize" ), KernelSize );
+				virticalSwitches.On( StaticName( "Virtical" ), 1 );
+				virticalSwitches.On( StaticName( "KernelSize" ), KernelSize );
 
 				CascadedESMsBlurCS virticalBlurCS( virticalSwitches );
 				RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( virticalBlurCS );

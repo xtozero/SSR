@@ -22,10 +22,8 @@ namespace agl
 		virtual LockedResource Lock( uint32 subResource = 0 );
 		virtual void UnLock( uint32 subResource = 0 );
 
-		void CreateShaderResource( std::optional<ResourceFormat> overrideFormat = {} );
-		void CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat = {} );
-		virtual void CreateRenderTarget( std::optional<ResourceFormat> overrideFormat = {} ) = 0;
-		virtual void CreateDepthStencil( std::optional<ResourceFormat> overrideFormat = {} ) = 0;
+		virtual void CreateShaderResource( std::optional<ResourceFormat> overrideFormat = {} ) override;
+		virtual void CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat = {} ) override;
 
 		void Reconstruct( const TextureTrait& trait, const ResourceInitData* initData );
 

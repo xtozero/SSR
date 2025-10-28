@@ -19,6 +19,12 @@ namespace rendercore
 		void BootUp( agl::IAgl* pAgl );
 		void Shutdown();
 
+		template <typename T>
+		T* Lock( agl::Buffer* buffer, agl::ResourceLockFlag lockFlag = agl::ResourceLockFlag::WriteDiscard, uint32 subResource = 0 )
+		{
+			return static_cast<T*>( Lock( buffer, lockFlag, subResource ).m_data );
+		}
+
 		agl::LockedResource Lock( agl::Buffer* buffer, agl::ResourceLockFlag lockFlag = agl::ResourceLockFlag::WriteDiscard, uint32 subResource = 0 );
 		void UnLock( agl::Buffer* buffer, uint32 subResource = 0 );
 
@@ -35,7 +41,7 @@ namespace rendercore
 		SamplerState FindOrCreate( const SamplerOption& option );
 		VertexLayout FindOrCreate( const VertexShader& vs, const VertexLayoutDesc& desc );
 
-		BinaryChunk CompieShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const;
+		BinaryChunk CompieShader( const BinaryChunk& source, std::vector<const char*>& defines, agl::ShaderType type ) const;
 		bool BuildShaderMetaData( const BinaryChunk& byteCode, agl::ShaderParameterMap& outParameterMap, agl::ShaderParameterInfo& outParameterInfo ) const;
 
 		void WaitQueue( agl::QueueType type );

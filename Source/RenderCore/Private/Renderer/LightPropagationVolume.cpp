@@ -229,7 +229,7 @@ namespace rendercore
 		ClearLPV( renderGraph );
 	}
 
-	void LightPropagationVolume::InjectLight( RenderGraph& renderGraph, IScene& scene, RenderThreadFrameData<ShadowInfo>& shadowInfos )
+	void LightPropagationVolume::InjectLight( RenderGraph& renderGraph, IScene& scene, RenderFrameArray<ShadowInfo>& shadowInfos )
 	{
 		for ( ShadowInfo& shadowInfo : shadowInfos )
 		{
@@ -385,7 +385,7 @@ namespace rendercore
 		auto [width, height] = renderTarget->Size();
 
 		RasterOutput rasterOutput;
-		rasterOutput.SetRenderTarget( 0, rgRenderTarget );
+		rasterOutput.SetRenderTarget( 0, rgRenderTarget, RasterOutputLoadAction::Clear );
 		rasterOutput.SetViewport( width, height );
 		rasterOutput.SetScissorRect( width, height );
 
@@ -416,13 +416,13 @@ namespace rendercore
 					, Color( 0, 0, 0, 255 )>::Get();
 
 				ResourceBinder passResourceBinder;
-				passResourceBinder.Add( "ViewSpaceDistance", passResource.m_viewSpaceDistance->SRV() );
-				passResourceBinder.Add( "WorldNormal", passResource.m_worldNormal->SRV() );
-				passResourceBinder.Add( "CoeffR", passResource.m_coeffR->SRV() );
-				passResourceBinder.Add( "CoeffG", passResource.m_coeffG->SRV() );
-				passResourceBinder.Add( "CoeffB", passResource.m_coeffB->SRV() );
-				passResourceBinder.Add( "BlackBorderSampler", blackBorderSampler.Resource() );
-				passResourceBinder.Add( "LPVCommonParameters", m_lpvCommon.Get() );
+				passResourceBinder.Add( StaticName( "ViewSpaceDistance" ), passResource.m_viewSpaceDistance->SRV() );
+				passResourceBinder.Add( StaticName( "WorldNormal" ), passResource.m_worldNormal->SRV() );
+				passResourceBinder.Add( StaticName( "CoeffR" ), passResource.m_coeffR->SRV() );
+				passResourceBinder.Add( StaticName( "CoeffG" ), passResource.m_coeffG->SRV() );
+				passResourceBinder.Add( StaticName( "CoeffB" ), passResource.m_coeffB->SRV() );
+				passResourceBinder.Add( StaticName( "BlackBorderSampler" ), blackBorderSampler.Resource() );
+				passResourceBinder.Add( StaticName( "LPVCommonParameters" ), m_lpvCommon.Get() );
 				passResourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
 				AddSingleDrawPass( commandList, snapshot );
@@ -440,8 +440,8 @@ namespace rendercore
 			.m_sampleCount = 1,
 			.m_sampleQuality = 0,
 			.m_mipLevels = 1,
-			.m_format = agl::ResourceFormat::R8G8B8A8_UNORM_SRGB,
-			.m_access = agl::ResourceAccessFlag::Default,
+			.m_format = agl::ResourceFormat::R8G8B8A8_UNORM,
+			.m_access = agl::ResourceAccess::Default,
 			.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
 			.m_miscFlag = agl::ResourceMisc::None,
 			.m_clearValue = agl::ResourceClearValue{
@@ -457,16 +457,19 @@ namespace rendercore
 		LPVTextures volumeTextures;
 
 		agl::TextureTrait trait = {
-				.m_width = 32,
-				.m_height = 32,
-				.m_depth = 32,
-				.m_sampleCount = 1,
-				.m_sampleQuality = 0,
-				.m_mipLevels = 1,
-				.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
-				.m_access = agl::ResourceAccessFlag::Default,
-				.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RenderTarget | agl::ResourceBindType::RandomAccess,
-				.m_miscFlag = agl::ResourceMisc::Texture3D
+			.m_width = 32,
+			.m_height = 32,
+			.m_depth = 32,
+			.m_sampleCount = 1,
+			.m_sampleQuality = 0,
+			.m_mipLevels = 1,
+			.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
+			.m_access = agl::ResourceAccess::Default,
+			.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RenderTarget | agl::ResourceBindType::RandomAccess,
+			.m_miscFlag = agl::ResourceMisc::Texture3D,
+			.m_clearValue = agl::ResourceClearValue{
+				.m_color = { 0.f, 0.f, 0.f, 0.f }
+			}
 		};
 
 		volumeTextures.m_coeffR = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "LPV.Coeff.R" );
@@ -488,7 +491,7 @@ namespace rendercore
 			agl::BufferTrait trait = {
 				.m_stride = sizeof( Vector4 ) + sizeof( Vector4 ),
 				.m_count = 1,
-				.m_access = agl::ResourceAccessFlag::Upload,
+				.m_access = agl::ResourceAccess::Upload,
 				.m_bindType = agl::ResourceBindType::ConstantBuffer,
 				.m_format = agl::ResourceFormat::Unknown
 			};
@@ -496,7 +499,7 @@ namespace rendercore
 			m_lpvCommon = agl::Buffer::Create( trait, "lpvCommon" );
 			m_lpvCommon->Init();
 
-			auto dest = static_cast<uint8*>( GraphicsInterface().Lock( m_lpvCommon.Get() ).m_data );
+			auto dest = GraphicsInterface().Lock<uint8>( m_lpvCommon.Get() );
 
 			Vector4 textureDimension( 32.f, 32.f, 32.f, 32.f );
 			memcpy( dest, &textureDimension, sizeof( Vector4 ) );
@@ -539,40 +542,57 @@ namespace rendercore
 		auto rgCoeffB = renderGraph.RegisterExternalResource( m_lpvTextures.m_coeffB.Get() );
 		auto rgCoeffOcclusion = renderGraph.RegisterExternalResource( m_lpvTextures.m_coeffOcclusion.Get() );
 
-		BEGIN_RG_RESOURCE_STRUCT( ClearLPVPassResouce )
-			DECLARE_RG_TEXTURE_UAV( coeffR )
-			DECLARE_RG_TEXTURE_UAV( coeffG )
-			DECLARE_RG_TEXTURE_UAV( coeffB )
-			DECLARE_RG_TEXTURE_UAV( coeffOcclusion )
-		END_RG_RESOURCE_STRUCT();
+		if ( agl::DefaultAgl::GetType() == agl::AglType::D3D12 )
+		{
+			RasterOutput rasterOutput;
+			rasterOutput.SetRenderTarget( 0, rgCoeffR, RasterOutputLoadAction::Clear );
+			rasterOutput.SetRenderTarget( 1, rgCoeffG, RasterOutputLoadAction::Clear );
+			rasterOutput.SetRenderTarget( 2, rgCoeffB, RasterOutputLoadAction::Clear );
+			rasterOutput.SetRenderTarget( 3, rgCoeffOcclusion, RasterOutputLoadAction::Clear );
 
-		ClearLPVPassResouce passResouce = {
-			.m_coeffR = rgCoeffR,
-			.m_coeffG = rgCoeffG,
-			.m_coeffB = rgCoeffB,
-			.m_coeffOcclusion = rgCoeffOcclusion
-		};
+			renderGraph.AddPass(
+				rasterOutput,
+				[]( [[maybe_unused]] CommandList& commandList )
+				{
+				} );
+		}
+		else
+		{
+			BEGIN_RG_RESOURCE_STRUCT( ClearLPVPassResouce )
+				DECLARE_RG_TEXTURE_UAV( coeffR )
+				DECLARE_RG_TEXTURE_UAV( coeffG )
+				DECLARE_RG_TEXTURE_UAV( coeffB )
+				DECLARE_RG_TEXTURE_UAV( coeffOcclusion )
+			END_RG_RESOURCE_STRUCT();
 
-		renderGraph.AddPass(
-			passResouce,
-			[passResouce]( ComputeCommandList& commandList )
-			{
-				ClearLpvCS clearLpvCS;
+			ClearLPVPassResouce passResouce = {
+				.m_coeffR = rgCoeffR,
+				.m_coeffG = rgCoeffG,
+				.m_coeffB = rgCoeffB,
+				.m_coeffOcclusion = rgCoeffOcclusion
+			};
 
-				agl::ShaderBindings shaderBindings = CreateShaderBindings( clearLpvCS );
-				BindResource( shaderBindings, clearLpvCS.CoeffR(), passResouce.m_coeffR->Get() );
-				BindResource( shaderBindings, clearLpvCS.CoeffG(), passResouce.m_coeffG->Get() );
-				BindResource( shaderBindings, clearLpvCS.CoeffB(), passResouce.m_coeffB->Get() );
-				BindResource( shaderBindings, clearLpvCS.CoeffOcclusion(), passResouce.m_coeffOcclusion->Get() );
+			renderGraph.AddPass(
+				passResouce,
+				[passResouce]( ComputeCommandList& commandList )
+				{
+					ClearLpvCS clearLpvCS;
 
-				RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( clearLpvCS );
+					agl::ShaderBindings shaderBindings = CreateShaderBindings( clearLpvCS );
+					BindResource( shaderBindings, clearLpvCS.CoeffR(), passResouce.m_coeffR->Get() );
+					BindResource( shaderBindings, clearLpvCS.CoeffG(), passResouce.m_coeffG->Get() );
+					BindResource( shaderBindings, clearLpvCS.CoeffB(), passResouce.m_coeffB->Get() );
+					BindResource( shaderBindings, clearLpvCS.CoeffOcclusion(), passResouce.m_coeffOcclusion->Get() );
 
-				commandList.BindPipelineState( pso.Get() );
-				commandList.BindShaderResources( shaderBindings );
+					RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( clearLpvCS );
 
-				// [numthreads(8, 8, 8)] -> Dispatch( 32 / 4, 32 / 4, 32 / 4 )
-				commandList.Dispatch( 8, 8, 8 );
-			} );
+					commandList.BindPipelineState( pso.Get() );
+					commandList.BindShaderResources( shaderBindings );
+
+					// [numthreads(8, 8, 8)] -> Dispatch( 32 / 4, 32 / 4, 32 / 4 )
+					commandList.Dispatch( 8, 8, 8 );
+				} );
+		}
 	}
 
 	LpvRSMTextures LightPropagationVolume::DownSampleRSMs( RenderGraph& renderGraph, const LightSceneInfo& lightInfo, const LpvRSMTextures& rsmTextures )
@@ -589,7 +609,7 @@ namespace rendercore
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
 				.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
-				.m_access = agl::ResourceAccessFlag::Default,
+				.m_access = agl::ResourceAccess::Default,
 				.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess,
 				.m_miscFlag = agl::ResourceMisc::None,
 			};
@@ -605,7 +625,7 @@ namespace rendercore
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
 				.m_format = agl::ResourceFormat::R10G10B10A2_UNORM,
-				.m_access = agl::ResourceAccessFlag::Default,
+				.m_access = agl::ResourceAccess::Default,
 				.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess,
 				.m_miscFlag = agl::ResourceMisc::None,
 			};
@@ -621,7 +641,7 @@ namespace rendercore
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
 				.m_format = agl::ResourceFormat::R8G8B8A8_UNORM,
-				.m_access = agl::ResourceAccessFlag::Default,
+				.m_access = agl::ResourceAccess::Default,
 				.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess,
 				.m_miscFlag = agl::ResourceMisc::None,
 			};
@@ -749,13 +769,13 @@ namespace rendercore
 						SetShaderValue( commandList, LightInjectionVS().SurfelArea(), vSurfelArea );
 
 						ResourceBinder resourceBinder;
-						resourceBinder.Add( "SceneViewParameters", params.m_viewShaderArguments.Get() );
-						resourceBinder.Add( "LPVCommonParameters", m_lpvCommon.Get() );
-						resourceBinder.Add( "ShadowDepthPassParameters", params.m_shadowDepthPassParameters.Get() );
+						resourceBinder.Add( StaticName( "SceneViewParameters" ), params.m_viewShaderArguments.Get() );
+						resourceBinder.Add( StaticName( "LPVCommonParameters" ), m_lpvCommon.Get() );
+						resourceBinder.Add( StaticName( "ShadowDepthPassParameters" ), params.m_shadowDepthPassParameters.Get() );
 
-						resourceBinder.Add( "RSMsWorldPosition", passResouce.m_worldPosition->SRV() );
-						resourceBinder.Add( "RSMsNormal", passResouce.m_normal->SRV() );
-						resourceBinder.Add( "RSMsFlux", passResouce.m_flux->SRV() );
+						resourceBinder.Add( StaticName( "RSMsWorldPosition" ), passResouce.m_worldPosition->SRV() );
+						resourceBinder.Add( StaticName( "RSMsNormal" ), passResouce.m_normal->SRV() );
+						resourceBinder.Add( StaticName( "RSMsFlux" ), passResouce.m_flux->SRV() );
 
 						DrawSnapshot& snapshot = *lightInjectionPass;
 						GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
@@ -795,13 +815,13 @@ namespace rendercore
 						SetShaderValue( commandList, GeometryInjectionVS().LightDirection(), lightDirection );
 
 						ResourceBinder resourceBinder;
-						resourceBinder.Add( "SceneViewParameters", params.m_viewShaderArguments.Get() );
-						resourceBinder.Add( "LPVCommonParameters", m_lpvCommon.Get() );
-						resourceBinder.Add( "ShadowDepthPassParameters", params.m_shadowDepthPassParameters.Get() );
+						resourceBinder.Add( StaticName( "SceneViewParameters" ), params.m_viewShaderArguments.Get() );
+						resourceBinder.Add( StaticName( "LPVCommonParameters" ), m_lpvCommon.Get() );
+						resourceBinder.Add( StaticName( "ShadowDepthPassParameters" ), params.m_shadowDepthPassParameters.Get() );
 
-						resourceBinder.Add( "RSMsWorldPosition", passResouce.m_worldPosition->SRV() );
-						resourceBinder.Add( "RSMsNormal", passResouce.m_normal->SRV() );
-						resourceBinder.Add( "RSMsFlux", passResouce.m_flux->SRV() );
+						resourceBinder.Add( StaticName( "RSMsWorldPosition" ), passResouce.m_worldPosition->SRV() );
+						resourceBinder.Add( StaticName( "RSMsNormal" ), passResouce.m_normal->SRV() );
+						resourceBinder.Add( StaticName( "RSMsFlux" ), passResouce.m_flux->SRV() );
 
 						DrawSnapshot& snapshot = *geometryInjectionPass;
 						GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;

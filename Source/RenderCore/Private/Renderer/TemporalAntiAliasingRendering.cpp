@@ -45,7 +45,7 @@ namespace rendercore
 
 	void TAARenderer::Render( RenderGraph& renderGraph, IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup )
 	{
-		agl::Texture* sceneTex = renderViewGroup.GetViewport().Texture();
+		agl::Texture* sceneTex = renderTargets.GetSceneColor();
 		agl::Texture* historyTex = renderTargets.GetTAAHistory();
 		agl::Texture* resolveTex = renderTargets.GetTAAResolve();
 		agl::Texture* velocityTex = renderTargets.GetVelocity();
@@ -95,7 +95,7 @@ namespace rendercore
 	{
 		agl::Texture* historyTex = renderTargets.GetTAAHistory();
 		agl::Texture* resolveTex = renderTargets.GetTAAResolve();
-		agl::Texture* sceneTex = renderViewGroup.GetViewport().Texture();
+		agl::Texture* sceneTex = renderTargets.GetSceneColor();
 		agl::Texture* velocityTex = renderTargets.GetVelocity();
 		ShaderArguments& viewArguments = renderViewGroup.Scene().GetViewShaderArguments();
 
@@ -171,7 +171,7 @@ namespace rendercore
 	void TAARenderer::UpdateHistory( RenderGraph& renderGraph, IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup )
 	{
 		agl::Texture* historyTex = renderTargets.GetTAAHistory();
-		agl::Texture* sceneTex = renderViewGroup.GetViewport().Texture();
+		agl::Texture* sceneTex = renderTargets.GetSceneColor();
 		agl::Texture* resolveTex = renderTargets.GetTAAResolve();
 
 		auto rgHistoryTex = renderGraph.RegisterExternalResource( historyTex );

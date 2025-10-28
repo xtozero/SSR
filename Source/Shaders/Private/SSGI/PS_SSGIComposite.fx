@@ -37,5 +37,5 @@ float4 main( PS_INPUT input ) : SV_Target0
 #endif
 
     diffuseColor *= ssgiColor;
-	return float4( diffuseColor.rgb * diffuseColor.a, 1.f );
+	return MoveGammaSpace( float4( diffuseColor.rgb * diffuseColor.a, 1.f ) );
 }

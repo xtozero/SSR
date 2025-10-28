@@ -32,6 +32,7 @@ set (GRAPHICS_RESOURCE_HEADER
 	Public/GraphicsResource/Shader.h
 	Public/GraphicsResource/ShaderArguments.h
 	Public/GraphicsResource/ShaderCache.h
+	Public/GraphicsResource/ShadingSnapshot.h
 	Public/GraphicsResource/StaticShaderSwitch.h
 	Public/GraphicsResource/StaticState.h
 	Public/GraphicsResource/TypedBuffer.h
@@ -58,6 +59,7 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Private/GraphicsResource/Shader.cpp
 	Private/GraphicsResource/ShaderArguments.cpp
 	Private/GraphicsResource/ShaderCache.cpp
+	Private/GraphicsResource/ShadingSnapshot.cpp
 	Private/GraphicsResource/StaticShaderSwitch.cpp
 	Private/GraphicsResource/UberShader.cpp
 	Private/GraphicsResource/UploadBuffer.cpp
@@ -90,6 +92,7 @@ set (PASS_PROCESSOR
 	Private/PassProcessor/PassProcessor.cpp
 	Private/PassProcessor/ShadowDepthPassProcessor.cpp
 	Private/PassProcessor/ShadowDrawPassProcessor.cpp
+	Private/PassProcessor/VisibilityPassProcessor.cpp
 	Private/PassProcessor/VolumetricCloudPassProcessor.cpp
 	Private/PassProcessor/VolumetricFogPassProcessor.cpp
 	Public/PassProcessor/DefaultPassProcessor.h
@@ -98,6 +101,7 @@ set (PASS_PROCESSOR
 	Public/PassProcessor/PassProcessor.h
 	Public/PassProcessor/ShadowDepthPassProcessor.h
 	Public/PassProcessor/ShadowDrawPassProcessor.h
+	Public/PassProcessor/VisibilityPassProcessor.h
 	Public/PassProcessor/VolumetricCloudPassProcessor.h
 	Public/PassProcessor/VolumetricFogPassProcessor.h)
 	
@@ -183,6 +187,7 @@ set (RENDERER_SOURCE
 	Private/Renderer/SkyAtmosphereRendering.cpp
 	Private/Renderer/SSGIRendering.cpp
 	Private/Renderer/TemporalAntiAliasingRendering.cpp
+	Private/Renderer/VisibilityRendering.cpp
 	Public/Renderer/ExponentialShadowMapRendering.h
 	Public/Renderer/ForwardLighting.h
 	Public/Renderer/ForwardRenderer.h
@@ -196,7 +201,8 @@ set (RENDERER_SOURCE
 	Public/Renderer/SkyAtmosphereRendering.h
 	Public/Renderer/SSGIRendering.h
 	Public/Renderer/TemporalAntiAliasingRendering.h
-	Public/Renderer/UserInterfaceRenderer.h)
+	Public/Renderer/UserInterfaceRenderer.h
+	Public/Renderer/VisibilityRendering.h)
 	
 file(GLOB_RECURSE SHADERS "${CMAKE_SOURCE_DIR}/*.fxh" "${CMAKE_SOURCE_DIR}/*.fx")
 

@@ -72,7 +72,7 @@ namespace rendercore
 		{
 			static_assert( std::is_same_v<typename LambdaRenderGraphPass<Lambda>::CommandListType, CommandList>, "compute command list can't set raster output" );
 
-			AddPassInternal( &renderGraphResource, renderGraphResource.GetMetaData(), &rasterOutput, RenderGraphPassType::Graphics, std::forward<Lambda>(passBody));
+			AddPassInternal( &renderGraphResource, renderGraphResource.GetMetaData(), &rasterOutput, RenderGraphPassType::Graphics, std::forward<Lambda>( passBody ) );
 		}
 
 		template <typename Lambda>
@@ -102,6 +102,9 @@ namespace rendercore
 
 		RenderGraphTexture* RegisterExternalResource( agl::Texture* texture );
 		RenderGraphBuffer* RegisterExternalResource( agl::Buffer* buffer );
+
+		agl::Texture* ConvertToExternalResource( RenderGraphTexture* rgTexture );
+		agl::Buffer* ConvertToExternalResource( RenderGraphBuffer* rgBuffer );
 
 		RenderGraphTexture* CreateTexture( const agl::TextureTrait& trait, const char* name );
 		RenderGraphBuffer* CreateBuffer( const agl::BufferTrait& trait, const char* name );

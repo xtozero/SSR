@@ -11,10 +11,10 @@ using ::agl::ConvertDxgiFormatForDSV;
 using ::agl::ConvertDxgiFormatForSRV;
 using ::agl::ConvertDxgiFormatToFormat;
 using ::agl::ConvertFormatToDxgiFormat;
-using ::agl::ConvertHeapTypeToAccessFlag;
+using ::agl::ConvertToResourceAccess;
 using ::agl::ConvertResourceFlagsToBindType;
 using ::agl::D3D12HeapProperties;
-using ::agl::ResourceAccessFlag;
+using ::agl::ResourceAccess;
 using ::agl::ResourceBindType;
 using ::agl::ResourceClearValue;
 using ::agl::ResourceFormat;
@@ -88,7 +88,7 @@ namespace
 	{
 		ResourceFormat format = ConvertDxgiFormatToFormat( desc.Format );
 		ResourceBindType bindType = ConvertResourceFlagsToBindType( desc.Flags );
-		ResourceAccessFlag access = ConvertHeapTypeToAccessFlag( heapProperties.Type );
+		ResourceAccess access = ConvertToResourceAccess( heapProperties.Type );
 
 		return TextureTrait{
 			.m_width = static_cast<uint32>( desc.Width ),
@@ -418,11 +418,11 @@ namespace
 	{
 		uint64 alignment = ( trait.m_sampleCount > 1 ) ? D3D12_DEFAULT_MSAA_RESOURCE_PLACEMENT_ALIGNMENT : D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
 
-		bool bDownload = HasAnyFlags( trait.m_access, ResourceAccessFlag::CpuRead );
+		bool bDownload = HasAnyFlags( trait.m_access, ResourceAccess::CpuRead );
 
 		D3D12HeapProperties properties = {
 			.m_alignment = alignment,
-			.m_heapType = ConvertAccessFlagToHeapType( trait.m_access ),
+			.m_heapType = ConvertToHeapType( trait.m_access ),
 			.m_heapFlags = bDownload ? D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS : ConvertToTextureHeapFlags( trait.m_bindType )
 		};
 
@@ -440,7 +440,7 @@ namespace
 
 		D3D12_CLEAR_VALUE ret;
 		ResourceFormat clearFormat = ( clearValue.m_format == ResourceFormat::Unknown ) ? trait.m_format : clearValue.m_format;
-		ret.Format = ConvertFormatToDxgiFormat( clearFormat );
+		ret.Format = IsTypeless( clearFormat ) ? DXGI_FORMAT_UNKNOWN : ConvertFormatToDxgiFormat( clearFormat );
 
 		if ( HasAnyFlags( trait.m_bindType, ResourceBindType::RenderTarget ) )
 		{
@@ -489,7 +489,7 @@ namespace agl
 
 	LockedResource D3D12Texture::Lock( uint32 subResource )
 	{
-		assert( HasAnyFlags( GetTrait().m_access, ResourceAccessFlag::CpuRead ) );
+		assert( HasAnyFlags( GetTrait().m_access, ResourceAccess::CpuRead ) );
 
 		ID3D12Resource* resource = Resource();
 		if ( resource == nullptr )
@@ -617,13 +617,12 @@ namespace agl
 
 		D3D12_CLEAR_VALUE clearValue = ConvertToClearValue( m_trait );
 
-		bool bDownload = HasAnyFlags( m_trait.m_access, ResourceAccessFlag::CpuRead );
+		bool bDownload = HasAnyFlags( m_trait.m_access, ResourceAccess::CpuRead );
 		m_resourceInfo = D3D12Allocator().AllocateResource(
 			properties,
 			bDownload ? GetDescForDownload() : m_desc,
 			ConvertToResourceStates( GetResourceState() ),
-			clearValue.Format == DXGI_FORMAT_UNKNOWN ? nullptr : &clearValue
-		);
+			clearValue.Format == DXGI_FORMAT_UNKNOWN ? nullptr : &clearValue );
 
 		SetDebugObjectName();
 
@@ -638,15 +637,15 @@ namespace agl
 
 	void D3D12Texture::AdjustInitalResourceStates()
 	{
-		if ( HasAllFlags( m_trait.m_access, ResourceAccessFlag::Download ) )
+		if ( HasAllFlags( m_trait.m_access, ResourceAccess::Download ) )
 		{
 			SetResourceState( ResourceState::CopyDest );
 		}
-		else if ( HasAllFlags( m_trait.m_access, ResourceAccessFlag::Upload ) )
+		else if ( HasAllFlags( m_trait.m_access, ResourceAccess::Upload ) )
 		{
 			SetResourceState( ResourceState::GenericRead );
 		}
-		else if ( ( m_dataStorage != nullptr ) && ( HasAllFlags( m_trait.m_access, ResourceAccessFlag::CpuWrite ) == false ) )
+		else if ( ( m_dataStorage != nullptr ) && ( HasAllFlags( m_trait.m_access, ResourceAccess::CpuWrite ) == false ) )
 		{
 			SetResourceState( ResourceState::Common );
 		}

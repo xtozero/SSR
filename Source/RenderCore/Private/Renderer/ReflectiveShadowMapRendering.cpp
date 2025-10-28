@@ -147,19 +147,19 @@ namespace rendercore
 					resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
 					ResourceBinder passResourceBinder;
-					passResourceBinder.Add( "ViewSpaceDistance", passResource.m_viewSpaceDistance->SRV() );
-					passResourceBinder.Add( "WorldNormal", passResource.m_worldNormal->SRV() );
-					passResourceBinder.Add( "SamplingPattern", passResource.m_samplingPattern->SRV() );
-					passResourceBinder.Add( "RSMsConstantParameters", m_shaderArguments->Resource() );
-					passResourceBinder.Add( "BlackBorderSampler", m_blackBorderSampler.Resource() );
+					passResourceBinder.Add( StaticName( "ViewSpaceDistance" ), passResource.m_viewSpaceDistance->SRV() );
+					passResourceBinder.Add( StaticName( "WorldNormal" ), passResource.m_worldNormal->SRV() );
+					passResourceBinder.Add( StaticName( "SamplingPattern" ), passResource.m_samplingPattern->SRV() );
+					passResourceBinder.Add( StaticName( "RSMsConstantParameters" ), m_shaderArguments->Resource() );
+					passResourceBinder.Add( StaticName( "BlackBorderSampler" ), m_blackBorderSampler.Resource() );
 
 					ShadowInfo& shadowInfo = param.m_shadowInfos[i];
 					const ShadowMapRenderTarget::ShadowMapList& shadowMaps = shadowInfo.ShadowMap().m_shadowMaps;
 
-					passResourceBinder.Add( "ShadowDepthPassParameters", shadowInfo.GetShadowShaderArguments().Resource() );
-					passResourceBinder.Add( "RSMsWorldPosition", shadowMaps[1]->SRV() );
-					passResourceBinder.Add( "RSMsNormal", shadowMaps[2]->SRV() );
-					passResourceBinder.Add( "RSMsFlux", shadowMaps[3]->SRV() );
+					passResourceBinder.Add( StaticName( "ShadowDepthPassParameters" ), shadowInfo.GetShadowShaderArguments().Resource() );
+					passResourceBinder.Add( StaticName( "RSMsWorldPosition" ), shadowMaps[1]->SRV() );
+					passResourceBinder.Add( StaticName( "RSMsNormal" ), shadowMaps[2]->SRV() );
+					passResourceBinder.Add( StaticName( "RSMsFlux" ), shadowMaps[3]->SRV() );
 					passResourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
 					AddSingleDrawPass( commandList, snapshot );
@@ -183,8 +183,8 @@ namespace rendercore
 			.m_sampleCount = 1,
 			.m_sampleQuality = 0,
 			.m_mipLevels = 1,
-			.m_format = agl::ResourceFormat::R8G8B8A8_UNORM_SRGB,
-			.m_access = agl::ResourceAccessFlag::Default,
+			.m_format = agl::ResourceFormat::R8G8B8A8_UNORM,
+			.m_access = agl::ResourceAccess::Default,
 			.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
 			.m_miscFlag = agl::ResourceMisc::None,
 			.m_clearValue = agl::ResourceClearValue{
@@ -211,7 +211,7 @@ namespace rendercore
 		agl::BufferTrait trait = {
 			.m_stride = sizeof( Vector ),
 			.m_count = numSamplingPattern,
-			.m_access = agl::ResourceAccessFlag::Default,
+			.m_access = agl::ResourceAccess::Default,
 			.m_bindType = agl::ResourceBindType::ShaderResource,
 			.m_miscFlag = agl::ResourceMisc::None,
 			.m_format = agl::ResourceFormat::R32G32B32_FLOAT

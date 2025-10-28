@@ -59,7 +59,7 @@ namespace engine
 		std::pair<int32, int32> clientSize = DefaultApp::GetClientSize();
 		platform.Resize( clientSize.first, clientSize.second );
 
-		bool isEditor = DefaultApp::IsEditor() && !CommandLine::Has( Name( "Console" ) );
+		bool isEditor = DefaultApp::IsEditor() && !CommandLine::Has( StaticName( "Console" ) );
 
 		m_logicDll = LoadModule( isEditor ? "Editor.dll" : "Logic.dll" );
 		if ( m_logicDll == nullptr )

@@ -335,8 +335,9 @@ namespace
 		json::Value root( json::DataType::Object );
 		root["Type"] = "Material";
 		root["Shader"] = json::Value( json::DataType::Object );
-		root["Shader"]["VS"] = "./Assets/Shaders/VS_DefaultLit.asset";
-		root["Shader"]["PS"] = "./Assets/Shaders/PS_DefaultLit.asset";
+		root["Shader"]["VS"] = "./Assets/Shaders/Material/VS_DefaultLit.asset";
+		root["Shader"]["PS"] = "./Assets/Shaders/Material/PS_DefaultLit.asset";
+		root["Shader"]["CS"] = "./Assets/Shaders/Material/CS_DefaultLit.asset";
 		root["Surface"] = json::Value( json::DataType::Object );
 
 		json::Value& surface = root["Surface"];

@@ -133,9 +133,9 @@ size_t BuddySystem::GetBlockStateOffset( uint32 level ) const noexcept
 std::optional<size_t> BuddySystem::GetFreeBlock( uint32 level ) const noexcept
 {
 	size_t offset = GetBlockStateOffset( level );
-	size_t numBlock = ( m_size / m_minBlockSize ) >> level;
+	size_t numBlocks = ( m_size / m_minBlockSize ) >> level;
 
-	for ( size_t i = 0; i < numBlock; ++i )
+	for ( size_t i = 0; i < numBlocks; ++i )
 	{
 		if ( m_freeFlags[offset + i] )
 		{

@@ -2,13 +2,13 @@
 
 namespace agl
 {
-	D3D12_HEAP_TYPE ConvertAccessFlagToHeapType( ResourceAccessFlag accessFlag )
+	D3D12_HEAP_TYPE ConvertToHeapType( ResourceAccess resourceAccess )
 	{
-		if ( HasAnyFlags( accessFlag, ResourceAccessFlag::CpuRead ) )
+		if ( HasAnyFlags( resourceAccess, ResourceAccess::CpuRead ) )
 		{
 			return D3D12_HEAP_TYPE_READBACK;
 		}
-		else if ( HasAnyFlags( accessFlag, ResourceAccessFlag::CpuWrite ) )
+		else if ( HasAnyFlags( resourceAccess, ResourceAccess::CpuWrite ) )
 		{
 			return D3D12_HEAP_TYPE_UPLOAD;
 		}
@@ -18,19 +18,19 @@ namespace agl
 		}
 	}
 
-	ResourceAccessFlag ConvertHeapTypeToAccessFlag( D3D12_HEAP_TYPE heapType )
+	ResourceAccess ConvertToResourceAccess( D3D12_HEAP_TYPE heapType )
 	{
 		switch ( heapType )
 		{
 		case D3D12_HEAP_TYPE_DEFAULT:
-			return ResourceAccessFlag::Default;
+			return ResourceAccess::Default;
 		case D3D12_HEAP_TYPE_UPLOAD:
-			return ResourceAccessFlag::Upload;
+			return ResourceAccess::Upload;
 		case D3D12_HEAP_TYPE_READBACK:
-			return ResourceAccessFlag::Download;
+			return ResourceAccess::Download;
 		default:
 			assert( false );
-			return ResourceAccessFlag::None;
+			return ResourceAccess::None;
 		}
 	}
 
@@ -709,5 +709,23 @@ namespace agl
 		}
 
 		return barrier;
+	}
+
+	D3D12_INDIRECT_ARGUMENT_TYPE ConvertToIndirectArgumentType( IndirectCommandType commandType )
+	{
+		switch ( commandType )
+		{
+		case IndirectCommandType::Draw:
+			return D3D12_INDIRECT_ARGUMENT_TYPE_DRAW;
+		case IndirectCommandType::DrawIndexed:
+			return D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
+		case IndirectCommandType::Dispatch:
+			return D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH;
+		case IndirectCommandType::DispatchMesh:
+			return D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH_MESH;
+		}
+
+		assert( false && "ConvertToIndirectArgumentType - Invalid IndirectCommandType" );
+		return D3D12_INDIRECT_ARGUMENT_TYPE_DRAW;
 	}
 }

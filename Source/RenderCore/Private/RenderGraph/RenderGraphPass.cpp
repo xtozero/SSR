@@ -27,6 +27,10 @@ namespace rendercore
 		{
 			return isReadOnly ? agl::ResourceState::DepthRead : agl::ResourceState::DepthWrite;
 		}
+		else if ( HasAnyFlags( type, RenderGraphResourceFlag::IndirectArgument ) )
+		{
+			return agl::ResourceState::IndirectArgument;
+		}
 		else if ( HasAnyFlags( type, RenderGraphResourceFlag::CopyDest ) )
 		{
 			return agl::ResourceState::CopyDest;
@@ -67,6 +71,12 @@ namespace rendercore
 
 			for ( const PassResource& resource : resourceSet )
 			{
+				if (resource.m_ptr->m_isForUpload)
+				{
+					// Do not transition the resource state from GenericRead if it is in the UploadHeap.
+					continue;
+				}
+
 				agl::ResourceState resourceState = DetermineResourceState( resource.m_flag, isReadOnly );
 
 				if ( HasAnyFlags( resource.m_flag, RenderGraphResourceFlag::Texture ) )
@@ -144,12 +154,13 @@ namespace rendercore
 			{
 				bool isSRV = HasAnyFlags( cur->m_flag, RenderGraphResourceFlag::SRV );
 				bool isUAV = HasAnyFlags( cur->m_flag, RenderGraphResourceFlag::UAV );
+				bool isIndirectArg = HasAnyFlags( cur->m_flag, RenderGraphResourceFlag::IndirectArgument );
 				bool isCopyDest = HasAnyFlags( cur->m_flag, RenderGraphResourceFlag::CopyDest );
-				bool isCopySorce = HasAnyFlags( cur->m_flag, RenderGraphResourceFlag::CopySource );
+				bool isCopySource = HasAnyFlags( cur->m_flag, RenderGraphResourceFlag::CopySource );
 
 				auto resource = *reinterpret_cast<RenderGraphResource**>( static_cast<uint8*>( resourceData ) + cur->m_offset );
 
-				if ( isSRV || isUAV || isCopySorce )
+				if ( isSRV || isUAV || isIndirectArg || isCopySource )
 				{
 					m_resourceReads.emplace( resource, cur->m_flag );
 				}

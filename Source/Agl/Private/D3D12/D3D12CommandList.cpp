@@ -204,7 +204,7 @@ namespace agl
 		}
 		else
 		{
-			if ( HasAnyFlags( d3d12Dest->GetTrait().m_access, ResourceAccessFlag::CpuRead ) )
+			if ( HasAnyFlags( d3d12Dest->GetTrait().m_access, ResourceAccess::CpuRead ) )
 			{
 				D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout = {};
 				uint32 numRows = 0;
@@ -231,6 +231,9 @@ namespace agl
 			{
 				CommandList().CopyResource( static_cast<ID3D12Resource*>( d3d12Dest->Resource() ), static_cast<ID3D12Resource*>( d3d12Src->Resource() ) );
 			}
+
+			D3D12FrameResources().RegisterResource( dest );
+			D3D12FrameResources().RegisterResource( src );
 
 			OnCommandRecorded();
 		}
@@ -262,6 +265,9 @@ namespace agl
 			{
 				CommandList().CopyBufferRegion( d3d12Dest->Resource(), 0, d3d12Src->Resource(), 0, numByte );
 			}
+
+			D3D12FrameResources().RegisterResource( dest );
+            D3D12FrameResources().RegisterResource( src );
 
 			OnCommandRecorded();
 		}
@@ -337,7 +343,7 @@ namespace agl
 			BufferTrait trait = {
 				.m_stride = static_cast<uint32>( numByte ),
 				.m_count = 1,
-				.m_access = ResourceAccessFlag::Upload,
+				.m_access = ResourceAccess::Upload,
 				.m_bindType = ResourceBindType::None,
 				.m_miscFlag = ResourceMisc::Intermediate,
 				.m_format = ResourceFormat::Unknown
@@ -463,6 +469,33 @@ namespace agl
 		m_globalConstantBuffers.CommitShaderValue( true );
 		CommandList().Dispatch( x, y, z );
 		m_globalConstantBuffers.Reset( true );
+
+		OnCommandRecorded();
+	}
+
+	void D3D12ComputeCommandListImpl::ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset )
+	{
+		auto d3d12Argument = static_cast<D3D12Buffer*>( argument );
+		if ( d3d12Argument == nullptr )
+		{
+			return;
+		}
+
+		auto& d3d12ResourceManager = *static_cast<D3D12ResourceManager*>( GetInterface<IResourceManager>() );
+		ID3D12CommandSignature* commandSignature = d3d12ResourceManager.FindOrCreate( type );
+		if ( commandSignature == nullptr )
+		{
+			return;
+		}
+
+		m_barrierBatcher.Commit( *this );
+		bool bCompute = ( type == IndirectCommandType::Dispatch );
+		m_globalConstantBuffers.CommitShaderValue( bCompute );
+		uint64 argumentBufferOffset = GetIndirectArgumentStride( type ) * argumentOffset;
+		CommandList().ExecuteIndirect( commandSignature, 1, d3d12Argument->Resource(), argumentBufferOffset, nullptr, 0 );
+		m_globalConstantBuffers.Reset( bCompute );
+
+		D3D12FrameResources().RegisterResource( argument );
 
 		OnCommandRecorded();
 	}
@@ -684,6 +717,11 @@ namespace agl
 		m_impl.Dispatch( x, y, z );
 	}
 
+	void D3D12ComputeCommandList::ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset )
+	{
+		m_impl.ExecuteIndirect( type, argument, argumentOffset );
+	}
+
 	void D3D12ComputeCommandList::Initialize()
 	{
 		m_impl.Initialize();
@@ -828,6 +866,11 @@ namespace agl
 	void D3D12CommandList::Dispatch( uint32 x, uint32 y, uint32 z )
 	{
 		m_impl.Dispatch( x, y, z );
+	}
+
+	void D3D12CommandList::ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset )
+	{
+		m_impl.ExecuteIndirect( type, argument, argumentOffset );
 	}
 
 	void D3D12CommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
@@ -1023,6 +1066,11 @@ namespace agl
 	void D3D12ParallelCommandList::Dispatch( uint32 x, uint32 y, uint32 z )
 	{
 		m_impl.Dispatch( x, y, z );
+	}
+
+	void D3D12ParallelCommandList::ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset )
+	{
+		m_impl.ExecuteIndirect( type, argument, argumentOffset );
 	}
 
 	void D3D12ParallelCommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )

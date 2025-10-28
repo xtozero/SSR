@@ -62,11 +62,26 @@ StackAllocator& GetTransientAllocator()
 }
 
 template <typename T>
-using RenderThreadFrameData = std::vector<T, TransientAllocator<T, ThreadType::RenderThread>>;
+using RenderFrameArray = std::vector<T, TransientAllocator<T, ThreadType::RenderThread>>;
+
+template <typename K, typename V, typename P = std::less<K>>
+using RenderFrameMap = std::map<K, V, P, TransientAllocator<std::pair<const K, V>, ThreadType::RenderThread>>;
 
 template <typename T, ThreadType LocalThreadType>
-void ResetTransientContainer( std::vector<T, TransientAllocator<T, LocalThreadType>>& container )
+class ResetTransientContainerScope
 {
-	std::destroy_at( &container );
-	std::construct_at( &container );
-}
+public:
+	explicit ResetTransientContainerScope( std::vector<T, TransientAllocator<T, LocalThreadType>>& container )
+		: m_container( &container )
+	{
+		std::destroy_at( m_container );
+	}
+
+	~ResetTransientContainerScope()
+	{
+		std::construct_at( m_container );
+	}
+
+private:
+	std::vector<T, TransientAllocator<T, LocalThreadType>>* m_container = nullptr;
+};

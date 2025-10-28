@@ -12,9 +12,9 @@ namespace agl
 			.Count = trait.m_sampleCount,
 			.Quality = trait.m_sampleQuality 
 		};
-		D3D11_USAGE usage = ConvertAccessFlagToUsage( trait.m_access );
+		D3D11_USAGE usage = ConvertToUsage( trait.m_access );
 		uint32 bindFlag = ConvertTypeToBind( trait.m_bindType );
-		uint32 cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );
+		uint32 cpuAccessFlag = ConvertToCpuFlag( trait.m_access );
 		uint32 miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
 
 		if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Intermediate ) )
@@ -39,9 +39,9 @@ namespace agl
 	D3D11_TEXTURE3D_DESC ConvertTraitTo3DDesc( const TextureTrait& trait )
 	{
 		DXGI_FORMAT format = ConvertFormatToDxgiFormat( trait.m_format );
-		D3D11_USAGE usage = ConvertAccessFlagToUsage( trait.m_access );
+		D3D11_USAGE usage = ConvertToUsage( trait.m_access );
 		uint32 bindFlag = ConvertTypeToBind( trait.m_bindType );
-		uint32 cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );
+		uint32 cpuAccessFlag = ConvertToCpuFlag( trait.m_access );
 		uint32 miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
 
 		if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Intermediate ) )
@@ -65,7 +65,7 @@ namespace agl
 	TextureTrait ConvertDescToTrait( const D3D11_TEXTURE2D_DESC& desc )
 	{
 		ResourceFormat format = ConvertDxgiFormatToFormat( desc.Format );
-		ResourceAccessFlag access = ConvertUsageToAccessFlag( desc.Usage );
+		ResourceAccess access = ConvertToResourceAccess( desc.Usage );
 		ResourceBindType bindType = ConvertBindToType( desc.BindFlags );
 		ResourceMisc miscFlag = ConvertDXMiscToMisc( desc.MiscFlags );
 

@@ -275,8 +275,8 @@ namespace rendercore
 						commandList.AddTransition( Transition( *texture, agl::ResourceState::PixelShaderResource ) );
 
 						ResourceBinder resourceBinder;
-						resourceBinder.Add( "texture0", texture->SRV() );
-						resourceBinder.Add( "sampler0", m_imguiRenderResource.m_fontAtlasSampler.Resource() );
+						resourceBinder.Add( StaticName( "texture0" ), texture->SRV() );
+						resourceBinder.Add( StaticName( "sampler0" ), m_imguiRenderResource.m_fontAtlasSampler.Resource() );
 
 						resourceBinder.Bind( snapshot.m_pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
@@ -323,7 +323,7 @@ namespace rendercore
 			.m_sampleQuality = 0,
 			.m_mipLevels = 1,
 			.m_format = agl::ResourceFormat::R8G8B8A8_UNORM,
-			.m_access = agl::ResourceAccessFlag::Default,
+			.m_access = agl::ResourceAccess::Default,
 			.m_bindType = agl::ResourceBindType::ShaderResource,
 			.m_miscFlag = agl::ResourceMisc::None
 		};
@@ -531,11 +531,8 @@ namespace rendercore
 
 	PassShader ImguiDrawPassProcessor::CollectPassShader( [[maybe_unused]] MaterialResource& material ) const
 	{
-		StaticShaderSwitches useSRGB = DrawImguiVS::GetSwitches();
-		useSRGB.On( Name( "USE_SRGB" ), 1 );
-
 		PassShader passShader = {
-			.m_vertexShader = DrawImguiVS( useSRGB ),
+			.m_vertexShader = DrawImguiVS(),
 			.m_pixelShader = DrawImguiPS()
 		};
 

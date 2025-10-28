@@ -181,16 +181,18 @@ namespace agl
 		virtual ICommandList* GetParallelCommandList() override;
 		virtual IComputeCommandList* GetComputeCommandList() override;
 
-		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const override;
+		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, agl::ShaderType type ) const override;
 		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const override;
 
 		virtual const char* GetShaderCacheFilePath() const override;
 
-		virtual bool IsSupportsPSOCache() const override;
-		virtual bool IsSupportsPSOLibraryCache() const override;
+		virtual bool SupportsPSOCache() const override;
+		virtual bool SupportsPSOLibraryCache() const override;
 		virtual const char* GetPSOCacheFilePath() const override;
 
-		virtual bool IsSupportsMeshShader() const override;
+		virtual bool SupportsMeshShader() const override;
+
+		virtual bool SupportsWaveIntrinsics() const override;
 
 		IDXGIFactory7& GetFactory() const
 		{
@@ -207,7 +209,7 @@ namespace agl
 			return *m_pd3d11DeviceContext.Get();
 		}
 
-		Direct3D11();
+		Direct3D11() = default;
 		virtual ~Direct3D11() override;
 
 	private:
@@ -217,6 +219,8 @@ namespace agl
 		bool CreateDeviceIndependentResource();
 		void ReportLiveDevice() const;
 		void EnumerateSampleCountAndQuality( int32* size, DXGI_SAMPLE_DESC* pSamples ) const;
+
+		const char* GetShaderProfile( ShaderType type ) const;
 
 		Microsoft::WRL::ComPtr<IDXGIFactory7> m_pdxgiFactory;
 
@@ -399,6 +403,24 @@ namespace agl
 		}
 	}
 
+	const char* Direct3D11::GetShaderProfile( ShaderType type ) const
+	{
+		switch ( type )
+		{
+		case ShaderType::VS:
+			return "vs_5_0";
+		case ShaderType::GS:
+			return "gs_5_0";
+		case ShaderType::PS:
+			return "ps_5_0";
+		case ShaderType::CS:
+			return "cs_5_0";
+		}
+
+		assert( false && "Invalid shader type" );
+		return "";
+	}
+
 	void Direct3D11::GetRendererMultiSampleOption( MultiSampleOption* option )
 	{
 		assert( option != nullptr );
@@ -421,7 +443,7 @@ namespace agl
 		return &m_commandList;
 	}
 
-	BinaryChunk Direct3D11::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const
+	BinaryChunk Direct3D11::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, agl::ShaderType type ) const
 	{
 		Microsoft::WRL::ComPtr<ID3DBlob> byteCode = nullptr;
 		Microsoft::WRL::ComPtr<ID3DBlob> errorMsg = nullptr;
@@ -445,7 +467,7 @@ namespace agl
 			macros.data(),
 			nullptr,
 			"main",
-			profile,
+			GetShaderProfile( type ),
 			D3DCOMPILE_ENABLE_STRICTNESS,
 			0,
 			&byteCode,
@@ -481,12 +503,12 @@ namespace agl
 		return "./Assets/Shaders/ShaderCache-d3d11.asset";
 	}
 
-	bool Direct3D11::IsSupportsPSOCache() const
+	bool Direct3D11::SupportsPSOCache() const
 	{
 		return false;
 	}
 
-	bool Direct3D11::IsSupportsPSOLibraryCache() const
+	bool Direct3D11::SupportsPSOLibraryCache() const
 	{
 		return false;
 	}
@@ -496,13 +518,14 @@ namespace agl
 		return "";
 	}
 
-	bool Direct3D11::IsSupportsMeshShader() const
+	bool Direct3D11::SupportsMeshShader() const
 	{
 		return false;
 	}
 
-	Direct3D11::Direct3D11()
+	bool Direct3D11::SupportsWaveIntrinsics() const
 	{
+		return false;
 	}
 
 	Direct3D11::~Direct3D11()

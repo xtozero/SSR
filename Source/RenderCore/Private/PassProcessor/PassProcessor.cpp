@@ -29,23 +29,23 @@ namespace rendercore
 
 		if ( DefaultRenderCore::IsTaaEnabled() )
 		{
-			vsSwitches.On( Name( "TAA" ), 1 );
-			msSwitches.On( Name( "TAA" ), 1 );
+			vsSwitches.On( StaticName( "TAA" ), 1 );
+			msSwitches.On( StaticName( "TAA" ), 1 );
 		}
 
 		if ( DefaultRenderCore::IsRSMsEnabled() )
 		{
-			psSwitches.On( Name( "EnableRSMs" ), 1 );
+			psSwitches.On( StaticName( "EnableRSMs" ), 1 );
 		}
 
 		if ( DefaultRenderCore::UseIrradianceMapSH() )
 		{
-			psSwitches.On( Name( "UseIrradianceMapSH" ), 1 );
+			psSwitches.On( StaticName( "UseIrradianceMapSH" ), 1 );
 		}
 
-		if ( agl::DefaultAgl::IsSupportsBindless() )
+		if ( agl::DefaultAgl::SupportsBindless() )
 		{
-			psSwitches.On( Name( "SupportsBindless" ), 1 );
+			psSwitches.On( StaticName( "SupportsBindless" ), 1 );
 		}
 
 		PassShader passShader = {
@@ -108,9 +108,9 @@ namespace rendercore
 				assert( subMesh.m_meshletVertices != nullptr );
 				assert( subMesh.m_meshletTriangles != nullptr );
 
-				agl::ShaderParameter meshletParameterForMS = shaderParameterMapForMS.GetParameter( Name("Meshlets") );
-				agl::ShaderParameter meshletVerticesParameterForMS = shaderParameterMapForMS.GetParameter( Name( "VertexIndices" ) );
-				agl::ShaderParameter meshletTrianglesParamterForMS = shaderParameterMapForMS.GetParameter( Name( "TriangleIndices" ) );
+				agl::ShaderParameter meshletParameterForMS = shaderParameterMapForMS.GetParameter( StaticName("Meshlets") );
+				agl::ShaderParameter meshletVerticesParameterForMS = shaderParameterMapForMS.GetParameter( StaticName( "VertexIndices" ) );
+				agl::ShaderParameter meshletTrianglesParamterForMS = shaderParameterMapForMS.GetParameter( StaticName( "TriangleIndices" ) );
 
 				shaderBindingsForMS.AddSRV( meshletParameterForMS, subMesh.m_meshlet->SRV() );
 				shaderBindingsForMS.AddSRV( meshletVerticesParameterForMS, subMesh.m_meshletVertices->SRV() );
@@ -121,7 +121,7 @@ namespace rendercore
 					const agl::ShaderParameterMap& shaderParameterForAS = shaderState.m_amplificationShader->ParameterMap();
 					agl::SingleShaderBindings shaderBindingsForAS = snapshot.m_shaderBindings.GetSingleShaderBindings( agl::ShaderType::AS );
 
-					agl::ShaderParameter meshletParameterForAS = shaderParameterForAS.GetParameter( Name( "Meshlets" ) );
+					agl::ShaderParameter meshletParameterForAS = shaderParameterForAS.GetParameter( StaticName( "Meshlets" ) );
 
 					shaderBindingsForAS.AddSRV( meshletParameterForAS, subMesh.m_meshlet->SRV() );
 				}

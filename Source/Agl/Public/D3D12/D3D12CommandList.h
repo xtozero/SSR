@@ -116,6 +116,8 @@ namespace agl
 
 		void Dispatch( uint32 x, uint32 y, uint32 z = 1 );
 
+		void ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset = 0 );
+
 		void OnCommited();
 
 		D3D12ComputeCommandListImpl() : D3D12CopyCommandListImpl( D3D12_COMMAND_LIST_TYPE_COMPUTE ) {}
@@ -185,6 +187,8 @@ namespace agl
 
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z ) override;
 
+		virtual void ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset = 0 ) override;
+
 		void Initialize();
 
 		void OnCommited();
@@ -237,6 +241,8 @@ namespace agl
 		virtual void SetShaderValue( const ShaderParameter& parameter, const void* value ) override;
 
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) override;
+
+		virtual void ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset = 0 ) override;
 
 		virtual void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation ) override;
 		virtual void DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) override;
@@ -306,6 +312,8 @@ namespace agl
 		virtual void SetShaderValue( const ShaderParameter& parameter, const void* value ) override;
 
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) override;
+
+		virtual void ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset = 0 ) override;
 
 		virtual void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation ) override;
 		virtual void DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) override;

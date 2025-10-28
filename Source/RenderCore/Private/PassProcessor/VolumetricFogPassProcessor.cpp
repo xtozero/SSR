@@ -39,7 +39,7 @@ namespace rendercore
 	PassShader VolumetricFogDrawPassProcessor::CollectPassShader( [[maybe_unused]] MaterialResource& material ) const
 	{
 		StaticShaderSwitches switches = DrawVolumetricFogPS::GetSwitches();
-		switches.On( Name( "TricubicTextureSampling" ), 1 );
+		switches.On( StaticName( "TricubicTextureSampling" ), 1 );
 
 		PassShader passShader = {
 			.m_vertexShader = FullScreenQuadVS(),

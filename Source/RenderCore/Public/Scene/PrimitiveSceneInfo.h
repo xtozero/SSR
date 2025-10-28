@@ -1,6 +1,5 @@
 #pragma once
 
-#include "DrawSnapshot.h"
 #include "HitProxy.h"
 #include "MeshDrawInfo.h"
 #include "PassProcessor.h"
@@ -19,22 +18,27 @@ namespace logic
 
 namespace rendercore
 {
+	class DrawSnapshot;
 	class LightSceneInfo;
 	class PrimitiveProxy;
+	class ShadingSnapshot;
 
 	class PrimitiveSubMeshInfo final
 	{
 	public:
 		std::optional<uint32> GetCachedDrawSnapshotInfoIndex( RenderPassType passType ) const;
+		int32 GetShadingSnapshotId() const;
 
 		void OnDrawSnapshotAdded( RenderPassType passType );
 
-		uint32& SnapshotInfoBase();
-		uint32 SnapshotInfoBase() const;
+		void SetDrawSnapshotInfoBase( uint32 snapshotInfoBase );
+		void SetShadingSnapshotId( int32 shadingSnapshotId );
 
 	private:
-		uint32 m_snapshotInfoBase = 0;
+		uint32 m_drawSnapshotInfoBase = 0;
 		uint32 m_passTypeMask = 0;
+
+		int32 m_shadingSnapshotId = -1;
 	};
 
 	struct PrimitiveSubMesh : public MeshDrawInfo
@@ -81,7 +85,8 @@ namespace rendercore
 
 		const CachedDrawSnapshotInfo& GetCachedDrawSnapshotInfo( uint32 snapshotInfoBase );
 
-		DrawSnapshot& CachedDrawSnapshot( uint32 snapshotIndex );
+		DrawSnapshot& GetCachedDrawSnapshot( uint32 snapshotIndex );
+		ShadingSnapshot& GetShadingSnapshot( int32 shadingSnapshotId );
 
 		HitProxyId GetHitProxyId() const;
 
@@ -94,6 +99,9 @@ namespace rendercore
 		void CacheDrawSnapshot();
 		void RemoveCachedDrawSnapshot();
 
+		void CacheShadingSnapshot();
+		void RemoveCachedShadingSnapshot();
+
 		Scene& m_scene;
 
 		PrimitiveProxy* m_sceneProxy = nullptr;
@@ -104,6 +112,8 @@ namespace rendercore
 		std::vector<PrimitiveSubMeshInfo> m_subMeshInfos;
 		std::vector<PrimitiveSubMesh> m_subMeshs;
 		std::vector<CachedDrawSnapshotInfo> m_cachedDrawSnapshotInfos;
+
+		std::vector<int32> m_cachedShadingSnapshotIds;
 
 		SparseArray<LightIntersectionInfo> m_lightList;
 	};

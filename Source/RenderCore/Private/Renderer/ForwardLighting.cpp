@@ -20,7 +20,7 @@ namespace rendercore
 			agl::BufferTrait trait = {
 				.m_stride = bytePerElement,
 				.m_count = numElements,
-				.m_access = agl::ResourceAccessFlag::Upload,
+				.m_access = agl::ResourceAccess::Upload,
 				.m_bindType = agl::ResourceBindType::ShaderResource,
 				.m_miscFlag = agl::ResourceMisc::None,
 				.m_format = format

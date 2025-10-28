@@ -64,7 +64,7 @@ BoxSphereBounds BoxSphereBounds::TransformBy( const Matrix& m ) const
 
 	float newRadius = std::sqrt( std::max( { maxRadius.x, maxRadius.y, maxRadius.z } ) ) * m_radius;
 
-	newRadius = std::min( newHalfSize.Length(), newRadius );;
+	newRadius = std::min( newHalfSize.Length(), newRadius );
 	return BoxSphereBounds( newOrigin, newHalfSize, newRadius );
 }
 

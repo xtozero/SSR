@@ -75,8 +75,8 @@ namespace rendercore
 
 		if ( DefaultRenderCore::IsTaaEnabled() )
 		{
-			vsSwitches.On( Name( "TAA" ), 1 );
-			msSwitches.On( Name( "TAA" ), 1 );
+			vsSwitches.On( StaticName( "TAA" ), 1 );
+			msSwitches.On( StaticName( "TAA" ), 1 );
 		}
 
 		bool bUseMeshShader = material.UseMeshShader();

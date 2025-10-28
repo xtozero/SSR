@@ -80,7 +80,7 @@ struct OrthoMatrix : public Matrix
 {
 public:
 	OrthoMatrix( const std::pair<float, float>& screenSize, float nearPlane, float farPlane ) :
-		Matrix( XMMatrix( DirectX::XMMatrixOrthographicLH( screenSize.first, screenSize.second, nearPlane, farPlane))) {}
+		Matrix( XMMatrix( DirectX::XMMatrixOrthographicLH( screenSize.first, screenSize.second, nearPlane, farPlane) ) ) {}
 
 	OrthoMatrix( float left, float right, float bottom, float top, float nearPlane, float farPlane ) :
 		Matrix( XMMatrix( DirectX::XMMatrixOrthographicOffCenterLH( left, right, bottom, top, nearPlane, farPlane ) ) ) {}

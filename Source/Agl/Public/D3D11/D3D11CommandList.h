@@ -41,6 +41,8 @@ namespace agl
 
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) override;
 
+		virtual void ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset = 0 ) override;
+
 		virtual void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation ) override;
 		virtual void DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) override;
 		virtual void DispatchMesh( uint32 x, uint32 y, uint32 z = 1 ) override;
@@ -106,6 +108,8 @@ namespace agl
 		virtual void SetShaderValue( const ShaderParameter& parameter, const void* value ) override;
 
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) override;
+
+		virtual void ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset = 0 ) override;
 
 		virtual void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation ) override;
 		virtual void DrawIndexedInstanced( uint32 indexCount, uint32 numInstance, uint32 startIndexLocation, uint32 baseVertexLocation ) override;

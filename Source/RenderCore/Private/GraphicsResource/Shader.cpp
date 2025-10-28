@@ -289,7 +289,7 @@ namespace rendercore
 	REGISTER_ASSET( MeshShader );
 	ShaderBase* MeshShader::CompileShader( const StaticShaderSwitches& switches )
 	{
-		if ( GetInterface<agl::IAgl>()->IsSupportsMeshShader() == false )
+		if ( GetInterface<agl::IAgl>()->SupportsMeshShader() == false )
 		{
 			return nullptr;
 		}
@@ -322,7 +322,7 @@ namespace rendercore
 	REGISTER_ASSET( AmplificationShader );
 	ShaderBase* AmplificationShader::CompileShader( const StaticShaderSwitches& switches )
 	{
-		if ( GetInterface<agl::IAgl>()->IsSupportsMeshShader() == false )
+		if ( GetInterface<agl::IAgl>()->SupportsMeshShader() == false )
 		{
 			return nullptr;
 		}

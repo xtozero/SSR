@@ -1,7 +1,5 @@
 #include "DefaultPassProcessor.h"
 
-#include "Config/DefaultRenderCoreConfig.h"
-#include "DefaultAglConfig.h"
 #include "MaterialResource.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "VertexCollection.h"
@@ -18,6 +16,12 @@ namespace rendercore
 {
 	std::optional<DrawSnapshot> DefaultPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{
+		if ( ( subMesh.m_material == nullptr )
+			|| subMesh.m_material->SupportsVisibilityRendering() )
+		{
+			return {};
+		}
+
 		PassRenderOption passRenderOption;
 		DepthStencilOption depthStencilOption;
 		if ( const RenderOption* option = subMesh.m_renderOption )

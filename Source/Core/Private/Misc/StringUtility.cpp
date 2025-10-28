@@ -53,6 +53,16 @@ void Trim( std::string& s )
     RTrim( s );
 }
 
+void RemoveSpace( std::string& s )
+{
+    const auto [begin, end] = std::ranges::remove_if( s,
+                            []( char c )
+                            {
+                                return std::isspace( c );
+                            } );
+    s.erase( begin, end );
+}
+
 std::string ToLower( const std::string& str )
 {
     std::string lowercase = str;

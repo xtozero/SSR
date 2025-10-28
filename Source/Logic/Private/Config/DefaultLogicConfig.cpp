@@ -23,11 +23,6 @@ namespace logic
 		GetInstance().m_defaultWorld = relative.generic_string();
 	}
 
-	const float4& DefaultLogic::GetDefaultBackgroundColor()
-	{
-		return GetInstance().m_defaultBackgroundColor;
-	}
-
 	const bool DefaultLogic::IsSaveLastWorldAsDefault()
 	{
 		return GetInstance().m_saveLastWorldAsDefault;

@@ -41,13 +41,13 @@ namespace rendercore
 		StaticShaderSwitches vsSwitches = FullScreenQuadVS::GetSwitches();
 		if ( DefaultRenderCore::IsTaaEnabled() )
 		{
-			vsSwitches.On( Name( "TAA" ), 1 );
+			vsSwitches.On( StaticName( "TAA" ), 1 );
 		}
 
 		StaticShaderSwitches psSwitches = DrawCascadeShadowPS::GetSwitches();
 		if ( DefaultRenderCore::IsESMsEnabled() )
 		{
-			psSwitches.On( Name( "EnableESMs" ), 1 );
+			psSwitches.On( StaticName( "EnableESMs" ), 1 );
 		}
 
 		PassShader passShader = {
@@ -91,7 +91,7 @@ namespace rendercore
 		StaticShaderSwitches vsSwitches = FullScreenQuadVS::GetSwitches();
 		if ( DefaultRenderCore::IsTaaEnabled() )
 		{
-			vsSwitches.On( Name( "TAA" ), 1 );
+			vsSwitches.On( StaticName( "TAA" ), 1 );
 		}
 
 		StaticShaderSwitches psSwitches = DrawPointShadowPS::GetSwitches();

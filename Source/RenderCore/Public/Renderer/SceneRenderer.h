@@ -17,6 +17,7 @@
 #include "SSGIRendering.h"
 #include "TemporalAntiAliasingRendering.h"
 #include "Texture.h"
+#include "VisibilityRendering.h"
 
 #include <array>
 #include <string>
@@ -44,8 +45,8 @@ namespace rendercore
 		Matrix m_projMatrix = Matrix::Identity;
 		Matrix m_viewProjMatrix = Matrix::Identity;
 
-		RenderThreadFrameData<VisibleDrawSnapshot>* m_snapshots = nullptr;
-		RenderThreadFrameData<bool> m_visibilityMap;
+		RenderFrameArray<VisibleDrawSnapshot>* m_drawSnapshots = nullptr;
+		RenderFrameArray<bool> m_visibilityMap;
 
 		DebugOverlayData m_debugOverlayData;
 	};
@@ -53,6 +54,7 @@ namespace rendercore
 	class IRendererRenderTargets
 	{
 	public:
+		virtual agl::Texture* GetSceneColor() = 0;
 		virtual agl::Texture* GetDepthStencil() = 0;
 		virtual agl::Texture* GetPrevViewSpaceDistance() = 0;
 		virtual agl::Texture* GetViewSpaceDistance() = 0;
@@ -60,6 +62,7 @@ namespace rendercore
 		virtual agl::Texture* GetTAAResolve() = 0;
 		virtual agl::Texture* GetWorldNormal() = 0;
 		virtual agl::Texture* GetVelocity() = 0;
+		virtual agl::Texture* GetVisibility() = 0;
 
 		virtual ~IRendererRenderTargets() = default;
 	};
@@ -76,14 +79,17 @@ namespace rendercore
 	class ResourceBinder final
 	{
 	public:
-		void Bind( const ShaderStates& shaders, agl::ShaderBindings& bindings ) const;
+		void Bind( const ShaderStates& shaders, agl::ShaderBindings& outBindings ) const;
+		void Bind( const ComputeShader* shader, agl::ShaderBindings& outBindings ) const;
 
-		void Add( const std::string& parameterName, agl::GraphicsApiResource* resource );
+		void Add( const Name& parameterName, agl::GraphicsApiResource* resource );
 		void Add( const ShaderArguments* collection );
 
 		void Clear();
 
 	private:
+		void Bind( const ShaderBase* (&shaders)[agl::MAX_SHADER_TYPE<uint32>], agl::ShaderBindings& outBindings ) const;
+
 		std::vector<Name> m_parameterNames;
 		std::vector<agl::GraphicsApiResource*> m_resources;
 
@@ -142,14 +148,16 @@ namespace rendercore
 
 	protected:
 		void InitDynamicShadows( RenderViewGroup& renderViewGroup );
-		void ClassifyViewDependentShadowCasterAndReceiver( IScene& scene, const RenderThreadFrameData<ShadowInfo*>& shadows );
-		void ClassifyViewIndependentShadowCasterAndReceiver( const RenderThreadFrameData<ShadowInfo*>& shadows );
+		void ClassifyViewDependentShadowCasterAndReceiver( IScene& scene, const RenderFrameArray<ShadowInfo*>& shadows );
+		void ClassifyViewIndependentShadowCasterAndReceiver( const RenderFrameArray<ShadowInfo*>& shadows );
 		void SetupShadow();
 		void AllocateShadowMaps();
-		void AllocateCascadeShadowMaps( const RenderThreadFrameData<ShadowInfo*>& shadows );
-		void AllocatePointShadowMaps( const RenderThreadFrameData<ShadowInfo*>& shadows );
+		void AllocateCascadeShadowMaps( const RenderFrameArray<ShadowInfo*>& shadows );
+		void AllocatePointShadowMaps( const RenderFrameArray<ShadowInfo*>& shadows );
 
-		RenderThreadFrameData<VisibleDrawSnapshot>* GatherDrawsnapshots( IScene& scene, RenderPassType passType, uint32 viewIndex );
+		RenderFrameArray<VisibleDrawSnapshot>* GatherSortedDrawSnapshots( IScene& scene, RenderPassType passType, uint32 viewIndex );
+
+		VisibilityPassData BuildVisibilityPassData( IScene& scene, uint32 viewIndex );
 
 		void RenderShadowDepthPass( RenderGraph& renderGraph );
 		void RenderTexturedSky( RenderGraph& renderGraph, IScene& scene, const RasterOutput& rasterOutput );
@@ -162,6 +170,7 @@ namespace rendercore
 		virtual void RenderScreenSpaceIndirectIllumination( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex );
 		void RenderDebugOverlay( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex );
 		void DoRenderHitProxy( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup );
+		void ResolveSceneColor( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup );
 
 		void CalcVisibility( RenderViewGroup& renderViewGroup );
 
@@ -170,11 +179,13 @@ namespace rendercore
 		ResourceBinder m_resourceBinder;
 		RendererResourceCollection m_resourceCollection;
 
-		RenderThreadFrameData<ShadowInfo> m_shadowInfos;
-		using PassVisibleSnapshots = std::array<RenderThreadFrameData<VisibleDrawSnapshot>, static_cast<uint32>( RenderPassType::Count )>;
-		RenderThreadFrameData<PassVisibleSnapshots> m_passSnapshots;
-		RenderThreadFrameData<OcclusionRenderData> m_occlusionRenderData;
-		RenderThreadFrameData<DrawSnapshot> m_currentFrameDrawSnapshots;
+		RenderFrameArray<ShadowInfo> m_shadowInfos;
+		using PassVisibleDrawSnapshots = std::array<RenderFrameArray<VisibleDrawSnapshot>, static_cast<uint32>( RenderPassType::Count )>;
+		RenderFrameArray<PassVisibleDrawSnapshots> m_drawSnapshotsByView;
+		RenderFrameArray<OcclusionRenderData> m_occlusionRenderData;
+		RenderFrameArray<DrawSnapshot> m_curFrameDrawSnapshots;
+
+		RenderFrameArray<ShadingSnapshot> m_curFrameShadingSnapshots;
 
 		std::vector<RenderViewInfo, InlineAllocator<RenderViewInfo, 1>> m_viewInfo;
 		std::vector<PreviousFrameContext> m_prevFrameContext;
@@ -182,6 +193,8 @@ namespace rendercore
 		GlobalDynamicVertexBuffer m_dynamicVertexBuffer;
 
 	private:
+		void ResetFrameData();
+
 		LightPropagationVolume m_lpv;
 		RSMsRenderer m_rsms;
 		SSGIRenderer m_ssgi;

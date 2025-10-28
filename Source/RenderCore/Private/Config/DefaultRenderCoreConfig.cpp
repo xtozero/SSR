@@ -2,6 +2,21 @@
 
 namespace rendercore
 {
+	bool DefaultRenderCore::UseVSync()
+	{
+		return GetInstance().m_useVSync;
+	}
+
+	bool DefaultRenderCore::AllowTearing()
+	{
+		return GetInstance().m_allowTearing;
+	}
+
+	const float4& DefaultRenderCore::GetDefaultBackgroundColor()
+	{
+		return GetInstance().m_defaultBackgroundColor;
+	}
+
 	bool DefaultRenderCore::IsPIXEnabled()
 	{
 		return GetInstance().m_enablePIX;
@@ -74,5 +89,10 @@ namespace rendercore
 			.m_colorIntensity = renderCoreConfig.m_colorIntensitySSGI,
 			.m_denoiseKernelRadius = renderCoreConfig.m_denoiseKernelRadiusSSGI,
 		};
+	}
+
+	bool DefaultRenderCore::SupportsVisibilityRendering()
+	{
+		return GetInstance().m_enableVisibilityRendering && agl::DefaultAgl::SupportsBindless();
 	}
 }

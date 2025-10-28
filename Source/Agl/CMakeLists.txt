@@ -198,13 +198,12 @@ add_library(Agl SHARED 	${COMMON_HEADER}
 
 target_include_directories(Agl
 PUBLIC
+    ./Public
 	./Public/Common
-	./Public/Config
 	./Public/RenderResource
 PRIVATE
 	./../../ThirdParty/DXC/inc
 	./../../ThirdParty/PIX/Include
-	./Public
 	./Public/D3D11
 	./Public/D3D12
 	./Public/DXGI)

@@ -142,7 +142,7 @@ namespace agl
 			.m_sampleQuality = 0,
 			.m_mipLevels = 1,
 			.m_format = typelessFormat,
-			.m_access = ResourceAccessFlag::Default,
+			.m_access = ResourceAccess::Default,
 			.m_bindType = ResourceBindType::RenderTarget | ResourceBindType::ShaderResource,
 			.m_miscFlag = ResourceMisc::WithoutViews,
 			.m_clearValue = agl::ResourceClearValue{

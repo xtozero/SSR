@@ -16,7 +16,7 @@ namespace agl
 		virtual void OnBeginFrameRendering() = 0;
 		virtual void OnEndFrameRendering() = 0;
 
-		virtual DeviceError Present( bool vSync = false ) = 0;
+		virtual DeviceError Present( bool vSync = false, bool allowTearing = true ) = 0;
 		virtual void Clear() = 0;
 
 		virtual void* Handle() const = 0;

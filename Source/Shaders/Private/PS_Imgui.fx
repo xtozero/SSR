@@ -1,3 +1,5 @@
+#include "Common/GammaCorrection.fxh"
+
 struct PS_INPUT
 {
 	float4 pos : SV_POSITION;
@@ -10,6 +12,6 @@ Texture2D texture0 : register( t0 );
 
 float4 main( PS_INPUT input ) : SV_Target
 {
-	float4 out_col = input.col * texture0.Sample( sampler0, input.uv );
-	return out_col;
+	float4 out_col = input.col * MoveLinearSpace( texture0.Sample( sampler0, input.uv ) );
+	return MoveGammaSpace( out_col );
 }

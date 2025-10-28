@@ -1,4 +1,5 @@
 #include "Common/Constants.fxh"
+#include "Common/GammaCorrection.fxh"
 #include "IndirectLighting/LPV/LPVCommon.fxh"
 
 struct PS_INPUT
@@ -22,9 +23,10 @@ PS_OUTPUT main( PS_INPUT input )
     PS_OUTPUT output = (PS_OUTPUT)0;
     
     float4 coeff = CosineLobe( input.normal ) / PI * input.surfelArea;
-    output.coeffR = coeff * input.flux.r;
-    output.coeffG = coeff * input.flux.g;
-    output.coeffB = coeff * input.flux.b;
+    float3 flux = MoveLinearSpace( float4( input.flux, 1.f ) ).rgb;
+    output.coeffR = coeff * flux.r;
+    output.coeffG = coeff * flux.g;
+    output.coeffB = coeff * flux.b;
 
     return output;
 }

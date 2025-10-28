@@ -1,8 +1,8 @@
 {
 	"Type": "Material",
 	"Shader": {
-		"VS": "./Assets/Shaders/VS_Skybox.asset",
-		"PS": "./Assets/Shaders/PS_Skybox.asset"
+		"VS": "./Assets/Shaders/Material/VS_Skybox.asset",
+		"PS": "./Assets/Shaders/Material/PS_Skybox.asset"
 	},
 	"Surface": {
 		"SkyTexture": "./Assets/Textures/SkyboxSet/TropicalSunnyDay/TropicalSunnyDay.asset"

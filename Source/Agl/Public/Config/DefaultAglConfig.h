@@ -11,9 +11,9 @@ namespace agl
 		GENERATE_CLASS_TYPE_INFO( DefaultAgl );
 
 	public:
-		static AglType GetType();
+		AGL_DLL static AglType GetType();
 		AGL_DLL static uint32 GetBufferCount();
-		AGL_DLL static bool IsSupportsBindless();
+		AGL_DLL static bool SupportsBindless();
 		static bool IsGpuValidationEnabled();
 		
 	private:

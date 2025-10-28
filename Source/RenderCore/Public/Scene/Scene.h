@@ -6,8 +6,8 @@
 #include "PassProcessor.h"
 #include "SceneConstantBuffers.h"
 #include "SceneVelocityData.h"
+#include "ShadingSnapshot.h"
 #include "SizedTypes.h"
-#include "UploadBuffer.h"
 
 #include <set>
 
@@ -117,7 +117,11 @@ namespace rendercore
 
 		[[nodiscard]] CachedDrawSnapshotInfo AddCachedDrawSnapshot( RenderPassType passType, const DrawSnapshot& snapshot );
 		void RemoveCachedDrawSnapshot( const CachedDrawSnapshotInfo& info );
-		SparseArray<DrawSnapshot>& CachedSnapshots( RenderPassType passType ) { return m_cachedSnapshots[static_cast<uint32>( passType )]; }
+		SparseArray<DrawSnapshot>& GetCachedDrawSnapshots( RenderPassType passType ) { return m_passDrawSnapshots[static_cast<uint32>( passType )]; }
+
+		[[nodiscard]] int32 AddCachedShadingSnapshot( const ShadingSnapshot& snapshot );
+		void RemoveCachedShadingSnapshot( int32 shadingSnapshotId );
+		ShadingSnapshot& GetCachedShadingSnapshot( int32 shadingSnapshotId );
 
 		TexturedSkyProxy* TexturedSky()
 		{
@@ -194,8 +198,10 @@ namespace rendercore
 
 		SparseArray<LightSceneInfo*> m_lights;
 
-		SparseArray<DrawSnapshot> m_cachedSnapshots[static_cast<uint32>( RenderPassType::Count )];
-		CachedDrawSnapshotBucket m_cachedSnapshotBuckect;
+		SparseArray<DrawSnapshot> m_passDrawSnapshots[static_cast<uint32>( RenderPassType::Count )];
+		CachedDrawSnapshotBucket m_drawSnapshotBuckect;
+
+		ShadingSnapshotBucket m_shadingSnapshotBucket;
 
 		RefHandle<ShaderArguments> m_viewShaderArguments;
 

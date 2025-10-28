@@ -115,7 +115,7 @@ namespace rendercore
 		}
 
 		ResourceBinder passResourceBinder = resourceBinder;
-		passResourceBinder.Add( "ShadowDepthPassParameters", m_shadowShaderArguments->Resource() );
+		passResourceBinder.Add( StaticName( "ShadowDepthPassParameters" ), m_shadowShaderArguments->Resource() );
 
 		// Update invalidated resources
 		for ( auto& viewDrawSnapshot : m_snapshots )
@@ -128,7 +128,8 @@ namespace rendercore
 
 		VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc( static_cast<uint32>( m_snapshots.size() * sizeof( uint32 ) ) );
 
-		SortDrawSnapshots( m_snapshots, primitiveIds );
+		SortDrawSnapshots( m_snapshots );
+		UpdatePrimitiveIDs( m_snapshots, primitiveIds );
 		ParallelCommitDrawSnapshot( commandList, m_snapshots, primitiveIds );
 	}
 
@@ -159,13 +160,13 @@ namespace rendercore
 				if ( snapshotIndex )
 				{
 					const CachedDrawSnapshotInfo& info = primitiveSceneInfo.GetCachedDrawSnapshotInfo( *snapshotIndex );
-					DrawSnapshot& snapshot = primitiveSceneInfo.CachedDrawSnapshot( *snapshotIndex );
+					DrawSnapshot& snapshot = primitiveSceneInfo.GetCachedDrawSnapshot( *snapshotIndex );
 
 					VisibleDrawSnapshot& visibleSnapshot = m_snapshots.emplace_back();
-					visibleSnapshot.m_snapshotBucketId = info.m_snapshotBucketId;
-					visibleSnapshot.m_drawSnapshot = &snapshot;
 					visibleSnapshot.m_primitiveId = proxy->PrimitiveId();
 					visibleSnapshot.m_numInstance = 1;
+					visibleSnapshot.m_snapshotBucketId = info.m_snapshotBucketId;
+					visibleSnapshot.m_drawSnapshot = &snapshot;
 				}
 			}
 		}

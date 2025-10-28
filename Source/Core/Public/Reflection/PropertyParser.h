@@ -24,7 +24,7 @@ void ParseArray( T* dest, size_t n, const std::string& s )
 	std::string temp = s;
 	std::ranges::replace( temp, '{', ' ' );
 	std::ranges::replace( temp, '}', ' ' );
-	Trim( temp );
+	RemoveSpace( temp );
 	std::vector<std::string> values = SplitString( temp, ',' );
 
 	for ( size_t i = 0; i < n && i < values.size(); ++i )

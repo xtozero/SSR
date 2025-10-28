@@ -18,7 +18,7 @@ namespace
 	using ::agl::Buffer;
 	using ::agl::BufferTrait;
 	using ::agl::D3D11Buffer;
-	using ::agl::ResourceAccessFlag;
+	using ::agl::ResourceAccess;
 	using ::agl::ResourceBindType;
 	using ::agl::ResourceMisc;
 	using ::agl::Texture;
@@ -42,7 +42,7 @@ namespace
 		BufferTrait intermediateTrait = {
 			.m_stride = numByte,
 			.m_count = 1,
-			.m_access = ResourceAccessFlag::Upload,
+			.m_access = ResourceAccess::Upload,
 			.m_bindType = ResourceBindType::None,
 			.m_miscFlag = ResourceMisc::Intermediate,
 			.m_format = destTrait.m_format
@@ -116,7 +116,7 @@ namespace
 			.m_sampleQuality = destTrait.m_sampleQuality,
 			.m_mipLevels = 1,
 			.m_format = destTrait.m_format,
-			.m_access = ResourceAccessFlag::Upload,
+			.m_access = ResourceAccess::Upload,
 			.m_bindType = ResourceBindType::None,
 			.m_miscFlag = bIsTexture3D ? ( ResourceMisc::Texture3D | ResourceMisc::Intermediate ) : ResourceMisc::Intermediate
 		};
@@ -334,6 +334,38 @@ namespace agl
 		m_globalConstantBuffers.CommitShaderValue( true );
 		D3D11Context().Dispatch( x, y, z );
 		m_globalConstantBuffers.Reset( true );
+	}
+
+	void D3D11CommandList::ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset )
+	{
+		auto d3d11Argument = static_cast<D3D11Buffer*>( argument );
+		if ( d3d11Argument == nullptr )
+		{
+			return;
+		}
+
+		bool bCompute = ( type == IndirectCommandType::Dispatch );
+		m_globalConstantBuffers.CommitShaderValue( bCompute );
+
+		auto alignedByteOffsetForArgs = static_cast<uint32>( argumentOffset );
+		if ( type == IndirectCommandType::Draw )
+		{
+			D3D11Context().DrawInstancedIndirect( d3d11Argument->Resource(), alignedByteOffsetForArgs );
+		}
+		else if ( type == IndirectCommandType::DrawIndexed )
+		{
+			D3D11Context().DrawIndexedInstancedIndirect( d3d11Argument->Resource(), alignedByteOffsetForArgs );
+		}
+		else if ( type == IndirectCommandType::Dispatch )
+		{
+			D3D11Context().DispatchIndirect( d3d11Argument->Resource(), alignedByteOffsetForArgs );
+		}
+		else
+		{
+			assert( false && "ExecuteIndirect - Unsurpported IndirectCommandType in d3d11" );
+		}
+
+		m_globalConstantBuffers.Reset( bCompute );
 	}
 
 	void D3D11CommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )
@@ -632,6 +664,38 @@ namespace agl
 		m_globalConstantBuffers.CommitShaderValue( true );
 		m_pContext->Dispatch( x, y, z );
 		m_globalConstantBuffers.Reset( true );
+	}
+
+	void D3D11ParallelCommandList::ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset )
+	{
+		auto d3d11Argument = static_cast<D3D11Buffer*>( argument );
+		if ( d3d11Argument == nullptr )
+		{
+			return;
+		}
+
+		bool bCompute = ( type == IndirectCommandType::Dispatch );
+		m_globalConstantBuffers.CommitShaderValue( bCompute );
+
+		auto alignedByteOffsetForArgs = static_cast<uint32>( argumentOffset );
+		if ( type == IndirectCommandType::Draw )
+		{
+			m_pContext->DrawInstancedIndirect( d3d11Argument->Resource(), alignedByteOffsetForArgs );
+		}
+		else if ( type == IndirectCommandType::DrawIndexed )
+		{
+			m_pContext->DrawIndexedInstancedIndirect( d3d11Argument->Resource(), alignedByteOffsetForArgs );
+		}
+		else if ( type == IndirectCommandType::Dispatch )
+		{
+			m_pContext->DispatchIndirect( d3d11Argument->Resource(), alignedByteOffsetForArgs );
+		}
+		else
+		{
+			assert( false && "ExecuteIndirect - Unsurpported IndirectCommandType in d3d11" );
+		}
+
+		m_globalConstantBuffers.Reset( bCompute );
 	}
 
 	void D3D11ParallelCommandList::DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation )

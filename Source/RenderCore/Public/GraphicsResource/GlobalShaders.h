@@ -112,4 +112,4 @@ namespace rendercore
 
 #define REGISTER_GLOBAL_SHADER( type, shaderPath ) \
 static_assert( std::is_base_of_v<GlobalShaderBase, type>, "GlobalShader must inherit GlobalShaderBase" ); \
-GlobalShaderRegister type##_register( typeid( type ), shaderPath );
+GlobalShaderRegister type##_register( typeid( type ), shaderPath )

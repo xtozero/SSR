@@ -47,7 +47,7 @@ namespace rendercore
 		
 		void CreateRenderData();
 
-		void PrepareFrustumVolume( RenderGraph& renderGraph, Scene& scene, ForwardLightingResource& lightingResource, RenderThreadFrameData<ShadowInfo>& shadowInfos );
+		void PrepareFrustumVolume( RenderGraph& renderGraph, Scene& scene, ForwardLightingResource& lightingResource, RenderFrameArray<ShadowInfo>& shadowInfos );
 
 		explicit VolumetricFogSceneInfo( VolumetricFogProxy* proxy );
 
@@ -66,7 +66,7 @@ namespace rendercore
 
 		void UpdateParameter();
 
-		void CalcInscattering( ComputeCommandList& commandList, Scene& scene, ForwardLightingResource& lightingResource, RenderThreadFrameData<ShadowInfo>& shadowInfos );
+		void CalcInscattering( ComputeCommandList& commandList, Scene& scene, ForwardLightingResource& lightingResource, RenderFrameArray<ShadowInfo>& shadowInfos );
 		void AccumulateScattering( ComputeCommandList& commandList );
 
 		VolumetricFogProxy* m_volumetricFogProxy = nullptr;

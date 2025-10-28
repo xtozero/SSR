@@ -52,8 +52,8 @@ namespace agl
 
 	bool Buffer::IsDynamic() const
 	{
-		return HasAnyFlags( m_trait.m_access, ResourceAccessFlag::CpuRead )
-			|| HasAnyFlags( m_trait.m_access, ResourceAccessFlag::CpuWrite );
+		return HasAnyFlags( m_trait.m_access, ResourceAccess::CpuRead )
+			|| HasAnyFlags( m_trait.m_access, ResourceAccess::CpuWrite );
 	}
 	
 	Buffer::Buffer( ResourceState initialState ) noexcept

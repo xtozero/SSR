@@ -8,17 +8,17 @@
 
 namespace agl
 {
-	inline D3D11_USAGE ConvertAccessFlagToUsage( ResourceAccessFlag accessFlag )
+	inline D3D11_USAGE ConvertToUsage( ResourceAccess resourceAccess )
 	{
-		if ( HasAnyFlags( accessFlag, ResourceAccessFlag::CpuRead ) )
+		if ( HasAnyFlags( resourceAccess, ResourceAccess::CpuRead ) )
 		{
 			return D3D11_USAGE_STAGING;
 		}
-		else if ( HasAnyFlags( accessFlag, ResourceAccessFlag::CpuWrite ) )
+		else if ( HasAnyFlags( resourceAccess, ResourceAccess::CpuWrite ) )
 		{
 			return D3D11_USAGE_DYNAMIC;
 		}
-		else if ( HasAnyFlags( accessFlag, ResourceAccessFlag::GpuWrite ) )
+		else if ( HasAnyFlags( resourceAccess, ResourceAccess::GpuWrite ) )
 		{
 			return D3D11_USAGE_DEFAULT;
 		}
@@ -28,21 +28,21 @@ namespace agl
 		}
 	}
 
-	inline ResourceAccessFlag ConvertUsageToAccessFlag( D3D11_USAGE accessFlag )
+	inline ResourceAccess ConvertToResourceAccess( D3D11_USAGE usage )
 	{
-		switch ( accessFlag )
+		switch ( usage )
 		{
 		case D3D11_USAGE_DEFAULT:
-			return ResourceAccessFlag::Default;
+			return ResourceAccess::Default;
 		case D3D11_USAGE_DYNAMIC:
-			return ResourceAccessFlag::Upload;
+			return ResourceAccess::Upload;
 		case D3D11_USAGE_IMMUTABLE:
-			return ResourceAccessFlag::GpuRead;
+			return ResourceAccess::GpuRead;
 		case D3D11_USAGE_STAGING:
-			return ResourceAccessFlag::Download;
+			return ResourceAccess::Download;
 		default:
 			assert( false );
-			return ResourceAccessFlag::None;
+			return ResourceAccess::None;
 		}
 	}
 
@@ -246,15 +246,15 @@ namespace agl
 		return ret;
 	}
 
-	inline uint32 ConvertAccessFlagToCpuFlag( ResourceAccessFlag accessFlag )
+	inline uint32 ConvertToCpuFlag( ResourceAccess resourceAccess )
 	{
 		uint32 ret = 0;
 
-		if ( HasAnyFlags( accessFlag, ResourceAccessFlag::CpuRead ) )
+		if ( HasAnyFlags( resourceAccess, ResourceAccess::CpuRead ) )
 		{
 			ret = D3D11_CPU_ACCESS_READ;
 		}
-		else if ( HasAnyFlags( accessFlag, ResourceAccessFlag::CpuWrite ) )
+		else if ( HasAnyFlags( resourceAccess, ResourceAccess::CpuWrite ) )
 		{
 			ret = D3D11_CPU_ACCESS_WRITE;
 		}

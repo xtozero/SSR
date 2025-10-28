@@ -35,6 +35,12 @@ namespace rendercore
 		std::swap( m_linearDepth[0], m_linearDepth[1] );
 	}
 
+	agl::Texture* ForwardRendererRenderTargets::GetSceneColor()
+	{
+		AllocSceneColor();
+		return m_sceneColor.Get();
+	}
+
 	agl::Texture* ForwardRendererRenderTargets::GetDepthStencil()
 	{
 		AllocDepthStencil();
@@ -77,6 +83,42 @@ namespace rendercore
 		return m_velocity.Get();
 	}
 
+	agl::Texture* ForwardRendererRenderTargets::GetVisibility()
+	{
+		AllocVisibility();
+		return m_visibility.Get();
+	}
+
+	void ForwardRendererRenderTargets::AllocSceneColor()
+	{
+		if ( m_sceneColor.Get() == nullptr )
+		{
+			const float4& clearColor = DefaultRenderCore::GetDefaultBackgroundColor();
+			agl::TextureTrait trait = {
+				.m_width = m_bufferSize.first,
+				.m_height = m_bufferSize.second,
+				.m_depth = 1,
+				.m_sampleCount = 1,
+				.m_sampleQuality = 0,
+				.m_mipLevels = 1,
+				.m_format = agl::ResourceFormat::R8G8B8A8_UNORM,
+				.m_access = agl::ResourceAccess::Default,
+				.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RenderTarget | agl::ResourceBindType::RandomAccess,
+				.m_miscFlag = agl::ResourceMisc::None,
+				.m_clearValue = agl::ResourceClearValue{
+					.m_color = { clearColor[0], clearColor[1], clearColor[2], clearColor[3] }
+				}
+			};
+
+			m_sceneColor = agl::Texture::Create( trait, "Scene.SceneColor" );
+			EnqueueRenderTask(
+				[sceneColor = m_sceneColor]()
+				{
+					sceneColor->Init();
+				} );
+		}
+	}
+
 	void ForwardRendererRenderTargets::AllocDepthStencil()
 	{
 		if ( m_depthStencil == nullptr )
@@ -89,7 +131,7 @@ namespace rendercore
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
 				.m_format = agl::ResourceFormat::D24_UNORM_S8_UINT,
-				.m_access = agl::ResourceAccessFlag::Default,
+				.m_access = agl::ResourceAccess::Default,
 				.m_bindType = agl::ResourceBindType::DepthStencil,
 				.m_miscFlag = agl::ResourceMisc::None,
 				.m_clearValue = agl::ResourceClearValue{
@@ -121,7 +163,7 @@ namespace rendercore
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
 				.m_format = agl::ResourceFormat::R32_FLOAT,
-				.m_access = agl::ResourceAccessFlag::Default,
+				.m_access = agl::ResourceAccess::Default,
 				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
 				.m_miscFlag = agl::ResourceMisc::None,
 				.m_clearValue = agl::ResourceClearValue{
@@ -145,8 +187,8 @@ namespace rendercore
 				.m_sampleCount = 1,
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
-				.m_format = agl::ResourceFormat::R8G8B8A8_UNORM_SRGB,
-				.m_access = agl::ResourceAccessFlag::Default,
+				.m_format = agl::ResourceFormat::R8G8B8A8_UNORM,
+				.m_access = agl::ResourceAccess::Default,
 				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
 				.m_miscFlag = agl::ResourceMisc::None
 			};
@@ -163,8 +205,8 @@ namespace rendercore
 				.m_sampleCount = 1,
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
-				.m_format = agl::ResourceFormat::R8G8B8A8_UNORM_SRGB,
-				.m_access = agl::ResourceAccessFlag::Default,
+				.m_format = agl::ResourceFormat::R8G8B8A8_UNORM,
+				.m_access = agl::ResourceAccess::Default,
 				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
 				.m_miscFlag = agl::ResourceMisc::None,
 				.m_clearValue = agl::ResourceClearValue{
@@ -188,7 +230,7 @@ namespace rendercore
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
 				.m_format = agl::ResourceFormat::R10G10B10A2_UNORM,
-				.m_access = agl::ResourceAccessFlag::Default,
+				.m_access = agl::ResourceAccess::Default,
 				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
 				.m_miscFlag = agl::ResourceMisc::None,
 				.m_clearValue = agl::ResourceClearValue{
@@ -212,7 +254,7 @@ namespace rendercore
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
 				.m_format = agl::ResourceFormat::R16G16_FLOAT,
-				.m_access = agl::ResourceAccessFlag::Default,
+				.m_access = agl::ResourceAccess::Default,
 				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
 				.m_miscFlag = agl::ResourceMisc::None,
 				.m_clearValue = agl::ResourceClearValue{
@@ -224,8 +266,33 @@ namespace rendercore
 		}
 	}
 
+	void ForwardRendererRenderTargets::AllocVisibility()
+	{
+		if ( m_visibility == nullptr )
+		{
+			agl::TextureTrait trait = {
+				.m_width = m_bufferSize.first,
+				.m_height = m_bufferSize.second,
+				.m_depth = 1,
+				.m_sampleCount = 1,
+				.m_sampleQuality = 0,
+				.m_mipLevels = 1,
+				.m_format = agl::ResourceFormat::R32_UINT,
+				.m_access = agl::ResourceAccess::Default,
+				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
+				.m_miscFlag = agl::ResourceMisc::None,
+				.m_clearValue = agl::ResourceClearValue{
+					.m_color = { 0.f, 0.f, 0.f, 0.f }
+				}
+			};
+
+			m_visibility = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "Scene.Visibility" );
+		}
+	}
+
 	void ForwardRendererRenderTargets::ReleaseAll()
 	{
+		m_sceneColor = nullptr;
 		m_depthStencil = nullptr;
 		m_linearDepth[0] = nullptr;
 		m_linearDepth[1] = nullptr;
@@ -244,32 +311,32 @@ namespace rendercore
 		InitDynamicShadows( renderViewGroup );
 
 		m_renderTargets.Tick();
-		
+
 		auto rendertargetSize = renderViewGroup.GetViewport().SizeOnRenderThread();
 		m_renderTargets.UpdateBufferSize( rendertargetSize.first, rendertargetSize.second );
 
 		IScene& scene = renderViewGroup.Scene();
 
-		m_resourceBinder.Add( "primitiveInfo", scene.GpuPrimitiveInfo().SRV() );
-		m_resourceBinder.Add( "ViewSpaceDistance", m_renderTargets.GetViewSpaceDistance()->SRV() );
-		m_resourceBinder.Add( "WorldNormal", m_renderTargets.GetWorldNormal()->SRV() );
+		m_resourceBinder.Add( StaticName( "primitiveInfo" ), scene.GpuPrimitiveInfo().SRV() );
+		m_resourceBinder.Add( StaticName( "ViewSpaceDistance" ), m_renderTargets.GetViewSpaceDistance()->SRV() );
+		m_resourceBinder.Add( StaticName( "WorldNormal" ), m_renderTargets.GetWorldNormal()->SRV() );
 
 		SamplerState linearSampler = StaticSamplerState<>::Get();
-		m_resourceBinder.Add( "ViewSpaceDistanceSampler", linearSampler.Resource() );
-		m_resourceBinder.Add( "WorldNormalSampler", linearSampler.Resource() );
+		m_resourceBinder.Add( StaticName( "ViewSpaceDistanceSampler" ), linearSampler.Resource() );
+		m_resourceBinder.Add( StaticName( "WorldNormalSampler" ), linearSampler.Resource() );
 
 		auto renderScene = scene.GetRenderScene();
 		if ( TexturedSkyProxy* proxy = renderScene->TexturedSky() )
 		{
-			m_resourceBinder.Add( "IrradianceMap", proxy->IrradianceMap()->SRV() );
-			m_resourceBinder.Add( "PrefilterMap", proxy->PrefilteredColor()->SRV() );
-			m_resourceBinder.Add( "BrdfLUT", BRDFLookUpTexture->SRV() );
+			m_resourceBinder.Add( StaticName( "IrradianceMap" ), proxy->IrradianceMap()->SRV() );
+			m_resourceBinder.Add( StaticName( "PrefilterMap" ), proxy->PrefilteredColor()->SRV() );
+			m_resourceBinder.Add( StaticName( "BrdfLUT" ), BRDFLookUpTexture->SRV() );
 		}
 		else
 		{
-			m_resourceBinder.Add( "IrradianceMap", BlackCubeTexture->SRV() );
-			m_resourceBinder.Add( "PrefilterMap", BlackCubeTexture->SRV() );
-			m_resourceBinder.Add( "BrdfLUT", BlackTexture->SRV() );
+			m_resourceBinder.Add( StaticName( "IrradianceMap" ), BlackCubeTexture->SRV() );
+			m_resourceBinder.Add( StaticName( "PrefilterMap" ), BlackCubeTexture->SRV() );
+			m_resourceBinder.Add( StaticName( "BrdfLUT" ), BlackTexture->SRV() );
 		}
 
 		UpdateLightResource( scene );
@@ -284,6 +351,8 @@ namespace rendercore
 		Viewport& viewport = renderViewGroup.GetViewport();
 		viewport.Clear();
 
+		ClearRenderTargets( renderGraph );
+
 		RenderShadowDepthPass( renderGraph );
 
 		IScene& scene = renderViewGroup.Scene();
@@ -296,8 +365,7 @@ namespace rendercore
 
 		for ( uint32 i = 0; i < static_cast<uint32>( renderViewGroup.NumRenderView() ); ++i )
 		{
-			SceneViewParameters viewParam = GetViewParameters( ( i < m_prevFrameContext.size() ) ? &m_prevFrameContext[i] : nullptr
-				, renderViewGroup, i );
+			SceneViewParameters viewParam = GetViewParameters( ( i < m_prevFrameContext.size() ) ? &m_prevFrameContext[i] : nullptr, renderViewGroup, i );
 
 			viewShaderArguments.Update( viewParam );
 
@@ -326,6 +394,8 @@ namespace rendercore
 		{
 			RenderTemporalAntiAliasing( renderGraph, renderViewGroup );
 		}
+
+		ResolveSceneColor( renderGraph, renderViewGroup );
 	}
 
 	void ForwardRenderer::RenderHitProxy( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup )
@@ -339,7 +409,7 @@ namespace rendercore
 	{
 		CPU_PROFILE( ForwardRenderer_RenderDefaultPass );
 
-		auto renderTarget = renderViewGroup.GetViewport().Texture();
+		auto renderTarget = m_renderTargets.GetSceneColor();
 		auto depthStencil = m_renderTargets.GetDepthStencil();
 
 		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
@@ -357,48 +427,51 @@ namespace rendercore
 
 		RenderTexturedSky( renderGraph, scene, rasterOutput );
 
+		GPU_PROFILE_EVENT( renderGraph, Default );
+		PIPELINE_STAT_EVENT( renderGraph, Default );
+
+		m_resourceBinder.Add( StaticName( "IndirectIllumination" ), m_resourceCollection.m_indirectIllumination->SRV() );
+
+		if ( DefaultRenderCore::SupportsVisibilityRendering() )
 		{
-			GPU_PROFILE_EVENT( renderGraph, Default );
-			PIPELINE_STAT_EVENT( renderGraph, Default );
+			RenderDefaultPassWithVisibilityBuffer( renderGraph, renderViewGroup, viewIndex );
+		}
 
-			RenderThreadFrameData<VisibleDrawSnapshot>* pSnapshots = GatherDrawsnapshots( scene, RenderPassType::Default, viewIndex );
+		if ( RenderFrameArray<VisibleDrawSnapshot>* passSnapShots = GatherSortedDrawSnapshots( scene, RenderPassType::Default, viewIndex ) )
+		{
+			GPU_PROFILE_EVENT( renderGraph, NonVisibility )
 
-			if ( pSnapshots != nullptr )
-			{
-				RenderThreadFrameData<VisibleDrawSnapshot>& snapshots = *pSnapshots;
+			RenderFrameArray<VisibleDrawSnapshot>& snapshots = *passSnapShots;
 
-				VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc( static_cast<uint32>( snapshots.size() * sizeof( uint32 ) ) );
-				SortDrawSnapshots( snapshots, primitiveIds );
+			VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc( static_cast<uint32>( snapshots.size() * sizeof( uint32 ) ) );
+			UpdatePrimitiveIDs( snapshots, primitiveIds );
 
-				m_resourceBinder.Add( "IndirectIllumination", m_resourceCollection.m_indirectIllumination->SRV() );
+			BEGIN_RG_RESOURCE_STRUCT( DefaultPassResource )
+				DECLARE_RG_TEXTURE_PIXEL_SRV( indirectIllumination )
+			END_RG_RESOURCE_STRUCT();
 
-				BEGIN_RG_RESOURCE_STRUCT( DefaultPassResource )
-					DECLARE_RG_TEXTURE_PIXEL_SRV( indirectIllumination )
-				END_RG_RESOURCE_STRUCT();
+			auto rgIndirectIllumination = renderGraph.RegisterExternalResource( m_resourceCollection.m_indirectIllumination.Get() );
 
-				auto rgIndirectIllumination = renderGraph.RegisterExternalResource( m_resourceCollection.m_indirectIllumination.Get() );
+			DefaultPassResource passResource = {
+				.m_indirectIllumination = rgIndirectIllumination
+			};
 
-				DefaultPassResource passResource = {
-					.m_indirectIllumination = rgIndirectIllumination
-				};
-
-				renderGraph.AddPass(
-					passResource,
-					rasterOutput,
-					[this, &snapshots, primitiveIds]( CommandList& commandList ) mutable
+			renderGraph.AddPass(
+				passResource,
+				rasterOutput,
+				[this, &snapshots, primitiveIds]( CommandList& commandList ) mutable
+				{
+					// Update invalidated resources
+					for ( auto& viewDrawSnapshot : snapshots )
 					{
-						// Update invalidated resources
-						for ( auto& viewDrawSnapshot : snapshots )
-						{
-							DrawSnapshot& snapshot = *viewDrawSnapshot.m_drawSnapshot;
-							GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+						DrawSnapshot& snapshot = *viewDrawSnapshot.m_drawSnapshot;
+						GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 
-							m_resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
-						}
+						m_resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+					}
 
-						ParallelCommitDrawSnapshot( commandList, snapshots, primitiveIds );
-					} );
-			}
+					ParallelCommitDrawSnapshot( commandList, snapshots, primitiveIds );
+				} );
 		}
 
 		RenderDebugOverlay( renderGraph, renderViewGroup, viewIndex );
@@ -407,6 +480,76 @@ namespace rendercore
 	IRendererRenderTargets& ForwardRenderer::GetRenderTargets()
 	{
 		return m_renderTargets;
+	}
+
+	void ForwardRenderer::RenderScreenSpaceIndirectIllumination( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex )
+	{
+		if ( DefaultRenderCore::IsSSGIEnabled() == false )
+		{
+			return;
+		}
+
+		SceneRenderer::RenderScreenSpaceIndirectIllumination( renderGraph, renderViewGroup, viewIndex );
+
+		GPU_PROFILE_EVENT( renderGraph, CompositeSSGI );
+		PIPELINE_STAT_EVENT( renderGraph, CompositeSSGI );
+
+		auto renderTarget = m_renderTargets.GetSceneColor();
+		auto depthStencil = m_renderTargets.GetDepthStencil();
+
+		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
+		auto rgDepthStencil = renderGraph.RegisterExternalResource( depthStencil );
+
+		auto [width, height] = renderViewGroup.GetViewport().Size();
+
+		RasterOutput rasterOutput;
+		rasterOutput.SetRenderTarget( 0, rgRenderTarget );
+		rasterOutput.SetDepthStencil( rgDepthStencil, true );
+		rasterOutput.SetViewport( width, height );
+		rasterOutput.SetScissorRect( width, height );
+
+		IScene& scene = renderViewGroup.Scene();
+		RenderFrameArray<VisibleDrawSnapshot>* pSnapshots = GatherSortedDrawSnapshots( scene, RenderPassType::CompositeSSGI, viewIndex );
+
+		if ( pSnapshots != nullptr )
+		{
+			RenderFrameArray<VisibleDrawSnapshot>& snapshots = *pSnapshots;
+
+			VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc( static_cast<uint32>( snapshots.size() * sizeof( uint32 ) ) );
+			UpdatePrimitiveIDs( snapshots, primitiveIds );
+
+			m_resourceBinder.Add( StaticName( "SSGITex" ), m_resourceCollection.m_ssgi->SRV() );
+
+			SamplerState linearSampler = StaticSamplerState<>::Get();
+			m_resourceBinder.Add( StaticName( "SSGITexSampler" ), linearSampler.Resource() );
+
+			BEGIN_RG_RESOURCE_STRUCT( CompositeSSGIPassResource )
+				DECLARE_RG_TEXTURE_PIXEL_SRV( ssgi )
+			END_RG_RESOURCE_STRUCT();
+
+			auto rgSSGI = renderGraph.RegisterExternalResource( m_resourceCollection.m_ssgi.Get() );
+
+			CompositeSSGIPassResource passResource = {
+				.m_ssgi = rgSSGI
+			};
+
+			renderGraph.AddPass(
+				passResource,
+				rasterOutput,
+				[this, &snapshots, primitiveIds]( CommandList& commandList ) mutable
+				{
+					// Update invalidated resources
+					for ( auto& viewDrawSnapshot : snapshots )
+					{
+						DrawSnapshot& snapshot = *viewDrawSnapshot.m_drawSnapshot;
+						GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+
+						m_resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+					}
+
+					ParallelCommitDrawSnapshot( commandList, snapshots, primitiveIds );
+				} );
+		}
 	}
 
 	void ForwardRenderer::RenderDepthPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex )
@@ -439,14 +582,14 @@ namespace rendercore
 
 		IScene& scene = renderViewGroup.Scene();
 
-		RenderThreadFrameData<VisibleDrawSnapshot>* pSnapshots = GatherDrawsnapshots( scene, RenderPassType::DepthWrite, viewIndex );
+		RenderFrameArray<VisibleDrawSnapshot>* pSnapshots = GatherSortedDrawSnapshots( scene, RenderPassType::DepthWrite, viewIndex );
 
 		if ( pSnapshots != nullptr )
 		{
-			RenderThreadFrameData<VisibleDrawSnapshot>& snapshots = *pSnapshots;
+			RenderFrameArray<VisibleDrawSnapshot>& snapshots = *pSnapshots;
 
 			VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc( static_cast<uint32>( snapshots.size() * sizeof( uint32 ) ) );
-			SortDrawSnapshots( snapshots, primitiveIds );
+			UpdatePrimitiveIDs( snapshots, primitiveIds );
 
 			renderGraph.AddPass(
 				rasterOutput,
@@ -475,7 +618,7 @@ namespace rendercore
 
 	void ForwardRenderer::RenderOcclusionTest( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex )
 	{
-		auto renderTarget = renderViewGroup.GetViewport().Texture();
+		auto renderTarget = m_renderTargets.GetSceneColor();
 		auto depthStencil = m_renderTargets.GetDepthStencil();
 
 		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
@@ -491,7 +634,7 @@ namespace rendercore
 
 		GPU_PROFILE_EVENT( renderGraph, Occlusion );
 
-		renderGraph.AddPass( 
+		renderGraph.AddPass(
 			rasterOutput,
 			[this, viewIndex]( CommandList& commandList )
 			{
@@ -499,73 +642,126 @@ namespace rendercore
 			} );
 	}
 
-	void ForwardRenderer::RenderScreenSpaceIndirectIllumination( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex )
+	void ForwardRenderer::RenderDefaultPassWithVisibilityBuffer( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex )
 	{
-		if ( DefaultRenderCore::IsSSGIEnabled() == false )
+		GPU_PROFILE_EVENT( renderGraph, Visibility )
+
+		IScene& scene = renderViewGroup.Scene();
+		VisibilityPassData visibilityPassData = BuildVisibilityPassData( scene, viewIndex );
+		if ( visibilityPassData.m_shadingSnapshots.empty() )
 		{
 			return;
 		}
 
-		SceneRenderer::RenderScreenSpaceIndirectIllumination( renderGraph, renderViewGroup, viewIndex );
+		auto rgVisibility = renderGraph.RegisterExternalResource( m_renderTargets.GetVisibility() );
 
-		GPU_PROFILE_EVENT( renderGraph, CompositeSSGI );
-		PIPELINE_STAT_EVENT( renderGraph, CompositeSSGI );
+		VisibilityBuffer::RenderBufferParam renderBufferParam = {
+			.m_renderViewGroup = renderViewGroup,
+			.m_resourceBinder = m_resourceBinder,
+			.m_visibilityPassData = visibilityPassData,
+			.m_visibility = rgVisibility,
+			.m_depthStencil = m_renderTargets.GetDepthStencil(),
+		};
 
-		auto renderTarget = renderViewGroup.GetViewport().Texture();
-		auto depthStencil = m_renderTargets.GetDepthStencil();
+		VisibilityBuffer::RenderBuffer( renderGraph, renderBufferParam );
 
-		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
-		auto rgDepthStencil = renderGraph.RegisterExternalResource( depthStencil );
+		VisibilityBuffer::CountDrawCallIdParam countDrawCallIDParam = {
+			.m_numDrawCallIds = visibilityPassData.m_maxShadingSnapshotId,
+			.m_visibility = rgVisibility,
+		};
 
-		auto [width, height] = renderViewGroup.GetViewport().Size();
+		auto countDrawCallIdOutput = VisibilityBuffer::CountDrawCallId( renderGraph, countDrawCallIDParam );
 
-		RasterOutput rasterOutput;
-		rasterOutput.SetRenderTarget( 0, rgRenderTarget );
-		rasterOutput.SetDepthStencil( rgDepthStencil, true );
-		rasterOutput.SetViewport( width, height );
-		rasterOutput.SetScissorRect( width, height );
+		VisibilityBuffer::CalcConterPrefixSumParam calcConterPrefixSumParam = {
+			.m_numDrawCallIds = visibilityPassData.m_maxShadingSnapshotId,
+			.m_counter = countDrawCallIdOutput.m_counter,
+		};
 
-		IScene& scene = renderViewGroup.Scene();
-		RenderThreadFrameData<VisibleDrawSnapshot>* pSnapshots = GatherDrawsnapshots( scene, RenderPassType::CompositeSSGI, viewIndex );
+		RenderGraphBuffer* rgOffset = VisibilityBuffer::CalcCounterPrefixSum( renderGraph, calcConterPrefixSumParam );
 
-		if ( pSnapshots != nullptr )
+		VisibilityBuffer::BuildWorkListParam buildWorkListParam = {
+			.m_numDrawCallIds = visibilityPassData.m_maxShadingSnapshotId,
+			.m_visibility = rgVisibility,
+			.m_offset = rgOffset,
+			.m_indirectArgs = countDrawCallIdOutput.m_indirectArgs,
+		};
+
+		RenderGraphBuffer* rgWorkList = VisibilityBuffer::BuildWorkList( renderGraph, buildWorkListParam );
+
+		RefHandle<agl::Buffer> primitiveIds = VisibilityBuffer::UploadPrimitiveIds( visibilityPassData );
+
+		BEGIN_RG_RESOURCE_STRUCT( DefaultPassResource )
+			DECLARE_RG_BUFFER_INDRIECT_ARG( indirectArgs )
+			DECLARE_RG_TEXTURE_NONPIXEL_SRV( indirectIllumination )
+			DECLARE_RG_TEXTURE_NONPIXEL_SRV( visibility )
+			DECLARE_RG_BUFFER_NONPIXEL_SRV( counter )
+			DECLARE_RG_BUFFER_NONPIXEL_SRV( offset )
+			DECLARE_RG_BUFFER_NONPIXEL_SRV( workList )
+			DECLARE_RG_BUFFER_NONPIXEL_SRV( primitiveIds )
+			DECLARE_RG_TEXTURE_UAV( sceneColor )
+		END_RG_RESOURCE_STRUCT();
+
+		auto rgIndirectIllumination = renderGraph.RegisterExternalResource( m_resourceCollection.m_indirectIllumination.Get() );
+		auto rgPrimitiveIds = renderGraph.RegisterExternalResource( primitiveIds.Get() );
+		auto rgSceneColor = renderGraph.RegisterExternalResource( m_renderTargets.GetSceneColor() );
+
+		DefaultPassResource passResource = {
+			.m_indirectArgs = countDrawCallIdOutput.m_indirectArgs,
+			.m_indirectIllumination = rgIndirectIllumination,
+			.m_visibility = rgVisibility,
+			.m_counter = countDrawCallIdOutput.m_counter,
+			.m_offset = rgOffset,
+			.m_workList = rgWorkList,
+			.m_primitiveIds = rgPrimitiveIds,
+			.m_sceneColor = rgSceneColor,
+		};
+
 		{
-			RenderThreadFrameData<VisibleDrawSnapshot>& snapshots = *pSnapshots;
-
-			VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc( static_cast<uint32>( snapshots.size() * sizeof( uint32 ) ) );
-			SortDrawSnapshots( snapshots, primitiveIds );
-
-			m_resourceBinder.Add( "SSGITex", m_resourceCollection.m_ssgi->SRV() );
-
-			SamplerState linearSampler = StaticSamplerState<>::Get();
-			m_resourceBinder.Add( "SSGITexSampler", linearSampler.Resource() );
-
-			BEGIN_RG_RESOURCE_STRUCT( CompositeSSGIPassResource )
-				DECLARE_RG_TEXTURE_PIXEL_SRV( ssgi )
-			END_RG_RESOURCE_STRUCT();
-
-			auto rgSSGI = renderGraph.RegisterExternalResource( m_resourceCollection.m_ssgi.Get() );
-
-			CompositeSSGIPassResource passResource = {
-				.m_ssgi = rgSSGI
-			};
+			GPU_PROFILE_EVENT( renderGraph, Shading );
 
 			renderGraph.AddPass(
-				passResource,
-				rasterOutput,
-				[this, &snapshots, primitiveIds]( CommandList& commandList ) mutable
+			passResource,
+			[this, passResource, visibilityPassData]( ComputeCommandList& commandList )
+			{
+				const RenderFrameArray<VisibleShadingSnapshot>& shadingSnapshots = visibilityPassData.m_shadingSnapshots;
+				for ( size_t i = 0; i < shadingSnapshots.size(); ++i )
 				{
-					// Update invalidated resources
-					for ( auto& viewDrawSnapshot : snapshots )
-					{
-						DrawSnapshot& snapshot = *viewDrawSnapshot.m_drawSnapshot;
-						GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+					const ShadingSnapshot& shadingSnapshot = *shadingSnapshots[i].m_shadingSnapshot;
+					commandList.BindPipelineState( shadingSnapshot.m_pso.Get() );
 
-						m_resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
-					}
+					m_resourceBinder.Add( StaticName( "Visibility" ), passResource.m_visibility->SRV() );
+					m_resourceBinder.Add( StaticName( "Counter" ), passResource.m_counter->SRV() );
+					m_resourceBinder.Add( StaticName( "Offset" ), passResource.m_offset->SRV() );
+					m_resourceBinder.Add( StaticName( "WorkList" ), passResource.m_workList->SRV() );
+					m_resourceBinder.Add( StaticName( "SceneColor" ), passResource.m_sceneColor->SRV() );
+					m_resourceBinder.Add( StaticName( "PrimitiveIds" ), passResource.m_primitiveIds->SRV() );
 
-					ParallelCommitDrawSnapshot( commandList, snapshots, primitiveIds );
-				} );
+					agl::ShaderBindings shaderBindings = shadingSnapshot.m_shaderBindings;
+					m_resourceBinder.Bind( shadingSnapshot.m_computeShader, shaderBindings );
+
+					agl::ShaderParameter drawCallIdParam = shadingSnapshot.m_computeShader->ParameterMap().GetParameter( StaticName( "DrawCallId" ) );
+					agl::ShaderParameter screenSizeParam = shadingSnapshot.m_computeShader->ParameterMap().GetParameter( StaticName( "ScreenSize" ) );
+					agl::ShaderParameter baseIndexParam = shadingSnapshot.m_computeShader->ParameterMap().GetParameter( StaticName( "BaseIndex" ) );
+					agl::ShaderParameter baseVertexParam = shadingSnapshot.m_computeShader->ParameterMap().GetParameter( StaticName( "BaseVertex" ) );
+
+					auto drawCallId = static_cast<uint32>( i + 1 );
+					SetShaderValue( commandList, drawCallIdParam, drawCallId );
+
+					uint32 width = passResource.m_visibility->GetTrait().m_width;
+					uint32 height = passResource.m_visibility->GetTrait().m_height;
+
+					uint32 screenSize[2] = {
+						width,
+						height
+					};
+					SetShaderValue( commandList, screenSizeParam, screenSize );
+					SetShaderValue( commandList, baseIndexParam, shadingSnapshot.m_startIndexLocation );
+					SetShaderValue( commandList, baseVertexParam, shadingSnapshot.m_baseVertexLocation );
+
+					commandList.BindShaderResources( shaderBindings );
+					commandList.ExecuteIndirect( agl::IndirectCommandType::Dispatch, passResource.m_indirectArgs->Get(), drawCallId );
+				}
+			} );
 		}
 	}
 
@@ -577,7 +773,7 @@ namespace rendercore
 			return;
 		}
 
-		RenderThreadFrameData<LightSceneInfo*> validLights;
+		RenderFrameArray<LightSceneInfo*> validLights;
 		const SparseArray<LightSceneInfo*>& lights = renderScene->Lights();
 		for ( auto light : lights )
 		{
@@ -647,7 +843,21 @@ namespace rendercore
 
 		m_forwardLighting.m_shaderArguments->Update( lightParams );
 
-		m_resourceBinder.Add( "ForwardLightConstant", m_forwardLighting.m_shaderArguments->Resource() );
-		m_resourceBinder.Add( "ForwardLight", m_forwardLighting.m_lightBuffer.SRV() );
+		m_resourceBinder.Add( StaticName( "ForwardLightConstant" ), m_forwardLighting.m_shaderArguments->Resource() );
+		m_resourceBinder.Add( StaticName( "ForwardLight" ), m_forwardLighting.m_lightBuffer.SRV() );
+	}
+
+	void ForwardRenderer::ClearRenderTargets( RenderGraph& renderGraph )
+	{
+		auto rgSceneColor = renderGraph.RegisterExternalResource( m_renderTargets.GetSceneColor() );
+
+		RasterOutput rasterOutput;
+		rasterOutput.SetRenderTarget( 0, rgSceneColor, RasterOutputLoadAction::Clear );
+
+		renderGraph.AddPass(
+			rasterOutput,
+			[]( [[maybe_unused]] CommandList& commandList )
+			{
+			} );
 	}
 }

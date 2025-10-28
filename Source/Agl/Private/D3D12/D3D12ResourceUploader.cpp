@@ -26,7 +26,7 @@ namespace agl
 		BufferTrait trait = {
 			.m_stride = static_cast<uint32>( numByte ),
 			.m_count = 1,
-			.m_access = ResourceAccessFlag::Upload,
+			.m_access = ResourceAccess::Upload,
 			.m_bindType = ResourceBindType::None,
 			.m_miscFlag = ResourceMisc::Intermediate,
 			.m_format = ResourceFormat::Unknown
@@ -131,7 +131,7 @@ namespace agl
 		m_destResource = &dest;
 		m_srcResource = &src;
 
-		if ( HasAnyFlags( dest.GetTrait().m_access, ResourceAccessFlag::CpuRead ) )
+		if ( HasAnyFlags( dest.GetTrait().m_access, ResourceAccess::CpuRead ) )
 		{
 			D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout = {};
 			uint32 numRows = 0;
@@ -335,7 +335,7 @@ namespace agl
 		m_copyQueue->ExecuteCommandLists( 1, commandList );
 		m_copyQueue->Signal( context.Fence(), 1 );
 
-		if ( HasAnyFlags( dest.GetTrait().m_access, ResourceAccessFlag::CpuRead ) )
+		if ( HasAnyFlags( dest.GetTrait().m_access, ResourceAccess::CpuRead ) )
 		{
 			WaitUntilCopyCompleted();
 		}
@@ -354,7 +354,7 @@ namespace agl
 		m_copyQueue->ExecuteCommandLists( 1, commandList );
 		m_copyQueue->Signal( context.Fence(), 1);
 
-		if ( HasAnyFlags( dest.GetTrait().m_access, ResourceAccessFlag::CpuRead ) )
+		if ( HasAnyFlags( dest.GetTrait().m_access, ResourceAccess::CpuRead ) )
 		{
 			WaitUntilCopyCompleted();
 		}
@@ -448,7 +448,7 @@ namespace agl
 		BufferTrait trait = {
 			.m_stride = static_cast<uint32>( totalSize ),
 			.m_count = 1,
-			.m_access = ResourceAccessFlag::Upload,
+			.m_access = ResourceAccess::Upload,
 			.m_bindType = ResourceBindType::None,
 			.m_miscFlag = ResourceMisc::Intermediate,
 			.m_format = ResourceFormat::Unknown

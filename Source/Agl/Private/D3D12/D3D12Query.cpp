@@ -360,7 +360,7 @@ namespace agl
 
 	void D3D12PipelineStatistics::InitResource()
 	{
-		bool bSupportsMeshShader = GetInterface<agl::IAgl>()->IsSupportsMeshShader();
+		bool bSupportsMeshShader = GetInterface<agl::IAgl>()->SupportsMeshShader();
 		D3D12_QUERY_TYPE queryType = bSupportsMeshShader ? D3D12_QUERY_TYPE_PIPELINE_STATISTICS1 : D3D12_QUERY_TYPE_PIPELINE_STATISTICS;
 		m_pipelineStatistics = D3D12AllocatorForQuery().Allocate( queryType );
 	}
@@ -380,14 +380,14 @@ namespace agl
 		auto& d3d12CommandList = static_cast<ID3D12CommandListEX&>( commandList );
 		d3d12CommandList.EndQuery( &m_pipelineStatistics );
 
-		bool bSupportsMeshShader = GetInterface<agl::IAgl>()->IsSupportsMeshShader();
+		bool bSupportsMeshShader = GetInterface<agl::IAgl>()->SupportsMeshShader();
 		D3D12_QUERY_TYPE queryType = bSupportsMeshShader ? D3D12_QUERY_TYPE_PIPELINE_STATISTICS1 : D3D12_QUERY_TYPE_PIPELINE_STATISTICS;
 		d3d12CommandList.ResolveQueryData( m_pipelineStatistics.m_heap, queryType, m_pipelineStatistics.m_offset, 1 );
 	}
 
 	PipelineStatisticsData D3D12PipelineStatistics::GetStatisticsData() const
 	{
-		bool bSupportsMeshShader = GetInterface<agl::IAgl>()->IsSupportsMeshShader();
+		bool bSupportsMeshShader = GetInterface<agl::IAgl>()->SupportsMeshShader();
 		PipelineStatisticsData data = {};
 		if ( bSupportsMeshShader )
 		{

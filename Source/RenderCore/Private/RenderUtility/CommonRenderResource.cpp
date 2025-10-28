@@ -21,7 +21,7 @@ namespace
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
 				.m_format = agl::ResourceFormat::R8G8B8A8_UNORM,
-				.m_access = agl::ResourceAccessFlag::Default,
+				.m_access = agl::ResourceAccess::Default,
 				.m_bindType = agl::ResourceBindType::ShaderResource,
 				.m_miscFlag = agl::ResourceMisc::None
 		};
@@ -56,7 +56,7 @@ namespace
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
 				.m_format = agl::ResourceFormat::R8G8B8A8_UNORM,
-				.m_access = agl::ResourceAccessFlag::Default,
+				.m_access = agl::ResourceAccess::Default,
 				.m_bindType = agl::ResourceBindType::ShaderResource,
 				.m_miscFlag = agl::ResourceMisc::TextureCube
 		};
@@ -124,7 +124,7 @@ namespace rendercore
 			.m_sampleQuality = 0,
 			.m_mipLevels = 1,
 			.m_format = agl::ResourceFormat::R16G16_FLOAT,
-			.m_access = agl::ResourceAccessFlag::Default,
+			.m_access = agl::ResourceAccess::Default,
 			.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess,
 			.m_miscFlag = agl::ResourceMisc::None
 		};
@@ -156,7 +156,7 @@ namespace rendercore
 
 	REGISTER_GLOBAL_SHADER( FullScreenQuadVS, "./Assets/Shaders/Common/VS_FullScreenQuad.asset" );
 	REGISTER_GLOBAL_SHADER( PrecomputedBrdfCS, "./Assets/Shaders/PhysicallyBased/CS_PrecomputedBRDF.asset" );
-	REGISTER_GLOBAL_SHADER( DefaultAS, "./Assets/Shaders/AS_Meshlet.asset" );
+	REGISTER_GLOBAL_SHADER( DefaultAS, "./Assets/Shaders/Material/AS_Meshlet.asset" );
 
 	void DefaultGraphicsResources::BootUp()
 	{
@@ -168,7 +168,7 @@ namespace rendercore
 
 		OcclusionQueryIndexBuffer = CreateOcclusionQueryIndexBuffer();
 		
-		bool isRunningAssetBuilder = engine::CommandLine::Has( Name( "AssetBuilder" ) );
+		bool isRunningAssetBuilder = engine::CommandLine::Has( StaticName( "AssetBuilder" ) );
 		if ( isRunningAssetBuilder )
 		{
 			return;

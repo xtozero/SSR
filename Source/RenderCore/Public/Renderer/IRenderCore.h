@@ -42,4 +42,6 @@ namespace rendercore
 
 	Owner<IRenderCore*> CreateRenderCore();
 	void DestroyRenderCore( Owner<IRenderCore*> pRenderCore );
+
+	extern uint32 NumLanes;
 }

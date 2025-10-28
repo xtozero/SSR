@@ -1,20 +1,20 @@
 #include "D3D12Buffer.h"
 
+#include "Config/DefaultAglConfig.h"
+
 #include "D3D12Api.h"
 #include "D3D12FlagConvertor.h"
 #include "D3D12ResourceManager.h"
 #include "D3D12ResourceUploader.h"
 #include "D3D12ResourceViews.h"
 
-#include "DefaultAglConfig.h"
-
 #include "Math/Util.h"
 #include "Multithread/TaskScheduler.h"
 
 using ::agl::BufferTrait;
-using ::agl::ConvertAccessFlagToHeapType;
+using ::agl::ConvertToHeapType;
 using ::agl::D3D12HeapProperties;
-using ::agl::ResourceAccessFlag;
+using ::agl::ResourceAccess;
 using ::agl::ResourceBindType;
 using ::agl::ResourceMisc;
 
@@ -24,7 +24,7 @@ namespace
 	{
 		D3D12HeapProperties properties = {
 			.m_alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT,
-			.m_heapType = ConvertAccessFlagToHeapType( trait.m_access ),
+			.m_heapType = ConvertToHeapType( trait.m_access ),
 			.m_heapFlags = D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS
 		};
 
@@ -304,15 +304,15 @@ namespace agl
 
 	void D3D12Buffer::AdjustInitalResourceStates()
 	{
-		if ( HasAllFlags( m_trait.m_access, ResourceAccessFlag::Download ) )
+		if ( HasAllFlags( m_trait.m_access, ResourceAccess::Download ) )
 		{
 			SetResourceState( ResourceState::CopyDest );
 		}
-		else if ( HasAllFlags( m_trait.m_access, ResourceAccessFlag::Upload ) )
+		else if ( HasAllFlags( m_trait.m_access, ResourceAccess::Upload ) )
 		{
 			SetResourceState( ResourceState::GenericRead );
 		}
-		else if ( m_hasInitData && HasAllFlags( m_trait.m_access, ResourceAccessFlag::CpuWrite ) == false )
+		else if ( m_hasInitData && HasAllFlags( m_trait.m_access, ResourceAccess::CpuWrite ) == false )
 		{
 			SetResourceState( ResourceState::Common );
 		}

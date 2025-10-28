@@ -1,8 +1,9 @@
 {
 	"Type": "Material",
 	"Shader": {
-		"VS": "./Assets/Shaders/VS_Texturing.asset",
-		"PS": "./Assets/Shaders/PS_Texturing.asset"
+		"VS": "./Assets/Shaders/Material/VS_DefaultTexturing.asset",
+		"PS": "./Assets/Shaders/Material/PS_DefaultTexturing.asset",
+		"CS": "./Assets/Shaders/Material/CS_DefaultTexturing.asset"
 	},
 	"Surface": {
 		"Ambient": [

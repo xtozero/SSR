@@ -18,11 +18,6 @@ namespace agl
 			return m_texture;
 		}
 
-		virtual void CreateShaderResource( std::optional<ResourceFormat> overrideFormat = {} ) = 0;
-		virtual void CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat = {} ) = 0;
-		virtual void CreateRenderTarget( std::optional<ResourceFormat> overrideFormat = {} ) = 0;
-		virtual void CreateDepthStencil( std::optional<ResourceFormat> overrideFormat = {} ) = 0;
-
 		void Reconstruct( const TextureTrait& trait, const ResourceInitData* initData )
 		{
 			delete[] m_dataStorage;

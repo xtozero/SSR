@@ -25,5 +25,5 @@ float4 main( PS_INPUT input ) : SV_Target0
 	LIGHTCOLOR cColor = CalcPhysicallyBasedLight( geometry, surface ); 
 
 	float4 lightColor = cColor.m_diffuse + cColor.m_specular;
-	return float4( lightColor.rgb, 1.f );
+	return MoveGammaSpace( float4( lightColor.rgb, 1.f ) );
 }

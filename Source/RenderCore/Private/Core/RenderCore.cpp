@@ -15,6 +15,7 @@
 #include "IAgl.h"
 #include "LibraryTool/Common.h"
 #include "PipelineStateCache.h"
+#include "Platform/CommandLine.h"
 #include "RenderGraph.h"
 #include "RenderView.h"
 #include "Scene/Scene.h"
@@ -42,6 +43,11 @@ namespace
 
 		std::wstring newestVersionFound;
 
+		if ( std::filesystem::exists( pixInstallationPath ) == false )
+		{
+			return {};
+		}
+
 		for ( auto const& directory_entry : std::filesystem::directory_iterator( pixInstallationPath ) )
 		{
 			if ( directory_entry.is_directory() )
@@ -65,6 +71,13 @@ namespace
 
 namespace rendercore
 {
+	class QueryLaneCountCS final : public GlobalShaderCommon<ComputeShader, QueryLaneCountCS>
+	{
+		DEFINE_SHADER_PARAM( LaneCount );
+	};
+
+	REGISTER_GLOBAL_SHADER( QueryLaneCountCS, "./Assets/Shaders/Visibility/CS_QueryLaneCount.asset" );
+
 	class RenderCore final : public IRenderCore
 	{
 	public:
@@ -90,7 +103,9 @@ namespace rendercore
 
 	private:
 		void Shutdown();
-		Owner<SceneRenderer*> FindAndCreateSceneRenderer( const RenderViewGroup& renderViewGroup );
+		Owner<SceneRenderer*> FindOrCreateSceneRenderer( const RenderViewGroup& renderViewGroup );
+
+		void QueryLaneCount() const;
 
 		mutable bool m_isReady = false;
 
@@ -175,6 +190,8 @@ namespace rendercore
 		{
 			GetInterface<ITaskScheduler>()->ProcessThisThreadTask();
 		}
+
+		QueryLaneCount();
 
 		return true;
 	}
@@ -271,7 +288,7 @@ namespace rendercore
 			CPU_PROFILE( RenderFrame );
 			GPU_PROFILE_EVENT( m_renderGraph, RenderFrame );
 
-			SceneRenderer* pSceneRenderer = FindAndCreateSceneRenderer( renderViewGroup );
+			SceneRenderer* pSceneRenderer = FindOrCreateSceneRenderer( renderViewGroup );
 			assert( pSceneRenderer != nullptr );
 
 			pSceneRenderer->PreRender( m_renderGraph, renderViewGroup );
@@ -317,7 +334,9 @@ namespace rendercore
 
 		{
 			CPU_PROFILE( Present );
-			canvas.Present();
+			bool useVSync = DefaultRenderCore::UseVSync();
+			bool allowTearing = DefaultRenderCore::AllowTearing();
+			canvas.Present( useVSync, allowTearing );
 		}
 	}
 
@@ -400,7 +419,7 @@ namespace rendercore
 #endif
 	}
 
-	Owner<SceneRenderer*> RenderCore::FindAndCreateSceneRenderer( const RenderViewGroup& renderViewGroup )
+	Owner<SceneRenderer*> RenderCore::FindOrCreateSceneRenderer( const RenderViewGroup& renderViewGroup )
 	{
 		ShadingMethod shadingMethod = renderViewGroup.Scene().GetShadingMethod();
 
@@ -421,4 +440,101 @@ namespace rendercore
 
 		return sceneRenderer;
 	}
+
+	void RenderCore::QueryLaneCount() const
+	{
+		if ( GetInterface<agl::IAgl>()->SupportsWaveIntrinsics() == false )
+		{
+			return;
+		}
+
+		if (engine::CommandLine::Has( StaticName( "AssetBuilder" ) ))
+		{
+			return;
+		}
+
+		TaskHandle handle = EnqueueThreadTask<ThreadType::RenderThread>(
+			[]()
+			{
+				RenderGraph renderGraph;
+
+				agl::BufferTrait laneCountTrait = {
+					.m_stride = sizeof( uint32 ),
+					.m_count = 1,
+					.m_access = agl::ResourceAccess::Default,
+					.m_bindType = agl::ResourceBindType::RandomAccess,
+					.m_miscFlag = agl::ResourceMisc::BufferStructured,
+					.m_format = agl::ResourceFormat::Unknown
+				};
+
+				RenderGraphBuffer* rgLaneCount = renderGraph.CreateBuffer( laneCountTrait, "LaneCount" );
+
+				BEGIN_RG_RESOURCE_STRUCT( QueryLaneCountPassResource )
+					DECLARE_RG_BUFFER_UAV( laneCount )
+				END_RG_RESOURCE_STRUCT();
+
+				QueryLaneCountPassResource queryPassResource = {
+					.m_laneCount = rgLaneCount
+				};
+
+				renderGraph.AddPass(
+					queryPassResource,
+					[queryPassResource]( ComputeCommandList& commandList )
+					{
+						QueryLaneCountCS queryLaneCountCS;
+						RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( queryLaneCountCS );
+
+						commandList.BindPipelineState( pso.Get() );
+
+						agl::ShaderBindings shaderBindings = CreateShaderBindings( queryLaneCountCS );
+						BindResource( shaderBindings, queryLaneCountCS.LaneCount(), queryPassResource.m_laneCount->Get() );
+
+						commandList.BindShaderResources( shaderBindings );
+
+						commandList.Dispatch( 1, 1 );
+					} );
+
+				agl::BufferTrait readbackTrait = {
+					.m_stride = sizeof( uint32 ),
+					.m_count = 1,
+					.m_access = agl::ResourceAccess::Download,
+					.m_bindType = agl::ResourceBindType::None,
+					.m_miscFlag = agl::ResourceMisc::None,
+					.m_format = agl::ResourceFormat::Unknown
+				};
+
+				RefHandle<agl::Buffer> readBack = GraphicsResourcePool::GetInstance().FindFreeBuffer( readbackTrait, "Readback" );
+				RenderGraphBuffer* rgReadback = renderGraph.RegisterExternalResource( readBack.Get() );
+
+				BEGIN_RG_RESOURCE_STRUCT( DownloadPassResource )
+					DECLARE_RG_BUFFER_COPY_SOURCE( laneCount )
+					DECLARE_RG_BUFFER_COPY_DEST( readback )
+				END_RG_RESOURCE_STRUCT();
+
+				DownloadPassResource downloadPassResource = {
+					.m_laneCount = rgLaneCount,
+					.m_readback = rgReadback
+				};
+
+				renderGraph.AddPass(
+					downloadPassResource,
+					[downloadPassResource]( CopyCommandList& commandList )
+					{
+						commandList.CopyResource( downloadPassResource.m_readback->Get(), downloadPassResource.m_laneCount->Get(), false );
+					} );
+
+				renderGraph.Execute();
+
+				RenderGraph::Commit();
+
+				GetInterface<agl::IAgl>()->WaitGPU();
+
+				NumLanes = *GraphicsInterface().Lock<uint32>( readBack.Get(), agl::ResourceLockFlag::Read );
+				GraphicsInterface().UnLock( readBack.Get() );
+			} );
+
+		GetInterface<ITaskScheduler>()->Wait( handle );
+	}
+
+	uint32 NumLanes = 0xFFFFFFFF;
 }

@@ -154,8 +154,8 @@ namespace rendercore
 		uint32 m_primitiveId;
 		uint32 m_primitiveIdOffset;
 		uint32 m_numInstance;
-		int32 m_snapshotBucketId;
-		DrawSnapshot* m_drawSnapshot;
+		int32 m_snapshotBucketId = -1;
+		DrawSnapshot* m_drawSnapshot = nullptr;
 	};
 
 	struct CachedDrawSnapshotInfo final
@@ -185,13 +185,37 @@ namespace rendercore
 	};
 
 	template <typename CommandList>
-	void CommitDrawSnapshot( CommandList& commandList, VisibleDrawSnapshot& visibleSnapshot, VertexBuffer& primitiveIds )
+	void CommitDrawSnapshot( CommandList& commandList, VisibleDrawSnapshot& visibleSnapshot, const VertexBuffer& primitiveIds )
 	{
 		DrawSnapshot& snapshot = *visibleSnapshot.m_drawSnapshot;
 		ShaderStates& shaderState = snapshot.m_pipelineState.m_shaderState;
 
 		// TODO : Remove copy if possible
 		agl::ShaderBindings shaderBindings = snapshot.m_shaderBindings;
+
+		const ShaderBase* shaders[agl::MAX_SHADER_TYPE<uint32>] = {
+			shaderState.m_vertexShader,
+			nullptr,
+			nullptr,
+			shaderState.m_geometryShader,
+			shaderState.m_pixelShader,
+			nullptr,
+			shaderState.m_meshShader,
+			shaderState.m_amplificationShader
+		};
+
+		for ( const ShaderBase* shader : shaders )
+		{
+			if ( shader == nullptr )
+			{
+				continue;
+			}
+
+			const agl::ShaderParameterMap& shaderParameterMap = shader->ParameterMap();
+
+			agl::ShaderParameter primitiveIdOffsetParam = shaderParameterMap.GetParameter( StaticName( "PrimitiveIdOffset" ) );
+			SetShaderValue( commandList, primitiveIdOffsetParam, visibleSnapshot.m_primitiveIdOffset );
+		}
 
 		bool bUseMeshShader = shaderState.m_meshShader != nullptr;
 		if ( bUseMeshShader )
@@ -200,7 +224,7 @@ namespace rendercore
 
 			if ( agl::Buffer* primitiveIdsBufffer = primitiveIds.Resource() )
 			{
-				agl::ShaderParameter primitiveIdsParam = shaderParameterMapForMS.GetParameter( Name( "PrimitiveIds" ) );
+				agl::ShaderParameter primitiveIdsParam = shaderParameterMapForMS.GetParameter( StaticName( "PrimitiveIds" ) );
 
 				agl::SingleShaderBindings shaderBindingForMS = shaderBindings.GetSingleShaderBindings( agl::ShaderType::MS );
 				shaderBindingForMS.AddSRV( primitiveIdsParam, primitiveIdsBufffer->SRV() );
@@ -212,19 +236,17 @@ namespace rendercore
 				
 				if ( agl::Buffer* primitiveIdsBufffer = primitiveIds.Resource() )
 				{
-					agl::ShaderParameter primitiveIdsParam = shaderParameterMapForAS.GetParameter( Name( "PrimitiveIds" ) );
+					agl::ShaderParameter primitiveIdsParam = shaderParameterMapForAS.GetParameter( StaticName( "PrimitiveIds" ) );
 
 					agl::SingleShaderBindings shaderBindingForAS = shaderBindings.GetSingleShaderBindings( agl::ShaderType::AS );
 					shaderBindingForAS.AddSRV( primitiveIdsParam, primitiveIdsBufffer->SRV() );
 				}
 
-				agl::ShaderParameter meshletCountParam = shaderParameterMapForAS.GetParameter( Name( "MeshletCount" ) );
-				agl::ShaderParameter instanceCountParam = shaderParameterMapForAS.GetParameter( Name( "InstanceCount" ) );
-				agl::ShaderParameter primitiveIdsParam = shaderParameterMapForAS.GetParameter( Name( "PrimitiveIdOffset" ) );
+				agl::ShaderParameter meshletCountParam = shaderParameterMapForAS.GetParameter( StaticName( "MeshletCount" ) );
+				agl::ShaderParameter instanceCountParam = shaderParameterMapForAS.GetParameter( StaticName( "InstanceCount" ) );
 
 				SetShaderValue( commandList, meshletCountParam, snapshot.m_count );
 				SetShaderValue( commandList, instanceCountParam, visibleSnapshot.m_numInstance );
-				SetShaderValue( commandList, primitiveIdsParam, visibleSnapshot.m_primitiveIdOffset );
 			}
 		}
 		else
@@ -271,7 +293,9 @@ namespace rendercore
 	}
 
 	void PreparePipelineStateObject( DrawSnapshot& snapshot );
-	void SortDrawSnapshots( RenderThreadFrameData<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
-	void CommitDrawSnapshots( CommandList& commandList, RenderThreadFrameData<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
-	void ParallelCommitDrawSnapshot( CommandList& commandList, RenderThreadFrameData<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
+	void SortDrawSnapshots( RenderFrameArray<VisibleDrawSnapshot>& outSnapshots );
+	void MergeDrawSnapshots( RenderFrameArray<VisibleDrawSnapshot>& outSnapshots );
+	void UpdatePrimitiveIDs( const RenderFrameArray<VisibleDrawSnapshot>& visibleSnapshots, VertexBuffer& primitiveIds );
+	void CommitDrawSnapshots( CommandList& commandList, RenderFrameArray<VisibleDrawSnapshot>& visibleSnapshots, const VertexBuffer& primitiveIds );
+	void ParallelCommitDrawSnapshot( CommandList& commandList, RenderFrameArray<VisibleDrawSnapshot>& visibleSnapshots, const VertexBuffer& primitiveIds );
 }

@@ -15,6 +15,7 @@ namespace rendercore
 		Default,
 		HitProxy,
 		CompositeSSGI,
+		Visibility,
 		Count,
 	};
 

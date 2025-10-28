@@ -19,13 +19,13 @@ namespace rendercore
 	bool PipelineStateCache::IsLoaded()
 	{
 		auto agl = GetInterface<agl::IAgl>();
-		return ( m_pipelineStateCache != nullptr ) || ( agl->IsSupportsPSOCache() == false );
+		return ( m_pipelineStateCache != nullptr ) || ( agl->SupportsPSOCache() == false );
 	}
 
 	void PipelineStateCache::LoadFromFile()
 	{
 		auto agl = GetInterface<agl::IAgl>();
-		if ( agl->IsSupportsPSOCache() == false )
+		if ( agl->SupportsPSOCache() == false )
 		{
 			return;
 		}
@@ -86,12 +86,12 @@ namespace rendercore
 	void PipelineStateCache::SaveToFile()
 	{
 		auto agl = GetInterface<agl::IAgl>();
-		if ( agl->IsSupportsPSOCache() == false )
+		if ( agl->SupportsPSOCache() == false )
 		{
 			return;
 		}
 
-		if ( agl->IsSupportsPSOLibraryCache() == false )
+		if ( agl->SupportsPSOLibraryCache() == false )
 		{
 			m_pipelineStateCache->m_psoCacheType = PipelineStateCacheType::HandmadeCache;
 		}

@@ -5,8 +5,8 @@
 #include "D3D11ResourceViews.h"
 
 using ::agl::BufferTrait;
-using ::agl::ConvertAccessFlagToCpuFlag;
-using ::agl::ConvertAccessFlagToUsage;
+using ::agl::ConvertToCpuFlag;
+using ::agl::ConvertToUsage;
 using ::agl::ConvertMicsToDXMisc;
 using ::agl::ConvertTypeToBind;
 using ::agl::ResourceMisc;
@@ -21,9 +21,9 @@ namespace
 			byteWidth = CalcAlignment<uint32>( byteWidth, sizeof( int32 ) );
 		}
 
-		D3D11_USAGE usage = ConvertAccessFlagToUsage( trait.m_access );
+		D3D11_USAGE usage = ConvertToUsage( trait.m_access );
 		uint32 bindFlag = ConvertTypeToBind( trait.m_bindType );
-		uint32 cpuAccessFlag = ConvertAccessFlagToCpuFlag( trait.m_access );
+		uint32 cpuAccessFlag = ConvertToCpuFlag( trait.m_access );
 		uint32 miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
 		uint32 structureByteStride = trait.m_stride;
 

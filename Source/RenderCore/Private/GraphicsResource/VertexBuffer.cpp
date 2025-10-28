@@ -59,18 +59,22 @@ namespace rendercore
 
 	void VertexBuffer::InitResource( uint32 elementSize, uint32 numElement, agl::ResourceState initialState, const void* initData )
 	{
-		agl::ResourceAccessFlag accessFlag = m_isDynamic 
-			? agl::ResourceAccessFlag::Upload 
-			: agl::ResourceAccessFlag::Default;
+		agl::ResourceAccess resourceAccess = m_isDynamic
+			? agl::ResourceAccess::Upload 
+			: agl::ResourceAccess::Default;
 
-		bool bSupportsMeshShader = GetInterface<agl::IAgl>()->IsSupportsMeshShader();
-		auto bindType = bSupportsMeshShader ? ( agl::ResourceBindType::VertexBuffer | agl::ResourceBindType::ShaderResource ) : agl::ResourceBindType::VertexBuffer;
-		auto miscFlag = bSupportsMeshShader ? agl::ResourceMisc::BufferStructured : agl::ResourceMisc::None;
+		auto bindType = agl::ResourceBindType::VertexBuffer;
+		auto miscFlag = agl::ResourceMisc::None;
+		if ( GetInterface<agl::IAgl>()->SupportsMeshShader() )
+		{
+			bindType |= agl::ResourceBindType::ShaderResource;
+			miscFlag |= agl::ResourceMisc::BufferStructured;
+		}
 
 		agl::BufferTrait trait = {
 			.m_stride = elementSize,
 			.m_count = numElement,
-			.m_access = accessFlag,
+			.m_access = resourceAccess,
 			.m_bindType = bindType,
 			.m_miscFlag = miscFlag,
 			.m_format = agl::ResourceFormat::Unknown
@@ -89,7 +93,7 @@ namespace rendercore
 		agl::BufferTrait trait = {
 			.m_stride = m_sizeInBytes,
 			.m_count = 1,
-			.m_access = agl::ResourceAccessFlag::Upload,
+			.m_access = agl::ResourceAccess::Upload,
 			.m_bindType = agl::ResourceBindType::VertexBuffer,
 			.m_miscFlag = agl::ResourceMisc::None,
 			.m_format = agl::ResourceFormat::Unknown

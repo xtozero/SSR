@@ -41,7 +41,7 @@ namespace rendercore
 	{
 	public:
 		void Prepare( RenderGraph& renderGraph, const RenderViewGroup& renderViewGroup );
-		void InjectLight( RenderGraph& renderGraph, IScene& scene, RenderThreadFrameData<ShadowInfo>& shadowInfos );
+		void InjectLight( RenderGraph& renderGraph, IScene& scene, RenderFrameArray<ShadowInfo>& shadowInfos );
 		void Propagate( RenderGraph& renderGraph );
 		RefHandle<agl::Texture> Render( RenderGraph& renderGraph, const LpvRenderingParameters& param, const ResourceBinder& resourceBinder );
 

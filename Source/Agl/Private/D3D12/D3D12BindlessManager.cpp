@@ -1,7 +1,8 @@
 #include "D3D12BindlessManager.h"
 
+#include "Config/DefaultAglConfig.h"
+
 #include "D3D12Api.h"
-#include "DefaultAglConfig.h"
 
 #include <cassert>
 
@@ -75,7 +76,7 @@ namespace agl
 
 	int32 D3D12BindlessManager::AddResourceDescriptor( D3D12CpuDescriptorHandle handle )
 	{
-		if ( DefaultAgl::IsSupportsBindless() == false )
+		if ( DefaultAgl::SupportsBindless() == false )
 		{
 			return -1;
 		}
@@ -85,7 +86,7 @@ namespace agl
 
 	void D3D12BindlessManager::RemoveResourceDescriptor( int32 bindlessHandle )
 	{
-		if ( DefaultAgl::IsSupportsBindless() == false )
+		if ( DefaultAgl::SupportsBindless() == false )
 		{
 			return;
 		}
@@ -95,7 +96,7 @@ namespace agl
 
 	int32 D3D12BindlessManager::AddSamplerDescriptor( D3D12CpuDescriptorHandle handle )
 	{
-		if ( DefaultAgl::IsSupportsBindless() == false )
+		if ( DefaultAgl::SupportsBindless() == false )
 		{
 			return -1;
 		}
@@ -105,7 +106,7 @@ namespace agl
 
 	void D3D12BindlessManager::RemoveSamplerDescriptor( int32 bindlessHandle )
 	{
-		if ( DefaultAgl::IsSupportsBindless() == false )
+		if ( DefaultAgl::SupportsBindless() == false )
 		{
 			return;
 		}

@@ -48,7 +48,7 @@ namespace rendercore
 		m_indirectIllumination = BlackTexture;
 	}
 
-	void ResourceBinder::Bind( const ShaderStates& shaders, agl::ShaderBindings& bindings ) const
+	void ResourceBinder::Bind( const ShaderStates& shaders, agl::ShaderBindings& outBindings ) const
 	{
 		const ShaderBase* shaderArray[] = {
 			shaders.m_vertexShader,
@@ -61,21 +61,77 @@ namespace rendercore
 			shaders.m_amplificationShader,
 		};
 
+		Bind( shaderArray, outBindings );
+	}
+
+	void ResourceBinder::Bind( const ComputeShader* shader, agl::ShaderBindings& outBindings ) const
+	{
+		const ShaderBase* shaderArray[] = {
+			nullptr, // VS
+			nullptr, // HS
+			nullptr, // DS
+			nullptr, // GS
+			nullptr, // PS
+			shader, // CS
+			nullptr, // MS
+			nullptr, // AS
+		};
+
+		Bind( shaderArray, outBindings );
+	}
+
+	void ResourceBinder::Add( const Name& parameterName, agl::GraphicsApiResource* resource )
+	{
+		auto found = std::ranges::find( m_parameterNames, parameterName );
+
+		if ( found == std::end( m_parameterNames ) )
+		{
+			m_parameterNames.emplace_back( parameterName );
+			m_resources.emplace_back( resource );
+		}
+		else
+		{
+			size_t idx = std::distance( std::begin( m_parameterNames ), found );
+			m_resources[idx] = resource;
+		}
+	}
+
+	void ResourceBinder::Add( const ShaderArguments* collection )
+	{
+		auto found = std::ranges::find( m_argumentsList, collection );
+		if ( found != std::end( m_argumentsList ) )
+		{
+			return;
+		}
+
+		m_argumentsList.emplace_back( collection );
+	}
+
+	void ResourceBinder::Clear()
+	{
+		for ( auto& resource : m_resources )
+		{
+			resource = nullptr;
+		}
+	}
+
+	void ResourceBinder::Bind( const ShaderBase*(& shaders)[8], agl::ShaderBindings& outBindings ) const
+	{
 		for ( uint32 shaderType = 0; shaderType < agl::MAX_SHADER_TYPE<uint32>; ++shaderType )
 		{
-			if ( shaderArray[shaderType] == nullptr )
+			if ( shaders[shaderType] == nullptr )
 			{
 				continue;
 			}
 
-			agl::SingleShaderBindings singleBinding = bindings.GetSingleShaderBindings( static_cast<agl::ShaderType>( shaderType ) );
+			agl::SingleShaderBindings singleBinding = outBindings.GetSingleShaderBindings( static_cast<agl::ShaderType>( shaderType ) );
 
 			if ( singleBinding.GetShaderType() == agl::ShaderType::None )
 			{
 				continue;
 			}
 
-			const auto& parameterMap = shaderArray[shaderType]->ParameterMap();
+			const auto& parameterMap = shaders[shaderType]->ParameterMap();
 
 			for ( size_t i = 0; i < m_parameterNames.size(); ++i )
 			{
@@ -118,41 +174,6 @@ namespace rendercore
 
 				arguments->Bind( parameterMap, singleBinding );
 			}
-		}
-	}
-
-	void ResourceBinder::Add( const std::string& parameterName, agl::GraphicsApiResource* resource )
-	{
-		auto found = std::ranges::find( m_parameterNames, Name( parameterName ) );
-
-		if ( found == std::end( m_parameterNames ) )
-		{
-			m_parameterNames.emplace_back( parameterName );
-			m_resources.emplace_back( resource );
-		}
-		else
-		{
-			size_t idx = std::distance( std::begin( m_parameterNames ), found );
-			m_resources[idx] = resource;
-		}
-	}
-
-	void ResourceBinder::Add( const ShaderArguments* collection )
-	{
-		auto found = std::ranges::find( m_argumentsList, collection );
-		if ( found != std::end( m_argumentsList ) )
-		{
-			return;
-		}
-
-		m_argumentsList.emplace_back( collection );
-	}
-
-	void ResourceBinder::Clear()
-	{
-		for ( auto& resource : m_resources )
-		{
-			resource = nullptr;
 		}
 	}
 
@@ -226,6 +247,8 @@ namespace rendercore
 
 	void SceneRenderer::PreRender( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup )
 	{
+		ResetFrameData();
+
 		m_prevFrameContext.resize( m_viewInfo.size() );
 		for ( size_t i = 0; i < m_prevFrameContext.size(); ++i )
 		{
@@ -239,13 +262,6 @@ namespace rendercore
 		m_viewInfo.clear();
 		m_viewInfo.reserve( renderViewGroup.NumRenderView() );
 
-		ResetTransientContainer( m_shadowInfos );
-		ResetTransientContainer( m_passSnapshots );
-		ResetTransientContainer( m_occlusionRenderData );
-		ResetTransientContainer( m_currentFrameDrawSnapshots );
-
-		GetTransientAllocator<ThreadType::RenderThread>().Flush();
-
 		IScene& scene = renderViewGroup.Scene();
 
 		assert( scene.GetRenderScene() != nullptr );
@@ -254,7 +270,6 @@ namespace rendercore
 		for ( size_t i = 0; i < renderViewGroup.NumRenderView(); ++i )
 		{
 			RenderViewInfo& viewInfo = m_viewInfo.emplace_back( renderViewGroup.GetRenderView( i ) );
-			PassVisibleSnapshots& passSnapshot = m_passSnapshots.emplace_back();
 
 			viewInfo.m_viewMatrix = LookFromMatrix( viewInfo.m_viewOrigin
 				, viewInfo.m_viewAxis[2]
@@ -267,7 +282,9 @@ namespace rendercore
 
 			viewInfo.m_viewProjMatrix = viewInfo.m_viewMatrix * viewInfo.m_projMatrix;
 
-			viewInfo.m_snapshots = passSnapshot.data();
+			PassVisibleDrawSnapshots& passSnapshots = m_drawSnapshotsByView.emplace_back();
+			viewInfo.m_drawSnapshots = passSnapshots.data();
+
 			viewInfo.m_visibilityMap.resize( renderScene.Primitives().GetMaxIndex(), true );
 
 			if ( viewInfo.m_state )
@@ -281,7 +298,7 @@ namespace rendercore
 		m_resourceCollection.Clear();
 
 		auto linearSampler = StaticSamplerState<>::Get();
-		m_resourceBinder.Add( "LinearSampler", linearSampler.Resource() );
+		m_resourceBinder.Add( StaticName( "LinearSampler" ), linearSampler.Resource() );
 		m_resourceBinder.Add( &scene.GetViewShaderArguments() );
 
 		UpdateGPUPrimitiveInfos( renderGraph, renderScene );
@@ -313,8 +330,8 @@ namespace rendercore
 			return;
 		}
 
-		RenderThreadFrameData<ShadowInfo*> viewDependentShadow;
-		RenderThreadFrameData<ShadowInfo*> viewIndependentShadow;
+		RenderFrameArray<ShadowInfo*> viewDependentShadow;
+		RenderFrameArray<ShadowInfo*> viewIndependentShadow;
 
 		Scene& renderScene = *scene.GetRenderScene();
 		const auto& lights = renderScene.Lights();
@@ -349,7 +366,7 @@ namespace rendercore
 		AllocateShadowMaps();
 	}
 
-	void SceneRenderer::ClassifyViewDependentShadowCasterAndReceiver( IScene& scene, const RenderThreadFrameData<ShadowInfo*>& shadows )
+	void SceneRenderer::ClassifyViewDependentShadowCasterAndReceiver( IScene& scene, const RenderFrameArray<ShadowInfo*>& shadows )
 	{
 		Scene& renderScene = *scene.GetRenderScene();
 
@@ -412,7 +429,7 @@ namespace rendercore
 		}
 	}
 
-	void SceneRenderer::ClassifyViewIndependentShadowCasterAndReceiver( const RenderThreadFrameData<ShadowInfo*>& shadows )
+	void SceneRenderer::ClassifyViewIndependentShadowCasterAndReceiver( const RenderFrameArray<ShadowInfo*>& shadows )
 	{
 		for ( ShadowInfo* pShadowInfo : shadows )
 		{
@@ -466,8 +483,8 @@ namespace rendercore
 
 	void SceneRenderer::AllocateShadowMaps()
 	{
-		RenderThreadFrameData<ShadowInfo*> cascadeShadows;
-		RenderThreadFrameData<ShadowInfo*> pointShadows;
+		RenderFrameArray<ShadowInfo*> cascadeShadows;
+		RenderFrameArray<ShadowInfo*> pointShadows;
 
 		for ( auto& shadowInfo : m_shadowInfos )
 		{
@@ -499,7 +516,7 @@ namespace rendercore
 		}
 	}
 
-	void SceneRenderer::AllocateCascadeShadowMaps( const RenderThreadFrameData<ShadowInfo*>& shadows )
+	void SceneRenderer::AllocateCascadeShadowMaps( const RenderFrameArray<ShadowInfo*>& shadows )
 	{
 		for ( ShadowInfo* shadow : shadows )
 		{
@@ -513,7 +530,7 @@ namespace rendercore
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
 				.m_format = agl::ResourceFormat::R32_FLOAT,
-				.m_access = agl::ResourceAccessFlag::Default,
+				.m_access = agl::ResourceAccess::Default,
 				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
 				.m_miscFlag = agl::ResourceMisc::None,
 				.m_clearValue = agl::ResourceClearValue{
@@ -531,7 +548,7 @@ namespace rendercore
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
 				.m_format = agl::ResourceFormat::D24_UNORM_S8_UINT,
-				.m_access = agl::ResourceAccessFlag::Default,
+				.m_access = agl::ResourceAccess::Default,
 				.m_bindType = agl::ResourceBindType::DepthStencil,
 				.m_miscFlag = agl::ResourceMisc::None,
 				.m_clearValue = agl::ResourceClearValue{
@@ -554,7 +571,7 @@ namespace rendercore
 					.m_sampleQuality = 0,
 					.m_mipLevels = 1,
 					.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
-					.m_access = agl::ResourceAccessFlag::Default,
+					.m_access = agl::ResourceAccess::Default,
 					.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
 					.m_miscFlag = agl::ResourceMisc::None,
 					.m_clearValue = agl::ResourceClearValue{
@@ -572,7 +589,7 @@ namespace rendercore
 					.m_sampleQuality = 0,
 					.m_mipLevels = 1,
 					.m_format = agl::ResourceFormat::R10G10B10A2_UNORM,
-					.m_access = agl::ResourceAccessFlag::Default,
+					.m_access = agl::ResourceAccess::Default,
 					.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
 					.m_miscFlag = agl::ResourceMisc::None,
 					.m_clearValue = agl::ResourceClearValue{
@@ -590,7 +607,7 @@ namespace rendercore
 					.m_sampleQuality = 0,
 					.m_mipLevels = 1,
 					.m_format = agl::ResourceFormat::R8G8B8A8_UNORM,
-					.m_access = agl::ResourceAccessFlag::Default,
+					.m_access = agl::ResourceAccess::Default,
 					.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
 					.m_miscFlag = agl::ResourceMisc::None,
 					.m_clearValue = agl::ResourceClearValue{
@@ -603,7 +620,7 @@ namespace rendercore
 		}
 	}
 
-	void SceneRenderer::AllocatePointShadowMaps( const RenderThreadFrameData<ShadowInfo*>& shadows )
+	void SceneRenderer::AllocatePointShadowMaps( const RenderFrameArray<ShadowInfo*>& shadows )
 	{
 		for ( ShadowInfo* shadow : shadows )
 		{
@@ -617,7 +634,7 @@ namespace rendercore
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
 				.m_format = agl::ResourceFormat::R32_FLOAT,
-				.m_access = agl::ResourceAccessFlag::Default,
+				.m_access = agl::ResourceAccess::Default,
 				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
 				.m_miscFlag = agl::ResourceMisc::TextureCube,
 				.m_clearValue = agl::ResourceClearValue{
@@ -635,7 +652,7 @@ namespace rendercore
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
 				.m_format = agl::ResourceFormat::D24_UNORM_S8_UINT,
-				.m_access = agl::ResourceAccessFlag::Default,
+				.m_access = agl::ResourceAccess::Default,
 				.m_bindType = agl::ResourceBindType::DepthStencil,
 				.m_miscFlag = agl::ResourceMisc::TextureCube,
 				.m_clearValue = agl::ResourceClearValue{
@@ -650,7 +667,7 @@ namespace rendercore
 		}
 	}
 
-	RenderThreadFrameData<VisibleDrawSnapshot>* SceneRenderer::GatherDrawsnapshots( IScene& scene, RenderPassType passType, uint32 viewIndex )
+	RenderFrameArray<VisibleDrawSnapshot>* SceneRenderer::GatherSortedDrawSnapshots( IScene& scene, RenderPassType passType, uint32 viewIndex )
 	{
 		const auto& primitives = scene.Primitives();
 		if ( primitives.Size() == 0 )
@@ -665,7 +682,7 @@ namespace rendercore
 		}
 
 		RenderViewInfo& viewInfo = m_viewInfo[viewIndex];
-		auto& snapshots = viewInfo.m_snapshots[static_cast<uint32>( passType )];
+		auto& snapshots = viewInfo.m_drawSnapshots[static_cast<uint32>( passType )];
 
 		// Create DrawSnapshot
 		for ( auto primitive : primitives )
@@ -688,23 +705,162 @@ namespace rendercore
 					if ( snapshotIndex )
 					{
 						const CachedDrawSnapshotInfo& info = primitive->GetCachedDrawSnapshotInfo( *snapshotIndex );
-						DrawSnapshot& snapshot = primitive->CachedDrawSnapshot( *snapshotIndex );
+						DrawSnapshot& snapshot = primitive->GetCachedDrawSnapshot( *snapshotIndex );
 
 						VisibleDrawSnapshot& visibleSnapshot = snapshots.emplace_back();
-						visibleSnapshot.m_snapshotBucketId = info.m_snapshotBucketId;
-						visibleSnapshot.m_drawSnapshot = &snapshot;
 						visibleSnapshot.m_primitiveId = primitiveId;
 						visibleSnapshot.m_numInstance = 1;
+						visibleSnapshot.m_snapshotBucketId = info.m_snapshotBucketId;
+						visibleSnapshot.m_drawSnapshot = &snapshot;
 					}
 				}
 			}
 			else
 			{
-				proxy->TakeSnapshot( m_currentFrameDrawSnapshots, snapshots );
+				proxy->TakeSnapshot( m_curFrameDrawSnapshots, snapshots );
 			}
 		}
 
+		SortDrawSnapshots( snapshots );
+
 		return snapshots.empty() ? nullptr : &snapshots;
+	}
+
+	VisibilityPassData SceneRenderer::BuildVisibilityPassData( IScene& scene, uint32 viewIndex )
+	{
+		const auto& primitives = scene.Primitives();
+		if ( primitives.Size() == 0 )
+		{
+			return {};
+		}
+
+		auto* renderScene = scene.GetRenderScene();
+		if ( renderScene == nullptr )
+		{
+			return {};
+		}
+
+		RenderViewInfo& viewInfo = m_viewInfo[viewIndex];
+
+		struct VisibilitySortEntry
+		{
+			DrawSnapshot* m_drawSnapshot = nullptr;
+			int32 m_drawSnapshotBucketId = -1;
+
+			ShadingSnapshot* m_shadingSnapshot = nullptr;
+			uint32 m_uniqueShadingSnapshotId = 0;
+
+			uint32 m_primitiveId = 0;
+		};
+
+		RenderFrameArray<VisibilitySortEntry> visibilitySortEntries;
+
+		for ( auto primitive : primitives )
+		{
+			uint32 primitiveId = primitive->PrimitiveId();
+			if ( viewInfo.m_visibilityMap[primitiveId] == false )
+			{
+				continue;
+			}
+
+			PrimitiveProxy* proxy = primitive->Proxy();
+
+			const std::vector<PrimitiveSubMeshInfo>& subMeshInfos = primitive->SubMeshInfos();
+
+			if ( subMeshInfos.size() > 0 )
+			{
+				for ( const auto& subMeshInfo : subMeshInfos )
+				{
+					VisibilitySortEntry visibilitySortEntry;
+					visibilitySortEntry.m_primitiveId = proxy->PrimitiveId();
+
+					auto drawSnapshotIndex = subMeshInfo.GetCachedDrawSnapshotInfoIndex( RenderPassType::Visibility );
+					if ( drawSnapshotIndex )
+					{
+						const CachedDrawSnapshotInfo& info = primitive->GetCachedDrawSnapshotInfo( *drawSnapshotIndex );
+						DrawSnapshot& snapshot = primitive->GetCachedDrawSnapshot( *drawSnapshotIndex );
+
+						visibilitySortEntry.m_drawSnapshot = &snapshot;
+						visibilitySortEntry.m_drawSnapshotBucketId = info.m_snapshotBucketId;
+					}
+					else
+					{
+						// TODO
+					}
+
+					auto shadingSnapshotId = subMeshInfo.GetShadingSnapshotId();
+					if ( shadingSnapshotId > -1 )
+					{
+						ShadingSnapshot& snapshot = primitive->GetShadingSnapshot( shadingSnapshotId );
+
+						visibilitySortEntry.m_shadingSnapshot = &snapshot;
+					}
+					else
+					{
+						// TODO
+					}
+
+					if ( visibilitySortEntry.m_drawSnapshot != nullptr && visibilitySortEntry.m_shadingSnapshot != nullptr )
+					{
+						visibilitySortEntries.emplace_back( visibilitySortEntry );
+					}
+				}
+			}
+		}
+
+		int32 lastShadingSnapshotId = 1;
+		RenderFrameMap<VisibleShadingSnapshot, int32> uniqueShadingSnapshotMap;
+		for ( VisibilitySortEntry& visibilitySortEntry : visibilitySortEntries )
+		{
+			VisibleShadingSnapshot visibleSnapshot = {
+				.m_primitiveId = visibilitySortEntry.m_primitiveId,
+				.m_shadingSnapshot = visibilitySortEntry.m_shadingSnapshot,
+			};
+
+			auto result = uniqueShadingSnapshotMap.emplace( visibleSnapshot, lastShadingSnapshotId );
+			if ( result.second )
+			{
+				++lastShadingSnapshotId;
+			}
+
+			visibilitySortEntry.m_uniqueShadingSnapshotId = result.first->second;
+		}
+
+		std::ranges::sort( visibilitySortEntries,
+		                   []( const VisibilitySortEntry& lhs, const VisibilitySortEntry& rhs )
+		                   {
+			                   return lhs.m_drawSnapshotBucketId < rhs.m_drawSnapshotBucketId;
+		                   } );
+
+		VisibilityPassData visibilityPassData;
+		visibilityPassData.m_maxShadingSnapshotId = lastShadingSnapshotId;
+
+		visibilityPassData.m_visibilityPassSnapshots.reserve( visibilitySortEntries.size() );
+		visibilityPassData.m_shadingSnapshotIds.reserve( visibilitySortEntries.size() );
+		visibilityPassData.m_shadingSnapshots.resize( uniqueShadingSnapshotMap.size() );
+
+		for ( size_t i = 0; i < visibilitySortEntries.size(); ++i )
+		{
+			VisibilitySortEntry& visibilitySortEntry = visibilitySortEntries[i];
+
+			VisibleDrawSnapshot& visibleSnapshot = visibilityPassData.m_visibilityPassSnapshots.emplace_back();
+			visibleSnapshot.m_primitiveId = visibilitySortEntry.m_primitiveId;
+			visibleSnapshot.m_primitiveIdOffset = static_cast<uint32>( i );
+			visibleSnapshot.m_numInstance = 1;
+			visibleSnapshot.m_snapshotBucketId = visibilitySortEntry.m_drawSnapshotBucketId;
+			visibleSnapshot.m_drawSnapshot = visibilitySortEntry.m_drawSnapshot;
+
+			visibilityPassData.m_shadingSnapshotIds.emplace_back( visibilitySortEntry.m_uniqueShadingSnapshotId );
+		}
+
+		for ( auto& [visibleShadingSnapshot, id] : uniqueShadingSnapshotMap )
+		{
+			visibilityPassData.m_shadingSnapshots[id - 1] = visibleShadingSnapshot;
+		}
+
+		MergeDrawSnapshots( visibilityPassData.m_visibilityPassSnapshots );
+
+		return visibilityPassData;
 	}
 
 	void SceneRenderer::RenderShadowDepthPass( RenderGraph& renderGraph )
@@ -827,7 +983,7 @@ namespace rendercore
 	{
 		CPU_PROFILE( SceneRenderer_RenderShadow );
 
-		auto renderTarget = renderViewGroup.GetViewport().Texture();
+		auto renderTarget = GetRenderTargets().GetSceneColor();
 		auto depthStencil = GetRenderTargets().GetDepthStencil();
 
 		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
@@ -899,7 +1055,7 @@ namespace rendercore
 					GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 					m_resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
-					m_resourceBinder.Add( "ShadowTexture", passResource.m_shadowMap->SRV() );
+					m_resourceBinder.Add( StaticName( "ShadowTexture" ), passResource.m_shadowMap->SRV() );
 
 					bool bESMsEnabled = DefaultRenderCore::IsESMsEnabled();
 
@@ -918,13 +1074,13 @@ namespace rendercore
 						shadowSampler = StaticSamplerState<>::Get();
 					}
 
-					m_resourceBinder.Add( "ShadowSampler", shadowSampler.Resource() );
+					m_resourceBinder.Add( StaticName( "ShadowSampler" ), shadowSampler.Resource() );
 
-					m_resourceBinder.Add( "ShadowDepthPassParameters", shadowInfo.GetShadowShaderArguments().Resource() );
+					m_resourceBinder.Add( StaticName( "ShadowDepthPassParameters" ), shadowInfo.GetShadowShaderArguments().Resource() );
 
 					if ( bESMsEnabled )
 					{
-						m_resourceBinder.Add( "ESMsParameters", shadowInfo.GetESMsShaderArguments().Resource() );
+						m_resourceBinder.Add( StaticName( "ESMsParameters" ), shadowInfo.GetESMsShaderArguments().Resource() );
 					}
 
 					m_resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
@@ -973,7 +1129,7 @@ namespace rendercore
 			.m_inscatterLut = rgInscatterLut,
 		};
 
-		auto renderTarget = renderViewGroup.GetViewport().Texture();
+		auto renderTarget = GetRenderTargets().GetSceneColor();
 		auto depthStencil = GetRenderTargets().GetDepthStencil();
 
 		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
@@ -1020,13 +1176,13 @@ namespace rendercore
 				auto linearSampler = StaticSamplerState<>::Get();
 
 				ResourceBinder passResourceBinder;
-				passResourceBinder.Add( "TransmittanceLut", info->GetTransmittanceLutTexture()->SRV() );
-				passResourceBinder.Add( "TransmittanceLutSampler", linearSampler.Resource() );
-				passResourceBinder.Add( "IrradianceLut", info->GetIrradianceLutTexture()->SRV() );
-				passResourceBinder.Add( "IrradianceLutSampler", linearSampler.Resource() );
-				passResourceBinder.Add( "InscatterLut", info->GetInscatterLutTexture()->SRV() );
-				passResourceBinder.Add( "InscatterLutSampler", linearSampler.Resource() );
-				passResourceBinder.Add( "SkyAtmosphereRenderParameter", skyAtmosphereRenderParameter->Resource() );
+				passResourceBinder.Add( StaticName( "TransmittanceLut" ), info->GetTransmittanceLutTexture()->SRV() );
+				passResourceBinder.Add( StaticName( "TransmittanceLutSampler" ), linearSampler.Resource() );
+				passResourceBinder.Add( StaticName( "IrradianceLut" ), info->GetIrradianceLutTexture()->SRV() );
+				passResourceBinder.Add( StaticName( "IrradianceLutSampler" ), linearSampler.Resource() );
+				passResourceBinder.Add( StaticName( "InscatterLut" ), info->GetInscatterLutTexture()->SRV() );
+				passResourceBinder.Add( StaticName( "InscatterLutSampler" ), linearSampler.Resource() );
+				passResourceBinder.Add( StaticName( "SkyAtmosphereRenderParameter" ), skyAtmosphereRenderParameter->Resource() );
 
 				passResourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
@@ -1073,7 +1229,7 @@ namespace rendercore
 			.m_weatherMap = rgWeatherMap,
 		};
 
-		auto renderTarget = renderViewGroup.GetViewport().Texture();
+		auto renderTarget = GetRenderTargets().GetSceneColor();
 		auto depthStencil = GetRenderTargets().GetDepthStencil();
 
 		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
@@ -1141,12 +1297,12 @@ namespace rendercore
 					, agl::TextureAddressMode::Wrap>::Get();
 
 				ResourceBinder passResourceBinder;
-				passResourceBinder.Add( "VolumetricCloudRenderParameter", shaderArguments.Resource() );
-				passResourceBinder.Add( "BaseCloudShape", info->BaseCloudShape()->SRV() );
-				passResourceBinder.Add( "DetailCloudShape", info->DetailCloudShape()->SRV() );
-				passResourceBinder.Add( "WeatherMap", info->WeatherMap()->SRV() );
-				passResourceBinder.Add( "BaseCloudSampler", wrapSamplerState.Resource() );
-				passResourceBinder.Add( "WeatherSampler", wrapSamplerState.Resource() );
+				passResourceBinder.Add( StaticName( "VolumetricCloudRenderParameter" ), shaderArguments.Resource() );
+				passResourceBinder.Add( StaticName( "BaseCloudShape" ), info->BaseCloudShape()->SRV() );
+				passResourceBinder.Add( StaticName( "DetailCloudShape" ), info->DetailCloudShape()->SRV() );
+				passResourceBinder.Add( StaticName( "WeatherMap" ), info->WeatherMap()->SRV() );
+				passResourceBinder.Add( StaticName( "BaseCloudSampler" ), wrapSamplerState.Resource() );
+				passResourceBinder.Add( StaticName( "WeatherSampler" ), wrapSamplerState.Resource() );
 
 				passResourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
@@ -1184,7 +1340,7 @@ namespace rendercore
 			.m_accumulatedVolume = rgAccumulatedVolume
 		};
 
-		auto renderTarget = renderViewGroup.GetViewport().Texture();
+		auto renderTarget = GetRenderTargets().GetSceneColor();
 		auto depthStencil = GetRenderTargets().GetDepthStencil();
 
 		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
@@ -1219,9 +1375,9 @@ namespace rendercore
 				SamplerState accumulatedVolumeSampler = StaticSamplerState<>::Get();
 
 				ResourceBinder passResourceBinder;
-				passResourceBinder.Add( "AccumulatedVolume", info->AccumulatedVolume()->SRV() );
-				passResourceBinder.Add( "AccumulatedVolumeSampler", accumulatedVolumeSampler.Resource() );
-				passResourceBinder.Add( "VolumetricFogParameterBuffer", info->GetShaderArguments().Resource() );
+				passResourceBinder.Add( StaticName( "AccumulatedVolume" ), info->AccumulatedVolume()->SRV() );
+				passResourceBinder.Add( StaticName( "AccumulatedVolumeSampler" ), accumulatedVolumeSampler.Resource() );
+				passResourceBinder.Add( StaticName( "VolumetricFogParameterBuffer" ), info->GetShaderArguments().Resource() );
 
 				passResourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
 
@@ -1308,7 +1464,7 @@ namespace rendercore
 		
 		SSGIRenderParam param = {
 			.m_viewShaderArguments = renderViewGroup.Scene().GetViewShaderArguments().Resource(),
-			.m_sceneColor = renderViewGroup.GetViewport().Texture(),
+			.m_sceneColor = GetRenderTargets().GetSceneColor(),
 			.m_viewSpaceDistance = GetRenderTargets().GetViewSpaceDistance(),
 			.m_prevViewSpaceDistance = GetRenderTargets().GetPrevViewSpaceDistance(),
 			.m_worldNormal = GetRenderTargets().GetWorldNormal(),
@@ -1326,7 +1482,7 @@ namespace rendercore
 
 	void SceneRenderer::RenderDebugOverlay( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex )
 	{
-		auto renderTarget = renderViewGroup.GetViewport().Texture();
+		auto renderTarget = GetRenderTargets().GetSceneColor();
 		auto depthStencil = GetRenderTargets().GetDepthStencil();
 
 		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
@@ -1368,7 +1524,7 @@ namespace rendercore
 				.m_sampleQuality = 0,
 				.m_mipLevels = 1,
 				.m_format = agl::ResourceFormat::D24_UNORM_S8_UINT,
-				.m_access = agl::ResourceAccessFlag::Default,
+				.m_access = agl::ResourceAccess::Default,
 				.m_bindType = agl::ResourceBindType::DepthStencil,
 				.m_miscFlag = agl::ResourceMisc::None,
 				.m_clearValue = agl::ResourceClearValue{
@@ -1400,7 +1556,7 @@ namespace rendercore
 			viewShaderArguments.Update( viewParam );
 
 			RenderViewInfo& viewInfo = m_viewInfo[viewIndex];
-			auto& snapshots = viewInfo.m_snapshots[static_cast<uint32>( RenderPassType::HitProxy )];
+			auto& snapshots = viewInfo.m_drawSnapshots[static_cast<uint32>( RenderPassType::HitProxy )];
 
 			// Create DrawSnapshot
 			for ( auto primitive : primitives )
@@ -1421,13 +1577,13 @@ namespace rendercore
 						if ( snapshotIndex )
 						{
 							const CachedDrawSnapshotInfo& info = primitive->GetCachedDrawSnapshotInfo( *snapshotIndex );
-							DrawSnapshot& snapshot = primitive->CachedDrawSnapshot( *snapshotIndex );
+							DrawSnapshot& snapshot = primitive->GetCachedDrawSnapshot( *snapshotIndex );
 
 							VisibleDrawSnapshot& visibleSnapshot = snapshots.emplace_back();
-							visibleSnapshot.m_snapshotBucketId = info.m_snapshotBucketId;
-							visibleSnapshot.m_drawSnapshot = &snapshot;
 							visibleSnapshot.m_primitiveId = primitiveId;
 							visibleSnapshot.m_numInstance = 1;
+							visibleSnapshot.m_snapshotBucketId = info.m_snapshotBucketId;
+							visibleSnapshot.m_drawSnapshot = &snapshot;
 						}
 					}
 				}
@@ -1500,6 +1656,30 @@ namespace rendercore
 			} );
 	}
 
+	void SceneRenderer::ResolveSceneColor( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup )
+	{
+		Viewport& viewport = renderViewGroup.GetViewport();
+		auto rgCopyDest = renderGraph.RegisterExternalResource( viewport.Texture() );
+		auto rgCopySource = renderGraph.RegisterExternalResource( GetRenderTargets().GetSceneColor() );
+
+		BEGIN_RG_RESOURCE_STRUCT( CopySceneColorPassResource )
+			DECLARE_RG_TEXTURE_COPY_DEST( copyDest )
+			DECLARE_RG_TEXTURE_COPY_SOURCE( copySource )
+		END_RG_RESOURCE_STRUCT();
+
+		CopySceneColorPassResource copySceneColorPassResource = {
+			.m_copyDest = rgCopyDest,
+			.m_copySource = rgCopySource
+		};
+
+		renderGraph.AddPass(
+			copySceneColorPassResource,
+			[copySceneColorPassResource]( [[maybe_unused]] CopyCommandList& commandList )
+			{
+				commandList.CopyResource( copySceneColorPassResource.m_copyDest->Get(), copySceneColorPassResource.m_copySource->Get(), false);
+			} );
+	}
+
 	void SceneRenderer::CalcVisibility( RenderViewGroup& renderViewGroup )
 	{
 		IScene& scene = renderViewGroup.Scene();
@@ -1521,6 +1701,17 @@ namespace rendercore
 
 			OcclusionCull( scene, m_dynamicVertexBuffer, viewInfo, m_occlusionRenderData );
 		}
+	}
+
+	void SceneRenderer::ResetFrameData()
+	{
+		ResetTransientContainerScope resetShadowInfos( m_shadowInfos );
+		ResetTransientContainerScope resetDrawSnapshotsByView( m_drawSnapshotsByView );
+		ResetTransientContainerScope resetOcclusionRenderData( m_occlusionRenderData );
+		ResetTransientContainerScope resetCurrentFrameDrawSnapshots( m_curFrameDrawSnapshots );
+		ResetTransientContainerScope resetCurFrameShadingSnapshots( m_curFrameShadingSnapshots );
+
+		GetTransientAllocator<ThreadType::RenderThread>().Purge();
 	}
 
 	void AddSingleDrawPass( CommandList& commandList, DrawSnapshot& snapshot )

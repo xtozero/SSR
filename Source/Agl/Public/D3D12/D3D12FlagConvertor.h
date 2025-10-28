@@ -8,9 +8,9 @@
 
 namespace agl
 {
-	D3D12_HEAP_TYPE ConvertAccessFlagToHeapType( ResourceAccessFlag accessFlag );
+	D3D12_HEAP_TYPE ConvertToHeapType( ResourceAccess resourceAccess );
 
-	ResourceAccessFlag ConvertHeapTypeToAccessFlag( D3D12_HEAP_TYPE heapType );
+	ResourceAccess ConvertToResourceAccess( D3D12_HEAP_TYPE heapType );
 
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE ConvertPrimToD3D12PrimType( ResourcePrimitive primitive );
 
@@ -41,4 +41,6 @@ namespace agl
 	ResourceState ConvertToResourceStates( D3D12_RESOURCE_STATES state );
 
 	D3D12_RESOURCE_BARRIER ConvertToResourceBarrier( const ResourceTransition& transition );
+
+	D3D12_INDIRECT_ARGUMENT_TYPE ConvertToIndirectArgumentType( IndirectCommandType commandType );
 }

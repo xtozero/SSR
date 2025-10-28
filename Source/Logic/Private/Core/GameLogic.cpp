@@ -1,17 +1,16 @@
 #include "Core/GameLogic.h"
 
-#include "Components/CameraComponent.h"
+#include "Config/DefaultAglConfig.h"
 #include "Config/DefaultAppConfig.h"
 #include "Config/DefaultLogicConfig.h"
-#include "ConsoleMessage/ConCommand.h"
+#include "Config/DefaultRenderCoreConfig.h"
 #include "ConsoleMessage/ConsoleMessageExecutor.h"
-#include "ConsoleMessage/ConVar.h"
 #include "Core/DebugConsole.h"
 #include "Core/IEngine.h"
 #include "Core/Timer.h"
 #include "Core/UtilWindowInfo.h"
 #include "CpuProfiler/CpuProfiler.h"
-#include "DefaultAglConfig.h"
+#include "DebugUtil.h"
 #include "FileSystem.h"
 #include "GameObject/GameObject.h"
 #include "IAgl.h"
@@ -28,11 +27,7 @@
 #include "UserInterfaceRenderer.h"
 #include "World/WorldLoader.h"
 
-#include <cstddef>
 #include <ctime>
-#include <tchar.h>
-
-#include "DebugUtil.h"
 
 namespace
 {
@@ -75,7 +70,7 @@ namespace logic
 			return false;
 		}
 
-		bool useGUI = engine::CommandLine::Has( Name( "Console" ) ) == false;
+		bool useGUI = engine::CommandLine::Has( StaticName( "Console" ) ) == false;
 
 		if ( useGUI )
 		{
@@ -329,16 +324,16 @@ namespace logic
 			m_appSize.first,
 			m_appSize.second,
 			m_wndHwnd,
-			agl::ResourceFormat::R8G8B8A8_UNORM_SRGB,
-			DefaultLogic::GetDefaultBackgroundColor() );
+			agl::ResourceFormat::R8G8B8A8_UNORM,
+			rendercore::DefaultRenderCore::GetDefaultBackgroundColor() );
 
 		if ( engine::DefaultApp::IsEditor() )
 		{
 			m_primayViewport = std::make_unique<rendercore::Viewport>(
 				m_appSize.first,
 				m_appSize.second,
-				agl::ResourceFormat::R8G8B8A8_UNORM_SRGB,
-				DefaultLogic::GetDefaultBackgroundColor() );
+				agl::ResourceFormat::R8G8B8A8_UNORM,
+				rendercore::DefaultRenderCore::GetDefaultBackgroundColor() );
 		}
 		else
 		{

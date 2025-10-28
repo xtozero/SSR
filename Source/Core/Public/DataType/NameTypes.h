@@ -95,5 +95,7 @@ public:
 #endif
 };
 
+#define StaticName( value ) ( [](){ static Name name( value ); return name; }() )
+
 Owner<INamePool*> CreateNamePool();
 void DestroyNamePool( Owner<INamePool*> pNamePool );

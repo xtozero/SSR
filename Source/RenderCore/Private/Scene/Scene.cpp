@@ -376,8 +376,8 @@ namespace rendercore
 	{
 		CachedDrawSnapshotInfo info;
 		info.m_renderPass = passType;
-		info.m_snapshotBucketId = m_cachedSnapshotBuckect.Add( snapshot );
-		info.m_snapshotIndex = m_cachedSnapshots[static_cast<uint32>( passType )].Add( snapshot );
+		info.m_snapshotBucketId = m_drawSnapshotBuckect.Add( snapshot );
+		info.m_snapshotIndex = m_passDrawSnapshots[static_cast<uint32>( passType )].Add( snapshot );
 
 		return info;
 	}
@@ -385,8 +385,23 @@ namespace rendercore
 	void Scene::RemoveCachedDrawSnapshot( const CachedDrawSnapshotInfo& info )
 	{
 		uint32 passType = static_cast<uint32>( info.m_renderPass );
-		m_cachedSnapshotBuckect.Remove( info.m_snapshotBucketId );
-		m_cachedSnapshots[passType].RemoveAt( info.m_snapshotIndex );
+		m_drawSnapshotBuckect.Remove( info.m_snapshotBucketId );
+		m_passDrawSnapshots[passType].RemoveAt( info.m_snapshotIndex );
+	}
+
+	int32 Scene::AddCachedShadingSnapshot( const ShadingSnapshot& snapshot )
+	{
+		return m_shadingSnapshotBucket.Add( snapshot );
+	}
+
+	void Scene::RemoveCachedShadingSnapshot( int32 shadingSnapshotId )
+	{
+		m_shadingSnapshotBucket.Remove( shadingSnapshotId );
+	}
+
+	ShadingSnapshot& Scene::GetCachedShadingSnapshot( int32 shadingSnapshotId )
+	{
+		return m_shadingSnapshotBucket.Get( shadingSnapshotId );
 	}
 
 	std::optional<Matrix> Scene::GetPreviousTransform( uint32 primitiveId ) const

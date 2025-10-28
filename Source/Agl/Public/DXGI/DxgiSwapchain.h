@@ -60,9 +60,11 @@ namespace agl
 			commandList->AddTransition( transition );
 		}
 
-		virtual DeviceError Present( bool vSync = false ) override
+		virtual DeviceError Present( bool vSync = false, bool allowTearing = true ) override
 		{
-			HRESULT hr = m_pSwapChain->Present( vSync ? 1 : 0, 0 );
+			uint32 syncInterval = vSync ? 1 : 0;
+			uint32 presentFlags = ( ( vSync == false ) && allowTearing && m_supportsTearing ) ? DXGI_PRESENT_ALLOW_TEARING : 0;
+			HRESULT hr = m_pSwapChain->Present( syncInterval, presentFlags );
 
 			if ( hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET )
 			{
@@ -122,7 +124,7 @@ namespace agl
 				format = ConvertToDxgiLinearFormat( m_format );
 			}
 
-			HRESULT hr = m_pSwapChain->ResizeBuffers( m_bufferCount, m_width, m_height, format, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH );
+			HRESULT hr = m_pSwapChain->ResizeBuffers( m_bufferCount, m_width, m_height, format, GetSwapChainFlags() );
 			assert( SUCCEEDED( hr ) );
 
 			for ( uint32 i = 0; i < m_bufferCount; ++i )
@@ -191,7 +193,13 @@ namespace agl
 			, m_hWnd( hWnd )
 			, m_format( format )
 			, m_clearColor{ clearColor[0], clearColor[1], clearColor[2], clearColor[3] }
-		{}
+		{
+			BOOL allowTearing = FALSE;
+			HRESULT hr = m_factory->CheckFeatureSupport( DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof( allowTearing ) );
+			assert( SUCCEEDED( hr ) );
+
+			m_supportsTearing = ( allowTearing == TRUE ) && ( Backend != AglType::D3D11 );
+		}
 
 	private:
 		virtual void InitResource() override
@@ -203,27 +211,27 @@ namespace agl
 			}
 
 			DXGI_SWAP_CHAIN_DESC dxgiSwapchainDesc = {
-			.BufferDesc = {
-				.Width = m_width,
-				.Height = m_height,
-				.RefreshRate = {
-					.Numerator = 60,
-					.Denominator = 1,
+				.BufferDesc = {
+					.Width = m_width,
+					.Height = m_height,
+					.RefreshRate = {
+						.Numerator = 60,
+						.Denominator = 1,
+					},
+					.Format = format,
+					.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED,
+					.Scaling = DXGI_MODE_SCALING_UNSPECIFIED,
 				},
-				.Format = format,
-				.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED,
-				.Scaling = DXGI_MODE_SCALING_UNSPECIFIED,
-			},
-			.SampleDesc = {
-				.Count = 1,
-				.Quality = 0
-			},
-			.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT,
-			.BufferCount = m_bufferCount,
-			.OutputWindow = static_cast<HWND>( m_hWnd ),
-			.Windowed = true,
-			.SwapEffect = ( m_bufferCount > 1 ) ? DXGI_SWAP_EFFECT_FLIP_DISCARD : DXGI_SWAP_EFFECT_DISCARD,
-			.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
+				.SampleDesc = {
+					.Count = 1,
+					.Quality = 0
+				},
+				.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT,
+				.BufferCount = m_bufferCount,
+				.OutputWindow = static_cast<HWND>( m_hWnd ),
+				.Windowed = true,
+				.SwapEffect = ( m_bufferCount > 1 ) ? DXGI_SWAP_EFFECT_FLIP_DISCARD : DXGI_SWAP_EFFECT_DISCARD,
+				.Flags = GetSwapChainFlags()
 			};
 
 			Microsoft::WRL::ComPtr<IDXGISwapChain> swapChain;
@@ -271,6 +279,17 @@ namespace agl
 			m_backBuffers.clear();
 		}
 
+		uint32 GetSwapChainFlags() const
+		{
+			uint32 flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+			if ( m_supportsTearing )
+			{
+				return flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+			}
+
+			return flags;
+		}
+
 		IUnknown* m_device = nullptr;
 		IDXGIFactory7* m_factory = nullptr;
 
@@ -280,6 +299,7 @@ namespace agl
 		void* m_hWnd = nullptr;
 		DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
 		float4 m_clearColor;
+		bool m_supportsTearing = false;
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_pSwapChain;
 
 		uint32 m_bufferIndex = 0;

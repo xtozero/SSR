@@ -1,5 +1,7 @@
 #include "D3D12ResourceManager.h"
 
+#include "Config/DefaultAglConfig.h"
+
 #include "D3D12Api.h"
 #include "D3D12BlendState.h"
 #include "D3D12Buffer.h"
@@ -13,8 +15,6 @@
 #include "D3D12Texture.h"
 #include "D3D12VertexLayout.h"
 #include "D3D12Viewport.h"
-
-#include "DefaultAglConfig.h"
 
 #include "DxgiFlagConvertor.h"
 #include "DxgiSwapchain.h"
@@ -209,7 +209,7 @@ namespace agl
 
 	void D3D12ResourceManager::SetPSOCache( const BinaryChunk& psoCache )
 	{
-		if ( GetInterface<IAgl>()->IsSupportsPSOLibraryCache() == false )
+		if ( GetInterface<IAgl>()->SupportsPSOLibraryCache() == false )
 		{
 			return;
 		}
@@ -648,6 +648,36 @@ namespace agl
 		}
 	}
 
+	ID3D12CommandSignature* D3D12ResourceManager::FindOrCreate( IndirectCommandType type )
+	{
+		auto found = m_d3d12IndirectCommandSignature.find( type );
+		if ( found != std::end( m_d3d12IndirectCommandSignature ) )
+		{
+			return found->second.Get();
+		}
+
+		D3D12_INDIRECT_ARGUMENT_DESC argumentDesc = {
+			.Type = ConvertToIndirectArgumentType( type ),
+		};
+
+		D3D12_COMMAND_SIGNATURE_DESC desc = {
+			.ByteStride = GetIndirectArgumentStride( type ),
+			.NumArgumentDescs = 1,
+			.pArgumentDescs = &argumentDesc,
+			.NodeMask = 0,
+		};
+
+		Microsoft::WRL::ComPtr<ID3D12CommandSignature> newCommandSignature;
+		[[maybe_unused]] HRESULT hr = D3D12Device().CreateCommandSignature( &desc,
+			nullptr, // If the only command present is a draw or dispatch, the root signature parameter can be set to nullptr.
+			IID_PPV_ARGS( newCommandSignature.GetAddressOf() ) );
+		assert( SUCCEEDED( hr ) );
+
+		m_d3d12IndirectCommandSignature.emplace( type, newCommandSignature.Get() );
+
+		return newCommandSignature.Get();
+	}
+
 	D3D12DisposableConstantBufferPool& D3D12ResourceManager::GetDisposableConstantBufferPool()
 	{
 		m_d3d12DisposbleConstantBufferPool.resize( DefaultAgl::GetBufferCount() );
@@ -693,5 +723,23 @@ namespace agl
 	Owner<IResourceManager*> CreateD3D12ResourceManager()
 	{
 		return new D3D12ResourceManager();
+	}
+
+	uint32 GetIndirectArgumentStride( agl::IndirectCommandType type )
+	{
+		switch ( type )
+		{
+		case agl::IndirectCommandType::Draw:
+			return sizeof( D3D12_DRAW_ARGUMENTS );
+		case agl::IndirectCommandType::DrawIndexed:
+			return sizeof( D3D12_DRAW_INDEXED_ARGUMENTS );
+		case agl::IndirectCommandType::Dispatch:
+			return sizeof( D3D12_DISPATCH_ARGUMENTS );
+		case agl::IndirectCommandType::DispatchMesh:
+			return sizeof( D3D12_DISPATCH_MESH_ARGUMENTS );
+		}
+
+		assert( false && "GetIndirectArgumentStride - Invalid IndirectCommandType" );
+		return 0;
 	}
 }

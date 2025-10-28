@@ -1,8 +1,8 @@
+#include "Config/DefaultAglConfig.h"
 #include "D3D11Api.h"
 #include "D3D11ResourceManager.h"
 #include "D3D12Api.h"
 #include "D3D12ResourceManager.h"
-#include "DefaultAglConfig.h"
 #include "EnumStringMap.h"
 #include "IAgl.h"
 #include "InterfaceFactories.h"
@@ -15,7 +15,7 @@ using ::agl::ComparisonFunc;
 using ::agl::CullMode;
 using ::agl::DepthWriteMode;
 using ::agl::FillMode;
-using ::agl::ResourceAccessFlag;
+using ::agl::ResourceAccess;
 using ::agl::ResourceBindType;
 using ::agl::ResourceFormat;
 using ::agl::ResourceMisc;
@@ -135,10 +135,10 @@ namespace
 		REGISTER_ENUM_STRING( FillMode::Solid );
 
 		// Resource access flag
-		REGISTER_ENUM_STRING( ResourceAccessFlag::GpuRead );
-		REGISTER_ENUM_STRING( ResourceAccessFlag::GpuWrite );
-		REGISTER_ENUM_STRING( ResourceAccessFlag::CpuRead );
-		REGISTER_ENUM_STRING( ResourceAccessFlag::CpuWrite );
+		REGISTER_ENUM_STRING( ResourceAccess::GpuRead );
+		REGISTER_ENUM_STRING( ResourceAccess::GpuWrite );
+		REGISTER_ENUM_STRING( ResourceAccess::CpuRead );
+		REGISTER_ENUM_STRING( ResourceAccess::CpuWrite );
 
 		// Resource bind type
 		REGISTER_ENUM_STRING( ResourceBindType::VertexBuffer );

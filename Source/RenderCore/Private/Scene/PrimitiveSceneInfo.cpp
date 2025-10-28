@@ -2,9 +2,12 @@
 
 #include "Components/PrimitiveComponent.h"
 #include "Config/DefaultAppConfig.h"
+#include "Config/DefaultRenderCoreConfig.h"
+#include "MaterialResource.h"
 #include "Proxies/LightProxy.h"
 #include "Proxies/PrimitiveProxy.h"
 #include "Scene/Scene.h"
+#include "VertexCollection.h"
 
 namespace rendercore
 {
@@ -13,14 +16,14 @@ namespace rendercore
 		m_passTypeMask |= 1 << static_cast<uint32>( passType );
 	}
 
-	uint32& PrimitiveSubMeshInfo::SnapshotInfoBase()
+	void PrimitiveSubMeshInfo::SetDrawSnapshotInfoBase( uint32 snapshotInfoBase )
 	{
-		return m_snapshotInfoBase;
+		m_drawSnapshotInfoBase = snapshotInfoBase;
 	}
 
-	uint32 PrimitiveSubMeshInfo::SnapshotInfoBase() const
+	void PrimitiveSubMeshInfo::SetShadingSnapshotId( int32 shadingSnapshotId )
 	{
-		return m_snapshotInfoBase;
+		m_shadingSnapshotId = shadingSnapshotId;
 	}
 
 	PrimitiveProxy*& PrimitiveSceneInfo::Proxy()
@@ -59,6 +62,7 @@ namespace rendercore
 		m_sceneProxy->PrepareSubMeshs();
 
 		CacheDrawSnapshot();
+		CacheShadingSnapshot();
 
 		for ( LightSceneInfo* light : m_scene.Lights() )
 		{
@@ -77,6 +81,7 @@ namespace rendercore
 		m_subMeshs.clear();
 
 		RemoveCachedDrawSnapshot();
+		RemoveCachedShadingSnapshot();
 
 		for ( LightSceneInfo* light : m_scene.Lights() )
 		{
@@ -133,11 +138,16 @@ namespace rendercore
 		return m_cachedDrawSnapshotInfos[snapshotInfoBase];
 	}
 
-	DrawSnapshot& PrimitiveSceneInfo::CachedDrawSnapshot( uint32 snapshotIndex )
+	DrawSnapshot& PrimitiveSceneInfo::GetCachedDrawSnapshot( uint32 snapshotIndex )
 	{
 		const CachedDrawSnapshotInfo& cachedDrawSnapshotInfo = m_cachedDrawSnapshotInfos[snapshotIndex];
 
-		return m_scene.CachedSnapshots( cachedDrawSnapshotInfo.m_renderPass )[cachedDrawSnapshotInfo.m_snapshotIndex];
+		return m_scene.GetCachedDrawSnapshots( cachedDrawSnapshotInfo.m_renderPass )[cachedDrawSnapshotInfo.m_snapshotIndex];
+	}
+
+	ShadingSnapshot& PrimitiveSceneInfo::GetShadingSnapshot( int32 shadingSnapshotId )
+	{
+		return m_scene.GetCachedShadingSnapshot( shadingSnapshotId );
 	}
 
 	HitProxyId PrimitiveSceneInfo::GetHitProxyId() const
@@ -164,7 +174,7 @@ namespace rendercore
 		{
 			const PrimitiveSubMesh& subMesh = m_subMeshs[i];
 			PrimitiveSubMeshInfo& subMeshInfo = m_subMeshInfos[i];
-			subMeshInfo.SnapshotInfoBase() = static_cast<uint32>( m_cachedDrawSnapshotInfos.size() );
+			subMeshInfo.SetDrawSnapshotInfoBase( static_cast<uint32>( m_cachedDrawSnapshotInfos.size() ) );
 
 			for ( uint32 j = 0; j < static_cast<uint32>( RenderPassType::Count ); ++j )
 			{
@@ -198,6 +208,79 @@ namespace rendercore
 		m_cachedDrawSnapshotInfos.clear();
 	}
 
+	void PrimitiveSceneInfo::CacheShadingSnapshot()
+	{
+		for ( size_t i = 0; i < m_subMeshs.size(); ++i )
+		{
+			const PrimitiveSubMesh& subMesh = m_subMeshs[i];
+			if (subMesh.m_material == nullptr)
+			{
+				continue;
+			}
+
+			MaterialResource& material = *subMesh.m_material;
+			StaticShaderSwitches csSwitches = material.GetShaderSwitches( agl::ShaderType::CS );
+
+			if ( DefaultRenderCore::IsRSMsEnabled() )
+			{
+				csSwitches.On( StaticName( "EnableRSMs" ), 1 );
+			}
+
+			if ( DefaultRenderCore::UseIrradianceMapSH() )
+			{
+				csSwitches.On( StaticName( "UseIrradianceMapSH" ), 1 );
+			}
+
+			if ( agl::DefaultAgl::SupportsBindless() )
+			{
+				csSwitches.On( StaticName( "SupportsBindless" ), 1 );
+			}
+
+			auto computeShader = material.GetComputeShader( &csSwitches );
+			if ( computeShader == nullptr )
+			{
+				continue;
+			}
+
+			ShadingSnapshot snapshot = {
+				.m_computeShader = computeShader,
+				.m_pso = PrepareComputePipelineState( computeShader )
+			};
+
+			agl::ShaderBindingsInitializer initializer;
+			initializer[agl::ShaderType::CS] = &computeShader->ParameterInfo();
+			snapshot.m_shaderBindings.Initialize( initializer );
+
+			const agl::ShaderParameterMap& shaderParameterMap = computeShader->ParameterMap();
+			agl::SingleShaderBindings singleShaderBindings = snapshot.m_shaderBindings.GetSingleShaderBindings( agl::ShaderType::CS );
+			subMesh.m_vertexCollection->Bind( shaderParameterMap, singleShaderBindings );
+
+			agl::ShaderParameter indexBufferParam = shaderParameterMap.GetParameter( StaticName( "Indices" ) );
+			singleShaderBindings.AddSRV( indexBufferParam, subMesh.m_indexBuffer->Resource()->SRV() );
+
+			material.TakeSnapshot( snapshot );
+
+			snapshot.m_startIndexLocation = subMesh.m_startLocation;
+			snapshot.m_baseVertexLocation = subMesh.m_baseVertexLocation;
+
+			int32 cachedShadingSnapshotId = m_scene.AddCachedShadingSnapshot( snapshot );
+			m_cachedShadingSnapshotIds.emplace_back( cachedShadingSnapshotId );
+
+			PrimitiveSubMeshInfo& subMeshInfo = m_subMeshInfos[i];
+			subMeshInfo.SetShadingSnapshotId( cachedShadingSnapshotId );
+		}
+	}
+
+	void PrimitiveSceneInfo::RemoveCachedShadingSnapshot()
+	{
+		for ( int32 cachedShadingSnapshotId : m_cachedShadingSnapshotIds )
+		{
+			m_scene.RemoveCachedShadingSnapshot( cachedShadingSnapshotId );
+		}
+
+		m_cachedShadingSnapshotIds.clear();
+	}
+
 	std::optional<uint32> PrimitiveSubMeshInfo::GetCachedDrawSnapshotInfoIndex( RenderPassType passType ) const
 	{
 		uint32 iPassType = static_cast<uint32>( passType );
@@ -206,7 +289,7 @@ namespace rendercore
 			return {};
 		}
 
-		uint32 snapshotInfoIndex = m_snapshotInfoBase;
+		uint32 snapshotInfoIndex = m_drawSnapshotInfoBase;
 		for ( uint32 i = 0; i < iPassType; ++i )
 		{
 			if ( ( m_passTypeMask & ( 1 << i ) ) > 0 )
@@ -216,6 +299,11 @@ namespace rendercore
 		}
 
 		return snapshotInfoIndex;
+	}
+
+	int32 PrimitiveSubMeshInfo::GetShadingSnapshotId() const
+	{
+		return m_shadingSnapshotId;
 	}
 
 	FullScreenQuadDrawInfo::FullScreenQuadDrawInfo()

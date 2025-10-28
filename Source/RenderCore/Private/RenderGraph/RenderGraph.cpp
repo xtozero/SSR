@@ -49,6 +49,7 @@ namespace rendercore
 		rgTexture->m_ref = texture;
 		rgTexture->m_trait = texture->GetTrait();
 		rgTexture->m_isExternal = true;
+		rgTexture->m_isForUpload = HasAnyFlags( rgTexture->m_trait.m_access, agl::ResourceAccess::CpuWrite );
 
 		m_textures.emplace_back( rgTexture );
 		m_externalTextures.emplace( texture, rgTexture );
@@ -72,11 +73,48 @@ namespace rendercore
 		rgBuffer->m_ref = buffer;
 		rgBuffer->m_trait = buffer->GetTrait();
 		rgBuffer->m_isExternal = true;
+		rgBuffer->m_isForUpload = HasAnyFlags( rgBuffer->m_trait.m_access, agl::ResourceAccess::CpuWrite );
 
 		m_buffers.emplace_back( rgBuffer );
 		m_externalBuffers.emplace( buffer, rgBuffer );
 
 		return rgBuffer;
+	}
+
+	agl::Texture* RenderGraph::ConvertToExternalResource( RenderGraphTexture* rgTexture )
+	{
+		assert( rgTexture != nullptr );
+
+		if ( rgTexture->Get() == nullptr )
+		{
+			rgTexture->m_ref = GraphicsResourcePool::GetInstance().FindFreeTexture( rgTexture->GetTrait(), rgTexture->m_name );
+		}
+
+		if ( rgTexture->m_isExternal == false )
+		{
+			m_externalTextures.emplace( rgTexture->Get(), rgTexture );
+		}
+
+		rgTexture->m_isExternal = true;
+		return rgTexture->Get();
+	}
+
+	agl::Buffer* RenderGraph::ConvertToExternalResource( RenderGraphBuffer* rgBuffer )
+	{
+		assert( rgBuffer != nullptr );
+
+		if ( rgBuffer->Get() == nullptr )
+		{
+			rgBuffer->m_ref = GraphicsResourcePool::GetInstance().FindFreeBuffer( rgBuffer->GetTrait(), rgBuffer->m_name );
+		}
+
+		if ( rgBuffer->m_isExternal == false )
+		{
+			m_externalBuffers.emplace( rgBuffer->Get(), rgBuffer );
+		}
+
+		rgBuffer->m_isExternal = true;
+		return rgBuffer->Get();
 	}
 
 	RenderGraphTexture* RenderGraph::CreateTexture( const agl::TextureTrait& trait, const char* name )
@@ -86,6 +124,7 @@ namespace rendercore
 
 		rgTexture->m_name = name;
 		rgTexture->m_trait = trait;
+		rgTexture->m_isForUpload = HasAnyFlags( trait.m_access, agl::ResourceAccess::CpuWrite );
 
 		m_textures.emplace_back( rgTexture );
 
@@ -99,6 +138,7 @@ namespace rendercore
 
 		rgBuffer->m_name = name;
 		rgBuffer->m_trait = trait;
+		rgBuffer->m_isForUpload = HasAnyFlags( trait.m_access, agl::ResourceAccess::CpuWrite );
 
 		m_buffers.emplace_back( rgBuffer );
 
@@ -118,7 +158,10 @@ namespace rendercore
 
 	void RenderGraph::PopGPUProfileEvent()
 	{
-		m_curGPUProfileEvent = m_curGPUProfileEvent->m_parent;
+		if ( m_curGPUProfileEvent )
+		{
+			m_curGPUProfileEvent = m_curGPUProfileEvent->m_parent;
+		}
 	}
 
 	void RenderGraph::PushPipelineStateEvent( PipelineStatData& pipelineStatData )
@@ -159,13 +202,16 @@ namespace rendercore
 			std::destroy_at( buffer );
 		}
 
-		m_allocator.Flush();
+		m_allocator.Purge();
 
 		std::construct_at( &m_passes, m_allocator );
 		std::construct_at( &m_externalTextures, m_allocator );
 		std::construct_at( &m_externalBuffers, m_allocator );
 		std::construct_at( &m_textures, m_allocator );
 		std::construct_at( &m_buffers, m_allocator );
+
+		m_curGPUProfileEvent = nullptr;
+		m_curPipelineStatEvent = nullptr;
 	}
 
 	RenderGraph::AdjacencyLists RenderGraph::BuildPassAdjacencyLists()

@@ -2,6 +2,8 @@
 
 #include "Archive.h"
 
+#include "Config/DefaultAglConfig.h"
+
 #include "D3D12BindlessManager.h"
 #include "D3D12CommandList.h"
 #include "D3D12FrameResourceCollection.h"
@@ -9,8 +11,6 @@
 #include "D3D12Query.h"
 #include "D3D12ResourceManager.h"
 #include "D3D12ResourceUploader.h"
-
-#include "DefaultAglConfig.h"
 
 #include "EnumStringMap.h"
 
@@ -195,16 +195,18 @@ namespace agl
 		virtual ICommandList* GetParallelCommandList() override;
 		virtual IComputeCommandList* GetComputeCommandList() override;
 
-		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const override;
+		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, agl::ShaderType type ) const override;
 		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const override;
 
 		virtual const char* GetShaderCacheFilePath() const override;
 
-		virtual bool IsSupportsPSOCache() const override;
-		virtual bool IsSupportsPSOLibraryCache() const override;
+		virtual bool SupportsPSOCache() const override;
+		virtual bool SupportsPSOLibraryCache() const override;
 		virtual const char* GetPSOCacheFilePath() const override;
 
-		virtual bool IsSupportsMeshShader() const override;
+		virtual bool SupportsMeshShader() const override;
+
+		virtual bool SupportsWaveIntrinsics() const override;
 
 		ID3D12Device8& GetDevice() const;
 		IDXGIFactory7& GetFactory() const;
@@ -229,7 +231,7 @@ namespace agl
 		bool CreateDeviceDependentResource();
 		bool CreateDeviceIndependentResource();
 
-		const wchar_t* GetProperProfile( const char* profile ) const;
+		const wchar_t* GetShaderProfile( ShaderType type ) const;
 
 #ifdef _DEBUG
 		ComPtr<ID3D12Debug1> m_debugLayer;
@@ -259,6 +261,7 @@ namespace agl
 		bool m_psoLibraryCacheAvailable = false;
 		bool m_raytracingAvailable = false;
 		bool m_meshShaderAvailable = false;
+		bool m_waveIntrinsicsAvailable = false;
 		D3D12_FEATURE_DATA_SHADER_MODEL m_shaderModel = {};
 
 		uint32 m_frameIndex = 0;
@@ -473,7 +476,7 @@ namespace agl
 		return &m_computeCommandList[m_frameIndex];
 	}
 
-	BinaryChunk Direct3D12::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, const char* profile ) const
+	BinaryChunk Direct3D12::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, agl::ShaderType type ) const
 	{
 		DxcBuffer buffer = {
 			.Ptr = source.Data(),
@@ -489,7 +492,7 @@ namespace agl
 
 		// target profile
 		args.push_back( L"-T" );
-		args.push_back( GetProperProfile( profile ) );
+		args.push_back( GetShaderProfile( type ) );
 
 #if _DEBUG
 		args.push_back( L"-Zs" );
@@ -588,15 +591,15 @@ namespace agl
 
 	const char* Direct3D12::GetShaderCacheFilePath() const
 	{
-		return "./Assets/Shaders/ShaderCache-d3d12.asset";;
+		return "./Assets/Shaders/ShaderCache-d3d12.asset";
 	}
 
-	bool Direct3D12::IsSupportsPSOCache() const
+	bool Direct3D12::SupportsPSOCache() const
 	{
 		return true;
 	}
 
-	bool Direct3D12::IsSupportsPSOLibraryCache() const
+	bool Direct3D12::SupportsPSOLibraryCache() const
 	{
 		return m_psoLibraryCacheAvailable;
 	}
@@ -606,9 +609,16 @@ namespace agl
 		return "./Assets/Shaders/PSOCache-d3d12.asset";
 	}
 
-	bool Direct3D12::IsSupportsMeshShader() const
+	bool Direct3D12::SupportsMeshShader() const
 	{
 		return m_meshShaderAvailable;
+	}
+
+	bool Direct3D12::SupportsWaveIntrinsics() const
+	{
+		return m_waveIntrinsicsAvailable
+			// for WaveMath intrinsics
+			&& m_shaderModel.HighestShaderModel >= D3D_SHADER_MODEL_6_5;
 	}
 
 	ID3D12Device8& Direct3D12::GetDevice() const
@@ -761,6 +771,16 @@ namespace agl
 		}
 
 		m_psoLibraryCacheAvailable = shaderCacheFeature.SupportFlags & D3D12_SHADER_CACHE_SUPPORT_LIBRARY;
+
+		D3D12_FEATURE_DATA_D3D12_OPTIONS1 featureOptions1 = {};
+		hr = m_device->CheckFeatureSupport( D3D12_FEATURE_D3D12_OPTIONS1, &featureOptions1, sizeof( featureOptions1 ) );
+
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
+
+		m_waveIntrinsicsAvailable = featureOptions1.WaveOps;
 
 		D3D12_FEATURE_DATA_D3D12_OPTIONS5 featureOption5 = {};
 		hr = m_device->CheckFeatureSupport( D3D12_FEATURE_D3D12_OPTIONS5, &featureOption5, sizeof( featureOption5 ) );
@@ -923,100 +943,82 @@ namespace agl
 		return true;
 	}
 
-	const wchar_t* Direct3D12::GetProperProfile( const char* profile ) const
+	const wchar_t* Direct3D12::GetShaderProfile( ShaderType type ) const
 	{
-		if ( std::strncmp( profile, "vs", 2 ) == 0 )
+		if ( type == ShaderType::VS )
 		{
 			switch ( m_shaderModel.HighestShaderModel )
 			{
 			case D3D_SHADER_MODEL_6_5:
 				return L"vs_6_5";
-				break;
 			case D3D_SHADER_MODEL_6_6:
 				return L"vs_6_6";
-				break;
 			case D3D_SHADER_MODEL_6_7:
 				return L"vs_6_7";
-				break;
 			}
 		}
-		else if ( std::strncmp( profile, "gs", 2 ) == 0 )
+		else if ( type == ShaderType::GS )
 		{
 			switch ( m_shaderModel.HighestShaderModel )
 			{
 			case D3D_SHADER_MODEL_6_5:
 				return L"gs_6_5";
-				break;
 			case D3D_SHADER_MODEL_6_6:
 				return L"gs_6_6";
-				break;
 			case D3D_SHADER_MODEL_6_7:
 				return L"gs_6_7";
-				break;
 			}
 		}
-		else if ( std::strncmp( profile, "ps", 2 ) == 0 )
+		else if ( type == ShaderType::PS )
 		{
 			switch ( m_shaderModel.HighestShaderModel )
 			{
 			case D3D_SHADER_MODEL_6_5:
 				return L"ps_6_5";
-				break;
 			case D3D_SHADER_MODEL_6_6:
 				return L"ps_6_6";
-				break;
 			case D3D_SHADER_MODEL_6_7:
 				return L"ps_6_7";
-				break;
 			}
 		}
-		else if ( std::strncmp( profile, "cs", 2 ) == 0 )
+		else if ( type == ShaderType::CS )
 		{
 			switch ( m_shaderModel.HighestShaderModel )
 			{
 			case D3D_SHADER_MODEL_6_5:
 				return L"cs_6_5";
-				break;
 			case D3D_SHADER_MODEL_6_6:
 				return L"cs_6_6";
-				break;
 			case D3D_SHADER_MODEL_6_7:
 				return L"cs_6_7";
-				break;
 			}
 		}
-		else if ( std::strncmp( profile, "as", 2 ) == 0 )
+		else if ( type == ShaderType::AS )
 		{
 			switch ( m_shaderModel.HighestShaderModel )
 			{
 			case D3D_SHADER_MODEL_6_5:
 				return L"as_6_5";
-				break;
 			case D3D_SHADER_MODEL_6_6:
 				return L"as_6_6";
-				break;
 			case D3D_SHADER_MODEL_6_7:
 				return L"as_6_7";
-				break;
 			}
 		}
-		else if ( std::strncmp( profile, "ms", 2 ) == 0 )
+		else if ( type == ShaderType::MS )
 		{
 			switch ( m_shaderModel.HighestShaderModel )
 			{
 			case D3D_SHADER_MODEL_6_5:
 				return L"ms_6_5";
-				break;
 			case D3D_SHADER_MODEL_6_6:
 				return L"ms_6_6";
-				break;
 			case D3D_SHADER_MODEL_6_7:
 				return L"ms_6_7";
-				break;
 			}
 		}
 
-		assert( false && "Invalid shader profile" );
+		assert( false && "Invalid shader type" );
 		return L"";
 	}
 

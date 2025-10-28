@@ -2,6 +2,7 @@
 
 #include "AbstractGraphicsInterface.h"
 #include "CommandList.h"
+#include "Config/DefaultRenderCoreConfig.h"
 #include "TaskScheduler.h"
 
 namespace rendercore
@@ -64,17 +65,24 @@ namespace rendercore
 
 	void IndexBuffer::InitResource( agl::ResourceState initialState, const void* initData )
 	{
-		agl::ResourceAccessFlag accessFlag = m_isDynamic 
-			? ( agl::ResourceAccessFlag::Upload ) 
-			: ( agl::ResourceAccessFlag::Default );
+		agl::ResourceAccess resourceAccess = m_isDynamic
+			? ( agl::ResourceAccess::Upload ) 
+			: ( agl::ResourceAccess::Default );
+
+		auto bindType = agl::ResourceBindType::IndexBuffer;
+		auto miscFlag = agl::ResourceMisc::None;
+		if ( DefaultRenderCore::SupportsVisibilityRendering() )
+		{
+			bindType |= agl::ResourceBindType::ShaderResource;
+		}
 
 		agl::BufferTrait trait = {
 			.m_stride = m_isDWORD ? sizeof( uint32 ) : sizeof( uint16 ),
 			.m_count = m_numElement,
-			.m_access = accessFlag,
-			.m_bindType = agl::ResourceBindType::IndexBuffer,
-			.m_miscFlag = agl::ResourceMisc::None,
-			.m_format = agl::ResourceFormat::Unknown
+			.m_access = resourceAccess,
+			.m_bindType = bindType,
+			.m_miscFlag = miscFlag,
+			.m_format = m_isDWORD ? agl::ResourceFormat::R32_UINT : agl::ResourceFormat::R16_UINT
 		};
 
 		m_buffer = agl::Buffer::Create( trait, "Index", initialState, initData );

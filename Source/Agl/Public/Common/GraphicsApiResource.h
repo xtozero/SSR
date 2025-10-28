@@ -168,7 +168,7 @@ namespace agl
 	};
 	ENUM_CLASS_FLAGS( ResourceMisc );
 
-	enum class ResourceAccessFlag : uint8
+	enum class ResourceAccess : uint8
 	{
 		None = 0x00,
 		GpuRead = 0x01,
@@ -180,7 +180,7 @@ namespace agl
 		Upload = GpuRead | CpuWrite,
 		Download = GpuRead | GpuWrite | CpuRead | CpuWrite,
 	};
-	ENUM_CLASS_FLAGS( ResourceAccessFlag );
+	ENUM_CLASS_FLAGS( ResourceAccess );
 
 	enum class ResourceFormat : uint8
 	{
@@ -286,6 +286,45 @@ namespace agl
 		BC7_UNORM = 98,
 		BC7_UNORM_SRGB = 99
 	};
+
+	inline bool IsTypeless( ResourceFormat format, bool partialTypeless = true )
+	{
+		switch ( format )
+		{
+		case ResourceFormat::R32G32B32A32_TYPELESS:
+		case ResourceFormat::R32G32B32_TYPELESS:
+		case ResourceFormat::R16G16B16A16_TYPELESS:
+		case ResourceFormat::R32G32_TYPELESS:
+		case ResourceFormat::R32G8X24_TYPELESS:
+		case ResourceFormat::R10G10B10A2_TYPELESS:
+		case ResourceFormat::R8G8B8A8_TYPELESS:
+		case ResourceFormat::R16G16_TYPELESS:
+		case ResourceFormat::R32_TYPELESS:
+		case ResourceFormat::R24G8_TYPELESS:
+		case ResourceFormat::R8G8_TYPELESS:
+		case ResourceFormat::R16_TYPELESS:
+		case ResourceFormat::R8_TYPELESS:
+		case ResourceFormat::BC1_TYPELESS:
+		case ResourceFormat::BC2_TYPELESS:
+		case ResourceFormat::BC3_TYPELESS:
+		case ResourceFormat::BC4_TYPELESS:
+		case ResourceFormat::BC5_TYPELESS:
+		case ResourceFormat::B8G8R8A8_TYPELESS:
+		case ResourceFormat::B8G8R8X8_TYPELESS:
+		case ResourceFormat::BC6H_TYPELESS:
+		case ResourceFormat::BC7_TYPELESS:
+			return true;
+
+		case ResourceFormat::R32_FLOAT_X8X24_TYPELESS:
+		case ResourceFormat::X32_TYPELESS_G8X24_UINT:
+		case ResourceFormat::R24_UNORM_X8_TYPELESS:
+		case ResourceFormat::X24_TYPELESS_G8_UINT:
+			return partialTypeless;
+
+		default:
+			return false;
+		}
+	}
 
 	inline uint32 BitPerPixel( ResourceFormat format )
 	{
@@ -673,7 +712,7 @@ namespace agl
 	{
 		uint32 m_stride;
 		uint32 m_count;
-		ResourceAccessFlag m_access;
+		ResourceAccess m_access;
 		ResourceBindType m_bindType;
 		ResourceMisc m_miscFlag;
 		ResourceFormat m_format;
@@ -690,7 +729,7 @@ namespace agl
 		uint32 m_sampleQuality = 0;
 		uint32 m_mipLevels = 0;
 		ResourceFormat m_format = ResourceFormat::Unknown;
-		ResourceAccessFlag m_access = ResourceAccessFlag::None;
+		ResourceAccess m_access = ResourceAccess::None;
 		ResourceBindType m_bindType = ResourceBindType::None;
 		ResourceMisc m_miscFlag = ResourceMisc::None;
 		std::optional<ResourceClearValue> m_clearValue;

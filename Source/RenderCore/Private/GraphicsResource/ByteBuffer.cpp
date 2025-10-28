@@ -100,12 +100,12 @@ namespace rendercore
 
 	void ByteBuffer::InitResource( uint32 size, agl::ResourceState initialState, const void* initData )
 	{
-		auto accessFlag = m_isDynamic ? agl::ResourceAccessFlag::Upload : agl::ResourceAccessFlag::Default;
+		auto resourceAccess = m_isDynamic ? agl::ResourceAccess::Upload : agl::ResourceAccess::Default;
 
 		agl::BufferTrait trait = {
 			.m_stride = 1,
 			.m_count = size,
-			.m_access = accessFlag,
+			.m_access = resourceAccess,
 			.m_bindType = agl::ResourceBindType::ShaderResource,
 			.m_miscFlag = agl::ResourceMisc::BufferAllowRawViews,
 			.m_format = agl::ResourceFormat::Unknown

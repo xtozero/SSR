@@ -1,4 +1,5 @@
 #include "Common/Constants.fxh"
+#include "Common/GammaCorrection.fxh"
 #include "Common/NormalCompression.fxh"
 #include "Common/ViewConstant.fxh"
 #include "IndirectLighting/LPV/LPVCommon.fxh"
@@ -42,5 +43,5 @@ float4 main( PS_INPUT input ) : SV_TARGET
 
     float3 lighting = max( float3( dot( coeffR, sh ), dot( coeffG, sh ), dot( coeffB, sh ) ), 0.f );
 
-    return float4( lighting / PI, 1.f );
+    return MoveGammaSpace( float4( lighting / PI, 1.f ) );
 }

@@ -1,3 +1,4 @@
+#include "Common/GammaCorrection.fxh"
 #include "Common/NormalCompression.fxh"
 #include "Common/ViewConstant.fxh"
 #include "Shadow/ShadowCommon.fxh"
@@ -55,7 +56,7 @@ float4 main( PS_INPUT input ) : SV_TARGET
 
         float3 positionP = RSMsWorldPosition.SampleLevel( BlackBorderSampler, uv, 0 ).xyz;
         float3 normalP = SignedOctDecode( RSMsNormal.SampleLevel( BlackBorderSampler, uv, 0 ).yzw );
-        float3 fluxP = RSMsFlux.SampleLevel( BlackBorderSampler, uv, 0 );
+        float3 fluxP = MoveLinearSpace( RSMsFlux.SampleLevel( BlackBorderSampler, uv, 0 ) ).rgb;
 
         // Equation 1.
         float3 irrandiance = fluxP * ( ( max( 0.f, dot( normalP, worldPosition - positionP ) )
@@ -65,5 +66,5 @@ float4 main( PS_INPUT input ) : SV_TARGET
         indirectLight += irrandiance;
     }
 
-    return float4( indirectLight, 1.f );
+    return MoveGammaSpace( float4( indirectLight, 1.f ) );
 }

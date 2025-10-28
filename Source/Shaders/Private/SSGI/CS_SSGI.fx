@@ -152,7 +152,7 @@ float3 GenerateGI( float2 uv, float2 deltaUV, float3 p, float3 np, uint numSteps
 
         uint bj = ( ( 1 << b ) - 1 ) << a;
 
-        float3 cj = SceneColor.SampleLevel( BlackBorderSampler, sampleUV, 0 ).xyz;
+        float3 cj = MoveLinearSpace( SceneColor.SampleLevel( BlackBorderSampler, sampleUV, 0 ) ).rgb;
         float3 nj = GetViewNormal( sampleUV );
         float3 lj = normalize( sf - p );
 
