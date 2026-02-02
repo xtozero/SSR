@@ -142,7 +142,7 @@ namespace rendercore
                                           false );
             } );
 
-        // Draw visiblity buffer
+        // Draw visibility buffer
         auto rgDepthStencil = renderGraph.RegisterExternalResource( param.m_depthStencil );
 
         BEGIN_RG_RESOURCE_STRUCT( VisibilityPassResource )

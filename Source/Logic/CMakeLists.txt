@@ -42,7 +42,6 @@ set (CONFIG
 	Public/Config/DefaultLogicConfig.h)
 	
 set (CORE
-	Private/Core/DebugConsole.cpp
 	Private/Core/DebugDrawHelper.cpp
 	Private/Core/dllmain.cpp
 	Private/Core/GameLogic.cpp
@@ -51,7 +50,6 @@ set (CORE
 	Private/Core/ThinkTaskManager.cpp
 	Private/Core/Timer.cpp
 	Private/Core/WeldingTransformRules.cpp
-	Public/Core/DebugConsole.h
 	Public/Core/DebugDrawHelper.h
 	Public/Core/GameLogic.h
 	Public/Core/IListener.h

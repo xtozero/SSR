@@ -19,8 +19,10 @@ set (CONSOLE_MESSAGE_SOURCES
 set (CORE_SOURCE
 	Private/Core/dllmain.cpp
 	Private/Core/Engine.cpp
+	Private/Core/LogMessage.cpp
 	Private/Core/ModuleInit.cpp
-	Public/Core/IEngine.h)
+	Public/Core/IEngine.h
+	Public/Core/LogMessage.h)
 	
 set (CPU_PROFILER_HEADER
 	Public/CpuProfiler/CpuProfiler.h)

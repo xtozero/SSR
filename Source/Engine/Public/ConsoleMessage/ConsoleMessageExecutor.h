@@ -1,17 +1,10 @@
 #pragma once
 
-#include "ConCommand.h"
 #include "IConsoleMessage.h"
-#include "LibraryTool/Common.h"
 #include "SizedTypes.h"
 
-#include <cstddef>
-#include <functional>
 #include <map>
-#include <memory>
 #include <mutex>
-#include <stack>
-#include <tchar.h>
 #include <vector>
 
 namespace engine
@@ -27,8 +20,10 @@ namespace engine
 		virtual const std::vector<std::string>& ArgV() const = 0;
 		virtual size_t ArgC() const = 0;
 
+		virtual const std::map<std::string, IConsoleMessage*>& GetConsoleMessages() const = 0;
+
+		static IConsoleMessageExecutor& GetInstance();
+
 		virtual ~IConsoleMessageExecutor() = default;
 	};
-
-	ENGINE_FUNC_DLL IConsoleMessageExecutor& GetConsoleMessageExecutor();
 }

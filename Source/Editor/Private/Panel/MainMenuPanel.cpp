@@ -2,10 +2,11 @@
 
 #include "ExternalTools/AssetBuilderLauncher.h"
 #include "IEditor.h"
-#include "imgui.h"
 #include "Renderer/IRenderCore.h"
 #include "PanelFactory.h"
 #include "PanelSharedContext.h"
+
+#include <imgui.h>
 
 namespace editor
 {
@@ -31,12 +32,6 @@ namespace editor
 				if ( ImGui::MenuItem( "Pipeline Statistics", nullptr, &showPipelineStatistics ) )
 				{
 					sharedCtx.OpenPipelineStatistics( showPipelineStatistics );
-				}
-
-				// Debug Console
-				if ( ImGui::MenuItem( "Debug Console", nullptr, &m_isDebugConsoleVisible ) )
-				{
-					editor.ToggleDebugConsole();
 				}
 
 				ImGui::EndMenu();

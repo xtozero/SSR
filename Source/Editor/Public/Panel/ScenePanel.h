@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ConsoleInputWidget.h"
 #include "IPanel.h"
 #include "SizedTypes.h"
 
@@ -23,6 +24,9 @@ namespace editor
 	private:
 		RectangleArea<float> m_panelArea = {};
 		std::pair<uint32, uint32> m_viewportResolution = {};
+
 		bool m_passingInputToLogic = false;
+
+		ConsoleInputWidget m_consoleInputWidget;
 	};
 }

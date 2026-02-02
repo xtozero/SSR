@@ -740,6 +740,8 @@ namespace rendercore
 			return {};
 		}
 
+		CPU_PROFILE( SceneRenderer_BuildVisibilityPassData );
+
 		RenderViewInfo& viewInfo = m_viewInfo[viewIndex];
 
 		struct VisibilitySortEntry

@@ -5,7 +5,6 @@
 #include "Config/DefaultLogicConfig.h"
 #include "Config/DefaultRenderCoreConfig.h"
 #include "ConsoleMessage/ConsoleMessageExecutor.h"
-#include "Core/DebugConsole.h"
 #include "Core/IEngine.h"
 #include "Core/Timer.h"
 #include "Core/UtilWindowInfo.h"
@@ -198,18 +197,6 @@ namespace logic
 		return m_world;
 	}
 
-	void GameLogic::ToggleDebugConsole()
-	{
-		if ( m_commandConsole )
-		{
-			m_commandConsole = nullptr;
-		}
-		else
-		{
-			m_commandConsole = std::make_unique<DebugConsole>();
-		}
-	}
-
 	void GameLogic::SpawnObject( Owner<GameObject*> object )
 	{
 		m_world.SpawnObject( *this, object );
@@ -236,7 +223,7 @@ namespace logic
 		CPU_PROFILE( StartLogic );
 
 		// Preprocessing before executing game logic
-		engine::GetConsoleMessageExecutor().Execute();
+		GetInterface<engine::IConsoleMessageExecutor>()->Execute();
 		GetInterface<engine::IEngine>()->ProcessInput();
 
 		m_world.BeginFrame();

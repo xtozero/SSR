@@ -32,16 +32,22 @@ set (PANEL
 	./Public/Panel/ScenePanel.h
 	./Public/Panel/WorldOutlinePanel.h)
 
+set (WIDGET
+    ./Private/Widget/ConsoleInputWidget.cpp
+    ./Public/Widget/ConsoleInputWidget.h)
+
 source_group("Core" FILES ${CORE})
 source_group("ImguiEditor" FILES ${IMGUI_EDITOR})
 source_group("Panel" FILES ${PANEL})
+source_group("Widget" FILES ${WIDGET})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 add_library(Editor SHARED	${CORE}
 							${IMGUI_EDITOR}
-							${PANEL})
+							${PANEL}
+							${WIDGET})
 
 target_include_directories(Editor
 PUBLIC
@@ -51,6 +57,7 @@ PRIVATE
 	./Public/Core
 	./Public/ImguiEditor
 	./Public/Panel
+	./Public/Widget
 )
 
 target_link_libraries(Editor

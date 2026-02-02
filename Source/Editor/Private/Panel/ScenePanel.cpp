@@ -62,7 +62,7 @@ namespace editor
             return;
         }
 
-        ImGui::Begin( "Scene" );
+	    ImGui::Begin( "Scene" );
         {
             ImVec2 panelMin = ImGui::GetWindowContentRegionMin() + ImGui::GetWindowPos();
             ImVec2 panelMax = ImGui::GetWindowContentRegionMax() + ImGui::GetWindowPos();
@@ -73,32 +73,36 @@ namespace editor
                 .m_bottom = panelMax.y
             };
 
-			m_passingInputToLogic = ( ImGui::IsWindowHovered() && ImGui::IsWindowFocused() && ImGui::IsWindowDocked() );
+            m_passingInputToLogic = ( ImGui::IsWindowHovered() && ImGui::IsWindowFocused() && ImGui::IsWindowDocked() );
 
             ImVec2 contentRegionAvail = ImGui::GetContentRegionAvail();
-			if ( contentRegionAvail.x > 0 && contentRegionAvail.y > 0 )
-			{
+            if ( contentRegionAvail.x > 0 && contentRegionAvail.y > 0 )
+            {
                 std::pair<uint32, uint32> viewportResolution = {
                     static_cast<uint32>( contentRegionAvail.x ),
                     static_cast<uint32>( contentRegionAvail.y )
                 };
 
-				if ( m_viewportResolution != viewportResolution )
-				{
-					viewport->Resize( viewportResolution );
-					m_viewportResolution = viewportResolution;
-				}
+                if ( m_viewportResolution != viewportResolution )
+                {
+                    viewport->Resize( viewportResolution );
+                    m_viewportResolution = viewportResolution;
+                }
                 else
                 {
                     ImGui::Image( (ImTextureID)viewport->Texture(), contentRegionAvail );
                 }
-			}
+
+                m_consoleInputWidget.Draw();
+            }
         }
-        ImGui::End();
+	    ImGui::End();
 	}
 
     void ScenePanel::HandleUserInput( const engine::UserInput& input )
     {
+        m_consoleInputWidget.HandleUserInput( input );
+
         static auto* logic = GetInterface<logic::ILogic>();
         if ( m_passingInputToLogic == false )
         {

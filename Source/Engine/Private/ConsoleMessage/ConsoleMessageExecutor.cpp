@@ -1,9 +1,10 @@
 #include "ConsoleMessageExecutor.h"
 
+#include "ConCommand.h"
 #include "DebugUtil.h"
 #include "Platform/PlatformProcess.h"
 
-#include <cstddef>
+#include <stack>
 
 namespace engine
 {
@@ -65,21 +66,13 @@ namespace engine
 			}
 		}
 
-		void PrintConsoleMessages() const
-		{
-			for ( const auto& message : m_consoleMessages )
-			{
-				if ( message.second == nullptr )
-				{
-					return;
-				}
-
-				DebugMsg( "%s - %s\n", message.first.c_str(), message.second->GetDescription().c_str() );
-			}
-		}
-
 		virtual const std::vector<std::string>& ArgV() const override { return m_argV; }
 		virtual size_t ArgC() const override { return m_argC; }
+
+		virtual const std::map<std::string, IConsoleMessage*>& GetConsoleMessages() const override
+		{
+			return m_consoleMessages;
+		}
 
 	private:
 		void TokenizingCmdString( const std::string& cmdString )
@@ -98,16 +91,11 @@ namespace engine
 		std::mutex m_commandStackMutex;
 	};
 
-	IConsoleMessageExecutor& GetConsoleMessageExecutor()
+	IConsoleMessageExecutor& IConsoleMessageExecutor::GetInstance()
 	{
 		static ConsoleMessageExecutor consoleMessageExecutor;
 		return consoleMessageExecutor;
 	}
-}
-
-ConCommand( list, "List of Registed Console Messages" )
-{
-	static_cast<engine::ConsoleMessageExecutor&>( engine::GetConsoleMessageExecutor( ) ).PrintConsoleMessages( );
 }
 
 ConCommand( exit, "Terminate Process" )

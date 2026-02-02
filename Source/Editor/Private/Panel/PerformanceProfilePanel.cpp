@@ -3,11 +3,12 @@
 #include "CpuProfiler/CpuProfiler.h"
 #include "GpuProfiler/GpuProfiler.h"
 #include "IEditor.h"
-#include "imgui.h"
 #include "LibraryTool/InterfaceFactories.h"
 #include "Multithread/TaskScheduler.h"
 #include "PanelFactory.h"
 #include "PanelSharedContext.h"
+
+#include <imgui.h>
 
 using ::engine::CpuProfileData;
 using ::engine::ICpuProfiler;

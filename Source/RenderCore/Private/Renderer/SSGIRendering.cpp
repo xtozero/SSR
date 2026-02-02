@@ -252,7 +252,7 @@ namespace rendercore
 			.m_denoisedSSGI = rgDenoisedSSGITex
 		};
 
-		int kernelRadius = param.m_denoiseKernelRadius;
+		int32 kernelRadius = param.m_denoiseKernelRadius;
 
 		renderGraph.AddPass( ssgiDenoiseResource,
 			[ssgiDenoiseResource, kernelRadius, screenSize]( ComputeCommandList& commandList )

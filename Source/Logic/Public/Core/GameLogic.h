@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Core/DebugConsole.h"
 #include "GameObject/Player.h"
 #include "GraphicsResource/Canvas.h"
 #include "GraphicsResource/Viewport.h"
@@ -40,7 +39,6 @@ namespace logic
 		virtual bool LoadWorld( const char* filePath ) override;
 		virtual void UnloadWorld() override;
 		virtual World& GetWorld() override;
-		virtual void ToggleDebugConsole() override;
 
 		void SpawnObject( Owner<GameObject*> object );
 
@@ -81,6 +79,5 @@ namespace logic
 		std::unique_ptr<GameClientViewport> m_gameViewport;
 
 		std::atomic<int64> m_numDrawRequestQueued = 0;
-		std::unique_ptr<DebugConsole> m_commandConsole = nullptr;
 	};
 }

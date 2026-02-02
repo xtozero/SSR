@@ -2,9 +2,10 @@
 
 #include "GpuProfiler/GpuProfiler.h"
 #include "IEditor.h"
-#include "imgui.h"
 #include "PanelFactory.h"
 #include "PanelSharedContext.h"
+
+#include <imgui.h>
 
 using ::rendercore::IGpuProfiler;
 using ::rendercore::PipelineStatData;

@@ -18,11 +18,6 @@ namespace engine
 		, m_description( description )
 		, m_func( function )
 	{
-		GetConsoleMessageExecutor().RegistConsoleMessage( name, this );
+		IConsoleMessageExecutor::GetInstance().RegistConsoleMessage( name, this );
 	}
-}
-
-ConCommand( test, "Test Console Command" )
-{
-	DebugMsg( "test concommand executed!!\n" );
 }

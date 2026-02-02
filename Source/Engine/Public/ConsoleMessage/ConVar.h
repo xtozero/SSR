@@ -31,6 +31,3 @@ namespace engine
 		float m_fValue;
 	};
 }
-
-#define ConVar( name, initValue, description ) \
-	static engine::ConVariable name( #name, initValue, description )

@@ -2,11 +2,13 @@
 #include "AssetFactory.h"
 #include "AssetLoader.h"
 #include "CommandLine.h"
+#include "ConsoleMessageExecutor.h"
 #include "CpuProfiler.h"
 #include "EnumStringMap.h"
 #include "FileSystem.h"
 #include "IEngine.h"
 #include "InterfaceFactories.h"
+#include "LogMessage.h"
 #include "NameTypes.h"
 #include "TaskScheduler.h"
 #include "TransientAllocator.h"
@@ -48,6 +50,11 @@ namespace
 		return GCommandLine;
 	}
 
+	void* GetConsoleMessageExecutor()
+	{
+		return &engine::IConsoleMessageExecutor::GetInstance();
+	}
+
 	void* GetCpuProfiler()
 	{
 		return GCpuProfiler;
@@ -61,6 +68,11 @@ namespace
 	void* GetGameEngine()
 	{
 		return GEngine;
+	}
+
+	void* GetLogMessage()
+	{
+		return &engine::ILogMessage::GetInstance();
 	}
 
 	void* GetNamePool()
@@ -87,10 +99,12 @@ namespace engine
 		RegisterFactory<IAppConfig>( &GetAppConfig );
 		RegisterFactory<IAssetFactory>( &GetAssetFactory );
 		RegisterFactory<IAssetLoader>( &GetAssetLoader );
+		RegisterFactory<IConsoleMessageExecutor>( &GetConsoleMessageExecutor );
 		RegisterFactory<ICpuProfiler>( &GetCpuProfiler );
 		RegisterFactory<IEngine>( &GetGameEngine );
 		RegisterFactory<IEnumStringMap>( &GetEnumStringMap );
 		RegisterFactory<IFileSystem>( &GetFileSystem );
+		RegisterFactory<ILogMessage>( &GetLogMessage );
 		RegisterFactory<INamePool>( &GetNamePool );
 		RegisterFactory<ITaskScheduler>( &GetTaskScheduler );
 		RegisterFactory<TransientAllocators>( &GetTransientAllocators );
@@ -122,10 +136,12 @@ namespace engine
 		UnregisterFactory<IAppConfig>();
 		UnregisterFactory<IAssetFactory>();
 		UnregisterFactory<IAssetLoader>();
+		UnregisterFactory<IConsoleMessageExecutor>();
 		UnregisterFactory<ICpuProfiler>();
 		UnregisterFactory<IEngine>();
 		UnregisterFactory<IEnumStringMap>();
 		UnregisterFactory<IFileSystem>();
+		UnregisterFactory<ILogMessage>();
 		UnregisterFactory<INamePool>();
 		UnregisterFactory<ITaskScheduler>();
 		UnregisterFactory<TransientAllocators>();

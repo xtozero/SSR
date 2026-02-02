@@ -8,7 +8,6 @@
 #include "GlobalShaders.h"
 #include "GpuProfiler.h"
 #include "GraphicsApiResource.h"
-#include "imgui.h"
 #include "MeshDrawInfo.h"
 #include "PassProcessor.h"
 #include "RenderGraph.h"
@@ -22,6 +21,8 @@
 #include "StaticState.h"
 #include "Texture.h"
 #include "VertexCollection.h"
+
+#include <imgui.h>
 
 namespace rendercore
 {

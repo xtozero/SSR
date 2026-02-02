@@ -1,30 +1,29 @@
 #include "ConVar.h"
 
 #include "ConsoleMessageExecutor.h"
-#include "DebugUtil.h"
+#include "LogMessage.h"
 
-#include <cstddef>
-#include <tchar.h>
 #include <vector>
 
 namespace
 {
-	ConVar( ConVarTest, "1", "Console variable for test" );
+	engine::ConVariable ConVarTest( "convarTest", "1", "Console variable for test" );
 }
 
 namespace engine
 {
 	void ConVariable::Execute()
 	{
-		size_t argC = GetConsoleMessageExecutor().ArgC();
+		auto& consoleMessageExecutor = IConsoleMessageExecutor::GetInstance();
+		size_t argC = consoleMessageExecutor.ArgC();
 
 		if ( argC == 1 )
 		{
-			DebugMsg( "%s - %s\n", m_name.c_str(), m_value.c_str() );
+			ILogMessage::GetInstance().Log( "{} - {}", m_name, m_value );
 		}
 		else
 		{
-			const std::vector<std::string>& argV = GetConsoleMessageExecutor().ArgV();
+			const std::vector<std::string>& argV = consoleMessageExecutor.ArgV();
 			SetValue( argV[1] );
 		}
 	}
@@ -41,6 +40,6 @@ namespace engine
 		m_description( description )
 	{
 		SetValue( value );
-		GetConsoleMessageExecutor().RegistConsoleMessage( name, this );
+		IConsoleMessageExecutor::GetInstance().RegistConsoleMessage( name, this );
 	}
 }

@@ -1,10 +1,11 @@
 #include "WorldOutlinePanel.h"
 
 #include "IEditor.h"
-#include "imgui.h"
 #include "PanelFactory.h"
 #include "PanelSharedContext.h"
 #include "World/World.h"
+
+#include <imgui.h>
 
 using ::logic::World;
 

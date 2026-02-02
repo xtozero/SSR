@@ -1,20 +1,22 @@
 #include "ImguiEditor.h"
 
-#include "imgui.h"
-#include "imgui_impl_win32.h"
+#include "ConsoleMessage/ConVar.h"
 #include "IPanel.h"
 #include "LibraryTool/InterfaceFactories.h"
 #include "PanelFactory.h"
 #include "Platform/IPlatform.h"
 #include "UserInput/UserInput.h"
 
-constexpr int32 ShowImGuiShowCase = 0;
+#include <imgui.h>
+#include <imgui_impl_win32.h>
 
 using ::engine::UserInput;
 using enum ::engine::UserInputCode;
 
 namespace
 {
+    engine::ConVariable ShowImGuiShowCase( "r.showImGuiShowCase", "0", "Show ImGui showcase" );
+
     ImGuiKey UserInputCodeToImGuiKey( engine::UserInputCode code )
     {
         switch ( code )
@@ -162,7 +164,7 @@ namespace editor
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
         ImGui::DockSpaceOverViewport( 0, viewport, ImGuiDockNodeFlags_PassthruCentralNode );
 
-        if constexpr ( ShowImGuiShowCase )
+        if ( ShowImGuiShowCase.GetBool() )
         {
             ImGui::ShowDemoWindow();
         }
@@ -280,11 +282,6 @@ namespace editor
     logic::World& ImguiEditor::GetWorld()
     {
         return m_logic->GetWorld();
-    }
-
-    void ImguiEditor::ToggleDebugConsole()
-    {
-        m_logic->ToggleDebugConsole();
     }
 
     PanelSharedContext& ImguiEditor::GetPanelSharedCtx()
