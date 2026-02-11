@@ -33,8 +33,10 @@ namespace agl
 		void Prepare();
 		D3D12GlobalHeapAllocatedInfo Aquire( D3D12_DESCRIPTOR_HEAP_TYPE type, uint32 num );
 
+		D3D12GlobalDescriptorHeap();
+
 	private:
-		constexpr static uint32 DefaultHeapSize = 1024;
+		static constexpr uint32 DefaultHeapCapacity = 1024;
 
 		struct DescriptorHeapInfo final
 		{
@@ -43,8 +45,13 @@ namespace agl
 			uint32 m_size = 0;
 		};
 
+		uint32 CalcHeapCapacity( uint32 oldCapacity, uint32 newSize ) const;
+		uint32 GetHeapCapacity( D3D12_DESCRIPTOR_HEAP_TYPE type ) const;
+
 		DescriptorHeapInfo AllocateDefaultHeap( D3D12_DESCRIPTOR_HEAP_TYPE type );
 		DescriptorHeapInfo* GetLastestHeap( D3D12_DESCRIPTOR_HEAP_TYPE type );
+
+		uint32 m_curHeapCapacity[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
 
 		std::vector<DescriptorHeapInfo> m_heaps[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
 		uint32 m_top[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES] = {};

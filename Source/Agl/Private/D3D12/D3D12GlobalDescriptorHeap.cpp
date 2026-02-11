@@ -7,9 +7,19 @@ namespace agl
 		for ( int32 i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; ++i )
 		{
 			m_top[i] = 0;
-			for ( DescriptorHeapInfo& descriptorHeap : m_heaps[i] )
+			for ( auto iter = m_heaps[i].begin(); iter != m_heaps[i].end(); )
 			{
+				auto& descriptorHeap = *iter;
+
 				descriptorHeap.m_size = 0;
+				if ( descriptorHeap.m_capacity < m_curHeapCapacity[i] )
+				{
+					iter = m_heaps[i].erase( iter );
+				}
+				else
+				{
+					++iter;
+				}
 			}
 		}
 	}
@@ -17,9 +27,18 @@ namespace agl
 	D3D12GlobalHeapAllocatedInfo D3D12GlobalDescriptorHeap::Aquire( D3D12_DESCRIPTOR_HEAP_TYPE type, uint32 num )
 	{
 		DescriptorHeapInfo* lastest = GetLastestHeap( type );
-		if ( lastest->m_capacity - lastest->m_size < num )
+		if ( lastest->m_capacity < lastest->m_size + num )
 		{
-			++m_top[type];
+			if ( num > GetHeapCapacity( type ) )
+			{
+				m_curHeapCapacity[type] = CalcHeapCapacity( m_curHeapCapacity[type], num );
+				m_top[type] = m_heaps[type].size();
+			}
+			else
+			{
+				++m_top[type];
+			}
+
 			if ( m_top[type] >= m_heaps[type].size() )
 			{
 				m_heaps[type].push_back( AllocateDefaultHeap( type ) );
@@ -34,11 +53,43 @@ namespace agl
 		return allocatedInfo;
 	}
 
+	D3D12GlobalDescriptorHeap::D3D12GlobalDescriptorHeap()
+	{
+		for ( uint32& defaultHeapCapacity : m_curHeapCapacity )
+		{
+			defaultHeapCapacity = DefaultHeapCapacity;
+		}
+	}
+
+	uint32 D3D12GlobalDescriptorHeap::CalcHeapCapacity(  uint32 oldCapacity, uint32 newSize ) const
+	{
+		if ( oldCapacity > std::numeric_limits<uint32>::max() - oldCapacity / 2 )
+		{
+			return std::numeric_limits<uint32>::max();
+		}
+
+		uint32 newCapacity = oldCapacity + oldCapacity / 2;
+
+		if ( newCapacity < newSize )
+		{
+			return newSize;
+		}
+
+		return newCapacity;
+	}
+
+	uint32 D3D12GlobalDescriptorHeap::GetHeapCapacity( D3D12_DESCRIPTOR_HEAP_TYPE type ) const
+	{
+		return m_curHeapCapacity[type];
+	}
+
 	D3D12GlobalDescriptorHeap::DescriptorHeapInfo D3D12GlobalDescriptorHeap::AllocateDefaultHeap( D3D12_DESCRIPTOR_HEAP_TYPE type )
 	{
+		uint32 capacity = GetHeapCapacity( type );
+
 		DescriptorHeapInfo newHeap = {
-			.m_heap = D3D12DescriptorHeapAllocator::GetInstance().AllocGpuDescriptorHeap( type, DefaultHeapSize ),
-			.m_capacity = DefaultHeapSize,
+			.m_heap = D3D12DescriptorHeapAllocator::GetInstance().AllocGpuDescriptorHeap( type, capacity ),
+			.m_capacity = capacity,
 			.m_size = 0
 		};
 
