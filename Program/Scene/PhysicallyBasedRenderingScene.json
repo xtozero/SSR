@@ -5,7 +5,7 @@
         "Class": "skybox",
         "Components": {
           "TexturedSkyComponent": {
-            "Material": "./Assets/Skybox/M_TropicalSunnyDay.asset"
+            "Material": "./Assets/Textures/SkyboxSet/TropicalSunnyDay/M_TropicalSunnyDay.asset"
           }
         }
       }

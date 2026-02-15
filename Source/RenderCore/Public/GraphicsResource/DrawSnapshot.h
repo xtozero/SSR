@@ -193,7 +193,7 @@ namespace rendercore
 		// TODO : Remove copy if possible
 		agl::ShaderBindings shaderBindings = snapshot.m_shaderBindings;
 
-		const ShaderBase* shaders[agl::MAX_SHADER_TYPE<uint32>] = {
+		const ShaderBase* shaders[agl::NumShaderTypes<uint32>] = {
 			shaderState.m_vertexShader,
 			nullptr,
 			nullptr,

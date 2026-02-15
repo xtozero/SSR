@@ -21,8 +21,10 @@ set (CORE_SOURCE
 	Private/Core/Engine.cpp
 	Private/Core/LogMessage.cpp
 	Private/Core/ModuleInit.cpp
+	Private/Core/Paths.cpp
 	Public/Core/IEngine.h
-	Public/Core/LogMessage.h)
+	Public/Core/LogMessage.h
+	Public/Core/Paths.h)
 	
 set (CPU_PROFILER_HEADER
 	Public/CpuProfiler/CpuProfiler.h)

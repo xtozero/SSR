@@ -18,7 +18,7 @@ namespace rendercore
 	class TAAResolvePS final : public GlobalShaderCommon<PixelShader, TAAResolvePS>
 	{};
 
-	REGISTER_GLOBAL_SHADER( TAAResolvePS, "./Assets/Shaders/TemporalAntiAliasing/PS_TAAResolve.asset" );
+	REGISTER_GLOBAL_SHADER( TAAResolvePS, "TemporalAntiAliasing/PS_TAAResolve.fx", agl::ShaderType::PS, "main" );
 
 	std::optional<DrawSnapshot> TAAResolveProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{

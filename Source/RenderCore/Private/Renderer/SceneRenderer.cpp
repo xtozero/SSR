@@ -117,7 +117,7 @@ namespace rendercore
 
 	void ResourceBinder::Bind( const ShaderBase*(& shaders)[8], agl::ShaderBindings& outBindings ) const
 	{
-		for ( uint32 shaderType = 0; shaderType < agl::MAX_SHADER_TYPE<uint32>; ++shaderType )
+		for ( uint32 shaderType = 0; shaderType < agl::NumShaderTypes<uint32>; ++shaderType )
 		{
 			if ( shaders[shaderType] == nullptr )
 			{
@@ -224,10 +224,10 @@ namespace rendercore
 
 	void RasterOutput::Bind( CommandList& commandList ) const
 	{
-		agl::RenderTargetView* rtvs[agl::MAX_RENDER_TARGET] = {};
+		agl::RenderTargetView* rtvs[agl::MaxRendertagets] = {};
 		agl::DepthStencilView* dsv = nullptr;
 
-		for ( uint32 i = 0; i < agl::MAX_RENDER_TARGET; ++i )
+		for ( uint32 i = 0; i < agl::MaxRendertagets; ++i )
 		{
 			if ( m_renderTargets[i].m_texture )
 			{
@@ -240,7 +240,7 @@ namespace rendercore
 			dsv = m_depthStencil.m_texture->Get()->DSV();
 		}
 
-		commandList.BindRenderTargets( rtvs, agl::MAX_RENDER_TARGET, dsv );
+		commandList.BindRenderTargets( rtvs, agl::MaxRendertagets, dsv );
 		commandList.SetViewports( 1, &m_viewport );
 		commandList.SetScissorRects( 1, &m_scissorRect );
 	}

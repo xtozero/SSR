@@ -25,7 +25,7 @@ namespace rendercore
 		using GlobalShaderCommon::GlobalShaderCommon;
 	};
 
-	REGISTER_GLOBAL_SHADER( RSMsEvaluationPS, "./Assets/Shaders/IndirectLighting/RSMs/PS_RSMsEvaluation.asset" );
+	REGISTER_GLOBAL_SHADER( RSMsEvaluationPS, "IndirectLighting/RSMs/PS_RSMsEvaluation.fx", agl::ShaderType::PS, "main" );
 
 	class RSMsDrawPassProcessor final : public IPassProcessor
 	{

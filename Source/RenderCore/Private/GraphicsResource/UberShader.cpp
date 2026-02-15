@@ -127,6 +127,11 @@ namespace rendercore
 		m_type = type;
 	}
 
+	void UberShader::SetEntryPoint( const std::string& entryPoint )
+	{
+		m_entryPoint = entryPoint;
+	}
+
 	void UberShader::SetShaderCode( const std::string& shaderCode )
 	{
 		std::construct_at( &m_shaderCode, static_cast<uint32>( shaderCode.length() ) );
@@ -179,7 +184,7 @@ namespace rendercore
 		defines.emplace_back( nullptr );
 		defines.emplace_back( nullptr );
 
-		return GraphicsInterface().CompieShader( m_shaderCode, defines, m_type );
+		return GraphicsInterface().CompieShader( m_shaderCode, defines, m_type, m_entryPoint.c_str() );
 	}
 
 	void UberShader::PostLoadImpl()

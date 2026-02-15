@@ -41,7 +41,7 @@ namespace rendercore
 		SamplerState FindOrCreate( const SamplerOption& option );
 		VertexLayout FindOrCreate( const VertexShader& vs, const VertexLayoutDesc& desc );
 
-		BinaryChunk CompieShader( const BinaryChunk& source, std::vector<const char*>& defines, agl::ShaderType type ) const;
+		BinaryChunk CompieShader( const BinaryChunk& source, std::vector<const char*>& defines, agl::ShaderType type, const char* entryPoint ) const;
 		bool BuildShaderMetaData( const BinaryChunk& byteCode, agl::ShaderParameterMap& outParameterMap, agl::ShaderParameterInfo& outParameterInfo ) const;
 
 		void WaitQueue( agl::QueueType type );

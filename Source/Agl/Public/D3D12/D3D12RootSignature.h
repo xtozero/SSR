@@ -10,7 +10,7 @@ namespace agl
 {
 	class ComputePipelineStateInitializer;
 	class GraphicsPipelineStateInitializer;
-	class ShaderBase;
+	class Shader;
 	class ShaderParameterInfo;
 
 	class ResourceStatistics
@@ -106,7 +106,7 @@ namespace agl
 		void InitializeCB( ShaderType shaderType, const ShaderParameterInfo& paramInfo );
 		void InitializeSampler( ShaderType shaderType, const ShaderParameterInfo& paramInfo );
 
-		using InlineShaderArray = std::vector<std::pair<ShaderType, ShaderBase*>, InlineAllocator<std::pair<ShaderType, ShaderBase*>, MAX_SHADER_TYPE<uint32>>>;
+		using InlineShaderArray = std::vector<std::pair<ShaderType, Shader*>, InlineAllocator<std::pair<ShaderType, Shader*>, NumShaderTypes<uint32>>>;
 		void InitializeForBindless( InlineShaderArray& shaders );
 
 		ID3D12RootSignature* m_rootSignature = nullptr;

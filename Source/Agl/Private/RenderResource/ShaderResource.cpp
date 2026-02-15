@@ -5,7 +5,7 @@
 
 namespace agl
 {
-	void ShaderBase::UpdateByteCodeAndParameterInfo( const void* byteCode, size_t byteCodeSize,
+	void Shader::UpdateByteCodeAndParameterInfo( const void* byteCode, size_t byteCodeSize,
 		const ShaderParameterInfo& paramInfo )
 	{
 		m_byteCodeSize = byteCodeSize;

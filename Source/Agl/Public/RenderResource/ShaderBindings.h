@@ -336,7 +336,7 @@ namespace agl
 		}
 
 	private:
-		const ShaderParameterInfo* m_shaderParameterInfos[MAX_SHADER_TYPE<uint32>] = {};
+		const ShaderParameterInfo* m_shaderParameterInfos[NumShaderTypes<uint32>] = {};
 	};
 
 	class ShaderBindings final
@@ -349,7 +349,7 @@ namespace agl
 			size_t shaderBindsDataSize = 0;
 			m_shaderLayouts = new ShaderBindingLayout[numShaders];
 
-			for ( uint32 i = 0; i < MAX_SHADER_TYPE<uint32>; ++i )
+			for ( uint32 i = 0; i < NumShaderTypes<uint32>; ++i )
 			{
 				auto shaderType = static_cast<ShaderType>( i );
 				if ( initializer[shaderType] )

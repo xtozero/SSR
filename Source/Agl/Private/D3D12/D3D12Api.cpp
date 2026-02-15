@@ -3,6 +3,7 @@
 #include "Archive.h"
 
 #include "Config/DefaultAglConfig.h"
+#include "Core/Paths.h"
 
 #include "D3D12BindlessManager.h"
 #include "D3D12CommandList.h"
@@ -195,14 +196,14 @@ namespace agl
 		virtual ICommandList* GetParallelCommandList() override;
 		virtual IComputeCommandList* GetComputeCommandList() override;
 
-		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, agl::ShaderType type ) const override;
+		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, agl::ShaderType type, const char* entryPoint ) const override;
 		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const override;
 
-		virtual const char* GetShaderCacheFilePath() const override;
+		virtual std::filesystem::path GetShaderCacheFilePath() const override;
 
 		virtual bool SupportsPSOCache() const override;
 		virtual bool SupportsPSOLibraryCache() const override;
-		virtual const char* GetPSOCacheFilePath() const override;
+		virtual std::filesystem::path GetPSOCacheFilePath() const override;
 
 		virtual bool SupportsMeshShader() const override;
 
@@ -230,6 +231,7 @@ namespace agl
 	private:
 		bool CreateDeviceDependentResource();
 		bool CreateDeviceIndependentResource();
+		bool CheckFeatureSupport();
 
 		const wchar_t* GetShaderProfile( ShaderType type ) const;
 
@@ -297,6 +299,11 @@ namespace agl
 		}
 
 		if ( CreateDeviceDependentResource() == false )
+		{
+			return false;
+		}
+
+		if ( CheckFeatureSupport() == false )
 		{
 			return false;
 		}
@@ -476,7 +483,7 @@ namespace agl
 		return &m_computeCommandList[m_frameIndex];
 	}
 
-	BinaryChunk Direct3D12::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, agl::ShaderType type ) const
+	BinaryChunk Direct3D12::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, agl::ShaderType type, const char* entryPoint ) const
 	{
 		DxcBuffer buffer = {
 			.Ptr = source.Data(),
@@ -488,7 +495,11 @@ namespace agl
 
 		// entry point
 		args.push_back( L"-E" );
-		args.push_back( L"main" );
+		wchar_t wEntryPoint[64] = {};
+		{
+			ToWideChar( wEntryPoint, std::extent_v<decltype( wEntryPoint )>, entryPoint );
+		}
+		args.push_back( wEntryPoint );
 
 		// target profile
 		args.push_back( L"-T" );
@@ -589,9 +600,10 @@ namespace agl
 		return true;
 	}
 
-	const char* Direct3D12::GetShaderCacheFilePath() const
+	std::filesystem::path Direct3D12::GetShaderCacheFilePath() const
 	{
-		return "./Assets/Shaders/ShaderCache-d3d12.asset";
+		static auto shaderCacheFilePath = engine::Paths::GetShaderAssetRootDir() / "ShaderCache-d3d12.asset";
+		return shaderCacheFilePath;
 	}
 
 	bool Direct3D12::SupportsPSOCache() const
@@ -604,9 +616,10 @@ namespace agl
 		return m_psoLibraryCacheAvailable;
 	}
 
-	const char* Direct3D12::GetPSOCacheFilePath() const
+	std::filesystem::path Direct3D12::GetPSOCacheFilePath() const
 	{
-		return "./Assets/Shaders/PSOCache-d3d12.asset";
+		static auto psoCacheFilePath = engine::Paths::GetShaderAssetRootDir() / "PSOCache-d3d12.asset";
+		return psoCacheFilePath;
 	}
 
 	bool Direct3D12::SupportsMeshShader() const
@@ -762,69 +775,6 @@ namespace agl
 			return false;
 		}
 
-		D3D12_FEATURE_DATA_SHADER_CACHE shaderCacheFeature = {};
-		hr = m_device->CheckFeatureSupport( D3D12_FEATURE_SHADER_CACHE, &shaderCacheFeature, sizeof( shaderCacheFeature ) );
-
-		if ( FAILED( hr ) )
-		{
-			return false;
-		}
-
-		m_psoLibraryCacheAvailable = shaderCacheFeature.SupportFlags & D3D12_SHADER_CACHE_SUPPORT_LIBRARY;
-
-		D3D12_FEATURE_DATA_D3D12_OPTIONS1 featureOptions1 = {};
-		hr = m_device->CheckFeatureSupport( D3D12_FEATURE_D3D12_OPTIONS1, &featureOptions1, sizeof( featureOptions1 ) );
-
-		if ( FAILED( hr ) )
-		{
-			return false;
-		}
-
-		m_waveIntrinsicsAvailable = featureOptions1.WaveOps;
-
-		D3D12_FEATURE_DATA_D3D12_OPTIONS5 featureOption5 = {};
-		hr = m_device->CheckFeatureSupport( D3D12_FEATURE_D3D12_OPTIONS5, &featureOption5, sizeof( featureOption5 ) );
-
-		if ( FAILED( hr ) )
-		{
-			return false;
-		}
-
-		m_raytracingAvailable = ( featureOption5.RaytracingTier != D3D12_RAYTRACING_TIER_NOT_SUPPORTED );
-
-		D3D12_FEATURE_DATA_D3D12_OPTIONS7 featureOption7 = {};
-		hr = m_device->CheckFeatureSupport( D3D12_FEATURE_D3D12_OPTIONS7, &featureOption7, sizeof( featureOption7 ) );
-
-		if ( FAILED( hr ) )
-		{
-			return false;
-		}
-
-		m_meshShaderAvailable = ( featureOption7.MeshShaderTier != D3D12_MESH_SHADER_TIER_NOT_SUPPORTED );
-
-		D3D_SHADER_MODEL allModelVersions[] = {
-			D3D_SHADER_MODEL_6_7,
-			D3D_SHADER_MODEL_6_6,
-			D3D_SHADER_MODEL_6_5,
-			D3D_SHADER_MODEL_6_4,
-			D3D_SHADER_MODEL_6_3,
-			D3D_SHADER_MODEL_6_2,
-			D3D_SHADER_MODEL_6_1,
-			D3D_SHADER_MODEL_6_0,
-			D3D_SHADER_MODEL_5_1
-		};
-
-		for ( D3D_SHADER_MODEL shaderModel : allModelVersions )
-		{
-			m_shaderModel.HighestShaderModel = shaderModel;
-			hr = m_device->CheckFeatureSupport( D3D12_FEATURE_SHADER_MODEL, &m_shaderModel, sizeof( m_shaderModel ) );
-
-			if ( FAILED( hr ) == false )
-			{
-				break;
-			}
-		}
-
 		D3D12_COMMAND_QUEUE_DESC directQueueDesc = {
 			.Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
 			.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
@@ -943,6 +893,76 @@ namespace agl
 		return true;
 	}
 
+	bool Direct3D12::CheckFeatureSupport()
+	{
+		D3D12_FEATURE_DATA_SHADER_CACHE shaderCacheFeature = {};
+		HRESULT hr = m_device->CheckFeatureSupport( D3D12_FEATURE_SHADER_CACHE, &shaderCacheFeature, sizeof( shaderCacheFeature ) );
+
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
+
+		m_psoLibraryCacheAvailable = shaderCacheFeature.SupportFlags & D3D12_SHADER_CACHE_SUPPORT_LIBRARY;
+
+		D3D12_FEATURE_DATA_D3D12_OPTIONS1 featureOptions1 = {};
+		hr = m_device->CheckFeatureSupport( D3D12_FEATURE_D3D12_OPTIONS1, &featureOptions1, sizeof( featureOptions1 ) );
+
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
+
+		m_waveIntrinsicsAvailable = featureOptions1.WaveOps;
+
+		D3D12_FEATURE_DATA_D3D12_OPTIONS5 featureOption5 = {};
+		hr = m_device->CheckFeatureSupport( D3D12_FEATURE_D3D12_OPTIONS5, &featureOption5, sizeof( featureOption5 ) );
+
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
+
+		m_raytracingAvailable = ( featureOption5.RaytracingTier != D3D12_RAYTRACING_TIER_NOT_SUPPORTED );
+
+		D3D12_FEATURE_DATA_D3D12_OPTIONS7 featureOption7 = {};
+		hr = m_device->CheckFeatureSupport( D3D12_FEATURE_D3D12_OPTIONS7, &featureOption7, sizeof( featureOption7 ) );
+
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
+
+		m_meshShaderAvailable = ( featureOption7.MeshShaderTier != D3D12_MESH_SHADER_TIER_NOT_SUPPORTED );
+
+		D3D_SHADER_MODEL allModelVersions[] = {
+			D3D_SHADER_MODEL_6_9,
+			D3D_SHADER_MODEL_6_8,
+			D3D_SHADER_MODEL_6_7,
+			D3D_SHADER_MODEL_6_6,
+			D3D_SHADER_MODEL_6_5,
+			D3D_SHADER_MODEL_6_4,
+			D3D_SHADER_MODEL_6_3,
+			D3D_SHADER_MODEL_6_2,
+			D3D_SHADER_MODEL_6_1,
+			D3D_SHADER_MODEL_6_0,
+			D3D_SHADER_MODEL_5_1
+		};
+
+		for ( D3D_SHADER_MODEL shaderModel : allModelVersions )
+		{
+			m_shaderModel.HighestShaderModel = shaderModel;
+			hr = m_device->CheckFeatureSupport( D3D12_FEATURE_SHADER_MODEL, &m_shaderModel, sizeof( m_shaderModel ) );
+
+			if ( FAILED( hr ) == false )
+			{
+				break;
+			}
+		}
+
+		return true;
+	}
+
 	const wchar_t* Direct3D12::GetShaderProfile( ShaderType type ) const
 	{
 		if ( type == ShaderType::VS )
@@ -954,6 +974,10 @@ namespace agl
 			case D3D_SHADER_MODEL_6_6:
 				return L"vs_6_6";
 			case D3D_SHADER_MODEL_6_7:
+				[[fallthrough]];
+			case D3D_SHADER_MODEL_6_8:
+				[[fallthrough]];
+			case D3D_SHADER_MODEL_6_9:
 				return L"vs_6_7";
 			}
 		}
@@ -966,6 +990,10 @@ namespace agl
 			case D3D_SHADER_MODEL_6_6:
 				return L"gs_6_6";
 			case D3D_SHADER_MODEL_6_7:
+				[[fallthrough]];
+			case D3D_SHADER_MODEL_6_8:
+				[[fallthrough]];
+			case D3D_SHADER_MODEL_6_9:
 				return L"gs_6_7";
 			}
 		}
@@ -978,6 +1006,10 @@ namespace agl
 			case D3D_SHADER_MODEL_6_6:
 				return L"ps_6_6";
 			case D3D_SHADER_MODEL_6_7:
+				[[fallthrough]];
+			case D3D_SHADER_MODEL_6_8:
+				[[fallthrough]];
+			case D3D_SHADER_MODEL_6_9:
 				return L"ps_6_7";
 			}
 		}
@@ -990,6 +1022,10 @@ namespace agl
 			case D3D_SHADER_MODEL_6_6:
 				return L"cs_6_6";
 			case D3D_SHADER_MODEL_6_7:
+				[[fallthrough]];
+			case D3D_SHADER_MODEL_6_8:
+				[[fallthrough]];
+			case D3D_SHADER_MODEL_6_9:
 				return L"cs_6_7";
 			}
 		}
@@ -1002,6 +1038,10 @@ namespace agl
 			case D3D_SHADER_MODEL_6_6:
 				return L"as_6_6";
 			case D3D_SHADER_MODEL_6_7:
+				[[fallthrough]];
+			case D3D_SHADER_MODEL_6_8:
+				[[fallthrough]];
+			case D3D_SHADER_MODEL_6_9:
 				return L"as_6_7";
 			}
 		}
@@ -1014,6 +1054,10 @@ namespace agl
 			case D3D_SHADER_MODEL_6_6:
 				return L"ms_6_6";
 			case D3D_SHADER_MODEL_6_7:
+				[[fallthrough]];
+			case D3D_SHADER_MODEL_6_8:
+				[[fallthrough]];
+			case D3D_SHADER_MODEL_6_9:
 				return L"ms_6_7";
 			}
 		}

@@ -210,12 +210,12 @@ namespace rendercore
 		Name m_name;
 
 		PROPERTY( shaders )
-		std::shared_ptr<ShaderBase> m_shaders[agl::MAX_SHADER_TYPE<uint32>];
+		std::shared_ptr<ShaderBase> m_shaders[agl::NumShaderTypes<uint32>];
 
-		StaticShaderSwitches m_shaderSwitches[agl::MAX_SHADER_TYPE<uint32>];
+		StaticShaderSwitches m_shaderSwitches[agl::NumShaderTypes<uint32>];
 
 		PROPERTY( defines )
-		std::vector<std::pair<Name, int32>> m_defines[agl::MAX_SHADER_TYPE<uint32>];
+		std::vector<std::pair<Name, int32>> m_defines[agl::NumShaderTypes<uint32>];
 
 		std::map<Name, std::unique_ptr<MaterialProperty>> m_properties;
 

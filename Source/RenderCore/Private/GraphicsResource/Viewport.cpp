@@ -110,11 +110,11 @@ namespace rendercore
 		return {};
 	}
 
-	void Viewport::Resize( const std::pair<uint32, uint32>& newSize )
+	void Viewport::Resize( uint32 width, uint32 height )
 	{
 		if ( m_pViewport.Get() )
 		{
-			m_pViewport->Resize( newSize );
+			m_pViewport->Resize( width, height );
 		}
 	}
 

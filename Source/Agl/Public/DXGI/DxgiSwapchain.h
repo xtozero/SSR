@@ -101,8 +101,13 @@ namespace agl
 			return { m_width, m_height };
 		}
 
-		virtual void Resize( const std::pair<uint32, uint32>& newSize ) override
+		virtual void Resize( uint32 width, uint32 height ) override
 		{
+			if ( width == 0 || height == 0 )
+			{
+				return;
+			}
+
 			TaskHandle handle = EnqueueThreadTask<ThreadType::RenderThread>(
 				[]()
 				{
@@ -110,8 +115,8 @@ namespace agl
 				} );
 			GetInterface<ITaskScheduler>()->Wait( handle );
 
-			m_width = newSize.first;
-			m_height = newSize.second;
+			m_width = width;
+			m_height = height;
 
 			for ( auto& backBuffer : m_backBuffers )
 			{

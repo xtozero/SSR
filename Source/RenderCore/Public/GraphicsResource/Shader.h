@@ -112,7 +112,7 @@ namespace rendercore
 		size_t m_hash = 0;
 
 		std::shared_ptr<ShaderAsset> m_parent = nullptr;
-		RefHandle<agl::ShaderBase> m_shader;
+		RefHandle<agl::Shader> m_shader;
 
 	private:
 		void RecreateShader();

@@ -10,7 +10,7 @@ namespace rendercore
 	class DrawVolumetricCloudPS final : public GlobalShaderCommon<PixelShader, DrawVolumetricCloudPS>
 	{};
 
-	REGISTER_GLOBAL_SHADER( DrawVolumetricCloudPS, "./Assets/Shaders/Cloud/PS_DrawVolumetricCloud.asset" );
+	REGISTER_GLOBAL_SHADER( DrawVolumetricCloudPS, "Cloud/PS_DrawVolumetricCloud.fx", agl::ShaderType::PS, "main" );
 
 	std::optional<DrawSnapshot> VolumetricCloundDrawPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{

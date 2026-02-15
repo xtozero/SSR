@@ -83,7 +83,7 @@ namespace rendercore
 		friend Archive& operator<<( Archive& ar, VertexStreamLayout& layout );
 
 	private:
-		int32 m_streamIndices[agl::MAX_VERTEX_LAYOUT_SIZE] = {};
+		int32 m_streamIndices[agl::MaxVertexLayouts] = {};
 	};
 
 	enum class VertexStreamLayoutType : uint8

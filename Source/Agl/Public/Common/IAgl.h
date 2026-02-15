@@ -2,8 +2,10 @@
 
 #include "GraphicsApiResource.h"
 #include "ICommandList.h"
+#include "ShaderResource.h"
 #include "SizedTypes.h"
 
+#include <filesystem>
 #include <memory>
 
 class BinaryChunk;
@@ -14,6 +16,12 @@ namespace agl
 	class ShaderParameterInfo;
 	class ShaderParameterMap;
 	class Texture;
+
+	enum class AglType : uint8
+	{
+		D3D11 = 0,
+		D3D12
+	};
 
 	enum class QueueType : uint8
 	{
@@ -48,14 +56,14 @@ namespace agl
 		virtual ICommandList* GetParallelCommandList() = 0;
 		virtual IComputeCommandList* GetComputeCommandList() = 0;
 
-		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, ShaderType type ) const = 0;
+		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, ShaderType type, const char* entryPoint ) const = 0;
 		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const = 0;
 
-		virtual const char* GetShaderCacheFilePath() const = 0;
+		virtual std::filesystem::path GetShaderCacheFilePath() const = 0;
 
 		virtual bool SupportsPSOCache() const = 0;
 		virtual bool SupportsPSOLibraryCache() const = 0;
-		virtual const char* GetPSOCacheFilePath() const = 0;
+		virtual std::filesystem::path GetPSOCacheFilePath() const = 0;
 
 		virtual bool SupportsMeshShader() const = 0;
 

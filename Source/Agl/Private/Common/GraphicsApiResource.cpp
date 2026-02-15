@@ -93,7 +93,7 @@ namespace agl
 		HashCombine( hash, m_alphaToConverageEnable );
 		HashCombine( hash, m_independentBlendEnable );
 
-		for ( int32 i = 0; i < MAX_RENDER_TARGET; ++i )
+		for ( int32 i = 0; i < MaxRendertagets; ++i )
 		{
 			HashCombine( hash, m_renderTarget[i].GetHash() );
 		}

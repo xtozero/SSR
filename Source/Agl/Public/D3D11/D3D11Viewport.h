@@ -22,7 +22,7 @@ namespace agl
 
 		virtual std::pair<uint32, uint32> Size() const override;
 		virtual std::pair<uint32, uint32> SizeOnRenderThread() const override;
-		virtual void Resize( const std::pair<uint32, uint32>& newSize ) override;
+		virtual void Resize( uint32 width, uint32 height ) override;
 		virtual agl::Texture* Texture() override;
 
 		D3D11Viewport( uint32 width, uint32 height, DXGI_FORMAT format, const float4& clearColor );

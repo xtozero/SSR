@@ -31,9 +31,9 @@ namespace rendercore
 		using GlobalShaderCommon::GlobalShaderCommon;
 	};
 
-	REGISTER_GLOBAL_SHADER( DepthWriteVS, "./Assets/Shaders/DepthWrite/VS_DepthWrite.asset" );
-	REGISTER_GLOBAL_SHADER( DepthWritePS, "./Assets/Shaders/DepthWrite/PS_DepthWrite.asset" );
-	REGISTER_GLOBAL_SHADER( DepthWriteMS, "./Assets/Shaders/DepthWrite/MS_DepthWrite.asset" );
+	REGISTER_GLOBAL_SHADER( DepthWriteVS, "DepthWrite/VS_DepthWrite.fx", agl::ShaderType::VS, "main" );
+	REGISTER_GLOBAL_SHADER( DepthWritePS, "DepthWrite/PS_DepthWrite.fx", agl::ShaderType::PS, "main" );
+	REGISTER_GLOBAL_SHADER( DepthWriteMS, "DepthWrite/MS_DepthWrite.fx", agl::ShaderType::MS, "main" );
 
 	std::optional<DrawSnapshot> DepthWritePassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{

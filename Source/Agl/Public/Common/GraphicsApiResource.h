@@ -12,48 +12,9 @@
 
 namespace agl
 {
-	enum class AglType : uint8
-	{
-		D3D11 = 0,
-		D3D12
-	};
-
-	enum class ShaderType : int8
-	{
-		None = -1,
-		VS,
-		HS,
-		DS,
-		GS,
-		PS,
-		CS,
-		MS,
-		AS,
-		Count,
-	};
-
-	template <typename T>
-	constexpr T MAX_SHADER_TYPE = static_cast<T>( ShaderType::Count );
-
-	static constexpr uint32 MAX_VERTEX_LAYOUT_SIZE = 32;
-	static constexpr uint32 MAX_VERTEX_SLOT = 32;
-	static constexpr uint32 MAX_RENDER_TARGET = 8;
-
-	inline const char* ToString( ShaderType shaderType )
-	{
-		const char* shaderTypeStr[] = {
-			"VS",
-			"HS",
-			"DS",
-			"GS",
-			"PS",
-			"CS",
-			"MS",
-			"AS",
-		};
-
-		return shaderTypeStr[static_cast<uint32>( shaderType )];
-	}
+	static constexpr uint32 MaxVertexLayouts = 32;
+	static constexpr uint32 MaxVertexSlots = 32;
+	static constexpr uint32 MaxRendertagets = 8;
 
 	class GraphicsApiResource : public RefCounter
 	{
@@ -812,7 +773,7 @@ namespace agl
 	{
 		bool m_alphaToConverageEnable;
 		bool m_independentBlendEnable;
-		RenderTargetBlendTrait m_renderTarget[MAX_RENDER_TARGET];
+		RenderTargetBlendTrait m_renderTarget[MaxRendertagets];
 		uint32 m_sampleMask;
 
 		AGL_DLL size_t GetHash() const;

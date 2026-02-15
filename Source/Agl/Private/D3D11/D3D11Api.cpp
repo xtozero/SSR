@@ -1,5 +1,7 @@
 #include "D3D11Api.h"
 
+#include "Core/Paths.h"
+
 #include "D3D11BlendState.h"
 #include "D3D11Buffer.h"
 #include "D3D11CommandList.h"
@@ -181,14 +183,14 @@ namespace agl
 		virtual ICommandList* GetParallelCommandList() override;
 		virtual IComputeCommandList* GetComputeCommandList() override;
 
-		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, agl::ShaderType type ) const override;
+		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, agl::ShaderType type, const char* entryPoint ) const override;
 		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const override;
 
-		virtual const char* GetShaderCacheFilePath() const override;
+		virtual std::filesystem::path GetShaderCacheFilePath() const override;
 
 		virtual bool SupportsPSOCache() const override;
 		virtual bool SupportsPSOLibraryCache() const override;
-		virtual const char* GetPSOCacheFilePath() const override;
+		virtual std::filesystem::path GetPSOCacheFilePath() const override;
 
 		virtual bool SupportsMeshShader() const override;
 
@@ -443,7 +445,7 @@ namespace agl
 		return &m_commandList;
 	}
 
-	BinaryChunk Direct3D11::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, agl::ShaderType type ) const
+	BinaryChunk Direct3D11::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, agl::ShaderType type, const char* entryPoint ) const
 	{
 		Microsoft::WRL::ComPtr<ID3DBlob> byteCode = nullptr;
 		Microsoft::WRL::ComPtr<ID3DBlob> errorMsg = nullptr;
@@ -466,7 +468,7 @@ namespace agl
 			nullptr,
 			macros.data(),
 			nullptr,
-			"main",
+			entryPoint,
 			GetShaderProfile( type ),
 			D3DCOMPILE_ENABLE_STRICTNESS,
 			0,
@@ -498,9 +500,10 @@ namespace agl
 		return true;
 	}
 
-	const char* Direct3D11::GetShaderCacheFilePath() const
+	std::filesystem::path Direct3D11::GetShaderCacheFilePath() const
 	{
-		return "./Assets/Shaders/ShaderCache-d3d11.asset";
+		static auto shaderCacheFilePath = engine::Paths::GetShaderAssetRootDir() / "ShaderCache-d3d11.asset";
+		return shaderCacheFilePath;
 	}
 
 	bool Direct3D11::SupportsPSOCache() const
@@ -513,7 +516,7 @@ namespace agl
 		return false;
 	}
 
-	const char* Direct3D11::GetPSOCacheFilePath() const
+	std::filesystem::path Direct3D11::GetPSOCacheFilePath() const
 	{
 		return "";
 	}

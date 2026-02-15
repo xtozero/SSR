@@ -123,7 +123,7 @@ namespace agl
 
 	void GlobalConstantBuffers::Initialize()
 	{
-		for ( uint32 i = 0; i < MAX_SHADER_TYPE<uint32>; ++i )
+		for ( uint32 i = 0; i < NumShaderTypes<uint32>; ++i )
 		{
 			delete m_constantBuffers[i];
 			m_constantBuffers[i] = CreateGlobalConstantBuffer();
@@ -132,7 +132,7 @@ namespace agl
 
 	void GlobalConstantBuffers::Prepare()
 	{
-		for ( uint32 i = 0; i < MAX_SHADER_TYPE<uint32>; ++i )
+		for ( uint32 i = 0; i < NumShaderTypes<uint32>; ++i )
 		{
 			GetGlobalConstantBuffer( static_cast<ShaderType>( i ) ).Prepare();
 		}
@@ -175,7 +175,7 @@ namespace agl
 
 	void GlobalConstantBuffers::AddGlobalConstantBuffers( const ShaderBindings& shaderBindings )
 	{
-		for ( uint32 i = 0; i < MAX_SHADER_TYPE<uint32>; ++i )
+		for ( uint32 i = 0; i < NumShaderTypes<uint32>; ++i )
 		{
 			SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( i ) );
 
@@ -206,7 +206,7 @@ namespace agl
 	{
 		if ( this != &other )
 		{
-			for ( uint32 i = 0; i < MAX_SHADER_TYPE<uint32>; ++i )
+			for ( uint32 i = 0; i < NumShaderTypes<uint32>; ++i )
 			{
 				delete m_constantBuffers[i];
 				m_constantBuffers[i] = other.m_constantBuffers[i];

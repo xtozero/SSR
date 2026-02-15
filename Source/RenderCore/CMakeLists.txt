@@ -32,6 +32,7 @@ set (GRAPHICS_RESOURCE_HEADER
 	Public/GraphicsResource/Shader.h
 	Public/GraphicsResource/ShaderArguments.h
 	Public/GraphicsResource/ShaderCache.h
+	Public/GraphicsResource/ShaderRegistry.h
 	Public/GraphicsResource/ShadingSnapshot.h
 	Public/GraphicsResource/StaticShaderSwitch.h
 	Public/GraphicsResource/StaticState.h
@@ -59,6 +60,7 @@ set (GRAPHICS_RESOURCE_SOURCE
 	Private/GraphicsResource/Shader.cpp
 	Private/GraphicsResource/ShaderArguments.cpp
 	Private/GraphicsResource/ShaderCache.cpp
+	Private/GraphicsResource/ShaderRegistry.cpp
 	Private/GraphicsResource/ShadingSnapshot.cpp
 	Private/GraphicsResource/StaticShaderSwitch.cpp
 	Private/GraphicsResource/UberShader.cpp

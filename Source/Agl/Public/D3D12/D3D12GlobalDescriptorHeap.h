@@ -54,6 +54,6 @@ namespace agl
 		uint32 m_curHeapCapacity[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
 
 		std::vector<DescriptorHeapInfo> m_heaps[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
-		uint32 m_top[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES] = {};
+		size_t m_top[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES] = {};
 	};
 }

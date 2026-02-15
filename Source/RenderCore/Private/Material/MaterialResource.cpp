@@ -162,7 +162,7 @@ namespace rendercore
 	void MaterialResource::TakeSnapshot( DrawSnapshot& snapShot )
 	{
 		const ShaderStates& shaderState = snapShot.m_pipelineState.m_shaderState;
-		const ShaderBase* shaders[agl::MAX_SHADER_TYPE<uint32>] = {
+		const ShaderBase* shaders[agl::NumShaderTypes<uint32>] = {
 			shaderState.m_vertexShader,
 			nullptr,
 			nullptr,
@@ -206,7 +206,7 @@ namespace rendercore
 		auto material = m_material.lock();
 		assert( material );
 
-		const ShaderBase* shaders[agl::MAX_SHADER_TYPE<uint32>] = {
+		const ShaderBase* shaders[agl::NumShaderTypes<uint32>] = {
 			nullptr,
 			nullptr,
 			nullptr,
@@ -223,7 +223,7 @@ namespace rendercore
 		BindResource( snapShot.m_computeShader, binding );
 	}
 
-	void MaterialResource::CreateGraphicsResource( const ShaderBase* (&shaders)[agl::MAX_SHADER_TYPE<uint32>] )
+	void MaterialResource::CreateGraphicsResource( const ShaderBase* (&shaders)[agl::NumShaderTypes<uint32>] )
 	{
 		auto material = m_material.lock();
 		if ( material == nullptr )
@@ -242,7 +242,7 @@ namespace rendercore
 			static_cast<uint32>( agl::ShaderType::MS ),
 			static_cast<uint32>( agl::ShaderType::AS ) };
 
-		uint32 materialCbSlotNumbers[agl::MAX_SHADER_TYPE<uint32>];
+		uint32 materialCbSlotNumbers[agl::NumShaderTypes<uint32>];
 		constexpr uint32 InvalidSlot = std::numeric_limits<uint32>::max();
 		std::ranges::fill( materialCbSlotNumbers, InvalidSlot );
 
@@ -409,7 +409,7 @@ namespace rendercore
 		}
 	}
 
-	void MaterialResource::UpdateToGPU( const ShaderBase* (&shaders)[agl::MAX_SHADER_TYPE<uint32>], const NamedShaderParameterList& parametersToUpdate )
+	void MaterialResource::UpdateToGPU( const ShaderBase* (&shaders)[agl::NumShaderTypes<uint32>], const NamedShaderParameterList& parametersToUpdate )
 	{
 		assert( IsInRenderThread() );
 

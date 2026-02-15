@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Buffer.h"
-#include "GraphicsApiResource.h"
+#include "ShaderResource.h"
 #include "SizedTypes.h"
 
 #include <array>
@@ -28,7 +28,7 @@ namespace agl
 
 	protected:
 		static constexpr int32 MaxSize = 2048;
-		std::array<char, MaxSize> m_data;
+		std::array<char, MaxSize> m_data = {};
 		uint32 m_updateSize = 0;
 	};
 
@@ -77,7 +77,7 @@ namespace agl
 		virtual GlobalConstantBuffer* CreateGlobalConstantBuffer() const = 0;
 		GlobalConstantBuffer& GetGlobalConstantBuffer( ShaderType shaderType );
 
-		GlobalConstantBuffer* m_constantBuffers[MAX_SHADER_TYPE<uint32>] = {};
+		GlobalConstantBuffer* m_constantBuffers[NumShaderTypes<uint32>] = {};
 	};
 
 	class GlobalSyncConstantBuffers final : public GlobalConstantBuffers

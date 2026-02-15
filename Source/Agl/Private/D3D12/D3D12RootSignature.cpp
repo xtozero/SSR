@@ -47,7 +47,7 @@ namespace agl
 		return D3D12_SHADER_VISIBILITY_ALL;
 	}
 
-	ResourceStatistics SurveyShader( const ShaderBase& shader )
+	ResourceStatistics SurveyShader( const Shader& shader )
 	{
 		const ShaderParameterInfo& paramInfo = shader.GetParameterInfo();
 		return { static_cast<uint32>( paramInfo.m_srvs.size() )

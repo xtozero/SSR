@@ -20,8 +20,8 @@ namespace rendercore
 		using GlobalShaderCommon::GlobalShaderCommon;
 	};
 
-	REGISTER_GLOBAL_SHADER( DebugOverlayVS, "./Assets/Shaders/DebugOverlay/VS_DebugOverlay.asset" );
-	REGISTER_GLOBAL_SHADER( DebugOverlayPS, "./Assets/Shaders/DebugOverlay/PS_DebugOverlay.asset" );
+	REGISTER_GLOBAL_SHADER( DebugOverlayVS, "DebugOverlay/VS_DebugOverlay.fx", agl::ShaderType::VS, "main" );
+	REGISTER_GLOBAL_SHADER( DebugOverlayPS, "DebugOverlay/PS_DebugOverlay.fx", agl::ShaderType::PS, "main" );
 
 	struct DebugOverlayDrawParam
 	{

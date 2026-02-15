@@ -72,15 +72,15 @@ namespace agl
 		return { m_proxy.m_width, m_proxy.m_height };
 	}
 
-	void D3D12Viewport::Resize( const std::pair<uint32, uint32>& newSize )
+	void D3D12Viewport::Resize( uint32 width, uint32 height )
 	{
-		if ( ( m_width == newSize.first ) && ( m_height == newSize.second ) )
+		if ( ( m_width == width ) && ( m_height == height ) )
 		{
 			return;
 		}
 
-		m_width = newSize.first;
-		m_height = newSize.second;
+		m_width = width;
+		m_height = height;
 
 		if ( m_swapchain.Get() == nullptr )
 		{

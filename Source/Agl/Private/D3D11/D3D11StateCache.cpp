@@ -233,7 +233,7 @@ namespace agl
 
 	void D3D11PipelineCache::BindShaderResources( ID3D11DeviceContext& context, const ShaderBindings& shaderBindings )
 	{
-		for ( uint32 shaderType = 0; shaderType < MAX_SHADER_TYPE<uint32>; ++shaderType )
+		for ( uint32 shaderType = 0; shaderType < NumShaderTypes<uint32>; ++shaderType )
 		{
 			SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( shaderType ) );
 
@@ -378,7 +378,7 @@ namespace agl
 
 	void D3D11PipelineCache::UnbindExistingSRV( ID3D11DeviceContext& context, const ID3D11ShaderResourceView* srv )
 	{
-		for ( uint32 shader = 0; shader < MAX_SHADER_TYPE<uint32>; ++shader )
+		for ( uint32 shader = 0; shader < NumShaderTypes<uint32>; ++shader )
 		{
 			for ( uint32 slot = 0; slot < D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT; ++slot )
 			{

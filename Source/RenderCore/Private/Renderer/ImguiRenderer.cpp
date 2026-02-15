@@ -34,8 +34,8 @@ namespace rendercore
 	class DrawImguiPS final : public GlobalShaderCommon<PixelShader, DrawImguiPS>
 	{};
 
-	REGISTER_GLOBAL_SHADER( DrawImguiVS, "./Assets/Shaders/VS_Imgui.asset" );
-	REGISTER_GLOBAL_SHADER( DrawImguiPS, "./Assets/Shaders/PS_Imgui.asset" );
+	REGISTER_GLOBAL_SHADER( DrawImguiVS, "Material/VS_Imgui.fx", agl::ShaderType::VS, "main" );
+	REGISTER_GLOBAL_SHADER( DrawImguiPS, "Material/PS_Imgui.fx", agl::ShaderType::PS, "main" );
 
 	class ImguiDrawPassProcessor final : public IPassProcessor
 	{
@@ -370,7 +370,7 @@ namespace rendercore
 
 		if ( m_renderResourceCreated == false )
 		{
-			agl::VertexLayoutTrait trait[agl::MAX_VERTEX_LAYOUT_SIZE] = {};
+			agl::VertexLayoutTrait trait[agl::MaxVertexLayouts] = {};
 			uint32 traitSize = 0;
 			uint32 slot = 0;
 

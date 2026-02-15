@@ -234,6 +234,7 @@ set (PIX_LIBRARY
 target_link_libraries(Agl
 PRIVATE 
 	Core
+	Engine
 	DirectX-Headers
 	DirectXTex
 	${DIRECT3D_LIBRARY}

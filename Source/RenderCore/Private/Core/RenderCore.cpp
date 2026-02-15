@@ -76,7 +76,7 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( LaneCount );
 	};
 
-	REGISTER_GLOBAL_SHADER( QueryLaneCountCS, "./Assets/Shaders/Visibility/CS_QueryLaneCount.asset" );
+	REGISTER_GLOBAL_SHADER( QueryLaneCountCS, "Visibility/CS_QueryLaneCount.fx", agl::ShaderType::CS, "main" );
 
 	class RenderCore final : public IRenderCore
 	{
@@ -320,7 +320,10 @@ namespace rendercore
 
 		GetPrimitiveIdPool().DiscardAll();
 
-		m_renderGraph.Execute();
+		{
+			CPU_PROFILE( Execute );
+			m_renderGraph.Execute();
+		}
 
 		canvas.OnEndFrameRendering();
 

@@ -1,6 +1,7 @@
 #include "GlobalShaders.h"
 
 #include "AssetLoader.h"
+#include "Core/Paths.h"
 #include "Platform/CommandLine.h"
 #include "TaskScheduler.h"
 
@@ -40,7 +41,7 @@ namespace rendercore
 						} );
 				} );
 
-			AssetLoaderSharedHandle handle = assetLoader->RequestAsyncLoad( assetPath, onLoadComplete );
+			AssetLoaderSharedHandle handle = assetLoader->RequestAsyncLoad( assetPath.generic_string(), onLoadComplete );
 
 			assert( handle->IsLoadingInProgress() || handle->IsLoadComplete() );
 			++m_loadingInProgress;
@@ -81,7 +82,8 @@ namespace rendercore
 			return false;
 		}
 
-		m_shaderAssetPaths[typeIndex] = path;
+		auto assetPath = ( engine::Paths::GetShaderAssetRootDir() / path ).replace_extension(".asset").make_preferred();
+		m_shaderAssetPaths[typeIndex] = assetPath;
 		return true;
 	}
 

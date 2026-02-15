@@ -27,7 +27,7 @@ namespace rendercore
 
 		void AddLayout( const char* name, uint32 index, agl::ResourceFormat format, uint32 slot, bool isInstanceData, uint32 instanceDataStep )
 		{
-			assert( Size() < agl::MAX_VERTEX_LAYOUT_SIZE );
+			assert( Size() < agl::MaxVertexLayouts );
 
 			m_layoutData.emplace_back();
 			agl::VertexLayoutTrait& trait = m_layoutData.back();

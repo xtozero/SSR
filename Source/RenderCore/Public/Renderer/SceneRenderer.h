@@ -88,7 +88,7 @@ namespace rendercore
 		void Clear();
 
 	private:
-		void Bind( const ShaderBase* (&shaders)[agl::MAX_SHADER_TYPE<uint32>], agl::ShaderBindings& outBindings ) const;
+		void Bind( const ShaderBase* (&shaders)[agl::NumShaderTypes<uint32>], agl::ShaderBindings& outBindings ) const;
 
 		std::vector<Name> m_parameterNames;
 		std::vector<agl::GraphicsApiResource*> m_resources;
@@ -124,7 +124,7 @@ namespace rendercore
 			RenderGraphTexture* m_texture = nullptr;
 			RasterOutputLoadAction m_loadAction = RasterOutputLoadAction::NoAction;
 		};
-		RasterOutputInfo m_renderTargets[agl::MAX_RENDER_TARGET] = {};
+		RasterOutputInfo m_renderTargets[agl::MaxRendertagets] = {};
 
 		RasterOutputInfo m_depthStencil;
 		bool m_depthStencilReadOnly = false;

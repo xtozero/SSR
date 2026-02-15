@@ -264,7 +264,7 @@ namespace
 
 			if ( const json::Value* shaderKeys = root.Find( "Shader" ) )
 			{
-				for ( uint32 i = 0; i < static_cast<uint32>( agl::ShaderType::Count ); ++i )
+				for ( uint32 i = 0; i < agl::NumShaderTypes<uint32>; ++i )
 				{
 					auto shaderType = static_cast<agl::ShaderType>( i );
 					const json::Value* shaderPath = shaderKeys->Find( ToString( shaderType ) );
@@ -275,6 +275,8 @@ namespace
 
 					switch ( shaderType )
 					{
+					case agl::ShaderType::None:
+						break;
 					case agl::ShaderType::VS:
 					{
 						auto vs = std::make_shared<rendercore::VertexShader>();
@@ -322,8 +324,6 @@ namespace
 						break;
 					}
 					case agl::ShaderType::Count:
-						[[fallthrough]];
-					case agl::ShaderType::None:
 						[[fallthrough]];
 					default:
 						break;

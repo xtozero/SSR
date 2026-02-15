@@ -2,6 +2,7 @@
 
 #include "../D3D11/D3D11Shaders.h"
 #include "AssetBuilderConfig.h"
+#include "LibraryTool/InterfaceFactories.h"
 #include "ShaderFileMerger.h"
 #include "ShaderTool.h"
 #include "StaticShaderSwitch.h"
@@ -31,7 +32,7 @@ namespace
 
 		if ( aglType == agl::AglType::D3D11 )
 		{
-			const char* d3d11Profiles[agl::MAX_SHADER_TYPE<uint32>] = {
+			const char* d3d11Profiles[agl::NumShaderTypes<uint32>] = {
 				"vs_5_0",
 				"hs_5_0",
 				"ds_5_0",
@@ -42,11 +43,11 @@ namespace
 				""
 			};
 
-			return d3d11Profiles[static_cast<int8>(shaderType)];
+			return d3d11Profiles[static_cast<int8>( shaderType )];
 		}
 		else // agl::AglType::D3D12
 		{
-			const char* d3d12Profiles[agl::MAX_SHADER_TYPE<uint32>] = {
+			const char* d3d12Profiles[agl::NumShaderTypes<uint32>] = {
 				"vs_6_5",
 				"hs_6_5",
 				"ds_6_5",
@@ -57,47 +58,8 @@ namespace
 				"as_6_5"
 			};
 
-			return d3d12Profiles[static_cast<int8>(shaderType)];
+			return d3d12Profiles[static_cast<int8>( shaderType )];
 		}
-	}
-
-	agl::ShaderType GetShaderType( const fs::path& fileName )
-	{
-		std::string name = fileName.filename().generic_string();
-
-		std::ranges::transform( name, std::begin( name ),
-		                        []( unsigned char c )
-		                        {
-			                        return static_cast<char>( std::tolower( c ) );
-		                        } );
-
-		if ( name.starts_with( "vs" ) )
-		{
-			return agl::ShaderType::VS;
-		}
-		else if ( name.starts_with( "gs" ) )
-		{
-			return agl::ShaderType::GS;
-		}
-		else if ( name.starts_with( "ps" ) )
-		{
-			return agl::ShaderType::PS;
-		}
-		else if ( name.starts_with( "cs" ) )
-		{
-			return agl::ShaderType::CS;
-		}
-		else if ( name.starts_with( "ms" ) )
-		{
-			return agl::ShaderType::MS;
-		}
-		else if ( name.starts_with( "as" ) )
-		{
-			return agl::ShaderType::AS;
-		}
-
-		assert( false && "Invalid shader file name" );
-		return agl::ShaderType::None;
 	}
 
 	class StaticSwitchParser : TextTokenaizer
@@ -349,7 +311,7 @@ namespace
 		return false;
 	}
 
-	ShaderCompileResult CompileD3D11Shader( const std::string& shaderFile, const char* featureLevel, const rendercore::StaticShaderSwitches& switches )
+	ShaderCompileResult CompileD3D11Shader( const std::string& shaderFile, const char* entryPoint, const char* featureLevel, const rendercore::StaticShaderSwitches& switches )
 	{
 		std::vector<D3D_SHADER_MACRO> macros;
 		std::vector<std::string> valueStrs;
@@ -380,7 +342,7 @@ namespace
 			nullptr,
 			macros.data(),
 			nullptr,
-			"main",
+			entryPoint,
 			featureLevel,
 			D3DCOMPILE_ENABLE_STRICTNESS,
 			0,
@@ -470,56 +432,76 @@ std::optional<Products> ShaderBuilder::Build( const PathEnvironment& env, const 
 
 	fs::path includePath = AssetBuilderConfig::Instance().WorkingDirectory() / fs::path( pIncludePath->AsString() );
 
-	ShaderFileMerger merger( includePath );
-	auto merged = merger.Merge( path );
-	if ( merged )
+	auto shaderRegistry = GetInterface<rendercore::IShaderRegistry>();
+	fs::path relativePath = fs::relative( path );
+	const std::vector<rendercore::ShaderDescriptor>* shaderDescs = shaderRegistry->Find( relativePath );
+
+	if ( shaderDescs == nullptr )
 	{
-		std::string shaderFile = std::move( merged.value() );
+		std::cout << std::format( "ShaderDescriptor for {} not found. Please register the shader using REGISTER_SHADER.\n", relativePath.generic_string() );
+		return {};
+	}
 
-		ShaderTool shaderTool;
-		shaderFile = std::move( shaderTool.Process( shaderFile ) );
-
-		agl::ShaderType shaderType = GetShaderType( path.filename() );
-		ModifyShaderFileForD2D12( shaderFile, shaderType );
-
-		StaticSwitchParser parser( shaderFile.data(), shaderFile.length() );
-		rendercore::StaticShaderSwitches shaderSwitches;
-		shaderSwitches.SetConfigs( parser.Parse() );
-
-		uint32 bias = 1;
-		for ( auto& [name, shaderSwitch] : shaderSwitches.Configs() )
+	Products products;
+	for ( const auto& shaderDesc : *shaderDescs )
+	{
+		ShaderFileMerger merger( includePath );
+		auto merged = merger.Merge( path );
+		if ( merged )
 		{
-			shaderSwitch.m_bias = bias;
-			bias *= shaderSwitch.NumShaderValues();
-		}
+			std::string shaderFile = std::move( merged.value() );
 
-		std::vector<ShaderCompileResult> errorMsgs;
-		std::set<uint32> compiledShaderIDs = CompileShaderCombination( shaderFile, shaderType, shaderSwitches, errorMsgs );
-		if ( compiledShaderIDs.empty() )
-		{
-			std::cout << "\nAn error occurred while compiling " << path.filename().generic_string() << "\n";
-			for ( auto& errorMsg : errorMsgs )
+			ShaderTool shaderTool;
+			shaderFile = std::move( shaderTool.Process( shaderFile ) );
+
+			agl::ShaderType shaderType = shaderDesc.m_type;
+			ModifyShaderFileForD2D12( shaderFile, shaderType );
+
+			const char* entryPoint = shaderDesc.m_entryPoint.data();
+
+			StaticSwitchParser parser( shaderFile.data(), shaderFile.length() );
+			rendercore::StaticShaderSwitches shaderSwitches;
+			shaderSwitches.SetConfigs( parser.Parse() );
+
+			uint32 bias = 1;
+			for ( auto& [name, shaderSwitch] : shaderSwitches.Configs() )
 			{
-				std::cout << errorMsg.GetErrorMessage() << "\n";
+				shaderSwitch.m_bias = bias;
+				bias *= shaderSwitch.NumShaderValues();
 			}
-			std::cout << "\n";
-			return {};
+
+			std::vector<ShaderCompileResult> errorMsgs;
+			std::set<uint32> compiledShaderIDs = CompileShaderCombination( shaderFile, shaderType, entryPoint, shaderSwitches, errorMsgs );
+			if ( compiledShaderIDs.empty() )
+			{
+				std::cout << "\nAn error occurred while compiling " << shaderDesc.m_assetName << "\n";
+				for ( auto& errorMsg : errorMsgs )
+				{
+					std::cout << errorMsg.GetErrorMessage() << "\n";
+				}
+				std::cout << "\n";
+				return {};
+			}
+
+			auto shader = std::make_unique<rendercore::UberShader>();
+			shader->SetName( shaderDesc.m_assetName );
+			shader->SetShaderType( shaderType );
+			shader->SetEntryPoint( entryPoint );
+
+			shader->SetShaderCode( shaderFile );
+			shader->SetSwitches( shaderSwitches );
+
+			for ( uint32 id : compiledShaderIDs )
+			{
+				shader->AddValidVariation( id );
+			}
+
+			products.emplace_back( shaderDesc.m_assetName, std::move( shader ) );
 		}
+	}
 
-		auto shader = std::make_unique<rendercore::UberShader>();
-		shader->SetName( path.filename().generic_string() );
-		shader->SetShaderType( shaderType );
-
-		shader->SetShaderCode( shaderFile );
-		shader->SetSwitches( shaderSwitches );
-
-		for ( uint32 id : compiledShaderIDs )
-		{
-			shader->AddValidVariation( id );
-		}
-
-		Products products;
-		products.emplace_back( path.filename(), std::move( shader ) );
+	if ( products.empty() == false )
+	{
 		return products;
 	}
 
@@ -532,17 +514,17 @@ bool ShaderBuilder::Initialize()
 	return SUCCEEDED( hr );
 }
 
-std::set<uint32> ShaderBuilder::CompileShaderCombination( const std::string& shaderFile, agl::ShaderType shaderType, const rendercore::StaticShaderSwitches& switches, std::vector<ShaderCompileResult>& outErrorMsgs ) const
+std::set<uint32> ShaderBuilder::CompileShaderCombination( const std::string& shaderFile, agl::ShaderType shaderType, const char* entryPoint, const rendercore::StaticShaderSwitches& switches, std::vector<ShaderCompileResult>& outErrorMsgs ) const
 {
 	std::set<uint32> compiledShaderIDs;
 
 	rendercore::StaticShaderSwitches copySwitches = switches;
-	CompileShaderCombination( shaderFile, shaderType, copySwitches, 0, compiledShaderIDs, outErrorMsgs );
+	CompileShaderCombination( shaderFile, shaderType, entryPoint, copySwitches, 0, compiledShaderIDs, outErrorMsgs );
 
 	return compiledShaderIDs;
 }
 
-void ShaderBuilder::CompileShaderCombination( const std::string& shaderFile, agl::ShaderType shaderType, rendercore::StaticShaderSwitches& switches, int32 depth, std::set<uint32>& outCompiledShaderIDs, std::vector<ShaderCompileResult>& outErrorMsgs ) const
+void ShaderBuilder::CompileShaderCombination( const std::string& shaderFile, agl::ShaderType shaderType, const char* entryPoint, rendercore::StaticShaderSwitches& switches, int32 depth, std::set<uint32>& outCompiledShaderIDs, std::vector<ShaderCompileResult>& outErrorMsgs ) const
 {
 	if ( switches.Configs().size() == depth )
 	{
@@ -551,13 +533,13 @@ void ShaderBuilder::CompileShaderCombination( const std::string& shaderFile, agl
 		std::string targetProfile = GetD3DShaderTargetProfile( shaderType, agl::AglType::D3D11 );
 		if ( targetProfile.empty() == false )
 		{
-			compileResult = CompileD3D11Shader( shaderFile, targetProfile.c_str(), switches );
+			compileResult = CompileD3D11Shader( shaderFile, entryPoint, targetProfile.c_str(), switches );
 		}
 
 		if ( compileResult.Succeeded() == false )
 		{
 			targetProfile = GetD3DShaderTargetProfile( shaderType, agl::AglType::D3D12 );
-			compileResult = CompileD3D12Shader( shaderFile, targetProfile.c_str(), switches );
+			compileResult = CompileD3D12Shader( shaderFile, entryPoint, targetProfile.c_str(), switches );
 		}
 		
 		if ( compileResult.Succeeded() )
@@ -579,16 +561,16 @@ void ShaderBuilder::CompileShaderCombination( const std::string& shaderFile, agl
 	const rendercore::StaticShaderSwitch& curSwitch = iter->second;
 
 	switches.Off( iter->first );
-	CompileShaderCombination( shaderFile, shaderType, switches, depth + 1, outCompiledShaderIDs, outErrorMsgs );
+	CompileShaderCombination( shaderFile, shaderType, entryPoint, switches, depth + 1, outCompiledShaderIDs, outErrorMsgs );
 
 	for ( int32 i = curSwitch.m_min; i <= curSwitch.m_max; ++i )
 	{
 		switches.On( iter->first, i );
-		CompileShaderCombination( shaderFile, shaderType, switches, depth + 1, outCompiledShaderIDs, outErrorMsgs );
+		CompileShaderCombination( shaderFile, shaderType, entryPoint, switches, depth + 1, outCompiledShaderIDs, outErrorMsgs );
 	}
 }
 
-ShaderCompileResult ShaderBuilder::CompileD3D12Shader( const std::string& shaderFile, const char* featureLevel, const rendercore::StaticShaderSwitches& switches ) const
+ShaderCompileResult ShaderBuilder::CompileD3D12Shader( const std::string& shaderFile, const char* entryPoint, const char* featureLevel, const rendercore::StaticShaderSwitches& switches ) const
 {
 	DxcBuffer buffer = {
 		.Ptr = shaderFile.data(),
@@ -600,16 +582,18 @@ ShaderCompileResult ShaderBuilder::CompileD3D12Shader( const std::string& shader
 
 	// entry point
 	args.push_back( L"-E" );
-	args.push_back( L"main" );
+	wchar_t wEntryPoint[64] = {};
+	{
+		ToWideChar( wEntryPoint, std::extent_v<decltype( wEntryPoint )>, entryPoint );
+	}
+	args.push_back( wEntryPoint );
 
 	// target profile
 	args.push_back( L"-T" );
-
 	wchar_t wFeatureLevel[8] = {};
 	{
 		ToWideChar( wFeatureLevel, std::extent_v<decltype( wFeatureLevel )>, featureLevel );
 	}
-
 	args.push_back( wFeatureLevel );
 
 	// defines

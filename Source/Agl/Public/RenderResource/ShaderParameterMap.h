@@ -3,6 +3,7 @@
 #include "GraphicsApiResource.h"
 #include "LibraryTool/Common.h"
 #include "NameTypes.h"
+#include "ShaderResource.h"
 #include "SizedTypes.h"
 
 #include <map>

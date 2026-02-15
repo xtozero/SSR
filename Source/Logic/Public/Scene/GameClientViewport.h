@@ -33,7 +33,7 @@ namespace logic
 
 		LOGIC_DLL rendercore::HitProxy* GetHitProxy( uint32 x, uint32 y );
 
-		void AppSizeChanged( const std::pair<uint32, uint32>& newSize );
+		void AppSizeChanged( uint32 width, uint32 height );
 
 		LOGIC_DLL void InvalidateHitProxy();
 

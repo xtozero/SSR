@@ -36,10 +36,10 @@ public:
 	virtual bool Initialize() override;
 
 private:
-	std::set<uint32> CompileShaderCombination( const std::string& shaderFile, agl::ShaderType shaderType, const rendercore::StaticShaderSwitches& switches, std::vector<ShaderCompileResult>& outErrorMsgs ) const;
-	void CompileShaderCombination( const std::string& shaderFile, agl::ShaderType shaderType, rendercore::StaticShaderSwitches& switches, int32 depth, std::set<uint32>& outCompiledShaderIDs, std::vector<ShaderCompileResult>& outErrorMsgs ) const;
+	std::set<uint32> CompileShaderCombination( const std::string& shaderFile, agl::ShaderType shaderType,  const char* entryPoint, const rendercore::StaticShaderSwitches& switches, std::vector<ShaderCompileResult>& outErrorMsgs ) const;
+	void CompileShaderCombination( const std::string& shaderFile, agl::ShaderType shaderType,  const char* entryPoint, rendercore::StaticShaderSwitches& switches, int32 depth, std::set<uint32>& outCompiledShaderIDs, std::vector<ShaderCompileResult>& outErrorMsgs ) const;
 
-	ShaderCompileResult CompileD3D12Shader( const std::string& shaderFile, const char* featureLevel, const rendercore::StaticShaderSwitches& switches ) const;
+	ShaderCompileResult CompileD3D12Shader( const std::string& shaderFile,  const char* entryPoint, const char* featureLevel, const rendercore::StaticShaderSwitches& switches ) const;
 
 	Microsoft::WRL::ComPtr<IDxcCompiler3> m_compiler;
 };

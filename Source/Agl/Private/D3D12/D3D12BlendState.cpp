@@ -6,7 +6,7 @@ using ::agl::BlendStateTrait;
 using ::agl::ConvertToBlend;
 using ::agl::ConvertToBlendOp;
 using ::agl::ConvertToColorWriteEnable;
-using ::agl::MAX_RENDER_TARGET;
+using ::agl::MaxRendertagets;
 
 namespace
 {
@@ -17,7 +17,7 @@ namespace
 			.IndependentBlendEnable = trait.m_independentBlendEnable
 		};
 
-		for ( uint32 i = 0; i < MAX_RENDER_TARGET; ++i )
+		for ( uint32 i = 0; i < MaxRendertagets; ++i )
 		{
 			desc.RenderTarget[i] = {
 				.BlendEnable = trait.m_renderTarget[i].m_blendEnable,

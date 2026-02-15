@@ -13,6 +13,8 @@ using ::rendercore::DestroyRenderCore;
 using ::rendercore::DestroyUserInterfaceRenderer;
 using ::rendercore::IGpuProfiler;
 using ::rendercore::IRenderCore;
+using ::rendercore::IShaderRegistry;
+using ::rendercore::ShaderRegistry;
 using ::rendercore::UserInterfaceRenderer;
 
 namespace
@@ -34,12 +36,18 @@ namespace
 	{
 		return &GetGpuProfiler();
 	}
+
+	void* GetShaderRegistryPtr()
+	{
+		return &ShaderRegistry::GetInstance();
+	}
 }
 
 RENDERCORE_FUNC_DLL void BootUpModules()
 {
 	RegisterFactory<IGpuProfiler>( &GetGpuProfilerPtr );
 	RegisterFactory<IRenderCore>( &GetRenderCore );
+	RegisterFactory<IShaderRegistry>( &GetShaderRegistryPtr );
 	RegisterFactory<UserInterfaceRenderer>( &GetUiRenderer );
 
 	GRenderCore = CreateRenderCore();
@@ -65,5 +73,6 @@ RENDERCORE_FUNC_DLL void ShutdownModules()
 
 	UnregisterFactory<IGpuProfiler>();
 	UnregisterFactory<IRenderCore>();
+	UnregisterFactory<IShaderRegistry>();
 	UnregisterFactory<UserInterfaceRenderer>();
 }

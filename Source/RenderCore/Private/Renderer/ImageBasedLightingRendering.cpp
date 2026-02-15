@@ -53,11 +53,11 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( Prefiltered );
 	};
 
-	REGISTER_GLOBAL_SHADER( DrawIrradianceMapVS, "./Assets/Shaders/IndirectLighting/IrradianceMap/VS_DrawIrradianceMap.asset" );
-	REGISTER_GLOBAL_SHADER( DrawIrradianceMapGS, "./Assets/Shaders/IndirectLighting/IrradianceMap/GS_DrawIrradianceMap.asset" );
-	REGISTER_GLOBAL_SHADER( DrawIrradianceMapPS, "./Assets/Shaders/IndirectLighting/IrradianceMap/PS_DrawIrradianceMap.asset" );
-	REGISTER_GLOBAL_SHADER( IrradianceMapShCS, "./Assets/Shaders/IndirectLighting/IrradianceMap/CS_IrradianceMapSH.asset" );
-	REGISTER_GLOBAL_SHADER( PrefilteredSpecularCS, "./Assets/Shaders/PhysicallyBased/CS_PrefilteredSpecular.asset" );
+	REGISTER_GLOBAL_SHADER( DrawIrradianceMapVS, "IndirectLighting/IrradianceMap/VS_DrawIrradianceMap.fx", agl::ShaderType::VS, "main" );
+	REGISTER_GLOBAL_SHADER( DrawIrradianceMapGS, "IndirectLighting/IrradianceMap/GS_DrawIrradianceMap.fx", agl::ShaderType::GS, "main" );
+	REGISTER_GLOBAL_SHADER( DrawIrradianceMapPS, "IndirectLighting/IrradianceMap/PS_DrawIrradianceMap.fx", agl::ShaderType::PS, "main" );
+	REGISTER_GLOBAL_SHADER( IrradianceMapShCS, "IndirectLighting/IrradianceMap/CS_IrradianceMapSH.fx", agl::ShaderType::CS, "main" );
+	REGISTER_GLOBAL_SHADER( PrefilteredSpecularCS, "PhysicallyBased/CS_PrefilteredSpecular.fx", agl::ShaderType::CS, "main" );
 
 	class IrradianceMapGenerateProcessor final : public IPassProcessor
 	{

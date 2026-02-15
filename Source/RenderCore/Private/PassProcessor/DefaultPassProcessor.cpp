@@ -14,6 +14,40 @@ namespace
 
 namespace rendercore
 {
+	class DefaultLitVS {};
+	class DefaultTexturingVS {};
+	class SkyboxVS {};
+
+	class DefaultLitPS {};
+	class DefaultPBRLitPS {};
+	class DefaultTexturingPS {};
+	class DefaultUnlitPS {};
+	class SkyboxPS {};
+
+	class DefaultLitCS {};
+	class DefaultPBRLitCS {};
+	class DefaultTexturingCS {};
+
+	class MeshletMS {};
+	class TestMS {};
+
+	REGISTER_SHADER( DefaultLitVS, "Material/VS_DefaultLit.fx", agl::ShaderType::VS, "main" );
+	REGISTER_SHADER( DefaultTexturingVS, "Material/VS_DefaultTexturing.fx", agl::ShaderType::VS, "main" );
+	REGISTER_SHADER( SkyboxVS, "Material/VS_Skybox.fx", agl::ShaderType::VS, "main" );
+
+	REGISTER_SHADER( DefaultLitPS, "Material/PS_DefaultLit.fx", agl::ShaderType::PS, "main" );
+	REGISTER_SHADER( DefaultPBRLitPS, "Material/PS_DefaultPBRLit.fx", agl::ShaderType::PS, "main" );
+	REGISTER_SHADER( DefaultTexturingPS, "Material/PS_DefaultTexturing.fx", agl::ShaderType::PS, "main" );
+	REGISTER_SHADER( DefaultUnlitPS, "Material/PS_DefaultUnlit.fx", agl::ShaderType::PS, "main" );
+	REGISTER_SHADER( SkyboxPS, "Material/PS_Skybox.fx", agl::ShaderType::PS, "main" );
+
+	REGISTER_SHADER( DefaultLitCS, "Material/CS_DefaultLit.fx", agl::ShaderType::CS, "main" );
+	REGISTER_SHADER( DefaultPBRLitCS, "Material/CS_DefaultPBRLit.fx", agl::ShaderType::CS, "main" );
+	REGISTER_SHADER( DefaultTexturingCS, "Material/CS_DefaultTexturing.fx", agl::ShaderType::CS, "main" );
+
+	REGISTER_SHADER( MeshletMS, "Material/MS_Meshlet.fx", agl::ShaderType::MS, "main" );
+	REGISTER_SHADER( TestMS, "Material/MS_Test.fx", agl::ShaderType::MS, "main" );
+
 	std::optional<DrawSnapshot> DefaultPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{
 		if ( ( subMesh.m_material == nullptr )

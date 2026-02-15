@@ -150,11 +150,11 @@ namespace engine
 				return 0;
 			}
 
-			int32 width = LOWORD( lParam );
-			int32 height = HIWORD( lParam );
+			uint32 width = LOWORD( lParam );
+			uint32 height = HIWORD( lParam );
 
 			m_platform->UpdateSize( width, height );
-			DefaultApp::SetClientSize( { width, height } );
+			DefaultApp::SetClientSize( width, height );
 
 			if ( wParam == SIZE_MINIMIZED )
 			{

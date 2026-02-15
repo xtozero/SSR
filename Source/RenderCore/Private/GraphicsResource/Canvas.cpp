@@ -64,11 +64,11 @@ namespace rendercore
 		return {};
 	}
 
-	void Canvas::Resize( const std::pair<uint32, uint32>& newSize )
+	void Canvas::Resize( uint32 width, uint32 height )
 	{
 		if ( m_canvas.Get() )
 		{
-			m_canvas->Resize( newSize );
+			m_canvas->Resize( width, height );
 		}
 	}
 
@@ -92,6 +92,5 @@ namespace rendercore
 			} );
 	}
 
-	Canvas::~Canvas()
-	{}
+	Canvas::~Canvas() = default;
 }

@@ -85,7 +85,7 @@ namespace editor
 
                 if ( m_viewportResolution != viewportResolution )
                 {
-                    viewport->Resize( viewportResolution );
+                    viewport->Resize( viewportResolution.first, viewportResolution.second );
                     m_viewportResolution = viewportResolution;
                 }
                 else

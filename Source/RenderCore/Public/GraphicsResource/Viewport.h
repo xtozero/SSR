@@ -39,7 +39,7 @@ namespace rendercore
 		RENDERCORE_DLL std::pair<uint32, uint32> Size() const;
 		RENDERCORE_DLL std::pair<uint32, uint32> SizeOnRenderThread() const;
 
-		RENDERCORE_DLL void Resize( const std::pair<uint32, uint32>& newSize );
+		RENDERCORE_DLL void Resize( uint32 width, uint32 height );
 
 		RENDERCORE_DLL agl::Texture* Texture();
 

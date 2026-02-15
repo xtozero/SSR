@@ -154,9 +154,9 @@ namespace rendercore
 		return brdfLUT;
 	}
 
-	REGISTER_GLOBAL_SHADER( FullScreenQuadVS, "./Assets/Shaders/Common/VS_FullScreenQuad.asset" );
-	REGISTER_GLOBAL_SHADER( PrecomputedBrdfCS, "./Assets/Shaders/PhysicallyBased/CS_PrecomputedBRDF.asset" );
-	REGISTER_GLOBAL_SHADER( DefaultAS, "./Assets/Shaders/Material/AS_Meshlet.asset" );
+	REGISTER_GLOBAL_SHADER( FullScreenQuadVS, "Common/VS_FullScreenQuad.fx", agl::ShaderType::VS, "main" );
+	REGISTER_GLOBAL_SHADER( PrecomputedBrdfCS, "PhysicallyBased/CS_PrecomputedBRDF.fx", agl::ShaderType::CS, "main" );
+	REGISTER_GLOBAL_SHADER( DefaultAS, "Material/AS_Meshlet.fx", agl::ShaderType::AS, "main" );
 
 	void DefaultGraphicsResources::BootUp()
 	{

@@ -24,8 +24,8 @@ namespace rendercore
     class VisibilityPS final : public GlobalShaderCommon<PixelShader, VisibilityPS>
     {};
 
-    REGISTER_GLOBAL_SHADER( VisibilityVS, "./Assets/Shaders/Visibility/VS_Visibility.asset" );
-    REGISTER_GLOBAL_SHADER( VisibilityPS, "./Assets/Shaders/Visibility/PS_Visibility.asset" );
+    REGISTER_GLOBAL_SHADER( VisibilityVS, "Visibility/VS_Visibility.fx", agl::ShaderType::VS, "main" );
+    REGISTER_GLOBAL_SHADER( VisibilityPS, "Visibility/PS_Visibility.fx", agl::ShaderType::PS, "main" );
 
     std::optional<DrawSnapshot> VisibilityPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh,
         const PassShader& passShader )

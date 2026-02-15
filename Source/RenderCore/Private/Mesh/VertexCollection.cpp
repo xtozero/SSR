@@ -237,7 +237,7 @@ namespace rendercore
 		const std::vector<MeshVertexInstance>& vertexInstances = desc.m_vertexInstances;
 		uint32 vertexInstanceCount = static_cast<uint32>( vertexInstances.size() );
 
-		agl::VertexLayoutTrait trait[agl::MAX_VERTEX_LAYOUT_SIZE] = {};
+		agl::VertexLayoutTrait trait[agl::MaxVertexLayouts] = {};
 		uint32 traitSize = 0;
 		uint32 slot = 0;
 

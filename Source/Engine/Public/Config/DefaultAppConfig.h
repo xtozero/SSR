@@ -15,7 +15,7 @@ namespace engine
 		ENGINE_DLL static bool IsEditor();
 
 		static std::pair<int32, int32> GetClientSize();
-		static void SetClientSize( const std::pair<int32, int32>& clientSize );
+		static void SetClientSize( uint32 width, uint32 height );
 
 	private:
 		PROPERTY( editor )

@@ -27,6 +27,8 @@ namespace rendercore
 
 		RENDERCORE_DLL void SetShaderType( agl::ShaderType type );
 
+		RENDERCORE_DLL void SetEntryPoint( const std::string& entryPoint );
+
 		RENDERCORE_DLL void SetShaderCode( const std::string& shaderCode );
 
 		RENDERCORE_DLL void SetSwitches( const StaticShaderSwitches& switches );
@@ -52,6 +54,9 @@ namespace rendercore
 
 		PROPERTY( type )
 		agl::ShaderType m_type = agl::ShaderType::None;
+
+		PROPERTY( entryPoint )
+		std::string m_entryPoint;
 
 		PROPERTY( shaderCode )
 		BinaryChunk m_shaderCode{ 0 };

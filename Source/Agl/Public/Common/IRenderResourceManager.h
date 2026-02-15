@@ -25,7 +25,7 @@ namespace agl
 	class GpuTimer;
 	class RasterizerState;
 	class SamplerState;
-	class ShaderBase;
+	class Shader;
 	class ShaderParameterInfo;
 	class Texture;
 	class VertexLayout;

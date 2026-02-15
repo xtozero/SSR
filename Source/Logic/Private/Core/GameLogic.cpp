@@ -136,7 +136,7 @@ namespace logic
 
 		if ( m_canvas->Handle() == platform.GetRawHandle<void*>() )
 		{
-			m_canvas->Resize( newAppSize );
+			m_canvas->Resize( m_appSize.first, m_appSize.second );
 		}
 	}
 

@@ -123,13 +123,13 @@ namespace logic
 		return nullptr;
 	}
 
-	void GameClientViewport::AppSizeChanged( const std::pair<uint32, uint32>& newSize )
+	void GameClientViewport::AppSizeChanged( uint32 width, uint32 height )
 	{
 		if ( m_viewport == nullptr )
 		{
 			return;
 		}
-		else if ( m_viewport->Size() == newSize )
+		else if ( m_viewport->Size() == std::make_pair( width, height ) )
 		{
 			return;
 		}
@@ -137,9 +137,9 @@ namespace logic
 		InvalidateHitProxy();
 
 		EnqueueRenderTask(
-			[viewport = m_viewport, appSize = newSize]()
+			[viewport = m_viewport, width, height]()
 			{
-				viewport->Resize( appSize );
+				viewport->Resize( width, height );
 			} );
 	}
 

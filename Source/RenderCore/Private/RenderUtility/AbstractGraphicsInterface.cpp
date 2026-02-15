@@ -195,9 +195,9 @@ namespace rendercore
 		return found->second;
 	}
 
-	BinaryChunk AbstractGraphicsInterface::CompieShader( const BinaryChunk& source, std::vector<const char*>& defines, agl::ShaderType type ) const
+	BinaryChunk AbstractGraphicsInterface::CompieShader( const BinaryChunk& source, std::vector<const char*>& defines, agl::ShaderType type, const char* entryPoint ) const
 	{
-		return m_agl->CompileShader( source, defines, type );
+		return m_agl->CompileShader( source, defines, type, entryPoint );
 	}
 
 	bool AbstractGraphicsInterface::BuildShaderMetaData( const BinaryChunk& byteCode, agl::ShaderParameterMap& outParameterMap, agl::ShaderParameterInfo& outParameterInfo ) const

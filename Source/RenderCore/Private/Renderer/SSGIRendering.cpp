@@ -60,10 +60,10 @@ namespace rendercore
 		using GlobalShaderCommon::GlobalShaderCommon;
 	};
 
-	REGISTER_GLOBAL_SHADER( SSGIPassCS, "./Assets/Shaders/SSGI/CS_SSGI.asset" );
-	REGISTER_GLOBAL_SHADER( SSGIDenoiseCS, "./Assets/Shaders/SSGI/CS_DenoiseSSGI.asset" );
-	REGISTER_GLOBAL_SHADER( SSGICompositeVS, "./Assets/Shaders/SSGI/VS_SSGIComposite.asset" );
-	REGISTER_GLOBAL_SHADER( SSGICompositePS, "./Assets/Shaders/SSGI/PS_SSGIComposite.asset" );
+	REGISTER_GLOBAL_SHADER( SSGIPassCS, "SSGI/CS_SSGI.fx", agl::ShaderType::CS, "main" );
+	REGISTER_GLOBAL_SHADER( SSGIDenoiseCS, "SSGI/CS_DenoiseSSGI.fx", agl::ShaderType::CS, "main" );
+	REGISTER_GLOBAL_SHADER( SSGICompositeVS, "SSGI/VS_SSGIComposite.fx", agl::ShaderType::VS, "main" );
+	REGISTER_GLOBAL_SHADER( SSGICompositePS, "SSGI/PS_SSGIComposite.fx", agl::ShaderType::PS, "main" );
 
 	class ForwardRendererCompositeSSGIPassProcessor final : public IPassProcessor
 	{

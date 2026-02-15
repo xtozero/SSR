@@ -1,12 +1,12 @@
 #pragma once
 
 #include "Shader.h"
+#include "ShaderRegistry.h"
 #include "SizedTypes.h"
 
 #include <atomic>
+#include <filesystem>
 #include <map>
-#include <string>
-#include <type_traits>
 #include <typeindex>
 
 namespace rendercore
@@ -35,7 +35,7 @@ namespace rendercore
 		GlobalShaders() = default;
 
 		std::map<std::type_index, std::shared_ptr<ShaderAsset>> m_shaders;
-		std::map<std::type_index, const char*> m_shaderAssetPaths;
+		std::map<std::type_index, std::filesystem::path> m_shaderAssetPaths;
 
 		std::atomic<int32> m_loadingInProgress = 0;
 	};
@@ -108,8 +108,9 @@ namespace rendercore
 		ShaderAsset* m_shader = nullptr;
 		ShaderType* m_compiledShader = nullptr;
 	};
-}
 
-#define REGISTER_GLOBAL_SHADER( type, shaderPath ) \
-static_assert( std::is_base_of_v<GlobalShaderBase, type>, "GlobalShader must inherit GlobalShaderBase" ); \
-GlobalShaderRegister type##_register( typeid( type ), shaderPath )
+	#define REGISTER_GLOBAL_SHADER( objectType, shaderPath, shaderType, entryPoint ) \
+	REGISTER_SHADER( objectType, shaderPath, shaderType, entryPoint ); \
+	static_assert( std::is_base_of_v<GlobalShaderBase, objectType>, "GlobalShader must inherit GlobalShaderBase" ); \
+	static GlobalShaderRegister objectType##_global_register( typeid( objectType ), shaderPath )
+}
