@@ -974,11 +974,11 @@ namespace agl
 			case D3D_SHADER_MODEL_6_6:
 				return L"vs_6_6";
 			case D3D_SHADER_MODEL_6_7:
-				[[fallthrough]];
-			case D3D_SHADER_MODEL_6_8:
-				[[fallthrough]];
-			case D3D_SHADER_MODEL_6_9:
 				return L"vs_6_7";
+			case D3D_SHADER_MODEL_6_8:
+				return L"vs_6_8";
+			case D3D_SHADER_MODEL_6_9:
+				return L"vs_6_9";
 			}
 		}
 		else if ( type == ShaderType::GS )
@@ -990,11 +990,11 @@ namespace agl
 			case D3D_SHADER_MODEL_6_6:
 				return L"gs_6_6";
 			case D3D_SHADER_MODEL_6_7:
-				[[fallthrough]];
-			case D3D_SHADER_MODEL_6_8:
-				[[fallthrough]];
-			case D3D_SHADER_MODEL_6_9:
 				return L"gs_6_7";
+			case D3D_SHADER_MODEL_6_8:
+				return L"gs_6_8";
+			case D3D_SHADER_MODEL_6_9:
+				return L"gs_6_9";
 			}
 		}
 		else if ( type == ShaderType::PS )
@@ -1006,11 +1006,11 @@ namespace agl
 			case D3D_SHADER_MODEL_6_6:
 				return L"ps_6_6";
 			case D3D_SHADER_MODEL_6_7:
-				[[fallthrough]];
-			case D3D_SHADER_MODEL_6_8:
-				[[fallthrough]];
-			case D3D_SHADER_MODEL_6_9:
 				return L"ps_6_7";
+			case D3D_SHADER_MODEL_6_8:
+				return L"ps_6_8";
+			case D3D_SHADER_MODEL_6_9:
+				return L"ps_6_9";
 			}
 		}
 		else if ( type == ShaderType::CS )
@@ -1022,11 +1022,11 @@ namespace agl
 			case D3D_SHADER_MODEL_6_6:
 				return L"cs_6_6";
 			case D3D_SHADER_MODEL_6_7:
-				[[fallthrough]];
-			case D3D_SHADER_MODEL_6_8:
-				[[fallthrough]];
-			case D3D_SHADER_MODEL_6_9:
 				return L"cs_6_7";
+			case D3D_SHADER_MODEL_6_8:
+				return L"cs_6_8";
+			case D3D_SHADER_MODEL_6_9:
+				return L"cs_6_9";
 			}
 		}
 		else if ( type == ShaderType::AS )
@@ -1038,11 +1038,11 @@ namespace agl
 			case D3D_SHADER_MODEL_6_6:
 				return L"as_6_6";
 			case D3D_SHADER_MODEL_6_7:
-				[[fallthrough]];
-			case D3D_SHADER_MODEL_6_8:
-				[[fallthrough]];
-			case D3D_SHADER_MODEL_6_9:
 				return L"as_6_7";
+			case D3D_SHADER_MODEL_6_8:
+				return L"as_6_8";
+			case D3D_SHADER_MODEL_6_9:
+				return L"as_6_9";
 			}
 		}
 		else if ( type == ShaderType::MS )
@@ -1054,11 +1054,11 @@ namespace agl
 			case D3D_SHADER_MODEL_6_6:
 				return L"ms_6_6";
 			case D3D_SHADER_MODEL_6_7:
-				[[fallthrough]];
-			case D3D_SHADER_MODEL_6_8:
-				[[fallthrough]];
-			case D3D_SHADER_MODEL_6_9:
 				return L"ms_6_7";
+			case D3D_SHADER_MODEL_6_8:
+				return L"ms_6_8";
+			case D3D_SHADER_MODEL_6_9:
+				return L"ms_6_9";
 			}
 		}
 
