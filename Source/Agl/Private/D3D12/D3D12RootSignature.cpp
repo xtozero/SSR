@@ -15,28 +15,28 @@ namespace agl
 	{
 		switch ( shaderType )
 		{
-		case agl::ShaderType::VS:
+		case agl::ShaderType::Vertex:
 			return D3D12_SHADER_VISIBILITY_VERTEX;
 			break;
-		case agl::ShaderType::HS:
+		case agl::ShaderType::Hull:
 			return D3D12_SHADER_VISIBILITY_HULL;
 			break;
-		case agl::ShaderType::DS:
+		case agl::ShaderType::Domain:
 			return D3D12_SHADER_VISIBILITY_DOMAIN;
 			break;
-		case agl::ShaderType::GS:
+		case agl::ShaderType::Geometry:
 			return D3D12_SHADER_VISIBILITY_GEOMETRY;
 			break;
-		case agl::ShaderType::PS:
+		case agl::ShaderType::Pixel:
 			return D3D12_SHADER_VISIBILITY_PIXEL;
 			break;
-		case agl::ShaderType::CS:
+		case agl::ShaderType::Compute:
 			return D3D12_SHADER_VISIBILITY_ALL;
 			break;
-		case agl::ShaderType::MS:
+		case agl::ShaderType::Mesh:
 			return D3D12_SHADER_VISIBILITY_MESH;
 			break;
-		case agl::ShaderType::AS:
+		case agl::ShaderType::Amplification:
 			return D3D12_SHADER_VISIBILITY_AMPLIFICATION;
 			break;
 		default:
@@ -115,27 +115,27 @@ namespace agl
 
 		if ( initializer.m_vertexShader )
 		{
-			shaders.emplace_back( ShaderType::VS, static_cast<D3D12VertexShader*>( initializer.m_vertexShader ) );
+			shaders.emplace_back( ShaderType::Vertex, static_cast<D3D12VertexShader*>( initializer.m_vertexShader ) );
 		}
 
 		if ( initializer.m_geometryShader )
 		{
-			shaders.emplace_back( ShaderType::GS, static_cast<D3D12GeometryShader*>( initializer.m_geometryShader ) );
+			shaders.emplace_back( ShaderType::Geometry, static_cast<D3D12GeometryShader*>( initializer.m_geometryShader ) );
 		}
 
 		if ( initializer.m_piexlShader )
 		{
-			shaders.emplace_back( ShaderType::PS, static_cast<D3D12PixelShader*>( initializer.m_piexlShader ) );
+			shaders.emplace_back( ShaderType::Pixel, static_cast<D3D12PixelShader*>( initializer.m_piexlShader ) );
 		}
 
 		if ( initializer.m_meshShader )
 		{
-			shaders.emplace_back( ShaderType::MS, static_cast<D3D12MeshShader*>( initializer.m_meshShader ) );
+			shaders.emplace_back( ShaderType::Mesh, static_cast<D3D12MeshShader*>( initializer.m_meshShader ) );
 		}
 
 		if ( initializer.m_amplificationShader )
 		{
-			shaders.emplace_back( ShaderType::AS, static_cast<D3D12AmplificationShader*>( initializer.m_amplificationShader ) );
+			shaders.emplace_back( ShaderType::Amplification, static_cast<D3D12AmplificationShader*>( initializer.m_amplificationShader ) );
 		}
 
 		bool hasBindless = false;
@@ -209,16 +209,16 @@ namespace agl
 		if ( hasBindless )
 		{
 			InlineShaderArray shaders;
-			shaders.emplace_back( ShaderType::CS, computeShader );
+			shaders.emplace_back( ShaderType::Compute, computeShader );
 
 			InitializeForBindless( shaders );
 		}
 		else
 		{
-			InitializeSRV( ShaderType::CS, paramInfo );
-			InitializeUAV( ShaderType::CS, paramInfo );
-			InitializeCB( ShaderType::CS, paramInfo );
-			InitializeSampler( ShaderType::CS, paramInfo );
+			InitializeSRV( ShaderType::Compute, paramInfo );
+			InitializeUAV( ShaderType::Compute, paramInfo );
+			InitializeCB( ShaderType::Compute, paramInfo );
+			InitializeSampler( ShaderType::Compute, paramInfo );
 		}
 
 		m_desc.NumParameters = static_cast<uint32>( m_parameters.size() );

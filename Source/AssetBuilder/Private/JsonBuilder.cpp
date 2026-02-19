@@ -264,7 +264,7 @@ namespace
 
 			if ( const json::Value* shaderKeys = root.Find( "Shader" ) )
 			{
-				for ( uint32 i = 0; i < agl::NumShaderTypes<uint32>; ++i )
+				for ( uint32 i = 0; i < agl::NumGraphicsShaderTypes<uint32>; ++i )
 				{
 					auto shaderType = static_cast<agl::ShaderType>( i );
 					const json::Value* shaderPath = shaderKeys->Find( ToString( shaderType ) );
@@ -277,46 +277,46 @@ namespace
 					{
 					case agl::ShaderType::None:
 						break;
-					case agl::ShaderType::VS:
+					case agl::ShaderType::Vertex:
 					{
 						auto vs = std::make_shared<rendercore::VertexShader>();
 						vs->SetPath( shaderPath->AsString() );
 						material->SetVertexShader( vs );
 						break;
 					}
-					case agl::ShaderType::HS:
+					case agl::ShaderType::Hull:
 						break;
-					case agl::ShaderType::DS:
+					case agl::ShaderType::Domain:
 						break;
-					case agl::ShaderType::GS:
+					case agl::ShaderType::Geometry:
 					{
 						auto gs = std::make_shared<rendercore::GeometryShader>();
 						gs->SetPath( shaderPath->AsString() );
 						material->SetGeometryShader( gs );
 						break;
 					}
-					case agl::ShaderType::PS:
+					case agl::ShaderType::Pixel:
 					{
 						auto ps = std::make_shared<rendercore::PixelShader>();
 						ps->SetPath( shaderPath->AsString() );
 						material->SetPixelShader( ps );
 						break;
 					}
-					case agl::ShaderType::CS:
+					case agl::ShaderType::Compute:
 					{
 						auto cs = std::make_shared<rendercore::ComputeShader>();
 						cs->SetPath( shaderPath->AsString() );
 						material->SetComputeShader( cs );
 						break;
 					}
-					case agl::ShaderType::MS:
+					case agl::ShaderType::Mesh:
 					{
 						auto ms = std::make_shared<rendercore::MeshShader>();
 						ms->SetPath( shaderPath->AsString() );
 						material->SetMeshShader( ms );
 						break;
 					}
-					case agl::ShaderType::AS:
+					case agl::ShaderType::Amplification:
 					{
 						auto as = std::make_shared<rendercore::AmplificationShader>();
 						as->SetPath( shaderPath->AsString() );

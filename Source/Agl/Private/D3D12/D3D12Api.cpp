@@ -46,28 +46,28 @@ namespace
 		switch ( shaderType )
 		{
 		case D3D12_SHVER_PIXEL_SHADER:
-			return ShaderType::PS;
+			return ShaderType::Pixel;
 			break;
 		case D3D12_SHVER_VERTEX_SHADER:
-			return ShaderType::VS;
+			return ShaderType::Vertex;
 			break;
 		case D3D12_SHVER_GEOMETRY_SHADER:
-			return ShaderType::GS;
+			return ShaderType::Geometry;
 			break;
 		case D3D12_SHVER_HULL_SHADER:
-			return ShaderType::HS;
+			return ShaderType::Hull;
 			break;
 		case D3D12_SHVER_DOMAIN_SHADER:
-			return ShaderType::DS;
+			return ShaderType::Domain;
 			break;
 		case D3D12_SHVER_COMPUTE_SHADER:
-			return ShaderType::CS;
+			return ShaderType::Compute;
 			break;
 		case D3D12_SHVER_MESH_SHADER:
-			return ShaderType::MS;
+			return ShaderType::Mesh;
 			break;
 		case D3D12_SHVER_AMPLIFICATION_SHADER:
-			return ShaderType::AS;
+			return ShaderType::Amplification;
 			break;
 		default:
 			break;
@@ -204,6 +204,8 @@ namespace agl
 		virtual bool SupportsPSOCache() const override;
 		virtual bool SupportsPSOLibraryCache() const override;
 		virtual std::filesystem::path GetPSOCacheFilePath() const override;
+
+		virtual bool SupportsHardwareRayTracing() const override;
 
 		virtual bool SupportsMeshShader() const override;
 
@@ -622,6 +624,11 @@ namespace agl
 		return psoCacheFilePath;
 	}
 
+	bool Direct3D12::SupportsHardwareRayTracing() const
+	{
+		return m_raytracingAvailable;
+	}
+
 	bool Direct3D12::SupportsMeshShader() const
 	{
 		return m_meshShaderAvailable;
@@ -965,7 +972,7 @@ namespace agl
 
 	const wchar_t* Direct3D12::GetShaderProfile( ShaderType type ) const
 	{
-		if ( type == ShaderType::VS )
+		if ( type == ShaderType::Vertex )
 		{
 			switch ( m_shaderModel.HighestShaderModel )
 			{
@@ -981,7 +988,7 @@ namespace agl
 				return L"vs_6_9";
 			}
 		}
-		else if ( type == ShaderType::GS )
+		else if ( type == ShaderType::Geometry )
 		{
 			switch ( m_shaderModel.HighestShaderModel )
 			{
@@ -997,7 +1004,7 @@ namespace agl
 				return L"gs_6_9";
 			}
 		}
-		else if ( type == ShaderType::PS )
+		else if ( type == ShaderType::Pixel )
 		{
 			switch ( m_shaderModel.HighestShaderModel )
 			{
@@ -1013,7 +1020,7 @@ namespace agl
 				return L"ps_6_9";
 			}
 		}
-		else if ( type == ShaderType::CS )
+		else if ( type == ShaderType::Compute )
 		{
 			switch ( m_shaderModel.HighestShaderModel )
 			{
@@ -1029,7 +1036,7 @@ namespace agl
 				return L"cs_6_9";
 			}
 		}
-		else if ( type == ShaderType::AS )
+		else if ( type == ShaderType::Amplification )
 		{
 			switch ( m_shaderModel.HighestShaderModel )
 			{
@@ -1045,7 +1052,7 @@ namespace agl
 				return L"as_6_9";
 			}
 		}
-		else if ( type == ShaderType::MS )
+		else if ( type == ShaderType::Mesh )
 		{
 			switch ( m_shaderModel.HighestShaderModel )
 			{
@@ -1059,6 +1066,22 @@ namespace agl
 				return L"ms_6_8";
 			case D3D_SHADER_MODEL_6_9:
 				return L"ms_6_9";
+			}
+		}
+		else if ( IsRayTracingShader( type ) )
+		{
+			switch ( m_shaderModel.HighestShaderModel )
+			{
+			case D3D_SHADER_MODEL_6_5:
+				return L"lib_6_5";
+			case D3D_SHADER_MODEL_6_6:
+				return L"lib_6_6";
+			case D3D_SHADER_MODEL_6_7:
+				return L"lib_6_7";
+			case D3D_SHADER_MODEL_6_8:
+				return L"lib_6_8";
+			case D3D_SHADER_MODEL_6_9:
+				return L"lib_6_9";
 			}
 		}
 

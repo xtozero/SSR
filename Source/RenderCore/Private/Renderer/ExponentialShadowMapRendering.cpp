@@ -49,8 +49,8 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( ParameterC );
 	};
 
-	REGISTER_GLOBAL_SHADER( CascadedESMsBlurCS, "Shadow/CS_CascadedESMsBlur.fx", agl::ShaderType::CS, "main" );
-	REGISTER_GLOBAL_SHADER( CascadedESMsCS, "Shadow/CS_CascadedESMs.fx", agl::ShaderType::CS, "main" );
+	REGISTER_GLOBAL_SHADER( CascadedESMsBlurCS, "Shadow/CS_CascadedESMsBlur.fx", agl::ShaderType::Compute, "main" );
+	REGISTER_GLOBAL_SHADER( CascadedESMsCS, "Shadow/CS_CascadedESMs.fx", agl::ShaderType::Compute, "main" );
 
 	template <float Sigma, int32 KernelSize>
 	RefHandle<agl::Texture> ApplyGaussianBlur( RenderGraph& renderGraph, RefHandle<agl::Texture> srcTexture )

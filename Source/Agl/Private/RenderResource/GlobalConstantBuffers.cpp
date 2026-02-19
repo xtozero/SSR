@@ -11,7 +11,7 @@ using ::agl::ShaderType;
 
 namespace
 {
-	ShaderType GraphicsShaderTypes[] = { ShaderType::VS, ShaderType::HS, ShaderType::DS, ShaderType::GS, ShaderType::PS, ShaderType::MS, ShaderType::AS };
+	ShaderType GraphicsShaderTypes[] = { ShaderType::Vertex, ShaderType::Hull, ShaderType::Domain, ShaderType::Geometry, ShaderType::Pixel, ShaderType::Mesh, ShaderType::Amplification };
 }
 
 namespace agl
@@ -142,7 +142,7 @@ namespace agl
 	{
 		if ( bCompute )
 		{
-			GetGlobalConstantBuffer( ShaderType::CS ).Reset();
+			GetGlobalConstantBuffer( ShaderType::Compute ).Reset();
 		}
 		else
 		{
@@ -162,7 +162,7 @@ namespace agl
 	{
 		if ( bCompute )
 		{
-			GetGlobalConstantBuffer( ShaderType::CS ).CommitShaderValue();
+			GetGlobalConstantBuffer( ShaderType::Compute ).CommitShaderValue();
 		}
 		else
 		{

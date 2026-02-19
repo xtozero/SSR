@@ -524,7 +524,7 @@ namespace agl
 		if ( shaderBindings.IsCompute() )
 		{
 			uint32 offset = 0;
-			SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( ShaderType::CS );
+			SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( ShaderType::Compute );
 
 			if ( binding.NumSRV() > 0 )
 			{

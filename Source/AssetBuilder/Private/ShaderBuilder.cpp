@@ -32,7 +32,7 @@ namespace
 
 		if ( aglType == agl::AglType::D3D11 )
 		{
-			const char* d3d11Profiles[agl::NumShaderTypes<uint32>] = {
+			static const char* d3d11Profiles[agl::NumShaderTypes<uint32>] = {
 				"vs_5_0",
 				"hs_5_0",
 				"ds_5_0",
@@ -40,14 +40,20 @@ namespace
 				"ps_5_0",
 				"cs_5_0",
 				"",
-				""
+				"",
+				"",
+				"",
+				"",
+				"",
+				"",
+				"",
 			};
 
 			return d3d11Profiles[static_cast<int8>( shaderType )];
 		}
 		else // agl::AglType::D3D12
 		{
-			const char* d3d12Profiles[agl::NumShaderTypes<uint32>] = {
+			static const char* d3d12Profiles[agl::NumShaderTypes<uint32>] = {
 				"vs_6_5",
 				"hs_6_5",
 				"ds_6_5",
@@ -55,7 +61,13 @@ namespace
 				"ps_6_5",
 				"cs_6_5",
 				"ms_6_5",
-				"as_6_5"
+				"as_6_5",
+				"lib_6_5",
+				"lib_6_5",
+				"lib_6_5",
+				"lib_6_5",
+				"lib_6_5",
+				"lib_6_5",
 			};
 
 			return d3d12Profiles[static_cast<int8>( shaderType )];

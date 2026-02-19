@@ -104,6 +104,42 @@ namespace agl
 		return nullptr;
 	}
 
+	RayGenerationShader* D3D11ResourceManager::CreateRayGenerationShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
+	{
+		// DXR is not supported in direct3D 11
+		return nullptr;
+	}
+
+	IntersectionShader* D3D11ResourceManager::CreateIntersectionShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	{
+		// DXR is not supported in direct3D 11
+		return nullptr;
+	}
+
+	AnyHitShader* D3D11ResourceManager::CreateAnyHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	{
+		// DXR is not supported in direct3D 11
+		return nullptr;
+	}
+
+	ClosestHitShader* D3D11ResourceManager::CreateClosestHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	{
+		// DXR is not supported in direct3D 11
+		return nullptr;
+	}
+
+	MissShader* D3D11ResourceManager::CreateMissShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	{
+		// DXR is not supported in direct3D 11
+		return nullptr;
+	}
+
+	CallableShader* D3D11ResourceManager::CreateCallableShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	{
+		// DXR is not supported in direct3D 11
+		return nullptr;
+	}
+
 	BlendState* D3D11ResourceManager::CreateBlendState( const BlendStateTrait& trait ) const
 	{
 		auto blendState = new D3D11BlendState( trait );

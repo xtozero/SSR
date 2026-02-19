@@ -90,8 +90,7 @@ namespace agl
 	{
 	public:
 		D3D12AmplificationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: AmplificationShader( byteCode, byteCodeSize, paramInfo ) {
-		}
+			: AmplificationShader( byteCode, byteCodeSize, paramInfo ) {}
 		D3D12AmplificationShader( const D3D12AmplificationShader& ) = delete;
 		D3D12AmplificationShader( D3D12AmplificationShader&& ) = default;
 		D3D12AmplificationShader& operator=( const D3D12AmplificationShader& ) = delete;
@@ -103,4 +102,102 @@ namespace agl
 		virtual void FreeResource() override {}
 	};
 
+	class D3D12RayGenerationShader final : public RayGenerationShader
+	{
+	public:
+		D3D12RayGenerationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+			: RayGenerationShader( byteCode, byteCodeSize, paramInfo ) {}
+		D3D12RayGenerationShader( const D3D12RayGenerationShader& ) = delete;
+		D3D12RayGenerationShader( D3D12RayGenerationShader&& ) = default;
+		D3D12RayGenerationShader& operator=( const D3D12RayGenerationShader& ) = delete;
+		D3D12RayGenerationShader& operator=( D3D12RayGenerationShader&& ) = default;
+		virtual ~D3D12RayGenerationShader() override = default;
+
+	private:
+		virtual void InitResource() override {}
+		virtual void FreeResource() override {}
+	};
+
+	class D3D12IntersectionShader final : public IntersectionShader
+	{
+	public:
+		D3D12IntersectionShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+			: IntersectionShader( byteCode, byteCodeSize, paramInfo ) {}
+		D3D12IntersectionShader( const D3D12IntersectionShader& ) = delete;
+		D3D12IntersectionShader( D3D12IntersectionShader&& ) = default;
+		D3D12IntersectionShader& operator=( const D3D12IntersectionShader& ) = delete;
+		D3D12IntersectionShader& operator=( D3D12IntersectionShader&& ) = default;
+		virtual ~D3D12IntersectionShader() override = default;
+
+	private:
+		virtual void InitResource() override {}
+		virtual void FreeResource() override {}
+	};
+
+	class D3D12AnyHitShader final : public AnyHitShader
+	{
+	public:
+		D3D12AnyHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+			: AnyHitShader( byteCode, byteCodeSize, paramInfo ) {}
+		D3D12AnyHitShader( const D3D12AnyHitShader& ) = delete;
+		D3D12AnyHitShader( D3D12AnyHitShader&& ) = default;
+		D3D12AnyHitShader& operator=( const D3D12AnyHitShader& ) = delete;
+		D3D12AnyHitShader& operator=( D3D12AnyHitShader&& ) = default;
+		virtual ~D3D12AnyHitShader() override = default;
+
+	private:
+		virtual void InitResource() override {}
+		virtual void FreeResource() override {}
+	};
+
+	class D3D12ClosestHitShader final : public ClosestHitShader
+	{
+	public:
+		D3D12ClosestHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+			: ClosestHitShader( byteCode, byteCodeSize, paramInfo ) {
+		}
+		D3D12ClosestHitShader( const D3D12ClosestHitShader& ) = delete;
+		D3D12ClosestHitShader( D3D12ClosestHitShader&& ) = default;
+		D3D12ClosestHitShader& operator=( const D3D12ClosestHitShader& ) = delete;
+		D3D12ClosestHitShader& operator=( D3D12ClosestHitShader&& ) = default;
+		virtual ~D3D12ClosestHitShader() override = default;
+
+	private:
+		virtual void InitResource() override {}
+		virtual void FreeResource() override {}
+	};
+
+	class D3D12MissShader final : public MissShader
+	{
+	public:
+		D3D12MissShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+			: MissShader( byteCode, byteCodeSize, paramInfo ) {
+		}
+		D3D12MissShader( const D3D12MissShader& ) = delete;
+		D3D12MissShader( D3D12MissShader&& ) = default;
+		D3D12MissShader& operator=( const D3D12MissShader& ) = delete;
+		D3D12MissShader& operator=( D3D12MissShader&& ) = default;
+		virtual ~D3D12MissShader() override = default;
+
+	private:
+		virtual void InitResource() override {}
+		virtual void FreeResource() override {}
+	};
+
+	class D3D12CallableShader final : public CallableShader
+	{
+	public:
+		D3D12CallableShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+			: CallableShader( byteCode, byteCodeSize, paramInfo ) {
+		}
+		D3D12CallableShader( const D3D12CallableShader& ) = delete;
+		D3D12CallableShader( D3D12CallableShader&& ) = default;
+		D3D12CallableShader& operator=( const D3D12CallableShader& ) = delete;
+		D3D12CallableShader& operator=( D3D12CallableShader&& ) = default;
+		virtual ~D3D12CallableShader() override = default;
+
+	private:
+		virtual void InitResource() override {}
+		virtual void FreeResource() override {}
+	};
 }

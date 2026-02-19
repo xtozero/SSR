@@ -34,8 +34,8 @@ namespace rendercore
 	class DrawImguiPS final : public GlobalShaderCommon<PixelShader, DrawImguiPS>
 	{};
 
-	REGISTER_GLOBAL_SHADER( DrawImguiVS, "Material/VS_Imgui.fx", agl::ShaderType::VS, "main" );
-	REGISTER_GLOBAL_SHADER( DrawImguiPS, "Material/PS_Imgui.fx", agl::ShaderType::PS, "main" );
+	REGISTER_GLOBAL_SHADER( DrawImguiVS, "Material/VS_Imgui.fx", agl::ShaderType::Vertex, "main" );
+	REGISTER_GLOBAL_SHADER( DrawImguiPS, "Material/PS_Imgui.fx", agl::ShaderType::Pixel, "main" );
 
 	class ImguiDrawPassProcessor final : public IPassProcessor
 	{
@@ -193,7 +193,7 @@ namespace rendercore
 		bool m_renderResourceCreated = false;
 	};
 
-	agl::ShaderParameter ImguiRenderer::ProjectionMatrixShaderParam( agl::ShaderType::VS, agl::ShaderParameterType::ConstantBufferValue, 0, 0, 0, sizeof( Matrix ) );
+	agl::ShaderParameter ImguiRenderer::ProjectionMatrixShaderParam( agl::ShaderType::Vertex, agl::ShaderParameterType::ConstantBufferValue, 0, 0, 0, sizeof( Matrix ) );
 
 	bool ImguiRenderer::BootUp()
 	{

@@ -193,13 +193,10 @@ namespace rendercore
 		// TODO : Remove copy if possible
 		agl::ShaderBindings shaderBindings = snapshot.m_shaderBindings;
 
-		const ShaderBase* shaders[agl::NumShaderTypes<uint32>] = {
+		const ShaderBase* shaders[] = {
 			shaderState.m_vertexShader,
-			nullptr,
-			nullptr,
 			shaderState.m_geometryShader,
 			shaderState.m_pixelShader,
-			nullptr,
 			shaderState.m_meshShader,
 			shaderState.m_amplificationShader
 		};
@@ -226,7 +223,7 @@ namespace rendercore
 			{
 				agl::ShaderParameter primitiveIdsParam = shaderParameterMapForMS.GetParameter( StaticName( "PrimitiveIds" ) );
 
-				agl::SingleShaderBindings shaderBindingForMS = shaderBindings.GetSingleShaderBindings( agl::ShaderType::MS );
+				agl::SingleShaderBindings shaderBindingForMS = shaderBindings.GetSingleShaderBindings( agl::ShaderType::Mesh );
 				shaderBindingForMS.AddSRV( primitiveIdsParam, primitiveIdsBufffer->SRV() );
 			}
 
@@ -238,7 +235,7 @@ namespace rendercore
 				{
 					agl::ShaderParameter primitiveIdsParam = shaderParameterMapForAS.GetParameter( StaticName( "PrimitiveIds" ) );
 
-					agl::SingleShaderBindings shaderBindingForAS = shaderBindings.GetSingleShaderBindings( agl::ShaderType::AS );
+					agl::SingleShaderBindings shaderBindingForAS = shaderBindings.GetSingleShaderBindings( agl::ShaderType::Amplification );
 					shaderBindingForAS.AddSRV( primitiveIdsParam, primitiveIdsBufffer->SRV() );
 				}
 

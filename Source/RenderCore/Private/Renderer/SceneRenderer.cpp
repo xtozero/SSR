@@ -37,7 +37,7 @@
 
 namespace
 {
-	agl::ShaderParameter HitProxyIdShaderParam( agl::ShaderType::PS, agl::ShaderParameterType::ConstantBufferValue, 0, 0, 0, sizeof( ColorF ) );
+	agl::ShaderParameter HitProxyIdShaderParam( agl::ShaderType::Pixel, agl::ShaderParameterType::ConstantBufferValue, 0, 0, 0, sizeof( ColorF ) );
 }
 
 namespace rendercore
@@ -52,13 +52,19 @@ namespace rendercore
 	{
 		const ShaderBase* shaderArray[] = {
 			shaders.m_vertexShader,
-			nullptr, // HS
-			nullptr, // DS
+			nullptr, // Hull
+			nullptr, // Domain
 			shaders.m_geometryShader,
 			shaders.m_pixelShader,
-			nullptr, // CS
+			nullptr, // Compute
 			shaders.m_meshShader,
 			shaders.m_amplificationShader,
+			nullptr, // RayGen
+			nullptr, // Intersection
+			nullptr, // AnyHit
+			nullptr, // ClosestHit
+			nullptr, // Miss
+			nullptr, // Callable
 		};
 
 		Bind( shaderArray, outBindings );
@@ -67,14 +73,20 @@ namespace rendercore
 	void ResourceBinder::Bind( const ComputeShader* shader, agl::ShaderBindings& outBindings ) const
 	{
 		const ShaderBase* shaderArray[] = {
-			nullptr, // VS
-			nullptr, // HS
-			nullptr, // DS
-			nullptr, // GS
-			nullptr, // PS
-			shader, // CS
-			nullptr, // MS
-			nullptr, // AS
+			nullptr, // Vertex
+			nullptr, // Hull
+			nullptr, // Domain
+			nullptr, // Geometry
+			nullptr, // Pixel
+			shader,
+			nullptr, // Mesh
+			nullptr, // Amplification
+			nullptr, // RayGen
+			nullptr, // Intersection
+			nullptr, // AnyHit
+			nullptr, // ClosestHit
+			nullptr, // Miss
+			nullptr, // Callable
 		};
 
 		Bind( shaderArray, outBindings );
@@ -115,7 +127,7 @@ namespace rendercore
 		}
 	}
 
-	void ResourceBinder::Bind( const ShaderBase*(& shaders)[8], agl::ShaderBindings& outBindings ) const
+	void ResourceBinder::Bind( const ShaderBase* (&shaders)[agl::NumShaderTypes<uint32>], agl::ShaderBindings& outBindings ) const
 	{
 		for ( uint32 shaderType = 0; shaderType < agl::NumShaderTypes<uint32>; ++shaderType )
 		{

@@ -52,8 +52,8 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( VolumetricFogParameterBuffer );
 	};
 
-	REGISTER_GLOBAL_SHADER( InscatteringCS, "VolumetricFog/CS_Inscattering.fx", agl::ShaderType::CS, "main" );
-	REGISTER_GLOBAL_SHADER( AccumulateScatteringCS, "VolumetricFog/CS_AccumulateScattering.fx", agl::ShaderType::CS, "main" );
+	REGISTER_GLOBAL_SHADER( InscatteringCS, "VolumetricFog/CS_Inscattering.fx", agl::ShaderType::Compute, "main" );
+	REGISTER_GLOBAL_SHADER( AccumulateScatteringCS, "VolumetricFog/CS_AccumulateScattering.fx", agl::ShaderType::Compute, "main" );
 
 	void VolumetricFogSceneInfo::CreateRenderData()
 	{

@@ -65,6 +65,8 @@ namespace agl
 		virtual bool SupportsPSOLibraryCache() const = 0;
 		virtual std::filesystem::path GetPSOCacheFilePath() const = 0;
 
+		virtual bool SupportsHardwareRayTracing() const = 0;
+
 		virtual bool SupportsMeshShader() const = 0;
 
 		virtual bool SupportsWaveIntrinsics() const = 0;

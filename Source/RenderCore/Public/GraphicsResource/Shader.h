@@ -128,6 +128,8 @@ namespace rendercore
 			: ShaderBase( switches, std::move( byteCode ), hash ) {}
 		VertexShader() = default;
 
+		static agl::ShaderType GetType();
+
 		agl::VertexShader* Resource();
 		const agl::VertexShader* Resource() const;
 
@@ -143,6 +145,8 @@ namespace rendercore
 		GeometryShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash )
 			: ShaderBase( switches, std::move( byteCode ), hash ) {}
 		GeometryShader() = default;
+
+		static agl::ShaderType GetType();
 
 		agl::GeometryShader* Resource();
 		const agl::GeometryShader* Resource() const;
@@ -160,6 +164,8 @@ namespace rendercore
 			: ShaderBase( switches, std::move( byteCode ), hash ) {}
 		PixelShader() = default;
 
+		static agl::ShaderType GetType();
+
 		agl::PixelShader* Resource();
 		const agl::PixelShader* Resource() const;
 
@@ -175,6 +181,8 @@ namespace rendercore
 		ComputeShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash )
 			: ShaderBase( switches, std::move( byteCode ), hash ) {}
 		ComputeShader() = default;
+
+		static agl::ShaderType GetType();
 
 		agl::ComputeShader* Resource();
 		const agl::ComputeShader* Resource() const;
@@ -194,6 +202,8 @@ namespace rendercore
 			: ShaderBase( switches, std::move( byteCode ), hash ) {}
 		MeshShader() = default;
 
+		static agl::ShaderType GetType();
+
 		agl::MeshShader* Resource();
 		const agl::MeshShader* Resource() const;
 
@@ -212,8 +222,130 @@ namespace rendercore
 			: ShaderBase( switches, std::move( byteCode ), hash ) {}
 		AmplificationShader() = default;
 
+		static agl::ShaderType GetType();
+
 		agl::AmplificationShader* Resource();
 		const agl::AmplificationShader* Resource() const;
+
+		RENDERCORE_DLL virtual void CreateShader() override;
+	};
+
+	class RayGenerationShader final : public ShaderBase
+	{
+		GENERATE_CLASS_TYPE_INFO( RayGenerationShader );
+		DECLARE_ASSET( RENDERCORE, RayGenerationShader );
+
+	public:
+		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
+
+		RayGenerationShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash )
+			: ShaderBase( switches, std::move( byteCode ), hash ) {}
+		RayGenerationShader() = default;
+
+		static agl::ShaderType GetType();
+
+		agl::RayGenerationShader* Resource();
+		const agl::RayGenerationShader* Resource() const;
+
+		RENDERCORE_DLL virtual void CreateShader() override;
+	};
+
+	class IntersectionShader final : public ShaderBase
+	{
+		GENERATE_CLASS_TYPE_INFO( IntersectionShader );
+		DECLARE_ASSET( RENDERCORE, IntersectionShader );
+
+	public:
+		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
+
+		IntersectionShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash )
+			: ShaderBase( switches, std::move( byteCode ), hash ) {}
+		IntersectionShader() = default;
+
+		static agl::ShaderType GetType();
+
+		agl::IntersectionShader* Resource();
+		const agl::IntersectionShader* Resource() const;
+
+		RENDERCORE_DLL virtual void CreateShader() override;
+	};
+
+	class AnyHitShader final : public ShaderBase
+	{
+		GENERATE_CLASS_TYPE_INFO( AnyHitShader );
+		DECLARE_ASSET( RENDERCORE, AnyHitShader );
+
+	public:
+		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
+
+		AnyHitShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash )
+			: ShaderBase( switches, std::move( byteCode ), hash ) {}
+		AnyHitShader() = default;
+
+		static agl::ShaderType GetType();
+
+		agl::AnyHitShader* Resource();
+		const agl::AnyHitShader* Resource() const;
+
+		RENDERCORE_DLL virtual void CreateShader() override;
+	};
+
+	class ClosestHitShader final : public ShaderBase
+	{
+		GENERATE_CLASS_TYPE_INFO( ClosestHitShader );
+		DECLARE_ASSET( RENDERCORE, ClosestHitShader );
+
+	public:
+		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
+
+		ClosestHitShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash )
+			: ShaderBase( switches, std::move( byteCode ), hash ) {}
+		ClosestHitShader() = default;
+
+		static agl::ShaderType GetType();
+
+		agl::ClosestHitShader* Resource();
+		const agl::ClosestHitShader* Resource() const;
+
+		RENDERCORE_DLL virtual void CreateShader() override;
+	};
+
+	class MissShader final : public ShaderBase
+	{
+		GENERATE_CLASS_TYPE_INFO( MissShader );
+		DECLARE_ASSET( RENDERCORE, MissShader );
+
+	public:
+		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
+
+		MissShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash )
+			: ShaderBase( switches, std::move( byteCode ), hash ) {}
+		MissShader() = default;
+
+		static agl::ShaderType GetType();
+
+		agl::MissShader* Resource();
+		const agl::MissShader* Resource() const;
+
+		RENDERCORE_DLL virtual void CreateShader() override;
+	};
+
+	class CallableShader final : public ShaderBase
+	{
+		GENERATE_CLASS_TYPE_INFO( CallableShader );
+		DECLARE_ASSET( RENDERCORE, CallableShader );
+
+	public:
+		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
+
+		CallableShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash )
+			: ShaderBase( switches, std::move( byteCode ), hash ) {}
+		CallableShader() = default;
+
+		static agl::ShaderType GetType();
+
+		agl::CallableShader* Resource();
+		const agl::CallableShader* Resource() const;
 
 		RENDERCORE_DLL virtual void CreateShader() override;
 	};

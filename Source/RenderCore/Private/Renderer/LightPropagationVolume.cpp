@@ -99,16 +99,16 @@ namespace rendercore
 	class RenderLpvPS final : public GlobalShaderCommon<PixelShader, RenderLpvPS>
 	{};
 
-	REGISTER_GLOBAL_SHADER( ClearLpvCS, "IndirectLighting/LPV/CS_ClearLPV.fx", agl::ShaderType::CS, "main" );
-	REGISTER_GLOBAL_SHADER( DownSampleRSMsCS, "IndirectLighting/LPV/CS_DownSampleRSMs.fx", agl::ShaderType::CS, "main" );
-	REGISTER_GLOBAL_SHADER( LightInjectionVS, "IndirectLighting/LPV/VS_LightInjection.fx", agl::ShaderType::VS, "main" );
-	REGISTER_GLOBAL_SHADER( LightInjectionGS, "IndirectLighting/LPV/GS_LightInjection.fx", agl::ShaderType::GS, "main" );
-	REGISTER_GLOBAL_SHADER( LightInjectionPS, "IndirectLighting/LPV/PS_LightInjection.fx", agl::ShaderType::PS, "main" );
-	REGISTER_GLOBAL_SHADER( GeometryInjectionVS, "IndirectLighting/LPV/VS_GeometryInjection.fx", agl::ShaderType::VS, "main" );
-	REGISTER_GLOBAL_SHADER( GeometryInjectionGS, "IndirectLighting/LPV/GS_GeometryInjection.fx", agl::ShaderType::GS, "main" );
-	REGISTER_GLOBAL_SHADER( GeometryInjectionPS, "IndirectLighting/LPV/PS_GeometryInjection.fx", agl::ShaderType::PS, "main" );
-	REGISTER_GLOBAL_SHADER( LightPropagationCS, "IndirectLighting/LPV/CS_LightPropagation.fx", agl::ShaderType::CS, "main" );
-	REGISTER_GLOBAL_SHADER( RenderLpvPS, "IndirectLighting/LPV/PS_RenderLPV.fx", agl::ShaderType::PS, "main" );
+	REGISTER_GLOBAL_SHADER( ClearLpvCS, "IndirectLighting/LPV/CS_ClearLPV.fx", agl::ShaderType::Compute, "main" );
+	REGISTER_GLOBAL_SHADER( DownSampleRSMsCS, "IndirectLighting/LPV/CS_DownSampleRSMs.fx", agl::ShaderType::Compute, "main" );
+	REGISTER_GLOBAL_SHADER( LightInjectionVS, "IndirectLighting/LPV/VS_LightInjection.fx", agl::ShaderType::Vertex, "main" );
+	REGISTER_GLOBAL_SHADER( LightInjectionGS, "IndirectLighting/LPV/GS_LightInjection.fx", agl::ShaderType::Geometry, "main" );
+	REGISTER_GLOBAL_SHADER( LightInjectionPS, "IndirectLighting/LPV/PS_LightInjection.fx", agl::ShaderType::Pixel, "main" );
+	REGISTER_GLOBAL_SHADER( GeometryInjectionVS, "IndirectLighting/LPV/VS_GeometryInjection.fx", agl::ShaderType::Vertex, "main" );
+	REGISTER_GLOBAL_SHADER( GeometryInjectionGS, "IndirectLighting/LPV/GS_GeometryInjection.fx", agl::ShaderType::Geometry, "main" );
+	REGISTER_GLOBAL_SHADER( GeometryInjectionPS, "IndirectLighting/LPV/PS_GeometryInjection.fx", agl::ShaderType::Pixel, "main" );
+	REGISTER_GLOBAL_SHADER( LightPropagationCS, "IndirectLighting/LPV/CS_LightPropagation.fx", agl::ShaderType::Compute, "main" );
+	REGISTER_GLOBAL_SHADER( RenderLpvPS, "IndirectLighting/LPV/PS_RenderLPV.fx", agl::ShaderType::Pixel, "main" );
 
 	class LightInjectionPassProcessor final : public IPassProcessor
 	{

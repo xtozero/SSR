@@ -24,9 +24,9 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( WeatherTex );
 	};
 
-	REGISTER_GLOBAL_SHADER( PerlinWorleyCS, "Cloud/CS_PerlinWorley.fx", agl::ShaderType::CS, "main" );
-	REGISTER_GLOBAL_SHADER( WorleyCS, "Cloud/CS_Worley.fx", agl::ShaderType::CS, "main" );
-	REGISTER_GLOBAL_SHADER( WeatherMapCS, "Cloud/CS_WeatherMap.fx", agl::ShaderType::CS, "main" );
+	REGISTER_GLOBAL_SHADER( PerlinWorleyCS, "Cloud/CS_PerlinWorley.fx", agl::ShaderType::Compute, "main" );
+	REGISTER_GLOBAL_SHADER( WorleyCS, "Cloud/CS_Worley.fx", agl::ShaderType::Compute, "main" );
+	REGISTER_GLOBAL_SHADER( WeatherMapCS, "Cloud/CS_WeatherMap.fx", agl::ShaderType::Compute, "main" );
 
 	void VolumetricCloudSceneInfo::CreateRenderData()
 	{

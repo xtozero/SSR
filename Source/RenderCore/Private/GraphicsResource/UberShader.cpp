@@ -59,22 +59,22 @@ namespace rendercore
 		ShaderBase* shader = nullptr;
 		switch ( m_type )
 		{
-		case agl::ShaderType::VS:
+		case agl::ShaderType::Vertex:
 			shader = new VertexShader( switches, std::move( byteCode ), shaderHash );
 			break;
-		case agl::ShaderType::GS:
+		case agl::ShaderType::Geometry:
 			shader = new GeometryShader( switches, std::move( byteCode ), shaderHash );
 			break;
-		case agl::ShaderType::PS:
+		case agl::ShaderType::Pixel:
 			shader = new PixelShader( switches, std::move( byteCode ), shaderHash );
 			break;
-		case agl::ShaderType::CS:
+		case agl::ShaderType::Compute:
 			shader = new ComputeShader( switches, std::move( byteCode ), shaderHash );
 			break;
-		case agl::ShaderType::MS:
+		case agl::ShaderType::Mesh:
 			shader = new MeshShader( switches, std::move( byteCode ), shaderHash );
 			break;
-		case agl::ShaderType::AS:
+		case agl::ShaderType::Amplification:
 			shader = new AmplificationShader( switches, std::move( byteCode ), shaderHash );
 			break;
 		default:
@@ -150,7 +150,7 @@ namespace rendercore
 
 	BinaryChunk UberShader::ComipeShaderByteCode( const StaticShaderSwitches& switches )
 	{
-		bool bMeshShader = ( m_type == agl::ShaderType::MS ) || ( m_type == agl::ShaderType::AS );
+		bool bMeshShader = ( m_type == agl::ShaderType::Mesh ) || ( m_type == agl::ShaderType::Amplification );
         if ( bMeshShader && ( GetInterface<agl::IAgl>()->SupportsMeshShader() == false ) )
         {
         	return {};

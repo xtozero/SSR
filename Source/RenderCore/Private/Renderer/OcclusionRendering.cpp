@@ -43,7 +43,7 @@ namespace rendercore
 	{
 	};
 
-	REGISTER_GLOBAL_SHADER( OcclusionVS, "VS_Occlusion.fx", agl::ShaderType::VS, "main" );
+	REGISTER_GLOBAL_SHADER( OcclusionVS, "VS_Occlusion.fx", agl::ShaderType::Vertex, "main" );
 
 	DrawSnapshot BuildOcclusionDrawSnapshot( const GlobalDynamicVertexBuffer::AllocationInfo& allcationInfo )
 	{

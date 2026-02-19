@@ -96,16 +96,16 @@ namespace rendercore
 	class DrawAtmospherePS final : public GlobalShaderCommon<PixelShader, DrawAtmospherePS>
 	{};
 
-	REGISTER_GLOBAL_SHADER( TransmittanceCS, "Atmosphere/CS_Transmittance.fx", agl::ShaderType::CS, "main" );
-	REGISTER_GLOBAL_SHADER( IrradianceOneCS, "Atmosphere/CS_Irradiance1.fx", agl::ShaderType::CS, "main" );
-	REGISTER_GLOBAL_SHADER( InscatterOneCS, "Atmosphere/CS_Inscatter1.fx", agl::ShaderType::CS, "main" );
-	REGISTER_GLOBAL_SHADER( CopyInscatterOneCS, "Atmosphere/CS_CopyInscatter1.fx", agl::ShaderType::CS, "main" );
-	REGISTER_GLOBAL_SHADER( InscatterSCS, "Atmosphere/CS_InscatterS.fx", agl::ShaderType::CS, "main" );
-	REGISTER_GLOBAL_SHADER( IrradianceNCS, "Atmosphere/CS_IrradianceN.fx", agl::ShaderType::CS, "main" );
-	REGISTER_GLOBAL_SHADER( InscatterNCS, "Atmosphere/CS_InscatterN.fx", agl::ShaderType::CS, "main" );
-	REGISTER_GLOBAL_SHADER( CopyIrradianceCS, "Atmosphere/CS_CopyIrradiance.fx", agl::ShaderType::CS, "main" );
-	REGISTER_GLOBAL_SHADER( CopyInscatterNCS, "Atmosphere/CS_CopyInscatterN.fx", agl::ShaderType::CS, "main" );
-	REGISTER_GLOBAL_SHADER( DrawAtmospherePS, "Atmosphere/PS_DrawAtmosphere.fx", agl::ShaderType::PS, "main" );
+	REGISTER_GLOBAL_SHADER( TransmittanceCS, "Atmosphere/CS_Transmittance.fx", agl::ShaderType::Compute, "main" );
+	REGISTER_GLOBAL_SHADER( IrradianceOneCS, "Atmosphere/CS_Irradiance1.fx", agl::ShaderType::Compute, "main" );
+	REGISTER_GLOBAL_SHADER( InscatterOneCS, "Atmosphere/CS_Inscatter1.fx", agl::ShaderType::Compute, "main" );
+	REGISTER_GLOBAL_SHADER( CopyInscatterOneCS, "Atmosphere/CS_CopyInscatter1.fx", agl::ShaderType::Compute, "main" );
+	REGISTER_GLOBAL_SHADER( InscatterSCS, "Atmosphere/CS_InscatterS.fx", agl::ShaderType::Compute, "main" );
+	REGISTER_GLOBAL_SHADER( IrradianceNCS, "Atmosphere/CS_IrradianceN.fx", agl::ShaderType::Compute, "main" );
+	REGISTER_GLOBAL_SHADER( InscatterNCS, "Atmosphere/CS_InscatterN.fx", agl::ShaderType::Compute, "main" );
+	REGISTER_GLOBAL_SHADER( CopyIrradianceCS, "Atmosphere/CS_CopyIrradiance.fx", agl::ShaderType::Compute, "main" );
+	REGISTER_GLOBAL_SHADER( CopyInscatterNCS, "Atmosphere/CS_CopyInscatterN.fx", agl::ShaderType::Compute, "main" );
+	REGISTER_GLOBAL_SHADER( DrawAtmospherePS, "Atmosphere/PS_DrawAtmosphere.fx", agl::ShaderType::Pixel, "main" );
 
 	std::optional<DrawSnapshot> SkyAtmosphereDrawPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{

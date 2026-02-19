@@ -219,7 +219,7 @@ namespace rendercore
 			}
 
 			MaterialResource& material = *subMesh.m_material;
-			StaticShaderSwitches csSwitches = material.GetShaderSwitches( agl::ShaderType::CS );
+			StaticShaderSwitches csSwitches = material.GetShaderSwitches( agl::ShaderType::Compute );
 
 			if ( DefaultRenderCore::IsRSMsEnabled() )
 			{
@@ -248,11 +248,11 @@ namespace rendercore
 			};
 
 			agl::ShaderBindingsInitializer initializer;
-			initializer[agl::ShaderType::CS] = &computeShader->ParameterInfo();
+			initializer[agl::ShaderType::Compute] = &computeShader->ParameterInfo();
 			snapshot.m_shaderBindings.Initialize( initializer );
 
 			const agl::ShaderParameterMap& shaderParameterMap = computeShader->ParameterMap();
-			agl::SingleShaderBindings singleShaderBindings = snapshot.m_shaderBindings.GetSingleShaderBindings( agl::ShaderType::CS );
+			agl::SingleShaderBindings singleShaderBindings = snapshot.m_shaderBindings.GetSingleShaderBindings( agl::ShaderType::Compute );
 			subMesh.m_vertexCollection->Bind( shaderParameterMap, singleShaderBindings );
 
 			agl::ShaderParameter indexBufferParam = shaderParameterMap.GetParameter( StaticName( "Indices" ) );

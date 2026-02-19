@@ -19,7 +19,7 @@ namespace rendercore
 
 		if ( computeShader && computeShader->IsValid() )
 		{
-			initializer[agl::ShaderType::CS] = &computeShader->ParameterInfo();
+			initializer[agl::ShaderType::Compute] = &computeShader->ParameterInfo();
 		}
 
 		return initializer;

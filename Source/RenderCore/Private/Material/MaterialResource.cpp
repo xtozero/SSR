@@ -17,25 +17,25 @@ namespace
 		{
 		case agl::ShaderType::None:
 			break;
-		case agl::ShaderType::VS:
+		case agl::ShaderType::Vertex:
 			return pipelineState.m_shaderState.m_vertexShader;
 			break;
-		case agl::ShaderType::HS:
+		case agl::ShaderType::Hull:
 			break;
-		case agl::ShaderType::DS:
+		case agl::ShaderType::Domain:
 			break;
-		case agl::ShaderType::GS:
+		case agl::ShaderType::Geometry:
 			return pipelineState.m_shaderState.m_geometryShader;
 			break;
-		case agl::ShaderType::PS:
+		case agl::ShaderType::Pixel:
 			return pipelineState.m_shaderState.m_pixelShader;
 			break;
-		case agl::ShaderType::CS:
+		case agl::ShaderType::Compute:
 			break;
-		case agl::ShaderType::MS:
+		case agl::ShaderType::Mesh:
 			return pipelineState.m_shaderState.m_meshShader;
 			break;
-		case agl::ShaderType::AS:
+		case agl::ShaderType::Amplification:
 			return pipelineState.m_shaderState.m_amplificationShader;
 			break;
 		case agl::ShaderType::Count:
@@ -162,7 +162,7 @@ namespace rendercore
 	void MaterialResource::TakeSnapshot( DrawSnapshot& snapShot )
 	{
 		const ShaderStates& shaderState = snapShot.m_pipelineState.m_shaderState;
-		const ShaderBase* shaders[agl::NumShaderTypes<uint32>] = {
+		const ShaderBase* shaders[agl::NumGraphicsShaderTypes<uint32>] = {
 			shaderState.m_vertexShader,
 			nullptr,
 			nullptr,
@@ -177,11 +177,11 @@ namespace rendercore
 
 		// Bind resources
 		constexpr agl::ShaderType ShaderTypes[] = {
-			agl::ShaderType::VS,
-			agl::ShaderType::GS,
-			agl::ShaderType::PS,
-			agl::ShaderType::MS,
-			agl::ShaderType::AS };
+			agl::ShaderType::Vertex,
+			agl::ShaderType::Geometry,
+			agl::ShaderType::Pixel,
+			agl::ShaderType::Mesh,
+			agl::ShaderType::Amplification };
 
 		for ( auto shaderType : ShaderTypes )
 		{
@@ -206,7 +206,7 @@ namespace rendercore
 		auto material = m_material.lock();
 		assert( material );
 
-		const ShaderBase* shaders[agl::NumShaderTypes<uint32>] = {
+		const ShaderBase* shaders[agl::NumGraphicsShaderTypes<uint32>] = {
 			nullptr,
 			nullptr,
 			nullptr,
@@ -219,11 +219,11 @@ namespace rendercore
 
 		CreateGraphicsResource( shaders );
 
-		agl::SingleShaderBindings binding = snapShot.m_shaderBindings.GetSingleShaderBindings( agl::ShaderType::CS );
+		agl::SingleShaderBindings binding = snapShot.m_shaderBindings.GetSingleShaderBindings( agl::ShaderType::Compute );
 		BindResource( snapShot.m_computeShader, binding );
 	}
 
-	void MaterialResource::CreateGraphicsResource( const ShaderBase* (&shaders)[agl::NumShaderTypes<uint32>] )
+	void MaterialResource::CreateGraphicsResource( const ShaderBase* (&shaders)[agl::NumGraphicsShaderTypes<uint32>] )
 	{
 		auto material = m_material.lock();
 		if ( material == nullptr )
@@ -235,14 +235,14 @@ namespace rendercore
 		size_t constantValueNameSize = 0;
 
 		constexpr uint32 ShaderTypes[] = {
-			static_cast<uint32>( agl::ShaderType::VS ),
-			static_cast<uint32>( agl::ShaderType::GS ),
-			static_cast<uint32>( agl::ShaderType::PS ),
-			static_cast<uint32>( agl::ShaderType::CS ),
-			static_cast<uint32>( agl::ShaderType::MS ),
-			static_cast<uint32>( agl::ShaderType::AS ) };
+			static_cast<uint32>( agl::ShaderType::Vertex ),
+			static_cast<uint32>( agl::ShaderType::Geometry ),
+			static_cast<uint32>( agl::ShaderType::Pixel ),
+			static_cast<uint32>( agl::ShaderType::Compute ),
+			static_cast<uint32>( agl::ShaderType::Mesh ),
+			static_cast<uint32>( agl::ShaderType::Amplification ) };
 
-		uint32 materialCbSlotNumbers[agl::NumShaderTypes<uint32>];
+		uint32 materialCbSlotNumbers[agl::NumGraphicsShaderTypes<uint32>];
 		constexpr uint32 InvalidSlot = std::numeric_limits<uint32>::max();
 		std::ranges::fill( materialCbSlotNumbers, InvalidSlot );
 
@@ -409,7 +409,7 @@ namespace rendercore
 		}
 	}
 
-	void MaterialResource::UpdateToGPU( const ShaderBase* (&shaders)[agl::NumShaderTypes<uint32>], const NamedShaderParameterList& parametersToUpdate )
+	void MaterialResource::UpdateToGPU( const ShaderBase* (&shaders)[agl::NumGraphicsShaderTypes<uint32>], const NamedShaderParameterList& parametersToUpdate )
 	{
 		assert( IsInRenderThread() );
 

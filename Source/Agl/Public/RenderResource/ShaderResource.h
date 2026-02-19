@@ -11,36 +11,36 @@ namespace agl
 
 	enum class ShaderType : int8
 	{
-		None = -1,
-		VS,
-		HS,
-		DS,
-		GS,
-		PS,
-		CS,
-		MS,
-		AS,
+		Vertex,
+		Hull,
+		Domain,
+		Geometry,
+		Pixel,
+		Compute,
+		Mesh,
+		Amplification,
+
+		RayGen,
+		Intersection,
+		AnyHit,
+		ClosestHit,
+		Miss,
+		Callable,
+
 		Count,
+		GraphicsCount = 8,
+		None = -1,
 	};
 
-	template <typename T>
+	template <typename T> requires std::is_integral_v<T>
 	constexpr T NumShaderTypes = static_cast<T>( ShaderType::Count );
 
-	inline const char* ToString( ShaderType shaderType )
-	{
-		const char* shaderTypeStr[] = {
-			"VS",
-			"HS",
-			"DS",
-			"GS",
-			"PS",
-			"CS",
-			"MS",
-			"AS",
-		};
+	template <typename T> requires std::is_integral_v<T>
+	constexpr T NumGraphicsShaderTypes = static_cast<T>( ShaderType::GraphicsCount );
 
-		return shaderTypeStr[static_cast<uint32>( shaderType )];
-	}
+	AGL_FUNC_DLL const char* ToString( ShaderType shaderType );
+
+	bool IsRayTracingShader( ShaderType shaderType );
 
 	class Shader : public GraphicsApiResource
 	{
@@ -123,6 +123,54 @@ namespace agl
 	{
 	public:
 		AGL_DLL static RefHandle<AmplificationShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
+
+		using Shader::Shader;
+	};
+
+	class RayGenerationShader : public Shader
+	{
+	public:
+		AGL_DLL static RefHandle<RayGenerationShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
+
+		using Shader::Shader;
+	};
+
+	class IntersectionShader : public Shader
+	{
+	public:
+		AGL_DLL static RefHandle<IntersectionShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
+
+		using Shader::Shader;
+	};
+
+	class AnyHitShader : public Shader
+	{
+	public:
+		AGL_DLL static RefHandle<AnyHitShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
+
+		using Shader::Shader;
+	};
+
+	class ClosestHitShader : public Shader
+	{
+	public:
+		AGL_DLL static RefHandle<ClosestHitShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
+
+		using Shader::Shader;
+	};
+
+	class MissShader : public Shader
+	{
+	public:
+		AGL_DLL static RefHandle<MissShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
+
+		using Shader::Shader;
+	};
+
+	class CallableShader : public Shader
+	{
+	public:
+		AGL_DLL static RefHandle<CallableShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
 
 		using Shader::Shader;
 	};

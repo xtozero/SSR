@@ -76,7 +76,7 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( LaneCount );
 	};
 
-	REGISTER_GLOBAL_SHADER( QueryLaneCountCS, "Visibility/CS_QueryLaneCount.fx", agl::ShaderType::CS, "main" );
+	REGISTER_GLOBAL_SHADER( QueryLaneCountCS, "Visibility/CS_QueryLaneCount.fx", agl::ShaderType::Compute, "main" );
 
 	class RenderCore final : public IRenderCore
 	{

@@ -366,7 +366,7 @@ namespace agl
 				}
 			}
 
-			m_bCompute = ( initializer[ShaderType::CS] != nullptr );
+			m_bCompute = ( initializer[ShaderType::Compute] != nullptr );
 
 			Allocate( shaderBindsDataSize );
 		}

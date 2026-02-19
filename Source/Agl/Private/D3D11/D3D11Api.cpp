@@ -48,22 +48,22 @@ namespace
 		switch ( shaderType )
 		{
 		case D3D11_SHVER_PIXEL_SHADER:
-			return ShaderType::PS;
+			return ShaderType::Pixel;
 			break;
 		case D3D11_SHVER_VERTEX_SHADER:
-			return ShaderType::VS;
+			return ShaderType::Vertex;
 			break;
 		case D3D11_SHVER_GEOMETRY_SHADER:
-			return ShaderType::GS;
+			return ShaderType::Geometry;
 			break;
 		case D3D11_SHVER_HULL_SHADER:
-			return ShaderType::HS;
+			return ShaderType::Hull;
 			break;
 		case D3D11_SHVER_DOMAIN_SHADER:
-			return ShaderType::DS;
+			return ShaderType::Domain;
 			break;
 		case D3D11_SHVER_COMPUTE_SHADER:
-			return ShaderType::CS;
+			return ShaderType::Compute;
 			break;
 		default:
 			break;
@@ -191,6 +191,8 @@ namespace agl
 		virtual bool SupportsPSOCache() const override;
 		virtual bool SupportsPSOLibraryCache() const override;
 		virtual std::filesystem::path GetPSOCacheFilePath() const override;
+
+		virtual bool SupportsHardwareRayTracing() const override;
 
 		virtual bool SupportsMeshShader() const override;
 
@@ -409,13 +411,13 @@ namespace agl
 	{
 		switch ( type )
 		{
-		case ShaderType::VS:
+		case ShaderType::Vertex:
 			return "vs_5_0";
-		case ShaderType::GS:
+		case ShaderType::Geometry:
 			return "gs_5_0";
-		case ShaderType::PS:
+		case ShaderType::Pixel:
 			return "ps_5_0";
-		case ShaderType::CS:
+		case ShaderType::Compute:
 			return "cs_5_0";
 		}
 
@@ -519,6 +521,11 @@ namespace agl
 	std::filesystem::path Direct3D11::GetPSOCacheFilePath() const
 	{
 		return "";
+	}
+
+	bool Direct3D11::SupportsHardwareRayTracing() const
+	{
+		return false;
 	}
 
 	bool Direct3D11::SupportsMeshShader() const

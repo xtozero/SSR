@@ -50,9 +50,9 @@ namespace agl
 		uint32 m_blendSampleMask = 0;
 		ID3D11RasterizerState* m_rasterizerState = nullptr;
 		ID3D11DepthStencilState* m_depthStencilState = nullptr;
-		ID3D11SamplerState* m_samplerStates[NumShaderTypes<uint32>][D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] = {};
+		ID3D11SamplerState* m_samplerStates[NumGraphicsShaderTypes<uint32>][D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] = {};
 
-		ID3D11ShaderResourceView* m_srvs[NumShaderTypes<uint32>][D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {};
+		ID3D11ShaderResourceView* m_srvs[NumGraphicsShaderTypes<uint32>][D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {};
 		ID3D11UnorderedAccessView* m_uavs[D3D11_PS_CS_UAV_REGISTER_COUNT] = {};
 		ID3D11RenderTargetView* m_rtvs[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = {};
 		ID3D11DepthStencilView* m_dsv = nullptr;
@@ -64,7 +64,7 @@ namespace agl
 		ID3D11Buffer* m_indexBuffer = nullptr;
 		DXGI_FORMAT m_indexBufferFormat = DXGI_FORMAT_UNKNOWN;
 
-		ID3D11Buffer* m_constantBuffers[NumShaderTypes<uint32>][D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT] = {};
+		ID3D11Buffer* m_constantBuffers[NumGraphicsShaderTypes<uint32>][D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT] = {};
 
 		D3D11_VIEWPORT m_viewports[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE] = {};
 

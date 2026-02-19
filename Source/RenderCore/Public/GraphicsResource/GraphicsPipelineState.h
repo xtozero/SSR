@@ -114,27 +114,27 @@ namespace rendercore
 
 		if ( state.m_vertexShader && state.m_vertexShader->IsValid() )
 		{
-			initializer[agl::ShaderType::VS] = &state.m_vertexShader->ParameterInfo();
+			initializer[agl::ShaderType::Vertex] = &state.m_vertexShader->ParameterInfo();
 		}
 
 		if ( state.m_geometryShader && state.m_geometryShader->IsValid() )
 		{
-			initializer[agl::ShaderType::GS] = &state.m_geometryShader->ParameterInfo();
+			initializer[agl::ShaderType::Geometry] = &state.m_geometryShader->ParameterInfo();
 		}
 
 		if ( state.m_pixelShader && state.m_pixelShader->IsValid() )
 		{
-			initializer[agl::ShaderType::PS] = &state.m_pixelShader->ParameterInfo();
+			initializer[agl::ShaderType::Pixel] = &state.m_pixelShader->ParameterInfo();
 		}
 
 		if ( state.m_meshShader && state.m_meshShader->IsValid() )
 		{
-			initializer[agl::ShaderType::MS] = &state.m_meshShader->ParameterInfo();
+			initializer[agl::ShaderType::Mesh] = &state.m_meshShader->ParameterInfo();
 		}
 
 		if ( state.m_amplificationShader && state.m_amplificationShader->IsValid() )
 		{
-			initializer[agl::ShaderType::AS] = &state.m_amplificationShader->ParameterInfo();
+			initializer[agl::ShaderType::Amplification] = &state.m_amplificationShader->ParameterInfo();
 		}
 
 		return initializer;

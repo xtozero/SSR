@@ -337,26 +337,26 @@ namespace rendercore
 		{
 		case agl::ShaderType::None:
 			break;
-		case agl::ShaderType::VS:
+		case agl::ShaderType::Vertex:
 			return GetVertexShader();
 			break;
-		case agl::ShaderType::HS:
+		case agl::ShaderType::Hull:
 			break;
-		case agl::ShaderType::DS:
+		case agl::ShaderType::Domain:
 			break;
-		case agl::ShaderType::GS:
+		case agl::ShaderType::Geometry:
 			return GetGeometryShader();
 			break;
-		case agl::ShaderType::PS:
+		case agl::ShaderType::Pixel:
 			return GetPixelShader();
 			break;
-		case agl::ShaderType::CS:
+		case agl::ShaderType::Compute:
 			return GetComputeShader();
 			break;
-		case agl::ShaderType::MS:
+		case agl::ShaderType::Mesh:
 			return GetMeshShader();
 			break;
-		case agl::ShaderType::AS:
+		case agl::ShaderType::Amplification:
 			return GetAmplificationShader();
 			break;
 		case agl::ShaderType::Count:
@@ -370,62 +370,62 @@ namespace rendercore
 
 	void Material::SetVertexShader( const std::shared_ptr<VertexShader>& vertexshader )
 	{
-		m_shaders[static_cast<uint32>( agl::ShaderType::VS )] = vertexshader;
+		m_shaders[static_cast<uint32>( agl::ShaderType::Vertex )] = vertexshader;
 	}
 
 	VertexShader* Material::GetVertexShader( const StaticShaderSwitches* switches ) const
 	{
-		return static_cast<VertexShader*>( GetCompiledShader( agl::ShaderType::VS, switches ) );
+		return static_cast<VertexShader*>( GetCompiledShader( agl::ShaderType::Vertex, switches ) );
 	}
 
 	void Material::SetGeometryShader( const std::shared_ptr<GeometryShader>& geometryShader )
 	{
-		m_shaders[static_cast<uint32>( agl::ShaderType::GS )] = geometryShader;
+		m_shaders[static_cast<uint32>( agl::ShaderType::Geometry )] = geometryShader;
 	}
 
 	GeometryShader* Material::GetGeometryShader( const StaticShaderSwitches* switches ) const
 	{
-		return static_cast<GeometryShader*>( GetCompiledShader( agl::ShaderType::GS, switches ) );
+		return static_cast<GeometryShader*>( GetCompiledShader( agl::ShaderType::Geometry, switches ) );
 	}
 
 	void Material::SetPixelShader( const std::shared_ptr<PixelShader>& pixelShader )
 	{
-		m_shaders[static_cast<uint32>( agl::ShaderType::PS )] = pixelShader;
+		m_shaders[static_cast<uint32>( agl::ShaderType::Pixel )] = pixelShader;
 	}
 
 	PixelShader* Material::GetPixelShader( const StaticShaderSwitches* switches ) const
 	{
-		return static_cast<PixelShader*>( GetCompiledShader( agl::ShaderType::PS, switches ) );
+		return static_cast<PixelShader*>( GetCompiledShader( agl::ShaderType::Pixel, switches ) );
 	}
 
 	void Material::SetComputeShader( const std::shared_ptr<ComputeShader>& computeShader )
 	{
-		m_shaders[static_cast<uint32>( agl::ShaderType::CS )] = computeShader;
+		m_shaders[static_cast<uint32>( agl::ShaderType::Compute )] = computeShader;
 	}
 
 	ComputeShader* Material::GetComputeShader( const StaticShaderSwitches* switches ) const
 	{
-		return static_cast<ComputeShader*>( GetCompiledShader( agl::ShaderType::CS, switches ) );
+		return static_cast<ComputeShader*>( GetCompiledShader( agl::ShaderType::Compute, switches ) );
 	}
 
 	void Material::SetMeshShader( const std::shared_ptr<MeshShader>& meshShader )
 	{
-		m_shaders[static_cast<uint32>( agl::ShaderType::MS )] = meshShader;
+		m_shaders[static_cast<uint32>( agl::ShaderType::Mesh )] = meshShader;
 	}
 
 	MeshShader* Material::GetMeshShader( const StaticShaderSwitches* switches ) const
 	{
-		return static_cast<MeshShader*>( GetCompiledShader( agl::ShaderType::MS, switches ) );
+		return static_cast<MeshShader*>( GetCompiledShader( agl::ShaderType::Mesh, switches ) );
 	}
 
 	void Material::SetAmplificationShader( const std::shared_ptr<AmplificationShader>& amplificationShader )
 	{
-		m_shaders[static_cast<uint32>( agl::ShaderType::AS )] = amplificationShader;
+		m_shaders[static_cast<uint32>( agl::ShaderType::Amplification )] = amplificationShader;
 	}
 
 	AmplificationShader* Material::GetAmplificationShader( const StaticShaderSwitches* switches ) const
 	{
-		return static_cast<AmplificationShader*>( GetCompiledShader( agl::ShaderType::AS, switches ) );
+		return static_cast<AmplificationShader*>( GetCompiledShader( agl::ShaderType::Amplification, switches ) );
 	}
 
 	void Material::AddSampler( const std::string& key, const SamplerOption& samplerOption )
@@ -435,12 +435,12 @@ namespace rendercore
 
 	bool Material::UseMeshShader() const
 	{
-		return GetInterface<agl::IAgl>()->SupportsMeshShader() && HasShaderSource( agl::ShaderType::MS );
+		return GetInterface<agl::IAgl>()->SupportsMeshShader() && HasShaderSource( agl::ShaderType::Mesh );
 	}
 
 	bool Material::SupportsVisibilityRendering() const
 	{
-		return DefaultRenderCore::SupportsVisibilityRendering() && HasShaderSource( agl::ShaderType::CS );
+		return DefaultRenderCore::SupportsVisibilityRendering() && HasShaderSource( agl::ShaderType::Compute );
 	}
 
 	StaticShaderSwitches Material::GetShaderSwitches( agl::ShaderType type ) const
@@ -469,7 +469,7 @@ namespace rendercore
 
 	void Material::PostLoadImpl()
 	{
-		for ( uint32 i = 0; i < agl::NumShaderTypes<uint32>; ++i )
+		for ( uint32 i = 0; i < agl::NumGraphicsShaderTypes<uint32>; ++i )
 		{
 			if ( auto shader = m_shaders[i].get() )
 			{

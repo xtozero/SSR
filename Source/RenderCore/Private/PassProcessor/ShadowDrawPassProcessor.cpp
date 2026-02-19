@@ -13,7 +13,7 @@ namespace rendercore
 		using GlobalShaderCommon::GlobalShaderCommon;
 	};
 
-	REGISTER_GLOBAL_SHADER( DrawCascadeShadowPS, "Shadow/PS_DrawCascadeShadow.fx", agl::ShaderType::PS, "main" );
+	REGISTER_GLOBAL_SHADER( DrawCascadeShadowPS, "Shadow/PS_DrawCascadeShadow.fx", agl::ShaderType::Pixel, "main" );
 
 	std::optional<DrawSnapshot> CascadeShadowDrawPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{
@@ -63,7 +63,7 @@ namespace rendercore
 		using GlobalShaderCommon::GlobalShaderCommon;
 	};
 
-	REGISTER_GLOBAL_SHADER( DrawPointShadowPS, "Shadow/PS_DrawPointShadow.fx", agl::ShaderType::PS, "main" );
+	REGISTER_GLOBAL_SHADER( DrawPointShadowPS, "Shadow/PS_DrawPointShadow.fx", agl::ShaderType::Pixel, "main" );
 
 	std::optional<DrawSnapshot> PointShadowDrawPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{

@@ -112,6 +112,36 @@ namespace agl
 		return new D3D12AmplificationShader( byteCode, byteCodeSize, paramInfo );
 	}
 
+	RayGenerationShader* D3D12ResourceManager::CreateRayGenerationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	{
+		return new D3D12RayGenerationShader( byteCode, byteCodeSize, paramInfo );
+	}
+
+	IntersectionShader* D3D12ResourceManager::CreateIntersectionShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	{
+		return new D3D12IntersectionShader( byteCode, byteCodeSize, paramInfo );
+	}
+
+	AnyHitShader* D3D12ResourceManager::CreateAnyHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	{
+		return new D3D12AnyHitShader( byteCode, byteCodeSize, paramInfo );
+	}
+
+	ClosestHitShader* D3D12ResourceManager::CreateClosestHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	{
+		return new D3D12ClosestHitShader( byteCode, byteCodeSize, paramInfo );
+	}
+
+	MissShader* D3D12ResourceManager::CreateMissShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	{
+		return new D3D12MissShader( byteCode, byteCodeSize, paramInfo );
+	}
+
+	CallableShader* D3D12ResourceManager::CreateCallableShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	{
+		return new D3D12CallableShader( byteCode, byteCodeSize, paramInfo );
+	}
+
 	BlendState* D3D12ResourceManager::CreateBlendState( const BlendStateTrait& trait ) const
 	{
 		return new D3D12BlendState( trait );

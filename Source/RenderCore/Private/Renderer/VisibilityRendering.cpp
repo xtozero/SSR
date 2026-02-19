@@ -64,12 +64,12 @@ namespace rendercore
         DEFINE_SHADER_PARAM( NumDrawCallIds );
     };
 
-    REGISTER_GLOBAL_SHADER( InitCounterCS, "Visibility/CS_InitCounter.fx", agl::ShaderType::CS, "main" );
-    REGISTER_GLOBAL_SHADER( CountDrawCallIdCS, "Visibility/CS_CountDrawCallId.fx", agl::ShaderType::CS, "main" );
-    REGISTER_GLOBAL_SHADER( InitPrefixSumBufferCS, "Visibility/CS_InitPrefixSumBuffer.fx", agl::ShaderType::CS, "main" );
-    REGISTER_GLOBAL_SHADER( PrefixSumCS, "Visibility/CS_PrefixSum.fx", agl::ShaderType::CS, "main" );
-    REGISTER_GLOBAL_SHADER( BuildWorkListCS, "Visibility/CS_BuildWorkList.fx", agl::ShaderType::CS, "main" );
-    REGISTER_GLOBAL_SHADER( FinalizeIndirectArgsCS, "Visibility/CS_FinalizeIndirectArgs.fx", agl::ShaderType::CS, "main" );
+    REGISTER_GLOBAL_SHADER( InitCounterCS, "Visibility/CS_InitCounter.fx", agl::ShaderType::Compute, "main" );
+    REGISTER_GLOBAL_SHADER( CountDrawCallIdCS, "Visibility/CS_CountDrawCallId.fx", agl::ShaderType::Compute, "main" );
+    REGISTER_GLOBAL_SHADER( InitPrefixSumBufferCS, "Visibility/CS_InitPrefixSumBuffer.fx", agl::ShaderType::Compute, "main" );
+    REGISTER_GLOBAL_SHADER( PrefixSumCS, "Visibility/CS_PrefixSum.fx", agl::ShaderType::Compute, "main" );
+    REGISTER_GLOBAL_SHADER( BuildWorkListCS, "Visibility/CS_BuildWorkList.fx", agl::ShaderType::Compute, "main" );
+    REGISTER_GLOBAL_SHADER( FinalizeIndirectArgsCS, "Visibility/CS_FinalizeIndirectArgs.fx", agl::ShaderType::Compute, "main" );
 
     void VisibilityBuffer::RenderBuffer( RenderGraph& renderGraph, const RenderBufferParam& param )
     {

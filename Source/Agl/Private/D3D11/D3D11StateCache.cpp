@@ -233,7 +233,7 @@ namespace agl
 
 	void D3D11PipelineCache::BindShaderResources( ID3D11DeviceContext& context, const ShaderBindings& shaderBindings )
 	{
-		for ( uint32 shaderType = 0; shaderType < NumShaderTypes<uint32>; ++shaderType )
+		for ( uint32 shaderType = 0; shaderType < NumGraphicsShaderTypes<uint32>; ++shaderType )
 		{
 			SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( shaderType ) );
 
@@ -378,7 +378,7 @@ namespace agl
 
 	void D3D11PipelineCache::UnbindExistingSRV( ID3D11DeviceContext& context, const ID3D11ShaderResourceView* srv )
 	{
-		for ( uint32 shader = 0; shader < NumShaderTypes<uint32>; ++shader )
+		for ( uint32 shader = 0; shader < NumGraphicsShaderTypes<uint32>; ++shader )
 		{
 			for ( uint32 slot = 0; slot < D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT; ++slot )
 			{
@@ -396,7 +396,7 @@ namespace agl
 		{
 			if ( m_uavs[slot] == uav )
 			{
-				BindUAV( context, ShaderType::CS, slot, RefHandle<UnorderedAccessView>().Get() );
+				BindUAV( context, ShaderType::Compute, slot, RefHandle<UnorderedAccessView>().Get() );
 			}
 		}
 	}
@@ -441,20 +441,20 @@ namespace agl
 		m_constantBuffers[nShader][slot] = buffer;
 		switch ( shader )
 		{
-		case ShaderType::VS:
+		case ShaderType::Vertex:
 			context.VSSetConstantBuffers( slot, 1, &buffer );
 			break;
-		case ShaderType::HS:
+		case ShaderType::Hull:
 			break;
-		case ShaderType::DS:
+		case ShaderType::Domain:
 			break;
-		case ShaderType::GS:
+		case ShaderType::Geometry:
 			context.GSSetConstantBuffers( slot, 1, &buffer );
 			break;
-		case ShaderType::PS:
+		case ShaderType::Pixel:
 			context.PSSetConstantBuffers( slot, 1, &buffer );
 			break;
-		case ShaderType::CS:
+		case ShaderType::Compute:
 			context.CSSetConstantBuffers( slot, 1, &buffer );
 			break;
 		default:
@@ -498,20 +498,20 @@ namespace agl
 		m_srvs[nShader][slot] = rawSrv;
 		switch ( shader )
 		{
-		case ShaderType::VS:
+		case ShaderType::Vertex:
 			context.VSSetShaderResources( slot, 1, &rawSrv );
 			break;
-		case ShaderType::HS:
+		case ShaderType::Hull:
 			break;
-		case ShaderType::DS:
+		case ShaderType::Domain:
 			break;
-		case ShaderType::GS:
+		case ShaderType::Geometry:
 			context.GSSetShaderResources( slot, 1, &rawSrv );
 			break;
-		case ShaderType::PS:
+		case ShaderType::Pixel:
 			context.PSSetShaderResources( slot, 1, &rawSrv );
 			break;
-		case ShaderType::CS:
+		case ShaderType::Compute:
 			context.CSSetShaderResources( slot, 1, &rawSrv );
 			break;
 		default:
@@ -554,7 +554,7 @@ namespace agl
 		m_uavs[slot] = rawUav;
 		switch ( shader )
 		{
-		case ShaderType::CS:
+		case ShaderType::Compute:
 			context.CSSetUnorderedAccessViews( slot, 1, &rawUav, nullptr );
 			break;
 		default:
@@ -579,20 +579,20 @@ namespace agl
 		m_samplerStates[nShader][slot] = samplerState;
 		switch ( shader )
 		{
-		case ShaderType::VS:
+		case ShaderType::Vertex:
 			context.VSSetSamplers( slot, 1, &samplerState );
 			break;
-		case ShaderType::HS:
+		case ShaderType::Hull:
 			break;
-		case ShaderType::DS:
+		case ShaderType::Domain:
 			break;
-		case ShaderType::GS:
+		case ShaderType::Geometry:
 			context.GSSetSamplers( slot, 1, &samplerState );
 			break;
-		case ShaderType::PS:
+		case ShaderType::Pixel:
 			context.PSSetSamplers( slot, 1, &samplerState );
 			break;
-		case ShaderType::CS:
+		case ShaderType::Compute:
 			context.CSSetSamplers( slot, 1, &samplerState );
 			break;
 		default:

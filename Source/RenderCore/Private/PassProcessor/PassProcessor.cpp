@@ -21,11 +21,11 @@ namespace rendercore
 
 	PassShader IPassProcessor::CollectPassShader( MaterialResource& material ) const
 	{
-		StaticShaderSwitches vsSwitches = material.GetShaderSwitches( agl::ShaderType::VS );
-		StaticShaderSwitches gsSwitches = material.GetShaderSwitches( agl::ShaderType::GS );
-		StaticShaderSwitches psSwitches = material.GetShaderSwitches( agl::ShaderType::PS );
-		StaticShaderSwitches msSwitches = material.GetShaderSwitches( agl::ShaderType::MS );
-		StaticShaderSwitches asSwitches = material.GetShaderSwitches( agl::ShaderType::AS );
+		StaticShaderSwitches vsSwitches = material.GetShaderSwitches( agl::ShaderType::Vertex );
+		StaticShaderSwitches gsSwitches = material.GetShaderSwitches( agl::ShaderType::Geometry );
+		StaticShaderSwitches psSwitches = material.GetShaderSwitches( agl::ShaderType::Pixel );
+		StaticShaderSwitches msSwitches = material.GetShaderSwitches( agl::ShaderType::Mesh );
+		StaticShaderSwitches asSwitches = material.GetShaderSwitches( agl::ShaderType::Amplification );
 
 		if ( DefaultRenderCore::IsTaaEnabled() )
 		{
@@ -101,7 +101,7 @@ namespace rendercore
 			if ( bUseMeshShader )
 			{
 				const agl::ShaderParameterMap& shaderParameterMapForMS = shaderState.m_meshShader->ParameterMap();
-				agl::SingleShaderBindings shaderBindingsForMS = snapshot.m_shaderBindings.GetSingleShaderBindings( agl::ShaderType::MS );
+				agl::SingleShaderBindings shaderBindingsForMS = snapshot.m_shaderBindings.GetSingleShaderBindings( agl::ShaderType::Mesh );
 				subMesh.m_vertexCollection->Bind( shaderParameterMapForMS, shaderBindingsForMS );
 
 				assert( subMesh.m_meshlet != nullptr );
@@ -119,7 +119,7 @@ namespace rendercore
 				if ( shaderState.m_amplificationShader )
 				{
 					const agl::ShaderParameterMap& shaderParameterForAS = shaderState.m_amplificationShader->ParameterMap();
-					agl::SingleShaderBindings shaderBindingsForAS = snapshot.m_shaderBindings.GetSingleShaderBindings( agl::ShaderType::AS );
+					agl::SingleShaderBindings shaderBindingsForAS = snapshot.m_shaderBindings.GetSingleShaderBindings( agl::ShaderType::Amplification );
 
 					agl::ShaderParameter meshletParameterForAS = shaderParameterForAS.GetParameter( StaticName( "Meshlets" ) );
 

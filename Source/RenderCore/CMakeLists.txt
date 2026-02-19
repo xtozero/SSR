@@ -185,6 +185,7 @@ set (RENDERER_SOURCE
 	Private/Renderer/OcclusionRendering.cpp
 	Private/Renderer/ReflectiveShadowMapRendering.cpp
 	Private/Renderer/RenderView.cpp
+	Private/Renderer/RTAORendering.cpp
 	Private/Renderer/SceneRenderer.cpp
 	Private/Renderer/SkyAtmosphereRendering.cpp
 	Private/Renderer/SSGIRendering.cpp
@@ -199,6 +200,7 @@ set (RENDERER_SOURCE
 	Public/Renderer/OcclusionRendering.h
 	Public/Renderer/ReflectiveShadowMapRendering.h
 	Public/Renderer/RenderView.h
+	Public/Renderer/RTAORendering.h
 	Public/Renderer/SceneRenderer.h
 	Public/Renderer/SkyAtmosphereRendering.h
 	Public/Renderer/SSGIRendering.h
