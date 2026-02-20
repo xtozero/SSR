@@ -23,34 +23,34 @@ namespace
 
 namespace rendercore
 {
-	class CascadeShadowDepthVS final : public GlobalShaderCommon<VertexShader, CascadeShadowDepthVS>
+	class CascadeShadowDepthVS final : public GlobalShaderBase<VertexShader, CascadeShadowDepthVS>
 	{
-		using GlobalShaderCommon::GlobalShaderCommon;
+		using GlobalShaderBase::GlobalShaderBase;
 	};
 
-	class CascadeShadowDepthGS final : public GlobalShaderCommon<GeometryShader, CascadeShadowDepthGS>
+	class CascadeShadowDepthGS final : public GlobalShaderBase<GeometryShader, CascadeShadowDepthGS>
 	{
-		using GlobalShaderCommon::GlobalShaderCommon;
+		using GlobalShaderBase::GlobalShaderBase;
 	};
 
-	class CascadeShadowDepthPS final : public GlobalShaderCommon<PixelShader, CascadeShadowDepthPS>
+	class CascadeShadowDepthPS final : public GlobalShaderBase<PixelShader, CascadeShadowDepthPS>
 	{
-		using GlobalShaderCommon::GlobalShaderCommon;
+		using GlobalShaderBase::GlobalShaderBase;
 	};
 
-	class CascadeShadowDepthMS final : public GlobalShaderCommon<MeshShader, CascadeShadowDepthMS>
+	class CascadeShadowDepthMS final : public GlobalShaderBase<MeshShader, CascadeShadowDepthMS>
 	{
-		using GlobalShaderCommon::GlobalShaderCommon;
+		using GlobalShaderBase::GlobalShaderBase;
 	};
 
-	class CascadeShadowDepthAS final : public GlobalShaderCommon<AmplificationShader, CascadeShadowDepthAS>
+	class CascadeShadowDepthAS final : public GlobalShaderBase<AmplificationShader, CascadeShadowDepthAS>
 	{};
 
-	REGISTER_GLOBAL_SHADER( CascadeShadowDepthVS, "Shadow/VS_CascadedShadowmap.fx", agl::ShaderType::Vertex, "main" );
-	REGISTER_GLOBAL_SHADER( CascadeShadowDepthGS, "Shadow/GS_CascadedShadowmap.fx", agl::ShaderType::Geometry, "main" );
-	REGISTER_GLOBAL_SHADER( CascadeShadowDepthPS, "Shadow/PS_CascadedShadowmap.fx", agl::ShaderType::Pixel, "main" );
-	REGISTER_GLOBAL_SHADER( CascadeShadowDepthMS, "Shadow/MS_CascadedShadowmap.fx", agl::ShaderType::Mesh, "main" );
-	REGISTER_GLOBAL_SHADER( CascadeShadowDepthAS, "Shadow/AS_CascadedShadowmap.fx", agl::ShaderType::Amplification, "main" );
+	REGISTER_GLOBAL_SHADER( CascadeShadowDepthVS, "Shadow/VS_CascadedShadowmap.fx", "main" );
+	REGISTER_GLOBAL_SHADER( CascadeShadowDepthGS, "Shadow/GS_CascadedShadowmap.fx", "main" );
+	REGISTER_GLOBAL_SHADER( CascadeShadowDepthPS, "Shadow/PS_CascadedShadowmap.fx", "main" );
+	REGISTER_GLOBAL_SHADER( CascadeShadowDepthMS, "Shadow/MS_CascadedShadowmap.fx", "main" );
+	REGISTER_GLOBAL_SHADER( CascadeShadowDepthAS, "Shadow/AS_CascadedShadowmap.fx", "main" );
 
 	std::optional<DrawSnapshot> CascadeShadowDepthPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{
@@ -105,26 +105,26 @@ namespace rendercore
 		return passShader;
 	}
 
-	class PointShadowDepthVS final : public GlobalShaderCommon<VertexShader, PointShadowDepthVS>
+	class PointShadowDepthVS final : public GlobalShaderBase<VertexShader, PointShadowDepthVS>
 	{};
 
-	class PointShadowDepthGS final : public GlobalShaderCommon<GeometryShader, PointShadowDepthGS>
+	class PointShadowDepthGS final : public GlobalShaderBase<GeometryShader, PointShadowDepthGS>
 	{};
 
-	class PointShadowDepthPS final : public GlobalShaderCommon<PixelShader, PointShadowDepthPS>
+	class PointShadowDepthPS final : public GlobalShaderBase<PixelShader, PointShadowDepthPS>
 	{};
 
-	class PointShadowDepthMS final : public GlobalShaderCommon<MeshShader, PointShadowDepthMS>
+	class PointShadowDepthMS final : public GlobalShaderBase<MeshShader, PointShadowDepthMS>
 	{};
 
-	class PointShadowDepthAS final : public GlobalShaderCommon<AmplificationShader, PointShadowDepthAS>
+	class PointShadowDepthAS final : public GlobalShaderBase<AmplificationShader, PointShadowDepthAS>
 	{};
 
-	REGISTER_GLOBAL_SHADER( PointShadowDepthVS, "Shadow/VS_PointShadowmap.fx", agl::ShaderType::Vertex, "main" );
-	REGISTER_GLOBAL_SHADER( PointShadowDepthGS, "Shadow/GS_PointShadowmap.fx", agl::ShaderType::Geometry, "main" );
-	REGISTER_GLOBAL_SHADER( PointShadowDepthPS, "Shadow/PS_PointShadowmap.fx", agl::ShaderType::Pixel, "main" );
-	REGISTER_GLOBAL_SHADER( PointShadowDepthMS, "Shadow/MS_PointShadowmap.fx", agl::ShaderType::Mesh, "main" );
-	REGISTER_GLOBAL_SHADER( PointShadowDepthAS, "Shadow/AS_PointShadowmap.fx", agl::ShaderType::Amplification, "main" );
+	REGISTER_GLOBAL_SHADER( PointShadowDepthVS, "Shadow/VS_PointShadowmap.fx", "main" );
+	REGISTER_GLOBAL_SHADER( PointShadowDepthGS, "Shadow/GS_PointShadowmap.fx", "main" );
+	REGISTER_GLOBAL_SHADER( PointShadowDepthPS, "Shadow/PS_PointShadowmap.fx", "main" );
+	REGISTER_GLOBAL_SHADER( PointShadowDepthMS, "Shadow/MS_PointShadowmap.fx", "main" );
+	REGISTER_GLOBAL_SHADER( PointShadowDepthAS, "Shadow/AS_PointShadowmap.fx", "main" );
 
 	std::optional<DrawSnapshot> PointShadowDepthPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{

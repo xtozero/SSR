@@ -10,7 +10,7 @@
 
 namespace rendercore
 {
-	REGISTER_GLOBAL_SHADER( DistributionCopyCS, "Common/CS_DistributionCopy.fx", agl::ShaderType::Compute, "main" );
+	REGISTER_GLOBAL_SHADER( DistributionCopyCS, "Common/CS_DistributionCopy.fx", "main" );
 
 	GpuMemcpy::GpuMemcpy( uint32 numUpload, uint32 sizePerFloat4, UploadBuffer& src, UploadBuffer& distributer ) : m_src( src ), m_distributer( distributer ), m_sizePerFloat4( sizePerFloat4 )
 	{

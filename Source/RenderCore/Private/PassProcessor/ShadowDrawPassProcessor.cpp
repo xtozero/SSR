@@ -8,12 +8,12 @@
 
 namespace rendercore
 {
-	class DrawCascadeShadowPS final : public GlobalShaderCommon<PixelShader, DrawCascadeShadowPS>
+	class DrawCascadeShadowPS final : public GlobalShaderBase<PixelShader, DrawCascadeShadowPS>
 	{
-		using GlobalShaderCommon::GlobalShaderCommon;
+		using GlobalShaderBase::GlobalShaderBase;
 	};
 
-	REGISTER_GLOBAL_SHADER( DrawCascadeShadowPS, "Shadow/PS_DrawCascadeShadow.fx", agl::ShaderType::Pixel, "main" );
+	REGISTER_GLOBAL_SHADER( DrawCascadeShadowPS, "Shadow/PS_DrawCascadeShadow.fx", "main" );
 
 	std::optional<DrawSnapshot> CascadeShadowDrawPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{
@@ -58,12 +58,12 @@ namespace rendercore
 		return passShader;
 	}
 
-	class DrawPointShadowPS final : public GlobalShaderCommon<PixelShader, DrawPointShadowPS>
+	class DrawPointShadowPS final : public GlobalShaderBase<PixelShader, DrawPointShadowPS>
 	{
-		using GlobalShaderCommon::GlobalShaderCommon;
+		using GlobalShaderBase::GlobalShaderBase;
 	};
 
-	REGISTER_GLOBAL_SHADER( DrawPointShadowPS, "Shadow/PS_DrawPointShadow.fx", agl::ShaderType::Pixel, "main" );
+	REGISTER_GLOBAL_SHADER( DrawPointShadowPS, "Shadow/PS_DrawPointShadow.fx", "main" );
 
 	std::optional<DrawSnapshot> PointShadowDrawPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{

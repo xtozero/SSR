@@ -8,15 +8,15 @@
 
 namespace rendercore
 {
-	class FullScreenQuadVS final : public GlobalShaderCommon<VertexShader, FullScreenQuadVS>
+	class FullScreenQuadVS final : public GlobalShaderBase<VertexShader, FullScreenQuadVS>
 	{
-		using GlobalShaderCommon::GlobalShaderCommon;
+		using GlobalShaderBase::GlobalShaderBase;
 
 	public:
 		FullScreenQuadVS() = default;
 	};
 
-	class DefaultAS final : public GlobalShaderCommon<AmplificationShader, DefaultAS>
+	class DefaultAS final : public GlobalShaderBase<AmplificationShader, DefaultAS>
 	{
 	};
 

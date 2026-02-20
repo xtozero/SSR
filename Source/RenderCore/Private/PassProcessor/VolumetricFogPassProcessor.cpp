@@ -7,12 +7,12 @@
 
 namespace rendercore
 {
-	class DrawVolumetricFogPS final : public GlobalShaderCommon<PixelShader, DrawVolumetricFogPS>
+	class DrawVolumetricFogPS final : public GlobalShaderBase<PixelShader, DrawVolumetricFogPS>
 	{
-		using GlobalShaderCommon::GlobalShaderCommon;
+		using GlobalShaderBase::GlobalShaderBase;
 	};
 
-	REGISTER_GLOBAL_SHADER( DrawVolumetricFogPS, "VolumetricFog/PS_DrawVolumetricFog.fx", agl::ShaderType::Pixel, "main" );
+	REGISTER_GLOBAL_SHADER( DrawVolumetricFogPS, "VolumetricFog/PS_DrawVolumetricFog.fx", "main" );
 
 	std::optional<DrawSnapshot> VolumetricFogDrawPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{

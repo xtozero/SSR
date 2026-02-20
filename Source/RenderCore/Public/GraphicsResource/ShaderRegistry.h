@@ -50,6 +50,11 @@ namespace rendercore
         ShaderRegister( const char* filePath, agl::ShaderType shaderType, const char* entryPoint );
     };
 
-    #define REGISTER_SHADER( objectType, filePath, shaderType, entryPoint ) \
-    static ShaderRegister objectType##_register( filePath, shaderType, entryPoint )
+    std::string GetShaderAssetName( const char* filePath, agl::ShaderType shaderType );
+
+    #define REGISTER_SHADER( shaderClass, filePath, entryPoint ) \
+    static_assert( HasShaderType<shaderClass>, \
+    "ShaderClass must define 'static constexpr agl::ShaderType Type'. " \
+    "Check if it correctly inherits from ShaderTraits or its equivalents.(ex GlobalShaderBase)" ); \
+    static ShaderRegister shaderClass##_register( filePath, shaderClass::Type, entryPoint )
 }

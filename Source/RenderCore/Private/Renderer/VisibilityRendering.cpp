@@ -7,7 +7,7 @@
 
 namespace rendercore
 {
-    class InitCounterCS final : public GlobalShaderCommon<ComputeShader,  InitCounterCS>
+    class InitCounterCS final : public GlobalShaderBase<ComputeShader,  InitCounterCS>
     {
     private:
         DEFINE_SHADER_PARAM( Counter );
@@ -16,7 +16,7 @@ namespace rendercore
         DEFINE_SHADER_PARAM( NumDrawCallIds );
     };
 
-    class CountDrawCallIdCS final : public GlobalShaderCommon<ComputeShader, CountDrawCallIdCS>
+    class CountDrawCallIdCS final : public GlobalShaderBase<ComputeShader, CountDrawCallIdCS>
     {
     private:
         DEFINE_SHADER_PARAM( Visibility );
@@ -25,7 +25,7 @@ namespace rendercore
         DEFINE_SHADER_PARAM( ScreenSize );
     };
 
-    class InitPrefixSumBufferCS final : public GlobalShaderCommon<ComputeShader, InitPrefixSumBufferCS>
+    class InitPrefixSumBufferCS final : public GlobalShaderBase<ComputeShader, InitPrefixSumBufferCS>
     {
     private:
         DEFINE_SHADER_PARAM( BlockId );
@@ -34,7 +34,7 @@ namespace rendercore
         DEFINE_SHADER_PARAM( NumBlocks );
     };
 
-    class PrefixSumCS final : public GlobalShaderCommon<ComputeShader, PrefixSumCS>
+    class PrefixSumCS final : public GlobalShaderBase<ComputeShader, PrefixSumCS>
     {
         DEFINE_SHADER_PARAM( Input );
 
@@ -46,7 +46,7 @@ namespace rendercore
         DEFINE_SHADER_PARAM( NumItems );
     };
 
-    class BuildWorkListCS final : public GlobalShaderCommon<ComputeShader, BuildWorkListCS>
+    class BuildWorkListCS final : public GlobalShaderBase<ComputeShader, BuildWorkListCS>
     {
         DEFINE_SHADER_PARAM( Visibility );
         DEFINE_SHADER_PARAM( Offset );
@@ -57,19 +57,19 @@ namespace rendercore
         DEFINE_SHADER_PARAM( ScreenSize );
     };
 
-    class FinalizeIndirectArgsCS final : public GlobalShaderCommon<ComputeShader, FinalizeIndirectArgsCS>
+    class FinalizeIndirectArgsCS final : public GlobalShaderBase<ComputeShader, FinalizeIndirectArgsCS>
     {
         DEFINE_SHADER_PARAM( IndirectArgs );
 
         DEFINE_SHADER_PARAM( NumDrawCallIds );
     };
 
-    REGISTER_GLOBAL_SHADER( InitCounterCS, "Visibility/CS_InitCounter.fx", agl::ShaderType::Compute, "main" );
-    REGISTER_GLOBAL_SHADER( CountDrawCallIdCS, "Visibility/CS_CountDrawCallId.fx", agl::ShaderType::Compute, "main" );
-    REGISTER_GLOBAL_SHADER( InitPrefixSumBufferCS, "Visibility/CS_InitPrefixSumBuffer.fx", agl::ShaderType::Compute, "main" );
-    REGISTER_GLOBAL_SHADER( PrefixSumCS, "Visibility/CS_PrefixSum.fx", agl::ShaderType::Compute, "main" );
-    REGISTER_GLOBAL_SHADER( BuildWorkListCS, "Visibility/CS_BuildWorkList.fx", agl::ShaderType::Compute, "main" );
-    REGISTER_GLOBAL_SHADER( FinalizeIndirectArgsCS, "Visibility/CS_FinalizeIndirectArgs.fx", agl::ShaderType::Compute, "main" );
+    REGISTER_GLOBAL_SHADER( InitCounterCS, "Visibility/CS_InitCounter.fx", "main" );
+    REGISTER_GLOBAL_SHADER( CountDrawCallIdCS, "Visibility/CS_CountDrawCallId.fx", "main" );
+    REGISTER_GLOBAL_SHADER( InitPrefixSumBufferCS, "Visibility/CS_InitPrefixSumBuffer.fx", "main" );
+    REGISTER_GLOBAL_SHADER( PrefixSumCS, "Visibility/CS_PrefixSum.fx", "main" );
+    REGISTER_GLOBAL_SHADER( BuildWorkListCS, "Visibility/CS_BuildWorkList.fx", "main" );
+    REGISTER_GLOBAL_SHADER( FinalizeIndirectArgsCS, "Visibility/CS_FinalizeIndirectArgs.fx", "main" );
 
     void VisibilityBuffer::RenderBuffer( RenderGraph& renderGraph, const RenderBufferParam& param )
     {

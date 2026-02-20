@@ -27,9 +27,9 @@ namespace
 
 namespace rendercore
 {
-	class CascadedESMsBlurCS final : public GlobalShaderCommon<ComputeShader, CascadedESMsBlurCS>
+	class CascadedESMsBlurCS final : public GlobalShaderBase<ComputeShader, CascadedESMsBlurCS>
 	{
-		using GlobalShaderCommon::GlobalShaderCommon;
+		using GlobalShaderBase::GlobalShaderBase;
 
 	public:
 		CascadedESMsBlurCS() = default;
@@ -41,7 +41,7 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( DestTexture );
 	};
 
-	class CascadedESMsCS final : public GlobalShaderCommon<ComputeShader, CascadedESMsCS>
+	class CascadedESMsCS final : public GlobalShaderBase<ComputeShader, CascadedESMsCS>
 	{
 	private:
 		DEFINE_SHADER_PARAM( SrcTexture );
@@ -49,8 +49,8 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( ParameterC );
 	};
 
-	REGISTER_GLOBAL_SHADER( CascadedESMsBlurCS, "Shadow/CS_CascadedESMsBlur.fx", agl::ShaderType::Compute, "main" );
-	REGISTER_GLOBAL_SHADER( CascadedESMsCS, "Shadow/CS_CascadedESMs.fx", agl::ShaderType::Compute, "main" );
+	REGISTER_GLOBAL_SHADER( CascadedESMsBlurCS, "Shadow/CS_CascadedESMsBlur.fx", "main" );
+	REGISTER_GLOBAL_SHADER( CascadedESMsCS, "Shadow/CS_CascadedESMs.fx", "main" );
 
 	template <float Sigma, int32 KernelSize>
 	RefHandle<agl::Texture> ApplyGaussianBlur( RenderGraph& renderGraph, RefHandle<agl::Texture> srcTexture )

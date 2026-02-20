@@ -9,24 +9,24 @@
 
 namespace rendercore
 {
-	class PerlinWorleyCS final : public GlobalShaderCommon<ComputeShader, PerlinWorleyCS>
+	class PerlinWorleyCS final : public GlobalShaderBase<ComputeShader, PerlinWorleyCS>
 	{
 		DEFINE_SHADER_PARAM( NoiseTex );
 	};
 
-	class WorleyCS final : public GlobalShaderCommon<ComputeShader, WorleyCS>
+	class WorleyCS final : public GlobalShaderBase<ComputeShader, WorleyCS>
 	{
 		DEFINE_SHADER_PARAM( NoiseTex );
 	};
 
-	class WeatherMapCS final : public GlobalShaderCommon<ComputeShader, WeatherMapCS>
+	class WeatherMapCS final : public GlobalShaderBase<ComputeShader, WeatherMapCS>
 	{
 		DEFINE_SHADER_PARAM( WeatherTex );
 	};
 
-	REGISTER_GLOBAL_SHADER( PerlinWorleyCS, "Cloud/CS_PerlinWorley.fx", agl::ShaderType::Compute, "main" );
-	REGISTER_GLOBAL_SHADER( WorleyCS, "Cloud/CS_Worley.fx", agl::ShaderType::Compute, "main" );
-	REGISTER_GLOBAL_SHADER( WeatherMapCS, "Cloud/CS_WeatherMap.fx", agl::ShaderType::Compute, "main" );
+	REGISTER_GLOBAL_SHADER( PerlinWorleyCS, "Cloud/CS_PerlinWorley.fx","main" );
+	REGISTER_GLOBAL_SHADER( WorleyCS, "Cloud/CS_Worley.fx", "main" );
+	REGISTER_GLOBAL_SHADER( WeatherMapCS, "Cloud/CS_WeatherMap.fx", "main" );
 
 	void VolumetricCloudSceneInfo::CreateRenderData()
 	{

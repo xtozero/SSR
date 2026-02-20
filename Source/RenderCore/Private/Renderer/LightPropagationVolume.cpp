@@ -21,9 +21,9 @@
 
 namespace rendercore
 {
-	class ClearLpvCS final : public GlobalShaderCommon<ComputeShader, ClearLpvCS>
+	class ClearLpvCS final : public GlobalShaderBase<ComputeShader, ClearLpvCS>
 	{
-		using GlobalShaderCommon::GlobalShaderCommon;
+		using GlobalShaderBase::GlobalShaderBase;
 
 	private:
 		DEFINE_SHADER_PARAM( CoeffR );
@@ -32,9 +32,9 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( CoeffOcclusion );
 	};
 
-	class DownSampleRSMsCS final : public GlobalShaderCommon<ComputeShader, DownSampleRSMsCS>
+	class DownSampleRSMsCS final : public GlobalShaderBase<ComputeShader, DownSampleRSMsCS>
 	{
-		using GlobalShaderCommon::GlobalShaderCommon;
+		using GlobalShaderBase::GlobalShaderBase;
 
 	private:
 		DEFINE_SHADER_PARAM( LPVCommonParameters ); // b5
@@ -52,33 +52,33 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( OutRSMsFlux );
 	};
 
-	class LightInjectionVS final : public GlobalShaderCommon<VertexShader, LightInjectionVS>
+	class LightInjectionVS final : public GlobalShaderBase<VertexShader, LightInjectionVS>
 	{
 	private:
 		DEFINE_SHADER_PARAM( RSMsDimensions );
 		DEFINE_SHADER_PARAM( SurfelArea );
 	};
 
-	class LightInjectionGS final : public GlobalShaderCommon<GeometryShader, LightInjectionGS>
+	class LightInjectionGS final : public GlobalShaderBase<GeometryShader, LightInjectionGS>
 	{};
 
-	class LightInjectionPS final : public GlobalShaderCommon<PixelShader, LightInjectionPS>
+	class LightInjectionPS final : public GlobalShaderBase<PixelShader, LightInjectionPS>
 	{};
 
-	class GeometryInjectionVS final : public GlobalShaderCommon<VertexShader, GeometryInjectionVS>
+	class GeometryInjectionVS final : public GlobalShaderBase<VertexShader, GeometryInjectionVS>
 	{
 	private:
 		DEFINE_SHADER_PARAM( RSMsDimensions );
 		DEFINE_SHADER_PARAM( LightDirection );
 	};
 
-	class GeometryInjectionGS final : public GlobalShaderCommon<GeometryShader, GeometryInjectionGS>
+	class GeometryInjectionGS final : public GlobalShaderBase<GeometryShader, GeometryInjectionGS>
 	{};
 
-	class GeometryInjectionPS final : public GlobalShaderCommon<PixelShader, GeometryInjectionPS>
+	class GeometryInjectionPS final : public GlobalShaderBase<PixelShader, GeometryInjectionPS>
 	{};
 
-	class LightPropagationCS final : public GlobalShaderCommon<ComputeShader, LightPropagationCS>
+	class LightPropagationCS final : public GlobalShaderBase<ComputeShader, LightPropagationCS>
 	{
 	private:
 		DEFINE_SHADER_PARAM( LPVCommonParameters ); // b5
@@ -96,19 +96,19 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( InterationCount );
 	};
 
-	class RenderLpvPS final : public GlobalShaderCommon<PixelShader, RenderLpvPS>
+	class RenderLpvPS final : public GlobalShaderBase<PixelShader, RenderLpvPS>
 	{};
 
-	REGISTER_GLOBAL_SHADER( ClearLpvCS, "IndirectLighting/LPV/CS_ClearLPV.fx", agl::ShaderType::Compute, "main" );
-	REGISTER_GLOBAL_SHADER( DownSampleRSMsCS, "IndirectLighting/LPV/CS_DownSampleRSMs.fx", agl::ShaderType::Compute, "main" );
-	REGISTER_GLOBAL_SHADER( LightInjectionVS, "IndirectLighting/LPV/VS_LightInjection.fx", agl::ShaderType::Vertex, "main" );
-	REGISTER_GLOBAL_SHADER( LightInjectionGS, "IndirectLighting/LPV/GS_LightInjection.fx", agl::ShaderType::Geometry, "main" );
-	REGISTER_GLOBAL_SHADER( LightInjectionPS, "IndirectLighting/LPV/PS_LightInjection.fx", agl::ShaderType::Pixel, "main" );
-	REGISTER_GLOBAL_SHADER( GeometryInjectionVS, "IndirectLighting/LPV/VS_GeometryInjection.fx", agl::ShaderType::Vertex, "main" );
-	REGISTER_GLOBAL_SHADER( GeometryInjectionGS, "IndirectLighting/LPV/GS_GeometryInjection.fx", agl::ShaderType::Geometry, "main" );
-	REGISTER_GLOBAL_SHADER( GeometryInjectionPS, "IndirectLighting/LPV/PS_GeometryInjection.fx", agl::ShaderType::Pixel, "main" );
-	REGISTER_GLOBAL_SHADER( LightPropagationCS, "IndirectLighting/LPV/CS_LightPropagation.fx", agl::ShaderType::Compute, "main" );
-	REGISTER_GLOBAL_SHADER( RenderLpvPS, "IndirectLighting/LPV/PS_RenderLPV.fx", agl::ShaderType::Pixel, "main" );
+	REGISTER_GLOBAL_SHADER( ClearLpvCS, "IndirectLighting/LPV/CS_ClearLPV.fx", "main" );
+	REGISTER_GLOBAL_SHADER( DownSampleRSMsCS, "IndirectLighting/LPV/CS_DownSampleRSMs.fx", "main" );
+	REGISTER_GLOBAL_SHADER( LightInjectionVS, "IndirectLighting/LPV/VS_LightInjection.fx", "main" );
+	REGISTER_GLOBAL_SHADER( LightInjectionGS, "IndirectLighting/LPV/GS_LightInjection.fx", "main" );
+	REGISTER_GLOBAL_SHADER( LightInjectionPS, "IndirectLighting/LPV/PS_LightInjection.fx", "main" );
+	REGISTER_GLOBAL_SHADER( GeometryInjectionVS, "IndirectLighting/LPV/VS_GeometryInjection.fx", "main" );
+	REGISTER_GLOBAL_SHADER( GeometryInjectionGS, "IndirectLighting/LPV/GS_GeometryInjection.fx", "main" );
+	REGISTER_GLOBAL_SHADER( GeometryInjectionPS, "IndirectLighting/LPV/PS_GeometryInjection.fx", "main" );
+	REGISTER_GLOBAL_SHADER( LightPropagationCS, "IndirectLighting/LPV/CS_LightPropagation.fx", "main" );
+	REGISTER_GLOBAL_SHADER( RenderLpvPS, "IndirectLighting/LPV/PS_RenderLPV.fx", "main" );
 
 	class LightInjectionPassProcessor final : public IPassProcessor
 	{

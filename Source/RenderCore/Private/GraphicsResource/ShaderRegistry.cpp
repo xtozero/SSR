@@ -6,22 +6,6 @@
 
 namespace fs = std::filesystem;
 
-namespace
-{
-    std::string GetShaderAssetName( const char* filePath, agl::ShaderType shaderType )
-    {
-        std::string_view shaderTypeString( agl::ToString( shaderType ), 2 );
-        auto fileName = fs::path( filePath ).filename().generic_string();
-
-        if ( fileName.starts_with( shaderTypeString ) )
-        {
-            return fileName;
-        }
-
-        return std::format( "{}_{}", shaderTypeString, fileName );
-    }
-}
-
 namespace rendercore
 {
     const std::vector<ShaderDescriptor>* ShaderRegistry::Find( const std::filesystem::path& filePath ) const
@@ -51,5 +35,18 @@ namespace rendercore
             .m_entryPoint = entryPoint,
         };
         ShaderRegistry::GetInstance().Register( std::move( shaderDescriptor ) );
+    }
+
+    std::string GetShaderAssetName( const char* filePath, agl::ShaderType shaderType )
+    {
+        std::string_view shaderTypeString( agl::ToString( shaderType ) );
+        auto fileName = fs::path( filePath ).filename().generic_string();
+
+        if ( fileName.starts_with( shaderTypeString ) )
+        {
+            return fileName;
+        }
+
+        return std::format( "{}_{}", shaderTypeString, fileName );
     }
 }

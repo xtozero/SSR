@@ -16,19 +16,19 @@
 
 namespace rendercore
 {
-	class TransmittanceCS final : public GlobalShaderCommon<ComputeShader, TransmittanceCS>
+	class TransmittanceCS final : public GlobalShaderBase<ComputeShader, TransmittanceCS>
 	{
 		DEFINE_SHADER_PARAM( Transmittance );
 	};
 
-	class IrradianceOneCS final : public GlobalShaderCommon<ComputeShader, IrradianceOneCS>
+	class IrradianceOneCS final : public GlobalShaderBase<ComputeShader, IrradianceOneCS>
 	{
 		DEFINE_SHADER_PARAM( TransmittanceLut );
 		DEFINE_SHADER_PARAM( TransmittanceLutSampler );
 		DEFINE_SHADER_PARAM( DeltaE );
 	};
 
-	class InscatterOneCS final : public GlobalShaderCommon<ComputeShader, InscatterOneCS>
+	class InscatterOneCS final : public GlobalShaderBase<ComputeShader, InscatterOneCS>
 	{
 		DEFINE_SHADER_PARAM( TransmittanceLut );
 		DEFINE_SHADER_PARAM( TransmittanceLutSampler );
@@ -36,7 +36,7 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( DeltaSM );
 	};
 
-	class CopyInscatterOneCS final : public GlobalShaderCommon<ComputeShader, CopyInscatterOneCS>
+	class CopyInscatterOneCS final : public GlobalShaderBase<ComputeShader, CopyInscatterOneCS>
 	{
 		DEFINE_SHADER_PARAM( DeltaSRLut );
 		DEFINE_SHADER_PARAM( DeltaSRLutSampler );
@@ -45,7 +45,7 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( Inscatter );
 	};
 
-	class InscatterSCS final : public GlobalShaderCommon<ComputeShader, InscatterSCS>
+	class InscatterSCS final : public GlobalShaderBase<ComputeShader, InscatterSCS>
 	{
 		DEFINE_SHADER_PARAM( TransmittanceLut );
 		DEFINE_SHADER_PARAM( TransmittanceLutSampler );
@@ -60,7 +60,7 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( DeltaJ );
 	};
 
-	class IrradianceNCS final : public GlobalShaderCommon<ComputeShader, IrradianceNCS>
+	class IrradianceNCS final : public GlobalShaderBase<ComputeShader, IrradianceNCS>
 	{
 		DEFINE_SHADER_PARAM( DeltaSRLut );
 		DEFINE_SHADER_PARAM( DeltaSRLutSampler );
@@ -70,7 +70,7 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( Irradiance );
 	};
 
-	class InscatterNCS final : public GlobalShaderCommon<ComputeShader, InscatterNCS>
+	class InscatterNCS final : public GlobalShaderBase<ComputeShader, InscatterNCS>
 	{
 		DEFINE_SHADER_PARAM( TransmittanceLut );
 		DEFINE_SHADER_PARAM( TransmittanceLutSampler );
@@ -79,33 +79,33 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( DeltaSR );
 	};
 
-	class CopyIrradianceCS final : public GlobalShaderCommon<ComputeShader, CopyIrradianceCS>
+	class CopyIrradianceCS final : public GlobalShaderBase<ComputeShader, CopyIrradianceCS>
 	{
 		DEFINE_SHADER_PARAM( DeltaELut );
 		DEFINE_SHADER_PARAM( DeltaELutSampler );
 		DEFINE_SHADER_PARAM( Irradiance );
 	};
 
-	class CopyInscatterNCS final : public GlobalShaderCommon<ComputeShader, CopyInscatterNCS>
+	class CopyInscatterNCS final : public GlobalShaderBase<ComputeShader, CopyInscatterNCS>
 	{
 		DEFINE_SHADER_PARAM( DeltaSRLut );
 		DEFINE_SHADER_PARAM( DeltaSRLutSampler );
 		DEFINE_SHADER_PARAM( Inscatter );
 	};
 
-	class DrawAtmospherePS final : public GlobalShaderCommon<PixelShader, DrawAtmospherePS>
+	class DrawAtmospherePS final : public GlobalShaderBase<PixelShader, DrawAtmospherePS>
 	{};
 
-	REGISTER_GLOBAL_SHADER( TransmittanceCS, "Atmosphere/CS_Transmittance.fx", agl::ShaderType::Compute, "main" );
-	REGISTER_GLOBAL_SHADER( IrradianceOneCS, "Atmosphere/CS_Irradiance1.fx", agl::ShaderType::Compute, "main" );
-	REGISTER_GLOBAL_SHADER( InscatterOneCS, "Atmosphere/CS_Inscatter1.fx", agl::ShaderType::Compute, "main" );
-	REGISTER_GLOBAL_SHADER( CopyInscatterOneCS, "Atmosphere/CS_CopyInscatter1.fx", agl::ShaderType::Compute, "main" );
-	REGISTER_GLOBAL_SHADER( InscatterSCS, "Atmosphere/CS_InscatterS.fx", agl::ShaderType::Compute, "main" );
-	REGISTER_GLOBAL_SHADER( IrradianceNCS, "Atmosphere/CS_IrradianceN.fx", agl::ShaderType::Compute, "main" );
-	REGISTER_GLOBAL_SHADER( InscatterNCS, "Atmosphere/CS_InscatterN.fx", agl::ShaderType::Compute, "main" );
-	REGISTER_GLOBAL_SHADER( CopyIrradianceCS, "Atmosphere/CS_CopyIrradiance.fx", agl::ShaderType::Compute, "main" );
-	REGISTER_GLOBAL_SHADER( CopyInscatterNCS, "Atmosphere/CS_CopyInscatterN.fx", agl::ShaderType::Compute, "main" );
-	REGISTER_GLOBAL_SHADER( DrawAtmospherePS, "Atmosphere/PS_DrawAtmosphere.fx", agl::ShaderType::Pixel, "main" );
+	REGISTER_GLOBAL_SHADER( TransmittanceCS, "Atmosphere/CS_Transmittance.fx", "main" );
+	REGISTER_GLOBAL_SHADER( IrradianceOneCS, "Atmosphere/CS_Irradiance1.fx", "main" );
+	REGISTER_GLOBAL_SHADER( InscatterOneCS, "Atmosphere/CS_Inscatter1.fx", "main" );
+	REGISTER_GLOBAL_SHADER( CopyInscatterOneCS, "Atmosphere/CS_CopyInscatter1.fx", "main" );
+	REGISTER_GLOBAL_SHADER( InscatterSCS, "Atmosphere/CS_InscatterS.fx", "main" );
+	REGISTER_GLOBAL_SHADER( IrradianceNCS, "Atmosphere/CS_IrradianceN.fx", "main" );
+	REGISTER_GLOBAL_SHADER( InscatterNCS, "Atmosphere/CS_InscatterN.fx", "main" );
+	REGISTER_GLOBAL_SHADER( CopyIrradianceCS, "Atmosphere/CS_CopyIrradiance.fx", "main" );
+	REGISTER_GLOBAL_SHADER( CopyInscatterNCS, "Atmosphere/CS_CopyInscatterN.fx", "main" );
+	REGISTER_GLOBAL_SHADER( DrawAtmospherePS, "Atmosphere/PS_DrawAtmosphere.fx", "main" );
 
 	std::optional<DrawSnapshot> SkyAtmosphereDrawPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{

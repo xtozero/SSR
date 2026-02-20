@@ -15,18 +15,18 @@ namespace
 
 namespace rendercore
 {
-	class HitProxyVS final : public GlobalShaderCommon<VertexShader, HitProxyVS>
+	class HitProxyVS final : public GlobalShaderBase<VertexShader, HitProxyVS>
 	{};
 
-	class HitProxyPS final : public GlobalShaderCommon<PixelShader, HitProxyPS>
+	class HitProxyPS final : public GlobalShaderBase<PixelShader, HitProxyPS>
 	{};
 
-	class HitProxyMS final : public GlobalShaderCommon<MeshShader, HitProxyMS>
+	class HitProxyMS final : public GlobalShaderBase<MeshShader, HitProxyMS>
 	{};
 
-	REGISTER_GLOBAL_SHADER( HitProxyVS, "HitProxy/VS_HitProxy.fx", agl::ShaderType::Vertex, "main" );
-	REGISTER_GLOBAL_SHADER( HitProxyPS, "HitProxy/PS_HitProxy.fx", agl::ShaderType::Pixel, "main" );
-	REGISTER_GLOBAL_SHADER( HitProxyMS, "HitProxy/MS_HitProxy.fx", agl::ShaderType::Mesh, "main" );
+	REGISTER_GLOBAL_SHADER( HitProxyVS, "HitProxy/VS_HitProxy.fx", "main" );
+	REGISTER_GLOBAL_SHADER( HitProxyPS, "HitProxy/PS_HitProxy.fx", "main" );
+	REGISTER_GLOBAL_SHADER( HitProxyMS, "HitProxy/MS_HitProxy.fx", "main" );
 
 	std::optional<DrawSnapshot> HitProxyPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{

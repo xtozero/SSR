@@ -10,18 +10,18 @@
 
 namespace rendercore
 {
-	class DebugOverlayVS final : public GlobalShaderCommon<VertexShader, DebugOverlayVS>
+	class DebugOverlayVS final : public GlobalShaderBase<VertexShader, DebugOverlayVS>
 	{
-		using GlobalShaderCommon::GlobalShaderCommon;
+		using GlobalShaderBase::GlobalShaderBase;
 	};
 
-	class DebugOverlayPS final : public GlobalShaderCommon<PixelShader, DebugOverlayPS>
+	class DebugOverlayPS final : public GlobalShaderBase<PixelShader, DebugOverlayPS>
 	{
-		using GlobalShaderCommon::GlobalShaderCommon;
+		using GlobalShaderBase::GlobalShaderBase;
 	};
 
-	REGISTER_GLOBAL_SHADER( DebugOverlayVS, "DebugOverlay/VS_DebugOverlay.fx", agl::ShaderType::Vertex, "main" );
-	REGISTER_GLOBAL_SHADER( DebugOverlayPS, "DebugOverlay/PS_DebugOverlay.fx", agl::ShaderType::Pixel, "main" );
+	REGISTER_GLOBAL_SHADER( DebugOverlayVS, "DebugOverlay/VS_DebugOverlay.fx", "main" );
+	REGISTER_GLOBAL_SHADER( DebugOverlayPS, "DebugOverlay/PS_DebugOverlay.fx", "main" );
 
 	struct DebugOverlayDrawParam
 	{

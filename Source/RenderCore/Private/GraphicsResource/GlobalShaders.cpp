@@ -75,14 +75,18 @@ namespace rendercore
 		return true;
 	}
 
-	bool GlobalShaders::RegisterShaderPath( std::type_index typeIndex, const char* path )
+	bool GlobalShaders::RegisterShaderPath( std::type_index typeIndex, agl::ShaderType shaderType, const char* path )
 	{
 		if ( m_shaderAssetPaths.contains( typeIndex ) )
 		{
 			return false;
 		}
 
-		auto assetPath = ( engine::Paths::GetShaderAssetRootDir() / path ).replace_extension(".asset").make_preferred();
+		auto assetName = GetShaderAssetName( path, shaderType );
+
+		auto assetPath = ( engine::Paths::GetShaderAssetRootDir() / path );
+		assetPath.replace_filename( assetName ).replace_extension(".asset").make_preferred();
+
 		m_shaderAssetPaths[typeIndex] = assetPath;
 		return true;
 	}
@@ -98,9 +102,9 @@ namespace rendercore
 		return &( *found->second );
 	}
 
-	GlobalShaderRegister::GlobalShaderRegister( std::type_index typeIndex, const char* assetPath )
+	GlobalShaderRegister::GlobalShaderRegister( std::type_index typeIndex, agl::ShaderType shaderType, const char* assetPath )
 	{
-		GlobalShaders::GetInstance().RegisterShaderPath( typeIndex, assetPath );
+		GlobalShaders::GetInstance().RegisterShaderPath( typeIndex, shaderType, assetPath );
 	}
 
 	ShaderAsset* GetGlobalShaderImpl( std::type_index typeIndex )

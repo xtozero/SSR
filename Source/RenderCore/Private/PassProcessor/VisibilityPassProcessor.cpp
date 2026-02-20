@@ -16,16 +16,16 @@ namespace
 
 namespace rendercore
 {
-    class VisibilityVS final : public GlobalShaderCommon<VertexShader, VisibilityVS>
+    class VisibilityVS final : public GlobalShaderBase<VertexShader, VisibilityVS>
     {
-        using GlobalShaderCommon::GlobalShaderCommon;
+        using GlobalShaderBase::GlobalShaderBase;
     };
 
-    class VisibilityPS final : public GlobalShaderCommon<PixelShader, VisibilityPS>
+    class VisibilityPS final : public GlobalShaderBase<PixelShader, VisibilityPS>
     {};
 
-    REGISTER_GLOBAL_SHADER( VisibilityVS, "Visibility/VS_Visibility.fx", agl::ShaderType::Vertex, "main" );
-    REGISTER_GLOBAL_SHADER( VisibilityPS, "Visibility/PS_Visibility.fx", agl::ShaderType::Pixel, "main" );
+    REGISTER_GLOBAL_SHADER( VisibilityVS, "Visibility/VS_Visibility.fx", "main" );
+    REGISTER_GLOBAL_SHADER( VisibilityPS, "Visibility/PS_Visibility.fx", "main" );
 
     std::optional<DrawSnapshot> VisibilityPassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh,
         const PassShader& passShader )

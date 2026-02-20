@@ -18,22 +18,22 @@ namespace
 
 namespace rendercore
 {
-	class DepthWriteVS final : public GlobalShaderCommon<VertexShader, DepthWriteVS>
+	class DepthWriteVS final : public GlobalShaderBase<VertexShader, DepthWriteVS>
 	{
-		using GlobalShaderCommon::GlobalShaderCommon;
+		using GlobalShaderBase::GlobalShaderBase;
 	};
 
-	class DepthWritePS final : public GlobalShaderCommon<PixelShader, DepthWritePS>
+	class DepthWritePS final : public GlobalShaderBase<PixelShader, DepthWritePS>
 	{};
 
-	class DepthWriteMS final : public GlobalShaderCommon<MeshShader, DepthWriteMS>
+	class DepthWriteMS final : public GlobalShaderBase<MeshShader, DepthWriteMS>
 	{
-		using GlobalShaderCommon::GlobalShaderCommon;
+		using GlobalShaderBase::GlobalShaderBase;
 	};
 
-	REGISTER_GLOBAL_SHADER( DepthWriteVS, "DepthWrite/VS_DepthWrite.fx", agl::ShaderType::Vertex, "main" );
-	REGISTER_GLOBAL_SHADER( DepthWritePS, "DepthWrite/PS_DepthWrite.fx", agl::ShaderType::Pixel, "main" );
-	REGISTER_GLOBAL_SHADER( DepthWriteMS, "DepthWrite/MS_DepthWrite.fx", agl::ShaderType::Mesh, "main" );
+	REGISTER_GLOBAL_SHADER( DepthWriteVS, "DepthWrite/VS_DepthWrite.fx", "main" );
+	REGISTER_GLOBAL_SHADER( DepthWritePS, "DepthWrite/PS_DepthWrite.fx", "main" );
+	REGISTER_GLOBAL_SHADER( DepthWriteMS, "DepthWrite/MS_DepthWrite.fx", "main" );
 
 	std::optional<DrawSnapshot> DepthWritePassProcessor::ProcessInternal( const PrimitiveSubMesh& subMesh, const PassShader& passShader )
 	{

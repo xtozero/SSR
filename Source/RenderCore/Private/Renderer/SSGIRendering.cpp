@@ -12,7 +12,7 @@
 
 namespace rendercore
 {
-	class SSGIPassCS final : public GlobalShaderCommon<ComputeShader, SSGIPassCS>
+	class SSGIPassCS final : public GlobalShaderBase<ComputeShader, SSGIPassCS>
 	{
 		DEFINE_SHADER_PARAM( SceneViewParameters );
 
@@ -33,7 +33,7 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( ColorIntensity );
 	};
 
-	class SSGIDenoiseCS final : public GlobalShaderCommon<ComputeShader, SSGIDenoiseCS>
+	class SSGIDenoiseCS final : public GlobalShaderBase<ComputeShader, SSGIDenoiseCS>
 	{
 		DEFINE_SHADER_PARAM( PrevSSGI );
 		DEFINE_SHADER_PARAM( SSGI );
@@ -50,20 +50,20 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( InvScreenSize );
 	};
 
-	class SSGICompositeVS final : public GlobalShaderCommon<VertexShader, SSGICompositeVS>
+	class SSGICompositeVS final : public GlobalShaderBase<VertexShader, SSGICompositeVS>
 	{
-		using GlobalShaderCommon::GlobalShaderCommon;
+		using GlobalShaderBase::GlobalShaderBase;
 	};
 
-	class SSGICompositePS final : public GlobalShaderCommon<PixelShader, SSGICompositePS>
+	class SSGICompositePS final : public GlobalShaderBase<PixelShader, SSGICompositePS>
 	{
-		using GlobalShaderCommon::GlobalShaderCommon;
+		using GlobalShaderBase::GlobalShaderBase;
 	};
 
-	REGISTER_GLOBAL_SHADER( SSGIPassCS, "SSGI/CS_SSGI.fx", agl::ShaderType::Compute, "main" );
-	REGISTER_GLOBAL_SHADER( SSGIDenoiseCS, "SSGI/CS_DenoiseSSGI.fx", agl::ShaderType::Compute, "main" );
-	REGISTER_GLOBAL_SHADER( SSGICompositeVS, "SSGI/VS_SSGIComposite.fx", agl::ShaderType::Vertex, "main" );
-	REGISTER_GLOBAL_SHADER( SSGICompositePS, "SSGI/PS_SSGIComposite.fx", agl::ShaderType::Pixel, "main" );
+	REGISTER_GLOBAL_SHADER( SSGIPassCS, "SSGI/CS_SSGI.fx", "main" );
+	REGISTER_GLOBAL_SHADER( SSGIDenoiseCS, "SSGI/CS_DenoiseSSGI.fx", "main" );
+	REGISTER_GLOBAL_SHADER( SSGICompositeVS, "SSGI/VS_SSGIComposite.fx", "main" );
+	REGISTER_GLOBAL_SHADER( SSGICompositePS, "SSGI/PS_SSGIComposite.fx", "main" );
 
 	class ForwardRendererCompositeSSGIPassProcessor final : public IPassProcessor
 	{

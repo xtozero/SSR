@@ -341,8 +341,6 @@ int32 main( int32 argc, char* argv[] )
 				fs::path target = targetDirectory / p.path().filename();
 				target = fs::absolute( target.replace_extension( ".asset" ) );
 
-				processed.emplace( target );
-
 				auto assetInfoIter = assetInfos.find( target );
 				if ( assetInfoIter != std::end( assetInfos ) )
 				{
@@ -353,6 +351,8 @@ int32 main( int32 argc, char* argv[] )
 						{
 							std::cout << "Skip processing asset (" + p.path().generic_string() + ")" << std::endl;
 						}
+
+						processed.emplace( target );
 
 						++buildSummary.m_skippedCount;
 						continue;
@@ -370,7 +370,12 @@ int32 main( int32 argc, char* argv[] )
 						}
 
 						const auto& asset = product.second;
-						WriteToDisk( asset, target );
+						fs::path assetPath = targetDirectory / product.first;
+						assetPath = fs::absolute( assetPath.replace_extension( ".asset" ) );
+
+						WriteToDisk( asset, assetPath );
+
+						processed.emplace( assetPath );
 
 						++buildSummary.m_succeededCount;
 					}

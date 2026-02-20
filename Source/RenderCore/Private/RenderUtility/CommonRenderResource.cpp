@@ -108,7 +108,7 @@ namespace
 
 namespace rendercore
 {
-	class PrecomputedBrdfCS final : public GlobalShaderCommon<ComputeShader, PrecomputedBrdfCS>
+	class PrecomputedBrdfCS final : public GlobalShaderBase<ComputeShader, PrecomputedBrdfCS>
 	{
 	private:
 		DEFINE_SHADER_PARAM( Precomputed );
@@ -154,9 +154,9 @@ namespace rendercore
 		return brdfLUT;
 	}
 
-	REGISTER_GLOBAL_SHADER( FullScreenQuadVS, "Common/VS_FullScreenQuad.fx", agl::ShaderType::Vertex, "main" );
-	REGISTER_GLOBAL_SHADER( PrecomputedBrdfCS, "PhysicallyBased/CS_PrecomputedBRDF.fx", agl::ShaderType::Compute, "main" );
-	REGISTER_GLOBAL_SHADER( DefaultAS, "Material/AS_Meshlet.fx", agl::ShaderType::Amplification, "main" );
+	REGISTER_GLOBAL_SHADER( FullScreenQuadVS, "Common/VS_FullScreenQuad.fx", "main" );
+	REGISTER_GLOBAL_SHADER( PrecomputedBrdfCS, "PhysicallyBased/CS_PrecomputedBRDF.fx", "main" );
+	REGISTER_GLOBAL_SHADER( DefaultAS, "Material/AS_Meshlet.fx", "main" );
 
 	void DefaultGraphicsResources::BootUp()
 	{

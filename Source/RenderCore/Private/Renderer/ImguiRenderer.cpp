@@ -26,16 +26,16 @@
 
 namespace rendercore
 {
-	class DrawImguiVS final : public GlobalShaderCommon<VertexShader, DrawImguiVS>
+	class DrawImguiVS final : public GlobalShaderBase<VertexShader, DrawImguiVS>
 	{
-		using GlobalShaderCommon::GlobalShaderCommon;
+		using GlobalShaderBase::GlobalShaderBase;
 	};
 
-	class DrawImguiPS final : public GlobalShaderCommon<PixelShader, DrawImguiPS>
+	class DrawImguiPS final : public GlobalShaderBase<PixelShader, DrawImguiPS>
 	{};
 
-	REGISTER_GLOBAL_SHADER( DrawImguiVS, "Material/VS_Imgui.fx", agl::ShaderType::Vertex, "main" );
-	REGISTER_GLOBAL_SHADER( DrawImguiPS, "Material/PS_Imgui.fx", agl::ShaderType::Pixel, "main" );
+	REGISTER_GLOBAL_SHADER( DrawImguiVS, "Material/VS_Imgui.fx", "main" );
+	REGISTER_GLOBAL_SHADER( DrawImguiPS, "Material/PS_Imgui.fx", "main" );
 
 	class ImguiDrawPassProcessor final : public IPassProcessor
 	{

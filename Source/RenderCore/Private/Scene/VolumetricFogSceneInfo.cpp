@@ -15,9 +15,9 @@
 
 namespace rendercore
 {
-	class InscatteringCS final : public GlobalShaderCommon<ComputeShader, InscatteringCS>
+	class InscatteringCS final : public GlobalShaderBase<ComputeShader, InscatteringCS>
 	{
-		using GlobalShaderCommon::GlobalShaderCommon;
+		using GlobalShaderBase::GlobalShaderBase;
 
 	private:
 		DEFINE_SHADER_PARAM( AsymmetryParameterG );
@@ -44,7 +44,7 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( HistorySampler );
 	};
 
-	class AccumulateScatteringCS final : public GlobalShaderCommon<ComputeShader, AccumulateScatteringCS>
+	class AccumulateScatteringCS final : public GlobalShaderBase<ComputeShader, AccumulateScatteringCS>
 	{
 		DEFINE_SHADER_PARAM( FrustumVolume );
 		DEFINE_SHADER_PARAM( AccumulatedVolume );
@@ -52,8 +52,8 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( VolumetricFogParameterBuffer );
 	};
 
-	REGISTER_GLOBAL_SHADER( InscatteringCS, "VolumetricFog/CS_Inscattering.fx", agl::ShaderType::Compute, "main" );
-	REGISTER_GLOBAL_SHADER( AccumulateScatteringCS, "VolumetricFog/CS_AccumulateScattering.fx", agl::ShaderType::Compute, "main" );
+	REGISTER_GLOBAL_SHADER( InscatteringCS, "VolumetricFog/CS_Inscattering.fx", "main" );
+	REGISTER_GLOBAL_SHADER( AccumulateScatteringCS, "VolumetricFog/CS_AccumulateScattering.fx", "main" );
 
 	void VolumetricFogSceneInfo::CreateRenderData()
 	{

@@ -196,11 +196,6 @@ namespace rendercore
 
 	REGISTER_ASSET( VertexShader );
 
-	agl::ShaderType VertexShader::GetType()
-	{
-		return agl::ShaderType::Vertex;
-	}
-
 	agl::VertexShader* VertexShader::Resource()
 	{
 		return static_cast<agl::VertexShader*>( m_shader.Get() );
@@ -224,11 +219,6 @@ namespace rendercore
 	}
 
 	REGISTER_ASSET( GeometryShader );
-
-	agl::ShaderType GeometryShader::GetType()
-	{
-		return agl::ShaderType::Geometry;
-	}
 
 	agl::GeometryShader* GeometryShader::Resource()
 	{
@@ -255,11 +245,6 @@ namespace rendercore
 
 	REGISTER_ASSET( PixelShader );
 
-	agl::ShaderType PixelShader::GetType()
-	{
-		return agl::ShaderType::Pixel;
-	}
-
 	agl::PixelShader* PixelShader::Resource()
 	{
 		return static_cast<agl::PixelShader*>( m_shader.Get() );
@@ -283,11 +268,6 @@ namespace rendercore
 	}
 
 	REGISTER_ASSET( ComputeShader );
-
-	agl::ShaderType ComputeShader::GetType()
-	{
-		return agl::ShaderType::Compute;
-	}
 
 	agl::ComputeShader* ComputeShader::Resource()
 	{
@@ -320,11 +300,6 @@ namespace rendercore
 		}
 
 		return Super::CompileShader( switches );
-	}
-
-	agl::ShaderType MeshShader::GetType()
-	{
-		return agl::ShaderType::Mesh;
 	}
 
 	agl::MeshShader* MeshShader::Resource()
@@ -360,11 +335,6 @@ namespace rendercore
 		return Super::CompileShader( switches );
 	}
 
-	agl::ShaderType AmplificationShader::GetType()
-	{
-		return agl::ShaderType::Amplification;
-	}
-
 	agl::AmplificationShader* AmplificationShader::Resource()
 	{
 		return static_cast<agl::AmplificationShader*>( m_shader.Get() );
@@ -396,11 +366,6 @@ namespace rendercore
 		}
 
 		return ShaderBase::CompileShader( switches );
-	}
-
-	agl::ShaderType RayGenerationShader::GetType()
-	{
-		return agl::ShaderType::RayGen;
 	}
 
 	agl::RayGenerationShader* RayGenerationShader::Resource()
@@ -436,11 +401,6 @@ namespace rendercore
 		return ShaderBase::CompileShader( switches );
 	}
 
-	agl::ShaderType IntersectionShader::GetType()
-	{
-		return agl::ShaderType::Intersection;
-	}
-
 	agl::IntersectionShader* IntersectionShader::Resource()
 	{
 		return static_cast<agl::IntersectionShader*>( m_shader.Get() );
@@ -472,11 +432,6 @@ namespace rendercore
 		}
 
 		return ShaderBase::CompileShader( switches );
-	}
-
-	agl::ShaderType AnyHitShader::GetType()
-	{
-		return agl::ShaderType::AnyHit;
 	}
 
 	agl::AnyHitShader* AnyHitShader::Resource()
@@ -512,11 +467,6 @@ namespace rendercore
 		return ShaderBase::CompileShader( switches );
 	}
 
-	agl::ShaderType ClosestHitShader::GetType()
-	{
-		return agl::ShaderType::ClosestHit;
-	}
-
 	agl::ClosestHitShader* ClosestHitShader::Resource()
 	{
 		return static_cast<agl::ClosestHitShader*>( m_shader.Get() );
@@ -550,11 +500,6 @@ namespace rendercore
 		return ShaderBase::CompileShader( switches );
 	}
 
-	agl::ShaderType MissShader::GetType()
-	{
-		return agl::ShaderType::Miss;
-	}
-
 	agl::MissShader* MissShader::Resource()
 	{
 		return static_cast<agl::MissShader*>( m_shader.Get() );
@@ -586,11 +531,6 @@ namespace rendercore
 		}
 
 		return ShaderBase::CompileShader( switches );
-	}
-
-	agl::ShaderType CallableShader::GetType()
-	{
-		return agl::ShaderType::Callable;
 	}
 
 	agl::CallableShader* CallableShader::Resource()

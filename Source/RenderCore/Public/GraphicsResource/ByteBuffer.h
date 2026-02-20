@@ -12,7 +12,7 @@ namespace rendercore
 	class RenderGraph;
 	class UploadBuffer;
 
-	class DistributionCopyCS final : public GlobalShaderCommon<ComputeShader, DistributionCopyCS>
+	class DistributionCopyCS final : public GlobalShaderBase<ComputeShader, DistributionCopyCS>
 	{
 	public:
 		static constexpr uint32 ThreadGroupX = 64;

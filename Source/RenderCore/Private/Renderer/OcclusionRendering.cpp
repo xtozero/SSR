@@ -39,11 +39,11 @@ namespace
 
 namespace rendercore
 {
-	class OcclusionVS final : public GlobalShaderCommon<VertexShader, OcclusionVS>
+	class OcclusionVS final : public GlobalShaderBase<VertexShader, OcclusionVS>
 	{
 	};
 
-	REGISTER_GLOBAL_SHADER( OcclusionVS, "VS_Occlusion.fx", agl::ShaderType::Vertex, "main" );
+	REGISTER_GLOBAL_SHADER( OcclusionVS, "VS_Occlusion.fx", "main" );
 
 	DrawSnapshot BuildOcclusionDrawSnapshot( const GlobalDynamicVertexBuffer::AllocationInfo& allcationInfo )
 	{

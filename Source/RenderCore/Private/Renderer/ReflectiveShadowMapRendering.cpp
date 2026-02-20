@@ -20,12 +20,12 @@
 
 namespace rendercore
 {
-	class RSMsEvaluationPS final : public GlobalShaderCommon<PixelShader, RSMsEvaluationPS>
+	class RSMsEvaluationPS final : public GlobalShaderBase<PixelShader, RSMsEvaluationPS>
 	{
-		using GlobalShaderCommon::GlobalShaderCommon;
+		using GlobalShaderBase::GlobalShaderBase;
 	};
 
-	REGISTER_GLOBAL_SHADER( RSMsEvaluationPS, "IndirectLighting/RSMs/PS_RSMsEvaluation.fx", agl::ShaderType::Pixel, "main" );
+	REGISTER_GLOBAL_SHADER( RSMsEvaluationPS, "IndirectLighting/RSMs/PS_RSMsEvaluation.fx", "main" );
 
 	class RSMsDrawPassProcessor final : public IPassProcessor
 	{
