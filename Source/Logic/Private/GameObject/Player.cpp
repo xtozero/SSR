@@ -106,7 +106,7 @@ namespace logic
 
 	void Player::OnMouseRButton( const UserInput& input )
 	{
-		m_cameraRotationEnabled = input.m_axis[UserInput::Z_AXIS] < 0;
+		m_cameraRotationEnabled = input.IsKeyJustPressed( UIC_MOUSE_RIGHT );
 	}
 
 	void Player::OnMouseMove( const UserInput& input )
@@ -135,25 +135,9 @@ namespace logic
 
 	void Player::OnMoveKey( const UserInput& input )
 	{
-		if ( input.m_code == UIC_LEFT
-			|| input.m_code == UIC_A )
-		{
-			m_inputDirection[0] = ( input.m_axis[UserInput::Z_AXIS] < 0 );
-		}
-		else if ( input.m_code == UIC_UP
-			|| input.m_code == UIC_W )
-		{
-			m_inputDirection[1] = ( input.m_axis[UserInput::Z_AXIS] < 0 );
-		}
-		else if ( input.m_code == UIC_RIGHT
-			|| input.m_code == UIC_D )
-		{
-			m_inputDirection[2] = ( input.m_axis[UserInput::Z_AXIS] < 0 );
-		}
-		else if ( input.m_code == UIC_DOWN
-			|| input.m_code == UIC_S )
-		{
-			m_inputDirection[3] = ( input.m_axis[UserInput::Z_AXIS] < 0 );
-		}
+		m_inputDirection[0] = input.IsKeyPressed( UIC_LEFT ) || input.IsKeyPressed( UIC_A );
+		m_inputDirection[1] = input.IsKeyPressed( UIC_UP ) || input.IsKeyPressed( UIC_W );
+		m_inputDirection[2] = input.IsKeyPressed( UIC_RIGHT ) || input.IsKeyPressed( UIC_D );
+		m_inputDirection[3] = input.IsKeyPressed( UIC_DOWN ) || input.IsKeyPressed( UIC_S );
 	}
 }

@@ -29,17 +29,10 @@ namespace
             || ( input.m_code == UserInputCode::UIC_MOUSE_MIDDLE );
     }
 
-    bool IsRightMouseRelease( const UserInput& input )
-    {
-        return ( input.m_code == UserInputCode::UIC_MOUSE_RIGHT )
-            && ( input.m_axis[2] > 0 );
-    }
-
     bool CanPickObject( const UserInput& input )
     {
-        return ( input.m_code == UserInputCode::UIC_MOUSE_LEFT )
-            && ( input.m_axis[2] < 0 )
-            && input.m_buttonState.IsButtonReleased( UserInputCode::UIC_MOUSE_RIGHT );
+        return input.IsKeyJustPressed( UserInputCode::UIC_MOUSE_LEFT )
+            && input.IsKeyReleased( UserInputCode::UIC_MOUSE_RIGHT );
     }
 }
 
@@ -113,16 +106,16 @@ namespace editor
         engine::UserInput inputForLogic = input;
         if ( IsMouseClick( input ) )
         {
-            inputForLogic.m_axis[0] = std::clamp( inputForLogic.m_axis[0], m_panelArea.m_left, m_panelArea.m_right );
-            inputForLogic.m_axis[1] = std::clamp( inputForLogic.m_axis[1], m_panelArea.m_top, m_panelArea.m_bottom );
+            inputForLogic.m_axis[UserInput::X_AXIS] = std::clamp( inputForLogic.m_axis[UserInput::X_AXIS], m_panelArea.m_left, m_panelArea.m_right );
+            inputForLogic.m_axis[UserInput::Y_AXIS] = std::clamp( inputForLogic.m_axis[UserInput::Y_AXIS], m_panelArea.m_top, m_panelArea.m_bottom );
 
-            inputForLogic.m_axis[0] -= m_panelArea.m_left;
-            inputForLogic.m_axis[1] -= m_panelArea.m_top;
+            inputForLogic.m_axis[UserInput::X_AXIS] -= m_panelArea.m_left;
+            inputForLogic.m_axis[UserInput::Y_AXIS] -= m_panelArea.m_top;
 
             if ( CanPickObject( input ) )
             {
-                auto x = static_cast<uint32>( inputForLogic.m_axis[0] );
-                auto y = static_cast<uint32>( inputForLogic.m_axis[1] );
+                auto x = static_cast<uint32>( inputForLogic.m_axis[UserInput::X_AXIS] );
+                auto y = static_cast<uint32>( inputForLogic.m_axis[UserInput::Y_AXIS] );
 
 				rendercore::HitProxy* hitProxy = nullptr;
 				if ( GameClientViewport* gameClientViewport = editor.GetGameClientViewport() )
@@ -138,7 +131,7 @@ namespace editor
                     sharedCtx.SelectObject( hitObject->GetObject() );
                 }
 			}
-			else if ( IsRightMouseRelease( input ) )
+			else if ( input.IsKeyJustReleased( UserInputCode::UIC_MOUSE_RIGHT ) )
             {
                 if ( GameClientViewport* gameClientViewport = editor.GetGameClientViewport() )
                 {

@@ -47,28 +47,32 @@ namespace
 		{
 		case D3D12_SHVER_PIXEL_SHADER:
 			return ShaderType::Pixel;
-			break;
 		case D3D12_SHVER_VERTEX_SHADER:
 			return ShaderType::Vertex;
-			break;
 		case D3D12_SHVER_GEOMETRY_SHADER:
 			return ShaderType::Geometry;
-			break;
 		case D3D12_SHVER_HULL_SHADER:
 			return ShaderType::Hull;
-			break;
 		case D3D12_SHVER_DOMAIN_SHADER:
 			return ShaderType::Domain;
-			break;
 		case D3D12_SHVER_COMPUTE_SHADER:
 			return ShaderType::Compute;
-			break;
 		case D3D12_SHVER_MESH_SHADER:
 			return ShaderType::Mesh;
-			break;
 		case D3D12_SHVER_AMPLIFICATION_SHADER:
 			return ShaderType::Amplification;
-			break;
+		case D3D12_SHVER_RAY_GENERATION_SHADER:
+			return ShaderType::RayGen;
+		case D3D12_SHVER_INTERSECTION_SHADER:
+			return ShaderType::Intersection;
+		case D3D12_SHVER_ANY_HIT_SHADER:
+			return ShaderType::AnyHit;
+		case D3D12_SHVER_CLOSEST_HIT_SHADER:
+			return ShaderType::ClosestHit;
+		case D3D12_SHVER_MISS_SHADER:
+			return ShaderType::Miss;
+		case D3D12_SHVER_CALLABLE_SHADER:
+			return ShaderType::Callable;
 		default:
 			break;
 		}
@@ -93,19 +97,14 @@ namespace
 
 namespace agl
 {
-	void ExtractShaderParameters( ID3D12ShaderReflection* pReflector, ShaderParameterMap& parameterMap )
+	template <typename ReflectionClass>
+	void ExtractResources( ReflectionClass& reflection, ShaderType shaderType, uint32 numBoundResources, ShaderParameterMap& outParameterMap )
 	{
-		D3D12_SHADER_DESC shaderDesc = {};
-		HRESULT hResult = pReflector->GetDesc( &shaderDesc );
-		assert( SUCCEEDED( hResult ) );
-
-		ShaderType shaderType = ConvertShaderVersionToType( shaderDesc.Version );
-
 		// Get the resources
-		for ( uint32 i = 0; i < shaderDesc.BoundResources; ++i )
+		for ( uint32 i = 0; i < numBoundResources; ++i )
 		{
 			D3D12_SHADER_INPUT_BIND_DESC bindDesc = {};
-			hResult = pReflector->GetResourceBindingDesc( i, &bindDesc );
+			HRESULT hResult = reflection.GetResourceBindingDesc( i, &bindDesc );
 			assert( SUCCEEDED( hResult ) );
 
 			ShaderParameterType parameterType = ShaderParameterType::ConstantBuffer;
@@ -115,7 +114,7 @@ namespace agl
 			{
 				parameterType = ShaderParameterType::ConstantBuffer;
 
-				ID3D12ShaderReflectionConstantBuffer* constBufferReflection = pReflector->GetConstantBufferByName( bindDesc.Name );
+				ID3D12ShaderReflectionConstantBuffer* constBufferReflection = reflection.GetConstantBufferByName( bindDesc.Name );
 				if ( constBufferReflection )
 				{
 					D3D12_SHADER_BUFFER_DESC shaderBuffDesc;
@@ -138,7 +137,7 @@ namespace agl
 
 						ShaderParameterType paramType = isBindlessParam ? ShaderParameterType::Bindless : ShaderParameterType::ConstantBufferValue;
 
-						parameterMap.AddParameter( paramName.data(), shaderType, paramType, bindDesc.BindPoint, bindDesc.Space, shaderVarDesc.StartOffset, shaderVarDesc.Size );
+						outParameterMap.AddParameter( paramName.data(), shaderType, paramType, bindDesc.BindPoint, bindDesc.Space, shaderVarDesc.StartOffset, shaderVarDesc.Size );
 					}
 				}
 			}
@@ -165,7 +164,38 @@ namespace agl
 				assert( false && "Unexpected case" );
 			}
 
-			parameterMap.AddParameter( bindDesc.Name, shaderType, parameterType, bindDesc.BindPoint, bindDesc.Space, 0, parameterSize );
+			outParameterMap.AddParameter( bindDesc.Name, shaderType, parameterType, bindDesc.BindPoint, bindDesc.Space, 0, parameterSize );
+		}
+	}
+
+	void ExtractShaderParameters( ID3D12ShaderReflection& reflection, ShaderParameterMap& outParameterMap )
+	{
+		D3D12_SHADER_DESC shaderDesc = {};
+		HRESULT hResult = reflection.GetDesc( &shaderDesc );
+		assert( SUCCEEDED( hResult ) );
+
+		ShaderType shaderType = ConvertShaderVersionToType( shaderDesc.Version );
+
+		ExtractResources( reflection, shaderType, shaderDesc.BoundResources, outParameterMap );
+	}
+
+	void ExtractShaderParameters( ID3D12LibraryReflection& reflection, ShaderParameterMap& outParameterMap )
+	{
+		D3D12_LIBRARY_DESC libraryDesc = {};
+		HRESULT hResult = reflection.GetDesc( &libraryDesc );
+		assert( SUCCEEDED( hResult ) );
+
+		for ( uint32 functionIndex = 0; functionIndex < libraryDesc.FunctionCount; ++functionIndex )
+		{
+			ID3D12FunctionReflection* functionRefection = reflection.GetFunctionByIndex( functionIndex );
+
+			D3D12_FUNCTION_DESC functionDesc;
+			hResult = functionRefection->GetDesc( &functionDesc );
+			assert( SUCCEEDED( hResult ) );
+
+			ShaderType shaderType = ConvertShaderVersionToType( functionDesc.Version );
+
+			ExtractResources( *functionRefection, shaderType, functionDesc.BoundResources, outParameterMap );
 		}
 	}
 
@@ -494,9 +524,19 @@ namespace agl
 		};
 
 		std::vector<const wchar_t*> args;
+		args.reserve( 64 );
 
 		// entry point
-		args.push_back( L"-E" );
+		if ( IsRayTracingShader( type ) )
+		{
+			args.push_back( L"-auto-binding-space 0" );
+			args.push_back( L"-exports" );
+		}
+		else
+		{
+			args.push_back( L"-E" );
+		}
+
 		wchar_t wEntryPoint[64] = {};
 		{
 			ToWideChar( wEntryPoint, std::extent_v<decltype( wEntryPoint )>, entryPoint );
@@ -548,7 +588,6 @@ namespace agl
 
 		HRESULT hResult = S_OK;
 		results->GetStatus( &hResult );
-
 		assert( SUCCEEDED( hResult ) );
 
 		ComPtr<IDxcBlob> compiledBinary = nullptr;
@@ -592,11 +631,22 @@ namespace agl
 		hr = m_reflection->GetPartReflection( shaderIndex, IID_PPV_ARGS( shaderReflection.GetAddressOf() ) );
 		if ( FAILED( hr ) )
 		{
-			assert( false && "GetPartReflection was Failed" );
-			return false;
+			ComPtr<ID3D12LibraryReflection> libraryReflection;
+			hr = m_reflection->GetPartReflection( shaderIndex, IID_PPV_ARGS( libraryReflection.GetAddressOf() ) );
+
+			if ( FAILED( hr ) )
+			{
+				assert( false && "GetPartReflection was Failed" );
+				return false;
+			}
+
+			ExtractShaderParameters( *libraryReflection.Get(), outParameterMap );
+		}
+		else
+		{
+			ExtractShaderParameters( *shaderReflection.Get(), outParameterMap );
 		}
 
-		ExtractShaderParameters( shaderReflection.Get(), outParameterMap );
 		BuildShaderParameterInfo( outParameterMap.GetParameterMap(), outParameterInfo );
 
 		return true;

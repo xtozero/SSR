@@ -77,6 +77,24 @@ namespace rendercore
 		case agl::ShaderType::Amplification:
 			shader = new AmplificationShader( switches, std::move( byteCode ), shaderHash );
 			break;
+		case agl::ShaderType::RayGen:
+			shader = new RayGenerationShader( switches, std::move( byteCode ), shaderHash );
+			break;
+		case agl::ShaderType::Intersection:
+			shader = new IntersectionShader( switches, std::move( byteCode ), shaderHash );
+			break;
+		case agl::ShaderType::AnyHit:
+			shader = new AnyHitShader( switches, std::move( byteCode ), shaderHash );
+			break;
+		case agl::ShaderType::ClosestHit:
+			shader = new ClosestHitShader( switches, std::move( byteCode ), shaderHash );
+			break;
+		case agl::ShaderType::Miss:
+			shader = new MissShader( switches, std::move( byteCode ), shaderHash );
+			break;
+		case agl::ShaderType::Callable:
+			shader = new CallableShader( switches, std::move( byteCode ), shaderHash );
+			break;
 		default:
 			assert( false && "Invalid shader type" );
 			return nullptr;

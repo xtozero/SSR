@@ -1,8 +1,8 @@
 RWTexture2D<float4> SceneColor;
 
-struct PayLoad
+struct [raypayload] PayLoad
 {
-    bool hit;
+    bool hit : read( caller ) : write( closesthit, miss );
 };
 
 [shader("raygeneration")]

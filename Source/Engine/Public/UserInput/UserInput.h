@@ -183,16 +183,28 @@ namespace engine
 
 		UserInputCode m_code = UIC_UNKNOWN;
 		float m_axis[INPUT_AXIS_COUNT] = { 0.f, 0.f, 0.f };
-		const UserInputButtonStates& m_buttonState;
+
+		bool IsKeyPressed( UserInputCode code ) const
+		{
+			return m_buttonState.IsButtonPressed( code );
+		}
+
+		bool IsKeyReleased( UserInputCode code ) const
+		{
+			return m_buttonState.IsButtonReleased( code );
+		}
 
 		bool IsKeyJustPressed( UserInputCode code  ) const
 		{
-			return m_code == code && m_buttonState.IsButtonPressed( code );
+			return m_code == code && IsKeyPressed( code );
 		}
 
 		bool IsKeyJustReleased( UserInputCode code ) const
 		{
-			return m_code == code && m_buttonState.IsButtonReleased( code );
+			return m_code == code && IsKeyReleased( code );
 		}
+
+	private:
+		const UserInputButtonStates& m_buttonState;
 	};
 }

@@ -19,12 +19,12 @@ public:
 	bool Succeeded() const;
 	const char* GetErrorMessage() const;
 
-	ShaderCompileResult( const Microsoft::WRL::ComPtr<IUnknown>& errorMsgBlob, const char* errorMsg );
+	ShaderCompileResult( bool succeeded, const Microsoft::WRL::ComPtr<IUnknown>& errorMsgBlob );
 	ShaderCompileResult() = default;
 
 private:
 	Microsoft::WRL::ComPtr<IUnknown> m_errorMsgBlob;
-	const char* m_errorMsg = nullptr;
+	bool m_succeeded = false;
 };
 
 class ShaderBuilder final : public IAssetBuilder

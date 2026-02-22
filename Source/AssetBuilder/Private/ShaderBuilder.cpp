@@ -62,12 +62,12 @@ namespace
 				"cs_6_5",
 				"ms_6_5",
 				"as_6_5",
-				"lib_6_5",
-				"lib_6_5",
-				"lib_6_5",
-				"lib_6_5",
-				"lib_6_5",
-				"lib_6_5",
+				"lib_6_8",
+				"lib_6_8",
+				"lib_6_8",
+				"lib_6_8",
+				"lib_6_8",
+				"lib_6_8",
 			};
 
 			return d3d12Profiles[static_cast<int8>( shaderType )];
@@ -361,12 +361,13 @@ namespace
 			&byteCode,
 			&errorMsg );
 
-		if ( SUCCEEDED( hr ) )
+		bool compileSucceeded = SUCCEEDED( hr );
+		if ( compileSucceeded )
 		{
 			errorMsg = nullptr;
 		}
 
-		return ShaderCompileResult( errorMsg, errorMsg ? static_cast<const char*>( errorMsg->GetBufferPointer() ) : nullptr );
+		return ShaderCompileResult( compileSucceeded, errorMsg );
 	}
 
 	bool HasExplicitSpace( const char* s )
@@ -414,17 +415,31 @@ namespace
 
 bool ShaderCompileResult::Succeeded() const
 {
-	return m_errorMsgBlob.Get() == nullptr;
+	return m_succeeded;
 }
 
 const char* ShaderCompileResult::GetErrorMessage() const
 {
-	return m_errorMsg;
+	ComPtr<IDxcBlobEncoding> blobEncoding;
+	HRESULT hr = m_errorMsgBlob.As( &blobEncoding );
+	if ( SUCCEEDED( hr ) )
+	{
+		return static_cast<const char*>( blobEncoding->GetBufferPointer() );
+	}
+
+	ComPtr<ID3DBlob> blob;
+	hr = m_errorMsgBlob.As( &blob );
+	if ( SUCCEEDED( hr ) )
+	{
+		return static_cast<const char*>( blob->GetBufferPointer() );
+	}
+
+	return "";
 }
 
-ShaderCompileResult::ShaderCompileResult( const Microsoft::WRL::ComPtr<IUnknown>& errorMsgBlob, const char* errorMsg )
-	: m_errorMsgBlob( errorMsgBlob )
-	, m_errorMsg( errorMsg )
+ShaderCompileResult::ShaderCompileResult( bool succeeded, const Microsoft::WRL::ComPtr<IUnknown>& errorMsgBlob )
+	: m_succeeded( succeeded )
+	, m_errorMsgBlob( errorMsgBlob )
 {
 }
 
@@ -646,7 +661,8 @@ ShaderCompileResult ShaderBuilder::CompileD3D12Shader( const std::string& shader
 
 	ComPtr<IDxcBlob> byteCode = nullptr;
 	ComPtr<IDxcBlobEncoding> errorMsg = nullptr;
-	if ( SUCCEEDED( hr ) )
+	bool compileSucceeded = SUCCEEDED( hr );
+	if ( compileSucceeded )
 	{
 		ComPtr<IDxcBlobUtf16> shaderName = nullptr;
 		results->GetOutput( DXC_OUT_OBJECT, IID_PPV_ARGS( byteCode.GetAddressOf() ), shaderName.GetAddressOf() );
@@ -656,5 +672,5 @@ ShaderCompileResult ShaderBuilder::CompileD3D12Shader( const std::string& shader
 		results->GetErrorBuffer( errorMsg.GetAddressOf() );
 	}
 
-	return ShaderCompileResult( errorMsg, errorMsg ? static_cast<const char*>( errorMsg->GetBufferPointer() ) : nullptr );
+	return ShaderCompileResult( compileSucceeded, errorMsg );
 }
