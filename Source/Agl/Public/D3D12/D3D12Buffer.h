@@ -14,12 +14,17 @@ namespace agl
 	class D3D12Buffer : public Buffer
 	{
 	public:
-		ID3D12Resource* Resource();
+		virtual void CreateShaderResource() override;
+		virtual void CreateUnorderedAccess() override;
+
 		virtual void* Resource() const override;
+
+		ID3D12Resource* Resource();
 
 		const AllocatedResourceInfo& GetResourceInfo() const;
 
 		const D3D12_RESOURCE_DESC& Desc() const;
+		DXGI_FORMAT GetFormat() const;
 
 		virtual LockedResource Lock( uint32 subResource = 0, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard );
 		virtual void UnLock( uint32 subResource = 0 );

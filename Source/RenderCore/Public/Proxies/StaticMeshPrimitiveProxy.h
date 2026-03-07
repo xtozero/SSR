@@ -26,6 +26,8 @@ namespace rendercore
 		virtual std::optional<DrawSnapshot> TakeSnapshot( uint32 lod, uint32 sectionIndex ) const override;
 		virtual std::optional<MeshDrawInfo> GatherMeshDrawInfo( uint32 lod, uint32 sectionIndex ) const override;
 
+		virtual void AddToRaytracingScene( RaytracingScene& raytracingScene ) override;
+
 	private:
 		std::shared_ptr<const StaticMesh> m_pStaticMesh = nullptr;
 		StaticMeshRenderData* m_pRenderData = nullptr;

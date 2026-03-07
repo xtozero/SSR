@@ -248,6 +248,16 @@ namespace agl
 		// Do Nothing
 	}
 
+	BLAS* D3D11ResourceManager::CreateBLAS( [[maybe_unused]] const BLASDesc& desc, [[maybe_unused]] const char* debugName ) const
+	{
+		return nullptr;
+	}
+
+	TLAS* D3D11ResourceManager::CreateTLAS( [[maybe_unused]] const TLASDesc& desc, [[maybe_unused]] const char* debugName ) const
+	{
+		return nullptr;
+	}
+
 	D3D11ResourceManager::~D3D11ResourceManager()
 	{
 		Shutdown();

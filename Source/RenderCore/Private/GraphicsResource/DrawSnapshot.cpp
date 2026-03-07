@@ -81,7 +81,7 @@ namespace rendercore
 
 			constexpr uint32 ElementSize = sizeof( uint32 );
 			uint32 numElement = require / sizeof( uint32 );
-			newEntry.m_vertexBuffer = VertexBuffer( ElementSize, numElement, agl::ResourceState::Common, nullptr, true );
+			newEntry.m_vertexBuffer = VertexBuffer( ElementSize, numElement, agl::ResourceFormat::Unknown, agl::ResourceState::Common, nullptr, true );
 
 			return newEntry.m_vertexBuffer;
 		}

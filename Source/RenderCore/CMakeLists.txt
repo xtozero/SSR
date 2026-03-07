@@ -141,6 +141,7 @@ set (RENDER_GRAPH_SOURCE
 set (RENDER_SCENE_SOURCE
 	Private/Scene/LightSceneInfo.cpp
 	Private/Scene/PrimitiveSceneInfo.cpp
+	Private/Scene/RaytracingScene.cpp
 	Private/Scene/Scene.cpp
 	Private/Scene/SceneConstantBuffers.cpp
 	Private/Scene/SceneVelocityData.cpp
@@ -150,6 +151,7 @@ set (RENDER_SCENE_SOURCE
 	Public/Scene/IScene.h
 	Public/Scene/LightSceneInfo.h
 	Public/Scene/PrimitiveSceneInfo.h
+	Public/Scene/RaytracingScene.h
 	Public/Scene/Scene.h
 	Public/Scene/SceneConstantBuffers.h
 	Public/Scene/SceneVelocityData.h

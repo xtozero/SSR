@@ -15,6 +15,9 @@ namespace agl
 		AGL_DLL static RefHandle<Buffer> Create( const BufferTrait& trait, const char* debugName, const void* initData );
 		AGL_DLL static RefHandle<Buffer> Create( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData );
 
+		virtual void CreateShaderResource() = 0;
+		virtual void CreateUnorderedAccess() = 0;
+
 		virtual void* Resource() const = 0;
 
 		virtual ShaderResourceView* SRV() override { return m_srv.Get(); }

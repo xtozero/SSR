@@ -101,3 +101,9 @@ public:
 private:
 	ReferencedType* m_reference = nullptr;
 };
+
+template <typename To, typename From>
+RefHandle<To> RefStaticCast( const RefHandle<From>& from )
+{
+	return RefHandle<To>( static_cast<To*>( from.Get() ) );
+}

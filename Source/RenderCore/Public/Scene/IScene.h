@@ -17,6 +17,7 @@ namespace logic
 namespace rendercore
 {
 	class PrimitiveSceneInfo;
+	class RaytracingScene;
 	class RenderViewGroup;
 	class Scene;
 	class ScenePrimitiveBuffer;
@@ -70,6 +71,7 @@ namespace rendercore
 		virtual ShadingMethod GetShadingMethod() const = 0;
 
 		virtual Scene* GetRenderScene() = 0;
+		virtual RaytracingScene* GetRaytracingScene() = 0;
 
 		virtual void OnBeginSceneRendering() = 0;
 

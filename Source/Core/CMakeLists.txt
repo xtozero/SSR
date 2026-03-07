@@ -74,6 +74,7 @@ set (MATH_HEADER
 	Public/Math/Halton.h
 	Public/Math/Matrix.h
 	Public/Math/Matrix3X3.h
+	Public/Math/Matrix3X4.h
 	Public/Math/Plane.h
 	Public/Math/Quaternion.h
 	Public/Math/Rect.h
@@ -91,6 +92,7 @@ set (MATH_SOURCE
 	Private/Math/Halton.cpp
 	Private/Math/Matrix.cpp
 	Private/Math/Matrix3X3.cpp
+	Private/Math/Matrix3X4.cpp
 	Private/Math/Plane.cpp
 	Private/Math/Quaternion.cpp
 	Private/Math/Rotator.cpp

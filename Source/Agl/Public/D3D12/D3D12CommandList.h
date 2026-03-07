@@ -118,6 +118,8 @@ namespace agl
 
 		void ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset = 0 );
 
+		void BuildRaytracingAccelerationStructure( const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& desc );
+
 		void OnCommited();
 
 		D3D12ComputeCommandListImpl() : D3D12CopyCommandListImpl( D3D12_COMMAND_LIST_TYPE_COMPUTE ) {}
@@ -212,6 +214,8 @@ namespace agl
 		virtual void ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries ) = 0;
 
 		virtual void Signal( ID3D12Fence* fence, uint64 fenceValue ) = 0;
+
+		virtual void BuildRaytracingAccelerationStructure( const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& desc ) = 0;
 	};
 
 	class D3D12CommandList final : public ID3D12CommandListEX
@@ -264,6 +268,8 @@ namespace agl
 		virtual void ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries ) override;
 
 		virtual void Signal( ID3D12Fence* fence, uint64 fenceValue ) override;
+
+		virtual void BuildRaytracingAccelerationStructure( const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& desc ) override;
 
 		void Initialize();
 
@@ -335,6 +341,8 @@ namespace agl
 		virtual void ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries ) override;
 
 		virtual void Signal( ID3D12Fence* fence, uint64 fenceValue ) override;
+
+		virtual void BuildRaytracingAccelerationStructure( const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& desc ) override;
 
 		void Close();
 

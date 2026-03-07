@@ -64,6 +64,9 @@ namespace agl
 
 		virtual void PostReloadShaders() override;
 
+		virtual BLAS* CreateBLAS( const BLASDesc& desc, const char* debugName ) const override;
+		virtual TLAS* CreateTLAS( const TLASDesc& desc, const char* debugName ) const override;
+
 		D3D11ResourceManager() = default;
 		virtual ~D3D11ResourceManager() override;
 		D3D11ResourceManager( const D3D11ResourceManager& ) = delete;

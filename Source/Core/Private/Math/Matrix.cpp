@@ -107,7 +107,7 @@ XMMatrix operator*( const Matrix& lhs, const Matrix& rhs )
 
 XMMatrix operator*( const XMMatrix& lhs, const Matrix& rhs )
 {
-	return lhs* XMMatrix( rhs );
+	return lhs * XMMatrix( rhs );
 }
 
 XMMatrix operator*( const Matrix& lhs, const XMMatrix& rhs )

@@ -21,7 +21,7 @@ namespace rendercore
 	void* ConstantBuffer::Lock()
 	{
 		assert( IsInRenderThread() );
-		return  GraphicsInterface().Lock( m_buffer.Get() ).m_data;
+		return GraphicsInterface().Lock( m_buffer.Get() ).m_data;
 	}
 
 	void ConstantBuffer::Unlock()

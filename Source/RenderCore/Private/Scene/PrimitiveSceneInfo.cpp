@@ -75,6 +75,11 @@ namespace rendercore
 		}
 	}
 
+	void PrimitiveSceneInfo::AddToRaytracingScene( RaytracingScene& raytracingScene )
+	{
+		m_sceneProxy->AddToRaytracingScene( raytracingScene );
+	}
+
 	void PrimitiveSceneInfo::RemoveFromScene()
 	{
 		m_subMeshInfos.clear();
@@ -94,6 +99,11 @@ namespace rendercore
 		}
 
 		assert( m_lightList.Size() == 0 );
+	}
+
+	void PrimitiveSceneInfo::RemoveFromRaytracingScene( RaytracingScene& raytracingScene )
+	{
+		raytracingScene.RemoveInstance( *this );
 	}
 
 	PrimitiveSubMesh& PrimitiveSceneInfo::AddSubMesh()

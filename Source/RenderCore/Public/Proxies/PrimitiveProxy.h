@@ -18,6 +18,7 @@ namespace rendercore
 	class DrawSnapshot;
 	class HitProxy;
 	class PrimitiveSceneInfo;
+	class RaytracingScene;
 	class Scene;
 	class ScenePrimitiveBuffer;
 	class SceneViewConstantBuffer;
@@ -35,6 +36,8 @@ namespace rendercore
 		virtual void GatherDynamicMeshDrawInfo( [[maybe_unused]] RenderViewInfo& viewInfo ) const {};
 
 		virtual HitProxy* CreateHitProxy( logic::PrimitiveComponent* component ) const;
+
+		virtual void AddToRaytracingScene( RaytracingScene& raytracingScene );
 
 		bool CastShadow() const;
 		const Matrix& WorldTransform() const;

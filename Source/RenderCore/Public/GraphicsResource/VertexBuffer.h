@@ -19,7 +19,7 @@ namespace rendercore
 
 		agl::Buffer* Resource() const;
 
-		VertexBuffer( uint32 elementSize, uint32 numElement, agl::ResourceState initialState, const void* initData, bool isDynamic = false );
+		VertexBuffer( uint32 elementSize, uint32 numElement, agl::ResourceFormat format, agl::ResourceState initialState, const void* initData, bool isDynamic = false );
 
 		VertexBuffer() = default;
 		virtual ~VertexBuffer() = default;
@@ -29,11 +29,12 @@ namespace rendercore
 		VertexBuffer& operator=( VertexBuffer&& ) = default;
 
 	protected:
-		void InitResource( uint32 elementSize, uint32 numElement, agl::ResourceState initialState, const void* initData );
+		void InitResource( agl::ResourceState initialState, const void* initData );
 
 		RefHandle<agl::Buffer> m_buffer;
 		uint32 m_elementSize = 0;
 		uint32 m_numElement = 0;
+		agl::ResourceFormat m_format = agl::ResourceFormat::Unknown;
 		bool m_isDynamic = false;
 	};
 

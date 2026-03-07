@@ -59,6 +59,7 @@ namespace rendercore
 		StaticMeshLODResource& LODResource( uint32 index ) { return m_lodResources[index]; };
 		const StaticMeshLODResource& LODResource( uint32 index ) const { return m_lodResources[index]; };
 		uint32 LODSize() const { return static_cast<uint32>( m_lodResources.size() ); }
+		RefHandle<agl::BLAS> GetBLAS() const;
 
 		void CreateRenderResource();
 
@@ -70,6 +71,7 @@ namespace rendercore
 
 	private:
 		std::vector<StaticMeshLODResource> m_lodResources;
+		RefHandle<agl::BLAS> m_blas;
 
 		bool m_initialized = false;
 	};

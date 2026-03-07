@@ -65,6 +65,7 @@ set (D3D11_UTILITY
 	Public/D3D11/D3D11FlagConvertor.h)
 
 set (D3D12_RENDER_RESOURCE_HEADER
+    Public/D3D12/D3D12AccelerationStructure.h
 	Public/D3D12/D3D12BarrierBatcher.h
 	Public/D3D12/D3D12BindlessManager.h
 	Public/D3D12/D3D12BlendState.h
@@ -92,6 +93,7 @@ set (D3D12_RENDER_RESOURCE_HEADER
 	Public/D3D12/D3D12Viewport.h)
 
 set (D3D12_RENDER_RESOURCE_SOURCE
+    Private/D3D12/D3D12AccelerationStructure.cpp
 	Private/D3D12/D3D12BarrierBatcher.cpp
 	Private/D3D12/D3D12BindlessManager.cpp
 	Private/D3D12/D3D12BlendState.cpp
@@ -137,6 +139,7 @@ set (DXGI_SOURCE
 	Public/DXGI/DxgiSwapchain.h)
 
 set (RENDER_RESOURCE_HEADER
+    Public/RenderResource/AccelerationStructure.h
 	Public/RenderResource/Buffer.h
 	Public/RenderResource/Canvas.h
 	Public/RenderResource/GlobalConstantBuffers.h
@@ -151,6 +154,7 @@ set (RENDER_RESOURCE_HEADER
 	Public/RenderResource/Viewport.h)
 
 set (RENDER_RESOURCE_SOURCE
+    Private/RenderResource/AccelerationStructure.cpp
 	Private/RenderResource/Buffer.cpp
 	Private/RenderResource/Canvas.cpp
 	Private/RenderResource/GlobalConstantBuffers.cpp

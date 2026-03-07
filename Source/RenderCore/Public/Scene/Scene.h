@@ -4,6 +4,7 @@
 #include "IScene.h"
 #include "LightSceneInfo.h"
 #include "PassProcessor.h"
+#include "RaytracingScene.h"
 #include "SceneConstantBuffers.h"
 #include "SceneVelocityData.h"
 #include "ShadingSnapshot.h"
@@ -98,6 +99,11 @@ namespace rendercore
 			return this; 
 		};
 
+		virtual RaytracingScene* GetRaytracingScene() override
+		{
+			return &m_raytracingScene;
+		}
+
 		virtual void OnBeginSceneRendering() override;
 
 		virtual uint64 GetNumFrame() const override
@@ -181,6 +187,7 @@ namespace rendercore
 		void RemoveSkyAtmosphereLight( LightSceneInfo* lightSceneInfo );
 
 		logic::World* m_world = nullptr;
+		RaytracingScene m_raytracingScene;
 
 		SparseArray<PrimitiveSceneInfo*> m_primitives;
 		SparseArray<BoxSphereBounds> m_primitiveBounds;

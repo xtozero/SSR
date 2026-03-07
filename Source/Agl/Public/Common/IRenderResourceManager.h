@@ -8,6 +8,7 @@
 namespace agl
 {
 	class AmplificationShader;
+	class BLAS;
 	class BlendState;
 	class Buffer;
 	class Canvas;
@@ -27,10 +28,14 @@ namespace agl
 	class SamplerState;
 	class Shader;
 	class ShaderParameterInfo;
+	class TLAS;
 	class Texture;
 	class VertexLayout;
 	class VertexShader;
 	class Viewport;
+
+	struct BLASDesc;
+	struct TLASDesc;
 
 	class IResourceManager
 	{
@@ -76,6 +81,9 @@ namespace agl
 		virtual BinaryChunk SerializePSOLibraryCache() = 0;
 
 		virtual void PostReloadShaders() = 0;
+
+		virtual BLAS* CreateBLAS( const BLASDesc& desc, const char* debugName ) const = 0;
+		virtual TLAS* CreateTLAS( const TLASDesc& desc, const char* debugName ) const = 0;
 
 		virtual ~IResourceManager() = default;
 	};

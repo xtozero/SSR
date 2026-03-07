@@ -129,6 +129,8 @@ namespace rendercore
 
 	void ResourceBinder::Bind( const ShaderBase* (&shaders)[agl::NumShaderTypes<uint32>], agl::ShaderBindings& outBindings ) const
 	{
+		CPU_PROFILE( ResourceBinder_Bind );
+
 		for ( uint32 shaderType = 0; shaderType < agl::NumShaderTypes<uint32>; ++shaderType )
 		{
 			if ( shaders[shaderType] == nullptr )
@@ -321,6 +323,11 @@ namespace rendercore
 		if ( gpuPrimitiveInfo.Resource() )
 		{
 			commandList.AddTransition( Transition( *gpuPrimitiveInfo.Resource(), agl::ResourceState::GenericRead ) );
+		}
+
+		if ( RaytracingScene* raytracingScene = scene.GetRaytracingScene() )
+		{
+			raytracingScene->Build( renderGraph );
 		}
 
 		CalcVisibility( renderViewGroup );
@@ -1614,12 +1621,14 @@ namespace rendercore
 					[this, &snapshots, &primitives]( CommandList& commandList )
 					{
 						// Update invalidated resources
-						for ( auto& viewDrawSnapshot : snapshots )
+						for ( size_t i = 0; i < snapshots.size(); )
 						{
-							DrawSnapshot& snapshot = *viewDrawSnapshot.m_drawSnapshot;
+							DrawSnapshot& snapshot = *snapshots[i].m_drawSnapshot;
 							GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 
 							m_resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+							i += snapshots[i].m_numInstance;
 						}
 
 						VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc( static_cast<uint32>( snapshots.size() * sizeof( uint32 ) ) );
@@ -1643,6 +1652,7 @@ namespace rendercore
 
 							SetShaderValue( commandList, HitProxyIdShaderParam, hitProxyId.GetColor().ToColorF() );
 							CommitDrawSnapshot( commandList, snapshots[i], primitiveIds );
+
 							i += snapshots[i].m_numInstance;
 						}
 					} );

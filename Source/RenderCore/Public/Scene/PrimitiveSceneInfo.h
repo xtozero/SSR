@@ -7,7 +7,6 @@
 #include "SizedTypes.h"
 #include "SparseArray.h"
 
-#include <cstddef>
 #include <optional>
 #include <vector>
 
@@ -21,6 +20,7 @@ namespace rendercore
 	class DrawSnapshot;
 	class LightSceneInfo;
 	class PrimitiveProxy;
+	class RaytracingScene;
 	class ShadingSnapshot;
 
 	class PrimitiveSubMeshInfo final
@@ -70,7 +70,9 @@ namespace rendercore
 		uint32 PrimitiveId() const;
 
 		void AddToScene();
+		void AddToRaytracingScene( RaytracingScene& raytracingScene );
 		void RemoveFromScene();
+		void RemoveFromRaytracingScene( RaytracingScene& raytracingScene );
 
 		PrimitiveSubMesh& AddSubMesh();
 
@@ -95,6 +97,7 @@ namespace rendercore
 	private:
 		friend void Scene::PreReloadShaders();
 		friend void Scene::PostReloadShaders();
+		friend RaytracingScene;
 
 		void CacheDrawSnapshot();
 		void RemoveCachedDrawSnapshot();
@@ -108,6 +111,7 @@ namespace rendercore
 		RefHandle<HitProxy> m_hitProxy;
 
 		uint32 m_primitiveId = 0;
+		uint32 m_rayTracingInstanceId = RaytracingScene::InvalidInstanceId;
 
 		std::vector<PrimitiveSubMeshInfo> m_subMeshInfos;
 		std::vector<PrimitiveSubMesh> m_subMeshs;

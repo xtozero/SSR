@@ -500,6 +500,13 @@ namespace agl
 		OnCommandRecorded();
 	}
 
+	void D3D12ComputeCommandListImpl::BuildRaytracingAccelerationStructure( const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& desc )
+	{
+		CommandList().BuildRaytracingAccelerationStructure( &desc, 0, nullptr );
+
+		OnCommandRecorded();
+	}
+
 	void D3D12ComputeCommandListImpl::OnCommited()
 	{
 		D3D12CopyCommandListImpl::OnCommited();
@@ -943,6 +950,11 @@ namespace agl
 		m_impl.Signal( fence, fenceValue );
 	}
 
+	void D3D12CommandList::BuildRaytracingAccelerationStructure( const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& desc )
+	{
+		m_impl.BuildRaytracingAccelerationStructure( desc );
+	}
+
 	void D3D12CommandList::Initialize()
 	{
 		m_impl.Initialize();
@@ -1141,6 +1153,11 @@ namespace agl
 	void D3D12ParallelCommandList::Signal( ID3D12Fence* fence, uint64 fenceValue )
 	{
 		m_impl.Signal( fence, fenceValue );
+	}
+
+	void D3D12ParallelCommandList::BuildRaytracingAccelerationStructure( const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& desc )
+	{
+		m_impl.BuildRaytracingAccelerationStructure( desc );
 	}
 
 	void D3D12ParallelCommandList::Close()

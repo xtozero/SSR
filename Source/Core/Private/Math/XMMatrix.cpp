@@ -54,6 +54,11 @@ XMMatrix::XMMatrix( const Matrix3X3& matrix )
 	std::construct_at( reinterpret_cast<XMMATRIX*>( this ), XMLoadFloat3x3( &matrix ) );
 }
 
+XMMatrix::XMMatrix( const Matrix3X4& matrix )
+{
+	std::construct_at( reinterpret_cast<XMMATRIX*>( this ), XMLoadFloat3x4( &matrix ) );
+}
+
 XMMatrix operator+( const XMMatrix& lhs, const XMMatrix& rhs )
 {
 	XMMatrix ret;

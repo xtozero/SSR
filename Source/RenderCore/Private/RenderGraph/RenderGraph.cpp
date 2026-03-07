@@ -9,6 +9,8 @@ namespace rendercore
 {
 	void RenderGraph::Execute()
 	{
+		CPU_PROFILE( RenderGraph_Execute );
+
 		Compile();
 
 		for ( auto pass : m_passes )

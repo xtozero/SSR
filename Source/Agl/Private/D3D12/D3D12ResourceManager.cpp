@@ -22,6 +22,8 @@
 #include <cassert>
 #include <directx/d3dx12_pipeline_state_stream.h>
 
+#include "AccelerationStructure.h"
+
 namespace agl
 {
 	void D3D12ResourceManager::Shutdown()
@@ -275,6 +277,21 @@ namespace agl
 			std::unique_lock<std::shared_mutex> lock( m_d3d12ComputePipelineMutex );
 			m_d3d12ComputePipelineState.clear();
 		}
+	}
+
+	BLAS* D3D12ResourceManager::CreateBLAS( const BLASDesc& desc, const char* debugName ) const
+	{
+		if ( desc.m_vertexBuffer.Get() == nullptr )
+		{
+			return nullptr;
+		}
+
+		return new D3D12BLAS( desc, debugName );
+	}
+
+	TLAS* D3D12ResourceManager::CreateTLAS( const TLASDesc& desc, const char* debugName ) const
+	{
+		return new D3D12TLAS( desc, debugName );
 	}
 
 	ID3D12PipelineState* D3D12ResourceManager::FindOrCreate( const D3D12ComputePipelineState* pipelineState )

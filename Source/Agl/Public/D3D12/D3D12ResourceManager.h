@@ -65,6 +65,9 @@ namespace agl
 
 		virtual void PostReloadShaders() override;
 
+		virtual BLAS* CreateBLAS( const BLASDesc& desc, const char* debugName ) const override;
+		virtual TLAS* CreateTLAS( const TLASDesc& desc, const char* debugName ) const override;
+
 		ID3D12PipelineState* FindOrCreate( const D3D12ComputePipelineState* pipelineState );
 		ID3D12PipelineState* FindOrCreate( const D3D12GraphicsPipelineState* pipelineState, const DXGI_FORMAT( &rtvFormats )[8], DXGI_FORMAT dsvFormat );
 		ID3D12CommandSignature* FindOrCreate( IndirectCommandType type );

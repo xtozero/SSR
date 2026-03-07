@@ -40,6 +40,11 @@ namespace rendercore
 			return m_name;
 		}
 
+		agl::ResourceFormat GetFormat() const
+		{
+			return m_format;
+		}
+
 		uint32 Stride() const
 		{
 			return m_stride;

@@ -116,6 +116,7 @@ namespace rendercore
 					m_velocityData.UpdateTransform( GetNumFrame(), proxy->PrimitiveId(), param.m_worldTransform, proxy->WorldTransform() );
 
 					proxy->UpdateTransformAndBounds( param.m_worldTransform, param.m_worldBounds, param.m_localBounds );
+					m_raytracingScene.UpdateInstance( *proxy->m_primitiveSceneInfo );
 
 					AddPrimitiveToUpdate( proxy->PrimitiveId() );
 				} );
@@ -432,6 +433,7 @@ namespace rendercore
 		m_velocityData.UpdateTransform( GetNumFrame(), primitiveId, curTransform, curTransform );
 
 		primitiveSceneInfo->AddToScene();
+		primitiveSceneInfo->AddToRaytracingScene( m_raytracingScene );
 	}
 
 	void Scene::RemovePrimitiveSceneInfo( PrimitiveSceneInfo* primitiveSceneInfo )
@@ -447,6 +449,8 @@ namespace rendercore
 		m_velocityData.RemoveFromScene( primitiveId );
 
 		primitiveSceneInfo->RemoveFromScene();
+		primitiveSceneInfo->RemoveFromRaytracingScene( m_raytracingScene );
+
 		delete primitiveSceneInfo->Proxy();
 		delete primitiveSceneInfo;
 	}

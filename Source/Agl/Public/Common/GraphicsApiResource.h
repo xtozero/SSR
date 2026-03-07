@@ -126,6 +126,7 @@ namespace agl
 		Intermediate = 0x400,
 		WithoutViews = Intermediate,
 		Disposable = 0x800,
+		RaytracingAccelerationStructure = 0x1000,
 	};
 	ENUM_CLASS_FLAGS( ResourceMisc );
 

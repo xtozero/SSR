@@ -119,56 +119,53 @@ namespace
 				.ResourceMinLODClamp = 0
 			};
 		}
-		else
+		else if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::TextureCube ) )
 		{
-			if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::TextureCube ) )
+			assert( ( trait.m_depth % 6 == 0 ) && "texture cube's depth count must be multiples of 6" );
+			if ( trait.m_depth == 6 )
 			{
-				assert( ( trait.m_depth % 6 == 0 ) && "texture cube's depth count must be multiples of 6" );
-				if ( trait.m_depth == 6 )
-				{
-					srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-					srv.TextureCube = {
-						.MostDetailedMip = 0,
-						.MipLevels = trait.m_mipLevels,
-						.ResourceMinLODClamp = 0
-					};
-				}
-				else
-				{
-					srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
-					srv.TextureCubeArray = {
-						.MostDetailedMip = 0,
-						.MipLevels = trait.m_mipLevels,
-						.First2DArrayFace = 0,
-						.NumCubes = trait.m_depth / 6,
-						.ResourceMinLODClamp = 0
-					};
-				}
+				srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+				srv.TextureCube = {
+					.MostDetailedMip = 0,
+					.MipLevels = trait.m_mipLevels,
+					.ResourceMinLODClamp = 0
+				};
 			}
 			else
 			{
-				if ( trait.m_depth <= 1 )
-				{
-					srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-					srv.Texture2D = {
-						.MostDetailedMip = 0,
-						.MipLevels = trait.m_mipLevels,
-						.PlaneSlice = 0,
-						.ResourceMinLODClamp = 0
-					};
-				}
-				else
-				{
-					srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
-					srv.Texture2DArray = {
-						.MostDetailedMip = 0,
-						.MipLevels = trait.m_mipLevels,
-						.FirstArraySlice = 0,
-						.ArraySize = trait.m_depth,
-						.PlaneSlice = 0,
-						.ResourceMinLODClamp = 0
-					};
-				}
+				srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
+				srv.TextureCubeArray = {
+					.MostDetailedMip = 0,
+					.MipLevels = trait.m_mipLevels,
+					.First2DArrayFace = 0,
+					.NumCubes = trait.m_depth / 6,
+					.ResourceMinLODClamp = 0
+				};
+			}
+		}
+		else
+		{
+			if ( trait.m_depth <= 1 )
+			{
+				srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+				srv.Texture2D = {
+					.MostDetailedMip = 0,
+					.MipLevels = trait.m_mipLevels,
+					.PlaneSlice = 0,
+					.ResourceMinLODClamp = 0
+				};
+			}
+			else
+			{
+				srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+				srv.Texture2DArray = {
+					.MostDetailedMip = 0,
+					.MipLevels = trait.m_mipLevels,
+					.FirstArraySlice = 0,
+					.ArraySize = trait.m_depth,
+					.PlaneSlice = 0,
+					.ResourceMinLODClamp = 0
+				};
 			}
 		}
 

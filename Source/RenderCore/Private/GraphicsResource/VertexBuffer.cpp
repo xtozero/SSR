@@ -10,7 +10,7 @@ namespace rendercore
 	{
 		if ( newNumElement > m_numElement )
 		{
-			VertexBuffer newBuffer( m_elementSize, newNumElement, agl::ResourceState::CopyDest, nullptr, m_isDynamic );
+			VertexBuffer newBuffer( m_elementSize, newNumElement, m_format, agl::ResourceState::CopyDest, nullptr, m_isDynamic );
 
 			if ( copyPreviousData )
 			{
@@ -49,15 +49,16 @@ namespace rendercore
 		return m_buffer.Get();
 	}
 
-	VertexBuffer::VertexBuffer( uint32 elementSize, uint32 numElement, agl::ResourceState initialState, const void* initData, bool isDynamic )
+	VertexBuffer::VertexBuffer( uint32 elementSize, uint32 numElement, agl::ResourceFormat format, agl::ResourceState initialState, const void* initData, bool isDynamic )
 		: m_elementSize( elementSize )
 		, m_numElement( numElement )
+		, m_format( format )
 		, m_isDynamic( isDynamic )
 	{
-		InitResource( elementSize, numElement, initialState, initData );
+		InitResource( initialState, initData );
 	}
 
-	void VertexBuffer::InitResource( uint32 elementSize, uint32 numElement, agl::ResourceState initialState, const void* initData )
+	void VertexBuffer::InitResource( agl::ResourceState initialState, const void* initData )
 	{
 		agl::ResourceAccess resourceAccess = m_isDynamic
 			? agl::ResourceAccess::Upload 
@@ -72,12 +73,12 @@ namespace rendercore
 		}
 
 		agl::BufferTrait trait = {
-			.m_stride = elementSize,
-			.m_count = numElement,
+			.m_stride = m_elementSize,
+			.m_count = m_numElement,
 			.m_access = resourceAccess,
 			.m_bindType = bindType,
 			.m_miscFlag = miscFlag,
-			.m_format = agl::ResourceFormat::Unknown
+			.m_format = m_format
 		};
 
 		m_buffer = agl::Buffer::Create( trait, "Vertex", initialState, initData );

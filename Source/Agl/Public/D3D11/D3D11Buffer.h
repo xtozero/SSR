@@ -10,8 +10,12 @@ namespace agl
 	class D3D11Buffer final : public Buffer
 	{
 	public:
-		ID3D11Buffer* Resource();
+		virtual void CreateShaderResource() override;
+		virtual void CreateUnorderedAccess() override;
+
 		virtual void* Resource() const override;
+
+		ID3D11Buffer* Resource();
 
 		const D3D11_BUFFER_DESC& GetDesc() const;
 

@@ -87,12 +87,26 @@ namespace
 
 namespace agl
 {
-	ID3D11Buffer* D3D11Buffer::Resource()
+	void D3D11Buffer::CreateShaderResource()
+	{
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc, m_format );
+		m_srv = new D3D11ShaderResourceView( this, m_buffer, srvDesc );
+		m_srv->Init();
+	}
+
+	void D3D11Buffer::CreateUnorderedAccess()
+	{
+		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc, m_format );
+		m_uav = new D3D11UnorderedAccessView( this, m_buffer, uavDesc );
+		m_uav->Init();
+	}
+
+	void* D3D11Buffer::Resource() const
 	{
 		return m_buffer;
 	}
 
-	void* D3D11Buffer::Resource() const
+	ID3D11Buffer* D3D11Buffer::Resource()
 	{
 		return m_buffer;
 	}
@@ -154,16 +168,12 @@ namespace agl
 
 		if ( m_desc.BindFlags & D3D11_BIND_SHADER_RESOURCE )
 		{
-			D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc, m_format );
-			m_srv = new D3D11ShaderResourceView( this, m_buffer, srvDesc );
-			m_srv->Init();
+			CreateShaderResource();
 		}
 
 		if ( m_desc.BindFlags & D3D11_BIND_UNORDERED_ACCESS )
 		{
-			D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc, m_format );
-			m_uav = new D3D11UnorderedAccessView( this, m_buffer, uavDesc );
-			m_uav->Init();
+			CreateUnorderedAccess();
 		}
 	}
 

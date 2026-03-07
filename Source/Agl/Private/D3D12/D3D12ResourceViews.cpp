@@ -13,7 +13,9 @@ namespace agl
 	void D3D12ShaderResourceView::InitResource()
 	{
 		m_descriptorHeap = D3D12DescriptorHeapAllocator::GetInstance().AllocCpuDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1 );
-		D3D12Device().CreateShaderResourceView( m_d3d12Resource, &m_desc, m_descriptorHeap.GetCpuHandle().At() );
+
+		ID3D12Resource* resource = ( m_desc.ViewDimension == D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE ) ? nullptr : m_d3d12Resource;
+		D3D12Device().CreateShaderResourceView( resource, &m_desc, m_descriptorHeap.GetCpuHandle().At() );
 
 		m_bindlessHandle = D3D12BindlessMgr().AddResourceDescriptor( m_descriptorHeap.GetCpuHandle() );
 	}

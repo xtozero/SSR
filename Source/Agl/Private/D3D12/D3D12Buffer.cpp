@@ -76,26 +76,38 @@ namespace
 		return bufferSize / 4;
 	}
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertDescToSRV( const BufferTrait& trait, DXGI_FORMAT format )
+	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertDescToSRV( const BufferTrait& trait, DXGI_FORMAT format, ID3D12Resource& resource )
 	{
-		bool bStructured = HasAnyFlags( trait.m_miscFlag, ResourceMisc::BufferStructured );
-		bool bAllowRawViews = HasAnyFlags( trait.m_miscFlag, ResourceMisc::BufferAllowRawViews );
+		if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::RaytracingAccelerationStructure ) )
+		{
+			return D3D12_SHADER_RESOURCE_VIEW_DESC{
+				.Format = DXGI_FORMAT_UNKNOWN,
+				.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE,
+				.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+				.RaytracingAccelerationStructure = {
+					.Location = resource.GetGPUVirtualAddress()
+				}
+			};
+		}
+		else
+		{
+			bool bStructured = HasAnyFlags( trait.m_miscFlag, ResourceMisc::BufferStructured );
+			bool bAllowRawViews = HasAnyFlags( trait.m_miscFlag, ResourceMisc::BufferAllowRawViews );
 
-		DXGI_FORMAT actualFormat = bStructured ? DXGI_FORMAT_UNKNOWN : ( bAllowRawViews ? DXGI_FORMAT_R32_TYPELESS : format );
+			DXGI_FORMAT actualFormat = bStructured ? DXGI_FORMAT_UNKNOWN : ( bAllowRawViews ? DXGI_FORMAT_R32_TYPELESS : format );
 
-		D3D12_SHADER_RESOURCE_VIEW_DESC srv = {
-			.Format = actualFormat,
-			.ViewDimension = D3D12_SRV_DIMENSION_BUFFER,
-			.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
-			.Buffer = {
-				.FirstElement = 0,
-				.NumElements = bAllowRawViews ? NumRawViewElements( trait ) : trait.m_count,
-				.StructureByteStride = bStructured ? trait.m_stride : 0,
-				.Flags = bAllowRawViews ? D3D12_BUFFER_SRV_FLAG_RAW : D3D12_BUFFER_SRV_FLAG_NONE
-			}
-		};
-
-		return srv;
+			return D3D12_SHADER_RESOURCE_VIEW_DESC {
+				.Format = actualFormat,
+				.ViewDimension = D3D12_SRV_DIMENSION_BUFFER,
+				.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+				.Buffer = {
+					.FirstElement = 0,
+					.NumElements = bAllowRawViews ? NumRawViewElements( trait ) : trait.m_count,
+					.StructureByteStride = bStructured ? trait.m_stride : 0,
+					.Flags = bAllowRawViews ? D3D12_BUFFER_SRV_FLAG_RAW : D3D12_BUFFER_SRV_FLAG_NONE
+				}
+			};
+		}
 	}
 
 	D3D12_UNORDERED_ACCESS_VIEW_DESC ConvertDescToUAV( const BufferTrait& trait, DXGI_FORMAT format )
@@ -123,12 +135,26 @@ namespace
 
 namespace agl
 {
-	ID3D12Resource* D3D12Buffer::Resource()
+	void D3D12Buffer::CreateShaderResource()
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_trait, m_format, *Resource() );
+		m_srv = new D3D12ShaderResourceView( this, Resource(), srvDesc );
+		m_srv->Init();
+	}
+
+	void D3D12Buffer::CreateUnorderedAccess()
+	{
+		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_trait, m_format );
+		m_uav = new D3D12UnorderedAccessView( this, Resource(), uavDesc );
+		m_uav->Init();
+	}
+
+	void* D3D12Buffer::Resource() const
 	{
 		return m_resourceInfo.GetResource();
 	}
 
-	void* D3D12Buffer::Resource() const
+	ID3D12Resource* D3D12Buffer::Resource()
 	{
 		return m_resourceInfo.GetResource();
 	}
@@ -141,6 +167,11 @@ namespace agl
 	const D3D12_RESOURCE_DESC& D3D12Buffer::Desc() const
 	{
 		return m_desc;
+	}
+
+	DXGI_FORMAT D3D12Buffer::GetFormat() const
+	{
+		return m_format;
 	}
 
 	LockedResource D3D12Buffer::Lock( uint32 subResource, ResourceLockFlag lockFlag )
@@ -272,16 +303,12 @@ namespace agl
 
 		if ( HasAnyFlags( m_trait.m_bindType, ResourceBindType::ShaderResource ) )
 		{
-			D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_trait, m_format );
-			m_srv = new D3D12ShaderResourceView( this, Resource(), srvDesc );
-			m_srv->Init();
+			CreateShaderResource();
 		}
 
 		if ( HasAnyFlags( m_trait.m_bindType, ResourceBindType::RandomAccess ) )
 		{
-			D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_trait, m_format );
-			m_uav = new D3D12UnorderedAccessView( this, Resource(), uavDesc );
-			m_uav->Init();
+			CreateUnorderedAccess();
 		}
 	}
 

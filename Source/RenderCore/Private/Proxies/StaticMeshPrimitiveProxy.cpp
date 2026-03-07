@@ -185,4 +185,16 @@ namespace rendercore
 
 		return info;
 	}
+
+	void StaticMeshPrimitiveProxy::AddToRaytracingScene( RaytracingScene& raytracingScene )
+	{
+		PrimitiveProxy::AddToRaytracingScene( raytracingScene );
+
+		if ( m_primitiveSceneInfo == nullptr )
+		{
+			return;
+		}
+
+		raytracingScene.AddInstance( *m_primitiveSceneInfo, m_pRenderData->GetBLAS() );
+	}
 }

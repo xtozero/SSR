@@ -4,6 +4,7 @@
 
 struct Matrix;
 struct Matrix3X3;
+struct Matrix3X4;
 struct XMVector;
 struct Vector;
 
@@ -23,6 +24,7 @@ public:
 	explicit XMMatrix( const DirectX::XMMATRIX& matrix );
 	XMMatrix( const Matrix& matrix );
 	XMMatrix( const Matrix3X3& matrix );
+	XMMatrix( const Matrix3X4& matrix );
 	XMMatrix() : DirectX::XMMATRIX{} {}
 
 	friend XMMatrix operator+( const XMMatrix& lhs, const XMMatrix& rhs );

@@ -12,6 +12,10 @@ namespace rendercore
 		return new logic::HitObject( component->GetOwner(), component );
 	}
 
+	void PrimitiveProxy::AddToRaytracingScene( [[maybe_unused]] RaytracingScene& raytracingScene )
+	{
+	}
+
 	bool PrimitiveProxy::CastShadow() const
 	{
 		return m_castShadow;

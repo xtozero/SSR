@@ -461,13 +461,17 @@ namespace rendercore
 				rasterOutput,
 				[this, &snapshots, primitiveIds]( CommandList& commandList ) mutable
 				{
+					CPU_PROFILE( RenderGraph_RenderDefaultPass );
+
 					// Update invalidated resources
-					for ( auto& viewDrawSnapshot : snapshots )
+					for ( size_t i = 0; i < snapshots.size(); )
 					{
-						DrawSnapshot& snapshot = *viewDrawSnapshot.m_drawSnapshot;
+						DrawSnapshot& snapshot = *snapshots[i].m_drawSnapshot;
 						GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 
 						m_resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+						i += snapshots[i].m_numInstance;
 					}
 
 					ParallelCommitDrawSnapshot( commandList, snapshots, primitiveIds );
@@ -539,12 +543,14 @@ namespace rendercore
 				[this, &snapshots, primitiveIds]( CommandList& commandList ) mutable
 				{
 					// Update invalidated resources
-					for ( auto& viewDrawSnapshot : snapshots )
+					for ( size_t i = 0; i < snapshots.size(); )
 					{
-						DrawSnapshot& snapshot = *viewDrawSnapshot.m_drawSnapshot;
+						DrawSnapshot& snapshot = *snapshots[i].m_drawSnapshot;
 						GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 
 						m_resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+						i += snapshots[i].m_numInstance;
 					}
 
 					ParallelCommitDrawSnapshot( commandList, snapshots, primitiveIds );
@@ -595,13 +601,17 @@ namespace rendercore
 				rasterOutput,
 				[this, &snapshots, primitiveIds]( CommandList& commandList ) mutable
 				{
+					CPU_PROFILE( RenderGraph_RenderDepthPass );
+
 					// Update invalidated resources
-					for ( auto& viewDrawSnapshot : snapshots )
+					for ( size_t i = 0; i < snapshots.size(); )
 					{
-						DrawSnapshot& snapshot = *viewDrawSnapshot.m_drawSnapshot;
+						DrawSnapshot& snapshot = *snapshots[i].m_drawSnapshot;
 						GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
 
 						m_resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+						i += snapshots[i].m_numInstance;
 					}
 
 					ParallelCommitDrawSnapshot( commandList, snapshots, primitiveIds );
@@ -638,6 +648,8 @@ namespace rendercore
 			rasterOutput,
 			[this, viewIndex]( CommandList& commandList )
 			{
+				CPU_PROFILE( RenderGraph_RenderOcclusionTest );
+
 				DoRenderOcclusionTest( commandList, m_resourceBinder, m_viewInfo[viewIndex], m_occlusionRenderData );
 			} );
 	}
@@ -723,18 +735,23 @@ namespace rendercore
 			passResource,
 			[this, passResource, visibilityPassData]( ComputeCommandList& commandList )
 			{
+				CPU_PROFILE( RenderGraph_VisibilityShading );
+
+				m_resourceBinder.Add( StaticName( "Visibility" ), passResource.m_visibility->SRV() );
+				m_resourceBinder.Add( StaticName( "Counter" ), passResource.m_counter->SRV() );
+				m_resourceBinder.Add( StaticName( "Offset" ), passResource.m_offset->SRV() );
+				m_resourceBinder.Add( StaticName( "WorkList" ), passResource.m_workList->SRV() );
+				m_resourceBinder.Add( StaticName( "SceneColor" ), passResource.m_sceneColor->SRV() );
+				m_resourceBinder.Add( StaticName( "PrimitiveIds" ), passResource.m_primitiveIds->SRV() );
+
+				uint32 width = passResource.m_visibility->GetTrait().m_width;
+				uint32 height = passResource.m_visibility->GetTrait().m_height;
+
 				const RenderFrameArray<VisibleShadingSnapshot>& shadingSnapshots = visibilityPassData.m_shadingSnapshots;
 				for ( size_t i = 0; i < shadingSnapshots.size(); ++i )
 				{
 					const ShadingSnapshot& shadingSnapshot = *shadingSnapshots[i].m_shadingSnapshot;
 					commandList.BindPipelineState( shadingSnapshot.m_pso.Get() );
-
-					m_resourceBinder.Add( StaticName( "Visibility" ), passResource.m_visibility->SRV() );
-					m_resourceBinder.Add( StaticName( "Counter" ), passResource.m_counter->SRV() );
-					m_resourceBinder.Add( StaticName( "Offset" ), passResource.m_offset->SRV() );
-					m_resourceBinder.Add( StaticName( "WorkList" ), passResource.m_workList->SRV() );
-					m_resourceBinder.Add( StaticName( "SceneColor" ), passResource.m_sceneColor->SRV() );
-					m_resourceBinder.Add( StaticName( "PrimitiveIds" ), passResource.m_primitiveIds->SRV() );
 
 					agl::ShaderBindings shaderBindings = shadingSnapshot.m_shaderBindings;
 					m_resourceBinder.Bind( shadingSnapshot.m_computeShader, shaderBindings );
@@ -746,9 +763,6 @@ namespace rendercore
 
 					auto drawCallId = static_cast<uint32>( i + 1 );
 					SetShaderValue( commandList, drawCallIdParam, drawCallId );
-
-					uint32 width = passResource.m_visibility->GetTrait().m_width;
-					uint32 height = passResource.m_visibility->GetTrait().m_height;
 
 					uint32 screenSize[2] = {
 						width,

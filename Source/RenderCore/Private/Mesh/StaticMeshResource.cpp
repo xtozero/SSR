@@ -1,5 +1,6 @@
 #include "Mesh/StaticMeshResource.h"
 
+#include "AccelerationStructure.h"
 #include "Archive.h"
 #include "ArchiveUtility.h"
 #include "TaskScheduler.h"
@@ -67,6 +68,11 @@ namespace rendercore
 		assert( IsInRenderThread() );
 	}
 
+	RefHandle<agl::BLAS> StaticMeshRenderData::GetBLAS() const
+	{
+		return m_blas;
+	}
+
 	void StaticMeshRenderData::CreateRenderResource()
 	{
 		if ( Initialized() )
@@ -97,6 +103,29 @@ namespace rendercore
 					auto numMeshletElement = static_cast<uint32>( section.m_meshlets.size() );
 					std::construct_at( &section.m_meshletBuffer, numMeshletElement, section.m_meshlets.data() );
 				}
+			}
+		}
+
+		if ( m_lodResources.empty() == false )
+		{
+			StaticMeshLODResource& lodResource = m_lodResources[0];
+
+			VertexBuffer* vertexBuffer = lodResource.m_vertexCollection.GetVertexBuffer( StaticName( "POSITION" ) );
+			assert( vertexBuffer );
+
+			if ( GetInterface<agl::IAgl>()->SupportsHardwareRayTracing() )
+			{
+				agl::BLASDesc desc = {
+					.m_vertexBuffer = vertexBuffer->Resource(),
+					.m_indexBuffer = lodResource.m_ib.Resource()
+				};
+
+				m_blas = agl::BLAS::Create( desc, "StaticMesh.BLAS" );
+				EnqueueRenderTask(
+					[blas = m_blas]()
+					{
+						blas->Init();
+					} );
 			}
 		}
 
