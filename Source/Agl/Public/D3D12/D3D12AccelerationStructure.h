@@ -24,6 +24,8 @@ namespace agl
     class D3D12TLAS : public TLAS
     {
     public:
+        virtual Buffer* Resource() const override;
+
         D3D12TLAS( const TLASDesc& desc, const char* debugName );
 
     private:

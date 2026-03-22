@@ -18,6 +18,7 @@ namespace agl
 	class GeometryShader;
 	class GraphicsPipelineState;
 	class PixelShader;
+	class RaytracingPipelineState;
 	class RenderTargetView;
 	class SamplerState;
 	class ShaderBindings;
@@ -72,6 +73,7 @@ namespace agl
 		virtual void SetShaderValue( const ShaderParameter& parameter, const void* value ) = 0;
 
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) = 0;
+		virtual void DispatchRays( RaytracingPipelineState* pipelineState, ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth ) = 0;
 
 		virtual void ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset = 0 ) = 0;
 	};

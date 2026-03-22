@@ -17,28 +17,20 @@ namespace agl
 		{
 		case agl::ShaderType::Vertex:
 			return D3D12_SHADER_VISIBILITY_VERTEX;
-			break;
 		case agl::ShaderType::Hull:
 			return D3D12_SHADER_VISIBILITY_HULL;
-			break;
 		case agl::ShaderType::Domain:
 			return D3D12_SHADER_VISIBILITY_DOMAIN;
-			break;
 		case agl::ShaderType::Geometry:
 			return D3D12_SHADER_VISIBILITY_GEOMETRY;
-			break;
 		case agl::ShaderType::Pixel:
 			return D3D12_SHADER_VISIBILITY_PIXEL;
-			break;
 		case agl::ShaderType::Compute:
 			return D3D12_SHADER_VISIBILITY_ALL;
-			break;
 		case agl::ShaderType::Mesh:
 			return D3D12_SHADER_VISIBILITY_MESH;
-			break;
 		case agl::ShaderType::Amplification:
 			return D3D12_SHADER_VISIBILITY_AMPLIFICATION;
-			break;
 		default:
 			break;
 		}
@@ -47,13 +39,19 @@ namespace agl
 		return D3D12_SHADER_VISIBILITY_ALL;
 	}
 
-	ResourceStatistics SurveyShader( const Shader& shader )
+	ResourceStatistics SurveyShaderParamInfo( const ShaderParameterInfo& paramInfo )
 	{
-		const ShaderParameterInfo& paramInfo = shader.GetParameterInfo();
 		return { static_cast<uint32>( paramInfo.m_srvs.size() )
 			, static_cast<uint32>( paramInfo.m_uavs.size() )
 			, static_cast<uint32>( paramInfo.m_constantBuffers.size() )
-			, static_cast<uint32>( paramInfo.m_samplers.size() ) };
+			, static_cast<uint32>( paramInfo.m_samplers.size() )
+			, static_cast<uint32>( paramInfo.m_bindless.size() ) };
+	}
+
+	ResourceStatistics SurveyShader( const Shader& shader )
+	{
+		const ShaderParameterInfo& paramInfo = shader.GetParameterInfo();
+		return SurveyShaderParamInfo( paramInfo );
 	}
 
 	ResourceStatistics SurveyPipeline( const GraphicsPipelineStateInitializer& initializer )
@@ -111,76 +109,63 @@ namespace agl
 
 	D3D12RootSignature::D3D12RootSignature( const GraphicsPipelineStateInitializer& initializer )
 	{
-		InlineShaderArray shaders;
+		ShaderParameterInfoArray paramInfoArray;
 
 		if ( initializer.m_vertexShader )
 		{
-			shaders.emplace_back( ShaderType::Vertex, static_cast<D3D12VertexShader*>( initializer.m_vertexShader ) );
+			paramInfoArray.emplace_back( ShaderType::Vertex, &initializer.m_vertexShader->GetParameterInfo() );
 		}
 
 		if ( initializer.m_geometryShader )
 		{
-			shaders.emplace_back( ShaderType::Geometry, static_cast<D3D12GeometryShader*>( initializer.m_geometryShader ) );
+			paramInfoArray.emplace_back( ShaderType::Geometry, &initializer.m_geometryShader->GetParameterInfo() );
 		}
 
 		if ( initializer.m_piexlShader )
 		{
-			shaders.emplace_back( ShaderType::Pixel, static_cast<D3D12PixelShader*>( initializer.m_piexlShader ) );
+			paramInfoArray.emplace_back( ShaderType::Pixel, &initializer.m_piexlShader->GetParameterInfo() );
 		}
 
 		if ( initializer.m_meshShader )
 		{
-			shaders.emplace_back( ShaderType::Mesh, static_cast<D3D12MeshShader*>( initializer.m_meshShader ) );
+			paramInfoArray.emplace_back( ShaderType::Mesh, &initializer.m_meshShader->GetParameterInfo() );
 		}
 
 		if ( initializer.m_amplificationShader )
 		{
-			shaders.emplace_back( ShaderType::Amplification, static_cast<D3D12AmplificationShader*>( initializer.m_amplificationShader ) );
-		}
-
-		bool hasBindless = false;
-		for ( const auto& [type, shader] : shaders )
-		{
-			const ShaderParameterInfo& paramInfo = shader->GetParameterInfo();
-			if ( paramInfo.m_bindless.size() > 0 )
-			{
-				hasBindless = true;
-				break;
-			}
+			paramInfoArray.emplace_back( ShaderType::Amplification, &initializer.m_amplificationShader->GetParameterInfo() );
 		}
 
 		ResourceStatistics statistics = SurveyPipeline( initializer );
-		m_parameters.reserve( hasBindless ? ( statistics.Total() + 2 ) : statistics.NumResourceCategory() );
-		m_descritorRange.reserve( statistics.Total() + ( hasBindless ? 5 : 0 ) );
+
+		bool hasBindless = statistics.NumBindless() > 0;
+		m_parameters.reserve( hasBindless ? ( statistics.TotalBinding() + 2 ) : statistics.NumResourceCategory() );
+		m_descritorRange.reserve( statistics.TotalBinding() + ( hasBindless ? 5 : 0 ) );
 
 		if ( hasBindless )
 		{
-			InitializeForBindless( shaders );
+			InitializeForBindless( paramInfoArray );
 		}
 		else
 		{
-			for ( const auto& [type, shader] : shaders )
+			for ( const auto& [type, paramInfo] : paramInfoArray )
 			{
-				const ShaderParameterInfo& paramInfo = shader->GetParameterInfo();
-				InitializeSRV( type, paramInfo );
+				InitializeSRV( type, *paramInfo );
 			}
 
-			for ( const auto& [type, shader] : shaders )
+			for ( const auto& [type, paramInfo] : paramInfoArray )
 			{
-				const ShaderParameterInfo& paramInfo = shader->GetParameterInfo();
-				InitializeUAV( type, paramInfo );
+				InitializeUAV( type, *paramInfo );
 			}
 
-			for ( const auto& [type, shader] : shaders )
+			for ( const auto& [type, paramInfo] : paramInfoArray )
 			{
-				const ShaderParameterInfo& paramInfo = shader->GetParameterInfo();
-				InitializeCB( type, paramInfo );
+				InitializeCB( type, *paramInfo );
 			}
 
-			for ( const auto& [type, shader] : shaders )
+			for ( const auto& [type, paramInfo] : paramInfoArray )
 			{
-				const ShaderParameterInfo& paramInfo = shader->GetParameterInfo();
-				InitializeSampler( type, paramInfo );
+				InitializeSampler( type, *paramInfo );
 			}
 		}
 
@@ -199,19 +184,19 @@ namespace agl
 			return;
 		}
 
-		const ShaderParameterInfo& paramInfo = computeShader->GetParameterInfo();
-		bool hasBindless = paramInfo.m_bindless.size() > 0;
-
 		ResourceStatistics statistics = SurveyPipeline( initializer );
-		m_parameters.reserve( hasBindless ? ( statistics.Total() + 2 ) : statistics.NumResourceCategory() );
-		m_descritorRange.reserve( statistics.Total() + ( hasBindless ? 5 : 0 ) );
 
+		bool hasBindless = statistics.NumBindless() > 0;
+		m_parameters.reserve( hasBindless ? ( statistics.TotalBinding() + 2 ) : statistics.NumResourceCategory() );
+		m_descritorRange.reserve( statistics.TotalBinding() + ( hasBindless ? 5 : 0 ) );
+
+		const ShaderParameterInfo& paramInfo = computeShader->GetParameterInfo();
 		if ( hasBindless )
 		{
-			InlineShaderArray shaders;
-			shaders.emplace_back( ShaderType::Compute, computeShader );
+			ShaderParameterInfoArray paramInfoArray;
+			paramInfoArray.emplace_back( ShaderType::Compute, &paramInfo );
 
-			InitializeForBindless( shaders );
+			InitializeForBindless( paramInfoArray );
 		}
 		else
 		{
@@ -219,6 +204,37 @@ namespace agl
 			InitializeUAV( ShaderType::Compute, paramInfo );
 			InitializeCB( ShaderType::Compute, paramInfo );
 			InitializeSampler( ShaderType::Compute, paramInfo );
+		}
+
+		m_desc.NumParameters = static_cast<uint32>( m_parameters.size() );
+		m_desc.pParameters = m_parameters.data();
+		m_desc.NumStaticSamplers = 0;
+		m_desc.pStaticSamplers = nullptr;
+		m_desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
+	}
+
+	D3D12RootSignature::D3D12RootSignature( const D3D12RaytracingShaderTable& shaderTable )
+	{
+		const ShaderParameterInfo& paramInfo = shaderTable.GetParameterInfo();
+		ResourceStatistics statistics = SurveyShaderParamInfo( paramInfo );
+
+		bool hasBindless = statistics.NumBindless() > 0;
+		m_parameters.reserve( hasBindless ? ( statistics.TotalBinding() + 2 ) : statistics.NumResourceCategory() );
+		m_descritorRange.reserve( statistics.TotalBinding() + ( hasBindless ? 5 : 0 ) );
+
+		if ( hasBindless )
+		{
+			ShaderParameterInfoArray paramInfoArray;
+			paramInfoArray.emplace_back( ShaderType::RayTracing, &paramInfo );
+
+			InitializeForBindless( paramInfoArray );
+		}
+		else
+		{
+			InitializeSRV( ShaderType::RayTracing, paramInfo );
+			InitializeUAV( ShaderType::RayTracing, paramInfo );
+			InitializeCB( ShaderType::RayTracing, paramInfo );
+			InitializeSampler( ShaderType::RayTracing, paramInfo );
 		}
 
 		m_desc.NumParameters = static_cast<uint32>( m_parameters.size() );
@@ -369,7 +385,7 @@ namespace agl
 		param.DescriptorTable.pDescriptorRanges = &m_descritorRange[rangeBase];
 	}
 
-	void D3D12RootSignature::InitializeForBindless( InlineShaderArray& shaders )
+	void D3D12RootSignature::InitializeForBindless( ShaderParameterInfoArray& paramInfoArray )
 	{
 		{
 			constexpr int32 MaxStandardSrvCount = 4;
@@ -409,10 +425,9 @@ namespace agl
 			param.DescriptorTable.pDescriptorRanges = &range;
 		}
 
-		for ( auto& [type, shader] : shaders )
+		for ( auto& [type, paramInfo] : paramInfoArray )
 		{
-			const ShaderParameterInfo& paramInfo = shader->GetParameterInfo();
-			for ( const ShaderParameter& shaderParam : paramInfo.m_srvs )
+			for ( const ShaderParameter& shaderParam : paramInfo->m_srvs )
 			{
 				if ( shaderParam.m_space >= 100 ) // Skip bindless
 				{
@@ -435,7 +450,7 @@ namespace agl
 				param.DescriptorTable.pDescriptorRanges = &range;
 			}
 
-			for ( const ShaderParameter& shaderParam : paramInfo.m_uavs )
+			for ( const ShaderParameter& shaderParam : paramInfo->m_uavs )
 			{
 				D3D12_DESCRIPTOR_RANGE& range = m_descritorRange.emplace_back();
 
@@ -453,7 +468,7 @@ namespace agl
 				param.DescriptorTable.pDescriptorRanges = &range;
 			}
 
-			for ( const ShaderParameter& shaderParam : paramInfo.m_constantBuffers )
+			for ( const ShaderParameter& shaderParam : paramInfo->m_constantBuffers )
 			{
 				D3D12_DESCRIPTOR_RANGE& range = m_descritorRange.emplace_back();
 
@@ -471,7 +486,7 @@ namespace agl
 				param.DescriptorTable.pDescriptorRanges = &range;
 			}
 
-			for ( const ShaderParameter& shaderParam : paramInfo.m_samplers )
+			for ( const ShaderParameter& shaderParam : paramInfo->m_samplers )
 			{
 				if ( shaderParam.m_space == 100 ) // Skip bindless
 				{

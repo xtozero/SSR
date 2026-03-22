@@ -9,6 +9,7 @@
 namespace agl
 {
 	class ComputePipelineStateInitializer;
+	class D3D12RaytracingShaderTable;
 	class GraphicsPipelineStateInitializer;
 	class Shader;
 	class ShaderParameterInfo;
@@ -36,7 +37,12 @@ namespace agl
 			return m_numSampler;
 		}
 
-		uint32 Total() const
+		uint32 NumBindless() const
+		{
+			return m_numBindless;
+		}
+
+		uint32 TotalBinding() const
 		{
 			return NumSRV() + NumUAV() + NumCB() + NumSampler();
 		}
@@ -65,11 +71,12 @@ namespace agl
 		}
 
 		ResourceStatistics() = default;
-		ResourceStatistics( uint32 numSRV, uint32 numUAV, uint32 numCB, uint32 numSampler ) noexcept
+		ResourceStatistics( uint32 numSRV, uint32 numUAV, uint32 numCB, uint32 numSampler, uint32 hasBindless ) noexcept
 			: m_numSRV( numSRV )
 			, m_numUAV( numUAV )
 			, m_numCB( numCB )
 			, m_numSampler( numSampler )
+			, m_numBindless( hasBindless )
 		{}
 
 		ResourceStatistics& operator+=( const ResourceStatistics& other )
@@ -78,6 +85,7 @@ namespace agl
 			m_numUAV += other.m_numUAV;
 			m_numCB += other.m_numCB;
 			m_numSampler += other.m_numSampler;
+			m_numBindless += other.m_numBindless;
 
 			return *this;
 		}
@@ -87,6 +95,7 @@ namespace agl
 		uint32 m_numUAV = 0;
 		uint32 m_numCB = 0;
 		uint32 m_numSampler = 0;
+		uint32 m_numBindless = false;
 	};
 
 	class D3D12RootSignature final : public GraphicsApiResource
@@ -96,6 +105,7 @@ namespace agl
 
 		explicit D3D12RootSignature( const GraphicsPipelineStateInitializer& initializer );
 		explicit D3D12RootSignature( const ComputePipelineStateInitializer& initializer );
+		explicit D3D12RootSignature( const D3D12RaytracingShaderTable& shaderTable );
 
 	private:
 		virtual void InitResource() override;
@@ -106,8 +116,8 @@ namespace agl
 		void InitializeCB( ShaderType shaderType, const ShaderParameterInfo& paramInfo );
 		void InitializeSampler( ShaderType shaderType, const ShaderParameterInfo& paramInfo );
 
-		using InlineShaderArray = std::vector<std::pair<ShaderType, Shader*>, InlineAllocator<std::pair<ShaderType, Shader*>, NumShaderTypes<uint32>>>;
-		void InitializeForBindless( InlineShaderArray& shaders );
+		using ShaderParameterInfoArray = std::vector<std::pair<ShaderType, const ShaderParameterInfo*>, InlineAllocator<std::pair<ShaderType, const ShaderParameterInfo*>, NumShaderTypes<uint32>>>;
+		void InitializeForBindless( ShaderParameterInfoArray& paramInfoArray );
 
 		ID3D12RootSignature* m_rootSignature = nullptr;
 		D3D12_ROOT_SIGNATURE_DESC m_desc = {};

@@ -1,7 +1,7 @@
 #include "PipelineStateCache.h"
 
 #include "IAgl.h"
-#include "IRenderResourceManager.h"
+#include "IResourceManager.h"
 
 #include <filesystem>
 

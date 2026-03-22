@@ -40,6 +40,7 @@ namespace rendercore
 		void SetShaderValue( const agl::ShaderParameter& parameter, const void* value ) const;
 
 		void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) const;
+		void DispatchRays( agl::RaytracingPipelineState* pipelineState, agl::ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth = 1 ) const;
 		void ExecuteIndirect( agl::IndirectCommandType type, agl::Buffer* argument, uint64 argumentOffset = 0 );
 
 		void AddTransition( const agl::ResourceTransition& transition ) const;

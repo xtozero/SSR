@@ -1,6 +1,6 @@
 #include "AccelerationStructure.h"
 
-#include "IRenderResourceManager.h"
+#include "IResourceManager.h"
 
 namespace agl
 {

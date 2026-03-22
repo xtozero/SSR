@@ -10,6 +10,7 @@
 #include "D3D12PipelineState.h"
 #include "D3D12Query.h"
 #include "D3D12RasterizerState.h"
+#include "D3D12RaytracingPipelineState.h"
 #include "D3D12SamplerState.h"
 #include "D3D12Shaders.h"
 #include "D3D12Texture.h"
@@ -114,34 +115,34 @@ namespace agl
 		return new D3D12AmplificationShader( byteCode, byteCodeSize, paramInfo );
 	}
 
-	RayGenerationShader* D3D12ResourceManager::CreateRayGenerationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	RayGenerationShader* D3D12ResourceManager::CreateRayGenerationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const
 	{
-		return new D3D12RayGenerationShader( byteCode, byteCodeSize, paramInfo );
+		return new D3D12RayGenerationShader( byteCode, byteCodeSize, paramInfo, exportName );
 	}
 
-	IntersectionShader* D3D12ResourceManager::CreateIntersectionShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	IntersectionShader* D3D12ResourceManager::CreateIntersectionShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const
 	{
-		return new D3D12IntersectionShader( byteCode, byteCodeSize, paramInfo );
+		return new D3D12IntersectionShader( byteCode, byteCodeSize, paramInfo, exportName );
 	}
 
-	AnyHitShader* D3D12ResourceManager::CreateAnyHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	AnyHitShader* D3D12ResourceManager::CreateAnyHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const
 	{
-		return new D3D12AnyHitShader( byteCode, byteCodeSize, paramInfo );
+		return new D3D12AnyHitShader( byteCode, byteCodeSize, paramInfo, exportName );
 	}
 
-	ClosestHitShader* D3D12ResourceManager::CreateClosestHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	ClosestHitShader* D3D12ResourceManager::CreateClosestHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const
 	{
-		return new D3D12ClosestHitShader( byteCode, byteCodeSize, paramInfo );
+		return new D3D12ClosestHitShader( byteCode, byteCodeSize, paramInfo, exportName );
 	}
 
-	MissShader* D3D12ResourceManager::CreateMissShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	MissShader* D3D12ResourceManager::CreateMissShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const
 	{
-		return new D3D12MissShader( byteCode, byteCodeSize, paramInfo );
+		return new D3D12MissShader( byteCode, byteCodeSize, paramInfo, exportName );
 	}
 
-	CallableShader* D3D12ResourceManager::CreateCallableShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	CallableShader* D3D12ResourceManager::CreateCallableShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const
 	{
-		return new D3D12CallableShader( byteCode, byteCodeSize, paramInfo );
+		return new D3D12CallableShader( byteCode, byteCodeSize, paramInfo, exportName );
 	}
 
 	BlendState* D3D12ResourceManager::CreateBlendState( const BlendStateTrait& trait ) const
@@ -294,6 +295,84 @@ namespace agl
 		return new D3D12TLAS( desc, debugName );
 	}
 
+	RaytracingPipelineState* D3D12ResourceManager::CreateRaytracingPipelineState( const RaytracingPipelineStateDesc& desc )
+	{
+		size_t pipelineStateHash = desc.GetHash();
+
+		{
+			std::shared_lock<std::shared_mutex> lock( m_d3d12RaytracingPipelineMutex );
+			auto found = m_d3d12RaytracingPipelineStates.find( pipelineStateHash );
+			if ( found != std::end( m_d3d12RaytracingPipelineStates ) )
+			{
+				return found->second.Get();
+			}
+		}
+
+		auto newPipelineState = new D3D12RaytracingPipelineState( desc );
+		EnqueueRenderTask(
+			[pipelineState = newPipelineState]()
+			{
+				pipelineState->Init();
+			} );
+
+		std::unique_lock<std::shared_mutex> lock( m_d3d12RaytracingPipelineMutex );
+		m_d3d12RaytracingPipelineStates.emplace( pipelineStateHash, newPipelineState );
+
+		return newPipelineState;
+	}
+
+	D3D12HitGroup* D3D12ResourceManager::CreateHitGroup( const HitGroupDesc& desc )
+	{
+		size_t hitGroupHash = desc.GetHash();
+
+		{
+			std::shared_lock<std::shared_mutex> lock( m_d3d12HitGroupMutex );
+			auto found = m_d3d12HitGroups.find( hitGroupHash );
+			if ( found != std::end( m_d3d12HitGroups ) )
+			{
+				return found->second.Get();
+			}
+		}
+
+		auto newHitGroup = new D3D12HitGroup( desc );
+		EnqueueRenderTask(
+			[hitGroup = newHitGroup]()
+			{
+				hitGroup->Init();
+			} );
+
+		std::unique_lock<std::shared_mutex> lock( m_d3d12HitGroupMutex );
+		m_d3d12HitGroups.emplace( hitGroupHash, newHitGroup );
+
+		return newHitGroup;
+	}
+
+	D3D12RaytracingShaderTable* D3D12ResourceManager::CreateRaytracingShaderTable( const RaytracingShaderTableDesc& desc )
+	{
+		size_t shaderTableHash = desc.GetHash();
+
+		{
+			std::shared_lock<std::shared_mutex> lock( m_d3d12ShaderTableMutex );
+			auto found = m_d3d12ShaderTables.find( shaderTableHash );
+			if ( found != std::end( m_d3d12ShaderTables ) )
+			{
+				return found->second.Get();
+			}
+		}
+
+		auto newShaderTable = new D3D12RaytracingShaderTable( desc );
+		EnqueueRenderTask(
+			[shaderTable = newShaderTable]()
+			{
+				shaderTable->Init();
+			} );
+
+		std::unique_lock<std::shared_mutex> lock( m_d3d12ShaderTableMutex );
+		m_d3d12ShaderTables.emplace( shaderTableHash, newShaderTable );
+
+		return newShaderTable;
+	}
+
 	ID3D12PipelineState* D3D12ResourceManager::FindOrCreate( const D3D12ComputePipelineState* pipelineState )
 	{
 		size_t psoHash = pipelineState->GetHash();
@@ -385,7 +464,7 @@ namespace agl
 			{
 				size_t hash = state ? state->GetHash() : 0;
 
-				constexpr int32 numRTVFormats = std::extent_v<std::remove_cvref_t<decltype(rtvFormats)>>;
+				constexpr int32 numRTVFormats = std::extent_v<std::remove_cvref_t<decltype( rtvFormats )>>;
 				for ( int32 i = 0; i < numRTVFormats; ++i )
 				{
 					int32 salt = ( ( i + 1 ) * 19937 );

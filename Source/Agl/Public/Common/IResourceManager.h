@@ -25,6 +25,7 @@ namespace agl
 	class PixelShader;
 	class GpuTimer;
 	class RasterizerState;
+	class RaytracingPipelineState;
 	class SamplerState;
 	class Shader;
 	class ShaderParameterInfo;
@@ -35,6 +36,7 @@ namespace agl
 	class Viewport;
 
 	struct BLASDesc;
+	struct RaytracingPipelineStateDesc;
 	struct TLASDesc;
 
 	class IResourceManager
@@ -53,12 +55,12 @@ namespace agl
 		virtual PixelShader* CreatePixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const = 0;
 		virtual MeshShader* CreateMeshShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const = 0;
 		virtual AmplificationShader* CreateAmplificationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const = 0;
-		virtual RayGenerationShader* CreateRayGenerationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const = 0;
-		virtual IntersectionShader* CreateIntersectionShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const = 0;
-		virtual AnyHitShader* CreateAnyHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const = 0;
-		virtual ClosestHitShader* CreateClosestHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const = 0;
-		virtual MissShader* CreateMissShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const = 0;
-		virtual CallableShader* CreateCallableShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const = 0;
+		virtual RayGenerationShader* CreateRayGenerationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const = 0;
+		virtual IntersectionShader* CreateIntersectionShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const = 0;
+		virtual AnyHitShader* CreateAnyHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const = 0;
+		virtual ClosestHitShader* CreateClosestHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const = 0;
+		virtual MissShader* CreateMissShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const = 0;
+		virtual CallableShader* CreateCallableShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const = 0;
 
 		virtual BlendState* CreateBlendState( const BlendStateTrait& trait ) const = 0;
 		virtual DepthStencilState* CreateDepthStencilState( const DepthStencilStateTrait& trait ) const = 0;
@@ -84,6 +86,7 @@ namespace agl
 
 		virtual BLAS* CreateBLAS( const BLASDesc& desc, const char* debugName ) const = 0;
 		virtual TLAS* CreateTLAS( const TLASDesc& desc, const char* debugName ) const = 0;
+		virtual RaytracingPipelineState* CreateRaytracingPipelineState( const RaytracingPipelineStateDesc& desc ) = 0;
 
 		virtual ~IResourceManager() = default;
 	};

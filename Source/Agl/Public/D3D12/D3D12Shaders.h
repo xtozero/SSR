@@ -105,8 +105,8 @@ namespace agl
 	class D3D12RayGenerationShader final : public RayGenerationShader
 	{
 	public:
-		D3D12RayGenerationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: RayGenerationShader( byteCode, byteCodeSize, paramInfo ) {}
+		D3D12RayGenerationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
+			: RayGenerationShader( byteCode, byteCodeSize, paramInfo, exportName ) {}
 		D3D12RayGenerationShader( const D3D12RayGenerationShader& ) = delete;
 		D3D12RayGenerationShader( D3D12RayGenerationShader&& ) = default;
 		D3D12RayGenerationShader& operator=( const D3D12RayGenerationShader& ) = delete;
@@ -121,8 +121,8 @@ namespace agl
 	class D3D12IntersectionShader final : public IntersectionShader
 	{
 	public:
-		D3D12IntersectionShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: IntersectionShader( byteCode, byteCodeSize, paramInfo ) {}
+		D3D12IntersectionShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
+			: IntersectionShader( byteCode, byteCodeSize, paramInfo, exportName ) {}
 		D3D12IntersectionShader( const D3D12IntersectionShader& ) = delete;
 		D3D12IntersectionShader( D3D12IntersectionShader&& ) = default;
 		D3D12IntersectionShader& operator=( const D3D12IntersectionShader& ) = delete;
@@ -137,8 +137,8 @@ namespace agl
 	class D3D12AnyHitShader final : public AnyHitShader
 	{
 	public:
-		D3D12AnyHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: AnyHitShader( byteCode, byteCodeSize, paramInfo ) {}
+		D3D12AnyHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
+			: AnyHitShader( byteCode, byteCodeSize, paramInfo, exportName ) {}
 		D3D12AnyHitShader( const D3D12AnyHitShader& ) = delete;
 		D3D12AnyHitShader( D3D12AnyHitShader&& ) = default;
 		D3D12AnyHitShader& operator=( const D3D12AnyHitShader& ) = delete;
@@ -153,8 +153,8 @@ namespace agl
 	class D3D12ClosestHitShader final : public ClosestHitShader
 	{
 	public:
-		D3D12ClosestHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: ClosestHitShader( byteCode, byteCodeSize, paramInfo ) {
+		D3D12ClosestHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
+			: ClosestHitShader( byteCode, byteCodeSize, paramInfo, exportName ) {
 		}
 		D3D12ClosestHitShader( const D3D12ClosestHitShader& ) = delete;
 		D3D12ClosestHitShader( D3D12ClosestHitShader&& ) = default;
@@ -170,8 +170,8 @@ namespace agl
 	class D3D12MissShader final : public MissShader
 	{
 	public:
-		D3D12MissShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: MissShader( byteCode, byteCodeSize, paramInfo ) {
+		D3D12MissShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
+			: MissShader( byteCode, byteCodeSize, paramInfo, exportName ) {
 		}
 		D3D12MissShader( const D3D12MissShader& ) = delete;
 		D3D12MissShader( D3D12MissShader&& ) = default;
@@ -187,8 +187,8 @@ namespace agl
 	class D3D12CallableShader final : public CallableShader
 	{
 	public:
-		D3D12CallableShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: CallableShader( byteCode, byteCodeSize, paramInfo ) {
+		D3D12CallableShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
+			: CallableShader( byteCode, byteCodeSize, paramInfo, exportName ) {
 		}
 		D3D12CallableShader( const D3D12CallableShader& ) = delete;
 		D3D12CallableShader( D3D12CallableShader&& ) = default;

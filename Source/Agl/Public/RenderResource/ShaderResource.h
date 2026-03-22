@@ -28,6 +28,7 @@ namespace agl
 		Callable,
 
 		Count,
+		RayTracing = Compute,
 		GraphicsCount = 8,
 		None = -1,
 	};
@@ -127,52 +128,65 @@ namespace agl
 		using Shader::Shader;
 	};
 
-	class RayGenerationShader : public Shader
+	class RaytracingShader : public Shader
 	{
 	public:
-		AGL_DLL static RefHandle<RayGenerationShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
+		const wchar_t* GetExportName() const;
 
-		using Shader::Shader;
+		RaytracingShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName );
+
+		static constexpr int32 ExportNameBufferSize = 32;
+
+	protected:
+		wchar_t m_wExportName[ExportNameBufferSize] = {};
 	};
 
-	class IntersectionShader : public Shader
+	class RayGenerationShader : public RaytracingShader
 	{
 	public:
-		AGL_DLL static RefHandle<IntersectionShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
+		AGL_DLL static RefHandle<RayGenerationShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName );
 
-		using Shader::Shader;
+		using RaytracingShader::RaytracingShader;
 	};
 
-	class AnyHitShader : public Shader
+	class IntersectionShader : public RaytracingShader
 	{
 	public:
-		AGL_DLL static RefHandle<AnyHitShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
+		AGL_DLL static RefHandle<IntersectionShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName );
 
-		using Shader::Shader;
+		using RaytracingShader::RaytracingShader;
 	};
 
-	class ClosestHitShader : public Shader
+	class AnyHitShader : public RaytracingShader
 	{
 	public:
-		AGL_DLL static RefHandle<ClosestHitShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
+		AGL_DLL static RefHandle<AnyHitShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName );
 
-		using Shader::Shader;
+		using RaytracingShader::RaytracingShader;
 	};
 
-	class MissShader : public Shader
+	class ClosestHitShader : public RaytracingShader
 	{
 	public:
-		AGL_DLL static RefHandle<MissShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
+		AGL_DLL static RefHandle<ClosestHitShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName );
 
-		using Shader::Shader;
+		using RaytracingShader::RaytracingShader;
 	};
 
-	class CallableShader : public Shader
+	class MissShader : public RaytracingShader
 	{
 	public:
-		AGL_DLL static RefHandle<CallableShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
+		AGL_DLL static RefHandle<MissShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName );
 
-		using Shader::Shader;
+		using RaytracingShader::RaytracingShader;
+	};
+
+	class CallableShader : public RaytracingShader
+	{
+	public:
+		AGL_DLL static RefHandle<CallableShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName );
+
+		using RaytracingShader::RaytracingShader;
 	};
 
 	// bIdx: bindless index

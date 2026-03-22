@@ -1,7 +1,7 @@
 #include "ShaderResource.h"
 
 #include "InterfaceFactories.h"
-#include "IRenderResourceManager.h"
+#include "IResourceManager.h"
 
 namespace agl
 {
@@ -78,33 +78,44 @@ namespace agl
 		return GetInterface<IResourceManager>()->CreateAmplificationShader( byteCode, byteCodeSize, paramInfo );
 	}
 
-	RefHandle<RayGenerationShader> RayGenerationShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+	const wchar_t* RaytracingShader::GetExportName() const
 	{
-		return GetInterface<IResourceManager>()->CreateRayGenerationShader( byteCode, byteCodeSize, paramInfo );
+		return m_wExportName;
 	}
 
-	RefHandle<IntersectionShader> IntersectionShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+	RaytracingShader::RaytracingShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
+		: Shader( byteCode, byteCodeSize, paramInfo )
 	{
-		return GetInterface<IResourceManager>()->CreateIntersectionShader( byteCode, byteCodeSize, paramInfo );
+		ToWideChar( m_wExportName, ExportNameBufferSize, exportName.CStr() );
 	}
 
-	RefHandle<AnyHitShader> AnyHitShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+	RefHandle<RayGenerationShader> RayGenerationShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
 	{
-		return GetInterface<IResourceManager>()->CreateAnyHitShader( byteCode, byteCodeSize, paramInfo );
+		return GetInterface<IResourceManager>()->CreateRayGenerationShader( byteCode, byteCodeSize, paramInfo, exportName );
 	}
 
-	RefHandle<ClosestHitShader> ClosestHitShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+	RefHandle<IntersectionShader> IntersectionShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
 	{
-		return GetInterface<IResourceManager>()->CreateClosestHitShader( byteCode, byteCodeSize, paramInfo );
+		return GetInterface<IResourceManager>()->CreateIntersectionShader( byteCode, byteCodeSize, paramInfo, exportName );
 	}
 
-	RefHandle<MissShader> MissShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+	RefHandle<AnyHitShader> AnyHitShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
 	{
-		return GetInterface<IResourceManager>()->CreateMissShader( byteCode, byteCodeSize, paramInfo );
+		return GetInterface<IResourceManager>()->CreateAnyHitShader( byteCode, byteCodeSize, paramInfo, exportName );
 	}
 
-	RefHandle<CallableShader> CallableShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+	RefHandle<ClosestHitShader> ClosestHitShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
 	{
-		return GetInterface<IResourceManager>()->CreateCallableShader( byteCode, byteCodeSize, paramInfo );
+		return GetInterface<IResourceManager>()->CreateClosestHitShader( byteCode, byteCodeSize, paramInfo, exportName );
+	}
+
+	RefHandle<MissShader> MissShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
+	{
+		return GetInterface<IResourceManager>()->CreateMissShader( byteCode, byteCodeSize, paramInfo, exportName );
+	}
+
+	RefHandle<CallableShader> CallableShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
+	{
+		return GetInterface<IResourceManager>()->CreateCallableShader( byteCode, byteCodeSize, paramInfo, exportName );
 	}
 }

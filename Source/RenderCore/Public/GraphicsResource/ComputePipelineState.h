@@ -1,6 +1,5 @@
 #pragma once
 
-#include "GraphicsApiResource.h"
 #include "PipelineState.h"
 #include "ShaderBindings.h"
 

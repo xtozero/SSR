@@ -61,6 +61,35 @@ namespace agl
 			m_bindless.clear();
 		}
 
+		void Merge( std::set<ShaderParameter>& OutShaderParameterSet ) const
+		{
+			for ( const auto& param : m_constantBuffers )
+			{
+				OutShaderParameterSet.emplace( param );
+			}
+
+			for ( const auto& param : m_srvs )
+			{
+				OutShaderParameterSet.emplace( param );
+			}
+
+			for ( const auto& param : m_uavs )
+			{
+				OutShaderParameterSet.emplace( param );
+			}
+
+			for ( const auto& param : m_samplers )
+			{
+				OutShaderParameterSet.emplace( param );
+			}
+
+			for ( const auto& param : m_bindless )
+			{
+				OutShaderParameterSet.emplace( param );
+			}
+
+		}
+
 		friend bool operator==( const ShaderParameterInfo& lhs, const ShaderParameterInfo& rhs )
 		{
 			return lhs.m_constantBuffers == rhs.m_constantBuffers 

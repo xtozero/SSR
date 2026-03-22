@@ -336,6 +336,11 @@ namespace agl
 		m_globalConstantBuffers.Reset( true );
 	}
 
+	void D3D11CommandList::DispatchRays( [[maybe_unused]] RaytracingPipelineState* pipelineState, [[maybe_unused]] ShaderBindings& shaderBindings, [[maybe_unused]] uint32 width, [[maybe_unused]] uint32 height, [[maybe_unused]] uint32 depth )
+	{
+		assert( false && "Unsupported feature in d3d11" );
+	}
+
 	void D3D11CommandList::ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset )
 	{
 		auto d3d11Argument = static_cast<D3D11Buffer*>( argument );
@@ -362,7 +367,7 @@ namespace agl
 		}
 		else
 		{
-			assert( false && "ExecuteIndirect - Unsurpported IndirectCommandType in d3d11" );
+			assert( false && "ExecuteIndirect - Unsupported IndirectCommandType in d3d11" );
 		}
 
 		m_globalConstantBuffers.Reset( bCompute );
@@ -384,7 +389,7 @@ namespace agl
 
 	void D3D11CommandList::DispatchMesh( [[maybe_unused]] uint32 x, [[maybe_unused]] uint32 y, [[maybe_unused]] uint32 z )
 	{
-		assert( false && "DispatchMesh - Unsurpported function in d3d11" );
+		assert( false && "DispatchMesh - Unsupported function in d3d11" );
 	}
 
 	void D3D11CommandList::SetViewports( uint32 count, const CubeArea<float>* area )
@@ -666,6 +671,11 @@ namespace agl
 		m_globalConstantBuffers.Reset( true );
 	}
 
+	void D3D11ParallelCommandList::DispatchRays( [[maybe_unused]] RaytracingPipelineState* pipelineState, [[maybe_unused]] ShaderBindings& shaderBindings, [[maybe_unused]] uint32 width, [[maybe_unused]] uint32 height, [[maybe_unused]] uint32 depth )
+	{
+		assert( false && "Unsupported feature in d3d11" );
+	}
+
 	void D3D11ParallelCommandList::ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset )
 	{
 		auto d3d11Argument = static_cast<D3D11Buffer*>( argument );
@@ -692,7 +702,7 @@ namespace agl
 		}
 		else
 		{
-			assert( false && "ExecuteIndirect - Unsurpported IndirectCommandType in d3d11" );
+			assert( false && "ExecuteIndirect - Unsupported IndirectCommandType in d3d11" );
 		}
 
 		m_globalConstantBuffers.Reset( bCompute );
@@ -714,7 +724,7 @@ namespace agl
 
 	void D3D11ParallelCommandList::DispatchMesh( [[maybe_unused]] uint32 x, [[maybe_unused]] uint32 y, [[maybe_unused]] uint32 z )
 	{
-		assert( false && "DispatchMesh - Unsurpported function in d3d11" );
+		assert( false && "DispatchMesh - Unsupported function in d3d11" );
 	}
 
 	void D3D11ParallelCommandList::SetViewports( uint32 count, const CubeArea<float>* areas )

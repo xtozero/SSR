@@ -4,7 +4,7 @@
 #include "AbstractGraphicsInterface.h"
 #include "Canvas.h"
 #include "InterfaceFactories.h"
-#include "IRenderResourceManager.h"
+#include "IResourceManager.h"
 #include "TaskScheduler.h"
 
 namespace rendercore

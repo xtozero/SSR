@@ -82,6 +82,11 @@ namespace rendercore
 			assert( m_compiledShader != nullptr );
 		}
 
+		auto Resource() const
+		{
+			return GetShader()->Resource();
+		}
+
 		virtual ~GlobalShaderBase() = default;
 		GlobalShaderBase( const GlobalShaderBase& ) = default;
 		GlobalShaderBase( GlobalShaderBase&& ) = default;

@@ -92,6 +92,11 @@ namespace agl
         m_blas = nullptr;
     }
 
+    Buffer* D3D12TLAS::Resource() const
+    {
+        return m_tlas.Get();
+    }
+
     D3D12TLAS::D3D12TLAS( const TLASDesc& desc, const char* debugName )
         : m_desc( desc )
     {

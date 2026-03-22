@@ -57,8 +57,12 @@ namespace rendercore
 		BindPipelineState( nullptr );
 	}
 
-	void ComputeCommandList::ExecuteIndirect( agl::IndirectCommandType type, agl::Buffer* argument,
-		uint64 argumentOffset )
+	void ComputeCommandList::DispatchRays( agl::RaytracingPipelineState* pipelineState, agl::ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth ) const
+	{
+		GetImpl().DispatchRays( pipelineState, shaderBindings, width, height, depth );
+	}
+
+	void ComputeCommandList::ExecuteIndirect( agl::IndirectCommandType type, agl::Buffer* argument, uint64 argumentOffset )
 	{
 		GetImpl().ExecuteIndirect( type, argument, argumentOffset );
 		if ( type == agl::IndirectCommandType::Dispatch )

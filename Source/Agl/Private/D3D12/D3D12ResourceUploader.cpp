@@ -181,7 +181,7 @@ namespace agl
 	{
 		ID3D12Device& device = D3D12Device();
 
-		D3D12_COMMAND_QUEUE_DESC desc{
+		D3D12_COMMAND_QUEUE_DESC desc {
 			.Type = D3D12_COMMAND_LIST_TYPE_COPY,
 			.Priority = 0,
 			.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,

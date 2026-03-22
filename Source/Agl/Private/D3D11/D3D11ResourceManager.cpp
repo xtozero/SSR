@@ -104,37 +104,37 @@ namespace agl
 		return nullptr;
 	}
 
-	RayGenerationShader* D3D11ResourceManager::CreateRayGenerationShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
+	RayGenerationShader* D3D11ResourceManager::CreateRayGenerationShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo, [[maybe_unused]] Name exportName ) const
 	{
 		// DXR is not supported in direct3D 11
 		return nullptr;
 	}
 
-	IntersectionShader* D3D11ResourceManager::CreateIntersectionShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
+	IntersectionShader* D3D11ResourceManager::CreateIntersectionShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo, [[maybe_unused]] Name exportName ) const
 	{
 		// DXR is not supported in direct3D 11
 		return nullptr;
 	}
 
-	AnyHitShader* D3D11ResourceManager::CreateAnyHitShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
+	AnyHitShader* D3D11ResourceManager::CreateAnyHitShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo, [[maybe_unused]] Name exportName ) const
 	{
 		// DXR is not supported in direct3D 11
 		return nullptr;
 	}
 
-	ClosestHitShader* D3D11ResourceManager::CreateClosestHitShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
+	ClosestHitShader* D3D11ResourceManager::CreateClosestHitShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo, [[maybe_unused]] Name exportName ) const
 	{
 		// DXR is not supported in direct3D 11
 		return nullptr;
 	}
 
-	MissShader* D3D11ResourceManager::CreateMissShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
+	MissShader* D3D11ResourceManager::CreateMissShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo, [[maybe_unused]] Name exportName ) const
 	{
 		// DXR is not supported in direct3D 11
 		return nullptr;
 	}
 
-	CallableShader* D3D11ResourceManager::CreateCallableShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
+	CallableShader* D3D11ResourceManager::CreateCallableShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo, [[maybe_unused]] Name exportName ) const
 	{
 		// DXR is not supported in direct3D 11
 		return nullptr;
@@ -250,11 +250,19 @@ namespace agl
 
 	BLAS* D3D11ResourceManager::CreateBLAS( [[maybe_unused]] const BLASDesc& desc, [[maybe_unused]] const char* debugName ) const
 	{
+		// DXR is not supported in direct3D 11
 		return nullptr;
 	}
 
 	TLAS* D3D11ResourceManager::CreateTLAS( [[maybe_unused]] const TLASDesc& desc, [[maybe_unused]] const char* debugName ) const
 	{
+		// DXR is not supported in direct3D 11
+		return nullptr;
+	}
+
+	RaytracingPipelineState* D3D11ResourceManager::CreateRaytracingPipelineState( const RaytracingPipelineStateDesc& desc )
+	{
+		// DXR is not supported in direct3D 11
 		return nullptr;
 	}
 

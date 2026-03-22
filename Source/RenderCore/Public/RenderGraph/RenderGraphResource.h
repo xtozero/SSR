@@ -66,6 +66,7 @@ namespace rendercore
 		IndirectArgument = 0x80,
 		CopyDest = 0x100,
 		CopySource = 0x200,
+		RaytracingAccelerationStructure = 0x400,
 	};
 	ENUM_CLASS_FLAGS( RenderGraphResourceFlag )
 
@@ -146,6 +147,7 @@ private: \
 #define DECLARE_RG_BUFFER_INDRIECT_ARG( name ) DECLARE_RG_BUFFER( name, RenderGraphResourceFlag::IndirectArgument )
 #define DECLARE_RG_BUFFER_COPY_DEST( name ) DECLARE_RG_BUFFER( name, RenderGraphResourceFlag::CopyDest )
 #define DECLARE_RG_BUFFER_COPY_SOURCE( name ) DECLARE_RG_BUFFER( name, RenderGraphResourceFlag::CopySource )
+#define DECLARE_RG_BUFFER_ACCELERATION_STRUCTURE( name ) DECLARE_RG_BUFFER( name, RenderGraphResourceFlag::RaytracingAccelerationStructure )
 
 #define END_RG_RESOURCE_STRUCT() \
 	LastMemberId; \

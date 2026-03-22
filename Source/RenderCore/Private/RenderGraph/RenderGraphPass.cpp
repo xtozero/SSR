@@ -39,6 +39,10 @@ namespace rendercore
 		{
 			return agl::ResourceState::CopySource;
 		}
+		else if ( HasAnyFlags( type, RenderGraphResourceFlag::RaytracingAccelerationStructure ) )
+		{
+			return agl::ResourceState::RaytracingAccelerationStructure;
+		}
 		else
 		{
 			assert( false && "Unhandled render graph resource flag" );
@@ -157,10 +161,11 @@ namespace rendercore
 				bool isIndirectArg = HasAnyFlags( cur->m_flag, RenderGraphResourceFlag::IndirectArgument );
 				bool isCopyDest = HasAnyFlags( cur->m_flag, RenderGraphResourceFlag::CopyDest );
 				bool isCopySource = HasAnyFlags( cur->m_flag, RenderGraphResourceFlag::CopySource );
+				bool isAccelerationStructure = HasAnyFlags( cur->m_flag, RenderGraphResourceFlag::RaytracingAccelerationStructure );
 
 				auto resource = *reinterpret_cast<RenderGraphResource**>( static_cast<uint8*>( resourceData ) + cur->m_offset );
 
-				if ( isSRV || isUAV || isIndirectArg || isCopySource )
+				if ( isSRV || isUAV || isIndirectArg || isCopySource || isAccelerationStructure )
 				{
 					m_resourceReads.emplace( resource, cur->m_flag );
 				}

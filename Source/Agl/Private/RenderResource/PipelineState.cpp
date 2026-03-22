@@ -2,7 +2,7 @@
 
 #include "HashUtil.h"
 #include "InterfaceFactories.h"
-#include "IRenderResourceManager.h"
+#include "IResourceManager.h"
 
 namespace agl
 {
@@ -54,51 +54,15 @@ namespace agl
 		size_t typeHash = typeid( GraphicsPipelineStateInitializer ).hash_code();
 		size_t hash = typeHash;
 
-		if ( m_vertexShader )
-		{
-			HashCombine( hash, m_vertexShader->GetHash() );
-		}
-
-		if ( m_geometryShader )
-		{
-			HashCombine( hash, m_geometryShader->GetHash() );
-		}
-
-		if ( m_piexlShader )
-		{
-			HashCombine( hash, m_piexlShader->GetHash() );
-		}
-
-		if ( m_meshShader )
-		{
-			HashCombine( hash, m_meshShader->GetHash() );
-		}
-
-		if ( m_amplificationShader )
-		{
-			HashCombine( hash, m_amplificationShader->GetHash() );
-		}
-
-		if ( m_blendState )
-		{
-			HashCombine( hash, m_blendState->GetHash() );
-		}
-
-		if ( m_rasterizerState )
-		{
-			HashCombine( hash, m_rasterizerState->GetHash() );
-		}
-
-		if ( m_depthStencilState )
-		{
-			HashCombine( hash, m_depthStencilState->GetHash() );
-		}
-
-		if ( m_vertexLayout )
-		{
-			HashCombine( hash, m_vertexLayout->GetHash() );
-		}
-
+		HashCombine( hash, m_vertexShader );
+		HashCombine( hash, m_geometryShader );
+		HashCombine( hash, m_piexlShader );
+		HashCombine( hash, m_meshShader );
+		HashCombine( hash, m_amplificationShader );
+		HashCombine( hash, m_blendState );
+		HashCombine( hash, m_rasterizerState );
+		HashCombine( hash, m_depthStencilState );
+		HashCombine( hash, m_vertexLayout );
 		HashCombine( hash, m_primitiveType );
 
 		return hash;
@@ -109,10 +73,7 @@ namespace agl
 		static size_t typeHash = typeid( ComputePipelineStateInitializer ).hash_code();
 		size_t hash = typeHash;
 
-		if ( m_computeShader )
-		{
-			HashCombine( hash, m_computeShader->GetHash() );
-		}
+		HashCombine( hash, m_computeShader );
 
 		return hash;
 	}

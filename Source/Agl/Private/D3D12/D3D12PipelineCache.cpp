@@ -8,6 +8,7 @@
 #include "D3D12GlobalDescriptorHeap.h"
 #include "D3D12NullDescriptor.h"
 #include "D3D12PipelineState.h"
+#include "D3D12RaytracingPipelineState.h"
 #include "D3D12ResourceManager.h"
 #include "D3D12SamplerState.h"
 #include "D3D12Texture.h"
@@ -30,6 +31,7 @@ namespace agl
 		std::memset( &m_indexBufferView, 0, sizeof( m_indexBufferView ) );
 
 		m_pipelineState = nullptr;
+		m_stateObject = nullptr;
 
 		std::memset( m_viewports, 0, sizeof( m_viewports ) );
 		m_numViewports = 0;
@@ -186,6 +188,35 @@ namespace agl
 
 		m_pipelineState = computePipelineState;
 		commandList.SetPipelineState( computePipelineState );
+		commandList.SetComputeRootSignature( rootSignature );
+	}
+
+	void D3D12PipelineCache::BindPipelineState( ID3D12GraphicsCommandList6& commandList, RaytracingPipelineState* pipelineState )
+	{
+		if ( pipelineState == nullptr )
+		{
+			return;
+		}
+
+		auto d3d12RaytracingPipelineState = static_cast<D3D12RaytracingPipelineState*>( pipelineState );
+		assert( d3d12RaytracingPipelineState != nullptr );
+
+		ID3D12StateObject* stateObject = d3d12RaytracingPipelineState->GetStateObject();
+		if ( m_stateObject == stateObject )
+		{
+			return;
+		}
+
+		ID3D12RootSignature* rootSignature = nullptr;
+		if ( D3D12RootSignature* d3d12RootSignature = d3d12RaytracingPipelineState->GetRootSignature() )
+		{
+			rootSignature = d3d12RootSignature->Resource();
+		}
+
+		D3D12FrameResources().RegisterResource( stateObject );
+
+		m_stateObject = stateObject;
+		commandList.SetPipelineState1( stateObject );
 		commandList.SetComputeRootSignature( rootSignature );
 	}
 

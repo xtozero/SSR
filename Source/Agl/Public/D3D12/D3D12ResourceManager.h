@@ -2,7 +2,7 @@
 
 #include "GuideTypes.h"
 #include "HashUtil.h"
-#include "IRenderResourceManager.h"
+#include "IResourceManager.h"
 
 #include <d3d12.h>
 #include <map>
@@ -13,6 +13,11 @@
 namespace agl
 {
 	class D3D12DisposableConstantBufferPool;
+	class D3D12HitGroup;
+	class D3D12RaytracingPipelineState;
+	class D3D12RaytracingShaderTable;
+
+	struct RaytracingPipelineStateDesc;
 
 	class D3D12ResourceManager final : public IResourceManager
 	{
@@ -33,12 +38,12 @@ namespace agl
 		virtual PixelShader* CreatePixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const override;
 		virtual MeshShader* CreateMeshShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const override;
 		virtual AmplificationShader* CreateAmplificationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const override;
-		virtual RayGenerationShader* CreateRayGenerationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const override;
-		virtual IntersectionShader* CreateIntersectionShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const override;
-		virtual AnyHitShader* CreateAnyHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const override;
-		virtual ClosestHitShader* CreateClosestHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const override;
-		virtual MissShader* CreateMissShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const override;
-		virtual CallableShader* CreateCallableShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const override;
+		virtual RayGenerationShader* CreateRayGenerationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const override;
+		virtual IntersectionShader* CreateIntersectionShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const override;
+		virtual AnyHitShader* CreateAnyHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const override;
+		virtual ClosestHitShader* CreateClosestHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const override;
+		virtual MissShader* CreateMissShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const override;
+		virtual CallableShader* CreateCallableShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const override;
 
 		// RenderState
 		virtual BlendState* CreateBlendState( const BlendStateTrait& trait ) const override;
@@ -67,6 +72,10 @@ namespace agl
 
 		virtual BLAS* CreateBLAS( const BLASDesc& desc, const char* debugName ) const override;
 		virtual TLAS* CreateTLAS( const TLASDesc& desc, const char* debugName ) const override;
+		virtual RaytracingPipelineState* CreateRaytracingPipelineState( const RaytracingPipelineStateDesc& desc ) override;
+
+		D3D12HitGroup* CreateHitGroup( const HitGroupDesc& desc );
+		D3D12RaytracingShaderTable* CreateRaytracingShaderTable( const RaytracingShaderTableDesc& desc );
 
 		ID3D12PipelineState* FindOrCreate( const D3D12ComputePipelineState* pipelineState );
 		ID3D12PipelineState* FindOrCreate( const D3D12GraphicsPipelineState* pipelineState, const DXGI_FORMAT( &rtvFormats )[8], DXGI_FORMAT dsvFormat );
@@ -102,6 +111,15 @@ namespace agl
 		std::vector<D3D12DisposableConstantBufferPool> m_d3d12DisposbleConstantBufferPool;
 
 		Microsoft::WRL::ComPtr<ID3D12PipelineLibrary1> m_d3d12PipelineLibrary;
+
+		std::shared_mutex m_d3d12HitGroupMutex;
+		std::map<uint64, RefHandle<D3D12HitGroup>> m_d3d12HitGroups;
+
+		std::shared_mutex m_d3d12ShaderTableMutex;
+		std::map<uint64, RefHandle<D3D12RaytracingShaderTable>> m_d3d12ShaderTables;
+
+		std::shared_mutex m_d3d12RaytracingPipelineMutex;
+		std::map<uint64, RefHandle<D3D12RaytracingPipelineState>> m_d3d12RaytracingPipelineStates;
 	};
 
 	Owner<IResourceManager*> CreateD3D12ResourceManager();

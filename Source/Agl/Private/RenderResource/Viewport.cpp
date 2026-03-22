@@ -1,7 +1,7 @@
 #include "Viewport.h"
 
 #include "InterfaceFactories.h"
-#include "IRenderResourceManager.h"
+#include "IResourceManager.h"
 
 namespace agl
 {

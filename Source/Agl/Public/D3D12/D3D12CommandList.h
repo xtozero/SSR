@@ -111,10 +111,12 @@ namespace agl
 		void Prepare();
 
 		void BindComputePipelineState( ComputePipelineState* pipelineState );
+		void BindPipelineState( RaytracingPipelineState* pipelineState );
 		void BindShaderResources( ShaderBindings& shaderBindings );
 		void SetShaderValue( const ShaderParameter& parameter, const void* value );
 
 		void Dispatch( uint32 x, uint32 y, uint32 z = 1 );
+		void DispatchRays( RaytracingPipelineState* pipelineState, ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth );
 
 		void ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset = 0 );
 
@@ -188,6 +190,7 @@ namespace agl
 		virtual void SetShaderValue( const ShaderParameter& parameter, const void* value ) override;
 
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z ) override;
+		virtual void DispatchRays( RaytracingPipelineState* pipelineState, ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth ) override;
 
 		virtual void ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset = 0 ) override;
 
@@ -245,6 +248,7 @@ namespace agl
 		virtual void SetShaderValue( const ShaderParameter& parameter, const void* value ) override;
 
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) override;
+		virtual void DispatchRays( RaytracingPipelineState* pipelineState, ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth ) override;
 
 		virtual void ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset = 0 ) override;
 
@@ -318,6 +322,7 @@ namespace agl
 		virtual void SetShaderValue( const ShaderParameter& parameter, const void* value ) override;
 
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) override;
+		virtual void DispatchRays( RaytracingPipelineState* pipelineState, ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth ) override;
 
 		virtual void ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset = 0 ) override;
 

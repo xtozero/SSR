@@ -446,6 +446,11 @@ namespace agl
 		m_stateCache.BindPipelineState( CommandList(), pipelineState );
 	}
 
+	void D3D12ComputeCommandListImpl::BindPipelineState( RaytracingPipelineState* pipelineState )
+	{
+		m_stateCache.BindPipelineState( CommandList(), pipelineState );
+	}
+
 	void D3D12ComputeCommandListImpl::BindShaderResources( ShaderBindings& shaderBindings )
 	{
 		if ( shaderBindings.HasBindless() )
@@ -468,6 +473,25 @@ namespace agl
 		m_barrierBatcher.Commit( *this );
 		m_globalConstantBuffers.CommitShaderValue( true );
 		CommandList().Dispatch( x, y, z );
+		m_globalConstantBuffers.Reset( true );
+
+		OnCommandRecorded();
+	}
+
+	void D3D12ComputeCommandListImpl::DispatchRays( RaytracingPipelineState* pipelineState, ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth )
+	{
+		m_barrierBatcher.Commit( *this );
+		m_globalConstantBuffers.CommitShaderValue( true );
+
+		BindPipelineState( pipelineState );
+		BindShaderResources( shaderBindings );
+
+		auto d3d12RaytracingPipelineState = static_cast<D3D12RaytracingPipelineState*>( pipelineState );
+		assert( d3d12RaytracingPipelineState != nullptr );
+
+		D3D12_DISPATCH_RAYS_DESC desc = d3d12RaytracingPipelineState->GetDispatchRaysDesc( width, height, depth );
+		CommandList().DispatchRays( &desc );
+
 		m_globalConstantBuffers.Reset( true );
 
 		OnCommandRecorded();
@@ -724,6 +748,11 @@ namespace agl
 		m_impl.Dispatch( x, y, z );
 	}
 
+	void D3D12ComputeCommandList::DispatchRays( RaytracingPipelineState* pipelineState, ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth )
+	{
+		m_impl.DispatchRays( pipelineState, shaderBindings, width, height, depth );
+	}
+
 	void D3D12ComputeCommandList::ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset )
 	{
 		m_impl.ExecuteIndirect( type, argument, argumentOffset );
@@ -873,6 +902,11 @@ namespace agl
 	void D3D12CommandList::Dispatch( uint32 x, uint32 y, uint32 z )
 	{
 		m_impl.Dispatch( x, y, z );
+	}
+
+	void D3D12CommandList::DispatchRays( RaytracingPipelineState* pipelineState, ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth )
+	{
+		m_impl.DispatchRays( pipelineState, shaderBindings, width, height, depth );
 	}
 
 	void D3D12CommandList::ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset )
@@ -1078,6 +1112,11 @@ namespace agl
 	void D3D12ParallelCommandList::Dispatch( uint32 x, uint32 y, uint32 z )
 	{
 		m_impl.Dispatch( x, y, z );
+	}
+
+	void D3D12ParallelCommandList::DispatchRays( RaytracingPipelineState* pipelineState, ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth )
+	{
+		m_impl.DispatchRays( pipelineState, shaderBindings, width, height, depth );
 	}
 
 	void D3D12ParallelCommandList::ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset )

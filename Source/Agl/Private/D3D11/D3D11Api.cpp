@@ -39,39 +39,6 @@ using ::Microsoft::WRL::ComPtr;
 
 namespace
 {
-	using ::agl::ShaderType;
-
-	ShaderType ConvertShaderVersionToType( uint32 shaderVersion )
-	{
-		auto shaderType = static_cast<D3D11_SHADER_VERSION_TYPE>( D3D11_SHVER_GET_TYPE( shaderVersion ) );
-
-		switch ( shaderType )
-		{
-		case D3D11_SHVER_PIXEL_SHADER:
-			return ShaderType::Pixel;
-			break;
-		case D3D11_SHVER_VERTEX_SHADER:
-			return ShaderType::Vertex;
-			break;
-		case D3D11_SHVER_GEOMETRY_SHADER:
-			return ShaderType::Geometry;
-			break;
-		case D3D11_SHVER_HULL_SHADER:
-			return ShaderType::Hull;
-			break;
-		case D3D11_SHVER_DOMAIN_SHADER:
-			return ShaderType::Domain;
-			break;
-		case D3D11_SHVER_COMPUTE_SHADER:
-			return ShaderType::Compute;
-			break;
-		default:
-			break;
-		}
-
-		return ShaderType::None;
-	}
-
 	bool IsAdapterIntegrated( IDXGIAdapter1* adapter )
 	{
 		ComPtr<IDXGIAdapter3> adapter3;
@@ -89,72 +56,100 @@ namespace
 
 namespace agl
 {
-	void ExtractShaderParameters( ID3D11ShaderReflection* pReflector, ShaderParameterMap& parameterMap )
+	struct D3D11ShaderReflectionLibrary
 	{
-		D3D11_SHADER_DESC shaderDesc = {};
-		HRESULT hResult = pReflector->GetDesc( &shaderDesc );
-		assert( SUCCEEDED( hResult ) );
-
-		ShaderType shaderType = ConvertShaderVersionToType( shaderDesc.Version );
-
-		// Get the resources
-		for ( uint32 i = 0; i < shaderDesc.BoundResources; ++i )
+		static ShaderType ResolveShaderTypeFromVersion( uint32 shaderVersion )
 		{
-			D3D11_SHADER_INPUT_BIND_DESC bindDesc = {};
-			hResult = pReflector->GetResourceBindingDesc( i, &bindDesc );
+			auto version = static_cast<D3D11_SHADER_VERSION_TYPE>( D3D11_SHVER_GET_TYPE( shaderVersion ) );
+
+			switch ( version )
+			{
+			case D3D11_SHVER_PIXEL_SHADER:
+				return ShaderType::Pixel;
+			case D3D11_SHVER_VERTEX_SHADER:
+				return ShaderType::Vertex;
+			case D3D11_SHVER_GEOMETRY_SHADER:
+				return ShaderType::Geometry;
+			case D3D11_SHVER_HULL_SHADER:
+				return ShaderType::Hull;
+			case D3D11_SHVER_DOMAIN_SHADER:
+				return ShaderType::Domain;
+			case D3D11_SHVER_COMPUTE_SHADER:
+				return ShaderType::Compute;
+			default:
+				break;
+			}
+
+			return ShaderType::None;
+		}
+
+		static void ExtractShaderParameters( ID3D11ShaderReflection* pReflector, ShaderParameterMap& parameterMap )
+		{
+			D3D11_SHADER_DESC shaderDesc = {};
+			HRESULT hResult = pReflector->GetDesc( &shaderDesc );
 			assert( SUCCEEDED( hResult ) );
 
-			ShaderParameterType parameterType = ShaderParameterType::ConstantBuffer;
-			uint32 parameterSize = 0;
+			ShaderType shaderType = ResolveShaderTypeFromVersion( shaderDesc.Version );
 
-			if ( bindDesc.Type == D3D_SIT_CBUFFER || bindDesc.Type == D3D_SIT_TBUFFER )
+			// Get the resources
+			for ( uint32 i = 0; i < shaderDesc.BoundResources; ++i )
 			{
-				parameterType = ShaderParameterType::ConstantBuffer;
+				D3D11_SHADER_INPUT_BIND_DESC bindDesc = {};
+				hResult = pReflector->GetResourceBindingDesc( i, &bindDesc );
+				assert( SUCCEEDED( hResult ) );
 
-				ID3D11ShaderReflectionConstantBuffer* constBufferReflection = pReflector->GetConstantBufferByName( bindDesc.Name );
-				if ( constBufferReflection )
+				ShaderParameterType parameterType = ShaderParameterType::ConstantBuffer;
+				uint32 parameterSize = 0;
+
+				if ( bindDesc.Type == D3D_SIT_CBUFFER || bindDesc.Type == D3D_SIT_TBUFFER )
 				{
-					D3D11_SHADER_BUFFER_DESC shaderBuffDesc;
-					constBufferReflection->GetDesc( &shaderBuffDesc );
+					parameterType = ShaderParameterType::ConstantBuffer;
 
-					parameterSize = shaderBuffDesc.Size;
-
-					for ( uint32 j = 0; j < shaderBuffDesc.Variables; ++j )
+					ID3D11ShaderReflectionConstantBuffer* constBufferReflection = pReflector->GetConstantBufferByName( bindDesc.Name );
+					if ( constBufferReflection )
 					{
-						ID3D11ShaderReflectionVariable* variableReflection = constBufferReflection->GetVariableByIndex( j );
-						D3D11_SHADER_VARIABLE_DESC shaderVarDesc;
-						variableReflection->GetDesc( &shaderVarDesc );
+						D3D11_SHADER_BUFFER_DESC shaderBuffDesc;
+						constBufferReflection->GetDesc( &shaderBuffDesc );
 
-						parameterMap.AddParameter( shaderVarDesc.Name, shaderType, ShaderParameterType::ConstantBufferValue, bindDesc.BindPoint, 0, shaderVarDesc.StartOffset, shaderVarDesc.Size );
+						parameterSize = shaderBuffDesc.Size;
+
+						for ( uint32 j = 0; j < shaderBuffDesc.Variables; ++j )
+						{
+							ID3D11ShaderReflectionVariable* variableReflection = constBufferReflection->GetVariableByIndex( j );
+							D3D11_SHADER_VARIABLE_DESC shaderVarDesc;
+							variableReflection->GetDesc( &shaderVarDesc );
+
+							parameterMap.AddParameter( shaderVarDesc.Name, shaderType, ShaderParameterType::ConstantBufferValue, bindDesc.BindPoint, 0, shaderVarDesc.StartOffset, shaderVarDesc.Size );
+						}
 					}
 				}
-			}
-			else if ( bindDesc.Type == D3D_SIT_TEXTURE )
-			{
-				parameterType = ShaderParameterType::SRV;
-			}
-			else if ( bindDesc.Type == D3D_SIT_SAMPLER )
-			{
-				parameterType = ShaderParameterType::Sampler;
-			}
-			else if ( bindDesc.Type == D3D_SIT_UAV_RWTYPED || bindDesc.Type == D3D_SIT_UAV_RWSTRUCTURED ||
-				bindDesc.Type == D3D_SIT_UAV_RWBYTEADDRESS || bindDesc.Type == D3D_SIT_UAV_APPEND_STRUCTURED ||
-				bindDesc.Type == D3D_SIT_UAV_CONSUME_STRUCTURED || bindDesc.Type == D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER )
-			{
-				parameterType = ShaderParameterType::UAV;
-			}
-			else if ( bindDesc.Type == D3D_SIT_STRUCTURED || bindDesc.Type == D3D_SIT_BYTEADDRESS )
-			{
-				parameterType = ShaderParameterType::SRV;
-			}
-			else
-			{
-				assert( false && "Unexpected case" );
-			}
+				else if ( bindDesc.Type == D3D_SIT_TEXTURE )
+				{
+					parameterType = ShaderParameterType::SRV;
+				}
+				else if ( bindDesc.Type == D3D_SIT_SAMPLER )
+				{
+					parameterType = ShaderParameterType::Sampler;
+				}
+				else if ( bindDesc.Type == D3D_SIT_UAV_RWTYPED || bindDesc.Type == D3D_SIT_UAV_RWSTRUCTURED ||
+					bindDesc.Type == D3D_SIT_UAV_RWBYTEADDRESS || bindDesc.Type == D3D_SIT_UAV_APPEND_STRUCTURED ||
+					bindDesc.Type == D3D_SIT_UAV_CONSUME_STRUCTURED || bindDesc.Type == D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER )
+				{
+					parameterType = ShaderParameterType::UAV;
+				}
+				else if ( bindDesc.Type == D3D_SIT_STRUCTURED || bindDesc.Type == D3D_SIT_BYTEADDRESS )
+				{
+					parameterType = ShaderParameterType::SRV;
+				}
+				else
+				{
+					assert( false && "Unexpected case" );
+				}
 
-			parameterMap.AddParameter( bindDesc.Name, shaderType, parameterType, bindDesc.BindPoint, 0, 0, parameterSize );
+				parameterMap.AddParameter( bindDesc.Name, shaderType, parameterType, bindDesc.BindPoint, 0, 0, parameterSize );
+			}
 		}
-	}
+	};
 
 	class Direct3D11 final : public IAgl
 	{
@@ -496,7 +491,7 @@ namespace agl
 			return false;
 		}
 
-		ExtractShaderParameters( pShaderReflection.Get(), outParameterMap );
+		D3D11ShaderReflectionLibrary::ExtractShaderParameters( pShaderReflection.Get(), outParameterMap );
 		BuildShaderParameterInfo( outParameterMap.GetParameterMap(), outParameterInfo );
 
 		return true;

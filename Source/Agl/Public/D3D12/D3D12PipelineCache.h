@@ -15,6 +15,7 @@ namespace agl
 	class DepthStencilView;
 	class GlobalConstantBuffers;
 	class GraphicsPipelineState;
+	class RaytracingPipelineState;
 	class RenderTargetView;
 	class ShaderBindings;
 	class Texture;
@@ -29,6 +30,7 @@ namespace agl
 
 		void BindPipelineState( ID3D12GraphicsCommandList6& commandList, GraphicsPipelineState* pipelineState );
 		void BindPipelineState( ID3D12GraphicsCommandList6& commandList, ComputePipelineState* pipelineState );
+		void BindPipelineState( ID3D12GraphicsCommandList6& commandList, RaytracingPipelineState* pipelineState );
 
 		void BindBindlessResources( ID3D12GraphicsCommandList6& commandList, D3D12GlobalDescriptorHeap& descriptorHeap, GlobalConstantBuffers& globalConstantBuffers, ShaderBindings& shaderBindings );
 		void BindShaderResources( ID3D12GraphicsCommandList6& commandList, D3D12GlobalDescriptorHeap& descriptorHeap, GlobalConstantBuffers& globalConstantBuffers, ShaderBindings& shaderBindings );
@@ -51,6 +53,7 @@ namespace agl
 		D3D12_INDEX_BUFFER_VIEW m_indexBufferView = {};
 
 		ID3D12PipelineState* m_pipelineState = nullptr;
+		ID3D12StateObject* m_stateObject = nullptr;
 
 		D3D12_VIEWPORT m_viewports[D3D12_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE] = {};
 		uint32 m_numViewports = 0;

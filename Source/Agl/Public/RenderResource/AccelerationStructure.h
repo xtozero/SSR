@@ -36,5 +36,7 @@ namespace agl
     {
     public:
         AGL_DLL static RefHandle<TLAS> Create( const TLASDesc& desc, const char* debugName );
+
+        virtual Buffer* Resource() const = 0;
     };
 }

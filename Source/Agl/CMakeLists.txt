@@ -7,7 +7,7 @@ set (COMMON_HEADER
 	Public/Common/GraphicsApiResource.h
 	Public/Common/IAgl.h
 	Public/Common/ICommandList.h
-	Public/Common/IRenderResourceManager.h)
+	Public/Common/IResourceManager.h)
 
 set (COMMON_SOURCE
 	Private/Common/GraphicsApiResource.cpp)
@@ -81,6 +81,8 @@ set (D3D12_RENDER_RESOURCE_HEADER
 	Public/D3D12/D3D12PipelineState.h
 	Public/D3D12/D3D12Query.h
 	Public/D3D12/D3D12RasterizerState.h
+	Public/D3D12/D3D12RaytracingPipelineState.h
+	Public/D3D12/D3D12RaytracingShaderTable.h
 	Public/D3D12/D3D12ResourceAllocator.h
 	Public/D3D12/D3D12ResourceManager.h
 	Public/D3D12/D3D12ResourceUploader.h
@@ -109,6 +111,8 @@ set (D3D12_RENDER_RESOURCE_SOURCE
 	Private/D3D12/D3D12PipelineState.cpp
 	Private/D3D12/D3D12Query.cpp
 	Private/D3D12/D3D12RasterizerState.cpp
+	Private/D3D12/D3D12RaytracingPipelineState.cpp
+	Private/D3D12/D3D12RaytracingShaderTable.cpp
 	Private/D3D12/D3D12ResourceAllocator.cpp
 	Private/D3D12/D3D12ResourceManager.cpp
 	Private/D3D12/D3D12ResourceUploader.cpp
@@ -145,6 +149,8 @@ set (RENDER_RESOURCE_HEADER
 	Public/RenderResource/GlobalConstantBuffers.h
 	Public/RenderResource/PipelineState.h
 	Public/RenderResource/Query.h
+	Public/RenderResource/RaytracingPipelineState.h
+	Public/RenderResource/RaytracingShaderTable.h
 	Public/RenderResource/ResourceViews.h
 	Public/RenderResource/ShaderBindings.h
 	Public/RenderResource/ShaderParameterInfo.h
@@ -160,6 +166,8 @@ set (RENDER_RESOURCE_SOURCE
 	Private/RenderResource/GlobalConstantBuffers.cpp
 	Private/RenderResource/PipelineState.cpp
 	Private/RenderResource/Query.cpp
+	Private/RenderResource/RaytracingPipelineState.cpp
+	Private/RenderResource/RaytracingShaderTable.cpp
 	Private/RenderResource/ResourceViews.cpp
 	Private/RenderResource/ShaderParameterMap.cpp
 	Private/RenderResource/ShaderResource.cpp

@@ -5,7 +5,7 @@
 #include "GameObject/GameObject.h"
 //#include "Model/IModelBuilder.h"
 //#include "Render/IRenderer.h"
-//#include "Render/IRenderResourceManager.h"
+//#include "Render/IResourceManager.h"
 
 namespace logic
 {

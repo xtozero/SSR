@@ -380,7 +380,7 @@ namespace rendercore
 
 	void RayGenerationShader::CreateShader()
 	{
-		m_shader = agl::RayGenerationShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
+		m_shader = agl::RayGenerationShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo, m_exportName ).Get();
 		m_shader->SetHash( m_hash );
 
 		EnqueueRenderTask(
@@ -413,7 +413,7 @@ namespace rendercore
 
 	void IntersectionShader::CreateShader()
 	{
-		m_shader = agl::IntersectionShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
+		m_shader = agl::IntersectionShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo, m_exportName ).Get();
 		m_shader->SetHash( m_hash );
 
 		EnqueueRenderTask(
@@ -446,7 +446,7 @@ namespace rendercore
 
 	void AnyHitShader::CreateShader()
 	{
-		m_shader = agl::AnyHitShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
+		m_shader = agl::AnyHitShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo, m_exportName ).Get();
 		m_shader->SetHash( m_hash );
 
 		EnqueueRenderTask(
@@ -479,7 +479,7 @@ namespace rendercore
 
 	void ClosestHitShader::CreateShader()
 	{
-		m_shader = agl::ClosestHitShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
+		m_shader = agl::ClosestHitShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo, m_exportName ).Get();
 		m_shader->SetHash( m_hash );
 
 		EnqueueRenderTask(
@@ -512,7 +512,7 @@ namespace rendercore
 
 	void MissShader::CreateShader()
 	{
-		m_shader = agl::MissShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
+		m_shader = agl::MissShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo, m_exportName ).Get();
 		m_shader->SetHash( m_hash );
 
 		EnqueueRenderTask(
@@ -545,7 +545,7 @@ namespace rendercore
 
 	void CallableShader::CreateShader()
 	{
-		m_shader = agl::CallableShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
+		m_shader = agl::CallableShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo, m_exportName ).Get();
 		m_shader->SetHash( m_hash );
 
 		EnqueueRenderTask(
